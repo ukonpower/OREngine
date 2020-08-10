@@ -1,0 +1,52 @@
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>OREngine - Basic</title>
+</head>
+
+<style>
+
+	* {
+		padding: 0;
+		margin: 0;
+		box-sizing: border-box;
+	}
+	
+	body {
+		width: 100%;
+		height: 100%;
+		overflow: hidden;
+	}
+	
+	#canvas {
+		width: 100%;
+		height: 100%;
+	}
+	
+</style>
+
+<body>
+	
+	<canvas id="canvas"></canvas>
+	
+	<script type="module">
+
+		import * as OREngine from '../build/orengine.module.js';
+
+		let renderer = new OREngine.Renderer( {
+			canvas: document.querySelector( "#canvas" )
+		} );
+
+		render();
+		
+		function render() {
+
+			requestAnimationFrame( render );
+			
+		}
+		
+	</script>
+
+</body>
+</html>
