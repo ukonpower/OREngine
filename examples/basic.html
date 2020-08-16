@@ -40,6 +40,26 @@
 
 		render();
 		
+		let a = new OREngine.Matrix4().set( 
+			[
+				2, 11, 23, 41,
+				3, 13, 29, 43,
+				5, 17, 31, 47,
+				7, 19, 37, 53,
+			] );
+
+		let b = new OREngine.Matrix4().set( 
+			[
+				59, 73, 97, 109,
+				61, 79, 101, 113,
+				67, 83, 103, 127,
+				71, 89, 107, 131
+			] );
+		
+		a.multiply( b );
+
+		console.log( a );
+		
 		function render() {
 
 			requestAnimationFrame( render );
