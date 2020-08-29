@@ -5,8 +5,32 @@ export class Vector2 {
 
 	constructor( x: number, y: number ) {
 
+		this.set( x, y );
+
+	}
+
+
+	public set( x: number, y: number ) {
+
 		this.x = x || 0;
 		this.y = y || 0;
+
+		return this;
+
+	}
+
+	public copy( v: Vector2 ) {
+
+		this.x = v.x;
+		this.y = v.y;
+
+		return this;
+
+	}
+
+	public clone() {
+
+		return new Vector2( this.x, this.y );
 
 	}
 
@@ -81,22 +105,5 @@ export class Vector2 {
 		return this;
 
 	}
-
-
-	public copy( v: Vector2 ) {
-
-		this.x = v.x;
-		this.y = v.y;
-
-		return this;
-
-	}
-
-	public clone() {
-
-		return new Vector2( this.x, this.y );
-
-	}
-
 
 }
