@@ -1,0 +1,22 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"editor.formatOnSave": true,
+		"editor.insertSpaces": false,
+		"editor.tabSize": 4,
+		"editor.detectIndentation": true,
+		"eslint.nodePath": "./node_modules/eslint",
+		"editor.codeActionsOnSave": {
+			"source.fixAll": "explicit",
+			"source.addMissingImports": "explicit"
+		},
+		"[typescript]": {
+			"editor.formatOnSave": false
+		},
+		"files.eol": "\n"
+	}
+}
