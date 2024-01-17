@@ -12,13 +12,8 @@ module.exports = {
   rules: {
 	"@typescript-eslint/no-unused-vars": "off",
 	"indent": ["error", "tab"],
-	"import/order": [
-		2,
-		{
-			"alphabetize": { "order": "asc" },
-			"newlines-between": "always",
-		}
-	]
+	'@typescript-eslint/no-explicit-any': 'off',
+	"no-self-assign": 'off',
   },
   overrides: [
 	{

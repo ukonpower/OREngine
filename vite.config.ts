@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react';
 import shaderminifier from './plugins/shader-minifier-loader';
 import { visualizer } from 'rollup-plugin-visualizer';
 
-const basePath = `/`;
+const basePath = ``;
 
 // https://vitejs.dev/config/
 export default defineConfig( {

@@ -6,9 +6,10 @@ import branchFrag from './shaders/branch.fs';
 import plantFrag from './shaders/plant.fs';
 import plantVert from './shaders/plant.vs';
 
-import { pane, power } from '~/ts/Globals';
+import { gl, pane, power } from '~/ts/Globals';
 import { randomSeed } from '../../utils/Math';
 import { Modeler } from '../../utils/Modeler';
+import { paneRegister } from '../../utils/Pane';
 
 let PlantParam = {
 	root: {
@@ -221,7 +222,7 @@ export class Plant extends MXP.Entity {
 
 		// assets
 
-		const loader = new MXP.GLTFLoader();
+		const loader = new MXP.GLTFLoader( gl );
 
 		loader.load( BASE_PATH + "/scene.glb" ).then( gltf => {
 

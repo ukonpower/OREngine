@@ -17,7 +17,7 @@ export const router = ( node: MXP.BLidgeNode ) => {
 
 	} else if ( node.class == "Plant" ) {
 
-		return new ChristmasTree();
+		// return new ChristmasTree();
 
 	}
 
