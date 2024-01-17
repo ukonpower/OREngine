@@ -2,7 +2,7 @@ import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
 import skyboxFrag from './shaders/skybox.fs';
-import { globalUniforms } from '../../../Globals';
+import { globalUniforms } from '~/ts/Globals';
 
 export class Skybox extends MXP.Entity {
 

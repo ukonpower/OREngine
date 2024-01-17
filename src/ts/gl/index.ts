@@ -1,183 +1,87 @@
 import * as GLP from 'glpower';
-import * as MXP from 'maxpower';
+import { canvas, gpuState } from '../Globals';
+import { Scene } from './Scene';
 
-import { MainCamera } from './Entities/MainCamera';
-import { Renderer } from './Renderer';
-import { createTextures } from './Textures';
-import { Carpenter } from './Carpenter';
-import { blidge, gl, globalUniforms } from '../Globals';
-import { FrameDebugger } from './utils/FrameDebugger';
+export class GL {
 
-type SceneUpdateParam = {
-	forceDraw: boolean
-}
-
-export class GL extends GLP.EventEmitter {
-
-	public currentTime: number;
-	public elapsedTime: number;
-	public deltaTime: number;
-
-	private root: MXP.Entity;
-	private camera: MainCamera;
-	private renderer: Renderer;
-
-	// bufferView
-
-	private cameraComponent: MXP.RenderCamera;
-	private frameDebugger?: FrameDebugger;
-
-	// carpenter
-
-	private carpenter: Carpenter;
+	private scene: Scene;
+	public canvas: HTMLCanvasElement;
+	private disposed: boolean = false;
 
 	constructor() {
 
-		super();
+		this.canvas = canvas;
 
-		// state
+		// scene
 
-		this.currentTime = new Date().getTime();
-		this.elapsedTime = 0;
-		this.deltaTime = 0;
+		this.scene = new Scene();
 
-		// textures
+		// event
 
-		createTextures();
+		window.addEventListener( 'resize', this.resize.bind( this ) );
 
-		// root
+		this.resize();
 
-		this.root = new MXP.Entity();
+		// animate
 
-		// camera
-
-		this.camera = new MainCamera();
-		this.camera.position.set( 0, 1, 10 );
-		this.root.add( this.camera );
-
-		this.cameraComponent = this.camera.getComponent<MXP.RenderCamera>( 'camera' )!;
-
-		// carpenter
-
-		this.carpenter = new Carpenter( this.root, this.camera );
-
-		blidge.on( "event/export_gltf", () => {
-
-			window.location.reload();
-
-		} );
-
-		// renderer
-
-		this.renderer = new Renderer( );
-		this.root.add( this.renderer );
-
-		// buffers
-
-		if ( process.env.NODE_ENV == "development" ) {
-
-			const frameDebugger = new FrameDebugger( gl );
-
-			window.addEventListener( "keydown", ( e ) => {
-
-				if ( e.key == "d" ) {
-
-					frameDebugger.enable = ! frameDebugger.enable;
-					this.cameraComponent.displayOut = ! frameDebugger.enable;
-
-					queueMicrotask( () => {
-
-						frameDebugger.reflesh();
-
-					} );
-
-				}
-
-			} );
-
-			this.renderer.on( 'drawPass', ( rt?: GLP.GLPowerFrameBuffer, label?: string ) => {
-
-				if ( this.frameDebugger && this.frameDebugger.enable && rt ) {
-
-					this.frameDebugger.push( rt, label );
-
-				}
-
-			} );
-
-			this.frameDebugger = frameDebugger;
-
-		}
+		this.animate();
 
 	}
 
-	public update( param?: SceneUpdateParam ) {
+	private beforeDate?: number;
 
-		const currentTime = new Date().getTime();
-		this.deltaTime = ( currentTime - this.currentTime ) / 1000;
-		this.elapsedTime += this.deltaTime;
-		this.currentTime = currentTime;
+	private animate() {
 
-		globalUniforms.time.uTime.value = this.elapsedTime;
-		globalUniforms.time.uFractTime.value = this.elapsedTime % 1;
+		if ( this.disposed ) return;
 
-		const event: MXP.EntityUpdateEvent = {
-			time: this.elapsedTime,
-			deltaTime: this.deltaTime,
-			forceDraw: param && param.forceDraw
-		};
+		// if ( gpuState ) {
 
-		this.root.update( event );
+		// 	gpuState.update();
 
-		const renderStack = this.root.finalize( event );
+		// }
 
-		this.renderer.render( renderStack );
+		this.beforeDate = new Date().getTime();
 
-		if ( process.env.NODE_ENV == "development" ) {
+		this.scene.update();
 
-			if ( this.frameDebugger && this.frameDebugger.enable ) {
+		// if ( gpuState ) {
 
-				this.frameDebugger.draw();
+		// 	const current = new Date().getTime();
+		// 	gpuState.setRenderTime( "cpuTotal", ( current - ( this.beforeDate || 0 ) ) );
+		// 	this.beforeDate = current;
 
-			}
+		// }
 
-		}
-
-		return this.deltaTime;
+		window.requestAnimationFrame( this.animate.bind( this ) );
 
 	}
 
-	public resize( resolution: GLP.Vector ) {
+	private resize() {
 
-		this.renderer.resize( resolution );
+		const canvasAspect = window.innerWidth / window.innerHeight;
 
-		this.camera.resize( resolution );
+		let scale = canvasAspect < 1.0 ? Math.min( 1.5, window.devicePixelRatio ) : 1.0;
 
-		if ( process.env.NODE_ENV == "development" ) {
+		scale *= 1.0;
 
-			if ( this.frameDebugger ) {
+		const blkRatioX = canvasAspect < 1.0 ? 0.8 : 1.0;
+		const blkRatioY = canvasAspect < 1.0 ? 0.7 : 0.7;
 
-				this.frameDebugger.resize( resolution );
+		const width = window.innerWidth * blkRatioX;
+		const height = window.innerHeight * blkRatioY;
 
-			}
+		this.canvas.width = width * scale;
+		this.canvas.height = height * scale;
 
-		}
-
-	}
-
-	public play( startTime: number ) {
-
-		this.update();
-
-		this.elapsedTime = startTime;
-
-		this.emit( 'play' );
+		this.scene.resize( new GLP.Vector( this.canvas.width, this.canvas.height ) );
 
 	}
 
 	public dispose() {
 
-		this.emit( 'dispose' );
+		this.disposed = true;
+
+		this.scene.dispose();
 
 	}
 

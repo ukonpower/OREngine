@@ -1,6 +1,5 @@
 import { createContext, useEffect, useState } from 'react';
 import { GL } from '~/ts/gl';
-import { HooksContext } from '~/vite-env';
 
 export const GLContext = createContext<HooksContext<typeof useGL>>({})
 
