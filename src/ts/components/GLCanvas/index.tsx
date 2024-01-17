@@ -13,7 +13,6 @@ export const GLCanvas = () => {
 			const canvas = wrapperElmRef.current.querySelectorAll('canvas')
 			canvas.forEach(item => item.remove())
 			wrapperElmRef.current.appendChild(gl.canvas)
-			gl.setWrapperElm( wrapperElmRef.current)
 		}
 	}, [wrapperElmRef, gl])
 

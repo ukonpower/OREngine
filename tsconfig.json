@@ -5,7 +5,8 @@
     "lib": [
       "ES2020",
       "DOM",
-      "DOM.Iterable"
+      "DOM.Iterable",
+      "es2021"
     ],
     "module": "ESNext",
     "skipLibCheck": true,

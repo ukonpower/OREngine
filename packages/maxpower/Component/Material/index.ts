@@ -9,6 +9,7 @@ type MaterialProgramCache = {[K in MaterialRenderType]?: GLP.GLPowerProgram}
 
 import basicVert from './shaders/basic.vs';
 import basicFrag from './shaders/basic.fs';
+import { gl } from '~/ts/Globals';
 
 export type MaterialParam = {
 	name?: string,
@@ -66,7 +67,7 @@ export class Material extends Component {
 		this.useLight = true;
 		this.depthTest = opt.depthTest !== undefined ? opt.depthTest : true;
 		this.cullFace = opt.cullFace !== undefined ? opt.cullFace : true;
-		this.drawType = opt.drawType !== undefined ? opt.drawType : 0;
+		this.drawType = opt.drawType !== undefined ? opt.drawType : gl.TRIANGLES;
 		this.programCache = {};
 
 	}

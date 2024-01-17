@@ -5,7 +5,6 @@ import { gl, gpuState, power } from "~/ts/Globals";
 import { ProgramManager } from "./ProgramManager";
 import { shaderParse } from "./ShaderParser";
 import { DeferredPostProcess } from './DeferredPostProcess';
-import { RenderCamera } from '~/ts/libs/maxpower/Component/Camera/RenderCamera';
 
 export type RenderStack = {
 	light: MXP.Entity[];
@@ -262,7 +261,7 @@ export class Renderer extends MXP.Entity {
 		for ( let i = 0; i < stack.camera.length; i ++ ) {
 
 			const cameraEntity = stack.camera[ i ];
-			const cameraComponent = cameraEntity.getComponent<RenderCamera>( 'camera' )!;
+			const cameraComponent = cameraEntity.getComponent<MXP.RenderCamera>( 'camera' )!;
 
 			// deferred
 
