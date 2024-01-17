@@ -9,7 +9,7 @@ import plantVert from './shaders/plant.vs';
 
 import ornamentFrag from './shaders/ornament.fs';
 
-import { pane, power } from '~/ts/Globals';
+import { gl, pane, power } from '~/ts/Globals';
 import { randomSeed } from '../../utils/Math';
 import { Modeler } from '../../utils/Modeler';
 import { paneRegister } from '../../utils/Pane';
@@ -303,9 +303,9 @@ export class ChristmasTree extends MXP.Entity {
 
 		// assets
 
-		const loader = new MXP.GLTFLoader();
+		const loader = new MXP.GLTFLoader( gl );
 
-		loader.load( BASE_PATH + "/scene.glb" ).then( gltf => {
+		loader.load( BASE_PATH + "/assets/scene.glb" ).then( gltf => {
 
 			const leaf = gltf.scene.getEntityByName( "LeafPine" );
 
