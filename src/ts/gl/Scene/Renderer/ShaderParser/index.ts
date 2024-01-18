@@ -1,17 +1,18 @@
+import { CollectedLights } from '..';
+
 import common from './shaderModules/common.module.glsl';
-import sdf from './shaderModules/sdf.module.glsl';
-import noise from './shaderModules/noise.module.glsl';
-import rotate from './shaderModules/rotate.module.glsl';
-import light_h from './shaderModules/light_h.module.glsl';
-import light from './shaderModules/light.module.glsl';
-import re from './shaderModules/re.module.glsl';
-import vert_h from './shaderModules/vert_h.module.glsl';
-import vert_in from './shaderModules/vert_in.module.glsl';
-import vert_out from './shaderModules/vert_out.module.glsl';
 import frag_h from './shaderModules/frag_h.module.glsl';
 import frag_in from './shaderModules/frag_in.module.glsl';
 import frag_out from './shaderModules/frag_out.module.glsl';
-import { CollectedLights } from '..';
+import light from './shaderModules/light.module.glsl';
+import light_h from './shaderModules/light_h.module.glsl';
+import noise from './shaderModules/noise.module.glsl';
+import re from './shaderModules/re.module.glsl';
+import rotate from './shaderModules/rotate.module.glsl';
+import sdf from './shaderModules/sdf.module.glsl';
+import vert_h from './shaderModules/vert_h.module.glsl';
+import vert_in from './shaderModules/vert_in.module.glsl';
+import vert_out from './shaderModules/vert_out.module.glsl';
 
 type Defines = {[key:string]: number | string} | undefined;
 

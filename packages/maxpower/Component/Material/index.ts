@@ -7,9 +7,10 @@ type MaterialDefines = {[key: string]: any};
 type MaterialVisibility = {[K in MaterialRenderType]?: boolean}
 type MaterialProgramCache = {[K in MaterialRenderType]?: GLP.GLPowerProgram}
 
-import basicVert from './shaders/basic.vs';
 import basicFrag from './shaders/basic.fs';
-import { gl } from '~/ts/Globals';
+import basicVert from './shaders/basic.vs';
+
+export type DrawType = 'TRIANGLES' | 'LINES' | 'POINTS';
 
 export type MaterialParam = {
 	name?: string,
@@ -21,7 +22,7 @@ export type MaterialParam = {
 	depthTest?: boolean;
 	cullFace? :boolean;
 	blending?: boolean,
-	drawType?: number;
+	drawType?: DrawType;
 }
 
 export class Material extends Component {
@@ -37,7 +38,7 @@ export class Material extends Component {
 	public useLight: boolean;
 	public depthTest: boolean;
 	public cullFace: boolean;
-	public drawType: number;
+	public drawType: DrawType;
 
 	public visibilityFlag: MaterialVisibility;
 	public programCache: MaterialProgramCache;
@@ -67,7 +68,7 @@ export class Material extends Component {
 		this.useLight = true;
 		this.depthTest = opt.depthTest !== undefined ? opt.depthTest : true;
 		this.cullFace = opt.cullFace !== undefined ? opt.cullFace : true;
-		this.drawType = opt.drawType !== undefined ? opt.drawType : gl.TRIANGLES;
+		this.drawType = opt.drawType !== undefined ? opt.drawType : "TRIANGLES";
 		this.programCache = {};
 
 	}

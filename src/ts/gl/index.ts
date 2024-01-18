@@ -1,5 +1,7 @@
 import * as GLP from 'glpower';
-import { canvas, gpuState } from '../Globals';
+
+import { canvas } from '../Globals';
+
 import { Scene } from './Scene';
 
 export class GL {
@@ -64,11 +66,8 @@ export class GL {
 
 		scale *= 1.0;
 
-		const blkRatioX = canvasAspect < 1.0 ? 0.8 : 1.0;
-		const blkRatioY = canvasAspect < 1.0 ? 0.7 : 0.7;
-
-		const width = window.innerWidth * blkRatioX;
-		const height = window.innerHeight * blkRatioY;
+		const width = window.innerWidth;
+		const height = window.innerHeight;
 
 		this.canvas.width = width * scale;
 		this.canvas.height = height * scale;
