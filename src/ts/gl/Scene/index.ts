@@ -1,11 +1,12 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
+import { blidge, canvas, gl, globalUniforms } from '../../Globals';
+
+import { Carpenter } from './Carpenter';
 import { MainCamera } from './Entities/MainCamera';
 import { Renderer } from './Renderer';
 import { createTextures } from './Textures';
-import { Carpenter } from './Carpenter';
-import { blidge, canvas, gl, globalUniforms } from '../../Globals';
 import { FrameDebugger } from './utils/FrameDebugger';
 
 type SceneUpdateParam = {

@@ -1,10 +1,15 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { gl, gpuState, power } from "~/ts/Globals";
+import { getDrawType } from '../utils/globalFunc';
+
+import { DeferredPostProcess } from './DeferredPostProcess';
 import { ProgramManager } from "./ProgramManager";
 import { shaderParse } from "./ShaderParser";
-import { DeferredPostProcess } from './DeferredPostProcess';
+
+import { gl, gpuState, power } from "~/ts/Globals";
+
+// render stack
 
 export type RenderStack = {
 	light: MXP.Entity[];
@@ -17,6 +22,8 @@ export type RenderStack = {
 	gpuCompute: MXP.Entity[];
 }
 
+// light
+
 type LightInfo = {
 	position: GLP.Vector;
 	direction: GLP.Vector;
@@ -25,6 +32,8 @@ type LightInfo = {
 }
 
 export type CollectedLights = {[K in MXP.LightType]: LightInfo[]}
+
+// drawParam
 
 type CameraOverride = {
 	viewMatrix?: GLP.Matrix;
@@ -39,16 +48,19 @@ type CameraOverride = {
 
 type DrawParam = CameraOverride & { modelMatrixWorld?: GLP.Matrix, modelMatrixWorldPrev?: GLP.Matrix }
 
+// state
+
 type GPUState = {
 	key: string,
 	command: number,
 	state: boolean,
 }[]
 
-export let textureUnit = 0;
+// texture unit
+
+export let TextureUnitCounter = 0;
 
 export class Renderer extends MXP.Entity {
-
 
 	private canvasSize: GLP.Vector;
 
@@ -537,7 +549,7 @@ export class Renderer extends MXP.Entity {
 
 	private draw( drawId: string, renderType: MXP.MaterialRenderType, geometry: MXP.Geometry, material: MXP.Material, param?: DrawParam ) {
 
-		textureUnit = 0;
+		TextureUnitCounter = 0;
 
 		// status
 
@@ -661,7 +673,7 @@ export class Renderer extends MXP.Entity {
 
 				if ( dLight.component.renderTarget ) {
 
-					const texture = dLight.component.renderTarget.textures[ 0 ].activate( textureUnit ++ );
+					const texture = dLight.component.renderTarget.textures[ 0 ].activate( TextureUnitCounter ++ );
 
 					program.setUniform( 'directionalLightCamera[' + i + '].near', '1fv', [ dLight.component.near ] );
 					program.setUniform( 'directionalLightCamera[' + i + '].far', '1fv', [ dLight.component.far ] );
@@ -694,7 +706,7 @@ export class Renderer extends MXP.Entity {
 
 				if ( sLight.component.renderTarget ) {
 
-					const texture = sLight.component.renderTarget.textures[ 0 ].activate( textureUnit ++ );
+					const texture = sLight.component.renderTarget.textures[ 0 ].activate( TextureUnitCounter ++ );
 
 					program.setUniform( 'spotLightCamera[' + i + '].near', '1fv', [ sLight.component.near ] );
 					program.setUniform( 'spotLightCamera[' + i + '].far', '1fv', [ sLight.component.far ] );
@@ -791,15 +803,17 @@ export class Renderer extends MXP.Entity {
 
 				}
 
+				const drawType = getDrawType( material.drawType );
+
 				if ( vao.instanceCount > 0 ) {
 
 					if ( indexBuffer ) {
 
-						gl.drawElementsInstanced( material.drawType, vao.indexCount, indexBufferArrayType, 0, vao.instanceCount );
+						gl.drawElementsInstanced( drawType, vao.indexCount, indexBufferArrayType, 0, vao.instanceCount );
 
 					} else {
 
-						gl.drawArraysInstanced( material.drawType, 0, vao.vertCount, vao.instanceCount );
+						gl.drawArraysInstanced( drawType, 0, vao.vertCount, vao.instanceCount );
 
 					}
 
@@ -807,11 +821,11 @@ export class Renderer extends MXP.Entity {
 
 					if ( indexBuffer ) {
 
-						gl.drawElements( material.drawType, vao.indexCount, indexBufferArrayType, 0 );
+						gl.drawElements( drawType, vao.indexCount, indexBufferArrayType, 0 );
 
 					} else {
 
-						gl.drawArrays( material.drawType, 0, vao.vertCount );
+						gl.drawArrays( drawType, 0, vao.vertCount );
 
 					}
 
@@ -881,7 +895,7 @@ export const setUniforms = ( program: GLP.GLPowerProgram, uniforms: GLP.Uniforms
 
 			} else if ( 'isTexture' in v ) {
 
-				v.activate( textureUnit ++ );
+				v.activate( TextureUnitCounter ++ );
 
 				arrayValue.push( v.unit );
 

@@ -23,7 +23,7 @@ export class LookAt extends MXP.Component {
 
 	}
 
- 	public setTarget( target: MXP.Entity | null ) {
+	public setTarget( target: MXP.Entity | null ) {
 
 		this.target = target;
 
