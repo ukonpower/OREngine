@@ -11,11 +11,6 @@ export type PanelProps = {
 export const Panel = ( props: PanelProps ) => {
 
 	return <div className={style.panel} style={{ backgroundColor: props.bgColor }}>
-		{! props.noHeader && <div className={style.header}>
-			<div className={style.header_title}>
-				{props.title}
-			</div>
-		</div>}
 		<div className={style.content} style={{ padding: props.noPadding ? "0 0" : undefined }}>
 			{props.children}
 		</div>

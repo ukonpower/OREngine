@@ -1,7 +1,7 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { gl, globalUniforms, power } from "~/ts/Globals";
+import { canvas, gl, globalUniforms, power } from "~/ts/Globals";
 import { ShakeViewer } from '../../Components/ShakeViewer';
 import { LookAt } from '../../Components/LookAt';
 
@@ -105,7 +105,7 @@ export class MainCamera extends MXP.Entity {
 		this.cameraComponent = this.addComponent( "camera", new MXP.RenderCamera( gl ) );
 		this.renderTarget = this.cameraComponent.renderTarget;
 
-		this.addComponent( "controls", new OrbitControls( window.document.body ) );
+		this.addComponent( "controls", new OrbitControls( canvas ) );
 		const lookAt = this.addComponent( 'lookAt', new LookAt() );
 		this.addComponent( 'shakeViewer', new ShakeViewer( 0.1, 1.0 ) );
 		// this.addComponent( "rotate", new RotateViewer( 1 ) );

@@ -1,13 +1,21 @@
 import { Panel } from '../../ui/Panel';
+import { PanelContainer } from '../../ui/PanelContainer';
 
 import style from './index.module.scss';
 
 export const Controls = () => {
 
-	return <Panel title='Controls'>
-		<div className={style.controls}>
-			aaa
-		</div>
-	</Panel>;
+	return <PanelContainer >
+		<Panel title='Assets'>
+			<div className={style.controls}>
+				Assets
+			</div>
+		</Panel>
+		<Panel title='Timeline'>
+			<div className={style.controls}>
+			Timeline
+			</div>
+		</Panel>
+	</PanelContainer>;
 
 };

@@ -14,6 +14,8 @@ module.exports = {
 		"indent": [ "error", "tab" ],
 		"no-self-assign": 'off',
 		"no-multiple-empty-lines": "error",
+		"no-constant-condition": "off",
+		"no-unreachable": "off",
 		"@typescript-eslint/no-unused-vars": "off",
 		'@typescript-eslint/no-explicit-any': 'off',
 		"import/order": [

@@ -1,8 +1,9 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import SceneData from './scene/scene.json';
 import { router } from './router';
+import SceneData from './scene/scene.json';
+
 import { blidge } from '~/ts/Globals';
 
 export class Carpenter extends GLP.EventEmitter {
@@ -39,7 +40,7 @@ export class Carpenter extends GLP.EventEmitter {
 		blidge.on( 'sync/timeline', ( frame: MXP.BLidgeFrame ) => {
 		} );
 
-		if ( process.env.NODE_ENV == "development" ) {
+		if ( process.env.NODE_ENV == "development" && false ) {
 
 			blidge.connect( 'ws://localhost:3100', BASE_PATH + "/scene.glb" );
 
