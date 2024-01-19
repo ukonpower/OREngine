@@ -5,7 +5,6 @@ export const canvas = document.createElement( "canvas" );
 export const gl = canvas.getContext( 'webgl2', { antialias: false } )!;
 export const power = new GLP.Power( gl );
 export const blidge = new MXP.BLidge( gl );
-export const pane = new Pane();
 
 export const globalUniforms: {[key: string]: GLP.Uniforms} = {
 	time: {
@@ -50,8 +49,6 @@ export const globalUniforms: {[key: string]: GLP.Uniforms} = {
 /*-------------------------------
 	DEBUG
 -------------------------------*/
-
-import { Pane } from 'tweakpane';
 
 import { GPUState } from '../gl/Scene/utils/GPUState';
 export let gpuState: GPUState | undefined = undefined;

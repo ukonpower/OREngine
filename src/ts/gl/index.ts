@@ -7,13 +7,18 @@ import { Scene } from './Scene';
 export class GL {
 
 	private scene: Scene;
+
 	public canvas: HTMLCanvasElement;
-	public canvasWrapElm: HTMLElement;
+	public canvasWrapElm: HTMLElement | null = null;
+
+	private resolutionScale: number = 1.0;
+
 	private disposed: boolean = false;
 
-	constructor( canvasWrapElm: HTMLElement ) {
+	constructor() {
 
-		this.canvasWrapElm = canvasWrapElm;
+		// canvas
+
 		this.canvas = canvas;
 
 		// scene
@@ -60,22 +65,42 @@ export class GL {
 
 	}
 
+	public setWrapperElm( elm: HTMLElement ) {
+
+		this.canvasWrapElm = elm;
+
+		this.resize();
+
+	}
+
 	private resize() {
 
-		const cWidth = this.canvasWrapElm.clientWidth;
-		const cHeight = this.canvasWrapElm.clientHeight;
+		const wrapWidth = this.canvasWrapElm ? this.canvasWrapElm.clientWidth : 16;
+		const wrapHeight = this.canvasWrapElm ? this.canvasWrapElm.clientHeight : 16;
 
-		const canvasAspect = cWidth / this.canvasWrapElm.clientWidth;
+		let canvasWidth = wrapWidth;
+		let canvasHeight = wrapHeight;
 
-		let scale = canvasAspect < 1.0 ? Math.min( 1.5, window.devicePixelRatio ) : 1.0;
+		const canvasPixelWidth = 1920;
+		const canvasPixelHeight = 1080;
 
-		scale *= 1.0;
+		const canvasAspect = canvasPixelWidth / canvasPixelHeight;
 
-		const width = cWidth;
-		const height = cHeight;
+		if ( canvasAspect < wrapWidth / wrapHeight ) {
 
-		this.canvas.width = width * scale;
-		this.canvas.height = height * scale;
+			canvasWidth = wrapHeight * canvasAspect;
+
+		} else {
+
+			canvasHeight = wrapWidth / canvasAspect;
+
+		}
+
+		this.canvas.style.width = canvasWidth + 'px';
+		this.canvas.style.height = canvasHeight + 'px';
+
+		this.canvas.width = canvasPixelWidth * this.resolutionScale;
+		this.canvas.height = canvasPixelHeight * this.resolutionScale;
 
 		this.scene.resize( new GLP.Vector( this.canvas.width, this.canvas.height ) );
 

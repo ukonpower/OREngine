@@ -1,13 +1,15 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
+import { RenderCameraTarget } from 'packages/maxpower/Component/Camera/RenderCamera';
 
+import { gaussWeights } from '../../utils/Math';
 
+import deferredShadingFrag from './shaders/deferredShading.fs';
 import lightShaftFrag from './shaders/lightShaft.fs';
 import ssaoFrag from './shaders/ssao.fs';
 import ssaoBlurFrag from './shaders/ssaoBlur.fs';
-import deferredShadingFrag from './shaders/deferredShading.fs';
-import { gaussWeights } from '../../utils/Math';
-import { RenderCameraTarget } from 'packages/maxpower/Component/Camera/RenderCamera';
+
+
 import { gl, power, globalUniforms } from '~/ts/Globals/';
 
 const ssaoKernel = ( kernelSize: number ) => {

@@ -1,10 +1,25 @@
+@use './variables' as *;
+
 * {
 	margin: 0;
 	box-sizing: border-box;
+
+	&::-webkit-scrollbar {
+		width: 5px;
+	}
+
+	&::-webkit-scrollbar-track {
+		background-color: $bgCol1;
+	}
+
+	&::-webkit-scrollbar-thumb {
+		background-color: $bgCol2;
+	}
 }
 
 html,
 body {
 	background-color: #000;
+	color: $fontCol1;
 	width: 100%;
 }

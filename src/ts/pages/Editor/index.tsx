@@ -1,7 +1,7 @@
 import style from './index.module.scss';
 
-import { Controls } from '~/ts/components/Controls';
-import { PropertyEditor } from '~/ts/components/PropertyEditor';
+import { Controls } from '~/ts/components/func/Controls';
+import { PropertyEditor } from '~/ts/components/func/PropertyEditor';
 import { GLCanvas } from '~/ts/gl/GLCanvas';
 import { useGL, GLContext } from '~/ts/gl/useGL';
 

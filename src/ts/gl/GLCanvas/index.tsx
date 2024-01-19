@@ -16,12 +16,13 @@ export const GLCanvas = () => {
 			const canvas = wrapperElmRef.current.querySelectorAll( 'canvas' );
 			canvas.forEach( item => item.remove() );
 			wrapperElmRef.current.appendChild( gl.canvas );
+			gl.setWrapperElm( gl.canvas.parentElement! );
+
 
 		}
 
 	}, [ wrapperElmRef, gl ] );
 
-	return <div className={style.glCanvas} ref={wrapperElmRef}>
-	</div>;
+	return <div className={style.glCanvas} ref={wrapperElmRef}></div>;
 
 };
