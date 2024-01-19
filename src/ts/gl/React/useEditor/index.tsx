@@ -23,7 +23,7 @@ export const useEditor = () => {
 
 	// selected
 
-	const [ selected, setSelected ] = useState<MXP.Entity | null>( null );
+	const [ active, setSelected ] = useState<MXP.Entity | null>( null );
 
 	const onChangeSelected = useCallback( ( entity: MXP.Entity ) => {
 
@@ -67,7 +67,7 @@ export const useEditor = () => {
 
 	return {
 		gl,
-		selected,
+		active,
 		rootEntity,
 		counter: refleshCounter
 	};
