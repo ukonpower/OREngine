@@ -4,7 +4,7 @@ import style from './index.module.scss';
 
 import { AssetBrowswer } from '~/ts/components/func/AssetBrowswer';
 import { Hierarchy } from '~/ts/components/func/Hierarchy';
-import { PropertyEditor } from '~/ts/components/func/PropertyEditor';
+import { Property } from '~/ts/components/func/Property';
 import { Screen } from '~/ts/components/func/Screen';
 import { Panel } from '~/ts/components/ui/Panel';
 import { PanelContainer } from '~/ts/components/ui/PanelContainer';
@@ -40,7 +40,7 @@ export const EditorPage = () => {
 						<div className={style.property}>
 							<PanelContainer >
 								<Panel title="Property" >
-									<PropertyEditor />
+									<Property />
 								</Panel>
 							</PanelContainer>
 						</div>

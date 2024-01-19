@@ -1,0 +1,9 @@
+@use '~/styles/common' as *;
+
+.compoView {
+	width: 100%;
+	background-color: $bgCol2;
+	border-radius: 4px;
+	padding: 5px 10px;
+	margin-bottom: 5px;
+}

@@ -1,11 +1,14 @@
 import * as MXP from 'maxpower';
 import { useContext } from 'react';
 
+import { Block } from '../../ui/Block';
+
+import { ComponentView } from './ComponentView';
 import style from './index.module.scss';
 
 import { EditorContext } from '~/ts/gl/React/useEditor';
 
-export const PropertyEditor = () => {
+export const Property = () => {
 
 	const { active } = useContext( EditorContext );
 
@@ -24,14 +27,18 @@ export const PropertyEditor = () => {
 
 	return <div className={style.property}>
 		<div className={style.content}>
-			{active.name}
-			{
-				componentArray.map( ( component, index ) => <div key={index}>
-					{
-						component.key
-					}
-				</div> )
-			}
+			<div className={style.name}>
+				{active.name}
+			</div>
+			<Block title="Components">
+				{
+					componentArray.map( ( component, index ) => {
+
+						return <ComponentView key={index} keyName={component.key} component={component.component}/>;
+
+					} )
+				}
+			</Block>
 		</div>
 	</div>;
 
