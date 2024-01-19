@@ -12,7 +12,7 @@ type HierarchyNodeProps = {
 
 export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 
-	const { gl, selected } = useContext( EditorContext );
+	const { gl, active: selected } = useContext( EditorContext );
 
 	const depth = props.depth || 0;
 	const childs = props.entity.children;
