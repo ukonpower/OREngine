@@ -11,13 +11,16 @@
 
 .header {
 	width: 100%;
-	height: 18px;
+	height: 20px;
 	background-color: $bgCol2;
 	font-size: $fontSize1;
 
 	&_item {
-		display: inline-block;
-		padding: 0 5px;
+		height: 100%;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0 8px;
 		user-select: none;
 
 		&[data-active='true'] {
@@ -31,8 +34,7 @@
 }
 
 .content {
-	padding: $padding;
-	font-size: $fontSize2;
+	font-size: $fontSize1;
 	overflow-y: auto;
 
 	width: 100%;

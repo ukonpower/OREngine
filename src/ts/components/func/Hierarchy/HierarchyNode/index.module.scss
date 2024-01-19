@@ -3,10 +3,77 @@
 .node {
 	color: "#fff";
 	font-size: $fontSize1;
+	color: $fontCol2;
+}
+
+.self {
+	display: flex;
+	height: 22px;
+	cursor: pointer;
+
+	&:hover {
+		background-color: $bgCol2;
+	}
+
+	&[data-selected="true"] {
+		background-color: $bgCol3;
+	}
+
+	&_name {
+		flex: 1;
+		display: flex;
+		align-items: center;
+		padding-left: 2px;
+	}
+}
+
+.fold {
+	width: 20px;
+
+	&:hover {
+		background-color: $bgCol2;
+	}
+
+	&_button {
+		position: relative;
+		display: block;
+		width: 100%;
+		height: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+
+		span {
+			display: block;
+			width: 0;
+			height: 0;
+			border-left: 6px solid $fontCol2;
+			border-top: 4px solid transparent;
+			border-bottom: 4px solid transparent;
+			transition: transform .3s;
+		}
+
+		[data-hnode_open="true"] & {
+			span {
+				transform: rotate(90deg);
+			}
+		}
+	}
 }
 
 .child {
-	padding-left: 10px;
+	position: relative;
+
+	&_line {
+		position: absolute;
+		display: block;
+		top: 0;
+		height: 100%;
+		width: 1px;
+		position: absolute;
+		left: 5px;
+		background-color: $fontCol2;
+	}
 
 	&[data-open="false"] {
 		display: none;

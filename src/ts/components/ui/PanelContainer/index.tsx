@@ -22,7 +22,9 @@ export const PanelContainer = ( props: PanelProps ) => {
 			{childs.map( ( child, index ) => {
 
 				return <div key={index} className={style.header_item} onClick={() => setSelected( index )} data-active={index == selected}>
-					{child.props.title}
+					<p>
+						{child.props.title}
+					</p>
 				</div>;
 
 			} )}

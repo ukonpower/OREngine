@@ -1,34 +1,17 @@
-import * as MXP from 'maxpower';
-import { useContext, useEffect, useState } from "react";
-
-import { Panel } from "../../ui/Panel";
+import { useContext } from "react";
 
 import { HierarchyNode } from './HierarchyNode';
+import style from './index.module.scss';
 
-import { GLContext } from '~/ts/gl/useGL';
+import { EditorContext } from '~/ts/gl/React/useEditor';
+
 
 export const Hierarchy = () => {
 
-	const [ rootEntity, setRoot ] = useState <MXP.Entity>();
+	const { rootEntity } = useContext( EditorContext );
 
-	const { gl } = useContext( GLContext );
-
-	useEffect( () => {
-
-		if ( gl ) {
-
-			setTimeout( () => {
-
-				setRoot( gl.scene.root );
-
-			}, 1000 );
-
-		}
-
-	}, [ gl ] );
-
-	return <Panel title="Hierarchy" >
+	return <div className={style.hierarchy}>
 		{rootEntity && <HierarchyNode entity={rootEntity} />}
-	</Panel>;
+	</div>;
 
 };
