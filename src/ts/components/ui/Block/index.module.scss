@@ -4,8 +4,23 @@
 	width: 100%;
 }
 
-.title {
-	color: $fontCol2;
+.head {
+
+	display: flex;
+	cursor: pointer;
+	align-items: center;
+
+	&_icon {
+		height: 100px;
+	}
+
+	&_text {
+		display: inline-block;
+		user-select: none;
+		color: $fontCol2;
+		padding-left: 5px;
+	}
+
 }
 
 .content {
