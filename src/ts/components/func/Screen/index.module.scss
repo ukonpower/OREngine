@@ -1,0 +1,29 @@
+@use '~/styles/common' as *;
+
+.screen {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+}
+
+.header {
+	width: 100%;
+	height: 30px;
+	background-color: $bgCol0;
+	text-align: center;
+	font-weight: bold;
+	font-size: $fontSize1;
+	border-bottom: 1px solid $bgCol1;
+	color: $fontCol3;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.content {
+	position: relative;
+	width: 100%;
+	height: 100%;
+}
