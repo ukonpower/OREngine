@@ -11,7 +11,7 @@ export class GL {
 	public canvas: HTMLCanvasElement;
 	public canvasWrapElm: HTMLElement | null = null;
 
-	private resolutionScale: number = 1.0;
+	private resolutionScale: number = 0.5;
 
 	private disposed: boolean = false;
 
@@ -79,10 +79,15 @@ export class GL {
 		const wrapHeight = this.canvasWrapElm ? this.canvasWrapElm.clientHeight : 16;
 
 		let canvasWidth = wrapWidth;
-		let canvasHeight = wrapHeight;
+		let canvasHeight = wrapHeight
+		
+		canvasHeight = wrapWidth * 9 / 16;
 
-		const canvasPixelWidth = 1920;
-		const canvasPixelHeight = 1080;
+		// const canvasPixelWidth = 1920;
+		// const canvasPixelHeight = 1080;
+
+		const canvasPixelWidth = canvasWidth;
+		const canvasPixelHeight = canvasHeight;
 
 		const canvasAspect = canvasPixelWidth / canvasPixelHeight;
 
