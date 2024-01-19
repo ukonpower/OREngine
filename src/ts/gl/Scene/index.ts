@@ -21,7 +21,7 @@ export class Scene extends GLP.EventEmitter {
 	public elapsedTime: number;
 	public deltaTime: number;
 
-	private root: MXP.Entity;
+	public root: MXP.Entity;
 	private camera: MainCamera;
 	private renderer: Renderer;
 
