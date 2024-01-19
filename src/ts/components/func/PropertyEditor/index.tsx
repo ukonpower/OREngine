@@ -1,11 +1,20 @@
-import { Panel } from '../../ui/Panel';
+import { useContext } from 'react';
 
 import style from './index.module.scss';
 
+import { EditorContext } from '~/ts/gl/React/useEditor';
+
 export const PropertyEditor = () => {
 
-	return <Panel title='Property'>
-		<div className={style.property}></div>
-	</Panel>;
+	const { selected } = useContext( EditorContext );
+
+	return <div className={style.property}>
+		{
+			selected && <div className={style.content}>
+				{selected.name}
+			</div>
+		}
+	</div>;
+
 
 };

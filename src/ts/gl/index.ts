@@ -2,11 +2,13 @@ import * as GLP from 'glpower';
 
 import { canvas } from '../Globals';
 
+import { Editor } from './Editor';
 import { Scene } from './Scene';
 
 export class GL extends GLP.EventEmitter {
 
 	public scene: Scene;
+	public editor: Editor;
 
 	public canvas: HTMLCanvasElement;
 	public canvasWrapElm: HTMLElement | null = null;
@@ -27,11 +29,13 @@ export class GL extends GLP.EventEmitter {
 
 		this.scene = new Scene();
 
-		// events
+		// editor
 
-		this.events();
+		this.editor = new Editor( this.scene );
 
 		// resize
+
+		window.addEventListener( 'resize', this.resize.bind( this ) );
 
 		this.resize();
 
@@ -42,29 +46,11 @@ export class GL extends GLP.EventEmitter {
 
 	}
 
-	private beforeDate?: number;
-
 	private animate() {
 
 		if ( this.disposed ) return;
 
-		// if ( gpuState ) {
-
-		// 	gpuState.update();
-
-		// }
-
-		this.beforeDate = new Date().getTime();
-
 		this.scene.update();
-
-		// if ( gpuState ) {
-
-		// 	const current = new Date().getTime();
-		// 	gpuState.setRenderTime( "cpuTotal", ( current - ( this.beforeDate || 0 ) ) );
-		// 	this.beforeDate = current;
-
-		// }
 
 		window.requestAnimationFrame( this.animate.bind( this ) );
 
@@ -82,27 +68,22 @@ export class GL extends GLP.EventEmitter {
 
 		const wrapWidth = this.canvasWrapElm ? this.canvasWrapElm.clientWidth : 16;
 		const wrapHeight = this.canvasWrapElm ? this.canvasWrapElm.clientHeight : 16;
+		const wrapAspect = wrapWidth / wrapHeight;
+
+		const canvasPixelWidth = 1920;
+		const canvasPixelHeight = 1080;
+		const canvasPixelAspect = canvasPixelWidth / canvasPixelHeight;
 
 		let canvasWidth = wrapWidth;
 		let canvasHeight = wrapHeight;
 
-		canvasHeight = wrapWidth * 9 / 16;
+		if ( canvasPixelAspect < wrapAspect ) {
 
-		// const canvasPixelWidth = 1920;
-		// const canvasPixelHeight = 1080;
-
-		const canvasPixelWidth = canvasWidth;
-		const canvasPixelHeight = canvasHeight;
-
-		const canvasAspect = canvasPixelWidth / canvasPixelHeight;
-
-		if ( canvasAspect < wrapWidth / wrapHeight ) {
-
-			canvasWidth = wrapHeight * canvasAspect;
+			canvasWidth = wrapHeight * canvasPixelAspect;
 
 		} else {
 
-			canvasHeight = wrapWidth / canvasAspect;
+			canvasHeight = wrapWidth / canvasPixelAspect;
 
 		}
 
@@ -116,19 +97,13 @@ export class GL extends GLP.EventEmitter {
 
 	}
 
-	private events() {
-
-		window.addEventListener( 'resize', this.resize.bind( this ) );
-
-		// events
-
-	}
-
 	public dispose() {
 
-		this.disposed = true;
-
 		this.scene.dispose();
+
+		this.editor.dispose();
+
+		this.disposed = true;
 
 	}
 

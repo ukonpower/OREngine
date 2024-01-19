@@ -32,7 +32,7 @@ export class RotateViewer extends MXP.Component {
 
 		if ( entity ) {
 
-			entity.on( "notice/sceneCreated", () => {
+			entity.on( "sceneCreated", () => {
 
 				this.rotBasePos.copy( entity.position );
 

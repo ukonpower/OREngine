@@ -1,15 +1,16 @@
 import * as GLP from 'glpower';
 
+
 import { BLidgeNode } from "../BLidge";
 import { Component, ComponentUpdateEvent, BuiltInComponents } from "../Component";
-import { BLidger } from "../Component/BLidger";
-import { Camera } from "../Component/Camera";
-import { Geometry } from "../Component/Geometry";
-import { GPUCompute } from "../Component/GPUCompute";
-import { Light } from "../Component/Light";
-import { Material } from "../Component/Material";
+import { BLidger } from '../Component/BLidger';
+import { Camera } from '../Component/Camera';
+import { Geometry } from '../Component/Geometry';
+import { GPUCompute } from '../Component/GPUCompute';
+import { Light } from '../Component/Light';
+import { Material } from '../Component/Material';
 
-import { RenderStack } from "~/ts/Scene/Renderer";
+import { RenderStack } from '~/ts/gl/Scene/Renderer';
 
 export type EntityUpdateEvent = {
 	time: number;
@@ -28,6 +29,10 @@ export type EntityResizeEvent = {
 }
 
 let entityCount: number = 0;
+
+export type EntityParams = {
+	name?: string;
+}
 
 export class Entity extends GLP.EventEmitter {
 
@@ -54,11 +59,11 @@ export class Entity extends GLP.EventEmitter {
 
 	public userData: any;
 
-	constructor() {
+	constructor( params?: EntityParams ) {
 
 		super();
 
-		this.name = "";
+		this.name = params && params.name || "";
 		this.uuid = entityCount ++;
 
 		this.position = new GLP.Vector( 0.0, 0.0, 0.0, 1.0 );
@@ -252,11 +257,15 @@ export class Entity extends GLP.EventEmitter {
 
 		this.children.push( entity );
 
+		entity.notticeBottomUp( "graph" );
+
 	}
 
 	public remove( entity: Entity ) {
 
 		this.children = this.children.filter( c => c.uuid != entity.uuid );
+
+		entity.notticeBottomUp( "graph" );
 
 	}
 
@@ -390,7 +399,7 @@ export class Entity extends GLP.EventEmitter {
 
 	public notice( eventName: string, opt?: any ) {
 
-		this.emit( "notice/" + eventName, [ opt ] );
+		this.emit( eventName, [ opt ] );
 
 	}
 
@@ -403,6 +412,18 @@ export class Entity extends GLP.EventEmitter {
 			const c = this.children[ i ];
 
 			c.noticeRecursive( eventName, opt );
+
+		}
+
+	}
+
+	public notticeBottomUp( eventName: string, opt?: any ) {
+
+		this.emit( eventName, [ opt ] );
+
+		if ( this.parent ) {
+
+			this.parent.notticeBottomUp( eventName, opt );
 
 		}
 

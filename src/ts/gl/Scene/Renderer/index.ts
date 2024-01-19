@@ -100,7 +100,7 @@ export class Renderer extends MXP.Entity {
 
 	constructor( ) {
 
-		super();
+		super( { name: "renderer" } );
 
 		this.programManager = new ProgramManager( gl );
 		this.canvasSize = new GLP.Vector();

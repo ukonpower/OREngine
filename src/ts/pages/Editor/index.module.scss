@@ -33,6 +33,10 @@
 
 .hierarchy {
 	width: 300px;
+
+	@include sp {
+		width: 100%;
+	}
 }
 
 .property {

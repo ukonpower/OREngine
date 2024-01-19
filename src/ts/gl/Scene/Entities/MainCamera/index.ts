@@ -1,25 +1,27 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { canvas, gl, globalUniforms, power } from "~/ts/Globals";
-import { ShakeViewer } from '../../Components/ShakeViewer';
 import { LookAt } from '../../Components/LookAt';
+import { OrbitControls } from '../../Components/OrbitControls';
+import { RotateViewer } from '../../Components/RotateViewer';
+import { ShakeViewer } from '../../Components/ShakeViewer';
 
-import colorCollectionFrag from './shaders/colorCollection.fs';
-import fxaaFrag from './shaders/fxaa.fs';
 import bloomBlurFrag from './shaders/bloomBlur.fs';
 import bloomBrightFrag from './shaders/bloomBright.fs';
-import ssrFrag from './shaders/ssr.fs';
+import colorCollectionFrag from './shaders/colorCollection.fs';
+import compositeFrag from './shaders/composite.fs';
+import dofBokeh from './shaders/dofBokeh.fs';
 import dofCoc from './shaders/dofCoc.fs';
 import dofComposite from './shaders/dofComposite.fs';
-import dofBokeh from './shaders/dofBokeh.fs';
-import motionBlurTileFrag from './shaders/motionBlurTile.fs';
-import motionBlurNeighborFrag from './shaders/motionBlurNeighbor.fs';
+import fxaaFrag from './shaders/fxaa.fs';
 import motionBlurFrag from './shaders/motionBlur.fs';
+import motionBlurNeighborFrag from './shaders/motionBlurNeighbor.fs';
+import motionBlurTileFrag from './shaders/motionBlurTile.fs';
 import ssCompositeFrag from './shaders/ssComposite.fs';
-import compositeFrag from './shaders/composite.fs';
-import { RotateViewer } from '../../Components/RotateViewer';
-import { OrbitControls } from '../../Components/OrbitControls';
+import ssrFrag from './shaders/ssr.fs';
+
+
+import { canvas, gl, globalUniforms, power } from "~/ts/Globals";
 
 export class MainCamera extends MXP.Entity {
 
@@ -509,7 +511,7 @@ export class MainCamera extends MXP.Entity {
 
 		// events
 
-		this.on( 'notice/sceneCreated', ( root: MXP.Entity ) => {
+		this.on( 'sceneCreated', ( root: MXP.Entity ) => {
 
 			lookAt.setTarget( root.getEntityByName( "CameraTarget" ) || null );
 			this.dofTarget = root.getEntityByName( 'CameraTargetDof' ) || null;

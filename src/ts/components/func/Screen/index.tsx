@@ -1,6 +1,7 @@
 import style from './index.module.scss';
 
-import { GLCanvas } from '~/ts/gl/GLCanvas';
+import { GLCanvas } from '~/ts/gl/React/GLCanvas';
+
 
 export const Screen = () => {
 
