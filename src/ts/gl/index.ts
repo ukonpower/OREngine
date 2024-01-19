@@ -8,10 +8,12 @@ export class GL {
 
 	private scene: Scene;
 	public canvas: HTMLCanvasElement;
+	public canvasWrapElm: HTMLElement;
 	private disposed: boolean = false;
 
-	constructor() {
+	constructor( canvasWrapElm: HTMLElement ) {
 
+		this.canvasWrapElm = canvasWrapElm;
 		this.canvas = canvas;
 
 		// scene
@@ -60,14 +62,17 @@ export class GL {
 
 	private resize() {
 
-		const canvasAspect = window.innerWidth / window.innerHeight;
+		const cWidth = this.canvasWrapElm.clientWidth;
+		const cHeight = this.canvasWrapElm.clientHeight;
+
+		const canvasAspect = cWidth / this.canvasWrapElm.clientWidth;
 
 		let scale = canvasAspect < 1.0 ? Math.min( 1.5, window.devicePixelRatio ) : 1.0;
 
 		scale *= 1.0;
 
-		const width = window.innerWidth;
-		const height = window.innerHeight;
+		const width = cWidth;
+		const height = cHeight;
 
 		this.canvas.width = width * scale;
 		this.canvas.height = height * scale;

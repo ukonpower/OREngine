@@ -1,12 +1,14 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
+import React from 'react';
+import ReactDOM from 'react-dom/client';
 
-import { EditorPage } from './Editor'
+import { EditorPage } from './Editor';
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+import '~/styles/style.scss';
+
+ReactDOM.createRoot( document.getElementById( 'root' )! ).render(
 	<>
 		<React.StrictMode>
 			<EditorPage />
-		</React.StrictMode>,
+		</React.StrictMode>
 	</>
-)
+);

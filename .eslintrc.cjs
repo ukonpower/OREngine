@@ -13,6 +13,7 @@ module.exports = {
 	rules: {
 		"indent": [ "error", "tab" ],
 		"no-self-assign": 'off',
+		"no-multiple-empty-lines": "error",
 		"@typescript-eslint/no-unused-vars": "off",
 		'@typescript-eslint/no-explicit-any': 'off',
 		"import/order": [
