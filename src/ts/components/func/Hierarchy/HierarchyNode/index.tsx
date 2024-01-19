@@ -3,6 +3,7 @@ import { MouseEvent, useCallback, useContext, useState } from 'react';
 
 import style from './index.module.scss';
 
+import { ArrowIcon } from '~/ts/components/ui/icon/ArrowIcon';
 import { EditorContext } from '~/ts/gl/React/useEditor';
 
 type HierarchyNodeProps = {
@@ -21,14 +22,14 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 
 	// click fold controls
 
-	const [ openChilds, setOpenChild ] = useState<boolean>( true );
+	const [ open, setOpen ] = useState<boolean>( true );
 
 	const onClickFoldControls = useCallback( ( e: MouseEvent ) => {
 
-		setOpenChild( ! openChilds );
+		setOpen( ! open );
 		e.stopPropagation();
 
-	}, [ openChilds ] );
+	}, [ open ] );
 
 	// click node
 
@@ -42,14 +43,14 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 
 	return <div className={style.node} >
 		<div className={style.self} style={{ paddingLeft: offsetPx }} onClick={onClickNode} data-selected={selected && selected.uuid == props.entity.uuid}>
-			<div className={style.fold} data-hnode_open={openChilds}>
-				{hasChild && <button className={style.fold_button} onClick={onClickFoldControls} ><span /></button> }
+			<div className={style.fold} data-hnode_open={open}>
+				{hasChild && <button className={style.fold_button} onClick={onClickFoldControls} ><ArrowIcon open={open}/></button> }
 			</div>
 			<div className={style.self_name}>
 				<p>{props.entity.name || "<noname>"}</p>
 			</div>
 		</div>
-		{hasChild && <div className={style.child} data-open={openChilds} >
+		{hasChild && <div className={style.child} data-open={open} >
 			{
 				childs.map( item => {
 

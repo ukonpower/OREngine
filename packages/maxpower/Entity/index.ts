@@ -28,7 +28,7 @@ export type EntityResizeEvent = {
 	resolution: GLP.Vector
 }
 
-let entityCount: number = 0;
+const entityCount: number = 0;
 
 export type EntityParams = {
 	name?: string;
@@ -36,7 +36,7 @@ export type EntityParams = {
 
 export class Entity extends GLP.EventEmitter {
 
-	public readonly uuid: number;
+	public readonly uuid: string;
 
 	public name: string;
 
@@ -64,7 +64,7 @@ export class Entity extends GLP.EventEmitter {
 		super();
 
 		this.name = params && params.name || "";
-		this.uuid = entityCount ++;
+		this.uuid = GLP.ID.genUUID();
 
 		this.position = new GLP.Vector( 0.0, 0.0, 0.0, 1.0 );
 		this.quaternion = new GLP.Quaternion( 0.0, 0.0, 0.0, 1.0 );

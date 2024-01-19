@@ -22,6 +22,7 @@ export type BuiltInComponents =
 
 export class Component extends GLP.EventEmitter {
 
+	public readonly uuid: string;
 	protected entity: Entity | null;
 
 	constructor() {
@@ -29,6 +30,8 @@ export class Component extends GLP.EventEmitter {
 		super();
 
 		this.entity = null;
+
+		this.uuid = GLP.ID.genUUID();
 
 	}
 

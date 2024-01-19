@@ -30,10 +30,6 @@
 .fold {
 	width: 20px;
 
-	&:hover {
-		background-color: $bgCol2;
-	}
-
 	&_button {
 		position: relative;
 		display: block;
@@ -42,16 +38,6 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-
-		span {
-			display: block;
-			width: 0;
-			height: 0;
-			border-left: 6px solid $fontCol2;
-			border-top: 4px solid transparent;
-			border-bottom: 4px solid transparent;
-			transition: transform .3s;
-		}
 
 		[data-hnode_open="true"] & {
 			span {
