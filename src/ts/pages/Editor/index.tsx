@@ -2,7 +2,7 @@ import style from './index.module.scss';
 
 import { Controls } from '~/ts/components/func/Controls';
 import { PropertyEditor } from '~/ts/components/func/PropertyEditor';
-import { GLCanvas } from '~/ts/gl/GLCanvas';
+import { Screen } from '~/ts/components/func/Screen';
 import { useGL, GLContext } from '~/ts/gl/useGL';
 
 export const EditorPage = () => {
@@ -14,7 +14,7 @@ export const EditorPage = () => {
 			<div className={style.vert}>
 				<div className={style.horiz}>
 					<div className={style.preview}>
-						<GLCanvas />
+						<Screen />
 					</div>
 					<div className={style.property}>
 						<PropertyEditor />
