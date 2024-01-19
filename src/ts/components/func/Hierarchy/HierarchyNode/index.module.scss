@@ -1,0 +1,14 @@
+@use '~/styles/common' as *;
+
+.node {
+	color: "#fff";
+	font-size: $fontSize1;
+}
+
+.child {
+	padding-left: 10px;
+
+	&[data-open="false"] {
+		display: none;
+	}
+}

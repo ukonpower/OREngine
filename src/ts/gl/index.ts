@@ -4,9 +4,9 @@ import { canvas } from '../Globals';
 
 import { Scene } from './Scene';
 
-export class GL {
+export class GL extends GLP.EventEmitter {
 
-	private scene: Scene;
+	public scene: Scene;
 
 	public canvas: HTMLCanvasElement;
 	public canvasWrapElm: HTMLElement | null = null;
@@ -17,6 +17,8 @@ export class GL {
 
 	constructor() {
 
+		super();
+
 		// canvas
 
 		this.canvas = canvas;
@@ -25,15 +27,18 @@ export class GL {
 
 		this.scene = new Scene();
 
-		// event
+		// events
 
-		window.addEventListener( 'resize', this.resize.bind( this ) );
+		this.events();
+
+		// resize
 
 		this.resize();
 
 		// animate
 
 		this.animate();
+
 
 	}
 
@@ -79,8 +84,8 @@ export class GL {
 		const wrapHeight = this.canvasWrapElm ? this.canvasWrapElm.clientHeight : 16;
 
 		let canvasWidth = wrapWidth;
-		let canvasHeight = wrapHeight
-		
+		let canvasHeight = wrapHeight;
+
 		canvasHeight = wrapWidth * 9 / 16;
 
 		// const canvasPixelWidth = 1920;
@@ -108,6 +113,14 @@ export class GL {
 		this.canvas.height = canvasPixelHeight * this.resolutionScale;
 
 		this.scene.resize( new GLP.Vector( this.canvas.width, this.canvas.height ) );
+
+	}
+
+	private events() {
+
+		window.addEventListener( 'resize', this.resize.bind( this ) );
+
+		// events
 
 	}
 

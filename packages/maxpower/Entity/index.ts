@@ -1,14 +1,15 @@
 import * as GLP from 'glpower';
 
-import { RenderStack } from "~/ts/Scene/Renderer";
+import { BLidgeNode } from "../BLidge";
 import { Component, ComponentUpdateEvent, BuiltInComponents } from "../Component";
+import { BLidger } from "../Component/BLidger";
 import { Camera } from "../Component/Camera";
-import { GPUCompute } from "../Component/GPUCompute";
 import { Geometry } from "../Component/Geometry";
+import { GPUCompute } from "../Component/GPUCompute";
 import { Light } from "../Component/Light";
 import { Material } from "../Component/Material";
-import { BLidgeNode } from "../BLidge";
-import { BLidger } from "../Component/BLidger";
+
+import { RenderStack } from "~/ts/Scene/Renderer";
 
 export type EntityUpdateEvent = {
 	time: number;
