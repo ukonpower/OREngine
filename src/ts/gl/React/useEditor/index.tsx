@@ -55,11 +55,11 @@ export const useEditor = () => {
 
 		setRootEntity( gl.scene );
 
-		gl.editor.on( "graph/update", reflesh );
+		gl.editor.on( "changed", reflesh );
 
 		return () => {
 
-			gl.editor.off( "graph/update", reflesh );
+			gl.editor.off( "changed", reflesh );
 
 		};
 

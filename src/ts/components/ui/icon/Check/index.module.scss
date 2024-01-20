@@ -1,0 +1,16 @@
+@use '~/styles/common' as *;
+
+.arrow {
+	display: inline-block;
+
+	svg {
+		transition: transform .3s;
+	}
+
+	&[data-open="true"] {
+
+		svg {
+			transform: rotate(90deg);
+		}
+	}
+}

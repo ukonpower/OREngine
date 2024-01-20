@@ -1,0 +1,13 @@
+@use '~/styles/common' as *;
+
+.checkBox {
+	display: inline-block;
+	width: 14px;
+	height: 14px;
+	background-color: $bgCol1;
+
+	svg {
+		width: 100%;
+		height: 100%;
+	}
+}

@@ -23,15 +23,46 @@ export type BuiltInComponents =
 export class Component extends GLP.EventEmitter {
 
 	public readonly uuid: string;
+
+	private _enabled: boolean;
+
 	protected entity: Entity | null;
 
 	constructor() {
 
 		super();
 
+		this._enabled = true;
+
 		this.entity = null;
 
 		this.uuid = GLP.ID.genUUID();
+
+	}
+
+	public set enabled( enabled: boolean ) {
+
+		this._enabled = enabled;
+
+		this.noticeChanged( 'enabled' );
+
+	}
+
+	public get enabled() {
+
+		return this._enabled;
+
+	}
+
+	private noticeChanged( type?: string ) {
+
+		this.emit( 'changed', [ type ] );
+
+		if ( this.entity ) {
+
+			this.entity.noticeChanged( "component" );
+
+		}
 
 	}
 
@@ -47,7 +78,7 @@ export class Component extends GLP.EventEmitter {
 
 	public preUpdate( event: ComponentUpdateEvent ) {
 
-		if ( this.entity ) {
+		if ( this.entity && this.enabled ) {
 
 			this.preUpdateImpl( event );
 
@@ -57,7 +88,7 @@ export class Component extends GLP.EventEmitter {
 
 	public update( event: ComponentUpdateEvent ) {
 
-		if ( this.entity ) {
+		if ( this.entity && this.enabled ) {
 
 			this.updateImpl( event );
 
@@ -67,9 +98,19 @@ export class Component extends GLP.EventEmitter {
 
 	public postUpdate( event: ComponentUpdateEvent ) {
 
-		if ( this.entity ) {
+		if ( this.entity && this.enabled ) {
 
 			this.postUpdateImpl( event );
+
+		}
+
+	}
+
+	public finalize( event: ComponentUpdateEvent ) {
+
+		if ( this.entity && this.enabled ) {
+
+			this.finalizeImpl( event );
 
 		}
 
@@ -82,16 +123,6 @@ export class Component extends GLP.EventEmitter {
 	protected updateImpl( event: ComponentUpdateEvent ) {}
 
 	protected postUpdateImpl( event: ComponentUpdateEvent ) {}
-
-	public finalize( event: ComponentUpdateEvent ) {
-
-		if ( this.entity ) {
-
-			this.finalizeImpl( event );
-
-		}
-
-	}
 
 	protected finalizeImpl( event: ComponentUpdateEvent ) {}
 
