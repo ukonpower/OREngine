@@ -1,7 +1,7 @@
 import * as MXP from 'maxpower';
 import { useContext } from 'react';
 
-import { Block } from '../../ui/Block';
+import { Block } from '../../ui/Properties/Block';
 
 import { ComponentView } from './ComponentView';
 import style from './index.module.scss';
@@ -27,10 +27,29 @@ export const Property = () => {
 
 	return <div className={style.property}>
 		<div className={style.content}>
-			<div className={style.name}>
+			<Block head={"Info"}>
 				{active.name}
-			</div>
-			<Block head={"Components"}>
+			</Block>
+			<Block head={"Transform"}>
+				<Block head={"Position"} >
+					{active.position.x}<br/>
+					{active.position.y}<br/>
+					{active.position.z}
+				</Block>
+				<Block head={"Rotation"} >
+					{active.quaternion.x}<br/>
+					{active.quaternion.y}<br/>
+					{active.quaternion.z}<br/>
+					{active.quaternion.w}
+				</Block>
+				<Block head={"Scale"} >
+					{active.scale.x}<br/>
+					{active.scale.y}<br/>
+					{active.scale.z}
+				</Block>
+			</Block>
+			<Block head={"Components"
+			}>
 				{
 					componentArray.map( ( { component, key }, index ) => {
 

@@ -37,7 +37,11 @@ export class GL extends GLP.EventEmitter {
 
 		window.addEventListener( 'resize', this.resize.bind( this ) );
 
-		this.resize();
+		setTimeout( () => {
+
+			this.resize();
+
+		}, 100 );
 
 		// animate
 
