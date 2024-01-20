@@ -4,8 +4,8 @@ import { useCallback } from 'react';
 
 import style from './index.module.scss';
 
-import { Block } from '~/ts/components/ui/Block';
 import { CheckBox } from '~/ts/components/ui/CheckBox';
+import { Block } from '~/ts/components/ui/Properties/Block';
 
 type ComponentViewProps = {
 	component: MXP.Component
@@ -35,7 +35,7 @@ export const ComponentView = ( props: ComponentViewProps ) => {
 
 	return <div className={style.compoView}>
 		<div className={style.content}>
-			<Block head={<Check />} accordion>
+			<Block head={<Check />} accordion bg>
 			</Block>
 		</div>
 	</div>;
