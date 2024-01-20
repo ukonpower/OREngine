@@ -30,7 +30,7 @@ export const Property = () => {
 			<div className={style.name}>
 				{active.name}
 			</div>
-			<Block title="Components">
+			<Block head={"Components"}>
 				{
 					componentArray.map( ( { component, key }, index ) => {
 

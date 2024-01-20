@@ -181,8 +181,8 @@ export class Entity extends GLP.EventEmitter {
 		const visibility = ( event.visibility || event.visibility === undefined ) && this.visible;
 		childEvent.visibility = visibility;
 
-		const geometry = this.getComponent<Geometry>( 'geometry' );
-		const material = this.getComponent<Material>( 'material' );
+		const geometry = this.getComponentEnabled<Geometry>( 'geometry' );
+		const material = this.getComponentEnabled<Material>( 'material' );
 
 		if ( geometry && material && ( visibility || event.forceDraw ) ) {
 
@@ -194,7 +194,7 @@ export class Entity extends GLP.EventEmitter {
 
 		}
 
-		const camera = this.getComponent<Camera>( 'camera' );
+		const camera = this.getComponentEnabled<Camera>( 'camera' );
 
 		if ( camera ) {
 
@@ -202,7 +202,7 @@ export class Entity extends GLP.EventEmitter {
 
 		}
 
-		const light = this.getComponent<Light>( 'light' );
+		const light = this.getComponentEnabled<Light>( 'light' );
 
 		if ( light ) {
 
@@ -210,7 +210,7 @@ export class Entity extends GLP.EventEmitter {
 
 		}
 
-		const gpuCompute = this.getComponent<GPUCompute>( "gpuCompute" );
+		const gpuCompute = this.getComponentEnabled<GPUCompute>( "gpuCompute" );
 
 		if ( gpuCompute ) {
 
@@ -257,7 +257,7 @@ export class Entity extends GLP.EventEmitter {
 
 		this.children.push( entity );
 
-		entity.notticeBottomUp( "graph" );
+		entity.noticeChanged( "changed" );
 
 	}
 
@@ -265,7 +265,7 @@ export class Entity extends GLP.EventEmitter {
 
 		this.children = this.children.filter( c => c.uuid != entity.uuid );
 
-		entity.notticeBottomUp( "graph" );
+		entity.noticeChanged( "changed" );
 
 	}
 
@@ -332,6 +332,16 @@ export class Entity extends GLP.EventEmitter {
 	public getComponent<T extends Component>( name: BuiltInComponents ): T | undefined {
 
 		return this.components.get( name ) as T;
+
+	}
+
+	public getComponentEnabled<T extends Component>( name: BuiltInComponents ): T | undefined {
+
+		const component = this.components.get( name ) as T;
+
+		if ( ! component || ! component.enabled ) return undefined;
+
+		return component;
 
 	}
 
@@ -417,13 +427,13 @@ export class Entity extends GLP.EventEmitter {
 
 	}
 
-	public notticeBottomUp( eventName: string, opt?: any ) {
+	public noticeChanged( type: string, opt?: any ) {
 
-		this.emit( eventName, [ opt ] );
+		this.emit( "changed", [ type, opt ] );
 
 		if ( this.parent ) {
 
-			this.parent.notticeBottomUp( eventName, opt );
+			this.parent.noticeChanged( type, opt );
 
 		}
 

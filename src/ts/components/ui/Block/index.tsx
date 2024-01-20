@@ -5,7 +5,7 @@ import { ArrowIcon } from "../icon/ArrowIcon";
 import style from './index.module.scss';
 
 type BlockProps = {
-	title: React.ReactNode;
+	head: React.ReactNode;
 	children?: React.ReactNode;
 	accordion?: boolean;
 };
@@ -25,7 +25,7 @@ export const Block = ( props: BlockProps ) => {
 	return <div className={style.block} >
 		<div className={style.head} onClick={onClick} data-open={open}>
 			{props.accordion && <ArrowIcon open={open}/> }
-			{props.title && <span className={style.head_text}>{props.title}</span>}
+			{props.head && <span className={style.head_text}>{props.head}</span>}
 		</div>
 		{ open && <div className={style.content} data-open={open}>
 			{props.children}

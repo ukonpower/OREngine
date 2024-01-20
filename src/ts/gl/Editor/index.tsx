@@ -19,7 +19,7 @@ export class Editor extends GLP.EventEmitter {
 
 		let updateTimer: number | null = null;
 
-		const onUpdateGraph = () => {
+		const onChanged = ( type: string, opt?: any ) => {
 
 			if ( updateTimer !== null ) return;
 
@@ -27,13 +27,13 @@ export class Editor extends GLP.EventEmitter {
 
 				updateTimer = null;
 
-				this.emit( "graph/update" );
+				this.emit( "changed", [ type, opt ] );
 
 			}, 10 );
 
 		};
 
-		this.scene.on( "graph", onUpdateGraph );
+		this.scene.on( "changed", onChanged );
 
 		// select
 
@@ -43,7 +43,7 @@ export class Editor extends GLP.EventEmitter {
 
 		this.scene.on( "dispose", () => {
 
-			this.off( "graph", onUpdateGraph );
+			this.off( "changed", onChanged );
 
 		} );
 
