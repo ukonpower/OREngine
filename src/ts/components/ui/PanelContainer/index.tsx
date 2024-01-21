@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import { Panel } from '../Panel';
 
@@ -17,7 +17,7 @@ export const PanelContainer = ( props: PanelProps ) => {
 	let childs = props.children || [];
 	childs = Array.isArray( childs ) ? childs : [ childs ];
 
-	return <div className={style.panel}>
+	return <div className={style.panelContainer}>
 		<div className={style.header}>
 			{childs.map( ( child, index ) => {
 
@@ -29,7 +29,9 @@ export const PanelContainer = ( props: PanelProps ) => {
 
 			} )}
 		</div>
-		{childs[ selected ]}
+		<div className={style.content}>
+			{childs[ selected ]}
+		</div>
 	</div>;
 
 };

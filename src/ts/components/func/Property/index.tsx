@@ -2,6 +2,8 @@ import * as MXP from 'maxpower';
 import { useContext } from 'react';
 
 import { Block } from '../../ui/Properties/Block';
+import { Value } from '../../ui/Properties/Value';
+import { Vector } from '../../ui/Properties/Vector';
 
 import { ComponentView } from './ComponentView';
 import style from './index.module.scss';
@@ -28,28 +30,21 @@ export const Property = () => {
 	return <div className={style.property}>
 		<div className={style.content}>
 			<Block head={"Info"}>
-				{active.name}
+				<Value label="Name" value={active.name}/>
 			</Block>
-			<Block head={"Transform"}>
+			<Block head={"Transform"} accordion={{ open: true }}>
 				<Block head={"Position"} >
-					{active.position.x}<br/>
-					{active.position.y}<br/>
-					{active.position.z}
+					<Vector type='vec3' value={active.position}/>
 				</Block>
 				<Block head={"Rotation"} >
-					{active.quaternion.x}<br/>
-					{active.quaternion.y}<br/>
-					{active.quaternion.z}<br/>
-					{active.quaternion.w}
+					<Vector type='vec4' value={active.quaternion}/>
 				</Block>
 				<Block head={"Scale"} >
-					{active.scale.x}<br/>
-					{active.scale.y}<br/>
-					{active.scale.z}
+					<Vector type='vec3' value={active.scale}/>
+
 				</Block>
 			</Block>
-			<Block head={"Components"
-			}>
+			<Block head={"Components"} accordion={{ open: true }}>
 				{
 					componentArray.map( ( { component, key }, index ) => {
 

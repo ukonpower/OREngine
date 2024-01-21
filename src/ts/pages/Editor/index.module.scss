@@ -33,6 +33,7 @@
 
 .hierarchy {
 	width: 300px;
+	height: 100%;
 
 	@include sp {
 		width: 100%;
@@ -42,6 +43,7 @@
 .property {
 	width: 50%;
 	max-width: 300px;
+	height: 100%;
 
 	@include sp {
 		width: 100%;
