@@ -5,6 +5,7 @@ type ValueProps = {
 	value: string | number,
 	precision?: number
 	editable?: boolean,
+	onChange?: ( key: string, value: string ) => void
 }
 
 export const Value = ( props: ValueProps ) => {
@@ -19,9 +20,22 @@ export const Value = ( props: ValueProps ) => {
 
 	return <div className={style.value} >
 		{props.label && <div className={style.value_label}>{props.label}</div>}
-		<div className={style.value_value} data-editable={props.editable}>
-			{value}
-		</div>
+		{
+			props.editable ?
+				<input className={style.value_value} data-editable type="text" value={value} onChange={( e ) => {
+
+					if ( props.onChange ) {
+
+						props.onChange( props.label || '', e.target.value );
+
+					}
+
+				}}/> :
+				<div className={style.value_value} >
+					{value}
+				</div>
+		}
+
 	</div>;
 
 };

@@ -7,19 +7,18 @@ import style from './index.module.scss';
 type BlockProps = {
 	head: React.ReactNode;
 	children?: React.ReactNode;
-	accordion?: {
-		open?: boolean
-	} | boolean;
+	accordion?: boolean;
+	defaultClose?: boolean
 	bg?: boolean
 };
 
 export const Block = ( props: BlockProps ) => {
 
-	const [ open, setOpen ] = React.useState( ! props.accordion || ( props.accordion && typeof props.accordion !== "boolean" ) );
+	const [ open, setOpen ] = React.useState( ! props.defaultClose );
 
 	const onClick = useCallback( () => {
 
-		if ( props.accordion === undefined ) return;
+		if ( props.accordion !== true ) return;
 
 		setOpen( ! open );
 

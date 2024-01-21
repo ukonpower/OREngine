@@ -1,5 +1,6 @@
 import * as GLP from 'glpower';
-import { Component } from "..";
+
+import { Component, ComponentProp } from "..";
 
 export type GeometryParam = {
 }
@@ -12,6 +13,7 @@ type Attribute = {
 }
 
 type DefaultAttributeName = 'position' | 'uv' | 'normal' | 'index';
+
 
 export class Geometry extends Component {
 
@@ -28,6 +30,24 @@ export class Geometry extends Component {
 		this.needsUpdate = new Map();
 
 	}
+
+
+	public get property(): ComponentProp | null {
+
+		return {
+			vertCount: {
+				value: this.vertCount,
+				opt: {
+					precision: 1
+				},
+			}
+		};
+
+	}
+	public set property( props: ComponentProp | null ) {
+
+	}
+
 
 	public setAttribute( name: DefaultAttributeName | ( string & {} ), array: GLP.TArrayBuffer, size: number, opt?: GLP.AttributeOptions ) {
 

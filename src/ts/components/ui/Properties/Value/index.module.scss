@@ -19,12 +19,15 @@
 		padding: 3px 5px;
 		width: 100%;
 		text-align: center;
-		color: $fontCol3;
+		color: $fontCol2;
 
-		&[data-editable="true"] {
+		&[data-editable] {
 			border-radius: $radius1;
 			background-color: $bgCol2;
 			color: $fontCol2;
+			border: none;
 		}
+
 	}
+
 }

@@ -13,19 +13,19 @@ type VectorProps = {
 export const Vector = ( props: VectorProps ) => {
 
 	const array = [
-		<Value label='X' value={props.value.x} editable/>,
-		<Value label='Y' value={props.value.y} editable/>
+		<Value key={"x"} label='X' value={props.value.x} editable/>,
+		<Value key={"y"} label='Y' value={props.value.y} editable/>
 	];
 
 	if ( ! props.type || props.type == "vec3" || props.type == "vec4" ) {
 
-		array.push( <Value label='Z' value={props.value.z} editable/> );
+		array.push( <Value key={"z"} label='Z' value={props.value.z} editable/> );
 
 	}
 
 	if ( props.type == "vec4" ) {
 
-		array.push( <Value label='W' value={props.value.w} editable/> );
+		array.push( <Value key={"w"} label='W' value={props.value.w} editable/> );
 
 	}
 
