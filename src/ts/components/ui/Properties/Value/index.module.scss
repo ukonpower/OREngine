@@ -1,0 +1,30 @@
+@use '~/styles/common' as *;
+
+.value {
+	display: inline-flex;
+	align-items: center;
+	width: 100%;
+	margin-bottom: 1px;
+
+	&_label {
+		font-size: $fontSize1;
+		margin-right: 8px;
+		width: 60px;
+		text-align: right;
+		overflow: hidden;
+		color: $fontCol3;
+	}
+
+	&_value {
+		padding: 3px 5px;
+		width: 100%;
+		text-align: center;
+		color: $fontCol3;
+
+		&[data-editable="true"] {
+			border-radius: $radius1;
+			background-color: $bgCol2;
+			color: $fontCol2;
+		}
+	}
+}

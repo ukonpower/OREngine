@@ -7,7 +7,7 @@
 
 	&[data-bg="true"] {
 		background-color: $bgCol2;
-		border-radius: 3px;
+		border-radius: $radius1;
 		padding: 5px 5px;
 	}
 }
@@ -33,5 +33,5 @@
 .content {
 	padding: 2px 0;
 	padding-top: 5px;
-	padding-left: 5px;
+	// padding-left: 5px;
 }
