@@ -6,7 +6,7 @@ import style from './index.module.scss';
 
 import { CheckBox } from '~/ts/components/ui/CheckBox';
 import { Block } from '~/ts/components/ui/Properties/Block';
-import { Value } from '~/ts/components/ui/Properties/Value';
+import { Value, ValueType } from '~/ts/components/ui/Properties/Value';
 
 type ComponentViewProps = {
 	component: MXP.Component
@@ -20,14 +20,14 @@ export const ComponentView = ( props: ComponentViewProps ) => {
 	const accordion = compoProps !== null;
 	const propElms: JSX.Element[] = [];
 
-	const onChange = useCallback( ( key: string, value: string ) => {
+	const onChange = useCallback( ( key: string, value: ValueType ) => {
 
 		component.property = {
 			...component.property,
-			[ key ]: { value: value }
+			[ key ]: { value }
 		};
 
-	}, [] );
+	}, [ component ] );
 
 	if ( compoProps ) {
 
@@ -46,9 +46,9 @@ export const ComponentView = ( props: ComponentViewProps ) => {
 
 	}
 
-	const onClickEnableCheck = useCallback( () => {
+	const onChangeEnabled = useCallback( ( checked: boolean ) => {
 
-		component.enabled = ! component.enabled;
+		component.enabled = checked;
 
 	}, [ component ] );
 
@@ -57,7 +57,7 @@ export const ComponentView = ( props: ComponentViewProps ) => {
 		return <div className={style.head}>
 			{component.constructor.name}
 			<div className={style.check}>
-				<CheckBox checked={component.enabled} onClick={onClickEnableCheck}/>
+				<CheckBox checked={component.enabled} onChange={onChangeEnabled}/>
 			</div>
 		</div>;
 
