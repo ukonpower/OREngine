@@ -14,7 +14,9 @@ export type ValueInputProps<T> = {
 export const ValueInput = <T extends number | boolean | string, >( { value, onChange }: ValueInputProps<T> ) => {
 
 	const pointerDownRef = useRef( false );
-	const onChangeRef = useRef( onChange );
+
+	const onChangeRef = useRef<( value: T ) => void>();
+	onChangeRef.current = onChange;
 
 	const valueRef = useRef<ValueType>();
 	valueRef.current = value;
@@ -31,7 +33,11 @@ export const ValueInput = <T extends number | boolean | string, >( { value, onCh
 
 			const deltaValue = Math.pow( delta * 0.1, 2 ) * Math.sign( delta );
 
-			onChangeRef.current( ( value + deltaValue ) as T );
+			if ( onChangeRef.current ) {
+
+				onChangeRef.current( ( value + deltaValue ) as T );
+
+			}
 
 			e.stopPropagation();
 

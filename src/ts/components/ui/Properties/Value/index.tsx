@@ -10,7 +10,7 @@ type ValueProps = {
 	value: ValueType,
 	precision?: number
 	editable?: boolean,
-	onChange?: ( key: string, value: ValueType ) => void
+	onChange?: ( label: string, value: ValueType ) => void
 }
 
 export const Value = ( props: ValueProps ) => {

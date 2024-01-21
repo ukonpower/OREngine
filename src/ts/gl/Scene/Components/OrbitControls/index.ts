@@ -38,6 +38,8 @@ export class OrbitControls extends MXP.Component {
 
 			this.offsetPos.add( { x: e.delta.x * 0.003, y: e.delta.y * 0.003 } );
 
+			e.pointerEvent.preventDefault();
+
 		} );
 
 		this.pointer.on( "end", ( e: PointerEventArgs ) => {

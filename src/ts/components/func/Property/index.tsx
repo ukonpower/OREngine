@@ -34,13 +34,28 @@ export const Property = () => {
 			</Block>
 			<Block head={"Transform"} accordion={true}>
 				<Block head={"Position"} >
-					<Vector type='vec3' value={active.position}/>
+					<Vector type='vec3' value={active.position} onChange={( value ) => {
+
+						active.position.copy( value );
+						active.noticeChanged( 'transform' );
+
+					}}/>
 				</Block>
 				<Block head={"Rotation"} >
-					<Vector type='vec4' value={active.quaternion}/>
+					<Vector type='vec4' value={active.quaternion} onChange={( value ) => {
+
+						active.quaternion.copy( value );
+						active.noticeChanged( 'transform' );
+
+					}}/>
 				</Block>
 				<Block head={"Scale"} >
-					<Vector type='vec3' value={active.scale}/>
+					<Vector type='vec3' value={active.scale} onChange={( value ) => {
+
+						active.scale.copy( value );
+						active.noticeChanged( 'transform' );
+
+					}}/>
 
 				</Block>
 			</Block>
