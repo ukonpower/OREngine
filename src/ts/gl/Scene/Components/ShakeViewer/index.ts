@@ -3,6 +3,8 @@ import * as MXP from 'maxpower';
 
 export class ShakeViewer extends MXP.Component {
 
+	private stop: boolean;
+
 	private shakePower: number;
 	private shakeSpeed: number;
 	private shakeMatrix: GLP.Matrix;
@@ -14,6 +16,8 @@ export class ShakeViewer extends MXP.Component {
 
 		super();
 
+		this.stop = false;
+
 		this.shakePower = shakePower;
 		this.shakeSpeed = shakeSpeed;
 		this.shakeMatrix = new GLP.Matrix();
@@ -24,13 +28,19 @@ export class ShakeViewer extends MXP.Component {
 	public get property(): MXP.ComponentProp | null {
 
 		return {
-			shakePower: {
+			stop: {
+				value: this.stop,
+				opt: {
+					editable: true
+				}
+			},
+			power: {
 				value: this.shakePower,
 				opt: {
 					editable: true
 				}
 			},
-			shakeSpeed: {
+			speed: {
 				value: this.shakeSpeed,
 				opt: {
 					editable: true
@@ -43,8 +53,8 @@ export class ShakeViewer extends MXP.Component {
 
 		this.shakePower = props.power.value;
 		this.shakeSpeed = props.speed.value;
-		console.log( props );
-
+		this.stop = props.stop.value;
+		this.noticeChanged( "property" );
 
 	}
 
@@ -58,6 +68,8 @@ export class ShakeViewer extends MXP.Component {
 	// }
 
 	public finalizeImpl( event: MXP.ComponentUpdateEvent ): void {
+
+		if ( this.stop ) return;
 
 		const entity = event.entity;
 
