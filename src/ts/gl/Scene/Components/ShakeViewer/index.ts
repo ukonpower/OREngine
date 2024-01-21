@@ -21,6 +21,42 @@ export class ShakeViewer extends MXP.Component {
 
 	}
 
+	public get property(): MXP.ComponentProp | null {
+
+		return {
+			shakePower: {
+				value: this.shakePower,
+				opt: {
+					editable: true
+				}
+			},
+			shakeSpeed: {
+				value: this.shakeSpeed,
+				opt: {
+					editable: true
+				}
+			},
+		};
+
+	}
+	public set property( props: MXP.ComponentProp ) {
+
+		this.shakePower = props.power.value;
+		this.shakeSpeed = props.speed.value;
+		console.log( props );
+
+
+	}
+
+	// public set property( props: any ) {
+
+	// 	this.shakePower = props.power;
+	// 	this.shakeSpeed = props.speed;
+
+	// 	this.noticeChanged( 'property' );
+
+	// }
+
 	public finalizeImpl( event: MXP.ComponentUpdateEvent ): void {
 
 		const entity = event.entity;

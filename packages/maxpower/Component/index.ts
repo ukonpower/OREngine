@@ -20,6 +20,13 @@ export type BuiltInComponents =
 	'gpuCompute' |
 ( string & {} );
 
+export type PropsOpt = {
+	editable?: boolean,
+	precision?: number,
+}
+
+export type ComponentProp = {[key: string]: { value: any, opt: PropsOpt}}
+
 export class Component extends GLP.EventEmitter {
 
 	public readonly uuid: string;
@@ -54,7 +61,16 @@ export class Component extends GLP.EventEmitter {
 
 	}
 
-	private noticeChanged( type?: string ) {
+	public get property(): ComponentProp | null {
+
+		return null;
+
+	}
+
+	public set property( props: {[key: string]: {value: any}} ) {
+	}
+
+	public noticeChanged( type?: string ) {
 
 		this.emit( 'changed', [ type ] );
 

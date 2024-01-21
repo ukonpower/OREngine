@@ -32,7 +32,7 @@ export const Property = () => {
 			<Block head={"Info"}>
 				<Value label="Name" value={active.name}/>
 			</Block>
-			<Block head={"Transform"} accordion={{ open: true }}>
+			<Block head={"Transform"} accordion={true}>
 				<Block head={"Position"} >
 					<Vector type='vec3' value={active.position}/>
 				</Block>
@@ -44,7 +44,7 @@ export const Property = () => {
 
 				</Block>
 			</Block>
-			<Block head={"Components"} accordion={{ open: true }}>
+			<Block head={"Components"} accordion={true}>
 				{
 					componentArray.map( ( { component, key }, index ) => {
 

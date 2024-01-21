@@ -6,7 +6,7 @@
 	margin-bottom: 5px;
 
 	&[data-bg="true"] {
-		background-color: $bgCol2;
+		background-color: $bgCol0;
 		border-radius: $radius1;
 		padding: 5px 5px;
 	}
@@ -14,8 +14,11 @@
 
 .head {
 	display: flex;
-	cursor: pointer;
 	align-items: center;
+
+	&[data-accordion="true"] {
+		cursor: pointer;
+	}
 
 	&_icon {
 		padding-right: 5px;
