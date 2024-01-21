@@ -74,8 +74,8 @@ export class GL extends GLP.EventEmitter {
 		const wrapHeight = this.canvasWrapElm ? this.canvasWrapElm.clientHeight : 16;
 		const wrapAspect = wrapWidth / wrapHeight;
 
-		const canvasPixelWidth = 128;
-		const canvasPixelHeight = 128;
+		const canvasPixelWidth = 1920;
+		const canvasPixelHeight = 1080;
 		const canvasPixelAspect = canvasPixelWidth / canvasPixelHeight;
 
 		let canvasWidth = wrapWidth;
