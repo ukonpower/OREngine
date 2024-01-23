@@ -32,7 +32,7 @@ export const InputNumber = ( { onChange, value, ...props }: InputNumberProps ) =
 
 		if ( typeof value == "number" ) {
 
-			const deltaValue = Math.pow( delta * 0.1, 2 ) * Math.sign( delta );
+			const deltaValue = delta * 0.01;
 
 			if ( onChangeRef.current ) {
 
