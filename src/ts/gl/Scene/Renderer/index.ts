@@ -3,7 +3,7 @@ import * as MXP from 'maxpower';
 
 import { getDrawType } from '../utils/globalFunc';
 
-import { DeferredPostProcess } from './DeferredPostProcess';
+import { DeferredRenderer } from './DeferredPostProcess';
 import { ProgramManager } from "./ProgramManager";
 import { shaderParse } from "./ShaderParser";
 
@@ -75,7 +75,7 @@ export class Renderer extends MXP.Entity {
 
 	// deferred
 
-	private deferredPostProcess: DeferredPostProcess;
+	private deferredPostProcess: DeferredRenderer;
 
 	// quad
 
@@ -100,7 +100,7 @@ export class Renderer extends MXP.Entity {
 
 	constructor( ) {
 
-		super( { name: "renderer" } );
+		super( { name: "Renderer" } );
 
 		this.programManager = new ProgramManager( gl );
 		this.canvasSize = new GLP.Vector();
@@ -116,7 +116,7 @@ export class Renderer extends MXP.Entity {
 
 		// deferred
 
-		this.deferredPostProcess = new DeferredPostProcess();
+		this.deferredPostProcess = new DeferredRenderer();
 		this.addComponent( "deferredPostProcess", this.deferredPostProcess );
 
 		// quad
@@ -301,7 +301,7 @@ export class Renderer extends MXP.Entity {
 
 			// scene
 
-			const prePostprocess = cameraEntity.getComponent<MXP.PostProcess>( 'scenePostProcess' );
+			const prePostprocess = cameraEntity.getComponentEnabled<MXP.PostProcess>( 'scenePostProcess' );
 
 			if ( prePostprocess ) {
 
@@ -327,6 +327,18 @@ export class Renderer extends MXP.Entity {
 
 				}
 
+			} else {
+
+				gl.bindFramebuffer( gl.READ_FRAMEBUFFER, cameraComponent.renderTarget.forwardBuffer.getFrameBuffer() );
+				gl.bindFramebuffer( gl.DRAW_FRAMEBUFFER, cameraComponent.renderTarget.uiBuffer.getFrameBuffer() );
+
+				const size = cameraComponent.renderTarget.forwardBuffer.size;
+
+				gl.blitFramebuffer(
+					0, 0, size.x, size.y,
+					0, 0, size.x, size.y,
+					gl.COLOR_BUFFER_BIT, gl.NEAREST );
+
 			}
 
 			// ui
@@ -339,7 +351,7 @@ export class Renderer extends MXP.Entity {
 
 			// postprocess
 
-			const postProcess = cameraEntity.getComponent<MXP.PostProcess>( 'postProcess' );
+			const postProcess = cameraEntity.getComponentEnabled<MXP.PostProcess>( 'postProcess' );
 
 			if ( postProcess ) {
 
@@ -351,23 +363,20 @@ export class Renderer extends MXP.Entity {
 					cameraFar: cameraComponent.far,
 				} );
 
-				// display out
+			}
 
-				if ( cameraComponent.displayOut ) {
+			if ( cameraComponent.displayOut ) {
 
-					if ( postProcess.output ) {
+				const outBuffer = postProcess ? postProcess.output : cameraComponent.renderTarget.uiBuffer;
 
-						gl.bindFramebuffer( gl.READ_FRAMEBUFFER, postProcess.output.getFrameBuffer() );
-						gl.bindFramebuffer( gl.DRAW_FRAMEBUFFER, null );
+				gl.bindFramebuffer( gl.READ_FRAMEBUFFER, outBuffer === null ? null : outBuffer.getFrameBuffer() );
+				gl.bindFramebuffer( gl.DRAW_FRAMEBUFFER, null );
 
-						gl.blitFramebuffer(
-							0, 0, this.canvasSize.x, this.canvasSize.y,
-							0, 0, this.canvasSize.x, this.canvasSize.y,
-							gl.COLOR_BUFFER_BIT, gl.NEAREST );
+				gl.blitFramebuffer(
+					0, 0, this.canvasSize.x, this.canvasSize.y,
+					0, 0, this.canvasSize.x, this.canvasSize.y,
+					gl.COLOR_BUFFER_BIT, gl.NEAREST );
 
-					}
-
-				}
 
 			}
 
@@ -478,6 +487,8 @@ export class Renderer extends MXP.Entity {
 		for ( let i = 0; i < postprocess.passes.length; i ++ ) {
 
 			const pass = postprocess.passes[ i ];
+
+			if ( ! pass.enabled ) continue;
 
 			const renderTarget = pass.renderTarget;
 

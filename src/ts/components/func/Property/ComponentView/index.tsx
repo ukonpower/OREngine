@@ -4,7 +4,7 @@ import { useCallback } from 'react';
 
 import style from './index.module.scss';
 
-import { CheckBox } from '~/ts/components/ui/CheckBox';
+import { InputBoolean } from '~/ts/components/ui/Input/InputCheckBox';
 import { Block } from '~/ts/components/ui/Properties/Block';
 import { Value, ValueType } from '~/ts/components/ui/Properties/Value';
 
@@ -55,9 +55,9 @@ export const ComponentView = ( props: ComponentViewProps ) => {
 	const Check = () => {
 
 		return <div className={style.head}>
-			{component.constructor.name}
+			{component.name || component.constructor.name}
 			<div className={style.check}>
-				<CheckBox checked={component.enabled} onChange={onChangeEnabled}/>
+				<InputBoolean checked={component.enabled} onChange={onChangeEnabled} />
 			</div>
 		</div>;
 

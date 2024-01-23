@@ -3,13 +3,14 @@
 .input {
 	width: 100%;
 
-	input {
-		padding: 3px 5px;
-		text-align: center;
-		width: 100%;
-		border-radius: $radius1;
-		background-color: $bgCol2;
-		border: none;
-		cursor: ew-resize;
+	&_value {
+
+		&[data-disable="true"] {
+			opacity: 0.5;
+			pointer-events: none;
+		}
 	}
+
+
+
 }

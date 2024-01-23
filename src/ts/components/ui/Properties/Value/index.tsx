@@ -16,7 +16,6 @@ type ValueProps = {
 export const Value = ( props: ValueProps ) => {
 
 	const value = props.value;
-
 	const onChange = props.onChange;
 	const label = props.label;
 
@@ -32,14 +31,7 @@ export const Value = ( props: ValueProps ) => {
 
 	return <div className={style.value} >
 		{props.label && <div className={style.value_label}>{props.label}</div>}
-		{
-			props.editable ?
-				<ValueInput value={value} onChange={onChangeValue} /> :
-				<div className={style.value_value} >
-					{value}
-				</div>
-		}
-
+		<ValueInput value={value} onChange={onChangeValue} readOnly={! props.editable} />
 	</div>;
 
 };

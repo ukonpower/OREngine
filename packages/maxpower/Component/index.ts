@@ -20,24 +20,34 @@ export type BuiltInComponents =
 	'gpuCompute' |
 ( string & {} );
 
-export type PropsOpt = {
+export type ComponentPropsOpt = {
 	editable?: boolean,
 	precision?: number,
 }
 
-export type ComponentProp = {[key: string]: { value: any, opt: PropsOpt}}
+export type ComponentProps = {[key: string]: { value: any, opt?: ComponentPropsOpt}}
+
+export type ComponentParams = {
+	name?: string;
+}
 
 export class Component extends GLP.EventEmitter {
 
 	public readonly uuid: string;
 
+	public name: string;
+
 	private _enabled: boolean;
 
 	protected entity: Entity | null;
 
-	constructor() {
+	constructor( params?: ComponentParams ) {
 
 		super();
+
+		params = params ?? {};
+
+		this.name = params.name ?? '';
 
 		this._enabled = true;
 
@@ -61,7 +71,7 @@ export class Component extends GLP.EventEmitter {
 
 	}
 
-	public get property(): ComponentProp | null {
+	public get property(): ComponentProps | null {
 
 		return null;
 

@@ -1,6 +1,5 @@
 import * as GLP from 'glpower';
 
-import { gl, power } from '~/ts/Globals';
 import { Material, MaterialParam } from '../Material';
 
 export interface PostProcessPassParam extends MaterialParam{
@@ -12,12 +11,16 @@ export interface PostProcessPassParam extends MaterialParam{
 	passThrough?: boolean;
 }
 
-import quadVert from './shaders/quad.vs';
 import passFrag from './shaders/pass.fs';
+import quadVert from './shaders/quad.vs';
+
+import { gl, power } from '~/ts/Globals';
 
 export class PostProcessPass extends Material {
 
 	public renderTarget: GLP.GLPowerFrameBuffer | null;
+
+	public enabled: boolean;
 
 	public clearColor: GLP.Vector | null;
 	public clearDepth: number | null;
@@ -31,6 +34,8 @@ export class PostProcessPass extends Material {
 	constructor( param: PostProcessPassParam ) {
 
 		super( { ...param, frag: param.frag || passFrag, vert: param.vert || quadVert } );
+
+		this.enabled = true;
 
 		this.resolution = new GLP.Vector();
 		this.resolutionInv = new GLP.Vector();

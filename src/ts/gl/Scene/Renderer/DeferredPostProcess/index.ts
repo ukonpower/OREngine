@@ -33,7 +33,7 @@ const ssaoKernel = ( kernelSize: number ) => {
 
 };
 
-export class DeferredPostProcess extends MXP.PostProcess {
+export class DeferredRenderer extends MXP.PostProcess {
 
 	// light shaft
 
