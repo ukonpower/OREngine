@@ -1,12 +1,13 @@
 
 import * as MXP from 'maxpower';
-import { useCallback } from 'react';
+import { useCallback, useContext } from 'react';
 
 import style from './index.module.scss';
 
 import { InputBoolean } from '~/ts/components/ui/Input/InputCheckBox';
 import { Block } from '~/ts/components/ui/Properties/Block';
 import { Value, ValueType } from '~/ts/components/ui/Properties/Value';
+import { EditorContext } from '~/ts/gl/React/useEditor';
 
 type ComponentViewProps = {
 	component: MXP.Component
@@ -14,6 +15,8 @@ type ComponentViewProps = {
 };
 
 export const ComponentView = ( props: ComponentViewProps ) => {
+
+	const { reflesh } = useContext( EditorContext );
 
 	const component = props.component;
 	const compoProps = component.property;
@@ -27,7 +30,9 @@ export const ComponentView = ( props: ComponentViewProps ) => {
 			[ key ]: { value }
 		};
 
-	}, [ component ] );
+		reflesh && reflesh();
+
+	}, [ component, reflesh ] );
 
 	if ( compoProps ) {
 
@@ -50,7 +55,9 @@ export const ComponentView = ( props: ComponentViewProps ) => {
 
 		component.enabled = checked;
 
-	}, [ component ] );
+		reflesh && reflesh();
+
+	}, [ component, reflesh ] );
 
 	const Check = () => {
 

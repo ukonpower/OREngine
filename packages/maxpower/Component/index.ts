@@ -61,8 +61,6 @@ export class Component extends GLP.EventEmitter {
 
 		this._enabled = enabled;
 
-		this.noticeChanged( 'enabled' );
-
 	}
 
 	public get enabled() {

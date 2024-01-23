@@ -69,7 +69,8 @@ export const useEditor = () => {
 		gl,
 		active,
 		rootEntity,
-		counter: refleshCounter
+		refleshCounter,
+		reflesh
 	};
 
 };
