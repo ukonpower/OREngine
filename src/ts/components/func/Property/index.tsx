@@ -12,7 +12,7 @@ import { EditorContext } from '~/ts/gl/React/useEditor';
 
 export const Property = () => {
 
-	const { active } = useContext( EditorContext );
+	const { active, reflesh } = useContext( EditorContext );
 
 	if ( ! active ) return null;
 
@@ -37,7 +37,7 @@ export const Property = () => {
 					<Vector type='vec3' value={active.position} onChange={( value ) => {
 
 						active.position.copy( value );
-						active.noticeChanged( 'transform' );
+						reflesh && reflesh();
 
 					}}/>
 				</Block>
@@ -45,7 +45,7 @@ export const Property = () => {
 					<Vector type='vec4' value={active.quaternion} onChange={( value ) => {
 
 						active.quaternion.copy( value );
-						active.noticeChanged( 'transform' );
+						reflesh && reflesh();
 
 					}}/>
 				</Block>
@@ -53,7 +53,7 @@ export const Property = () => {
 					<Vector type='vec3' value={active.scale} onChange={( value ) => {
 
 						active.scale.copy( value );
-						active.noticeChanged( 'transform' );
+						reflesh && reflesh();
 
 					}}/>
 

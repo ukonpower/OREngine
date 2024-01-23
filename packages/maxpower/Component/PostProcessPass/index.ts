@@ -20,8 +20,6 @@ export class PostProcessPass extends Material {
 
 	public renderTarget: GLP.GLPowerFrameBuffer | null;
 
-	public enabled: boolean;
-
 	public clearColor: GLP.Vector | null;
 	public clearDepth: number | null;
 
@@ -34,8 +32,6 @@ export class PostProcessPass extends Material {
 	constructor( param: PostProcessPassParam ) {
 
 		super( { ...param, frag: param.frag || passFrag, vert: param.vert || quadVert } );
-
-		this.enabled = true;
 
 		this.resolution = new GLP.Vector();
 		this.resolutionInv = new GLP.Vector();

@@ -47,8 +47,6 @@ export class PostProcess extends Component {
 
 		}
 
-		this.noticeChanged( "property" );
-
 	}
 
 	constructor( param: PostProcessParam ) {
