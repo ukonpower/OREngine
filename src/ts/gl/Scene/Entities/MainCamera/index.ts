@@ -3,7 +3,6 @@ import * as MXP from 'maxpower';
 
 import { LookAt } from '../../Components/LookAt';
 import { OrbitControls } from '../../Components/OrbitControls';
-import { RotateViewer } from '../../Components/RotateViewer';
 import { ShakeViewer } from '../../Components/ShakeViewer';
 
 import bloomBlurFrag from './shaders/bloomBlur.fs';
@@ -634,10 +633,10 @@ export class MainCamera extends MXP.Entity {
 
 	private updateCameraParams( resolution: GLP.Vector ) {
 
-		this.cameraComponent.near = 0.01;
-		this.cameraComponent.far = 1000;
+		// this.cameraComponent.near = 0.01;
+		// this.cameraComponent.far = 1000;
 		this.cameraComponent.aspect = resolution.x / resolution.y;
-		this.cameraComponent.fov = this.baseFov - Math.max( this.cameraComponent.aspect - 1.0, 0.0 ) * 0.6;
+		// this.cameraComponent.fov = this.baseFov - Math.max( this.cameraComponent.aspect - 1.0, 0.0 ) * 0.6;
 		this.cameraComponent.needsUpdate = true;
 
 		const lookAt = this.getComponent<LookAt>( "lookAt" );

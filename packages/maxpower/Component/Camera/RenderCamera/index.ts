@@ -1,6 +1,9 @@
-import { CameraParam, Camera } from "..";
-import { power } from "~/ts/Globals";
 import * as GLP from "glpower";
+
+import { CameraParam, Camera } from "..";
+import { ComponentProps } from "../..";
+
+import { power } from "~/ts/Globals";
 
 export type RenderCameraTarget = {
 	gBuffer: GLP.GLPowerFrameBuffer,
@@ -44,6 +47,43 @@ export class RenderCamera extends Camera {
 		uiBuffer.setTexture( [ power.createTexture() ] );
 
 		this.renderTarget = { gBuffer, shadingBuffer: shadingBuffer, forwardBuffer, uiBuffer };
+
+	}
+
+	public get property(): ComponentProps | null {
+
+		return {
+			type: {
+				value: this.cameraType,
+				opt: { editable: true }
+			},
+			fov: {
+				value: this.fov,
+				opt: { editable: true }
+			},
+			near: {
+				value: this.near,
+				opt: { editable: true }
+			},
+			far: {
+				value: this.far,
+				opt: { editable: true }
+			},
+			aspect: {
+				value: this.aspect
+			},
+		};
+
+	}
+
+	public set property( props: ComponentProps ) {
+
+		this.cameraType = props.type.value;
+		this.fov = props.fov.value;
+		this.near = props.near.value;
+		this.far = props.far.value;
+
+		this.updateProjectionMatrix();
 
 	}
 
