@@ -11,4 +11,10 @@
 	margin-bottom: 5px;
 }
 
-.component {}
+.component {
+	&_list {}
+
+	&_controls {
+		margin-top: 5px;
+	}
+}

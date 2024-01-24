@@ -1,6 +1,7 @@
 import * as MXP from 'maxpower';
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 
+import { EditorComponentManager } from '../../Editor/EditorComponentManager';
 import { GLContext } from '../useGL';
 
 export const EditorContext = createContext<HooksContext<typeof useEditor>>( {} );
@@ -8,6 +9,18 @@ export const EditorContext = createContext<HooksContext<typeof useEditor>>( {} )
 export const useEditor = () => {
 
 	const { gl } = useContext( GLContext );
+
+	const [ component, setComponentManager ] = useState<EditorComponentManager>();
+
+	useEffect( () => {
+
+		if ( gl ) {
+
+			setComponentManager( gl.editor.componentManager );
+
+		}
+
+	}, [ gl ] );
 
 	// reflesh
 
@@ -67,6 +80,7 @@ export const useEditor = () => {
 
 	return {
 		gl,
+		component,
 		active,
 		rootEntity,
 		refleshCounter,

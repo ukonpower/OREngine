@@ -1,0 +1,17 @@
+@use '~/styles/common' as *;
+
+.picker {
+	width: 100%;
+	height: 100%;
+	background-color: $bgColWindow0;
+	border-radius: $radius1;
+	overflow: hidden;
+}
+
+.item {
+	padding: $padding;
+
+	&:hover {
+		background-color: $bgCol2;
+	}
+}
