@@ -1,13 +1,14 @@
 import * as GLP from 'glpower';
 
 import { CameraParam } from "../Camera";
-import { gl } from '~/ts/Globals';
 import { ShadowMapCamera } from '../Camera/ShadowMapCamera';
+
+import { gl } from '~/ts/Globals';
 
 export type LightType = 'directional' | 'spot'
 
 export interface LightParam extends Omit<CameraParam, 'renderTarget'> {
-	lightType: LightType;
+	lightType?: LightType;
 	intensity?: number;
 	color?: GLP.Vector;
 	useShadowMap?: boolean;
@@ -35,13 +36,15 @@ export class Light extends ShadowMapCamera {
 
 	// animation
 
-	constructor( param: LightParam ) {
+	constructor( param?: LightParam ) {
+
+		param = param || {};
 
 		param.far = param.far ?? 100;
 
 		super( { ...param, renderTarget: param.useShadowMap ? new GLP.GLPowerFrameBuffer( gl ).setTexture( [ new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ) ] ).setSize( new GLP.Vector( 512, 512 ) ) : null } );
 
-		this.lightType = param.lightType;
+		this.lightType = param.lightType || 'directional';
 
 		if ( this.lightType == 'directional' ) this.cameraType = 'orthographic';
 		if ( this.lightType == 'spot' ) this.cameraType = 'perspective';

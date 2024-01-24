@@ -1,4 +1,5 @@
 import { Vector } from "glpower";
+
 import { Geometry } from "..";
 
 export class SphereGeometry extends Geometry {

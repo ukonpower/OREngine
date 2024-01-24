@@ -1,0 +1,14 @@
+@use '~/styles/common' as *;
+
+.compoAdd {}
+
+.picker {
+	position: absolute;
+
+	&_inner {
+		position: relative;
+		width: 150px;
+		max-height: 100px;
+		overflow-y: auto;
+	}
+}

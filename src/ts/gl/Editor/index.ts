@@ -3,9 +3,13 @@ import * as MXP from 'maxpower';
 
 import { Scene } from '../Scene';
 
+import { EditorComponentManager } from './EditorComponentManager';
+
 export class Editor extends GLP.EventEmitter {
 
 	private scene: Scene;
+
+	public componentManager: EditorComponentManager;
 
 	public selectedEntity: MXP.Entity | null = null;
 
@@ -14,6 +18,8 @@ export class Editor extends GLP.EventEmitter {
 		super();
 
 		this.scene = scene;
+
+		this.componentManager = new EditorComponentManager();
 
 		// graph
 

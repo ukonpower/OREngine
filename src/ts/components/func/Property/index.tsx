@@ -5,6 +5,7 @@ import { Block } from '../../ui/Properties/Block';
 import { Value } from '../../ui/Properties/Value';
 import { Vector } from '../../ui/Properties/Vector';
 
+import { ComponentAdd } from './ComponentAdd';
 import { ComponentView } from './ComponentView';
 import style from './index.module.scss';
 
@@ -60,13 +61,18 @@ export const Property = () => {
 				</Block>
 			</Block>
 			<Block head={"Components"} accordion={true}>
-				{
-					componentArray.map( ( { component, key }, index ) => {
+				<div className={style.component_list}>
+					{
+						componentArray.map( ( { component, key }, index ) => {
 
-						return <ComponentView key={component.uuid} keyName={key} component={component}/>;
+							return <ComponentView key={component.uuid} keyName={key} component={component}/>;
 
-					} )
-				}
+						} )
+					}
+				</div>
+				<div className={style.component_controls}>
+					<ComponentAdd entity={active} />
+				</div>
 			</Block>
 		</div>
 	</div>;
