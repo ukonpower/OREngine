@@ -12,3 +12,11 @@
 		overflow-y: auto;
 	}
 }
+
+.argsInput {
+	background-color: $bgColWindow0;
+	position: absolute;
+	z-index: 1;
+	left: 160px;
+	border-radius: $radius1;
+}
