@@ -38,6 +38,7 @@ export class Geometry extends Component {
 			vertCount: {
 				value: this.vertCount,
 				opt: {
+					readOnly: true,
 					precision: 1
 				},
 			}

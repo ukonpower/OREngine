@@ -25,9 +25,6 @@ export class PostProcess extends Component {
 
 			props[ pass.name ] = {
 				value: pass.enabled,
-				opt: {
-					editable: true
-				}
 			};
 
 		}

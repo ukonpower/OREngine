@@ -5,14 +5,15 @@ import { ArrowIcon } from "../../icon/ArrowIcon";
 import style from './index.module.scss';
 
 type BlockProps = {
-	head: React.ReactNode;
+	label: React.ReactNode;
 	children?: React.ReactNode;
 	accordion?: boolean;
+	noMargin?: boolean
 	defaultClose?: boolean
 	bg?: boolean
 };
 
-export const Block = ( props: BlockProps ) => {
+export const PropertyBlock = ( props: BlockProps ) => {
 
 	const [ open, setOpen ] = React.useState( ! props.defaultClose );
 
@@ -24,10 +25,10 @@ export const Block = ( props: BlockProps ) => {
 
 	}, [ open, props.accordion ] );
 
-	return <div className={style.block} data-bg={props.bg}>
+	return <div className={style.block} data-bg={props.bg} style={{ margin: props.noMargin ? '0 0' : undefined }}>
 		<div className={style.head} onClick={onClick} data-accordion={props.accordion} data-open={open}>
 			{props.accordion && <div className={style.head_icon}><ArrowIcon open={open}/></div> }
-			{props.head && <span className={style.head_text}>{props.head}</span>}
+			{props.label && <span className={style.head_text}>{props.label}</span>}
 		</div>
 		{ open && <div className={style.content} data-open={open}>
 			{props.children}

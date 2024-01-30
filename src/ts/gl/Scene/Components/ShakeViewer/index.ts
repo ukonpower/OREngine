@@ -30,21 +30,12 @@ export class ShakeViewer extends MXP.Component {
 		return {
 			stop: {
 				value: this.stop,
-				opt: {
-					editable: true
-				}
 			},
 			power: {
 				value: this.shakePower,
-				opt: {
-					editable: true
-				}
 			},
 			speed: {
 				value: this.shakeSpeed,
-				opt: {
-					editable: true
-				}
 			},
 		};
 

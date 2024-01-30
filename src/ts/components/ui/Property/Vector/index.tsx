@@ -36,19 +36,19 @@ export const Vector = ( { onChange, ...props }: VectorProps ) => {
 	}, [ onChange ] );
 
 	const array = [
-		<Value key={"x"} label='X' value={props.value.x} editable onChange={onChangeValue}/>,
-		<Value key={"y"} label='Y' value={props.value.y} editable onChange={onChangeValue}/>
+		<Value key={"x"} label='X' value={props.value.x} onChange={onChangeValue}/>,
+		<Value key={"y"} label='Y' value={props.value.y} onChange={onChangeValue}/>
 	];
 
 	if ( ! props.type || props.type == "vec3" || props.type == "vec4" ) {
 
-		array.push( <Value key={"z"} label='Z' value={props.value.z} editable onChange={onChangeValue}/> );
+		array.push( <Value key={"z"} label='Z' value={props.value.z} onChange={onChangeValue}/> );
 
 	}
 
 	if ( props.type == "vec4" ) {
 
-		array.push( <Value key={"w"} label='W' value={props.value.w} editable onChange={onChangeValue}/> );
+		array.push( <Value key={"w"} label='W' value={props.value.w} onChange={onChangeValue}/> );
 
 	}
 

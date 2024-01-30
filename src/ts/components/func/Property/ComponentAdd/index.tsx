@@ -5,8 +5,9 @@ import { useCallback, useContext, useState } from 'react';
 import style from './index.module.scss';
 
 import { Button } from "~/ts/components/ui/Button";
+import { InputGroup } from '~/ts/components/ui/InputGroup';
 import { Picker } from '~/ts/components/ui/Picker';
-import { ValueType, Value } from '~/ts/components/ui/Properties/Value';
+import { ValueInputProps } from '~/ts/components/ui/Property/Value/ValueInput';
 import { EditorContext } from '~/ts/gl/React/useEditor';
 
 type ComponentAddProps= {
@@ -30,7 +31,6 @@ export const ComponentAdd = ( props: ComponentAddProps ) => {
 	// args
 
 	const [ willAddComponent, setWillAddComponent ] = useState<any>();
-	const [ willAddArgs, setWillAddArgs ] = useState<any>();
 
 	const listItem = resources?.componentList.map( ( compItem ) => {
 
@@ -38,11 +38,6 @@ export const ComponentAdd = ( props: ComponentAddProps ) => {
 			label: compItem.component.name,
 			onClick: () => {
 
-				// props.entity.addComponent( compItem.name, new compItem.component() );
-				// reflesh && reflesh();
-				// setPickerVisibility( false );
-
-				setWillAddArgs( { ...compItem.defaultArgs } );
 				setWillAddComponent( compItem );
 
 			}
@@ -52,39 +47,22 @@ export const ComponentAdd = ( props: ComponentAddProps ) => {
 
 	// args
 
-	const argsElms: JSX.Element[] = [];
+	let initialValues: { [key: string]: ValueInputProps<any>} | null = null;
 
-	const onChange = useCallback( ( key: string, value: ValueType ) => {
+	if ( willAddComponent && willAddComponent.defaultArgs ) {
 
-		// component.property = {
-		// 	...component.property,
-		// 	[ key ]: { value }
-		// };
+		const args = willAddComponent.defaultArgs;
 
-		// reflesh && reflesh();
+		const propKeys = Object.keys( args );
 
-	}, [ reflesh ] );
-
-	if ( willAddArgs ) {
-
-		const propKeys = Object.keys( willAddArgs );
+		initialValues = {};
 
 		for ( let i = 0; i < propKeys.length; i ++ ) {
 
 			const key = propKeys[ i ];
-			const prop = willAddArgs[ key ];
-			const value = { value: prop };
-			const opt = { editable: true };
+			const prop = args[ key ];
 
-			const onChange = ( key: string, v:ValueType ) => {
-
-				willAddArgs[ key ] = v;
-				reflesh && reflesh();
-
-			};
-
-
-			argsElms.push( <Value key={i} label={key} value={value.value} onChange={onChange} {...opt}/> );
+			initialValues[ key ] = { value: prop };
 
 		}
 
@@ -96,8 +74,8 @@ export const ComponentAdd = ( props: ComponentAddProps ) => {
 				{pickerVisibility && <Picker list={listItem}/>}
 			</div>
 		</div>
-		{willAddArgs && <div className={style.argsInput}>
-			{argsElms}
+		{initialValues && <div className={style.argsInput}>
+			<InputGroup initialValues={initialValues}/>
 		</div>}
 		<Button onClick={onClickAdd}>Add Component</Button>
 	</div>;
