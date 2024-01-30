@@ -5,8 +5,8 @@ import { useCallback, useContext } from 'react';
 import style from './index.module.scss';
 
 import { InputBoolean } from '~/ts/components/ui/Input/InputCheckBox';
-import { Block } from '~/ts/components/ui/Properties/Block';
-import { Value, ValueType } from '~/ts/components/ui/Properties/Value';
+import { PropertyBlock } from '~/ts/components/ui/Property/PropertyBlock';
+import { Value, ValueType } from '~/ts/components/ui/Property/Value';
 import { EditorContext } from '~/ts/gl/React/useEditor';
 
 type ComponentViewProps = {
@@ -72,9 +72,9 @@ export const ComponentView = ( props: ComponentViewProps ) => {
 
 	return <div className={style.compoView}>
 		<div className={style.content}>
-			<Block head={<Check />} accordion={accordion} defaultClose={true} bg>
+			<PropertyBlock label={<Check />} accordion={accordion} defaultClose={true} bg>
 				{propElms}
-			</Block>
+			</PropertyBlock>
 		</div>
 	</div>;
 

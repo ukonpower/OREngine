@@ -21,7 +21,7 @@ export type BuiltInComponents =
 ( string & {} );
 
 export type ComponentPropsOpt = {
-	editable?: boolean,
+	readOnly?: boolean,
 	precision?: number,
 }
 

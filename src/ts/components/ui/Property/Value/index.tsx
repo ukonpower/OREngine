@@ -5,11 +5,11 @@ import { ValueInput } from './ValueInput';
 
 export type ValueType = number | boolean | string;
 
-type ValueProps = {
+export type ValueProps = {
 	label?: string
 	value: ValueType,
 	precision?: number
-	editable?: boolean,
+	readOnly?: boolean,
 	onChange?: ( label: string, value: ValueType ) => void
 }
 
@@ -31,7 +31,7 @@ export const Value = ( props: ValueProps ) => {
 
 	return <div className={style.value} >
 		{props.label && <div className={style.value_label}>{props.label}</div>}
-		<ValueInput value={value} onChange={onChangeValue} readOnly={! props.editable} />
+		<ValueInput value={value} onChange={onChangeValue} readOnly={props.readOnly} />
 	</div>;
 
 };

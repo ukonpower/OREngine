@@ -55,22 +55,19 @@ export class RenderCamera extends Camera {
 		return {
 			type: {
 				value: this.cameraType,
-				opt: { editable: true }
 			},
 			fov: {
 				value: this.fov,
-				opt: { editable: true }
 			},
 			near: {
 				value: this.near,
-				opt: { editable: true }
 			},
 			far: {
 				value: this.far,
-				opt: { editable: true }
 			},
 			aspect: {
-				value: this.aspect
+				value: this.aspect,
+				opt: { readOnly: true }
 			},
 		};
 

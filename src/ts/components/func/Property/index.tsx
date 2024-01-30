@@ -1,9 +1,9 @@
 import * as MXP from 'maxpower';
 import { useContext } from 'react';
 
-import { Block } from '../../ui/Properties/Block';
-import { Value } from '../../ui/Properties/Value';
-import { Vector } from '../../ui/Properties/Vector';
+import { PropertyBlock } from '../../ui/Property/PropertyBlock';
+import { Value } from '../../ui/Property/Value';
+import { Vector } from '../../ui/Property/Vector';
 
 import { ComponentAdd } from './ComponentAdd';
 import { ComponentView } from './ComponentView';
@@ -30,37 +30,36 @@ export const Property = () => {
 
 	return <div className={style.property}>
 		<div className={style.content}>
-			<Block head={"Info"}>
+			<PropertyBlock label={"Info"}>
 				<Value label="Name" value={active.name}/>
-			</Block>
-			<Block head={"Transform"} accordion={true}>
-				<Block head={"Position"} >
+			</PropertyBlock>
+			<PropertyBlock label={"Transform"} accordion={true}>
+				<PropertyBlock label={"Position"} >
 					<Vector type='vec3' value={active.position} onChange={( value ) => {
 
 						active.position.copy( value );
 						reflesh && reflesh();
 
 					}}/>
-				</Block>
-				<Block head={"Rotation"} >
+				</PropertyBlock>
+				<PropertyBlock label={"Rotation"} >
 					<Vector type='vec4' value={active.quaternion} onChange={( value ) => {
 
 						active.quaternion.copy( value );
 						reflesh && reflesh();
 
 					}}/>
-				</Block>
-				<Block head={"Scale"} >
+				</PropertyBlock>
+				<PropertyBlock label={"Scale"} >
 					<Vector type='vec3' value={active.scale} onChange={( value ) => {
 
 						active.scale.copy( value );
 						reflesh && reflesh();
 
 					}}/>
-
-				</Block>
-			</Block>
-			<Block head={"Components"} accordion={true}>
+				</PropertyBlock>
+			</PropertyBlock>
+			<PropertyBlock label={"Components"} accordion={true}>
 				<div className={style.component_list}>
 					{
 						componentArray.map( ( { component, key }, index ) => {
@@ -73,7 +72,7 @@ export const Property = () => {
 				<div className={style.component_controls}>
 					<ComponentAdd entity={active} />
 				</div>
-			</Block>
+			</PropertyBlock>
 		</div>
 	</div>;
 

@@ -7,7 +7,7 @@ import style from './index.module.scss';
 export type ValueInputProps<T> = {
 	value: T,
 	readOnly?: boolean,
-	onChange: ( value: T ) => void
+	onChange?: ( value: T ) => void
 }
 
 export const ValueInput = <T extends number | boolean | string, >( { value, onChange, readOnly, ...props }: ValueInputProps<T> ) => {
@@ -26,7 +26,11 @@ export const ValueInput = <T extends number | boolean | string, >( { value, onCh
 
 		return <div className={style.input}>
 			<div className={style.input_value}>
-				<InputNumber value={value} onChange={( value ) => onChange( value as T )} readOnly={readOnly}/>
+				<InputNumber value={value} onChange={( value ) => {
+
+					onChange && onChange( value as T );
+
+				}} readOnly={readOnly}/>
 			</div>
 		</div>;
 
@@ -36,7 +40,11 @@ export const ValueInput = <T extends number | boolean | string, >( { value, onCh
 
 		return <div className={style.input}>
 			<div className={style.input_value}>
-				<InputBoolean checked={value} onChange={( checked ) => onChange( checked as T )} readOnly={readOnly} />
+				<InputBoolean checked={value} onChange={( checked ) => {
+
+					onChange && onChange( checked as T );
+
+				}} readOnly={readOnly} />
 			</div>
 		</div>;
 
