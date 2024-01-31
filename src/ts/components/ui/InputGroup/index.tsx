@@ -1,49 +1,56 @@
+import { useEffect, useState } from "react";
+
 import { Button } from "../Button";
 import { PropertyBlock } from "../Property/PropertyBlock";
-import { Value } from "../Property/Value";
-import { ValueInputProps } from "../Property/Value/ValueInput";
+import { Value, ValueType } from "../Property/Value";
 
 import style from './index.module.scss';
 
 export type InputGroupProps = {
-	initialValues: {[key: string]:ValueInputProps<any>}
+	initialValues: {[key: string]:ValueType}
+	onSubmit?: ( values: {[key: string]:ValueType} ) => void
 }
 
 export const InputGroup = ( props: InputGroupProps ) => {
 
 	const initialValuees = props.initialValues;
-
-	const propKeys = Object.keys( props.initialValues );
-
 	const propElms: JSX.Element[] = [];
+	const [ values, setValues ] = useState<{[key: string]:ValueType}>( initialValuees );
+
+	useEffect( () => {
+
+		setValues( initialValuees );
+
+	}, [ initialValuees ] );
+
+	const propKeys = Object.keys( values );
 
 	for ( let i = 0; i < propKeys.length; i ++ ) {
 
 		const key = propKeys[ i ];
-		const prop = initialValuees[ key ];
-		const value = prop.value;
-		// const opt = prop.opt;
+		const value = values[ key ];
 
-		console.log( prop.value );
+		propElms.push( <Value key={i} label={key} value={value} onChange={( value ) =>{
 
-
-		propElms.push( <Value key={i} label={key} value={value} onChange={() =>{
-
-			console.log( "onChange" );
+			setValues( {
+				...values,
+				[ key ]: value
+			} );
 
 		} } /> );
 
 	}
 
-	console.log( "aaa" );
-
-
-	return <div className="">
+	return <div className={style.group}>
 		<PropertyBlock label="Params" noMargin >
 			{propElms}
 		</PropertyBlock>
 		<div className={style.submit}>
-			<Button >OK</Button>
+			<Button onClick={() => {
+
+				props.onSubmit && props.onSubmit( values );
+
+			}} >OK</Button>
 		</div>
 	</div>;
 

@@ -1,7 +1,7 @@
 
 import { useRef, useCallback, MouseEvent } from 'react';
 
-import { ValueType } from '../../Properties/Value';
+import { ValueType } from '../../Property/Value';
 
 import style from './index.module.scss';
 

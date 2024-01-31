@@ -8,22 +8,22 @@ export type ValueType = number | boolean | string;
 export type ValueProps = {
 	label?: string
 	value: ValueType,
+	initialValue?: ValueType,
 	precision?: number
 	readOnly?: boolean,
-	onChange?: ( label: string, value: ValueType ) => void
+	onChange?: ( value: ValueType, label: string ) => void
 }
 
 export const Value = ( props: ValueProps ) => {
 
-	const value = props.value;
-	const onChange = props.onChange;
 	const label = props.label;
+	const onChange = props.onChange;
 
 	const onChangeValue = useCallback( ( e: ValueType ) => {
 
 		if ( onChange ) {
 
-			onChange( label || '', e );
+			onChange( e, label || '' );
 
 		}
 
@@ -31,7 +31,7 @@ export const Value = ( props: ValueProps ) => {
 
 	return <div className={style.value} >
 		{props.label && <div className={style.value_label}>{props.label}</div>}
-		<ValueInput value={value} onChange={onChangeValue} readOnly={props.readOnly} />
+		<ValueInput value={props.value} onChange={onChangeValue} readOnly={props.readOnly} />
 	</div>;
 
 };

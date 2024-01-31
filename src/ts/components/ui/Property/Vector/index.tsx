@@ -16,7 +16,7 @@ export const Vector = ( { onChange, ...props }: VectorProps ) => {
 	const valueRef = useRef<GLP.IVector4>( );
 	valueRef.current = props.value;
 
-	const onChangeValue = useCallback( ( label: string, value: ValueType ) => {
+	const onChangeValue = useCallback( ( value: ValueType, label: string ) => {
 
 		if ( onChange && valueRef.current ) {
 

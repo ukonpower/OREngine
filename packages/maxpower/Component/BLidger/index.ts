@@ -1,15 +1,15 @@
 import * as GLP from 'glpower';
 
 import { Component, ComponentUpdateEvent } from "..";
+import { BLidge, BLidgeNode, BLidgeLightParam } from "../../BLidge";
 import { Entity } from '../../Entity';
+import { Geometry } from "../Geometry";
+import { CubeGeometry } from "../Geometry/CubeGeometry";
+import { CylinderGeometry } from "../Geometry/CylinderGeometry";
+import { PlaneGeometry } from "../Geometry/PlaneGeometry";
+import { SphereGeometry } from "../Geometry/SphereGeometry";
 import { Light } from '../Light';
 import { Material } from '../Material';
-import { SphereGeometry } from "../Geometry/SphereGeometry";
-import { CubeGeometry } from "../Geometry/CubeGeometry";
-import { BLidge, BLidgeNode, BLidgeLightParam } from "../../BLidge";
-import { CylinderGeometry } from "../Geometry/CylinderGeometry";
-import { Geometry } from "../Geometry";
-import { PlaneGeometry } from "../Geometry/PlaneGeometry";
 
 export class BLidger extends Component {
 

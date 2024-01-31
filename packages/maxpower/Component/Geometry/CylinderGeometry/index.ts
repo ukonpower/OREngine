@@ -1,16 +1,30 @@
 import { Vector } from "glpower";
+
 import { Geometry } from "..";
+import { ComponentParams } from "../..";
+
+interface CylinderGeometryParams extends ComponentParams{
+	height: number,
+	radiusTop: number,
+	radiusBottom: number,
+	radSegments: number,
+	heightSegments: number,
+	futa: boolean
+}
 
 export class CylinderGeometry extends Geometry {
 
-	constructor( radiusTop: number = 0.5, radiusBottom: number = 0.5, height: number = 1, radSegments: number = 10, heightSegments: number = 1, futa: boolean = true ) {
 
-		super();
+	constructor( params?: CylinderGeometryParams ) {
+
+		super( params );
 
 		const posArray = [];
 		const normalArray = [];
 		const uvArray = [];
 		const indexArray = [];
+
+		const { height, radiusTop, radiusBottom, radSegments, heightSegments, futa } = params;
 
 		//上下面分2回多くループ
 		for ( let i = 0; i <= heightSegments + 2; i ++ ) {
