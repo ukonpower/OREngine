@@ -7,7 +7,7 @@ import style from './index.module.scss';
 import { Button } from "~/ts/components/ui/Button";
 import { InputGroup } from '~/ts/components/ui/InputGroup';
 import { Picker } from '~/ts/components/ui/Picker';
-import { ValueInputProps } from '~/ts/components/ui/Property/Value/ValueInput';
+import { ValueType } from '~/ts/components/ui/Property/Value';
 import { EditorContext } from '~/ts/gl/React/useEditor';
 
 type ComponentAddProps= {
@@ -47,7 +47,7 @@ export const ComponentAdd = ( props: ComponentAddProps ) => {
 
 	// args
 
-	let initialValues: { [key: string]: ValueInputProps<any>} | null = null;
+	let initialValues: { [key: string]: ValueType} | null = null;
 
 	if ( willAddComponent && willAddComponent.defaultArgs ) {
 
@@ -62,7 +62,7 @@ export const ComponentAdd = ( props: ComponentAddProps ) => {
 			const key = propKeys[ i ];
 			const prop = args[ key ];
 
-			initialValues[ key ] = { value: prop };
+			initialValues[ key ] = prop;
 
 		}
 
@@ -75,7 +75,21 @@ export const ComponentAdd = ( props: ComponentAddProps ) => {
 			</div>
 		</div>
 		{initialValues && <div className={style.argsInput}>
-			<InputGroup initialValues={initialValues}/>
+			<InputGroup initialValues={initialValues} onSubmit={( e ) => {
+
+				if ( willAddComponent ) {
+
+					const component = new willAddComponent.component( e );
+
+					props.entity.addComponent( willAddComponent.name, component );
+
+					reflesh && reflesh();
+
+					setWillAddComponent( false );
+
+				}
+
+			}}/>
 		</div>}
 		<Button onClick={onClickAdd}>Add Component</Button>
 	</div>;

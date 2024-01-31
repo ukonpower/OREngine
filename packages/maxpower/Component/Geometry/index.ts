@@ -1,6 +1,6 @@
 import * as GLP from 'glpower';
 
-import { Component, ComponentProps } from "..";
+import { Component, ComponentParams, ComponentProps } from "..";
 
 export type GeometryParam = {
 }
@@ -21,9 +21,9 @@ export class Geometry extends Component {
 	public attributes: Map<string, Attribute >;
 	public needsUpdate: Map<GLP.GLPowerVAO, boolean>;
 
-	constructor() {
+	constructor( params?: ComponentParams ) {
 
-		super();
+		super( params );
 
 		this.vertCount = 0;
 		this.attributes = new Map();

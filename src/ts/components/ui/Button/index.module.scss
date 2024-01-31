@@ -6,7 +6,7 @@
 	background-color: $bgCol2;
 	border-radius: $radius1;
 	padding: 4px 0;
-	font-size: $fontSize2;
+	font-size: inherit;
 
 	&:hover {
 		background-color: $bgCol3;

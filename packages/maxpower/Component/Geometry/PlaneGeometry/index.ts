@@ -1,10 +1,20 @@
 import { Geometry } from "..";
+import { ComponentParams } from "../..";
+
+interface PlaneGeometryParams extends ComponentParams{
+	width: number,
+	height: number,
+	widthSegments: number,
+	heightSegments: number
+}
 
 export class PlaneGeometry extends Geometry {
 
-	constructor( width: number = 1, height: number = 1, widthSegments: number = 1, heightSegments: number = 1 ) {
+	constructor( params: PlaneGeometryParams ) {
 
-		super();
+		super( params );
+
+		const { width, height, widthSegments, heightSegments } = params;
 
 		const hx = width / 2;
 		const hy = height / 2;

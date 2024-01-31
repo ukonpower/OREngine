@@ -1,5 +1,9 @@
 @use '~/styles/common' as *;
 
+.group {}
+
 .submit {
+	margin-top: 5px;
 	padding: 0px 5px;
+	font-size: $fontSize2;
 }

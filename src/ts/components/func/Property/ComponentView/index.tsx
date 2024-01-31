@@ -23,11 +23,11 @@ export const ComponentView = ( props: ComponentViewProps ) => {
 	const accordion = compoProps !== null;
 	const propElms: JSX.Element[] = [];
 
-	const onChange = useCallback( ( key: string, value: ValueType ) => {
+	const onChange = useCallback( ( value: ValueType, label: string ) => {
 
 		component.property = {
 			...component.property,
-			[ key ]: { value }
+			[ label ]: { value }
 		};
 
 		reflesh && reflesh();
