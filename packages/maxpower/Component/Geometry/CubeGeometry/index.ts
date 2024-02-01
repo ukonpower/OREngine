@@ -2,12 +2,12 @@ import { Geometry } from "..";
 import { ComponentParams } from "../..";
 
 interface CubeGeometryParams extends ComponentParams{
-	width: number,
-	height: number,
-	depth: number,
-	segmentsWidth: number,
-	segmentsHeight: number,
-	segmentsDepth: number
+	width?: number,
+	height?: number,
+	depth?: number,
+	segmentsWidth?: number,
+	segmentsHeight?: number,
+	segmentsDepth?: number
 }
 
 export class CubeGeometry extends Geometry {

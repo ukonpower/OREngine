@@ -2,10 +2,10 @@ import { Geometry } from "..";
 import { ComponentParams } from "../..";
 
 interface RingGeometryParams extends ComponentParams{
-	innerRadius: number,
-	outerRadius: number,
-	thetaSegments: number,
-	phiSegments: number
+	innerRadius?: number,
+	outerRadius?: number,
+	thetaSegments?: number,
+	phiSegments?: number
 }
 
 export class RingGeometry extends Geometry {
@@ -14,7 +14,13 @@ export class RingGeometry extends Geometry {
 
 		super( params );
 
-		const { innerRadius, outerRadius, thetaSegments, phiSegments } = params;
+		const { innerRadius, outerRadius, thetaSegments, phiSegments } = {
+			innerRadius: 0.5,
+			outerRadius: 1,
+			thetaSegments: 12,
+			phiSegments: 1,
+			...params
+		};
 
 		const totalThetaSegments = ( thetaSegments + 1 );
 

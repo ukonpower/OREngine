@@ -1,11 +1,12 @@
-import * as MXP from 'maxpower';
 import * as GLP from 'glpower';
+import * as MXP from 'maxpower';
 
-import { gl, globalUniforms, midimix, mpkmini } from '~/ts/Globals';
 
-import trailsVert from './shaders/trails.vs';
 import trailsFrag from './shaders/trails.fs';
+import trailsVert from './shaders/trails.vs';
 import trailsCompute from './shaders/trailsCompute.glsl';
+
+import { gl, globalUniforms } from '~/ts/Globals';
 
 export class Trails extends MXP.Entity {
 
@@ -19,14 +20,6 @@ export class Trails extends MXP.Entity {
 		const count = new GLP.Vector( 128, 512 );
 
 		this.commonUniforms = GLP.UniformsUtils.merge( {
-			uMidi: {
-				value: midimix.vectorsLerped[ 2 ],
-				type: "4fv"
-			},
-			uMidi2: {
-				value: mpkmini.vectorsLerped[ 1 ],
-				type: "4fv"
-			},
 			uVisibility: {
 				value: 0,
 				type: "1f"
@@ -65,7 +58,13 @@ export class Trails extends MXP.Entity {
 
 		}
 
-		const geo = this.addComponent( "geometry", new MXP.CubeGeometry( 0.05, 0.05, 0.05, 1.0, count.x ) );
+		const geo = this.addComponent( "geometry", new MXP.CubeGeometry( {
+			width: 0.05,
+			height: 0.05,
+			depth: 0.05,
+			segmentsWidth: 1.0,
+			segmentsHeight: count.x
+		} ) );
 		geo.setAttribute( "id", new Float32Array( idArray ), 3, { instanceDivisor: 1 } );
 
 		// material

@@ -121,7 +121,7 @@ export class Renderer extends MXP.Entity {
 
 		// quad
 
-		this.quad = new MXP.PlaneGeometry( 2.0, 2.0 );
+		this.quad = new MXP.PlaneGeometry( { width: 2.0, height: 2.0 } );
 
 		// gpu
 

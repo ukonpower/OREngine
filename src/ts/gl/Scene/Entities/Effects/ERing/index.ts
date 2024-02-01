@@ -1,11 +1,12 @@
 import * as GLP from 'glpower';
+import { Entity } from 'maxpower/Entity';
+
+import eRingFrag from './shaders/eRing.fs';
+import eRingVert from './shaders/eRing.vs';
 
 import { globalUniforms } from '~/ts/Globals';
 import { hotGet, hotUpdate } from '~/ts/libs/glpower_local/Framework/Utils/Hot';
 
-import eRingVert from './shaders/eRing.vs';
-import eRingFrag from './shaders/eRing.fs';
-import { Entity } from 'maxpower/Entity';
 
 type RingType = 'line' | 'dash'
 
