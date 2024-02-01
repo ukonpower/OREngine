@@ -1,13 +1,14 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { globalUniforms, power } from '~/ts/Globals';
-
-import treeModelVert from './shaders/treeModel.vs';
-import treeVert from './shaders/tree.vs';
-import treeFrag from './shaders/tree.fs';
-import { Modeler } from '~/ts/libs/Modeler';
 import { shaderParse } from '../../Renderer/ShaderParser';
+
+import treeFrag from './shaders/tree.fs';
+import treeVert from './shaders/tree.vs';
+import treeModelVert from './shaders/treeModel.vs';
+
+import { globalUniforms, power } from '~/ts/Globals';
+import { Modeler } from '~/ts/libs/Modeler';
 
 
 export class Tree extends MXP.Entity {

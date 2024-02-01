@@ -103,12 +103,12 @@ export class BLidger extends Component {
 
 				const cubeParam = this.node.param as any;
 
-				entity.addComponent( 'geometry', new CubeGeometry( cubeParam.x, cubeParam.y, cubeParam.z, 10, 10, 10 ) );
+				entity.addComponent( 'geometry', new CubeGeometry( { width: cubeParam.x, height: cubeParam.y, depth: cubeParam.z, segmentsWidth: 10, segmentsHeight: 10, segmentsDepth: 10 } ) );
 
 			} else if ( this.node.type == 'sphere' ) {
 
 				const sphereParam = this.node.param as any;
-				entity.addComponent( 'geometry', new SphereGeometry( sphereParam.r ) );
+				entity.addComponent( 'geometry', new SphereGeometry( { radius: sphereParam.r } ) );
 
 			} else if ( this.node.type == 'cylinder' ) {
 
@@ -120,7 +120,7 @@ export class BLidger extends Component {
 
 				const planeParam = this.node.param as any;
 
-				entity.addComponent( 'geometry', new PlaneGeometry( planeParam.x, planeParam.y ) );
+				entity.addComponent( 'geometry', new PlaneGeometry( { width: planeParam.x, height: planeParam.y } ) );
 
 			} else if ( this.node.type == 'mesh' ) {
 

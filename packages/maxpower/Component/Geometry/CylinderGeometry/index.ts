@@ -4,12 +4,12 @@ import { Geometry } from "..";
 import { ComponentParams } from "../..";
 
 interface CylinderGeometryParams extends ComponentParams{
-	height: number,
-	radiusTop: number,
-	radiusBottom: number,
-	radSegments: number,
-	heightSegments: number,
-	futa: boolean
+	height?: number,
+	radiusTop?: number,
+	radiusBottom?: number,
+	radSegments?: number,
+	heightSegments?: number,
+	futa?: boolean
 }
 
 export class CylinderGeometry extends Geometry {
@@ -24,7 +24,15 @@ export class CylinderGeometry extends Geometry {
 		const uvArray = [];
 		const indexArray = [];
 
-		const { height, radiusTop, radiusBottom, radSegments, heightSegments, futa } = params;
+		const { height, radiusTop, radiusBottom, radSegments, heightSegments, futa } = {
+			height: 1,
+			radiusTop: 1,
+			radiusBottom: 1,
+			radSegments: 8,
+			heightSegments: 1,
+			futa: true,
+			...params
+		};
 
 		//上下面分2回多くループ
 		for ( let i = 0; i <= heightSegments + 2; i ++ ) {

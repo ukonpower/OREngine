@@ -4,9 +4,9 @@ import { Geometry } from "..";
 import { ComponentParams } from "../..";
 
 type SphereGeometryParam = {
-	radius: number,
-	widthSegments: number,
-	heightSegments: number
+	radius?: number,
+	widthSegments?: number,
+	heightSegments?: number
 } & ComponentParams
 
 export class SphereGeometry extends Geometry {
@@ -20,7 +20,12 @@ export class SphereGeometry extends Geometry {
 		const uvArray = [];
 		const indexArray = [];
 
-		const { radius, widthSegments, heightSegments } = param;
+		const { radius, widthSegments, heightSegments } = {
+			radius: 1,
+			widthSegments: 8,
+			heightSegments: 8,
+			...param
+		};
 
 		for ( let i = 0; i <= heightSegments; i ++ ) {
 
