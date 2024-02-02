@@ -53,15 +53,19 @@ export const ComponentAdd = ( props: ComponentAddProps ) => {
 
 						}
 
-						const menuItem = pushContent && pushContent( <div className={style.argsInput}><InputGroup initialValues={initialValues} onSubmit={( e ) => {
+						const menuItem = pushContent && pushContent(
+							<div className={style.argsInput}>
+								<InputGroup initialValues={initialValues} onSubmit={( e ) => {
 
-							const component = new compItem.component( e );
+									const component = new compItem.component( e );
 
-							props.entity.addComponent( compItem.name, component );
+									props.entity.addComponent( compItem.name, component );
 
-							closeAll && closeAll();
+									closeAll && closeAll();
 
-						}}/> </div> );
+								}}/>
+							</div>
+						);
 
 						if ( menuItem && menuItem.close ) {
 
@@ -82,7 +86,13 @@ export const ComponentAdd = ( props: ComponentAddProps ) => {
 
 		} ) || [];
 
-		pushContent && pushContent( <Picker list={listItem}/> );
+		pushContent && pushContent(
+			<div className={style.picker}>
+				<div className={style.picker_inner}>
+					<Picker list={listItem}/>
+				</div>
+			</div>
+		);
 
 	}, [ pushContent, resources, props.entity, closeAll ] );
 
