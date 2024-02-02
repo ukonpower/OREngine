@@ -1,6 +1,8 @@
 
 import * as MXP from 'maxpower';
-import { useCallback, useContext, useState } from 'react';
+import { MouseEvent, useCallback, useContext, useState } from 'react';
+
+import { MouseMenuContext } from '../../MouseMenu/useMouseMenu';
 
 import style from './index.module.scss';
 
@@ -16,81 +18,62 @@ type ComponentAddProps= {
 
 export const ComponentAdd = ( props: ComponentAddProps ) => {
 
+	const { pushContent, closeAll } = useContext( MouseMenuContext );
 	const { resources, reflesh } = useContext( EditorContext );
 
-	// picker
+	const onClickAdd = useCallback( ( e: MouseEvent ) => {
 
-	const [ pickerVisibility, setPickerVisibility ] = useState<boolean>( false );
+		const listItem = resources?.componentList.map( ( compItem ) => {
 
-	const onClickAdd = useCallback( () => {
+			return {
+				label: compItem.component.name,
+				onClick: () => {
 
-		setPickerVisibility( ! pickerVisibility );
+					if ( compItem.defaultArgs ) {
 
-	}, [ pickerVisibility ] );
+						const initialValues: { [key: string]: ValueType} = {};
 
-	// args
+						const args = compItem.defaultArgs;
 
-	const [ willAddComponent, setWillAddComponent ] = useState<any>();
+						const propKeys = Object.keys( args );
 
-	const listItem = resources?.componentList.map( ( compItem ) => {
+						for ( let i = 0; i < propKeys.length; i ++ ) {
 
-		return {
-			label: compItem.component.name,
-			onClick: () => {
+							const key = propKeys[ i ];
+							const prop = args[ key ];
 
-				setWillAddComponent( compItem );
+							initialValues[ key ] = prop;
 
-			}
-		};
+						}
 
-	} ) || [];
+						pushContent && pushContent( <div className={style.argsInput}><InputGroup initialValues={initialValues} onSubmit={( e ) => {
 
-	// args
+							const component = new compItem.component( e );
 
-	let initialValues: { [key: string]: ValueType} | null = null;
+							props.entity.addComponent( compItem.name, component );
 
-	if ( willAddComponent && willAddComponent.defaultArgs ) {
+							closeAll && closeAll();
 
-		const args = willAddComponent.defaultArgs;
+						}}/> </div> );
 
-		const propKeys = Object.keys( args );
+					} else {
 
-		initialValues = {};
+						props.entity.addComponent( compItem.name, new compItem.component() );
 
-		for ( let i = 0; i < propKeys.length; i ++ ) {
+						closeAll && closeAll();
 
-			const key = propKeys[ i ];
-			const prop = args[ key ];
-
-			initialValues[ key ] = prop;
-
-		}
-
-	}
-
-	return <div className={style.compAdd}>
-		<div className={style.picker}>
-			<div className={style.picker_inner}>
-				{pickerVisibility && <Picker list={listItem}/>}
-			</div>
-		</div>
-		{initialValues && <div className={style.argsInput}>
-			<InputGroup initialValues={initialValues} onSubmit={( e ) => {
-
-				if ( willAddComponent ) {
-
-					const component = new willAddComponent.component( e );
-
-					props.entity.addComponent( willAddComponent.name, component );
-
-					reflesh && reflesh();
-
-					setWillAddComponent( false );
+					}
 
 				}
+			};
 
-			}}/>
-		</div>}
+		} ) || [];
+
+		pushContent && pushContent( <Picker list={listItem}/> );
+
+	}, [ pushContent, resources, props.entity, closeAll ] );
+
+	return <div className={style.compAdd}>
 		<Button onClick={onClickAdd}>Add Component</Button>
 	</div>;
 

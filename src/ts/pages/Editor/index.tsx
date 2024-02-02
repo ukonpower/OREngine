@@ -4,6 +4,8 @@ import style from './index.module.scss';
 
 import { AssetBrowswer } from '~/ts/components/func/AssetBrowswer';
 import { Hierarchy } from '~/ts/components/func/Hierarchy';
+import { MouseMenu } from '~/ts/components/func/MouseMenu';
+import { MouseMenuContext, useMouseMenu } from '~/ts/components/func/MouseMenu/useMouseMenu';
 import { Property } from '~/ts/components/func/Property';
 import { Screen } from '~/ts/components/func/Screen';
 import { Panel } from '~/ts/components/ui/Panel';
@@ -14,7 +16,13 @@ import { useGL, GLContext } from '~/ts/gl/React/useGL';
 export const EditorProvider = ( { children } :{children: ReactNode} ) => {
 
 	const editorContext = useEditor();
-	return <EditorContext.Provider value={editorContext}>{children}</EditorContext.Provider>;
+	const mouseMenuContext = useMouseMenu();
+
+	return <EditorContext.Provider value={editorContext}>
+		<MouseMenuContext.Provider value={mouseMenuContext} >
+			{children}
+		</MouseMenuContext.Provider>
+	</EditorContext.Provider>;
 
 };
 
@@ -57,6 +65,7 @@ export const EditorPage = () => {
 					</div>
 				</div>
 			</div>
+			<MouseMenu />
 		</EditorProvider>
 	</GLContext.Provider>;
 
