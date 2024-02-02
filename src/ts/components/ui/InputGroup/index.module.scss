@@ -1,6 +1,9 @@
 @use '~/styles/common' as *;
 
-.group {}
+.group {
+	background-color: $bgCol0;
+	padding: $padding;
+}
 
 .submit {
 	margin-top: 5px;

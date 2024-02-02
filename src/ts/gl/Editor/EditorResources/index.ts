@@ -51,9 +51,9 @@ export class EditorResources extends GLP.EventEmitter {
 
 		this.componentList.push( { name: "material", component: MXP.Material, defaultArgs: {} } );
 
-		this.componentList.push( { name: "lookAt", component: LookAt, defaultArgs: {} } );
+		this.componentList.push( { name: "lookAt", component: LookAt } );
 
-		this.componentList.push( { name: "shakeViewer", component: ShakeViewer, defaultArgs: {} } );
+		this.componentList.push( { name: "shakeViewer", component: ShakeViewer } );
 
 	}
 

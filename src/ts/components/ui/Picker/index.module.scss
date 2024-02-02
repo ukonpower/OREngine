@@ -10,6 +10,7 @@
 
 .item {
 	padding: $padding;
+	cursor: pointer;
 
 	&:hover {
 		background-color: $bgCol2;
