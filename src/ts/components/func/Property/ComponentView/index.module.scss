@@ -13,14 +13,21 @@
 }
 
 .name {
-	// margin-left: 5px;
+	margin-left: 5px;
 }
 
 .check {
-	margin-left: auto;
-	// transform: scale(0.8);
+	// margin-left: auto;
+	transform: scale(0.8);
 }
 
 .delete {
-	margin-left: 5px;
+	margin-left: auto;
+	width: 10px;
+	height: 10px;
+
+	button {
+		font-size: 0;
+		display: block;
+	}
 }
