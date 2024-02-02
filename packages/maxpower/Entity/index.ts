@@ -41,6 +41,7 @@ export class Entity extends GLP.EventEmitter {
 	public name: string;
 
 	public position: GLP.Vector;
+	public euler: GLP.Euler;
 	public quaternion: GLP.Quaternion;
 	public scale: GLP.Vector;
 
@@ -67,6 +68,7 @@ export class Entity extends GLP.EventEmitter {
 		this.uuid = GLP.ID.genUUID();
 
 		this.position = new GLP.Vector( 0.0, 0.0, 0.0, 1.0 );
+		this.euler = new GLP.Euler();
 		this.quaternion = new GLP.Quaternion( 0.0, 0.0, 0.0, 1.0 );
 		this.scale = new GLP.Vector( 1.0, 1.0, 1.0 );
 
@@ -284,6 +286,16 @@ export class Entity extends GLP.EventEmitter {
 		const matrix = this.parent ? this.parent.matrixWorld : new GLP.Matrix();
 
 		this.matrixWorldPrev.copy( this.matrixWorld );
+
+		if ( this.quaternion.updated ) {
+
+			this.euler.setFromQuaternion( this.quaternion );
+
+		}
+
+		this.quaternion.setFromEuler( this.euler );
+
+		this.quaternion.updated = false;
 
 		this.matrix.setFromTransform( this.position, this.quaternion, this.scale );
 

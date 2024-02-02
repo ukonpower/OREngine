@@ -1,4 +1,6 @@
-import * as MXP from 'maxpower';
+import * as GLP from 'glpower';
+import * as MXP from 'maxpower'
+;
 import { useContext } from 'react';
 
 import { PropertyBlock } from '../../ui/Property/PropertyBlock';
@@ -43,9 +45,9 @@ export const Property = () => {
 					}}/>
 				</PropertyBlock>
 				<PropertyBlock label={"Rotation"} >
-					<Vector type='vec4' value={active.quaternion} onChange={( value ) => {
+					<Vector type='vec3' value={active.euler} onChange={( value ) => {
 
-						active.quaternion.copy( value );
+						active.euler.copy( value );
 						reflesh && reflesh();
 
 					}}/>

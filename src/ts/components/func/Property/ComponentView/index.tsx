@@ -19,14 +19,11 @@ export const ComponentView = ( { component, keyName }: ComponentViewProps ) => {
 
 	const { reflesh } = useContext( EditorContext );
 
-
-	const propElms: JSX.Element[] = [];
-
-	propElms.push( <Value label={"key"} value={keyName} readOnly/> );
+	const propElms: JSX.Element[] = [
+		<Value key='-1' label={"key"} value={keyName} readOnly/>
+	];
 
 	const compoProps = component.property;
-	const accordion = compoProps !== null;
-
 
 	const onChange = useCallback( ( value: ValueType, label: string ) => {
 
