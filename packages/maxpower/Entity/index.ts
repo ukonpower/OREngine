@@ -291,9 +291,11 @@ export class Entity extends GLP.EventEmitter {
 
 			this.euler.setFromQuaternion( this.quaternion );
 
-		}
+		} else {
 
-		this.quaternion.setFromEuler( this.euler );
+			this.quaternion.setFromEuler( this.euler );
+
+		}
 
 		this.quaternion.updated = false;
 

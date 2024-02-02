@@ -95,18 +95,9 @@ export class BLidger extends Component {
 				z: this.node.rotation[ 2 ],
 			}, 'YZX' );
 
+			entity.quaternion.updated = false;
+
 			entity.euler.setFromQuaternion( entity.quaternion );
-
-			if ( entity.name == "Spot.002" ) {
-
-
-				console.log( this.node.rotation );
-
-				// console.log( entity.euler );
-
-
-			}
-
 
 			entity.scale.set( this.node.scale[ 0 ], this.node.scale[ 1 ], this.node.scale[ 2 ] );
 
