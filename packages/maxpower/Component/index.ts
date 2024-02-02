@@ -39,7 +39,7 @@ export class Component extends GLP.EventEmitter {
 
 	private _enabled: boolean;
 
-	protected entity: Entity | null;
+	public readonly entity: Entity | null;
 
 	constructor( params?: ComponentParams ) {
 
