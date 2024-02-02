@@ -8,6 +8,7 @@ export type ValueInputProps<T> = {
 	value: T,
 	readOnly?: boolean,
 	onChange?: ( value: T ) => void
+	slideScale?: number
 }
 
 export const ValueInput = <T extends number | boolean | string, >( { value, onChange, readOnly, ...props }: ValueInputProps<T> ) => {
@@ -26,11 +27,11 @@ export const ValueInput = <T extends number | boolean | string, >( { value, onCh
 
 		return <div className={style.input}>
 			<div className={style.input_value}>
-				<InputNumber value={value} onChange={( value ) => {
+				<InputNumber value={value} readOnly={readOnly} slideScale={props.slideScale} onChange={( value ) => {
 
 					onChange && onChange( value as T );
 
-				}} readOnly={readOnly}/>
+				}}/>
 			</div>
 		</div>;
 

@@ -45,9 +45,9 @@ export const Property = () => {
 					}}/>
 				</PropertyBlock>
 				<PropertyBlock label={"Rotation"} >
-					<Vector type='vec3' value={active.euler} onChange={( value ) => {
+					<Vector type='vec3' value={ new GLP.Vector().copy( active.euler ).multiply( 1.0 / Math.PI * 180 )} slideScale={50} onChange={( value ) => {
 
-						active.euler.copy( value );
+						active.euler.copy( value ).multiply( 1.0 / 180 * Math.PI );
 						reflesh && reflesh();
 
 					}}/>
