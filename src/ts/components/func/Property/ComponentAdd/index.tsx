@@ -1,6 +1,6 @@
 
 import * as MXP from 'maxpower';
-import { MouseEvent, useCallback, useContext, useState } from 'react';
+import { MouseEvent, useCallback, useContext, useRef, useState } from 'react';
 
 import { MouseMenuContext } from '../../MouseMenu/useMouseMenu';
 
@@ -19,7 +19,9 @@ type ComponentAddProps= {
 export const ComponentAdd = ( props: ComponentAddProps ) => {
 
 	const { pushContent, closeAll } = useContext( MouseMenuContext );
-	const { resources, reflesh } = useContext( EditorContext );
+	const { resources } = useContext( EditorContext );
+
+	const currentContentRef = useRef<() => void>();
 
 	const onClickAdd = useCallback( ( e: MouseEvent ) => {
 
@@ -29,12 +31,17 @@ export const ComponentAdd = ( props: ComponentAddProps ) => {
 				label: compItem.component.name,
 				onClick: () => {
 
+					if ( currentContentRef.current ) {
+
+						currentContentRef.current();
+
+					}
+
 					if ( compItem.defaultArgs ) {
 
 						const initialValues: { [key: string]: ValueType} = {};
 
 						const args = compItem.defaultArgs;
-
 						const propKeys = Object.keys( args );
 
 						for ( let i = 0; i < propKeys.length; i ++ ) {
@@ -46,7 +53,7 @@ export const ComponentAdd = ( props: ComponentAddProps ) => {
 
 						}
 
-						pushContent && pushContent( <div className={style.argsInput}><InputGroup initialValues={initialValues} onSubmit={( e ) => {
+						const menuItem = pushContent && pushContent( <div className={style.argsInput}><InputGroup initialValues={initialValues} onSubmit={( e ) => {
 
 							const component = new compItem.component( e );
 
@@ -55,6 +62,12 @@ export const ComponentAdd = ( props: ComponentAddProps ) => {
 							closeAll && closeAll();
 
 						}}/> </div> );
+
+						if ( menuItem && menuItem.close ) {
+
+							currentContentRef.current = menuItem.close;
+
+						}
 
 					} else {
 

@@ -47,7 +47,9 @@ export const useMouseMenu = () => {
 
 	const closeContent = useCallback( ( id: number ) => {
 
-		setContentList( itemListRef.current.filter( ( item ) => item.id !== id ) );
+		itemListRef.current = itemListRef.current.filter( ( item ) => item.id !== id );
+
+		setContentList( itemListRef.current );
 
 	}, [] );
 
