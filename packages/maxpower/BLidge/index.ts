@@ -1,4 +1,5 @@
 import * as GLP from 'glpower';
+
 import { GLTF, GLTFLoader } from '../Loaders/GLTFLoader';
 
 export type BLidgeNodeType = 'empty' | 'cube' | 'sphere' | 'cylinder' | 'mesh' | 'camera' | 'plane' | 'light' | 'gltf';
