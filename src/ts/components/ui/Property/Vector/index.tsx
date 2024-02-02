@@ -8,6 +8,7 @@ import style from './index.module.scss';
 type VectorProps = {
 	value: GLP.IVector4,
 	type?: "vec2"| "vec3"| "vec4"
+	slideScale?: number,
 	onChange?: ( value: GLP.IVector4 ) => void
 }
 
@@ -36,19 +37,19 @@ export const Vector = ( { onChange, ...props }: VectorProps ) => {
 	}, [ onChange ] );
 
 	const array = [
-		<Value key={"x"} label='X' value={props.value.x} onChange={onChangeValue}/>,
-		<Value key={"y"} label='Y' value={props.value.y} onChange={onChangeValue}/>
+		<Value key={"x"} label='X' value={props.value.x} slideScale={props.slideScale} onChange={onChangeValue}/>,
+		<Value key={"y"} label='Y' value={props.value.y} slideScale={props.slideScale} onChange={onChangeValue}/>
 	];
 
 	if ( ! props.type || props.type == "vec3" || props.type == "vec4" ) {
 
-		array.push( <Value key={"z"} label='Z' value={props.value.z} onChange={onChangeValue}/> );
+		array.push( <Value key={"z"} label='Z' value={props.value.z} slideScale={props.slideScale} onChange={onChangeValue}/> );
 
 	}
 
 	if ( props.type == "vec4" ) {
 
-		array.push( <Value key={"w"} label='W' value={props.value.w} onChange={onChangeValue}/> );
+		array.push( <Value key={"w"} label='W' value={props.value.w} slideScale={props.slideScale} onChange={onChangeValue}/> );
 
 	}
 

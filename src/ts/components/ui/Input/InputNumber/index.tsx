@@ -5,14 +5,15 @@ import { ValueType } from '../../Property/Value';
 
 import style from './index.module.scss';
 
-type InputNumberProps = {
-	value: number
-	onChange?: ( value: number ) => void
-	disable?: boolean
-	readOnly?: boolean
-};
+interface InputNumberProps {
+	value: number;
+	slideScale?: number;
+	onChange?: ( value: number ) => void;
+	disable?: boolean;
+	readOnly?: boolean;
+}
 
-export const InputNumber = ( { onChange, value, ...props }: InputNumberProps ) => {
+export const InputNumber = ( { onChange, value, slideScale, ...props }: InputNumberProps ) => {
 
 	const pointerDownRef = useRef( false );
 
@@ -32,7 +33,7 @@ export const InputNumber = ( { onChange, value, ...props }: InputNumberProps ) =
 
 		if ( typeof value == "number" ) {
 
-			const deltaValue = delta * 0.01;
+			const deltaValue = delta * 0.01 * ( slideScale || 1 );
 
 			if ( onChangeRef.current ) {
 
@@ -47,7 +48,7 @@ export const InputNumber = ( { onChange, value, ...props }: InputNumberProps ) =
 		e.preventDefault();
 
 
-	}, [] );
+	}, [ slideScale ] );
 
 	const onPointerDown = useCallback( ( e: MouseEvent ) => {
 

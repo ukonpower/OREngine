@@ -10,6 +10,7 @@ export type ValueProps = {
 	value: ValueType,
 	initialValue?: ValueType,
 	precision?: number
+	slideScale?: number,
 	readOnly?: boolean,
 	onChange?: ( value: ValueType, label: string ) => void
 }
@@ -31,7 +32,7 @@ export const Value = ( props: ValueProps ) => {
 
 	return <div className={style.value} >
 		{props.label && <div className={style.value_label}>{props.label}</div>}
-		<ValueInput value={props.value} onChange={onChangeValue} readOnly={props.readOnly} />
+		<ValueInput value={props.value} onChange={onChangeValue} slideScale={props.slideScale} readOnly={props.readOnly} />
 	</div>;
 
 };
