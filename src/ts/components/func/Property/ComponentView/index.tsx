@@ -62,10 +62,15 @@ export const ComponentView = ( props: ComponentViewProps ) => {
 	const Check = () => {
 
 		return <div className={style.head}>
-			{component.name || component.constructor.name}
+			<div className={style.name}>
+				{component.name || component.constructor.name}
+			</div>
 			<div className={style.check}>
 				<InputBoolean checked={component.enabled} onChange={onChangeEnabled} />
 			</div>
+			{/* <div className={style.delete}>
+				<button>X</button>
+			</div> */}
 		</div>;
 
 	};

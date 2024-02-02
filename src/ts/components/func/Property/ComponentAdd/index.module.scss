@@ -4,12 +4,11 @@
 
 .picker {
 	position: absolute;
+	width: 150px;
 
 	&_inner {
 		position: relative;
-		width: 150px;
-		max-height: 100px;
-		overflow-y: auto;
+		overflow: hidden;
 	}
 }
 
