@@ -1,9 +1,9 @@
 import * as GLP from 'glpower';
 
-import { Component, ComponentProps, ComponentUpdateEvent } from "..";
+import { Component, ComponentParams, ComponentUpdateEvent } from "..";
 
 export type CameraType = 'perspective' | 'orthographic'
-export interface CameraParam {
+export interface CameraParam extends ComponentParams {
 	cameraType?: CameraType;
 	fov?: number;
 	near?: number;

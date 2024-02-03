@@ -78,11 +78,30 @@ export const useEditor = () => {
 
 	}, [ gl, reflesh ] );
 
+	// blidge
+
+	const [ blidge, setBLidge ] = useState<MXP.BLidge>();
+
+	useEffect( ()=> {
+
+		if ( gl ) {
+
+			setBLidge( gl.editor.blidge );
+
+		} else {
+
+			setBLidge( undefined );
+
+		}
+
+	}, [ gl ] );
+
 	return {
 		gl,
 		resources,
 		active,
 		rootEntity,
+		blidge,
 		refleshCounter,
 		reflesh
 	};
