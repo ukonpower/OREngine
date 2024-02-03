@@ -1,0 +1,14 @@
+@startuml savedata
+
+rectangle BLidge as BL
+rectangle BLidgeData as BLD
+
+rectangle OREngine as OR
+rectangle OREngineData as ORD
+rectangle OREnginePlayerData as PlayerData
+
+BL -> BLD : export
+BLD -> OR
+OR <-> ORD : Import / Export
+OR -> PlayerData : export
+@enduml

@@ -9,6 +9,7 @@ interface InputNumberProps {
 	value: number;
 	slideScale?: number;
 	onChange?: ( value: number ) => void;
+	precision?: number;
 	disable?: boolean;
 	readOnly?: boolean;
 }
@@ -68,7 +69,7 @@ export const InputNumber = ( { onChange, value, slideScale, ...props }: InputNum
 
 	}, [ onPointerMoveNumber ] );
 
-	const v = Number( value.toFixed( 3 ) );
+	const v = Number( value.toFixed( props.precision ?? 3 ) );
 
 	return <div className={style.inputNumber}>
 		<input className={style.input} type="number" value={v} disabled={props.disable} readOnly={props.readOnly}

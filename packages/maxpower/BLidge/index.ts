@@ -161,7 +161,7 @@ export class BLidge extends GLP.EventEmitter {
 
 	// connection
 
-	private connection?: BLidgeConnection;
+	public connection?: BLidgeConnection;
 
 	// frame
 
@@ -229,6 +229,20 @@ export class BLidge extends GLP.EventEmitter {
 			ws,
 			gltfPath
 		};
+
+	}
+
+	public disconnect() {
+
+		if ( this.connection ) {
+
+			this.connection.ws.close();
+			this.connection.ws.onmessage = null;
+			this.connection.ws.onclose = null;
+			this.connection.ws.onopen = null;
+			this.connection = undefined;
+
+		}
 
 	}
 
@@ -446,7 +460,7 @@ export class BLidge extends GLP.EventEmitter {
 
 	private onClose( e:CloseEvent ) {
 
-		this.disposeWS();
+		this.disconnect();
 
 	}
 
@@ -500,21 +514,7 @@ export class BLidge extends GLP.EventEmitter {
 
 	public dispose() {
 
-		this.disposeWS();
-
-	}
-
-	public disposeWS() {
-
-		if ( this.connection ) {
-
-			this.connection.ws.close();
-			this.connection.ws.onmessage = null;
-			this.connection.ws.onclose = null;
-			this.connection.ws.onopen = null;
-			this.connection = undefined;
-
-		}
+		this.disconnect();
 
 	}
 

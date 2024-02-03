@@ -25,7 +25,7 @@ export class EditorResources extends GLP.EventEmitter {
 			cameraType: "perspective",
 		} } );
 
-		this.componentList.push( { name: "light", component: MXP.Light, args: {
+		this.componentList.push( { name: "light", component: MXP.Light, defaultArgs: {
 			lightType: "directional",
 		} } );
 
@@ -49,11 +49,14 @@ export class EditorResources extends GLP.EventEmitter {
 			heightSegments: 1
 		} } );
 
-		this.componentList.push( { name: "material", component: MXP.Material, defaultArgs: {} } );
+		this.componentList.push( { name: "material", component: MXP.Material } );
 
 		this.componentList.push( { name: "lookAt", component: LookAt } );
 
-		this.componentList.push( { name: "shakeViewer", component: ShakeViewer } );
+		this.componentList.push( { name: "shakeViewer", component: ShakeViewer, defaultArgs: {
+			power: 1.0,
+			speed: 1.0
+		} } );
 
 	}
 
