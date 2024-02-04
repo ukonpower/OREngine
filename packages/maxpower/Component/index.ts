@@ -39,7 +39,7 @@ export class Component extends GLP.EventEmitter {
 
 	private _enabled: boolean;
 
-	public readonly entity: Entity | null;
+	public entity: Entity | null;
 
 	constructor( params?: ComponentParams ) {
 
@@ -76,6 +76,12 @@ export class Component extends GLP.EventEmitter {
 	}
 
 	public set property( props: {[key: string]: {value: any}} ) {
+	}
+
+	public get export(): ComponentProps | null {
+
+		return this.property;
+
 	}
 
 	public noticeChanged( type?: string ) {

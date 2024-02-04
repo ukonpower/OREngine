@@ -1,24 +1,33 @@
-import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
 import { router } from './router';
-import SceneData from './scene/scene.json';
 
-import { blidge } from '~/ts/Globals';
+export class BLidgeClient extends MXP.Component {
 
-export class Carpenter extends GLP.EventEmitter {
+	private blidge: MXP.BLidge;
 
 	private root: MXP.Entity;
 	private blidgeRoot: MXP.Entity | null;
 	private camera: MXP.Entity;
 	private entities: Map<string, MXP.Entity>;
 
+	// connection
+
+	private connection: {
+		enabled: boolean,
+		url: string,
+	};
+
+	// gltf path
+
+	private gltfPath: string;
+
 	// frame
 
 	private playing: boolean;
 	private playTime: number;
 
-	constructor( root: MXP.Entity, camera: MXP.Entity ) {
+	constructor( gl: WebGL2RenderingContext, root: MXP.Entity, camera: MXP.Entity ) {
 
 		super();
 
@@ -31,17 +40,84 @@ export class Carpenter extends GLP.EventEmitter {
 		this.playing = false;
 		this.playTime = 0;
 
+		// connection
+
+		this.connection = {
+			enabled: true,
+			url: "ws://localhost:3100",
+		};
+
 		// blidge
 
 		this.blidgeRoot = null;
 
-		blidge.on( 'sync/scene', this.onSyncScene.bind( this ) );
+		this.blidge = new MXP.BLidge( gl );
 
-		blidge.on( 'sync/timeline', ( frame: MXP.BLidgeFrame ) => {
+		this.blidge.on( 'sync/scene', this.onSyncScene.bind( this ) );
+
+		this.blidge.on( 'sync/timeline', ( frame: MXP.BLidgeFrame ) => {
 		} );
 
-		blidge.loadScene( SceneData as any, BASE_PATH + "/scene.glb" );
+		// gltf path
 
+		this.gltfPath = BASE_PATH + "/scene.glb";
+
+		// init
+
+		this.property = this.property;
+
+	}
+
+	public get property(): MXP.ComponentProps {
+
+		const connect = this.connection.enabled;
+
+		return {
+			connected: {
+				value: connect,
+			},
+			url: {
+				value: this.connection.url,
+				opt: {
+					readOnly: connect
+				}
+			},
+			gltfPath: {
+				value: this.gltfPath,
+				opt: {
+					readOnly: connect
+				}
+			}
+		};
+
+	}
+
+	public set property( props: MXP.ComponentProps ) {
+
+		this.connection.url = props.url.value;
+
+		this.connection.enabled = props.connected.value;
+
+		this.gltfPath = props.gltfPath.value;
+
+		if ( props.connected.value ) {
+
+			this.blidge.connect( this.connection.url, this.gltfPath );
+
+		} else {
+
+			this.blidge.disconnect();
+
+		}
+
+	}
+
+	public get export(): MXP.ComponentProps | null {
+
+		return {
+			...super.export,
+			scene: { value: this.blidge.currentScene }
+		};
 
 	}
 

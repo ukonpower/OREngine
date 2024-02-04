@@ -453,6 +453,14 @@ export class Entity extends GLP.EventEmitter {
 
 	}
 
+	public traverse( cb: ( entity: Entity ) => void ) {
+
+		cb( this );
+
+		this.children.forEach( c => c.traverse( cb ) );
+
+	}
+
 	/*-------------------------------
 		Dispose
 	-------------------------------*/

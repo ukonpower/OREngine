@@ -1,6 +1,6 @@
 import * as GLP from 'glpower';
 
-import { Component, ComponentUpdateEvent } from "..";
+import { Component, ComponentProps, ComponentUpdateEvent } from "..";
 import { BLidge, BLidgeNode, BLidgeLightParam } from "../../BLidge";
 import { Entity } from '../../Entity';
 import { Geometry } from "../Geometry";

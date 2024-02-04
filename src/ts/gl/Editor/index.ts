@@ -8,8 +8,6 @@ import { EditorState } from './EditorState';
 import { FileSystem } from './FileSystem';
 import { Serializer } from './Serializer';
 
-import { blidge } from '~/ts/Globals';
-
 export class Editor extends GLP.EventEmitter {
 
 	// resources
@@ -25,10 +23,6 @@ export class Editor extends GLP.EventEmitter {
 
 	public serializer: Serializer;
 	public fileSystem: FileSystem;
-
-	// blidge
-
-	public blidge: MXP.BLidge;
 
 	// state
 
@@ -79,16 +73,6 @@ export class Editor extends GLP.EventEmitter {
 		this.state.root = scene;
 
 		// blidge
-
-		this.blidge = blidge;
-
-		this.state.blidgeConnection.blidge = this.blidge;
-
-		if ( this.state.blidgeConnection.enabled ) {
-
-			blidge.connect( this.state.blidgeConnection.url, this.state.blidgeConnection.gltfPath );
-
-		}
 
 		const onKeyDown = ( e: KeyboardEvent ) => {
 

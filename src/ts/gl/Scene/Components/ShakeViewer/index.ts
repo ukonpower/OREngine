@@ -25,8 +25,8 @@ export class ShakeViewer extends MXP.Component {
 
 		this.stop = false;
 
-		this.shakePower = param.power || 1;
-		this.shakeSpeed = param.speed || 1;
+		this.shakePower = param.power || 0.15;
+		this.shakeSpeed = param.speed || 1.0;
 		this.shakeMatrix = new GLP.Matrix();
 		this.shakeQua = new GLP.Quaternion();
 

@@ -1,7 +1,7 @@
 import * as MXP from 'maxpower';
-import { Skybox } from '../Entities/Skybox';
-import { FluidParticles } from '../Entities/FluidParticles';
-import { ChristmasTree } from '../Entities/ChristmasTree';
+
+import { FluidParticles } from '../../Entities/FluidParticles';
+import { Skybox } from '../../Entities/Skybox';
 
 export const router = ( node: MXP.BLidgeNode ) => {
 

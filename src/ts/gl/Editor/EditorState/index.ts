@@ -11,8 +11,6 @@ export type EditorStateBLidge = {
 
 export class EditorState extends GLP.EventEmitter {
 
-	public blidgeConnection: EditorStateBLidge;
-
 	public root: MXP.Entity | null;
 
 	public frameTotal: number;
@@ -21,12 +19,6 @@ export class EditorState extends GLP.EventEmitter {
 	constructor() {
 
 		super();
-
-		this.blidgeConnection = {
-			enabled: false,
-			url: "ws://localhost:3100",
-			gltfPath: BASE_PATH + "/scene.glb"
-		};
 
 		this.root = null;
 
