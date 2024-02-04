@@ -33,7 +33,7 @@ export const Property = () => {
 	return <div className={style.property}>
 		<div className={style.content}>
 			<PropertyBlock label={"Info"}>
-				<Value label="Name" value={active.name}/>
+				<Value label="Name" value={active.name} readOnly/>
 			</PropertyBlock>
 			<PropertyBlock label={"Transform"} accordion={true}>
 				<PropertyBlock label={"Position"} >

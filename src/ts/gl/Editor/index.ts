@@ -4,25 +4,35 @@ import * as MXP from 'maxpower';
 import { Scene } from '../Scene';
 
 import { EditorResources } from './EditorResources';
+import { EditorState } from './EditorState';
+import { FileSystem } from './FileSystem';
+import { Serializer } from './Serializer';
 
 import { blidge } from '~/ts/Globals';
 
-type EditorBLidgeConnection = {
-	enabled: boolean,
-	url: string,
-	gltfPath: string
-}
-
 export class Editor extends GLP.EventEmitter {
 
-	private scene: Scene;
+	// resources
 
 	public resources: EditorResources;
 
+	// scene
+
+	private scene: Scene;
 	public selectedEntity: MXP.Entity | null = null;
 
+	// serializer
+
+	public serializer: Serializer;
+	public fileSystem: FileSystem;
+
+	// blidge
+
 	public blidge: MXP.BLidge;
-	public blidgeConnection: EditorBLidgeConnection;
+
+	// state
+
+	public state: EditorState;
 
 	constructor( scene: Scene ) {
 
@@ -54,29 +64,52 @@ export class Editor extends GLP.EventEmitter {
 
 		this.scene.on( "changed", onChanged );
 
-		// select
+		// serializer
 
-		// ////////
+		this.serializer = new Serializer();
+
+		// fileSystem
+
+		this.fileSystem = new FileSystem();
+
+		// state
+
+		this.state = new EditorState();
+
+		this.state.root = scene;
 
 		// blidge
 
-		this.blidgeConnection = {
-			enabled: false,
-			url: "ws://localhost:3100",
-			gltfPath: BASE_PATH + "/scene.glb"
-		};
-
 		this.blidge = blidge;
 
-		if ( this.blidgeConnection.enabled ) {
+		this.state.blidgeConnection.blidge = this.blidge;
 
-			blidge.connect( this.blidgeConnection.url, this.blidgeConnection.gltfPath );
+		if ( this.state.blidgeConnection.enabled ) {
+
+			blidge.connect( this.state.blidgeConnection.url, this.state.blidgeConnection.gltfPath );
 
 		}
+
+		const onKeyDown = ( e: KeyboardEvent ) => {
+
+			if ( e.key == "e" ) {
+
+				const data = this.serializer.serialize( this.state );
+
+				console.log( data );
+
+
+			}
+
+		};
+
+		window.addEventListener( "keydown", onKeyDown );
 
 		// dispose
 
 		this.scene.on( "dispose", () => {
+
+			window.removeEventListener( "keydown", onKeyDown );
 
 			this.off( "changed", onChanged );
 
@@ -95,6 +128,16 @@ export class Editor extends GLP.EventEmitter {
 	// blidge
 
 	public changeBlidgeConnection() {
+
+	}
+
+	// save
+
+	public save() {
+
+		const data = this.serializer.serialize( this.state );
+
+		this.fileSystem.set( "editor/save", data );
 
 	}
 

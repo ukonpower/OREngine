@@ -6,7 +6,7 @@ export type BLidgeNodeType = 'empty' | 'cube' | 'sphere' | 'cylinder' | 'mesh' |
 
 // scene
 
-export type BLidgeSceneParam = {
+export type BLidgeScene = {
     animations: {[key: string]: BLidgeCurveParam[]};
 	root: BLidgeNodeParam;
 	frame: BLidgeFrame;
@@ -122,7 +122,7 @@ export type BLidgeMessage = BLidgeSyncSceneMessage | BLidgeSyncTimelineMessage |
 
 export type BLidgeSyncSceneMessage = {
 	type: "sync/scene",
-    data: BLidgeSceneParam;
+    data: BLidgeScene;
 }
 
 export type BLidgeSyncTimelineMessage = {
@@ -178,6 +178,10 @@ export class BLidge extends GLP.EventEmitter {
 	private gltfLoader: GLTFLoader;
 	public gltf?: GLTF;
 
+	// scene
+
+	public currentScene: BLidgeScene | null;
+
 	constructor( gl: WebGL2RenderingContext, url?: string ) {
 
 		super();
@@ -187,6 +191,8 @@ export class BLidge extends GLP.EventEmitter {
 		this.root = null;
 		this.nodes = [];
 		this.curveGroups = [];
+
+		this.currentScene = null;
 
 		this.frame = {
 			start: - 1,
@@ -288,7 +294,9 @@ export class BLidge extends GLP.EventEmitter {
 
 	}
 
-	public loadScene( data: BLidgeSceneParam, gltfPath?: string ) {
+	public loadScene( data: BLidgeScene, gltfPath?: string ) {
+
+		this.currentScene = data;
 
 		// gltf
 

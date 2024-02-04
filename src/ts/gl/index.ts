@@ -13,7 +13,7 @@ export class GL extends GLP.EventEmitter {
 	public canvas: HTMLCanvasElement;
 	public canvasWrapElm: HTMLElement | null = null;
 
-	private resolutionScale: number = 0.5;
+	private resolutionScale: number = 0.1;
 
 	private disposed: boolean = false;
 
