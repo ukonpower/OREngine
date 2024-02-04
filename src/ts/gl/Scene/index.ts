@@ -1,9 +1,9 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { blidge, canvas, globalUniforms } from '../../Globals';
+import { canvas, gl, globalUniforms } from '../../Globals';
 
-import { Carpenter } from './Carpenter';
+import { BLidgeClient } from './Components/BLidgeClient';
 import { MainCamera } from './Entities/MainCamera';
 import { Renderer } from './Renderer';
 import { createTextures } from './Textures';
@@ -23,11 +23,6 @@ export class Scene extends MXP.Entity {
 	// bufferView
 
 	private cameraComponent: MXP.RenderCamera;
-	private frameDebugger?: FrameDebugger;
-
-	// carpenter
-
-	private carpenter: Carpenter;
 
 	constructor() {
 
@@ -53,15 +48,9 @@ export class Scene extends MXP.Entity {
 
 		this.cameraComponent = this.camera.getComponent<MXP.RenderCamera>( 'camera' )!;
 
-		// carpenter
+		// blidge client
 
-		this.carpenter = new Carpenter( this, this.camera );
-
-		blidge.on( "event/export_gltf", () => {
-
-			window.location.reload();
-
-		} );
+		this.addComponent( "blidge", new BLidgeClient( gl, this, this.camera ) );
 
 		// renderer
 
