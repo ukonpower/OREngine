@@ -40,6 +40,9 @@ export class Carpenter extends GLP.EventEmitter {
 		blidge.on( 'sync/timeline', ( frame: MXP.BLidgeFrame ) => {
 		} );
 
+		blidge.loadScene( SceneData as any, BASE_PATH + "/scene.glb" );
+
+
 	}
 
 	private onSyncScene( blidge: MXP.BLidge ) {

@@ -1,7 +1,6 @@
 import * as MXP from 'maxpower';
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 
-import { EditorResources } from '../../Editor/EditorResources';
 import { GLContext } from '../useGL';
 
 export const EditorContext = createContext<HooksContext<typeof useEditor>>( {} );
@@ -9,18 +8,6 @@ export const EditorContext = createContext<HooksContext<typeof useEditor>>( {} )
 export const useEditor = () => {
 
 	const { gl } = useContext( GLContext );
-
-	const [ resources, setEditorResources ] = useState<EditorResources>();
-
-	useEffect( () => {
-
-		if ( gl ) {
-
-			setEditorResources( gl.editor.resources );
-
-		}
-
-	}, [ gl ] );
 
 	// reflesh
 
@@ -78,19 +65,13 @@ export const useEditor = () => {
 
 	}, [ gl, reflesh ] );
 
-	// blidge
+	// save
 
-	const [ blidge, setBLidge ] = useState<MXP.BLidge>();
-
-	useEffect( ()=> {
+	const save = useCallback( () => {
 
 		if ( gl ) {
 
-			setBLidge( gl.editor.blidge );
-
-		} else {
-
-			setBLidge( undefined );
+			gl.editor.save();
 
 		}
 
@@ -98,12 +79,13 @@ export const useEditor = () => {
 
 	return {
 		gl,
-		resources,
+		resources: gl?.editor.resources,
+		blidge: gl?.editor.blidge,
 		active,
 		rootEntity,
-		blidge,
 		refleshCounter,
-		reflesh
+		reflesh,
+		save
 	};
 
 };

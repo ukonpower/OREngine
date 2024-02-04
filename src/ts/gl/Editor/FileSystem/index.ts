@@ -1,39 +1,44 @@
 import * as GLP from 'glpower';
-
-const OREngineEditorData = {
-	engine: {
-		value: "0.0.1"
-	},
-	frame: {
-		total: 900,
-		rate: 60,
-	},
-	blidge: {
-		connection: {
-			enabled: true,
-			port: 3100
-		}
-	},
-};
-
-const OREnginePlayerData = {
-	engine: {
-		version: "0.0.1"
-	},
-	blidge: {
-	},
-	frame: {
-		total: 900,
-		rate: 60
-	}
-
-};
-
 export class FileSystem extends GLP.EventEmitter {
 
 	constructor() {
 
 		super();
+
+	}
+
+	public set( path: string, data: any ) {
+
+		try {
+
+			const dataStr = JSON.stringify( data );
+			localStorage.setItem( path, dataStr );
+
+		} catch ( e ) {
+
+			console.error( e );
+
+		}
+
+
+	}
+
+	public get( path: string ) {
+
+		try {
+
+			const dataStr = localStorage.getItem( path );
+
+			const data = JSON.stringify( dataStr );
+
+			return data;
+
+		} catch ( e ) {
+
+			console.error( e );
+
+		}
+
 
 	}
 
