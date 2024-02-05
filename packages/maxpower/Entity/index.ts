@@ -417,6 +417,20 @@ export class Entity extends GLP.EventEmitter {
 
 	}
 
+	public getPath() {
+
+		let path = "/" + this.name;
+
+		if ( this.parent ) {
+
+			path = this.parent.getPath() + path;
+
+		}
+
+		return path;
+
+	}
+
 	/*-------------------------------
 		Event
 	-------------------------------*/
