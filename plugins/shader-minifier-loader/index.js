@@ -1,14 +1,13 @@
+import childProcess from 'child_process';
+import fs from 'fs';
+import util from 'util';
+
 import { createFilter } from '@rollup/pluginutils';
 
-import fs from 'fs';
-import util from 'util'
-import childProcess from 'child_process';
 const exec = util.promisify( childProcess.exec );
 
 export default function shaderMinifier( userOptions = {} ) {
 
-	console.log("aa");
-	
 	const options = Object.assign(
 		{
 			include: [

@@ -82,7 +82,6 @@ export class Editor extends GLP.EventEmitter {
 
 				console.log( data );
 
-
 			}
 
 		};

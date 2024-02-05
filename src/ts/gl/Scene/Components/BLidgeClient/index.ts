@@ -1,6 +1,7 @@
 import * as MXP from 'maxpower';
 
 import { router } from './router';
+import SceneData from './scene/scene.json';
 
 export class BLidgeClient extends MXP.Component {
 
@@ -102,7 +103,9 @@ export class BLidgeClient extends MXP.Component {
 
 		if ( props.connected.value ) {
 
-			this.blidge.connect( this.connection.url, this.gltfPath );
+			// this.blidge.connect( this.connection.url, this.gltfPath );
+
+			this.blidge.loadScene( SceneData as any );
 
 		} else {
 
