@@ -105,7 +105,7 @@ export class BLidgeClient extends MXP.Component {
 
 			// this.blidge.connect( this.connection.url, this.gltfPath );
 
-			this.blidge.loadScene( SceneData as any );
+			this.blidge.loadScene( SceneData as any, this.gltfPath );
 
 		} else {
 
