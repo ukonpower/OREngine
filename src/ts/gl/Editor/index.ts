@@ -80,7 +80,7 @@ export class Editor extends GLP.EventEmitter {
 
 				const data = this.serializer.serialize( this.state );
 
-				console.log( data );
+				this.save();
 
 			}
 

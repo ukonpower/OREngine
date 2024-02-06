@@ -5,36 +5,6 @@ import { EditorState } from '../EditorState';
 
 const ENGINE_FORMAT_VERSION = "0.0.1";
 
-interface OREnginePlayerData {
-	engine: {
-		version: string
-	},
-	frame: {
-		total: number,
-		rate: number,
-	},
-	data: any,
-	scene: SceneNode | null
-}
-
-interface OREngineEditorData extends OREnginePlayerData {
-	blidge: {
-		connection: {
-			enabled: boolean,
-			url: string,
-		},
-		scene: MXP.BLidgeScene | null,
-	},
-}
-
-interface SceneNode {
-	name: string,
-	pos: number[] | null,
-	rot: number[] | null,
-	scale: number[] | null,
-	childs: SceneNode[]
-}
-
 export class Serializer extends GLP.EventEmitter {
 
 	constructor() {
@@ -150,7 +120,7 @@ export class Serializer extends GLP.EventEmitter {
 
 	}
 
-	public export(): OREnginePlayerData {
+	public export(): OREngineProjectData {
 
 		return {};
 
