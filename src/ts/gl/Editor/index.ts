@@ -3,10 +3,9 @@ import * as MXP from 'maxpower';
 
 import { Scene } from '../Scene';
 
+import { EditorDataManager, OREngineEditorData } from './EditorDataManager';
 import { EditorResources } from './EditorResources';
-import { EditorState } from './EditorState';
 import { FileSystem } from './FileSystem';
-import { Serializer } from './Serializer';
 
 export class Editor extends GLP.EventEmitter {
 
@@ -19,14 +18,13 @@ export class Editor extends GLP.EventEmitter {
 	private scene: Scene;
 	public selectedEntity: MXP.Entity | null = null;
 
-	// serializer
+	// filesystem
 
-	public serializer: Serializer;
-	public fileSystem: FileSystem;
+	private fileSystem: FileSystem;
 
-	// state
+	// editor data
 
-	public state: EditorState;
+	public data: EditorDataManager;
 
 	constructor( scene: Scene ) {
 
@@ -37,6 +35,36 @@ export class Editor extends GLP.EventEmitter {
 		// resources
 
 		this.resources = new EditorResources();
+
+		// filesystem
+
+		this.fileSystem = new FileSystem();
+
+		// data
+
+		this.data = new EditorDataManager();
+
+		const localEditorData = this.fileSystem.get<OREngineEditorData>( "editor/data" );
+
+		if ( localEditorData ) {
+
+			this.data.load( localEditorData );
+
+		}
+
+		// blidge
+
+		const onKeyDown = ( e: KeyboardEvent ) => {
+
+			if ( e.key == "e" ) {
+
+				this.save();
+
+			}
+
+		};
+
+		window.addEventListener( "keydown", onKeyDown );
 
 		// graph
 
@@ -57,36 +85,6 @@ export class Editor extends GLP.EventEmitter {
 		};
 
 		this.scene.on( "changed", onChanged );
-
-		// serializer
-
-		this.serializer = new Serializer();
-
-		// fileSystem
-
-		this.fileSystem = new FileSystem();
-
-		// state
-
-		this.state = new EditorState();
-
-		this.state.root = scene;
-
-		// blidge
-
-		const onKeyDown = ( e: KeyboardEvent ) => {
-
-			if ( e.key == "e" ) {
-
-				const data = this.serializer.serialize( this.state );
-
-				this.save();
-
-			}
-
-		};
-
-		window.addEventListener( "keydown", onKeyDown );
 
 		// dispose
 
@@ -118,9 +116,11 @@ export class Editor extends GLP.EventEmitter {
 
 	public save() {
 
-		const data = this.serializer.serialize( this.state );
+		const editorData = this.data.serialize();
 
-		this.fileSystem.set( "editor/save", data );
+		this.fileSystem.set( "editor/data", editorData );
+
+		console.log( editorData );
 
 	}
 
