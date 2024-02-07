@@ -1,4 +1,7 @@
 import * as GLP from 'glpower';
+
+const PREFIX = "orengine/";
+
 export class FileSystem extends GLP.EventEmitter {
 
 	constructor() {
@@ -12,7 +15,7 @@ export class FileSystem extends GLP.EventEmitter {
 		try {
 
 			const dataStr = JSON.stringify( data );
-			localStorage.setItem( path, dataStr );
+			localStorage.setItem( PREFIX + path, dataStr );
 
 		} catch ( e ) {
 
@@ -23,13 +26,15 @@ export class FileSystem extends GLP.EventEmitter {
 
 	}
 
-	public get( path: string ) {
+	public get<T>( path: string ): T | undefined {
 
 		try {
 
-			const dataStr = localStorage.getItem( path );
+			const dataStr = localStorage.getItem( PREFIX + path );
 
-			const data = JSON.stringify( dataStr );
+			if ( ! dataStr ) return undefined;
+
+			const data = JSON.parse( dataStr );
 
 			return data;
 
@@ -38,6 +43,8 @@ export class FileSystem extends GLP.EventEmitter {
 			console.error( e );
 
 		}
+
+		return undefined;
 
 
 	}

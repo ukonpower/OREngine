@@ -9,8 +9,10 @@ import { MouseMenu } from '~/ts/components/func/MouseMenu';
 import { MouseMenuContext, useMouseMenu } from '~/ts/components/func/MouseMenu/useMouseMenu';
 import { Property } from '~/ts/components/func/Property';
 import { Screen } from '~/ts/components/func/Screen';
+import { Button } from '~/ts/components/ui/Button';
 import { Panel } from '~/ts/components/ui/Panel';
 import { PanelContainer } from '~/ts/components/ui/PanelContainer';
+import { Value } from '~/ts/components/ui/Property/Value';
 import { EditorContext, useEditor } from '~/ts/gl/React/useEditor';
 import { useGL, GLContext } from '~/ts/gl/React/useGL';
 
@@ -59,11 +61,19 @@ export const EditorPage = () => {
 					</div>
 					<div className={style.controls}>
 						<PanelContainer >
+							<Panel title="Project" >
+								<div className="" style={{ width: "50%" }}>
+									Project<br />
+									<Value value="ProjectA" readOnly />
+									<Button >Rename</Button>
+									<br />
+									<br />
+									<br />
+									<Button >Save</Button>
+								</div>
+							</Panel>
 							<Panel title="Asset" >
 								<AssetBrowswer />
-							</Panel>
-							<Panel title="Timeline" >
-							timeline
 							</Panel>
 						</PanelContainer>
 					</div>
