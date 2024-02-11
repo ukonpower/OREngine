@@ -2,6 +2,7 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
+import { BLidgeClient } from '../../Scene/Components/BLidgeClient';
 import { LookAt } from '../../Scene/Components/LookAt';
 import { ShakeViewer } from '../../Scene/Components/ShakeViewer';
 
@@ -13,7 +14,7 @@ type ComponentItem = {
 	defaultArgs?: ComponentArgs
 };
 
-export class EditorResources extends GLP.EventEmitter {
+export class OREngineResource extends GLP.EventEmitter {
 
 	public componentList: ( ComponentItem )[] = [];
 
@@ -57,6 +58,18 @@ export class EditorResources extends GLP.EventEmitter {
 			power: 1.0,
 			speed: 1.0
 		} } );
+
+		this.componentList.push( { name: "blidgeClient", component: BLidgeClient } );
+
+	}
+
+	public getComponent( name: string ) {
+
+		return this.componentList.find( c =>{
+
+			return c.component.name == name;
+
+		} );
 
 	}
 

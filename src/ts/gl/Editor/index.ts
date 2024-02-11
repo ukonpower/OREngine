@@ -4,14 +4,16 @@ import * as MXP from 'maxpower';
 import { Scene } from '../Scene';
 
 import { EditorDataManager, OREngineEditorData } from './EditorDataManager';
-import { EditorResources } from './EditorResources';
 import { FileSystem } from './FileSystem';
+import { OREngineResource } from './OREngineResource';
+
+import { resource } from '~/ts/Globals';
 
 export class Editor extends GLP.EventEmitter {
 
 	// resources
 
-	public resources: EditorResources;
+	public resource: OREngineResource;
 
 	// scene
 
@@ -32,9 +34,9 @@ export class Editor extends GLP.EventEmitter {
 
 		this.scene = scene;
 
-		// resources
+		// resource
 
-		this.resources = new EditorResources();
+		this.resource = resource;
 
 		// filesystem
 
@@ -48,7 +50,17 @@ export class Editor extends GLP.EventEmitter {
 
 		if ( localEditorData ) {
 
-			this.data.load( localEditorData );
+			this.data.setEditorData( localEditorData );
+
+		}
+
+		const project = this.data.getProject( this.data.settings.currentProject || "" );
+
+		this.scene.loadProject();
+
+		if ( project ) {
+
+			this.scene.loadProject( project );
 
 		}
 
@@ -59,6 +71,13 @@ export class Editor extends GLP.EventEmitter {
 			if ( e.key == "e" ) {
 
 				this.save();
+
+
+			}
+
+			if ( e.key == "r" ) {
+
+				this.scene.loadProject();
 
 			}
 
@@ -109,18 +128,22 @@ export class Editor extends GLP.EventEmitter {
 	// blidge
 
 	public changeBlidgeConnection() {
-
 	}
 
 	// save
 
 	public save() {
 
+		this.data.settings.currentProject = "current";
+
+		this.data.setProject( this.scene.serializeProject( "current" ) );
+
 		const editorData = this.data.serialize();
 
 		this.fileSystem.set( "editor/data", editorData );
 
-		console.log( editorData );
+
+		// console.log( editorData );
 
 	}
 

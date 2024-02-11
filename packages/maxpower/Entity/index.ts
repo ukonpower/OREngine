@@ -60,6 +60,8 @@ export class Entity extends GLP.EventEmitter {
 
 	public userData: any;
 
+	public noExport: boolean;
+
 	constructor( params?: EntityParams ) {
 
 		super();
@@ -85,6 +87,8 @@ export class Entity extends GLP.EventEmitter {
 		this.visible = true;
 
 		this.userData = {};
+
+		this.noExport = false;
 
 	}
 
@@ -485,9 +489,17 @@ export class Entity extends GLP.EventEmitter {
 
 		this.parent && this.parent.remove( this );
 
-		this.children.forEach( c => c.parent = null );
-
 		this.components.forEach( c => c.setEntity( null ) );
+
+		this.components.clear();
+
+		this.children.forEach( c => {
+
+			c.dispose();
+
+			c.parent = null;
+
+		} );
 
 	}
 

@@ -1,32 +1,41 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { canvas, gl, globalUniforms } from '../../Globals';
+import { canvas, globalUniforms, mainCmaera } from '../../Globals';
+import { ProjectSerializer, OREngineProjectData } from '../IO/ProjectSerializer';
 
-import { BLidgeClient } from './Components/BLidgeClient';
-import { MainCamera } from './Entities/MainCamera';
+import { MainCamera } from './Components/MainCamera';
 import { Renderer } from './Renderer';
 import { createTextures } from './Textures';
-import { FrameDebugger } from './utils/FrameDebugger';
 
-export class Scene extends MXP.Entity {
+export class Scene extends GLP.EventEmitter {
+
+	private projectIO: ProjectSerializer;
 
 	public canvas: HTMLCanvasElement;
+	private camera: MXP.Entity;
+
+	public root: MXP.Entity;
 
 	public currentTime: number;
 	public elapsedTime: number;
 	public deltaTime: number;
 
-	private camera: MainCamera;
 	private renderer: Renderer;
 
 	// bufferView
 
-	private cameraComponent: MXP.RenderCamera;
+	private cameraComponent: MainCamera;
 
 	constructor() {
 
-		super( { name: "scene" } );
+		super();
+
+		// project
+
+		this.projectIO = new ProjectSerializer();
+
+		// canvas
 
 		this.canvas = canvas;
 
@@ -42,20 +51,66 @@ export class Scene extends MXP.Entity {
 
 		// camera
 
-		this.camera = new MainCamera();
+		this.camera = mainCmaera;
+		this.camera.noExport = true;
 		this.camera.position.set( 0, 1, 10 );
-		this.add( this.camera );
-
-		this.cameraComponent = this.camera.getComponent<MXP.RenderCamera>( 'camera' )!;
-
-		// blidge client
-
-		this.addComponent( "blidge", new BLidgeClient( gl, this, this.camera ) );
+		this.cameraComponent = this.camera.addComponent( "mainCamera", new MainCamera() );
 
 		// renderer
 
 		this.renderer = new Renderer();
-		this.add( this.renderer );
+		this.renderer.noExport = true;
+
+		// init
+
+		this.root = new MXP.Entity();
+
+		this.loadProject();
+
+	}
+
+	public loadProject( project?: OREngineProjectData ) {
+
+		const root = this.root;
+
+		root.remove( this.camera );
+		root.remove( this.renderer );
+
+		root.dispose();
+		root.off( "changed" );
+
+		root.children.forEach( c=>{
+
+			root.remove( c );
+
+		} );
+
+		root.position.set( 0, 0, 0 );
+		root.euler.set( 0, 0, 0 );
+		root.scale.set( 1, 1, 1 );
+
+		if ( project ) {
+
+			this.root = this.projectIO.deserialize( project ).root;
+
+		}
+
+		root.off( "changed", ( ...args:any ) => {
+
+			this.emit( "changed", args );
+
+		} );
+
+		this.root.add( this.camera );
+		this.root.add( this.renderer );
+
+		this.emit( "changed" );
+
+	}
+
+	public serializeProject( name: string ) {
+
+		return this.projectIO.serialize( name, this.root );
 
 	}
 
@@ -75,12 +130,11 @@ export class Scene extends MXP.Entity {
 			forceDraw: param && param.forceDraw
 		};
 
-		super.update( event );
+		this.root.update( event );
 
-		const renderStack = this.finalize( event );
+		const renderStack = this.root.finalize( event );
 
 		this.renderer.render( renderStack );
-
 
 		return this.deltaTime;
 
@@ -89,8 +143,7 @@ export class Scene extends MXP.Entity {
 	public resize( resolution: GLP.Vector ) {
 
 		this.renderer.resize( resolution );
-
-		this.camera.resize( resolution );
+		this.cameraComponent.resize( resolution );
 
 	}
 
@@ -100,11 +153,15 @@ export class Scene extends MXP.Entity {
 
 		this.elapsedTime = startTime;
 
-		this.emit( 'play' );
-
 	}
 
 	public dispose() {
+
+		if ( this.root ) {
+
+			this.root.dispose();
+
+		}
 
 		this.emit( 'dispose' );
 

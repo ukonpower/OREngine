@@ -53,7 +53,7 @@ export const useEditor = () => {
 
 		if ( ! gl ) return;
 
-		setRootEntity( gl.scene );
+		setRootEntity( gl.scene.root );
 
 		gl.editor.on( "changed", reflesh );
 
@@ -79,8 +79,7 @@ export const useEditor = () => {
 
 	return {
 		gl,
-		resources: gl?.editor.resources,
-		blidge: gl?.editor.blidge,
+		resources: gl?.editor.resource,
 		active,
 		rootEntity,
 		refleshCounter,

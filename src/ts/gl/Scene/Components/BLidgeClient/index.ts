@@ -3,6 +3,8 @@ import * as MXP from 'maxpower';
 import { router } from './router';
 import SceneData from './scene/scene.json';
 
+import { gl, mainCmaera } from '~/ts/Globals';
+
 export class BLidgeClient extends MXP.Component {
 
 	private blidge: MXP.BLidge;
@@ -28,12 +30,15 @@ export class BLidgeClient extends MXP.Component {
 	private playing: boolean;
 	private playTime: number;
 
-	constructor( gl: WebGL2RenderingContext, root: MXP.Entity, camera: MXP.Entity ) {
+	constructor( ) {
 
 		super();
 
-		this.root = root;
-		this.camera = camera;
+		this.root = new MXP.Entity( { name: "blidge_root" } );
+		this.root.noExport = true;
+
+		// this.root = ro
+		this.camera = mainCmaera;
 		this.entities = new Map();
 
 		// state
@@ -121,6 +126,16 @@ export class BLidgeClient extends MXP.Component {
 			...super.export,
 			scene: { value: this.blidge.currentScene }
 		};
+
+	}
+
+	protected setEntityImpl( entity: MXP.Entity | null, prevEntity: MXP.Entity | null ): void {
+
+		if ( entity ) {
+
+			entity.add( this.root );
+
+		}
 
 	}
 

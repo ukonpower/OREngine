@@ -63,13 +63,13 @@ export const ComponentView = ( { component, keyName }: ComponentViewProps ) => {
 
 	const onClickDelete = useCallback( ( e: MouseEvent ) => {
 
+		e.stopPropagation();
+
 		const entity = component.entity;
 
 		if ( entity ) {
 
 			entity.removeComponent( keyName );
-
-			e.stopPropagation();
 
 		}
 
