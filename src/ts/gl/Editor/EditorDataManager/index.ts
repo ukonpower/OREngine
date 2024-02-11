@@ -1,11 +1,10 @@
 import * as GLP from 'glpower';
 
-import { OREngineProjectData, ProjectIO } from '../../IO/ProjectIO';
+import { OREngineProjectData } from '../../IO/ProjectIO';
 
 
 export type OREngineEditorSettings = {
-	currentProject?: OREngineProjectData,
-
+	currentProject?: string,
 }
 
 export type OREngineEditorData = {
@@ -15,33 +14,68 @@ export type OREngineEditorData = {
 
 export class EditorDataManager extends GLP.EventEmitter {
 
-	private projects: OREngineProjectData[];
-	private projectIO: ProjectIO;
-
-	private settings:OREngineEditorSettings;
+	private _projects: OREngineProjectData[];
+	private _settings:OREngineEditorSettings;
 
 	constructor() {
 
 		super();
 
-		this.projects = [];
-		this.projectIO = new ProjectIO();
-		this.settings = {};
+		this._projects = [];
+		this._settings = {};
 
 	}
 
-	public load( data: OREngineEditorData ) {
+	public setEditorData( data: OREngineEditorData ) {
 
-		this.projects = data.projects;
-		this.settings = data.settings;
+		this._projects = data.projects;
+		this._settings = data.settings;
 
 	}
+
+	// project
+
+	public getProject( name: string ) {
+
+		return this._projects.find( p => {
+
+			return p.setting.name == name;
+
+		} );
+
+	}
+
+	public setProject( project: OREngineProjectData ) {
+
+		const sameprojetIndex = this._projects.findIndex( p => p.setting.name == project.setting.name );
+
+		if ( sameprojetIndex > - 1 ) {
+
+			this._projects[ sameprojetIndex ] = project;
+
+		} else {
+
+			this._projects.push( project );
+
+		}
+
+	}
+
+	// setting
+
+	public get settings() {
+
+		return this._settings;
+
+	}
+
+	// save
 
 	public serialize(): OREngineEditorData {
 
 		return {
-			projects: this.projects,
-			settings: this.settings
+			projects: this._projects,
+			settings: this._settings
 		};
 
 	}

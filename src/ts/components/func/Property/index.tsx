@@ -34,6 +34,7 @@ export const Property = () => {
 		<div className={style.content}>
 			<PropertyBlock label={"Info"}>
 				<Value label="Name" value={active.name} readOnly/>
+				<Value label="No Export" value={active.noExport} readOnly/>
 			</PropertyBlock>
 			<PropertyBlock label={"Transform"} accordion={true}>
 				<PropertyBlock label={"Position"} >

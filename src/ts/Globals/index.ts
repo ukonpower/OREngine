@@ -4,6 +4,8 @@ import * as MXP from 'maxpower';
 export const canvas = document.createElement( "canvas" );
 export const gl = canvas.getContext( 'webgl2', { antialias: false } )!;
 export const power = new GLP.Power( gl );
+export const mainCmaera = new MXP.Entity( { name: "camera" } );
+export const resource = new OREngineResource();
 
 export const globalUniforms: {[key: string]: GLP.Uniforms} = {
 	time: {
@@ -48,6 +50,7 @@ export const globalUniforms: {[key: string]: GLP.Uniforms} = {
 	DEBUG
 -------------------------------*/
 
+import { OREngineResource, OREngineResource } from '../gl/Editor/OREngineResource';
 import { GPUState } from '../gl/Scene/utils/GPUState';
 export let gpuState: GPUState | undefined = undefined;
 

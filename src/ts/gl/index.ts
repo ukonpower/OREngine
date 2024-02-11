@@ -47,7 +47,6 @@ export class GL extends GLP.EventEmitter {
 
 		this.animate();
 
-
 	}
 
 	private animate() {
