@@ -50,7 +50,7 @@ export const globalUniforms: {[key: string]: GLP.Uniforms} = {
 	DEBUG
 -------------------------------*/
 
-import { OREngineResource, OREngineResource } from '../gl/Editor/OREngineResource';
+import { OREngineResource } from '../gl/Editor/OREngineResource';
 import { GPUState } from '../gl/Scene/utils/GPUState';
 export let gpuState: GPUState | undefined = undefined;
 

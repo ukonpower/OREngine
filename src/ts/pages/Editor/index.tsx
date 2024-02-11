@@ -3,10 +3,10 @@ import { ReactNode } from 'react';
 import style from './index.module.scss';
 
 import { AssetBrowswer } from '~/ts/components/func/AssetBrowswer';
-import { BLidgeControls } from '~/ts/components/func/BLidgeControls';
 import { Hierarchy } from '~/ts/components/func/Hierarchy';
 import { MouseMenu } from '~/ts/components/func/MouseMenu';
 import { MouseMenuContext, useMouseMenu } from '~/ts/components/func/MouseMenu/useMouseMenu';
+import { ProjectControl } from '~/ts/components/func/ProjectControl';
 import { Property } from '~/ts/components/func/Property';
 import { Screen } from '~/ts/components/func/Screen';
 import { Button } from '~/ts/components/ui/Button';
@@ -43,8 +43,8 @@ export const EditorPage = () => {
 								<Panel title="Scene" >
 									<Hierarchy />
 								</Panel>
-								<Panel title="BLidge" >
-									<BLidgeControls />
+								<Panel title="Project" >
+									<ProjectControl />
 								</Panel>
 							</PanelContainer>
 						</div>
@@ -61,17 +61,6 @@ export const EditorPage = () => {
 					</div>
 					<div className={style.controls}>
 						<PanelContainer >
-							<Panel title="Project" >
-								<div className="" style={{ width: "50%" }}>
-									Project<br />
-									<Value value="ProjectA" readOnly />
-									<Button >Rename</Button>
-									<br />
-									<br />
-									<br />
-									<Button >Save</Button>
-								</div>
-							</Panel>
 							<Panel title="Asset" >
 								<AssetBrowswer />
 							</Panel>
