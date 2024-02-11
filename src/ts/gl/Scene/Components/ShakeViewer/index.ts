@@ -2,8 +2,6 @@ import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
 interface ShakeViewerParams extends MXP.ComponentParams {
-	power?: number,
-	speed?: number
 }
 
 export class ShakeViewer extends MXP.Component {
@@ -25,14 +23,14 @@ export class ShakeViewer extends MXP.Component {
 
 		this.stop = false;
 
-		this.shakePower = param.power || 0.15;
-		this.shakeSpeed = param.speed || 1.0;
+		this.shakePower = 0.15;
+		this.shakeSpeed = 1.0;
 		this.shakeMatrix = new GLP.Matrix();
 		this.shakeQua = new GLP.Quaternion();
 
 	}
 
-	public get property(): MXP.ComponentProps | null {
+	public getProperties(): MXP.ComponentProps | null {
 
 		return {
 			stop: {
@@ -47,11 +45,11 @@ export class ShakeViewer extends MXP.Component {
 		};
 
 	}
-	public set property( props: MXP.ComponentProps ) {
+	public setPropertyValues( props: MXP.ComponentSetProps ) {
 
-		this.shakePower = props.power.value;
-		this.shakeSpeed = props.speed.value;
-		this.stop = props.stop.value;
+		this.shakePower = props.power;
+		this.shakeSpeed = props.speed;
+		this.stop = props.stop;
 
 	}
 

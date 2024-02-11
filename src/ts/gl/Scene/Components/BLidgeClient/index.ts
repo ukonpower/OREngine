@@ -30,7 +30,7 @@ export class BLidgeClient extends MXP.Component {
 	private playing: boolean;
 	private playTime: number;
 
-	constructor( ) {
+	constructor() {
 
 		super();
 
@@ -68,13 +68,11 @@ export class BLidgeClient extends MXP.Component {
 
 		this.gltfPath = BASE_PATH + "/scene.glb";
 
-		// init
-
-		this.property = this.property;
+		this.setPropertyValues( this.getPropertyValues() );
 
 	}
 
-	public get property(): MXP.ComponentProps {
+	public getProperties(): MXP.ComponentProps {
 
 		const connect = this.connection.enabled;
 
@@ -98,15 +96,15 @@ export class BLidgeClient extends MXP.Component {
 
 	}
 
-	public set property( props: MXP.ComponentProps ) {
+	public setPropertyValues( props: MXP.ComponentSetProps ) {
 
-		this.connection.url = props.url.value;
+		this.connection.url = props.url;
 
-		this.connection.enabled = props.connected.value;
+		this.connection.enabled = props.connected;
 
-		this.gltfPath = props.gltfPath.value;
+		this.gltfPath = props.gltfPath;
 
-		if ( props.connected.value ) {
+		if ( props.connected ) {
 
 			// this.blidge.connect( this.connection.url, this.gltfPath );
 
@@ -120,10 +118,12 @@ export class BLidgeClient extends MXP.Component {
 
 	}
 
-	public get export(): MXP.ComponentProps | null {
+	public export(): MXP.ComponentProps | null {
+
+		console.log( super.export() );
 
 		return {
-			...super.export,
+			...super.export(),
 			scene: { value: this.blidge.currentScene }
 		};
 

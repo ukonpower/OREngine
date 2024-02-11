@@ -1,8 +1,9 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { gl } from '~/ts/Globals';
 import { Renderer } from '../../Renderer';
+
+import { gl } from '~/ts/Globals';
 
 export class TexProcedural extends GLP.GLPowerTexture {
 

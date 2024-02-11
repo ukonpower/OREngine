@@ -26,16 +26,14 @@ export type ComponentPropsOpt = {
 }
 
 export type ComponentProps = {[key: string]: { value: any, opt?: ComponentPropsOpt}}
+export type ComponentSetProps = {[key: string]: any }
 
 export type ComponentParams = {
-	name?: string;
 }
 
 export class Component extends GLP.EventEmitter {
 
 	public readonly uuid: string;
-
-	public name: string;
 
 	private _enabled: boolean;
 
@@ -46,8 +44,6 @@ export class Component extends GLP.EventEmitter {
 		super();
 
 		params = params ?? {};
-
-		this.name = params.name ?? '';
 
 		this._enabled = true;
 
@@ -69,18 +65,33 @@ export class Component extends GLP.EventEmitter {
 
 	}
 
-	public get property(): ComponentProps | null {
+	public getProperties(): ComponentProps | null {
 
 		return null;
 
 	}
 
-	public set property( props: {[key: string]: {value: any}} ) {
+	public getPropertyValues() {
+
+		const currentProps = this.getProperties() || {};
+		const propertyValue:ComponentSetProps = {};
+
+		Object.keys( currentProps || {} ).forEach( ( key ) => {
+
+			propertyValue[ key ] = currentProps[ key ].value;
+
+		} );
+
+		return propertyValue;
+
 	}
 
-	public get export(): ComponentProps | null {
+	public setPropertyValues( props: ComponentSetProps ) {
+	}
 
-		return this.property;
+	public export(): ComponentProps | null {
+
+		return this.getProperties();
 
 	}
 

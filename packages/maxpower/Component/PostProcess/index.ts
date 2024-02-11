@@ -1,6 +1,6 @@
 import * as GLP from 'glpower';
 
-import { Component, ComponentParams, ComponentProps as ComponentProps } from '..';
+import { Component, ComponentParams, ComponentProps as ComponentProps, ComponentSetProps } from '..';
 import { PostProcessPass } from '../PostProcessPass';
 
 export interface PostProcessParam extends ComponentParams {
@@ -15,7 +15,7 @@ export class PostProcess extends Component {
 	public input: GLP.GLPowerTexture[];
 	public output: GLP.GLPowerFrameBuffer | null;
 
-	public get property(): ComponentProps | null {
+	public getProperties(): ComponentProps | null {
 
 		const props: ComponentProps = {};
 
@@ -32,7 +32,7 @@ export class PostProcess extends Component {
 		return props;
 
 	}
-	public set property( props: ComponentProps | null ) {
+	public setPropertyValues( props: ComponentSetProps ) {
 
 		if ( props === null ) return;
 
@@ -40,7 +40,7 @@ export class PostProcess extends Component {
 
 			const pass = this.passes[ i ];
 
-			this.passes[ i ].enabled = props[ pass.name ].value;
+			this.passes[ i ].enabled = props[ pass.name ];
 
 		}
 

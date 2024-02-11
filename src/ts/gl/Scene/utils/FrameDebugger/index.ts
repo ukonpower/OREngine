@@ -1,6 +1,8 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
+
 import { Renderer } from '../../Renderer';
+
 import frameDebuggerFrag from './shaders/frameDebugger.fs';
 
 type Frame = {

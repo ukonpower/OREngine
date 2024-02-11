@@ -1,7 +1,7 @@
 import * as GLP from "glpower";
 
 import { CameraParam, Camera } from "..";
-import { ComponentProps } from "../..";
+import { ComponentProps, ComponentSetProps } from "../..";
 
 import { power } from "~/ts/Globals";
 
@@ -50,7 +50,7 @@ export class RenderCamera extends Camera {
 
 	}
 
-	public get property(): ComponentProps | null {
+	public getProperties(): ComponentProps | null {
 
 		return {
 			type: {
@@ -73,12 +73,12 @@ export class RenderCamera extends Camera {
 
 	}
 
-	public set property( props: ComponentProps ) {
+	public setPropertyValues( props: ComponentSetProps ) {
 
-		this.cameraType = props.type.value;
-		this.fov = props.fov.value;
-		this.near = props.near.value;
-		this.far = props.far.value;
+		this.cameraType = props.type;
+		this.fov = props.fov;
+		this.near = props.near;
+		this.far = props.far;
 
 		this.updateProjectionMatrix();
 

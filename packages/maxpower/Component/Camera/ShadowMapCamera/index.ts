@@ -4,7 +4,6 @@ import { CameraParam, Camera } from "..";
 import { ComponentUpdateEvent } from "../..";
 
 export interface ShadowMapCameraParam extends CameraParam {
-	renderTarget?: GLP.GLPowerFrameBuffer | null,
 }
 
 export class ShadowMapCamera extends Camera {
@@ -18,7 +17,7 @@ export class ShadowMapCamera extends Camera {
 
 		param = param || {};
 
-		this.renderTarget = param.renderTarget || null;
+		this.renderTarget = null;
 		this.viewMatrixOffset = new GLP.Quaternion().setFromEuler( { x: - Math.PI / 2, y: 0, z: 0 } );
 
 	}

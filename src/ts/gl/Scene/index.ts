@@ -104,6 +104,8 @@ export class Scene extends GLP.EventEmitter {
 		this.root.add( this.camera );
 		this.root.add( this.renderer );
 
+		this.root.name = "scene";
+
 		this.emit( "changed" );
 
 	}

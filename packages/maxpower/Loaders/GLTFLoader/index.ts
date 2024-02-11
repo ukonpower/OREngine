@@ -1,9 +1,10 @@
 import * as GLP from 'glpower';
-import { Geometry } from '../../Component/Geometry';
-import { GLTFFormat, GLTFBufferView, GLTFNode } from './gltf';
-import { Entity } from '../../Entity';
-import { Material } from '../../Component/Material';
 
+import { Geometry } from '../../Component/Geometry';
+import { Material } from '../../Component/Material';
+import { Entity } from '../../Entity';
+
+import { GLTFFormat, GLTFBufferView, GLTFNode } from './gltf';
 import gltfFrag from './shaders/gltf.fs';
 import gltfVert from './shaders/gltf.vs';
 
@@ -14,16 +15,16 @@ const type2Size = ( type: string ) => {
 
 	switch ( type ) {
 
-		case "VEC2":
-			return 2;
-		case "VEC3":
-			return 3;
-		case "VEC4":
-			return 4;
-		case "SCALAR":
-			return 1;
-		default:
-			return 1;
+	case "VEC2":
+		return 2;
+	case "VEC3":
+		return 3;
+	case "VEC4":
+		return 4;
+	case "SCALAR":
+		return 1;
+	default:
+		return 1;
 
 	}
 
@@ -33,10 +34,10 @@ const translateAttributeName = ( name: string )=> {
 
 	switch ( name ) {
 
-		case "TEXCOORD_0":
-			return "uv";
-		default:
-			return name.toLowerCase();
+	case "TEXCOORD_0":
+		return "uv";
+	default:
+		return name.toLowerCase();
 
 	}
 

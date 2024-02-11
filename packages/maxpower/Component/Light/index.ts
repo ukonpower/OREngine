@@ -1,22 +1,11 @@
 import * as GLP from 'glpower';
 
-import { CameraParam } from "../Camera";
+import { ComponentProps, ComponentSetProps } from '..';
 import { ShadowMapCamera } from '../Camera/ShadowMapCamera';
 
 import { gl } from '~/ts/Globals';
 
 export type LightType = 'directional' | 'spot'
-
-export interface LightParam extends Omit<CameraParam, 'renderTarget'> {
-	lightType?: LightType;
-	intensity?: number;
-	color?: GLP.Vector;
-	useShadowMap?: boolean;
-	angle?: number;
-	blend?: number;
-	distance?: number;
-	decay?: number;
-}
 
 export class Light extends ShadowMapCamera {
 
@@ -36,21 +25,14 @@ export class Light extends ShadowMapCamera {
 
 	// animation
 
-	constructor( param?: LightParam ) {
+	constructor() {
 
-		param = param || {};
+		super();
 
-		param.far = param.far ?? 100;
+		this.lightType = 'directional';
 
-		super( { ...param, renderTarget: param.useShadowMap ? new GLP.GLPowerFrameBuffer( gl ).setTexture( [ new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ) ] ).setSize( new GLP.Vector( 512, 512 ) ) : null } );
-
-		this.lightType = param.lightType || 'directional';
-
-		if ( this.lightType == 'directional' ) this.cameraType = 'orthographic';
-		if ( this.lightType == 'spot' ) this.cameraType = 'perspective';
-
-		this.color = param.color ? param.color.clone() : new GLP.Vector( 1.0, 1.0, 1.0, 0.0 );
-		this.intensity = param.intensity ?? 1;
+		this.color = new GLP.Vector( 1.0, 1.0, 1.0, 0.0 );
+		this.intensity = 1;
 
 		// directional
 
@@ -59,10 +41,53 @@ export class Light extends ShadowMapCamera {
 
 		// spot
 
-		this.angle = param.angle ?? 50;
-		this.blend = param.blend ?? 1;
-		this.distance = param.distance ?? 30;
-		this.decay = param.decay ?? 2;
+		this.angle = 50;
+		this.blend = 1;
+		this.distance = 30;
+		this.decay = 2;
+
+		this.updateProjectionMatrix();
+
+	}
+
+	public getProperties(): ComponentProps | null {
+
+		return {
+			lightType: { value: this.lightType },
+			color: { value: this.color },
+			intensity: { value: this.intensity },
+			angle: { value: this.angle },
+			blend: { value: this.blend },
+			distance: { value: this.distance },
+			decay: { value: this.decay },
+			useShadowMap: { value: this.renderTarget != null },
+		};
+
+	}
+
+	public setPropertyValues( props: ComponentSetProps ) {
+
+		this.lightType = props.lightType;
+
+		if ( this.lightType == 'directional' ) this.cameraType = 'orthographic';
+		if ( this.lightType == 'spot' ) this.cameraType = 'perspective';
+
+		this.color.copy( props.color );
+		this.intensity = props.intensity;
+		this.angle = props.angle;
+		this.blend = props.blend;
+		this.distance = props.distance;
+		this.decay = props.decay;
+
+		if ( props.useShadowMap ) {
+
+			this.renderTarget = new GLP.GLPowerFrameBuffer( gl ).setTexture( [ new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ) ] ).setSize( new GLP.Vector( 512, 512 ) );
+
+		} else {
+
+			this.renderTarget = null;
+
+		}
 
 		this.updateProjectionMatrix();
 
