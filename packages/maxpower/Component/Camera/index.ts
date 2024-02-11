@@ -1,15 +1,9 @@
 import * as GLP from 'glpower';
 
-import { Component, ComponentParams, ComponentUpdateEvent } from "..";
+import { Component, ComponentParams, ComponentProps, ComponentUpdateEvent } from "..";
 
 export type CameraType = 'perspective' | 'orthographic'
 export interface CameraParam extends ComponentParams {
-	cameraType?: CameraType;
-	fov?: number;
-	near?: number;
-	far?: number;
-	orthWidth?: number;
-	orthHeight?: number;
 }
 
 export class Camera extends Component {
@@ -40,7 +34,7 @@ export class Camera extends Component {
 
 		param = param || {};
 
-		this.cameraType = param.cameraType || 'perspective';
+		this.cameraType = 'perspective';
 
 		this.viewMatrix = new GLP.Matrix();
 		this.projectionMatrix = new GLP.Matrix();
@@ -48,16 +42,15 @@ export class Camera extends Component {
 		this.viewMatrixPrev = new GLP.Matrix();
 		this.projectionMatrixPrev = new GLP.Matrix();
 
-		this.fov = param.fov || 50;
-		this.near = param.near || 0.01;
-		this.far = param.far || 1000;
+		this.fov = 50;
+		this.near = 0.01;
+		this.far = 1000;
 		this.aspect = 1.0;
 
-		this.orthWidth = param.orthWidth || 1;
-		this.orthHeight = param.orthHeight || 1;
+		this.orthWidth = 1;
+		this.orthHeight = 1;
 
 		this.needsUpdate = true;
-
 		this.displayOut = true;
 
 	}

@@ -13,11 +13,11 @@ export class RotateViewer extends MXP.Component {
 	private quaternion: GLP.Quaternion;
 	private matrix: GLP.Matrix;
 
-	constructor( speed: number = 1.0 ) {
+	constructor( param: MXP.ComponentParams ) {
 
 		super();
 
-		this.speed = speed;
+		this.speed = 1;
 
 		this.target = new GLP.Vector( 0, 0, 0, 0 );
 		this.rotBasePos = new GLP.Vector( 0, 0, 0 );
@@ -42,6 +42,18 @@ export class RotateViewer extends MXP.Component {
 
 	}
 
+	public getProperties(): MXP.ComponentProps {
+
+		return {
+			speed: { value: this.speed }
+		};
+
+	}
+	public setPropertyValues( props: MXP.ComponentSetProps ) {
+
+		this.speed = props.speed;
+
+	}
 
 	protected updateImpl( event: MXP.ComponentUpdateEvent ): void {
 

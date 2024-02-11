@@ -23,14 +23,14 @@ export const ComponentView = ( { component, keyName }: ComponentViewProps ) => {
 		<Value key='-1' label={"key"} value={keyName} readOnly/>
 	];
 
-	const compoProps = component.property;
+	const compoProps = component.getProperties();
 
 	const onChange = useCallback( ( value: ValueType, label: string ) => {
 
-		component.property = {
-			...component.property,
-			[ label ]: { value }
-		};
+		component.setPropertyValues( {
+			...component.getPropertyValues(),
+			[ label ]: value
+		} );
 
 		reflesh && reflesh();
 
@@ -84,7 +84,7 @@ export const ComponentView = ( { component, keyName }: ComponentViewProps ) => {
 				<InputBoolean checked={component.enabled} onChange={onChangeEnabled} />
 			</div>
 			<div className={style.name}>
-				{component.name || component.constructor.name}
+				{component.constructor.name}
 			</div>
 			<div className={style.delete}>
 				<button onClick={onClickDelete}><CrossIcon /></button>

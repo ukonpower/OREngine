@@ -43,6 +43,36 @@ export class ProjectSerializer extends GLP.EventEmitter {
 	super() {
 	}
 
+	public applyOverride( root: MXP.Entity, override: OREngineNodeOverride[] ) {
+
+		root.traverse( e => {
+
+			const path = e.getPath();
+
+			const overrideData = override.find( o => o.path == path );
+
+			if ( overrideData ) {
+
+				overrideData.components.forEach( c => {
+
+					const compItem = resource.getComponent( c.name );
+
+					if ( compItem ) {
+
+						const component = e.addComponent( c.key, new compItem.component( ) );
+
+						component.setPropertyValues( c.props );
+
+					}
+
+				} );
+
+			}
+
+		} );
+
+	}
+
 	public deserialize( project: OREngineProjectData ) {
 
 		const _ = ( node: SceneNode ): MXP.Entity => {
@@ -77,31 +107,7 @@ export class ProjectSerializer extends GLP.EventEmitter {
 
 		const root = project.scene ? _( project.scene ) : new MXP.Entity();
 
-		root.traverse( e => {
-
-			const path = e.getPath();
-
-			const override = project.objectOverride.find( o => o.path == path );
-
-			if ( override ) {
-
-				const overrideComponents = override.components;
-
-				overrideComponents.forEach( c => {
-
-					const component = resource.getComponent( c.name );
-
-					if ( component ) {
-
-						e.addComponent( c.key, new component.component( c.props ) );
-
-					}
-
-				} );
-
-			}
-
-		} );
+		this.applyOverride( root, project.objectOverride );
 
 		return {
 			root
@@ -154,11 +160,10 @@ export class ProjectSerializer extends GLP.EventEmitter {
 
 			e.components.forEach( ( c, key ) => {
 
-				const exportProps: any = c.export;
+				const exportProps: any = c.export();
+				const formattedProps: any = {};
 
 				if ( exportProps ) {
-
-					const formattedProps: any = {};
 
 					const keys = Object.keys( exportProps );
 
@@ -177,6 +182,7 @@ export class ProjectSerializer extends GLP.EventEmitter {
 					} );
 
 				}
+
 
 			} );
 

@@ -187,12 +187,15 @@ export class BLidger extends Component {
 
 				const lightParam = this.node.param as BLidgeLightParam;
 
-				entity.addComponent( 'light', new Light( {
+				const light = entity.addComponent( 'light', new Light() );
+
+				light.setPropertyValues( {
+					...light.getPropertyValues(),
 					...lightParam,
 					lightType: lightParam.type,
 					color: new GLP.Vector().copy( lightParam.color ),
 					useShadowMap: lightParam.shadowMap,
-				} ) );
+				} );
 
 			}
 

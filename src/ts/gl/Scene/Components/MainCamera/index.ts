@@ -499,7 +499,6 @@ export class MainCamera extends MXP.Component {
 		// postprocess
 
 		this.scenePostProcess = new MXP.PostProcess( {
-			name: "ScenePostProcess",
 			input: this.renderTarget.shadingBuffer.textures,
 			passes: [
 				this.colorCollection,

@@ -32,7 +32,7 @@ export class Geometry extends Component {
 	}
 
 
-	public get property(): ComponentProps | null {
+	public getProperties(): ComponentProps | null {
 
 		return {
 			vertCount: {
@@ -45,7 +45,7 @@ export class Geometry extends Component {
 		};
 
 	}
-	public set property( props: ComponentProps | null ) {
+	public setPropertyValues( props: ComponentProps | null ) {
 
 	}
 

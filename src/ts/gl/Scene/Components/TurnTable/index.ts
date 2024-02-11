@@ -1,5 +1,5 @@
-import * as MXP from 'maxpower';
 import * as GLP from 'glpower';
+import * as MXP from 'maxpower';
 
 export class TurnTable extends MXP.Component {
 
@@ -7,11 +7,11 @@ export class TurnTable extends MXP.Component {
 
 	private rotQuaternion: GLP.Quaternion;
 
-	constructor( speed: number = 1.0 ) {
+	constructor( ) {
 
 		super();
 
-		this.speed = speed;
+		this.speed = 1;
 
 		this.rotQuaternion = new GLP.Quaternion();
 

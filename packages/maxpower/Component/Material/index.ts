@@ -73,23 +73,20 @@ export class Material extends Component {
 
 	}
 
-	// public get property(): any {
+	public getProperties(): any {
 
-	// 	return {
-	// 		name: this.name,
-	// 		type: this.type,
-	// 		vert: this.vert,
-	// 		frag: this.frag,
-	// 		useLight: this.useLight,
-	// 		depthTest: this.depthTest,
-	// 		cullFace: this.cullFace,
-	// 		drawType: this.drawType,
-	// 	};
+		return {
+			name: this.name,
+			type: this.type,
+			vert: this.vert,
+			frag: this.frag,
+			useLight: this.useLight,
+			depthTest: this.depthTest,
+			cullFace: this.cullFace,
+			drawType: this.drawType,
+		};
 
-	// }
-	// public set property( props: any ) {
-
-	// }
+	}
 
 	public requestUpdate() {
 

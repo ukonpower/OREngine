@@ -1,7 +1,10 @@
-import { gl, globalUniforms } from "~/ts/Globals";
-import noiseFrag from './shaders/noise.fs';
 import { GLPowerTextureCube } from "glpower";
+
 import { TexProcedural } from "../utils/TexProcedural";
+
+import noiseFrag from './shaders/noise.fs';
+
+import { gl, globalUniforms } from "~/ts/Globals";
 
 export const createTextures = () => {
 

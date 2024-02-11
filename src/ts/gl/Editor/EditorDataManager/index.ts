@@ -1,6 +1,6 @@
 import * as GLP from 'glpower';
 
-import { OREngineProjectData } from '../../IO/ProjectIO';
+import { OREngineProjectData } from '../../IO/ProjectSerializer';
 
 
 export type OREngineEditorSettings = {
