@@ -28,11 +28,11 @@ export class Camera extends Component {
 
 	public displayOut: boolean;
 
-	constructor( param?: CameraParam ) {
+	constructor( params?: CameraParam ) {
 
-		super();
+		super( params );
 
-		param = param || {};
+		params = params || {};
 
 		this.cameraType = 'perspective';
 

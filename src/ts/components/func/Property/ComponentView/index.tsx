@@ -47,7 +47,7 @@ export const ComponentView = ( { component, keyName }: ComponentViewProps ) => {
 			const value = prop.value;
 			const opt = prop.opt;
 
-			propElms.push( <Value key={i} label={key} value={value} onChange={onChange} {...opt}/> );
+			propElms.push( <Value key={i} label={key} value={value} onChange={onChange} {...opt} readOnly={opt?.readOnly || component.disableEdit}/> );
 
 		}
 
@@ -81,7 +81,7 @@ export const ComponentView = ( { component, keyName }: ComponentViewProps ) => {
 
 		return <div className={style.head}>
 			<div className={style.check}>
-				<InputBoolean checked={component.enabled} onChange={onChangeEnabled} />
+				<InputBoolean checked={component.enabled} onChange={onChangeEnabled} readOnly={component.disableEdit} />
 			</div>
 			<div className={style.name}>
 				{component.constructor.name}
@@ -93,7 +93,7 @@ export const ComponentView = ( { component, keyName }: ComponentViewProps ) => {
 
 	};
 
-	return <div className={style.compoView}>
+	return <div className={style.compoView} data-disable_component={component.disableEdit}>
 		<div className={style.content}>
 			<PropertyBlock label={<Check />} accordion={true} defaultClose={true} bg>
 				{propElms}

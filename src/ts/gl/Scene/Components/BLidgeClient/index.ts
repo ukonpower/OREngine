@@ -37,7 +37,6 @@ export class BLidgeClient extends MXP.Component {
 		this.root = new MXP.Entity( { name: "blidge_root" } );
 		this.root.noExport = true;
 
-		// this.root = ro
 		this.camera = mainCmaera;
 		this.entities = new Map();
 
@@ -152,7 +151,7 @@ export class BLidgeClient extends MXP.Component {
 
 			}
 
-			entity.addComponent( "blidger", new MXP.BLidger( blidge, node ) );
+			entity.addComponent( "blidger", new MXP.BLidger( { blidge, node, distableEdit: true } ) );
 
 			node.children.forEach( c => {
 
@@ -207,13 +206,11 @@ export class BLidgeClient extends MXP.Component {
 
 		} );
 
-		// blidger
+		// notice
 
-		if ( this.blidgeRoot ) {
+		this.root.noticeRecursive( "sceneCreated", this.blidgeRoot );
 
-			this.blidgeRoot.noticeRecursive( "sceneCreated", this.blidgeRoot );
-
-		}
+		this.root.noticeRecursiveParent( "blidgeSceneUpdate", { root: this.root } );
 
 	}
 

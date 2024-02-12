@@ -29,15 +29,17 @@ export type ComponentProps = {[key: string]: { value: any, opt?: ComponentPropsO
 export type ComponentSetProps = {[key: string]: any }
 
 export type ComponentParams = {
+	distableEdit?: boolean
 }
 
 export class Component extends GLP.EventEmitter {
 
 	public readonly uuid: string;
 
-	private _enabled: boolean;
-
 	public entity: Entity | null;
+
+	public enabled: boolean;
+	public disableEdit: boolean;
 
 	constructor( params?: ComponentParams ) {
 
@@ -45,23 +47,12 @@ export class Component extends GLP.EventEmitter {
 
 		params = params ?? {};
 
-		this._enabled = true;
+		this.enabled = true;
+		this.disableEdit = params.distableEdit || false;
 
 		this.entity = null;
 
 		this.uuid = GLP.ID.genUUID();
-
-	}
-
-	public set enabled( enabled: boolean ) {
-
-		this._enabled = enabled;
-
-	}
-
-	public get enabled() {
-
-		return this._enabled;
 
 	}
 
@@ -101,7 +92,7 @@ export class Component extends GLP.EventEmitter {
 
 		if ( this.entity ) {
 
-			this.entity.noticeChanged( "component" );
+			this.entity.noticeRecursiveParent( "changed", { type: "component" } );
 
 		}
 

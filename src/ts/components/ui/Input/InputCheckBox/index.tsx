@@ -21,6 +21,8 @@ export const InputBoolean = ( { onChange, ...props }: InputBooleanProps ) => {
 			<input className={style.input} type="checkbox" checked={props.checked} disabled={props.disable} readOnly={props.readOnly}
 				onChange={( e ) => {
 
+					if ( props.readOnly ) return;
+
 					onChange && onChange( e.target.checked );
 
 				}}

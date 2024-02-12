@@ -160,9 +160,9 @@ export class ProjectSerializer extends GLP.EventEmitter {
 
 			e.components.forEach( ( c, key ) => {
 
-				const exportProps: any = c.export();
+				const exportProps: MXP.ComponentSetProps | null = c.export();
 
-				if ( exportProps ) {
+				if ( exportProps && ! c.disableEdit ) {
 
 					nodeOverrideData.components.push( {
 						key,

@@ -1,6 +1,6 @@
 import * as GLP from 'glpower';
 
-import { Component, ComponentProps, ComponentSetProps } from "..";
+import { Component, ComponentParams, ComponentProps, ComponentSetProps } from "..";
 export type MaterialRenderType = "shadowMap" | "deferred" | "forward" | "envMap" | 'postprocess' | 'ui'
 
 type MaterialDefines = {[key: string]: any};
@@ -12,7 +12,7 @@ import basicVert from './shaders/basic.vs';
 
 export type DrawType = 'TRIANGLES' | 'LINES' | 'POINTS';
 
-export type MaterialParam = {
+export interface MaterialParam extends ComponentParams{
 	name?: string,
 	type?: MaterialRenderType[];
 	frag?: string;
@@ -42,13 +42,13 @@ export class Material extends Component {
 	public visibilityFlag: MaterialVisibility;
 	public programCache: MaterialProgramCache;
 
-	constructor( opt?: MaterialParam ) {
+	constructor( params?: MaterialParam ) {
 
-		super();
+		super( params );
 
-		opt = opt || {};
+		params = params || {};
 
-		this.name = opt.name || '';
+		this.name = params.name || '';
 
 		this.visibilityFlag = {};
 		this.setVisibility( [ "deferred", "shadowMap" ] );
@@ -58,12 +58,12 @@ export class Material extends Component {
 		this.cullFace = true;
 		this.drawType = "TRIANGLES";
 
-		this.vert = opt.vert || basicVert;
-		this.frag = opt.frag || basicFrag;
-		this.defines = opt.defines || {};
-		this.uniforms = opt.uniforms || {};
+		this.vert = params.vert || basicVert;
+		this.frag = params.frag || basicFrag;
+		this.defines = params.defines || {};
+		this.uniforms = params.uniforms || {};
 
-		this.setPropertyValues( opt );
+		this.setPropertyValues( params );
 
 		this.programCache = {};
 
