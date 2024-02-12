@@ -43,7 +43,7 @@ export class Camera extends Component {
 		this.projectionMatrixPrev = new GLP.Matrix();
 
 		this.fov = 50;
-		this.near = 0.01;
+		this.near = 0.1;
 		this.far = 1000;
 		this.aspect = 1.0;
 
