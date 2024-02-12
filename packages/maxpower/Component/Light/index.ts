@@ -1,11 +1,14 @@
 import * as GLP from 'glpower';
 
-import { ComponentProps, ComponentSetProps } from '..';
+import { ComponentParams, ComponentProps, ComponentSetProps } from '..';
 import { ShadowMapCamera } from '../Camera/ShadowMapCamera';
 
 import { gl } from '~/ts/Globals';
 
 export type LightType = 'directional' | 'spot'
+
+interface LightParams extends ComponentParams {
+}
 
 export class Light extends ShadowMapCamera {
 
@@ -25,9 +28,9 @@ export class Light extends ShadowMapCamera {
 
 	// animation
 
-	constructor() {
+	constructor( params?: LightParams ) {
 
-		super();
+		super( params );
 
 		this.lightType = 'directional';
 

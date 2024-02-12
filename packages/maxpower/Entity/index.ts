@@ -263,7 +263,7 @@ export class Entity extends GLP.EventEmitter {
 
 		this.children.push( entity );
 
-		entity.noticeChanged( "changed" );
+		entity.noticeRecursiveParent( "changed" );
 
 	}
 
@@ -271,7 +271,7 @@ export class Entity extends GLP.EventEmitter {
 
 		this.children = this.children.filter( c => c.uuid != entity.uuid );
 
-		entity.noticeChanged( "changed" );
+		entity.noticeRecursiveParent( "changed" );
 
 	}
 
@@ -459,13 +459,13 @@ export class Entity extends GLP.EventEmitter {
 
 	}
 
-	public noticeChanged( type: string, opt?: any ) {
+	public noticeRecursiveParent( eventName: string, opt?: any ) {
 
-		this.emit( "changed", [ type, opt ] );
+		this.notice( eventName, opt );
 
 		if ( this.parent ) {
 
-			this.parent.noticeChanged( type, opt );
+			this.parent.noticeRecursiveParent( eventName, opt );
 
 		}
 

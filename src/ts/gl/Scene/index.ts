@@ -95,9 +95,12 @@ export class Scene extends GLP.EventEmitter {
 
 		}
 
-		root.off( "changed", ( ...args:any ) => {
+		root.on( "changed", ( opt: any ) => {
 
-			this.emit( "changed", args );
+			console.log( opt );
+
+
+			this.emit( "changed", opt );
 
 		} );
 
