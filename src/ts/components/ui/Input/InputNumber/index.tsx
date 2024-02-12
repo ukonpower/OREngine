@@ -34,7 +34,7 @@ export const InputNumber = ( { onChange, value, slideScale, ...props }: InputNum
 
 		if ( typeof value == "number" ) {
 
-			const deltaValue = delta * 0.01 * ( slideScale || 1 );
+			const deltaValue = delta * 0.05 * ( slideScale || 1 );
 
 			if ( onChangeRef.current ) {
 

@@ -67,6 +67,8 @@ export class Light extends ShadowMapCamera {
 
 	public setPropertyValues( props: ComponentSetProps ) {
 
+		props = { ...this.getPropertyValues(), ...props };
+
 		this.lightType = props.lightType;
 
 		if ( this.lightType == 'directional' ) this.cameraType = 'orthographic';
