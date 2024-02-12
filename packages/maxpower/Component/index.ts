@@ -92,7 +92,7 @@ export class Component extends GLP.EventEmitter {
 
 		if ( this.entity ) {
 
-			this.entity.noticeRecursiveParent( "changed", { type: "component" } );
+			this.entity.noticeRecursiveParent( "changed", [ "component" ] );
 
 		}
 

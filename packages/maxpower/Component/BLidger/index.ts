@@ -177,6 +177,8 @@ export class BLidger extends Component {
 
 					}
 
+					entity.noticeRecursiveParent( "blidgeSceneUpdate", [ entity ] );
+
 				} );
 
 			}

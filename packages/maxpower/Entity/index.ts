@@ -28,8 +28,6 @@ export type EntityResizeEvent = {
 	resolution: GLP.Vector
 }
 
-const entityCount: number = 0;
-
 export type EntityParams = {
 	name?: string;
 }
@@ -263,7 +261,7 @@ export class Entity extends GLP.EventEmitter {
 
 		this.children.push( entity );
 
-		entity.noticeRecursiveParent( "changed" );
+		entity.noticeRecursiveParent( "changed", [ "add" ] );
 
 	}
 
@@ -439,33 +437,27 @@ export class Entity extends GLP.EventEmitter {
 		Event
 	-------------------------------*/
 
-	public notice( eventName: string, opt?: any ) {
+	public noticeRecursive( eventName: string, ...opt: any ) {
 
-		this.emit( eventName, [ opt ] );
-
-	}
-
-	public noticeRecursive( eventName: string, opt?: any ) {
-
-		this.notice( eventName, opt );
+		this.emit( eventName, ...opt );
 
 		for ( let i = 0; i < this.children.length; i ++ ) {
 
 			const c = this.children[ i ];
 
-			c.noticeRecursive( eventName, opt );
+			c.noticeRecursive( eventName, ...opt );
 
 		}
 
 	}
 
-	public noticeRecursiveParent( eventName: string, opt?: any ) {
+	public noticeRecursiveParent( eventName: string, ...opt: any ) {
 
-		this.notice( eventName, opt );
+		this.emit( eventName, ...opt );
 
 		if ( this.parent ) {
 
-			this.parent.noticeRecursiveParent( eventName, opt );
+			this.parent.noticeRecursiveParent( eventName, ...opt );
 
 		}
 

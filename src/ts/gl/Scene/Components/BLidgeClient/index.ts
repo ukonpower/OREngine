@@ -208,9 +208,11 @@ export class BLidgeClient extends MXP.Component {
 
 		// notice
 
-		this.root.noticeRecursive( "sceneCreated", this.blidgeRoot );
+		this.root.noticeRecursive( "sceneCreated", [ this.blidgeRoot ] );
 
-		this.root.noticeRecursiveParent( "blidgeSceneUpdate", { root: this.root } );
+		this.root.noticeRecursiveParent( "changed", [ "scenechange" ] );
+
+		this.root.noticeRecursiveParent( "blidgeSceneUpdate", [ this.root ] );
 
 	}
 

@@ -71,23 +71,26 @@ export class Scene extends GLP.EventEmitter {
 
 	public loadProject( project?: OREngineProjectData ) {
 
-		const root = this.root;
+		const currentRoot = this.root;
 
-		root.remove( this.camera );
-		root.remove( this.renderer );
+		currentRoot.remove( this.camera );
+		currentRoot.remove( this.renderer );
+		currentRoot.dispose();
+		currentRoot.children.forEach( c=>{
 
-		root.dispose();
-		root.off( "changed" );
-
-		root.children.forEach( c=>{
-
-			root.remove( c );
+			c.dispose();
+			currentRoot.remove( c );
 
 		} );
 
-		root.position.set( 0, 0, 0 );
-		root.euler.set( 0, 0, 0 );
-		root.scale.set( 1, 1, 1 );
+		currentRoot.position.set( 0, 0, 0 );
+		currentRoot.euler.set( 0, 0, 0 );
+		currentRoot.scale.set( 1, 1, 1 );
+
+		currentRoot.off( "changed" );
+		currentRoot.off( "blidgeSceneUpdate" );
+
+		// create
 
 		if ( project ) {
 
@@ -95,19 +98,23 @@ export class Scene extends GLP.EventEmitter {
 
 		}
 
-		root.on( "changed", ( opt: any ) => {
+		this.root.name = "scene";
 
-			console.log( opt );
-
+		this.root.on( "changed", ( ...opt: any ) => {
 
 			this.emit( "changed", opt );
+
+		} );
+
+		this.root.on( "blidgeSceneUpdate", ( root: MXP.Entity ) => {
+
+			this.projectIO.applyOverride( root, project!.objectOverride );
 
 		} );
 
 		this.root.add( this.camera );
 		this.root.add( this.renderer );
 
-		this.root.name = "scene";
 
 		this.emit( "changed" );
 

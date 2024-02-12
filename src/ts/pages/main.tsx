@@ -7,8 +7,8 @@ import '~/styles/style.scss';
 
 ReactDOM.createRoot( document.getElementById( 'root' )! ).render(
 	<>
-		<React.StrictMode>
-			<EditorPage />
-		</React.StrictMode>
+		{/* <React.StrictMode> */}
+		<EditorPage />
+		{/* </React.StrictMode> */}
 	</>
 );
