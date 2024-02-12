@@ -110,7 +110,7 @@ export class Scene extends GLP.EventEmitter {
 
 	}
 
-	public serializeProject( name: string ) {
+	public exportProject( name: string ) {
 
 		return this.projectIO.serialize( name, this.root );
 

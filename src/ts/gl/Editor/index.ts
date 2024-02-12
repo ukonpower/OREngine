@@ -136,14 +136,12 @@ export class Editor extends GLP.EventEmitter {
 
 		this.data.settings.currentProject = "current";
 
-		this.data.setProject( this.scene.serializeProject( "current" ) );
+		this.data.setProject( this.scene.exportProject( "current" ) );
 
 		const editorData = this.data.serialize();
 
 		this.fileSystem.set( "editor/data", editorData );
 
-
-		// console.log( editorData );
 
 	}
 
