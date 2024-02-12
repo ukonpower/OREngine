@@ -91,7 +91,7 @@ export class Component extends GLP.EventEmitter {
 
 	public export(): ComponentProps | null {
 
-		return this.getProperties();
+		return this.getPropertyValues();
 
 	}
 

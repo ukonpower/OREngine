@@ -1,6 +1,6 @@
 import * as GLP from 'glpower';
 
-import { Component } from "..";
+import { Component, ComponentProps, ComponentSetProps } from "..";
 export type MaterialRenderType = "shadowMap" | "deferred" | "forward" | "envMap" | 'postprocess' | 'ui'
 
 type MaterialDefines = {[key: string]: any};
@@ -28,7 +28,6 @@ export type MaterialParam = {
 export class Material extends Component {
 
 	public name: string;
-	public type: MaterialRenderType[];
 
 	public vert: string;
 	public frag: string;
@@ -50,41 +49,70 @@ export class Material extends Component {
 		opt = opt || {};
 
 		this.name = opt.name || '';
-		this.type = opt.type || [ "deferred", "shadowMap" ];
 
-		this.visibilityFlag = {
-			shadowMap: this.type.indexOf( 'shadowMap' ) > - 1,
-			deferred: this.type.indexOf( 'deferred' ) > - 1,
-			forward: this.type.indexOf( 'forward' ) > - 1,
-			ui: this.type.indexOf( 'ui' ) > - 1,
-			envMap: this.type.indexOf( 'envMap' ) > - 1,
-			postprocess: this.type.indexOf( 'postprocess' ) > - 1,
-		};
+		this.visibilityFlag = {};
+		this.setVisibility( [ "deferred", "shadowMap" ] );
+
+		this.useLight = true;
+		this.depthTest = true;
+		this.cullFace = true;
+		this.drawType = "TRIANGLES";
 
 		this.vert = opt.vert || basicVert;
 		this.frag = opt.frag || basicFrag;
 		this.defines = opt.defines || {};
 		this.uniforms = opt.uniforms || {};
-		this.useLight = true;
-		this.depthTest = opt.depthTest !== undefined ? opt.depthTest : true;
-		this.cullFace = opt.cullFace !== undefined ? opt.cullFace : true;
-		this.drawType = opt.drawType !== undefined ? opt.drawType : "TRIANGLES";
+
+		this.setPropertyValues( opt );
+
 		this.programCache = {};
 
 	}
 
-	public getProperties(): any {
+	private setVisibility( typeArray: MaterialRenderType[] ) {
+
+		this.visibilityFlag = {
+			shadowMap: typeArray.indexOf( 'shadowMap' ) > - 1,
+			deferred: typeArray.indexOf( 'deferred' ) > - 1,
+			forward: typeArray.indexOf( 'forward' ) > - 1,
+			ui: typeArray.indexOf( 'ui' ) > - 1,
+			envMap: typeArray.indexOf( 'envMap' ) > - 1,
+			postprocess: typeArray.indexOf( 'postprocess' ) > - 1,
+		};
+
+	}
+
+	public getProperties(): ComponentProps {
 
 		return {
-			name: this.name,
-			type: this.type,
-			vert: this.vert,
-			frag: this.frag,
-			useLight: this.useLight,
-			depthTest: this.depthTest,
-			cullFace: this.cullFace,
-			drawType: this.drawType,
+			name: { value: this.name },
+			deferred: { value: this.visibilityFlag.deferred },
+			forward: { value: this.visibilityFlag.forward },
+			shadowMap: { value: this.visibilityFlag.shadowMap },
+			ui: { value: this.visibilityFlag.ui },
+			useLight: { value: this.useLight },
+			depthTest: { value: this.depthTest },
+			cullFace: { value: this.cullFace },
+			drawType: { value: this.drawType },
 		};
+
+	}
+
+	public setPropertyValues( props: ComponentSetProps ): void {
+
+		props = { ...this.getPropertyValues(), ...props };
+
+		this.name = props.name;
+		this.visibilityFlag.deferred = props.deferred;
+		this.visibilityFlag.forward = props.forward;
+		this.visibilityFlag.shadowMap = props.shadowMap;
+		this.visibilityFlag.ui = props.ui;
+		this.useLight = props.useLight;
+		this.depthTest = props.depthTest;
+		this.cullFace = props.cullFace;
+		this.drawType = props.drawType;
+
+		this.requestUpdate();
 
 	}
 
