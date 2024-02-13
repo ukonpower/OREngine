@@ -117,7 +117,7 @@ export class MainCamera extends MXP.Component {
 
 		this.lookAt = new LookAt();
 		this.orbitControls = new OrbitControls( canvas );
-		this.shakeViewer = new ShakeViewer( { power: 0.1, speed: 1.0 } );
+		this.shakeViewer = new ShakeViewer();
 
 		// resolution
 
@@ -157,7 +157,7 @@ export class MainCamera extends MXP.Component {
 
 		this.ssr = new MXP.PostProcessPass( {
 			name: 'ssr',
-			frag: ssrFrag,
+			frag: MXP.hotGet( "ssr", ssrFrag ),
 			renderTarget: this.rtSSR1,
 			uniforms: GLP.UniformsUtils.merge( globalUniforms.time, {
 				uResolution: {
@@ -189,11 +189,27 @@ export class MainCamera extends MXP.Component {
 			passThrough: true,
 		} );
 
+		if ( import.meta.hot ) {
+
+			import.meta.hot.accept( "./shaders/ssr.fs", ( module ) => {
+
+				if ( module ) {
+
+					this.ssr.frag = MXP.hotUpdate( 'ssr', module.default );
+
+				}
+
+				this.ssr.requestUpdate();
+
+			} );
+
+		}
+
 		// ss-composite
 
 		this.ssComposite = new MXP.PostProcessPass( {
 			name: 'ssComposite',
-			frag: ssCompositeFrag,
+			frag: MXP.hotGet( "ssComposite", ssCompositeFrag ),
 			uniforms: GLP.UniformsUtils.merge( this.commonUniforms, {
 				uGbufferPos: {
 					value: this.renderTarget.gBuffer.textures[ 0 ],
@@ -209,6 +225,22 @@ export class MainCamera extends MXP.Component {
 				},
 			} ),
 		} );
+
+		if ( import.meta.hot ) {
+
+			import.meta.hot.accept( "./shaders/ssComposite.fs", ( module ) => {
+
+				if ( module ) {
+
+					this.ssComposite.frag = MXP.hotUpdate( 'ssComposite', module.default );
+
+				}
+
+				this.ssComposite.requestUpdate();
+
+			} );
+
+		}
 
 		// dof
 
@@ -507,9 +539,9 @@ export class MainCamera extends MXP.Component {
 				this.dofCoc,
 				this.dofBokeh,
 				this.dofComposite,
-			// this.motionBlurTile,
-			// this.motionBlurNeighbor,
-			// this.motionBlur,
+				this.motionBlurTile,
+				this.motionBlurNeighbor,
+				this.motionBlur,
 			]
 		} );
 

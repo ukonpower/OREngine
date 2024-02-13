@@ -79,7 +79,7 @@ void main(void) {
 
 		if( i == SAMPLE - 1 / 2 ) continue;
 
-		float j = random(X + float( i ) * 0.1);;
+		float j = random(X + float( i ) * 0.1);
 
 		float t = mix( -1.0, 1.0, ( float( i ) + j + 1.0 ) / ( float(SAMPLE) + 1.0 ) );
 
@@ -96,8 +96,6 @@ void main(void) {
 			cylinder( Y, X, getVelocity( uVelTex, Y ).xy ) * cylinder( X, Y, getVelocity( uVelTex, X ).xy ) * 2.0;
 
 
-		// alphaY *= 6.0;
-
 		weight += alphaY;
 		sum += alphaY * texture( backbuffer0, Y ).xyz;
 
@@ -105,16 +103,5 @@ void main(void) {
 
 	sum /= weight;
 	outColor = vec4(sum.x, sum.y, sum.z, 1.0);
-	// outColor = vec4(vec3(0.0), 1.0);
-
-	// outColor = vec4( vec3( smoothstep( 0.0, 20.0, -getLinearDepth( vUv ) )), 1.0 );
-
-	// outColor += vec4(weight);
-	// outColor = vec4(0.0, 0.0, outColor.x, 1.0 );
-	// outColor += abs(texture( uVelNeighborTex, vUv )) * 20.0;
-
-	// outColor = vec4( , 1.0 );
-
-	// outColor += 1.0;
 
 }

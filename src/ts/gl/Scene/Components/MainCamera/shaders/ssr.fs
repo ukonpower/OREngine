@@ -24,7 +24,6 @@ uniform vec3 cameraPosition;
 in vec2 vUv;
 
 layout (location = 0) out vec4 outColor;
-
 #define MARCH 16.0
 #define LENGTH 5.0
 #define OBJDEPTH 0.5
@@ -51,10 +50,10 @@ void main( void ) {
 	float rayStepLength = LENGTH / MARCH;
 	vec3 rayStep = rayDir * rayStepLength;
 
-	float totalRayLength = random(vUv + uFractTime) * rayStepLength;
+	float totalRayLength = random(vUv + uFractTime) * rayStepLength + 0.1;
 	rayPos += rayDir * totalRayLength;
 
-	vec4 col;
+	vec4 col = vec4( 0.0 );
 
 	for( int i = 0; i < int( MARCH ); i ++ ) {
 
@@ -65,7 +64,11 @@ void main( void ) {
 
 		depthCoord.xy = depthCoord.xy * 0.5 + 0.5;
 
-		vec4 samplerPos = (viewMatrix * vec4(texture( uGbufferPos, depthCoord.xy ).xyz, 1.0));
+		vec3 gBufferPos = texture( uGbufferPos, depthCoord.xy ).xyz;
+
+		if( length( gBufferPos ) == 0.0 ) break;
+
+		vec4 samplerPos = (viewMatrix * vec4( gBufferPos, 1.0) );
 		vec4 sampleViewPos = viewMatrix * vec4( rayPos, 1.0 );
 
 		if( sampleViewPos.z < samplerPos.z && sampleViewPos.z >= samplerPos.z - OBJDEPTH ) {
@@ -81,6 +84,7 @@ void main( void ) {
 
 	}
 
-	outColor = mix( texture( uSSRBackBuffer, vUv ), col, 0.6 );
+
+	outColor = mix( texture( uSSRBackBuffer, vUv ), col, 0.5 );
 
 }
