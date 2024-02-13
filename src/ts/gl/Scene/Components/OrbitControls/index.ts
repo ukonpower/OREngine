@@ -12,7 +12,8 @@ export class OrbitControls extends MXP.Component {
 	private pointer: Pointer;
 
 	private orbit: GLP.Vector;
-	private mouseVel: GLP.Vector;
+	private mouseVelOrbit: GLP.Vector;
+	private mouseVelMove: GLP.Vector;
 
 	private eye: GLP.Vector;
 	public target: GLP.Vector;
@@ -29,7 +30,8 @@ export class OrbitControls extends MXP.Component {
 		this.keyborad = new Keyboard();
 
 		this.orbit = new GLP.Vector();
-		this.mouseVel = new GLP.Vector();
+		this.mouseVelOrbit = new GLP.Vector();
+		this.mouseVelMove = new GLP.Vector();
 
 		this.target = new GLP.Vector();
 		this.eye = new GLP.Vector();
@@ -54,7 +56,17 @@ export class OrbitControls extends MXP.Component {
 
 			if ( ! touching ) return;
 
-			this.mouseVel.add( { x: e.delta.x * 1.0, y: e.delta.y * 1.0 } );
+			const delta = { x: e.delta.x * 1.0, y: e.delta.y * 1.0 };
+
+			if ( this.keyborad.pressedKeys[ "Shift" ] ) {
+
+				this.mouseVelMove.add( delta );
+
+			} else {
+
+				this.mouseVelOrbit.add( delta );
+
+			}
 
 			e.pointerEvent.preventDefault();
 
@@ -121,40 +133,35 @@ export class OrbitControls extends MXP.Component {
 
 		const entity = event.entity;
 
-		if ( this.keyborad.pressedKeys[ "Shift" ] ) {
+		const movement = new GLP.Vector(
+			- this.mouseVelMove.x * 0.001 * this.distance * 0.1,
+			this.mouseVelMove.y * 0.001 * this.distance * 0.1,
+			0,
+			0
+		);
 
-			const movement = new GLP.Vector(
-				- this.mouseVel.x * 0.001,
-				this.mouseVel.y * 0.001,
-				0,
-				1
-			);
+		movement.applyMatrix3( entity.matrix );
+		this.target.add( movement );
 
-			// movement.applyMatrix3( new GLP.Matrix().applyQuaternion( entity.quaternion ) );
+		this.orbit.x += this.mouseVelOrbit.y * 0.001;
+		this.orbit.x = Math.min( Math.PI / 2, Math.max( - Math.PI / 2, this.orbit.x ) );
+		this.orbit.y += this.mouseVelOrbit.x * 0.001;
 
-			this.target.add( movement );
-			this.eye.add( movement );
-
-		} else {
-
-			this.orbit.x += this.mouseVel.y * 0.001;
-			this.orbit.x = Math.min( Math.PI / 2, Math.max( - Math.PI / 2, this.orbit.x ) );
-			this.orbit.y += this.mouseVel.x * 0.001;
-
-		}
-
-		this.distance += this.distanceVel * 0.01;
+		this.distance += this.distanceVel * 0.01 * this.distance * 0.025;
 		this.distance = Math.max( 0.1, this.distance );
 
-		this.eye.copy( this.target );
+		this.eye.set( 0, 0, 0 );
 		this.eye.z += this.distance;
 		this.eye.applyMatrix3( new GLP.Matrix().makeRotationAxis( { x: 1, y: 0, z: 0 }, this.orbit.x ) );
 		this.eye.applyMatrix3( new GLP.Matrix().makeRotationAxis( { x: 0, y: 1, z: 0 }, this.orbit.y ) );
+
+		this.eye.add( this.target );
 		this.lookatMatrix.lookAt( this.eye, this.target, this.up );
 		this.lookatMatrix.decompose( entity.position, entity.quaternion, entity.scale );
 
 		const attenuation = Math.max( 0.0, 1.0 - event.deltaTime * 10.0 );
-		this.mouseVel.multiply( attenuation );
+		this.mouseVelOrbit.multiply( attenuation );
+		this.mouseVelMove.multiply( attenuation );
 		this.distanceVel *= attenuation;
 
 		// calc viewmatrix
