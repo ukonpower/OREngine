@@ -2,7 +2,7 @@ import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
 import { LookAt } from '../LookAt';
-import { OrbitControls } from '../OrbitControls';
+import { OrbitControls, OrbitControls } from '../OrbitControls';
 import { RotateViewer } from '../RotateViewer';
 import { ShakeViewer } from '../ShakeViewer';
 
@@ -532,17 +532,29 @@ export class MainCamera extends MXP.Component {
 			entity.addComponent( "camera", this.cameraComponent );
 			entity.addComponent( "scenePostProcess", this.scenePostProcess );
 			entity.addComponent( "postProcess", this.postProcess );
-			entity.addComponent( "controls", this.orbitControls );
+			entity.addComponent( "orbitControls", this.orbitControls );
 			// entity.addComponent( 'lookAt', this.lookAt );
 			// entity.addComponent( 'shakeViewer', this.shakeViewer );
 
 			// events
 
-			entity.on( 'sceneCreated', ( root: MXP.Entity ) => {
+			entity.on( 'sceneCreated', ( root: MXP.Entity, ) => {
 
-				this.lookAt.setTarget( root.getEntityByName( "CameraTarget" ) || null );
+				const camera = root.getEntityByName( "Camera" ) || null;
+
+				const lookAtTarget = root.getEntityByName( "CameraTarget" ) || null;
+				this.lookAt.setTarget( lookAtTarget );
+
+				const ortbitControls = entity.getComponent<OrbitControls>( "orbitControls" );
+
+				if ( ortbitControls && camera && lookAtTarget ) {
+
+					ortbitControls.setPosition( camera.position, lookAtTarget.position );
+
+				}
+
+
 				this.dofTarget = root.getEntityByName( 'CameraTargetDof' ) || null;
-
 				this.baseFov = this.cameraComponent.fov;
 				this.updateCameraParams( this.resolution );
 

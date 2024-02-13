@@ -109,21 +109,7 @@ export class OrbitControls extends MXP.Component {
 
 		if ( entity ) {
 
-			this.eye.copy( entity.position );
-			this.target.set( 0, 0, 0, 1 );
-
-			this.orbit.x = Math.atan2( this.eye.y - this.target.y, this.eye.z - this.target.z );
-			this.orbit.y = Math.atan2( this.eye.x - this.target.x, this.eye.z - this.target.z );
-
-			const parent = entity.parent;
-
-			if ( parent ) {
-
-				this.target.applyMatrix4( parent.matrixWorld.clone().inverse() );
-
-			}
-
-			this.distance = this.eye.clone().sub( this.target ).length();
+			this.setPosition( entity.position, this.target );
 
 		}
 
@@ -134,8 +120,8 @@ export class OrbitControls extends MXP.Component {
 		const entity = event.entity;
 
 		const movement = new GLP.Vector(
-			- this.mouseVelMove.x * 0.001 * this.distance * 0.1,
-			this.mouseVelMove.y * 0.001 * this.distance * 0.1,
+			- this.mouseVelMove.x * this.distance * 0.00025,
+			this.mouseVelMove.y * this.distance * 0.00025,
 			0,
 			0
 		);
@@ -173,6 +159,30 @@ export class OrbitControls extends MXP.Component {
 			cameraComponent.viewMatrix.copy( entity.matrixWorld ).inverse();
 
 		}
+
+	}
+
+	public setPosition( eye: GLP.Vector, target: GLP.Vector ) {
+
+		this.eye.copy( eye );
+		this.target.copy( target );
+
+		if ( this.entity ) {
+
+			const parent = this.entity.parent;
+
+			if ( parent ) {
+
+				this.target.applyMatrix4( parent.matrixWorld.clone().inverse() );
+
+			}
+
+		}
+
+		this.orbit.x = Math.atan2( this.eye.y - this.target.y, this.eye.z - this.target.z );
+		this.orbit.y = Math.atan2( this.eye.x - this.target.x, this.eye.z - this.target.z );
+
+		this.distance = this.eye.clone().sub( this.target ).length();
 
 	}
 
