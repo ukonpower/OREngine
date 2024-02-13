@@ -533,8 +533,8 @@ export class MainCamera extends MXP.Component {
 			entity.addComponent( "scenePostProcess", this.scenePostProcess );
 			entity.addComponent( "postProcess", this.postProcess );
 			entity.addComponent( "controls", this.orbitControls );
-			entity.addComponent( 'lookAt', this.lookAt );
-			entity.addComponent( 'shakeViewer', this.shakeViewer );
+			// entity.addComponent( 'lookAt', this.lookAt );
+			// entity.addComponent( 'shakeViewer', this.shakeViewer );
 
 			// events
 

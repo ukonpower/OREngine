@@ -142,7 +142,6 @@ export class Editor extends GLP.EventEmitter {
 
 		this.fileSystem.set( "editor/data", editorData );
 
-
 	}
 
 	public dispose() {
