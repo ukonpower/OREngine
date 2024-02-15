@@ -25,7 +25,7 @@ export type ComponentPropsOpt = {
 	precision?: number,
 }
 
-export type ComponentProps = {[key: string]: { value: any, opt?: ComponentPropsOpt}}
+export type ComponentProps = {[key: string]: { value: any, opt?: ComponentPropsOpt, } | ComponentProps}
 export type ComponentSetProps = {[key: string]: any }
 
 export type ComponentParams = {
@@ -64,14 +64,33 @@ export class Component extends GLP.EventEmitter {
 
 	public getPropertyValues() {
 
-		const currentProps = this.getProperties() || {};
 		const propertyValue:ComponentSetProps = {};
 
-		Object.keys( currentProps || {} ).forEach( ( key ) => {
+		const _ = ( path: string, props: ComponentProps ): ComponentSetProps => {
 
-			propertyValue[ key ] = currentProps[ key ].value;
+			Object.keys( props || {} ).forEach( ( key ) => {
 
-		} );
+				const path_ = path + key;
+
+				const prop = props[ key ];
+
+				if ( "value" in prop ) {
+
+					propertyValue[ path_ ] = props[ key ].value;
+
+				} else {
+
+					_( path_ + "/", prop );
+
+				}
+
+			} );
+
+			return props;
+
+		};
+
+		_( "", this.getProperties() || {} );
 
 		return propertyValue;
 

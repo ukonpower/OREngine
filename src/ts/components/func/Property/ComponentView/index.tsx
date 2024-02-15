@@ -38,18 +38,43 @@ export const ComponentView = ( { component, keyName }: ComponentViewProps ) => {
 
 	if ( compoProps ) {
 
-		const propKeys = Object.keys( compoProps );
+		const _ = ( path: string, elmArray: JSX.Element[], props: MXP.ComponentProps ): JSX.Element[] => {
 
-		for ( let i = 0; i < propKeys.length; i ++ ) {
+			const propKeys = Object.keys( props );
 
-			const key = propKeys[ i ];
-			const prop = compoProps[ key ];
-			const value = prop.value;
-			const opt = prop.opt;
+			for ( let i = 0; i < propKeys.length; i ++ ) {
 
-			propElms.push( <Value key={i} label={key} value={value} onChange={onChange} {...opt} readOnly={opt?.readOnly || component.disableEdit}/> );
+				const key = propKeys[ i ];
+				const prop = props[ key ];
 
-		}
+				const path_ = path + key;
+
+				if ( "value" in prop ) {
+
+					const value = prop.value;
+					const opt = prop.opt;
+
+					elmArray.push( <Value key={i} label={key} value={value} onChange={( value ) => {
+
+						onChange( value, path_ );
+
+					}} {...opt} readOnly={opt?.readOnly || component.disableEdit}/> );
+
+				} else {
+
+					const elms = _( path_ + "/", [], prop );
+					elmArray.push( <PropertyBlock key={i} label={key} >{elms}</PropertyBlock> );
+
+				}
+
+			}
+
+
+			return elmArray;
+
+		};
+
+		_( "", propElms, compoProps );
 
 	}
 
