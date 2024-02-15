@@ -76,14 +76,16 @@ export class BLidgeClient extends MXP.Component {
 		const connect = this.connection.enabled;
 
 		return {
-			connected: {
-				value: connect,
-			},
-			url: {
-				value: this.connection.url,
-				opt: {
-					readOnly: connect
-				}
+			websocket: {
+				connected: {
+					value: connect,
+				},
+				url: {
+					value: this.connection.url,
+					opt: {
+						readOnly: connect
+					}
+				},
 			},
 			gltfPath: {
 				value: this.gltfPath,
@@ -97,21 +99,19 @@ export class BLidgeClient extends MXP.Component {
 
 	public setPropertyValues( props: MXP.ComponentSetProps ) {
 
-		this.connection.url = props.url;
+		this.connection.url = props[ "websocket/url" ];
+		this.connection.enabled = props[ "websocket/connected" ];
+		this.gltfPath = props[ "gltfPath" ];
 
-		this.connection.enabled = props.connected;
-
-		this.gltfPath = props.gltfPath;
-
-		if ( props.connected ) {
+		if ( this.connection.enabled ) {
 
 			this.blidge.connect( this.connection.url, this.gltfPath );
-
-			// this.blidge.loadScene( SceneData as any, this.gltfPath );
 
 		} else {
 
 			this.blidge.disconnect();
+			this.blidge.loadScene( SceneData as any, this.gltfPath );
+
 
 		}
 
