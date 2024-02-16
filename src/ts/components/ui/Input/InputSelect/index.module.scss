@@ -1,6 +1,8 @@
 @use '~/styles/common' as *;
 
-.inputNumber {}
+.inputSelect {
+	width: 100%;
+}
 
 .input {
 	padding: 3px 5px;
