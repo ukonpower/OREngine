@@ -8,7 +8,7 @@ import { gl, mainCmaera } from '~/ts/Globals';
 export class BLidgeClient extends MXP.Component {
 
 	private blidge: MXP.BLidge;
-	private type: "websocket" | "json";
+	private type: "websocket" | "json" | null;
 
 	private root: MXP.Entity;
 	private blidgeRoot: MXP.Entity | null;
@@ -80,7 +80,7 @@ export class BLidgeClient extends MXP.Component {
 		const connect = this.connection.enabled;
 
 		return {
-			connectType: {
+			mode: {
 				value: this.type,
 				opt: {
 					selectList: [
@@ -88,6 +88,9 @@ export class BLidgeClient extends MXP.Component {
 						"websocket"
 					]
 				}
+			},
+			gltfPath: {
+				value: this.gltfPath,
 			},
 			websocket: {
 				connected: {
@@ -100,12 +103,6 @@ export class BLidgeClient extends MXP.Component {
 					}
 				},
 			},
-			gltfPath: {
-				value: this.gltfPath,
-				opt: {
-					readOnly: connect
-				}
-			}
 		};
 
 	}
@@ -114,17 +111,22 @@ export class BLidgeClient extends MXP.Component {
 
 		this.connection.url = props[ "websocket/url" ];
 		this.connection.enabled = props[ "websocket/connected" ];
+		this.type = props[ "mode" ];
 		this.gltfPath = props[ "gltfPath" ];
 
 		if ( this.connection.enabled ) {
 
-			this.blidge.connect( this.connection.url, this.gltfPath );
-
-		} else {
-
 			this.blidge.disconnect();
-			this.blidge.loadScene( SceneData as any, this.gltfPath );
 
+			if ( this.type == "json" ) {
+
+				this.blidge.loadScene( SceneData as any, this.gltfPath );
+
+			} else {
+
+				this.blidge.connect( this.connection.url, this.gltfPath );
+
+			}
 
 		}
 

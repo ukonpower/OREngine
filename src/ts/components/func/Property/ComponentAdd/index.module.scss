@@ -1,6 +1,8 @@
 @use '~/styles/common' as *;
 
-.compoAdd {}
+.compoAdd {
+	padding-top: 5px;
+}
 
 .picker {
 	position: absolute;

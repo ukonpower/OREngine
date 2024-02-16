@@ -63,7 +63,7 @@ export const ComponentView = ( { component, keyName }: ComponentViewProps ) => {
 				} else {
 
 					const elms = _( path_ + "/", [], prop );
-					elmArray.push( <PropertyBlock key={i} label={key} >{elms}</PropertyBlock> );
+					elmArray.push( <div className={style.propertyBlock}><PropertyBlock key={i} label={key} bg="#111" accordion >{elms}</PropertyBlock></div> );
 
 				}
 
@@ -120,7 +120,7 @@ export const ComponentView = ( { component, keyName }: ComponentViewProps ) => {
 
 	return <div className={style.compoView} data-disable_component={component.disableEdit}>
 		<div className={style.content}>
-			<PropertyBlock label={<Check />} accordion={true} defaultClose={true} bg>
+			<PropertyBlock label={<Check />} accordion={true} defaultClose={false} bg>
 				{propElms}
 			</PropertyBlock>
 		</div>

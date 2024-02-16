@@ -12,19 +12,22 @@ interface InputTextProps {
 
 export const InputSelect = ( { onChange, value, ...props }: InputTextProps ) => {
 
+	console.log( value );
+
 	return <div className={style.inputSelect}>
-		{/* <input className={style.input} type="text" value={value || '-'} disabled={props.disable} readOnly={props.readOnly}
-			onChange={( e ) => {
+		<select className={style.input} onChange={( e ) => {
 
-				onChange && onChange( e.target.value );
+			console.log( e );
 
-			}}
-		/> */}
 
-		<select className={style.input} name="choice">
-			<option value="first">First Value</option>
-			<option value="second" selected>Second Value</option>
-			<option value="third">Third Value</option>
+			onChange && onChange( e.target.value );
+
+		}} value={value}>
+			{props.selectList.map( ( v, i ) => {
+
+				return <option key={i} value={v}>{v}</option>;
+
+			} ) }
 		</select>
 	</div>;
 
