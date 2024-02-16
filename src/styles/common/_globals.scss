@@ -27,6 +27,10 @@ body {
 	width: 100%;
 }
 
+select:focus {
+	outline: $focusCol 1px solid;
+}
+
 input:focus {
 	outline: $focusCol 1px solid;
 }

@@ -24,11 +24,19 @@
 
 .preview {
 	flex: 1;
+
+	@include sp {
+		order: 1;
+	}
 }
 
 .controls {
 	height: 200px;
 	max-height: 300px;
+
+	@include sp {
+		height: 25dvh;
+	}
 }
 
 .hierarchy {
@@ -37,6 +45,8 @@
 
 	@include sp {
 		width: 100%;
+		height: 25dvh;
+		order: 2;
 	}
 }
 
@@ -48,6 +58,7 @@
 	@include sp {
 		width: 100%;
 		max-width: none;
-		height: 200px;
+		height: 25dvh;
+		order: 3;
 	}
 }
