@@ -61,7 +61,7 @@ export const Property = () => {
 					}}/>
 				</PropertyBlock>
 			</PropertyBlock>
-			<PropertyBlock label={"Components"} accordion={true}>
+			<PropertyBlock label={"Components"} accordion={true} noIndent>
 				<div className={style.component_list}>
 					{
 						componentArray.map( ( { component, key }, index ) => {

@@ -10,7 +10,8 @@ type BlockProps = {
 	accordion?: boolean;
 	noMargin?: boolean
 	defaultClose?: boolean
-	bg?: boolean
+	bg?: boolean | string
+	noIndent?: boolean
 };
 
 export const PropertyBlock = ( props: BlockProps ) => {
@@ -25,12 +26,14 @@ export const PropertyBlock = ( props: BlockProps ) => {
 
 	}, [ open, props.accordion ] );
 
-	return <div className={style.block} data-bg={props.bg} style={{ margin: props.noMargin ? '0 0' : undefined }}>
+	const bgCol = props.bg && typeof props.bg === 'string' && props.bg || undefined;
+
+	return <div className={style.block} data-bg={props.bg !== undefined} style={{ margin: props.noMargin ? '0 0' : undefined, backgroundColor: bgCol }}>
 		<div className={style.head} onClick={onClick} data-accordion={props.accordion} data-open={open}>
 			{props.accordion && <div className={style.head_icon}><ArrowIcon open={open}/></div> }
 			{props.label && <span className={style.head_text}>{props.label}</span>}
 		</div>
-		{ open && <div className={style.content} data-open={open}>
+		{ open && <div className={style.content} data-open={open} data-no_indent={props.noIndent}>
 			{props.children}
 		</div>}
 	</div>;

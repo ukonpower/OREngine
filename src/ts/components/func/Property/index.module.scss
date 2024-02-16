@@ -5,6 +5,10 @@
 	height: 100%;
 }
 
+.content {
+	padding-bottom: 10px;
+}
+
 .name {
 	font-size: $fontSize2;
 	padding: 5px 0px;
@@ -15,6 +19,6 @@
 	&_list {}
 
 	&_controls {
-		margin-top: 5px;
+		padding-top: 4px;
 	}
 }
