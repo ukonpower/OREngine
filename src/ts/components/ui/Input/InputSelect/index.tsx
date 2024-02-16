@@ -12,13 +12,17 @@ interface InputTextProps {
 
 export const InputSelect = ( { onChange, value, ...props }: InputTextProps ) => {
 
-	console.log( value );
+	if ( props.readOnly ) {
+
+		return <div className={style.inputSelect}>
+			<input className={style.input} value={value} readOnly={true} />
+		</div>;
+
+	}
+
 
 	return <div className={style.inputSelect}>
 		<select className={style.input} onChange={( e ) => {
-
-			console.log( e );
-
 
 			onChange && onChange( e.target.value );
 
