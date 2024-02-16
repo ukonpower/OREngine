@@ -19,6 +19,22 @@
 		width: 100%;
 		text-align: center;
 		color: $fontCol2;
+		flex: 1;
 	}
+
+}
+
+.input {
+	width: 100%;
+
+	&_value {
+
+		&[data-disable="true"] {
+			opacity: 0.5;
+			pointer-events: none;
+		}
+	}
+
+
 
 }

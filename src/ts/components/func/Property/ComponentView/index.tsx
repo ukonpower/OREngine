@@ -52,7 +52,7 @@ export const ComponentView = ( { component, keyName }: ComponentViewProps ) => {
 				if ( "value" in prop ) {
 
 					const value = prop.value;
-					const opt = prop.opt;
+					const opt = prop.opt as MXP.ComponentPropsOpt;
 
 					elmArray.push( <Value key={i} label={key} value={value} onChange={( value ) => {
 

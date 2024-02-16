@@ -8,11 +8,13 @@ import { gl, mainCmaera } from '~/ts/Globals';
 export class BLidgeClient extends MXP.Component {
 
 	private blidge: MXP.BLidge;
+	private type: "websocket" | "json";
 
 	private root: MXP.Entity;
 	private blidgeRoot: MXP.Entity | null;
 	private camera: MXP.Entity;
 	private entities: Map<string, MXP.Entity>;
+
 
 	// connection
 
@@ -47,6 +49,8 @@ export class BLidgeClient extends MXP.Component {
 
 		// connection
 
+		this.type = "websocket";
+
 		this.connection = {
 			enabled: true,
 			url: "ws://localhost:3100",
@@ -76,6 +80,15 @@ export class BLidgeClient extends MXP.Component {
 		const connect = this.connection.enabled;
 
 		return {
+			connectType: {
+				value: this.type,
+				opt: {
+					selectList: [
+						"json",
+						"websocket"
+					]
+				}
+			},
 			websocket: {
 				connected: {
 					value: connect,

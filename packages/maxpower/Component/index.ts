@@ -2,6 +2,8 @@ import * as GLP from 'glpower';
 
 import { Entity, EntityFinalizeEvent } from '../Entity';
 
+import { ValueOpt } from '~/ts/components/ui/Property/Value';
+
 export type ComponentUpdateEvent = EntityFinalizeEvent & {
 	entity: Entity,
 }
@@ -21,9 +23,7 @@ export type BuiltInComponents =
 ( string & {} );
 
 export type ComponentPropsOpt = {
-	readOnly?: boolean,
-	precision?: number,
-}
+} & ValueOpt
 
 export type ComponentProps = {[key: string]: { value: any, opt?: ComponentPropsOpt, } | ComponentProps}
 export type ComponentSetProps = {[key: string]: any }
