@@ -3,7 +3,7 @@ import * as MXP from 'maxpower';
 import { router } from './router';
 import SceneData from './scene/scene.json';
 
-import { gl, mainCmaera } from '~/ts/Globals';
+import { gl, mainCmaera, resource } from '~/ts/Globals';
 
 export class BLidgeClient extends MXP.Component {
 

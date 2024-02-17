@@ -2,9 +2,12 @@ import React, { createContext, useCallback, useEffect, useRef, useState } from "
 
 export const MouseMenuContext = createContext<HooksContext<typeof useMouseMenu>>( {} );
 
+type Direction = "right-top" | "right-bottom" | "left-top" | "left-bottom"
+
 type MouseMenuItem = {
 	id: number,
 	elm: React.ReactNode,
+	direction: Direction,
 	pos: { x: number, y: number },
 	close: () => void,
 }
@@ -63,10 +66,15 @@ export const useMouseMenu = () => {
 
 		const contentId = id ++;
 
+		const pos = { x: posRef.current.x, y: posRef.current.y };
+
+		const direction: Direction = ( pos.x < window.innerWidth / 2 ? "right" : "left" ) + '-' + ( pos.y < window.innerWidth / 2 ? "bottom" : "top" ) as Direction;
+
 		const itemId = {
 			id: contentId,
 			elm,
-			pos: { x: posRef.current.x, y: posRef.current.y },
+			pos,
+			direction,
 			close: () => closeContent( contentId ),
 		};
 

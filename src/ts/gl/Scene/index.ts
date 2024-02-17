@@ -4,8 +4,8 @@ import * as MXP from 'maxpower';
 import { canvas, globalUniforms, mainCmaera } from '../../Globals';
 import { ProjectSerializer, OREngineProjectData } from '../IO/ProjectSerializer';
 
-import { MainCamera } from './Components/MainCamera';
 import { Renderer } from './Renderer';
+import { MainCamera } from './Resources/Components/MainCamera';
 import { createTextures } from './Textures';
 
 export class Scene extends GLP.EventEmitter {

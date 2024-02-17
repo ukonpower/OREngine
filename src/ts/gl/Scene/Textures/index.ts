@@ -20,7 +20,6 @@ export const createTextures = () => {
 		type: '1i'
 	};
 
-
 	const prms = [
 		'/env/px.png',
 		'/env/py.png',

@@ -21,7 +21,11 @@ export const MouseMenu = () => {
 					const pos = content.pos;
 
 					return <div key={content.id} className={style.menuItem} style={ { left: 0, top: 0, transform: `translate(${pos.x}px, ${pos.y}px)` }}>
-						{content.elm}
+						<div className={style.menuItem_inner}>
+							<div className={style.menuItem_inner_inner} data-direction={content.direction}>
+								{content.elm}
+							</div>
+						</div>
 					</div>;
 
 				} )

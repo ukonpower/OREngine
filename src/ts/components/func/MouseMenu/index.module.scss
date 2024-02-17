@@ -19,4 +19,36 @@
 .menuItem {
 	position: absolute;
 	pointer-events: auto;
+
+	&_inner {
+		position: relative;
+
+		&_inner {
+			position: absolute;
+
+			$margin: -10px;
+
+			&[data-direction="left-top"] {
+				right: $margin;
+				bottom: $margin;
+			}
+
+			&[data-direction="left-bottom"] {
+				right: $margin;
+				top: $margin;
+			}
+
+			&[data-direction="right-top"] {
+				left: $margin;
+				bottom: $margin;
+			}
+
+			&[data-direction="right-bottom"] {
+				left: $margin;
+				top: $margin;
+			}
+
+		}
+	}
+
 }

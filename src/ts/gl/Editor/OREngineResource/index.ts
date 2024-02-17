@@ -2,10 +2,12 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { BLidgeClient } from '../../Scene/Components/BLidgeClient';
-import { LookAt } from '../../Scene/Components/LookAt';
-import { ShakeViewer } from '../../Scene/Components/ShakeViewer';
-import { SkyBox } from '../../Scene/Components/SkyBox';
+import { BLidgeClient } from '../../Scene/Resources/Components/BLidgeClient';
+import { LookAt } from '../../Scene/Resources/Components/LookAt';
+import { ShakeViewer } from '../../Scene/Resources/Components/ShakeViewer';
+import { SkyBox } from '../../Scene/Resources/Components/SkyBox';
+
+import { resource } from '~/ts/Globals';
 
 type ComponentArgs = {[key: string]: any}
 
@@ -60,7 +62,7 @@ export class OREngineResource extends GLP.EventEmitter {
 			speed: 1.0
 		} } );
 
-		this.componentList.push( { name: "skubox", component: SkyBox } );
+		this.componentList.push( { name: "skybox", component: SkyBox } );
 
 		this.componentList.push( { name: "blidgeClient", component: BLidgeClient } );
 

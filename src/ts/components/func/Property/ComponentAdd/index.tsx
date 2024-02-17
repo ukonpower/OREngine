@@ -89,9 +89,7 @@ export const ComponentAdd = ( props: ComponentAddProps ) => {
 
 		pushContent && pushContent(
 			<div className={style.picker}>
-				<div className={style.picker_inner}>
-					<Picker list={listItem}/>
-				</div>
+				<Picker list={listItem}/>
 			</div>
 		);
 

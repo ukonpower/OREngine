@@ -5,13 +5,7 @@
 }
 
 .picker {
-	position: absolute;
-	width: 150px;
-
-	&_inner {
-		position: relative;
-		overflow: hidden;
-	}
+	width: 180px;
 }
 
 .argsInput {
@@ -19,5 +13,4 @@
 	background-color: $bgColWindow0;
 	border-radius: $radius1;
 	padding: 5px 0;
-	width: 200px;
 }
