@@ -1,8 +1,10 @@
 import * as GLP from 'glpower';
 
+export type PressedKeys = { [key: string]: boolean }
+
 export class Keyboard extends GLP.EventEmitter {
 
-	public pressedKeys: { [key: string]: boolean };
+	public pressedKeys: PressedKeys;
 
 	constructor() {
 
@@ -31,11 +33,15 @@ export class Keyboard extends GLP.EventEmitter {
 
 		this.pressedKeys[ e.key ] = true;
 
+		this.emit( 'keydown', [ e, this.pressedKeys ] );
+
 	}
 
 	private onKeyUp( e: KeyboardEvent ) {
 
 		this.pressedKeys[ e.key ] = false;
+
+		this.emit( 'keyup', [ e, this.pressedKeys ] );
 
 	}
 

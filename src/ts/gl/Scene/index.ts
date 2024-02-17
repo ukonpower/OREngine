@@ -10,7 +10,7 @@ import { createTextures } from './Textures';
 
 export class Scene extends GLP.EventEmitter {
 
-	private projectIO: ProjectSerializer;
+	private projectSerializer: ProjectSerializer;
 
 	public canvas: HTMLCanvasElement;
 	private camera: MXP.Entity;
@@ -33,7 +33,7 @@ export class Scene extends GLP.EventEmitter {
 
 		// project
 
-		this.projectIO = new ProjectSerializer();
+		this.projectSerializer = new ProjectSerializer();
 
 		// canvas
 
@@ -72,16 +72,9 @@ export class Scene extends GLP.EventEmitter {
 	public loadProject( project?: OREngineProjectData ) {
 
 		const currentRoot = this.root;
-
 		currentRoot.remove( this.camera );
 		currentRoot.remove( this.renderer );
-		currentRoot.dispose();
-		currentRoot.children.forEach( c=>{
-
-			c.dispose();
-			currentRoot.remove( c );
-
-		} );
+		currentRoot.dispose( true );
 
 		currentRoot.position.set( 0, 0, 0 );
 		currentRoot.euler.set( 0, 0, 0 );
@@ -94,7 +87,7 @@ export class Scene extends GLP.EventEmitter {
 
 		if ( project ) {
 
-			this.root = this.projectIO.deserialize( project ).root;
+			this.root = this.projectSerializer.deserialize( project ).root;
 
 		}
 
@@ -108,13 +101,13 @@ export class Scene extends GLP.EventEmitter {
 
 		this.root.on( "blidgeSceneUpdate", ( root: MXP.Entity ) => {
 
-			this.projectIO.applyOverride( root, project!.objectOverride );
+			this.projectSerializer.applyOverride( root, project!.objectOverride );
 
 		} );
 
+
 		this.root.add( this.camera );
 		this.root.add( this.renderer );
-
 
 		this.emit( "changed" );
 
@@ -122,7 +115,7 @@ export class Scene extends GLP.EventEmitter {
 
 	public exportProject( name: string ) {
 
-		return this.projectIO.serialize( name, this.root );
+		return this.projectSerializer.serialize( name, this.root );
 
 	}
 
@@ -171,7 +164,7 @@ export class Scene extends GLP.EventEmitter {
 
 		if ( this.root ) {
 
-			this.root.dispose();
+			this.root.dispose( true );
 
 		}
 

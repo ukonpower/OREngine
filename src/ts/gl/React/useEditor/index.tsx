@@ -1,13 +1,14 @@
 import * as MXP from 'maxpower';
-import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { createContext, useCallback, useEffect, useRef, useState } from 'react';
 
-import { GLContext } from '../useGL';
+import { TGLContext } from '../useGL';
 
 export const EditorContext = createContext<HooksContext<typeof useEditor>>( {} );
 
-export const useEditor = () => {
+export const useEditor = ( glContext: TGLContext ) => {
 
-	const { gl } = useContext( GLContext );
+	const { gl } = glContext;
+	const editor = gl?.editor;
 
 	// reflesh
 
@@ -33,27 +34,29 @@ export const useEditor = () => {
 
 	useEffect( () => {
 
-		if ( ! gl ) return;
+		if ( editor ) {
 
-		gl.editor.on( "control/select", onChangeSelected );
+			editor.on( "control/select", onChangeSelected );
+
+		}
 
 		return () => {
 
-			gl.editor.off( "control/select", onChangeSelected );
+			if ( editor ) {
+
+				editor.off( "control/select", onChangeSelected );
+
+			}
 
 		};
 
-	}, [ gl, onChangeSelected ] );
+	}, [ editor, onChangeSelected ] );
 
 	// root
-
-	const [ rootEntity, setRootEntity ] = useState<MXP.Entity>();
 
 	useEffect( () => {
 
 		if ( ! gl ) return;
-
-		setRootEntity( gl.scene.root );
 
 		gl.editor.on( "changed", reflesh );
 
@@ -65,26 +68,11 @@ export const useEditor = () => {
 
 	}, [ gl, reflesh ] );
 
-	// save
-
-	const save = useCallback( () => {
-
-		if ( gl ) {
-
-			gl.editor.save();
-
-		}
-
-	}, [ gl ] );
-
 	return {
 		gl,
-		resources: gl?.editor.resource,
+		editor,
 		active,
-		rootEntity,
-		refleshCounter,
 		reflesh,
-		save
 	};
 
 };

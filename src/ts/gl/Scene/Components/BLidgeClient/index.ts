@@ -163,6 +163,7 @@ export class BLidgeClient extends MXP.Component {
 
 				const cameraParam = node.param as MXP.BLidgeCameraParam;
 				const renderCamera = this.camera.getComponent<MXP.RenderCamera>( "camera" )!;
+
 				renderCamera.fov = cameraParam.fov;
 				renderCamera.needsUpdate = true;
 

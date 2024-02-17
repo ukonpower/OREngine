@@ -7,6 +7,7 @@ import { Value, ValueType } from "../Property/Value";
 import style from './index.module.scss';
 
 export type InputGroupProps = {
+	title?: string,
 	initialValues: {[key: string]:ValueType}
 	onSubmit?: ( values: {[key: string]:ValueType} ) => void
 }
@@ -42,7 +43,7 @@ export const InputGroup = ( props: InputGroupProps ) => {
 	}
 
 	return <div className={style.group}>
-		<PropertyBlock label="Params" noMargin >
+		<PropertyBlock label={props.title} noMargin >
 			{propElms}
 		</PropertyBlock>
 		<div className={style.submit}>
