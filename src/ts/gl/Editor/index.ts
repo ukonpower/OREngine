@@ -1,7 +1,9 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
+import { OREngineProjectData } from '../IO/ProjectSerializer';
 import { Scene } from '../Scene';
+import { Keyboard, PressedKeys } from '../Scene/utils/Keyboard';
 
 import { EditorDataManager, OREngineEditorData } from './EditorDataManager';
 import { FileSystem } from './FileSystem';
@@ -15,6 +17,10 @@ export class Editor extends GLP.EventEmitter {
 
 	public resource: OREngineResource;
 
+	// project
+
+	public currentProject: OREngineProjectData | null;
+
 	// scene
 
 	private scene: Scene;
@@ -24,13 +30,24 @@ export class Editor extends GLP.EventEmitter {
 
 	private fileSystem: FileSystem;
 
-	// editor data
+	// data
 
 	public data: EditorDataManager;
+	private unsaved: boolean;
+
+	// keyboard
+
+	private keyBoard: Keyboard;
 
 	constructor( scene: Scene ) {
 
 		super();
+
+		// project
+
+		this.currentProject = null;
+
+		// scene
 
 		this.scene = scene;
 
@@ -42,48 +59,21 @@ export class Editor extends GLP.EventEmitter {
 
 		this.fileSystem = new FileSystem();
 
-		// data
+		// keyboard
 
-		this.data = new EditorDataManager();
+		this.keyBoard = new Keyboard();
 
-		const localEditorData = this.fileSystem.get<OREngineEditorData>( "editor/data" );
+		this.keyBoard.on( "keydown", ( e: KeyboardEvent, pressedKeys: PressedKeys ) => {
 
-		if ( localEditorData ) {
+			if ( pressedKeys[ "Meta" ] && pressedKeys[ "s" ] ) {
 
-			this.data.setEditorData( localEditorData );
-
-		}
-
-		const project = this.data.getProject( this.data.settings.currentProject || "" );
-
-		this.scene.loadProject();
-
-		if ( project ) {
-
-			this.scene.loadProject( project );
-
-		}
-
-		// blidge
-
-		const onKeyDown = ( e: KeyboardEvent ) => {
-
-			if ( e.key == "e" ) {
+				e.preventDefault();
 
 				this.save();
 
-
 			}
 
-			if ( e.key == "r" ) {
-
-				this.scene.loadProject();
-
-			}
-
-		};
-
-		window.addEventListener( "keydown", onKeyDown );
+		} );
 
 		// graph
 
@@ -97,6 +87,8 @@ export class Editor extends GLP.EventEmitter {
 
 				updateTimer = null;
 
+				this.unsaved = true;
+
 				this.emit( "changed", [ type, opt ] );
 
 			}, 10 );
@@ -105,13 +97,51 @@ export class Editor extends GLP.EventEmitter {
 
 		this.scene.on( "changed", onChanged );
 
-		// dispose
-
 		this.scene.on( "dispose", () => {
 
-			window.removeEventListener( "keydown", onKeyDown );
-
 			this.off( "changed", onChanged );
+
+		} );
+
+		// data
+
+		this.data = new EditorDataManager();
+		this.unsaved = false;
+
+		const localEditorData = this.fileSystem.get<OREngineEditorData>( "editor/data" );
+
+		if ( localEditorData ) {
+
+			this.data.setEditorData( localEditorData );
+
+		}
+
+		if ( this.data.settings.currentProjectName ) {
+
+			this.openProject( this.data.settings.currentProjectName );
+
+		}
+
+		// unload
+
+		const onBeforeUnload = ( e: BeforeUnloadEvent ) => {
+
+			if ( this.unsaved ) {
+
+				e.preventDefault();
+				e.returnValue = "";
+
+			}
+
+		};
+
+		window.addEventListener( "beforeunload", onBeforeUnload );
+
+		// dispose
+
+		this.once( 'dispose', () => {
+
+			window.removeEventListener( "beforeunload", onBeforeUnload );
 
 		} );
 
@@ -125,26 +155,58 @@ export class Editor extends GLP.EventEmitter {
 
 	}
 
-	// blidge
+	// project
 
-	public changeBlidgeConnection() {
+	public openProject( name: string ) {
+
+		this.save();
+
+		let project = this.data.getProject( name );
+
+		if ( project ) {
+
+			this.scene.loadProject( project );
+
+		} else {
+
+			this.scene.loadProject();
+			project = this.scene.exportProject( name );
+			this.data.setProject( project );
+
+		}
+
+		this.currentProject = project;
+		this.data.settings.currentProjectName = this.currentProject.setting.name;
+		this.select( null );
+
+		this.save();
+
 	}
 
-	// save
+	/*-------------------------------
+		Save
+	-------------------------------*/
 
-	public save() {
+	private save() {
 
-		this.data.settings.currentProject = "current";
+		if ( ! this.currentProject ) return;
 
-		this.data.setProject( this.scene.exportProject( "current" ) );
+		const projectName = this.currentProject.setting.name;
+
+		this.data.settings.currentProjectName = projectName;
+		this.data.setProject( this.scene.exportProject( projectName ) );
 
 		const editorData = this.data.serialize();
-
 		this.fileSystem.set( "editor/data", editorData );
+
+		this.unsaved = false;
 
 	}
 
 	public dispose() {
+
+		this.keyBoard.dispose();
+		this.scene.dispose();
 
 		this.emit( 'dispose' );
 

@@ -20,7 +20,6 @@ export const InputSelect = ( { onChange, value, ...props }: InputTextProps ) => 
 
 	}
 
-
 	return <div className={style.inputSelect}>
 		<select className={style.input} onChange={( e ) => {
 

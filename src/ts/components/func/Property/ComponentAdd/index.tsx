@@ -19,7 +19,8 @@ type ComponentAddProps= {
 export const ComponentAdd = ( props: ComponentAddProps ) => {
 
 	const { pushContent, closeAll } = useContext( MouseMenuContext );
-	const { resources } = useContext( EditorContext );
+	const { editor } = useContext( EditorContext );
+	const resources = editor?.resource;
 
 	const currentContentRef = useRef<() => void>();
 

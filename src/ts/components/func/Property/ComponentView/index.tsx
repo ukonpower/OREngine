@@ -63,7 +63,7 @@ export const ComponentView = ( { component, keyName }: ComponentViewProps ) => {
 				} else {
 
 					const elms = _( path_ + "/", [], prop );
-					elmArray.push( <div className={style.propertyBlock}><PropertyBlock key={i} label={key} bg="#111" accordion >{elms}</PropertyBlock></div> );
+					elmArray.push( <div className={style.propertyBlock} key={i}><PropertyBlock key={i} label={key} bg="#111" accordion >{elms}</PropertyBlock></div> );
 
 				}
 

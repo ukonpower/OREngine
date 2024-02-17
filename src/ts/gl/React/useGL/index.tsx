@@ -2,7 +2,8 @@ import { createContext, useEffect, useState } from 'react';
 
 import { GL } from '~/ts/gl';
 
-export const GLContext = createContext<HooksContext<typeof useGL>>( {} );
+export type TGLContext = HooksContext<typeof useGL>;
+export const GLContext = createContext<TGLContext>( {} );
 
 export const useGL = () => {
 

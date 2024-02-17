@@ -4,7 +4,7 @@ import { OREngineProjectData } from '../../IO/ProjectSerializer';
 
 
 export type OREngineEditorSettings = {
-	currentProject?: string,
+	currentProjectName?: string,
 }
 
 export type OREngineEditorData = {
@@ -14,22 +14,22 @@ export type OREngineEditorData = {
 
 export class EditorDataManager extends GLP.EventEmitter {
 
-	private _projects: OREngineProjectData[];
-	private _settings:OREngineEditorSettings;
+	public projects: OREngineProjectData[];
+	public settings:OREngineEditorSettings;
 
 	constructor() {
 
 		super();
 
-		this._projects = [];
-		this._settings = {};
+		this.projects = [];
+		this.settings = {};
 
 	}
 
 	public setEditorData( data: OREngineEditorData ) {
 
-		this._projects = data.projects;
-		this._settings = data.settings;
+		this.projects = data.projects;
+		this.settings = data.settings;
 
 	}
 
@@ -37,7 +37,7 @@ export class EditorDataManager extends GLP.EventEmitter {
 
 	public getProject( name: string ) {
 
-		return this._projects.find( p => {
+		return this.projects.find( p => {
 
 			return p.setting.name == name;
 
@@ -47,35 +47,26 @@ export class EditorDataManager extends GLP.EventEmitter {
 
 	public setProject( project: OREngineProjectData ) {
 
-		const sameprojetIndex = this._projects.findIndex( p => p.setting.name == project.setting.name );
+		const sameprojetIndex = this.projects.findIndex( p => p.setting.name == project.setting.name );
 
 		if ( sameprojetIndex > - 1 ) {
 
-			this._projects[ sameprojetIndex ] = project;
+			this.projects[ sameprojetIndex ] = project;
 
 		} else {
 
-			this._projects.push( project );
+			this.projects.push( project );
 
 		}
 
 	}
-
-	// setting
-
-	public get settings() {
-
-		return this._settings;
-
-	}
-
 	// save
 
 	public serialize(): OREngineEditorData {
 
 		return {
-			projects: this._projects,
-			settings: this._settings
+			projects: this.projects,
+			settings: this.settings
 		};
 
 	}

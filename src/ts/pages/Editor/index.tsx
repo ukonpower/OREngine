@@ -1,24 +1,23 @@
-import { ReactNode } from 'react';
+import { ReactNode, useContext } from 'react';
 
 import style from './index.module.scss';
 
-import { AssetBrowswer } from '~/ts/components/func/AssetBrowswer';
 import { Hierarchy } from '~/ts/components/func/Hierarchy';
 import { MouseMenu } from '~/ts/components/func/MouseMenu';
 import { MouseMenuContext, useMouseMenu } from '~/ts/components/func/MouseMenu/useMouseMenu';
 import { ProjectControl } from '~/ts/components/func/ProjectControl';
 import { Property } from '~/ts/components/func/Property';
 import { Screen } from '~/ts/components/func/Screen';
-import { Button } from '~/ts/components/ui/Button';
 import { Panel } from '~/ts/components/ui/Panel';
 import { PanelContainer } from '~/ts/components/ui/PanelContainer';
-import { Value } from '~/ts/components/ui/Property/Value';
 import { EditorContext, useEditor } from '~/ts/gl/React/useEditor';
 import { useGL, GLContext } from '~/ts/gl/React/useGL';
 
 export const EditorProvider = ( { children } :{children: ReactNode} ) => {
 
-	const editorContext = useEditor();
+	const glContext = useContext( GLContext );
+
+	const editorContext = useEditor( glContext );
 	const mouseMenuContext = useMouseMenu();
 
 	return <EditorContext.Provider value={editorContext}>
