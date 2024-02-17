@@ -2,8 +2,7 @@ import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
 import { LookAt } from '../LookAt';
-import { OrbitControls, OrbitControls } from '../OrbitControls';
-import { RotateViewer } from '../RotateViewer';
+import { OrbitControls } from '../OrbitControls';
 import { ShakeViewer } from '../ShakeViewer';
 
 import bloomBlurFrag from './shaders/bloomBlur.fs';

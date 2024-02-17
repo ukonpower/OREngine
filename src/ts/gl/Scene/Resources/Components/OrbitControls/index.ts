@@ -2,8 +2,8 @@ import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 import { Camera } from 'maxpower';
 
-import { Keyboard } from '../../utils/Keyboard';
-import { Pointer, PointerEventArgs } from '../../utils/Pointer';
+import { Keyboard } from '../../../utils/Keyboard';
+import { Pointer, PointerEventArgs } from '../../../utils/Pointer';
 
 export class OrbitControls extends MXP.Component {
 
