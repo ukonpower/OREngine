@@ -67,6 +67,9 @@ export class Editor extends GLP.EventEmitter {
 
 			if ( pressedKeys[ "Meta" ] && pressedKeys[ "s" ] ) {
 
+				console.log( "aaa" );
+
+
 				e.preventDefault();
 
 				this.save();
