@@ -20,9 +20,25 @@ export class SkyBox extends MXP.Component {
 
 		this.geometry = new MXP.SphereGeometry( { radius: 100, widthSegments: 16, heightSegments: 16 } );
 		this.material = new MXP.Material( {
-			frag: skyboxFrag,
+			frag: MXP.hotGet( "skybox", skyboxFrag ),
 			cullFace: false,
 		} );
+
+		if ( import.meta.hot ) {
+
+			import.meta.hot.accept( './shaders/skybox.fs', ( module ) => {
+
+				if ( module ) {
+
+					this.material.frag = MXP.hotUpdate( 'skybox', module.default );
+
+					this.material.requestUpdate();
+
+				}
+
+			} );
+
+		}
 
 	}
 

@@ -59,7 +59,7 @@ export class OREngineResource extends GLP.EventEmitter {
 		// material
 
 		this.componentList.push( { name: "material", component: MXP.Material } );
-		this.componentList.push( { name: "glitchMat", component: GlitchMeshMaterial } );
+		this.componentList.push( { name: "material", component: GlitchMeshMaterial } );
 
 		// camera
 
