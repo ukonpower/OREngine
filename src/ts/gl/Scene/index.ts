@@ -6,8 +6,13 @@ import { ProjectSerializer, OREngineProjectData } from '../IO/ProjectSerializer'
 
 import { Renderer } from './Renderer';
 import { MainCamera } from './Resources/Components/MainCamera';
-import { SkyBox } from './Resources/Components/SkyBox';
+import { initResouces } from './Resources/init';
 import { createTextures } from './Textures';
+
+
+// resources
+
+initResouces();
 
 export class Scene extends GLP.EventEmitter {
 
@@ -31,6 +36,7 @@ export class Scene extends GLP.EventEmitter {
 	constructor() {
 
 		super();
+
 
 		// project
 
@@ -113,7 +119,6 @@ export class Scene extends GLP.EventEmitter {
 
 		this.root.add( this.camera );
 		this.root.add( this.renderer );
-		this.root.addComponent( "skybox", new SkyBox() );
 
 		this.emit( "changed" );
 

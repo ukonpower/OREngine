@@ -3,11 +3,11 @@ import * as MXP from 'maxpower';
 
 import { OREngineProjectData } from '../IO/ProjectSerializer';
 import { Scene } from '../Scene';
+import { OREngineResource } from '../Scene/Resources';
 import { Keyboard, PressedKeys } from '../Scene/utils/Keyboard';
 
 import { EditorDataManager, OREngineEditorData } from './EditorDataManager';
 import { FileSystem } from './FileSystem';
-import { OREngineResource } from './OREngineResource';
 
 import { resource } from '~/ts/Globals';
 
@@ -203,7 +203,6 @@ export class Editor extends GLP.EventEmitter {
 
 		this.keyBoard.dispose();
 		this.scene.dispose();
-
 		this.emit( 'dispose' );
 
 	}

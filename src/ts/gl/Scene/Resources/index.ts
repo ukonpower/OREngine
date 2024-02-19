@@ -3,10 +3,8 @@ import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
 import { BLidgeClient } from '../../Scene/Resources/Components/BLidgeClient';
-import { GlitchMeshMaterial } from '../../Scene/Resources/Components/GlitchMesh';
 import { LookAt } from '../../Scene/Resources/Components/LookAt';
 import { ShakeViewer } from '../../Scene/Resources/Components/ShakeViewer';
-import { SkyBox } from '../../Scene/Resources/Components/SkyBox';
 
 type ComponentArgs = {[key: string]: any}
 
@@ -59,7 +57,6 @@ export class OREngineResource extends GLP.EventEmitter {
 		// material
 
 		this.componentList.push( { name: "material", component: MXP.Material } );
-		this.componentList.push( { name: "material", component: GlitchMeshMaterial } );
 
 		// camera
 
@@ -71,8 +68,6 @@ export class OREngineResource extends GLP.EventEmitter {
 		} } );
 
 		// entity
-
-		this.componentList.push( { name: "skybox", component: SkyBox } );
 
 		this.componentList.push( { name: "blidgeClient", component: BLidgeClient } );
 
@@ -88,4 +83,12 @@ export class OREngineResource extends GLP.EventEmitter {
 
 	}
 
+	public registerComponent( component: ComponentItem ) {
+
+		this.componentList.push( component );
+
+	}
+
 }
+
+
