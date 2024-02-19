@@ -1,7 +1,6 @@
 import { useCallback, useContext } from 'react';
 
 import { Button } from '../../ui/Button';
-import { InputSelect } from '../../ui/Input/InputSelect';
 import { InputGroup } from '../../ui/InputGroup';
 import { PropertyBlock } from '../../ui/Property/PropertyBlock';
 import { Value } from '../../ui/Property/Value';
@@ -74,7 +73,7 @@ export const ProjectControl = () => {
 
 					if ( editor ) {
 
-						editor.saveCurrentProject();
+						editor.save();
 
 					}
 

@@ -6,6 +6,7 @@ import { ProjectSerializer, OREngineProjectData } from '../IO/ProjectSerializer'
 
 import { Renderer } from './Renderer';
 import { MainCamera } from './Resources/Components/MainCamera';
+import { SkyBox } from './Resources/Components/SkyBox';
 import { createTextures } from './Textures';
 
 export class Scene extends GLP.EventEmitter {
@@ -101,13 +102,18 @@ export class Scene extends GLP.EventEmitter {
 
 		this.root.on( "blidgeSceneUpdate", ( root: MXP.Entity ) => {
 
-			this.projectSerializer.applyOverride( root, project!.objectOverride );
+			if ( project ) {
+
+				this.projectSerializer.applyOverride( root, project.objectOverride );
+
+			}
 
 		} );
 
 
 		this.root.add( this.camera );
 		this.root.add( this.renderer );
+		this.root.addComponent( "skybox", new SkyBox() );
 
 		this.emit( "changed" );
 

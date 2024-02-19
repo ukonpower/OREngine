@@ -65,10 +65,7 @@ export class Editor extends GLP.EventEmitter {
 
 		this.keyBoard.on( "keydown", ( e: KeyboardEvent, pressedKeys: PressedKeys ) => {
 
-			if ( pressedKeys[ "Meta" ] && pressedKeys[ "s" ] ) {
-
-				console.log( "aaa" );
-
+			if ( ( pressedKeys[ "Meta" ] || pressedKeys[ "Control" ] ) && pressedKeys[ "s" ] ) {
 
 				e.preventDefault();
 
@@ -119,11 +116,7 @@ export class Editor extends GLP.EventEmitter {
 
 		}
 
-		if ( this.data.settings.currentProjectName ) {
-
-			this.openProject( this.data.settings.currentProjectName );
-
-		}
+		this.openProject( this.data.settings.currentProjectName || "NewProject" );
 
 		// unload
 
@@ -162,8 +155,6 @@ export class Editor extends GLP.EventEmitter {
 
 	public openProject( name: string ) {
 
-		this.save();
-
 		let project = this.data.getProject( name );
 
 		if ( project ) {
@@ -182,15 +173,13 @@ export class Editor extends GLP.EventEmitter {
 		this.data.settings.currentProjectName = this.currentProject.setting.name;
 		this.select( null );
 
-		this.save();
-
 	}
 
 	/*-------------------------------
 		Save
 	-------------------------------*/
 
-	private save() {
+	public save() {
 
 		if ( ! this.currentProject ) return;
 
@@ -205,6 +194,10 @@ export class Editor extends GLP.EventEmitter {
 		this.unsaved = false;
 
 	}
+
+	/*-------------------------------
+		Dispose
+	-------------------------------*/
 
 	public dispose() {
 
