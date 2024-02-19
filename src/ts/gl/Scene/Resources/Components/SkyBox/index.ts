@@ -1,8 +1,9 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-
 import skyboxFrag from './shaders/skybox.fs';
+
+import { resource } from '~/ts/Globals';
 
 interface SkyBoxParams extends MXP.ComponentParams {
 }

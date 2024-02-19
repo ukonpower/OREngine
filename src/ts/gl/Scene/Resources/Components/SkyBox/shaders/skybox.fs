@@ -18,7 +18,7 @@ void main( void ) {
 	// outEmission.xyz += smoothstep( 0.0, 1.0, dot( normal, vec3( 0.0, -1.0, 0.0 ) ) );
 	outRoughness = 1.0;
 	outColor *= 0.0;
-	outEmission = vec3( .0 );
+	outEmission = vec3( 0.0 );
 	outEnv = 0.0;
 
 	// discard;

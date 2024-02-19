@@ -7,7 +7,7 @@ void main( void ) {
 
 	#include <vert_in>
 
-	outPos.x += sin( outPos.y  * 100.0 + uTime * 2.0);
+	outPos.x += sin( outPos.z  * 10.0 + uTime * 10.0) * 0.1;
 	
 	#include <vert_out>
 	
