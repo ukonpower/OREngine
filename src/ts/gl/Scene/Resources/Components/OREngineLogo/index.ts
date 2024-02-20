@@ -5,8 +5,7 @@ import glitchMeshVert from './shaders/glitchMesh.vs';
 
 import { globalUniforms } from '~/ts/Globals';
 
-export class GlitchMeshMaterial extends MXP.Material {
-
+export class OREngineLogo extends MXP.Material {
 
 	constructor() {
 

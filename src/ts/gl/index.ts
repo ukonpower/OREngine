@@ -13,7 +13,7 @@ export class GL extends GLP.EventEmitter {
 	public canvas: HTMLCanvasElement;
 	public canvasWrapElm: HTMLElement | null = null;
 
-	private resolutionScale: number = 0.5;
+	private resolutionScale: number = 1.0;
 
 	private disposed: boolean = false;
 
@@ -70,7 +70,7 @@ export class GL extends GLP.EventEmitter {
 	private resize() {
 
 		const wrapWidth = this.canvasWrapElm ? this.canvasWrapElm.clientWidth : 16;
-		const wrapHeight = this.canvasWrapElm ? this.canvasWrapElm.clientHeight : 16;
+		const wrapHeight = this.canvasWrapElm ? this.canvasWrapElm.clientHeight : 9;
 		const wrapAspect = wrapWidth / wrapHeight;
 
 		const canvasPixelWidth = 1920;

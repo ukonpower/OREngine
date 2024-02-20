@@ -68,7 +68,7 @@ export const useMouseMenu = () => {
 
 		const pos = { x: posRef.current.x, y: posRef.current.y };
 
-		const direction: Direction = ( pos.x < window.innerWidth / 2 ? "right" : "left" ) + '-' + ( pos.y < window.innerWidth / 2 ? "bottom" : "top" ) as Direction;
+		const direction: Direction = ( pos.x < window.innerWidth / 2 ? "right" : "left" ) + '-' + ( pos.y < window.innerHeight / 2 ? "bottom" : "top" ) as Direction;
 
 		const itemId = {
 			id: contentId,
