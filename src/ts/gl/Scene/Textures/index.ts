@@ -6,7 +6,7 @@ import noiseFrag from './shaders/noise.fs';
 
 import { gl, globalUniforms } from "~/ts/Globals";
 
-export const createTextures = () => {
+export const initTextures = () => {
 
 	globalUniforms.tex.uNoiseTex = {
 		value: new TexProcedural( {

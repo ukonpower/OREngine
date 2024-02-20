@@ -7,12 +7,10 @@ import { ProjectSerializer, OREngineProjectData } from '../IO/ProjectSerializer'
 import { Renderer } from './Renderer';
 import { MainCamera } from './Resources/Components/MainCamera';
 import { initResouces } from './Resources/init';
-import { createTextures } from './Textures';
-
-
-// resources
+import { initTextures } from './Textures';
 
 initResouces();
+initTextures();
 
 export class Scene extends GLP.EventEmitter {
 
@@ -37,7 +35,6 @@ export class Scene extends GLP.EventEmitter {
 
 		super();
 
-
 		// project
 
 		this.projectSerializer = new ProjectSerializer();
@@ -51,10 +48,6 @@ export class Scene extends GLP.EventEmitter {
 		this.currentTime = new Date().getTime();
 		this.elapsedTime = 0;
 		this.deltaTime = 0;
-
-		// textures
-
-		createTextures();
 
 		// camera
 
@@ -72,7 +65,13 @@ export class Scene extends GLP.EventEmitter {
 
 		this.root = new MXP.Entity();
 
-		this.loadProject();
+
+		setTimeout( () => {
+
+			this.emit( "loaded" );
+
+		}, 1000 );
+
 
 	}
 
