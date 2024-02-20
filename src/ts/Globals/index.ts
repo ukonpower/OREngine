@@ -61,6 +61,6 @@ export const resource = new OREngineResource();
 export let gpuState: GPUState | undefined = undefined;
 
 import 'webgl-memory';
-gpuState = new GPUState();
+// gpuState = new GPUState();
 gpuState = undefined;
 
