@@ -9,9 +9,6 @@ import { MainCamera } from './Resources/Components/MainCamera';
 import { initResouces } from './Resources/init';
 import { initTextures } from './Textures';
 
-initResouces();
-initTextures();
-
 export class Scene extends GLP.EventEmitter {
 
 	private projectSerializer: ProjectSerializer;
@@ -34,6 +31,11 @@ export class Scene extends GLP.EventEmitter {
 	constructor() {
 
 		super();
+
+		// resources
+
+		initResouces();
+		initTextures();
 
 		// project
 
@@ -61,17 +63,9 @@ export class Scene extends GLP.EventEmitter {
 		this.renderer = new Renderer();
 		this.renderer.noExport = true;
 
-		// init
+		// root
 
 		this.root = new MXP.Entity();
-
-
-		setTimeout( () => {
-
-			this.emit( "loaded" );
-
-		}, 1000 );
-
 
 	}
 
