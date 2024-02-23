@@ -17,7 +17,13 @@ type ComponentAddProps= {
 	entity: MXP.Entity
 }
 
-const getPickerCategory = ( name: string, componentList: ResouceComponentItem[], onClick: ( compItem: ResouceComponentItem ) =>void ) => {
+type ComponentCategoryGroupProps = {
+	categoryName: string;
+	componentList: ResouceComponentItem[];
+	onClick: ( compItem: ResouceComponentItem ) =>void;
+}
+
+const ComponentCategoryGroup = ( { categoryName, componentList, onClick }: ComponentCategoryGroupProps ) => {
 
 	const listItem = componentList.map( ( compItem ) => {
 
@@ -32,7 +38,9 @@ const getPickerCategory = ( name: string, componentList: ResouceComponentItem[],
 
 	} ) || [];
 
-	return <Picker list={listItem}/>;
+	return <div className={style.catGroup}>
+		<Picker label={categoryName} list={listItem}/>
+	</div>;
 
 };
 
@@ -40,17 +48,19 @@ export const ComponentAdd = ( props: ComponentAddProps ) => {
 
 	const { pushContent, closeAll } = useContext( MouseMenuContext );
 	const { editor } = useContext( EditorContext );
-	const resources = editor?.resource;
+	const resources = editor && editor.resource;
 
-	const currentContentRef = useRef<() => void>();
+	const argsInputCloseRef = useRef<() => void>();
 
 	const onClickAdd = useCallback( ( e: MouseEvent ) => {
 
+		if ( ! resources ) return;
+
 		const onClickComponentItem = ( compItem: ResouceComponentItem ) => {
 
-			if ( currentContentRef.current ) {
+			if ( argsInputCloseRef.current ) {
 
-				currentContentRef.current();
+				argsInputCloseRef.current();
 
 			}
 
@@ -70,7 +80,7 @@ export const ComponentAdd = ( props: ComponentAddProps ) => {
 
 				}
 
-				const menuItem = pushContent && pushContent(
+				const argsMenu = pushContent && pushContent(
 					<div className={style.argsInput}>
 						<InputGroup initialValues={initialValues} onSubmit={( e ) => {
 
@@ -84,9 +94,9 @@ export const ComponentAdd = ( props: ComponentAddProps ) => {
 					</div>
 				);
 
-				if ( menuItem && menuItem.close ) {
+				if ( argsMenu && argsMenu.close ) {
 
-					currentContentRef.current = menuItem.close;
+					argsInputCloseRef.current = argsMenu.close;
 
 				}
 
@@ -100,16 +110,12 @@ export const ComponentAdd = ( props: ComponentAddProps ) => {
 
 		};
 
-		const pickerList: ReactNode[] = [];
+		const cagegoryGroupList: ReactNode[] = [];
 
-		resources && resources.componentListCategrized.forEach( ( compList, catName ) => {
+		resources.componentListCategrized.forEach( ( compList, catName ) => {
 
-
-			pickerList.push(
-				<div className="">
-					{catName}
-					{getPickerCategory( catName, compList, onClickComponentItem )}
-				</div>
+			cagegoryGroupList.push(
+				<ComponentCategoryGroup categoryName={catName} componentList={compList} onClick={onClickComponentItem} />
 			);
 
 		} );
@@ -117,8 +123,9 @@ export const ComponentAdd = ( props: ComponentAddProps ) => {
 		pushContent && pushContent(
 
 			<div className={style.picker}>
-				{pickerList}
+				{cagegoryGroupList}
 			</div>
+
 		);
 
 	}, [ pushContent, resources, props.entity, closeAll ] );

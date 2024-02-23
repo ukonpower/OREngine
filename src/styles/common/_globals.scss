@@ -8,6 +8,7 @@
 
 	&::-webkit-scrollbar {
 		width: 5px;
+		height: 5px;
 	}
 
 	&::-webkit-scrollbar-track {
@@ -15,7 +16,11 @@
 	}
 
 	&::-webkit-scrollbar-thumb {
-		background-color: $bgCol2;
+		background-color: $bgCol3;
+	}
+
+	&::-webkit-scrollbar-corner {
+		background-color: transparent;
 	}
 }
 

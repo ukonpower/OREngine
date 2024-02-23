@@ -59,6 +59,7 @@ export const initResouces = () => {
 	const comMaterial = resource.componentCategory( "Material" );
 
 	comMaterial.register( "material", MXP.Material );
+	comMaterial.register( "material", OREngineLogo );
 
 	// view
 
@@ -77,7 +78,6 @@ export const initResouces = () => {
 
 	const comEntity = resource.componentCategory( "Entity" );
 
-	comEntity.register( "orengine", OREngineLogo );
 	comEntity.register( "skybox", SkyBox );
 
 	// Other
