@@ -35,6 +35,8 @@ export class OREngineResource extends GLP.EventEmitter {
 
 		this.componentList.length = 0;
 
+		this.componentListCategrized.clear();
+
 	}
 
 	public componentCategory( catName: string ) {

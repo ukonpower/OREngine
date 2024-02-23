@@ -6,7 +6,10 @@
 
 .picker {
 	display: flex;
-	// width: 180px;
+	padding: $padding;
+	background-color: $bgColWindow0;
+	border-radius: $radius1;
+	min-height: 150px;
 }
 
 .argsInput {
@@ -14,4 +17,8 @@
 	background-color: $bgColWindow0;
 	border-radius: $radius1;
 	padding: 5px 0;
+}
+
+.catGroup {
+	width: 100px;
 }
