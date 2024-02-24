@@ -5,6 +5,7 @@
 uniform float uTime;
 
 out float vNoise;
+out vec3 vPosBase;
 
 void main( void ) {
 
@@ -17,7 +18,7 @@ void main( void ) {
 	n *= step( noise( floor( outPos * 1.0 * 10.0 ) / 10.0 + vec3( 0.0, 0.0, uTime * 3.0 ) ), 0.2 ) * 2.0;
 
 	// outPos *= 1.0 + n;
-
+	vPosBase = outPos;
 	vNoise = n;
 	
 	#include <vert_out>

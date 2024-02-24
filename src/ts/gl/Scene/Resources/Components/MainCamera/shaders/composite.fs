@@ -19,7 +19,7 @@ void main( void ) {
 	vec3 col = vec3( 0.0, 0.0, 0.0 );
 	vec2 uv = vUv;
 	vec2 cuv = uv - 0.5;
-	float w = 0.02;
+	float w = 0.2;
 
 	float d;
 	float s = 1.0;
@@ -37,10 +37,8 @@ void main( void ) {
 	#pragma loop_end
 
 	float len = length(cuv);
-	col *= smoothstep( 1.0, 0.4, len );
-	col *= vec3( 1.01, 1.0, 0.98 );
+	col *= smoothstep( 0.9, 0.3, len );
 	
-
 	outColor = vec4( col, 1.0 );
 
 }

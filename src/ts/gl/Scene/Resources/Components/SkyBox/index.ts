@@ -2,6 +2,8 @@ import * as MXP from 'maxpower';
 
 import skyboxFrag from './shaders/skybox.fs';
 
+import { globalUniforms } from '~/ts/Globals';
+
 interface SkyBoxParams extends MXP.ComponentParams {
 }
 
@@ -20,6 +22,7 @@ export class SkyBox extends MXP.Component {
 		this.material = new MXP.Material( {
 			frag: MXP.hotGet( "skybox", skyboxFrag ),
 			cullFace: false,
+			uniforms: globalUniforms.time
 		} );
 
 		if ( import.meta.hot ) {
