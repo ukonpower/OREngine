@@ -4,9 +4,10 @@ import { SkyBox } from "../../Scene/Resources/Components/SkyBox";
 
 import { BLidgeClient } from "./Components/BLidgeClient";
 import { LookAt } from "./Components/LookAt";
-import { OREngineLogo } from "./Components/OREngineLogo";
 import { ShakeViewer } from "./Components/ShakeViewer";
 import { TurnTable } from './Components/TurnTable';
+import { OREngineCube } from './Materials/OREngineCube';
+import { OREngineLogo } from './Materials/OREngineLogo';
 
 import { resource } from "~/ts/Globals";
 
@@ -60,6 +61,7 @@ export const initResouces = () => {
 
 	comMaterial.register( "material", MXP.Material );
 	comMaterial.register( "material", OREngineLogo );
+	comMaterial.register( "material", OREngineCube );
 
 	// view
 
