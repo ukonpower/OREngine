@@ -6,7 +6,7 @@ import style from './index.module.scss';
 
 export const GLCanvas = () => {
 
-	const { gl } = useContext( GLContext );
+	const { glEditor: gl } = useContext( GLContext );
 	const wrapperElmRef = useRef<HTMLDivElement | null>( null );
 
 	useEffect( () => {

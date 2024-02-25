@@ -13,7 +13,7 @@ type HierarchyNodeProps = {
 
 export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 
-	const { gl, active: selected } = useContext( EditorContext );
+	const { glEditor, active: selected } = useContext( EditorContext );
 
 	const depth = props.depth || 0;
 	const childs = props.entity.children;
@@ -35,11 +35,11 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 
 	const onClickNode = useCallback( () => {
 
-		if ( ! gl ) return;
+		if ( ! glEditor ) return;
 
-		gl.editor.select( props.entity );
+		glEditor.selectEntity( props.entity );
 
-	}, [ gl, props.entity ] );
+	}, [ glEditor, props.entity ] );
 
 	return <div className={style.node} >
 		<div className={style.self} style={{ paddingLeft: offsetPx }} onClick={onClickNode} data-selected={selected && selected.uuid == props.entity.uuid}>

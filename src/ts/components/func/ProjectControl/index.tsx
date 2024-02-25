@@ -14,8 +14,8 @@ import { EditorContext } from '~/ts/gl/React/useEditor';
 export const ProjectControl = () => {
 
 	const { pushContent, closeAll } = useContext( MouseMenuContext );
-	const { editor, reflesh } = useContext( EditorContext );
-	const data = editor?.data;
+	const { glEditor, reflesh } = useContext( EditorContext );
+	const data = glEditor?.data;
 
 	const projectList: string[] = [];
 
@@ -29,17 +29,17 @@ export const ProjectControl = () => {
 
 	}
 
-	const currentProject = editor?.currentProject?.setting.name;
+	const currentProject = glEditor?.currentProject?.setting.name;
 
 	const openProject = useCallback( ( projectName: string ) => {
 
-		if ( editor ) {
+		if ( glEditor ) {
 
-			editor.openProject( projectName );
+			glEditor.openProject( projectName );
 
 		}
 
-	}, [ editor ] );
+	}, [ glEditor ] );
 
 	return <div className={style.project}>
 		<div className={style.project_inner}>
@@ -71,9 +71,9 @@ export const ProjectControl = () => {
 				<br/>
 				<Button onClick={()=>{
 
-					if ( editor ) {
+					if ( glEditor ) {
 
-						editor.save();
+						glEditor.save();
 
 					}
 

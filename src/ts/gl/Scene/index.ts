@@ -22,7 +22,7 @@ export class Scene extends GLP.EventEmitter {
 	public elapsedTime: number;
 	public deltaTime: number;
 
-	private renderer: Renderer;
+	public renderer: Renderer;
 
 	// bufferView
 
