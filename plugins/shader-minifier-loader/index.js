@@ -49,7 +49,7 @@ export default function shaderMinifier( userOptions = {} ) {
 
 			if ( ! filter( id ) ) return;
 
-			if ( process.platform == "darwin" || true ) {
+			if ( process.platform == "darwin" ) {
 
 				return {
 					code: `export default ${JSON.stringify( code )};`,
@@ -57,6 +57,38 @@ export default function shaderMinifier( userOptions = {} ) {
 				};
 
 			}
+
+			code = code.replaceAll( "\\n", "\n" );
+			code = code.replaceAll( "\\t", "\t" );
+			code = code.replaceAll( "precision highp float;", "\/\/\[\nprecision highp float;\n\/\/\]\n" );
+
+			const fileName = id.replaceAll( '/', "_" ) + new Date().getTime();
+			const inputFilePath = `./tmp/${fileName}_in.txt`;
+			const outputFilePath = `./tmp/${fileName}_out.txt`;
+
+			await fs.promises.writeFile( inputFilePath, code );
+
+			let args = '--format text --preserve-externals';
+
+			if ( id.indexOf( '.module.glsl' ) > - 1 ) {
+
+				args += " --no-remove-unused";
+				args += " --no-renaming";
+
+			}
+
+			// MINIFIER!!
+			await exec( `shader_minifier.exe ${inputFilePath} -o ${outputFilePath} ${args}` );
+
+			const compiledCode = await fs.promises.readFile( outputFilePath, 'utf-8' );
+
+			fs.unlinkSync( inputFilePath );
+			fs.unlinkSync( outputFilePath );
+
+			return {
+				code: `export default ${JSON.stringify( compiledCode )};`,
+				map: { mappings: '' }
+			};
 
 
 		}
