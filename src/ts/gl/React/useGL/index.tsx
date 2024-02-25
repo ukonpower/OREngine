@@ -1,29 +1,29 @@
 import { createContext, useEffect, useState } from 'react';
 
-import { GL } from '~/ts/gl';
+import { GLEditor } from '../../Editor';
 
 export type TGLContext = HooksContext<typeof useGL>;
 export const GLContext = createContext<TGLContext>( {} );
 
 export const useGL = () => {
 
-	const [ gl, setGL ] = useState<GL>();
+	const [ glEditor, setGLEditor ] = useState<GLEditor>();
 
 	useEffect( () => {
 
-		const gl = new GL();
-		setGL( gl );
+		const glEditor = new GLEditor();
+		setGLEditor( glEditor );
 
 		return () => {
 
-			gl.dispose();
+			glEditor.dispose();
 
 		};
 
 	}, [] );
 
 	return {
-		gl
+		glEditor
 	};
 
 };

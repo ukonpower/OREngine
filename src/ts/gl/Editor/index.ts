@@ -1,17 +1,17 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
+import { canvas, gl, resource } from '../../Globals';
 import { OREngineProjectData } from '../IO/ProjectSerializer';
 import { Scene } from '../Scene';
 import { OREngineResource } from '../Scene/Resources';
+import { FrameDebugger } from '../Scene/utils/FrameDebugger';
 import { Keyboard, PressedKeys } from '../Scene/utils/Keyboard';
 
-import { EditorDataManager, OREngineEditorData } from './EditorDataManager';
+import { EditorDataManager, OREngineEditorData, OREngineEditorViewType } from './EditorDataManager';
 import { FileSystem } from './FileSystem';
 
-import { resource } from '~/ts/Globals';
-
-export class Editor extends GLP.EventEmitter {
+export class GLEditor extends GLP.EventEmitter {
 
 	// resources
 
@@ -23,7 +23,6 @@ export class Editor extends GLP.EventEmitter {
 
 	// scene
 
-	private scene: Scene;
 	public selectedEntity: MXP.Entity | null = null;
 
 	// filesystem
@@ -39,17 +38,46 @@ export class Editor extends GLP.EventEmitter {
 
 	private keyBoard: Keyboard;
 
-	constructor( scene: Scene ) {
+	// scene
+
+	public scene: Scene;
+
+	// canvas
+
+	public canvas: HTMLCanvasElement;
+	public canvasWrapElm: HTMLElement | null;
+	public resolutionScale: number;
+
+	// state
+
+	public viewType: OREngineEditorViewType;
+	private disposed: boolean;
+
+	// frame debugger
+
+	private frameDebugger: FrameDebugger;
+
+	constructor() {
 
 		super();
+
+		// canvas
+
+		this.canvas = canvas;
+		this.canvasWrapElm = null;
+		this.resolutionScale = 0.5;
+
+		// scene
+
+		this.scene = new Scene();
+
+		// view
+
+		this.viewType = "render";
 
 		// project
 
 		this.currentProject = null;
-
-		// scene
-
-		this.scene = scene;
 
 		// resource
 
@@ -116,7 +144,19 @@ export class Editor extends GLP.EventEmitter {
 
 		}
 
-		this.openProject( this.data.settings.currentProjectName || "NewProject" );
+		// frameDebugger
+
+		this.frameDebugger = new FrameDebugger( gl, this.canvas );
+
+		this.scene.renderer.on( 'drawPass', ( rt?: GLP.GLPowerFrameBuffer, label?: string ) => {
+
+			if ( this.frameDebugger && this.frameDebugger.enable && rt ) {
+
+				this.frameDebugger.push( rt, label );
+
+			}
+
+		} );
 
 		// unload
 
@@ -135,23 +175,73 @@ export class Editor extends GLP.EventEmitter {
 
 		// dispose
 
+		this.disposed = false;
+
 		this.once( 'dispose', () => {
 
 			window.removeEventListener( "beforeunload", onBeforeUnload );
 
 		} );
 
+		// resize
+
+		window.addEventListener( 'resize', this.resize.bind( this ) );
+
+		setTimeout( () => {
+
+			this.resize();
+
+		}, 100 );
+
+		// load setting
+
+		this.openProject( this.data.settings.currentProjectName || "NewProject" );
+
+		this.setResolutionScale( this.data.settings.resolutionScale || 0.5 );
+
+		this.setViewType( this.data.settings.viewType || "render" );
+
+		// animate
+
+		this.animate();
+
 	}
 
-	public select( entity: MXP.Entity | null ) {
+	private animate() {
+
+		if ( this.disposed ) return;
+
+		this.scene.update();
+
+		if ( this.frameDebugger && this.frameDebugger.enable ) {
+
+			this.frameDebugger.draw();
+
+		}
+
+		window.requestAnimationFrame( this.animate.bind( this ) );
+
+	}
+
+	/*-------------------------------
+		API
+	-------------------------------*/
+
+	public setWrapperElm( elm: HTMLElement ) {
+
+		this.canvasWrapElm = elm;
+
+		this.resize();
+
+	}
+
+	public selectEntity( entity: MXP.Entity | null ) {
 
 		this.selectedEntity = entity;
 
 		this.emit( "control/select", [ entity ] );
 
 	}
-
-	// project
 
 	public openProject( name: string ) {
 
@@ -170,14 +260,38 @@ export class Editor extends GLP.EventEmitter {
 		}
 
 		this.currentProject = project;
+
 		this.data.settings.currentProjectName = this.currentProject.setting.name;
-		this.select( null );
+
+		this.selectEntity( null );
 
 	}
 
-	/*-------------------------------
-		Save
-	-------------------------------*/
+	public setViewType( type: OREngineEditorViewType ) {
+
+		this.data.settings.viewType = this.viewType = type;
+
+		if ( this.viewType === "debug" ) {
+
+			this.frameDebugger.enable = true;
+
+		} else {
+
+			this.frameDebugger.enable = false;
+
+		}
+
+	}
+
+	public setResolutionScale( scale: number ) {
+
+		this.data.settings.resolutionScale = scale;
+
+		this.resolutionScale = scale;
+
+		this.resize();
+
+	}
 
 	public save() {
 
@@ -196,14 +310,58 @@ export class Editor extends GLP.EventEmitter {
 	}
 
 	/*-------------------------------
+		Resize
+	-------------------------------*/
+
+	private resize() {
+
+		const wrapWidth = this.canvasWrapElm ? this.canvasWrapElm.clientWidth : 16;
+		const wrapHeight = this.canvasWrapElm ? this.canvasWrapElm.clientHeight : 9;
+		const wrapAspect = wrapWidth / wrapHeight;
+
+		const canvasPixelWidth = 1920;
+		const canvasPixelHeight = 1080;
+		const canvasPixelAspect = canvasPixelWidth / canvasPixelHeight;
+
+		let canvasWidth = wrapWidth;
+		let canvasHeight = wrapHeight;
+
+		if ( canvasPixelAspect < wrapAspect ) {
+
+			canvasWidth = wrapHeight * canvasPixelAspect;
+
+		} else {
+
+			canvasHeight = wrapWidth / canvasPixelAspect;
+
+		}
+
+		this.canvas.style.width = canvasWidth + 'px';
+		this.canvas.style.height = canvasHeight + 'px';
+
+		this.canvas.width = canvasPixelWidth * this.resolutionScale;
+		this.canvas.height = canvasPixelHeight * this.resolutionScale;
+
+		const resolution = new GLP.Vector( this.canvas.width, this.canvas.height );
+
+		this.scene.resize( resolution );
+
+		this.frameDebugger.resize( resolution );
+
+	}
+
+	/*-------------------------------
 		Dispose
 	-------------------------------*/
 
 	public dispose() {
 
+		this.disposed = true;
+
+		this.scene.dispose();
 		this.keyBoard.dispose();
 		this.scene.dispose();
-		this.emit( 'dispose' );
+		this.frameDebugger.dispose();
 
 	}
 

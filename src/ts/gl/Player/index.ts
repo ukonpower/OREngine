@@ -1,9 +1,7 @@
 import * as GLP from 'glpower';
 
-import SceneData from "../../data/scene.json";
-import { canvas, gpuState } from '../Globals';
-
-import { Scene } from './Scene';
+import { canvas, gpuState } from '../../Globals';
+import { Scene } from '../Scene';
 
 
 class App {
@@ -94,7 +92,7 @@ class App {
 
 		this.scene = new Scene();
 
-		this.scene.loadProject( SceneData[ "projects" ][ 0 ] );
+		// this.scene.loadProject( SceneData[ "projects" ][ 0 ] );
 
 		this.scene.on( "loaded", () => {
 

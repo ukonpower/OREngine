@@ -7,8 +7,7 @@ export const EditorContext = createContext<HooksContext<typeof useEditor>>( {} )
 
 export const useEditor = ( glContext: TGLContext ) => {
 
-	const { gl } = glContext;
-	const editor = gl?.editor;
+	const { glEditor } = glContext;
 
 	// reflesh
 
@@ -34,43 +33,42 @@ export const useEditor = ( glContext: TGLContext ) => {
 
 	useEffect( () => {
 
-		if ( editor ) {
+		if ( glEditor ) {
 
-			editor.on( "control/select", onChangeSelected );
+			glEditor.on( "control/select", onChangeSelected );
 
 		}
 
 		return () => {
 
-			if ( editor ) {
+			if ( glEditor ) {
 
-				editor.off( "control/select", onChangeSelected );
+				glEditor.off( "control/select", onChangeSelected );
 
 			}
 
 		};
 
-	}, [ editor, onChangeSelected ] );
+	}, [ glEditor, onChangeSelected ] );
 
 	// root
 
 	useEffect( () => {
 
-		if ( ! gl ) return;
+		if ( ! glEditor ) return;
 
-		gl.editor.on( "changed", reflesh );
+		glEditor.on( "changed", reflesh );
 
 		return () => {
 
-			gl.editor.off( "changed", reflesh );
+			glEditor.off( "changed", reflesh );
 
 		};
 
-	}, [ gl, reflesh ] );
+	}, [ glEditor, reflesh ] );
 
 	return {
-		gl,
-		editor,
+		glEditor,
 		active,
 		reflesh,
 	};

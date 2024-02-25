@@ -20,6 +20,12 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
+
+	&_right {
+		position: absolute;
+		right: 10px;
+		display: flex
+	}
 }
 
 .content {

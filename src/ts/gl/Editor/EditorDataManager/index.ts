@@ -3,8 +3,12 @@ import * as GLP from 'glpower';
 import { OREngineProjectData } from '../../IO/ProjectSerializer';
 
 
+export type OREngineEditorViewType = "render" | "debug";
+
 export type OREngineEditorSettings = {
 	currentProjectName?: string,
+	viewType?: OREngineEditorViewType,
+	resolutionScale?: number,
 }
 
 export type OREngineEditorData = {
