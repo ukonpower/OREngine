@@ -47,8 +47,8 @@ const ComponentCategoryGroup = ( { categoryName, componentList, onClick }: Compo
 export const ComponentAdd = ( props: ComponentAddProps ) => {
 
 	const { pushContent, closeAll } = useContext( MouseMenuContext );
-	const { editor } = useContext( EditorContext );
-	const resources = editor && editor.resource;
+	const { glEditor } = useContext( EditorContext );
+	const resources = glEditor && glEditor.resource;
 
 	const argsInputCloseRef = useRef<() => void>();
 
