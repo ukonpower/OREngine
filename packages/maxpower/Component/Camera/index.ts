@@ -28,6 +28,8 @@ export class Camera extends Component {
 
 	public displayOut: boolean;
 
+	public viewPort: GLP.Vector | null;
+
 	constructor( params?: CameraParam ) {
 
 		super( params );
@@ -41,6 +43,8 @@ export class Camera extends Component {
 
 		this.viewMatrixPrev = new GLP.Matrix();
 		this.projectionMatrixPrev = new GLP.Matrix();
+
+		this.viewPort = null;
 
 		this.fov = 50;
 		this.near = 0.1;
