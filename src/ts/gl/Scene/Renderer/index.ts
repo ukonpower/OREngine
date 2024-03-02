@@ -4,6 +4,7 @@ import * as MXP from 'maxpower';
 import { getDrawType } from '../utils/globalFunc';
 
 import { DeferredRenderer } from './DeferredPostProcess';
+import { PMREMRender } from './PMREMRender';
 import { ProgramManager } from "./ProgramManager";
 import { shaderParse } from "./ShaderParser";
 
@@ -86,10 +87,10 @@ export class Renderer extends MXP.Entity {
 	private lights: CollectedLights;
 	private lightsUpdated: boolean;
 
-	// envmapCameras
+	// envmap
 
 	private envMapCameras: EnvMapCamera[];
-	// private envMap: GLP.GLPowerTextureCube;
+	private pmremRender: PMREMRender;
 
 	// deferred
 
@@ -132,17 +133,18 @@ export class Renderer extends MXP.Entity {
 
 		this.lightsUpdated = false;
 
-		// envmapCameras
+		// envmap
 
 		this.envMapCameras = [];
-		const renderTarget = new GLP.GLPowerFrameBuffer( gl, { disableDepthBuffer: true } ).setTexture( [ new GLP.GLPowerTexture( gl ) ] );
+
+		const envMapRenderTarget = new GLP.GLPowerFrameBuffer( gl, { disableDepthBuffer: true } ).setTexture( [ new GLP.GLPowerTexture( gl ) ] );
 
 		for ( let i = 0; i < 6; i ++ ) {
 
 			const entity = new MXP.Entity( { name: "envMapCamera" } );
 			const camera = entity.addComponent( "camera", new MXP.Camera() );
 			camera.fov = 90;
-			camera.near = 0.01;
+			camera.near = 0.1;
 			camera.far = 1000;
 			camera.aspect = 1;
 			camera.updateProjectionMatrix();
@@ -152,24 +154,24 @@ export class Renderer extends MXP.Entity {
 			const partWidth = width / 3;
 			const partHeight = height / 2;
 
-			renderTarget.setSize( width, height );
+			envMapRenderTarget.setSize( width, height );
 
 			camera.viewPort = new GLP.Vector( partWidth * ( i % 3 ), Math.floor( i / 3 ) * partHeight, partWidth, partHeight );
 
-			this.envMapCameras.push( { entity, camera, renderTarget } );
+			this.envMapCameras.push( { entity, camera, renderTarget: envMapRenderTarget } );
 
 		}
 
-		// this.envMap = new GLP.GLPowerTextureCube( gl ).attach( this.envMapCameras.map( item => {
-
-		// 	return item.renderTarget.textures[ 0 ];
-
-		// } ) );
-
+		this.pmremRender = new PMREMRender( {
+			input: envMapRenderTarget.textures,
+			resolution: new GLP.Vector( 512, 1024 ),
+		} );
 
 		// deferred
 
-		this.deferredPostProcess = new DeferredRenderer();
+		this.deferredPostProcess = new DeferredRenderer( {
+			envMap: this.pmremRender.renderTarget.textures[ 0 ],
+		} );
 		this.addComponent( "deferredPostProcess", this.deferredPostProcess );
 
 		// quad
@@ -332,6 +334,8 @@ export class Renderer extends MXP.Entity {
 			this.renderCamera( "envMap", entity, stack.envMap, renderTarget, { disableClear: true } );
 
 		}
+
+		this.renderPostProcess( this.pmremRender );
 
 		for ( let i = 0; i < stack.camera.length; i ++ ) {
 
@@ -583,15 +587,33 @@ export class Renderer extends MXP.Entity {
 
 			const renderTarget = pass.renderTarget;
 
+			if ( pass.viewPort ) {
+
+				const v = pass.viewPort;
+
+				gl.viewport( v.x, v.y, v.z, v.w );
+
+			} else {
+
+				if ( renderTarget ) {
+
+					gl.viewport( 0, 0, renderTarget.size.x, renderTarget.size.y );
+
+				} else {
+
+					gl.viewport( 0, 0, this.canvasSize.x, this.canvasSize.y );
+
+				}
+
+			}
+
 			if ( renderTarget ) {
 
-				gl.viewport( 0, 0, renderTarget.size.x, renderTarget.size.y );
 				gl.bindFramebuffer( gl.FRAMEBUFFER, renderTarget.getFrameBuffer() );
 				gl.drawBuffers( renderTarget.textureAttachmentList );
 
 			} else {
 
-				gl.viewport( 0, 0, this.canvasSize.x, this.canvasSize.y );
 				gl.bindFramebuffer( gl.FRAMEBUFFER, null );
 
 			}

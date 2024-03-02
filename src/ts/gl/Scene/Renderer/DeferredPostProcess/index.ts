@@ -33,6 +33,10 @@ const ssaoKernel = ( kernelSize: number ) => {
 
 };
 
+type DeferredRendererParams = {
+	envMap: GLP.GLPowerTexture;
+}
+
 export class DeferredRenderer extends MXP.PostProcess {
 
 	// light shaft
@@ -53,7 +57,7 @@ export class DeferredRenderer extends MXP.PostProcess {
 
 	private shading: MXP.PostProcessPass;
 
-	constructor() {
+	constructor( params: DeferredRendererParams ) {
 
 		// light shaft
 
@@ -205,11 +209,11 @@ export class DeferredRenderer extends MXP.PostProcess {
 					value: ssao.resolutionInv,
 					type: '2fv'
 				},
-				uEnvTex: globalUniforms.tex.uEnvTex
+				uEnvMap: {
+					value: params.envMap,
+					type: '1i'
+				}
 			} ),
-			defines: {
-				USE_ENV: ""
-			}
 		} );
 
 		super( { passes: [

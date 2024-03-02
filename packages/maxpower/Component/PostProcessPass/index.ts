@@ -9,6 +9,7 @@ export interface PostProcessPassParam extends MaterialParam{
 	clearDepth?: number;
 	resolutionRatio?: number;
 	passThrough?: boolean;
+	viewPort?: GLP.Vector
 }
 
 import passFrag from './shaders/pass.fs';
@@ -28,6 +29,7 @@ export class PostProcessPass extends Material {
 
 	public resolution: GLP.Vector;
 	public resolutionInv: GLP.Vector;
+	public viewPort: GLP.Vector | null;
 
 	constructor( param: PostProcessPassParam ) {
 
@@ -35,6 +37,8 @@ export class PostProcessPass extends Material {
 
 		this.resolution = new GLP.Vector();
 		this.resolutionInv = new GLP.Vector();
+
+		this.viewPort = null;
 
 		this.uniforms.uPPResolution = {
 			value: this.resolution,
@@ -55,6 +59,7 @@ export class PostProcessPass extends Material {
 		this.depthTest = param.depthTest !== undefined ? param.depthTest : false;
 		this.resolutionRatio = param.resolutionRatio || 1;
 		this.passThrough = param.passThrough ?? false;
+		this.viewPort = param.viewPort || null;
 
 	}
 

@@ -24,34 +24,6 @@ struct Material {
 	vec3 specularColor;
 };
 
-struct DirectionalLight {
-	vec3 direction;
-	vec3 color;
-};
-
-struct SpotLight {
-	vec3 position;
-	vec3 direction;
-	vec3 color;
-	float angle;
-	float blend;
-	float distance;
-	float decay;
-};
-
-struct LightCamera {
-	float near;
-	float far;
-	mat4 viewMatrix;
-	mat4 projectionMatrix;
-	vec2 resolution;
-};
-
-struct Light {
-	vec3 direction;
-	vec3 color;
-};
-
 float atan2(in float y, in float x){
 
     return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);

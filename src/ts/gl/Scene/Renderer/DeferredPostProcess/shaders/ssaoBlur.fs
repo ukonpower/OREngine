@@ -33,13 +33,15 @@ void main( void ) {
 	float alpha = 32.0;
 	float beta = 0.25;
 
+	vec2 direction;
+
 	#ifdef IS_VIRT
 
-		vec2 direction = vec2( 0.0, 1.0 );
+		direction = vec2( 0.0, 1.0 );
 	
 	#else
 
-		vec2 direction = vec2( 1.0, 0.0 );
+		direction = vec2( 1.0, 0.0 );
 
 	#endif
 

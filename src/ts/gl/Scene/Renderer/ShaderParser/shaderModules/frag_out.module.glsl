@@ -15,7 +15,7 @@
 	outColor1 = vec4( normalize( outNormal * ( gl_FrontFacing ? 1.0 : -1.0 ) ), outEmissionIntensity );
 	outColor2 = vec4( outColor.xyz, outRoughness);
 	outColor3 = vec4( outEmission, outMetalic );
-	outColor4 = vec4( vVelocity, 0.0, outEnv );
+	outColor4 = vec4( vVelocity, 0.0, 0.0 );
 #endif
 
 #ifdef IS_FORWARD

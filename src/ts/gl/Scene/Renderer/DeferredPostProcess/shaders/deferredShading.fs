@@ -1,7 +1,6 @@
 #include <common>
 #include <packing>
 #include <light_h>
-#include <re>
 
 // uniforms
 
@@ -9,15 +8,13 @@ uniform sampler2D sampler0; // position, depth
 uniform sampler2D sampler1; // normal, emissionIntensity
 uniform sampler2D sampler2; // albedo, roughness
 uniform sampler2D sampler3; // emission, metalic
-uniform sampler2D sampler4; // velocity, env
+uniform sampler2D sampler4; // velocity,
 
 uniform sampler2D uSSAOTexture;
 
 uniform sampler2D uLightShaftTexture;
 
-#ifdef USE_ENV
-	uniform samplerCube uEnvTex;
-#endif
+uniform sampler2D uEnvMap;
 
 uniform vec3 uColor;
 uniform mat4 viewMatrix;
@@ -82,7 +79,6 @@ void main( void ) {
 		mix( tex2.xyz, vec3( 0.0, 0.0, 0.0 ), tex3.w ),
 		mix( vec3( 1.0, 1.0, 1.0 ), tex2.xyz, tex3.w )
 	);
-	float envIntensity = tex4.w;
 	vec3 outColor = vec3( 0.0 );
 	//]
 	
@@ -92,17 +88,13 @@ void main( void ) {
 
 	// env
 
-	#ifdef USE_ENV
+	vec3 refDir = reflect( geo.viewDir, geo.normal );
+
+	float dNV = clamp( dot( geo.normal, geo.viewDir ), 0.0, 1.0 );
+
+	float EF = mix( fresnel( dNV ), 1.0, mat.metalic );
 	
-		vec3 refDir = reflect( geo.viewDir, geo.normal );
-
-		float dNV = clamp( dot( geo.normal, geo.viewDir ), 0.0, 1.0 );
-
-		float EF = mix( fresnel( dNV ), 1.0, mat.metalic );
-		
-		outColor += mat.specularColor * texture( uEnvTex, refDir ).xyz * EF * envIntensity;
-
-	#endif
+	outColor += mat.specularColor * texture( uEnvMap, vUv + geo.normal.xy * 0.5 ).xyz * EF;
 
 	// light shaft
 	
