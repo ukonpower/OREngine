@@ -36,12 +36,16 @@ void main( void ) {
 
 	outEmissionIntensity = 1.0 + emit * 50.0 * smoothstep( 0.4, 1.0, n);
 
+	outEmission = outEmission * 0.2 + normal;
+
 	#ifdef IS_FORWARD
 
 		outColor.xyz = outEmission * outEmissionIntensity;
 	
 	#endif
-	
+
+	outEnv = 0.0;
+
 	#include <frag_out>
 
 } 

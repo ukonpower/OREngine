@@ -1,6 +1,7 @@
 #include <common>
 #include <packing>
 #include <light_h>
+#include <pmrem>
 
 // uniforms
 
@@ -8,7 +9,7 @@ uniform sampler2D sampler0; // position, depth
 uniform sampler2D sampler1; // normal, emissionIntensity
 uniform sampler2D sampler2; // albedo, roughness
 uniform sampler2D sampler3; // emission, metalic
-uniform sampler2D sampler4; // velocity,
+uniform sampler2D sampler4; // velocity, env
 
 uniform sampler2D uSSAOTexture;
 
@@ -51,6 +52,65 @@ layout (location = 1) out vec4 glFragOut1;
 
 uniform float uOrnamentCol;
 
+//https://github.com/mrdoob/three.js/blob/c2593ed3db121b17590068c638d5dc115e7496f9/src/renderers/shaders/ShaderChunk/cube_uv_reflection_fragment.glsl.js#L132
+
+#define MAXMIP 8.0
+
+float roughnessToMip( float roughness ) {
+
+	float mip = 0.0;
+
+	mip = roughness * ( MAXMIP - 1.0 );
+
+	return mip;
+
+}
+
+vec3 getPmremMip( sampler2D envMap, vec3 direction, float mip  ) {
+
+	float face = getPmremFace( direction );
+	vec2 uv = getPmremUV( direction, face );
+
+	uv.x += mod( face, 3.0 );
+	uv.y += floor( face / 3.0) ;
+	
+	uv.y *= 0.5;
+
+	float scale = 1.0 - pow( 2.0, -floor(mip) );
+	
+	uv.y *= 0.5;
+	uv.x /= 3.0;
+
+	uv.y *= 1.0 - scale;
+	uv.x *= 1.0 - scale;
+	uv.y += scale;
+
+	return texture( envMap, uv ).xyz;
+
+}
+
+vec3 getPmrem( sampler2D envMap, vec3 direction, float roughness ) {
+
+	float mip = roughnessToMip( roughness );
+	float mipF = fract( mip );
+	float mipInt = floor( mip );
+
+	vec3 color0 = getPmremMip( envMap, direction, mipInt );
+
+	if ( mipF == 0.0 ) {
+
+		return color0;
+
+	} else {
+
+		vec3 color1 = getPmremMip( envMap, direction, mipInt + 1.0 );
+
+		return mix( color0, color1, mipF );
+
+	}
+
+}
+
 void main( void ) {
 
 	//[
@@ -88,18 +148,24 @@ void main( void ) {
 
 	// env
 
-	vec3 refDir = reflect( geo.viewDir, geo.normal );
+	float env = tex4.w;
+
+	vec3 refDir = reflect( -geo.viewDir, geo.normal );
 
 	float dNV = clamp( dot( geo.normal, geo.viewDir ), 0.0, 1.0 );
 
 	float EF = mix( fresnel( dNV ), 1.0, mat.metalic );
 	
-	outColor += mat.specularColor * texture( uEnvMap, vUv + geo.normal.xy * 0.5 ).xyz * EF;
+	// outColor += mat.specularColor * getPmrem( uEnvMap, refDir, mat.roughness ) * EF * env;
+
+	outColor += mat.diffuseColor * getPmrem( uEnvMap, refDir, 0.5 ) * 2.0;
+	// outColor += mat.diffuseColor * getPmrem( uEnvMap, refDir, 0.0 ) * env;
 
 	// light shaft
 	
 	outColor.xyz += texture( uLightShaftTexture, vUv ).xyz;
 
-	glFragOut0 = glFragOut1 = vec4( outColor.xyz, 1.0 );
+
+	glFragOut0 = glFragOut1 = vec4( outColor, 0.0 );
 
 }
