@@ -77,11 +77,20 @@ export class Camera extends Component {
 
 	}
 
+	public updateViewMatrix() {
+
+		if ( this.entity ) {
+
+			this.viewMatrixPrev.copy( this.viewMatrix );
+			this.viewMatrix.copy( this.entity.matrixWorld ).inverse();
+
+		}
+
+	}
+
 	protected postUpdateImpl( event: ComponentUpdateEvent ): void {
 
-		this.viewMatrixPrev.copy( this.viewMatrix );
-
-		this.viewMatrix.copy( event.entity.matrixWorld ).inverse();
+		this.updateViewMatrix();
 
 		if ( this.needsUpdate ) {
 

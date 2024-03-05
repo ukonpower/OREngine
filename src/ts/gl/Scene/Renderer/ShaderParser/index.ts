@@ -7,6 +7,7 @@ import frag_out from './shaderModules/frag_out.module.glsl';
 import light from './shaderModules/light.module.glsl';
 import light_h from './shaderModules/light_h.module.glsl';
 import noise from './shaderModules/noise.module.glsl';
+import pmrem from './shaderModules/pmrem.module.glsl';
 import rotate from './shaderModules/rotate.module.glsl';
 import sdf from './shaderModules/sdf.module.glsl';
 import vert_h from './shaderModules/vert_h.module.glsl';
@@ -66,6 +67,7 @@ export const shaderInclude = ( shader: string ) => {
 		"frag_h": frag_h,
 		"frag_in": frag_in,
 		"frag_out": frag_out,
+		"pmrem": pmrem,
 	};
 
 	shader = shader.replace( /#include\s?\<([\S]*)\>/g, ( _: string, body: string ) => {

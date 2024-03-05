@@ -315,6 +315,8 @@ export class Entity extends GLP.EventEmitter {
 			this.scale
 		);
 
+		this.updateMatrix();
+
 	}
 
 	/*-------------------------------

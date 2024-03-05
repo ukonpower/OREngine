@@ -139,6 +139,18 @@ export class Renderer extends MXP.Entity {
 
 		const envMapRenderTarget = new GLP.GLPowerFrameBuffer( gl, { disableDepthBuffer: true } ).setTexture( [ new GLP.GLPowerTexture( gl ) ] );
 
+		const origin = new GLP.Vector( 0, 0, 0 );
+		const up = new GLP.Vector( 0, 1, 0 );
+
+		const lookAtMatrices = [
+			new GLP.Matrix().lookAt( origin, new GLP.Vector( 1, 0, 0 ), up ),
+			new GLP.Matrix().lookAt( origin, new GLP.Vector( 0, 1, 0 ), up ),
+			new GLP.Matrix().lookAt( origin, new GLP.Vector( 0, 0, 1 ), up ),
+			new GLP.Matrix().lookAt( origin, new GLP.Vector( - 1, 0, 0 ), up ),
+			new GLP.Matrix().lookAt( origin, new GLP.Vector( 0, - 1, 0 ), up ),
+			new GLP.Matrix().lookAt( origin, new GLP.Vector( 0, 0, - 1 ), up ),
+		];
+
 		for ( let i = 0; i < 6; i ++ ) {
 
 			const entity = new MXP.Entity( { name: "envMapCamera" } );
@@ -147,15 +159,16 @@ export class Renderer extends MXP.Entity {
 			camera.near = 0.1;
 			camera.far = 1000;
 			camera.aspect = 1;
+			entity.applyMatrix( lookAtMatrices[ i ].clone() );
+			camera.updateViewMatrix();
 			camera.updateProjectionMatrix();
 
-			const width = 512;
-			const height = 1024;
+			const width = 512 * 3;
+			const height = 512 * 2;
 			const partWidth = width / 3;
 			const partHeight = height / 2;
 
 			envMapRenderTarget.setSize( width, height );
-
 			camera.viewPort = new GLP.Vector( partWidth * ( i % 3 ), Math.floor( i / 3 ) * partHeight, partWidth, partHeight );
 
 			this.envMapCameras.push( { entity, camera, renderTarget: envMapRenderTarget } );

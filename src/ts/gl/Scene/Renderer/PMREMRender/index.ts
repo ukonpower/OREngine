@@ -21,22 +21,34 @@ export class PMREMRender extends MXP.PostProcess {
 
 		let y = 0;
 
-		for ( let i = 0; i < 4; i ++ ) {
+		for ( let i = 0; i < 8; i ++ ) {
 
-			const width = resolution.x / Math.pow( 2, i );
-			const height = resolution.y / Math.pow( 2, i + 1 );
+			const resolutionRatio = 1 / Math.pow( 2, i );
+			const width = resolution.x * resolutionRatio;
+			const height = resolution.y * resolutionRatio * 0.5;
 
 			const viewPort = new GLP.Vector( 0, y, width, height );
 			y += height;
 
-			passes.push( new MXP.PostProcessPass( {
-				name: "pmrem" + i,
-				renderTarget,
-				frag: MXP.hotGet( "pmrem", pmremFrag ),
-				viewPort,
-				depthTest: false,
-				passThrough: true,
-			} ) );
+			passes.push(
+				new MXP.PostProcessPass( {
+					name: "pmrem" + i + "/blur",
+					frag: MXP.hotGet( "pmrem", pmremFrag ),
+					uniforms: {
+						uBlur: {
+							value: i / 5,
+							type: "1f"
+						},
+					},
+					resolutionRatio
+				} ),
+				new MXP.PostProcessPass( {
+					name: "pmrem" + i + "/draw",
+					renderTarget,
+					viewPort,
+					passThrough: true,
+				} ),
+			);
 
 		}
 
