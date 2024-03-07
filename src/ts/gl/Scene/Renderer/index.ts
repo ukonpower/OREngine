@@ -39,7 +39,6 @@ export type CollectedLights = {[K in MXP.LightType]: LightInfo[]}
 type EnvMapCamera = {
 	entity: MXP.Entity,
 	camera: MXP.Camera,
-	renderTarget: GLP.GLPowerFrameBuffer,
 }
 
 // drawParam
@@ -90,6 +89,7 @@ export class Renderer extends MXP.Entity {
 	// envmap
 
 	private envMapCameras: EnvMapCamera[];
+	private envMapRenderTarget: GLP.GLPowerFrameBufferCube;
 	private pmremRender: PMREMRender;
 
 	// deferred
@@ -136,8 +136,9 @@ export class Renderer extends MXP.Entity {
 		// envmap
 
 		this.envMapCameras = [];
-
-		const envMapRenderTarget = new GLP.GLPowerFrameBuffer( gl, { disableDepthBuffer: true } ).setTexture( [ new GLP.GLPowerTexture( gl ) ] );
+		const envMapCube = new GLP.GLPowerTextureCube( gl );
+		this.envMapRenderTarget = new GLP.GLPowerFrameBufferCube( gl ).setTexture( [ envMapCube ] );
+		this.envMapRenderTarget.setSize( 256, 256 );
 
 		const origin = new GLP.Vector( 0, 0, 0 );
 		const up = new GLP.Vector( 0, 1, 0 );
@@ -163,28 +164,22 @@ export class Renderer extends MXP.Entity {
 			camera.updateViewMatrix();
 			camera.updateProjectionMatrix();
 
-			const width = 512 * 3;
-			const height = 512 * 2;
-			const partWidth = width / 3;
-			const partHeight = height / 2;
-
-			envMapRenderTarget.setSize( width, height );
-			camera.viewPort = new GLP.Vector( partWidth * ( i % 3 ), Math.floor( i / 3 ) * partHeight, partWidth, partHeight );
-
-			this.envMapCameras.push( { entity, camera, renderTarget: envMapRenderTarget } );
+			this.envMapCameras.push( { entity, camera } );
 
 		}
 
 		this.pmremRender = new PMREMRender( {
-			input: envMapRenderTarget.textures,
-			resolution: new GLP.Vector( 512, 1024 ),
+			input: this.envMapRenderTarget.textures,
+			resolution: new GLP.Vector( 512, 512 ),
 		} );
 
 		// deferred
 
 		this.deferredPostProcess = new DeferredRenderer( {
-			envMap: this.pmremRender.renderTarget.textures[ 0 ],
+			envMap: this.pmremRender.renderTarget.textures[ 0 ] as GLP.GLPowerTexture,
+			envMapCube: envMapCube,
 		} );
+
 		this.addComponent( "deferredPostProcess", this.deferredPostProcess );
 
 		// quad
@@ -342,13 +337,15 @@ export class Renderer extends MXP.Entity {
 
 		for ( let i = 0; i < this.envMapCameras.length; i ++ ) {
 
-			const { entity, renderTarget } = this.envMapCameras[ i ];
+			const { entity } = this.envMapCameras[ i ];
 
-			this.renderCamera( "envMap", entity, stack.envMap, renderTarget, { disableClear: true } );
+			this.envMapRenderTarget.face( i );
+
+			this.renderCamera( "envMap", entity, stack.envMap, this.envMapRenderTarget );
 
 		}
 
-		this.renderPostProcess( this.pmremRender );
+		// this.renderPostProcess( this.pmremRender );
 
 		for ( let i = 0; i < stack.camera.length; i ++ ) {
 
