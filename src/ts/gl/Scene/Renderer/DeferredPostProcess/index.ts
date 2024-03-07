@@ -35,6 +35,7 @@ const ssaoKernel = ( kernelSize: number ) => {
 
 type DeferredRendererParams = {
 	envMap: GLP.GLPowerTexture;
+	envMapCube?: GLP.GLPowerTextureCube
 }
 
 export class DeferredRenderer extends MXP.PostProcess {
@@ -211,6 +212,10 @@ export class DeferredRenderer extends MXP.PostProcess {
 				},
 				uEnvMap: {
 					value: params.envMap,
+					type: '1i'
+				},
+				uEnvMapCube: {
+					value: params.envMapCube,
 					type: '1i'
 				}
 			} ),

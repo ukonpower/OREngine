@@ -155,7 +155,11 @@ export class FrameDebugger extends GLP.EventEmitter {
 				const tex = frameBuffer.textures[ i ];
 
 				this.srcFrameBuffer.setSize( tex.size );
-				this.srcFrameBuffer.setTexture( [ tex ], true );
+
+				this.gl.bindFramebuffer( this.gl.FRAMEBUFFER, this.srcFrameBuffer.getFrameBuffer() );
+				this.gl.framebufferTexture2D( this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, tex.getTexture(), 0 );
+				this.gl.bindFramebuffer( this.gl.FRAMEBUFFER, null );
+
 
 				this.gl.bindFramebuffer( this.gl.READ_FRAMEBUFFER, this.srcFrameBuffer.getFrameBuffer() );
 				this.gl.bindFramebuffer( this.gl.DRAW_FRAMEBUFFER, this.outFrameBuffer.getFrameBuffer() );
