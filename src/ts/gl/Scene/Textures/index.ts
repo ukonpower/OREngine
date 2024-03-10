@@ -15,36 +15,36 @@ export const initTextures = () => {
 		type: '1i'
 	};
 
-	globalUniforms.tex.uEnvTex = {
-		value: new GLPowerTextureCube( gl ),
-		type: '1i'
-	};
+	// globalUniforms.tex.uEnvTex = {
+	// 	value: new GLPowerTextureCube( gl ),
+	// 	type: '1i'
+	// };
 
-	const prms = [
-		'/env/px.png',
-		'/env/py.png',
-		'/env/pz.png',
-		'/env/nx.png',
-		'/env/ny.png',
-		'/env/nz.png'
-	].map( path => new Promise<HTMLImageElement>( ( r )=> {
+	// const prms = [
+	// 	'/env/px.png',
+	// 	'/env/py.png',
+	// 	'/env/pz.png',
+	// 	'/env/nx.png',
+	// 	'/env/ny.png',
+	// 	'/env/nz.png'
+	// ].map( path => new Promise<HTMLImageElement>( ( r )=> {
 
-		const img = document.createElement( "img" );
+	// 	const img = document.createElement( "img" );
 
-		img.onload = () => {
+	// 	img.onload = () => {
 
-			r( img );
+	// 		r( img );
 
-		};
+	// 	};
 
-		img.src = path;
+	// 	img.src = path;
 
-	} ) );
+	// } ) );
 
-	Promise.all( prms ).then( imgs => {
+	// Promise.all( prms ).then( imgs => {
 
-		globalUniforms.tex.uEnvTex.value.attach( imgs );
+	// 	globalUniforms.tex.uEnvTex.value.attach( imgs );
 
-	} );
+	// } );
 
 };

@@ -146,20 +146,21 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 	}
 
-	public push( frameBuffer: GLP.GLPowerFrameBuffer, label?: string ) {
+	public push( frameBuffer: GLP.GLPowerFrameBuffer | GLP.GLPowerFrameBufferCube, label?: string ) {
 
 		for ( let i = 0; i < frameBuffer.textures.length; i ++ ) {
 
 			if ( this.focus == null || this.focus == this.count ) {
 
 				const tex = frameBuffer.textures[ i ];
+				const textarget = "currentFace" in frameBuffer ? frameBuffer.currentFace : this.gl.TEXTURE_2D;
 
 				this.srcFrameBuffer.setSize( tex.size );
 
 				this.gl.bindFramebuffer( this.gl.FRAMEBUFFER, this.srcFrameBuffer.getFrameBuffer() );
-				this.gl.framebufferTexture2D( this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, tex.getTexture(), 0 );
-				this.gl.bindFramebuffer( this.gl.FRAMEBUFFER, null );
 
+				this.gl.framebufferTexture2D( this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, textarget, tex.getTexture(), 0 );
+				this.gl.bindFramebuffer( this.gl.FRAMEBUFFER, null );
 
 				this.gl.bindFramebuffer( this.gl.READ_FRAMEBUFFER, this.srcFrameBuffer.getFrameBuffer() );
 				this.gl.bindFramebuffer( this.gl.DRAW_FRAMEBUFFER, this.outFrameBuffer.getFrameBuffer() );
@@ -180,7 +181,7 @@ export class FrameDebugger extends GLP.EventEmitter {
 					x + w, this.resolution.y - y,
 					this.gl.COLOR_BUFFER_BIT, this.gl.NEAREST );
 
-				this.srcFrameBuffer.setTexture( [], true );
+				this.srcFrameBuffer.setTexture( [] );
 
 				this.frameList.push( {
 					frameBuffer: frameBuffer,

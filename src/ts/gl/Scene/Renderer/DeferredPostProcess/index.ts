@@ -210,14 +210,10 @@ export class DeferredRenderer extends MXP.PostProcess {
 					value: ssao.resolutionInv,
 					type: '2fv'
 				},
-				uEnvMap: {
-					value: params.envMap,
-					type: '1i'
-				},
 				uEnvMapCube: {
 					value: params.envMapCube,
 					type: '1i'
-				}
+				},
 			} ),
 		} );
 

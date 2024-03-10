@@ -15,7 +15,7 @@ uniform sampler2D uSSAOTexture;
 
 uniform sampler2D uLightShaftTexture;
 
-uniform sampler2D uEnvMap;
+uniform samplerCube uEnvMapCube;
 
 uniform vec3 uColor;
 uniform mat4 viewMatrix;
@@ -156,16 +156,18 @@ void main( void ) {
 
 	float EF = mix( fresnel( dNV ), 1.0, mat.metalic );
 	
-	// outColor += mat.specularColor * getPmrem( uEnvMap, refDir, mat.roughness ) * EF * env;
+	// outColor += mat.specularColor * getPmrem( uEnvMapCube, refDir, mat.roughness ) * EF * env;
 
-	outColor += mat.diffuseColor * getPmrem( uEnvMap, refDir, 0.5 ) * 2.0;
-	// outColor += mat.diffuseColor * getPmrem( uEnvMap, refDir, 0.0 ) * env;
+	// outColor += mat.diffuseColor * getPmrem( uEnvMapCube, refDir, 0.5 ) * 2.0;
+	// outColor += mat.diffuseColor * getPmrem( uEnvMapCube, refDir, 0.0 ) * env;
+
+	outColor.xyz += texture( uEnvMapCube, refDir ).xyz * env;
 
 	// light shaft
 	
 	outColor.xyz += texture( uLightShaftTexture, vUv ).xyz;
 
 
-	glFragOut0 = glFragOut1 = vec4( outColor, 0.0 );
+	glFragOut0 = glFragOut1 = vec4( outColor, 1.0 );
 
 }
