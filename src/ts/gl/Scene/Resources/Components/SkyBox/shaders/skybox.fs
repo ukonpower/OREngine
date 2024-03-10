@@ -40,7 +40,7 @@ void main( void ) {
 
 	#ifdef IS_FORWARD
 
-		outColor.xyz = outEmission * outEmissionIntensity;
+		outColor = vec4( outEmission * outEmissionIntensity, 1.0 );
 	
 	#endif
 

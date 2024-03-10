@@ -8,7 +8,7 @@ import { PMREMRender } from './PMREMRender';
 import { ProgramManager } from "./ProgramManager";
 import { shaderParse } from "./ShaderParser";
 
-import { gl, gpuState, power } from "~/ts/Globals";
+import { gl, globalUniforms, gpuState, power } from "~/ts/Globals";
 
 // render stack
 
@@ -141,20 +141,20 @@ export class Renderer extends MXP.Entity {
 		this.envMapRenderTarget.setSize( 256, 256 );
 
 		const origin = new GLP.Vector( 0, 0, 0 );
-		const up = new GLP.Vector( 0, 1, 0 );
+		const up = new GLP.Vector( 0, - 1, 0 );
 
 		const lookAtMatrices = [
 			new GLP.Matrix().lookAt( origin, new GLP.Vector( 1, 0, 0 ), up ),
-			new GLP.Matrix().lookAt( origin, new GLP.Vector( 0, 1, 0 ), up ),
+			new GLP.Matrix().lookAt( origin, new GLP.Vector( 0, 1, 0 ), new GLP.Vector( 0, 0, 1 ) ),
 			new GLP.Matrix().lookAt( origin, new GLP.Vector( 0, 0, 1 ), up ),
 			new GLP.Matrix().lookAt( origin, new GLP.Vector( - 1, 0, 0 ), up ),
-			new GLP.Matrix().lookAt( origin, new GLP.Vector( 0, - 1, 0 ), up ),
+			new GLP.Matrix().lookAt( origin, new GLP.Vector( 0, - 1, 0 ), new GLP.Vector( 0, 0, - 1 ) ),
 			new GLP.Matrix().lookAt( origin, new GLP.Vector( 0, 0, - 1 ), up ),
 		];
 
 		for ( let i = 0; i < 6; i ++ ) {
 
-			const entity = new MXP.Entity( { name: "envMapCamera" } );
+			const entity = new MXP.Entity( { name: "envMapCamera/" + i } );
 			const camera = entity.addComponent( "camera", new MXP.Camera() );
 			camera.fov = 90;
 			camera.near = 0.1;
@@ -173,11 +173,40 @@ export class Renderer extends MXP.Entity {
 			resolution: new GLP.Vector( 512, 512 ),
 		} );
 
+		const cubeMap = new GLP.GLPowerTextureCube( gl );
+
+		const prms = [
+			'/env/px.png',
+			'/env/py.png',
+			'/env/pz.png',
+			'/env/nx.png',
+			'/env/ny.png',
+			'/env/nz.png'
+		].map( path => new Promise<HTMLImageElement>( ( r )=> {
+
+			const img = document.createElement( "img" );
+
+			img.onload = () => {
+
+				r( img );
+
+			};
+
+			img.src = path;
+
+		} ) );
+
+		Promise.all( prms ).then( imgs => {
+
+			cubeMap.attach( imgs );
+
+		} );
+
 		// deferred
 
 		this.deferredPostProcess = new DeferredRenderer( {
 			envMap: this.pmremRender.renderTarget.textures[ 0 ] as GLP.GLPowerTexture,
-			envMapCube: envMapCube,
+			envMapCube: envMapCube as GLP.GLPowerTextureCube,
 		} );
 
 		this.addComponent( "deferredPostProcess", this.deferredPostProcess );
@@ -337,11 +366,12 @@ export class Renderer extends MXP.Entity {
 
 		for ( let i = 0; i < this.envMapCameras.length; i ++ ) {
 
-			const { entity } = this.envMapCameras[ i ];
+			const { entity: cameraEntity } = this.envMapCameras[ i ];
 
 			this.envMapRenderTarget.face( i );
 
-			this.renderCamera( "envMap", entity, stack.envMap, this.envMapRenderTarget );
+			this.renderCamera( "envMap", cameraEntity, stack.envMap, this.envMapRenderTarget );
+
 
 		}
 
@@ -554,6 +584,7 @@ export class Renderer extends MXP.Entity {
 		}
 
 		this.emit( "drawPass", [ renderTarget, "camera/" + renderType ] );
+
 
 	}
 
