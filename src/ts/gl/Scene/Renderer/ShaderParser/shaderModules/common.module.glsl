@@ -4,6 +4,7 @@ precision highp float;
 #define PI 3.14159265359
 #define TPI 6.28318530718
 #define HPI 1.57079632679
+#define saturate(x) clamp(x,0.,1.)
 
 struct Geometry {
 	vec3 position;

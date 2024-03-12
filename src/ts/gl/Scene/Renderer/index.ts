@@ -135,9 +135,8 @@ export class Renderer extends MXP.Entity {
 
 		// envmap
 
-		this.envMapCameras = [];
-		const envMapCube = new GLP.GLPowerTextureCube( gl );
-		this.envMapRenderTarget = new GLP.GLPowerFrameBufferCube( gl ).setTexture( [ envMapCube ] );
+		const envMap = new GLP.GLPowerTextureCube( gl );
+		this.envMapRenderTarget = new GLP.GLPowerFrameBufferCube( gl ).setTexture( [ envMap ] );
 		this.envMapRenderTarget.setSize( 256, 256 );
 
 		const origin = new GLP.Vector( 0, 0, 0 );
@@ -152,6 +151,8 @@ export class Renderer extends MXP.Entity {
 			new GLP.Matrix().lookAt( origin, new GLP.Vector( 0, 0, - 1 ), up ),
 		];
 
+		this.envMapCameras = [];
+
 		for ( let i = 0; i < 6; i ++ ) {
 
 			const entity = new MXP.Entity( { name: "envMapCamera/" + i } );
@@ -163,50 +164,22 @@ export class Renderer extends MXP.Entity {
 			entity.applyMatrix( lookAtMatrices[ i ].clone() );
 			camera.updateViewMatrix();
 			camera.updateProjectionMatrix();
-
 			this.envMapCameras.push( { entity, camera } );
 
 		}
 
+		// pmrem
+
 		this.pmremRender = new PMREMRender( {
-			input: this.envMapRenderTarget.textures,
+			input: [ envMap ],
 			resolution: new GLP.Vector( 512, 512 ),
-		} );
-
-		const cubeMap = new GLP.GLPowerTextureCube( gl );
-
-		const prms = [
-			'/env/px.png',
-			'/env/py.png',
-			'/env/pz.png',
-			'/env/nx.png',
-			'/env/ny.png',
-			'/env/nz.png'
-		].map( path => new Promise<HTMLImageElement>( ( r )=> {
-
-			const img = document.createElement( "img" );
-
-			img.onload = () => {
-
-				r( img );
-
-			};
-
-			img.src = path;
-
-		} ) );
-
-		Promise.all( prms ).then( imgs => {
-
-			cubeMap.attach( imgs );
-
 		} );
 
 		// deferred
 
 		this.deferredPostProcess = new DeferredRenderer( {
 			envMap: this.pmremRender.renderTarget.textures[ 0 ] as GLP.GLPowerTexture,
-			envMapCube: envMapCube as GLP.GLPowerTextureCube,
+			envMapCube: envMap as GLP.GLPowerTextureCube,
 		} );
 
 		this.addComponent( "deferredPostProcess", this.deferredPostProcess );
@@ -375,7 +348,9 @@ export class Renderer extends MXP.Entity {
 
 		}
 
-		// this.renderPostProcess( this.pmremRender );
+		this.renderPostProcess( this.pmremRender );
+
+		this.pmremRender.swap();
 
 		for ( let i = 0; i < stack.camera.length; i ++ ) {
 
