@@ -64,11 +64,16 @@ vec3 PrefilterEnvMap( float Roughness, vec3 R )
 	vec3 V = R;
 	vec3 PrefilteredColor = vec3( 0.0 );
 	float TotalWeight = 0.0;
-	const int NumSamples = 132;
+	const int NumSamples = 8;
 
 	for( int i = 0; i < NumSamples; i++ ) {
 		
-		vec2 Xi = Hammersley( float(i) + random(vec2(uTime) ) * float(NumSamples), float( NumSamples ) );
+		vec2 Xi = Hammersley( float(i), float( NumSamples ) );
+		Xi.x += random( vec2( vUv + uTime ) );
+		Xi.y += random( vec2( vUv - uTime ) );
+
+		Xi = fract( Xi );
+		
 		vec3 H = ImportanceSampleGGX( Xi, Roughness, N );
 		vec3 L = 2.0 * dot( V, H ) * H - V;
 		float NoL = saturate( dot( N, L ) );
@@ -83,11 +88,46 @@ vec3 PrefilterEnvMap( float Roughness, vec3 R )
 	return PrefilteredColor / TotalWeight;
 }
 
+vec2 getPmremDir( vec2 uv, float face ) {
+
+	vec3 dir = vec3( 0.0 );
+
+	if ( face == 0.0 ) {
+
+		uv = vec2( direction.z, direction.y ) / abs( direction.x ); // pos x
+		dir = vec3( 1.0, uv.x, uv.y );
+
+	} else if ( face == 1.0 ) {
+
+		uv = vec2( - direction.x, - direction.z ) / abs( direction.y ); // pos y
+
+	} else if ( face == 2.0 ) {
+
+		uv = vec2( - direction.x, direction.y ) / abs( direction.z ); // pos z
+
+	} else if ( face == 3.0 ) {
+
+		uv = vec2( - direction.z, direction.y ) / abs( direction.x ); // neg x
+
+	} else if ( face == 4.0 ) {
+
+		uv = vec2( - direction.x, direction.z ) / abs( direction.y ); // neg y
+
+	} else {
+
+		uv = vec2( direction.x, direction.y ) / abs( direction.z ); // neg z
+
+	}
+
+	return 0.5 * ( uv + 1.0 );
+
+}
+
 void main( void ) {
 
 	vec4 sum = vec4( 0.0 );
 
-	vec3 dir = vec3( vUv - 0.5, 1.0 );
+	vec3 dir = vec3( vUv - 0.5, 0.5 );
 	dir = normalize( dir );
 
 	sum.xyz += PrefilterEnvMap(uRoughness, dir);

@@ -25,7 +25,7 @@ export class PMREMRender extends MXP.PostProcess {
 
 		for ( let i = 0; i < 4; i ++ ) {
 
-			const roughnesss = i / 4 * i;
+			const roughnesss = 1 / 4 * i;
 
 			swapBuffers.push( {
 				rt1: new GLP.GLPowerFrameBuffer( gl ).setTexture( [ new GLP.GLPowerTexture( gl ) ] ),
