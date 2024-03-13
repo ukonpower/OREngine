@@ -15,6 +15,7 @@ uniform sampler2D uSSAOTexture;
 
 uniform sampler2D uLightShaftTexture;
 
+uniform sampler2D uEnvMap;
 uniform samplerCube uEnvMapCube;
 
 uniform vec3 uColor;
@@ -74,16 +75,16 @@ vec3 getPmremMip( sampler2D envMap, vec3 direction, float mip  ) {
 	uv.x += mod( face, 3.0 );
 	uv.y += floor( face / 3.0) ;
 	
-	uv.y *= 0.5;
+	// uv.y *= 0.5;
 
-	float scale = 1.0 - pow( 2.0, -floor(mip) );
+	// float scale = 1.0 - pow( 2.0, -floor(mip) );
 	
 	uv.y *= 0.5;
 	uv.x /= 3.0;
 
-	uv.y *= 1.0 - scale;
-	uv.x *= 1.0 - scale;
-	uv.y += scale;
+	// uv.y *= 1.0 - scale;
+	// uv.x *= 1.0 - scale;
+	// uv.y += scale;
 
 	return texture( envMap, uv ).xyz;
 
@@ -157,11 +158,12 @@ void main( void ) {
 	float EF = mix( fresnel( dNV ), 1.0, mat.metalic );
 	
 	// outColor += mat.specularColor * getPmrem( uEnvMapCube, refDir, mat.roughness ) * EF * env;
-
 	// outColor += mat.diffuseColor * getPmrem( uEnvMapCube, refDir, 0.5 ) * 2.0;
 	// outColor += mat.diffuseColor * getPmrem( uEnvMapCube, refDir, 0.0 ) * env;
 
-	outColor.xyz += texture( uEnvMapCube, refDir ).xyz * env;
+	outColor += mat.diffuseColor * getPmrem( uEnvMap, refDir, 0.5 ) * 2.0;
+
+	// outColor.xyz += texture( uEnvMapCube, refDir ).xyz * env;
 
 	// light shaft
 	

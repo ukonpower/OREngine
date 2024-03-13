@@ -178,7 +178,8 @@ export class Renderer extends MXP.Entity {
 		// deferred
 
 		this.deferredPostProcess = new DeferredRenderer( {
-			envMap: this.pmremRender.renderTarget.textures[ 0 ] as GLP.GLPowerTexture,
+			// envMap: this.pmremRender.renderTarget.textures[ 0 ] as GLP.GLPowerTexture,
+			envMap: this.pmremRender.passes[ 0 ].renderTarget?.textures[ 0 ] as GLP.GLPowerTexture,
 			envMapCube: envMap as GLP.GLPowerTextureCube,
 		} );
 

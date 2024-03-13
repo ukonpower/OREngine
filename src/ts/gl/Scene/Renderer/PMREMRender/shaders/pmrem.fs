@@ -6,11 +6,13 @@ uniform samplerCube uEnvMap;
 uniform float uRenderCount;
 uniform float uRoughness;
 uniform float uTime;
+uniform float uFractTime;
 layout (location = 0) out vec4 outColor;
 
 in vec2 vUv;
 
 #include <noise>
+#include <pmrem>
 
 // https://www.shadertoy.com/view/4lscWj
 
@@ -69,9 +71,9 @@ vec3 PrefilterEnvMap( float Roughness, vec3 R )
 	for( int i = 0; i < NumSamples; i++ ) {
 		
 		vec2 Xi = Hammersley( float(i), float( NumSamples ) );
-		Xi.x += random( vec2( vUv + uTime ) );
-		Xi.y += random( vec2( vUv - uTime ) );
 
+		Xi.x += random( vec2( vUv + uFractTime ) );
+		Xi.y += random( vec2( vUv - uFractTime ) );
 		Xi = fract( Xi );
 		
 		vec3 H = ImportanceSampleGGX( Xi, Roughness, N );
@@ -88,50 +90,14 @@ vec3 PrefilterEnvMap( float Roughness, vec3 R )
 	return PrefilteredColor / TotalWeight;
 }
 
-vec2 getPmremDir( vec2 uv, float face ) {
-
-	vec3 dir = vec3( 0.0 );
-
-	if ( face == 0.0 ) {
-
-		uv = vec2( direction.z, direction.y ) / abs( direction.x ); // pos x
-		dir = vec3( 1.0, uv.x, uv.y );
-
-	} else if ( face == 1.0 ) {
-
-		uv = vec2( - direction.x, - direction.z ) / abs( direction.y ); // pos y
-
-	} else if ( face == 2.0 ) {
-
-		uv = vec2( - direction.x, direction.y ) / abs( direction.z ); // pos z
-
-	} else if ( face == 3.0 ) {
-
-		uv = vec2( - direction.z, direction.y ) / abs( direction.x ); // neg x
-
-	} else if ( face == 4.0 ) {
-
-		uv = vec2( - direction.x, direction.z ) / abs( direction.y ); // neg y
-
-	} else {
-
-		uv = vec2( direction.x, direction.y ) / abs( direction.z ); // neg z
-
-	}
-
-	return 0.5 * ( uv + 1.0 );
-
-}
-
 void main( void ) {
 
 	vec4 sum = vec4( 0.0 );
 
-	vec3 dir = vec3( vUv - 0.5, 0.5 );
-	dir = normalize( dir );
+	float face = floor( vUv.x * 3.0 ) + floor( vUv.y * 2.0 ) * 3.0;
 
-	sum.xyz += PrefilterEnvMap(uRoughness, dir);
+	sum.xyz += PrefilterEnvMap(uRoughness * 1.0, getPmremDir(vUv, face));
 
-	outColor = vec4( mix( texture( uPMREMBackBuffer, vUv ).xyz, sum.xyz, 0.1 ), 0.0 );
+	outColor = vec4( mix( texture( uPMREMBackBuffer, vUv ).xyz, sum.xyz, 0.05 ), 0.0 );
 
 }

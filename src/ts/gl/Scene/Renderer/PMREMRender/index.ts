@@ -23,9 +23,13 @@ export class PMREMRender extends MXP.PostProcess {
 		const passes: MXP.PostProcessPass[] = [];
 		const swapBuffers: SwapBuffer[] = [];
 
-		for ( let i = 0; i < 4; i ++ ) {
+		const mipmapLevel = 4.0;
 
-			const roughnesss = 1 / 4 * i;
+		for ( let i = 0; i < mipmapLevel; i ++ ) {
+
+			let roughness = 1 / ( mipmapLevel - 1.0 ) * i;
+
+			roughness = roughness;
 
 			swapBuffers.push( {
 				rt1: new GLP.GLPowerFrameBuffer( gl ).setTexture( [ new GLP.GLPowerTexture( gl ) ] ),
@@ -38,7 +42,7 @@ export class PMREMRender extends MXP.PostProcess {
 					frag: pmremFrag,
 					uniforms: {
 						uRoughness: {
-							value: roughnesss,
+							value: roughness,
 							type: '1f'
 						},
 						uEnvMap: {
@@ -53,7 +57,7 @@ export class PMREMRender extends MXP.PostProcess {
 							value: 1,
 							type: "1f"
 						},
-						uTime: globalUniforms.time.uTime,
+						uFractTime: globalUniforms.time.uFractTime,
 					},
 					resolutionRatio: Math.pow( 0.5, i )
 				} ),
