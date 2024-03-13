@@ -69,3 +69,52 @@ vec2 getPmremUV( vec3 direction, float face ) {
 	return 0.5 * ( uv + 1.0 );
 
 }
+
+
+vec3 getPmremDir( vec2 uv, float face ) {
+
+	vec3 dir = vec3( 0.0 );
+
+	vec2 tuv = fract( uv * vec2( 3.0, 2.0 ) );
+
+	if ( face == 0.0 ) {
+
+		vec2 yz = ( vec2( tuv.y, tuv.x ) - 0.5 ) * 2.0;
+		
+		dir = vec3( 1.0, yz );
+
+	} else if( face == 1.0 ) {
+
+		vec2 xz = ( vec2( - tuv.x, -tuv.y ) + 0.5 ) * 2.0;
+		
+		dir = vec3( xz.x, 1.0, xz.y );
+		
+	} else if( face == 2.0 ) {
+
+		vec2 xy = ( vec2( - tuv.x + 0.5, tuv.y - 0.5 ) ) * 2.0;
+		
+		dir = vec3( xy, 1.0 );
+		
+	} else if( face == 3.0 ) {
+
+		vec2 zy = ( vec2( - tuv.x + 0.5, tuv.y - 0.5 ) ) * 2.0;
+		
+		dir = vec3( -1.0, zy.y, zy.x );
+		
+	} else if( face == 4.0 ) {
+
+		vec2 xz = ( vec2( - tuv.x + 0.5 , tuv.y - 0.5 ) ) * 2.0;
+		
+		dir = vec3( xz.x, -1.0, xz.y );
+		
+	} else if( face == 5.0 ) {
+
+		vec2 xy = ( vec2( tuv.x, tuv.y ) - 0.5 ) * 2.0;
+		
+		dir = vec3( xy, -1.0 );
+		
+	}
+
+	return normalize( dir );
+
+}
