@@ -1,5 +1,3 @@
-
-
 // https://github.com/mrdoob/three.js/blob/c2593ed3db121b17590068c638d5dc115e7496f9/src/renderers/shaders/ShaderChunk/cube_uv_reflection_fragment.glsl.js#L11C8-L11C15
 
 float getPmremFace( vec3 direction ) {

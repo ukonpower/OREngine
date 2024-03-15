@@ -218,6 +218,7 @@ export class DeferredRenderer extends MXP.PostProcess {
 					value: params.envMapCube,
 					type: '1i'
 				},
+				uTime: globalUniforms.time.uTime,
 			} ),
 		} );
 

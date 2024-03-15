@@ -29,7 +29,7 @@ export type ComponentProps = {[key: string]: { value: any, opt?: ComponentPropsO
 export type ComponentSetProps = {[key: string]: any }
 
 export type ComponentParams = {
-	distableEdit?: boolean
+	disableEdit?: boolean
 }
 
 export class Component extends GLP.EventEmitter {
@@ -48,7 +48,7 @@ export class Component extends GLP.EventEmitter {
 		params = params ?? {};
 
 		this.enabled = true;
-		this.disableEdit = params.distableEdit || false;
+		this.disableEdit = params.disableEdit || false;
 
 		this.entity = null;
 
