@@ -79,7 +79,10 @@ export class PMREMRender extends MXP.PostProcess {
 					},
 					uFractTime: globalUniforms.time.uFractTime,
 				},
-				resolutionRatio: Math.pow( 0.5, i )
+				resolutionRatio: Math.pow( 0.5, i ),
+				defines: {
+					NUM_SAMPLES: Math.floor( Math.pow( 2, i + 1 ) )
+				}
 			} );
 
 			passes.push(
@@ -110,7 +113,7 @@ export class PMREMRender extends MXP.PostProcess {
 
 				if ( module ) {
 
-					passes.forEach( ( pass ) => {
+					this.pmremPasses.forEach( ( pass ) => {
 
 						pass.frag = MXP.hotUpdate( 'pmrem', module.default );
 						pass.requestUpdate();
