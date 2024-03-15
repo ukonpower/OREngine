@@ -41,6 +41,26 @@ vec3 SampleHemisphere_Cosinus(float i, float numSamples)
     return vec3(cos(phi) * sinTheta, cosTheta, sin(phi) * sinTheta);
 }
 
+// https://qiita.com/emadurandal/items/b2ae09c5cc1b3da821c8
+
+vec3 ImportanceSampleCosineWeighted(vec2 Xi, vec3 N)
+{
+    float r = sqrt(Xi.x);
+	// r = 1.0;
+    float phi = 2.0 * PI * Xi.y;
+
+    vec3 H;
+    H.x = r * cos(phi);
+    H.y = r * sin(phi);
+    H.z = sqrt(1.0-Xi.x);
+
+    vec3 UpVector = abs(N.z) < 0.999 ? vec3(0,0,1) : vec3(1,0,0);
+    vec3 TangentX = normalize( cross(UpVector, N) );
+    vec3 TangentY = cross ( N, TangentX );
+    // Tangent to world space
+    return TangentX * H.x + TangentY * H.y + N * H.z;
+}
+
 // https://cdn2.unrealengine.com/Resources/files/2013SiggraphPresentationsNotes-26915738.pdf
 
 vec3 ImportanceSampleGGX( vec2 Xi, float Roughness, vec3 N ) {
@@ -65,17 +85,17 @@ vec3 PrefilterEnvMap( float Roughness, vec3 R )
 	vec3 V = R;
 	vec3 PrefilteredColor = vec3( 0.0 );
 	float TotalWeight = 0.0;
-	const int NumSamples = 8;
 
-	for( int i = 0; i < NumSamples; i++ ) {
+	for( int i = 0; i < NUM_SAMPLES; i++ ) {
 		
-		vec2 Xi = Hammersley( float(i), float( NumSamples ) );
+		vec2 Xi = Hammersley( float(i), float( NUM_SAMPLES ) );
 
-		Xi.x += random( vec2( vUv + uFractTime * 0.2 ) );
-		Xi.y += random( vec2( vUv + uFractTime * 0.2 + 1.0 ) );
+		Xi.x += random( vec2( vUv + uFractTime * 0.1 ) );
+		Xi.y += random( vec2( vUv + uFractTime * 0.1 + 1.0 ) );
 		Xi = fract( Xi );
 		
 		vec3 H = ImportanceSampleGGX( Xi, Roughness, N );
+		// vec3 H = ImportanceSampleCosineWeighted(Xi, N);
 		vec3 L = 2.0 * dot( V, H ) * H - V;
 		float NoL = saturate( dot( N, L ) );
 
@@ -86,7 +106,7 @@ vec3 PrefilterEnvMap( float Roughness, vec3 R )
 
 	}
 	
-	return PrefilteredColor / TotalWeight;
+	return PrefilteredColor / max( TotalWeight, 1.0 );
 }
 
 void main( void ) {
@@ -98,5 +118,6 @@ void main( void ) {
 	sum.xyz += PrefilterEnvMap(uRoughness * 1.0, getPmremDir(vUv, face));
 
 	outColor = vec4( mix( texture( uPMREMBackBuffer, vUv ).xyz, sum.xyz, 0.04 ), 1.0 );
+	// outColor = vec4( mix( texture( uPMREMBackBuffer, vUv ).xyz, sum.xyz, 1.0 ), 1.0 );
 
 }

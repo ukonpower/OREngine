@@ -162,10 +162,10 @@ void main( void ) {
 
 	float dNV = clamp( dot( geo.normal, geo.viewDir ), 0.0, 1.0 );
 
-	float EF = mix( fresnel( dNV ), 1.0, mat.metalic );
+	float EF = mix( fresnel( dNV ), 1.0, 1.0 );
 	
-	outColor += mat.specularColor * getPmrem( uEnvMap, refDir, mat.roughness ) * EF * env;
-	outColor += mat.diffuseColor * getPmrem( uEnvMap, refDir, 1.0) * env;
+	outColor += mat.specularColor * getPmrem( uEnvMap, refDir, 0.0 ) * EF * env;
+	// outColor += mat.diffuseColor * getPmrem( uEnvMap, refDir, 1.0) * env;
 	
 	// light shaft
 	
