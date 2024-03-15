@@ -23,6 +23,8 @@ uniform mat4 viewMatrix;
 uniform mat4 cameraMatrix;
 uniform vec3 cameraPosition;
 
+uniform float uTime;
+
 // varyings
 
 in vec2 vUv;
@@ -55,7 +57,7 @@ uniform float uOrnamentCol;
 
 //https://github.com/mrdoob/three.js/blob/c2593ed3db121b17590068c638d5dc115e7496f9/src/renderers/shaders/ShaderChunk/cube_uv_reflection_fragment.glsl.js#L132
 
-#define MAXMIP 8.0
+#define MAXMIP 6.0
 
 float roughnessToMip( float roughness ) {
 
@@ -72,21 +74,26 @@ vec3 getPmremMip( sampler2D envMap, vec3 direction, float mip  ) {
 	float face = getPmremFace( direction );
 	vec2 uv = getPmremUV( direction, face );
 
+	uv += 0.06;
+	uv *= 0.9;
+
 	uv.x += mod( face, 3.0 );
 	uv.y += floor( face / 3.0) ;
 	
-	// uv.y *= 0.5;
+	uv.y *= 0.5;
 
-	// float scale = 1.0 - pow( 2.0, -floor(mip) );
+	float scale = 1.0 - pow( 2.0, -floor(mip) );
 	
 	uv.y *= 0.5;
 	uv.x /= 3.0;
 
-	// uv.y *= 1.0 - scale;
-	// uv.x *= 1.0 - scale;
-	// uv.y += scale;
+	uv.y *= 1.0 - scale;
+	uv.x *= 1.0 - scale;
+	uv.y += scale;
 
-	return texture( envMap, uv ).xyz;
+	vec4 col = texture( envMap, uv );
+
+	return col.xyz / col.w;
 
 }
 
@@ -157,14 +164,9 @@ void main( void ) {
 
 	float EF = mix( fresnel( dNV ), 1.0, mat.metalic );
 	
-	// outColor += mat.specularColor * getPmrem( uEnvMapCube, refDir, mat.roughness ) * EF * env;
-	// outColor += mat.diffuseColor * getPmrem( uEnvMapCube, refDir, 0.5 ) * 2.0;
-	// outColor += mat.diffuseColor * getPmrem( uEnvMapCube, refDir, 0.0 ) * env;
-
-	outColor += mat.diffuseColor * getPmrem( uEnvMap, refDir, 0.5 ) * 2.0;
-
-	// outColor.xyz += texture( uEnvMapCube, refDir ).xyz * env;
-
+	outColor += mat.specularColor * getPmrem( uEnvMap, refDir, mat.roughness ) * EF * env;
+	outColor += mat.diffuseColor * getPmrem( uEnvMap, refDir, 1.0) * env;
+	
 	// light shaft
 	
 	outColor.xyz += texture( uLightShaftTexture, vUv ).xyz;

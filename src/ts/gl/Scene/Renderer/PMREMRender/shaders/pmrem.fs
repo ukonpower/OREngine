@@ -5,7 +5,6 @@ uniform sampler2D uPMREMBackBuffer;
 uniform samplerCube uEnvMap;
 uniform float uRenderCount;
 uniform float uRoughness;
-uniform float uTime;
 uniform float uFractTime;
 layout (location = 0) out vec4 outColor;
 
@@ -72,8 +71,8 @@ vec3 PrefilterEnvMap( float Roughness, vec3 R )
 		
 		vec2 Xi = Hammersley( float(i), float( NumSamples ) );
 
-		Xi.x += random( vec2( vUv + uFractTime ) );
-		Xi.y += random( vec2( vUv - uFractTime ) );
+		Xi.x += random( vec2( vUv + uFractTime * 0.2 ) );
+		Xi.y += random( vec2( vUv + uFractTime * 0.2 + 1.0 ) );
 		Xi = fract( Xi );
 		
 		vec3 H = ImportanceSampleGGX( Xi, Roughness, N );
@@ -81,7 +80,7 @@ vec3 PrefilterEnvMap( float Roughness, vec3 R )
 		float NoL = saturate( dot( N, L ) );
 
 		if( NoL > 0.0 ) {
-			PrefilteredColor += texture( uEnvMap , L).rgb * NoL;
+			PrefilteredColor += texture(uEnvMap , L).rgb * NoL;
 			TotalWeight += NoL;
 		}
 
@@ -98,6 +97,6 @@ void main( void ) {
 
 	sum.xyz += PrefilterEnvMap(uRoughness * 1.0, getPmremDir(vUv, face));
 
-	outColor = vec4( mix( texture( uPMREMBackBuffer, vUv ).xyz, sum.xyz, 0.05 ), 0.0 );
+	outColor = vec4( mix( texture( uPMREMBackBuffer, vUv ).xyz, sum.xyz, 0.04 ), 1.0 );
 
 }

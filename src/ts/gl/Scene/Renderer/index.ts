@@ -8,7 +8,7 @@ import { PMREMRender } from './PMREMRender';
 import { ProgramManager } from "./ProgramManager";
 import { shaderParse } from "./ShaderParser";
 
-import { gl, globalUniforms, gpuState, power } from "~/ts/Globals";
+import { gl, gpuState, power } from "~/ts/Globals";
 
 // render stack
 
@@ -172,14 +172,14 @@ export class Renderer extends MXP.Entity {
 
 		this.pmremRender = new PMREMRender( {
 			input: [ envMap ],
-			resolution: new GLP.Vector( 512, 512 ),
+			resolution: new GLP.Vector( 256 * 3, 256 * 4 ),
 		} );
 
 		// deferred
 
 		this.deferredPostProcess = new DeferredRenderer( {
-			// envMap: this.pmremRender.renderTarget.textures[ 0 ] as GLP.GLPowerTexture,
-			envMap: this.pmremRender.passes[ 0 ].renderTarget?.textures[ 0 ] as GLP.GLPowerTexture,
+			envMap: this.pmremRender.renderTarget.textures[ 0 ] as GLP.GLPowerTexture,
+			// envMap: this.pmremRender.passes[ 0 ].renderTarget?.textures[ 0 ] as GLP.GLPowerTexture,
 			envMapCube: envMap as GLP.GLPowerTextureCube,
 		} );
 
