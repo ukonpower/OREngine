@@ -74,8 +74,8 @@ vec3 getPmremMip( sampler2D envMap, vec3 direction, float mip  ) {
 	float face = getPmremFace( direction );
 	vec2 uv = getPmremUV( direction, face );
 
-	uv += 0.06;
-	uv *= 0.9;
+	// uv += 0.06;
+	// uv *= 0.9;
 
 	uv.x += mod( face, 3.0 );
 	uv.y += floor( face / 3.0) ;
@@ -91,7 +91,13 @@ vec3 getPmremMip( sampler2D envMap, vec3 direction, float mip  ) {
 	uv.x *= 1.0 - scale;
 	uv.y += scale;
 
-	vec4 col = texture( envMap, uv );
+
+    vec2 dx = dFdx(uv);
+    vec2 dy = dFdy(uv);
+
+	vec4 col = textureGrad( envMap, uv, dx, dy);
+
+	// return vec3( dx * 10000.0, 1.0 );
 
 	return col.xyz / col.w;
 
@@ -164,7 +170,7 @@ void main( void ) {
 
 	float EF = mix( fresnel( dNV ), 1.0, 1.0 );
 	
-	outColor += mat.specularColor * getPmrem( uEnvMap, refDir, 0.0 ) * EF * env;
+	outColor += mat.specularColor * getPmrem( uEnvMap, refDir, 1.0 ) * EF * env;
 	// outColor += mat.diffuseColor * getPmrem( uEnvMap, refDir, 1.0) * env;
 	
 	// light shaft
