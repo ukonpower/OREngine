@@ -72,6 +72,7 @@ vec3 ImportanceSampleGGX( vec2 Xi, float Roughness, vec3 N ) {
 	H.x = SinTheta * cos( Phi );
 	H.y = SinTheta * sin( Phi );
 	H.z = CosTheta;
+
 	vec3 UpVector = abs(N.z) < 0.999 ? vec3(0,0,1) : vec3(1,0,0);
 	vec3 TangentX = normalize( cross( UpVector, N ) );
 	vec3 TangentY = cross( N, TangentX );
@@ -109,15 +110,75 @@ vec3 PrefilterEnvMap( float Roughness, vec3 R )
 	return PrefilteredColor / max( TotalWeight, 1.0 );
 }
 
+vec3 getPmremDir( vec2 uv, float face ) {
+
+	vec3 dir = vec3( 0.0 );
+
+	if ( face == 0.0 ) {
+
+		vec2 yz = ( vec2( uv.y, uv.x ) - 0.5 ) * 2.0;
+		
+		dir = vec3( 1.0, yz );
+
+	} else if( face == 1.0 ) {
+
+		vec2 xz = ( vec2( - uv.x, -uv.y ) + 0.5 ) * 2.0;
+		
+		dir = vec3( xz.x, 1.0, xz.y );
+		
+	} else if( face == 2.0 ) {
+
+		vec2 xy = ( vec2( - uv.x + 0.5, uv.y - 0.5 ) ) * 2.0;
+		
+		dir = vec3( xy, 1.0 );
+		
+	} else if( face == 3.0 ) {
+
+		vec2 zy = ( vec2( - uv.x + 0.5, uv.y - 0.5 ) ) * 2.0;
+		
+		dir = vec3( -1.0, zy.y, zy.x );
+		
+	} else if( face == 4.0 ) {
+
+		vec2 xz = ( vec2( - uv.x + 0.5 , uv.y - 0.5 ) ) * 2.0;
+		
+		dir = vec3( xz.x, -1.0, xz.y );
+		
+	} else if( face == 5.0 ) {
+
+		vec2 xy = ( vec2( uv.x, uv.y ) - 0.5 ) * 2.0;
+		
+		dir = vec3( xy, -1.0 );
+		
+	}
+
+	return normalize( dir );
+
+}
+
+
 void main( void ) {
 
 	vec4 sum = vec4( 0.0 );
+	vec2 res = vec2( textureSize( backbuffer0, 0 ) );
 
 	float face = floor( vUv.x * 3.0 ) + floor( vUv.y * 2.0 ) * 3.0;
+	vec2 fuv = fract( vUv * vec2( 3.0, 2.0 ) );
 
-	sum.xyz += PrefilterEnvMap(uRoughness * 1.0, getPmremDir(vUv, face));
+
+	vec2 uv = fuv;
+	uv -= 0.5;
+	uv *= 1.0 + 1.0 / res * 1.0;
+	uv += 0.5;
+
+	sum.xyz += PrefilterEnvMap(uRoughness, getPmremDir(uv, face));
 
 	outColor = vec4( mix( texture( uPMREMBackBuffer, vUv ).xyz, sum.xyz, 0.04 ), 1.0 );
-	// outColor = vec4( mix( texture( uPMREMBackBuffer, vUv ).xyz, sum.xyz, 1.0 ), 1.0 );
+
+	// outColor = vec4( normalize( getPmremDir(uv, face) ), 1.0 );
+
+	// vec3 dir = getPmremDir(uv, face);
+	// outColor = vec4( vec3( step( 0.8, dir.x + dir.y ) ), 1.0 );
+	// outColor = vec4( vUv, 1.0 , 1.0 );
 
 }

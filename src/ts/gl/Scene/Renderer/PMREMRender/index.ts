@@ -26,7 +26,7 @@ export class PMREMRender extends MXP.PostProcess {
 				minFilter: gl.LINEAR,
 				wrapS: gl.CLAMP_TO_EDGE,
 				wrapT: gl.CLAMP_TO_EDGE,
-				generateMipmap: false
+				generateMipmap: true
 			} ),
 		] );
 
@@ -34,7 +34,7 @@ export class PMREMRender extends MXP.PostProcess {
 		const pmremPasses: MXP.PostProcessPass[] = [];
 		const swapBuffers: SwapBuffer[] = [];
 
-		const mipmapLevel = 6.0;
+		const mipmapLevel = 5.0;
 
 		let viewPortY = 0;
 

@@ -53,51 +53,31 @@ layout (location = 1) out vec4 glFragOut1;
 // 	vec3 specularColor;
 // };
 
-uniform float uOrnamentCol;
 
-//https://github.com/mrdoob/three.js/blob/c2593ed3db121b17590068c638d5dc115e7496f9/src/renderers/shaders/ShaderChunk/cube_uv_reflection_fragment.glsl.js#L132
-
-#define MAXMIP 6.0
-
-float roughnessToMip( float roughness ) {
-
-	float mip = 0.0;
-
-	mip = roughness * ( MAXMIP - 1.0 );
-
-	return mip;
-
-}
-
-vec3 getPmremMip( sampler2D envMap, vec3 direction, float mip  ) {
+vec3 getPmremMip( sampler2D envMap, vec3 direction, float mip ) {
 
 	float face = getPmremFace( direction );
 	vec2 uv = getPmremUV( direction, face );
 
-	// uv += 0.06;
-	// uv *= 0.9;
+	vec2 faceRes = vec2(textureSize( envMap, 0 )) * pow( 0.5, floor( mip ) );
+	float s = 2.0;
+	uv *= faceRes - 2.0 * s;
+	uv += 1.0 * s;
+	uv /= faceRes;
 
 	uv.x += mod( face, 3.0 );
 	uv.y += floor( face / 3.0) ;
 	
 	uv.y *= 0.5;
-
-	float scale = 1.0 - pow( 2.0, -floor(mip) );
-	
 	uv.y *= 0.5;
 	uv.x /= 3.0;
 
+	float scale = 1.0 - pow( 2.0, -floor(mip) );
 	uv.y *= 1.0 - scale;
 	uv.x *= 1.0 - scale;
 	uv.y += scale;
 
-
-    vec2 dx = dFdx(uv);
-    vec2 dy = dFdy(uv);
-
-	vec4 col = textureGrad( envMap, uv, dx, dy);
-
-	// return vec3( dx * 10000.0, 1.0 );
+	vec4 col = textureGrad( envMap, uv, vec2( 0.0 ), vec2( 0.0 )  );
 
 	return col.xyz / col.w;
 
@@ -168,10 +148,10 @@ void main( void ) {
 
 	float dNV = clamp( dot( geo.normal, geo.viewDir ), 0.0, 1.0 );
 
-	float EF = mix( fresnel( dNV ), 1.0, 1.0 );
+	float EF = mix( fresnel( dNV ), 1.0, mat.metalic );
 	
-	outColor += mat.specularColor * getPmrem( uEnvMap, refDir, 1.0 ) * EF * env;
-	// outColor += mat.diffuseColor * getPmrem( uEnvMap, refDir, 1.0) * env;
+	outColor += mat.specularColor * getPmrem( uEnvMap, refDir, mat.roughness ) * EF * env;
+	outColor += mat.diffuseColor * getPmrem( uEnvMap, refDir, 1.0) * env;
 	
 	// light shaft
 	
