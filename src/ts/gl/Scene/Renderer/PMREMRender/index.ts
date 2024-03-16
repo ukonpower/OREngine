@@ -40,22 +40,20 @@ export class PMREMRender extends MXP.PostProcess {
 
 		for ( let i = 0; i < mipmapLevel; i ++ ) {
 
-			let roughness = 1 / ( mipmapLevel - 1.0 ) * i;
-
-			roughness = roughness;
-
-
-			swapBuffers.push( {
-				rt1: new GLP.GLPowerFrameBuffer( gl ).setTexture( [ new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA16F, format: gl.RGBA } ) ] ),
-				rt2: new GLP.GLPowerFrameBuffer( gl ).setTexture( [ new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA16F, format: gl.RGBA } ) ] ),
-			} );
-
 			const resolutionScale = 1 / Math.pow( 2, i );
 			const width = resolution.x * resolutionScale;
 			const height = resolution.y * resolutionScale * 0.5;
 
 			const viewPort = new GLP.Vector( 0, viewPortY, width, height );
 			viewPortY += height;
+
+			swapBuffers.push( {
+				rt1: new GLP.GLPowerFrameBuffer( gl ).setTexture( [ new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA16F, format: gl.RGBA } ) ] ),
+				rt2: new GLP.GLPowerFrameBuffer( gl ).setTexture( [ new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA16F, format: gl.RGBA } ) ] ),
+			} );
+
+			let roughness = 1 / ( mipmapLevel - 1.0 ) * i;
+			roughness = roughness;
 
 			const pmremPass = new MXP.PostProcessPass( {
 				renderTarget: swapBuffers[ i ].rt1,
@@ -79,19 +77,24 @@ export class PMREMRender extends MXP.PostProcess {
 					},
 					uFractTime: globalUniforms.time.uFractTime,
 				},
-				resolutionRatio: Math.pow( 0.5, i ),
 				defines: {
 					NUM_SAMPLES: Math.floor( Math.pow( 2, i + 1 ) )
 				}
 			} );
 
+			pmremPass.resize( new GLP.Vector( width, height ) );
+
+			const blitPass = new MXP.PostProcessPass( {
+				renderTarget: renderTarget,
+				viewPort,
+				passThrough: true,
+			} );
+
+			blitPass.resize( resolution );
+
 			passes.push(
 				pmremPass,
-				new MXP.PostProcessPass( {
-					renderTarget: renderTarget,
-					viewPort,
-					passThrough: true,
-				} ),
+				blitPass,
 			);
 
 			pmremPasses.push( pmremPass );
@@ -125,8 +128,6 @@ export class PMREMRender extends MXP.PostProcess {
 			} );
 
 		}
-
-		super.resize( resolution );
 
 	}
 
