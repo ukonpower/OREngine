@@ -1,4 +1,4 @@
-import { GLPowerTextureCube } from "glpower";
+import { GLPowerTexture, GLPowerTextureCube } from "glpower";
 
 import { TexProcedural } from "../utils/TexProcedural";
 
@@ -46,5 +46,13 @@ export const initTextures = () => {
 	// 	globalUniforms.tex.uEnvTex.value.attach( imgs );
 
 	// } );
+
+	globalUniforms.tex.uEnvTex = {
+		value: new GLPowerTexture( gl ).load( "/env/test.png" ).setting( {
+			magFilter: gl.LINEAR,
+			minFilter: gl.LINEAR,
+		} ),
+		type: '1i'
+	};
 
 };
