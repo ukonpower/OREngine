@@ -36,12 +36,13 @@ void main( void ) {
 
 	outEmissionIntensity = 1.0 + emit * 50.0 * smoothstep( 0.4, 1.0, n);
 
-	outEmission = outEmission * 0.2 + normal;
+	outEmission *= 0.2;
+
+	outEmission += normal * sin( uTime );
 
 	#ifdef IS_FORWARD
 
 		outColor = vec4( outEmission * outEmissionIntensity, 1.0 );
-
 	
 	#endif
 

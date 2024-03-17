@@ -10,7 +10,7 @@ export const initTextures = () => {
 
 	globalUniforms.tex.uNoiseTex = {
 		value: new TexProcedural( {
-			frag: noiseFrag
+			frag: noiseFrag,
 		} ),
 		type: '1i'
 	};

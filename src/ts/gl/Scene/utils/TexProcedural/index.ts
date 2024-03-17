@@ -16,6 +16,8 @@ export class TexProcedural extends GLP.GLPowerTexture {
 		this.setting( {
 			wrapS: gl.REPEAT,
 			wrapT: gl.REPEAT,
+			magFilter: gl.LINEAR,
+			minFilter: gl.LINEAR,
 		} );
 
 		const renderer = new Renderer();

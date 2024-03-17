@@ -13,12 +13,13 @@ void main( void ) {
 
 	outEmissionIntensity = 3.0;
 
-	vec4 noise = texture( uNoiseTex, vUv * 1.4 );
+	vec4 noise = texture( uNoiseTex, vUv * 0.1 + 0.1 * texture( uNoiseTex, vUv * 0.5 ).xy );
 
-	outColor = vec4( 1.0 );
-	outMetalic = 1.0;
-	// outRoughness = smoothstep( 0.3, 0.6, noise.x );
-	outRoughness = 0.9;
+	outRoughness = smoothstep( 0.2, 0.9, noise.x );
+	outColor = vec4( 1.0 - ( outRoughness * 0.3 ) );
+
+	outNormal.xz += noise.yz * 0.03;
+	outNormal = normalize( outNormal );
 
 	#include <frag_out>
 
