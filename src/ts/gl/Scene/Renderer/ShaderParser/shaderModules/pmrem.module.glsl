@@ -1,6 +1,3 @@
-
-
-
 // https://github.com/mrdoob/three.js/blob/c2593ed3db121b17590068c638d5dc115e7496f9/src/renderers/shaders/ShaderChunk/cube_uv_reflection_fragment.glsl.js#L11C8-L11C15
 
 float getPmremFace( vec3 direction ) {
@@ -71,54 +68,51 @@ vec2 getPmremUV( vec3 direction, float face ) {
 
 }
 
+vec3 getPmremDir( vec2 uv, float face ) {
 
-// vec3 getPmremDir( vec2 uv, float face ) {
+	vec3 dir = vec3( 0.0 );
 
-// 	vec3 dir = vec3( 0.0 );
+	if ( face == 0.0 ) {
 
-// 	vec2 tuv = fract( uv * vec2( 3.0, 2.0 ) );
-
-// 	if ( face == 0.0 ) {
-
-// 		vec2 yz = ( vec2( tuv.y, tuv.x ) - 0.5 ) * 2.0;
+		vec2 yz = ( vec2( uv.y, uv.x ) - 0.5 ) * 2.0;
 		
-// 		dir = vec3( 1.0, yz );
+		dir = vec3( 1.0, yz );
 
-// 	} else if( face == 1.0 ) {
+	} else if( face == 1.0 ) {
 
-// 		vec2 xz = ( vec2( - tuv.x, -tuv.y ) + 0.5 ) * 2.0;
+		vec2 xz = ( vec2( - uv.x, -uv.y ) + 0.5 ) * 2.0;
 		
-// 		dir = vec3( xz.x, 1.0, xz.y );
+		dir = vec3( xz.x, 1.0, xz.y );
 		
-// 	} else if( face == 2.0 ) {
+	} else if( face == 2.0 ) {
 
-// 		vec2 xy = ( vec2( - tuv.x + 0.5, tuv.y - 0.5 ) ) * 2.0;
+		vec2 xy = ( vec2( - uv.x + 0.5, uv.y - 0.5 ) ) * 2.0;
 		
-// 		dir = vec3( xy, 1.0 );
+		dir = vec3( xy, 1.0 );
 		
-// 	} else if( face == 3.0 ) {
+	} else if( face == 3.0 ) {
 
-// 		vec2 zy = ( vec2( - tuv.x + 0.5, tuv.y - 0.5 ) ) * 2.0;
+		vec2 zy = ( vec2( - uv.x + 0.5, uv.y - 0.5 ) ) * 2.0;
 		
-// 		dir = vec3( -1.0, zy.y, zy.x );
+		dir = vec3( -1.0, zy.y, zy.x );
 		
-// 	} else if( face == 4.0 ) {
+	} else if( face == 4.0 ) {
 
-// 		vec2 xz = ( vec2( - tuv.x + 0.5 , tuv.y - 0.5 ) ) * 2.0;
+		vec2 xz = ( vec2( - uv.x + 0.5 , uv.y - 0.5 ) ) * 2.0;
 		
-// 		dir = vec3( xz.x, -1.0, xz.y );
+		dir = vec3( xz.x, -1.0, xz.y );
 		
-// 	} else if( face == 5.0 ) {
+	} else if( face == 5.0 ) {
 
-// 		vec2 xy = ( vec2( tuv.x, tuv.y ) - 0.5 ) * 2.0;
+		vec2 xy = ( vec2( uv.x, uv.y ) - 0.5 ) * 2.0;
 		
-// 		dir = vec3( xy, -1.0 );
+		dir = vec3( xy, -1.0 );
 		
-// 	}
+	}
 
-// 	return normalize( dir );
+	return normalize( dir );
 
-// }
+}
 
 
 //https://github.com/mrdoob/three.js/blob/c2593ed3db121b17590068c638d5dc115e7496f9/src/renderers/shaders/ShaderChunk/cube_uv_reflection_fragment.glsl.js#L132
@@ -135,57 +129,53 @@ float roughnessToMip( float roughness ) {
 
 }
 
-// vec3 getPmremMip( sampler2D envMap, vec3 direction, float mip  ) {
+vec3 getPmremMip( sampler2D envMap, vec3 direction, float mip ) {
 
-// 	float face = getPmremFace( direction );
-// 	vec2 uv = getPmremUV( direction, face );
+	float face = getPmremFace( direction );
+	vec2 uv = getPmremUV( direction, face );
 
-// 	// uv += 0.06;
-// 	// uv *= 0.9;
+	vec2 faceRes = vec2(textureSize( envMap, 0 )) * pow( 0.5, floor( mip ) );
+	float s = 2.0;
+	uv *= faceRes - 2.0 * s;
+	uv += 1.0 * s;
+	uv /= faceRes;
 
-// 	uv.x += mod( face, 3.0 );
-// 	uv.y += floor( face / 3.0) ;
+	uv.x += mod( face, 3.0 );
+	uv.y += floor( face / 3.0) ;
 	
-// 	uv.y *= 0.5;
+	uv.y *= 0.5;
+	uv.y *= 0.5;
+	uv.x /= 3.0;
 
-// 	float scale = 1.0 - pow( 2.0, -floor(mip) );
-	
-// 	uv.y *= 0.5;
-// 	uv.x /= 3.0;
+	float scale = 1.0 - pow( 2.0, -floor(mip) );
+	uv.y *= 1.0 - scale;
+	uv.x *= 1.0 - scale;
+	uv.y += scale;
 
-// 	uv.y *= 1.0 - scale;
-// 	uv.x *= 1.0 - scale;
-// 	uv.y += scale;
+	vec4 col = textureGrad( envMap, uv, vec2( 0.0 ), vec2( 0.0 )  );
 
+	return col.xyz / col.w;
 
-// 	vec4 col = textureGrad( envMap, uv, vec2( 0.0 ), vec2( 0.0 )  );
+}
 
-// 	// return vec3( dx * 10000.0, 1.0 );
+vec3 getPmrem( sampler2D envMap, vec3 direction, float roughness ) {
 
-// 	return col.xyz / col.w;
+	float mip = roughnessToMip( roughness );
+	float mipF = fract( mip );
+	float mipInt = floor( mip );
 
-// }
+	vec3 color0 = getPmremMip( envMap, direction, mipInt );
 
+	if ( mipF == 0.0 ) {
 
+		return color0;
 
-// vec3 getPmrem( sampler2D envMap, vec3 direction, float roughness ) {
+	} else {
 
-// 	float mip = roughnessToMip( roughness );
-// 	float mipF = fract( mip );
-// 	float mipInt = floor( mip );
+		vec3 color1 = getPmremMip( envMap, direction, mipInt + 1.0 );
 
-// 	vec3 color0 = getPmremMip( envMap, direction, mipInt );
+		return mix( color0, color1, mipF );
 
-// 	if ( mipF == 0.0 ) {
+	}
 
-// 		return color0;
-
-// 	} else {
-
-// 		vec3 color1 = getPmremMip( envMap, direction, mipInt + 1.0 );
-
-// 		return mix( color0, color1, mipF );
-
-// 	}
-
-// }
+}

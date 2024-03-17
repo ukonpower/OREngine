@@ -126,7 +126,11 @@ export class BLidger extends Component {
 			} else if ( this.node.type == 'sphere' ) {
 
 				const sphereParam = this.node.param as any;
-				entity.addComponent( 'geometry', new SphereGeometry( { disableEdit: true, radius: sphereParam.r } ) );
+				entity.addComponent( 'geometry', new SphereGeometry( { disableEdit: true,
+					radius: sphereParam.r,
+					widthSegments: 32,
+					heightSegments: 16
+				} ) );
 
 			} else if ( this.node.type == 'cylinder' ) {
 

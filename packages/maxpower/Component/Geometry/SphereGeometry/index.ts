@@ -22,8 +22,8 @@ export class SphereGeometry extends Geometry {
 
 		const { radius, widthSegments, heightSegments } = {
 			radius: 1,
-			widthSegments: 16,
-			heightSegments: 16,
+			widthSegments: 8,
+			heightSegments: 8,
 			...param
 		};
 
