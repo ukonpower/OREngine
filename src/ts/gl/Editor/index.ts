@@ -136,14 +136,6 @@ export class GLEditor extends GLP.EventEmitter {
 		this.data = new EditorDataManager();
 		this.unsaved = false;
 
-		const localEditorData = this.fileSystem.get<OREngineEditorData>( "editor/data" );
-
-		if ( localEditorData ) {
-
-			this.data.setEditorData( localEditorData );
-
-		}
-
 		// frameDebugger
 
 		this.frameDebugger = new FrameDebugger( gl, this.canvas );
@@ -195,11 +187,22 @@ export class GLEditor extends GLP.EventEmitter {
 
 		// load setting
 
-		this.openProject( this.data.settings.currentProjectName || "NewProject" );
+		this.fileSystem.get<OREngineEditorData>( "editor.json" ).then( ( data ) => {
 
-		this.setResolutionScale( this.data.settings.resolutionScale || 0.5 );
+			if ( data ) {
 
-		this.setViewType( this.data.settings.viewType || "render" );
+				this.data.setEditorData( data );
+
+			}
+
+			this.openProject( this.data.settings.currentProjectName || "NewProject" );
+
+			this.setResolutionScale( this.data.settings.resolutionScale || 0.5 );
+
+			this.setViewType( this.data.settings.viewType || "render" );
+
+		} );
+
 
 		// animate
 
@@ -303,7 +306,7 @@ export class GLEditor extends GLP.EventEmitter {
 		this.data.setProject( this.scene.exportProject( projectName ) );
 
 		const editorData = this.data.serialize();
-		this.fileSystem.set( "editor/data", editorData );
+		this.fileSystem.set( "editor.json", editorData );
 
 		this.unsaved = false;
 

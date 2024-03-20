@@ -3,10 +3,11 @@ import fs from 'fs';
 import util from 'util';
 
 import { createFilter } from '@rollup/pluginutils';
+import { Plugin } from 'vite';
 
 const exec = util.promisify( childProcess.exec );
 
-export default function shaderMinifier( userOptions = {} ) {
+export const ShaderMinifierLoader = (): Plugin => {
 
 	const options = Object.assign(
 		{
@@ -19,14 +20,13 @@ export default function shaderMinifier( userOptions = {} ) {
 				'**/*.module.glsl'
 			]
 		},
-		userOptions
 	);
 
 	const filter = createFilter( options.include, options.exclude );
 
 	return {
 		name: 'shaderMinifier',
-
+		enforce: 'pre',
 		buildStart() {
 
 			if ( ! fs.existsSync( "./tmp" ) ) {
@@ -40,23 +40,24 @@ export default function shaderMinifier( userOptions = {} ) {
 
 			if ( fs.existsSync( "./tmp" ) ) {
 
-				return fs.promises.rm( "./tmp", { recursive: true, force: true, }, () => {} );
+				return fs.promises.rm( "./tmp", { recursive: true, force: true, } );
 
 			}
 
 		},
-		async transform( code, id ) {
+
+		async transform( code: string, id: string ) {
 
 			if ( ! filter( id ) ) return;
 
-			if ( process.platform == "darwin" || true ) {
+			// if ( process.platform == "darwin" || true ) {
 
-				return {
-					code: `export default ${JSON.stringify( code )};`,
-					map: { mappings: '' }
-				};
+			// 	return {
+			// 		code: `export default ${JSON.stringify( code )};`,
+			// 		map: { mappings: '' }
+			// 	};
 
-			}
+			// }
 
 			code = code.replaceAll( "\\n", "\n" );
 			code = code.replaceAll( "\\t", "\t" );
@@ -94,4 +95,4 @@ export default function shaderMinifier( userOptions = {} ) {
 		}
 	};
 
-}
+};

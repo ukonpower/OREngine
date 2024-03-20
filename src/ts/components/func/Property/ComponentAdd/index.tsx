@@ -115,7 +115,7 @@ export const ComponentAdd = ( props: ComponentAddProps ) => {
 		resources.componentListCategrized.forEach( ( compList, catName ) => {
 
 			cagegoryGroupList.push(
-				<ComponentCategoryGroup categoryName={catName} componentList={compList} onClick={onClickComponentItem} />
+				<ComponentCategoryGroup key={catName} categoryName={catName} componentList={compList} onClick={onClickComponentItem} />
 			);
 
 		} );
