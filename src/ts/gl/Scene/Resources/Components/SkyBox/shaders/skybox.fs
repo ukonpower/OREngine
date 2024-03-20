@@ -38,7 +38,9 @@ void main( void ) {
 
 	outEmission *= 0.2;
 
-	outEmission += normal * sin( uTime );
+	// outEmission += normal * sin( uTime );
+	
+	// outEmission *= vec3( 1.0, 1.0, 0.0 ) * 3.0;
 
 	#ifdef IS_FORWARD
 
