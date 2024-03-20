@@ -1,17 +1,18 @@
 import * as GLP from 'glpower';
 
-import { Component } from "..";
+import { Component, ComponentParams, ComponentProps, ComponentSetProps } from "..";
 export type MaterialRenderType = "shadowMap" | "deferred" | "forward" | "envMap" | 'postprocess' | 'ui'
 
 type MaterialDefines = {[key: string]: any};
 type MaterialVisibility = {[K in MaterialRenderType]?: boolean}
 type MaterialProgramCache = {[K in MaterialRenderType]?: GLP.GLPowerProgram}
 
-import basicVert from './shaders/basic.vs';
 import basicFrag from './shaders/basic.fs';
-import { gl } from '~/ts/Globals';
+import basicVert from './shaders/basic.vs';
 
-export type MaterialParam = {
+export type DrawType = 'TRIANGLES' | 'LINES' | 'POINTS';
+
+export interface MaterialParam extends ComponentParams{
 	name?: string,
 	type?: MaterialRenderType[];
 	frag?: string;
@@ -21,13 +22,12 @@ export type MaterialParam = {
 	depthTest?: boolean;
 	cullFace? :boolean;
 	blending?: boolean,
-	drawType?: number;
+	drawType?: DrawType;
 }
 
 export class Material extends Component {
 
 	public name: string;
-	public type: MaterialRenderType[];
 
 	public vert: string;
 	public frag: string;
@@ -37,38 +37,82 @@ export class Material extends Component {
 	public useLight: boolean;
 	public depthTest: boolean;
 	public cullFace: boolean;
-	public drawType: number;
+	public drawType: DrawType;
 
 	public visibilityFlag: MaterialVisibility;
 	public programCache: MaterialProgramCache;
 
-	constructor( opt?: MaterialParam ) {
+	constructor( params?: MaterialParam ) {
 
-		super();
+		super( params );
 
-		opt = opt || {};
+		params = params || {};
 
-		this.name = opt.name || '';
-		this.type = opt.type || [ "deferred", "shadowMap" ];
+		this.name = params.name || '';
+
+		this.visibilityFlag = {};
+		this.setVisibility( params.type || [ "deferred", "shadowMap" ] );
+
+		this.useLight = true;
+		this.depthTest = true;
+		this.cullFace = true;
+		this.drawType = "TRIANGLES";
+
+		this.vert = params.vert || basicVert;
+		this.frag = params.frag || basicFrag;
+		this.defines = params.defines || {};
+		this.uniforms = params.uniforms || {};
+
+		this.setPropertyValues( params );
+
+		this.programCache = {};
+
+	}
+
+	private setVisibility( typeArray: MaterialRenderType[] ) {
 
 		this.visibilityFlag = {
-			shadowMap: this.type.indexOf( 'shadowMap' ) > - 1,
-			deferred: this.type.indexOf( 'deferred' ) > - 1,
-			forward: this.type.indexOf( 'forward' ) > - 1,
-			ui: this.type.indexOf( 'ui' ) > - 1,
-			envMap: this.type.indexOf( 'envMap' ) > - 1,
-			postprocess: this.type.indexOf( 'postprocess' ) > - 1,
+			shadowMap: typeArray.indexOf( 'shadowMap' ) > - 1,
+			deferred: typeArray.indexOf( 'deferred' ) > - 1,
+			forward: typeArray.indexOf( 'forward' ) > - 1,
+			ui: typeArray.indexOf( 'ui' ) > - 1,
+			envMap: typeArray.indexOf( 'envMap' ) > - 1,
+			postprocess: typeArray.indexOf( 'postprocess' ) > - 1,
 		};
 
-		this.vert = opt.vert || basicVert;
-		this.frag = opt.frag || basicFrag;
-		this.defines = opt.defines || {};
-		this.uniforms = opt.uniforms || {};
-		this.useLight = true;
-		this.depthTest = opt.depthTest !== undefined ? opt.depthTest : true;
-		this.cullFace = opt.cullFace !== undefined ? opt.cullFace : true;
-		this.drawType = opt.drawType !== undefined ? opt.drawType : gl.TRIANGLES;
-		this.programCache = {};
+	}
+
+	public getProperties(): ComponentProps {
+
+		return {
+			name: { value: this.name },
+			deferred: { value: this.visibilityFlag.deferred },
+			forward: { value: this.visibilityFlag.forward },
+			shadowMap: { value: this.visibilityFlag.shadowMap },
+			ui: { value: this.visibilityFlag.ui },
+			useLight: { value: this.useLight },
+			depthTest: { value: this.depthTest },
+			cullFace: { value: this.cullFace },
+			drawType: { value: this.drawType },
+		};
+
+	}
+
+	public setPropertyValues( props: ComponentSetProps ): void {
+
+		props = { ...this.getPropertyValues(), ...props };
+
+		this.name = props.name;
+		this.visibilityFlag.deferred = props.deferred;
+		this.visibilityFlag.forward = props.forward;
+		this.visibilityFlag.shadowMap = props.shadowMap;
+		this.visibilityFlag.ui = props.ui;
+		this.useLight = props.useLight;
+		this.depthTest = props.depthTest;
+		this.cullFace = props.cullFace;
+		this.drawType = props.drawType;
+
+		this.requestUpdate();
 
 	}
 

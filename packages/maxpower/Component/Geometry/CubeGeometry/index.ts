@@ -1,16 +1,36 @@
 import { Geometry } from "..";
+import { ComponentParams } from "../..";
+
+interface CubeGeometryParams extends ComponentParams{
+	width?: number,
+	height?: number,
+	depth?: number,
+	segmentsWidth?: number,
+	segmentsHeight?: number,
+	segmentsDepth?: number
+}
 
 export class CubeGeometry extends Geometry {
 
-	constructor( width: number = 1, height: number = 1, depth: number = 1, segmentsWidth: number = 1, segmentsHeight: number = 1, segmentsDepth: number = 1 ) {
+	constructor( params?: CubeGeometryParams ) {
 
-		super();
+		super( params );
 
 		const posArray = [];
 		const normalArray = [];
 		const uvArray = [];
 		const indexArray = [];
 		const posYArray = [];
+
+		const { width, height, depth, segmentsWidth, segmentsHeight, segmentsDepth } = {
+			width: 1,
+			height: 1,
+			depth: 1,
+			segmentsWidth: 1,
+			segmentsHeight: 1,
+			segmentsDepth: 1,
+			...params
+		};
 
 		const faces = [
 			{ normal: [ 0, 0, 1 ], dir: [ 1, 0, 0 ], up: [ 0, 1, 0 ], w: width, h: height, d: depth, segW: segmentsWidth, segH: segmentsHeight },

@@ -22,6 +22,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
+    "allowUnreachableCode": true,
     "typeRoots": [
       "node_modules/@types",
       "./node_modules/@figma"

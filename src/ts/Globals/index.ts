@@ -1,11 +1,13 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
+import { OREngineResource } from '../gl/Scene/Resources';
+import { GPUState } from '../gl/Scene/utils/GPUState';
+
 export const canvas = document.createElement( "canvas" );
 export const gl = canvas.getContext( 'webgl2', { antialias: false } )!;
 export const power = new GLP.Power( gl );
-export const blidge = new MXP.BLidge( gl );
-export const pane = new Pane();
+export const mainCmaera = new MXP.Entity( { name: "camera" } );
 
 export const globalUniforms: {[key: string]: GLP.Uniforms} = {
 	time: {
@@ -43,19 +45,22 @@ export const globalUniforms: {[key: string]: GLP.Uniforms} = {
 		}
 	},
 	tex: {
-
 	}
 };
+
+/*-------------------------------
+	Resouce
+-------------------------------*/
+
+export const resource = new OREngineResource();
 
 /*-------------------------------
 	DEBUG
 -------------------------------*/
 
-import { GPUState } from '../gl/Scene/utils/GPUState';
 export let gpuState: GPUState | undefined = undefined;
 
-import 'webgl-memory';
-import { Pane } from 'tweakpane';
-gpuState = new GPUState();
+// import 'webgl-memory';
+// gpuState = new GPUState();
 gpuState = undefined;
 

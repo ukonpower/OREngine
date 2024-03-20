@@ -1,10 +1,26 @@
 import { Geometry } from "..";
+import { ComponentParams } from "../..";
+
+interface RingGeometryParams extends ComponentParams{
+	innerRadius?: number,
+	outerRadius?: number,
+	thetaSegments?: number,
+	phiSegments?: number
+}
 
 export class RingGeometry extends Geometry {
 
-	constructor( outerRadius: number = 0.5, innerRadius: number = 0.2, thetaSegments: number = 24, phiSegments: number = 1 ) {
+	constructor( params: RingGeometryParams ) {
 
-		super();
+		super( params );
+
+		const { innerRadius, outerRadius, thetaSegments, phiSegments } = {
+			innerRadius: 0.5,
+			outerRadius: 1,
+			thetaSegments: 12,
+			phiSegments: 1,
+			...params
+		};
 
 		const totalThetaSegments = ( thetaSegments + 1 );
 

@@ -1,0 +1,67 @@
+@use '~/styles/common' as *;
+
+.node {
+	color: "#fff";
+	font-size: $fontSize2;
+	color: $fontCol2;
+}
+
+.self {
+	display: flex;
+	height: 22px;
+	cursor: pointer;
+
+	&:hover {
+		background-color: $bgCol2;
+	}
+
+	&[data-selected="true"] {
+		background-color: $bgCol3;
+	}
+
+	&_name {
+		flex: 1;
+		display: flex;
+		align-items: center;
+		padding-left: 2px;
+	}
+}
+
+.fold {
+	width: 20px;
+
+	&_button {
+		position: relative;
+		display: block;
+		width: 100%;
+		height: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+
+		[data-hnode_open="true"] & {
+			span {
+				transform: rotate(90deg);
+			}
+		}
+	}
+}
+
+.child {
+	position: relative;
+
+	&_line {
+		position: absolute;
+		display: block;
+		top: 0;
+		height: 100%;
+		width: 1px;
+		position: absolute;
+		left: 5px;
+		background-color: $fontCol2;
+	}
+
+	&[data-open="false"] {
+		display: none;
+	}
+}

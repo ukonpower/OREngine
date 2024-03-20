@@ -1,10 +1,13 @@
 
 import * as GLP from 'glpower';
 
-import quadVert from './shaders/quad.vs';
-import { PostProcessPass, PostProcessPassParam } from '../PostProcessPass';
-import { gl } from '~/ts/Globals';
 import { ComponentResizeEvent } from '..';
+import { PostProcessPass, PostProcessPassParam } from '../PostProcessPass';
+
+import quadVert from './shaders/quad.vs';
+
+import { gl } from '~/ts/Globals';
+
 
 export interface GPUComputePassParam extends Omit<PostProcessPassParam, 'renderTarget'>{
 	size: GLP.Vector,

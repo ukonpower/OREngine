@@ -1,0 +1,24 @@
+@use '~/styles/common' as *;
+
+.property {
+	width: 100%;
+	height: 100%;
+}
+
+.content {
+	padding-bottom: 10px;
+}
+
+.name {
+	font-size: $fontSize2;
+	padding: 5px 0px;
+	margin-bottom: 5px;
+}
+
+.component {
+	&_list {}
+
+	&_controls {
+		padding-top: 4px;
+	}
+}

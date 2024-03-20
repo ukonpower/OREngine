@@ -1,8 +1,9 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { gl } from '~/ts/Globals';
 import { Renderer } from '../../Renderer';
+
+import { gl } from '~/ts/Globals';
 
 export class TexProcedural extends GLP.GLPowerTexture {
 
@@ -15,6 +16,8 @@ export class TexProcedural extends GLP.GLPowerTexture {
 		this.setting( {
 			wrapS: gl.REPEAT,
 			wrapT: gl.REPEAT,
+			magFilter: gl.LINEAR,
+			minFilter: gl.LINEAR,
 		} );
 
 		const renderer = new Renderer();

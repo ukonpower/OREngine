@@ -1,7 +1,7 @@
 #include <common>
 #include <packing>
 #include <light_h>
-#include <re>
+#include <pmrem>
 
 // uniforms
 
@@ -15,14 +15,15 @@ uniform sampler2D uSSAOTexture;
 
 uniform sampler2D uLightShaftTexture;
 
-#ifdef USE_ENV
-	uniform samplerCube uEnvTex;
-#endif
+uniform sampler2D uEnvMap;
+uniform samplerCube uEnvMapCube;
 
 uniform vec3 uColor;
 uniform mat4 viewMatrix;
 uniform mat4 cameraMatrix;
 uniform vec3 cameraPosition;
+
+uniform float uTime;
 
 // varyings
 
@@ -52,8 +53,6 @@ layout (location = 1) out vec4 glFragOut1;
 // 	vec3 specularColor;
 // };
 
-uniform float uOrnamentCol;
-
 void main( void ) {
 
 	//[
@@ -82,7 +81,6 @@ void main( void ) {
 		mix( tex2.xyz, vec3( 0.0, 0.0, 0.0 ), tex3.w ),
 		mix( vec3( 1.0, 1.0, 1.0 ), tex2.xyz, tex3.w )
 	);
-	float envIntensity = tex4.w;
 	vec3 outColor = vec3( 0.0 );
 	//]
 	
@@ -92,22 +90,21 @@ void main( void ) {
 
 	// env
 
-	#ifdef USE_ENV
+	float env = tex4.w;
+
+	vec3 refDir = reflect( -geo.viewDir, geo.normal );
+
+	float dNV = clamp( dot( geo.normal, geo.viewDir ), 0.0, 1.0 );
+
+	float EF = mix( fresnel( dNV ), 1.0, mat.metalic );
 	
-		vec3 refDir = reflect( geo.viewDir, geo.normal );
-
-		float dNV = clamp( dot( geo.normal, geo.viewDir ), 0.0, 1.0 );
-
-		float EF = mix( fresnel( dNV ), 1.0, mat.metalic );
-		
-		outColor += mat.specularColor * texture( uEnvTex, refDir ).xyz * EF * envIntensity;
-
-	#endif
-
+	outColor += mat.specularColor * getPmrem( uEnvMap, refDir, mat.roughness ) * EF * env;
+	outColor += mat.diffuseColor * getPmrem( uEnvMap, geo.normal, 1.0) * env / PI;
+	
 	// light shaft
 	
 	outColor.xyz += texture( uLightShaftTexture, vUv ).xyz;
 
-	glFragOut0 = glFragOut1 = vec4( outColor.xyz, 1.0 );
+	glFragOut0 = glFragOut1 = vec4( outColor, 1.0 );
 
 }

@@ -1,6 +1,8 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
+
 import { Renderer } from '../../Renderer';
+
 import frameDebuggerFrag from './shaders/frameDebugger.fs';
 
 type Frame = {
@@ -43,16 +45,18 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 	// canvas
 
-	private canvas: HTMLCanvasElement;
+	private elm: HTMLCanvasElement;
+	private labelCanvas: HTMLCanvasElement;
 	private cctx: CanvasRenderingContext2D;
 	private canvasTexture: GLP.GLPowerTexture;
 
 
-	constructor( gl: WebGL2RenderingContext ) {
+	constructor( gl: WebGL2RenderingContext, elm: HTMLCanvasElement ) {
 
 		super();
 
 		this.gl = gl;
+		this.elm = elm;
 
 		this.renderer = new Renderer();
 
@@ -74,10 +78,10 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 		// canvas
 
-		this.canvas = document.createElement( "canvas" );
-		this.cctx = this.canvas.getContext( "2d" )!;
+		this.labelCanvas = document.createElement( "canvas" );
+		this.cctx = this.labelCanvas.getContext( "2d" )!;
 
-		this.canvasTexture = new GLP.GLPowerTexture( gl ).attach( this.canvas );
+		this.canvasTexture = new GLP.GLPowerTexture( gl ).attach( this.labelCanvas );
 
 		// out
 
@@ -99,15 +103,32 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 		this.frameList = [];
 
-		// controls
+		// click
 
 		const onClick = this.onClick.bind( this );
 
-		window.addEventListener( "click", onClick );
+		elm.addEventListener( "click", onClick );
+
+		// esc
+
+		const onKeydown = ( e: KeyboardEvent ) => {
+
+			if ( e.key === "Escape" ) {
+
+				this.focus = null;
+
+				this.clear();
+
+			}
+
+		};
+
+		window.addEventListener( "keydown", onKeydown );
 
 		this.once( "dispose", () => {
 
-			window.removeEventListener( "click", onClick );
+			elm.removeEventListener( "click", onClick );
+			window.removeEventListener( "keydown", onKeydown );
 
 		} );
 
@@ -125,16 +146,21 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 	}
 
-	public push( frameBuffer: GLP.GLPowerFrameBuffer, label?: string ) {
+	public push( frameBuffer: GLP.GLPowerFrameBuffer | GLP.GLPowerFrameBufferCube, label?: string ) {
 
 		for ( let i = 0; i < frameBuffer.textures.length; i ++ ) {
 
 			if ( this.focus == null || this.focus == this.count ) {
 
 				const tex = frameBuffer.textures[ i ];
+				const textarget = "currentFace" in frameBuffer ? frameBuffer.currentFace : this.gl.TEXTURE_2D;
 
 				this.srcFrameBuffer.setSize( tex.size );
-				this.srcFrameBuffer.setTexture( [ tex ], true );
+
+				this.gl.bindFramebuffer( this.gl.FRAMEBUFFER, this.srcFrameBuffer.getFrameBuffer() );
+
+				this.gl.framebufferTexture2D( this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, textarget, tex.getTexture(), 0 );
+				this.gl.bindFramebuffer( this.gl.FRAMEBUFFER, null );
 
 				this.gl.bindFramebuffer( this.gl.READ_FRAMEBUFFER, this.srcFrameBuffer.getFrameBuffer() );
 				this.gl.bindFramebuffer( this.gl.DRAW_FRAMEBUFFER, this.outFrameBuffer.getFrameBuffer() );
@@ -155,7 +181,7 @@ export class FrameDebugger extends GLP.EventEmitter {
 					x + w, this.resolution.y - y,
 					this.gl.COLOR_BUFFER_BIT, this.gl.NEAREST );
 
-				this.srcFrameBuffer.setTexture( [], true );
+				this.srcFrameBuffer.setTexture( [] );
 
 				this.frameList.push( {
 					frameBuffer: frameBuffer,
@@ -195,7 +221,7 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 		}
 
-		this.canvasTexture.attach( this.canvas );
+		this.canvasTexture.attach( this.labelCanvas );
 
 		// out
 
@@ -237,9 +263,9 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 		this.outPostProcess.resize( resolution );
 
-		this.canvas.width = resolution.x;
-		this.canvas.height = resolution.y;
-		this.canvasTexture.attach( this.canvas );
+		this.labelCanvas.width = resolution.x;
+		this.labelCanvas.height = resolution.y;
+		this.canvasTexture.attach( this.labelCanvas );
 
 	}
 
@@ -253,16 +279,12 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 		this.reflesh();
 
-		if ( this.focus !== null ) {
+		if ( this.focus === null ) {
 
-			this.focus = null;
+			const tileSize = new GLP.Vector( this.elm.clientWidth / this.tile.x, this.elm.clientHeight / this.tile.y );
 
-		} else {
-
-			const tileSize = new GLP.Vector( window.innerWidth / this.tile.x, window.innerHeight / this.tile.y );
-
-			const x = Math.floor( ( e.clientX ) / tileSize.x );
-			const y = Math.floor( ( e.clientY ) / tileSize.y );
+			const x = Math.floor( ( e.offsetX ) / tileSize.x );
+			const y = Math.floor( ( e.offsetY ) / tileSize.y );
 
 			this.focus = x + y * this.tile.x;
 

@@ -4,6 +4,7 @@ precision highp float;
 #define PI 3.14159265359
 #define TPI 6.28318530718
 #define HPI 1.57079632679
+#define saturate(x) clamp(x,0.,1.)
 
 struct Geometry {
 	vec3 position;
@@ -22,34 +23,6 @@ struct Material {
 	float emissionIntensity;
 	vec3 diffuseColor;
 	vec3 specularColor;
-};
-
-struct DirectionalLight {
-	vec3 direction;
-	vec3 color;
-};
-
-struct SpotLight {
-	vec3 position;
-	vec3 direction;
-	vec3 color;
-	float angle;
-	float blend;
-	float distance;
-	float decay;
-};
-
-struct LightCamera {
-	float near;
-	float far;
-	mat4 viewMatrix;
-	mat4 projectionMatrix;
-	vec2 resolution;
-};
-
-struct Light {
-	vec3 direction;
-	vec3 color;
 };
 
 float atan2(in float y, in float x){

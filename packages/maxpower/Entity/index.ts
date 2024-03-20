@@ -1,14 +1,16 @@
 import * as GLP from 'glpower';
 
-import { RenderStack } from "~/ts/Scene/Renderer";
-import { Component, ComponentUpdateEvent, BuiltInComponents } from "../Component";
-import { Camera } from "../Component/Camera";
-import { GPUCompute } from "../Component/GPUCompute";
-import { Geometry } from "../Component/Geometry";
-import { Light } from "../Component/Light";
-import { Material } from "../Component/Material";
+
 import { BLidgeNode } from "../BLidge";
-import { BLidger } from "../Component/BLidger";
+import { Component, ComponentUpdateEvent, BuiltInComponents } from "../Component";
+import { BLidger } from '../Component/BLidger';
+import { Camera } from '../Component/Camera';
+import { Geometry } from '../Component/Geometry';
+import { GPUCompute } from '../Component/GPUCompute';
+import { Light } from '../Component/Light';
+import { Material } from '../Component/Material';
+
+import { RenderStack } from '~/ts/gl/Scene/Renderer';
 
 export type EntityUpdateEvent = {
 	time: number;
@@ -26,15 +28,18 @@ export type EntityResizeEvent = {
 	resolution: GLP.Vector
 }
 
-let entityCount: number = 0;
+export type EntityParams = {
+	name?: string;
+}
 
 export class Entity extends GLP.EventEmitter {
 
-	public readonly uuid: number;
+	public readonly uuid: string;
 
 	public name: string;
 
 	public position: GLP.Vector;
+	public euler: GLP.Euler;
 	public quaternion: GLP.Quaternion;
 	public scale: GLP.Vector;
 
@@ -53,14 +58,17 @@ export class Entity extends GLP.EventEmitter {
 
 	public userData: any;
 
-	constructor() {
+	public noExport: boolean;
+
+	constructor( params?: EntityParams ) {
 
 		super();
 
-		this.name = "";
-		this.uuid = entityCount ++;
+		this.name = params && params.name || "";
+		this.uuid = GLP.ID.genUUID();
 
 		this.position = new GLP.Vector( 0.0, 0.0, 0.0, 1.0 );
+		this.euler = new GLP.Euler();
 		this.quaternion = new GLP.Quaternion( 0.0, 0.0, 0.0, 1.0 );
 		this.scale = new GLP.Vector( 1.0, 1.0, 1.0 );
 
@@ -77,6 +85,8 @@ export class Entity extends GLP.EventEmitter {
 		this.visible = true;
 
 		this.userData = {};
+
+		this.noExport = false;
 
 	}
 
@@ -175,8 +185,8 @@ export class Entity extends GLP.EventEmitter {
 		const visibility = ( event.visibility || event.visibility === undefined ) && this.visible;
 		childEvent.visibility = visibility;
 
-		const geometry = this.getComponent<Geometry>( 'geometry' );
-		const material = this.getComponent<Material>( 'material' );
+		const geometry = this.getComponentEnabled<Geometry>( 'geometry' );
+		const material = this.getComponentEnabled<Material>( 'material' );
 
 		if ( geometry && material && ( visibility || event.forceDraw ) ) {
 
@@ -188,7 +198,7 @@ export class Entity extends GLP.EventEmitter {
 
 		}
 
-		const camera = this.getComponent<Camera>( 'camera' );
+		const camera = this.getComponentEnabled<Camera>( 'camera' );
 
 		if ( camera ) {
 
@@ -196,7 +206,7 @@ export class Entity extends GLP.EventEmitter {
 
 		}
 
-		const light = this.getComponent<Light>( 'light' );
+		const light = this.getComponentEnabled<Light>( 'light' );
 
 		if ( light ) {
 
@@ -204,7 +214,7 @@ export class Entity extends GLP.EventEmitter {
 
 		}
 
-		const gpuCompute = this.getComponent<GPUCompute>( "gpuCompute" );
+		const gpuCompute = this.getComponentEnabled<GPUCompute>( "gpuCompute" );
 
 		if ( gpuCompute ) {
 
@@ -251,11 +261,15 @@ export class Entity extends GLP.EventEmitter {
 
 		this.children.push( entity );
 
+		entity.noticeRecursiveParent( "changed", [ "add" ] );
+
 	}
 
 	public remove( entity: Entity ) {
 
 		this.children = this.children.filter( c => c.uuid != entity.uuid );
+
+		entity.noticeRecursiveParent( "changed" );
 
 	}
 
@@ -275,6 +289,18 @@ export class Entity extends GLP.EventEmitter {
 
 		this.matrixWorldPrev.copy( this.matrixWorld );
 
+		if ( this.quaternion.updated ) {
+
+			this.euler.setFromQuaternion( this.quaternion );
+
+		} else {
+
+			this.quaternion.setFromEuler( this.euler );
+
+		}
+
+		this.quaternion.updated = false;
+
 		this.matrix.setFromTransform( this.position, this.quaternion, this.scale );
 
 		this.matrixWorld.copy( this.matrix ).preMultiply( matrix );
@@ -288,6 +314,8 @@ export class Entity extends GLP.EventEmitter {
 			this.quaternion,
 			this.scale
 		);
+
+		this.updateMatrix();
 
 	}
 
@@ -322,6 +350,16 @@ export class Entity extends GLP.EventEmitter {
 	public getComponent<T extends Component>( name: BuiltInComponents ): T | undefined {
 
 		return this.components.get( name ) as T;
+
+	}
+
+	public getComponentEnabled<T extends Component>( name: BuiltInComponents ): T | undefined {
+
+		const component = this.components.get( name ) as T;
+
+		if ( ! component || ! component.enabled ) return undefined;
+
+		return component;
 
 	}
 
@@ -383,27 +421,55 @@ export class Entity extends GLP.EventEmitter {
 
 	}
 
+	public getPath() {
+
+		let path = "/" + this.name;
+
+		if ( this.parent ) {
+
+			path = this.parent.getPath() + path;
+
+		}
+
+		return path;
+
+	}
+
 	/*-------------------------------
 		Event
 	-------------------------------*/
 
-	public notice( eventName: string, opt?: any ) {
+	public noticeRecursive( eventName: string, ...opt: any ) {
 
-		this.emit( "notice/" + eventName, [ opt ] );
-
-	}
-
-	public noticeRecursive( eventName: string, opt?: any ) {
-
-		this.notice( eventName, opt );
+		this.emit( eventName, ...opt );
 
 		for ( let i = 0; i < this.children.length; i ++ ) {
 
 			const c = this.children[ i ];
 
-			c.noticeRecursive( eventName, opt );
+			c.noticeRecursive( eventName, ...opt );
 
 		}
+
+	}
+
+	public noticeRecursiveParent( eventName: string, ...opt: any ) {
+
+		this.emit( eventName, ...opt );
+
+		if ( this.parent ) {
+
+			this.parent.noticeRecursiveParent( eventName, ...opt );
+
+		}
+
+	}
+
+	public traverse( cb: ( entity: Entity ) => void ) {
+
+		cb( this );
+
+		this.children.forEach( c => c.traverse( cb ) );
 
 	}
 
@@ -411,15 +477,25 @@ export class Entity extends GLP.EventEmitter {
 		Dispose
 	-------------------------------*/
 
-	public dispose() {
+	public dispose( recursive?: boolean ) {
 
 		this.emit( "dispose" );
 
 		this.parent && this.parent.remove( this );
 
-		this.children.forEach( c => c.parent = null );
-
 		this.components.forEach( c => c.setEntity( null ) );
+
+		this.components.clear();
+
+		this.children.concat().forEach( c => {
+
+			if ( recursive ) {
+
+				c.dispose();
+
+			}
+
+		} );
 
 	}
 

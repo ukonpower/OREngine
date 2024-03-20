@@ -1,13 +1,71 @@
-import { GLContext, useGL } from '~/ts/hooks/useGL';
-import style from './index.module.scss'
-import { GLCanvas } from '~/ts/components/GLCanvas';
+import { ReactNode, useContext } from 'react';
+
+import style from './index.module.scss';
+
+import { Hierarchy } from '~/ts/components/func/Hierarchy';
+import { MouseMenu } from '~/ts/components/func/MouseMenu';
+import { MouseMenuContext, useMouseMenu } from '~/ts/components/func/MouseMenu/useMouseMenu';
+import { ProjectControl } from '~/ts/components/func/ProjectControl';
+import { Property } from '~/ts/components/func/Property';
+import { Screen } from '~/ts/components/func/Screen';
+import { Panel } from '~/ts/components/ui/Panel';
+import { PanelContainer } from '~/ts/components/ui/PanelContainer';
+import { EditorContext, useEditor } from '~/ts/gl/React/useEditor';
+import { useGL, GLContext } from '~/ts/gl/React/useGL';
+
+export const EditorProvider = ( { children } :{children: ReactNode} ) => {
+
+	const glContext = useContext( GLContext );
+
+	const editorContext = useEditor( glContext );
+	const mouseMenuContext = useMouseMenu();
+
+	return <EditorContext.Provider value={editorContext}>
+		<MouseMenuContext.Provider value={mouseMenuContext} >
+			{children}
+		</MouseMenuContext.Provider>
+	</EditorContext.Provider>;
+
+};
 
 export const EditorPage = () => {
-	const glContext = useGL()
-	
+
+	const glContext = useGL();
+
 	return <GLContext.Provider value={glContext}>
-		<div className={style.editor}>
-			<GLCanvas />
-		</div>
+		<EditorProvider>
+			<div className={style.editor}>
+				<div className={style.vert}>
+					<div className={style.horiz}>
+						<div className={style.hierarchy}>
+							<PanelContainer >
+								<Panel title="Scene" >
+									<Hierarchy />
+								</Panel>
+							</PanelContainer>
+						</div>
+						<div className={style.preview}>
+							<Screen />
+						</div>
+						<div className={style.property}>
+							<PanelContainer >
+								<Panel title="Property" >
+									<Property />
+								</Panel>
+							</PanelContainer>
+						</div>
+					</div>
+					<div className={style.controls}>
+						<PanelContainer >
+							<Panel title="Project" >
+								<ProjectControl />
+							</Panel>
+						</PanelContainer>
+					</div>
+				</div>
+			</div>
+			<MouseMenu />
+		</EditorProvider>
 	</GLContext.Provider>;
+
 };

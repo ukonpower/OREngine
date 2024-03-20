@@ -1,0 +1,17 @@
+.project {
+	width: 100%;
+	height: 100%;
+
+	&_inner {
+		max-width: 500px;
+	}
+}
+
+.select {
+	display: flex;
+}
+
+.new {
+	width: 100px;
+	margin-left: 5px;
+}
