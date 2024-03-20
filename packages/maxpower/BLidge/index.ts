@@ -1,11 +1,12 @@
 import * as GLP from 'glpower';
+
 import { GLTF, GLTFLoader } from '../Loaders/GLTFLoader';
 
 export type BLidgeNodeType = 'empty' | 'cube' | 'sphere' | 'cylinder' | 'mesh' | 'camera' | 'plane' | 'light' | 'gltf';
 
 // scene
 
-export type BLidgeSceneParam = {
+export type BLidgeScene = {
     animations: {[key: string]: BLidgeCurveParam[]};
 	root: BLidgeNodeParam;
 	frame: BLidgeFrame;
@@ -121,7 +122,7 @@ export type BLidgeMessage = BLidgeSyncSceneMessage | BLidgeSyncTimelineMessage |
 
 export type BLidgeSyncSceneMessage = {
 	type: "sync/scene",
-    data: BLidgeSceneParam;
+    data: BLidgeScene;
 }
 
 export type BLidgeSyncTimelineMessage = {
@@ -160,7 +161,7 @@ export class BLidge extends GLP.EventEmitter {
 
 	// connection
 
-	private connection?: BLidgeConnection;
+	public connection?: BLidgeConnection;
 
 	// frame
 
@@ -177,6 +178,10 @@ export class BLidge extends GLP.EventEmitter {
 	private gltfLoader: GLTFLoader;
 	public gltf?: GLTF;
 
+	// scene
+
+	public currentScene: BLidgeScene | null;
+
 	constructor( gl: WebGL2RenderingContext, url?: string ) {
 
 		super();
@@ -186,6 +191,8 @@ export class BLidge extends GLP.EventEmitter {
 		this.root = null;
 		this.nodes = [];
 		this.curveGroups = [];
+
+		this.currentScene = null;
 
 		this.frame = {
 			start: - 1,
@@ -231,6 +238,20 @@ export class BLidge extends GLP.EventEmitter {
 
 	}
 
+	public disconnect() {
+
+		if ( this.connection ) {
+
+			this.connection.ws.close();
+			this.connection.ws.onmessage = null;
+			this.connection.ws.onclose = null;
+			this.connection.ws.onopen = null;
+			this.connection = undefined;
+
+		}
+
+	}
+
 	/*-------------------------------
 		Load
 	-------------------------------*/
@@ -250,30 +271,38 @@ export class BLidge extends GLP.EventEmitter {
 
 	}
 
-	public loadJsonScene( jsonPath: string, gltfPath?:string ) {
+	public async loadJsonScene( jsonPath: string, gltfPath?:string ) {
 
-		const req = new XMLHttpRequest();
+		await new Promise( ( r ) => {
 
-		req.onreadystatechange = () => {
+			const req = new XMLHttpRequest();
 
-			if ( req.readyState == 4 ) {
+			req.onreadystatechange = async () => {
 
-				if ( req.status == 200 ) {
+				if ( req.readyState == 4 ) {
 
-					this.loadScene( JSON.parse( req.response ), gltfPath );
+					if ( req.status == 200 ) {
+
+						await this.loadScene( JSON.parse( req.response ), gltfPath );
+
+						r( null );
+
+					}
 
 				}
 
-			}
+			};
 
-		};
+			req.open( 'GET', jsonPath );
+			req.send( );
 
-		req.open( 'GET', jsonPath );
-		req.send( );
+		} );
 
 	}
 
-	public loadScene( data: BLidgeSceneParam, gltfPath?: string ) {
+	public async loadScene( data: BLidgeScene, gltfPath?: string ) {
+
+		this.currentScene = data;
 
 		// gltf
 
@@ -281,7 +310,7 @@ export class BLidge extends GLP.EventEmitter {
 
 			const loader = new GLTFLoader( this.gl );
 
-			loader.load( gltfPath ).then( gltf => {
+			await loader.load( gltfPath ).then( gltf => {
 
 				this.gltf = gltf;
 
@@ -445,7 +474,7 @@ export class BLidge extends GLP.EventEmitter {
 
 	private onClose( e:CloseEvent ) {
 
-		this.disposeWS();
+		this.disconnect();
 
 	}
 
@@ -499,21 +528,7 @@ export class BLidge extends GLP.EventEmitter {
 
 	public dispose() {
 
-		this.disposeWS();
-
-	}
-
-	public disposeWS() {
-
-		if ( this.connection ) {
-
-			this.connection.ws.close();
-			this.connection.ws.onmessage = null;
-			this.connection.ws.onclose = null;
-			this.connection.ws.onopen = null;
-			this.connection = undefined;
-
-		}
+		this.disconnect();
 
 	}
 

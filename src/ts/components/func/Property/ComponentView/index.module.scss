@@ -1,0 +1,39 @@
+@use '~/styles/common' as *;
+
+.compoView {
+	width: 100%;
+
+	&[data-disable_component="true"] {
+		opacity: 0.5;
+	}
+}
+
+.head {
+	display: flex;
+	align-items: center;
+	width: 100%;
+}
+
+.name {
+	margin-left: 5px;
+}
+
+.check {
+	// margin-left: auto;
+	transform: scale(0.8);
+}
+
+.delete {
+	margin-left: auto;
+	width: 10px;
+	height: 10px;
+
+	button {
+		font-size: 0;
+		display: block;
+	}
+}
+
+.propertyBlock {
+	margin-top: 10px;
+}

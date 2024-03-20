@@ -18,8 +18,8 @@ in vec2 vUv;
 
 layout (location = 0) out vec4 outColor;
 
-const float MARCH_LENGTH = 25.0;
-const float MARCH = 18.0;
+const float MARCH_LENGTH = 50.0;
+const float MARCH = 16.0;
 
 #include <noise>
 
@@ -110,8 +110,6 @@ void main( void ) {
 
 	}
 
-	lightShaftSum *= 0.0;
-
-	outColor = vec4( mix( texture( uLightShaftBackBuffer, vUv ).xyz, lightShaftSum, 0.5), 1.0 );
+	outColor = vec4( mix( texture( uLightShaftBackBuffer, vUv ).xyz, lightShaftSum, 0.2), 1.0 );
 
 }

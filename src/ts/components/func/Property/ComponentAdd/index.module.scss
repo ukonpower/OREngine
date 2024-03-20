@@ -1,0 +1,24 @@
+@use '~/styles/common' as *;
+
+.compoAdd {
+	padding-top: 5px;
+}
+
+.picker {
+	display: flex;
+	padding: $padding;
+	background-color: $bgColWindow0;
+	border-radius: $radius1;
+	min-height: 150px;
+}
+
+.argsInput {
+	position: relative;
+	background-color: $bgColWindow0;
+	border-radius: $radius1;
+	padding: 5px 0;
+}
+
+.catGroup {
+	width: 100px;
+}

@@ -1,15 +1,20 @@
 import * as GLP from 'glpower';
 
-import { Component, ComponentUpdateEvent } from "..";
+import { Component, ComponentParams, ComponentProps, ComponentUpdateEvent } from "..";
+import { BLidge, BLidgeNode, BLidgeLightParam } from "../../BLidge";
 import { Entity } from '../../Entity';
+import { Geometry } from "../Geometry";
+import { CubeGeometry } from "../Geometry/CubeGeometry";
+import { CylinderGeometry } from "../Geometry/CylinderGeometry";
+import { PlaneGeometry } from "../Geometry/PlaneGeometry";
+import { SphereGeometry } from "../Geometry/SphereGeometry";
 import { Light } from '../Light';
 import { Material } from '../Material';
-import { SphereGeometry } from "../Geometry/SphereGeometry";
-import { CubeGeometry } from "../Geometry/CubeGeometry";
-import { BLidge, BLidgeNode, BLidgeLightParam } from "../../BLidge";
-import { CylinderGeometry } from "../Geometry/CylinderGeometry";
-import { Geometry } from "../Geometry";
-import { PlaneGeometry } from "../Geometry/PlaneGeometry";
+
+interface BLidgerParams extends ComponentParams {
+	blidge: BLidge;
+	node: BLidgeNode;
+}
 
 export class BLidger extends Component {
 
@@ -27,14 +32,12 @@ export class BLidger extends Component {
 	public uniforms: GLP.Uniforms;
 	public uniformCurves: {name: string, curve: GLP.FCurveGroup}[];
 
-	constructor( blidge: BLidge, node: BLidgeNode ) {
+	constructor( params: BLidgerParams ) {
 
-		super();
+		super( params );
 
-		this.blidge = blidge;
-
-		this.node = node;
-
+		this.blidge = params.blidge;
+		this.node = params.node;
 		this.rotationOffsetX = 0;
 
 		if ( this.node.type == "camera" ) {
@@ -43,23 +46,23 @@ export class BLidger extends Component {
 
 		}
 
-		this.curvePosition = blidge.getCurveGroup( node.animation.position );
-		this.curveRotation = blidge.getCurveGroup( node.animation.rotation );
-		this.curveScale = blidge.getCurveGroup( node.animation.scale );
-		this.curveHide = blidge.getCurveGroup( node.animation.hide );
+		this.curvePosition = this.blidge.getCurveGroup( this.node.animation.position );
+		this.curveRotation = this.blidge.getCurveGroup( this.node.animation.rotation );
+		this.curveScale = this.blidge.getCurveGroup( this.node.animation.scale );
+		this.curveHide = this.blidge.getCurveGroup( this.node.animation.hide );
 
 		// uniforms
 
 		this.uniforms = {};
 		this.uniformCurves = [];
 
-		const keys = Object.keys( node.material.uniforms );
+		const keys = Object.keys( this.node.material.uniforms );
 
 		for ( let i = 0; i < keys.length; i ++ ) {
 
 			const name = keys[ i ];
-			const accessor = node.material.uniforms[ name ];
-			const curve = blidge.curveGroups.find( curve => curve.name == accessor );
+			const accessor = this.node.material.uniforms[ name ];
+			const curve = this.blidge.curveGroups.find( curve => curve.name == accessor );
 
 			if ( curve ) {
 
@@ -79,6 +82,16 @@ export class BLidger extends Component {
 
 	}
 
+	public getProperties(): ComponentProps | null {
+
+		return {
+			name: { value: this.node.name, opt: { readOnly: true } },
+			class: { value: this.node.class, opt: { readOnly: true } },
+			type: { value: this.node.type, opt: { readOnly: true } },
+		};
+
+	}
+
 	protected setEntityImpl( entity: Entity | null, prevEntity: Entity | null ): void {
 
 		if ( entity ) {
@@ -95,6 +108,10 @@ export class BLidger extends Component {
 				z: this.node.rotation[ 2 ],
 			}, 'YZX' );
 
+			entity.quaternion.updated = false;
+
+			entity.euler.setFromQuaternion( entity.quaternion );
+
 			entity.scale.set( this.node.scale[ 0 ], this.node.scale[ 1 ], this.node.scale[ 2 ] );
 
 			// geometry
@@ -103,30 +120,33 @@ export class BLidger extends Component {
 
 				const cubeParam = this.node.param as any;
 
-				entity.addComponent( 'geometry', new CubeGeometry( cubeParam.x, cubeParam.y, cubeParam.z, 10, 10, 10 ) );
+				entity.addComponent( 'geometry', new CubeGeometry( { disableEdit: true, width: cubeParam.x, height: cubeParam.y, depth: cubeParam.z, segmentsWidth: 10, segmentsHeight: 10, segmentsDepth: 10 } ) );
+
 
 			} else if ( this.node.type == 'sphere' ) {
 
 				const sphereParam = this.node.param as any;
-				entity.addComponent( 'geometry', new SphereGeometry( sphereParam.r ) );
+				entity.addComponent( 'geometry', new SphereGeometry( { disableEdit: true,
+					radius: sphereParam.r,
+					widthSegments: 32,
+					heightSegments: 16
+				} ) );
 
 			} else if ( this.node.type == 'cylinder' ) {
 
-				const cylinderParam = this.node.param as any;
-
-				entity.addComponent( 'geometry', new CylinderGeometry() );
+				entity.addComponent( 'geometry', new CylinderGeometry( { disableEdit: true } ) );
 
 			} else if ( this.node.type == 'plane' ) {
 
 				const planeParam = this.node.param as any;
 
-				entity.addComponent( 'geometry', new PlaneGeometry( planeParam.x, planeParam.y ) );
+				entity.addComponent( 'geometry', new PlaneGeometry( { disableEdit: true, width: planeParam.x, height: planeParam.y } ) );
 
 			} else if ( this.node.type == 'mesh' ) {
 
 				const geometryParam = this.node.param as any;
 
-				const geometry = new Geometry();
+				const geometry = new Geometry( { disableEdit: true } );
 				geometry.setAttribute( 'position', geometryParam.position, 3 );
 				geometry.setAttribute( 'uv', geometryParam.uv, 2 );
 				geometry.setAttribute( 'normal', geometryParam.normal, 3 );
@@ -145,6 +165,7 @@ export class BLidger extends Component {
 
 						if ( geo ) {
 
+							geo.disableEdit = true;
 							entity.addComponent( 'geometry', geo );
 
 						}
@@ -153,11 +174,14 @@ export class BLidger extends Component {
 
 						if ( mat ) {
 
+							mat.disableEdit = true;
 							entity.addComponent( 'material', mat );
 
 						}
 
 					}
+
+					entity.noticeRecursiveParent( "blidgeSceneUpdate", [ entity ] );
 
 				} );
 
@@ -173,7 +197,7 @@ export class BLidger extends Component {
 
 			} else if ( entity.getComponent( "geometry" ) ) {
 
-				entity.addComponent( "material", new Material( { name: entity.name, type: [ "deferred", "shadowMap" ] } ) );
+				entity.addComponent( "material", new Material( { disableEdit: true, name: entity.name, type: [ "deferred", "shadowMap" ] } ) );
 
 			}
 
@@ -182,13 +206,14 @@ export class BLidger extends Component {
 			if ( this.node.type == "light" ) {
 
 				const lightParam = this.node.param as BLidgeLightParam;
+				const light = entity.addComponent( 'light', new Light( { disableEdit: true } ) );
 
-				entity.addComponent( 'light', new Light( {
+				light.setPropertyValues( {
 					...lightParam,
 					lightType: lightParam.type,
 					color: new GLP.Vector().copy( lightParam.color ),
 					useShadowMap: lightParam.shadowMap,
-				} ) );
+				} );
 
 			}
 

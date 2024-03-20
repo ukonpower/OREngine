@@ -2,6 +2,8 @@ import * as GLP from 'glpower';
 
 import { Entity, EntityFinalizeEvent } from '../Entity';
 
+import { ValueOpt } from '~/ts/components/ui/Property/Value';
+
 export type ComponentUpdateEvent = EntityFinalizeEvent & {
 	entity: Entity,
 }
@@ -20,15 +22,98 @@ export type BuiltInComponents =
 	'gpuCompute' |
 ( string & {} );
 
+export type ComponentPropsOpt = {
+} & ValueOpt
+
+export type ComponentProps = {[key: string]: { value: any, opt?: ComponentPropsOpt, } | ComponentProps}
+export type ComponentSetProps = {[key: string]: any }
+
+export type ComponentParams = {
+	disableEdit?: boolean
+}
+
 export class Component extends GLP.EventEmitter {
 
-	protected entity: Entity | null;
+	public readonly uuid: string;
 
-	constructor() {
+	public entity: Entity | null;
+
+	public enabled: boolean;
+	public disableEdit: boolean;
+
+	constructor( params?: ComponentParams ) {
 
 		super();
 
+		params = params ?? {};
+
+		this.enabled = true;
+		this.disableEdit = params.disableEdit || false;
+
 		this.entity = null;
+
+		this.uuid = GLP.ID.genUUID();
+
+	}
+
+	public getProperties(): ComponentProps | null {
+
+		return null;
+
+	}
+
+	public getPropertyValues() {
+
+		const propertyValue:ComponentSetProps = {};
+
+		const _ = ( path: string, props: ComponentProps ): ComponentSetProps => {
+
+			Object.keys( props || {} ).forEach( ( key ) => {
+
+				const path_ = path + key;
+
+				const prop = props[ key ];
+
+				if ( "value" in prop ) {
+
+					propertyValue[ path_ ] = props[ key ].value;
+
+				} else {
+
+					_( path_ + "/", prop );
+
+				}
+
+			} );
+
+			return props;
+
+		};
+
+		_( "", this.getProperties() || {} );
+
+		return propertyValue;
+
+	}
+
+	public setPropertyValues( props: ComponentSetProps ) {
+	}
+
+	public export(): ComponentProps | null {
+
+		return this.getPropertyValues();
+
+	}
+
+	public noticeChanged( type?: string ) {
+
+		this.emit( 'changed', [ type ] );
+
+		if ( this.entity ) {
+
+			this.entity.noticeRecursiveParent( "changed", [ "component" ] );
+
+		}
 
 	}
 
@@ -44,7 +129,7 @@ export class Component extends GLP.EventEmitter {
 
 	public preUpdate( event: ComponentUpdateEvent ) {
 
-		if ( this.entity ) {
+		if ( this.entity && this.enabled ) {
 
 			this.preUpdateImpl( event );
 
@@ -54,7 +139,7 @@ export class Component extends GLP.EventEmitter {
 
 	public update( event: ComponentUpdateEvent ) {
 
-		if ( this.entity ) {
+		if ( this.entity && this.enabled ) {
 
 			this.updateImpl( event );
 
@@ -64,9 +149,19 @@ export class Component extends GLP.EventEmitter {
 
 	public postUpdate( event: ComponentUpdateEvent ) {
 
-		if ( this.entity ) {
+		if ( this.entity && this.enabled ) {
 
 			this.postUpdateImpl( event );
+
+		}
+
+	}
+
+	public finalize( event: ComponentUpdateEvent ) {
+
+		if ( this.entity && this.enabled ) {
+
+			this.finalizeImpl( event );
 
 		}
 
@@ -79,16 +174,6 @@ export class Component extends GLP.EventEmitter {
 	protected updateImpl( event: ComponentUpdateEvent ) {}
 
 	protected postUpdateImpl( event: ComponentUpdateEvent ) {}
-
-	public finalize( event: ComponentUpdateEvent ) {
-
-		if ( this.entity ) {
-
-			this.finalizeImpl( event );
-
-		}
-
-	}
 
 	protected finalizeImpl( event: ComponentUpdateEvent ) {}
 

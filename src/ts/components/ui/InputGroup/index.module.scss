@@ -1,0 +1,13 @@
+@use '~/styles/common' as *;
+
+.group {
+	background-color: $bgCol0;
+	padding: $padding;
+	min-width: 200px;
+}
+
+.submit {
+	margin-top: 5px;
+	padding: 0px 5px;
+	font-size: $fontSize2;
+}

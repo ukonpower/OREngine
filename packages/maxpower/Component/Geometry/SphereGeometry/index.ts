@@ -1,16 +1,31 @@
 import { Vector } from "glpower";
+
 import { Geometry } from "..";
+import { ComponentParams } from "../..";
+
+type SphereGeometryParam = {
+	radius?: number,
+	widthSegments?: number,
+	heightSegments?: number
+} & ComponentParams
 
 export class SphereGeometry extends Geometry {
 
-	constructor( radius: number = 0.5, widthSegments: number = 20, heightSegments: number = 10 ) {
+	constructor( param: SphereGeometryParam ) {
 
-		super();
+		super( param );
 
 		const posArray = [];
 		const normalArray = [];
 		const uvArray = [];
 		const indexArray = [];
+
+		const { radius, widthSegments, heightSegments } = {
+			radius: 1,
+			widthSegments: 8,
+			heightSegments: 8,
+			...param
+		};
 
 		for ( let i = 0; i <= heightSegments; i ++ ) {
 

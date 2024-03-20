@@ -1,5 +1,6 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
+
 import { setUniforms } from '../../Renderer';
 import { shaderParse } from '../../Renderer/ShaderParser';
 
@@ -155,7 +156,6 @@ export class Modeler {
 		return resultGeo;
 
 	}
-
 
 
 	public bakeEntity( entity: MXP.Entity, attrs?: BakeAttribute ) {

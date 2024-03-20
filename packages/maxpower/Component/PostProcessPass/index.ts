@@ -1,6 +1,5 @@
 import * as GLP from 'glpower';
 
-import { gl, power } from '~/ts/Globals';
 import { Material, MaterialParam } from '../Material';
 
 export interface PostProcessPassParam extends MaterialParam{
@@ -10,10 +9,13 @@ export interface PostProcessPassParam extends MaterialParam{
 	clearDepth?: number;
 	resolutionRatio?: number;
 	passThrough?: boolean;
+	viewPort?: GLP.Vector
 }
 
-import quadVert from './shaders/quad.vs';
 import passFrag from './shaders/pass.fs';
+import quadVert from './shaders/quad.vs';
+
+import { gl, power } from '~/ts/Globals';
 
 export class PostProcessPass extends Material {
 
@@ -27,6 +29,7 @@ export class PostProcessPass extends Material {
 
 	public resolution: GLP.Vector;
 	public resolutionInv: GLP.Vector;
+	public viewPort: GLP.Vector | null;
 
 	constructor( param: PostProcessPassParam ) {
 
@@ -34,6 +37,8 @@ export class PostProcessPass extends Material {
 
 		this.resolution = new GLP.Vector();
 		this.resolutionInv = new GLP.Vector();
+
+		this.viewPort = null;
 
 		this.uniforms.uPPResolution = {
 			value: this.resolution,
@@ -54,6 +59,7 @@ export class PostProcessPass extends Material {
 		this.depthTest = param.depthTest !== undefined ? param.depthTest : false;
 		this.resolutionRatio = param.resolutionRatio || 1;
 		this.passThrough = param.passThrough ?? false;
+		this.viewPort = param.viewPort || null;
 
 	}
 

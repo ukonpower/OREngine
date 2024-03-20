@@ -1,19 +1,34 @@
 import * as GLP from 'glpower';
+
 import { Geometry } from "..";
+import { ComponentParams } from '../..';
 import { Curve } from "../../../Utils/Curve";
+
+interface CurveGeometryParams extends ComponentParams{
+	curve?: Curve,
+	radius?: number,
+	curveSegments?: number,
+	radSegments?: number
+}
 
 export class CurveGeometry extends Geometry {
 
-	constructor( curve: Curve, radius: number, curveSegments: number = 24, radSegments: number = 8 ) {
+	constructor( params?: CurveGeometryParams ) {
 
-		super();
+		super( params );
 
 		const posArray: number[] = [];
 		const normalArray: number[] = [];
 		const uvArray: number[] = [];
 		const indexArray: number[] = [];
 
-		curveSegments -= 1;
+		const { curve, radius, radSegments } = {
+			curve: new Curve(),
+			radius: 1,
+			radSegments: 8,
+			...params
+		};
+		const curveSegments = ( params && params.curveSegments || 24 ) - 1;
 
 		const frenet = curve.getFrenetFrames( curveSegments + 1 );
 
@@ -50,7 +65,6 @@ export class CurveGeometry extends Geometry {
 					vec.z = pos.z + r * vec.z;
 
 					posArray.push( vec.x, vec.y, vec.z );
-
 
 
 					uvArray.push(

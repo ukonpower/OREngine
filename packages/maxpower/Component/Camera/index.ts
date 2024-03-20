@@ -1,15 +1,9 @@
 import * as GLP from 'glpower';
 
-import { Component, ComponentUpdateEvent } from "..";
+import { Component, ComponentParams, ComponentProps, ComponentUpdateEvent } from "..";
 
 export type CameraType = 'perspective' | 'orthographic'
-export interface CameraParam {
-	cameraType?: CameraType;
-	fov?: number;
-	near?: number;
-	far?: number;
-	orthWidth?: number;
-	orthHeight?: number;
+export interface CameraParam extends ComponentParams {
 }
 
 export class Camera extends Component {
@@ -34,13 +28,15 @@ export class Camera extends Component {
 
 	public displayOut: boolean;
 
-	constructor( param?: CameraParam ) {
+	public viewPort: GLP.Vector | null;
 
-		super();
+	constructor( params?: CameraParam ) {
 
-		param = param || {};
+		super( params );
 
-		this.cameraType = param.cameraType || 'perspective';
+		params = params || {};
+
+		this.cameraType = 'perspective';
 
 		this.viewMatrix = new GLP.Matrix();
 		this.projectionMatrix = new GLP.Matrix();
@@ -48,16 +44,17 @@ export class Camera extends Component {
 		this.viewMatrixPrev = new GLP.Matrix();
 		this.projectionMatrixPrev = new GLP.Matrix();
 
-		this.fov = param.fov || 50;
-		this.near = param.near || 0.01;
-		this.far = param.far || 1000;
+		this.viewPort = null;
+
+		this.fov = 50;
+		this.near = 0.1;
+		this.far = 1000;
 		this.aspect = 1.0;
 
-		this.orthWidth = param.orthWidth || 1;
-		this.orthHeight = param.orthHeight || 1;
+		this.orthWidth = 1;
+		this.orthHeight = 1;
 
 		this.needsUpdate = true;
-
 		this.displayOut = true;
 
 	}
@@ -80,11 +77,20 @@ export class Camera extends Component {
 
 	}
 
+	public updateViewMatrix() {
+
+		if ( this.entity ) {
+
+			this.viewMatrixPrev.copy( this.viewMatrix );
+			this.viewMatrix.copy( this.entity.matrixWorld ).inverse();
+
+		}
+
+	}
+
 	protected postUpdateImpl( event: ComponentUpdateEvent ): void {
 
-		this.viewMatrixPrev.copy( this.viewMatrix );
-
-		this.viewMatrix.copy( event.entity.matrixWorld ).inverse();
+		this.updateViewMatrix();
 
 		if ( this.needsUpdate ) {
 

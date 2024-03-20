@@ -207,4 +207,10 @@ export class Pointer extends GLP.EventEmitter {
 
 	}
 
+	public dispose() {
+
+		this.emit( 'dispose' );
+
+	}
+
 }

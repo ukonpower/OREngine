@@ -1,13 +1,15 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
+import { RenderCameraTarget } from 'packages/maxpower/Component/Camera/RenderCamera';
 
+import { gaussWeights } from '../../utils/Math';
 
+import deferredShadingFrag from './shaders/deferredShading.fs';
 import lightShaftFrag from './shaders/lightShaft.fs';
 import ssaoFrag from './shaders/ssao.fs';
 import ssaoBlurFrag from './shaders/ssaoBlur.fs';
-import deferredShadingFrag from './shaders/deferredShading.fs';
-import { gaussWeights } from '../../utils/Math';
-import { RenderCameraTarget } from 'packages/maxpower/Component/Camera/RenderCamera';
+
+
 import { gl, power, globalUniforms } from '~/ts/Globals/';
 
 const ssaoKernel = ( kernelSize: number ) => {
@@ -31,7 +33,12 @@ const ssaoKernel = ( kernelSize: number ) => {
 
 };
 
-export class DeferredPostProcess extends MXP.PostProcess {
+type DeferredRendererParams = {
+	envMap: GLP.GLPowerTexture;
+	envMapCube?: GLP.GLPowerTextureCube
+}
+
+export class DeferredRenderer extends MXP.PostProcess {
 
 	// light shaft
 
@@ -51,7 +58,7 @@ export class DeferredPostProcess extends MXP.PostProcess {
 
 	private shading: MXP.PostProcessPass;
 
-	constructor() {
+	constructor( params: DeferredRendererParams ) {
 
 		// light shaft
 
@@ -203,11 +210,17 @@ export class DeferredPostProcess extends MXP.PostProcess {
 					value: ssao.resolutionInv,
 					type: '2fv'
 				},
-				uEnvTex: globalUniforms.tex.uEnvTex
+				// uEnvMap: globalUniforms.tex.uEnvTex,
+				uEnvMap: {
+					value: params.envMap,
+					type: '1i'
+				},
+				// uEnvMapCube: {
+				// 	value: params.envMapCube,
+				// 	type: '1i'
+				// },
+				uTime: globalUniforms.time.uTime,
 			} ),
-			defines: {
-				USE_ENV: ""
-			}
 		} );
 
 		super( { passes: [

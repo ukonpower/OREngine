@@ -1,41 +1,47 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { MainCamera } from './Entities/MainCamera';
-import { Renderer } from './Renderer';
-import { createTextures } from './Textures';
-import { Carpenter } from './Carpenter';
-import { blidge, canvas, gl, globalUniforms } from '../../Globals';
-import { FrameDebugger } from './utils/FrameDebugger';
+import { canvas, globalUniforms, mainCmaera } from '../../Globals';
+import { ProjectSerializer, OREngineProjectData } from '../IO/ProjectSerializer';
 
-type SceneUpdateParam = {
-	forceDraw: boolean
-}
+import { Renderer } from './Renderer';
+import { MainCamera } from './Resources/Components/MainCamera';
+import { initResouces } from './Resources/init';
+import { initTextures } from './Textures';
 
 export class Scene extends GLP.EventEmitter {
 
+	private projectSerializer: ProjectSerializer;
+
 	public canvas: HTMLCanvasElement;
+	private camera: MXP.Entity;
+
+	public root: MXP.Entity;
 
 	public currentTime: number;
 	public elapsedTime: number;
 	public deltaTime: number;
 
-	private root: MXP.Entity;
-	private camera: MainCamera;
-	private renderer: Renderer;
+	public renderer: Renderer;
 
 	// bufferView
 
-	private cameraComponent: MXP.RenderCamera;
-	private frameDebugger?: FrameDebugger;
-
-	// carpenter
-
-	private carpenter: Carpenter;
+	private cameraComponent: MainCamera;
 
 	constructor() {
 
 		super();
+
+		// resources
+
+		initResouces();
+		initTextures();
+
+		// project
+
+		this.projectSerializer = new ProjectSerializer();
+
+		// canvas
 
 		this.canvas = canvas;
 
@@ -45,77 +51,79 @@ export class Scene extends GLP.EventEmitter {
 		this.elapsedTime = 0;
 		this.deltaTime = 0;
 
-		// textures
+		// camera
 
-		createTextures();
+		this.camera = mainCmaera;
+		this.camera.noExport = true;
+		this.camera.position.set( 0, 1, 10 );
+		this.cameraComponent = this.camera.addComponent( "mainCamera", new MainCamera() );
+
+		// renderer
+
+		this.renderer = new Renderer();
+		this.renderer.noExport = true;
 
 		// root
 
 		this.root = new MXP.Entity();
 
-		// camera
+	}
 
-		this.camera = new MainCamera();
-		this.camera.position.set( 0, 1, 10 );
-		this.root.add( this.camera );
+	public loadProject( project?: OREngineProjectData ) {
 
-		this.cameraComponent = this.camera.getComponent<MXP.RenderCamera>( 'camera' )!;
+		const currentRoot = this.root;
+		currentRoot.remove( this.camera );
+		currentRoot.remove( this.renderer );
+		currentRoot.dispose( true );
 
-		// carpenter
+		currentRoot.position.set( 0, 0, 0 );
+		currentRoot.euler.set( 0, 0, 0 );
+		currentRoot.scale.set( 1, 1, 1 );
 
-		this.carpenter = new Carpenter( this.root, this.camera );
+		currentRoot.off( "changed" );
+		currentRoot.off( "blidgeSceneUpdate" );
 
-		blidge.on( "event/export_gltf", () => {
+		// create
 
-			window.location.reload();
+		if ( project ) {
+
+			this.root = this.projectSerializer.deserialize( project ).root;
+
+		}
+
+		this.root.name = "scene";
+
+		this.root.on( "changed", ( ...opt: any ) => {
+
+			this.emit( "changed", opt );
 
 		} );
 
-		// renderer
+		this.root.on( "blidgeSceneUpdate", ( root: MXP.Entity ) => {
 
-		this.renderer = new Renderer();
+			if ( project ) {
+
+				this.projectSerializer.applyOverride( root, project.objectOverride );
+
+			}
+
+		} );
+
+
+		this.root.add( this.camera );
 		this.root.add( this.renderer );
 
-		// buffers
-
-		// if ( process.env.NODE_ENV == "development" ) {
-
-		// 	const frameDebugger = new FrameDebugger( gl );
-
-		// 	window.addEventListener( "keydown", ( e ) => {
-
-		// 		if ( e.key == "d" ) {
-
-		// 			frameDebugger.enable = ! frameDebugger.enable;
-		// 			this.cameraComponent.displayOut = ! frameDebugger.enable;
-
-		// 			queueMicrotask( () => {
-
-		// 				frameDebugger.reflesh();
-
-		// 			} );
-
-		// 		}
-
-		// 	} );
-
-		// 	this.renderer.on( 'drawPass', ( rt?: GLP.GLPowerFrameBuffer, label?: string ) => {
-
-		// 		if ( this.frameDebugger && this.frameDebugger.enable && rt ) {
-
-		// 			this.frameDebugger.push( rt, label );
-
-		// 		}
-
-		// 	} );
-
-		// 	this.frameDebugger = frameDebugger;
-
-		// }
+		this.emit( "changed" );
 
 	}
 
-	public update( param?: SceneUpdateParam ) {
+	public exportProject( name: string ) {
+
+		return this.projectSerializer.serialize( name, this.root );
+
+	}
+
+	public update( param?: MXP.EntityUpdateEvent ) {
 
 		const currentTime = new Date().getTime();
 		this.deltaTime = ( currentTime - this.currentTime ) / 1000;
@@ -137,16 +145,6 @@ export class Scene extends GLP.EventEmitter {
 
 		this.renderer.render( renderStack );
 
-		// if ( process.env.NODE_ENV == "development" ) {
-
-		// 	if ( this.frameDebugger && this.frameDebugger.enable ) {
-
-		// 		this.frameDebugger.draw();
-
-		// 	}
-
-		// }
-
 		return this.deltaTime;
 
 	}
@@ -154,18 +152,7 @@ export class Scene extends GLP.EventEmitter {
 	public resize( resolution: GLP.Vector ) {
 
 		this.renderer.resize( resolution );
-
-		this.camera.resize( resolution );
-
-		// if ( process.env.NODE_ENV == "development" ) {
-
-		// 	if ( this.frameDebugger ) {
-
-		// 		this.frameDebugger.resize( resolution );
-
-		// 	}
-
-		// }
+		this.cameraComponent.resize( resolution );
 
 	}
 
@@ -175,11 +162,15 @@ export class Scene extends GLP.EventEmitter {
 
 		this.elapsedTime = startTime;
 
-		this.emit( 'play' );
-
 	}
 
 	public dispose() {
+
+		if ( this.root ) {
+
+			this.root.dispose( true );
+
+		}
 
 		this.emit( 'dispose' );
 

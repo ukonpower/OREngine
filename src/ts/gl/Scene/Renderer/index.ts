@@ -1,10 +1,16 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { gl, gpuState, power } from "~/ts/Globals";
+import { getDrawType } from '../utils/globalFunc';
+
+import { DeferredRenderer } from './DeferredPostProcess';
+import { PMREMRender } from './PMREMRender';
 import { ProgramManager } from "./ProgramManager";
 import { shaderParse } from "./ShaderParser";
-import { DeferredPostProcess } from './DeferredPostProcess';
+
+import { gl, gpuState, power } from "~/ts/Globals";
+
+// render stack
 
 export type RenderStack = {
 	light: MXP.Entity[];
@@ -17,6 +23,8 @@ export type RenderStack = {
 	gpuCompute: MXP.Entity[];
 }
 
+// light
+
 type LightInfo = {
 	position: GLP.Vector;
 	direction: GLP.Vector;
@@ -25,6 +33,20 @@ type LightInfo = {
 }
 
 export type CollectedLights = {[K in MXP.LightType]: LightInfo[]}
+
+// envmap
+
+type EnvMapCamera = {
+	entity: MXP.Entity,
+	camera: MXP.Camera,
+}
+
+// drawParam
+
+type RenderOption = {
+	cameraOverride?: CameraOverride,
+	disableClear?: boolean,
+}
 
 type CameraOverride = {
 	viewMatrix?: GLP.Matrix;
@@ -39,16 +61,19 @@ type CameraOverride = {
 
 type DrawParam = CameraOverride & { modelMatrixWorld?: GLP.Matrix, modelMatrixWorldPrev?: GLP.Matrix }
 
+// state
+
 type GPUState = {
 	key: string,
 	command: number,
 	state: boolean,
 }[]
 
-export let textureUnit = 0;
+// texture unit
+
+export let TextureUnitCounter = 0;
 
 export class Renderer extends MXP.Entity {
-
 
 	private canvasSize: GLP.Vector;
 
@@ -61,9 +86,15 @@ export class Renderer extends MXP.Entity {
 	private lights: CollectedLights;
 	private lightsUpdated: boolean;
 
+	// envmap
+
+	private envMapCameras: EnvMapCamera[];
+	private envMapRenderTarget: GLP.GLPowerFrameBufferCube;
+	private pmremRender: PMREMRender;
+
 	// deferred
 
-	private deferredPostProcess: DeferredPostProcess;
+	private deferredPostProcess: DeferredRenderer;
 
 	// quad
 
@@ -86,9 +117,9 @@ export class Renderer extends MXP.Entity {
 	private tmpModelMatrixInverse: GLP.Matrix;
 	private tmpProjectionMatrixInverse: GLP.Matrix;
 
-	constructor( ) {
+	constructor() {
 
-		super();
+		super( { name: "Renderer" } );
 
 		this.programManager = new ProgramManager( gl );
 		this.canvasSize = new GLP.Vector();
@@ -102,14 +133,61 @@ export class Renderer extends MXP.Entity {
 
 		this.lightsUpdated = false;
 
+		// envmap
+
+		const envMap = new GLP.GLPowerTextureCube( gl );
+		this.envMapRenderTarget = new GLP.GLPowerFrameBufferCube( gl ).setTexture( [ envMap ] );
+		this.envMapRenderTarget.setSize( 256, 256 );
+
+		const origin = new GLP.Vector( 0, 0, 0 );
+		const up = new GLP.Vector( 0, - 1, 0 );
+
+		const lookAtMatrices = [
+			new GLP.Matrix().lookAt( origin, new GLP.Vector( 1, 0, 0 ), up ),
+			new GLP.Matrix().lookAt( origin, new GLP.Vector( 0, 1, 0 ), new GLP.Vector( 0, 0, 1 ) ),
+			new GLP.Matrix().lookAt( origin, new GLP.Vector( 0, 0, 1 ), up ),
+			new GLP.Matrix().lookAt( origin, new GLP.Vector( - 1, 0, 0 ), up ),
+			new GLP.Matrix().lookAt( origin, new GLP.Vector( 0, - 1, 0 ), new GLP.Vector( 0, 0, - 1 ) ),
+			new GLP.Matrix().lookAt( origin, new GLP.Vector( 0, 0, - 1 ), up ),
+		];
+
+		this.envMapCameras = [];
+
+		for ( let i = 0; i < 6; i ++ ) {
+
+			const entity = new MXP.Entity( { name: "envMapCamera/" + i } );
+			const camera = entity.addComponent( "camera", new MXP.Camera() );
+			camera.fov = 90;
+			camera.near = 0.1;
+			camera.far = 1000;
+			camera.aspect = 1;
+			entity.applyMatrix( lookAtMatrices[ i ].clone() );
+			camera.updateViewMatrix();
+			camera.updateProjectionMatrix();
+			this.envMapCameras.push( { entity, camera } );
+
+		}
+
+		// pmrem
+
+		this.pmremRender = new PMREMRender( {
+			input: [ envMap ],
+			resolution: new GLP.Vector( 256 * 3, 256 * 4 ),
+		} );
+
 		// deferred
 
-		this.deferredPostProcess = new DeferredPostProcess();
+		this.deferredPostProcess = new DeferredRenderer( {
+			envMap: this.pmremRender.renderTarget.textures[ 0 ] as GLP.GLPowerTexture,
+			// envMap: this.pmremRender.passes[ 0 ].renderTarget?.textures[ 0 ] as GLP.GLPowerTexture,
+			envMapCube: envMap as GLP.GLPowerTextureCube,
+		} );
+
 		this.addComponent( "deferredPostProcess", this.deferredPostProcess );
 
 		// quad
 
-		this.quad = new MXP.PlaneGeometry( 2.0, 2.0 );
+		this.quad = new MXP.PlaneGeometry( { width: 2.0, height: 2.0 } );
 
 		// gpu
 
@@ -258,6 +336,23 @@ export class Renderer extends MXP.Entity {
 
 		}
 
+		// envmap
+
+		for ( let i = 0; i < this.envMapCameras.length; i ++ ) {
+
+			const { entity: cameraEntity } = this.envMapCameras[ i ];
+
+			this.envMapRenderTarget.face( i );
+
+			this.renderCamera( "envMap", cameraEntity, stack.envMap, this.envMapRenderTarget );
+
+
+		}
+
+		this.renderPostProcess( this.pmremRender );
+
+		this.pmremRender.swap();
+
 		for ( let i = 0; i < stack.camera.length; i ++ ) {
 
 			const cameraEntity = stack.camera[ i ];
@@ -271,35 +366,38 @@ export class Renderer extends MXP.Entity {
 
 			this.deferredPostProcess.setRenderTarget( cameraComponent.renderTarget );
 
-			this.renderPostProcess( this.deferredPostProcess, {
+			this.renderPostProcess( this.deferredPostProcess, { cameraOverride: {
 				viewMatrix: cameraComponent.viewMatrix,
 				viewMatrixPrev: cameraComponent.viewMatrixPrev,
 				projectionMatrix: cameraComponent.projectionMatrix,
 				projectionMatrixPrev: cameraComponent.projectionMatrixPrev,
 				cameraMatrixWorld: cameraEntity.matrixWorld
-			} );
+			} } );
 
 			// forward
 
 			gl.enable( gl.BLEND );
 
-			this.renderCamera( "forward", cameraEntity, stack.forward, cameraComponent.renderTarget.forwardBuffer, { uniforms: { uDeferredTexture: { value: cameraComponent.renderTarget.shadingBuffer.textures[ 1 ], type: '1i' } } }, false );
+			this.renderCamera( "forward", cameraEntity, stack.forward, cameraComponent.renderTarget.forwardBuffer, {
+				cameraOverride: { uniforms: { uDeferredTexture: { value: cameraComponent.renderTarget.shadingBuffer.textures[ 1 ], type: '1i' } } },
+				disableClear: true,
+			} );
 
 			gl.disable( gl.BLEND );
 
 			// scene
 
-			const prePostprocess = cameraEntity.getComponent<MXP.PostProcess>( 'scenePostProcess' );
+			const prePostprocess = cameraEntity.getComponentEnabled<MXP.PostProcess>( 'scenePostProcess' );
 
 			if ( prePostprocess ) {
 
-				this.renderPostProcess( prePostprocess, {
+				this.renderPostProcess( prePostprocess, { cameraOverride: {
 					viewMatrix: cameraComponent.viewMatrix,
 					projectionMatrix: cameraComponent.projectionMatrix,
 					cameraMatrixWorld: cameraEntity.matrixWorld,
 					cameraNear: cameraComponent.near,
 					cameraFar: cameraComponent.far,
-				} );
+				} } );
 
 				if ( prePostprocess.output ) {
 
@@ -315,47 +413,61 @@ export class Renderer extends MXP.Entity {
 
 				}
 
+			} else {
+
+				gl.bindFramebuffer( gl.READ_FRAMEBUFFER, cameraComponent.renderTarget.forwardBuffer.getFrameBuffer() );
+				gl.bindFramebuffer( gl.DRAW_FRAMEBUFFER, cameraComponent.renderTarget.uiBuffer.getFrameBuffer() );
+
+				const size = cameraComponent.renderTarget.forwardBuffer.size;
+
+				gl.blitFramebuffer(
+					0, 0, size.x, size.y,
+					0, 0, size.x, size.y,
+					gl.COLOR_BUFFER_BIT, gl.NEAREST );
+
 			}
 
 			// ui
 
 			gl.enable( gl.BLEND );
 
-			this.renderCamera( "forward", cameraEntity, stack.ui, cameraComponent.renderTarget.uiBuffer, { uniforms: { uDeferredTexture: { value: cameraComponent.renderTarget.shadingBuffer.textures[ 1 ], type: '1i' } } }, false );
+			this.renderCamera( "forward", cameraEntity, stack.ui, cameraComponent.renderTarget.uiBuffer, {
+				cameraOverride: {
+					uniforms: { uDeferredTexture: { value: cameraComponent.renderTarget.shadingBuffer.textures[ 1 ], type: '1i' } }
+				},
+				disableClear: true
+			} );
 
 			gl.disable( gl.BLEND );
 
 			// postprocess
 
-			const postProcess = cameraEntity.getComponent<MXP.PostProcess>( 'postProcess' );
+			const postProcess = cameraEntity.getComponentEnabled<MXP.PostProcess>( 'postProcess' );
 
 			if ( postProcess ) {
 
-				this.renderPostProcess( postProcess, {
+				this.renderPostProcess( postProcess, { cameraOverride: {
 					viewMatrix: cameraComponent.viewMatrix,
 					projectionMatrix: cameraComponent.projectionMatrix,
 					cameraMatrixWorld: cameraEntity.matrixWorld,
 					cameraNear: cameraComponent.near,
 					cameraFar: cameraComponent.far,
-				} );
+				} } );
 
-				// display out
+			}
 
-				if ( cameraComponent.displayOut ) {
+			if ( cameraComponent.displayOut ) {
 
-					if ( postProcess.output ) {
+				const outBuffer = postProcess ? postProcess.output : cameraComponent.renderTarget.uiBuffer;
 
-						gl.bindFramebuffer( gl.READ_FRAMEBUFFER, postProcess.output.getFrameBuffer() );
-						gl.bindFramebuffer( gl.DRAW_FRAMEBUFFER, null );
+				gl.bindFramebuffer( gl.READ_FRAMEBUFFER, outBuffer === null ? null : outBuffer.getFrameBuffer() );
+				gl.bindFramebuffer( gl.DRAW_FRAMEBUFFER, null );
 
-						gl.blitFramebuffer(
-							0, 0, this.canvasSize.x, this.canvasSize.y,
-							0, 0, this.canvasSize.x, this.canvasSize.y,
-							gl.COLOR_BUFFER_BIT, gl.NEAREST );
+				gl.blitFramebuffer(
+					0, 0, this.canvasSize.x, this.canvasSize.y,
+					0, 0, this.canvasSize.x, this.canvasSize.y,
+					gl.COLOR_BUFFER_BIT, gl.NEAREST );
 
-					}
-
-				}
 
 			}
 
@@ -363,9 +475,11 @@ export class Renderer extends MXP.Entity {
 
 	}
 
-	public renderCamera( renderType: MXP.MaterialRenderType, cameraEntity: MXP.Entity, entities: MXP.Entity[], renderTarget: GLP.GLPowerFrameBuffer | null, override?: CameraOverride, clear:boolean = true ) {
+	public renderCamera( renderType: MXP.MaterialRenderType, cameraEntity: MXP.Entity, entities: MXP.Entity[], renderTarget: GLP.GLPowerFrameBuffer | null, renderOption?: RenderOption ) {
 
 		const camera = cameraEntity.getComponent<MXP.Camera>( "camera" ) || cameraEntity.getComponent<MXP.Light>( "light" )!;
+
+		renderOption = renderOption || {};
 
 		const drawParam: DrawParam = {
 			viewMatrix: camera.viewMatrix,
@@ -375,25 +489,43 @@ export class Renderer extends MXP.Entity {
 			cameraMatrixWorld: cameraEntity.matrixWorld,
 			cameraNear: camera.near,
 			cameraFar: camera.far,
-			...override
+			...renderOption.cameraOverride
 		};
+
+		if ( camera.viewPort ) {
+
+			const v = camera.viewPort;
+
+			gl.viewport( v.x, v.y, v.z, v.w );
+
+		} else {
+
+			if ( renderTarget ) {
+
+				gl.viewport( 0, 0, renderTarget.size.x, renderTarget.size.y );
+
+			} else {
+
+				gl.viewport( 0, 0, this.canvasSize.x, this.canvasSize.y );
+
+			}
+
+		}
 
 		if ( renderTarget ) {
 
-			gl.viewport( 0, 0, renderTarget.size.x, renderTarget.size.y );
 			gl.bindFramebuffer( gl.FRAMEBUFFER, renderTarget.getFrameBuffer() );
 			gl.drawBuffers( renderTarget.textureAttachmentList );
 
 		} else {
 
-			gl.viewport( 0, 0, this.canvasSize.x, this.canvasSize.y );
 			gl.bindFramebuffer( gl.FRAMEBUFFER, null );
 
 		}
 
 		// clear
 
-		if ( clear ) {
+		if ( ! renderOption.disableClear ) {
 
 			if ( renderType == "shadowMap" ) {
 
@@ -429,6 +561,7 @@ export class Renderer extends MXP.Entity {
 
 		this.emit( "drawPass", [ renderTarget, "camera/" + renderType ] );
 
+
 	}
 
 	private collectLight( lightEntity: MXP.Entity ) {
@@ -457,7 +590,7 @@ export class Renderer extends MXP.Entity {
 
 	}
 
-	public renderPostProcess( postprocess: MXP.PostProcess, matrix?: CameraOverride ) {
+	public renderPostProcess( postprocess: MXP.PostProcess, renderOption?: RenderOption ) {
 
 		// render
 
@@ -467,17 +600,37 @@ export class Renderer extends MXP.Entity {
 
 			const pass = postprocess.passes[ i ];
 
+			if ( ! pass.enabled ) continue;
+
 			const renderTarget = pass.renderTarget;
+
+			if ( pass.viewPort ) {
+
+				const v = pass.viewPort;
+
+				gl.viewport( v.x, v.y, v.z, v.w );
+
+			} else {
+
+				if ( renderTarget ) {
+
+					gl.viewport( 0, 0, renderTarget.size.x, renderTarget.size.y );
+
+				} else {
+
+					gl.viewport( 0, 0, this.canvasSize.x, this.canvasSize.y );
+
+				}
+
+			}
 
 			if ( renderTarget ) {
 
-				gl.viewport( 0, 0, renderTarget.size.x, renderTarget.size.y );
 				gl.bindFramebuffer( gl.FRAMEBUFFER, renderTarget.getFrameBuffer() );
 				gl.drawBuffers( renderTarget.textureAttachmentList );
 
 			} else {
 
-				gl.viewport( 0, 0, this.canvasSize.x, this.canvasSize.y );
 				gl.bindFramebuffer( gl.FRAMEBUFFER, null );
 
 			}
@@ -519,7 +672,7 @@ export class Renderer extends MXP.Entity {
 
 			}
 
-			this.draw( postprocess.uuid.toString(), "postprocess", this.quad, pass, matrix );
+			this.draw( postprocess.uuid.toString(), "postprocess", this.quad, pass, renderOption && renderOption.cameraOverride );
 
 			pass.onAfterRender();
 
@@ -537,7 +690,7 @@ export class Renderer extends MXP.Entity {
 
 	private draw( drawId: string, renderType: MXP.MaterialRenderType, geometry: MXP.Geometry, material: MXP.Material, param?: DrawParam ) {
 
-		textureUnit = 0;
+		TextureUnitCounter = 0;
 
 		// status
 
@@ -661,7 +814,7 @@ export class Renderer extends MXP.Entity {
 
 				if ( dLight.component.renderTarget ) {
 
-					const texture = dLight.component.renderTarget.textures[ 0 ].activate( textureUnit ++ );
+					const texture = dLight.component.renderTarget.textures[ 0 ].activate( TextureUnitCounter ++ );
 
 					program.setUniform( 'directionalLightCamera[' + i + '].near', '1fv', [ dLight.component.near ] );
 					program.setUniform( 'directionalLightCamera[' + i + '].far', '1fv', [ dLight.component.far ] );
@@ -694,7 +847,7 @@ export class Renderer extends MXP.Entity {
 
 				if ( sLight.component.renderTarget ) {
 
-					const texture = sLight.component.renderTarget.textures[ 0 ].activate( textureUnit ++ );
+					const texture = sLight.component.renderTarget.textures[ 0 ].activate( TextureUnitCounter ++ );
 
 					program.setUniform( 'spotLightCamera[' + i + '].near', '1fv', [ sLight.component.near ] );
 					program.setUniform( 'spotLightCamera[' + i + '].far', '1fv', [ sLight.component.far ] );
@@ -791,15 +944,17 @@ export class Renderer extends MXP.Entity {
 
 				}
 
+				const drawType = getDrawType( material.drawType );
+
 				if ( vao.instanceCount > 0 ) {
 
 					if ( indexBuffer ) {
 
-						gl.drawElementsInstanced( material.drawType, vao.indexCount, indexBufferArrayType, 0, vao.instanceCount );
+						gl.drawElementsInstanced( drawType, vao.indexCount, indexBufferArrayType, 0, vao.instanceCount );
 
 					} else {
 
-						gl.drawArraysInstanced( material.drawType, 0, vao.vertCount, vao.instanceCount );
+						gl.drawArraysInstanced( drawType, 0, vao.vertCount, vao.instanceCount );
 
 					}
 
@@ -807,11 +962,11 @@ export class Renderer extends MXP.Entity {
 
 					if ( indexBuffer ) {
 
-						gl.drawElements( material.drawType, vao.indexCount, indexBufferArrayType, 0 );
+						gl.drawElements( drawType, vao.indexCount, indexBufferArrayType, 0 );
 
 					} else {
 
-						gl.drawArrays( material.drawType, 0, vao.vertCount );
+						gl.drawArrays( drawType, 0, vao.vertCount );
 
 					}
 
@@ -881,7 +1036,7 @@ export const setUniforms = ( program: GLP.GLPowerProgram, uniforms: GLP.Uniforms
 
 			} else if ( 'isTexture' in v ) {
 
-				v.activate( textureUnit ++ );
+				v.activate( TextureUnitCounter ++ );
 
 				arrayValue.push( v.unit );
 

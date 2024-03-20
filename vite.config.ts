@@ -1,8 +1,11 @@
 import path from 'path';
-import { defineConfig } from 'vite';
+
 import react from '@vitejs/plugin-react';
-import shaderminifier from './plugins/shader-minifier-loader';
 import { visualizer } from 'rollup-plugin-visualizer';
+import { defineConfig } from 'vite';
+
+import shaderminifier from './plugins/shader-minifier-loader';
+
 
 const basePath = ``;
 
