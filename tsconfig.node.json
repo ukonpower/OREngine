@@ -6,8 +6,12 @@
     "moduleResolution": "bundler",
     "allowSyntheticDefaultImports": true,
     "allowUnreachableCode": true,
+    "lib": [
+      "es2021"
+    ]
   },
   "include": [
-    "vite.config.ts"
+    "vite.config.ts",
+    "./plugins"
   ]
 }

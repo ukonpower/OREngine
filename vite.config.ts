@@ -4,7 +4,8 @@ import react from '@vitejs/plugin-react';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig } from 'vite';
 
-import shaderminifier from './plugins/shader-minifier-loader';
+import { OREngineFileSystemPlugin } from './plugins/OREngineFileSystemPlugin';
+import { ShaderMinifierLoader } from "./plugins/ShaderMinifierLoader";
 
 
 const basePath = ``;
@@ -27,14 +28,12 @@ export default defineConfig( {
 		},
 	},
 	plugins: [
-		{
-			...shaderminifier(),
-			enforce: 'pre'
-		},
+		react(),
+		OREngineFileSystemPlugin(),
+		ShaderMinifierLoader(),
 		visualizer( {
 			template: "treemap"
 		} ),
-		react()
 	],
 	define: {
 		BASE_PATH: `"${basePath}"`
