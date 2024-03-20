@@ -24,6 +24,7 @@ export class Music extends MXP.Component {
 	private gainNode: GainNode;
 
 	private playStartTime: number = - 1;
+	private force: boolean = false;
 
 	private implusBuffer: AudioBuffer;
 
@@ -59,53 +60,78 @@ export class Music extends MXP.Component {
 
 		// render
 
-		const program = this.power.createProgram();
+		const render = () => {
 
-		const tf = new GLP.GLPowerTransformFeedback( this.gl );
+			const program = this.power.createProgram();
 
-		tf.setBuffer( "left", bufferL, 0 );
-		tf.setBuffer( "right", bufferR, 1 );
+			const tf = new GLP.GLPowerTransformFeedback( this.gl );
 
-		tf.bind( () => {
+			tf.setBuffer( "left", bufferL, 0 );
+			tf.setBuffer( "right", bufferR, 1 );
 
-			program.setShader( shaderParse( musicVert ), musicFrag, { transformFeedbackVaryings: [ 'o_left', 'o_right' ] } );
+			tf.bind( () => {
 
-		} );
+				program.setShader( shaderParse( MXP.hotGet( "music", musicVert ) ), musicFrag, { transformFeedbackVaryings: [ 'o_left', 'o_right' ] } );
 
-		program.setUniform( 'uDuration', '1f', [ MUSIC_DURATION ] );
-		program.setUniform( 'uSampleRate', '1f', [ this.audioCtx.sampleRate ] );
+			} );
 
-		const vao = program.getVAO();
+			program.setUniform( 'uDuration', '1f', [ MUSIC_DURATION ] );
+			program.setUniform( 'uSampleRate', '1f', [ this.audioCtx.sampleRate ] );
 
-		if ( vao ) {
+			const vao = program.getVAO();
 
-			vao.setAttribute( 'offsetTime', bufferIn, 1 );
+			if ( vao ) {
 
-			program.use( () => {
+				vao.setAttribute( 'offsetTime', bufferIn, 1 );
 
-				program.uploadUniforms();
+				program.use( () => {
 
-				tf.use( () => {
+					program.uploadUniforms();
 
-					this.gl.beginTransformFeedback( this.gl.POINTS );
-					this.gl.enable( this.gl.RASTERIZER_DISCARD );
+					tf.use( () => {
 
-					vao.use( () => {
+						this.gl.beginTransformFeedback( this.gl.POINTS );
+						this.gl.enable( this.gl.RASTERIZER_DISCARD );
 
-						this.gl.drawArrays( this.gl.POINTS, 0, vao.vertCount );
+						vao.use( () => {
+
+							this.gl.drawArrays( this.gl.POINTS, 0, vao.vertCount );
+
+						} );
+
+						this.gl.disable( this.gl.RASTERIZER_DISCARD );
+						this.gl.endTransformFeedback();
 
 					} );
 
-					this.gl.disable( this.gl.RASTERIZER_DISCARD );
-					this.gl.endTransformFeedback();
+					this.gl.bindBuffer( this.gl.ARRAY_BUFFER, bufferL.buffer );
+					this.gl.getBufferSubData( this.gl.ARRAY_BUFFER, 0, this.audioBuffer.getChannelData( 0 ) );
+
+					this.gl.bindBuffer( this.gl.ARRAY_BUFFER, bufferR.buffer );
+					this.gl.getBufferSubData( this.gl.ARRAY_BUFFER, 0, this.audioBuffer.getChannelData( 1 ) );
 
 				} );
 
-				this.gl.bindBuffer( this.gl.ARRAY_BUFFER, bufferL.buffer );
-				this.gl.getBufferSubData( this.gl.ARRAY_BUFFER, 0, this.audioBuffer.getChannelData( 0 ) );
+			}
 
-				this.gl.bindBuffer( this.gl.ARRAY_BUFFER, bufferR.buffer );
-				this.gl.getBufferSubData( this.gl.ARRAY_BUFFER, 0, this.audioBuffer.getChannelData( 1 ) );
+			this.force = true;
+
+		};
+
+		render();
+
+		if ( import.meta.hot ) {
+
+			import.meta.hot.accept( './shaders/music.vs', ( module ) => {
+
+				if ( module ) {
+
+					MXP.hotUpdate( "music", module.default );
+
+					render();
+
+				}
+
 
 			} );
 
@@ -143,13 +169,15 @@ export class Music extends MXP.Component {
 
 		}
 
-		this.play( event.timeCode );
+		this.play( event.timeCode, this.force );
+
+		this.force = false;
 
 	}
 
-	public play( time: number = 0 ) {
+	public play( time: number = 0, force?: boolean ) {
 
-		if ( this.audioSrcNode ) {
+		if ( this.audioSrcNode && ! force ) {
 
 			if ( Math.abs( ( this.audioSrcNode.context.currentTime - this.playStartTime ) - time ) < 0.1 ) return;
 

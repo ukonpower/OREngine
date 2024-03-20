@@ -325,7 +325,8 @@ vec2 music( float time ) {
 
 	// click
 
-	o += xylophone1( time, loop16 * 2.0, 0.0 );
+	o += step( fract( loop4 ), 0.1 ) * ssin( time * s2f(3.0) * 2.0 ) * 0.03;
+	o += step( fract( loop4 / 4.0 ), 0.05 ) * ssin( time * s2f(12.0) * 2.0 ) * 0.02;
 
 	return o;
 	
