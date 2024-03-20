@@ -5,7 +5,7 @@ uniform sampler2D uPMREMBackBuffer;
 uniform samplerCube uEnvMap;
 uniform float uRenderCount;
 uniform float uRoughness;
-uniform float uFractTime;
+uniform float uTimeEF;
 layout (location = 0) out vec4 outColor;
 
 in vec2 vUv;
@@ -91,8 +91,8 @@ vec3 PrefilterEnvMap( float Roughness, vec3 R )
 		
 		vec2 Xi = Hammersley( float(i), float( NUM_SAMPLES ) );
 
-		Xi.x += random( vec2( vUv + uFractTime * 0.1 ) );
-		Xi.y += random( vec2( vUv + uFractTime * 0.1 + 1.0 ) );
+		Xi.x += random( vec2( vUv + uTimeEF * 0.1 ) );
+		Xi.y += random( vec2( vUv + uTimeEF * 0.1 + 1.0 ) );
 		Xi = fract( Xi );
 		
 		vec3 H = ImportanceSampleGGX( Xi, Roughness, N );

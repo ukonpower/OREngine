@@ -226,7 +226,8 @@ export class BLidger extends Component {
 	protected preUpdateImpl( event: ComponentUpdateEvent ): void {
 
 		const entity = event.entity;
-		const frame = this.blidge.frame.current;
+		// const frame = this.blidge.frame.current;
+		const frame = event.timeCode * this.blidge.frame.fps;
 
 		if ( this.curvePosition ) {
 

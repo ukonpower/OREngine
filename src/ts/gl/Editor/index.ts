@@ -48,14 +48,22 @@ export class GLEditor extends GLP.EventEmitter {
 	public canvasWrapElm: HTMLElement | null;
 	public resolutionScale: number;
 
-	// state
+	// veiw
 
 	public viewType: OREngineEditorViewType;
+
+	// dispose
+
 	private disposed: boolean;
 
 	// frame debugger
 
 	private frameDebugger: FrameDebugger;
+
+	// play
+
+	private playing: boolean;
+	private timeCode: number;
 
 	constructor() {
 
@@ -70,6 +78,11 @@ export class GLEditor extends GLP.EventEmitter {
 		// scene
 
 		this.scene = new Scene();
+
+		// play
+
+		this.timeCode = 0;
+		this.playing = false;
 
 		// view
 
@@ -124,6 +137,13 @@ export class GLEditor extends GLP.EventEmitter {
 		};
 
 		this.scene.on( "changed", onChanged );
+
+		this.scene.on( "blidgeFrameUpdate", ( e: MXP.BLidgeFrame ) => {
+
+			this.timeCode = e.current / e.fps;
+			this.playing = e.playing;
+
+		} );
 
 		this.scene.on( "dispose", () => {
 
@@ -203,7 +223,6 @@ export class GLEditor extends GLP.EventEmitter {
 
 		} );
 
-
 		// animate
 
 		this.animate();
@@ -214,7 +233,7 @@ export class GLEditor extends GLP.EventEmitter {
 
 		if ( this.disposed ) return;
 
-		this.scene.update();
+		this.scene.update( { timeCode: this.timeCode, playing: this.playing } );
 
 		if ( this.frameDebugger && this.frameDebugger.enable ) {
 

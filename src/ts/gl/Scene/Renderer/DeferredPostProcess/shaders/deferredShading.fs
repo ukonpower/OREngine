@@ -23,8 +23,6 @@ uniform mat4 viewMatrix;
 uniform mat4 cameraMatrix;
 uniform vec3 cameraPosition;
 
-uniform float uTime;
-
 // varyings
 
 in vec2 vUv;

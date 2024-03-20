@@ -75,7 +75,7 @@ export class PMREMRender extends MXP.PostProcess {
 						value: 1,
 						type: "1f"
 					},
-					uFractTime: globalUniforms.time.uFractTime,
+					uTimeEF: globalUniforms.time.uTimeEF,
 				},
 				defines: {
 					NUM_SAMPLES: Math.floor( Math.pow( 2, i + 1 ) )

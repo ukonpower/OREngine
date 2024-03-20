@@ -14,8 +14,7 @@ uniform sampler2D sampler2; // albedo, roughness
 uniform sampler2D sampler3; // emission, metalic
 uniform sampler2D sampler4; // velocity, env
 
-uniform float uTime;
-uniform float uFractTime;
+uniform float uTimeEF;
 uniform mat4 cameraMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
@@ -47,7 +46,7 @@ void main( void ) {
 	float dist = 0.25;
 	float objectDepth = 0.2;
 
-	vec2 seed = vUv + uFractTime;
+	vec2 seed = vUv + uTimeEF;
 	vec3 random = vec3( random( vec2( seed ) ), random( vec2( seed + 0.25 ) ), random( vec2( seed + 0.5 ) ) ) * 2.0 - 1.0;
 
 	vec3 tangent = normalize(random - normal * dot(random,normal));
@@ -56,7 +55,7 @@ void main( void ) {
 
 	for( int i = 0; i < SAMPLE; i ++ ) {
 
-		float seed = uFractTime * 1.0 + float( i );
+		float seed = uTimeEF * 1.0 + float( i );
 		
 		vec3 sampleOffset = kernelMatrix * uSSAOKernel[i];
 		vec3 samplePos = rayPos + sampleOffset * dist;

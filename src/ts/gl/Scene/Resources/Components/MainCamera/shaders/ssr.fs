@@ -11,8 +11,7 @@ uniform sampler2D uGbufferNormal;
 uniform sampler2D uSSRBackBuffer;
 uniform sampler2D uDepthTexture;
 
-uniform float uTime;
-uniform float uFractTime;
+uniform float uTimeEF;
 uniform mat4 cameraMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
@@ -50,7 +49,7 @@ void main( void ) {
 	float rayStepLength = LENGTH / MARCH;
 	vec3 rayStep = rayDir * rayStepLength;
 
-	float totalRayLength = random(vUv + uFractTime) * rayStepLength + 0.1;
+	float totalRayLength = random(vUv + uTimeEF) * rayStepLength + 0.1;
 	rayPos += rayDir * totalRayLength;
 
 	vec4 col = vec4( 0.0 );

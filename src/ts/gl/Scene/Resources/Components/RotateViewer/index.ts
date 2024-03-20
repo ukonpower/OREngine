@@ -59,7 +59,7 @@ export class RotateViewer extends MXP.Component {
 
 		const entity = event.entity;
 
-		this.quaternion.setFromEuler( { x: 0, y: event.deltaTime / Math.PI * this.rotSpeed * this.speed, z: 0 } );
+		this.quaternion.setFromEuler( { x: 0, y: event.timeDelta / Math.PI * this.rotSpeed * this.speed, z: 0 } );
 		this.matrix.identity().applyQuaternion( this.quaternion );
 
 		this.rotBasePos.applyMatrix3( this.matrix );
