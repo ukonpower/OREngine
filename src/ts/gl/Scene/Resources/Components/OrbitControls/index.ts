@@ -145,7 +145,7 @@ export class OrbitControls extends MXP.Component {
 		this.lookatMatrix.lookAt( this.eye, this.target, this.up );
 		this.lookatMatrix.decompose( entity.position, entity.quaternion, entity.scale );
 
-		const attenuation = Math.max( 0.0, 1.0 - event.deltaTime * 10.0 );
+		const attenuation = Math.max( 0.0, 1.0 - event.timeDelta * 10.0 );
 		this.mouseVelOrbit.multiply( attenuation );
 		this.mouseVelMove.multiply( attenuation );
 		this.distanceVel *= attenuation;

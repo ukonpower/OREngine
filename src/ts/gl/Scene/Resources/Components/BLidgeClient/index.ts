@@ -65,6 +65,13 @@ export class BLidgeClient extends MXP.Component {
 		this.blidge.on( 'sync/scene', this.onSyncScene.bind( this ) );
 
 		this.blidge.on( 'sync/timeline', ( frame: MXP.BLidgeFrame ) => {
+
+			if ( this.entity ) {
+
+				this.entity.noticeRecursiveParent( "blidgeFrameUpdate", [ frame ] );
+
+			}
+
 		} );
 
 		// gltf path

@@ -11,21 +11,29 @@ import { initTextures } from './Textures';
 
 export class Scene extends GLP.EventEmitter {
 
+	// project
+
 	private projectSerializer: ProjectSerializer;
 
-	public canvas: HTMLCanvasElement;
-	private camera: MXP.Entity;
+	// entities
 
 	public root: MXP.Entity;
 
-	public currentTime: number;
-	public elapsedTime: number;
-	public deltaTime: number;
+	// time
 
+	public timeCurrent: number;
+	public timeEngine: number;
+	public timeDelta: number;
+	public timeCode: number;
+
+	// renderer
+
+	public canvas: HTMLCanvasElement;
 	public renderer: Renderer;
 
-	// bufferView
+	// camera
 
+	private camera: MXP.Entity;
 	private cameraComponent: MainCamera;
 
 	constructor() {
@@ -47,9 +55,10 @@ export class Scene extends GLP.EventEmitter {
 
 		// state
 
-		this.currentTime = new Date().getTime();
-		this.elapsedTime = 0;
-		this.deltaTime = 0;
+		this.timeCurrent = new Date().getTime();
+		this.timeEngine = 0;
+		this.timeDelta = 0;
+		this.timeCode = 0;
 
 		// camera
 
@@ -99,6 +108,12 @@ export class Scene extends GLP.EventEmitter {
 
 		} );
 
+		this.root.on( "blidgeFrameUpdate", ( ...opt: any ) => {
+
+			this.emit( "blidgeFrameUpdate", opt );
+
+		} );
+
 		this.root.on( "blidgeSceneUpdate", ( root: MXP.Entity ) => {
 
 			if ( project ) {
@@ -108,7 +123,6 @@ export class Scene extends GLP.EventEmitter {
 			}
 
 		} );
-
 
 		this.root.add( this.camera );
 		this.root.add( this.renderer );
@@ -123,20 +137,24 @@ export class Scene extends GLP.EventEmitter {
 
 	}
 
-	public update( param?: MXP.EntityUpdateEvent ) {
+	public update( param?: Undefineder<MXP.EntityUpdateEvent> ) {
 
 		const currentTime = new Date().getTime();
-		this.deltaTime = ( currentTime - this.currentTime ) / 1000;
-		this.elapsedTime += this.deltaTime;
-		this.currentTime = currentTime;
+		this.timeDelta = ( currentTime - this.timeCurrent ) / 1000;
+		this.timeEngine += this.timeDelta;
+		this.timeCurrent = currentTime;
+		this.timeCode = param && param.timeCode || 0;
 
-		globalUniforms.time.uTime.value = this.elapsedTime;
-		globalUniforms.time.uFractTime.value = this.elapsedTime % 1;
+		globalUniforms.time.uTime.value = this.timeCode;
+		globalUniforms.time.uTimeE.value = this.timeEngine;
+		globalUniforms.time.uTimeEF.value = this.timeEngine % 1;
 
 		const event: MXP.EntityUpdateEvent = {
-			time: this.elapsedTime,
-			deltaTime: this.deltaTime,
-			forceDraw: param && param.forceDraw
+			timElapsed: this.timeEngine,
+			timeDelta: this.timeDelta,
+			timeCode: this.timeCode,
+			forceDraw: param && param.forceDraw,
+			playing: param && param.playing || false,
 		};
 
 		this.root.update( event );
@@ -145,7 +163,7 @@ export class Scene extends GLP.EventEmitter {
 
 		this.renderer.render( renderStack );
 
-		return this.deltaTime;
+		return this.timeDelta;
 
 	}
 
@@ -160,7 +178,7 @@ export class Scene extends GLP.EventEmitter {
 
 		this.update();
 
-		this.elapsedTime = startTime;
+		this.timeEngine = startTime;
 
 	}
 

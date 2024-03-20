@@ -1,7 +1,6 @@
 #include <common>
 #include <noise>
 
-uniform float uTime;
 uniform sampler2D uCocTex;
 uniform vec4 uParams;
 

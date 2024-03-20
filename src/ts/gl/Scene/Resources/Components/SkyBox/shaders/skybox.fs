@@ -4,7 +4,7 @@
 #include <noise>
 #include <rotate>
 
-uniform float uTime;
+uniform float uTimeE;
 
 uniform vec3 cameraPosition;
 uniform vec2 uResolution;
@@ -19,11 +19,11 @@ void main( void ) {
 	outColor *= 0.0;
 	outEmission = vec3( 0.0, 0.05, 0.1);
 
-	float n = noise( outPos * 0.05 + uTime * 0.1 );
+	float n = noise( outPos * 0.05 + uTimeE * 0.1 );
 
 	vec3 n2Pos = outPos;
 	n2Pos.xz *= rotate( n2Pos.y * 0.02 );
-	float n2 = noise( n2Pos * 0.04 + vec3( 0.0, 0.0, uTime * 0.1 + n ) );
+	float n2 = noise( n2Pos * 0.04 + vec3( 0.0, 0.0, uTimeE * 0.1 + n ) );
 
 	float phase = 4.5;
 
@@ -38,7 +38,7 @@ void main( void ) {
 
 	outEmission *= 0.2;
 
-	// outEmission += normal * sin( uTime );
+	// outEmission += normal * sin( uTimeE );
 	
 	// outEmission *= vec3( 1.0, 1.0, 0.0 ) * 3.0;
 

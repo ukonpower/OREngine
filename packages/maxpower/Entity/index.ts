@@ -13,8 +13,10 @@ import { Material } from '../Component/Material';
 import { RenderStack } from '~/ts/gl/Scene/Renderer';
 
 export type EntityUpdateEvent = {
-	time: number;
-	deltaTime: number;
+	timElapsed: number;
+	timeDelta: number;
+	timeCode: number;
+	playing: boolean;
 	matrix?: GLP.Matrix;
 	visibility?: boolean;
 	forceDraw?: boolean

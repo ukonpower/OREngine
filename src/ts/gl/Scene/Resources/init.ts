@@ -4,6 +4,7 @@ import { SkyBox } from "../../Scene/Resources/Components/SkyBox";
 
 import { BLidgeClient } from "./Components/BLidgeClient";
 import { LookAt } from "./Components/LookAt";
+import { Music } from './Components/Music';
 import { ShakeViewer } from "./Components/ShakeViewer";
 import { TurnTable } from './Components/TurnTable';
 import { OREngineCube } from './Materials/OREngineCube';
@@ -87,6 +88,7 @@ export const initResouces = () => {
 	const comOther = resource.componentCategory( "Other" );
 
 	comOther.register( "blidgeClient", BLidgeClient );
+	comOther.register( "music", Music );
 
 
 };
