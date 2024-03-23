@@ -50,14 +50,14 @@ export const ShaderMinifierLoader = (): Plugin => {
 
 			if ( ! filter( id ) ) return;
 
-			// if ( process.platform == "darwin" || true ) {
+			if ( process.platform == "darwin" || true ) {
 
-			// 	return {
-			// 		code: `export default ${JSON.stringify( code )};`,
-			// 		map: { mappings: '' }
-			// 	};
+				return {
+					code: `export default ${JSON.stringify( code )};`,
+					map: { mappings: '' }
+				};
 
-			// }
+			}
 
 			code = code.replaceAll( "\\n", "\n" );
 			code = code.replaceAll( "\\t", "\t" );
