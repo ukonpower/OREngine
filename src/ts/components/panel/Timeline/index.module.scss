@@ -1,0 +1,19 @@
+.timeline {
+	width: 100%;
+	height: 100%;
+
+}
+
+.content {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+
+	&_inner {
+		position: relative;
+		width: 100%;
+		height: 100%;
+	}
+}
