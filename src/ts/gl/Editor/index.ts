@@ -11,6 +11,14 @@ import { Keyboard, PressedKeys } from '../Scene/utils/Keyboard';
 import { EditorDataManager, OREngineEditorData, OREngineEditorViewType } from './EditorDataManager';
 import { FileSystem } from './FileSystem';
 
+export type EditorTimeline = {
+	currentFrame: number,
+	endFrame: number,
+	fps: number,
+	playing: boolean,
+	timeCode: number,
+}
+
 export class GLEditor extends GLP.EventEmitter {
 
 	// resources
@@ -60,10 +68,9 @@ export class GLEditor extends GLP.EventEmitter {
 
 	private frameDebugger: FrameDebugger;
 
-	// play
+	// timeline
 
-	private playing: boolean;
-	private timeCode: number;
+	public timeline: EditorTimeline;
 
 	constructor() {
 
@@ -81,8 +88,13 @@ export class GLEditor extends GLP.EventEmitter {
 
 		// play
 
-		this.timeCode = 0;
-		this.playing = false;
+		this.timeline = {
+			currentFrame: 0,
+			endFrame: 0,
+			timeCode: 0,
+			playing: false,
+			fps: 0
+		};
 
 		// view
 
@@ -130,7 +142,7 @@ export class GLEditor extends GLP.EventEmitter {
 
 				this.unsaved = true;
 
-				this.emit( "changed", [ type, opt ] );
+				this.emit( "update/graph", [ type, opt ] );
 
 			}, 10 );
 
@@ -140,8 +152,13 @@ export class GLEditor extends GLP.EventEmitter {
 
 		this.scene.on( "blidgeFrameUpdate", ( e: MXP.BLidgeFrame ) => {
 
-			this.timeCode = e.current / e.fps;
-			this.playing = e.playing;
+			this.timeline.currentFrame = e.current;
+			this.timeline.fps = e.fps;
+			this.timeline.endFrame = e.end;
+			this.timeline.playing = e.playing;
+			this.timeline.timeCode = e.current / e.fps;
+
+			this.emit( "update/timeline", [ { ...this.timeline } ] );
 
 		} );
 
@@ -233,7 +250,7 @@ export class GLEditor extends GLP.EventEmitter {
 
 		if ( this.disposed ) return;
 
-		this.scene.update( { timeCode: this.timeCode, playing: this.playing } );
+		this.scene.update( { timeCode: this.timeline.timeCode, playing: this.timeline.playing } );
 
 		if ( this.frameDebugger && this.frameDebugger.enable ) {
 
@@ -261,7 +278,7 @@ export class GLEditor extends GLP.EventEmitter {
 
 		this.selectedEntity = entity;
 
-		this.emit( "control/select", [ entity ] );
+		this.emit( "action/select", [ entity ] );
 
 	}
 
@@ -302,6 +319,15 @@ export class GLEditor extends GLP.EventEmitter {
 			this.frameDebugger.enable = false;
 
 		}
+
+	}
+
+	public setFrame( frame: number ) {
+
+		this.timeline.currentFrame = Math.floor( frame );
+		this.timeline.timeCode = frame / this.timeline.fps;
+
+		this.emit( "update/timeline", [ { ...this.timeline } ] );
 
 	}
 

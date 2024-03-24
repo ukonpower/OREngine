@@ -35,7 +35,7 @@ export const useEditor = ( glContext: TGLContext ) => {
 
 		if ( glEditor ) {
 
-			glEditor.on( "control/select", onChangeSelected );
+			glEditor.on( "action/select", onChangeSelected );
 
 		}
 
@@ -43,7 +43,7 @@ export const useEditor = ( glContext: TGLContext ) => {
 
 			if ( glEditor ) {
 
-				glEditor.off( "control/select", onChangeSelected );
+				glEditor.off( "action/select", onChangeSelected );
 
 			}
 
@@ -57,11 +57,11 @@ export const useEditor = ( glContext: TGLContext ) => {
 
 		if ( ! glEditor ) return;
 
-		glEditor.on( "changed", reflesh );
+		glEditor.on( "update/graph", reflesh );
 
 		return () => {
 
-			glEditor.off( "changed", reflesh );
+			glEditor.off( "update/graph", reflesh );
 
 		};
 

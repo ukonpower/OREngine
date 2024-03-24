@@ -2,12 +2,13 @@ import { ReactNode, useContext } from 'react';
 
 import style from './index.module.scss';
 
-import { Hierarchy } from '~/ts/components/func/Hierarchy';
-import { MouseMenu } from '~/ts/components/func/MouseMenu';
-import { MouseMenuContext, useMouseMenu } from '~/ts/components/func/MouseMenu/useMouseMenu';
-import { ProjectControl } from '~/ts/components/func/ProjectControl';
-import { Property } from '~/ts/components/func/Property';
-import { Screen } from '~/ts/components/func/Screen';
+import { Hierarchy } from '~/ts/components/panel/Hierarchy';
+import { MouseMenu } from '~/ts/components/panel/MouseMenu';
+import { MouseMenuContext, useMouseMenu } from '~/ts/components/panel/MouseMenu/useMouseMenu';
+import { ProjectControl } from '~/ts/components/panel/ProjectControl';
+import { Property } from '~/ts/components/panel/Property';
+import { Screen } from '~/ts/components/panel/Screen';
+import { Timeline } from '~/ts/components/panel/Timeline';
 import { Panel } from '~/ts/components/ui/Panel';
 import { PanelContainer } from '~/ts/components/ui/PanelContainer';
 import { EditorContext, useEditor } from '~/ts/gl/React/useEditor';
@@ -57,6 +58,9 @@ export const EditorPage = () => {
 					</div>
 					<div className={style.controls}>
 						<PanelContainer >
+							<Panel title="Timeline" noPadding>
+								<Timeline />
+							</Panel>
 							<Panel title="Project" >
 								<ProjectControl />
 							</Panel>
