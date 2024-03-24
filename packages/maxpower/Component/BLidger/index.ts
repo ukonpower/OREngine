@@ -122,7 +122,6 @@ export class BLidger extends Component {
 
 				entity.addComponent( 'geometry', new CubeGeometry( { disableEdit: true, width: cubeParam.x, height: cubeParam.y, depth: cubeParam.z, segmentsWidth: 10, segmentsHeight: 10, segmentsDepth: 10 } ) );
 
-
 			} else if ( this.node.type == 'sphere' ) {
 
 				const sphereParam = this.node.param as any;

@@ -195,10 +195,10 @@ export class BLidge extends GLP.EventEmitter {
 		this.currentScene = null;
 
 		this.frame = {
-			start: - 1,
-			end: - 1,
-			current: - 1,
-			fps: - 1,
+			start: 0,
+			end: 100,
+			current: 0,
+			fps: 30,
 			playing: false,
 		};
 
@@ -433,6 +433,7 @@ export class BLidge extends GLP.EventEmitter {
 		// dispatch event
 
 		this.emit( 'sync/scene', [ this ] );
+		this.onSyncTimeline( this.frame );
 
 	}
 

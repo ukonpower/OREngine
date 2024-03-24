@@ -70,6 +70,7 @@ export class GLEditor extends GLP.EventEmitter {
 
 	// timeline
 
+	private currentTime: number;
 	public timeline: EditorTimeline;
 
 	constructor() {
@@ -86,7 +87,9 @@ export class GLEditor extends GLP.EventEmitter {
 
 		this.scene = new Scene();
 
-		// play
+		// timeline
+
+		this.currentTime = new Date().getTime();
 
 		this.timeline = {
 			currentFrame: 0,
@@ -156,7 +159,6 @@ export class GLEditor extends GLP.EventEmitter {
 			this.timeline.fps = e.fps;
 			this.timeline.endFrame = e.end;
 			this.timeline.playing = e.playing;
-			this.timeline.timeCode = e.current / e.fps;
 
 			this.emit( "update/timeline", [ { ...this.timeline } ] );
 
@@ -250,7 +252,31 @@ export class GLEditor extends GLP.EventEmitter {
 
 		if ( this.disposed ) return;
 
+		// timeline
+
+		const newTime = new Date().getTime();
+		const deltaTime = ( newTime - this.currentTime ) / 1000;
+		this.currentTime = newTime;
+
+		if ( this.timeline.playing ) {
+
+			this.timeline.currentFrame += this.timeline.fps * deltaTime;
+
+		}
+
+		this.timeline.timeCode = this.timeline.currentFrame / this.timeline.fps;
+
+		if ( this.timeline.playing ) {
+
+			this.emit( "update/timeline", [ { ...this.timeline } ] );
+
+		}
+
+		// update
+
 		this.scene.update( { timeCode: this.timeline.timeCode, playing: this.timeline.playing } );
+
+		// debugger
 
 		if ( this.frameDebugger && this.frameDebugger.enable ) {
 
@@ -322,14 +348,23 @@ export class GLEditor extends GLP.EventEmitter {
 
 	}
 
+	// timeline
+
 	public setFrame( frame: number ) {
 
 		this.timeline.currentFrame = Math.floor( frame );
-		this.timeline.timeCode = frame / this.timeline.fps;
 
 		this.emit( "update/timeline", [ { ...this.timeline } ] );
 
 	}
+
+	public setPlaying( playing: boolean ) {
+
+		this.timeline.playing = playing;
+
+	}
+
+	// resolution
 
 	public setResolutionScale( scale: number ) {
 
@@ -356,6 +391,7 @@ export class GLEditor extends GLP.EventEmitter {
 		this.unsaved = false;
 
 	}
+
 
 	/*-------------------------------
 		Resize
