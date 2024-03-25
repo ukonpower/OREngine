@@ -72,7 +72,9 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 
 			this.ctx.beginPath();
 
-			while ( frame < this.viewPort[ 2 ] ) {
+			let cnt = 0;
+
+			while ( frame < this.viewPort[ 2 ] && cnt < 100 ) {
 
 				const x = ( frame - this.viewPort[ 0 ] ) / ( this.viewPort[ 2 ] - this.viewPort[ 0 ] ) * this.canvas.width;
 
@@ -80,6 +82,7 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 				this.ctx.lineTo( x, this.canvas.height );
 
 				frame += distance;
+				cnt ++;
 
 			}
 
