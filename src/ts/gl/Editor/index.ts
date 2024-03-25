@@ -151,9 +151,9 @@ export class GLEditor extends GLP.EventEmitter {
 
 		};
 
-		this.scene.on( "changed", onChanged );
+		this.scene.on( "update/graph", onChanged );
 
-		this.scene.on( "blidgeFrameUpdate", ( e: MXP.BLidgeFrame ) => {
+		this.scene.on( "update/blidge/frame", ( e: MXP.BLidgeFrame ) => {
 
 			this.timeline.currentFrame = e.current;
 			this.timeline.fps = e.fps;
@@ -166,7 +166,7 @@ export class GLEditor extends GLP.EventEmitter {
 
 		this.scene.on( "dispose", () => {
 
-			this.off( "changed", onChanged );
+			this.off( "update/graph", onChanged );
 
 		} );
 

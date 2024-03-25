@@ -68,7 +68,7 @@ export class BLidgeClient extends MXP.Component {
 
 			if ( this.entity ) {
 
-				this.entity.noticeRecursiveParent( "blidgeFrameUpdate", [ frame ] );
+				this.entity.noticeRecursiveParent( "update/blidge/frame", [ frame ] );
 
 			}
 
@@ -235,9 +235,9 @@ export class BLidgeClient extends MXP.Component {
 
 		this.root.noticeRecursive( "sceneCreated", [ this.blidgeRoot ] );
 
-		this.root.noticeRecursiveParent( "changed", [ "scenechange" ] );
+		this.root.noticeRecursiveParent( "update/graph", [ "scenechange" ] );
 
-		this.root.noticeRecursiveParent( "blidgeSceneUpdate", [ this.root ] );
+		this.root.noticeRecursiveParent( "update/blidge/scene", [ this.root ] );
 
 	}
 

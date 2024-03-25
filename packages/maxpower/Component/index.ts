@@ -111,7 +111,7 @@ export class Component extends GLP.EventEmitter {
 
 		if ( this.entity ) {
 
-			this.entity.noticeRecursiveParent( "changed", [ "component" ] );
+			this.entity.noticeRecursiveParent( "update/graph", [ "component" ] );
 
 		}
 
