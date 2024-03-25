@@ -163,7 +163,7 @@ export class Music extends MXP.Component {
 
 	protected updateImpl( event: MXP.ComponentUpdateEvent ): void {
 
-		if ( ! event.playing ) {
+		if ( ! event.playing || event.timeCode < 0 ) {
 
 			this.stop();
 			return;

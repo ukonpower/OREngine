@@ -1,5 +1,5 @@
 import * as GLP from 'glpower';
-import { useState, useCallback, useEffect, createContext } from "react";
+import { useState, useCallback, useEffect, createContext, useRef } from "react";
 
 import { EditorTimeline, GLEditor } from "~/ts/gl/Editor";
 
@@ -19,14 +19,15 @@ export const useTimeline = ( glEditor: GLEditor | undefined ) => {
 
 	// range
 
-	const [ viewPort, setViewPort ] = useState<number[]>( [ 0, 0, 0, 0 ] );
+	const [ viewPort, setViewPort ] = useState<number[]>( [ 0, 0, 100, 0 ] );
+	const viewPortRef = useRef<number[]>( [ 0, 0, 0, 0 ] );
+	viewPortRef.current = viewPort;
 
 	// update
 
 	const onUpdateTimeline = useCallback( ( timeline: EditorTimeline ) => {
 
 		setTimeline( timeline );
-		setViewPort( [ 0, 0, timeline.endFrame, 0 ] );
 
 	}, [] );
 
@@ -98,12 +99,37 @@ export const useTimeline = ( glEditor: GLEditor | undefined ) => {
 
 	}, [ viewPort ] );
 
+	const zoom = useCallback( ( scale: number ) => {
+
+		const vp = viewPortRef.current;
+
+		const mid = ( vp[ 2 ] + vp[ 0 ] ) / 2;
+
+		const s = ( vp[ 0 ] - mid ) * ( scale ) + mid;
+		const e = ( vp[ 2 ] - mid ) * ( scale ) + mid;
+
+		setViewPort( [ s, vp[ 1 ], e, vp[ 3 ] ] );
+
+	}, [] );
+
+	const scroll = useCallback( ( delta: number ) => {
+
+		const vp = viewPortRef.current;
+
+		const deltaFrame = delta * ( vp[ 2 ] - vp[ 0 ] );
+
+		setViewPort( [ vp[ 0 ] + deltaFrame, vp[ 1 ], vp[ 2 ] + deltaFrame, vp[ 3 ] ] );
+
+	}, [] );
+
 	return {
 		glEditor,
 		timeline,
 		viewPort,
 		setFrame,
 		getFrameViewPort,
+		zoom,
+		scroll
 	};
 
 };

@@ -1,4 +1,4 @@
-import { useCallback, useContext, useRef } from 'react';
+import React, { useCallback, useContext, useRef } from 'react';
 
 import { TimelineContext } from '../hooks/useTimeline';
 
@@ -6,30 +6,43 @@ import style from './index.module.scss';
 
 export const TimelineControls = () => {
 
-	const { viewPort, timeline, setFrame, getFrameViewPort } = useContext( TimelineContext );
+	const { viewPort, timeline, setFrame, getFrameViewPort, zoom, scroll } = useContext( TimelineContext );
 
-	const pointerDownRef = useRef<boolean>( false );
+	const elmRef = useRef<HTMLDivElement>( null );
+
+	// pointer
+
+	const pointerDownRef = useRef<number | null>( null );
 
 	const onPointerMove = useCallback( ( e: PointerEvent ) => {
 
-		if ( pointerDownRef.current && setFrame && getFrameViewPort ) {
+		const elmWidth = elmRef.current && elmRef.current.clientWidth || 1;
 
-			const x = e.clientX / ( e.target as HTMLElement ).clientWidth;
+		if ( pointerDownRef.current == 0 ) {
 
-			setFrame( getFrameViewPort( x ) );
+			if ( setFrame && getFrameViewPort ) {
+
+				const x = e.clientX / elmWidth;
+
+				setFrame( getFrameViewPort( x ) );
+
+			}
+
+		} else if ( pointerDownRef.current == 1 ) {
+
+			scroll && scroll( - e.movementX / elmWidth );
 
 		}
 
-	}, [ setFrame, getFrameViewPort ] );
+	}, [ setFrame, getFrameViewPort, scroll ] );
 
 	const onPointerDown = useCallback( ( e: React.PointerEvent<HTMLElement> ) => {
 
-		pointerDownRef.current = true;
+		pointerDownRef.current = e.button;
 
 		const x = e.clientX / e.currentTarget.clientWidth;
 
-		if ( setFrame && getFrameViewPort ) {
-
+		if ( pointerDownRef.current == 0 && setFrame && getFrameViewPort ) {
 
 			setFrame( getFrameViewPort( x ) );
 
@@ -39,7 +52,7 @@ export const TimelineControls = () => {
 
 		const onPointerUp = () => {
 
-			pointerDownRef.current = false;
+			pointerDownRef.current = null;
 			window.removeEventListener( 'pointermove', onPointerMove );
 
 		};
@@ -53,12 +66,21 @@ export const TimelineControls = () => {
 
 		};
 
-
 	}, [ getFrameViewPort, setFrame, onPointerMove ] );
+
+	// scroll
+
+	const onWheel = useCallback( ( e: React.WheelEvent<HTMLDivElement> ) => {
+
+		if ( pointerDownRef.current !== null ) return;
+
+		zoom && zoom( e.deltaY < 0 ? 0.9 : 1.1 );
+
+	}, [ zoom ] );
 
 	if ( ! viewPort || ! timeline ) return null;
 
-	return <div className={style.controls} onPointerDown={onPointerDown} >
+	return <div className={style.controls} onPointerDown={onPointerDown} onWheel={onWheel} ref={elmRef}>
 	</div>;
 
 };
