@@ -89,8 +89,8 @@ export class Scene extends GLP.EventEmitter {
 		currentRoot.euler.set( 0, 0, 0 );
 		currentRoot.scale.set( 1, 1, 1 );
 
-		currentRoot.off( "changed" );
-		currentRoot.off( "blidgeSceneUpdate" );
+		currentRoot.off( "update/graph" );
+		currentRoot.off( "update/blidge/scene" );
 
 		// create
 
@@ -102,19 +102,25 @@ export class Scene extends GLP.EventEmitter {
 
 		this.root.name = "scene";
 
-		this.root.on( "changed", ( ...opt: any ) => {
+		this.root.on( "update/graph", ( ...opt: any ) => {
 
-			this.emit( "changed", opt );
-
-		} );
-
-		this.root.on( "blidgeFrameUpdate", ( ...opt: any ) => {
-
-			this.emit( "blidgeFrameUpdate", opt );
+			this.emit( "update/graph", opt );
 
 		} );
 
-		this.root.on( "blidgeSceneUpdate", ( root: MXP.Entity ) => {
+		this.root.on( "update/blidge/frame", ( ...opt: any ) => {
+
+			this.emit( "update/blidge/frame", opt );
+
+		} );
+
+		this.root.on( "update/music", ( ...opt: any ) => {
+
+			this.emit( "update/music", opt );
+
+		} );
+
+		this.root.on( "update/blidge/scene", ( root: MXP.Entity ) => {
 
 			if ( project ) {
 
@@ -127,7 +133,7 @@ export class Scene extends GLP.EventEmitter {
 		this.root.add( this.camera );
 		this.root.add( this.renderer );
 
-		this.emit( "changed" );
+		this.emit( "update/graph" );
 
 	}
 

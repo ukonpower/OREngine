@@ -15,7 +15,7 @@ export const TimelineCursor = () => {
 
 	return <div className={style.cursor} style={{ left: left * 100 + "%" }}>
 		<div className={style.frame}>
-			{timeline.currentFrame}
+			{Math.floor( timeline.currentFrame )}
 		</div>
 	</div>;
 

@@ -180,7 +180,7 @@ export class BLidger extends Component {
 
 					}
 
-					entity.noticeRecursiveParent( "blidgeSceneUpdate", [ entity ] );
+					entity.noticeRecursiveParent( "update/blidge/scene", [ entity ] );
 
 				} );
 

@@ -11,7 +11,6 @@ import { power } from '~/ts/Globals';
 
 const MUSIC_DURATION = 60 * ( ( 32 * 8.0 + 8 + 1 ) / 85.0 );
 
-
 export class Music extends MXP.Component {
 
 	private power: GLP.Power;
@@ -116,6 +115,8 @@ export class Music extends MXP.Component {
 
 			this.force = true;
 
+			this.notice();
+
 		};
 
 		render();
@@ -174,6 +175,27 @@ export class Music extends MXP.Component {
 		this.force = false;
 
 	}
+
+	public setEntityImpl( entity: MXP.Entity | null, prevEntity: MXP.Entity | null ): void {
+
+		if ( entity ) {
+
+			this.notice();
+
+		}
+
+	}
+
+	private notice() {
+
+		if ( this.entity ) {
+
+			this.entity.noticeRecursiveParent( 'update/music', this.audioBuffer );
+
+		}
+
+	}
+
 
 	public play( time: number = 0, force?: boolean ) {
 
