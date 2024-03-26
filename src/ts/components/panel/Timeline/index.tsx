@@ -5,6 +5,7 @@ import style from './index.module.scss';
 import { TimelineCanvas } from './TimelineCanvas';
 import { TimelineControls } from './TimelineControls';
 import { TimelineCursor } from './TimelineCursor';
+import { TimelineScale } from './TimelineScale';
 
 import { EditorContext } from '~/ts/gl/React/useEditor';
 
@@ -20,6 +21,9 @@ export const Timeline = () => {
 					<TimelineCanvas />
 					<TimelineCursor />
 					<TimelineControls />
+					<div className={style.scale}>
+						<TimelineScale />
+					</div>
 				</div>
 			</div>
 		</div>

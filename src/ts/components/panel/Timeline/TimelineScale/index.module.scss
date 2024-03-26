@@ -1,0 +1,19 @@
+@use '~/styles/common' as *;
+
+.scale {
+	position: relative;
+	width: 100%;
+	height: 100%;
+
+	&_inner {
+		width: 100%;
+		height: 100%;
+	}
+}
+
+.scale_item {
+	position: absolute;
+	top: 0;
+	display: inline-block;
+	color: $fontCol3;
+}

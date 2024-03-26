@@ -9,6 +9,7 @@
 	top: 0;
 	background-color: $bgCol4;
 	pointer-events: none;
+	z-index: 1;
 }
 
 .frame {
@@ -16,4 +17,5 @@
 	user-select: none;
 	left: 2px;
 	padding: 0px 2px;
+	background-color: #000;
 }
