@@ -23,6 +23,11 @@ export const useTimeline = ( glEditor: GLEditor | undefined ) => {
 	const viewPortRef = useRef<number[]>( [ 0, 0, 0, 0 ] );
 	viewPortRef.current = viewPort;
 
+	const w = ( viewPort[ 2 ] - viewPort[ 0 ] );
+
+	let viewPortScale = 10 * Math.pow( 2, 0 + Math.floor( Math.log2( w / 100 ) ) );
+	viewPortScale = Math.max( 1, Math.floor( viewPortScale ) );
+
 	// update
 
 	const onUpdateTimeline = useCallback( ( timeline: EditorTimeline ) => {
@@ -126,6 +131,7 @@ export const useTimeline = ( glEditor: GLEditor | undefined ) => {
 		glEditor,
 		timeline,
 		viewPort,
+		viewPortScale,
 		setFrame,
 		getFrameViewPort,
 		zoom,

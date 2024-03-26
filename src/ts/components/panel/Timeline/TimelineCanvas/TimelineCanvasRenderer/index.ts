@@ -7,6 +7,7 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 	private ctx: CanvasRenderingContext2D;
 	private resizeObserver: ResizeObserver;
 	private viewPort: number[] = [ 0, 0, 0, 0 ];
+	private viewPortScale: number = 50;
 
 	constructor() {
 
@@ -38,9 +39,10 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 
 	}
 
-	public setViewPort( viewPort: number[] ) {
+	public setViewPort( viewPort: number[], scale: number ) {
 
 		this.viewPort = viewPort;
+		this.viewPortScale = scale;
 		this.render();
 
 	}
@@ -64,9 +66,10 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 		this.ctx.fillStyle = '#000';
 		this.ctx.fillRect( 0, 0, this.canvas.width, this.canvas.height );
 
-		// border
+		// grid
 
-		const draw = ( distance: number, color: string ) => {
+
+		const draw = ( distance: number, offset: number, color: string ) => {
 
 			let frame = Math.ceil( this.viewPort[ 0 ] / distance ) * distance;
 
@@ -76,7 +79,7 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 
 			while ( frame < this.viewPort[ 2 ] && cnt < 100 ) {
 
-				const x = ( frame - this.viewPort[ 0 ] ) / ( this.viewPort[ 2 ] - this.viewPort[ 0 ] ) * this.canvas.width;
+				const x = ( frame - this.viewPort[ 0 ] + offset ) / ( this.viewPort[ 2 ] - this.viewPort[ 0 ] ) * this.canvas.width;
 
 				this.ctx.moveTo( x, 0 );
 				this.ctx.lineTo( x, this.canvas.height );
@@ -93,8 +96,8 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 
 		};
 
-		draw( 50, "#333" );
-		draw( 100, "#555" );
+		draw( this.viewPortScale, 0, "#555" );
+		draw( this.viewPortScale, this.viewPortScale / 2, "#333" );
 
 	}
 
