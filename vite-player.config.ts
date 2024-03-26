@@ -3,8 +3,7 @@ import path from 'path';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig } from 'vite';
 
-import shaderminifier from './plugins/shader-minifier-loader';
-
+import { ShaderMinifierLoader } from './plugins/ShaderMinifierLoader';
 
 const basePath = ``;
 
@@ -20,7 +19,7 @@ export default defineConfig( {
 		minify: 'terser',
 		rollupOptions: {
 			input: {
-				"main": "./src/ts/gl/player.ts"
+				"main": "./src/ts/gl/Player/index.ts"
 			},
 			output: {
 				entryFileNames: 'index.js'
@@ -35,10 +34,7 @@ export default defineConfig( {
 		},
 	},
 	plugins: [
-		{
-			...shaderminifier(),
-			enforce: 'pre'
-		},
+		ShaderMinifierLoader(),
 		visualizer( {
 			template: "treemap"
 		} ),

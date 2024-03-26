@@ -31,9 +31,6 @@ export default defineConfig( {
 		react(),
 		OREngineFileSystemPlugin(),
 		ShaderMinifierLoader(),
-		visualizer( {
-			template: "treemap"
-		} ),
 	],
 	define: {
 		BASE_PATH: `"${basePath}"`
