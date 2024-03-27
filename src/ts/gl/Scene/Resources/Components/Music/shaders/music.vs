@@ -2,13 +2,14 @@
 
 #include <noise>
 
-in float offsetTime;
+in float aTime;
 
 out float o_left;
 out float o_right;
 
 uniform float uDuration;
 uniform float uSampleRate;
+uniform float uTimeOffset;
 
 const float BPM = 85.0;
 
@@ -334,7 +335,7 @@ vec2 music( float time ) {
 
 void main( void ) {
 
-	float time = offsetTime / uSampleRate;
+	float time = (aTime + uTimeOffset) / uSampleRate;
 
 	vec2 o = music( time );
 
