@@ -335,7 +335,7 @@ vec2 music( float time ) {
 
 void main( void ) {
 
-	float time = (aTime + uTimeOffset) / uSampleRate;
+	float time = (aTime / uSampleRate ) + uTimeOffset;
 
 	vec2 o = music( time );
 
