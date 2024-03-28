@@ -13,6 +13,7 @@ export const TimelineControls = () => {
 	// pointer
 
 	const pointerDownRef = useRef<number | null>( null );
+	const pointerDownPos = useRef<number | null>( null );
 
 	const onPointerMove = useCallback( ( e: PointerEvent ) => {
 
@@ -41,6 +42,7 @@ export const TimelineControls = () => {
 		pointerDownRef.current = e.button;
 
 		const x = e.clientX / e.currentTarget.clientWidth;
+		pointerDownPos.current = x;
 
 		if ( pointerDownRef.current == 0 && setFrame && getFrameViewPort ) {
 
@@ -53,6 +55,7 @@ export const TimelineControls = () => {
 		const onPointerUp = () => {
 
 			pointerDownRef.current = null;
+			pointerDownPos.current = null;
 			window.removeEventListener( 'pointermove', onPointerMove );
 
 		};

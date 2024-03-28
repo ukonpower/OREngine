@@ -9,7 +9,7 @@ import musicVert from './shaders/music.vs';
 
 import { power } from '~/ts/Globals';
 
-const MUSIC_DURATION = 60 * ( ( 32 * 8.0 + 8 + 1 ) / 85.0 );
+const MUSIC_DURATION = 60 * ( ( 32 * 8.0 ) / 85.0 );
 
 export class Music extends MXP.Component {
 
@@ -21,6 +21,8 @@ export class Music extends MXP.Component {
 	private audioSrcNode: AudioBufferSourceNode | null;
 	private convolverNode: ConvolverNode;
 	private gainNode: GainNode;
+
+	private isAudioBufferReady: boolean = false;
 
 	private playStartTime: number = - 1;
 	private force: boolean = false;
@@ -44,12 +46,23 @@ export class Music extends MXP.Component {
 
 		const bufferLength = Math.floor( this.audioCtx.sampleRate * MUSIC_DURATION );
 
+		// samples
+
+		const blockLength = Math.min( 512 * 512, bufferLength );
+
+		const numSampleBlocks = Math.ceil( ( this.audioCtx.sampleRate * MUSIC_DURATION ) / blockLength );
+
+		// tmpOutPut
+
+		const tmpOutputArrayL = new Float32Array( blockLength );
+		const tmpOutputArrayR = new Float32Array( blockLength );
+
 		// buffer
 
 		this.audioBuffer = this.audioCtx.createBuffer( 2, bufferLength, this.audioCtx.sampleRate );
 
 		const bufferIn = this.power.createBuffer();
-		bufferIn.setData( new Float32Array( new Array( bufferLength ).fill( 0 ).map( ( _, i ) => i ) ), 'vbo' );
+		bufferIn.setData( new Float32Array( new Array( blockLength ).fill( 0 ).map( ( _, i ) => i ) ), 'vbo' );
 
 		const bufferL = this.power.createBuffer();
 		bufferL.setData( new Float32Array( bufferLength ), 'vbo', this.gl.DYNAMIC_COPY );
@@ -60,6 +73,9 @@ export class Music extends MXP.Component {
 		// render
 
 		const render = () => {
+
+			this.stop();
+			this.isAudioBufferReady = false;
 
 			const program = this.power.createProgram();
 
@@ -81,39 +97,60 @@ export class Music extends MXP.Component {
 
 			if ( vao ) {
 
-				vao.setAttribute( 'offsetTime', bufferIn, 1 );
+				vao.setAttribute( 'aTime', bufferIn, 1 );
 
-				program.use( () => {
+				for ( let i = 0; i < numSampleBlocks; i ++ ) {
 
-					program.uploadUniforms();
+					program.setUniform( 'uTimeOffset', '1f', [ blockLength * i / this.audioCtx.sampleRate ] );
 
-					tf.use( () => {
+					program.use( () => {
 
-						this.gl.beginTransformFeedback( this.gl.POINTS );
-						this.gl.enable( this.gl.RASTERIZER_DISCARD );
+						program.uploadUniforms();
 
-						vao.use( () => {
+						tf.use( () => {
 
-							this.gl.drawArrays( this.gl.POINTS, 0, vao.vertCount );
+							this.gl.beginTransformFeedback( this.gl.POINTS );
+							this.gl.enable( this.gl.RASTERIZER_DISCARD );
+
+							vao.use( () => {
+
+								this.gl.drawArrays( this.gl.POINTS, 0, vao.vertCount );
+
+							} );
+
+							this.gl.disable( this.gl.RASTERIZER_DISCARD );
+							this.gl.endTransformFeedback();
 
 						} );
 
-						this.gl.disable( this.gl.RASTERIZER_DISCARD );
-						this.gl.endTransformFeedback();
+						this.gl.bindBuffer( this.gl.ARRAY_BUFFER, bufferL.buffer );
+						this.gl.getBufferSubData( this.gl.ARRAY_BUFFER, 0, tmpOutputArrayL );
+
+						this.gl.bindBuffer( this.gl.ARRAY_BUFFER, bufferR.buffer );
+						this.gl.getBufferSubData( this.gl.ARRAY_BUFFER, 0, tmpOutputArrayR );
+
+						this.gl.bindBuffer( this.gl.ARRAY_BUFFER, null );
+
+						for ( let j = 0; j < blockLength; j ++ ) {
+
+							const t = i * blockLength + j;
+							const enable = t < MUSIC_DURATION * this.audioCtx.sampleRate ? 1 : 0;
+
+							this.audioBuffer.getChannelData( 0 )[ t ] = tmpOutputArrayL[ j ] * enable;
+							this.audioBuffer.getChannelData( 1 )[ t ] = tmpOutputArrayR[ j ] * enable;
+
+						}
 
 					} );
 
-					this.gl.bindBuffer( this.gl.ARRAY_BUFFER, bufferL.buffer );
-					this.gl.getBufferSubData( this.gl.ARRAY_BUFFER, 0, this.audioBuffer.getChannelData( 0 ) );
 
-					this.gl.bindBuffer( this.gl.ARRAY_BUFFER, bufferR.buffer );
-					this.gl.getBufferSubData( this.gl.ARRAY_BUFFER, 0, this.audioBuffer.getChannelData( 1 ) );
+				}
 
-				} );
 
 			}
 
 			this.force = true;
+			this.isAudioBufferReady = true;
 
 			this.notice();
 
@@ -132,7 +169,6 @@ export class Music extends MXP.Component {
 					render();
 
 				}
-
 
 			} );
 
@@ -190,7 +226,7 @@ export class Music extends MXP.Component {
 
 		if ( this.entity ) {
 
-			this.entity.noticeRecursiveParent( 'update/music', this.audioBuffer );
+			this.entity.noticeRecursiveParent( 'update/music', [ this.audioBuffer ] );
 
 		}
 
@@ -206,6 +242,8 @@ export class Music extends MXP.Component {
 		}
 
 		this.stop();
+
+		if ( ! this.isAudioBufferReady ) return;
 
 		// src
 
