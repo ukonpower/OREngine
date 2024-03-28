@@ -9,7 +9,7 @@ import musicVert from './shaders/music.vs';
 
 import { power } from '~/ts/Globals';
 
-const MUSIC_DURATION = 60 * ( ( 1 ) / 85.0 );
+const MUSIC_DURATION = 60 * ( ( 32 * 8.0 ) / 85.0 );
 
 export class Music extends MXP.Component {
 
@@ -21,6 +21,8 @@ export class Music extends MXP.Component {
 	private audioSrcNode: AudioBufferSourceNode | null;
 	private convolverNode: ConvolverNode;
 	private gainNode: GainNode;
+
+	private isAudioBufferReady: boolean = false;
 
 	private playStartTime: number = - 1;
 	private force: boolean = false;
@@ -46,7 +48,8 @@ export class Music extends MXP.Component {
 
 		// samples
 
-		const blockLength = 1024 * 1;
+		const blockLength = Math.min( 512 * 512, bufferLength );
+
 		const numSampleBlocks = Math.ceil( ( this.audioCtx.sampleRate * MUSIC_DURATION ) / blockLength );
 
 		// tmpOutPut
@@ -70,6 +73,9 @@ export class Music extends MXP.Component {
 		// render
 
 		const render = () => {
+
+			this.stop();
+			this.isAudioBufferReady = false;
 
 			const program = this.power.createProgram();
 
@@ -95,7 +101,7 @@ export class Music extends MXP.Component {
 
 				for ( let i = 0; i < numSampleBlocks; i ++ ) {
 
-					program.setUniform( 'uTimeOffset', '1f', [ blockLength * i ] );
+					program.setUniform( 'uTimeOffset', '1f', [ blockLength * i / this.audioCtx.sampleRate ] );
 
 					program.use( () => {
 
@@ -123,17 +129,15 @@ export class Music extends MXP.Component {
 						this.gl.bindBuffer( this.gl.ARRAY_BUFFER, bufferR.buffer );
 						this.gl.getBufferSubData( this.gl.ARRAY_BUFFER, 0, tmpOutputArrayR );
 
+						this.gl.bindBuffer( this.gl.ARRAY_BUFFER, null );
+
 						for ( let j = 0; j < blockLength; j ++ ) {
 
 							const t = i * blockLength + j;
-							const enable = t < MUSIC_DURATION * this.audioCtx.sampleRate;
+							const enable = t < MUSIC_DURATION * this.audioCtx.sampleRate ? 1 : 0;
 
-
-							this.audioBuffer.getChannelData( 0 )[ t ] = tmpOutputArrayL[ j ];
-							this.audioBuffer.getChannelData( 1 )[ t ] = tmpOutputArrayR[ j ];
-
-							// this.audioBuffer.getChannelData( 0 )[ t ] = enable ? tmpOutputArrayL[ j ] : 0;
-							// this.audioBuffer.getChannelData( 1 )[ t ] = enable ? tmpOutputArrayR[ j ] : 0;
+							this.audioBuffer.getChannelData( 0 )[ t ] = tmpOutputArrayL[ j ] * enable;
+							this.audioBuffer.getChannelData( 1 )[ t ] = tmpOutputArrayR[ j ] * enable;
 
 						}
 
@@ -146,6 +150,7 @@ export class Music extends MXP.Component {
 			}
 
 			this.force = true;
+			this.isAudioBufferReady = true;
 
 			this.notice();
 
@@ -164,7 +169,6 @@ export class Music extends MXP.Component {
 					render();
 
 				}
-
 
 			} );
 
@@ -222,7 +226,7 @@ export class Music extends MXP.Component {
 
 		if ( this.entity ) {
 
-			this.entity.noticeRecursiveParent( 'update/music', this.audioBuffer );
+			this.entity.noticeRecursiveParent( 'update/music', [ this.audioBuffer ] );
 
 		}
 
@@ -238,6 +242,8 @@ export class Music extends MXP.Component {
 		}
 
 		this.stop();
+
+		if ( ! this.isAudioBufferReady ) return;
 
 		// src
 
