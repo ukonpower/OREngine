@@ -6,20 +6,31 @@ import style from './index.module.scss';
 
 export const TimelineControls = () => {
 
-	const { viewPort, timeline, setFrame, getFrameViewPort, zoom, scroll } = useContext( TimelineContext );
+	const { viewPort, timeline, setFrame, getFrameViewPort, zoom, setViewPortCenter } = useContext( TimelineContext );
+
+	const viewPortRef = useRef( [ 0, 0, 0, 0 ] );
+	const viewPortRangeRef = useRef( [ 0, 0 ] );
+
+	if ( viewPort ) {
+
+		viewPortRef.current = viewPort;
+		viewPortRangeRef.current = [ viewPort[ 2 ] - viewPort[ 0 ], viewPort[ 3 ] - viewPort[ 1 ] ];
+
+	}
 
 	const elmRef = useRef<HTMLDivElement>( null );
 
 	// pointer
 
-	const pointerDownRef = useRef<number | null>( null );
-	const pointerDownPos = useRef<number | null>( null );
+	const pointerDownButtonRef = useRef<number | null>( null );
+	const pointerDownPosRef = useRef<[number, number] | null>( null );
+	const pointerDownCenterFrameRef = useRef<number | null>( null );
 
 	const onPointerMove = useCallback( ( e: PointerEvent ) => {
 
 		const elmWidth = elmRef.current && elmRef.current.clientWidth || 1;
 
-		if ( pointerDownRef.current == 0 ) {
+		if ( pointerDownButtonRef.current == 0 ) {
 
 			if ( setFrame && getFrameViewPort ) {
 
@@ -29,24 +40,33 @@ export const TimelineControls = () => {
 
 			}
 
-		} else if ( pointerDownRef.current == 1 ) {
+		} else if ( pointerDownButtonRef.current == 1 ) {
 
-			scroll && scroll( - e.movementX / elmWidth );
+			const pos = [ e.clientX, e.clientY ];
+
+			if ( pointerDownPosRef.current && pointerDownCenterFrameRef.current ) {
+
+				const movement = - ( pos[ 0 ] - pointerDownPosRef.current[ 0 ] ) / elmWidth * viewPortRangeRef.current[ 0 ];
+
+				setViewPortCenter && setViewPortCenter( pointerDownCenterFrameRef.current + movement );
+
+			}
 
 		}
 
-	}, [ setFrame, getFrameViewPort, scroll ] );
+	}, [ setFrame, getFrameViewPort, setViewPortCenter ] );
 
 	const onPointerDown = useCallback( ( e: React.PointerEvent<HTMLElement> ) => {
 
-		pointerDownRef.current = e.button;
+		const pointerX = e.clientX / e.currentTarget.clientWidth;
 
-		const x = e.clientX / e.currentTarget.clientWidth;
-		pointerDownPos.current = x;
+		pointerDownButtonRef.current = e.button;
+		pointerDownCenterFrameRef.current = ( viewPortRef.current[ 2 ] + viewPortRef.current[ 0 ] ) / 2;
+		pointerDownPosRef.current = [ e.clientX, e.clientY ];
 
-		if ( pointerDownRef.current == 0 && setFrame && getFrameViewPort ) {
+		if ( pointerDownButtonRef.current == 0 && setFrame && getFrameViewPort ) {
 
-			setFrame( getFrameViewPort( x ) );
+			setFrame( getFrameViewPort( pointerX ) );
 
 		}
 
@@ -54,8 +74,9 @@ export const TimelineControls = () => {
 
 		const onPointerUp = () => {
 
-			pointerDownRef.current = null;
-			pointerDownPos.current = null;
+			pointerDownPosRef.current = null;
+			pointerDownButtonRef.current = null;
+			pointerDownCenterFrameRef.current = null;
 			window.removeEventListener( 'pointermove', onPointerMove );
 
 		};
@@ -71,11 +92,11 @@ export const TimelineControls = () => {
 
 	}, [ getFrameViewPort, setFrame, onPointerMove ] );
 
-	// scroll
+	// wheel
 
 	const onWheel = useCallback( ( e: React.WheelEvent<HTMLDivElement> ) => {
 
-		if ( pointerDownRef.current !== null ) return;
+		if ( pointerDownButtonRef.current !== null ) return;
 
 		zoom && zoom( e.deltaY < 0 ? 0.9 : 1.1 );
 
