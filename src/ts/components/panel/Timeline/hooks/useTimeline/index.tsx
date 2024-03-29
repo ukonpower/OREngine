@@ -84,7 +84,6 @@ export const useTimeline = ( glEditor: GLEditor | undefined ) => {
 
 	}, [ onKeyDown ] );
 
-
 	// api
 
 	const setFrame = useCallback( ( frame: number ) => {
@@ -117,13 +116,13 @@ export const useTimeline = ( glEditor: GLEditor | undefined ) => {
 
 	}, [] );
 
-	const scroll = useCallback( ( delta: number ) => {
+	const setViewPortCenter = useCallback( ( frame: number ) => {
 
 		const vp = viewPortRef.current;
 
-		const deltaFrame = delta * ( vp[ 2 ] - vp[ 0 ] );
+		const w = vp[ 2 ] - vp[ 0 ];
 
-		setViewPort( [ vp[ 0 ] + deltaFrame, vp[ 1 ], vp[ 2 ] + deltaFrame, vp[ 3 ] ] );
+		setViewPort( [ frame - w / 2, vp[ 1 ], frame + w / 2, vp[ 3 ] ] );
 
 	}, [] );
 
@@ -135,7 +134,7 @@ export const useTimeline = ( glEditor: GLEditor | undefined ) => {
 		setFrame,
 		getFrameViewPort,
 		zoom,
-		scroll
+		setViewPortCenter,
 	};
 
 };
