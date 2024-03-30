@@ -4,12 +4,12 @@ import { TexProcedural } from "../utils/TexProcedural";
 
 import noiseFrag from './shaders/noise.fs';
 
-import { gl, globalUniforms } from "~/ts/Globals";
+import { gl, globalUniforms, power } from "~/ts/Globals";
 
 export const initTextures = () => {
 
 	globalUniforms.tex.uNoiseTex = {
-		value: new TexProcedural( {
+		value: new TexProcedural( power, {
 			frag: noiseFrag,
 		} ),
 		type: '1i'

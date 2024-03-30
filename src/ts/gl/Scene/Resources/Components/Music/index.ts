@@ -75,6 +75,7 @@ export class Music extends MXP.Component {
 		const render = () => {
 
 			this.stop();
+
 			this.isAudioBufferReady = false;
 
 			const program = this.power.createProgram();
@@ -143,9 +144,7 @@ export class Music extends MXP.Component {
 
 					} );
 
-
 				}
-
 
 			}
 
@@ -228,11 +227,15 @@ export class Music extends MXP.Component {
 
 	private notice() {
 
-		if ( this.entity ) {
+		setTimeout( () => {
 
-			this.entity.noticeParent( 'update/music', [ this.audioBuffer ] );
+			if ( this.entity ) {
 
-		}
+				this.entity.noticeParent( 'update/music', [ this.audioBuffer ] );
+
+			}
+
+		}, 0 );
 
 	}
 

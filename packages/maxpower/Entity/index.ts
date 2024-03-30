@@ -447,27 +447,27 @@ export class Entity extends GLP.EventEmitter {
 		Event
 	-------------------------------*/
 
-	public notice( eventName: string, ...opt: any ) {
+	public notice( eventName: string, opt: any ) {
 
-		this.emit( eventName, ...opt );
+		this.emit( eventName, opt );
 
 		for ( let i = 0; i < this.children.length; i ++ ) {
 
 			const c = this.children[ i ];
 
-			c.notice( eventName, ...opt );
+			c.notice( eventName, opt );
 
 		}
 
 	}
 
-	public noticeParent( eventName: string, ...opt: any ) {
+	public noticeParent( eventName: string, opt: any ) {
 
-		this.emit( eventName, ...opt );
+		this.emit( eventName, opt );
 
 		if ( this.parent ) {
 
-			this.parent.noticeParent( eventName, ...opt );
+			this.parent.noticeParent( eventName, opt );
 
 		}
 
