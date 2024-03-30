@@ -1,13 +1,20 @@
 import * as GLP from 'glpower';
 
+import { SceneFrame } from '~/ts/gl/Scene';
+
 export class TimelineCanvasRenderer extends GLP.EventEmitter {
 
 	private wrapperElm: HTMLElement | null;
+
 	private canvas: HTMLCanvasElement;
 	private ctx: CanvasRenderingContext2D;
 	private resizeObserver: ResizeObserver;
-	private viewPort: number[] = [ 0, 0, 0, 0 ];
-	private viewPortScale: number = 50;
+
+	private sceneFrame: SceneFrame | null;
+
+	private viewPort: number[];
+	private viewPortRange: number[];
+	private viewPortScale: number;
 
 	constructor() {
 
@@ -20,6 +27,12 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 		this.ctx = this.canvas.getContext( '2d' )!;
 
 		this.resizeObserver = new ResizeObserver( this.onResize.bind( this ) );
+
+		this.viewPort = [ 0, 0, 0, 0 ];
+		this.viewPortRange = [ 0, 0 ];
+		this.viewPortScale = 50;
+
+		this.sceneFrame = null;
 
 	}
 
@@ -42,7 +55,15 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 	public setViewPort( viewPort: number[], scale: number ) {
 
 		this.viewPort = viewPort;
+		this.viewPortRange = [ viewPort[ 2 ] - viewPort[ 0 ], viewPort[ 3 ] - viewPort[ 1 ] ];
 		this.viewPortScale = scale;
+		this.render();
+
+	}
+
+	public setFrame( frame:SceneFrame ) {
+
+		this.sceneFrame = frame;
 		this.render();
 
 	}
@@ -60,16 +81,34 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 
 	}
 
+	private frameToPx( frame: number ) {
+
+		return ( frame - this.viewPort[ 0 ] ) / ( this.viewPortRange[ 0 ] ) * this.canvas.width;
+
+	}
 
 	private render() {
 
 		this.ctx.fillStyle = '#000';
 		this.ctx.fillRect( 0, 0, this.canvas.width, this.canvas.height );
 
+		// playarea
+
+
+		if ( this.sceneFrame ) {
+
+			this.ctx.fillStyle = '#181818';
+
+			const s = this.frameToPx( 0 );
+			const e = this.frameToPx( this.sceneFrame.duration );
+
+			this.ctx.fillRect( s, 0, e - s, this.canvas.height );
+
+		}
+
 		// grid
 
-
-		const draw = ( distance: number, offset: number, color: string ) => {
+		const drawGrid = ( distance: number, offset: number, color: string ) => {
 
 			let frame = Math.ceil( this.viewPort[ 0 ] / distance ) * distance;
 
@@ -79,7 +118,7 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 
 			while ( frame < this.viewPort[ 2 ] && cnt < 100 ) {
 
-				const x = ( frame - this.viewPort[ 0 ] + offset ) / ( this.viewPort[ 2 ] - this.viewPort[ 0 ] ) * this.canvas.width;
+				const x = this.frameToPx( frame + offset );
 
 				this.ctx.moveTo( x, 0 );
 				this.ctx.lineTo( x, this.canvas.height );
@@ -96,8 +135,8 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 
 		};
 
-		draw( this.viewPortScale, 0, "#555" );
-		draw( this.viewPortScale, this.viewPortScale / 2, "#333" );
+		drawGrid( this.viewPortScale, 0, "#555" );
+		drawGrid( this.viewPortScale, this.viewPortScale / 2, "#333" );
 
 	}
 

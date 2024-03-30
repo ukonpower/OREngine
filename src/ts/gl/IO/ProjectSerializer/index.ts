@@ -21,12 +21,14 @@ export interface OREngineProjectData {
 	engine: {
 		version: string
 	},
-	frame: {
-		total: number,
-		rate: number,
-	},
+	frame: OREngineProjectFrame,
 	objectOverride: OREngineNodeOverride[],
 	scene: SceneNode | null
+}
+
+export interface OREngineProjectFrame {
+	duration: number,
+	fps: number,
 }
 
 interface SceneNode {
@@ -193,8 +195,8 @@ export class ProjectSerializer extends GLP.EventEmitter {
 				version: "0.0.1"
 			},
 			frame: {
-				total: 0,
-				rate: 60
+				duration: 600,
+				fps: 30
 			},
 			objectOverride: override,
 			scene,

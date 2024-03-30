@@ -1,7 +1,7 @@
-import * as GLP from 'glpower';
 import { useState, useCallback, useEffect, createContext, useRef } from "react";
 
-import { EditorTimeline, GLEditor } from "~/ts/gl/Editor";
+import { GLEditor } from "~/ts/gl/Editor";
+import { SceneFrame } from '~/ts/gl/Scene';
 
 export const TimelineContext = createContext<HooksContext<typeof useTimeline>>( {} );
 
@@ -9,12 +9,11 @@ export const useTimeline = ( glEditor: GLEditor | undefined ) => {
 
 	// timeline
 
-	const [ timeline, setTimeline ] = useState<EditorTimeline>( {
-		currentFrame: 0,
-		endFrame: 0,
-		timeCode: 0,
+	const [ frame, setSceneFrame ] = useState<SceneFrame>( {
+		current: 0,
+		duration: 0,
+		fps: 0,
 		playing: false,
-		fps: 0
 	} );
 
 	// range
@@ -30,9 +29,9 @@ export const useTimeline = ( glEditor: GLEditor | undefined ) => {
 
 	// update
 
-	const onUpdateTimeline = useCallback( ( timeline: EditorTimeline ) => {
+	const onUpdateFrame = useCallback( ( frame: SceneFrame ) => {
 
-		setTimeline( timeline );
+		setSceneFrame( { ...frame } );
 
 	}, [] );
 
@@ -40,9 +39,9 @@ export const useTimeline = ( glEditor: GLEditor | undefined ) => {
 
 		if ( glEditor ) {
 
-			onUpdateTimeline( glEditor.timeline );
+			onUpdateFrame( glEditor.scene.frame );
 
-			glEditor.on( "update/timeline", onUpdateTimeline );
+			glEditor.scene.on( "update/frame", onUpdateFrame );
 
 		}
 
@@ -50,13 +49,13 @@ export const useTimeline = ( glEditor: GLEditor | undefined ) => {
 
 			if ( glEditor ) {
 
-				glEditor.off( "update/timeline" );
+				glEditor.scene.off( "update/frame" );
 
 			}
 
 		};
 
-	}, [ glEditor, onUpdateTimeline ] );
+	}, [ glEditor, onUpdateFrame ] );
 
 	// play / pause
 
@@ -66,7 +65,15 @@ export const useTimeline = ( glEditor: GLEditor | undefined ) => {
 
 		if ( e.key == ' ' ) {
 
-			glEditor.setPlaying( ! glEditor.timeline.playing );
+			if ( glEditor.scene.frame.playing ) {
+
+				glEditor.scene.stop( );
+
+			} else {
+
+				glEditor.scene.play();
+
+			}
 
 		}
 
@@ -90,7 +97,7 @@ export const useTimeline = ( glEditor: GLEditor | undefined ) => {
 
 		if ( glEditor ) {
 
-			glEditor.setFrame( frame );
+			glEditor.scene.setFrame( frame );
 
 		}
 
@@ -128,7 +135,7 @@ export const useTimeline = ( glEditor: GLEditor | undefined ) => {
 
 	return {
 		glEditor,
-		timeline,
+		frame,
 		viewPort,
 		viewPortScale,
 		setFrame,
