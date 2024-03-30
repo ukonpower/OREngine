@@ -1,13 +1,14 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { canvas, gl, resource } from '../../Globals';
+import { canvas, gl, power, resource } from '../../Globals';
 import { OREngineProjectData } from '../IO/ProjectSerializer';
 import { Scene } from '../Scene';
 import { OREngineResource } from '../Scene/Resources';
 import { FrameDebugger } from '../Scene/utils/FrameDebugger';
 import { Keyboard, PressedKeys } from '../Scene/utils/Keyboard';
 
+import { AudioRenderer } from './AudioRenderer';
 import { EditorDataManager, OREngineEditorData, OREngineEditorViewType } from './EditorDataManager';
 import { FileSystem } from './FileSystem';
 
@@ -52,13 +53,17 @@ export class GLEditor extends GLP.EventEmitter {
 
 	public viewType: OREngineEditorViewType;
 
-	// dispose
-
-	private disposed: boolean;
-
 	// frame debugger
 
 	private frameDebugger: FrameDebugger;
+
+	// sound
+
+	private audioRenderer: AudioRenderer;
+
+	// dispose
+
+	private disposed: boolean;
 
 	constructor() {
 
@@ -141,7 +146,7 @@ export class GLEditor extends GLP.EventEmitter {
 
 		// frameDebugger
 
-		this.frameDebugger = new FrameDebugger( gl, this.canvas );
+		this.frameDebugger = new FrameDebugger( power, this.canvas );
 
 		this.scene.renderer.on( 'drawPass', ( rt?: GLP.GLPowerFrameBuffer, label?: string ) => {
 
@@ -203,6 +208,16 @@ export class GLEditor extends GLP.EventEmitter {
 			this.setResolutionScale( this.data.settings.resolutionScale || 0.5 );
 
 			this.setViewType( this.data.settings.viewType || "render" );
+
+		} );
+
+		// sound
+
+		this.audioRenderer = new AudioRenderer();
+
+		this.scene.on( "update/music", ( buffer: AudioBuffer ) => {
+
+			this.audioRenderer.render( buffer );
 
 		} );
 

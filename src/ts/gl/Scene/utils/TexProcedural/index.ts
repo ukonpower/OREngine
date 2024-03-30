@@ -3,15 +3,21 @@ import * as MXP from 'maxpower';
 
 import { Renderer } from '../../Renderer';
 
-import { gl } from '~/ts/Globals';
+interface TexProceduralParam extends MXP.PostProcessParam {
+	resolution: GLP.Vector
+}
 
 export class TexProcedural extends GLP.GLPowerTexture {
 
 	private frameBuffer: GLP.GLPowerFrameBuffer;
 
-	constructor( param: MXP.PostProcessPassParam, resolution: GLP.Vector = new GLP.Vector( 1024, 1024 ) ) {
+	constructor( power: GLP.Power, param: TexProceduralParam ) {
 
-		super( gl );
+		super( power.gl );
+
+		const resolution = param.resolution || new GLP.Vector( 1024, 1024 );
+
+		const gl = power.gl;
 
 		this.setting( {
 			wrapS: gl.REPEAT,
@@ -20,7 +26,7 @@ export class TexProcedural extends GLP.GLPowerTexture {
 			minFilter: gl.LINEAR,
 		} );
 
-		const renderer = new Renderer();
+		const renderer = new Renderer( power );
 
 		renderer.resize( resolution );
 

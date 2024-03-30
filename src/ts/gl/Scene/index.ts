@@ -1,7 +1,7 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { canvas, globalUniforms, mainCmaera } from '../../Globals';
+import { canvas, gl, globalUniforms, mainCmaera, power } from '../../Globals';
 import { ProjectSerializer, OREngineProjectData, OREngineProjectFrame } from '../IO/ProjectSerializer';
 
 import { Renderer } from './Renderer';
@@ -110,7 +110,7 @@ export class Scene extends MXP.Entity {
 
 		// renderer
 
-		this.renderer = new Renderer();
+		this.renderer = new Renderer( power );
 		this.renderer.noExport = true;
 
 		// root
@@ -177,7 +177,7 @@ export class Scene extends MXP.Entity {
 			timeDelta: this.time.delta,
 			timeCode: this.time.code,
 			forceDraw: param && param.forceDraw,
-			playing: param && param.playing || false,
+			playing: this.frame.playing,
 		};
 
 		this.root.update( event );

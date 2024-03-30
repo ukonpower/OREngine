@@ -51,18 +51,18 @@ export class FrameDebugger extends GLP.EventEmitter {
 	private canvasTexture: GLP.GLPowerTexture;
 
 
-	constructor( gl: WebGL2RenderingContext, elm: HTMLCanvasElement ) {
+	constructor( power: GLP.Power, elm: HTMLCanvasElement ) {
 
 		super();
 
-		this.gl = gl;
+		this.gl = power.gl;
 		this.elm = elm;
 
-		this.renderer = new Renderer();
+		this.renderer = new Renderer( power );
 
-		this.srcFrameBuffer = new GLP.GLPowerFrameBuffer( gl, { disableDepthBuffer: true } );
-		this.outFrameBuffer = new GLP.GLPowerFrameBuffer( gl, { disableDepthBuffer: true } ).setTexture( [
-			new GLP.GLPowerTexture( gl ).setting( ),
+		this.srcFrameBuffer = new GLP.GLPowerFrameBuffer( this.gl, { disableDepthBuffer: true } );
+		this.outFrameBuffer = new GLP.GLPowerFrameBuffer( this.gl, { disableDepthBuffer: true } ).setTexture( [
+			new GLP.GLPowerTexture( this.gl ).setting( ),
 		] );
 
 		this._enable = false;
@@ -81,7 +81,7 @@ export class FrameDebugger extends GLP.EventEmitter {
 		this.labelCanvas = document.createElement( "canvas" );
 		this.cctx = this.labelCanvas.getContext( "2d" )!;
 
-		this.canvasTexture = new GLP.GLPowerTexture( gl ).attach( this.labelCanvas );
+		this.canvasTexture = new GLP.GLPowerTexture( this.gl ).attach( this.labelCanvas );
 
 		// out
 

@@ -8,7 +8,8 @@ import { PMREMRender } from './PMREMRender';
 import { ProgramManager } from "./ProgramManager";
 import { shaderParse } from "./ShaderParser";
 
-import { gl, gpuState, power } from "~/ts/Globals";
+import { gpuState } from '~/ts/Globals';
+
 
 // render stack
 
@@ -75,6 +76,8 @@ export let TextureUnitCounter = 0;
 
 export class Renderer extends MXP.Entity {
 
+	private power: GLP.Power;
+	private gl: WebGL2RenderingContext;
 	private canvasSize: GLP.Vector;
 
 	// program
@@ -117,11 +120,14 @@ export class Renderer extends MXP.Entity {
 	private tmpModelMatrixInverse: GLP.Matrix;
 	private tmpProjectionMatrixInverse: GLP.Matrix;
 
-	constructor() {
+	constructor( power: GLP.Power ) {
 
 		super( { name: "Renderer" } );
 
-		this.programManager = new ProgramManager( gl );
+		this.gl = power.gl;
+		this.power = power;
+
+		this.programManager = new ProgramManager( this.gl );
 		this.canvasSize = new GLP.Vector();
 
 		// lights
@@ -135,8 +141,8 @@ export class Renderer extends MXP.Entity {
 
 		// envmap
 
-		const envMap = new GLP.GLPowerTextureCube( gl );
-		this.envMapRenderTarget = new GLP.GLPowerFrameBufferCube( gl ).setTexture( [ envMap ] );
+		const envMap = new GLP.GLPowerTextureCube( this.gl );
+		this.envMapRenderTarget = new GLP.GLPowerFrameBufferCube( this.gl ).setTexture( [ envMap ] );
 		this.envMapRenderTarget.setSize( 256, 256 );
 
 		const origin = new GLP.Vector( 0, 0, 0 );
@@ -194,12 +200,12 @@ export class Renderer extends MXP.Entity {
 		this.glState = [
 			{
 				key: "cullFace",
-				command: gl.CULL_FACE,
+				command: this.gl.CULL_FACE,
 				state: false
 			},
 			{
 				key: "depthTest",
-				command: gl.DEPTH_TEST,
+				command: this.gl.DEPTH_TEST,
 				state: false
 			},
 		];
@@ -217,19 +223,19 @@ export class Renderer extends MXP.Entity {
 		this.tmpModelViewMatrix = new GLP.Matrix();
 		this.tmpNormalMatrix = new GLP.Matrix();
 
-		gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
+		this.gl.blendFunc( this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA );
 
 	}
 
 	public render( stack: RenderStack ) {
 
-		if ( process.env.NODE_ENV == 'development' && power.extDisJointTimerQuery && gpuState ) {
+		if ( process.env.NODE_ENV == 'development' && this.power.extDisJointTimerQuery && gpuState ) {
 
-			const disjoint = gl.getParameter( power.extDisJointTimerQuery.GPU_DISJOINT_EXT );
+			const disjoint = this.gl.getParameter( this.power.extDisJointTimerQuery.GPU_DISJOINT_EXT );
 
 			if ( disjoint ) {
 
-				this.queryList.forEach( q => gl.deleteQuery( q ) );
+				this.queryList.forEach( q => this.gl.deleteQuery( q ) );
 
 				this.queryList.length = 0;
 
@@ -243,11 +249,11 @@ export class Renderer extends MXP.Entity {
 
 						const q = this.queryListQueued[ i ];
 
-						const resultAvailable = gl.getQueryParameter( q.query, gl.QUERY_RESULT_AVAILABLE );
+						const resultAvailable = this.gl.getQueryParameter( q.query, this.gl.QUERY_RESULT_AVAILABLE );
 
 						if ( resultAvailable ) {
 
-							const result = gl.getQueryParameter( q.query, gl.QUERY_RESULT );
+							const result = this.gl.getQueryParameter( q.query, this.gl.QUERY_RESULT );
 
 							this.queryList.push( q.query );
 
@@ -360,7 +366,7 @@ export class Renderer extends MXP.Entity {
 
 			// deferred
 
-			gl.disable( gl.BLEND );
+			this.gl.disable( this.gl.BLEND );
 
 			this.renderCamera( "deferred", cameraEntity, stack.deferred, cameraComponent.renderTarget.gBuffer );
 
@@ -376,14 +382,14 @@ export class Renderer extends MXP.Entity {
 
 			// forward
 
-			gl.enable( gl.BLEND );
+			this.gl.enable( this.gl.BLEND );
 
 			this.renderCamera( "forward", cameraEntity, stack.forward, cameraComponent.renderTarget.forwardBuffer, {
 				cameraOverride: { uniforms: { uDeferredTexture: { value: cameraComponent.renderTarget.shadingBuffer.textures[ 1 ], type: '1i' } } },
 				disableClear: true,
 			} );
 
-			gl.disable( gl.BLEND );
+			this.gl.disable( this.gl.BLEND );
 
 			// scene
 
@@ -401,35 +407,35 @@ export class Renderer extends MXP.Entity {
 
 				if ( prePostprocess.output ) {
 
-					gl.bindFramebuffer( gl.READ_FRAMEBUFFER, prePostprocess.output.getFrameBuffer() );
-					gl.bindFramebuffer( gl.DRAW_FRAMEBUFFER, cameraComponent.renderTarget.uiBuffer.getFrameBuffer() );
+					this.gl.bindFramebuffer( this.gl.READ_FRAMEBUFFER, prePostprocess.output.getFrameBuffer() );
+					this.gl.bindFramebuffer( this.gl.DRAW_FRAMEBUFFER, cameraComponent.renderTarget.uiBuffer.getFrameBuffer() );
 
 					const size = prePostprocess.output.size;
 
-					gl.blitFramebuffer(
+					this.gl.blitFramebuffer(
 						0, 0, size.x, size.y,
 						0, 0, size.x, size.y,
-						gl.COLOR_BUFFER_BIT, gl.NEAREST );
+						this.gl.COLOR_BUFFER_BIT, this.gl.NEAREST );
 
 				}
 
 			} else {
 
-				gl.bindFramebuffer( gl.READ_FRAMEBUFFER, cameraComponent.renderTarget.forwardBuffer.getFrameBuffer() );
-				gl.bindFramebuffer( gl.DRAW_FRAMEBUFFER, cameraComponent.renderTarget.uiBuffer.getFrameBuffer() );
+				this.gl.bindFramebuffer( this.gl.READ_FRAMEBUFFER, cameraComponent.renderTarget.forwardBuffer.getFrameBuffer() );
+				this.gl.bindFramebuffer( this.gl.DRAW_FRAMEBUFFER, cameraComponent.renderTarget.uiBuffer.getFrameBuffer() );
 
 				const size = cameraComponent.renderTarget.forwardBuffer.size;
 
-				gl.blitFramebuffer(
+				this.gl.blitFramebuffer(
 					0, 0, size.x, size.y,
 					0, 0, size.x, size.y,
-					gl.COLOR_BUFFER_BIT, gl.NEAREST );
+					this.gl.COLOR_BUFFER_BIT, this.gl.NEAREST );
 
 			}
 
 			// ui
 
-			gl.enable( gl.BLEND );
+			this.gl.enable( this.gl.BLEND );
 
 			this.renderCamera( "forward", cameraEntity, stack.ui, cameraComponent.renderTarget.uiBuffer, {
 				cameraOverride: {
@@ -438,7 +444,7 @@ export class Renderer extends MXP.Entity {
 				disableClear: true
 			} );
 
-			gl.disable( gl.BLEND );
+			this.gl.disable( this.gl.BLEND );
 
 			// postprocess
 
@@ -460,13 +466,13 @@ export class Renderer extends MXP.Entity {
 
 				const outBuffer = postProcess ? postProcess.output : cameraComponent.renderTarget.uiBuffer;
 
-				gl.bindFramebuffer( gl.READ_FRAMEBUFFER, outBuffer === null ? null : outBuffer.getFrameBuffer() );
-				gl.bindFramebuffer( gl.DRAW_FRAMEBUFFER, null );
+				this.gl.bindFramebuffer( this.gl.READ_FRAMEBUFFER, outBuffer === null ? null : outBuffer.getFrameBuffer() );
+				this.gl.bindFramebuffer( this.gl.DRAW_FRAMEBUFFER, null );
 
-				gl.blitFramebuffer(
+				this.gl.blitFramebuffer(
 					0, 0, this.canvasSize.x, this.canvasSize.y,
 					0, 0, this.canvasSize.x, this.canvasSize.y,
-					gl.COLOR_BUFFER_BIT, gl.NEAREST );
+					this.gl.COLOR_BUFFER_BIT, this.gl.NEAREST );
 
 
 			}
@@ -496,17 +502,17 @@ export class Renderer extends MXP.Entity {
 
 			const v = camera.viewPort;
 
-			gl.viewport( v.x, v.y, v.z, v.w );
+			this.gl.viewport( v.x, v.y, v.z, v.w );
 
 		} else {
 
 			if ( renderTarget ) {
 
-				gl.viewport( 0, 0, renderTarget.size.x, renderTarget.size.y );
+				this.gl.viewport( 0, 0, renderTarget.size.x, renderTarget.size.y );
 
 			} else {
 
-				gl.viewport( 0, 0, this.canvasSize.x, this.canvasSize.y );
+				this.gl.viewport( 0, 0, this.canvasSize.x, this.canvasSize.y );
 
 			}
 
@@ -514,12 +520,12 @@ export class Renderer extends MXP.Entity {
 
 		if ( renderTarget ) {
 
-			gl.bindFramebuffer( gl.FRAMEBUFFER, renderTarget.getFrameBuffer() );
-			gl.drawBuffers( renderTarget.textureAttachmentList );
+			this.gl.bindFramebuffer( this.gl.FRAMEBUFFER, renderTarget.getFrameBuffer() );
+			this.gl.drawBuffers( renderTarget.textureAttachmentList );
 
 		} else {
 
-			gl.bindFramebuffer( gl.FRAMEBUFFER, null );
+			this.gl.bindFramebuffer( this.gl.FRAMEBUFFER, null );
 
 		}
 
@@ -529,18 +535,18 @@ export class Renderer extends MXP.Entity {
 
 			if ( renderType == "shadowMap" ) {
 
-				gl.clearColor( 1.0, 1.0, 1.0, 1.0 );
-				gl.clearDepth( 1.0 );
+				this.gl.clearColor( 1.0, 1.0, 1.0, 1.0 );
+				this.gl.clearDepth( 1.0 );
 
 
 			} else {
 
-				gl.clearColor( 0.0, 0.0, 0.0, 1.0 );
-				gl.clearDepth( 1.0 );
+				this.gl.clearColor( 0.0, 0.0, 0.0, 1.0 );
+				this.gl.clearDepth( 1.0 );
 
 			}
 
-			gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
+			this.gl.clear( this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT );
 
 		}
 
@@ -608,17 +614,17 @@ export class Renderer extends MXP.Entity {
 
 				const v = pass.viewPort;
 
-				gl.viewport( v.x, v.y, v.z, v.w );
+				this.gl.viewport( v.x, v.y, v.z, v.w );
 
 			} else {
 
 				if ( renderTarget ) {
 
-					gl.viewport( 0, 0, renderTarget.size.x, renderTarget.size.y );
+					this.gl.viewport( 0, 0, renderTarget.size.x, renderTarget.size.y );
 
 				} else {
 
-					gl.viewport( 0, 0, this.canvasSize.x, this.canvasSize.y );
+					this.gl.viewport( 0, 0, this.canvasSize.x, this.canvasSize.y );
 
 				}
 
@@ -626,12 +632,12 @@ export class Renderer extends MXP.Entity {
 
 			if ( renderTarget ) {
 
-				gl.bindFramebuffer( gl.FRAMEBUFFER, renderTarget.getFrameBuffer() );
-				gl.drawBuffers( renderTarget.textureAttachmentList );
+				this.gl.bindFramebuffer( this.gl.FRAMEBUFFER, renderTarget.getFrameBuffer() );
+				this.gl.drawBuffers( renderTarget.textureAttachmentList );
 
 			} else {
 
-				gl.bindFramebuffer( gl.FRAMEBUFFER, null );
+				this.gl.bindFramebuffer( this.gl.FRAMEBUFFER, null );
 
 			}
 
@@ -641,21 +647,21 @@ export class Renderer extends MXP.Entity {
 
 			if ( pass.clearColor ) {
 
-				gl.clearColor( pass.clearColor.x, pass.clearColor.y, pass.clearColor.z, pass.clearColor.w );
-				clear |= gl.COLOR_BUFFER_BIT;
+				this.gl.clearColor( pass.clearColor.x, pass.clearColor.y, pass.clearColor.z, pass.clearColor.w );
+				clear |= this.gl.COLOR_BUFFER_BIT;
 
 			}
 
 			if ( pass.clearDepth !== null ) {
 
-				gl.clearDepth( pass.clearDepth );
-				clear |= gl.DEPTH_BUFFER_BIT;
+				this.gl.clearDepth( pass.clearDepth );
+				clear |= this.gl.DEPTH_BUFFER_BIT;
 
 			}
 
 			if ( clear !== 0 ) {
 
-				gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
+				this.gl.clear( this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT );
 
 			}
 
@@ -702,7 +708,7 @@ export class Renderer extends MXP.Entity {
 			if ( item.state != newState ) {
 
 				item.state = newState;
-				item.state ? gl.enable( item.command ) : gl.disable( item.command );
+				item.state ? this.gl.enable( item.command ) : this.gl.disable( item.command );
 
 			}
 
@@ -880,7 +886,7 @@ export class Renderer extends MXP.Entity {
 
 			if ( geometryNeedsUpdate === undefined || geometryNeedsUpdate === true ) {
 
-				geometry.createBuffer( power );
+				geometry.createBuffer( this.power );
 
 				geometry.attributes.forEach( ( attr, key ) => {
 
@@ -908,25 +914,25 @@ export class Renderer extends MXP.Entity {
 
 				program.uploadUniforms();
 
-				gl.bindVertexArray( vao.getVAO() );
+				this.gl.bindVertexArray( vao.getVAO() );
 
 				// query ------------------------
 
 				let query: WebGLQuery | null = null;
 
-				if ( process.env.NODE_ENV == 'development' && power.extDisJointTimerQuery && gpuState ) {
+				if ( process.env.NODE_ENV == 'development' && this.power.extDisJointTimerQuery && gpuState ) {
 
 					query = this.queryList.pop() || null;
 
 					if ( query == null ) {
 
-						query = gl.createQuery();
+						query = this.gl.createQuery();
 
 					}
 
 					if ( query ) {
 
-						gl.beginQuery( power.extDisJointTimerQuery.TIME_ELAPSED_EXT, query );
+						this.gl.beginQuery( this.power.extDisJointTimerQuery.TIME_ELAPSED_EXT, query );
 
 					}
 
@@ -936,11 +942,11 @@ export class Renderer extends MXP.Entity {
 
 				const indexBuffer = vao.indexBuffer;
 
-				let indexBufferArrayType: number = gl.UNSIGNED_SHORT;
+				let indexBufferArrayType: number = this.gl.UNSIGNED_SHORT;
 
 				if ( indexBuffer && indexBuffer.array && indexBuffer.array.BYTES_PER_ELEMENT == 4 ) {
 
-					indexBufferArrayType = gl.UNSIGNED_INT;
+					indexBufferArrayType = this.gl.UNSIGNED_INT;
 
 				}
 
@@ -950,11 +956,11 @@ export class Renderer extends MXP.Entity {
 
 					if ( indexBuffer ) {
 
-						gl.drawElementsInstanced( drawType, vao.indexCount, indexBufferArrayType, 0, vao.instanceCount );
+						this.gl.drawElementsInstanced( drawType, vao.indexCount, indexBufferArrayType, 0, vao.instanceCount );
 
 					} else {
 
-						gl.drawArraysInstanced( drawType, 0, vao.vertCount, vao.instanceCount );
+						this.gl.drawArraysInstanced( drawType, 0, vao.vertCount, vao.instanceCount );
 
 					}
 
@@ -962,11 +968,11 @@ export class Renderer extends MXP.Entity {
 
 					if ( indexBuffer ) {
 
-						gl.drawElements( drawType, vao.indexCount, indexBufferArrayType, 0 );
+						this.gl.drawElements( drawType, vao.indexCount, indexBufferArrayType, 0 );
 
 					} else {
 
-						gl.drawArrays( drawType, 0, vao.vertCount );
+						this.gl.drawArrays( drawType, 0, vao.vertCount );
 
 					}
 
@@ -978,7 +984,7 @@ export class Renderer extends MXP.Entity {
 
 					if ( query ) {
 
-						gl.endQuery( power.extDisJointTimerQuery.TIME_ELAPSED_EXT );
+						this.gl.endQuery( this.power.extDisJointTimerQuery.TIME_ELAPSED_EXT );
 
 						this.queryListQueued.push( {
 							name: `${renderType}/${material.name}[${drawId}]`,
@@ -991,7 +997,7 @@ export class Renderer extends MXP.Entity {
 
 				// ----------------------------
 
-				gl.bindVertexArray( null );
+				this.gl.bindVertexArray( null );
 
 			} );
 
