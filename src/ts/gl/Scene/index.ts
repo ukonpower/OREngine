@@ -9,10 +9,11 @@ import { MainCamera } from './Resources/Components/MainCamera';
 import { initResouces } from './Resources/init';
 import { initTextures } from './Textures';
 
-export class Scene extends GLP.EventEmitter {
+export class Scene extends MXP.Entity {
 
 	// project
 
+	private project: OREngineProjectData | null;
 	private projectSerializer: ProjectSerializer;
 
 	// entities
@@ -40,6 +41,8 @@ export class Scene extends GLP.EventEmitter {
 
 		super();
 
+		this.name = "scene";
+
 		// resources
 
 		initResouces();
@@ -47,7 +50,19 @@ export class Scene extends GLP.EventEmitter {
 
 		// project
 
+		this.project = null;
+
 		this.projectSerializer = new ProjectSerializer();
+
+		this.on( "update/blidge/scene", ( blidgeRoot: MXP.Entity ) => {
+
+			if ( this.project ) {
+
+				this.projectSerializer.applyOverride( this.root, blidgeRoot, this.project.objectOverride );
+
+			}
+
+		} );
 
 		// canvas
 
@@ -75,10 +90,12 @@ export class Scene extends GLP.EventEmitter {
 		// root
 
 		this.root = new MXP.Entity();
+		this.add( this.root );
+		this.root.name = "root";
 
 	}
 
-	public loadProject( project?: OREngineProjectData ) {
+	public init( project?: OREngineProjectData ) {
 
 		const currentRoot = this.root;
 		currentRoot.remove( this.camera );
@@ -89,46 +106,17 @@ export class Scene extends GLP.EventEmitter {
 		currentRoot.euler.set( 0, 0, 0 );
 		currentRoot.scale.set( 1, 1, 1 );
 
-		currentRoot.off( "update/graph" );
-		currentRoot.off( "update/blidge/scene" );
-
-		// create
+		this.project = project || null;
 
 		if ( project ) {
 
+			this.remove( this.root );
+
 			this.root = this.projectSerializer.deserialize( project ).root;
 
+			this.add( this.root );
+
 		}
-
-		this.root.name = "scene";
-
-		this.root.on( "update/graph", ( ...opt: any ) => {
-
-			this.emit( "update/graph", opt );
-
-		} );
-
-		this.root.on( "update/blidge/frame", ( ...opt: any ) => {
-
-			this.emit( "update/blidge/frame", opt );
-
-		} );
-
-		this.root.on( "update/music", ( ...opt: any ) => {
-
-			this.emit( "update/music", opt );
-
-		} );
-
-		this.root.on( "update/blidge/scene", ( root: MXP.Entity ) => {
-
-			if ( project ) {
-
-				this.projectSerializer.applyOverride( root, project.objectOverride );
-
-			}
-
-		} );
 
 		this.root.add( this.camera );
 		this.root.add( this.renderer );

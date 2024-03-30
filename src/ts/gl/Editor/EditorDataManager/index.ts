@@ -32,8 +32,8 @@ export class EditorDataManager extends GLP.EventEmitter {
 
 	public setEditorData( data: OREngineEditorData ) {
 
-		this.projects = data.projects;
-		this.settings = data.settings;
+		this.projects = data.projects || [];
+		this.settings = data.settings || {};
 
 	}
 

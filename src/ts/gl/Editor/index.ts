@@ -314,11 +314,11 @@ export class GLEditor extends GLP.EventEmitter {
 
 		if ( project ) {
 
-			this.scene.loadProject( project );
+			this.scene.init( project );
 
 		} else {
 
-			this.scene.loadProject();
+			this.scene.init();
 			project = this.scene.exportProject( name );
 			this.data.setProject( project );
 

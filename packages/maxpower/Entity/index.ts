@@ -263,7 +263,7 @@ export class Entity extends GLP.EventEmitter {
 
 		this.children.push( entity );
 
-		entity.noticeRecursiveParent( "update/graph", [ "add" ] );
+		entity.noticeParent( "update/graph", [ "add" ] );
 
 	}
 
@@ -271,7 +271,7 @@ export class Entity extends GLP.EventEmitter {
 
 		this.children = this.children.filter( c => c.uuid != entity.uuid );
 
-		entity.noticeRecursiveParent( "update/graph" );
+		entity.noticeParent( "update/graph" );
 
 	}
 
@@ -423,13 +423,19 @@ export class Entity extends GLP.EventEmitter {
 
 	}
 
-	public getPath() {
+	public getPath( root? : Entity ) {
 
 		let path = "/" + this.name;
 
+		if ( root && ( root.uuid == this.uuid ) ) {
+
+			return path;
+
+		}
+
 		if ( this.parent ) {
 
-			path = this.parent.getPath() + path;
+			path = this.parent.getPath( root ) + path;
 
 		}
 
@@ -441,7 +447,7 @@ export class Entity extends GLP.EventEmitter {
 		Event
 	-------------------------------*/
 
-	public noticeRecursive( eventName: string, ...opt: any ) {
+	public notice( eventName: string, ...opt: any ) {
 
 		this.emit( eventName, ...opt );
 
@@ -449,19 +455,19 @@ export class Entity extends GLP.EventEmitter {
 
 			const c = this.children[ i ];
 
-			c.noticeRecursive( eventName, ...opt );
+			c.notice( eventName, ...opt );
 
 		}
 
 	}
 
-	public noticeRecursiveParent( eventName: string, ...opt: any ) {
+	public noticeParent( eventName: string, ...opt: any ) {
 
 		this.emit( eventName, ...opt );
 
 		if ( this.parent ) {
 
-			this.parent.noticeRecursiveParent( eventName, ...opt );
+			this.parent.noticeParent( eventName, ...opt );
 
 		}
 
