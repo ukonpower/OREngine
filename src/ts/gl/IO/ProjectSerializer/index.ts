@@ -43,11 +43,11 @@ export class ProjectSerializer extends GLP.EventEmitter {
 	super() {
 	}
 
-	public applyOverride( root: MXP.Entity, override: OREngineNodeOverride[] ) {
+	public applyOverride( projectRoot: MXP.Entity, targetRoot: MXP.Entity, override: OREngineNodeOverride[] ) {
 
-		root.traverse( e => {
+		targetRoot.traverse( e => {
 
-			const path = e.getPath();
+			const path = e.getPath( projectRoot );
 
 			const overrideData = override.find( o => o.path == path );
 
@@ -107,7 +107,7 @@ export class ProjectSerializer extends GLP.EventEmitter {
 
 		const root = project.scene ? _( project.scene ) : new MXP.Entity();
 
-		this.applyOverride( root, project.objectOverride );
+		this.applyOverride( root, root, project.objectOverride );
 
 		return {
 			root
@@ -115,7 +115,7 @@ export class ProjectSerializer extends GLP.EventEmitter {
 
 	}
 
-	public serialize( name: string, root: MXP.Entity ) {
+	public serialize( name: string, projectRoot: MXP.Entity ) {
 
 		const override: OREngineNodeOverride[] = [];
 
@@ -145,13 +145,13 @@ export class ProjectSerializer extends GLP.EventEmitter {
 
 		};
 
-		scene = _( root );
+		scene = _( projectRoot );
 
-		root.traverse( ( e ) => {
+		projectRoot.traverse( ( e ) => {
 
 			if ( e.noExport ) return;
 
-			const path_ = e.getPath();
+			const path_ = e.getPath( projectRoot );
 
 			const nodeOverrideData: OREngineNodeOverride = {
 				path: path_,

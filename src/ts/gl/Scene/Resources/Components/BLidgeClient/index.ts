@@ -10,7 +10,6 @@ export class BLidgeClient extends MXP.Component {
 	private blidge: MXP.BLidge;
 	private type: "websocket" | "json" | null;
 
-	private root: MXP.Entity;
 	private blidgeRoot: MXP.Entity | null;
 	private camera: MXP.Entity;
 	private entities: Map<string, MXP.Entity>;
@@ -35,9 +34,6 @@ export class BLidgeClient extends MXP.Component {
 	constructor() {
 
 		super();
-
-		this.root = new MXP.Entity( { name: "blidge_root" } );
-		this.root.noExport = true;
 
 		this.camera = mainCmaera;
 		this.entities = new Map();
@@ -68,7 +64,7 @@ export class BLidgeClient extends MXP.Component {
 
 			if ( this.entity ) {
 
-				this.entity.noticeRecursiveParent( "update/blidge/frame", [ frame ] );
+				this.entity.noticeParent( "update/blidge/frame", [ frame ] );
 
 			}
 
@@ -150,9 +146,15 @@ export class BLidgeClient extends MXP.Component {
 
 	protected setEntityImpl( entity: MXP.Entity | null, prevEntity: MXP.Entity | null ): void {
 
-		if ( entity ) {
+		if ( prevEntity && this.blidgeRoot ) {
 
-			entity.add( this.root );
+			prevEntity.remove( this.blidgeRoot );
+
+		}
+
+		if ( entity && this.blidgeRoot ) {
+
+			entity.add( this.blidgeRoot );
 
 		}
 
@@ -198,15 +200,21 @@ export class BLidgeClient extends MXP.Component {
 
 		if ( newBLidgeRoot ) {
 
-			if ( this.blidgeRoot ) {
+			newBLidgeRoot.name = "blidgeRoot";
 
-				this.root.remove( this.blidgeRoot );
+			if ( this.blidgeRoot && this.entity ) {
+
+				this.entity.remove( this.blidgeRoot );
 
 			}
 
 			this.blidgeRoot = newBLidgeRoot;
 
-			this.root.add( this.blidgeRoot );
+			if ( this.entity ) {
+
+				this.entity.add( this.blidgeRoot );
+
+			}
 
 		}
 
@@ -233,11 +241,15 @@ export class BLidgeClient extends MXP.Component {
 
 		// notice
 
-		this.root.noticeRecursive( "sceneCreated", [ this.blidgeRoot ] );
+		if ( this.entity ) {
 
-		this.root.noticeRecursiveParent( "update/graph", [ "scenechange" ] );
+			this.entity.notice( "sceneCreated", [ this.blidgeRoot ] );
 
-		this.root.noticeRecursiveParent( "update/blidge/scene", [ this.root ] );
+			this.entity.noticeParent( "update/graph", [ "scenechange" ] );
+
+			this.entity.noticeParent( "update/blidge/scene", [ this.blidgeRoot ] );
+
+		}
 
 	}
 

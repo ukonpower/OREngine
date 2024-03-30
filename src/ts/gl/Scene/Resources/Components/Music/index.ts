@@ -9,7 +9,7 @@ import musicVert from './shaders/music.vs';
 
 import { power } from '~/ts/Globals';
 
-const MUSIC_DURATION = 60 * ( ( 32 * 8.0 ) / 85.0 );
+const MUSIC_DURATION = 60 * ( ( 1 * 8.0 ) / 85.0 );
 
 export class Music extends MXP.Component {
 
@@ -218,6 +218,10 @@ export class Music extends MXP.Component {
 
 			this.notice();
 
+		} else {
+
+			this.stop();
+
 		}
 
 	}
@@ -226,12 +230,11 @@ export class Music extends MXP.Component {
 
 		if ( this.entity ) {
 
-			this.entity.noticeRecursiveParent( 'update/music', [ this.audioBuffer ] );
+			this.entity.noticeParent( 'update/music', [ this.audioBuffer ] );
 
 		}
 
 	}
-
 
 	public play( time: number = 0, force?: boolean ) {
 
@@ -279,6 +282,12 @@ export class Music extends MXP.Component {
 			this.convolverNode.disconnect();
 
 		}
+
+	}
+
+	public dispose(): void {
+
+		this.stop();
 
 	}
 
