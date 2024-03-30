@@ -8,7 +8,7 @@ import { TimelineCanvasRenderer } from './TimelineCanvasRenderer';
 
 export const TimelineCanvas = ( ) => {
 
-	const { viewPort, viewPortScale } = useContext( TimelineContext );
+	const { viewPort, viewPortScale, frame } = useContext( TimelineContext );
 
 	const [ renderer, setRenderer ] = useState<TimelineCanvasRenderer>();
 
@@ -17,6 +17,7 @@ export const TimelineCanvas = ( ) => {
 	useEffect( () => {
 
 		const renderer = new TimelineCanvasRenderer();
+
 		setRenderer( renderer );
 
 		if ( wrapperElmRef.current ) {
@@ -42,6 +43,16 @@ export const TimelineCanvas = ( ) => {
 		}
 
 	}, [ renderer, viewPort, viewPortScale ] );
+
+	useEffect( () => {
+
+		if ( renderer && frame ) {
+
+			renderer.setFrame( frame );
+
+		}
+
+	}, [ renderer, frame ] );
 
 	return <div className={style.timelineCanvas} ref={wrapperElmRef}>
 	</div>;

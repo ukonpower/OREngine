@@ -485,7 +485,7 @@ export class Entity extends GLP.EventEmitter {
 		Dispose
 	-------------------------------*/
 
-	public dispose( recursive?: boolean ) {
+	public dispose( ) {
 
 		this.emit( "dispose" );
 
@@ -495,13 +495,15 @@ export class Entity extends GLP.EventEmitter {
 
 		this.components.clear();
 
+	}
+
+	public disposeRecursive() {
+
+		this.dispose();
+
 		this.children.concat().forEach( c => {
 
-			if ( recursive ) {
-
-				c.dispose();
-
-			}
+			c.disposeRecursive();
 
 		} );
 

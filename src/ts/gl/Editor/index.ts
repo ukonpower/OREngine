@@ -11,14 +11,6 @@ import { Keyboard, PressedKeys } from '../Scene/utils/Keyboard';
 import { EditorDataManager, OREngineEditorData, OREngineEditorViewType } from './EditorDataManager';
 import { FileSystem } from './FileSystem';
 
-export type EditorTimeline = {
-	currentFrame: number,
-	endFrame: number,
-	fps: number,
-	playing: boolean,
-	timeCode: number,
-}
-
 export class GLEditor extends GLP.EventEmitter {
 
 	// resources
@@ -68,11 +60,6 @@ export class GLEditor extends GLP.EventEmitter {
 
 	private frameDebugger: FrameDebugger;
 
-	// timeline
-
-	private currentTime: number;
-	public timeline: EditorTimeline;
-
 	constructor() {
 
 		super();
@@ -86,18 +73,6 @@ export class GLEditor extends GLP.EventEmitter {
 		// scene
 
 		this.scene = new Scene();
-
-		// timeline
-
-		this.currentTime = new Date().getTime();
-
-		this.timeline = {
-			currentFrame: 0,
-			endFrame: 0,
-			timeCode: 0,
-			playing: false,
-			fps: 0
-		};
 
 		// view
 
@@ -152,17 +127,6 @@ export class GLEditor extends GLP.EventEmitter {
 		};
 
 		this.scene.on( "update/graph", onChanged );
-
-		this.scene.on( "update/blidge/frame", ( e: MXP.BLidgeFrame ) => {
-
-			this.timeline.currentFrame = e.current;
-			this.timeline.fps = e.fps;
-			this.timeline.endFrame = e.end;
-			this.timeline.playing = e.playing;
-
-			this.emit( "update/timeline", [ { ...this.timeline } ] );
-
-		} );
 
 		this.scene.on( "dispose", () => {
 
@@ -252,29 +216,9 @@ export class GLEditor extends GLP.EventEmitter {
 
 		if ( this.disposed ) return;
 
-		// timeline
-
-		const newTime = new Date().getTime();
-		const deltaTime = ( newTime - this.currentTime ) / 1000;
-		this.currentTime = newTime;
-
-		if ( this.timeline.playing ) {
-
-			this.timeline.currentFrame += this.timeline.fps * deltaTime;
-
-		}
-
-		this.timeline.timeCode = this.timeline.currentFrame / this.timeline.fps;
-
-		if ( this.timeline.playing ) {
-
-			this.emit( "update/timeline", [ { ...this.timeline } ] );
-
-		}
-
 		// update
 
-		this.scene.update( { timeCode: this.timeline.timeCode, playing: this.timeline.playing } );
+		this.scene.update();
 
 		// debugger
 
@@ -348,22 +292,6 @@ export class GLEditor extends GLP.EventEmitter {
 
 	}
 
-	// timeline
-
-	public setFrame( frame: number ) {
-
-		this.timeline.currentFrame = Math.floor( frame );
-
-		this.emit( "update/timeline", [ { ...this.timeline } ] );
-
-	}
-
-	public setPlaying( playing: boolean ) {
-
-		this.timeline.playing = playing;
-
-	}
-
 	// resolution
 
 	public setResolutionScale( scale: number ) {
@@ -391,7 +319,6 @@ export class GLEditor extends GLP.EventEmitter {
 		this.unsaved = false;
 
 	}
-
 
 	/*-------------------------------
 		Resize

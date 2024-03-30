@@ -203,7 +203,7 @@ class App {
 			const start = 4;
 
 			// this.music.play( start );
-			this.scene.play( start );
+			// this.scene.play( start );
 
 		}
 

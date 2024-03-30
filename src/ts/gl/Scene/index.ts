@@ -2,12 +2,24 @@ import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
 import { canvas, globalUniforms, mainCmaera } from '../../Globals';
-import { ProjectSerializer, OREngineProjectData } from '../IO/ProjectSerializer';
+import { ProjectSerializer, OREngineProjectData, OREngineProjectFrame } from '../IO/ProjectSerializer';
 
 import { Renderer } from './Renderer';
 import { MainCamera } from './Resources/Components/MainCamera';
 import { initResouces } from './Resources/init';
 import { initTextures } from './Textures';
+
+export interface SceneTime {
+	current: number;
+	engine: number;
+	delta: number;
+	code: number;
+}
+
+export interface SceneFrame extends OREngineProjectFrame {
+	current: number
+	playing: boolean,
+}
 
 export class Scene extends MXP.Entity {
 
@@ -22,10 +34,11 @@ export class Scene extends MXP.Entity {
 
 	// time
 
-	public timeCurrent: number;
-	public timeEngine: number;
-	public timeDelta: number;
-	public timeCode: number;
+	public time: SceneTime;
+
+	// frame
+
+	public frame: SceneFrame;
 
 	// renderer
 
@@ -68,12 +81,25 @@ export class Scene extends MXP.Entity {
 
 		this.canvas = canvas;
 
-		// state
+		// time
 
-		this.timeCurrent = new Date().getTime();
-		this.timeEngine = 0;
-		this.timeDelta = 0;
-		this.timeCode = 0;
+		this.time = {
+			current: new Date().getTime(),
+			engine: 0,
+			delta: 0,
+			code: 0,
+		};
+
+		// frame
+
+		this.frame = {
+			current: 0,
+			duration: 600,
+			fps: 60,
+			playing: false
+		};
+
+		this.setFrame( 0 );
 
 		// camera
 
@@ -100,7 +126,7 @@ export class Scene extends MXP.Entity {
 		const currentRoot = this.root;
 		currentRoot.remove( this.camera );
 		currentRoot.remove( this.renderer );
-		currentRoot.dispose( true );
+		currentRoot.disposeRecursive();
 
 		currentRoot.position.set( 0, 0, 0 );
 		currentRoot.euler.set( 0, 0, 0 );
@@ -125,28 +151,31 @@ export class Scene extends MXP.Entity {
 
 	}
 
-	public exportProject( name: string ) {
-
-		return this.projectSerializer.serialize( name, this.root );
-
-	}
-
 	public update( param?: Undefineder<MXP.EntityUpdateEvent> ) {
 
-		const currentTime = new Date().getTime();
-		this.timeDelta = ( currentTime - this.timeCurrent ) / 1000;
-		this.timeEngine += this.timeDelta;
-		this.timeCurrent = currentTime;
-		this.timeCode = param && param.timeCode || 0;
+		const newTime = new Date().getTime();
+		this.time.delta = ( newTime - this.time.current ) / 1000;
+		this.time.current = newTime;
 
-		globalUniforms.time.uTime.value = this.timeCode;
-		globalUniforms.time.uTimeE.value = this.timeEngine;
-		globalUniforms.time.uTimeEF.value = this.timeEngine % 1;
+		if ( this.frame.playing ) {
+
+			this.frame.current = this.frame.current + this.frame.fps * this.time.delta;
+
+			this.emit( "update/frame", [ this.frame ] );
+
+		}
+
+		this.time.code = this.frame.current / this.frame.fps;
+		this.time.engine += this.time.delta;
+
+		globalUniforms.time.uTime.value = this.time.code;
+		globalUniforms.time.uTimeE.value = this.time.engine;
+		globalUniforms.time.uTimeEF.value = this.time.engine % 1;
 
 		const event: MXP.EntityUpdateEvent = {
-			timElapsed: this.timeEngine,
-			timeDelta: this.timeDelta,
-			timeCode: this.timeCode,
+			timElapsed: this.time.engine,
+			timeDelta: this.time.delta,
+			timeCode: this.time.code,
 			forceDraw: param && param.forceDraw,
 			playing: param && param.playing || false,
 		};
@@ -157,7 +186,7 @@ export class Scene extends MXP.Entity {
 
 		this.renderer.render( renderStack );
 
-		return this.timeDelta;
+		return this.time.delta;
 
 	}
 
@@ -168,23 +197,29 @@ export class Scene extends MXP.Entity {
 
 	}
 
-	public play( startTime: number ) {
+	public play() {
 
-		this.update();
-
-		this.timeEngine = startTime;
+		this.frame.playing = true;
 
 	}
 
-	public dispose() {
+	public stop() {
 
-		if ( this.root ) {
+		this.frame.playing = false;
 
-			this.root.dispose( true );
+	}
 
-		}
+	public setFrame( frame: number ) {
 
-		this.emit( 'dispose' );
+		this.frame.current = frame;
+
+		this.emit( "update/frame", [ this.frame ] );
+
+	}
+
+	public exportProject( name: string ) {
+
+		return this.projectSerializer.serialize( name, this.root );
 
 	}
 

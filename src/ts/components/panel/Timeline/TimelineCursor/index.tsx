@@ -6,16 +6,16 @@ import style from './index.module.scss';
 
 export const TimelineCursor = () => {
 
-	const { viewPort, timeline } = useContext( TimelineContext );
+	const { viewPort, frame } = useContext( TimelineContext );
 
-	if ( ! viewPort || ! timeline ) return null;
+	if ( ! viewPort || ! frame ) return null;
 
 	const rangeWidth = viewPort[ 2 ] - viewPort[ 0 ];
-	const left = ( timeline.currentFrame - viewPort[ 0 ] ) / rangeWidth;
+	const left = ( frame.current - viewPort[ 0 ] ) / rangeWidth;
 
 	return <div className={style.cursor} style={{ left: left * 100 + "%" }}>
 		<div className={style.frame}>
-			{Math.floor( timeline.currentFrame )}
+			{Math.floor( frame.current )}
 		</div>
 	</div>;
 

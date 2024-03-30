@@ -6,7 +6,7 @@ import style from './index.module.scss';
 
 export const TimelineControls = () => {
 
-	const { viewPort, timeline, setFrame, getFrameViewPort, zoom, setViewPortCenter } = useContext( TimelineContext );
+	const { viewPort, frame, setFrame, getFrameViewPort, zoom, setViewPortCenter } = useContext( TimelineContext );
 
 	const viewPortRef = useRef( [ 0, 0, 0, 0 ] );
 	const viewPortRangeRef = useRef( [ 0, 0 ] );
@@ -102,7 +102,7 @@ export const TimelineControls = () => {
 
 	}, [ zoom ] );
 
-	if ( ! viewPort || ! timeline ) return null;
+	if ( ! viewPort || ! frame ) return null;
 
 	return <div className={style.controls} onPointerDown={onPointerDown} onWheel={onWheel} ref={elmRef}>
 	</div>;
