@@ -61,13 +61,13 @@ export class Music extends MXP.Component {
 
 		this.audioBuffer = this.audioCtx.createBuffer( 2, bufferLength, this.audioCtx.sampleRate );
 
-		const bufferIn = this.power.createBuffer();
+		const bufferIn = new GLP.GLPowerBuffer( this.gl );
 		bufferIn.setData( new Float32Array( new Array( blockLength ).fill( 0 ).map( ( _, i ) => i ) ), 'vbo' );
 
-		const bufferL = this.power.createBuffer();
+		const bufferL = new GLP.GLPowerBuffer( this.gl );
 		bufferL.setData( new Float32Array( bufferLength ), 'vbo', this.gl.DYNAMIC_COPY );
 
-		const bufferR = this.power.createBuffer();
+		const bufferR = new GLP.GLPowerBuffer( this.gl );
 		bufferR.setData( new Float32Array( bufferLength ), 'vbo', this.gl.DYNAMIC_COPY );
 
 		// render
@@ -78,7 +78,7 @@ export class Music extends MXP.Component {
 
 			this.isAudioBufferReady = false;
 
-			const program = this.power.createProgram();
+			const program = new GLP.GLPowerProgram( this.gl );
 
 			const tf = new GLP.GLPowerTransformFeedback( this.gl );
 

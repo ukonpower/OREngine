@@ -31,7 +31,7 @@ export class AudioRenderer extends GLP.EventEmitter {
 		this.gl = this.canvas.getContext( "webgl2" )!;
 		this.power = new GLP.Power( this.gl );
 
-		this.renderer = new Renderer( this.power );
+		this.renderer = new Renderer( this.gl );
 		this.renderer.resize( resolution );
 
 		this.postProcess = new MXP.PostProcess( { passes: [ new MXP.PostProcessPass( {
@@ -42,7 +42,7 @@ export class AudioRenderer extends GLP.EventEmitter {
 			}
 		} ) ] } );
 
-		document.body.appendChild( this.canvas );
+		// document.body.appendChild( this.canvas );
 
 	}
 

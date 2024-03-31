@@ -18,7 +18,7 @@ export class PMREMRender extends MXP.PostProcess {
 		const resolution = param.resolution;
 
 		const renderTarget = new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-			power.createTexture().setting( {
+			new GLP.GLPowerTexture( gl ).setting( {
 				type: gl.FLOAT,
 				internalFormat: gl.RGBA16F,
 				format: gl.RGBA,

@@ -27,7 +27,7 @@ export class Modeler {
 
 		const resultGeo = new MXP.Geometry();
 
-		const program = this.power.createProgram();
+		const program = new GLP.GLPowerProgram( this.gl );
 		const tf = new GLP.GLPowerTransformFeedback( this.gl );
 
 		let instanceCount = 1;
@@ -42,10 +42,10 @@ export class Modeler {
 
 		} );
 
-		const outBufferPosition = this.power.createBuffer();
+		const outBufferPosition = new GLP.GLPowerBuffer( this.gl );
 		outBufferPosition.setData( new Float32Array( ( baseGeometry.attributes.get( 'position' )?.array.length || 0 ) * instanceCount ), 'vbo', this.gl.DYNAMIC_COPY );
 
-		const outBufferNormal = this.power.createBuffer();
+		const outBufferNormal = new GLP.GLPowerBuffer( this.gl );
 		outBufferNormal.setData( new Float32Array( ( baseGeometry.attributes.get( 'normal' )?.array.length || 0 ) * instanceCount ), 'vbo', this.gl.DYNAMIC_COPY );
 
 		tf.setBuffer( "position", outBufferPosition, 0 );
@@ -61,7 +61,7 @@ export class Modeler {
 
 		if ( vao ) {
 
-			baseGeometry.createBuffer( this.power );
+			baseGeometry.createBuffer( this.gl );
 
 			baseGeometry.attributes.forEach( ( attr, key ) => {
 

@@ -58,7 +58,7 @@ export class FrameDebugger extends GLP.EventEmitter {
 		this.gl = power.gl;
 		this.elm = elm;
 
-		this.renderer = new Renderer( power );
+		this.renderer = new Renderer( power.gl );
 
 		this.srcFrameBuffer = new GLP.GLPowerFrameBuffer( this.gl, { disableDepthBuffer: true } );
 		this.outFrameBuffer = new GLP.GLPowerFrameBuffer( this.gl, { disableDepthBuffer: true } ).setTexture( [

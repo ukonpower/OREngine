@@ -63,11 +63,11 @@ export class DeferredRenderer extends MXP.PostProcess {
 		// light shaft
 
 		const rtLightShaft1 = new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-			power.createTexture().setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
+			new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
 		] );
 
 		const rtLightShaft2 = new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-			power.createTexture().setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
+			new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
 		] );
 
 		const lightShaft = new MXP.PostProcessPass( {
@@ -91,11 +91,11 @@ export class DeferredRenderer extends MXP.PostProcess {
 		// ssao
 
 		const rtSSAO1 = new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-			power.createTexture().setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
+			new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
 		] );
 
 		const rtSSAO2 = new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-			power.createTexture().setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
+			new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
 		] );
 
 		const ssao = new MXP.PostProcessPass( {

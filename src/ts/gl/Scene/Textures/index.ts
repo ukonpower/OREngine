@@ -9,7 +9,7 @@ import { gl, globalUniforms, power } from "~/ts/Globals";
 export const initTextures = () => {
 
 	globalUniforms.tex.uNoiseTex = {
-		value: new TexProcedural( power, {
+		value: new TexProcedural( gl, {
 			frag: noiseFrag,
 		} ),
 		type: '1i'
