@@ -201,6 +201,7 @@ export class Music extends MXP.Component {
 		if ( ! event.playing || event.timeCode < 0 ) {
 
 			this.stop();
+
 			return;
 
 		}

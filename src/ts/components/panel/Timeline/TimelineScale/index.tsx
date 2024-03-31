@@ -6,7 +6,7 @@ import style from './index.module.scss';
 
 export const TimelineScale = () => {
 
-	const { viewPort, viewPortScale, sceneFrame: timeline } = useContext( TimelineContext );
+	const { viewPort, viewPortScale } = useContext( TimelineContext );
 
 	if ( ! viewPort || ! viewPortScale ) return null;
 

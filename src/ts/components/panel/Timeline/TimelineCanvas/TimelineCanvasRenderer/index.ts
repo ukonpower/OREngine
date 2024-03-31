@@ -1,4 +1,8 @@
 import * as GLP from 'glpower';
+import * as MXP from 'maxpower';
+
+import timelineFrag from './shaders/timeline.fs';
+
 
 import { SceneFrame } from '~/ts/gl/Scene';
 import { Renderer } from '~/ts/gl/Scene/Renderer';
@@ -9,19 +13,22 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 
 	private glCanvas: HTMLCanvasElement;
 	private gl: WebGL2RenderingContext;
+	private canvasTexture: GLP.GLPowerTexture;
 
 	private scaleCanvas: HTMLCanvasElement;
 	private scaleCtx: CanvasRenderingContext2D;
+	private glRenderer: Renderer;
+	private postProcess: MXP.PostProcess;
 
 	private viewPort: number[];
 	private viewPortRange: number[];
 	private viewPortScale: number;
 	private sceneFrame: SceneFrame | null;
 
-	private resizeObserver: ResizeObserver;
+	private musicBuffer: AudioBuffer | null;
+	private musicTexture: GLP.GLPowerTexture;
 
-	private glRenderer: Renderer;
-	private canvasTexture: GLP.GLPowerTexture;
+	private resizeObserver: ResizeObserver;
 
 	constructor() {
 
@@ -54,6 +61,33 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 		// gl
 
 		this.glRenderer = new Renderer( this.gl );
+		this.canvasTexture = new GLP.GLPowerTexture( this.gl );
+
+		// music
+
+		this.musicBuffer = null;
+		this.musicTexture = new GLP.GLPowerTexture( this.gl );
+		this.musicTexture.setting( { type: this.gl.UNSIGNED_BYTE, internalFormat: this.gl.LUMINANCE, format: this.gl.LUMINANCE, magFilter: this.gl.LINEAR, minFilter: this.gl.LINEAR, wrapS: this.gl.MIRRORED_REPEAT } );
+
+		this.postProcess = new MXP.PostProcess( {
+			passes: [
+				new MXP.PostProcessPass( {
+					frag: timelineFrag,
+					uniforms: {
+						uCanvasTex: {
+							type: '1i',
+							value: null
+						},
+						uMusicTex: {
+							type: '1i',
+							value: this.musicTexture
+						},
+					},
+					renderTarget: null
+				} )
+			]
+		} );
+
 
 	}
 
@@ -61,8 +95,13 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 
 		if ( this.wrapperElm ) {
 
-			this.glCanvas.width = this.scaleCanvas.width = this.wrapperElm.clientWidth;
-			this.glCanvas.height = this.scaleCanvas.height = this.wrapperElm.clientHeight;
+			const resolution = new GLP.Vector( this.wrapperElm.clientWidth, this.wrapperElm.clientHeight );
+
+			this.glCanvas.width = this.scaleCanvas.width = resolution.x;
+			this.glCanvas.height = this.scaleCanvas.height = resolution.y;
+
+			this.glRenderer.resize( resolution );
+			this.postProcess.resize( resolution );
 
 		}
 
@@ -120,6 +159,40 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 		drawGrid( this.viewPortScale, 0, "#555" );
 		drawGrid( this.viewPortScale, this.viewPortScale / 2, "#333" );
 
+		// gl
+
+		if ( this.musicBuffer && this.sceneFrame ) {
+
+			const audioBufferL = this.musicBuffer.getChannelData( 0 );
+			const buffer = new Uint8Array( 2048 );
+
+			const viewportDuration = this.viewPortRange[ 0 ] / this.sceneFrame.fps;
+			const viewPortAudioLength = Math.floor( this.musicBuffer.sampleRate * viewportDuration );
+
+			const offset = - this.frameToPx( 0 );
+
+			for ( let i = 0; i < this.glCanvas.width; i ++ ) {
+
+				const index = Math.floor( ( ( i + offset ) / this.glCanvas.width ) * viewPortAudioLength );
+				const v = audioBufferL[ index ];
+				buffer[ i ] = ( v * 10.0 + 1 ) * 128;
+
+			}
+
+			this.musicTexture.attach( {
+				width: this.glCanvas.width,
+				height: 1,
+				data: buffer
+			} );
+
+		}
+
+		this.canvasTexture.attach( this.scaleCanvas );
+
+		this.postProcess.passes[ 0 ].uniforms.uCanvasTex.value = this.canvasTexture;
+
+		this.glRenderer.renderPostProcess( this.postProcess );
+
 	}
 
 	// api
@@ -152,6 +225,13 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 	public setFrame( frame:SceneFrame ) {
 
 		this.sceneFrame = frame;
+		this.render();
+
+	}
+
+	public setMusicBuffer( buffer: AudioBuffer ) {
+
+		this.musicBuffer = buffer;
 		this.render();
 
 	}
