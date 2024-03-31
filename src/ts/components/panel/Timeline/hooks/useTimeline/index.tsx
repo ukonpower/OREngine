@@ -27,21 +27,32 @@ export const useTimeline = ( glEditor: GLEditor | undefined ) => {
 	let viewPortScale = 10 * Math.pow( 2, 0 + Math.floor( Math.log2( w / 100 ) ) );
 	viewPortScale = Math.max( 1, Math.floor( viewPortScale ) );
 
-	// update
+	// audio buffer
 
-	const onUpdateFrame = useCallback( ( frame: SceneFrame ) => {
+	const [ musicBuffer, setMusicBuffer ] = useState<AudioBuffer>( );
 
-		setSceneFrame( { ...frame } );
-
-	}, [] );
+	// events
 
 	useEffect( () => {
+
+		const onUpdateFrame = ( frame: SceneFrame ) => {
+
+			setSceneFrame( { ...frame } );
+
+		};
+
+		const onUpdateMusic = ( buffer: AudioBuffer ) => {
+
+			setMusicBuffer( buffer );
+
+		};
 
 		if ( glEditor ) {
 
 			onUpdateFrame( glEditor.scene.frame );
 
 			glEditor.scene.on( "update/frame", onUpdateFrame );
+			glEditor.scene.on( "update/music", onUpdateMusic );
 
 		}
 
@@ -49,13 +60,14 @@ export const useTimeline = ( glEditor: GLEditor | undefined ) => {
 
 			if ( glEditor ) {
 
-				glEditor.scene.off( "update/frame" );
+				glEditor.scene.off( "update/frame", onUpdateFrame );
+				glEditor.scene.off( "update/music", onUpdateMusic );
 
 			}
 
 		};
 
-	}, [ glEditor, onUpdateFrame ] );
+	}, [ glEditor ] );
 
 	// play / pause
 
@@ -138,6 +150,7 @@ export const useTimeline = ( glEditor: GLEditor | undefined ) => {
 		frame,
 		viewPort,
 		viewPortScale,
+		musicBuffer,
 		setFrame,
 		getFrameViewPort,
 		zoom,
