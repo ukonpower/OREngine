@@ -84,11 +84,11 @@ export class Geometry extends Component {
 
 	}
 
-	public createBuffer( power: GLP.Power ) {
+	public createBuffer( gl: WebGL2RenderingContext ) {
 
 		this.attributes.forEach( ( attr, key ) => {
 
-			attr.buffer = power.createBuffer().setData( attr.array, key == 'index' ? "ibo" : 'vbo' );
+			attr.buffer = new GLP.GLPowerBuffer( gl ).setData( attr.array, key == 'index' ? "ibo" : 'vbo' );
 
 		} );
 

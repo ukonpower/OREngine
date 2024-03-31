@@ -76,7 +76,6 @@ export let TextureUnitCounter = 0;
 
 export class Renderer extends MXP.Entity {
 
-	private power: GLP.Power;
 	private gl: WebGL2RenderingContext;
 	private canvasSize: GLP.Vector;
 
@@ -120,12 +119,11 @@ export class Renderer extends MXP.Entity {
 	private tmpModelMatrixInverse: GLP.Matrix;
 	private tmpProjectionMatrixInverse: GLP.Matrix;
 
-	constructor( power: GLP.Power ) {
+	constructor( gl: WebGL2RenderingContext ) {
 
 		super( { name: "Renderer" } );
 
-		this.gl = power.gl;
-		this.power = power;
+		this.gl = gl;
 
 		this.programManager = new ProgramManager( this.gl );
 		this.canvasSize = new GLP.Vector();
@@ -229,51 +227,51 @@ export class Renderer extends MXP.Entity {
 
 	public render( stack: RenderStack ) {
 
-		if ( process.env.NODE_ENV == 'development' && this.power.extDisJointTimerQuery && gpuState ) {
+		// if ( process.env.NODE_ENV == 'development' && this.power.extDisJointTimerQuery && gpuState ) {
 
-			const disjoint = this.gl.getParameter( this.power.extDisJointTimerQuery.GPU_DISJOINT_EXT );
+		// 	const disjoint = this.gl.getParameter( this.power.extDisJointTimerQuery.GPU_DISJOINT_EXT );
 
-			if ( disjoint ) {
+		// 	if ( disjoint ) {
 
-				this.queryList.forEach( q => this.gl.deleteQuery( q ) );
+		// 		this.queryList.forEach( q => this.gl.deleteQuery( q ) );
 
-				this.queryList.length = 0;
+		// 		this.queryList.length = 0;
 
-			} else {
+		// 	} else {
 
-				if ( this.queryListQueued.length > 0 ) {
+		// 		if ( this.queryListQueued.length > 0 ) {
 
-					const l = this.queryListQueued.length;
+		// 			const l = this.queryListQueued.length;
 
-					for ( let i = l - 1; i >= 0; i -- ) {
+		// 			for ( let i = l - 1; i >= 0; i -- ) {
 
-						const q = this.queryListQueued[ i ];
+		// 				const q = this.queryListQueued[ i ];
 
-						const resultAvailable = this.gl.getQueryParameter( q.query, this.gl.QUERY_RESULT_AVAILABLE );
+		// 				const resultAvailable = this.gl.getQueryParameter( q.query, this.gl.QUERY_RESULT_AVAILABLE );
 
-						if ( resultAvailable ) {
+		// 				if ( resultAvailable ) {
 
-							const result = this.gl.getQueryParameter( q.query, this.gl.QUERY_RESULT );
+		// 					const result = this.gl.getQueryParameter( q.query, this.gl.QUERY_RESULT );
 
-							this.queryList.push( q.query );
+		// 					this.queryList.push( q.query );
 
-							this.queryListQueued.splice( i, 1 );
+		// 					this.queryListQueued.splice( i, 1 );
 
-							if ( gpuState ) {
+		// 					if ( gpuState ) {
 
-								gpuState.setRenderTime( q.name, result / 1000 / 1000 );
+		// 						gpuState.setRenderTime( q.name, result / 1000 / 1000 );
 
-							}
+		// 					}
 
-						}
+		// 				}
 
-					}
+		// 			}
 
-				}
+		// 		}
 
-			}
+		// 	}
 
-		}
+		// }
 
 		// light
 
@@ -886,7 +884,7 @@ export class Renderer extends MXP.Entity {
 
 			if ( geometryNeedsUpdate === undefined || geometryNeedsUpdate === true ) {
 
-				geometry.createBuffer( this.power );
+				geometry.createBuffer( this.gl );
 
 				geometry.attributes.forEach( ( attr, key ) => {
 
@@ -918,25 +916,25 @@ export class Renderer extends MXP.Entity {
 
 				// query ------------------------
 
-				let query: WebGLQuery | null = null;
+				// let query: WebGLQuery | null = null;
 
-				if ( process.env.NODE_ENV == 'development' && this.power.extDisJointTimerQuery && gpuState ) {
+				// if ( process.env.NODE_ENV == 'development' && this.power.extDisJointTimerQuery && gpuState ) {
 
-					query = this.queryList.pop() || null;
+				// 	query = this.queryList.pop() || null;
 
-					if ( query == null ) {
+				// 	if ( query == null ) {
 
-						query = this.gl.createQuery();
+				// 		query = this.gl.createQuery();
 
-					}
+				// 	}
 
-					if ( query ) {
+				// 	if ( query ) {
 
-						this.gl.beginQuery( this.power.extDisJointTimerQuery.TIME_ELAPSED_EXT, query );
+				// 		this.gl.beginQuery( this.power.extDisJointTimerQuery.TIME_ELAPSED_EXT, query );
 
-					}
+				// 	}
 
-				}
+				// }
 
 				// -----------------------------
 
@@ -980,20 +978,20 @@ export class Renderer extends MXP.Entity {
 
 				// query ------------------------
 
-				if ( process.env.NODE_ENV == 'development' && gpuState ) {
+				// if ( process.env.NODE_ENV == 'development' && gpuState ) {
 
-					if ( query ) {
+				// 	if ( query ) {
 
-						this.gl.endQuery( this.power.extDisJointTimerQuery.TIME_ELAPSED_EXT );
+				// 		this.gl.endQuery( this.power.extDisJointTimerQuery.TIME_ELAPSED_EXT );
 
-						this.queryListQueued.push( {
-							name: `${renderType}/${material.name}[${drawId}]`,
-							query: query
-						} );
+				// 		this.queryListQueued.push( {
+				// 			name: `${renderType}/${material.name}[${drawId}]`,
+				// 			query: query
+				// 		} );
 
-					}
+				// 	}
 
-				}
+				// }
 
 				// ----------------------------
 

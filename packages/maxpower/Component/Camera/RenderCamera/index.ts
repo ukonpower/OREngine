@@ -3,8 +3,6 @@ import * as GLP from "glpower";
 import { CameraParam, Camera } from "..";
 import { ComponentProps, ComponentSetProps } from "../..";
 
-import { power } from "~/ts/Globals";
-
 export type RenderCameraTarget = {
 	gBuffer: GLP.GLPowerFrameBuffer,
 	shadingBuffer: GLP.GLPowerFrameBuffer,
@@ -26,17 +24,17 @@ export class RenderCamera extends Camera {
 
 		const gBuffer = new GLP.GLPowerFrameBuffer( gl );
 		gBuffer.setTexture( [
-			power.createTexture().setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA, magFilter: gl.NEAREST, minFilter: gl.NEAREST } ),
-			power.createTexture().setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA } ),
-			power.createTexture(),
-			power.createTexture(),
-			power.createTexture().setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA } ),
+			new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA, magFilter: gl.NEAREST, minFilter: gl.NEAREST } ),
+			new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA } ),
+			new GLP.GLPowerTexture( gl ),
+			new GLP.GLPowerTexture( gl ),
+			new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA } ),
 		] );
 
 		const shadingBuffer = new GLP.GLPowerFrameBuffer( gl, { disableDepthBuffer: true } );
 		shadingBuffer.setTexture( [
-			power.createTexture().setting( { type: gl.FLOAT, internalFormat: gl.RGBA16F, format: gl.RGBA } ),
-			power.createTexture().setting( { type: gl.FLOAT, internalFormat: gl.RGBA16F, format: gl.RGBA } ),
+			new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA16F, format: gl.RGBA } ),
+			new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA16F, format: gl.RGBA } ),
 		] );
 
 		const forwardBuffer = new GLP.GLPowerFrameBuffer( gl, { disableDepthBuffer: true } );
@@ -44,7 +42,7 @@ export class RenderCamera extends Camera {
 		forwardBuffer.setTexture( [ shadingBuffer.textures[ 0 ] ] );
 
 		const uiBuffer = new GLP.GLPowerFrameBuffer( gl, { disableDepthBuffer: true } );
-		uiBuffer.setTexture( [ power.createTexture() ] );
+		uiBuffer.setTexture( [ new GLP.GLPowerTexture( gl ) ] );
 
 		this.renderTarget = { gBuffer, shadingBuffer: shadingBuffer, forwardBuffer, uiBuffer };
 

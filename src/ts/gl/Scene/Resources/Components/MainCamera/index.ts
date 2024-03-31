@@ -147,11 +147,11 @@ export class MainCamera extends MXP.Component {
 		// ssr
 
 		this.rtSSR1 = new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-			power.createTexture().setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
+			new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
 		] );
 
 		this.rtSSR2 = new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-			power.createTexture().setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
+			new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
 		] );
 
 		this.ssr = new MXP.PostProcessPass( {
@@ -260,7 +260,7 @@ export class MainCamera extends MXP.Component {
 				},
 			} ),
 			renderTarget: new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-				power.createTexture().setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR, internalFormat: gl.RGBA16F, type: gl.HALF_FLOAT, format: gl.RGBA } ),
+				new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR, internalFormat: gl.RGBA16F, type: gl.HALF_FLOAT, format: gl.RGBA } ),
 			] ),
 			passThrough: true,
 			resolutionRatio: 0.5,
@@ -280,7 +280,7 @@ export class MainCamera extends MXP.Component {
 				}
 			} ),
 			renderTarget: new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-				power.createTexture().setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
+				new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
 			] ),
 			passThrough: true,
 			resolutionRatio: 0.5,
@@ -296,7 +296,7 @@ export class MainCamera extends MXP.Component {
 				}
 			} ),
 			renderTarget: new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-				power.createTexture().setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR, internalFormat: gl.RGBA16F, type: gl.HALF_FLOAT, format: gl.RGBA } ),
+				new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR, internalFormat: gl.RGBA16F, type: gl.HALF_FLOAT, format: gl.RGBA } ),
 			] )
 		} );
 
@@ -314,7 +314,7 @@ export class MainCamera extends MXP.Component {
 				},
 			} ),
 			renderTarget: new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-				power.createTexture().setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA } ),
+				new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA } ),
 			] ),
 			defines: {
 				"TILE": motionBlurTile,
@@ -336,7 +336,7 @@ export class MainCamera extends MXP.Component {
 				"TILE": motionBlurTile,
 			},
 			renderTarget: new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-				power.createTexture().setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA } ),
+				new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA } ),
 			] ),
 			resolutionRatio: 1 / motionBlurTile,
 			passThrough: true,
@@ -382,11 +382,11 @@ export class MainCamera extends MXP.Component {
 		for ( let i = 0; i < this.bloomRenderCount; i ++ ) {
 
 			this.rtBloomVertical.push( new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-				power.createTexture().setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
+				new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
 			] ) );
 
 			this.rtBloomHorizonal.push( new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-				power.createTexture().setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
+				new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
 			] ) );
 
 		}

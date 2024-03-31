@@ -51,7 +51,7 @@ export class PostProcessPass extends Material {
 		};
 
 		this.renderTarget = param.renderTarget !== undefined ? param.renderTarget : new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-			power.createTexture().setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
+			new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
 		] );
 
 		this.clearColor = param.clearColor ?? null;
