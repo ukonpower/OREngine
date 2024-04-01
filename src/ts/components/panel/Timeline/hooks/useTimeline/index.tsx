@@ -135,6 +135,16 @@ export const useTimeline = ( glEditor: GLEditor | undefined ) => {
 
 	}, [] );
 
+	const scroll = useCallback( ( delta: number ) => {
+
+		const vp = viewPortRef.current;
+
+		const deltaFrame = delta * ( vp[ 2 ] - vp[ 0 ] );
+
+		setViewPort( [ vp[ 0 ] + deltaFrame, vp[ 1 ], vp[ 2 ] + deltaFrame, vp[ 3 ] ] );
+
+	}, [] );
+
 	const setViewPortCenter = useCallback( ( frame: number ) => {
 
 		const vp = viewPortRef.current;
@@ -154,6 +164,7 @@ export const useTimeline = ( glEditor: GLEditor | undefined ) => {
 		setFrame,
 		getFrameViewPort,
 		zoom,
+		scroll,
 		setViewPortCenter,
 	};
 
