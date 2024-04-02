@@ -161,16 +161,20 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 
 		// audio wave
 
+
 		if ( this.musicBuffer && this.sceneFrame ) {
 
-			const audioBufferL = this.musicBuffer.getChannelData( 0 );
+			this.canvasCtx.strokeStyle = '#888';
+			this.canvasCtx.fillStyle = '#888';
 
-			this.canvasCtx.beginPath();
+			const audioBufferL = this.musicBuffer.getChannelData( 0 );
 
 			const viewportDuration = this.viewPortRange[ 0 ] / this.sceneFrame.fps;
 			const viewportAudioSamples = ( this.musicBuffer.sampleRate * viewportDuration );
 			const audioSamplePerPx = ( viewportAudioSamples / this.canvas.width );
 			const offset = this.frameToPx( 0 );
+
+			this.canvasCtx.beginPath();
 
 			for ( let i = 0; i < viewportAudioSamples; i += audioSamplePerPx ) {
 
@@ -183,9 +187,9 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 				let min = y;
 				let max = y;
 
-				for ( let j = 0; j < audioSamplePerPx; j += 10 ) {
+				for ( let j = 0; j < 16; j ++ ) {
 
-					const smp = audioBufferL[ Math.round( i ) + j ];
+					const smp = audioBufferL[ Math.round( index + audioSamplePerPx * ( j / 16 ) ) ];
 
 					const y = ( smp + 1 ) * ( this.canvas.height / 2 );
 
@@ -196,10 +200,9 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 
 				const h = max - min;
 
-				if ( h > 2 ) {
+				if ( h > 3 ) {
 
-					this.canvasCtx.fillStyle = "#fff";
-					this.canvasCtx.fillRect( x, max, 1, - h );
+					this.canvasCtx.fillRect( x, min, 1, h );
 
 				}
 
@@ -215,10 +218,10 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 
 			}
 
-			this.canvasCtx.strokeStyle = '#fff';
 			this.canvasCtx.stroke();
 
 		}
+
 
 		this.canvasTexture.attach( this.canvas );
 
