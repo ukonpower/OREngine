@@ -15,7 +15,7 @@ void main( void ) {
 
 	float audio = texture( uMusicTex, vUv ).x;
 	float audioWave = step( vUv.y, audio );
-	col += audioWave * 0.15;
+	col += audioWave * 0.2;
 
 	outColor = vec4( col, 1.0 );
 
