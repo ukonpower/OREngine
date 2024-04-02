@@ -9,7 +9,7 @@ import musicVert from './shaders/music.vs';
 
 import { power } from '~/ts/Globals';
 
-const MUSIC_DURATION = 60 * ( ( 1 * 8.0 ) / 85.0 );
+const MUSIC_DURATION = 60 * ( ( 32 * 8.0 + 8 + 1 ) / 85.0 );
 
 export class Music extends MXP.Component {
 
