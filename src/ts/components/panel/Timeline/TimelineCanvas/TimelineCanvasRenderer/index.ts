@@ -180,6 +180,29 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 				const x = ( i / viewportAudioSamples ) * this.canvas.width;
 				const y = ( sample + 1 ) * ( this.canvas.height / 2 );
 
+				let min = y;
+				let max = y;
+
+				for ( let j = 0; j < audioSamplePerPx; j += 10 ) {
+
+					const smp = audioBufferL[ Math.round( i ) + j ];
+
+					const y = ( smp + 1 ) * ( this.canvas.height / 2 );
+
+					if ( min > y ) min = y;
+					if ( max < y ) max = y;
+
+				}
+
+				const h = max - min;
+
+				if ( h > 2 ) {
+
+					this.canvasCtx.fillStyle = "#fff";
+					this.canvasCtx.fillRect( x, max, 1, - h );
+
+				}
+
 				if ( i == 0 ) {
 
 					this.canvasCtx.moveTo( x, y );
@@ -192,7 +215,7 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 
 			}
 
-			this.canvasCtx.strokeStyle = '#777';
+			this.canvasCtx.strokeStyle = '#fff';
 			this.canvasCtx.stroke();
 
 		}
