@@ -31,11 +31,11 @@
 }
 
 .controls {
-	height: 130px;
-	max-height: 300px;
+	height: 180px;
 
 	@include sp {
 		height: 49dvh;
+		max-height: 300px;
 	}
 }
 

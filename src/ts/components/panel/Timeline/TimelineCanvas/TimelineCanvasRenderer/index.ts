@@ -4,7 +4,7 @@ import * as MXP from 'maxpower';
 import timelineFrag from './shaders/timeline.fs';
 
 
-import { SceneFrame } from '~/ts/gl/Scene';
+import { FramePlay } from '~/ts/gl/Scene';
 import { Renderer } from '~/ts/gl/Scene/Renderer';
 
 export class TimelineCanvasRenderer extends GLP.EventEmitter {
@@ -23,7 +23,7 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 	private viewPort: number[];
 	private viewPortRange: number[];
 	private viewPortScale: number;
-	private sceneFrame: SceneFrame | null;
+	private sceneFrame: FramePlay | null;
 
 	private musicBuffer: AudioBuffer | null;
 	private musicTexture: GLP.GLPowerTexture;
@@ -258,7 +258,7 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 
 	}
 
-	public setFrame( frame:SceneFrame ) {
+	public setFrame( frame:FramePlay ) {
 
 		if ( ! this.sceneFrame || this.sceneFrame.duration != frame.duration ) {
 

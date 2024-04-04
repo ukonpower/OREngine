@@ -16,7 +16,7 @@ export interface SceneTime {
 	code: number;
 }
 
-export interface SceneFrame extends OREngineProjectFrame {
+export interface FramePlay {
 	current: number
 	playing: boolean,
 }
@@ -38,7 +38,8 @@ export class Scene extends MXP.Entity {
 
 	// frame
 
-	public frame: SceneFrame;
+	public framePlay: FramePlay;
+	public frameSetting: OREngineProjectFrame;
 
 	// renderer
 
@@ -92,14 +93,17 @@ export class Scene extends MXP.Entity {
 
 		// frame
 
-		this.frame = {
-			current: 0,
+		this.frameSetting = {
 			duration: 600,
 			fps: 60,
+		};
+
+		this.framePlay = {
+			current: 0,
 			playing: false
 		};
 
-		this.setFrame( 0 );
+		this.setCurrentFrame( 0 );
 
 		// camera
 
@@ -157,15 +161,15 @@ export class Scene extends MXP.Entity {
 		this.time.delta = ( newTime - this.time.current ) / 1000;
 		this.time.current = newTime;
 
-		if ( this.frame.playing ) {
+		if ( this.framePlay.playing ) {
 
-			this.frame.current = this.frame.current + this.frame.fps * this.time.delta;
+			this.framePlay.current = this.framePlay.current + this.frameSetting.fps * this.time.delta;
 
-			this.emit( "update/frame", [ this.frame ] );
+			this.emit( "update/frame/play", [ this.framePlay ] );
 
 		}
 
-		this.time.code = this.frame.current / this.frame.fps;
+		this.time.code = this.framePlay.current / this.frameSetting.fps;
 		this.time.engine += this.time.delta;
 
 		globalUniforms.time.uTime.value = this.time.code;
@@ -177,7 +181,7 @@ export class Scene extends MXP.Entity {
 			timeDelta: this.time.delta,
 			timeCode: this.time.code,
 			forceDraw: param && param.forceDraw,
-			playing: this.frame.playing,
+			playing: this.framePlay.playing,
 		};
 
 		this.root.update( event );
@@ -197,23 +201,33 @@ export class Scene extends MXP.Entity {
 
 	}
 
+	// api
+
 	public play() {
 
-		this.frame.playing = true;
+		this.framePlay.playing = true;
 
 	}
 
 	public stop() {
 
-		this.frame.playing = false;
+		this.framePlay.playing = false;
 
 	}
 
-	public setFrame( frame: number ) {
+	public setFrameSetting( frameSetting: OREngineProjectFrame ) {
 
-		this.frame.current = frame;
+		this.frameSetting = frameSetting;
 
-		this.emit( "update/frame", [ this.frame ] );
+		this.emit( "update/frame/setting", [ this.frameSetting ] );
+
+	}
+
+	public setCurrentFrame( frame: number ) {
+
+		this.framePlay.current = frame;
+
+		this.emit( "update/frame/play", [ this.framePlay ] );
 
 	}
 

@@ -59,7 +59,7 @@ export class GLEditor extends GLP.EventEmitter {
 
 	// sound
 
-	private audioRenderer: AudioRenderer;
+	public audioBuffer: AudioBuffer | null;
 
 	// dispose
 
@@ -213,11 +213,11 @@ export class GLEditor extends GLP.EventEmitter {
 
 		// sound
 
-		this.audioRenderer = new AudioRenderer();
+		this.audioBuffer = null;
 
 		this.scene.on( "update/music", ( buffer: AudioBuffer ) => {
 
-			this.audioRenderer.render( buffer );
+			this.audioBuffer = buffer;
 
 		} );
 

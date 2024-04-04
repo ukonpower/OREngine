@@ -8,7 +8,7 @@ import { TimelineCanvasRenderer } from './TimelineCanvasRenderer';
 
 export const TimelineCanvas = ( ) => {
 
-	const { viewPort, viewPortScale, frame, musicBuffer } = useContext( TimelineContext );
+	const { viewPort, viewPortScale, frameSetting: frame, musicBuffer } = useContext( TimelineContext );
 
 	const [ renderer, setRenderer ] = useState<TimelineCanvasRenderer>();
 

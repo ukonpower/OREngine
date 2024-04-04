@@ -1,7 +1,8 @@
 import { useState, useCallback, useEffect, createContext, useRef } from "react";
 
 import { GLEditor } from "~/ts/gl/Editor";
-import { SceneFrame } from '~/ts/gl/Scene';
+import { OREngineProjectFrame } from "~/ts/gl/IO/ProjectSerializer";
+import { FramePlay } from '~/ts/gl/Scene';
 
 export const TimelineContext = createContext<HooksContext<typeof useTimeline>>( {} );
 
@@ -9,10 +10,13 @@ export const useTimeline = ( glEditor: GLEditor | undefined ) => {
 
 	// timeline
 
-	const [ frame, setSceneFrame ] = useState<SceneFrame>( {
-		current: 0,
+	const [ frameSetting, setFrameSetting ] = useState<OREngineProjectFrame>( {
 		duration: 0,
 		fps: 0,
+	} );
+
+	const [ framePlay, setFramePlay ] = useState<FramePlay>( {
+		current: 0,
 		playing: false,
 	} );
 
@@ -35,9 +39,15 @@ export const useTimeline = ( glEditor: GLEditor | undefined ) => {
 
 	useEffect( () => {
 
-		const onUpdateFrame = ( frame: SceneFrame ) => {
+		const onUpdateFramePlay = ( frame: FramePlay ) => {
 
-			setSceneFrame( { ...frame } );
+			setFramePlay( { ...frame } );
+
+		};
+
+		const onUpdateFrameSetting = ( frame: OREngineProjectFrame ) => {
+
+			setFrameSetting( { ...frame } );
 
 		};
 
@@ -49,9 +59,17 @@ export const useTimeline = ( glEditor: GLEditor | undefined ) => {
 
 		if ( glEditor ) {
 
-			onUpdateFrame( glEditor.scene.frame );
+			onUpdateFramePlay( glEditor.scene.framePlay );
+			onUpdateFrameSetting( glEditor.scene.frameSetting );
 
-			glEditor.scene.on( "update/frame", onUpdateFrame );
+			if ( glEditor.audioBuffer ) {
+
+				onUpdateMusic( glEditor.audioBuffer );
+
+			}
+
+			glEditor.scene.on( "update/frame/setting", onUpdateFrameSetting );
+			glEditor.scene.on( "update/frame/play", onUpdateFramePlay );
 			glEditor.scene.on( "update/music", onUpdateMusic );
 
 		}
@@ -60,7 +78,8 @@ export const useTimeline = ( glEditor: GLEditor | undefined ) => {
 
 			if ( glEditor ) {
 
-				glEditor.scene.off( "update/frame", onUpdateFrame );
+				glEditor.scene.off( "update/frame/setting", onUpdateFrameSetting );
+				glEditor.scene.off( "update/frame/play", onUpdateFramePlay );
 				glEditor.scene.off( "update/music", onUpdateMusic );
 
 			}
@@ -77,7 +96,7 @@ export const useTimeline = ( glEditor: GLEditor | undefined ) => {
 
 		if ( e.key == ' ' ) {
 
-			if ( glEditor.scene.frame.playing ) {
+			if ( glEditor.scene.framePlay.playing ) {
 
 				glEditor.scene.stop( );
 
@@ -105,11 +124,11 @@ export const useTimeline = ( glEditor: GLEditor | undefined ) => {
 
 	// api
 
-	const setFrame = useCallback( ( frame: number ) => {
+	const setCurrentFrame = useCallback( ( frame: number ) => {
 
 		if ( glEditor ) {
 
-			glEditor.scene.setFrame( frame );
+			glEditor.scene.setCurrentFrame( frame );
 
 		}
 
@@ -157,11 +176,12 @@ export const useTimeline = ( glEditor: GLEditor | undefined ) => {
 
 	return {
 		glEditor,
-		frame,
+		frameSetting,
+		framePlay,
 		viewPort,
 		viewPortScale,
 		musicBuffer,
-		setFrame,
+		setCurrentFrame,
 		getFrameViewPort,
 		zoom,
 		scroll,

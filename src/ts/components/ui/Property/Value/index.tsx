@@ -4,7 +4,6 @@ import { InputBoolean } from '../../Input/InputCheckBox';
 import { InputNumber } from '../../Input/InputNumber';
 import { InputSelect } from '../../Input/InputSelect';
 import { InputText } from '../../Input/InputText';
-import { Picker } from '../../Picker';
 
 import style from './index.module.scss';
 
@@ -21,10 +20,10 @@ export type ValueProps = {
 	label?: string
 	value: ValueType,
 	onChange?: ( value: ValueType, label: string ) => void
+	vertical?: boolean
 } & ValueOpt
 
 export const Value = ( { value, label, onChange, ...props }: ValueProps ) => {
-
 
 	/*-------------------------------
 		Change
@@ -74,8 +73,8 @@ export const Value = ( { value, label, onChange, ...props }: ValueProps ) => {
 
 	}
 
-	return <div className={style.value} >
-		{label && <div className={style.value_label}>{label}</div>}
+	return <div className={style.value} data-value_vertical={props.vertical} >
+		{label && <div className={style.value_label} >{label}</div>}
 		<div className={style.input}>
 			<div className={style.input_value}></div>
 			{inputElm}
