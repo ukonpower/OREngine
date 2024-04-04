@@ -6,6 +6,7 @@ import { TimelineCanvas } from './TimelineCanvas';
 import { TimelineControls } from './TimelineControls';
 import { TimelineCursor } from './TimelineCursor';
 import { TimelineScale } from './TimelineScale';
+import { TimelineSetting } from './TimelineSetting';
 
 import { EditorContext } from '~/ts/gl/React/useEditor';
 
@@ -16,14 +17,15 @@ export const Timeline = () => {
 
 	return <TimelineContext.Provider value={timelineContext}>
 		<div className={style.timeline}>
-			<div className={style.content}>
-				<div className={style.content_inner} >
+			<div className={style.inner}>
+				<div className={style.setting}>
+					<TimelineSetting />
+				</div>
+				<div className={style.content} >
 					<TimelineCanvas />
 					<TimelineCursor />
 					<TimelineControls />
-					<div className={style.scale}>
-						<TimelineScale />
-					</div>
+					<TimelineScale />
 				</div>
 			</div>
 		</div>

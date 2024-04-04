@@ -6,7 +6,7 @@ import style from './index.module.scss';
 
 export const TimelineControls = () => {
 
-	const { viewPort, frame, setFrame, getFrameViewPort, zoom, scroll, setViewPortCenter } = useContext( TimelineContext );
+	const { viewPort, frameSetting: frame, setCurrentFrame: setFrame, getFrameViewPort, zoom, scroll, setViewPortCenter } = useContext( TimelineContext );
 
 	const viewPortRef = useRef( [ 0, 0, 0, 0 ] );
 	const viewPortRangeRef = useRef( [ 0, 0 ] );
@@ -19,6 +19,7 @@ export const TimelineControls = () => {
 	}
 
 	const elmRef = useRef<HTMLDivElement>( null );
+	const elmBoundingRectRef = useRef<DOMRect | null>( null );
 
 	// pointer
 
@@ -32,11 +33,11 @@ export const TimelineControls = () => {
 
 		if ( pointerDownButtonRef.current == 0 ) {
 
-			if ( setFrame && getFrameViewPort ) {
+			if ( setFrame && getFrameViewPort && elmBoundingRectRef.current ) {
 
-				const x = e.clientX / elmWidth;
+				const pointerX = ( e.clientX - elmBoundingRectRef.current.left ) / elmWidth;
 
-				setFrame( getFrameViewPort( x ) );
+				setFrame( getFrameViewPort( pointerX ) );
 
 			}
 
@@ -58,11 +59,13 @@ export const TimelineControls = () => {
 
 	const onPointerDown = useCallback( ( e: React.PointerEvent<HTMLElement> ) => {
 
-		const pointerX = e.clientX / e.currentTarget.clientWidth;
-
 		pointerDownButtonRef.current = e.button;
 		pointerDownCenterFrameRef.current = ( viewPortRef.current[ 2 ] + viewPortRef.current[ 0 ] ) / 2;
 		pointerDownPosRef.current = [ e.clientX, e.clientY ];
+
+		elmBoundingRectRef.current = e.currentTarget.getBoundingClientRect();
+
+		const pointerX = ( e.clientX - elmBoundingRectRef.current.left ) / e.currentTarget.clientWidth;
 
 		if ( pointerDownButtonRef.current == 0 && setFrame && getFrameViewPort ) {
 
