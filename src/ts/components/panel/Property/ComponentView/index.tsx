@@ -38,7 +38,7 @@ export const ComponentView = ( { component, keyName }: ComponentViewProps ) => {
 
 	if ( compoProps ) {
 
-		const _ = ( path: string, elmArray: JSX.Element[], props: MXP.ComponentProps ): JSX.Element[] => {
+		const _ = ( depth: number, path: string, elmArray: JSX.Element[], props: MXP.ComponentProps ): JSX.Element[] => {
 
 			const propKeys = Object.keys( props );
 
@@ -62,8 +62,12 @@ export const ComponentView = ( { component, keyName }: ComponentViewProps ) => {
 
 				} else {
 
-					const elms = _( path_ + "/", [], prop );
-					elmArray.push( <div className={style.propertyBlock} key={i}><PropertyBlock key={i} label={key} bg="#111" accordion >{elms}</PropertyBlock></div> );
+					const elms = _( depth + 1, path_ + "/", [], prop );
+
+					const dd = depth + 1;
+					const col = "#" + dd + dd + dd;
+
+					elmArray.push( <div className={style.propertyBlock} key={i}><PropertyBlock key={i} label={key} bg={col} accordion >{elms}</PropertyBlock></div> );
 
 				}
 
@@ -74,7 +78,7 @@ export const ComponentView = ( { component, keyName }: ComponentViewProps ) => {
 
 		};
 
-		_( "", propElms, compoProps );
+		_( 0, "", propElms, compoProps );
 
 	}
 
