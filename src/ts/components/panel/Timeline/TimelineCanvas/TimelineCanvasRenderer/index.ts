@@ -4,7 +4,7 @@ import * as MXP from 'maxpower';
 import timelineFrag from './shaders/timeline.fs';
 
 
-import { FramePlay } from '~/ts/gl/Scene';
+import { OREngineProjectFrame } from '~/ts/gl/IO/ProjectSerializer';
 import { Renderer } from '~/ts/gl/Scene/Renderer';
 
 export class TimelineCanvasRenderer extends GLP.EventEmitter {
@@ -23,7 +23,7 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 	private viewPort: number[];
 	private viewPortRange: number[];
 	private viewPortScale: number;
-	private sceneFrame: FramePlay | null;
+	private frameSetting: OREngineProjectFrame | null;
 
 	private musicBuffer: AudioBuffer | null;
 	private musicTexture: GLP.GLPowerTexture;
@@ -52,7 +52,7 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 
 		// frame
 
-		this.sceneFrame = null;
+		this.frameSetting = null;
 
 		// resize
 
@@ -116,12 +116,12 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 
 		// playarea
 
-		if ( this.sceneFrame ) {
+		if ( this.frameSetting ) {
 
 			this.canvasCtx.fillStyle = '#181818';
 
 			const s = this.frameToPx( 0 );
-			const e = this.frameToPx( this.sceneFrame.duration );
+			const e = this.frameToPx( this.frameSetting.duration );
 
 			this.canvasCtx.fillRect( s, 0, e - s, this.canvas.height );
 
@@ -162,14 +162,14 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 		// audio wave
 
 
-		if ( this.musicBuffer && this.sceneFrame ) {
+		if ( this.musicBuffer && this.frameSetting ) {
 
 			this.canvasCtx.strokeStyle = '#888';
 			this.canvasCtx.fillStyle = '#888';
 
 			const audioBufferL = this.musicBuffer.getChannelData( 0 );
 
-			const viewportDuration = this.viewPortRange[ 0 ] / this.sceneFrame.fps;
+			const viewportDuration = this.viewPortRange[ 0 ] / this.frameSetting.fps;
 			const viewportAudioSamples = ( this.musicBuffer.sampleRate * viewportDuration );
 			const audioSamplePerPx = ( viewportAudioSamples / this.canvas.width );
 			const offset = this.frameToPx( 0 );
@@ -258,16 +258,11 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 
 	}
 
-	public setFrame( frame:FramePlay ) {
+	public setFrameSetting( frame: OREngineProjectFrame ) {
 
-		if ( ! this.sceneFrame || this.sceneFrame.duration != frame.duration ) {
+		this.frameSetting = frame;
 
-			this.sceneFrame = frame;
-
-			this.render();
-
-		}
-
+		this.render();
 
 	}
 
