@@ -8,7 +8,7 @@ import { TimelineCanvasRenderer } from './TimelineCanvasRenderer';
 
 export const TimelineCanvas = ( ) => {
 
-	const { viewPort, viewPortScale, frameSetting: frame, musicBuffer } = useContext( TimelineContext );
+	const { viewPort, viewPortScale, frameSetting, musicBuffer } = useContext( TimelineContext );
 
 	const [ renderer, setRenderer ] = useState<TimelineCanvasRenderer>();
 
@@ -46,13 +46,13 @@ export const TimelineCanvas = ( ) => {
 
 	useEffect( () => {
 
-		if ( renderer && frame ) {
+		if ( renderer && frameSetting ) {
 
-			renderer.setFrame( frame );
+			renderer.setFrameSetting( frameSetting );
 
 		}
 
-	}, [ renderer, frame ] );
+	}, [ renderer, frameSetting ] );
 
 	useEffect( () => {
 
