@@ -37,6 +37,10 @@ export * from './Entity';
 
 export * from './Loaders/GLTFLoader';
 
+// serializable
+
+export * from './Serializable';
+
 // utils
 
 export * from './Utils/Hot';

@@ -177,9 +177,7 @@ export class ProjectSerializer extends GLP.EventEmitter {
 
 			} );
 
-			if (
-				nodeOverrideData.components.length > 0
-			) {
+			if ( nodeOverrideData.components.length > 0 ) {
 
 				override.push( nodeOverrideData );
 

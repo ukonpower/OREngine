@@ -9,6 +9,7 @@ import { Geometry } from '../Component/Geometry';
 import { GPUCompute } from '../Component/GPUCompute';
 import { Light } from '../Component/Light';
 import { Material } from '../Component/Material';
+import { Serializable } from '../Serializable';
 
 import { RenderStack } from '~/ts/gl/Scene/Renderer';
 
@@ -34,7 +35,7 @@ export type EntityParams = {
 	name?: string;
 }
 
-export class Entity extends GLP.EventEmitter {
+export class Entity extends Serializable {
 
 	public readonly uuid: string;
 
@@ -461,7 +462,7 @@ export class Entity extends GLP.EventEmitter {
 
 	}
 
-	public noticeParent( eventName: string, opt: any ) {
+	public noticeParent( eventName: string, opt?: any ) {
 
 		this.emit( eventName, opt );
 
