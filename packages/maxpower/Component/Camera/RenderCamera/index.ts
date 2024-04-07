@@ -1,7 +1,8 @@
 import * as GLP from "glpower";
 
 import { CameraParam, Camera } from "..";
-import { ComponentProps, ComponentSetProps } from "../..";
+import { ExportableProps, ExportablePropsSerialized } from "../../../Exportable";
+
 
 export type RenderCameraTarget = {
 	gBuffer: GLP.GLPowerFrameBuffer,
@@ -48,7 +49,7 @@ export class RenderCamera extends Camera {
 
 	}
 
-	public getProperties(): ComponentProps | null {
+	public getProps(): ExportableProps | null {
 
 		return {
 			type: {
@@ -71,7 +72,7 @@ export class RenderCamera extends Camera {
 
 	}
 
-	public setPropertyValues( props: ComponentSetProps ) {
+	public setProps( props: ExportablePropsSerialized ) {
 
 		this.cameraType = props.type;
 		this.fov = props.fov;

@@ -1,6 +1,7 @@
 import * as GLP from 'glpower';
+import { ExportableProps } from 'maxpower';
 
-import { Component, ComponentParams, ComponentProps, ComponentUpdateEvent } from "..";
+import { Component, ComponentParams, ComponentUpdateEvent } from "..";
 import { BLidge, BLidgeNode, BLidgeLightParam } from "../../BLidge";
 import { Entity } from '../../Entity';
 import { Geometry } from "../Geometry";
@@ -82,7 +83,7 @@ export class BLidger extends Component {
 
 	}
 
-	public getProperties(): ComponentProps | null {
+	public getProps(): ExportableProps | null {
 
 		return {
 			name: { value: this.node.name, opt: { readOnly: true } },
@@ -207,7 +208,7 @@ export class BLidger extends Component {
 				const lightParam = this.node.param as BLidgeLightParam;
 				const light = entity.addComponent( 'light', new Light( { disableEdit: true } ) );
 
-				light.setPropertyValues( {
+				light.setProps( {
 					...lightParam,
 					lightType: lightParam.type,
 					color: new GLP.Vector().copy( lightParam.color ),

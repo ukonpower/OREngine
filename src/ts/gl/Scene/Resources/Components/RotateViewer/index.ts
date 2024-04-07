@@ -42,14 +42,14 @@ export class RotateViewer extends MXP.Component {
 
 	}
 
-	public getProperties(): MXP.ComponentProps {
+	public getProps(): MXP.ExportableProps {
 
 		return {
 			speed: { value: this.speed }
 		};
 
 	}
-	public setPropertyValues( props: MXP.ComponentSetProps ) {
+	public setProps( props: MXP.ExportablePropsSerialized ) {
 
 		this.speed = props.speed;
 

@@ -37,9 +37,9 @@ export * from './Entity';
 
 export * from './Loaders/GLTFLoader';
 
-// serializable
+// Exportable
 
-export * from './Serializable';
+export * from './Exportable';
 
 // utils
 

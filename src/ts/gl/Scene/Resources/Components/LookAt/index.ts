@@ -23,7 +23,7 @@ export class LookAt extends MXP.Component {
 
 	}
 
-	public getProperties(): MXP.ComponentProps | null {
+	public getProps(): MXP.ExportableProps | null {
 
 		return {
 			target: {
