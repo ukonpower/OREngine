@@ -1,7 +1,6 @@
 
 import * as GLP from 'glpower';
 
-import { ComponentResizeEvent } from '..';
 import { PostProcessPass, PostProcessPassParam } from '../PostProcessPass';
 
 import quadVert from './shaders/quad.vs';
@@ -101,12 +100,6 @@ export class GPUComputePass extends PostProcessPass {
 		}
 
 		gl.bindTexture( gl.TEXTURE_2D, null );
-
-	}
-
-	public resize( event: ComponentResizeEvent ): void {
-
-		//
 
 	}
 

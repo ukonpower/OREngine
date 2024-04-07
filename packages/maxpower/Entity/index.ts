@@ -9,7 +9,7 @@ import { Geometry } from '../Component/Geometry';
 import { GPUCompute } from '../Component/GPUCompute';
 import { Light } from '../Component/Light';
 import { Material } from '../Component/Material';
-import { Serializable } from '../Serializable';
+import { Exportable } from '../Exportable';
 
 import { RenderStack } from '~/ts/gl/Scene/Renderer';
 
@@ -35,7 +35,7 @@ export type EntityParams = {
 	name?: string;
 }
 
-export class Entity extends Serializable {
+export class Entity extends Exportable {
 
 	public readonly uuid: string;
 

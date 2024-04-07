@@ -23,12 +23,12 @@ export const ComponentView = ( { component, keyName }: ComponentViewProps ) => {
 		<Value key='-1' label={"key"} value={keyName} readOnly/>
 	];
 
-	const compoProps = component.getProperties();
+	const compoProps = component.getProps();
 
 	const onChange = useCallback( ( value: ValueType, label: string ) => {
 
-		component.setPropertyValues( {
-			...component.getPropertyValues(),
+		component.setProps( {
+			...component.getPropsSerialized(),
 			[ label ]: value
 		} );
 
@@ -38,7 +38,7 @@ export const ComponentView = ( { component, keyName }: ComponentViewProps ) => {
 
 	if ( compoProps ) {
 
-		const _ = ( depth: number, path: string, elmArray: JSX.Element[], props: MXP.ComponentProps ): JSX.Element[] => {
+		const _ = ( depth: number, path: string, elmArray: JSX.Element[], props: MXP.ExportableProps ): JSX.Element[] => {
 
 			const propKeys = Object.keys( props );
 
@@ -52,7 +52,7 @@ export const ComponentView = ( { component, keyName }: ComponentViewProps ) => {
 				if ( "value" in prop ) {
 
 					const value = prop.value;
-					const opt = prop.opt as MXP.ComponentPropsOpt;
+					const opt = prop.opt as MXP.ExportablePropsOpt;
 
 					elmArray.push( <Value key={i} label={key} value={value} onChange={( value ) => {
 

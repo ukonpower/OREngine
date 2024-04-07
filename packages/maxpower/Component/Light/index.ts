@@ -1,6 +1,7 @@
 import * as GLP from 'glpower';
 
-import { ComponentParams, ComponentProps, ComponentSetProps } from '..';
+import { ComponentParams } from '..';
+import { ExportableProps, ExportablePropsSerialized } from '../../Exportable';
 import { ShadowMapCamera } from '../Camera/ShadowMapCamera';
 
 import { gl } from '~/ts/Globals';
@@ -53,7 +54,7 @@ export class Light extends ShadowMapCamera {
 
 	}
 
-	public getProperties(): ComponentProps | null {
+	public getProps(): ExportableProps | null {
 
 		return {
 			lightType: { value: this.lightType },
@@ -68,9 +69,9 @@ export class Light extends ShadowMapCamera {
 
 	}
 
-	public setPropertyValues( props: ComponentSetProps ) {
+	public setProps( props: ExportablePropsSerialized ) {
 
-		props = { ...this.getPropertyValues(), ...props };
+		props = { ...this.getPropsSerialized(), ...props };
 
 		this.lightType = props.lightType;
 

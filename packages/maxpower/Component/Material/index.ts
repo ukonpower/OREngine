@@ -1,14 +1,17 @@
 import * as GLP from 'glpower';
 
-import { Component, ComponentParams, ComponentProps, ComponentSetProps } from "..";
 export type MaterialRenderType = "shadowMap" | "deferred" | "forward" | "envMap" | 'postprocess' | 'ui'
 
 type MaterialDefines = {[key: string]: any};
 type MaterialVisibility = {[K in MaterialRenderType]?: boolean}
 type MaterialProgramCache = {[K in MaterialRenderType]?: GLP.GLPowerProgram}
 
+import { Component, ComponentParams } from '..';
+import { ExportableProps, ExportablePropsSerialized } from '../../Exportable';
+
 import basicFrag from './shaders/basic.fs';
 import basicVert from './shaders/basic.vs';
+
 
 export type DrawType = 'TRIANGLES' | 'LINES' | 'POINTS';
 
@@ -63,7 +66,7 @@ export class Material extends Component {
 		this.defines = params.defines || {};
 		this.uniforms = params.uniforms || {};
 
-		this.setPropertyValues( params );
+		this.setProps( params );
 
 		this.programCache = {};
 
@@ -82,7 +85,7 @@ export class Material extends Component {
 
 	}
 
-	public getProperties(): ComponentProps {
+	public getProps(): ExportableProps {
 
 		return {
 			name: { value: this.name },
@@ -98,9 +101,9 @@ export class Material extends Component {
 
 	}
 
-	public setPropertyValues( props: ComponentSetProps ): void {
+	public setProps( props: ExportablePropsSerialized ): void {
 
-		props = { ...this.getPropertyValues(), ...props };
+		props = { ...this.getPropsSerialized(), ...props };
 
 		this.name = props.name;
 		this.visibilityFlag.deferred = props.deferred;

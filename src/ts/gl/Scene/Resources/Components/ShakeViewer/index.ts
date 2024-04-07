@@ -30,7 +30,7 @@ export class ShakeViewer extends MXP.Component {
 
 	}
 
-	public getProperties(): MXP.ComponentProps | null {
+	public getProps(): MXP.ExportableProps | null {
 
 		return {
 			stop: {
@@ -45,7 +45,7 @@ export class ShakeViewer extends MXP.Component {
 		};
 
 	}
-	public setPropertyValues( props: MXP.ComponentSetProps ) {
+	public setProps( props: MXP.ExportablePropsSerialized ) {
 
 		this.shakePower = props.power;
 		this.shakeSpeed = props.speed;

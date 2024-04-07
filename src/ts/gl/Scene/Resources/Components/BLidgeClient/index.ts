@@ -74,11 +74,11 @@ export class BLidgeClient extends MXP.Component {
 
 		this.gltfPath = BASE_PATH + "/scene.glb";
 
-		this.setPropertyValues( this.getPropertyValues() );
+		this.setProps( this.getPropsSerialized() );
 
 	}
 
-	public getProperties(): MXP.ComponentProps {
+	public getProps(): MXP.ExportableProps {
 
 		const connect = this.connection.enabled;
 
@@ -110,7 +110,7 @@ export class BLidgeClient extends MXP.Component {
 
 	}
 
-	public setPropertyValues( props: MXP.ComponentSetProps ) {
+	public setProps( props: MXP.ExportablePropsSerialized ) {
 
 		this.connection.url = props[ "websocket/url" ];
 		this.connection.enabled = props[ "websocket/connected" ];
@@ -135,10 +135,10 @@ export class BLidgeClient extends MXP.Component {
 
 	}
 
-	public export(): MXP.ComponentProps | null {
+	public exportProps(): MXP.ExportableProps | null {
 
 		return {
-			...super.export(),
+			...super.exportProps(),
 			// scene: { value: this.blidge.currentScene }
 		};
 
