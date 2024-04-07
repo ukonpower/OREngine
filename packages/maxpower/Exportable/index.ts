@@ -19,6 +19,8 @@ export class Exportable extends EventEmitter {
 
 	}
 
+	// get
+
 	public getProps(): ExportableProps | null {
 
 		return null;
@@ -59,12 +61,32 @@ export class Exportable extends EventEmitter {
 
 	}
 
+	// set
+
 	public setProps( props: ExportablePropsSerialized ) {
+
+		this.setPropsImpl( { ...this.getPropsSerialized(), ...props } );
+
+		this.emit( "update/props", [ this.getPropsSerialized() ] );
+
 	}
 
-	public exportProps(): ExportableProps | null {
+	public setPropsImpl( props: ExportablePropsSerialized ) {
+	}
 
-		return this.getPropsSerialized();
+	// unit
+
+	public getPropValue( path: string ) {
+
+		const props = this.getPropsSerialized();
+
+		return props[ path ];
+
+	}
+
+	public setPropValue( path: string, value: any ) {
+
+		this.setProps( { [ path ]: value } );
 
 	}
 

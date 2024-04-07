@@ -215,11 +215,25 @@ export class Scene extends MXP.Entity {
 
 	}
 
-	public setFrameSetting( frameSetting: OREngineProjectFrame ) {
+	public getProps(): MXP.ExportableProps {
 
-		this.frameSetting = frameSetting;
+		return {
+			timeline: {
+				duration: {
+					value: this.frameSetting.duration,
+				},
+				fps: {
+					value: this.frameSetting.fps
+				},
+			}
+		};
 
-		this.emit( "update/frame/setting", [ this.frameSetting ] );
+	}
+
+	public setPropsImpl( props: MXP.ExportablePropsSerialized ) {
+
+		this.frameSetting.duration = props[ "timeline/duration" ];
+		this.frameSetting.fps = props[ "timeline/fps" ];
 
 	}
 

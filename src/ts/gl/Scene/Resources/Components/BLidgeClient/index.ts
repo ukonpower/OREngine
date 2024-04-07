@@ -135,10 +135,10 @@ export class BLidgeClient extends MXP.Component {
 
 	}
 
-	public exportProps(): MXP.ExportableProps | null {
+	public getPropsSerialized(): MXP.ExportableProps | null {
 
 		return {
-			...super.exportProps(),
+			...super.getPropsSerialized(),
 			// scene: { value: this.blidge.currentScene }
 		};
 
