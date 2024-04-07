@@ -260,7 +260,10 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 
 	public setFrameSetting( frame: OREngineProjectFrame ) {
 
-		this.frameSetting = frame;
+		this.frameSetting = {
+			duration: Math.round( frame.duration ),
+			fps: Math.round( frame.fps ),
+		};
 
 		this.render();
 

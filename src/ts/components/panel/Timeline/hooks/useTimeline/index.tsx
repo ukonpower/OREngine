@@ -1,3 +1,4 @@
+import * as MXP from 'maxpower';
 import { useState, useCallback, useEffect, createContext, useRef } from "react";
 
 import { GLEditor } from "~/ts/gl/Editor";
@@ -39,28 +40,33 @@ export const useTimeline = ( glEditor: GLEditor | undefined ) => {
 
 	useEffect( () => {
 
-		const onUpdateFramePlay = ( frame: FramePlay ) => {
-
-			setFramePlay( { ...frame } );
-
-		};
-
-		const onUpdateFrameSetting = ( frame: OREngineProjectFrame ) => {
-
-			setFrameSetting( { ...frame } );
-
-		};
-
-		const onUpdateMusic = ( buffer: AudioBuffer ) => {
-
-			setMusicBuffer( buffer );
-
-		};
-
 		if ( glEditor ) {
 
-			onUpdateFramePlay( glEditor.scene.framePlay );
-			onUpdateFrameSetting( glEditor.scene.frameSetting );
+			const scene = glEditor.scene;
+
+			const onUpdateFramePlay = ( frame: FramePlay ) => {
+
+				setFramePlay( { ...frame } );
+
+			};
+
+			const onUpdateSceneProps = ( props: MXP.ExportablePropsSerialized ) => {
+
+				setFrameSetting( {
+					duration: props[ "timeline/duration" ],
+					fps: props[ "timeline/fps" ]
+				} );
+
+			};
+
+			const onUpdateMusic = ( buffer: AudioBuffer ) => {
+
+				setMusicBuffer( buffer );
+
+			};
+
+			onUpdateFramePlay( scene.framePlay );
+			onUpdateSceneProps( scene.getPropsSerialized() );
 
 			if ( glEditor.audioBuffer ) {
 
@@ -68,23 +74,19 @@ export const useTimeline = ( glEditor: GLEditor | undefined ) => {
 
 			}
 
-			glEditor.scene.on( "update/frame/setting", onUpdateFrameSetting );
-			glEditor.scene.on( "update/frame/play", onUpdateFramePlay );
-			glEditor.scene.on( "update/music", onUpdateMusic );
+			scene.on( "update/props", onUpdateSceneProps );
+			scene.on( "update/frame/play", onUpdateFramePlay );
+			scene.on( "update/music", onUpdateMusic );
+
+			return () => {
+
+				scene.off( "update/frame/setting", onUpdateSceneProps );
+				scene.off( "update/frame/play", onUpdateFramePlay );
+				scene.off( "update/music", onUpdateMusic );
+
+			};
 
 		}
-
-		return () => {
-
-			if ( glEditor ) {
-
-				glEditor.scene.off( "update/frame/setting", onUpdateFrameSetting );
-				glEditor.scene.off( "update/frame/play", onUpdateFramePlay );
-				glEditor.scene.off( "update/music", onUpdateMusic );
-
-			}
-
-		};
 
 	}, [ glEditor ] );
 

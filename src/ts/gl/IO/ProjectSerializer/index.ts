@@ -162,7 +162,7 @@ export class ProjectSerializer extends GLP.EventEmitter {
 
 			e.components.forEach( ( c, key ) => {
 
-				const exportProps: MXP.ExportablePropsSerialized | null = c.exportProps();
+				const exportProps: MXP.ExportablePropsSerialized | null = c.getPropsSerialized();
 
 				if ( exportProps && ! c.disableEdit ) {
 
