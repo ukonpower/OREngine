@@ -1,14 +1,13 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { canvas, gl, power, resource } from '../../Globals';
+import { canvas, power, resource } from '../../Globals';
 import { OREngineProjectData } from '../IO/ProjectSerializer';
-import { Scene } from '../Scene';
-import { OREngineResource } from '../Scene/Resources';
-import { FrameDebugger } from '../Scene/utils/FrameDebugger';
-import { Keyboard, PressedKeys } from '../Scene/utils/Keyboard';
+import { ProjectScene } from '../ProjectScene';
+import { OREngineResource } from '../ProjectScene/Resources';
+import { FrameDebugger } from '../ProjectScene/utils/FrameDebugger';
+import { Keyboard, PressedKeys } from '../ProjectScene/utils/Keyboard';
 
-import { AudioRenderer } from './AudioRenderer';
 import { EditorDataManager, OREngineEditorData, OREngineEditorViewType } from './EditorDataManager';
 import { FileSystem } from './FileSystem';
 
@@ -41,7 +40,7 @@ export class GLEditor extends GLP.EventEmitter {
 
 	// scene
 
-	public scene: Scene;
+	public scene: ProjectScene;
 
 	// canvas
 
@@ -77,7 +76,7 @@ export class GLEditor extends GLP.EventEmitter {
 
 		// scene
 
-		this.scene = new Scene();
+		this.scene = new ProjectScene();
 
 		// view
 
@@ -278,14 +277,14 @@ export class GLEditor extends GLP.EventEmitter {
 		} else {
 
 			this.scene.init();
-			project = this.scene.exportProject( name );
+			project = this.scene.export( name );
 			this.data.setProject( project );
 
 		}
 
 		this.currentProject = project;
 
-		this.data.settings.currentProjectName = this.currentProject.editor.name;
+		this.data.settings.currentProjectName = this.currentProject.setting.name;
 
 		this.selectEntity( null );
 
@@ -323,10 +322,10 @@ export class GLEditor extends GLP.EventEmitter {
 
 		if ( ! this.currentProject ) return;
 
-		const projectName = this.currentProject.editor.name;
+		const projectName = this.currentProject.setting.name;
 
 		this.data.settings.currentProjectName = projectName;
-		this.data.setProject( this.scene.exportProject( projectName ) );
+		this.data.setProject( this.scene.export( projectName ) );
 
 		const editorData = this.data.serialize();
 		this.fileSystem.set( "editor.json", editorData );

@@ -1,7 +1,7 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { Renderer } from '../../Scene/Renderer';
+import { Renderer } from '../../ProjectScene/Renderer';
 
 import audioFrag from './shaders/audio.fs';
 

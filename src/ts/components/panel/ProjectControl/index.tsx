@@ -23,13 +23,13 @@ export const ProjectControl = () => {
 
 		data.projects.forEach( ( project: OREngineProjectData ) => {
 
-			projectList.push( project.editor.name );
+			projectList.push( project.setting.name );
 
 		} );
 
 	}
 
-	const currentProject = glEditor?.currentProject?.editor.name;
+	const currentProject = glEditor?.currentProject?.setting.name;
 
 	const openProject = useCallback( ( projectName: string ) => {
 
