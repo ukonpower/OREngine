@@ -25,7 +25,7 @@ export class Scene extends MXP.Entity {
 
 	// project
 
-	private project: OREngineProjectData | null;
+	private projectCache: OREngineProjectData | null;
 	private projectSerializer: ProjectSerializer;
 
 	// entities
@@ -64,15 +64,15 @@ export class Scene extends MXP.Entity {
 
 		// project
 
-		this.project = null;
+		this.projectCache = null;
 
 		this.projectSerializer = new ProjectSerializer();
 
 		this.on( "update/blidge/scene", ( blidgeRoot: MXP.Entity ) => {
 
-			if ( this.project ) {
+			if ( this.projectCache ) {
 
-				this.projectSerializer.applyOverride( this.root, blidgeRoot, this.project.objectOverride );
+				this.projectSerializer.applyOverride( this.root, blidgeRoot, this.projectCache.objectOverride );
 
 			}
 
@@ -136,7 +136,7 @@ export class Scene extends MXP.Entity {
 		currentRoot.euler.set( 0, 0, 0 );
 		currentRoot.scale.set( 1, 1, 1 );
 
-		this.project = project || null;
+		this.projectCache = project || null;
 
 		if ( project ) {
 
@@ -218,6 +218,9 @@ export class Scene extends MXP.Entity {
 	public getProps(): MXP.ExportableProps {
 
 		return {
+			currentProject: {
+				value: null
+			},
 			timeline: {
 				duration: {
 					value: this.frameSetting.duration,
@@ -247,7 +250,12 @@ export class Scene extends MXP.Entity {
 
 	public exportProject( name: string ) {
 
-		return this.projectSerializer.serialize( name, this.root );
+		const data = this.projectSerializer.serialize( name, this );
+
+		console.log( data );
+
+
+		return data;
 
 	}
 

@@ -285,7 +285,7 @@ export class GLEditor extends GLP.EventEmitter {
 
 		this.currentProject = project;
 
-		this.data.settings.currentProjectName = this.currentProject.setting.name;
+		this.data.settings.currentProjectName = this.currentProject.editor.name;
 
 		this.selectEntity( null );
 
@@ -323,7 +323,7 @@ export class GLEditor extends GLP.EventEmitter {
 
 		if ( ! this.currentProject ) return;
 
-		const projectName = this.currentProject.setting.name;
+		const projectName = this.currentProject.editor.name;
 
 		this.data.settings.currentProjectName = projectName;
 		this.data.setProject( this.scene.exportProject( projectName ) );
