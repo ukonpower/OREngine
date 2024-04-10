@@ -21,7 +21,7 @@ export interface FramePlay {
 	playing: boolean,
 }
 
-export class Scene extends MXP.Entity {
+export class ProjectScene extends MXP.Entity {
 
 	// project
 
@@ -55,7 +55,7 @@ export class Scene extends MXP.Entity {
 
 		super();
 
-		this.name = "scene";
+		this.name = "";
 
 		// resources
 
@@ -103,7 +103,7 @@ export class Scene extends MXP.Entity {
 			playing: false
 		};
 
-		this.setCurrentFrame( 0 );
+		this.seek( 0 );
 
 		// camera
 
@@ -201,26 +201,9 @@ export class Scene extends MXP.Entity {
 
 	}
 
-	// api
-
-	public play() {
-
-		this.framePlay.playing = true;
-
-	}
-
-	public stop() {
-
-		this.framePlay.playing = false;
-
-	}
-
 	public getProps(): MXP.ExportableProps {
 
 		return {
-			currentProject: {
-				value: null
-			},
 			timeline: {
 				duration: {
 					value: this.frameSetting.duration,
@@ -240,7 +223,21 @@ export class Scene extends MXP.Entity {
 
 	}
 
-	public setCurrentFrame( frame: number ) {
+	// api
+
+	public play() {
+
+		this.framePlay.playing = true;
+
+	}
+
+	public stop() {
+
+		this.framePlay.playing = false;
+
+	}
+
+	public seek( frame: number ) {
 
 		this.framePlay.current = frame;
 
@@ -248,11 +245,11 @@ export class Scene extends MXP.Entity {
 
 	}
 
-	public exportProject( name: string ) {
+	public export( name: string ) {
 
-		const data = this.projectSerializer.serialize( name, this );
+		const data = this.projectSerializer.serialize( this, this.root );
 
-		console.log( data );
+		console.log( "projectData:", data );
 
 
 		return data;

@@ -43,7 +43,7 @@ export class EditorDataManager extends GLP.EventEmitter {
 
 		return this.projects.find( p => {
 
-			return p.editor.name == name;
+			return p.setting.name == name;
 
 		} );
 
@@ -51,7 +51,7 @@ export class EditorDataManager extends GLP.EventEmitter {
 
 	public setProject( project: OREngineProjectData ) {
 
-		const sameprojetIndex = this.projects.findIndex( p => p.editor.name == project.editor.name );
+		const sameprojetIndex = this.projects.findIndex( p => p.setting.name == project.setting.name );
 
 		if ( sameprojetIndex > - 1 ) {
 
@@ -64,6 +64,7 @@ export class EditorDataManager extends GLP.EventEmitter {
 		}
 
 	}
+
 	// save
 
 	public serialize(): OREngineEditorData {
