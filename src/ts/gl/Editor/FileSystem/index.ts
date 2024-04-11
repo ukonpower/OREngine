@@ -40,7 +40,9 @@ export class FileSystem extends GLP.EventEmitter {
 
 			const res = await fetch( "/api/data/get/" + path );
 
-			return res.json() as Promise<T>;
+			const data = await res.json() as T;
+
+			return data;
 
 		} catch ( e ) {
 

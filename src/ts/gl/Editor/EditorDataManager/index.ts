@@ -1,7 +1,7 @@
 import * as GLP from 'glpower';
+import * as MXP from 'maxpower';
 
 import { OREngineProjectData } from '../../IO/ProjectSerializer';
-
 
 export type OREngineEditorViewType = "render" | "debug";
 
@@ -62,6 +62,14 @@ export class EditorDataManager extends GLP.EventEmitter {
 			this.projects.push( project );
 
 		}
+
+	}
+
+	// setting
+
+	public setSetting( setting: MXP.ExportablePropsSerialized ) {
+
+		this.settings = setting;
 
 	}
 

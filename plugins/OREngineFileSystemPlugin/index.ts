@@ -21,7 +21,7 @@ export const OREngineFileSystemPlugin = (): Plugin => ( {
 
 			try {
 
-				fs.writeFileSync( OUTPATH + fliePath, JSON.stringify( ( req as any ).body ) );
+				fs.writeFileSync( OUTPATH + fliePath, JSON.stringify( ( req as any ).body, null, '\t' ) );
 
 			} catch ( e ) {
 

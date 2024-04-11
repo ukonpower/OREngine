@@ -125,7 +125,9 @@ export class ProjectScene extends MXP.Entity {
 
 	}
 
-	public init( project?: OREngineProjectData ) {
+	public init( projectName: string, project?: OREngineProjectData ) {
+
+		this.name = projectName;
 
 		const currentRoot = this.root;
 		currentRoot.remove( this.camera );
@@ -204,6 +206,7 @@ export class ProjectScene extends MXP.Entity {
 	public getProps(): MXP.ExportableProps {
 
 		return {
+			name: { value: this.name },
 			timeline: {
 				duration: {
 					value: this.frameSetting.duration,
@@ -218,6 +221,7 @@ export class ProjectScene extends MXP.Entity {
 
 	public setPropsImpl( props: MXP.ExportablePropsSerialized ) {
 
+		this.name = props[ "name" ];
 		this.frameSetting.duration = props[ "timeline/duration" ];
 		this.frameSetting.fps = props[ "timeline/fps" ];
 
@@ -245,12 +249,9 @@ export class ProjectScene extends MXP.Entity {
 
 	}
 
-	public export( name: string ) {
+	public export() {
 
 		const data = this.projectSerializer.serialize( this, this.root );
-
-		console.log( "projectData:", data );
-
 
 		return data;
 
