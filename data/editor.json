@@ -1,1 +1,81 @@
-{"projects":[{"setting":{"timeline/duration":600,"timeline/fps":60},"objectOverride":[],"scene":{"name":"root","pos":[0,0,0],"rot":[0,0,0,0],"scale":[1,1,1],"childs":[]}}],"settings":{"resolutionScale":0.5,"viewType":"render"}}
+{
+	"projects": [
+		{
+			"setting": {
+				"name": "NewProject",
+				"timeline/duration": 600,
+				"timeline/fps": 60
+			},
+			"objectOverride": [
+				{
+					"path": "/root",
+					"components": [
+						{
+							"key": "blidgeClient",
+							"name": "BLidgeClient",
+							"props": {
+								"mode": "json",
+								"gltfPath": "/scene.glb",
+								"websocket/connected": true,
+								"websocket/url": "ws://localhost:3100"
+							}
+						}
+					]
+				}
+			],
+			"scene": {
+				"name": "root",
+				"pos": [
+					0,
+					0,
+					0
+				],
+				"rot": [
+					0,
+					0,
+					0,
+					0
+				],
+				"scale": [
+					1,
+					1,
+					1
+				],
+				"childs": []
+			}
+		},
+		{
+			"setting": {
+				"name": "Test",
+				"timeline/duration": 600,
+				"timeline/fps": 60
+			},
+			"objectOverride": [],
+			"scene": {
+				"name": "root",
+				"pos": [
+					0,
+					0,
+					0
+				],
+				"rot": [
+					0,
+					0,
+					0,
+					0
+				],
+				"scale": [
+					1,
+					1,
+					1
+				],
+				"childs": []
+			}
+		}
+	],
+	"settings": {
+		"currentProjectName": "NewProject",
+		"resolutionScale": 0.25,
+		"viewType": "render"
+	}
+}
