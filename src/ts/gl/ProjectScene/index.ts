@@ -144,6 +144,7 @@ export class ProjectScene extends MXP.Entity {
 
 			this.remove( this.root );
 
+			this.setProps( project.setting );
 			this.root = this.projectSerializer.deserialize( project ).root;
 
 			this.add( this.root );

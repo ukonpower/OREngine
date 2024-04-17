@@ -319,6 +319,8 @@ export class GLEditor extends MXP.Exportable {
 
 		}
 
+		this.emit( "action/loadProject" );
+
 		this.selectEntity( null );
 
 	}

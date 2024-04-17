@@ -3,7 +3,7 @@
 		{
 			"setting": {
 				"name": "NewProject",
-				"timeline/duration": 600,
+				"timeline/duration": 11000,
 				"timeline/fps": 60
 			},
 			"objectOverride": [
@@ -19,6 +19,11 @@
 								"websocket/connected": true,
 								"websocket/url": "ws://localhost:3100"
 							}
+						},
+						{
+							"key": "music",
+							"name": "Music",
+							"props": {}
 						}
 					]
 				},
