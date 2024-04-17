@@ -21,11 +21,11 @@ export interface FramePlay {
 	playing: boolean,
 }
 
-export class Scene extends MXP.Entity {
+export class ProjectScene extends MXP.Entity {
 
 	// project
 
-	private project: OREngineProjectData | null;
+	private projectCache: OREngineProjectData | null;
 	private projectSerializer: ProjectSerializer;
 
 	// entities
@@ -55,7 +55,7 @@ export class Scene extends MXP.Entity {
 
 		super();
 
-		this.name = "scene";
+		this.name = "";
 
 		// resources
 
@@ -64,15 +64,15 @@ export class Scene extends MXP.Entity {
 
 		// project
 
-		this.project = null;
+		this.projectCache = null;
 
 		this.projectSerializer = new ProjectSerializer();
 
 		this.on( "update/blidge/scene", ( blidgeRoot: MXP.Entity ) => {
 
-			if ( this.project ) {
+			if ( this.projectCache ) {
 
-				this.projectSerializer.applyOverride( this.root, blidgeRoot, this.project.objectOverride );
+				this.projectSerializer.applyOverride( this.root, blidgeRoot, this.projectCache.objectOverride );
 
 			}
 
@@ -103,7 +103,7 @@ export class Scene extends MXP.Entity {
 			playing: false
 		};
 
-		this.setCurrentFrame( 0 );
+		this.seek( 0 );
 
 		// camera
 
@@ -125,7 +125,9 @@ export class Scene extends MXP.Entity {
 
 	}
 
-	public init( project?: OREngineProjectData ) {
+	public init( projectName: string, project?: OREngineProjectData ) {
+
+		this.name = projectName;
 
 		const currentRoot = this.root;
 		currentRoot.remove( this.camera );
@@ -136,7 +138,7 @@ export class Scene extends MXP.Entity {
 		currentRoot.euler.set( 0, 0, 0 );
 		currentRoot.scale.set( 1, 1, 1 );
 
-		this.project = project || null;
+		this.projectCache = project || null;
 
 		if ( project ) {
 
@@ -201,23 +203,10 @@ export class Scene extends MXP.Entity {
 
 	}
 
-	// api
-
-	public play() {
-
-		this.framePlay.playing = true;
-
-	}
-
-	public stop() {
-
-		this.framePlay.playing = false;
-
-	}
-
 	public getProps(): MXP.ExportableProps {
 
 		return {
+			name: { value: this.name },
 			timeline: {
 				duration: {
 					value: this.frameSetting.duration,
@@ -232,12 +221,27 @@ export class Scene extends MXP.Entity {
 
 	public setPropsImpl( props: MXP.ExportablePropsSerialized ) {
 
+		this.name = props[ "name" ];
 		this.frameSetting.duration = props[ "timeline/duration" ];
 		this.frameSetting.fps = props[ "timeline/fps" ];
 
 	}
 
-	public setCurrentFrame( frame: number ) {
+	// api
+
+	public play() {
+
+		this.framePlay.playing = true;
+
+	}
+
+	public stop() {
+
+		this.framePlay.playing = false;
+
+	}
+
+	public seek( frame: number ) {
 
 		this.framePlay.current = frame;
 
@@ -245,9 +249,11 @@ export class Scene extends MXP.Entity {
 
 	}
 
-	public exportProject( name: string ) {
+	public export() {
 
-		return this.projectSerializer.serialize( name, this.root );
+		const data = this.projectSerializer.serialize( this, this.root );
+
+		return data;
 
 	}
 

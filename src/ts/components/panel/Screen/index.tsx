@@ -21,7 +21,7 @@ export const Screen = () => {
 				<div className={style.viewSelect}>
 					<Value label='View' selectList={[ "render", "debug" ]} value={glEditor?.viewType || "render"} onChange={( value ) => {
 
-						glEditor && glEditor.setViewType( value as OREngineEditorViewType );
+						glEditor && glEditor.setPropValue( "viewType", value as OREngineEditorViewType );
 
 						reflesh && reflesh();
 
@@ -30,7 +30,8 @@ export const Screen = () => {
 				<div className={style.viewSelect}>
 					<Value label='Resolution' selectList={[ "1", "1/2", "1/4", "1/8" ]} value={resolutionDivideStr} onChange={( value ) => {
 
-						glEditor && glEditor.setResolutionScale( 1.0 / Number( value.toString().split( '/' )[ 1 ] || "1" ) );
+						glEditor && glEditor.setPropValue( "resolutionScale", 1.0 / Number( value.toString().split( '/' )[ 1 ] || "1" ) );
+
 
 						reflesh && reflesh();
 

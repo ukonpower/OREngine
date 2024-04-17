@@ -15,7 +15,7 @@ export const ProjectControl = () => {
 
 	const { pushContent, closeAll } = useContext( MouseMenuContext );
 	const { glEditor, reflesh } = useContext( EditorContext );
-	const data = glEditor?.data;
+	const data = glEditor?.saveData;
 
 	const projectList: string[] = [];
 
@@ -29,7 +29,7 @@ export const ProjectControl = () => {
 
 	}
 
-	const currentProject = glEditor?.currentProject?.setting.name;
+	const currentProject = glEditor?.getPropValue( 'currentProjectName' );
 
 	const openProject = useCallback( ( projectName: string ) => {
 

@@ -1,11 +1,11 @@
 import * as MXP from 'maxpower';
 
-import { SkyBox } from "../../Scene/Resources/Components/SkyBox";
 
 import { BLidgeClient } from "./Components/BLidgeClient";
 import { LookAt } from "./Components/LookAt";
 import { Music } from './Components/Music';
 import { ShakeViewer } from "./Components/ShakeViewer";
+import { SkyBox } from "./Components/SkyBox";
 import { TurnTable } from './Components/TurnTable';
 import { OREngineCube } from './Materials/OREngineCube';
 import { OREngineLogo } from './Materials/OREngineLogo';

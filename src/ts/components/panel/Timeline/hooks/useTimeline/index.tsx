@@ -3,7 +3,7 @@ import { useState, useCallback, useEffect, createContext, useRef } from "react";
 
 import { GLEditor } from "~/ts/gl/Editor";
 import { OREngineProjectFrame } from "~/ts/gl/IO/ProjectSerializer";
-import { FramePlay } from '~/ts/gl/Scene';
+import { FramePlay } from '~/ts/gl/ProjectScene';
 
 export const TimelineContext = createContext<HooksContext<typeof useTimeline>>( {} );
 
@@ -130,7 +130,7 @@ export const useTimeline = ( glEditor: GLEditor | undefined ) => {
 
 		if ( glEditor ) {
 
-			glEditor.scene.setCurrentFrame( frame );
+			glEditor.scene.seek( frame );
 
 		}
 

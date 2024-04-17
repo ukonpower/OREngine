@@ -1,8 +1,8 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { OREngineResource } from '../gl/Scene/Resources';
-import { GPUState } from '../gl/Scene/utils/GPUState';
+import { OREngineResource } from '../gl/ProjectScene/Resources';
+import { GPUState } from '../gl/ProjectScene/utils/GPUState';
 
 export const canvas = document.createElement( "canvas" );
 export const gl = canvas.getContext( 'webgl2', { antialias: false } )!;

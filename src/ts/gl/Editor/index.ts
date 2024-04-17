@@ -1,26 +1,20 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { canvas, gl, power, resource } from '../../Globals';
-import { OREngineProjectData } from '../IO/ProjectSerializer';
-import { Scene } from '../Scene';
-import { OREngineResource } from '../Scene/Resources';
-import { FrameDebugger } from '../Scene/utils/FrameDebugger';
-import { Keyboard, PressedKeys } from '../Scene/utils/Keyboard';
+import { canvas, power, resource } from '../../Globals';
+import { ProjectScene } from '../ProjectScene';
+import { OREngineResource } from '../ProjectScene/Resources';
+import { FrameDebugger } from '../ProjectScene/utils/FrameDebugger';
+import { Keyboard, PressedKeys } from '../ProjectScene/utils/Keyboard';
 
-import { AudioRenderer } from './AudioRenderer';
 import { EditorDataManager, OREngineEditorData, OREngineEditorViewType } from './EditorDataManager';
 import { FileSystem } from './FileSystem';
 
-export class GLEditor extends GLP.EventEmitter {
+export class GLEditor extends MXP.Exportable {
 
 	// resources
 
 	public resource: OREngineResource;
-
-	// project
-
-	public currentProject: OREngineProjectData | null;
 
 	// scene
 
@@ -32,8 +26,8 @@ export class GLEditor extends GLP.EventEmitter {
 
 	// data
 
-	public data: EditorDataManager;
 	private unsaved: boolean;
+	public saveData: EditorDataManager;
 
 	// keyboard
 
@@ -41,7 +35,7 @@ export class GLEditor extends GLP.EventEmitter {
 
 	// scene
 
-	public scene: Scene;
+	public scene: ProjectScene;
 
 	// canvas
 
@@ -77,15 +71,11 @@ export class GLEditor extends GLP.EventEmitter {
 
 		// scene
 
-		this.scene = new Scene();
+		this.scene = new ProjectScene();
 
 		// view
 
 		this.viewType = "render";
-
-		// project
-
-		this.currentProject = null;
 
 		// resource
 
@@ -141,7 +131,7 @@ export class GLEditor extends GLP.EventEmitter {
 
 		// data
 
-		this.data = new EditorDataManager();
+		this.saveData = new EditorDataManager();
 		this.unsaved = false;
 
 		// frameDebugger
@@ -199,15 +189,13 @@ export class GLEditor extends GLP.EventEmitter {
 
 			if ( data ) {
 
-				this.data.setEditorData( data );
+				this.saveData.setEditorData( data );
 
 			}
 
-			this.openProject( this.data.settings.currentProjectName || "NewProject" );
+			this.openProject( this.saveData.settings.currentProjectName || "NewProject" );
 
-			this.setResolutionScale( this.data.settings.resolutionScale || 0.5 );
-
-			this.setViewType( this.data.settings.viewType || "render" );
+			this.setProps( this.saveData.settings );
 
 		} );
 
@@ -248,6 +236,54 @@ export class GLEditor extends GLP.EventEmitter {
 	}
 
 	/*-------------------------------
+		Props
+	-------------------------------*/
+
+	public getProps(): MXP.ExportableProps {
+
+		return {
+			currentProjectName: {
+				value: this.scene.name,
+			},
+			resolutionScale: {
+				value: this.resolutionScale,
+			},
+			viewType: {
+				value: this.viewType
+			}
+		};
+
+	}
+
+	public setPropsImpl( props: MXP.ExportablePropsSerialized ) {
+
+		// viewtype
+
+		this.viewType = this.saveData.settings.viewType = props[ "viewType" ];
+
+		if ( this.viewType === "debug" ) {
+
+			this.frameDebugger.enable = true;
+
+		} else {
+
+			this.frameDebugger.enable = false;
+
+		}
+
+		//  scale
+
+		const scale = props[ "resolutionScale" ];
+
+		this.saveData.settings.resolutionScale = scale;
+
+		this.resolutionScale = scale;
+
+		this.resize();
+
+	}
+
+	/*-------------------------------
 		API
 	-------------------------------*/
 
@@ -269,67 +305,30 @@ export class GLEditor extends GLP.EventEmitter {
 
 	public openProject( name: string ) {
 
-		let project = this.data.getProject( name );
+		let project = this.saveData.getProject( name );
 
 		if ( project ) {
 
-			this.scene.init( project );
+			this.scene.init( name, project );
 
 		} else {
 
-			this.scene.init();
-			project = this.scene.exportProject( name );
-			this.data.setProject( project );
+			this.scene.init( name );
+			project = this.scene.export();
+			this.saveData.setProject( project );
 
 		}
-
-		this.currentProject = project;
-
-		this.data.settings.currentProjectName = this.currentProject.setting.name;
 
 		this.selectEntity( null );
 
 	}
 
-	public setViewType( type: OREngineEditorViewType ) {
-
-		this.data.settings.viewType = this.viewType = type;
-
-		if ( this.viewType === "debug" ) {
-
-			this.frameDebugger.enable = true;
-
-		} else {
-
-			this.frameDebugger.enable = false;
-
-		}
-
-	}
-
-	// resolution
-
-	public setResolutionScale( scale: number ) {
-
-		this.data.settings.resolutionScale = scale;
-
-		this.resolutionScale = scale;
-
-		this.resize();
-
-	}
-
 	public save() {
 
-		if ( ! this.currentProject ) return;
+		this.saveData.setProject( this.scene.export() );
+		this.saveData.setSetting( this.getPropsSerialized() );
 
-		const projectName = this.currentProject.setting.name;
-
-		this.data.settings.currentProjectName = projectName;
-		this.data.setProject( this.scene.exportProject( projectName ) );
-
-		const editorData = this.data.serialize();
-		this.fileSystem.set( "editor.json", editorData );
+		this.fileSystem.set( "editor.json", this.saveData.serialize() );
 
 		this.unsaved = false;
 
