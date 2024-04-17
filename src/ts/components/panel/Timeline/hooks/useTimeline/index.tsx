@@ -44,11 +44,17 @@ export const useTimeline = ( glEditor: GLEditor | undefined ) => {
 
 			const scene = glEditor.scene;
 
+			// frame
+
 			const onUpdateFramePlay = ( frame: FramePlay ) => {
 
 				setFramePlay( { ...frame } );
 
 			};
+
+			onUpdateFramePlay( scene.framePlay );
+
+			// scene
 
 			const onUpdateSceneProps = ( props: MXP.ExportablePropsSerialized ) => {
 
@@ -59,14 +65,15 @@ export const useTimeline = ( glEditor: GLEditor | undefined ) => {
 
 			};
 
+			onUpdateSceneProps( scene.getPropsSerialized() );
+
+			// music
+
 			const onUpdateMusic = ( buffer: AudioBuffer ) => {
 
 				setMusicBuffer( buffer );
 
 			};
-
-			onUpdateFramePlay( scene.framePlay );
-			onUpdateSceneProps( scene.getPropsSerialized() );
 
 			if ( glEditor.audioBuffer ) {
 
@@ -74,15 +81,31 @@ export const useTimeline = ( glEditor: GLEditor | undefined ) => {
 
 			}
 
+			// load
+
+			const onLoadProject = () => {
+
+				const props = scene.getPropsSerialized();
+
+				setViewPort( [ 0, 0, props[ "timeline/duration" ], 0 ] );
+
+			};
+
+			onLoadProject();
+
+			// addlistener
+
 			scene.on( "update/props", onUpdateSceneProps );
 			scene.on( "update/frame/play", onUpdateFramePlay );
 			scene.on( "update/music", onUpdateMusic );
+			glEditor.on( "action/loadProject", onLoadProject );
 
 			return () => {
 
 				scene.off( "update/frame/setting", onUpdateSceneProps );
 				scene.off( "update/frame/play", onUpdateFramePlay );
 				scene.off( "update/music", onUpdateMusic );
+				glEditor.off( "action/loadProject", onLoadProject );
 
 			};
 
