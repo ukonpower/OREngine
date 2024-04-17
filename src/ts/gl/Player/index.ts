@@ -1,7 +1,7 @@
 import * as GLP from 'glpower';
 
 import { canvas, gpuState } from '../../Globals';
-import { Scene } from '../Scene';
+import { ProjectScene } from '../ProjectScene';
 
 
 class App {
@@ -13,7 +13,7 @@ class App {
 	private canvasWrapElm: HTMLElement;
 	private canvas: HTMLCanvasElement;
 
-	private scene: Scene;
+	private scene: ProjectScene;
 	private playing: boolean;
 
 	constructor() {
@@ -90,7 +90,7 @@ class App {
 			Scene
 		-------------------------------*/
 
-		this.scene = new Scene();
+		this.scene = new ProjectScene();
 
 		// this.scene.loadProject( SceneData[ "projects" ][ 0 ] );
 

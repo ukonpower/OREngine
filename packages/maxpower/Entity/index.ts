@@ -11,7 +11,7 @@ import { Light } from '../Component/Light';
 import { Material } from '../Component/Material';
 import { Exportable } from '../Exportable';
 
-import { RenderStack } from '~/ts/gl/Scene/Renderer';
+import { RenderStack } from '~/ts/gl/ProjectScene/Renderer';
 
 export type EntityUpdateEvent = {
 	timElapsed: number;

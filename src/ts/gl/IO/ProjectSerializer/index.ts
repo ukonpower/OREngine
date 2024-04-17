@@ -15,13 +15,7 @@ export interface OREngineNodeOverride {
 }
 
 export interface OREngineProjectData {
-	setting: {
-		name: string,
-	},
-	engine: {
-		version: string
-	},
-	frame: OREngineProjectFrame,
+	setting: any
 	objectOverride: OREngineNodeOverride[],
 	scene: SceneNode | null
 }
@@ -117,7 +111,7 @@ export class ProjectSerializer extends GLP.EventEmitter {
 
 	}
 
-	public serialize( name: string, projectRoot: MXP.Entity ) {
+	public serialize( project: MXP.Entity, sceneRoot: MXP.Entity ) {
 
 		const override: OREngineNodeOverride[] = [];
 
@@ -147,13 +141,13 @@ export class ProjectSerializer extends GLP.EventEmitter {
 
 		};
 
-		scene = _( projectRoot );
+		scene = _( sceneRoot );
 
-		projectRoot.traverse( ( e ) => {
+		sceneRoot.traverse( ( e ) => {
 
 			if ( e.noExport ) return;
 
-			const path_ = e.getPath( projectRoot );
+			const path_ = e.getPath( sceneRoot );
 
 			const nodeOverrideData: OREngineNodeOverride = {
 				path: path_,
@@ -186,16 +180,7 @@ export class ProjectSerializer extends GLP.EventEmitter {
 		} );
 
 		const serializedData: OREngineProjectData = {
-			setting: {
-				name
-			},
-			engine: {
-				version: "0.0.1"
-			},
-			frame: {
-				duration: 600,
-				fps: 30
-			},
+			setting: project.getPropsSerialized(),
 			objectOverride: override,
 			scene,
 		};
