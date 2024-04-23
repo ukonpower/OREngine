@@ -78,6 +78,15 @@ export const ProjectControl = () => {
 					}
 
 				}}>Save</Button>
+				<Button onClick={()=>{
+
+					if ( glEditor ) {
+
+						glEditor.exportCurrentScene();
+
+					}
+
+				}}>Export current scene</Button>
 			</PropertyBlock>
 		</div>
 	</div>;

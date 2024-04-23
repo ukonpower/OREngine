@@ -11,7 +11,7 @@ uniform float uDuration;
 uniform float uSampleRate;
 uniform float uTimeOffset;
 
-const float BPM = 85.0;
+uniform float uBPM;
 
 /*-------------------------------
 	Utils
@@ -305,8 +305,8 @@ vec2 faaa( float time, float loop ) {
 
 vec2 music( float time ) {
 
-	float t = time * (BPM / 60.0);
-	t = max( 0.0, t - 8.0 );
+	float t = time * (uBPM / 60.0);
+	t = max( 0.0, t - 0.0 );
 
 	float loop1 = fract( t );
 	
@@ -326,90 +326,8 @@ vec2 music( float time ) {
 
 	// click
 
-	if( isin( loop32Phase, 0.0001, 100.0 ) ) {
-
-		// o += step( fract( loop4 ), 0.1 ) * ssin( time * s2f(3.0) * 2.0 ) * 0.03;
-		// o += step( fract( loop4 / 4.0 ), 0.05 ) * ssin( time * s2f(12.0) * 2.0 ) * 0.02;
-
-	}
-	
-	// intro
-	
-	if( isin( loop32Phase, 0.0001, 0.875 ) ) {
-
-		o += xylophone1( time, loop16 * 4.0, 0.0 );
-		o += clap1( time, loop16 / 2.0 );
-		o += dada( time, loop8 / 4.0 );
-
-	}
-
-	// dada
-
-	if( isin( loop32Phase, 0.875, 1.0 ) ) {
-
-		o += moooon( time, loop16 / 4.0 );
-		o += dada( time, loop8 / 4.0 ) * 1.5;
-
-	}
-
-	// phase1
-
-	if( isin( loop32Phase, 1.0, 3.0 ) ) {
-
-		o += xylophone1( time, loop16 * 4.0, 0.0 );
-		o += dada( time, loop8 / 4.0 );
-
-		if( isin( loop32Phase, 1.0, 2.9 ) ) {
-
-			o += clap1( time, loop16 / 2.0 );
-
-		}
-
-		if( isin( loop32Phase, 1.0, 2.82 ) ) {
-
-			o += kick1( time, loop16 / 2.0 );
-
-		}
-
-		if( isin( loop32Phase, 2.85, 3.0 ) ) {
-
-			o += moooon( time, loop16 / 4.0 );
-
-		}
-
-	}
-
-	if( isin( loop32Phase, 3.0, 4.0 ) ) {
-
-		o += dada( time, loop8 / 4.0 );
-		o += kick1( time, loop16 / 2.0 );
-
-	}
-
-	if( isin( loop32Phase, 4.0, 6.0 ) ) {
-
-		o += clap1( time, loop16 / 2.0 );
-		o += kick1( time, loop16 / 2.0 );
-		o += dada( time, loop8 / 4.0 );
-		o += faaa( time, loop16 / 4.0 );// * smoothstep(4.0, 4.01, loop32Phase);
-
-	}
-
-	if( isin( loop32Phase, 5.0, 6.0 ) ) {
-
-		o += xylophone1( time, loop16 * 4.0, 0.0 );
-		o += hihat1( time, loop16 );
-
-	}
-
-	if( isin( loop32Phase, 6.0, 7.0 ) ) {
-
-		o += xylophone1( time, loop16 * 4.0, 0.0 );
-		o += dada( time, loop8 / 4.0 );
-		o += clap1( time, loop16 / 2.0 );
-		o += kick1( time, loop16 / 2.0 );
-
-	}
+	o += step( fract( loop4 ), 0.1 ) * ssin( time * s2f(3.0) * 2.0 ) * 0.03;
+	o += step( fract( loop4 / 4.0 ), 0.05 ) * ssin( time * s2f(12.0) * 2.0 ) * 0.02;
 
 	return o;
 	
@@ -417,7 +335,7 @@ vec2 music( float time ) {
 
 void main( void ) {
 
-	float time = aTime / uSampleRate + uTimeOffset;
+	float time = (aTime / uSampleRate ) + uTimeOffset;
 
 	vec2 o = music( time );
 

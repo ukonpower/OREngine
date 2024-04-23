@@ -336,6 +336,12 @@ export class GLEditor extends MXP.Exportable {
 
 	}
 
+	public exportCurrentScene() {
+
+		this.fileSystem.set( "out.json", this.scene.export() );
+
+	}
+
 	/*-------------------------------
 		Resize
 	-------------------------------*/
