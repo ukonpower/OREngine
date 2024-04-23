@@ -9,7 +9,8 @@ import musicVert from './shaders/music.vs';
 
 import { power } from '~/ts/Globals';
 
-const MUSIC_DURATION = 60 * ( ( 32 * 8.0 + 8 + 1 ) / 85.0 );
+const BPM = 85;
+const MUSIC_DURATION = 60 * ( ( 8 * 2 ) / BPM );
 
 export class Music extends MXP.Component {
 
@@ -92,6 +93,7 @@ export class Music extends MXP.Component {
 			} );
 
 			program.setUniform( 'uDuration', '1f', [ MUSIC_DURATION ] );
+			program.setUniform( 'uBPM', '1f', [ BPM ] );
 			program.setUniform( 'uSampleRate', '1f', [ this.audioCtx.sampleRate ] );
 
 			const vao = program.getVAO();
