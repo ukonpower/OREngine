@@ -2,7 +2,7 @@
 	"projects": [
 		{
 			"setting": {
-				"name": "NewProject",
+				"name": "OREngine",
 				"timeline/duration": 679.6000000000003,
 				"timeline/fps": 60
 			},
@@ -156,7 +156,7 @@
 		}
 	],
 	"settings": {
-		"currentProjectName": "NewProject",
+		"currentProjectName": "OREngine",
 		"resolutionScale": 0.25,
 		"viewType": "render"
 	}
