@@ -15,7 +15,7 @@ export const ProjectControl = () => {
 
 	const { pushContent, closeAll } = useContext( MouseMenuContext );
 	const { glEditor, reflesh } = useContext( EditorContext );
-	const data = glEditor?.saveData;
+	const data = glEditor?.dataManager;
 
 	const projectList: string[] = [];
 
@@ -29,34 +29,44 @@ export const ProjectControl = () => {
 
 	}
 
-	const currentProject = glEditor?.getPropValue( 'currentProjectName' );
-
-	const openProject = useCallback( ( projectName: string ) => {
-
-		if ( glEditor ) {
-
-			glEditor.openProject( projectName );
-
-		}
-
-	}, [ glEditor ] );
+	const currentProjectName = glEditor?.getPropValue( 'currentProjectName' );
 
 	return <div className={style.project}>
 		<div className={style.project_inner}>
 			<PropertyBlock label="Project" accordion >
 				<div className={style.select}>
-					<Value label='Project' value={currentProject || ''} selectList={projectList} onChange={( value ) => {
+					<Value label='Project' value={currentProjectName || ''} selectList={projectList} onChange={( value ) => {
 
-						openProject( value as string );
+						glEditor && glEditor.openProject( value as string );
 
 					}}/>
+					<div className={style.rename}>
+						<Button onClick={() => {
+
+							pushContent && pushContent( <>
+								<InputGroup title='Rename Project' initialValues={{ name: currentProjectName }} onSubmit={( e ) => {
+
+									console.log( e.name );
+
+
+									glEditor && glEditor.setPropValue( "currentProjectName", e.name as string );
+
+									closeAll && closeAll();
+
+									reflesh && reflesh();
+
+								}}/>
+							</> );
+
+						}}>Rename</Button>
+					</div>
 					<div className={style.new}>
 						<Button onClick={() => {
 
 							pushContent && pushContent( <>
 								<InputGroup title='New Project' initialValues={{ name: "NewProject" }} onSubmit={( e ) => {
 
-									openProject( e.name as string );
+									glEditor && glEditor.openProject( e.name as string );
 
 									closeAll && closeAll();
 
@@ -86,7 +96,7 @@ export const ProjectControl = () => {
 
 					}
 
-				}}>Export current scene</Button>
+				}}>Export Scene</Button>
 			</PropertyBlock>
 		</div>
 	</div>;

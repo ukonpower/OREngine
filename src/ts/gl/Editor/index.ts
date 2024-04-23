@@ -27,7 +27,7 @@ export class GLEditor extends MXP.Exportable {
 	// data
 
 	private unsaved: boolean;
-	public saveData: EditorDataManager;
+	public dataManager: EditorDataManager;
 
 	// keyboard
 
@@ -131,7 +131,7 @@ export class GLEditor extends MXP.Exportable {
 
 		// data
 
-		this.saveData = new EditorDataManager();
+		this.dataManager = new EditorDataManager();
 		this.unsaved = false;
 
 		// frameDebugger
@@ -189,13 +189,13 @@ export class GLEditor extends MXP.Exportable {
 
 			if ( data ) {
 
-				this.saveData.setEditorData( data );
+				this.dataManager.setEditorData( data );
 
 			}
 
-			this.openProject( this.saveData.settings.currentProjectName || "NewProject" );
+			this.openProject( this.dataManager.settings.currentProjectName || "NewProject" );
 
-			this.setProps( this.saveData.settings );
+			this.setProps( this.dataManager.settings );
 
 		} );
 
@@ -259,7 +259,7 @@ export class GLEditor extends MXP.Exportable {
 
 		// viewtype
 
-		this.viewType = this.saveData.settings.viewType = props[ "viewType" ];
+		this.viewType = this.dataManager.settings.viewType = props[ "viewType" ];
 
 		if ( this.viewType === "debug" ) {
 
@@ -275,11 +275,24 @@ export class GLEditor extends MXP.Exportable {
 
 		const scale = props[ "resolutionScale" ];
 
-		this.saveData.settings.resolutionScale = scale;
+		this.dataManager.settings.resolutionScale = scale;
 
 		this.resolutionScale = scale;
 
 		this.resize();
+
+		// name
+
+		const project = this.dataManager.getProject( this.scene.name );
+
+		if ( project ) {
+
+			project.setting.name = props[ "currentProjectName" ];
+
+		}
+
+		this.scene.name = props[ "currentProjectName" ];
+
 
 	}
 
@@ -305,7 +318,7 @@ export class GLEditor extends MXP.Exportable {
 
 	public openProject( name: string ) {
 
-		let project = this.saveData.getProject( name );
+		let project = this.dataManager.getProject( name );
 
 		if ( project ) {
 
@@ -315,7 +328,7 @@ export class GLEditor extends MXP.Exportable {
 
 			this.scene.init( name );
 			project = this.scene.export();
-			this.saveData.setProject( project );
+			this.dataManager.setProject( project );
 
 		}
 
@@ -325,12 +338,16 @@ export class GLEditor extends MXP.Exportable {
 
 	}
 
+	public renameProject( name: string ) {
+
+	}
+
 	public save() {
 
-		this.saveData.setProject( this.scene.export() );
-		this.saveData.setSetting( this.getPropsSerialized() );
+		this.dataManager.setProject( this.scene.export() );
+		this.dataManager.setSetting( this.getPropsSerialized() );
 
-		this.fileSystem.set( "editor.json", this.saveData.serialize() );
+		this.fileSystem.set( "editor.json", this.dataManager.serialize() );
 
 		this.unsaved = false;
 
