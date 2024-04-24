@@ -97,6 +97,13 @@ export const ProjectControl = () => {
 					}
 
 				}}>Export Scene</Button>
+				<br/>
+				<br/>
+				<Button onClick={()=>{
+
+					location.href = "/player";
+
+				}} >Open Player</Button>
 			</PropertyBlock>
 		</div>
 	</div>;

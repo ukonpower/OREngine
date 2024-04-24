@@ -355,7 +355,7 @@ export class GLEditor extends MXP.Exportable {
 
 	public exportCurrentScene() {
 
-		this.fileSystem.set( "out.json", this.scene.export() );
+		this.fileSystem.set( "player.json", this.scene.export() );
 
 	}
 
