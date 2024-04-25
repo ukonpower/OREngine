@@ -113,40 +113,6 @@ export const useTimeline = ( glEditor: GLEditor | undefined ) => {
 
 	}, [ glEditor ] );
 
-	// play / pause
-
-	const onKeyDown = useCallback( ( e:KeyboardEvent ) => {
-
-		if ( ! glEditor ) return;
-
-		if ( e.key == ' ' ) {
-
-			if ( glEditor.scene.framePlay.playing ) {
-
-				glEditor.scene.stop( );
-
-			} else {
-
-				glEditor.scene.play();
-
-			}
-
-		}
-
-	}, [ glEditor ] );
-
-	useEffect( () => {
-
-		window.addEventListener( 'keydown', onKeyDown );
-
-		return () => {
-
-			window.removeEventListener( 'keydown', onKeyDown );
-
-		};
-
-	}, [ onKeyDown ] );
-
 	// api
 
 	const setCurrentFrame = useCallback( ( frame: number ) => {
