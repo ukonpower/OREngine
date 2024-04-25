@@ -15,7 +15,9 @@ export interface OREngineNodeOverride {
 }
 
 export interface OREngineProjectData {
-	setting: any
+	setting: {
+		[key: string]: any
+	}
 	objectOverride: OREngineNodeOverride[],
 	scene: SceneNode | null
 }

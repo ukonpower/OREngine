@@ -125,9 +125,7 @@ export class ProjectScene extends MXP.Entity {
 
 	}
 
-	public init( projectName: string, project?: OREngineProjectData ) {
-
-		this.name = projectName;
+	public init( project?: OREngineProjectData ) {
 
 		const currentRoot = this.root;
 		currentRoot.remove( this.camera );
@@ -142,12 +140,18 @@ export class ProjectScene extends MXP.Entity {
 
 		if ( project ) {
 
+			this.name = project.setting.name;
+
 			this.remove( this.root );
 
 			this.setProps( project.setting );
 			this.root = this.projectSerializer.deserialize( project ).root;
 
 			this.add( this.root );
+
+		} else {
+
+			this.name = "New Project";
 
 		}
 

@@ -14,11 +14,8 @@ class App {
 	private canvas: HTMLCanvasElement;
 
 	private scene: ProjectScene;
-	private playing: boolean;
 
 	constructor() {
-
-		this.playing = false;
 
 		/*-------------------------------
 			Element
@@ -92,9 +89,7 @@ class App {
 
 		this.scene = new ProjectScene();
 
-		// this.scene.loadProject( SceneData[ "projects" ][ 0 ] );
-
-		this.scene.init( "", SceneData );
+		this.scene.init( SceneData );
 
 		this.scene.on( "loaded", () => {
 
