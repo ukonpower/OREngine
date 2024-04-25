@@ -7,12 +7,31 @@
 	}
 }
 
+.projectSelector {
+	flex: 1;
+}
+
 .row {
 	display: flex;
+	justify-content: flex-end;
+
+	&[data-type="top"] {
+		margin-bottom: 5px;
+	}
+
+	&[data-type="bottom"] {
+		.rowItem {
+			width: 50px;
+		}
+	}
 }
 
 .rowItem {
-	width: 100px;
+	width: 70px;
 	margin-left: 4px;
 	margin-bottom: 1px;
+}
+
+.export {
+	height: 30px;
 }

@@ -1,9 +1,10 @@
 import { useContext } from 'react';
 
 import { Button } from '../../ui/Button';
+import { ArrowIcon } from '../../ui/icon/ArrowIcon';
+import { InputSelect } from '../../ui/Input/InputSelect';
 import { InputGroup } from '../../ui/InputGroup';
 import { PropertyBlock } from '../../ui/Property/PropertyBlock';
-import { Value } from '../../ui/Property/Value';
 import { MouseMenuContext } from '../MouseMenu/useMouseMenu';
 
 import style from './index.module.scss';
@@ -34,12 +35,15 @@ export const ProjectControl = () => {
 	return <div className={style.project}>
 		<div className={style.project_inner}>
 			<PropertyBlock label="Project" accordion >
-				<div className={style.row}>
-					<Value label='Project' value={currentProjectName || ''} selectList={projectList} onChange={( value ) => {
+				<div className={style.row} data-type="top">
+					<div className={style.projectSelector}>
 
-						glEditor && glEditor.projectOpen( value as string );
+						<InputSelect value={currentProjectName || ''} selectList={projectList} onChange={( value ) => {
 
-					}}/>
+							glEditor && glEditor.projectOpen( value as string );
+
+						}}/>
+					</div>
 					<div className={style.rowItem}>
 						<Button onClick={() => {
 
@@ -57,6 +61,8 @@ export const ProjectControl = () => {
 
 						}}>Rename</Button>
 					</div>
+				</div>
+				<div className={style.row} data-type="bottom">
 					<div className={style.rowItem}>
 						<Button onClick={() => {
 
@@ -74,7 +80,7 @@ export const ProjectControl = () => {
 
 						}}>New</Button>
 					</div>
-					<div className={style.rowItem}>
+					<div className={style.rowItem} >
 						<Button onClick={()=>{
 
 							if ( glEditor ) {
@@ -100,21 +106,21 @@ export const ProjectControl = () => {
 					}
 
 				}}>Save</Button>
-				<br/>
-				<br/>
-				<Button onClick={()=>{
+				<div className={style.export}>
+					<Button onClick={()=>{
 
-					if ( glEditor ) {
+						if ( glEditor ) {
 
-						glEditor.exportCurrentScene().then( () => {
+							glEditor.exportCurrentScene().then( () => {
 
-							window.open( `/player`, '_blank' );
+								window.open( `/player`, '_blank' );
 
-						} );
+							} );
 
-					}
+						}
 
-				}} >Export & Play</Button>
+					}} >Export & Play <ArrowIcon /></Button>
+				</div>
 			</PropertyBlock>
 		</div>
 	</div>;

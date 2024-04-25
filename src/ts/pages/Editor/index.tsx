@@ -43,6 +43,9 @@ export const EditorPage = () => {
 								<Panel title="Scene" >
 									<Hierarchy />
 								</Panel>
+								<Panel title="Project" >
+									<ProjectControl />
+								</Panel>
 							</PanelContainer>
 						</div>
 						<div className={style.preview}>
@@ -56,13 +59,10 @@ export const EditorPage = () => {
 							</PanelContainer>
 						</div>
 					</div>
-					<div className={style.controls}>
+					<div className={style.bottom}>
 						<PanelContainer >
 							<Panel title="Timeline" noPadding>
 								<Timeline />
-							</Panel>
-							<Panel title="Project" >
-								<ProjectControl />
 							</Panel>
 						</PanelContainer>
 					</div>
