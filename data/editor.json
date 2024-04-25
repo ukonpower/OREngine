@@ -125,34 +125,6 @@
 				],
 				"childs": []
 			}
-		},
-		{
-			"setting": {
-				"name": "Test",
-				"timeline/duration": 600,
-				"timeline/fps": 60
-			},
-			"objectOverride": [],
-			"scene": {
-				"name": "root",
-				"pos": [
-					0,
-					0,
-					0
-				],
-				"rot": [
-					0,
-					0,
-					0,
-					0
-				],
-				"scale": [
-					1,
-					1,
-					1
-				],
-				"childs": []
-			}
 		}
 	],
 	"settings": {

@@ -1,4 +1,4 @@
-import { useCallback, useContext } from 'react';
+import { useContext } from 'react';
 
 import { Button } from '../../ui/Button';
 import { InputGroup } from '../../ui/InputGroup';
@@ -34,13 +34,13 @@ export const ProjectControl = () => {
 	return <div className={style.project}>
 		<div className={style.project_inner}>
 			<PropertyBlock label="Project" accordion >
-				<div className={style.select}>
+				<div className={style.row}>
 					<Value label='Project' value={currentProjectName || ''} selectList={projectList} onChange={( value ) => {
 
-						glEditor && glEditor.openProject( value as string );
+						glEditor && glEditor.projectOpen( value as string );
 
 					}}/>
-					<div className={style.rename}>
+					<div className={style.rowItem}>
 						<Button onClick={() => {
 
 							pushContent && pushContent( <>
@@ -57,13 +57,13 @@ export const ProjectControl = () => {
 
 						}}>Rename</Button>
 					</div>
-					<div className={style.new}>
+					<div className={style.rowItem}>
 						<Button onClick={() => {
 
 							pushContent && pushContent( <>
 								<InputGroup title='New Project' initialValues={{ name: "NewProject" }} onSubmit={( e ) => {
 
-									glEditor && glEditor.openProject( e.name as string );
+									glEditor && glEditor.projectOpen( e.name as string );
 
 									closeAll && closeAll();
 
@@ -74,33 +74,47 @@ export const ProjectControl = () => {
 
 						}}>New</Button>
 					</div>
+					<div className={style.rowItem}>
+						<Button onClick={()=>{
+
+							if ( glEditor ) {
+
+								if ( window.confirm( "DELETE!!" ) ) {
+
+									glEditor.projectDelete( currentProjectName );
+
+								}
+
+							}
+
+						}}>Delete</Button>
+					</div>
 				</div>
 				<br/>
 				<Button onClick={()=>{
 
 					if ( glEditor ) {
 
-						glEditor.save();
+						glEditor.projectSave();
 
 					}
 
 				}}>Save</Button>
+				<br/>
+				<br/>
 				<Button onClick={()=>{
 
 					if ( glEditor ) {
 
-						glEditor.exportCurrentScene();
+						glEditor.exportCurrentScene().then( () => {
+
+							window.open( `/player`, '_blank' );
+
+						} );
 
 					}
 
-				}}>Export Scene</Button>
-				<br/>
-				<br/>
-				<Button onClick={()=>{
-
-					window.open( `/player`, '_blank' );
-
-				}} >Open Player</Button>
+				}} >Export & Play</Button>
 			</PropertyBlock>
 		</div>
 	</div>;
