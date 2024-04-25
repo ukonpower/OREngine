@@ -193,7 +193,7 @@ export class GLEditor extends MXP.Exportable {
 
 			}
 
-			this.openProject( this.dataManager.settings.currentProjectName || "NewProject" );
+			this.openProject( this.dataManager.settings.currentProjectName || '' );
 
 			this.setProps( this.dataManager.settings );
 
@@ -322,11 +322,11 @@ export class GLEditor extends MXP.Exportable {
 
 		if ( project ) {
 
-			this.scene.init( name, project );
+			this.scene.init( project );
 
 		} else {
 
-			this.scene.init( name );
+			this.scene.init();
 			project = this.scene.export();
 			this.dataManager.setProject( project );
 
