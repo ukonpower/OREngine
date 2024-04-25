@@ -46,9 +46,6 @@ export const ProjectControl = () => {
 							pushContent && pushContent( <>
 								<InputGroup title='Rename Project' initialValues={{ name: currentProjectName }} onSubmit={( e ) => {
 
-									console.log( e.name );
-
-
 									glEditor && glEditor.setPropValue( "currentProjectName", e.name as string );
 
 									closeAll && closeAll();
@@ -101,7 +98,7 @@ export const ProjectControl = () => {
 				<br/>
 				<Button onClick={()=>{
 
-					location.href = "/player";
+					window.open( `/player`, '_blank' );
 
 				}} >Open Player</Button>
 			</PropertyBlock>
