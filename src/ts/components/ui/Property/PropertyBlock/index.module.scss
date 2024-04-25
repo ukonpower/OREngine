@@ -25,10 +25,12 @@
 
 	&[data-accordion="true"] {
 		cursor: pointer;
+		display: inline-block;
 	}
 
 	&_icon {
 		padding-right: 5px;
+		display: inline-block;
 	}
 
 	&_text {

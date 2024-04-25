@@ -65,6 +65,18 @@ export class EditorDataManager extends GLP.EventEmitter {
 
 	}
 
+	public deleteProject( name: string ) {
+
+		const index = this.projects.findIndex( p => p.setting.name == name );
+
+		if ( index > - 1 ) {
+
+			this.projects.splice( index, 1 );
+
+		}
+
+	}
+
 	// setting
 
 	public setSetting( setting: MXP.ExportablePropsSerialized ) {

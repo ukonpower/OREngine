@@ -95,7 +95,7 @@ export class GLEditor extends MXP.Exportable {
 
 				e.preventDefault();
 
-				this.save();
+				this.projectSave();
 
 			}
 
@@ -193,7 +193,7 @@ export class GLEditor extends MXP.Exportable {
 
 			}
 
-			this.openProject( this.dataManager.settings.currentProjectName || '' );
+			this.projectOpen( this.dataManager.settings.currentProjectName || '' );
 
 			this.setProps( this.dataManager.settings );
 
@@ -316,7 +316,7 @@ export class GLEditor extends MXP.Exportable {
 
 	}
 
-	public openProject( name: string ) {
+	public projectOpen( name: string ) {
 
 		let project = this.dataManager.getProject( name );
 
@@ -338,11 +338,17 @@ export class GLEditor extends MXP.Exportable {
 
 	}
 
-	public renameProject( name: string ) {
+	public projectDelete( name: string ) {
+
+		this.dataManager.deleteProject( name );
+
+		const project = this.dataManager.projects[ 0 ];
+
+		this.projectOpen( project && project.setting.name || '' );
 
 	}
 
-	public save() {
+	public projectSave() {
 
 		this.dataManager.setProject( this.scene.export() );
 		this.dataManager.setSetting( this.getPropsSerialized() );
@@ -355,7 +361,7 @@ export class GLEditor extends MXP.Exportable {
 
 	public exportCurrentScene() {
 
-		this.fileSystem.set( "player.json", this.scene.export() );
+		return this.fileSystem.set( "player.json", this.scene.export() );
 
 	}
 

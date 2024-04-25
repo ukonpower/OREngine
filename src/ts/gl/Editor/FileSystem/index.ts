@@ -17,7 +17,7 @@ export class FileSystem extends GLP.EventEmitter {
 			const dataStr = JSON.stringify( data );
 			localStorage.setItem( PREFIX + path, dataStr );
 
-			fetch( "/api/data/save/" + path, {
+			return fetch( "/api/data/save/" + path, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -28,6 +28,8 @@ export class FileSystem extends GLP.EventEmitter {
 		} catch ( e ) {
 
 			console.error( e );
+
+			return Promise.reject( e );
 
 		}
 
