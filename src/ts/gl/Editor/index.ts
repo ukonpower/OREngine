@@ -99,6 +99,20 @@ export class GLEditor extends MXP.Exportable {
 
 			}
 
+			if ( e.key == ' ' ) {
+
+				if ( this.scene.framePlay.playing ) {
+
+					this.scene.stop( );
+
+				} else {
+
+					this.scene.play();
+
+				}
+
+			}
+
 		} );
 
 		// graph
