@@ -1,6 +1,7 @@
 import { useContext } from 'react';
 
 import { Value } from '../../ui/Property/Value';
+import { AudioView } from '../AudioView';
 
 import style from './index.module.scss';
 
@@ -40,7 +41,12 @@ export const Screen = () => {
 			</div>
 		</div>
 		<div className={style.content}>
-			<GLCanvas />
+			<div className={style.canvas}>
+				<GLCanvas />
+			</div>
+			<div className={style.audioView}>
+				<AudioView />
+			</div>
 		</div>
 	</div>;
 
