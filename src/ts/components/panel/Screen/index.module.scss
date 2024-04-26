@@ -32,4 +32,19 @@
 	position: relative;
 	width: 100%;
 	height: 100%;
+
+	display: flex;
+	flex-direction: column;
+}
+
+.canvas {
+	flex: 1;
+}
+
+.audioView {
+	height: 100px;
+
+	@include sp {
+		height: 50px;
+	}
 }

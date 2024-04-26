@@ -161,7 +161,6 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 
 		// audio wave
 
-
 		if ( this.musicBuffer && this.frameSetting ) {
 
 			this.canvasCtx.strokeStyle = '#888';
