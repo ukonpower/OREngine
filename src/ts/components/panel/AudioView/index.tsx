@@ -1,5 +1,5 @@
 import * as MXP from 'maxpower';
-import { useState, useRef, useEffect, useContext, } from 'react';
+import { useState, useRef, useEffect, useContext, useCallback } from 'react';
 
 import { AudioViewRenderer } from './AudioViewRenderer';
 import style from './index.module.scss';
@@ -125,7 +125,6 @@ export const AudioView = () => {
 
 	}, [ renderer, framePlay ] );
 
-
 	useEffect( ()=> {
 
 		if ( renderer && frameSetting ) {
@@ -136,7 +135,44 @@ export const AudioView = () => {
 
 	}, [ renderer, frameSetting ] );
 
-	return <div className={style.audioView} ref={wrapperElmRef}>
+	const onWheel = useCallback( ( e: WheelEvent ) => {
+
+		if ( renderer ) {
+
+			const scale = e.deltaY > 0.0 ? 1.1 : 0.9;
+
+			renderer.setViewRangeFrame( renderer.viewRangeFrame * scale );
+
+		}
+
+		e.preventDefault();
+
+	}, [ renderer ] );
+
+	useEffect( () => {
+
+		const elm = wrapperElmRef.current;
+
+		if ( elm ) {
+
+			elm.addEventListener( "wheel", onWheel, { passive: false } );
+
+		}
+
+		return () => {
+
+			if ( elm ) {
+
+				elm.removeEventListener( "wheel", onWheel );
+
+			}
+
+		};
+
+	}, [ onWheel ] );
+
+
+	return <div className={style.audioView} ref={wrapperElmRef} >
 	</div>;
 
 };
