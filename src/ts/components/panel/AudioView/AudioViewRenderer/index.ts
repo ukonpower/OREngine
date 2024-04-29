@@ -1,7 +1,7 @@
 import * as GLP from 'glpower';
 
 import { OREngineProjectFrame } from '~/ts/gl/IO/ProjectSerializer';
-import { FramePlay } from '~/ts/gl/Scene';
+import { FramePlay } from '~/ts/gl/ProjectScene';
 
 export class AudioViewRenderer extends GLP.EventEmitter {
 
@@ -10,6 +10,7 @@ export class AudioViewRenderer extends GLP.EventEmitter {
 	private canvas: HTMLCanvasElement;
 	private canvasCtx: CanvasRenderingContext2D;
 
+	public viewRangeFrame: number;
 	private viewPort: number[];
 	private viewPortRange: number[];
 
@@ -34,6 +35,9 @@ export class AudioViewRenderer extends GLP.EventEmitter {
 
 		this.viewPort = [ 0, 0, 0, 0 ];
 		this.viewPortRange = [ 0, 0 ];
+
+		const localRange = window.localStorage.getItem( "audioViweRange" );
+		this.viewRangeFrame = localRange ? Number( localRange ) : 2;
 
 		// frame
 
@@ -83,7 +87,6 @@ export class AudioViewRenderer extends GLP.EventEmitter {
 
 			this.canvasCtx.strokeStyle = '#888';
 			this.canvasCtx.fillStyle = '#888';
-
 
 			const audioBufferL = this.musicBuffer.getChannelData( 0 );
 			const sampleScale = 2.0;
@@ -165,14 +168,22 @@ export class AudioViewRenderer extends GLP.EventEmitter {
 
 		this.framePlay = frame;
 
-		const range = 2;
-
 		this.viewPort = [
-			this.framePlay.current - range, 0, this.framePlay.current + range, 0
+			this.framePlay.current - this.viewRangeFrame, 0, this.framePlay.current + this.viewRangeFrame, 0
 		];
+
 		this.viewPortRange = [ this.viewPort[ 2 ] - this.viewPort[ 0 ], this.viewPort[ 3 ] - this.viewPort[ 1 ] ];
 
 		this.render();
+
+	}
+
+	public setViewRangeFrame( rangeFrame: number ) {
+
+		this.viewRangeFrame = rangeFrame;
+		this.setFramePlaying( this.framePlay );
+
+		localStorage.setItem( "audioViweRange", String( this.viewRangeFrame ) );
 
 	}
 
