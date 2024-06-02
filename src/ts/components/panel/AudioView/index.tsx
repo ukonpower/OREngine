@@ -1,12 +1,14 @@
 import * as MXP from 'maxpower';
 import { useState, useRef, useEffect, useContext, useCallback } from 'react';
 
+import { GLContext } from '../../gl/useGL';
+
 import { AudioViewRenderer } from './AudioViewRenderer';
 import style from './index.module.scss';
 
 import { OREngineProjectFrame } from '~/ts/gl/IO/ProjectSerializer';
 import { FramePlay } from '~/ts/gl/ProjectScene';
-import { GLContext } from '~/ts/gl/React/useGL';
+
 
 export const AudioView = () => {
 

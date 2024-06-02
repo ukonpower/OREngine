@@ -1,5 +1,6 @@
 import { useContext } from 'react';
 
+import { EditorContext } from '../../gl/useEditor';
 import { Button } from '../../ui/Button';
 import { ArrowIcon } from '../../ui/icon/ArrowIcon';
 import { InputSelect } from '../../ui/Input/InputSelect';
@@ -10,7 +11,7 @@ import { MouseMenuContext } from '../MouseMenu/useMouseMenu';
 import style from './index.module.scss';
 
 import { OREngineProjectData } from '~/ts/gl/IO/ProjectSerializer';
-import { EditorContext } from '~/ts/gl/React/useEditor';
+
 
 export const ProjectControl = () => {
 

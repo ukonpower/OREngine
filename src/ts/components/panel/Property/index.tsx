@@ -3,6 +3,7 @@ import * as MXP from 'maxpower'
 ;
 import { useContext } from 'react';
 
+import { EditorContext } from '../../gl/useEditor';
 import { PropertyBlock } from '../../ui/Property/PropertyBlock';
 import { Value } from '../../ui/Property/Value';
 import { Vector } from '../../ui/Property/Vector';
@@ -11,7 +12,6 @@ import { ComponentAdd } from './ComponentAdd';
 import { ComponentView } from './ComponentView';
 import style from './index.module.scss';
 
-import { EditorContext } from '~/ts/gl/React/useEditor';
 
 export const Property = () => {
 

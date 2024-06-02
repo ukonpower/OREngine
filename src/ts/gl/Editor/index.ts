@@ -1,11 +1,11 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { canvas, power, resource } from '../../Globals';
+import { canvas, resource, power } from '../GLGlobals';
 import { ProjectScene } from '../ProjectScene';
-import { OREngineResource } from '../ProjectScene/Resources';
 import { FrameDebugger } from '../ProjectScene/utils/FrameDebugger';
 import { Keyboard, PressedKeys } from '../ProjectScene/utils/Keyboard';
+import { OREngineResource } from '../Resources';
 
 import { EditorDataManager, OREngineEditorData, OREngineEditorViewType } from './EditorDataManager';
 import { FileSystem } from './FileSystem';

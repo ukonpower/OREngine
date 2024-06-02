@@ -1,13 +1,13 @@
 import { useContext } from 'react';
 
+import { GLCanvas } from '../../gl/GLCanvas';
+import { EditorContext } from '../../gl/useEditor';
 import { Value } from '../../ui/Property/Value';
 import { AudioView } from '../AudioView';
 
 import style from './index.module.scss';
 
 import { OREngineEditorViewType } from '~/ts/gl/Editor/EditorDataManager';
-import { GLCanvas } from '~/ts/gl/React/GLCanvas';
-import { EditorContext } from '~/ts/gl/React/useEditor';
 
 export const Screen = () => {
 

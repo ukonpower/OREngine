@@ -1,14 +1,14 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { canvas, gl, globalUniforms } from '../../Globals';
-import { ProjectSerializer, OREngineProjectData, OREngineProjectFrame } from '../IO/ProjectSerializer';
+import { canvas, gl, globalUniforms } from '../GLGlobals';
+import { MainCamera } from '../Resources/Components/MainCamera';
+import { OrbitControls } from '../Resources/Components/OrbitControls';
+import { initResouces } from '../Resources/init';
+import { initTextures } from '../Resources/Textures';
 
+import { OREngineProjectData, ProjectSerializer, OREngineProjectFrame } from './IO/ProjectSerializer';
 import { Renderer } from './Renderer';
-import { MainCamera } from './Resources/Components/MainCamera';
-import { OrbitControls } from './Resources/Components/OrbitControls';
-import { initResouces } from './Resources/init';
-import { initTextures } from './Textures';
 
 export interface SceneTime {
 	current: number;

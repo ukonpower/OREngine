@@ -3,8 +3,8 @@ import { MouseEvent, useCallback, useContext, useState } from 'react';
 
 import style from './index.module.scss';
 
+import { EditorContext } from '~/ts/components/gl/useEditor';
 import { ArrowIcon } from '~/ts/components/ui/icon/ArrowIcon';
-import { EditorContext } from '~/ts/gl/React/useEditor';
 
 type HierarchyNodeProps = {
 	depth?: number;

@@ -1,4 +1,4 @@
-import { gl } from "~/ts/Globals";
+import { gl } from "~/ts/gl/GLGlobals";
 
 export class GPUState {
 

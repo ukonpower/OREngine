@@ -2,6 +2,8 @@ import { ReactNode, useContext } from 'react';
 
 import style from './index.module.scss';
 
+import { useEditor, EditorContext } from '~/ts/components/gl/useEditor';
+import { GLContext, useGL } from '~/ts/components/gl/useGL';
 import { Hierarchy } from '~/ts/components/panel/Hierarchy';
 import { MouseMenu } from '~/ts/components/panel/MouseMenu';
 import { MouseMenuContext, useMouseMenu } from '~/ts/components/panel/MouseMenu/useMouseMenu';
@@ -11,8 +13,6 @@ import { Screen } from '~/ts/components/panel/Screen';
 import { Timeline } from '~/ts/components/panel/Timeline';
 import { Panel } from '~/ts/components/ui/Panel';
 import { PanelContainer } from '~/ts/components/ui/PanelContainer';
-import { EditorContext, useEditor } from '~/ts/gl/React/useEditor';
-import { useGL, GLContext } from '~/ts/gl/React/useGL';
 
 export const EditorProvider = ( { children } :{children: ReactNode} ) => {
 

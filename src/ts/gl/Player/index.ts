@@ -1,7 +1,7 @@
 import * as GLP from 'glpower';
 
 import SceneData from '../../../../data/player.json';
-import { canvas } from '../../Globals';
+import { canvas } from '../GLGlobals';
 import { ProjectScene } from '../ProjectScene';
 
 class App {

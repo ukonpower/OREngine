@@ -4,7 +4,7 @@ import { ComponentParams } from '..';
 import { ExportableProps, ExportablePropsSerialized } from '../../Exportable';
 import { ShadowMapCamera } from '../Camera/ShadowMapCamera';
 
-import { gl } from '~/ts/Globals';
+import { gl } from '~/ts/gl/GLGlobals';
 
 export type LightType = 'directional' | 'spot'
 

@@ -8,7 +8,7 @@ import { PMREMRender } from './PMREMRender';
 import { ProgramManager } from "./ProgramManager";
 import { shaderParse } from "./ShaderParser";
 
-import { gpuState } from '~/ts/Globals';
+import { gpuState } from '~/ts/gl/GLGlobals';
 
 
 // render stack

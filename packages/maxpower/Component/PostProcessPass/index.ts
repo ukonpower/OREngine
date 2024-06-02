@@ -15,7 +15,7 @@ export interface PostProcessPassParam extends MaterialParam{
 import passFrag from './shaders/pass.fs';
 import quadVert from './shaders/quad.vs';
 
-import { gl, power } from '~/ts/Globals';
+import { gl, power } from '~/ts/gl/GLGlobals';
 
 export class PostProcessPass extends Material {
 
