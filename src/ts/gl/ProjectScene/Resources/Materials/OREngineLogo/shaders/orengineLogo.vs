@@ -12,7 +12,7 @@ void main( void ) {
 	#include <vert_in>
 
 	vPosBase = outPos;
-	vNoise = noise( vec3( uTimeE * 8.0 ) );
+	vNoise = noiseV( vec3( uTimeE * 8.0 ) );
 	
 	#include <vert_out>
 	

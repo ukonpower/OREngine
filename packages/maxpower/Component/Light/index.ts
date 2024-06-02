@@ -54,6 +54,12 @@ export class Light extends ShadowMapCamera {
 
 	}
 
+	static get key(): string {
+
+		return "light";
+
+	}
+
 	public getProps(): ExportableProps | null {
 
 		return {

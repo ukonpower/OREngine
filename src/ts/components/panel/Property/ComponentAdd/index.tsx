@@ -86,7 +86,7 @@ export const ComponentAdd = ( props: ComponentAddProps ) => {
 
 							const component = new compItem.component( e );
 
-							props.entity.addComponent( compItem.key, component );
+							props.entity.addComponent( component );
 
 							closeAll && closeAll();
 
@@ -102,7 +102,7 @@ export const ComponentAdd = ( props: ComponentAddProps ) => {
 
 			} else {
 
-				props.entity.addComponent( compItem.key, new compItem.component() );
+				props.entity.addComponent( new compItem.component() );
 
 				closeAll && closeAll();
 

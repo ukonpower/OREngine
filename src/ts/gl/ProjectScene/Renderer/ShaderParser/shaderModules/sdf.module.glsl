@@ -97,11 +97,11 @@ float sdVesicaSegment( in vec3 p, in vec3 a, in vec3 b, in float w )
 
 // operators
 
-vec2 add( vec2 d1, vec2 d2 ) {
+vec2 opAdd( vec2 d1, vec2 d2 ) {
 	return d1.x < d2.x ? d1 : d2;
 }
 
-vec2 sub( vec2 d1, vec2 d2 ) {
+vec2 opSub( vec2 d1, vec2 d2 ) {
 	d2 *= -1.0;
 	return d1.x < d2.x ? d2 : d1;
 }

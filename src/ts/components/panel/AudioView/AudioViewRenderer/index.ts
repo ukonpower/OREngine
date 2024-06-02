@@ -144,6 +144,9 @@ export class AudioViewRenderer extends GLP.EventEmitter {
 
 		}
 
+		this.canvasCtx.fillStyle = '#555';
+		this.canvasCtx.fillRect( this.canvas.width / 2, 0, 1, this.canvas.height );
+
 	}
 
 	// api

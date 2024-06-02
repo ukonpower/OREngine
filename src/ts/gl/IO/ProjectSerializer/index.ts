@@ -57,7 +57,7 @@ export class ProjectSerializer extends GLP.EventEmitter {
 
 					if ( compItem ) {
 
-						const component = e.addComponent( c.key, new compItem.component() );
+						const component = e.addComponent( new compItem.component() );
 
 						component.setProps( c.props );
 
@@ -125,9 +125,7 @@ export class ProjectSerializer extends GLP.EventEmitter {
 
 			entity.children.forEach( c => {
 
-				const hasBlidger = c.getComponent( "blidger" );
-
-				if ( hasBlidger || c.noExport ) return;
+				if ( c.noExport ) return;
 
 				childs.push( _( c ) );
 

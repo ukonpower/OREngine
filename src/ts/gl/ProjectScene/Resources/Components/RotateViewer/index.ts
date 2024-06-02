@@ -28,17 +28,13 @@ export class RotateViewer extends MXP.Component {
 
 	}
 
-	protected setEntityImpl( entity: MXP.Entity | null, prevEntity: MXP.Entity | null ): void {
+	protected setEntityImpl( entity: MXP.Entity ): void {
 
-		if ( entity ) {
+		entity.on( "sceneCreated", () => {
 
-			entity.on( "sceneCreated", () => {
+			this.rotBasePos.copy( entity.position );
 
-				this.rotBasePos.copy( entity.position );
-
-			} );
-
-		}
+		} );
 
 	}
 

@@ -1,11 +1,12 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { canvas, gl, globalUniforms, mainCmaera } from '../../Globals';
+import { canvas, gl, globalUniforms } from '../../Globals';
 import { ProjectSerializer, OREngineProjectData, OREngineProjectFrame } from '../IO/ProjectSerializer';
 
 import { Renderer } from './Renderer';
 import { MainCamera } from './Resources/Components/MainCamera';
+import { OrbitControls } from './Resources/Components/OrbitControls';
 import { initResouces } from './Resources/init';
 import { initTextures } from './Textures';
 
@@ -38,7 +39,7 @@ export class ProjectScene extends MXP.Entity {
 
 	// frame
 
-	public framePlay: FramePlay;
+	public frame: FramePlay;
 	public frameSetting: OREngineProjectFrame;
 
 	// renderer
@@ -98,7 +99,7 @@ export class ProjectScene extends MXP.Entity {
 			fps: 60,
 		};
 
-		this.framePlay = {
+		this.frame = {
 			current: 0,
 			playing: false
 		};
@@ -107,10 +108,17 @@ export class ProjectScene extends MXP.Entity {
 
 		// camera
 
-		this.camera = mainCmaera;
+		this.camera = new MXP.Entity( { name: "camera" } );
+		this.camera.position.set( 0, 0, 5 );
 		this.camera.noExport = true;
-		this.camera.position.set( 0, 1, 10 );
-		this.cameraComponent = this.camera.addComponent( "mainCamera", new MainCamera() );
+		this.cameraComponent = this.camera.addComponent( new MainCamera() );
+		const orbitControls = this.camera.getComponent<OrbitControls>( "orbitControls" );
+
+		if ( orbitControls ) {
+
+			orbitControls.setPosition( new GLP.Vector( 0, 0, 0 ), new GLP.Vector( 0, 0, 5 ) );
+
+		}
 
 		// renderer
 
@@ -168,15 +176,15 @@ export class ProjectScene extends MXP.Entity {
 		this.time.delta = ( newTime - this.time.current ) / 1000;
 		this.time.current = newTime;
 
-		if ( this.framePlay.playing ) {
+		if ( this.frame.playing ) {
 
-			this.framePlay.current = this.framePlay.current + this.frameSetting.fps * this.time.delta;
+			this.frame.current = this.frame.current + this.frameSetting.fps * this.time.delta;
 
-			this.emit( "update/frame/play", [ this.framePlay ] );
+			this.emit( "update/frame/play", [ this.frame ] );
 
 		}
 
-		this.time.code = this.framePlay.current / this.frameSetting.fps;
+		this.time.code = this.frame.current / this.frameSetting.fps;
 		this.time.engine += this.time.delta;
 
 		globalUniforms.time.uTime.value = this.time.code;
@@ -188,7 +196,7 @@ export class ProjectScene extends MXP.Entity {
 			timeDelta: this.time.delta,
 			timeCode: this.time.code,
 			forceDraw: param && param.forceDraw,
-			playing: this.framePlay.playing,
+			playing: this.frame.playing,
 		};
 
 		this.root.update( event );
@@ -203,6 +211,7 @@ export class ProjectScene extends MXP.Entity {
 
 	public resize( resolution: GLP.Vector ) {
 
+		globalUniforms.resolution.uResolution.value.copy( resolution );
 		this.renderer.resize( resolution );
 		this.cameraComponent.resize( resolution );
 
@@ -236,21 +245,21 @@ export class ProjectScene extends MXP.Entity {
 
 	public play() {
 
-		this.framePlay.playing = true;
+		this.frame.playing = true;
 
 	}
 
 	public stop() {
 
-		this.framePlay.playing = false;
+		this.frame.playing = false;
 
 	}
 
 	public seek( frame: number ) {
 
-		this.framePlay.current = frame;
+		this.frame.current = frame;
 
-		this.emit( "update/frame/play", [ this.framePlay ] );
+		this.emit( "update/frame/play", [ this.frame ] );
 
 	}
 

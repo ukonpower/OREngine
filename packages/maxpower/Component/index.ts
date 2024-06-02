@@ -22,6 +22,7 @@ export type BuiltInComponents =
 ( string & {} );
 
 export type ComponentParams = {
+	keyOverride?: string,
 	disableEdit?: boolean
 }
 
@@ -29,10 +30,12 @@ export class Component extends Exportable {
 
 	public readonly uuid: string;
 
-	public entity: Entity | null;
+	public keyOverride: string | null = null;
 
+	public entity: Entity | null;
 	public enabled: boolean;
 	public disableEdit: boolean;
+
 
 	constructor( params?: ComponentParams ) {
 
@@ -41,11 +44,26 @@ export class Component extends Exportable {
 		params = params ?? {};
 
 		this.enabled = true;
+		this.keyOverride = params.keyOverride || null;
 		this.disableEdit = params.disableEdit || false;
 
 		this.entity = null;
 
 		this.uuid = GLP.ID.genUUID();
+
+	}
+
+	public static get key() {
+
+		return "";
+
+	}
+
+	public get key() {
+
+		if ( this.keyOverride ) return this.keyOverride;
+
+		return ( this.constructor as typeof Component ).key;
 
 	}
 
@@ -61,13 +79,25 @@ export class Component extends Exportable {
 
 	}
 
-	public setEntity( entity: Entity | null ) {
+	public setEntity( entity: Entity ) {
 
 		const beforeEntity = this.entity;
 
 		this.entity = entity;
 
 		this.setEntityImpl( this.entity, beforeEntity );
+
+	}
+
+	public unsetEntity() {
+
+		if ( this.entity === null ) return;
+
+		const beforeEntity = this.entity;
+
+		this.entity = null;
+
+		this.unsetEntityImpl( beforeEntity );
 
 	}
 
@@ -111,7 +141,9 @@ export class Component extends Exportable {
 
 	}
 
-	protected setEntityImpl( entity: Entity | null, prevEntity: Entity | null ) {}
+	protected setEntityImpl( entity: Entity, prevEntity: Entity | null ) {}
+
+	protected unsetEntityImpl( prevEntity: Entity ) {}
 
 	protected preUpdateImpl( event: ComponentUpdateEvent ) {}
 

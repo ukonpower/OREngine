@@ -261,6 +261,12 @@ export class DeferredRenderer extends MXP.PostProcess {
 
 	}
 
+	public static key(): string {
+
+		return ( super.constructor as typeof MXP.PostProcess ).key + "deferred";
+
+	}
+
 	protected updateImpl( event: MXP.ComponentUpdateEvent ): void {
 
 		// light shaft swap

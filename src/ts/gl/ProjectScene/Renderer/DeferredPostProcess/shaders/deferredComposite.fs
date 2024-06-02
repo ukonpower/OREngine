@@ -1,6 +1,6 @@
 #include <common>
 #include <packing>
-#include <light_h>
+#include <light>
 
 uniform sampler2D sampler0;
 

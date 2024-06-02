@@ -17,7 +17,8 @@ export const ShaderMinifierLoader = (): Plugin => {
 				'**/*.vert',
 				'**/*.frag',
 				'**/*.glsl',
-				'**/*.module.glsl'
+				'**/*.module.glsl',
+				'**/*.part.glsl'
 			]
 		},
 	);
@@ -50,10 +51,12 @@ export const ShaderMinifierLoader = (): Plugin => {
 
 			if ( ! filter( id ) ) return;
 
-			if ( process.platform == "darwin" || true ) {
+			const isPart = id.indexOf( '.part.glsl' ) > - 1;
+
+			if ( isPart ) {
 
 				return {
-					code: `export default ${JSON.stringify( code )};`,
+					code: `export default ${JSON.stringify( code.replaceAll( /[\n]+/g, "" ) )};`,
 					map: { mappings: '' }
 				};
 
@@ -61,7 +64,7 @@ export const ShaderMinifierLoader = (): Plugin => {
 
 			code = code.replaceAll( "\\n", "\n" );
 			code = code.replaceAll( "\\t", "\t" );
-			code = code.replaceAll( "precision highp float;", "\/\/\[\nprecision highp float;\n\/\/\]\n" );
+			code = code.replaceAll( "precision highp float;", "//[\nprecision highp float;\n//]\n" );
 
 			const fileName = id.replaceAll( '/', "_" ) + new Date().getTime();
 			const inputFilePath = `./tmp/${fileName}_in.txt`;
@@ -69,17 +72,53 @@ export const ShaderMinifierLoader = (): Plugin => {
 
 			await fs.promises.writeFile( inputFilePath, code );
 
+			const functionPattern = /^\s*(float|vec2|vec3|vec4|mat2|mat3|mat4|void)\s+(\w+)\s*\(/gm;
+			const structPattern = /^\s*struct\s+(\w+)\s*\{/gm;
+
+			function extractNames( pattern: RegExp, code: string ) {
+
+				let matches;
+				const names: string[] = [];
+
+				while ( ( matches = pattern.exec( code ) ) !== null ) {
+
+					names.push( matches[ 2 ] || matches[ 1 ] );
+
+				}
+
+				return names;
+
+			}
+
 			let args = '--format text --preserve-externals';
 
-			if ( id.indexOf( '.module.glsl' ) > - 1 ) {
+			let noRenamingList = [ "main", "D" ];
+
+			const isModule = id.indexOf( '.module.glsl' ) > - 1;
+
+			if ( isModule ) {
 
 				args += " --no-remove-unused";
-				args += " --no-renaming";
+				noRenamingList = [ ...noRenamingList, ...extractNames( functionPattern, code ), ...extractNames( structPattern, code ) ];
+
+			}
+
+			if ( noRenamingList.length > 0 ) {
+
+				args += ' --no-renaming-list ' + noRenamingList.join( ',' );
 
 			}
 
 			// MINIFIER!!
-			await exec( `shader_minifier.exe ${inputFilePath} -o ${outputFilePath} ${args}` );
+			if ( process.platform == "darwin" ) {
+
+				await exec( `mono ~/Documents/application/shader_minifier/shader_minifier.exe ${inputFilePath} -o ${outputFilePath} ${args}` );
+
+			} else {
+
+				await exec( `shader_minifier.exe ${inputFilePath} -o ${outputFilePath} ${args}` );
+
+			}
 
 			const compiledCode = await fs.promises.readFile( outputFilePath, 'utf-8' );
 

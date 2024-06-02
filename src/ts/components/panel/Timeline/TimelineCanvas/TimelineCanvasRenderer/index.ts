@@ -271,7 +271,12 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 	public setMusicBuffer( buffer: AudioBuffer ) {
 
 		this.musicBuffer = buffer;
-		this.render();
+
+		setTimeout( () => {
+
+			this.render();
+
+		}, 100 );
 
 	}
 

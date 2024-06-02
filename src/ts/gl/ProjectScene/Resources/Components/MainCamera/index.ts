@@ -4,6 +4,7 @@ import * as MXP from 'maxpower';
 import { LookAt } from '../LookAt';
 import { OrbitControls } from '../OrbitControls';
 import { ShakeViewer } from '../ShakeViewer';
+import { VJCamera } from '../VJCamera';
 
 import bloomBlurFrag from './shaders/bloomBlur.fs';
 import bloomBrightFrag from './shaders/bloomBright.fs';
@@ -115,7 +116,7 @@ export class MainCamera extends MXP.Component {
 		this.renderTarget = this.cameraComponent.renderTarget;
 
 		this.lookAt = new LookAt();
-		this.orbitControls = new OrbitControls( canvas );
+		this.orbitControls = new OrbitControls( { elm: canvas } );
 		this.shakeViewer = new ShakeViewer();
 
 		// resolution
@@ -530,6 +531,7 @@ export class MainCamera extends MXP.Component {
 		// postprocess
 
 		this.scenePostProcess = new MXP.PostProcess( {
+			keyOverride: 'scenePostProcess',
 			input: this.renderTarget.shadingBuffer.textures,
 			passes: [
 				this.colorCollection,
@@ -545,6 +547,7 @@ export class MainCamera extends MXP.Component {
 		} );
 
 		this.postProcess = new MXP.PostProcess( {
+			keyOverride: 'postProcess',
 			input: this.renderTarget.uiBuffer.textures,
 			passes: [
 				this.bloomBright,
@@ -556,42 +559,37 @@ export class MainCamera extends MXP.Component {
 
 	}
 
-	public setEntityImpl( entity: MXP.Entity | null, prevEntity: MXP.Entity | null ): void {
+	public setEntityImpl( entity: MXP.Entity, prevEntity: MXP.Entity | null ): void {
 
-		if ( entity ) {
+		entity.addComponent( this.cameraComponent );
+		entity.addComponent( this.scenePostProcess );
+		entity.addComponent( this.postProcess );
+		entity.addComponent( this.orbitControls );
 
-			entity.addComponent( "camera", this.cameraComponent );
-			entity.addComponent( "scenePostProcess", this.scenePostProcess );
-			entity.addComponent( "postProcess", this.postProcess );
-			entity.addComponent( "orbitControls", this.orbitControls );
-			// entity.addComponent( 'lookAt', this.lookAt );
-			// entity.addComponent( 'shakeViewer', this.shakeViewer );
+		// events
 
-			// events
+		entity.on( 'sceneCreated', ( root: MXP.Entity, ) => {
 
-			entity.on( 'sceneCreated', ( root: MXP.Entity, ) => {
+			const camera = root.getEntityByName( "Camera" ) || null;
 
-				const camera = root.getEntityByName( "Camera" ) || null;
+			const lookAtTarget = root.getEntityByName( "CameraTarget" ) || null;
+			this.lookAt.setTarget( lookAtTarget );
 
-				const lookAtTarget = root.getEntityByName( "CameraTarget" ) || null;
-				this.lookAt.setTarget( lookAtTarget );
+			const ortbitControls = entity.getComponent<OrbitControls>( "orbitControls" );
 
-				const ortbitControls = entity.getComponent<OrbitControls>( "orbitControls" );
+			if ( ortbitControls && camera && lookAtTarget ) {
 
-				if ( ortbitControls && camera && lookAtTarget ) {
+				ortbitControls.setPosition( camera.position, lookAtTarget.position );
+				this.cameraComponent.fov = camera.userData.cameraParam.fov;
+				this.cameraComponent.updateProjectionMatrix();
 
-					ortbitControls.setPosition( camera.position, lookAtTarget.position );
+			}
 
-				}
+			this.dofTarget = root.getEntityByName( 'CameraTargetDof' ) || null;
+			this.baseFov = this.cameraComponent.fov;
+			this.updateCameraParams( this.resolution );
 
-
-				this.dofTarget = root.getEntityByName( 'CameraTargetDof' ) || null;
-				this.baseFov = this.cameraComponent.fov;
-				this.updateCameraParams( this.resolution );
-
-			} );
-
-		}
+		} );
 
 		if ( prevEntity ) {
 
@@ -601,6 +599,11 @@ export class MainCamera extends MXP.Component {
 
 	}
 
+	public unsetEntityImpl( prevEntity: MXP.Entity ): void {
+
+		prevEntity.off( 'sceneCreated' );
+
+	}
 
 	private guassWeight( num: number ) {
 

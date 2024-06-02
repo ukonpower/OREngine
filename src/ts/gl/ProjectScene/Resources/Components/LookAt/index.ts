@@ -23,6 +23,12 @@ export class LookAt extends MXP.Component {
 
 	}
 
+	static get key() {
+
+		return "lookat";
+
+	}
+
 	public getProps(): MXP.ExportableProps | null {
 
 		return {

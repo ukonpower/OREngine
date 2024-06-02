@@ -29,8 +29,8 @@ export const PropertyBlock = ( props: BlockProps ) => {
 	const bgCol = props.bg && typeof props.bg === 'string' && props.bg || undefined;
 
 	return <div className={style.block} data-bg={props.bg !== undefined} data-nomargin={props.noMargin} data-no_indent={props.noIndent} style={{ backgroundColor: bgCol }}>
-		<div className={style.head} onClick={onClick} data-accordion={props.accordion} data-open={open}>
-			{props.accordion && <div className={style.head_icon}><ArrowIcon open={open}/></div> }
+		<div className={style.head} data-accordion={props.accordion} data-open={open}>
+			{props.accordion && <div className={style.head_icon} onClick={onClick}><ArrowIcon open={open}/></div> }
 			{props.label && <span className={style.head_text}>{props.label}</span>}
 		</div>
 		{ open && <div className={style.content} data-open={open} data-no_indent={props.noIndent}>

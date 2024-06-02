@@ -1,6 +1,6 @@
 #include <common>
 #include <packing>
-#include <light_h>
+#include <light>
 #include <noise>
 
 // uniforms

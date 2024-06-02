@@ -3,7 +3,7 @@ import * as MXP from 'maxpower';
 import { router } from './router';
 import SceneData from './scene/scene.json';
 
-import { gl, mainCmaera } from '~/ts/Globals';
+import { gl } from '~/ts/Globals';
 
 export class BLidgeClient extends MXP.Component {
 
@@ -11,9 +11,7 @@ export class BLidgeClient extends MXP.Component {
 	private type: "websocket" | "json" | null;
 
 	private blidgeRoot: MXP.Entity | null;
-	private camera: MXP.Entity;
 	private entities: Map<string, MXP.Entity>;
-
 
 	// connection
 
@@ -26,22 +24,11 @@ export class BLidgeClient extends MXP.Component {
 
 	private gltfPath: string;
 
-	// frame
-
-	private playing: boolean;
-	private playTime: number;
-
 	constructor() {
 
 		super();
 
-		this.camera = mainCmaera;
 		this.entities = new Map();
-
-		// state
-
-		this.playing = false;
-		this.playTime = 0;
 
 		// connection
 
@@ -135,7 +122,7 @@ export class BLidgeClient extends MXP.Component {
 
 	}
 
-	public getPropsSerialized(): MXP.ExportableProps | null {
+	public getPropsSerialized(): MXP.ExportableProps {
 
 		return {
 			...super.getPropsSerialized(),
@@ -144,7 +131,7 @@ export class BLidgeClient extends MXP.Component {
 
 	}
 
-	protected setEntityImpl( entity: MXP.Entity | null, prevEntity: MXP.Entity | null ): void {
+	protected setEntityImpl( entity: MXP.Entity, prevEntity: MXP.Entity ): void {
 
 		if ( prevEntity && this.blidgeRoot ) {
 
@@ -166,19 +153,16 @@ export class BLidgeClient extends MXP.Component {
 
 		const _ = ( node: MXP.BLidgeNode ): MXP.Entity => {
 
-			const entity: MXP.Entity = node.type == 'camera' ? this.camera : ( this.entities.get( node.name ) || router( node ) );
+			const entity: MXP.Entity = ( this.entities.get( node.name ) || router( node ) );
 
 			if ( node.type == 'camera' ) {
 
 				const cameraParam = node.param as MXP.BLidgeCameraParam;
-				const renderCamera = this.camera.getComponent<MXP.RenderCamera>( "camera" )!;
-
-				renderCamera.fov = cameraParam.fov;
-				renderCamera.needsUpdate = true;
+				entity.userData.cameraParam = cameraParam;
 
 			}
 
-			entity.addComponent( "blidger", new MXP.BLidger( { blidge, node, disableEdit: true } ) );
+			entity.addComponent( new MXP.BLidger( { blidge, node, disableEdit: true } ) );
 
 			node.children.forEach( c => {
 
@@ -198,9 +182,11 @@ export class BLidgeClient extends MXP.Component {
 
 		const newBLidgeRoot = blidge.root && _( blidge.root );
 
+
 		if ( newBLidgeRoot ) {
 
 			newBLidgeRoot.name = "blidgeRoot";
+			newBLidgeRoot.noExport = true;
 
 			if ( this.blidgeRoot && this.entity ) {
 

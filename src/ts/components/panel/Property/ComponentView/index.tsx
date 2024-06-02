@@ -98,15 +98,15 @@ export const ComponentView = ( { component, keyName }: ComponentViewProps ) => {
 
 		if ( entity ) {
 
-			entity.removeComponent( keyName );
+			entity.removeComponent( component );
 
 		}
 
 		reflesh && reflesh();
 
-	}, [ component, keyName, reflesh ] );
+	}, [ component, reflesh ] );
 
-	const Check = () => {
+	const Head = () => {
 
 		return <div className={style.head}>
 			<div className={style.check}>
@@ -124,7 +124,7 @@ export const ComponentView = ( { component, keyName }: ComponentViewProps ) => {
 
 	return <div className={style.compoView} data-disable_component={component.disableEdit}>
 		<div className={style.content}>
-			<PropertyBlock label={<Check />} accordion={true} defaultClose={false} bg>
+			<PropertyBlock label={<Head />} accordion={true} defaultClose={false} bg>
 				{propElms}
 			</PropertyBlock>
 		</div>

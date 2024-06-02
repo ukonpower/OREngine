@@ -59,6 +59,12 @@ export class Camera extends Component {
 
 	}
 
+	static get key(): string {
+
+		return "camera";
+
+	}
+
 	public updateProjectionMatrix() {
 
 		this.projectionMatrixPrev.copy( this.projectionMatrix );

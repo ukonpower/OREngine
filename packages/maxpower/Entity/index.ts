@@ -188,8 +188,8 @@ export class Entity extends Exportable {
 		const visibility = ( event.visibility || event.visibility === undefined ) && this.visible;
 		childEvent.visibility = visibility;
 
-		const geometry = this.getComponentEnabled<Geometry>( 'geometry' );
-		const material = this.getComponentEnabled<Material>( 'material' );
+		const geometry = this.getComponent<Geometry>( 'geometry' );
+		const material = this.getComponent<Material>( 'material' );
 
 		if ( geometry && material && ( visibility || event.forceDraw ) ) {
 
@@ -201,25 +201,25 @@ export class Entity extends Exportable {
 
 		}
 
-		const camera = this.getComponentEnabled<Camera>( 'camera' );
+		const camera = this.getComponent<Camera>( 'camera' );
 
-		if ( camera ) {
+		if ( camera && camera.enabled ) {
 
 			event.renderStack.camera.push( this );
 
 		}
 
-		const light = this.getComponentEnabled<Light>( 'light' );
+		const light = this.getComponent<Light>( 'light' );
 
-		if ( light ) {
+		if ( light && light.enabled ) {
 
 			event.renderStack.light.push( this );
 
 		}
 
-		const gpuCompute = this.getComponentEnabled<GPUCompute>( "gpuCompute" );
+		const gpuCompute = this.getComponent<GPUCompute>( "gpuCompute" );
 
-		if ( gpuCompute ) {
+		if ( gpuCompute && gpuCompute.enabled ) {
 
 			event.renderStack.gpuCompute.push( this );
 
@@ -326,21 +326,23 @@ export class Entity extends Exportable {
 		Components
 	-------------------------------*/
 
-	public addComponent<T extends Component>( name: BuiltInComponents, component: T ) {
+	public addComponent<T extends Component>( component: T ) {
 
-		const prevComponent = this.components.get( name );
+		const key = component.key;
+
+		const prevComponent = this.components.get( key );
 
 		if ( prevComponent ) {
 
-			prevComponent.setEntity( null );
+			prevComponent.unsetEntity();
 
 		}
 
 		component.setEntity( this );
 
-		this.components.set( name, component );
+		this.components.set( key, component );
 
-		if ( name == "blidger" ) {
+		if ( key == "blidger" ) {
 
 			this.appendBlidger( component as unknown as BLidger );
 
@@ -356,25 +358,22 @@ export class Entity extends Exportable {
 
 	}
 
-	public getComponentEnabled<T extends Component>( name: BuiltInComponents ): T | undefined {
+	public removeComponentByKey( key: string ) {
 
-		const component = this.components.get( name ) as T;
+		const component = this.components.get( key );
 
-		if ( ! component || ! component.enabled ) return undefined;
-
-		return component;
-
-	}
-
-	public removeComponent( name: string ) {
-
-		const component = this.components.get( name );
-
-		this.components.delete( name );
+		this.components.delete( key );
 
 		return component;
 
 	}
+
+	public removeComponent( component: Component ) {
+
+		return this.removeComponentByKey( component.key );
+
+	}
+
 
 	/*-------------------------------
 		BLidger
@@ -492,7 +491,13 @@ export class Entity extends Exportable {
 
 		this.parent && this.parent.remove( this );
 
-		this.components.forEach( c => c.setEntity( null ) );
+		this.components.forEach( c => {
+
+			c.unsetEntity();
+
+			c.dispose();
+
+		} );
 
 		this.components.clear();
 

@@ -40,7 +40,8 @@ export const AudioView = () => {
 
 	// events
 
-	const [ musicBuffer, setMusicBuffer ] = useState<AudioBuffer>( );
+	const musicBuffer = glEditor?.audioBuffer;
+	const [ musicBufferVersion, setMusicBufferVersion ] = useState<number>();
 
 	const [ frameSetting, setFrameSetting ] = useState<OREngineProjectFrame>( {
 		duration: 0,
@@ -67,9 +68,11 @@ export const AudioView = () => {
 
 			};
 
-			const onUpdateMusic = ( buffer: AudioBuffer ) => {
+			let bufferVersion = 0;
 
-				setMusicBuffer( buffer );
+			const onUpdateMusic = () => {
+
+				setMusicBufferVersion( bufferVersion ++ );
 
 			};
 
@@ -80,13 +83,7 @@ export const AudioView = () => {
 			};
 
 			onUpdateSceneProps( glEditor.scene.getPropsSerialized() );
-			onUpdateFramePlay( scene.framePlay );
-
-			if ( glEditor.audioBuffer ) {
-
-				onUpdateMusic( glEditor.audioBuffer );
-
-			}
+			onUpdateFramePlay( scene.frame );
 
 			scene.on( "update/props", onUpdateSceneProps );
 			scene.on( "update/music", onUpdateMusic );
@@ -113,7 +110,7 @@ export const AudioView = () => {
 
 		}
 
-	}, [ renderer, musicBuffer ] );
+	}, [ renderer, musicBuffer, musicBufferVersion ] );
 
 	useEffect( ()=> {
 

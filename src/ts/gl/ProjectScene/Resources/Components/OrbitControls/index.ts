@@ -22,9 +22,9 @@ export class OrbitControls extends MXP.Component {
 	private distance: number;
 	private distanceVel: number;
 
-	constructor( targetElm: HTMLElement ) {
+	constructor( params: MXP.ComponentParams & {elm?: HTMLElement} ) {
 
-		super();
+		super( params );
 
 		this.pointer = new Pointer();
 		this.keyborad = new Keyboard();
@@ -39,6 +39,8 @@ export class OrbitControls extends MXP.Component {
 		this.distance = 5.0;
 		this.distanceVel = 0.0;
 		this.lookatMatrix = new GLP.Matrix();
+
+		const targetElm = params && params.elm || document.body;
 
 		this.pointer.setElement( targetElm );
 
@@ -105,13 +107,15 @@ export class OrbitControls extends MXP.Component {
 
 	}
 
-	protected setEntityImpl( entity: MXP.Entity | null, prevEntity: MXP.Entity | null ): void {
+	static get key() {
 
-		if ( entity ) {
+		return "orbitControls";
 
-			this.setPosition( entity.position, this.target );
+	}
 
-		}
+	protected setEntityImpl( entity: MXP.Entity ): void {
+
+		this.setPosition( entity.position, this.target );
 
 	}
 
