@@ -33,6 +33,13 @@ export class PostProcess extends Component {
 		return props;
 
 	}
+
+	public static get key(): string {
+
+		return "postprocess";
+
+	}
+
 	public setProps( props: ExportablePropsSerialized ) {
 
 		if ( props === null ) return;

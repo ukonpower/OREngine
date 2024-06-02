@@ -160,7 +160,7 @@ export class Renderer extends MXP.Entity {
 		for ( let i = 0; i < 6; i ++ ) {
 
 			const entity = new MXP.Entity( { name: "envMapCamera/" + i } );
-			const camera = entity.addComponent( "camera", new MXP.Camera() );
+			const camera = entity.addComponent( new MXP.Camera() );
 			camera.fov = 90;
 			camera.near = 0.1;
 			camera.far = 1000;
@@ -187,7 +187,7 @@ export class Renderer extends MXP.Entity {
 			envMapCube: envMap as GLP.GLPowerTextureCube,
 		} );
 
-		this.addComponent( "deferredPostProcess", this.deferredPostProcess );
+		this.addComponent( this.deferredPostProcess );
 
 		// quad
 
@@ -391,9 +391,9 @@ export class Renderer extends MXP.Entity {
 
 			// scene
 
-			const prePostprocess = cameraEntity.getComponentEnabled<MXP.PostProcess>( 'scenePostProcess' );
+			const prePostprocess = cameraEntity.getComponent<MXP.PostProcess>( 'scenePostProcess' );
 
-			if ( prePostprocess ) {
+			if ( prePostprocess && prePostprocess.enabled ) {
 
 				this.renderPostProcess( prePostprocess, { cameraOverride: {
 					viewMatrix: cameraComponent.viewMatrix,
@@ -446,9 +446,9 @@ export class Renderer extends MXP.Entity {
 
 			// postprocess
 
-			const postProcess = cameraEntity.getComponentEnabled<MXP.PostProcess>( 'postProcess' );
+			const postProcess = cameraEntity.getComponent<MXP.PostProcess>( 'postProcess' );
 
-			if ( postProcess ) {
+			if ( postProcess && postProcess.enabled ) {
 
 				this.renderPostProcess( postProcess, { cameraOverride: {
 					viewMatrix: cameraComponent.viewMatrix,

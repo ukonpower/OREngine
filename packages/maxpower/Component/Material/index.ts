@@ -31,7 +31,6 @@ export interface MaterialParam extends ComponentParams{
 export class Material extends Component {
 
 	public name: string;
-
 	public vert: string;
 	public frag: string;
 	public defines: MaterialDefines;
@@ -58,7 +57,7 @@ export class Material extends Component {
 
 		this.useLight = true;
 		this.depthTest = true;
-		this.cullFace = true;
+		this.cullFace = false;
 		this.drawType = "TRIANGLES";
 
 		this.vert = params.vert || basicVert;
@@ -72,6 +71,12 @@ export class Material extends Component {
 
 	}
 
+	static get key() {
+
+		return "material";
+
+	}
+
 	private setVisibility( typeArray: MaterialRenderType[] ) {
 
 		this.visibilityFlag = {
@@ -82,40 +87,6 @@ export class Material extends Component {
 			envMap: typeArray.indexOf( 'envMap' ) > - 1,
 			postprocess: typeArray.indexOf( 'postprocess' ) > - 1,
 		};
-
-	}
-
-	public getProps(): ExportableProps {
-
-		return {
-			name: { value: this.name },
-			deferred: { value: this.visibilityFlag.deferred },
-			forward: { value: this.visibilityFlag.forward },
-			shadowMap: { value: this.visibilityFlag.shadowMap },
-			ui: { value: this.visibilityFlag.ui },
-			useLight: { value: this.useLight },
-			depthTest: { value: this.depthTest },
-			cullFace: { value: this.cullFace },
-			drawType: { value: this.drawType },
-		};
-
-	}
-
-	public setProps( props: ExportablePropsSerialized ): void {
-
-		props = { ...this.getPropsSerialized(), ...props };
-
-		this.name = props.name;
-		this.visibilityFlag.deferred = props.deferred;
-		this.visibilityFlag.forward = props.forward;
-		this.visibilityFlag.shadowMap = props.shadowMap;
-		this.visibilityFlag.ui = props.ui;
-		this.useLight = props.useLight;
-		this.depthTest = props.depthTest;
-		this.cullFace = props.cullFace;
-		this.drawType = props.drawType;
-
-		this.requestUpdate();
 
 	}
 

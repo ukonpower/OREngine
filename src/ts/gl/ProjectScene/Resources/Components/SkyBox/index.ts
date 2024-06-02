@@ -18,7 +18,7 @@ export class SkyBox extends MXP.Component {
 
 		super();
 
-		this.geometry = new MXP.SphereGeometry( { radius: 100, widthSegments: 16, heightSegments: 16 } );
+		this.geometry = new MXP.CylinderGeometry( { height: 100, radiusTop: 20, radiusBottom: 20, heightSegments: 10, radSegments: 32, caps: false } );
 		this.material = new MXP.Material( {
 			type: [ "deferred", "envMap" ],
 			frag: MXP.hotGet( "skybox", skyboxFrag ),
@@ -44,14 +44,16 @@ export class SkyBox extends MXP.Component {
 
 	}
 
-	protected setEntityImpl( entity: MXP.Entity | null, prevEntity: MXP.Entity | null ): void {
+	static get key(): string {
 
-		if ( entity ) {
+		return "skybox";
 
-			entity.addComponent( "geometry", this.geometry );
-			entity.addComponent( "material", this.material );
+	}
 
-		}
+	protected setEntityImpl( entity: MXP.Entity ): void {
+
+		entity.addComponent( this.geometry );
+		entity.addComponent( this.material );
 
 	}
 

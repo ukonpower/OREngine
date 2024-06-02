@@ -491,8 +491,8 @@ export class GLTFLoader extends GLP.EventEmitter {
 				if ( meshList.length == 1 ) {
 
 					const mesh = meshList[ 0 ];
-					entity.addComponent( "geometry", mesh.geometry );
-					entity.addComponent( "material", mesh.material );
+					entity.addComponent( mesh.geometry );
+					entity.addComponent( mesh.material );
 
 				} else {
 
@@ -500,8 +500,8 @@ export class GLTFLoader extends GLP.EventEmitter {
 
 						const meshPartEntity = new Entity();
 						meshPartEntity.name = node.name + "_" + i;
-						entity.addComponent( "geometry", mesh.geometry );
-						entity.addComponent( "material", mesh.material );
+						entity.addComponent( mesh.geometry );
+						entity.addComponent( mesh.material );
 						entity.add( meshPartEntity );
 
 					} );

@@ -9,7 +9,7 @@ interface CylinderGeometryParams extends ComponentParams{
 	radiusBottom?: number,
 	radSegments?: number,
 	heightSegments?: number,
-	futa?: boolean
+	caps?: boolean
 }
 
 export class CylinderGeometry extends Geometry {
@@ -24,20 +24,20 @@ export class CylinderGeometry extends Geometry {
 		const uvArray = [];
 		const indexArray = [];
 
-		const { height, radiusTop, radiusBottom, radSegments, heightSegments, futa } = {
+		const { height, radiusTop, radiusBottom, radSegments, heightSegments, caps: futa } = {
 			height: 1,
 			radiusTop: 1,
 			radiusBottom: 1,
 			radSegments: 8,
 			heightSegments: 1,
-			futa: true,
+			caps: true,
 			...params
 		};
 
 		//上下面分2回多くループ
 		for ( let i = 0; i <= heightSegments + 2; i ++ ) {
 
-			for ( let j = 0; j < radSegments; j ++ ) {
+			for ( let j = 0; j <= radSegments; j ++ ) {
 
 				const theta = Math.PI * 2.0 / radSegments * j;
 

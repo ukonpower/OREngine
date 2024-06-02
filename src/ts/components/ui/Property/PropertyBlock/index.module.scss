@@ -23,14 +23,13 @@
 		margin-bottom: 4px;
 	}
 
-	&[data-accordion="true"] {
-		cursor: pointer;
-		display: inline-block;
-	}
-
 	&_icon {
 		padding-right: 5px;
 		display: inline-block;
+
+		&[data-accordion="true"] {
+			cursor: pointer;
+		}
 	}
 
 	&_text {

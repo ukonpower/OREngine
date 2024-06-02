@@ -101,7 +101,7 @@ export class GLEditor extends MXP.Exportable {
 
 			if ( e.key == ' ' ) {
 
-				if ( this.scene.framePlay.playing ) {
+				if ( this.scene.frame.playing ) {
 
 					this.scene.stop( );
 
@@ -162,31 +162,6 @@ export class GLEditor extends MXP.Exportable {
 
 		} );
 
-		// unload
-
-		const onBeforeUnload = ( e: BeforeUnloadEvent ) => {
-
-			if ( this.unsaved ) {
-
-				e.preventDefault();
-				e.returnValue = "";
-
-			}
-
-		};
-
-		window.addEventListener( "beforeunload", onBeforeUnload );
-
-		// dispose
-
-		this.disposed = false;
-
-		this.once( 'dispose', () => {
-
-			window.removeEventListener( "beforeunload", onBeforeUnload );
-
-		} );
-
 		// resize
 
 		window.addEventListener( 'resize', this.resize.bind( this ) );
@@ -223,6 +198,49 @@ export class GLEditor extends MXP.Exportable {
 
 		} );
 
+		// blidge
+
+		this.scene.on( "update/blidge/frame", ( e: MXP.BLidgeFrame ) => {
+
+			this.scene.seek( e.current );
+
+			if ( e.playing && ! this.scene.frame.playing ) {
+
+				this.scene.play();
+
+			} else if ( ! e.playing && this.scene.frame.playing ) {
+
+				this.scene.stop();
+
+			}
+
+		} );
+
+		// unload
+
+		const onBeforeUnload = ( e: BeforeUnloadEvent ) => {
+
+			if ( this.unsaved ) {
+
+				e.preventDefault();
+				e.returnValue = "";
+
+			}
+
+		};
+
+		window.addEventListener( "beforeunload", onBeforeUnload );
+
+		// dispose
+
+		this.disposed = false;
+
+		this.once( 'dispose', () => {
+
+			window.removeEventListener( "beforeunload", onBeforeUnload );
+
+		} );
+
 		// animate
 
 		this.animate();
@@ -236,6 +254,16 @@ export class GLEditor extends MXP.Exportable {
 		// update
 
 		this.scene.update();
+
+		if ( this.scene.frame.playing ) {
+
+			if ( this.scene.frame.current > this.scene.frameSetting.duration ) {
+
+				this.scene.frame.current = 0;
+
+			}
+
+		}
 
 		// debugger
 
@@ -428,9 +456,8 @@ export class GLEditor extends MXP.Exportable {
 
 		this.disposed = true;
 
-		this.scene.dispose();
+		this.scene.disposeRecursive();
 		this.keyBoard.dispose();
-		this.scene.dispose();
 		this.frameDebugger.dispose();
 
 	}

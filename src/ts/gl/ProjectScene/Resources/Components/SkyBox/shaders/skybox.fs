@@ -19,11 +19,11 @@ void main( void ) {
 	outColor *= 0.0;
 	outEmission = vec3( 0.0, 0.05, 0.1);
 
-	float n = noise( outPos * 0.05 + uTimeE * 0.1 );
+	float n = noiseV( outPos * 0.15 + uTimeE * 0.1 );
 
 	vec3 n2Pos = outPos;
 	n2Pos.xz *= rotate( n2Pos.y * 0.02 );
-	float n2 = noise( n2Pos * 0.04 + vec3( 0.0, 0.0, uTimeE * 0.1 + n ) );
+	float n2 = noiseV( n2Pos * 0.15 + vec3( 0.0, 0.0, uTimeE * 0.1 + n ) );
 
 	float phase = 4.5;
 

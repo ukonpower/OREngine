@@ -1,24 +1,27 @@
 import { CollectedLights } from '..';
 
 import common from './shaderModules/common.module.glsl';
-import frag_h from './shaderModules/frag_h.module.glsl';
-import frag_in from './shaderModules/frag_in.module.glsl';
-import frag_out from './shaderModules/frag_out.module.glsl';
 import light from './shaderModules/light.module.glsl';
-import light_h from './shaderModules/light_h.module.glsl';
 import noise from './shaderModules/noise.module.glsl';
 import pmrem from './shaderModules/pmrem.module.glsl';
+import raymarch_normal from './shaderModules/raymarch_normal.module.glsl';
 import rotate from './shaderModules/rotate.module.glsl';
 import sdf from './shaderModules/sdf.module.glsl';
-import vert_h from './shaderModules/vert_h.module.glsl';
-import vert_in from './shaderModules/vert_in.module.glsl';
-import vert_out from './shaderModules/vert_out.module.glsl';
+import frag_h from './shaderParts/frag_h.part.glsl';
+import frag_in from './shaderParts/frag_in.part.glsl';
+import frag_out from './shaderParts/frag_out.part.glsl';
+import lighting from './shaderParts/lighting.part.glsl';
+import raymarch_ray_object from './shaderParts/raymarch_ray_object.part.glsl';
+import vert_h from './shaderParts/vert_h.part.glsl';
+import vert_in from './shaderParts/vert_in.part.glsl';
+import vert_out from './shaderParts/vert_out.part.glsl';
 
 type Defines = {[key:string]: number | string} | undefined;
 
 export const shaderInsertDefines = ( shader: string, defines: Defines ) => {
 
 	if ( ! defines ) return shader;
+
 
 	const splited = shader.split( '\n' );
 
@@ -59,18 +62,20 @@ export const shaderInclude = ( shader: string ) => {
 		"sdf": sdf,
 		"rotate": rotate,
 		"noise": noise,
-		"light_h": light_h,
 		"light": light,
+		"lighting": lighting,
 		"vert_h": vert_h,
 		"vert_in": vert_in,
 		"vert_out": vert_out,
 		"frag_h": frag_h,
 		"frag_in": frag_in,
 		"frag_out": frag_out,
+		"rm_normal": raymarch_normal,
+		"rm_ray_obj": raymarch_ray_object,
 		"pmrem": pmrem,
 	};
 
-	shader = shader.replace( /#include\s?\<([\S]*)\>/g, ( _: string, body: string ) => {
+	shader = shader.replace( /#include\s?<([\S]*)>/g, ( _: string, body: string ) => {
 
 		let str = "";
 

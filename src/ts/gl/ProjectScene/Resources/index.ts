@@ -21,6 +21,13 @@ export class OREngineResource extends GLP.EventEmitter {
 
 	}
 
+	static get key(): string {
+
+		return "blidgeClient";
+
+	}
+
+
 	public getComponent( name: string ) {
 
 		return this.componentList.find( c =>{
@@ -46,10 +53,10 @@ export class OREngineResource extends GLP.EventEmitter {
 		this.componentListCategrized.set( catName, catCompList );
 
 		return {
-			register: ( key: string, component: typeof MXP.Component, defaultArgs?: ComponentArgs ) => {
+			register: ( component: typeof MXP.Component, defaultArgs?: ComponentArgs ) => {
 
 				const compItem = {
-					key,
+					key: component.key,
 					component,
 					defaultArgs
 				};

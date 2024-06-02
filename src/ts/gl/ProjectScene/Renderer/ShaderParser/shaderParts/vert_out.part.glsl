@@ -1,8 +1,7 @@
-//[
 #ifdef TF_MODELER
-	o_position = outPos;
-	o_normal = outNormal;
-	return;
+		o_position = outPos;
+		o_normal = outNormal;
+		return;
 #endif
 
 vec4 modelPosition = modelMatrix * vec4(outPos, 1.0);
@@ -22,5 +21,3 @@ vMVPPosition = gl_Position.xyz / gl_Position.w;
 
 vVelocity = vMVPPosition.xy - positionPrev.xy / positionPrev.w;
 vVelocity *= 0.25;
-
-//]

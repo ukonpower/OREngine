@@ -6,11 +6,11 @@ import { shaderParse } from '../../../Renderer/ShaderParser';
 import musicFrag from './shaders/music.fs';
 import musicVert from './shaders/music.vs';
 
-
 import { power } from '~/ts/Globals';
 
 const BPM = 85;
 const MUSIC_DURATION = 60 * ( ( 8 * 2 ) / BPM );
+
 
 export class Music extends MXP.Component {
 
@@ -198,6 +198,12 @@ export class Music extends MXP.Component {
 
 	}
 
+	static get key(): string {
+
+		return "music";
+
+	}
+
 	protected updateImpl( event: MXP.ComponentUpdateEvent ): void {
 
 		if ( ! event.playing || event.timeCode < 0 ) {
@@ -214,17 +220,15 @@ export class Music extends MXP.Component {
 
 	}
 
-	public setEntityImpl( entity: MXP.Entity | null, prevEntity: MXP.Entity | null ): void {
+	public setEntityImpl( entity: MXP.Entity ): void {
 
-		if ( entity ) {
+		this.notice();
 
-			this.notice();
+	}
 
-		} else {
+	protected unsetEntityImpl( prevEntity: MXP.Entity ): void {
 
-			this.stop();
-
-		}
+		this.stop();
 
 	}
 

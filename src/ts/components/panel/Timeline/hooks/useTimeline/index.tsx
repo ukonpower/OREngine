@@ -34,7 +34,8 @@ export const useTimeline = ( glEditor: GLEditor | undefined ) => {
 
 	// audio buffer
 
-	const [ musicBuffer, setMusicBuffer ] = useState<AudioBuffer>( );
+	const musicBuffer = glEditor?.audioBuffer;
+	const [ musicBufferVersion, setMusicBufferVersion ] = useState<number>();
 
 	// events
 
@@ -52,7 +53,7 @@ export const useTimeline = ( glEditor: GLEditor | undefined ) => {
 
 			};
 
-			onUpdateFramePlay( scene.framePlay );
+			onUpdateFramePlay( scene.frame );
 
 			// scene
 
@@ -69,17 +70,13 @@ export const useTimeline = ( glEditor: GLEditor | undefined ) => {
 
 			// music
 
-			const onUpdateMusic = ( buffer: AudioBuffer ) => {
+			let bufferVersion = 0;
 
-				setMusicBuffer( buffer );
+			const onUpdateMusic = () => {
+
+				setMusicBufferVersion( bufferVersion ++ );
 
 			};
-
-			if ( glEditor.audioBuffer ) {
-
-				onUpdateMusic( glEditor.audioBuffer );
-
-			}
 
 			// load
 
@@ -172,6 +169,7 @@ export const useTimeline = ( glEditor: GLEditor | undefined ) => {
 		viewPort,
 		viewPortScale,
 		musicBuffer,
+		musicBufferVersion,
 		setCurrentFrame,
 		getFrameViewPort,
 		zoom,

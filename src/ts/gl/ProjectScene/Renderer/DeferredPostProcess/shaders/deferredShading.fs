@@ -1,6 +1,6 @@
 #include <common>
 #include <packing>
-#include <light_h>
+#include <light>
 #include <pmrem>
 
 // uniforms
@@ -84,7 +84,7 @@ void main( void ) {
 	
 	// output
 
-	#include <light>
+	#include <lighting>
 
 	// env
 

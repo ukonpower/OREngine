@@ -11,7 +11,7 @@ type SphereGeometryParam = {
 
 export class SphereGeometry extends Geometry {
 
-	constructor( param: SphereGeometryParam ) {
+	constructor( param?: SphereGeometryParam ) {
 
 		super( param );
 

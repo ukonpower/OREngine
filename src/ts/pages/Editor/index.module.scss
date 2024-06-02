@@ -36,7 +36,7 @@
 
 	@include sp {
 		width: 100%;
-		height: 25dvh;
+		height: 15dvh;
 		order: 2;
 	}
 }
@@ -49,7 +49,7 @@
 	@include sp {
 		width: 100%;
 		max-width: none;
-		height: 25dvh;
+		height: 15dvh;
 		order: 3;
 	}
 }
@@ -59,13 +59,13 @@
 	display: flex;
 
 	@include sp {
-		height: 49dvh;
+		height: 20dvh;
 		max-height: 300px;
 	}
 }
 
 .timeline {
-	flex: 1
+	flex: 1;
 }
 
 .project {
