@@ -10,7 +10,7 @@ import ssaoFrag from './shaders/ssao.fs';
 import ssaoBlurFrag from './shaders/ssaoBlur.fs';
 
 
-import { gl, power, globalUniforms } from '~/ts/Globals/';
+import { gl, power, globalUniforms } from '~/ts/gl/GLGlobals/';
 
 const ssaoKernel = ( kernelSize: number ) => {
 

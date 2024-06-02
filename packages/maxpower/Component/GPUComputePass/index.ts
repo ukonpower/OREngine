@@ -5,7 +5,7 @@ import { PostProcessPass, PostProcessPassParam } from '../PostProcessPass';
 
 import quadVert from './shaders/quad.vs';
 
-import { gl } from '~/ts/Globals';
+import { gl } from '~/ts/gl/GLGlobals';
 
 
 export interface GPUComputePassParam extends Omit<PostProcessPassParam, 'renderTarget'>{

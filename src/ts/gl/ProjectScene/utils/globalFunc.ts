@@ -1,6 +1,6 @@
 import { DrawType } from "maxpower";
 
-import { gl } from "~/ts/Globals";
+import { gl } from "~/ts/gl/GLGlobals";
 
 const drawType = {
 	"TRIANGLES": gl.TRIANGLES,

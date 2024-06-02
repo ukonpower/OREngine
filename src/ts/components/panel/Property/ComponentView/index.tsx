@@ -4,11 +4,11 @@ import { MouseEvent, useCallback, useContext } from 'react';
 
 import style from './index.module.scss';
 
+import { EditorContext } from '~/ts/components/gl/useEditor';
 import { CrossIcon } from '~/ts/components/ui/icon/CrossIcon';
 import { InputBoolean } from '~/ts/components/ui/Input/InputCheckBox';
 import { PropertyBlock } from '~/ts/components/ui/Property/PropertyBlock';
 import { Value, ValueType } from '~/ts/components/ui/Property/Value';
-import { EditorContext } from '~/ts/gl/React/useEditor';
 
 type ComponentViewProps = {
 	component: MXP.Component

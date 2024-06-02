@@ -1,9 +1,10 @@
 import { useContext } from "react";
 
+import { EditorContext } from "../../gl/useEditor";
+
 import { HierarchyNode } from './HierarchyNode';
 import style from './index.module.scss';
 
-import { EditorContext } from '~/ts/gl/React/useEditor';
 
 export const Hierarchy = () => {
 

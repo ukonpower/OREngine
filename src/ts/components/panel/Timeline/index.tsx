@@ -1,5 +1,7 @@
 import { useContext } from 'react';
 
+import { EditorContext } from '../../gl/useEditor';
+
 import { TimelineContext, useTimeline } from './hooks/useTimeline';
 import style from './index.module.scss';
 import { TimelineCanvas } from './TimelineCanvas';
@@ -8,7 +10,6 @@ import { TimelineCursor } from './TimelineCursor';
 import { TimelineScale } from './TimelineScale';
 import { TimelineSetting } from './TimelineSetting';
 
-import { EditorContext } from '~/ts/gl/React/useEditor';
 
 export const Timeline = () => {
 
