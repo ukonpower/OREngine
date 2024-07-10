@@ -3,7 +3,7 @@ import * as MXP from 'maxpower';
 
 import pmremFrag from './shaders/pmrem.fs';
 
-import { gl, globalUniforms, power } from '~/ts/gl/GLGlobals';
+import { gl, globalUniforms } from '~/ts/gl/GLGlobals';
 
 type SwapBuffer = {rt1: GLP.GLPowerFrameBuffer, rt2: GLP.GLPowerFrameBuffer};
 

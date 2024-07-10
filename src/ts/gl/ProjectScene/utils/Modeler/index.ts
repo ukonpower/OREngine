@@ -61,7 +61,7 @@ export class Modeler {
 
 		if ( vao ) {
 
-			baseGeometry.createBuffer( this.gl );
+			baseGeometry.createBuffers( this.gl );
 
 			baseGeometry.attributes.forEach( ( attr, key ) => {
 
@@ -175,11 +175,11 @@ export class Modeler {
 
 		const _ = ( e: MXP.Entity, matrix: GLP.Matrix ) => {
 
-			let geo = e.getComponent<MXP.Geometry>( 'geometry' );
+			let geo = e.getComponent( MXP.Geometry );
 
 			if ( geo ) {
 
-				const mat = e.getComponent<MXP.Material>( 'material' );
+				const mat = e.getComponent( MXP.Material );
 
 				if ( mat ) {
 

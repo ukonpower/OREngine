@@ -3,15 +3,17 @@ import * as GLP from 'glpower';
 import { GPUState } from '../ProjectScene/utils/GPUState';
 import { OREngineResource } from '../Resources';
 
-
 export const canvas = document.createElement( "canvas" );
 export const gl = canvas.getContext( 'webgl2', { antialias: false } )!;
 export const power = new GLP.Power( gl );
-// export const mainCmaera = new MXP.Entity( { name: "camera" } );
 
 export const globalUniforms: {[key: string]: GLP.Uniforms} = {
 	time: {
 		uTime: {
+			value: 0,
+			type: "1f"
+		},
+		uTimeF: {
 			value: 0,
 			type: "1f"
 		},
@@ -49,6 +51,16 @@ export const globalUniforms: {[key: string]: GLP.Uniforms} = {
 		}
 	},
 	tex: {
+	},
+	music: {
+		uMusicFreqTex: {
+			value: null,
+			type: "1i"
+		},
+		uMusicDomainTex: {
+			value: null,
+			type: "1i"
+		},
 	}
 };
 

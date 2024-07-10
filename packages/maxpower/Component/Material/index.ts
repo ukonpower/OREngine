@@ -7,26 +7,27 @@ type MaterialVisibility = {[K in MaterialRenderType]?: boolean}
 type MaterialProgramCache = {[K in MaterialRenderType]?: GLP.GLPowerProgram}
 
 import { Component, ComponentParams } from '..';
-import { ExportableProps, ExportablePropsSerialized } from '../../Exportable';
 
 import basicFrag from './shaders/basic.fs';
 import basicVert from './shaders/basic.vs';
 
 
 export type DrawType = 'TRIANGLES' | 'LINES' | 'POINTS';
+export type Blending = 'ADD' | 'NORMAL';
 
 export interface MaterialParam extends ComponentParams{
 	name?: string,
-	type?: MaterialRenderType[];
+	phase?: MaterialRenderType[];
 	frag?: string;
 	vert?: string;
 	defines?: MaterialDefines;
 	uniforms?: GLP.Uniforms;
 	depthTest?: boolean;
 	cullFace? :boolean;
-	blending?: boolean,
+	blending?: Blending,
 	drawType?: DrawType;
 }
+
 
 export class Material extends Component {
 
@@ -40,9 +41,11 @@ export class Material extends Component {
 	public depthTest: boolean;
 	public cullFace: boolean;
 	public drawType: DrawType;
+	public blending: Blending;
 
 	public visibilityFlag: MaterialVisibility;
 	public programCache: MaterialProgramCache;
+
 
 	constructor( params?: MaterialParam ) {
 
@@ -53,12 +56,13 @@ export class Material extends Component {
 		this.name = params.name || '';
 
 		this.visibilityFlag = {};
-		this.setVisibility( params.type || [ "deferred", "shadowMap" ] );
+		this.setVisibility( params.phase || [ "deferred" ] );
 
 		this.useLight = true;
 		this.depthTest = true;
 		this.cullFace = false;
-		this.drawType = "TRIANGLES";
+		this.drawType = params.drawType || "TRIANGLES";
+		this.blending = params.blending || "NORMAL";
 
 		this.vert = params.vert || basicVert;
 		this.frag = params.frag || basicFrag;

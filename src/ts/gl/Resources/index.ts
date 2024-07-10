@@ -2,31 +2,44 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
+import { Font } from './Fonts';
+
 type ComponentArgs = {[key: string]: any}
 
 export type ResouceComponentItem = {
-	key: string;
 	component: typeof MXP.Component;
 	defaultArgs?: ComponentArgs
 };
 
 export class OREngineResource extends GLP.EventEmitter {
 
-	public componentListCategrized: Map<string, ( ResouceComponentItem )[]> = new Map();
-	public componentList: ( ResouceComponentItem )[] = [];
+	public componentList: ( ResouceComponentItem )[];
+	public comListCats: Map<string, ( ResouceComponentItem )[]>;
+	public textures: Map<string, GLP.GLPowerTexture>;
+	public fonts: Font[];
 
 	constructor() {
 
 		super();
+		this.componentList = [];
+		this.comListCats = new Map();
+		this.textures = new Map();
+		this.fonts = [];
 
 	}
 
-	static get key(): string {
+	public clear() {
 
-		return "blidgeClient";
+		this.componentList = [];
+		this.fonts = [];
+		this.comListCats.clear();
+		this.textures.clear();
 
 	}
 
+	/*-------------------------------
+		Component
+	-------------------------------*/
 
 	public getComponent( name: string ) {
 
@@ -38,25 +51,16 @@ export class OREngineResource extends GLP.EventEmitter {
 
 	}
 
-	public clearComponents() {
-
-		this.componentList.length = 0;
-
-		this.componentListCategrized.clear();
-
-	}
-
 	public componentCategory( catName: string ) {
 
-		const catCompList = this.componentListCategrized.get( catName ) || [];
+		const catCompList = this.comListCats.get( catName ) || [];
 
-		this.componentListCategrized.set( catName, catCompList );
+		this.comListCats.set( catName, catCompList );
 
 		return {
 			register: ( component: typeof MXP.Component, defaultArgs?: ComponentArgs ) => {
 
 				const compItem = {
-					key: component.key,
 					component,
 					defaultArgs
 				};
@@ -67,6 +71,40 @@ export class OREngineResource extends GLP.EventEmitter {
 
 			}
 		};
+
+	}
+
+	/*-------------------------------
+		Texture
+	-------------------------------*/
+
+	public addTexture( key: string, texture: GLP.GLPowerTexture ) {
+
+		this.textures.set( key, texture );
+
+	}
+
+	public getTexture( key: string ) {
+
+		return this.textures.get( key );
+
+	}
+
+	/*-------------------------------
+		Fonts
+	-------------------------------*/
+
+	public addFont( font: Font ) {
+
+		this.fonts.push( font );
+
+	}
+
+	public getFont( key: typeof Font | string ) {
+
+		const k = typeof key == 'string' ? key : key.key;
+
+		return this.fonts.find( f => f.key == k );
 
 	}
 

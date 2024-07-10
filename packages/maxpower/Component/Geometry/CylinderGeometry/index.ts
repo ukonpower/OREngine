@@ -68,14 +68,16 @@ export class CylinderGeometry extends Geometry {
 
 					if ( i < heightSegments ) {
 
-						indexArray.push(
-							i * radSegments + j,
-							( i + 1 ) * radSegments + ( j + 1 ) % radSegments,
-							i * radSegments + ( j + 1 ) % radSegments,
+						const rs = radSegments + 1;
 
-							i * radSegments + j,
-							( i + 1 ) * radSegments + j,
-							( i + 1 ) * radSegments + ( j + 1 ) % radSegments,
+						indexArray.push(
+							i * rs + j,
+							( i + 1 ) * rs + ( j + 1 ) % rs,
+							i * rs + ( j + 1 ) % rs,
+
+							i * rs + j,
+							( i + 1 ) * rs + j,
+							( i + 1 ) * rs + ( j + 1 ) % rs,
 
 						);
 
@@ -104,7 +106,7 @@ export class CylinderGeometry extends Geometry {
 
 					normalArray.push( 0, - 1 + side * 2, 0 );
 
-					const offset = radSegments * ( heightSegments + ( side + 1 ) );
+					const offset = ( radSegments + 1 ) * ( heightSegments + ( side + 1 ) );
 
 					if ( j <= radSegments - 2 ) {
 

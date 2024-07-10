@@ -4,7 +4,7 @@ import * as MXP from 'maxpower';
 import orengineCubeFrag from './shaders/orengineCube.fs';
 import orengineCubeVert from './shaders/orengineCube.vs';
 
-import { globalUniforms } from '~/ts/gl/GLGlobals';
+import { globalUniforms, resource } from '~/ts/gl/GLGlobals';
 
 export class OREngineCube extends MXP.Material {
 
@@ -14,7 +14,10 @@ export class OREngineCube extends MXP.Material {
 			frag: MXP.hotGet( "orengineCubeFrag", orengineCubeFrag ),
 			vert: MXP.hotGet( "orengineCubeVert", orengineCubeVert ),
 			uniforms: GLP.UniformsUtils.merge( globalUniforms.time, {
-				uNoiseTex: globalUniforms.tex.uNoiseTex
+				uNoiseTex: {
+					value: resource.getTexture( "noise" ),
+					type: "1i"
+				}
 			} )
 		} );
 

@@ -89,45 +89,20 @@ class App {
 
 		this.scene = new ProjectScene();
 
-		this.scene.init( SceneData );
-
 		this.scene.on( "loaded", () => {
 
 			this.resize();
 
-			if ( process.env.NODE_ENV == "production" ) {
-
-				this.scene.update( { forceDraw: true } );
-
-			}
+			this.scene.update( { forceDraw: true } );
 
 			playButton.innerText = '2. Play!';
 			playButton.disabled = false;
 
-			if ( process.env.NODE_ENV == "development" ) {
-
-				this.play();
-
-			}
-
 		} );
 
+		this.scene.init( SceneData );
+
 		this.resize();
-
-		if ( process.env.NODE_ENV == "production" ) {
-
-			this.scene.update( { forceDraw: true } );
-
-		}
-
-		playButton.innerText = '2. Play!';
-		playButton.disabled = false;
-
-		if ( process.env.NODE_ENV == "development" ) {
-
-			// this.play();
-
-		}
 
 		/*-------------------------------
 			Event
@@ -139,23 +114,38 @@ class App {
 
 	}
 
-	private animate() {
-
-		this.scene.update();
-
-		window.requestAnimationFrame( this.animate.bind( this ) );
-
-	}
-
 	private play() {
 
 		this.startElm.style.display = "none";
 		this.canvasWrapElm.style.display = 'block';
 		this.canvasWrapElm.style.cursor = 'none';
 
-		this.resize();
+		this.scene.play();
 
+		this.resize();
 		this.animate();
+
+	}
+
+	private animate() {
+
+		this.scene.update();
+
+		// loop --------------------
+
+		if ( this.scene.frame.playing ) {
+
+			if ( this.scene.frame.current > this.scene.frameSetting.duration ) {
+
+				this.scene.frame.current = 0;
+
+			}
+
+		}
+
+		// -------------------------
+
+		window.requestAnimationFrame( this.animate.bind( this ) );
 
 	}
 

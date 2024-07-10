@@ -1,3 +1,4 @@
+import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
 import skyboxFrag from './shaders/skybox.fs';
@@ -12,18 +13,16 @@ export class SkyBox extends MXP.Component {
 	private geometry: MXP.Geometry;
 	private material: MXP.Material;
 
-	constructor( param?: SkyBoxParams ) {
+	constructor( params: SkyBoxParams ) {
 
-		param = param || {};
-
-		super();
+		super( params );
 
 		this.geometry = new MXP.CylinderGeometry( { height: 100, radiusTop: 20, radiusBottom: 20, heightSegments: 10, radSegments: 32, caps: false } );
 		this.material = new MXP.Material( {
-			type: [ "deferred", "envMap" ],
+			phase: [ "deferred", "envMap" ],
 			frag: MXP.hotGet( "skybox", skyboxFrag ),
 			cullFace: false,
-			uniforms: globalUniforms.time
+			uniforms: GLP.UniformsUtils.merge( globalUniforms.time, globalUniforms.music )
 		} );
 
 		if ( import.meta.hot ) {

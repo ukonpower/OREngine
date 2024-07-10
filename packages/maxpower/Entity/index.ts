@@ -188,10 +188,10 @@ export class Entity extends Exportable {
 		const visibility = ( event.visibility || event.visibility === undefined ) && this.visible;
 		childEvent.visibility = visibility;
 
-		const geometry = this.getComponent<Geometry>( 'geometry' );
-		const material = this.getComponent<Material>( 'material' );
+		const geometry = this.getComponent( Geometry );
+		const material = this.getComponent( Material );
 
-		if ( geometry && material && ( visibility || event.forceDraw ) ) {
+		if ( geometry && material && ( geometry.enabled && material.enabled && visibility || event.forceDraw ) ) {
 
 			if ( material.visibilityFlag.deferred ) event.renderStack.deferred.push( this );
 			if ( material.visibilityFlag.shadowMap ) event.renderStack.shadowMap.push( this );
@@ -201,7 +201,7 @@ export class Entity extends Exportable {
 
 		}
 
-		const camera = this.getComponent<Camera>( 'camera' );
+		const camera = this.getComponent( Camera );
 
 		if ( camera && camera.enabled ) {
 
@@ -209,7 +209,7 @@ export class Entity extends Exportable {
 
 		}
 
-		const light = this.getComponent<Light>( 'light' );
+		const light = this.getComponent( Light );
 
 		if ( light && light.enabled ) {
 
@@ -217,7 +217,7 @@ export class Entity extends Exportable {
 
 		}
 
-		const gpuCompute = this.getComponent<GPUCompute>( "gpuCompute" );
+		const gpuCompute = this.getComponent( GPUCompute );
 
 		if ( gpuCompute && gpuCompute.enabled ) {
 
@@ -352,9 +352,30 @@ export class Entity extends Exportable {
 
 	}
 
-	public getComponent<T extends Component>( name: BuiltInComponents ): T | undefined {
+	public getComponentByKey<T extends Component>( name: BuiltInComponents ): T | undefined {
 
 		return this.components.get( name ) as T;
+
+	}
+
+	public getComponent<T extends typeof Component>( component: T ): InstanceType<T> | undefined {
+
+		return this.getComponentByKey( component.key );
+
+	}
+
+	public removeComponent( component: Component | typeof Component ) {
+
+		const currentComponent = this.components.get( component.key );
+
+		if ( currentComponent ) {
+
+			this.components.delete( currentComponent.key );
+			currentComponent.unsetEntity();
+
+		}
+
+		return currentComponent;
 
 	}
 
@@ -362,18 +383,15 @@ export class Entity extends Exportable {
 
 		const component = this.components.get( key );
 
-		this.components.delete( key );
+		if ( component ) {
 
-		return component;
+			return this.removeComponent( component );
 
-	}
+		}
 
-	public removeComponent( component: Component ) {
-
-		return this.removeComponentByKey( component.key );
+		return null;
 
 	}
-
 
 	/*-------------------------------
 		BLidger
@@ -443,6 +461,18 @@ export class Entity extends Exportable {
 
 	}
 
+	public getRootEntity(): Entity {
+
+		if ( this.parent ) {
+
+			return this.parent.getRootEntity();
+
+		}
+
+		return this;
+
+	}
+
 	/*-------------------------------
 		Event
 	-------------------------------*/
@@ -488,13 +518,10 @@ export class Entity extends Exportable {
 	public dispose( ) {
 
 		this.emit( "dispose" );
-
 		this.parent && this.parent.remove( this );
-
 		this.components.forEach( c => {
 
 			c.unsetEntity();
-
 			c.dispose();
 
 		} );
@@ -512,6 +539,8 @@ export class Entity extends Exportable {
 			c.disposeRecursive();
 
 		} );
+
+		this.children = [];
 
 	}
 

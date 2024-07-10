@@ -68,13 +68,14 @@ export class VJCamera extends MXP.Component {
 
 		// calc viewmatrix
 
-		const cameraComponent = entity.getComponent<MXP.Camera>( "camera" );
+		const cameraComponent = entity.getComponent( MXP.RenderCamera );
 
 		if ( cameraComponent ) {
 
 			cameraComponent.viewMatrix.copy( entity.matrixWorld ).inverse();
 
 		}
+
 
 	}
 

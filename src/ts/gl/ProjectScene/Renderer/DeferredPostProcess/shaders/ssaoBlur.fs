@@ -11,7 +11,7 @@ uniform vec2 uPPPixelSize;
 uniform sampler2D uNormalTexture;
 uniform sampler2D uDepthTexture;
 
-uniform float[16] uWeights;
+uniform float uWeights[16];
 #define SSAOSAMPLE 16
 
 // varying

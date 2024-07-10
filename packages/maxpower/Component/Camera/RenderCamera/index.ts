@@ -19,9 +19,11 @@ export class RenderCamera extends Camera {
 
 	public renderTarget: RenderCameraTarget;
 
-	constructor( gl: WebGL2RenderingContext, param?: RenderCameraParam ) {
+	constructor( param: RenderCameraParam ) {
 
 		super( param );
+
+		const gl = param?.gl;
 
 		const gBuffer = new GLP.GLPowerFrameBuffer( gl );
 		gBuffer.setTexture( [

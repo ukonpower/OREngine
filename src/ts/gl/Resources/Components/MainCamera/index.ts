@@ -113,7 +113,7 @@ export class MainCamera extends MXP.Component {
 
 		// components
 
-		this.cameraComponent = new MXP.RenderCamera( gl );
+		this.cameraComponent = new MXP.RenderCamera( { gl } );
 		this.renderTarget = this.cameraComponent.renderTarget;
 
 		this.lookAt = new LookAt();
@@ -560,12 +560,19 @@ export class MainCamera extends MXP.Component {
 
 	}
 
-	public setEntityImpl( entity: MXP.Entity, prevEntity: MXP.Entity | null ): void {
+	public static get key() {
+
+		return 'mainCamera';
+
+	}
+
+	public setEntityImpl( entity: MXP.Entity, ): void {
 
 		entity.addComponent( this.cameraComponent );
 		entity.addComponent( this.scenePostProcess );
 		entity.addComponent( this.postProcess );
 		entity.addComponent( this.orbitControls );
+		// entity.addComponent( new VJCamera() );
 
 		// events
 
@@ -576,7 +583,7 @@ export class MainCamera extends MXP.Component {
 			const lookAtTarget = root.getEntityByName( "CameraTarget" ) || null;
 			this.lookAt.setTarget( lookAtTarget );
 
-			const ortbitControls = entity.getComponent<OrbitControls>( "orbitControls" );
+			const ortbitControls = entity.getComponent( OrbitControls );
 
 			if ( ortbitControls && camera && lookAtTarget ) {
 
@@ -591,12 +598,6 @@ export class MainCamera extends MXP.Component {
 			this.updateCameraParams( this.resolution );
 
 		} );
-
-		if ( prevEntity ) {
-
-			prevEntity.off( 'sceneCreated' );
-
-		}
 
 	}
 

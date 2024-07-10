@@ -1,9 +1,10 @@
 import * as MXP from 'maxpower';
 
 import { router } from './router';
-import SceneData from './scene/scene.json';
 
 import { gl } from '~/ts/gl/GLGlobals';
+import SceneData from '~/ts/gl/Resources/scene.json';
+
 
 export class BLidgeClient extends MXP.Component {
 
@@ -62,6 +63,12 @@ export class BLidgeClient extends MXP.Component {
 		this.gltfPath = BASE_PATH + "/scene.glb";
 
 		this.setProps( this.getPropsSerialized() );
+
+	}
+
+	public static get key() {
+
+		return "blidgeClient";
 
 	}
 
@@ -131,17 +138,21 @@ export class BLidgeClient extends MXP.Component {
 
 	}
 
-	protected setEntityImpl( entity: MXP.Entity, prevEntity: MXP.Entity ): void {
+	protected setEntityImpl( entity: MXP.Entity ): void {
 
-		if ( prevEntity && this.blidgeRoot ) {
+		if ( this.blidgeRoot ) {
 
-			prevEntity.remove( this.blidgeRoot );
+			entity.add( this.blidgeRoot );
 
 		}
 
-		if ( entity && this.blidgeRoot ) {
+	}
 
-			entity.add( this.blidgeRoot );
+	protected unsetEntityImpl( prevEntity: MXP.Entity ): void {
+
+		if ( this.blidgeRoot ) {
+
+			prevEntity.remove( this.blidgeRoot );
 
 		}
 
@@ -181,7 +192,6 @@ export class BLidgeClient extends MXP.Component {
 		};
 
 		const newBLidgeRoot = blidge.root && _( blidge.root );
-
 
 		if ( newBLidgeRoot ) {
 
@@ -234,6 +244,19 @@ export class BLidgeClient extends MXP.Component {
 			this.entity.noticeParent( "update/graph", [ "scenechange" ] );
 
 			this.entity.noticeParent( "update/blidge/scene", [ this.blidgeRoot ] );
+
+		}
+
+	}
+
+	public dispose(): void {
+
+		super.dispose();
+
+		if ( this.blidgeRoot ) {
+
+			this.blidgeRoot.disposeRecursive();
+			this.blidgeRoot = null;
 
 		}
 

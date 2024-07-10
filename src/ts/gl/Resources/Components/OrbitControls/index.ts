@@ -1,6 +1,5 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
-import { Camera } from 'maxpower';
 
 import { Keyboard } from '~/ts/gl/ProjectScene/utils/Keyboard';
 import { Pointer, PointerEventArgs } from '~/ts/gl/ProjectScene/utils/Pointer';
@@ -157,7 +156,7 @@ export class OrbitControls extends MXP.Component {
 
 		// calc viewmatrix
 
-		const cameraComponent = entity.getComponent<Camera>( "camera" );
+		const cameraComponent = entity.getComponent( MXP.Camera );
 
 		if ( cameraComponent ) {
 

@@ -24,10 +24,7 @@ export class TemplateComponent extends MXP.Component {
 		this.material = new MXP.Material( {
 			frag: MXP.hotGet( "templateFrag", templateFrag ),
 			vert: MXP.hotGet( "templateVert", templateVert ),
-			uniforms: GLP.UniformsUtils.merge( {
-				uResolution: globalUniforms.resolution.uResolution,
-			}, globalUniforms.time )
-
+			uniforms: GLP.UniformsUtils.merge( globalUniforms.resolution, globalUniforms.time )
 		} );
 
 		if ( import.meta.hot ) {
@@ -67,7 +64,7 @@ export class TemplateComponent extends MXP.Component {
 	}
 
 
-	public setEntity( entity: MXP.Entity ): void {
+	public setEntityImpl( entity: MXP.Entity ): void {
 
 		entity.addComponent( this.material );
 		entity.addComponent( this.geometry );
