@@ -1,21 +1,28 @@
+
 import * as MXP from 'maxpower';
 
-
-import { resource } from '../GLGlobals';
+import { gl, resource } from '../GLGlobals';
+import { TexProcedural } from '../ProjectScene/utils/TexProcedural';
 
 import { BLidgeClient } from "./Components/BLidgeClient";
+import { DashCube } from './Components/Effects/DashCube';
+import { FlashLine } from './Components/Effects/FlashLine';
+import { GridCross } from './Components/Effects/GridCross';
 import { FluidCrystal } from './Components/FluidCrystal';
 import { LookAt } from "./Components/LookAt";
+import { MatchMove } from './Components/MatchMove';
 import { Music } from './Components/Music';
 import { OrbitControls } from './Components/OrbitControls';
 import { ShakeViewer } from "./Components/ShakeViewer";
 import { SkyBox } from "./Components/SkyBox";
 import { TemplateComponent } from './Components/TemplateComponent';
+import { TextEffect } from './Components/TextEffect';
 import { TurnTable } from './Components/TurnTable';
 import { VJCamera } from './Components/VJCamera';
+import { Font1 } from './Fonts/Font1';
 import { OREngineCube } from './Materials/OREngineCube';
 import { OREngineLogo } from './Materials/OREngineLogo';
-
+import noiseFrag from './Textures/noise.fs';
 
 export const initResouces = () => {
 
@@ -23,19 +30,7 @@ export const initResouces = () => {
 		Components
 	-------------------------------*/
 
-	resource.clearComponents();
-
-	// object
-
-	const comObject = resource.componentCategory( "Object" );
-
-	comObject.register( MXP.Camera, {
-		cameraType: "perspective",
-	} );
-
-	comObject.register( MXP.Light, {
-		lightType: "directional",
-	} );
+	resource.clear();
 
 	// geometry
 
@@ -96,6 +91,15 @@ export const initResouces = () => {
 
 	comEntity.register( TemplateComponent );
 
+	comEntity.register( FlashLine );
+
+	comEntity.register( MatchMove );
+
+	comEntity.register( GridCross );
+
+	comEntity.register( DashCube );
+
+	comEntity.register( TextEffect );
 
 	// Other
 
@@ -104,5 +108,18 @@ export const initResouces = () => {
 	comOther.register( BLidgeClient );
 	comOther.register( Music );
 
+	/*-------------------------------
+		Textures
+	-------------------------------*/
+
+	resource.addTexture( "noise", new TexProcedural( gl, {
+		frag: noiseFrag,
+	} ) );
+
+	/*-------------------------------
+		Fonts
+	-------------------------------*/
+
+	resource.addFont( new Font1( gl ) );
 
 };

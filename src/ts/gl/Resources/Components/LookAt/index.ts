@@ -56,7 +56,7 @@ export class LookAt extends MXP.Component {
 
 			entity.matrixWorld.lookAt( this.entityWorldPos, this.targetWorldPos, this.up );
 
-			const camera = entity.getComponent<MXP.Camera>( 'camera' );
+			const camera = entity.getComponent( MXP.Camera );
 
 			if ( camera ) {
 

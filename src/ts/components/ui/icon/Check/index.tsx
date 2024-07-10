@@ -1,4 +1,3 @@
-import style from './index.module.scss';
 
 export const CheckIcon = ( ) => {
 

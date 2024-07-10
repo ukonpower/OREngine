@@ -5,7 +5,6 @@ import { canvas, gl, globalUniforms } from '../GLGlobals';
 import { MainCamera } from '../Resources/Components/MainCamera';
 import { OrbitControls } from '../Resources/Components/OrbitControls';
 import { initResouces } from '../Resources/init';
-import { initTextures } from '../Resources/Textures';
 
 import { OREngineProjectData, ProjectSerializer, OREngineProjectFrame } from './IO/ProjectSerializer';
 import { Renderer } from './Renderer';
@@ -61,7 +60,6 @@ export class ProjectScene extends MXP.Entity {
 		// resources
 
 		initResouces();
-		initTextures();
 
 		// project
 
@@ -76,6 +74,13 @@ export class ProjectScene extends MXP.Entity {
 				this.projectSerializer.applyOverride( this.root, blidgeRoot, this.projectCache.objectOverride );
 
 			}
+
+		} );
+
+		this.on( "update/music", ( buffer: AudioBuffer, freqTex: GLP.GLPowerTexture, domainTex: GLP.GLPowerTexture ) => {
+
+			globalUniforms.music.uMusicFreqTex.value = freqTex;
+			globalUniforms.music.uMusicDomainTex.value = domainTex;
 
 		} );
 
@@ -112,7 +117,7 @@ export class ProjectScene extends MXP.Entity {
 		this.camera.position.set( 0, 0, 5 );
 		this.camera.noExport = true;
 		this.cameraComponent = this.camera.addComponent( new MainCamera() );
-		const orbitControls = this.camera.getComponent<OrbitControls>( "orbitControls" );
+		const orbitControls = this.camera.getComponent( OrbitControls );
 
 		if ( orbitControls ) {
 
@@ -167,6 +172,7 @@ export class ProjectScene extends MXP.Entity {
 		this.root.add( this.renderer );
 
 		this.emit( "update/graph" );
+		this.emit( "loaded" );
 
 	}
 
@@ -188,6 +194,7 @@ export class ProjectScene extends MXP.Entity {
 		this.time.engine += this.time.delta;
 
 		globalUniforms.time.uTime.value = this.time.code;
+		globalUniforms.time.uTimeF.value = this.time.code % 1;
 		globalUniforms.time.uTimeE.value = this.time.engine;
 		globalUniforms.time.uTimeEF.value = this.time.engine % 1;
 
@@ -212,6 +219,8 @@ export class ProjectScene extends MXP.Entity {
 	public resize( resolution: GLP.Vector ) {
 
 		globalUniforms.resolution.uResolution.value.copy( resolution );
+		globalUniforms.resolution.uAspectRatio.value = resolution.x / resolution.y;
+
 		this.renderer.resize( resolution );
 		this.cameraComponent.resize( resolution );
 

@@ -8,8 +8,6 @@ import { PMREMRender } from './PMREMRender';
 import { ProgramManager } from "./ProgramManager";
 import { shaderParse } from "./ShaderParser";
 
-import { gpuState } from '~/ts/gl/GLGlobals';
-
 
 // render stack
 
@@ -65,10 +63,8 @@ type DrawParam = CameraOverride & { modelMatrixWorld?: GLP.Matrix, modelMatrixWo
 // state
 
 type GPUState = {
-	key: string,
-	command: number,
-	state: boolean,
-}[]
+	[key: string] : {state: boolean},
+}
 
 // texture unit
 
@@ -104,7 +100,7 @@ export class Renderer extends MXP.Entity {
 
 	// gpu state
 
-	private glState: GPUState;
+	private glStateCahce: GPUState;
 
 	// render query
 
@@ -195,18 +191,7 @@ export class Renderer extends MXP.Entity {
 
 		// gpu
 
-		this.glState = [
-			{
-				key: "cullFace",
-				command: this.gl.CULL_FACE,
-				state: false
-			},
-			{
-				key: "depthTest",
-				command: this.gl.DEPTH_TEST,
-				state: false
-			},
-		];
+		this.glStateCahce = {};
 
 		// query
 
@@ -235,7 +220,7 @@ export class Renderer extends MXP.Entity {
 
 		// 		this.queryList.forEach( q => this.gl.deleteQuery( q ) );
 
-		// 		this.queryList.length = 0;
+		// 		this.queryList = [];
 
 		// 	} else {
 
@@ -284,7 +269,7 @@ export class Renderer extends MXP.Entity {
 
 			const l = lightKeys[ i ] as MXP.LightType;
 			prevLightsNum[ l ] = this.lights[ l ].length;
-			this.lights[ l ].length = 0;
+			this.lights[ l ] = [];
 
 		}
 
@@ -319,7 +304,7 @@ export class Renderer extends MXP.Entity {
 
 		for ( let i = 0; i < stack.gpuCompute.length; i ++ ) {
 
-			const gpu = stack.gpuCompute[ i ].getComponent<MXP.GPUCompute>( 'gpuCompute' )!;
+			const gpu = stack.gpuCompute[ i ].getComponent( MXP.GPUCompute )!;
 
 			this.renderPostProcess( gpu );
 
@@ -330,7 +315,7 @@ export class Renderer extends MXP.Entity {
 		for ( let i = 0; i < shadowMapLightList.length; i ++ ) {
 
 			const lightEntity = shadowMapLightList[ i ];
-			const lightComponent = lightEntity.getComponent<MXP.Light>( 'light' )!;
+			const lightComponent = lightEntity.getComponent( MXP.Light )!;
 
 			if ( lightComponent.renderTarget ) {
 
@@ -360,7 +345,7 @@ export class Renderer extends MXP.Entity {
 		for ( let i = 0; i < stack.camera.length; i ++ ) {
 
 			const cameraEntity = stack.camera[ i ];
-			const cameraComponent = cameraEntity.getComponent<MXP.RenderCamera>( 'camera' )!;
+			const cameraComponent = cameraEntity.getComponent( MXP.RenderCamera )!;
 
 			// deferred
 
@@ -383,7 +368,16 @@ export class Renderer extends MXP.Entity {
 			this.gl.enable( this.gl.BLEND );
 
 			this.renderCamera( "forward", cameraEntity, stack.forward, cameraComponent.renderTarget.forwardBuffer, {
-				cameraOverride: { uniforms: { uDeferredTexture: { value: cameraComponent.renderTarget.shadingBuffer.textures[ 1 ], type: '1i' } } },
+				cameraOverride: { uniforms: {
+					uDeferredTexture: {
+						value: cameraComponent.renderTarget.shadingBuffer.textures[ 1 ],
+						type: '1i'
+					},
+					uEnvMap: {
+						value: this.pmremRender.renderTarget.textures[ 0 ],
+						type: '1i'
+					}
+				} },
 				disableClear: true,
 			} );
 
@@ -391,7 +385,7 @@ export class Renderer extends MXP.Entity {
 
 			// scene
 
-			const prePostprocess = cameraEntity.getComponent<MXP.PostProcess>( 'scenePostProcess' );
+			const prePostprocess = cameraEntity.getComponentByKey<MXP.PostProcess>( 'scenePostProcess' );
 
 			if ( prePostprocess && prePostprocess.enabled ) {
 
@@ -446,7 +440,7 @@ export class Renderer extends MXP.Entity {
 
 			// postprocess
 
-			const postProcess = cameraEntity.getComponent<MXP.PostProcess>( 'postProcess' );
+			const postProcess = cameraEntity.getComponentByKey<MXP.PostProcess>( 'postProcess' );
 
 			if ( postProcess && postProcess.enabled ) {
 
@@ -481,7 +475,7 @@ export class Renderer extends MXP.Entity {
 
 	public renderCamera( renderType: MXP.MaterialRenderType, cameraEntity: MXP.Entity, entities: MXP.Entity[], renderTarget: GLP.GLPowerFrameBuffer | null, renderOption?: RenderOption ) {
 
-		const camera = cameraEntity.getComponent<MXP.Camera>( "camera" ) || cameraEntity.getComponent<MXP.Light>( "light" )!;
+		const camera = cameraEntity.getComponent( MXP.Camera ) || cameraEntity.getComponent( MXP.Light )!;
 
 		renderOption = renderOption || {};
 
@@ -553,8 +547,8 @@ export class Renderer extends MXP.Entity {
 		for ( let i = 0; i < entities.length; i ++ ) {
 
 			const entity = entities[ i ];
-			const material = entity.getComponent<MXP.Material>( "material" )!;
-			const geometry = entity.getComponent<MXP.Geometry>( "geometry" )!;
+			const material = entity.getComponent( MXP.Material )!;
+			const geometry = entity.getComponent( MXP.Geometry )!;
 
 			drawParam.modelMatrixWorld = entity.matrixWorld;
 			drawParam.modelMatrixWorldPrev = entity.matrixWorldPrev;
@@ -570,7 +564,7 @@ export class Renderer extends MXP.Entity {
 
 	private collectLight( lightEntity: MXP.Entity ) {
 
-		const lightComponent = lightEntity.getComponent<MXP.Light>( 'light' )!;
+		const lightComponent = lightEntity.getComponent( MXP.Light )!;
 		const type = lightComponent.lightType;
 
 		const info: LightInfo = {
@@ -696,21 +690,31 @@ export class Renderer extends MXP.Entity {
 
 		TextureUnitCounter = 0;
 
-		// status
+		// cull face
 
-		for ( let i = 0; i < this.glState.length; i ++ ) {
+		let gpuStateType: number = this.gl.CULL_FACE;
 
-			const item = this.glState[ i ];
-			const newState = ( material as any )[ item.key ];
+		const cullStateCache = this.glStateCahce[ gpuStateType ];
 
-			if ( item.state != newState ) {
+		if ( cullStateCache === undefined || cullStateCache.state != material.cullFace ) {
 
-				item.state = newState;
-				item.state ? this.gl.enable( item.command ) : this.gl.disable( item.command );
-
-			}
+			material.cullFace ? this.gl.enable( gpuStateType ) : this.gl.disable( gpuStateType );
 
 		}
+
+		// depth
+
+		gpuStateType = this.gl.DEPTH_TEST;
+
+		const depthStateCache = this.glStateCahce[ gpuStateType ];
+
+		if ( depthStateCache === undefined || depthStateCache.state != material.depthTest ) {
+
+			material.depthTest ? this.gl.enable( gpuStateType ) : this.gl.disable( gpuStateType );
+
+		}
+
+		// program
 
 		let program = material.programCache[ renderType ];
 
@@ -880,11 +884,9 @@ export class Renderer extends MXP.Entity {
 
 		if ( vao ) {
 
-			const geometryNeedsUpdate = geometry.needsUpdate.get( vao );
+			if ( ! geometry.vaoCache.get( vao ) ) {
 
-			if ( geometryNeedsUpdate === undefined || geometryNeedsUpdate === true ) {
-
-				geometry.createBuffer( this.gl );
+				geometry.createBuffers( this.gl );
 
 				geometry.attributes.forEach( ( attr, key ) => {
 
@@ -902,7 +904,7 @@ export class Renderer extends MXP.Entity {
 
 				} );
 
-				geometry.needsUpdate.set( vao, false );
+				geometry.vaoCache.set( vao, true );
 
 			}
 
@@ -945,6 +947,16 @@ export class Renderer extends MXP.Entity {
 				if ( indexBuffer && indexBuffer.array && indexBuffer.array.BYTES_PER_ELEMENT == 4 ) {
 
 					indexBufferArrayType = this.gl.UNSIGNED_INT;
+
+				}
+
+				if ( material.blending == 'NORMAL' ) {
+
+					this.gl.blendFunc( this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA );
+
+				} else if ( material.blending == 'ADD' ) {
+
+					this.gl.blendFunc( this.gl.SRC_ALPHA, this.gl.ONE );
 
 				}
 
@@ -1019,8 +1031,12 @@ export const setUniforms = ( program: GLP.GLPowerProgram, uniforms: GLP.Uniforms
 
 	for ( let i = 0; i < keys.length; i ++ ) {
 
+
 		const name = keys[ i ];
 		const uni = uniforms[ name ];
+
+		if ( ! uni ) continue;
+
 		const type = uni.type;
 		const value = uni.value;
 

@@ -1,4 +1,4 @@
-import { EventEmitter } from "glpower";
+import { Resource } from "~/ts/gl/Resources/Resource";
 
 export type ExportablePropsOpt = {
 } & {
@@ -11,7 +11,7 @@ export type ExportablePropsOpt = {
 export type ExportableProps = {[key: string]: { value: any, opt?: ExportablePropsOpt, } | ExportableProps}
 export type ExportablePropsSerialized = {[key: string]: any }
 
-export class Exportable extends EventEmitter {
+export class Exportable extends Resource {
 
 	constructor() {
 

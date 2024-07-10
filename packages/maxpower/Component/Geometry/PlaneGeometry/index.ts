@@ -10,7 +10,7 @@ interface PlaneGeometryParams extends ComponentParams{
 
 export class PlaneGeometry extends Geometry {
 
-	constructor( params: PlaneGeometryParams ) {
+	constructor( params?: PlaneGeometryParams ) {
 
 		super( params );
 

@@ -5,13 +5,18 @@
 #include <sdf>
 #include <noise>
 #include <rotate>
+
 #include <light>
+#include <pmrem>
 
 uniform float uTimeE;
 uniform vec3 cameraPosition;
 uniform mat4 modelMatrixInverse;
 uniform vec2 uResolution;
 uniform float uAspectRatio;
+
+uniform sampler2D uEnvMap;
+
 
 vec2 D( vec3 p ) {
 
@@ -75,7 +80,7 @@ void main( void ) {
 
 		for( int i = 0; i < 4; i++ ) {
 
-			vec2 v = ( normal.xy ) * 0.1;
+			vec2 v = ( normal.xy ) * float( i + 1 ) / 4.0 * 0.1;
 			outColor.x += texture( uDeferredTexture, uv + v * 1.0 ).x;
 			outColor.y += texture( uDeferredTexture, uv + v * 1.1 ).y;
 			outColor.z += texture( uDeferredTexture, uv + v * 1.2 ).z;
@@ -83,12 +88,21 @@ void main( void ) {
 		}
 
 		outColor.xyz /= 4.0;
-		outColor.xyz *= vec3( 1.0, 0.5, 0.5 );
-		outColor.xyz += fresnel( dot( outNormal, -rayDir ) ) * 0.4;
+		outColor.xyz *= vec3( 1.5, 0.2, 0.2 );
+
+		float dNV = clamp( dot( outNormal, -rayDir ), 0.0, 1.0 );
+		float fl = fresnel( dNV ) * 2.0 + 0.2;
+
+		vec3 refDir = reflect( -rayDir, outNormal );
+		
+		outColor.xyz += getPmrem( uEnvMap, refDir, 0.2 ) * fl;
+		// outColor.xyz += getPmrem( uEnvMap, outNormal, 1.0) / PI;
+		outColor.xyz += refDir * 0.2;
 
 	#endif
 
 	outPos = ( modelMatrix * vec4( rayPos, 1.0 ) ).xyz;
+	
 
 	#include <frag_out>
 

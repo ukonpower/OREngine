@@ -16,7 +16,6 @@ uniform sampler2D uSSAOTexture;
 uniform sampler2D uLightShaftTexture;
 
 uniform sampler2D uEnvMap;
-uniform samplerCube uEnvMapCube;
 
 uniform vec3 uColor;
 uniform mat4 viewMatrix;

@@ -13,9 +13,7 @@ uniform float blurRange;
 layout (location = 0) out vec4 outColor;
 
 // Gaussianブラーの重み
-//[
-uniform float[GAUSS_WEIGHTS] uWeights;
-//]
+uniform float uWeights[GAUSS_WEIGHTS];
 
 void main(void) {
   

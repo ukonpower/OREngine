@@ -82,7 +82,7 @@ export class ShakeViewer extends MXP.Component {
 
 		entity.matrixWorld.multiply( this.shakeMatrix );
 
-		const camera = entity.getComponent<MXP.Camera>( 'camera' );
+		const camera = entity.getComponent( MXP.Camera );
 
 		if ( camera ) {
 

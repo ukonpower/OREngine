@@ -374,6 +374,8 @@ export class GLEditor extends MXP.Exportable {
 
 		}
 
+		document.title = name;
+
 		this.emit( "action/loadProject" );
 
 		this.selectEntity( null );

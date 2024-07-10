@@ -29,10 +29,10 @@ export interface OREngineProjectFrame {
 
 interface SceneNode {
 	name: string,
-	pos: number[] | null,
-	rot: number[] | null,
-	scale: number[] | null,
-	childs: SceneNode[]
+	pos?: number[],
+	rot?: number[],
+	scale?: number[],
+	childs?: SceneNode[]
 }
 
 
@@ -58,6 +58,7 @@ export class ProjectSerializer extends GLP.EventEmitter {
 					if ( compItem ) {
 
 						const component = e.addComponent( new compItem.component() );
+						component.initiator = "user";
 
 						component.setProps( c.props );
 
@@ -93,11 +94,15 @@ export class ProjectSerializer extends GLP.EventEmitter {
 			entity.scale.y = scale[ 1 ];
 			entity.scale.z = scale[ 2 ];
 
-			node.childs.forEach( c => {
+			if ( node.childs ) {
 
-				entity.add( _( c ) );
+				node.childs.forEach( c => {
 
-			} );
+					entity.add( _( c ) );
+
+				} );
+
+			}
 
 			return entity;
 
@@ -130,13 +135,12 @@ export class ProjectSerializer extends GLP.EventEmitter {
 				childs.push( _( c ) );
 
 			} );
-
 			return {
 				name: entity.name,
-				pos: entity.position.getElm( "vec3" ),
-				rot: entity.euler.getElm( "vec4" ),
-				scale: entity.scale.getElm( "vec3" ),
-				childs
+				pos: entity.position.x == 0 && entity.position.y == 0 && entity.position.z == 0 ? undefined : entity.position.getElm( "vec3" ),
+				rot: entity.euler.x == 0 && entity.euler.y == 0 && entity.euler.z == 0 ? undefined : entity.euler.getElm( "vec3" ),
+				scale: entity.scale.x == 1 && entity.scale.y == 1 && entity.scale.z == 1 ? undefined : entity.scale.getElm( "vec3" ),
+				childs: childs.length > 0 ? childs : undefined
 			};
 
 		};
@@ -158,7 +162,7 @@ export class ProjectSerializer extends GLP.EventEmitter {
 
 				const exportProps: MXP.ExportablePropsSerialized | null = c.getPropsSerialized();
 
-				if ( exportProps && ! c.disableEdit ) {
+				if ( exportProps && ! c.disableEdit && c.initiator == "user" ) {
 
 					nodeOverrideData.components.push( {
 						key,
@@ -167,7 +171,6 @@ export class ProjectSerializer extends GLP.EventEmitter {
 					} );
 
 				}
-
 
 			} );
 

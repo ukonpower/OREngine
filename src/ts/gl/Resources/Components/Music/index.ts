@@ -1,7 +1,6 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-
 import musicFrag from './shaders/music.fs';
 import musicVert from './shaders/music.vs';
 
@@ -17,18 +16,28 @@ export class Music extends MXP.Component {
 	private power: GLP.Power;
 	private gl: WebGL2RenderingContext;
 
-	private audioCtx: AudioContext;
+	private isAudioBufferReady: boolean = false;
+	private audioContext: AudioContext;
 	private audioBuffer: AudioBuffer;
+	private implusBuffer: AudioBuffer;
 	private audioSrcNode: AudioBufferSourceNode | null;
 	private convolverNode: ConvolverNode;
 	private gainNode: GainNode;
 
-	private isAudioBufferReady: boolean = false;
+	// play
 
 	private playStartTime: number = - 1;
 	private force: boolean = false;
 
-	private implusBuffer: AudioBuffer;
+	// texture
+
+	public realtimeAnalyzer: AnalyserNode;
+	public realtimeDataSize: number;
+	public timeDomainArray: Uint8Array;
+	public timeDomainTexture: GLP.GLPowerTexture;
+	public frequencyArray: Uint8Array;
+	public frequencyTexture: GLP.GLPowerTexture;
+
 
 	constructor( ) {
 
@@ -43,15 +52,15 @@ export class Music extends MXP.Component {
 			Audio
 		-------------------------------*/
 
-		this.audioCtx = new AudioContext();
+		this.audioContext = new AudioContext();
 
-		const bufferLength = Math.floor( this.audioCtx.sampleRate * MUSIC_DURATION );
+		const bufferLength = Math.floor( this.audioContext.sampleRate * MUSIC_DURATION );
 
 		// samples
 
 		const blockLength = Math.min( 512 * 512, bufferLength );
 
-		const numSampleBlocks = Math.ceil( ( this.audioCtx.sampleRate * MUSIC_DURATION ) / blockLength );
+		const numSampleBlocks = Math.ceil( ( this.audioContext.sampleRate * MUSIC_DURATION ) / blockLength );
 
 		// tmpOutPut
 
@@ -60,7 +69,7 @@ export class Music extends MXP.Component {
 
 		// buffer
 
-		this.audioBuffer = this.audioCtx.createBuffer( 2, bufferLength, this.audioCtx.sampleRate );
+		this.audioBuffer = this.audioContext.createBuffer( 2, bufferLength, this.audioContext.sampleRate );
 
 		const bufferIn = new GLP.GLPowerBuffer( this.gl );
 		bufferIn.setData( new Float32Array( new Array( blockLength ).fill( 0 ).map( ( _, i ) => i ) ), 'vbo' );
@@ -94,7 +103,7 @@ export class Music extends MXP.Component {
 
 			program.setUniform( 'uDuration', '1f', [ MUSIC_DURATION ] );
 			program.setUniform( 'uBPM', '1f', [ BPM ] );
-			program.setUniform( 'uSampleRate', '1f', [ this.audioCtx.sampleRate ] );
+			program.setUniform( 'uSampleRate', '1f', [ this.audioContext.sampleRate ] );
 
 			const vao = program.getVAO();
 
@@ -104,7 +113,7 @@ export class Music extends MXP.Component {
 
 				for ( let i = 0; i < numSampleBlocks; i ++ ) {
 
-					program.setUniform( 'uTimeOffset', '1f', [ blockLength * i / this.audioCtx.sampleRate ] );
+					program.setUniform( 'uTimeOffset', '1f', [ blockLength * i / this.audioContext.sampleRate ] );
 
 					program.use( () => {
 
@@ -137,7 +146,7 @@ export class Music extends MXP.Component {
 						for ( let j = 0; j < blockLength; j ++ ) {
 
 							const t = i * blockLength + j;
-							const enable = t < MUSIC_DURATION * this.audioCtx.sampleRate ? 1 : 0;
+							const enable = t < MUSIC_DURATION * this.audioContext.sampleRate ? 1 : 0;
 
 							this.audioBuffer.getChannelData( 0 )[ t ] = tmpOutputArrayL[ j ] * enable;
 							this.audioBuffer.getChannelData( 1 )[ t ] = tmpOutputArrayR[ j ] * enable;
@@ -177,7 +186,7 @@ export class Music extends MXP.Component {
 
 		// implus
 
-		this.implusBuffer = this.audioCtx.createBuffer( 2, this.audioCtx.sampleRate * 1.5, this.audioCtx.sampleRate );
+		this.implusBuffer = this.audioContext.createBuffer( 2, this.audioContext.sampleRate * 1.5, this.audioContext.sampleRate );
 
 		for ( let i = 0; i < this.implusBuffer.length; i ++ ) {
 
@@ -188,13 +197,33 @@ export class Music extends MXP.Component {
 
 		}
 
-		this.convolverNode = this.audioCtx.createConvolver();
+		this.convolverNode = this.audioContext.createConvolver();
 		this.convolverNode.buffer = this.implusBuffer;
 
 		// gain
 
-		this.gainNode = this.audioCtx.createGain();
+		this.gainNode = this.audioContext.createGain();
 		this.gainNode.gain.value = 1.3;
+
+		/*-------------------------------
+			Texture
+		-------------------------------*/
+
+		// texture
+
+		this.realtimeDataSize = 2048;
+		this.realtimeAnalyzer = this.audioContext.createAnalyser();
+		this.realtimeAnalyzer.fftSize = this.realtimeDataSize;
+
+		this.timeDomainArray = new Uint8Array( this.realtimeAnalyzer.fftSize );
+		this.timeDomainTexture = new GLP.GLPowerTexture( this.gl );
+		this.timeDomainTexture.setting( { type: this.gl.UNSIGNED_BYTE, internalFormat: this.gl.LUMINANCE, format: this.gl.LUMINANCE, magFilter: this.gl.LINEAR, minFilter: this.gl.LINEAR, wrapS: this.gl.MIRRORED_REPEAT } );
+		this.timeDomainTexture.attach( { width: this.realtimeDataSize, height: 1, data: this.timeDomainArray } );
+
+		this.frequencyArray = new Uint8Array( this.realtimeAnalyzer.frequencyBinCount );
+		this.frequencyTexture = new GLP.GLPowerTexture( this.gl );
+		this.frequencyTexture.setting( { type: this.gl.UNSIGNED_BYTE, internalFormat: this.gl.LUMINANCE, format: this.gl.LUMINANCE, magFilter: this.gl.LINEAR, minFilter: this.gl.LINEAR, wrapS: this.gl.MIRRORED_REPEAT } );
+		this.frequencyTexture.attach( { width: this.realtimeAnalyzer.frequencyBinCount, height: 1, data: this.frequencyArray } );
 
 	}
 
@@ -215,8 +244,15 @@ export class Music extends MXP.Component {
 		}
 
 		this.play( event.timeCode, this.force );
-
 		this.force = false;
+
+		// texture
+
+		this.realtimeAnalyzer.getByteTimeDomainData( this.timeDomainArray );
+		this.timeDomainTexture.attach( { width: this.realtimeDataSize, height: 1, data: this.timeDomainArray } );
+
+		this.realtimeAnalyzer.getByteFrequencyData( this.frequencyArray );
+		this.frequencyTexture.attach( { width: this.realtimeAnalyzer.frequencyBinCount, height: 1, data: this.frequencyArray } );
 
 	}
 
@@ -238,7 +274,7 @@ export class Music extends MXP.Component {
 
 			if ( this.entity ) {
 
-				this.entity.noticeParent( 'update/music', [ this.audioBuffer ] );
+				this.entity.noticeParent( 'update/music', [ this.audioBuffer, this.frequencyTexture, this.timeDomainTexture ] );
 
 			}
 
@@ -260,7 +296,7 @@ export class Music extends MXP.Component {
 
 		// src
 
-		this.audioSrcNode = this.audioCtx.createBufferSource();
+		this.audioSrcNode = this.audioContext.createBufferSource();
 		this.audioSrcNode.buffer = this.audioBuffer;
 		this.audioSrcNode.loop = false;
 		this.audioSrcNode.start( 0, time );
@@ -272,8 +308,8 @@ export class Music extends MXP.Component {
 		this.audioSrcNode.connect( this.gainNode );
 		this.audioSrcNode.connect( this.convolverNode );
 		this.convolverNode.connect( this.gainNode );
-
-		this.gainNode.connect( this.audioCtx.destination );
+		this.gainNode.connect( this.audioContext.destination );
+		this.gainNode.connect( this.realtimeAnalyzer );
 
 	}
 
@@ -297,7 +333,12 @@ export class Music extends MXP.Component {
 
 	public dispose(): void {
 
+		super.dispose();
+
 		this.stop();
+
+		this.frequencyTexture.dispose();
+		this.timeDomainTexture.dispose();
 
 	}
 

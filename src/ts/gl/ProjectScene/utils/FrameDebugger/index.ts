@@ -244,7 +244,7 @@ export class FrameDebugger extends GLP.EventEmitter {
 		this.tileInv.set( 1.0, 1.0 ).divide( this.tile );
 		this.tilePixelSize.copy( this.tileInv ).multiply( this.resolution );
 
-		this.frameList.length = 0;
+		this.frameList = [];
 		this.count = 0;
 
 	}

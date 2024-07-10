@@ -16,6 +16,26 @@ export class PostProcess extends Component {
 	public input: GLP.GLPowerTexture[];
 	public output: GLP.GLPowerFrameBuffer | null;
 
+	constructor( param: PostProcessParam ) {
+
+		super( param );
+
+		this.passes = param.passes;
+
+		this.input = param.input || [];
+
+		if ( this.passes.length > 0 ) {
+
+			this.output = this.passes[ this.passes.length - 1 ].renderTarget;
+
+		} else {
+
+			this.output = null;
+
+		}
+
+	}
+
 	public getProps(): ExportableProps | null {
 
 		const props: ExportableProps = {};
@@ -49,26 +69,6 @@ export class PostProcess extends Component {
 			const pass = this.passes[ i ];
 
 			this.passes[ i ].enabled = props[ pass.name ];
-
-		}
-
-	}
-
-	constructor( param: PostProcessParam ) {
-
-		super( param );
-
-		this.passes = param.passes;
-
-		this.input = param.input || [];
-
-		if ( this.passes.length > 0 ) {
-
-			this.output = this.passes[ this.passes.length - 1 ].renderTarget;
-
-		} else {
-
-			this.output = null;
 
 		}
 
