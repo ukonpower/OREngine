@@ -9,6 +9,7 @@
 }
 
 .header {
+	position: relative;
 	width: 100%;
 	height: 30px;
 	background-color: $bgCol0;
@@ -23,8 +24,16 @@
 
 	&_right {
 		position: absolute;
+		display: flex;
 		right: 10px;
-		display: flex
+		height: 100%;
+	}
+
+	&_item {
+		display: inline-block;
+		height: 100%;
+		display: flex;
+		align-items: center;
 	}
 }
 

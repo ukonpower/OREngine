@@ -2,8 +2,8 @@ import * as MXP from 'maxpower';
 import { useState, useCallback, useEffect, createContext, useRef } from "react";
 
 import { GLEditor } from "~/ts/gl/Editor";
-import { OREngineProjectFrame } from "~/ts/gl/IO/ProjectSerializer";
 import { FramePlay } from '~/ts/gl/ProjectScene';
+import { OREngineProjectFrame } from '~/ts/gl/ProjectScene/IO/ProjectSerializer';
 
 export const TimelineContext = createContext<HooksContext<typeof useTimeline>>( {} );
 

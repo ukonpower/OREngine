@@ -4,23 +4,13 @@ import * as MXP from 'maxpower';
 import { LookAt } from '../LookAt';
 import { OrbitControls } from '../OrbitControls';
 import { ShakeViewer } from '../ShakeViewer';
-import { VJCamera } from '../VJCamera';
 
 import bloomBlurFrag from './shaders/bloomBlur.fs';
 import bloomBrightFrag from './shaders/bloomBright.fs';
-import colorCollectionFrag from './shaders/colorCollection.fs';
 import compositeFrag from './shaders/composite.fs';
-import dofBokeh from './shaders/dofBokeh.fs';
-import dofCoc from './shaders/dofCoc.fs';
-import dofComposite from './shaders/dofComposite.fs';
 import fxaaFrag from './shaders/fxaa.fs';
-import motionBlurFrag from './shaders/motionBlur.fs';
-import motionBlurNeighborFrag from './shaders/motionBlurNeighbor.fs';
-import motionBlurTileFrag from './shaders/motionBlurTile.fs';
-import ssCompositeFrag from './shaders/ssComposite.fs';
-import ssrFrag from './shaders/ssr.fs';
 
-import { gl, canvas, globalUniforms } from '~/ts/gl/GLGlobals';
+import { gl, canvas } from '~/ts/gl/GLGlobals';
 
 
 export class MainCamera extends MXP.Component {
@@ -35,10 +25,6 @@ export class MainCamera extends MXP.Component {
 
 	private renderTarget: MXP.RenderCameraTarget;
 
-	// colorCollection
-
-	private colorCollection: MXP.PostProcessPass;
-
 	// fxaa
 
 	private fxaa: MXP.PostProcessPass;
@@ -51,32 +37,6 @@ export class MainCamera extends MXP.Component {
 	private rtBloomVertical: GLP.GLPowerFrameBuffer[];
 	private rtBloomHorizonal: GLP.GLPowerFrameBuffer[];
 
-	// ssr
-
-	private ssr: MXP.PostProcessPass;
-	public rtSSR1: GLP.GLPowerFrameBuffer;
-	public rtSSR2: GLP.GLPowerFrameBuffer;
-
-
-	// ss composite
-
-	private ssComposite: MXP.PostProcessPass;
-
-	// dof
-
-	private dofParams: GLP.Vector;
-	private dofTarget: MXP.Entity | null;
-
-	public dofCoc: MXP.PostProcessPass;
-	public dofBokeh: MXP.PostProcessPass;
-	public dofComposite: MXP.PostProcessPass;
-
-	// motion blur
-
-	private motionBlurTile: MXP.PostProcessPass;
-	private motionBlurNeighbor: MXP.PostProcessPass;
-	private motionBlur: MXP.PostProcessPass;
-
 	// composite
 
 	private composite: MXP.PostProcessPass;
@@ -87,23 +47,21 @@ export class MainCamera extends MXP.Component {
 	private resolutionInv: GLP.Vector;
 	private resolutionBloom: GLP.Vector[];
 
-	// curves
-
-	private stateCurve?: GLP.FCurveGroup;
-
-	// tmps
-
-	private tmpVector1: GLP.Vector;
-	private tmpVector2: GLP.Vector;
-
 	// components
 
 	private lookAt: LookAt;
 	private orbitControls: MXP.Component;
 	private shakeViewer: MXP.Component;
-
-	private scenePostProcess: MXP.PostProcess;
 	private postProcess: MXP.PostProcess;
+
+	// dofTarget
+
+	private dofTarget: MXP.Entity | null;
+
+	// tmps
+
+	private tmpVector1: GLP.Vector;
+	private tmpVector2: GLP.Vector;
 
 	constructor() {
 
@@ -139,236 +97,9 @@ export class MainCamera extends MXP.Component {
 			}
 		} );
 
-		// color collection
-
-		this.colorCollection = new MXP.PostProcessPass( {
-			name: 'collection',
-			frag: colorCollectionFrag,
-		} );
-
-		// ssr
-
-		this.rtSSR1 = new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-			new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
-		] );
-
-		this.rtSSR2 = new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-			new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
-		] );
-
-		this.ssr = new MXP.PostProcessPass( {
-			name: 'ssr',
-			frag: MXP.hotGet( "ssr", ssrFrag ),
-			renderTarget: this.rtSSR1,
-			uniforms: GLP.UniformsUtils.merge( globalUniforms.time, {
-				uResolution: {
-					value: this.resolution,
-					type: '2fv',
-				},
-				uResolutionInv: {
-					value: this.resolutionInv,
-					type: '2fv',
-				},
-				uGbufferPos: {
-					value: this.renderTarget.gBuffer.textures[ 0 ],
-					type: '1i'
-				},
-				uGbufferNormal: {
-					value: this.renderTarget.gBuffer.textures[ 1 ],
-					type: '1i'
-				},
-				uSceneTex: {
-					value: this.renderTarget.forwardBuffer.textures[ 0 ],
-					type: '1i'
-				},
-				uSSRBackBuffer: {
-					value: this.rtSSR2.textures[ 0 ],
-					type: '1i'
-				},
-			} ),
-			resolutionRatio: 0.5,
-			passThrough: true,
-		} );
-
-		if ( import.meta.hot ) {
-
-			import.meta.hot.accept( "./shaders/ssr.fs", ( module ) => {
-
-				if ( module ) {
-
-					this.ssr.frag = MXP.hotUpdate( 'ssr', module.default );
-
-				}
-
-				this.ssr.requestUpdate();
-
-			} );
-
-		}
-
-		// ss-composite
-
-		this.ssComposite = new MXP.PostProcessPass( {
-			name: 'ssComposite',
-			frag: MXP.hotGet( "ssComposite", ssCompositeFrag ),
-			uniforms: GLP.UniformsUtils.merge( this.commonUniforms, {
-				uGbufferPos: {
-					value: this.renderTarget.gBuffer.textures[ 0 ],
-					type: '1i'
-				},
-				uGbufferNormal: {
-					value: this.renderTarget.gBuffer.textures[ 1 ],
-					type: '1i'
-				},
-				uSSRTexture: {
-					value: this.rtSSR2.textures[ 0 ],
-					type: '1i'
-				},
-			} ),
-		} );
-
-		if ( import.meta.hot ) {
-
-			import.meta.hot.accept( "./shaders/ssComposite.fs", ( module ) => {
-
-				if ( module ) {
-
-					this.ssComposite.frag = MXP.hotUpdate( 'ssComposite', module.default );
-
-				}
-
-				this.ssComposite.requestUpdate();
-
-			} );
-
-		}
-
-		// dof
-
-		this.dofTarget = null;
-		this.dofParams = new GLP.Vector( 10, 0.05, 20, 0.05 );
-
-		this.dofCoc = new MXP.PostProcessPass( {
-			name: 'dof/coc',
-			frag: dofCoc,
-			uniforms: GLP.UniformsUtils.merge( globalUniforms.time, {
-				uGbufferPos: {
-					value: this.renderTarget.gBuffer.textures[ 0 ],
-					type: "1i"
-				},
-				uParams: {
-					value: this.dofParams,
-					type: '4f'
-				},
-			} ),
-			renderTarget: new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-				new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR, internalFormat: gl.RGBA16F, type: gl.HALF_FLOAT, format: gl.RGBA } ),
-			] ),
-			passThrough: true,
-			resolutionRatio: 0.5,
-		} );
-
-		this.dofBokeh = new MXP.PostProcessPass( {
-			name: 'dof/bokeh',
-			frag: dofBokeh,
-			uniforms: GLP.UniformsUtils.merge( globalUniforms.time, {
-				uCocTex: {
-					value: this.dofCoc.renderTarget!.textures[ 0 ],
-					type: '1i'
-				},
-				uParams: {
-					value: this.dofParams,
-					type: '4f'
-				}
-			} ),
-			renderTarget: new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-				new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
-			] ),
-			passThrough: true,
-			resolutionRatio: 0.5,
-		} );
-
-		this.dofComposite = new MXP.PostProcessPass( {
-			name: 'dof/composite',
-			frag: dofComposite,
-			uniforms: GLP.UniformsUtils.merge( {
-				uBokeTex: {
-					value: this.dofBokeh.renderTarget!.textures[ 0 ],
-					type: '1i'
-				}
-			} ),
-			renderTarget: new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-				new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR, internalFormat: gl.RGBA16F, type: gl.HALF_FLOAT, format: gl.RGBA } ),
-			] )
-		} );
-
-		// motion blur
-
-		const motionBlurTile = 16;
-
-		this.motionBlurTile = new MXP.PostProcessPass( {
-			name: 'motionBlurTile',
-			frag: motionBlurTileFrag,
-			uniforms: GLP.UniformsUtils.merge( {
-				uVelTex: {
-					value: this.renderTarget.gBuffer.textures[ 4 ],
-					type: '1i'
-				},
-			} ),
-			renderTarget: new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-				new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA } ),
-			] ),
-			defines: {
-				"TILE": motionBlurTile,
-			},
-			resolutionRatio: 1 / motionBlurTile,
-			passThrough: true,
-		} );
-
-		this.motionBlurNeighbor = new MXP.PostProcessPass( {
-			name: 'motionBlurNeighbor',
-			frag: motionBlurNeighborFrag,
-			uniforms: GLP.UniformsUtils.merge( {
-				uVelTex: {
-					value: this.motionBlurTile.renderTarget!.textures[ 0 ],
-					type: '1i'
-				}
-			} ),
-			defines: {
-				"TILE": motionBlurTile,
-			},
-			renderTarget: new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-				new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA } ),
-			] ),
-			resolutionRatio: 1 / motionBlurTile,
-			passThrough: true,
-		} );
-
-		this.motionBlur = new MXP.PostProcessPass( {
-			name: 'motionBlur',
-			frag: motionBlurFrag,
-			uniforms: GLP.UniformsUtils.merge( this.commonUniforms, {
-				uVelNeighborTex: {
-					value: this.motionBlurNeighbor.renderTarget!.textures[ 0 ],
-					type: '1i'
-				},
-				uVelTex: {
-					value: this.renderTarget.gBuffer.textures[ 4 ],
-					type: '1i'
-				},
-				uDepthTexture: {
-					value: this.renderTarget.gBuffer.depthTexture,
-					type: '1i'
-				},
-			} ),
-			defines: {
-				"TILE": motionBlurTile,
-			},
-		} );
-
 		// fxaa
 
-		this.fxaa = new MXP.PostProcessPass( {
+		this.fxaa = new MXP.PostProcessPass( gl, {
 			name: 'fxaa',
 			frag: fxaaFrag,
 			uniforms: this.commonUniforms,
@@ -395,7 +126,7 @@ export class MainCamera extends MXP.Component {
 
 		let bloomScale = 2.0;
 
-		this.bloomBright = new MXP.PostProcessPass( {
+		this.bloomBright = new MXP.PostProcessPass( gl, {
 			name: 'bloom/bright/',
 			frag: bloomBrightFrag,
 			uniforms: {
@@ -424,7 +155,7 @@ export class MainCamera extends MXP.Component {
 
 			const guassSamples = 8.0;
 
-			this.bloomBlur.push( new MXP.PostProcessPass( {
+			this.bloomBlur.push( new MXP.PostProcessPass( gl, {
 				name: 'bloom/blur/' + i + '/v',
 				renderTarget: rtVertical,
 				frag: bloomBlurFrag,
@@ -449,7 +180,7 @@ export class MainCamera extends MXP.Component {
 				resolutionRatio: 1.0 / bloomScale
 			} ) );
 
-			this.bloomBlur.push( new MXP.PostProcessPass( {
+			this.bloomBlur.push( new MXP.PostProcessPass( gl, {
 				name: 'bloom/blur/' + i + '/w',
 				renderTarget: rtHorizonal,
 				frag: bloomBlurFrag,
@@ -486,7 +217,7 @@ export class MainCamera extends MXP.Component {
 
 		// composite
 
-		this.composite = new MXP.PostProcessPass( {
+		this.composite = new MXP.PostProcessPass( gl, {
 			name: 'composite',
 			frag: MXP.hotUpdate( "composite", compositeFrag ),
 			uniforms: GLP.UniformsUtils.merge( this.commonUniforms, {
@@ -524,29 +255,6 @@ export class MainCamera extends MXP.Component {
 
 		}
 
-		// tmps
-
-		this.tmpVector1 = new GLP.Vector();
-		this.tmpVector2 = new GLP.Vector();
-
-		// postprocess
-
-		this.scenePostProcess = new MXP.PostProcess( {
-			keyOverride: 'scenePostProcess',
-			input: this.renderTarget.shadingBuffer.textures,
-			passes: [
-				this.colorCollection,
-				this.ssr,
-				this.ssComposite,
-				this.dofCoc,
-				this.dofBokeh,
-				this.dofComposite,
-				this.motionBlurTile,
-				this.motionBlurNeighbor,
-				this.motionBlur,
-			]
-		} );
-
 		this.postProcess = new MXP.PostProcess( {
 			keyOverride: 'postProcess',
 			input: this.renderTarget.uiBuffer.textures,
@@ -557,6 +265,15 @@ export class MainCamera extends MXP.Component {
 				this.composite,
 			]
 		} );
+
+		// dof
+
+		this.dofTarget = null;
+
+		// tmps
+
+		this.tmpVector1 = new GLP.Vector();
+		this.tmpVector2 = new GLP.Vector();
 
 	}
 
@@ -569,7 +286,6 @@ export class MainCamera extends MXP.Component {
 	public setEntityImpl( entity: MXP.Entity, ): void {
 
 		entity.addComponent( this.cameraComponent );
-		entity.addComponent( this.scenePostProcess );
 		entity.addComponent( this.postProcess );
 		entity.addComponent( this.orbitControls );
 		// entity.addComponent( new VJCamera() );
@@ -656,38 +372,13 @@ export class MainCamera extends MXP.Component {
 
 		}
 
-		const fov = this.cameraComponent.fov;
-		const focusDistance = this.tmpVector1.sub( this.tmpVector2 ).length();
-		const kFilmHeight = 0.002;
-		const flocalLength = kFilmHeight / Math.tan( 0.5 * ( fov / 180 * Math.PI ) );
-
-		const maxCoc = ( 1 / this.dofBokeh.renderTarget!.size.y ) * ( 5 );
-		const rcpMaxCoC = 1.0 / maxCoc;
-		const coeff = flocalLength * flocalLength / ( 0.3 * ( focusDistance - flocalLength ) * kFilmHeight * 2.0 );
-
-		this.dofParams.set( focusDistance, maxCoc, rcpMaxCoC, coeff );
-
-		// ssr swap
-
-		const tmp = this.rtSSR1;
-		this.rtSSR1 = this.rtSSR2;
-		this.rtSSR2 = tmp;
-
-		this.ssr.setRendertarget( this.rtSSR1 );
-		this.ssComposite.uniforms.uSSRTexture.value = this.rtSSR1.textures[ 0 ];
-		this.ssr.uniforms.uSSRBackBuffer.value = this.rtSSR2.textures[ 0 ];
+		this.cameraComponent.dof.focusDistance = this.tmpVector1.sub( this.tmpVector2 ).length();
 
 	}
 
 	public resize( resolution: GLP.Vector ): void {
 
 		this.cameraComponent.resize( resolution );
-
-		if ( this.scenePostProcess ) {
-
-			this.scenePostProcess.resize( resolution );
-
-		}
 
 		if ( this.postProcess ) {
 

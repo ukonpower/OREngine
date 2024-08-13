@@ -6,7 +6,7 @@ interface InputTextProps {
 	value: string;
 	selectList: string[],
 	onChange?: ( value: string ) => void;
-	disable?: boolean;
+	disabled?: boolean;
 	readOnly?: boolean;
 }
 

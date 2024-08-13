@@ -10,17 +10,20 @@
 	background-color: $bgCol2;
 	border: none;
 	cursor: ew-resize;
+	color: $fontCol2;
 
 	&:disabled {
-		opacity: 0.5;
-		pointer-events: none;
+		opacity: 0.3;
 	}
 
 	&:read-only {
 		color: $fontCol2;
-		background-color: transparent;
 		border: none;
 		outline: none;
 		cursor: default;
+
+		&[data-lo="true"] {
+			background-color: transparent;
+		}
 	}
 }

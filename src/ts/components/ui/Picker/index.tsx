@@ -8,12 +8,12 @@ type SelectListItem = {
 type SelectListProps = {
 	label?: string
 	list: SelectListItem[]
-	bg?: boolean
+	noBg?: boolean
 }
 
 export const Picker = ( props: SelectListProps ) => {
 
-	return <div className={style.picker} data-bg={props.bg}>
+	return <div className={style.picker} data-no_bg={props.noBg}>
 		{
 			props.label && <div className={style.picker_label}>{props.label}</div>
 		}

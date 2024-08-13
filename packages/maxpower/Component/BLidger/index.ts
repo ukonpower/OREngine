@@ -19,6 +19,7 @@ interface BLidgerParams extends ComponentParams {
 
 export class BLidger extends Component {
 
+	private gl: WebGL2RenderingContext;
 	private blidge: BLidge;
 
 	public node: BLidgeNode;
@@ -33,10 +34,11 @@ export class BLidger extends Component {
 	public uniforms: GLP.Uniforms;
 	public uniformCurves: {name: string, curve: GLP.FCurveGroup}[];
 
-	constructor( params: BLidgerParams ) {
+	constructor( gl: WebGL2RenderingContext, params: BLidgerParams ) {
 
 		super( params );
 
+		this.gl = gl;
 		this.blidge = params.blidge;
 		this.node = params.node;
 		this.rotationOffsetX = 0;
@@ -216,7 +218,7 @@ export class BLidger extends Component {
 				...lightParam,
 				lightType: lightParam.type,
 				color: new GLP.Vector().copy( lightParam.color ),
-				useShadowMap: lightParam.shadowMap,
+				castShadow: lightParam.shadowMap,
 			} );
 
 		}

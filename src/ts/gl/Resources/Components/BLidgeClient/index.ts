@@ -23,6 +23,7 @@ export class BLidgeClient extends MXP.Component {
 
 	// gltf path
 
+	private useGLTF: boolean;
 	private gltfPath: string;
 
 	constructor() {
@@ -60,6 +61,7 @@ export class BLidgeClient extends MXP.Component {
 
 		// gltf path
 
+		this.useGLTF = false;
 		this.gltfPath = BASE_PATH + "/scene.glb";
 
 		this.setProps( this.getPropsSerialized() );
@@ -86,10 +88,13 @@ export class BLidgeClient extends MXP.Component {
 					]
 				}
 			},
-			gltfPath: {
-				value: this.gltfPath,
+			gltf: {
+				value: this.useGLTF,
 			},
-			websocket: {
+			gltfPath: this.useGLTF && {
+				value: this.gltfPath,
+			} || undefined,
+			websocket: this.type == "websocket" && {
 				connected: {
 					value: connect,
 				},
@@ -99,29 +104,30 @@ export class BLidgeClient extends MXP.Component {
 						readOnly: connect
 					}
 				},
-			},
+			} || undefined,
 		};
 
 	}
 
 	public setProps( props: MXP.ExportablePropsSerialized ) {
 
-		this.connection.url = props[ "websocket/url" ];
-		this.connection.enabled = props[ "websocket/connected" ];
+		this.connection.url = props[ "websocket/url" ] || this.connection.url;
+		this.connection.enabled = props[ "websocket/connected" ] || false;
 		this.type = props[ "mode" ];
-		this.gltfPath = props[ "gltfPath" ];
+		this.useGLTF = props[ "gltf" ] || false;
+		this.gltfPath = props[ "gltfPath" ] || this.gltfPath;
 
-		if ( this.connection.enabled ) {
+		this.blidge.disconnect();
 
-			this.blidge.disconnect();
+		if ( this.type == "json" ) {
 
-			if ( this.type == "json" ) {
+			this.blidge.loadScene( SceneData as any, this.useGLTF ? this.gltfPath : undefined );
 
-				this.blidge.loadScene( SceneData as any, this.gltfPath );
+		} else {
 
-			} else {
+			if ( this.connection.enabled ) {
 
-				this.blidge.connect( this.connection.url, this.gltfPath );
+				this.blidge.connect( this.connection.url, this.useGLTF ? this.gltfPath : undefined );
 
 			}
 
@@ -132,8 +138,7 @@ export class BLidgeClient extends MXP.Component {
 	public getPropsSerialized(): MXP.ExportableProps {
 
 		return {
-			...super.getPropsSerialized(),
-			// scene: { value: this.blidge.currentScene }
+			...super.getPropsSerialized()
 		};
 
 	}
@@ -173,7 +178,7 @@ export class BLidgeClient extends MXP.Component {
 
 			}
 
-			entity.addComponent( new MXP.BLidger( { blidge, node, disableEdit: true } ) );
+			entity.addComponent( new MXP.BLidger( gl, { blidge, node, disableEdit: true } ) );
 
 			node.children.forEach( c => {
 
@@ -196,7 +201,6 @@ export class BLidgeClient extends MXP.Component {
 		if ( newBLidgeRoot ) {
 
 			newBLidgeRoot.name = "blidgeRoot";
-			newBLidgeRoot.noExport = true;
 
 			if ( this.blidgeRoot && this.entity ) {
 

@@ -15,8 +15,6 @@ export interface PostProcessPassParam extends MaterialParam{
 import passFrag from './shaders/pass.fs';
 import quadVert from './shaders/quad.vs';
 
-import { gl } from '~/ts/gl/GLGlobals';
-
 export class PostProcessPass extends Material {
 
 	public renderTarget: GLP.GLPowerFrameBuffer | null;
@@ -31,7 +29,7 @@ export class PostProcessPass extends Material {
 	public resolutionInv: GLP.Vector;
 	public viewPort: GLP.Vector | null;
 
-	constructor( param: PostProcessPassParam ) {
+	constructor( gl: WebGL2RenderingContext, param: PostProcessPassParam ) {
 
 		super( { ...param, frag: param.frag || passFrag, vert: param.vert || quadVert } );
 

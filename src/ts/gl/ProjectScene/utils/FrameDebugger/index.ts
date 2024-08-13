@@ -1,9 +1,9 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { Renderer } from '../../Renderer';
-
 import frameDebuggerFrag from './shaders/frameDebugger.fs';
+
+import { gl, renderer } from '~/ts/gl/GLGlobals';
 
 type Frame = {
 	frameBuffer: GLP.GLPowerFrameBuffer,
@@ -15,7 +15,6 @@ type Frame = {
 export class FrameDebugger extends GLP.EventEmitter {
 
 	private gl: WebGL2RenderingContext;
-	private renderer: Renderer;
 
 	// buffers
 
@@ -50,15 +49,12 @@ export class FrameDebugger extends GLP.EventEmitter {
 	private cctx: CanvasRenderingContext2D;
 	private canvasTexture: GLP.GLPowerTexture;
 
-
 	constructor( power: GLP.Power, elm: HTMLCanvasElement ) {
 
 		super();
 
 		this.gl = power.gl;
 		this.elm = elm;
-
-		this.renderer = new Renderer( power.gl );
 
 		this.srcFrameBuffer = new GLP.GLPowerFrameBuffer( this.gl, { disableDepthBuffer: true } );
 		this.outFrameBuffer = new GLP.GLPowerFrameBuffer( this.gl, { disableDepthBuffer: true } ).setTexture( [
@@ -94,7 +90,7 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 		this.outPostProcess = new MXP.PostProcess( {
 			input: this.outFrameBuffer.textures,
-			passes: [ new MXP.PostProcessPass( {
+			passes: [ new MXP.PostProcessPass( gl, {
 				uniforms: this.uniforms,
 				renderTarget: null,
 				frag: frameDebuggerFrag
@@ -105,9 +101,30 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 		// click
 
+		const touchStartPos = new GLP.Vector( 0, 0 );
+
 		const onClick = this.onClick.bind( this );
 
-		elm.addEventListener( "click", onClick );
+		const onPointerDown = ( e: PointerEvent ) => {
+
+			touchStartPos.set( e.clientX, e.clientY );
+
+		};
+
+		const onPointerUp = ( e: PointerEvent ) => {
+
+			const endPos = new GLP.Vector( e.clientX, e.clientY );
+
+			if ( touchStartPos.clone().sub( endPos ).length( ) < 10 ) {
+
+				onClick( e );
+
+			}
+
+		};
+
+		elm.addEventListener( "pointerdown", onPointerDown );
+		elm.addEventListener( "pointerup", onPointerUp );
 
 		// esc
 
@@ -127,7 +144,8 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 		this.once( "dispose", () => {
 
-			elm.removeEventListener( "click", onClick );
+			elm.removeEventListener( "pointerdown", onPointerDown );
+			elm.removeEventListener( "pointerup", onPointerUp );
 			window.removeEventListener( "keydown", onKeydown );
 
 		} );
@@ -227,7 +245,7 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 		// out
 
-		this.renderer.renderPostProcess( this.outPostProcess );
+		renderer.renderPostProcess( this.outPostProcess, this.resolution );
 
 		this.clear();
 
@@ -258,8 +276,6 @@ export class FrameDebugger extends GLP.EventEmitter {
 	public resize( resolution: GLP.Vector ) {
 
 		this.resolution.copy( resolution );
-
-		this.renderer.resize( resolution );
 
 		this.outFrameBuffer.setSize( resolution );
 

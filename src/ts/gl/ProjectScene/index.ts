@@ -1,13 +1,12 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { canvas, gl, globalUniforms } from '../GLGlobals';
+import { canvas, globalUniforms, renderer } from '../GLGlobals';
 import { MainCamera } from '../Resources/Components/MainCamera';
 import { OrbitControls } from '../Resources/Components/OrbitControls';
 import { initResouces } from '../Resources/init';
 
 import { OREngineProjectData, ProjectSerializer, OREngineProjectFrame } from './IO/ProjectSerializer';
-import { Renderer } from './Renderer';
 
 export interface SceneTime {
 	current: number;
@@ -44,7 +43,7 @@ export class ProjectScene extends MXP.Entity {
 	// renderer
 
 	public canvas: HTMLCanvasElement;
-	public renderer: Renderer;
+	public enableRender: boolean;
 
 	// camera
 
@@ -87,6 +86,7 @@ export class ProjectScene extends MXP.Entity {
 		// canvas
 
 		this.canvas = canvas;
+		this.enableRender = true;
 
 		// time
 
@@ -115,7 +115,7 @@ export class ProjectScene extends MXP.Entity {
 
 		this.camera = new MXP.Entity( { name: "camera" } );
 		this.camera.position.set( 0, 0, 5 );
-		this.camera.noExport = true;
+
 		this.cameraComponent = this.camera.addComponent( new MainCamera() );
 		const orbitControls = this.camera.getComponent( OrbitControls );
 
@@ -125,51 +125,43 @@ export class ProjectScene extends MXP.Entity {
 
 		}
 
-		// renderer
-
-		this.renderer = new Renderer( gl );
-		this.renderer.noExport = true;
-
 		// root
 
 		this.root = new MXP.Entity();
-		this.add( this.root );
+		this.root.initiator = "god";
 		this.root.name = "root";
+		this.add( this.root );
 
 	}
 
 	public init( project?: OREngineProjectData ) {
 
-		const currentRoot = this.root;
-		currentRoot.remove( this.camera );
-		currentRoot.remove( this.renderer );
-		currentRoot.disposeRecursive();
+		this.root.remove( this.camera );
+		this.root.remove( renderer );
 
-		currentRoot.position.set( 0, 0, 0 );
-		currentRoot.euler.set( 0, 0, 0 );
-		currentRoot.scale.set( 1, 1, 1 );
+		this.root.disposeRecursive();
+
+		this.root.add( this.camera );
+		this.root.add( renderer );
+
+		this.root.position.set( 0, 0, 0 );
+		this.root.euler.set( 0, 0, 0 );
+		this.root.scale.set( 1, 1, 1 );
+		this.add( this.root );
 
 		this.projectCache = project || null;
 
 		if ( project ) {
 
 			this.name = project.setting.name;
-
-			this.remove( this.root );
-
 			this.setProps( project.setting );
-			this.root = this.projectSerializer.deserialize( project ).root;
-
-			this.add( this.root );
+			this.projectSerializer.deserialize( project, this.root );
 
 		} else {
 
 			this.name = "New Project";
 
 		}
-
-		this.root.add( this.camera );
-		this.root.add( this.renderer );
 
 		this.emit( "update/graph" );
 		this.emit( "loaded" );
@@ -210,7 +202,11 @@ export class ProjectScene extends MXP.Entity {
 
 		const renderStack = this.root.finalize( event );
 
-		this.renderer.render( renderStack );
+		if ( this.enableRender ) {
+
+			renderer.render( renderStack );
+
+		}
 
 		return this.time.delta;
 
@@ -221,7 +217,7 @@ export class ProjectScene extends MXP.Entity {
 		globalUniforms.resolution.uResolution.value.copy( resolution );
 		globalUniforms.resolution.uAspectRatio.value = resolution.x / resolution.y;
 
-		this.renderer.resize( resolution );
+		renderer.resize( resolution );
 		this.cameraComponent.resize( resolution );
 
 	}
@@ -277,6 +273,16 @@ export class ProjectScene extends MXP.Entity {
 		const data = this.projectSerializer.serialize( this, this.root );
 
 		return data;
+
+	}
+
+	// dispose
+
+	public dispose() {
+
+		this.root.remove( renderer );
+
+		super.dispose();
 
 	}
 

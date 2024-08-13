@@ -5,10 +5,12 @@ import { TimelineContext } from '../hooks/useTimeline';
 import style from './index.module.scss';
 import { TimelineCanvasRenderer } from './TimelineCanvasRenderer';
 
+import { useWatchExportable } from '~/ts/components/gl/useWatchExportable';
+
 
 export const TimelineCanvas = () => {
 
-	const { viewPort, viewPortScale, frameSetting, musicBuffer, musicBufferVersion } = useContext( TimelineContext );
+	const { viewPort, viewPortScale, frameSetting, musicBuffer, musicBufferVersion, glEditor } = useContext( TimelineContext );
 
 	const [ renderer, setRenderer ] = useState<TimelineCanvasRenderer>();
 
@@ -53,6 +55,32 @@ export const TimelineCanvas = () => {
 		}
 
 	}, [ renderer, frameSetting ] );
+
+	// loop
+
+	useWatchExportable( glEditor, [
+		"frameLoop/enabled",
+		"frameLoop/start",
+		"frameLoop/end",
+	] );
+
+	const enabled = glEditor?.prop<boolean>( "frameLoop/enabled" );
+	const start = glEditor?.prop<number>( "frameLoop/start" );
+	const end = glEditor?.prop<number>( "frameLoop/end" );
+
+	useEffect( () => {
+
+		if ( renderer ) {
+
+			renderer.setLoopSetting(
+				enabled?.value || false,
+				start?.value || 0,
+				end?.value || 0,
+			);
+
+		}
+
+	}, [ renderer, enabled, start, end ] );
 
 	useEffect( () => {
 

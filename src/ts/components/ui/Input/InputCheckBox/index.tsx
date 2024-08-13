@@ -6,7 +6,7 @@ import style from './index.module.scss';
 type InputBooleanProps = {
 	checked?: boolean
 	onChange?: ( checked: boolean ) => void
-	disable?: boolean
+	disabled?: boolean
 	readOnly?: boolean
 };
 
@@ -18,7 +18,7 @@ export const InputBoolean = ( { onChange, ...props }: InputBooleanProps ) => {
 
 	}}>
 		<label>
-			<input className={style.input} type="checkbox" checked={props.checked} disabled={props.disable} readOnly={props.readOnly}
+			<input className={style.input} type="checkbox" checked={props.checked} disabled={props.disabled} readOnly={props.readOnly}
 				onChange={( e ) => {
 
 					if ( props.readOnly ) return;

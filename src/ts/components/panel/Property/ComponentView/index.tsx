@@ -20,7 +20,7 @@ export const ComponentView = ( { component, keyName }: ComponentViewProps ) => {
 	const { reflesh } = useContext( EditorContext );
 
 	const propElms: JSX.Element[] = [
-		<Value key='-1' label={"key"} value={keyName} readOnly/>
+		<Value key='-1' label={"key"} value={keyName} readOnly />
 	];
 
 	const compoProps = component.getProps();
@@ -49,6 +49,8 @@ export const ComponentView = ( { component, keyName }: ComponentViewProps ) => {
 
 				const path_ = path + key;
 
+				if ( prop === undefined ) continue;
+
 				if ( "value" in prop ) {
 
 					const value = prop.value;
@@ -58,7 +60,7 @@ export const ComponentView = ( { component, keyName }: ComponentViewProps ) => {
 
 						onChange( value, path_ );
 
-					}} {...opt} readOnly={opt?.readOnly || component.disableEdit}/> );
+					}} {...opt} readOnly={opt?.readOnly || component.disableEdit} /> );
 
 				} else {
 

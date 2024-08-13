@@ -1,4 +1,5 @@
-import { CollectedLights } from '..';
+
+import { CollectedLights } from 'packages/maxpower/Component/Renderer';
 
 import common from './shaderModules/common.module.glsl';
 import light from './shaderModules/light.module.glsl';

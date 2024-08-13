@@ -3,7 +3,6 @@
 uniform sampler2D backbuffer0;
 uniform sampler2D uPMREMBackBuffer;
 uniform samplerCube uEnvMap;
-uniform float uRenderCount;
 uniform float uRoughness;
 uniform float uTimeEF;
 layout (location = 0) out vec4 outColor;

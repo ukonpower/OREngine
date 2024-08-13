@@ -24,6 +24,10 @@
 			margin-right: 0;
 		}
 
+		&[data-auto_width="true"] {
+			width: auto;
+		}
+
 	}
 
 	&_value {

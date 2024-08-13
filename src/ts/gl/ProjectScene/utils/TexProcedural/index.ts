@@ -3,6 +3,7 @@ import * as MXP from 'maxpower';
 
 import { Renderer } from '../../Renderer';
 
+
 interface TexProceduralParam extends MXP.PostProcessPassParam {
 	resolution?: GLP.Vector
 }
@@ -11,7 +12,9 @@ export class TexProcedural extends GLP.GLPowerTexture {
 
 	private frameBuffer: GLP.GLPowerFrameBuffer;
 
-	constructor( gl: WebGL2RenderingContext, param: TexProceduralParam ) {
+	constructor( renderer: Renderer, param: TexProceduralParam ) {
+
+		const gl = renderer.gl;
 
 		super( gl );
 
@@ -24,12 +27,8 @@ export class TexProcedural extends GLP.GLPowerTexture {
 			minFilter: gl.LINEAR,
 		} );
 
-		const renderer = new Renderer( gl );
-
-		renderer.resize( resolution );
-
 		this.frameBuffer = new GLP.GLPowerFrameBuffer( gl ).setTexture( [ this ] ).setSize( 1024, 1024 );
-		renderer.renderPostProcess( new MXP.PostProcess( { passes: [ new MXP.PostProcessPass( { ...param, renderTarget: this.frameBuffer } ) ] } ) );
+		renderer.renderPostProcess( new MXP.PostProcess( { passes: [ new MXP.PostProcessPass( gl, { ...param, renderTarget: this.frameBuffer } ) ] } ), resolution );
 
 	}
 

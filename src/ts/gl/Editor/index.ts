@@ -1,7 +1,7 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { canvas, resource, power } from '../GLGlobals';
+import { canvas, resource, power, renderer } from '../GLGlobals';
 import { ProjectScene } from '../ProjectScene';
 import { FrameDebugger } from '../ProjectScene/utils/FrameDebugger';
 import { Keyboard, PressedKeys } from '../ProjectScene/utils/Keyboard';
@@ -10,15 +10,23 @@ import { OREngineResource } from '../Resources';
 import { EditorDataManager, OREngineEditorData, OREngineEditorViewType } from './EditorDataManager';
 import { FileSystem } from './FileSystem';
 
+export type EditorTimelineLoop = {
+	enabled: boolean,
+	start: number,
+	end: number,
+}
+
 export class GLEditor extends MXP.Exportable {
+
+	// canvas
+
+	public canvas: HTMLCanvasElement;
+	public canvasWrapElm: HTMLElement | null;
+	public resolutionScale: number;
 
 	// resources
 
 	public resource: OREngineResource;
-
-	// scene
-
-	public selectedEntity: MXP.Entity | null = null;
 
 	// filesystem
 
@@ -37,23 +45,22 @@ export class GLEditor extends MXP.Exportable {
 
 	public scene: ProjectScene;
 
-	// canvas
+	// view
 
-	public canvas: HTMLCanvasElement;
-	public canvasWrapElm: HTMLElement | null;
-	public resolutionScale: number;
-
-	// veiw
-
-	public viewType: OREngineEditorViewType;
-
-	// frame debugger
-
+	private viewType: OREngineEditorViewType;
 	private frameDebugger: FrameDebugger;
+
+	// selected
+
+	public selectedEntity: MXP.Entity | null;
 
 	// sound
 
 	public audioBuffer: AudioBuffer | null;
+
+	// loop
+
+	private frameLoop: EditorTimelineLoop;
 
 	// dispose
 
@@ -152,7 +159,7 @@ export class GLEditor extends MXP.Exportable {
 
 		this.frameDebugger = new FrameDebugger( power, this.canvas );
 
-		this.scene.renderer.on( 'drawPass', ( rt?: GLP.GLPowerFrameBuffer, label?: string ) => {
+		renderer.on( 'drawPass', ( rt?: GLP.GLPowerFrameBuffer, label?: string ) => {
 
 			if ( this.frameDebugger && this.frameDebugger.enable && rt ) {
 
@@ -188,6 +195,10 @@ export class GLEditor extends MXP.Exportable {
 
 		} );
 
+		// selected
+
+		this.selectedEntity = null;
+
 		// sound
 
 		this.audioBuffer = null;
@@ -197,6 +208,14 @@ export class GLEditor extends MXP.Exportable {
 			this.audioBuffer = buffer;
 
 		} );
+
+		// loop
+
+		this.frameLoop = {
+			enabled: false,
+			start: 0,
+			end: 0,
+		};
 
 		// blidge
 
@@ -257,9 +276,21 @@ export class GLEditor extends MXP.Exportable {
 
 		if ( this.scene.frame.playing ) {
 
-			if ( this.scene.frame.current > this.scene.frameSetting.duration ) {
+			if ( this.scene.frame.current < 0 || this.scene.frame.current > this.scene.frameSetting.duration ) {
 
 				this.scene.frame.current = 0;
+
+			}
+
+			// loop
+
+			if ( this.frameLoop.enabled ) {
+
+				if ( this.scene.frame.current < this.frameLoop.start || this.scene.frame.current > this.frameLoop.end ) {
+
+					this.scene.frame.current = this.frameLoop.start;
+
+				}
 
 			}
 
@@ -284,6 +315,9 @@ export class GLEditor extends MXP.Exportable {
 	public getProps(): MXP.ExportableProps {
 
 		return {
+			enableRender: {
+				value: this.scene.enableRender,
+			},
 			currentProjectName: {
 				value: this.scene.name,
 			},
@@ -292,12 +326,27 @@ export class GLEditor extends MXP.Exportable {
 			},
 			viewType: {
 				value: this.viewType
+			},
+			frameLoop: {
+				enabled: {
+					value: this.frameLoop.enabled,
+				},
+				start: {
+					value: this.frameLoop.start,
+				},
+				end: {
+					value: this.frameLoop.end,
+				}
 			}
 		};
 
 	}
 
 	public setPropsImpl( props: MXP.ExportablePropsSerialized ) {
+
+		// render
+
+		this.scene.enableRender = props[ "enableRender" ];
 
 		// viewtype
 
@@ -335,6 +384,11 @@ export class GLEditor extends MXP.Exportable {
 
 		this.scene.name = props[ "currentProjectName" ];
 
+		// frameLoop
+		this.frameLoop.enabled = props[ "frameLoop/enabled" ];
+
+		this.frameLoop.start = Math.max( 0, props[ "frameLoop/start" ] || 0 );
+		this.frameLoop.end = Math.min( this.scene.frameSetting.duration, Math.max( this.frameLoop.start, props[ "frameLoop/end" ] ) || 100 );
 
 	}
 
@@ -350,6 +404,8 @@ export class GLEditor extends MXP.Exportable {
 
 	}
 
+	// controls
+
 	public selectEntity( entity: MXP.Entity | null ) {
 
 		this.selectedEntity = entity;
@@ -357,6 +413,35 @@ export class GLEditor extends MXP.Exportable {
 		this.emit( "action/select", [ entity ] );
 
 	}
+
+	public createEntity( parentEntity: MXP.Entity, name: string ) {
+
+		const newEntity = new MXP.Entity();
+
+		newEntity.name = name;
+		newEntity.initiator = "user";
+
+		parentEntity.add( newEntity );
+
+		return newEntity;
+
+	}
+
+	public deleteEntity( entity: MXP.Entity ) {
+
+		entity.disposeRecursive();
+
+		const parent = entity.parent;
+
+		if ( parent ) {
+
+			parent.remove( entity );
+
+		}
+
+	}
+
+	// project
 
 	public projectOpen( name: string ) {
 
@@ -402,6 +487,8 @@ export class GLEditor extends MXP.Exportable {
 		this.unsaved = false;
 
 	}
+
+	// export
 
 	public exportCurrentScene() {
 

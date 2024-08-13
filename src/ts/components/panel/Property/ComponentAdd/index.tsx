@@ -39,7 +39,7 @@ const ComponentCategoryGroup = ( { categoryName, componentList, onClick }: Compo
 	} ) || [];
 
 	return <div className={style.catGroup}>
-		<Picker label={categoryName} list={listItem}/>
+		<Picker label={categoryName} list={listItem} noBg/>
 	</div>;
 
 };

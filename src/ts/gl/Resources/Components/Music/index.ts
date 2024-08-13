@@ -5,7 +5,6 @@ import musicFrag from './shaders/music.fs';
 import musicVert from './shaders/music.vs';
 
 import { power } from '~/ts/gl/GLGlobals';
-import { shaderParse } from '~/ts/gl/ProjectScene/Renderer/ShaderParser';
 
 const BPM = 85;
 const MUSIC_DURATION = 60 * ( ( 8 * 2 ) / BPM );
@@ -24,10 +23,25 @@ export class Music extends MXP.Component {
 	private convolverNode: ConvolverNode;
 	private gainNode: GainNode;
 
+	// buffers
+
+	private bufferLength: number;
+
+	private blockLength: number;
+	private numSampleBlocks: number;
+
+	private bufferIn: GLP.GLPowerBuffer;
+	private bufferL: GLP.GLPowerBuffer;
+	private bufferR: GLP.GLPowerBuffer;
+
+	private tmpOutputArrayL: Float32Array;
+	private tmpOutputArrayR: Float32Array;
+
 	// play
 
+	private timeCode: number = 0;
 	private playStartTime: number = - 1;
-	private force: boolean = false;
+	private forcePlay: boolean = false;
 
 	// texture
 
@@ -37,6 +51,10 @@ export class Music extends MXP.Component {
 	public timeDomainTexture: GLP.GLPowerTexture;
 	public frequencyArray: Uint8Array;
 	public frequencyTexture: GLP.GLPowerTexture;
+
+	// render
+
+	private currentRender: ReturnType<typeof this.render> | null;
 
 
 	constructor( ) {
@@ -54,119 +72,34 @@ export class Music extends MXP.Component {
 
 		this.audioContext = new AudioContext();
 
-		const bufferLength = Math.floor( this.audioContext.sampleRate * MUSIC_DURATION );
+		this.bufferLength = Math.floor( this.audioContext.sampleRate * MUSIC_DURATION );
 
 		// samples
 
-		const blockLength = Math.min( 512 * 512, bufferLength );
-
-		const numSampleBlocks = Math.ceil( ( this.audioContext.sampleRate * MUSIC_DURATION ) / blockLength );
+		this.blockLength = Math.min( 512 * 512, this.bufferLength );
+		this.numSampleBlocks = Math.ceil( ( this.audioContext.sampleRate * MUSIC_DURATION ) / this.blockLength );
 
 		// tmpOutPut
 
-		const tmpOutputArrayL = new Float32Array( blockLength );
-		const tmpOutputArrayR = new Float32Array( blockLength );
+		this.tmpOutputArrayL = new Float32Array( this.blockLength );
+		this.tmpOutputArrayR = new Float32Array( this.blockLength );
 
 		// buffer
 
-		this.audioBuffer = this.audioContext.createBuffer( 2, bufferLength, this.audioContext.sampleRate );
+		this.audioBuffer = this.audioContext.createBuffer( 2, this.bufferLength, this.audioContext.sampleRate );
 
-		const bufferIn = new GLP.GLPowerBuffer( this.gl );
-		bufferIn.setData( new Float32Array( new Array( blockLength ).fill( 0 ).map( ( _, i ) => i ) ), 'vbo' );
+		this.bufferIn = new GLP.GLPowerBuffer( this.gl );
+		this.bufferIn.setData( new Float32Array( new Array( this.blockLength ).fill( 0 ).map( ( _, i ) => i ) ), 'vbo' );
 
-		const bufferL = new GLP.GLPowerBuffer( this.gl );
-		bufferL.setData( new Float32Array( bufferLength ), 'vbo', this.gl.DYNAMIC_COPY );
+		this.bufferL = new GLP.GLPowerBuffer( this.gl );
+		this.bufferL.setData( new Float32Array( this.bufferLength ), 'vbo', this.gl.DYNAMIC_COPY );
 
-		const bufferR = new GLP.GLPowerBuffer( this.gl );
-		bufferR.setData( new Float32Array( bufferLength ), 'vbo', this.gl.DYNAMIC_COPY );
+		this.bufferR = new GLP.GLPowerBuffer( this.gl );
+		this.bufferR.setData( new Float32Array( this.bufferLength ), 'vbo', this.gl.DYNAMIC_COPY );
 
 		// render
 
-		const render = () => {
-
-			this.stop();
-
-			this.isAudioBufferReady = false;
-
-			const program = new GLP.GLPowerProgram( this.gl );
-
-			const tf = new GLP.GLPowerTransformFeedback( this.gl );
-
-			tf.setBuffer( "left", bufferL, 0 );
-			tf.setBuffer( "right", bufferR, 1 );
-
-			tf.bind( () => {
-
-				program.setShader( shaderParse( MXP.hotGet( "music", musicVert ) ), musicFrag, { transformFeedbackVaryings: [ 'o_left', 'o_right' ] } );
-
-			} );
-
-			program.setUniform( 'uDuration', '1f', [ MUSIC_DURATION ] );
-			program.setUniform( 'uBPM', '1f', [ BPM ] );
-			program.setUniform( 'uSampleRate', '1f', [ this.audioContext.sampleRate ] );
-
-			const vao = program.getVAO();
-
-			if ( vao ) {
-
-				vao.setAttribute( 'aTime', bufferIn, 1 );
-
-				for ( let i = 0; i < numSampleBlocks; i ++ ) {
-
-					program.setUniform( 'uTimeOffset', '1f', [ blockLength * i / this.audioContext.sampleRate ] );
-
-					program.use( () => {
-
-						program.uploadUniforms();
-
-						tf.use( () => {
-
-							this.gl.beginTransformFeedback( this.gl.POINTS );
-							this.gl.enable( this.gl.RASTERIZER_DISCARD );
-
-							vao.use( () => {
-
-								this.gl.drawArrays( this.gl.POINTS, 0, vao.vertCount );
-
-							} );
-
-							this.gl.disable( this.gl.RASTERIZER_DISCARD );
-							this.gl.endTransformFeedback();
-
-						} );
-
-						this.gl.bindBuffer( this.gl.ARRAY_BUFFER, bufferL.buffer );
-						this.gl.getBufferSubData( this.gl.ARRAY_BUFFER, 0, tmpOutputArrayL );
-
-						this.gl.bindBuffer( this.gl.ARRAY_BUFFER, bufferR.buffer );
-						this.gl.getBufferSubData( this.gl.ARRAY_BUFFER, 0, tmpOutputArrayR );
-
-						this.gl.bindBuffer( this.gl.ARRAY_BUFFER, null );
-
-						for ( let j = 0; j < blockLength; j ++ ) {
-
-							const t = i * blockLength + j;
-							const enable = t < MUSIC_DURATION * this.audioContext.sampleRate ? 1 : 0;
-
-							this.audioBuffer.getChannelData( 0 )[ t ] = tmpOutputArrayL[ j ] * enable;
-							this.audioBuffer.getChannelData( 1 )[ t ] = tmpOutputArrayR[ j ] * enable;
-
-						}
-
-					} );
-
-				}
-
-			}
-
-			this.force = true;
-			this.isAudioBufferReady = true;
-
-			this.notice();
-
-		};
-
-		render();
+		this.currentRender = this.render();
 
 		if ( import.meta.hot ) {
 
@@ -176,7 +109,7 @@ export class Music extends MXP.Component {
 
 					MXP.hotUpdate( "music", module.default );
 
-					render();
+					this.currentRender = this.render();
 
 				}
 
@@ -233,7 +166,158 @@ export class Music extends MXP.Component {
 
 	}
 
+	private render() {
+
+		if ( this.currentRender ) [
+
+			this.currentRender.stop()
+
+		];
+
+		this.stop();
+
+		this.isAudioBufferReady = false;
+
+		const program = new GLP.GLPowerProgram( this.gl );
+
+		const tf = new GLP.GLPowerTransformFeedback( this.gl );
+
+		tf.setBuffer( "left", this.bufferL, 0 );
+		tf.setBuffer( "right", this.bufferR, 1 );
+
+		tf.bind( () => {
+
+			program.setShader( MXP.shaderParse( MXP.hotGet( "music", musicVert ) ), musicFrag, { transformFeedbackVaryings: [ 'o_left', 'o_right' ] } );
+
+		} );
+
+		program.setUniform( 'uDuration', '1f', [ MUSIC_DURATION ] );
+		program.setUniform( 'uBPM', '1f', [ BPM ] );
+		program.setUniform( 'uSampleRate', '1f', [ this.audioContext.sampleRate ] );
+
+		const vao = program.getVAO();
+
+		let renderContinue = true;
+
+		const stop = () => {
+
+			renderContinue = false;
+
+		};
+
+		if ( vao ) {
+
+			vao.setAttribute( 'aTime', this.bufferIn, 1 );
+
+			const startPos = Math.floor( this.timeCode / ( this.bufferLength / this.audioBuffer.sampleRate / this.numSampleBlocks ) );
+
+
+			const renderParts = async ( ) => {
+
+				for ( let _i = 0; _i < this.numSampleBlocks; _i ++ ) {
+
+					let i;
+
+					if ( _i % 2 === 0 ) {
+
+						i = startPos + Math.floor( _i / 2 );
+
+					} else {
+
+						i = startPos - Math.ceil( _i / 2 );
+
+					}
+
+					if ( i >= this.numSampleBlocks ) {
+
+						i = i - this.numSampleBlocks;
+
+					} else if ( i < 0 ) {
+
+						i = i + this.numSampleBlocks;
+
+					}
+
+					await new Promise( r => {
+
+						setTimeout( () => {
+
+							this.isAudioBufferReady = true;
+							r( null );
+
+						}, 100 );
+
+					} );
+
+					if ( ! renderContinue ) return;
+
+					program.setUniform( 'uTimeOffset', '1f', [ this.blockLength * i / this.audioContext.sampleRate ] );
+
+					program.use( () => {
+
+						program.uploadUniforms();
+
+						tf.use( () => {
+
+							this.gl.beginTransformFeedback( this.gl.POINTS );
+							this.gl.enable( this.gl.RASTERIZER_DISCARD );
+
+							vao.use( () => {
+
+								this.gl.drawArrays( this.gl.POINTS, 0, vao.vertCount );
+
+							} );
+
+							this.gl.disable( this.gl.RASTERIZER_DISCARD );
+							this.gl.endTransformFeedback();
+
+						} );
+
+						this.gl.bindBuffer( this.gl.ARRAY_BUFFER, this.bufferL.buffer );
+						this.gl.getBufferSubData( this.gl.ARRAY_BUFFER, 0, this.tmpOutputArrayL );
+
+						this.gl.bindBuffer( this.gl.ARRAY_BUFFER, this.bufferR.buffer );
+						this.gl.getBufferSubData( this.gl.ARRAY_BUFFER, 0, this.tmpOutputArrayR );
+
+						this.gl.bindBuffer( this.gl.ARRAY_BUFFER, null );
+
+						for ( let j = 0; j < this.blockLength; j ++ ) {
+
+							const t = i * this.blockLength + j;
+							const enable = t < MUSIC_DURATION * this.audioContext.sampleRate ? 1 : 0;
+
+							this.audioBuffer.getChannelData( 0 )[ t ] = this.tmpOutputArrayL[ j ] * enable;
+							this.audioBuffer.getChannelData( 1 )[ t ] = this.tmpOutputArrayR[ j ] * enable;
+
+						}
+
+					} );
+
+					this.notice();
+
+				}
+
+				if ( this.entity ) {
+
+					this.entity.noticeParent( 'update/music/complete', [ this.audioBuffer, this.frequencyTexture, this.timeDomainTexture ] );
+
+				}
+
+			};
+
+			renderParts();
+
+		}
+
+		return {
+			stop
+		};
+
+	}
+
 	protected updateImpl( event: MXP.ComponentUpdateEvent ): void {
+
+		this.timeCode = event.timeCode;
 
 		if ( ! event.playing || event.timeCode < 0 ) {
 
@@ -243,8 +327,8 @@ export class Music extends MXP.Component {
 
 		}
 
-		this.play( event.timeCode, this.force );
-		this.force = false;
+		this.play( event.timeCode, this.forcePlay );
+		this.forcePlay = false;
 
 		// texture
 

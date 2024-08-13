@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Button } from "../Button";
 import { PropertyBlock } from "../Property/PropertyBlock";
@@ -42,17 +42,40 @@ export const InputGroup = ( props: InputGroupProps ) => {
 
 	}
 
-	return <div className={style.group}>
-		<PropertyBlock label={props.title} noMargin >
-			{propElms}
-		</PropertyBlock>
-		<div className={style.submit}>
-			<Button onClick={() => {
 
-				props.onSubmit && props.onSubmit( values );
+	const wrapperElmRef = useRef<HTMLDivElement | null>( null );
 
-			}} >OK</Button>
-		</div>
+	useEffect( () => {
+
+		setTimeout( () => {
+
+			if ( wrapperElmRef.current ) {
+
+				wrapperElmRef.current.querySelector( 'input' )?.focus();
+
+			}
+
+		}, 0 );
+
+	}, [] );
+
+	return <div className={style.group} ref={wrapperElmRef}>
+		<form onSubmit={( e )=>{
+
+			e.preventDefault();
+
+		}}>
+			<PropertyBlock label={props.title} noMargin >
+				{propElms}
+			</PropertyBlock>
+			<div className={style.submit}>
+				<Button type="submit" onClick={() => {
+
+					props.onSubmit && props.onSubmit( values );
+
+				}} >OK</Button>
+			</div>
+		</form>
 	</div>;
 
 };

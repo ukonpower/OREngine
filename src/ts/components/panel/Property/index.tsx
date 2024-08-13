@@ -30,14 +30,17 @@ export const Property = () => {
 
 	} );
 
+	const disabled = active.initiator != "user";
+
 	return <div className={style.property}>
 		<div className={style.content}>
 			<PropertyBlock label={"Info"}>
 				<Value label="Name" value={active.name} readOnly/>
+				<Value label="Initiator" value={active.initiator} readOnly/>
 			</PropertyBlock>
 			<PropertyBlock label={"Transform"} accordion={true}>
 				<PropertyBlock label={"Position"} >
-					<Vector type='vec3' value={active.position} onChange={( value ) => {
+					<Vector type='vec3' disabled={disabled} value={active.position} onChange={( value ) => {
 
 						active.position.copy( value );
 						reflesh && reflesh();
@@ -45,7 +48,7 @@ export const Property = () => {
 					}}/>
 				</PropertyBlock>
 				<PropertyBlock label={"Rotation"} >
-					<Vector type='vec3' value={ new GLP.Vector().copy( active.euler ).multiply( 1.0 / Math.PI * 180 )} slideScale={50} onChange={( value ) => {
+					<Vector type='vec3' disabled={disabled} value={ new GLP.Vector().copy( active.euler ).multiply( 1.0 / Math.PI * 180 )} slideScale={50} onChange={( value ) => {
 
 						active.euler.copy( value ).multiply( 1.0 / 180 * Math.PI );
 						reflesh && reflesh();
@@ -53,7 +56,7 @@ export const Property = () => {
 					}}/>
 				</PropertyBlock>
 				<PropertyBlock label={"Scale"} >
-					<Vector type='vec3' value={active.scale} onChange={( value ) => {
+					<Vector type='vec3' disabled={disabled} value={active.scale} onChange={( value ) => {
 
 						active.scale.copy( value );
 						reflesh && reflesh();

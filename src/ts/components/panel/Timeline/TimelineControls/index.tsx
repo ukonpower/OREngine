@@ -4,7 +4,7 @@ import { TimelineContext } from '../hooks/useTimeline';
 
 import style from './index.module.scss';
 
-export const TimelineControls = () => {
+export const TimelineControls: React.FC<{children?: React.ReactNode}> = ( props ) => {
 
 	const { viewPort, frameSetting: frame, setCurrentFrame: setFrame, getFrameViewPort, zoom, scroll, setViewPortCenter } = useContext( TimelineContext );
 
@@ -153,6 +153,7 @@ export const TimelineControls = () => {
 	if ( ! viewPort || ! frame ) return null;
 
 	return <div className={style.controls} onPointerDown={onPointerDown} ref={elmRef}>
+		{props.children}
 	</div>;
 
 };

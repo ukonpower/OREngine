@@ -6,7 +6,7 @@ import { resource } from '~/ts/gl/GLGlobals';
 export interface OREngineNodeOverrideComponent {
 	key: string,
 	name: string,
-	props: {[key:string]: any}
+	props: {[key:string]: any} | undefined
 }
 
 export interface OREngineNodeOverride {
@@ -60,7 +60,11 @@ export class ProjectSerializer extends GLP.EventEmitter {
 						const component = e.addComponent( new compItem.component() );
 						component.initiator = "user";
 
-						component.setProps( c.props );
+						if ( c.props ) {
+
+							component.setProps( c.props );
+
+						}
 
 					}
 
@@ -72,17 +76,18 @@ export class ProjectSerializer extends GLP.EventEmitter {
 
 	}
 
-	public deserialize( project: OREngineProjectData ) {
+	public deserialize( project: OREngineProjectData, target: MXP.Entity ) {
 
-		const _ = ( node: SceneNode ): MXP.Entity => {
+		const _ = ( node: SceneNode, target?: MXP.Entity ): MXP.Entity => {
 
-			const entity = new MXP.Entity();
+			const entity = target || new MXP.Entity();
+			entity.initiator = "user";
 			entity.name = node.name;
 
 			const pos = node.pos || [ 0, 0, 0 ];
 			entity.position.x = pos[ 0 ];
-			entity.position.x = pos[ 1 ];
-			entity.position.x = pos[ 2 ];
+			entity.position.y = pos[ 1 ];
+			entity.position.z = pos[ 2 ];
 
 			const rot = node.rot || [ 0, 0, 0 ];
 			entity.euler.x = rot[ 0 ];
@@ -108,13 +113,16 @@ export class ProjectSerializer extends GLP.EventEmitter {
 
 		};
 
-		const root = project.scene ? _( project.scene ) : new MXP.Entity();
+		if ( project.scene ) {
 
-		this.applyOverride( root, root, project.objectOverride );
+			_( project.scene, target );
 
-		return {
-			root
-		};
+		}
+
+		target.initiator = "god";
+
+		this.applyOverride( target, target, project.objectOverride );
+
 
 	}
 
@@ -130,11 +138,12 @@ export class ProjectSerializer extends GLP.EventEmitter {
 
 			entity.children.forEach( c => {
 
-				if ( c.noExport ) return;
+				if ( c.initiator == "script" ) return;
 
 				childs.push( _( c ) );
 
 			} );
+
 			return {
 				name: entity.name,
 				pos: entity.position.x == 0 && entity.position.y == 0 && entity.position.z == 0 ? undefined : entity.position.getElm( "vec3" ),
@@ -149,8 +158,6 @@ export class ProjectSerializer extends GLP.EventEmitter {
 
 		sceneRoot.traverse( ( e ) => {
 
-			if ( e.noExport ) return;
-
 			const path_ = e.getPath( sceneRoot );
 
 			const nodeOverrideData: OREngineNodeOverride = {
@@ -160,14 +167,14 @@ export class ProjectSerializer extends GLP.EventEmitter {
 
 			e.components.forEach( ( c, key ) => {
 
-				const exportProps: MXP.ExportablePropsSerialized | null = c.getPropsSerialized();
+				const exportProps: MXP.ExportablePropsSerialized = c.getPropsSerialized();
 
-				if ( exportProps && ! c.disableEdit && c.initiator == "user" ) {
+				if ( ! c.disableEdit && c.initiator == "user" ) {
 
 					nodeOverrideData.components.push( {
 						key,
 						name: c.constructor.name,
-						props: exportProps
+						props: Object.keys( exportProps ).length > 0 ? exportProps : undefined
 					} );
 
 				}

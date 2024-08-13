@@ -5,9 +5,13 @@
 	width: 100%;
 	height: 100%;
 	border-radius: $radius1;
+	padding: $padding;
+	background-color: $bgColWindow0;
+	border-radius: $radius1;
+	min-width: 100px;
 
-	&[data-bg] {
-		background-color: $bgColWindow0;
+	&[data-no_bg] {
+		background-color: none;
 	}
 
 	&_label {

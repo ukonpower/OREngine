@@ -1,16 +1,10 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
-import { RenderCameraTarget } from 'packages/maxpower/Component/Camera/RenderCamera';
-
-import { gaussWeights } from '../../utils/Math';
 
 import deferredShadingFrag from './shaders/deferredShading.fs';
 import lightShaftFrag from './shaders/lightShaft.fs';
 import ssaoFrag from './shaders/ssao.fs';
 import ssaoBlurFrag from './shaders/ssaoBlur.fs';
-
-
-import { gl, globalUniforms } from '~/ts/gl/GLGlobals/';
 
 const ssaoKernel = ( kernelSize: number ) => {
 
@@ -40,6 +34,10 @@ type DeferredRendererParams = {
 
 export class DeferredRenderer extends MXP.PostProcess {
 
+	// uniforms
+
+	private timeUniforms: GLP.Uniforms;
+
 	// light shaft
 
 	private lightShaft: MXP.PostProcessPass;
@@ -58,7 +56,16 @@ export class DeferredRenderer extends MXP.PostProcess {
 
 	private shading: MXP.PostProcessPass;
 
-	constructor( params: DeferredRendererParams ) {
+	constructor( gl: WebGL2RenderingContext, params: DeferredRendererParams ) {
+
+		// uniforms
+
+		const timeUniforms: GLP.Uniforms = {
+			uTimeEF: {
+				value: 0,
+				type: "1f"
+			}
+		};
 
 		// light shaft
 
@@ -70,11 +77,11 @@ export class DeferredRenderer extends MXP.PostProcess {
 			new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
 		] );
 
-		const lightShaft = new MXP.PostProcessPass( {
+		const lightShaft = new MXP.PostProcessPass( gl, {
 			name: 'lightShaft',
 			frag: lightShaftFrag,
 			renderTarget: rtLightShaft1,
-			uniforms: GLP.UniformsUtils.merge( globalUniforms.time, {
+			uniforms: GLP.UniformsUtils.merge( timeUniforms, {
 				uLightShaftBackBuffer: {
 					value: rtLightShaft2.textures[ 0 ],
 					type: '1i'
@@ -98,11 +105,11 @@ export class DeferredRenderer extends MXP.PostProcess {
 			new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
 		] );
 
-		const ssao = new MXP.PostProcessPass( {
+		const ssao = new MXP.PostProcessPass( gl, {
 			name: 'ssao',
 			frag: ssaoFrag,
 			renderTarget: MXP.hotGet( "ssao", rtSSAO1 ),
-			uniforms: GLP.UniformsUtils.merge( globalUniforms.time, {
+			uniforms: GLP.UniformsUtils.merge( timeUniforms, {
 				uSSAOBackBuffer: {
 					value: rtSSAO2.textures[ 0 ],
 					type: '1i'
@@ -132,7 +139,7 @@ export class DeferredRenderer extends MXP.PostProcess {
 
 		}
 
-		const ssaoBlurUni = GLP.UniformsUtils.merge( globalUniforms.time, {
+		const ssaoBlurUni = GLP.UniformsUtils.merge( timeUniforms, {
 			uSSAOTexture: {
 				value: rtSSAO2.textures[ 0 ],
 				type: '1i'
@@ -147,11 +154,11 @@ export class DeferredRenderer extends MXP.PostProcess {
 			},
 			uWeights: {
 				type: '1fv',
-				value: gaussWeights( 16 )
+				value: GLP.MathUtils.gaussWeights( 16 )
 			},
 		} );
 
-		const ssaoBlurH = new MXP.PostProcessPass( {
+		const ssaoBlurH = new MXP.PostProcessPass( gl, {
 			name: 'ssaoBlur/h',
 			frag: MXP.hotGet( "ssaoBlur", ssaoBlurFrag ),
 			uniforms: ssaoBlurUni,
@@ -159,7 +166,7 @@ export class DeferredRenderer extends MXP.PostProcess {
 			passThrough: true,
 		} );
 
-		const ssaoBlurV = new MXP.PostProcessPass( {
+		const ssaoBlurV = new MXP.PostProcessPass( gl, {
 			name: 'ssaoBlur/v',
 			frag: MXP.hotGet( "ssaoBlur", ssaoBlurFrag ),
 			uniforms: GLP.UniformsUtils.merge( ssaoBlurUni, {
@@ -194,7 +201,7 @@ export class DeferredRenderer extends MXP.PostProcess {
 
 		// shading
 
-		const shading = new MXP.PostProcessPass( {
+		const shading = new MXP.PostProcessPass( gl, {
 			name: "deferredShading",
 			frag: MXP.hotGet( "deferredShading", deferredShadingFrag ),
 			uniforms: GLP.UniformsUtils.merge( {
@@ -214,7 +221,6 @@ export class DeferredRenderer extends MXP.PostProcess {
 					value: params.envMap,
 					type: '1i'
 				},
-				uTime: globalUniforms.time.uTime,
 			} ),
 		} );
 
@@ -226,6 +232,7 @@ export class DeferredRenderer extends MXP.PostProcess {
 			shading,
 		] } );
 
+		this.timeUniforms = timeUniforms;
 		this.shading = shading;
 		this.lightShaft = lightShaft;
 		this.ssao = ssao;
@@ -258,11 +265,15 @@ export class DeferredRenderer extends MXP.PostProcess {
 
 	public static get key(): string {
 
-		return ( super.constructor as typeof MXP.PostProcess ).key + "deferred";
+		return super.key + "deferred";
 
 	}
 
 	protected updateImpl( event: MXP.ComponentUpdateEvent ): void {
+
+		// uniforms
+
+		this.timeUniforms.uTimeEF.value = ( this.timeUniforms.uTimeEF.value + event.timeDelta ) % 1;
 
 		// light shaft swap
 
@@ -286,7 +297,9 @@ export class DeferredRenderer extends MXP.PostProcess {
 
 	}
 
-	public setRenderTarget( renderTarget: RenderCameraTarget ) {
+	public setRenderCamera( renderCamera: MXP.RenderCamera ) {
+
+		const renderTarget = renderCamera.renderTarget;
 
 		for ( let i = 0; i < renderTarget.gBuffer.textures.length; i ++ ) {
 
@@ -301,9 +314,7 @@ export class DeferredRenderer extends MXP.PostProcess {
 
 		this.ssaoBlur.uniforms.uDepthTexture.value = renderTarget.gBuffer.textures[ 0 ];
 		this.ssaoBlur.uniforms.uNormalTexture.value = renderTarget.gBuffer.textures[ 1 ];
-
 		this.lightShaft.uniforms.uDepthTexture.value = renderTarget.gBuffer.depthTexture;
-
 		this.shading.renderTarget = renderTarget.shadingBuffer;
 
 	}

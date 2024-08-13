@@ -27,7 +27,7 @@ export class FlashLine extends MXP.Component {
 
 		for ( let index = 0; index < num; index ++ ) {
 
-			const rnd = GLP.Maths.randomVector().multiply( new GLP.Vector( 20, 1, 20.0 ) );
+			const rnd = GLP.MathUtils.randomVector().multiply( new GLP.Vector( 20, 1, 20.0 ) );
 
 			oPosArray.push(
 				rnd.x, rnd.y, rnd.z, Math.random()
