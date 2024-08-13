@@ -71,6 +71,7 @@ export class OrbitControls extends MXP.Component {
 			}
 
 			e.pointerEvent.preventDefault();
+			e.pointerEvent.stopPropagation();
 
 		};
 

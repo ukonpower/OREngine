@@ -6,7 +6,7 @@ import matchMoveVert from './shaders/matchMove.vs';
 import matchMoveCompute from './shaders/matchMoveCompute.glsl';
 import matchMoveLineVert from './shaders/matchMoveLine.vs';
 
-import { gl, globalUniforms } from '~/ts/gl/GLGlobals';
+import { gl, globalUniforms, renderer } from '~/ts/gl/GLGlobals';
 
 export class MatchMove extends MXP.Component {
 
@@ -29,6 +29,7 @@ export class MatchMove extends MXP.Component {
 		-------------------------------*/
 
 		this.compute = new MXP.GPUCompute( {
+			renderer,
 			passes: [
 				new MXP.GPUComputePass( {
 					gl,

@@ -3,19 +3,27 @@ import * as MXP from 'maxpower';
 
 import pmremFrag from './shaders/pmrem.fs';
 
-import { gl, globalUniforms } from '~/ts/gl/GLGlobals';
 
 type SwapBuffer = {rt1: GLP.GLPowerFrameBuffer, rt2: GLP.GLPowerFrameBuffer};
 
 export class PMREMRender extends MXP.PostProcess {
 
+	public resolution: GLP.Vector;
 	public renderTarget: GLP.GLPowerFrameBuffer;
 	private pmremPasses: MXP.PostProcessPass[];
 	private swapBuffers: SwapBuffer[];
+	private timeUniforms: GLP.Uniforms;
 
-	constructor( param: Omit<MXP.PostProcessParam, "passes" | "input"> & {input: GLP.GLPowerTextureCube[], resolution: GLP.Vector} ) {
+	constructor( gl: WebGL2RenderingContext, param: Omit<MXP.PostProcessParam, "passes" | "input"> & {input: GLP.GLPowerTextureCube[], resolution: GLP.Vector} ) {
 
 		const resolution = param.resolution;
+
+		const timeUniforms: GLP.Uniforms = {
+			uTimeEF: {
+				value: 0,
+				type: '1f'
+			},
+		};
 
 		const renderTarget = new GLP.GLPowerFrameBuffer( gl ).setTexture( [
 			new GLP.GLPowerTexture( gl ).setting( {
@@ -55,10 +63,10 @@ export class PMREMRender extends MXP.PostProcess {
 			let roughness = 1 / ( mipmapLevel - 1.0 ) * i;
 			roughness = roughness;
 
-			const pmremPass = new MXP.PostProcessPass( {
+			const pmremPass = new MXP.PostProcessPass( gl, {
 				renderTarget: swapBuffers[ i ].rt1,
 				frag: pmremFrag,
-				uniforms: {
+				uniforms: GLP.UniformsUtils.merge( timeUniforms, {
 					uRoughness: {
 						value: roughness,
 						type: '1f'
@@ -75,8 +83,7 @@ export class PMREMRender extends MXP.PostProcess {
 						value: 1,
 						type: "1f"
 					},
-					uTimeEF: globalUniforms.time.uTimeEF,
-				},
+				} ),
 				defines: {
 					NUM_SAMPLES: Math.floor( Math.pow( 2, i + 1 ) )
 				}
@@ -84,7 +91,7 @@ export class PMREMRender extends MXP.PostProcess {
 
 			pmremPass.resize( new GLP.Vector( width, height ) );
 
-			const blitPass = new MXP.PostProcessPass( {
+			const blitPass = new MXP.PostProcessPass( gl, {
 				renderTarget: renderTarget,
 				viewPort,
 				passThrough: true,
@@ -106,9 +113,11 @@ export class PMREMRender extends MXP.PostProcess {
 			passes,
 		} );
 
+		this.resolution = resolution;
 		this.renderTarget = renderTarget;
 		this.pmremPasses = pmremPasses;
 		this.swapBuffers = swapBuffers;
+		this.timeUniforms = timeUniforms;
 
 		if ( import.meta.hot ) {
 
@@ -133,6 +142,8 @@ export class PMREMRender extends MXP.PostProcess {
 
 	public swap() {
 
+		this.timeUniforms.uTimeEF.value = ( this.timeUniforms.uTimeEF.value + 0.016 ) % 1;
+
 		for ( let i = 0; i < this.pmremPasses.length; i ++ ) {
 
 			const pass = this.pmremPasses[ i ];
@@ -144,7 +155,6 @@ export class PMREMRender extends MXP.PostProcess {
 
 			pass.setRendertarget( swap.rt1 );
 			pass.uniforms.uPMREMBackBuffer.value = swap.rt2.textures;
-			pass.uniforms.uRenderCount.value += 1;
 
 		}
 

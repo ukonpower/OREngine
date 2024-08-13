@@ -4,8 +4,8 @@ import * as MXP from 'maxpower';
 import timelineFrag from './shaders/timeline.fs';
 
 
-import { OREngineProjectFrame } from '~/ts/gl/IO/ProjectSerializer';
-import { Renderer } from '~/ts/gl/ProjectScene/Renderer';
+import { gl } from '~/ts/gl/GLGlobals';
+import { OREngineProjectFrame } from '~/ts/gl/ProjectScene/IO/ProjectSerializer';
 
 export class TimelineCanvasRenderer extends GLP.EventEmitter {
 
@@ -17,18 +17,21 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 
 	private canvas: HTMLCanvasElement;
 	private canvasCtx: CanvasRenderingContext2D;
-	private glRenderer: Renderer;
+	private glRenderer: MXP.Renderer;
 	private postProcess: MXP.PostProcess;
 
 	private viewPort: number[];
 	private viewPortRange: number[];
 	private viewPortScale: number;
 	private frameSetting: OREngineProjectFrame | null;
+	private loopSetting: { enabled: boolean, start: number, end: number };
 
 	private musicBuffer: AudioBuffer | null;
 	private musicTexture: GLP.GLPowerTexture;
 
 	private resizeObserver: ResizeObserver;
+
+	private canvasSize: GLP.Vector;
 
 	constructor() {
 
@@ -42,7 +45,10 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 		this.canvasCtx = this.canvas.getContext( '2d' )!;
 
 		this.glCanvas = document.createElement( 'canvas' );
-		this.gl = this.glCanvas.getContext( 'webgl2' )!;
+		const power = new GLP.Power( this.glCanvas.getContext( 'webgl2' )! );
+		this.gl = power.gl;
+
+		this.canvasSize = new GLP.Vector( this.glCanvas.width, this.glCanvas.height );
 
 		// viewport
 
@@ -54,13 +60,21 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 
 		this.frameSetting = null;
 
+		// loop
+
+		this.loopSetting = {
+			enabled: false,
+			start: 0,
+			end: 0
+		};
+
 		// resize
 
 		this.resizeObserver = new ResizeObserver( this.onResize.bind( this ) );
 
 		// gl
 
-		this.glRenderer = new Renderer( this.gl );
+		this.glRenderer = new MXP.Renderer( this.gl );
 		this.canvasTexture = new GLP.GLPowerTexture( this.gl );
 
 		// music
@@ -71,7 +85,7 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 
 		this.postProcess = new MXP.PostProcess( {
 			passes: [
-				new MXP.PostProcessPass( {
+				new MXP.PostProcessPass( gl, {
 					frag: timelineFrag,
 					uniforms: {
 						uCanvasTex: {
@@ -88,7 +102,6 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 			]
 		} );
 
-
 	}
 
 	private onResize() {
@@ -100,7 +113,8 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 			this.glCanvas.width = this.canvas.width = resolution.x;
 			this.glCanvas.height = this.canvas.height = resolution.y;
 
-			this.glRenderer.resize( resolution );
+			this.canvasSize.set( this.glCanvas.width, this.glCanvas.height );
+
 			this.postProcess.resize( resolution );
 
 		}
@@ -126,6 +140,7 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 			this.canvasCtx.fillRect( s, 0, e - s, this.canvas.height );
 
 		}
+
 
 		// grid
 
@@ -222,11 +237,23 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 		}
 
 
+		// loop area
+
+		if ( this.loopSetting.enabled ) {
+
+			this.canvasCtx.fillStyle = '#0009';
+			const s = this.frameToPx( this.loopSetting.start );
+			const e = this.frameToPx( this.loopSetting.end );
+			this.canvasCtx.fillRect( 0, 0, s, this.canvas.height );
+			this.canvasCtx.fillRect( e, 0, this.canvas.width - e, this.canvas.height );
+
+		}
+
 		this.canvasTexture.attach( this.canvas );
 
 		this.postProcess.passes[ 0 ].uniforms.uCanvasTex.value = this.canvasTexture;
 
-		this.glRenderer.renderPostProcess( this.postProcess );
+		this.glRenderer.renderPostProcess( this.postProcess, this.canvasSize );
 
 	}
 
@@ -277,6 +304,18 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 			this.render();
 
 		}, 100 );
+
+	}
+
+	public setLoopSetting( enabled: boolean, start: number, end: number ) {
+
+		this.loopSetting = {
+			enabled,
+			start,
+			end
+		};
+
+		this.render();
 
 	}
 

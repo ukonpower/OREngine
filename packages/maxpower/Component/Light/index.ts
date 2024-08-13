@@ -4,8 +4,6 @@ import { ComponentParams } from '..';
 import { ExportableProps, ExportablePropsSerialized } from '../../Exportable';
 import { ShadowMapCamera } from '../Camera/ShadowMapCamera';
 
-import { gl } from '~/ts/gl/GLGlobals';
-
 export type LightType = 'directional' | 'spot'
 
 interface LightParams extends ComponentParams {
@@ -19,6 +17,9 @@ export class Light extends ShadowMapCamera {
 
 	public color: GLP.Vector;
 	public intensity: number;
+
+	public castShadow: boolean;
+	private shadowMapSize: GLP.Vector;
 
 	// spot
 
@@ -37,6 +38,11 @@ export class Light extends ShadowMapCamera {
 
 		this.color = new GLP.Vector( 1.0, 1.0, 1.0, 0.0 );
 		this.intensity = 1;
+
+		// shadow
+
+		this.castShadow = false;
+		this.shadowMapSize = new GLP.Vector( 512, 512 );
 
 		// directional
 
@@ -70,7 +76,7 @@ export class Light extends ShadowMapCamera {
 			blend: { value: this.blend },
 			distance: { value: this.distance },
 			decay: { value: this.decay },
-			useShadowMap: { value: this.renderTarget != null },
+			castShadow: { value: this.castShadow },
 		};
 
 	}
@@ -90,16 +96,7 @@ export class Light extends ShadowMapCamera {
 		this.blend = props.blend;
 		this.distance = props.distance;
 		this.decay = props.decay;
-
-		if ( props.useShadowMap ) {
-
-			this.renderTarget = new GLP.GLPowerFrameBuffer( gl ).setTexture( [ new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ) ] ).setSize( new GLP.Vector( 512, 512 ) );
-
-		} else {
-
-			this.renderTarget = null;
-
-		}
+		this.castShadow = props.castShadow;
 
 		this.updateProjectionMatrix();
 
@@ -110,6 +107,25 @@ export class Light extends ShadowMapCamera {
 		this.fov = this.angle / Math.PI * 180;
 
 		super.updateProjectionMatrix();
+
+	}
+
+	public setShadowMap( renderTarget: GLP.GLPowerFrameBuffer ) {
+
+		this.renderTarget = renderTarget;
+		this.renderTarget.setSize( this.shadowMapSize );
+
+	}
+
+	public setShadowMapSize( size: GLP.Vector ) {
+
+		this.shadowMapSize.copy( size );
+
+		if ( this.renderTarget ) {
+
+			this.renderTarget.setSize( this.shadowMapSize );
+
+		}
 
 	}
 

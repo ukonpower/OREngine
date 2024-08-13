@@ -20,4 +20,18 @@
 	left: 3px;
 	display: inline-block;
 	color: $fontCol3;
+	height: 100%;
+
+	&_frame {
+		position: absolute;
+		top: 0;
+		left: 0;
+	}
+
+	&_time {
+		position: absolute;
+		left: 0;
+		bottom: 0;
+	}
+
 }

@@ -1,0 +1,21 @@
+@use '~/styles/common' as *;
+
+.timelineLoop {
+
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+
+}
+
+.start,
+.end {
+	position: absolute;
+	width: 20px;
+	height: 100%;
+	transform: translateX(-50%);
+	pointer-events: auto;
+}

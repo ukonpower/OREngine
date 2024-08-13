@@ -89,7 +89,7 @@ export class AudioViewRenderer extends GLP.EventEmitter {
 			this.canvasCtx.fillStyle = '#888';
 
 			const audioBufferL = this.musicBuffer.getChannelData( 0 );
-			const sampleScale = 2.0;
+			const sampleScale = 1.0;
 
 			const viewportDuration = this.viewPortRange[ 0 ] / this.frameSetting.fps;
 			const viewportAudioSamples = ( this.musicBuffer.sampleRate * viewportDuration );

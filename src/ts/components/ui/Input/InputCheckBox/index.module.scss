@@ -1,7 +1,7 @@
 @use '~/styles/common' as *;
 
 .inputBoolean {
-	display: inline-block;
+	display: block;
 	width: 14px;
 	height: 14px;
 
@@ -13,6 +13,7 @@
 
 .input {
 	display: none;
+	color: $fontCol2;
 }
 
 .check {

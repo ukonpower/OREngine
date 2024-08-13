@@ -1,7 +1,7 @@
 
 import * as MXP from 'maxpower';
 
-import { gl, resource } from '../GLGlobals';
+import { gl, renderer, resource } from '../GLGlobals';
 import { TexProcedural } from '../ProjectScene/utils/TexProcedural';
 
 import { BLidgeClient } from "./Components/BLidgeClient";
@@ -107,12 +107,13 @@ export const initResouces = () => {
 
 	comOther.register( BLidgeClient );
 	comOther.register( Music );
+	comOther.register( MXP.Light );
 
 	/*-------------------------------
 		Textures
 	-------------------------------*/
 
-	resource.addTexture( "noise", new TexProcedural( gl, {
+	resource.addTexture( "noise", new TexProcedural( renderer, {
 		frag: noiseFrag,
 	} ) );
 

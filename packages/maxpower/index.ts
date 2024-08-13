@@ -29,6 +29,8 @@ export * from './Component/Material';
 export * from './Component/PostProcess';
 export * from './Component/PostProcessPass';
 
+export * from './Component/Renderer';
+
 // entity
 
 export * from './Entity';
@@ -44,6 +46,8 @@ export * from './Exportable';
 // utils
 
 export * from './Utils/Hot';
+export * from './Utils/ShaderParser';
+export * from './Component/Renderer/ProgramManager';
 
 // curve
 

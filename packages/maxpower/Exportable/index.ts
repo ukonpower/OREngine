@@ -8,14 +8,18 @@ export type ExportablePropsOpt = {
 	slideScale?: number,
 }
 
-export type ExportableProps = {[key: string]: { value: any, opt?: ExportablePropsOpt, } | ExportableProps}
+type ExportableInitiator = 'user' | 'script' | "god";
+export type ExportableProps = {[key: string]: { value: any, opt?: ExportablePropsOpt, } | ExportableProps | undefined}
 export type ExportablePropsSerialized = {[key: string]: any }
 
 export class Exportable extends Resource {
 
+	public initiator?: ExportableInitiator;
+
 	constructor() {
 
 		super();
+		this.initiator = 'script';
 
 	}
 
@@ -39,9 +43,11 @@ export class Exportable extends Resource {
 
 				const prop = props[ key ];
 
+				if ( prop === undefined ) return;
+
 				if ( "value" in prop ) {
 
-					propertyValue[ path_ ] = props[ key ].value;
+					propertyValue[ path_ ] = prop.value;
 
 				} else {
 
@@ -67,7 +73,7 @@ export class Exportable extends Resource {
 
 		this.setPropsImpl( { ...this.getPropsSerialized(), ...props } );
 
-		this.emit( "update/props", [ this.getPropsSerialized() ] );
+		this.emit( "update/props", [ this.getPropsSerialized(), Object.keys( props ) ] );
 
 	}
 
@@ -76,17 +82,27 @@ export class Exportable extends Resource {
 
 	// unit
 
-	public getPropValue( path: string ) {
+	public getPropValue<T>( path: string ) {
 
 		const props = this.getPropsSerialized();
 
-		return props[ path ];
+		return props[ path ] as ( T | undefined );
 
 	}
 
 	public setPropValue( path: string, value: any ) {
 
 		this.setProps( { [ path ]: value } );
+
+	}
+
+	public prop<T>( path: string ) {
+
+		return {
+			path,
+			value: this.getPropValue<T>( path ),
+			set: ( value: T ) => this.setPropValue( path, value )
+		};
 
 	}
 

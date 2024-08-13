@@ -7,6 +7,7 @@ import style from './index.module.scss';
 import { TimelineCanvas } from './TimelineCanvas';
 import { TimelineControls } from './TimelineControls';
 import { TimelineCursor } from './TimelineCursor';
+import { TimelineLoop } from './TimelineLoop';
 import { TimelineScale } from './TimelineScale';
 import { TimelineSetting } from './TimelineSetting';
 
@@ -25,7 +26,9 @@ export const Timeline = () => {
 				<div className={style.content} >
 					<TimelineCanvas />
 					<TimelineCursor />
-					<TimelineControls />
+					<TimelineControls>
+						<TimelineLoop />
+					</TimelineControls>
 					<TimelineScale />
 				</div>
 			</div>

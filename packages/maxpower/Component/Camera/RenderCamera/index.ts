@@ -3,7 +3,6 @@ import * as GLP from "glpower";
 import { CameraParam, Camera } from "..";
 import { ExportableProps, ExportablePropsSerialized } from "../../../Exportable";
 
-
 export type RenderCameraTarget = {
 	gBuffer: GLP.GLPowerFrameBuffer,
 	shadingBuffer: GLP.GLPowerFrameBuffer,
@@ -15,9 +14,15 @@ export interface RenderCameraParam extends CameraParam {
 	gl: WebGL2RenderingContext
 }
 
+type DofParams = {
+	focusDistance: number;
+	kFilmHeight: number;
+}
+
 export class RenderCamera extends Camera {
 
 	public renderTarget: RenderCameraTarget;
+	public dof: DofParams;
 
 	constructor( param: RenderCameraParam ) {
 
@@ -52,39 +57,12 @@ export class RenderCamera extends Camera {
 
 		this.renderTarget = { gBuffer, shadingBuffer: shadingBuffer, forwardBuffer, uiBuffer };
 
-	}
+		// dof
 
-	public getProps(): ExportableProps | null {
-
-		return {
-			type: {
-				value: this.cameraType,
-			},
-			fov: {
-				value: this.fov,
-			},
-			near: {
-				value: this.near,
-			},
-			far: {
-				value: this.far,
-			},
-			aspect: {
-				value: this.aspect,
-				opt: { readOnly: true }
-			},
+		this.dof = {
+			focusDistance: 0.5,
+			kFilmHeight: 0.002,
 		};
-
-	}
-
-	public setProps( props: ExportablePropsSerialized ) {
-
-		this.cameraType = props.type;
-		this.fov = props.fov;
-		this.near = props.near;
-		this.far = props.far;
-
-		this.updateProjectionMatrix();
 
 	}
 
