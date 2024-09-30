@@ -1,7 +1,7 @@
 import * as GLP from 'glpower';
 
 import { ComponentParams } from '..';
-import { ExportableProps, ExportablePropsSerialized } from '../../Exportable';
+import { TypedSerializableProps } from '../../Serializable';
 import { ShadowMapCamera } from '../Camera/ShadowMapCamera';
 
 export type LightType = 'directional' | 'spot'
@@ -60,15 +60,10 @@ export class Light extends ShadowMapCamera {
 
 	}
 
-	static get key(): string {
-
-		return "light";
-
-	}
-
-	public getProps(): ExportableProps | null {
+	public get props() {
 
 		return {
+			...super.props,
 			lightType: { value: this.lightType },
 			color: { value: this.color },
 			intensity: { value: this.intensity },
@@ -81,22 +76,22 @@ export class Light extends ShadowMapCamera {
 
 	}
 
-	public setProps( props: ExportablePropsSerialized ) {
+	protected deserializer( props: TypedSerializableProps<this> ) {
 
-		props = { ...this.getPropsSerialized(), ...props };
+		props = { ...this.serialize(), ...props };
 
-		this.lightType = props.lightType;
+		this.lightType = props.lightType.value;
 
 		if ( this.lightType == 'directional' ) this.cameraType = 'orthographic';
 		if ( this.lightType == 'spot' ) this.cameraType = 'perspective';
 
-		this.color.copy( props.color );
-		this.intensity = props.intensity;
-		this.angle = props.angle;
-		this.blend = props.blend;
-		this.distance = props.distance;
-		this.decay = props.decay;
-		this.castShadow = props.castShadow;
+		this.color.copy( props.color.value );
+		this.intensity = props.intensity.value;
+		this.angle = props.angle.value;
+		this.blend = props.blend.value;
+		this.distance = props.distance.value;
+		this.decay = props.decay.value;
+		this.castShadow = props.castShadow.value;
 
 		this.updateProjectionMatrix();
 

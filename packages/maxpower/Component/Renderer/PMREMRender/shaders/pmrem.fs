@@ -9,7 +9,7 @@ layout (location = 0) out vec4 outColor;
 
 in vec2 vUv;
 
-#include <noise>
+#include <random>
 #include <pmrem>
 
 // https://www.shadertoy.com/view/4lscWj

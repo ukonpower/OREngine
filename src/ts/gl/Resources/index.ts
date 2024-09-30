@@ -4,17 +4,23 @@ import * as MXP from 'maxpower';
 
 import { Font } from './Fonts';
 
-type ComponentArgs = {[key: string]: any}
-
 export type ResouceComponentItem = {
+	name: string,
 	component: typeof MXP.Component;
-	defaultArgs?: ComponentArgs
 };
+
+
+export type ComponentGroup = {
+	child: ( ComponentGroup | ResouceComponentItem )[]
+	name: string,
+	addComponent: ( name: string, component: typeof MXP.Component ) => void;
+	createGroup: ( name: string ) => ComponentGroup
+}
 
 export class OREngineResource extends GLP.EventEmitter {
 
 	public componentList: ( ResouceComponentItem )[];
-	public comListCats: Map<string, ( ResouceComponentItem )[]>;
+	public componentGroups: ComponentGroup[];
 	public textures: Map<string, GLP.GLPowerTexture>;
 	public fonts: Font[];
 
@@ -22,8 +28,8 @@ export class OREngineResource extends GLP.EventEmitter {
 
 		super();
 		this.componentList = [];
-		this.comListCats = new Map();
 		this.textures = new Map();
+		this.componentGroups = [];
 		this.fonts = [];
 
 	}
@@ -32,7 +38,7 @@ export class OREngineResource extends GLP.EventEmitter {
 
 		this.componentList = [];
 		this.fonts = [];
-		this.comListCats.clear();
+		this.componentGroups = [];
 		this.textures.clear();
 
 	}
@@ -51,26 +57,46 @@ export class OREngineResource extends GLP.EventEmitter {
 
 	}
 
-	public componentCategory( catName: string ) {
+	public addComponentGroup( groupName: string ) {
 
-		const catCompList = this.comListCats.get( catName ) || [];
+		let group = this.componentGroups.find( g => g.name == groupName );
 
-		this.comListCats.set( catName, catCompList );
+		if ( group ) return group;
 
-		return {
-			register: ( component: typeof MXP.Component, defaultArgs?: ComponentArgs ) => {
+		const createGroup = ( groupName: string ): ComponentGroup => {
 
-				const compItem = {
-					component,
-					defaultArgs
-				};
+			const child: ( ComponentGroup | ResouceComponentItem )[] = [];
 
-				this.componentList.push( compItem );
+			return {
+				child,
+				name: groupName,
+				addComponent: ( name: string, component: typeof MXP.Component ) => {
 
-				catCompList.push( compItem );
+					const item = { name, component };
 
-			}
+					child.push( item );
+					this.componentList.push( item );
+
+				},
+				createGroup: ( name: string ) => {
+
+					const group = createGroup( name );
+
+					child.push( group );
+
+					return group;
+
+				}
+			};
+
+
 		};
+
+		group = createGroup( groupName );
+
+		this.componentGroups.push( group );
+
+		return group;
 
 	}
 
@@ -78,15 +104,15 @@ export class OREngineResource extends GLP.EventEmitter {
 		Texture
 	-------------------------------*/
 
-	public addTexture( key: string, texture: GLP.GLPowerTexture ) {
+	public addTexture( name: string, texture: GLP.GLPowerTexture ) {
 
-		this.textures.set( key, texture );
+		this.textures.set( name, texture );
 
 	}
 
-	public getTexture( key: string ) {
+	public getTexture( name: string ) {
 
-		return this.textures.get( key );
+		return this.textures.get( name );
 
 	}
 
@@ -100,11 +126,11 @@ export class OREngineResource extends GLP.EventEmitter {
 
 	}
 
-	public getFont( key: typeof Font | string ) {
+	public getFont( font: typeof Font | string ) {
 
-		const k = typeof key == 'string' ? key : key.key;
+		const k = typeof font == 'string' ? font : font.name;
 
-		return this.fonts.find( f => f.key == k );
+		return this.fonts.find( f => f.resourceId == k );
 
 	}
 

@@ -1,37 +1,25 @@
 import * as GLP from 'glpower';
 
 import { Entity, EntityFinalizeEvent } from '../Entity';
-import { Exportable } from '../Exportable';
+import { Serializable, TypedSerializableProps } from '../Serializable';
 
 export type ComponentUpdateEvent = EntityFinalizeEvent & {
 	entity: Entity,
 }
 
-export type BuiltInComponents =
-	'camera' |
-	'cameraShadowMap' |
-	'perspective' |
-	"orthographic" |
-	'material' |
-	'geometry' |
-	'light' |
-	'blidger' |
-	'scenePostProcess' |
-	'postProcess' |
-	'gpuCompute' |
-( string & {} );
-
 export type ComponentParams = {
-	keyOverride?: string,
+	idOverride?: string,
 	disableEdit?: boolean
 }
 
-export class Component extends Exportable {
+export class Component extends Serializable {
 
 	public readonly uuid: string;
+
 	public entity: Entity | null;
-	public enabled: boolean;
 	public disableEdit: boolean;
+
+	protected enabled_: boolean;
 
 	constructor( params?: ComponentParams ) {
 
@@ -39,23 +27,52 @@ export class Component extends Exportable {
 
 		params = params ?? {};
 
-		this.enabled = true;
-		this.keyOverride = params.keyOverride || null;
-		this.disableEdit = params.disableEdit || false;
-		this.entity = null;
+		this.resourceIdOverride = params.idOverride || null;
 		this.uuid = GLP.ID.genUUID();
+		this.entity = null;
+		this.disableEdit = params.disableEdit || false;
+		this.enabled_ = true;
+
 
 	}
 
-	public noticeChanged( type?: string ) {
+	public get props() {
 
-		this.emit( 'changed', [ type ] );
+		return {
+			enabled: {
+				value: this.enabled,
+			}
+		};
 
-		if ( this.entity ) {
+	}
 
-			this.entity.noticeParent( "update/graph", [ "component" ] );
+	protected deserializer( props: TypedSerializableProps<this> ): void {
 
-		}
+		this.enabled = props.enabled.value;
+
+	}
+
+	public static get tag() {
+
+		return "";
+
+	}
+
+	public get tag() {
+
+		return ( this.constructor as typeof Component ).tag;
+
+	}
+
+	public set enabled( value: boolean ) {
+
+		this.enabled_ = value;
+
+	}
+
+	public get enabled() {
+
+		return this.enabled_;
 
 	}
 

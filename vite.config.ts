@@ -4,7 +4,8 @@ import react from '@vitejs/plugin-react';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig } from 'vite';
 
-import { OREngineFileSystemPlugin } from './plugins/OREngineFileSystemPlugin';
+import { OREngineFileSystemPlugin } from './plugins/OREngineFileSystem';
+import { ResourceManager } from './plugins/ResourceManager';
 import { ShaderMinifierLoader } from "./plugins/ShaderMinifierLoader";
 
 
@@ -31,6 +32,7 @@ export default defineConfig( {
 		react(),
 		OREngineFileSystemPlugin(),
 		ShaderMinifierLoader(),
+		ResourceManager(),
 	],
 	define: {
 		BASE_PATH: `"${basePath}"`

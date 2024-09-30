@@ -3,15 +3,20 @@ import { CollectedLights } from 'packages/maxpower/Component/Renderer';
 
 import common from './shaderModules/common.module.glsl';
 import light from './shaderModules/light.module.glsl';
-import noise from './shaderModules/noise.module.glsl';
+import noiseCyclic from './shaderModules/noiseCyclic.module.glsl';
+import noiseSimplex from './shaderModules/noiseSimplex.module.glsl';
+import noiseValue from './shaderModules/noiseValue.module.glsl';
 import pmrem from './shaderModules/pmrem.module.glsl';
+import random from './shaderModules/random.module.glsl';
 import raymarch_normal from './shaderModules/raymarch_normal.module.glsl';
 import rotate from './shaderModules/rotate.module.glsl';
 import sdf from './shaderModules/sdf.module.glsl';
 import frag_h from './shaderParts/frag_h.part.glsl';
 import frag_in from './shaderParts/frag_in.part.glsl';
 import frag_out from './shaderParts/frag_out.part.glsl';
-import lighting from './shaderParts/lighting.part.glsl';
+import lighting_env from './shaderParts/lighting_env.part.glsl';
+import lighting_forwardIn from './shaderParts/lighting_forwardIn.part.glsl';
+import lighting_light from './shaderParts/lighting_light.part.glsl';
 import raymarch_ray_object from './shaderParts/raymarch_ray_object.part.glsl';
 import uniformTime from './shaderParts/uniform_time.part.glsl';
 import vert_h from './shaderParts/vert_h.part.glsl';
@@ -63,9 +68,14 @@ export const shaderInclude = ( shader: string ) => {
 		[ "common", common ],
 		[ "sdf", sdf ],
 		[ "rotate", rotate ],
-		[ "noise", noise ],
+		[ "random", random ],
+		[ "noise_simplex", noiseSimplex ],
+		[ "noise_cyclic", noiseCyclic ],
+		[ "noise_value", noiseValue ],
 		[ "light", light ],
-		[ "lighting", lighting ],
+		[ "lighting_light", lighting_light ],
+		[ "lighting_env", lighting_env ],
+		[ "lighting_forwardIn", lighting_forwardIn ],
 		[ "vert_h", vert_h ],
 		[ "vert_in", vert_in ],
 		[ "vert_out", vert_out ],

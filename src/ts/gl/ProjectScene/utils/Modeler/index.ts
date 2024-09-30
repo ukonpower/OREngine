@@ -1,9 +1,6 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { setUniforms } from '../../Renderer';
-import { shaderParse } from '../../Renderer/ShaderParser';
-
 
 type BakeAttribute = {
 	[key: string]: {size: number, type: Float32ArrayConstructor | Uint16ArrayConstructor | Uint8ArrayConstructor}
@@ -53,7 +50,7 @@ export class Modeler {
 
 		tf.bind( () => {
 
-			program.setShader( shaderParse( vertexShader, { ...defines, "TF_MODELER": "" } ), "#version 300 es\n void main(){ discard; }", { transformFeedbackVaryings: [ 'o_position', 'o_normal' ] } );
+			program.setShader( MXP.shaderParse( vertexShader, { ...defines, "TF_MODELER": "" } ), "#version 300 es\n void main(){ discard; }", { transformFeedbackVaryings: [ 'o_position', 'o_normal' ] } );
 
 		} );
 
@@ -75,7 +72,7 @@ export class Modeler {
 
 			if ( uniforms ) {
 
-				setUniforms( program, uniforms );
+				MXP.setUniforms( program, uniforms );
 
 			}
 
@@ -175,11 +172,11 @@ export class Modeler {
 
 		const _ = ( e: MXP.Entity, matrix: GLP.Matrix ) => {
 
-			let geo = e.getComponent( MXP.Geometry );
+			let geo = e.getComponentByTag<MXP.Geometry>( "geometry" );
 
 			if ( geo ) {
 
-				const mat = e.getComponent( MXP.Material );
+				const mat = e.getComponentByTag<MXP.Material>( "material" );
 
 				if ( mat ) {
 

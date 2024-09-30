@@ -4,7 +4,6 @@ import * as MXP from 'maxpower';
 import { resource } from '~/ts/gl/GLGlobals';
 
 export interface OREngineNodeOverrideComponent {
-	key: string,
 	name: string,
 	props: {[key:string]: any} | undefined
 }
@@ -14,10 +13,8 @@ export interface OREngineNodeOverride {
 	components: OREngineNodeOverrideComponent[]
 }
 
-export interface OREngineProjectData {
-	setting: {
-		[key: string]: any
-	}
+export interface OREngineProjectData extends MXP.SerializedProps {
+	name: string
 	objectOverride: OREngineNodeOverride[],
 	scene: SceneNode | null
 }
@@ -36,7 +33,7 @@ interface SceneNode {
 }
 
 
-export class ProjectSerializer extends GLP.EventEmitter {
+export class SceneSerializer extends GLP.EventEmitter {
 
 	super() {
 	}
@@ -62,7 +59,7 @@ export class ProjectSerializer extends GLP.EventEmitter {
 
 						if ( c.props ) {
 
-							component.setProps( c.props );
+							component.deserialize( c.props );
 
 						}
 
@@ -126,9 +123,9 @@ export class ProjectSerializer extends GLP.EventEmitter {
 
 	}
 
-	public serialize( project: MXP.Entity, sceneRoot: MXP.Entity ) {
+	public serialize( sceneRoot: MXP.Entity ) {
 
-		const override: OREngineNodeOverride[] = [];
+		const objectOverride: OREngineNodeOverride[] = [];
 
 		let scene: SceneNode | null = null;
 
@@ -165,14 +162,13 @@ export class ProjectSerializer extends GLP.EventEmitter {
 				components: []
 			};
 
-			e.components.forEach( ( c, key ) => {
+			e.components.forEach( ( c ) => {
 
-				const exportProps: MXP.ExportablePropsSerialized = c.getPropsSerialized();
+				const exportProps: MXP.SerializedProps = c.serialize( true );
 
 				if ( ! c.disableEdit && c.initiator == "user" ) {
 
 					nodeOverrideData.components.push( {
-						key,
 						name: c.constructor.name,
 						props: Object.keys( exportProps ).length > 0 ? exportProps : undefined
 					} );
@@ -183,19 +179,16 @@ export class ProjectSerializer extends GLP.EventEmitter {
 
 			if ( nodeOverrideData.components.length > 0 ) {
 
-				override.push( nodeOverrideData );
+				objectOverride.push( nodeOverrideData );
 
 			}
 
 		} );
 
-		const serializedData: OREngineProjectData = {
-			setting: project.getPropsSerialized(),
-			objectOverride: override,
+		return {
+			objectOverride,
 			scene,
 		};
-
-		return serializedData;
 
 	}
 

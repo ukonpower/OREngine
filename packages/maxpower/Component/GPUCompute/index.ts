@@ -14,7 +14,7 @@ export interface GPUComputeParam extends PostProcessParam{
 
 export class GPUCompute extends PostProcess {
 
-	private renderer: MXP.Renderer;
+	protected renderer: MXP.Renderer;
 	declare public passes: GPUComputePass[];
 
 	constructor( param: GPUComputeParam ) {
@@ -25,13 +25,12 @@ export class GPUCompute extends PostProcess {
 
 	}
 
-	public static get key(): string {
-
-		return 'gpuCompute';
+	protected updateImpl( event: ComponentUpdateEvent ): void {
 
 	}
 
-	protected updateImpl( event: ComponentUpdateEvent ): void {
+
+	public compute() {
 
 		this.renderer.renderPostProcess( this );
 

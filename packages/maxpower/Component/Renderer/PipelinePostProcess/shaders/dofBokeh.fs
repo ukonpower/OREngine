@@ -1,5 +1,4 @@
 #include <common>
-#include <noise>
 
 uniform sampler2D uCocTex;
 uniform vec4 uParams;

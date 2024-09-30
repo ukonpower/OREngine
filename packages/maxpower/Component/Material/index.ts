@@ -1,6 +1,6 @@
 import * as GLP from 'glpower';
 
-export type MaterialRenderType = "shadowMap" | "deferred" | "forward" | "envMap" | 'postprocess' | 'ui'
+export type MaterialRenderType = "shadowMap" | "deferred" | "forward" | "envMap" | 'ui' | "postprocess"
 
 type MaterialDefines = {[key: string]: any};
 type MaterialVisibility = {[K in MaterialRenderType]?: boolean}
@@ -13,7 +13,7 @@ import basicVert from './shaders/basic.vs';
 
 
 export type DrawType = 'TRIANGLES' | 'LINES' | 'POINTS';
-export type Blending = 'ADD' | 'NORMAL';
+export type Blending = 'ADD' | 'NORMAL' | "DIFF";
 
 export interface MaterialParam extends ComponentParams{
 	name?: string,
@@ -23,6 +23,7 @@ export interface MaterialParam extends ComponentParams{
 	defines?: MaterialDefines;
 	uniforms?: GLP.Uniforms;
 	depthTest?: boolean;
+	depthWrite?: boolean;
 	cullFace? :boolean;
 	blending?: Blending,
 	drawType?: DrawType;
@@ -39,13 +40,13 @@ export class Material extends Component {
 
 	public useLight: boolean;
 	public depthTest: boolean;
+	public depthWrite: boolean;
 	public cullFace: boolean;
 	public drawType: DrawType;
 	public blending: Blending;
 
 	public visibilityFlag: MaterialVisibility;
 	public programCache: MaterialProgramCache;
-
 
 	constructor( params?: MaterialParam ) {
 
@@ -61,6 +62,7 @@ export class Material extends Component {
 		this.useLight = true;
 		this.depthTest = true;
 		this.cullFace = false;
+		this.depthWrite = params.depthTest !== undefined ? params.depthTest : true;
 		this.drawType = params.drawType || "TRIANGLES";
 		this.blending = params.blending || "NORMAL";
 
@@ -69,13 +71,13 @@ export class Material extends Component {
 		this.defines = params.defines || {};
 		this.uniforms = params.uniforms || {};
 
-		this.setProps( params );
+		this.deserialize( params );
 
 		this.programCache = {};
 
 	}
 
-	static get key() {
+	public static get tag() {
 
 		return "material";
 

@@ -1,7 +1,8 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { OREngineProjectData } from '../../IO/ProjectSerializer';
+import { OREngineProjectData } from '../../ProjectScene/IO/ProjectSerializer';
+
 
 export type OREngineEditorViewType = "render" | "debug";
 
@@ -16,7 +17,7 @@ export type OREngineEditorData = {
 	settings: OREngineEditorSettings
 }
 
-export class EditorDataManager extends GLP.EventEmitter {
+export class EditorData extends MXP.Serializable {
 
 	public projects: OREngineProjectData[];
 	public settings:OREngineEditorSettings;
@@ -30,22 +31,25 @@ export class EditorDataManager extends GLP.EventEmitter {
 
 	}
 
-	public setEditorData( data: OREngineEditorData ) {
+	public get props() {
 
-		this.projects = data.projects || [];
-		this.settings = data.settings || {};
+		return {
+			projects: { value: this.projects },
+			settings: { value: this.settings }
+		};
 
 	}
 
-	// project
+	public deserializer( props: MXP.TypedSerializableProps<this> ): void {
 
-	public getProject( name: string ) {
+		this.projects = props.projects.value;
+		this.settings = props.settings.value;
 
-		return this.projects.find( p => {
+	}
 
-			return p.setting.name == name;
+	public getProject( name: string ): OREngineProjectData | null {
 
-		} );
+		return this.projects.find( ( project ) => project.setting.name === name ) || null;
 
 	}
 
@@ -64,37 +68,5 @@ export class EditorDataManager extends GLP.EventEmitter {
 		}
 
 	}
-
-	public deleteProject( name: string ) {
-
-		const index = this.projects.findIndex( p => p.setting.name == name );
-
-		if ( index > - 1 ) {
-
-			this.projects.splice( index, 1 );
-
-		}
-
-	}
-
-	// setting
-
-	public setSetting( setting: MXP.ExportablePropsSerialized ) {
-
-		this.settings = setting;
-
-	}
-
-	// save
-
-	public serialize(): OREngineEditorData {
-
-		return {
-			projects: this.projects,
-			settings: this.settings
-		};
-
-	}
-
 
 }

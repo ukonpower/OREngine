@@ -1,9 +1,8 @@
 #include <common>
 #include <frag_h>
-#include <noise>
+#include <noise_value>
 
 layout (location = 0) out vec4 outColor;
-
 
 void main( void ) {
 

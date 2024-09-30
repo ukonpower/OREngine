@@ -8,13 +8,11 @@
 uniform sampler2D sampler0; // position, depth
 uniform sampler2D sampler1; // normal, emissionIntensity
 uniform sampler2D sampler2; // albedo, roughness
-uniform sampler2D sampler3; // emission, metalic
+uniform sampler2D sampler3; // ssNormal, null, null, metalic
 uniform sampler2D sampler4; // velocity, env
 
 uniform sampler2D uSSAOTexture;
-
 uniform sampler2D uLightShaftTexture;
-
 uniform sampler2D uEnvMap;
 
 uniform vec3 uColor;
@@ -41,14 +39,19 @@ layout (location = 1) out vec4 glFragOut1;
 // };
 
 // struct Material {
-// 	vec3 albedo;
+// 	vec3 color;
 // 	float roughness;
 // 	float metalic;
-// 	vec3 emission;
 // 	float emissionIntensity;
 // 	vec3 diffuseColor;
 // 	vec3 specularColor;
 // };
+
+/*-------------------------------
+	Custom
+-------------------------------*/
+
+uniform sampler2D uSideTex;
 
 void main( void ) {
 
@@ -59,44 +62,42 @@ void main( void ) {
 	vec4 tex3 = texture( sampler3, vUv );
 	vec4 tex4 = texture( sampler4, vUv );
 
-	float occlusion = texture( uSSAOTexture, vUv ).x * 0.4;
+	float occlusion = texture( uSSAOTexture, vUv ).x;
+
+	vec3 normal = tex1.xyz;
 
 	Geometry geo = Geometry(
 		tex0.xyz,
-		tex1.xyz,
+		normal,
 		0.0,
 		normalize( cameraPosition - tex0.xyz ),
 		vec3( 0.0 ),
 		occlusion
 	);
+	
 	Material mat = Material(
 		tex2.xyz,
 		tex2.w,
 		tex3.w,
-		tex3.xyz,
 		tex1.w,
 		mix( tex2.xyz, vec3( 0.0, 0.0, 0.0 ), tex3.w ),
-		mix( vec3( 1.0, 1.0, 1.0 ), tex2.xyz, tex3.w )
+		mix( vec3( 1.0, 1.0, 1.0 ), tex2.xyz, tex3.w ),
+		tex4.w
 	);
 	vec3 outColor = vec3( 0.0 );
 	//]
 	
-	// output
+	// lighting
 
-	#include <lighting>
+	#include <lighting_light>
 
 	// env
 
-	float env = tex4.w;
-
-	vec3 refDir = reflect( -geo.viewDir, geo.normal );
-
-	float dNV = clamp( dot( geo.normal, geo.viewDir ), 0.0, 1.0 );
-
-	float EF = mix( fresnel( dNV ), 1.0, mat.metalic );
+	#include <lighting_env>
 	
-	outColor += mat.specularColor * getPmrem( uEnvMap, refDir, mat.roughness ) * EF * env;
-	outColor += mat.diffuseColor * getPmrem( uEnvMap, geo.normal, 1.0) * env / PI;
+	// occlusion
+
+	outColor.xyz *= max( 0.0, 1.0 - geo.occulusion * 1.5 );
 	
 	// light shaft
 	

@@ -1,13 +1,13 @@
 import * as GLP from "glpower";
 
 import { CameraParam, Camera } from "..";
-import { ExportableProps, ExportablePropsSerialized } from "../../../Exportable";
 
 export type RenderCameraTarget = {
 	gBuffer: GLP.GLPowerFrameBuffer,
 	shadingBuffer: GLP.GLPowerFrameBuffer,
 	forwardBuffer: GLP.GLPowerFrameBuffer,
 	uiBuffer: GLP.GLPowerFrameBuffer,
+	normalBuffer: GLP.GLPowerFrameBuffer,
 }
 
 export interface RenderCameraParam extends CameraParam {
@@ -23,6 +23,7 @@ export class RenderCamera extends Camera {
 
 	public renderTarget: RenderCameraTarget;
 	public dof: DofParams;
+	public gBuffer: GLP.GLPowerFrameBuffer;
 
 	constructor( param: RenderCameraParam ) {
 
@@ -30,8 +31,8 @@ export class RenderCamera extends Camera {
 
 		const gl = param?.gl;
 
-		const gBuffer = new GLP.GLPowerFrameBuffer( gl );
-		gBuffer.setTexture( [
+		this.gBuffer = new GLP.GLPowerFrameBuffer( gl );
+		this.gBuffer.setTexture( [
 			new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA, magFilter: gl.NEAREST, minFilter: gl.NEAREST } ),
 			new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA } ),
 			new GLP.GLPowerTexture( gl ),
@@ -46,16 +47,22 @@ export class RenderCamera extends Camera {
 		] );
 
 		const forwardBuffer = new GLP.GLPowerFrameBuffer( gl, { disableDepthBuffer: true } );
-		forwardBuffer.setDepthTexture( gBuffer.depthTexture );
+		forwardBuffer.setDepthTexture( this.gBuffer.depthTexture );
 		forwardBuffer.setTexture( [
 			shadingBuffer.textures[ 0 ],
-			gBuffer.textures[ 0 ],
+			this.gBuffer.textures[ 0 ],
+			this.gBuffer.textures[ 4 ],
 		] );
 
 		const uiBuffer = new GLP.GLPowerFrameBuffer( gl, { disableDepthBuffer: true } );
 		uiBuffer.setTexture( [ new GLP.GLPowerTexture( gl ) ] );
 
-		this.renderTarget = { gBuffer, shadingBuffer: shadingBuffer, forwardBuffer, uiBuffer };
+		const normalBuffer = new GLP.GLPowerFrameBuffer( gl );
+		normalBuffer.setTexture( [
+			new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA, magFilter: gl.NEAREST, minFilter: gl.NEAREST } )
+		] );
+
+		this.renderTarget = { gBuffer: this.gBuffer, shadingBuffer: shadingBuffer, forwardBuffer, uiBuffer, normalBuffer };
 
 		// dof
 
@@ -72,6 +79,7 @@ export class RenderCamera extends Camera {
 		this.renderTarget.shadingBuffer.setSize( resolution );
 		this.renderTarget.forwardBuffer.setSize( resolution );
 		this.renderTarget.uiBuffer.setSize( resolution );
+		this.renderTarget.normalBuffer.setSize( resolution );
 
 	}
 

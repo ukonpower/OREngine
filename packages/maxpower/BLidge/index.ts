@@ -7,24 +7,24 @@ export type BLidgeNodeType = 'empty' | 'cube' | 'sphere' | 'cylinder' | 'mesh' |
 // scene
 
 export type BLidgeScene = {
-    animations: {[key: string]: BLidgeCurveParam[]};
-	root: BLidgeNodeParam;
+    animations: BLidgeCurveParam[][];
+	root: BLidgeEntityParam;
 	frame: BLidgeFrame;
 }
 
 // node
 
-export type BLidgeNodeParam = {
+export type BLidgeEntityParam = {
 	name: string,
 	class: string,
 	type: BLidgeNodeType,
 	param?: BLidgeCameraParam | BLidgeMeshParamRaw | BLidgeLightParamCommon
 	parent: string,
-	children?: BLidgeNodeParam[],
+	children?: BLidgeEntityParam[],
 	animation?: BLidgeAnimationAccessor,
-	position: number[],
-	rotation: number[],
-	scale: number[],
+	position?: number[],
+	rotation?: number[],
+	scale?: number[],
 	material?: {
 		name?: string,
 		uniforms?: BLidgeAnimationAccessor
@@ -32,14 +32,14 @@ export type BLidgeNodeParam = {
 	visible: boolean,
 }
 
-export type BLidgeNode = {
+export type BLidgeEntity = {
 	name: string,
 	class: string,
 	type: BLidgeNodeType,
 	param?: BLidgeCameraParam | BLidgeMeshParam | BLidgeLightParamCommon
 	parent: string,
-	children: BLidgeNode[],
-	animation: BLidgeAnimationAccessor,
+	children: BLidgeEntity[],
+	animations: BLidgeAnimationAccessor,
 	position: number[],
 	rotation: number[],
 	scale: number[],
@@ -99,21 +99,13 @@ export type BLidgeMaterialParam = {
 
 // animation
 
-export type BLidgeAnimationAccessor = { [key: string]: string }
+export type BLidgeAnimationAccessor = { [key: string]: number }
 
 export type BLidgeCurveAxis = 'x' | 'y' | 'z' | 'w'
 
 export type BLidgeCurveParam = {
-    k: BLidgeKeyFrameParam[];
+    k: [string, [number, number, number, number, number, number]][];
 	axis: BLidgeCurveAxis
-}
-
-export type BLidgeKeyFrameParam = {
-    c: number[];
-    h_l?: number[];
-    h_r?: number[];
-    e: string;
-    i: "B" | "L" | "C";
 }
 
 // message
@@ -169,9 +161,9 @@ export class BLidge extends GLP.EventEmitter {
 
 	// animation
 
-	public nodes: BLidgeNode[];
+	public nodes: BLidgeEntity[];
 	public curveGroups: GLP.FCurveGroup[];
-	public root: BLidgeNode | null;
+	public root: BLidgeEntity | null;
 
 	// gltf
 
@@ -348,22 +340,24 @@ export class BLidge extends GLP.EventEmitter {
 			const fcurveGroupName = fcurveGroupNames[ i ];
 			const fcurveGroup = new GLP.FCurveGroup( fcurveGroupName );
 
-			data.animations[ fcurveGroupName ].forEach( fcurveData => {
+			data.animations[ i ].forEach( fcurveData => {
 
 				const curve = new GLP.FCurve();
 
-				curve.set( fcurveData.k.map( frame => {
+				curve.set( fcurveData.k.map( keyframe => {
 
 					const interpolation = {
 						"B": "BEZIER",
 						"C": "CONSTANT",
 						"L": "LINEAR",
-					}[ frame.i ];
+					}[ keyframe[ 0 ] ];
+
+					const frames = keyframe[ 1 ];
 
 					return new GLP.FCurveKeyFrame(
-						{ x: frame.c[ 0 ], y: frame.c[ 1 ] },
-						frame.h_l && { x: frame.h_l[ 0 ], y: frame.h_l[ 1 ] },
-						frame.h_r && { x: frame.h_r[ 0 ], y: frame.h_r[ 1 ] },
+						{ x: frames[ 0 ], y: frames[ 1 ] },
+						frames[ 2 ] !== undefined && { x: frames[ 2 ], y: frames[ 3 ] } || undefined,
+						frames[ 4 ] !== undefined && { x: frames[ 4 ], y: frames[ 5 ] } || undefined,
 					interpolation as GLP.FCurveInterpolation );
 
 				} ) );
@@ -380,7 +374,7 @@ export class BLidge extends GLP.EventEmitter {
 
 		this.nodes = [];
 
-		const _ = ( nodeParam: BLidgeNodeParam ): BLidgeNode => {
+		const _ = ( nodeParam: BLidgeEntityParam ): BLidgeEntity => {
 
 			const mat = { name: '', uniforms: {} };
 
@@ -391,15 +385,15 @@ export class BLidge extends GLP.EventEmitter {
 
 			}
 
-			const node: BLidgeNode = {
+			const node: BLidgeEntity = {
 				name: nodeParam.name,
 				class: nodeParam.class,
 				parent: nodeParam.parent,
 				children: [],
-				animation: nodeParam.animation || {},
-				position: nodeParam.position || new GLP.Vector(),
-				rotation: nodeParam.rotation || new GLP.Vector(),
-				scale: nodeParam.scale || new GLP.Vector(),
+				animations: nodeParam.animation || {},
+				position: nodeParam.position || [ 0, 0, 0 ],
+				rotation: nodeParam.rotation || [ 0, 0, 0 ],
+				scale: nodeParam.scale || [ 1, 1, 1 ],
 				material: mat,
 				type: nodeParam.type,
 				visible: nodeParam.visible,
@@ -493,9 +487,9 @@ export class BLidge extends GLP.EventEmitter {
 		API
 	-------------------------------*/
 
-	public getCurveGroup( name: string ) {
+	public getCurveGroup( index: number ) {
 
-		return this.curveGroups.find( curve => curve.name == name );
+		return this.curveGroups[ index ];
 
 	}
 

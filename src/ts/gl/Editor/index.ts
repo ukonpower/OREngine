@@ -1,13 +1,13 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { canvas, resource, power, renderer } from '../GLGlobals';
+import { canvas, power, renderer } from '../GLGlobals';
 import { ProjectScene } from '../ProjectScene';
+import { OREngineProjectData } from '../ProjectScene/IO/ProjectSerializer';
 import { FrameDebugger } from '../ProjectScene/utils/FrameDebugger';
 import { Keyboard, PressedKeys } from '../ProjectScene/utils/Keyboard';
-import { OREngineResource } from '../Resources';
 
-import { EditorDataManager, OREngineEditorData, OREngineEditorViewType } from './EditorDataManager';
+import { OREngineEditorViewType } from './EditorDataManager';
 import { FileSystem } from './FileSystem';
 
 export type EditorTimelineLoop = {
@@ -16,17 +16,12 @@ export type EditorTimelineLoop = {
 	end: number,
 }
 
-export class GLEditor extends MXP.Exportable {
+export class GLEditor extends MXP.Serializable {
 
 	// canvas
 
 	public canvas: HTMLCanvasElement;
 	public canvasWrapElm: HTMLElement | null;
-	public resolutionScale: number;
-
-	// resources
-
-	public resource: OREngineResource;
 
 	// filesystem
 
@@ -34,8 +29,14 @@ export class GLEditor extends MXP.Exportable {
 
 	// data
 
-	private unsaved: boolean;
-	public dataManager: EditorDataManager;
+	public resolutionScale: number;
+	public viewType: OREngineEditorViewType;
+	public projects: Map<string, OREngineProjectData>;
+	public currentProject: OREngineProjectData | null;
+
+	// debugger
+
+	private frameDebugger: FrameDebugger;
 
 	// keyboard
 
@@ -44,11 +45,6 @@ export class GLEditor extends MXP.Exportable {
 	// scene
 
 	public scene: ProjectScene;
-
-	// view
-
-	private viewType: OREngineEditorViewType;
-	private frameDebugger: FrameDebugger;
 
 	// selected
 
@@ -84,13 +80,15 @@ export class GLEditor extends MXP.Exportable {
 
 		this.viewType = "render";
 
-		// resource
-
-		this.resource = resource;
-
 		// filesystem
 
 		this.fileSystem = new FileSystem();
+
+		// projects
+
+		this.projects = new Map();
+
+		this.currentProject = null;
 
 		// keyboard
 
@@ -134,8 +132,6 @@ export class GLEditor extends MXP.Exportable {
 
 				updateTimer = null;
 
-				this.unsaved = true;
-
 				this.emit( "update/graph", [ type, opt ] );
 
 			}, 10 );
@@ -149,11 +145,6 @@ export class GLEditor extends MXP.Exportable {
 			this.off( "update/graph", onChanged );
 
 		} );
-
-		// data
-
-		this.dataManager = new EditorDataManager();
-		this.unsaved = false;
 
 		// frameDebugger
 
@@ -181,17 +172,13 @@ export class GLEditor extends MXP.Exportable {
 
 		// load setting
 
-		this.fileSystem.get<OREngineEditorData>( "editor.json" ).then( ( data ) => {
+		this.fileSystem.get<MXP.SerializedProps>( "editor.json" ).then( ( data ) => {
 
 			if ( data ) {
 
-				this.dataManager.setEditorData( data );
+				this.deserialize( data );
 
 			}
-
-			this.projectOpen( this.dataManager.settings.currentProjectName || '' );
-
-			this.setProps( this.dataManager.settings );
 
 		} );
 
@@ -235,30 +222,9 @@ export class GLEditor extends MXP.Exportable {
 
 		} );
 
-		// unload
-
-		const onBeforeUnload = ( e: BeforeUnloadEvent ) => {
-
-			if ( this.unsaved ) {
-
-				e.preventDefault();
-				e.returnValue = "";
-
-			}
-
-		};
-
-		window.addEventListener( "beforeunload", onBeforeUnload );
-
 		// dispose
 
 		this.disposed = false;
-
-		this.once( 'dispose', () => {
-
-			window.removeEventListener( "beforeunload", onBeforeUnload );
-
-		} );
 
 		// animate
 
@@ -308,18 +274,20 @@ export class GLEditor extends MXP.Exportable {
 
 	}
 
-	/*-------------------------------
-		Props
-	-------------------------------*/
-
-	public getProps(): MXP.ExportableProps {
+	public get props() {
 
 		return {
+			projects: {
+				value: Array.from( this.projects.values() ),
+			},
 			enableRender: {
 				value: this.scene.enableRender,
 			},
-			currentProjectName: {
-				value: this.scene.name,
+			projectName: {
+				value: this.currentProject && this.currentProject.name || "",
+			},
+			openedProject: {
+				value: this.currentProject && this.currentProject.name
 			},
 			resolutionScale: {
 				value: this.resolutionScale,
@@ -337,20 +305,23 @@ export class GLEditor extends MXP.Exportable {
 				end: {
 					value: this.frameLoop.end,
 				}
+			},
+			selectedEntity: {
+				value: this.selectedEntity
 			}
 		};
 
 	}
 
-	public setPropsImpl( props: MXP.ExportablePropsSerialized ) {
+	protected deserializer( props: MXP.TypedSerializableProps<this> ): void {
 
 		// render
 
-		this.scene.enableRender = props[ "enableRender" ];
+		this.scene.enableRender = props.enableRender.value;
 
 		// viewtype
 
-		this.viewType = this.dataManager.settings.viewType = props[ "viewType" ];
+		this.viewType = props.viewType.value;
 
 		if ( this.viewType === "debug" ) {
 
@@ -364,31 +335,48 @@ export class GLEditor extends MXP.Exportable {
 
 		//  scale
 
-		const scale = props[ "resolutionScale" ];
-
-		this.dataManager.settings.resolutionScale = scale;
-
-		this.resolutionScale = scale;
+		this.resolutionScale = props.resolutionScale.value;
 
 		this.resize();
 
-		// name
+		// frameLoop
 
-		const project = this.dataManager.getProject( this.scene.name );
+		this.frameLoop.enabled = props.frameLoop.enabled.value;
+		this.frameLoop.start = Math.max( 0, props.frameLoop.start.value || 0 );
+		this.frameLoop.end = Math.max( this.frameLoop.start, props.frameLoop.end.value ) || 100;
 
-		if ( project ) {
+		// selected eneity
 
-			project.setting.name = props[ "currentProjectName" ];
+		this.selectedEntity = props.selectedEntity.value;
+
+		// projects
+
+		props.projects.value.forEach( ( project ) => {
+
+			this.projects.set( project[ "name" ], project );
+
+		} );
+
+		// project name
+
+		if ( this.currentProject ) {
+
+			this.currentProject.name = props.projectName.value;
 
 		}
 
-		this.scene.name = props[ "currentProjectName" ];
 
-		// frameLoop
-		this.frameLoop.enabled = props[ "frameLoop/enabled" ];
+		// opened project
 
-		this.frameLoop.start = Math.max( 0, props[ "frameLoop/start" ] || 0 );
-		this.frameLoop.end = Math.min( this.scene.frameSetting.duration, Math.max( this.frameLoop.start, props[ "frameLoop/end" ] ) || 100 );
+		if ( this.currentProject === null ) {
+
+			this.projectOpen( props.openedProject.value || "" );
+
+		} else if ( props.openedProject.value !== this.currentProject.name && props.openedProject.value ) {
+
+			this.projectOpen( props.openedProject.value );
+
+		}
 
 	}
 
@@ -408,9 +396,9 @@ export class GLEditor extends MXP.Exportable {
 
 	public selectEntity( entity: MXP.Entity | null ) {
 
-		this.selectedEntity = entity;
-
-		this.emit( "action/select", [ entity ] );
+		this.deserialize( {
+			"selectedEntity": entity ? entity.uuid : null
+		} );
 
 	}
 
@@ -445,46 +433,52 @@ export class GLEditor extends MXP.Exportable {
 
 	public projectOpen( name: string ) {
 
-		let project = this.dataManager.getProject( name );
+		const project = this.projects.get( name );
 
 		if ( project ) {
 
 			this.scene.init( project );
+			this.currentProject = project;
 
 		} else {
 
 			this.scene.init();
-			project = this.scene.export();
-			this.dataManager.setProject( project );
+			this.currentProject = this.scene.serialize();
+			this.projectSave();
 
 		}
 
 		document.title = name;
 
-		this.emit( "action/loadProject" );
-
-		this.selectEntity( null );
+		this.emit( "loadedProject" );
+		this.noticePropsChanged( "openedProject" );
 
 	}
 
 	public projectDelete( name: string ) {
 
-		this.dataManager.deleteProject( name );
+		this.projects.delete( name );
+		const project = this.projects.values().next().value;
 
-		const project = this.dataManager.projects[ 0 ];
+		if ( project ) {
 
-		this.projectOpen( project && project.setting.name || '' );
+			this.projectOpen( project.name );
+
+		} else {
+
+			this.projectOpen( "" );
+
+		}
 
 	}
 
 	public projectSave() {
 
-		this.dataManager.setProject( this.scene.export() );
-		this.dataManager.setSetting( this.getPropsSerialized() );
+		this.projects.set( this.scene.name, this.scene.serialize( true ) );
 
-		this.fileSystem.set( "editor.json", this.dataManager.serialize() );
-
-		this.unsaved = false;
+		this.fileSystem.set( "editor.json", {
+			...this.serialize(),
+		} );
 
 	}
 
@@ -492,7 +486,7 @@ export class GLEditor extends MXP.Exportable {
 
 	public exportCurrentScene() {
 
-		return this.fileSystem.set( "player.json", this.scene.export() );
+		return this.fileSystem.set( "player.json", this.scene.serialize( true ) );
 
 	}
 
@@ -545,6 +539,7 @@ export class GLEditor extends MXP.Exportable {
 
 		this.disposed = true;
 
+		this.canvas.remove();
 		this.scene.disposeRecursive();
 		this.keyBoard.dispose();
 		this.frameDebugger.dispose();

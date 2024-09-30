@@ -20,4 +20,4 @@ vMVPosition = mvPosition.xyz;
 vMVPPosition = gl_Position.xyz / gl_Position.w;
 
 vVelocity = vMVPPosition.xy - positionPrev.xy / positionPrev.w;
-vVelocity *= 0.25;
+vVelocity *= 0.2;

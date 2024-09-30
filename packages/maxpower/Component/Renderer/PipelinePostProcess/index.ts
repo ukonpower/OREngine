@@ -272,7 +272,7 @@ export class PipelinePostProcess extends MXP.PostProcess {
 		} );
 
 		super( {
-			keyOverride: 'scenePostProcess',
+			idOverride: 'scenePostProcess',
 			passes: [
 				colorCollection,
 				ssr,
@@ -309,12 +309,6 @@ export class PipelinePostProcess extends MXP.PostProcess {
 
 		this.renderCamera = null;
 
-
-	}
-
-	public static get key(): string {
-
-		return super.key + "pipelinePostprocess";
 
 	}
 
@@ -362,7 +356,7 @@ export class PipelinePostProcess extends MXP.PostProcess {
 		// ssr
 
 		this.ssr.uniforms.uGbufferPos.value = renderTarget.gBuffer.textures[ 0 ];
-		this.ssr.uniforms.uGbufferNormal.value = renderTarget.gBuffer.textures[ 1 ];
+		this.ssr.uniforms.uGbufferNormal.value = renderTarget.normalBuffer.textures[ 0 ];
 		this.ssr.uniforms.uSceneTex.value = renderTarget.forwardBuffer.textures[ 0 ];
 
 		// ssComposite

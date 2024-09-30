@@ -1,7 +1,7 @@
 import * as GLP from 'glpower';
 
 import { Component, ComponentParams } from '..';
-import { ExportableProps, ExportablePropsSerialized } from '../../Exportable';
+import { SerializableProps, TypedSerializableProps } from '../../Serializable';
 import { PostProcessPass } from '../PostProcessPass';
 
 export interface PostProcessParam extends ComponentParams {
@@ -36,31 +36,29 @@ export class PostProcess extends Component {
 
 	}
 
-	public getProps(): ExportableProps | null {
+	public get props() {
 
-		const props: ExportableProps = {};
+		const props: SerializableProps = {};
 
 		for ( let i = 0; i < this.passes.length; i ++ ) {
 
 			const pass = this.passes[ i ];
 
-			props[ pass.name ] = {
+			props[ pass.name.replaceAll( "/", ":" ) ] = {
 				value: pass.enabled,
 			};
 
 		}
 
-		return props;
+		const res = { ...super.props, ...props };
+
+		return res;
 
 	}
 
-	public static get key(): string {
+	protected deserializer( props: TypedSerializableProps<this> ) {
 
-		return "postprocess";
-
-	}
-
-	public setProps( props: ExportablePropsSerialized ) {
+		super.deserializer( props );
 
 		if ( props === null ) return;
 
@@ -68,7 +66,13 @@ export class PostProcess extends Component {
 
 			const pass = this.passes[ i ];
 
-			this.passes[ i ].enabled = props[ pass.name ];
+			const enableProps = ( props as SerializableProps )[ pass.name.replaceAll( "/", ":" ) ];
+
+			if ( enableProps !== undefined ) {
+
+				this.passes[ i ].enabled = enableProps.value;
+
+			}
 
 		}
 

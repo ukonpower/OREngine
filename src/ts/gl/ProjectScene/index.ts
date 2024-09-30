@@ -2,12 +2,11 @@ import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
 import { canvas, globalUniforms, renderer } from '../GLGlobals';
-import { MainCamera } from '../Resources/Components/MainCamera';
-import { OrbitControls } from '../Resources/Components/OrbitControls';
+import { MainCamera } from '../Resources/Components/Camera/MainCamera';
+import { OrbitControls } from '../Resources/Components/View/OrbitControls';
 import { initResouces } from '../Resources/init';
 
-import { OREngineProjectData, ProjectSerializer, OREngineProjectFrame } from './IO/ProjectSerializer';
-
+import { OREngineProjectData, SceneSerializer, OREngineProjectFrame } from './IO/ProjectSerializer';
 export interface SceneTime {
 	current: number;
 	engine: number;
@@ -25,7 +24,7 @@ export class ProjectScene extends MXP.Entity {
 	// project
 
 	private projectCache: OREngineProjectData | null;
-	private projectSerializer: ProjectSerializer;
+	private projectSerializer: SceneSerializer;
 
 	// entities
 
@@ -64,7 +63,7 @@ export class ProjectScene extends MXP.Entity {
 
 		this.projectCache = null;
 
-		this.projectSerializer = new ProjectSerializer();
+		this.projectSerializer = new SceneSerializer();
 
 		this.on( "update/blidge/scene", ( blidgeRoot: MXP.Entity ) => {
 
@@ -117,6 +116,10 @@ export class ProjectScene extends MXP.Entity {
 		this.camera.position.set( 0, 0, 5 );
 
 		this.cameraComponent = this.camera.addComponent( new MainCamera() );
+
+		globalUniforms.gBuffer.uGBufferPos.value = this.cameraComponent.renderCamera.gBuffer.textures[ 0 ];
+		globalUniforms.gBuffer.uGBufferNormal.value = this.cameraComponent.renderCamera.gBuffer.textures[ 1 ];
+
 		const orbitControls = this.camera.getComponent( OrbitControls );
 
 		if ( orbitControls ) {
@@ -131,6 +134,45 @@ export class ProjectScene extends MXP.Entity {
 		this.root.initiator = "god";
 		this.root.name = "root";
 		this.add( this.root );
+
+	}
+
+	public get props() {
+
+		const { objectOverride, scene } = this.projectSerializer.serialize( this.root );
+
+		return {
+			...super.props,
+			name: { value: this.name },
+			objectOverride: {
+				value: objectOverride
+			},
+			scene: {
+				value: scene
+			},
+			timeline: {
+				duration: {
+					value: this.frameSetting.duration,
+				},
+				fps: {
+					value: this.frameSetting.fps
+				}
+			},
+		};
+
+	}
+
+	public serialize( isExport?: boolean ): OREngineProjectData {
+
+		return super.serialize( isExport ) as OREngineProjectData;
+
+	}
+
+	protected deserializer( props: MXP.TypedSerializableProps<this> ) {
+
+		this.name = props.name.value;
+		this.frameSetting.duration = props.timeline.duration.value;
+		this.frameSetting.fps = props.timeline.fps.value;
 
 	}
 
@@ -153,8 +195,8 @@ export class ProjectScene extends MXP.Entity {
 
 		if ( project ) {
 
-			this.name = project.setting.name;
-			this.setProps( project.setting );
+			this.name = project.name;
+			this.deserialize( project );
 			this.projectSerializer.deserialize( project, this.root );
 
 		} else {
@@ -222,30 +264,6 @@ export class ProjectScene extends MXP.Entity {
 
 	}
 
-	public getProps(): MXP.ExportableProps {
-
-		return {
-			name: { value: this.name },
-			timeline: {
-				duration: {
-					value: this.frameSetting.duration,
-				},
-				fps: {
-					value: this.frameSetting.fps
-				},
-			}
-		};
-
-	}
-
-	public setPropsImpl( props: MXP.ExportablePropsSerialized ) {
-
-		this.name = props[ "name" ];
-		this.frameSetting.duration = props[ "timeline/duration" ];
-		this.frameSetting.fps = props[ "timeline/fps" ];
-
-	}
-
 	// api
 
 	public play() {
@@ -265,14 +283,6 @@ export class ProjectScene extends MXP.Entity {
 		this.frame.current = frame;
 
 		this.emit( "update/frame/play", [ this.frame ] );
-
-	}
-
-	public export() {
-
-		const data = this.projectSerializer.serialize( this, this.root );
-
-		return data;
 
 	}
 

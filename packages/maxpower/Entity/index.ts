@@ -1,17 +1,15 @@
 import * as GLP from 'glpower';
 
 
-import { BLidgeNode } from "../BLidge";
-import { Component, ComponentUpdateEvent, BuiltInComponents } from "../Component";
+import { BLidgeEntity } from "../BLidge";
+import { Component, ComponentUpdateEvent } from "../Component";
 import { BLidger } from '../Component/BLidger';
-import { Camera } from '../Component/Camera';
+import { RenderCamera } from '../Component/Camera/RenderCamera';
 import { Geometry } from '../Component/Geometry';
-import { GPUCompute } from '../Component/GPUCompute';
 import { Light } from '../Component/Light';
 import { Material } from '../Component/Material';
-import { Exportable } from '../Exportable';
-
-import { RenderStack } from '~/ts/gl/ProjectScene/Renderer';
+import { RenderStack } from '../Component/Renderer';
+import { Serializable, SerializableProps, TypedSerializableProps } from '../Serializable';
 
 export type EntityUpdateEvent = {
 	timElapsed: number;
@@ -35,7 +33,7 @@ export type EntityParams = {
 	name?: string;
 }
 
-export class Entity extends Exportable {
+export class Entity extends Serializable {
 
 	public readonly uuid: string;
 
@@ -54,11 +52,11 @@ export class Entity extends Exportable {
 	public parent: Entity | null;
 	public children: Entity[];
 	public components: Map<string, Component>;
+	private componentsByTag: Map<string, Component>;
 
-	protected blidgeNode?: BLidgeNode;
+	protected blidgeNode?: BLidgeEntity;
 
 	public visible: boolean;
-
 	public userData: any;
 
 	constructor( params?: EntityParams ) {
@@ -82,10 +80,48 @@ export class Entity extends Exportable {
 		this.children = [];
 
 		this.components = new Map();
+		this.componentsByTag = new Map();
 
 		this.visible = true;
 
 		this.userData = {};
+
+	}
+
+
+	public get props() {
+
+		return {
+			position: {
+				value: this.position.getElm( "vec3" ),
+			},
+			euler: {
+				value: this.euler.getElm( "vec3" ),
+			},
+			scale: {
+				value: this.scale.getElm( "vec3" ),
+			},
+			children: {
+				value: this.children,
+				opt: {
+					noExport: true,
+				}
+			},
+			components: {
+				value: Array.from( this.components.values() ),
+				opt: {
+					noExport: true,
+				}
+			}
+		};
+
+	}
+
+	protected deserializer( props: TypedSerializableProps<this> ): void {
+
+		this.position.set( props.position.value[ 0 ], props.position.value[ 1 ], props.position.value[ 2 ] );
+		this.euler.set( props.euler.value[ 0 ], props.euler.value[ 1 ], props.euler.value[ 2 ], props.euler.value[ 3 ] );
+		this.scale.set( props.scale.value[ 0 ], props.scale.value[ 1 ], props.scale.value[ 2 ] );
 
 	}
 
@@ -184,8 +220,8 @@ export class Entity extends Exportable {
 		const visibility = ( event.visibility || event.visibility === undefined ) && this.visible;
 		childEvent.visibility = visibility;
 
-		const geometry = this.getComponent( Geometry );
-		const material = this.getComponent( Material );
+		const geometry = this.getComponentByTag<Geometry>( "geometry" );
+		const material = this.getComponentByTag<Material>( "material" );
 
 		if ( geometry && material && ( geometry.enabled && material.enabled && visibility || event.forceDraw ) ) {
 
@@ -197,7 +233,7 @@ export class Entity extends Exportable {
 
 		}
 
-		const camera = this.getComponent( Camera );
+		const camera = this.getComponent( RenderCamera );
 
 		if ( camera && camera.enabled ) {
 
@@ -252,7 +288,7 @@ export class Entity extends Exportable {
 
 		this.children.push( entity );
 
-		entity.noticeParent( "update/graph", [ "add" ] );
+		this.noticePropsChanged( "children" );
 
 	}
 
@@ -260,7 +296,7 @@ export class Entity extends Exportable {
 
 		this.children = this.children.filter( c => c.uuid != entity.uuid );
 
-		entity.noticeParent( "update/graph" );
+		this.noticePropsChanged( "children" );
 
 	}
 
@@ -316,9 +352,9 @@ export class Entity extends Exportable {
 
 	public addComponent<T extends Component>( component: T ) {
 
-		const key = component.key;
+		const id = component.resourceId;
 
-		const prevComponent = this.components.get( key );
+		const prevComponent = this.components.get( id );
 
 		if ( prevComponent ) {
 
@@ -328,40 +364,58 @@ export class Entity extends Exportable {
 
 		component.setEntity( this );
 
-		this.components.set( key, component );
+		this.components.set( id, component );
 
-		if ( key == "blidger" ) {
+		if ( component.tag !== "" ) {
 
-			this.appendBlidger( component as unknown as BLidger );
+			this.componentsByTag.set( component.tag, component );
 
 		}
+
+		this.emit( "add/component", [ component ] );
+
+		this.noticePropsChanged( "components" );
 
 		return component;
 
 	}
 
-	public getComponentByKey<T extends Component>( name: BuiltInComponents ): T | undefined {
+	public getComponentByTag<T extends Component>( tag: string ): T | undefined {
 
-		return this.components.get( name ) as T;
+		return this.componentsByTag.get( tag ) as T;
+
+	}
+
+	public getComponentByResourceId<T extends Component>( id: string ): T | undefined {
+
+		return this.components.get( id ) as T;
 
 	}
 
 	public getComponent<T extends typeof Component>( component: T ): InstanceType<T> | undefined {
 
-		return this.getComponentByKey( component.key );
+		return this.getComponentByResourceId( component.resourceId );
 
 	}
 
 	public removeComponent( component: Component | typeof Component ) {
 
-		const currentComponent = this.components.get( component.key );
+		const currentComponent = this.components.get( component.resourceId );
 
 		if ( currentComponent ) {
 
-			this.components.delete( currentComponent.key );
+			this.components.delete( currentComponent.resourceId );
 			currentComponent.unsetEntity();
 
+			if ( currentComponent.tag !== "" ) {
+
+				this.componentsByTag.delete( currentComponent.tag );
+
+			}
+
 		}
+
+		this.noticePropsChanged( "components" );
 
 		return currentComponent;
 
@@ -382,24 +436,6 @@ export class Entity extends Exportable {
 	}
 
 	/*-------------------------------
-		BLidger
-	-------------------------------*/
-
-	private appendBlidger( blidger: BLidger ) {
-
-		this.blidgeNode = blidger.node;
-
-		this.appendBlidgerImpl( blidger );
-
-	}
-
-	protected appendBlidgerImpl( blidger: BLidger ) {
-
-		this.emit( "appendBlidger", [ blidger ] );
-
-	}
-
-	/*-------------------------------
 		API
 	-------------------------------*/
 
@@ -416,6 +452,32 @@ export class Entity extends Exportable {
 			const c = this.children[ i ];
 
 			const entity = c.getEntityByName( name );
+
+			if ( entity ) {
+
+				return entity;
+
+			}
+
+		}
+
+		return undefined;
+
+	}
+
+	public getEntityById( id: string ) : Entity | undefined {
+
+		if ( this.uuid == id ) {
+
+			return this;
+
+		}
+
+		for ( let i = 0; i < this.children.length; i ++ ) {
+
+			const c = this.children[ i ];
+
+			const entity = c.getEntityById( id );
 
 			if ( entity ) {
 

@@ -109,14 +109,33 @@ export const ShaderMinifierLoader = (): Plugin => {
 
 			}
 
+			// through
+
+			if ( false ) {
+
+				return {
+					code: `export default ${JSON.stringify( code )};`,
+					map: { mappings: '' }
+				};
+
+			}
+
 			// MINIFIER!!
-			if ( process.platform == "darwin" ) {
+			try {
 
-				await exec( `mono ~/Documents/application/shader_minifier/shader_minifier.exe ${inputFilePath} -o ${outputFilePath} ${args}` );
+				if ( process.platform == "darwin" ) {
 
-			} else {
+					await exec( `mono ~/Documents/application/shader_minifier/shader_minifier.exe ${inputFilePath} -o ${outputFilePath} ${args}` );
 
-				await exec( `shader_minifier.exe ${inputFilePath} -o ${outputFilePath} ${args}` );
+				} else {
+
+					await exec( `shader_minifier.exe ${inputFilePath} -o ${outputFilePath} ${args}` );
+
+				}
+
+			} catch ( e ) {
+
+				this.error( `ShaderMinifierLoader: ${e.stdout}` );
 
 			}
 

@@ -88,6 +88,8 @@ export class GPUComputePass extends PostProcessPass {
 
 			this.gl.bindTexture( this.gl.TEXTURE_2D, this.rt2.textures[ i ].getTexture() );
 
+			const array = [];
+
 			for ( let j = 0; j < this.size.y; j ++ ) {
 
 				for ( let k = 0; k < this.size.x; k ++ ) {
@@ -95,11 +97,13 @@ export class GPUComputePass extends PostProcessPass {
 					const x = k;
 					const y = j;
 
-					this.gl.texSubImage2D( this.gl.TEXTURE_2D, 0, x, y, 1, 1, this.gl.RGBA, this.gl.FLOAT, new Float32Array( cb( i, x, y ) ) );
+					array.push( ...cb( i, x, y ) );
 
 				}
 
 			}
+
+			this.gl.texSubImage2D( this.gl.TEXTURE_2D, 0, 0, 0, this.size.x, this.size.y, this.gl.RGBA, this.gl.FLOAT, new Float32Array( array ) );
 
 		}
 
