@@ -128,12 +128,12 @@ export class BLidger extends Component {
 
 			const cubeParam = this.node.param as any;
 
-			entity.addComponent( new CubeGeometry( { disableEdit: true, width: cubeParam.x, height: cubeParam.y, depth: cubeParam.z, segmentsWidth: 10, segmentsHeight: 10, segmentsDepth: 10 } ) );
+			entity.addComponent( new CubeGeometry( { width: cubeParam.x, height: cubeParam.y, depth: cubeParam.z, segmentsWidth: 10, segmentsHeight: 10, segmentsDepth: 10 } ) );
 
 		} else if ( this.node.type == 'sphere' ) {
 
 			const sphereParam = this.node.param as any;
-			entity.addComponent( new SphereGeometry( { disableEdit: true,
+			entity.addComponent( new SphereGeometry( {
 				radius: sphereParam.r,
 				widthSegments: 32,
 				heightSegments: 16
@@ -141,19 +141,19 @@ export class BLidger extends Component {
 
 		} else if ( this.node.type == 'cylinder' ) {
 
-			entity.addComponent( new CylinderGeometry( { disableEdit: true } ) );
+			entity.addComponent( new CylinderGeometry( { } ) );
 
 		} else if ( this.node.type == 'plane' ) {
 
 			const planeParam = this.node.param as any;
 
-			entity.addComponent( new PlaneGeometry( { disableEdit: true, width: planeParam.x, height: planeParam.y } ) );
+			entity.addComponent( new PlaneGeometry( { width: planeParam.x, height: planeParam.y } ) );
 
 		} else if ( this.node.type == 'mesh' ) {
 
 			const geometryParam = this.node.param as any;
 
-			const geometry = new Geometry( { disableEdit: true } );
+			const geometry = new Geometry();
 			geometry.setAttribute( 'position', geometryParam.position, 3 );
 			geometry.setAttribute( 'uv', geometryParam.uv, 2 );
 			geometry.setAttribute( 'normal', geometryParam.normal, 3 );
@@ -172,7 +172,6 @@ export class BLidger extends Component {
 
 					if ( geo ) {
 
-						geo.disableEdit = true;
 						entity.addComponent( geo );
 
 					}
@@ -181,7 +180,6 @@ export class BLidger extends Component {
 
 					if ( mat ) {
 
-						mat.disableEdit = true;
 						entity.addComponent( mat );
 
 					}
@@ -204,7 +202,7 @@ export class BLidger extends Component {
 
 		} else if ( entity.getComponentByTag<Geometry>( "geometry" ) ) {
 
-			entity.addComponent( new Material( { disableEdit: true, name: entity.name, phase: [ "deferred", "shadowMap" ] } ) );
+			entity.addComponent( new Material( { name: entity.name, phase: [ "deferred", "shadowMap" ] } ) );
 
 		}
 
@@ -213,7 +211,7 @@ export class BLidger extends Component {
 		if ( this.node.type == "light" ) {
 
 			const lightParam = this.node.param as BLidgeLightParam;
-			this.lightComponent = entity.addComponent( new Light( { disableEdit: true } ) );
+			this.lightComponent = entity.addComponent( new Light() );
 
 			this.lightComponent.deserialize( {
 				...lightParam,

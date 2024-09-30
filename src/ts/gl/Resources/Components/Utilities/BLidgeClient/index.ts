@@ -176,7 +176,7 @@ export class BLidgeClient extends MXP.Component {
 
 			}
 
-			entity.addComponent( new MXP.BLidger( { blidge, node, disableEdit: true } ) );
+			entity.addComponent( new MXP.BLidger( { blidge, node } ) );
 
 			node.children.forEach( c => {
 

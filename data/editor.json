@@ -90,6 +90,12 @@
 								"gltf": true,
 								"gltfPath": "/scene.glb"
 							}
+						},
+						{
+							"name": "DemoMusic",
+							"props": {
+								"enabled": true
+							}
 						}
 					]
 				},
@@ -148,5 +154,5 @@
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,
 	"frameLoop/end": 100,
-	"selectedEntity": "164"
+	"selectedEntity": "6e"
 }
