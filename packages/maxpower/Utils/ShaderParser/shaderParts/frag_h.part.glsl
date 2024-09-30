@@ -9,6 +9,7 @@ in vec2 vVelocity;
 uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
+uniform vec3 cameraPosition;
 
 #ifdef IS_DEPTH
 	uniform float cameraNear;
@@ -25,8 +26,10 @@ uniform mat4 projectionMatrix;
 
 #ifdef IS_FORWARD
 	uniform sampler2D uDeferredTexture;
+	uniform vec2 uDeferredResolution;
 #endif
 #if defined(IS_FORWARD) || defined(IS_DEPTH)
 	layout (location = 0) out vec4 outColor0;
 	layout (location = 1) out vec4 outColor1;
+	layout (location = 2) out vec4 outColor2;
 #endif

@@ -73,6 +73,7 @@ class App {
 
 		};
 
+
 		this.startElm.appendChild( fullScreen );
 
 		// play button
@@ -151,7 +152,7 @@ class App {
 
 	private resize() {
 
-		const aspect = 16 / 7;
+		const aspect = 16 / 9;
 		const scale = 1.0;
 
 		this.canvas.width = 1920 * scale;

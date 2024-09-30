@@ -16,14 +16,18 @@ struct Geometry {
 };
 
 struct Material {
-	vec3 albedo;
+	vec3 color;
 	float roughness;
 	float metalic;
-	vec3 emission;
 	float emissionIntensity;
 	vec3 diffuseColor;
 	vec3 specularColor;
+	float envMapIntensity;
 };
+
+float sinn( float x ) {
+	return sin(x - HPI) * 0.5 + 0.5;
+}
 
 float atan2(in float y, in float x){
 

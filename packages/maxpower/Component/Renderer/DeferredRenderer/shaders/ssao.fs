@@ -1,7 +1,7 @@
 #include <common>
 #include <packing>
 #include <light>
-#include <noise>
+#include <random>
 
 // uniforms
 
@@ -43,7 +43,7 @@ void main( void ) {
 	vec3 normal = texture( sampler1, vUv ).xyz;
 	float occlusion = 0.0;
 
-	float dist = 0.25;
+	float dist = 0.5;
 	float objectDepth = 0.2;
 
 	vec2 seed = vUv + uTimeEF;
@@ -77,6 +77,6 @@ void main( void ) {
 
 	occlusion /= float( SAMPLE );
 
-	outColor = vec4( mix( texture( uSSAOBackBuffer, vUv ).xyz, vec3( occlusion ), 0.4 ), 1.0 );
+	outColor = vec4( mix( texture( uSSAOBackBuffer, vUv ).xyz, vec3( occlusion ), 0.32 ), 1.0 );
 
 }

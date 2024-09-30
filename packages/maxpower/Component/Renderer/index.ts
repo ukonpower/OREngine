@@ -26,7 +26,6 @@ export type RenderStack = {
 	deferred: Entity[];
 	forward: Entity[];
 	ui: Entity[];
-	gpuCompute: Entity[];
 }
 
 // light
@@ -185,7 +184,8 @@ export class Renderer extends Entity {
 
 		// postprocess
 
-		this.deferredPostProcess = new DeferredRenderer( gl, {
+		this.deferredPostProcess = new DeferredRenderer( {
+			gl,
 			envMap: this.pmremRender.renderTarget.textures[ 0 ] as GLP.GLPowerTexture,
 			envMapCube: envMap as GLP.GLPowerTextureCube,
 		} );
@@ -221,52 +221,6 @@ export class Renderer extends Entity {
 	}
 
 	public render( stack: RenderStack ) {
-
-		// if ( process.env.NODE_ENV == 'development' && this.power.extDisJointTimerQuery && gpuState ) {
-
-		// 	const disjoint = this.gl.getParameter( this.power.extDisJointTimerQuery.GPU_DISJOINT_EXT );
-
-		// 	if ( disjoint ) {
-
-		// 		this.queryList.forEach( q => this.gl.deleteQuery( q ) );
-
-		// 		this.queryList = [];
-
-		// 	} else {
-
-		// 		if ( this.queryListQueued.length > 0 ) {
-
-		// 			const l = this.queryListQueued.length;
-
-		// 			for ( let i = l - 1; i >= 0; i -- ) {
-
-		// 				const q = this.queryListQueued[ i ];
-
-		// 				const resultAvailable = this.gl.getQueryParameter( q.query, this.gl.QUERY_RESULT_AVAILABLE );
-
-		// 				if ( resultAvailable ) {
-
-		// 					const result = this.gl.getQueryParameter( q.query, this.gl.QUERY_RESULT );
-
-		// 					this.queryList.push( q.query );
-
-		// 					this.queryListQueued.splice( i, 1 );
-
-		// 					if ( gpuState ) {
-
-		// 						gpuState.setRenderTime( q.name, result / 1000 / 1000 );
-
-		// 					}
-
-		// 				}
-
-		// 			}
-
-		// 		}
-
-		// 	}
-
-		// }
 
 		// light
 
@@ -379,6 +333,10 @@ export class Renderer extends Entity {
 						value: cameraComponent.renderTarget.shadingBuffer.textures[ 1 ],
 						type: '1i'
 					},
+					uDeferredResolution: {
+						value: cameraComponent.renderTarget.shadingBuffer.size,
+						type: '2fv'
+					},
 					uEnvMap: {
 						value: this.pmremRender.renderTarget.textures[ 0 ],
 						type: '1i'
@@ -430,7 +388,7 @@ export class Renderer extends Entity {
 
 			// postprocess
 
-			const postProcess = cameraEntity.getComponentByKey<PostProcess>( 'postProcess' );
+			const postProcess = cameraEntity.getComponent( PostProcess );
 
 			if ( postProcess && postProcess.enabled ) {
 
@@ -465,7 +423,7 @@ export class Renderer extends Entity {
 
 	public renderCamera( renderType: MaterialRenderType, cameraEntity: Entity, entities: Entity[], renderTarget: GLP.GLPowerFrameBuffer | null, canvasSize: GLP.Vector, renderOption?: RenderOption ) {
 
-		const camera = cameraEntity.getComponent( Camera ) || cameraEntity.getComponent( Light )!;
+		const camera = cameraEntity.getComponentByTag<Camera>( "camera" ) || cameraEntity.getComponent( Light )!;
 
 		renderOption = renderOption || {};
 
@@ -537,8 +495,8 @@ export class Renderer extends Entity {
 		for ( let i = 0; i < entities.length; i ++ ) {
 
 			const entity = entities[ i ];
-			const material = entity.getComponent( Material )!;
-			const geometry = entity.getComponent( Geometry )!;
+			const material = entity.getComponentByTag<Material>( "material" )!;
+			const geometry = entity.getComponentByTag<Geometry>( "geometry" )!;
 
 			drawParam.modelMatrixWorld = entity.matrixWorld;
 			drawParam.modelMatrixWorldPrev = entity.matrixWorldPrev;
@@ -712,6 +670,9 @@ export class Renderer extends Entity {
 			material.depthTest ? this.gl.enable( gpuStateType ) : this.gl.disable( gpuStateType );
 
 		}
+
+
+		this.gl.depthMask( material.depthWrite );
 
 		// program
 
@@ -915,30 +876,6 @@ export class Renderer extends Entity {
 
 				this.gl.bindVertexArray( vao.getVAO() );
 
-				// query ------------------------
-
-				// let query: WebGLQuery | null = null;
-
-				// if ( process.env.NODE_ENV == 'development' && this.power.extDisJointTimerQuery && gpuState ) {
-
-				// 	query = this.queryList.pop() || null;
-
-				// 	if ( query == null ) {
-
-				// 		query = this.gl.createQuery();
-
-				// 	}
-
-				// 	if ( query ) {
-
-				// 		this.gl.beginQuery( this.power.extDisJointTimerQuery.TIME_ELAPSED_EXT, query );
-
-				// 	}
-
-				// }
-
-				// -----------------------------
-
 				const indexBuffer = vao.indexBuffer;
 
 				let indexBufferArrayType: number = this.gl.UNSIGNED_SHORT;
@@ -956,6 +893,10 @@ export class Renderer extends Entity {
 				} else if ( material.blending == 'ADD' ) {
 
 					this.gl.blendFunc( this.gl.SRC_ALPHA, this.gl.ONE );
+
+				} else if ( material.blending == 'DIFF' ) {
+
+					this.gl.blendFunc( this.gl.ONE_MINUS_DST_COLOR, this.gl.ONE_MINUS_DST_COLOR );
 
 				}
 

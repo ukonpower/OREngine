@@ -30,6 +30,7 @@ export * from './Component/PostProcess';
 export * from './Component/PostProcessPass';
 
 export * from './Component/Renderer';
+export * from "./Component/Renderer/DeferredRenderer";
 
 // entity
 
@@ -39,9 +40,13 @@ export * from './Entity';
 
 export * from './Loaders/GLTFLoader';
 
+// Resource
+
+export * from './Resource';
+
 // Exportable
 
-export * from './Exportable';
+export * from './Serializable';
 
 // utils
 

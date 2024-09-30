@@ -103,28 +103,10 @@ void main( void ) {
 	#endif
 
 	#ifdef USE_NORMAL_MAP 
-	
-		#ifdef USE_TANGENT
 
-		vec3 tangent = normalize( vTangent );
-		vec3 bitangent = normalize( vBitangent );
-
-		#ifdef DOUBLE_SIDED
-
-			tangent *= faceDirection;
-			bitangent *= faceDirection;
+		vec3 outNormalMap = texture( uNormalMap, mapUv ).xyz;
+		outNormalMap = outNormalMap * 2.0 - 1.0;
 		
-		#endif
-		
-		mat3 vTBN = mat3( tangent, bitangent, vNormal );
-		
-		vec3 mapN = texture( uNormalMap, mapUv ).xyz;
-		mapN = mapN * 2.0 - 1.0;
-		
-		outNormal = normalize( vTBN * mapN );
-
-		#endif
-
 	#endif
 
 	#ifdef USE_METALNESS

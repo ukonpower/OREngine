@@ -1,7 +1,6 @@
 #include <common>
 #include <packing>
 #include <light>
-#include <noise>
 
 uniform sampler2D backbuffer0;
 
@@ -29,6 +28,6 @@ void main( void ) {
 
 	vec4 ssrCol = texture( uSSRTexture, vUv );
 
-	outColor.xyz += f * ssrCol.xyz;
+	outColor.xyz += f * ssrCol.xyz * 0.15;
 
 }

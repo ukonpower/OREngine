@@ -17,6 +17,34 @@ export default defineConfig( {
 	build: {
 		outDir: '../dist/',
 		minify: 'terser',
+		terserOptions: {
+			keep_classnames: true,
+			format: {
+				comments: false
+			},
+			mangle: {
+				properties: {
+					regex: /^(?!(u[A-Z]|[A-Z_]+$)).*$/,
+					reserved: [
+						// "comListCats"
+					]
+				}
+			},
+			compress: {
+				passes: 16,
+				arguments: true,
+				booleans_as_integers: true,
+				// drop_console: false,
+				keep_fargs: false,
+				module: true,
+				pure_getters: true,
+				unsafe: true,
+				unsafe_math: true,
+				unsafe_methods: true,
+				unsafe_proto: true,
+				unsafe_undefined: true,
+			},
+		},
 		rollupOptions: {
 			input: {
 				"main": "./src/ts/gl/Player/index.ts"

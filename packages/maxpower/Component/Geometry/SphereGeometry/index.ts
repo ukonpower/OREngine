@@ -21,7 +21,7 @@ export class SphereGeometry extends Geometry {
 		const indexArray = [];
 
 		const { radius, widthSegments, heightSegments } = {
-			radius: 1,
+			radius: 0.5,
 			widthSegments: 8,
 			heightSegments: 8,
 			...param

@@ -1,7 +1,7 @@
 #include <common>
 #include <packing>
 #include <light>
-#include <noise>
+#include <random>
 
 // uniforms
 
@@ -52,7 +52,7 @@ void main( void ) {
 		vec2 offset = float( i ) * direction;
 		offset /= float( SSAOSAMPLE );
 		offset -= direction * 0.5;
-		offset *= uPPPixelSize * 32.0;
+		offset *= uPPPixelSize * 16.0;
 
 		vec2 uvOffset = vUv + offset;
 

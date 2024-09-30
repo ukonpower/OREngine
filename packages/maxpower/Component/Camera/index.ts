@@ -59,7 +59,7 @@ export class Camera extends Component {
 
 	}
 
-	static get key(): string {
+	public static get tag() {
 
 		return "camera";
 

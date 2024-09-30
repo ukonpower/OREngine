@@ -16,7 +16,7 @@ layout (location = 0) out vec4 outColor;
 #define SOFT_Z_EXTENT 0.1
 #define SAMPLE 16
 
-#include <noise>
+#include <random>
 
 float cone( vec2 x, vec2 y, vec2 v ) {
 

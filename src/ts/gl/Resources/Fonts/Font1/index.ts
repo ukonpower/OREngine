@@ -174,10 +174,4 @@ export class Font1 extends Font {
 
 	}
 
-	public static get key() {
-
-		return "font1";
-
-	}
-
 }

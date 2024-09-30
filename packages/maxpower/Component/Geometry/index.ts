@@ -1,7 +1,7 @@
 import * as GLP from 'glpower';
 
 import { Component, ComponentParams } from "..";
-import { ExportableProps } from '../../Exportable';
+import { SerializableProps } from '../../Serializable';
 
 export type GeometryParam = {
 }
@@ -32,13 +32,14 @@ export class Geometry extends Component {
 
 	}
 
-	static get key(): string {
+	public static get tag() {
 
 		return "geometry";
 
 	}
 
-	public getProps(): ExportableProps | null {
+
+	public getProps(): SerializableProps | null {
 
 		return {
 			vertCount: {
@@ -50,9 +51,6 @@ export class Geometry extends Component {
 			}
 		};
 
-	}
-
-	public setProps( props: ExportableProps | null ) {
 	}
 
 	public setAttribute( name: DefaultAttributeName | ( string & {} ), array: GLP.TArrayBuffer, size: number, opt?: GLP.AttributeOptions ) {

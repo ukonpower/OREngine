@@ -4,25 +4,16 @@ import * as MXP from 'maxpower';
 import { gl, renderer, resource } from '../GLGlobals';
 import { TexProcedural } from '../ProjectScene/utils/TexProcedural';
 
-import { BLidgeClient } from "./Components/BLidgeClient";
-import { DashCube } from './Components/Effects/DashCube';
-import { FlashLine } from './Components/Effects/FlashLine';
-import { GridCross } from './Components/Effects/GridCross';
-import { FluidCrystal } from './Components/FluidCrystal';
-import { LookAt } from "./Components/LookAt";
-import { MatchMove } from './Components/MatchMove';
-import { Music } from './Components/Music';
-import { OrbitControls } from './Components/OrbitControls';
-import { ShakeViewer } from "./Components/ShakeViewer";
-import { SkyBox } from "./Components/SkyBox";
-import { TemplateComponent } from './Components/TemplateComponent';
-import { TextEffect } from './Components/TextEffect';
-import { TurnTable } from './Components/TurnTable';
-import { VJCamera } from './Components/VJCamera';
+import { COMPONENTLIST } from './_data/componentList';
 import { Font1 } from './Fonts/Font1';
-import { OREngineCube } from './Materials/OREngineCube';
-import { OREngineLogo } from './Materials/OREngineLogo';
 import noiseFrag from './Textures/noise.fs';
+
+import { ComponentGroup } from '.';
+
+type ComponentLIst = {
+	[key: string]: ( ComponentLIst | ( typeof MXP.Component ) )
+};
+
 
 export const initResouces = () => {
 
@@ -32,82 +23,53 @@ export const initResouces = () => {
 
 	resource.clear();
 
-	// geometry
+	const _ = ( list: ComponentLIst, group: ComponentGroup ) => {
 
-	const comGeometry = resource.componentCategory( "Geometry" );
+		const keys = Object.keys( list );
 
-	comGeometry.register( MXP.SphereGeometry, {
-		radius: 0.5,
-		widthSegments: 20,
-		heightSegments: 10,
-	} );
+		for ( let i = 0; i < keys.length; i ++ ) {
 
-	comGeometry.register( MXP.CubeGeometry, {
-		width: 1,
-		height: 1,
-		depth: 1,
-	} );
+			const name = keys[ i ];
+			const value = list[ name ];
 
-	comGeometry.register( MXP.CylinderGeometry, {
-		radiusTop: 0.5,
-		radiusBottom: 0.5,
-		height: 1,
-		radSegments: 10,
-		heightSegments: 1
-	} );
+			if ( typeof value == "function" ) {
 
-	// material
+				group.addComponent( name, value );
 
-	const comMaterial = resource.componentCategory( "Material" );
+			} else {
 
-	comMaterial.register( MXP.Material );
-	comMaterial.register( OREngineLogo );
-	comMaterial.register( OREngineCube );
+				const newGroup = group.createGroup( name );
 
-	// controls
+				_( value, newGroup );
 
-	const comView = resource.componentCategory( "Controls" );
+			}
 
-	comView.register( LookAt );
+		}
 
-	comView.register( ShakeViewer, {
-		power: 1.0,
-		speed: 1.0
-	} );
+	};
 
-	comView.register( OrbitControls );
+	const groupGeometry = resource.addComponentGroup( "Geomety" );
+	groupGeometry.addComponent( "Cube", MXP.CubeGeometry );
+	groupGeometry.addComponent( "Sphere", MXP.SphereGeometry );
+	groupGeometry.addComponent( "Plane", MXP.PlaneGeometry );
+	groupGeometry.addComponent( "Ring", MXP.RingGeometry );
 
-	comView.register( VJCamera );
+	const light = resource.addComponentGroup( "Light" );
+	light.addComponent( "Light", MXP.Light );
 
-	comView.register( TurnTable );
 
-	// entity
+	const rootKeys = Object.keys( COMPONENTLIST );
 
-	const comEntity = resource.componentCategory( "Entity" );
+	for ( let i = 0; i < rootKeys.length; i ++ ) {
 
-	comEntity.register( SkyBox );
+		const name = rootKeys[ i ];
+		const value = COMPONENTLIST[ name ];
 
-	comEntity.register( FluidCrystal );
+		const group = resource.addComponentGroup( name );
 
-	comEntity.register( TemplateComponent );
+		_( value, group );
 
-	comEntity.register( FlashLine );
-
-	comEntity.register( MatchMove );
-
-	comEntity.register( GridCross );
-
-	comEntity.register( DashCube );
-
-	comEntity.register( TextEffect );
-
-	// Other
-
-	const comOther = resource.componentCategory( "Other" );
-
-	comOther.register( BLidgeClient );
-	comOther.register( Music );
-	comOther.register( MXP.Light );
+	}
 
 	/*-------------------------------
 		Textures

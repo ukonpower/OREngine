@@ -52,6 +52,16 @@ export const globalUniforms: {[key: string]: GLP.Uniforms} = {
 			type: 'Matrix4fv'
 		}
 	},
+	gBuffer: {
+		uGBufferPos: {
+			value: null,
+			type: "1i"
+		},
+		uGBufferNormal: {
+			value: null,
+			type: "1i"
+		},
+	},
 	tex: {
 	},
 	music: {

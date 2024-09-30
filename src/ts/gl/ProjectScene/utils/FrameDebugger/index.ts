@@ -227,7 +227,7 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 		const pixelRatio = this.resolution.y / 1080;
 
-		this.cctx.font = `500 ${18 * pixelRatio}px 'Courier New'`;
+		this.cctx.font = `500 ${28 * pixelRatio}px 'Courier New'`;
 
 		this.cctx.fillStyle = "#fff";
 

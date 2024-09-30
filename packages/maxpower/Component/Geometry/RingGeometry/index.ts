@@ -6,19 +6,21 @@ interface RingGeometryParams extends ComponentParams{
 	outerRadius?: number,
 	thetaSegments?: number,
 	phiSegments?: number
+	extrude?: number
 }
 
 export class RingGeometry extends Geometry {
 
-	constructor( params: RingGeometryParams ) {
+	constructor( params?: RingGeometryParams ) {
 
 		super( params );
 
-		const { innerRadius, outerRadius, thetaSegments, phiSegments } = {
+		const { innerRadius, outerRadius, thetaSegments, phiSegments, extrude } = {
 			innerRadius: 0.5,
 			outerRadius: 1,
 			thetaSegments: 12,
 			phiSegments: 1,
+			extrude: 0,
 			...params
 		};
 
@@ -29,34 +31,128 @@ export class RingGeometry extends Geometry {
 		const uvArray = [];
 		const indexArray = [];
 
-		for ( let i = 0; i < phiSegments + 1; i ++ ) {
+		const sideVertCount = ( ( thetaSegments + 1 ) * ( phiSegments + 1 ) );
 
-			const radius = innerRadius + ( outerRadius - innerRadius ) * ( i / phiSegments );
+		for ( let ext = 0; ext < ( extrude == 0 ? 1 : 2 ); ext ++ ) {
 
-			for ( let j = 0; j <= thetaSegments; j ++ ) {
+			const face = ext == 0 ? - 1 : 1;
 
-				const r = j / thetaSegments * Math.PI * 2.0;
+			const posZ = extrude == 0 ? 0 : extrude / 2 * face;
 
-				const x = Math.sin( r ) * radius;
-				const y = Math.cos( r ) * radius;
+			for ( let i = 0; i < phiSegments + 1; i ++ ) {
 
-				posArray.push( x, y, 0 );
-				uvArray.push( j / thetaSegments, i / phiSegments );
-				normalArray.push( 0, 1, 0 );
+				const radius = innerRadius + ( outerRadius - innerRadius ) * ( i / phiSegments );
 
-				if ( i > 0 && j < thetaSegments ) {
+				for ( let j = 0; j <= thetaSegments; j ++ ) {
 
-					const c = i * totalThetaSegments + j;
+					const r = j / thetaSegments * Math.PI * 2.0;
 
-					indexArray.push(
-						c,
-						( c - totalThetaSegments ),
-						( c + 1 ),
+					const x = Math.cos( r ) * radius;
+					const y = Math.sin( r ) * radius;
 
-						( c + 1 ),
-						( c - totalThetaSegments ),
-						( c + 1 - totalThetaSegments ),
-					);
+					posArray.push( x, y, posZ );
+					uvArray.push( j / thetaSegments, i / phiSegments );
+					normalArray.push( 0, 0, 1 * face );
+
+					if ( i > 0 && j < thetaSegments ) {
+
+						const c = sideVertCount * ext + i * totalThetaSegments + j;
+
+						if ( ext == 0 ) {
+
+							indexArray.push(
+								c,
+								( c - totalThetaSegments ),
+								( c + 1 ),
+
+								( c + 1 ),
+								( c - totalThetaSegments ),
+								( c + 1 - totalThetaSegments ),
+							);
+
+						} else {
+
+							indexArray.push(
+								c,
+								( c + 1 ),
+								( c - totalThetaSegments ),
+
+								( c + 1 ),
+								( c + 1 - totalThetaSegments ),
+								( c - totalThetaSegments ),
+							);
+
+						}
+
+					}
+
+				}
+
+			}
+
+		}
+
+		if ( extrude != 0 ) {
+
+			for ( let h = 0; h < 2; h ++ ) {
+
+				const rad = h == 0 ? innerRadius : outerRadius;
+
+				for ( let i = 0; i < 2; i ++ ) {
+
+					for ( let j = 0; j < thetaSegments; j ++ ) {
+
+						const r = j / thetaSegments * Math.PI * 2.0;
+
+						const x = Math.cos( r ) * rad;
+						const y = Math.sin( r ) * rad;
+
+						posArray.push( x, y, ( - 0.5 + i ) * extrude );
+						uvArray.push( j / thetaSegments, i / phiSegments );
+						normalArray.push( Math.cos( r ), Math.sin( r ), 0 );
+
+					}
+
+				}
+
+			}
+
+			const startIndex = sideVertCount * 2;
+
+			for ( let h = 0; h < 2; h ++ ) {
+
+				for ( let i = 0; i < thetaSegments; i ++ ) {
+
+					const baseIndex = startIndex + i + ( thetaSegments * 2 * h );
+
+					const offset = i == thetaSegments - 1 ? - thetaSegments : 0;
+
+					if ( h == 0 ) {
+
+						indexArray.push(
+							baseIndex,
+							baseIndex + thetaSegments,
+							baseIndex + thetaSegments + 1 + offset,
+
+							baseIndex,
+							baseIndex + thetaSegments + 1 + offset,
+							baseIndex + 1 + offset,
+						);
+
+					} else {
+
+						indexArray.push(
+							baseIndex,
+							baseIndex + thetaSegments + 1 + offset,
+							baseIndex + thetaSegments,
+
+							baseIndex,
+							baseIndex + 1 + offset,
+							baseIndex + thetaSegments + 1 + offset,
+						);
+
+					}
+
 
 				}
 
