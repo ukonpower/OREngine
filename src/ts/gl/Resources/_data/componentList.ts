@@ -1,4 +1,5 @@
 import { MainCamera } from '../Components/Camera/MainCamera/index.ts';
+import { DemoMusic } from '../Components/DemoProject/DemoMusic/index.ts';
 import { OREngineCube } from '../Components/DemoProject/OREngineCube/index.ts';
 import { OREngineLogo } from '../Components/DemoProject/OREngineLogo/index.ts';
 import { SkyBox } from '../Components/DemoProject/SkyBox/index.ts';
@@ -23,6 +24,7 @@ export const COMPONENTLIST: {[key: string]: any} = {
 		MainCamera,
 	},
 	DemoProject: {
+		DemoMusic,
 		OREngineCube,
 		OREngineLogo,
 		SkyBox,

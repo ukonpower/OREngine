@@ -166,7 +166,7 @@ export class SceneSerializer extends GLP.EventEmitter {
 
 				const exportProps: MXP.SerializedProps = c.serialize( true );
 
-				if ( ! c.disableEdit && c.initiator == "user" ) {
+				if ( c.initiator == "user" ) {
 
 					nodeOverrideData.components.push( {
 						name: c.constructor.name,

@@ -9,7 +9,6 @@ export type ComponentUpdateEvent = EntityFinalizeEvent & {
 
 export type ComponentParams = {
 	idOverride?: string,
-	disableEdit?: boolean
 }
 
 export class Component extends Serializable {
@@ -17,7 +16,6 @@ export class Component extends Serializable {
 	public readonly uuid: string;
 
 	public entity: Entity | null;
-	public disableEdit: boolean;
 
 	protected enabled_: boolean;
 
@@ -30,7 +28,6 @@ export class Component extends Serializable {
 		this.resourceIdOverride = params.idOverride || null;
 		this.uuid = GLP.ID.genUUID();
 		this.entity = null;
-		this.disableEdit = params.disableEdit || false;
 		this.enabled_ = true;
 
 

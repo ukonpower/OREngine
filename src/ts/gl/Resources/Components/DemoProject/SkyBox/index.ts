@@ -50,4 +50,12 @@ export class SkyBox extends MXP.Component {
 
 	}
 
+	public unsetEntityImpl( entity: MXP.Entity ): void {
+
+		entity.removeComponent( this.geometry );
+		entity.removeComponent( this.material );
+
+
+	}
+
 }

@@ -19,8 +19,9 @@ export const ComponentView = ( { component }: ComponentViewProps ) => {
 
 	useWatchSerializable( component, [ ] );
 
-
 	const [ enabled, setEnabled ] = useSerializableProps<boolean>( component, "enabled" );
+
+	const disableEdit = component.initiator !== "user";
 
 	const propElms: JSX.Element[] = [
 		<Value key='-2' label={"tag"} value={component.tag} readOnly />
@@ -28,7 +29,7 @@ export const ComponentView = ( { component }: ComponentViewProps ) => {
 
 	const compoProps = component.props;
 
-	const onChange = useCallback( ( value: ValueType, label: string ) => {
+	const onChangeProps = useCallback( ( value: ValueType, label: string ) => {
 
 		component.deserialize( {
 			...component.serialize(),
@@ -39,7 +40,7 @@ export const ComponentView = ( { component }: ComponentViewProps ) => {
 
 	if ( compoProps ) {
 
-		const _ = ( depth: number, path: string, elmArray: JSX.Element[], props: MXP.SerializableProps ): JSX.Element[] => {
+		const parseProps = ( depth: number, path: string, elmArray: JSX.Element[], props: MXP.SerializableProps ): JSX.Element[] => {
 
 			const propKeys = Object.keys( props );
 
@@ -59,16 +60,15 @@ export const ComponentView = ( { component }: ComponentViewProps ) => {
 					const value = prop.value;
 					const opt = prop as MXP.SerializablePropsOpt;
 
-
 					elmArray.push( <Value key={i} label={key} value={value} onChange={( value ) => {
 
-						onChange( value, path_ );
+						onChangeProps( value, path_ );
 
-					}} {...opt} readOnly={opt?.readOnly || component.disableEdit} /> );
+					}} {...opt} readOnly={opt?.readOnly || disableEdit} /> );
 
 				} else {
 
-					const elms = _( depth + 1, path_ + "/", [], prop );
+					const elms = parseProps( depth + 1, path_ + "/", [], prop );
 
 					const dd = depth + 1;
 					const col = "#" + dd + dd + dd;
@@ -84,11 +84,13 @@ export const ComponentView = ( { component }: ComponentViewProps ) => {
 
 		};
 
-		_( 0, "", propElms, compoProps );
+		parseProps( 0, "", propElms, compoProps );
 
 	}
 
 	const onClickDelete = useCallback( ( e: MouseEvent ) => {
+
+		if ( disableEdit ) return;
 
 		e.stopPropagation();
 
@@ -101,27 +103,21 @@ export const ComponentView = ( { component }: ComponentViewProps ) => {
 
 		}
 
-	}, [ component ] );
+	}, [ disableEdit, component ] );
 
-	const Head = useMemo( () => {
-
-		return () => <div className={style.head}>
-			<div className={style.check}>
-				<InputBoolean checked={enabled} onChange={setEnabled} readOnly={component.disableEdit} />
-			</div>
-			<div className={style.name}>
-				{component.constructor.name}
-			</div>
-			<div className={style.delete}>
-				<button onClick={onClickDelete}><CrossIcon /></button>
-			</div>
-		</div>;
-
-	}, [ component, enabled, onClickDelete, setEnabled ] );
-
-	return <div className={style.compoView} data-disable_component={component.disableEdit }>
+	return <div className={style.compoView} data-disable_component={disableEdit }>
 		<div className={style.content}>
-			<PropertyBlock label={<Head />} accordion={true} defaultClose={false} bg>
+			<PropertyBlock label={<div className={style.head}>
+				<div className={style.check}>
+					<InputBoolean checked={enabled || false} onChange={setEnabled} readOnly={disableEdit} />
+				</div>
+				<div className={style.name}>
+					{component.constructor.name}
+				</div>
+				<div className={style.delete}>
+					<button onClick={onClickDelete}><CrossIcon /></button>
+				</div>
+			</div>} accordion={true} defaultClose={false} bg>
 				{propElms}
 			</PropertyBlock>
 		</div>
