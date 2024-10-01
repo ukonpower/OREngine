@@ -14,55 +14,9 @@
 }
 
 .horiz {
-	flex: 1;
 	display: flex;
-
-	@include sp {
-		flex: unset;
-		height: 55vh;
-	}
 }
 
-.preview {
+.flex {
 	flex: 1;
-}
-
-.hierarchy {
-	width: 300px;
-	height: 100%;
-
-	@include sp {
-		width: 40%;
-		border-right: 1px solid $bgCol2;
-	}
-}
-
-.property {
-	width: 50%;
-	max-width: 300px;
-	height: 100%;
-
-	@include sp {
-		max-width: unset;
-		flex: 1;
-	}
-}
-
-.bottom {
-	height: 180px;
-	display: flex;
-
-	@include sp {
-		height: 12dvh;
-		max-height: 300px;
-	}
-}
-
-.timeline {
-	flex: 1;
-}
-
-.project {
-	width: 300px;
-	border-left: 2px solid $bgCol3;
 }
