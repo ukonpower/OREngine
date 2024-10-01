@@ -12,6 +12,7 @@ import { ProjectControl } from '~/tsx/panel/ProjectControl';
 import { Property } from '~/tsx/panel/Property';
 import { Screen } from '~/tsx/panel/Screen';
 import { Timeline } from '~/tsx/panel/Timeline';
+import { Timer } from '~/tsx/panel/Timer';
 import { Panel } from '~/tsx/ui/Panel';
 import { PanelContainer } from '~/tsx/ui/PanelContainer';
 
@@ -42,21 +43,30 @@ export const EditorPage = () => {
 		editorElm = <EditorProvider>
 			<div className={style.editor}>
 				<div className={style.vert}>
-					<div className={style.horiz}>
-						<div className={style.hierarchy}>
-							<PanelContainer >
-								<Panel title="Scene" >
-									<Hierarchy />
-								</Panel>
-								<Panel title="Project" >
-									<ProjectControl />
-								</Panel>
-							</PanelContainer>
+					<div className={`${style.horiz} ${style.flex}`}>
+						<div className={style.hierarchy} style={{ width: "300px" }}>
+							<div style={{ flex: "1" }}>
+								<PanelContainer >
+									<Panel title="Scene" >
+										<Hierarchy />
+									</Panel>
+									<Panel title="Project" >
+										<ProjectControl />
+									</Panel>
+								</PanelContainer>
+							</div>
+							<div style={{ height: "20vh" }}>
+								<PanelContainer >
+									<Panel title="Timer" >
+										<Timer />
+									</Panel>
+								</PanelContainer>
+							</div>
 						</div>
-						<div className={style.preview}>
+						<div className={`${style.flex}`} >
 							<Screen />
 						</div>
-						<div className={style.property}>
+						<div style={{ width: "300px" }}>
 							<PanelContainer >
 								<Panel title="Property" >
 									<Property />
@@ -64,7 +74,7 @@ export const EditorPage = () => {
 							</PanelContainer>
 						</div>
 					</div>
-					<div className={style.bottom}>
+					<div style={{ height: "150px" }}>
 						<PanelContainer >
 							<Panel title="Timeline" noPadding>
 								<Timeline />
@@ -81,21 +91,31 @@ export const EditorPage = () => {
 		editorElm = <EditorProvider>
 			<div className={style.editor}>
 				<div className={style.vert}>
-					<div className={style.preview}>
+					<div className={`${style.flex}`}>
 						<Screen />
 					</div>
-					<div className={style.horiz}>
-						<div className={style.hierarchy}>
-							<PanelContainer >
-								<Panel title="Scene" >
-									<Hierarchy />
-								</Panel>
-								<Panel title="Project" >
-									<ProjectControl />
-								</Panel>
-							</PanelContainer>
+					<div className={style.horiz} style={{ height: "55vh" }}>
+						<div className={style.vert} style={{ width: "45vw" }}>
+							<div style={{ flex: "1" }}>
+								<PanelContainer >
+									<Panel title="Scene" >
+										<Hierarchy />
+									</Panel>
+									<Panel title="Project" >
+										<ProjectControl />
+									</Panel>
+								</PanelContainer>
+
+							</div>
+							<div style={{ height: "20vh" }}>
+								<PanelContainer >
+									<Panel title="Timer" >
+										<Timer />
+									</Panel>
+								</PanelContainer>
+							</div>
 						</div>
-						<div className={style.property}>
+						<div className={`${style.flex}`}>
 							<PanelContainer >
 								<Panel title="Property" >
 									<Property />
@@ -103,7 +123,7 @@ export const EditorPage = () => {
 							</PanelContainer>
 						</div>
 					</div>
-					<div className={style.bottom}>
+					<div style={{ height: "12vh" }} >
 						<PanelContainer >
 							<Panel title="Timeline" noPadding>
 								<Timeline />
