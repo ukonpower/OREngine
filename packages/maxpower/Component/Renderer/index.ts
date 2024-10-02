@@ -15,9 +15,6 @@ import { PipelinePostProcess } from './PipelinePostProcess';
 import { PMREMRender } from './PMREMRender';
 import { ProgramManager } from './ProgramManager';
 
-import { power } from '~/ts/gl/GLGlobals';
-
-
 // render stack
 
 export type RenderStack = {
@@ -82,6 +79,7 @@ export class Renderer extends Entity {
 
 	public gl: WebGL2RenderingContext;
 	private renderCanvasSize: GLP.Vector;
+	private extDisJointTimerQuery: any;
 
 	// program
 
@@ -132,6 +130,7 @@ export class Renderer extends Entity {
 
 		this.programManager = new ProgramManager( this.gl );
 		this.renderCanvasSize = new GLP.Vector();
+		this.extDisJointTimerQuery = this.gl.getExtension( "EXT_disjoint_timer_query_webgl2" );
 
 		// lights
 
@@ -223,6 +222,46 @@ export class Renderer extends Entity {
 	}
 
 	public render( stack: RenderStack ) {
+
+		if ( process.env.NODE_ENV == 'development' ) {
+
+			const disjoint = this.gl.getParameter( this.extDisJointTimerQuery.GPU_DISJOINT_EXT );
+
+			if ( disjoint ) {
+
+				this.queryList.forEach( q => this.gl.deleteQuery( q ) );
+
+				this.queryList.length = 0;
+
+			} else {
+
+				if ( this.queryListQueued.length > 0 ) {
+
+					const l = this.queryListQueued.length;
+
+					for ( let i = l - 1; i >= 0; i -- ) {
+
+						const q = this.queryListQueued[ i ];
+
+						const resultAvailable = this.gl.getQueryParameter( q.query, this.gl.QUERY_RESULT_AVAILABLE );
+
+						if ( resultAvailable ) {
+
+							const result = this.gl.getQueryParameter( q.query, this.gl.QUERY_RESULT );
+
+							this.queryList.push( q.query );
+
+							this.queryListQueued.splice( i, 1 );
+
+						}
+
+					}
+
+				}
+
+			}
+
+		}
 
 		// light
 
@@ -882,13 +921,13 @@ export class Renderer extends Entity {
 
 				if ( query == null ) {
 
-					query = gl.createQuery();
+					query = this.gl.createQuery();
 
 				}
 
 				if ( query ) {
 
-					gl.beginQuery( power.extDisJointTimerQuery.TIME_ELAPSED_EXT, query );
+					this.gl.beginQuery( this.extDisJointTimerQuery.TIME_ELAPSED_EXT, query );
 
 				}
 
@@ -961,11 +1000,11 @@ export class Renderer extends Entity {
 
 			// query ------------------------
 
-			if ( process.env.NODE_ENV == 'development' && gpuState ) {
+			if ( process.env.NODE_ENV == 'development' ) {
 
 				if ( query ) {
 
-					this.gl.endQuery( power.extDisJointTimerQuery.TIME_ELAPSED_EXT );
+					this.gl.endQuery( this.extDisJointTimerQuery.TIME_ELAPSED_EXT );
 
 					this.queryListQueued.push( {
 						name: `${renderType}/${material.name}[${drawId}]`,
@@ -985,7 +1024,6 @@ export class Renderer extends Entity {
 	public resize( resolution: GLP.Vector ) {
 
 		this.renderCanvasSize.copy( resolution );
-
 		this.deferredPostProcess.resize( resolution );
 		this.pipelinePostProcess.resize( resolution );
 
