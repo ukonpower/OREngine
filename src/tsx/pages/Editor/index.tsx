@@ -44,8 +44,8 @@ export const EditorPage = () => {
 			<div className={style.editor}>
 				<div className={style.vert}>
 					<div className={`${style.horiz} ${style.flex}`}>
-						<div className={style.hierarchy} style={{ width: "300px" }}>
-							<div style={{ flex: "1" }}>
+						<div className={style.vert} style={{ width: "300px" }}>
+							<div className={style.flex}>
 								<PanelContainer >
 									<Panel title="Scene" >
 										<Hierarchy />

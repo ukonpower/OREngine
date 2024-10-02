@@ -15,6 +15,8 @@ import { PipelinePostProcess } from './PipelinePostProcess';
 import { PMREMRender } from './PMREMRender';
 import { ProgramManager } from './ProgramManager';
 
+import { power } from '~/ts/gl/GLGlobals';
+
 
 // render stack
 
@@ -870,6 +872,31 @@ export class Renderer extends Entity {
 
 			// draw
 
+			// query ------------------------
+
+			let query: WebGLQuery | null = null;
+
+			if ( process.env.NODE_ENV == 'development' ) {
+
+				query = this.queryList.pop() || null;
+
+				if ( query == null ) {
+
+					query = gl.createQuery();
+
+				}
+
+				if ( query ) {
+
+					gl.beginQuery( power.extDisJointTimerQuery.TIME_ELAPSED_EXT, query );
+
+				}
+
+			}
+
+			// -----------------------------
+
+
 			program.use( ( program ) => {
 
 				program.uploadUniforms();
@@ -928,28 +955,28 @@ export class Renderer extends Entity {
 
 				}
 
-				// query ------------------------
-
-				// if ( process.env.NODE_ENV == 'development' && gpuState ) {
-
-				// 	if ( query ) {
-
-				// 		this.gl.endQuery( this.power.extDisJointTimerQuery.TIME_ELAPSED_EXT );
-
-				// 		this.queryListQueued.push( {
-				// 			name: `${renderType}/${material.name}[${drawId}]`,
-				// 			query: query
-				// 		} );
-
-				// 	}
-
-				// }
-
-				// ----------------------------
-
 				this.gl.bindVertexArray( null );
 
 			} );
+
+			// query ------------------------
+
+			if ( process.env.NODE_ENV == 'development' && gpuState ) {
+
+				if ( query ) {
+
+					this.gl.endQuery( power.extDisJointTimerQuery.TIME_ELAPSED_EXT );
+
+					this.queryListQueued.push( {
+						name: `${renderType}/${material.name}[${drawId}]`,
+						query: query
+					} );
+
+				}
+
+			}
+
+			// ----------------------------
 
 		}
 
