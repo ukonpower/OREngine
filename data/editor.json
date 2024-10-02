@@ -78,67 +78,7 @@
 				1
 			],
 			"name": "New Project",
-			"objectOverride": [
-				{
-					"path": "/root",
-					"components": [
-						{
-							"name": "BLidgeClient",
-							"props": {
-								"enabled": true,
-								"mode": "json",
-								"gltf": true,
-								"gltfPath": "/scene.glb"
-							}
-						},
-						{
-							"name": "DemoMusic",
-							"props": {
-								"enabled": true
-							}
-						}
-					]
-				},
-				{
-					"path": "/root/blidgeRoot/OREngine",
-					"components": [
-						{
-							"name": "OREngineLogo",
-							"props": {
-								"enabled": true
-							}
-						}
-					]
-				},
-				{
-					"path": "/root/blidgeRoot/OREngineCube",
-					"components": [
-						{
-							"name": "OREngineCube",
-							"props": {
-								"enabled": true
-							}
-						},
-						{
-							"name": "TurnTable",
-							"props": {
-								"enabled": true
-							}
-						}
-					]
-				},
-				{
-					"path": "/root/blidgeRoot/SkyBox",
-					"components": [
-						{
-							"name": "SkyBox",
-							"props": {
-								"enabled": true
-							}
-						}
-					]
-				}
-			],
+			"objectOverride": [],
 			"scene": {
 				"name": "root"
 			},
@@ -146,7 +86,7 @@
 			"timeline/fps": 60
 		}
 	],
-	"enableRender": true,
+	"enableRender": false,
 	"projectName": "New Project",
 	"openedProject": "New Project",
 	"resolutionScale": 0.5,
