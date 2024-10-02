@@ -63,7 +63,7 @@ type CameraOverride = {
 	uniforms?: GLP.Uniforms,
 }
 
-type DrawParam = CameraOverride & { modelMatrixWorld?: GLP.Matrix, modelMatrixWorldPrev?: GLP.Matrix }
+type DrawParam = CameraOverride & { modelMatrixWorld?: GLP.Matrix, modelMatrixWorldPrev?: GLP.Matrix, drawName?: string }
 
 // state
 
@@ -235,6 +235,9 @@ export class Renderer extends Entity {
 
 			} else {
 
+				// const updatedList = new Map<string, number>();
+				const updatedList = [];
+
 				if ( this.queryListQueued.length > 0 ) {
 
 					const l = this.queryListQueued.length;
@@ -249,6 +252,11 @@ export class Renderer extends Entity {
 
 							const result = this.gl.getQueryParameter( q.query, this.gl.QUERY_RESULT );
 
+							updatedList.push( {
+								name: q.name,
+								duration: result / 1000 / 1000
+							} );
+
 							this.queryList.push( q.query );
 
 							this.queryListQueued.splice( i, 1 );
@@ -258,6 +266,8 @@ export class Renderer extends Entity {
 					}
 
 				}
+
+				this.emit( "timer", [ updatedList ] );
 
 			}
 
@@ -542,7 +552,7 @@ export class Renderer extends Entity {
 			drawParam.modelMatrixWorld = entity.matrixWorld;
 			drawParam.modelMatrixWorldPrev = entity.matrixWorldPrev;
 
-			this.draw( entity.uuid.toString(), renderType, geometry, material, drawParam );
+			this.draw( entity.uuid, renderType, geometry, material, drawParam );
 
 		}
 
@@ -668,7 +678,7 @@ export class Renderer extends Entity {
 
 			}
 
-			this.draw( postprocess.uuid.toString(), "postprocess", this.quad, pass, renderOption && renderOption.cameraOverride );
+			this.draw( pass.uuid, "postprocess", this.quad, pass, renderOption && renderOption.cameraOverride );
 
 			pass.onAfterRender();
 
@@ -1007,7 +1017,7 @@ export class Renderer extends Entity {
 					this.gl.endQuery( this.extDisJointTimerQuery.TIME_ELAPSED_EXT );
 
 					this.queryListQueued.push( {
-						name: `${renderType}/${material.name}[${drawId}]`,
+						name: `${renderType}/${param?.drawName || material.name }/[${drawId}]`,
 						query: query
 					} );
 
@@ -1036,7 +1046,6 @@ export const setUniforms = ( program: GLP.GLPowerProgram, uniforms: GLP.Uniforms
 	const keys = Object.keys( uniforms );
 
 	for ( let i = 0; i < keys.length; i ++ ) {
-
 
 		const name = keys[ i ];
 		const uni = uniforms[ name ];
