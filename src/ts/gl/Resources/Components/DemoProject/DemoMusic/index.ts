@@ -37,6 +37,8 @@ export class DemoMusic extends MXP.Component {
 	private tmpOutputArrayL: Float32Array;
 	private tmpOutputArrayR: Float32Array;
 
+	private progress: [number, number];
+
 	// play
 
 	private timeCode: number = 0;
@@ -75,6 +77,16 @@ export class DemoMusic extends MXP.Component {
 		this.bufferLength = Math.floor( this.audioContext.sampleRate * MUSIC_DURATION );
 
 		// samples
+
+		this.progress = [ 0, 0 ];
+
+		let len = 512 * 1024;
+
+		if ( process.env.NODE_ENV === 'development' ) {
+
+			len = 512 * 256;
+
+		}
 
 		this.blockLength = Math.min( 512 * 512, this.bufferLength );
 		this.numSampleBlocks = Math.ceil( ( this.audioContext.sampleRate * MUSIC_DURATION ) / this.blockLength );
@@ -167,6 +179,8 @@ export class DemoMusic extends MXP.Component {
 	}
 
 	private render() {
+
+		this.progress = [ 0, 0 ];
 
 		if ( this.currentRender ) [
 
@@ -293,6 +307,8 @@ export class DemoMusic extends MXP.Component {
 
 					} );
 
+					this.progress = [ _i, ( this.numSampleBlocks - 1 ) ];
+
 					this.notice();
 
 				}
@@ -358,7 +374,7 @@ export class DemoMusic extends MXP.Component {
 
 			if ( this.entity ) {
 
-				this.entity.noticeEventParent( 'update/music', [ this.audioBuffer, this.frequencyTexture, this.timeDomainTexture ] );
+				this.entity.noticeEventParent( 'update/music', [ this.audioBuffer, this.frequencyTexture, this.timeDomainTexture, this.progress ] );
 
 			}
 

@@ -66,6 +66,16 @@ export const globalUniforms: {[key: string]: GLP.Uniforms} = {
 	},
 	tex: {
 	},
+	music: {
+		uMusicFreqTex: {
+			value: null,
+			type: "1i"
+		},
+		uMusicDomainTex: {
+			value: null,
+			type: "1i"
+		},
+	}
 };
 
 /*-------------------------------

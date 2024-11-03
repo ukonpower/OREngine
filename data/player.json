@@ -1,52 +1,38 @@
 {
-	"setting": {
-		"name": "OREngine",
-		"timeline/duration": 679.6000000000003,
-		"timeline/fps": 60
-	},
+	"position": [
+		0,
+		0,
+		0
+	],
+	"euler": [
+		0,
+		0,
+		0
+	],
+	"scale": [
+		1,
+		1,
+		1
+	],
+	"name": "New Project",
 	"objectOverride": [
 		{
 			"path": "/root",
 			"components": [
 				{
-					"key": "blidgeClient",
 					"name": "BLidgeClient",
 					"props": {
+						"enabled": true,
 						"mode": "json",
-						"gltfPath": "/scene.glb",
-						"websocket/connected": true,
-						"websocket/url": "ws://localhost:3100"
+						"gltf": true,
+						"gltfPath": "/scene.glb"
 					}
 				},
 				{
-					"key": "music",
-					"name": "Music",
-					"props": {}
-				}
-			]
-		},
-		{
-			"path": "/root/blidgeRoot/Cube",
-			"components": [
-				{
-					"key": "material",
-					"name": "OREngineCube",
+					"name": "DemoMusic",
 					"props": {
-						"name": "",
-						"deferred": true,
-						"forward": false,
-						"shadowMap": true,
-						"ui": false,
-						"useLight": true,
-						"depthTest": true,
-						"cullFace": true,
-						"drawType": "TRIANGLES"
+						"enabled": true
 					}
-				},
-				{
-					"key": "turntable",
-					"name": "TurnTable",
-					"props": {}
 				}
 			]
 		},
@@ -54,18 +40,26 @@
 			"path": "/root/blidgeRoot/OREngine",
 			"components": [
 				{
-					"key": "material",
 					"name": "OREngineLogo",
 					"props": {
-						"name": "",
-						"deferred": true,
-						"forward": false,
-						"shadowMap": true,
-						"ui": false,
-						"useLight": true,
-						"depthTest": true,
-						"cullFace": true,
-						"drawType": "TRIANGLES"
+						"enabled": true
+					}
+				}
+			]
+		},
+		{
+			"path": "/root/blidgeRoot/OREngineCube",
+			"components": [
+				{
+					"name": "OREngineCube",
+					"props": {
+						"enabled": true
+					}
+				},
+				{
+					"name": "TurnTable",
+					"props": {
+						"enabled": true
 					}
 				}
 			]
@@ -74,53 +68,17 @@
 			"path": "/root/blidgeRoot/SkyBox",
 			"components": [
 				{
-					"key": "geometry",
-					"name": "SphereGeometry",
-					"props": {
-						"vertCount": 272
-					}
-				},
-				{
-					"key": "material",
-					"name": "Material",
-					"props": {
-						"name": "",
-						"deferred": true,
-						"forward": false,
-						"shadowMap": false,
-						"ui": false,
-						"useLight": true,
-						"depthTest": true,
-						"cullFace": false,
-						"drawType": "TRIANGLES"
-					}
-				},
-				{
-					"key": "skybox",
 					"name": "SkyBox",
-					"props": {}
+					"props": {
+						"enabled": true
+					}
 				}
 			]
 		}
 	],
 	"scene": {
-		"name": "root",
-		"pos": [
-			0,
-			0,
-			0
-		],
-		"rot": [
-			0,
-			0,
-			0,
-			0
-		],
-		"scale": [
-			1,
-			1,
-			1
-		],
-		"childs": []
-	}
+		"name": "root"
+	},
+	"timeline/duration": 600,
+	"timeline/fps": 60
 }

@@ -57,7 +57,7 @@ class App {
 			</div>
 		`;
 
-		document.title = "RE:ORE";
+		document.title = "OREngine";
 
 		this.rootElm = document.getElementById( 'r' )!;
 
@@ -115,14 +115,6 @@ class App {
 		let shaderTotal = 0.0;
 		let musicTotal = 0.0;
 
-		if ( process.env.NODE_ENV === 'development' ) {
-
-			loadingElm.style.opacity = "0";
-			this.menuElm.style.opacity = "1";
-			this.menuElm.style.pointerEvents = "auto";
-
-		}
-
 		const onLoadProgress = ( label: string ) => {
 
 			const percentage = ( shaderTotal + musicTotal ) / 2.0;
@@ -147,7 +139,8 @@ class App {
 
 		onLoadProgress( "" );
 
-		this.scene.on( "update/music", ( buffer: AudioBuffer, progress: [number, number] ) => {
+
+		this.scene.on( "update/music", ( buffer: AudioBuffer, freqTex: GLP.GLPowerTexture, domainTex: GLP.GLPowerTexture, progress: [number, number] ) => {
 
 			musicTotal = progress[ 0 ] / progress[ 1 ];
 
