@@ -1,6 +1,3 @@
-#version 300 es
-
-precision highp float;
 #define PI 3.14159265359
 #define TPI 6.28318530718
 #define HPI 1.57079632679
@@ -75,7 +72,7 @@ vec3 hsv2rgb( vec3 hsv ) {
 	
 }
 
-// paking
+// packing
 
 vec4 floatToRGBA( float v ) {
 	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;
@@ -86,19 +83,4 @@ vec4 floatToRGBA( float v ) {
 
 float rgbaToFloat( vec4 rgba ) {
 	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );
-}
-
-float packColor(vec3 color) {
-	color.xyz *= 256.0;
-	color.xyz = floor( color.xyz );
-    return color.r + color.g * 256.0 + color.b * 256.0 * 256.0;
-}
-
-vec3 unpackColor(float f) {
-    vec3 color;
-    color.b = floor(f / 256.0 / 256.0);
-    color.g = floor((f - color.b * 256.0 * 256.0) / 256.0);
-    color.r = floor(f - color.b * 256.0 * 256.0 - color.g * 256.0);
-    // now we have a vec3 with the 3 components in range [0..255]. Let's normalize it!
-    return color / 255.0;
 }

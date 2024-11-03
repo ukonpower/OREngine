@@ -17,6 +17,7 @@ import frag_out from './shaderParts/frag_out.part.glsl';
 import lighting_env from './shaderParts/lighting_env.part.glsl';
 import lighting_forwardIn from './shaderParts/lighting_forwardIn.part.glsl';
 import lighting_light from './shaderParts/lighting_light.part.glsl';
+import raymarch_out_pos from './shaderParts/raymarch_out_pos.part.glsl';
 import raymarch_ray_object from './shaderParts/raymarch_ray_object.part.glsl';
 import uniformTime from './shaderParts/uniform_time.part.glsl';
 import vert_h from './shaderParts/vert_h.part.glsl';
@@ -29,34 +30,17 @@ export const shaderInsertDefines = ( shader: string, defines: Defines ) => {
 
 	if ( ! defines ) return shader;
 
-
-	const splited = shader.split( '\n' );
-
-	let insertIndex = splited.findIndex( item => item.indexOf( 'precision' ) > - 1 );
-
-	if ( insertIndex == - 1 ) {
-
-		insertIndex = splited.findIndex( item => item.indexOf( '#version' ) > - 1 );
-
-	}
-
-	if ( insertIndex == - 1 ) insertIndex = 0;
-
 	const keys = Object.keys( defines );
+
+	let res = "";
 
 	for ( let i = 0; i < keys.length; i ++ ) {
 
-		splited.splice( insertIndex + 1, 0, "#define " + keys[ i ] + ' ' + defines[ keys[ i ] ] );
+		res += "#define " + keys[ i ] + ' ' + defines[ keys[ i ] ] + "\n";
 
 	}
 
-	let res = '';
-
-	splited.forEach( item => {
-
-		res += item + '\n';
-
-	} );
+	res = res + shader;
 
 	return res;
 
@@ -84,6 +68,7 @@ export const shaderInclude = ( shader: string ) => {
 		[ "frag_out", frag_out ],
 		[ "rm_normal", raymarch_normal ],
 		[ "rm_ray_obj", raymarch_ray_object ],
+		[ "rm_out_pos", raymarch_out_pos ],
 		[ "uni_time", uniformTime ],
 		[ "pmrem", pmrem ],
 	] );
@@ -136,9 +121,11 @@ const shaderUnrollLoop = ( shader: string ) => {
 
 export const shaderParse = ( shader: string, defines?: Defines, lights?: CollectedLights ) => {
 
+	shader = shaderInsertDefines( shader, defines );
+	shader = "#version 300 es\nprecision highp float;\n" + shader;
+
 	shader = shaderInclude( shader );
 	shader = shaderInsertLights( shader, lights );
-	shader = shaderInsertDefines( shader, defines );
 	shader = shaderUnrollLoop( shader );
 	shader = shader.replace( /#define GLSLIFY .*\n/g, "" );
 

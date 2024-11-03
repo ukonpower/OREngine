@@ -77,6 +77,6 @@ void main( void ) {
 
 	occlusion /= float( SAMPLE );
 
-	outColor = vec4( mix( texture( uSSAOBackBuffer, vUv ).xyz, vec3( occlusion ), 0.32 ), 1.0 );
+	outColor = vec4( mix( texture( uSSAOBackBuffer, vUv ).xyz, vec3( occlusion ), 0.5 ), 1.0 );
 
 }

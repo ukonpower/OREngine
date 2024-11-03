@@ -3,7 +3,7 @@ import * as MXP from 'maxpower';
 
 import { canvas, globalUniforms, renderer } from '../GLGlobals';
 import { MainCamera } from '../Resources/Components/Camera/MainCamera';
-import { OrbitControls } from '../Resources/Components/View/OrbitControls';
+import { OrbitControls } from '../Resources/Components/Camera/MainCamera/OrbitControls';
 import { initResouces } from '../Resources/init';
 
 import { OREngineProjectData, SceneSerializer, OREngineProjectFrame } from './IO/ProjectSerializer';
@@ -75,13 +75,6 @@ export class ProjectScene extends MXP.Entity {
 
 		} );
 
-		this.on( "update/music", ( buffer: AudioBuffer, freqTex: GLP.GLPowerTexture, domainTex: GLP.GLPowerTexture ) => {
-
-			globalUniforms.music.uMusicFreqTex.value = freqTex;
-			globalUniforms.music.uMusicDomainTex.value = domainTex;
-
-		} );
-
 		// canvas
 
 		this.canvas = canvas;
@@ -100,7 +93,7 @@ export class ProjectScene extends MXP.Entity {
 
 		this.frameSetting = {
 			duration: 600,
-			fps: 60,
+			fps: 30,
 		};
 
 		this.frame = {
@@ -120,11 +113,15 @@ export class ProjectScene extends MXP.Entity {
 		globalUniforms.gBuffer.uGBufferPos.value = this.cameraComponent.renderCamera.gBuffer.textures[ 0 ];
 		globalUniforms.gBuffer.uGBufferNormal.value = this.cameraComponent.renderCamera.gBuffer.textures[ 1 ];
 
-		const orbitControls = this.camera.getComponent( OrbitControls );
+		if ( process.env.NODE_ENV === 'development' ) {
 
-		if ( orbitControls ) {
+			const orbitControls = this.camera.getComponent( OrbitControls );
 
-			orbitControls.setPosition( new GLP.Vector( 0, 0, 0 ), new GLP.Vector( 0, 0, 5 ) );
+			if ( orbitControls ) {
+
+				orbitControls.setPosition( new GLP.Vector( 0, 0, 0 ), new GLP.Vector( 0, 0, 5 ) );
+
+			}
 
 		}
 
@@ -224,6 +221,7 @@ export class ProjectScene extends MXP.Entity {
 
 		}
 
+
 		this.time.code = this.frame.current / this.frameSetting.fps;
 		this.time.engine += this.time.delta;
 
@@ -236,6 +234,7 @@ export class ProjectScene extends MXP.Entity {
 			timElapsed: this.time.engine,
 			timeDelta: this.time.delta,
 			timeCode: this.time.code,
+			timeCodeFrame: this.frame.current,
 			forceDraw: param && param.forceDraw,
 			playing: this.frame.playing,
 		};
@@ -243,6 +242,7 @@ export class ProjectScene extends MXP.Entity {
 		this.root.update( event );
 
 		const renderStack = this.root.finalize( event );
+
 
 		if ( this.enableRender ) {
 
@@ -269,6 +269,8 @@ export class ProjectScene extends MXP.Entity {
 	public play() {
 
 		this.frame.playing = true;
+
+		this.time.current = new Date().getTime();
 
 	}
 

@@ -65,7 +65,7 @@ void main( void ) {
 
 	// Weighted average of the color samples
 	vec3 avg = c0 * weights.x + c1 * weights.y + c2 * weights.z + c3 * weights.w;
-	avg /= dot(weights, vec4(1.0));
+	avg /= dot(weights, vec4(1.0)) + 0.0001;
 
 	// Output CoC = average of CoCs
 	float coc = dot(cocs, vec4(0.25));

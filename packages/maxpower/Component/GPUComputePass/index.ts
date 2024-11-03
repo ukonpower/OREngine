@@ -1,6 +1,7 @@
 
 import * as GLP from 'glpower';
 
+import { UniformsUtils } from '../../Utils/Uniforms';
 import { PostProcessPass, PostProcessPassParam } from '../PostProcessPass';
 
 import quadVert from './shaders/quad.vs';
@@ -9,6 +10,7 @@ export interface GPUComputePassParam extends Omit<PostProcessPassParam, 'renderT
 	gl: WebGL2RenderingContext,
 	size: GLP.Vector,
 	dataLayerCount: number,
+	textureParam?: Undefineder<GLP.GLPowerTextureSetting>
 }
 
 export class GPUComputePass extends PostProcessPass {
@@ -29,8 +31,10 @@ export class GPUComputePass extends PostProcessPass {
 
 		const gl = param.gl;
 
-		const rt1 = new GLP.GLPowerFrameBuffer( gl ).setTexture( new Array( param.dataLayerCount ).fill( 0 ).map( () => new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA, magFilter: gl.NEAREST, minFilter: gl.NEAREST } ) ) ).setSize( param.size );
-		const rt2 = new GLP.GLPowerFrameBuffer( gl ).setTexture( new Array( param.dataLayerCount ).fill( 0 ).map( () => new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA, magFilter: gl.NEAREST, minFilter: gl.NEAREST } ) ) ).setSize( param.size );
+		const textureSetting = Object.assign( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA, magFilter: gl.NEAREST, minFilter: gl.NEAREST }, param.textureParam );
+
+		const rt1 = new GLP.GLPowerFrameBuffer( gl ).setTexture( new Array( param.dataLayerCount ).fill( 0 ).map( () => new GLP.GLPowerTexture( gl ).setting( textureSetting ) ) ).setSize( param.size );
+		const rt2 = new GLP.GLPowerFrameBuffer( gl ).setTexture( new Array( param.dataLayerCount ).fill( 0 ).map( () => new GLP.GLPowerTexture( gl ).setting( textureSetting ) ) ).setSize( param.size );
 
 		const outputUniforms: GLP.Uniforms = {
 			uGPUResolution: {
@@ -48,7 +52,7 @@ export class GPUComputePass extends PostProcessPass {
 
 		}
 
-		super( gl, { ...param, vert: param.vert || quadVert, renderTarget: rt1, uniforms: GLP.UniformsUtils.merge( param.uniforms, outputUniforms ) } );
+		super( gl, { ...param, vert: param.vert || quadVert, renderTarget: rt1, uniforms: UniformsUtils.merge( param.uniforms, outputUniforms ) } );
 
 		this.gl = gl;
 

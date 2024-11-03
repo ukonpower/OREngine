@@ -13,7 +13,7 @@ export class OREngineCube extends MXP.Material {
 		super( {
 			frag: MXP.hotGet( "orengineCubeFrag", orengineCubeFrag ),
 			vert: MXP.hotGet( "orengineCubeVert", orengineCubeVert ),
-			uniforms: GLP.UniformsUtils.merge( globalUniforms.time, {
+			uniforms: MXP.UniformsUtils.merge( globalUniforms.time, {
 				uNoiseTex: {
 					value: resource.getTexture( "noise" ),
 					type: "1i"

@@ -28,6 +28,7 @@ export class CurveGeometry extends Geometry {
 			radSegments: 8,
 			...params
 		};
+
 		const curveSegments = ( params && params.curveSegments || 24 ) - 1;
 
 		const frenet = curve.getFrenetFrames( curveSegments + 1 );

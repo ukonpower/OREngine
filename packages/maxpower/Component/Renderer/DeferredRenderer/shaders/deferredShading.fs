@@ -47,12 +47,6 @@ layout (location = 1) out vec4 glFragOut1;
 // 	vec3 specularColor;
 // };
 
-/*-------------------------------
-	Custom
--------------------------------*/
-
-uniform sampler2D uSideTex;
-
 void main( void ) {
 
 	//[

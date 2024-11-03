@@ -74,7 +74,7 @@ export class PipelinePostProcess extends MXP.PostProcess {
 			name: 'ssr',
 			frag: MXP.hotGet( "ssr", ssrFrag ),
 			renderTarget: rtSSR1,
-			uniforms: GLP.UniformsUtils.merge( timeUniforms, {
+			uniforms: MXP.UniformsUtils.merge( timeUniforms, {
 				uGbufferPos: {
 					value: null,
 					type: '1i'
@@ -117,7 +117,7 @@ export class PipelinePostProcess extends MXP.PostProcess {
 		const ssComposite = new MXP.PostProcessPass( gl, {
 			name: 'ssComposite',
 			frag: MXP.hotGet( "ssComposite", ssCompositeFrag ),
-			uniforms: GLP.UniformsUtils.merge( {
+			uniforms: MXP.UniformsUtils.merge( {
 				uGbufferPos: {
 					value: null,
 					type: '1i'
@@ -156,7 +156,7 @@ export class PipelinePostProcess extends MXP.PostProcess {
 		const dofCoc = new MXP.PostProcessPass( gl, {
 			name: 'dof/coc',
 			frag: dofCocFrag,
-			uniforms: GLP.UniformsUtils.merge( timeUniforms, {
+			uniforms: MXP.UniformsUtils.merge( timeUniforms, {
 				uGbufferPos: {
 					value: null,
 					type: "1i"
@@ -176,7 +176,7 @@ export class PipelinePostProcess extends MXP.PostProcess {
 		const dofBokeh = new MXP.PostProcessPass( gl, {
 			name: 'dof/bokeh',
 			frag: dofBokehFrag,
-			uniforms: GLP.UniformsUtils.merge( timeUniforms, {
+			uniforms: MXP.UniformsUtils.merge( timeUniforms, {
 				uCocTex: {
 					value: dofCoc.renderTarget!.textures[ 0 ],
 					type: '1i'
@@ -196,7 +196,7 @@ export class PipelinePostProcess extends MXP.PostProcess {
 		const dofComposite = new MXP.PostProcessPass( gl, {
 			name: 'dof/composite',
 			frag: dofCompositeFrag,
-			uniforms: GLP.UniformsUtils.merge( {
+			uniforms: MXP.UniformsUtils.merge( {
 				uBokeTex: {
 					value: dofBokeh.renderTarget!.textures[ 0 ],
 					type: '1i'
@@ -214,7 +214,7 @@ export class PipelinePostProcess extends MXP.PostProcess {
 		const motionBlurTile = new MXP.PostProcessPass( gl, {
 			name: 'motionBlurTile',
 			frag: motionBlurTileFrag,
-			uniforms: GLP.UniformsUtils.merge( {
+			uniforms: MXP.UniformsUtils.merge( {
 				uVelTex: {
 					value: null,
 					type: '1i'
@@ -233,7 +233,7 @@ export class PipelinePostProcess extends MXP.PostProcess {
 		const motionBlurNeighbor = new MXP.PostProcessPass( gl, {
 			name: 'motionBlurNeighbor',
 			frag: motionBlurNeighborFrag,
-			uniforms: GLP.UniformsUtils.merge( {
+			uniforms: MXP.UniformsUtils.merge( {
 				uVelTex: {
 					value: motionBlurTile.renderTarget!.textures[ 0 ],
 					type: '1i'
@@ -252,7 +252,7 @@ export class PipelinePostProcess extends MXP.PostProcess {
 		const motionBlur = new MXP.PostProcessPass( gl, {
 			name: 'motionBlur',
 			frag: motionBlurFrag,
-			uniforms: GLP.UniformsUtils.merge( {
+			uniforms: MXP.UniformsUtils.merge( {
 				uVelNeighborTex: {
 					value: motionBlurNeighbor.renderTarget!.textures[ 0 ],
 					type: '1i'

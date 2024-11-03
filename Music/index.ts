@@ -299,7 +299,7 @@ export class Music extends MXP.Component {
 
 				if ( this.entity ) {
 
-					this.entity.noticeParent( 'update/music/complete', [ this.audioBuffer, this.frequencyTexture, this.timeDomainTexture ] );
+					this.entity.noticeEventParent( 'update/music/complete', [ this.audioBuffer, this.frequencyTexture, this.timeDomainTexture ] );
 
 				}
 
@@ -358,7 +358,7 @@ export class Music extends MXP.Component {
 
 			if ( this.entity ) {
 
-				this.entity.noticeParent( 'update/music', [ this.audioBuffer, this.frequencyTexture, this.timeDomainTexture ] );
+				this.entity.noticeEventParent( 'update/music', [ this.audioBuffer, this.frequencyTexture, this.timeDomainTexture ] );
 
 			}
 

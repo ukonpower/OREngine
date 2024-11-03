@@ -21,7 +21,7 @@ export class BLidger extends Component {
 
 	public node: BLidgeEntity;
 	public rotationOffsetX: number;
-	public animationCurves: Map<string, GLP.FCurveGroup>;
+	public animations: Map<string, GLP.FCurveGroup>;
 	public uniforms: GLP.Uniforms;
 	public uniformCurves: Map<string, GLP.FCurveGroup>;
 	public transformAutoUpdate: boolean;
@@ -50,7 +50,7 @@ export class BLidger extends Component {
 
 		// animations
 
-		this.animationCurves = new Map();
+		this.animations = new Map();
 
 		const animationCurveKeys = Object.keys( this.node.animations );
 
@@ -58,7 +58,7 @@ export class BLidger extends Component {
 
 			const name = animationCurveKeys[ i ];
 
-			this.animationCurves.set( name, this.blidge.getCurveGroup( this.node.animations[ name ] ) );
+			this.animations.set( name, this.blidge.getCurveGroup( this.node.animations[ name ] ) );
 
 		}
 
@@ -128,12 +128,12 @@ export class BLidger extends Component {
 
 			const cubeParam = this.node.param as any;
 
-			entity.addComponent( new CubeGeometry( { width: cubeParam.x, height: cubeParam.y, depth: cubeParam.z, segmentsWidth: 10, segmentsHeight: 10, segmentsDepth: 10 } ) );
+			entity.addComponent( new CubeGeometry( { disableEdit: true, width: cubeParam.x, height: cubeParam.y, depth: cubeParam.z, segmentsWidth: 10, segmentsHeight: 10, segmentsDepth: 10 } ) );
 
 		} else if ( this.node.type == 'sphere' ) {
 
 			const sphereParam = this.node.param as any;
-			entity.addComponent( new SphereGeometry( {
+			entity.addComponent( new SphereGeometry( { disableEdit: true,
 				radius: sphereParam.r,
 				widthSegments: 32,
 				heightSegments: 16
@@ -141,19 +141,19 @@ export class BLidger extends Component {
 
 		} else if ( this.node.type == 'cylinder' ) {
 
-			entity.addComponent( new CylinderGeometry( { } ) );
+			entity.addComponent( new CylinderGeometry( { disableEdit: true } ) );
 
 		} else if ( this.node.type == 'plane' ) {
 
 			const planeParam = this.node.param as any;
 
-			entity.addComponent( new PlaneGeometry( { width: planeParam.x, height: planeParam.y } ) );
+			entity.addComponent( new PlaneGeometry( { disableEdit: true, width: planeParam.x, height: planeParam.y } ) );
 
 		} else if ( this.node.type == 'mesh' ) {
 
 			const geometryParam = this.node.param as any;
 
-			const geometry = new Geometry();
+			const geometry = new Geometry( { disableEdit: true } );
 			geometry.setAttribute( 'position', geometryParam.position, 3 );
 			geometry.setAttribute( 'uv', geometryParam.uv, 2 );
 			geometry.setAttribute( 'normal', geometryParam.normal, 3 );
@@ -164,7 +164,7 @@ export class BLidger extends Component {
 
 			this.blidge.gltfPrm.then( gltf => {
 
-				const gltfEntity = gltf.scene.getEntityByName( this.node.name );
+				const gltfEntity = gltf.scene.findEntityByName( this.node.name );
 
 				if ( gltfEntity ) {
 
@@ -172,6 +172,7 @@ export class BLidger extends Component {
 
 					if ( geo ) {
 
+						geo.disableEdit = true;
 						entity.addComponent( geo );
 
 					}
@@ -180,13 +181,14 @@ export class BLidger extends Component {
 
 					if ( mat ) {
 
+						mat.disableEdit = true;
 						entity.addComponent( mat );
 
 					}
 
 				}
 
-				entity.noticeParent( "update/blidge/scene", [ entity ] );
+				entity.noticeEventParent( "update/blidge/scene", [ entity ] );
 
 			} );
 
@@ -196,13 +198,9 @@ export class BLidger extends Component {
 
 		const mat = entity.getComponentByTag<Material>( "material" );
 
-		if ( mat ) {
+		if ( ! mat && entity.getComponentByTag<Geometry>( "geometry" ) ) {
 
-			mat.uniforms = GLP.UniformsUtils.merge( mat.uniforms, this.uniforms );
-
-		} else if ( entity.getComponentByTag<Geometry>( "geometry" ) ) {
-
-			entity.addComponent( new Material( { name: entity.name, phase: [ "deferred", "shadowMap" ] } ) );
+			entity.addComponent( new Material( { disableEdit: true, name: entity.name, phase: [ "deferred", "shadowMap" ] } ) );
 
 		}
 
@@ -211,7 +209,7 @@ export class BLidger extends Component {
 		if ( this.node.type == "light" ) {
 
 			const lightParam = this.node.param as BLidgeLightParam;
-			this.lightComponent = entity.addComponent( new Light() );
+			this.lightComponent = entity.addComponent( new Light( { disableEdit: true } ) );
 
 			this.lightComponent.deserialize( {
 				...lightParam,
@@ -238,48 +236,24 @@ export class BLidger extends Component {
 
 		entity.visible = this.node.visible;
 
-		// onAddcomponent
-
-		const onEntityAddComponent = ( component: Component ) => {
-
-			if ( component instanceof Material ) {
-
-				component.uniforms = GLP.UniformsUtils.merge( component.uniforms, this.uniforms );
-
-			}
-
-		};
-
-		entity.on( "add/component", onEntityAddComponent );
-
-		const onUnset = () => {
-
-			entity.off( "add/component", onEntityAddComponent );
-
-		};
-
-		this.once( "unsetEntity", onUnset );
-
 	}
 
 	protected unsetEntityImpl( prevEntity: Entity ): void {
 
 		this.cameraComponent = undefined;
 
-		this.emit( "unsetEntity", [ prevEntity ] );
-
 	}
 
 	protected preUpdateImpl( event: ComponentUpdateEvent ): void {
 
 		const entity = event.entity;
-		const frame = event.timeCode * this.blidge.frame.fps;
+		const frame = ( event.timeCode * this.blidge.frame.fps );
 
 		// animations
 
-		this.animationCurves.forEach( ( curve ) => {
+		this.animations.forEach( ( anim ) => {
 
-			curve.setFrame( frame );
+			anim.setFrame( frame );
 
 		} );
 
@@ -287,7 +261,7 @@ export class BLidger extends Component {
 
 		if ( this.transformAutoUpdate ) {
 
-			const curvePosition = this.animationCurves.get( 'position' );
+			const curvePosition = this.animations.get( 'position' );
 
 			if ( curvePosition ) {
 
@@ -313,7 +287,7 @@ export class BLidger extends Component {
 
 			}
 
-			const curveRotation = this.animationCurves.get( 'rotation' );
+			const curveRotation = this.animations.get( 'rotation' );
 
 			if ( curveRotation ) {
 
@@ -351,7 +325,7 @@ export class BLidger extends Component {
 
 			}
 
-			const curveScale = this.animationCurves.get( 'scale' );
+			const curveScale = this.animations.get( 'scale' );
 
 			if ( curveScale ) {
 
@@ -381,7 +355,7 @@ export class BLidger extends Component {
 
 		// visibility
 
-		const curveHide = this.animationCurves.get( 'hide' );
+		const curveHide = this.animations.get( 'hide' );
 
 		if ( curveHide ) {
 
@@ -389,25 +363,11 @@ export class BLidger extends Component {
 
 		}
 
-		// camera
-
-		if ( this.cameraComponent ) {
-
-			const curveFov = this.animationCurves.get( 'fov' );
-
-			if ( curveFov ) {
-
-				this.cameraComponent.fov = 2 * Math.atan( 12 / ( 2 * curveFov.setFrame( frame ).value.x ) ) / Math.PI * 180;
-
-			}
-
-		}
-
 		// light
 
 		if ( this.lightComponent ) {
 
-			const curveColor = this.animationCurves.get( 'color' );
+			const curveColor = this.animations.get( 'color' );
 
 			if ( curveColor ) {
 
@@ -422,6 +382,16 @@ export class BLidger extends Component {
 		this.uniformCurves.forEach( ( curve, name ) => {
 
 			this.uniforms[ name ].value = curve.setFrame( frame ).value;
+
+		} );
+
+	}
+
+	private assignUniforms( targetUniforms: GLP.Uniforms ) {
+
+		Object.keys( this.uniforms ).forEach( ( name ) => {
+
+			targetUniforms[ name ] = this.uniforms[ name ];
 
 		} );
 

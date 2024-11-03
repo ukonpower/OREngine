@@ -66,7 +66,7 @@ export class PMREMRender extends MXP.PostProcess {
 			const pmremPass = new MXP.PostProcessPass( gl, {
 				renderTarget: swapBuffers[ i ].rt1,
 				frag: pmremFrag,
-				uniforms: GLP.UniformsUtils.merge( timeUniforms, {
+				uniforms: MXP.UniformsUtils.merge( timeUniforms, {
 					uRoughness: {
 						value: roughness,
 						type: '1f'

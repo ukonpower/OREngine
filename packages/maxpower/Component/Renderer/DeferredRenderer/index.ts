@@ -82,7 +82,7 @@ export class DeferredRenderer extends MXP.PostProcess {
 			name: 'normalSelector',
 			frag: normalSelectorFrag,
 			renderTarget: null,
-			uniforms: GLP.UniformsUtils.merge( {
+			uniforms: MXP.UniformsUtils.merge( {
 				uNormalTexture: {
 					value: null,
 					type: '1i'
@@ -113,7 +113,7 @@ export class DeferredRenderer extends MXP.PostProcess {
 			name: 'lightShaft',
 			frag: lightShaftFrag,
 			renderTarget: rtLightShaft1,
-			uniforms: GLP.UniformsUtils.merge( timeUniforms, {
+			uniforms: MXP.UniformsUtils.merge( timeUniforms, {
 				uLightShaftBackBuffer: {
 					value: rtLightShaft2.textures[ 0 ],
 					type: '1i'
@@ -141,7 +141,7 @@ export class DeferredRenderer extends MXP.PostProcess {
 			name: 'ssao',
 			frag: ssaoFrag,
 			renderTarget: MXP.hotGet( "ssao", rtSSAO1 ),
-			uniforms: GLP.UniformsUtils.merge( timeUniforms, {
+			uniforms: MXP.UniformsUtils.merge( timeUniforms, {
 				uSSAOBackBuffer: {
 					value: rtSSAO2.textures[ 0 ],
 					type: '1i'
@@ -171,7 +171,9 @@ export class DeferredRenderer extends MXP.PostProcess {
 
 		}
 
-		const ssaoBlurUni = GLP.UniformsUtils.merge( timeUniforms, {
+		const SSAOSAMPLE = 8;
+
+		const ssaoBlurUni = MXP.UniformsUtils.merge( timeUniforms, {
 			uSSAOTexture: {
 				value: rtSSAO2.textures[ 0 ],
 				type: '1i'
@@ -186,7 +188,7 @@ export class DeferredRenderer extends MXP.PostProcess {
 			},
 			uWeights: {
 				type: '1fv',
-				value: GLP.MathUtils.gaussWeights( 16 )
+				value: GLP.MathUtils.gaussWeights( SSAOSAMPLE )
 			},
 		} );
 
@@ -196,18 +198,22 @@ export class DeferredRenderer extends MXP.PostProcess {
 			uniforms: ssaoBlurUni,
 			resolutionRatio: 1.0,
 			passThrough: true,
+			defines: {
+				SSAOSAMPLE
+			}
 		} );
 
 		const ssaoBlurV = new MXP.PostProcessPass( gl, {
 			name: 'ssaoBlur/v',
 			frag: MXP.hotGet( "ssaoBlur", ssaoBlurFrag ),
-			uniforms: GLP.UniformsUtils.merge( ssaoBlurUni, {
+			uniforms: MXP.UniformsUtils.merge( ssaoBlurUni, {
 				uSSAOTexture: {
 					value: ssaoBlurH.renderTarget!.textures[ 0 ],
 					type: '1i'
 				},
 			} ),
 			defines: {
+				SSAOSAMPLE,
 				IS_VIRT: ''
 			},
 			resolutionRatio: 1.0,
@@ -236,7 +242,7 @@ export class DeferredRenderer extends MXP.PostProcess {
 		const shading = new MXP.PostProcessPass( gl, {
 			name: "deferredShading",
 			frag: MXP.hotGet( "deferredShading", deferredShadingFrag ),
-			uniforms: GLP.UniformsUtils.merge( {
+			uniforms: MXP.UniformsUtils.merge( {
 				uLightShaftTexture: {
 					value: null,
 					type: '1i'
@@ -333,7 +339,13 @@ export class DeferredRenderer extends MXP.PostProcess {
 
 		for ( let i = 0; i < renderTarget.gBuffer.textures.length; i ++ ) {
 
-			const tex = renderTarget.gBuffer.textures[ i ];
+			let tex = renderTarget.gBuffer.textures[ i ];
+
+			if ( i === 1 ) {
+
+				tex = renderTarget.normalBuffer.textures[ 0 ];
+
+			}
 
 			this.shading.uniforms[ "sampler" + i ] = this.ssao.uniforms[ "sampler" + i ] = {
 				type: '1i',
@@ -351,7 +363,7 @@ export class DeferredRenderer extends MXP.PostProcess {
 		this.normalSelector.uniforms.uPosTexture.value = renderTarget.gBuffer.textures[ 0 ];
 		this.normalSelector.uniforms.uSelectorTexture.value = renderTarget.gBuffer.textures[ 3 ];
 
-		this.ssaoBlurUni.uNormalTexture.value = this.ssao.uniforms[ "sampler1" ].value = this.shading.uniforms[ "sampler1" ].value = renderTarget.normalBuffer.textures[ 0 ];
+		this.ssaoBlurUni.uNormalTexture.value = renderTarget.normalBuffer.textures[ 0 ];
 
 	}
 

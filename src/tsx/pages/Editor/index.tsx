@@ -57,7 +57,7 @@ export const EditorPage = () => {
 							</div>
 							<div style={{ height: "20vh" }}>
 								<PanelContainer >
-									<Panel title="Timer" >
+									<Panel title="Timer" noPadding >
 										<Timer />
 									</Panel>
 								</PanelContainer>
@@ -107,9 +107,9 @@ export const EditorPage = () => {
 								</PanelContainer>
 
 							</div>
-							<div style={{ height: "20vh" }}>
+							<div style={{ height: "15vh" }}>
 								<PanelContainer >
-									<Panel title="Timer" >
+									<Panel title="Timer" noPadding >
 										<Timer />
 									</Panel>
 								</PanelContainer>

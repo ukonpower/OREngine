@@ -3,7 +3,7 @@ import * as MXP from 'maxpower';
 
 
 type BakeAttribute = {
-	[key: string]: {size: number, type: Float32ArrayConstructor | Uint16ArrayConstructor | Uint8ArrayConstructor}
+	[key: string]: {size: number, type: Float32ArrayConstructor | Uint16ArrayConstructor | Uint8ArrayConstructor | Int8ArrayConstructor | Int16ArrayConstructor}
 }
 
 export class Modeler {
@@ -50,7 +50,7 @@ export class Modeler {
 
 		tf.bind( () => {
 
-			program.setShader( MXP.shaderParse( vertexShader, { ...defines, "TF_MODELER": "" } ), "#version 300 es\n void main(){ discard; }", { transformFeedbackVaryings: [ 'o_position', 'o_normal' ] } );
+			program.setShader( MXP.shaderParse( vertexShader, { ...defines, "TF_MODELER": "" } ), "void main(){ discard; }", { transformFeedbackVaryings: [ 'o_position', 'o_normal' ] } );
 
 		} );
 
@@ -164,9 +164,10 @@ export class Modeler {
 		const indexArray: number[] = [];
 
 		const customAttributes: BakeAttribute = {
-			uv: { size: 2, type: Float32Array },
 			...attrs,
 		};
+
+		customAttributes[ "uv" ] = { size: 2, type: Float32Array };
 
 		const bakedAttributes: {[key: string]: number[]} = {};
 
@@ -287,7 +288,7 @@ export class Modeler {
 
 			e.children.forEach( c => {
 
-				c.updateMatrix( );
+				c.updateMatrix();
 
 				_( c, matrix.clone().multiply( c.matrix ) );
 

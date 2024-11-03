@@ -8,6 +8,7 @@ export * from './BLidge';
 export * from './Component';
 
 export * from './Component/BLidger';
+export * from './Component/BLidgerUniformReceiver';
 export * from './Component/Camera';
 
 export * from './Component/GPUCompute';
@@ -31,6 +32,9 @@ export * from './Component/PostProcessPass';
 
 export * from './Component/Renderer';
 export * from "./Component/Renderer/DeferredRenderer";
+export * from './Component/Renderer/ProgramManager';
+
+export * from './Component/ComponentCatcher';
 
 // entity
 
@@ -52,7 +56,7 @@ export * from './Serializable';
 
 export * from './Utils/Hot';
 export * from './Utils/ShaderParser';
-export * from './Component/Renderer/ProgramManager';
+export * from './Utils/Uniforms';
 
 // curve
 

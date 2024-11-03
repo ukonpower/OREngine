@@ -1,6 +1,3 @@
-#version 300 es
-precision highp float;
-
 uniform sampler2D backbuffer0;
 uniform vec2 uResolution;
 uniform vec2 uResolutionInv;

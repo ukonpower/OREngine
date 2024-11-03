@@ -1,7 +1,7 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { canvas, power, renderer } from '../GLGlobals';
+import { canvas, power, renderer, screenElm } from '../GLGlobals';
 import { ProjectScene } from '../ProjectScene';
 import { OREngineProjectData } from '../ProjectScene/IO/ProjectSerializer';
 import { FrameDebugger } from '../ProjectScene/utils/FrameDebugger';
@@ -20,6 +20,7 @@ export class GLEditor extends MXP.Serializable {
 
 	// canvas
 
+	public screenElm: HTMLDivElement;
 	public canvas: HTMLCanvasElement;
 	public canvasWrapElm: HTMLElement | null;
 
@@ -68,6 +69,7 @@ export class GLEditor extends MXP.Serializable {
 
 		// canvas
 
+		this.screenElm = screenElm;
 		this.canvas = canvas;
 		this.canvasWrapElm = null;
 		this.resolutionScale = 0.5;
@@ -496,36 +498,47 @@ export class GLEditor extends MXP.Serializable {
 
 	private resize() {
 
+		const aspect = 16 / 9;
+
+		// wrap size
+
 		const wrapWidth = this.canvasWrapElm ? this.canvasWrapElm.clientWidth : 16;
 		const wrapHeight = this.canvasWrapElm ? this.canvasWrapElm.clientHeight : 9;
 		const wrapAspect = wrapWidth / wrapHeight;
 
-		const canvasPixelWidth = 1920;
-		const canvasPixelHeight = 1080;
-		const canvasPixelAspect = canvasPixelWidth / canvasPixelHeight;
+		// screen size
 
-		let canvasWidth = wrapWidth;
-		let canvasHeight = wrapHeight;
 
-		if ( canvasPixelAspect < wrapAspect ) {
+		let screenWidth = wrapWidth;
+		let screenHeight = wrapHeight;
 
-			canvasWidth = wrapHeight * canvasPixelAspect;
+		if ( aspect < wrapAspect ) {
+
+			screenWidth = wrapHeight * aspect;
 
 		} else {
 
-			canvasHeight = wrapWidth / canvasPixelAspect;
+			screenHeight = wrapWidth / aspect;
 
 		}
 
-		this.canvas.style.width = canvasWidth + 'px';
-		this.canvas.style.height = canvasHeight + 'px';
+		this.screenElm.style.width = screenWidth + 'px';
+		this.screenElm.style.height = screenHeight + 'px';
 
-		this.canvas.width = canvasPixelWidth * this.resolutionScale;
-		this.canvas.height = canvasPixelHeight * this.resolutionScale;
+		// canvas resolution
 
-		const resolution = new GLP.Vector( this.canvas.width, this.canvas.height );
+		const canvasWidth = 1920;
+		const canvasHeight = canvasWidth / aspect;
 
+		this.canvas.width = 1920 * this.resolutionScale;
+		this.canvas.height = canvasHeight * this.resolutionScale;
+
+		// resize
+
+		const resolution = new GLP.Vector( canvas.width, canvas.height );
 		this.scene.resize( resolution );
+
+		// debugegr
 
 		this.frameDebugger.resize( resolution );
 
@@ -539,7 +552,7 @@ export class GLEditor extends MXP.Serializable {
 
 		this.disposed = true;
 
-		this.canvas.remove();
+		this.screenElm.remove();
 		this.scene.disposeRecursive();
 		this.keyBoard.dispose();
 		this.frameDebugger.dispose();

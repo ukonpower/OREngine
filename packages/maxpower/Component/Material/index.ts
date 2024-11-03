@@ -6,6 +6,8 @@ type MaterialDefines = {[key: string]: any};
 type MaterialVisibility = {[K in MaterialRenderType]?: boolean}
 type MaterialProgramCache = {[K in MaterialRenderType]?: GLP.GLPowerProgram}
 
+import { Entity } from 'packages/maxpower/Entity';
+
 import { Component, ComponentParams } from '..';
 
 import basicFrag from './shaders/basic.fs';
@@ -93,6 +95,12 @@ export class Material extends Component {
 			envMap: typeArray.indexOf( 'envMap' ) > - 1,
 			postprocess: typeArray.indexOf( 'postprocess' ) > - 1,
 		};
+
+	}
+
+	protected setEntityImpl( entity: Entity ): void {
+
+		if ( this.name === '' ) this.name = entity.name;
 
 	}
 

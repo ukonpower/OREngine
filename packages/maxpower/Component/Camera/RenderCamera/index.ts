@@ -55,6 +55,7 @@ export class RenderCamera extends Camera {
 		] );
 
 		const uiBuffer = new GLP.GLPowerFrameBuffer( gl, { disableDepthBuffer: true } );
+		uiBuffer.setDepthTexture( this.gBuffer.depthTexture );
 		uiBuffer.setTexture( [ new GLP.GLPowerTexture( gl ) ] );
 
 		const normalBuffer = new GLP.GLPowerFrameBuffer( gl );
@@ -68,7 +69,7 @@ export class RenderCamera extends Camera {
 
 		this.dof = {
 			focusDistance: 0.5,
-			kFilmHeight: 0.002,
+			kFilmHeight: 0.008,
 		};
 
 	}

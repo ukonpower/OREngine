@@ -5,7 +5,8 @@ interface PlaneGeometryParams extends ComponentParams{
 	width?: number,
 	height?: number,
 	widthSegments?: number,
-	heightSegments?: number
+	heightSegments?: number,
+	floor?: boolean,
 }
 
 export class PlaneGeometry extends Geometry {
@@ -14,7 +15,7 @@ export class PlaneGeometry extends Geometry {
 
 		super( params );
 
-		const { width, height, widthSegments, heightSegments } = {
+		const { width, height, widthSegments, heightSegments, floor } = {
 			width: 1,
 			height: 1,
 			widthSegments: 1,
@@ -37,15 +38,30 @@ export class PlaneGeometry extends Geometry {
 				const x = ( j / widthSegments );
 				const y = ( i / heightSegments );
 
-				posArray.push(
-					- hx + width * x,
-					- hy + height * y,
-					0
-				);
+				if ( floor ) {
+
+					posArray.push(
+						- hx + width * x,
+						0,
+						hy - height * y,
+					);
+
+					normalArray.push( 0, 1, 0 );
+
+				} else {
+
+					posArray.push(
+						- hx + width * x,
+						- hy + height * y,
+						0
+					);
+
+					normalArray.push( 0, 0, 1 );
+
+				}
 
 				uvArray.push( x, y );
 
-				normalArray.push( 0, 0, 1 );
 
 				if ( i > 0 && j > 0 ) {
 

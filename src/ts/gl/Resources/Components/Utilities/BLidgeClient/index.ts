@@ -1,10 +1,7 @@
 import * as MXP from 'maxpower';
 
-import { router } from './router';
-
 import { gl } from '~/ts/gl/GLGlobals';
 import SceneData from '~/ts/gl/Resources/scene.json';
-
 
 export class BLidgeClient extends MXP.Component {
 
@@ -53,7 +50,7 @@ export class BLidgeClient extends MXP.Component {
 
 			if ( this.entity ) {
 
-				this.entity.noticeParent( "update/blidge/frame", [ frame ] );
+				this.entity.noticeEventParent( "update/blidge/frame", [ frame ] );
 
 			}
 
@@ -97,9 +94,7 @@ export class BLidgeClient extends MXP.Component {
 				},
 				url: {
 					value: this.connection.url,
-					opt: {
-						readOnly: connect
-					}
+					readOnly: connect
 				},
 			} || undefined,
 		};
@@ -167,7 +162,7 @@ export class BLidgeClient extends MXP.Component {
 
 		const _ = ( node: MXP.BLidgeEntity ): MXP.Entity => {
 
-			const entity: MXP.Entity = ( this.entities.get( node.name ) || router( node ) );
+			const entity: MXP.Entity = ( this.entities.get( node.name ) || new MXP.Entity() );
 
 			if ( node.type == 'camera' ) {
 
@@ -176,7 +171,7 @@ export class BLidgeClient extends MXP.Component {
 
 			}
 
-			entity.addComponent( new MXP.BLidger( { blidge, node } ) );
+			entity.addComponent( new MXP.BLidger( { blidge, node, disableEdit: true } ) );
 
 			node.children.forEach( c => {
 
@@ -241,11 +236,11 @@ export class BLidgeClient extends MXP.Component {
 
 		if ( this.entity ) {
 
-			this.entity.notice( "sceneCreated", [ this.blidgeRoot ] );
+			this.entity.noticeEventChilds( "sceneCreated", [ this.blidgeRoot ] );
 
-			this.entity.noticeParent( "update/graph", [ "scenechange" ] );
+			this.entity.noticeEventParent( "update/graph", [ "scenechange" ] );
 
-			this.entity.noticeParent( "update/blidge/scene", [ this.blidgeRoot ] );
+			this.entity.noticeEventParent( "update/blidge/scene", [ this.blidgeRoot ] );
 
 		}
 

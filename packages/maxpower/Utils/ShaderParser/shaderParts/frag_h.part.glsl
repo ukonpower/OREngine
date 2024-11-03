@@ -28,6 +28,7 @@ uniform vec3 cameraPosition;
 	uniform sampler2D uDeferredTexture;
 	uniform vec2 uDeferredResolution;
 #endif
+
 #if defined(IS_FORWARD) || defined(IS_DEPTH)
 	layout (location = 0) out vec4 outColor0;
 	layout (location = 1) out vec4 outColor1;
