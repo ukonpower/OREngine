@@ -16,8 +16,8 @@ export class RingGeometry extends Geometry {
 		super( params );
 
 		const { innerRadius, outerRadius, thetaSegments, phiSegments, extrude } = {
-			innerRadius: 0.5,
-			outerRadius: 1,
+			innerRadius: 0.4,
+			outerRadius: 0.5,
 			thetaSegments: 12,
 			phiSegments: 1,
 			extrude: 0,

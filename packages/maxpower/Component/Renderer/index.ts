@@ -63,7 +63,7 @@ type CameraOverride = {
 	uniforms?: GLP.Uniforms,
 }
 
-type DrawParam = CameraOverride & { modelMatrixWorld?: GLP.Matrix, modelMatrixWorldPrev?: GLP.Matrix, drawName?: string }
+type DrawParam = CameraOverride & { modelMatrixWorld?: GLP.Matrix, modelMatrixWorldPrev?: GLP.Matrix, label?: string, renderTarget?:GLP.GLPowerFrameBuffer | null }
 
 // state
 
@@ -81,9 +81,14 @@ export class Renderer extends Entity {
 	private renderCanvasSize: GLP.Vector;
 	private extDisJointTimerQuery: any;
 
+	// compile
+
+	public noDraw: boolean;
+	public drawParams: any[];
+
 	// program
 
-	private programManager: ProgramManager;
+	public programManager: ProgramManager;
 
 	// lights
 
@@ -128,6 +133,8 @@ export class Renderer extends Entity {
 
 		this.gl = gl;
 
+		this.noDraw = false;
+		this.drawParams = [];
 		this.programManager = new ProgramManager( this.gl );
 		this.renderCanvasSize = new GLP.Vector();
 		this.extDisJointTimerQuery = this.gl.getExtension( "EXT_disjoint_timer_query_webgl2" );
@@ -235,7 +242,6 @@ export class Renderer extends Entity {
 
 			} else {
 
-				// const updatedList = new Map<string, number>();
 				const updatedList = [];
 
 				if ( this.queryListQueued.length > 0 ) {
@@ -410,12 +416,36 @@ export class Renderer extends Entity {
 				cameraFar: cameraComponent.far,
 			} } );
 
-			if ( this.pipelinePostProcess.output ) {
+			let backBuffer = this.pipelinePostProcess.output ? this.pipelinePostProcess.output : null;
 
-				this.gl.bindFramebuffer( this.gl.READ_FRAMEBUFFER, this.pipelinePostProcess.output.getFrameBuffer() );
+			// postprocess
+
+			const postProcess = cameraEntity.getComponent( PostProcess );
+
+			if ( postProcess && postProcess.enabled ) {
+
+				postProcess.input = backBuffer ? backBuffer.textures : [];
+
+				this.renderPostProcess( postProcess, this.renderCanvasSize, { cameraOverride: {
+					viewMatrix: cameraComponent.viewMatrix,
+					projectionMatrix: cameraComponent.projectionMatrix,
+					cameraMatrixWorld: cameraEntity.matrixWorld,
+					cameraNear: cameraComponent.near,
+					cameraFar: cameraComponent.far,
+				} } );
+
+				backBuffer = postProcess.output;
+
+			}
+
+			// ui
+
+			if ( backBuffer ) {
+
+				this.gl.bindFramebuffer( this.gl.READ_FRAMEBUFFER, backBuffer.getFrameBuffer() );
 				this.gl.bindFramebuffer( this.gl.DRAW_FRAMEBUFFER, cameraComponent.renderTarget.uiBuffer.getFrameBuffer() );
 
-				const size = this.pipelinePostProcess.output.size;
+				const size = backBuffer.size;
 
 				this.gl.blitFramebuffer(
 					0, 0, size.x, size.y,
@@ -424,7 +454,6 @@ export class Renderer extends Entity {
 
 			}
 
-			// ui
 
 			this.gl.enable( this.gl.BLEND );
 
@@ -437,25 +466,10 @@ export class Renderer extends Entity {
 
 			this.gl.disable( this.gl.BLEND );
 
-			// postprocess
-
-			const postProcess = cameraEntity.getComponent( PostProcess );
-
-			if ( postProcess && postProcess.enabled ) {
-
-				this.renderPostProcess( postProcess, this.renderCanvasSize, { cameraOverride: {
-					viewMatrix: cameraComponent.viewMatrix,
-					projectionMatrix: cameraComponent.projectionMatrix,
-					cameraMatrixWorld: cameraEntity.matrixWorld,
-					cameraNear: cameraComponent.near,
-					cameraFar: cameraComponent.far,
-				} } );
-
-			}
 
 			if ( cameraComponent.displayOut ) {
 
-				const outBuffer = postProcess ? postProcess.output : cameraComponent.renderTarget.uiBuffer;
+				const outBuffer = cameraComponent.renderTarget.uiBuffer;
 
 				this.gl.bindFramebuffer( this.gl.READ_FRAMEBUFFER, outBuffer === null ? null : outBuffer.getFrameBuffer() );
 				this.gl.bindFramebuffer( this.gl.DRAW_FRAMEBUFFER, null );
@@ -486,6 +500,7 @@ export class Renderer extends Entity {
 			cameraMatrixWorld: cameraEntity.matrixWorld,
 			cameraNear: camera.near,
 			cameraFar: camera.far,
+			renderTarget: renderTarget,
 			...renderOption.cameraOverride
 		};
 
@@ -551,6 +566,7 @@ export class Renderer extends Entity {
 
 			drawParam.modelMatrixWorld = entity.matrixWorld;
 			drawParam.modelMatrixWorldPrev = entity.matrixWorldPrev;
+			drawParam.label = `cam[${camera.uuid}]/${entity.name || material.name || "-"}`;
 
 			this.draw( entity.uuid, renderType, geometry, material, drawParam );
 
@@ -602,7 +618,7 @@ export class Renderer extends Entity {
 
 			const pass = postprocess.passes[ i ];
 
-			if ( ! pass.enabled ) continue;
+			if ( pass.enabled === false ) continue;
 
 			const renderTarget = pass.renderTarget;
 
@@ -678,7 +694,12 @@ export class Renderer extends Entity {
 
 			}
 
-			this.draw( pass.uuid, "postprocess", this.quad, pass, renderOption && renderOption.cameraOverride );
+			const opt: DrawParam = renderOption && renderOption.cameraOverride || {};
+
+			opt.label = pass.name;
+			opt.renderTarget = renderTarget;
+
+			this.draw( pass.uuid, "postprocess", this.quad, pass, opt );
 
 			pass.onAfterRender();
 
@@ -694,7 +715,15 @@ export class Renderer extends Entity {
 
 	}
 
-	private draw( drawId: string, renderType: MaterialRenderType, geometry: Geometry, material: Material, param?: DrawParam ) {
+	public draw( drawId: string, renderType: MaterialRenderType, geometry: Geometry, material: Material, param?: DrawParam ) {
+
+		if ( this.noDraw ) {
+
+			this.drawParams.push( { drawId, renderType, geometry, material, param: { ...param } } );
+
+			return;
+
+		}
 
 		TextureUnitCounter = 0;
 
@@ -835,11 +864,13 @@ export class Renderer extends Entity {
 
 					const texture = dLight.component.renderTarget.textures[ 0 ].activate( TextureUnitCounter ++ );
 
-					program.setUniform( 'directionalLightCamera[' + i + '].near', '1fv', [ dLight.component.near ] );
-					program.setUniform( 'directionalLightCamera[' + i + '].far', '1fv', [ dLight.component.far ] );
-					program.setUniform( 'directionalLightCamera[' + i + '].viewMatrix', 'Matrix4fv', dLight.component.viewMatrix.elm );
-					program.setUniform( 'directionalLightCamera[' + i + '].projectionMatrix', 'Matrix4fv', dLight.component.projectionMatrix.elm );
-					program.setUniform( 'directionalLightCamera[' + i + '].resolution', '2fv', texture.size.getElm( "vec2" ) );
+					const dc = `directionalLightCamera[${i}]`;
+
+					program.setUniform( dc + '.near', '1fv', [ dLight.component.near ] );
+					program.setUniform( dc + '.far', '1fv', [ dLight.component.far ] );
+					program.setUniform( dc + '.viewMatrix', 'Matrix4fv', dLight.component.viewMatrix.elm );
+					program.setUniform( dc + '.projectionMatrix', 'Matrix4fv', dLight.component.projectionMatrix.elm );
+					program.setUniform( dc + '.resolution', '2fv', texture.size.getElm( "vec2" ) );
 					program.setUniform( 'directionalLightShadowMap[' + i + ']', '1i', [ texture.unit ] );
 
 				}
@@ -856,23 +887,28 @@ export class Renderer extends Entity {
 
 				}
 
-				program.setUniform( 'spotLight[' + i + '].position', '3fv', sLight.position.getElm( 'vec3' ) );
-				program.setUniform( 'spotLight[' + i + '].direction', '3fv', sLight.direction.getElm( 'vec3' ) );
-				program.setUniform( 'spotLight[' + i + '].color', '3fv', sLight.color.getElm( 'vec3' ) );
-				program.setUniform( 'spotLight[' + i + '].angle', '1fv', [ Math.cos( sLight.component.angle / 2 ) ] );
-				program.setUniform( 'spotLight[' + i + '].blend', '1fv', [ sLight.component.blend ] );
-				program.setUniform( 'spotLight[' + i + '].distance', '1fv', [ sLight.component.distance ] );
-				program.setUniform( 'spotLight[' + i + '].decay', '1fv', [ sLight.component.decay ] );
+				const sl = `spotLight[${i}]`;
+
+				program.setUniform( sl + '.position', '3fv', sLight.position.getElm( 'vec3' ) );
+				program.setUniform( sl + '.direction', '3fv', sLight.direction.getElm( 'vec3' ) );
+				program.setUniform( sl + '.color', '3fv', sLight.color.getElm( 'vec3' ) );
+				program.setUniform( sl + '.angle', '1fv', [ Math.cos( sLight.component.angle / 2 ) ] );
+				program.setUniform( sl + '.blend', '1fv', [ sLight.component.blend ] );
+				program.setUniform( sl + '.distance', '1fv', [ sLight.component.distance ] );
+				program.setUniform( sl + '.decay', '1fv', [ sLight.component.decay ] );
+
 
 				if ( sLight.component.renderTarget ) {
 
 					const texture = sLight.component.renderTarget.textures[ 0 ].activate( TextureUnitCounter ++ );
 
-					program.setUniform( 'spotLightCamera[' + i + '].near', '1fv', [ sLight.component.near ] );
-					program.setUniform( 'spotLightCamera[' + i + '].far', '1fv', [ sLight.component.far ] );
-					program.setUniform( 'spotLightCamera[' + i + '].viewMatrix', 'Matrix4fv', sLight.component.viewMatrix.elm );
-					program.setUniform( 'spotLightCamera[' + i + '].projectionMatrix', 'Matrix4fv', sLight.component.projectionMatrix.elm );
-					program.setUniform( 'spotLightCamera[' + i + '].resolution', '2fv', texture.size.getElm( "vec2" ) );
+					const sc = `spotLightCamera[${i}]`;
+
+					program.setUniform( sc + '.near', '1fv', [ sLight.component.near ] );
+					program.setUniform( sc + '.far', '1fv', [ sLight.component.far ] );
+					program.setUniform( sc + '.viewMatrix', 'Matrix4fv', sLight.component.viewMatrix.elm );
+					program.setUniform( sc + '.projectionMatrix', 'Matrix4fv', sLight.component.projectionMatrix.elm );
+					program.setUniform( sc + '.resolution', '2fv', texture.size.getElm( "vec2" ) );
 					program.setUniform( 'spotLightShadowMap[' + i + ']', '1i', [ texture.unit ] );
 
 				}
@@ -919,33 +955,6 @@ export class Renderer extends Entity {
 
 			}
 
-			// draw
-
-			// query ------------------------
-
-			let query: WebGLQuery | null = null;
-
-			if ( process.env.NODE_ENV == 'development' ) {
-
-				query = this.queryList.pop() || null;
-
-				if ( query == null ) {
-
-					query = this.gl.createQuery();
-
-				}
-
-				if ( query ) {
-
-					this.gl.beginQuery( this.extDisJointTimerQuery.TIME_ELAPSED_EXT, query );
-
-				}
-
-			}
-
-			// -----------------------------
-
-
 			program.use( ( program ) => {
 
 				program.uploadUniforms();
@@ -978,6 +987,30 @@ export class Renderer extends Entity {
 
 				const drawType = this.gl[ material.drawType ];
 
+				// query ------------------------
+
+				let query: WebGLQuery | null = null;
+
+				if ( process.env.NODE_ENV == 'development' ) {
+
+					query = this.queryList.pop() || null;
+
+					if ( query == null ) {
+
+						query = this.gl.createQuery();
+
+					}
+
+					if ( query ) {
+
+						this.gl.beginQuery( this.extDisJointTimerQuery.TIME_ELAPSED_EXT, query );
+
+					}
+
+				}
+
+				// -----------------------------
+
 				if ( vao.instanceCount > 0 ) {
 
 					if ( indexBuffer ) {
@@ -1004,28 +1037,30 @@ export class Renderer extends Entity {
 
 				}
 
-				this.gl.bindVertexArray( null );
+				// query ------------------------
 
-			} );
+				if ( process.env.NODE_ENV == 'development' ) {
 
-			// query ------------------------
+					if ( query ) {
 
-			if ( process.env.NODE_ENV == 'development' ) {
+						this.gl.endQuery( this.extDisJointTimerQuery.TIME_ELAPSED_EXT );
 
-				if ( query ) {
+						const label = param && param.label || "_";
 
-					this.gl.endQuery( this.extDisJointTimerQuery.TIME_ELAPSED_EXT );
+						this.queryListQueued.push( {
+							name: `${renderType}/${label}/ [${drawId}]`,
+							query: query
+						} );
 
-					this.queryListQueued.push( {
-						name: `${renderType}/${param?.drawName || material.name }/[${drawId}]`,
-						query: query
-					} );
+					}
 
 				}
 
-			}
+				// ----------------------------
 
-			// ----------------------------
+				this.gl.bindVertexArray( null );
+
+			} );
 
 		}
 
@@ -1036,6 +1071,55 @@ export class Renderer extends Entity {
 		this.renderCanvasSize.copy( resolution );
 		this.deferredPostProcess.resize( resolution );
 		this.pipelinePostProcess.resize( resolution );
+
+	}
+
+	public async compile( cb: ( label: string, loaded: number, total: number ) => void ) {
+
+		const total = this.drawParams.length;
+		let loaded = 0;
+
+		for ( let i = 0; i < this.drawParams.length; i ++ ) {
+
+			const param = this.drawParams[ i ];
+
+			const renderTarget = param.param.renderTarget;
+
+			if ( renderTarget ) {
+
+				this.gl.bindFramebuffer( this.gl.FRAMEBUFFER, renderTarget.getFrameBuffer() );
+				this.gl.drawBuffers( renderTarget.textureAttachmentList );
+
+			} else {
+
+				this.gl.bindFramebuffer( this.gl.FRAMEBUFFER, null );
+
+			}
+
+			this.draw( param.drawId, param.renderType, param.geometry, param.material, param.param );
+
+			await new Promise( r => {
+
+				setTimeout( () => {
+
+					r( null );
+
+				}, 10 );
+
+			} );
+
+			if ( cb ) {
+
+				loaded ++;
+
+				const l = param.param && param.param.label || "-";
+				const label = `${param.renderType}/${l}/[${param.drawId}]`;
+
+				cb( label, loaded, total );
+
+			}
+
+		}
 
 	}
 

@@ -167,7 +167,7 @@ export class BLidge extends GLP.EventEmitter {
 
 	// gltf
 
-	private gltfLoader: GLTFLoader;
+	// private gltfLoader: GLTFLoader;
 	public gltf?: GLTF;
 
 	// scene
@@ -194,7 +194,7 @@ export class BLidge extends GLP.EventEmitter {
 			playing: false,
 		};
 
-		this.gltfLoader = new GLTFLoader( gl );
+		// this.gltfLoader = new GLTFLoader( gl );
 
 		if ( url ) {
 
@@ -210,35 +210,43 @@ export class BLidge extends GLP.EventEmitter {
 
 	public connect( url: string, gltfPath?: string ) {
 
-		const ws = new WebSocket( url );
-		ws.onopen = this.onOpen.bind( this );
-		ws.onmessage = this.onMessage.bind( this );
-		ws.onclose = this.onClose.bind( this );
-		ws.onerror = ( e ) => {
+		if ( process.env.NODE_ENV === 'development' ) {
 
-			console.error( e );
+			const ws = new WebSocket( url );
+			ws.onopen = this.onOpen.bind( this );
+			ws.onmessage = this.onMessage.bind( this );
+			ws.onclose = this.onClose.bind( this );
+			ws.onerror = ( e ) => {
 
-			this.emit( 'error' );
+				console.error( e );
 
-		};
+				this.emit( 'error' );
 
-		this.connection = {
-			url,
-			ws,
-			gltfPath
-		};
+			};
+
+			this.connection = {
+				url,
+				ws,
+				gltfPath
+			};
+
+		}
 
 	}
 
 	public disconnect() {
 
-		if ( this.connection ) {
+		if ( process.env.NODE_ENV === 'development' ) {
 
-			this.connection.ws.close();
-			this.connection.ws.onmessage = null;
-			this.connection.ws.onclose = null;
-			this.connection.ws.onopen = null;
-			this.connection = undefined;
+			if ( this.connection ) {
+
+				this.connection.ws.close();
+				this.connection.ws.onmessage = null;
+				this.connection.ws.onclose = null;
+				this.connection.ws.onopen = null;
+				this.connection = undefined;
+
+			}
 
 		}
 
@@ -458,22 +466,25 @@ export class BLidge extends GLP.EventEmitter {
 
 	private onMessage( e: MessageEvent ) {
 
-		const msg = JSON.parse( e.data ) as BLidgeMessage;
+		if ( process.env.NODE_ENV === 'development' ) {
 
-		if ( msg.type == 'sync/scene' ) {
+			const msg = JSON.parse( e.data ) as BLidgeMessage;
 
-			this.loadScene( msg.data, this.connection && this.connection.gltfPath );
+			if ( msg.type == 'sync/scene' ) {
 
-		} else if ( msg.type == "sync/timeline" ) {
+				this.loadScene( msg.data, this.connection && this.connection.gltfPath );
 
-			this.onSyncTimeline( msg.data );
+			} else if ( msg.type == "sync/timeline" ) {
 
-		} else if ( msg.type == "event" ) {
+				this.onSyncTimeline( msg.data );
 
-			this.emit( "event/" + msg.data.type );
+			} else if ( msg.type == "event" ) {
+
+				this.emit( "event/" + msg.data.type );
+
+			}
 
 		}
-
 
 	}
 

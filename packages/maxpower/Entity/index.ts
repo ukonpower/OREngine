@@ -1,20 +1,18 @@
 import * as GLP from 'glpower';
 
-
-import { BLidgeEntity } from "../BLidge";
 import { Component, ComponentUpdateEvent } from "../Component";
-import { BLidger } from '../Component/BLidger';
 import { RenderCamera } from '../Component/Camera/RenderCamera';
 import { Geometry } from '../Component/Geometry';
 import { Light } from '../Component/Light';
 import { Material } from '../Component/Material';
 import { RenderStack } from '../Component/Renderer';
-import { Serializable, SerializableProps, TypedSerializableProps } from '../Serializable';
+import { Serializable, TypedSerializableProps } from '../Serializable';
 
 export type EntityUpdateEvent = {
 	timElapsed: number;
 	timeDelta: number;
 	timeCode: number;
+	timeCodeFrame: number;
 	playing: boolean;
 	matrix?: GLP.Matrix;
 	visibility?: boolean;
@@ -51,10 +49,9 @@ export class Entity extends Serializable {
 
 	public parent: Entity | null;
 	public children: Entity[];
+
 	public components: Map<string, Component>;
 	private componentsByTag: Map<string, Component>;
-
-	protected blidgeNode?: BLidgeEntity;
 
 	public visible: boolean;
 	public userData: any;
@@ -83,11 +80,9 @@ export class Entity extends Serializable {
 		this.componentsByTag = new Map();
 
 		this.visible = true;
-
 		this.userData = {};
 
 	}
-
 
 	public get props() {
 
@@ -140,7 +135,6 @@ export class Entity extends Serializable {
 		// update components
 
 		// pre
-
 
 		this.preUpdateImpl( event );
 
@@ -223,7 +217,8 @@ export class Entity extends Serializable {
 		const geometry = this.getComponentByTag<Geometry>( "geometry" );
 		const material = this.getComponentByTag<Material>( "material" );
 
-		if ( geometry && material && ( geometry.enabled && material.enabled && visibility || event.forceDraw ) ) {
+
+		if ( geometry && material && ( ( geometry.enabled && material.enabled && visibility ) || event.forceDraw ) ) {
 
 			if ( material.visibilityFlag.deferred ) event.renderStack.deferred.push( this );
 			if ( material.visibilityFlag.shadowMap ) event.renderStack.shadowMap.push( this );
@@ -243,7 +238,7 @@ export class Entity extends Serializable {
 
 		const light = this.getComponent( Light );
 
-		if ( light && light.enabled ) {
+		if ( light && light.enabled && visibility ) {
 
 			event.renderStack.light.push( this );
 
@@ -316,6 +311,8 @@ export class Entity extends Serializable {
 
 		this.matrixWorldPrev.copy( this.matrixWorld );
 
+		// quaternion to euler
+
 		if ( this.quaternion.updated ) {
 
 			this.euler.setFromQuaternion( this.quaternion );
@@ -350,6 +347,8 @@ export class Entity extends Serializable {
 		Components
 	-------------------------------*/
 
+	// add
+
 	public addComponent<T extends Component>( component: T ) {
 
 		const id = component.resourceId;
@@ -372,13 +371,15 @@ export class Entity extends Serializable {
 
 		}
 
-		this.emit( "add/component", [ component ] );
+		this.emit( "component/add", [ component ] );
 
 		this.noticePropsChanged( "components" );
 
 		return component;
 
 	}
+
+	// get
 
 	public getComponentByTag<T extends Component>( tag: string ): T | undefined {
 
@@ -398,13 +399,15 @@ export class Entity extends Serializable {
 
 	}
 
-	public removeComponent( component: Component | typeof Component ) {
+	// remove
 
-		const currentComponent = this.components.get( component.resourceId );
+	public removeComponentByResourceId( resourceId: string ) {
+
+		const currentComponent = this.components.get( resourceId );
 
 		if ( currentComponent ) {
 
-			this.components.delete( currentComponent.resourceId );
+			this.components.delete( resourceId );
 			currentComponent.unsetEntity();
 
 			if ( currentComponent.tag !== "" ) {
@@ -415,31 +418,25 @@ export class Entity extends Serializable {
 
 		}
 
+		this.emit( "component/remove", [ currentComponent ] );
+
 		this.noticePropsChanged( "components" );
 
 		return currentComponent;
 
 	}
 
-	public removeComponentByKey( key: string ) {
+	public removeComponent( component: Component | typeof Component ) {
 
-		const component = this.components.get( key );
-
-		if ( component ) {
-
-			return this.removeComponent( component );
-
-		}
-
-		return null;
+		this.removeComponentByResourceId( component.resourceId );
 
 	}
 
 	/*-------------------------------
-		API
+		Entity
 	-------------------------------*/
 
-	public getEntityByName( name: string ) : Entity | undefined {
+	public findEntityByName( name: string ) : Entity | undefined {
 
 		if ( this.name == name ) {
 
@@ -451,7 +448,7 @@ export class Entity extends Serializable {
 
 			const c = this.children[ i ];
 
-			const entity = c.getEntityByName( name );
+			const entity = c.findEntityByName( name );
 
 			if ( entity ) {
 
@@ -465,7 +462,7 @@ export class Entity extends Serializable {
 
 	}
 
-	public getEntityById( id: string ) : Entity | undefined {
+	public findEntityById( id: string ) : Entity | undefined {
 
 		if ( this.uuid == id ) {
 
@@ -477,7 +474,7 @@ export class Entity extends Serializable {
 
 			const c = this.children[ i ];
 
-			const entity = c.getEntityById( id );
+			const entity = c.findEntityById( id );
 
 			if ( entity ) {
 
@@ -488,26 +485,6 @@ export class Entity extends Serializable {
 		}
 
 		return undefined;
-
-	}
-
-	public getPath( root? : Entity ) {
-
-		let path = "/" + this.name;
-
-		if ( root && ( root.uuid == this.uuid ) ) {
-
-			return path;
-
-		}
-
-		if ( this.parent ) {
-
-			path = this.parent.getPath( root ) + path;
-
-		}
-
-		return path;
 
 	}
 
@@ -524,10 +501,34 @@ export class Entity extends Serializable {
 	}
 
 	/*-------------------------------
+		Path
+	-------------------------------*/
+
+	public getScenePath( root? : Entity ) {
+
+		let path = "/" + this.name;
+
+		if ( root && ( root.uuid == this.uuid ) ) {
+
+			return path;
+
+		}
+
+		if ( this.parent ) {
+
+			path = this.parent.getScenePath( root ) + path;
+
+		}
+
+		return path;
+
+	}
+
+	/*-------------------------------
 		Event
 	-------------------------------*/
 
-	public notice( eventName: string, opt: any ) {
+	public noticeEventChilds( eventName: string, opt: any ) {
 
 		this.emit( eventName, opt );
 
@@ -535,19 +536,19 @@ export class Entity extends Serializable {
 
 			const c = this.children[ i ];
 
-			c.notice( eventName, opt );
+			c.noticeEventChilds( eventName, opt );
 
 		}
 
 	}
 
-	public noticeParent( eventName: string, opt?: any ) {
+	public noticeEventParent( eventName: string, opt?: any ) {
 
 		this.emit( eventName, opt );
 
 		if ( this.parent ) {
 
-			this.parent.noticeParent( eventName, opt );
+			this.parent.noticeEventParent( eventName, opt );
 
 		}
 

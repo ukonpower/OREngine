@@ -1,7 +1,5 @@
 // required common, light,
 
- //[
-
 float shadow;
 
 // direcitonalLight
@@ -73,5 +71,3 @@ LightCamera lightCamera;
 #endif
 
 outColor.xyz = mix( outColor.xyz, mat.color * mat.emissionIntensity, min( 1.0, mat.emissionIntensity ) );
-
-//]

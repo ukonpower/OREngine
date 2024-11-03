@@ -28,7 +28,7 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 	const noEditable = props.entity.initiator == "script";
 
 	const [ selectedEntityId ] = useSerializableProps<string>( glEditor, "selectedEntity" );
-	const selectedEntity = selectedEntityId !== undefined && glEditor?.scene.getEntityById( selectedEntityId );
+	const selectedEntity = selectedEntityId !== undefined && glEditor?.scene.findEntityById( selectedEntityId );
 
 	useWatchSerializable( props.entity, [ "children" ] );
 
@@ -105,7 +105,7 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 				{hasChild && <button className={style.fold_button} onClick={onClickFoldControls} ><ArrowIcon open={open}/></button> }
 			</div>
 			<div className={style.self_name}>
-				<p>{props.entity.name || "-"}</p>
+				<p>{props.entity.name || "-"} <span>[{ props.entity.uuid }]</span></p>
 			</div>
 		</div>
 		{hasChild && <div className={style.child} data-open={open} >

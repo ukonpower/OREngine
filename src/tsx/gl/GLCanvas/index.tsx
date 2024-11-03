@@ -13,10 +13,16 @@ export const GLCanvas = () => {
 
 		if ( gl && wrapperElmRef.current ) {
 
-			const canvas = wrapperElmRef.current.querySelectorAll( 'canvas' );
-			canvas.forEach( item => item.remove() );
-			wrapperElmRef.current.appendChild( gl.canvas );
-			gl.setWrapperElm( gl.canvas.parentElement! );
+			const screen = document.getElementById( 'screen' );
+
+			if ( screen ) {
+
+				screen.remove();
+
+			}
+
+			wrapperElmRef.current.appendChild( gl.screenElm );
+			gl.setWrapperElm( wrapperElmRef.current );
 
 
 		}

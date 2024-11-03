@@ -1,3 +1,4 @@
+import { OrbitControls } from '../Components/Camera/MainCamera/OrbitControls/index.ts';
 import { MainCamera } from '../Components/Camera/MainCamera/index.ts';
 import { DemoMusic } from '../Components/DemoProject/DemoMusic/index.ts';
 import { OREngineCube } from '../Components/DemoProject/OREngineCube/index.ts';

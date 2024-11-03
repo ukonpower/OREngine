@@ -3,20 +3,26 @@ import * as MXP from 'maxpower';
 
 
 import { LookAt } from '../../View/LookAt';
-import { OrbitControls } from '../../View/OrbitControls';
 import { ShakeViewer } from '../../View/ShakeViewer';
 
-import bloomBlurFrag from './shaders/bloomBlur.fs';
+import { OrbitControls } from './OrbitControls';
 import bloomBrightFrag from './shaders/bloomBright.fs';
 import compositeFrag from './shaders/composite.fs';
 import fxaaFrag from './shaders/fxaa.fs';
+import gaussBlur from './shaders/gaussBlur.fs';
+import glitchFrag from './shaders/glitch.fs';
 
-import { gl, canvas } from '~/ts/gl/GLGlobals';
-
+import { gl, canvas, globalUniforms } from '~/ts/gl/GLGlobals';
 
 export class MainCamera extends MXP.Component {
 
+	// uniforms
+
 	private commonUniforms: GLP.Uniforms;
+
+	// receiver
+
+	private animateReceiver: MXP.BLidgerAnimationReceiver;
 
 	// camera component
 
@@ -40,6 +46,15 @@ export class MainCamera extends MXP.Component {
 
 	private composite: MXP.PostProcessPass;
 
+	// bokeh
+
+	private bokehV: MXP.PostProcessPass;
+	private bokehH: MXP.PostProcessPass;
+
+	// glitch
+
+	private glitch: MXP.PostProcessPass;
+
 	// resolutions
 
 	private resolution: GLP.Vector;
@@ -49,7 +64,7 @@ export class MainCamera extends MXP.Component {
 	// components
 
 	private lookAt: LookAt;
-	private orbitControls: OrbitControls;
+	private orbitControls?: OrbitControls;
 	private shakeViewer: MXP.Component;
 	private postProcess: MXP.PostProcess;
 
@@ -68,15 +83,26 @@ export class MainCamera extends MXP.Component {
 
 		// components
 
+		this.animateReceiver = new MXP.BLidgerAnimationReceiver();
+		this.add( this.animateReceiver );
+
 		this.renderCamera = new MXP.RenderCamera( { gl } );
 		this.renderTarget = this.renderCamera.renderTarget;
+		this.add( this.renderCamera );
 
 		this.lookAt = new LookAt();
-
-		this.orbitControls = new OrbitControls( { elm: canvas } );
-		this.orbitControls.enabled = false;
+		this.add( this.lookAt );
 
 		this.shakeViewer = new ShakeViewer();
+		this.add( this.shakeViewer );
+
+		if ( process.env.NODE_ENV === 'development' ) {
+
+			this.orbitControls = new OrbitControls( { elm: canvas } );
+			this.orbitControls.enabled = false;
+			this.add( this.orbitControls );
+
+		}
 
 		// resolution
 
@@ -86,7 +112,7 @@ export class MainCamera extends MXP.Component {
 
 		// uniforms
 
-		this.commonUniforms = GLP.UniformsUtils.merge( {
+		this.commonUniforms = MXP.UniformsUtils.merge( {
 			uResolution: {
 				type: "2f",
 				value: this.resolution
@@ -155,10 +181,10 @@ export class MainCamera extends MXP.Component {
 
 			const guassSamples = 8.0;
 
-			this.bloomBlur.push( new MXP.PostProcessPass( gl, {
+			const blurParam: MXP.PostProcessPassParam = {
 				name: 'bloom/blur/' + i + '/v',
 				renderTarget: rtVertical,
-				frag: bloomBlurFrag,
+				frag: gaussBlur,
 				uniforms: {
 					uBackBlurTex: {
 						value: bloomInput,
@@ -170,21 +196,29 @@ export class MainCamera extends MXP.Component {
 					},
 					uWeights: {
 						type: '1fv',
-						value: this.guassWeight( guassSamples )
+						value: GLP.MathUtils.gaussWeights( guassSamples )
 					},
+					uBlurRange: {
+						value: 2.0,
+						type: '1f'
+					}
 				},
 				defines: {
-					GAUSS_WEIGHTS: guassSamples.toString()
+					GAUSS_WEIGHTS: guassSamples.toString(),
+					USE_BACKBLURTEX: "",
 				},
 				passThrough: true,
 				resolutionRatio: 1.0 / bloomScale
-			} ) );
+			};
+
+			this.bloomBlur.push( new MXP.PostProcessPass( gl, blurParam ) );
 
 			this.bloomBlur.push( new MXP.PostProcessPass( gl, {
-				name: 'bloom/blur/' + i + '/w',
+				...blurParam,
+				name: 'bloom/blur/' + i + '/h',
 				renderTarget: rtHorizonal,
-				frag: bloomBlurFrag,
 				uniforms: {
+					...blurParam.uniforms,
 					uBackBlurTex: {
 						value: rtVertical.textures[ 0 ],
 						type: '1i'
@@ -193,20 +227,7 @@ export class MainCamera extends MXP.Component {
 						type: '1i',
 						value: false
 					},
-					uWeights: {
-						type: '1fv',
-						value: this.guassWeight( guassSamples )
-					},
-					uResolution: {
-						type: '2fv',
-						value: resolution,
-					}
 				},
-				defines: {
-					GAUSS_WEIGHTS: guassSamples.toString()
-				},
-				passThrough: true,
-				resolutionRatio: 1.0 / bloomScale
 			} ) );
 
 			bloomInput = rtHorizonal.textures;
@@ -220,7 +241,7 @@ export class MainCamera extends MXP.Component {
 		this.composite = new MXP.PostProcessPass( gl, {
 			name: 'composite',
 			frag: MXP.hotUpdate( "composite", compositeFrag ),
-			uniforms: GLP.UniformsUtils.merge( this.commonUniforms, {
+			uniforms: this.animateReceiver.registerUniforms( MXP.UniformsUtils.merge( this.commonUniforms, {
 				uBloomTexture: {
 					value: this.rtBloomHorizonal.map( rt => rt.textures[ 0 ] ),
 					type: '1iv'
@@ -233,9 +254,15 @@ export class MainCamera extends MXP.Component {
 					value: 0,
 					type: "1f"
 				},
-			} ),
+				uOutPut: {
+					value: 0,
+					type: "1f"
+				},
+
+			} ) ),
 			defines: {
-				BLOOM_COUNT: this.bloomRenderCount.toString()
+				BLOOM_COUNT: this.bloomRenderCount.toString(),
+				USE_BACKBLURTEX: "",
 			},
 		} );
 
@@ -255,15 +282,88 @@ export class MainCamera extends MXP.Component {
 
 		}
 
+		// bokeh
+
+		const bSample = 8;
+
+		const bokehParam: MXP.PostProcessPassParam = {
+			name: 'bokeh/h',
+			frag: gaussBlur,
+			uniforms: {
+				uIsVertical: {
+					type: '1i',
+					value: true
+				},
+				uWeights: {
+					type: '1fv',
+					value: GLP.MathUtils.gaussWeights( bSample )
+				},
+				uBlurRange: {
+					value: 6.0,
+					type: '1f'
+				}
+			},
+			defines: {
+				GAUSS_WEIGHTS: bSample.toString(),
+				IS_BOKEH: "",
+			},
+			resolutionRatio: 1.0,
+		};
+
+		this.bokehV = new MXP.PostProcessPass( gl, bokehParam );
+		this.bokehH = new MXP.PostProcessPass( gl, {
+			...bokehParam,
+			uniforms: {
+				...bokehParam.uniforms,
+				uIsVertical: {
+					type: '1i',
+					value: false
+				},
+			},
+		} );
+
+		// glitch
+
+		this.glitch = new MXP.PostProcessPass( gl, {
+			name: 'glitch',
+			frag: glitchFrag,
+			uniforms: this.animateReceiver.registerUniforms( MXP.UniformsUtils.merge( globalUniforms.time, {
+				uGlitch: {
+					value: 0,
+					type: '1f'
+				}
+			} ) ),
+			resolutionRatio: 1.0,
+		} );
+
+		if ( import.meta.hot ) {
+
+			import.meta.hot.accept( "./shaders/glitch.fs", ( module ) => {
+
+				if ( module ) {
+
+					this.glitch.frag = module.default;
+
+				}
+
+				this.glitch.requestUpdate();
+
+			} );
+
+		}
+
 		this.postProcess = new MXP.PostProcess( {
-			input: this.renderTarget.uiBuffer.textures,
 			passes: [
 				this.bloomBright,
 				...this.bloomBlur,
 				this.fxaa,
 				this.composite,
+				// this.bokehV,
+				// this.bokehH,
+				// this.glitch,
 			]
 		} );
+		this.add( this.postProcess );
 
 		// dof
 
@@ -280,7 +380,11 @@ export class MainCamera extends MXP.Component {
 
 			const activeOrbitControls = ( activeOrbitcontrols: boolean ) => {
 
-				this.orbitControls.enabled = activeOrbitcontrols;
+				if ( this.orbitControls ) {
+
+					this.orbitControls.enabled = activeOrbitcontrols;
+
+				}
 
 				const blidger = this.entity && this.entity.getComponent( MXP.BLidger );
 				const lookat = this.entity && this.entity.getComponent( LookAt );
@@ -301,7 +405,7 @@ export class MainCamera extends MXP.Component {
 
 			const onMouseDown = ( e: PointerEvent ) => {
 
-				if ( this.orbitControls.enabled ) return;
+				if ( this.orbitControls && this.orbitControls.enabled ) return;
 
 				const elm = e.target as HTMLElement;
 
@@ -313,7 +417,7 @@ export class MainCamera extends MXP.Component {
 
 			const onWheel = () => {
 
-				if ( this.orbitControls.enabled ) return;
+				if ( this.orbitControls && this.orbitControls.enabled ) return;
 
 				activeOrbitControls( true );
 
@@ -347,24 +451,12 @@ export class MainCamera extends MXP.Component {
 
 	}
 
-	public static get key() {
-
-		return 'mainCamera';
-
-	}
-
 	public setEntityImpl( entity: MXP.Entity, ): void {
-
-		entity.addComponent( this.renderCamera );
-		entity.addComponent( this.postProcess );
-		entity.addComponent( this.lookAt );
-		entity.addComponent( this.orbitControls );
-		entity.addComponent( this.shakeViewer );
 
 		// events
 		entity.on( 'sceneCreated', ( root: MXP.Entity, ) => {
 
-			const camera = root.getEntityByName( "Camera" ) || null;
+			const camera = root.findEntityByName( "Camera" ) || null;
 
 			const blidger = camera?.getComponent( MXP.BLidger );
 
@@ -382,12 +474,11 @@ export class MainCamera extends MXP.Component {
 
 			}
 
-			const lookAtTarget = root.getEntityByName( "CamLook" ) || null;
+			const lookAtTarget = root.findEntityByName( "CamLook" ) || null;
 			this.lookAt.setTarget( lookAtTarget );
 
-			this.dofTarget = root.getEntityByName( 'CamDof' ) || null;
+			this.dofTarget = root.findEntityByName( 'CamDof' ) || null;
 			this.updateCameraParams( this.resolution );
-
 
 		} );
 
@@ -399,44 +490,41 @@ export class MainCamera extends MXP.Component {
 
 	}
 
-	private guassWeight( num: number ) {
-
-		const weight = new Array( num );
-
-		// https://wgld.org/d/webgl/w057.html
-
-		let t = 0.0;
-		const d = 100;
-
-		for ( let i = 0; i < weight.length; i ++ ) {
-
-			const r = 1.0 + 2.0 * i;
-			let w = Math.exp( - 0.5 * ( r * r ) / d );
-			weight[ i ] = w;
-
-			if ( i > 0 ) {
-
-				w *= 2.0;
-
-			}
-
-			t += w;
-
-		}
-
-		for ( let i = 0; i < weight.length; i ++ ) {
-
-			weight[ i ] /= t;
-
-		}
-
-		return weight;
-
-	}
-
 	protected updateImpl( event: MXP.ComponentUpdateEvent ): void {
 
 		this.updateCameraParams( this.resolution );
+
+		// state
+
+		const cameraState = this.animateReceiver.animations.get( '_cameraState' );
+
+		if ( cameraState ) {
+
+			// fov
+
+			this.renderCamera.fov = 2 * Math.atan( 12 / ( 2 * cameraState.value.x ) ) / Math.PI * 180;
+
+			// lookat
+
+			this.lookAt.enabled = cameraState.value.y > 0.5;
+
+		}
+
+		// effect
+
+		const cameraEffect = this.animateReceiver.animations.get( '_cameraEffect' );
+
+		if ( cameraEffect ) {
+
+			this.composite.uniforms.uOutPut.value = cameraEffect.value.x;
+
+			this.bokehV.uniforms.uBlurRange.value = cameraEffect.value.y;
+			this.bokehH.enabled = this.bokehV.enabled = cameraEffect.value.y > 0.0;
+
+			this.glitch.uniforms.uGlitch.value = cameraEffect.value.z;
+			this.glitch.enabled = cameraEffect.value.z > 0.0;
+
+		}
 
 		// dof params
 

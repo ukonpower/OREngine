@@ -1,6 +1,3 @@
-#version 300 es
-precision highp float;
-
 uniform sampler2D uShadingTex;
 
 in vec2 vUv;

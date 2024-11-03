@@ -5,7 +5,7 @@ import { resource } from '~/ts/gl/GLGlobals';
 
 export interface OREngineNodeOverrideComponent {
 	name: string,
-	props: {[key:string]: any} | undefined
+	props?: {[key:string]: any} | undefined
 }
 
 export interface OREngineNodeOverride {
@@ -42,7 +42,7 @@ export class SceneSerializer extends GLP.EventEmitter {
 
 		targetRoot.traverse( e => {
 
-			const path = e.getPath( projectRoot );
+			const path = e.getScenePath( projectRoot );
 
 			const overrideData = override.find( o => o.path == path );
 
@@ -155,7 +155,7 @@ export class SceneSerializer extends GLP.EventEmitter {
 
 		sceneRoot.traverse( ( e ) => {
 
-			const path_ = e.getPath( sceneRoot );
+			const path_ = e.getScenePath( sceneRoot );
 
 			const nodeOverrideData: OREngineNodeOverride = {
 				path: path_,
@@ -166,7 +166,7 @@ export class SceneSerializer extends GLP.EventEmitter {
 
 				const exportProps: MXP.SerializedProps = c.serialize( true );
 
-				if ( c.initiator == "user" ) {
+				if ( ! c.disableEdit && c.initiator == "user" ) {
 
 					nodeOverrideData.components.push( {
 						name: c.constructor.name,

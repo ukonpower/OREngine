@@ -241,6 +241,7 @@ export class GLTFLoader extends GLP.EventEmitter {
 		gltfJson.materials && gltfJson.materials.forEach( ( mat, i ) => {
 
 			const material = new Material( {
+				disableEdit: true,
 				frag: gltfFrag,
 				vert: gltfVert,
 			} );

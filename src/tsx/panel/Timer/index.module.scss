@@ -1,1 +1,13 @@
-.container {}
+@use '~/styles/common' as *;
+
+.container {
+	background-color: $bgCol0;
+	padding: $padding;
+	color: $fontCol2;
+	line-height: 1.25em;
+	width: 100%;
+	height: 100%;
+
+	overflow-y: auto;
+
+}

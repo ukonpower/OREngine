@@ -1,16 +1,18 @@
 import * as GLP from 'glpower';
 
 import SceneData from '../../../../data/player.json';
-import { canvas } from '../GLGlobals';
+import { canvas, renderer, screenElm } from '../GLGlobals';
 import { ProjectScene } from '../ProjectScene';
 
 class App {
 
 	// elms
 
-	private startElm: HTMLElement;
+	private menuElm: HTMLElement;
 	private rootElm: HTMLElement;
-	private canvasWrapElm: HTMLElement;
+	private screenWrapElm: HTMLElement;
+	private screenElm: HTMLElement;
+	private exitElm: HTMLElement;
 	private canvas: HTMLCanvasElement;
 
 	private scene: ProjectScene;
@@ -21,46 +23,68 @@ class App {
 			Element
 		-------------------------------*/
 
+		const pn = "pointer-events:none;";
+		const fc = "position:absolute;width:100%;height:100%;display:flex;justify-content:center;align-items:center;";
+		const op = "opacity:0;";
+		const pa = "position:absolute;";
+
 		document.body.innerHTML = `
 			<style>
-				body{margin:0;}
-				button{display:block;width:200px;margin:0 auto 10px auto;padding:10px;border:1px solid #fff;background:none;color:#fff;cursor:pointer;}
-				canvas{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);}
-				.r{width:100%;height:100%;position:relative;overflow:hidden;display:flex;background:#000;}
-				.cw{position:relative;flex:1 1 100%;display:none;}
-				.s{width:100vw;height:100vh;display:flex;flex-direction:column;justify-content:center;}
+				*{color:#fff;text-align:center;font-size:13px;}
+				body{margin:0;font-family:sans-serif;}
+				button{display:block;width:200px;margin:0 auto 10px auto;padding:10px;border:1px solid #fff;background:none;cursor:pointer;}
+				#r{${fc}overflow:hidden;background:#000;}
+				#cw{${pn}${fc}${op}}
+				#l{${pn}${pa}width:100%;}
+				#b{width:100%;height:1px;background:#fff;margin-bottom:10px;}
+				#m{${pn}${op}}
+				#e{${fc}${op}${pn}}
 			</style>
+			<div id="r">
+				<div id="cw">
+				</div>
+				<div id="m">
+					<button id="fl">1. Full Screen</button>
+					<button id="pl">2. Play!</button>
+				</div>
+				<div id="l">
+					<div id="b"></div>
+					<div id="t"></div>
+				</div>
+				<div id="e">
+				Press Esc to exit.
+				</div>
+			</div>
 		`;
 
-		document.title = "OREngine";
+		document.title = "RE:ORE";
 
-		this.rootElm = document.createElement( 'div' );
-		this.rootElm.classList.add( 'r' );
-		document.body.appendChild( this.rootElm );
+		this.rootElm = document.getElementById( 'r' )!;
 
 		/*-------------------------------
 			Canvas
 		-------------------------------*/
 
-		this.canvasWrapElm = document.createElement( 'div' );
-		this.canvasWrapElm.classList.add( 'cw' );
-		this.rootElm.appendChild( this.canvasWrapElm );
+		this.screenWrapElm = document.getElementById( 'cw' )!;
+
+		this.screenElm = screenElm;
+		this.screenWrapElm.appendChild( this.screenElm );
 
 		this.canvas = canvas;
-		this.canvasWrapElm.appendChild( this.canvas );
 
 		/*-------------------------------
 			StartElm
 		-------------------------------*/
 
-		this.startElm = document.createElement( 'div' );
-		this.startElm.classList.add( "s" );
-		this.rootElm.appendChild( this.startElm );
+		const loadingElm = document.getElementById( 'l' )!;
+		const loadingBarElm = document.getElementById( 'b' )!;
+		const loadingTextElm = document.getElementById( 't' )!;
+		this.menuElm = document.getElementById( 'm' )!;
 
 		// fullscreen
 
-		const fullScreen = document.createElement( 'button' );
-		fullScreen.innerText = '1. Full Screen';
+		const fullScreen = document.getElementById( 'fl' ) as HTMLButtonElement;
+
 		fullScreen.onclick = () => {
 
 			const elem = document.documentElement;
@@ -73,16 +97,14 @@ class App {
 
 		};
 
-
-		this.startElm.appendChild( fullScreen );
+		this.exitElm = document.getElementById( 'e' )!;
 
 		// play button
 
-		const playButton = document.createElement( 'button' );
-		playButton.innerText = 'ready...';
+		const playButton = document.getElementById( 'pl' ) as HTMLButtonElement;
 		playButton.disabled = true;
 		playButton.onclick = this.play.bind( this );
-		this.startElm.appendChild( playButton );
+		this.menuElm.appendChild( playButton );
 
 		/*-------------------------------
 			Scene
@@ -90,20 +112,77 @@ class App {
 
 		this.scene = new ProjectScene();
 
+		let shaderTotal = 0.0;
+		let musicTotal = 0.0;
+
+		if ( process.env.NODE_ENV === 'development' ) {
+
+			loadingElm.style.opacity = "0";
+			this.menuElm.style.opacity = "1";
+			this.menuElm.style.pointerEvents = "auto";
+
+		}
+
+		const onLoadProgress = ( label: string ) => {
+
+			const percentage = ( shaderTotal + musicTotal ) / 2.0;
+
+			loadingBarElm.style.transform = `scaleX(${ percentage })`;
+
+			loadingTextElm.textContent = `${label}`;
+
+			if ( percentage == 1.0 ) {
+
+				setTimeout( () => {
+
+					loadingElm.style.opacity = "0";
+					this.menuElm.style.opacity = "1";
+					this.menuElm.style.pointerEvents = "auto";
+
+				}, 100 );
+
+			}
+
+		};
+
+		onLoadProgress( "" );
+
+		this.scene.on( "update/music", ( buffer: AudioBuffer, progress: [number, number] ) => {
+
+			musicTotal = progress[ 0 ] / progress[ 1 ];
+
+			onLoadProgress( `sound/${progress[ 0 ]}` );
+
+		} );
+
+
 		this.scene.on( "loaded", () => {
 
 			this.resize();
 
-			this.scene.update( { forceDraw: true } );
+			setTimeout( () => {
 
-			playButton.innerText = '2. Play!';
+				renderer.noDraw = true;
+
+				this.scene.update( { forceDraw: true } );
+
+				renderer.noDraw = false;
+
+				renderer.compile( ( label, loaded, total ) => {
+
+					shaderTotal = loaded / total;
+
+					onLoadProgress( label );
+
+				} );
+
+			}, 1000 );
+
 			playButton.disabled = false;
 
 		} );
 
 		this.scene.init( SceneData );
-
-		this.resize();
 
 		/*-------------------------------
 			Event
@@ -117,14 +196,17 @@ class App {
 
 	private play() {
 
-		this.startElm.style.display = "none";
-		this.canvasWrapElm.style.display = 'block';
-		this.canvasWrapElm.style.cursor = 'none';
+		this.menuElm.style.opacity = "0";
+		this.menuElm.style.pointerEvents = "none";
+
+		this.screenWrapElm.style.opacity = '1';
+		this.rootElm.style.cursor = 'none';
 
 		this.scene.play();
 
-		this.resize();
 		this.animate();
+
+		this.resize();
 
 	}
 
@@ -132,19 +214,13 @@ class App {
 
 		this.scene.update();
 
-		// loop --------------------
+		if ( this.scene.frame.current > this.scene.frameSetting.duration ) {
 
-		if ( this.scene.frame.playing ) {
+			this.exitElm.style.opacity = '1';
 
-			if ( this.scene.frame.current > this.scene.frameSetting.duration ) {
-
-				this.scene.frame.current = 0;
-
-			}
+			return;
 
 		}
-
-		// -------------------------
 
 		window.requestAnimationFrame( this.animate.bind( this ) );
 
@@ -153,22 +229,25 @@ class App {
 	private resize() {
 
 		const aspect = 16 / 9;
-		const scale = 1.0;
 
-		this.canvas.width = 1920 * scale;
-		this.canvas.height = this.canvas.width / aspect;
+		// screen size
 
 		if ( window.innerWidth / window.innerHeight < aspect ) {
 
-			this.canvas.style.width = window.innerWidth + 'px';
-			this.canvas.style.height = window.innerWidth / aspect + 'px';
+			this.screenElm.style.width = window.innerWidth + 'px';
+			this.screenElm.style.height = window.innerWidth / aspect + 'px';
 
 		} else {
 
-			this.canvas.style.height = window.innerHeight + 'px';
-			this.canvas.style.width = window.innerHeight * aspect + 'px';
+			this.screenElm.style.height = window.innerHeight + 'px';
+			this.screenElm.style.width = window.innerHeight * aspect + 'px';
 
 		}
+
+		// canvas size
+
+		this.canvas.width = 1920;
+		this.canvas.height = this.canvas.width / aspect;
 
 		this.scene.resize( new GLP.Vector( this.canvas.width, this.canvas.height ) );
 

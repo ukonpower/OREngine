@@ -1,6 +1,3 @@
-#version 300 es
-precision highp float;
-
 in vec2 vUv;
 uniform sampler2D backbuffer0;
 uniform sampler2D uVelTex;

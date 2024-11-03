@@ -22,7 +22,7 @@ export const Property = () => {
 	// select entity
 
 	const [ selectedEntityId ] = useSerializableProps<string>( glEditor, "selectedEntity" );
-	const selectedEntity = selectedEntityId !== undefined ? glEditor?.scene.getEntityById( selectedEntityId ) : undefined;
+	const selectedEntity = selectedEntityId !== undefined ? glEditor?.scene.findEntityById( selectedEntityId ) : undefined;
 
 	const [ position, setPosition ] = useSerializableProps<number[]>( selectedEntity, "position" );
 	const [ euler, setEuler ] = useSerializableProps<number[]>( selectedEntity, "euler" );
@@ -37,6 +37,7 @@ export const Property = () => {
 		<div className={style.content}>
 			<PropertyBlock label={"Info"}>
 				<Value label="Name" value={selectedEntity.name} readOnly/>
+				<Value label="UUID" value={selectedEntity.uuid} readOnly/>
 				<Value label="Initiator" value={selectedEntity.initiator } readOnly/>
 			</PropertyBlock>
 			<PropertyBlock label={"Transform"} accordion={true}>

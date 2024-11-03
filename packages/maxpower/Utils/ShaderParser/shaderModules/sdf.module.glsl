@@ -1,25 +1,8 @@
 // https://iquilezles.org/articles/distfunctions/
 
-float sdPlane( vec3 p, vec3 n, float h )
-{
-  // n must be normalized
-  return dot(p,n) + h;
-}
-
 float sdSphere( vec3 p, float s )
 {
   return length(p)-s;
-}
-
-float sdCutHollowSphere( vec3 p, float r, float h, float t )
-{
-  // sampling independent computations (only depend on shape)
-  float w = sqrt(r*r-h*h);
-  
-  // sampling dependant computations
-  vec2 q = vec2( length(p.xz), p.y );
-  return ((h*q.x<w*q.y) ? length(q-vec2(w,h)) : 
-                          abs(length(q)-r) ) - t;
 }
 
 float sdBox( vec3 p, vec3 b )
@@ -61,25 +44,6 @@ float sdRoundedCylinder( vec3 p, float ra, float rb, float h )
   return min(max(d.x,d.y),0.0) + length(max(d,0.0)) - rb;
 }
 
-float sdRoundBox( vec3 p, vec3 b, float r )
-{
-  vec3 q = abs(p) - b;
-  return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0) - r;
-}
-
-float sdOctahedron( vec3 p, float s)
-{
-  p = abs(p);
-  return (p.x+p.y+p.z-s)*0.57735027;
-}
-
-float sdCapsule( vec3 p, vec3 a, vec3 b, float r )
-{
-  vec3 pa = p - a, ba = b - a;
-  float h = clamp( dot(pa,ba)/dot(ba,ba), 0.0, 1.0 );
-  return length( pa - ba*h ) - r;
-}
-
 float sdVesicaSegment( in vec3 p, in vec3 a, in vec3 b, in float w )
 {
     vec3  c = (a+b)*0.5;
@@ -118,11 +82,6 @@ float opSmoothSubtraction( float d1, float d2, float k ) {
 
 float opRound( float d, float rad ) {
   return d - rad;
-}
-
-
-float opOnion( in float d, in float thickness ) {
-  return abs( d )-thickness;
 }
 
 // utils
