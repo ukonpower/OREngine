@@ -20,11 +20,13 @@ export type SerializedFields = {[key: string]: SerializeFieldValue}
 export class Serializable extends Resource {
 
 	private fields: Map<string, SerializeFieldProxy> = new Map();
+	public initiator: string;
 
 	constructor() {
 
 		super();
 
+		this.initiator = 'script';
 	}
 
 	public deserialize( props: SerializedFields ) {

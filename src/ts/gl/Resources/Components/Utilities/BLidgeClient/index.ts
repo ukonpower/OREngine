@@ -63,7 +63,14 @@ export class BLidgeClient extends MXP.Component {
 
 		// fields
 
-		this.field( "mode", () => this.type, v => this.type = v, );
+		this.field( "mode", () => this.type, v => {
+			this.type = v
+
+			if( this.type == "json" ) {
+				this.blidge.loadScene( SceneData );
+			}
+			
+		}, );
 		this.field( "gltf", () => this.useGLTF, v => this.useGLTF = v, );
 		this.field( "gltfPath", () => this.gltfPath, v => this.gltfPath = v, );
 

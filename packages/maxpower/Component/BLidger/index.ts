@@ -1,5 +1,5 @@
 import * as GLP from 'glpower';
-import { Camera, SerializableProps } from 'maxpower';
+import { Camera } from 'maxpower';
 
 import { Component, ComponentParams, ComponentUpdateEvent } from "..";
 import { BLidge, BLidgeEntity, BLidgeLightParam, BLidgeCameraParam } from "../../BLidge";
@@ -89,16 +89,6 @@ export class BLidger extends Component {
 		}
 
 		this.transformAutoUpdate = true;
-
-	}
-
-	public getProps(): SerializableProps | null {
-
-		return {
-			name: { value: this.node.name, opt: { readOnly: true } },
-			class: { value: this.node.class, opt: { readOnly: true } },
-			type: { value: this.node.type, opt: { readOnly: true } },
-		};
 
 	}
 

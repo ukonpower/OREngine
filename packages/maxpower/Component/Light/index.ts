@@ -60,22 +60,6 @@ export class Light extends ShadowMapCamera {
 
 	}
 
-	public get props() {
-
-		return {
-			...super.props,
-			lightType: { value: this.lightType },
-			color: { value: this.color },
-			intensity: { value: this.intensity },
-			angle: { value: this.angle },
-			blend: { value: this.blend },
-			distance: { value: this.distance },
-			decay: { value: this.decay },
-			castShadow: { value: this.castShadow },
-		};
-
-	}
-
 	protected deserializer( props: TypedSerializableProps<this> ) {
 
 		props = { ...this.serialize(), ...props };

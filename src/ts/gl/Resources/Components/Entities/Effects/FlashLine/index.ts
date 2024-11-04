@@ -43,7 +43,7 @@ export class FlashLine extends MXP.Component {
 			phase: [ "forward", "envMap" ],
 			frag: MXP.hotGet( "flFrag", flFrag ),
 			vert: MXP.hotGet( "flVert", flVert ),
-			uniforms: GLP.UniformsUtils.merge( globalUniforms.time )
+			uniforms: MXP.UniformsUtils.merge( globalUniforms.time )
 		} );
 
 		if ( import.meta.hot ) {

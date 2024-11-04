@@ -36,7 +36,7 @@ export class MatchMove extends MXP.Component {
 					size,
 					dataLayerCount: 1,
 					frag: matchMoveCompute,
-					uniforms: GLP.UniformsUtils.merge( {
+					uniforms: MXP.UniformsUtils.merge( {
 						uGBufferPos: {
 							type: "1i",
 							value: null
@@ -114,7 +114,7 @@ export class MatchMove extends MXP.Component {
 			phase: [ "ui" ],
 			frag: MXP.hotGet( "matchMoveFrag", matchMoveFrag ),
 			vert: MXP.hotGet( "matchMoveVert", matchMoveVert ),
-			uniforms: GLP.UniformsUtils.merge( globalUniforms.time, this.gpu.passes[ 0 ].outputUniforms, {
+			uniforms: MXP.UniformsUtils.merge( globalUniforms.time, this.gpu.passes[ 0 ].outputUniforms, {
 				uAspectRatio: globalUniforms.resolution.uAspectRatio
 			} ),
 			drawType: "LINES",
@@ -197,7 +197,7 @@ export class MatchMove extends MXP.Component {
 			phase: [ "ui" ],
 			frag: MXP.hotGet( "matchMoveFrag", matchMoveFrag ),
 			vert: MXP.hotGet( "matchMoveLineVert", matchMoveLineVert ),
-			uniforms: GLP.UniformsUtils.merge( globalUniforms.time, this.gpu.passes[ 0 ].outputUniforms ),
+			uniforms: MXP.UniformsUtils.merge( globalUniforms.time, this.gpu.passes[ 0 ].outputUniforms ),
 			drawType: "LINES",
 			blending: "ADD",
 			depthTest: false,
