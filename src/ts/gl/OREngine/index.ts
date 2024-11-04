@@ -139,37 +139,13 @@ export class OREngine extends MXP.Entity {
 		this.root.name = "root";
 		this.add( this.root );
 
-	}
-
-	public get props() {
-
-		const { objectOverride, scene } = this.projectSerializer.serialize( this.root );
-
-		return {
-			...super.props,
-			name: { value: this.name },
-			objectOverride: {
-				value: objectOverride
-			},
-			scene: {
-				value: scene
-			},
-			timeline: {
-				duration: {
-					value: this.frameSetting.duration,
-				},
-				fps: {
-					value: this.frameSetting.fps
-				}
-			},
-		};
-
-	}
-
-	public serialize( isExport?: boolean ): OREngineProjectData {
-
-		return super.serialize( isExport ) as OREngineProjectData;
-
+		this.field("name", () => this.name, ( v ) => this.name = v );	
+		this.field( "objectOverride", () => this.projectSerializer.serialize( this.root ).objectOverride );
+		this.field( "scene", () => this.projectSerializer.serialize( this.root ).scene );
+		const tl = this.fieldDir( "timeline" );
+		tl.field( "duration", () => this.frameSetting.duration, ( v ) => this.frameSetting.duration = v );
+		tl.field( "fps", () => this.frameSetting.fps, ( v ) => this.frameSetting.fps = v );
+		
 	}
 
 	protected deserializer( props: MXP.TypedSerializableProps<this> ) {

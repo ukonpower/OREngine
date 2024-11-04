@@ -18,7 +18,7 @@ export class FluidCrystal extends MXP.Component {
 			phase: [ "forward" ],
 			frag: MXP.hotGet( "fluidCrystalFrag", fluidCrystalFrag ),
 			vert: MXP.hotGet( "fluidCrystalVert", fluidCrystalVert ),
-			uniforms: GLP.UniformsUtils.merge( {
+			uniforms: MXP.UniformsUtils.merge( {
 				uResolution: globalUniforms.resolution.uResolution,
 			}, globalUniforms.time )
 

@@ -73,7 +73,7 @@ export class DashCube extends MXP.Component {
 			phase: [ "deferred" ],
 			frag: MXP.hotGet( 'dashCubeFrag', dashCubeFrag ),
 			vert: MXP.hotGet( 'dashCubeVert', dashCubeVert ),
-			uniforms: GLP.UniformsUtils.merge( globalUniforms.time )
+			uniforms: MXP.UniformsUtils.merge( globalUniforms.time )
 		} );
 
 		if ( import.meta.hot ) {

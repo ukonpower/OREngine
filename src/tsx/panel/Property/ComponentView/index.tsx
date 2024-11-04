@@ -15,6 +15,35 @@ type ComponentViewProps = {
 	component: MXP.Component
 };
 
+const serializedToObj = ( serialized: MXP.SerializedFields ) => {
+
+	let res: any = {}
+
+	let keys = Object.keys( serialized );	
+	
+	for ( let i = 0; i < keys.length; i ++ ) {
+
+		let splitKeys = keys[i].split( "/" );
+
+		let target = res
+
+		for ( let j = 0; j < splitKeys.length ; j++ ) {
+
+			const key = splitKeys[j];
+			
+			
+			target = target[key] = target[ key ] || {};
+			
+		}
+
+		target.value = serialized[ keys[i] ];
+
+	}
+
+	return res;
+	
+}
+
 export const ComponentView = ( { component }: ComponentViewProps ) => {
 
 	useWatchSerializable( component, [] );
@@ -27,10 +56,26 @@ export const ComponentView = ( { component }: ComponentViewProps ) => {
 		<Value key='-2' label={"tag"} value={component.tag} readOnly />
 	];
 
-	const compoProps = component.serialize();
+	const onClickDelete = useCallback( ( e: MouseEvent ) => {
+
+		if ( disableEdit ) return;
+
+		e.stopPropagation();
+
+		const entity = component.entity;
+
+		if ( entity ) {
+
+
+			entity.removeComponent( component );
+
+		}
+
+	}, [ disableEdit, component ] );
+
+	const compoProps = serializedToObj( component.serialize());
 
 	const onChangeProps = useCallback( ( value: ValueType, label: string ) => {
-
 		component.deserialize( {
 			...component.serialize(),
 			[ label ]: value
@@ -38,12 +83,9 @@ export const ComponentView = ( { component }: ComponentViewProps ) => {
 
 	}, [ component ] );
 
-	console.log( compoProps );
-
-
 	if ( compoProps ) {
 
-		const parseProps = ( depth: number, path: string, elmArray: JSX.Element[], props: MXP.SerializableProps ): JSX.Element[] => {
+		const parseProps = ( depth: number, path: string, elmArray: JSX.Element[], props: any ): JSX.Element[] => {
 
 			const propKeys = Object.keys( props );
 
@@ -90,23 +132,6 @@ export const ComponentView = ( { component }: ComponentViewProps ) => {
 		parseProps( 0, "", propElms, compoProps );
 
 	}
-
-	const onClickDelete = useCallback( ( e: MouseEvent ) => {
-
-		if ( disableEdit ) return;
-
-		e.stopPropagation();
-
-		const entity = component.entity;
-
-		if ( entity ) {
-
-
-			entity.removeComponent( component );
-
-		}
-
-	}, [ disableEdit, component ] );
 
 	return <div className={style.compoView} data-disable_component={disableEdit }>
 		<div className={style.content}>

@@ -28,7 +28,7 @@ export class Text extends MXP.Component {
 		this.material = new MXP.Material( {
 			frag: MXP.hotGet( 'textFrag', textFrag ),
 			vert: MXP.hotGet( 'textVert', textVert ),
-			uniforms: GLP.UniformsUtils.merge( globalUniforms.time, {
+			uniforms: MXP.UniformsUtils.merge( globalUniforms.time, {
 				uTex: {
 					value: font.texture,
 					type: '1i'

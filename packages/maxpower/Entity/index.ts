@@ -6,7 +6,7 @@ import { Geometry } from '../Component/Geometry';
 import { Light } from '../Component/Light';
 import { Material } from '../Component/Material';
 import { RenderStack } from '../Component/Renderer';
-import { Serializable, TypedSerializableProps } from '../Serializable';
+import { Serializable } from '../Serializable';
 
 export type EntityUpdateEvent = {
 	timElapsed: number;
@@ -86,37 +86,9 @@ export class Entity extends Serializable {
 		this.field( "euler", () => this.euler.getElm( "vec3" ), value => this.euler.setFromArray( value ) );
 		this.field( "scale", () => this.scale.getElm( "vec3" ), value => this.scale.setFromArray( value ) );
 
-		this.field( "children", () => Array.from( this.children ) );
+		this.field( "children", () => Array.from( this.children ), undefined, {noExport: true} );
 
 		this.field( "components", () => Array.from( this.components.values() ), );
-
-	}
-
-	public get props() {
-
-		return {
-			position: {
-				value: this.position.getElm( "vec3" ),
-			},
-			euler: {
-				value: this.euler.getElm( "vec3" ),
-			},
-			scale: {
-				value: this.scale.getElm( "vec3" ),
-			},
-			children: {
-				value: this.children,
-				opt: {
-					noExport: true,
-				}
-			},
-			components: {
-				value: Array.from( this.components.values() ),
-				opt: {
-					noExport: true,
-				}
-			}
-		};
 
 	}
 
