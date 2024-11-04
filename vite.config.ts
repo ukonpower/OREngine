@@ -28,6 +28,13 @@ export default defineConfig( {
 			"~": path.join( __dirname, "src" ),
 		},
 	},
+	css: {
+		preprocessorOptions: {
+			scss: {
+				api: "modern-compiler",
+			},
+		},
+	},
 	plugins: [
 		react(),
 		OREngineFileSystemPlugin(),
