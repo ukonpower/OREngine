@@ -2,7 +2,7 @@ import * as GLP from 'glpower';
 
 import SceneData from '../../../../data/player.json';
 import { canvas, renderer, screenElm } from '../GLGlobals';
-import { ProjectScene } from '../ProjectScene';
+import { OREngine } from '../OREngine';
 
 class App {
 
@@ -15,7 +15,7 @@ class App {
 	private exitElm: HTMLElement;
 	private canvas: HTMLCanvasElement;
 
-	private scene: ProjectScene;
+	private engine: OREngine;
 
 	constructor() {
 
@@ -107,10 +107,10 @@ class App {
 		this.menuElm.appendChild( playButton );
 
 		/*-------------------------------
-			Scene
+			Engine
 		-------------------------------*/
 
-		this.scene = new ProjectScene();
+		this.engine = new OREngine();
 
 		let shaderTotal = 0.0;
 		let musicTotal = 0.0;
@@ -140,7 +140,7 @@ class App {
 		onLoadProgress( "" );
 
 
-		this.scene.on( "update/music", ( buffer: AudioBuffer, freqTex: GLP.GLPowerTexture, domainTex: GLP.GLPowerTexture, progress: [number, number] ) => {
+		this.engine.on( "update/music", ( buffer: AudioBuffer, freqTex: GLP.GLPowerTexture, domainTex: GLP.GLPowerTexture, progress: [number, number] ) => {
 
 			musicTotal = progress[ 0 ] / progress[ 1 ];
 
@@ -149,7 +149,7 @@ class App {
 		} );
 
 
-		this.scene.on( "loaded", () => {
+		this.engine.on( "loaded", () => {
 
 			this.resize();
 
@@ -157,7 +157,7 @@ class App {
 
 				renderer.noDraw = true;
 
-				this.scene.update( { forceDraw: true } );
+				this.engine.update( { forceDraw: true } );
 
 				renderer.noDraw = false;
 
@@ -175,7 +175,7 @@ class App {
 
 		} );
 
-		this.scene.init( SceneData );
+		this.engine.init( SceneData );
 
 		/*-------------------------------
 			Event
@@ -195,7 +195,7 @@ class App {
 		this.screenWrapElm.style.opacity = '1';
 		this.rootElm.style.cursor = 'none';
 
-		this.scene.play();
+		this.engine.play();
 
 		this.animate();
 
@@ -205,9 +205,9 @@ class App {
 
 	private animate() {
 
-		this.scene.update();
+		this.engine.update();
 
-		if ( this.scene.frame.current > this.scene.frameSetting.duration ) {
+		if ( this.engine.frame.current > this.engine.frameSetting.duration ) {
 
 			this.exitElm.style.opacity = '1';
 
@@ -242,7 +242,7 @@ class App {
 		this.canvas.width = 1920;
 		this.canvas.height = this.canvas.width / aspect;
 
-		this.scene.resize( new GLP.Vector( this.canvas.width, this.canvas.height ) );
+		this.engine.resize( new GLP.Vector( this.canvas.width, this.canvas.height ) );
 
 	}
 

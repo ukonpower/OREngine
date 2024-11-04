@@ -19,7 +19,7 @@ export interface FramePlay {
 	playing: boolean,
 }
 
-export class ProjectScene extends MXP.Entity {
+export class OREngine extends MXP.Entity {
 
 	// project
 

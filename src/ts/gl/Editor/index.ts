@@ -2,12 +2,11 @@ import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
 import { canvas, power, renderer, screenElm } from '../GLGlobals';
-import { ProjectScene } from '../ProjectScene';
-import { OREngineProjectData } from '../ProjectScene/IO/ProjectSerializer';
-import { FrameDebugger } from '../ProjectScene/utils/FrameDebugger';
-import { Keyboard, PressedKeys } from '../ProjectScene/utils/Keyboard';
+import { OREngine } from '../OREngine';
+import { OREngineProjectData } from '../OREngine/IO/ProjectSerializer';
+import { FrameDebugger } from '../OREngine/utils/FrameDebugger';
+import { Keyboard, PressedKeys } from '../OREngine/utils/Keyboard';
 
-import { OREngineEditorViewType } from './EditorDataManager';
 import { FileSystem } from './FileSystem';
 
 export type EditorTimelineLoop = {
@@ -31,7 +30,7 @@ export class GLEditor extends MXP.Serializable {
 	// data
 
 	public resolutionScale: number;
-	public viewType: OREngineEditorViewType;
+	public viewType: "render" | "debug";
 	public projects: Map<string, OREngineProjectData>;
 	public currentProject: OREngineProjectData | null;
 
@@ -45,7 +44,7 @@ export class GLEditor extends MXP.Serializable {
 
 	// scene
 
-	public scene: ProjectScene;
+	public scene: OREngine;
 
 	// selected
 
@@ -76,7 +75,7 @@ export class GLEditor extends MXP.Serializable {
 
 		// scene
 
-		this.scene = new ProjectScene();
+		this.scene = new OREngine();
 
 		// view
 
@@ -366,7 +365,6 @@ export class GLEditor extends MXP.Serializable {
 			this.currentProject.name = props.projectName.value;
 
 		}
-
 
 		// opened project
 

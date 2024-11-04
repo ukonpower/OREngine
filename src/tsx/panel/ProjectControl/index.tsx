@@ -10,7 +10,7 @@ import { MouseMenuContext } from '../MouseMenu/useMouseMenu';
 
 import style from './index.module.scss';
 
-import { OREngineProjectData } from '~/ts/gl/ProjectScene/IO/ProjectSerializer';
+import { OREngineProjectData } from '~/ts/gl/OREngine/IO/ProjectSerializer';
 import { useSerializableProps } from '~/tsx/gl/useSerializableProps';
 
 

@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, createContext, useRef } from "react";
 
 import { GLEditor } from "~/ts/gl/Editor";
-import { FramePlay } from '~/ts/gl/ProjectScene';
+import { FramePlay } from '~/ts/gl/OREngine';
 
 export const TimelineContext = createContext<HooksContext<typeof useTimeline>>( {} );
 
