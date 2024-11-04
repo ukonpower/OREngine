@@ -2,7 +2,7 @@
 import * as MXP from 'maxpower';
 
 import { gl, renderer, resource } from '../GLGlobals';
-import { TexProcedural } from '../ProjectScene/utils/TexProcedural';
+import { TexProcedural } from '../OREngine/utils/TexProcedural';
 
 import { COMPONENTLIST } from './_data/componentList';
 import { Font1 } from './Fonts/Font1';

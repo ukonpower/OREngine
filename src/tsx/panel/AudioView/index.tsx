@@ -7,8 +7,8 @@ import { GLContext } from '../../gl/useGL';
 import { AudioViewRenderer } from './AudioViewRenderer';
 import style from './index.module.scss';
 
-import { FramePlay } from '~/ts/gl/ProjectScene';
-import { OREngineProjectFrame } from '~/ts/gl/ProjectScene/IO/ProjectSerializer';
+import { FramePlay } from '~/ts/gl/OREngine';
+import { OREngineProjectFrame } from '~/ts/gl/OREngine/IO/ProjectSerializer';
 
 
 export const AudioView = () => {

@@ -5,7 +5,7 @@ import timelineFrag from './shaders/timeline.fs';
 
 
 import { gl } from '~/ts/gl/GLGlobals';
-import { OREngineProjectFrame } from '~/ts/gl/ProjectScene/IO/ProjectSerializer';
+import { OREngineProjectFrame } from '~/ts/gl/OREngine/IO/ProjectSerializer';
 
 export class TimelineCanvasRenderer extends GLP.EventEmitter {
 
