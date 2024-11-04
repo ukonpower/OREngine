@@ -2,17 +2,17 @@ import * as MXP from 'maxpower';
 
 import { useWatchSerializable } from "../useWatchSerializable";
 
-export const useSerializableProps = <T, >( exportable: MXP.Serializable | undefined, path: string ): [T|undefined, ( ( value: T ) => void ) | undefined] => {
+export const useSerializableProps = <T extends MXP.SerializeFieldValue>( serializable: MXP.Serializable | undefined, path: string ): [T|undefined, ( ( value: T ) => void ) | undefined] => {
 
 	const setter = ( value: any ) => {
 
-		exportable?.setPropsValue( path, value );
+		serializable?.setField( path, value );
 
 	};
 
-	const { props } = useWatchSerializable( exportable, [ path ] );
+	const { props } = useWatchSerializable( serializable, [ path ] );
 
-	const value = props && props[ path ];
+	const value = props && props[ path ] as T;
 
 	return [
 		value,

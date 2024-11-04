@@ -32,7 +32,7 @@ export const ProjectControl = () => {
 					<div className={style.projectSelector}>
 						<InputSelect value={openedProject || ''} selectList={projectList} onChange={( value ) => {
 
-							glEditor && glEditor.setPropsValue( "openedProject", value );
+							glEditor && glEditor.setField( "openedProject", value );
 
 						}}/>
 					</div>
@@ -42,7 +42,7 @@ export const ProjectControl = () => {
 							pushContent && pushContent( <>
 								<InputGroup title='Rename Project' initialValues={{ name: projectName || "" }} onSubmit={( e ) => {
 
-									glEditor && glEditor.setPropsValue( "projectName", e.name as string );
+									glEditor && glEditor.setField( "projectName", e.name as string );
 
 									closeAll && closeAll();
 
@@ -59,7 +59,7 @@ export const ProjectControl = () => {
 							pushContent && pushContent( <>
 								<InputGroup title='New Project' initialValues={{ name: "NewProject" }} onSubmit={( e ) => {
 
-									glEditor && glEditor.setPropsValue( "openedProject", e.name as string );
+									glEditor && glEditor.setField( "openedProject", e.name as string );
 
 									closeAll && closeAll();
 

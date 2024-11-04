@@ -28,6 +28,10 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 	const noEditable = props.entity.initiator == "script";
 
 	const [ selectedEntityId ] = useSerializableProps<string>( glEditor, "selectedEntity" );
+
+	console.log( selectedEntityId );
+
+
 	const selectedEntity = selectedEntityId !== undefined && glEditor?.scene.findEntityById( selectedEntityId );
 
 	useWatchSerializable( props.entity, [ "children" ] );

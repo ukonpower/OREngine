@@ -61,78 +61,15 @@ export class BLidgeClient extends MXP.Component {
 		this.useGLTF = false;
 		this.gltfPath = BASE_PATH + "/scene.glb";
 
-		this.deserialize( this.serialize() );
+		// fields
 
-	}
+		this.field( "mode", () => this.type, v => this.type = v, );
+		this.field( "gltf", () => this.useGLTF, v => this.useGLTF = v, );
+		this.field( "gltfPath", () => this.gltfPath, v => this.gltfPath = v, );
 
-	public get props() {
-
-		const connect = this.connection.enabled;
-
-		return {
-			...super.props,
-			mode: {
-				value: this.type,
-				selectList: [
-					"json",
-					"websocket"
-				]
-			},
-			gltf: {
-				value: this.useGLTF,
-			},
-			gltfPath: this.useGLTF && {
-				value: this.gltfPath,
-			} || undefined,
-			websocket: this.type == "websocket" && {
-				reconnect: {
-					value: () => {
-
-						this.blidge.connect( this.connection.url, this.useGLTF ? this.gltfPath : undefined );
-
-					},
-				},
-				url: {
-					value: this.connection.url,
-					readOnly: connect
-				},
-			} || undefined,
-		};
-
-	}
-
-	protected deserializer( props: MXP.TypedSerializableProps<this> ) {
-
-		super.deserializer( props );
-
-		this.connection.url = ( props.websocket && props.websocket.url.value ) || this.connection.url;
-		this.type = props.mode.value;
-		this.useGLTF = props.gltf.value || false;
-		this.gltfPath = ( props.gltfPath && props.gltfPath.value ) || this.gltfPath;
-
-		this.blidge.disconnect();
-
-		if ( this.type == "json" ) {
-
-			this.blidge.loadScene( SceneData as any, this.useGLTF ? this.gltfPath : undefined );
-
-		} else {
-
-			if ( this.connection.enabled ) {
-
-				this.blidge.connect( this.connection.url, this.useGLTF ? this.gltfPath : undefined );
-
-			}
-
-		}
-
-	}
-
-	public serialize(): MXP.SerializableProps {
-
-		return {
-			...super.serialize()
-		};
+		const ws = this.fieldDir( "websocket" );
+		ws.field( "reconnect", () => () => this.blidge.connect( this.connection.url, this.useGLTF ? this.gltfPath : undefined ) );
+		ws.field( "url", () => this.connection.url, v => this.connection.url = v );
 
 	}
 
