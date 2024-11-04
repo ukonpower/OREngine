@@ -17,7 +17,7 @@ type ComponentViewProps = {
 
 export const ComponentView = ( { component }: ComponentViewProps ) => {
 
-	useWatchSerializable( component, [ ] );
+	useWatchSerializable( component, [] );
 
 	const [ enabled, setEnabled ] = useSerializableProps<boolean>( component, "enabled" );
 
@@ -27,7 +27,7 @@ export const ComponentView = ( { component }: ComponentViewProps ) => {
 		<Value key='-2' label={"tag"} value={component.tag} readOnly />
 	];
 
-	const compoProps = component.props;
+	const compoProps = component.serialize();
 
 	const onChangeProps = useCallback( ( value: ValueType, label: string ) => {
 
@@ -37,6 +37,9 @@ export const ComponentView = ( { component }: ComponentViewProps ) => {
 		} );
 
 	}, [ component ] );
+
+	console.log( compoProps );
+
 
 	if ( compoProps ) {
 

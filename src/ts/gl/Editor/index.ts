@@ -273,110 +273,77 @@ export class GLEditor extends MXP.Serializable {
 
 		window.requestAnimationFrame( this.animate.bind( this ) );
 
-	}
+		/*-------------------------------
+			Fields
+		-------------------------------*/
 
-	public get props() {
+		this.field( "projects", () => Array.from( this.projects.values() ), v => {
 
-		return {
-			projects: {
-				value: Array.from( this.projects.values() ),
-			},
-			enableRender: {
-				value: this.scene.enableRender,
-			},
-			projectName: {
-				value: this.currentProject && this.currentProject.name || "",
-			},
-			openedProject: {
-				value: this.currentProject && this.currentProject.name
-			},
-			resolutionScale: {
-				value: this.resolutionScale,
-			},
-			viewType: {
-				value: this.viewType
-			},
-			frameLoop: {
-				enabled: {
-					value: this.frameLoop.enabled,
-				},
-				start: {
-					value: this.frameLoop.start,
-				},
-				end: {
-					value: this.frameLoop.end,
-				}
-			},
-			selectedEntity: {
-				value: this.selectedEntity
-			}
-		};
-
-	}
-
-	protected deserializer( props: MXP.TypedSerializableProps<this> ): void {
-
-		// render
-
-		this.scene.enableRender = props.enableRender.value;
-
-		// viewtype
-
-		this.viewType = props.viewType.value;
-
-		if ( this.viewType === "debug" ) {
-
-			this.frameDebugger.enable = true;
-
-		} else {
-
-			this.frameDebugger.enable = false;
-
-		}
-
-		//  scale
-
-		this.resolutionScale = props.resolutionScale.value;
-
-		this.resize();
-
-		// frameLoop
-
-		this.frameLoop.enabled = props.frameLoop.enabled.value;
-		this.frameLoop.start = Math.max( 0, props.frameLoop.start.value || 0 );
-		this.frameLoop.end = Math.max( this.frameLoop.start, props.frameLoop.end.value ) || 100;
-
-		// selected eneity
-
-		this.selectedEntity = props.selectedEntity.value;
-
-		// projects
-
-		props.projects.value.forEach( ( project ) => {
-
-			this.projects.set( project[ "name" ], project );
+			this.projects = new Map( v.map( ( project ) => [ project.name, project ] ) );
 
 		} );
 
-		// project name
+		this.field( "enableRender", () => this.scene.enableRender, v => this.scene.enableRender = v );
 
-		if ( this.currentProject ) {
+		this.field( "projectName", () => this.currentProject && this.currentProject.name || "", v => {
 
-			this.currentProject.name = props.projectName.value;
+			if ( this.currentProject ) {
 
-		}
+				this.currentProject.name = v;
 
-		// opened project
+			}
 
-		if ( this.currentProject === null ) {
+		} );
 
-			this.projectOpen( props.openedProject.value || "" );
+		this.field( "openedProject", () => this.currentProject && this.currentProject.name, v => {
 
-		} else if ( props.openedProject.value !== this.currentProject.name && props.openedProject.value ) {
+			if ( this.currentProject === null ) {
 
-			this.projectOpen( props.openedProject.value );
+				this.projectOpen( v || "" );
 
-		}
+			} else if ( v !== this.currentProject.name && v ) {
+
+				this.projectOpen( v );
+
+			}
+
+		} );
+
+		this.field( "resolutionScale", () => this.resolutionScale, v => {
+
+			this.resolutionScale = v;
+
+			this.resize();
+
+		} );
+
+		this.field( "viewType", () => this.viewType, v => {
+
+			this.viewType = v;
+
+			if ( this.viewType === "debug" ) {
+
+				this.frameDebugger.enable = true;
+
+			} else {
+
+				this.frameDebugger.enable = false;
+
+			}
+
+		} );
+
+		const frameLoop = this.fieldDir( "frameLoop" );
+		frameLoop.field( "enabled", () => this.frameLoop.enabled, v => this.frameLoop.enabled = v );
+		frameLoop.field( "start", () => this.frameLoop.start, v => this.frameLoop.start = v );
+		frameLoop.field( "end", () => this.frameLoop.end, v => this.frameLoop.end = v );
+
+		this.field( "selectedEntity", () => this.selectedEntity, v => {
+
+			this.selectedEntity = v;
+
+		} );
+
 
 	}
 
@@ -451,7 +418,7 @@ export class GLEditor extends MXP.Serializable {
 		document.title = name;
 
 		this.emit( "loadedProject" );
-		this.noticePropsChanged( "openedProject" );
+		// this.noticePropsChanged( "openedProject" );
 
 	}
 

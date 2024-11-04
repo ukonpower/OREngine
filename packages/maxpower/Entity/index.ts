@@ -82,6 +82,14 @@ export class Entity extends Serializable {
 		this.visible = true;
 		this.userData = {};
 
+		this.field( "position", () => this.position.getElm( "vec3" ), value => this.position.setFromArray( value ) );
+		this.field( "euler", () => this.euler.getElm( "vec3" ), value => this.euler.setFromArray( value ) );
+		this.field( "scale", () => this.scale.getElm( "vec3" ), value => this.scale.setFromArray( value ) );
+
+		this.field( "children", () => Array.from( this.children ) );
+
+		this.field( "components", () => Array.from( this.components.values() ), );
+
 	}
 
 	public get props() {
@@ -109,14 +117,6 @@ export class Entity extends Serializable {
 				}
 			}
 		};
-
-	}
-
-	protected deserializer( props: TypedSerializableProps<this> ): void {
-
-		this.position.set( props.position.value[ 0 ], props.position.value[ 1 ], props.position.value[ 2 ] );
-		this.euler.set( props.euler.value[ 0 ], props.euler.value[ 1 ], props.euler.value[ 2 ], props.euler.value[ 3 ] );
-		this.scale.set( props.scale.value[ 0 ], props.scale.value[ 1 ], props.scale.value[ 2 ] );
 
 	}
 
@@ -373,7 +373,7 @@ export class Entity extends Serializable {
 
 		this.emit( "component/add", [ component ] );
 
-		this.noticePropsChanged( "components" );
+		// this.noticePropsChanged( "components" );
 
 		return component;
 
@@ -420,7 +420,7 @@ export class Entity extends Serializable {
 
 		this.emit( "component/remove", [ currentComponent ] );
 
-		this.noticePropsChanged( "components" );
+		// this.noticePropsChanged( "components" );
 
 		return currentComponent;
 

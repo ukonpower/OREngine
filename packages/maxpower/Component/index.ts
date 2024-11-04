@@ -1,7 +1,7 @@
 import * as GLP from 'glpower';
 
 import { Entity, EntityFinalizeEvent } from '../Entity';
-import { Serializable, TypedSerializableProps } from '../Serializable';
+import { Serializable } from '../Serializable';
 
 export type ComponentUpdateEvent = EntityFinalizeEvent & {
 	entity: Entity,
@@ -34,21 +34,7 @@ export class Component extends Serializable {
 		this.children = [];
 		this.enabled_ = true;
 
-	}
-
-	public get props() {
-
-		return {
-			enabled: {
-				value: this.enabled,
-			}
-		};
-
-	}
-
-	protected deserializer( props: TypedSerializableProps<this> ): void {
-
-		this.enabled = props.enabled.value;
+		this.field( "enabled", () => this.enabled, value => this.enabled = value );
 
 	}
 
