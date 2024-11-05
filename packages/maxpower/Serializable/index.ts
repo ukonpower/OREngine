@@ -17,6 +17,8 @@ type SerializeFieldProxy = {get: SerializeFieldGetter<SerializeFieldValue>, set?
 
 export type SerializedFields = {[key: string]: SerializeFieldValue}
 
+export type SerializedGroupingFields = {[key: string]: SerializedGroupingFields | {value: SerializeFieldValue, opt?: SerializablePropsOpt}}
+
 export class Serializable extends Resource {
 
 	private fields: Map<string, SerializeFieldProxy> = new Map();
@@ -27,21 +29,26 @@ export class Serializable extends Resource {
 		super();
 
 		this.initiator = 'script';
+
 	}
 
 	public deserialize( props: SerializedFields ) {
 
-		this.fields.forEach( ( field, path ) => {
+		const keys = Object.keys( props );
 
-			const value = props[ path ];
+		for ( let i = 0; i < keys.length; i ++ ) {
 
-			if ( value && field.set ) {
+			const key = keys[ i ];
 
-				field.set( value );
+			const field = this.fields.get( key );
+
+			if ( field ) {
+
+				field.set && field.set( props[ key ] );
 
 			}
 
-		} );
+		}
 
 	}
 
@@ -53,15 +60,52 @@ export class Serializable extends Resource {
 
 			const value = field.get();
 
-			if ( value ) {
-
-				res[ k ] = value;
-
-			}
+			res[ k ] = value;
 
 		} );
 
 		return res;
+
+	}
+
+	public serializeGrouping() {
+
+		const serializedToObj = ( serialized: SerializedFields ) => {
+
+			const res: SerializedGroupingFields = {};
+
+			const keys = Object.keys( serialized );
+
+			for ( let i = 0; i < keys.length; i ++ ) {
+
+				const key = keys[ i ];
+
+				if ( ! key ) continue;
+
+				const splitKeys = key.split( '/' );
+
+				let target = res;
+
+				for ( let j = 0; j < splitKeys.length; j ++ ) {
+
+					const splitedKey = splitKeys[ j ];
+
+					if ( ! splitedKey ) continue;
+
+					target = target[ splitedKey ] = ( target[ splitedKey ] || {} ) as SerializedGroupingFields;
+
+				}
+
+				target.value = serialized[ key ] as any;
+				target.opt = this.getFieldOpt( key ) as any;
+
+			}
+
+			return res;
+
+		};
+
+		return serializedToObj( this.serialize() );
 
 	}
 
@@ -104,9 +148,33 @@ export class Serializable extends Resource {
 
 	}
 
-	public noticePropsChanged( path: string ) {
+	public getFieldOpt( path: string ) {
 
-		this.emit( "update/props/" + path );
+		const field = this.fields.get( path );
+
+		if ( field ) {
+
+			return field.opt;
+
+		}
+
+	}
+
+	protected noticePropsChanged( path: string | string[] ) {
+
+		const propsSerialized = this.serialize();
+
+		const _path = typeof path == "string" ? [ path ] : path;
+
+		for ( let i = 0; i < _path.length; i ++ ) {
+
+			const pt = _path[ i ];
+
+			this.emit( "update/props/" + path, [ propsSerialized[ pt ] ] );
+
+		}
+
+		this.emit( "update/props", [ propsSerialized, _path ] );
 
 	}
 

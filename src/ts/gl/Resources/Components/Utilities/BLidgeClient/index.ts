@@ -63,19 +63,41 @@ export class BLidgeClient extends MXP.Component {
 
 		// fields
 
-		this.field( "mode", () => this.type, v => {
-			this.type = v
+		const reload = () => {
 
-			if( this.type == "json" ) {
-				this.blidge.loadScene( SceneData );
+			if ( this.type == "json" ) {
+
+				this.blidge.loadScene( SceneData, this.useGLTF ? this.gltfPath : undefined );
+
+			} else {
+
+				this.blidge.connect( this.connection.url, this.useGLTF ? this.gltfPath : undefined );
+
 			}
-			
+
+		};
+
+		this.field( "mode", () => this.type, v => {
+
+			this.type = v;
+
+			reload();
+
+
 		}, );
-		this.field( "gltf", () => this.useGLTF, v => this.useGLTF = v, );
+
+		this.field( "gltf", () => this.useGLTF, v => {
+
+			this.useGLTF = v;
+
+			reload();
+
+		} );
+
 		this.field( "gltfPath", () => this.gltfPath, v => this.gltfPath = v, );
 
 		const ws = this.fieldDir( "websocket" );
-		ws.field( "reconnect", () => () => this.blidge.connect( this.connection.url, this.useGLTF ? this.gltfPath : undefined ) );
+		ws.field( "reconnect", () => () => reload() );
 		ws.field( "url", () => this.connection.url, v => this.connection.url = v );
 
 	}

@@ -34,6 +34,7 @@ void main( void ) {
 
 	outEmissionIntensity = 1.0 + emit * 50.0 * smoothstep( 0.4, 1.0, n);
 
+	outColor.xyz *= 0.2;
 
 
 	#ifdef IS_FORWARD

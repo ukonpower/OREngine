@@ -139,13 +139,13 @@ export class OREngine extends MXP.Entity {
 		this.root.name = "root";
 		this.add( this.root );
 
-		this.field("name", () => this.name, ( v ) => this.name = v );	
+		this.field( "name", () => this.name, ( v ) => this.name = v );
 		this.field( "objectOverride", () => this.projectSerializer.serialize( this.root ).objectOverride );
 		this.field( "scene", () => this.projectSerializer.serialize( this.root ).scene );
 		const tl = this.fieldDir( "timeline" );
 		tl.field( "duration", () => this.frameSetting.duration, ( v ) => this.frameSetting.duration = v );
 		tl.field( "fps", () => this.frameSetting.fps, ( v ) => this.frameSetting.fps = v );
-		
+
 	}
 
 	protected deserializer( props: MXP.TypedSerializableProps<this> ) {

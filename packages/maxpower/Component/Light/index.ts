@@ -1,7 +1,6 @@
 import * as GLP from 'glpower';
 
 import { ComponentParams } from '..';
-import { TypedSerializableProps } from '../../Serializable';
 import { ShadowMapCamera } from '../Camera/ShadowMapCamera';
 
 export type LightType = 'directional' | 'spot'
@@ -34,7 +33,7 @@ export class Light extends ShadowMapCamera {
 
 		super( params );
 
-		this.lightType = 'directional';
+		this.lightType = 'spot';
 
 		this.color = new GLP.Vector( 1.0, 1.0, 1.0, 0.0 );
 		this.intensity = 1;
