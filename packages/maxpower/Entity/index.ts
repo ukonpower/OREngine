@@ -86,7 +86,7 @@ export class Entity extends Serializable {
 		this.field( "euler", () => this.euler.getElm( "vec3" ), value => this.euler.setFromArray( value ) );
 		this.field( "scale", () => this.scale.getElm( "vec3" ), value => this.scale.setFromArray( value ) );
 
-		this.field( "children", () => Array.from( this.children ), undefined, {noExport: true} );
+		this.field( "children", () => Array.from( this.children ), undefined, { noExport: true } );
 
 		this.field( "components", () => Array.from( this.components.values() ), );
 

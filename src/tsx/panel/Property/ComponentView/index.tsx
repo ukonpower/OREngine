@@ -15,35 +15,6 @@ type ComponentViewProps = {
 	component: MXP.Component
 };
 
-const serializedToObj = ( serialized: MXP.SerializedFields ) => {
-
-	let res: any = {}
-
-	let keys = Object.keys( serialized );	
-	
-	for ( let i = 0; i < keys.length; i ++ ) {
-
-		let splitKeys = keys[i].split( "/" );
-
-		let target = res
-
-		for ( let j = 0; j < splitKeys.length ; j++ ) {
-
-			const key = splitKeys[j];
-			
-			
-			target = target[key] = target[ key ] || {};
-			
-		}
-
-		target.value = serialized[ keys[i] ];
-
-	}
-
-	return res;
-	
-}
-
 export const ComponentView = ( { component }: ComponentViewProps ) => {
 
 	useWatchSerializable( component, [] );
@@ -73,13 +44,11 @@ export const ComponentView = ( { component }: ComponentViewProps ) => {
 
 	}, [ disableEdit, component ] );
 
-	const compoProps = serializedToObj( component.serialize());
+	const compoProps = component.serializeGrouping();
 
 	const onChangeProps = useCallback( ( value: ValueType, label: string ) => {
-		component.deserialize( {
-			...component.serialize(),
-			[ label ]: value
-		} );
+
+		component.setField( label, value );
 
 	}, [ component ] );
 

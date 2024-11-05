@@ -774,7 +774,7 @@ export class Renderer extends Entity {
 			material.programCache[ renderType ] = program;
 
 		}
-		
+
 		if ( param ) {
 
 			if ( param.modelMatrixWorld ) {
