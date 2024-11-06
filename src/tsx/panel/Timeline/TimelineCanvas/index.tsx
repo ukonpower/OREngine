@@ -46,8 +46,8 @@ export const TimelineCanvas = () => {
 
 	}, [ renderer, viewPort, viewPortScale ] );
 
-	const [ duration ] = useSerializableProps<number>( glEditor?.scene, "timeline/duration" );
-	const [ fps ] = useSerializableProps<number>( glEditor?.scene, "timeline/fps" );
+	const [ duration ] = useSerializableProps<number>( glEditor?.engine, "timeline/duration" );
+	const [ fps ] = useSerializableProps<number>( glEditor?.engine, "timeline/fps" );
 
 	useEffect( () => {
 

@@ -5,12 +5,12 @@ import { MouseMenuContext } from '../../MouseMenu/useMouseMenu';
 
 import style from './index.module.scss';
 
-import { EditorContext } from '~/tsx/gl/useEditor';
+import { useOREditor } from '~/tsx/gl/OREditor';
 import { useSerializableProps } from '~/tsx/gl/useSerializableProps';
 import { useWatchSerializable } from '~/tsx/gl/useWatchSerializable';
+import { ArrowIcon } from '~/tsx/Icon/ArrowIcon';
 import { InputGroup } from '~/tsx/ui/InputGroup';
 import { Picker } from '~/tsx/ui/Picker';
-import { ArrowIcon } from '~/tsx/Icon/ArrowIcon';
 
 type HierarchyNodeProps = {
 	depth?: number;
@@ -19,7 +19,7 @@ type HierarchyNodeProps = {
 
 export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 
-	const { glEditor } = useContext( EditorContext );
+	const { editor } = useOREditor();
 
 	const depth = props.depth || 0;
 	const childs = props.entity.children.concat().sort( ( a, b ) => a.name.localeCompare( b.name ) );
@@ -27,9 +27,9 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 	const offsetPx = depth * 20;
 	const noEditable = props.entity.initiator == "script";
 
-	const [ selectedEntityId ] = useSerializableProps<string>( glEditor, "selectedEntity" );
+	const [ selectedEntityId ] = useSerializableProps<string>( editor, "selectedEntity" );
 
-	const selectedEntity = selectedEntityId !== undefined && glEditor?.scene.findEntityById( selectedEntityId );
+	const selectedEntity = selectedEntityId !== undefined && editor.engine.findEntityById( selectedEntityId );
 
 	useWatchSerializable( props.entity, [ "children" ] );
 
@@ -48,11 +48,11 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 
 	const onClickNode = useCallback( () => {
 
-		if ( ! glEditor ) return;
+		if ( ! editor ) return;
 
-		glEditor.selectEntity( props.entity );
+		editor.selectEntity( props.entity );
 
-	}, [ glEditor, props.entity ] );
+	}, [ editor, props.entity ] );
 
 	// right click node
 
@@ -62,9 +62,9 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 
 		e.preventDefault();
 
-		if ( ! glEditor || ! pushContent || ! closeAll || noEditable ) return;
+		if ( ! editor || ! pushContent || ! closeAll || noEditable ) return;
 
-		glEditor.selectEntity( props.entity );
+		editor.selectEntity( props.entity );
 
 		pushContent( <Picker label={props.entity.name} list={[
 			{
@@ -74,9 +74,9 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 					pushContent(
 						<InputGroup initialValues={{ name: '' }} onSubmit={( e ) => {
 
-							const newEntity = glEditor.createEntity( props.entity, e.name as string );
+							const newEntity = editor.createEntity( props.entity, e.name as string );
 
-							glEditor.selectEntity( newEntity );
+							editor.selectEntity( newEntity );
 
 							closeAll();
 
@@ -90,7 +90,7 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 				label: "Delete Entity",
 				onClick: () => {
 
-					glEditor.deleteEntity( props.entity );
+					editor.deleteEntity( props.entity );
 
 					closeAll();
 
@@ -98,7 +98,7 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 			}
 		]}></Picker> );
 
-	}, [ glEditor, props.entity, pushContent, closeAll, noEditable ] );
+	}, [ editor, props.entity, pushContent, closeAll, noEditable ] );
 
 	return <div className={style.node} data-no_export={noEditable}>
 		<div className={style.self} style={{ paddingLeft: offsetPx }} onClick={onClickNode} onContextMenu={onRightClickNode} data-selected={selectedEntity && selectedEntity.uuid == props.entity.uuid}>

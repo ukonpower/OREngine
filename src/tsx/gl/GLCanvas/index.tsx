@@ -1,17 +1,17 @@
-import { useContext, useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 
-import { GLContext } from "../useGL";
+import { useOREditor } from "../OREditor";
 
 import style from './index.module.scss';
 
 export const GLCanvas = () => {
 
-	const { glEditor: gl } = useContext( GLContext );
+	const { editor } = useOREditor();
 	const wrapperElmRef = useRef<HTMLDivElement | null>( null );
 
 	useEffect( () => {
 
-		if ( gl && wrapperElmRef.current ) {
+		if ( editor && wrapperElmRef.current ) {
 
 			const screen = document.getElementById( 'screen' );
 
@@ -21,13 +21,13 @@ export const GLCanvas = () => {
 
 			}
 
-			wrapperElmRef.current.appendChild( gl.screenElm );
-			gl.setWrapperElm( wrapperElmRef.current );
+			wrapperElmRef.current.appendChild( editor.screenElm );
+			editor.setWrapperElm( wrapperElmRef.current );
 
 
 		}
 
-	}, [ wrapperElmRef, gl ] );
+	}, [ wrapperElmRef, editor ] );
 
 	return <div className={style.glCanvas} ref={wrapperElmRef}></div>;
 

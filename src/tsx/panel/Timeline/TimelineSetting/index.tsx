@@ -23,8 +23,8 @@ export const TimelineSetting = () => {
 
 	// loop
 	const [ loop, setLoop ] = useSerializableProps<boolean>( glEditor, "frameLoop/enabled" );
-	const [ duration, setDuration ] = useSerializableProps<number>( glEditor?.scene, "timeline/duration" );
-	const [ fps, setFps ] = useSerializableProps<number>( glEditor?.scene, "timeline/fps" );
+	const [ duration, setDuration ] = useSerializableProps<number>( glEditor?.engine, "timeline/duration" );
+	const [ fps, setFps ] = useSerializableProps<number>( glEditor?.engine, "timeline/fps" );
 
 	return <div className={style.timelineSetting}>
 		<Panel>

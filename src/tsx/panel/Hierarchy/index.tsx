@@ -1,15 +1,13 @@
-import { useContext } from "react";
-
-import { EditorContext } from "../../gl/useEditor";
-
 import { HierarchyNode } from './HierarchyNode';
 import style from './index.module.scss';
+
+import { useOREditor } from "~/tsx/gl/OREditor";
 
 
 export const Hierarchy = () => {
 
-	const { glEditor } = useContext( EditorContext );
-	const rootEntity = glEditor?.scene.root;
+	const { editor } = useOREditor();
+	const rootEntity = editor.engine.root;
 
 	return <div className={style.hierarchy}>
 		{rootEntity && <HierarchyNode entity={rootEntity} />}
