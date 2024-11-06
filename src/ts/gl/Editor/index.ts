@@ -15,7 +15,7 @@ export type EditorTimelineLoop = {
 	end: number,
 }
 
-export class GLEditor extends MXP.Serializable {
+export class Editor extends MXP.Serializable {
 
 	// canvas
 
@@ -44,7 +44,7 @@ export class GLEditor extends MXP.Serializable {
 
 	// scene
 
-	public scene: OREngine;
+	public engine: OREngine;
 
 	// selected
 
@@ -75,7 +75,7 @@ export class GLEditor extends MXP.Serializable {
 
 		// scene
 
-		this.scene = new OREngine();
+		this.engine = new OREngine();
 
 		// view
 
@@ -107,13 +107,13 @@ export class GLEditor extends MXP.Serializable {
 
 			if ( e.key == ' ' ) {
 
-				if ( this.scene.frame.playing ) {
+				if ( this.engine.frame.playing ) {
 
-					this.scene.stop( );
+					this.engine.stop( );
 
 				} else {
 
-					this.scene.play();
+					this.engine.play();
 
 				}
 
@@ -139,9 +139,9 @@ export class GLEditor extends MXP.Serializable {
 
 		};
 
-		this.scene.on( "update/graph", onChanged );
+		this.engine.on( "update/graph", onChanged );
 
-		this.scene.on( "dispose", () => {
+		this.engine.on( "dispose", () => {
 
 			this.off( "update/graph", onChanged );
 
@@ -191,7 +191,7 @@ export class GLEditor extends MXP.Serializable {
 
 		this.audioBuffer = null;
 
-		this.scene.on( "update/music", ( buffer: AudioBuffer ) => {
+		this.engine.on( "update/music", ( buffer: AudioBuffer ) => {
 
 			this.audioBuffer = buffer;
 
@@ -207,17 +207,17 @@ export class GLEditor extends MXP.Serializable {
 
 		// blidge
 
-		this.scene.on( "update/blidge/frame", ( e: MXP.BLidgeFrame ) => {
+		this.engine.on( "update/blidge/frame", ( e: MXP.BLidgeFrame ) => {
 
-			this.scene.seek( e.current );
+			this.engine.seek( e.current );
 
-			if ( e.playing && ! this.scene.frame.playing ) {
+			if ( e.playing && ! this.engine.frame.playing ) {
 
-				this.scene.play();
+				this.engine.play();
 
-			} else if ( ! e.playing && this.scene.frame.playing ) {
+			} else if ( ! e.playing && this.engine.frame.playing ) {
 
-				this.scene.stop();
+				this.engine.stop();
 
 			}
 
@@ -239,13 +239,13 @@ export class GLEditor extends MXP.Serializable {
 
 		// update
 
-		this.scene.update();
+		this.engine.update();
 
-		if ( this.scene.frame.playing ) {
+		if ( this.engine.frame.playing ) {
 
-			if ( this.scene.frame.current < 0 || this.scene.frame.current > this.scene.frameSetting.duration ) {
+			if ( this.engine.frame.current < 0 || this.engine.frame.current > this.engine.frameSetting.duration ) {
 
-				this.scene.frame.current = 0;
+				this.engine.frame.current = 0;
 
 			}
 
@@ -253,9 +253,9 @@ export class GLEditor extends MXP.Serializable {
 
 			if ( this.frameLoop.enabled ) {
 
-				if ( this.scene.frame.current < this.frameLoop.start || this.scene.frame.current > this.frameLoop.end ) {
+				if ( this.engine.frame.current < this.frameLoop.start || this.engine.frame.current > this.frameLoop.end ) {
 
-					this.scene.frame.current = this.frameLoop.start;
+					this.engine.frame.current = this.frameLoop.start;
 
 				}
 
@@ -283,7 +283,7 @@ export class GLEditor extends MXP.Serializable {
 
 		} );
 
-		this.field( "enableRender", () => this.scene.enableRender, v => this.scene.enableRender = v );
+		this.field( "enableRender", () => this.engine.enableRender, v => this.engine.enableRender = v );
 
 		this.field( "projectName", () => this.currentProject && this.currentProject.name || "", v => {
 
@@ -404,13 +404,13 @@ export class GLEditor extends MXP.Serializable {
 
 		if ( project ) {
 
-			this.scene.init( project );
+			this.engine.init( project );
 			this.currentProject = project;
 
 		} else {
 
-			this.scene.init();
-			this.currentProject = this.scene.serialize();
+			this.engine.init();
+			this.currentProject = this.engine.serialize();
 			this.projectSave();
 
 		}
@@ -441,7 +441,7 @@ export class GLEditor extends MXP.Serializable {
 
 	public projectSave() {
 
-		this.projects.set( this.scene.name, this.scene.serialize( true ) );
+		this.projects.set( this.engine.name, this.engine.serialize( true ) );
 
 		this.fileSystem.set( "editor.json", {
 			...this.serialize(),
@@ -453,7 +453,7 @@ export class GLEditor extends MXP.Serializable {
 
 	public exportCurrentScene() {
 
-		return this.fileSystem.set( "player.json", this.scene.serialize( true ) );
+		return this.fileSystem.set( "player.json", this.engine.serialize( true ) );
 
 	}
 
@@ -501,7 +501,7 @@ export class GLEditor extends MXP.Serializable {
 		// resize
 
 		const resolution = new GLP.Vector( canvas.width, canvas.height );
-		this.scene.resize( resolution );
+		this.engine.resize( resolution );
 
 		// debugegr
 
@@ -518,7 +518,7 @@ export class GLEditor extends MXP.Serializable {
 		this.disposed = true;
 
 		this.screenElm.remove();
-		this.scene.disposeRecursive();
+		this.engine.disposeRecursive();
 		this.keyBoard.dispose();
 		this.frameDebugger.dispose();
 
