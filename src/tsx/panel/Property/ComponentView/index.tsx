@@ -6,9 +6,9 @@ import style from './index.module.scss';
 
 import { useSerializableProps } from '~/tsx/gl/useSerializableProps';
 import { useWatchSerializable } from '~/tsx/gl/useWatchSerializable';
-import { CrossIcon } from '~/tsx/ui/icon/CrossIcon';
+import { CrossIcon } from '~/tsx/ui/Icon/CrossIcon';
 import { InputBoolean } from '~/tsx/ui/Input/InputCheckBox';
-import { PropertyBlock } from '~/tsx/ui/Property/PropertyBlock';
+import { Block } from '~/tsx/ui/Property/PropertyBlock';
 import { Value, ValueType } from '~/tsx/ui/Property/Value';
 
 type ComponentViewProps = {
@@ -87,7 +87,7 @@ export const ComponentView = ( { component }: ComponentViewProps ) => {
 					const dd = depth + 1;
 					const col = "#" + dd + dd + dd;
 
-					elmArray.push( <div className={style.propertyBlock} key={i}><PropertyBlock key={i} label={key} bg={col} accordion >{elms}</PropertyBlock></div> );
+					elmArray.push( <div className={style.propertyBlock} key={i}><Block key={i} label={key} bg={col} accordion >{elms}</Block></div> );
 
 				}
 
@@ -104,7 +104,7 @@ export const ComponentView = ( { component }: ComponentViewProps ) => {
 
 	return <div className={style.compoView} data-disable_component={disableEdit }>
 		<div className={style.content}>
-			<PropertyBlock label={<div className={style.head}>
+			<Block label={<div className={style.head}>
 				<div className={style.check}>
 					<InputBoolean checked={enabled || false} onChange={setEnabled} readOnly={disableEdit} />
 				</div>
@@ -116,7 +116,7 @@ export const ComponentView = ( { component }: ComponentViewProps ) => {
 				</div>
 			</div>} accordion={true} defaultClose={false} bg>
 				{propElms}
-			</PropertyBlock>
+			</Block>
 		</div>
 	</div>;
 

@@ -2,12 +2,12 @@ import { useContext } from 'react';
 
 import { GLCanvas } from '../../gl/GLCanvas';
 import { EditorContext } from '../../gl/useEditor';
-import { Value } from '../../ui/Property/Value';
 import { AudioView } from '../AudioView';
 
 import style from './index.module.scss';
 
 import { useSerializableProps } from '~/tsx/gl/useSerializableProps';
+import { Value } from '~/tsx/ui/Value';
 
 
 export const Screen = () => {

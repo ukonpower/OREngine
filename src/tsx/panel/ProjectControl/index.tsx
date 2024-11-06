@@ -2,16 +2,15 @@ import { useContext } from 'react';
 
 import { EditorContext } from '../../gl/useEditor';
 import { Button } from '../../ui/Button';
-import { ArrowIcon } from '../../ui/icon/ArrowIcon';
 import { InputSelect } from '../../ui/Input/InputSelect';
 import { InputGroup } from '../../ui/InputGroup';
-import { PropertyBlock } from '../../ui/Property/PropertyBlock';
 import { MouseMenuContext } from '../MouseMenu/useMouseMenu';
-
-import style from './index.module.scss';
-
 import { OREngineProjectData } from '~/ts/gl/OREngine/IO/ProjectSerializer';
 import { useSerializableProps } from '~/tsx/gl/useSerializableProps';
+import { ArrowIcon } from '~/tsx/Icon/ArrowIcon';
+import { Block } from '~/tsx/ui/Block';
+
+import style from './index.module.scss';
 
 
 export const ProjectControl = () => {
@@ -27,7 +26,7 @@ export const ProjectControl = () => {
 
 	return <div className={style.project}>
 		<div className={style.project_inner}>
-			<PropertyBlock label="Project" accordion >
+			<Block label="Project" accordion >
 				<div className={style.row} data-type="top">
 					<div className={style.projectSelector}>
 						<InputSelect value={openedProject || ''} selectList={projectList} onChange={( value ) => {
@@ -109,7 +108,7 @@ export const ProjectControl = () => {
 
 					}} >Export & Play <ArrowIcon /></Button>
 				</div>
-			</PropertyBlock>
+			</Block>
 		</div>
 	</div>;
 

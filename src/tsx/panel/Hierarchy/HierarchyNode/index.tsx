@@ -8,9 +8,9 @@ import style from './index.module.scss';
 import { EditorContext } from '~/tsx/gl/useEditor';
 import { useSerializableProps } from '~/tsx/gl/useSerializableProps';
 import { useWatchSerializable } from '~/tsx/gl/useWatchSerializable';
-import { ArrowIcon } from '~/tsx/ui/icon/ArrowIcon';
 import { InputGroup } from '~/tsx/ui/InputGroup';
 import { Picker } from '~/tsx/ui/Picker';
+import { ArrowIcon } from '~/tsx/Icon/ArrowIcon';
 
 type HierarchyNodeProps = {
 	depth?: number;
