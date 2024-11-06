@@ -1,8 +1,8 @@
 import React, { useCallback } from "react";
 
-import { ArrowIcon } from "../../icon/ArrowIcon";
 
 import style from './index.module.scss';
+import { ArrowIcon } from "~/tsx/Icon/ArrowIcon";
 
 type BlockProps = {
 	label: React.ReactNode;
@@ -14,7 +14,7 @@ type BlockProps = {
 	noIndent?: boolean
 };
 
-export const PropertyBlock = ( props: BlockProps ) => {
+export const Block = ( props: BlockProps ) => {
 
 	const [ open, setOpen ] = React.useState( ! props.defaultClose );
 

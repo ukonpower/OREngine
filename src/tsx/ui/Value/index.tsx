@@ -1,10 +1,9 @@
 import { useCallback } from 'react';
-
-import { Button } from '../../Button';
-import { InputBoolean } from '../../Input/InputCheckBox';
-import { InputNumber } from '../../Input/InputNumber';
-import { InputSelect } from '../../Input/InputSelect';
-import { InputText } from '../../Input/InputText';
+import { Button } from '../Button';
+import { InputBoolean } from '../Input/InputCheckBox';
+import { InputNumber } from '../Input/InputNumber';
+import { InputSelect } from '../Input/InputSelect';
+import { InputText } from '../Input/InputText';
 
 import style from './index.module.scss';
 
