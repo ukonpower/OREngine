@@ -1,23 +1,43 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 
 import { Editor } from '~/ts/gl/Editor';
 
 const useOREditorProvider = () => {
 
-	const [ editor, setEditor ] = useState<Editor>( new Editor() );
+	const editorRef = useRef<Editor | null>( null );
+
+	if( editorRef.current == null ) {
+
+		console.log("new");
+		
+		
+		editorRef.current = new Editor();
+
+	}
+
+	useEffect(() => {
+
+		
+	},[])
 
 	useEffect( () => {
 
 		return () => {
 
-			editor.dispose();
+			console.log("daaaapo");
+			if( editorRef.current ) {
+
+				editorRef.current.dispose();
+				editorRef.current = null;	
+				
+			}
 
 		};
 
 	}, [] );
 
 	return {
-		editor,
+		editor: editorRef.current,
 	};
 
 };
