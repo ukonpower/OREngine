@@ -1,11 +1,11 @@
 
 import { useCallback, useContext } from 'react';
 import { TimelineContext } from '../hooks/useTimeline';
-import { useSerializableProps } from '~/tsx/gl/useSerializableProps';
 import { Panel } from '~/tsx/ui/Panel';
 import { ValueType, Value } from '~/tsx/ui/Value';
 
 import style from './index.module.scss';
+import { useSerializableField } from '~/tsx/hooks/useSerializableProps';
 
 export const TimelineSetting = () => {
 
@@ -22,9 +22,9 @@ export const TimelineSetting = () => {
 	}, [] );
 
 	// loop
-	const [ loop, setLoop ] = useSerializableProps<boolean>( glEditor, "frameLoop/enabled" );
-	const [ duration, setDuration ] = useSerializableProps<number>( glEditor?.engine, "timeline/duration" );
-	const [ fps, setFps ] = useSerializableProps<number>( glEditor?.engine, "timeline/fps" );
+	const [ loop, setLoop ] = useSerializableField<boolean>( glEditor, "frameLoop/enabled" );
+	const [ duration, setDuration ] = useSerializableField<number>( glEditor?.engine, "timeline/duration" );
+	const [ fps, setFps ] = useSerializableField<number>( glEditor?.engine, "timeline/fps" );
 
 	return <div className={style.timelineSetting}>
 		<Panel>

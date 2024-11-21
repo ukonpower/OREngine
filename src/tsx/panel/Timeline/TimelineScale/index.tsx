@@ -3,8 +3,7 @@ import { useContext } from 'react';
 import { TimelineContext } from '../hooks/useTimeline';
 
 import style from './index.module.scss';
-
-import { useSerializableProps } from '~/tsx/gl/useSerializableProps';
+import { useSerializableField } from '~/tsx/hooks/useSerializableProps';
 
 const formatTime = ( sec: number ) => {
 
@@ -19,7 +18,7 @@ export const TimelineScale = () => {
 
 	const { glEditor, viewPort, viewPortScale } = useContext( TimelineContext );
 
-	const [ fps, setFps ] = useSerializableProps<number>( glEditor?.engine, "timeline/fps" );
+	const [ fps, setFps ] = useSerializableField<number>( glEditor?.engine, "timeline/fps" );
 
 	if ( ! viewPort || ! viewPortScale || fps === undefined ) return null;
 

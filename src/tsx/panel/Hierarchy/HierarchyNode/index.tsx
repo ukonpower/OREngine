@@ -5,12 +5,11 @@ import { MouseMenuContext } from '../../MouseMenu/useMouseMenu';
 
 import style from './index.module.scss';
 
-import { useOREditor } from '~/tsx/gl/OREditor';
-import { useSerializableProps } from '~/tsx/gl/useSerializableProps';
-import { useWatchSerializable } from '~/tsx/gl/useWatchSerializable';
 import { ArrowIcon } from '~/tsx/Icon/ArrowIcon';
 import { InputGroup } from '~/tsx/ui/InputGroup';
 import { Picker } from '~/tsx/ui/Picker';
+import { useSerializableField } from '~/tsx/hooks/useSerializableProps';
+import { useOREngineGUI } from '~/tsx/components/OREngineGUI';
 
 type HierarchyNodeProps = {
 	depth?: number;
@@ -19,19 +18,19 @@ type HierarchyNodeProps = {
 
 export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 
-	const { editor } = useOREditor();
+	const { editor } = useOREngineGUI();
 
+	const [ children ] = useSerializableField<MXP.Entity[]>( props.entity, "children" );
+	
 	const depth = props.depth || 0;
-	const childs = props.entity.children.concat().sort( ( a, b ) => a.name.localeCompare( b.name ) );
-	const hasChild = childs.length > 0;
+	const sortedChildren = children && children.concat().sort( ( a, b ) => a.name.localeCompare( b.name ) ) || [];
+	const hasChild = sortedChildren.length > 0;
 	const offsetPx = depth * 20;
-	const noEditable = props.entity.initiator == "script";
-
-	const [ selectedEntityId ] = useSerializableProps<string>( editor, "selectedEntity" );
-
+	
+	const [ selectedEntityId ] = useSerializableField<string>( editor, "selectedEntityId" );
 	const selectedEntity = selectedEntityId !== undefined && editor.engine.findEntityById( selectedEntityId );
 
-	useWatchSerializable( props.entity, [ "children" ] );
+	const noEditable = props.entity.initiator == "script";
 
 	// click fold controls
 
@@ -111,7 +110,7 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 		</div>
 		{hasChild && <div className={style.child} data-open={open} >
 			{
-				childs.map( item => {
+				sortedChildren.map( item => {
 
 					return <HierarchyNode key={item.uuid} entity={item} depth={depth + 1} />;
 

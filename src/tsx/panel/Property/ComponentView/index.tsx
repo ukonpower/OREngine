@@ -4,7 +4,7 @@ import { MouseEvent, useCallback, useMemo } from 'react';
 
 import style from './index.module.scss';
 
-import { useSerializableProps } from '~/tsx/gl/useSerializableProps';
+import { useSerializableField } from '~/tsx/gl/useSerializableProps';
 import { useWatchSerializable } from '~/tsx/gl/useWatchSerializable';
 import { CrossIcon } from '~/tsx/ui/Icon/CrossIcon';
 import { InputBoolean } from '~/tsx/ui/Input/InputCheckBox';
@@ -19,7 +19,7 @@ export const ComponentView = ( { component }: ComponentViewProps ) => {
 
 	useWatchSerializable( component, [] );
 
-	const [ enabled, setEnabled ] = useSerializableProps<boolean>( component, "enabled" );
+	const [ enabled, setEnabled ] = useSerializableField<boolean>( component, "enabled" );
 
 	const disableEdit = component.initiator !== "user";
 
@@ -44,7 +44,7 @@ export const ComponentView = ( { component }: ComponentViewProps ) => {
 
 	}, [ disableEdit, component ] );
 
-	const compoProps = component.serializeGrouping();
+	const compoProps = component.serializeToObject();
 
 	const onChangeProps = useCallback( ( value: ValueType, label: string ) => {
 

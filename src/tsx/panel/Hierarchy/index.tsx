@@ -1,12 +1,10 @@
+import { useOREngineGUI } from '~/tsx/components/OREngineGUI';
 import { HierarchyNode } from './HierarchyNode';
 import style from './index.module.scss';
 
-import { useOREditor } from "~/tsx/gl/OREditor";
-
-
 export const Hierarchy = () => {
 
-	const { editor } = useOREditor();
+	const { editor } = useOREngineGUI();
 	const rootEntity = editor.engine.root;
 
 	return <div className={style.hierarchy}>

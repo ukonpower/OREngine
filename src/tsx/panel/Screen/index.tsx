@@ -1,21 +1,21 @@
 
-import { GLCanvas } from '../../gl/GLCanvas';
+import { GLCanvas } from '~/tsx/components/OREngineGUICanvas';
+import { useSerializableField } from '~/tsx/hooks/useSerializableProps';
 import { AudioView } from '../AudioView';
 
 import style from './index.module.scss';
 
-import { useOREditor } from '~/tsx/gl/OREditor';
-import { useSerializableProps } from '~/tsx/gl/useSerializableProps';
 import { Value } from '~/tsx/ui/Value';
+import { useOREngineGUI } from '~/tsx/components/OREngineGUI';
 
 
 export const Screen = () => {
 
-	const { editor } = useOREditor();
+	const { editor } = useOREngineGUI();
 
-	const [ render, setRender ] = useSerializableProps<boolean>( editor, "enableRender" );
-	const [ viewType, setViewType ] = useSerializableProps<string>( editor, "viewType" );
-	const [ resolutionScale, setResolutionScale ] = useSerializableProps<number>( editor, "resolutionScale" );
+	const [ render, setRender ] = useSerializableField<boolean>( editor, "enableRender" );
+	const [ viewType, setViewType ] = useSerializableField<string>( editor, "viewType" );
+	const [ resolutionScale, setResolutionScale ] = useSerializableField<number>( editor, "resolutionScale" );
 	const resolutionDivideStr = resolutionScale !== undefined && ( resolutionScale == 1 ? '1' : '1/' + ( 1 / resolutionScale ) ) || '';
 
 	return <div className={style.screen}>

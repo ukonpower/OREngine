@@ -68,9 +68,9 @@ export class Serializable extends Resource {
 
 	}
 
-	public serializeGrouping() {
+	public serializeToObject() {
 
-		const serializedToObj = ( serialized: SerializedFields ) => {
+		const toObj = ( serialized: SerializedFields ) => {
 
 			const res: SerializedGroupingFields = {};
 
@@ -105,7 +105,7 @@ export class Serializable extends Resource {
 
 		};
 
-		return serializedToObj( this.serialize() );
+		return toObj( this.serialize() );
 
 	}
 
