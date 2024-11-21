@@ -1,3 +1,4 @@
+import { useOREngineGUI } from '~/tsx/components/OREngineGUI';
 import { TimelineContext, useTimeline } from './hooks/useTimeline';
 import style from './index.module.scss';
 import { TimelineCanvas } from './TimelineCanvas';
@@ -7,12 +8,9 @@ import { TimelineLoop } from './TimelineLoop';
 import { TimelineScale } from './TimelineScale';
 import { TimelineSetting } from './TimelineSetting';
 
-import { useOREditor } from '~/tsx/gl/OREditor';
-
-
 export const Timeline = () => {
 
-	const { editor } = useOREditor();
+	const { editor } = useOREngineGUI();
 	const timelineContext = useTimeline( editor );
 
 	return <TimelineContext.Provider value={timelineContext}>

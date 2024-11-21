@@ -7,21 +7,20 @@ import { MouseMenuContext } from '../MouseMenu/useMouseMenu';
 
 import style from './index.module.scss';
 
-import { OREngineProjectData } from '~/ts/gl/OREngine/IO/ProjectSerializer';
-import { useOREditor } from '~/tsx/gl/OREditor';
-import { useSerializableProps } from '~/tsx/gl/useSerializableProps';
 import { ArrowIcon } from '~/tsx/Icon/ArrowIcon';
 import { Block } from '~/tsx/ui/Block';
+import { OREngineProjectData } from '~/ts/OREngine/IO/ProjectSerializer';
+import { useSerializableField } from '~/tsx/hooks/useSerializableProps';
 
 
 export const ProjectControl = () => {
 
 	const { pushContent, closeAll } = useContext( MouseMenuContext );
-	const { editor } = useOREditor();
+	const { editor } = useOREngineGUI();
 
-	const [ projects ] = useSerializableProps<OREngineProjectData[]>( editor, "projects" );
-	const [ projectName ] = useSerializableProps<string>( editor, "projectName" );
-	const [ openedProject ] = useSerializableProps<string>( editor, "openedProject" );
+	const [ projects ] = useSerializableField<OREngineProjectData[]>( editor, "projects" );
+	const [ projectName ] = useSerializableField<string>( editor, "projectName" );
+	const [ openedProject ] = useSerializableField<string>( editor, "openedProject" );
 
 	const projectList: string[] = projects?.map( ( project ) => project.name ) || [];
 

@@ -1,9 +1,5 @@
-import { ReactNode } from 'react';
-
 import style from './index.module.scss';
 
-import { useLayout } from '~/ts/hooks/useLayout';
-import { OREditor } from '~/tsx/gl/OREditor';
 import { Hierarchy } from '~/tsx/panel/Hierarchy';
 import { MouseMenu } from '~/tsx/panel/MouseMenu';
 import {
@@ -14,31 +10,23 @@ import { ProjectControl } from '~/tsx/panel/ProjectControl';
 import { Property } from '~/tsx/panel/Property';
 import { Screen } from '~/tsx/panel/Screen';
 import { Timeline } from '~/tsx/panel/Timeline';
-import { Timer } from '~/tsx/panel/Timer';
 import { Panel } from '~/tsx/ui/Panel';
 import { PanelContainer } from '~/tsx/ui/PanelContainer';
-
-export const EditorProvider = ( { children }: { children: ReactNode } ) => {
-
-	const mouseMenuContext = useMouseMenu();
-
-	return;
-	<MouseMenuContext.Provider value={mouseMenuContext}>
-		{children}
-	</MouseMenuContext.Provider>;
-
-};
+import { OREditor } from '~/tsx/components/OREngineGUI';
+import { useLayout } from '~/tsx/hooks/useLayout';
+import { Timer } from '~/tsx/panel/GPUTimer';
 
 export const EditorPage = () => {
 
 	const layout = useLayout();
+	const mouseMenuContext = useMouseMenu();
 
 	let editorElm = null;
 
 	if ( layout.isPC ) {
 
 		editorElm = (
-			<div className={style.editor}>
+			<>
 				<div className={style.vert}>
 					<div className={`${style.horiz} ${style.flex}`}>
 						<div className={style.vert} style={{ width: '300px' }}>
@@ -80,7 +68,7 @@ export const EditorPage = () => {
 					</div>
 				</div>
 				<MouseMenu />
-			</div>
+				</>
 		);
 
 	} else {
@@ -133,6 +121,12 @@ export const EditorPage = () => {
 
 	}
 
-	return <OREditor>{editorElm}</OREditor>;
+	return <OREditor>
+		<MouseMenuContext.Provider value={mouseMenuContext}>
+			<div className={style.editor}>
+			{editorElm}
+			</div>
+		</MouseMenuContext.Provider>;
+	</OREditor>;
 
 };

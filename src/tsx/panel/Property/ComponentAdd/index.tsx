@@ -6,7 +6,7 @@ import { MouseMenuContext, MouseMenuItemContext } from '../../MouseMenu/useMouse
 
 import style from './index.module.scss';
 
-import { resource } from '~/ts/gl/GLGlobals';
+import { resource } from '~/ts/Globals';
 import { ComponentGroup, ResouceComponentItem } from '~/ts/gl/Resources';
 import { Button } from '~/tsx/ui/Button';
 

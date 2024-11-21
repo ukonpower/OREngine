@@ -2,10 +2,8 @@ import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
 import timelineFrag from './shaders/timeline.fs';
-
-
-import { gl } from '~/ts/gl/GLGlobals';
-import { OREngineProjectFrame } from '~/ts/gl/OREngine/IO/ProjectSerializer';
+import { gl } from '~/ts/Globals';
+import { OREngineProjectFrame } from '~/ts/OREngine/IO/ProjectSerializer';
 
 export class TimelineCanvasRenderer extends GLP.EventEmitter {
 

@@ -87,7 +87,7 @@
 							"props": {
 								"enabled": true,
 								"mode": "json",
-								"gltf": true,
+								"gltf": false,
 								"gltfPath": "/scene.glb"
 							}
 						},
@@ -146,10 +146,10 @@
 			"timeline/fps": 60
 		}
 	],
-	"enableRender": true,
+	"enableRender": false,
 	"projectName": "New Project",
 	"openedProject": "New Project",
-	"resolutionScale": 0.25,
+	"resolutionScale": 0.125,
 	"viewType": "render",
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,

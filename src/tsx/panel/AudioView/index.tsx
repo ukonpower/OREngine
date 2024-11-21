@@ -4,15 +4,13 @@ import { useState, useRef, useEffect, useContext, useCallback } from 'react';
 
 import { AudioViewRenderer } from './AudioViewRenderer';
 import style from './index.module.scss';
-
-import { FramePlay } from '~/ts/gl/OREngine';
-import { OREngineProjectFrame } from '~/ts/gl/OREngine/IO/ProjectSerializer';
-import { useOREditor } from '~/tsx/gl/OREditor';
-
+import { FramePlay } from '~/ts/OREngine';
+import { OREngineProjectFrame } from '~/ts/OREngine/IO/ProjectSerializer';
+import { useOREngineGUI } from '~/tsx/components/OREngineGUI';
 
 export const AudioView = () => {
 
-	const { editor } = useOREditor();
+	const { editor } = useOREngineGUI();
 
 	const wrapperElmRef = useRef<HTMLDivElement>( null );
 
@@ -59,7 +57,7 @@ export const AudioView = () => {
 
 		const engine = editor.engine;
 
-		const onUpdateSceneProps = ( props: MXP.SerializedProps ) => {
+		const onUpdateSceneProps = ( props: MXP.SerializedFields ) => {
 
 			setFrameSetting( {
 				duration: props[ "timeline/duration" ],
