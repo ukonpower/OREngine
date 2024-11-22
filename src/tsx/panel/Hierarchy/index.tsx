@@ -4,8 +4,8 @@ import style from './index.module.scss';
 
 export const Hierarchy = () => {
 
-	const { editor } = useOREngineGUI();
-	const rootEntity = editor.engine.root;
+	const { gui } = useOREngineGUI();
+	const rootEntity = gui.engine.root;
 
 	return <div className={style.hierarchy}>
 		{rootEntity && <HierarchyNode entity={rootEntity} />}

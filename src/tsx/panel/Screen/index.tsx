@@ -11,11 +11,11 @@ import { useOREngineGUI } from '~/tsx/components/OREngineGUI';
 
 export const Screen = () => {
 
-	const { editor } = useOREngineGUI();
+	const { gui } = useOREngineGUI();
 
-	const [ render, setRender ] = useSerializableField<boolean>( editor, "enableRender" );
-	const [ viewType, setViewType ] = useSerializableField<string>( editor, "viewType" );
-	const [ resolutionScale, setResolutionScale ] = useSerializableField<number>( editor, "resolutionScale" );
+	const [ render, setRender ] = useSerializableField<boolean>( gui, "enableRender" );
+	const [ viewType, setViewType ] = useSerializableField<string>( gui, "viewType" );
+	const [ resolutionScale, setResolutionScale ] = useSerializableField<number>( gui, "resolutionScale" );
 	const resolutionDivideStr = resolutionScale !== undefined && ( resolutionScale == 1 ? '1' : '1/' + ( 1 / resolutionScale ) ) || '';
 
 	return <div className={style.screen}>

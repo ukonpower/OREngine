@@ -10,7 +10,7 @@ import { useOREngineGUI } from '~/tsx/components/OREngineGUI';
 
 export const AudioView = () => {
 
-	const { editor } = useOREngineGUI();
+	const { gui } = useOREngineGUI();
 
 	const wrapperElmRef = useRef<HTMLDivElement>( null );
 
@@ -40,7 +40,7 @@ export const AudioView = () => {
 
 	// events
 
-	const musicBuffer = editor.audioBuffer;
+	const musicBuffer = gui.audioBuffer;
 	const [ musicBufferVersion, setMusicBufferVersion ] = useState<number>();
 
 	const [ frameSetting, setFrameSetting ] = useState<OREngineProjectFrame>( {
@@ -55,7 +55,7 @@ export const AudioView = () => {
 
 	useEffect( () => {
 
-		const engine = editor.engine;
+		const engine = gui.engine;
 
 		const onUpdateSceneProps = ( props: MXP.SerializedFields ) => {
 
@@ -97,7 +97,7 @@ export const AudioView = () => {
 		};
 
 
-	}, [ editor ] );
+	}, [ gui ] );
 
 	useEffect( () => {
 
