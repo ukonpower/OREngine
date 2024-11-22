@@ -6,12 +6,12 @@ import { useOREngineGUI } from "../OREngineGUI";
 
 export const GLCanvas = () => {
 
-	const { editor } = useOREngineGUI();
+	const { gui } = useOREngineGUI();
 	const wrapperElmRef = useRef<HTMLDivElement | null>( null );
 
 	useEffect( () => {
 
-		if ( editor && wrapperElmRef.current ) {
+		if ( gui && wrapperElmRef.current ) {
 
 			const screen = document.getElementById( 'screen' );
 
@@ -21,13 +21,13 @@ export const GLCanvas = () => {
 
 			}
 
-			wrapperElmRef.current.appendChild( editor.screenElm );
-			editor.setWrapperElm( wrapperElmRef.current );
+			wrapperElmRef.current.appendChild( gui.screenElm );
+			gui.setWrapperElm( wrapperElmRef.current );
 
 
 		}
 
-	}, [ wrapperElmRef, editor ] );
+	}, [ wrapperElmRef, gui ] );
 
 	return <div className={style.glCanvas} ref={wrapperElmRef}></div>;
 

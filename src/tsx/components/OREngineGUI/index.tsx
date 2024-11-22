@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useEffect, useRef } from 'react';
 import { OREngineGUICore } from '~/ts/OREngineGUICore';
 
-
 /*-------------------------------
 	Editor
 -------------------------------*/
@@ -16,6 +15,8 @@ const useOREngineGUIContext = () => {
 
 	}
 
+	const gui = guiRef.current;
+	
 	useEffect( () => {
 
 		return () => {
@@ -32,19 +33,20 @@ const useOREngineGUIContext = () => {
 	}, [] );
 
 	return {
-		editor: guiRef.current,
+		gui,
+		engine: gui.engine
 	};
 
 };
 
 
-const OREditorContext = createContext<
+const OREngineGUIContext = createContext<
   ReturnType<typeof useOREngineGUIContext> | undefined
 >( undefined );
 
 export const useOREngineGUI = () => {
 
-	const context = useContext( OREditorContext );
+	const context = useContext( OREngineGUIContext );
 	
 	if ( context === undefined )
 		throw new Error( 'useOREngineGUI must be used within a OREditorProvider' );
@@ -53,16 +55,16 @@ export const useOREngineGUI = () => {
 
 };
 
-export const OREditor: React.FC<{ children?: React.ReactNode }> = ( {
+export const OREngineGUI: React.FC<{ children?: React.ReactNode }> = ( {
 	children,
 } ) => {
 
 	const context = useOREngineGUIContext();
 
 	return (
-		<OREditorContext.Provider value={context}>
+		<OREngineGUIContext.Provider value={context}>
 			{children}
-		</OREditorContext.Provider>
+		</OREngineGUIContext.Provider>
 	);
 
 };

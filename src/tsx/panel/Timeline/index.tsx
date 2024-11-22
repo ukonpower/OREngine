@@ -10,8 +10,8 @@ import { TimelineSetting } from './TimelineSetting';
 
 export const Timeline = () => {
 
-	const { editor } = useOREngineGUI();
-	const timelineContext = useTimeline( editor );
+	const { gui } = useOREngineGUI();
+	const timelineContext = useTimeline( gui );
 
 	return <TimelineContext.Provider value={timelineContext}>
 		<div className={style.timeline}>

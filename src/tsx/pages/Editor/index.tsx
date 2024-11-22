@@ -12,7 +12,7 @@ import { Screen } from '~/tsx/panel/Screen';
 import { Timeline } from '~/tsx/panel/Timeline';
 import { Panel } from '~/tsx/ui/Panel';
 import { PanelContainer } from '~/tsx/ui/PanelContainer';
-import { OREditor } from '~/tsx/components/OREngineGUI';
+import { OREngineGUI } from '~/tsx/components/OREngineGUI';
 import { useLayout } from '~/tsx/hooks/useLayout';
 import { Timer } from '~/tsx/panel/GPUTimer';
 
@@ -121,12 +121,12 @@ export const EditorPage = () => {
 
 	}
 
-	return <OREditor>
+	return <OREngineGUI>
 		<MouseMenuContext.Provider value={mouseMenuContext}>
 			<div className={style.editor}>
 			{editorElm}
 			</div>
 		</MouseMenuContext.Provider>;
-	</OREditor>;
+	</OREngineGUI>;
 
 };

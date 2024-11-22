@@ -1,14 +1,25 @@
+import { useMemo } from "react";
 import { useOREngineGUI } from "~/tsx/components/OREngineGUI";
 import { useSerializableField } from "~/tsx/hooks/useSerializableProps";
 
 export const Property = () => {
 
-	const {editor} = useOREngineGUI()
+	const {gui, engine } = useOREngineGUI()
 
-	const [ selectedEntity ] = useSerializableField<string>( editor, "selectedEntityId" );
+	const [ selectedEntity ] = useSerializableField<string>( gui, "selectedEntityId" );
 
-	console.log(selectedEntity);
-	
-	return null
+	const entity = useMemo(() => {
+			
+		if( !selectedEntity ) {
+
+			return null;
+
+		}
+		
+		return engine.findEntityById(selectedEntity)
+
+	},[engine, selectedEntity])
+
+	return entity?.name
 
 };
