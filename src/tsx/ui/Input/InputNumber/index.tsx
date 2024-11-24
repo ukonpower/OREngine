@@ -74,11 +74,7 @@ export const InputNumber = ( props: Props ) => {
 			max={props.max}
 			onChange={( e ) => {
 
-				if ( props.onChange ) {
-
-					props.onChange( Number( e.target.value ) );
-
-				}
+				props.onChange( Number( e.target.value ) );
 
 			}}
 			onPointerDown={onPointerDown}
