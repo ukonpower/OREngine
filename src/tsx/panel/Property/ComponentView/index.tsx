@@ -72,7 +72,7 @@ export const ComponentView = ( { component }: ComponentViewProps ) => {
 				if ( "value" in prop ) {
 
 					const value = prop.value;
-					const opt = prop as MXP.SerializablePropsOpt;
+					const opt = prop as MXP.SerializableFieldOpt;
 
 					elmArray.push( <Value key={i} label={key} value={value} onChange={( value ) => {
 

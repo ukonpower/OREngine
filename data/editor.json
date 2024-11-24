@@ -88,7 +88,8 @@
 								"enabled": true,
 								"mode": "json",
 								"gltf": false,
-								"gltfPath": "/scene.glb"
+								"gltfPath": "/scene.glb",
+								"websocket/url": "ws://localhost:3100"
 							}
 						},
 						{
@@ -154,5 +155,5 @@
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,
 	"frameLoop/end": 100,
-	"selectedEntity": "6e"
+	"selectedEntityId": null
 }

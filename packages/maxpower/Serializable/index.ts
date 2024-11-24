@@ -1,23 +1,25 @@
 import { Resource } from "../Resource";
 
-export type SerializablePropsOpt = {
-	readOnly?: boolean,
-	precision?: number,
-	selectList?: string[]
-	step?: number,
-	noExport?: boolean
+type SerializableFieldTypeVector = {
+	type: "vector",
 }
 
+type SerializableFieldType = SerializableFieldTypeVector
+
+export type SerializableFieldOpt = {
+	format?: SerializableFieldType,
+	noExport?: boolean,
+	hidden?: boolean,
+}
 
 export type SerializeFieldValue = string | number | boolean | null | object;
-type SerializeFieldTypeOpt = SerializablePropsOpt;
 type SerializeFieldGetter<T extends SerializeFieldValue> = () => T;
 type SerializeFieldSetter<T extends SerializeFieldValue> = ( value: T ) => void;
-type SerializeFieldProxy = {get: SerializeFieldGetter<SerializeFieldValue>, set?: SerializeFieldSetter<SerializeFieldValue>, opt?: SerializeFieldTypeOpt}
+type SerializeFieldProxy = {get: SerializeFieldGetter<SerializeFieldValue>, set?: SerializeFieldSetter<SerializeFieldValue>, opt?: SerializableFieldOpt}
 
 export type SerializedFields = {[key: string]: SerializeFieldValue}
 
-export type SerializedGroupingFields = {[key: string]: SerializedGroupingFields | {value: SerializeFieldValue, opt?: SerializablePropsOpt}}
+export type SerializedGroupingFields = {[key: string]: SerializedGroupingFields | {value: SerializeFieldValue, opt?: SerializableFieldOpt}}
 
 export class Serializable extends Resource {
 
@@ -52,11 +54,29 @@ export class Serializable extends Resource {
 
 	}
 
-	public serialize(): SerializedFields {
+	public export() {
+
+		this.serialize( true )
+		
+	}
+	
+	public serialize( expt?: boolean ): SerializedFields {
 
 		const res: SerializedFields = {};
 
 		this.fields.forEach( ( field, k ) => {
+
+			let opt = this.getFieldOpt( k)
+
+			if( expt ) {
+
+				if( opt ) {
+
+					if( opt.noExport ) return;
+					
+				}
+
+			}
 
 			const value = field.get();
 
@@ -109,7 +129,7 @@ export class Serializable extends Resource {
 
 	}
 
-	public field<T extends SerializeFieldValue>( path: string, get: () => T, set?: ( v: T ) => void, opt?: SerializeFieldTypeOpt ) {
+	public field<T extends SerializeFieldValue>( path: string, get: () => T, set?: ( v: T ) => void, opt?: SerializableFieldOpt ) {
 
 		this.fields.set( path, {
 			get: get,

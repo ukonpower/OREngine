@@ -82,13 +82,11 @@ export class Entity extends Serializable {
 		this.visible = true;
 		this.userData = {};
 
-		this.field( "position", () => this.position.getElm( "vec3" ), value => this.position.setFromArray( value ) );
-		this.field( "euler", () => this.euler.getElm( "vec3" ), value => this.euler.setFromArray( value ) );
-		this.field( "scale", () => this.scale.getElm( "vec3" ), value => this.scale.setFromArray( value ) );
-
-		this.field( "children", () => Array.from( this.children ), undefined, { noExport: true } );
-
-		this.field( "components", () => Array.from( this.components.values() ), );
+		this.field( "position", () => this.position.getElm( "vec3" ), value => this.position.setFromArray( value ), { format: { type: "vector" } } );
+		this.field( "euler", () => this.euler.getElm( "vec3" ), value => this.euler.setFromArray( value ), { format: { type: "vector" } } );
+		this.field( "scale", () => this.scale.getElm( "vec3" ), value => this.scale.setFromArray( value ), { format: { type: "vector" } } );
+		this.field( "children", () => Array.from( this.children ), undefined, { noExport: true, hidden: true } );
+		this.field( "components", () => Array.from( this.components.values() ), undefined, { noExport: true, hidden: true } );
 
 	}
 
