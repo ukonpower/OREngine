@@ -34,7 +34,9 @@ export class Component extends Serializable {
 		this.children = [];
 		this.enabled_ = true;
 
-		this.field( "enabled", () => this.enabled, value => this.enabled = value );
+		this.field( "enabled", () => this.enabled, value => this.enabled = value, {
+			hidden: true,
+		} );
 
 	}
 
