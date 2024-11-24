@@ -24,25 +24,8 @@ export class ShakeViewer extends MXP.Component {
 		this.shakeMatrix = new GLP.Matrix();
 		this.shakeQua = new GLP.Quaternion();
 
-	}
-
-	public get props() {
-
-		return {
-			...super.props,
-			power: {
-				value: this.shakePower,
-			},
-			speed: {
-				value: this.shakeSpeed,
-			},
-		};
-
-	}
-	public deserializer( props: MXP.TypedSerializableProps<this> ) {
-
-		this.shakePower = props.power.value;
-		this.shakeSpeed = props.speed.value;
+		this.field( "power", () => this.shakePower, value => this.shakePower = value )
+		this.field( "speed", () => this.shakeSpeed, value => this.shakeSpeed = value )
 
 	}
 

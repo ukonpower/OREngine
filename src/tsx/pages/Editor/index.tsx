@@ -7,7 +7,6 @@ import {
 	useMouseMenu,
 } from '~/tsx/panel/MouseMenu/useMouseMenu';
 import { ProjectControl } from '~/tsx/panel/ProjectControl';
-import { Property } from '~/tsx/panel/Property';
 import { Screen } from '~/tsx/panel/Screen';
 import { Timeline } from '~/tsx/panel/Timeline';
 import { Panel } from '~/tsx/ui/Panel';
@@ -15,6 +14,7 @@ import { PanelContainer } from '~/tsx/ui/PanelContainer';
 import { OREngineGUI } from '~/tsx/components/OREngineGUI';
 import { useLayout } from '~/tsx/hooks/useLayout';
 import { Timer } from '~/tsx/panel/GPUTimer';
+import { EntityProperty } from '~/tsx/panel/EntityProperty';
 
 export const EditorPage = () => {
 
@@ -54,7 +54,7 @@ export const EditorPage = () => {
 						<div style={{ width: '300px' }}>
 							<PanelContainer>
 								<Panel title='Property'>
-									<Property />
+									<EntityProperty />
 								</Panel>
 							</PanelContainer>
 						</div>
@@ -102,7 +102,7 @@ export const EditorPage = () => {
 						<div className={`${style.flex}`}>
 							<PanelContainer>
 								<Panel title='Property'>
-									<Property />
+									<EntityProperty />
 								</Panel>
 							</PanelContainer>
 						</div>
