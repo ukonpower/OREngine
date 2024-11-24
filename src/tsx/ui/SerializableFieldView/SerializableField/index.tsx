@@ -39,7 +39,7 @@ export const SerializableField: React.FC<{fields: MXP.SerializedGroupingFields, 
 
 		if ( elm ) {
 
-			elmArray.push( <Block key={componentKeys} label={key}>{elm}</Block> );
+			elmArray.push( <Block key={componentKeys} label={key} >{elm}</Block> );
 
 		}
 

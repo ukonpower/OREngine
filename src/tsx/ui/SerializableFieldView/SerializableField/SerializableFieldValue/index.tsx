@@ -1,6 +1,7 @@
 import { useSerializableFieldView } from '../..';
 
 import { useSerializableField } from '~/tsx/hooks/useSerializableProps';
+import { InputNumber } from '~/tsx/ui/Input/InputNumber';
 import { Vector } from '~/tsx/ui/Vector';
 
 export const SerializableFieldValue: React.FC<{ path: string }> = ( props ) => {
@@ -31,7 +32,11 @@ export const SerializableFieldValue: React.FC<{ path: string }> = ( props ) => {
 
 	if ( ! elm && typeof value === "number" ) {
 
-		elm = <div className="">aaa</div>;
+		elm = <InputNumber value={value} onChange={( v ) =>{
+
+			setValue( v );
+
+		} } />;
 
 	}
 

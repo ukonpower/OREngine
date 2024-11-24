@@ -187,7 +187,6 @@ export class Entity extends Serializable {
 		const geometry = this.getComponentByTag<Geometry>( "geometry" );
 		const material = this.getComponentByTag<Material>( "material" );
 
-
 		if ( geometry && material && ( ( geometry.enabled && material.enabled && visibility ) || event.forceDraw ) ) {
 
 			if ( material.visibilityFlag.deferred ) event.renderStack.deferred.push( this );
@@ -539,7 +538,13 @@ export class Entity extends Serializable {
 	public dispose( ) {
 
 		this.emit( "dispose" );
-		this.parent && this.parent.remove( this );
+
+		if ( this.parent ) {
+
+			this.parent.remove( this );
+
+		}
+
 		this.components.forEach( c => {
 
 			c.unsetEntity();
