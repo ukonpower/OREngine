@@ -1,49 +1,50 @@
 import * as MXP from 'maxpower';
-import React from "react"
+import React from "react";
+
 import { Block } from '../../Block';
 
-import style from './index.module.scss'
+import style from './index.module.scss';
 import { SerializableFieldValue } from './SerializableFieldValue';
 
-export const SerializableField: React.FC<{fields: MXP.SerializedGroupingFields, basePath?: string}> = (props) => {
+export const SerializableField: React.FC<{fields: MXP.SerializedGroupingFields, basePath?: string}> = ( props ) => {
 
-	const elmArray: React.ReactNode[] = []
-	
-	let keys = Object.keys(props.fields)
+	const elmArray: React.ReactNode[] = [];
 
-	for (let i = 0; i < keys.length; i++) {
+	const keys = Object.keys( props.fields );
 
-		const key = keys[i]
-		const path = (props.basePath ? props.basePath + "/" : "") + key 
-		const componentKeys = "field_" + i + key
+	for ( let i = 0; i < keys.length; i ++ ) {
 
-		const field = props.fields[key]
-		let elm = null
+		const key = keys[ i ];
+		const path = ( props.basePath ? props.basePath + "/" : "" ) + key;
+		const componentKeys = "field_" + i + key;
 
-		if( "value" in field ) {
+		const field = props.fields[ key ];
+		let elm = null;
 
-			if( field.opt ) {
+		if ( "value" in field ) {
 
-				if( (field.opt as MXP.SerializableFieldOpt).hidden === true ) continue
-				
+			if ( field.opt ) {
+
+				if ( ( field.opt as MXP.SerializableFieldOpt ).hidden === true ) continue;
+
 			}
-			
-			elm = <SerializableFieldValue path={path} />
-				
+
+			elm = <SerializableFieldValue path={path} />;
+
 		} else {
 
-			elm = <SerializableField fields={field} basePath={path} />
-			
+			elm = <SerializableField fields={field} basePath={path} />;
+
 		}
 
-		if( elm ) {
+		if ( elm ) {
 
-			elmArray.push( <Block key={componentKeys} label={key}>{elm}</Block> )
-			
+			elmArray.push( <Block key={componentKeys} label={key}>{elm}</Block> );
+
 		}
 
 	}
 
-	return <div className={style.container}>{elmArray}</div>
-	
-}
+	return <div className={style.container}>{elmArray}</div>;
+
+};

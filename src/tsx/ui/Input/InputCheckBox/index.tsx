@@ -1,7 +1,8 @@
 
 
-import { CheckIcon } from '~/tsx/Icon/Check';
 import style from './index.module.scss';
+
+import { CheckIcon } from '~/tsx/Icon/Check';
 
 type InputBooleanProps = {
 	checked?: boolean

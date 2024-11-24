@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
-import { Button } from "../Button";
 import { Block } from "../Block";
+import { Button } from "../Button";
 import { ValueType, Value } from "../Value";
 
 import style from './index.module.scss';

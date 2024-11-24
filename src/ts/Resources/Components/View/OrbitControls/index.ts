@@ -3,6 +3,7 @@ import * as MXP from 'maxpower';
 
 
 import { LookAt } from '../LookAt';
+
 import { Keyboard } from '~/ts/OREngine/utils/Keyboard';
 import { Pointer, PointerEventArgs } from '~/ts/OREngine/utils/Pointer';
 

@@ -1,65 +1,69 @@
 import { useMemo } from "react";
+
+import { ComponentView } from "./ComponentView";
+import style from './index.module.scss';
+
 import { useOREngineGUI } from "~/tsx/components/OREngineGUI";
 import { useSerializableField } from "~/tsx/hooks/useSerializableProps";
-
-import style from './index.module.scss'
-import { SerializableFieldView } from "~/tsx/ui/SerializableFieldView";
 import { Block } from "~/tsx/ui/Block";
-import { ComponentView } from "./ComponentView";
+import { SerializableFieldView } from "~/tsx/ui/SerializableFieldView";
+
 
 export const EntityProperty = () => {
 
-	const {gui, engine } = useOREngineGUI()
+	const { gui, engine } = useOREngineGUI();
 
 	// entity
-	
+
 	const [ selectedEntityId ] = useSerializableField<string>( gui, "selectedEntityId" );
 
-	const selectedEntity = useMemo(() => {
-			
-		if( !selectedEntityId ) {
+	const selectedEntity = useMemo( () => {
+
+		if ( ! selectedEntityId ) {
 
 			return null;
 
 		}
-		
-		return engine.findEntityById(selectedEntityId)
 
-	},[engine, selectedEntityId])
+		return engine.findEntityById( selectedEntityId );
+
+	}, [ engine, selectedEntityId ] );
 
 	// componentView
-	
-	const componentViewList = useMemo(() => {
 
-		let componentViewList: React.ReactNode[] = []
+	const componentViewList = useMemo( () => {
 
-		if( !selectedEntity ) {
-			return null
+		const componentViewList: React.ReactNode[] = [];
+
+		if ( ! selectedEntity ) {
+
+			return null;
+
 		}
-		
+
 		selectedEntity.components.forEach( component => {
 
 			componentViewList.push(
 				<ComponentView component={component} />
-			)
-			
-		})
+			);
 
-		return componentViewList
-		
-	}, [selectedEntity])
-	
-	if( !selectedEntity ) {
+		} );
 
-		return null
-		
+		return componentViewList;
+
+	}, [ selectedEntity ] );
+
+	if ( ! selectedEntity ) {
+
+		return null;
+
 	}
-	
+
 	return <div className={style.container}>
-		<SerializableFieldView  target={selectedEntity}/>
+		<SerializableFieldView target={selectedEntity}/>
 		<Block label="Components">
 			{componentViewList}
 		</Block>
-	</div>
+	</div>;
 
 };

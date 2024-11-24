@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 import style from './index.module.scss';
+
 import { renderer } from '~/ts/Globals';
 
 

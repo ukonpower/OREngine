@@ -12,7 +12,7 @@ type VectorProps = {
 	onChange?: ( value: GLP.IVector4 ) => void
 }
 
-const axisDict = ["x", "y", "z", "w"]
+const axisDict = [ "x", "y", "z", "w" ];
 
 export const Vector = ( { onChange, disabled, ...props }: VectorProps ) => {
 
@@ -23,12 +23,12 @@ export const Vector = ( { onChange, disabled, ...props }: VectorProps ) => {
 
 		if ( onChange && valueRef.current ) {
 
-			const newValue: any = {}
+			const newValue: any = {};
 
-			for ( let i = 0; i < valueRef.current.length; i++ ) {
+			for ( let i = 0; i < valueRef.current.length; i ++ ) {
 
-				newValue[i] = valueRef.current[i]
-				
+				newValue[ i ] = valueRef.current[ i ];
+
 			}
 
 			newValue[ axisIndex ] = newAxisValue as number;
@@ -40,11 +40,15 @@ export const Vector = ( { onChange, disabled, ...props }: VectorProps ) => {
 	}, [ onChange ] );
 
 	const array = [];
-	
-	for ( let i = 0; i < props.value.length; i++ ) {
-		
-		array.push( <Value key={i} label={axisDict[i]} disabled={disabled} value={props.value[i]} step={props.step} onChange={(value) => {onChangeValue(i,value)}}/> );
-		
+
+	for ( let i = 0; i < props.value.length; i ++ ) {
+
+		array.push( <Value key={i} label={axisDict[ i ]} disabled={disabled} value={props.value[ i ]} step={props.step} onChange={( value ) => {
+
+			onChangeValue( i, value );
+
+		}}/> );
+
 	}
 
 	return <div className={style.vector}>
@@ -53,6 +57,6 @@ export const Vector = ( { onChange, disabled, ...props }: VectorProps ) => {
 			return value;
 
 		} )}
-	</div>
+	</div>;
 
 };

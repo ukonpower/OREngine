@@ -3,49 +3,50 @@ import * as MXP from 'maxpower';
 import { MouseEvent, useCallback, useMemo } from 'react';
 
 import style from './index.module.scss';
+
 import { useSerializableField } from '~/tsx/hooks/useSerializableProps';
 import { CrossIcon } from '~/tsx/Icon/CrossIcon';
 import { Block } from '~/tsx/ui/Block';
 import { InputBoolean } from '~/tsx/ui/Input/InputCheckBox';
-import { Value, ValueType } from '~/tsx/ui/Value';
 import { SerializableFieldView } from '~/tsx/ui/SerializableFieldView';
+import { Value, ValueType } from '~/tsx/ui/Value';
 
 type ComponentViewProps = {
 	component: MXP.Component
 };
 
-export const ComponentView = ({ component }: ComponentViewProps) => {
+export const ComponentView = ( { component }: ComponentViewProps ) => {
 
-	const [enabled, setEnabled] = useSerializableField<boolean>(component, "enabled");
+	const [ enabled, setEnabled ] = useSerializableField<boolean>( component, "enabled" );
 
 	const disableEdit = component.initiator !== "user";
 
-	const onClickDelete = useCallback((e: MouseEvent) => {
+	const onClickDelete = useCallback( ( e: MouseEvent ) => {
 
-		if (disableEdit) return;
+		if ( disableEdit ) return;
 
 		e.stopPropagation();
 
 		const entity = component.entity;
 
-		if (entity) {
+		if ( entity ) {
 
 
-			entity.removeComponent(component);
+			entity.removeComponent( component );
 
 		}
 
-	}, [disableEdit, component]);
+	}, [ disableEdit, component ] );
 
 	const compoProps = component.serializeToObject();
 
-	const onChangeProps = useCallback((value: ValueType, label: string) => {
+	const onChangeProps = useCallback( ( value: ValueType, label: string ) => {
 
-		component.setField(label, value);
+		component.setField( label, value );
 
-	}, [component]);
+	}, [ component ] );
 
-	let labelElm = <div className={style.head}>
+	const labelElm = <div className={style.head}>
 		<div className={style.check}>
 			<InputBoolean checked={enabled || false} onChange={setEnabled} readOnly={disableEdit} />
 		</div>
@@ -55,7 +56,7 @@ export const ComponentView = ({ component }: ComponentViewProps) => {
 		<div className={style.delete}>
 			<button onClick={onClickDelete}><CrossIcon /></button>
 		</div>
-	</div>
+	</div>;
 
 	return <div className={style.compoView} data-disable_component={disableEdit}>
 		<div className={style.content}>

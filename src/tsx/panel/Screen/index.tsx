@@ -1,12 +1,12 @@
 
-import { GLCanvas } from '~/tsx/components/OREngineGUICanvas';
-import { useSerializableField } from '~/tsx/hooks/useSerializableProps';
 import { AudioView } from '../AudioView';
 
 import style from './index.module.scss';
 
-import { Value } from '~/tsx/ui/Value';
 import { useOREngineGUI } from '~/tsx/components/OREngineGUI';
+import { GLCanvas } from '~/tsx/components/OREngineGUICanvas';
+import { useSerializableField } from '~/tsx/hooks/useSerializableProps';
+import { Value } from '~/tsx/ui/Value';
 
 
 export const Screen = () => {

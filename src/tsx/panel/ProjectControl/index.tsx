@@ -7,10 +7,10 @@ import { MouseMenuContext } from '../MouseMenu/useMouseMenu';
 
 import style from './index.module.scss';
 
-import { ArrowIcon } from '~/tsx/Icon/ArrowIcon';
-import { Block } from '~/tsx/ui/Block';
 import { OREngineProjectData } from '~/ts/OREngine/IO/ProjectSerializer';
 import { useSerializableField } from '~/tsx/hooks/useSerializableProps';
+import { ArrowIcon } from '~/tsx/Icon/ArrowIcon';
+import { Block } from '~/tsx/ui/Block';
 
 
 export const ProjectControl = () => {

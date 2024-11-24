@@ -1,4 +1,3 @@
-import { useOREngineGUI } from '~/tsx/components/OREngineGUI';
 import { TimelineContext, useTimeline } from './hooks/useTimeline';
 import style from './index.module.scss';
 import { TimelineCanvas } from './TimelineCanvas';
@@ -7,6 +6,8 @@ import { TimelineCursor } from './TimelineCursor';
 import { TimelineLoop } from './TimelineLoop';
 import { TimelineScale } from './TimelineScale';
 import { TimelineSetting } from './TimelineSetting';
+
+import { useOREngineGUI } from '~/tsx/components/OREngineGUI';
 
 export const Timeline = () => {
 

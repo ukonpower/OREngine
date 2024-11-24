@@ -1,11 +1,14 @@
 
 import { useCallback, useContext } from 'react';
+
 import { TimelineContext } from '../hooks/useTimeline';
+
+import style from './index.module.scss';
+
+import { useSerializableField } from '~/tsx/hooks/useSerializableProps';
 import { Panel } from '~/tsx/ui/Panel';
 import { ValueType, Value } from '~/tsx/ui/Value';
 
-import style from './index.module.scss';
-import { useSerializableField } from '~/tsx/hooks/useSerializableProps';
 
 export const TimelineSetting = () => {
 

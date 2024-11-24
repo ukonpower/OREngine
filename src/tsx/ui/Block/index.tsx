@@ -2,6 +2,7 @@ import React, { useCallback } from "react";
 
 
 import style from './index.module.scss';
+
 import { ArrowIcon } from "~/tsx/Icon/ArrowIcon";
 
 type BlockProps = {

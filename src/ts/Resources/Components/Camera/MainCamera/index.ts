@@ -10,6 +10,7 @@ import compositeFrag from './shaders/composite.fs';
 import fxaaFrag from './shaders/fxaa.fs';
 import gaussBlur from './shaders/gaussBlur.fs';
 import glitchFrag from './shaders/glitch.fs';
+
 import { gl, canvas, globalUniforms } from '~/ts/Globals';
 
 export class MainCamera extends MXP.Component {

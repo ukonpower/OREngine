@@ -11,6 +11,7 @@ export const Button = ( props: ButtonProps ) => {
 	return <button className={style.button} onClick={( event ) => {
 
 		props.onClick && props.onClick( event );
+
 		event.preventDefault();
 
 	}} type={props.type || "button"} >{

@@ -5,6 +5,7 @@ import { Font1 } from '../../../Fonts/Font1';
 
 import textFrag from './shaders/text.fs';
 import textVert from './shaders/text.vs';
+
 import { resource, globalUniforms, gl } from '~/ts/Globals';
 
 export class Text extends MXP.Component {
