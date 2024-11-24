@@ -1,9 +1,6 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-interface ShakeViewerParams extends MXP.ComponentParams {
-}
-
 export class ShakeViewer extends MXP.Component {
 
 	private shakePower: number;
@@ -13,9 +10,7 @@ export class ShakeViewer extends MXP.Component {
 
 	private cameraComponent?: MXP.Camera;
 
-	constructor( param?: ShakeViewerParams ) {
-
-		param = param || {};
+	constructor( ) {
 
 		super();
 

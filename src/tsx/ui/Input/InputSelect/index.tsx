@@ -23,7 +23,11 @@ export const InputSelect = ( { onChange, value, ...props }: InputTextProps ) => 
 	return <div className={style.inputSelect}>
 		<select className={style.input} onChange={( e ) => {
 
-			onChange && onChange( e.target.value );
+			if ( onChange ) {
+
+				onChange( e.target.value );
+
+			}
 
 		}} value={value}>
 			{props.selectList.map( ( v, i ) => {

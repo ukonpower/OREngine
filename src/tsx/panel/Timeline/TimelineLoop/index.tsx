@@ -46,7 +46,11 @@ export const TimelineLoop = () => {
 
 					if ( elmRef.current ) {
 
-						setStart && setStart( calcFrame( elmRef.current, m ) );
+						if ( setStart ) {
+
+							setStart( calcFrame( elmRef.current, m ) );
+
+						}
 
 					}
 
@@ -57,7 +61,11 @@ export const TimelineLoop = () => {
 
 					if ( elmRef.current ) {
 
-						setEnd && setEnd( calcFrame( elmRef.current, m ) );
+						if ( setEnd ) {
+
+							setEnd( calcFrame( elmRef.current, m ) );
+
+						}
 
 					}
 

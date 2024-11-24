@@ -182,11 +182,11 @@ export class DemoMusic extends MXP.Component {
 
 		this.progress = [ 0, 0 ];
 
-		if ( this.currentRender ) [
+		if ( this.currentRender ) {
 
-			this.currentRender.stop()
+			this.currentRender.stop();
 
-		];
+		}
 
 		this.stop();
 
@@ -224,7 +224,6 @@ export class DemoMusic extends MXP.Component {
 			vao.setAttribute( 'aTime', this.bufferIn, 1 );
 
 			const startPos = Math.floor( this.timeCode / ( this.bufferLength / this.audioBuffer.sampleRate / this.numSampleBlocks ) );
-
 
 			const renderParts = async ( ) => {
 

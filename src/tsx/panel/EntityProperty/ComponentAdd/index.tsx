@@ -6,8 +6,8 @@ import { MouseMenuContext, MouseMenuItemContext } from '../../MouseMenu/useMouse
 
 import style from './index.module.scss';
 
-import { ComponentGroup, ResouceComponentItem } from '~/ts/gl/Resources';
 import { resource } from '~/ts/Globals';
+import { ComponentGroup, ResouceComponentItem } from '~/ts/Resources';
 import { Button } from '~/tsx/ui/Button';
 
 type ComponentAddProps= {
@@ -68,7 +68,7 @@ export const ComponentAdd = ( props: ComponentAddProps ) => {
 
 	const onClickAdd = useCallback( ( e: MouseEvent ) => {
 
-		if ( ! resources ) return;
+		if ( ! resources || ! pushContent || ! closeAll ) return;
 
 		const cagegoryGroupList: ReactNode[] = [];
 
@@ -76,7 +76,7 @@ export const ComponentAdd = ( props: ComponentAddProps ) => {
 
 			props.entity.addComponent( new compItem.component() ).initiator = 'user';
 
-			closeAll && closeAll();
+			closeAll();
 
 		};
 
@@ -88,7 +88,7 @@ export const ComponentAdd = ( props: ComponentAddProps ) => {
 
 		} );
 
-		pushContent && pushContent(
+		pushContent(
 
 			<div className={style.picker}>
 				{cagegoryGroupList}
