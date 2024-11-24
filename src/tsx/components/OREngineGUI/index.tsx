@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useRef } from 'react';
+
 import { OREngineGUICore } from '~/ts/OREngineGUICore';
 
 /*-------------------------------
@@ -9,23 +10,23 @@ const useOREngineGUIContext = () => {
 
 	const guiRef = useRef<OREngineGUICore | null>( null );
 
-	if( guiRef.current == null ) {
+	if ( guiRef.current == null ) {
 
 		guiRef.current = new OREngineGUICore();
 
 	}
 
 	const gui = guiRef.current;
-	
+
 	useEffect( () => {
 
 		return () => {
 
-			if( guiRef.current ) {
+			if ( guiRef.current ) {
 
 				guiRef.current.dispose();
-				guiRef.current = null;	
-				
+				guiRef.current = null;
+
 			}
 
 		};
@@ -47,10 +48,10 @@ const OREngineGUIContext = createContext<
 export const useOREngineGUI = () => {
 
 	const context = useContext( OREngineGUIContext );
-	
+
 	if ( context === undefined )
 		throw new Error( 'useOREngineGUI must be used within a OREditorProvider' );
-	
+
 	return context;
 
 };

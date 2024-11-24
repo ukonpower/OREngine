@@ -24,8 +24,8 @@ export class ShakeViewer extends MXP.Component {
 		this.shakeMatrix = new GLP.Matrix();
 		this.shakeQua = new GLP.Quaternion();
 
-		this.field( "power", () => this.shakePower, value => this.shakePower = value )
-		this.field( "speed", () => this.shakeSpeed, value => this.shakeSpeed = value )
+		this.field( "power", () => this.shakePower, value => this.shakePower = value );
+		this.field( "speed", () => this.shakeSpeed, value => this.shakeSpeed = value );
 
 	}
 

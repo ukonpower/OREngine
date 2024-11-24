@@ -1,13 +1,13 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
+import { screenElm, canvas, power, renderer } from '../Globals';
 import { OREngine } from '../OREngine';
 import { OREngineProjectData } from '../OREngine/IO/ProjectSerializer';
 import { FrameDebugger } from '../OREngine/utils/FrameDebugger';
 import { Keyboard, PressedKeys } from '../OREngine/utils/Keyboard';
 
 import { FileSystem } from './FileSystem';
-import { screenElm, canvas, power, renderer } from '../Globals';
 
 export type EditorTimelineLoop = {
 	enabled: boolean,
@@ -363,8 +363,8 @@ export class OREngineGUICore extends MXP.Serializable {
 
 	public selectEntity( entity: MXP.Entity | null ) {
 
-		this.setField("selectedEntityId", entity ? entity.uuid : null )
-		
+		this.setField( "selectedEntityId", entity ? entity.uuid : null );
+
 	}
 
 	public createEntity( parentEntity: MXP.Entity, name: string ) {

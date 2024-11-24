@@ -1,6 +1,7 @@
-import { useOREngineGUI } from '~/tsx/components/OREngineGUI';
 import { HierarchyNode } from './HierarchyNode';
 import style from './index.module.scss';
+
+import { useOREngineGUI } from '~/tsx/components/OREngineGUI';
 
 export const Hierarchy = () => {
 

@@ -1,6 +1,7 @@
 
 import * as MXP from 'maxpower';
 
+import { resource, renderer, gl } from '../Globals';
 import { TexProcedural } from '../OREngine/utils/TexProcedural';
 
 import { COMPONENTLIST } from './_data/componentList';
@@ -8,7 +9,6 @@ import { Font1 } from './Fonts/Font1';
 import noiseFrag from './Textures/noise.fs';
 
 import { ComponentGroup } from '.';
-import { resource, renderer, gl } from '../Globals';
 
 type ComponentLIst = {
 	[key: string]: ( ComponentLIst | ( typeof MXP.Component ) )

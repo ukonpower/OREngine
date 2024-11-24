@@ -1,8 +1,9 @@
 import { useRef, useEffect } from "react";
 
 
-import style from './index.module.scss';
 import { useOREngineGUI } from "../OREngineGUI";
+
+import style from './index.module.scss';
 
 export const GLCanvas = () => {
 

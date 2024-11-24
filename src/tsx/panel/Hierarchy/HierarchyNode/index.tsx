@@ -5,11 +5,11 @@ import { MouseMenuContext } from '../../MouseMenu/useMouseMenu';
 
 import style from './index.module.scss';
 
+import { useOREngineGUI } from '~/tsx/components/OREngineGUI';
+import { useSerializableField } from '~/tsx/hooks/useSerializableProps';
 import { ArrowIcon } from '~/tsx/Icon/ArrowIcon';
 import { InputGroup } from '~/tsx/ui/InputGroup';
 import { Picker } from '~/tsx/ui/Picker';
-import { useSerializableField } from '~/tsx/hooks/useSerializableProps';
-import { useOREngineGUI } from '~/tsx/components/OREngineGUI';
 
 type HierarchyNodeProps = {
 	depth?: number;
@@ -21,12 +21,12 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 	const { gui } = useOREngineGUI();
 
 	const [ children ] = useSerializableField<MXP.Entity[]>( props.entity, "children" );
-	
+
 	const depth = props.depth || 0;
 	const sortedChildren = children && children.concat().sort( ( a, b ) => a.name.localeCompare( b.name ) ) || [];
 	const hasChild = sortedChildren.length > 0;
 	const offsetPx = depth * 20;
-	
+
 	const [ selectedEntityId ] = useSerializableField<string>( gui, "selectedEntityId" );
 	const selectedEntity = selectedEntityId !== undefined && gui.engine.findEntityById( selectedEntityId );
 

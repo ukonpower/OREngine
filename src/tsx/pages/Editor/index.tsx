@@ -1,5 +1,9 @@
 import style from './index.module.scss';
 
+import { OREngineGUI } from '~/tsx/components/OREngineGUI';
+import { useLayout } from '~/tsx/hooks/useLayout';
+import { EntityProperty } from '~/tsx/panel/EntityProperty';
+import { Timer } from '~/tsx/panel/GPUTimer';
 import { Hierarchy } from '~/tsx/panel/Hierarchy';
 import { MouseMenu } from '~/tsx/panel/MouseMenu';
 import {
@@ -11,10 +15,6 @@ import { Screen } from '~/tsx/panel/Screen';
 import { Timeline } from '~/tsx/panel/Timeline';
 import { Panel } from '~/tsx/ui/Panel';
 import { PanelContainer } from '~/tsx/ui/PanelContainer';
-import { OREngineGUI } from '~/tsx/components/OREngineGUI';
-import { useLayout } from '~/tsx/hooks/useLayout';
-import { Timer } from '~/tsx/panel/GPUTimer';
-import { EntityProperty } from '~/tsx/panel/EntityProperty';
 
 export const EditorPage = () => {
 
@@ -68,7 +68,7 @@ export const EditorPage = () => {
 					</div>
 				</div>
 				<MouseMenu />
-				</>
+			</>
 		);
 
 	} else {
@@ -124,7 +124,7 @@ export const EditorPage = () => {
 	return <OREngineGUI>
 		<MouseMenuContext.Provider value={mouseMenuContext}>
 			<div className={style.editor}>
-			{editorElm}
+				{editorElm}
 			</div>
 		</MouseMenuContext.Provider>;
 	</OREngineGUI>;

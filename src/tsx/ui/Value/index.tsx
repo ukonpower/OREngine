@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+
 import { Button } from '../Button';
 import { InputBoolean } from '../Input/InputCheckBox';
 import { InputNumber } from '../Input/InputNumber';
@@ -7,7 +8,7 @@ import { InputText } from '../Input/InputText';
 
 import style from './index.module.scss';
 
-export type ValueType = number | boolean | string | Array<String> | ( () => void );
+export type ValueType = number | boolean | string | Array<string> | ( () => void );
 
 export type ValueOpt = {
 	readOnly?: boolean,

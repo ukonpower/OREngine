@@ -6,8 +6,8 @@ import { MouseMenuContext, MouseMenuItemContext } from '../../MouseMenu/useMouse
 
 import style from './index.module.scss';
 
-import { resource } from '~/ts/Globals';
 import { ComponentGroup, ResouceComponentItem } from '~/ts/gl/Resources';
+import { resource } from '~/ts/Globals';
 import { Button } from '~/tsx/ui/Button';
 
 type ComponentAddProps= {

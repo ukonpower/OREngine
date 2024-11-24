@@ -4,6 +4,7 @@ import { TimelineContext } from '../hooks/useTimeline';
 
 import style from './index.module.scss';
 import { TimelineCanvasRenderer } from './TimelineCanvasRenderer';
+
 import { useSerializableField } from '~/tsx/hooks/useSerializableProps';
 
 export const TimelineCanvas = () => {

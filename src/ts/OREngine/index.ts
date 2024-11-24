@@ -1,12 +1,12 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
+import { globalUniforms, canvas, renderer } from '../Globals';
 import { MainCamera } from '../Resources/Components/Camera/MainCamera';
 import { OrbitControls } from '../Resources/Components/Camera/MainCamera/OrbitControls';
 import { initResouces } from '../Resources/init';
 
 import { OREngineProjectData, SceneSerializer, OREngineProjectFrame } from './IO/ProjectSerializer';
-import { globalUniforms, canvas, renderer } from '../Globals';
 export interface SceneTime {
 	current: number;
 	engine: number;
