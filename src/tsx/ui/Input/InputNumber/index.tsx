@@ -1,7 +1,7 @@
 
 import { useRef, useCallback, MouseEvent } from 'react';
 
-import { ValueProps, ValueType } from '../../Property/Value';
+import { ValueProps, ValueType } from '../../Value';
 
 import style from './index.module.scss';
 
@@ -74,7 +74,11 @@ export const InputNumber = ( props: Props ) => {
 			max={props.max}
 			onChange={( e ) => {
 
-				props.onChange && props.onChange( Number( e.target.value ) );
+				if ( props.onChange ) {
+
+					props.onChange( Number( e.target.value ) );
+
+				}
 
 			}}
 			onPointerDown={onPointerDown}

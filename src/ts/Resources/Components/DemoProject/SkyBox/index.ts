@@ -5,17 +5,14 @@ import skyboxFrag from './shaders/skybox.fs';
 
 import { globalUniforms } from '~/ts/Globals';
 
-interface SkyBoxParams extends MXP.ComponentParams {
-}
-
 export class SkyBox extends MXP.Component {
 
 	private geometry: MXP.Geometry;
 	private material: MXP.Material;
 
-	constructor( params: SkyBoxParams ) {
+	constructor( ) {
 
-		super( params );
+		super( );
 
 		this.geometry = new MXP.SphereGeometry( { radius: 50, widthSegments: 32, heightSegments: 32 } );
 		this.material = new MXP.Material( {

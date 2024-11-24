@@ -21,7 +21,7 @@ export const useWatchSerializable = ( exportable: Serializable | undefined, deps
 
 		const onUpdate = ( _: any, updateKeys: string[] ) => {
 
-			let found = false || depsMemo.length == 0;
+			let found = depsMemo.length == 0;
 
 			for ( let i = 0; i < depsMemo.length; i ++ ) {
 

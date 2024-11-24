@@ -1,11 +1,11 @@
 import { useState, useCallback, useEffect, createContext, useRef } from "react";
 
-import { Editor } from "~/ts/gl/Editor";
-import { FramePlay } from '~/ts/gl/OREngine';
+import { FramePlay } from "~/ts/OREngine";
+import { OREngineGUICore } from "~/ts/OREngineGUICore";
 
 export const TimelineContext = createContext<HooksContext<typeof useTimeline>>( {} );
 
-export const useTimeline = ( glEditor: Editor | undefined ) => {
+export const useTimeline = ( glEditor: OREngineGUICore | undefined ) => {
 
 	// timeline
 

@@ -71,7 +71,11 @@ export const InputGroup = ( props: InputGroupProps ) => {
 			<div className={style.submit}>
 				<Button type="submit" onClick={() => {
 
-					props.onSubmit && props.onSubmit( values );
+					if ( props.onSubmit ) {
+
+						props.onSubmit( values );
+
+					}
 
 				}} >OK</Button>
 			</div>

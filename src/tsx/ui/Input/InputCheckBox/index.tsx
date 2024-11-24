@@ -24,7 +24,11 @@ export const InputBoolean = ( { onChange, ...props }: InputBooleanProps ) => {
 
 					if ( props.readOnly ) return;
 
-					onChange && onChange( e.target.checked );
+					if ( onChange ) {
+
+						onChange( e.target.checked );
+
+					}
 
 				}}
 			/>
