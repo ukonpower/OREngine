@@ -1,14 +1,14 @@
 import * as MXP from 'maxpower';
-import { createContext } from 'react';
-import style from './index.module.scss'
+import { createContext, useContext } from 'react'
+import { SerializableField } from './SerializableField';
 
-const SerializableFieldViewContext = createContext<ReturnType<typeof useSerializableFieldViewProvider> | undefined>(undefined)
+const SerializableFieldViewContext = createContext<ReturnType<typeof useSerializableFieldViewContext> | undefined>(undefined)
 
 type SerializableFieldViewProps = {
 	target: MXP.Serializable
 }
 
-const useSerializableFieldViewProvider = (props: SerializableFieldViewProps) => {
+const useSerializableFieldViewContext = (props: SerializableFieldViewProps) => {
 
 	return {
 		target: props.target
@@ -16,12 +16,27 @@ const useSerializableFieldViewProvider = (props: SerializableFieldViewProps) => 
 	
 }
 
+export const useSerializableFieldView = () => {
+	
+	const context = useContext( SerializableFieldViewContext )
+	
+	if( !context ) {
+		
+		throw new Error("SerializableFieldViewContext is not defined")
+		
+	}
+	
+	return context
+}
+
 export const SerializableFieldView: React.FC<SerializableFieldViewProps > = (props) => {
 
-	const context = useSerializableFieldViewProvider(props)
-	
+	const context = useSerializableFieldViewContext(props)
+
+	const fields = context.target.serializeToObject()
+
 	return <SerializableFieldViewContext.Provider value={context} >
-		<div className={style.container}></div>
+		<SerializableField fields={fields}/>
 	</SerializableFieldViewContext.Provider>
 
 }

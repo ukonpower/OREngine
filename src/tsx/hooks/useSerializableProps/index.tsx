@@ -2,7 +2,7 @@ import * as MXP from 'maxpower';
 
 import { useWatchSerializable } from "../useWatchSerializable";
 
-export const useSerializableField = <T extends MXP.SerializeFieldValue>( serializable: MXP.Serializable | undefined, path: string ): [T|undefined, ( ( value: T ) => void ) | undefined] => {
+export const useSerializableField = <T extends MXP.SerializeFieldValue>( serializable: MXP.Serializable | undefined, path: string ): [T|undefined, ( ( value: T ) => void )] => {
 
 	const setter = ( value: any ) => {
 

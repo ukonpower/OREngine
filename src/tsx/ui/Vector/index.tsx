@@ -6,54 +6,46 @@ import { Value, ValueType } from '../Value';
 import style from './index.module.scss';
 
 type VectorProps = {
-	value: GLP.IVector4,
-	type?: "vec2"| "vec3"| "vec4"
+	value: number[],
 	step?: number,
 	disabled?: boolean,
 	onChange?: ( value: GLP.IVector4 ) => void
 }
 
+const axisDict = ["x", "y", "z", "w"]
+
 export const Vector = ( { onChange, disabled, ...props }: VectorProps ) => {
 
-	const valueRef = useRef<GLP.IVector4>( );
+	const valueRef = useRef<number[]>( );
 	valueRef.current = props.value;
 
-	const onChangeValue = useCallback( ( value: ValueType, label: string ) => {
+	const onChangeValue = useCallback( ( axisIndex: number, newAxisValue: ValueType ) => {
 
 		if ( onChange && valueRef.current ) {
 
-			const val: any = {
-				x: valueRef.current.x,
-				y: valueRef.current.y,
-				z: valueRef.current.z,
-				w: valueRef.current.w
-			};
+			const newValue: any = {}
 
-			val[ label.toLowerCase() ] = value as number;
+			for ( let i = 0; i < valueRef.current.length; i++ ) {
 
-			onChange( val );
+				newValue[i] = valueRef.current[i]
+				
+			}
+
+			newValue[ axisIndex ] = newAxisValue as number;
+
+			onChange( newValue );
 
 		}
 
 	}, [ onChange ] );
 
-	const array = [
-		<Value key={"x"} label='X' disabled={disabled} value={props.value.x} step={props.step} onChange={onChangeValue}/>,
-		<Value key={"y"} label='Y' disabled={disabled} value={props.value.y} step={props.step} onChange={onChangeValue}/>
-	];
-
-	if ( ! props.type || props.type == "vec3" || props.type == "vec4" ) {
-
-		array.push( <Value key={"z"} label='Z' disabled={disabled} value={props.value.z} step={props.step} onChange={onChangeValue}/> );
-
+	const array = [];
+	
+	for ( let i = 0; i < props.value.length; i++ ) {
+		
+		array.push( <Value key={i} label={axisDict[i]} disabled={disabled} value={props.value[i]} step={props.step} onChange={(value) => {onChangeValue(i,value)}}/> );
+		
 	}
-
-	if ( props.type == "vec4" ) {
-
-		array.push( <Value key={"w"} label='W' disabled={disabled} value={props.value.w} step={props.step} onChange={onChangeValue}/> );
-
-	}
-
 
 	return <div className={style.vector}>
 		{array.map( ( value ) => {
@@ -61,6 +53,6 @@ export const Vector = ( { onChange, disabled, ...props }: VectorProps ) => {
 			return value;
 
 		} )}
-	</div>;
+	</div>
 
 };
