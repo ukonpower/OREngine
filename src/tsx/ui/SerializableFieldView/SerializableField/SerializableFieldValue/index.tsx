@@ -11,7 +11,15 @@ export const SerializableFieldValue: React.FC<{ path: string }> = ( props ) => {
 	const opt = target.getFieldOpt( props.path );
 	const name = props.path.split( "/" ).pop();
 
-	return <Label title={name} >
+	let isVertical = false;
+
+	if ( opt && opt.format && opt.format.type == "vector" ) {
+
+		isVertical = true;
+
+	}
+
+	return <Label title={name} vertical={isVertical} >
 		<Value value={value} opt={opt} onChange={( v ) => {
 
 			setValue( v );
