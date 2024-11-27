@@ -8,7 +8,6 @@ import { GLCanvas } from '~/tsx/components/OREngineGUICanvas';
 import { useSerializableField } from '~/tsx/hooks/useSerializableProps';
 import { Value } from '~/tsx/ui/Value';
 
-
 export const Screen = () => {
 
 	const { gui } = useOREngineGUI();

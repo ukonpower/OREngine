@@ -29,17 +29,23 @@ export const SerializableField: React.FC<{fields: MXP.SerializedGroupingFields, 
 
 			}
 
-			elm = <SerializableFieldValue path={path} />;
+			elm = <div key={componentKeys}>
+				<SerializableFieldValue path={path} />
+			</div>;
 
 		} else {
 
-			elm = <SerializableField fields={field} basePath={path} />;
+			elm = <div className={style.block}>
+				<Block key={componentKeys} accordion label={key}>
+					<SerializableField fields={field} basePath={path} />
+				</Block>
+			</div>;
 
 		}
 
 		if ( elm ) {
 
-			elmArray.push( <Block key={componentKeys} label={key} >{elm}</Block> );
+			elmArray.push( elm );
 
 		}
 

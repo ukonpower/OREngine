@@ -1,45 +1,22 @@
 import { useSerializableFieldView } from '../..';
 
 import { useSerializableField } from '~/tsx/hooks/useSerializableProps';
-import { InputNumber } from '~/tsx/ui/Input/InputNumber';
-import { Vector } from '~/tsx/ui/Vector';
+import { Label } from '~/tsx/ui/Label';
+import { Value } from '~/tsx/ui/Value';
 
 export const SerializableFieldValue: React.FC<{ path: string }> = ( props ) => {
 
 	const { target } = useSerializableFieldView();
 	const [ value, setValue ] = useSerializableField( target, props.path );
 	const opt = target.getFieldOpt( props.path );
+	const name = props.path.split( "/" ).pop();
 
-	let elm = null;
-
-	if ( opt ) {
-
-		if ( opt.format ) {
-
-			if ( opt.format.type == "vector" && Array.isArray( value ) ) {
-
-				elm = <Vector value={value} onChange={( v ) => {
-
-					setValue( v );
-
-				}} />;
-
-			}
-
-		}
-
-	}
-
-	if ( ! elm && typeof value === "number" ) {
-
-		elm = <InputNumber value={value} onChange={( v ) =>{
+	return <Label title={name} >
+		<Value value={value} opt={opt} onChange={( v ) => {
 
 			setValue( v );
 
-		} } />;
-
-	}
-
-	return elm;
+		}}/>
+	</Label>;
 
 };

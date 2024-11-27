@@ -1,6 +1,6 @@
 
 import * as MXP from 'maxpower';
-import { MouseEvent, useCallback, useMemo } from 'react';
+import { MouseEvent, useCallback } from 'react';
 
 import style from './index.module.scss';
 
@@ -9,7 +9,6 @@ import { CrossIcon } from '~/tsx/Icon/CrossIcon';
 import { Block } from '~/tsx/ui/Block';
 import { InputBoolean } from '~/tsx/ui/Input/InputCheckBox';
 import { SerializableFieldView } from '~/tsx/ui/SerializableFieldView';
-import { Value, ValueType } from '~/tsx/ui/Value';
 
 type ComponentViewProps = {
 	component: MXP.Component
@@ -37,14 +36,6 @@ export const ComponentView = ( { component }: ComponentViewProps ) => {
 		}
 
 	}, [ disableEdit, component ] );
-
-	const compoProps = component.serializeToObject();
-
-	const onChangeProps = useCallback( ( value: ValueType, label: string ) => {
-
-		component.setField( label, value );
-
-	}, [ component ] );
 
 	const labelElm = <div className={style.head}>
 		<div className={style.check}>

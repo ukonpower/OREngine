@@ -56,24 +56,24 @@ export class Serializable extends Resource {
 
 	public export() {
 
-		this.serialize( true )
-		
+		this.serialize( true );
+
 	}
-	
+
 	public serialize( expt?: boolean ): SerializedFields {
 
 		const res: SerializedFields = {};
 
 		this.fields.forEach( ( field, k ) => {
 
-			let opt = this.getFieldOpt( k)
+			const opt = this.getFieldOpt( k );
 
-			if( expt ) {
+			if ( expt ) {
 
-				if( opt ) {
+				if ( opt ) {
 
-					if( opt.noExport ) return;
-					
+					if ( opt.noExport ) return;
+
 				}
 
 			}

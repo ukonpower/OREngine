@@ -1,13 +1,13 @@
 
 import { useRef, useCallback, MouseEvent } from 'react';
 
-import { ValueProps, ValueType } from '../../Value';
+import { ValueProps } from '../../Value';
 
 import style from './index.module.scss';
 
 
 type Props = ValueProps<number> & {
-	onChange: ( value: number ) => void;
+	onChange?: ( value: number ) => void;
 };
 
 export const InputNumber = ( props: Props ) => {
@@ -17,7 +17,7 @@ export const InputNumber = ( props: Props ) => {
 	const onChangeRef = useRef<( value: number ) => void>();
 	onChangeRef.current = props.onChange;
 
-	const valueRef = useRef<ValueType>();
+	const valueRef = useRef<number>();
 	valueRef.current = props.value;
 
 	const onPointerMoveNumber = useCallback( ( e: PointerEvent ) => {
