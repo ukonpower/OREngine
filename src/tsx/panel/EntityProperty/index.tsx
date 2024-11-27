@@ -44,7 +44,7 @@ export const EntityProperty = () => {
 		selectedEntity.components.forEach( component => {
 
 			componentViewList.push(
-				<ComponentView component={component} />
+				<ComponentView key={component.uuid} component={component} />
 			);
 
 		} );
@@ -60,8 +60,10 @@ export const EntityProperty = () => {
 	}
 
 	return <div className={style.container}>
-		<SerializableFieldView target={selectedEntity}/>
-		<Block label="Components">
+		<Block label="Fields" accordion>
+			<SerializableFieldView target={selectedEntity} />
+		</Block>
+		<Block label="Components" accordion>
 			{componentViewList}
 		</Block>
 	</div>;

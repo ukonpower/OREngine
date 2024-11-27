@@ -147,7 +147,7 @@
 			"timeline/fps": 60
 		}
 	],
-	"enableRender": true,
+	"enableRender": false,
 	"projectName": "New Project",
 	"openedProject": "New Project",
 	"resolutionScale": 0.5,
@@ -155,5 +155,5 @@
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,
 	"frameLoop/end": 100,
-	"selectedEntityId": "2d"
+	"selectedEntityId": "43"
 }

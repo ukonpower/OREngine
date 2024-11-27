@@ -1,0 +1,21 @@
+@use '~/styles/common' as *;
+
+.container {
+	display: flex;
+	margin-bottom: 2px;
+	align-items: center;
+}
+
+.label {
+	width: 20%;
+	color: $fontCol3;
+	word-break: break-all;
+	margin-right: 5px;
+	text-align: right;
+	font-size: $fontSize1;
+
+}
+
+.item {
+	flex: 1;
+}

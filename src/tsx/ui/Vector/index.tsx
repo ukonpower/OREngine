@@ -1,7 +1,8 @@
 import * as GLP from 'glpower';
 import { useCallback, useRef } from 'react';
 
-import { Value, ValueType } from '../Value';
+import { InputNumber } from '../Input/InputNumber';
+import { Label } from '../Label';
 
 import style from './index.module.scss';
 
@@ -43,11 +44,12 @@ export const Vector = ( { onChange, disabled, ...props }: VectorProps ) => {
 
 	for ( let i = 0; i < props.value.length; i ++ ) {
 
-		array.push( <Value key={i} label={axisDict[ i ]} disabled={disabled} value={props.value[ i ]} step={props.step} onChange={( value ) => {
+		array.push(
+			<Label title={axisDict[ i ]} > <InputNumber key={i} disabled={disabled} value={props.value[ i ]} step={props.step} onChange={( value ) => {
 
-			onChangeValue( i, value );
+				onChangeValue( i, value );
 
-		}}/> );
+			}}/></Label> );
 
 	}
 
