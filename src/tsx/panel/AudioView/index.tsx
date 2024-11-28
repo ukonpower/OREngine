@@ -1,19 +1,17 @@
 import * as MXP from 'maxpower';
 import { useState, useRef, useEffect, useContext, useCallback } from 'react';
 
-import { GLContext } from '../../gl/useGL';
-
 
 import { AudioViewRenderer } from './AudioViewRenderer';
 import style from './index.module.scss';
 
-import { FramePlay } from '~/ts/gl/OREngine';
-import { OREngineProjectFrame } from '~/ts/gl/OREngine/IO/ProjectSerializer';
-
+import { FramePlay } from '~/ts/OREngine';
+import { OREngineProjectFrame } from '~/ts/OREngine/IO/ProjectSerializer';
+import { useOREngineGUI } from '~/tsx/components/OREngineGUI';
 
 export const AudioView = () => {
 
-	const { glEditor } = useContext( GLContext );
+	const { gui } = useOREngineGUI();
 
 	const wrapperElmRef = useRef<HTMLDivElement>( null );
 
@@ -43,7 +41,7 @@ export const AudioView = () => {
 
 	// events
 
-	const musicBuffer = glEditor?.audioBuffer;
+	const musicBuffer = gui.audioBuffer;
 	const [ musicBufferVersion, setMusicBufferVersion ] = useState<number>();
 
 	const [ frameSetting, setFrameSetting ] = useState<OREngineProjectFrame>( {
@@ -58,52 +56,49 @@ export const AudioView = () => {
 
 	useEffect( () => {
 
-		if ( glEditor ) {
+		const engine = gui.engine;
 
-			const scene = glEditor.scene;
+		const onUpdateSceneProps = ( props: MXP.SerializedFields ) => {
 
-			const onUpdateSceneProps = ( props: MXP.SerializedProps ) => {
+			setFrameSetting( {
+				duration: props[ "timeline/duration" ],
+				fps: props[ "timeline/fps" ]
+			} );
 
-				setFrameSetting( {
-					duration: props[ "timeline/duration" ],
-					fps: props[ "timeline/fps" ]
-				} );
+		};
 
-			};
+		let bufferVersion = 0;
 
-			let bufferVersion = 0;
+		const onUpdateMusic = () => {
 
-			const onUpdateMusic = () => {
+			setMusicBufferVersion( bufferVersion ++ );
 
-				setMusicBufferVersion( bufferVersion ++ );
+		};
 
-			};
+		const onUpdateFramePlay = ( frame: FramePlay ) => {
 
-			const onUpdateFramePlay = ( frame: FramePlay ) => {
+			setFramePlay( { ...frame } );
 
-				setFramePlay( { ...frame } );
+		};
 
-			};
+		onUpdateSceneProps( engine.serialize() );
+		onUpdateFramePlay( engine.frame );
 
-			onUpdateSceneProps( glEditor.scene.serialize() );
-			onUpdateFramePlay( scene.frame );
-
-			scene.on( "update/props", onUpdateSceneProps );
-			scene.on( "update/music", onUpdateMusic );
-			scene.on( "update/frame/play", onUpdateFramePlay );
+		engine.on( "update/props", onUpdateSceneProps );
+		engine.on( "update/music", onUpdateMusic );
+		engine.on( "update/frame/play", onUpdateFramePlay );
 
 
-			return () => {
+		return () => {
 
-				scene.off( "update/frame/setting", onUpdateSceneProps );
-				scene.off( "update/music", onUpdateMusic );
-				scene.off( "update/frame/play", onUpdateFramePlay );
+			engine.off( "update/frame/setting", onUpdateSceneProps );
+			engine.off( "update/music", onUpdateMusic );
+			engine.off( "update/frame/play", onUpdateFramePlay );
 
-			};
+		};
 
-		}
 
-	}, [ glEditor ] );
+	}, [ gui ] );
 
 	useEffect( () => {
 

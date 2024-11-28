@@ -4,7 +4,7 @@ import * as MXP from 'maxpower';
 import musicFrag from './shaders/music.fs';
 import musicVert from './shaders/music.vs';
 
-import { power } from '~/ts/gl/GLGlobals';
+import { power } from '~/ts/Globals';
 
 const BPM = 85;
 const MUSIC_DURATION = 60 * ( ( 8 * 2 ) / BPM );

@@ -322,6 +322,7 @@ export class Renderer extends Entity {
 			if ( prevLightsNum[ l ] != this.lights[ l ].length ) {
 
 				this.lightsUpdated = true;
+
 				break;
 
 			}
@@ -735,7 +736,15 @@ export class Renderer extends Entity {
 
 		if ( cullStateCache === undefined || cullStateCache.state != material.cullFace ) {
 
-			material.cullFace ? this.gl.enable( gpuStateType ) : this.gl.disable( gpuStateType );
+			if ( material.cullFace ) {
+
+				this.gl.enable( gpuStateType );
+
+			} else {
+
+				this.gl.disable( gpuStateType );
+
+			}
 
 		}
 
@@ -747,10 +756,17 @@ export class Renderer extends Entity {
 
 		if ( depthStateCache === undefined || depthStateCache.state != material.depthTest ) {
 
-			material.depthTest ? this.gl.enable( gpuStateType ) : this.gl.disable( gpuStateType );
+			if ( material.depthTest ) {
+
+				this.gl.enable( gpuStateType );
+
+			} else {
+
+				this.gl.disable( gpuStateType );
+
+			}
 
 		}
-
 
 		this.gl.depthMask( material.depthWrite );
 

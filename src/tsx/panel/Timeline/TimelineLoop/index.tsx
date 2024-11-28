@@ -5,8 +5,8 @@ import { TimelineContext } from '../hooks/useTimeline';
 import style from './index.module.scss';
 import { TimelineLoopCursor } from './TimelineLoopCursor';
 
-import { useSerializableProps } from '~/tsx/gl/useSerializableProps';
-import { useWatchSerializable } from '~/tsx/gl/useWatchSerializable';
+import { useSerializableField } from '~/tsx/hooks/useSerializableProps';
+import { useWatchSerializable } from '~/tsx/hooks/useWatchSerializable';
 
 export const TimelineLoop = () => {
 
@@ -20,9 +20,9 @@ export const TimelineLoop = () => {
 		"frameLoop/end",
 	] );
 
-	const [ enabled ] = useSerializableProps<boolean>( glEditor, "frameLoop/enabled" );
-	const [ start, setStart ] = useSerializableProps<number>( glEditor, "frameLoop/start" );
-	const [ end, setEnd ] = useSerializableProps<number>( glEditor, "frameLoop/end" );
+	const [ enabled ] = useSerializableField<boolean>( glEditor, "frameLoop/enabled" );
+	const [ start, setStart ] = useSerializableField<number>( glEditor, "frameLoop/start" );
+	const [ end, setEnd ] = useSerializableField<number>( glEditor, "frameLoop/end" );
 
 	if ( enabled !== true ) return null;
 	if ( ! viewPort || ! framePlay || start === undefined || end === undefined ) return null;
@@ -46,7 +46,11 @@ export const TimelineLoop = () => {
 
 					if ( elmRef.current ) {
 
-						setStart && setStart( calcFrame( elmRef.current, m ) );
+						if ( setStart ) {
+
+							setStart( calcFrame( elmRef.current, m ) );
+
+						}
 
 					}
 
@@ -57,7 +61,11 @@ export const TimelineLoop = () => {
 
 					if ( elmRef.current ) {
 
-						setEnd && setEnd( calcFrame( elmRef.current, m ) );
+						if ( setEnd ) {
+
+							setEnd( calcFrame( elmRef.current, m ) );
+
+						}
 
 					}
 

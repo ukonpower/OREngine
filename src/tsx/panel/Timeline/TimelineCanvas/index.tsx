@@ -5,8 +5,7 @@ import { TimelineContext } from '../hooks/useTimeline';
 import style from './index.module.scss';
 import { TimelineCanvasRenderer } from './TimelineCanvasRenderer';
 
-import { useSerializableProps } from '~/tsx/gl/useSerializableProps';
-
+import { useSerializableField } from '~/tsx/hooks/useSerializableProps';
 
 export const TimelineCanvas = () => {
 
@@ -46,8 +45,8 @@ export const TimelineCanvas = () => {
 
 	}, [ renderer, viewPort, viewPortScale ] );
 
-	const [ duration ] = useSerializableProps<number>( glEditor?.scene, "timeline/duration" );
-	const [ fps ] = useSerializableProps<number>( glEditor?.scene, "timeline/fps" );
+	const [ duration ] = useSerializableField<number>( glEditor?.engine, "timeline/duration" );
+	const [ fps ] = useSerializableField<number>( glEditor?.engine, "timeline/fps" );
 
 	useEffect( () => {
 
@@ -64,9 +63,9 @@ export const TimelineCanvas = () => {
 
 	// loop
 
-	const [ loopEnabled ] = useSerializableProps<boolean>( glEditor, "frameLoop/enabled" );
-	const [ loopStart ] = useSerializableProps<number>( glEditor, "frameLoop/start" );
-	const [ loopEnd ] = useSerializableProps<number>( glEditor, "frameLoop/end" );
+	const [ loopEnabled ] = useSerializableField<boolean>( glEditor, "frameLoop/enabled" );
+	const [ loopStart ] = useSerializableField<number>( glEditor, "frameLoop/start" );
+	const [ loopEnd ] = useSerializableField<number>( glEditor, "frameLoop/end" );
 
 	useEffect( () => {
 

@@ -1,53 +1,61 @@
 import { useContext } from 'react';
 
-import { EditorContext } from '../../gl/useEditor';
 import { Button } from '../../ui/Button';
-import { ArrowIcon } from '../../ui/icon/ArrowIcon';
 import { InputSelect } from '../../ui/Input/InputSelect';
 import { InputGroup } from '../../ui/InputGroup';
-import { PropertyBlock } from '../../ui/Property/PropertyBlock';
 import { MouseMenuContext } from '../MouseMenu/useMouseMenu';
 
 import style from './index.module.scss';
 
-import { OREngineProjectData } from '~/ts/gl/OREngine/IO/ProjectSerializer';
-import { useSerializableProps } from '~/tsx/gl/useSerializableProps';
+import { OREngineProjectData } from '~/ts/OREngine/IO/ProjectSerializer';
+import { useSerializableField } from '~/tsx/hooks/useSerializableProps';
+import { ArrowIcon } from '~/tsx/Icon/ArrowIcon';
+import { Block } from '~/tsx/ui/Block';
 
 
 export const ProjectControl = () => {
 
 	const { pushContent, closeAll } = useContext( MouseMenuContext );
-	const { glEditor } = useContext( EditorContext );
+	const { editor } = useOREngineGUI();
 
-	const [ projects ] = useSerializableProps<OREngineProjectData[]>( glEditor, "projects" );
-	const [ projectName ] = useSerializableProps<string>( glEditor, "projectName" );
-	const [ openedProject ] = useSerializableProps<string>( glEditor, "openedProject" );
+	const [ projects ] = useSerializableField<OREngineProjectData[]>( editor, "projects" );
+	const [ projectName ] = useSerializableField<string>( editor, "projectName" );
+	const [ openedProject ] = useSerializableField<string>( editor, "openedProject" );
 
 	const projectList: string[] = projects?.map( ( project ) => project.name ) || [];
 
 	return <div className={style.project}>
 		<div className={style.project_inner}>
-			<PropertyBlock label="Project" accordion >
+			<Block label="Project" accordion >
 				<div className={style.row} data-type="top">
 					<div className={style.projectSelector}>
 						<InputSelect value={openedProject || ''} selectList={projectList} onChange={( value ) => {
 
-							glEditor && glEditor.setPropsValue( "openedProject", value );
+							editor.setField( "openedProject", value );
 
 						}}/>
 					</div>
 					<div className={style.rowItem}>
 						<Button onClick={() => {
 
-							pushContent && pushContent( <>
-								<InputGroup title='Rename Project' initialValues={{ name: projectName || "" }} onSubmit={( e ) => {
+							if ( pushContent ) {
 
-									glEditor && glEditor.setPropsValue( "projectName", e.name as string );
+								pushContent( <>
+									<InputGroup title='Rename Project' initialValues={{ name: projectName || "" }} onSubmit={( e ) => {
 
-									closeAll && closeAll();
+										editor.setField( "projectName", e.name as string );
 
-								}}/>
-							</> );
+										if ( closeAll ) {
+
+											closeAll();
+
+										}
+
+									}}/>
+								</> );
+
+							}
+
 
 						}}>Rename</Button>
 					</div>
@@ -56,26 +64,34 @@ export const ProjectControl = () => {
 					<div className={style.rowItem}>
 						<Button onClick={() => {
 
-							pushContent && pushContent( <>
-								<InputGroup title='New Project' initialValues={{ name: "NewProject" }} onSubmit={( e ) => {
+							if ( pushContent ) {
 
-									glEditor && glEditor.setPropsValue( "openedProject", e.name as string );
+								pushContent( <>
+									<InputGroup title='New Project' initialValues={{ name: "NewProject" }} onSubmit={( e ) => {
 
-									closeAll && closeAll();
+										editor.setField( "openedProject", e.name as string );
 
-								}}/>
-							</> );
+										if ( closeAll ) {
+
+											closeAll();
+
+										}
+
+									}}/>
+								</> );
+
+							}
 
 						}}>New</Button>
 					</div>
 					<div className={style.rowItem} >
 						<Button onClick={()=>{
 
-							if ( glEditor && projectName ) {
+							if ( editor && projectName ) {
 
 								if ( window.confirm( "DELETE!!" ) ) {
 
-									glEditor.projectDelete( projectName );
+									editor.projectDelete( projectName );
 
 								}
 
@@ -87,9 +103,9 @@ export const ProjectControl = () => {
 				<br/>
 				<Button onClick={()=>{
 
-					if ( glEditor ) {
+					if ( editor ) {
 
-						glEditor.projectSave();
+						editor.projectSave();
 
 					}
 
@@ -97,9 +113,9 @@ export const ProjectControl = () => {
 				<div className={style.export}>
 					<Button onClick={()=>{
 
-						if ( glEditor ) {
+						if ( editor ) {
 
-							glEditor.exportCurrentScene().then( () => {
+							editor.exportCurrentScene().then( () => {
 
 								window.open( `/player`, '_blank' );
 
@@ -109,7 +125,7 @@ export const ProjectControl = () => {
 
 					}} >Export & Play <ArrowIcon /></Button>
 				</div>
-			</PropertyBlock>
+			</Block>
 		</div>
 	</div>;
 

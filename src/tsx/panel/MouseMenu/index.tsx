@@ -12,7 +12,9 @@ export const MouseMenu = () => {
 		<div className={style.mouseMenu} ref={containerRef}>
 			{itemList && itemList.length > 0 && <div className={style.hide} onClick={() => {
 
-				closeAll && closeAll();
+				if ( ! closeAll ) return;
+
+				closeAll();
 
 			}} />}
 			{

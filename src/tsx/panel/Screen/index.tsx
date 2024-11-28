@@ -1,47 +1,70 @@
-import { useContext } from 'react';
 
-import { GLCanvas } from '../../gl/GLCanvas';
-import { EditorContext } from '../../gl/useEditor';
-import { Value } from '../../ui/Property/Value';
 import { AudioView } from '../AudioView';
 
 import style from './index.module.scss';
 
-import { useSerializableProps } from '~/tsx/gl/useSerializableProps';
-
+import { useOREngineGUI } from '~/tsx/components/OREngineGUI';
+import { GLCanvas } from '~/tsx/components/OREngineGUICanvas';
+import { useSerializableField } from '~/tsx/hooks/useSerializableProps';
+import { Label } from '~/tsx/ui/Label';
+import { Value } from '~/tsx/ui/Value';
 
 export const Screen = () => {
 
-	const { glEditor } = useContext( EditorContext );
+	const { gui } = useOREngineGUI();
 
-	const [ render, setRender ] = useSerializableProps<boolean>( glEditor, "enableRender" );
-	const [ viewType, setViewType ] = useSerializableProps<string>( glEditor, "viewType" );
-	const [ resolutionScale, setResolutionScale ] = useSerializableProps<number>( glEditor, "resolutionScale" );
+	const [ render, setRender ] = useSerializableField<boolean>( gui, "enableRender" );
+	const [ viewType, setViewType ] = useSerializableField<string>( gui, "viewType" );
+	const [ resolutionScale, setResolutionScale ] = useSerializableField<number>( gui, "resolutionScale" );
 	const resolutionDivideStr = resolutionScale !== undefined && ( resolutionScale == 1 ? '1' : '1/' + ( 1 / resolutionScale ) ) || '';
 
 	return <div className={style.screen}>
 		<div className={style.header}>
 			<div className={style.header_right}>
 				<div className={style.header_item}>
-					<Value label='Render' value={render} onChange={( value ) => {
+					<Label title='Render'>
+						<Value value={render} onChange={( value ) => {
 
-						setRender && setRender( value );
+							if ( setRender ) {
 
-					}}/>
+								setRender( value );
+
+							}
+
+						}}/>
+					</Label>
 				</div>
-				<div className={style.item}>
-					<Value label='View' selectList={[ "render", "debug" ]} value={viewType} onChange={( value ) => {
+				<div className={style.header_item}>
+					<Label title='View'>
+						<Value
+							value={viewType}
+							format={{ type: "select", list: [ "render", "debug" ] } }
+							onChange={( value ) => {
 
-						setViewType && setViewType( value );
+								if ( setViewType ) {
 
-					}}/>
+									setViewType( value );
+
+								}
+
+							}}/>
+					</Label>
 				</div>
-				<div className={style.item}>
-					<Value label='Resolution' selectList={[ "1", "1/2", "1/4", "1/8", "1/16", "1/32" ]} value={resolutionDivideStr} onChange={( value ) => {
+				<div className={style.header_item}>
+					<Label title='Resolution'>
+						<Value
+							value={resolutionDivideStr}
+							format={{ type: "select", list: [ "1", "1/2", "1/4", "1/8", "1/16", "1/32" ] } }
+							onChange={( value ) => {
 
-						setResolutionScale && setResolutionScale( 1.0 / Number( value.toString().split( '/' )[ 1 ] || "1" ) );
+								if ( setResolutionScale ) {
 
-					}}/>
+									setResolutionScale( 1.0 / Number( value.toString().split( '/' )[ 1 ] || "1" ) );
+
+								}
+
+							}}/>
+					</Label>
 				</div>
 			</div>
 		</div>

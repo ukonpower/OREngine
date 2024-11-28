@@ -271,37 +271,8 @@ export class BLidge extends GLP.EventEmitter {
 
 	}
 
-	public async loadJsonScene( jsonPath: string, gltfPath?:string ) {
-
-		await new Promise( ( r ) => {
-
-			const req = new XMLHttpRequest();
-
-			req.onreadystatechange = async () => {
-
-				if ( req.readyState == 4 ) {
-
-					if ( req.status == 200 ) {
-
-						await this.loadScene( JSON.parse( req.response ), gltfPath );
-
-						r( null );
-
-					}
-
-				}
-
-			};
-
-			req.open( 'GET', jsonPath );
-			req.send( );
-
-		} );
-
-	}
-
 	public async loadScene( data: BLidgeScene, gltfPath?: string ) {
-
+		
 		this.currentScene = data;
 
 		// gltf

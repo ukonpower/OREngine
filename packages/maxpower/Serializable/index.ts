@@ -1,24 +1,35 @@
 import { Resource } from "../Resource";
 
-export type SerializablePropsOpt = {
-	readOnly?: boolean,
-	precision?: number,
-	selectList?: string[]
-	step?: number,
-	noExport?: boolean
+type SerializableFieldTypeVector = {
+	type: "vector",
 }
 
-export type SerializableProps = {[key: string]: { value: any, opt?: SerializablePropsOpt } | SerializableProps | undefined}
+type SerializableFieldTypeSlect = {
+	type: "select",
+	list: string[]
+}
 
-export type SerializedProps = {[key: string]: any }
+export type SerializableFieldType = SerializableFieldTypeVector | SerializableFieldTypeSlect
 
-type ExportableInitiator = 'user' | 'script' | "god";
+export type SerializableFieldOpt = {
+	format?: SerializableFieldType,
+	noExport?: boolean,
+	hidden?: boolean,
+}
 
-export type TypedSerializableProps<T extends Serializable> = T["props"];
+export type SerializeFieldValue = string | number | boolean | null | object;
+type SerializeFieldGetter<T extends SerializeFieldValue> = () => T;
+type SerializeFieldSetter<T extends SerializeFieldValue> = ( value: T ) => void;
+type SerializeFieldProxy = {get: SerializeFieldGetter<SerializeFieldValue>, set?: SerializeFieldSetter<SerializeFieldValue>, opt?: SerializableFieldOpt}
+
+export type SerializedFields = {[key: string]: SerializeFieldValue}
+
+export type SerializedGroupingFields = {[key: string]: SerializedGroupingFields | {value: SerializeFieldValue, opt?: SerializableFieldOpt}}
 
 export class Serializable extends Resource {
 
-	public initiator?: ExportableInitiator;
+	private fields: Map<string, SerializeFieldProxy> = new Map();
+	public initiator: string;
 
 	constructor() {
 
@@ -28,135 +39,151 @@ export class Serializable extends Resource {
 
 	}
 
-	public get props(): SerializableProps {
+	public deserialize( props: SerializedFields ) {
 
-		return {};
-
-	}
-
-	public serialize( isExport = false ): SerializedProps {
-
-		const propertyValue:SerializedProps = {};
-
-		const _ = ( path: string, props: SerializableProps ): SerializedProps => {
-
-			Object.keys( props || {} ).forEach( ( key ) => {
-
-				const path_ = path + key;
-
-				const prop = props[ key ];
-
-				if ( prop === undefined ) return;
-
-				if ( "value" in prop ) {
-
-					const opt = prop.opt as SerializablePropsOpt;
-
-					if ( ! isExport || ! ( opt && opt.noExport ) ) {
-
-						propertyValue[ path_ ] = prop.value;
-
-					}
-
-				} else {
-
-					_( path_ + "/", prop );
-
-				}
-
-			} );
-
-			return props;
-
-		};
-
-		_( "", this.props || {} );
-
-		return propertyValue;
-
-	}
-
-	public deserialize( newSerializedProps: SerializedProps ) {
-
-		const serializableProps:SerializableProps = {};
-
-		const lastPropsSerialized = this.serialize();
-
-		const serializedPaths = Object.keys( lastPropsSerialized );
-
-		for ( let i = 0; i < serializedPaths.length; i ++ ) {
-
-			const path = serializedPaths[ i ];
-
-			const newValue = newSerializedProps[ path ];
-
-			const splitPath = path.split( "/" );
-
-			let targetProps: SerializableProps = serializableProps;
-
-			for ( let i = 0; i < splitPath.length; i ++ ) {
-
-				const dir = splitPath[ i ];
-
-				if ( targetProps[ dir ] === undefined ) {
-
-					targetProps[ dir ] = {};
-
-				}
-
-				if ( i == splitPath.length - 1 ) {
-
-					if ( newValue !== undefined ) {
-
-						targetProps[ dir ].value = newValue;
-
-					} else {
-
-						targetProps[ dir ].value = lastPropsSerialized[ path ];
-
-					}
-
-				}
-
-				targetProps = targetProps[ dir ] as SerializableProps;
-
-			}
-
-		}
-
-		this.deserializer( serializableProps );
-
-		const newPropsSerialized = this.serialize();
-
-		const updatedPaths: string[] = [];
-
-		const keys = Object.keys( lastPropsSerialized );
+		const keys = Object.keys( props );
 
 		for ( let i = 0; i < keys.length; i ++ ) {
 
 			const key = keys[ i ];
 
-			if ( lastPropsSerialized[ key ] !== newPropsSerialized[ key ] ) {
+			const field = this.fields.get( key );
 
-				updatedPaths.push( key );
+			if ( field ) {
 
-				this.emit( "update/props/" + key, [ newPropsSerialized[ key ] ] );
+				field.set && field.set( props[ key ] );
 
 			}
 
 		}
 
-		if ( updatedPaths.length > 0 ) {
+	}
 
-			this.emit( "update/props", [ newPropsSerialized, updatedPaths ] );
+	public export() {
+
+		this.serialize( true );
+
+	}
+
+	public serialize( expt?: boolean ): SerializedFields {
+
+		const res: SerializedFields = {};
+
+		this.fields.forEach( ( field, k ) => {
+
+			const opt = this.getFieldOpt( k );
+
+			if ( expt ) {
+
+				if ( opt ) {
+
+					if ( opt.noExport ) return;
+
+				}
+
+			}
+
+			const value = field.get();
+
+			res[ k ] = value;
+
+		} );
+
+		return res;
+
+	}
+
+	public serializeToObject() {
+
+		const toObj = ( serialized: SerializedFields ) => {
+
+			const res: SerializedGroupingFields = {};
+
+			const keys = Object.keys( serialized );
+
+			for ( let i = 0; i < keys.length; i ++ ) {
+
+				const key = keys[ i ];
+
+				if ( ! key ) continue;
+
+				const splitKeys = key.split( '/' );
+
+				let target = res;
+
+				for ( let j = 0; j < splitKeys.length; j ++ ) {
+
+					const splitedKey = splitKeys[ j ];
+
+					if ( ! splitedKey ) continue;
+
+					target = target[ splitedKey ] = ( target[ splitedKey ] || {} ) as SerializedGroupingFields;
+
+				}
+
+				target.value = serialized[ key ] as any;
+				target.opt = this.getFieldOpt( key ) as any;
+
+			}
+
+			return res;
+
+		};
+
+		return toObj( this.serialize() );
+
+	}
+
+	public field<T extends SerializeFieldValue>( path: string, get: () => T, set?: ( v: T ) => void, opt?: SerializableFieldOpt ) {
+
+		this.fields.set( path, {
+			get: get,
+			set: set && ( ( v: SerializeFieldValue ) => {
+
+				set( v as T );
+
+				this.emit( "update/props/" + path, [ v ] );
+				this.emit( "update/props", [ v, [ path ]] );
+
+			} ),
+			opt
+		} );
+
+	}
+
+	public fieldDir( name:string ) {
+
+		const dir = name;
+
+		return {
+			dir: ( name: string ) => this.fieldDir( `${dir}/${name}` ),
+			field: <T extends SerializeFieldValue>( name: string, get: () => T, set?: ( value: T ) => void ) => {
+
+				this.field( `${dir}/${name}`, get, set );
+
+			}
+
+		};
+
+	}
+
+	public setField( path: string, value: SerializeFieldValue ) {
+
+		this.deserialize( { [ path ]: value } );
+
+	}
+
+	public getFieldOpt( path: string ) {
+
+		const field = this.fields.get( path );
+
+		if ( field ) {
+
+			return field.opt;
 
 		}
 
 	}
-
-	protected deserializer( props: TypedSerializableProps<this> ) {}
-
-	// change
 
 	protected noticePropsChanged( path: string | string[] ) {
 
@@ -173,22 +200,6 @@ export class Serializable extends Resource {
 		}
 
 		this.emit( "update/props", [ propsSerialized, _path ] );
-
-	}
-
-	// value
-
-	public getPropsValue<T>( path: string ) {
-
-		const props = this.serialize();
-
-		return props[ path ] as ( T | undefined );
-
-	}
-
-	public setPropsValue( path: string, value: any ) {
-
-		this.deserialize( { [ path ]: value } );
 
 	}
 

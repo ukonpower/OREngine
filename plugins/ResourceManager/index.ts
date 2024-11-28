@@ -8,8 +8,8 @@ import { Plugin } from 'vite';
 
 let watcher: chokidar.FSWatcher | null = null;
 
-const componentsDir = "./src/ts/gl/Resources/Components/";
-const componentListFile = "./src/ts/gl/Resources/_data/componentList.ts";
+const componentsDir = "./src/ts/Resources/Components/";
+const componentListFile = "./src/ts/Resources/_data/componentList.ts";
 
 const updateComponentList = ( ) => {
 
