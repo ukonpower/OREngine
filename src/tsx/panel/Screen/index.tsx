@@ -6,6 +6,7 @@ import style from './index.module.scss';
 import { useOREngineGUI } from '~/tsx/components/OREngineGUI';
 import { GLCanvas } from '~/tsx/components/OREngineGUICanvas';
 import { useSerializableField } from '~/tsx/hooks/useSerializableProps';
+import { Label } from '~/tsx/ui/Label';
 import { Value } from '~/tsx/ui/Value';
 
 export const Screen = () => {
@@ -21,37 +22,49 @@ export const Screen = () => {
 		<div className={style.header}>
 			<div className={style.header_right}>
 				<div className={style.header_item}>
-					<Value label='Render' value={render} onChange={( value ) => {
+					<Label title='Render'>
+						<Value value={render} onChange={( value ) => {
 
-						if ( setRender ) {
+							if ( setRender ) {
 
-							setRender( value );
+								setRender( value );
 
-						}
+							}
 
-					}}/>
+						}}/>
+					</Label>
 				</div>
-				<div className={style.item}>
-					<Value label='View' selectList={[ "render", "debug" ]} value={viewType} onChange={( value ) => {
+				<div className={style.header_item}>
+					<Label title='View'>
+						<Value
+							value={viewType}
+							format={{ type: "select", list: [ "render", "debug" ] } }
+							onChange={( value ) => {
 
-						if ( setViewType ) {
+								if ( setViewType ) {
 
-							setViewType( value );
+									setViewType( value );
 
-						}
+								}
 
-					}}/>
+							}}/>
+					</Label>
 				</div>
-				<div className={style.item}>
-					<Value label='Resolution' selectList={[ "1", "1/2", "1/4", "1/8", "1/16", "1/32" ]} value={resolutionDivideStr} onChange={( value ) => {
+				<div className={style.header_item}>
+					<Label title='Resolution'>
+						<Value
+							value={resolutionDivideStr}
+							format={{ type: "select", list: [ "1", "1/2", "1/4", "1/8", "1/16", "1/32" ] } }
+							onChange={( value ) => {
 
-						if ( setResolutionScale ) {
+								if ( setResolutionScale ) {
 
-							setResolutionScale( 1.0 / Number( value.toString().split( '/' )[ 1 ] || "1" ) );
+									setResolutionScale( 1.0 / Number( value.toString().split( '/' )[ 1 ] || "1" ) );
 
-						}
+								}
 
-					}}/>
+							}}/>
+					</Label>
 				</div>
 			</div>
 		</div>

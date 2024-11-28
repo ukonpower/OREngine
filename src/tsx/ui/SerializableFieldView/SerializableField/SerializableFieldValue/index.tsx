@@ -20,7 +20,7 @@ export const SerializableFieldValue: React.FC<{ path: string }> = ( props ) => {
 	}
 
 	return <Label title={name} vertical={isVertical} >
-		<Value value={value} opt={opt} onChange={( v ) => {
+		<Value value={value} format={opt?.format} onChange={( v ) => {
 
 			setValue( v );
 

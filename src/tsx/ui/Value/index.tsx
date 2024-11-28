@@ -1,8 +1,9 @@
-import { SerializableFieldOpt, SerializeFieldValue } from 'maxpower';
+import { SerializableFieldOpt, SerializableFieldType, SerializeFieldValue } from 'maxpower';
 
 import { Button } from '../Button';
 import { InputBoolean } from '../Input/InputCheckBox';
 import { InputNumber } from '../Input/InputNumber';
+import { InputSelect } from '../Input/InputSelect';
 import { InputText } from '../Input/InputText';
 import { Vector } from '../Vector';
 
@@ -12,30 +13,30 @@ export type ValueProps<T extends SerializeFieldValue> = {
 	value: T | undefined,
 	onChange?: ( value: T ) => void
 	disabled?: boolean,
-	opt?: SerializableFieldOpt,
+	format?: SerializableFieldType,
 }
 
-export const Value = <T extends SerializeFieldValue>( { value, onChange, opt, }: ValueProps<T> ) => {
+export const Value = <T extends SerializeFieldValue>( { value, onChange, format, }: ValueProps<T> ) => {
 
 	let inputElm = null;
 
-	if ( opt ) {
+	if ( format ) {
 
-		if ( opt.format ) {
+		if ( format.type == "vector" && Array.isArray( value ) ) {
 
-			if ( opt.format.type == "vector" && Array.isArray( value ) ) {
+			inputElm = <Vector value={value} onChange={( v ) => {
 
-				inputElm = <Vector value={value} onChange={( v ) => {
+				if ( onChange ) {
 
-					if ( onChange ) {
+					onChange( v as T );
 
-						onChange( v as T );
+				}
 
-					}
+			}} />;
 
-				}} />;
+		} else if ( format.type == "select" ) {
 
-			}
+			inputElm = <InputSelect value={value} onChange={v => onChange} selectList={format.list}/>;
 
 		}
 

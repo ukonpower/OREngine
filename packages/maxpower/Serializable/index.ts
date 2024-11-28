@@ -4,7 +4,12 @@ type SerializableFieldTypeVector = {
 	type: "vector",
 }
 
-type SerializableFieldType = SerializableFieldTypeVector
+type SerializableFieldTypeSlect = {
+	type: "select",
+	list: string[]
+}
+
+export type SerializableFieldType = SerializableFieldTypeVector | SerializableFieldTypeSlect
 
 export type SerializableFieldOpt = {
 	format?: SerializableFieldType,

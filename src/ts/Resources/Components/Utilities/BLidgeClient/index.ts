@@ -94,10 +94,6 @@ export class BLidgeClient extends MXP.Component {
 
 		} );
 
-		this.field( "pos", () => [ 0, 0, 0 ], undefined, { format: {
-			type: "vector"
-		} } );
-
 		this.field( "gltfPath", () => this.gltfPath, v => this.gltfPath = v, );
 
 		const ws = this.fieldDir( "websocket" );
