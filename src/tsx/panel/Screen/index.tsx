@@ -1,4 +1,6 @@
 
+import { i } from 'node_modules/vite/dist/node/types.d-aGj9QkWt';
+
 import { AudioView } from '../AudioView';
 
 import style from './index.module.scss';
@@ -16,7 +18,6 @@ export const Screen = () => {
 	const [ render, setRender ] = useSerializableField<boolean>( gui, "enableRender" );
 	const [ viewType, setViewType ] = useSerializableField<string>( gui, "viewType" );
 	const [ resolutionScale, setResolutionScale ] = useSerializableField<number>( gui, "resolutionScale" );
-	const resolutionDivideStr = resolutionScale !== undefined && ( resolutionScale == 1 ? '1' : '1/' + ( 1 / resolutionScale ) ) || '';
 
 	return <div className={style.screen}>
 		<div className={style.header}>
@@ -53,13 +54,22 @@ export const Screen = () => {
 				<div className={style.header_item}>
 					<Label title='Resolution'>
 						<Value
-							value={resolutionDivideStr}
-							format={{ type: "select", list: [ "1", "1/2", "1/4", "1/8", "1/16", "1/32" ] } }
+							value={resolutionScale}
+							format={{ type: "select", list: new Array( 6 ).fill( 0 ).map( ( _, i ) => {
+
+								const invScale = Math.pow( 2, i );
+
+								const value = 1.0 / invScale;
+								const label = value == 1 ? '1' : '1/' + invScale;
+
+								return { value: value, label: label };
+
+							} ) } }
 							onChange={( value ) => {
 
 								if ( setResolutionScale ) {
 
-									setResolutionScale( 1.0 / Number( value.toString().split( '/' )[ 1 ] || "1" ) );
+									setResolutionScale( value );
 
 								}
 

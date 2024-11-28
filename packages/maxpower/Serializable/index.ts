@@ -6,7 +6,10 @@ type SerializableFieldTypeVector = {
 
 type SerializableFieldTypeSlect = {
 	type: "select",
-	list: string[]
+	list: ( {
+		value: any,
+		label: string,
+	} | string )[]
 }
 
 export type SerializableFieldType = SerializableFieldTypeVector | SerializableFieldTypeSlect

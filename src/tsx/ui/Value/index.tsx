@@ -36,7 +36,7 @@ export const Value = <T extends SerializeFieldValue>( { value, onChange, format,
 
 		} else if ( format.type == "select" ) {
 
-			inputElm = <InputSelect value={value} onChange={v => onChange} selectList={format.list}/>;
+			inputElm = <InputSelect value={value} onChange={onChange} selectList={format.list}/>;
 
 		}
 
