@@ -1,7 +1,6 @@
 import * as GLP from 'glpower';
 
 import { ComponentParams } from '..';
-import { TypedSerializableProps } from '../../Serializable';
 import { ShadowMapCamera } from '../Camera/ShadowMapCamera';
 
 export type LightType = 'directional' | 'spot'
@@ -34,14 +33,15 @@ export class Light extends ShadowMapCamera {
 
 		super( params );
 
-		this.lightType = 'directional';
+		this.lightType = 'spot';
+		this.cameraType = "perspective";
 
 		this.color = new GLP.Vector( 1.0, 1.0, 1.0, 0.0 );
 		this.intensity = 1;
 
 		// shadow
 
-		this.castShadow = false;
+		this.castShadow = true;
 		this.shadowMapSize = new GLP.Vector( 1024, 1024 );
 
 		// directional
@@ -51,47 +51,10 @@ export class Light extends ShadowMapCamera {
 
 		// spot
 
-		this.angle = 50;
+		this.angle = Math.PI * 0.5;
 		this.blend = 1;
 		this.distance = 30;
 		this.decay = 2;
-
-		this.updateProjectionMatrix();
-
-	}
-
-	public get props() {
-
-		return {
-			...super.props,
-			lightType: { value: this.lightType },
-			color: { value: this.color },
-			intensity: { value: this.intensity },
-			angle: { value: this.angle },
-			blend: { value: this.blend },
-			distance: { value: this.distance },
-			decay: { value: this.decay },
-			castShadow: { value: this.castShadow },
-		};
-
-	}
-
-	protected deserializer( props: TypedSerializableProps<this> ) {
-
-		props = { ...this.serialize(), ...props };
-
-		this.lightType = props.lightType.value;
-
-		if ( this.lightType == 'directional' ) this.cameraType = 'orthographic';
-		if ( this.lightType == 'spot' ) this.cameraType = 'perspective';
-
-		this.color.copy( props.color.value );
-		this.intensity = props.intensity.value;
-		this.angle = props.angle.value;
-		this.blend = props.blend.value;
-		this.distance = props.distance.value;
-		this.decay = props.decay.value;
-		this.castShadow = props.castShadow.value;
 
 		this.updateProjectionMatrix();
 

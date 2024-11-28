@@ -6,7 +6,7 @@ import { Geometry } from '../Component/Geometry';
 import { Light } from '../Component/Light';
 import { Material } from '../Component/Material';
 import { RenderStack } from '../Component/Renderer';
-import { Serializable, TypedSerializableProps } from '../Serializable';
+import { Serializable } from '../Serializable';
 
 export type EntityUpdateEvent = {
 	timElapsed: number;
@@ -82,41 +82,12 @@ export class Entity extends Serializable {
 		this.visible = true;
 		this.userData = {};
 
-	}
-
-	public get props() {
-
-		return {
-			position: {
-				value: this.position.getElm( "vec3" ),
-			},
-			euler: {
-				value: this.euler.getElm( "vec3" ),
-			},
-			scale: {
-				value: this.scale.getElm( "vec3" ),
-			},
-			children: {
-				value: this.children,
-				opt: {
-					noExport: true,
-				}
-			},
-			components: {
-				value: Array.from( this.components.values() ),
-				opt: {
-					noExport: true,
-				}
-			}
-		};
-
-	}
-
-	protected deserializer( props: TypedSerializableProps<this> ): void {
-
-		this.position.set( props.position.value[ 0 ], props.position.value[ 1 ], props.position.value[ 2 ] );
-		this.euler.set( props.euler.value[ 0 ], props.euler.value[ 1 ], props.euler.value[ 2 ], props.euler.value[ 3 ] );
-		this.scale.set( props.scale.value[ 0 ], props.scale.value[ 1 ], props.scale.value[ 2 ] );
+		this.field( "name", () => this.name, value => this.name = value );
+		this.field( "position", () => this.position.getElm( "vec3" ), value => this.position.setFromArray( value ), { format: { type: "vector" } } );
+		this.field( "euler", () => this.euler.getElm( "vec3" ), value => this.euler.setFromArray( value ), { format: { type: "vector" } } );
+		this.field( "scale", () => this.scale.getElm( "vec3" ), value => this.scale.setFromArray( value ), { format: { type: "vector" } } );
+		this.field( "children", () => Array.from( this.children ), undefined, { noExport: true, hidden: true } );
+		this.field( "components", () => Array.from( this.components.values() ), undefined, { noExport: true, hidden: true } );
 
 	}
 
@@ -216,7 +187,6 @@ export class Entity extends Serializable {
 
 		const geometry = this.getComponentByTag<Geometry>( "geometry" );
 		const material = this.getComponentByTag<Material>( "material" );
-
 
 		if ( geometry && material && ( ( geometry.enabled && material.enabled && visibility ) || event.forceDraw ) ) {
 
@@ -373,7 +343,7 @@ export class Entity extends Serializable {
 
 		this.emit( "component/add", [ component ] );
 
-		this.noticePropsChanged( "components" );
+		// this.noticePropsChanged( "components" );
 
 		return component;
 
@@ -420,7 +390,7 @@ export class Entity extends Serializable {
 
 		this.emit( "component/remove", [ currentComponent ] );
 
-		this.noticePropsChanged( "components" );
+		// this.noticePropsChanged( "components" );
 
 		return currentComponent;
 
@@ -569,7 +539,13 @@ export class Entity extends Serializable {
 	public dispose( ) {
 
 		this.emit( "dispose" );
-		this.parent && this.parent.remove( this );
+
+		if ( this.parent ) {
+
+			this.parent.remove( this );
+
+		}
+
 		this.components.forEach( c => {
 
 			c.unsetEntity();

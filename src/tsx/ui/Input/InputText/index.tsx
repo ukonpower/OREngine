@@ -15,7 +15,11 @@ export const InputText = ( { onChange, value, ...props }: InputTextProps ) => {
 		<input className={style.input} type="text" value={value} placeholder={props.readOnly ? '-' : ''} disabled={props.disabled} readOnly={props.readOnly} data-lo={props.readOnly }
 			onChange={( e ) => {
 
-				onChange && onChange( e.target.value );
+				if ( onChange ) {
+
+					onChange( e.target.value );
+
+				}
 
 			}}
 		/>

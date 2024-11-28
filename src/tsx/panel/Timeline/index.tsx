@@ -1,7 +1,3 @@
-import { useContext } from 'react';
-
-import { EditorContext } from '../../gl/useEditor';
-
 import { TimelineContext, useTimeline } from './hooks/useTimeline';
 import style from './index.module.scss';
 import { TimelineCanvas } from './TimelineCanvas';
@@ -11,11 +7,12 @@ import { TimelineLoop } from './TimelineLoop';
 import { TimelineScale } from './TimelineScale';
 import { TimelineSetting } from './TimelineSetting';
 
+import { useOREngineGUI } from '~/tsx/components/OREngineGUI';
 
 export const Timeline = () => {
 
-	const { glEditor } = useContext( EditorContext );
-	const timelineContext = useTimeline( glEditor );
+	const { gui } = useOREngineGUI();
+	const timelineContext = useTimeline( gui );
 
 	return <TimelineContext.Provider value={timelineContext}>
 		<div className={style.timeline}>
