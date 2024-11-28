@@ -87,7 +87,7 @@
 							"props": {
 								"enabled": true,
 								"mode": "json",
-								"gltf": true,
+								"gltf": false,
 								"gltfPath": "/scene.glb",
 								"websocket/url": "ws://localhost:3100"
 							}
@@ -150,10 +150,10 @@
 	"enableRender": true,
 	"projectName": "New Project",
 	"openedProject": "New Project",
-	"resolutionScale": 0.5,
+	"resolutionScale": "0.25",
 	"viewType": "render",
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,
 	"frameLoop/end": 100,
-	"selectedEntityId": "43"
+	"selectedEntityId": "a0"
 }
