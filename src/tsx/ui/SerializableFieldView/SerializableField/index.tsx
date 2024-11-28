@@ -35,8 +35,8 @@ export const SerializableField: React.FC<{fields: MXP.SerializedGroupingFields, 
 
 		} else {
 
-			elm = <div className={style.block}>
-				<Block key={componentKeys} accordion label={key}>
+			elm = <div className={style.block} key={componentKeys}>
+				<Block accordion label={key}>
 					<SerializableField fields={field} basePath={path} />
 				</Block>
 			</div>;

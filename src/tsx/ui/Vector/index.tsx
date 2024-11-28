@@ -45,8 +45,8 @@ export const Vector = ( { onChange, disabled, ...props }: VectorProps ) => {
 	for ( let i = 0; i < props.value.length; i ++ ) {
 
 		array.push(
-			<Label title={axisDict[ i ]} labelAlign='right'>
-				<InputNumber key={i} disabled={disabled} value={props.value[ i ]} step={props.step} onChange={( value ) => {
+			<Label key={i} title={axisDict[ i ]} labelAlign='right'>
+				<InputNumber disabled={disabled} value={props.value[ i ]} step={props.step} onChange={( value ) => {
 
 					onChangeValue( i, value );
 

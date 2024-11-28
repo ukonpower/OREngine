@@ -62,6 +62,7 @@
 			}
 		},
 		{
+			"name": "New Project",
 			"position": [
 				0,
 				0,
@@ -77,7 +78,6 @@
 				1,
 				1
 			],
-			"name": "New Project",
 			"objectOverride": [
 				{
 					"path": "/root",
@@ -87,7 +87,7 @@
 							"props": {
 								"enabled": true,
 								"mode": "json",
-								"gltf": false,
+								"gltf": true,
 								"gltfPath": "/scene.glb",
 								"websocket/url": "ws://localhost:3100"
 							}
@@ -147,7 +147,7 @@
 			"timeline/fps": 60
 		}
 	],
-	"enableRender": false,
+	"enableRender": true,
 	"projectName": "New Project",
 	"openedProject": "New Project",
 	"resolutionScale": 0.5,
