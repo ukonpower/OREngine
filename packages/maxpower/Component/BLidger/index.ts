@@ -1,5 +1,5 @@
 import * as GLP from 'glpower';
-import { Camera } from 'maxpower';
+import { Camera, Mesh } from 'maxpower';
 
 import { Component, ComponentParams, ComponentUpdateEvent } from "..";
 import { BLidge, BLidgeEntity, BLidgeLightParam, BLidgeCameraParam } from "../../BLidge";
@@ -114,73 +114,81 @@ export class BLidger extends Component {
 
 		// geometry
 
-		if ( this.node.type == 'cube' ) {
+		if ( this.node.type !== "empty" ) {
 
-			const cubeParam = this.node.param as any;
+			const mesh = new Mesh();
 
-			entity.addComponent( new CubeGeometry( { disableEdit: true, width: cubeParam.x, height: cubeParam.y, depth: cubeParam.z, segmentsWidth: 10, segmentsHeight: 10, segmentsDepth: 10 } ) );
+			if ( this.node.type == 'cube' ) {
 
-		} else if ( this.node.type == 'sphere' ) {
+				const cubeParam = this.node.param as any;
 
-			const sphereParam = this.node.param as any;
-			entity.addComponent( new SphereGeometry( { disableEdit: true,
-				radius: sphereParam.r,
-				widthSegments: 32,
-				heightSegments: 16
-			} ) );
+				mesh.geometry = entity.addComponent( new CubeGeometry( { disableEdit: true, width: cubeParam.x, height: cubeParam.y, depth: cubeParam.z, segmentsWidth: 10, segmentsHeight: 10, segmentsDepth: 10 } ) );
 
-		} else if ( this.node.type == 'cylinder' ) {
+			} else if ( this.node.type == 'sphere' ) {
 
-			entity.addComponent( new CylinderGeometry( { disableEdit: true } ) );
+				const sphereParam = this.node.param as any;
+				entity.addComponent( new SphereGeometry( { disableEdit: true,
+					radius: sphereParam.r,
+					widthSegments: 32,
+					heightSegments: 16
+				} ) );
 
-		} else if ( this.node.type == 'plane' ) {
+			} else if ( this.node.type == 'cylinder' ) {
 
-			const planeParam = this.node.param as any;
+				entity.addComponent( new CylinderGeometry( { disableEdit: true } ) );
 
-			entity.addComponent( new PlaneGeometry( { disableEdit: true, width: planeParam.x, height: planeParam.y } ) );
+			} else if ( this.node.type == 'plane' ) {
 
-		} else if ( this.node.type == 'mesh' ) {
+				const planeParam = this.node.param as any;
 
-			const geometryParam = this.node.param as any;
+				entity.addComponent( new PlaneGeometry( { disableEdit: true, width: planeParam.x, height: planeParam.y } ) );
 
-			const geometry = new Geometry( { disableEdit: true } );
-			geometry.setAttribute( 'position', geometryParam.position, 3 );
-			geometry.setAttribute( 'uv', geometryParam.uv, 2 );
-			geometry.setAttribute( 'normal', geometryParam.normal, 3 );
-			geometry.setAttribute( 'index', geometryParam.index, 3 );
-			entity.addComponent( geometry );
+			} else if ( this.node.type == 'mesh' ) {
 
-		} else if ( this.node.type == 'gltf' ) {
+				const geometryParam = this.node.param as any;
 
-			this.blidge.gltfPrm.then( gltf => {
+				const geometry = new Geometry( { disableEdit: true } );
+				geometry.setAttribute( 'position', geometryParam.position, 3 );
+				geometry.setAttribute( 'uv', geometryParam.uv, 2 );
+				geometry.setAttribute( 'normal', geometryParam.normal, 3 );
+				geometry.setAttribute( 'index', geometryParam.index, 3 );
+				entity.addComponent( geometry );
 
-				const gltfEntity = gltf.scene.findEntityByName( this.node.name );
+			} else if ( this.node.type == 'gltf' ) {
 
-				if ( gltfEntity ) {
+				this.blidge.gltfPrm.then( gltf => {
 
-					const geo = gltfEntity.getComponentByTag<Geometry>( "geometry" );
+					const gltfEntity = gltf.scene.findEntityByName( this.node.name );
 
-					if ( geo ) {
+					if ( gltfEntity ) {
 
-						geo.disableEdit = true;
-						entity.addComponent( geo );
+						const geo = gltfEntity.getComponentByTag<Geometry>( "geometry" );
+
+						if ( geo ) {
+
+							geo.disableEdit = true;
+							entity.addComponent( geo );
+
+						}
+
+						const mat = gltfEntity.getComponentByTag<Material>( "material" );
+
+						if ( mat ) {
+
+							mat.disableEdit = true;
+							entity.addComponent( mat );
+
+						}
 
 					}
 
-					const mat = gltfEntity.getComponentByTag<Material>( "material" );
+					entity.noticeEventParent( "update/blidge/scene", [ entity ] );
 
-					if ( mat ) {
+				} );
 
-						mat.disableEdit = true;
-						entity.addComponent( mat );
+			}
 
-					}
-
-				}
-
-				entity.noticeEventParent( "update/blidge/scene", [ entity ] );
-
-			} );
+			entity.addComponent( mesh );
 
 		}
 

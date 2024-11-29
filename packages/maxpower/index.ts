@@ -22,6 +22,8 @@ export * from './Component/Geometry/PlaneGeometry';
 export * from './Component/Geometry/RingGeometry';
 export * from './Component/Geometry/SphereGeometry';
 
+export * from './Component/Mesh';
+
 export * from './Component/Camera/RenderCamera';
 export * from './Component/Camera/ShadowMapCamera';
 
