@@ -5,6 +5,7 @@ import { RenderCamera } from '../Component/Camera/RenderCamera';
 import { Geometry } from '../Component/Geometry';
 import { Light } from '../Component/Light';
 import { Material } from '../Component/Material';
+import { Mesh } from '../Component/Mesh';
 import { RenderStack } from '../Component/Renderer';
 import { Serializable } from '../Serializable';
 
@@ -185,10 +186,14 @@ export class Entity extends Serializable {
 		const visibility = ( event.visibility || event.visibility === undefined ) && this.visible;
 		childEvent.visibility = visibility;
 
-		const geometry = this.getComponentByTag<Geometry>( "geometry" );
-		const material = this.getComponentByTag<Material>( "material" );
+		// const geometry = this.getComponentByTag<Geometry>( "geometry" );
+		// const material = this.getComponentByTag<Material>( "material" );
 
-		if ( geometry && material && ( ( geometry.enabled && material.enabled && visibility ) || event.forceDraw ) ) {
+		const mesh = this.getComponent( Mesh );
+
+		if ( mesh && ( visibility || event.forceDraw ) ) {
+
+			const material = mesh.material;
 
 			if ( material.visibilityFlag.deferred ) event.renderStack.deferred.push( this );
 			if ( material.visibilityFlag.shadowMap ) event.renderStack.shadowMap.push( this );
