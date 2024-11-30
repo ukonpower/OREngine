@@ -1,13 +1,13 @@
 import { useMemo } from "react";
 
-import { ComponentView } from "./ComponentView";
+import { ComponentAdd } from "./ComponentAdd";
+import { ComponentList } from "./ComponentList";
 import style from './index.module.scss';
 
 import { useOREngineGUI } from "~/tsx/components/OREngineGUI";
 import { useSerializableField } from "~/tsx/hooks/useSerializableProps";
 import { Block } from "~/tsx/ui/Block";
 import { SerializableFieldView } from "~/tsx/ui/SerializableFieldView";
-
 
 export const EntityProperty = () => {
 
@@ -21,37 +21,13 @@ export const EntityProperty = () => {
 
 		if ( ! selectedEntityId ) {
 
-			return null;
+			return undefined;
 
 		}
 
 		return engine.findEntityById( selectedEntityId );
 
 	}, [ engine, selectedEntityId ] );
-
-	// componentView
-
-	const componentViewList = useMemo( () => {
-
-		const componentViewList: React.ReactNode[] = [];
-
-		if ( ! selectedEntity ) {
-
-			return null;
-
-		}
-
-		selectedEntity.components.forEach( component => {
-
-			componentViewList.push(
-				<ComponentView key={component.uuid} component={component} />
-			);
-
-		} );
-
-		return componentViewList;
-
-	}, [ selectedEntity ] );
 
 	if ( ! selectedEntity ) {
 
@@ -64,7 +40,8 @@ export const EntityProperty = () => {
 			<SerializableFieldView target={selectedEntity} />
 		</Block>
 		<Block label="Components" accordion>
-			{componentViewList}
+			<ComponentList entity={selectedEntity}/>
+			<ComponentAdd entity={selectedEntity} />
 		</Block>
 	</div>;
 
