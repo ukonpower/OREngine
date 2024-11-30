@@ -3,8 +3,6 @@ import { createContext, useContext } from 'react';
 
 import { SerializableField } from './SerializableField';
 
-import { useWatchSerializable } from '~/tsx/hooks/useWatchSerializable';
-
 const SerializableFieldViewContext = createContext<ReturnType<typeof useSerializableFieldViewContext> | undefined>( undefined );
 
 type SerializableFieldViewProps = {
@@ -36,8 +34,6 @@ export const useSerializableFieldView = () => {
 export const SerializableFieldView: React.FC<SerializableFieldViewProps > = ( props ) => {
 
 	const context = useSerializableFieldViewContext( props );
-
-	useWatchSerializable( context.target );
 
 	const fields = context.target.serializeToDirectory();
 

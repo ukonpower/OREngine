@@ -1,67 +1,6 @@
 {
 	"projects": [
 		{
-			"setting": {
-				"name": "OREngine",
-				"timeline/duration": 679.6000000000003,
-				"timeline/fps": 60
-			},
-			"objectOverride": [
-				{
-					"path": "/root",
-					"components": [
-						{
-							"key": "blidgeClient",
-							"name": "BLidgeClient",
-							"props": {
-								"mode": "json",
-								"gltf": true,
-								"gltfPath": "/scene.glb"
-							}
-						},
-						{
-							"key": "music",
-							"name": "Music"
-						}
-					]
-				},
-				{
-					"path": "/root/blidgeRoot/Cube",
-					"components": [
-						{
-							"key": "material",
-							"name": "OREngineCube"
-						},
-						{
-							"key": "turntable",
-							"name": "TurnTable"
-						}
-					]
-				},
-				{
-					"path": "/root/blidgeRoot/OREngine",
-					"components": [
-						{
-							"key": "material",
-							"name": "OREngineLogo"
-						}
-					]
-				},
-				{
-					"path": "/root/blidgeRoot/SkyBox",
-					"components": [
-						{
-							"key": "skybox",
-							"name": "SkyBox"
-						}
-					]
-				}
-			],
-			"scene": {
-				"name": "root"
-			}
-		},
-		{
 			"name": "New Project",
 			"position": [
 				0,
@@ -78,6 +17,10 @@
 				1,
 				1
 			],
+			"children": [
+				"43"
+			],
+			"components": [],
 			"objectOverride": [
 				{
 					"path": "/root",
@@ -87,8 +30,9 @@
 							"props": {
 								"enabled": true,
 								"mode": "json",
-								"gltf": false,
+								"gltf": true,
 								"gltfPath": "/scene.glb",
+								"websocket/": null,
 								"websocket/url": "ws://localhost:3100"
 							}
 						},
@@ -112,23 +56,6 @@
 					]
 				},
 				{
-					"path": "/root/blidgeRoot/OREngineCube",
-					"components": [
-						{
-							"name": "OREngineCube",
-							"props": {
-								"enabled": true
-							}
-						},
-						{
-							"name": "TurnTable",
-							"props": {
-								"enabled": true
-							}
-						}
-					]
-				},
-				{
 					"path": "/root/blidgeRoot/SkyBox",
 					"components": [
 						{
@@ -143,6 +70,7 @@
 			"scene": {
 				"name": "root"
 			},
+			"timeline/": null,
 			"timeline/duration": 600,
 			"timeline/fps": 60
 		}
@@ -152,8 +80,9 @@
 	"openedProject": "New Project",
 	"resolutionScale": "0.25",
 	"viewType": "render",
+	"frameLoop/": null,
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,
-	"frameLoop/end": 100,
-	"selectedEntityId": "a0"
+	"frameLoop/end": 0,
+	"selectedEntityId": "43"
 }

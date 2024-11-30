@@ -1,7 +1,7 @@
 import { Serializable, SerializedFields } from "maxpower";
 import { useState, useMemo, useEffect } from "react";
 
-export const useWatchSerializable = ( exportable: Serializable | undefined, deps?: ( string | undefined )[] ) => {
+export const useWatchSerializable = ( serializable: Serializable | undefined, deps?: ( string | undefined )[] ) => {
 
 	const [ field, setField ] = useState<SerializedFields>( );
 
@@ -15,9 +15,9 @@ export const useWatchSerializable = ( exportable: Serializable | undefined, deps
 
 	useEffect( () => {
 
-		if ( exportable === undefined ) return;
+		if ( serializable === undefined ) return;
 
-		setField( exportable.serialize() );
+		setField( serializable.serialize() );
 
 		const onUpdate = ( _: any, updateKeys: string[] ) => {
 
@@ -36,21 +36,21 @@ export const useWatchSerializable = ( exportable: Serializable | undefined, deps
 
 			if ( found ) {
 
-				setField( exportable.serialize() );
+				setField( serializable.serialize() );
 
 			}
 
 		};
 
-		exportable.on( "update/props", onUpdate );
+		serializable.on( "fields/update", onUpdate );
 
 		return () => {
 
-			exportable.off( "update/props", onUpdate );
+			serializable.off( "fields/update", onUpdate );
 
 		};
 
-	}, [ exportable, depsMemo ] );
+	}, [ serializable, depsMemo ] );
 
 	return {
 		props: field

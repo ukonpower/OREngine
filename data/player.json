@@ -1,1 +1,87 @@
-{}
+{
+	"name": "New Project",
+	"position": [
+		0,
+		0,
+		0
+	],
+	"euler": [
+		0,
+		0,
+		0
+	],
+	"scale": [
+		1,
+		1,
+		1
+	],
+	"objectOverride": [
+		{
+			"path": "/root",
+			"components": [
+				{
+					"name": "BLidgeClient",
+					"props": {
+						"enabled": true,
+						"mode": "json",
+						"gltf": false,
+						"gltfPath": "/scene.glb",
+						"websocket/": null,
+						"websocket/url": "ws://localhost:3100"
+					}
+				},
+				{
+					"name": "DemoMusic",
+					"props": {
+						"enabled": true
+					}
+				}
+			]
+		},
+		{
+			"path": "/root/blidgeRoot/OREngine",
+			"components": [
+				{
+					"name": "OREngineLogo",
+					"props": {
+						"enabled": true
+					}
+				}
+			]
+		},
+		{
+			"path": "/root/blidgeRoot/OREngineCube",
+			"components": [
+				{
+					"name": "OREngineCube",
+					"props": {
+						"enabled": true
+					}
+				},
+				{
+					"name": "TurnTable",
+					"props": {
+						"enabled": true
+					}
+				}
+			]
+		},
+		{
+			"path": "/root/blidgeRoot/SkyBox",
+			"components": [
+				{
+					"name": "SkyBox",
+					"props": {
+						"enabled": true
+					}
+				}
+			]
+		}
+	],
+	"scene": {
+		"name": "root"
+	},
+	"timeline/": null,
+	"timeline/duration": 600,
+	"timeline/fps": 60
+}

@@ -86,8 +86,8 @@ export class Entity extends Serializable {
 		this.field( "position", () => this.position.getElm( "vec3" ), value => this.position.setFromArray( value ), { format: { type: "vector" } } );
 		this.field( "euler", () => this.euler.getElm( "vec3" ), value => this.euler.setFromArray( value ), { format: { type: "vector" } } );
 		this.field( "scale", () => this.scale.getElm( "vec3" ), value => this.scale.setFromArray( value ), { format: { type: "vector" } } );
-		this.field( "children", () => Array.from( this.children ), undefined, { noExport: true, hidden: true } );
-		this.field( "components", () => Array.from( this.components.values() ), undefined, { noExport: true, hidden: true } );
+		this.field( "children", () => this.children.map( c => c.uuid ), undefined, { noExport: true, hidden: true } );
+		this.field( "components", () => Array.from( this.components.values() ).map( item => item.resourceId ), undefined, { noExport: true, hidden: true } );
 
 	}
 
@@ -253,7 +253,7 @@ export class Entity extends Serializable {
 
 		this.children.push( entity );
 
-		this.noticePropsChanged( "children" );
+		this.noticeField( "children" );
 
 	}
 
@@ -261,7 +261,7 @@ export class Entity extends Serializable {
 
 		this.children = this.children.filter( c => c.uuid != entity.uuid );
 
-		this.noticePropsChanged( "children" );
+		this.noticeField( "children" );
 
 	}
 
@@ -343,7 +343,7 @@ export class Entity extends Serializable {
 
 		this.emit( "component/add", [ component ] );
 
-		// this.noticePropsChanged( "components" );
+		this.noticeField( "components" );
 
 		return component;
 
@@ -390,7 +390,7 @@ export class Entity extends Serializable {
 
 		this.emit( "component/remove", [ currentComponent ] );
 
-		// this.noticePropsChanged( "components" );
+		this.noticeField( "components" );
 
 		return currentComponent;
 

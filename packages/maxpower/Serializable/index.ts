@@ -19,14 +19,20 @@ export type SerializableFieldOpt = {
 	format?: SerializableFieldType,
 	noExport?: boolean,
 	hidden?: boolean | ( () => boolean ),
+	deps?: ReturnType<Serializable["createDeps"]>[]
 }
 
 export type SerializeFieldValue = string | number | boolean | null | object;
-type SerializeFieldGetter<T extends SerializeFieldValue> = () => T;
+type SerializeFieldGetter<T extends SerializeFieldValue> = ( event: SerializeFieldSerializeEvent ) => T;
 type SerializeFieldSetter<T extends SerializeFieldValue> = ( value: T ) => void;
 type SerializeFieldProxy = {get: SerializeFieldGetter<SerializeFieldValue>, set?: SerializeFieldSetter<SerializeFieldValue>, opt?: SerializableFieldOpt}
 
 export type SerializedFields = {[key: string]: SerializeFieldValue}
+
+type SerializeFieldSerializeEvent = {
+	mode: "view" | "export"
+}
+
 
 export type SerializeFieldsAsDirectoryFolder= {
 	type: "folder",
@@ -77,11 +83,15 @@ export class Serializable extends Resource {
 
 	public export() {
 
-		this.serialize( true );
+		this.serialize( {
+			mode: "export"
+		} );
 
 	}
 
-	public serialize( expt?: boolean ): SerializedFields {
+	public serialize( event?: SerializeFieldSerializeEvent ): SerializedFields {
+
+		event = event || { mode: "view" };
 
 		const res: SerializedFields = {};
 
@@ -89,7 +99,7 @@ export class Serializable extends Resource {
 
 			const opt = this.getFieldOpt( k );
 
-			if ( expt ) {
+			if ( event.mode == "export" ) {
 
 				if ( opt ) {
 
@@ -99,7 +109,7 @@ export class Serializable extends Resource {
 
 			}
 
-			const value = field.get();
+			const value = field.get( event );
 
 			res[ k ] = value;
 
@@ -181,7 +191,7 @@ export class Serializable extends Resource {
 
 	}
 
-	public field<T extends SerializeFieldValue>( path: string, get: () => T, set?: ( v: T ) => void, opt?: SerializableFieldOpt ) {
+	public field<T extends SerializeFieldValue>( path: string, get: ( event: SerializeFieldSerializeEvent ) => T, set?: ( v: T ) => void, opt?: SerializableFieldOpt ) {
 
 		this.fields.set( path, {
 			get: get,
@@ -189,8 +199,8 @@ export class Serializable extends Resource {
 
 				set( v as T );
 
-				this.emit( "update/props/" + path, [ v ] );
-				this.emit( "update/props", [ v, [ path ]] );
+				this.emit( "fields/update/" + path, [ v ] );
+				this.emit( "fields/update", [ v, [ path ]] );
 
 			} ),
 			opt
@@ -221,6 +231,20 @@ export class Serializable extends Resource {
 
 	}
 
+	public getField<T extends SerializeFieldValue>( path: string, event?: SerializeFieldSerializeEvent ) {
+
+		const field = this.fields.get( path );
+
+		const e = event || { mode: "view" };
+
+		if ( field ) {
+
+			return field.get( e ) as T;
+
+		}
+
+	}
+
 	public getFieldOpt( path: string ) {
 
 		const field = this.fields.get( path );
@@ -233,7 +257,7 @@ export class Serializable extends Resource {
 
 	}
 
-	protected noticePropsChanged( path: string | string[] ) {
+	protected noticeField( path: string | string[] ) {
 
 		const propsSerialized = this.serialize();
 
@@ -243,11 +267,47 @@ export class Serializable extends Resource {
 
 			const pt = _path[ i ];
 
-			this.emit( "update/props/" + path, [ propsSerialized[ pt ] ] );
+			this.emit( "fields/update/" + path, [ propsSerialized[ pt ] ] );
 
 		}
 
-		this.emit( "update/props", [ propsSerialized, _path ] );
+		this.emit( "fields/update", [ propsSerialized, _path ] );
+
+	}
+
+	public listenField( path: string, cb: () =>void ) {
+
+		let currentValue: any = null;
+
+		const onChange = () => {
+
+			const newValue = JSON.stringify( this.getField( path ) );
+
+			if ( newValue !== currentValue ) {
+
+				currentValue = newValue;
+
+				cb();
+
+			}
+
+		};
+
+		this.on( "field/update/" + path, onChange );
+
+		return {
+			off: () => this.off( "field/update/" + path, onChange )
+		};
+
+	}
+
+	public createDeps( path: string ) {
+
+		return ( cb: () => void ) => {
+
+			return this.listenField( path, cb );
+
+		};
 
 	}
 
