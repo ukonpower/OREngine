@@ -15,9 +15,10 @@ type SerializableFieldTypeSlect = {
 export type SerializableFieldType = SerializableFieldTypeVector | SerializableFieldTypeSlect
 
 export type SerializableFieldOpt = {
+	isFolder?: boolean,
 	format?: SerializableFieldType,
 	noExport?: boolean,
-	hidden?: boolean,
+	hidden?: boolean | ( () => boolean ),
 }
 
 export type SerializeFieldValue = string | number | boolean | null | object;
@@ -27,7 +28,19 @@ type SerializeFieldProxy = {get: SerializeFieldGetter<SerializeFieldValue>, set?
 
 export type SerializedFields = {[key: string]: SerializeFieldValue}
 
-export type SerializedGroupingFields = {[key: string]: SerializedGroupingFields | {value: SerializeFieldValue, opt?: SerializableFieldOpt}}
+export type SerializeFieldsAsDirectoryFolder= {
+	type: "folder",
+	childs: {[key: string]: SerializeFieldsAsDirectory},
+	opt?: SerializableFieldOpt,
+}
+
+export type SerializeFieldsAsDirectoryValue= {
+	type: "value",
+	value: SerializeFieldValue,
+	opt?: SerializableFieldOpt,
+}
+
+export type SerializeFieldsAsDirectory = SerializeFieldsAsDirectoryFolder | SerializeFieldsAsDirectoryValue
 
 export class Serializable extends Resource {
 
@@ -96,44 +109,75 @@ export class Serializable extends Resource {
 
 	}
 
-	public serializeToObject() {
+	public serializeToDirectory() {
 
-		const toObj = ( serialized: SerializedFields ) => {
+		const toDirectory = ( serialized: SerializedFields ) => {
 
-			const res: SerializedGroupingFields = {};
+			const result: SerializeFieldsAsDirectory = {
+				type: "folder",
+				childs: {},
+				opt: {}
+			};
 
 			const keys = Object.keys( serialized );
 
 			for ( let i = 0; i < keys.length; i ++ ) {
 
 				const key = keys[ i ];
+				const opt = this.getFieldOpt( key );
 
 				if ( ! key ) continue;
 
 				const splitKeys = key.split( '/' );
 
-				let target = res;
+				let target:SerializeFieldsAsDirectory = result;
 
 				for ( let j = 0; j < splitKeys.length; j ++ ) {
 
 					const splitedKey = splitKeys[ j ];
 
 					if ( ! splitedKey ) continue;
+					if ( target.type == "value" ) continue;
 
-					target = target[ splitedKey ] = ( target[ splitedKey ] || {} ) as SerializedGroupingFields;
+					if ( ! target.childs[ splitedKey ] ) {
+
+						if ( j == splitKeys.length - 1 ) {
+
+							target.childs[ splitedKey ] = {
+								type: "value",
+								value: null,
+								opt
+							};
+
+						} else {
+
+							target.childs[ splitedKey ] = {
+								type: "folder",
+								childs: {},
+								opt
+							};
+
+						}
+
+					}
+
+					target = target.childs[ splitedKey ];
 
 				}
 
-				target.value = serialized[ key ] as any;
-				target.opt = this.getFieldOpt( key ) as any;
+				if ( target.type == "value" ) {
+
+					target.value = serialized[ key ] as any;
+
+				}
 
 			}
 
-			return res;
+			return result;
 
 		};
 
-		return toObj( this.serialize() );
+		return toDirectory( this.serialize() );
 
 	}
 
@@ -154,18 +198,19 @@ export class Serializable extends Resource {
 
 	}
 
-	public fieldDir( name:string ) {
+	public fieldDir( name:string, opt?: SerializableFieldOpt ) {
 
 		const dir = name;
 
+		this.field( dir + "/", () => null, undefined, { ...opt, isFolder: true } );
+
 		return {
 			dir: ( name: string ) => this.fieldDir( `${dir}/${name}` ),
-			field: <T extends SerializeFieldValue>( name: string, get: () => T, set?: ( value: T ) => void ) => {
+			field: <T extends SerializeFieldValue>( name: string, get: () => T, set?: ( value: T ) => void, opt?: SerializableFieldOpt ) => {
 
-				this.field( `${dir}/${name}`, get, set );
+				this.field( `${dir}/${name}`, get, set, opt );
 
-			}
-
+			},
 		};
 
 	}
