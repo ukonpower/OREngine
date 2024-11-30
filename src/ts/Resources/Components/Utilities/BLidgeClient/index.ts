@@ -83,8 +83,12 @@ export class BLidgeClient extends MXP.Component {
 
 			reload();
 
-
-		}, );
+		}, {
+			format: {
+				type: "select",
+				list: [ "websocket", "json" ],
+			}
+		} );
 
 		this.field( "gltf", () => this.useGLTF, v => {
 
@@ -94,9 +98,15 @@ export class BLidgeClient extends MXP.Component {
 
 		} );
 
-		this.field( "gltfPath", () => this.gltfPath, v => this.gltfPath = v, );
+		this.field( "gltfPath", () => this.gltfPath, ( v ) => {
 
-		const ws = this.fieldDir( "websocket" );
+			this.gltfPath = v;
+
+			reload();
+
+		}, );
+
+		const ws = this.fieldDir( "websocket", { hidden: () => this.type != "websocket" } );
 		ws.field( "reconnect", () => () => reload() );
 		ws.field( "url", () => this.connection.url, v => this.connection.url = v );
 
