@@ -12,10 +12,10 @@ type TFont = {
 }
 
 const FONT_DATA: TFont = {
-	"pointType": "YAACZA==,YIA=,YAAB,YAAAAIA=,YBA=,YAAABA==,YAAAAAI=,YBA=,YAACZA==,YAAAAIA=,YLI=,YAATIA==,YAAB,YACA,YBZA,YLI=,YAAABA==,ZZZA,ZZZA,YABA,ZYI=,YIA=,YAI=,YBA=,YAAC,YAAI,YAACZA==,YAALIA==,YAAABA==,ZZA=,YABA,YIA=,YAI=,ZZA=,YLI=,YBA=,YAAAABA=,YAALQA==,ZZA=,ZZA=,ZA==,ZA==,ZA==,ZA==,ZZA=,YBA=,YBA=,ZA==,YAAAIA==,ZZZZ,ZZA=,ZZA=",
-	"pointPos": "KCENpusjHCuA,DIDt,IHBFNUjqwA==,LHBFNUYipvrj,EvFjpA==,KGAOTbpvrjcA,NFDHVjrvpibTPVA=,EOAGuA==,KCENpusjHVbA,LbhdVHBFNptr,FqDwdhA=,JqAENapuaVA=,INFBHjrvpA==,GqAENpuA,GGAqwVbA,FGAqbVA=,KNECHjrvpbZA,GAqVbGwA,GDtCEsuA,GGpusjcA,FBrFWwA=,DAqw,FqAfGwA=,EqAwGA==,IHCENpusjA==,HqAENUZV,KENpusjHCfwA,JqAENUZVZwA=,KNFBHOipvrjA,EAGDtA==,GAjsupGA,DAtG,FArRvGA=,EAwGqA==,FAYGYtA=,EAGqwA==,MvrjAFNpgeQSgA==,JICEMTYfmtA=,EPTdhA==,EKRfmA==,CFrA,CkrA,CXZA,ClrA,EVbKmA==,ECMosA==,EEIkuA==,CBIA,JwPIDMjruiA=,IOUciCrFuA==,EBICJA==,EDfmtA==",
-	"charset": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ@?=:/.-,+)('&#\"!",
-	"grid": [
+	pointType: "YAACZA==,YIA=,YAAB,YAAAAIA=,YBA=,YAAABA==,YAAAAAI=,YBA=,YAACZA==,YAAAAIA=,YLI=,YAATIA==,YAAB,YACA,YBZA,YLI=,YAAABA==,ZZZA,ZZZA,YABA,ZYI=,YIA=,YAI=,YBA=,YAAC,YAAI,YAACZA==,YAALIA==,YAAABA==,ZZA=,YABA,YIA=,YAI=,ZZA=,YLI=,YBA=,YAAAABA=,YAALQA==,ZZA=,ZZA=,ZA==,ZA==,ZA==,ZA==,ZZA=,YBA=,YBA=,ZA==,YAAAIA==,ZZZZ,ZZA=,ZZA=",
+	pointPos: "KCENpusjHCuA,DIDt,IHBFNUjqwA==,LHBFNUYipvrj,EvFjpA==,KGAOTbpvrjcA,NFDHVjrvpibTPVA=,EOAGuA==,KCENpusjHVbA,LbhdVHBFNptr,FqDwdhA=,JqAENapuaVA=,INFBHjrvpA==,GqAENpuA,GGAqwVbA,FGAqbVA=,KNECHjrvpbZA,GAqVbGwA,GDtCEsuA,GGpusjcA,FBrFWwA=,DAqw,FqAfGwA=,EqAwGA==,IHCENpusjA==,HqAENUZV,KENpusjHCfwA,JqAENUZVZwA=,KNFBHOipvrjA,EAGDtA==,GAjsupGA,DAtG,FArRvGA=,EAwGqA==,FAYGYtA=,EAGqwA==,MvrjAFNpgeQSgA==,JICEMTYfmtA=,EPTdhA==,EKRfmA==,CFrA,CkrA,CXZA,ClrA,EVbKmA==,ECMosA==,EEIkuA==,CBIA,JwPIDMjruiA=,IOUciCrFuA==,EBICJA==,EDfmtA==",
+	charset: "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ@?=:/.-,+)('&#\"!",
+	grid: [
 		8,
 		8
 	]
@@ -159,18 +159,13 @@ export class Font1 extends Font {
 
 		}
 
-		this.texture.attach( texCanvas );
+		this.texture.setting( {
+			minFilter: gl.LINEAR_MIPMAP_LINEAR,
+			magFilter: gl.LINEAR,
+			generateMipmap: true,
+		} );
 
-		// debug
-		// const wrapper = document.createElement( 'div' );
-		// wrapper.style.position = 'absolute';
-		// wrapper.style.top = '0';
-		// wrapper.style.left = '0';
-		// wrapper.style.width = '100vw';
-		// wrapper.style.zIndex = '1000';
-		// document.body.appendChild( wrapper );
-		// texCanvas.style.width = '100%';
-		// wrapper.appendChild( texCanvas );
+		this.texture.attach( texCanvas );
 
 	}
 
