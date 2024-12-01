@@ -1,7 +1,7 @@
 import * as GLP from 'glpower';
 
-import SceneData from '../../../../data/player.json';
-import { canvas, renderer, screenElm } from '../GLGlobals';
+import SceneData from '../../../data/player.json';
+import { screenElm, canvas, renderer } from '../Globals';
 import { OREngine } from '../OREngine';
 
 class App {

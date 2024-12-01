@@ -47,7 +47,7 @@ export default defineConfig( {
 		},
 		rollupOptions: {
 			input: {
-				"main": "./src/ts/gl/Player/index.ts"
+				"main": "./src/ts/OREnginePlayer/index.ts"
 			},
 			output: {
 				entryFileNames: 'index.js'

@@ -15,16 +15,20 @@
 		1,
 		1
 	],
+	"children": [
+		"43"
+	],
+	"components": [],
 	"objectOverride": [
 		{
-			"path": "/root",
+			"path": "/CamDof",
 			"components": [
 				{
 					"name": "BLidgeClient",
 					"props": {
 						"enabled": true,
 						"mode": "json",
-						"gltf": false,
+						"gltf": true,
 						"gltfPath": "/scene.glb",
 						"websocket/": null,
 						"websocket/url": "ws://localhost:3100"
@@ -39,7 +43,7 @@
 			]
 		},
 		{
-			"path": "/root/blidgeRoot/OREngine",
+			"path": "/CamDof/blidgeRoot/OREngine",
 			"components": [
 				{
 					"name": "OREngineLogo",
@@ -50,24 +54,7 @@
 			]
 		},
 		{
-			"path": "/root/blidgeRoot/OREngineCube",
-			"components": [
-				{
-					"name": "OREngineCube",
-					"props": {
-						"enabled": true
-					}
-				},
-				{
-					"name": "TurnTable",
-					"props": {
-						"enabled": true
-					}
-				}
-			]
-		},
-		{
-			"path": "/root/blidgeRoot/SkyBox",
+			"path": "/CamDof/blidgeRoot/SkyBox",
 			"components": [
 				{
 					"name": "SkyBox",
@@ -79,7 +66,7 @@
 		}
 	],
 	"scene": {
-		"name": "root"
+		"name": "CamDof"
 	},
 	"timeline/": null,
 	"timeline/duration": 600,

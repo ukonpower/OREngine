@@ -24,7 +24,7 @@ export type SerializableFieldOpt = {
 export type SerializeFieldValue = string | number | boolean | null | object;
 type SerializeFieldGetter<T extends SerializeFieldValue> = ( event: SerializeFieldSerializeEvent ) => T;
 type SerializeFieldSetter<T extends SerializeFieldValue> = ( value: T ) => void;
-type SerializeFieldProxy = {get: SerializeFieldGetter<SerializeFieldValue>, set?: SerializeFieldSetter<SerializeFieldValue>, opt?: SerializableFieldOpt}
+type SerializeFieldProxy = {get: SerializeFieldGetter<SerializeFieldValue>, set: SerializeFieldSetter<SerializeFieldValue>, opt?: SerializableFieldOpt}
 
 export type SerializedFields = {[key: string]: SerializeFieldValue}
 
@@ -59,45 +59,21 @@ export class Serializable extends Resource {
 
 	}
 
-	public deserialize( props: SerializedFields ) {
-
-		const keys = Object.keys( props );
-
-		for ( let i = 0; i < keys.length; i ++ ) {
-
-			const key = keys[ i ];
-
-			const field = this.fields.get( key );
-
-			if ( field ) {
-
-				field.set && field.set( props[ key ] );
-
-			}
-
-		}
-
-	}
-
-	public export() {
-
-		this.serialize( {
-			mode: "export"
-		} );
-
-	}
+	/*-------------------------------
+		Serialize
+	-------------------------------*/
 
 	public serialize( event?: SerializeFieldSerializeEvent ): SerializedFields {
 
 		event = event || { mode: "view" };
 
-		const res: SerializedFields = {};
+		const serialized: SerializedFields = {};
 
 		this.fields.forEach( ( field, k ) => {
 
 			const opt = this.getFieldOpt( k );
 
-			if ( event.mode == "export" ) {
+			if ( event.mode == "export" && opt ) {
 
 				if ( opt ) {
 
@@ -107,13 +83,11 @@ export class Serializable extends Resource {
 
 			}
 
-			const value = field.get( event );
-
-			res[ k ] = value;
+			serialized[ k ] = field.get( event );
 
 		} );
 
-		return res;
+		return serialized;
 
 	}
 
@@ -136,9 +110,9 @@ export class Serializable extends Resource {
 
 				if ( ! key ) continue;
 
-				const splitKeys = key.split( '/' );
-
 				let target:SerializeFieldsAsDirectory = result;
+
+				const splitKeys = key.split( '/' );
 
 				for ( let j = 0; j < splitKeys.length; j ++ ) {
 
@@ -190,13 +164,41 @@ export class Serializable extends Resource {
 
 	}
 
+	public deserialize( props: SerializedFields ) {
+
+		const keys = Object.keys( props );
+
+		for ( let i = 0; i < keys.length; i ++ ) {
+
+			const key = keys[ i ];
+
+			const field = this.fields.get( key );
+
+			if ( field ) {
+
+				field.set( props[ key ] );
+
+			}
+
+		}
+
+	}
+
+	public export() {
+
+		this.serialize( {
+			mode: "export"
+		} );
+
+	}
+
 	public field<T extends SerializeFieldValue>( path: string, get: ( event: SerializeFieldSerializeEvent ) => T, set?: ( v: T ) => void, opt?: SerializableFieldOpt ) {
 
 		this.fields.set( path, {
 			get: get,
-			set: set && ( ( v: SerializeFieldValue ) => {
+			set: ( ( v: SerializeFieldValue ) => {
 
-				set( v as T );
+				if ( set ) set( v as T );
 
 				this.noticeField( path );
 
@@ -233,11 +235,11 @@ export class Serializable extends Resource {
 
 		const field = this.fields.get( path );
 
-		const e = event || { mode: "view" };
-
 		if ( field ) {
 
-			return field.get( e ) as T;
+			event = event || { mode: "view" };
+
+			return field.get( event ) as T;
 
 		}
 
@@ -255,47 +257,10 @@ export class Serializable extends Resource {
 
 	}
 
-	protected noticeField( path: string | string[] ) {
+	protected noticeField( path: string ) {
 
-		const propsSerialized = this.serialize();
-
-		const _path = typeof path == "string" ? [ path ] : path;
-
-		for ( let i = 0; i < _path.length; i ++ ) {
-
-			const pt = _path[ i ];
-
-			this.emit( "fields/update/" + path, [ propsSerialized[ pt ] ] );
-
-		}
-
-		this.emit( "fields/update", [ propsSerialized, _path ] );
-
-	}
-
-	public listenField( path: string, cb: () =>void ) {
-
-		let currentValue: any = null;
-
-		const onChange = () => {
-
-			const newValue = JSON.stringify( this.getField( path ) );
-
-			if ( newValue !== currentValue ) {
-
-				currentValue = newValue;
-
-				cb();
-
-			}
-
-		};
-
-		this.on( "field/update/" + path, onChange );
-
-		return {
-			off: () => this.off( "field/update/" + path, onChange )
-		};
+		this.emit( "fields/update/" + path );
+		this.emit( "fields/update", [[ path ]] );
 
 	}
 
