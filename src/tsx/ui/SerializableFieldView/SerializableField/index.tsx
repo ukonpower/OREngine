@@ -6,37 +6,49 @@ import { Block } from '../../Block';
 import style from './index.module.scss';
 import { SerializableFieldValue } from './SerializableFieldValue';
 
-export const SerializableField: React.FC<{fields: MXP.SerializedGroupingFields, basePath?: string}> = ( props ) => {
+export const SerializableField: React.FC<{fields: MXP.SerializeFieldsAsDirectoryFolder, basePath?: string}> = ( props ) => {
 
 	const elmArray: React.ReactNode[] = [];
 
-	const keys = Object.keys( props.fields );
+	const fieldKeys = Object.keys( props.fields.childs );
 
-	for ( let i = 0; i < keys.length; i ++ ) {
+	for ( let i = 0; i < fieldKeys.length; i ++ ) {
 
-		const key = keys[ i ];
-		const path = ( props.basePath ? props.basePath + "/" : "" ) + key;
-		const componentKeys = "field_" + i + key;
+		const fieldKey = fieldKeys[ i ];
+		const field = props.fields.childs[ fieldKey ];
+		const { opt } = field;
 
-		const field = props.fields[ key ];
-		let elm = null;
+		let hidden = false;
 
-		if ( "value" in field ) {
+		if ( opt ) {
 
-			if ( field.opt ) {
+			if ( typeof opt.hidden === "function" ) {
 
-				if ( ( field.opt as MXP.SerializableFieldOpt ).hidden === true ) continue;
+				hidden = opt.hidden();
+
+			} else {
+
+				hidden = opt.hidden || false;
 
 			}
 
-			elm = <div key={componentKeys}>
-				<SerializableFieldValue path={path} />
-			</div>;
+		}
+
+		if ( hidden ) continue;
+
+		const componentKey = "field" + fieldKey;
+		const path = ( props.basePath ? props.basePath + "/" : "" ) + fieldKey;
+
+		let elm = null;
+
+		if ( field.type === "value" ) {
+
+			elm = <SerializableFieldValue key={componentKey} path={path} field={field}/>;
 
 		} else {
 
-			elm = <div className={style.block} key={componentKeys}>
-				<Block accordion label={key}>
+			elm = <div className={style.block} key={componentKey}>
+				<Block key={componentKey} accordion label={fieldKey} >
 					<SerializableField fields={field} basePath={path} />
 				</Block>
 			</div>;

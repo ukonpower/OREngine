@@ -1,1 +1,74 @@
-{}
+{
+	"name": "New Project",
+	"position": [
+		0,
+		0,
+		0
+	],
+	"euler": [
+		0,
+		0,
+		0
+	],
+	"scale": [
+		1,
+		1,
+		1
+	],
+	"children": [
+		"43"
+	],
+	"components": [],
+	"objectOverride": [
+		{
+			"path": "/CamDof",
+			"components": [
+				{
+					"name": "BLidgeClient",
+					"props": {
+						"enabled": true,
+						"mode": "json",
+						"gltf": true,
+						"gltfPath": "/scene.glb",
+						"websocket/": null,
+						"websocket/url": "ws://localhost:3100"
+					}
+				},
+				{
+					"name": "DemoMusic",
+					"props": {
+						"enabled": true
+					}
+				}
+			]
+		},
+		{
+			"path": "/CamDof/blidgeRoot/OREngine",
+			"components": [
+				{
+					"name": "OREngineLogo",
+					"props": {
+						"enabled": true
+					}
+				}
+			]
+		},
+		{
+			"path": "/CamDof/blidgeRoot/SkyBox",
+			"components": [
+				{
+					"name": "SkyBox",
+					"props": {
+						"enabled": true
+					}
+				}
+			]
+		}
+	],
+	"scene": {
+		"name": "CamDof"
+	},
+	"timeline/": null,
+	"timeline/duration": 600,
+	"timeline/fps": 60
+}

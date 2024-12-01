@@ -15,7 +15,7 @@ void main( void ) {
 	vec3 normal = normalize( - vNormal );
 	outRoughness = 1.0;
 	outColor *= 0.0;
-	// outColor.xyz = vec3( 0.0, 0.05, 0.1);
+	outColor.xyz = vec3( 0.0, 0.05, 0.1);
 
 	float n = noiseValue( outPos * 0.15 + uTimeE * 0.1 );
 
@@ -30,7 +30,7 @@ void main( void ) {
 
 	float emit = min( line + pattern, 1.0 );
 
-	// outColor.xyz += emit;
+	outColor.xyz += emit;
 
 	outEmissionIntensity = 1.0 + emit * 50.0 * smoothstep( 0.4, 1.0, n);
 
