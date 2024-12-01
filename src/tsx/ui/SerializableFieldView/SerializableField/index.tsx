@@ -10,19 +10,13 @@ export const SerializableField: React.FC<{fields: MXP.SerializeFieldsAsDirectory
 
 	const elmArray: React.ReactNode[] = [];
 
-	const keys = Object.keys( props.fields.childs );
+	const fieldKeys = Object.keys( props.fields.childs );
 
-	for ( let i = 0; i < keys.length; i ++ ) {
+	for ( let i = 0; i < fieldKeys.length; i ++ ) {
 
-		const key = keys[ i ];
-		const path = ( props.basePath ? props.basePath + "/" : "" ) + key;
-		const componentKeys = "field_" + i + key;
-
-		let elm = null;
-
-		const field = props.fields.childs[ key ];
-
-		const opt = field.opt as MXP.SerializableFieldOpt;
+		const fieldKey = fieldKeys[ i ];
+		const field = props.fields.childs[ fieldKey ];
+		const { opt } = field;
 
 		let hidden = false;
 
@@ -42,16 +36,19 @@ export const SerializableField: React.FC<{fields: MXP.SerializeFieldsAsDirectory
 
 		if ( hidden ) continue;
 
+		const componentKey = "field" + fieldKey;
+		const path = ( props.basePath ? props.basePath + "/" : "" ) + fieldKey;
+
+		let elm = null;
+
 		if ( field.type === "value" ) {
 
-			elm = <div key={componentKeys}>
-				<SerializableFieldValue path={path} />
-			</div>;
+			elm = <SerializableFieldValue key={componentKey} path={path} field={field}/>;
 
 		} else {
 
-			elm = <div className={style.block} key={componentKeys}>
-				<Block accordion label={key}>
+			elm = <div className={style.block} key={componentKey}>
+				<Block key={componentKey} accordion label={fieldKey} >
 					<SerializableField fields={field} basePath={path} />
 				</Block>
 			</div>;

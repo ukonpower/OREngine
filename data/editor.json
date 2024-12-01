@@ -23,7 +23,7 @@
 			"components": [],
 			"objectOverride": [
 				{
-					"path": "/root",
+					"path": "/CamDof",
 					"components": [
 						{
 							"name": "BLidgeClient",
@@ -45,7 +45,7 @@
 					]
 				},
 				{
-					"path": "/root/blidgeRoot/OREngine",
+					"path": "/CamDof/blidgeRoot/OREngine",
 					"components": [
 						{
 							"name": "OREngineLogo",
@@ -56,7 +56,7 @@
 					]
 				},
 				{
-					"path": "/root/blidgeRoot/SkyBox",
+					"path": "/CamDof/blidgeRoot/SkyBox",
 					"components": [
 						{
 							"name": "SkyBox",
@@ -68,7 +68,7 @@
 				}
 			],
 			"scene": {
-				"name": "root"
+				"name": "CamDof"
 			},
 			"timeline/": null,
 			"timeline/duration": 600,
@@ -78,11 +78,11 @@
 	"enableRender": true,
 	"projectName": "New Project",
 	"openedProject": "New Project",
-	"resolutionScale": "0.25",
+	"resolutionScale": "0.5",
 	"viewType": "render",
 	"frameLoop/": null,
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,
 	"frameLoop/end": 0,
-	"selectedEntityId": "43"
+	"selectedEntityId": "8c"
 }
