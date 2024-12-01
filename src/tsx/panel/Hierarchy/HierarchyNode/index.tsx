@@ -18,17 +18,19 @@ type HierarchyNodeProps = {
 
 export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 
-	const { gui } = useOREngineGUI();
-
-	const [ children ] = useSerializableField<MXP.Entity[]>( props.entity, "children" );
-
-	const depth = props.depth || 0;
-	const sortedChildren = children && children.concat().sort( ( a, b ) => a.name.localeCompare( b.name ) ) || [];
-	const hasChild = sortedChildren.length > 0;
-	const offsetPx = depth * 20;
+	const { gui, engine } = useOREngineGUI();
 
 	const [ selectedEntityId ] = useSerializableField<string>( gui, "selectedEntityId" );
 	const selectedEntity = selectedEntityId !== undefined && gui.engine.findEntityById( selectedEntityId );
+
+	const [ childrenIdList ] = useSerializableField<string[]>( props.entity, "children" );
+
+	const childrens = ( childrenIdList || [] ).map( id => engine.findEntityById( id ) ).filter( e => e !== undefined ) as MXP.Entity[];
+
+	const depth = props.depth || 0;
+	const sortedChildren = childrens && childrens.concat().sort( ( a, b ) => a.name.localeCompare( b.name ) ) || [];
+	const hasChild = sortedChildren.length > 0;
+	const offsetPx = depth * 20;
 
 	const noEditable = props.entity.initiator == "script";
 

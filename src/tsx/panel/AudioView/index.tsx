@@ -84,7 +84,7 @@ export const AudioView = () => {
 		onUpdateSceneProps( engine.serialize() );
 		onUpdateFramePlay( engine.frame );
 
-		engine.on( "update/props", onUpdateSceneProps );
+		engine.on( "fields/update", onUpdateSceneProps );
 		engine.on( "update/music", onUpdateMusic );
 		engine.on( "update/frame/play", onUpdateFramePlay );
 

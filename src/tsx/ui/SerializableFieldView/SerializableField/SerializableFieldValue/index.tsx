@@ -1,14 +1,15 @@
+import { SerializeFieldsAsDirectoryValue } from 'maxpower';
+
 import { useSerializableFieldView } from '../..';
 
-import { useSerializableField } from '~/tsx/hooks/useSerializableProps';
 import { Label } from '~/tsx/ui/Label';
 import { Value } from '~/tsx/ui/Value';
 
-export const SerializableFieldValue: React.FC<{ path: string }> = ( props ) => {
+export const SerializableFieldValue: React.FC<{ path:string, field: SerializeFieldsAsDirectoryValue }> = ( props ) => {
 
 	const { target } = useSerializableFieldView();
-	const [ value, setValue ] = useSerializableField( target, props.path );
-	const opt = target.getFieldOpt( props.path );
+	const value = props.field.value;
+	const opt = props.field.opt;
 	const name = props.path.split( "/" ).pop();
 
 	let isVertical = false;
@@ -22,7 +23,7 @@ export const SerializableFieldValue: React.FC<{ path: string }> = ( props ) => {
 	return <Label title={name} vertical={isVertical} >
 		<Value value={value} format={opt?.format} onChange={( v ) => {
 
-			setValue( v );
+			target.setField( props.path, v );
 
 		}}/>
 	</Label>;

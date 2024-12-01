@@ -126,7 +126,7 @@ export const EditorPage = () => {
 			<div className={style.editor}>
 				{editorElm}
 			</div>
-		</MouseMenuContext.Provider>;
+		</MouseMenuContext.Provider>
 	</OREngineGUI>;
 
 };

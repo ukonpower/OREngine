@@ -8,6 +8,7 @@ import { MouseMenuContext } from '../MouseMenu/useMouseMenu';
 import style from './index.module.scss';
 
 import { OREngineProjectData } from '~/ts/OREngine/IO/ProjectSerializer';
+import { useOREngineGUI } from '~/tsx/components/OREngineGUI';
 import { useSerializableField } from '~/tsx/hooks/useSerializableProps';
 import { ArrowIcon } from '~/tsx/Icon/ArrowIcon';
 import { Block } from '~/tsx/ui/Block';
@@ -16,11 +17,11 @@ import { Block } from '~/tsx/ui/Block';
 export const ProjectControl = () => {
 
 	const { pushContent, closeAll } = useContext( MouseMenuContext );
-	const { editor } = useOREngineGUI();
+	const { gui } = useOREngineGUI();
 
-	const [ projects ] = useSerializableField<OREngineProjectData[]>( editor, "projects" );
-	const [ projectName ] = useSerializableField<string>( editor, "projectName" );
-	const [ openedProject ] = useSerializableField<string>( editor, "openedProject" );
+	const [ projects ] = useSerializableField<OREngineProjectData[]>( gui, "projects" );
+	const [ projectName ] = useSerializableField<string>( gui, "projectName" );
+	const [ openedProject ] = useSerializableField<string>( gui, "openedProject" );
 
 	const projectList: string[] = projects?.map( ( project ) => project.name ) || [];
 
@@ -31,7 +32,7 @@ export const ProjectControl = () => {
 					<div className={style.projectSelector}>
 						<InputSelect value={openedProject || ''} selectList={projectList} onChange={( value ) => {
 
-							editor.setField( "openedProject", value );
+							gui.setField( "openedProject", value );
 
 						}}/>
 					</div>
@@ -43,7 +44,7 @@ export const ProjectControl = () => {
 								pushContent( <>
 									<InputGroup title='Rename Project' initialValues={{ name: projectName || "" }} onSubmit={( e ) => {
 
-										editor.setField( "projectName", e.name as string );
+										gui.setField( "projectName", e.name as string );
 
 										if ( closeAll ) {
 
@@ -69,7 +70,7 @@ export const ProjectControl = () => {
 								pushContent( <>
 									<InputGroup title='New Project' initialValues={{ name: "NewProject" }} onSubmit={( e ) => {
 
-										editor.setField( "openedProject", e.name as string );
+										gui.setField( "openedProject", e.name as string );
 
 										if ( closeAll ) {
 
@@ -87,11 +88,11 @@ export const ProjectControl = () => {
 					<div className={style.rowItem} >
 						<Button onClick={()=>{
 
-							if ( editor && projectName ) {
+							if ( gui && projectName ) {
 
 								if ( window.confirm( "DELETE!!" ) ) {
 
-									editor.projectDelete( projectName );
+									gui.projectDelete( projectName );
 
 								}
 
@@ -103,9 +104,9 @@ export const ProjectControl = () => {
 				<br/>
 				<Button onClick={()=>{
 
-					if ( editor ) {
+					if ( gui ) {
 
-						editor.projectSave();
+						gui.projectSave();
 
 					}
 
@@ -113,9 +114,9 @@ export const ProjectControl = () => {
 				<div className={style.export}>
 					<Button onClick={()=>{
 
-						if ( editor ) {
+						if ( gui ) {
 
-							editor.exportCurrentScene().then( () => {
+							gui.exportCurrentScene().then( () => {
 
 								window.open( `/player`, '_blank' );
 
