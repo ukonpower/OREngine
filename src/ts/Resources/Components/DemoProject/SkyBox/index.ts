@@ -1,4 +1,3 @@
-import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
 import skyboxFrag from './shaders/skybox.fs';
@@ -7,20 +6,22 @@ import { globalUniforms } from '~/ts/Globals';
 
 export class SkyBox extends MXP.Component {
 
-	private geometry: MXP.Geometry;
-	private material: MXP.Material;
+	constructor() {
 
-	constructor( ) {
+		super();
 
-		super( );
+		const mesh = new MXP.Mesh();
 
-		this.geometry = new MXP.SphereGeometry( { radius: 50, widthSegments: 32, heightSegments: 32 } );
-		this.material = new MXP.Material( {
+		mesh.geometry = new MXP.SphereGeometry( { radius: 50, widthSegments: 32, heightSegments: 32 } );
+
+		mesh.material = new MXP.Material( {
 			phase: [ "deferred", "envMap" ],
 			frag: MXP.hotGet( "skybox", skyboxFrag ),
 			cullFace: false,
 			uniforms: MXP.UniformsUtils.merge( globalUniforms.time, globalUniforms.music )
 		} );
+
+		this.add( mesh );
 
 		if ( import.meta.hot ) {
 
@@ -28,30 +29,15 @@ export class SkyBox extends MXP.Component {
 
 				if ( module ) {
 
-					this.material.frag = MXP.hotUpdate( 'skybox', module.default );
+					mesh.material.frag = MXP.hotUpdate( 'skybox', module.default );
 
-					this.material.requestUpdate();
+					mesh.material.requestUpdate();
 
 				}
 
 			} );
 
 		}
-
-	}
-
-	protected setEntityImpl( entity: MXP.Entity ): void {
-
-		entity.addComponent( this.geometry );
-		entity.addComponent( this.material );
-
-	}
-
-	public unsetEntityImpl( entity: MXP.Entity ): void {
-
-		entity.removeComponent( this.geometry );
-		entity.removeComponent( this.material );
-
 
 	}
 

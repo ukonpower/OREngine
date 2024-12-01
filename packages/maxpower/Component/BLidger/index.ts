@@ -114,91 +114,99 @@ export class BLidger extends Component {
 
 		// geometry
 
-		if ( this.node.type !== "empty" ) {
+		if ( this.node.type == 'cube' ) {
 
 			const mesh = new Mesh();
 
-			if ( this.node.type == 'cube' ) {
+			const cubeParam = this.node.param as any;
 
-				const cubeParam = this.node.param as any;
-
-				mesh.geometry = entity.addComponent( new CubeGeometry( { disableEdit: true, width: cubeParam.x, height: cubeParam.y, depth: cubeParam.z, segmentsWidth: 10, segmentsHeight: 10, segmentsDepth: 10 } ) );
-
-			} else if ( this.node.type == 'sphere' ) {
-
-				const sphereParam = this.node.param as any;
-				entity.addComponent( new SphereGeometry( { disableEdit: true,
-					radius: sphereParam.r,
-					widthSegments: 32,
-					heightSegments: 16
-				} ) );
-
-			} else if ( this.node.type == 'cylinder' ) {
-
-				entity.addComponent( new CylinderGeometry( { disableEdit: true } ) );
-
-			} else if ( this.node.type == 'plane' ) {
-
-				const planeParam = this.node.param as any;
-
-				entity.addComponent( new PlaneGeometry( { disableEdit: true, width: planeParam.x, height: planeParam.y } ) );
-
-			} else if ( this.node.type == 'mesh' ) {
-
-				const geometryParam = this.node.param as any;
-
-				const geometry = new Geometry( { disableEdit: true } );
-				geometry.setAttribute( 'position', geometryParam.position, 3 );
-				geometry.setAttribute( 'uv', geometryParam.uv, 2 );
-				geometry.setAttribute( 'normal', geometryParam.normal, 3 );
-				geometry.setAttribute( 'index', geometryParam.index, 3 );
-				entity.addComponent( geometry );
-
-			} else if ( this.node.type == 'gltf' ) {
-
-				this.blidge.gltfPrm.then( gltf => {
-
-					const gltfEntity = gltf.scene.findEntityByName( this.node.name );
-
-					if ( gltfEntity ) {
-
-						const geo = gltfEntity.getComponentByTag<Geometry>( "geometry" );
-
-						if ( geo ) {
-
-							geo.disableEdit = true;
-							entity.addComponent( geo );
-
-						}
-
-						const mat = gltfEntity.getComponentByTag<Material>( "material" );
-
-						if ( mat ) {
-
-							mat.disableEdit = true;
-							entity.addComponent( mat );
-
-						}
-
-					}
-
-					entity.noticeEventParent( "update/blidge/scene", [ entity ] );
-
-				} );
-
-			}
+			mesh.geometry = new CubeGeometry( { disableEdit: true, width: cubeParam.x, height: cubeParam.y, depth: cubeParam.z, segmentsWidth: 10, segmentsHeight: 10, segmentsDepth: 10 } );
 
 			entity.addComponent( mesh );
 
-		}
+		} else if ( this.node.type == 'sphere' ) {
 
-		// base material
+			const mesh = new Mesh();
 
-		const mat = entity.getComponentByTag<Material>( "material" );
+			const sphereParam = this.node.param as any;
 
-		if ( ! mat && entity.getComponentByTag<Geometry>( "geometry" ) ) {
+			mesh.geometry = new SphereGeometry( { disableEdit: true,
+				radius: sphereParam.r,
+				widthSegments: 32,
+				heightSegments: 16
+			} );
 
-			entity.addComponent( new Material( { disableEdit: true, name: entity.name, phase: [ "deferred", "shadowMap" ] } ) );
+			entity.addComponent( mesh );
+
+		} else if ( this.node.type == 'cylinder' ) {
+
+			const mesh = new Mesh();
+
+			mesh.geometry = new CylinderGeometry( { disableEdit: true } );
+
+			entity.addComponent( mesh );
+
+		} else if ( this.node.type == 'plane' ) {
+
+			const mesh = new Mesh();
+
+			const planeParam = this.node.param as any;
+
+			mesh.geometry = new PlaneGeometry( { disableEdit: true, width: planeParam.x, height: planeParam.y } );
+
+			entity.addComponent( mesh );
+
+
+		} else if ( this.node.type == 'mesh' ) {
+
+			const mesh = new Mesh();
+
+			const geometryParam = this.node.param as any;
+
+			const geometry = new Geometry( { disableEdit: true } );
+
+			geometry.setAttribute( 'position', geometryParam.position, 3 );
+			geometry.setAttribute( 'uv', geometryParam.uv, 2 );
+			geometry.setAttribute( 'normal', geometryParam.normal, 3 );
+			geometry.setAttribute( 'index', geometryParam.index, 3 );
+
+			mesh.geometry = geometry;
+
+		} else if ( this.node.type == 'gltf' ) {
+
+			const mesh = new Mesh();
+
+			this.blidge.gltfPrm.then( gltf => {
+
+				const gltfEntity = gltf.scene.findEntityByName( this.node.name );
+
+				if ( gltfEntity ) {
+
+					const geo = gltfEntity.getComponentByTag<Geometry>( "geometry" );
+
+					if ( geo ) {
+
+						geo.disableEdit = true;
+						mesh.geometry = geo;
+
+					}
+
+					const mat = gltfEntity.getComponentByTag<Material>( "material" );
+
+					if ( mat ) {
+
+						mat.disableEdit = true;
+						mesh.material = mat;
+
+					}
+
+				}
+
+				entity.noticeEventParent( "update/blidge/scene", [ entity ] );
+
+			} );
+
+			entity.addComponent( mesh );
 
 		}
 
@@ -220,13 +228,17 @@ export class BLidger extends Component {
 
 		// camera
 
-		this.cameraComponent = entity.getComponentByTag<Camera>( "camera" );
+		if ( this.node.type == 'camera' ) {
 
-		if ( this.node.type == 'camera' && this.cameraComponent ) {
+			this.cameraComponent = entity.getComponentByTag<Camera>( "camera" );
 
-			const cameraParam = this.node.param as BLidgeCameraParam;
+			if ( this.cameraComponent ) {
 
-			this.cameraComponent.fov = cameraParam.fov;
+				const cameraParam = this.node.param as BLidgeCameraParam;
+
+				this.cameraComponent.fov = cameraParam.fov;
+
+			}
 
 		}
 
