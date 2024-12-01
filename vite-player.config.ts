@@ -24,9 +24,9 @@ export default defineConfig( {
 			},
 			mangle: {
 				properties: {
-					regex: /^(?!(u[A-Z]|[A-Z_]+$)).*$/,
+					keep_quoted: "strict",
+					regex: /^(?!(u[A-Z]|a[A-Z]|[A-Z_]+$|_)).*$/,
 					reserved: [
-						// "comListCats"
 					]
 				}
 			},
@@ -34,7 +34,7 @@ export default defineConfig( {
 				passes: 16,
 				arguments: true,
 				booleans_as_integers: true,
-				// drop_console: false,
+				// drop_console: true,
 				keep_fargs: false,
 				module: true,
 				pure_getters: true,
@@ -64,7 +64,8 @@ export default defineConfig( {
 	plugins: [
 		ShaderMinifierLoader(),
 		visualizer( {
-			template: "treemap"
+			template: "treemap",
+			gzipSize: true,
 		} ),
 	],
 	define: {
