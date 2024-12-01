@@ -48,12 +48,14 @@ export type SerializeFieldsAsDirectory = SerializeFieldsAsDirectoryFolder | Seri
 
 export class Serializable extends Resource {
 
-	private fields: Map<string, SerializeFieldProxy> = new Map();
+	private fields: Map<string, SerializeFieldProxy>;
 	public initiator: string;
 
 	constructor() {
 
 		super();
+
+		this.fields = new Map();
 
 		this.initiator = 'script';
 
