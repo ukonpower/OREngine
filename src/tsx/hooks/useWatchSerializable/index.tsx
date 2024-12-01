@@ -19,7 +19,7 @@ export const useWatchSerializable = ( serializable: Serializable | undefined, de
 
 		setField( serializable.serialize() );
 
-		const onUpdate = ( _: any, updateKeys: string[] ) => {
+		const onUpdate = ( updateKeys: string[] ) => {
 
 			let found = depsMemo.length == 0;
 
