@@ -19,7 +19,6 @@ export type SerializableFieldOpt = {
 	format?: SerializableFieldType,
 	noExport?: boolean,
 	hidden?: boolean | ( () => boolean ),
-	deps?: ReturnType<Serializable["createDeps"]>[]
 }
 
 export type SerializeFieldValue = string | number | boolean | null | object;
@@ -32,7 +31,6 @@ export type SerializedFields = {[key: string]: SerializeFieldValue}
 type SerializeFieldSerializeEvent = {
 	mode: "view" | "export"
 }
-
 
 export type SerializeFieldsAsDirectoryFolder= {
 	type: "folder",
@@ -147,6 +145,7 @@ export class Serializable extends Resource {
 					const splitedKey = splitKeys[ j ];
 
 					if ( ! splitedKey ) continue;
+
 					if ( target.type == "value" ) continue;
 
 					if ( ! target.childs[ splitedKey ] ) {
@@ -199,8 +198,7 @@ export class Serializable extends Resource {
 
 				set( v as T );
 
-				this.emit( "fields/update/" + path, [ v ] );
-				this.emit( "fields/update", [ v, [ path ]] );
+				this.noticeField( path );
 
 			} ),
 			opt
@@ -297,16 +295,6 @@ export class Serializable extends Resource {
 
 		return {
 			off: () => this.off( "field/update/" + path, onChange )
-		};
-
-	}
-
-	public createDeps( path: string ) {
-
-		return ( cb: () => void ) => {
-
-			return this.listenField( path, cb );
-
 		};
 
 	}

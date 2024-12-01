@@ -67,7 +67,7 @@ export class BLidgeClient extends MXP.Component {
 
 			if ( this.type == "json" ) {
 
-				this.blidge.loadScene( SceneData, this.useGLTF ? this.gltfPath : undefined );
+				this.blidge.loadScene( SceneData as unknown as MXP.BLidgeScene, this.useGLTF ? this.gltfPath : undefined );
 
 			} else {
 
