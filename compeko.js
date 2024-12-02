@@ -1,6 +1,3 @@
-//  https://gist.github.com/0b5vr/09ee96ca2efbe5bf9d64dad7220e923b#file-compeko-js
-// 👏👏👏
-
 // =================================================================================================
 // compeko - pack JavaScript into a self-extracting html+deflate
 // v1.1.1
