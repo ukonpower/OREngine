@@ -3,7 +3,7 @@ import { useState, useMemo, useEffect } from "react";
 
 export const useWatchSerializable = ( serializable: Serializable | undefined, deps?: ( string | undefined )[] ) => {
 
-	const [ field, setField ] = useState<SerializedFields>( );
+	const [ field, setField ] = useState<SerializedFields>( () => serializable ? serializable.serialize() : {} );
 
 	const _deps = deps ? [ ...deps ] : [];
 

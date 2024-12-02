@@ -36,6 +36,8 @@ void main( void ) {
 
 	outColor.xyz *= 0.2;
 
+	outEmissionIntensity *= 0.05;
+
 
 	#ifdef IS_FORWARD
 
