@@ -157,12 +157,15 @@ export class OrbitControls extends MXP.Component {
 
 		// calc viewmatrix
 
-		const cameraComponent = entity.getComponentsByTag<MXP.Camera>( "camera" );
+		const cameraComponent = entity.getComponentByTag<MXP.Camera>( "camera" );
 
 		if ( cameraComponent ) {
 
-			cameraComponent.viewMatrix.copy( entity.matrixWorld ).inverse();
+			console.log(cameraComponent);
+			
 
+			cameraComponent.viewMatrix.copy( entity.matrixWorld ).inverse();
+			
 		}
 
 	}
@@ -202,25 +205,26 @@ export class OrbitControls extends MXP.Component {
 		this.eye.copy( eye );
 		this.target.copy( target );
 
+		
 		if ( this.entity ) {
-
+			
 			const parent = this.entity.parent;
-
+			
 			if ( parent ) {
-
+				
 				parent.updateMatrix( true );
-
+				
 				this.target.applyMatrix4( parent.matrixWorld.clone().inverse() );
-
+				
 			}
-
+			
 		}
-
+		
 		this.orbit.x = Math.atan2( this.eye.y - this.target.y, new GLP.Vector( this.eye.x, this.eye.z ).length() - new GLP.Vector( this.target.x, this.target.z ).length() );
 		this.orbit.y = - Math.atan2( this.eye.x - this.target.x, this.eye.z - this.target.z );
-
+		
 		this.distance = this.eye.clone().sub( this.target ).length();
-
+		
 		this.mouseVelOrbit.set( 0, 0, 0 );
 		this.mouseVelMove.set( 0, 0, 0 );
 

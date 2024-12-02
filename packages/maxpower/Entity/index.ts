@@ -355,13 +355,13 @@ export class Entity extends Serializable {
 
 	// get
 
-	public getComponentsByTag<T extends Component>( tag: string ): T[] | undefined {
+	public getComponentByTag<T extends Component>( tag: string ): T {
 
-		return this.components.filter( c => c.tag === tag ) as T[];
+		return this.components.find( c => c.tag === tag ) as T;
 
 	}
 
-	public getComponentsByUUID<T extends Component>( uuid: string ): T | undefined {
+	public getComponentByUUID<T extends Component>( uuid: string ): T | undefined {
 
 		return this.components.find( c => c.uuid === uuid ) as T;
 
