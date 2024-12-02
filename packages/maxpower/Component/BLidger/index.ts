@@ -182,7 +182,7 @@ export class BLidger extends Component {
 
 				if ( gltfEntity ) {
 
-					const geo = gltfEntity.getComponentsByTag<Geometry>( "geometry" );
+					const geo = gltfEntity.getComponentByTag<Geometry>( "geometry" );
 
 					if ( geo ) {
 
@@ -191,7 +191,7 @@ export class BLidger extends Component {
 
 					}
 
-					const mat = gltfEntity.getComponentsByTag<Material>( "material" );
+					const mat = gltfEntity.getComponentByTag<Material>( "material" );
 
 					if ( mat ) {
 
@@ -230,7 +230,7 @@ export class BLidger extends Component {
 
 		if ( this.node.type == 'camera' ) {
 
-			this.cameraComponent = entity.getComponentsByTag<Camera>( "camera" );
+			this.cameraComponent = entity.getComponentByTag<Camera>( "camera" );
 
 			if ( this.cameraComponent ) {
 

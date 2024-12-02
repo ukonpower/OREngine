@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 
 import { OREngineGUICore } from '~/ts/OREngineGUICore';
 
@@ -8,30 +8,21 @@ import { OREngineGUICore } from '~/ts/OREngineGUICore';
 
 const useOREngineGUIContext = () => {
 
-	const guiRef = useRef<OREngineGUICore | null>( null );
+	const [gui, setGUI] = useState<OREngineGUICore>(() => new OREngineGUICore());
 
-	if ( guiRef.current == null ) {
+	useEffect(() => {
 
-		guiRef.current = new OREngineGUICore();
-
-	}
-
-	const gui = guiRef.current;
-
-	useEffect( () => {
+		if (gui.disposed) {
+			let gui = new OREngineGUICore();
+			setGUI(gui);
+		}
 
 		return () => {
+			gui.dispose();
 
-			if ( guiRef.current ) {
+		}
 
-				guiRef.current.dispose();
-				guiRef.current = null;
-
-			}
-
-		};
-
-	}, [] );
+	}, [])
 
 	return {
 		gui,
@@ -42,23 +33,23 @@ const useOREngineGUIContext = () => {
 
 
 const OREngineGUIContext = createContext<
-  ReturnType<typeof useOREngineGUIContext> | undefined
->( undefined );
+	ReturnType<typeof useOREngineGUIContext> | undefined
+>(undefined);
 
 export const useOREngineGUI = () => {
 
-	const context = useContext( OREngineGUIContext );
+	const context = useContext(OREngineGUIContext);
 
-	if ( context === undefined )
-		throw new Error( 'useOREngineGUI must be used within a OREditorProvider' );
+	if (context === undefined)
+		throw new Error('useOREngineGUI must be used within a OREditorProvider');
 
 	return context;
 
 };
 
-export const OREngineGUI: React.FC<{ children?: React.ReactNode }> = ( {
+export const OREngineGUI: React.FC<{ children?: React.ReactNode }> = ({
 	children,
-} ) => {
+}) => {
 
 	const context = useOREngineGUIContext();
 
