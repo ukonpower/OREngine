@@ -490,7 +490,7 @@ export class Renderer extends Entity {
 
 	public renderCamera( renderType: MaterialRenderType, cameraEntity: Entity, entities: Entity[], renderTarget: GLP.GLPowerFrameBuffer | null, canvasSize: GLP.Vector, renderOption?: RenderOption ) {
 
-		const camera = cameraEntity.getComponentByTag<Camera>( "camera" ) || cameraEntity.getComponent( Light )!;
+		const camera = cameraEntity.getComponentsByTag<Camera>( "camera" ) || cameraEntity.getComponent( Light )!;
 
 		renderOption = renderOption || {};
 

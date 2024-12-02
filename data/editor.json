@@ -18,7 +18,7 @@
 				1
 			],
 			"children": [
-				"43"
+				"45"
 			],
 			"components": [],
 			"objectOverride": [
@@ -30,7 +30,7 @@
 							"props": {
 								"enabled": true,
 								"mode": "json",
-								"gltf": true,
+								"gltf": false,
 								"gltfPath": "/scene.glb",
 								"websocket/": null,
 								"websocket/url": "ws://localhost:3100"
@@ -38,28 +38,6 @@
 						},
 						{
 							"name": "DemoMusic",
-							"props": {
-								"enabled": true
-							}
-						}
-					]
-				},
-				{
-					"path": "/CamDof/blidgeRoot/OREngine",
-					"components": [
-						{
-							"name": "OREngineLogo",
-							"props": {
-								"enabled": true
-							}
-						}
-					]
-				},
-				{
-					"path": "/CamDof/blidgeRoot/SkyBox",
-					"components": [
-						{
-							"name": "SkyBox",
 							"props": {
 								"enabled": true
 							}
@@ -84,5 +62,5 @@
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,
 	"frameLoop/end": 0,
-	"selectedEntityId": "8c"
+	"selectedEntityId": "45"
 }

@@ -21,14 +21,14 @@ export const ComponentList: React.FC<{entity: MXP.Entity}> = ( { entity } ) => {
 
 		}
 
-		components.forEach( componentId => {
+		components.forEach( uuid => {
 
-			const component = entity.getComponentByResourceId( componentId );
+			const component = entity.getComponentsByUUID( uuid );
 
 			if ( ! component ) return;
 
 			componentViewList.push(
-				<ComponentView key={componentId} component={component} />
+				<ComponentView key={component.uuid} component={component} />
 			);
 
 		} );
@@ -36,7 +36,6 @@ export const ComponentList: React.FC<{entity: MXP.Entity}> = ( { entity } ) => {
 		return componentViewList;
 
 	}, [ components, entity ] );
-
 
 	return <div className={style.container}>
 		{componentViewList}

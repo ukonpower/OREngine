@@ -2,9 +2,7 @@ import * as GLP from 'glpower';
 
 import { Component, ComponentUpdateEvent } from "../Component";
 import { RenderCamera } from '../Component/Camera/RenderCamera';
-import { Geometry } from '../Component/Geometry';
 import { Light } from '../Component/Light';
-import { Material } from '../Component/Material';
 import { Mesh } from '../Component/Mesh';
 import { RenderStack } from '../Component/Renderer';
 import { Serializable } from '../Serializable';
@@ -51,8 +49,7 @@ export class Entity extends Serializable {
 	public parent: Entity | null;
 	public children: Entity[];
 
-	public components: Map<string, Component>;
-	private componentsByTag: Map<string, Component>;
+	public components: Component[];
 
 	public visible: boolean;
 	public userData: any;
@@ -77,8 +74,7 @@ export class Entity extends Serializable {
 		this.parent = null;
 		this.children = [];
 
-		this.components = new Map();
-		this.componentsByTag = new Map();
+		this.components = [];
 
 		this.visible = true;
 		this.userData = {};
@@ -88,7 +84,7 @@ export class Entity extends Serializable {
 		this.field( "euler", () => this.euler.getElm( "vec3" ), value => this.euler.setFromArray( value ), { format: { type: "vector" } } );
 		this.field( "scale", () => this.scale.getElm( "vec3" ), value => this.scale.setFromArray( value ), { format: { type: "vector" } } );
 		this.field( "children", () => this.children.map( c => c.uuid ), undefined, { noExport: true, hidden: true } );
-		this.field( "components", () => Array.from( this.components.values() ).map( item => item.resourceId ), undefined, { noExport: true, hidden: true } );
+		this.field( "components", () => this.components.map( item => item.uuid ), undefined, { noExport: true, hidden: true } );
 
 	}
 
@@ -185,9 +181,6 @@ export class Entity extends Serializable {
 
 		const visibility = ( event.visibility || event.visibility === undefined ) && this.visible;
 		childEvent.visibility = visibility;
-
-		// const geometry = this.getComponentByTag<Geometry>( "geometry" );
-		// const material = this.getComponentByTag<Material>( "material" );
 
 		const mesh = this.getComponent( Mesh );
 
@@ -326,25 +319,11 @@ export class Entity extends Serializable {
 
 	public addComponent<T extends Component>( component: T ) {
 
-		const id = component.resourceId;
+		if ( this.components.find( item => item.uuid == component.uuid ) ) return component;
 
-		const prevComponent = this.components.get( id );
-
-		if ( prevComponent ) {
-
-			prevComponent.unsetEntity();
-
-		}
+		this.components.push( component );
 
 		component.setEntity( this );
-
-		this.components.set( id, component );
-
-		if ( component.tag !== "" ) {
-
-			this.componentsByTag.set( component.tag, component );
-
-		}
 
 		this.emit( "component/add", [ component ] );
 
@@ -354,56 +333,45 @@ export class Entity extends Serializable {
 
 	}
 
-	// get
-
-	public getComponentByTag<T extends Component>( tag: string ): T | undefined {
-
-		return this.componentsByTag.get( tag ) as T;
-
-	}
-
-	public getComponentByResourceId<T extends Component>( id: string ): T | undefined {
-
-		return this.components.get( id ) as T;
-
-	}
-
-	public getComponent<T extends typeof Component>( component: T ): InstanceType<T> | undefined {
-
-		return this.getComponentByResourceId( component.resourceId );
-
-	}
-
 	// remove
 
-	public removeComponentByResourceId( resourceId: string ) {
+	public removeComponent<T extends typeof Component>( component: T | string ) {
 
-		const currentComponent = this.components.get( resourceId );
+		const removeComponent = this.getComponent<T>( component );
 
-		if ( currentComponent ) {
+		if ( ! removeComponent ) return;
 
-			this.components.delete( resourceId );
-			currentComponent.unsetEntity();
+		removeComponent.unsetEntity();
 
-			if ( currentComponent.tag !== "" ) {
+		this.components = this.components.filter( item => item.uuid !== removeComponent.uuid );
 
-				this.componentsByTag.delete( currentComponent.tag );
-
-			}
-
-		}
-
-		this.emit( "component/remove", [ currentComponent ] );
+		this.emit( "component/remove", [ removeComponent ] );
 
 		this.noticeField( "components" );
 
-		return currentComponent;
+		return removeComponent;
 
 	}
 
-	public removeComponent( component: Component | typeof Component ) {
+	// get
 
-		this.removeComponentByResourceId( component.resourceId );
+	public getComponentsByTag<T extends Component>( tag: string ): T[] | undefined {
+
+		return this.components.filter( c => c.tag === tag ) as T[];
+
+	}
+
+	public getComponentsByUUID<T extends Component>( uuid: string ): T | undefined {
+
+		return this.components.find( c => c.uuid === uuid ) as T;
+
+	}
+
+	public getComponent<T extends typeof Component>( component: T | string ): InstanceType<T> | undefined {
+
+		const resourceId = typeof component == "string" ? component : component.resourceId;
+
+		return this.components.find( c => c.resourceId === resourceId ) as InstanceType<T>;
 
 	}
 
@@ -558,7 +526,7 @@ export class Entity extends Serializable {
 
 		} );
 
-		this.components.clear();
+		this.components = [];
 
 	}
 
