@@ -30,7 +30,7 @@
 							"props": {
 								"enabled": true,
 								"mode": "json",
-								"gltf": false,
+								"gltf": true,
 								"gltfPath": "/scene.glb",
 								"websocket/": null,
 								"websocket/url": "ws://localhost:3100"
