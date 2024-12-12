@@ -155,6 +155,8 @@ export class OrbitControls extends MXP.Component {
 		this.lookatMatrix.lookAt( this.eye, this.target, this.up );
 		this.lookatMatrix.decompose( entity.position, entity.quaternion, entity.scale );
 
+		entity.updateMatrix();
+
 		// calc viewmatrix
 
 		const cameraComponent = entity.getComponentByTag<MXP.Camera>( "camera" );
@@ -201,6 +203,7 @@ export class OrbitControls extends MXP.Component {
 
 		this.eye.copy( eye );
 		this.target.copy( target );
+
 
 		if ( this.entity ) {
 

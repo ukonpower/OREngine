@@ -272,7 +272,7 @@ export class BLidge extends GLP.EventEmitter {
 	}
 
 	public async loadScene( data: BLidgeScene, gltfPath?: string ) {
-		
+
 		this.currentScene = data;
 
 		// gltf

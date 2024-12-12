@@ -1,11 +1,5 @@
+
 import * as GLP from 'glpower';
-
-export type MaterialRenderType = "shadowMap" | "deferred" | "forward" | "envMap" | 'ui' | "postprocess"
-
-type MaterialDefines = {[key: string]: any};
-type MaterialVisibility = {[K in MaterialRenderType]?: boolean}
-type MaterialProgramCache = {[K in MaterialRenderType]?: GLP.GLPowerProgram}
-
 import { Entity } from 'packages/maxpower/Entity';
 
 import { Component, ComponentParams } from '..';
@@ -13,6 +7,11 @@ import { Component, ComponentParams } from '..';
 import basicFrag from './shaders/basic.fs';
 import basicVert from './shaders/basic.vs';
 
+
+type MaterialDefines = {[key: string]: any};
+type MaterialVisibility = {[K in MaterialRenderType]?: boolean}
+type MaterialProgramCache = {[K in MaterialRenderType]?: GLP.GLPowerProgram}
+export type MaterialRenderType = "shadowMap" | "deferred" | "forward" | "envMap" | 'ui' | "postprocess"
 
 export type DrawType = 'TRIANGLES' | 'LINES' | 'POINTS';
 export type Blending = 'ADD' | 'NORMAL' | "DIFF";
@@ -72,8 +71,6 @@ export class Material extends Component {
 		this.frag = params.frag || basicFrag;
 		this.defines = params.defines || {};
 		this.uniforms = params.uniforms || {};
-
-		this.deserialize( params );
 
 		this.programCache = {};
 

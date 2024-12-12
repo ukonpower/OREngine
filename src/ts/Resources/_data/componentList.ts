@@ -15,7 +15,6 @@ import { BLidgeClient } from '../Components/Utilities/BLidgeClient/index.ts';
 import { Text } from '../Components/Utilities/Text/index.ts';
 import { TurnTable } from '../Components/Utilities/TurnTable/index.ts';
 import { LookAt } from '../Components/View/LookAt/index.ts';
-import { OrbitControls } from '../Components/View/OrbitControls/index.ts';
 import { RotateViewer } from '../Components/View/RotateViewer/index.ts';
 import { ShakeViewer } from '../Components/View/ShakeViewer/index.ts';
 import { VJCamera } from '../Components/View/VJCamera/index.ts';
@@ -50,7 +49,6 @@ export const COMPONENTLIST: {[key: string]: any} = {
 	},
 	View: {
 		LookAt,
-		OrbitControls,
 		RotateViewer,
 		ShakeViewer,
 		VJCamera,

@@ -7,36 +7,35 @@ import style from './index.module.scss';
 
 import { useSerializableField } from '~/tsx/hooks/useSerializableProps';
 
-export const ComponentList: React.FC<{entity: MXP.Entity}> = ( { entity } ) => {
+export const ComponentList: React.FC<{ entity: MXP.Entity }> = ({ entity }) => {
 
-	const [ components ] = useSerializableField<string[]>( entity, "components" );
+	const [components] = useSerializableField<string[]>(entity, "components");
 
-	const componentViewList = useMemo( () => {
+	const componentViewList = useMemo(() => {
 
 		const componentViewList: React.ReactNode[] = [];
 
-		if ( ! components ) {
+		if (!components) {
 
 			return null;
 
 		}
 
-		components.forEach( componentId => {
+		components.forEach(uuid => {
 
-			const component = entity.getComponentByResourceId( componentId );
+			const component = entity.getComponentByUUID(uuid);
 
-			if ( ! component ) return;
+			if (!component) return;
 
 			componentViewList.push(
-				<ComponentView key={componentId} component={component} />
+				<ComponentView key={component.uuid} component={component} />
 			);
 
-		} );
+		});
 
 		return componentViewList;
 
-	}, [ components, entity ] );
-
+	}, [components, entity]);
 
 	return <div className={style.container}>
 		{componentViewList}
