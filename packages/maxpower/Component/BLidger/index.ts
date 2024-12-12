@@ -1,5 +1,5 @@
 import * as GLP from 'glpower';
-import { Camera } from 'maxpower';
+import { Camera, Mesh } from 'maxpower';
 
 import { Component, ComponentParams, ComponentUpdateEvent } from "..";
 import { BLidge, BLidgeEntity, BLidgeLightParam, BLidgeCameraParam } from "../../BLidge";
@@ -116,41 +116,65 @@ export class BLidger extends Component {
 
 		if ( this.node.type == 'cube' ) {
 
+			const mesh = new Mesh();
+
 			const cubeParam = this.node.param as any;
 
-			entity.addComponent( new CubeGeometry( { disableEdit: true, width: cubeParam.x, height: cubeParam.y, depth: cubeParam.z, segmentsWidth: 10, segmentsHeight: 10, segmentsDepth: 10 } ) );
+			mesh.geometry = new CubeGeometry( { disableEdit: true, width: cubeParam.x, height: cubeParam.y, depth: cubeParam.z, segmentsWidth: 10, segmentsHeight: 10, segmentsDepth: 10 } );
+
+			entity.addComponent( mesh );
 
 		} else if ( this.node.type == 'sphere' ) {
 
+			const mesh = new Mesh();
+
 			const sphereParam = this.node.param as any;
-			entity.addComponent( new SphereGeometry( { disableEdit: true,
+
+			mesh.geometry = new SphereGeometry( { disableEdit: true,
 				radius: sphereParam.r,
 				widthSegments: 32,
 				heightSegments: 16
-			} ) );
+			} );
+
+			entity.addComponent( mesh );
 
 		} else if ( this.node.type == 'cylinder' ) {
 
-			entity.addComponent( new CylinderGeometry( { disableEdit: true } ) );
+			const mesh = new Mesh();
+
+			mesh.geometry = new CylinderGeometry( { disableEdit: true } );
+
+			entity.addComponent( mesh );
 
 		} else if ( this.node.type == 'plane' ) {
 
+			const mesh = new Mesh();
+
 			const planeParam = this.node.param as any;
 
-			entity.addComponent( new PlaneGeometry( { disableEdit: true, width: planeParam.x, height: planeParam.y } ) );
+			mesh.geometry = new PlaneGeometry( { disableEdit: true, width: planeParam.x, height: planeParam.y } );
+
+			entity.addComponent( mesh );
+
 
 		} else if ( this.node.type == 'mesh' ) {
+
+			const mesh = new Mesh();
 
 			const geometryParam = this.node.param as any;
 
 			const geometry = new Geometry( { disableEdit: true } );
+
 			geometry.setAttribute( 'position', geometryParam.position, 3 );
 			geometry.setAttribute( 'uv', geometryParam.uv, 2 );
 			geometry.setAttribute( 'normal', geometryParam.normal, 3 );
 			geometry.setAttribute( 'index', geometryParam.index, 3 );
-			entity.addComponent( geometry );
+
+			mesh.geometry = geometry;
 
 		} else if ( this.node.type == 'gltf' ) {
+
+			const mesh = new Mesh();
 
 			this.blidge.gltfPrm.then( gltf => {
 
@@ -163,7 +187,7 @@ export class BLidger extends Component {
 					if ( geo ) {
 
 						geo.disableEdit = true;
-						entity.addComponent( geo );
+						mesh.geometry = geo;
 
 					}
 
@@ -172,7 +196,7 @@ export class BLidger extends Component {
 					if ( mat ) {
 
 						mat.disableEdit = true;
-						entity.addComponent( mat );
+						mesh.material = mat;
 
 					}
 
@@ -182,15 +206,7 @@ export class BLidger extends Component {
 
 			} );
 
-		}
-
-		// base material
-
-		const mat = entity.getComponentByTag<Material>( "material" );
-
-		if ( ! mat && entity.getComponentByTag<Geometry>( "geometry" ) ) {
-
-			entity.addComponent( new Material( { disableEdit: true, name: entity.name, phase: [ "deferred", "shadowMap" ] } ) );
+			entity.addComponent( mesh );
 
 		}
 
@@ -212,13 +228,17 @@ export class BLidger extends Component {
 
 		// camera
 
-		this.cameraComponent = entity.getComponentByTag<Camera>( "camera" );
+		if ( this.node.type == 'camera' ) {
 
-		if ( this.node.type == 'camera' && this.cameraComponent ) {
+			this.cameraComponent = entity.getComponentByTag<Camera>( "camera" );
 
-			const cameraParam = this.node.param as BLidgeCameraParam;
+			if ( this.cameraComponent ) {
 
-			this.cameraComponent.fov = cameraParam.fov;
+				const cameraParam = this.node.param as BLidgeCameraParam;
+
+				this.cameraComponent.fov = cameraParam.fov;
+
+			}
 
 		}
 

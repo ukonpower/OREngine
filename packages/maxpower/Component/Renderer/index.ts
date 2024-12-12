@@ -8,6 +8,7 @@ import { Geometry } from '../Geometry';
 import { PlaneGeometry } from '../Geometry/PlaneGeometry';
 import { Light, LightType } from '../Light';
 import { MaterialRenderType, Material } from '../Material';
+import { Mesh } from '../Mesh';
 import { PostProcess } from '../PostProcess';
 
 import { DeferredRenderer } from './DeferredRenderer';
@@ -562,8 +563,10 @@ export class Renderer extends Entity {
 		for ( let i = 0; i < entities.length; i ++ ) {
 
 			const entity = entities[ i ];
-			const material = entity.getComponentByTag<Material>( "material" )!;
-			const geometry = entity.getComponentByTag<Geometry>( "geometry" )!;
+
+			const mesh = entity.getComponent( Mesh )!;
+			const material = mesh.material;
+			const geometry = mesh.geometry;
 
 			drawParam.modelMatrixWorld = entity.matrixWorld;
 			drawParam.modelMatrixWorldPrev = entity.matrixWorldPrev;

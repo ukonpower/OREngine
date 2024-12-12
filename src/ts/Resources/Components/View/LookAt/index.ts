@@ -23,17 +23,6 @@ export class LookAt extends MXP.Component {
 
 	}
 
-	public get props() {
-
-		return {
-			...super.props,
-			target: {
-				value: this.target && this.target.name
-			},
-		};
-
-	}
-
 	public setTarget( target: MXP.Entity | null ) {
 
 		this.target = target;

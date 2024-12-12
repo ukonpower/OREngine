@@ -30,8 +30,7 @@ export const ComponentView = ( { component }: ComponentViewProps ) => {
 
 		if ( entity ) {
 
-
-			entity.removeComponent( component );
+			entity.removeComponent( component.resourceId );
 
 		}
 

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 
 import { OREngineGUICore } from '~/ts/OREngineGUICore';
 
@@ -8,26 +8,20 @@ import { OREngineGUICore } from '~/ts/OREngineGUICore';
 
 const useOREngineGUIContext = () => {
 
-	const guiRef = useRef<OREngineGUICore | null>( null );
-
-	if ( guiRef.current == null ) {
-
-		guiRef.current = new OREngineGUICore();
-
-	}
-
-	const gui = guiRef.current;
+	const [ gui, setGUI ] = useState<OREngineGUICore>( () => new OREngineGUICore() );
 
 	useEffect( () => {
 
+		if ( gui.disposed ) {
+
+			const gui = new OREngineGUICore();
+			setGUI( gui );
+
+		}
+
 		return () => {
 
-			if ( guiRef.current ) {
-
-				guiRef.current.dispose();
-				guiRef.current = null;
-
-			}
+			gui.dispose();
 
 		};
 
@@ -42,7 +36,7 @@ const useOREngineGUIContext = () => {
 
 
 const OREngineGUIContext = createContext<
-  ReturnType<typeof useOREngineGUIContext> | undefined
+	ReturnType<typeof useOREngineGUIContext> | undefined
 >( undefined );
 
 export const useOREngineGUI = () => {

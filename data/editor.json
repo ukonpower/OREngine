@@ -18,7 +18,7 @@
 				1
 			],
 			"children": [
-				"43"
+				"45"
 			],
 			"components": [],
 			"objectOverride": [
@@ -43,28 +43,6 @@
 							}
 						}
 					]
-				},
-				{
-					"path": "/CamDof/blidgeRoot/OREngine",
-					"components": [
-						{
-							"name": "OREngineLogo",
-							"props": {
-								"enabled": true
-							}
-						}
-					]
-				},
-				{
-					"path": "/CamDof/blidgeRoot/SkyBox",
-					"components": [
-						{
-							"name": "SkyBox",
-							"props": {
-								"enabled": true
-							}
-						}
-					]
 				}
 			],
 			"scene": {
@@ -84,5 +62,5 @@
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,
 	"frameLoop/end": 0,
-	"selectedEntityId": "8c"
+	"selectedEntityId": "45"
 }

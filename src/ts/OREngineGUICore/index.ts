@@ -60,7 +60,7 @@ export class OREngineGUICore extends MXP.Serializable {
 
 	// dispose
 
-	private disposed: boolean;
+	public disposed: boolean;
 
 	constructor() {
 
