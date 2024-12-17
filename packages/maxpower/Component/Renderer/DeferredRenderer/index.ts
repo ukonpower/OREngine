@@ -28,21 +28,25 @@ const ssaoKernel = ( kernelSize: number ) => {
 
 };
 
-type DeferredRendererParams = {
+type Params = {
 	gl: WebGL2RenderingContext;
 	envMap: GLP.GLPowerTexture;
 	envMapCube?: GLP.GLPowerTextureCube
-} & MXP.ComponentParams
+}
 
-export class DeferredRenderer extends MXP.PostProcess {
+export class DeferredRenderer extends GLP.EventEmitter {
 
 	// uniforms
 
-	private timeUniforms: GLP.Uniforms;
+	private timeUniforms_: GLP.Uniforms;
+
+	// renderer postprocess
+
+	public postprocess: MXP.PostProcess;
 
 	// nromal buffer
 
-	public normalSelector: MXP.PostProcessPass;
+	public normalSelector_: MXP.PostProcessPass;
 
 	// light shaft
 
@@ -63,7 +67,9 @@ export class DeferredRenderer extends MXP.PostProcess {
 
 	public shading: MXP.PostProcessPass;
 
-	constructor( params: DeferredRendererParams ) {
+	constructor( params: Params ) {
+
+		super();
 
 		const gl = params.gl;
 
@@ -262,16 +268,17 @@ export class DeferredRenderer extends MXP.PostProcess {
 			} ),
 		} );
 
-		super( { passes: [
+		this.postprocess = new MXP.PostProcess( { entity: new MXP.Entity(), args: undefined } );
+		this.postprocess.passes = [
 			normalSelector,
 			lightShaft,
 			ssao,
 			ssaoBlurH,
 			ssaoBlurV,
 			shading,
-		] } );
+		];
 
-		this.timeUniforms = timeUniforms;
+		this.timeUniforms_ = timeUniforms;
 		this.shading = shading;
 		this.lightShaft = lightShaft;
 		this.ssao = ssao;
@@ -285,7 +292,7 @@ export class DeferredRenderer extends MXP.PostProcess {
 		this.rtLightShaft1 = rtLightShaft1;
 		this.rtLightShaft2 = rtLightShaft2;
 
-		this.normalSelector = normalSelector;
+		this.normalSelector_ = normalSelector;
 
 		if ( import.meta.hot ) {
 
@@ -305,11 +312,11 @@ export class DeferredRenderer extends MXP.PostProcess {
 
 	}
 
-	protected updateImpl( event: MXP.ComponentUpdateEvent ): void {
+	public update( event: MXP.EntityUpdateEvent ): void {
 
 		// uniforms
 
-		this.timeUniforms.uTimeEF.value = ( this.timeUniforms.uTimeEF.value + event.timeDelta ) % 1;
+		this.timeUniforms_.uTimeEF.value = ( this.timeUniforms_.uTimeEF.value + event.timeDelta ) % 1;
 
 		// light shaft swap
 
@@ -337,6 +344,8 @@ export class DeferredRenderer extends MXP.PostProcess {
 
 		const renderTarget = renderCamera.renderTarget;
 
+		if ( ! renderTarget	) return;
+
 		for ( let i = 0; i < renderTarget.gBuffer.textures.length; i ++ ) {
 
 			let tex = renderTarget.gBuffer.textures[ i ];
@@ -358,12 +367,18 @@ export class DeferredRenderer extends MXP.PostProcess {
 		this.lightShaft.uniforms.uDepthTexture.value = renderTarget.gBuffer.depthTexture;
 		this.shading.renderTarget = renderTarget.shadingBuffer;
 
-		this.normalSelector.renderTarget = renderTarget.normalBuffer;
-		this.normalSelector.uniforms.uNormalTexture.value = renderTarget.gBuffer.textures[ 1 ];
-		this.normalSelector.uniforms.uPosTexture.value = renderTarget.gBuffer.textures[ 0 ];
-		this.normalSelector.uniforms.uSelectorTexture.value = renderTarget.gBuffer.textures[ 3 ];
+		this.normalSelector_.renderTarget = renderTarget.normalBuffer;
+		this.normalSelector_.uniforms.uNormalTexture.value = renderTarget.gBuffer.textures[ 1 ];
+		this.normalSelector_.uniforms.uPosTexture.value = renderTarget.gBuffer.textures[ 0 ];
+		this.normalSelector_.uniforms.uSelectorTexture.value = renderTarget.gBuffer.textures[ 3 ];
 
 		this.ssaoBlurUni.uNormalTexture.value = renderTarget.normalBuffer.textures[ 0 ];
+
+	}
+
+	public resize( resolution: GLP.Vector ) {
+
+		this.postprocess.resize( resolution );
 
 	}
 

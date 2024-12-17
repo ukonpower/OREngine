@@ -1,7 +1,6 @@
 import { Geometry } from "..";
-import { ComponentParams } from "../..";
 
-interface RingGeometryParams extends ComponentParams{
+interface RingGeometryParams {
 	innerRadius?: number,
 	outerRadius?: number,
 	thetaSegments?: number,
@@ -13,7 +12,7 @@ export class RingGeometry extends Geometry {
 
 	constructor( params?: RingGeometryParams ) {
 
-		super( params );
+		super();
 
 		const { innerRadius, outerRadius, thetaSegments, phiSegments, extrude } = {
 			innerRadius: 0.4,

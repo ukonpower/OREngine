@@ -8,16 +8,15 @@ import { globalUniforms } from '~/ts/Globals';
 
 export class GridCross extends MXP.Component {
 
-	private geometry: MXP.Geometry;
-	private material: MXP.Material;
+	constructor( params: MXP.ComponentParams ) {
 
-	constructor() {
+		super( params );
 
-		super();
+		const mesh = this.entity.addComponent( MXP.Mesh );
 
 		// geometry
 
-		this.geometry = new MXP.CubeGeometry( { width: 0.05, height: 0.5, depth: 0.05 } );
+		mesh.geometry = new MXP.CubeGeometry( { width: 0.05, height: 0.5, depth: 0.05 } );
 
 		const w = 1.0;
 		const hw = w / 2.0;
@@ -54,12 +53,12 @@ export class GridCross extends MXP.Component {
 
 		}
 
-		this.geometry.setAttribute( "instanceRot", new Float32Array( rotArray ), 3, { instanceDivisor: 1 } );
-		this.geometry.setAttribute( "instancePos", new Float32Array( posArray ), 3, { instanceDivisor: 1 } );
+		mesh.geometry.setAttribute( "instanceRot", new Float32Array( rotArray ), 3, { instanceDivisor: 1 } );
+		mesh.geometry.setAttribute( "instancePos", new Float32Array( posArray ), 3, { instanceDivisor: 1 } );
 
 		// material
 
-		this.material = new MXP.Material( {
+		const material = mesh.material = new MXP.Material( {
 			frag: MXP.hotGet( 'gridCrossFrag', gridCrossFrag ),
 			vert: MXP.hotGet( 'gridCrossVert', gridCrossVert ),
 			phase: [ "deferred" ],
@@ -73,9 +72,9 @@ export class GridCross extends MXP.Component {
 
 				if ( module ) {
 
-					this.material.frag = MXP.hotUpdate( 'gridCrossFrag', module.default );
+					material.frag = MXP.hotUpdate( 'gridCrossFrag', module.default );
 
-					this.material.requestUpdate();
+					material.requestUpdate();
 
 				}
 
@@ -85,29 +84,15 @@ export class GridCross extends MXP.Component {
 
 				if ( module ) {
 
-					this.material.vert = MXP.hotUpdate( 'gridCrossVert', module.default );
+					material.vert = MXP.hotUpdate( 'gridCrossVert', module.default );
 
-					this.material.requestUpdate();
+					material.requestUpdate();
 
 				}
 
 			} );
 
 		}
-
-	}
-
-	public setEntityImpl( entity: MXP.Entity ): void {
-
-		entity.addComponent( this.material );
-		entity.addComponent( this.geometry );
-
-	}
-
-	public unsetEntityImpl( entity: MXP.Entity ): void {
-
-		entity.removeComponent( this.material );
-		entity.removeComponent( this.geometry );
 
 	}
 

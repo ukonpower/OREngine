@@ -10,9 +10,9 @@ export class ShakeViewer extends MXP.Component {
 
 	private cameraComponent?: MXP.Camera;
 
-	constructor( ) {
+	constructor( params: MXP.ComponentParams ) {
 
-		super();
+		super( params );
 
 		this.shakePower = 0.15;
 		this.shakeSpeed = 1.0;
@@ -44,7 +44,7 @@ export class ShakeViewer extends MXP.Component {
 
 		entity.matrixWorld.multiply( this.shakeMatrix );
 
-		const camera = entity.getComponentByTag<MXP.Camera>( "camera" );
+		const camera = entity.getComponentsByTag<MXP.Camera>( "camera" )[ 0 ];
 
 		if ( camera ) {
 

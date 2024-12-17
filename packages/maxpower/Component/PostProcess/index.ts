@@ -3,30 +3,27 @@ import * as GLP from 'glpower';
 import { Component, ComponentParams } from '..';
 import { PostProcessPass } from '../PostProcessPass';
 
-export interface PostProcessParam extends ComponentParams {
+export interface PostProcessParam {
 	input?: GLP.GLPowerTexture[];
 	passes: PostProcessPass[];
 }
 
-
 export class PostProcess extends Component {
 
-	public passes: PostProcessPass[];
-	public input: GLP.GLPowerTexture[];
+	public input?: GLP.GLPowerTexture[];
+	public passes?: PostProcessPass[];
 
-	constructor( param: PostProcessParam ) {
+	constructor( params: ComponentParams ) {
 
-		super( param );
-
-		this.passes = param.passes;
-
-		this.input = param.input || [];
+		super( params );
 
 	}
 
 	public get output() {
 
-		const passes = this.passes.filter( ( pass ) => pass.enabled && ! pass.passThrough );
+		if ( ! this.passes ) return null;
+
+		const passes = this.passes.filter( ( pass ) => ! pass.passThrough );
 
 		if ( passes.length > 0 ) {
 
@@ -39,6 +36,8 @@ export class PostProcess extends Component {
 	}
 
 	public resize( resolution: GLP.Vector ): void {
+
+		if ( ! this.passes ) return;
 
 		for ( let i = 0; i < this.passes.length; i ++ ) {
 

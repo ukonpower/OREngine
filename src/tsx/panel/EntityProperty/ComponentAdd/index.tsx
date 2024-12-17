@@ -74,7 +74,7 @@ export const ComponentAdd = ( props: ComponentAddProps ) => {
 
 		const onClickComponentItem = ( compItem: ResouceComponentItem ) => {
 
-			props.entity.addComponent( new compItem.component() ).initiator = 'user';
+			props.entity.addComponent( compItem.component ).initiator = 'user';
 
 			closeAll();
 

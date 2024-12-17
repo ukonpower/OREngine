@@ -1,7 +1,6 @@
 import { Geometry } from "..";
-import { ComponentParams } from "../..";
 
-interface CubeGeometryParams extends ComponentParams{
+interface CubeGeometryParams{
 	width?: number,
 	height?: number,
 	depth?: number,
@@ -12,9 +11,9 @@ interface CubeGeometryParams extends ComponentParams{
 
 export class CubeGeometry extends Geometry {
 
-	constructor( params?: CubeGeometryParams ) {
+	constructor( params: CubeGeometryParams ) {
 
-		super( params );
+		super();
 
 		const posArray = [];
 		const normalArray = [];

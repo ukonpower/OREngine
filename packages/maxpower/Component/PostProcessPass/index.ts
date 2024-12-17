@@ -61,6 +61,16 @@ export class PostProcessPass extends Material {
 
 	}
 
+	public get enabled() {
+
+		return true;
+
+	}
+
+	public set enabled( value: boolean ) {
+
+	}
+
 	public onAfterRender() {
 	}
 

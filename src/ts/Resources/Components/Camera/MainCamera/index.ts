@@ -15,135 +15,98 @@ import { gl, canvas, globalUniforms } from '~/ts/Globals';
 
 export class MainCamera extends MXP.Component {
 
-	// uniforms
-
-	private commonUniforms: GLP.Uniforms;
-
-	// receiver
-
-	private animateReceiver: MXP.BLidgerAnimationReceiver;
-
-	// camera component
-
 	public renderCamera: MXP.RenderCamera;
 
-	private renderTarget: MXP.RenderCameraTarget;
+	private _commonUniforms: GLP.Uniforms;
+	private _animateReceiver: MXP.BLidgerAnimationReceiver;
+	private _renderTarget: MXP.RenderCameraTarget;
+	private _lookAt: LookAt;
+	private _orbitControls?: OrbitControls;
+	private _shakeViewer: MXP.Component;
+	private _gBuffers: GLP.GLPowerFrameBuffer;
+	private _fxaa: MXP.PostProcessPass;
+	private _bloomRenderCount: number;
+	private _bloomBright: MXP.PostProcessPass;
+	private _bloomBlur: MXP.PostProcessPass[];
+	private _rtBloomVertical: GLP.GLPowerFrameBuffer[];
+	private _rtBloomHorizonal: GLP.GLPowerFrameBuffer[];
+	private _composite: MXP.PostProcessPass;
+	private _bokehV: MXP.PostProcessPass;
+	private _bokehH: MXP.PostProcessPass;
+	private _glitch: MXP.PostProcessPass;
+	private _resolution: GLP.Vector;
+	private _resolutionInv: GLP.Vector;
+	private _resolutionBloom: GLP.Vector[];
+	private _postProcess: MXP.PostProcess;
+	private _dofTarget: MXP.Entity | null;
+	private _tmpVector1: GLP.Vector;
+	private _tmpVector2: GLP.Vector;
 
-	// fxaa
+	constructor( params: MXP.ComponentParams ) {
 
-	private fxaa: MXP.PostProcessPass;
+		super( params );
 
-	// bloom
-
-	private bloomRenderCount: number;
-	private bloomBright: MXP.PostProcessPass;
-	private bloomBlur: MXP.PostProcessPass[];
-	private rtBloomVertical: GLP.GLPowerFrameBuffer[];
-	private rtBloomHorizonal: GLP.GLPowerFrameBuffer[];
-
-	// composite
-
-	private composite: MXP.PostProcessPass;
-
-	// bokeh
-
-	private bokehV: MXP.PostProcessPass;
-	private bokehH: MXP.PostProcessPass;
-
-	// glitch
-
-	private glitch: MXP.PostProcessPass;
-
-	// resolutions
-
-	private resolution: GLP.Vector;
-	private resolutionInv: GLP.Vector;
-	private resolutionBloom: GLP.Vector[];
-
-	// components
-
-	private lookAt: LookAt;
-	private orbitControls?: OrbitControls;
-	private shakeViewer: MXP.Component;
-	private postProcess: MXP.PostProcess;
-
-	// dofTarget
-
-	private dofTarget: MXP.Entity | null;
-
-	// tmps
-
-	private tmpVector1: GLP.Vector;
-	private tmpVector2: GLP.Vector;
-
-	constructor() {
-
-		super();
-
-		// components
-
-		this.animateReceiver = new MXP.BLidgerAnimationReceiver();
-		this.add( this.animateReceiver );
-
-		this.renderCamera = new MXP.RenderCamera( { gl } );
-		this.renderTarget = this.renderCamera.renderTarget;
-		this.add( this.renderCamera );
-
-		this.lookAt = new LookAt();
-		this.add( this.lookAt );
-
-		this.shakeViewer = new ShakeViewer();
-		this.add( this.shakeViewer );
-
-		if ( process.env.NODE_ENV === 'development' ) {
-
-			this.orbitControls = new OrbitControls( { elm: canvas } );
-			this.orbitControls.enabled = false;
-			this.add( this.orbitControls );
-
-		}
+		/*-------------------------------
+			Init
+		-------------------------------*/
 
 		// resolution
 
-		this.resolution = new GLP.Vector();
-		this.resolutionInv = new GLP.Vector();
-		this.resolutionBloom = [];
+		this._resolution = new GLP.Vector();
+		this._resolutionInv = new GLP.Vector();
+		this._resolutionBloom = [];
 
 		// uniforms
 
-		this.commonUniforms = MXP.UniformsUtils.merge( {
+		this._commonUniforms = MXP.UniformsUtils.merge( {
 			uResolution: {
 				type: "2f",
-				value: this.resolution
+				value: this._resolution
 			},
 			uResolutionInv: {
 				type: "2f",
-				value: this.resolutionInv
+				value: this._resolutionInv
 			}
 		} );
 
+		/*-------------------------------
+			Components
+		-------------------------------*/
+
+		this.renderCamera = this.entity.addComponent( MXP.RenderCamera, { gl: gl } );
+		this._renderTarget = this.renderCamera.renderTarget;
+		this._gBuffers = this._renderTarget.gBuffer;
+		this._animateReceiver = this.entity.addComponent( MXP.BLidgerAnimationReceiver );
+		this._lookAt = this.entity.addComponent( LookAt );
+		this._shakeViewer = this.entity.addComponent( ShakeViewer );
+
+
+		/*-------------------------------
+			PostProcess
+		-------------------------------*/
+
 		// fxaa
 
-		this.fxaa = new MXP.PostProcessPass( gl, {
+		this._fxaa = new MXP.PostProcessPass( gl, {
 			name: 'fxaa',
 			frag: fxaaFrag,
-			uniforms: this.commonUniforms,
+			uniforms: this._commonUniforms,
 		} );
 
 		// bloom
 
-		this.bloomRenderCount = 4;
+		this._bloomRenderCount = 4;
 
-		this.rtBloomVertical = [];
-		this.rtBloomHorizonal = [];
+		this._rtBloomVertical = [];
+		this._rtBloomHorizonal = [];
 
-		for ( let i = 0; i < this.bloomRenderCount; i ++ ) {
+		for ( let i = 0; i < this._bloomRenderCount; i ++ ) {
 
-			this.rtBloomVertical.push( new GLP.GLPowerFrameBuffer( gl ).setTexture( [
+			this._rtBloomVertical.push( new GLP.GLPowerFrameBuffer( gl ).setTexture( [
 				new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
 			] ) );
 
-			this.rtBloomHorizonal.push( new GLP.GLPowerFrameBuffer( gl ).setTexture( [
+			this._rtBloomHorizonal.push( new GLP.GLPowerFrameBuffer( gl ).setTexture( [
 				new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
 			] ) );
 
@@ -151,12 +114,12 @@ export class MainCamera extends MXP.Component {
 
 		let bloomScale = 2.0;
 
-		this.bloomBright = new MXP.PostProcessPass( gl, {
+		this._bloomBright = new MXP.PostProcessPass( gl, {
 			name: 'bloom/bright/',
 			frag: bloomBrightFrag,
 			uniforms: {
 				uShadingTex: {
-					value: this.renderTarget.shadingBuffer.textures[ 0 ],
+					value: this._renderTarget.shadingBuffer.textures[ 0 ],
 					type: "1i"
 				}
 			},
@@ -164,19 +127,19 @@ export class MainCamera extends MXP.Component {
 			resolutionRatio: 1.0 / bloomScale,
 		} );
 
-		this.bloomBlur = [];
+		this._bloomBlur = [];
 
 		// bloom blur
 
-		let bloomInput: GLP.GLPowerTexture[] = this.bloomBright.renderTarget!.textures;
+		let bloomInput: GLP.GLPowerTexture[] = this._bloomBright.renderTarget!.textures;
 
-		for ( let i = 0; i < this.bloomRenderCount; i ++ ) {
+		for ( let i = 0; i < this._bloomRenderCount; i ++ ) {
 
-			const rtVertical = this.rtBloomVertical[ i ];
-			const rtHorizonal = this.rtBloomHorizonal[ i ];
+			const rtVertical = this._rtBloomVertical[ i ];
+			const rtHorizonal = this._rtBloomHorizonal[ i ];
 
 			const resolution = new GLP.Vector();
-			this.resolutionBloom.push( resolution );
+			this._resolutionBloom.push( resolution );
 
 			const guassSamples = 8.0;
 
@@ -210,9 +173,9 @@ export class MainCamera extends MXP.Component {
 				resolutionRatio: 1.0 / bloomScale
 			};
 
-			this.bloomBlur.push( new MXP.PostProcessPass( gl, blurParam ) );
+			this._bloomBlur.push( new MXP.PostProcessPass( gl, blurParam ) );
 
-			this.bloomBlur.push( new MXP.PostProcessPass( gl, {
+			this._bloomBlur.push( new MXP.PostProcessPass( gl, {
 				...blurParam,
 				name: 'bloom/blur/' + i + '/h',
 				renderTarget: rtHorizonal,
@@ -237,12 +200,12 @@ export class MainCamera extends MXP.Component {
 
 		// composite
 
-		this.composite = new MXP.PostProcessPass( gl, {
+		this._composite = new MXP.PostProcessPass( gl, {
 			name: 'composite',
 			frag: MXP.hotUpdate( "composite", compositeFrag ),
-			uniforms: this.animateReceiver.registerUniforms( MXP.UniformsUtils.merge( this.commonUniforms, {
+			uniforms: this._animateReceiver.registerUniforms( MXP.UniformsUtils.merge( this._commonUniforms, {
 				uBloomTexture: {
-					value: this.rtBloomHorizonal.map( rt => rt.textures[ 0 ] ),
+					value: this._rtBloomHorizonal.map( rt => rt.textures[ 0 ] ),
 					type: '1iv'
 				},
 				uVisible: {
@@ -260,7 +223,7 @@ export class MainCamera extends MXP.Component {
 
 			} ) ),
 			defines: {
-				BLOOM_COUNT: this.bloomRenderCount.toString(),
+				BLOOM_COUNT: this._bloomRenderCount.toString(),
 				USE_BACKBLURTEX: "",
 			},
 		} );
@@ -271,11 +234,11 @@ export class MainCamera extends MXP.Component {
 
 				if ( module ) {
 
-					this.composite.frag = module.default;
+					this._composite.frag = module.default;
 
 				}
 
-				this.composite.requestUpdate();
+				this._composite.requestUpdate();
 
 			} );
 
@@ -309,8 +272,8 @@ export class MainCamera extends MXP.Component {
 			resolutionRatio: 1.0,
 		};
 
-		this.bokehV = new MXP.PostProcessPass( gl, bokehParam );
-		this.bokehH = new MXP.PostProcessPass( gl, {
+		this._bokehV = new MXP.PostProcessPass( gl, bokehParam );
+		this._bokehH = new MXP.PostProcessPass( gl, {
 			...bokehParam,
 			uniforms: {
 				...bokehParam.uniforms,
@@ -323,10 +286,10 @@ export class MainCamera extends MXP.Component {
 
 		// glitch
 
-		this.glitch = new MXP.PostProcessPass( gl, {
+		this._glitch = new MXP.PostProcessPass( gl, {
 			name: 'glitch',
 			frag: glitchFrag,
-			uniforms: this.animateReceiver.registerUniforms( MXP.UniformsUtils.merge( globalUniforms.time, {
+			uniforms: this._animateReceiver.registerUniforms( MXP.UniformsUtils.merge( globalUniforms.time, {
 				uGlitch: {
 					value: 0,
 					type: '1f'
@@ -341,52 +304,91 @@ export class MainCamera extends MXP.Component {
 
 				if ( module ) {
 
-					this.glitch.frag = module.default;
+					this._glitch.frag = module.default;
 
 				}
 
-				this.glitch.requestUpdate();
+				this._glitch.requestUpdate();
 
 			} );
 
 		}
 
-		this.postProcess = new MXP.PostProcess( {
-			passes: [
-				this.bloomBright,
-				...this.bloomBlur,
-				this.fxaa,
-				this.composite,
-				// this.bokehV,
-				// this.bokehH,
-				// this.glitch,
-			]
-		} );
-		this.add( this.postProcess );
+		this._postProcess = this.entity.addComponent( MXP.PostProcess );
+		this._postProcess.passes = [
+			this._bloomBright,
+			...this._bloomBlur,
+			this._fxaa,
+			this._composite,
+		];
 
 		// dof
 
-		this.dofTarget = null;
+		this._dofTarget = null;
 
 		// tmps
 
-		this.tmpVector1 = new GLP.Vector();
-		this.tmpVector2 = new GLP.Vector();
+		this._tmpVector1 = new GLP.Vector();
+		this._tmpVector2 = new GLP.Vector();
 
-		// dev
+		/*-------------------------------
+			BlidgeSceneApply
+		-------------------------------*/
 
-		if ( process.env.NODE_ENV === 'development' ) {
+		const onSceneCreated = ( root: MXP.Entity, ) => {
 
-			const activeOrbitControls = ( activeOrbitcontrols: boolean ) => {
+			const camera = root.findEntityByName( "Camera" ) || null;
 
-				if ( this.orbitControls ) {
+			const blidger = camera?.getComponent( MXP.BLidger );
 
-					this.orbitControls.enabled = activeOrbitcontrols;
+			const prevBlidger = this.entity.getComponent( MXP.BLidger );
+
+			if ( blidger ) {
+
+				if ( prevBlidger ) {
+
+					blidger.transformAutoUpdate = prevBlidger.transformAutoUpdate;
 
 				}
 
-				const blidger = this.entity && this.entity.getComponent( MXP.BLidger );
-				const lookat = this.entity && this.entity.getComponent( LookAt );
+			}
+
+			const lookAtTarget = root.findEntityByName( "CamLook" ) || null;
+			this._lookAt.setTarget( lookAtTarget );
+
+			this._dofTarget = root.findEntityByName( 'CamDof' ) || null;
+			this.updateCameraParams( this._resolution );
+
+		};
+
+		this.entity.on( 'sceneCreated', onSceneCreated );
+
+		this.once( "dispose", () => {
+
+			this.entity.off( 'sceneCreated', onSceneCreated );
+
+		} );
+
+		/*-------------------------------
+			DEV: OrbitControls
+		-------------------------------*/
+
+		if ( process.env.NODE_ENV === 'development' ) {
+
+			this._orbitControls = this.entity.addComponent( OrbitControls );
+			this._orbitControls.setElm( canvas );
+			this._orbitControls.enabled = false;
+
+			const activeOrbitControls = ( activeOrbitcontrols: boolean ) => {
+
+				if ( this._orbitControls ) {
+
+					this._orbitControls.enabled = activeOrbitcontrols;
+
+				}
+
+				const blidger = this.entity.getComponent( MXP.BLidger );
+				const lookat = this.entity.getComponent( LookAt );
 
 				if ( blidger ) {
 
@@ -404,7 +406,7 @@ export class MainCamera extends MXP.Component {
 
 			const onMouseDown = ( e: PointerEvent ) => {
 
-				if ( this.orbitControls && this.orbitControls.enabled ) return;
+				if ( this._orbitControls && this._orbitControls.enabled ) return;
 
 				const elm = e.target as HTMLElement;
 
@@ -416,7 +418,7 @@ export class MainCamera extends MXP.Component {
 
 			const onWheel = () => {
 
-				if ( this.orbitControls && this.orbitControls.enabled ) return;
+				if ( this._orbitControls && this._orbitControls.enabled ) return;
 
 				activeOrbitControls( true );
 
@@ -450,52 +452,13 @@ export class MainCamera extends MXP.Component {
 
 	}
 
-	public setEntityImpl( entity: MXP.Entity, ): void {
-
-		// events
-		entity.on( 'sceneCreated', ( root: MXP.Entity, ) => {
-
-			const camera = root.findEntityByName( "Camera" ) || null;
-
-			const blidger = camera?.getComponent( MXP.BLidger );
-
-			const prevBlidger = entity.getComponent( MXP.BLidger );
-
-			if ( blidger ) {
-
-				if ( prevBlidger ) {
-
-					blidger.transformAutoUpdate = prevBlidger.transformAutoUpdate;
-
-				}
-
-				entity.addComponent( blidger );
-
-			}
-
-			const lookAtTarget = root.findEntityByName( "CamLook" ) || null;
-			this.lookAt.setTarget( lookAtTarget );
-
-			this.dofTarget = root.findEntityByName( 'CamDof' ) || null;
-			this.updateCameraParams( this.resolution );
-
-		} );
-
-	}
-
-	public unsetEntityImpl( prevEntity: MXP.Entity ): void {
-
-		prevEntity.off( 'sceneCreated' );
-
-	}
-
 	protected updateImpl( event: MXP.ComponentUpdateEvent ): void {
 
-		this.updateCameraParams( this.resolution );
+		this.updateCameraParams( this._resolution );
 
 		// state
 
-		const cameraState = this.animateReceiver.animations.get( '_cameraState' );
+		const cameraState = this._animateReceiver.animations.get( '_cameraState' );
 
 		if ( cameraState ) {
 
@@ -505,37 +468,37 @@ export class MainCamera extends MXP.Component {
 
 			// lookat
 
-			this.lookAt.enabled = cameraState.value.y > 0.5;
+			this._lookAt.enabled = cameraState.value.y > 0.5;
 
 		}
 
 		// effect
 
-		const cameraEffect = this.animateReceiver.animations.get( '_cameraEffect' );
+		const cameraEffect = this._animateReceiver.animations.get( '_cameraEffect' );
 
 		if ( cameraEffect ) {
 
-			this.composite.uniforms.uOutPut.value = cameraEffect.value.x;
+			this._composite.uniforms.uOutPut.value = cameraEffect.value.x;
 
-			this.bokehV.uniforms.uBlurRange.value = cameraEffect.value.y;
-			this.bokehH.enabled = this.bokehV.enabled = cameraEffect.value.y > 0.0;
+			this._bokehV.uniforms.uBlurRange.value = cameraEffect.value.y;
+			this._bokehH.enabled = this._bokehV.enabled = cameraEffect.value.y > 0.0;
 
-			this.glitch.uniforms.uGlitch.value = cameraEffect.value.z;
-			this.glitch.enabled = cameraEffect.value.z > 0.0;
+			this._glitch.uniforms.uGlitch.value = cameraEffect.value.z;
+			this._glitch.enabled = cameraEffect.value.z > 0.0;
 
 		}
 
 		// dof params
 
-		event.entity.matrixWorld.decompose( this.tmpVector1 );
+		event.entity.matrixWorld.decompose( this._tmpVector1 );
 
-		if ( this.dofTarget ) {
+		if ( this._dofTarget ) {
 
-			this.dofTarget.matrixWorld.decompose( this.tmpVector2 );
+			this._dofTarget.matrixWorld.decompose( this._tmpVector2 );
 
 		}
 
-		this.renderCamera.dof.focusDistance = this.tmpVector1.sub( this.tmpVector2 ).length();
+		this.renderCamera.dofParams.focusDistance = this._tmpVector1.sub( this._tmpVector2 ).length();
 
 	}
 
@@ -543,20 +506,20 @@ export class MainCamera extends MXP.Component {
 
 		this.renderCamera.resize( resolution );
 
-		if ( this.postProcess ) {
+		if ( this._postProcess ) {
 
-			this.postProcess.resize( resolution );
+			this._postProcess.resize( resolution );
 
 		}
 
-		this.resolution.copy( resolution );
-		this.resolutionInv.set( 1.0 / resolution.x, 1.0 / resolution.y, 0.0, 0.0 );
+		this._resolution.copy( resolution );
+		this._resolutionInv.set( 1.0 / resolution.x, 1.0 / resolution.y, 0.0, 0.0 );
 
-		const resolutionHalf = this.resolution.clone().divide( 2 );
+		const resolutionHalf = this._resolution.clone().divide( 2 );
 		resolutionHalf.x = Math.max( Math.floor( resolutionHalf.x ), 1.0 );
 		resolutionHalf.y = Math.max( Math.floor( resolutionHalf.y ), 1.0 );
 
-		this.updateCameraParams( this.resolution );
+		this.updateCameraParams( this._resolution );
 
 	}
 

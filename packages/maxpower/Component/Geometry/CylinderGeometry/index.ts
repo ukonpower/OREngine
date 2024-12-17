@@ -3,7 +3,7 @@ import { Vector } from "glpower";
 import { Geometry } from "..";
 import { ComponentParams } from "../..";
 
-interface CylinderGeometryParams extends ComponentParams{
+interface CylinderGeometryParams{
 	height?: number,
 	radiusTop?: number,
 	radiusBottom?: number,
@@ -17,7 +17,7 @@ export class CylinderGeometry extends Geometry {
 
 	constructor( params?: CylinderGeometryParams ) {
 
-		super( params );
+		super();
 
 		const posArray = [];
 		const normalArray = [];

@@ -115,7 +115,7 @@ export class OREngine extends MXP.Entity {
 		this.camera = new MXP.Entity( { name: "camera" } );
 		this.camera.position.set( 0, 0, 5 );
 
-		this.cameraComponent = this.camera.addComponent( new MainCamera() );
+		this.cameraComponent = this.camera.addComponent( MainCamera );
 
 		globalUniforms.gBuffer.uGBufferPos.value = this.cameraComponent.renderCamera.gBuffer.textures[ 0 ];
 		globalUniforms.gBuffer.uGBufferNormal.value = this.cameraComponent.renderCamera.gBuffer.textures[ 1 ];
@@ -145,14 +145,6 @@ export class OREngine extends MXP.Entity {
 		const tl = this.fieldDir( "timeline" );
 		tl.field( "duration", () => this.frameSetting.duration, ( v ) => this.frameSetting.duration = v );
 		tl.field( "fps", () => this.frameSetting.fps, ( v ) => this.frameSetting.fps = v );
-
-	}
-
-	protected deserializer( props: MXP.TypedSerializableProps<this> ) {
-
-		this.name = props.name.value;
-		this.frameSetting.duration = props.timeline.duration.value;
-		this.frameSetting.fps = props.timeline.fps.value;
 
 	}
 
@@ -229,7 +221,7 @@ export class OREngine extends MXP.Entity {
 
 		if ( this.enableRender ) {
 
-			renderer.render( renderStack );
+			renderer.render( event, renderStack );
 
 		}
 

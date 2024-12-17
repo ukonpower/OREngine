@@ -7,9 +7,9 @@ export class TextEffect extends MXP.Component {
 
 	private textEntityList: MXP.Entity[] = [];
 
-	constructor() {
+	constructor( params: MXP.ComponentParams ) {
 
-		super();
+		super( params );
 
 		const interval = window.setInterval( () => {
 
@@ -18,7 +18,7 @@ export class TextEffect extends MXP.Component {
 			if ( entity ) {
 
 				const tEntity = new MXP.Entity();
-				const text = tEntity.addComponent( new Text() );
+				const text = tEntity.addComponent( Text );
 
 				const textList = [
 					"this is sample text",

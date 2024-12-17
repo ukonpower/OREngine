@@ -5,41 +5,16 @@ const defaultMaterial = new MXP.Material();
 
 export class Mesh extends MXP.Component {
 
-	public geometry_: MXP.Geometry;
-	public material_: MXP.Material;
+	public geometry: MXP.Geometry;
+	public material: MXP.Material;
 
-	constructor( geometry?: MXP.Geometry, material?: MXP.Material ) {
+	constructor( params: MXP.ComponentParams ) {
 
-		super();
+		super( params );
 
-		this.geometry_ = geometry || defaultGeometry;
-		this.material_ = material || defaultMaterial;
-
-	}
-
-	public get geometry() {
-
-		return this.geometry_;
+		this.geometry = defaultGeometry;
+		this.material = defaultMaterial;
 
 	}
-
-	public set geometry( value: MXP.Geometry ) {
-
-		this.geometry_ = value;
-
-	}
-
-	public get material() {
-
-		return this.material_;
-
-	}
-
-	public set material( value: MXP.Material ) {
-
-		this.material_ = value;
-
-	}
-
 
 }

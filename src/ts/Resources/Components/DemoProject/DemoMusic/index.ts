@@ -58,10 +58,9 @@ export class DemoMusic extends MXP.Component {
 
 	private currentRender: ReturnType<typeof this.render> | null;
 
+	constructor( params: MXP.ComponentParams ) {
 
-	constructor( ) {
-
-		super();
+		super( params );
 
 		this.power = power;
 		this.gl = this.power.gl;

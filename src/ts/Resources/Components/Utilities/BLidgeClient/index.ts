@@ -23,9 +23,9 @@ export class BLidgeClient extends MXP.Component {
 	private useGLTF: boolean;
 	private gltfPath: string;
 
-	constructor() {
+	constructor( params: MXP.ComponentParams ) {
 
-		super();
+		super( params );
 
 		this.entities = new Map();
 
@@ -112,31 +112,11 @@ export class BLidgeClient extends MXP.Component {
 
 	}
 
-	protected setEntityImpl( entity: MXP.Entity ): void {
-
-		if ( this.blidgeRoot ) {
-
-			entity.add( this.blidgeRoot );
-
-		}
-
-	}
-
-	protected unsetEntityImpl( prevEntity: MXP.Entity ): void {
-
-		if ( this.blidgeRoot ) {
-
-			prevEntity.remove( this.blidgeRoot );
-
-		}
-
-	}
-
 	private onSyncScene( blidge: MXP.BLidge ) {
 
 		const timeStamp = new Date().getTime();
 
-		const _ = ( node: MXP.BLidgeEntity ): MXP.Entity => {
+		const _ = ( node: MXP.BLidgeNode ): MXP.Entity => {
 
 			const entity: MXP.Entity = ( this.entities.get( node.name ) || new MXP.Entity() );
 
@@ -149,7 +129,7 @@ export class BLidgeClient extends MXP.Component {
 
 			entity.removeComponent( MXP.BLidger );
 
-			entity.addComponent( new MXP.BLidger( { blidge, node, disableEdit: true } ) );
+			entity.addComponent( MXP.BLidger, { blidge, node } );
 
 			node.children.forEach( c => {
 

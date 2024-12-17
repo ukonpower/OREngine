@@ -17,11 +17,11 @@ export class GPUCompute extends PostProcess {
 	protected renderer: MXP.Renderer;
 	declare public passes: GPUComputePass[];
 
-	constructor( param: GPUComputeParam ) {
+	constructor( params: MXP.ComponentParams ) {
 
-		super( param );
+		super( params );
 
-		this.renderer = param.renderer;
+		this.renderer = params.args.renderer;
 
 		this.compute();
 

@@ -1,19 +1,18 @@
 import { Vector } from "glpower";
 
 import { Geometry } from "..";
-import { ComponentParams } from "../..";
 
-type SphereGeometryParam = {
+interface SphereGeometryParam {
 	radius?: number,
 	widthSegments?: number,
 	heightSegments?: number
-} & ComponentParams
+}
 
 export class SphereGeometry extends Geometry {
 
 	constructor( param?: SphereGeometryParam ) {
 
-		super( param );
+		super();
 
 		const posArray = [];
 		const normalArray = [];

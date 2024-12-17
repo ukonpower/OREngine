@@ -15,7 +15,7 @@ export class CurveGeometry extends Geometry {
 
 	constructor( params?: CurveGeometryParams ) {
 
-		super( params );
+		super();
 
 		const posArray: number[] = [];
 		const normalArray: number[] = [];

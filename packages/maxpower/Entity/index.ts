@@ -1,11 +1,11 @@
 import * as GLP from 'glpower';
 
-import { Component, ComponentUpdateEvent } from "../Component";
+import { Component, ComponentParams, ComponentUpdateEvent } from "../Component";
 import { RenderCamera } from '../Component/Camera/RenderCamera';
 import { Light } from '../Component/Light';
 import { Mesh } from '../Component/Mesh';
 import { RenderStack } from '../Component/Renderer';
-import { Serializable } from '../Serializable';
+import { Resource } from '../Resource';
 
 export type EntityUpdateEvent = {
 	timElapsed: number;
@@ -30,27 +30,20 @@ export type EntityParams = {
 	name?: string;
 }
 
-export class Entity extends Serializable {
-
-	public readonly uuid: string;
+export class Entity extends Resource {
 
 	public name: string;
-
 	public position: GLP.Vector;
 	public euler: GLP.Euler;
 	public quaternion: GLP.Quaternion;
 	public scale: GLP.Vector;
-
 	public matrix: GLP.Matrix;
 	public matrixWorld: GLP.Matrix;
 	public matrixWorldPrev: GLP.Matrix;
 	public autoMatrixUpdate: boolean;
-
 	public parent: Entity | null;
 	public children: Entity[];
-
-	public components: Component[];
-
+	public components: Map<typeof Component, Component>;
 	public visible: boolean;
 	public userData: any;
 
@@ -59,7 +52,6 @@ export class Entity extends Serializable {
 		super();
 
 		this.name = params && params.name || "";
-		this.uuid = GLP.ID.genUUID();
 
 		this.position = new GLP.Vector( 0.0, 0.0, 0.0, 1.0 );
 		this.euler = new GLP.Euler();
@@ -74,7 +66,7 @@ export class Entity extends Serializable {
 		this.parent = null;
 		this.children = [];
 
-		this.components = [];
+		this.components = new Map();
 
 		this.visible = true;
 		this.userData = {};
@@ -84,7 +76,15 @@ export class Entity extends Serializable {
 		this.field( "euler", () => this.euler.getElm( "vec3" ), value => this.euler.setFromArray( value ), { format: { type: "vector" } } );
 		this.field( "scale", () => this.scale.getElm( "vec3" ), value => this.scale.setFromArray( value ), { format: { type: "vector" } } );
 		this.field( "children", () => this.children.map( c => c.uuid ), undefined, { noExport: true, hidden: true } );
-		this.field( "components", () => this.components.map( item => item.uuid ), undefined, { noExport: true, hidden: true } );
+		this.field( "components", () => {
+
+			const list: string[] = [];
+
+			this.components.forEach( c => list.push( c.uuid ) );
+
+			return list;
+
+		}, undefined, { noExport: true, hidden: true } );
 
 	}
 
@@ -317,61 +317,67 @@ export class Entity extends Serializable {
 
 	// add
 
-	public addComponent<T extends Component>( component: T ) {
+	public addComponent<T extends typeof Component>( component: T, args?: any ) {
 
-		if ( this.components.find( item => item.uuid == component.uuid ) ) return component;
+		const instance = new component( { entity: this, args } );
+		this.components.set( component, instance );
 
-		this.components.push( component );
-
-		component.setEntity( this );
-
-		this.emit( "component/add", [ component ] );
-
-		this.noticeField( "components" );
-
-		return component;
+		return instance as InstanceType<T>;
 
 	}
-
 	// remove
 
-	public removeComponent<T extends typeof Component>( component: T | string ) {
+	public removeComponent<T extends typeof Component<any>>( component: T ) {
 
-		const removeComponent = this.getComponent<T>( component );
+		const c = this.components.get( component );
 
-		if ( ! removeComponent ) return;
+		if ( c ) {
 
-		removeComponent.unsetEntity();
+			c.dispose();
 
-		this.components = this.components.filter( item => item.uuid !== removeComponent.uuid );
+		}
 
-		this.emit( "component/remove", [ removeComponent ] );
-
-		this.noticeField( "components" );
-
-		return removeComponent;
+		this.components.delete( component );
 
 	}
 
 	// get
+	// 実装部
+	public getComponent<P, C extends Component<P>>(
+		component: new ( params: ComponentParams<P> ) => C
+	): C | undefined {
 
-	public getComponentByTag<T extends Component>( tag: string ): T {
-
-		return this.components.find( c => c.tag === tag ) as T;
-
-	}
-
-	public getComponentByUUID<T extends Component>( uuid: string ): T | undefined {
-
-		return this.components.find( c => c.uuid === uuid ) as T;
+		return this.components.get( component ) as C | undefined;
 
 	}
 
-	public getComponent<T extends typeof Component>( component: T | string ): InstanceType<T> | undefined {
+	public getComponentByUUID( uuid: string ) {
 
-		const resourceId = typeof component == "string" ? component : component.resourceId;
+		for ( const c of this.components.values() ) {
 
-		return this.components.find( c => c.resourceId === resourceId ) as InstanceType<T>;
+			if ( c.uuid === uuid ) {
+
+				return c;
+
+			}
+
+		}
+
+		return null;
+
+	}
+
+	public getComponentsByTag<T extends Component>( tag: string ) {
+
+		const components: Component[] = [];
+
+		this.components.forEach( c => {
+
+			if ( c.tag == tag ) components.push( c );
+
+		} );
+
+		return components as T[];
 
 	}
 
@@ -521,12 +527,11 @@ export class Entity extends Serializable {
 
 		this.components.forEach( c => {
 
-			c.unsetEntity();
 			c.dispose();
 
 		} );
 
-		this.components = [];
+		this.components.clear();
 
 	}
 

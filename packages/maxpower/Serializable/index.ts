@@ -1,4 +1,5 @@
-import { Resource } from "../Resource";
+import * as GLP from 'glpower';
+import { EventEmitter } from "glpower";
 
 type SerializableFieldTypeVector = {
 	type: "vector",
@@ -46,16 +47,19 @@ export type SerializeFieldsAsDirectoryValue= {
 
 export type SerializeFieldsAsDirectory = SerializeFieldsAsDirectoryFolder | SerializeFieldsAsDirectoryValue
 
-export class Serializable extends Resource {
+export class Serializable extends GLP.EventEmitter {
 
-	private fields: Map<string, SerializeFieldProxy>;
+	public readonly uuid: string;
 	public initiator: string;
+	private fields_: Map<string, SerializeFieldProxy>;
 
 	constructor() {
 
 		super();
 
-		this.fields = new Map();
+		this.uuid = GLP.ID.genUUID();
+
+		this.fields_ = new Map();
 
 		this.initiator = 'script';
 
@@ -71,7 +75,7 @@ export class Serializable extends Resource {
 
 		const serialized: SerializedFields = {};
 
-		this.fields.forEach( ( field, k ) => {
+		this.fields_.forEach( ( field, k ) => {
 
 			const opt = this.getFieldOpt( k );
 
@@ -174,7 +178,7 @@ export class Serializable extends Resource {
 
 			const key = keys[ i ];
 
-			const field = this.fields.get( key );
+			const field = this.fields_.get( key );
 
 			if ( field ) {
 
@@ -196,7 +200,7 @@ export class Serializable extends Resource {
 
 	public field<T extends SerializeFieldValue>( path: string, get: ( event: SerializeFieldSerializeEvent ) => T, set?: ( v: T ) => void, opt?: SerializableFieldOpt ) {
 
-		this.fields.set( path, {
+		this.fields_.set( path, {
 			get: get,
 			set: ( ( v: SerializeFieldValue ) => {
 
@@ -235,7 +239,7 @@ export class Serializable extends Resource {
 
 	public getField<T extends SerializeFieldValue>( path: string, event?: SerializeFieldSerializeEvent ) {
 
-		const field = this.fields.get( path );
+		const field = this.fields_.get( path );
 
 		if ( field ) {
 
@@ -249,7 +253,7 @@ export class Serializable extends Resource {
 
 	public getFieldOpt( path: string ) {
 
-		const field = this.fields.get( path );
+		const field = this.fields_.get( path );
 
 		if ( field ) {
 

@@ -3,8 +3,6 @@ import * as GLP from 'glpower';
 import { Component, ComponentParams, ComponentUpdateEvent } from "..";
 
 export type CameraType = 'perspective' | 'orthographic'
-export interface CameraParam extends ComponentParams {
-}
 
 export class Camera extends Component {
 
@@ -30,11 +28,9 @@ export class Camera extends Component {
 
 	public viewPort: GLP.Vector | null;
 
-	constructor( params?: CameraParam ) {
+	constructor( params: ComponentParams ) {
 
 		super( params );
-
-		params = params || {};
 
 		this.cameraType = 'perspective';
 

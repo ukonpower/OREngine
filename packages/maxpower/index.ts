@@ -36,8 +36,6 @@ export * from './Component/Renderer';
 export * from "./Component/Renderer/DeferredRenderer";
 export * from './Component/Renderer/ProgramManager';
 
-export * from './Component/ComponentCatcher';
-
 // entity
 
 export * from './Entity';

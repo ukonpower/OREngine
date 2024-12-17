@@ -145,26 +145,30 @@ export class GLTFLoader extends GLP.EventEmitter {
 
 		const parsedAccessors = new Map<number, {buffer: ArrayBuffer, type: string}>();
 
-		json.accessors && json.accessors.forEach( ( accessor, i ) => {
+		if ( json.accessors ) {
 
-			const { type } = accessor;
+		  json.accessors.forEach( ( accessor, i ) => {
 
-			if ( ! gltfJson.bufferViews ) return;
+				const { type } = accessor;
 
-			const bufferView = gltfJson.bufferViews[ accessor.bufferView ];
+				if ( ! gltfJson.bufferViews ) return;
 
-			const buffer = getBuffer( bufferView );
+				const bufferView = gltfJson.bufferViews[ accessor.bufferView ];
 
-			if ( buffer ) {
+				const buffer = getBuffer( bufferView );
 
-				parsedAccessors.set( i, {
-					type,
-					buffer
-				} );
+				if ( buffer ) {
 
-			}
+					parsedAccessors.set( i, {
+						type,
+						buffer
+					} );
 
-		} );
+				}
+
+			} );
+
+		}
 
 		// images
 
@@ -238,235 +242,242 @@ export class GLTFLoader extends GLP.EventEmitter {
 
 		};
 
-		gltfJson.materials && gltfJson.materials.forEach( ( mat, i ) => {
+		if ( gltfJson.materials ) {
 
-			const material = new Material( {
-				disableEdit: true,
-				frag: gltfFrag,
-				vert: gltfVert,
+			gltfJson.materials.forEach( ( mat, i ) => {
+
+				const material = new Material( {
+					frag: gltfFrag,
+					vert: gltfVert,
+				} );
+
+				// normal
+
+				if ( mat.normalTexture ) {
+
+					const tex = getTexture( mat.normalTexture.index );
+
+					if ( tex ) {
+
+						material.uniforms.uNormalMap = {
+							value: tex,
+							type: "1i"
+						};
+
+						material.defines[ "USE_NORMAL_MAP" ] = "";
+
+					}
+
+				}
+
+				// pbr
+
+				if ( mat.pbrMetallicRoughness ) {
+
+					const pbr = mat.pbrMetallicRoughness;
+
+					// base color
+
+					if ( pbr.baseColorFactor ) {
+
+						material.uniforms.uBaseColor = {
+							value: pbr.baseColorFactor,
+							type: "4fv"
+						};
+
+						material.defines[ "USE_COLOR" ] = "";
+
+					}
+
+					if ( pbr.baseColorTexture ) {
+
+						const tex = getTexture( pbr.baseColorTexture.index );
+
+						if ( tex ) {
+
+							material.uniforms.uBaseColorMap = {
+								value: tex,
+								type: "1i"
+							};
+
+							material.defines[ "USE_COLOR_MAP" ] = "";
+
+						}
+
+					}
+
+					// metalness roughness
+
+					if ( pbr.roughnessFactor !== undefined ) {
+
+						material.uniforms.uRoughness = {
+							value: pbr.roughnessFactor,
+							type: "1f"
+						};
+
+						material.defines[ "USE_ROUGHNESS" ] = "";
+
+					}
+
+					if ( pbr.metallicFactor !== undefined ) {
+
+						material.uniforms.uMetalness = {
+							value: pbr.metallicFactor,
+							type: "1f"
+						};
+
+						material.defines[ "USE_METALNESS" ] = "";
+
+					}
+
+					if ( pbr.metallicRoughnessTexture ) {
+
+						const tex = getTexture( pbr.metallicRoughnessTexture.index );
+
+						if ( tex ) {
+
+							material.uniforms.uMRMap = {
+								value: tex,
+								type: "1i"
+							};
+
+							material.defines[ "USE_MR_MAP" ] = "";
+
+						}
+
+					}
+
+				}
+
+				// emission
+
+				if ( mat.emissiveFactor ) {
+
+					material.uniforms.uEmission = {
+						value: mat.emissiveFactor,
+						type: "3fv"
+					};
+
+					material.defines[ "USE_EMISSION" ] = "";
+
+				}
+
+				if ( mat.emissiveTexture ) {
+
+					const tex = getTexture( mat.emissiveTexture.index );
+
+					if ( tex ) {
+
+						material.uniforms.uEmissionMap = {
+							value: tex,
+							type: "1i"
+						};
+
+						material.defines[ "USE_EMISSION_MAP" ] = "";
+
+					}
+
+				}
+
+				// extensions
+
+				if ( mat.extensions ) {
+
+					if ( mat.extensions.KHR_materials_emissive_strength ) {
+
+						material.uniforms.uEmissionStrength = {
+							value: mat.extensions.KHR_materials_emissive_strength.emissiveStrength,
+							type: "1fv"
+						};
+
+						material.defines[ "USE_EMISSION_STRENGTH" ] = "";
+
+					}
+
+				}
+
+				parsedMaterials.set( i, material );
+
 			} );
 
-			// normal
-
-			if ( mat.normalTexture ) {
-
-				const tex = getTexture( mat.normalTexture.index );
-
-				if ( tex ) {
-
-					material.uniforms.uNormalMap = {
-						value: tex,
-						type: "1i"
-					};
-
-					material.defines[ "USE_NORMAL_MAP" ] = "";
-
-				}
-
-			}
-
-			// pbr
-
-			if ( mat.pbrMetallicRoughness ) {
-
-				const pbr = mat.pbrMetallicRoughness;
-
-				// base color
-
-				if ( pbr.baseColorFactor ) {
-
-					material.uniforms.uBaseColor = {
-						value: pbr.baseColorFactor,
-						type: "4fv"
-					};
-
-					material.defines[ "USE_COLOR" ] = "";
-
-				}
-
-				if ( pbr.baseColorTexture ) {
-
-					const tex = getTexture( pbr.baseColorTexture.index );
-
-					if ( tex ) {
-
-						material.uniforms.uBaseColorMap = {
-							value: tex,
-							type: "1i"
-						};
-
-						material.defines[ "USE_COLOR_MAP" ] = "";
-
-					}
-
-				}
-
-				// metalness roughness
-
-				if ( pbr.roughnessFactor !== undefined ) {
-
-					material.uniforms.uRoughness = {
-						value: pbr.roughnessFactor,
-						type: "1f"
-					};
-
-					material.defines[ "USE_ROUGHNESS" ] = "";
-
-				}
-
-				if ( pbr.metallicFactor !== undefined ) {
-
-					material.uniforms.uMetalness = {
-						value: pbr.metallicFactor,
-						type: "1f"
-					};
-
-					material.defines[ "USE_METALNESS" ] = "";
-
-				}
-
-				if ( pbr.metallicRoughnessTexture ) {
-
-					const tex = getTexture( pbr.metallicRoughnessTexture.index );
-
-					if ( tex ) {
-
-						material.uniforms.uMRMap = {
-							value: tex,
-							type: "1i"
-						};
-
-						material.defines[ "USE_MR_MAP" ] = "";
-
-					}
-
-				}
-
-			}
-
-			// emission
-
-			if ( mat.emissiveFactor ) {
-
-				material.uniforms.uEmission = {
-					value: mat.emissiveFactor,
-					type: "3fv"
-				};
-
-				material.defines[ "USE_EMISSION" ] = "";
-
-			}
-
-			if ( mat.emissiveTexture ) {
-
-				const tex = getTexture( mat.emissiveTexture.index );
-
-				if ( tex ) {
-
-					material.uniforms.uEmissionMap = {
-						value: tex,
-						type: "1i"
-					};
-
-					material.defines[ "USE_EMISSION_MAP" ] = "";
-
-				}
-
-			}
-
-			// extensions
-
-			if ( mat.extensions ) {
-
-				if ( mat.extensions.KHR_materials_emissive_strength ) {
-
-					material.uniforms.uEmissionStrength = {
-						value: mat.extensions.KHR_materials_emissive_strength.emissiveStrength,
-						type: "1fv"
-					};
-
-					material.defines[ "USE_EMISSION_STRENGTH" ] = "";
-
-				}
-
-			}
-
-			parsedMaterials.set( i, material );
-
-		} );
+		}
 
 		// meshes
 
 		const parsedMeshes = new Map<number, {geometry: Geometry, material: Material}[]>();
 
-		gltfJson.meshes && gltfJson.meshes.forEach( ( mesh, i ) => {
+		if ( gltfJson.meshes ) {
 
-			const { primitives } = mesh;
+			gltfJson.meshes.forEach( ( mesh, i ) => {
 
-			parsedMeshes.set( i, primitives.map( primitive => {
+				const { primitives } = mesh;
 
-				const geometry = new Geometry();
+				parsedMeshes.set( i, primitives.map( primitive => {
 
-				Object.keys( primitive.attributes ).forEach( attributeName => {
+					const geometry = new Geometry();
 
-					const accesorIndex = ( primitive.attributes as any )[ attributeName ];
+					Object.keys( primitive.attributes ).forEach( attributeName => {
 
-					const buffer = parsedAccessors.get( accesorIndex );
+						const accesorIndex = ( primitive.attributes as any )[ attributeName ];
 
-					if ( buffer ) {
+						const buffer = parsedAccessors.get( accesorIndex );
 
-						geometry.setAttribute( translateAttributeName( attributeName ), new Float32Array( buffer.buffer ), type2Size( buffer.type ) );
+						if ( buffer ) {
 
-					}
+							geometry.setAttribute( translateAttributeName( attributeName ), new Float32Array( buffer.buffer ), type2Size( buffer.type ) );
 
-				} );
+						}
 
-				if ( primitive.indices !== undefined ) {
+					} );
 
-					const indexBuffer = parsedAccessors.get( primitive.indices );
+					if ( primitive.indices !== undefined ) {
 
-					if ( indexBuffer ) {
+						const indexBuffer = parsedAccessors.get( primitive.indices );
 
-						geometry.setAttribute( "index", new Uint16Array( indexBuffer.buffer ), 1 );
+						if ( indexBuffer ) {
 
-					}
+							geometry.setAttribute( "index", new Uint16Array( indexBuffer.buffer ), 1 );
 
-				}
-
-				let material : Material | null = null;
-
-				if ( primitive.material !== undefined ) {
-
-					const mat = parsedMaterials.get( primitive.material );
-
-					if ( mat ) {
-
-						material = mat;
+						}
 
 					}
 
-				}
+					let material : Material | null = null;
 
-				if ( ! material ) {
+					if ( primitive.material !== undefined ) {
 
-					material = new Material();
+						const mat = parsedMaterials.get( primitive.material );
 
-				}
+						if ( mat ) {
 
-				if ( geometry.attributes.has( "tangent" ) ) {
+							material = mat;
 
-					material.defines[ "USE_TANGENT" ] = "";
+						}
 
-				}
+					}
 
-				return {
-					geometry,
-					material
-				};
+					if ( ! material ) {
 
-			} ) );
+						material = new Material();
 
-		} );
+					}
+
+					if ( geometry.attributes.has( "tangent" ) ) {
+
+						material.defines[ "USE_TANGENT" ] = "";
+
+					}
+
+					return {
+						geometry,
+						material
+					};
+
+				} ) );
+
+			} );
+
+		}
 
 		const parsedNode = new Map<number, Entity>();
 
@@ -476,9 +487,9 @@ export class GLTFLoader extends GLP.EventEmitter {
 
 			// transform
 
-			node.translation && entity.position.set( node.translation[ 0 ], node.translation[ 1 ], node.translation[ 2 ] );
-			node.rotation && entity.quaternion.set( node.rotation[ 0 ], node.rotation[ 1 ], node.rotation[ 2 ], node.rotation[ 3 ] );
-			node.scale && entity.scale.set( node.scale[ 0 ], node.scale[ 1 ], node.scale[ 2 ] );
+			if ( node.translation ) entity.position.set( node.translation[ 0 ], node.translation[ 1 ], node.translation[ 2 ] );
+			if ( node.rotation ) entity.quaternion.set( node.rotation[ 0 ], node.rotation[ 1 ], node.rotation[ 2 ], node.rotation[ 3 ] );
+			if ( node.scale ) entity.scale.set( node.scale[ 0 ], node.scale[ 1 ], node.scale[ 2 ] );
 
 			// mesh
 
@@ -491,8 +502,8 @@ export class GLTFLoader extends GLP.EventEmitter {
 				if ( meshList.length == 1 ) {
 
 					const mesh = meshList[ 0 ];
-					entity.addComponent( mesh.geometry );
-					entity.addComponent( mesh.material );
+					// entity.addComponent( mesh.geometry );
+					// entity.addComponent( mesh.material );
 
 				} else {
 
@@ -500,8 +511,8 @@ export class GLTFLoader extends GLP.EventEmitter {
 
 						const meshPartEntity = new Entity();
 						meshPartEntity.name = node.name + "_" + i;
-						entity.addComponent( mesh.geometry );
-						entity.addComponent( mesh.material );
+						// entity.addComponent( mesh.geometry );
+						// entity.addComponent( mesh.material );
 						entity.add( meshPartEntity );
 
 					} );
@@ -542,7 +553,7 @@ export class GLTFLoader extends GLP.EventEmitter {
 
 		} );
 
-		gltfJson.nodes && gltfJson.nodes.forEach( ( node, i ) => {
+		if ( gltfJson.nodes ) gltfJson.nodes.forEach( ( node, i ) => {
 
 			createEntity( i, node );
 

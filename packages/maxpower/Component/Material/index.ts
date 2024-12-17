@@ -1,22 +1,20 @@
 
 import * as GLP from 'glpower';
-import { Entity } from 'packages/maxpower/Entity';
 
-import { Component, ComponentParams } from '..';
+import { Resource } from '../../Resource';
 
 import basicFrag from './shaders/basic.fs';
 import basicVert from './shaders/basic.vs';
 
-
 type MaterialDefines = {[key: string]: any};
 type MaterialVisibility = {[K in MaterialRenderType]?: boolean}
 type MaterialProgramCache = {[K in MaterialRenderType]?: GLP.GLPowerProgram}
-export type MaterialRenderType = "shadowMap" | "deferred" | "forward" | "envMap" | 'ui' | "postprocess"
 
+export type MaterialRenderType = "shadowMap" | "deferred" | "forward" | "envMap" | 'ui' | "postprocess"
 export type DrawType = 'TRIANGLES' | 'LINES' | 'POINTS';
 export type Blending = 'ADD' | 'NORMAL' | "DIFF";
 
-export interface MaterialParam extends ComponentParams{
+export interface MaterialParam {
 	name?: string,
 	phase?: MaterialRenderType[];
 	frag?: string;
@@ -30,8 +28,7 @@ export interface MaterialParam extends ComponentParams{
 	drawType?: DrawType;
 }
 
-
-export class Material extends Component {
+export class Material extends Resource {
 
 	public name: string;
 	public vert: string;
@@ -51,14 +48,14 @@ export class Material extends Component {
 
 	constructor( params?: MaterialParam ) {
 
-		super( params );
+		super();
 
 		params = params || {};
 
 		this.name = params.name || '';
 
 		this.visibilityFlag = {};
-		this.setVisibility( params.phase || [ "deferred" ] );
+		this.setVisibility( params.phase || [ "shadowMap", "deferred" ] );
 
 		this.useLight = true;
 		this.depthTest = true;
@@ -76,12 +73,6 @@ export class Material extends Component {
 
 	}
 
-	public static get tag() {
-
-		return "material";
-
-	}
-
 	private setVisibility( typeArray: MaterialRenderType[] ) {
 
 		this.visibilityFlag = {
@@ -92,12 +83,6 @@ export class Material extends Component {
 			envMap: typeArray.indexOf( 'envMap' ) > - 1,
 			postprocess: typeArray.indexOf( 'postprocess' ) > - 1,
 		};
-
-	}
-
-	protected setEntityImpl( entity: Entity ): void {
-
-		if ( this.name === '' ) this.name = entity.name;
 
 	}
 
