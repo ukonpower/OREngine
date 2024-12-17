@@ -2,7 +2,7 @@
 import * as GLP from 'glpower';
 
 import { UniformsUtils } from '../../Utils/Uniforms';
-import { PostProcessPass, PostProcessPassParam } from '../PostProcessPass';
+import { PostProcessPassParam, PostProcessPass } from '../PostProcess/PostProcessPass';
 
 import quadVert from './shaders/quad.vs';
 

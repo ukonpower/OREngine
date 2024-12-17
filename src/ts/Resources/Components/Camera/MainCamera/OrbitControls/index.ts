@@ -170,16 +170,6 @@ export class OrbitControls extends MXP.Component {
 
 		entity.updateMatrix();
 
-		// calc viewmatrix
-
-		// const cameraComponent = entity.getComponentByTag<MXP.Camera>( "camera" );
-
-		// if ( cameraComponent ) {
-
-		// 	cameraComponent.viewMatrix.copy( entity.matrixWorld ).inverse();
-
-		// }
-
 	}
 
 	protected finalizeImpl( event: MXP.ComponentUpdateEvent ): void {

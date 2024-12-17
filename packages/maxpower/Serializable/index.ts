@@ -1,5 +1,4 @@
 import * as GLP from 'glpower';
-import { EventEmitter } from "glpower";
 
 type SerializableFieldTypeVector = {
 	type: "vector",

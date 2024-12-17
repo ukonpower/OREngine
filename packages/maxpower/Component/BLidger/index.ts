@@ -1,14 +1,15 @@
 import * as GLP from 'glpower';
-import { Camera, Mesh } from 'maxpower';
 
 import { Component, ComponentParams, ComponentUpdateEvent } from "..";
 import { BLidge, BLidgeNode, BLidgeLightParam, BLidgeCameraParam } from "../../BLidge";
-import { Geometry } from "../Geometry";
-import { CubeGeometry } from "../Geometry/CubeGeometry";
-import { CylinderGeometry } from "../Geometry/CylinderGeometry";
-import { PlaneGeometry } from "../Geometry/PlaneGeometry";
-import { SphereGeometry } from "../Geometry/SphereGeometry";
+import { Geometry } from '../../Geometry';
+import { CubeGeometry } from '../../Geometry/CubeGeometry';
+import { CylinderGeometry } from '../../Geometry/CylinderGeometry';
+import { PlaneGeometry } from '../../Geometry/PlaneGeometry';
+import { SphereGeometry } from '../../Geometry/SphereGeometry';
+import { Camera } from '../Camera';
 import { Light } from '../Light';
+import { Mesh } from '../Mesh';
 
 export class BLidger extends Component {
 
@@ -158,31 +159,22 @@ export class BLidger extends Component {
 
 			this._blidge.gltfPrm.then( gltf => {
 
-				// const gltfEntity = gltf.scene.findEntityByName( this.node.name );
+				const gltfEntity = gltf.scene.findEntityByName( this.node.name );
 
-				// if ( gltfEntity ) {
+				if ( gltfEntity ) {
 
-				// 	const geo = gltfEntity.getComponentByTag<Geometry>( "geometry" );
+					const gltfMesh = gltfEntity.getComponent( Mesh );
 
-				// 	if ( geo ) {
+					if ( gltfMesh ) {
 
-				// 		geo.disableEdit = true;
-				// 		mesh.geometry = geo;
+						mesh.geometry = gltfMesh.geometry;
+						mesh.material = gltfMesh.material;
 
-				// 	}
+					}
 
-				// 	const mat = gltfEntity.getComponentByTag<Material>( "material" );
+				}
 
-				// 	if ( mat ) {
-
-				// 		mat.disableEdit = true;
-				// 		mesh.material = mat;
-
-				// 	}
-
-				// }
-
-				// entity.noticeEventParent( "update/blidge/scene", [ entity ] );
+				entity.noticeEventParent( "update/blidge/scene", [ entity ] );
 
 			} );
 

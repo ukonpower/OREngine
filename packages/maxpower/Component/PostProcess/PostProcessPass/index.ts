@@ -1,7 +1,5 @@
 import * as GLP from 'glpower';
 
-import { Material, MaterialParam } from '../Material';
-
 export interface PostProcessPassParam extends MaterialParam{
 	// input?: ( GLPowerTexture | null )[],
 	renderTarget?: GLP.GLPowerFrameBuffer | null,
@@ -11,6 +9,8 @@ export interface PostProcessPassParam extends MaterialParam{
 	passThrough?: boolean;
 	viewPort?: GLP.Vector
 }
+
+import { MaterialParam, Material } from '../../../Material';
 
 import passFrag from './shaders/pass.fs';
 import quadVert from './shaders/quad.vs';

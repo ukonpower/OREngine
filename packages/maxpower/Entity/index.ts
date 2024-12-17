@@ -1,11 +1,11 @@
 import * as GLP from 'glpower';
 
-import { Component, ComponentParams, ComponentUpdateEvent } from "../Component";
+import { Component, ComponentUpdateEvent } from "../Component";
 import { RenderCamera } from '../Component/Camera/RenderCamera';
 import { Light } from '../Component/Light';
 import { Mesh } from '../Component/Mesh';
 import { RenderStack } from '../Component/Renderer';
-import { Resource } from '../Resource';
+import { Serializable } from '../Serializable';
 
 export type EntityUpdateEvent = {
 	timElapsed: number;
@@ -30,7 +30,7 @@ export type EntityParams = {
 	name?: string;
 }
 
-export class Entity extends Resource {
+export class Entity extends Serializable {
 
 	public name: string;
 	public position: GLP.Vector;
@@ -322,12 +322,14 @@ export class Entity extends Resource {
 		const instance = new component( { entity: this, args } );
 		this.components.set( component, instance );
 
+		this.noticeField( "components" );
+
 		return instance as InstanceType<T>;
 
 	}
 	// remove
 
-	public removeComponent<T extends typeof Component<any>>( component: T ) {
+	public removeComponent<T extends typeof Component>( component: T ) {
 
 		const c = this.components.get( component );
 
@@ -339,15 +341,13 @@ export class Entity extends Resource {
 
 		this.components.delete( component );
 
+		this.noticeField( "components" );
+
 	}
 
-	// get
-	// 実装部
-	public getComponent<P, C extends Component<P>>(
-		component: new ( params: ComponentParams<P> ) => C
-	): C | undefined {
+	public getComponent<T extends typeof Component>( component: T ) {
 
-		return this.components.get( component ) as C | undefined;
+		return this.components.get( component ) as InstanceType<T> | undefined;
 
 	}
 
