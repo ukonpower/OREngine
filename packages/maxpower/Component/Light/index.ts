@@ -5,9 +5,6 @@ import { ShadowMapCamera } from '../Camera/ShadowMapCamera';
 
 export type LightType = 'directional' | 'spot'
 
-interface LightParams extends ComponentParams {
-}
-
 export class Light extends ShadowMapCamera {
 
 	public lightType: LightType;
@@ -29,7 +26,7 @@ export class Light extends ShadowMapCamera {
 
 	// animation
 
-	constructor( params?: LightParams ) {
+	constructor( params: ComponentParams ) {
 
 		super( params );
 

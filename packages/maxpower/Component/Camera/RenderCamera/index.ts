@@ -1,6 +1,7 @@
 import * as GLP from "glpower";
+import * as MXP from 'maxpower';
 
-import { CameraParam, Camera } from "..";
+import { Camera } from "..";
 
 export type RenderCameraTarget = {
 	gBuffer: GLP.GLPowerFrameBuffer,
@@ -10,10 +11,6 @@ export type RenderCameraTarget = {
 	normalBuffer: GLP.GLPowerFrameBuffer,
 }
 
-export interface RenderCameraParam extends CameraParam {
-	gl: WebGL2RenderingContext
-}
-
 type DofParams = {
 	focusDistance: number;
 	kFilmHeight: number;
@@ -21,15 +18,25 @@ type DofParams = {
 
 export class RenderCamera extends Camera {
 
+	public gl: WebGL2RenderingContext;
+	public dofParams: DofParams;
 	public renderTarget: RenderCameraTarget;
-	public dof: DofParams;
 	public gBuffer: GLP.GLPowerFrameBuffer;
 
-	constructor( param: RenderCameraParam ) {
+	private resolution: GLP.Vector;
 
-		super( param );
+	constructor( params: MXP.ComponentParams ) {
 
-		const gl = param?.gl;
+		super( params );
+
+		this.dofParams = {
+			focusDistance: 0.5,
+			kFilmHeight: 0.008,
+		};
+
+		this.resolution = new GLP.Vector();
+		const gl = params.args.gl;
+		this.gl = gl;
 
 		this.gBuffer = new GLP.GLPowerFrameBuffer( gl );
 		this.gBuffer.setTexture( [
@@ -65,22 +72,24 @@ export class RenderCamera extends Camera {
 
 		this.renderTarget = { gBuffer: this.gBuffer, shadingBuffer: shadingBuffer, forwardBuffer, uiBuffer, normalBuffer };
 
-		// dof
+		this.resize( this.resolution );
 
-		this.dof = {
-			focusDistance: 0.5,
-			kFilmHeight: 0.008,
-		};
 
 	}
 
 	public resize( resolution: GLP.Vector ) {
 
-		this.renderTarget.gBuffer.setSize( resolution );
-		this.renderTarget.shadingBuffer.setSize( resolution );
-		this.renderTarget.forwardBuffer.setSize( resolution );
-		this.renderTarget.uiBuffer.setSize( resolution );
-		this.renderTarget.normalBuffer.setSize( resolution );
+		this.resolution.copy( resolution );
+
+		if ( this.renderTarget ) {
+
+			this.renderTarget.gBuffer.setSize( this.resolution );
+			this.renderTarget.shadingBuffer.setSize( this.resolution );
+			this.renderTarget.forwardBuffer.setSize( this.resolution );
+			this.renderTarget.uiBuffer.setSize( this.resolution );
+			this.renderTarget.normalBuffer.setSize( this.resolution );
+
+		}
 
 	}
 

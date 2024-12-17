@@ -3,10 +3,9 @@ import * as MXP from 'maxpower';
 
 import matchMoveFrag from './shaders/matchMove.fs';
 import matchMoveVert from './shaders/matchMove.vs';
-import matchMoveCompute from './shaders/matchMoveCompute.glsl';
 import matchMoveLineVert from './shaders/matchMoveLine.vs';
 
-import { gl, globalUniforms, renderer } from '~/ts/Globals';
+import { globalUniforms, renderer } from '~/ts/Globals';
 
 export class MatchMove extends MXP.Component {
 
@@ -16,9 +15,9 @@ export class MatchMove extends MXP.Component {
 
 	private cameraEntity: MXP.Entity | null;
 
-	constructor() {
+	constructor( params: MXP.ComponentParams ) {
 
-		super();
+		super( params );
 
 		this.cameraEntity = null;
 
@@ -29,29 +28,10 @@ export class MatchMove extends MXP.Component {
 		-------------------------------*/
 
 		this.gpu = new MXP.GPUCompute( {
-			renderer,
-			passes: [
-				new MXP.GPUComputePass( {
-					gl,
-					size,
-					dataLayerCount: 1,
-					frag: matchMoveCompute,
-					uniforms: MXP.UniformsUtils.merge( {
-						uGBufferPos: {
-							type: "1i",
-							value: null
-						},
-						uViewMatrix: {
-							type: "Matrix4fv",
-							value: null
-						},
-						uProjectionMatrix: {
-							type: "Matrix4fv",
-							value: null
-						},
-					}, globalUniforms.time ),
-				} )
-			]
+			entity: this.entity,
+			args: {
+				renderer
+			}
 		} );
 
 		this.gpu.passes[ 0 ].initTexture( ( layerCnt, x, y ) => {
@@ -154,8 +134,9 @@ export class MatchMove extends MXP.Component {
 		// marker entity
 
 		this.markerEntity = new MXP.Entity( { name: "Marker" } );
-		this.markerEntity.addComponent( markerGeometry );
-		this.markerEntity.addComponent( markerMaterial );
+		const mesh = this.markerEntity.addComponent( MXP.Mesh );
+		mesh.geometry = markerGeometry;
+		mesh.material = markerMaterial;
 
 		/*-------------------------------
 			Line
@@ -235,8 +216,9 @@ export class MatchMove extends MXP.Component {
 		// line entity
 
 		this.lineEntity = new MXP.Entity( { name: "Line" } );
-		this.lineEntity.addComponent( lineGeometry );
-		this.lineEntity.addComponent( lineMaterial );
+		const lineMesh = this.lineEntity.addComponent( MXP.Mesh );
+		lineMesh.geometry = lineGeometry;
+		lineMesh.material = lineMaterial;
 
 	}
 
@@ -246,40 +228,39 @@ export class MatchMove extends MXP.Component {
 
 	}
 
-	public setEntityImpl( entity: MXP.Entity ): void {
+	// public setEntityImpl( entity: MXP.Entity ): void {
 
-		entity.addComponent( this.gpu );
+	// 	entity.addComponent( this.gpu );
+	// 	entity.add( this.markerEntity );
+	// 	entity.add( this.lineEntity );
 
-		entity.add( this.markerEntity );
-		entity.add( this.lineEntity );
+	// 	this.cameraEntity = entity.getRootEntity().getEntityByName( "camera" ) || null;
 
-		this.cameraEntity = entity.getRootEntity().getEntityByName( "camera" ) || null;
+	// 	if ( this.cameraEntity ) {
 
-		if ( this.cameraEntity ) {
+	// 		const renderCamera = this.cameraEntity.getComponent( MXP.RenderCamera );
 
-			const renderCamera = this.cameraEntity.getComponent( MXP.RenderCamera );
+	// 		if ( renderCamera ) {
 
-			if ( renderCamera ) {
+	// 			const uniforms = this.gpu.passes[ 0 ].uniforms;
+	// 			uniforms.uGBufferPos.value = renderCamera.renderTarget.gBuffer.textures[ 0 ];
+	// 			uniforms.uViewMatrix.value = renderCamera.viewMatrix;
+	// 			uniforms.uProjectionMatrix.value = renderCamera.projectionMatrix;
 
-				const uniforms = this.gpu.passes[ 0 ].uniforms;
-				uniforms.uGBufferPos.value = renderCamera.renderTarget.gBuffer.textures[ 0 ];
-				uniforms.uViewMatrix.value = renderCamera.viewMatrix;
-				uniforms.uProjectionMatrix.value = renderCamera.projectionMatrix;
+	// 		}
 
-			}
+	// 	}
 
-		}
+	// }
 
-	}
+	// public unsetEntityImpl( entity: MXP.Entity ): void {
 
-	public unsetEntityImpl( entity: MXP.Entity ): void {
+	// 	entity.removeComponent( this.gpu );
+	// 	entity.remove( this.markerEntity );
+	// 	entity.remove( this.lineEntity );
 
-		entity.removeComponent( this.gpu );
-		entity.remove( this.markerEntity );
-		entity.remove( this.lineEntity );
+	// 	this.cameraEntity = null;
 
-		this.cameraEntity = null;
-
-	}
+	// }
 
 }

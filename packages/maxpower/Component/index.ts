@@ -1,38 +1,28 @@
-import * as GLP from 'glpower';
-
 import { Entity, EntityFinalizeEvent } from '../Entity';
-import { Serializable } from '../Serializable';
+import { Resource } from '../Resource';
 
 export type ComponentUpdateEvent = EntityFinalizeEvent & {
 	entity: Entity,
 }
 
-export type ComponentParams = {
-	idOverride?: string,
-	disableEdit?: boolean
+export interface ComponentParams{
+    entity: Entity;
+    args?: any;
 }
 
-export class Component extends Serializable {
+export class Component extends Resource {
 
-	public readonly uuid: string;
-
-	public entity: Entity | null;
+	public entity: Entity;
 	public disableEdit: boolean;
+	protected _enabled: boolean;
 
-	public children: Component[];	protected enabled_: boolean;
-
-	constructor( params?: ComponentParams ) {
+	constructor( params: ComponentParams ) {
 
 		super();
 
-		params = params ?? {};
-
-		this.resourceIdOverride = params.idOverride || null;
-		this.uuid = GLP.ID.genUUID();
-		this.entity = null;
-		this.disableEdit = params.disableEdit || false;
-		this.children = [];
-		this.enabled_ = true;
+		this.entity = params.entity;
+		this._enabled = true;
+		this.disableEdit = false;
 
 		this.field( "enabled", () => this.enabled, value => this.enabled = value, {
 			hidden: true,
@@ -54,75 +44,13 @@ export class Component extends Serializable {
 
 	public set enabled( value: boolean ) {
 
-		this.enabled_ = value;
+		this._enabled = value;
 
 	}
 
 	public get enabled() {
 
-		return this.enabled_;
-
-	}
-
-	public add( component: Component ) {
-
-		this.children.push( component );
-
-		if ( this.entity ) {
-
-			this.entity.addComponent( component );
-
-		}
-
-	}
-
-	public findChild<T extends typeof Component>( component: T ): InstanceType<T> | undefined {
-
-		return this.children.find( ( c ) => c instanceof component ) as InstanceType<T> | undefined;
-
-	}
-
-	public remove( component: Component ) {
-
-		this.children = this.children.filter( ( c ) => c !== component );
-
-		if ( this.entity ) {
-
-			this.entity.removeComponent( component );
-
-		}
-
-	}
-
-	public setEntity( entity: Entity ) {
-
-		this.entity = entity;
-
-		this.children.forEach( ( c ) => {
-
-			entity.addComponent( c );
-
-		} );
-
-		this.setEntityImpl( this.entity );
-
-	}
-
-	public unsetEntity() {
-
-		if ( this.entity === null ) return;
-
-		const beforeEntity = this.entity;
-
-		this.entity = null;
-
-		this.children.forEach( ( c ) => {
-
-			beforeEntity.removeComponent( c );
-
-		} );
-
-		this.unsetEntityImpl( beforeEntity );
+		return this._enabled;
 
 	}
 
@@ -165,10 +93,6 @@ export class Component extends Serializable {
 		}
 
 	}
-
-	protected setEntityImpl( entity: Entity ) {}
-
-	protected unsetEntityImpl( prevEntity: Entity ) {}
 
 	protected preUpdateImpl( event: ComponentUpdateEvent ) {}
 

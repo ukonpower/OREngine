@@ -8,19 +8,19 @@ export type BLidgeNodeType = 'empty' | 'cube' | 'sphere' | 'cylinder' | 'mesh' |
 
 export type BLidgeScene = {
     animations: BLidgeCurveParam[][];
-	root: BLidgeEntityParam;
+	root: BLidgeNodeParam;
 	frame: BLidgeFrame;
 }
 
 // node
 
-export type BLidgeEntityParam = {
+export type BLidgeNodeParam = {
 	name: string,
 	class: string,
 	type: BLidgeNodeType,
 	param?: BLidgeCameraParam | BLidgeMeshParamRaw | BLidgeLightParamCommon
 	parent: string,
-	children?: BLidgeEntityParam[],
+	children?: BLidgeNodeParam[],
 	animation?: BLidgeAnimationAccessor,
 	position?: number[],
 	rotation?: number[],
@@ -32,13 +32,13 @@ export type BLidgeEntityParam = {
 	visible: boolean,
 }
 
-export type BLidgeEntity = {
+export type BLidgeNode = {
 	name: string,
 	class: string,
 	type: BLidgeNodeType,
 	param?: BLidgeCameraParam | BLidgeMeshParam | BLidgeLightParamCommon
 	parent: string,
-	children: BLidgeEntity[],
+	children: BLidgeNode[],
 	animations: BLidgeAnimationAccessor,
 	position: number[],
 	rotation: number[],
@@ -161,9 +161,9 @@ export class BLidge extends GLP.EventEmitter {
 
 	// animation
 
-	public nodes: BLidgeEntity[];
+	public nodes: BLidgeNode[];
 	public curveGroups: GLP.FCurveGroup[];
-	public root: BLidgeEntity | null;
+	public root: BLidgeNode | null;
 
 	// gltf
 
@@ -353,7 +353,7 @@ export class BLidge extends GLP.EventEmitter {
 
 		this.nodes = [];
 
-		const _ = ( nodeParam: BLidgeEntityParam ): BLidgeEntity => {
+		const _ = ( nodeParam: BLidgeNodeParam ): BLidgeNode => {
 
 			const mat = { name: '', uniforms: {} };
 
@@ -364,7 +364,7 @@ export class BLidge extends GLP.EventEmitter {
 
 			}
 
-			const node: BLidgeEntity = {
+			const node: BLidgeNode = {
 				name: nodeParam.name,
 				class: nodeParam.class,
 				parent: nodeParam.parent,

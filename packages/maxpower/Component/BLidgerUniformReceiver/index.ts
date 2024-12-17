@@ -8,9 +8,9 @@ export class BLidgerAnimationReceiver extends MXP.Component {
 	public uniforms: GLP.Uniforms;
 	private registeredUniforms: GLP.Uniforms[];
 
-	constructor() {
+	constructor( params: MXP.ComponentParams ) {
 
-		super();
+		super( params );
 
 		this.animations = new Map();
 

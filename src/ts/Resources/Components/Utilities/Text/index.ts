@@ -13,9 +13,9 @@ export class Text extends MXP.Component {
 	private geometry: MXP.Geometry;
 	private material: MXP.Material;
 
-	constructor() {
+	constructor( params: MXP.ComponentParams ) {
 
-		super();
+		super( params );
 
 		const font = resource.getFont( Font1 )!;
 
@@ -99,28 +99,6 @@ export class Text extends MXP.Component {
 		} );
 
 		this.geometry.requestUpdate();
-
-	}
-
-	public setEntityImpl( entity: MXP.Entity ): void {
-
-		entity.addComponent( this.material );
-		entity.addComponent( this.geometry );
-
-	}
-
-	public unsetEntityImpl( entity: MXP.Entity ): void {
-
-		entity.removeComponent( this.material );
-		entity.removeComponent( this.geometry );
-
-	}
-
-	public dispose(): void {
-
-		super.dispose();
-		this.geometry.dispose();
-		this.material.dispose();
 
 	}
 

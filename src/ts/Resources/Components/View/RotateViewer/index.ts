@@ -15,7 +15,7 @@ export class RotateViewer extends MXP.Component {
 
 	constructor( param: MXP.ComponentParams ) {
 
-		super();
+		super( param );
 
 		this.speed = 1;
 
@@ -26,13 +26,9 @@ export class RotateViewer extends MXP.Component {
 		this.quaternion = new GLP.Quaternion();
 		this.matrix = new GLP.Matrix();
 
-	}
+		this.entity.on( "sceneCreated", () => {
 
-	protected setEntityImpl( entity: MXP.Entity ): void {
-
-		entity.on( "sceneCreated", () => {
-
-			this.rotBasePos.copy( entity.position );
+			this.rotBasePos.copy( this.entity.position );
 
 		} );
 

@@ -1,7 +1,6 @@
 import { Geometry } from "..";
-import { ComponentParams } from "../..";
 
-interface PlaneGeometryParams extends ComponentParams{
+interface PlaneGeometryParams {
 	width?: number,
 	height?: number,
 	widthSegments?: number,
@@ -13,7 +12,7 @@ export class PlaneGeometry extends Geometry {
 
 	constructor( params?: PlaneGeometryParams ) {
 
-		super( params );
+		super();
 
 		const { width, height, widthSegments, heightSegments, floor } = {
 			width: 1,

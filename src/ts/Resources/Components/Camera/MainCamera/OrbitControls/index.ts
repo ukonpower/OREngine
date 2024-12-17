@@ -9,41 +9,43 @@ import { Pointer, PointerEventArgs } from '~/ts/OREngine/utils/Pointer';
 
 export class OrbitControls extends MXP.Component {
 
-	private keyborad: Keyboard;
-	private pointer: Pointer;
-	private orbit: GLP.Vector;
-	private mouseVelOrbit: GLP.Vector;
-	private mouseVelMove: GLP.Vector;
-	private eye: GLP.Vector;
-	private target: GLP.Vector;
-	private up: GLP.Vector;
-	private lookatMatrix: GLP.Matrix;
-	private distance: number;
-	private distanceVel: number;
-	private memPos: GLP.Vector;
-	private memTarget: GLP.Vector;
+	private keyborad_: Keyboard;
+	private _pointer: Pointer;
 
-	constructor( params: MXP.ComponentParams & {elm?: HTMLElement} ) {
+	private orbit_: GLP.Vector;
+	private mouseVelOrbit_: GLP.Vector;
+	private mouseVelMove_: GLP.Vector;
+
+	private eye_: GLP.Vector;
+	private target_: GLP.Vector;
+	private up_: GLP.Vector;
+	private lookatMatrix_: GLP.Matrix;
+
+	private distance_: number;
+	private distanceVel_: number;
+
+	private _memPos: GLP.Vector;
+	private _memTarget: GLP.Vector;
+
+	private elmDisposer?: () => void;
+
+	constructor( params: MXP.ComponentParams ) {
 
 		super( params );
 
-		this.pointer = new Pointer();
-		this.keyborad = new Keyboard();
-		this.orbit = new GLP.Vector();
-		this.mouseVelOrbit = new GLP.Vector();
-		this.mouseVelMove = new GLP.Vector();
-		this.target = new GLP.Vector();
-		this.eye = new GLP.Vector();
-		this.up = new GLP.Vector( 0, 1, 0 );
-		this.distance = 5.0;
-		this.distanceVel = 0.0;
-		this.lookatMatrix = new GLP.Matrix();
-		this.memPos = new GLP.Vector();
-		this.memTarget = new GLP.Vector();
-
-		const targetElm = params && params.elm || document.body;
-
-		this.pointer.setElement( targetElm );
+		this._pointer = new Pointer();
+		this.keyborad_ = new Keyboard();
+		this.orbit_ = new GLP.Vector();
+		this.mouseVelOrbit_ = new GLP.Vector();
+		this.mouseVelMove_ = new GLP.Vector();
+		this.target_ = new GLP.Vector();
+		this.eye_ = new GLP.Vector();
+		this.up_ = new GLP.Vector( 0, 1, 0 );
+		this.distance_ = 5.0;
+		this.distanceVel_ = 0.0;
+		this.lookatMatrix_ = new GLP.Matrix();
+		this._memPos = new GLP.Vector();
+		this._memTarget = new GLP.Vector();
 
 		let touching = false;
 
@@ -61,13 +63,13 @@ export class OrbitControls extends MXP.Component {
 
 			const delta = { x: e.delta.x * 1.0, y: e.delta.y * 1.0 };
 
-			if ( this.keyborad.pressedKeys[ "Shift" ] ) {
+			if ( this.keyborad_.pressedKeys[ "Shift" ] ) {
 
-				this.mouseVelMove.add( delta );
+				this.mouseVelMove_.add( delta );
 
 			} else {
 
-				this.mouseVelOrbit.add( delta );
+				this.mouseVelOrbit_.add( delta );
 
 			}
 
@@ -84,37 +86,30 @@ export class OrbitControls extends MXP.Component {
 
 		};
 
-		const onWheel = ( e: WheelEvent ) => {
-
-			e.preventDefault();
-			this.distanceVel += e.deltaY;
-
-		};
-
-		this.pointer.on( "move", onPointerMove );
-		this.pointer.on( "start", onPointerStart );
-		this.pointer.on( "end", onPointerEnd );
-		targetElm.addEventListener( "wheel", onWheel );
+		this._pointer.on( "move", onPointerMove );
+		this._pointer.on( "start", onPointerStart );
+		this._pointer.on( "end", onPointerEnd );
 
 		this.once( "dispose", () => {
 
-			this.pointer.off( "move", onPointerMove );
-			this.pointer.off( "start", onPointerStart );
-			this.pointer.off( "end", onPointerEnd );
-			targetElm.removeEventListener( "wheel", onWheel );
+			this._pointer.off( "move", onPointerMove );
+			this._pointer.off( "start", onPointerStart );
+			this._pointer.off( "end", onPointerEnd );
 
 		} );
+
+		this.setPosition( this.entity.position, this.target_ );
 
 	}
 
 	public set enabled( value: boolean ) {
 
-		this.enabled_ = value;
+		this._enabled = value;
 
-		if ( value && this.entity ) {
+		if ( value ) {
 
-			this.memTarget.copy( this.target );
-			this.memPos.copy( this.entity.position );
+			this._memTarget.copy( this.target_ );
+			this._memPos.copy( this.entity.position );
 
 			const lookAt = this.entity.getComponent( LookAt );
 
@@ -132,13 +127,31 @@ export class OrbitControls extends MXP.Component {
 
 	public get enabled() {
 
-		return this.enabled_;
+		return this._enabled;
 
 	}
 
-	protected setEntityImpl( entity: MXP.Entity ): void {
+	public setElm( elm: HTMLElement ) {
 
-		this.setPosition( entity.position, this.target );
+		if ( this.elmDisposer ) this.elmDisposer();
+
+		this._pointer.setElement( elm );
+
+		const onWheel = ( e: WheelEvent ) => {
+
+			e.preventDefault();
+			this.distanceVel_ += e.deltaY;
+
+		};
+
+		elm.addEventListener( "wheel", onWheel );
+
+		this.elmDisposer = () => {
+
+			elm.removeEventListener( "wheel", onWheel );
+
+		};
+
 
 	}
 
@@ -146,26 +159,26 @@ export class OrbitControls extends MXP.Component {
 
 		const hpi = Math.PI / 2 - 0.001;
 
-		this.eye.set( 0, 0, 0 );
-		this.eye.z += this.distance;
-		this.eye.applyMatrix3( new GLP.Matrix().makeRotationAxis( { x: 1, y: 0, z: 0 }, Math.min( hpi, Math.max( - hpi, this.orbit.x ) ) ) );
-		this.eye.applyMatrix3( new GLP.Matrix().makeRotationAxis( { x: 0, y: 1, z: 0 }, this.orbit.y ) );
+		this.eye_.set( 0, 0, 0 );
+		this.eye_.z += this.distance_;
+		this.eye_.applyMatrix3( new GLP.Matrix().makeRotationAxis( { x: 1, y: 0, z: 0 }, Math.min( hpi, Math.max( - hpi, this.orbit_.x ) ) ) );
+		this.eye_.applyMatrix3( new GLP.Matrix().makeRotationAxis( { x: 0, y: 1, z: 0 }, this.orbit_.y ) );
 
-		this.eye.add( this.target );
-		this.lookatMatrix.lookAt( this.eye, this.target, this.up );
-		this.lookatMatrix.decompose( entity.position, entity.quaternion, entity.scale );
+		this.eye_.add( this.target_ );
+		this.lookatMatrix_.lookAt( this.eye_, this.target_, this.up_ );
+		this.lookatMatrix_.decompose( entity.position, entity.quaternion, entity.scale );
 
 		entity.updateMatrix();
 
 		// calc viewmatrix
 
-		const cameraComponent = entity.getComponentByTag<MXP.Camera>( "camera" );
+		// const cameraComponent = entity.getComponentByTag<MXP.Camera>( "camera" );
 
-		if ( cameraComponent ) {
+		// if ( cameraComponent ) {
 
-			cameraComponent.viewMatrix.copy( entity.matrixWorld ).inverse();
+		// 	cameraComponent.viewMatrix.copy( entity.matrixWorld ).inverse();
 
-		}
+		// }
 
 	}
 
@@ -174,26 +187,26 @@ export class OrbitControls extends MXP.Component {
 		const entity = event.entity;
 
 		const movement = new GLP.Vector(
-			- this.mouseVelMove.x * this.distance * 0.00025,
-			this.mouseVelMove.y * this.distance * 0.00025,
+			- this.mouseVelMove_.x * this.distance_ * 0.00025,
+			this.mouseVelMove_.y * this.distance_ * 0.00025,
 			0,
 			0
 		);
 
 		movement.applyMatrix3( entity.matrix );
-		this.target.add( movement );
+		this.target_.add( movement );
 
-		this.orbit.x += this.mouseVelOrbit.y * 0.001;
-		this.orbit.x = Math.min( Math.PI / 2, Math.max( - Math.PI / 2, this.orbit.x ) );
-		this.orbit.y += this.mouseVelOrbit.x * 0.001;
+		this.orbit_.x += this.mouseVelOrbit_.y * 0.001;
+		this.orbit_.x = Math.min( Math.PI / 2, Math.max( - Math.PI / 2, this.orbit_.x ) );
+		this.orbit_.y += this.mouseVelOrbit_.x * 0.001;
 
-		this.distance += this.distanceVel * 0.01 * this.distance * 0.025;
-		this.distance = Math.max( 0.1, this.distance );
+		this.distance_ += this.distanceVel_ * 0.01 * this.distance_ * 0.025;
+		this.distance_ = Math.max( 0.1, this.distance_ );
 
 		const attenuation = Math.max( 0.0, 1.0 - event.timeDelta * 10.0 );
-		this.mouseVelOrbit.multiply( attenuation );
-		this.mouseVelMove.multiply( attenuation );
-		this.distanceVel *= attenuation;
+		this.mouseVelOrbit_.multiply( attenuation );
+		this.mouseVelMove_.multiply( attenuation );
+		this.distanceVel_ *= attenuation;
 
 		this.calc( event.entity );
 
@@ -201,8 +214,8 @@ export class OrbitControls extends MXP.Component {
 
 	public setPosition( eye: GLP.Vector, target: GLP.Vector ) {
 
-		this.eye.copy( eye );
-		this.target.copy( target );
+		this.eye_.copy( eye );
+		this.target_.copy( target );
 
 
 		if ( this.entity ) {
@@ -213,26 +226,26 @@ export class OrbitControls extends MXP.Component {
 
 				parent.updateMatrix( true );
 
-				this.target.applyMatrix4( parent.matrixWorld.clone().inverse() );
+				this.target_.applyMatrix4( parent.matrixWorld.clone().inverse() );
 
 			}
 
 		}
 
-		this.orbit.x = Math.atan2( this.eye.y - this.target.y, new GLP.Vector( this.eye.x, this.eye.z ).length() - new GLP.Vector( this.target.x, this.target.z ).length() );
-		this.orbit.y = - Math.atan2( this.eye.x - this.target.x, this.eye.z - this.target.z );
+		this.orbit_.x = Math.atan2( this.eye_.y - this.target_.y, new GLP.Vector( this.eye_.x, this.eye_.z ).length() - new GLP.Vector( this.target_.x, this.target_.z ).length() );
+		this.orbit_.y = - Math.atan2( this.eye_.x - this.target_.x, this.eye_.z - this.target_.z );
 
-		this.distance = this.eye.clone().sub( this.target ).length();
+		this.distance_ = this.eye_.clone().sub( this.target_ ).length();
 
-		this.mouseVelOrbit.set( 0, 0, 0 );
-		this.mouseVelMove.set( 0, 0, 0 );
+		this.mouseVelOrbit_.set( 0, 0, 0 );
+		this.mouseVelMove_.set( 0, 0, 0 );
 
 	}
 
 	public dispose(): void {
 
 		super.dispose();
-		this.pointer.dispose();
+		this._pointer.dispose();
 
 	}
 

@@ -1,6 +1,6 @@
-import * as GLP from 'glpower';
+import { Serializable } from '../Serializable';
 
-export class Resource extends GLP.EventEmitter {
+export class Resource extends Serializable {
 
 	public resourceIdOverride: string | null = null;
 
@@ -10,18 +10,18 @@ export class Resource extends GLP.EventEmitter {
 
 	}
 
-	public static get resourceId() {
+	// public static get resourceId() {
 
-		return this.name;
+	// 	return this.name;
 
-	}
+	// }
 
-	public get resourceId() {
+	// public get resourceId() {
 
-		if ( this.resourceIdOverride ) return this.resourceIdOverride;
+	// 	if ( this.resourceIdOverride ) return this.resourceIdOverride;
 
-		return ( this.constructor as typeof Resource ).resourceId;
+	// 	return ( this.constructor as typeof Resource ).resourceId;
 
-	}
+	// }
 
 }

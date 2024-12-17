@@ -54,7 +54,7 @@ export class SceneSerializer extends GLP.EventEmitter {
 
 					if ( compItem ) {
 
-						const component = e.addComponent( new compItem.component() );
+						const component = e.addComponent( compItem.component );
 						component.initiator = "user";
 
 						if ( c.props ) {

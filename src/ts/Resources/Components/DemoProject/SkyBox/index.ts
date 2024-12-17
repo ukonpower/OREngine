@@ -6,22 +6,18 @@ import { globalUniforms } from '~/ts/Globals';
 
 export class SkyBox extends MXP.Component {
 
-	constructor() {
+	constructor( params: MXP.ComponentParams ) {
 
-		super();
+		super( params );
 
-		const mesh = new MXP.Mesh();
-
+		const mesh = this.entity.addComponent( MXP.Mesh );
 		mesh.geometry = new MXP.SphereGeometry( { radius: 50, widthSegments: 32, heightSegments: 32 } );
-
 		mesh.material = new MXP.Material( {
 			phase: [ "deferred", "envMap" ],
 			frag: MXP.hotGet( "skybox", skyboxFrag ),
 			cullFace: false,
 			uniforms: MXP.UniformsUtils.merge( globalUniforms.time, globalUniforms.music )
 		} );
-
-		this.add( mesh );
 
 		if ( import.meta.hot ) {
 

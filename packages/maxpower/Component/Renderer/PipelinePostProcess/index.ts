@@ -11,38 +11,22 @@ import motionBlurTileFrag from './shaders/motionBlurTile.fs';
 import ssCompositeFrag from './shaders/ssComposite.fs';
 import ssrFrag from './shaders/ssr.fs';
 
-export class PipelinePostProcess extends MXP.PostProcess {
-
-	// uniforms
-
-	private timeUniforms: GLP.Uniforms;
-
-	// ssr
-
-	private ssr: MXP.PostProcessPass;
-	public rtSSR1: GLP.GLPowerFrameBuffer;
-	public rtSSR2: GLP.GLPowerFrameBuffer;
-
-	// ss composite
-
-	private ssComposite: MXP.PostProcessPass;
-
-	// dof
-
-	private dofParams: GLP.Vector;
+export class PipelinePostProcess {
 
 	public dofCoc: MXP.PostProcessPass;
 	public dofBokeh: MXP.PostProcessPass;
 	public dofComposite: MXP.PostProcessPass;
+	public rtSSR1: GLP.GLPowerFrameBuffer;
+	public rtSSR2: GLP.GLPowerFrameBuffer;
+	public postprocess: MXP.PostProcess;
 
-	// motion blur
-
-	private motionBlur: MXP.PostProcessPass;
-	private motionBlurTile: MXP.PostProcessPass;
-
-	// renderCamera
-
-	private renderCamera: MXP.RenderCamera | null;
+	private _timeUniforms: GLP.Uniforms;
+	private _ssr: MXP.PostProcessPass;
+	private _ssComposite: MXP.PostProcessPass;
+	private _dofParams: GLP.Vector;
+	private _motionBlur: MXP.PostProcessPass;
+	private _motionBlurTile: MXP.PostProcessPass;
+	private _renderCamera: MXP.RenderCamera | null;
 
 	constructor( gl: WebGL2RenderingContext ) {
 
@@ -102,11 +86,11 @@ export class PipelinePostProcess extends MXP.PostProcess {
 
 				if ( module ) {
 
-					this.ssr.frag = MXP.hotUpdate( 'ssr', module.default );
+					this._ssr.frag = MXP.hotUpdate( 'ssr', module.default );
 
 				}
 
-				this.ssr.requestUpdate();
+				this._ssr.requestUpdate();
 
 			} );
 
@@ -139,11 +123,11 @@ export class PipelinePostProcess extends MXP.PostProcess {
 
 				if ( module ) {
 
-					this.ssComposite.frag = MXP.hotUpdate( 'ssComposite', module.default );
+					this._ssComposite.frag = MXP.hotUpdate( 'ssComposite', module.default );
 
 				}
 
-				this.ssComposite.requestUpdate();
+				this._ssComposite.requestUpdate();
 
 			} );
 
@@ -271,67 +255,57 @@ export class PipelinePostProcess extends MXP.PostProcess {
 			},
 		} );
 
-		super( {
-			idOverride: 'scenePostProcess',
-			passes: [
-				colorCollection,
-				ssr,
-				ssComposite,
-				dofCoc,
-				dofBokeh,
-				dofComposite,
-				motionBlurTile,
-				motionBlurNeighbor,
-				motionBlur,
-			]
-		} );
+		// Postprocess
 
-		this.timeUniforms = timeUniforms;
+		this.postprocess = new MXP.PostProcess( { entity: new MXP.Entity(), args: undefined } );
 
-		this.ssr = ssr;
-		this.ssComposite = ssComposite;
+		this.postprocess.passes = [
+			colorCollection,
+			ssr,
+			ssComposite,
+			dofCoc,
+			dofBokeh,
+			dofComposite,
+			motionBlurTile,
+			motionBlurNeighbor,
+			motionBlur,
+		];
+
+		this._timeUniforms = timeUniforms;
+		this._ssr = ssr;
+		this._ssComposite = ssComposite;
 		this.dofCoc = dofCoc;
 		this.dofBokeh = dofBokeh;
 		this.dofComposite = dofComposite;
-		this.motionBlur = motionBlur;
-		this.motionBlurTile = motionBlurTile;
-
-		// dof
-
-		this.dofParams = dofParams;
-
-		// rt
-
+		this._motionBlur = motionBlur;
+		this._motionBlurTile = motionBlurTile;
+		this._dofParams = dofParams;
 		this.rtSSR1 = rtSSR1;
 		this.rtSSR2 = rtSSR2;
-
-		// rendercamera
-
-		this.renderCamera = null;
-
+		this._renderCamera = null;
 
 	}
 
-	protected updateImpl( event: MXP.ComponentUpdateEvent ): void {
+	public update( event: MXP.EntityUpdateEvent ): void {
 
-		if ( ! this.renderCamera ) return;
+		if ( ! this._renderCamera ) return;
 
 		// uniforms
 
-		this.timeUniforms.uTimeEF.value = ( this.timeUniforms.uTimeEF.value + event.timeDelta ) % 1;
+		this._timeUniforms.uTimeEF.value = ( this._timeUniforms.uTimeEF.value + event.timeDelta ) % 1;
 
 		// dof params
 
-		const fov = this.renderCamera.fov;
-		const focusDistance = this.renderCamera.dof.focusDistance;
-		const kFilmHeight = this.renderCamera.dof.kFilmHeight;
+		const fov = this._renderCamera.fov;
+		const focusDistance = this._renderCamera.dofParams.focusDistance;
+		const kFilmHeight = this._renderCamera.dofParams.kFilmHeight;
 		const flocalLength = kFilmHeight / Math.tan( 0.5 * ( fov / 180 * Math.PI ) );
 
 		const maxCoc = ( 1 / this.dofBokeh.renderTarget!.size.y ) * ( 5 );
 		const rcpMaxCoC = 1.0 / maxCoc;
 		const coeff = flocalLength * flocalLength / ( 0.3 * ( focusDistance - flocalLength ) * kFilmHeight * 2.0 );
 
-		this.dofParams.set( focusDistance, maxCoc, rcpMaxCoC, coeff );
+		this._dofParams.set( focusDistance, maxCoc, rcpMaxCoC, coeff );
 
 		// ssr swap
 
@@ -339,30 +313,38 @@ export class PipelinePostProcess extends MXP.PostProcess {
 		this.rtSSR1 = this.rtSSR2;
 		this.rtSSR2 = tmp;
 
-		this.ssr.setRendertarget( this.rtSSR1 );
-		this.ssComposite.uniforms.uSSRTexture.value = this.rtSSR1.textures[ 0 ];
-		this.ssr.uniforms.uSSRBackBuffer.value = this.rtSSR2.textures[ 0 ];
+		this._ssr.setRendertarget( this.rtSSR1 );
+		this._ssComposite.uniforms.uSSRTexture.value = this.rtSSR1.textures[ 0 ];
+		this._ssr.uniforms.uSSRBackBuffer.value = this.rtSSR2.textures[ 0 ];
+
+	}
+
+	public resize( resolution: GLP.Vector ) {
+
+		this.postprocess.resize( resolution );
 
 	}
 
 	public setRenderCamera( renderCamera: MXP.RenderCamera ) {
 
-		this.renderCamera = renderCamera;
+		this._renderCamera = renderCamera;
 
 		const renderTarget = renderCamera.renderTarget;
 
-		this.input = renderTarget.shadingBuffer.textures;
+		if ( ! renderTarget ) return;
+
+		this.postprocess.input = renderTarget.shadingBuffer.textures;
 
 		// ssr
 
-		this.ssr.uniforms.uGbufferPos.value = renderTarget.gBuffer.textures[ 0 ];
-		this.ssr.uniforms.uGbufferNormal.value = renderTarget.normalBuffer.textures[ 0 ];
-		this.ssr.uniforms.uSceneTex.value = renderTarget.forwardBuffer.textures[ 0 ];
+		this._ssr.uniforms.uGbufferPos.value = renderTarget.gBuffer.textures[ 0 ];
+		this._ssr.uniforms.uGbufferNormal.value = renderTarget.normalBuffer.textures[ 0 ];
+		this._ssr.uniforms.uSceneTex.value = renderTarget.forwardBuffer.textures[ 0 ];
 
 		// ssComposite
 
-		this.ssComposite.uniforms.uGbufferPos.value = renderTarget.gBuffer.textures[ 0 ];
-		this.ssComposite.uniforms.uGbufferNormal.value = renderTarget.gBuffer.textures[ 1 ];
+		this._ssComposite.uniforms.uGbufferPos.value = renderTarget.gBuffer.textures[ 0 ];
+		this._ssComposite.uniforms.uGbufferNormal.value = renderTarget.gBuffer.textures[ 1 ];
 
 		// dofCoc
 
@@ -370,12 +352,12 @@ export class PipelinePostProcess extends MXP.PostProcess {
 
 		// motionBlurTile
 
-		this.motionBlurTile.uniforms.uVelTex.value = renderTarget.gBuffer.textures[ 4 ];
+		this._motionBlurTile.uniforms.uVelTex.value = renderTarget.gBuffer.textures[ 4 ];
 
 		// motionBlur
 
-		this.motionBlur.uniforms.uVelTex.value = renderTarget.gBuffer.textures[ 4 ];
-		this.motionBlur.uniforms.uDepthTexture.value = renderTarget.gBuffer.depthTexture;
+		this._motionBlur.uniforms.uVelTex.value = renderTarget.gBuffer.textures[ 4 ];
+		this._motionBlur.uniforms.uDepthTexture.value = renderTarget.gBuffer.depthTexture;
 
 
 	}

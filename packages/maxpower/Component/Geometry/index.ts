@@ -1,10 +1,6 @@
 import * as GLP from 'glpower';
 
-import { Component, ComponentParams } from "..";
-import { SerializableProps } from '../../Serializable';
-
-export type GeometryParam = {
-}
+import { Resource } from '../../Resource';
 
 type Attribute = {
 	array: GLP.TArrayBuffer;
@@ -15,41 +11,19 @@ type Attribute = {
 
 type DefaultAttributeName = 'position' | 'uv' | 'normal' | 'index';
 
-
-export class Geometry extends Component {
+export class Geometry extends Resource {
 
 	public vertCount: number;
 	public attributes: Map<string, Attribute >;
 	public vaoCache: Map<GLP.GLPowerVAO, boolean>;
 
-	constructor( params?: ComponentParams ) {
+	constructor() {
 
-		super( params );
+		super();
 
 		this.vertCount = 0;
 		this.attributes = new Map();
 		this.vaoCache = new Map();
-
-	}
-
-	public static get tag() {
-
-		return "geometry";
-
-	}
-
-
-	public getProps(): SerializableProps | null {
-
-		return {
-			vertCount: {
-				value: this.vertCount,
-				opt: {
-					readOnly: true,
-					precision: 1
-				},
-			}
-		};
 
 	}
 

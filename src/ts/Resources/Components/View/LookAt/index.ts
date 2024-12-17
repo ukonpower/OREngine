@@ -11,9 +11,9 @@ export class LookAt extends MXP.Component {
 
 	public enable: boolean;
 
-	constructor() {
+	constructor( params: MXP.ComponentParams ) {
 
-		super();
+		super( params );
 
 		this.target = null;
 		this.enable = true;
@@ -40,7 +40,7 @@ export class LookAt extends MXP.Component {
 
 			entity.matrixWorld.lookAt( this.entityWorldPos, this.targetWorldPos, this.up );
 
-			const camera = entity.getComponentByTag<MXP.Camera>( "camera" );
+			const camera = entity.getComponentsByTag<MXP.Camera>( "camera" )[ 0 ];
 
 			if ( camera ) {
 

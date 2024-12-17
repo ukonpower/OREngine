@@ -1,6 +1,6 @@
 import * as GLP from 'glpower';
 
-import { Entity } from '../../Entity';
+import { Entity, EntityUpdateEvent } from '../../Entity';
 import { shaderParse } from "../../Utils/ShaderParser";
 import { Camera } from '../Camera';
 import { RenderCamera } from '../Camera/RenderCamera';
@@ -104,7 +104,7 @@ export class Renderer extends Entity {
 
 	// postprocess
 
-	private deferredPostProcess: DeferredRenderer;
+	private deferredRenderer: DeferredRenderer;
 	private pipelinePostProcess: PipelinePostProcess;
 
 	// quad
@@ -172,7 +172,7 @@ export class Renderer extends Entity {
 		for ( let i = 0; i < 6; i ++ ) {
 
 			const entity = new Entity( { name: "envMapCamera/" + i } );
-			const camera = entity.addComponent( new Camera() );
+			const camera = entity.addComponent( Camera );
 			camera.fov = 90;
 			camera.near = 0.1;
 			camera.far = 1000;
@@ -193,16 +193,13 @@ export class Renderer extends Entity {
 
 		// postprocess
 
-		this.deferredPostProcess = new DeferredRenderer( {
+		this.deferredRenderer = new DeferredRenderer( {
 			gl,
 			envMap: this.pmremRender.renderTarget.textures[ 0 ] as GLP.GLPowerTexture,
 			envMapCube: envMap as GLP.GLPowerTextureCube,
 		} );
 
-		this.addComponent( this.deferredPostProcess );
-
 		this.pipelinePostProcess = new PipelinePostProcess( gl );
-		this.addComponent( this.pipelinePostProcess );
 
 		// quad
 
@@ -229,7 +226,7 @@ export class Renderer extends Entity {
 
 	}
 
-	public render( stack: RenderStack ) {
+	public render( event: EntityUpdateEvent, stack: RenderStack ) {
 
 		if ( process.env.NODE_ENV == 'development' ) {
 
@@ -357,7 +354,7 @@ export class Renderer extends Entity {
 
 		}
 
-		this.renderPostProcess( this.pmremRender, this.pmremRender.resolution );
+		this.renderPostProcess( this.pmremRender.postprocess, this.pmremRender.resolution );
 
 		this.pmremRender.swap();
 
@@ -370,17 +367,21 @@ export class Renderer extends Entity {
 
 			this.gl.disable( this.gl.BLEND );
 
+			if ( ! cameraComponent.renderTarget ) continue;
+
 			this.renderCamera( "deferred", cameraEntity, stack.deferred, cameraComponent.renderTarget.gBuffer, this.renderCanvasSize );
 
-			this.deferredPostProcess.setRenderCamera( cameraComponent );
+			this.deferredRenderer.setRenderCamera( cameraComponent );
 
-			this.renderPostProcess( this.deferredPostProcess, this.renderCanvasSize, { cameraOverride: {
+			this.renderPostProcess( this.deferredRenderer.postprocess, this.renderCanvasSize, { cameraOverride: {
 				viewMatrix: cameraComponent.viewMatrix,
 				viewMatrixPrev: cameraComponent.viewMatrixPrev,
 				projectionMatrix: cameraComponent.projectionMatrix,
 				projectionMatrixPrev: cameraComponent.projectionMatrixPrev,
 				cameraMatrixWorld: cameraEntity.matrixWorld
 			} } );
+
+			this.deferredRenderer.update( event );
 
 			// forward
 
@@ -410,7 +411,7 @@ export class Renderer extends Entity {
 
 			this.pipelinePostProcess.setRenderCamera( cameraComponent );
 
-			this.renderPostProcess( this.pipelinePostProcess, this.renderCanvasSize, { cameraOverride: {
+			this.renderPostProcess( this.pipelinePostProcess.postprocess, this.renderCanvasSize, { cameraOverride: {
 				viewMatrix: cameraComponent.viewMatrix,
 				projectionMatrix: cameraComponent.projectionMatrix,
 				cameraMatrixWorld: cameraEntity.matrixWorld,
@@ -418,7 +419,9 @@ export class Renderer extends Entity {
 				cameraFar: cameraComponent.far,
 			} } );
 
-			let backBuffer = this.pipelinePostProcess.output ? this.pipelinePostProcess.output : null;
+			this.pipelinePostProcess.update( event );
+
+			let backBuffer = this.pipelinePostProcess.postprocess.output ? this.pipelinePostProcess.postprocess.output : null;
 
 			// postprocess
 
@@ -490,7 +493,7 @@ export class Renderer extends Entity {
 
 	public renderCamera( renderType: MaterialRenderType, cameraEntity: Entity, entities: Entity[], renderTarget: GLP.GLPowerFrameBuffer | null, canvasSize: GLP.Vector, renderOption?: RenderOption ) {
 
-		const camera = cameraEntity.getComponentByTag<Camera>( "camera" ) || cameraEntity.getComponent( Light )!;
+		const camera = cameraEntity.getComponentsByTag<Camera>( "camera" )[ 0 ] || cameraEntity.getComponent( Light )!;
 
 		renderOption = renderOption || {};
 
@@ -616,13 +619,13 @@ export class Renderer extends Entity {
 
 		// render
 
-		let backbuffers: GLP.GLPowerTexture[] | null = postprocess.input;
+		let backbuffers: GLP.GLPowerTexture[] | undefined = postprocess.input;
+
+		if ( ! postprocess.passes ) return;
 
 		for ( let i = 0; i < postprocess.passes.length; i ++ ) {
 
 			const pass = postprocess.passes[ i ];
-
-			if ( pass.enabled === false ) continue;
 
 			const renderTarget = pass.renderTarget;
 
@@ -1088,7 +1091,7 @@ export class Renderer extends Entity {
 	public resize( resolution: GLP.Vector ) {
 
 		this.renderCanvasSize.copy( resolution );
-		this.deferredPostProcess.resize( resolution );
+		this.deferredRenderer.resize( resolution );
 		this.pipelinePostProcess.resize( resolution );
 
 	}
