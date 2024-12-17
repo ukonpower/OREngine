@@ -167,7 +167,6 @@ export class BLidge extends GLP.EventEmitter {
 
 	// gltf
 
-	// private gltfLoader: GLTFLoader;
 	public gltf?: GLTF;
 
 	// scene
@@ -193,8 +192,6 @@ export class BLidge extends GLP.EventEmitter {
 			fps: 30,
 			playing: false,
 		};
-
-		// this.gltfLoader = new GLTFLoader( gl );
 
 		if ( url ) {
 

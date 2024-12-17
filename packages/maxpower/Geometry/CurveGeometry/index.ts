@@ -1,8 +1,7 @@
 import * as GLP from 'glpower';
 
 import { Geometry } from "..";
-import { ComponentParams } from '../..';
-import { Curve } from "../../../Utils/Curve";
+import { ComponentParams, Curve } from '../..';
 
 interface CurveGeometryParams extends ComponentParams{
 	curve?: Curve,

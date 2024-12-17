@@ -1,6 +1,6 @@
 import * as GLP from 'glpower';
 
-import { Resource } from '../../Resource';
+import { Serializable } from '../Serializable';
 
 type Attribute = {
 	array: GLP.TArrayBuffer;
@@ -11,7 +11,7 @@ type Attribute = {
 
 type DefaultAttributeName = 'position' | 'uv' | 'normal' | 'index';
 
-export class Geometry extends Resource {
+export class Geometry extends Serializable {
 
 	public vertCount: number;
 	public attributes: Map<string, Attribute >;

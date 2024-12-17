@@ -1,5 +1,5 @@
 import { Entity, EntityFinalizeEvent } from '../Entity';
-import { Resource } from '../Resource';
+import { Serializable } from '../Serializable';
 
 export type ComponentUpdateEvent = EntityFinalizeEvent & {
 	entity: Entity,
@@ -10,7 +10,7 @@ export interface ComponentParams{
     args?: any;
 }
 
-export class Component extends Resource {
+export class Component extends Serializable {
 
 	public entity: Entity;
 	public disableEdit: boolean;

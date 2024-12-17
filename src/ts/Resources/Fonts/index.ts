@@ -1,7 +1,7 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-export class Font extends MXP.Resource {
+export class Font extends MXP.Serializable {
 
 	public texture: GLP.GLPowerTexture;
 	public matrices: Map<string, {geo: GLP.Matrix, uv: GLP.Matrix}> = new Map();
@@ -13,12 +13,6 @@ export class Font extends MXP.Resource {
 		this.texture = new GLP.GLPowerTexture( gl );
 
 		this.matrices = new Map();
-
-	}
-
-	public get resourceId() {
-
-		return ( this.constructor as typeof Font ).resourceId;
 
 	}
 

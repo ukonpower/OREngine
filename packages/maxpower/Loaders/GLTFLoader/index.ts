@@ -1,8 +1,10 @@
 import * as GLP from 'glpower';
 
-import { Geometry } from '../../Component/Geometry';
-import { Material } from '../../Component/Material';
+import { Mesh } from '../../Component/Mesh';
 import { Entity } from '../../Entity';
+import { Geometry } from '../../Geometry';
+import { Material } from '../../Material';
+
 
 import { GLTFFormat, GLTFBufferView, GLTFNode } from './gltf';
 import gltfFrag from './shaders/gltf.fs';
@@ -502,8 +504,10 @@ export class GLTFLoader extends GLP.EventEmitter {
 				if ( meshList.length == 1 ) {
 
 					const mesh = meshList[ 0 ];
-					// entity.addComponent( mesh.geometry );
-					// entity.addComponent( mesh.material );
+
+					const meshComponent = entity.addComponent( Mesh );
+					meshComponent.geometry = mesh.geometry;
+					meshComponent.material = mesh.material;
 
 				} else {
 
@@ -511,8 +515,10 @@ export class GLTFLoader extends GLP.EventEmitter {
 
 						const meshPartEntity = new Entity();
 						meshPartEntity.name = node.name + "_" + i;
-						// entity.addComponent( mesh.geometry );
-						// entity.addComponent( mesh.material );
+						const meshComponent = meshPartEntity.addComponent( Mesh );
+						meshComponent.geometry = mesh.geometry;
+						meshComponent.material = mesh.material;
+
 						entity.add( meshPartEntity );
 
 					} );

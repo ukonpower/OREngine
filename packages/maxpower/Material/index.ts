@@ -1,7 +1,7 @@
 
 import * as GLP from 'glpower';
 
-import { Resource } from '../../Resource';
+import { Serializable } from '../Serializable';
 
 import basicFrag from './shaders/basic.fs';
 import basicVert from './shaders/basic.vs';
@@ -28,7 +28,7 @@ export interface MaterialParam {
 	drawType?: DrawType;
 }
 
-export class Material extends Resource {
+export class Material extends Serializable {
 
 	public name: string;
 	public vert: string;

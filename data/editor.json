@@ -23,7 +23,7 @@
 			"components": [],
 			"objectOverride": [
 				{
-					"path": "/CamDof",
+					"path": "/root",
 					"components": [
 						{
 							"name": "BLidgeClient",
@@ -35,17 +35,11 @@
 								"websocket/": null,
 								"websocket/url": "ws://localhost:3100"
 							}
-						},
-						{
-							"name": "DemoMusic",
-							"props": {
-								"enabled": true
-							}
 						}
 					]
 				},
 				{
-					"path": "/CamDof/blidgeRoot/SkyBox",
+					"path": "/root/blidgeRoot/SkyBox",
 					"components": [
 						{
 							"name": "SkyBox",
@@ -57,21 +51,21 @@
 				}
 			],
 			"scene": {
-				"name": "CamDof"
+				"name": "root"
 			},
 			"timeline/": null,
 			"timeline/duration": 600,
-			"timeline/fps": 60
+			"timeline/fps": 30
 		}
 	],
 	"enableRender": true,
 	"projectName": "New Project",
 	"openedProject": "New Project",
-	"resolutionScale": "0.5",
+	"resolutionScale": 0.5,
 	"viewType": "render",
 	"frameLoop/": null,
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,
 	"frameLoop/end": 0,
-	"selectedEntityId": "106"
+	"selectedEntityId": "93"
 }

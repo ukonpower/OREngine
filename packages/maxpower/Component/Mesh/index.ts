@@ -1,14 +1,17 @@
-import * as MXP from 'maxpower';
+import { Component, ComponentParams } from "..";
+import { Geometry } from "../../Geometry";
+import { Material } from "../../Material";
 
-const defaultGeometry = new MXP.Geometry();
-const defaultMaterial = new MXP.Material();
 
-export class Mesh extends MXP.Component {
+const defaultGeometry = new Geometry();
+const defaultMaterial = new Material();
 
-	public geometry: MXP.Geometry;
-	public material: MXP.Material;
+export class Mesh extends Component {
 
-	constructor( params: MXP.ComponentParams ) {
+	public geometry: Geometry;
+	public material: Material;
+
+	constructor( params: ComponentParams ) {
 
 		super( params );
 

@@ -36,9 +36,6 @@ void main( void ) {
 
 	outColor.xyz *= 0.2;
 
-	outEmissionIntensity *= 0.05;
-
-
 	#ifdef IS_FORWARD
 
 		outColor = vec4( outColor.xyz * outEmissionIntensity, 1.0 );
