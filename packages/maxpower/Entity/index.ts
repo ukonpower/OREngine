@@ -345,6 +345,31 @@ export class Entity extends Serializable {
 
 	}
 
+	public removeComponentByUUID( uuid: string ) {
+
+		for ( const c of this.components ) {
+
+			const key = c[ 0 ];
+			const component = c[ 1 ];
+
+			if ( component.uuid === uuid ) {
+
+				component.dispose();
+
+				this.components.delete( key );
+
+				this.noticeField( "components" );
+
+				return component;
+
+			}
+
+		}
+
+	}
+
+	// get
+
 	public getComponent<T extends typeof Component>( component: T ) {
 
 		return this.components.get( component ) as InstanceType<T> | undefined;

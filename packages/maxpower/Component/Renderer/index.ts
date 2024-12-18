@@ -1,13 +1,13 @@
 import * as GLP from 'glpower';
 
+import { Geometry } from '../..//Geometry';
+import { PlaneGeometry } from '../..//Geometry/PlaneGeometry';
+import { MaterialRenderType, Material } from '../..//Material';
 import { Entity, EntityUpdateEvent } from '../../Entity';
 import { shaderParse } from "../../Utils/ShaderParser";
 import { Camera } from '../Camera';
 import { RenderCamera } from '../Camera/RenderCamera';
-import { Geometry } from '../Geometry';
-import { PlaneGeometry } from '../Geometry/PlaneGeometry';
 import { Light, LightType } from '../Light';
-import { MaterialRenderType, Material } from '../Material';
 import { Mesh } from '../Mesh';
 import { PostProcess } from '../PostProcess';
 
