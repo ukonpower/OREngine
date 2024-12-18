@@ -19,6 +19,7 @@ export type SerializableFieldOpt = {
 	format?: SerializableFieldType,
 	noExport?: boolean,
 	hidden?: boolean | ( () => boolean ),
+	readOnly?: boolean,
 }
 
 export type SerializeFieldValue = string | number | boolean | null | object;

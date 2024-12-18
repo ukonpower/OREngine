@@ -2,7 +2,6 @@ import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
 import { globalUniforms, canvas, renderer } from '../Globals';
-import { MainCamera } from '../Resources/Components/Camera/MainCamera';
 import { OrbitControls } from '../Resources/Components/Camera/MainCamera/OrbitControls';
 import { initResouces } from '../Resources/init';
 
@@ -43,11 +42,6 @@ export class OREngine extends MXP.Entity {
 
 	public canvas: HTMLCanvasElement;
 	public enableRender: boolean;
-
-	// camera
-
-	private camera: MXP.Entity;
-	private cameraComponent: MainCamera;
 
 	constructor() {
 
@@ -110,28 +104,6 @@ export class OREngine extends MXP.Entity {
 
 		this.seek( 0 );
 
-		// camera
-
-		this.camera = new MXP.Entity( { name: "camera" } );
-		this.camera.position.set( 0, 0, 5 );
-
-		this.cameraComponent = this.camera.addComponent( MainCamera );
-
-		globalUniforms.gBuffer.uGBufferPos.value = this.cameraComponent.renderCamera.gBuffer.textures[ 0 ];
-		globalUniforms.gBuffer.uGBufferNormal.value = this.cameraComponent.renderCamera.gBuffer.textures[ 1 ];
-
-		if ( process.env.NODE_ENV === 'development' ) {
-
-			const orbitControls = this.camera.getComponent( OrbitControls );
-
-			if ( orbitControls ) {
-
-				orbitControls.setPosition( new GLP.Vector( 0, 0, 0 ), new GLP.Vector( 0, 0, 5 ) );
-
-			}
-
-		}
-
 		// root
 
 		this.root = new MXP.Entity();
@@ -150,12 +122,8 @@ export class OREngine extends MXP.Entity {
 
 	public init( project?: OREngineProjectData ) {
 
-		this.root.remove( this.camera );
 		this.root.remove( renderer );
-
 		this.root.disposeRecursive();
-
-		this.root.add( this.camera );
 		this.root.add( renderer );
 
 		this.root.position.set( 0, 0, 0 );
@@ -235,7 +203,6 @@ export class OREngine extends MXP.Entity {
 		globalUniforms.resolution.uAspectRatio.value = resolution.x / resolution.y;
 
 		renderer.resize( resolution );
-		this.cameraComponent.resize( resolution );
 
 	}
 

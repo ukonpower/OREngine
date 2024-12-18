@@ -18,7 +18,7 @@
 				1
 			],
 			"children": [
-				"4b"
+				"35"
 			],
 			"components": [],
 			"objectOverride": [
@@ -34,6 +34,23 @@
 								"gltfPath": "/scene.glb",
 								"websocket/": null,
 								"websocket/url": "ws://localhost:3100"
+							}
+						},
+						{
+							"name": "DemoMusic",
+							"props": {
+								"enabled": true
+							}
+						}
+					]
+				},
+				{
+					"path": "/root/blidgeRoot/Camera",
+					"components": [
+						{
+							"name": "MainCamera",
+							"props": {
+								"enabled": true
 							}
 						}
 					]
@@ -67,5 +84,5 @@
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,
 	"frameLoop/end": 0,
-	"selectedEntityId": "93"
+	"selectedEntityId": "89"
 }

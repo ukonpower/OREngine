@@ -195,9 +195,6 @@ export class BLidgeClient extends MXP.Component {
 		if ( this.entity ) {
 
 			this.entity.noticeEventChilds( "sceneCreated", [ this.blidgeRoot ] );
-
-			this.entity.noticeEventParent( "update/graph", [ "scenechange" ] );
-
 			this.entity.noticeEventParent( "update/blidge/scene", [ this.blidgeRoot ] );
 
 		}

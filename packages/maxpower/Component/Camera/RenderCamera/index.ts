@@ -74,7 +74,6 @@ export class RenderCamera extends Camera {
 
 		this.resize( this.resolution );
 
-
 	}
 
 	public resize( resolution: GLP.Vector ) {

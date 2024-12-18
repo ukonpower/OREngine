@@ -26,12 +26,6 @@ export class RotateViewer extends MXP.Component {
 		this.quaternion = new GLP.Quaternion();
 		this.matrix = new GLP.Matrix();
 
-		this.entity.on( "sceneCreated", () => {
-
-			this.rotBasePos.copy( this.entity.position );
-
-		} );
-
 	}
 
 	public get props() {
@@ -39,12 +33,6 @@ export class RotateViewer extends MXP.Component {
 		return {
 			speed: { value: this.speed }
 		};
-
-	}
-
-	protected deserializer( props: MXP.TypedSerializableProps<this> ): void {
-
-		this.speed = props.speed.value;
 
 	}
 
