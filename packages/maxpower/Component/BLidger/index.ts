@@ -216,6 +216,22 @@ export class BLidger extends Component {
 
 		entity.visible = this.node.visible;
 
+		// fields
+
+		if ( import.meta.env.DEV ) {
+
+			this.field( "type", () => this.node.type, undefined, {
+				noExport: true,
+				readOnly: true,
+			} );
+
+			this.field( "param", () => JSON.stringify( this.node.param ), undefined, {
+				noExport: true,
+				readOnly: true,
+			} );
+
+		}
+
 	}
 
 	protected preUpdateImpl( event: ComponentUpdateEvent ): void {
@@ -238,6 +254,13 @@ export class BLidger extends Component {
 		if ( this.transformAutoUpdate ) {
 
 			const curvePosition = this.animations.get( 'position' );
+
+			if ( this.entity.name == "camera" ) {
+
+				console.log( curvePosition );
+
+
+			}
 
 			if ( curvePosition ) {
 
@@ -361,19 +384,6 @@ export class BLidger extends Component {
 
 		} );
 
-	}
-
-	private assignUniforms( targetUniforms: GLP.Uniforms ) {
-
-		Object.keys( this.uniforms ).forEach( ( name ) => {
-
-			targetUniforms[ name ] = this.uniforms[ name ];
-
-		} );
-
-	}
-
-	public onCompleteSyncScene() {
 	}
 
 }

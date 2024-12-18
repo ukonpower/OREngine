@@ -79,8 +79,8 @@ export let TextureUnitCounter = 0;
 export class Renderer extends Entity {
 
 	public gl: WebGL2RenderingContext;
-	private renderCanvasSize: GLP.Vector;
-	private extDisJointTimerQuery: any;
+	public resolution: GLP.Vector;
+	private _extDisJointTimerQuery: any;
 
 	// compile
 
@@ -93,40 +93,40 @@ export class Renderer extends Entity {
 
 	// lights
 
-	private lights: CollectedLights;
-	private lightsUpdated: boolean;
+	private _lights: CollectedLights;
+	private _lightsUpdated: boolean;
 
 	// envmap
 
-	private envMapCameras: EnvMapCamera[];
-	private envMapRenderTarget: GLP.GLPowerFrameBufferCube;
-	private pmremRender: PMREMRender;
+	private _envMapCameras: EnvMapCamera[];
+	private _envMapRenderTarget: GLP.GLPowerFrameBufferCube;
+	private _pmremRender: PMREMRender;
 
 	// postprocess
 
-	private deferredRenderer: DeferredRenderer;
-	private pipelinePostProcess: PipelinePostProcess;
+	private _deferredRenderer: DeferredRenderer;
+	private _pipelinePostProcess: PipelinePostProcess;
 
 	// quad
 
-	private quad: Geometry;
+	private _quad: Geometry;
 
 	// gpu state
 
-	private glStateCahce: GPUState;
+	private _glStateCahce: GPUState;
 
 	// render query
 
-	private queryList: WebGLQuery[];
-	private queryListQueued: {name: string, query: WebGLQuery}[];
+	private _queryList: WebGLQuery[];
+	private _queryListQueued: {name: string, query: WebGLQuery}[];
 
 	// tmp
 
-	private tmpNormalMatrix: GLP.Matrix;
-	private tmpModelViewMatrix: GLP.Matrix;
-	private tmpLightDirection: GLP.Vector;
-	private tmpModelMatrixInverse: GLP.Matrix;
-	private tmpProjectionMatrixInverse: GLP.Matrix;
+	private _tmpNormalMatrix: GLP.Matrix;
+	private _tmpModelViewMatrix: GLP.Matrix;
+	private _tmpLightDirection: GLP.Vector;
+	private _tmpModelMatrixInverse: GLP.Matrix;
+	private _tmpProjectionMatrixInverse: GLP.Matrix;
 
 	constructor( gl: WebGL2RenderingContext ) {
 
@@ -137,23 +137,23 @@ export class Renderer extends Entity {
 		this.noDraw = false;
 		this.drawParams = [];
 		this.programManager = new ProgramManager( this.gl );
-		this.renderCanvasSize = new GLP.Vector();
-		this.extDisJointTimerQuery = this.gl.getExtension( "EXT_disjoint_timer_query_webgl2" );
+		this.resolution = new GLP.Vector();
+		this._extDisJointTimerQuery = this.gl.getExtension( "EXT_disjoint_timer_query_webgl2" );
 
 		// lights
 
-		this.lights = {
+		this._lights = {
 			directional: [],
 			spot: [],
 		};
 
-		this.lightsUpdated = false;
+		this._lightsUpdated = false;
 
 		// envmap
 
 		const envMap = new GLP.GLPowerTextureCube( this.gl );
-		this.envMapRenderTarget = new GLP.GLPowerFrameBufferCube( this.gl ).setTexture( [ envMap ] );
-		this.envMapRenderTarget.setSize( 256, 256 );
+		this._envMapRenderTarget = new GLP.GLPowerFrameBufferCube( this.gl ).setTexture( [ envMap ] );
+		this._envMapRenderTarget.setSize( 256, 256 );
 
 		const origin = new GLP.Vector( 0, 0, 0 );
 		const up = new GLP.Vector( 0, - 1, 0 );
@@ -167,7 +167,7 @@ export class Renderer extends Entity {
 			new GLP.Matrix().lookAt( origin, new GLP.Vector( 0, 0, - 1 ), up ),
 		];
 
-		this.envMapCameras = [];
+		this._envMapCameras = [];
 
 		for ( let i = 0; i < 6; i ++ ) {
 
@@ -180,47 +180,47 @@ export class Renderer extends Entity {
 			entity.applyMatrix( lookAtMatrices[ i ].clone() );
 			camera.updateViewMatrix();
 			camera.updateProjectionMatrix();
-			this.envMapCameras.push( { entity, camera } );
+			this._envMapCameras.push( { entity, camera } );
 
 		}
 
 		// pmrem
 
-		this.pmremRender = new PMREMRender( this.gl, {
+		this._pmremRender = new PMREMRender( this.gl, {
 			input: [ envMap ],
 			resolution: new GLP.Vector( 256 * 3, 256 * 4 ),
 		} );
 
 		// postprocess
 
-		this.deferredRenderer = new DeferredRenderer( {
+		this._deferredRenderer = new DeferredRenderer( {
 			gl,
-			envMap: this.pmremRender.renderTarget.textures[ 0 ] as GLP.GLPowerTexture,
+			envMap: this._pmremRender.renderTarget.textures[ 0 ] as GLP.GLPowerTexture,
 			envMapCube: envMap as GLP.GLPowerTextureCube,
 		} );
 
-		this.pipelinePostProcess = new PipelinePostProcess( gl );
+		this._pipelinePostProcess = new PipelinePostProcess( gl );
 
 		// quad
 
-		this.quad = new PlaneGeometry( { width: 2.0, height: 2.0 } );
+		this._quad = new PlaneGeometry( { width: 2.0, height: 2.0 } );
 
 		// gpu
 
-		this.glStateCahce = {};
+		this._glStateCahce = {};
 
 		// query
 
-		this.queryList = [];
-		this.queryListQueued = [];
+		this._queryList = [];
+		this._queryListQueued = [];
 
 		// tmp
 
-		this.tmpLightDirection = new GLP.Vector();
-		this.tmpModelMatrixInverse = new GLP.Matrix();
-		this.tmpProjectionMatrixInverse = new GLP.Matrix();
-		this.tmpModelViewMatrix = new GLP.Matrix();
-		this.tmpNormalMatrix = new GLP.Matrix();
+		this._tmpLightDirection = new GLP.Vector();
+		this._tmpModelMatrixInverse = new GLP.Matrix();
+		this._tmpProjectionMatrixInverse = new GLP.Matrix();
+		this._tmpModelViewMatrix = new GLP.Matrix();
+		this._tmpNormalMatrix = new GLP.Matrix();
 
 		this.gl.blendFunc( this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA );
 
@@ -230,25 +230,25 @@ export class Renderer extends Entity {
 
 		if ( process.env.NODE_ENV == 'development' ) {
 
-			const disjoint = this.gl.getParameter( this.extDisJointTimerQuery.GPU_DISJOINT_EXT );
+			const disjoint = this.gl.getParameter( this._extDisJointTimerQuery.GPU_DISJOINT_EXT );
 
 			if ( disjoint ) {
 
-				this.queryList.forEach( q => this.gl.deleteQuery( q ) );
+				this._queryList.forEach( q => this.gl.deleteQuery( q ) );
 
-				this.queryList.length = 0;
+				this._queryList.length = 0;
 
 			} else {
 
 				const updatedList = [];
 
-				if ( this.queryListQueued.length > 0 ) {
+				if ( this._queryListQueued.length > 0 ) {
 
-					const l = this.queryListQueued.length;
+					const l = this._queryListQueued.length;
 
 					for ( let i = l - 1; i >= 0; i -- ) {
 
-						const q = this.queryListQueued[ i ];
+						const q = this._queryListQueued[ i ];
 
 						const resultAvailable = this.gl.getQueryParameter( q.query, this.gl.QUERY_RESULT_AVAILABLE );
 
@@ -261,9 +261,9 @@ export class Renderer extends Entity {
 								duration: result / 1000 / 1000
 							} );
 
-							this.queryList.push( q.query );
+							this._queryList.push( q.query );
 
-							this.queryListQueued.splice( i, 1 );
+							this._queryListQueued.splice( i, 1 );
 
 						}
 
@@ -282,13 +282,13 @@ export class Renderer extends Entity {
 		const shadowMapLightList: Entity[] = [];
 		const prevLightsNum: {[key:string]: number} = {};
 
-		const lightKeys = Object.keys( this.lights );
+		const lightKeys = Object.keys( this._lights );
 
 		for ( let i = 0; i < lightKeys.length; i ++ ) {
 
 			const l = lightKeys[ i ] as LightType;
-			prevLightsNum[ l ] = this.lights[ l ].length;
-			this.lights[ l ] = [];
+			prevLightsNum[ l ] = this._lights[ l ].length;
+			this._lights[ l ] = [];
 
 		}
 
@@ -311,15 +311,15 @@ export class Renderer extends Entity {
 
 		}
 
-		this.lightsUpdated = false;
+		this._lightsUpdated = false;
 
 		for ( let i = 0; i < lightKeys.length; i ++ ) {
 
 			const l = lightKeys[ i ] as LightType;
 
-			if ( prevLightsNum[ l ] != this.lights[ l ].length ) {
+			if ( prevLightsNum[ l ] != this._lights[ l ].length ) {
 
-				this.lightsUpdated = true;
+				this._lightsUpdated = true;
 
 				break;
 
@@ -336,7 +336,7 @@ export class Renderer extends Entity {
 
 			if ( lightComponent.renderTarget ) {
 
-				this.renderCamera( "shadowMap", lightEntity, stack.shadowMap, lightComponent.renderTarget, this.renderCanvasSize );
+				this.renderCamera( "shadowMap", lightEntity, stack.shadowMap, lightComponent.renderTarget, this.resolution );
 
 			}
 
@@ -344,19 +344,19 @@ export class Renderer extends Entity {
 
 		// envmap
 
-		for ( let i = 0; i < this.envMapCameras.length; i ++ ) {
+		for ( let i = 0; i < this._envMapCameras.length; i ++ ) {
 
-			const { entity: cameraEntity } = this.envMapCameras[ i ];
+			const { entity: cameraEntity } = this._envMapCameras[ i ];
 
-			this.envMapRenderTarget.face( i );
+			this._envMapRenderTarget.face( i );
 
-			this.renderCamera( "envMap", cameraEntity, stack.envMap, this.envMapRenderTarget, this.renderCanvasSize );
+			this.renderCamera( "envMap", cameraEntity, stack.envMap, this._envMapRenderTarget, this.resolution );
 
 		}
 
-		this.renderPostProcess( this.pmremRender.postprocess, this.pmremRender.resolution );
+		this.renderPostProcess( this._pmremRender.postprocess, this._pmremRender.resolution );
 
-		this.pmremRender.swap();
+		this._pmremRender.swap();
 
 		for ( let i = 0; i < stack.camera.length; i ++ ) {
 
@@ -369,11 +369,11 @@ export class Renderer extends Entity {
 
 			if ( ! cameraComponent.renderTarget ) continue;
 
-			this.renderCamera( "deferred", cameraEntity, stack.deferred, cameraComponent.renderTarget.gBuffer, this.renderCanvasSize );
+			this.renderCamera( "deferred", cameraEntity, stack.deferred, cameraComponent.renderTarget.gBuffer, this.resolution );
 
-			this.deferredRenderer.setRenderCamera( cameraComponent );
+			this._deferredRenderer.setRenderCamera( cameraComponent );
 
-			this.renderPostProcess( this.deferredRenderer.postprocess, this.renderCanvasSize, { cameraOverride: {
+			this.renderPostProcess( this._deferredRenderer.postprocess, this.resolution, { cameraOverride: {
 				viewMatrix: cameraComponent.viewMatrix,
 				viewMatrixPrev: cameraComponent.viewMatrixPrev,
 				projectionMatrix: cameraComponent.projectionMatrix,
@@ -381,13 +381,13 @@ export class Renderer extends Entity {
 				cameraMatrixWorld: cameraEntity.matrixWorld
 			} } );
 
-			this.deferredRenderer.update( event );
+			this._deferredRenderer.update( event );
 
 			// forward
 
 			this.gl.enable( this.gl.BLEND );
 
-			this.renderCamera( "forward", cameraEntity, stack.forward, cameraComponent.renderTarget.forwardBuffer, this.renderCanvasSize, {
+			this.renderCamera( "forward", cameraEntity, stack.forward, cameraComponent.renderTarget.forwardBuffer, this.resolution, {
 				cameraOverride: { uniforms: {
 					uDeferredTexture: {
 						value: cameraComponent.renderTarget.shadingBuffer.textures[ 1 ],
@@ -398,7 +398,7 @@ export class Renderer extends Entity {
 						type: '2fv'
 					},
 					uEnvMap: {
-						value: this.pmremRender.renderTarget.textures[ 0 ],
+						value: this._pmremRender.renderTarget.textures[ 0 ],
 						type: '1i'
 					}
 				} },
@@ -409,9 +409,9 @@ export class Renderer extends Entity {
 
 			// scene
 
-			this.pipelinePostProcess.setRenderCamera( cameraComponent );
+			this._pipelinePostProcess.setRenderCamera( cameraComponent );
 
-			this.renderPostProcess( this.pipelinePostProcess.postprocess, this.renderCanvasSize, { cameraOverride: {
+			this.renderPostProcess( this._pipelinePostProcess.postprocess, this.resolution, { cameraOverride: {
 				viewMatrix: cameraComponent.viewMatrix,
 				projectionMatrix: cameraComponent.projectionMatrix,
 				cameraMatrixWorld: cameraEntity.matrixWorld,
@@ -419,9 +419,9 @@ export class Renderer extends Entity {
 				cameraFar: cameraComponent.far,
 			} } );
 
-			this.pipelinePostProcess.update( event );
+			this._pipelinePostProcess.update( event );
 
-			let backBuffer = this.pipelinePostProcess.postprocess.output ? this.pipelinePostProcess.postprocess.output : null;
+			let backBuffer = this._pipelinePostProcess.postprocess.output ? this._pipelinePostProcess.postprocess.output : null;
 
 			// postprocess
 
@@ -431,7 +431,7 @@ export class Renderer extends Entity {
 
 				postProcess.input = backBuffer ? backBuffer.textures : [];
 
-				this.renderPostProcess( postProcess, this.renderCanvasSize, { cameraOverride: {
+				this.renderPostProcess( postProcess, this.resolution, { cameraOverride: {
 					viewMatrix: cameraComponent.viewMatrix,
 					projectionMatrix: cameraComponent.projectionMatrix,
 					cameraMatrixWorld: cameraEntity.matrixWorld,
@@ -462,7 +462,7 @@ export class Renderer extends Entity {
 
 			this.gl.enable( this.gl.BLEND );
 
-			this.renderCamera( "forward", cameraEntity, stack.ui, cameraComponent.renderTarget.uiBuffer, this.renderCanvasSize, {
+			this.renderCamera( "forward", cameraEntity, stack.ui, cameraComponent.renderTarget.uiBuffer, this.resolution, {
 				cameraOverride: {
 					uniforms: { uDeferredTexture: { value: cameraComponent.renderTarget.shadingBuffer.textures[ 1 ], type: '1i' } }
 				},
@@ -480,8 +480,8 @@ export class Renderer extends Entity {
 				this.gl.bindFramebuffer( this.gl.DRAW_FRAMEBUFFER, null );
 
 				this.gl.blitFramebuffer(
-					0, 0, this.renderCanvasSize.x, this.renderCanvasSize.y,
-					0, 0, this.renderCanvasSize.x, this.renderCanvasSize.y,
+					0, 0, this.resolution.x, this.resolution.y,
+					0, 0, this.resolution.x, this.resolution.y,
 					this.gl.COLOR_BUFFER_BIT, this.gl.NEAREST );
 
 
@@ -597,11 +597,11 @@ export class Renderer extends Entity {
 
 		if ( type == 'directional' ) {
 
-			this.lights.directional.push( info );
+			this._lights.directional.push( info );
 
 		} else if ( type == 'spot' ) {
 
-			this.lights.spot.push( info );
+			this._lights.spot.push( info );
 
 		}
 
@@ -706,7 +706,7 @@ export class Renderer extends Entity {
 			opt.label = pass.name;
 			opt.renderTarget = renderTarget;
 
-			this.draw( pass.uuid, "postprocess", this.quad, pass, opt );
+			this.draw( pass.uuid, "postprocess", this._quad, pass, opt );
 
 			pass.onAfterRender();
 
@@ -738,7 +738,7 @@ export class Renderer extends Entity {
 
 		let gpuStateType: number = this.gl.CULL_FACE;
 
-		const cullStateCache = this.glStateCahce[ gpuStateType ];
+		const cullStateCache = this._glStateCahce[ gpuStateType ];
 
 		if ( cullStateCache === undefined || cullStateCache.state != material.cullFace ) {
 
@@ -758,7 +758,7 @@ export class Renderer extends Entity {
 
 		gpuStateType = this.gl.DEPTH_TEST;
 
-		const depthStateCache = this.glStateCahce[ gpuStateType ];
+		const depthStateCache = this._glStateCahce[ gpuStateType ];
 
 		if ( depthStateCache === undefined || depthStateCache.state != material.depthTest ) {
 
@@ -780,7 +780,7 @@ export class Renderer extends Entity {
 
 		let program = material.programCache[ renderType ];
 
-		if ( ! program || this.lightsUpdated ) {
+		if ( ! program || this._lightsUpdated ) {
 
 			const defines = { ...material.defines };
 
@@ -788,8 +788,8 @@ export class Renderer extends Entity {
 			else if ( renderType == 'forward' || renderType == 'envMap' ) defines.IS_FORWARD = "";
 			else if ( renderType == 'shadowMap' ) defines.IS_DEPTH = "";
 
-			const vert = shaderParse( material.vert, defines, this.lights );
-			const frag = shaderParse( material.frag, defines, this.lights );
+			const vert = shaderParse( material.vert, defines, this._lights );
+			const frag = shaderParse( material.frag, defines, this._lights );
 
 			program = this.programManager.get( vert, frag );
 
@@ -802,7 +802,7 @@ export class Renderer extends Entity {
 			if ( param.modelMatrixWorld ) {
 
 				program.setUniform( 'modelMatrix', 'Matrix4fv', param.modelMatrixWorld.elm );
-				program.setUniform( 'modelMatrixInverse', 'Matrix4fv', this.tmpModelMatrixInverse.copy( param.modelMatrixWorld ).inverse().elm );
+				program.setUniform( 'modelMatrixInverse', 'Matrix4fv', this._tmpModelMatrixInverse.copy( param.modelMatrixWorld ).inverse().elm );
 
 				if ( param.modelMatrixWorldPrev ) {
 
@@ -812,12 +812,12 @@ export class Renderer extends Entity {
 
 				if ( param.viewMatrix ) {
 
-					this.tmpModelViewMatrix.copy( param.modelMatrixWorld ).preMultiply( param.viewMatrix );
-					this.tmpNormalMatrix.copy( this.tmpModelViewMatrix );
-					this.tmpNormalMatrix.inverse();
-					this.tmpNormalMatrix.transpose();
+					this._tmpModelViewMatrix.copy( param.modelMatrixWorld ).preMultiply( param.viewMatrix );
+					this._tmpNormalMatrix.copy( this._tmpModelViewMatrix );
+					this._tmpNormalMatrix.inverse();
+					this._tmpNormalMatrix.transpose();
 
-					program.setUniform( 'normalMatrix', 'Matrix4fv', this.tmpNormalMatrix.elm );
+					program.setUniform( 'normalMatrix', 'Matrix4fv', this._tmpNormalMatrix.elm );
 
 				}
 
@@ -838,7 +838,7 @@ export class Renderer extends Entity {
 			if ( param.projectionMatrix ) {
 
 				program.setUniform( 'projectionMatrix', 'Matrix4fv', param.projectionMatrix.elm );
-				program.setUniform( 'projectionMatrixInverse', 'Matrix4fv', this.tmpProjectionMatrixInverse.copy( param.projectionMatrix ).inverse().elm );
+				program.setUniform( 'projectionMatrixInverse', 'Matrix4fv', this._tmpProjectionMatrixInverse.copy( param.projectionMatrix ).inverse().elm );
 
 			}
 
@@ -875,9 +875,9 @@ export class Renderer extends Entity {
 
 		if ( material.useLight && ( renderType !== 'deferred' && renderType !== 'shadowMap' ) ) {
 
-			for ( let i = 0; i < this.lights.directional.length; i ++ ) {
+			for ( let i = 0; i < this._lights.directional.length; i ++ ) {
 
-				const dLight = this.lights.directional[ i ];
+				const dLight = this._lights.directional[ i ];
 
 				program.setUniform( 'directionalLight[' + i + '].direction', '3fv', dLight.direction.getElm( 'vec3' ) );
 				program.setUniform( 'directionalLight[' + i + '].color', '3fv', dLight.color.getElm( 'vec3' ) );
@@ -899,13 +899,13 @@ export class Renderer extends Entity {
 
 			}
 
-			for ( let i = 0; i < this.lights.spot.length; i ++ ) {
+			for ( let i = 0; i < this._lights.spot.length; i ++ ) {
 
-				const sLight = this.lights.spot[ i ];
+				const sLight = this._lights.spot[ i ];
 
 				if ( param && param.viewMatrix ) {
 
-					this.tmpLightDirection.copy( sLight.direction ).applyMatrix3( param.viewMatrix );
+					this._tmpLightDirection.copy( sLight.direction ).applyMatrix3( param.viewMatrix );
 
 				}
 
@@ -1015,7 +1015,7 @@ export class Renderer extends Entity {
 
 				if ( process.env.NODE_ENV == 'development' ) {
 
-					query = this.queryList.pop() || null;
+					query = this._queryList.pop() || null;
 
 					if ( query == null ) {
 
@@ -1025,7 +1025,7 @@ export class Renderer extends Entity {
 
 					if ( query ) {
 
-						this.gl.beginQuery( this.extDisJointTimerQuery.TIME_ELAPSED_EXT, query );
+						this.gl.beginQuery( this._extDisJointTimerQuery.TIME_ELAPSED_EXT, query );
 
 					}
 
@@ -1065,11 +1065,11 @@ export class Renderer extends Entity {
 
 					if ( query ) {
 
-						this.gl.endQuery( this.extDisJointTimerQuery.TIME_ELAPSED_EXT );
+						this.gl.endQuery( this._extDisJointTimerQuery.TIME_ELAPSED_EXT );
 
 						const label = param && param.label || "_";
 
-						this.queryListQueued.push( {
+						this._queryListQueued.push( {
 							name: `${renderType}/${label}/ [${drawId}]`,
 							query: query
 						} );
@@ -1090,9 +1090,9 @@ export class Renderer extends Entity {
 
 	public resize( resolution: GLP.Vector ) {
 
-		this.renderCanvasSize.copy( resolution );
-		this.deferredRenderer.resize( resolution );
-		this.pipelinePostProcess.resize( resolution );
+		this.resolution.copy( resolution );
+		this._deferredRenderer.resize( resolution );
+		this._pipelinePostProcess.resize( resolution );
 
 	}
 

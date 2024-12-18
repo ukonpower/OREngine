@@ -1,4 +1,4 @@
-import { SerializableFieldOpt, SerializableFieldType, SerializeFieldValue } from 'maxpower';
+import { SerializableFieldType, SerializeFieldValue } from 'maxpower';
 
 import { Button } from '../Button';
 import { InputBoolean } from '../Input/InputCheckBox';
@@ -7,16 +7,15 @@ import { InputSelect } from '../Input/InputSelect';
 import { InputText } from '../Input/InputText';
 import { Vector } from '../Vector';
 
-import style from './index.module.scss';
-
 export type ValueProps<T extends SerializeFieldValue> = {
 	value: T | undefined,
 	onChange?: ( value: T ) => void
 	disabled?: boolean,
 	format?: SerializableFieldType,
+	readOnly?: boolean,
 }
 
-export const Value = <T extends SerializeFieldValue>( { value, onChange, format, }: ValueProps<T> ) => {
+export const Value = <T extends SerializeFieldValue>( { value, onChange, format, readOnly }: ValueProps<T> ) => {
 
 	let inputElm = null;
 
@@ -50,7 +49,7 @@ export const Value = <T extends SerializeFieldValue>( { value, onChange, format,
 
 		} else if ( typeof value === "string" ) {
 
-			inputElm = <InputText value={value} onChange={onChange} />;
+			inputElm = <InputText value={value} readOnly={readOnly} onChange={onChange} />;
 
 		} else if ( typeof value == "boolean"	) {
 

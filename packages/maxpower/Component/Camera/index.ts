@@ -53,6 +53,12 @@ export class Camera extends Component {
 		this.needsUpdate = true;
 		this.displayOut = true;
 
+		if ( import.meta.env.DEV ) {
+
+			this.field( "fov", () => this.fov, ( v ) => this.fov = v, { noExport: true } );
+
+		}
+
 	}
 
 	public static get tag() {

@@ -11,7 +11,7 @@ import fxaaFrag from './shaders/fxaa.fs';
 import gaussBlur from './shaders/gaussBlur.fs';
 import glitchFrag from './shaders/glitch.fs';
 
-import { gl, canvas, globalUniforms } from '~/ts/Globals';
+import { gl, canvas, globalUniforms, renderer } from '~/ts/Globals';
 
 export class MainCamera extends MXP.Component {
 
@@ -449,6 +449,22 @@ export class MainCamera extends MXP.Component {
 			this.once( "dispose", onDispose );
 
 		}
+
+		globalUniforms.gBuffer.uGBufferPos.value = this.renderCamera.gBuffer.textures[ 0 ];
+		globalUniforms.gBuffer.uGBufferNormal.value = this.renderCamera.gBuffer.textures[ 1 ];
+
+
+		const root = this.entity.getRootEntity();
+
+		const lookAtTarget = root.findEntityByName( "CamLook" ) || null;
+		this._lookAt.setTarget( lookAtTarget );
+
+		this._dofTarget = root.findEntityByName( 'CamDof' ) || null;
+
+		this.resize( renderer.resolution );
+
+		this.updateCameraParams( this._resolution );
+
 
 	}
 
