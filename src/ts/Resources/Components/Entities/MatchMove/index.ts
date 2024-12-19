@@ -241,6 +241,30 @@ export class MatchMove extends MXP.Component {
 		lineMesh.geometry = lineGeometry;
 		lineMesh.material = lineMaterial;
 
+		this.entity.add( this.markerEntity );
+		this.entity.add( this.lineEntity );
+
+		setTimeout( () => {
+
+			this.cameraEntity = this.entity.getRootEntity().findEntityByName( "Camera" ) || null;
+
+			if ( this.cameraEntity ) {
+
+				const renderCamera = this.cameraEntity.getComponent( MXP.RenderCamera );
+
+				if ( renderCamera ) {
+
+					const uniforms = this.gpu.passes[ 0 ].uniforms;
+					uniforms.uGBufferPos.value = renderCamera.renderTarget.gBuffer.textures[ 0 ];
+					uniforms.uViewMatrix.value = renderCamera.viewMatrix;
+					uniforms.uProjectionMatrix.value = renderCamera.projectionMatrix;
+
+				}
+
+			}
+
+		}, 100 );
+
 	}
 
 	protected updateImpl( event: MXP.ComponentUpdateEvent ): void {
@@ -248,40 +272,5 @@ export class MatchMove extends MXP.Component {
 		this.gpu.compute();
 
 	}
-
-	// public setEntityImpl( entity: MXP.Entity ): void {
-
-	// 	entity.addComponent( this.gpu );
-	// 	entity.add( this.markerEntity );
-	// 	entity.add( this.lineEntity );
-
-	// 	this.cameraEntity = entity.getRootEntity().getEntityByName( "camera" ) || null;
-
-	// 	if ( this.cameraEntity ) {
-
-	// 		const renderCamera = this.cameraEntity.getComponent( MXP.RenderCamera );
-
-	// 		if ( renderCamera ) {
-
-	// 			const uniforms = this.gpu.passes[ 0 ].uniforms;
-	// 			uniforms.uGBufferPos.value = renderCamera.renderTarget.gBuffer.textures[ 0 ];
-	// 			uniforms.uViewMatrix.value = renderCamera.viewMatrix;
-	// 			uniforms.uProjectionMatrix.value = renderCamera.projectionMatrix;
-
-	// 		}
-
-	// 	}
-
-	// }
-
-	// public unsetEntityImpl( entity: MXP.Entity ): void {
-
-	// 	entity.removeComponent( this.gpu );
-	// 	entity.remove( this.markerEntity );
-	// 	entity.remove( this.lineEntity );
-
-	// 	this.cameraEntity = null;
-
-	// }
 
 }
