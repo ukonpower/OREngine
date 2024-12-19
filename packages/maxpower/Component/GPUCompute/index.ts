@@ -8,7 +8,7 @@ export class GPUCompute extends PostProcess {
 	protected renderer: MXP.Renderer;
 	protected _passes: GPUComputePass[];
 
-	constructor( params: MXP.ComponentParams ) {
+	constructor( params: MXP.ComponentParams<{renderer: MXP.Renderer, passes: GPUComputePass[]}> ) {
 
 		super( params );
 

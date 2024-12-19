@@ -48,12 +48,6 @@ export const initResouces = () => {
 
 	};
 
-	const groupGeometry = resource.addComponentGroup( "Geomety" );
-	groupGeometry.addComponent( "Cube", MXP.CubeGeometry );
-	groupGeometry.addComponent( "Sphere", MXP.SphereGeometry );
-	groupGeometry.addComponent( "Plane", MXP.PlaneGeometry );
-	groupGeometry.addComponent( "Ring", MXP.RingGeometry );
-
 	const light = resource.addComponentGroup( "Light" );
 	light.addComponent( "Light", MXP.Light );
 

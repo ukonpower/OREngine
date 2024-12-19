@@ -18,7 +18,7 @@
 				1
 			],
 			"children": [
-				"254"
+				"35"
 			],
 			"components": [],
 			"objectOverride": [
@@ -38,6 +38,17 @@
 						},
 						{
 							"name": "DemoMusic",
+							"props": {
+								"enabled": true
+							}
+						}
+					]
+				},
+				{
+					"path": "/root/test",
+					"components": [
+						{
+							"name": "MatchMove",
 							"props": {
 								"enabled": true
 							}
@@ -89,5 +100,5 @@
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,
 	"frameLoop/end": 0,
-	"selectedEntityId": "2fc"
+	"selectedEntityId": "69"
 }
