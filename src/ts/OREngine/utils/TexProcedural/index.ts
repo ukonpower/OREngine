@@ -35,8 +35,7 @@ export class TexProcedural extends GLP.GLPowerTexture {
 
 		this.material = new MXP.PostProcessPass( gl, { ...param, renderTarget: this.frameBuffer } );
 
-		this.postProcess = new MXP.PostProcess( new MXP.Entity() );
-		this.postProcess.passes = [ this.material ];
+		this.postProcess = new MXP.PostProcess( { entity: new MXP.Entity(), args: { passes: [ this.material ] } } );
 
 		this.render();
 

@@ -3,9 +3,10 @@ import * as MXP from 'maxpower';
 
 import matchMoveFrag from './shaders/matchMove.fs';
 import matchMoveVert from './shaders/matchMove.vs';
+import matchMoveCompute from './shaders/matchMoveCompute.glsl';
 import matchMoveLineVert from './shaders/matchMoveLine.vs';
 
-import { globalUniforms, renderer } from '~/ts/Globals';
+import { gl, globalUniforms, renderer } from '~/ts/Globals';
 
 export class MatchMove extends MXP.Component {
 
@@ -30,7 +31,27 @@ export class MatchMove extends MXP.Component {
 		this.gpu = new MXP.GPUCompute( {
 			entity: this.entity,
 			args: {
-				renderer
+				renderer,
+				passes: [ new MXP.GPUComputePass( {
+					gl,
+					size,
+					dataLayerCount: 1,
+					frag: matchMoveCompute,
+					uniforms: MXP.UniformsUtils.merge( {
+						uGBufferPos: {
+							type: "1i",
+							value: null
+						},
+						uViewMatrix: {
+							type: "Matrix4fv",
+							value: null
+						},
+						uProjectionMatrix: {
+							type: "Matrix4fv",
+							value: null
+						},
+					}, globalUniforms.time ),
+				} ) ]
 			}
 		} );
 

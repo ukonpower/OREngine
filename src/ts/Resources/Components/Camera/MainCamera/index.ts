@@ -314,13 +314,13 @@ export class MainCamera extends MXP.Component {
 
 		}
 
-		this._postProcess = this.entity.addComponent( MXP.PostProcess );
-		this._postProcess.passes = [
+
+		this._postProcess = this.entity.addComponent( MXP.PostProcess, { passes: [
 			this._bloomBright,
 			...this._bloomBlur,
 			this._fxaa,
 			this._composite,
-		];
+		] } );
 
 		// dof
 

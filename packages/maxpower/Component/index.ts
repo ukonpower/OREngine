@@ -5,10 +5,9 @@ export type ComponentUpdateEvent = EntityFinalizeEvent & {
 	entity: Entity,
 }
 
-export interface ComponentParams{
-    entity: Entity;
-    args?: any;
-}
+export type ComponentParams<TArgs = undefined> = TArgs extends undefined
+    ? { entity: Entity }
+    : { entity: Entity; args: TArgs };
 
 export class Component extends Serializable {
 
@@ -16,7 +15,7 @@ export class Component extends Serializable {
 	public disableEdit: boolean;
 	protected _enabled: boolean;
 
-	constructor( params: ComponentParams ) {
+	constructor( params: ComponentParams<any> ) {
 
 		super();
 

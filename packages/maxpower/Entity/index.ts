@@ -315,11 +315,12 @@ export class Entity extends Serializable {
 		Components
 	-------------------------------*/
 
-	// add
+	public addComponent<T extends typeof Component>(
+		component: T,
+		...args: ConstructorParameters<T>[0] extends { args: infer A } ? [A] : []
+	): InstanceType<T> {
 
-	public addComponent<T extends typeof Component>( component: T, args?: any ) {
-
-		const instance = new component( { entity: this, args } );
+		const instance = new component( { entity: this, args: args[ 0 ] } );
 		this.components.set( component, instance );
 
 		this.noticeField( "components" );

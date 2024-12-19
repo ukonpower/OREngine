@@ -25,7 +25,7 @@ export class RenderCamera extends Camera {
 
 	private resolution: GLP.Vector;
 
-	constructor( params: MXP.ComponentParams ) {
+	constructor( params: MXP.ComponentParams<{gl: WebGL2RenderingContext}> ) {
 
 		super( params );
 
