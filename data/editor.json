@@ -18,7 +18,7 @@
 				1
 			],
 			"children": [
-				"35"
+				"254"
 			],
 			"components": [],
 			"objectOverride": [
@@ -68,7 +68,12 @@
 				}
 			],
 			"scene": {
-				"name": "root"
+				"name": "root",
+				"childs": [
+					{
+						"name": "test"
+					}
+				]
 			},
 			"timeline/": null,
 			"timeline/duration": 600,
@@ -84,5 +89,5 @@
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,
 	"frameLoop/end": 0,
-	"selectedEntityId": "89"
+	"selectedEntityId": "2fc"
 }

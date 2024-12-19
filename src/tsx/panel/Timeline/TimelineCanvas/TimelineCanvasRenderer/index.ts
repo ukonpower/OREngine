@@ -82,23 +82,24 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 		this.musicTexture = new GLP.GLPowerTexture( this.gl );
 		this.musicTexture.setting( { type: this.gl.UNSIGNED_BYTE, internalFormat: this.gl.LUMINANCE, format: this.gl.LUMINANCE, magFilter: this.gl.LINEAR, minFilter: this.gl.LINEAR, wrapS: this.gl.MIRRORED_REPEAT } );
 
-		this.postProcess = new MXP.PostProcess( new MXP.Entity() );
-		this.postProcess.passes = [
-			new MXP.PostProcessPass( gl, {
-				frag: timelineFrag,
-				uniforms: {
-					uCanvasTex: {
-						type: '1i',
-						value: null
+		this.postProcess = new MXP.PostProcess( { entity: new MXP.Entity(), args: {
+			passes: [
+				new MXP.PostProcessPass( gl, {
+					frag: timelineFrag,
+					uniforms: {
+						uCanvasTex: {
+							type: '1i',
+							value: null
+						},
+						uMusicTex: {
+							type: '1i',
+							value: this.musicTexture
+						},
 					},
-					uMusicTex: {
-						type: '1i',
-						value: this.musicTexture
-					},
-				},
-				renderTarget: null
-			} )
-		];
+					renderTarget: null
+				} )
+			]
+		} } );
 
 	}
 
@@ -249,9 +250,9 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 
 		this.canvasTexture.attach( this.canvas );
 
-		if ( this.postProcess.passes ) {
+		if ( this.postProcess._passes ) {
 
-			this.postProcess.passes[ 0 ].uniforms.uCanvasTex.value = this.canvasTexture;
+			this.postProcess._passes[ 0 ].uniforms.uCanvasTex.value = this.canvasTexture;
 
 		}
 
