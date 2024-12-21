@@ -1,6 +1,6 @@
 import * as GLP from 'glpower';
 
-import { Component, ComponentUpdateEvent } from "../Component";
+import { Component, ComponentParams, ComponentUpdateEvent } from "../Component";
 import { RenderCamera } from '../Component/Camera/RenderCamera';
 import { Light } from '../Component/Light';
 import { Mesh } from '../Component/Mesh';
@@ -29,6 +29,11 @@ export type EntityResizeEvent = {
 export type EntityParams = {
 	name?: string;
 }
+
+export type ConstructorArgType<T extends typeof Component> =
+  ConstructorParameters<T>[0] extends ComponentParams<infer A>
+    ? A
+    : never;
 
 export class Entity extends Serializable {
 
@@ -317,17 +322,19 @@ export class Entity extends Serializable {
 
 	public addComponent<T extends typeof Component>(
 		component: T,
-		...args: ConstructorParameters<T>[0] extends { args: infer A } ? [A] : []
-	): InstanceType<T> {
+		...args: ConstructorArgType<T> extends undefined
+? [] | [ConstructorArgType<T>]
+		  : [ConstructorArgType<T>]
+	  ): InstanceType<T> {
 
-		const instance = new component( { entity: this, args: args[ 0 ] } );
+		const [ arg ] = args;
+		const instance = new component( { entity: this, args: arg } );
 		this.components.set( component, instance );
-
 		this.noticeField( "components" );
-
 		return instance as InstanceType<T>;
 
 	}
+
 	// remove
 
 	public removeComponent<T extends typeof Component>( component: T ) {

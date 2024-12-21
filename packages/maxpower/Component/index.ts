@@ -5,9 +5,9 @@ export type ComponentUpdateEvent = EntityFinalizeEvent & {
 	entity: Entity,
 }
 
-export type ComponentParams<TArgs = undefined> = TArgs extends undefined
-    ? { entity: Entity }
-    : { entity: Entity; args: TArgs };
+export type ComponentParams<TArgs = void> = TArgs extends void
+  ? { entity: Entity; args?: TArgs }
+  : { entity: Entity; args: TArgs };
 
 export class Component extends Serializable {
 
