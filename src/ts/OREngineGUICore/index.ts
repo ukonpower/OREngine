@@ -71,7 +71,7 @@ export class OREngineGUICore extends MXP.Serializable {
 		this.screenElm = screenElm;
 		this.canvas = canvas;
 		this.canvasWrapElm = null;
-		this.resolutionScale = 0.5;
+		this.resolutionScale = 1.0;
 
 		// scene
 

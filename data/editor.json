@@ -47,6 +47,18 @@
 					]
 				},
 				{
+					"path": "/root/test",
+					"components": [
+						{
+							"name": "Particles",
+							"props": {
+								"enabled": true,
+								"tag": ""
+							}
+						}
+					]
+				},
+				{
 					"path": "/root/blidgeRoot/Camera",
 					"components": [
 						{
@@ -124,5 +136,5 @@
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,
 	"frameLoop/end": 0,
-	"selectedEntityId": "c6"
+	"selectedEntityId": "9a"
 }

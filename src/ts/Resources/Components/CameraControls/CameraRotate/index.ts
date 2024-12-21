@@ -1,7 +1,6 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-
 export class RotateViewer extends MXP.Component {
 
 	private speed: number;
