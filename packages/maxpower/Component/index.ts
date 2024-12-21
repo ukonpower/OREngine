@@ -27,6 +27,7 @@ export class Component extends Serializable {
 
 		this.field( "enabled", () => this.enabled, value => this.enabled = value, {
 			hidden: true,
+			noExport: true
 		} );
 
 		this.field( "tag", () => this.tag, value => this._tag = value, {

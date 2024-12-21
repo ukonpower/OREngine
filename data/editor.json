@@ -18,7 +18,7 @@
 				1
 			],
 			"children": [
-				"18c"
+				"36"
 			],
 			"components": [],
 			"objectOverride": [
@@ -29,6 +29,7 @@
 							"name": "BLidgeClient",
 							"props": {
 								"enabled": true,
+								"tag": "",
 								"mode": "json",
 								"gltf": true,
 								"gltfPath": "/scene.glb",
@@ -39,18 +40,8 @@
 						{
 							"name": "DemoMusic",
 							"props": {
-								"enabled": true
-							}
-						}
-					]
-				},
-				{
-					"path": "/root/test",
-					"components": [
-						{
-							"name": "MatchMove",
-							"props": {
-								"enabled": true
+								"enabled": true,
+								"tag": ""
 							}
 						}
 					]
@@ -61,7 +52,8 @@
 						{
 							"name": "MainCamera",
 							"props": {
-								"enabled": true
+								"enabled": true,
+								"tag": ""
 							}
 						}
 					]
@@ -72,7 +64,27 @@
 						{
 							"name": "OREngineLogoMaterial",
 							"props": {
-								"enabled": true
+								"enabled": true,
+								"tag": "materialOverride"
+							}
+						}
+					]
+				},
+				{
+					"path": "/root/blidgeRoot/OREngineCube",
+					"components": [
+						{
+							"name": "OREngineCubeMaterial",
+							"props": {
+								"enabled": true,
+								"tag": "materialOverride"
+							}
+						},
+						{
+							"name": "ObjectRotate",
+							"props": {
+								"enabled": true,
+								"tag": ""
 							}
 						}
 					]
@@ -83,7 +95,8 @@
 						{
 							"name": "SkyBox",
 							"props": {
-								"enabled": true
+								"enabled": true,
+								"tag": ""
 							}
 						}
 					]
@@ -111,5 +124,5 @@
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,
 	"frameLoop/end": 0,
-	"selectedEntityId": "1c4"
+	"selectedEntityId": "c6"
 }
