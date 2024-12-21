@@ -11,7 +11,7 @@ interface CubeGeometryParams{
 
 export class CubeGeometry extends Geometry {
 
-	constructor( params: CubeGeometryParams ) {
+	constructor( params?: CubeGeometryParams ) {
 
 		super();
 

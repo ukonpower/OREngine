@@ -19,6 +19,16 @@ export class Mesh extends Component {
 		this.geometry = args.geometry || defaultGeometry;
 		this.material = args.material || defaultMaterial;
 
+		this.field( "material", () => {
+
+			return this.material.name;
+
+		}, undefined, {
+			noExport: true,
+			readOnly: true
+		} );
+
+
 	}
 
 }
