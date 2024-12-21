@@ -1,4 +1,3 @@
-import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
 import orengineCubeFrag from './shaders/orengineCube.fs';
@@ -6,11 +5,11 @@ import orengineCubeVert from './shaders/orengineCube.vs';
 
 import { globalUniforms, resource } from '~/ts/Globals';
 
-export class OREngineCube extends MXP.Material {
+export class OREngineCubeMaterial extends MXP.MaterialOverride {
 
-	constructor() {
+	constructor( params: MXP.ComponentParams ) {
 
-		super( {
+		const material = new MXP.Material( {
 			frag: MXP.hotGet( "orengineCubeFrag", orengineCubeFrag ),
 			vert: MXP.hotGet( "orengineCubeVert", orengineCubeVert ),
 			uniforms: MXP.UniformsUtils.merge( globalUniforms.time, {
@@ -21,17 +20,19 @@ export class OREngineCube extends MXP.Material {
 			} )
 		} );
 
+		super( { ...params, args: material } );
+
 		if ( import.meta.hot ) {
 
 			import.meta.hot.accept( './shaders/orengineCube.fs', ( module ) => {
 
 				if ( module ) {
 
-					this.frag = MXP.hotUpdate( 'orengineCubeFrag', module.default );
+					material.frag = MXP.hotUpdate( 'orengineCubeFrag', module.default );
 
 				}
 
-				this.requestUpdate();
+				material.requestUpdate();
 
 			} );
 
@@ -39,11 +40,11 @@ export class OREngineCube extends MXP.Material {
 
 				if ( module ) {
 
-					this.vert = MXP.hotUpdate( 'orengineCubeVert', module.default );
+					material.vert = MXP.hotUpdate( 'orengineCubeVert', module.default );
 
 				}
 
-				this.requestUpdate();
+				material.requestUpdate();
 
 			} );
 

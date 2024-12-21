@@ -11,33 +11,41 @@ export type ComponentParams<TArgs = void> = TArgs extends void
 
 export class Component extends Serializable {
 
-	public entity: Entity;
 	public disableEdit: boolean;
+	protected _entity: Entity;
 	protected _enabled: boolean;
+	protected _tag: string;
 
 	constructor( params: ComponentParams<any> ) {
 
 		super();
 
-		this.entity = params.entity;
-		this._enabled = true;
 		this.disableEdit = false;
+		this._entity = params.entity;
+		this._enabled = true;
+		this._tag = "";
 
 		this.field( "enabled", () => this.enabled, value => this.enabled = value, {
 			hidden: true,
 		} );
 
-	}
-
-	public static get tag() {
-
-		return "";
+		this.field( "tag", () => this.tag, value => this._tag = value, {
+			readOnly: true,
+			noExport: true,
+			hidden: ( item ) => item == "",
+		} );
 
 	}
 
 	public get tag() {
 
-		return ( this.constructor as typeof Component ).tag;
+		return this._tag;
+
+	}
+
+	public get entity() {
+
+		return this._entity;
 
 	}
 
@@ -55,7 +63,7 @@ export class Component extends Serializable {
 
 	public preUpdate( event: ComponentUpdateEvent ) {
 
-		if ( this.entity && this.enabled ) {
+		if ( this._entity && this.enabled ) {
 
 			this.preUpdateImpl( event );
 
@@ -65,7 +73,7 @@ export class Component extends Serializable {
 
 	public update( event: ComponentUpdateEvent ) {
 
-		if ( this.entity && this.enabled ) {
+		if ( this._entity && this.enabled ) {
 
 			this.updateImpl( event );
 
@@ -75,7 +83,7 @@ export class Component extends Serializable {
 
 	public postUpdate( event: ComponentUpdateEvent ) {
 
-		if ( this.entity && this.enabled ) {
+		if ( this._entity && this.enabled ) {
 
 			this.postUpdateImpl( event );
 
@@ -85,7 +93,7 @@ export class Component extends Serializable {
 
 	public finalize( event: ComponentUpdateEvent ) {
 
-		if ( this.entity && this.enabled ) {
+		if ( this._entity && this.enabled ) {
 
 			this.finalizeImpl( event );
 

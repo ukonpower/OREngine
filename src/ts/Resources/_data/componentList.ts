@@ -1,8 +1,7 @@
-import { OrbitControls } from '../Components/Camera/MainCamera/OrbitControls/index.ts';
 import { MainCamera } from '../Components/Camera/MainCamera/index.ts';
 import { DemoMusic } from '../Components/DemoProject/DemoMusic/index.ts';
-import { OREngineCube } from '../Components/DemoProject/OREngineCube/index.ts';
-import { OREngineLogo } from '../Components/DemoProject/OREngineLogo/index.ts';
+import { OREngineCubeMaterial } from '../Components/DemoProject/OREngineCubeMaterial/index.ts';
+import { OREngineLogoMaterial } from '../Components/DemoProject/OREngineLogoMaterial/index.ts';
 import { SkyBox } from '../Components/DemoProject/SkyBox/index.ts';
 import { DashCube } from '../Components/Entities/Effects/DashCube/index.ts';
 import { FlashLine } from '../Components/Entities/Effects/FlashLine/index.ts';
@@ -25,8 +24,8 @@ export const COMPONENTLIST: {[key: string]: any} = {
 	},
 	DemoProject: {
 		DemoMusic,
-		OREngineCube,
-		OREngineLogo,
+		OREngineCubeMaterial,
+		OREngineLogoMaterial,
 		SkyBox,
 	},
 	Entities: {

@@ -59,11 +59,7 @@ export class Camera extends Component {
 
 		}
 
-	}
-
-	public static get tag() {
-
-		return "camera";
+		this._tag = "camera";
 
 	}
 
@@ -87,12 +83,8 @@ export class Camera extends Component {
 
 	public updateViewMatrix() {
 
-		if ( this.entity ) {
-
-			this.viewMatrixPrev.copy( this.viewMatrix );
-			this.viewMatrix.copy( this.entity.matrixWorld ).inverse();
-
-		}
+		this.viewMatrixPrev.copy( this.viewMatrix );
+		this.viewMatrix.copy( this._entity.matrixWorld ).inverse();
 
 	}
 

@@ -8,6 +8,7 @@ import { shaderParse } from "../../Utils/ShaderParser";
 import { Camera } from '../Camera';
 import { RenderCamera } from '../Camera/RenderCamera';
 import { Light, LightType } from '../Light';
+import { MaterialOverride } from '../MaterialOverride';
 import { Mesh } from '../Mesh';
 import { PostProcess } from '../PostProcess';
 
@@ -567,8 +568,10 @@ export class Renderer extends Entity {
 
 			const entity = entities[ i ];
 
+			const materialOverride = entity.getComponentsByTag<MaterialOverride>( "materialOverride" )[ 0 ];
+
 			const mesh = entity.getComponent( Mesh )!;
-			const material = mesh.material;
+			const material = materialOverride ? materialOverride.material : mesh.material;
 			const geometry = mesh.geometry;
 
 			drawParam.modelMatrixWorld = entity.matrixWorld;

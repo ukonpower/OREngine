@@ -7,9 +7,9 @@ export class TurnTable extends MXP.Component {
 
 	private rotQuaternion: GLP.Quaternion;
 
-	constructor( ) {
+	constructor( params: MXP.ComponentParams ) {
 
-		super();
+		super( params );
 
 		this.speed = 1;
 

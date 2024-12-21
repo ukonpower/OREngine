@@ -24,7 +24,7 @@ export const SerializableField: React.FC<{fields: MXP.SerializeFieldsAsDirectory
 
 			if ( typeof opt.hidden === "function" ) {
 
-				hidden = opt.hidden();
+				hidden = opt.hidden( field.type == "value" ? field.value : null );
 
 			} else {
 

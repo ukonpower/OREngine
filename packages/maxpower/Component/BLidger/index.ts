@@ -24,7 +24,7 @@ export class BLidger extends Component {
 	private _cameraComponent?: Camera;
 	private _lightComponent?: Light;
 
-	constructor( params: ComponentParams ) {
+	constructor( params: ComponentParams<{blidge: BLidge, node: BLidgeNode}> ) {
 
 		super( params );
 
@@ -79,7 +79,7 @@ export class BLidger extends Component {
 
 		}
 
-		const entity = this.entity;
+		const entity = this._entity;
 
 		entity.name = this.node.name;
 
@@ -255,7 +255,7 @@ export class BLidger extends Component {
 
 			const curvePosition = this.animations.get( 'position' );
 
-			if ( this.entity.name == "camera" ) {
+			if ( this._entity.name == "camera" ) {
 
 				console.log( curvePosition );
 
