@@ -57,7 +57,7 @@ const updateComponentList = ( ) => {
 		const componentClassNameArray = componentClassName.split( ' ' );
 
 		const componentName = componentClassNameArray[ 2 ];
-		componentsDir;
+
 		return {
 
 			name: componentName,
@@ -175,7 +175,7 @@ export const ResourceManager = (): Plugin => ( {
 
 		}
 
-		watcher = chokidar.watch( "./src/ts/gl/Resources/Components/", {
+		watcher = chokidar.watch( componentsDir, {
 			ignored: /[\\/\\]\./,
 			persistent: true
 		} );

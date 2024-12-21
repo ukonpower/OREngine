@@ -7,9 +7,9 @@ export class VJCamera extends MXP.Component {
 	private lookAtPos: GLP.Vector;
 	private animator: GLP.Animator;
 
-	constructor() {
+	constructor( params: MXP.ComponentParams ) {
 
-		super();
+		super( params );
 
 		this.position = new GLP.Vector();
 		this.lookAtPos = new GLP.Vector();

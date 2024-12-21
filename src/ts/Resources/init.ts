@@ -14,7 +14,6 @@ type ComponentLIst = {
 	[key: string]: ( ComponentLIst | ( typeof MXP.Component ) )
 };
 
-
 export const initResouces = () => {
 
 	/*-------------------------------
@@ -50,7 +49,6 @@ export const initResouces = () => {
 
 	const light = resource.addComponentGroup( "Light" );
 	light.addComponent( "Light", MXP.Light );
-
 
 	const rootKeys = Object.keys( COMPONENTLIST );
 

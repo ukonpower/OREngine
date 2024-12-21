@@ -1,8 +1,7 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-
-import { LookAt } from '../../../View/LookAt';
+import { LookAt } from '../../ObjectControls/LookAt';
 
 import { Keyboard } from '~/ts/OREngine/utils/Keyboard';
 import { Pointer, PointerEventArgs } from '~/ts/OREngine/utils/Pointer';

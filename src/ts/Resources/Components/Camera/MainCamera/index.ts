@@ -1,10 +1,10 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { LookAt } from '../../View/LookAt';
-import { ShakeViewer } from '../../View/ShakeViewer';
+import { ShakeViewer } from '../../CameraControls/CameraShake';
+import { OrbitControls } from '../../CameraControls/OrbitControls';
+import { LookAt } from '../../ObjectControls/LookAt';
 
-import { OrbitControls } from './OrbitControls';
 import bloomBrightFrag from './shaders/bloomBright.fs';
 import compositeFrag from './shaders/composite.fs';
 import fxaaFrag from './shaders/fxaa.fs';
@@ -23,7 +23,6 @@ export class MainCamera extends MXP.Component {
 	private _lookAt: LookAt;
 	private _orbitControls?: OrbitControls;
 	private _shakeViewer: MXP.Component;
-	private _gBuffers: GLP.GLPowerFrameBuffer;
 	private _fxaa: MXP.PostProcessPass;
 	private _bloomRenderCount: number;
 	private _bloomBright: MXP.PostProcessPass;
@@ -75,11 +74,9 @@ export class MainCamera extends MXP.Component {
 
 		this.renderCamera = this._entity.addComponent( MXP.RenderCamera, { gl: gl } );
 		this._renderTarget = this.renderCamera.renderTarget;
-		this._gBuffers = this._renderTarget.gBuffer;
 		this._animateReceiver = this._entity.addComponent( MXP.BLidgerAnimationReceiver );
 		this._lookAt = this._entity.addComponent( LookAt );
 		this._shakeViewer = this._entity.addComponent( ShakeViewer );
-
 
 		/*-------------------------------
 			PostProcess

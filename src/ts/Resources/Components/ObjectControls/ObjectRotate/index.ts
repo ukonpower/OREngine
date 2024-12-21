@@ -1,7 +1,7 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-export class TurnTable extends MXP.Component {
+export class ObjectRotate extends MXP.Component {
 
 	private speed: number;
 
