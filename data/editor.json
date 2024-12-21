@@ -18,7 +18,7 @@
 				1
 			],
 			"children": [
-				"35"
+				"18c"
 			],
 			"components": [],
 			"objectOverride": [
@@ -67,6 +67,17 @@
 					]
 				},
 				{
+					"path": "/root/blidgeRoot/OREngine",
+					"components": [
+						{
+							"name": "OREngineLogoMaterial",
+							"props": {
+								"enabled": true
+							}
+						}
+					]
+				},
+				{
 					"path": "/root/blidgeRoot/SkyBox",
 					"components": [
 						{
@@ -100,5 +111,5 @@
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,
 	"frameLoop/end": 0,
-	"selectedEntityId": "69"
+	"selectedEntityId": "1c4"
 }

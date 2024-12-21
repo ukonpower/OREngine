@@ -98,7 +98,7 @@ export class OrbitControls extends MXP.Component {
 
 		} );
 
-		this.setPosition( this.entity.position, this.target_ );
+		this.setPosition( this._entity.position, this.target_ );
 
 	}
 
@@ -109,17 +109,17 @@ export class OrbitControls extends MXP.Component {
 		if ( value ) {
 
 			this._memTarget.copy( this.target_ );
-			this._memPos.copy( this.entity.position );
+			this._memPos.copy( this._entity.position );
 
-			const lookAt = this.entity.getComponent( LookAt );
+			const lookAt = this._entity.getComponent( LookAt );
 
 			if ( lookAt && lookAt.target ) {
 
-				this.setPosition( this.entity.position, lookAt.target.position );
+				this.setPosition( this._entity.position, lookAt.target.position );
 
 			}
 
-			this.calc( this.entity );
+			this.calc( this._entity );
 
 		}
 
@@ -208,9 +208,9 @@ export class OrbitControls extends MXP.Component {
 		this.target_.copy( target );
 
 
-		if ( this.entity ) {
+		if ( this._entity ) {
 
-			const parent = this.entity.parent;
+			const parent = this._entity.parent;
 
 			if ( parent ) {
 

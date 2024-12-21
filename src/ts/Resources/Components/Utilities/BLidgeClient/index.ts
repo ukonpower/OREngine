@@ -48,9 +48,9 @@ export class BLidgeClient extends MXP.Component {
 
 		this.blidge.on( 'sync/timeline', ( frame: MXP.BLidgeFrame ) => {
 
-			if ( this.entity ) {
+			if ( this._entity ) {
 
-				this.entity.noticeEventParent( "update/blidge/frame", [ frame ] );
+				this._entity.noticeEventParent( "update/blidge/frame", [ frame ] );
 
 			}
 
@@ -153,17 +153,17 @@ export class BLidgeClient extends MXP.Component {
 
 			newBLidgeRoot.name = "blidgeRoot";
 
-			if ( this.blidgeRoot && this.entity ) {
+			if ( this.blidgeRoot && this._entity ) {
 
-				this.entity.remove( this.blidgeRoot );
+				this._entity.remove( this.blidgeRoot );
 
 			}
 
 			this.blidgeRoot = newBLidgeRoot;
 
-			if ( this.entity ) {
+			if ( this._entity ) {
 
-				this.entity.add( this.blidgeRoot );
+				this._entity.add( this.blidgeRoot );
 
 			}
 
@@ -192,10 +192,10 @@ export class BLidgeClient extends MXP.Component {
 
 		// notice
 
-		if ( this.entity ) {
+		if ( this._entity ) {
 
-			this.entity.noticeEventChilds( "sceneCreated", [ this.blidgeRoot ] );
-			this.entity.noticeEventParent( "update/blidge/scene", [ this.blidgeRoot ] );
+			this._entity.noticeEventChilds( "sceneCreated", [ this.blidgeRoot ] );
+			this._entity.noticeEventParent( "update/blidge/scene", [ this.blidgeRoot ] );
 
 		}
 

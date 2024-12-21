@@ -29,7 +29,7 @@ export class MatchMove extends MXP.Component {
 		-------------------------------*/
 
 		this.gpu = new MXP.GPUCompute( {
-			entity: this.entity,
+			entity: this._entity,
 			args: {
 				renderer,
 				passes: [ new MXP.GPUComputePass( {
@@ -229,7 +229,6 @@ export class MatchMove extends MXP.Component {
 
 				}
 
-
 			} );
 
 		}
@@ -241,12 +240,12 @@ export class MatchMove extends MXP.Component {
 		lineMesh.geometry = lineGeometry;
 		lineMesh.material = lineMaterial;
 
-		this.entity.add( this.markerEntity );
-		this.entity.add( this.lineEntity );
+		this._entity.add( this.markerEntity );
+		this._entity.add( this.lineEntity );
 
 		setTimeout( () => {
 
-			this.cameraEntity = this.entity.getRootEntity().findEntityByName( "Camera" ) || null;
+			this.cameraEntity = this._entity.getRootEntity().findEntityByName( "Camera" ) || null;
 
 			if ( this.cameraEntity ) {
 

@@ -10,7 +10,7 @@ export class SkyBox extends MXP.Component {
 
 		super( params );
 
-		const mesh = this.entity.addComponent( MXP.Mesh );
+		const mesh = this._entity.addComponent( MXP.Mesh );
 		mesh.geometry = new MXP.SphereGeometry( { radius: 50, widthSegments: 32, heightSegments: 32 } );
 		mesh.material = new MXP.Material( {
 			phase: [ "deferred", "envMap" ],

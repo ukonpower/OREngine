@@ -14,11 +14,11 @@ type SerializableFieldTypeSlect = {
 
 export type SerializableFieldType = SerializableFieldTypeVector | SerializableFieldTypeSlect
 
-export type SerializableFieldOpt = {
+export type SerializableFieldOpt<> = {
 	isFolder?: boolean,
 	format?: SerializableFieldType,
 	noExport?: boolean,
-	hidden?: boolean | ( () => boolean ),
+	hidden?: boolean | ( ( value: SerializeFieldValue ) => boolean ),
 	readOnly?: boolean,
 }
 

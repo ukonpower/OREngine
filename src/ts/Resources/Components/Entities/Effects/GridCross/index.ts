@@ -12,7 +12,7 @@ export class GridCross extends MXP.Component {
 
 		super( params );
 
-		const mesh = this.entity.addComponent( MXP.Mesh );
+		const mesh = this._entity.addComponent( MXP.Mesh );
 
 		// geometry
 

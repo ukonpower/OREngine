@@ -46,7 +46,7 @@
 			"path": "/CamDof/blidgeRoot/OREngine",
 			"components": [
 				{
-					"name": "OREngineLogo",
+					"name": "OREngineLogoMaterial",
 					"props": {
 						"enabled": true
 					}

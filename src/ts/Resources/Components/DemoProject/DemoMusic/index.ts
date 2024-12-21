@@ -311,9 +311,9 @@ export class DemoMusic extends MXP.Component {
 
 				}
 
-				if ( this.entity ) {
+				if ( this._entity ) {
 
-					this.entity.noticeEventParent( 'update/music/complete', [ this.audioBuffer, this.frequencyTexture, this.timeDomainTexture ] );
+					this._entity.noticeEventParent( 'update/music/complete', [ this.audioBuffer, this.frequencyTexture, this.timeDomainTexture ] );
 
 				}
 
@@ -370,9 +370,9 @@ export class DemoMusic extends MXP.Component {
 
 		setTimeout( () => {
 
-			if ( this.entity ) {
+			if ( this._entity ) {
 
-				this.entity.noticeEventParent( 'update/music', [ this.audioBuffer, this.frequencyTexture, this.timeDomainTexture, this.progress ] );
+				this._entity.noticeEventParent( 'update/music', [ this.audioBuffer, this.frequencyTexture, this.timeDomainTexture, this.progress ] );
 
 			}
 

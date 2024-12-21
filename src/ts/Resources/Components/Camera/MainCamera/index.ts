@@ -73,12 +73,12 @@ export class MainCamera extends MXP.Component {
 			Components
 		-------------------------------*/
 
-		this.renderCamera = this.entity.addComponent( MXP.RenderCamera, { gl: gl } );
+		this.renderCamera = this._entity.addComponent( MXP.RenderCamera, { gl: gl } );
 		this._renderTarget = this.renderCamera.renderTarget;
 		this._gBuffers = this._renderTarget.gBuffer;
-		this._animateReceiver = this.entity.addComponent( MXP.BLidgerAnimationReceiver );
-		this._lookAt = this.entity.addComponent( LookAt );
-		this._shakeViewer = this.entity.addComponent( ShakeViewer );
+		this._animateReceiver = this._entity.addComponent( MXP.BLidgerAnimationReceiver );
+		this._lookAt = this._entity.addComponent( LookAt );
+		this._shakeViewer = this._entity.addComponent( ShakeViewer );
 
 
 		/*-------------------------------
@@ -315,7 +315,7 @@ export class MainCamera extends MXP.Component {
 		}
 
 
-		this._postProcess = this.entity.addComponent( MXP.PostProcess, { passes: [
+		this._postProcess = this._entity.addComponent( MXP.PostProcess, { passes: [
 			this._bloomBright,
 			...this._bloomBlur,
 			this._fxaa,
@@ -341,7 +341,7 @@ export class MainCamera extends MXP.Component {
 
 			const blidger = camera?.getComponent( MXP.BLidger );
 
-			const prevBlidger = this.entity.getComponent( MXP.BLidger );
+			const prevBlidger = this._entity.getComponent( MXP.BLidger );
 
 			if ( blidger ) {
 
@@ -361,11 +361,11 @@ export class MainCamera extends MXP.Component {
 
 		};
 
-		this.entity.on( 'sceneCreated', onSceneCreated );
+		this._entity.on( 'sceneCreated', onSceneCreated );
 
 		this.once( "dispose", () => {
 
-			this.entity.off( 'sceneCreated', onSceneCreated );
+			this._entity.off( 'sceneCreated', onSceneCreated );
 
 		} );
 
@@ -375,7 +375,7 @@ export class MainCamera extends MXP.Component {
 
 		if ( process.env.NODE_ENV === 'development' ) {
 
-			this._orbitControls = this.entity.addComponent( OrbitControls );
+			this._orbitControls = this._entity.addComponent( OrbitControls );
 			this._orbitControls.setElm( canvas );
 			this._orbitControls.enabled = false;
 
@@ -387,8 +387,8 @@ export class MainCamera extends MXP.Component {
 
 				}
 
-				const blidger = this.entity.getComponent( MXP.BLidger );
-				const lookat = this.entity.getComponent( LookAt );
+				const blidger = this._entity.getComponent( MXP.BLidger );
+				const lookat = this._entity.getComponent( LookAt );
 
 				if ( blidger ) {
 
@@ -454,7 +454,7 @@ export class MainCamera extends MXP.Component {
 		globalUniforms.gBuffer.uGBufferNormal.value = this.renderCamera.gBuffer.textures[ 1 ];
 
 
-		const root = this.entity.getRootEntity();
+		const root = this._entity.getRootEntity();
 
 		const lookAtTarget = root.findEntityByName( "CamLook" ) || null;
 		this._lookAt.setTarget( lookAtTarget );
