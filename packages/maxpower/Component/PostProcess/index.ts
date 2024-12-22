@@ -1,33 +1,33 @@
 import * as GLP from 'glpower';
 
 import { Component, ComponentParams } from '..';
-import { SerializableProps, TypedSerializableProps } from '../../Serializable';
-import { PostProcessPass } from '../PostProcessPass';
 
-export interface PostProcessParam extends ComponentParams {
-	input?: GLP.GLPowerTexture[];
-	passes: PostProcessPass[];
-}
-
+import { PostProcessPass } from './PostProcessPass';
 
 export class PostProcess extends Component {
 
-	public passes: PostProcessPass[];
-	public input: GLP.GLPowerTexture[];
+	public input?: GLP.GLPowerTexture[];
+	protected _passes: PostProcessPass[];
 
-	constructor( param: PostProcessParam ) {
+	constructor( params: ComponentParams<{passes: PostProcessPass[]}> ) {
 
-		super( param );
+		super( params );
 
-		this.passes = param.passes;
+		this._passes = params.args.passes;
 
-		this.input = param.input || [];
+	}
+
+	public get passes() {
+
+		return this._passes;
 
 	}
 
 	public get output() {
 
-		const passes = this.passes.filter( ( pass ) => pass.enabled && ! pass.passThrough );
+		if ( ! this._passes ) return null;
+
+		const passes = this._passes.filter( ( pass ) => ! pass.passThrough );
 
 		if ( passes.length > 0 ) {
 
@@ -39,53 +39,13 @@ export class PostProcess extends Component {
 
 	}
 
-	public get props() {
-
-		const props: SerializableProps = {};
-
-		for ( let i = 0; i < this.passes.length; i ++ ) {
-
-			const pass = this.passes[ i ];
-
-			props[ pass.name.replaceAll( "/", ":" ) ] = {
-				value: pass.enabled,
-			};
-
-		}
-
-		const res = { ...super.props, ...props };
-
-		return res;
-
-	}
-
-	protected deserializer( props: TypedSerializableProps<this> ) {
-
-		super.deserializer( props );
-
-		if ( props === null ) return;
-
-		for ( let i = 0; i < this.passes.length; i ++ ) {
-
-			const pass = this.passes[ i ];
-
-			const enableProps = ( props as SerializableProps )[ pass.name.replaceAll( "/", ":" ) ];
-
-			if ( enableProps !== undefined ) {
-
-				this.passes[ i ].enabled = enableProps.value;
-
-			}
-
-		}
-
-	}
-
 	public resize( resolution: GLP.Vector ): void {
 
-		for ( let i = 0; i < this.passes.length; i ++ ) {
+		if ( ! this._passes ) return;
 
-			this.passes[ i ].resize( resolution );
+		for ( let i = 0; i < this._passes.length; i ++ ) {
+
+			this._passes[ i ].resize( resolution );
 
 		}
 

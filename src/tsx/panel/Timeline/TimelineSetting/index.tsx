@@ -5,9 +5,10 @@ import { TimelineContext } from '../hooks/useTimeline';
 
 import style from './index.module.scss';
 
-import { useSerializableProps } from '~/tsx/gl/useSerializableProps';
+import { useSerializableField } from '~/tsx/hooks/useSerializableProps';
 import { Panel } from '~/tsx/ui/Panel';
-import { Value, ValueType } from '~/tsx/ui/Property/Value';
+import { ValueType, Value } from '~/tsx/ui/Value';
+
 
 export const TimelineSetting = () => {
 
@@ -24,9 +25,9 @@ export const TimelineSetting = () => {
 	}, [] );
 
 	// loop
-	const [ loop, setLoop ] = useSerializableProps<boolean>( glEditor, "frameLoop/enabled" );
-	const [ duration, setDuration ] = useSerializableProps<number>( glEditor?.scene, "timeline/duration" );
-	const [ fps, setFps ] = useSerializableProps<number>( glEditor?.scene, "timeline/fps" );
+	const [ loop, setLoop ] = useSerializableField<boolean>( glEditor, "frameLoop/enabled" );
+	const [ duration, setDuration ] = useSerializableField<number>( glEditor?.engine, "timeline/duration" );
+	const [ fps, setFps ] = useSerializableField<number>( glEditor?.engine, "timeline/fps" );
 
 	return <div className={style.timelineSetting}>
 		<Panel>

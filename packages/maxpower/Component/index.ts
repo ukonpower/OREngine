@@ -1,146 +1,70 @@
-import * as GLP from 'glpower';
-
 import { Entity, EntityFinalizeEvent } from '../Entity';
-import { Serializable, TypedSerializableProps } from '../Serializable';
+import { Serializable } from '../Serializable';
 
 export type ComponentUpdateEvent = EntityFinalizeEvent & {
 	entity: Entity,
 }
 
-export type ComponentParams = {
-	idOverride?: string,
-	disableEdit?: boolean
-}
+export type ComponentParams<TArgs = void> = TArgs extends void
+  ? { entity: Entity; args?: TArgs }
+  : { entity: Entity; args: TArgs };
 
 export class Component extends Serializable {
 
-	public readonly uuid: string;
-
-	public entity: Entity | null;
 	public disableEdit: boolean;
+	protected _entity: Entity;
+	protected _enabled: boolean;
+	protected _tag: string;
 
-	public children: Component[];	protected enabled_: boolean;
-
-	constructor( params?: ComponentParams ) {
+	constructor( params: ComponentParams<any> ) {
 
 		super();
 
-		params = params ?? {};
+		this.disableEdit = false;
+		this._entity = params.entity;
+		this._enabled = true;
+		this._tag = "";
 
-		this.resourceIdOverride = params.idOverride || null;
-		this.uuid = GLP.ID.genUUID();
-		this.entity = null;
-		this.disableEdit = params.disableEdit || false;
-		this.children = [];
-		this.enabled_ = true;
+		this.field( "enabled", () => this.enabled, value => this.enabled = value, {
+			hidden: true,
+			noExport: true
+		} );
 
-	}
-
-	public get props() {
-
-		return {
-			enabled: {
-				value: this.enabled,
-			}
-		};
-
-	}
-
-	protected deserializer( props: TypedSerializableProps<this> ): void {
-
-		this.enabled = props.enabled.value;
-
-	}
-
-	public static get tag() {
-
-		return "";
+		this.field( "tag", () => this.tag, value => this._tag = value, {
+			readOnly: true,
+			noExport: true,
+			hidden: ( item ) => item == "",
+		} );
 
 	}
 
 	public get tag() {
 
-		return ( this.constructor as typeof Component ).tag;
+		return this._tag;
+
+	}
+
+	public get entity() {
+
+		return this._entity;
 
 	}
 
 	public set enabled( value: boolean ) {
 
-		this.enabled_ = value;
+		this._enabled = value;
 
 	}
 
 	public get enabled() {
 
-		return this.enabled_;
-
-	}
-
-	public add( component: Component ) {
-
-		this.children.push( component );
-
-		if ( this.entity ) {
-
-			this.entity.addComponent( component );
-
-		}
-
-	}
-
-	public findChild<T extends typeof Component>( component: T ): InstanceType<T> | undefined {
-
-		return this.children.find( ( c ) => c instanceof component ) as InstanceType<T> | undefined;
-
-	}
-
-	public remove( component: Component ) {
-
-		this.children = this.children.filter( ( c ) => c !== component );
-
-		if ( this.entity ) {
-
-			this.entity.removeComponent( component );
-
-		}
-
-	}
-
-	public setEntity( entity: Entity ) {
-
-		this.entity = entity;
-
-		this.children.forEach( ( c ) => {
-
-			entity.addComponent( c );
-
-		} );
-
-		this.setEntityImpl( this.entity );
-
-	}
-
-	public unsetEntity() {
-
-		if ( this.entity === null ) return;
-
-		const beforeEntity = this.entity;
-
-		this.entity = null;
-
-		this.children.forEach( ( c ) => {
-
-			beforeEntity.removeComponent( c );
-
-		} );
-
-		this.unsetEntityImpl( beforeEntity );
+		return this._enabled;
 
 	}
 
 	public preUpdate( event: ComponentUpdateEvent ) {
 
-		if ( this.entity && this.enabled ) {
+		if ( this._entity && this.enabled ) {
 
 			this.preUpdateImpl( event );
 
@@ -150,7 +74,7 @@ export class Component extends Serializable {
 
 	public update( event: ComponentUpdateEvent ) {
 
-		if ( this.entity && this.enabled ) {
+		if ( this._entity && this.enabled ) {
 
 			this.updateImpl( event );
 
@@ -160,7 +84,7 @@ export class Component extends Serializable {
 
 	public postUpdate( event: ComponentUpdateEvent ) {
 
-		if ( this.entity && this.enabled ) {
+		if ( this._entity && this.enabled ) {
 
 			this.postUpdateImpl( event );
 
@@ -170,17 +94,13 @@ export class Component extends Serializable {
 
 	public finalize( event: ComponentUpdateEvent ) {
 
-		if ( this.entity && this.enabled ) {
+		if ( this._entity && this.enabled ) {
 
 			this.finalizeImpl( event );
 
 		}
 
 	}
-
-	protected setEntityImpl( entity: Entity ) {}
-
-	protected unsetEntityImpl( prevEntity: Entity ) {}
 
 	protected preUpdateImpl( event: ComponentUpdateEvent ) {}
 

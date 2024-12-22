@@ -8,8 +8,8 @@ import { Plugin } from 'vite';
 
 let watcher: chokidar.FSWatcher | null = null;
 
-const componentsDir = "./src/ts/gl/Resources/Components/";
-const componentListFile = "./src/ts/gl/Resources/_data/componentList.ts";
+const componentsDir = "./src/ts/Resources/Components/";
+const componentListFile = "./src/ts/Resources/_data/componentList.ts";
 
 const updateComponentList = ( ) => {
 
@@ -57,7 +57,7 @@ const updateComponentList = ( ) => {
 		const componentClassNameArray = componentClassName.split( ' ' );
 
 		const componentName = componentClassNameArray[ 2 ];
-		componentsDir;
+
 		return {
 
 			name: componentName,
@@ -175,7 +175,7 @@ export const ResourceManager = (): Plugin => ( {
 
 		}
 
-		watcher = chokidar.watch( "./src/ts/gl/Resources/Components/", {
+		watcher = chokidar.watch( componentsDir, {
 			ignored: /[\\/\\]\./,
 			persistent: true
 		} );

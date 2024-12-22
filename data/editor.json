@@ -1,67 +1,7 @@
 {
 	"projects": [
 		{
-			"setting": {
-				"name": "OREngine",
-				"timeline/duration": 679.6000000000003,
-				"timeline/fps": 60
-			},
-			"objectOverride": [
-				{
-					"path": "/root",
-					"components": [
-						{
-							"key": "blidgeClient",
-							"name": "BLidgeClient",
-							"props": {
-								"mode": "json",
-								"gltf": true,
-								"gltfPath": "/scene.glb"
-							}
-						},
-						{
-							"key": "music",
-							"name": "Music"
-						}
-					]
-				},
-				{
-					"path": "/root/blidgeRoot/Cube",
-					"components": [
-						{
-							"key": "material",
-							"name": "OREngineCube"
-						},
-						{
-							"key": "turntable",
-							"name": "TurnTable"
-						}
-					]
-				},
-				{
-					"path": "/root/blidgeRoot/OREngine",
-					"components": [
-						{
-							"key": "material",
-							"name": "OREngineLogo"
-						}
-					]
-				},
-				{
-					"path": "/root/blidgeRoot/SkyBox",
-					"components": [
-						{
-							"key": "skybox",
-							"name": "SkyBox"
-						}
-					]
-				}
-			],
-			"scene": {
-				"name": "root"
-			}
-		},
-		{
+			"name": "New Project",
 			"position": [
 				0,
 				0,
@@ -77,7 +17,10 @@
 				1,
 				1
 			],
-			"name": "New Project",
+			"children": [
+				"36"
+			],
+			"components": [],
 			"objectOverride": [
 				{
 					"path": "/root",
@@ -86,15 +29,31 @@
 							"name": "BLidgeClient",
 							"props": {
 								"enabled": true,
+								"tag": "",
 								"mode": "json",
 								"gltf": true,
-								"gltfPath": "/scene.glb"
+								"gltfPath": "/scene.glb",
+								"websocket/": null,
+								"websocket/url": "ws://localhost:3100"
 							}
 						},
 						{
 							"name": "DemoMusic",
 							"props": {
-								"enabled": true
+								"enabled": true,
+								"tag": ""
+							}
+						}
+					]
+				},
+				{
+					"path": "/root/blidgeRoot/Camera",
+					"components": [
+						{
+							"name": "MainCamera",
+							"props": {
+								"enabled": true,
+								"tag": ""
 							}
 						}
 					]
@@ -103,9 +62,10 @@
 					"path": "/root/blidgeRoot/OREngine",
 					"components": [
 						{
-							"name": "OREngineLogo",
+							"name": "OREngineLogoMaterial",
 							"props": {
-								"enabled": true
+								"enabled": true,
+								"tag": "materialOverride"
 							}
 						}
 					]
@@ -114,15 +74,17 @@
 					"path": "/root/blidgeRoot/OREngineCube",
 					"components": [
 						{
-							"name": "OREngineCube",
+							"name": "OREngineCubeMaterial",
 							"props": {
-								"enabled": true
+								"enabled": true,
+								"tag": "materialOverride"
 							}
 						},
 						{
-							"name": "TurnTable",
+							"name": "ObjectRotate",
 							"props": {
-								"enabled": true
+								"enabled": true,
+								"tag": ""
 							}
 						}
 					]
@@ -133,26 +95,34 @@
 						{
 							"name": "SkyBox",
 							"props": {
-								"enabled": true
+								"enabled": true,
+								"tag": ""
 							}
 						}
 					]
 				}
 			],
 			"scene": {
-				"name": "root"
+				"name": "root",
+				"childs": [
+					{
+						"name": "test"
+					}
+				]
 			},
+			"timeline/": null,
 			"timeline/duration": 600,
-			"timeline/fps": 60
+			"timeline/fps": 30
 		}
 	],
 	"enableRender": true,
 	"projectName": "New Project",
 	"openedProject": "New Project",
-	"resolutionScale": 0.25,
+	"resolutionScale": 1,
 	"viewType": "render",
+	"frameLoop/": null,
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,
-	"frameLoop/end": 100,
-	"selectedEntity": "6e"
+	"frameLoop/end": 0,
+	"selectedEntityId": "2f0"
 }

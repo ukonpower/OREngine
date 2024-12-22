@@ -5,10 +5,9 @@ import { MouseMenuContext } from '../../MouseMenu/useMouseMenu';
 
 import style from './index.module.scss';
 
-import { EditorContext } from '~/tsx/gl/useEditor';
-import { useSerializableProps } from '~/tsx/gl/useSerializableProps';
-import { useWatchSerializable } from '~/tsx/gl/useWatchSerializable';
-import { ArrowIcon } from '~/tsx/ui/icon/ArrowIcon';
+import { useOREngineGUI } from '~/tsx/components/OREngineGUI';
+import { useSerializableField } from '~/tsx/hooks/useSerializableProps';
+import { ArrowIcon } from '~/tsx/Icon/ArrowIcon';
 import { InputGroup } from '~/tsx/ui/InputGroup';
 import { Picker } from '~/tsx/ui/Picker';
 
@@ -19,18 +18,21 @@ type HierarchyNodeProps = {
 
 export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 
-	const { glEditor } = useContext( EditorContext );
+	const { gui, engine } = useOREngineGUI();
+
+	const [ selectedEntityId ] = useSerializableField<string>( gui, "selectedEntityId" );
+	const selectedEntity = selectedEntityId !== undefined && gui.engine.findEntityById( selectedEntityId );
+
+	const [ childrenIdList ] = useSerializableField<string[]>( props.entity, "children" );
+
+	const childrens = ( childrenIdList || [] ).map( id => engine.findEntityById( id ) ).filter( e => e !== undefined ) as MXP.Entity[];
 
 	const depth = props.depth || 0;
-	const childs = props.entity.children.concat().sort( ( a, b ) => a.name.localeCompare( b.name ) );
-	const hasChild = childs.length > 0;
+	const sortedChildren = childrens && childrens.concat().sort( ( a, b ) => a.name.localeCompare( b.name ) ) || [];
+	const hasChild = sortedChildren.length > 0;
 	const offsetPx = depth * 20;
+
 	const noEditable = props.entity.initiator == "script";
-
-	const [ selectedEntityId ] = useSerializableProps<string>( glEditor, "selectedEntity" );
-	const selectedEntity = selectedEntityId !== undefined && glEditor?.scene.findEntityById( selectedEntityId );
-
-	useWatchSerializable( props.entity, [ "children" ] );
 
 	// click fold controls
 
@@ -47,11 +49,11 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 
 	const onClickNode = useCallback( () => {
 
-		if ( ! glEditor ) return;
+		if ( ! gui ) return;
 
-		glEditor.selectEntity( props.entity );
+		gui.selectEntity( props.entity );
 
-	}, [ glEditor, props.entity ] );
+	}, [ gui, props.entity ] );
 
 	// right click node
 
@@ -61,9 +63,9 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 
 		e.preventDefault();
 
-		if ( ! glEditor || ! pushContent || ! closeAll || noEditable ) return;
+		if ( ! gui || ! pushContent || ! closeAll || noEditable ) return;
 
-		glEditor.selectEntity( props.entity );
+		gui.selectEntity( props.entity );
 
 		pushContent( <Picker label={props.entity.name} list={[
 			{
@@ -73,9 +75,9 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 					pushContent(
 						<InputGroup initialValues={{ name: '' }} onSubmit={( e ) => {
 
-							const newEntity = glEditor.createEntity( props.entity, e.name as string );
+							const newEntity = gui.createEntity( props.entity, e.name as string );
 
-							glEditor.selectEntity( newEntity );
+							gui.selectEntity( newEntity );
 
 							closeAll();
 
@@ -89,7 +91,7 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 				label: "Delete Entity",
 				onClick: () => {
 
-					glEditor.deleteEntity( props.entity );
+					gui.deleteEntity( props.entity );
 
 					closeAll();
 
@@ -97,7 +99,7 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 			}
 		]}></Picker> );
 
-	}, [ glEditor, props.entity, pushContent, closeAll, noEditable ] );
+	}, [ gui, props.entity, pushContent, closeAll, noEditable ] );
 
 	return <div className={style.node} data-no_export={noEditable}>
 		<div className={style.self} style={{ paddingLeft: offsetPx }} onClick={onClickNode} onContextMenu={onRightClickNode} data-selected={selectedEntity && selectedEntity.uuid == props.entity.uuid}>
@@ -110,7 +112,7 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 		</div>
 		{hasChild && <div className={style.child} data-open={open} >
 			{
-				childs.map( item => {
+				sortedChildren.map( item => {
 
 					return <HierarchyNode key={item.uuid} entity={item} depth={depth + 1} />;
 
