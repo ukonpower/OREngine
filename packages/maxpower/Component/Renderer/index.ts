@@ -480,6 +480,7 @@ export class Renderer extends Entity {
 				this.gl.bindFramebuffer( this.gl.READ_FRAMEBUFFER, outBuffer === null ? null : outBuffer.getFrameBuffer() );
 				this.gl.bindFramebuffer( this.gl.DRAW_FRAMEBUFFER, null );
 
+
 				this.gl.blitFramebuffer(
 					0, 0, this.resolution.x, this.resolution.y,
 					0, 0, this.resolution.x, this.resolution.y,
@@ -1094,8 +1095,8 @@ export class Renderer extends Entity {
 	public resize( resolution: GLP.Vector ) {
 
 		this.resolution.copy( resolution );
-		this._deferredRenderer.resize( resolution );
-		this._pipelinePostProcess.resize( resolution );
+		this._deferredRenderer.resize( this.resolution );
+		this._pipelinePostProcess.resize( this.resolution );
 
 	}
 
