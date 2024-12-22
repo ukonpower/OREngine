@@ -261,7 +261,7 @@ export class OREngineGUICore extends MXP.Serializable {
 
 		this.field( "resolutionScale", () => this.resolutionScale, v => {
 
-			this.resolutionScale = v;
+			this.resolutionScale = Number( v );
 
 			this.resize();
 
@@ -493,12 +493,13 @@ export class OREngineGUICore extends MXP.Serializable {
 		const canvasWidth = 1920;
 		const canvasHeight = canvasWidth / aspect;
 
-		this.canvas.width = 1920 * this.resolutionScale;
+		this.canvas.width = canvasWidth * this.resolutionScale;
 		this.canvas.height = canvasHeight * this.resolutionScale;
 
 		// resize
 
 		const resolution = new GLP.Vector( canvas.width, canvas.height );
+
 		this.engine.resize( resolution );
 
 		// debugegr

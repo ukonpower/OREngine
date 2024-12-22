@@ -47,18 +47,6 @@
 					]
 				},
 				{
-					"path": "/root/test",
-					"components": [
-						{
-							"name": "Particles",
-							"props": {
-								"enabled": true,
-								"tag": ""
-							}
-						}
-					]
-				},
-				{
 					"path": "/root/blidgeRoot/Camera",
 					"components": [
 						{
@@ -130,11 +118,11 @@
 	"enableRender": true,
 	"projectName": "New Project",
 	"openedProject": "New Project",
-	"resolutionScale": 0.5,
+	"resolutionScale": 1,
 	"viewType": "render",
 	"frameLoop/": null,
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,
 	"frameLoop/end": 0,
-	"selectedEntityId": "9a"
+	"selectedEntityId": "2f0"
 }

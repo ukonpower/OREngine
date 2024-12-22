@@ -129,4 +129,12 @@ export class Particles extends MXP.Component {
 
 	}
 
+	public dispose(): void {
+
+		super.dispose();
+		this.entity.removeComponent( MXP.Mesh );
+		this.entity.removeComponent( MXP.GPUCompute );
+
+	}
+
 }
