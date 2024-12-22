@@ -1,38 +1,31 @@
 # OREngine
 
-OREngine(オーアールエンジン)はWebGL製オレオレ3Dエンジンです。  
-64KB Intro Demoの制作のために用いることを想定しています。
+OREngine(オーアールエンジン)は WebGL 製オレオレ 3D エンジンです。  
+64KB Intro Demo の制作のために用いることを想定しています。
 
-![alt text](./screenshot/OREngine.png)
+![OREngine screen shot](./screenshot/OREngine.png)
 
 ## Install
 
-### 1. サブモジュールのインストール
+### 1. サブモジュールのインストール / パッケージのインストール
 
 ```
-git submodule init
-git submodule update
+npm run init
 ```
 
-### 2. NPMパッケージのインストール
-
-```
-npm install
-```
-
-### 3. ShaderMinifierをインストール
+### 2. ShaderMinifier をインストール
 
 [Shader_Minifier](https://github.com/laurentlb/Shader_Minifier)
 
 #### ■ Windows
 
-ShaderMinifierをインストール後、Pathを通してください
+ShaderMinifier をインストール後、Path を通してください
 
 #### ■ Mac
 
 `shader_minifier.exe` を `/Documents/application/shader_minifier/shader_minifier.exe` を配置
 
-Monoをインストールします  
+Mono をインストールします  
 https://www.mono-project.com/
 
 ```
@@ -53,7 +46,7 @@ npm run build
 
 ## Credits
 
-ビルドしたファイルを64KB以下に収めるのは以下のツールなくしては到底実現できませんでした。
+ビルドしたファイルを 64KB 以下に収めるのは以下のツールなくしては到底実現できませんでした。  
 感謝いたします。
 
 - [compeko](https://gist.github.com/0b5vr/09ee96ca2efbe5bf9d64dad7220e923b) by **0b5vr**
