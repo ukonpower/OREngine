@@ -1,6 +1,6 @@
+import { EditorPage } from 'packages/orengine/tsx/Editor';
 import ReactDOM from 'react-dom/client';
 
-import { EditorPage } from './Editor';
 import '~/styles/style.scss';
 
 ReactDOM.createRoot( document.getElementById( 'root' )! ).render(
