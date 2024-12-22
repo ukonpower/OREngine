@@ -1,7 +1,7 @@
 import * as MXP from 'maxpower';
 
-import OREngineLogoFrag from './shaders/OREngineLogo.fs';
-import OREngineLogoVert from './shaders/OREngineLogo.vs';
+import OREngineLogoFrag from './shaders/orengineLogo.fs';
+import OREngineLogoVert from './shaders/orengineLogo.vs';
 
 import { globalUniforms } from '~/ts/Globals';
 
