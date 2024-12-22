@@ -1,7 +1,8 @@
 
-import { CheckIcon } from '../../icon/Check';
 
 import style from './index.module.scss';
+
+import { CheckIcon } from '~/tsx/Icon/Check';
 
 type InputBooleanProps = {
 	checked?: boolean
@@ -23,7 +24,11 @@ export const InputBoolean = ( { onChange, ...props }: InputBooleanProps ) => {
 
 					if ( props.readOnly ) return;
 
-					onChange && onChange( e.target.checked );
+					if ( onChange ) {
+
+						onChange( e.target.checked );
+
+					}
 
 				}}
 			/>

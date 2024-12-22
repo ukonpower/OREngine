@@ -4,7 +4,7 @@ import style from './index.module.scss';
 
 interface InputTextProps {
 	value: string;
-	selectList: string[],
+	selectList: ( {label: string, value: any} | string )[],
 	onChange?: ( value: string ) => void;
 	disabled?: boolean;
 	readOnly?: boolean;
@@ -23,12 +23,31 @@ export const InputSelect = ( { onChange, value, ...props }: InputTextProps ) => 
 	return <div className={style.inputSelect}>
 		<select className={style.input} onChange={( e ) => {
 
-			onChange && onChange( e.target.value );
+			if ( onChange ) {
+
+				onChange( e.target.value );
+
+			}
 
 		}} value={value}>
 			{props.selectList.map( ( v, i ) => {
 
-				return <option key={i} value={v}>{v}</option>;
+				let label = "";
+				let value = "";
+
+				if ( typeof v === "string" ) {
+
+					label = v;
+					value = v;
+
+				} else {
+
+					label = v.label;
+					value = v.value;
+
+				}
+
+				return <option key={i} value={value}>{label}</option>;
 
 			} ) }
 		</select>

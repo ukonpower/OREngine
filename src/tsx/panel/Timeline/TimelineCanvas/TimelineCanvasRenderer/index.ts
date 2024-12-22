@@ -3,9 +3,8 @@ import * as MXP from 'maxpower';
 
 import timelineFrag from './shaders/timeline.fs';
 
-
-import { gl } from '~/ts/gl/GLGlobals';
-import { OREngineProjectFrame } from '~/ts/gl/OREngine/IO/ProjectSerializer';
+import { gl } from '~/ts/Globals';
+import { OREngineProjectFrame } from '~/ts/OREngine/IO/ProjectSerializer';
 
 export class TimelineCanvasRenderer extends GLP.EventEmitter {
 
@@ -83,7 +82,7 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 		this.musicTexture = new GLP.GLPowerTexture( this.gl );
 		this.musicTexture.setting( { type: this.gl.UNSIGNED_BYTE, internalFormat: this.gl.LUMINANCE, format: this.gl.LUMINANCE, magFilter: this.gl.LINEAR, minFilter: this.gl.LINEAR, wrapS: this.gl.MIRRORED_REPEAT } );
 
-		this.postProcess = new MXP.PostProcess( {
+		this.postProcess = new MXP.PostProcess( { entity: new MXP.Entity(), args: {
 			passes: [
 				new MXP.PostProcessPass( gl, {
 					frag: timelineFrag,
@@ -100,7 +99,7 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 					renderTarget: null
 				} )
 			]
-		} );
+		} } );
 
 	}
 
@@ -251,7 +250,11 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 
 		this.canvasTexture.attach( this.canvas );
 
-		this.postProcess.passes[ 0 ].uniforms.uCanvasTex.value = this.canvasTexture;
+		if ( this.postProcess._passes ) {
+
+			this.postProcess._passes[ 0 ].uniforms.uCanvasTex.value = this.canvasTexture;
+
+		}
 
 		this.glRenderer.renderPostProcess( this.postProcess, this.canvasSize );
 

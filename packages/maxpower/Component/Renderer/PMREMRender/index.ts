@@ -6,15 +6,18 @@ import pmremFrag from './shaders/pmrem.fs';
 
 type SwapBuffer = {rt1: GLP.GLPowerFrameBuffer, rt2: GLP.GLPowerFrameBuffer};
 
-export class PMREMRender extends MXP.PostProcess {
+export class PMREMRender extends GLP.EventEmitter {
 
+	public postprocess: MXP.PostProcess;
 	public resolution: GLP.Vector;
 	public renderTarget: GLP.GLPowerFrameBuffer;
 	private pmremPasses: MXP.PostProcessPass[];
 	private swapBuffers: SwapBuffer[];
 	private timeUniforms: GLP.Uniforms;
 
-	constructor( gl: WebGL2RenderingContext, param: Omit<MXP.PostProcessParam, "passes" | "input"> & {input: GLP.GLPowerTextureCube[], resolution: GLP.Vector} ) {
+	constructor( gl: WebGL2RenderingContext, param: {input: GLP.GLPowerTextureCube[], resolution: GLP.Vector} ) {
+
+		super();
 
 		const resolution = param.resolution;
 
@@ -108,10 +111,8 @@ export class PMREMRender extends MXP.PostProcess {
 
 		}
 
-		super( {
-			...param,
-			passes,
-		} );
+		this.postprocess = new MXP.PostProcess( { entity: new MXP.Entity(), args: { passes } } );
+		this.postprocess.input = param.input;
 
 		this.resolution = resolution;
 		this.renderTarget = renderTarget;

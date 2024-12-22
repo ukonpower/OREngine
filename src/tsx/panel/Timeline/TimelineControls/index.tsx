@@ -49,7 +49,11 @@ export const TimelineControls: React.FC<{children?: React.ReactNode}> = ( props 
 
 				const movement = - ( pos[ 0 ] - pointerDownPosRef.current[ 0 ] ) / elmWidth * viewPortRangeRef.current[ 0 ];
 
-				setViewPortCenter && setViewPortCenter( pointerDownCenterFrameRef.current + movement );
+				if ( setViewPortCenter ) {
+
+					setViewPortCenter( pointerDownCenterFrameRef.current + movement );
+
+				}
 
 			}
 
@@ -99,7 +103,7 @@ export const TimelineControls: React.FC<{children?: React.ReactNode}> = ( props 
 
 	const onWheel = useCallback( ( e: WheelEvent ) => {
 
-		if ( pointerDownButtonRef.current !== null ) return;
+		if ( pointerDownButtonRef.current !== null || ! zoom || ! scroll ) return;
 
 		e.preventDefault();
 
@@ -111,18 +115,17 @@ export const TimelineControls: React.FC<{children?: React.ReactNode}> = ( props 
 
 			if ( absY > 50 ) {
 
-				zoom && zoom( e.deltaY < 0 ? 0.9 : 1.1 );
+					 zoom( e.deltaY < 0 ? 0.9 : 1.1 );
 
 			} else {
 
-				zoom && zoom( 1.0 + e.deltaY * 0.005 );
+				zoom( 1.0 + e.deltaY * 0.005 );
 
 			}
 
-
 		} else {
 
-			scroll && scroll( e.deltaX / width * 0.5 );
+			scroll( e.deltaX / width * 0.5 );
 
 		}
 

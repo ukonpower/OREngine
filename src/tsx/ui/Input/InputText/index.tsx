@@ -1,5 +1,7 @@
 
 
+import { useCallback, useState } from 'react';
+
 import style from './index.module.scss';
 
 interface InputTextProps {
@@ -11,11 +13,37 @@ interface InputTextProps {
 
 export const InputText = ( { onChange, value, ...props }: InputTextProps ) => {
 
-	return <div className={style.inputNumber}>
-		<input className={style.input} type="text" value={value} placeholder={props.readOnly ? '-' : ''} disabled={props.disabled} readOnly={props.readOnly} data-lo={props.readOnly }
+	const [ currentInput, setCurrentInput ] = useState( value );
+
+	const submit = useCallback( () => {
+
+		if ( onChange ) {
+
+			onChange( currentInput );
+
+		}
+
+	}, [ currentInput, onChange ] );
+
+	return <div className={style.container}>
+		<input className={style.input} type="text" value={currentInput} placeholder={props.readOnly ? '-' : ''} disabled={props.disabled} readOnly={props.readOnly} data-lo={props.readOnly }
 			onChange={( e ) => {
 
-				onChange && onChange( e.target.value );
+				setCurrentInput( e.target.value );
+
+			}}
+			onBlur={( e ) => {
+
+				submit();
+
+			}}
+			onKeyDown={( e ) => {
+
+				if ( e.key === 'Enter' ) {
+
+					e.currentTarget.blur();
+
+				}
 
 			}}
 		/>

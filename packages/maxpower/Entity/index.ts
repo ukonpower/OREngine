@@ -1,12 +1,11 @@
 import * as GLP from 'glpower';
 
-import { Component, ComponentUpdateEvent } from "../Component";
+import { Component, ComponentParams, ComponentUpdateEvent } from "../Component";
 import { RenderCamera } from '../Component/Camera/RenderCamera';
-import { Geometry } from '../Component/Geometry';
 import { Light } from '../Component/Light';
-import { Material } from '../Component/Material';
+import { Mesh } from '../Component/Mesh';
 import { RenderStack } from '../Component/Renderer';
-import { Serializable, TypedSerializableProps } from '../Serializable';
+import { Serializable } from '../Serializable';
 
 export type EntityUpdateEvent = {
 	timElapsed: number;
@@ -31,28 +30,25 @@ export type EntityParams = {
 	name?: string;
 }
 
+export type ConstructorArgType<T extends typeof Component> =
+  ConstructorParameters<T>[0] extends ComponentParams<infer A>
+    ? A
+    : never;
+
 export class Entity extends Serializable {
 
-	public readonly uuid: string;
-
 	public name: string;
-
 	public position: GLP.Vector;
 	public euler: GLP.Euler;
 	public quaternion: GLP.Quaternion;
 	public scale: GLP.Vector;
-
 	public matrix: GLP.Matrix;
 	public matrixWorld: GLP.Matrix;
 	public matrixWorldPrev: GLP.Matrix;
 	public autoMatrixUpdate: boolean;
-
 	public parent: Entity | null;
 	public children: Entity[];
-
-	public components: Map<string, Component>;
-	private componentsByTag: Map<string, Component>;
-
+	public components: Map<typeof Component, Component>;
 	public visible: boolean;
 	public userData: any;
 
@@ -61,7 +57,6 @@ export class Entity extends Serializable {
 		super();
 
 		this.name = params && params.name || "";
-		this.uuid = GLP.ID.genUUID();
 
 		this.position = new GLP.Vector( 0.0, 0.0, 0.0, 1.0 );
 		this.euler = new GLP.Euler();
@@ -77,46 +72,24 @@ export class Entity extends Serializable {
 		this.children = [];
 
 		this.components = new Map();
-		this.componentsByTag = new Map();
 
 		this.visible = true;
 		this.userData = {};
 
-	}
+		this.field( "name", () => this.name, value => this.name = value );
+		this.field( "position", () => this.position.getElm( "vec3" ), value => this.position.setFromArray( value ), { format: { type: "vector" } } );
+		this.field( "euler", () => this.euler.getElm( "vec3" ), value => this.euler.setFromArray( value ), { format: { type: "vector" } } );
+		this.field( "scale", () => this.scale.getElm( "vec3" ), value => this.scale.setFromArray( value ), { format: { type: "vector" } } );
+		this.field( "children", () => this.children.map( c => c.uuid ), undefined, { noExport: true, hidden: true } );
+		this.field( "components", () => {
 
-	public get props() {
+			const list: string[] = [];
 
-		return {
-			position: {
-				value: this.position.getElm( "vec3" ),
-			},
-			euler: {
-				value: this.euler.getElm( "vec3" ),
-			},
-			scale: {
-				value: this.scale.getElm( "vec3" ),
-			},
-			children: {
-				value: this.children,
-				opt: {
-					noExport: true,
-				}
-			},
-			components: {
-				value: Array.from( this.components.values() ),
-				opt: {
-					noExport: true,
-				}
-			}
-		};
+			this.components.forEach( c => list.push( c.uuid ) );
 
-	}
+			return list;
 
-	protected deserializer( props: TypedSerializableProps<this> ): void {
-
-		this.position.set( props.position.value[ 0 ], props.position.value[ 1 ], props.position.value[ 2 ] );
-		this.euler.set( props.euler.value[ 0 ], props.euler.value[ 1 ], props.euler.value[ 2 ], props.euler.value[ 3 ] );
-		this.scale.set( props.scale.value[ 0 ], props.scale.value[ 1 ], props.scale.value[ 2 ] );
+		}, undefined, { noExport: true, hidden: true } );
 
 	}
 
@@ -214,11 +187,11 @@ export class Entity extends Serializable {
 		const visibility = ( event.visibility || event.visibility === undefined ) && this.visible;
 		childEvent.visibility = visibility;
 
-		const geometry = this.getComponentByTag<Geometry>( "geometry" );
-		const material = this.getComponentByTag<Material>( "material" );
+		const mesh = this.getComponent( Mesh );
 
+		if ( mesh && ( visibility || event.forceDraw ) ) {
 
-		if ( geometry && material && ( ( geometry.enabled && material.enabled && visibility ) || event.forceDraw ) ) {
+			const material = mesh.material;
 
 			if ( material.visibilityFlag.deferred ) event.renderStack.deferred.push( this );
 			if ( material.visibilityFlag.shadowMap ) event.renderStack.shadowMap.push( this );
@@ -283,7 +256,7 @@ export class Entity extends Serializable {
 
 		this.children.push( entity );
 
-		this.noticePropsChanged( "children" );
+		this.noticeField( "children" );
 
 	}
 
@@ -291,7 +264,7 @@ export class Entity extends Serializable {
 
 		this.children = this.children.filter( c => c.uuid != entity.uuid );
 
-		this.noticePropsChanged( "children" );
+		this.noticeField( "children" );
 
 	}
 
@@ -347,88 +320,97 @@ export class Entity extends Serializable {
 		Components
 	-------------------------------*/
 
-	// add
+	public addComponent<T extends typeof Component>(
+		component: T,
+		...args: ConstructorArgType<T> extends undefined
+? [] | [ConstructorArgType<T>]
+		  : [ConstructorArgType<T>]
+	  ): InstanceType<T> {
 
-	public addComponent<T extends Component>( component: T ) {
-
-		const id = component.resourceId;
-
-		const prevComponent = this.components.get( id );
-
-		if ( prevComponent ) {
-
-			prevComponent.unsetEntity();
-
-		}
-
-		component.setEntity( this );
-
-		this.components.set( id, component );
-
-		if ( component.tag !== "" ) {
-
-			this.componentsByTag.set( component.tag, component );
-
-		}
-
-		this.emit( "component/add", [ component ] );
-
-		this.noticePropsChanged( "components" );
-
-		return component;
-
-	}
-
-	// get
-
-	public getComponentByTag<T extends Component>( tag: string ): T | undefined {
-
-		return this.componentsByTag.get( tag ) as T;
-
-	}
-
-	public getComponentByResourceId<T extends Component>( id: string ): T | undefined {
-
-		return this.components.get( id ) as T;
-
-	}
-
-	public getComponent<T extends typeof Component>( component: T ): InstanceType<T> | undefined {
-
-		return this.getComponentByResourceId( component.resourceId );
+		const [ arg ] = args;
+		const instance = new component( { entity: this, args: arg } );
+		this.components.set( component, instance );
+		this.noticeField( "components" );
+		return instance as InstanceType<T>;
 
 	}
 
 	// remove
 
-	public removeComponentByResourceId( resourceId: string ) {
+	public removeComponent<T extends typeof Component>( component: T ) {
 
-		const currentComponent = this.components.get( resourceId );
+		const c = this.components.get( component );
 
-		if ( currentComponent ) {
+		if ( c ) {
 
-			this.components.delete( resourceId );
-			currentComponent.unsetEntity();
+			c.dispose();
 
-			if ( currentComponent.tag !== "" ) {
+		}
 
-				this.componentsByTag.delete( currentComponent.tag );
+		this.components.delete( component );
+
+		this.noticeField( "components" );
+
+	}
+
+	public removeComponentByUUID( uuid: string ) {
+
+		for ( const c of this.components ) {
+
+			const key = c[ 0 ];
+			const component = c[ 1 ];
+
+			if ( component.uuid === uuid ) {
+
+				component.dispose();
+
+				this.components.delete( key );
+
+				this.noticeField( "components" );
+
+				return component;
 
 			}
 
 		}
 
-		this.emit( "component/remove", [ currentComponent ] );
+	}
 
-		this.noticePropsChanged( "components" );
+	// get
 
-		return currentComponent;
+	public getComponent<T extends typeof Component>( component: T ) {
+
+		return this.components.get( component ) as InstanceType<T> | undefined;
 
 	}
 
-	public removeComponent( component: Component | typeof Component ) {
+	public getComponentByUUID( uuid: string ) {
 
-		this.removeComponentByResourceId( component.resourceId );
+		for ( const c of this.components.values() ) {
+
+			if ( c.uuid === uuid ) {
+
+				return c;
+
+			}
+
+		}
+
+		return null;
+
+	}
+
+	public getComponentsByTag<T extends Component>( tag: string ) {
+
+		const components: Component[] = [];
+
+		this.components.forEach( c => {
+
+			if ( c.tag == tag ) components.push( c );
+
+		} );
+
+		return components as T[];
 
 	}
 
@@ -569,10 +551,15 @@ export class Entity extends Serializable {
 	public dispose( ) {
 
 		this.emit( "dispose" );
-		this.parent && this.parent.remove( this );
+
+		if ( this.parent ) {
+
+			this.parent.remove( this );
+
+		}
+
 		this.components.forEach( c => {
 
-			c.unsetEntity();
 			c.dispose();
 
 		} );

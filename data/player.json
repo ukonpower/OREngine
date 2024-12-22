@@ -1,4 +1,5 @@
 {
+	"name": "New Project",
 	"position": [
 		0,
 		0,
@@ -14,10 +15,13 @@
 		1,
 		1
 	],
-	"name": "New Project",
+	"children": [
+		"43"
+	],
+	"components": [],
 	"objectOverride": [
 		{
-			"path": "/root",
+			"path": "/CamDof",
 			"components": [
 				{
 					"name": "BLidgeClient",
@@ -25,7 +29,9 @@
 						"enabled": true,
 						"mode": "json",
 						"gltf": true,
-						"gltfPath": "/scene.glb"
+						"gltfPath": "/scene.glb",
+						"websocket/": null,
+						"websocket/url": "ws://localhost:3100"
 					}
 				},
 				{
@@ -37,10 +43,10 @@
 			]
 		},
 		{
-			"path": "/root/blidgeRoot/OREngine",
+			"path": "/CamDof/blidgeRoot/OREngine",
 			"components": [
 				{
-					"name": "OREngineLogo",
+					"name": "OREngineLogoMaterial",
 					"props": {
 						"enabled": true
 					}
@@ -48,24 +54,7 @@
 			]
 		},
 		{
-			"path": "/root/blidgeRoot/OREngineCube",
-			"components": [
-				{
-					"name": "OREngineCube",
-					"props": {
-						"enabled": true
-					}
-				},
-				{
-					"name": "TurnTable",
-					"props": {
-						"enabled": true
-					}
-				}
-			]
-		},
-		{
-			"path": "/root/blidgeRoot/SkyBox",
+			"path": "/CamDof/blidgeRoot/SkyBox",
 			"components": [
 				{
 					"name": "SkyBox",
@@ -77,8 +66,9 @@
 		}
 	],
 	"scene": {
-		"name": "root"
+		"name": "CamDof"
 	},
+	"timeline/": null,
 	"timeline/duration": 600,
 	"timeline/fps": 60
 }

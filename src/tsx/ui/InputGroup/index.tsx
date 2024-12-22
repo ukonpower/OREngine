@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 
+import { Block } from "../Block";
 import { Button } from "../Button";
-import { PropertyBlock } from "../Property/PropertyBlock";
-import { Value, ValueType } from "../Property/Value";
+import { ValueType, Value } from "../Value";
 
 import style from './index.module.scss';
 
@@ -65,13 +65,17 @@ export const InputGroup = ( props: InputGroupProps ) => {
 			e.preventDefault();
 
 		}}>
-			<PropertyBlock label={props.title} noMargin >
+			<Block label={props.title} noMargin >
 				{propElms}
-			</PropertyBlock>
+			</Block>
 			<div className={style.submit}>
 				<Button type="submit" onClick={() => {
 
-					props.onSubmit && props.onSubmit( values );
+					if ( props.onSubmit ) {
+
+						props.onSubmit( values );
+
+					}
 
 				}} >OK</Button>
 			</div>

@@ -3,8 +3,6 @@ import * as GLP from 'glpower';
 import { Component, ComponentParams, ComponentUpdateEvent } from "..";
 
 export type CameraType = 'perspective' | 'orthographic'
-export interface CameraParam extends ComponentParams {
-}
 
 export class Camera extends Component {
 
@@ -30,11 +28,9 @@ export class Camera extends Component {
 
 	public viewPort: GLP.Vector | null;
 
-	constructor( params?: CameraParam ) {
+	constructor( params: ComponentParams ) {
 
 		super( params );
-
-		params = params || {};
 
 		this.cameraType = 'perspective';
 
@@ -57,11 +53,13 @@ export class Camera extends Component {
 		this.needsUpdate = true;
 		this.displayOut = true;
 
-	}
+		if ( import.meta.env.DEV ) {
 
-	public static get tag() {
+			this.field( "fov", () => this.fov, ( v ) => this.fov = v, { noExport: true } );
 
-		return "camera";
+		}
+
+		this._tag = "camera";
 
 	}
 
@@ -85,12 +83,8 @@ export class Camera extends Component {
 
 	public updateViewMatrix() {
 
-		if ( this.entity ) {
-
-			this.viewMatrixPrev.copy( this.viewMatrix );
-			this.viewMatrix.copy( this.entity.matrixWorld ).inverse();
-
-		}
+		this.viewMatrixPrev.copy( this.viewMatrix );
+		this.viewMatrix.copy( this._entity.matrixWorld ).inverse();
 
 	}
 
