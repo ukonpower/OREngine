@@ -1,8 +1,8 @@
 
 import * as MXP from 'maxpower';
+import { TexProcedural } from 'orengine';
 
 import { resource, renderer, gl } from '../Globals';
-import { TexProcedural } from '../OREngine/utils/TexProcedural';
 
 import { COMPONENTLIST } from './_data/componentList';
 import { Font1 } from './Fonts/Font1';

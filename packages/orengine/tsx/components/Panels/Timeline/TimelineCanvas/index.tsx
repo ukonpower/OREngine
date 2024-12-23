@@ -1,11 +1,11 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 
+import { useSerializableField } from '../../../../hooks/useSerializableProps';
 import { TimelineContext } from '../hooks/useTimeline';
 
 import style from './index.module.scss';
 import { TimelineCanvasRenderer } from './TimelineCanvasRenderer';
 
-import { useSerializableField } from '~/tsx/hooks/useSerializableProps';
 
 export const TimelineCanvas = () => {
 

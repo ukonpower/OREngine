@@ -2,13 +2,15 @@
 import * as MXP from 'maxpower';
 import React, { MouseEvent, ReactNode, useCallback, useContext, useState } from 'react';
 
-import { MouseMenuContext, MouseMenuItemContext } from '../../MouseMenu/useMouseMenu';
+
+import { Button } from '../../../Button';
+import { MouseMenuItemContext, MouseMenuContext } from '../../../MouseMenu/useMouseMenu';
+
 
 import style from './index.module.scss';
 
 import { resource } from '~/ts/Globals';
 import { ComponentGroup, ResouceComponentItem } from '~/ts/Resources';
-import { Button } from '~/tsx/ui/Button';
 
 type ComponentAddProps= {
 	entity: MXP.Entity

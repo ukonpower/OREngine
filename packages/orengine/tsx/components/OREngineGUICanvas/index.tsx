@@ -1,13 +1,13 @@
 import { useRef, useEffect } from "react";
 
 
-import { useOREngineGUI } from "../OREngineGUI";
+import { useOREditor } from "../../hooks/useOREditor";
 
 import style from './index.module.scss';
 
 export const GLCanvas = () => {
 
-	const { gui } = useOREngineGUI();
+	const { gui } = useOREditor();
 	const wrapperElmRef = useRef<HTMLDivElement | null>( null );
 
 	useEffect( () => {

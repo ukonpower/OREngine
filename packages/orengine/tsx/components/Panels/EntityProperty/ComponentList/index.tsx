@@ -1,11 +1,11 @@
 import * as MXP from 'maxpower';
 import { useMemo } from 'react';
 
+import { useSerializableField } from '../../../../hooks/useSerializableProps';
 import { ComponentView } from '../ComponentView';
 
 import style from './index.module.scss';
 
-import { useSerializableField } from '~/tsx/hooks/useSerializableProps';
 
 export const ComponentList: React.FC<{ entity: MXP.Entity }> = ( { entity } ) => {
 

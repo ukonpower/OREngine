@@ -1,23 +1,22 @@
+import { useLayout } from '../../hooks/useLayout';
+import { MouseMenu } from '../MouseMenu';
+import { useMouseMenu, MouseMenuContext } from '../MouseMenu/useMouseMenu';
+import { Panel } from '../Panel';
+import { PanelContainer } from '../PanelContainer';
+import { EntityProperty } from '../Panels/EntityProperty';
+import { Timer } from '../Panels/GPUTimer';
+import { Hierarchy } from '../Panels/Hierarchy';
+import { ProjectControl } from '../Panels/ProjectControl';
+import { Screen } from '../Panels/Screen';
+import { Timeline } from '../Panels/Timeline';
+
+import { OREditorContext } from './Context';
+import { useOREditorContext } from './Hooks';
 import style from './index.module.scss';
 
-import { OREngineGUI } from '~/tsx/components/OREngineGUI';
-import { useLayout } from '~/tsx/hooks/useLayout';
-import { EntityProperty } from '~/tsx/panel/EntityProperty';
-import { Timer } from '~/tsx/panel/GPUTimer';
-import { Hierarchy } from '~/tsx/panel/Hierarchy';
-import { MouseMenu } from '~/tsx/panel/MouseMenu';
-import {
-	MouseMenuContext,
-	useMouseMenu,
-} from '~/tsx/panel/MouseMenu/useMouseMenu';
-import { ProjectControl } from '~/tsx/panel/ProjectControl';
-import { Screen } from '~/tsx/panel/Screen';
-import { Timeline } from '~/tsx/panel/Timeline';
-import { Panel } from '~/tsx/ui/Panel';
-import { PanelContainer } from '~/tsx/ui/PanelContainer';
+export const OREditor = () => {
 
-export const EditorPage = () => {
-
+	const editorContext = useOREditorContext();
 	const layout = useLayout();
 	const mouseMenuContext = useMouseMenu();
 
@@ -121,12 +120,12 @@ export const EditorPage = () => {
 
 	}
 
-	return <OREngineGUI>
+	return <OREditorContext.Provider value={editorContext}>
 		<MouseMenuContext.Provider value={mouseMenuContext}>
 			<div className={style.editor}>
 				{editorElm}
 			</div>
-		</MouseMenuContext.Provider>
-	</OREngineGUI>;
+		</MouseMenuContext.Provider>;
+	</OREditorContext.Provider>;
 
 };

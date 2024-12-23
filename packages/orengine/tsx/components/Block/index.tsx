@@ -1,9 +1,9 @@
 import React, { useCallback } from "react";
 
+import { ArrowIcon } from "../Icons/ArrowIcon";
 
 import style from './index.module.scss';
 
-import { ArrowIcon } from "~/tsx/Icon/ArrowIcon";
 
 type BlockProps = {
 	label: React.ReactNode;

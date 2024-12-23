@@ -1,15 +1,15 @@
 import * as MXP from 'maxpower';
 import { MouseEvent, useCallback, useContext, useState } from 'react';
 
-import { MouseMenuContext } from '../../MouseMenu/useMouseMenu';
+import { useOREditor } from '../../../../hooks/useOREditor';
+import { useSerializableField } from '../../../../hooks/useSerializableProps';
+import { ArrowIcon } from '../../../Icons/ArrowIcon';
+import { InputGroup } from '../../../InputGroup';
+import { MouseMenuContext } from '../../../MouseMenu/useMouseMenu';
+import { Picker } from '../../../Picker';
 
 import style from './index.module.scss';
 
-import { useOREngineGUI } from '~/tsx/components/OREngineGUI';
-import { useSerializableField } from '~/tsx/hooks/useSerializableProps';
-import { ArrowIcon } from '~/tsx/Icon/ArrowIcon';
-import { InputGroup } from '~/tsx/ui/InputGroup';
-import { Picker } from '~/tsx/ui/Picker';
 
 type HierarchyNodeProps = {
 	depth?: number;
@@ -18,7 +18,7 @@ type HierarchyNodeProps = {
 
 export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 
-	const { gui, engine } = useOREngineGUI();
+	const { gui, engine } = useOREditor();
 
 	const [ selectedEntityId ] = useSerializableField<string>( gui, "selectedEntityId" );
 	const selectedEntity = selectedEntityId !== undefined && gui.engine.findEntityById( selectedEntityId );

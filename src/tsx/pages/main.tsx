@@ -1,5 +1,6 @@
-import { EditorPage } from 'packages/orengine/tsx/Editor';
 import ReactDOM from 'react-dom/client';
+
+import { EditorPage } from '../components/pages/EditorPage';
 
 import '~/styles/style.scss';
 

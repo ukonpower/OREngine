@@ -1,10 +1,10 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { globalUniforms, canvas, renderer } from '../Globals';
-import { initResouces } from '../Resources/init';
-
 import { OREngineProjectData, SceneSerializer, OREngineProjectFrame } from './IO/ProjectSerializer';
+
+import { globalUniforms, canvas, renderer } from '~/ts/Globals';
+import { initResouces } from '~/ts/Resources/init';
 
 export interface SceneTime {
 	current: number;
@@ -18,7 +18,7 @@ export interface FramePlay {
 	playing: boolean,
 }
 
-export class OREngine extends MXP.Entity {
+export class Engine extends MXP.Entity {
 
 	// project
 

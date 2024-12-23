@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
-import { OREngineGUICore } from '~/ts/OREngineGUICore';
+import { Editor } from '../../../ts/GUI';
 
 /*-------------------------------
 	Editor
@@ -8,13 +8,13 @@ import { OREngineGUICore } from '~/ts/OREngineGUICore';
 
 const useOREngineGUIContext = () => {
 
-	const [ gui, setGUI ] = useState<OREngineGUICore>( () => new OREngineGUICore() );
+	const [ gui, setGUI ] = useState<Editor>( () => new Editor() );
 
 	useEffect( () => {
 
 		if ( gui.disposed ) {
 
-			const gui = new OREngineGUICore();
+			const gui = new Editor();
 			setGUI( gui );
 
 		}
