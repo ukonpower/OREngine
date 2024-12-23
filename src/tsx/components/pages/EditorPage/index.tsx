@@ -1,9 +1,11 @@
+import { OREditor, OREngine } from "orengine";
+
 export const EditorPage = () => {
 
 	return (
-		<div>
-			<h1>Editor</h1>
-		</div>
+		<OREngine>
+			<OREditor />
+		</OREngine>
 	);
 
 };

@@ -1,9 +1,8 @@
 import { SerializeFieldsAsDirectoryValue } from 'maxpower';
 
 import { useSerializableFieldView } from '../..';
-
-import { Label } from '~/tsx/ui/Label';
-import { Value } from '~/tsx/ui/Value';
+import { Label } from '../../../Label';
+import { Value } from '../../../Value';
 
 export const SerializableFieldValue: React.FC<{ path:string, field: SerializeFieldsAsDirectoryValue }> = ( props ) => {
 

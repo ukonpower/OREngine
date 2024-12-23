@@ -2,13 +2,13 @@
 import * as MXP from 'maxpower';
 import { MouseEvent, useCallback } from 'react';
 
-import style from './index.module.scss';
+import { useSerializableField } from '../../../../hooks/useSerializableProps';
+import { Block } from '../../../Block';
+import { CrossIcon } from '../../../Icons/CrossIcon';
+import { InputBoolean } from '../../../Input/InputCheckBox';
+import { SerializableFieldView } from '../../../SerializableFieldView';
 
-import { useSerializableField } from '~/tsx/hooks/useSerializableProps';
-import { CrossIcon } from '~/tsx/Icon/CrossIcon';
-import { Block } from '~/tsx/ui/Block';
-import { InputBoolean } from '~/tsx/ui/Input/InputCheckBox';
-import { SerializableFieldView } from '~/tsx/ui/SerializableFieldView';
+import style from './index.module.scss';
 
 type ComponentViewProps = {
 	component: MXP.Component

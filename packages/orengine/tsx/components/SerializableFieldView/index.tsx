@@ -1,9 +1,10 @@
 import * as MXP from 'maxpower';
 import { createContext, useContext } from 'react';
 
+import { useWatchSerializable } from '../../hooks/useWatchSerializable';
+
 import { SerializableField } from './SerializableField';
 
-import { useWatchSerializable } from '~/tsx/hooks/useWatchSerializable';
 
 const SerializableFieldViewContext = createContext<ReturnType<typeof useSerializableFieldViewContext> | undefined>( undefined );
 

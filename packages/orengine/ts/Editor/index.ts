@@ -1,13 +1,14 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { screenElm, canvas, power, renderer } from '../Globals';
-import { OREngine } from '../OREngine';
-import { OREngineProjectData } from '../OREngine/IO/ProjectSerializer';
-import { FrameDebugger } from '../OREngine/utils/FrameDebugger';
-import { Keyboard, PressedKeys } from '../OREngine/utils/Keyboard';
+import { Engine } from '../Engine';
+import { OREngineProjectData } from '../Engine/IO/ProjectSerializer';
+import { FrameDebugger } from '../Engine/utils/FrameDebugger';
+import { Keyboard, PressedKeys } from '../Engine/utils/Keyboard';
 
 import { FileSystem } from './FileSystem';
+
+import { screenElm, canvas, power, renderer } from '~/ts/Globals';
 
 export type EditorTimelineLoop = {
 	enabled: boolean,
@@ -15,7 +16,7 @@ export type EditorTimelineLoop = {
 	end: number,
 }
 
-export class OREngineGUICore extends MXP.Serializable {
+export class Editor extends MXP.Serializable {
 
 	// canvas
 
@@ -44,7 +45,7 @@ export class OREngineGUICore extends MXP.Serializable {
 
 	// scene
 
-	public engine: OREngine;
+	public engine: Engine;
 
 	// selected
 
@@ -62,9 +63,13 @@ export class OREngineGUICore extends MXP.Serializable {
 
 	public disposed: boolean;
 
-	constructor() {
+	constructor( engine: Engine ) {
 
 		super();
+
+		// engine
+
+		this.engine = engine;
 
 		// canvas
 
@@ -72,10 +77,6 @@ export class OREngineGUICore extends MXP.Serializable {
 		this.canvas = canvas;
 		this.canvasWrapElm = null;
 		this.resolutionScale = 1.0;
-
-		// scene
-
-		this.engine = new OREngine();
 
 		// view
 

@@ -1,19 +1,17 @@
 
-import { i } from 'node_modules/vite/dist/node/types.d-aGj9QkWt';
 
+import { useOREditor } from '../../../hooks/useOREditor';
+import { useSerializableField } from '../../../hooks/useSerializableProps';
+import { Label } from '../../Label';
+import { GLCanvas } from '../../OREngineGUICanvas';
+import { Value } from '../../Value';
 import { AudioView } from '../AudioView';
 
 import style from './index.module.scss';
 
-import { useOREngineGUI } from '~/tsx/components/OREngineGUI';
-import { GLCanvas } from '~/tsx/components/OREngineGUICanvas';
-import { useSerializableField } from '~/tsx/hooks/useSerializableProps';
-import { Label } from '~/tsx/ui/Label';
-import { Value } from '~/tsx/ui/Value';
-
 export const Screen = () => {
 
-	const { gui } = useOREngineGUI();
+	const { gui } = useOREditor();
 
 	const [ render, setRender ] = useSerializableField<boolean>( gui, "enableRender" );
 	const [ viewType, setViewType ] = useSerializableField<string>( gui, "viewType" );

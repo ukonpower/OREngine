@@ -1,23 +1,22 @@
 import { useContext } from 'react';
 
-import { Button } from '../../ui/Button';
-import { InputSelect } from '../../ui/Input/InputSelect';
-import { InputGroup } from '../../ui/InputGroup';
-import { MouseMenuContext } from '../MouseMenu/useMouseMenu';
+import { OREngineProjectData } from '../../../../ts/Engine/IO/ProjectSerializer';
+import { useSerializableField } from '../../../../tsx/hooks/useSerializableProps';
+import { useOREditor } from '../../../hooks/useOREditor';
+import { Block } from '../../Block';
+import { Button } from '../../Button';
+import { ArrowIcon } from '../../Icons/ArrowIcon';
+import { InputSelect } from '../../Input/InputSelect';
+import { InputGroup } from '../../InputGroup';
+import { MouseMenuContext } from '../../MouseMenu/useMouseMenu';
 
 import style from './index.module.scss';
-
-import { OREngineProjectData } from '~/ts/OREngine/IO/ProjectSerializer';
-import { useOREngineGUI } from '~/tsx/components/OREngineGUI';
-import { useSerializableField } from '~/tsx/hooks/useSerializableProps';
-import { ArrowIcon } from '~/tsx/Icon/ArrowIcon';
-import { Block } from '~/tsx/ui/Block';
 
 
 export const ProjectControl = () => {
 
 	const { pushContent, closeAll } = useContext( MouseMenuContext );
-	const { gui } = useOREngineGUI();
+	const { gui } = useOREditor();
 
 	const [ projects ] = useSerializableField<OREngineProjectData[]>( gui, "projects" );
 	const [ projectName ] = useSerializableField<string>( gui, "projectName" );

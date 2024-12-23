@@ -1,17 +1,18 @@
 import { useMemo } from "react";
 
+import { useOREditor } from "../../../hooks/useOREditor";
+import { useSerializableField } from "../../../hooks/useSerializableProps";
+import { Block } from "../../Block";
+import { SerializableFieldView } from "../../SerializableFieldView";
+
 import { ComponentAdd } from "./ComponentAdd";
 import { ComponentList } from "./ComponentList";
 import style from './index.module.scss';
 
-import { useOREngineGUI } from "~/tsx/components/OREngineGUI";
-import { useSerializableField } from "~/tsx/hooks/useSerializableProps";
-import { Block } from "~/tsx/ui/Block";
-import { SerializableFieldView } from "~/tsx/ui/SerializableFieldView";
 
 export const EntityProperty = () => {
 
-	const { gui, engine } = useOREngineGUI();
+	const { gui, engine } = useOREditor();
 
 	// entity
 

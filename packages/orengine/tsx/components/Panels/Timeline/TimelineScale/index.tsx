@@ -1,10 +1,10 @@
 import { useContext } from 'react';
 
+import { useSerializableField } from '../../../../hooks/useSerializableProps';
 import { TimelineContext } from '../hooks/useTimeline';
 
 import style from './index.module.scss';
 
-import { useSerializableField } from '~/tsx/hooks/useSerializableProps';
 
 const formatTime = ( sec: number ) => {
 

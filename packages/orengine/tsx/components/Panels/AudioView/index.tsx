@@ -1,17 +1,17 @@
 import * as MXP from 'maxpower';
-import { useState, useRef, useEffect, useContext, useCallback } from 'react';
+import { FramePlay } from 'orengine';
+import { useState, useRef, useEffect, useCallback } from 'react';
 
+import { OREngineProjectFrame } from '../../../../ts/Engine/IO/ProjectSerializer';
+import { useOREditor } from '../../../hooks/useOREditor';
 
 import { AudioViewRenderer } from './AudioViewRenderer';
 import style from './index.module.scss';
 
-import { FramePlay } from '~/ts/OREngine';
-import { OREngineProjectFrame } from '~/ts/OREngine/IO/ProjectSerializer';
-import { useOREngineGUI } from '~/tsx/components/OREngineGUI';
 
 export const AudioView = () => {
 
-	const { gui } = useOREngineGUI();
+	const { gui } = useOREditor();
 
 	const wrapperElmRef = useRef<HTMLDivElement>( null );
 
