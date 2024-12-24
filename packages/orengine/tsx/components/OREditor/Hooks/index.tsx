@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { Editor } from "../../../../ts/Editor";
 import { useOREngine } from "../../../hooks/useOREngine";
@@ -6,21 +6,34 @@ import { useOREngine } from "../../../hooks/useOREngine";
 export const useOREditorContext = () => {
 
 	const { engine } = useOREngine();
-	const [ gui, setGUI ] = useState<Editor>( new Editor( engine ) );
+	const [ editor, setEditor ] = useState<Editor>( new Editor( engine ) );
+	const editorRef = React.useRef<Editor>( editor );
+	editorRef.current = editor;
+
+	useEffect( () => {
+
+		if ( ! editorRef.current.disposed ) return;
+
+		const editor = new Editor( engine );
+
+		setEditor( editor );
+
+	}, [ engine ] );
 
 	useEffect( () => {
 
 		return () => {
 
-			gui.dispose();
+			editor.dispose();
 
 		};
 
-	}, [ gui ] );
+
+	}, [ editor ] );
 
 	return {
 		engine,
-		gui
+		editor
 	};
 
 };

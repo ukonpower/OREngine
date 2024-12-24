@@ -12,7 +12,7 @@ import { TimelineSetting } from './TimelineSetting';
 
 export const Timeline = () => {
 
-	const { gui } = useOREditor();
+	const { editor: gui } = useOREditor();
 	const timelineContext = useTimeline( gui );
 
 	return <TimelineContext.Provider value={timelineContext}>

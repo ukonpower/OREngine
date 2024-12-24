@@ -3,7 +3,7 @@ import * as MXP from 'maxpower';
 
 import { OREngineProjectData, SceneSerializer, OREngineProjectFrame } from './IO/ProjectSerializer';
 
-import { globalUniforms, canvas, renderer } from '~/ts/Globals';
+import { renderer, globalUniforms } from '~/ts/Globals';
 import { initResouces } from '~/ts/Resources/init';
 
 export interface SceneTime {
@@ -40,14 +40,19 @@ export class Engine extends MXP.Entity {
 
 	// renderer
 
-	public canvas: HTMLCanvasElement;
+	private _canvasWrapElm: HTMLElement;
+	private _canvas: HTMLCanvasElement;
 	public enableRender: boolean;
 
-	constructor() {
+	private _disposed: boolean;
+
+	constructor( canvas: HTMLCanvasElement ) {
 
 		super();
 
 		this.name = "";
+
+		this._disposed = false;
 
 		// resources
 
@@ -71,15 +76,10 @@ export class Engine extends MXP.Entity {
 
 		this.on( "update/music", ( buffer: AudioBuffer, freqTex: GLP.GLPowerTexture, domainTex: GLP.GLPowerTexture ) => {
 
-			globalUniforms.music.uMusicFreqTex.value = freqTex;
-			globalUniforms.music.uMusicDomainTex.value = domainTex;
+			// globalUniforms.music.uMusicFreqTex.value = freqTex;
+			// globalUniforms.music.uMusicDomainTex.value = domainTex;
 
 		} );
-
-		// canvas
-
-		this.canvas = canvas;
-		this.enableRender = true;
 
 		// time
 
@@ -103,6 +103,7 @@ export class Engine extends MXP.Entity {
 		};
 
 		this.seek( 0 );
+		this.enableRender = true;
 
 		// root
 
@@ -118,6 +119,56 @@ export class Engine extends MXP.Entity {
 		const tl = this.fieldDir( "timeline" );
 		tl.field( "duration", () => this.frameSetting.duration, ( v ) => this.frameSetting.duration = v );
 		tl.field( "fps", () => this.frameSetting.fps, ( v ) => this.frameSetting.fps = v );
+
+		/*-------------------------------
+			Canvas
+		-------------------------------*/
+
+		this._canvas = canvas;
+		this._canvasWrapElm = document.createElement( "div" );
+		this._canvasWrapElm.setAttribute( "style", "position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;" );
+		this._canvasWrapElm.setAttribute( "data-time", new Date().getTime().toString() );
+		this._canvasWrapElm.appendChild( this._canvas );
+
+		const onResize = () => {
+
+			this.resize();
+
+		};
+
+		const resizeObserver = new ResizeObserver( onResize );
+		resizeObserver.observe( this._canvasWrapElm );
+
+		/*-------------------------------
+			Dispose
+		-------------------------------*/
+
+		const onDispose = () => {
+
+			resizeObserver.disconnect();
+
+		};
+
+		this.once( "dispose", onDispose );
+
+		/*-------------------------------
+			Resize
+		-------------------------------*/
+
+		this.setSize( new GLP.Vector( 1920, 1080 ) );
+
+
+	}
+
+	public get canvasWrapElm() {
+
+		return this._canvasWrapElm;
+
+	}
+
+	public get disposed() {
+
+		return this._disposed;
 
 	}
 
@@ -198,12 +249,34 @@ export class Engine extends MXP.Entity {
 
 	}
 
-	public resize( resolution: GLP.Vector ) {
+	public setSize( resolution: GLP.Vector ) {
 
 		globalUniforms.resolution.uResolution.value.copy( resolution );
 		globalUniforms.resolution.uAspectRatio.value = resolution.x / resolution.y;
-
 		renderer.resize( resolution );
+
+		this._canvas.width = resolution.x;
+		this._canvas.height = resolution.y;
+
+	}
+
+	public resize() {
+
+		const wrapperRect = this.canvasWrapElm.getBoundingClientRect();
+		const canvasAspect = this._canvas.width / this._canvas.height;
+		const wrapperAspect = wrapperRect.width / wrapperRect.height;
+
+		if ( canvasAspect > wrapperAspect ) {
+
+			this._canvas.style.width = "100%";
+			this._canvas.style.height = "auto";
+
+		} else {
+
+			this._canvas.style.width = "auto";
+			this._canvas.style.height = "100%";
+
+		}
 
 	}
 
@@ -235,9 +308,14 @@ export class Engine extends MXP.Entity {
 
 	public dispose() {
 
+		this._disposed = true;
+
 		this.root.remove( renderer );
 
 		super.dispose();
+
+		this.emit( "dispose" );
+
 
 	}
 

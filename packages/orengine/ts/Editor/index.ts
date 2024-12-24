@@ -8,7 +8,7 @@ import { Keyboard, PressedKeys } from '../Engine/utils/Keyboard';
 
 import { FileSystem } from './FileSystem';
 
-import { screenElm, canvas, power, renderer } from '~/ts/Globals';
+import { canvas, power, renderer } from '~/ts/Globals';
 
 export type EditorTimelineLoop = {
 	enabled: boolean,
@@ -18,85 +18,41 @@ export type EditorTimelineLoop = {
 
 export class Editor extends MXP.Serializable {
 
-	// canvas
-
-	public screenElm: HTMLDivElement;
-	public canvas: HTMLCanvasElement;
-	public canvasWrapElm: HTMLElement | null;
-
-	// filesystem
-
-	private fileSystem: FileSystem;
-
-	// data
-
-	public resolutionScale: number;
-	public viewType: "render" | "debug";
-	public projects: Map<string, OREngineProjectData>;
-	public currentProject: OREngineProjectData | null;
-
-	// debugger
-
-	private frameDebugger: FrameDebugger;
-
-	// keyboard
-
-	private keyBoard: Keyboard;
-
-	// scene
-
-	public engine: Engine;
-
-	// selected
-
-	public selectedEntityId: MXP.Entity | null;
-
-	// sound
-
-	public audioBuffer: AudioBuffer | null;
-
-	// loop
-
-	private frameLoop: EditorTimelineLoop;
-
-	// dispose
-
-	public disposed: boolean;
+	private _engine: Engine;
+	private _fileSystem: FileSystem;
+	private _keyBoard: Keyboard;
+	private _selectedEntityId: MXP.Entity | null;
+	private _audioBuffer: AudioBuffer | null;
+	private _frameLoop: EditorTimelineLoop;
+	private _resolutionScale: number;
+	private _viewType: "render" | "debug";
+	private _projects: Map<string, OREngineProjectData>;
+	private _currentProject: OREngineProjectData | null;
+	private _frameDebugger: FrameDebugger;
+	private _disposed: boolean;
 
 	constructor( engine: Engine ) {
 
 		super();
 
-		// engine
+		this._engine = engine;
+		this._fileSystem = new FileSystem();
+		this._projects = new Map();
+		this._viewType = "render";
+		this._selectedEntityId = null;
+		this._currentProject = null;
+		this._resolutionScale = 1.0;
+		this._disposed = false;
 
-		this.engine = engine;
+		this.aaa = "aaaa";
 
-		// canvas
+		/*-------------------------------
+			KeyEvents
+		-------------------------------*/
 
-		this.screenElm = screenElm;
-		this.canvas = canvas;
-		this.canvasWrapElm = null;
-		this.resolutionScale = 1.0;
+		this._keyBoard = new Keyboard();
 
-		// view
-
-		this.viewType = "render";
-
-		// filesystem
-
-		this.fileSystem = new FileSystem();
-
-		// projects
-
-		this.projects = new Map();
-
-		this.currentProject = null;
-
-		// keyboard
-
-		this.keyBoard = new Keyboard();
-
-		this.keyBoard.on( "keydown", ( e: KeyboardEvent, pressedKeys: PressedKeys ) => {
+		this._keyBoard.on( "keydown", ( e: KeyboardEvent, pressedKeys: PressedKeys ) => {
 
 			if ( ( pressedKeys[ "Meta" ] || pressedKeys[ "Control" ] ) && pressedKeys[ "s" ] ) {
 
@@ -108,13 +64,13 @@ export class Editor extends MXP.Serializable {
 
 			if ( e.key == ' ' ) {
 
-				if ( this.engine.frame.playing ) {
+				if ( this._engine.frame.playing ) {
 
-					this.engine.stop( );
+					this._engine.stop( );
 
 				} else {
 
-					this.engine.play();
+					this._engine.play();
 
 				}
 
@@ -122,59 +78,28 @@ export class Editor extends MXP.Serializable {
 
 		} );
 
-		// graph
 
-		let updateTimer: number | null = null;
+		/*-------------------------------
+			Frame Debugger
+		-------------------------------*/
 
-		const onChanged = ( type: string, opt?: any ) => {
-
-			if ( updateTimer !== null ) return;
-
-			updateTimer = window.setTimeout( () => {
-
-				updateTimer = null;
-
-				this.emit( "update/graph", [ type, opt ] );
-
-			}, 10 );
-
-		};
-
-		this.engine.on( "update/graph", onChanged );
-
-		this.engine.on( "dispose", () => {
-
-			this.off( "update/graph", onChanged );
-
-		} );
-
-		// frameDebugger
-
-		this.frameDebugger = new FrameDebugger( power, this.canvas );
+		this._frameDebugger = new FrameDebugger( power, engine._canvas );
 
 		renderer.on( 'drawPass', ( rt?: GLP.GLPowerFrameBuffer, label?: string ) => {
 
-			if ( this.frameDebugger && this.frameDebugger.enable && rt ) {
+			if ( this._frameDebugger && this._frameDebugger.enable && rt ) {
 
-				this.frameDebugger.push( rt, label );
+				this._frameDebugger.push( rt, label );
 
 			}
 
 		} );
 
-		// resize
+		/*-------------------------------
+			Load
+		-------------------------------*/
 
-		window.addEventListener( 'resize', this.resize.bind( this ) );
-
-		setTimeout( () => {
-
-			this.resize();
-
-		}, 100 );
-
-		// load setting
-
-		this.fileSystem.get<MXP.SerializedFields>( "editor.json" ).then( ( data ) => {
+		this._fileSystem.get<MXP.SerializedFields>( "editor.json" ).then( ( data ) => {
 
 			if ( data ) {
 
@@ -184,41 +109,43 @@ export class Editor extends MXP.Serializable {
 
 		} );
 
-		// selected
+		/*-------------------------------
+			Audio
+		-------------------------------*/
 
-		this.selectedEntityId = null;
+		this._audioBuffer = null;
 
-		// sound
+		this._engine.on( "update/music", ( buffer: AudioBuffer ) => {
 
-		this.audioBuffer = null;
-
-		this.engine.on( "update/music", ( buffer: AudioBuffer ) => {
-
-			this.audioBuffer = buffer;
+			this._audioBuffer = buffer;
 
 		} );
 
-		// loop
+		/*-------------------------------
+			Loop
+		-------------------------------*/
 
-		this.frameLoop = {
+		this._frameLoop = {
 			enabled: false,
 			start: 0,
 			end: 0,
 		};
 
-		// blidge
+		/*-------------------------------
+			BLidge
+		-------------------------------*/
 
-		this.engine.on( "update/blidge/frame", ( e: MXP.BLidgeFrame ) => {
+		this._engine.on( "update/blidge/frame", ( e: MXP.BLidgeFrame ) => {
 
-			this.engine.seek( e.current );
+			this._engine.seek( e.current );
 
-			if ( e.playing && ! this.engine.frame.playing ) {
+			if ( e.playing && ! this._engine.frame.playing ) {
 
-				this.engine.play();
+				this._engine.play();
 
-			} else if ( ! e.playing && this.engine.frame.playing ) {
+			} else if ( ! e.playing && this._engine.frame.playing ) {
 
-				this.engine.stop();
+				this._engine.stop();
 
 			}
 
@@ -228,31 +155,31 @@ export class Editor extends MXP.Serializable {
 			Fields
 		-------------------------------*/
 
-		this.field( "projects", () => Array.from( this.projects.values() ), v => {
+		this.field( "projects", () => Array.from( this._projects.values() ), v => {
 
-			this.projects = new Map( v.map( ( project ) => [ project.name, project ] ) );
+			this._projects = new Map( v.map( ( project ) => [ project.name, project ] ) );
 
 		} );
 
-		this.field( "enableRender", () => this.engine.enableRender, v => this.engine.enableRender = v );
+		this.field( "enableRender", () => this._engine.enableRender, v => this._engine.enableRender = v );
 
-		this.field( "projectName", () => this.currentProject && this.currentProject.name || "", v => {
+		this.field( "projectName", () => this._currentProject && this._currentProject.name || "", v => {
 
-			if ( this.currentProject ) {
+			if ( this._currentProject ) {
 
-				this.currentProject.name = v;
+				this._currentProject.name = v;
 
 			}
 
 		} );
 
-		this.field( "openedProject", () => this.currentProject && this.currentProject.name, v => {
+		this.field( "openedProject", () => this._currentProject && this._currentProject.name, v => {
 
-			if ( this.currentProject === null ) {
+			if ( this._currentProject === null ) {
 
 				this.projectOpen( v || "" );
 
-			} else if ( v !== this.currentProject.name && v ) {
+			} else if ( v !== this._currentProject.name && v ) {
 
 				this.projectOpen( v );
 
@@ -260,44 +187,40 @@ export class Editor extends MXP.Serializable {
 
 		} );
 
-		this.field( "resolutionScale", () => this.resolutionScale, v => {
+		this.field( "resolutionScale", () => this._resolutionScale, v => {
 
-			this.resolutionScale = Number( v );
+			this._resolutionScale = Number( v );
 
 			this.resize();
 
 		} );
 
-		this.field( "viewType", () => this.viewType, v => {
+		this.field( "viewType", () => this._viewType, v => {
 
-			this.viewType = v;
+			this._viewType = v;
 
-			if ( this.viewType === "debug" ) {
+			if ( this._viewType === "debug" ) {
 
-				this.frameDebugger.enable = true;
+				this._frameDebugger.enable = true;
 
 			} else {
 
-				this.frameDebugger.enable = false;
+				this._frameDebugger.enable = false;
 
 			}
 
 		} );
 
 		const frameLoop = this.fieldDir( "frameLoop" );
-		frameLoop.field( "enabled", () => this.frameLoop.enabled, v => this.frameLoop.enabled = v );
-		frameLoop.field( "start", () => this.frameLoop.start, v => this.frameLoop.start = v );
-		frameLoop.field( "end", () => this.frameLoop.end, v => this.frameLoop.end = v );
+		frameLoop.field( "enabled", () => this._frameLoop.enabled, v => this._frameLoop.enabled = v );
+		frameLoop.field( "start", () => this._frameLoop.start, v => this._frameLoop.start = v );
+		frameLoop.field( "end", () => this._frameLoop.end, v => this._frameLoop.end = v );
 
-		this.field( "selectedEntityId", () => this.selectedEntityId, v => {
+		this.field( "selectedEntityId", () => this._selectedEntityId, v => {
 
-			this.selectedEntityId = v;
+			this._selectedEntityId = v;
 
 		} );
-
-		// dispose
-
-		this.disposed = false;
 
 		// animate
 
@@ -305,29 +228,47 @@ export class Editor extends MXP.Serializable {
 
 	}
 
+	public get engine() {
+
+		return this._engine;
+
+	}
+
+	public get audioBuffer() {
+
+		return this._audioBuffer;
+
+	}
+
+	public get disposed() {
+
+		return this._disposed;
+
+	}
+
 	private animate() {
 
-		if ( this.disposed ) return;
+		if ( this._disposed ) return;
 
 		// update
 
-		this.engine.update();
+		this._engine.update();
 
-		if ( this.engine.frame.playing ) {
+		if ( this._engine.frame.playing ) {
 
-			if ( this.engine.frame.current < 0 || this.engine.frame.current > this.engine.frameSetting.duration ) {
+			if ( this._engine.frame.current < 0 || this._engine.frame.current > this._engine.frameSetting.duration ) {
 
-				this.engine.frame.current = 0;
+				this._engine.frame.current = 0;
 
 			}
 
 			// loop
 
-			if ( this.frameLoop.enabled ) {
+			if ( this._frameLoop.enabled ) {
 
-				if ( this.engine.frame.current < this.frameLoop.start || this.engine.frame.current > this.frameLoop.end ) {
+				if ( this._engine.frame.current < this._frameLoop.start || this._engine.frame.current > this._frameLoop.end ) {
 
-					this.engine.frame.current = this.frameLoop.start;
+					this._engine.frame.current = this._frameLoop.start;
 
 				}
 
@@ -337,26 +278,14 @@ export class Editor extends MXP.Serializable {
 
 		// debugger
 
-		if ( this.frameDebugger && this.frameDebugger.enable ) {
+		if ( this._frameDebugger && this._frameDebugger.enable ) {
 
-			this.frameDebugger.draw();
+			this._frameDebugger.draw();
 
 		}
 
 		window.requestAnimationFrame( this.animate.bind( this ) );
 
-
-	}
-
-	/*-------------------------------
-		API
-	-------------------------------*/
-
-	public setWrapperElm( elm: HTMLElement ) {
-
-		this.canvasWrapElm = elm;
-
-		this.resize();
 
 	}
 
@@ -399,17 +328,17 @@ export class Editor extends MXP.Serializable {
 
 	public projectOpen( name: string ) {
 
-		const project = this.projects.get( name );
+		const project = this._projects.get( name );
 
 		if ( project ) {
 
-			this.engine.init( project );
-			this.currentProject = project;
+			this._engine.init( project );
+			this._currentProject = project;
 
 		} else {
 
-			this.engine.init();
-			this.currentProject = this.engine.serialize();
+			this._engine.init();
+			this._currentProject = this._engine.serialize();
 			this.projectSave();
 
 		}
@@ -423,8 +352,8 @@ export class Editor extends MXP.Serializable {
 
 	public projectDelete( name: string ) {
 
-		this.projects.delete( name );
-		const project = this.projects.values().next().value;
+		this._projects.delete( name );
+		const project = this._projects.values().next().value;
 
 		if ( project ) {
 
@@ -440,9 +369,9 @@ export class Editor extends MXP.Serializable {
 
 	public projectSave() {
 
-		this.projects.set( this.engine.name, this.engine.serialize( true ) );
+		this._projects.set( this._engine.name, this._engine.serialize( true ) );
 
-		this.fileSystem.set( "editor.json", {
+		this._fileSystem.set( "editor.json", {
 			...this.serialize(),
 		} );
 
@@ -452,7 +381,7 @@ export class Editor extends MXP.Serializable {
 
 	public exportCurrentScene() {
 
-		return this.fileSystem.set( "player.json", this.engine.serialize( true ) );
+		return this._fileSystem.set( "player.json", this._engine.serialize( true ) );
 
 	}
 
@@ -462,50 +391,11 @@ export class Editor extends MXP.Serializable {
 
 	private resize() {
 
-		const aspect = 16 / 9;
-
-		// wrap size
-
-		const wrapWidth = this.canvasWrapElm ? this.canvasWrapElm.clientWidth : 16;
-		const wrapHeight = this.canvasWrapElm ? this.canvasWrapElm.clientHeight : 9;
-		const wrapAspect = wrapWidth / wrapHeight;
-
-		// screen size
-
-
-		let screenWidth = wrapWidth;
-		let screenHeight = wrapHeight;
-
-		if ( aspect < wrapAspect ) {
-
-			screenWidth = wrapHeight * aspect;
-
-		} else {
-
-			screenHeight = wrapWidth / aspect;
-
-		}
-
-		this.screenElm.style.width = screenWidth + 'px';
-		this.screenElm.style.height = screenHeight + 'px';
-
-		// canvas resolution
-
-		const canvasWidth = 1920;
-		const canvasHeight = canvasWidth / aspect;
-
-		this.canvas.width = canvasWidth * this.resolutionScale;
-		this.canvas.height = canvasHeight * this.resolutionScale;
-
-		// resize
-
-		const resolution = new GLP.Vector( canvas.width, canvas.height );
-
-		this.engine.resize( resolution );
+		const resolution = new GLP.Vector( 1920, 1080 );
 
 		// debugegr
 
-		this.frameDebugger.resize( resolution );
+		this._frameDebugger.resize( resolution );
 
 	}
 
@@ -515,12 +405,10 @@ export class Editor extends MXP.Serializable {
 
 	public dispose() {
 
-		this.disposed = true;
-
-		this.screenElm.remove();
-		this.engine.disposeRecursive();
-		this.keyBoard.dispose();
-		this.frameDebugger.dispose();
+		this._disposed = true;
+		this._engine.disposeRecursive();
+		this._keyBoard.dispose();
+		this._frameDebugger.dispose();
 
 	}
 
