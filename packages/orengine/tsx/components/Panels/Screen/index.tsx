@@ -2,8 +2,8 @@
 
 import { useOREditor } from '../../../hooks/useOREditor';
 import { useSerializableField } from '../../../hooks/useSerializableProps';
+import { Canvas } from '../../Canvas';
 import { Label } from '../../Label';
-import { GLCanvas } from '../../OREngineGUICanvas';
 import { Value } from '../../Value';
 import { AudioView } from '../AudioView';
 
@@ -11,7 +11,7 @@ import style from './index.module.scss';
 
 export const Screen = () => {
 
-	const { gui } = useOREditor();
+	const { editor: gui } = useOREditor();
 
 	const [ render, setRender ] = useSerializableField<boolean>( gui, "enableRender" );
 	const [ viewType, setViewType ] = useSerializableField<string>( gui, "viewType" );
@@ -78,7 +78,7 @@ export const Screen = () => {
 		</div>
 		<div className={style.content}>
 			<div className={style.canvas}>
-				<GLCanvas />
+				<Canvas />
 			</div>
 			<div className={style.audioView}>
 				<AudioView />

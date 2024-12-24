@@ -7,13 +7,7 @@ import { OREngineResource } from '../Resources';
 	Elements
 -------------------------------*/
 
-export const screenElm = document.createElement( 'div' );
-screenElm.id = "screen";
-screenElm.style.position = "absolute";
-
 export const canvas = document.createElement( "canvas" );
-canvas.setAttribute( "style", "position:absolute;top:0;left:0;width:100%;height:100%;" );
-screenElm.appendChild( canvas );
 
 /*-------------------------------
 	GL

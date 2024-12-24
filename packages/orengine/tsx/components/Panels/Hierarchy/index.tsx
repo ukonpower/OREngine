@@ -6,8 +6,9 @@ import style from './index.module.scss';
 
 export const Hierarchy = () => {
 
-	const { gui } = useOREditor();
-	const rootEntity = gui.engine.root;
+	const { editor } = useOREditor();
+
+	const rootEntity = editor.engine.root;
 
 	return <div className={style.hierarchy}>
 		{rootEntity && <HierarchyNode entity={rootEntity} />}

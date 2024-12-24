@@ -11,7 +11,7 @@ import style from './index.module.scss';
 
 export const AudioView = () => {
 
-	const { gui } = useOREditor();
+	const { editor: gui } = useOREditor();
 
 	const wrapperElmRef = useRef<HTMLDivElement>( null );
 
@@ -41,7 +41,7 @@ export const AudioView = () => {
 
 	// events
 
-	const musicBuffer = gui.audioBuffer;
+	const musicBuffer = gui && gui.audioBuffer;
 	const [ musicBufferVersion, setMusicBufferVersion ] = useState<number>();
 
 	const [ frameSetting, setFrameSetting ] = useState<OREngineProjectFrame>( {
@@ -55,6 +55,8 @@ export const AudioView = () => {
 	} );
 
 	useEffect( () => {
+
+		if ( ! gui ) return;
 
 		const engine = gui.engine;
 

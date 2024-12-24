@@ -12,7 +12,7 @@ import style from './index.module.scss';
 
 export const EntityProperty = () => {
 
-	const { gui, engine } = useOREditor();
+	const { editor: gui, engine } = useOREditor();
 
 	// entity
 

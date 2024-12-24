@@ -18,10 +18,9 @@ type HierarchyNodeProps = {
 
 export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 
-	const { gui, engine } = useOREditor();
-
-	const [ selectedEntityId ] = useSerializableField<string>( gui, "selectedEntityId" );
-	const selectedEntity = selectedEntityId !== undefined && gui.engine.findEntityById( selectedEntityId );
+	const { editor, engine } = useOREditor();
+	const [ selectedEntityId ] = useSerializableField<string>( editor, "selectedEntityId" );
+	const selectedEntity = selectedEntityId !== undefined && engine.findEntityById( selectedEntityId );
 
 	const [ childrenIdList ] = useSerializableField<string[]>( props.entity, "children" );
 
@@ -49,11 +48,11 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 
 	const onClickNode = useCallback( () => {
 
-		if ( ! gui ) return;
+		if ( ! editor ) return;
 
-		gui.selectEntity( props.entity );
+		editor.selectEntity( props.entity );
 
-	}, [ gui, props.entity ] );
+	}, [ editor, props.entity ] );
 
 	// right click node
 
@@ -63,9 +62,9 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 
 		e.preventDefault();
 
-		if ( ! gui || ! pushContent || ! closeAll || noEditable ) return;
+		if ( ! editor || ! pushContent || ! closeAll || noEditable ) return;
 
-		gui.selectEntity( props.entity );
+		editor.selectEntity( props.entity );
 
 		pushContent( <Picker label={props.entity.name} list={[
 			{
@@ -75,9 +74,9 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 					pushContent(
 						<InputGroup initialValues={{ name: '' }} onSubmit={( e ) => {
 
-							const newEntity = gui.createEntity( props.entity, e.name as string );
+							const newEntity = editor.createEntity( props.entity, e.name as string );
 
-							gui.selectEntity( newEntity );
+							editor.selectEntity( newEntity );
 
 							closeAll();
 
@@ -91,7 +90,7 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 				label: "Delete Entity",
 				onClick: () => {
 
-					gui.deleteEntity( props.entity );
+					editor.deleteEntity( props.entity );
 
 					closeAll();
 
@@ -99,7 +98,7 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 			}
 		]}></Picker> );
 
-	}, [ gui, props.entity, pushContent, closeAll, noEditable ] );
+	}, [ editor, props.entity, pushContent, closeAll, noEditable ] );
 
 	return <div className={style.node} data-no_export={noEditable}>
 		<div className={style.self} style={{ paddingLeft: offsetPx }} onClick={onClickNode} onContextMenu={onRightClickNode} data-selected={selectedEntity && selectedEntity.uuid == props.entity.uuid}>

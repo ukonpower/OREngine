@@ -16,13 +16,15 @@ import style from './index.module.scss';
 export const ProjectControl = () => {
 
 	const { pushContent, closeAll } = useContext( MouseMenuContext );
-	const { gui } = useOREditor();
+	const { editor: gui } = useOREditor();
 
 	const [ projects ] = useSerializableField<OREngineProjectData[]>( gui, "projects" );
 	const [ projectName ] = useSerializableField<string>( gui, "projectName" );
 	const [ openedProject ] = useSerializableField<string>( gui, "openedProject" );
 
 	const projectList: string[] = projects?.map( ( project ) => project.name ) || [];
+
+	if ( ! gui ) return null;
 
 	return <div className={style.project}>
 		<div className={style.project_inner}>
