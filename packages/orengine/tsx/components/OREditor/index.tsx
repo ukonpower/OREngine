@@ -10,8 +10,8 @@ import { ProjectControl } from '../Panels/ProjectControl';
 import { Screen } from '../Panels/Screen';
 import { Timeline } from '../Panels/Timeline';
 
-import { OREditorContext } from './Context';
-import { useOREditorContext } from './Hooks';
+import { OREditorContext } from './Context/OREditorContext';
+import { useOREditorContext } from './Hooks/useOREditorContext';
 import style from './index.module.scss';
 
 export const OREditor = () => {

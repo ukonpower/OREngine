@@ -118,7 +118,7 @@
 	"enableRender": true,
 	"projectName": "New Project",
 	"openedProject": "New Project",
-	"resolutionScale": 1,
+	"resolutionScale": 0.5,
 	"viewType": "render",
 	"frameLoop/": null,
 	"frameLoop/enabled": false,
