@@ -8,7 +8,7 @@ import { Keyboard, PressedKeys } from '../Engine/utils/Keyboard';
 
 import { FileSystem } from './FileSystem';
 
-import { canvas, power, renderer } from '~/ts/Globals';
+import { power, renderer } from '~/ts/Globals';
 
 export type EditorTimelineLoop = {
 	enabled: boolean,
@@ -43,8 +43,6 @@ export class Editor extends MXP.Serializable {
 		this._currentProject = null;
 		this._resolutionScale = 1.0;
 		this._disposed = false;
-
-		this.aaa = "aaaa";
 
 		/*-------------------------------
 			KeyEvents
@@ -83,7 +81,7 @@ export class Editor extends MXP.Serializable {
 			Frame Debugger
 		-------------------------------*/
 
-		this._frameDebugger = new FrameDebugger( power, engine._canvas );
+		this._frameDebugger = new FrameDebugger( power, engine.canvas );
 
 		renderer.on( 'drawPass', ( rt?: GLP.GLPowerFrameBuffer, label?: string ) => {
 
@@ -286,7 +284,6 @@ export class Editor extends MXP.Serializable {
 
 		window.requestAnimationFrame( this.animate.bind( this ) );
 
-
 	}
 
 	// controls
@@ -406,7 +403,6 @@ export class Editor extends MXP.Serializable {
 	public dispose() {
 
 		this._disposed = true;
-		this._engine.disposeRecursive();
 		this._keyBoard.dispose();
 		this._frameDebugger.dispose();
 

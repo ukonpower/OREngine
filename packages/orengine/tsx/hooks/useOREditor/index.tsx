@@ -1,6 +1,6 @@
 import { useContext } from "react";
 
-import { OREditorContext } from "../../components/OREditor/Context";
+import { OREditorContext } from "../../components/OREditor/Context/OREditorContext";
 
 export const useOREditor = () => {
 

@@ -1,10 +1,8 @@
 import React, { useEffect } from "react";
 
-import { Engine } from "../../../../ts/Engine";
+import { Engine } from "../../../../../ts/Engine";
 
-import { canvas } from "~/ts/Globals";
-
-export const useOREngineContext = () => {
+export const useOREngineContext = ( canvas: HTMLCanvasElement ) => {
 
 	const [ engine, setEngine ] = React.useState<Engine>( () => new Engine( canvas ) );
 	const engineRef = React.useRef<Engine>( engine );
@@ -18,7 +16,7 @@ export const useOREngineContext = () => {
 
 		setEngine( newEngine );
 
-	}, [] );
+	}, [ canvas ] );
 
 	useEffect( () => {
 
