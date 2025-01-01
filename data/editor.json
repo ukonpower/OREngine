@@ -18,7 +18,7 @@
 				1
 			],
 			"children": [
-				"36"
+				"35"
 			],
 			"components": [],
 			"objectOverride": [
@@ -118,7 +118,7 @@
 	"enableRender": true,
 	"projectName": "New Project",
 	"openedProject": "New Project",
-	"resolutionScale": 0.5,
+	"resolutionScale": 0.25,
 	"viewType": "render",
 	"frameLoop/": null,
 	"frameLoop/enabled": false,

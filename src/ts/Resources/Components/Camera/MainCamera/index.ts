@@ -11,7 +11,7 @@ import fxaaFrag from './shaders/fxaa.fs';
 import gaussBlur from './shaders/gaussBlur.fs';
 import glitchFrag from './shaders/glitch.fs';
 
-import { gl, canvas, globalUniforms, renderer } from '~/ts/Globals';
+import { gl, canvas, globalUniforms } from '~/ts/Globals';
 
 export class MainCamera extends MXP.Component {
 
@@ -354,7 +354,6 @@ export class MainCamera extends MXP.Component {
 			this._lookAt.setTarget( lookAtTarget );
 
 			this._dofTarget = root.findEntityByName( 'CamDof' ) || null;
-			this.updateCameraParams( this._resolution );
 
 		};
 
@@ -450,24 +449,19 @@ export class MainCamera extends MXP.Component {
 		globalUniforms.gBuffer.uGBufferPos.value = this.renderCamera.gBuffer.textures[ 0 ];
 		globalUniforms.gBuffer.uGBufferNormal.value = this.renderCamera.gBuffer.textures[ 1 ];
 
-
 		const root = this._entity.getRootEntity();
 
 		const lookAtTarget = root.findEntityByName( "CamLook" ) || null;
 		this._lookAt.setTarget( lookAtTarget );
-
 		this._dofTarget = root.findEntityByName( 'CamDof' ) || null;
-
-		this.resize( renderer.resolution );
-
-		this.updateCameraParams( this._resolution );
-
 
 	}
 
 	protected updateImpl( event: MXP.ComponentUpdateEvent ): void {
 
-		this.updateCameraParams( this._resolution );
+		this.resize( event.resolution );
+
+		this.updateCameraParams();
 
 		// state
 
@@ -482,22 +476,6 @@ export class MainCamera extends MXP.Component {
 			// lookat
 
 			this._lookAt.enabled = cameraState.value.y > 0.5;
-
-		}
-
-		// effect
-
-		const cameraEffect = this._animateReceiver.animations.get( '_cameraEffect' );
-
-		if ( cameraEffect ) {
-
-			this._composite.uniforms.uOutPut.value = cameraEffect.value.x;
-
-			this._bokehV.uniforms.uBlurRange.value = cameraEffect.value.y;
-			this._bokehH.enabled = this._bokehV.enabled = cameraEffect.value.y > 0.0;
-
-			this._glitch.uniforms.uGlitch.value = cameraEffect.value.z;
-			this._glitch.enabled = cameraEffect.value.z > 0.0;
 
 		}
 
@@ -517,29 +495,27 @@ export class MainCamera extends MXP.Component {
 
 	public resize( resolution: GLP.Vector ): void {
 
-		this.renderCamera.resize( resolution );
-
-		if ( this._postProcess ) {
-
-			this._postProcess.resize( resolution );
-
-		}
+		if ( resolution.x == this._resolution.x && resolution.y == this._resolution.y ) return;
 
 		this._resolution.copy( resolution );
 		this._resolutionInv.set( 1.0 / resolution.x, 1.0 / resolution.y, 0.0, 0.0 );
 
-		const resolutionHalf = this._resolution.clone().divide( 2 );
-		resolutionHalf.x = Math.max( Math.floor( resolutionHalf.x ), 1.0 );
-		resolutionHalf.y = Math.max( Math.floor( resolutionHalf.y ), 1.0 );
+		this.renderCamera.resize( this._resolution );
 
-		this.updateCameraParams( this._resolution );
+		if ( this._postProcess ) {
+
+			this._postProcess.resize( this._resolution );
+
+		}
+
+		this.updateCameraParams();
 
 	}
 
-	private updateCameraParams( resolution: GLP.Vector ) {
+	private updateCameraParams() {
 
-		this.renderCamera.aspect = resolution.x / resolution.y;
-		this.renderCamera.needsUpdate = true;
+		this.renderCamera.aspect = this._resolution.x / this._resolution.y;
+		this.renderCamera.needsUpdateProjectionMatrix = true;
 
 	}
 
