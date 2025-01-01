@@ -8,7 +8,7 @@ import { Renderer, RenderStack } from '../Component/Renderer';
 import { Serializable } from '../Serializable';
 
 export type EntityUpdateEvent = {
-	timElapsed: number;
+	timeElapsed: number;
 	timeDelta: number;
 	timeCode: number;
 	timeCodeFrame: number;

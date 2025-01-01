@@ -232,7 +232,7 @@ export class Engine extends MXP.Entity {
 		}
 
 		const event: MXP.EntityUpdateEvent = {
-			timElapsed: this._time.engine,
+			timeElapsed: this._time.engine,
 			timeDelta: this._time.delta,
 			timeCode: this._time.code,
 			timeCodeFrame: this._frame.current,

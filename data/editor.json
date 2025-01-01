@@ -43,6 +43,13 @@
 								"enabled": true,
 								"tag": ""
 							}
+						},
+						{
+							"name": "UniformControls",
+							"props": {
+								"enabled": true,
+								"tag": ""
+							}
 						}
 					]
 				},
@@ -118,11 +125,11 @@
 	"enableRender": true,
 	"projectName": "New Project",
 	"openedProject": "New Project",
-	"resolutionScale": 0.25,
+	"resolutionScale": 0.5,
 	"viewType": "render",
 	"frameLoop/": null,
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,
 	"frameLoop/end": 0,
-	"selectedEntityId": "2f0"
+	"selectedEntityId": "31"
 }
