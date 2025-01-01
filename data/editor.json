@@ -18,7 +18,7 @@
 				1
 			],
 			"children": [
-				"35"
+				"31"
 			],
 			"components": [],
 			"objectOverride": [
@@ -112,7 +112,7 @@
 			},
 			"timeline/": null,
 			"timeline/duration": 600,
-			"timeline/fps": 30
+			"timeline/fps": 60
 		}
 	],
 	"enableRender": true,

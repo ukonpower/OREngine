@@ -1,7 +1,8 @@
-
+import * as MXP from 'maxpower';
 import { useCallback, useContext } from 'react';
 
 import { useSerializableField } from '../../../../hooks/useSerializableProps';
+import { Label } from '../../../Label';
 import { Panel } from '../../../Panel';
 import { Value } from '../../../Value';
 import { TimelineContext } from '../hooks/useTimeline';
@@ -13,7 +14,7 @@ export const TimelineSetting = () => {
 
 	const { framePlay, glEditor } = useContext( TimelineContext );
 
-	const onChange = useCallback( ( value: ValueType, setter: ( ( value: any ) => void ) | undefined ) => {
+	const onChange = useCallback( ( value: MXP.SerializeFieldValue, setter: ( ( value: any ) => void ) | undefined ) => {
 
 		if ( setter ) {
 
@@ -30,10 +31,18 @@ export const TimelineSetting = () => {
 
 	return <div className={style.timelineSetting}>
 		<Panel>
-			<Value label='current' value={Math.floor( framePlay?.current || 0 )} vertical readOnly />
-			<Value label='duration' precision={0} value={duration} vertical onChange={( v ) => onChange( v, setDuration )}/>
-			<Value label='fps' precision={0} value={fps} vertical onChange={( v ) => onChange( v, setFps )} />
-			<Value label='loop' value={loop || false} labelAutoWidth onChange={( v ) => onChange( v, setLoop )}/>
+			<Label title='current'>
+				 <Value value={Math.floor( framePlay?.current || 0 )} readOnly />
+				 </Label>
+			<Label title='duration'>
+				 <Value value={duration} onChange={( v ) => onChange( v, setDuration )}/>
+			</Label>
+			<Label title='fps'>
+				 <Value value={fps} onChange={( v ) => onChange( v, setFps )} />
+			</Label>
+			<Label title='loop'>
+				 <Value value={loop || false} onChange={( v ) => onChange( v, setLoop )}/>
+			</Label>
 		</Panel>
 	</div>;
 

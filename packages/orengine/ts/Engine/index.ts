@@ -23,6 +23,7 @@ export class Engine extends MXP.Entity {
 
 	public enableRender: boolean;
 	private _renderer: MXP.Renderer;
+	private _gl: WebGL2RenderingContext;
 	private _canvasWrapElm: HTMLElement;
 	private _canvas: HTMLCanvasElement | OffscreenCanvas;
 	private _projectCache: OREngineProjectData | null;
@@ -37,6 +38,7 @@ export class Engine extends MXP.Entity {
 
 		super();
 
+		this._gl = gl;
 		this.name = "OREngine";
 		this._disposed = false;
 
@@ -154,6 +156,12 @@ export class Engine extends MXP.Entity {
 
 	}
 
+	public get gl() {
+
+		return this._gl;
+
+	}
+
 	public get canvasWrapElm() {
 
 		return this._canvasWrapElm;
@@ -213,22 +221,15 @@ export class Engine extends MXP.Entity {
 		const newTime = new Date().getTime();
 		this._time.delta = ( newTime - this._time.current ) / 1000;
 		this._time.current = newTime;
+		this._time.engine += this._time.delta;
+		this._time.code += this._time.delta * ( this._frame.playing ? 1 : 0 );
+		this._frame.current = this._time.code * 60;
 
 		if ( this._frame.playing ) {
-
-			this._frame.current = this._frame.current + this._frameSetting.fps * this._time.delta;
 
 			this.emit( "update/frame/play", [ this._frame ] );
 
 		}
-
-		this._time.code = this._frame.current / this._frameSetting.fps;
-		this._time.engine += this._time.delta;
-
-		// globalUniforms.time.uTime.value = this._time.code;
-		// globalUniforms.time.uTimeF.value = this._time.code % 1;
-		// globalUniforms.time.uTimeE.value = this._time.engine;
-		// globalUniforms.time.uTimeEF.value = this._time.engine % 1;
 
 		const event: MXP.EntityUpdateEvent = {
 			timElapsed: this._time.engine,
@@ -244,7 +245,6 @@ export class Engine extends MXP.Entity {
 
 		const renderStack = this._root.finalize( event );
 
-
 		if ( this.enableRender ) {
 
 			this._renderer.render( event, renderStack );
@@ -256,9 +256,6 @@ export class Engine extends MXP.Entity {
 	}
 
 	public setSize( resolution: GLP.Vector ) {
-
-		// globalUniforms.resolution.uResolution.value.copy( resolution );
-		// globalUniforms.resolution.uAspectRatio.value = resolution.x / resolution.y;
 
 		this._renderer.resize( resolution );
 		this._canvas.width = resolution.x;
@@ -306,7 +303,7 @@ export class Engine extends MXP.Entity {
 
 	public seek( frame: number ) {
 
-		this._frame.current = frame;
+		this._time.code = frame / 60;
 
 		this.emit( "update/frame/play", [ this._frame ] );
 
