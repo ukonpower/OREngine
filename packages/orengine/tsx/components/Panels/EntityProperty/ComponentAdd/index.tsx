@@ -1,16 +1,15 @@
 
 import * as MXP from 'maxpower';
+import { ComponentGroup, ResouceComponentItem } from 'packages/orengine/ts/Engine/Resources';
 import React, { MouseEvent, ReactNode, useCallback, useContext, useState } from 'react';
 
-
+import { Engine } from '../../../../../ts/Engine';
 import { Button } from '../../../Button';
 import { MouseMenuItemContext, MouseMenuContext } from '../../../MouseMenu/useMouseMenu';
 
 
 import style from './index.module.scss';
 
-import { resource } from '~/ts/Globals';
-import { ComponentGroup, ResouceComponentItem } from '~/ts/Resources';
 
 type ComponentAddProps= {
 	entity: MXP.Entity
@@ -66,7 +65,7 @@ const ComponentDirectory: React.FC<{
 export const ComponentAdd = ( props: ComponentAddProps ) => {
 
 	const { pushContent, closeAll } = useContext( MouseMenuContext );
-	const resources = resource;
+	const resources = Engine.resources;
 
 	const onClickAdd = useCallback( ( e: MouseEvent ) => {
 

@@ -1,7 +1,7 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { resource } from '~/ts/Globals';
+import { Engine } from '..';
 
 export interface OREngineNodeOverrideComponent {
 	name: string,
@@ -50,7 +50,7 @@ export class SceneSerializer extends GLP.EventEmitter {
 
 				overrideData.components.forEach( c => {
 
-					const compItem = resource.getComponent( c.name );
+					const compItem = Engine.resources.getComponent( c.name );
 
 					if ( compItem ) {
 
