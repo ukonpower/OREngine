@@ -1,7 +1,5 @@
 import * as GLP from 'glpower';
 
-import { OREngineResource } from '../Resources';
-
 /*-------------------------------
 	Elements
 -------------------------------*/
@@ -80,9 +78,3 @@ export const globalUniforms: {[key: string]: GLP.Uniforms} = {
 		},
 	}
 };
-
-/*-------------------------------
-	Resouce
--------------------------------*/
-
-export const resource = new OREngineResource();

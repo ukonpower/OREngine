@@ -1,7 +1,9 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { OREngineProjectData, SceneSerializer, OREngineProjectFrame } from './IO/ProjectSerializer';
+import { OREngineProjectData, SceneSerializer, OREngineProjectFrame } from './ProjectSerializer';
+import { Resources } from './Resources';
+
 
 export interface SceneTime {
 	current: number;
@@ -16,6 +18,8 @@ export interface FramePlay {
 }
 
 export class Engine extends MXP.Entity {
+
+	public static resources: Resources = new Resources();
 
 	public enableRender: boolean;
 	private _renderer: MXP.Renderer;
