@@ -3,9 +3,6 @@ import * as MXP from 'maxpower';
 
 import { OREngineProjectData, SceneSerializer, OREngineProjectFrame } from './IO/ProjectSerializer';
 
-import { canvas, globalUniforms } from '~/ts/Globals';
-import { initResouces } from '~/ts/Resources/init';
-
 export interface SceneTime {
 	current: number;
 	engine: number;
@@ -37,15 +34,41 @@ export class Engine extends MXP.Entity {
 		super();
 
 		this.name = "OREngine";
-		this._canvas = gl.canvas;
-		this._renderer = new MXP.Renderer( gl );
 		this._disposed = false;
 
-		// resources
+		/*-------------------------------
+			Canvas
+		-------------------------------*/
 
-		initResouces( this._renderer );
+		this._canvas = gl.canvas;
+		this._canvasWrapElm = document.createElement( "div" );
+		this._canvasWrapElm.setAttribute( "style", "position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;" );
+		this._canvasWrapElm.setAttribute( "data-time", new Date().getTime().toString() );
 
-		// project
+		if ( "childNodes" in this._canvas ) {
+
+			this._canvasWrapElm.appendChild( this._canvas );
+
+		}
+
+		const onResize = () => {
+
+			this.resize();
+
+		};
+
+		const resizeObserver = new ResizeObserver( onResize );
+		resizeObserver.observe( this._canvasWrapElm );
+
+		/*-------------------------------
+			Renderer
+		-------------------------------*/
+
+		this._renderer = new MXP.Renderer( gl );
+
+		/*-------------------------------
+			Project
+		-------------------------------*/
 
 		this._projectCache = null;
 
@@ -106,25 +129,6 @@ export class Engine extends MXP.Entity {
 		const tl = this.fieldDir( "timeline" );
 		tl.field( "duration", () => this._frameSetting.duration, ( v ) => this._frameSetting.duration = v );
 		tl.field( "fps", () => this._frameSetting.fps, ( v ) => this._frameSetting.fps = v );
-
-		/*-------------------------------
-			Canvas
-		-------------------------------*/
-
-		this._canvas = canvas;
-		this._canvasWrapElm = document.createElement( "div" );
-		this._canvasWrapElm.setAttribute( "style", "position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;" );
-		this._canvasWrapElm.setAttribute( "data-time", new Date().getTime().toString() );
-		this._canvasWrapElm.appendChild( this._canvas );
-
-		const onResize = () => {
-
-			this.resize();
-
-		};
-
-		const resizeObserver = new ResizeObserver( onResize );
-		resizeObserver.observe( this._canvasWrapElm );
 
 		/*-------------------------------
 			Dispose
@@ -217,10 +221,10 @@ export class Engine extends MXP.Entity {
 		this._time.code = this._frame.current / this._frameSetting.fps;
 		this._time.engine += this._time.delta;
 
-		globalUniforms.time.uTime.value = this._time.code;
-		globalUniforms.time.uTimeF.value = this._time.code % 1;
-		globalUniforms.time.uTimeE.value = this._time.engine;
-		globalUniforms.time.uTimeEF.value = this._time.engine % 1;
+		// globalUniforms.time.uTime.value = this._time.code;
+		// globalUniforms.time.uTimeF.value = this._time.code % 1;
+		// globalUniforms.time.uTimeE.value = this._time.engine;
+		// globalUniforms.time.uTimeEF.value = this._time.engine % 1;
 
 		const event: MXP.EntityUpdateEvent = {
 			timElapsed: this._time.engine,
@@ -249,10 +253,10 @@ export class Engine extends MXP.Entity {
 
 	public setSize( resolution: GLP.Vector ) {
 
-		globalUniforms.resolution.uResolution.value.copy( resolution );
-		globalUniforms.resolution.uAspectRatio.value = resolution.x / resolution.y;
-		this._renderer.resize( resolution );
+		// globalUniforms.resolution.uResolution.value.copy( resolution );
+		// globalUniforms.resolution.uAspectRatio.value = resolution.x / resolution.y;
 
+		this._renderer.resize( resolution );
 		this._canvas.width = resolution.x;
 		this._canvas.height = resolution.y;
 
