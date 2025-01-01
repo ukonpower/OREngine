@@ -36,7 +36,7 @@ export class ShakeViewer extends MXP.Component {
 
 		}
 
-		const t = event.timElapsed * this.shakeSpeed;
+		const t = event.timeElapsed * this.shakeSpeed;
 
 		this.shakeQua.setFromEuler( { x: Math.sin( t * 2.0 ) * shake, y: Math.sin( t * 2.5 ) * shake, z: 0 } );
 
