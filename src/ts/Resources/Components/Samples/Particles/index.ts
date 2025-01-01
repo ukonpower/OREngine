@@ -5,7 +5,7 @@ import particlesFrag from './shaders/particles.fs';
 import particlesCompute from './shaders/particles.glsl';
 import particlesVert from './shaders/particles.vs';
 
-import { renderer, gl, globalUniforms } from '~/ts/Globals';
+import { gl, globalUniforms } from '~/ts/Globals';
 
 export class Particles extends MXP.Component {
 
@@ -17,27 +17,26 @@ export class Particles extends MXP.Component {
 
 		const size = new GLP.Vector( 256, 256 );
 
-		this.gpu = this.entity.addComponent( MXP.GPUCompute, {
-			renderer,
-			passes: [
-				new MXP.GPUComputePass( {
-					name: "particles",
-					gl,
-					size,
-					dataLayerCount: 2,
-					frag: particlesCompute,
-					uniforms: MXP.UniformsUtils.merge( {
-					}, globalUniforms.time ),
-				} )
-			]
-		}
-		);
+		// this.gpu = this.entity.addComponent( MXP.GPUCompute, {
+		// 	renderer,
+		// 	passes: [
+		// 		new MXP.GPUComputePass( {
+		// 			name: "particles",
+		// 			gl,
+		// 			size,
+		// 			dataLayerCount: 2,
+		// 			frag: particlesCompute,
+		// 			uniforms: MXP.UniformsUtils.merge( {
+		// 			}, globalUniforms.time ),
+		// 		} )
+		// 	]
+		// } );
 
-		this.gpu.passes[ 0 ].initTexture( ( l, x, y ) => {
+		// this.gpu.passes[ 0 ].initTexture( ( l, x, y ) => {
 
-			return [ 0, 0, 0, Math.random() ];
+		// 	return [ 0, 0, 0, Math.random() ];
 
-		} );
+		// } );
 
 		let geometry = new MXP.SphereGeometry( {
 			widthSegments: 1,

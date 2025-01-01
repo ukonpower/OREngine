@@ -22,7 +22,7 @@ export class Camera extends Component {
 	public projectionMatrixPrev: GLP.Matrix;
 	public viewMatrixPrev: GLP.Matrix;
 
-	public needsUpdate: boolean;
+	public needsUpdateProjectionMatrix: boolean;
 
 	public displayOut: boolean;
 
@@ -50,7 +50,7 @@ export class Camera extends Component {
 		this.orthWidth = 1;
 		this.orthHeight = 1;
 
-		this.needsUpdate = true;
+		this.needsUpdateProjectionMatrix = true;
 		this.displayOut = true;
 
 		if ( import.meta.env.DEV ) {
@@ -77,7 +77,7 @@ export class Camera extends Component {
 
 		}
 
-		this.needsUpdate = false;
+		this.needsUpdateProjectionMatrix = false;
 
 	}
 
@@ -92,7 +92,7 @@ export class Camera extends Component {
 
 		this.updateViewMatrix();
 
-		if ( this.needsUpdate ) {
+		if ( this.needsUpdateProjectionMatrix ) {
 
 			this.updateProjectionMatrix();
 

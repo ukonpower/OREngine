@@ -3,7 +3,7 @@ import * as MXP from 'maxpower';
 
 import frameDebuggerFrag from './shaders/frameDebugger.fs';
 
-import { gl, renderer } from '~/ts/Globals';
+import { gl } from '~/ts/Globals';
 
 type Frame = {
 	frameBuffer: GLP.GLPowerFrameBuffer,
@@ -246,7 +246,7 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 		// out
 
-		renderer.renderPostProcess( this.outPostProcess, this.resolution );
+		// renderer.renderPostProcess( this.outPostProcess, this.resolution );
 
 		this.clear();
 

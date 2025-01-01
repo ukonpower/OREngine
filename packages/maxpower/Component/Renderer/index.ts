@@ -1,9 +1,9 @@
 import * as GLP from 'glpower';
 
-import { Geometry } from '../..//Geometry';
 import { PlaneGeometry } from '../..//Geometry/PlaneGeometry';
 import { MaterialRenderType, Material } from '../..//Material';
 import { Entity, EntityUpdateEvent } from '../../Entity';
+import { Geometry } from '../../Geometry';
 import { shaderParse } from "../../Utils/ShaderParser";
 import { Camera } from '../Camera';
 import { RenderCamera } from '../Camera/RenderCamera';
@@ -459,7 +459,6 @@ export class Renderer extends Entity {
 					this.gl.COLOR_BUFFER_BIT, this.gl.NEAREST );
 
 			}
-
 
 			this.gl.enable( this.gl.BLEND );
 

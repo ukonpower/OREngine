@@ -2,7 +2,7 @@
 import * as MXP from 'maxpower';
 import { TexProcedural } from 'orengine';
 
-import { resource, renderer, gl } from '../Globals';
+import { resource, gl } from '../Globals';
 
 import { COMPONENTLIST } from './_data/componentList';
 import { Font1 } from './Fonts/Font1';
@@ -14,7 +14,7 @@ type ComponentLIst = {
 	[key: string]: ( ComponentLIst | ( typeof MXP.Component ) )
 };
 
-export const initResouces = () => {
+export const initResouces = ( renderer: MXP.Renderer ) => {
 
 	/*-------------------------------
 		Components

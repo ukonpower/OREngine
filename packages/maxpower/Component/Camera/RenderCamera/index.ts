@@ -18,12 +18,12 @@ type DofParams = {
 
 export class RenderCamera extends Camera {
 
-	public gl: WebGL2RenderingContext;
 	public dofParams: DofParams;
-	public renderTarget: RenderCameraTarget;
-	public gBuffer: GLP.GLPowerFrameBuffer;
 
-	private resolution: GLP.Vector;
+	private _gl: WebGL2RenderingContext;
+	private _renderTarget: RenderCameraTarget;
+	private _gBuffer: GLP.GLPowerFrameBuffer;
+	private _resolution: GLP.Vector;
 
 	constructor( params: MXP.ComponentParams<{gl: WebGL2RenderingContext}> ) {
 
@@ -34,12 +34,13 @@ export class RenderCamera extends Camera {
 			kFilmHeight: 0.008,
 		};
 
-		this.resolution = new GLP.Vector();
 		const gl = params.args.gl;
-		this.gl = gl;
+		this._gl = gl;
 
-		this.gBuffer = new GLP.GLPowerFrameBuffer( gl );
-		this.gBuffer.setTexture( [
+		this._resolution = new GLP.Vector();
+
+		this._gBuffer = new GLP.GLPowerFrameBuffer( gl );
+		this._gBuffer.setTexture( [
 			new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA, magFilter: gl.NEAREST, minFilter: gl.NEAREST } ),
 			new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA } ),
 			new GLP.GLPowerTexture( gl ),
@@ -54,15 +55,15 @@ export class RenderCamera extends Camera {
 		] );
 
 		const forwardBuffer = new GLP.GLPowerFrameBuffer( gl, { disableDepthBuffer: true } );
-		forwardBuffer.setDepthTexture( this.gBuffer.depthTexture );
+		forwardBuffer.setDepthTexture( this._gBuffer.depthTexture );
 		forwardBuffer.setTexture( [
 			shadingBuffer.textures[ 0 ],
-			this.gBuffer.textures[ 0 ],
-			this.gBuffer.textures[ 4 ],
+			this._gBuffer.textures[ 0 ],
+			this._gBuffer.textures[ 4 ],
 		] );
 
 		const uiBuffer = new GLP.GLPowerFrameBuffer( gl, { disableDepthBuffer: true } );
-		uiBuffer.setDepthTexture( this.gBuffer.depthTexture );
+		uiBuffer.setDepthTexture( this._gBuffer.depthTexture );
 		uiBuffer.setTexture( [ new GLP.GLPowerTexture( gl ) ] );
 
 		const normalBuffer = new GLP.GLPowerFrameBuffer( gl );
@@ -70,25 +71,48 @@ export class RenderCamera extends Camera {
 			new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA, magFilter: gl.NEAREST, minFilter: gl.NEAREST } )
 		] );
 
-		this.renderTarget = { gBuffer: this.gBuffer, shadingBuffer: shadingBuffer, forwardBuffer, uiBuffer, normalBuffer };
+		this._renderTarget = { gBuffer: this._gBuffer, shadingBuffer: shadingBuffer, forwardBuffer, uiBuffer, normalBuffer };
 
-		this.resize( this.resolution );
+		this.resize( this._resolution );
+
+	}
+
+	public get resolution() {
+
+		return this._resolution;
+
+	}
+
+	public get gBuffer() {
+
+		return this._gBuffer;
+
+	}
+
+	public get renderTarget() {
+
+		return this._renderTarget;
 
 	}
 
 	public resize( resolution: GLP.Vector ) {
 
-		this.resolution.copy( resolution );
+		if ( resolution.x == this._resolution.x && resolution.y == this._resolution.y ) return;
 
-		if ( this.renderTarget ) {
+		this._resolution.copy( resolution );
+		this.aspect = resolution.x / resolution.y;
 
-			this.renderTarget.gBuffer.setSize( this.resolution );
-			this.renderTarget.shadingBuffer.setSize( this.resolution );
-			this.renderTarget.forwardBuffer.setSize( this.resolution );
-			this.renderTarget.uiBuffer.setSize( this.resolution );
-			this.renderTarget.normalBuffer.setSize( this.resolution );
+		if ( this._renderTarget ) {
+
+			this._renderTarget.gBuffer.setSize( this._resolution );
+			this._renderTarget.shadingBuffer.setSize( this._resolution );
+			this._renderTarget.forwardBuffer.setSize( this._resolution );
+			this._renderTarget.uiBuffer.setSize( this._resolution );
+			this._renderTarget.normalBuffer.setSize( this._resolution );
 
 		}
+
+		this.needsUpdateProjectionMatrix = true;
 
 	}
 

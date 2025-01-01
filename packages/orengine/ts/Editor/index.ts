@@ -8,7 +8,7 @@ import { Keyboard, PressedKeys } from '../Engine/utils/Keyboard';
 
 import { FileSystem } from './FileSystem';
 
-import { power, renderer } from '~/ts/Globals';
+import { power } from '~/ts/Globals';
 
 export type EditorTimelineLoop = {
 	enabled: boolean,
@@ -62,7 +62,7 @@ export class Editor extends MXP.Serializable {
 
 			if ( e.key == ' ' ) {
 
-				if ( this._engine.frame.playing ) {
+				if ( this._engine._frame.playing ) {
 
 					this._engine.stop( );
 
@@ -81,9 +81,9 @@ export class Editor extends MXP.Serializable {
 			Frame Debugger
 		-------------------------------*/
 
-		this._frameDebugger = new FrameDebugger( power, engine.canvas );
+		this._frameDebugger = new FrameDebugger( power, engine.canvas as HTMLCanvasElement );
 
-		renderer.on( 'drawPass', ( rt?: GLP.GLPowerFrameBuffer, label?: string ) => {
+		this.engine.renderer.on( 'drawPass', ( rt?: GLP.GLPowerFrameBuffer, label?: string ) => {
 
 			if ( this._frameDebugger && this._frameDebugger.enable && rt ) {
 
@@ -137,11 +137,11 @@ export class Editor extends MXP.Serializable {
 
 			this._engine.seek( e.current );
 
-			if ( e.playing && ! this._engine.frame.playing ) {
+			if ( e.playing && ! this._engine._frame.playing ) {
 
 				this._engine.play();
 
-			} else if ( ! e.playing && this._engine.frame.playing ) {
+			} else if ( ! e.playing && this._engine._frame.playing ) {
 
 				this._engine.stop();
 
@@ -252,11 +252,11 @@ export class Editor extends MXP.Serializable {
 
 		this._engine.update();
 
-		if ( this._engine.frame.playing ) {
+		if ( this._engine._frame.playing ) {
 
-			if ( this._engine.frame.current < 0 || this._engine.frame.current > this._engine.frameSetting.duration ) {
+			if ( this._engine._frame.current < 0 || this._engine._frame.current > this._engine._frameSetting.duration ) {
 
-				this._engine.frame.current = 0;
+				this._engine._frame.current = 0;
 
 			}
 
@@ -264,9 +264,9 @@ export class Editor extends MXP.Serializable {
 
 			if ( this._frameLoop.enabled ) {
 
-				if ( this._engine.frame.current < this._frameLoop.start || this._engine.frame.current > this._frameLoop.end ) {
+				if ( this._engine._frame.current < this._frameLoop.start || this._engine._frame.current > this._frameLoop.end ) {
 
-					this._engine.frame.current = this._frameLoop.start;
+					this._engine._frame.current = this._frameLoop.start;
 
 				}
 
@@ -388,7 +388,9 @@ export class Editor extends MXP.Serializable {
 
 	private resize() {
 
-		const resolution = new GLP.Vector( 1920, 1080 );
+		const resolution = new GLP.Vector( 1920, 1080 ).multiply( this._resolutionScale );
+
+		this.engine.setSize( resolution );
 
 		// debugegr
 

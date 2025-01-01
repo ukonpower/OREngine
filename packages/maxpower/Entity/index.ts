@@ -4,7 +4,7 @@ import { Component, ComponentParams, ComponentUpdateEvent } from "../Component";
 import { RenderCamera } from '../Component/Camera/RenderCamera';
 import { Light } from '../Component/Light';
 import { Mesh } from '../Component/Mesh';
-import { RenderStack } from '../Component/Renderer';
+import { Renderer, RenderStack } from '../Component/Renderer';
 import { Serializable } from '../Serializable';
 
 export type EntityUpdateEvent = {
@@ -13,6 +13,7 @@ export type EntityUpdateEvent = {
 	timeCode: number;
 	timeCodeFrame: number;
 	playing: boolean;
+	resolution: GLP.Vector;
 	matrix?: GLP.Matrix;
 	visibility?: boolean;
 	forceDraw?: boolean

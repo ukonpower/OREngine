@@ -39,6 +39,7 @@ void main( void ) {
 
 	vec3 normal = mix( normalTex.xyz, calcNormal, tex3.x );
 
-	outColor = vec4( normal, normalTex.w );
+	// outColor = vec4( normal, normalTex.w );
+	outColor = vec4( calcNormal, normalTex.w );
 
 }
