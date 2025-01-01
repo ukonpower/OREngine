@@ -2,13 +2,11 @@ import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
 import { Engine } from '../Engine';
-import { OREngineProjectData } from '../Engine/IO/ProjectSerializer';
-import { FrameDebugger } from '../Engine/utils/FrameDebugger';
-import { Keyboard, PressedKeys } from '../Engine/utils/Keyboard';
+import { FrameDebugger } from '../Engine/FrameDebugger';
+import { Keyboard, PressedKeys } from '../Engine/Keyboard';
+import { OREngineProjectData } from '../Engine/ProjectSerializer';
 
 import { FileSystem } from './FileSystem';
-
-import { power } from '~/ts/Globals';
 
 export type EditorTimelineLoop = {
 	enabled: boolean,
@@ -81,7 +79,7 @@ export class Editor extends MXP.Serializable {
 			Frame Debugger
 		-------------------------------*/
 
-		this._frameDebugger = new FrameDebugger( power, engine.canvas as HTMLCanvasElement );
+		this._frameDebugger = new FrameDebugger( engine.gl, engine.canvas as HTMLCanvasElement );
 
 		this.engine.renderer.on( 'drawPass', ( rt?: GLP.GLPowerFrameBuffer, label?: string ) => {
 

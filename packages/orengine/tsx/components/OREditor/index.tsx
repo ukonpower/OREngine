@@ -125,7 +125,7 @@ export const OREditor = () => {
 			<div className={style.editor}>
 				{editorElm}
 			</div>
-		</MouseMenuContext.Provider>;
+		</MouseMenuContext.Provider>
 	</OREditorContext.Provider>;
 
 };

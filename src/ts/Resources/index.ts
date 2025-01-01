@@ -1,7 +1,6 @@
 
 import * as MXP from 'maxpower';
-import { Engine } from 'orengine';
-import { ComponentGroup } from 'packages/orengine/ts/Engine/Resources';
+import { ComponentGroup, Engine } from 'orengine';
 
 import { COMPONENTLIST } from './_data/componentList';
 

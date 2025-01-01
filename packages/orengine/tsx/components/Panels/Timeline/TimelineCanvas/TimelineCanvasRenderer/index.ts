@@ -1,10 +1,10 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
+import { OREngineProjectFrame } from '../../../../../../ts/Engine/ProjectSerializer';
+
 import timelineFrag from './shaders/timeline.fs';
 
-import { gl } from '~/ts/Globals';
-import { OREngineProjectFrame } from '~/ts/OREngine/IO/ProjectSerializer';
 
 export class TimelineCanvasRenderer extends GLP.EventEmitter {
 
@@ -84,7 +84,7 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 
 		this.postProcess = new MXP.PostProcess( { entity: new MXP.Entity(), args: {
 			passes: [
-				new MXP.PostProcessPass( gl, {
+				new MXP.PostProcessPass( this.gl, {
 					frag: timelineFrag,
 					uniforms: {
 						uCanvasTex: {

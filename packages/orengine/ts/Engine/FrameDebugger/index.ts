@@ -3,8 +3,6 @@ import * as MXP from 'maxpower';
 
 import frameDebuggerFrag from './shaders/frameDebugger.fs';
 
-import { gl } from '~/ts/Globals';
-
 type Frame = {
 	frameBuffer: GLP.GLPowerFrameBuffer,
 	texture: GLP.GLPowerTexture,
@@ -49,11 +47,11 @@ export class FrameDebugger extends GLP.EventEmitter {
 	private cctx: CanvasRenderingContext2D;
 	private canvasTexture: GLP.GLPowerTexture;
 
-	constructor( power: GLP.Power, elm: HTMLCanvasElement ) {
+	constructor( gl: WebGL2RenderingContext, elm: HTMLCanvasElement ) {
 
 		super();
 
-		this.gl = power.gl;
+		this.gl = gl;
 		this.elm = elm;
 
 		this.srcFrameBuffer = new GLP.GLPowerFrameBuffer( this.gl, { disableDepthBuffer: true } );
@@ -89,7 +87,7 @@ export class FrameDebugger extends GLP.EventEmitter {
 		};
 
 		this.outPostProcess = new MXP.PostProcess( { entity: new MXP.Entity(), args: { passes: [
-			new MXP.PostProcessPass( gl, {
+			new MXP.PostProcessPass( this.gl, {
 				uniforms: this.uniforms,
 				renderTarget: null,
 				frag: frameDebuggerFrag
