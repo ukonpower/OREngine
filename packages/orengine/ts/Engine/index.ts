@@ -232,13 +232,14 @@ export class Engine extends MXP.Entity {
 		}
 
 		const event: MXP.EntityUpdateEvent = {
+			playing: this._frame.playing,
 			timeElapsed: this._time.engine,
 			timeDelta: this._time.delta,
 			timeCode: this._time.code,
 			timeCodeFrame: this._frame.current,
 			resolution: this.renderer.resolution,
+			renderer: this.renderer,
 			forceDraw: param && param.forceDraw,
-			playing: this._frame.playing,
 		};
 
 		this._root.update( event );

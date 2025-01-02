@@ -1,10 +1,11 @@
 import * as GLP from 'glpower';
+import * as MXP from 'maxpower';
 
 import { Component, ComponentParams, ComponentUpdateEvent } from "../Component";
 import { RenderCamera } from '../Component/Camera/RenderCamera';
 import { Light } from '../Component/Light';
 import { Mesh } from '../Component/Mesh';
-import { Renderer, RenderStack } from '../Component/Renderer';
+import { RenderStack } from '../Component/Renderer';
 import { Serializable } from '../Serializable';
 
 export type EntityUpdateEvent = {
@@ -13,6 +14,7 @@ export type EntityUpdateEvent = {
 	timeCode: number;
 	timeCodeFrame: number;
 	playing: boolean;
+	renderer: MXP.Renderer;
 	resolution: GLP.Vector;
 	matrix?: GLP.Matrix;
 	visibility?: boolean;
