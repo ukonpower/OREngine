@@ -333,7 +333,7 @@ export class Editor extends MXP.Serializable {
 		} else {
 
 			this._engine.init();
-			this._currentProject = this._engine.serialize();
+			this._currentProject = this._engine.serialize() as OREngineProjectData;
 			this.projectSave();
 
 		}
@@ -364,7 +364,7 @@ export class Editor extends MXP.Serializable {
 
 	public projectSave() {
 
-		this._projects.set( this._engine.name, this._engine.serialize( true ) );
+		this._projects.set( this._engine.name, this._engine.serialize( { mode: "export" } ) as OREngineProjectData );
 
 		this._fileSystem.set( "editor.json", {
 			...this.serialize(),
@@ -376,7 +376,7 @@ export class Editor extends MXP.Serializable {
 
 	public exportCurrentScene() {
 
-		return this._fileSystem.set( "player.json", this._engine.serialize( true ) );
+		return this._fileSystem.set( "player.json", this._engine.serialize( { mode: "export" } ) );
 
 	}
 

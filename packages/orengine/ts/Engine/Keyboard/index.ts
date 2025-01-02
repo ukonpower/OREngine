@@ -41,6 +41,18 @@ export class Keyboard extends GLP.EventEmitter {
 
 		this.pressedKeys[ e.key ] = false;
 
+		if ( e.key == "Meta" || e.key == "Control" ) {
+
+			const keys = Object.keys( this.pressedKeys );
+
+			for ( let i = 0; i < keys.length; i ++ ) {
+
+				this.pressedKeys[ keys[ i ] ] = false;
+
+			}
+
+		}
+
 		this.emit( 'keyup', [ e, this.pressedKeys ] );
 
 	}
