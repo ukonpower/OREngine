@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'react';
 
+import { useOREngine } from '../../../../tsx/hooks/useOREngine';
+
 import style from './index.module.scss';
 
 type TimerDuration = {
@@ -9,9 +11,12 @@ type TimerDuration = {
 
 export const Timer = () => {
 
+	const { engine } = useOREngine();
 	const elmRef = useRef<HTMLDivElement>( null );
 
 	useEffect( () => {
+
+		const renderer = engine.renderer;
 
 		let timerDurationList: TimerDuration[] = [];
 
@@ -21,46 +26,45 @@ export const Timer = () => {
 
 		};
 
+		renderer.on( "timer", onUpdateTimer );
 
-		// renderer.on( "timer", onUpdateTimer );
+		const updateTimer = window.setInterval( () => {
 
-		// const updateTimer = window.setInterval( () => {
+			if ( elmRef.current === null ) return;
 
-		// 	if ( elmRef.current === null ) return;
+			const elm = elmRef.current;
+			elm.innerHTML = "";
 
-		// 	const elm = elmRef.current;
-		// 	elm.innerHTML = "";
+			let str = "";
 
-		// 	let str = "";
+			const total = timerDurationList.reduce( ( a, b ) => a + b.duration, 0 );
+			str += `Total: ${( total.toPrecision( 3 ) + "000" ).slice( 0, 4 )} ms<br/>`;
 
-		// 	const total = timerDurationList.reduce( ( a, b ) => a + b.duration, 0 );
-		// 	str += `Total: ${( total.toPrecision( 3 ) + "000" ).slice( 0, 4 )} ms<br/>`;
+			const sorted = timerDurationList.sort( ( a, b ) => a.name < b.name ? 1 : - 1 );
 
-		// 	const sorted = timerDurationList.sort( ( a, b ) => a.name < b.name ? 1 : - 1 );
+			for ( let i = 0; i < sorted.length; i ++ ) {
 
-		// 	for ( let i = 0; i < sorted.length; i ++ ) {
+				const v = sorted[ i ];
+				const d = ( v.duration.toPrecision( 3 ) + "000" ).slice( 0, 5 );
+				const color = `rgb(200 ${( 1.0 - v.duration ) * 200} ${( 1.0 - v.duration ) * 200})`;
 
-		// 		const v = sorted[ i ];
-		// 		const d = ( v.duration.toPrecision( 3 ) + "000" ).slice( 0, 5 );
-		// 		const color = `rgb(200 ${( 1.0 - v.duration ) * 200} ${( 1.0 - v.duration ) * 200})`;
+				str += `<span style="color: ${color}">${( d )}</span> : \t\t${v.name}<br/>`;
 
-		// 		str += `<span style="color: ${color}">${( d )}</span> : \t\t${v.name}<br/>`;
+			}
 
-		// 	}
+			elm.innerHTML = str;
 
-		// 	elm.innerHTML = str;
-
-		// }, 500 );
+		}, 500 );
 
 		return () => {
 
-			// renderer.off( "timer", onUpdateTimer );
+			renderer.off( "timer", onUpdateTimer );
 
-			// window.clearInterval( updateTimer );
+			window.clearInterval( updateTimer );
 
 		};
 
-	}, [] );
+	}, [ engine ] );
 
 	return <div className={style.container}>
 		<div className={style.inner} ref={elmRef}></div>
