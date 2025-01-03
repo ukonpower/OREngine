@@ -255,13 +255,6 @@ export class BLidger extends Component {
 
 			const curvePosition = this.animations.get( 'position' );
 
-			if ( this._entity.name == "camera" ) {
-
-				console.log( curvePosition );
-
-
-			}
-
 			if ( curvePosition ) {
 
 				const position = curvePosition.value;

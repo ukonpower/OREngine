@@ -1,10 +1,9 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
+import { Keyboard, Pointer, PointerEventArgs } from 'orengine';
 
 import { LookAt } from '../../ObjectControls/LookAt';
 
-import { Keyboard } from '~/ts/OREngine/utils/Keyboard';
-import { Pointer, PointerEventArgs } from '~/ts/OREngine/utils/Pointer';
 
 export class OrbitControls extends MXP.Component {
 

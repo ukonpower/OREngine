@@ -7,7 +7,6 @@ import { PostProcessPassParam, PostProcessPass } from '../PostProcess/PostProces
 import quadVert from './shaders/quad.vs';
 
 export interface GPUComputePassParam extends Omit<PostProcessPassParam, 'renderTarget'>{
-	gl: WebGL2RenderingContext,
 	size: GLP.Vector,
 	dataLayerCount: number,
 	textureParam?: Undefineder<GLP.GLPowerTextureSetting>
@@ -27,9 +26,7 @@ export class GPUComputePass extends PostProcessPass {
 
 	public outputUniforms: GLP.Uniforms;
 
-	constructor( param: GPUComputePassParam ) {
-
-		const gl = param.gl;
+	constructor( gl: WebGL2RenderingContext, param: GPUComputePassParam ) {
 
 		const textureSetting = Object.assign( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA, magFilter: gl.NEAREST, minFilter: gl.NEAREST }, param.textureParam );
 

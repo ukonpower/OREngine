@@ -1,139 +1,60 @@
 
-import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
+import { ComponentGroup, Engine } from 'orengine';
 
-import { Font } from './Fonts';
+import { COMPONENTLIST } from './_data/componentList';
 
-export type ResouceComponentItem = {
-	name: string,
-	component: typeof MXP.Component;
+type ComponentLIst = {
+	[key: string]: ( ComponentLIst | ( typeof MXP.Component ) )
 };
 
-
-export type ComponentGroup = {
-	child: ( ComponentGroup | ResouceComponentItem )[]
-	name: string,
-	addComponent: ( name: string, component: typeof MXP.Component ) => void;
-	createGroup: ( name: string ) => ComponentGroup
-}
-
-export class OREngineResource extends GLP.EventEmitter {
-
-	public componentList: ( ResouceComponentItem )[];
-	public componentGroups: ComponentGroup[];
-	public textures: Map<string, GLP.GLPowerTexture>;
-	public fonts: Font[];
-
-	constructor() {
-
-		super();
-		this.componentList = [];
-		this.textures = new Map();
-		this.componentGroups = [];
-		this.fonts = [];
-
-	}
-
-	public clear() {
-
-		this.componentList = [];
-		this.fonts = [];
-		this.componentGroups = [];
-		this.textures.clear();
-
-	}
+export const initResouces = () => {
 
 	/*-------------------------------
-		Component
+		Components
 	-------------------------------*/
 
-	public getComponent( name: string ) {
+	Engine.resources.clear();
 
-		return this.componentList.find( c =>{
+	const _ = ( list: ComponentLIst, group: ComponentGroup ) => {
 
-			return c.component.name == name;
+		const keys = Object.keys( list );
 
-		} );
+		for ( let i = 0; i < keys.length; i ++ ) {
 
-	}
+			const name = keys[ i ];
+			const value = list[ name ];
 
-	public addComponentGroup( groupName: string ) {
+			if ( typeof value == "function" ) {
 
-		let group = this.componentGroups.find( g => g.name == groupName );
+				group.addComponent( name, value );
 
-		if ( group ) return group;
+			} else {
 
-		const createGroup = ( groupName: string ): ComponentGroup => {
+				const newGroup = group.createGroup( name );
 
-			const child: ( ComponentGroup | ResouceComponentItem )[] = [];
+				_( value, newGroup );
 
-			return {
-				child,
-				name: groupName,
-				addComponent: ( name: string, component: typeof MXP.Component ) => {
+			}
 
-					const item = { name, component };
+		}
 
-					child.push( item );
-					this.componentList.push( item );
+	};
 
-				},
-				createGroup: ( name: string ) => {
+	const light = Engine.resources.addComponentGroup( "Light" );
+	light.addComponent( "Light", MXP.Light );
 
-					const group = createGroup( name );
+	const rootKeys = Object.keys( COMPONENTLIST );
 
-					child.push( group );
+	for ( let i = 0; i < rootKeys.length; i ++ ) {
 
-					return group;
+		const name = rootKeys[ i ];
+		const value = COMPONENTLIST[ name ];
 
-				}
-			};
+		const group = Engine.resources.addComponentGroup( name );
 
-
-		};
-
-		group = createGroup( groupName );
-
-		this.componentGroups.push( group );
-
-		return group;
+		_( value, group );
 
 	}
 
-	/*-------------------------------
-		Texture
-	-------------------------------*/
-
-	public addTexture( name: string, texture: GLP.GLPowerTexture ) {
-
-		this.textures.set( name, texture );
-
-	}
-
-	public getTexture( name: string ) {
-
-		return this.textures.get( name );
-
-	}
-
-	/*-------------------------------
-		Fonts
-	-------------------------------*/
-
-	public addFont( font: Font ) {
-
-		this.fonts.push( font );
-
-	}
-
-	public getFont( font: typeof Font | string ) {
-
-		const k = typeof font == 'string' ? font : font.name;
-
-		return this.fonts.find( f => f.resourceId == k );
-
-	}
-
-}
-
-
+};

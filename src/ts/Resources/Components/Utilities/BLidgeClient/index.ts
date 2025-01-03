@@ -28,25 +28,25 @@ export class BLidgeClient extends MXP.Component {
 		super( params );
 
 		this.entities = new Map();
-
-		// connection
-
 		this.type = "websocket";
-
 		this.connection = {
 			enabled: true,
 			url: "ws://localhost:3100",
 		};
+		this.useGLTF = false;
+		this.gltfPath = BASE_PATH + "/scene.glb";
 
-		// blidge
+		/*-------------------------------
+			BLidge
+		-------------------------------*/
 
 		this.blidgeRoot = null;
 
 		this.blidge = new MXP.BLidge( gl );
 
-		this.blidge.on( 'sync/scene', this.onSyncScene.bind( this ) );
+		const onSyncScene = this.onSyncScene.bind( this );
 
-		this.blidge.on( 'sync/timeline', ( frame: MXP.BLidgeFrame ) => {
+		const onSyncTimeline = ( frame: MXP.BLidgeFrame ) => {
 
 			if ( this._entity ) {
 
@@ -54,14 +54,21 @@ export class BLidgeClient extends MXP.Component {
 
 			}
 
+		};
+
+		this.blidge.on( 'sync/scene', onSyncScene );
+		this.blidge.on( 'sync/timeline', onSyncTimeline );
+
+		this.once( "dispose", () => {
+
+			this.blidge.off( 'sync/scene', onSyncScene );
+			this.blidge.off( 'sync/timeline', onSyncTimeline );
+
 		} );
 
-		// gltf path
-
-		this.useGLTF = false;
-		this.gltfPath = BASE_PATH + "/scene.glb";
-
-		// fields
+		/*-------------------------------
+			Fields
+		-------------------------------*/
 
 		const reload = () => {
 
@@ -208,6 +215,7 @@ export class BLidgeClient extends MXP.Component {
 		if ( this.blidgeRoot ) {
 
 			this.blidgeRoot.disposeRecursive();
+			this._entity.remove( this.blidgeRoot );
 			this.blidgeRoot = null;
 
 		}

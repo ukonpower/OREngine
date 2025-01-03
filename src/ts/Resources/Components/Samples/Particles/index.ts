@@ -5,11 +5,11 @@ import particlesFrag from './shaders/particles.fs';
 import particlesCompute from './shaders/particles.glsl';
 import particlesVert from './shaders/particles.vs';
 
-import { renderer, gl, globalUniforms } from '~/ts/Globals';
+import { gl, globalUniforms, renderer } from '~/ts/Globals';
 
 export class Particles extends MXP.Component {
 
-	private gpu: MXP.GPUCompute;
+	private _gpu: MXP.GPUCompute;
 
 	constructor( params: MXP.ComponentParams ) {
 
@@ -17,23 +17,23 @@ export class Particles extends MXP.Component {
 
 		const size = new GLP.Vector( 256, 256 );
 
-		this.gpu = this.entity.addComponent( MXP.GPUCompute, {
-			renderer,
+		this._gpu = this.entity.addComponent( MXP.GPUCompute, {
 			passes: [
-				new MXP.GPUComputePass( {
-					name: "particles",
+				new MXP.GPUComputePass(
 					gl,
-					size,
-					dataLayerCount: 2,
-					frag: particlesCompute,
-					uniforms: MXP.UniformsUtils.merge( {
-					}, globalUniforms.time ),
-				} )
+					{
+						name: "particles",
+						size,
+						dataLayerCount: 2,
+						frag: particlesCompute,
+						uniforms: MXP.UniformsUtils.merge( {
+						}, globalUniforms.time ),
+					}
+				)
 			]
-		}
-		);
+		} );
 
-		this.gpu.passes[ 0 ].initTexture( ( l, x, y ) => {
+		this._gpu.passes[ 0 ].initTexture( ( l, x, y ) => {
 
 			return [ 0, 0, 0, Math.random() ];
 
@@ -72,7 +72,7 @@ export class Particles extends MXP.Component {
 				phase: [ "deferred", "shadowMap" ],
 				frag: particlesFrag,
 				vert: particlesVert,
-				uniforms: MXP.UniformsUtils.merge( globalUniforms.time, this.gpu.passes[ 0 ].outputUniforms ),
+				uniforms: MXP.UniformsUtils.merge( globalUniforms.time, this._gpu.passes[ 0 ].outputUniforms ),
 			} )
 		} );
 
@@ -84,9 +84,9 @@ export class Particles extends MXP.Component {
 
 					if ( module ) {
 
-						this.gpu.passes[ 0 ].frag = MXP.hotUpdate( 'particlesCompute', module.default );
+						this._gpu.passes[ 0 ].frag = MXP.hotUpdate( 'particlesCompute', module.default );
 
-						this.gpu.passes[ 0 ].requestUpdate();
+						this._gpu.passes[ 0 ].requestUpdate();
 
 					}
 
@@ -125,7 +125,7 @@ export class Particles extends MXP.Component {
 
 	protected updateImpl( event: MXP.ComponentUpdateEvent ): void {
 
-		this.gpu.compute();
+		this._gpu.compute( event.renderer );
 
 	}
 

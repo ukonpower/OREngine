@@ -1,31 +1,12 @@
 import * as GLP from 'glpower';
-import * as MXP from 'maxpower';
-
-import { OREngineResource } from '../Resources';
 
 /*-------------------------------
 	Elements
 -------------------------------*/
 
-export const screenElm = document.createElement( 'div' );
-screenElm.id = "screen";
-screenElm.style.position = "absolute";
-
 export const canvas = document.createElement( "canvas" );
-canvas.setAttribute( "style", "position:absolute;top:0;left:0;width:100%;height:100%;" );
-screenElm.appendChild( canvas );
-
-/*-------------------------------
-	GL
--------------------------------*/
-
 export const gl = canvas.getContext( 'webgl2', { antialias: false } )!;
 export const power = new GLP.Power( gl );
-export const renderer = new MXP.Renderer( power.gl );
-
-/*-------------------------------
-	Status
--------------------------------*/
 
 /*-------------------------------
 	Uniforms
@@ -93,9 +74,3 @@ export const globalUniforms: {[key: string]: GLP.Uniforms} = {
 		},
 	}
 };
-
-/*-------------------------------
-	Resouce
--------------------------------*/
-
-export const resource = new OREngineResource();
