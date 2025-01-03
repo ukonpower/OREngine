@@ -19,6 +19,7 @@ export class Resources extends GLP.EventEmitter {
 
 	public componentList: ( ResouceComponentItem )[];
 	public componentGroups: ComponentGroup[];
+
 	public textures: Map<string, GLP.GLPowerTexture>;
 
 	constructor() {
@@ -94,6 +95,23 @@ export class Resources extends GLP.EventEmitter {
 		return group;
 
 	}
+
+	/*-------------------------------
+		Texture
+	-------------------------------*/
+
+	public addTexture( name: string, texture: GLP.GLPowerTexture ) {
+
+		this.textures.set( name, texture );
+
+	}
+
+	public getTexture( name: string ) {
+
+		return this.textures.get( name );
+
+	}
+
 
 }
 

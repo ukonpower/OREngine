@@ -8,7 +8,7 @@ initResouces();
 export const EditorPage = () => {
 
 	return (
-		<OREngine gl={gl}>
+		<OREngine gl={gl} >
 			<OREditor />
 		</OREngine>
 	);

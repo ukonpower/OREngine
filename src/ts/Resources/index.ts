@@ -8,7 +8,7 @@ type ComponentLIst = {
 	[key: string]: ( ComponentLIst | ( typeof MXP.Component ) )
 };
 
-export const initResouces = ( ) => {
+export const initResouces = () => {
 
 	/*-------------------------------
 		Components
@@ -56,19 +56,5 @@ export const initResouces = ( ) => {
 		_( value, group );
 
 	}
-
-	/*-------------------------------
-		Textures
-	-------------------------------*/
-
-	// resource.addTexture( "noise", new TexProcedural( renderer, {
-	// 	frag: noiseFrag,
-	// } ) );
-
-	/*-------------------------------
-		Fonts
-	-------------------------------*/
-
-	// resource.addFont( new Font1( gl ) );
 
 };

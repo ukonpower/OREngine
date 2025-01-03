@@ -20,6 +20,7 @@ export interface FramePlay {
 export class Engine extends MXP.Entity {
 
 	public static resources: Resources = new Resources();
+	public static instances: Map<WebGL2RenderingContext, Engine> = new Map();
 
 	public enableRender: boolean;
 	private _renderer: MXP.Renderer;
@@ -153,6 +154,26 @@ export class Engine extends MXP.Entity {
 		-------------------------------*/
 
 		this.setSize( new GLP.Vector( 1920, 1080 ) );
+
+		/*-------------------------------
+			Register
+		-------------------------------*/
+
+		Engine.instances.set( gl, this );
+
+	}
+
+	public static getInstance( gl: WebGL2RenderingContext ) {
+
+		const instance = this.instances.get( gl );
+
+		if ( ! instance ) {
+
+			throw new Error( "ERROR: NO ENGINE INSTANCE!!!" );
+
+		}
+
+		return instance;
 
 	}
 
