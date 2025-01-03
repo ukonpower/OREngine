@@ -1,6 +1,8 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
+import { Engine } from '..';
+
 import frameDebuggerFrag from './shaders/frameDebugger.fs';
 
 type Frame = {
@@ -12,91 +14,93 @@ type Frame = {
 
 export class FrameDebugger extends GLP.EventEmitter {
 
-	private gl: WebGL2RenderingContext;
+	private _engine: Engine;
+	private _gl: WebGL2RenderingContext;
 
 	// buffers
 
-	private srcFrameBuffer: GLP.GLPowerFrameBuffer;
-	private outFrameBuffer: GLP.GLPowerFrameBuffer;
-	private frameList: Frame[];
+	private _srcFrameBuffer: GLP.GLPowerFrameBuffer;
+	private _outFrameBuffer: GLP.GLPowerFrameBuffer;
+	private _frameList: Frame[];
 
 	// status
 
 	private _enable: boolean;
 
-	private resolution: GLP.Vector;
-	private count: number;
-	private total: number;
-	private tile: GLP.Vector;
-	private tilePixelSize: GLP.Vector;
-	private tileInv: GLP.Vector;
+	private _resolution: GLP.Vector;
+	private _count: number;
+	private _total: number;
+	private _tile: GLP.Vector;
+	private _tilePixelSize: GLP.Vector;
+	private _tileInv: GLP.Vector;
 
 	// controls
 
-	private focus: number | null;
+	private _focus: number | null;
 
 	// postprocess
 
-	private uniforms: GLP.Uniforms;
-	private outPostProcess: MXP.PostProcess;
+	private _uniforms: GLP.Uniforms;
+	private _outPostProcess: MXP.PostProcess;
 
 	// canvas
 
-	private elm: HTMLCanvasElement;
-	private labelCanvas: HTMLCanvasElement;
-	private cctx: CanvasRenderingContext2D;
-	private canvasTexture: GLP.GLPowerTexture;
+	private _elm: HTMLCanvasElement;
+	private _labelCanvas: HTMLCanvasElement;
+	private _cctx: CanvasRenderingContext2D;
+	private _canvasTexture: GLP.GLPowerTexture;
 
-	constructor( gl: WebGL2RenderingContext, elm: HTMLCanvasElement ) {
+	constructor( engine: Engine ) {
 
 		super();
 
-		this.gl = gl;
-		this.elm = elm;
+		this._engine = engine;
+		this._gl = engine.gl;
+		this._elm = engine.canvas as HTMLCanvasElement;
 
-		this.srcFrameBuffer = new GLP.GLPowerFrameBuffer( this.gl, { disableDepthBuffer: true } );
-		this.outFrameBuffer = new GLP.GLPowerFrameBuffer( this.gl, { disableDepthBuffer: true } ).setTexture( [
-			new GLP.GLPowerTexture( this.gl ).setting( ),
+		this._srcFrameBuffer = new GLP.GLPowerFrameBuffer( this._gl, { disableDepthBuffer: true } );
+		this._outFrameBuffer = new GLP.GLPowerFrameBuffer( this._gl, { disableDepthBuffer: true } ).setTexture( [
+			new GLP.GLPowerTexture( this._gl ).setting( ),
 		] );
 
 		this._enable = false;
-		this.count = 0;
-		this.total = 1;
-		this.tile = new GLP.Vector( 1, 1 );
-		this.tilePixelSize = new GLP.Vector( 1, 1 );
-		this.tileInv = new GLP.Vector( 1, 1 );
+		this._count = 0;
+		this._total = 1;
+		this._tile = new GLP.Vector( 1, 1 );
+		this._tilePixelSize = new GLP.Vector( 1, 1 );
+		this._tileInv = new GLP.Vector( 1, 1 );
 
-		this.focus = null;
+		this._focus = null;
 
-		this.resolution = new GLP.Vector();
+		this._resolution = new GLP.Vector();
 
 		// canvas
 
-		this.labelCanvas = document.createElement( "canvas" );
-		this.cctx = this.labelCanvas.getContext( "2d" )!;
+		this._labelCanvas = document.createElement( "canvas" );
+		this._cctx = this._labelCanvas.getContext( "2d" )!;
 
-		this.canvasTexture = new GLP.GLPowerTexture( this.gl ).attach( this.labelCanvas );
+		this._canvasTexture = new GLP.GLPowerTexture( this._gl ).attach( this._labelCanvas );
 
 		// out
 
-		this.uniforms = {
+		this._uniforms = {
 			uCanvas: {
-				value: this.canvasTexture,
+				value: this._canvasTexture,
 				type: "1i"
 			}
 		};
 
-		this.outPostProcess = new MXP.PostProcess( { entity: new MXP.Entity(), args: { passes: [
-			new MXP.PostProcessPass( this.gl, {
-				uniforms: this.uniforms,
+		this._outPostProcess = new MXP.PostProcess( { entity: new MXP.Entity(), args: { passes: [
+			new MXP.PostProcessPass( this._gl, {
+				uniforms: this._uniforms,
 				renderTarget: null,
 				frag: frameDebuggerFrag
 			} )
 		] } } );
 
-		this.outPostProcess.input = this.outFrameBuffer.textures;
+		this._outPostProcess.input = this._outFrameBuffer.textures;
 
-		this.frameList = [];
+		this._frameList = [];
 
 		// click
 
@@ -122,8 +126,8 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 		};
 
-		elm.addEventListener( "pointerdown", onPointerDown );
-		elm.addEventListener( "pointerup", onPointerUp );
+		this._elm.addEventListener( "pointerdown", onPointerDown );
+		this._elm.addEventListener( "pointerup", onPointerUp );
 
 		// esc
 
@@ -131,7 +135,7 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 			if ( e.key === "Escape" ) {
 
-				this.focus = null;
+				this._focus = null;
 
 				this.clear();
 
@@ -143,8 +147,8 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 		this.once( "dispose", () => {
 
-			elm.removeEventListener( "pointerdown", onPointerDown );
-			elm.removeEventListener( "pointerup", onPointerUp );
+			this._elm.removeEventListener( "pointerdown", onPointerDown );
+			this._elm.removeEventListener( "pointerup", onPointerUp );
 			window.removeEventListener( "keydown", onKeydown );
 
 		} );
@@ -156,8 +160,8 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 	private calcTilePos( num: number ) {
 
-		const x = num % this.tile.x * this.tileInv.x * this.resolution.x;
-		const y = Math.floor( num / this.tile.x ) * this.tileInv.y * this.resolution.y;
+		const x = num % this._tile.x * this._tileInv.x * this._resolution.x;
+		const y = Math.floor( num / this._tile.x ) * this._tileInv.y * this._resolution.y;
 
 		return { x, y };
 
@@ -167,40 +171,40 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 		for ( let i = 0; i < frameBuffer.textures.length; i ++ ) {
 
-			if ( this.focus == null || this.focus == this.count ) {
+			if ( this._focus == null || this._focus == this._count ) {
 
 				const tex = frameBuffer.textures[ i ];
-				const textarget = "currentFace" in frameBuffer ? frameBuffer.currentFace : this.gl.TEXTURE_2D;
+				const textarget = "currentFace" in frameBuffer ? frameBuffer.currentFace : this._gl.TEXTURE_2D;
 
-				this.srcFrameBuffer.setSize( tex.size );
+				this._srcFrameBuffer.setSize( tex.size );
 
-				this.gl.bindFramebuffer( this.gl.FRAMEBUFFER, this.srcFrameBuffer.getFrameBuffer() );
+				this._gl.bindFramebuffer( this._gl.FRAMEBUFFER, this._srcFrameBuffer.getFrameBuffer() );
 
-				this.gl.framebufferTexture2D( this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, textarget, tex.getTexture(), 0 );
-				this.gl.bindFramebuffer( this.gl.FRAMEBUFFER, null );
+				this._gl.framebufferTexture2D( this._gl.FRAMEBUFFER, this._gl.COLOR_ATTACHMENT0, textarget, tex.getTexture(), 0 );
+				this._gl.bindFramebuffer( this._gl.FRAMEBUFFER, null );
 
-				this.gl.bindFramebuffer( this.gl.READ_FRAMEBUFFER, this.srcFrameBuffer.getFrameBuffer() );
-				this.gl.bindFramebuffer( this.gl.DRAW_FRAMEBUFFER, this.outFrameBuffer.getFrameBuffer() );
+				this._gl.bindFramebuffer( this._gl.READ_FRAMEBUFFER, this._srcFrameBuffer.getFrameBuffer() );
+				this._gl.bindFramebuffer( this._gl.DRAW_FRAMEBUFFER, this._outFrameBuffer.getFrameBuffer() );
 
-				let { x, y } = this.calcTilePos( this.count );
-				const w = this.tilePixelSize.x, h = this.tilePixelSize.y;
+				let { x, y } = this.calcTilePos( this._count );
+				const w = this._tilePixelSize.x, h = this._tilePixelSize.y;
 
-				if ( this.focus !== null ) {
+				if ( this._focus !== null ) {
 
 					x = 0;
 					y = 0;
 
 				}
 
-				this.gl.blitFramebuffer(
+				this._gl.blitFramebuffer(
 					0, 0, frameBuffer.size.x, frameBuffer.size.y,
-					x, this.resolution.y - y - h,
-					x + w, this.resolution.y - y,
-					this.gl.COLOR_BUFFER_BIT, this.gl.NEAREST );
+					x, this._resolution.y - y - h,
+					x + w, this._resolution.y - y,
+					this._gl.COLOR_BUFFER_BIT, this._gl.NEAREST );
 
-				this.srcFrameBuffer.setTexture( [] );
+				this._srcFrameBuffer.setTexture( [] );
 
-				this.frameList.push( {
+				this._frameList.push( {
 					frameBuffer: frameBuffer,
 					texture: tex,
 					label: label ? label + ( frameBuffer.textures.length > 1 ? "_" + i : '' ) : ''
@@ -208,13 +212,13 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 			}
 
-			this.count ++;
+			this._count ++;
 
 		}
 
 
-		this.gl.bindFramebuffer( this.gl.READ_FRAMEBUFFER, null );
-		this.gl.bindFramebuffer( this.gl.DRAW_FRAMEBUFFER, null );
+		this._gl.bindFramebuffer( this._gl.READ_FRAMEBUFFER, null );
+		this._gl.bindFramebuffer( this._gl.DRAW_FRAMEBUFFER, null );
 
 	}
 
@@ -222,29 +226,29 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 		// draw canvas
 
-		this.cctx.clearRect( 0, 0, this.resolution.x, this.resolution.y );
+		this._cctx.clearRect( 0, 0, this._resolution.x, this._resolution.y );
 
-		const pixelRatio = this.resolution.y / 1080;
+		const pixelRatio = this._resolution.y / 1080;
 
-		this.cctx.font = `500 ${28 * pixelRatio}px 'Courier New'`;
+		this._cctx.font = `500 ${28 * pixelRatio}px 'Courier New'`;
 
-		this.cctx.fillStyle = "#fff";
+		this._cctx.fillStyle = "#fff";
 
-		for ( let i = 0; i < this.frameList.length; i ++ ) {
+		for ( let i = 0; i < this._frameList.length; i ++ ) {
 
 			const { x, y } = this.calcTilePos( i );
 
-			const frame = this.frameList[ i ];
+			const frame = this._frameList[ i ];
 
-			this.cctx.fillText( frame.label, x + 5 * pixelRatio, y + this.tilePixelSize.y - 5 * pixelRatio );
+			this._cctx.fillText( frame.label, x + 5 * pixelRatio, y + this._tilePixelSize.y - 5 * pixelRatio );
 
 		}
 
-		this.canvasTexture.attach( this.labelCanvas );
+		this._canvasTexture.attach( this._labelCanvas );
 
 		// out
 
-		// renderer.renderPostProcess( this.outPostProcess, this.resolution );
+		this._engine.renderer.renderPostProcess( this._outPostProcess, this._resolution );
 
 		this.clear();
 
@@ -254,35 +258,35 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 		// calc status
 
-		this.total = this.count;
+		this._total = this._count;
 
-		const sqrt = Math.sqrt( this.focus !== null ? 1 : this.total );
-		this.tile.set( Math.round( sqrt ), Math.ceil( sqrt ) );
-		this.tileInv.set( 1.0, 1.0 ).divide( this.tile );
-		this.tilePixelSize.copy( this.tileInv ).multiply( this.resolution );
+		const sqrt = Math.sqrt( this._focus !== null ? 1 : this._total );
+		this._tile.set( Math.round( sqrt ), Math.ceil( sqrt ) );
+		this._tileInv.set( 1.0, 1.0 ).divide( this._tile );
+		this._tilePixelSize.copy( this._tileInv ).multiply( this._resolution );
 
-		this.frameList = [];
-		this.count = 0;
+		this._frameList = [];
+		this._count = 0;
 
 	}
 
 	public reflesh() {
 
-		this.resize( this.resolution );
+		this.resize( this._resolution );
 
 	}
 
 	public resize( resolution: GLP.Vector ) {
 
-		this.resolution.copy( resolution );
+		this._resolution.copy( resolution );
 
-		this.outFrameBuffer.setSize( resolution );
+		this._outFrameBuffer.setSize( resolution );
 
-		this.outPostProcess.resize( resolution );
+		this._outPostProcess.resize( resolution );
 
-		this.labelCanvas.width = resolution.x;
-		this.labelCanvas.height = resolution.y;
-		this.canvasTexture.attach( this.labelCanvas );
+		this._labelCanvas.width = resolution.x;
+		this._labelCanvas.height = resolution.y;
+		this._canvasTexture.attach( this._labelCanvas );
 
 	}
 
@@ -296,14 +300,14 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 		this.reflesh();
 
-		if ( this.focus === null ) {
+		if ( this._focus === null ) {
 
-			const tileSize = new GLP.Vector( this.elm.clientWidth / this.tile.x, this.elm.clientHeight / this.tile.y );
+			const tileSize = new GLP.Vector( this._elm.clientWidth / this._tile.x, this._elm.clientHeight / this._tile.y );
 
 			const x = Math.floor( ( e.offsetX ) / tileSize.x );
 			const y = Math.floor( ( e.offsetY ) / tileSize.y );
 
-			this.focus = x + y * this.tile.x;
+			this._focus = x + y * this._tile.x;
 
 		}
 

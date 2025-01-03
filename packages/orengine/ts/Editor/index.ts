@@ -79,7 +79,7 @@ export class Editor extends MXP.Serializable {
 			Frame Debugger
 		-------------------------------*/
 
-		this._frameDebugger = new FrameDebugger( engine.gl, engine.canvas as HTMLCanvasElement );
+		this._frameDebugger = new FrameDebugger( engine );
 
 		this.engine.renderer.on( 'drawPass', ( rt?: GLP.GLPowerFrameBuffer, label?: string ) => {
 

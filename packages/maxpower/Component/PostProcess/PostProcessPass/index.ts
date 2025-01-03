@@ -8,6 +8,7 @@ export interface PostProcessPassParam extends MaterialParam{
 	resolutionRatio?: number;
 	passThrough?: boolean;
 	viewPort?: GLP.Vector
+	fixedResotluion?: GLP.Vector
 }
 
 import { MaterialParam, Material } from '../../../Material';
@@ -28,11 +29,13 @@ export class PostProcessPass extends Material {
 	public resolution: GLP.Vector;
 	public resolutionInv: GLP.Vector;
 	public viewPort: GLP.Vector | null;
+	private _fixedResolution: GLP.Vector | null;
 
 	constructor( gl: WebGL2RenderingContext, param: PostProcessPassParam ) {
 
 		super( { ...param, frag: param.frag || passFrag, vert: param.vert || quadVert } );
 
+		this._fixedResolution = param.fixedResotluion || null;
 		this.resolution = new GLP.Vector();
 		this.resolutionInv = new GLP.Vector();
 
@@ -76,7 +79,16 @@ export class PostProcessPass extends Material {
 
 	public resize( resolution: GLP.Vector ): void {
 
-		this.resolution.copy( resolution ).multiply( this.resolutionRatio );
+		if ( this._fixedResolution ) {
+
+			this.resolution.copy( this._fixedResolution );
+
+		} else {
+
+			this.resolution.copy( resolution ).multiply( this.resolutionRatio );
+
+		}
+
 		this.resolutionInv.set( 1.0 / this.resolution.x, 1.0 / this.resolution.y );
 
 		if ( this.renderTarget ) {
