@@ -691,13 +691,15 @@ export class Renderer extends Entity {
 
 			}
 
-			if ( backbuffers ) {
+			const backBuffer = pass.backBufferOverride || backbuffers || null;
 
-				for ( let i = 0; i < backbuffers.length; i ++ ) {
+			if ( backBuffer ) {
+
+				for ( let i = 0; i < backBuffer.length; i ++ ) {
 
 					pass.uniforms[ 'backbuffer' + i ] = {
 						type: '1i',
-						value: backbuffers[ i ]
+						value: backBuffer[ i ]
 					};
 
 				}
