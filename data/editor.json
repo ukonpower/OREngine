@@ -17,10 +17,6 @@
 				1,
 				1
 			],
-			"children": [
-				"36"
-			],
-			"components": [],
 			"objectOverride": [
 				{
 					"path": "/root",
@@ -39,6 +35,20 @@
 						},
 						{
 							"name": "DemoMusic",
+							"props": {
+								"enabled": true,
+								"tag": ""
+							}
+						},
+						{
+							"name": "UniformControls",
+							"props": {
+								"enabled": true,
+								"tag": ""
+							}
+						},
+						{
+							"name": "TextureGenerator",
 							"props": {
 								"enabled": true,
 								"tag": ""
@@ -74,17 +84,17 @@
 					"path": "/root/blidgeRoot/OREngineCube",
 					"components": [
 						{
-							"name": "OREngineCubeMaterial",
-							"props": {
-								"enabled": true,
-								"tag": "materialOverride"
-							}
-						},
-						{
 							"name": "ObjectRotate",
 							"props": {
 								"enabled": true,
 								"tag": ""
+							}
+						},
+						{
+							"name": "OREngineCubeMaterial",
+							"props": {
+								"enabled": true,
+								"tag": "materialOverride"
 							}
 						}
 					]
@@ -112,17 +122,17 @@
 			},
 			"timeline/": null,
 			"timeline/duration": 600,
-			"timeline/fps": 30
+			"timeline/fps": 60
 		}
 	],
 	"enableRender": true,
 	"projectName": "New Project",
 	"openedProject": "New Project",
-	"resolutionScale": 1,
+	"resolutionScale": 0.25,
 	"viewType": "render",
 	"frameLoop/": null,
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,
 	"frameLoop/end": 0,
-	"selectedEntityId": "2f0"
+	"selectedEntityId": "31"
 }

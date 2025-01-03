@@ -5,17 +5,13 @@ import { PostProcess } from '../PostProcess';
 
 export class GPUCompute extends PostProcess {
 
-	protected renderer: MXP.Renderer;
 	protected _passes: GPUComputePass[];
 
-	constructor( params: MXP.ComponentParams<{renderer: MXP.Renderer, passes: GPUComputePass[]}> ) {
+	constructor( params: MXP.ComponentParams<{passes: GPUComputePass[]}> ) {
 
 		super( params );
 
-		this.renderer = params.args.renderer;
 		this._passes = params.args.passes;
-
-		this.compute();
 
 	}
 
@@ -25,9 +21,9 @@ export class GPUCompute extends PostProcess {
 
 	}
 
-	public compute() {
+	public compute( renderer: MXP.Renderer ) {
 
-		this.renderer.renderPostProcess( this );
+		renderer.renderPostProcess( this );
 
 	}
 

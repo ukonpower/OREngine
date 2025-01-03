@@ -1,6 +1,7 @@
 import ReactDOM from 'react-dom/client';
 
-import { EditorPage } from './Editor';
+import { EditorPage } from '../components/pages/EditorPage';
+
 import '~/styles/style.scss';
 
 ReactDOM.createRoot( document.getElementById( 'root' )! ).render(

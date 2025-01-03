@@ -15,18 +15,15 @@
 		1,
 		1
 	],
-	"children": [
-		"43"
-	],
-	"components": [],
 	"objectOverride": [
 		{
-			"path": "/CamDof",
+			"path": "/root",
 			"components": [
 				{
 					"name": "BLidgeClient",
 					"props": {
 						"enabled": true,
+						"tag": "",
 						"mode": "json",
 						"gltf": true,
 						"gltfPath": "/scene.glb",
@@ -37,36 +34,101 @@
 				{
 					"name": "DemoMusic",
 					"props": {
-						"enabled": true
+						"enabled": true,
+						"tag": ""
+					}
+				},
+				{
+					"name": "UniformControls",
+					"props": {
+						"enabled": true,
+						"tag": ""
+					}
+				},
+				{
+					"name": "TextureGenerator",
+					"props": {
+						"enabled": true,
+						"tag": ""
 					}
 				}
 			]
 		},
 		{
-			"path": "/CamDof/blidgeRoot/OREngine",
+			"path": "/root/test",
+			"components": [
+				{
+					"name": "Particles",
+					"props": {
+						"enabled": true,
+						"tag": ""
+					}
+				}
+			]
+		},
+		{
+			"path": "/root/blidgeRoot/Camera",
+			"components": [
+				{
+					"name": "MainCamera",
+					"props": {
+						"enabled": true,
+						"tag": ""
+					}
+				}
+			]
+		},
+		{
+			"path": "/root/blidgeRoot/OREngine",
 			"components": [
 				{
 					"name": "OREngineLogoMaterial",
 					"props": {
-						"enabled": true
+						"enabled": true,
+						"tag": "materialOverride"
 					}
 				}
 			]
 		},
 		{
-			"path": "/CamDof/blidgeRoot/SkyBox",
+			"path": "/root/blidgeRoot/OREngineCube",
+			"components": [
+				{
+					"name": "ObjectRotate",
+					"props": {
+						"enabled": true,
+						"tag": ""
+					}
+				},
+				{
+					"name": "OREngineCubeMaterial",
+					"props": {
+						"enabled": true,
+						"tag": "materialOverride"
+					}
+				}
+			]
+		},
+		{
+			"path": "/root/blidgeRoot/SkyBox",
 			"components": [
 				{
 					"name": "SkyBox",
 					"props": {
-						"enabled": true
+						"enabled": true,
+						"tag": ""
 					}
 				}
 			]
 		}
 	],
 	"scene": {
-		"name": "CamDof"
+		"name": "root",
+		"childs": [
+			{
+				"name": "test"
+			}
+		]
 	},
 	"timeline/": null,
 	"timeline/duration": 600,
