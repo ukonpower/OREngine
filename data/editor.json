@@ -57,6 +57,25 @@
 					]
 				},
 				{
+					"path": "/root/test",
+					"components": [
+						{
+							"name": "Particles",
+							"props": {
+								"enabled": true,
+								"tag": ""
+							}
+						},
+						{
+							"name": "Raymarch",
+							"props": {
+								"enabled": true,
+								"tag": ""
+							}
+						}
+					]
+				},
+				{
 					"path": "/root/blidgeRoot/Camera",
 					"components": [
 						{
@@ -128,11 +147,11 @@
 	"enableRender": true,
 	"projectName": "New Project",
 	"openedProject": "New Project",
-	"resolutionScale": 0.25,
+	"resolutionScale": 0.5,
 	"viewType": "debug",
 	"frameLoop/": null,
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,
 	"frameLoop/end": 0,
-	"selectedEntityId": "31"
+	"selectedEntityId": "66"
 }

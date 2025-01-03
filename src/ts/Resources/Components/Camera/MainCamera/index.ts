@@ -317,50 +317,71 @@ export class MainCamera extends MXP.Component {
 		-------------------------------*/
 
 		const pixelSortRT1 = new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-			new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
+			new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.NEAREST, minFilter: gl.NEAREST } ),
 		] );
 
 		const pixelSortRT2 = new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-			new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
+			new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.NEAREST, minFilter: gl.NEAREST } ),
 		] );
 
 		const pixelSortPasses: MXP.PostProcessPass[] = [];
 
-		const width = 512;
+		const width = 1024;
 
 		const blocks = Math.log2( width );
 
-		for ( let iBlocks = 0; iBlocks < blocks; iBlocks ++ ) {
+		let cnt = 0;
 
-			const pixelSort = new MXP.PostProcessPass( gl, {
-				name: 'pixelSort',
-				frag: MXP.hotGet( "pixelSort", pixelSortFrag ),
-				uniforms: this._animateReceiver.registerUniforms( MXP.UniformsUtils.merge( globalUniforms.time, {
-					uPixelSort: {
-						value: 0,
-						type: '1f'
-					}
-				} ) ),
-				fixedResotluion: new GLP.Vector( 512, 512 ),
-			} );
+		for ( let iBlock = 0; iBlock < blocks; iBlock ++ ) {
 
-			if ( import.meta.hot ) {
+			for ( let iSubBlock = 0; iSubBlock <= iBlock; iSubBlock ++ ) {
 
-				import.meta.hot.accept( "./shaders/pixelSort.fs", ( module ) => {
+				const backBufferOverride = cnt % 2 === 0 ? pixelSortRT1.textures : pixelSortRT2.textures;
 
-					if ( module ) {
-
-						pixelSort.frag = module.default;
-
-					}
-
-					pixelSort.requestUpdate();
-
+				const pixelSort: MXP.PostProcessPass = new MXP.PostProcessPass( gl, {
+					name: 'pixelSort',
+					frag: MXP.hotGet( "pixelSort", pixelSortFrag ),
+					uniforms: this._animateReceiver.registerUniforms( MXP.UniformsUtils.merge( globalUniforms.time, {
+						uPixelSort: {
+							value: 0,
+							type: '1f'
+						},
+						uBlock: {
+							value: iBlock,
+							type: "1f"
+						},
+						uSubBlock: {
+							value: iSubBlock,
+							type: "1f"
+						}
+					} ) ),
+					passThrough: true,
+					backBufferOverride: cnt === 0 ? undefined : backBufferOverride,
+					renderTarget: cnt % 2 === 0 ? pixelSortRT2 : pixelSortRT1,
+					fixedResotluion: new GLP.Vector( 1024, 512 ),
 				} );
 
-			}
+				cnt ++;
 
-			pixelSortPasses.push( pixelSort );
+				if ( import.meta.hot ) {
+
+					import.meta.hot.accept( "./shaders/pixelSort.fs", ( module ) => {
+
+						if ( module ) {
+
+							pixelSort.frag = module.default;
+
+						}
+
+						pixelSort.requestUpdate();
+
+					} );
+
+				}
+
+				pixelSortPasses.push( pixelSort );
+
+			}
 
 		}
 
