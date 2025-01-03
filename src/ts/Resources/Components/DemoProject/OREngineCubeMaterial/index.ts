@@ -1,4 +1,5 @@
 import * as MXP from 'maxpower';
+import { Engine } from 'orengine';
 
 import orengineCubeFrag from './shaders/orengineCube.fs';
 import orengineCubeVert from './shaders/orengineCube.vs';
@@ -13,10 +14,10 @@ export class OREngineCubeMaterial extends MXP.MaterialOverride {
 			frag: MXP.hotGet( "orengineCubeFrag", orengineCubeFrag ),
 			vert: MXP.hotGet( "orengineCubeVert", orengineCubeVert ),
 			uniforms: MXP.UniformsUtils.merge( globalUniforms.time, {
-				// uNoiseTex: {
-				// 	value: resource.getTexture( "noise" ),
-				// 	type: "1i"
-				// }
+				uNoiseTex: {
+					value: Engine.resources.getTexture( "noise" ),
+					type: "1i"
+				}
 			} )
 		} );
 

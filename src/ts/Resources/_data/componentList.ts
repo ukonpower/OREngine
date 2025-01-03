@@ -13,6 +13,7 @@ import { Particles } from '../Components/Samples/Particles/index.ts';
 import { Raymarch } from '../Components/Samples/Raymarch/index.ts';
 import { BLidgeClient } from '../Components/Utilities/BLidgeClient/index.ts';
 import { Text } from '../Components/Utilities/Text/index.ts';
+import { TextureGenerator } from '../Components/Utilities/TextureGenerator/index.ts';
 import { UniformControls } from '../Components/Utilities/UniformsControls/index.ts';
 
 export const COMPONENTLIST: {[key: string]: any} = {
@@ -42,6 +43,7 @@ export const COMPONENTLIST: {[key: string]: any} = {
 	Utilities: {
 		BLidgeClient,
 		Text,
+		TextureGenerator,
 		UniformControls,
 	},
 };

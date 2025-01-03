@@ -1,7 +1,7 @@
 import { OREngineContext } from "./Context/OREngineContext";
 import { useOREngineContext } from "./Hooks/useOREngineContext";
 
-export const OREngine: React.FC<{children?: React.ReactNode, gl: WebGL2RenderingContext}> = ( props ) => {
+export const OREngine: React.FC<{children?: React.ReactNode, gl: WebGL2RenderingContext }> = ( props ) => {
 
 	const context = useOREngineContext( props.gl );
 

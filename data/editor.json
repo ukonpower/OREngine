@@ -17,10 +17,6 @@
 				1,
 				1
 			],
-			"children": [
-				"31"
-			],
-			"components": [],
 			"objectOverride": [
 				{
 					"path": "/root",
@@ -46,6 +42,13 @@
 						},
 						{
 							"name": "UniformControls",
+							"props": {
+								"enabled": true,
+								"tag": ""
+							}
+						},
+						{
+							"name": "TextureGenerator",
 							"props": {
 								"enabled": true,
 								"tag": ""
@@ -81,17 +84,17 @@
 					"path": "/root/blidgeRoot/OREngineCube",
 					"components": [
 						{
-							"name": "OREngineCubeMaterial",
-							"props": {
-								"enabled": true,
-								"tag": "materialOverride"
-							}
-						},
-						{
 							"name": "ObjectRotate",
 							"props": {
 								"enabled": true,
 								"tag": ""
+							}
+						},
+						{
+							"name": "OREngineCubeMaterial",
+							"props": {
+								"enabled": true,
+								"tag": "materialOverride"
 							}
 						}
 					]
