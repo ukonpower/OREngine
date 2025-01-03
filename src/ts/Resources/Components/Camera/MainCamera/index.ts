@@ -311,7 +311,6 @@ export class MainCamera extends MXP.Component {
 
 		}
 
-
 		this._postProcess = this._entity.addComponent( MXP.PostProcess, { passes: [
 			this._bloomBright,
 			...this._bloomBlur,
