@@ -10,6 +10,7 @@ import compositeFrag from './shaders/composite.fs';
 import fxaaFrag from './shaders/fxaa.fs';
 import gaussBlur from './shaders/gaussBlur.fs';
 import glitchFrag from './shaders/glitch.fs';
+import pixelSortFrag from './shaders/pixelSort.fs';
 
 import { gl, canvas, globalUniforms } from '~/ts/Globals';
 
@@ -23,6 +24,7 @@ export class MainCamera extends MXP.Component {
 	private _lookAt: LookAt;
 	private _orbitControls?: OrbitControls;
 	private _shakeViewer: MXP.Component;
+	private _postProcess: MXP.PostProcess;
 	private _fxaa: MXP.PostProcessPass;
 	private _bloomRenderCount: number;
 	private _bloomBright: MXP.PostProcessPass;
@@ -36,7 +38,6 @@ export class MainCamera extends MXP.Component {
 	private _resolution: GLP.Vector;
 	private _resolutionInv: GLP.Vector;
 	private _resolutionBloom: GLP.Vector[];
-	private _postProcess: MXP.PostProcess;
 	private _dofTarget: MXP.Entity | null;
 	private _tmpVector1: GLP.Vector;
 	private _tmpVector2: GLP.Vector;
@@ -311,11 +312,69 @@ export class MainCamera extends MXP.Component {
 
 		}
 
+		/*-------------------------------
+			PixelSort
+		-------------------------------*/
+
+		const pixelSortRT1 = new GLP.GLPowerFrameBuffer( gl ).setTexture( [
+			new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
+		] );
+
+		const pixelSortRT2 = new GLP.GLPowerFrameBuffer( gl ).setTexture( [
+			new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
+		] );
+
+		const pixelSortPasses: MXP.PostProcessPass[] = [];
+
+		const width = 512;
+
+		const blocks = Math.log2( width );
+
+		for ( let iBlocks = 0; iBlocks < blocks; iBlocks ++ ) {
+
+			const pixelSort = new MXP.PostProcessPass( gl, {
+				name: 'pixelSort',
+				frag: MXP.hotGet( "pixelSort", pixelSortFrag ),
+				uniforms: this._animateReceiver.registerUniforms( MXP.UniformsUtils.merge( globalUniforms.time, {
+					uPixelSort: {
+						value: 0,
+						type: '1f'
+					}
+				} ) ),
+				fixedResotluion: new GLP.Vector( 512, 512 ),
+			} );
+
+			if ( import.meta.hot ) {
+
+				import.meta.hot.accept( "./shaders/pixelSort.fs", ( module ) => {
+
+					if ( module ) {
+
+						pixelSort.frag = module.default;
+
+					}
+
+					pixelSort.requestUpdate();
+
+				} );
+
+			}
+
+			pixelSortPasses.push( pixelSort );
+
+		}
+
+
+		/*-------------------------------
+			PostProcess
+		-------------------------------*/
+
 		this._postProcess = this._entity.addComponent( MXP.PostProcess, { passes: [
 			this._bloomBright,
 			...this._bloomBlur,
 			this._fxaa,
 			this._composite,
+			...pixelSortPasses,
 		] } );
 
 		// dof

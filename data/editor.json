@@ -129,7 +129,7 @@
 	"projectName": "New Project",
 	"openedProject": "New Project",
 	"resolutionScale": 0.25,
-	"viewType": "render",
+	"viewType": "debug",
 	"frameLoop/": null,
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,

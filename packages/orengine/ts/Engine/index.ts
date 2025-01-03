@@ -31,7 +31,7 @@ export class Engine extends MXP.Entity {
 	private _canvas: HTMLCanvasElement | OffscreenCanvas;
 	private _projectCache: OREngineProjectData | null;
 	private _projectSerializer: SceneSerializer;
-	private _frame: FramePlay;
+	public _frame: FramePlay;
 	private _disposed: boolean;
 
 	constructor( gl: WebGL2RenderingContext ) {
