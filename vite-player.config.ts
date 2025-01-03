@@ -47,7 +47,7 @@ export default defineConfig( {
 		},
 		rollupOptions: {
 			input: {
-				"main": "./src/ts/OREnginePlayer/index.ts"
+				"main": "./src/ts/Player/index.ts"
 			},
 			output: {
 				entryFileNames: 'index.js'
@@ -58,7 +58,15 @@ export default defineConfig( {
 		alias: {
 			"glpower": path.join( __dirname, "packages/glpower/packages/glpower/src" ),
 			"maxpower": path.join( __dirname, "packages/maxpower" ),
+			"orengine": path.join( __dirname, "packages/orengine" ),
 			"~": path.join( __dirname, "src" ),
+		},
+	},
+	css: {
+		preprocessorOptions: {
+			scss: {
+				api: "modern-compiler",
+			},
 		},
 	},
 	plugins: [

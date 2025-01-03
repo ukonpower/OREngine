@@ -4,7 +4,6 @@ import * as MXP from 'maxpower';
 import { OREngineProjectData, SceneSerializer, OREngineProjectFrame } from './ProjectSerializer';
 import { Resources } from './Resources';
 
-
 export interface SceneTime {
 	current: number;
 	engine: number;
@@ -19,20 +18,20 @@ export interface FramePlay {
 
 export class Engine extends MXP.Entity {
 
-	public static resources: Resources = new Resources();
-	public static instances: Map<WebGL2RenderingContext, Engine> = new Map();
+	public static resources: Resources;
+	public static instances: Map<WebGL2RenderingContext, Engine>;
 
 	public enableRender: boolean;
+	public _root: MXP.Entity;
+	public _time: SceneTime;
+	public _frameSetting: OREngineProjectFrame;
 	private _renderer: MXP.Renderer;
 	private _gl: WebGL2RenderingContext;
 	private _canvasWrapElm: HTMLElement;
 	private _canvas: HTMLCanvasElement | OffscreenCanvas;
 	private _projectCache: OREngineProjectData | null;
 	private _projectSerializer: SceneSerializer;
-	public _root: MXP.Entity;
-	public _time: SceneTime;
-	public _frame: FramePlay;
-	public _frameSetting: OREngineProjectFrame;
+	private _frame: FramePlay;
 	private _disposed: boolean;
 
 	constructor( gl: WebGL2RenderingContext ) {
@@ -201,6 +200,13 @@ export class Engine extends MXP.Entity {
 
 	}
 
+	public get frame() {
+
+		return this._frame;
+
+
+	}
+
 	public get disposed() {
 
 		return this._disposed;
@@ -344,3 +350,7 @@ export class Engine extends MXP.Entity {
 	}
 
 }
+
+// 初期化演算子を使うとterserに消されるのでこっちで初期化
+Engine.resources = new Resources();
+Engine.instances = new Map();
