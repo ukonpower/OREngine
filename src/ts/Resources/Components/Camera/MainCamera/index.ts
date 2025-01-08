@@ -1,5 +1,6 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
+import { Engine } from 'orengine';
 
 import { ShakeViewer } from '../../CameraControls/CameraShake';
 import { OrbitControls } from '../../CameraControls/OrbitControls';
@@ -11,6 +12,7 @@ import fxaaFrag from './shaders/fxaa.fs';
 import gaussBlur from './shaders/gaussBlur.fs';
 import glitchFrag from './shaders/glitch.fs';
 import pixelSortFrag from './shaders/pixelSort.fs';
+import pixelSortRangeFrag from './shaders/pixelSortRange.fs';
 
 import { gl, canvas, globalUniforms } from '~/ts/Globals';
 
@@ -313,6 +315,35 @@ export class MainCamera extends MXP.Component {
 		}
 
 		/*-------------------------------
+			pixelSortRange
+		-------------------------------*/
+
+		const pixelSortRange = new MXP.PostProcessPass( gl, {
+			name: 'pixelSortRange',
+			frag: MXP.hotUpdate( "pixelSortRange", pixelSortRangeFrag ),
+			passThrough: true,
+			uniforms: MXP.UniformsUtils.merge( globalUniforms.time, {
+			} )
+		} );
+
+		if ( import.meta.hot ) {
+
+			import.meta.hot.accept( "./shaders/pixelSortRange.fs", ( module ) => {
+
+				if ( module ) {
+
+					pixelSortRange.frag = module.default;
+
+				}
+
+				pixelSortRange.requestUpdate();
+
+			} );
+
+		}
+
+
+		/*-------------------------------
 			PixelSort
 		-------------------------------*/
 
@@ -326,9 +357,9 @@ export class MainCamera extends MXP.Component {
 
 		const pixelSortPasses: MXP.PostProcessPass[] = [];
 
-		const width = 1024;
+		const psWidth = 512;
 
-		const blocks = Math.log2( width );
+		const blocks = Math.log2( psWidth );
 
 		let cnt = 0;
 
@@ -342,9 +373,13 @@ export class MainCamera extends MXP.Component {
 					name: 'pixelSort',
 					frag: MXP.hotGet( "pixelSort", pixelSortFrag ),
 					uniforms: this._animateReceiver.registerUniforms( MXP.UniformsUtils.merge( globalUniforms.time, {
-						uPixelSort: {
-							value: 0,
-							type: '1f'
+						uRangeTex: {
+							value: pixelSortRange.renderTarget!.textures[ 0 ],
+							type: '1i'
+						},
+						uNoiseTex: {
+							value: Engine.resources.getTexture( "noise" ),
+							type: '1i'
 						},
 						uBlock: {
 							value: iBlock,
@@ -358,7 +393,7 @@ export class MainCamera extends MXP.Component {
 					passThrough: true,
 					backBufferOverride: cnt === 0 ? undefined : backBufferOverride,
 					renderTarget: cnt % 2 === 0 ? pixelSortRT2 : pixelSortRT1,
-					fixedResotluion: new GLP.Vector( 1024, 512 ),
+					fixedResotluion: new GLP.Vector( psWidth, psWidth ),
 				} );
 
 				cnt ++;
@@ -389,12 +424,15 @@ export class MainCamera extends MXP.Component {
 		/*-------------------------------
 			PostProcess
 		-------------------------------*/
+		const lastPass = pixelSortPasses[ pixelSortPasses.length - 1 ];
+		lastPass.passThrough = false;
 
 		this._postProcess = this._entity.addComponent( MXP.PostProcess, { passes: [
 			this._bloomBright,
 			...this._bloomBlur,
 			this._fxaa,
 			this._composite,
+			pixelSortRange,
 			...pixelSortPasses,
 		] } );
 
