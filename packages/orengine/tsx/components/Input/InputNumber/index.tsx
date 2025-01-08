@@ -8,6 +8,7 @@ import style from './index.module.scss';
 
 type Props = ValueProps<number> & {
 	onChange?: ( value: number ) => void;
+	step?: number;
 };
 
 export const InputNumber = ( props: Props ) => {

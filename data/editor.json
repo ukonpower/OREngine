@@ -82,7 +82,9 @@
 							"name": "MainCamera",
 							"props": {
 								"enabled": true,
-								"tag": ""
+								"tag": "",
+								"pixelSortThresholdMin": 0.2,
+								"pixelSortThresholdMax": 1
 							}
 						}
 					]
@@ -147,7 +149,7 @@
 	"enableRender": true,
 	"projectName": "New Project",
 	"openedProject": "New Project",
-	"resolutionScale": 0.5,
+	"resolutionScale": 1,
 	"viewType": "debug",
 	"frameLoop/": null,
 	"frameLoop/enabled": false,

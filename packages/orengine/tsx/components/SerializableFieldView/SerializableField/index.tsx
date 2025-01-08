@@ -43,7 +43,7 @@ export const SerializableField: React.FC<{fields: MXP.SerializeFieldsAsDirectory
 
 		if ( field.type === "value" ) {
 
-			elm = <SerializableFieldValue key={componentKey} path={path} field={field}/>;
+			elm = <SerializableFieldValue key={componentKey} path={path} field={field} />;
 
 		} else {
 

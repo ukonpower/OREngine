@@ -1,4 +1,4 @@
-import { SerializableFieldType, SerializeFieldValue } from 'maxpower';
+import { SerializableFieldFormat, SerializableFieldOpt, SerializeFieldValue } from 'maxpower';
 
 import { Button } from '../Button';
 import { InputBoolean } from '../Input/InputCheckBox';
@@ -7,15 +7,19 @@ import { InputSelect } from '../Input/InputSelect';
 import { InputText } from '../Input/InputText';
 import { Vector } from '../Vector';
 
+export type ValueOpt = {
+	readOnly?: boolean,
+	step?: number,
+	disabled?: boolean,
+}
+
 export type ValueProps<T extends SerializeFieldValue> = {
 	value: T | undefined,
 	onChange?: ( value: T ) => void
-	disabled?: boolean,
-	format?: SerializableFieldType,
-	readOnly?: boolean,
-}
+	format?: SerializableFieldFormat
+} & ValueOpt
 
-export const Value = <T extends SerializeFieldValue>( { value, onChange, format, readOnly }: ValueProps<T> ) => {
+export const Value = <T extends SerializeFieldValue>( { value, onChange, format, step, readOnly }: ValueProps<T> ) => {
 
 	let inputElm = null;
 
@@ -45,7 +49,7 @@ export const Value = <T extends SerializeFieldValue>( { value, onChange, format,
 
 		if ( typeof value === "number" ) {
 
-			inputElm = <InputNumber value={value} onChange={onChange} />;
+			inputElm = <InputNumber value={value} onChange={onChange} step={step} />;
 
 		} else if ( typeof value === "string" ) {
 

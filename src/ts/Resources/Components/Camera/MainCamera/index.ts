@@ -12,6 +12,7 @@ import fxaaFrag from './shaders/fxaa.fs';
 import gaussBlur from './shaders/gaussBlur.fs';
 import glitchFrag from './shaders/glitch.fs';
 import pixelSortFrag from './shaders/pixelSort.fs';
+import pixelSortMaskFrag from './shaders/pixelSortMask.fs';
 import pixelSortRangeFrag from './shaders/pixelSortRange.fs';
 
 import { gl, canvas, globalUniforms } from '~/ts/Globals';
@@ -315,15 +316,58 @@ export class MainCamera extends MXP.Component {
 		}
 
 		/*-------------------------------
-			pixelSortRange
+			PixelSort
 		-------------------------------*/
+
+		const pixelSortResolution = new GLP.Vector( 2048, 1024 );
+		const pixelSortUniforms = MXP.UniformsUtils.merge( globalUniforms.time, {
+			uThresholdMin: {
+				value: 0.2,
+				type: '1f'
+			},
+			uThresholdMax: {
+				value: 1,
+				type: '1f'
+			}
+		} );
+
+		// mask
+
+		const pixelSortMask = new MXP.PostProcessPass( gl, {
+			name: 'pixelSortMask',
+			frag: MXP.hotUpdate( "pixelSortMask", pixelSortMaskFrag ),
+			passThrough: true,
+			uniforms: MXP.UniformsUtils.merge( pixelSortUniforms ),
+			fixedResotluion: new GLP.Vector( pixelSortResolution.x / 4, pixelSortResolution.y / 4 )
+		} );
+
+		if ( import.meta.hot ) {
+
+			this.field( "pixelSortThresholdMin", () => pixelSortUniforms.uThresholdMin.value, ( value ) => pixelSortUniforms.uThresholdMin.value = value, {
+				step: 0.01
+			} );
+			this.field( "pixelSortThresholdMax", () => pixelSortUniforms.uThresholdMax.value, ( value ) => pixelSortUniforms.uThresholdMax.value = value, {
+				step: 0.05
+			} );
+
+		}
+
+		// range
 
 		const pixelSortRange = new MXP.PostProcessPass( gl, {
 			name: 'pixelSortRange',
 			frag: MXP.hotUpdate( "pixelSortRange", pixelSortRangeFrag ),
 			passThrough: true,
-			uniforms: MXP.UniformsUtils.merge( globalUniforms.time, {
-			} )
+			uniforms: MXP.UniformsUtils.merge( {
+				uMaskTex: {
+					value: pixelSortMask.renderTarget!.textures[ 0 ],
+					type: '1i'
+				}
+			} ),
+			fixedResotluion: new GLP.Vector( pixelSortResolution.x / 4, pixelSortResolution.y / 4 ),
+			renderTarget: new GLP.GLPowerFrameBuffer( gl ).setTexture( [
+				new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA } ),
+			] ),
 		} );
 
 		if ( import.meta.hot ) {
@@ -342,10 +386,7 @@ export class MainCamera extends MXP.Component {
 
 		}
 
-
-		/*-------------------------------
-			PixelSort
-		-------------------------------*/
+		// sort
 
 		const pixelSortRT1 = new GLP.GLPowerFrameBuffer( gl ).setTexture( [
 			new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.NEAREST, minFilter: gl.NEAREST } ),
@@ -357,13 +398,11 @@ export class MainCamera extends MXP.Component {
 
 		const pixelSortPasses: MXP.PostProcessPass[] = [];
 
-		const psWidth = 512;
-
-		const blocks = Math.log2( psWidth );
+		const pixelSortBlocks = Math.log2( pixelSortResolution.y );
 
 		let cnt = 0;
 
-		for ( let iBlock = 0; iBlock < blocks; iBlock ++ ) {
+		for ( let iBlock = 0; iBlock < pixelSortBlocks; iBlock ++ ) {
 
 			for ( let iSubBlock = 0; iSubBlock <= iBlock; iSubBlock ++ ) {
 
@@ -377,8 +416,8 @@ export class MainCamera extends MXP.Component {
 							value: pixelSortRange.renderTarget!.textures[ 0 ],
 							type: '1i'
 						},
-						uNoiseTex: {
-							value: Engine.resources.getTexture( "noise" ),
+						uMaskTex: {
+							value: pixelSortMask.renderTarget!.textures[ 0 ],
 							type: '1i'
 						},
 						uBlock: {
@@ -393,7 +432,7 @@ export class MainCamera extends MXP.Component {
 					passThrough: true,
 					backBufferOverride: cnt === 0 ? undefined : backBufferOverride,
 					renderTarget: cnt % 2 === 0 ? pixelSortRT2 : pixelSortRT1,
-					fixedResotluion: new GLP.Vector( psWidth, psWidth ),
+					fixedResotluion: pixelSortResolution,
 				} );
 
 				cnt ++;
@@ -432,6 +471,7 @@ export class MainCamera extends MXP.Component {
 			...this._bloomBlur,
 			this._fxaa,
 			this._composite,
+			pixelSortMask,
 			pixelSortRange,
 			...pixelSortPasses,
 		] } );
