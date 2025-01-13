@@ -83,8 +83,8 @@
 							"props": {
 								"enabled": true,
 								"tag": "",
-								"pixelSortThresholdMin": 0.2,
-								"pixelSortThresholdMax": 1
+								"pixelSortThresholdMin": 0.8549999999999983,
+								"pixelSortThresholdMax": 0.9350000000000002
 							}
 						}
 					]
@@ -155,5 +155,5 @@
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,
 	"frameLoop/end": 0,
-	"selectedEntityId": "66"
+	"selectedEntityId": "c7"
 }

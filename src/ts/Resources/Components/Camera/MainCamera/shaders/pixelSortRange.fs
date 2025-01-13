@@ -12,20 +12,18 @@ void main(void) {
 
 	float threshold = uTime;
 
-	float startPos = vUv.y;
+	float startPos = gl_FragCoord.y;
 	float startMovement = 1.0;
 
 	float endPos = vUv.y;
 	float endMovement = 1.0;
 
-	float delta = (1.0 / float(MAX_ITERATIONS));
-
 	for(int i = 0; i < MAX_ITERATIONS; i++){
 
-		startPos -= delta * startMovement;
-		endPos += delta * endMovement;
+		startPos -= startMovement;
+		endPos += endMovement;
 
-		vec4 startCol = texture(uMaskTex, vec2( vUv.x, startPos ) );
+		vec4 startCol = texelFetch( uMaskTex, ivec2( gl_FragCoord.x, startPos ), 0 );
 
 		if( startCol.x < 0.5 ) {
 			startMovement = 0.0;
@@ -36,15 +34,15 @@ void main(void) {
 			startPos = 0.0;
 		}
 
-		vec4 endCol = texture(uMaskTex, vec2( vUv.x, endPos ));
+		vec4 endCol = texelFetch( uMaskTex, ivec2( gl_FragCoord.x, endPos ), 0 );
 
 		if( endCol.x < 0.5 ) {
 			endMovement = 0.0;
 		}
 
-		if( endCol.x >= 1.0 ) {
+		if( endPos >= 512.0 ) {
 			endMovement = 0.0;
-			endPos = 1.0;
+			endPos = 512.0;
 		}
 
 		if( startMovement == 0.0 && endMovement == 0.0 ) {
@@ -53,6 +51,6 @@ void main(void) {
 		
 	}
 
-	outColor = vec4( startPos, endPos, endPos - startPos, startPos - vUv.y );
+	outColor = vec4( startPos, endPos, endPos - startPos, 0.0 );
 
 }
