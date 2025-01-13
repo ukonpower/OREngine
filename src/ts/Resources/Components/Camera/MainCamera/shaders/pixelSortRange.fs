@@ -6,7 +6,7 @@ layout (location = 0) out vec4 outColor;
 
 in vec2 vUv;
 
-#define MAX_ITERATIONS 256
+#define MAX_ITERATIONS 512
 
 void main(void) {
 
@@ -15,7 +15,7 @@ void main(void) {
 	float startPos = gl_FragCoord.y;
 	float startMovement = 1.0;
 
-	float endPos = vUv.y;
+	float endPos = gl_FragCoord.y;
 	float endMovement = 1.0;
 
 	for(int i = 0; i < MAX_ITERATIONS; i++){
@@ -51,6 +51,6 @@ void main(void) {
 		
 	}
 
-	outColor = vec4( startPos, endPos, endPos - startPos, 0.0 );
+	outColor = vec4( startPos, endPos, (endPos - startPos), 0.0 );
 
 }

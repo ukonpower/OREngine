@@ -15,7 +15,7 @@ void main(void) {
 
 	float value = (texCol.x + texCol.y + texCol.z) / 3.0;
 
-	if( (1.0 - uTime * 0.3) <= value || value >= uThresholdMax ) {
+	if( value < (uTime * 0.3)  || value > uThresholdMax ) {
 	// if( uThresholdMin <= value || value >= uThresholdMax ) {
 		outColor = vec4( 1.0, 0.0, 0.0, 1.0 );
 		return;
