@@ -319,6 +319,10 @@ export class MainCamera extends MXP.Component {
 			PixelSort
 		-------------------------------*/
 
+		const texture = new GLP.GLPowerTexture( gl ).load( "./demo.jpg" );
+
+		const pixelSortInput = undefined;
+
 		const pixelSortResolution = new GLP.Vector( 1024, 512 );
 		const pixelSortUniforms = MXP.UniformsUtils.merge( globalUniforms.time, {
 			uThresholdMin: {
@@ -333,15 +337,14 @@ export class MainCamera extends MXP.Component {
 
 		// mask
 
-		const texture = new GLP.GLPowerTexture( gl ).load( "./demo.jpg" );
 
 		const pixelSortMask = new MXP.PostProcessPass( gl, {
 			name: 'pixelSortMask',
 			frag: MXP.hotUpdate( "pixelSortMask", pixelSortMaskFrag ),
 			passThrough: true,
 			uniforms: MXP.UniformsUtils.merge( globalUniforms.time, pixelSortUniforms ),
-			fixedResotluion: new GLP.Vector( pixelSortResolution.x / 4, pixelSortResolution.y / 4 ),
-			backBufferOverride: [ texture ]
+			fixedResotluion: new GLP.Vector( pixelSortResolution.x, pixelSortResolution.y ),
+			backBufferOverride: pixelSortInput
 		} );
 
 		if ( import.meta.hot ) {
@@ -351,6 +354,18 @@ export class MainCamera extends MXP.Component {
 			} );
 			this.field( "pixelSortThresholdMax", () => pixelSortUniforms.uThresholdMax.value, ( value ) => pixelSortUniforms.uThresholdMax.value = value, {
 				step: 0.05
+			} );
+
+			import.meta.hot.accept( "./shaders/pixelSortMask.fs", ( module ) => {
+
+				if ( module ) {
+
+					pixelSortMask.frag = module.default;
+
+				}
+
+				pixelSortMask.requestUpdate();
+
 			} );
 
 		}
@@ -367,7 +382,7 @@ export class MainCamera extends MXP.Component {
 					type: '1i'
 				}
 			} ),
-			fixedResotluion: new GLP.Vector( pixelSortResolution.x / 4, pixelSortResolution.y / 4 ),
+			fixedResotluion: new GLP.Vector( pixelSortResolution.x, pixelSortResolution.y ),
 			renderTarget: new GLP.GLPowerFrameBuffer( gl ).setTexture( [
 				new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA } ),
 			] ),
@@ -433,7 +448,7 @@ export class MainCamera extends MXP.Component {
 						}
 					} ) ),
 					passThrough: true,
-					backBufferOverride: cnt === 0 ? [ texture ] : backBufferOverride,
+					backBufferOverride: cnt === 0 ? pixelSortInput : backBufferOverride,
 					renderTarget: cnt % 2 === 0 ? pixelSortRT2 : pixelSortRT1,
 					fixedResotluion: pixelSortResolution,
 				} );

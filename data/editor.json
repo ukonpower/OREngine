@@ -84,7 +84,7 @@
 								"enabled": true,
 								"tag": "",
 								"pixelSortThresholdMin": 0.8549999999999983,
-								"pixelSortThresholdMax": 0.9350000000000002
+								"pixelSortThresholdMax": 1
 							}
 						}
 					]
@@ -155,5 +155,5 @@
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,
 	"frameLoop/end": 0,
-	"selectedEntityId": "c7"
+	"selectedEntityId": "7d"
 }

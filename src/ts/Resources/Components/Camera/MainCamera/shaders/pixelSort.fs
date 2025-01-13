@@ -17,55 +17,59 @@ float grayScale( vec3 color ) {
 }
 
 void main(void) {
-    vec4 currentPixel = texture(backbuffer0, vUv);
-    float currentValue = grayScale( currentPixel.xyz );
-    vec4 currentMaskCol = texture( uMaskTex, vUv );
 
-    vec4 rangeCol = texture( uRangeTex, vUv );
-	
-    float startPixel = rangeCol.x; // ソート範囲の開始位置
-    float endPixel = rangeCol.y;   // ソート範囲の終了位置
+    // meta
+    
+    vec4 meta = texelFetch( uRangeTex, ivec2( gl_FragCoord.xy ), 0 );
+    float metaStartPixel = meta.x; // ソート範囲の開始位置
+    float metaEndPixel = meta.y;   // ソート範囲の終了位置
+    float metaRangeLength = meta.z; // ソート範囲の長さ
+    
+    // calc coord
 
-    // // 現在のピクセルのy座標が範囲外の場合、そのまま出力
-	
-    // if (gl_FragCoord.y < startPixel || gl_FragCoord.y > endPixel) {
-    //     outColor = currentPixel;
-    //     return;
-    // }
-
-    float offsetPixel = rangeCol.x;
-
-    vec2 coord = gl_FragCoord.xy;
-    coord.y -= offsetPixel;
+    float coordY = gl_FragCoord.y;
+    float coordYoffset = coordY - metaStartPixel;
 
     int p = int(uBlock);
     int q = int(uSubBlock);
-
     int d = 1 << (p-q);
+    bool up = ((int(coordYoffset) >> p) & int(2)) == 0;
+    bool compareDir = ((int(coordYoffset) >> (p - q)) & int(1)) == 0;
 
-    bool up = ((int(coord.y) >> p) & int(2)) == 0;
-    bool compareDir = ((int(coord.y) >> (p - q)) & int(1)) == 0;
+    float coordYTargetOffset = coordYoffset + float(compareDir ? d : - d);
+    float corrdYTarget = coordY + float(compareDir ? d : - d);
 
-    float targetIndex = (coord.y) + float(compareDir ? d : - d);
-    float targetIndexOffset = (targetIndex + offsetPixel);
-    vec2 targetUV = vec2( vUv.x, targetIndexOffset / uPPResolution.y);
+    // current, target
+    
+    vec4 currentPixel = texture(backbuffer0, vUv );
+    vec4 currentMaskValue = texture( uMaskTex, vUv );
 
-    vec4 targetPixel = texture(backbuffer0, targetUV);
-    float targetValue = grayScale( targetPixel.xyz );
-    vec4 targetMaskValue = texture( uMaskTex, targetUV );
+    vec4 targetPixel = texture( backbuffer0, vec2( gl_FragCoord.x, corrdYTarget ) / uPPResolution );
+    vec4 targetMaskValue = texture( uMaskTex, vec2( gl_FragCoord.x, corrdYTarget ) / uPPResolution );
 
-    // マスクが無効な場合はそのまま出力
-    if( currentMaskCol.x == 0.0 || targetMaskValue.x == 0.0 ) {
+    // mask
+    
+    if( currentMaskValue.x == 0.0 || targetMaskValue.x == 0.0 ) {
         outColor = currentPixel;
         return;
     }
+    
+    // range
+    
+    if( coordYTargetOffset > metaRangeLength ) {
+        outColor = currentPixel;
+        return;   
+    }
+
+    // swap
+
+    float currentValue = grayScale( currentPixel.xyz );
+    float targetValue = grayScale( targetPixel.xyz );
 
     bool shouldSwap = (up == compareDir)
-        ? (currentValue < targetValue)
-        : (currentValue > targetValue);
+        ? (currentValue > targetValue)
+        : (currentValue < targetValue);
 
     outColor = shouldSwap ? targetPixel : currentPixel;
-
-    // デバッグ用のアウトプット
-    // outColor = vec4( vec3( compareDir ), 1.0 );
+    
 }
