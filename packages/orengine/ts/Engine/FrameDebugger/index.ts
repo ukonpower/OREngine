@@ -141,6 +141,26 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 			}
 
+			if ( e.key == "ArrowRight" ) {
+
+				if ( this._focus !== null ) {
+
+				 this._focus ++;
+
+				}
+
+			}
+
+			if ( e.key == "ArrowLeft" ) {
+
+				if ( this._focus !== null ) {
+
+				 this._focus --;
+
+				}
+
+			}
+
 		};
 
 		window.addEventListener( "keydown", onKeydown );

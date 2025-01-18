@@ -1,7 +1,7 @@
 import * as GLP from 'glpower';
 
 export interface PostProcessPassParam extends MaterialParam{
-	// input?: ( GLPowerTexture | null )[],
+	backBufferOverride?:GLP.GLPowerTexture[],
 	renderTarget?: GLP.GLPowerFrameBuffer | null,
 	clearColor?: GLP.Vector;
 	clearDepth?: number;
@@ -30,6 +30,7 @@ export class PostProcessPass extends Material {
 	public resolutionInv: GLP.Vector;
 	public viewPort: GLP.Vector | null;
 	private _fixedResolution: GLP.Vector | null;
+	private _backBufferOverride: GLP.GLPowerTexture[] | null;
 
 	constructor( gl: WebGL2RenderingContext, param: PostProcessPassParam ) {
 
@@ -61,6 +62,7 @@ export class PostProcessPass extends Material {
 		this.resolutionRatio = param.resolutionRatio || 1;
 		this.passThrough = param.passThrough ?? false;
 		this.viewPort = param.viewPort || null;
+		this._backBufferOverride = param.backBufferOverride || null;
 
 	}
 
@@ -70,8 +72,13 @@ export class PostProcessPass extends Material {
 
 	}
 
-	public set enabled( value: boolean ) {
+	public get backBufferOverride() {
 
+		return this._backBufferOverride;
+
+	}
+
+	public set enabled( value: boolean ) {
 	}
 
 	public onAfterRender() {

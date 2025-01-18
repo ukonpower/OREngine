@@ -1,4 +1,5 @@
 import * as GLP from 'glpower';
+import { ValueOpt } from 'packages/orengine/tsx/components/Value';
 
 type SerializableFieldTypeVector = {
 	type: "vector",
@@ -12,15 +13,14 @@ type SerializableFieldTypeSlect = {
 	} | string )[]
 }
 
-export type SerializableFieldType = SerializableFieldTypeVector | SerializableFieldTypeSlect
+export type SerializableFieldFormat = SerializableFieldTypeVector | SerializableFieldTypeSlect
 
 export type SerializableFieldOpt<> = {
 	isFolder?: boolean,
-	format?: SerializableFieldType,
 	noExport?: boolean,
 	hidden?: boolean | ( ( value: SerializeFieldValue ) => boolean ),
-	readOnly?: boolean,
-}
+	format?: SerializableFieldFormat,
+} & ValueOpt
 
 export type SerializeFieldValue = string | number | boolean | null | object;
 type SerializeFieldGetter<T extends SerializeFieldValue> = ( event: SerializeFieldSerializeEvent ) => T;
