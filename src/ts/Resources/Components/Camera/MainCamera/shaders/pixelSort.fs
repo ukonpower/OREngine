@@ -22,62 +22,70 @@ void main(void) {
 
     // meta
     
-    vec4 meta = texelFetch(uRangeTex, ivec2(gl_FragCoord.xy), 0);
+    vec4 meta = texture( uRangeTex, vUv );
     float metaRangeStart = meta.x;
-    float metaRangeLength = meta.z;
-    float metaRangeLengthPot = meta.w;
+    float metaRangeLength = meta.y;
 
     // calc coord
 
-    float coordY = gl_FragCoord.y;
-    float coordYoffset = coordY - metaRangeStart;
+    float coord = vUv.y * uPPResolution.y;
+    float coordOffset = coord - metaRangeStart;
 
-    int p = int(uBlock);
-    int q = int(uSubBlock);
-    float d = float( 1 << ( p - q ) );
-    bool up = ( ( int( coordYoffset ) >> p ) & 2) == 0;
-    bool compareDir = ( ( int( coordYoffset ) >> ( p - q ) ) & 1 ) == 0;
+    int blockIndex = int( uBlock );
+    int subBlockIndex = int( uSubBlock );
+    float d = float( 1 << ( blockIndex - subBlockIndex ) );
+    bool up = ( ( int( coordOffset ) >> blockIndex ) & 2 ) == 0;
+    bool compareDir = ( ( int( coordOffset ) >> ( blockIndex - subBlockIndex ) ) & 1 ) == 0;
 
-    int blockSize = 1 << (int(uBlock) + 1);
-    int endBlock = int(metaRangeLength) / blockSize;
-    bool ascPattern = (endBlock % 2 == 0) == ordering;  // ソートの昇順/降順パターン
+    int blockSize = 1 << ( int( uBlock ) + 1 );
+    int endBlock = int( metaRangeLength ) / blockSize;
+    bool ascPattern = ( endBlock % 2 == 0 ) == ordering;
 
-    float targetOffset = float( compareDir ? d : -d );
-    float coordYTargetOffset = coordYoffset + targetOffset;
-    float coordYTarget = coordY + targetOffset;
+    bool swapDir = up == compareDir;
+    swapDir = swapDir == ascPattern;
+
+    // target coord
+
+    float targetOffset = float( compareDir ? d : - d );
+    float coordTargetOffset = coordOffset + targetOffset;
+    float coordTarget = coord + targetOffset;
 
     // fetch color texture
 
     vec4 currentPixel = texture(backbuffer0, vUv);
     vec4 currentMaskValue = texture(uMaskTex, vUv);
 
-    vec2 targetUv = vec2(vUv.x, coordYTarget / uPPResolution.y);
+    vec2 targetUv = vec2( vUv.x, coordTarget / uPPResolution.y );
     vec4 targetPixel = texture(backbuffer0, targetUv );
     vec4 targetMaskValue = texture(uMaskTex, targetUv );
 
-    // mask / range
+    // mask
 
     if (currentMaskValue.x == 0.0 || targetMaskValue.x == 0.0 ) {
+
         outColor = currentPixel;
+
         return;
-    }
-
-    bool swapDir = (up == compareDir);
-    swapDir = swapDir == ascPattern;
-
-    if( coordYTargetOffset > metaRangeLength ) {
-
-        targetPixel = vec4( swapDir ? 1.0 : 0.0 );
 
     }
 
-    // compare swap
+    // out of range
+
+    if( coordTargetOffset > metaRangeLength ) {
+
+        outColor = swapDir ? currentPixel : targetPixel;
+
+        return;
+
+    }
+
+    // compare
 
     float currentValue = grayScale(currentPixel.xyz);
     float targetValue = grayScale(targetPixel.xyz);
 
-
-    bool shouldSwap = swapDir ? (currentValue > targetValue) : (currentValue < targetValue);
+    bool shouldSwap = swapDir == (currentValue > targetValue);
 
     outColor = shouldSwap ? targetPixel : currentPixel;
+
 }

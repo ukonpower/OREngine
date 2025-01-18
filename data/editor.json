@@ -57,25 +57,6 @@
 					]
 				},
 				{
-					"path": "/root/test",
-					"components": [
-						{
-							"name": "Particles",
-							"props": {
-								"enabled": true,
-								"tag": ""
-							}
-						},
-						{
-							"name": "Raymarch",
-							"props": {
-								"enabled": true,
-								"tag": ""
-							}
-						}
-					]
-				},
-				{
 					"path": "/root/blidgeRoot/Camera",
 					"components": [
 						{
@@ -83,7 +64,7 @@
 							"props": {
 								"enabled": true,
 								"tag": "",
-								"pixelSortThresholdMin": 0,
+								"pixelSortThresholdMin": 0.27400000000001545,
 								"pixelSortThresholdMax": 1
 							}
 						}
@@ -134,12 +115,7 @@
 				}
 			],
 			"scene": {
-				"name": "root",
-				"childs": [
-					{
-						"name": "test"
-					}
-				]
+				"name": "root"
 			},
 			"timeline/": null,
 			"timeline/duration": 600,
@@ -150,7 +126,7 @@
 	"projectName": "New Project",
 	"openedProject": "New Project",
 	"resolutionScale": 1,
-	"viewType": "debug",
+	"viewType": "render",
 	"frameLoop/": null,
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,
