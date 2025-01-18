@@ -21,31 +21,31 @@ void main(void) {
     // meta
     
     vec4 meta = texelFetch(uRangeTex, ivec2(gl_FragCoord.xy), 0);
-    float metaStartPixel = meta.x;
-    float metaEndPixel = meta.y;
+    float metaRangeStart = meta.x;
     float metaRangeLength = meta.z;
-    float potRangeLength = pow(2.0, ceil(log2(metaRangeLength)));
+    float metaRangeLengthPot = meta.w;
 
     // calc coord
 
     float coordY = gl_FragCoord.y;
-    float coordYoffset = coordY - metaStartPixel;
+    float coordYoffset = coordY - metaRangeStart;
 
     int p = int(uBlock);
     int q = int(uSubBlock);
-    int d = 1 << (p - q);
-    bool up = ((int(coordYoffset) >> p) & 2) == 0;
-    bool compareDir = ((int(coordYoffset) >> (p - q)) & 1) == 0;
+    float d = float( 1 << ( p - q ) );
+    bool up = ( ( int( coordYoffset ) >> p ) & 2) == 0;
+    bool compareDir = ( ( int( coordYoffset ) >> ( p - q ) ) & 1 ) == 0;
 
-    float coordYTargetOffset = coordYoffset + float(compareDir ? d : -d);
-    float corrdYTarget = coordY + float(compareDir ? d : -d);
+    float targetOffset = float( compareDir ? d : -d );
+    float coordYTargetOffset = coordYoffset + targetOffset;
+    float coordYTarget = coordY + targetOffset;
 
     // fetch color texture
 
     vec4 currentPixel = texture(backbuffer0, vUv);
     vec4 currentMaskValue = texture(uMaskTex, vUv);
 
-    vec2 targetUv = vec2(vUv.x, corrdYTarget / uPPResolution.y);
+    vec2 targetUv = vec2(vUv.x, coordYTarget / uPPResolution.y);
     vec4 targetPixel = texture(backbuffer0, targetUv );
     vec4 targetMaskValue = texture(uMaskTex, targetUv );
 
@@ -57,11 +57,6 @@ void main(void) {
     }
 
     if( coordYTargetOffset > metaRangeLength ) {
-
-        if( coordYTargetOffset > potRangeLength ) {
-            // outColor = currentPixel;
-            // return;
-        }
 
         targetPixel = vec4( up == compareDir ? 1.0 : 0.0 );
 

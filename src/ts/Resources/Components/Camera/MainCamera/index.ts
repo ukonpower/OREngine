@@ -321,7 +321,10 @@ export class MainCamera extends MXP.Component {
 
 		const texture = new GLP.GLPowerTexture( gl ).load( "./demo.jpg" );
 
-		const pixelSortInput = undefined;
+		let pixelSortInput = undefined;
+		pixelSortInput = undefined;
+		pixelSortInput = [ texture ];
+
 
 		const pixelSortResolution = new GLP.Vector( 1024, 512 );
 		const pixelSortUniforms = MXP.UniformsUtils.merge( globalUniforms.time, {
@@ -407,11 +410,11 @@ export class MainCamera extends MXP.Component {
 		// sort
 
 		const pixelSortRT1 = new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-			new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.NEAREST, minFilter: gl.NEAREST } ),
+			new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
 		] );
 
 		const pixelSortRT2 = new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-			new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.NEAREST, minFilter: gl.NEAREST } ),
+			new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
 		] );
 
 		const pixelSortPasses: MXP.PostProcessPass[] = [];
