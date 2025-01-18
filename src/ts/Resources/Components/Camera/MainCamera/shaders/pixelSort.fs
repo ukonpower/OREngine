@@ -16,6 +16,8 @@ float grayScale(vec3 color) {
     return dot(color, vec3(0.2126, 0.7152, 0.0722));
 }
 
+bool ordering = true;
+
 void main(void) {
 
     // meta
@@ -35,6 +37,10 @@ void main(void) {
     float d = float( 1 << ( p - q ) );
     bool up = ( ( int( coordYoffset ) >> p ) & 2) == 0;
     bool compareDir = ( ( int( coordYoffset ) >> ( p - q ) ) & 1 ) == 0;
+
+    int blockSize = 1 << (int(uBlock) + 1);
+    int endBlock = int(metaRangeLength) / blockSize;
+    bool ascPattern = (endBlock % 2 == 0) == ordering;  // ソートの昇順/降順パターン
 
     float targetOffset = float( compareDir ? d : -d );
     float coordYTargetOffset = coordYoffset + targetOffset;
@@ -56,9 +62,12 @@ void main(void) {
         return;
     }
 
+    bool swapDir = (up == compareDir);
+    swapDir = swapDir == ascPattern;
+
     if( coordYTargetOffset > metaRangeLength ) {
 
-        targetPixel = vec4( up == compareDir ? 1.0 : 0.0 );
+        targetPixel = vec4( swapDir ? 1.0 : 0.0 );
 
     }
 
@@ -67,7 +76,8 @@ void main(void) {
     float currentValue = grayScale(currentPixel.xyz);
     float targetValue = grayScale(targetPixel.xyz);
 
-    bool shouldSwap = (up == compareDir) ? (currentValue > targetValue) : (currentValue < targetValue);
+
+    bool shouldSwap = swapDir ? (currentValue > targetValue) : (currentValue < targetValue);
 
     outColor = shouldSwap ? targetPixel : currentPixel;
 }

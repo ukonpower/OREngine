@@ -10,8 +10,6 @@ in vec2 vUv;
 
 void main(void) {
 
-	float threshold = uTime;
-
 	float startPos = gl_FragCoord.y;
 	float startMovement = 1.0;
 

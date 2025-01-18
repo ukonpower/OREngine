@@ -1,6 +1,6 @@
 #include <common>
 
-#include <noise>
+#include <noise_value>
 
 in float aTime;
 
@@ -107,7 +107,7 @@ vec2 clap1( float time, float loop ) {
 
 float hihat( float time, float loop ) {
 
-	return noise(time * 22000.0) * max(0.0,1.0-min(0.85,loop*4.25)-(loop-0.25)*0.3);
+	return fbm(time * 22000.0) * max(0.0,1.0-min(0.85,loop*4.25)-(loop-0.25)*0.3);
 
 }
 
