@@ -63,7 +63,9 @@
 							"name": "MainCamera",
 							"props": {
 								"enabled": true,
-								"tag": ""
+								"tag": "",
+								"pixelSortThresholdMin": 0.27400000000001545,
+								"pixelSortThresholdMax": 1
 							}
 						}
 					]
@@ -113,12 +115,7 @@
 				}
 			],
 			"scene": {
-				"name": "root",
-				"childs": [
-					{
-						"name": "test"
-					}
-				]
+				"name": "root"
 			},
 			"timeline/": null,
 			"timeline/duration": 600,
@@ -128,11 +125,11 @@
 	"enableRender": true,
 	"projectName": "New Project",
 	"openedProject": "New Project",
-	"resolutionScale": 0.25,
-	"viewType": "debug",
+	"resolutionScale": 1,
+	"viewType": "render",
 	"frameLoop/": null,
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,
 	"frameLoop/end": 0,
-	"selectedEntityId": "31"
+	"selectedEntityId": "7d"
 }
