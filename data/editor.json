@@ -83,7 +83,7 @@
 							"props": {
 								"enabled": true,
 								"tag": "",
-								"pixelSortThresholdMin": 0.8549999999999983,
+								"pixelSortThresholdMin": 0,
 								"pixelSortThresholdMax": 1
 							}
 						}
