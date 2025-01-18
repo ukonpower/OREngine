@@ -319,14 +319,10 @@ export class MainCamera extends MXP.Component {
 			PixelSort
 		-------------------------------*/
 
-		const texture = new GLP.GLPowerTexture( gl ).load( "./demo.jpg" );
-
 		let pixelSortInput = undefined;
 		pixelSortInput = undefined;
-		pixelSortInput = [ texture ];
 
-
-		const pixelSortResolution = new GLP.Vector( 1024, 512 );
+		const pixelSortResolution = new GLP.Vector( 1920, 1080 );
 		const pixelSortUniforms = MXP.UniformsUtils.merge( globalUniforms.time, {
 			uThresholdMin: {
 				value: 0.2,

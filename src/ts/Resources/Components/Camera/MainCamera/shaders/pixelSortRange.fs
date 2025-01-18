@@ -6,7 +6,7 @@ layout (location = 0) out vec4 outColor;
 
 in vec2 vUv;
 
-#define MAX_ITERATIONS 512
+uniform vec2 uPPResolution;
 
 void main(void) {
 
@@ -16,7 +16,7 @@ void main(void) {
 	float endPos = gl_FragCoord.y;
 	float endMovement = 1.0;
 
-	for(int i = 0; i < MAX_ITERATIONS; i++){
+	for(int i = 0; i < int( uPPResolution.y ); i++){
 
 		startPos -= startMovement;
 		endPos += endMovement;
@@ -38,9 +38,9 @@ void main(void) {
 			endMovement = 0.0;
 		}
 
-		if( endPos >= 512.0 ) {
+		if( endPos >= uPPResolution.y ) {
 			endMovement = 0.0;
-			endPos = 512.0;
+			endPos = uPPResolution.y;
 		}
 
 		if( startMovement == 0.0 && endMovement == 0.0 ) {
@@ -49,8 +49,8 @@ void main(void) {
 		
 	}
 
-	float range = endPos - startPos;
+	float rangeLength = endPos - startPos;
 
-	outColor = vec4( startPos, endPos, range, pow(2.0, ceil(log2(range))  ) );
+	outColor = vec4( startPos, rangeLength, 0.0, 0.0 );
 
 }
