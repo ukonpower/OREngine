@@ -51,6 +51,8 @@ void main(void) {
 		
 	}
 
-	outColor = vec4( startPos, endPos, (endPos - startPos), 0.0 );
+	float range = endPos - startPos;
+
+	outColor = vec4( startPos, endPos, range, pow(2.0, ceil(log2(range))  ) );
 
 }
