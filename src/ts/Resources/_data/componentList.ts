@@ -1,3 +1,9 @@
+import { Bloom } from '../Components/Camera/MainCamera/PostProcess/Bloom/index.ts';
+import { Blur } from '../Components/Camera/MainCamera/PostProcess/Blur/index.ts';
+import { FXAA } from '../Components/Camera/MainCamera/PostProcess/FXAA/index.ts';
+import { Finalize } from '../Components/Camera/MainCamera/PostProcess/Finalize/index.ts';
+import { Glitch } from '../Components/Camera/MainCamera/PostProcess/Glitch/index.ts';
+import { PixelSort } from '../Components/Camera/MainCamera/PostProcess/PixelSort/index.ts';
 import { MainCamera } from '../Components/Camera/MainCamera/index.ts';
 import { RotateViewer } from '../Components/CameraControls/CameraRotate/index.ts';
 import { ShakeViewer } from '../Components/CameraControls/CameraShake/index.ts';

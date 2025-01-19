@@ -1,19 +1,29 @@
 import * as GLP from 'glpower';
 
-import { Component, ComponentParams } from '..';
+import { PostProcessPipeline } from '../Component/PostProcessPipeline';
+import { Serializable } from '../Serializable';
 
 import { PostProcessPass } from './PostProcessPass';
 
-export class PostProcess extends Component {
+export type PostProcessParams = {
+	pipeline: PostProcessPipeline,
+	passes?: PostProcessPass[]
+}
 
-	public input?: GLP.GLPowerTexture[];
+export class PostProcess extends Serializable {
+
+	public order: number;
+
+	protected _pipeline: PostProcessPipeline;
 	protected _passes: PostProcessPass[];
 
-	constructor( params: ComponentParams<{passes: PostProcessPass[]}> ) {
+	constructor( params: PostProcessParams ) {
 
-		super( params );
+		super();
 
-		this._passes = params.args.passes;
+		this._pipeline = params.pipeline;
+		this._passes = params && params.passes || [];
+		this.order = 0;
 
 	}
 
@@ -48,6 +58,12 @@ export class PostProcess extends Component {
 			this._passes[ i ].resize( resolution );
 
 		}
+
+	}
+
+	public dispose() {
+
+		this.emit( "dispose" );
 
 	}
 

@@ -1,21 +1,19 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
-import { Engine } from 'orengine';
 
 import { ShakeViewer } from '../../CameraControls/CameraShake';
 import { OrbitControls } from '../../CameraControls/OrbitControls';
 import { LookAt } from '../../ObjectControls/LookAt';
 
-import bloomBrightFrag from './shaders/bloomBright.fs';
-import compositeFrag from './shaders/composite.fs';
-import fxaaFrag from './shaders/fxaa.fs';
-import gaussBlur from './shaders/gaussBlur.fs';
-import glitchFrag from './shaders/glitch.fs';
-import pixelSortFrag from './shaders/pixelSort.fs';
-import pixelSortMaskFrag from './shaders/pixelSortMask.fs';
-import pixelSortRangeFrag from './shaders/pixelSortRange.fs';
+import { Bloom } from './PostProcess/Bloom';
+import { Blur } from './PostProcess/Blur';
+import { Finalize } from './PostProcess/Finalize';
+import { FXAA } from './PostProcess/FXAA';
+import { Glitch } from './PostProcess/Glitch';
+import { PixelSort } from './PostProcess/PixelSort';
 
-import { gl, canvas, globalUniforms } from '~/ts/Globals';
+import { gl, globalUniforms, canvas } from '~/ts/Globals';
+
 
 export class MainCamera extends MXP.Component {
 
@@ -27,20 +25,9 @@ export class MainCamera extends MXP.Component {
 	private _lookAt: LookAt;
 	private _orbitControls?: OrbitControls;
 	private _shakeViewer: MXP.Component;
-	private _postProcess: MXP.PostProcess;
-	private _fxaa: MXP.PostProcessPass;
-	private _bloomRenderCount: number;
-	private _bloomBright: MXP.PostProcessPass;
-	private _bloomBlur: MXP.PostProcessPass[];
-	private _rtBloomVertical: GLP.GLPowerFrameBuffer[];
-	private _rtBloomHorizonal: GLP.GLPowerFrameBuffer[];
-	private _composite: MXP.PostProcessPass;
-	private _bokehV: MXP.PostProcessPass;
-	private _bokehH: MXP.PostProcessPass;
-	private _glitch: MXP.PostProcessPass;
+	private postProcessPipeline: MXP.PostProcessPipeline;
 	private _resolution: GLP.Vector;
 	private _resolutionInv: GLP.Vector;
-	private _resolutionBloom: GLP.Vector[];
 	private _dofTarget: MXP.Entity | null;
 	private _tmpVector1: GLP.Vector;
 	private _tmpVector2: GLP.Vector;
@@ -57,7 +44,6 @@ export class MainCamera extends MXP.Component {
 
 		this._resolution = new GLP.Vector();
 		this._resolutionInv = new GLP.Vector();
-		this._resolutionBloom = [];
 
 		// uniforms
 
@@ -86,412 +72,13 @@ export class MainCamera extends MXP.Component {
 			PostProcess
 		-------------------------------*/
 
-		// fxaa
-
-		this._fxaa = new MXP.PostProcessPass( gl, {
-			name: 'fxaa',
-			frag: fxaaFrag,
-			uniforms: this._commonUniforms,
-		} );
-
-		// bloom
-
-		this._bloomRenderCount = 4;
-
-		this._rtBloomVertical = [];
-		this._rtBloomHorizonal = [];
-
-		for ( let i = 0; i < this._bloomRenderCount; i ++ ) {
-
-			this._rtBloomVertical.push( new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-				new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
-			] ) );
-
-			this._rtBloomHorizonal.push( new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-				new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
-			] ) );
-
-		}
-
-		let bloomScale = 2.0;
-
-		this._bloomBright = new MXP.PostProcessPass( gl, {
-			name: 'bloom/bright/',
-			frag: bloomBrightFrag,
-			uniforms: {
-				uShadingTex: {
-					value: this._renderTarget.shadingBuffer.textures[ 0 ],
-					type: "1i"
-				}
-			},
-			passThrough: true,
-			resolutionRatio: 1.0 / bloomScale,
-		} );
-
-		this._bloomBlur = [];
-
-		// bloom blur
-
-		let bloomInput: GLP.GLPowerTexture[] = this._bloomBright.renderTarget!.textures;
-
-		for ( let i = 0; i < this._bloomRenderCount; i ++ ) {
-
-			const rtVertical = this._rtBloomVertical[ i ];
-			const rtHorizonal = this._rtBloomHorizonal[ i ];
-
-			const resolution = new GLP.Vector();
-			this._resolutionBloom.push( resolution );
-
-			const guassSamples = 8.0;
-
-			const blurParam: MXP.PostProcessPassParam = {
-				name: 'bloom/blur/' + i + '/v',
-				renderTarget: rtVertical,
-				frag: gaussBlur,
-				uniforms: {
-					uBackBlurTex: {
-						value: bloomInput,
-						type: '1i'
-					},
-					uIsVertical: {
-						type: '1i',
-						value: true
-					},
-					uWeights: {
-						type: '1fv',
-						value: GLP.MathUtils.gaussWeights( guassSamples )
-					},
-					uBlurRange: {
-						value: 2.0,
-						type: '1f'
-					}
-				},
-				defines: {
-					GAUSS_WEIGHTS: guassSamples.toString(),
-					USE_BACKBLURTEX: "",
-				},
-				passThrough: true,
-				resolutionRatio: 1.0 / bloomScale
-			};
-
-			this._bloomBlur.push( new MXP.PostProcessPass( gl, blurParam ) );
-
-			this._bloomBlur.push( new MXP.PostProcessPass( gl, {
-				...blurParam,
-				name: 'bloom/blur/' + i + '/h',
-				renderTarget: rtHorizonal,
-				uniforms: {
-					...blurParam.uniforms,
-					uBackBlurTex: {
-						value: rtVertical.textures[ 0 ],
-						type: '1i'
-					},
-					uIsVertical: {
-						type: '1i',
-						value: false
-					},
-				},
-			} ) );
-
-			bloomInput = rtHorizonal.textures;
-
-			bloomScale *= 2.0;
-
-		}
-
-		// composite
-
-		this._composite = new MXP.PostProcessPass( gl, {
-			name: 'composite',
-			frag: MXP.hotUpdate( "composite", compositeFrag ),
-			uniforms: this._animateReceiver.registerUniforms( MXP.UniformsUtils.merge( this._commonUniforms, {
-				uBloomTexture: {
-					value: this._rtBloomHorizonal.map( rt => rt.textures[ 0 ] ),
-					type: '1iv'
-				},
-				uVisible: {
-					value: 0,
-					type: "1f"
-				},
-				uVignette: {
-					value: 0,
-					type: "1f"
-				},
-				uOutPut: {
-					value: 0,
-					type: "1f"
-				},
-
-			} ) ),
-			defines: {
-				BLOOM_COUNT: this._bloomRenderCount.toString(),
-				USE_BACKBLURTEX: "",
-			},
-		} );
-
-		if ( import.meta.hot ) {
-
-			import.meta.hot.accept( "./shaders/composite.fs", ( module ) => {
-
-				if ( module ) {
-
-					this._composite.frag = module.default;
-
-				}
-
-				this._composite.requestUpdate();
-
-			} );
-
-		}
-
-		// bokeh
-
-		const bSample = 8;
-
-		const bokehParam: MXP.PostProcessPassParam = {
-			name: 'bokeh/h',
-			frag: gaussBlur,
-			uniforms: {
-				uIsVertical: {
-					type: '1i',
-					value: true
-				},
-				uWeights: {
-					type: '1fv',
-					value: GLP.MathUtils.gaussWeights( bSample )
-				},
-				uBlurRange: {
-					value: 6.0,
-					type: '1f'
-				}
-			},
-			defines: {
-				GAUSS_WEIGHTS: bSample.toString(),
-				IS_BOKEH: "",
-			},
-			resolutionRatio: 1.0,
-		};
-
-		this._bokehV = new MXP.PostProcessPass( gl, bokehParam );
-		this._bokehH = new MXP.PostProcessPass( gl, {
-			...bokehParam,
-			uniforms: {
-				...bokehParam.uniforms,
-				uIsVertical: {
-					type: '1i',
-					value: false
-				},
-			},
-		} );
-
-		// glitch
-
-		this._glitch = new MXP.PostProcessPass( gl, {
-			name: 'glitch',
-			frag: glitchFrag,
-			uniforms: this._animateReceiver.registerUniforms( MXP.UniformsUtils.merge( globalUniforms.time, {
-				uGlitch: {
-					value: 0,
-					type: '1f'
-				}
-			} ) ),
-			resolutionRatio: 1.0,
-		} );
-
-		if ( import.meta.hot ) {
-
-			import.meta.hot.accept( "./shaders/glitch.fs", ( module ) => {
-
-				if ( module ) {
-
-					this._glitch.frag = module.default;
-
-				}
-
-				this._glitch.requestUpdate();
-
-			} );
-
-		}
-
-		/*-------------------------------
-			PixelSort
-		-------------------------------*/
-
-		let pixelSortInput = undefined;
-		pixelSortInput = undefined;
-
-		const pixelSortResolution = new GLP.Vector( 1920, 1080 );
-		const pixelSortUniforms = MXP.UniformsUtils.merge( globalUniforms.time, {
-			uThresholdMin: {
-				value: 0.2,
-				type: '1f'
-			},
-			uThresholdMax: {
-				value: 1,
-				type: '1f'
-			}
-		} );
-
-		// mask
-
-
-		const pixelSortMask = new MXP.PostProcessPass( gl, {
-			name: 'pixelSortMask',
-			frag: MXP.hotUpdate( "pixelSortMask", pixelSortMaskFrag ),
-			passThrough: true,
-			uniforms: MXP.UniformsUtils.merge( globalUniforms.time, pixelSortUniforms ),
-			fixedResotluion: new GLP.Vector( pixelSortResolution.x, pixelSortResolution.y ),
-			backBufferOverride: pixelSortInput
-		} );
-
-		if ( import.meta.hot ) {
-
-			this.field( "pixelSortThresholdMin", () => pixelSortUniforms.uThresholdMin.value, ( value ) => pixelSortUniforms.uThresholdMin.value = value, {
-				step: 0.01
-			} );
-			this.field( "pixelSortThresholdMax", () => pixelSortUniforms.uThresholdMax.value, ( value ) => pixelSortUniforms.uThresholdMax.value = value, {
-				step: 0.05
-			} );
-
-			import.meta.hot.accept( "./shaders/pixelSortMask.fs", ( module ) => {
-
-				if ( module ) {
-
-					pixelSortMask.frag = module.default;
-
-				}
-
-				pixelSortMask.requestUpdate();
-
-			} );
-
-		}
-
-		// range
-
-		const pixelSortRange = new MXP.PostProcessPass( gl, {
-			name: 'pixelSortRange',
-			frag: MXP.hotUpdate( "pixelSortRange", pixelSortRangeFrag ),
-			passThrough: true,
-			uniforms: MXP.UniformsUtils.merge( {
-				uMaskTex: {
-					value: pixelSortMask.renderTarget!.textures[ 0 ],
-					type: '1i'
-				}
-			} ),
-			fixedResotluion: new GLP.Vector( pixelSortResolution.x, pixelSortResolution.y ),
-			renderTarget: new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-				new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA } ),
-			] ),
-		} );
-
-		if ( import.meta.hot ) {
-
-			import.meta.hot.accept( "./shaders/pixelSortRange.fs", ( module ) => {
-
-				if ( module ) {
-
-					pixelSortRange.frag = module.default;
-
-				}
-
-				pixelSortRange.requestUpdate();
-
-			} );
-
-		}
-
-		// sort
-
-		const pixelSortRT1 = new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-			new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
-		] );
-
-		const pixelSortRT2 = new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-			new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
-		] );
-
-		const pixelSortPasses: MXP.PostProcessPass[] = [];
-
-		const pixelSortBlocks = Math.log2( pixelSortResolution.y );
-
-		let cnt = 0;
-
-		for ( let iBlock = 0; iBlock < pixelSortBlocks; iBlock ++ ) {
-
-			for ( let iSubBlock = 0; iSubBlock <= iBlock; iSubBlock ++ ) {
-
-				const backBufferOverride = cnt % 2 === 0 ? pixelSortRT1.textures : pixelSortRT2.textures;
-
-				const pixelSort: MXP.PostProcessPass = new MXP.PostProcessPass( gl, {
-					name: 'pixelSort',
-					frag: MXP.hotGet( "pixelSort", pixelSortFrag ),
-					uniforms: this._animateReceiver.registerUniforms( MXP.UniformsUtils.merge( globalUniforms.time, {
-						uRangeTex: {
-							value: pixelSortRange.renderTarget!.textures[ 0 ],
-							type: '1i'
-						},
-						uMaskTex: {
-							value: pixelSortMask.renderTarget!.textures[ 0 ],
-							type: '1i'
-						},
-						uBlock: {
-							value: iBlock,
-							type: "1f"
-						},
-						uSubBlock: {
-							value: iSubBlock,
-							type: "1f"
-						}
-					} ) ),
-					passThrough: true,
-					backBufferOverride: cnt === 0 ? pixelSortInput : backBufferOverride,
-					renderTarget: cnt % 2 === 0 ? pixelSortRT2 : pixelSortRT1,
-					fixedResotluion: pixelSortResolution,
-				} );
-
-				cnt ++;
-
-				if ( import.meta.hot ) {
-
-					import.meta.hot.accept( "./shaders/pixelSort.fs", ( module ) => {
-
-						if ( module ) {
-
-							pixelSort.frag = module.default;
-
-						}
-
-						pixelSort.requestUpdate();
-
-					} );
-
-				}
-
-				pixelSortPasses.push( pixelSort );
-
-			}
-
-		}
-
-
-		/*-------------------------------
-			PostProcess
-		-------------------------------*/
-		const lastPass = pixelSortPasses[ pixelSortPasses.length - 1 ];
-		lastPass.passThrough = false;
-
-		this._postProcess = this._entity.addComponent( MXP.PostProcess, { passes: [
-			this._bloomBright,
-			...this._bloomBlur,
-			this._fxaa,
-			this._composite,
-			pixelSortMask,
-			pixelSortRange,
-			...pixelSortPasses,
-		] } );
+		this.postProcessPipeline = this._entity.addComponent( MXP.PostProcessPipeline );
+		this.postProcessPipeline.add( FXAA );
+		this.postProcessPipeline.add( Bloom );
+		this.postProcessPipeline.add( PixelSort );
+		this.postProcessPipeline.add( Finalize );
+		// this.postProcessPipeline.add( Blur );
+		// this.postProcessPipeline.add( Glitch );
 
 		// dof
 
@@ -676,11 +263,7 @@ export class MainCamera extends MXP.Component {
 
 		this.renderCamera.resize( this._resolution );
 
-		if ( this._postProcess ) {
-
-			this._postProcess.resize( this._resolution );
-
-		}
+		this.postProcessPipeline.resize( resolution );
 
 		this.updateCameraParams();
 

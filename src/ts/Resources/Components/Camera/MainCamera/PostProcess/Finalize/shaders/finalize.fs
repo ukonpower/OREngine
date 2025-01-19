@@ -3,12 +3,6 @@
 #include <noise_simplex>
 
 uniform sampler2D backbuffer0;
-uniform sampler2D uBloomTexture[4];
-
-uniform vec3 cameraPosition;
-uniform float cameraNear;
-uniform float cameraFar;
-uniform float uTimeE;
 
 in vec2 vUv;
 
@@ -35,17 +29,8 @@ void main( void ) {
 	#pragma loop_end
 	col.xyz /= 8.0;
 
-	#pragma loop_start 4
-		col += texture( uBloomTexture[ LOOP_INDEX ], cuv * s + 0.5 ).xyz * pow( (float(LOOP_INDEX) + 1.0) / 4.0, 1.0 ) * 1.0;
-	#pragma loop_end
-
 	float len = length(cuv);
 	col *= smoothstep( 1.2, 0.3, len );
-
-
-	// col.xyz *= 0.0;
-	// col += noiseSimplex( vec4( 0.0, uv.y * 10.0, 0.0, 0.0 ) ) * 0.5 + 0.5;
-	// col.xyz += random( vec2( vUv.x, vUv.y * 0.9 ) );
 	
 	outColor = vec4( col, 1.0 );
 

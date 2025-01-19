@@ -111,8 +111,8 @@ export class PMREMRender extends GLP.EventEmitter {
 
 		}
 
-		this.postprocess = new MXP.PostProcess( { entity: new MXP.Entity(), args: { passes } } );
-		this.postprocess.input = param.input;
+		this.postprocess = new MXP.PostProcess( { passes } );
+		this.postprocess.passes[ 0 ].backBufferOverride = renderTarget.textures;
 
 		this.resolution = resolution;
 		this.renderTarget = renderTarget;
