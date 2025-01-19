@@ -82,7 +82,7 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 		this.musicTexture = new GLP.GLPowerTexture( this.gl );
 		this.musicTexture.setting( { type: this.gl.UNSIGNED_BYTE, internalFormat: this.gl.LUMINANCE, format: this.gl.LUMINANCE, magFilter: this.gl.LINEAR, minFilter: this.gl.LINEAR, wrapS: this.gl.MIRRORED_REPEAT } );
 
-		this.postProcess = new MXP.PostProcess( { entity: new MXP.Entity(), args: {
+		this.postProcess = new MXP.PostProcess( {
 			passes: [
 				new MXP.PostProcessPass( this.gl, {
 					frag: timelineFrag,
@@ -99,7 +99,7 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 					renderTarget: null
 				} )
 			]
-		} } );
+		} );
 
 	}
 
@@ -256,7 +256,7 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 
 		}
 
-		this.glRenderer.renderPostProcess( this.postProcess, this.canvasSize );
+		this.glRenderer.renderPostProcess( this.postProcess, undefined, this.canvasSize );
 
 	}
 

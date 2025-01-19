@@ -257,7 +257,7 @@ export class PipelinePostProcess {
 
 		// Postprocess
 
-		this.postprocess = new MXP.PostProcess( { entity: new MXP.Entity(), args: { passes: [
+		this.postprocess = new MXP.PostProcess( { passes: [
 			colorCollection,
 			ssr,
 			ssComposite,
@@ -267,7 +267,7 @@ export class PipelinePostProcess {
 			motionBlurTile,
 			motionBlurNeighbor,
 			motionBlur,
-		] } } );
+		] } );
 
 		this._timeUniforms = timeUniforms;
 		this._ssr = ssr;

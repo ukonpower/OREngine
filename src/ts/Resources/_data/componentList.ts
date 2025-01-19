@@ -1,3 +1,4 @@
+import { Bloom } from '../Components/Camera/MainCamera/PostProcess/Bloom/index.ts';
 import { MainCamera } from '../Components/Camera/MainCamera/index.ts';
 import { RotateViewer } from '../Components/CameraControls/CameraRotate/index.ts';
 import { ShakeViewer } from '../Components/CameraControls/CameraShake/index.ts';
@@ -9,7 +10,6 @@ import { OREngineLogoMaterial } from '../Components/DemoProject/OREngineLogoMate
 import { SkyBox } from '../Components/DemoProject/SkyBox/index.ts';
 import { LookAt } from '../Components/ObjectControls/LookAt/index.ts';
 import { ObjectRotate } from '../Components/ObjectControls/ObjectRotate/index.ts';
-import { Bloom } from '../Components/PostProcess/Bloom/index.ts';
 import { Particles } from '../Components/Samples/Particles/index.ts';
 import { Raymarch } from '../Components/Samples/Raymarch/index.ts';
 import { BLidgeClient } from '../Components/Utilities/BLidgeClient/index.ts';
@@ -36,9 +36,6 @@ export const COMPONENTLIST: {[key: string]: any} = {
 	ObjectControls: {
 		LookAt,
 		ObjectRotate,
-	},
-	PostProcess: {
-		Bloom,
 	},
 	Samples: {
 		Particles,

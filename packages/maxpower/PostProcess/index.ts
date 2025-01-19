@@ -1,23 +1,19 @@
 import * as GLP from 'glpower';
 
-import { Component, ComponentParams } from '..';
-
 import { PostProcessPass } from './PostProcessPass';
 
-export class PostProcess extends Component {
+export class PostProcess extends GLP.EventEmitter {
 
 	public order: number;
 
 	protected _passes: PostProcessPass[];
 
-	constructor( params: ComponentParams<{passes: PostProcessPass[]}> ) {
+	constructor( params: {passes: PostProcessPass[]} ) {
 
-		super( params );
+		super( );
 
-		this._passes = params.args.passes;
-
+		this._passes = params.passes;
 		this.order = 0;
-		this._tag = 'postprocess';
 
 	}
 

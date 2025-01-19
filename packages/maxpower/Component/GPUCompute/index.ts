@@ -1,17 +1,19 @@
-import * as MXP from 'maxpower';
 
+
+import { ComponentParams } from '..';
+import { PostProcess } from '../../PostProcess';
 import { GPUComputePass } from '../GPUComputePass';
-import { PostProcess } from '../PostProcess';
+import { Renderer } from '../Renderer';
 
 export class GPUCompute extends PostProcess {
 
 	protected _passes: GPUComputePass[];
 
-	constructor( params: MXP.ComponentParams<{passes: GPUComputePass[]}> ) {
+	constructor( params: {passes: GPUComputePass[]} ) {
 
 		super( params );
 
-		this._passes = params.args.passes;
+		this._passes = params.passes;
 
 	}
 
@@ -21,7 +23,7 @@ export class GPUCompute extends PostProcess {
 
 	}
 
-	public compute( renderer: MXP.Renderer ) {
+	public compute( renderer: Renderer ) {
 
 		renderer.renderPostProcess( this );
 

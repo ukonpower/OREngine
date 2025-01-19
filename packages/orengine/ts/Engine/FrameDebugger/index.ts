@@ -90,14 +90,14 @@ export class FrameDebugger extends GLP.EventEmitter {
 			}
 		};
 
-		this._outPostProcess = new MXP.PostProcess( { entity: new MXP.Entity(), args: { passes: [
+		this._outPostProcess = new MXP.PostProcess( { passes: [
 			new MXP.PostProcessPass( this._gl, {
 				uniforms: this._uniforms,
 				renderTarget: null,
 				frag: frameDebuggerFrag,
 				backBufferOverride: this._outFrameBuffer.textures,
 			} )
-		] } } );
+		] } );
 
 		this._frameList = [];
 
