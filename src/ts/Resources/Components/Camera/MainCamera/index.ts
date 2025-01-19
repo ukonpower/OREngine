@@ -6,6 +6,7 @@ import { ShakeViewer } from '../../CameraControls/CameraShake';
 import { OrbitControls } from '../../CameraControls/OrbitControls';
 import { LookAt } from '../../ObjectControls/LookAt';
 
+import { Bloom } from './PostProcess/Bloom';
 import bloomBrightFrag from './shaders/bloomBright.fs';
 import compositeFrag from './shaders/composite.fs';
 import fxaaFrag from './shaders/fxaa.fs';
@@ -27,7 +28,7 @@ export class MainCamera extends MXP.Component {
 	private _lookAt: LookAt;
 	private _orbitControls?: OrbitControls;
 	private _shakeViewer: MXP.Component;
-	private _postProcess: MXP.PostProcess;
+	private postProcessPipeline: MXP.PostProcessPipeline;
 	private _fxaa: MXP.PostProcessPass;
 	private _composite: MXP.PostProcessPass;
 	private _bokehV: MXP.PostProcessPass;
@@ -35,7 +36,6 @@ export class MainCamera extends MXP.Component {
 	private _glitch: MXP.PostProcessPass;
 	private _resolution: GLP.Vector;
 	private _resolutionInv: GLP.Vector;
-	private _resolutionBloom: GLP.Vector[];
 	private _dofTarget: MXP.Entity | null;
 	private _tmpVector1: GLP.Vector;
 	private _tmpVector2: GLP.Vector;
@@ -52,7 +52,6 @@ export class MainCamera extends MXP.Component {
 
 		this._resolution = new GLP.Vector();
 		this._resolutionInv = new GLP.Vector();
-		this._resolutionBloom = [];
 
 		// uniforms
 
@@ -95,10 +94,6 @@ export class MainCamera extends MXP.Component {
 			name: 'composite',
 			frag: MXP.hotUpdate( "composite", compositeFrag ),
 			uniforms: this._animateReceiver.registerUniforms( MXP.UniformsUtils.merge( this._commonUniforms, {
-				// uBloomTexture: {
-				// 	value: this._rtBloomHorizonal.map( rt => rt.textures[ 0 ] ),
-				// 	type: '1iv'
-				// },
 				uVisible: {
 					value: 0,
 					type: "1f"
@@ -114,7 +109,6 @@ export class MainCamera extends MXP.Component {
 
 			} ) ),
 			defines: {
-				// BLOOM_COUNT: this._bloomRenderCount.toString(),
 				USE_BACKBLURTEX: "",
 			},
 		} );
@@ -225,7 +219,6 @@ export class MainCamera extends MXP.Component {
 		} );
 
 		// mask
-
 
 		const pixelSortMask = new MXP.PostProcessPass( gl, {
 			name: 'pixelSortMask',
@@ -374,15 +367,18 @@ export class MainCamera extends MXP.Component {
 		const lastPass = pixelSortPasses[ pixelSortPasses.length - 1 ];
 		lastPass.passThrough = false;
 
-		this._postProcess = this._entity.addComponent( MXP.PostProcess, { passes: [
-			this._fxaa,
-			// this._composite,
-			pixelSortMask,
-			pixelSortRange,
-			...pixelSortPasses,
-		] } );
+		// this._postProcess = this._entity.addComponent( , { passes: [
+		// 	this._fxaa,
+		// 	// this._composite,
+		// 	pixelSortMask,
+		// 	pixelSortRange,
+		// 	...pixelSortPasses,
+		// ] } );
 
-		const manager = this._entity.addComponent( MXP.PostProcessManager );
+		this.postProcessPipeline = this._entity.addComponent( MXP.PostProcessPipeline );
+
+		const bloom = new Bloom( this._entity );
+		this.postProcessPipeline.add( bloom );
 
 		// dof
 
@@ -567,11 +563,7 @@ export class MainCamera extends MXP.Component {
 
 		this.renderCamera.resize( this._resolution );
 
-		if ( this._postProcess ) {
-
-			this._postProcess.resize( this._resolution );
-
-		}
+		this.postProcessPipeline.resize( resolution );
 
 		this.updateCameraParams();
 

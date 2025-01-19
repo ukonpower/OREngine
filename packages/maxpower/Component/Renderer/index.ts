@@ -1,17 +1,18 @@
 import * as GLP from 'glpower';
 
+
 import { PlaneGeometry } from '../..//Geometry/PlaneGeometry';
-import { MaterialRenderType, Material } from '../..//Material';
 import { Entity, EntityUpdateEvent } from '../../Entity';
 import { Geometry } from '../../Geometry';
+import { MaterialRenderType, Material } from '../../Material';
+import { PostProcess } from '../../PostProcess';
 import { shaderParse } from "../../Utils/ShaderParser";
 import { Camera } from '../Camera';
 import { RenderCamera } from '../Camera/RenderCamera';
 import { Light, LightType } from '../Light';
 import { MaterialOverride } from '../MaterialOverride';
 import { Mesh } from '../Mesh';
-import { PostProcess } from '../PostProcess';
-import { PostProcessManager } from '../PostProcessManager';
+import { PostProcessPipeline } from '../PostProcessPipeline';
 
 import { DeferredRenderer } from './DeferredRenderer';
 import { PipelinePostProcess } from './PipelinePostProcess';
@@ -427,7 +428,7 @@ export class Renderer extends Entity {
 
 			// postprocess
 
-			const postProcessManager = cameraEntity.getComponent( PostProcessManager );
+			const postProcessManager = cameraEntity.getComponent( PostProcessPipeline );
 
 			if ( postProcessManager ) {
 

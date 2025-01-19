@@ -11,7 +11,7 @@ export interface PostProcessPassParam extends MaterialParam{
 	fixedResotluion?: GLP.Vector
 }
 
-import { MaterialParam, Material } from '../../../Material';
+import { MaterialParam, Material } from '../../Material';
 
 import passFrag from './shaders/pass.fs';
 import quadVert from './shaders/quad.vs';
