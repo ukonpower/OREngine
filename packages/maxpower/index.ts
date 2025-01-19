@@ -13,6 +13,7 @@ export * from './Component/Light';
 export * from './Component/MaterialOverride';
 export * from './Component/PostProcess';
 export * from './Component/PostProcess/PostProcessPass';
+export * from './Component/PostProcessManager';
 export * from './Component/Renderer';
 export * from "./Component/Renderer/DeferredRenderer";
 export * from './Component/Renderer/ProgramManager';

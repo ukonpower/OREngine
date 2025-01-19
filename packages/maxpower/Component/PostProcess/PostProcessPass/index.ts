@@ -19,6 +19,7 @@ import quadVert from './shaders/quad.vs';
 export class PostProcessPass extends Material {
 
 	public renderTarget: GLP.GLPowerFrameBuffer | null;
+	public backBufferOverride: GLP.GLPowerTexture[] | null;
 
 	public clearColor: GLP.Vector | null;
 	public clearDepth: number | null;
@@ -30,7 +31,6 @@ export class PostProcessPass extends Material {
 	public resolutionInv: GLP.Vector;
 	public viewPort: GLP.Vector | null;
 	private _fixedResolution: GLP.Vector | null;
-	private _backBufferOverride: GLP.GLPowerTexture[] | null;
 
 	constructor( gl: WebGL2RenderingContext, param: PostProcessPassParam ) {
 
@@ -62,19 +62,13 @@ export class PostProcessPass extends Material {
 		this.resolutionRatio = param.resolutionRatio || 1;
 		this.passThrough = param.passThrough ?? false;
 		this.viewPort = param.viewPort || null;
-		this._backBufferOverride = param.backBufferOverride || null;
+		this.backBufferOverride = param.backBufferOverride || null;
 
 	}
 
 	public get enabled() {
 
 		return true;
-
-	}
-
-	public get backBufferOverride() {
-
-		return this._backBufferOverride;
 
 	}
 

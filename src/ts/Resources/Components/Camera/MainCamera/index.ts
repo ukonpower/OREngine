@@ -29,11 +29,6 @@ export class MainCamera extends MXP.Component {
 	private _shakeViewer: MXP.Component;
 	private _postProcess: MXP.PostProcess;
 	private _fxaa: MXP.PostProcessPass;
-	private _bloomRenderCount: number;
-	private _bloomBright: MXP.PostProcessPass;
-	private _bloomBlur: MXP.PostProcessPass[];
-	private _rtBloomVertical: GLP.GLPowerFrameBuffer[];
-	private _rtBloomHorizonal: GLP.GLPowerFrameBuffer[];
 	private _composite: MXP.PostProcessPass;
 	private _bokehV: MXP.PostProcessPass;
 	private _bokehH: MXP.PostProcessPass;
@@ -94,121 +89,16 @@ export class MainCamera extends MXP.Component {
 			uniforms: this._commonUniforms,
 		} );
 
-		// bloom
-
-		this._bloomRenderCount = 4;
-
-		this._rtBloomVertical = [];
-		this._rtBloomHorizonal = [];
-
-		for ( let i = 0; i < this._bloomRenderCount; i ++ ) {
-
-			this._rtBloomVertical.push( new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-				new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
-			] ) );
-
-			this._rtBloomHorizonal.push( new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-				new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
-			] ) );
-
-		}
-
-		let bloomScale = 2.0;
-
-		this._bloomBright = new MXP.PostProcessPass( gl, {
-			name: 'bloom/bright/',
-			frag: bloomBrightFrag,
-			uniforms: {
-				uShadingTex: {
-					value: this._renderTarget.shadingBuffer.textures[ 0 ],
-					type: "1i"
-				}
-			},
-			passThrough: true,
-			resolutionRatio: 1.0 / bloomScale,
-		} );
-
-		this._bloomBlur = [];
-
-		// bloom blur
-
-		let bloomInput: GLP.GLPowerTexture[] = this._bloomBright.renderTarget!.textures;
-
-		for ( let i = 0; i < this._bloomRenderCount; i ++ ) {
-
-			const rtVertical = this._rtBloomVertical[ i ];
-			const rtHorizonal = this._rtBloomHorizonal[ i ];
-
-			const resolution = new GLP.Vector();
-			this._resolutionBloom.push( resolution );
-
-			const guassSamples = 8.0;
-
-			const blurParam: MXP.PostProcessPassParam = {
-				name: 'bloom/blur/' + i + '/v',
-				renderTarget: rtVertical,
-				frag: gaussBlur,
-				uniforms: {
-					uBackBlurTex: {
-						value: bloomInput,
-						type: '1i'
-					},
-					uIsVertical: {
-						type: '1i',
-						value: true
-					},
-					uWeights: {
-						type: '1fv',
-						value: GLP.MathUtils.gaussWeights( guassSamples )
-					},
-					uBlurRange: {
-						value: 2.0,
-						type: '1f'
-					}
-				},
-				defines: {
-					GAUSS_WEIGHTS: guassSamples.toString(),
-					USE_BACKBLURTEX: "",
-				},
-				passThrough: true,
-				resolutionRatio: 1.0 / bloomScale
-			};
-
-			this._bloomBlur.push( new MXP.PostProcessPass( gl, blurParam ) );
-
-			this._bloomBlur.push( new MXP.PostProcessPass( gl, {
-				...blurParam,
-				name: 'bloom/blur/' + i + '/h',
-				renderTarget: rtHorizonal,
-				uniforms: {
-					...blurParam.uniforms,
-					uBackBlurTex: {
-						value: rtVertical.textures[ 0 ],
-						type: '1i'
-					},
-					uIsVertical: {
-						type: '1i',
-						value: false
-					},
-				},
-			} ) );
-
-			bloomInput = rtHorizonal.textures;
-
-			bloomScale *= 2.0;
-
-		}
-
 		// composite
 
 		this._composite = new MXP.PostProcessPass( gl, {
 			name: 'composite',
 			frag: MXP.hotUpdate( "composite", compositeFrag ),
 			uniforms: this._animateReceiver.registerUniforms( MXP.UniformsUtils.merge( this._commonUniforms, {
-				uBloomTexture: {
-					value: this._rtBloomHorizonal.map( rt => rt.textures[ 0 ] ),
-					type: '1iv'
-				},
+				// uBloomTexture: {
+				// 	value: this._rtBloomHorizonal.map( rt => rt.textures[ 0 ] ),
+				// 	type: '1iv'
+				// },
 				uVisible: {
 					value: 0,
 					type: "1f"
@@ -224,7 +114,7 @@ export class MainCamera extends MXP.Component {
 
 			} ) ),
 			defines: {
-				BLOOM_COUNT: this._bloomRenderCount.toString(),
+				// BLOOM_COUNT: this._bloomRenderCount.toString(),
 				USE_BACKBLURTEX: "",
 			},
 		} );
@@ -480,18 +370,19 @@ export class MainCamera extends MXP.Component {
 		/*-------------------------------
 			PostProcess
 		-------------------------------*/
+
 		const lastPass = pixelSortPasses[ pixelSortPasses.length - 1 ];
 		lastPass.passThrough = false;
 
 		this._postProcess = this._entity.addComponent( MXP.PostProcess, { passes: [
-			this._bloomBright,
-			...this._bloomBlur,
 			this._fxaa,
-			this._composite,
+			// this._composite,
 			pixelSortMask,
 			pixelSortRange,
 			...pixelSortPasses,
 		] } );
+
+		const manager = this._entity.addComponent( MXP.PostProcessManager );
 
 		// dof
 
