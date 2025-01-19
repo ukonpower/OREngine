@@ -2,6 +2,10 @@ import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
 
+import gaussBlurFrag from '../shaders/gaussBlur.fs';
+
+import bloomBrightFrag from './shaders/bloomBright.fs';
+
 import { gl } from '~/ts/Globals';
 
 export class Bloom extends MXP.Component {
@@ -15,8 +19,6 @@ export class Bloom extends MXP.Component {
 	constructor( params: MXP.ComponentParams ) {
 
 		super( params );
-
-		// bloom
 
 		this._bloomRenderCount = 4;
 
@@ -40,12 +42,12 @@ export class Bloom extends MXP.Component {
 		this._bloomBright = new MXP.PostProcessPass( gl, {
 			name: 'bloom/bright/',
 			frag: bloomBrightFrag,
-			uniforms: {
-				uShadingTex: {
-					value: this._renderTarget.shadingBuffer.textures[ 0 ],
-					type: "1i"
-				}
-			},
+			// uniforms: {
+			// 	uShadingTex: {
+			// 		value: this._renderTarget.shadingBuffer.textures[ 0 ],
+			// 		type: "1i"
+			// 	}
+			// },
 			passThrough: true,
 			resolutionRatio: 1.0 / bloomScale,
 		} );
@@ -61,15 +63,15 @@ export class Bloom extends MXP.Component {
 			const rtVertical = this._rtBloomVertical[ i ];
 			const rtHorizonal = this._rtBloomHorizonal[ i ];
 
-			const resolution = new GLP.Vector();
-			this._resolutionBloom.push( resolution );
+			// const resolution = new GLP.Vector();
+			// this._resolutionBloom.push( resolution );
 
 			const guassSamples = 8.0;
 
 			const blurParam: MXP.PostProcessPassParam = {
 				name: 'bloom/blur/' + i + '/v',
 				renderTarget: rtVertical,
-				frag: gaussBlur,
+				frag: gaussBlurFrag,
 				uniforms: {
 					uBackBlurTex: {
 						value: bloomInput,
