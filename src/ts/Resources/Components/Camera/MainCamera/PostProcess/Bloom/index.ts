@@ -11,9 +11,9 @@ import { gl } from '~/ts/Globals';
 
 export class Bloom extends MXP.PostProcess {
 
-	constructor( entity: MXP.Entity ) {
+	constructor( params: MXP.PostProcessParams ) {
 
-		const renderCamera = entity.getComponent( MXP.RenderCamera )!;
+		const renderCamera = params.pipeline.entity.getComponent( MXP.RenderCamera )!;
 		const renderTarget = renderCamera.renderTarget;
 
 		const renderCount = 4;
@@ -47,8 +47,13 @@ export class Bloom extends MXP.PostProcess {
 			name: 'bloom/bright/',
 			frag: bloomBrightFrag,
 			passThrough: true,
+			uniforms: {
+				uShadingTex: {
+					value: renderTarget.shadingBuffer.textures[ 0 ],
+					type: '1i'
+				},
+			},
 			resolutionRatio: 1.0 / bloomInvScale,
-			backBufferOverride: renderTarget.shadingBuffer.textures
 		} );
 
 
@@ -139,6 +144,7 @@ export class Bloom extends MXP.PostProcess {
 
 
 		super( {
+			...params,
 			passes: [
 				brightPass,
 				...blurPasses,

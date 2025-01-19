@@ -1,6 +1,5 @@
 uniform sampler2D backbuffer0;
-uniform vec2 uResolution;
-uniform vec2 uResolutionInv;
+uniform vec2 uPPPixelSize;
 
 in vec2 vUv;
 
@@ -22,10 +21,10 @@ void main( void ) {
 
 	/*--------------------------------------------------------------------------*/
 
-    vec3 rgbNW = texOffset( backbuffer0, vUv, vec2( -1.0, 1.0 ), uResolutionInv ).xyz;
-    vec3 rgbNE = texOffset( backbuffer0, vUv, vec2( 1.0, 1.0 ), uResolutionInv ).xyz;
-    vec3 rgbSW = texOffset( backbuffer0, vUv, vec2( -1.0, -1.0 ), uResolutionInv ).xyz;
-    vec3 rgbSE = texOffset( backbuffer0, vUv, vec2( 1.0, -1.0 ), uResolutionInv ).xyz;
+    vec3 rgbNW = texOffset( backbuffer0, vUv, vec2( -1.0, 1.0 ), uPPPixelSize ).xyz;
+    vec3 rgbNE = texOffset( backbuffer0, vUv, vec2( 1.0, 1.0 ), uPPPixelSize ).xyz;
+    vec3 rgbSW = texOffset( backbuffer0, vUv, vec2( -1.0, -1.0 ), uPPPixelSize ).xyz;
+    vec3 rgbSE = texOffset( backbuffer0, vUv, vec2( 1.0, -1.0 ), uPPPixelSize ).xyz;
     vec3 rgbM  = texture( backbuffer0, vUv ).xyz;
 	
 	/*--------------------------------------------------------------------------*/
@@ -53,7 +52,7 @@ void main( void ) {
 
     float dirReduce = max( ( lumaNW + lumaNE + lumaSW + lumaSE ) * ( 0.25 * FXAA_REDUCE_MUL ), FXAA_REDUCE_MIN );
     float rcpDirMin = 1.0 / ( min( abs( dir.x ), abs( dir.y ) ) + dirReduce );
-    dir = min( vec2( FXAA_SPAN_MAX,  FXAA_SPAN_MAX ), max( vec2( -FXAA_SPAN_MAX, -FXAA_SPAN_MAX ), dir * rcpDirMin ) ) * uResolutionInv.xy;
+    dir = min( vec2( FXAA_SPAN_MAX,  FXAA_SPAN_MAX ), max( vec2( -FXAA_SPAN_MAX, -FXAA_SPAN_MAX ), dir * rcpDirMin ) ) * uPPPixelSize.xy;
 
 	/*--------------------------------------------------------------------------*/
 	

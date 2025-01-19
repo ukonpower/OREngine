@@ -1,18 +1,28 @@
 import * as GLP from 'glpower';
 
+import { PostProcessPipeline } from '../Component/PostProcessPipeline';
+import { Serializable } from '../Serializable';
+
 import { PostProcessPass } from './PostProcessPass';
 
-export class PostProcess extends GLP.EventEmitter {
+export type PostProcessParams = {
+	pipeline: PostProcessPipeline,
+	passes?: PostProcessPass[]
+}
+
+export class PostProcess extends Serializable {
 
 	public order: number;
 
+	protected _pipeline: PostProcessPipeline;
 	protected _passes: PostProcessPass[];
 
-	constructor( params: {passes: PostProcessPass[]} ) {
+	constructor( params: PostProcessParams ) {
 
-		super( );
+		super();
 
-		this._passes = params.passes;
+		this._pipeline = params.pipeline;
+		this._passes = params && params.passes || [];
 		this.order = 0;
 
 	}
@@ -48,6 +58,12 @@ export class PostProcess extends GLP.EventEmitter {
 			this._passes[ i ].resize( resolution );
 
 		}
+
+	}
+
+	public dispose() {
+
+		this.emit( "dispose" );
 
 	}
 
