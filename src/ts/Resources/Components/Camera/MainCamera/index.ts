@@ -6,13 +6,14 @@ import { OrbitControls } from '../../CameraControls/OrbitControls';
 import { LookAt } from '../../ObjectControls/LookAt';
 
 import { Bloom } from './PostProcess/Bloom';
+import { Blur } from './PostProcess/Blur';
+import { Finalize } from './PostProcess/Finalize';
 import { FXAA } from './PostProcess/FXAA';
+import { Glitch } from './PostProcess/Glitch';
 import { PixelSort } from './PostProcess/PixelSort';
-import compositeFrag from './shaders/composite.fs';
-import gaussBlur from './shaders/gaussBlur.fs';
-import glitchFrag from './shaders/glitch.fs';
 
-import { gl, canvas, globalUniforms } from '~/ts/Globals';
+import { gl, globalUniforms, canvas } from '~/ts/Globals';
+
 
 export class MainCamera extends MXP.Component {
 
@@ -25,10 +26,6 @@ export class MainCamera extends MXP.Component {
 	private _orbitControls?: OrbitControls;
 	private _shakeViewer: MXP.Component;
 	private postProcessPipeline: MXP.PostProcessPipeline;
-	private _composite: MXP.PostProcessPass;
-	private _bokehV: MXP.PostProcessPass;
-	private _bokehH: MXP.PostProcessPass;
-	private _glitch: MXP.PostProcessPass;
 	private _resolution: GLP.Vector;
 	private _resolutionInv: GLP.Vector;
 	private _dofTarget: MXP.Entity | null;
@@ -75,135 +72,13 @@ export class MainCamera extends MXP.Component {
 			PostProcess
 		-------------------------------*/
 
-		// composite
-
-		this._composite = new MXP.PostProcessPass( gl, {
-			name: 'composite',
-			frag: MXP.hotUpdate( "composite", compositeFrag ),
-			uniforms: this._animateReceiver.registerUniforms( MXP.UniformsUtils.merge( this._commonUniforms, {
-				uVisible: {
-					value: 0,
-					type: "1f"
-				},
-				uVignette: {
-					value: 0,
-					type: "1f"
-				},
-				uOutPut: {
-					value: 0,
-					type: "1f"
-				},
-
-			} ) ),
-			defines: {
-				USE_BACKBLURTEX: "",
-			},
-		} );
-
-		if ( import.meta.hot ) {
-
-			import.meta.hot.accept( "./shaders/composite.fs", ( module ) => {
-
-				if ( module ) {
-
-					this._composite.frag = module.default;
-
-				}
-
-				this._composite.requestUpdate();
-
-			} );
-
-		}
-
-		// bokeh
-
-		const bSample = 8;
-
-		const bokehParam: MXP.PostProcessPassParam = {
-			name: 'bokeh/h',
-			frag: gaussBlur,
-			uniforms: {
-				uIsVertical: {
-					type: '1i',
-					value: true
-				},
-				uWeights: {
-					type: '1fv',
-					value: GLP.MathUtils.gaussWeights( bSample )
-				},
-				uBlurRange: {
-					value: 6.0,
-					type: '1f'
-				}
-			},
-			defines: {
-				GAUSS_WEIGHTS: bSample.toString(),
-				IS_BOKEH: "",
-			},
-			resolutionRatio: 1.0,
-		};
-
-		this._bokehV = new MXP.PostProcessPass( gl, bokehParam );
-		this._bokehH = new MXP.PostProcessPass( gl, {
-			...bokehParam,
-			uniforms: {
-				...bokehParam.uniforms,
-				uIsVertical: {
-					type: '1i',
-					value: false
-				},
-			},
-		} );
-
-		// glitch
-
-		this._glitch = new MXP.PostProcessPass( gl, {
-			name: 'glitch',
-			frag: glitchFrag,
-			uniforms: this._animateReceiver.registerUniforms( MXP.UniformsUtils.merge( globalUniforms.time, {
-				uGlitch: {
-					value: 0,
-					type: '1f'
-				}
-			} ) ),
-			resolutionRatio: 1.0,
-		} );
-
-		if ( import.meta.hot ) {
-
-			import.meta.hot.accept( "./shaders/glitch.fs", ( module ) => {
-
-				if ( module ) {
-
-					this._glitch.frag = module.default;
-
-				}
-
-				this._glitch.requestUpdate();
-
-			} );
-
-		}
-
-
-		/*-------------------------------
-			PostProcess
-		-------------------------------*/
-
-
-		// this._postProcess = this._entity.addComponent( , { passes: [
-		// 	this._fxaa,
-		// 	// this._composite,
-		// 	pixelSortMask,
-		// 	pixelSortRange,
-		// 	...pixelSortPasses,
-		// ] } );
-
 		this.postProcessPipeline = this._entity.addComponent( MXP.PostProcessPipeline );
 		this.postProcessPipeline.add( FXAA );
 		this.postProcessPipeline.add( Bloom );
 		this.postProcessPipeline.add( PixelSort );
+		this.postProcessPipeline.add( Finalize );
+		// this.postProcessPipeline.add( Blur );
+		// this.postProcessPipeline.add( Glitch );
 
 		// dof
 
