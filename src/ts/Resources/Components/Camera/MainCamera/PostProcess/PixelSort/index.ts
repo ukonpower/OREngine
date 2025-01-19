@@ -10,7 +10,7 @@ import { globalUniforms, gl } from "~/ts/Globals";
 
 export class PixelSort extends MXP.PostProcess {
 
-	constructor() {
+	constructor( params: MXP.PostProcessParams ) {
 
 		/*-------------------------------
 			PixelSort
@@ -169,6 +169,7 @@ export class PixelSort extends MXP.PostProcess {
 		lastPass.passThrough = false;
 
 		super( {
+			...params,
 			passes: [
 				pixelSortMask,
 				pixelSortRange,
