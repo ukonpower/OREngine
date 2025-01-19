@@ -1,16 +1,18 @@
 import * as GLP from 'glpower';
 
+
 import { PlaneGeometry } from '../..//Geometry/PlaneGeometry';
-import { MaterialRenderType, Material } from '../..//Material';
 import { Entity, EntityUpdateEvent } from '../../Entity';
 import { Geometry } from '../../Geometry';
+import { MaterialRenderType, Material } from '../../Material';
+import { PostProcess } from '../../PostProcess';
 import { shaderParse } from "../../Utils/ShaderParser";
 import { Camera } from '../Camera';
 import { RenderCamera } from '../Camera/RenderCamera';
 import { Light, LightType } from '../Light';
 import { MaterialOverride } from '../MaterialOverride';
 import { Mesh } from '../Mesh';
-import { PostProcess } from '../PostProcess';
+import { PostProcessPipeline } from '../PostProcessPipeline';
 
 import { DeferredRenderer } from './DeferredRenderer';
 import { PipelinePostProcess } from './PipelinePostProcess';
@@ -355,7 +357,7 @@ export class Renderer extends Entity {
 
 		}
 
-		this.renderPostProcess( this._pmremRender.postprocess, this._pmremRender.resolution );
+		this.renderPostProcess( this._pmremRender.postprocess, undefined, this._pmremRender.resolution );
 
 		this._pmremRender.swap();
 
@@ -374,7 +376,7 @@ export class Renderer extends Entity {
 
 			this._deferredRenderer.setRenderCamera( cameraComponent );
 
-			this.renderPostProcess( this._deferredRenderer.postprocess, this.resolution, { cameraOverride: {
+			this.renderPostProcess( this._deferredRenderer.postprocess, undefined, this.resolution, { cameraOverride: {
 				viewMatrix: cameraComponent.viewMatrix,
 				viewMatrixPrev: cameraComponent.viewMatrixPrev,
 				projectionMatrix: cameraComponent.projectionMatrix,
@@ -412,7 +414,7 @@ export class Renderer extends Entity {
 
 			this._pipelinePostProcess.setRenderCamera( cameraComponent );
 
-			this.renderPostProcess( this._pipelinePostProcess.postprocess, this.resolution, { cameraOverride: {
+			this.renderPostProcess( this._pipelinePostProcess.postprocess, undefined, this.resolution, { cameraOverride: {
 				viewMatrix: cameraComponent.viewMatrix,
 				projectionMatrix: cameraComponent.projectionMatrix,
 				cameraMatrixWorld: cameraEntity.matrixWorld,
@@ -422,27 +424,50 @@ export class Renderer extends Entity {
 
 			this._pipelinePostProcess.update( event );
 
-			let backBuffer = this._pipelinePostProcess.postprocess.output ? this._pipelinePostProcess.postprocess.output : null;
+			let backBuffer = this._pipelinePostProcess.postprocess.output ? this._pipelinePostProcess.postprocess.output : undefined;
 
 			// postprocess
 
-			const postProcess = cameraEntity.getComponent( PostProcess );
+			const postProcessManager = cameraEntity.getComponent( PostProcessPipeline );
 
-			if ( postProcess && postProcess.enabled ) {
+			if ( postProcessManager ) {
 
-				postProcess.input = backBuffer ? backBuffer.textures : [];
+				for ( let i = 0; i < postProcessManager.postProcesses.length; i ++ ) {
 
-				this.renderPostProcess( postProcess, this.resolution, { cameraOverride: {
-					viewMatrix: cameraComponent.viewMatrix,
-					projectionMatrix: cameraComponent.projectionMatrix,
-					cameraMatrixWorld: cameraEntity.matrixWorld,
-					cameraNear: cameraComponent.near,
-					cameraFar: cameraComponent.far,
-				} } );
+					const postProcess = postProcessManager.postProcesses[ i ];
 
-				backBuffer = postProcess.output;
+					this.renderPostProcess( postProcess, backBuffer, this.resolution, { cameraOverride: {
+						viewMatrix: cameraComponent.viewMatrix,
+						projectionMatrix: cameraComponent.projectionMatrix,
+						cameraMatrixWorld: cameraEntity.matrixWorld,
+						cameraNear: cameraComponent.near,
+						cameraFar: cameraComponent.far,
+					} } );
+
+					backBuffer = postProcess.output || undefined;
+
+				}
 
 			}
+
+
+			// const postProcess = cameraEntity.getComponent( PostProcess );
+
+			// if ( postProcess && postProcess.enabled ) {
+
+			// 	postProcess.input = backBuffer ? backBuffer.textures : [];
+
+			// 	this.renderPostProcess( postProcess, this.resolution, { cameraOverride: {
+			// 		viewMatrix: cameraComponent.viewMatrix,
+			// 		projectionMatrix: cameraComponent.projectionMatrix,
+			// 		cameraMatrixWorld: cameraEntity.matrixWorld,
+			// 		cameraNear: cameraComponent.near,
+			// 		cameraFar: cameraComponent.far,
+			// 	} } );
+
+			// 	backBuffer = postProcess.output;
+
+			// }
 
 			// ui
 
@@ -470,7 +495,6 @@ export class Renderer extends Entity {
 			} );
 
 			this.gl.disable( this.gl.BLEND );
-
 
 			if ( cameraComponent.displayOut ) {
 
@@ -618,11 +642,11 @@ export class Renderer extends Entity {
 
 	}
 
-	public renderPostProcess( postprocess: PostProcess, canvasSize?: GLP.Vector, renderOption?: RenderOption ) {
+	public renderPostProcess( postprocess: PostProcess, input?: GLP.GLPowerFrameBuffer, canvasSize?: GLP.Vector, renderOption?: RenderOption ) {
 
 		// render
 
-		let backbuffers: GLP.GLPowerTexture[] | undefined = postprocess.input;
+		let backbuffers: GLP.GLPowerTexture[] | undefined = input ? input.textures : undefined;
 
 		if ( ! postprocess.passes ) return;
 

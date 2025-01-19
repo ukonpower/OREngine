@@ -268,14 +268,14 @@ export class DeferredRenderer extends GLP.EventEmitter {
 			} ),
 		} );
 
-		this.postprocess = new MXP.PostProcess( { entity: new MXP.Entity(), args: { passes: [
+		this.postprocess = new MXP.PostProcess( { passes: [
 			normalSelector,
 			lightShaft,
 			ssao,
 			ssaoBlurH,
 			ssaoBlurV,
 			shading,
-		] } } );
+		] } );
 
 		this.timeUniforms_ = timeUniforms;
 		this.shading = shading;
