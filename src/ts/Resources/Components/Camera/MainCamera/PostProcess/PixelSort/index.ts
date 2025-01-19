@@ -22,7 +22,7 @@ export class PixelSort extends MXP.PostProcess {
 		const pixelSortResolution = new GLP.Vector( 1920, 1080 );
 		const pixelSortUniforms = MXP.UniformsUtils.merge( globalUniforms.time, {
 			uThresholdMin: {
-				value: 0.2,
+				value: 0.35,
 				type: '1f'
 			},
 			uThresholdMax: {
@@ -43,6 +43,13 @@ export class PixelSort extends MXP.PostProcess {
 		} );
 
 		if ( import.meta.hot ) {
+
+			params.pipeline.field( "pixelSortThresholdMin", () => pixelSortUniforms.uThresholdMin.value, ( value ) => pixelSortUniforms.uThresholdMin.value = value, {
+				step: 0.01
+			} );
+			params.pipeline.field( "pixelSortThresholdMax", () => pixelSortUniforms.uThresholdMax.value, ( value ) => pixelSortUniforms.uThresholdMax.value = value, {
+				step: 0.05
+			} );
 
 			import.meta.hot.accept( "./shaders/pixelSortMask.fs", ( module ) => {
 
