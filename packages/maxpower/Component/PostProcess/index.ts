@@ -6,7 +6,8 @@ import { PostProcessPass } from './PostProcessPass';
 
 export class PostProcess extends Component {
 
-	public input?: GLP.GLPowerTexture[];
+	public order: number;
+
 	protected _passes: PostProcessPass[];
 
 	constructor( params: ComponentParams<{passes: PostProcessPass[]}> ) {
@@ -14,6 +15,9 @@ export class PostProcess extends Component {
 		super( params );
 
 		this._passes = params.args.passes;
+
+		this.order = 0;
+		this._tag = 'postprocess';
 
 	}
 

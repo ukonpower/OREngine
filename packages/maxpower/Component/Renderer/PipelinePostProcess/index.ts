@@ -331,7 +331,11 @@ export class PipelinePostProcess {
 
 		if ( ! renderTarget ) return;
 
-		this.postprocess.input = renderTarget.shadingBuffer.textures;
+		if ( this.postprocess.passes[ 0 ] ) {
+
+			this.postprocess.passes[ 0 ].backBufferOverride = renderTarget.shadingBuffer.textures;
+
+		}
 
 		// ssr
 

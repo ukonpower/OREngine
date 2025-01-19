@@ -94,11 +94,10 @@ export class FrameDebugger extends GLP.EventEmitter {
 			new MXP.PostProcessPass( this._gl, {
 				uniforms: this._uniforms,
 				renderTarget: null,
-				frag: frameDebuggerFrag
+				frag: frameDebuggerFrag,
+				backBufferOverride: this._outFrameBuffer.textures,
 			} )
 		] } } );
-
-		this._outPostProcess.input = this._outFrameBuffer.textures;
 
 		this._frameList = [];
 
@@ -268,7 +267,7 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 		// out
 
-		this._engine.renderer.renderPostProcess( this._outPostProcess, this._resolution );
+		this._engine.renderer.renderPostProcess( this._outPostProcess, undefined, this._resolution );
 
 		this.clear();
 
