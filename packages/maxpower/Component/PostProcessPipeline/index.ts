@@ -5,14 +5,16 @@ import { PostProcess } from '../../PostProcess';
 
 export class PostProcessPipeline extends Component {
 
-	private _postProcesses: PostProcess[];
 	private _resolution: GLP.Vector;
+	private _postProcesses: PostProcess[];
+	private _postProcessesDict: Map<typeof PostProcess, PostProcess>;
 
 	constructor( param: ComponentParams ) {
 
 		super( param );
 
 		this._postProcesses = [];
+		this._postProcessesDict = new Map();
 
 		this._resolution = new GLP.Vector();
 
@@ -24,13 +26,25 @@ export class PostProcessPipeline extends Component {
 
 	}
 
-	public add( postProcess: PostProcess ) {
+	public add<T extends typeof PostProcess>( postProcess: T ) {
 
-		this._postProcesses.push( postProcess );
+		const current = this._postProcessesDict.get( postProcess );
+
+		if ( current ) {
+
+			current.dispose();
+
+		}
+
+		const newPostProcess = new postProcess( { pipeline: this } );
+
+		this._postProcessesDict.set( postProcess, newPostProcess );
+
+		this._postProcesses = Array.from( this._postProcessesDict.values() );
 
 		this._postProcesses.sort( ( a, b ) => a.order - b.order );
 
-		postProcess.resize( this._resolution );
+		newPostProcess.resize( this._resolution );
 
 	}
 
