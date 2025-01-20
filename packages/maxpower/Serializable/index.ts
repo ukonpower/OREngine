@@ -22,7 +22,8 @@ export type SerializableFieldOpt<> = {
 	format?: SerializableFieldFormat,
 } & ValueOpt
 
-export type SerializeFieldValue = string | number | boolean | null | object;
+export type SerializeFieldPrimitive = string | number | boolean | null;
+export type SerializeFieldValue = SerializeFieldPrimitive | SerializeFieldValue[]
 type SerializeFieldGetter<T extends SerializeFieldValue> = ( event: SerializeFieldSerializeEvent ) => T;
 type SerializeFieldSetter<T extends SerializeFieldValue> = ( value: T ) => void;
 type SerializeFieldProxy = {get: SerializeFieldGetter<SerializeFieldValue>, set: SerializeFieldSetter<SerializeFieldValue>, opt?: SerializableFieldOpt}

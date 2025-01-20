@@ -1,4 +1,4 @@
-import { SerializableFieldFormat, SerializableFieldOpt, SerializeFieldValue } from 'maxpower';
+import { SerializableFieldFormat, SerializeFieldValue } from 'maxpower';
 
 import { Button } from '../Button';
 import { InputBoolean } from '../Input/InputCheckBox';
@@ -23,23 +23,28 @@ export const Value = <T extends SerializeFieldValue>( { value, onChange, format,
 
 	let inputElm = null;
 
+	const onChangeValue = ( value: any ) => {
+
+		if ( onChange ) {
+
+			onChange( value as T );
+
+		}
+
+	};
+
+	if ( value === undefined ) return null;
+
+
 	if ( format ) {
 
 		if ( format.type == "vector" && Array.isArray( value ) ) {
 
-			inputElm = <Vector value={value} onChange={( v ) => {
-
-				if ( onChange ) {
-
-					onChange( v as T );
-
-				}
-
-			}} />;
+			inputElm = <Vector value={value as number[]} onChange={onChangeValue} />;
 
 		} else if ( format.type == "select" ) {
 
-			inputElm = <InputSelect value={value} onChange={onChange} selectList={format.list}/>;
+			inputElm = <InputSelect value={value} onChange={onChangeValue} selectList={format.list}/>;
 
 		}
 
@@ -49,15 +54,15 @@ export const Value = <T extends SerializeFieldValue>( { value, onChange, format,
 
 		if ( typeof value === "number" ) {
 
-			inputElm = <InputNumber value={value} onChange={onChange} step={step} />;
+			inputElm = <InputNumber value={value} onChange={onChangeValue} step={step} />;
 
 		} else if ( typeof value === "string" ) {
 
-			inputElm = <InputText value={value} readOnly={readOnly} onChange={onChange} />;
+			inputElm = <InputText value={value} readOnly={readOnly} onChange={onChangeValue} />;
 
 		} else if ( typeof value == "boolean"	) {
 
-			inputElm = <InputBoolean checked={value} onChange={onChange}/>;
+			inputElm = <InputBoolean checked={value} onChange={onChangeValue}/>;
 
 		} else if ( typeof value == "function" ) {
 
@@ -65,7 +70,7 @@ export const Value = <T extends SerializeFieldValue>( { value, onChange, format,
 
 			inputElm = <Button onClick={() => {
 
-				value();
+				( value as () => void )();
 
 			}} >
 				{text}

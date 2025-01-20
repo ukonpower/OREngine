@@ -1,3 +1,5 @@
+import { get } from 'http';
+
 import * as GLP from 'glpower';
 
 import { Component, ComponentParams } from '..';
@@ -15,8 +17,26 @@ export class PostProcessPipeline extends Component {
 
 		this._postProcesses = [];
 		this._postProcessesDict = new Map();
-
 		this._resolution = new GLP.Vector();
+
+		if ( import.meta.env.DEV ) {
+
+			this.field( "postprocess", () => {
+
+				return this._postProcesses.map( postProcess => postProcess.enabled );
+
+			}
+			, ( v ) => {
+
+				this._postProcesses.forEach( ( postProcess, i ) => {
+
+					postProcess.enabled = v[ i ];
+
+				} );
+
+			} );
+
+		}
 
 	}
 
