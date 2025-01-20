@@ -63,9 +63,7 @@
 							"name": "MainCamera",
 							"props": {
 								"enabled": true,
-								"tag": "",
-								"pixelSortThresholdMin": 0.27400000000001545,
-								"pixelSortThresholdMax": 1
+								"tag": ""
 							}
 						}
 					]
@@ -131,5 +129,5 @@
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,
 	"frameLoop/end": 0,
-	"selectedEntityId": "7d"
+	"selectedEntityId": "2e"
 }

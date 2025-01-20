@@ -26,14 +26,21 @@ export class PixelSort extends MXP.PostProcess {
 			new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
 		] );
 
+		const rtRange = new GLP.GLPowerFrameBuffer( gl ).setTexture( [
+			new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA } ),
+		] );
+
+		const currentResolution = new GLP.Vector( 0, 0 );
+
 		const creaetPass = ( resolution: GLP.Vector ) => {
 
-			if ( resolution.y == 0 ) return;
+			if ( resolution.x * resolution.y == 0 ) return;
+			if ( resolution.x == currentResolution.x || resolution.y == currentResolution.y ) return;
 
-			let pixelSortInput = undefined;
-			pixelSortInput = undefined;
+			currentResolution.copy( resolution );
 
 			const pixelSortResolution = resolution.clone();
+
 			const pixelSortUniforms = MXP.UniformsUtils.merge( globalUniforms.time, {
 				uThresholdMin: {
 					value: 0.35,
@@ -52,8 +59,7 @@ export class PixelSort extends MXP.PostProcess {
 				frag: MXP.hotUpdate( "pixelSortMask", pixelSortMaskFrag ),
 				passThrough: true,
 				uniforms: MXP.UniformsUtils.merge( globalUniforms.time, pixelSortUniforms ),
-				fixedResotluion: new GLP.Vector( pixelSortResolution.x, pixelSortResolution.y ),
-				backBufferOverride: pixelSortInput
+				fixedResotluion: pixelSortResolution.clone(),
 			} );
 
 			if ( import.meta.hot ) {
@@ -91,10 +97,8 @@ export class PixelSort extends MXP.PostProcess {
 						type: '1i'
 					}
 				} ),
-				fixedResotluion: new GLP.Vector( pixelSortResolution.x, pixelSortResolution.y ),
-				renderTarget: new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-					new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA } ),
-				] ),
+				fixedResotluion: pixelSortResolution.clone(),
+				renderTarget: rtRange,
 			} );
 
 			if ( import.meta.hot ) {
@@ -149,7 +153,7 @@ export class PixelSort extends MXP.PostProcess {
 							}
 						},
 						passThrough: true,
-						backBufferOverride: cnt === 0 ? pixelSortInput : backBufferOverride,
+						backBufferOverride: cnt === 0 ? undefined : backBufferOverride,
 						renderTarget: cnt % 2 === 0 ? pixelSortRT2 : pixelSortRT1,
 						fixedResotluion: pixelSortResolution,
 					} );
@@ -209,10 +213,9 @@ export class PixelSort extends MXP.PostProcess {
 
 	public resize( resolution: GLP.Vector ): void {
 
-		super.resize( resolution );
-
 		this.emit( "resize", [ resolution ] );
 
+		super.resize( resolution );
 
 	}
 
