@@ -13,6 +13,7 @@ export type PostProcessParams = {
 export class PostProcess extends Serializable {
 
 	public order: number;
+	public enabled: boolean;
 
 	protected _pipeline: PostProcessPipeline;
 	protected _passes: PostProcessPass[];
@@ -21,9 +22,10 @@ export class PostProcess extends Serializable {
 
 		super();
 
+		this.enabled = true;
+		this.order = 0;
 		this._pipeline = params.pipeline;
 		this._passes = params && params.passes || [];
-		this.order = 0;
 
 	}
 

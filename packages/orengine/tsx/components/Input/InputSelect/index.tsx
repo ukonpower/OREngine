@@ -1,16 +1,14 @@
-
-
 import style from './index.module.scss';
 
-interface InputTextProps {
-	value: string;
-	selectList: ( {label: string, value: any} | string )[],
-	onChange?: ( value: string ) => void;
+interface InputTextProps<T> {
+	value: T;
+	selectList: ( {label: string, value: T} | string )[],
+	onChange?: ( value: T ) => void;
 	disabled?: boolean;
 	readOnly?: boolean;
 }
 
-export const InputSelect = ( { onChange, value, ...props }: InputTextProps ) => {
+export const InputSelect = <T extends string | number, >( { onChange, value, ...props }: InputTextProps<T> ) => {
 
 	if ( props.readOnly ) {
 
@@ -25,7 +23,7 @@ export const InputSelect = ( { onChange, value, ...props }: InputTextProps ) => 
 
 			if ( onChange ) {
 
-				onChange( e.target.value );
+				onChange( e.target.value as T );
 
 			}
 
@@ -33,7 +31,7 @@ export const InputSelect = ( { onChange, value, ...props }: InputTextProps ) => 
 			{props.selectList.map( ( v, i ) => {
 
 				let label = "";
-				let value = "";
+				let value: string | number = "";
 
 				if ( typeof v === "string" ) {
 

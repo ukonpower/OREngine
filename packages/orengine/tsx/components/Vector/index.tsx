@@ -20,7 +20,7 @@ export const Vector = ( { onChange, disabled, ...props }: VectorProps ) => {
 	const valueRef = useRef<number[]>( );
 	valueRef.current = props.value;
 
-	const onChangeValue = useCallback( ( axisIndex: number, newAxisValue: ValueType ) => {
+	const onChangeValue = useCallback( ( axisIndex: number, newAxisValue: number ) => {
 
 		if ( onChange && valueRef.current ) {
 
