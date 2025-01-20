@@ -36,7 +36,7 @@ export class PostProcessPass extends Material {
 
 		super( { ...param, frag: param.frag || passFrag, vert: param.vert || quadVert } );
 
-		this._fixedResolution = param.fixedResotluion || null;
+		this._fixedResolution = param.fixedResotluion ? param.fixedResotluion.clone() : null;
 		this.resolution = new GLP.Vector();
 		this.resolutionInv = new GLP.Vector();
 
@@ -73,6 +73,20 @@ export class PostProcessPass extends Material {
 	}
 
 	public set enabled( value: boolean ) {
+	}
+
+	public get fixedResolution() {
+
+		return this._fixedResolution;
+
+	}
+
+	public set fixedResolution( resolution: GLP.Vector | null ) {
+
+		this._fixedResolution = resolution;
+
+		this.resize( resolution || new GLP.Vector() );
+
 	}
 
 	public onAfterRender() {
