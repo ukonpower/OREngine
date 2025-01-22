@@ -13,7 +13,7 @@ export interface OREngineNodeOverride {
 	components: OREngineNodeOverrideComponent[]
 }
 
-export interface OREngineProjectData extends MXP.SerializedFields {
+export interface OREngineProjectData extends MXP.SerializedField {
 	name: string
 	objectOverride: OREngineNodeOverride[],
 	scene: SceneNode | null
@@ -164,7 +164,7 @@ export class SceneSerializer extends GLP.EventEmitter {
 
 			e.components.forEach( ( c ) => {
 
-				const exportProps: MXP.SerializedFields = c.serialize( true );
+				const exportProps: MXP.SerializedField = c.serialize( true );
 
 				if ( ! c.disableEdit && c.initiator == "user" ) {
 

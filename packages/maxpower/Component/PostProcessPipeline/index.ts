@@ -23,14 +23,14 @@ export class PostProcessPipeline extends Component {
 
 			this.field( "postprocess", () => {
 
-				return this._postProcesses.map( postProcess => postProcess.enabled );
+				return this._postProcesses.map( ( postProcess, index ) =>( { label: `${index}/${postProcess.name}`, value: postProcess.enabled } ) );
 
 			}
 			, ( v ) => {
 
 				this._postProcesses.forEach( ( postProcess, i ) => {
 
-					postProcess.enabled = v[ i ];
+					postProcess.enabled = v[ i ].value;
 
 				} );
 

@@ -10,12 +10,13 @@ export class FXAA extends MXP.PostProcess {
 
 		super( {
 			...params,
+			name: "FXAA",
 			passes: [
 				new MXP.PostProcessPass( gl, {
 					name: 'fxaa',
 					frag: fxaaFrag,
 				} )
-			]
+			],
 		} );
 
 	}

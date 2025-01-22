@@ -5,6 +5,7 @@ import { InputBoolean } from '../Input/InputCheckBox';
 import { InputNumber } from '../Input/InputNumber';
 import { InputSelect } from '../Input/InputSelect';
 import { InputText } from '../Input/InputText';
+import { Label } from '../Label';
 import { Vector } from '../Vector';
 
 export type ValueOpt = {
@@ -75,6 +76,32 @@ export const Value = <T extends SerializeFieldValue>( { value, onChange, format,
 			}} >
 				{text}
 			</ Button >;
+
+		} else if ( Array.isArray( value ) ) {
+
+			const arrayElms: React.ReactNode[] = [];
+
+			for ( let i = 0; i < value.length; i ++ ) {
+
+				const arrayValue = value[ i ];
+
+				arrayElms.push(
+					<Label title={arrayValue.label}>
+						<Value value={arrayValue.value} onChange={( v ) => {
+
+							const newValue = value.concat();
+
+							newValue[ i ].value = v;
+
+							onChangeValue( newValue );
+
+						}}/>
+					</Label>
+				);
+
+			}
+
+			inputElm = arrayElms;
 
 		}
 

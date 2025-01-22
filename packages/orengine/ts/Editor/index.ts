@@ -95,7 +95,7 @@ export class Editor extends MXP.Serializable {
 			Load
 		-------------------------------*/
 
-		this._fileSystem.get<MXP.SerializedFields>( "editor.json" ).then( ( data ) => {
+		this._fileSystem.get<MXP.SerializedField>( "editor.json" ).then( ( data ) => {
 
 			if ( data ) {
 

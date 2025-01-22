@@ -436,6 +436,8 @@ export class Renderer extends Entity {
 
 					const postProcess = postProcessManager.postProcesses[ i ];
 
+					if ( ! postProcess.enabled ) continue;
+
 					this.renderPostProcess( postProcess, backBuffer, this.resolution, { cameraOverride: {
 						viewMatrix: cameraComponent.viewMatrix,
 						projectionMatrix: cameraComponent.projectionMatrix,
@@ -449,25 +451,6 @@ export class Renderer extends Entity {
 				}
 
 			}
-
-
-			// const postProcess = cameraEntity.getComponent( PostProcess );
-
-			// if ( postProcess && postProcess.enabled ) {
-
-			// 	postProcess.input = backBuffer ? backBuffer.textures : [];
-
-			// 	this.renderPostProcess( postProcess, this.resolution, { cameraOverride: {
-			// 		viewMatrix: cameraComponent.viewMatrix,
-			// 		projectionMatrix: cameraComponent.projectionMatrix,
-			// 		cameraMatrixWorld: cameraEntity.matrixWorld,
-			// 		cameraNear: cameraComponent.near,
-			// 		cameraFar: cameraComponent.far,
-			// 	} } );
-
-			// 	backBuffer = postProcess.output;
-
-			// }
 
 			// ui
 

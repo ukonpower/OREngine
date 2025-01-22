@@ -10,13 +10,12 @@ import { globalUniforms, gl } from "~/ts/Globals";
 
 export class PixelSort extends MXP.PostProcess {
 
-
 	constructor( params: MXP.PostProcessParams ) {
 
 		super( {
 			...params,
+			name: "PixelSort"
 		} );
-
 
 		const pixelSortRT1 = new GLP.GLPowerFrameBuffer( gl ).setTexture( [
 			new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),

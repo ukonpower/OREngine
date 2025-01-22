@@ -5,7 +5,6 @@ import { useWatchSerializable } from '../../hooks/useWatchSerializable';
 
 import { SerializableField } from './SerializableField';
 
-
 const SerializableFieldViewContext = createContext<ReturnType<typeof useSerializableFieldViewContext> | undefined>( undefined );
 
 type SerializableFieldViewProps = {

@@ -6,12 +6,14 @@ import { Serializable } from '../Serializable';
 import { PostProcessPass } from './PostProcessPass';
 
 export type PostProcessParams = {
+	name?: string,
 	pipeline: PostProcessPipeline,
 	passes?: PostProcessPass[]
 }
 
 export class PostProcess extends Serializable {
 
+	public name: string;
 	public order: number;
 	public enabled: boolean;
 
@@ -22,6 +24,7 @@ export class PostProcess extends Serializable {
 
 		super();
 
+		this.name = params.name || "";
 		this.enabled = true;
 		this.order = 0;
 		this._pipeline = params.pipeline;
