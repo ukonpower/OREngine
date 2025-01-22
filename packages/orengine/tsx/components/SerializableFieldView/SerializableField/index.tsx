@@ -6,7 +6,7 @@ import { Block } from '../../Block';
 import style from './index.module.scss';
 import { SerializableFieldValue } from './SerializableFieldValue';
 
-export const SerializableField: React.FC<{fields: MXP.SerializeFieldsAsDirectoryFolder, basePath?: string}> = ( props ) => {
+export const SerializableField: React.FC<{fields: MXP.SerializeFieldDirectoryFolder, basePath?: string}> = ( props ) => {
 
 	const elmArray: React.ReactNode[] = [];
 

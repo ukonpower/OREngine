@@ -22,31 +22,31 @@ export type SerializableFieldOpt<> = {
 	format?: SerializableFieldFormat,
 } & ValueOpt
 
-export type SerializeFieldPrimitive = string | number | boolean | null;
-export type SerializeFieldValue = SerializeFieldPrimitive | SerializeFieldValue[]
-type SerializeFieldGetter<T extends SerializeFieldValue> = ( event: SerializeFieldSerializeEvent ) => T;
-type SerializeFieldSetter<T extends SerializeFieldValue> = ( value: T ) => void;
-type SerializeFieldProxy = {get: SerializeFieldGetter<SerializeFieldValue>, set: SerializeFieldSetter<SerializeFieldValue>, opt?: SerializableFieldOpt}
+export type SerializeFieldPrimitive = string | number | boolean | null | undefined | ( () => void );
+export type SerializeFieldPrimitiveArray = { label: string, value:SerializeFieldPrimitive }[]
+export type SerializeFieldValue = SerializeFieldPrimitive | SerializeFieldPrimitiveArray
+export type SerializedField = {[key: string]: SerializeFieldValue}
 
-export type SerializedFields = {[key: string]: SerializeFieldValue}
+export type SerializeFieldDirectoryFolder= {
+	type: "folder",
+	childs: {[key: string]: SerializeFieldDirectory},
+	opt?: SerializableFieldOpt,
+}
+export type SerializeFieldDirectoryValue= {
+	type: "value",
+	value: SerializeFieldValue,
+	opt?: SerializableFieldOpt,
+}
+export type SerializeFieldDirectory = SerializeFieldDirectoryFolder | SerializeFieldDirectoryValue
 
 type SerializeFieldSerializeEvent = {
 	mode: "view" | "export"
 }
 
-export type SerializeFieldsAsDirectoryFolder= {
-	type: "folder",
-	childs: {[key: string]: SerializeFieldsAsDirectory},
-	opt?: SerializableFieldOpt,
-}
+type SerializeFieldGetter<T extends SerializeFieldValue> = ( event: SerializeFieldSerializeEvent ) => T;
+type SerializeFieldSetter<T extends SerializeFieldValue> = ( value: T ) => void;
+type SerializeFieldProxy = {get: SerializeFieldGetter<SerializeFieldValue>, set: SerializeFieldSetter<SerializeFieldValue>, opt?: SerializableFieldOpt}
 
-export type SerializeFieldsAsDirectoryValue= {
-	type: "value",
-	value: SerializeFieldValue,
-	opt?: SerializableFieldOpt,
-}
-
-export type SerializeFieldsAsDirectory = SerializeFieldsAsDirectoryFolder | SerializeFieldsAsDirectoryValue
 
 export class Serializable extends GLP.EventEmitter {
 
@@ -70,11 +70,11 @@ export class Serializable extends GLP.EventEmitter {
 		Serialize
 	-------------------------------*/
 
-	public serialize( event?: SerializeFieldSerializeEvent ): SerializedFields {
+	public serialize( event?: SerializeFieldSerializeEvent ): SerializedField {
 
 		event = event || { mode: "view" };
 
-		const serialized: SerializedFields = {};
+		const serialized: SerializedField = {};
 
 		this.fields_.forEach( ( field, k ) => {
 
@@ -100,9 +100,9 @@ export class Serializable extends GLP.EventEmitter {
 
 	public serializeToDirectory() {
 
-		const toDirectory = ( serialized: SerializedFields ) => {
+		const toDirectory = ( serialized: SerializedField ) => {
 
-			const result: SerializeFieldsAsDirectory = {
+			const result: SerializeFieldDirectory = {
 				type: "folder",
 				childs: {},
 				opt: {}
@@ -117,7 +117,7 @@ export class Serializable extends GLP.EventEmitter {
 
 				if ( ! key ) continue;
 
-				let target:SerializeFieldsAsDirectory = result;
+				let target:SerializeFieldDirectory = result;
 
 				const splitKeys = key.split( '/' );
 
@@ -171,7 +171,11 @@ export class Serializable extends GLP.EventEmitter {
 
 	}
 
-	public deserialize( props: SerializedFields ) {
+	/*-------------------------------
+		Deserialize
+	-------------------------------*/
+
+	public deserialize( props: SerializedField ) {
 
 		const keys = Object.keys( props );
 
@@ -191,6 +195,10 @@ export class Serializable extends GLP.EventEmitter {
 
 	}
 
+	/*-------------------------------
+		Export
+	-------------------------------*/
+
 	public export() {
 
 		this.serialize( {
@@ -198,6 +206,10 @@ export class Serializable extends GLP.EventEmitter {
 		} );
 
 	}
+
+	/*-------------------------------
+		Field
+	-------------------------------*/
 
 	public field<T extends SerializeFieldValue>( path: string, get: ( event: SerializeFieldSerializeEvent ) => T, set?: ( v: T ) => void, opt?: SerializableFieldOpt ) {
 
@@ -232,6 +244,10 @@ export class Serializable extends GLP.EventEmitter {
 
 	}
 
+	/*-------------------------------
+		Set / Get Field
+	-------------------------------*/
+
 	public setField( path: string, value: SerializeFieldValue ) {
 
 		this.deserialize( { [ path ]: value } );
@@ -263,6 +279,10 @@ export class Serializable extends GLP.EventEmitter {
 		}
 
 	}
+
+	/*-------------------------------
+		Notice
+	-------------------------------*/
 
 	protected noticeField( path: string ) {
 

@@ -60,7 +60,7 @@ export const AudioView = () => {
 
 		const engine = gui.engine;
 
-		const onUpdateSceneProps = ( props: MXP.SerializedFields ) => {
+		const onUpdateSceneProps = ( props: MXP.SerializedField ) => {
 
 			setFrameSetting( {
 				duration: props[ "timeline/duration" ],

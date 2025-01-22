@@ -145,6 +145,7 @@ export class Bloom extends MXP.PostProcess {
 
 		super( {
 			...params,
+			name: "Bloom",
 			passes: [
 				brightPass,
 				...blurPasses,

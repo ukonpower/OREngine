@@ -10,6 +10,7 @@ export class Finalize extends MXP.PostProcess {
 
 		super( {
 			...params,
+			name: "Finalize",
 			passes: [
 				new MXP.PostProcessPass( gl, {
 					frag: finalizeFrag,
