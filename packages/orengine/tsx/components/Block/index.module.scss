@@ -11,7 +11,7 @@
 	&[data-bg="true"] {
 		background-color: $bgCol0;
 		border-radius: $radius1;
-		padding: 5px 5px;
+		padding: $padding;
 	}
 }
 
@@ -19,9 +19,7 @@
 	display: flex;
 	align-items: center;
 
-	&[data-open="true"] {
-		margin-bottom: 4px;
-	}
+	padding: $padding ;
 
 	&_icon {
 		padding-right: 5px;
@@ -44,7 +42,6 @@
 }
 
 .content {
-	padding: 2px 5px;
 
 	&[data-no_indent="true"] {
 		padding-left: 0px;

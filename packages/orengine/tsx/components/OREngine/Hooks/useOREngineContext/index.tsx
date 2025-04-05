@@ -1,4 +1,5 @@
-import React, { useEffect } from "react";
+import { OREngineProjectData } from "packages/orengine/ts/Engine/ProjectSerializer";
+import React, { useCallback, useEffect } from "react";
 
 import { Engine } from "../../../../../ts/Engine";
 
@@ -29,8 +30,15 @@ export const useOREngineContext = ( gl: WebGL2RenderingContext ) => {
 
 	}, [ engine ] );
 
+	const load = useCallback( ( data: OREngineProjectData | undefined ) => {
+
+		engine.load( data );
+
+	}, [ engine ] );
+
 	return {
-		engine
+		engine,
+		load
 	};
 
 };

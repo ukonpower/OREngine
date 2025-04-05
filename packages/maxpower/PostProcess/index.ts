@@ -1,33 +1,27 @@
 import * as GLP from 'glpower';
 
-import { PostProcessPipeline } from '../Component/PostProcessPipeline';
 import { Serializable } from '../Serializable';
 
 import { PostProcessPass } from './PostProcessPass';
 
 export type PostProcessParams = {
 	name?: string,
-	pipeline: PostProcessPipeline,
 	passes?: PostProcessPass[]
 }
 
 export class PostProcess extends Serializable {
 
 	public name: string;
-	public order: number;
 	public enabled: boolean;
-
-	protected _pipeline: PostProcessPipeline;
 	protected _passes: PostProcessPass[];
 
-	constructor( params: PostProcessParams ) {
+	constructor( params?: PostProcessParams ) {
 
 		super();
 
-		this.name = params.name || "";
+		const p = params || {};
+		this.name = p.name || "";
 		this.enabled = true;
-		this.order = 0;
-		this._pipeline = params.pipeline;
 		this._passes = params && params.passes || [];
 
 	}
@@ -38,15 +32,23 @@ export class PostProcess extends Serializable {
 
 	}
 
+	public get hasOutput() {
+
+		return this._passes.length > 0 && this._passes.some( pass=>pass.enabled );
+
+	}
+
 	public get output() {
 
-		if ( ! this._passes ) return null;
+		for ( let i = this._passes.length - 1; i >= 0; i -- ) {
 
-		const passes = this._passes.filter( ( pass ) => ! pass.passThrough );
+			const pass = this._passes[ i ];
 
-		if ( passes.length > 0 ) {
+			if ( ! pass.passThrough && pass.enabled ) {
 
-			return passes[ passes.length - 1 ].renderTarget;
+				return pass.renderTarget;
+
+			}
 
 		}
 

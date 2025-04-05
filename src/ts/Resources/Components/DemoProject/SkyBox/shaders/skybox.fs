@@ -30,13 +30,11 @@ void main( void ) {
 
 	float emit = min( line + pattern, 1.0 );
 
-	outColor.xyz += emit;
-
-	outEmissionIntensity = 1.0 + emit * 50.0 * smoothstep( 0.4, 1.0, n);
+	outEmission = vec3( emit * 20.0 * smoothstep( 0.4, 1.0, n) );
 
 	#ifdef IS_FORWARD
 
-		outColor = vec4( outColor.xyz * outEmissionIntensity, 1.0 );
+		outColor = vec4( outEmisson, 1.0 );
 	
 	#endif
 

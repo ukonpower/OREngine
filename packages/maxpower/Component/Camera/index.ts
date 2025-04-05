@@ -65,7 +65,6 @@ export class Camera extends Component {
 
 	public updateProjectionMatrix() {
 
-		this.projectionMatrixPrev.copy( this.projectionMatrix );
 
 		if ( this.cameraType == 'perspective' ) {
 
@@ -83,12 +82,11 @@ export class Camera extends Component {
 
 	public updateViewMatrix() {
 
-		this.viewMatrixPrev.copy( this.viewMatrix );
-		this.viewMatrix.copy( this._entity.matrixWorld ).inverse();
+		this.viewMatrix.copy( this.entity.matrixWorld ).inverse();
 
 	}
 
-	protected postUpdateImpl( event: ComponentUpdateEvent ): void {
+	protected beforeRenderImpl( event: ComponentUpdateEvent ): void {
 
 		this.updateViewMatrix();
 
@@ -97,6 +95,13 @@ export class Camera extends Component {
 			this.updateProjectionMatrix();
 
 		}
+
+	}
+
+	protected afterRenderImpl( event: ComponentUpdateEvent ): void {
+
+		this.viewMatrixPrev.copy( this.viewMatrix );
+		this.projectionMatrixPrev.copy( this.projectionMatrix );
 
 	}
 

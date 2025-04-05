@@ -175,7 +175,7 @@ export class Modeler {
 
 			const mesh = e.getComponent( MXP.Mesh );
 
-			let geo = mesh ? mesh.geometry : undefined;
+			const geo = mesh ? mesh.geometry : undefined;
 
 			if ( geo ) {
 
@@ -183,10 +183,9 @@ export class Modeler {
 
 				if ( mat ) {
 
-					geo = this.bakeTf( geo, mat.vert, mat.uniforms, { ...mat.defines } );
+					// geo = this.bakeTf( geo, mat.vert, mat.uniforms, { ...mat.defines } );
 
 				}
-
 
 				const currentIndex = posArray.length / 3;
 

@@ -29,22 +29,20 @@ export class LookAt extends MXP.Component {
 
 	}
 
-	public finalizeImpl( event: MXP.ComponentUpdateEvent ): void {
-
-		const entity = event.entity;
+	public updateImpl( event: MXP.ComponentUpdateEvent ): void {
 
 		if ( this.target && this.enable ) {
 
-			entity.matrixWorld.decompose( this.entityWorldPos );
+			this.entity.matrixWorld.decompose( this.entityWorldPos );
 			this.target.matrixWorld.decompose( this.targetWorldPos );
 
-			entity.matrixWorld.lookAt( this.entityWorldPos, this.targetWorldPos, this.up );
+			this.entity.matrixWorld.lookAt( this.entityWorldPos, this.targetWorldPos, this.up );
 
-			const camera = entity.getComponentsByTag<MXP.Camera>( "camera" )[ 0 ];
+			const camera = this.entity.getComponentsByTag<MXP.Camera>( "camera" )[ 0 ];
 
 			if ( camera ) {
 
-				camera.viewMatrix.copy( entity.matrixWorld ).inverse();
+				camera.viewMatrix.copy( this.entity.matrixWorld ).inverse();
 
 			}
 

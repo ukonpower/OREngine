@@ -16,7 +16,7 @@ void main( void ) {
 	vec3 col = vec3( 0.0, 0.0, 0.0 );
 	vec2 uv = vUv;
 	vec2 cuv = uv - 0.5;
-	float w = 0.02;
+	float w = 0.05;
 
 	float d;
 	float s = 0.98; 

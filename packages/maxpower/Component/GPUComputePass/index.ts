@@ -49,7 +49,12 @@ export class GPUComputePass extends PostProcessPass {
 
 		}
 
-		super( gl, { ...param, vert: param.vert || quadVert, renderTarget: rt1, uniforms: UniformsUtils.merge( param.uniforms, outputUniforms ) } );
+		super( gl, { ...param, vert: param.vert || quadVert, renderTarget: rt1, uniforms: UniformsUtils.merge( param.uniforms, outputUniforms, {
+			uDeltaTime: {
+				value: 0.0,
+				type: '1f'
+			}
+		} ) } );
 
 		this.gl = gl;
 

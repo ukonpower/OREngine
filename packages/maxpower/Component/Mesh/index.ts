@@ -23,9 +23,6 @@ export class Mesh extends Component {
 
 			return this.material.name;
 
-		}, undefined, {
-			noExport: true,
-			readOnly: true
 		} );
 
 

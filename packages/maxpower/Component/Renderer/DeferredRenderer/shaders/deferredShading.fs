@@ -5,11 +5,11 @@
 
 // uniforms
 
-uniform sampler2D sampler0; // position, depth
-uniform sampler2D sampler1; // normal, emissionIntensity
-uniform sampler2D sampler2; // albedo, roughness
-uniform sampler2D sampler3; // ssNormal, null, null, metalic
-uniform sampler2D sampler4; // velocity, env
+uniform sampler2D sampler0; // position.xyz, emission.x
+uniform sampler2D sampler1; // normal.xyz, emission.y
+uniform sampler2D sampler2; // albedo, 
+uniform sampler2D sampler3; // roughness, metalic, normalSelect, envSelect, 
+uniform sampler2D sampler4; // velocity.xy, 0.0, emission.z
 
 uniform sampler2D uSSAOTexture;
 uniform sampler2D uLightShaftTexture;
@@ -20,6 +20,12 @@ uniform mat4 viewMatrix;
 uniform mat4 cameraMatrix;
 uniform vec3 cameraPosition;
 
+// custom uniforms
+
+uniform float uEnvMapIntensity;
+
+// -------------------------
+
 // varyings
 
 in vec2 vUv;
@@ -29,36 +35,24 @@ in vec2 vUv;
 layout (location = 0) out vec4 glFragOut0;
 layout (location = 1) out vec4 glFragOut1;
 
-// struct Geometry {
-// 	vec3 position;
-// 	vec3 normal;
-// 	float depth;
-// 	vec3 viewDir;
-// 	vec3 viewDirWorld;
-// 	float occulusion;
-// };
-
-// struct Material {
-// 	vec3 color;
-// 	float roughness;
-// 	float metalic;
-// 	float emissionIntensity;
-// 	vec3 diffuseColor;
-// 	vec3 specularColor;
-// };
-
 void main( void ) {
 
 	//[
+
+	float occlusion = texture( uSSAOTexture, vUv ).x;
+
 	vec4 tex0 = texture( sampler0, vUv );
 	vec4 tex1 = texture( sampler1, vUv );
 	vec4 tex2 = texture( sampler2, vUv );
 	vec4 tex3 = texture( sampler3, vUv );
 	vec4 tex4 = texture( sampler4, vUv );
 
-	float occlusion = texture( uSSAOTexture, vUv ).x;
-
 	vec3 normal = tex1.xyz;
+	vec3 color = tex2.xyz;
+	float roughness = tex3.x;
+	float metalic = tex3.y;
+	vec3 emission = vec3( tex0.w, tex1.w, tex4.w );
+	float envMapIntensity= tex3.w;
 
 	Geometry geo = Geometry(
 		tex0.xyz,
@@ -70,13 +64,13 @@ void main( void ) {
 	);
 	
 	Material mat = Material(
-		tex2.xyz,
-		tex2.w,
-		tex3.w,
-		tex1.w,
-		mix( tex2.xyz, vec3( 0.0, 0.0, 0.0 ), tex3.w ),
-		mix( vec3( 1.0, 1.0, 1.0 ), tex2.xyz, tex3.w ),
-		tex4.w
+		color,
+		roughness,
+		metalic,
+		emission,
+		mix( color, vec3( 0.0, 0.0, 0.0 ), metalic ),
+		mix( vec3( 1.0, 1.0, 1.0 ), color, metalic ),
+		envMapIntensity * uEnvMapIntensity
 	);
 	vec3 outColor = vec3( 0.0 );
 	//]
@@ -92,6 +86,11 @@ void main( void ) {
 	// occlusion
 
 	outColor.xyz *= max( 0.0, 1.0 - geo.occulusion * 1.5 );
+	
+	// emission
+
+	outColor.xyz += mat.emission;
+
 	
 	// light shaft
 	

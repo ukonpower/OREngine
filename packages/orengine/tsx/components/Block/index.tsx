@@ -4,7 +4,6 @@ import { ArrowIcon } from "../Icons/ArrowIcon";
 
 import style from './index.module.scss';
 
-
 type BlockProps = {
 	label: React.ReactNode;
 	children?: React.ReactNode;

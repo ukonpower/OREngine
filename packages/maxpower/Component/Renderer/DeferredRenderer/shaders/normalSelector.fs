@@ -37,9 +37,8 @@ void main( void ) {
 
 	vec4 tex3 = texture( uSelectorTexture, vUv );
 
-	vec3 normal = mix( normalTex.xyz, calcNormal, tex3.x );
+	vec3 normal = mix( normalTex.xyz, calcNormal, tex3.z);
 
-	// outColor = vec4( normal, normalTex.w );
-	outColor = vec4( calcNormal, normalTex.w );
+	outColor = vec4( normal, normalTex.w );
 
 }

@@ -61,7 +61,7 @@ void main( void ) {
 	for(int i = 1; i < SSAOSAMPLE; i++){
 
 		vec2 offset = float( i ) * direction;
-		offset *= uPPPixelSize * 1.5;
+		offset *= uPPPixelSize * 1.0;
 
 		vec2 uvOffsetP = vUv + offset;
 		vec2 uvOffsetN = vUv - offset;

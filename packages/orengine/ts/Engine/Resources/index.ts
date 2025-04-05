@@ -47,7 +47,7 @@ export class Resources extends GLP.EventEmitter {
 
 		return this.componentList.find( c =>{
 
-			return c.component.name == name;
+			return c.name == name;
 
 		} );
 
@@ -67,6 +67,7 @@ export class Resources extends GLP.EventEmitter {
 				child,
 				name: groupName,
 				addComponent: ( name: string, component: typeof MXP.Component ) => {
+
 
 					const item = { name, component };
 
@@ -100,9 +101,11 @@ export class Resources extends GLP.EventEmitter {
 		Texture
 	-------------------------------*/
 
-	public addTexture( name: string, texture: GLP.GLPowerTexture ) {
+	public addTexture<T extends GLP.GLPowerTexture>( name: string, texture: T ) {
 
 		this.textures.set( name, texture );
+
+		return texture;
 
 	}
 

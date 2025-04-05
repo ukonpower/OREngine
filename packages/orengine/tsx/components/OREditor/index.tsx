@@ -1,3 +1,9 @@
+
+import * as MXP from 'maxpower';
+import { OREngineProjectData } from 'packages/orengine/ts/Engine/ProjectSerializer';
+import React, { useEffect } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
+
 import { useLayout } from '../../hooks/useLayout';
 import { MouseMenu } from '../MouseMenu';
 import { useMouseMenu, MouseMenuContext } from '../MouseMenu/useMouseMenu';
@@ -6,6 +12,7 @@ import { PanelContainer } from '../PanelContainer';
 import { EntityProperty } from '../Panels/EntityProperty';
 import { Timer } from '../Panels/GPUTimer';
 import { Hierarchy } from '../Panels/Hierarchy';
+import { MIDIMIXEmu } from '../Panels/MIDIMIXEmu';
 import { ProjectControl } from '../Panels/ProjectControl';
 import { Screen } from '../Panels/Screen';
 import { Timeline } from '../Panels/Timeline';
@@ -14,9 +21,35 @@ import { OREditorContext } from './Context/OREditorContext';
 import { useOREditorContext } from './Hooks/useOREditorContext';
 import style from './index.module.scss';
 
-export const OREditor = () => {
+ type OREditorSaveCallback = ( projectData: OREngineProjectData, editorData: MXP.SerializeField ) => void
 
-	const editorContext = useOREditorContext();
+export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP.SerializeField }> = ( props ) => {
+
+	const editorContext = useOREditorContext( );
+
+	useEffect( () => {
+
+		if ( ! editorContext.editor || ! props.onSave ) return;
+
+		editorContext.editor.on( "save", props.onSave );
+
+		return () => {
+
+			editorContext.editor.off( "save", props.onSave );
+
+		};
+
+	}, [ editorContext.editor, props.onSave ] );
+
+	useEffect( () => {
+
+		if ( ! editorContext.editor || ! props.editorData ) return;
+
+		editorContext.editor.deserialize( props.editorData );
+
+	}, [ props.editorData, editorContext.editor ] );
+
+
 	const layout = useLayout();
 	const mouseMenuContext = useMouseMenu();
 
@@ -58,8 +91,11 @@ export const OREditor = () => {
 							</PanelContainer>
 						</div>
 					</div>
-					<div style={{ height: '150px' }}>
+					<div style={{ height: '160px' }}>
 						<PanelContainer>
+							<Panel title='MIDIMIXEmu'>
+								<MIDIMIXEmu />
+							</Panel>
 							<Panel title='Timeline' noPadding>
 								<Timeline />
 							</Panel>
@@ -106,10 +142,15 @@ export const OREditor = () => {
 							</PanelContainer>
 						</div>
 					</div>
-					<div style={{ height: '12vh' }}>
+					<div style={{ height: '15vh' }}>
 						<PanelContainer>
+							<Panel title='MIDIMIXEmu'>
+								<MIDIMIXEmu />
+							</Panel>
 							<Panel title='Timeline' noPadding>
-								<Timeline />
+								<ErrorBoundary fallback={<div>エラーだよ</div>}>
+									<Timeline />
+								</ErrorBoundary>
 							</Panel>
 						</PanelContainer>
 					</div>

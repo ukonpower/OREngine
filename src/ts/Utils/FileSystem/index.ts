@@ -48,11 +48,7 @@ export class FileSystem extends GLP.EventEmitter {
 
 		} catch ( e ) {
 
-			const dataStr = localStorage.getItem( PREFIX + path );
-
-			if ( ! dataStr ) return undefined;
-
-			return JSON.parse( dataStr );
+			return undefined;
 
 		}
 

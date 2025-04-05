@@ -1,7 +1,7 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { OREngineProjectData, SceneSerializer, OREngineProjectFrame } from './ProjectSerializer';
+import { OREngineProjectData, OREngineProjectFrame, ProjectSerializer } from './ProjectSerializer';
 import { Resources } from './Resources';
 
 export interface SceneTime {
@@ -24,23 +24,41 @@ export class Engine extends MXP.Entity {
 	public enableRender: boolean;
 	public _root: MXP.Entity;
 	public _time: SceneTime;
+	public _frame: FramePlay;
 	public _frameSetting: OREngineProjectFrame;
+
 	private _renderer: MXP.Renderer;
 	private _gl: WebGL2RenderingContext;
 	private _canvasWrapElm: HTMLElement;
 	private _canvas: HTMLCanvasElement | OffscreenCanvas;
 	private _projectCache: OREngineProjectData | null;
-	private _projectSerializer: SceneSerializer;
-	public _frame: FramePlay;
+	private _uniforms: GLP.Uniforms;
 	private _disposed: boolean;
 
 	constructor( gl: WebGL2RenderingContext ) {
 
 		super();
 
+		Engine.instances.set( gl, this );
+
 		this._gl = gl;
 		this.name = "OREngine";
 		this._disposed = false;
+
+		this._uniforms = {
+			uTime: {
+				value: 0,
+				type: "1f"
+			},
+			uTimeE: {
+				value: 0,
+				type: '1f'
+			},
+			uEnvMapIntensity: {
+				value: 1,
+				type: '1f'
+			}
+		};
 
 		/*-------------------------------
 			Canvas
@@ -78,13 +96,11 @@ export class Engine extends MXP.Entity {
 
 		this._projectCache = null;
 
-		this._projectSerializer = new SceneSerializer();
-
 		this.on( "update/blidge/scene", ( blidgeRoot: MXP.Entity ) => {
 
 			if ( this._projectCache ) {
 
-				this._projectSerializer.applyOverride( this._root, blidgeRoot, this._projectCache.objectOverride );
+				ProjectSerializer.deserializeOverride( this._projectCache.overrides, this._root, blidgeRoot );
 
 			}
 
@@ -129,8 +145,19 @@ export class Engine extends MXP.Entity {
 		this.add( this._root );
 
 		this.field( "name", () => this.name, ( v ) => this.name = v );
-		this.field( "objectOverride", () => this._projectSerializer.serialize( this._root ).objectOverride );
-		this.field( "scene", () => this._projectSerializer.serialize( this._root ).scene );
+
+		this.field( "scene", () => ProjectSerializer.serializeEntity( this._root ), ( v ) => {
+
+
+			ProjectSerializer.deserializeEntity( v, this._root );
+
+		} );
+
+		this.field( "overrides", () => ProjectSerializer.serializeEntityOverride( this._root ), ( v ) => {
+
+			ProjectSerializer.deserializeOverride( v, this._root, this._root );
+
+		} );
 
 		const tl = this.fieldDir( "timeline" );
 		tl.field( "duration", () => this._frameSetting.duration, ( v ) => this._frameSetting.duration = v );
@@ -158,7 +185,6 @@ export class Engine extends MXP.Entity {
 			Register
 		-------------------------------*/
 
-		Engine.instances.set( gl, this );
 
 	}
 
@@ -175,6 +201,10 @@ export class Engine extends MXP.Entity {
 		return instance;
 
 	}
+
+	/*-------------------------------
+		Getters
+	-------------------------------*/
 
 	public get gl() {
 
@@ -207,13 +237,23 @@ export class Engine extends MXP.Entity {
 
 	}
 
+	public get uniforms() {
+
+		return this._uniforms;
+
+	}
+
 	public get disposed() {
 
 		return this._disposed;
 
 	}
 
-	public init( project?: OREngineProjectData ) {
+	/*-------------------------------
+		loadProject
+	-------------------------------*/
+
+	public load( project?: OREngineProjectData ) {
 
 		this._root.remove( this._renderer );
 		this._root.disposeRecursive();
@@ -229,8 +269,10 @@ export class Engine extends MXP.Entity {
 		if ( project ) {
 
 			this.name = project.name;
+
+			console.log( project );
+
 			this.deserialize( project );
-			this._projectSerializer.deserialize( project, this._root );
 
 		} else {
 
@@ -243,6 +285,10 @@ export class Engine extends MXP.Entity {
 
 	}
 
+	/*-------------------------------
+		Update
+	-------------------------------*/
+
 	public update( param?: Undefineder<MXP.EntityUpdateEvent> ) {
 
 		const newTime = new Date().getTime();
@@ -251,12 +297,6 @@ export class Engine extends MXP.Entity {
 		this._time.engine += this._time.delta;
 		this._time.code += this._time.delta * ( this._frame.playing ? 1 : 0 );
 		this._frame.current = this._time.code * 60;
-
-		if ( this._frame.playing ) {
-
-			this.emit( "update/frame/play", [ this._frame ] );
-
-		}
 
 		const event: MXP.EntityUpdateEvent = {
 			playing: this._frame.playing,
@@ -269,19 +309,29 @@ export class Engine extends MXP.Entity {
 			forceDraw: param && param.forceDraw,
 		};
 
-		this._root.update( event );
+		this._uniforms.uTimeE.value = this._time.engine;
 
-		const renderStack = this._root.finalize( event );
+		this._root.update( event );
 
 		if ( this.enableRender ) {
 
-			this._renderer.render( event, renderStack );
+			this._renderer.render( this._root, event );
+
+		}
+
+		if ( this._frame.playing ) {
+
+			this.emit( "update/frame/play", [ this._frame ] );
 
 		}
 
 		return this._time.delta;
 
 	}
+
+	/*-------------------------------
+		Resize
+	-------------------------------*/
 
 	public setSize( resolution: GLP.Vector ) {
 
@@ -313,7 +363,9 @@ export class Engine extends MXP.Entity {
 
 	}
 
-	// api
+	/*-------------------------------
+		Playback
+	-------------------------------*/
 
 	public play() {
 
@@ -337,7 +389,9 @@ export class Engine extends MXP.Entity {
 
 	}
 
-	// dispose
+	/*-------------------------------
+		Dispose
+	-------------------------------*/
 
 	public dispose() {
 

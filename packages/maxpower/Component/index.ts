@@ -2,7 +2,6 @@ import { Entity, EntityFinalizeEvent } from '../Entity';
 import { Serializable } from '../Serializable';
 
 export type ComponentUpdateEvent = EntityFinalizeEvent & {
-	entity: Entity,
 }
 
 export type ComponentParams<TArgs = void> = TArgs extends void
@@ -12,9 +11,11 @@ export type ComponentParams<TArgs = void> = TArgs extends void
 export class Component extends Serializable {
 
 	public disableEdit: boolean;
+	public order: number;
 	protected _entity: Entity;
 	protected _enabled: boolean;
 	protected _tag: string;
+	protected _disposed: boolean;
 
 	constructor( params: ComponentParams<any> ) {
 
@@ -23,7 +24,9 @@ export class Component extends Serializable {
 		this.disableEdit = false;
 		this._entity = params.entity;
 		this._enabled = true;
+		this._disposed = false;
 		this._tag = "";
+		this.order = 0;
 
 		this.field( "enabled", () => this.enabled, value => this.enabled = value, {
 			hidden: true,
@@ -62,55 +65,57 @@ export class Component extends Serializable {
 
 	}
 
-	public preUpdate( event: ComponentUpdateEvent ) {
-
-		if ( this._entity && this.enabled ) {
-
-			this.preUpdateImpl( event );
-
-		}
-
-	}
+	// onUpdate
 
 	public update( event: ComponentUpdateEvent ) {
 
-		if ( this._entity && this.enabled ) {
+		if ( ! this.enabled ) return;
 
-			this.updateImpl( event );
-
-		}
+		this.updateImpl( event );
 
 	}
-
-	public postUpdate( event: ComponentUpdateEvent ) {
-
-		if ( this._entity && this.enabled ) {
-
-			this.postUpdateImpl( event );
-
-		}
-
-	}
-
-	public finalize( event: ComponentUpdateEvent ) {
-
-		if ( this._entity && this.enabled ) {
-
-			this.finalizeImpl( event );
-
-		}
-
-	}
-
-	protected preUpdateImpl( event: ComponentUpdateEvent ) {}
 
 	protected updateImpl( event: ComponentUpdateEvent ) {}
 
+	// postUpdate
+
+	public postUpdate( event: ComponentUpdateEvent ) {
+
+		if ( ! this.enabled ) return;
+
+		this.postUpdateImpl( event );
+
+	}
+
 	protected postUpdateImpl( event: ComponentUpdateEvent ) {}
 
-	protected finalizeImpl( event: ComponentUpdateEvent ) {}
+	// beforeRender
+
+	public beforeRender( event: ComponentUpdateEvent ) {
+
+		if ( ! this.enabled ) return;
+
+		this.beforeRenderImpl( event );
+
+	}
+
+	protected beforeRenderImpl( event: ComponentUpdateEvent ) {}
+
+	// afterRender
+
+	public afterRender( event: ComponentUpdateEvent ) {
+
+		if ( ! this.enabled ) return;
+
+		this.afterRenderImpl( event );
+
+	}
+
+	protected afterRenderImpl( event: ComponentUpdateEvent ) {}
 
 	public dispose() {
+
+		this._disposed = true;
 
 		this.emit( 'dispose' );
 

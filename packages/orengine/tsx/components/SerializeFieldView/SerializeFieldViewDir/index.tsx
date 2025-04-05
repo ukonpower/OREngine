@@ -2,11 +2,11 @@ import * as MXP from 'maxpower';
 import React from "react";
 
 import { Block } from '../../Block';
+import { SerializeFieldViewValue } from '../SerializeFieldViewValue';
 
 import style from './index.module.scss';
-import { SerializableFieldValue } from './SerializableFieldValue';
 
-export const SerializableField: React.FC<{fields: MXP.SerializeFieldDirectoryFolder, basePath?: string}> = ( props ) => {
+export const SerializeFieldViewDir: React.FC<{fields: MXP.SerializeFieldDirectoryFolder, basePath?: string}> = ( props ) => {
 
 	const elmArray: React.ReactNode[] = [];
 
@@ -43,13 +43,13 @@ export const SerializableField: React.FC<{fields: MXP.SerializeFieldDirectoryFol
 
 		if ( field.type === "value" ) {
 
-			elm = <SerializableFieldValue key={componentKey} path={path} field={field} />;
+			elm = <SerializeFieldViewValue key={componentKey} path={path} field={field} />;
 
 		} else {
 
 			elm = <div className={style.block} key={componentKey}>
 				<Block key={componentKey} accordion label={fieldKey} >
-					<SerializableField fields={field} basePath={path} />
+					<SerializeFieldViewDir fields={field} basePath={path} />
 				</Block>
 			</div>;
 

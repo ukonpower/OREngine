@@ -3,7 +3,8 @@ import React, { useEffect, useState } from "react";
 import { Editor } from "../../../../../ts/Editor";
 import { useOREngine } from "../../../../hooks/useOREngine";
 
-export const useOREditorContext = () => {
+
+export const useOREditorContext = ( ) => {
 
 	const { engine } = useOREngine();
 

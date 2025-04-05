@@ -32,10 +32,21 @@ float sdPyramid( vec3 p, float h)
   return sqrt( (d2+q.z*q.z)/m2 ) * sign(max(q.z,-p.y));
 }
 
+float sdPlane( vec3 p, vec3 n, float h )
+{
+  // n must be normalized
+  return dot(p,n) + h;
+}
+
 float sdCappedCylinder( vec3 p, float h, float r )
 {
   vec2 d = abs(vec2(length(p.xz),p.y)) - vec2(r,h);
   return min(max(d.x,d.y),0.0) + length(max(d,0.0));
+}
+
+float sdInfinityCylinder( vec3 p, vec3 c )
+{
+  return length(p.xz-c.xy)-c.z;
 }
 
 float sdRoundedCylinder( vec3 p, float ra, float rb, float h )
@@ -59,10 +70,25 @@ float sdVesicaSegment( in vec3 p, in vec3 a, in vec3 b, in float w )
     return length(q-h.xy) - h.z;
 }
 
+float sdTorus( vec3 p, vec2 t )
+{
+  vec2 q = vec2(length(p.xz)-t.x,p.y);
+  return length(q)-t.y;
+}
+
 // operators
+
+float opAdd( float d1, float d2 ) {
+	return d1 < d2 ? d1 : d2;
+}
 
 vec2 opAdd( vec2 d1, vec2 d2 ) {
 	return d1.x < d2.x ? d1 : d2;
+}
+
+float opSub( float d1, float d2 ) {
+	d2 *= -1.0;
+	return d1 < d2 ? d2 : d1;
 }
 
 vec2 opSub( vec2 d1, vec2 d2 ) {
@@ -70,12 +96,20 @@ vec2 opSub( vec2 d1, vec2 d2 ) {
 	return d1.x < d2.x ? d2 : d1;
 }
 
+vec2 opAnd( vec2 d1, vec2 d2 ) {
+	return d1.x < d2.x ? d2 : d1;
+}
+
+float opAnd( float d1, float d2 ) {
+	return d1 < d2 ? d2 : d1;
+}
+
 float opSmoothAdd( float d1, float d2, float k ) {
   float h = clamp( 0.5 + 0.5*(d2-d1)/k, 0.0, 1.0 );
   return mix( d2, d1, h ) - k*h*(1.0-h);
 }
 
-float opSmoothSubtraction( float d1, float d2, float k ) {
+float opSmoothSub( float d1, float d2, float k ) {
   float h = clamp( 0.5 - 0.5*(d2+d1)/k, 0.0, 1.0 );
   return mix( d2, -d1, h ) + k*h*(1.0-h);
 }

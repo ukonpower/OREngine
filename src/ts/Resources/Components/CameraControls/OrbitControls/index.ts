@@ -45,6 +45,8 @@ export class OrbitControls extends MXP.Component {
 		this._memPos = new GLP.Vector();
 		this._memTarget = new GLP.Vector();
 
+		this.order = 999;
+
 		let touching = false;
 
 		const onPointerStart = ( e: PointerEventArgs ) => {
@@ -96,7 +98,7 @@ export class OrbitControls extends MXP.Component {
 
 		} );
 
-		this.setPosition( this._entity.position, this.target_ );
+		this.setPosition( this.entity.position, this.target_ );
 
 	}
 
@@ -107,17 +109,17 @@ export class OrbitControls extends MXP.Component {
 		if ( value ) {
 
 			this._memTarget.copy( this.target_ );
-			this._memPos.copy( this._entity.position );
+			this._memPos.copy( this.entity.position );
 
-			const lookAt = this._entity.getComponent( LookAt );
+			const lookAt = this.entity.getComponent( LookAt );
 
 			if ( lookAt && lookAt.target ) {
 
-				this.setPosition( this._entity.position, lookAt.target.position );
+				this.setPosition( this.entity.position, lookAt.target.position );
 
 			}
 
-			this.calc( this._entity );
+			this.calc( this.entity );
 
 		}
 
@@ -164,15 +166,12 @@ export class OrbitControls extends MXP.Component {
 
 		this.eye_.add( this.target_ );
 		this.lookatMatrix_.lookAt( this.eye_, this.target_, this.up_ );
-		this.lookatMatrix_.decompose( entity.position, entity.quaternion, entity.scale );
 
-		entity.updateMatrix();
+		this.lookatMatrix_.decompose( entity.position, entity.quaternion, entity.scale );
 
 	}
 
-	protected finalizeImpl( event: MXP.ComponentUpdateEvent ): void {
-
-		const entity = event.entity;
+	protected updateImpl( event: MXP.ComponentUpdateEvent ): void {
 
 		const movement = new GLP.Vector(
 			- this.mouseVelMove_.x * this.distance_ * 0.00025,
@@ -181,7 +180,8 @@ export class OrbitControls extends MXP.Component {
 			0
 		);
 
-		movement.applyMatrix3( entity.matrix );
+		movement.applyMatrix3( this.entity.matrix );
+
 		this.target_.add( movement );
 
 		this.orbit_.x += this.mouseVelOrbit_.y * 0.001;
@@ -196,7 +196,7 @@ export class OrbitControls extends MXP.Component {
 		this.mouseVelMove_.multiply( attenuation );
 		this.distanceVel_ *= attenuation;
 
-		this.calc( event.entity );
+		this.calc( this.entity );
 
 	}
 
@@ -206,9 +206,9 @@ export class OrbitControls extends MXP.Component {
 		this.target_.copy( target );
 
 
-		if ( this._entity ) {
+		if ( this.entity ) {
 
-			const parent = this._entity.parent;
+			const parent = this.entity.parent;
 
 			if ( parent ) {
 

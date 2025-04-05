@@ -13,7 +13,7 @@ vec4 mvPositionPrev = viewMatrixPrev * modelPositionPrev;
 vec4 positionPrev = projectionMatrixPrev * mvPositionPrev;
 
 vUv = outUv;
-vViewNormal = (normalMatrix * vec4(outNormal, 0.0)).xyz;
+vViewNormal = normalize( (normalMatrix * vec4(outNormal, 0.0)).xyz );
 vNormal = (modelMatrix * vec4(outNormal, 0.0)).xyz;
 vPos = modelPosition.xyz;
 vMVPosition = mvPosition.xyz;

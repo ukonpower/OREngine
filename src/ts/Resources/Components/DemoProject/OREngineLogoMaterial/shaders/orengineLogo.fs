@@ -12,8 +12,7 @@ void main( void ) {
 	float or = step( vPosBase.x, -0.2 );
 	float flash = smoothstep(0.3, 0.0,  vNoise) * or;
 	
-	outEmissionIntensity = (1.0 - flash * 0.7) * 8.0;
-	outColor.xyz = vec3( 1.0 - flash );
+	outEmission = vec3( (1.0 - flash * 0.7) * 10.0 );
 	outRoughness = 0.3;
 	
 	#include <frag_out>

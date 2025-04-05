@@ -10,9 +10,6 @@ uniform sampler2D uDepthTexture;
 
 uniform sampler2D sampler0; // position, depth
 uniform sampler2D sampler1; // normal, emissionIntensity
-uniform sampler2D sampler2; // albedo, roughness
-uniform sampler2D sampler3; // emission, metalic
-uniform sampler2D sampler4; // velocity, env
 
 uniform float uTimeEF;
 uniform mat4 cameraMatrix;

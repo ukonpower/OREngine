@@ -17,7 +17,6 @@ export class UniformControls extends MXP.Component {
 		globalUniforms.time.uTimeE.value = event.timeElapsed;
 		globalUniforms.time.uTimeEF.value = event.timeElapsed % 1;
 		globalUniforms.resolution.uAspectRatio.value = event.resolution.x / event.resolution.y;
-		globalUniforms.resolution.uResolution.value.set( event.resolution.x, event.resolution.y );
 
 	}
 

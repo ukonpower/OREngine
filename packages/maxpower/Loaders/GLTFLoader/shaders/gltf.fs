@@ -130,7 +130,7 @@ void main( void ) {
 
 	#ifdef USE_EMISSION_STRENGTH
 
-		outEmissionIntensity *= uEmissionStrength;
+		outEmission *= uEmissionStrength;
 
 	#endif
 
