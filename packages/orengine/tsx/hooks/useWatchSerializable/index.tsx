@@ -1,9 +1,9 @@
-import { Serializable, SerializedField } from "maxpower";
+import { Serializable, SerializeField } from "maxpower";
 import { useState, useMemo, useEffect } from "react";
 
 export const useWatchSerializable = ( serializable: Serializable | undefined, deps?: ( string | undefined )[] ) => {
 
-	const [ field, setField ] = useState<SerializedField>( () => serializable ? serializable.serialize() : {} );
+	const [ fields, setField ] = useState<SerializeField>( () => serializable ? serializable.serialize() : {} );
 
 	const _deps = deps ? [ ...deps ] : [];
 
@@ -53,7 +53,7 @@ export const useWatchSerializable = ( serializable: Serializable | undefined, de
 	}, [ serializable, depsMemo ] );
 
 	return {
-		props: field
+		fields
 	};
 
 };

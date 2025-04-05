@@ -10,7 +10,7 @@ export const useSerializableField = <T extends MXP.SerializeFieldValue>( seriali
 
 	};
 
-	const { props } = useWatchSerializable( serializable, [ path ] );
+	const { fields: props } = useWatchSerializable( serializable, [ path ] );
 
 	const value = props && props[ path ] as T;
 

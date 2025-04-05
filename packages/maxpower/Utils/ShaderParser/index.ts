@@ -17,8 +17,10 @@ import frag_out from './shaderParts/frag_out.part.glsl';
 import lighting_env from './shaderParts/lighting_env.part.glsl';
 import lighting_forwardIn from './shaderParts/lighting_forwardIn.part.glsl';
 import lighting_light from './shaderParts/lighting_light.part.glsl';
-import raymarch_out_pos from './shaderParts/raymarch_out_pos.part.glsl';
+import raymarch_h from './shaderParts/raymarch_h.part.glsl';
+import raymarch_out_obj from './shaderParts/raymarch_out_obj.part.glsl';
 import raymarch_ray_object from './shaderParts/raymarch_ray_object.part.glsl';
+import raymarch_ray_world from './shaderParts/raymarch_ray_world.part.glsl';
 import uniformTime from './shaderParts/uniform_time.part.glsl';
 import vert_h from './shaderParts/vert_h.part.glsl';
 import vert_in from './shaderParts/vert_in.part.glsl';
@@ -66,9 +68,11 @@ export const shaderInclude = ( shader: string ) => {
 		[ "frag_h", frag_h ],
 		[ "frag_in", frag_in ],
 		[ "frag_out", frag_out ],
+		[ "rm_h", raymarch_h ],
 		[ "rm_normal", raymarch_normal ],
 		[ "rm_ray_obj", raymarch_ray_object ],
-		[ "rm_out_pos", raymarch_out_pos ],
+		[ "rm_ray_world", raymarch_ray_world ],
+		[ "rm_out_obj", raymarch_out_obj ],
 		[ "uni_time", uniformTime ],
 		[ "pmrem", pmrem ],
 	] );
@@ -93,7 +97,10 @@ export const shaderInclude = ( shader: string ) => {
 const shaderInsertLights = ( shader: string, lights?: CollectedLights ) => {
 
 	shader = shader.replaceAll( 'NUM_LIGHT_DIR', lights ? lights.directional.length.toString() : "0" );
+	shader = shader.replaceAll( 'NUM_SHADOWMAP_DIR', lights ? Math.min( 2, lights.directional.filter( ( light ) => light.component.castShadow ).length ).toString() : "0" );
+
 	shader = shader.replaceAll( 'NUM_LIGHT_SPOT', lights ? lights.spot.length.toString() : "0" );
+	shader = shader.replaceAll( 'NUM_SHADOWMAP_SPOT', lights ? Math.min( 2, lights.spot.filter( ( light ) => light.component.castShadow ).length ).toString() : "0" );
 
 	return shader;
 

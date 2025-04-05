@@ -48,9 +48,9 @@ export class BLidgeClient extends MXP.Component {
 
 		const onSyncTimeline = ( frame: MXP.BLidgeFrame ) => {
 
-			if ( this._entity ) {
+			if ( this.entity ) {
 
-				this._entity.noticeEventParent( "update/blidge/frame", [ frame ] );
+				this.entity.noticeEventParent( "update/blidge/frame", [ frame ] );
 
 			}
 
@@ -114,7 +114,9 @@ export class BLidgeClient extends MXP.Component {
 		}, );
 
 		const ws = this.fieldDir( "websocket", { hidden: () => this.type != "websocket" } );
-		ws.field( "reconnect", () => () => reload() );
+		ws.field( "reconnect", () => () => reload(), undefined, {
+			label: "Reconnect",
+		} );
 		ws.field( "url", () => this.connection.url, v => this.connection.url = v );
 
 	}
@@ -160,17 +162,17 @@ export class BLidgeClient extends MXP.Component {
 
 			newBLidgeRoot.name = "blidgeRoot";
 
-			if ( this.blidgeRoot && this._entity ) {
+			if ( this.blidgeRoot && this.entity ) {
 
-				this._entity.remove( this.blidgeRoot );
+				this.entity.remove( this.blidgeRoot );
 
 			}
 
 			this.blidgeRoot = newBLidgeRoot;
 
-			if ( this._entity ) {
+			if ( this.entity ) {
 
-				this._entity.add( this.blidgeRoot );
+				this.entity.add( this.blidgeRoot );
 
 			}
 
@@ -199,10 +201,10 @@ export class BLidgeClient extends MXP.Component {
 
 		// notice
 
-		if ( this._entity ) {
+		if ( this.entity ) {
 
-			this._entity.noticeEventChilds( "sceneCreated", [ this.blidgeRoot ] );
-			this._entity.noticeEventParent( "update/blidge/scene", [ this.blidgeRoot ] );
+			this.entity.noticeEventChilds( "sceneCreated", [ this.blidgeRoot ] );
+			this.entity.noticeEventParent( "update/blidge/scene", [ this.blidgeRoot ] );
 
 		}
 
@@ -215,7 +217,7 @@ export class BLidgeClient extends MXP.Component {
 		if ( this.blidgeRoot ) {
 
 			this.blidgeRoot.disposeRecursive();
-			this._entity.remove( this.blidgeRoot );
+			this.entity.remove( this.blidgeRoot );
 			this.blidgeRoot = null;
 
 		}

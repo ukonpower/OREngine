@@ -30,13 +30,11 @@ export class SphereGeometry extends Geometry {
 
 			const thetaI = i / heightSegments * Math.PI;
 
-			const segments = ( i != 0 && i != heightSegments ) ? widthSegments : widthSegments;
-
-			for ( let j = 0; j < segments; j ++ ) {
+			for ( let j = 0; j <= widthSegments; j ++ ) {
 
 				// pos
 
-				const thetaJ = j / segments * Math.PI * 2.0;
+				const thetaJ = j / widthSegments * Math.PI * 2.0;
 				const widthRadius = Math.sin( thetaI ) * radius;
 
 				const x = Math.cos( thetaJ ) * widthRadius;
@@ -48,7 +46,7 @@ export class SphereGeometry extends Geometry {
 				// uv
 
 				uvArray.push(
-					j / segments,
+					j / widthSegments,
 					i / heightSegments
 				);
 
@@ -60,17 +58,24 @@ export class SphereGeometry extends Geometry {
 
 				// index
 
-				indexArray.push(
-					i * widthSegments + j,
-					i * widthSegments + ( j + 1 ) % widthSegments,
-					( i + 1 ) * widthSegments + ( j + 1 ) % widthSegments,
+				if ( j < widthSegments && i < heightSegments ) {
 
-					i * widthSegments + j,
-					( i + 1 ) * widthSegments + ( j + 1 ) % widthSegments,
-					( i + 1 ) * widthSegments + j,
-				);
+					const row = widthSegments + 1;
+
+					indexArray.push(
+						i * row + j,
+						i * row + ( j + 1 ) % row,
+						( i + 1 ) * row + ( j + 1 ) % row,
+
+						i * row + j,
+						( i + 1 ) * row + ( j + 1 ) % row,
+						( i + 1 ) * row + j,
+					);
+
+				}
 
 			}
+
 
 		}
 

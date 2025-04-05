@@ -79,7 +79,7 @@ export class BLidger extends Component {
 
 		}
 
-		const entity = this._entity;
+		const entity = this.entity;
 
 		entity.name = this.node.name;
 
@@ -187,6 +187,7 @@ export class BLidger extends Component {
 			const lightParam = this.node.param as BLidgeLightParam;
 
 			this._lightComponent = entity.addComponent( Light );
+
 			this._lightComponent.deserialize( {
 				...lightParam,
 				lightType: lightParam.type,
@@ -234,11 +235,10 @@ export class BLidger extends Component {
 
 	}
 
-	protected preUpdateImpl( event: ComponentUpdateEvent ): void {
+	protected updateImpl( event: ComponentUpdateEvent ): void {
 
 		if ( ! this._blidge || ! this.node ) return;
 
-		const entity = event.entity;
 		const frame = ( event.timeCode * this._blidge.frame.fps );
 
 		// animations
@@ -261,19 +261,19 @@ export class BLidger extends Component {
 
 				if ( curvePosition.getFCurve( 'x' ) ) {
 
-					entity.position.x = position.x;
+					this.entity.position.x = position.x;
 
 				}
 
 				if ( curvePosition.getFCurve( 'y' ) ) {
 
-					entity.position.y = position.y;
+					this.entity.position.y = position.y;
 
 				}
 
 				if ( curvePosition.getFCurve( 'z' ) ) {
 
-					entity.position.z = position.z;
+					this.entity.position.z = position.z;
 
 				}
 
@@ -309,7 +309,7 @@ export class BLidger extends Component {
 
 				}
 
-				entity.quaternion.setFromEuler( {
+				this.entity.quaternion.setFromEuler( {
 					x: rot.x + this.rotationOffsetX,
 					y: rot.y,
 					z: rot.z
@@ -325,19 +325,19 @@ export class BLidger extends Component {
 
 				if ( curveScale.getFCurve( 'x' ) ) {
 
-					entity.scale.x = scaleValue.x;
+					this.entity.scale.x = scaleValue.x;
 
 				}
 
 				if ( curveScale.getFCurve( 'y' ) ) {
 
-					entity.scale.y = scaleValue.y;
+					this.entity.scale.y = scaleValue.y;
 
 				}
 
 				if ( curveScale.getFCurve( 'z' ) ) {
 
-					entity.scale.z = scaleValue.z;
+					this.entity.scale.z = scaleValue.z;
 
 				}
 

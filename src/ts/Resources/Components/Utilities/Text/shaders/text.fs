@@ -14,7 +14,6 @@ void main( void ) {
 	if( font < 0.5 ) discard;
 
 	outEmission += font;
-	outEmissionIntensity = font * 10.0;
 	
 	#include <frag_out>
 

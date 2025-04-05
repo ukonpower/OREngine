@@ -1,3 +1,5 @@
+
+
 import style from './index.module.scss';
 
 export type PanelProps = {
@@ -17,5 +19,6 @@ export const Panel = ( props: PanelProps ) => {
 			</div>
 		</div>
 	</div>;
+
 
 };

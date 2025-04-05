@@ -1,6 +1,6 @@
 
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import style from './index.module.scss';
 
@@ -24,6 +24,12 @@ export const InputText = ( { onChange, value, ...props }: InputTextProps ) => {
 		}
 
 	}, [ currentInput, onChange ] );
+
+	useEffect( () => {
+
+		setCurrentInput( value );
+
+	}, [ value ] );
 
 	return <div className={style.container}>
 		<input className={style.input} type="text" value={currentInput} placeholder={props.readOnly ? '-' : ''} disabled={props.disabled} readOnly={props.readOnly} data-lo={props.readOnly }

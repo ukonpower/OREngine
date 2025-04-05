@@ -6,10 +6,9 @@ import { gl } from '~/ts/Globals';
 
 export class Finalize extends MXP.PostProcess {
 
-	constructor( params: MXP.PostProcessParams ) {
+	constructor() {
 
 		super( {
-			...params,
 			name: "Finalize",
 			passes: [
 				new MXP.PostProcessPass( gl, {

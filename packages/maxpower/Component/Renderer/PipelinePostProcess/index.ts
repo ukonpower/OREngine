@@ -249,6 +249,10 @@ export class PipelinePostProcess {
 					value: null,
 					type: '1i'
 				},
+				uPower: {
+					value: 1.0,
+					type: "1f"
+				}
 			} ),
 			defines: {
 				"TILE": motionBlurTileNum,

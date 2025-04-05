@@ -4,9 +4,6 @@ import * as MXP from 'maxpower';
 import { Engine } from '../Engine';
 import { FrameDebugger } from '../Engine/FrameDebugger';
 import { Keyboard, PressedKeys } from '../Engine/Keyboard';
-import { OREngineProjectData } from '../Engine/ProjectSerializer';
-
-import { FileSystem } from './FileSystem';
 
 export type EditorTimelineLoop = {
 	enabled: boolean,
@@ -17,29 +14,30 @@ export type EditorTimelineLoop = {
 export class Editor extends MXP.Serializable {
 
 	private _engine: Engine;
-	private _fileSystem: FileSystem;
 	private _keyBoard: Keyboard;
-	private _selectedEntityId: MXP.Entity | null;
+	private _selectedEntityId: string | null;
 	private _audioBuffer: AudioBuffer | null;
 	private _frameLoop: EditorTimelineLoop;
 	private _resolutionScale: number;
 	private _viewType: "render" | "debug";
-	private _projects: Map<string, OREngineProjectData>;
-	private _currentProject: OREngineProjectData | null;
 	private _frameDebugger: FrameDebugger;
+
+	private _externalWindow: Window | null;
+	private _externalCanvasBitmapContext: ImageBitmapRenderingContext | null;
+
 	private _disposed: boolean;
+
 
 	constructor( engine: Engine ) {
 
 		super();
 
 		this._engine = engine;
-		this._fileSystem = new FileSystem();
-		this._projects = new Map();
 		this._viewType = "render";
 		this._selectedEntityId = null;
-		this._currentProject = null;
 		this._resolutionScale = 1.0;
+		this._externalWindow = null;
+		this._externalCanvasBitmapContext = null;
 		this._disposed = false;
 
 		/*-------------------------------
@@ -54,7 +52,7 @@ export class Editor extends MXP.Serializable {
 
 				e.preventDefault();
 
-				this.projectSave();
+				this.save();
 
 			}
 
@@ -74,7 +72,6 @@ export class Editor extends MXP.Serializable {
 
 		} );
 
-
 		/*-------------------------------
 			Frame Debugger
 		-------------------------------*/
@@ -86,20 +83,6 @@ export class Editor extends MXP.Serializable {
 			if ( this._frameDebugger && this._frameDebugger.enable && rt ) {
 
 				this._frameDebugger.push( rt, label );
-
-			}
-
-		} );
-
-		/*-------------------------------
-			Load
-		-------------------------------*/
-
-		this._fileSystem.get<MXP.SerializedField>( "editor.json" ).then( ( data ) => {
-
-			if ( data ) {
-
-				this.deserialize( data );
 
 			}
 
@@ -151,37 +134,7 @@ export class Editor extends MXP.Serializable {
 			Fields
 		-------------------------------*/
 
-		this.field( "projects", () => Array.from( this._projects.values() ), v => {
-
-			this._projects = new Map( v.map( ( project ) => [ project.name, project ] ) );
-
-		} );
-
 		this.field( "enableRender", () => this._engine.enableRender, v => this._engine.enableRender = v );
-
-		this.field( "projectName", () => this._currentProject && this._currentProject.name || "", v => {
-
-			if ( this._currentProject ) {
-
-				this._currentProject.name = v;
-
-			}
-
-		} );
-
-		this.field( "openedProject", () => this._currentProject && this._currentProject.name, v => {
-
-			if ( this._currentProject === null ) {
-
-				this.projectOpen( v || "" );
-
-			} else if ( v !== this._currentProject.name && v ) {
-
-				this.projectOpen( v );
-
-			}
-
-		} );
 
 		this.field( "resolutionScale", () => this._resolutionScale, v => {
 
@@ -218,11 +171,17 @@ export class Editor extends MXP.Serializable {
 
 		} );
 
-		// animate
+		/*-------------------------------
+			Animate
+		-------------------------------*/
 
 		this.animate();
 
 	}
+
+	/*-------------------------------
+		Getters
+	-------------------------------*/
 
 	public get engine() {
 
@@ -242,6 +201,10 @@ export class Editor extends MXP.Serializable {
 
 	}
 
+	/*-------------------------------
+		Animate
+	-------------------------------*/
+
 	private animate() {
 
 		if ( this._disposed ) return;
@@ -250,7 +213,25 @@ export class Editor extends MXP.Serializable {
 
 		this._engine.update();
 
+		// window
+
+		if ( this._externalCanvasBitmapContext ) {
+
+			const context = this._externalCanvasBitmapContext;
+
+			createImageBitmap( this.engine.canvas ).then( bitmap => {
+
+				context.transferFromImageBitmap( bitmap );
+
+			} );
+
+		}
+
+		// timeline
+
 		if ( this._engine._frame.playing ) {
+
+			// clamp 0
 
 			if ( this._engine._frame.current < 0 || this._engine._frame.current > this._engine._frameSetting.duration ) {
 
@@ -284,7 +265,9 @@ export class Editor extends MXP.Serializable {
 
 	}
 
-	// controls
+	/*-------------------------------
+		Controls
+	-------------------------------*/
 
 	public selectEntity( entity: MXP.Entity | null ) {
 
@@ -319,64 +302,68 @@ export class Editor extends MXP.Serializable {
 
 	}
 
-	// project
+	/*-------------------------------
+		Export
+	-------------------------------*/
 
-	public projectOpen( name: string ) {
+	public save() {
 
-		const project = this._projects.get( name );
-
-		if ( project ) {
-
-			this._engine.init( project );
-			this._currentProject = project;
-
-		} else {
-
-			this._engine.init();
-			this._currentProject = this._engine.serialize() as OREngineProjectData;
-			this.projectSave();
-
-		}
-
-		document.title = name;
-
-		this.emit( "loadedProject" );
-		// this.noticePropsChanged( "openedProject" );
+		this.emit( "save", [ this.exportEngine(), this.exportEditor() ] );
 
 	}
 
-	public projectDelete( name: string ) {
+	public exportEditor() {
 
-		this._projects.delete( name );
-		const project = this._projects.values().next().value;
-
-		if ( project ) {
-
-			this.projectOpen( project.name );
-
-		} else {
-
-			this.projectOpen( "" );
-
-		}
+		return this.serialize( { mode: "export" } );
 
 	}
 
-	public projectSave() {
+	public exportEngine() {
 
-		this._projects.set( this._engine.name, this._engine.serialize( { mode: "export" } ) as OREngineProjectData );
+		return this._engine.serialize( { mode: "export" } );
 
-		this._fileSystem.set( "editor.json", {
-			...this.serialize(),
+	}
+
+	/*-------------------------------
+		External Window
+	-------------------------------*/
+
+	public openInExternalWindow() {
+
+		this._externalWindow = window.open( "", "_blank" );
+
+		if ( ! this._externalWindow ) return;
+
+		const mirrorCanvas = this._externalWindow.document.createElement( "canvas" );
+		mirrorCanvas.style.width = "100%";
+		mirrorCanvas.style.height = "100%";
+		mirrorCanvas.style.objectFit = "contain";
+		mirrorCanvas.style.cursor = "none";
+
+		this._externalWindow.document.body.style.margin = "0";
+		this._externalWindow.document.body.style.background = "#000";
+		this._externalWindow.document.body.appendChild( mirrorCanvas );
+		this._externalCanvasBitmapContext = mirrorCanvas.getContext( "bitmaprenderer" );
+
+		this._externalWindow.addEventListener( "unload", () => {
+
+			this.closeExternalWindow();
+
 		} );
 
+		this.resize();
+
 	}
 
-	// export
+	public closeExternalWindow() {
 
-	public exportCurrentScene() {
+		if ( this._externalWindow ) {
 
-		return this._fileSystem.set( "player.json", this._engine.serialize( { mode: "export" } ) );
+			this._externalWindow.close();
+			this._externalWindow = null;
+			this._externalCanvasBitmapContext = null;
+
+		}
 
 	}
 
@@ -390,9 +377,14 @@ export class Editor extends MXP.Serializable {
 
 		this.engine.setSize( resolution );
 
-		// debugegr
-
 		this._frameDebugger.resize( resolution );
+
+		if ( this._externalCanvasBitmapContext ) {
+
+			this._externalCanvasBitmapContext.canvas.width = resolution.x;
+			this._externalCanvasBitmapContext.canvas.height = resolution.y;
+
+		}
 
 	}
 

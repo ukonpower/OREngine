@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import { useOREditor } from "../../../hooks/useOREditor";
 import { useSerializableField } from "../../../hooks/useSerializableProps";
 import { Block } from "../../Block";
-import { SerializableFieldView } from "../../SerializableFieldView";
+import { SerializeFieldView } from "../../SerializeFieldView";
 
 import { ComponentAdd } from "./ComponentAdd";
 import { ComponentList } from "./ComponentList";
@@ -26,7 +26,7 @@ export const EntityProperty = () => {
 
 		}
 
-		return engine.findEntityById( selectedEntityId );
+		return engine.findEntityByUUID( selectedEntityId );
 
 	}, [ engine, selectedEntityId ] );
 
@@ -38,7 +38,7 @@ export const EntityProperty = () => {
 
 	return <div className={style.container}>
 		<Block label="Fields" accordion>
-			<SerializableFieldView target={selectedEntity} />
+			<SerializeFieldView target={selectedEntity} />
 		</Block>
 		<Block label="Components" accordion>
 			<ComponentList entity={selectedEntity}/>

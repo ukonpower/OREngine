@@ -108,7 +108,18 @@ export class RingGeometry extends Geometry {
 
 						posArray.push( x, y, ( - 0.5 + i ) * extrude );
 						uvArray.push( j / thetaSegments, i / phiSegments );
-						normalArray.push( Math.cos( r ), Math.sin( r ), 0 );
+
+						if ( h == 0 ) {
+
+							normalArray.push( - Math.cos( r ), - Math.sin( r ), 0 );
+
+						} else {
+
+							normalArray.push( Math.cos( r ), Math.sin( r ), 0 );
+							// normalArray.push( - Math.cos( r ), - Math.sin( r ), 0 );
+
+
+						}
 
 					}
 

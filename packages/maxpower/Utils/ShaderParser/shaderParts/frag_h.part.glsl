@@ -7,9 +7,11 @@ in vec3 vMVPPosition;
 in vec2 vVelocity;
 
 uniform mat4 modelMatrix;
+uniform mat4 modelMatrixInverse;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
 uniform vec3 cameraPosition;
+uniform vec2 uResolution;
 
 #ifdef IS_DEPTH
 	uniform float cameraNear;
@@ -17,11 +19,11 @@ uniform vec3 cameraPosition;
 #endif
 
 #ifdef IS_DEFERRED
-	layout (location = 0) out vec4 outColor0; // position, depth
-	layout (location = 1) out vec4 outColor1; // normal, sscolor
-	layout (location = 2) out vec4 outColor2; // albedo, roughness
-	layout (location = 3) out vec4 outColor3; // emission, metalic
-	layout (location = 4) out vec4 outColor4; // velocity, emissionIntensity
+	layout (location = 0) out vec4 outColor0;
+	layout (location = 1) out vec4 outColor1;
+	layout (location = 2) out vec4 outColor2;
+	layout (location = 3) out vec4 outColor3;
+	layout (location = 4) out vec4 outColor4;
 #endif
 
 #ifdef IS_FORWARD

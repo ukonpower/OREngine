@@ -11,10 +11,7 @@ import { gl } from '~/ts/Globals';
 
 export class Bloom extends MXP.PostProcess {
 
-	constructor( params: MXP.PostProcessParams ) {
-
-		const renderCamera = params.pipeline.entity.getComponent( MXP.RenderCamera )!;
-		const renderTarget = renderCamera.renderTarget;
+	constructor( srcTexture: GLP.GLPowerTexture ) {
 
 		const renderCount = 4;
 
@@ -48,9 +45,17 @@ export class Bloom extends MXP.PostProcess {
 			frag: bloomBrightFrag,
 			passThrough: true,
 			uniforms: {
-				uShadingTex: {
-					value: renderTarget.shadingBuffer.textures[ 0 ],
+				uSrcTexture1: {
+					value: srcTexture,
 					type: '1i'
+				},
+				uThreshold: {
+					value: 1.8,
+					type: '1f'
+				},
+				uBrightness: {
+					value: 1.0,
+					type: '1f'
 				},
 			},
 			resolutionRatio: 1.0 / bloomInvScale,
@@ -144,7 +149,6 @@ export class Bloom extends MXP.PostProcess {
 
 
 		super( {
-			...params,
 			name: "Bloom",
 			passes: [
 				brightPass,
@@ -155,5 +159,34 @@ export class Bloom extends MXP.PostProcess {
 
 
 	}
+
+	/*-------------------------------
+		Getters & Setters
+	-------------------------------*/
+
+	public get threshold(): number {
+
+		return ( this.passes[ 0 ] as MXP.PostProcessPass ).uniforms.uThreshold.value;
+
+	}
+
+	public set threshold( value: number ) {
+
+		( this.passes[ 0 ] as MXP.PostProcessPass ).uniforms.uThreshold.value = value;
+
+	}
+
+	public get brightness(): number {
+
+		return ( this.passes[ 0 ] as MXP.PostProcessPass ).uniforms.uBrightness.value;
+
+	}
+
+	public set brightness( value: number ) {
+
+		( this.passes[ 0 ] as MXP.PostProcessPass ).uniforms.uBrightness.value = value;
+
+	}
+
 
 }

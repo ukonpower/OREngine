@@ -53,6 +53,17 @@ export class Light extends ShadowMapCamera {
 		this.distance = 30;
 		this.decay = 2;
 
+		// field
+
+		this.field(
+			"intensity",
+			() => this.intensity,
+			( value: number ) => this.intensity = value,
+			{
+				noExport: true
+			}
+		);
+
 		this.updateProjectionMatrix();
 
 	}
@@ -81,6 +92,13 @@ export class Light extends ShadowMapCamera {
 			this.renderTarget.setSize( this.shadowMapSize );
 
 		}
+
+	}
+
+	public lookAt( targetWorldPos: GLP.Vector ) {
+
+		this.entity.lookAt( targetWorldPos );
+		this.entity.quaternion.multiply( new GLP.Quaternion( ).setFromEuler( new GLP.Euler( Math.PI / 2 ) ) );
 
 	}
 

@@ -31,6 +31,7 @@ float fbm(vec3 x) {
 		v += a * noiseValue(x);
 		x = x * 2.0 + shift;
 		a *= 0.5;
+    if( i == -1 ) break;
 	}
 	return v;
 }

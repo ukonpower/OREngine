@@ -1,5 +1,3 @@
-import { get } from 'http';
-
 import * as GLP from 'glpower';
 
 import { Component, ComponentParams } from '..';
@@ -19,24 +17,37 @@ export class PostProcessPipeline extends Component {
 		this._postProcessesDict = new Map();
 		this._resolution = new GLP.Vector();
 
-		if ( import.meta.env.DEV ) {
+		this.field( "postprocess",
+			() => {
 
-			this.field( "postprocess", () => {
+				return this._postProcesses.map( ( postProcess, index ) => postProcess.enabled );
 
-				return this._postProcesses.map( ( postProcess, index ) =>( { label: `${index}/${postProcess.name}`, value: postProcess.enabled } ) );
+			},
+			( v ) => {
 
-			}
-			, ( v ) => {
+				v.forEach( ( enabled, i ) => {
 
-				this._postProcesses.forEach( ( postProcess, i ) => {
+					const postProcess = this._postProcesses[ i ];
 
-					postProcess.enabled = v[ i ].value;
+					if ( postProcess ) {
+
+						postProcess.enabled = enabled;
+
+					}
 
 				} );
 
-			} );
+			}, {
+				format: {
+					type: "array",
+					labels: ( value, i ) => {
 
-		}
+						return this._postProcesses[ i ].name;
+
+					}
+				}
+			}
+		);
 
 	}
 
@@ -46,25 +57,13 @@ export class PostProcessPipeline extends Component {
 
 	}
 
-	public add<T extends typeof PostProcess>( postProcess: T ) {
+	public add<T extends PostProcess>( newPostProcess: T ) {
 
-		const current = this._postProcessesDict.get( postProcess );
-
-		if ( current ) {
-
-			current.dispose();
-
-		}
-
-		const newPostProcess = new postProcess( { pipeline: this } );
-
-		this._postProcessesDict.set( postProcess, newPostProcess );
-
-		this._postProcesses = Array.from( this._postProcessesDict.values() );
-
-		this._postProcesses.sort( ( a, b ) => a.order - b.order );
+		this.postProcesses.push( newPostProcess );
 
 		newPostProcess.resize( this._resolution );
+
+		return newPostProcess;
 
 	}
 

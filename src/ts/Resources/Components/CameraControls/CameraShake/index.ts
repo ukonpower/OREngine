@@ -18,15 +18,14 @@ export class ShakeViewer extends MXP.Component {
 		this.shakeSpeed = 1.0;
 		this.shakeMatrix = new GLP.Matrix();
 		this.shakeQua = new GLP.Quaternion();
+		this.order = 999 + 1;
 
 		this.field( "power", () => this.shakePower, value => this.shakePower = value );
 		this.field( "speed", () => this.shakeSpeed, value => this.shakeSpeed = value );
 
 	}
 
-	public finalizeImpl( event: MXP.ComponentUpdateEvent ): void {
-
-		const entity = event.entity;
+	public postUpdate( event: MXP.ComponentUpdateEvent ): void {
 
 		let shake = 0.008 * this.shakePower;
 
@@ -42,13 +41,13 @@ export class ShakeViewer extends MXP.Component {
 
 		this.shakeMatrix.identity().applyQuaternion( this.shakeQua );
 
-		entity.matrixWorld.multiply( this.shakeMatrix );
+		this.entity.matrixWorld.multiply( this.shakeMatrix );
 
-		const camera = entity.getComponentsByTag<MXP.Camera>( "camera" )[ 0 ];
+		const camera = this.entity.getComponentsByTag<MXP.Camera>( "camera" )[ 0 ];
 
 		if ( camera ) {
 
-			camera.viewMatrix.copy( entity.matrixWorld ).inverse();
+			camera.viewMatrix.copy( this.entity.matrixWorld ).inverse();
 
 		}
 

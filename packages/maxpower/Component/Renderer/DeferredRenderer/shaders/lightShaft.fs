@@ -18,7 +18,7 @@ in vec2 vUv;
 
 layout (location = 0) out vec4 outColor;
 
-const float MARCH_LENGTH = 50.0;
+const float MARCH_LENGTH = 60.0;
 const float MARCH = 16.0;
 
 #include <random>
@@ -59,6 +59,8 @@ void main( void ) {
 
 		if( totalRayLength >= rayLength ) break;
 
+		float shadow;
+
 		#if NUM_LIGHT_DIR > 0 
 
 			DirectionalLight dLight;
@@ -67,7 +69,17 @@ void main( void ) {
 
 				dLight = directionalLight[ LOOP_INDEX ];
 
-				lightShaftSum += dLight.color * ( getShadow( rayPos, directionalLightCamera[ LOOP_INDEX ], directionalLightShadowMap[ LOOP_INDEX ], 0.0 ) ) * rayStepLength * 0.0025;
+				#if LOOP_INDEX < NUM_SHADOWMAP_DIR
+
+					shadow = getShadow( rayPos, directionalLightCamera[ LOOP_INDEX ], directionalLightShadowMap[ LOOP_INDEX ], 0.0 );
+
+				#else
+
+					shadow = 1.0;
+
+				#endif
+
+				lightShaftSum += dLight.color * shadow * rayStepLength * 0.0025;
 
 			#pragma loop_end
 		
@@ -99,8 +111,18 @@ void main( void ) {
 
 				}
 
+				#if LOOP_INDEX < NUM_SHADOWMAP_SPOT
+
+					shadow = getShadow( rayPos, spotLightCamera[ LOOP_INDEX ], spotLightShadowMap[ LOOP_INDEX ], 0.0 );
+
+				#else
+
+					shadow = 1.0;
+
+				#endif
+
 				lightShaftSum += sLight.color * 
-					getShadow( rayPos, spotLightCamera[ LOOP_INDEX ], spotLightShadowMap[ LOOP_INDEX ], 0.0 ) * 
+					shadow * 
 					spotAttenuation * pow( clamp( 1.0 - spotDistance / sLight.distance, 0.0, 1.0 ),  sLight.decay * 1.9 ) *
 					rayStepLength * 0.02;
 
@@ -110,7 +132,7 @@ void main( void ) {
 
 	}
 
-	lightShaftSum *= 0.25;
+	lightShaftSum *= 0.4;
 
 	outColor = vec4( mix( texture( uLightShaftBackBuffer, vUv ).xyz, lightShaftSum, 0.6), 1.0 );
 

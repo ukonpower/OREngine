@@ -26,6 +26,8 @@ const ComponentDirectory: React.FC<{
 	let onClick = undefined;
 	let type = "dir";
 
+	if ( group.name.startsWith( "_" ) ) return null;
+
 	if ( "child" in group ) {
 
 		childItem = <>

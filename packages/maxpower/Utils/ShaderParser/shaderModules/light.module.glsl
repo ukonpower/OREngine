@@ -30,7 +30,7 @@ struct Light {
 
 	uniform DirectionalLight directionalLight[NUM_LIGHT_DIR];
 	uniform LightCamera directionalLightCamera[NUM_LIGHT_DIR];
-	uniform sampler2D directionalLightShadowMap[NUM_LIGHT_DIR];
+	uniform sampler2D directionalLightShadowMap[NUM_SHADOWMAP_DIR];
 	
 #endif
 
@@ -38,7 +38,7 @@ struct Light {
 
 	uniform SpotLight spotLight[NUM_LIGHT_SPOT];
 	uniform LightCamera spotLightCamera[NUM_LIGHT_SPOT];
-	uniform sampler2D spotLightShadowMap[NUM_LIGHT_SPOT];
+	uniform sampler2D spotLightShadowMap[NUM_SHADOWMAP_SPOT];
 	
 #endif
 

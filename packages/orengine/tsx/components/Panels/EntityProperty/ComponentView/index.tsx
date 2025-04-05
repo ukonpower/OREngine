@@ -5,8 +5,7 @@ import { MouseEvent, useCallback } from 'react';
 import { useSerializableField } from '../../../../hooks/useSerializableProps';
 import { Block } from '../../../Block';
 import { CrossIcon } from '../../../Icons/CrossIcon';
-import { InputBoolean } from '../../../Input/InputCheckBox';
-import { SerializableFieldView } from '../../../SerializableFieldView';
+import { SerializeFieldView } from '../../../SerializeFieldView';
 
 import style from './index.module.scss';
 
@@ -22,8 +21,6 @@ export const ComponentView = ( { component }: ComponentViewProps ) => {
 
 	const onClickDelete = useCallback( ( e: MouseEvent ) => {
 
-		if ( disableEdit ) return;
-
 		e.stopPropagation();
 
 		const entity = component.entity;
@@ -37,9 +34,9 @@ export const ComponentView = ( { component }: ComponentViewProps ) => {
 	}, [ disableEdit, component ] );
 
 	const labelElm = <div className={style.head}>
-		<div className={style.check}>
+		{/* <div className={style.check}>
 			<InputBoolean checked={enabled || false} onChange={setEnabled} readOnly={disableEdit} />
-		</div>
+		</div> */}
 		<div className={style.name}>
 			{component.constructor.name}
 		</div>
@@ -51,7 +48,7 @@ export const ComponentView = ( { component }: ComponentViewProps ) => {
 	return <div className={style.compoView} data-disable_component={disableEdit}>
 		<div className={style.content}>
 			<Block label={labelElm} accordion bg defaultClose={false}>
-				<SerializableFieldView target={component} />
+				<SerializeFieldView target={component} />
 			</Block>
 		</div>
 	</div>;

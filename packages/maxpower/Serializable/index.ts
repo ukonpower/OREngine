@@ -1,19 +1,23 @@
 import * as GLP from 'glpower';
+import { SelectList } from 'packages/orengine/tsx/components/Input/InputSelect';
 import { ValueOpt } from 'packages/orengine/tsx/components/Value';
 
-type SerializableFieldTypeVector = {
+interface SerializeFieldFormatVector {
 	type: "vector",
 }
 
-type SerializableFieldTypeSlect = {
+
+interface SerializeFieldFormatSelect {
 	type: "select",
-	list: ( {
-		value: any,
-		label: string,
-	} | string )[]
+	list: SelectList | ( () => SelectList )
 }
 
-export type SerializableFieldFormat = SerializableFieldTypeVector | SerializableFieldTypeSlect
+interface SerializeFieldFormatArray {
+	type: "array",
+	labels?: ( value: SerializeFieldValue, index: number ) => string
+}
+
+export type SerializableFieldFormat = SerializeFieldFormatVector | SerializeFieldFormatSelect | SerializeFieldFormatArray
 
 export type SerializableFieldOpt<> = {
 	isFolder?: boolean,
@@ -22,30 +26,37 @@ export type SerializableFieldOpt<> = {
 	format?: SerializableFieldFormat,
 } & ValueOpt
 
-export type SerializeFieldPrimitive = string | number | boolean | null | undefined | ( () => void );
-export type SerializeFieldPrimitiveArray = { label: string, value:SerializeFieldPrimitive }[]
-export type SerializeFieldValue = SerializeFieldPrimitive | SerializeFieldPrimitiveArray
-export type SerializedField = {[key: string]: SerializeFieldValue}
+export type SerializeFieldPrimitive = number | string | boolean | null | undefined | ( () => void );
+export type SerializeFieldObjective = SerializeFieldPrimitive | SerializeFieldObjective[] | { [key: string]: SerializeFieldObjective };
+export type SerializeFieldValue = SerializeFieldObjective | { [key: string]: SerializeFieldValue };
+export interface SerializeField {
+	[key: string]: SerializeFieldValue
+}
 
-export type SerializeFieldDirectoryFolder= {
+export interface SerializeFieldDirectoryFolder {
 	type: "folder",
 	childs: {[key: string]: SerializeFieldDirectory},
 	opt?: SerializableFieldOpt,
 }
-export type SerializeFieldDirectoryValue= {
+export interface SerializeFieldDirectoryValue {
 	type: "value",
 	value: SerializeFieldValue,
 	opt?: SerializableFieldOpt,
 }
+
 export type SerializeFieldDirectory = SerializeFieldDirectoryFolder | SerializeFieldDirectoryValue
 
-type SerializeFieldSerializeEvent = {
+interface SerializeFieldSerializeEvent {
 	mode: "view" | "export"
 }
 
 type SerializeFieldGetter<T extends SerializeFieldValue> = ( event: SerializeFieldSerializeEvent ) => T;
 type SerializeFieldSetter<T extends SerializeFieldValue> = ( value: T ) => void;
-type SerializeFieldProxy = {get: SerializeFieldGetter<SerializeFieldValue>, set: SerializeFieldSetter<SerializeFieldValue>, opt?: SerializableFieldOpt}
+interface SerializeFieldProxy {
+	get: SerializeFieldGetter<SerializeFieldValue>,
+	set: SerializeFieldSetter<SerializeFieldValue>,
+	opt?: SerializableFieldOpt
+}
 
 
 export class Serializable extends GLP.EventEmitter {
@@ -70,11 +81,11 @@ export class Serializable extends GLP.EventEmitter {
 		Serialize
 	-------------------------------*/
 
-	public serialize( event?: SerializeFieldSerializeEvent ): SerializedField {
+	public serialize( event?: SerializeFieldSerializeEvent ): SerializeField {
 
 		event = event || { mode: "view" };
 
-		const serialized: SerializedField = {};
+		const serialized: SerializeField = {};
 
 		this.fields_.forEach( ( field, k ) => {
 
@@ -100,7 +111,7 @@ export class Serializable extends GLP.EventEmitter {
 
 	public serializeToDirectory() {
 
-		const toDirectory = ( serialized: SerializedField ) => {
+		const toDirectory = ( serialized: SerializeField ) => {
 
 			const result: SerializeFieldDirectory = {
 				type: "folder",
@@ -175,7 +186,7 @@ export class Serializable extends GLP.EventEmitter {
 		Deserialize
 	-------------------------------*/
 
-	public deserialize( props: SerializedField ) {
+	public deserialize( props: SerializeField ) {
 
 		const keys = Object.keys( props );
 
@@ -199,7 +210,7 @@ export class Serializable extends GLP.EventEmitter {
 		Export
 	-------------------------------*/
 
-	public export() {
+	public exportEditor() {
 
 		this.serialize( {
 			mode: "export"
@@ -211,13 +222,29 @@ export class Serializable extends GLP.EventEmitter {
 		Field
 	-------------------------------*/
 
-	public field<T extends SerializeFieldValue>( path: string, get: ( event: SerializeFieldSerializeEvent ) => T, set?: ( v: T ) => void, opt?: SerializableFieldOpt ) {
+	public field<T extends SerializeFieldValue>( path: string, getter: ( event: SerializeFieldSerializeEvent ) => T, opt?: SerializableFieldOpt ): void;
 
-		this.fields_.set( path, {
-			get: get,
+	public field<T extends SerializeFieldValue>( path: string, getter: ( event: SerializeFieldSerializeEvent ) => T, setter?: ( v: T ) => void, opt?: SerializableFieldOpt ): void;
+
+	public field<T extends SerializeFieldValue>( path: string, getter: ( event: SerializeFieldSerializeEvent ) => T, setter_option?: ( ( v: T ) => void ) | SerializableFieldOpt, option?: SerializableFieldOpt ) {
+
+		const setter = typeof setter_option == "function" ? setter_option : undefined;
+		const opt = typeof setter_option == "object" && setter_option || option || {};
+
+		if ( ! setter ) {
+
+			opt.readOnly = true;
+			opt.noExport = true;
+
+		}
+
+		const normalizedPath = path.startsWith( "/" ) ? path.slice( 1 ) : path;
+
+		this.fields_.set( normalizedPath, {
+			get: getter,
 			set: ( ( v: SerializeFieldValue ) => {
 
-				if ( set ) set( v as T );
+				if ( setter ) setter( v as T );
 
 				this.noticeField( path );
 

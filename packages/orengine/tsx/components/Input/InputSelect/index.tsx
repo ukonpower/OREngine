@@ -1,8 +1,13 @@
 import style from './index.module.scss';
 
+export type SelectList = ( {
+	value: any,
+	label: string,
+} | string )[]
+
 interface InputTextProps<T> {
 	value: T;
-	selectList: ( {label: string, value: T} | string )[],
+	selectList: SelectList | ( () => SelectList ),
 	onChange?: ( value: T ) => void;
 	disabled?: boolean;
 	readOnly?: boolean;
@@ -18,6 +23,14 @@ export const InputSelect = <T extends string | number, >( { onChange, value, ...
 
 	}
 
+	let list = props.selectList;
+
+	if ( typeof list == "function" ) {
+
+		list = list();
+
+	}
+
 	return <div className={style.inputSelect}>
 		<select className={style.input} onChange={( e ) => {
 
@@ -28,7 +41,7 @@ export const InputSelect = <T extends string | number, >( { onChange, value, ...
 			}
 
 		}} value={value}>
-			{props.selectList.map( ( v, i ) => {
+			{list.map( ( v, i ) => {
 
 				let label = "";
 				let value: string | number = "";

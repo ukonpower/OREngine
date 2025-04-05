@@ -18,6 +18,8 @@ import quadVert from './shaders/quad.vs';
 
 export class PostProcessPass extends Material {
 
+	public enabled: boolean;
+
 	public renderTarget: GLP.GLPowerFrameBuffer | null;
 	public backBufferOverride: GLP.GLPowerTexture[] | null;
 
@@ -36,6 +38,7 @@ export class PostProcessPass extends Material {
 
 		super( { ...param, frag: param.frag || passFrag, vert: param.vert || quadVert } );
 
+		this.enabled = true;
 		this._fixedResolution = param.fixedResotluion ? param.fixedResotluion.clone() : null;
 		this.resolution = new GLP.Vector();
 		this.resolutionInv = new GLP.Vector();
@@ -64,15 +67,6 @@ export class PostProcessPass extends Material {
 		this.viewPort = param.viewPort || null;
 		this.backBufferOverride = param.backBufferOverride || null;
 
-	}
-
-	public get enabled() {
-
-		return true;
-
-	}
-
-	public set enabled( value: boolean ) {
 	}
 
 	public get fixedResolution() {

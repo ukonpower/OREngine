@@ -19,7 +19,15 @@ LightCamera lightCamera;
 
 		// shadow
 
-		shadow = getShadowSmooth( tex0.xyz, directionalLightCamera[ LOOP_INDEX ], directionalLightShadowMap[ LOOP_INDEX ], 0.0001 );
+		#if LOOP_INDEX < NUM_SHADOWMAP_DIR
+
+			shadow = getShadowSmooth( tex0.xyz, directionalLightCamera[ LOOP_INDEX ], directionalLightShadowMap[ LOOP_INDEX ], 0.0001 );
+
+		#else
+
+			shadow = 1.0;
+
+		#endif
 		
 		// lighting
 
@@ -43,7 +51,15 @@ LightCamera lightCamera;
 
 		// shadow
 
-		shadow = getShadowSmooth( geo.position, spotLightCamera[ LOOP_INDEX ], spotLightShadowMap[ LOOP_INDEX ], 0.001 );
+		#if LOOP_INDEX < NUM_SHADOWMAP_SPOT
+
+			shadow = getShadowSmooth( geo.position, spotLightCamera[ LOOP_INDEX ], spotLightShadowMap[ LOOP_INDEX ], 0.001 );
+
+		#else
+
+			shadow = 1.0;
+
+		#endif
 
 		// lighting
 
@@ -69,5 +85,3 @@ LightCamera lightCamera;
 	#pragma loop_end
 
 #endif
-
-outColor.xyz = mix( outColor.xyz, mat.color * mat.emissionIntensity, min( 1.0, mat.emissionIntensity ) );

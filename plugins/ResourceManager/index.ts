@@ -54,7 +54,7 @@ const updateComponentList = ( ) => {
 
 		}
 
-		const componentClassNameArray = componentClassName.split( ' ' );
+		const componentClassNameArray = componentClassName.split( /\s|</ );
 
 		const componentName = componentClassNameArray[ 2 ];
 

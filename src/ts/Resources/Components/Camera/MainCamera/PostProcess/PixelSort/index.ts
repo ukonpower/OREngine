@@ -10,10 +10,11 @@ import { globalUniforms, gl } from "~/ts/Globals";
 
 export class PixelSort extends MXP.PostProcess {
 
-	constructor( params: MXP.PostProcessParams ) {
+	private _uniforms: GLP.Uniforms;
+
+	constructor( ) {
 
 		super( {
-			...params,
 			name: "PixelSort"
 		} );
 
@@ -31,6 +32,17 @@ export class PixelSort extends MXP.PostProcess {
 
 		const currentResolution = new GLP.Vector( 0, 0 );
 
+		this._uniforms = MXP.UniformsUtils.merge( globalUniforms.time, {
+			uThresholdMin: {
+				value: 0.2,
+				type: '1f'
+			},
+			uThresholdMax: {
+				value: 1,
+				type: '1f'
+			}
+		} );
+
 		const creaetPass = ( resolution: GLP.Vector ) => {
 
 			if ( resolution.x * resolution.y == 0 ) return;
@@ -40,35 +52,17 @@ export class PixelSort extends MXP.PostProcess {
 
 			const pixelSortResolution = resolution.clone();
 
-			const pixelSortUniforms = MXP.UniformsUtils.merge( globalUniforms.time, {
-				uThresholdMin: {
-					value: 0.35,
-					type: '1f'
-				},
-				uThresholdMax: {
-					value: 1,
-					type: '1f'
-				}
-			} );
-
 			// mask
 
 			const maskPass = new MXP.PostProcessPass( gl, {
 				name: 'pixelSortMask',
 				frag: MXP.hotUpdate( "pixelSortMask", pixelSortMaskFrag ),
 				passThrough: true,
-				uniforms: MXP.UniformsUtils.merge( globalUniforms.time, pixelSortUniforms ),
+				uniforms: MXP.UniformsUtils.merge( globalUniforms.time, this._uniforms ),
 				fixedResotluion: pixelSortResolution.clone(),
 			} );
 
 			if ( import.meta.hot ) {
-
-				params.pipeline.field( "pixelSortThresholdMin", () => pixelSortUniforms.uThresholdMin.value, ( value ) => pixelSortUniforms.uThresholdMin.value = value, {
-					step: 0.01
-				} );
-				params.pipeline.field( "pixelSortThresholdMax", () => pixelSortUniforms.uThresholdMax.value, ( value ) => pixelSortUniforms.uThresholdMax.value = value, {
-					step: 0.05
-				} );
 
 				import.meta.hot.accept( "./shaders/pixelSortMask.fs", ( module ) => {
 
@@ -207,6 +201,12 @@ export class PixelSort extends MXP.PostProcess {
 			this.off( "resize" );
 
 		} );
+
+	}
+
+	public get uniforms() {
+
+		return this._uniforms;
 
 	}
 

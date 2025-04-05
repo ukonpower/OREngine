@@ -1,9 +1,9 @@
 import * as GLP from 'glpower';
 
 import { Geometry } from "..";
-import { ComponentParams, Curve } from '../..';
+import { Curve } from '../..';
 
-interface CurveGeometryParams extends ComponentParams{
+interface CurveGeometryParams {
 	curve?: Curve,
 	radius?: number,
 	curveSegments?: number,

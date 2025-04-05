@@ -1,28 +1,33 @@
-import { SerializableFieldFormat, SerializeFieldValue } from 'maxpower';
+import { SerializableFieldFormat, SerializeFieldObjective, SerializeFieldPrimitive, SerializeFieldValue } from 'maxpower';
+import React from 'react';
 
 import { Button } from '../Button';
 import { InputBoolean } from '../Input/InputCheckBox';
 import { InputNumber } from '../Input/InputNumber';
 import { InputSelect } from '../Input/InputSelect';
 import { InputText } from '../Input/InputText';
-import { Label } from '../Label';
 import { Vector } from '../Vector';
 
 export type ValueOpt = {
+	label?: string | React.ReactNode,
 	readOnly?: boolean,
 	step?: number,
 	disabled?: boolean,
 }
 
-export type ValueProps<T extends SerializeFieldValue> = {
+export type ValueProps<T> = {
 	value: T | undefined,
 	onChange?: ( value: T ) => void
 	format?: SerializableFieldFormat
 } & ValueOpt
 
-export const Value = <T extends SerializeFieldValue>( { value, onChange, format, step, readOnly }: ValueProps<T> ) => {
+export const Value = <T extends SerializeFieldObjective>( props : ValueProps<T> ) => {
 
 	let inputElm = null;
+
+	const onChange = props.onChange;
+	const value = props.value;
+	const format = props.format;
 
 	const onChangeValue = ( value: any ) => {
 
@@ -34,8 +39,7 @@ export const Value = <T extends SerializeFieldValue>( { value, onChange, format,
 
 	};
 
-	if ( value === undefined ) return null;
-
+	if ( value === undefined || value === null ) return null;
 
 	if ( format ) {
 
@@ -55,19 +59,19 @@ export const Value = <T extends SerializeFieldValue>( { value, onChange, format,
 
 		if ( typeof value === "number" ) {
 
-			inputElm = <InputNumber value={value} onChange={onChangeValue} step={step} />;
+			inputElm = <InputNumber {...props} value={value} onChange={onChangeValue} />;
 
 		} else if ( typeof value === "string" ) {
 
-			inputElm = <InputText value={value} readOnly={readOnly} onChange={onChangeValue} />;
+			inputElm = <InputText {...props} value={value} onChange={onChangeValue} />;
 
 		} else if ( typeof value == "boolean"	) {
 
-			inputElm = <InputBoolean checked={value} onChange={onChangeValue}/>;
+			inputElm = <InputBoolean {...props} checked={value} onChange={onChangeValue}/>;
 
 		} else if ( typeof value == "function" ) {
 
-			const text = "btn";
+			const text = props.label || "Run";
 
 			inputElm = <Button onClick={() => {
 
@@ -77,31 +81,9 @@ export const Value = <T extends SerializeFieldValue>( { value, onChange, format,
 				{text}
 			</ Button >;
 
-		} else if ( Array.isArray( value ) ) {
+		} else {
 
-			const arrayElms: React.ReactNode[] = [];
-
-			for ( let i = 0; i < value.length; i ++ ) {
-
-				const arrayValue = value[ i ];
-
-				arrayElms.push(
-					<Label title={arrayValue.label}>
-						<Value value={arrayValue.value} onChange={( v ) => {
-
-							const newValue = value.concat();
-
-							newValue[ i ].value = v;
-
-							onChangeValue( newValue );
-
-						}}/>
-					</Label>
-				);
-
-			}
-
-			inputElm = arrayElms;
+			inputElm = <InputText {...props} value={JSON.stringify( value )} onChange={() => {}} />;
 
 		}
 

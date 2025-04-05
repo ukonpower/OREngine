@@ -1,7 +1,7 @@
 import style from './index.module.scss';
 
 export const Label: React.FC<{
-	title?: string,
+	title?: React.ReactNode,
 	vertical?: boolean,
 	children?: React.ReactNode,
 	labelAlign?: "left" | "right"

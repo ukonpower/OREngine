@@ -6,6 +6,7 @@ uniform sampler2D uVelNeighborTex;
 uniform sampler2D uDepthTexture;
 uniform mat4 projectionMatrixInverse;
 uniform vec2 uPPPixelSize;
+uniform float uPower;
 
 layout (location = 0) out vec4 outColor;
 
@@ -43,6 +44,8 @@ vec2 getVelocity(sampler2D velTex, vec2 uv)
 {
     vec2 velocity = texture(velTex, uv).xy;
     velocity = normalize( velocity ) * clamp( length( velocity ), 0.5 * uPPPixelSize.y, float(TILE) * uPPPixelSize.y );
+
+	velocity *= uPower;
 	
     return velocity;
 }
