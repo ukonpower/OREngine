@@ -1,6 +1,6 @@
 #include <common>
 
-uniform sampler2D backbuffer0;
+uniform sampler2D uBackBuffer0;
 uniform sampler2D uGbufferPos;
 uniform vec4 uParams;
 uniform mat4 uProjectionMatrixInverse;
@@ -32,12 +32,12 @@ void main( void ) {
 	float _LensCoeff = uParams.w;
 
 	// Sample source colors.
-	vec2 mainTexSize = vec2( 1.0 ) / vec2( textureSize( backbuffer0, 0 ) );
+	vec2 mainTexSize = vec2( 1.0 ) / vec2( textureSize( uBackBuffer0, 0 ) );
 	vec3 duv = mainTexSize.xyx * vec3(0.5, 0.5, -0.5);
-	vec3 c0 = texture(backbuffer0, vUv - duv.xy).rgb;
-	vec3 c1 = texture(backbuffer0, vUv - duv.zy).rgb;
-	vec3 c2 = texture(backbuffer0, vUv + duv.zy).rgb;
-	vec3 c3 = texture(backbuffer0, vUv + duv.xy).rgb;
+	vec3 c0 = texture(uBackBuffer0, vUv - duv.xy).rgb;
+	vec3 c1 = texture(uBackBuffer0, vUv - duv.zy).rgb;
+	vec3 c2 = texture(uBackBuffer0, vUv + duv.zy).rgb;
+	vec3 c3 = texture(uBackBuffer0, vUv + duv.xy).rgb;
 
 	// Sample linear depths.
 	float d0 = sampleDepth(uGbufferPos, vUv - duv.xy);

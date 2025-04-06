@@ -5,7 +5,7 @@
 
 // uniforms
 
-uniform sampler2D backbuffer0;
+uniform sampler2D uBackBuffer0;
 uniform sampler2D uGbufferPos;
 uniform sampler2D uGbufferNormal;
 uniform sampler2D uSSRBackBuffer;
@@ -72,7 +72,7 @@ void main( void ) {
 
 		if( sampleViewPos.z < samplerPos.z && sampleViewPos.z >= samplerPos.z - OBJDEPTH ) {
 
-			col.xyz = texture( backbuffer0, depthCoord.xy ).xyz;
+			col.xyz = texture( uBackBuffer0, depthCoord.xy ).xyz;
 			col.w = 1.0;
 			break;
 

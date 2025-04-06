@@ -1,6 +1,6 @@
 in vec2 vUv;
 
-uniform sampler2D backbuffer0;
+uniform sampler2D uBackBuffer0;
 uniform sampler2D uVelTex;
 uniform sampler2D uVelNeighborTex;
 uniform sampler2D uDepthTexture;
@@ -66,14 +66,14 @@ void main(void) {
 
 	if( length( velNeighbor ) <= uPPPixelSize.y  ) {
 
-		outColor = texture( backbuffer0, vUv );
+		outColor = texture( uBackBuffer0, vUv );
 		return;
 
 	}
 
 	weight = 1.0;
 	weight = min( 1.0 / length( getVelocity( uVelTex, X ) ), 3.0 );
-	sum = texture(backbuffer0, X ).xyz * weight;
+	sum = texture(uBackBuffer0, X ).xyz * weight;
 
 	for( int i = 0; i < SAMPLE; i++ ) {
 
@@ -97,7 +97,7 @@ void main(void) {
 
 
 		weight += alphaY;
-		sum += alphaY * texture( backbuffer0, Y ).xyz;
+		sum += alphaY * texture( uBackBuffer0, Y ).xyz;
 
 	}
 

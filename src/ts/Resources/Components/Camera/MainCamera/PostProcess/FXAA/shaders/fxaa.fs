@@ -1,4 +1,4 @@
-uniform sampler2D backbuffer0;
+uniform sampler2D uBackBuffer0;
 uniform vec2 uPPPixelSize;
 
 in vec2 vUv;
@@ -21,11 +21,11 @@ void main( void ) {
 
 	/*--------------------------------------------------------------------------*/
 
-    vec3 rgbNW = texOffset( backbuffer0, vUv, vec2( -1.0, 1.0 ), uPPPixelSize ).xyz;
-    vec3 rgbNE = texOffset( backbuffer0, vUv, vec2( 1.0, 1.0 ), uPPPixelSize ).xyz;
-    vec3 rgbSW = texOffset( backbuffer0, vUv, vec2( -1.0, -1.0 ), uPPPixelSize ).xyz;
-    vec3 rgbSE = texOffset( backbuffer0, vUv, vec2( 1.0, -1.0 ), uPPPixelSize ).xyz;
-    vec3 rgbM  = texture( backbuffer0, vUv ).xyz;
+    vec3 rgbNW = texOffset( uBackBuffer0, vUv, vec2( -1.0, 1.0 ), uPPPixelSize ).xyz;
+    vec3 rgbNE = texOffset( uBackBuffer0, vUv, vec2( 1.0, 1.0 ), uPPPixelSize ).xyz;
+    vec3 rgbSW = texOffset( uBackBuffer0, vUv, vec2( -1.0, -1.0 ), uPPPixelSize ).xyz;
+    vec3 rgbSE = texOffset( uBackBuffer0, vUv, vec2( 1.0, -1.0 ), uPPPixelSize ).xyz;
+    vec3 rgbM  = texture( uBackBuffer0, vUv ).xyz;
 	
 	/*--------------------------------------------------------------------------*/
 
@@ -57,13 +57,13 @@ void main( void ) {
 	/*--------------------------------------------------------------------------*/
 	
     vec3 rgbA = ( 1.0 / 2.0 ) * ( 
-        texture( backbuffer0, vUv + dir * ( 1.0 / 3.0 - 0.5 ) ).xyz +
-        texture( backbuffer0, vUv + dir * ( 2.0 / 3.0 - 0.5 ) ).xyz
+        texture( uBackBuffer0, vUv + dir * ( 1.0 / 3.0 - 0.5 ) ).xyz +
+        texture( uBackBuffer0, vUv + dir * ( 2.0 / 3.0 - 0.5 ) ).xyz
     );
 
     vec3 rgbB = rgbA * 0.5  + 0.25  * ( 
-        texture( backbuffer0, vUv + dir * -0.5 ).xyz +
-        texture( backbuffer0, vUv + dir *  0.5 ).xyz 
+        texture( uBackBuffer0, vUv + dir * -0.5 ).xyz +
+        texture( uBackBuffer0, vUv + dir *  0.5 ).xyz 
     );
 		
     float lumaB = dot( rgbB, luma );

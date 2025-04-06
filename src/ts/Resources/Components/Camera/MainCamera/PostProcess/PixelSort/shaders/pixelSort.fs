@@ -1,6 +1,6 @@
 #include <common>
 precision highp int;
-uniform sampler2D backbuffer0;
+uniform sampler2D uBackBuffer0;
 uniform sampler2D uMaskTex;
 uniform sampler2D uRangeTex;
 uniform vec2 uPPResolution;
@@ -52,11 +52,11 @@ void main(void) {
 
     // fetch color texture
 
-    vec4 currentPixel = texture(backbuffer0, vUv);
+    vec4 currentPixel = texture(uBackBuffer0, vUv);
     vec4 currentMaskValue = texture(uMaskTex, vUv);
 
     vec2 targetUv = vec2( vUv.x, coordTarget / uPPResolution.y );
-    vec4 targetPixel = texture(backbuffer0, targetUv );
+    vec4 targetPixel = texture(uBackBuffer0, targetUv );
     vec4 targetMaskValue = texture(uMaskTex, targetUv );
 
     // mask
