@@ -21,12 +21,10 @@ export class Editor extends MXP.Serializable {
 	private _resolutionScale: number;
 	private _viewType: "render" | "debug";
 	private _frameDebugger: FrameDebugger;
-
 	private _externalWindow: Window | null;
 	private _externalCanvasBitmapContext: ImageBitmapRenderingContext | null;
 
 	private _disposed: boolean;
-
 
 	constructor( engine: Engine ) {
 
@@ -278,10 +276,8 @@ export class Editor extends MXP.Serializable {
 	public createEntity( parentEntity: MXP.Entity, name: string ) {
 
 		const newEntity = new MXP.Entity();
-
 		newEntity.name = name;
 		newEntity.initiator = "user";
-
 		parentEntity.add( newEntity );
 
 		return newEntity;

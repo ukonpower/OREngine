@@ -1,5 +1,3 @@
-import { useOREditor } from '../../../hooks/useOREditor';
-
 import { TimelineContext, useTimeline } from './hooks/useTimeline';
 import style from './index.module.scss';
 import { TimelineCanvas } from './TimelineCanvas';
@@ -12,8 +10,7 @@ import { TimelineSetting } from './TimelineSetting';
 
 export const Timeline = () => {
 
-	const { editor: gui } = useOREditor();
-	const timelineContext = useTimeline( gui );
+	const timelineContext = useTimeline();
 
 	return <TimelineContext.Provider value={timelineContext}>
 		<div className={style.timeline}>

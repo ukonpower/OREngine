@@ -266,7 +266,6 @@ export class DeferredRenderer extends GLP.EventEmitter {
 					value: params.envMap,
 					type: '1i'
 				},
-				uEnvMapIntensity: Engine.getInstance( gl ).uniforms.uEnvMapIntensity
 			} ),
 		} );
 

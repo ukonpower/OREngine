@@ -13,6 +13,7 @@ export * from "./tsx/components/OREngine";
 
 export * from "./tsx/hooks/useLayout";
 export * from "./tsx/hooks/useOREngine";
+export * from "./tsx/hooks/useOREditor";
 export * from "./tsx/hooks/useSerializableProps";
 export * from "./tsx/hooks/useWatchSerializable";
 
