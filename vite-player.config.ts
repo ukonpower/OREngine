@@ -4,8 +4,10 @@ import terser from '@rollup/plugin-terser';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig } from 'vite';
 
+import playerJson from './data/scene.json';
 import { nameCache, MangledJsonLoader, SaveNameCache } from './plugins/MangleManager';
 import { ShaderMinifierLoader } from './plugins/ShaderMinifierLoader';
+
 
 const basePath = ``;
 
@@ -31,9 +33,41 @@ export default defineConfig( {
 					keep_classnames: true,
 					mangle: {
 						properties: {
-							keep_quoted: "strict",
-							regex: /^(?!(u[A-Z]|a[A-Z]|[A-Z_]+$|_)).*$/,
+							regex: /^(?!(u[A-Z]|[A-Z_]+$|_)).*$/,
 							reserved: [
+								"overrides",
+								"side",
+								"scene",
+								...( () => {
+
+									const data = playerJson; // セーブデータJSON
+									const reserved = new Set<string>();
+									const addComponentNames = ( obj: any ) => {
+
+										if ( obj.components ) {
+
+											obj.components.forEach( ( comp: any ) => {
+
+												if ( comp.name ) reserved.add( comp.name );
+												if ( comp.props ) {
+
+													Object.keys( comp.props ).forEach( prop => reserved.add( prop ) );
+
+												}
+
+											} );
+
+										}
+
+										if ( obj.childs ) obj.childs.forEach( addComponentNames );
+										if ( obj.overrides ) obj.overrides.forEach( addComponentNames );
+
+									};
+
+									addComponentNames( data );
+									return Array.from( reserved );
+
+								} )()
 							],
 						}
 					},
@@ -42,7 +76,7 @@ export default defineConfig( {
 						passes: 16,
 						arguments: true,
 						booleans_as_integers: true,
-						drop_console: true,
+						drop_console: false,
 						keep_fargs: false,
 						module: true,
 						pure_getters: true,
@@ -72,6 +106,7 @@ export default defineConfig( {
 		},
 	},
 	plugins: [
+		MangledJsonLoader(),
 		ShaderMinifierLoader(),
 		visualizer( {
 			template: "treemap",

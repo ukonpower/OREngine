@@ -116,7 +116,7 @@ class App {
 			Loading
 		-------------------------------*/
 
-		let shaderTotal = 0.0;
+		const shaderTotal = 0.0;
 		let musicTotal = 0.0;
 
 		const onLoadProgress = ( label: string ) => {
@@ -151,32 +151,15 @@ class App {
 
 		} );
 
-
 		this.engine.on( "loaded", () => {
 
 			this.resize();
 
-			setTimeout( () => {
-
-				renderer.noDraw = true;
-
-				this.engine.update( { forceDraw: true } );
-
-				renderer.noDraw = false;
-
-				renderer.compile( ( label, loaded, total ) => {
-
-					shaderTotal = loaded / total;
-
-					onLoadProgress( label );
-
-				} );
-
-			}, 1000 );
-
-			playButton.disabled = false;
+			this.play();
 
 		} );
+
+		console.log( SceneData );
 
 		this.engine.load( SceneData );
 
