@@ -178,9 +178,6 @@ class App {
 
 		} );
 
-		console.log( SceneData );
-
-
 		this.engine.init( SceneData );
 
 		/*-------------------------------

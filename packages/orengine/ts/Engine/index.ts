@@ -270,8 +270,6 @@ export class Engine extends MXP.Entity {
 
 			this.name = project.name;
 
-			console.log( project );
-
 			this.deserialize( project );
 
 		} else {

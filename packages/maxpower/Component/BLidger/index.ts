@@ -351,7 +351,7 @@ export class BLidger extends Component {
 
 		if ( curveHide ) {
 
-			entity.visible = curveHide.value.x < 0.5;
+			this.entity.visible = curveHide.value.x < 0.5;
 
 		}
 

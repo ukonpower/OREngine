@@ -128,16 +128,6 @@ export class Entity extends Serializable {
 
 		}
 
-		// post update
-
-		for ( let i = 0; i < this.componentsSorted.length; i ++ ) {
-
-			const c = this.componentsSorted[ i ];
-
-			c.postUpdate( childEvent );
-
-		}
-
 		// children
 
 		for ( let i = 0; i < this.children.length; i ++ ) {
