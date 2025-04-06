@@ -3,9 +3,9 @@
 uniform sampler2D backbuffer0;
 uniform sampler2D uBloomTexture[4];
 
-uniform vec3 cameraPosition;
-uniform float cameraNear;
-uniform float cameraFar;
+uniform vec3 uCameraPosition;
+uniform float uCameraNear;
+uniform float uCameraFar;
 
 in vec2 vUv;
 

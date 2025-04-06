@@ -1,11 +1,11 @@
-uniform mat4 modelMatrix;
-uniform mat4 viewMatrix;
-uniform mat4 projectionMatrix;
-uniform mat4 normalMatrix;
+uniform mat4 uModelMatrix;
+uniform mat4 uViewMatrix;
+uniform mat4 uProjectionMatrix;
+uniform mat4 uNormalMatrix;
 
-uniform mat4 modelMatrixPrev;
-uniform mat4 viewMatrixPrev;
-uniform mat4 projectionMatrixPrev;
+uniform mat4 uModelMatrixPrev;
+uniform mat4 uViewMatrixPrev;
+uniform mat4 uProjectionMatrixPrev;
 
 out vec2 vUv;
 out vec3 vViewNormal;

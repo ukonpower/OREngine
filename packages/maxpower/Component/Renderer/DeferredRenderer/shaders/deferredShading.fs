@@ -16,9 +16,9 @@ uniform sampler2D uLightShaftTexture;
 uniform sampler2D uEnvMap;
 
 uniform vec3 uColor;
-uniform mat4 viewMatrix;
-uniform mat4 cameraMatrix;
-uniform vec3 cameraPosition;
+uniform mat4 uViewMatrix;
+uniform mat4 uCameraMatrix;
+uniform vec3 uCameraPosition;
 
 // -------------------------
 
@@ -54,7 +54,7 @@ void main( void ) {
 		tex0.xyz,
 		normal,
 		0.0,
-		normalize( cameraPosition - tex0.xyz ),
+		normalize( uCameraPosition - tex0.xyz ),
 		vec3( 0.0 ),
 		occlusion
 	);

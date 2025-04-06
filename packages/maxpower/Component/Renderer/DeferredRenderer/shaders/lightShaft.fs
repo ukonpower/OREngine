@@ -8,9 +8,9 @@ uniform sampler2D uLightShaftBackBuffer;
 uniform sampler2D uDepthTexture;
 
 uniform float uTimeEF;
-uniform mat4 cameraMatrix;
-uniform mat4 projectionMatrixInverse;
-uniform vec3 cameraPosition;
+uniform mat4 uCameraMatrix;
+uniform mat4 uProjectionMatrixInverse;
+uniform vec3 uCameraPosition;
 
 // varying
 
@@ -28,12 +28,12 @@ void main( void ) {
 	vec3 lightShaftSum = vec3( 0.0 );
 
 	vec2 screen = vUv * 2.0 - 1.0;
-	mat4 cp = cameraMatrix * projectionMatrixInverse;
+	mat4 cp = uCameraMatrix * uProjectionMatrixInverse;
 	
 	float depth = texture( uDepthTexture, vUv ).x;
 	vec4 rp = cp * vec4( screen, depth * 2.0 - 1.0, 1.0 );
 
-	vec3 rayPos = cameraPosition;
+	vec3 rayPos = uCameraPosition;
 	vec3 rayDir = normalize( ( cp * vec4( screen, 1.0, 1.0 ) ).xyz );
 	vec3 rayEndPos = rp.xyz / rp.w;
 
@@ -71,7 +71,7 @@ void main( void ) {
 
 				#if LOOP_INDEX < NUM_SHADOWMAP_DIR
 
-					shadow = getShadow( rayPos, directionalLightCamera[ LOOP_INDEX ], directionalLightShadowMap[ LOOP_INDEX ], 0.0 );
+					shadow = getShadow( rayPos, uDirectionalLightCamera[ LOOP_INDEX ], directionalLightShadowMap[ LOOP_INDEX ], 0.0 );
 
 				#else
 
@@ -98,7 +98,7 @@ void main( void ) {
 
 			#pragma loop_start NUM_LIGHT_SPOT
 
-				sLight = spotLight[ LOOP_INDEX ];
+				sLight = uSpotLight[ LOOP_INDEX ];
 
 				spotDirection = normalize(sLight.position - rayPos);
 				spotDistance = length( sLight.position - rayPos );
@@ -113,7 +113,7 @@ void main( void ) {
 
 				#if LOOP_INDEX < NUM_SHADOWMAP_SPOT
 
-					shadow = getShadow( rayPos, spotLightCamera[ LOOP_INDEX ], spotLightShadowMap[ LOOP_INDEX ], 0.0 );
+					shadow = getShadow( rayPos, uSpotLightCamera[ LOOP_INDEX ], uSpotLightShadowMap[ LOOP_INDEX ], 0.0 );
 
 				#else
 

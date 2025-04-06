@@ -4,7 +4,7 @@ uniform sampler2D backbuffer0;
 uniform sampler2D uVelTex;
 uniform sampler2D uVelNeighborTex;
 uniform sampler2D uDepthTexture;
-uniform mat4 projectionMatrixInverse;
+uniform mat4 uProjectionMatrixInverse;
 uniform vec2 uPPPixelSize;
 uniform float uPower;
 
@@ -35,7 +35,7 @@ float softDepthCompare( float a, float b ) {
 }
 
 float getLinearDepth( vec2 uv ) {
-	vec4 depthRayPos = projectionMatrixInverse * vec4( uv * 2.0 - 1.0, texture( uDepthTexture, vUv ).x * 2.0 - 1.0, 1.0 );
+	vec4 depthRayPos = uProjectionMatrixInverse * vec4( uv * 2.0 - 1.0, texture( uDepthTexture, vUv ).x * 2.0 - 1.0, 1.0 );
 	depthRayPos.xyz /= depthRayPos.w;	
 	return depthRayPos.z;
 }

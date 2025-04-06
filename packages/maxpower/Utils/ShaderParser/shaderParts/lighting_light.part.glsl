@@ -21,7 +21,7 @@ LightCamera lightCamera;
 
 		#if LOOP_INDEX < NUM_SHADOWMAP_DIR
 
-			shadow = getShadowSmooth( tex0.xyz, directionalLightCamera[ LOOP_INDEX ], directionalLightShadowMap[ LOOP_INDEX ], 0.0001 );
+			shadow = getShadowSmooth( tex0.xyz, uDirectionalLightCamera[ LOOP_INDEX ], directionalLightShadowMap[ LOOP_INDEX ], 0.0001 );
 
 		#else
 
@@ -53,7 +53,7 @@ LightCamera lightCamera;
 
 		#if LOOP_INDEX < NUM_SHADOWMAP_SPOT
 
-			shadow = getShadowSmooth( geo.position, spotLightCamera[ LOOP_INDEX ], spotLightShadowMap[ LOOP_INDEX ], 0.001 );
+			shadow = getShadowSmooth( geo.position, uSpotLightCamera[ LOOP_INDEX ], uSpotLightShadowMap[ LOOP_INDEX ], 0.001 );
 
 		#else
 
@@ -63,7 +63,7 @@ LightCamera lightCamera;
 
 		// lighting
 
-		sLight = spotLight[ LOOP_INDEX ];
+		sLight = uSpotLight[ LOOP_INDEX ];
 
 		spotDirection = normalize(sLight.position - geo.position);
 		spotDistance = length( sLight.position - geo.position );
