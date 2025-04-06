@@ -35,7 +35,7 @@ export const EditorPage = () => {
 
 		} );
 
-		if ( import.meta.env.PROD ) {
+		if ( import.meta.env.MODE === "production" ) {
 
 			setProjectData( ProjectData );
 

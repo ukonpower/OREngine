@@ -156,7 +156,7 @@ export class MainCamera extends MXP.Component {
 			DEV: OrbitControls
 		-------------------------------*/
 
-		if ( process.env.NODE_ENV === 'development' ) {
+		if ( import.meta.env.DEV ) {
 
 			this._orbitControls = undefined;
 			this._orbitControls = this.entity.addComponent( OrbitControls );
