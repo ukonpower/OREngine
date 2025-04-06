@@ -307,55 +307,54 @@ export class Renderer extends Entity {
 
 		entity.onBeforeRender( event );
 
-		// if ( process.env.NODE_ENV == 'development' ) {
+		if ( process.env.NODE_ENV == 'development' ) {
 
-		const disjoint = this.gl.getParameter( this._extDisJointTimerQuery.GPU_DISJOINT_EXT );
+			const disjoint = this.gl.getParameter( this._extDisJointTimerQuery.GPU_DISJOINT_EXT );
 
-		if ( disjoint ) {
+			if ( disjoint ) {
 
-			this._queryList.forEach( q => this.gl.deleteQuery( q ) );
+				this._queryList.forEach( q => this.gl.deleteQuery( q ) );
 
-			this._queryList.length = 0;
+				this._queryList.length = 0;
 
-		} else {
+			} else {
 
-			const updatedList = [];
+				const updatedList = [];
 
-			if ( this._queryListQueued.length > 0 ) {
+				if ( this._queryListQueued.length > 0 ) {
 
-				const l = this._queryListQueued.length;
+					const l = this._queryListQueued.length;
 
-				for ( let i = l - 1; i >= 0; i -- ) {
+					for ( let i = l - 1; i >= 0; i -- ) {
 
-					const q = this._queryListQueued[ i ];
+						const q = this._queryListQueued[ i ];
 
-					const resultAvailable = this.gl.getQueryParameter( q.query, this.gl.QUERY_RESULT_AVAILABLE );
+						const resultAvailable = this.gl.getQueryParameter( q.query, this.gl.QUERY_RESULT_AVAILABLE );
 
-					if ( resultAvailable ) {
+						if ( resultAvailable ) {
 
-						const result = this.gl.getQueryParameter( q.query, this.gl.QUERY_RESULT );
+							const result = this.gl.getQueryParameter( q.query, this.gl.QUERY_RESULT );
 
-						updatedList.push( {
-							name: q.name,
-							duration: result / 1000 / 1000
-						} );
+							updatedList.push( {
+								name: q.name,
+								duration: result / 1000 / 1000
+							} );
 
-						this._queryList.push( q.query );
+							this._queryList.push( q.query );
 
-						this._queryListQueued.splice( i, 1 );
+							this._queryListQueued.splice( i, 1 );
+
+						}
 
 					}
 
 				}
 
+				this.emit( "timer", [ updatedList ] );
+
 			}
 
-			this.emit( "timer", [ updatedList ] );
-
 		}
-
-		// }
-
 
 		/*-------------------------------
 			Get RenderStack
@@ -1135,23 +1134,23 @@ export class Renderer extends Entity {
 
 				let query: WebGLQuery | null = null;
 
-				// if ( process.env.NODE_ENV == 'development' ) {
+				if ( process.env.NODE_ENV == 'development' ) {
 
-				query = this._queryList.pop() || null;
+					query = this._queryList.pop() || null;
 
-				if ( query == null ) {
+					if ( query == null ) {
 
-					query = this.gl.createQuery();
+						query = this.gl.createQuery();
+
+					}
+
+					if ( query ) {
+
+						this.gl.beginQuery( this._extDisJointTimerQuery.TIME_ELAPSED_EXT, query );
+
+					}
 
 				}
-
-				if ( query ) {
-
-					this.gl.beginQuery( this._extDisJointTimerQuery.TIME_ELAPSED_EXT, query );
-
-				}
-
-				// }
 
 				// -----------------------------
 
