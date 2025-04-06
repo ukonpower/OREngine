@@ -923,12 +923,12 @@ export class Renderer extends Entity {
 
 			if ( param.modelMatrixWorld ) {
 
-				program.setUniform( 'modelMatrix', 'Matrix4fv', param.modelMatrixWorld.elm );
-				program.setUniform( 'modelMatrixInverse', 'Matrix4fv', this._tmpModelMatrixInverse.copy( param.modelMatrixWorld ).inverse().elm );
+				program.setUniform( 'uModelMatrix', 'Matrix4fv', param.modelMatrixWorld.elm );
+				program.setUniform( 'uModelMatrixInverse', 'Matrix4fv', this._tmpModelMatrixInverse.copy( param.modelMatrixWorld ).inverse().elm );
 
 				if ( param.modelMatrixWorldPrev ) {
 
-					program.setUniform( 'modelMatrixPrev', 'Matrix4fv', param.modelMatrixWorldPrev.elm );
+					program.setUniform( 'uModelMatrixPrev', 'Matrix4fv', param.modelMatrixWorldPrev.elm );
 
 				}
 
@@ -939,8 +939,8 @@ export class Renderer extends Entity {
 					this._tmpNormalMatrix.inverse();
 					this._tmpNormalMatrix.transpose();
 
-					program.setUniform( 'normalMatrix', 'Matrix4fv', this._tmpNormalMatrix.elm );
-					program.setUniform( 'viewMatrixInverse', 'Matrix4fv', this._tmpViewMatrixInverseMatrix.copy( param.viewMatrix ).inverse().elm );
+					program.setUniform( 'uNormalMatrix', 'Matrix4fv', this._tmpNormalMatrix.elm );
+					program.setUniform( 'uViewMatrixInverse', 'Matrix4fv', this._tmpViewMatrixInverseMatrix.copy( param.viewMatrix ).inverse().elm );
 
 				}
 
@@ -950,11 +950,11 @@ export class Renderer extends Entity {
 
 			if ( param.viewMatrix ) {
 
-				program.setUniform( 'viewMatrix', 'Matrix4fv', param.viewMatrix.elm );
+				program.setUniform( 'uViewMatrix', 'Matrix4fv', param.viewMatrix.elm );
 
 				if ( param.viewMatrixPrev ) {
 
-					program.setUniform( 'viewMatrixPrev', 'Matrix4fv', param.viewMatrixPrev.elm );
+					program.setUniform( 'uViewMatrixPrev', 'Matrix4fv', param.viewMatrixPrev.elm );
 
 				}
 
@@ -964,12 +964,12 @@ export class Renderer extends Entity {
 
 			if ( param.projectionMatrix ) {
 
-				program.setUniform( 'projectionMatrix', 'Matrix4fv', param.projectionMatrix.elm );
-				program.setUniform( 'projectionMatrixInverse', 'Matrix4fv', this._tmpProjectionMatrixInverse.copy( param.projectionMatrix ).inverse().elm );
+				program.setUniform( 'uProjectionMatrix', 'Matrix4fv', param.projectionMatrix.elm );
+				program.setUniform( 'uProjectionMatrixInverse', 'Matrix4fv', this._tmpProjectionMatrixInverse.copy( param.projectionMatrix ).inverse().elm );
 
 				if ( param.projectionMatrixPrev ) {
 
-					program.setUniform( 'projectionMatrixPrev', 'Matrix4fv', param.projectionMatrixPrev.elm );
+					program.setUniform( 'uProjectionMatrixPrev', 'Matrix4fv', param.projectionMatrixPrev.elm );
 
 				}
 
@@ -979,8 +979,8 @@ export class Renderer extends Entity {
 
 			if ( param.cameraMatrixWorld ) {
 
-				program.setUniform( 'cameraMatrix', 'Matrix4fv', param.cameraMatrixWorld.elm );
-				program.setUniform( 'cameraPosition', '3f', [ param.cameraMatrixWorld.elm[ 12 ], param.cameraMatrixWorld.elm[ 13 ], param.cameraMatrixWorld.elm[ 14 ] ] );
+				program.setUniform( 'uCameraMatrix', 'Matrix4fv', param.cameraMatrixWorld.elm );
+				program.setUniform( 'uCameraPosition', '3f', [ param.cameraMatrixWorld.elm[ 12 ], param.cameraMatrixWorld.elm[ 13 ], param.cameraMatrixWorld.elm[ 14 ] ] );
 
 			}
 
@@ -988,13 +988,13 @@ export class Renderer extends Entity {
 
 				if ( param.cameraNear ) {
 
-					program.setUniform( 'cameraNear', '1f', [ param.cameraNear ] );
+					program.setUniform( 'uCameraNear', '1f', [ param.cameraNear ] );
 
 				}
 
 				if ( param.cameraFar ) {
 
-					program.setUniform( 'cameraFar', '1f', [ param.cameraFar ] );
+					program.setUniform( 'uCameraFar', '1f', [ param.cameraFar ] );
 
 				}
 
@@ -1015,7 +1015,7 @@ export class Renderer extends Entity {
 
 					const texture = dLight.component.renderTarget.textures[ 0 ].activate( TextureUnitCounter ++ );
 
-					const dc = `directionalLightCamera[${i}]`;
+					const dc = `uDirectionalLightCamera[${i}]`;
 
 					program.setUniform( dc + '.near', '1fv', [ dLight.component.near ] );
 					program.setUniform( dc + '.far', '1fv', [ dLight.component.far ] );
@@ -1038,7 +1038,7 @@ export class Renderer extends Entity {
 
 				}
 
-				const sl = `spotLight[${i}]`;
+				const sl = `uSpotLight[${i}]`;
 
 				program.setUniform( sl + '.position', '3fv', sLight.position.getElm( 'vec3' ) );
 				program.setUniform( sl + '.direction', '3fv', sLight.direction.getElm( 'vec3' ) );
@@ -1053,7 +1053,7 @@ export class Renderer extends Entity {
 
 					const texture = sLight.component.renderTarget.textures[ 0 ].activate( TextureUnitCounter ++ );
 
-					const sc = `spotLightCamera[${i}]`;
+					const sc = `uSpotLightCamera[${i}]`;
 
 					program.setUniform( sc + '.near', '1fv', [ sLight.component.near ] );
 					program.setUniform( sc + '.far', '1fv', [ sLight.component.far ] );

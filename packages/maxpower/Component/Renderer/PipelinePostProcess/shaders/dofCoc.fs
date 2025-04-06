@@ -3,8 +3,8 @@
 uniform sampler2D backbuffer0;
 uniform sampler2D uGbufferPos;
 uniform vec4 uParams;
-uniform mat4 projectionMatrixInverse;
-uniform mat4 viewMatrix;
+uniform mat4 uProjectionMatrixInverse;
+uniform mat4 uViewMatrix;
 
 in vec2 vUv;
 
@@ -12,7 +12,7 @@ layout (location = 0) out vec4 outColor;
 
 float sampleDepth( sampler2D posTex, vec2 uv ) {
 
-	vec4 depth = viewMatrix * vec4( texture( posTex, uv ).xyz, 1.0 );
+	vec4 depth = uViewMatrix * vec4( texture( posTex, uv ).xyz, 1.0 );
 	
 	return depth.z * -1.0;
 	

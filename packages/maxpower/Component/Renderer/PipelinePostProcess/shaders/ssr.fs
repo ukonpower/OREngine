@@ -12,11 +12,11 @@ uniform sampler2D uSSRBackBuffer;
 uniform sampler2D uDepthTexture;
 
 uniform float uTimeEF;
-uniform mat4 cameraMatrix;
-uniform mat4 viewMatrix;
-uniform mat4 projectionMatrix;
-uniform mat4 projectionMatrixInverse;
-uniform vec3 cameraPosition;
+uniform mat4 uCameraMatrix;
+uniform mat4 uViewMatrix;
+uniform mat4 uProjectionMatrix;
+uniform mat4 uProjectionMatrixInverse;
+uniform vec3 uCameraPosition;
 
 // varying
 
@@ -32,10 +32,10 @@ void main( void ) {
 	vec3 lightShaftSum = vec3( 0.0 );
 
 	vec3 rayPos = texture( uGbufferPos, vUv ).xyz;
-	vec4 rayViewPos = viewMatrix * vec4(rayPos, 1.0);
-	vec4 depthRayPos = viewMatrix * vec4(rayPos, 1.0);
+	vec4 rayViewPos = uViewMatrix * vec4(rayPos, 1.0);
+	vec4 depthRayPos = uViewMatrix * vec4(rayPos, 1.0);
 
-	if( abs(rayViewPos.z - depthRayPos.z) > 0.1 || length(rayPos - cameraPosition) > 100.0 ) {
+	if( abs(rayViewPos.z - depthRayPos.z) > 0.1 || length(rayPos - uCameraPosition) > 100.0 ) {
 
 		outColor = vec4( 0.0, 0.0, 0.0, 0.0 );
 		return;
@@ -44,7 +44,7 @@ void main( void ) {
 
 	if( rayPos.x + rayPos.y + rayPos.z == 0.0 ) return;
 
-	vec3 rayDir = reflect( normalize( ( cameraMatrix * projectionMatrixInverse * vec4( vUv * 2.0 - 1.0, 1.0, 1.0 ) ).xyz ), texture( uGbufferNormal, vUv ).xyz ) ;
+	vec3 rayDir = reflect( normalize( ( uCameraMatrix * uProjectionMatrixInverse * vec4( vUv * 2.0 - 1.0, 1.0, 1.0 ) ).xyz ), texture( uGbufferNormal, vUv ).xyz ) ;
 
 	float rayStepLength = LENGTH / MARCH;
 	vec3 rayStep = rayDir * rayStepLength;
@@ -56,7 +56,7 @@ void main( void ) {
 
 	for( int i = 0; i < int( MARCH ); i ++ ) {
 
-		vec4 depthCoord = (projectionMatrix * viewMatrix * vec4(rayPos, 1.0 ) );
+		vec4 depthCoord = (uProjectionMatrix * uViewMatrix * vec4(rayPos, 1.0 ) );
 		depthCoord.xy /= depthCoord.w;
 
 		if( abs( depthCoord.x ) > 1.0 || abs( depthCoord.y ) > 1.0 ) break;
@@ -67,8 +67,8 @@ void main( void ) {
 
 		if( length( gBufferPos ) == 0.0 ) break;
 
-		vec4 samplerPos = (viewMatrix * vec4( gBufferPos, 1.0) );
-		vec4 sampleViewPos = viewMatrix * vec4( rayPos, 1.0 );
+		vec4 samplerPos = (uViewMatrix * vec4( gBufferPos, 1.0) );
+		vec4 sampleViewPos = uViewMatrix * vec4( rayPos, 1.0 );
 
 		if( sampleViewPos.z < samplerPos.z && sampleViewPos.z >= samplerPos.z - OBJDEPTH ) {
 
