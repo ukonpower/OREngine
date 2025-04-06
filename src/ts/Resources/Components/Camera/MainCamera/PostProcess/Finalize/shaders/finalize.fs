@@ -2,7 +2,7 @@
 #include <random>
 #include <noise_simplex>
 
-uniform sampler2D backbuffer0;
+uniform sampler2D uBackBuffer0;
 
 in vec2 vUv;
 
@@ -23,9 +23,9 @@ void main( void ) {
 
 	#pragma loop_start 8
 		d = -float( LOOP_INDEX ) / 8.0 * w;
-        col.x += texture( backbuffer0, lens_distortion( cuv * s, d * 0.0 ) + 0.5 + vec2( (float( LOOP_INDEX ) / 8.0 - 0.5 ) * 0.002, 0.0 ) ).x;
-        col.y += texture( backbuffer0, lens_distortion( cuv * s, d * 3.0 ) + 0.5 ).y;
-        col.z += texture( backbuffer0, lens_distortion( cuv * s, d * 6.0 ) + 0.5 ).z;
+        col.x += texture( uBackBuffer0, lens_distortion( cuv * s, d * 0.0 ) + 0.5 + vec2( (float( LOOP_INDEX ) / 8.0 - 0.5 ) * 0.002, 0.0 ) ).x;
+        col.y += texture( uBackBuffer0, lens_distortion( cuv * s, d * 3.0 ) + 0.5 ).y;
+        col.z += texture( uBackBuffer0, lens_distortion( cuv * s, d * 6.0 ) + 0.5 ).z;
 	#pragma loop_end
 	col.xyz /= 8.0;
 

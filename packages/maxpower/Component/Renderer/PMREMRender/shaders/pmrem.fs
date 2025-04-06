@@ -1,6 +1,6 @@
 #include <common>
 
-uniform sampler2D backbuffer0;
+uniform sampler2D uBackBuffer0;
 uniform sampler2D uPMREMBackBuffer;
 uniform samplerCube uEnvMap;
 uniform float uRoughness;

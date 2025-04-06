@@ -1,6 +1,6 @@
 #include <common>
 
-uniform sampler2D backbuffer0;
+uniform sampler2D uBackBuffer0;
 
 in vec2 vUv;
 
@@ -17,7 +17,7 @@ vec3 contrast( vec3 color, float contrast ) {
 
 void main( void ) {
 
-	vec3 col = texture( backbuffer0, vUv ).xyz;
+	vec3 col = texture( uBackBuffer0, vUv ).xyz;
 
 	// float gs = grayScale( col.xyz );
 	// col.xyz = mix( col.xyz, vec3( gs ), 0.8 );

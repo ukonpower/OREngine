@@ -2,7 +2,7 @@
 
 in vec2 vUv;
 
-uniform sampler2D backbuffer0;
+uniform sampler2D uBackBuffer0;
 uniform vec2 uPPResolution;
 uniform bool uIsVertical;
 uniform float uBlurRange;
@@ -38,7 +38,7 @@ void main(void) {
   #ifdef USE_BACKBLURTEX
     sum = blur(uBackBlurTex);
   #else
-    sum = blur(backbuffer0);
+    sum = blur(uBackBuffer0);
   #endif
   
   outColor = vec4(sum, 1.0);

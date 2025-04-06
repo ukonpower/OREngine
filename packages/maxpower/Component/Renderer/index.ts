@@ -812,7 +812,7 @@ export class Renderer extends Entity {
 
 				for ( let i = 0; i < backBuffer.length; i ++ ) {
 
-					pass.uniforms[ 'backbuffer' + i ] = {
+					pass.uniforms[ 'uBackBuffer' + i ] = {
 						type: '1i',
 						value: backBuffer[ i ]
 					};

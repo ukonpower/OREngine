@@ -1,6 +1,6 @@
 #include <common>
 
-uniform sampler2D backbuffer0;
+uniform sampler2D uBackBuffer0;
 uniform sampler2D uBloomTexture[4];
 
 uniform vec3 uCameraPosition;
@@ -63,7 +63,7 @@ vec3 ACESFitted(vec3 color)
 
 void main( void ) {
 
-    vec3 col = texture( backbuffer0, vUv ).xyz;
+    vec3 col = texture( uBackBuffer0, vUv ).xyz;
 
     col = ACESFitted( col );
 
