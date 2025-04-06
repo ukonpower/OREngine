@@ -1,11 +1,13 @@
 import { useState, useCallback, useEffect, createContext, useRef } from "react";
 
-import { FramePlay } from "~/ts/OREngine";
-import { OREngineGUICore } from "~/ts/OREngineGUICore";
+import { FramePlay } from "../../../../../../ts/Engine";
+import { useOREditor } from "../../../../../../tsx/hooks/useOREditor";
 
 export const TimelineContext = createContext<HooksContext<typeof useTimeline>>( {} );
 
-export const useTimeline = ( glEditor: OREngineGUICore | undefined ) => {
+export const useTimeline = () => {
+
+	const { editor: glEditor } = useOREditor();
 
 	// timeline
 
@@ -65,7 +67,7 @@ export const useTimeline = ( glEditor: OREngineGUICore | undefined ) => {
 
 				const props = scene.serialize();
 
-				setViewPort( [ 0, 0, props[ "timeline/duration" ], 0 ] );
+				// setViewPort( [ 0, 0, props[ "timeline/duration" ], 0 ] );
 
 			};
 

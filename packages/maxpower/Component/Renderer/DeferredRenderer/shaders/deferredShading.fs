@@ -20,10 +20,6 @@ uniform mat4 viewMatrix;
 uniform mat4 cameraMatrix;
 uniform vec3 cameraPosition;
 
-// custom uniforms
-
-uniform float uEnvMapIntensity;
-
 // -------------------------
 
 // varyings
@@ -70,7 +66,7 @@ void main( void ) {
 		emission,
 		mix( color, vec3( 0.0, 0.0, 0.0 ), metalic ),
 		mix( vec3( 1.0, 1.0, 1.0 ), color, metalic ),
-		envMapIntensity * uEnvMapIntensity
+		envMapIntensity
 	);
 	vec3 outColor = vec3( 0.0 );
 	//]
