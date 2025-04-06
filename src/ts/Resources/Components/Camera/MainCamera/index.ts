@@ -29,7 +29,6 @@ export class MainCamera extends MXP.Component {
 	public renderCamera: MXP.RenderCamera;
 
 	private _commonUniforms: GLP.Uniforms;
-	private _animateReceiver: MXP.BLidgerAnimationReceiver;
 	private _renderTarget: MXP.RenderCameraTarget;
 	private _lookAt: LookAt;
 	private _orbitControls?: OrbitControls;
@@ -73,11 +72,9 @@ export class MainCamera extends MXP.Component {
 
 		this.renderCamera = this.entity.addComponent( MXP.RenderCamera, { gl: gl } );
 		this._renderTarget = this.renderCamera.renderTarget;
-		this._animateReceiver = this.entity.addComponent( MXP.BLidgerAnimationReceiver );
 		this._lookAt = this.entity.addComponent( LookAt );
 		this.entity.addComponent( ShakeViewer );
-
-
+		
 		emitter.emit( "createdCamera", [ this.renderCamera ] );
 
 		/*-------------------------------
@@ -96,28 +93,9 @@ export class MainCamera extends MXP.Component {
 		bloom.threshold = 1.0;
 		bloom.brightness = 1;
 
-		// audio texture viewer
-		// this.postProcessPipeline.add( new AudioTextureViewer() );
-
 		// colorGrading
 
 		this.postProcessPipeline.add( new ColorGrading() );
-
-		// pixelsort
-
-		// const pixelSort = this.postProcessPipeline.add( new PixelSort() );
-
-		// this.postProcessPipeline.field( "pixelSortThresholdMin", () => pixelSort.uniforms.uThresholdMin.value, ( value ) => {
-
-		// 	pixelSort.uniforms.uThresholdMin.value = value;
-
-		// }, {
-		// 	step: 0.01
-		// } );
-
-		// this.postProcessPipeline.field( "pixelSortThresholdMax", () => pixelSort.uniforms.uThresholdMax.value, ( value ) => pixelSort.uniforms.uThresholdMax.value = value, {
-		// 	step: 0.05
-		// } );
 
 		// finalize
 
@@ -127,7 +105,6 @@ export class MainCamera extends MXP.Component {
 
 		this._dofTarget = null;
 
-		
 		/*-------------------------------
 			Params
 		-------------------------------*/
@@ -160,11 +137,10 @@ export class MainCamera extends MXP.Component {
 
 			}
 
-
 			const lookAtTarget = root.findEntityByName( "CamLook" ) || null;
 			this._lookAt.setTarget( lookAtTarget );
-
 			this._dofTarget = root.findEntityByName( 'CamDof' ) || null;
+
 		};
 
 		this.entity.on( 'sceneCreated', onSceneCreated );
@@ -205,7 +181,7 @@ export class MainCamera extends MXP.Component {
 
 				if ( lookat ) {
 
-					lookat.enable = ! activeOrbitcontrols;
+					lookat.enabled = ! activeOrbitcontrols;
 
 				}
 
@@ -262,8 +238,13 @@ export class MainCamera extends MXP.Component {
 
 		const root = this.entity.getRootEntity();
 
+		// lookat
+		
 		const lookAtTarget = root.findEntityByName( "CamLook" ) || null;
 		this._lookAt.setTarget( lookAtTarget );
+		
+		// dof
+		
 		this._dofTarget = root.findEntityByName( 'CamDof' ) || null;
 
 	}
@@ -273,22 +254,6 @@ export class MainCamera extends MXP.Component {
 		this.resize( event.resolution );
 
 		this.updateCameraParams();
-
-		// state
-
-		const cameraState = this._animateReceiver.animations.get( '_cameraState' );
-
-		if ( cameraState ) {
-
-			// fov
-
-			this.renderCamera.fov = 2 * Math.atan( 12 / ( 2 * cameraState.value.x ) ) / Math.PI * 180;
-
-			// lookat
-
-			this._lookAt.enabled = cameraState.value.y > 0.5;
-
-		}
 
 		// dof params
 
@@ -301,7 +266,6 @@ export class MainCamera extends MXP.Component {
 		}
 
 		this.renderCamera.dofParams.focusDistance = this._tmpVector1.sub( this._tmpVector2 ).length();
-
 
 	}
 

@@ -25,7 +25,7 @@ export class ShakeViewer extends MXP.Component {
 
 	}
 
-	public postUpdate( event: MXP.ComponentUpdateEvent ): void {
+	public updateImpl( event: MXP.ComponentUpdateEvent ): void {
 
 		let shake = 0.008 * this.shakePower;
 

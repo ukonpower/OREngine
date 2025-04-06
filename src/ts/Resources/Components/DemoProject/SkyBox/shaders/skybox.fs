@@ -34,7 +34,7 @@ void main( void ) {
 
 	#ifdef IS_FORWARD
 
-		outColor = vec4( outEmisson, 1.0 );
+		outColor = vec4( outEmission, 1.0 );
 	
 	#endif
 
