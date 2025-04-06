@@ -4,7 +4,7 @@ import terser from '@rollup/plugin-terser';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig } from 'vite';
 
-import { MangledJsonLoader, nameCache } from './plugins/JsonMangleLoader';
+import { nameCache, MangledJsonLoader, SaveNameCache } from './plugins/MangleManager';
 import { ShaderMinifierLoader } from './plugins/ShaderMinifierLoader';
 
 const basePath = ``;
@@ -28,12 +28,16 @@ export default defineConfig( {
 			},
 			plugins: [
 				terser( {
-					keep_classnames: false,
+					keep_classnames: true,
 					mangle: {
 						properties: {
+							keep_quoted: "strict",
+							regex: /^(?!(u[A-Z]|a[A-Z]|[A-Z_]+$|_)).*$/,
+							reserved: [
+							],
 						}
 					},
-					nameCache: nameCache,
+					nameCache,
 					compress: {
 						passes: 16,
 						arguments: true,
@@ -68,12 +72,12 @@ export default defineConfig( {
 		},
 	},
 	plugins: [
-		MangledJsonLoader(),
 		ShaderMinifierLoader(),
 		visualizer( {
 			template: "treemap",
 			gzipSize: true,
 		} ),
+		SaveNameCache(),
 	],
 	define: {
 		BASE_PATH: `"${basePath}"`
