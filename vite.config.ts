@@ -45,6 +45,6 @@ export default defineConfig( {
 		ResourceManager(),
 	],
 	define: {
-		BASE_PATH: `"${basePath}"`
+		BASE_PATH: `"${basePath}"`,
 	}
 } );

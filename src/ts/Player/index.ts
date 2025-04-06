@@ -1,7 +1,7 @@
 import * as GLP from 'glpower';
 import { Engine } from 'orengine';
 
-import SceneData from '../../../data/player.json';
+import SceneData from '../../../data/scene.json';
 import { initResouces } from '../Resources';
 
 import { gl } from '~/ts/Globals';

@@ -4,7 +4,6 @@ import { Keyboard, Pointer, PointerEventArgs } from 'orengine';
 
 import { LookAt } from '../../ObjectControls/LookAt';
 
-
 export class OrbitControls extends MXP.Component {
 
 	private keyborad_: Keyboard;

@@ -77,6 +77,6 @@ export default defineConfig( {
 		} ),
 	],
 	define: {
-		BASE_PATH: `"${basePath}"`
+		BASE_PATH: `"${basePath}"`,
 	}
 } );

@@ -307,7 +307,7 @@ export class Renderer extends Entity {
 
 		entity.onBeforeRender( event );
 
-		if ( process.env.NODE_ENV == 'development' ) {
+		if ( import.meta.env.DEV ) {
 
 			const disjoint = this.gl.getParameter( this._extDisJointTimerQuery.GPU_DISJOINT_EXT );
 
@@ -1134,7 +1134,7 @@ export class Renderer extends Entity {
 
 				let query: WebGLQuery | null = null;
 
-				if ( process.env.NODE_ENV == 'development' ) {
+				if ( import.meta.env.DEV ) {
 
 					query = this._queryList.pop() || null;
 
@@ -1182,22 +1182,22 @@ export class Renderer extends Entity {
 
 				// query ------------------------
 
-				// if ( process.env.NODE_ENV == 'development' ) {
+				if ( import.meta.env.DEV ) {
 
-				if ( query ) {
+					if ( query ) {
 
-					this.gl.endQuery( this._extDisJointTimerQuery.TIME_ELAPSED_EXT );
+						this.gl.endQuery( this._extDisJointTimerQuery.TIME_ELAPSED_EXT );
 
-					const label = param && param.label || "_";
+						const label = param && param.label || "_";
 
-					this._queryListQueued.push( {
-						name: `${renderType}/${label}/ [${drawId}]`,
-						query: query
-					} );
+						this._queryListQueued.push( {
+							name: `${renderType}/${label}/ [${drawId}]`,
+							query: query
+						} );
+
+					}
 
 				}
-
-				// }
 
 				// ----------------------------
 
