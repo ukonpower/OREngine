@@ -14,41 +14,41 @@ initResouces();
 
 export const EditorPage = () => {
 
-	const [projectData, setProjectData] = useState<OREngineProjectData>();
-	const [editorData, setEditorData] = useState<MXP.SerializeField>();
+	const [ projectData, setProjectData ] = useState<OREngineProjectData>();
+	const [ editorData, setEditorData ] = useState<MXP.SerializeField>();
 
-	useEffect(() => {
+	useEffect( () => {
 
-		fileSystem.get<OREngineProjectData>("scene.json").then((data) => {
+		fileSystem.get<OREngineProjectData>( "scene.json" ).then( ( data ) => {
 
-			if (!data) return;
+			if ( ! data ) return;
 
-			setProjectData(data);
+			setProjectData( data );
 
-		});
+		} );
 
-		fileSystem.get<MXP.SerializeField>("editor.json").then((data) => {
+		fileSystem.get<MXP.SerializeField>( "editor.json" ).then( ( data ) => {
 
-			if (!data) return;
+			if ( ! data ) return;
 
-			setEditorData(data);
+			setEditorData( data );
 
-		});
+		} );
 
-		if (import.meta.env.PROD) {
+		if ( import.meta.env.PROD ) {
 
-			setProjectData(ProjectData);
+			setProjectData( ProjectData );
 
 		}
 
-	}, []);
+	}, [] );
 
 	return (
 		<OREngine gl={gl} project={projectData} >
-			<OREditor editorData={editorData} onSave={(projectData, editorData) => {
+			<OREditor editorData={editorData} onSave={( projectData, editorData ) => {
 
-				fileSystem.set("scene.json", projectData);
-				fileSystem.set("editor.json", editorData);
+				fileSystem.set( "scene.json", projectData );
+				fileSystem.set( "editor.json", editorData );
 
 			}} />
 		</OREngine>

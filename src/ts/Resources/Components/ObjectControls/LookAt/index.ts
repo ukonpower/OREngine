@@ -18,7 +18,8 @@ export class LookAt extends MXP.Component {
 		this.targetWorldPos = new GLP.Vector();
 		this.up = new GLP.Vector( 0.0, 1.0, 0.0 );
 
-		this.order = 9999
+		this.order = 9999;
+
 	}
 
 	public setTarget( target: MXP.Entity | null ) {
@@ -35,9 +36,9 @@ export class LookAt extends MXP.Component {
 			this.target.matrixWorld.decompose( this.targetWorldPos );
 
 			this.entity.matrixWorld.lookAt( this.entityWorldPos, this.targetWorldPos, this.up );
-			
+
 			const camera = this.entity.getComponentsByTag<MXP.Camera>( "camera" )[ 0 ];
-			
+
 			if ( camera ) {
 
 				camera.viewMatrix.copy( this.entity.matrixWorld ).inverse();

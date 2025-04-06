@@ -7,8 +7,8 @@ import { LookAt } from '../../ObjectControls/LookAt';
 
 import { Bloom } from './PostProcess/Bloom';
 import { ColorGrading } from './PostProcess/ColorGrading';
+import { Finalize } from './PostProcess/Finalize';
 import { FXAA } from './PostProcess/FXAA';
-import { Finalize} from './PostProcess/Finalize'
 
 import { gl, globalUniforms, canvas } from '~/ts/Globals';
 
@@ -74,7 +74,7 @@ export class MainCamera extends MXP.Component {
 		this._renderTarget = this.renderCamera.renderTarget;
 		this._lookAt = this.entity.addComponent( LookAt );
 		this.entity.addComponent( ShakeViewer );
-		
+
 		emitter.emit( "createdCamera", [ this.renderCamera ] );
 
 		/*-------------------------------
@@ -99,7 +99,7 @@ export class MainCamera extends MXP.Component {
 
 		// finalize
 
-		this.postProcessPipeline.add( new Finalize() )
+		this.postProcessPipeline.add( new Finalize() );
 
 		// dof
 
@@ -109,7 +109,7 @@ export class MainCamera extends MXP.Component {
 			Params
 		-------------------------------*/
 
-		
+
 		// tmps
 
 		this._tmpVector1 = new GLP.Vector();
@@ -170,6 +170,7 @@ export class MainCamera extends MXP.Component {
 					this._orbitControls.enabled = activeOrbitcontrols;
 
 				}
+
 				const blidger = this._entity.getComponent( MXP.BLidger );
 				const lookat = this._entity.getComponent( LookAt );
 
@@ -239,12 +240,12 @@ export class MainCamera extends MXP.Component {
 		const root = this.entity.getRootEntity();
 
 		// lookat
-		
+
 		const lookAtTarget = root.findEntityByName( "CamLook" ) || null;
 		this._lookAt.setTarget( lookAtTarget );
-		
+
 		// dof
-		
+
 		this._dofTarget = root.findEntityByName( 'CamDof' ) || null;
 
 	}
