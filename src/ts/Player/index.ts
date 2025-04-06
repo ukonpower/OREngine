@@ -178,7 +178,7 @@ class App {
 
 		} );
 
-		this.engine.init( SceneData );
+		this.engine.load( SceneData );
 
 		/*-------------------------------
 			Event

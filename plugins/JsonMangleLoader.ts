@@ -39,7 +39,7 @@ export function MangledJsonLoader(): Plugin {
 
 	return {
 		name: 'json-mangle-loader',
-
+		enforce: 'pre',
 		configResolved() {
 
 			// name-cacheファイルを読み込む
