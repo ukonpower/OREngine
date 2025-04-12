@@ -1,9 +1,9 @@
 #if defined(IS_DEPTH) || defined(IS_DEFERRED)
-	vec4 mv = viewMatrix * vec4(outPos, 1.0);
+	vec4 mv = uViewMatrix * vec4(outPos, 1.0);
 #endif
 
 #ifdef IS_DEPTH
-	float depth_z = (-mv.z - cameraNear) / (cameraFar - cameraNear);
+	float depth_z = (-mv.z - uCameraNear) / (uCameraFar - uCameraNear);
 	outColor0 = vec4(floatToRGBA( depth_z ));
 #endif
 
@@ -38,7 +38,7 @@
 
 	#endif
 
-	vec4 mvp = projectionMatrix * mv;
+	vec4 mvp = uProjectionMatrix * mv;
 	gl_FragDepth = ( mvp.z / mvp.w ) * 0.5 + 0.5;
 	outColor0 = vec4( outPos, outEmission.x );
 	outColor1 = vec4( normalize( outNormal * ( gl_FrontFacing ? 1.0 : -1.0 ) ), outEmission.y );

@@ -1,10 +1,10 @@
 in vec2 vUv;
 
-uniform sampler2D backbuffer0;
+uniform sampler2D uBackBuffer0;
 uniform sampler2D uVelTex;
 uniform sampler2D uVelNeighborTex;
 uniform sampler2D uDepthTexture;
-uniform mat4 projectionMatrixInverse;
+uniform mat4 uProjectionMatrixInverse;
 uniform vec2 uPPPixelSize;
 uniform float uPower;
 
@@ -35,7 +35,7 @@ float softDepthCompare( float a, float b ) {
 }
 
 float getLinearDepth( vec2 uv ) {
-	vec4 depthRayPos = projectionMatrixInverse * vec4( uv * 2.0 - 1.0, texture( uDepthTexture, vUv ).x * 2.0 - 1.0, 1.0 );
+	vec4 depthRayPos = uProjectionMatrixInverse * vec4( uv * 2.0 - 1.0, texture( uDepthTexture, vUv ).x * 2.0 - 1.0, 1.0 );
 	depthRayPos.xyz /= depthRayPos.w;	
 	return depthRayPos.z;
 }
@@ -66,14 +66,14 @@ void main(void) {
 
 	if( length( velNeighbor ) <= uPPPixelSize.y  ) {
 
-		outColor = texture( backbuffer0, vUv );
+		outColor = texture( uBackBuffer0, vUv );
 		return;
 
 	}
 
 	weight = 1.0;
 	weight = min( 1.0 / length( getVelocity( uVelTex, X ) ), 3.0 );
-	sum = texture(backbuffer0, X ).xyz * weight;
+	sum = texture(uBackBuffer0, X ).xyz * weight;
 
 	for( int i = 0; i < SAMPLE; i++ ) {
 
@@ -97,7 +97,7 @@ void main(void) {
 
 
 		weight += alphaY;
-		sum += alphaY * texture( backbuffer0, Y ).xyz;
+		sum += alphaY * texture( uBackBuffer0, Y ).xyz;
 
 	}
 

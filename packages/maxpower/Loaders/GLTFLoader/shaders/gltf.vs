@@ -16,7 +16,7 @@ void main( void ) {
 
 	#ifdef USE_TANGENT
 
-		vTangent = (modelMatrix * vec4(tangent.xyz, 0.0)).xyz;
+		vTangent = (uModelMatrix * vec4(tangent.xyz, 0.0)).xyz;
 		vBitangent = normalize( cross( vNormal, vTangent.xyz ) * tangent.w );
 
 	#endif

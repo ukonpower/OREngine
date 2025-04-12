@@ -23,8 +23,8 @@ export function SaveNameCache(): Plugin {
 		name: 'save-name-cache',
 		closeBundle() {
 
-		  fs.writeFileSync( nameCacheFile, JSON.stringify( nameCache, null, 2 ), 'utf-8' );
-		  console.log( "TerserのnameCacheを保存しました" );
+			fs.writeFileSync( nameCacheFile, JSON.stringify( nameCache, null, 2 ), 'utf-8' );
+			console.log( "TerserのnameCacheを保存しました" );
 
 		}
 	};

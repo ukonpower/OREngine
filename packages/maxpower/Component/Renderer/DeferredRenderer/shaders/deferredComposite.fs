@@ -6,7 +6,7 @@ uniform sampler2D sampler0;
 
 uniform sampler2D uLightShaftTexture;
 uniform sampler2D uSSRTexture;
-uniform mat4 viewMatrix;
+uniform mat4 uViewMatrix;
 
 in vec2 vUv;
 

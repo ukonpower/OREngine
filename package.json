@@ -6,12 +6,14 @@
   "scripts": {
     "init": "git submodule init && git submodule update && npm install",
     "dev": "vite",
-    "build:dev": "NODE_ENV=development vite build --mode production",
+    "prebuild": "NODE_ENV=production IS_PREVIEW=true vite build",
+    "preview": "vite preview",
     "build": "vite build --config vite-player.config.ts && node compeko.js ./dist/build/index.js ./dist/build/index.html",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "workspaces": [],
   "dependencies": {
+    "@rollup/plugin-terser": "^0.4.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-error-boundary": "^5.0.0",
