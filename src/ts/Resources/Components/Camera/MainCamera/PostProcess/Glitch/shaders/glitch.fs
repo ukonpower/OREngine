@@ -1,7 +1,7 @@
 #include <common>
 #include <random>
 
-uniform sampler2D backbuffer0;
+uniform sampler2D uBackBuffer0;
 uniform float uGlitch;
 uniform float uTime;
 
@@ -27,9 +27,9 @@ void main( void ) {
 		
 	}
 
-	col.x += texture( backbuffer0, uv * vec2( 1.0 - g * 0.1, 1.0 ) ).x;
-	col.y += texture( backbuffer0, uv * vec2( 1.0, 1.0 )).y;
-	col.z += texture( backbuffer0, uv * vec2( 1.0 + g * 0.1, 1.0 )).z;
+	col.x += texture( uBackBuffer0, uv * vec2( 1.0 - g * 0.1, 1.0 ) ).x;
+	col.y += texture( uBackBuffer0, uv * vec2( 1.0, 1.0 )).y;
+	col.z += texture( uBackBuffer0, uv * vec2( 1.0 + g * 0.1, 1.0 )).z;
 	
 	outColor = vec4( col, 1.0 );
 

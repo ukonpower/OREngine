@@ -16,8 +16,8 @@ struct SpotLight {
 struct LightCamera {
 	float near;
 	float far;
-	mat4 viewMatrix;
-	mat4 projectionMatrix;
+	mat4 uViewMatrix;
+	mat4 uProjectionMatrix;
 	vec2 resolution;
 };
 
@@ -29,16 +29,16 @@ struct Light {
 #if NUM_LIGHT_DIR > 0 
 
 	uniform DirectionalLight directionalLight[NUM_LIGHT_DIR];
-	uniform LightCamera directionalLightCamera[NUM_LIGHT_DIR];
+	uniform LightCamera uDirectionalLightCamera[NUM_LIGHT_DIR];
 	uniform sampler2D directionalLightShadowMap[NUM_SHADOWMAP_DIR];
 	
 #endif
 
 #if NUM_LIGHT_SPOT > 0 
 
-	uniform SpotLight spotLight[NUM_LIGHT_SPOT];
-	uniform LightCamera spotLightCamera[NUM_LIGHT_SPOT];
-	uniform sampler2D spotLightShadowMap[NUM_SHADOWMAP_SPOT];
+	uniform SpotLight uSpotLight[NUM_LIGHT_SPOT];
+	uniform LightCamera uSpotLightCamera[NUM_LIGHT_SPOT];
+	uniform sampler2D uSpotLightShadowMap[NUM_SHADOWMAP_SPOT];
 	
 #endif
 
@@ -62,8 +62,8 @@ float compareShadowDepth( float lightDepth, sampler2D shadowMap, vec2 shadowCoor
 
 void setShadowCoord( vec3 pos, LightCamera camera, inout vec2 shadowCoord, inout float lightDepth ) {
 	
-	vec4 mvPosition = camera.viewMatrix * vec4( pos, 1.0 );
-	vec4 mvpPosition = camera.projectionMatrix * mvPosition;
+	vec4 mvPosition = camera.uViewMatrix * vec4( pos, 1.0 );
+	vec4 mvpPosition = camera.uProjectionMatrix * mvPosition;
 	shadowCoord = ( mvpPosition.xy / mvpPosition.w ) * 0.5 + 0.5;
 	
 	float lightNear = camera.near;

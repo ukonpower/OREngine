@@ -6,16 +6,16 @@ in vec3 vMVPosition;
 in vec3 vMVPPosition;
 in vec2 vVelocity;
 
-uniform mat4 modelMatrix;
-uniform mat4 modelMatrixInverse;
-uniform mat4 viewMatrix;
-uniform mat4 projectionMatrix;
-uniform vec3 cameraPosition;
+uniform mat4 uModelMatrix;
+uniform mat4 uModelMatrixInverse;
+uniform mat4 uViewMatrix;
+uniform mat4 uProjectionMatrix;
+uniform vec3 uCameraPosition;
 uniform vec2 uResolution;
 
 #ifdef IS_DEPTH
-	uniform float cameraNear;
-	uniform float cameraFar;
+	uniform float uCameraNear;
+	uniform float uCameraFar;
 #endif
 
 #ifdef IS_DEFERRED

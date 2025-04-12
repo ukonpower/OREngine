@@ -4,17 +4,17 @@
 		return;
 #endif
 
-vec4 modelPosition = modelMatrix * vec4(outPos, 1.0);
-vec4 mvPosition = viewMatrix * modelPosition;
-gl_Position = projectionMatrix * mvPosition;
+vec4 modelPosition = uModelMatrix * vec4(outPos, 1.0);
+vec4 mvPosition = uViewMatrix * modelPosition;
+gl_Position = uProjectionMatrix * mvPosition;
 
-vec4 modelPositionPrev = modelMatrixPrev * vec4(outPos, 1.0);
-vec4 mvPositionPrev = viewMatrixPrev * modelPositionPrev;
-vec4 positionPrev = projectionMatrixPrev * mvPositionPrev;
+vec4 modelPositionPrev = uModelMatrixPrev * vec4(outPos, 1.0);
+vec4 mvPositionPrev = uViewMatrixPrev * modelPositionPrev;
+vec4 positionPrev = uProjectionMatrixPrev * mvPositionPrev;
 
 vUv = outUv;
-vViewNormal = normalize( (normalMatrix * vec4(outNormal, 0.0)).xyz );
-vNormal = (modelMatrix * vec4(outNormal, 0.0)).xyz;
+vViewNormal = normalize( (uNormalMatrix * vec4(outNormal, 0.0)).xyz );
+vNormal = (uModelMatrix * vec4(outNormal, 0.0)).xyz;
 vPos = modelPosition.xyz;
 vMVPosition = mvPosition.xyz;
 vMVPPosition = gl_Position.xyz / gl_Position.w;

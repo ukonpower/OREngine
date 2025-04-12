@@ -12,11 +12,11 @@ uniform sampler2D sampler0; // position, depth
 uniform sampler2D sampler1; // normal, emissionIntensity
 
 uniform float uTimeEF;
-uniform mat4 cameraMatrix;
-uniform mat4 viewMatrix;
-uniform mat4 projectionMatrix;
-uniform mat4 projectionMatrixInverse;
-uniform vec3 cameraPosition;
+uniform mat4 uCameraMatrix;
+uniform mat4 uViewMatrix;
+uniform mat4 uProjectionMatrix;
+uniform mat4 uProjectionMatrixInverse;
+uniform vec3 uCameraPosition;
 
 #define SAMPLE 16
 uniform vec3 uSSAOKernel[16];
@@ -32,10 +32,10 @@ void main( void ) {
 	vec3 lightShaftSum = vec3( 0.0 );
 
 	vec3 rayPos = texture( sampler0, vUv ).xyz;
-	vec4 rayViewPos = viewMatrix * vec4(rayPos, 1.0);
-	vec4 depthRayPos = viewMatrix * vec4(rayPos, 1.0);
+	vec4 rayViewPos = uViewMatrix * vec4(rayPos, 1.0);
+	vec4 depthRayPos = uViewMatrix * vec4(rayPos, 1.0);
 
-	if( rayPos.x + rayPos.y + rayPos.z == 0.0 || length(rayPos - cameraPosition) > 100.0 ) return;
+	if( rayPos.x + rayPos.y + rayPos.z == 0.0 || length(rayPos - uCameraPosition) > 100.0 ) return;
 
 	vec3 normal = texture( sampler1, vUv ).xyz;
 	float occlusion = 0.0;
@@ -57,12 +57,12 @@ void main( void ) {
 		vec3 sampleOffset = kernelMatrix * uSSAOKernel[i];
 		vec3 samplePos = rayPos + sampleOffset * dist;
 
-		vec4 depthCoord = (projectionMatrix * viewMatrix * vec4( samplePos, 1.0 ) );
+		vec4 depthCoord = (uProjectionMatrix * uViewMatrix * vec4( samplePos, 1.0 ) );
 		depthCoord.xy /= depthCoord.w;
 		depthCoord.xy = depthCoord.xy * 0.5 + 0.5;
 
-		vec4 samplerPos = (viewMatrix * vec4(texture( sampler0, depthCoord.xy ).xyz, 1.0));
-		vec4 sampleViewPos = viewMatrix * vec4( samplePos, 1.0 );
+		vec4 samplerPos = (uViewMatrix * vec4(texture( sampler0, depthCoord.xy ).xyz, 1.0));
+		vec4 sampleViewPos = uViewMatrix * vec4( samplePos, 1.0 );
 
 		if( sampleViewPos.z < samplerPos.z && sampleViewPos.z >= samplerPos.z - objectDepth ) {
 
