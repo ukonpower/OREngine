@@ -16,7 +16,12 @@
 		1
 	],
 	"scene": {
-		"name": "root"
+		"name": "root",
+		"childs": [
+			{
+				"name": "SPZ"
+			}
+		]
 	},
 	"overrides": [
 		{
@@ -36,6 +41,14 @@
 				},
 				{
 					"name": "UniformControls"
+				}
+			]
+		},
+		{
+			"path": "/root/SPZ",
+			"components": [
+				{
+					"name": "SPZModel"
 				}
 			]
 		},
