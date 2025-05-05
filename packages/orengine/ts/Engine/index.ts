@@ -29,7 +29,6 @@ export class Engine extends MXP.Entity {
 
 	private _renderer: MXP.Renderer;
 	private _gl: WebGL2RenderingContext;
-	private _canvasWrapElm: HTMLElement;
 	private _canvas: HTMLCanvasElement | OffscreenCanvas;
 	private _projectCache: OREngineProjectData | null;
 	private _uniforms: GLP.Uniforms;
@@ -65,24 +64,6 @@ export class Engine extends MXP.Entity {
 		-------------------------------*/
 
 		this._canvas = gl.canvas;
-		this._canvasWrapElm = document.createElement( "div" );
-		this._canvasWrapElm.setAttribute( "style", "position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;" );
-		this._canvasWrapElm.setAttribute( "data-time", new Date().getTime().toString() );
-
-		if ( "childNodes" in this._canvas ) {
-
-			this._canvasWrapElm.appendChild( this._canvas );
-
-		}
-
-		const onResize = () => {
-
-			this.resize();
-
-		};
-
-		const resizeObserver = new ResizeObserver( onResize );
-		resizeObserver.observe( this._canvasWrapElm );
 
 		/*-------------------------------
 			Renderer
@@ -163,27 +144,8 @@ export class Engine extends MXP.Entity {
 		tl.field( "fps", () => this._frameSetting.fps, ( v ) => this._frameSetting.fps = v );
 
 		/*-------------------------------
-			Dispose
-		-------------------------------*/
-
-		const onDispose = () => {
-
-			resizeObserver.disconnect();
-
-		};
-
-		this.once( "dispose", onDispose );
-
-		/*-------------------------------
-			Resize
-		-------------------------------*/
-
-		this.setSize( new GLP.Vector( 1920, 1080 ) );
-
-		/*-------------------------------
 			Register
 		-------------------------------*/
-
 
 	}
 
@@ -211,12 +173,6 @@ export class Engine extends MXP.Entity {
 
 	}
 
-	public get canvasWrapElm() {
-
-		return this._canvasWrapElm;
-
-	}
-
 	public get canvas() {
 
 		return this._canvas;
@@ -226,6 +182,12 @@ export class Engine extends MXP.Entity {
 	public get renderer() {
 
 		return this._renderer;
+
+	}
+
+	public get root() {
+
+		return this._root;
 
 	}
 
@@ -335,28 +297,6 @@ export class Engine extends MXP.Entity {
 		this._renderer.resize( resolution );
 		this._canvas.width = resolution.x;
 		this._canvas.height = resolution.y;
-
-	}
-
-	public resize() {
-
-		const wrapperRect = this.canvasWrapElm.getBoundingClientRect();
-		const canvasAspect = this._canvas.width / this._canvas.height;
-		const wrapperAspect = wrapperRect.width / wrapperRect.height;
-
-		if ( ! ( "style" in this._canvas ) ) return;
-
-		if ( canvasAspect > wrapperAspect ) {
-
-			this._canvas.style.width = "100%";
-			this._canvas.style.height = "auto";
-
-		} else {
-
-			this._canvas.style.width = "auto";
-			this._canvas.style.height = "100%";
-
-		}
 
 	}
 
