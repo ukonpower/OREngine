@@ -24,6 +24,7 @@ export * from './Geometry/PlaneGeometry';
 export * from './Geometry/RingGeometry';
 export * from './Geometry/SphereGeometry';
 export * from './Loaders/GLTFLoader';
+export * from './Loaders/SPZLoader';
 export * from './Material';
 export * from './PostProcess';
 export * from './PostProcess/PostProcessPass';
