@@ -28,7 +28,9 @@ in vec3 vViewSpacePosition;
 #endif
 
 // 出力カラー
-out vec4 outColor;
+layout (location = 0) out vec4 outColor0;
+layout (location = 1) out vec4 outColor1;
+layout (location = 2) out vec4 outColor2;
 
 // 球面調和関数の係数
 const float SH_C0 = 0.28209479177387814;
@@ -200,5 +202,7 @@ void main() {
     #endif
     
     // 最終的なカラーと透明度を設定
-    outColor = vec4(finalColor, vAlpha * density);
+    outColor0 = vec4(finalColor, vAlpha * density);
+    outColor1 = vec4(0.0); // 追加の出力バッファをクリア
+    outColor2 = vec4(0.0); // 追加の出力バッファをクリア
 } 
