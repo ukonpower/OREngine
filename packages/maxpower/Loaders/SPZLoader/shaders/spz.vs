@@ -1,8 +1,8 @@
 #include <common>
 
-uniform mat4 modelMatrix;
-uniform mat4 viewMatrix;
-uniform mat4 projectionMatrix;
+uniform mat4 uModelMatrix;
+uniform mat4 uViewMatrix;
+uniform mat4 uProjectionMatrix;
 uniform float uSplatSize;
 
 // ガウシアンスプラットの属性
@@ -65,14 +65,14 @@ out vec3 vViewSpacePosition;
 
 void main() {
     // モデル座標系からワールド座標系への変換
-    vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+    vec4 worldPosition = uModelMatrix * vec4(position, 1.0);
     
     // ビュー座標系への変換
-    vec4 viewPosition = viewMatrix * worldPosition;
+    vec4 viewPosition = uViewMatrix * worldPosition;
     vViewSpacePosition = viewPosition.xyz;
     
     // 射影変換
-    gl_Position = projectionMatrix * viewPosition;
+    gl_Position = uProjectionMatrix * viewPosition;
     
     // スプラットのサイズとスケールに基づいてポイントサイズを設定
     // スケールの最大値を使用
