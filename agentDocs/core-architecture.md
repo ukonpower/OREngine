@@ -1,142 +1,98 @@
 # OREngine コアアーキテクチャ
 
-## システム構成
+OREngine は、エンティティコンポーネントシステムをベースにした 3D グラフィックスエンジンです。
 
-OREngine のコアは以下のような階層構造で設計されています：
+## システム構成図
 
 ```mermaid
-graph TB
-    Engine[Engine] --> Renderer[Renderer]
-    Engine --> Scene[Scene]
-    Scene --> Entity[Entity]
-    Entity --> Components[Components]
+classDiagram
+    Engine --|> Entity
+    Entity --|> Component
+    Component <|-- Camera
+    Component <|-- Light
+    Component <|-- Mesh
+    Component <|-- Renderer
+    Renderer <|-- DeferredRenderer
+    Renderer <|-- PipelinePostProcess
 
-    subgraph Components
-      Camera[Camera]
-      Light[Light]
-      Mesh[Mesh]
-      PostProcess[PostProcess]
-    end
+    class Engine {
+        +update()
+        +render()
+    }
 
-    Renderer --> RenderStack[RenderStack]
-    RenderStack --> DeferredRenderer[DeferredRenderer]
-    RenderStack --> ForwardRenderer[ForwardRenderer]
-    RenderStack --> PostProcess
+    class Entity {
+        +addComponent()
+        +getComponent()
+        +children[]
+    }
+
+    class Component {
+        +entity: Entity
+        +enabled: boolean
+        +update()
+    }
+
+    class Camera {
+        +projection: Matrix4
+        +view: Matrix4
+    }
+
+    class Light {
+        +color: Vector3
+        +intensity: number
+    }
+
+    class Mesh {
+        +geometry: Geometry
+        +material: Material
+    }
+
+    class Renderer {
+        +render()
+        +setSize()
+    }
 ```
 
-## コア機能の関係性
+## システム概要
 
-### Entity システム
+### Engine
 
-- すべてのゲームオブジェクトの基本となる
-- 階層構造（親子関係）をサポート
-- Transform 情報（位置、回転、スケール）を管理
-- 複数のコンポーネントをアタッチ可能
+エンジン全体を管理する中心的なクラスです。シーングラフの更新やレンダリングのライフサイクルを制御します。
+
+### Entity
+
+階層構造を持つシーングラフの基本単位です。複数の Component を保持することができ、3D 空間での位置や回転などの変換を管理します。
+
+### Component
+
+Entity にアタッチされるモジュールのベースクラスです。具体的な機能（レンダリング、カメラ、ライトなど）を実装します。
+
+主要なコンポーネント：
+
+- Camera: シーンのビュー行列とプロジェクション行列を管理
+- Light: シーンの照明を制御
+- Mesh: 3D モデルの表示を担当
+- Renderer: シーンのレンダリングを実行
 
 ### レンダリングパイプライン
 
 ```mermaid
-graph LR
-    Scene --> RenderStack[RenderStack収集]
-    RenderStack --> ShadowPass[シャドウマップパス]
-    RenderStack --> EnvPass[環境マップパス]
-    RenderStack --> GBuffer[G-Bufferパス]
-    GBuffer --> Deferred[Deferredパス]
-    Deferred --> Forward[Forwardパス]
-    Forward --> PostProcess[ポストプロセス]
+flowchart TB
+    Scene[シーン] --> DR[Deferred Renderer]
+    DR --> GBuf[Gバッファ生成]
+    GBuf --> Light[ライティング]
+    Light --> PP[ポストプロセス]
+    PP --> Out[最終出力]
+
+    style Scene fill:#f9f,stroke:#333
+    style DR fill:#bbf,stroke:#333
+    style GBuf fill:#bfb,stroke:#333
+    style Light fill:#fbf,stroke:#333
+    style PP fill:#fbb,stroke:#333
+    style Out fill:#fff,stroke:#333
 ```
 
-1. **RenderStack の収集**
-
-   - カメラ
-   - ライト
-   - シャドウマップ用メッシュ
-   - デファードレンダリング用メッシュ
-   - フォワードレンダリング用メッシュ
-   - UI 要素
-
-2. **レンダリングパス**
-   - シャドウマップの生成
-   - 環境マップの生成
-   - G-Buffer への描画
-   - ディファードライティング
-   - フォワードレンダリング
-   - ポストプロセス効果の適用
-
-### コンポーネントの役割
-
-1. **Camera**
-
-   - ビュー行列とプロジェクション行列の管理
-   - レンダリングターゲットの設定
-   - ビューポートの制御
-
-2. **Light**
-
-   - ディレクショナルライト
-   - スポットライト
-   - シャドウマッピング
-
-3. **Mesh**
-
-   - ジオメトリデータの管理
-   - マテリアルの適用
-   - レンダリング設定
-
-4. **PostProcess**
-   - イメージエフェクトの適用
-   - マルチパスレンダリング
-   - カスタムシェーダーの適用
-
-## データフロー
-
-### レンダリングプロセス
-
-1. シーンのトラバース
-
-   ```typescript
-   Scene
-     ↓
-   Entity (traverse)
-     ↓
-   RenderStack収集
-     ↓
-   各種レンダリングパス
-   ```
-
-2. マテリアルとシェーダー
-   ```typescript
-   Material
-     ↓
-   ShaderProgram生成
-     ↓
-   Uniformデータ設定
-     ↓
-   描画コマンド実行
-   ```
-
-### コンポーネント間の通信
-
-- イベントシステムによる疎結合な通信
-- 直接参照による効率的なアクセス
-- Entity を介したコンポーネント間のデータ共有
-
-## パフォーマンス最適化
-
-1. **レンダリングの最適化**
-
-   - GPU インスタンシング
-   - フラスタムカリング
-   - シェーダーの動的コンパイル
-
-2. **メモリ管理**
-   - VAO とバッファのキャッシング
-   - テクスチャユニットの効率的な管理
-   - GPU ステートの最適化
-
-## 拡張性
-
-- プラグインシステム
-- カスタムコンポーネント
-- シェーダーの拡張
-- ポストプロセスの追加
+1. Deferred Renderer がシーンの情報を G バッファに書き込み
+2. G バッファの情報を基にライティング計算を実行
+3. ポストプロセスパイプラインで画像効果を適用
+4. 最終的な画像を出力
