@@ -241,6 +241,92 @@ class UniformManager {
 }
 ```
 
+## シェーダーシステム
+
+OREngine は独自のシェーダーシステムを実装しており、モジュラー方式のシェーダー開発を可能にしています。
+
+### シェーダーモジュールシステム
+
+```mermaid
+graph TD
+    Shader[シェーダーファイル] --> Parser[ShaderParser]
+    Modules[シェーダーモジュール] --> Parser
+    Parser --> Final[最終シェーダーコード]
+
+    subgraph "シェーダーモジュール"
+    M1[common]
+    M2[light]
+    M3[noise]
+    M4[sdf]
+    end
+
+    style Shader fill:#f9f,stroke:#333
+    style Parser fill:#bbf,stroke:#333
+    style Modules fill:#bfb,stroke:#333
+    style Final fill:#fbf,stroke:#333
+```
+
+シェーダーモジュールシステムは`#include <モジュール名>`構文を使用して、共通のシェーダーコードを再利用可能な形で管理します。
+
+### 基本的なシェーダー構造
+
+最小限の頂点シェーダー:
+
+```glsl
+#include <common>
+#include <vert_h>
+
+void main( void ) {
+    #include <vert_in>
+    #include <vert_out>
+}
+```
+
+最小限のフラグメントシェーダー:
+
+```glsl
+#include <common>
+#include <packing>
+#include <frag_h>
+
+void main( void ) {
+    #include <frag_in>
+    #include <frag_out>
+}
+```
+
+### シェーダー処理パイプライン
+
+```mermaid
+graph LR
+    A[元シェーダー] --> B[Define挿入]
+    B --> C[モジュール展開]
+    C --> D[ライト情報挿入]
+    D --> E[ループアンロール]
+    E --> F[最終シェーダー]
+
+    style A fill:#f9f,stroke:#333
+    style B fill:#bbf,stroke:#333
+    style C fill:#bfb,stroke:#333
+    style D fill:#fbf,stroke:#333
+    style E fill:#fbb,stroke:#333
+    style F fill:#fff,stroke:#333
+```
+
+1. **Define 挿入**: コンパイル時の条件分岐や定数の定義
+2. **モジュール展開**: #include 文の解決と共通コードの挿入
+3. **ライト情報挿入**: シーン内のライト情報の自動挿入
+4. **ループアンロール**: パフォーマンス最適化のためのループ展開
+
+### 主要なシェーダーモジュール
+
+- **common**: 共通の数学関数や変換
+- **light**: ライティング計算
+- **noise**: 各種ノイズ関数（Simplex, Value, Cyclic）
+- **sdf**: Signed Distance Functions
+- **rotate**: 回転行列
+- **pmrem**: 環境マッピング
+
 ## デバッグとプロファイリング
 
 1. **GPU タイマークエリ**
