@@ -564,9 +564,284 @@ jobs:
           path: performance-report.json
 ```
 
-## 次のステップ
+## 9. Renderer クラスの最適化
 
-1. プロトタイプ実装による検証
-2. パフォーマンステスト
-3. マイグレーションガイドの作成
-4. ドキュメントの更新
+### 現状の課題
+
+- render メソッドが長すぎて理解しづらい
+- WebGL 状態の切り替えが多い
+- シェーダーの再コンパイルが頻繁に発生
+- リソース管理が非効率
+
+### 改善案
+
+```typescript
+export class Renderer extends Entity {
+  // 主要なメソッドをより効率的に整理
+  public render(entity: Entity, event: EntityUpdateEvent) {
+    // ステート変更を最小限に抑える
+    this.minimizeStateChanges(() => {
+      const stack = this.getRenderStack(entity);
+
+      // シャドウマップ
+      if (this._lightsUpdated) {
+        this.renderShadowMaps(stack);
+      }
+
+      // 環境マップ
+      this.renderEnvironmentMap(stack);
+
+      // メインパス
+      for (const camera of stack.camera) {
+        this.renderMainPass(camera, stack);
+      }
+    });
+  }
+
+  // WebGL状態変更の最小化
+  private minimizeStateChanges(renderFn: () => void) {
+    const initialState = this.captureGLState();
+    renderFn();
+    this.restoreGLState(initialState);
+  }
+
+  // シェーダーのバリアント管理を効率化
+  private getShaderVariant(material: Material, renderType: string): string {
+    // キーとなる特性だけを使用してバリアントを生成
+    const key = this.generateShaderKey(material, renderType);
+    return (
+      this.shaderCache[key] || this.compileShader(material, renderType, key)
+    );
+  }
+
+  // バッチ処理の最適化
+  private batchGeometries(entities: Entity[]): BatchedDrawCalls[] {
+    // 同じマテリアル/ジオメトリのエンティティをグループ化
+    return this.groupEntities(entities).map((group) => ({
+      material: group[0].material,
+      instances: group.map((e) => e.transform),
+    }));
+  }
+
+  // リソース管理の効率化
+  private manageResources() {
+    // WebGLリソースを最小限に抑える
+    this.disposeUnusedResources();
+    this.reuseTextures();
+  }
+}
+```
+
+### 改善点
+
+1. コード容量の最適化
+
+   - 必要最小限のコードに削減
+   - 共通処理の統合
+   - 不要な抽象化を排除
+
+2. レンダリングの効率化
+
+   - WebGL 状態変更の最小化
+   - バッチ処理の最適化
+   - シェーダーバリアントの効率的管理
+
+3. メモリ使用量の最適化
+
+   - リソースの再利用
+   - テクスチャアトラスの活用
+   - 不要なオブジェクト生成の抑制
+
+4. パフォーマンス改善
+   - ステート変更の最小化
+   - 効率的なバッチ処理
+   - メモリアロケーションの削減
+
+### メリット
+
+1. ファイルサイズの削減
+
+   - 必要最小限のコード
+   - 共通処理の再利用
+   - 不要な抽象化の排除
+
+2. 実行パフォーマンスの向上
+
+   - 効率的なメモリ使用
+   - WebGL API コールの削減
+   - バッチ処理の最適化
+
+3. 開発の容易さ
+   - シンプルな構造
+   - 理解しやすいコード
+   - デバッグのしやすさ
+
+## 10. 64KB 制約下での最適化
+
+### 重要な制約条件
+
+- 最終的な HTML ファイルサイズが 64KB 以下
+- WebGL を用いた高品質なリアルタイムレンダリング
+- 必要最小限のコード容量
+
+### 優先すべき改善点
+
+1. WebGL 状態管理の最適化
+
+   ```typescript
+   export class Renderer extends Entity {
+     private glState: {
+       blend: boolean;
+       depthTest: boolean;
+       cullFace: boolean;
+       program: WebGLProgram | null;
+     } = {
+       blend: false,
+       depthTest: true,
+       cullFace: true,
+       program: null,
+     };
+
+     private updateGLState(newState: Partial<typeof this.glState>) {
+       // ステートの変更が必要な場合のみWebGL APIを呼び出し
+       if (
+         newState.blend !== undefined &&
+         newState.blend !== this.glState.blend
+       ) {
+         if (newState.blend) this.gl.enable(this.gl.BLEND);
+         else this.gl.disable(this.gl.BLEND);
+         this.glState.blend = newState.blend;
+       }
+       // 他のステートも同様に処理
+     }
+   }
+   ```
+
+2. レンダリングパスの効率化
+
+   ```typescript
+   export class Renderer extends Entity {
+     // 描画対象ごとにバッチ化して処理
+     private renderGeometries(geometries: Geometry[], pass: RenderPass) {
+       // マテリアルでソート
+       const sortedGeometries = geometries.sort(
+         (a, b) => a.material.id - b.material.id
+       );
+
+       let currentMaterial = null;
+       let currentProgram = null;
+
+       for (const geometry of sortedGeometries) {
+         if (geometry.material !== currentMaterial) {
+           // マテリアルが変わる時だけシェーダーを切り替え
+           currentMaterial = geometry.material;
+           const program = this.getProgram(currentMaterial, pass);
+
+           if (program !== currentProgram) {
+             this.gl.useProgram(program);
+             currentProgram = program;
+           }
+
+           this.updateMaterialUniforms(currentMaterial);
+         }
+
+         this.drawGeometry(geometry);
+       }
+     }
+   }
+   ```
+
+3. メモリ管理の最適化
+
+   ```typescript
+   export class Renderer extends Entity {
+     // TypedArrayの再利用
+     private uniformBuffers = {
+       modelMatrix: new Float32Array(16),
+       viewMatrix: new Float32Array(16),
+       projectionMatrix: new Float32Array(16),
+     };
+
+     private updateMatrixUniforms(
+       program: WebGLProgram,
+       transforms: Transforms
+     ) {
+       // 既存のTypedArrayを再利用してデータを更新
+       this.uniformBuffers.modelMatrix.set(transforms.model);
+       this.gl.uniformMatrix4fv(
+         this.gl.getUniformLocation(program, 'uModelMatrix'),
+         false,
+         this.uniformBuffers.modelMatrix
+       );
+       // 他の行列も同様に処理
+     }
+   }
+   ```
+
+4. シェーダー最適化
+
+   ```glsl
+   // 共通の計算を関数化
+   vec3 calculateWorldNormal(vec3 normal, mat4 modelMatrix) {
+     return normalize(
+       (modelMatrix * vec4(normal, 0.0)).xyz
+     );
+   }
+
+   vec2 calculateScreenUV(vec4 projPosition) {
+     return projPosition.xy / projPosition.w * 0.5 + 0.5;
+   }
+   ```
+
+### アンチパターン
+
+以下の実装は避けるべき：
+
+- 過度なクラス分割
+- 複雑な抽象化層
+- 大きな依存関係
+- 汎用的すぎるインターフェース
+
+### 推奨される実装パターン
+
+1. フラットな構造
+
+   ```typescript
+   // シンプルな実装
+   const r = {
+     d: [], // drawcalls
+     l: [], // lights
+     render() {
+       // minimal render logic
+     },
+   };
+   ```
+
+2. 直接的なメモリ管理
+
+   ```typescript
+   // Typed Arrayの直接操作
+   const b = new Float32Array(1024);
+   let p = 0;
+
+   function alloc(size) {
+     const o = p;
+     p += size;
+     return o;
+   }
+   ```
+
+3. シェーダーの共有
+   ```glsl
+   // 共有シェーダーコード
+   #define PI 3.14159
+   #define P(p) (p.xyz/p.w)
+   #define N normalize
+   ```
+
+### 次のステップ
+
+1. 現在のコードサイズの計測
+2. 圧縮率の検証
+3. 最小化ツールの選定
+4. パフォーマンス検証
