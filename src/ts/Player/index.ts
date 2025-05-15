@@ -31,7 +31,8 @@ document.body.innerHTML = `
 		#cw{${pointerEventsNone}${fullFlexCenter}${opacity0}}
 		canvas{${full}object-fit:contain;}
 		#l{${pointerEventsNone}${positionAbsolute}width:100%;}
-		#b{width:100%;height:1px;background:#fff;margin-bottom:10px;}
+		#b{width:100%;height:1px;background:#fff;margin-bottom:10px;transform-origin:left;transition:transform 0.3s;}
+		#t{font-size:11px;margin-top:5px;}
 		#m{${pointerEventsNone}${opacity0}}
 		#e{${fullFlexCenter}${opacity0}${pointerEventsNone}}
 	</style>
@@ -62,6 +63,8 @@ const rootElm = document.getElementById( 'r' )!;
 const screenWrapElm = document.getElementById( 'cw' )!;
 const menuElm = document.getElementById( 'm' )!;
 const loadingElm = document.getElementById( 'l' )!;
+const loadingBarElm = document.getElementById( 'b' )!;
+const loadingTextElm = document.getElementById( 't' )!;
 const exitElm = document.getElementById( 'e' )!;
 
 /*-------------------------------
@@ -101,6 +104,7 @@ fullScreen.onclick = () => {
 
 const playButton = document.getElementById( 'pl' ) as HTMLButtonElement;
 playButton.disabled = true;
+
 playButton.onclick = () => {
 
 	menuElm.style.opacity = "0";
@@ -135,12 +139,31 @@ playButton.onclick = () => {
 	Load
 -------------------------------*/
 
+engine.on( 'loadProgress', ( progress: number ) => {
+
+	loadingElm.style.opacity = `${progress}`;
+
+} );
+
+
 engine.on( 'loaded', () => {
 
-	loadingElm.style.opacity = "0";
-	menuElm.style.opacity = "1";
-	menuElm.style.pointerEvents = "auto";
-	playButton.disabled = false;
+	setTimeout( () => {
+
+		engine.compileShaders( ( label, loaded, total ) => {
+
+			console.log( label, loaded, total );
+
+		} ).then( () => {
+
+			loadingElm.style.opacity = "0";
+			menuElm.style.opacity = "1";
+			menuElm.style.pointerEvents = "auto";
+			playButton.disabled = false;
+
+		} );
+
+	}, 100 );
 
 } );
 

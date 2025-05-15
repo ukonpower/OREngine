@@ -257,16 +257,7 @@ export class Engine extends MXP.Entity {
 		this._time.code += this._time.delta * ( this._frame.playing ? 1 : 0 );
 		this._frame.current = this._time.code * 60;
 
-		const event: MXP.EntityUpdateEvent = {
-			playing: this._frame.playing,
-			timeElapsed: this._time.engine,
-			timeDelta: this._time.delta,
-			timeCode: this._time.code,
-			timeCodeFrame: this._frame.current,
-			resolution: this.renderer.resolution,
-			renderer: this.renderer,
-			forceDraw: param && param.forceDraw,
-		};
+		const event = this.createEntityUpdateEvent( { forceDraw: param?.forceDraw } );
 
 		this._uniforms.uTimeE.value = this._time.engine;
 
@@ -289,7 +280,34 @@ export class Engine extends MXP.Entity {
 	}
 
 	/*-------------------------------
-		Resize
+		CreateEntityUpdateEvent
+	-------------------------------*/
+
+	public createEntityUpdateEvent( overrideParams?: Partial<MXP.EntityUpdateEvent> ): MXP.EntityUpdateEvent {
+
+		const defaultEvent: MXP.EntityUpdateEvent = {
+			playing: this._frame.playing,
+			timeElapsed: this._time.engine,
+			timeDelta: this._time.delta,
+			timeCode: this._time.code,
+			timeCodeFrame: this._frame.current,
+			resolution: this.renderer.resolution,
+			renderer: this.renderer,
+			forceDraw: false,
+		};
+
+		if ( overrideParams ) {
+
+			return { ...defaultEvent, ...overrideParams };
+
+		}
+
+		return defaultEvent;
+
+	}
+
+	/*-------------------------------
+		SetSize
 	-------------------------------*/
 
 	public setSize( resolution: GLP.Vector ) {
@@ -323,6 +341,18 @@ export class Engine extends MXP.Entity {
 		this._time.code = frame / 60;
 
 		this.emit( "update/frame/play", [ this._frame ] );
+
+	}
+
+	/*-------------------------------
+		CompileShaders
+	-------------------------------*/
+
+	public compileShaders( onProgress?: ( label: string, loaded: number, total: number ) => void ) {
+
+		const event = this.createEntityUpdateEvent( { forceDraw: true } );
+
+		return this.renderer.compileShaders( this._root, event, onProgress );
 
 	}
 
