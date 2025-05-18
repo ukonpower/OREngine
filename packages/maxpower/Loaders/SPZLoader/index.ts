@@ -1,5 +1,6 @@
 import * as GLP from 'glpower';
 
+import { Camera } from '../../Component/Camera';
 import { Mesh } from '../../Component/Mesh';
 import { Entity } from '../../Entity';
 import { Geometry } from '../../Geometry';
@@ -30,6 +31,7 @@ export type SPZHeader = {
 
 export type SPZResult = {
 	scene: Entity;
+	updateSort: ( camera: Camera ) => void;
 }
 
 export type SPZLoaderOptions = {
@@ -37,6 +39,7 @@ export type SPZLoaderOptions = {
 	targetCoordinateSystem?: CoordinateSystem; // 出力データの座標系
 	antialias?: boolean;
 	isCompressed?: boolean; // データがgzipで圧縮されているかどうか
+	sortEnabled?: boolean; // 深度ソートを有効にするかどうか
 }
 
 // 固定小数点からの変換用定数
@@ -73,6 +76,7 @@ export class SPZLoader extends GLP.EventEmitter {
 			targetCoordinateSystem: CoordinateSystem.RUB, // OpenGL標準
 			antialias: true,
 			isCompressed: true, // デフォルトでは圧縮されていると仮定
+			sortEnabled: true, // デフォルトで深度ソートを有効にする
 			...options
 		};
 
@@ -112,11 +116,9 @@ export class SPZLoader extends GLP.EventEmitter {
 		}
 
 		// 6. メッシュの生成
-		const entity = this.createGaussianEntity( gaussianData, header, opts );
+		const result = this.createGaussianEntity( gaussianData, header, opts );
 
-		return {
-			scene: entity
-		};
+		return result;
 
 	}
 
@@ -558,7 +560,7 @@ export class SPZLoader extends GLP.EventEmitter {
 
 	}
 
-	private createGaussianEntity( gaussianData: SPZGaussianData, header: SPZHeader, options: SPZLoaderOptions ): Entity {
+	private createGaussianEntity( gaussianData: SPZGaussianData, header: SPZHeader, options: SPZLoaderOptions ): SPZResult {
 
 		const entity = new Entity();
 		entity.name = "SPZGaussianSplat";
@@ -589,23 +591,97 @@ export class SPZLoader extends GLP.EventEmitter {
 		geometry.setAttribute( "position", planePositions, 3 );
 		geometry.setAttribute( "uv", planeUVs, 2 );
 
-		// インスタンス属性の設定
+		// インスタンス数の設定
 		const numPoints = gaussianData.positions.length / 3;
 
-		// 基本的な属性をインスタンス属性として設定
-		geometry.setAttribute( "instancePosition", gaussianData.positions, 3, { instanceDivisor: 1 } );
-		geometry.setAttribute( "instanceColor", gaussianData.colors, 3, { instanceDivisor: 1 } );
-		geometry.setAttribute( "instanceScale", gaussianData.scales, 3, { instanceDivisor: 1 } );
-		geometry.setAttribute( "instanceRotation", gaussianData.rotations, 4, { instanceDivisor: 1 } );
-		geometry.setAttribute( "instanceAlpha", gaussianData.alphas, 1, { instanceDivisor: 1 } );
+		// インスタンスIDのみをアトリビュートとして設定
+		const instanceIds = new Float32Array( numPoints );
+		for ( let i = 0; i < numPoints; i ++ ) {
 
-		// 球面調和関数のユニフォーム変数
+			instanceIds[ i ] = i;
+
+		}
+
+		geometry.setAttribute( "instanceId", instanceIds, 1, { instanceDivisor: 1 } );
+
+		// テクスチャデータの準備
+		// ガウシアンスプラットのデータをテクスチャにパッキング
+		// テクスチャサイズの計算（2のべき乗にする）
+		const texWidth = Math.pow( 2, Math.ceil( Math.log2( Math.sqrt( numPoints * 2 ) ) ) );
+		const texHeight = Math.pow( 2, Math.ceil( Math.log2( ( numPoints * 2 ) / texWidth ) ) );
+
+		// データをテクスチャに格納するためのバッファ
+		const textureData = new Float32Array( texWidth * texHeight * 4 );
+		textureData.fill( 0 );
+
+		// データパッキング: 各ガウシアンの情報をテクスチャに詰め込む
+		for ( let i = 0; i < numPoints; i ++ ) {
+
+			// 1番目のテクセル: 位置データ (xyz)
+			const posIdx = i * 2 * 4; // 各ガウシアンに2テクセル使用
+			textureData[ posIdx + 0 ] = gaussianData.positions[ i * 3 + 0 ]; // x
+			textureData[ posIdx + 1 ] = gaussianData.positions[ i * 3 + 1 ]; // y
+			textureData[ posIdx + 2 ] = gaussianData.positions[ i * 3 + 2 ]; // z
+			textureData[ posIdx + 3 ] = gaussianData.alphas[ i ]; // アルファ値
+
+			// 2番目のテクセル: スケール、回転、色
+			const attrIdx = posIdx + 4;
+			// スケール (xyz)
+			textureData[ attrIdx + 0 ] = gaussianData.scales[ i * 3 + 0 ];
+			textureData[ attrIdx + 1 ] = gaussianData.scales[ i * 3 + 1 ];
+			textureData[ attrIdx + 2 ] = gaussianData.scales[ i * 3 + 2 ];
+
+			// 色情報はRGBA形式で1つのfloatに詰め込む (ビットパッキング)
+			const r = Math.min( 255, Math.max( 0, Math.floor( gaussianData.colors[ i * 3 + 0 ] * 255 ) ) );
+			const g = Math.min( 255, Math.max( 0, Math.floor( gaussianData.colors[ i * 3 + 1 ] * 255 ) ) );
+			const b = Math.min( 255, Math.max( 0, Math.floor( gaussianData.colors[ i * 3 + 2 ] * 255 ) ) );
+			const a = 255; // 完全不透明
+
+			// ビットパッキング: 32ビットのfloatにRGBA値を詰め込む
+			// floatのビット表現をUint32として解釈し、そこにRGBAを詰め込む
+			const colorBits = ( r ) | ( g << 8 ) | ( b << 16 ) | ( a << 24 );
+			const colorFloat = new Float32Array( new Uint32Array( [ colorBits ] ).buffer )[ 0 ];
+			textureData[ attrIdx + 3 ] = colorFloat;
+
+		}
+
+		// 3番目のテクセルグループ: 回転情報 (クォータニオン)
+		for ( let i = 0; i < numPoints; i ++ ) {
+
+			const rotIdx = ( numPoints * 2 * 4 ) + ( i * 4 ); // 位置&スケールの後に配置
+			textureData[ rotIdx + 0 ] = gaussianData.rotations[ i * 4 + 0 ]; // x
+			textureData[ rotIdx + 1 ] = gaussianData.rotations[ i * 4 + 1 ]; // y
+			textureData[ rotIdx + 2 ] = gaussianData.rotations[ i * 4 + 2 ]; // z
+			textureData[ rotIdx + 3 ] = gaussianData.rotations[ i * 4 + 3 ]; // w
+
+		}
+
+		// データテクスチャの作成
+		const dataTexture = new GLP.GLPowerTexture( this.gl );
+		dataTexture.setting( {
+			type: this.gl.FLOAT,
+			internalFormat: this.gl.RGBA32F,
+			format: this.gl.RGBA,
+			magFilter: this.gl.NEAREST,
+			minFilter: this.gl.NEAREST,
+		} );
+
+		// テクスチャにデータをアタッチ
+		dataTexture.attach( {
+			width: texWidth,
+			height: texHeight,
+			data: textureData
+		} );
+
+		// ユニフォーム変数の設定
 		const uniforms: GLP.Uniforms = {
-			// ガウシアンスプラットレンダリングに必要なユニフォーム変数
+			uDataTexture: { value: dataTexture, type: '1i' },
+			uDataTexSize: { value: [ texWidth, texHeight ], type: '2fv' },
+			uPointCount: { value: numPoints, type: '1f' },
 			uSplatSize: { value: 1.0, type: "1f" },
 		};
 
-		// 球面調和関数の係数を追加（存在する場合）
+		// 球面調和関数のテクスチャ処理（既存コード）
 		if ( gaussianData.sphericalHarmonics ) {
 
 			const shDegree = header.shDegree;
@@ -679,7 +755,6 @@ export class SPZLoader extends GLP.EventEmitter {
 			// マテリアルにテクスチャとサイズ情報を設定
 			uniforms.uSHTexture = { value: texture, type: '1i' };
 			uniforms.uSHTexSize = { value: [ texWidth, texHeight ], type: '2fv' };
-			uniforms.uPointCount = { value: numPoints, type: '1f' };
 			uniforms.uSHCoeffCount = { value: numCoeffs, type: '1f' };
 			uniforms.uMaxCoeffCount = { value: maxCoeffs, type: '1f' };
 
@@ -693,18 +768,28 @@ export class SPZLoader extends GLP.EventEmitter {
 			drawType: "TRIANGLES", // 三角形プリミティブとして描画（平面メッシュ用）
 			uniforms: {
 				...uniforms,
-				uInstanceCount: { value: numPoints, type: '1i' }
+				uInstanceCount: { value: numPoints, type: '1i' },
+				uSortIndices: { value: null, type: '1i' } // ソート用のインデックステクスチャ
 			},
 			defines: {
 				"USE_GAUSSIAN_SPLAT": "",
+				"USE_TEXTURE_DATA": "", // テクスチャベースのデータ使用フラグ
 				"SH_DEGREE": header.shDegree.toString()
-			}
+			},
+			blending: "NORMAL"
 		} );
 
 		// アンチエイリアスフラグをチェック
 		if ( ( header.flags & 0x1 ) !== 0 || options.antialias ) {
 
 			material.defines[ "USE_ANTIALIAS" ] = "";
+
+		}
+
+		// ソート機能が有効ならUSE_SORTINGを定義
+		if ( options.sortEnabled !== false ) {
+
+			material.defines[ "USE_SORTING" ] = "";
 
 		}
 
@@ -724,7 +809,6 @@ export class SPZLoader extends GLP.EventEmitter {
 				if ( module ) {
 
 					material.frag = hotUpdate( 'spzFrag', module.default );
-
 					material.requestUpdate();
 
 				}
@@ -736,7 +820,6 @@ export class SPZLoader extends GLP.EventEmitter {
 				if ( module ) {
 
 					material.vert = hotUpdate( 'spzVert', module.default );
-
 					material.requestUpdate();
 
 				}
@@ -750,7 +833,95 @@ export class SPZLoader extends GLP.EventEmitter {
 		mesh.geometry = geometry;
 		mesh.material = material;
 
-		return entity;
+		// 深度ソート用の関数
+		const updateSort = ( camera: Camera ) => {
+
+			if ( options.sortEnabled === false ) return;
+
+			// カメラのビュー行列を取得
+			const viewMatrix = camera.viewMatrix;
+
+			// ソート用の深度配列
+			const depths: { index: number, depth: number }[] = [];
+
+			// 各ガウシアンの深度を計算
+			for ( let i = 0; i < numPoints; i ++ ) {
+
+				// ガウシアンの位置
+				const x = gaussianData.positions[ i * 3 ];
+				const y = gaussianData.positions[ i * 3 + 1 ];
+				const z = gaussianData.positions[ i * 3 + 2 ];
+
+				// カメラ空間での位置を計算
+				// 行列は列優先で格納されているため、適切なインデックスでアクセス
+				// viewMatrix.elements[2], viewMatrix.elements[6], viewMatrix.elements[10] はビュー行列のz方向成分
+				const elements = viewMatrix.elements;
+				const depth = elements[ 2 ] * x + elements[ 6 ] * y + elements[ 10 ] * z + elements[ 14 ];
+
+				depths.push( { index: i, depth } );
+
+			}
+
+			// 深度でソート（奥から手前へ）
+			depths.sort( ( a, b ) => b.depth - a.depth );
+
+			// ソート後のインデックス配列
+			const sortedIndices = new Float32Array( numPoints );
+			for ( let i = 0; i < numPoints; i ++ ) {
+
+				sortedIndices[ i ] = depths[ i ].index;
+
+			}
+
+			// インデックステクスチャとして設定するための処理
+			// テクスチャの幅と高さを計算（2のべき乗）
+			const texWidth = Math.pow( 2, Math.ceil( Math.log2( Math.sqrt( numPoints ) ) ) );
+			const texHeight = Math.pow( 2, Math.ceil( Math.log2( numPoints / texWidth ) ) );
+
+			// テクスチャデータ
+			const textureData = new Float32Array( texWidth * texHeight * 4 );
+			textureData.fill( 0 );
+
+			// インデックスをテクスチャに格納
+			for ( let i = 0; i < numPoints; i ++ ) {
+
+				textureData[ i * 4 ] = sortedIndices[ i ];
+
+			}
+
+			// テクスチャの作成
+			const texture = new GLP.GLPowerTexture( this.gl );
+
+			// 設定を適用
+			texture.setting( {
+				type: this.gl.FLOAT,
+				internalFormat: this.gl.RGBA32F,
+				format: this.gl.RGBA,
+				magFilter: this.gl.NEAREST,
+				minFilter: this.gl.NEAREST,
+			} );
+
+			// イメージデータを作成
+			const imageData = {
+				width: texWidth,
+				height: texHeight,
+				data: textureData
+			};
+
+			// テクスチャにデータをアタッチ
+			texture.attach( imageData );
+
+			// マテリアルのユニフォームに設定
+			material.uniforms.uSortIndices.value = texture;
+			material.uniforms.uSortIndicesSize = { value: [ texWidth, texHeight ], type: '2fv' };
+			material.uniforms.uSortEnabled = { value: 1.0, type: '1f' };
+
+		};
+
+		return {
+			scene: entity,
+			updateSort
+		};
 
 	}
 
