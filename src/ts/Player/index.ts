@@ -3,6 +3,7 @@ import { Engine } from 'orengine';
 
 import SceneData from '../../../data/scene.json';
 import { initResouces } from '../Resources';
+import { BLidgeClient } from '../Resources/Components/Utilities/BLidgeClient';
 
 import { gl } from '~/ts/Globals';
 
@@ -113,7 +114,6 @@ playButton.onclick = () => {
 	rootElm.style.cursor = 'none';
 	engine.play();
 
-
 	// アニメーション関数
 	function animate() {
 
@@ -139,9 +139,13 @@ playButton.onclick = () => {
 	Load
 -------------------------------*/
 
-engine.on( 'loaded', () => {
+engine.load( SceneData );
 
-	setTimeout( () => {
+const blidgeClient = engine.root.getComponent( BLidgeClient );
+
+if ( blidgeClient ) {
+
+	blidgeClient.on( "loaded", () => {
 
 		engine.compileShaders( ( label, loaded, total ) => {
 
@@ -159,8 +163,9 @@ engine.on( 'loaded', () => {
 
 		} );
 
-	}, 100 );
 
-} );
+	} );
 
-engine.load( SceneData );
+}
+
+

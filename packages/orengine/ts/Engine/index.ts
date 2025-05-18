@@ -20,18 +20,17 @@ export class Engine extends MXP.Entity {
 
 	public static resources: Resources;
 	public static instances: Map<WebGL2RenderingContext, Engine>;
-
 	public enableRender: boolean;
-	public _root: MXP.Entity;
-	public _time: SceneTime;
-	public _frame: FramePlay;
-	public _frameSetting: OREngineProjectFrame;
 
 	private _renderer: MXP.Renderer;
 	private _gl: WebGL2RenderingContext;
 	private _canvas: HTMLCanvasElement | OffscreenCanvas;
 	private _projectCache: OREngineProjectData | null;
+	private _root: MXP.Entity;
 	private _uniforms: GLP.Uniforms;
+	private _time: SceneTime;
+	private _frame: FramePlay;
+	private _frameSetting: OREngineProjectFrame;
 	private _disposed: boolean;
 
 	constructor( gl: WebGL2RenderingContext ) {
@@ -84,13 +83,6 @@ export class Engine extends MXP.Entity {
 				ProjectSerializer.deserializeOverride( this._projectCache.overrides, this._root, blidgeRoot );
 
 			}
-
-		} );
-
-		this.on( "update/music", ( buffer: AudioBuffer, freqTex: GLP.GLPowerTexture, domainTex: GLP.GLPowerTexture ) => {
-
-			// globalUniforms.music.uMusicFreqTex.value = freqTex;
-			// globalUniforms.music.uMusicDomainTex.value = domainTex;
 
 		} );
 
@@ -195,6 +187,17 @@ export class Engine extends MXP.Entity {
 
 		return this._frame;
 
+	}
+
+	public get time() {
+
+		return this._time;
+
+	}
+
+	public get frameSetting() {
+
+		return this._frameSetting;
 
 	}
 
@@ -211,10 +214,10 @@ export class Engine extends MXP.Entity {
 	}
 
 	/*-------------------------------
-		loadProject
+		Init Engine
 	-------------------------------*/
 
-	public load( project?: OREngineProjectData ) {
+	public init() {
 
 		this._root.remove( this._renderer );
 		this._root.disposeRecursive();
@@ -225,19 +228,21 @@ export class Engine extends MXP.Entity {
 		this._root.scale.set( 1, 1, 1 );
 		this.add( this._root );
 
+		this.name = "New Project";
+
+	}
+
+	/*-------------------------------
+		Load Project
+	-------------------------------*/
+
+	public async load( project: OREngineProjectData ) {
+
+		this.init();
+
+		this.deserialize( project );
+
 		this._projectCache = project || null;
-
-		if ( project ) {
-
-			this.name = project.name;
-
-			this.deserialize( project );
-
-		} else {
-
-			this.name = "New Project";
-
-		}
 
 		this.emit( "update/graph" );
 		this.emit( "loaded" );
@@ -248,7 +253,7 @@ export class Engine extends MXP.Entity {
 		Update
 	-------------------------------*/
 
-	public update( param?: Undefineder<MXP.EntityUpdateEvent> ) {
+	public update( param?: Partial<MXP.EntityUpdateEvent> ) {
 
 		const newTime = new Date().getTime();
 		this._time.delta = ( newTime - this._time.current ) / 1000;
@@ -259,6 +264,7 @@ export class Engine extends MXP.Entity {
 
 		const event = this.createEntityUpdateEvent( { forceDraw: param?.forceDraw } );
 
+		this._uniforms.uTime.value = this._time.code;
 		this._uniforms.uTimeE.value = this._time.engine;
 
 		this._root.update( event );
