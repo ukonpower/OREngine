@@ -586,114 +586,77 @@ export class SPZLoader extends GLP.EventEmitter {
 			const shDegree = header.shDegree;
 			const size = this.getSHSize( shDegree );
 
-			if ( shDegree <= 2 ) {
+			// すべての次数でテクスチャとして設定
+			const numPoints = gaussianData.positions.length / 3;
 
-				// 2次以下の場合は従来通り個別の属性として設定
-				if ( shDegree === 0 ) {
+			// 係数の最大数（4次まで対応可能な16に設定）
+			const maxCoeffs = 16;
 
-					// 0次の場合は単一の属性
-					geometry.setAttribute( "sphericalHarmonics", gaussianData.sphericalHarmonics, 3 );
+			// テクスチャサイズの計算（2のべき乗にする）
+			const texWidth = Math.pow( 2, Math.ceil( Math.log2( Math.ceil( Math.sqrt( numPoints * maxCoeffs ) ) ) ) );
+			const texHeight = Math.pow( 2, Math.ceil( Math.log2( Math.ceil( ( numPoints * maxCoeffs ) / texWidth ) ) ) );
 
-				} else {
+			// テクスチャデータの作成（RGBA形式、各ピクセルに1つの係数のRGB値を保存）
+			const textureData = new Float32Array( texWidth * texHeight * 4 );
+			textureData.fill( 0 ); // デフォルト値を0に設定
 
-					// 1次または2次の場合は複数の属性に分割
-					const numCoeffs = shDegree === 1 ? 4 : 9;
-					const numPoints = gaussianData.positions.length / 3;
+			// 実際の係数の数（次数によって異なる）
+			const numCoeffs = Math.pow( shDegree + 1, 2 ) - 1;
 
-					// 各係数ごとに別々の属性として設定
-					for ( let i = 0; i < numCoeffs; i ++ ) {
+			// SH係数をテクスチャに詰め込む
+			for ( let p = 0; p < numPoints; p ++ ) {
 
-						const coeffData = new Float32Array( numPoints * 3 ); // RGB成分x3
+				for ( let i = 0; i < numCoeffs; i ++ ) {
 
-						// 元のデータから該当する係数のみを抽出
-						for ( let p = 0; p < numPoints; p ++ ) {
+					// テクスチャ内の位置を計算
+					const pixelIndex = p * maxCoeffs + i;
+					const tx = pixelIndex % texWidth;
+					const ty = Math.floor( pixelIndex / texWidth );
+					const tIdx = ( ty * texWidth + tx ) * 4; // RGBA形式なので4倍
 
-							for ( let c = 0; c < 3; c ++ ) { // RGB
+					// RGB成分をテクスチャに設定
+					for ( let c = 0; c < 3; c ++ ) { // RGB
 
-								coeffData[ p * 3 + c ] = gaussianData.sphericalHarmonics[ p * size + i * 3 + c ];
-
-							}
-
-						}
-
-						// 属性として設定
-						geometry.setAttribute( `sh${i}`, coeffData, 3 );
-
-					}
-
-				}
-
-			} else {
-
-				// 3次以上の場合はテクスチャとして設定
-				const numPoints = gaussianData.positions.length / 3;
-
-				// テクスチャサイズの計算（2のべき乗にする）
-				const texWidth = Math.pow( 2, Math.ceil( Math.log2( Math.ceil( Math.sqrt( numPoints * 16 ) ) ) ) );
-				const texHeight = Math.pow( 2, Math.ceil( Math.log2( Math.ceil( ( numPoints * 16 ) / texWidth ) ) ) );
-
-				// テクスチャデータの作成（RGBA形式、各ピクセルに1つの係数のRGB値を保存）
-				const textureData = new Float32Array( texWidth * texHeight * 4 );
-				textureData.fill( 0 ); // デフォルト値を0に設定
-
-				// SH係数をテクスチャに詰め込む
-				for ( let p = 0; p < numPoints; p ++ ) {
-
-					for ( let i = 0; i < 16; i ++ ) { // 3次は16個の係数
-
-						// テクスチャ内の位置を計算
-						const pixelIndex = p * 16 + i;
-						const tx = pixelIndex % texWidth;
-						const ty = Math.floor( pixelIndex / texWidth );
-						const tIdx = ( ty * texWidth + tx ) * 4; // RGBA形式なので4倍
-
-						// RGB成分をテクスチャに設定
-						if ( i < size / 3 ) { // 有効な係数のみ
-
-							for ( let c = 0; c < 3; c ++ ) { // RGB
-
-								const shIdx = p * size + i * 3 + c;
-								textureData[ tIdx + c ] = gaussianData.sphericalHarmonics[ shIdx ];
-
-							}
-
-						}
-
-						// アルファチャンネルは使用しないが、1.0に設定
-						textureData[ tIdx + 3 ] = 1.0;
+						const shIdx = p * size + i * 3 + c;
+						textureData[ tIdx + c ] = gaussianData.sphericalHarmonics[ shIdx ];
 
 					}
 
+					// アルファチャンネルは使用しないが、1.0に設定
+					textureData[ tIdx + 3 ] = 1.0;
+
 				}
-
-				// テクスチャの作成
-				const texture = new GLP.GLPowerTexture( this.gl );
-
-				// 設定を適用
-				texture.setting( {
-					type: this.gl.FLOAT,
-					internalFormat: this.gl.RGBA32F,
-					format: this.gl.RGBA,
-					magFilter: this.gl.NEAREST,
-					minFilter: this.gl.NEAREST,
-				} );
-
-				// イメージデータを作成
-				const imageData = {
-					width: texWidth,
-					height: texHeight,
-					data: textureData
-				};
-
-				// テクスチャにデータをアタッチ
-				texture.attach( imageData );
-
-				// マテリアルにテクスチャとサイズ情報を設定
-				uniforms.uSHTexture = { value: texture, type: '1i' };
-				uniforms.uSHTexSize = { value: [ texWidth, texHeight ], type: '2fv' };
-				uniforms.uPointCount = { value: numPoints, type: '1f' };
 
 			}
+
+			// テクスチャの作成
+			const texture = new GLP.GLPowerTexture( this.gl );
+
+			// 設定を適用
+			texture.setting( {
+				type: this.gl.FLOAT,
+				internalFormat: this.gl.RGBA32F,
+				format: this.gl.RGBA,
+				magFilter: this.gl.NEAREST,
+				minFilter: this.gl.NEAREST,
+			} );
+
+			// イメージデータを作成
+			const imageData = {
+				width: texWidth,
+				height: texHeight,
+				data: textureData
+			};
+
+			// テクスチャにデータをアタッチ
+			texture.attach( imageData );
+
+			// マテリアルにテクスチャとサイズ情報を設定
+			uniforms.uSHTexture = { value: texture, type: '1i' };
+			uniforms.uSHTexSize = { value: [ texWidth, texHeight ], type: '2fv' };
+			uniforms.uPointCount = { value: numPoints, type: '1f' };
+			uniforms.uSHCoeffCount = { value: numCoeffs, type: '1f' };
+			uniforms.uMaxCoeffCount = { value: maxCoeffs, type: '1f' };
 
 		}
 
@@ -721,13 +684,8 @@ export class SPZLoader extends GLP.EventEmitter {
 		if ( header.shDegree > 0 ) {
 
 			material.defines[ "USE_SPHERICAL_HARMONICS" ] = "";
-
-			// 3次以上の場合はテクスチャ使用フラグを設定
-			if ( header.shDegree > 2 ) {
-
-				material.defines[ "USE_SH_TEXTURE" ] = "";
-
-			}
+			// 常にテクスチャを使用
+			material.defines[ "USE_SH_TEXTURE" ] = "";
 
 		}
 
@@ -741,3 +699,4 @@ export class SPZLoader extends GLP.EventEmitter {
 	}
 
 }
+
