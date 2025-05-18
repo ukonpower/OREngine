@@ -81,6 +81,16 @@ type GPUState = {
 	[key: string] : {state: boolean},
 }
 
+// compile draw param
+
+interface CompileDrawParam {
+	drawId: string;
+	renderType: MaterialRenderType;
+	geometry: Geometry;
+	material: Material;
+	param: DrawParam;
+}
+
 // texture unit
 
 export let TextureUnitCounter = 0;
@@ -90,11 +100,6 @@ export class Renderer extends Entity {
 	public gl: WebGL2RenderingContext;
 	public resolution: GLP.Vector;
 	private _extDisJointTimerQuery: any;
-
-	// compile
-
-	public noDraw: boolean;
-	public drawParams: any[];
 
 	// program
 
@@ -129,6 +134,11 @@ export class Renderer extends Entity {
 	private _queryList: WebGLQuery[];
 	private _queryListQueued: {name: string, query: WebGLQuery}[];
 
+	// compile
+
+	private _isCorrentCompiles: boolean;
+	private compileDrawParams: CompileDrawParam[];
+
 	// tmp
 
 	private _tmpNormalMatrix: GLP.Matrix;
@@ -144,8 +154,8 @@ export class Renderer extends Entity {
 
 		this.gl = gl;
 
-		this.noDraw = false;
-		this.drawParams = [];
+		this._isCorrentCompiles = false;
+		this.compileDrawParams = [];
 		this.programManager = new ProgramManager( this.gl );
 		this.resolution = new GLP.Vector();
 		this._extDisJointTimerQuery = this.gl.getExtension( "EXT_disjoint_timer_query_webgl2" );
@@ -844,9 +854,9 @@ export class Renderer extends Entity {
 
 	public draw( drawId: string, renderType: MaterialRenderType, geometry: Geometry, material: Material, param?: DrawParam ) {
 
-		if ( this.noDraw ) {
+		if ( this._isCorrentCompiles ) {
 
-			this.drawParams.push( { drawId, renderType, geometry, material, param: { ...param } } );
+			this.compileDrawParams.push( { drawId, renderType, geometry, material, param: { ...param } } );
 
 			return;
 
@@ -1217,14 +1227,29 @@ export class Renderer extends Entity {
 
 	}
 
-	public async compile( cb: ( label: string, loaded: number, total: number ) => void ) {
+	public async compileShaders( entity: Entity, event: EntityUpdateEvent, cb?: ( label: string, loaded: number, total: number ) => void ) {
 
-		const total = this.drawParams.length;
+		/*-------------------------------
+			Correct Compiles
+		-------------------------------*/
+		this._isCorrentCompiles = true;
+
+		this.compileDrawParams = [];
+
+		this.render( entity, event );
+
+		this._isCorrentCompiles = false;
+
+		/*-------------------------------
+			Compile
+		-------------------------------*/
+
+		const total = this.compileDrawParams.length;
 		let loaded = 0;
 
-		for ( let i = 0; i < this.drawParams.length; i ++ ) {
+		for ( let i = 0; i < this.compileDrawParams.length; i ++ ) {
 
-			const param = this.drawParams[ i ];
+			const param = this.compileDrawParams[ i ];
 
 			const renderTarget = param.param.renderTarget;
 

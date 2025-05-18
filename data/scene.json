@@ -37,10 +37,10 @@
 					}
 				},
 				{
-					"name": "TextureGenerator"
+					"name": "UniformControls"
 				},
 				{
-					"name": "UniformControls"
+					"name": "TextureGenerator"
 				}
 			]
 		},
@@ -91,6 +91,9 @@
 			"components": [
 				{
 					"name": "OREngineCubeMaterial"
+				},
+				{
+					"name": "ObjectRotate"
 				}
 			]
 		},
