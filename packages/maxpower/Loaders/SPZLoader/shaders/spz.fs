@@ -2,7 +2,7 @@
 #include <frag_h>
 
 // インスタンス入力変数
-in vec3 vColor;     // インスタンスの色
+in vec3 vColor;     // インスタンスの色（頂点シェーダーで計算済みの球面調和関数の色を含む）
 in float vAlpha;    // インスタンスのアルファ値
 in vec2 vUV;        // 平面のUV座標（-1〜1にマッピング済み）
 
@@ -21,8 +21,11 @@ void main( void ) {
     // ガウシアン関数からアルファ値を計算
     float B = exp(A) * vAlpha;
     
+    // 頂点シェーダーから受け取った色を使用（球面調和関数の計算はすでに頂点シェーダーで完了）
+    vec3 color = vColor;
+    
     // カラーとアルファを適用
-    outColor = vec4(B * vColor, B);
+    outColor = vec4(B * color, B);
     
     #include <frag_out>
 }
