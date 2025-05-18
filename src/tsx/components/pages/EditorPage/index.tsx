@@ -1,5 +1,5 @@
 import * as MXP from 'maxpower';
-import { OREditor, OREngine } from "orengine";
+import { OREditor, OREngine } from "orengine/react";
 import { OREngineProjectData } from "packages/orengine/ts/Engine/ProjectSerializer";
 import { useEffect, useState } from "react";
 
