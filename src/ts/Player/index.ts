@@ -31,7 +31,7 @@ document.body.innerHTML = `
 		#cw{${pointerEventsNone}${fullFlexCenter}${opacity0}}
 		canvas{${full}object-fit:contain;}
 		#l{${pointerEventsNone}${positionAbsolute}width:100%;}
-		#b{width:100%;height:1px;background:#fff;margin-bottom:10px;transform-origin:left;transition:transform 0.3s;}
+		#b{width:100%;height:1px;background:#fff;margin-bottom:10px;}
 		#t{font-size:11px;margin-top:5px;}
 		#m{${pointerEventsNone}${opacity0}}
 		#e{${fullFlexCenter}${opacity0}${pointerEventsNone}}
@@ -139,20 +139,16 @@ playButton.onclick = () => {
 	Load
 -------------------------------*/
 
-engine.on( 'loadProgress', ( progress: number ) => {
-
-	loadingElm.style.opacity = `${progress}`;
-
-} );
-
-
 engine.on( 'loaded', () => {
 
 	setTimeout( () => {
 
 		engine.compileShaders( ( label, loaded, total ) => {
 
-			console.log( label, loaded, total );
+			const progress = loaded / total;
+
+			loadingBarElm.style.transform = `scaleX(${progress})`;
+			loadingTextElm.textContent = `${label}`;
 
 		} ).then( () => {
 
