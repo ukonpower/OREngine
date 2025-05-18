@@ -1,9 +1,9 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { ShakeViewer } from '../../CameraControls/CameraShake';
-import { OrbitControls } from '../../CameraControls/OrbitControls';
+import { ShakeViewer } from '../../ObjectControls/CameraShake';
 import { LookAt } from '../../ObjectControls/LookAt';
+import { OrbitControls } from '../../ObjectControls/OrbitControls';
 
 import { Bloom } from './PostProcess/Bloom';
 import { ColorGrading } from './PostProcess/ColorGrading';

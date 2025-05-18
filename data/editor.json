@@ -1,9 +1,9 @@
 {
 	"enableRender": true,
 	"resolutionScale": 0.5,
-	"viewType": "render",
+	"viewType": "debug",
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,
 	"frameLoop/end": 0,
-	"selectedEntityId": "f9"
+	"selectedEntityId": "2e"
 }

@@ -119,7 +119,7 @@ playButton.onclick = () => {
 
 		engine.update();
 
-		if ( engine.frame.current > engine._frameSetting.duration ) {
+		if ( engine.frame.current > engine.frameSetting.duration ) {
 
 			exitElm.style.opacity = '1';
 			return;
