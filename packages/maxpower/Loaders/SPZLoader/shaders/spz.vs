@@ -8,26 +8,31 @@ in vec3 instanceScale;
 in vec4 instanceRotation;
 in float instanceAlpha;
 
-// インスタンス出力変数（インクルードファイル内で定義されていない場合）
+// インスタンス出力変数
 out vec3 vColor;
 out float vAlpha;
-
-// 球面調和関数用のテクスチャ座標
-#ifdef USE_SH_TEXTURE
-uniform vec2 uSHTexSize;
-uniform float uPointCount;
-uniform float uMaxCoeffCount;
-out vec2 vSHCoord;
-#endif
+out vec2 vUV;  // -1〜1の範囲にマッピングされたUV座標
 
 // クォータニオンを使った回転関数
 vec3 rotateVector(vec4 q, vec3 v) {
     return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
 }
 
-void main( void ) {
+// 頂点のスケール係数を計算する関数
+float getScaleFactor(vec3 scale) {
+    // スケールの最大値を使用
+    return max(max(scale.x, scale.y), scale.z);
+}
 
+void main( void ) {
     #include <vert_in>
+    
+    // UVを-1〜1の範囲にマッピング
+    vUV = 2.0 * uv - 1.0;
+    
+    // 色とアルファ値を設定
+    vColor = instanceColor;
+    vAlpha = instanceAlpha;
     
     // インスタンス描画処理
     // オリジナルの頂点位置を取得
@@ -45,19 +50,5 @@ void main( void ) {
     // 変換後の位置で置き換え
     outPos = transformedPosition;
     
-    // 色とアルファ値の設定
-    vColor = instanceColor;
-    vAlpha = instanceAlpha;
-    
-    // 球面調和関数のテクスチャ座標を計算
-    #ifdef USE_SH_TEXTURE
-    float pointIndex = float(gl_InstanceID);
-    vSHCoord = vec2(
-        uSHTexSize.x * (1.0 / uSHTexSize.x * 0.5),
-        uSHTexSize.y * ((pointIndex * uMaxCoeffCount) / (uPointCount * uMaxCoeffCount) + 1.0 / uSHTexSize.y * 0.5)
-    );
-    #endif
-    
     #include <vert_out>
-
 }
