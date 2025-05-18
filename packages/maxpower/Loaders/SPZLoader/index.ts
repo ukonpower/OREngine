@@ -260,6 +260,9 @@ export class SPZLoader extends GLP.EventEmitter {
 		const shSize = this.getSHSize( header.shDegree );
 		const SH_SIZE = shSize > 0 ? shSize : 0;
 
+		console.log( SH_SIZE );
+
+
 		// 結果の配列を初期化
 		const positions = new Float32Array( numPoints * 3 );
 		const scales = new Float32Array( numPoints * 3 );
@@ -291,6 +294,7 @@ export class SPZLoader extends GLP.EventEmitter {
 
 			const requiredSizeWithSH = offsetSH + numPoints * SH_SIZE;
 			hasSH = dataLength >= requiredSizeWithSH;
+
 			if ( ! hasSH ) {
 
 				console.warn( `SPZLoader: 球面調和関数データが不完全または存在しません。` );
@@ -488,16 +492,7 @@ export class SPZLoader extends GLP.EventEmitter {
 
 	private getSHSize( shDegree: number ): number {
 
-		// 球面調和関数の係数の数を計算（各色成分あたり）
-		switch ( shDegree ) {
-
-		case 0: return 1 * 3; // RGB成分 x 1係数
-		case 1: return 4 * 3; // RGB成分 x 4係数
-		case 2: return 9 * 3; // RGB成分 x 9係数
-		case 3: return 16 * 3; // RGB成分 x 16係数
-		default: return 0;
-
-		}
+		return ( Math.pow( shDegree + 1, 2 ) - 1 ) * 3;
 
 	}
 
@@ -580,7 +575,7 @@ export class SPZLoader extends GLP.EventEmitter {
 		geometry.setAttribute( "alpha", gaussianData.alphas, 1 );
 
 		// 球面調和関数のユニフォーム変数
-		const uniforms: any = {
+		const uniforms: GLP.Uniforms = {
 			// ガウシアンスプラットレンダリングに必要なユニフォーム変数
 			uSplatSize: { value: 1.0, type: "1f" },
 		};

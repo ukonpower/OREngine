@@ -45,7 +45,7 @@ export const ProjectControl = () => {
 
 						}
 
-					}} >Export & Play <ArrowIcon /></Button>
+					}} >Play <ArrowIcon /></Button>
 				</div>
 			</Block>
 		</div>
