@@ -245,6 +245,23 @@ class UniformManager {
 
 OREngine は独自のシェーダーシステムを実装しており、モジュラー方式のシェーダー開発を可能にしています。
 
+### GLSL バージョンと WebGL2 対応
+
+OREngine のシェーダーは WebGL2 を対象としており、GLSL ES 3.0 を使用します。シェーダーファイル内で `#version 300 es` の宣言は不要です。ShaderParser が自動的に以下の行を各シェーダーの先頭に追加します：
+
+```glsl
+#version 300 es
+precision highp float;
+```
+
+GLSL ES 3.0 では、以下の変更点に注意が必要です：
+
+- `attribute` → `in` に変更（頂点シェーダーの入力）
+- `varying` → `out`/`in` に変更（頂点シェーダーでは `out`、フラグメントシェーダーでは `in`）
+- `gl_FragColor` → カスタム `out vec4` 変数に変更（例: `out vec4 fragColor;`）
+
+これらの変更は WebGL2 の仕様に準拠するために必要です。
+
 ### シェーダーモジュールシステム
 
 ```mermaid

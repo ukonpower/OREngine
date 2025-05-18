@@ -4,8 +4,7 @@ import { Mesh } from '../../Component/Mesh';
 import { Entity } from '../../Entity';
 import { Geometry } from '../../Geometry';
 import { Material } from '../../Material';
-// Textureを正しいパスからインポート
-// import { Texture } from '../../Texture';
+import { hotUpdate } from '../../Utils/Hot';
 
 import spzFrag from './shaders/spz.fs';
 import spzVert from './shaders/spz.vs';
@@ -567,12 +566,38 @@ export class SPZLoader extends GLP.EventEmitter {
 		// ガウシアンスプラット用のジオメトリを作成
 		const geometry = new Geometry();
 
-		// 基本的な属性の設定
-		geometry.setAttribute( "position", gaussianData.positions, 3 );
-		geometry.setAttribute( "color", gaussianData.colors, 3 );
-		geometry.setAttribute( "scale", gaussianData.scales, 3 );
-		geometry.setAttribute( "rotation", gaussianData.rotations, 4 );
-		geometry.setAttribute( "alpha", gaussianData.alphas, 1 );
+		// 平面ジオメトリの頂点データを設定
+		const planePositions = new Float32Array( [
+			- 0.5, - 0.5, 0.0,
+			0.5, - 0.5, 0.0,
+			0.5, 0.5, 0.0,
+			- 0.5, - 0.5, 0.0,
+			0.5, 0.5, 0.0,
+			- 0.5, 0.5, 0.0
+		] );
+
+		const planeUVs = new Float32Array( [
+			0.0, 0.0,
+			1.0, 0.0,
+			1.0, 1.0,
+			0.0, 0.0,
+			1.0, 1.0,
+			0.0, 1.0
+		] );
+
+		// 基本的なメッシュデータの設定
+		geometry.setAttribute( "position", planePositions, 3 );
+		geometry.setAttribute( "uv", planeUVs, 2 );
+
+		// インスタンス属性の設定
+		const numPoints = gaussianData.positions.length / 3;
+
+		// 基本的な属性をインスタンス属性として設定
+		geometry.setAttribute( "instancePosition", gaussianData.positions, 3, { instanceDivisor: 1 } );
+		geometry.setAttribute( "instanceColor", gaussianData.colors, 3, { instanceDivisor: 1 } );
+		geometry.setAttribute( "instanceScale", gaussianData.scales, 3, { instanceDivisor: 1 } );
+		geometry.setAttribute( "instanceRotation", gaussianData.rotations, 4, { instanceDivisor: 1 } );
+		geometry.setAttribute( "instanceAlpha", gaussianData.alphas, 1, { instanceDivisor: 1 } );
 
 		// 球面調和関数のユニフォーム変数
 		const uniforms: GLP.Uniforms = {
@@ -665,8 +690,11 @@ export class SPZLoader extends GLP.EventEmitter {
 			phase: [ "forward" ], // レンダリングフェーズの設定
 			frag: spzFrag,
 			vert: spzVert,
-			drawType: "POINTS", // ポイントとして描画
-			uniforms: uniforms,
+			drawType: "TRIANGLES", // 三角形プリミティブとして描画（平面メッシュ用）
+			uniforms: {
+				...uniforms,
+				uInstanceCount: { value: numPoints, type: '1i' }
+			},
 			defines: {
 				"USE_GAUSSIAN_SPLAT": "",
 				"SH_DEGREE": header.shDegree.toString()
@@ -686,6 +714,34 @@ export class SPZLoader extends GLP.EventEmitter {
 			material.defines[ "USE_SPHERICAL_HARMONICS" ] = "";
 			// 常にテクスチャを使用
 			material.defines[ "USE_SH_TEXTURE" ] = "";
+
+		}
+
+		if ( import.meta.hot ) {
+
+			import.meta.hot.accept( './shaders/spz.fs', ( module ) => {
+
+				if ( module ) {
+
+					material.frag = hotUpdate( 'spzFrag', module.default );
+
+					material.requestUpdate();
+
+				}
+
+			} );
+
+			import.meta.hot.accept( './shaders/spz.vs', ( module ) => {
+
+				if ( module ) {
+
+					material.vert = hotUpdate( 'spzVert', module.default );
+
+					material.requestUpdate();
+
+				}
+
+			} );
 
 		}
 
