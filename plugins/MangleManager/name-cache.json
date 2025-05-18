@@ -164,7 +164,8 @@
       "$pointerEventsNone": "Qe",
       "$positionAbsolute": "Je",
       "$full": "ti",
-      "$fullFlexCenter": "ei"
+      "$fullFlexCenter": "ei",
+      "$blidgeClient": "ii"
     }
   },
   "props": {
@@ -936,7 +937,9 @@
       "$applyMatrix4AsDirection": "Hf",
       "$compileDrawParams": "Xf",
       "$compileShaders": "Yf",
-      "$createEntityUpdateEvent": "$f"
+      "$createEntityUpdateEvent": "$f",
+      "$frameSetting": "Zf",
+      "$Texture": "Wf"
     }
   }
 }
