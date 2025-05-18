@@ -1,21 +1,28 @@
 #include <common>
 #include <frag_h>
 
-// インスタンス入力変数（インクルードファイル内で定義されていない場合）
-in vec3 vColor;
-in float vAlpha;
-
-// 球面調和関数用のテクスチャ座標
-#ifdef USE_SH_TEXTURE
-in vec2 vSHCoord;
-#endif
+// インスタンス入力変数
+in vec3 vColor;     // インスタンスの色
+in float vAlpha;    // インスタンスのアルファ値
+in vec2 vUV;        // 平面のUV座標（-1〜1にマッピング済み）
 
 void main( void ) {
-
     #include <frag_in>
     
-    outColor = vec4(vColor, vAlpha);
+    // UVを使ってガウシアン関数の値を計算
+    // exp(-|p|²) の形式のガウシアン
+    float A = -dot(vUV, vUV);
+    
+    // 閾値以下のピクセルは破棄（透明にする）
+    if (A < -4.0) {
+        discard;
+    }
+    
+    // ガウシアン関数からアルファ値を計算
+    float B = exp(A) * vAlpha;
+    
+    // カラーとアルファを適用
+    outColor = vec4(B * vColor, B);
     
     #include <frag_out>
-
 }
