@@ -38,10 +38,10 @@ vec3 rotateVector(vec4 q, vec3 v) {
     q = q / len;
     
     // クォータニオン回転の適用
-    vec3 qv = q.xyz;
+    vec3 qv = vec3(q.x, q.y, q.z);
     float qw = q.w;
     
-    // ロドリゲスの回転公式を使用
+    // クォータニオン回転の公式
     return v + 2.0 * cross(qv, cross(qv, v) + qw * v);
 }
 

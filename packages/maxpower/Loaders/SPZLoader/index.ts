@@ -649,10 +649,19 @@ export class SPZLoader extends GLP.EventEmitter {
 		for ( let i = 0; i < numPoints; i ++ ) {
 
 			const rotIdx = ( numPoints * 2 * 4 ) + ( i * 4 ); // 位置&スケールの後に配置
-			textureData[ rotIdx + 0 ] = gaussianData.rotations[ i * 4 + 0 ]; // x
-			textureData[ rotIdx + 1 ] = gaussianData.rotations[ i * 4 + 1 ]; // y
-			textureData[ rotIdx + 2 ] = gaussianData.rotations[ i * 4 + 2 ]; // z
-			textureData[ rotIdx + 3 ] = gaussianData.rotations[ i * 4 + 3 ]; // w
+			// 正規化されたクォータニオンをテクスチャに格納
+			const x = gaussianData.rotations[ i * 4 + 0 ];
+			const y = gaussianData.rotations[ i * 4 + 1 ];
+			const z = gaussianData.rotations[ i * 4 + 2 ];
+			const w = gaussianData.rotations[ i * 4 + 3 ];
+
+			// 長さを計算して正規化
+			const length = Math.sqrt( x * x + y * y + z * z + w * w );
+
+			textureData[ rotIdx + 0 ] = x / length; // x
+			textureData[ rotIdx + 1 ] = y / length; // y
+			textureData[ rotIdx + 2 ] = z / length; // z
+			textureData[ rotIdx + 3 ] = w / length; // w
 
 		}
 
