@@ -33,7 +33,16 @@ uniform float uMaxCoeffCount;
 
 // クォータニオンを使った回転関数
 vec3 rotateVector(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+    // クォータニオンを正規化
+    float len = length(q);
+    q = q / len;
+    
+    // クォータニオン回転の適用
+    vec3 qv = q.xyz;
+    float qw = q.w;
+    
+    // ロドリゲスの回転公式を使用
+    return v + 2.0 * cross(qv, cross(qv, v) + qw * v);
 }
 
 // テクスチャから実際のインスタンスIDを取得する関数
@@ -253,7 +262,7 @@ void main(void) {
     transformedPosition = rotateVector(instanceRotation, transformedPosition);
     
     // インスタンスのスケールを適用
-    transformedPosition *= instanceScale;
+    transformedPosition *= instanceScale * 0.1;
     
     // インスタンスの位置を適用
     transformedPosition += instancePosition;
