@@ -7,8 +7,10 @@ import { Geometry } from '../../Geometry';
 import { Material } from '../../Material';
 import { hotUpdate } from '../../Utils/Hot';
 
+
 import spzFrag from './shaders/spz.fs';
 import spzVert from './shaders/spz.vs';
+import { SPZController } from './SPZController';
 
 // SPZの座標系タイプ
 export enum CoordinateSystem {
@@ -39,7 +41,6 @@ export type SPZLoaderOptions = {
 	targetCoordinateSystem?: CoordinateSystem; // 出力データの座標系
 	antialias?: boolean;
 	isCompressed?: boolean; // データがgzipで圧縮されているかどうか
-	sortEnabled?: boolean; // 深度ソートを有効にするかどうか
 }
 
 // 固定小数点からの変換用定数
@@ -76,7 +77,6 @@ export class SPZLoader extends GLP.EventEmitter {
 			targetCoordinateSystem: CoordinateSystem.RUB, // OpenGL標準
 			antialias: true,
 			isCompressed: true, // デフォルトでは圧縮されていると仮定
-			sortEnabled: true, // デフォルトで深度ソートを有効にする
 			...options
 		};
 
@@ -786,12 +786,8 @@ export class SPZLoader extends GLP.EventEmitter {
 
 		}
 
-		// ソート機能が有効ならUSE_SORTINGを定義
-		if ( options.sortEnabled !== false ) {
-
-			material.defines[ "USE_SORTING" ] = "";
-
-		}
+		// 常にソート機能を有効にする
+		material.defines[ "USE_SORTING" ] = "";
 
 		// 球面調和関数の次数に応じてdefinesを追加
 		if ( header.shDegree > 0 ) {
@@ -833,88 +829,19 @@ export class SPZLoader extends GLP.EventEmitter {
 		mesh.geometry = geometry;
 		mesh.material = material;
 
-		// 深度ソート用の関数
+		// SPZコントローラーコンポーネントを追加
+		const controller = entity.addComponent( SPZController, {
+			gaussianPositions: gaussianData.positions,
+			numPoints: numPoints,
+			material: material,
+			gl: this.gl,
+			sortEnabled: true
+		} );
+
+		// 深度ソート用の関数（下位互換性のため残す）
 		const updateSort = ( camera: Camera ) => {
 
-			if ( options.sortEnabled === false ) return;
-
-			// カメラのビュー行列を取得
-			const viewMatrix = camera.viewMatrix;
-
-			// ソート用の深度配列
-			const depths: { index: number, depth: number }[] = [];
-
-			// 各ガウシアンの深度を計算
-			for ( let i = 0; i < numPoints; i ++ ) {
-
-				// ガウシアンの位置
-				const x = gaussianData.positions[ i * 3 ];
-				const y = gaussianData.positions[ i * 3 + 1 ];
-				const z = gaussianData.positions[ i * 3 + 2 ];
-
-				// カメラ空間での位置を計算
-				// 行列は列優先で格納されているため、適切なインデックスでアクセス
-				// viewMatrix.elements[2], viewMatrix.elements[6], viewMatrix.elements[10] はビュー行列のz方向成分
-				const elements = viewMatrix.elements;
-				const depth = elements[ 2 ] * x + elements[ 6 ] * y + elements[ 10 ] * z + elements[ 14 ];
-
-				depths.push( { index: i, depth } );
-
-			}
-
-			// 深度でソート（奥から手前へ）
-			depths.sort( ( a, b ) => b.depth - a.depth );
-
-			// ソート後のインデックス配列
-			const sortedIndices = new Float32Array( numPoints );
-			for ( let i = 0; i < numPoints; i ++ ) {
-
-				sortedIndices[ i ] = depths[ i ].index;
-
-			}
-
-			// インデックステクスチャとして設定するための処理
-			// テクスチャの幅と高さを計算（2のべき乗）
-			const texWidth = Math.pow( 2, Math.ceil( Math.log2( Math.sqrt( numPoints ) ) ) );
-			const texHeight = Math.pow( 2, Math.ceil( Math.log2( numPoints / texWidth ) ) );
-
-			// テクスチャデータ
-			const textureData = new Float32Array( texWidth * texHeight * 4 );
-			textureData.fill( 0 );
-
-			// インデックスをテクスチャに格納
-			for ( let i = 0; i < numPoints; i ++ ) {
-
-				textureData[ i * 4 ] = sortedIndices[ i ];
-
-			}
-
-			// テクスチャの作成
-			const texture = new GLP.GLPowerTexture( this.gl );
-
-			// 設定を適用
-			texture.setting( {
-				type: this.gl.FLOAT,
-				internalFormat: this.gl.RGBA32F,
-				format: this.gl.RGBA,
-				magFilter: this.gl.NEAREST,
-				minFilter: this.gl.NEAREST,
-			} );
-
-			// イメージデータを作成
-			const imageData = {
-				width: texWidth,
-				height: texHeight,
-				data: textureData
-			};
-
-			// テクスチャにデータをアタッチ
-			texture.attach( imageData );
-
-			// マテリアルのユニフォームに設定
-			material.uniforms.uSortIndices.value = texture;
-			material.uniforms.uSortIndicesSize = { value: [ texWidth, texHeight ], type: '2fv' };
-			material.uniforms.uSortEnabled = { value: 1.0, type: '1f' };
+			controller.updateSort( camera );
 
 		};
 
@@ -926,4 +853,6 @@ export class SPZLoader extends GLP.EventEmitter {
 	}
 
 }
+
+export { SPZController } from './SPZController';
 

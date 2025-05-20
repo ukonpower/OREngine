@@ -6,6 +6,7 @@ export class SPZModel extends MXP.Component {
 
 	private isLoading: boolean;
 	private spzEntity: MXP.Entity | null;
+	private spzController: MXP.SPZController | null;
 
 	constructor( params: MXP.ComponentParams ) {
 
@@ -13,6 +14,7 @@ export class SPZModel extends MXP.Component {
 
 		this.isLoading = false;
 		this.spzEntity = null;
+		this.spzController = null;
 
 		this.loadSPZ( 'cup.spz' );
 
@@ -48,6 +50,9 @@ export class SPZModel extends MXP.Component {
 			this.spzEntity = result.scene;
 			this.entity.add( this.spzEntity );
 
+			// SPZControllerコンポーネントを取得
+			this.spzController = this.spzEntity.getComponent( MXP.SPZController ) || null;
+
 			// 位置とスケールを設定（必要に応じて調整）
 			this.spzEntity.position.set( 0.0, 0.0, - 3.0 ); // カメラから少し離す
 			this.spzEntity.scale.set( 0.5, 0.5, 0.5 ); // 適切なサイズに調整
@@ -77,6 +82,9 @@ export class SPZModel extends MXP.Component {
 				this.spzEntity = result.scene;
 				this.entity.add( this.spzEntity );
 
+				// SPZControllerコンポーネントを取得
+				this.spzController = this.spzEntity.getComponent( MXP.SPZController ) || null;
+
 				// 位置とスケールを設定（必要に応じて調整）
 				this.spzEntity.position.set( 0.0, 0.0, - 3.0 ); // カメラから少し離す
 				this.spzEntity.scale.set( 0.5, 0.5, 0.5 ); // 適切なサイズに調整
@@ -103,7 +111,7 @@ export class SPZModel extends MXP.Component {
 		if ( this.spzEntity ) {
 
 			// モデルを回転させる
-			this.spzEntity.euler.y += event.timeDelta * 0.5;
+			// this.spzEntity.euler.y += event.timeDelta * 0.5;
 
 		}
 
@@ -116,6 +124,7 @@ export class SPZModel extends MXP.Component {
 
 			this.entity.remove( this.spzEntity );
 			this.spzEntity = null;
+			this.spzController = null;
 
 		}
 
