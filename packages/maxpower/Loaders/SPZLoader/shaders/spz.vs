@@ -62,10 +62,9 @@ float getActualInstanceId(float instanceId) {
 }
 
 // テクスチャからインスタンスデータを取得する関数
-void fetchInstanceData(float instanceId, out vec3 position, out vec3 scale, out vec4 rotation, out vec3 color, out float alpha) {
+void fetchInstanceData(float actualId, out vec3 position, out vec3 scale, out vec4 rotation, out vec3 color, out float alpha) {
     #ifdef USE_TEXTURE_DATA
     // テクスチャからインスタンスデータを取得
-    float actualId = getActualInstanceId(instanceId);
     
     // 位置データのテクセル座標を計算（各インスタンスは2テクセルを使用）
     float posIdx = actualId * 2.0;
@@ -234,7 +233,7 @@ void main(void) {
     float instanceAlpha;
     
     float actualInstanceId = getActualInstanceId(instanceId);
-    fetchInstanceData(instanceId, instancePosition, instanceScale, instanceRotation, instanceColor, instanceAlpha);
+    fetchInstanceData(actualInstanceId, instancePosition, instanceScale, instanceRotation, instanceColor, instanceAlpha);
     
     // 色とアルファ値を設定
     vec3 finalColor = instanceColor;
