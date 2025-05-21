@@ -4,7 +4,6 @@ import * as path from 'path';
 import * as chokidar from 'chokidar';
 import { Plugin } from 'vite';
 
-
 let watcher: chokidar.FSWatcher | null = null;
 
 const componentsDir = "./src/ts/Resources/Components/";
