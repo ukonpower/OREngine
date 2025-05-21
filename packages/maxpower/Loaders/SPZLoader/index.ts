@@ -614,6 +614,57 @@ export class SPZLoader extends GLP.EventEmitter {
 		const textureData = new Float32Array( texWidth * texHeight * 4 );
 		textureData.fill( 0 );
 
+		// packHalf2x16ユーティリティ関数
+		function floatToHalf( float: number ): number {
+
+			const floatView = new Float32Array( 1 );
+			const int32View = new Int32Array( floatView.buffer );
+
+			floatView[ 0 ] = float;
+			const f = int32View[ 0 ];
+
+			const sign = ( f >> 31 ) & 0x0001;
+			const exp = ( f >> 23 ) & 0x00ff;
+			let frac = f & 0x007fffff;
+
+			let newExp;
+			if ( exp === 0 ) {
+
+				newExp = 0;
+
+			} else if ( exp < 113 ) {
+
+				newExp = 0;
+				frac |= 0x00800000;
+				frac = frac >> ( 113 - exp );
+				if ( frac & 0x01000000 ) {
+
+					newExp = 1;
+					frac = 0;
+
+				}
+
+			} else if ( exp < 142 ) {
+
+				newExp = exp - 112;
+
+			} else {
+
+				newExp = 31;
+				frac = 0;
+
+			}
+
+			return ( sign << 15 ) | ( newExp << 10 ) | ( frac >> 13 );
+
+		}
+
+		function packHalf2x16( x: number, y: number ): number {
+
+			return ( floatToHalf( x ) | ( floatToHalf( y ) << 16 ) ) >>> 0;
+
+		}
+
 		// データパッキング: 各ガウシアンの情報をテクスチャに詰め込む
 		for ( let i = 0; i < numPoints; i ++ ) {
 
@@ -624,44 +675,79 @@ export class SPZLoader extends GLP.EventEmitter {
 			textureData[ posIdx + 2 ] = gaussianData.positions[ i * 3 + 2 ]; // z
 			textureData[ posIdx + 3 ] = gaussianData.alphas[ i ]; // アルファ値
 
-			// 2番目のテクセル: スケール、回転、色
-			const attrIdx = posIdx + 4;
-			// スケール (xyz)
-			textureData[ attrIdx + 0 ] = gaussianData.scales[ i * 3 + 0 ];
-			textureData[ attrIdx + 1 ] = gaussianData.scales[ i * 3 + 1 ];
-			textureData[ attrIdx + 2 ] = gaussianData.scales[ i * 3 + 2 ];
+			// 2番目のテクセル: 共分散行列と色情報
+			// 回転とスケールから共分散行列を計算
+			const scale = [
+				gaussianData.scales[ i * 3 + 0 ],
+				gaussianData.scales[ i * 3 + 1 ],
+				gaussianData.scales[ i * 3 + 2 ]
+			];
 
-			// 色情報はRGBA形式で1つのfloatに詰め込む (ビットパッキング)
+			const rot = [
+				gaussianData.rotations[ i * 4 + 0 ],
+				gaussianData.rotations[ i * 4 + 1 ],
+				gaussianData.rotations[ i * 4 + 2 ],
+				gaussianData.rotations[ i * 4 + 3 ]
+			];
+
+			// 回転行列を計算
+			const M = [
+				1.0 - 2.0 * ( rot[ 1 ] * rot[ 1 ] + rot[ 2 ] * rot[ 2 ] ),
+				2.0 * ( rot[ 0 ] * rot[ 1 ] - rot[ 3 ] * rot[ 2 ] ),
+				2.0 * ( rot[ 0 ] * rot[ 2 ] + rot[ 3 ] * rot[ 1 ] ),
+
+				2.0 * ( rot[ 0 ] * rot[ 1 ] + rot[ 3 ] * rot[ 2 ] ),
+				1.0 - 2.0 * ( rot[ 0 ] * rot[ 0 ] + rot[ 2 ] * rot[ 2 ] ),
+				2.0 * ( rot[ 1 ] * rot[ 2 ] - rot[ 3 ] * rot[ 0 ] ),
+
+				2.0 * ( rot[ 0 ] * rot[ 2 ] - rot[ 3 ] * rot[ 1 ] ),
+				2.0 * ( rot[ 1 ] * rot[ 2 ] + rot[ 3 ] * rot[ 0 ] ),
+				1.0 - 2.0 * ( rot[ 0 ] * rot[ 0 ] + rot[ 1 ] * rot[ 1 ] )
+			];
+
+			// スケールをマトリックスに適用
+			const scaledM = M.map( ( k, i ) => k * scale[ Math.floor( i / 3 ) ] );
+
+			// 共分散行列の計算 (Σ = M * M^T)
+			const sigma = [
+				scaledM[ 0 ] * scaledM[ 0 ] + scaledM[ 3 ] * scaledM[ 3 ] + scaledM[ 6 ] * scaledM[ 6 ],
+				scaledM[ 0 ] * scaledM[ 1 ] + scaledM[ 3 ] * scaledM[ 4 ] + scaledM[ 6 ] * scaledM[ 7 ],
+				scaledM[ 0 ] * scaledM[ 2 ] + scaledM[ 3 ] * scaledM[ 5 ] + scaledM[ 6 ] * scaledM[ 8 ],
+				scaledM[ 1 ] * scaledM[ 1 ] + scaledM[ 4 ] * scaledM[ 4 ] + scaledM[ 7 ] * scaledM[ 7 ],
+				scaledM[ 1 ] * scaledM[ 2 ] + scaledM[ 4 ] * scaledM[ 5 ] + scaledM[ 7 ] * scaledM[ 8 ],
+				scaledM[ 2 ] * scaledM[ 2 ] + scaledM[ 5 ] * scaledM[ 5 ] + scaledM[ 8 ] * scaledM[ 8 ]
+			];
+
+			// 共分散行列をhalf floatとしてパック
+			const attrIdx = posIdx + 4;
+
+			// Uint32Arrayを使ってfloatからビットを取得
+			const dataView = new DataView( new ArrayBuffer( 4 * 4 ) ); // 4つのfloat32用
+
+			// 共分散行列の要素をパッキング
+			const packed1 = packHalf2x16( 4.0 * sigma[ 0 ], 4.0 * sigma[ 1 ] );
+			const packed2 = packHalf2x16( 4.0 * sigma[ 2 ], 4.0 * sigma[ 3 ] );
+			const packed3 = packHalf2x16( 4.0 * sigma[ 4 ], 4.0 * sigma[ 5 ] );
+
+			dataView.setUint32( 0, packed1, true );
+			dataView.setUint32( 4, packed2, true );
+			dataView.setUint32( 8, packed3, true );
+
+			// 色情報をパック
 			const r = Math.min( 255, Math.max( 0, Math.floor( gaussianData.colors[ i * 3 + 0 ] * 255 ) ) );
 			const g = Math.min( 255, Math.max( 0, Math.floor( gaussianData.colors[ i * 3 + 1 ] * 255 ) ) );
 			const b = Math.min( 255, Math.max( 0, Math.floor( gaussianData.colors[ i * 3 + 2 ] * 255 ) ) );
 			const a = 255; // 完全不透明
 
-			// ビットパッキング: 32ビットのfloatにRGBA値を詰め込む
-			// floatのビット表現をUint32として解釈し、そこにRGBAを詰め込む
+			// ビットパッキング: 32ビットのuintにRGBA値を詰め込む
 			const colorBits = ( r ) | ( g << 8 ) | ( b << 16 ) | ( a << 24 );
-			const colorFloat = new Float32Array( new Uint32Array( [ colorBits ] ).buffer )[ 0 ];
-			textureData[ attrIdx + 3 ] = colorFloat;
+			dataView.setUint32( 12, colorBits, true );
 
-		}
-
-		// 3番目のテクセルグループ: 回転情報 (クォータニオン)
-		for ( let i = 0; i < numPoints; i ++ ) {
-
-			const rotIdx = ( numPoints * 2 * 4 ) + ( i * 4 ); // 位置&スケールの後に配置
-			// 正規化されたクォータニオンをテクスチャに格納
-			const x = gaussianData.rotations[ i * 4 + 0 ];
-			const y = gaussianData.rotations[ i * 4 + 1 ];
-			const z = gaussianData.rotations[ i * 4 + 2 ];
-			const w = gaussianData.rotations[ i * 4 + 3 ];
-
-			// 長さを計算して正規化
-			const length = Math.sqrt( x * x + y * y + z * z + w * w );
-
-			textureData[ rotIdx + 0 ] = x / length; // x
-			textureData[ rotIdx + 1 ] = y / length; // y
-			textureData[ rotIdx + 2 ] = z / length; // z
-			textureData[ rotIdx + 3 ] = w / length; // w
+			// floatとして値を取り出す
+			textureData[ attrIdx + 0 ] = dataView.getFloat32( 0, true );
+			textureData[ attrIdx + 1 ] = dataView.getFloat32( 4, true );
+			textureData[ attrIdx + 2 ] = dataView.getFloat32( 8, true );
+			textureData[ attrIdx + 3 ] = dataView.getFloat32( 12, true );
 
 		}
 
@@ -688,6 +774,8 @@ export class SPZLoader extends GLP.EventEmitter {
 			uDataTexSize: { value: [ texWidth, texHeight ], type: '2fv' },
 			uPointCount: { value: numPoints, type: '1f' },
 			uSplatSize: { value: 1.0, type: "1f" },
+			uViewport: { value: [ window.innerWidth, window.innerHeight ], type: '2fv' }, // ビューポートサイズ
+			uFocal: { value: [ 1.0, 1.0 ], type: '2fv' } // デフォルトの焦点距離
 		};
 
 		// 球面調和関数のテクスチャ処理（既存コード）
@@ -778,7 +866,9 @@ export class SPZLoader extends GLP.EventEmitter {
 			uniforms: {
 				...uniforms,
 				uInstanceCount: { value: numPoints, type: '1i' },
-				uSortIndices: { value: null, type: '1i' } // ソート用のインデックステクスチャ
+				uSortIndices: { value: null, type: '1i' }, // ソート用のインデックステクスチャ
+				uViewport: { value: [ window.innerWidth, window.innerHeight ], type: '2fv' }, // ビューポートサイズ
+				uFocal: { value: [ 1.0, 1.0 ], type: '2fv' } // デフォルトの焦点距離
 			},
 			defines: {
 				"USE_GAUSSIAN_SPLAT": "",

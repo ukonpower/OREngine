@@ -135,6 +135,20 @@ export class SPZController extends Component {
 		this.material.uniforms.uSortIndicesSize = { value: [ texWidth, texHeight ], type: '2fv' };
 		this.material.uniforms.uSortEnabled = { value: 1.0, type: '1f' };
 
+		// カメラのプロジェクションパラメータを取得して焦点距離を設定
+		const cameraParams = camera.projectionMatrix;
+		// 焦点距離を計算（プロジェクション行列の要素から）
+		// focalX = projectionMatrix[0][0] * viewportWidth / 2
+		// focalY = projectionMatrix[1][1] * viewportHeight / 2
+		const viewportWidth = 1920 / 4;
+		const viewportHeight = 1080 / 4;
+		const focalX = cameraParams.elm[ 0 ] * viewportWidth / 2.0;
+		const focalY = cameraParams.elm[ 5 ] * viewportHeight / 2.0;
+
+		// 焦点距離とビューポートサイズをユニフォームに設定
+		this.material.uniforms.uFocal = { value: [ focalX, focalY ], type: '2fv' };
+		this.material.uniforms.uViewport = { value: [ viewportWidth, viewportHeight ], type: '2fv' };
+
 	}
 
 	/**
@@ -168,7 +182,7 @@ export class SPZController extends Component {
 
 		if ( camera ) {
 
-			this.updateSort( camera );
+			// this.updateSort( camera );
 
 		}
 
