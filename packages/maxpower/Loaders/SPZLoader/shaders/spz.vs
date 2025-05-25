@@ -230,10 +230,13 @@ void main(void) {
     // カメラ空間での位置を計算
     vec4 cameraPosition = uViewMatrix * uModelMatrix * vec4(instancePosition, 1.0);
     
+    // プロジェクション変換
+    vec4 projectedPos = uProjectionMatrix * cameraPosition;
+    
     // クリッピングの判定（視野外のスプラットを早期に破棄）
-    float clip = 1.2 * cameraPosition.w;
-    if (cameraPosition.z < -clip || cameraPosition.x < -clip || cameraPosition.x > clip || 
-        cameraPosition.y < -clip || cameraPosition.y > clip) {
+    float clip = 1.2 * projectedPos.w;
+    if (projectedPos.z < -clip || projectedPos.x < -clip || projectedPos.x > clip || 
+        projectedPos.y < -clip || projectedPos.y > clip) {
         // 視野外なので画面外に配置
         gl_Position = vec4(0.0, 0.0, 2.0, 1.0);
         return;
@@ -292,9 +295,8 @@ void main(void) {
     vAlpha = instanceAlpha;
     
     // 頂点の投影位置を計算
-    vec4 projectedPos = uProjectionMatrix * cameraPosition;
     vec2 vCenter = projectedPos.xy / projectedPos.w;
-    
+
     #include <vert_out>
 
     // 入力頂点位置に基づいて、楕円上の点を計算
@@ -303,4 +305,5 @@ void main(void) {
         0.0,
         1.0
     );
+    
 }

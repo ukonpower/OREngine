@@ -26,8 +26,6 @@ void main( void ) {
     
     // カラーとアルファを適用
     outColor = vec4(B * color, B);
-
-    outColor = vec4( 1.0, 1.0, 1.0, 0.7 );
     
     #include <frag_out>
 }
