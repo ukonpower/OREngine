@@ -37,13 +37,58 @@ export class SPZController extends Component {
 		// コンポーネントのタグをつける
 		this._tag = "spz-controller";
 
+		this.updateSort();
+
+		window.addEventListener( "keydown", ( e )=>{
+
+			if ( e.key === "s" ) {
+
+				this.updateSort();
+
+			}
+
+		} );
+
 	}
 
 	/**
 	 * カメラに基づいてガウシアンの深度ソートを実行
 	 * @param camera カメラコンポーネント
 	 */
-	public updateSort( camera: Camera ) {
+	public updateSort() {
+
+		// シーンからカメラを検索
+		const findCameraInEntity = ( ): Camera | null => {
+
+			const rootEntity = this.entity.getRootEntity();
+
+			const cameraEntity = rootEntity.findEntityByName( "Camera" );
+
+			if ( cameraEntity ) {
+
+				const camera = cameraEntity.getComponentByTag<Camera>( "camera" );
+
+				if ( camera ) return camera;
+
+			}
+
+			return null;
+
+		};
+
+		const camera = findCameraInEntity();
+
+		if ( ! camera ) return;
+
+		// カメラのプロジェクションパラメータを取得して焦点距離を設定
+		const cameraParams = camera.projectionMatrix;
+		const viewportWidth = 1920 / 4;
+		const viewportHeight = 1080 / 4;
+		const focalX = cameraParams.elm[ 0 ] * viewportWidth / 2.0;
+		const focalY = cameraParams.elm[ 5 ] * viewportHeight / 2.0;
+
+		// 焦点距離とビューポートサイズをユニフォームに設定
+		this.material.uniforms.uFocal.value.set( focalX, focalY );
 
 		// カメラのビュー行列を取得
 		const viewMatrix = camera.viewMatrix;
@@ -66,7 +111,7 @@ export class SPZController extends Component {
 		}
 
 		// 深度でソート（奥から手前へ）
-		depths.sort( ( a, b ) => b.depth - a.depth );
+		depths.sort( ( a, b ) => a.depth - b.depth );
 
 		// ソート後のインデックス配列
 		const sortedIndices = new Float32Array( this.numPoints );
@@ -92,7 +137,6 @@ export class SPZController extends Component {
 
 		}
 
-		// テクスチャの作成（既存のものがあれば再利用）
 		const texture = this.material.uniforms.uSortTex.value as GLP.GLPowerTexture;
 
 		// イメージデータを作成
@@ -114,47 +158,9 @@ export class SPZController extends Component {
 
 		super.update( event );
 
-		// シーンからカメラを検索
-		const findCameraInEntity = ( ): Camera | null => {
+		// this.updateSort();
 
-			const rootEntity = this.entity.getRootEntity();
-
-			// このエンティティのカメラコンポーネントを確認
-			const cameraEntity = rootEntity.findEntityByName( "Camera" );
-
-			if ( cameraEntity ) {
-
-				const camera = cameraEntity.getComponentByTag<Camera>( "camera" );
-
-				if ( camera ) return camera;
-
-			}
-
-			return null;
-
-		};
-
-		const camera = findCameraInEntity( );
-
-		if ( camera ) {
-
-			// カメラのプロジェクションパラメータを取得して焦点距離を設定
-			const cameraParams = camera.projectionMatrix;
-			// 焦点距離を計算（プロジェクション行列の要素から）
-			// focalX = projectionMatrix[0][0] * viewportWidth / 2
-			// focalY = projectionMatrix[1][1] * viewportHeight / 2
-			const viewportWidth = 1920 / 4;
-			const viewportHeight = 1080 / 4;
-			const focalX = cameraParams.elm[ 0 ] * viewportWidth / 2.0;
-			const focalY = cameraParams.elm[ 5 ] * viewportHeight / 2.0;
-
-			// 焦点距離とビューポートサイズをユニフォームに設定
-			this.material.uniforms.uFocal.value.set( focalX, focalY );
-			this.material.uniforms.uViewport.value.copy( event.resolution );
-
-			this.updateSort( camera );
-
-		}
+		this.material.uniforms.uViewport.value.copy( event.resolution );
 
 	}
 
