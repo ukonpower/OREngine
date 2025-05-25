@@ -100,7 +100,9 @@ export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: 
 
 	const geometry = new PlaneGeometry( {
 		width: 4,
-		height: 4
+		height: 4,
+		widthSegments: 1,
+		heightSegments: 1
 	} );
 
 	// インスタンス数の設定
@@ -219,6 +221,7 @@ export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: 
 		];
 
 		// 共分散行列データをmain.jsと同じ方法でパッキング
+		// main.jsでは4倍のスケールが適用されている
 		covarianceData[ idx + 0 ] = packHalf2x16( 4 * sigma[ 0 ], 4 * sigma[ 1 ] );
 		covarianceData[ idx + 1 ] = packHalf2x16( 4 * sigma[ 2 ], 4 * sigma[ 3 ] );
 		covarianceData[ idx + 2 ] = packHalf2x16( 4 * sigma[ 4 ], 4 * sigma[ 5 ] );
