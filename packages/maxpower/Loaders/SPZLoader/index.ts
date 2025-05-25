@@ -1,7 +1,5 @@
 import * as GLP from 'glpower';
 
-import { SPZController } from './SPZController';
-import { convertCoordinateSystem } from './utils/CoordinateSystemConverter';
 import { gunzipData } from './utils/SPZDataCompression';
 import { parseHeader, parseGaussianData } from './utils/SPZDataParser';
 import { createGaussianEntity, SPZResult, SPZLoaderOptions } from './utils/SPZMeshBuilder';
@@ -76,15 +74,6 @@ export class SPZLoader extends GLP.EventEmitter {
 
 		// 4. SPZデータの解析
 		const gaussianData = parseGaussianData( decompressedData, header );
-
-		// 5. 座標系の変換（必要な場合）
-		if ( opts.sourceCoordinateSystem !== CoordinateSystem.UNSPECIFIED &&
-			opts.targetCoordinateSystem !== CoordinateSystem.UNSPECIFIED &&
-			opts.sourceCoordinateSystem !== opts.targetCoordinateSystem ) {
-
-			convertCoordinateSystem( gaussianData, opts.sourceCoordinateSystem, opts.targetCoordinateSystem );
-
-		}
 
 		// 6. メッシュの生成
 		const result = createGaussianEntity( this.gl, gaussianData, header, opts );

@@ -2,7 +2,6 @@ import * as GLP from 'glpower';
 
 import { Component, ComponentParams, ComponentUpdateEvent } from '../../Component';
 import { Camera } from '../../Component/Camera';
-import { Entity } from '../../Entity';
 import { Material } from '../../Material';
 
 // SPZコントローラーのパラメータ型
@@ -22,7 +21,6 @@ export class SPZController extends Component {
 	private gaussianPositions: Float32Array;
 	private numPoints: number;
 	private material: Material;
-	private sortEnabled: boolean;
 	private gl: WebGL2RenderingContext;
 
 	constructor( params: ComponentParams<SPZControllerParams> ) {
@@ -35,7 +33,6 @@ export class SPZController extends Component {
 		this.numPoints = args.numPoints;
 		this.material = args.material;
 		this.gl = args.gl;
-		this.sortEnabled = args.sortEnabled !== false;
 
 		// コンポーネントのタグをつける
 		this._tag = "spz-controller";
@@ -47,8 +44,6 @@ export class SPZController extends Component {
 	 * @param camera カメラコンポーネント
 	 */
 	public updateSort( camera: Camera ) {
-
-		if ( ! this.sortEnabled ) return;
 
 		// カメラのビュー行列を取得
 		const viewMatrix = camera.viewMatrix;
@@ -64,22 +59,18 @@ export class SPZController extends Component {
 			const y = this.gaussianPositions[ i * 3 + 1 ];
 			const z = this.gaussianPositions[ i * 3 + 2 ];
 
-			// カメラ空間での位置を計算
-			// 行列は列優先で格納されているため、適切なインデックスでアクセス
-			// viewMatrix.elm[2], viewMatrix.elm[6], viewMatrix.elm[10] はビュー行列のz方向成分
-			const elements = viewMatrix.elm;
-			// Z方向の深度を計算（視点からの距離）
-			const depth = elements[ 2 ] * x + elements[ 6 ] * y + elements[ 10 ] * z + elements[ 14 ];
+			const outPos = new GLP.Vector( x, y, z ).applyMatrix4AsPosition( viewMatrix );
 
-			depths.push( { index: i, depth } );
+			depths.push( { index: i, depth: outPos.z } );
 
 		}
 
 		// 深度でソート（奥から手前へ）
-		depths.sort( ( a, b ) => a.depth - b.depth );
+		depths.sort( ( a, b ) => b.depth - a.depth );
 
 		// ソート後のインデックス配列
 		const sortedIndices = new Float32Array( this.numPoints );
+
 		for ( let i = 0; i < this.numPoints; i ++ ) {
 
 			sortedIndices[ i ] = depths[ i ].index;
@@ -102,23 +93,7 @@ export class SPZController extends Component {
 		}
 
 		// テクスチャの作成（既存のものがあれば再利用）
-		let texture = this.material.uniforms.uSortIndices?.value as GLP.GLPowerTexture;
-
-		if ( ! texture ) {
-
-			// 新しくテクスチャを作成
-			texture = new GLP.GLPowerTexture( this.gl );
-
-			// 設定を適用
-			texture.setting( {
-				type: this.gl.FLOAT,
-				internalFormat: this.gl.RGBA32F,
-				format: this.gl.RGBA,
-				magFilter: this.gl.NEAREST,
-				minFilter: this.gl.NEAREST,
-			} );
-
-		}
+		const texture = this.material.uniforms.uSortTex.value as GLP.GLPowerTexture;
 
 		// イメージデータを作成
 		const imageData = {
@@ -129,11 +104,6 @@ export class SPZController extends Component {
 
 		// テクスチャにデータをアタッチ
 		texture.attach( imageData );
-
-		// マテリアルのユニフォームに設定
-		this.material.uniforms.uSortIndices = { value: texture, type: '1i' };
-		this.material.uniforms.uSortIndicesSize = { value: [ texWidth, texHeight ], type: '2fv' };
-		this.material.uniforms.uSortEnabled = { value: 1.0, type: '1f' };
 
 	}
 
