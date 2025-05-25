@@ -288,6 +288,7 @@ export class MainCamera extends MXP.Component {
 	private updateCameraParams() {
 
 		this.renderCamera.aspect = this._resolution.x / this._resolution.y;
+		this.renderCamera.far = 3000;
 		this.renderCamera.needsUpdateProjectionMatrix = true;
 
 	}

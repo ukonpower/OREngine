@@ -123,7 +123,7 @@ void main( void ) {
 	vec2 minorAxis = min(sqrt(2.0 * lambda2), 1024.0) * vec2(diagonalVector.y, -diagonalVector.x);
 	
 	// ローカル座標に軸スケールを適用
-	vec2 localPos = outPos.xy;
+	vec2 localPos = outPos.xy * 0.04;
 	
 	// 投影後の中心位置を計算
 	vec2 vCenter = vec2(pos2d.xy) / pos2d.w;
