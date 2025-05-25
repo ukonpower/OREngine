@@ -39,8 +39,8 @@ export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: 
 	const entity = new Entity();
 
 	const geometry = new PlaneGeometry( {
-		width: 1,
-		height: 1
+		width: 4,
+		height: 4
 	} );
 
 	// インスタンス数の設定
