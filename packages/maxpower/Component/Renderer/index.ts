@@ -949,6 +949,7 @@ export class Renderer extends Entity {
 					this._tmpNormalMatrix.inverse();
 					this._tmpNormalMatrix.transpose();
 
+					program.setUniform( 'uModelViewMatrix', 'Matrix4fv', this._tmpModelViewMatrix.elm );
 					program.setUniform( 'uNormalMatrix', 'Matrix4fv', this._tmpNormalMatrix.elm );
 					program.setUniform( 'uViewMatrixInverse', 'Matrix4fv', this._tmpViewMatrixInverseMatrix.copy( param.viewMatrix ).inverse().elm );
 
