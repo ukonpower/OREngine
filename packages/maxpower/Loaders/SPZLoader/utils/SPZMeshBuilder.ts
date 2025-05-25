@@ -27,6 +27,66 @@ export type SPZLoaderOptions = {
 }
 
 /**
+ * float値をhalf形式（16ビット）に変換する
+ * @param float 変換するfloat値
+ * @returns 16ビット半精度浮動小数点数
+ */
+function floatToHalf( float: number ): number {
+
+	// float32をint32に変換するためのビューを作成
+	const floatView = new Float32Array( 1 );
+	const int32View = new Int32Array( floatView.buffer );
+
+	floatView[ 0 ] = float;
+	const f = int32View[ 0 ];
+
+	const sign = ( f >> 31 ) & 0x0001;
+	const exp = ( f >> 23 ) & 0x00ff;
+	const frac = f & 0x007fffff;
+
+	let newExp;
+	if ( exp === 0 ) {
+
+		newExp = 0;
+
+	} else if ( exp < 113 ) {
+
+		newExp = 0;
+		// frac |= 0x00800000;
+		// frac = frac >> (113 - exp);
+		// if (frac & 0x01000000) {
+		// 	newExp = 1;
+		// 	frac = 0;
+		// }
+
+	} else if ( exp < 142 ) {
+
+		newExp = exp - 112;
+
+	} else {
+
+		newExp = 31;
+		// frac = 0;
+
+	}
+
+	return ( sign << 15 ) | ( newExp << 10 ) | ( frac >> 13 );
+
+}
+
+/**
+ * 2つのfloat値を32ビットのuint値にパックする
+ * @param x 1つ目のfloat値
+ * @param y 2つ目のfloat値
+ * @returns パックされた32ビット値
+ */
+function packHalf2x16( x: number, y: number ): number {
+
+	return ( floatToHalf( x ) | ( floatToHalf( y ) << 16 ) ) >>> 0;
+
+}
+
+/**
  * ガウシアンデータからメッシュを生成する
  * @param gl WebGL2コンテキスト
  * @param gaussianData ガウシアンデータ
@@ -83,7 +143,11 @@ export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: 
 
 	// ソートテクスチャ
 	const sortData = new Float32Array( texWidth * texHeight * 4 );
-	colorData.fill( 0 );
+	sortData.fill( 0 );
+
+	// 共分散行列テクスチャ (σの6要素をUint32としてパッキング)
+	const covarianceData = new Uint32Array( texWidth * texHeight * 4 );
+	covarianceData.fill( 0 );
 
 	// データを各テクスチャに分離して格納
 	for ( let i = 0; i < numPoints; i ++ ) {
@@ -113,6 +177,52 @@ export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: 
 		colorData[ idx + 1 ] = gaussianData.colors[ i * 3 + 1 ];
 		colorData[ idx + 2 ] = gaussianData.colors[ i * 3 + 2 ];
 		colorData[ idx + 3 ] = gaussianData.alphas[ i ]; // アルファ値
+
+		// 共分散行列の計算（main.jsと同様のアルゴリズム）
+		const rot = [
+			gaussianData.rotations[ i * 4 + 0 ],
+			gaussianData.rotations[ i * 4 + 1 ],
+			gaussianData.rotations[ i * 4 + 2 ],
+			gaussianData.rotations[ i * 4 + 3 ]
+		];
+
+		const scale = [
+			gaussianData.scales[ i * 3 + 0 ],
+			gaussianData.scales[ i * 3 + 1 ],
+			gaussianData.scales[ i * 3 + 2 ]
+		];
+
+		// M = S * R の計算
+		const M = [
+			// 第1行
+			( 1.0 - 2.0 * ( rot[ 2 ] * rot[ 2 ] + rot[ 3 ] * rot[ 3 ] ) ) * scale[ 0 ],
+			( 2.0 * ( rot[ 1 ] * rot[ 2 ] + rot[ 0 ] * rot[ 3 ] ) ) * scale[ 0 ],
+			( 2.0 * ( rot[ 1 ] * rot[ 3 ] - rot[ 0 ] * rot[ 2 ] ) ) * scale[ 0 ],
+			// 第2行
+			( 2.0 * ( rot[ 1 ] * rot[ 2 ] - rot[ 0 ] * rot[ 3 ] ) ) * scale[ 1 ],
+			( 1.0 - 2.0 * ( rot[ 1 ] * rot[ 1 ] + rot[ 3 ] * rot[ 3 ] ) ) * scale[ 1 ],
+			( 2.0 * ( rot[ 2 ] * rot[ 3 ] + rot[ 0 ] * rot[ 1 ] ) ) * scale[ 1 ],
+			// 第3行
+			( 2.0 * ( rot[ 1 ] * rot[ 3 ] + rot[ 0 ] * rot[ 2 ] ) ) * scale[ 2 ],
+			( 2.0 * ( rot[ 2 ] * rot[ 3 ] - rot[ 0 ] * rot[ 1 ] ) ) * scale[ 2 ],
+			( 1.0 - 2.0 * ( rot[ 1 ] * rot[ 1 ] + rot[ 2 ] * rot[ 2 ] ) ) * scale[ 2 ]
+		];
+
+		// シグマ行列（共分散行列）の計算
+		const sigma = [
+			M[ 0 ] * M[ 0 ] + M[ 3 ] * M[ 3 ] + M[ 6 ] * M[ 6 ],
+			M[ 0 ] * M[ 1 ] + M[ 3 ] * M[ 4 ] + M[ 6 ] * M[ 7 ],
+			M[ 0 ] * M[ 2 ] + M[ 3 ] * M[ 5 ] + M[ 6 ] * M[ 8 ],
+			M[ 1 ] * M[ 1 ] + M[ 4 ] * M[ 4 ] + M[ 7 ] * M[ 7 ],
+			M[ 1 ] * M[ 2 ] + M[ 4 ] * M[ 5 ] + M[ 7 ] * M[ 8 ],
+			M[ 2 ] * M[ 2 ] + M[ 5 ] * M[ 5 ] + M[ 8 ] * M[ 8 ]
+		];
+
+		// 共分散行列データをmain.jsと同じ方法でパッキング
+		covarianceData[ idx + 0 ] = packHalf2x16( 4 * sigma[ 0 ], 4 * sigma[ 1 ] );
+		covarianceData[ idx + 1 ] = packHalf2x16( 4 * sigma[ 2 ], 4 * sigma[ 3 ] );
+		covarianceData[ idx + 2 ] = packHalf2x16( 4 * sigma[ 4 ], 4 * sigma[ 5 ] );
+		covarianceData[ idx + 3 ] = 0; // パディング
 
 	}
 
@@ -191,6 +301,21 @@ export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: 
 		data: sortData
 	} );
 
+	// 共分散行列テクスチャの作成 (UINTテクスチャ)
+	const covarianceTexture = new GLP.GLPowerTexture( gl );
+	covarianceTexture.setting( {
+		type: gl.UNSIGNED_INT,
+		internalFormat: gl.RGBA32UI,
+		format: gl.RGBA_INTEGER,
+		magFilter: gl.NEAREST,
+		minFilter: gl.NEAREST,
+	} );
+	covarianceTexture.attach( {
+		width: texWidth,
+		height: texHeight,
+		data: covarianceData
+	} );
+
 	// ユニフォーム変数の設定
 	const uniforms: GLP.Uniforms = {
 		uPositionTexture: { value: positionTexture, type: '1i' },
@@ -198,6 +323,7 @@ export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: 
 		uRotationTexture: { value: rotationTexture, type: '1i' },
 		uColorTexture: { value: colorTexture, type: '1i' },
 		uSortTex: { value: sortTexture, type: '1i' },
+		uCovarianceTexture: { value: covarianceTexture, type: '1i' },
 		uDataTexSize: { value: new GLP.Vector( texWidth, texHeight ), type: '2fv' },
 		uInstanceCount: { value: numPoints, type: '1i' },
 		uFocal: { value: new GLP.Vector( 1164.6601287484507, 1159.5880733038064 ), type: '2fv' },
@@ -291,7 +417,8 @@ export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: 
 		uniforms,
 		defines: {
 			"USE_GAUSSIAN_SPLAT": "",
-			"SH_DEGREE": header.shDegree.toString()
+			"SH_DEGREE": header.shDegree.toString(),
+			"USE_COVARIANCE_TEXTURE": "" // 共分散行列テクスチャを使用する
 		},
 		// depthTest: false,
 	} );
@@ -346,7 +473,7 @@ export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: 
 	// 深度ソート用の関数
 	const updateSort = ( camera: Camera ) => {
 
-		controller.updateSort( camera );
+		controller.updateSort();
 
 	};
 

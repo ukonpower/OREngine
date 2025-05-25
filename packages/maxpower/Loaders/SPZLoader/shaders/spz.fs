@@ -18,7 +18,6 @@ void main( void ) {
     float A = -dot(vCUv, vCUv);
     if (A < -4.0) discard;
     float B = exp(A) * vAlpha;
-    outColor = vec4(B * vColor.rgb, B);
-
+    outColor = vec4(vColor.rgb, B);
     #include <frag_out>
 }

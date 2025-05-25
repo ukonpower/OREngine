@@ -9,6 +9,7 @@ uniform sampler2D uScaleTexture;
 uniform sampler2D uRotationTexture;
 uniform sampler2D uColorTexture;
 uniform sampler2D uSortTex;
+uniform highp usampler2D uCovarianceTexture;  // 共分散行列テクスチャ (uint型)
 uniform vec2 uFocal;
 uniform vec2 uViewport;
 
@@ -37,14 +38,27 @@ vec2 getUV( float index ) {
 	FetchData
 -------------------------------*/
 
-void fetchData( float index, out vec3 instancePosition, out vec3 instanceScale, out vec3 instanceRotation, out vec4 instanceColor ) {
+void fetchData( float index, out vec3 instancePosition, out vec4 instanceColor, out mat3 instanceVrk ) {
 
 	vec2 uv = getUV( index );
 
 	instancePosition = texture( uPositionTexture, uv ).xyz;
-	instanceScale = texture( uScaleTexture, uv ).xyz;
-	instanceRotation = texture( uRotationTexture, uv ).xyz;
 	instanceColor = texture( uColorTexture, uv );
+
+	// 共分散行列テクスチャから値を取得（unsigned intとして）
+	uvec4 cov = texelFetch(uCovarianceTexture, ivec2(uv * uDataTexSize), 0);
+	
+	// 16ビット値のアンパック
+	vec2 u1 = unpackHalf2x16(cov.x);
+	vec2 u2 = unpackHalf2x16(cov.y);
+	vec2 u3 = unpackHalf2x16(cov.z);
+	
+	// 行列に設定（対称行列）
+	instanceVrk = mat3(
+		u1.x, u1.y, u2.x,
+		u1.y, u2.y, u3.x,
+		u2.x, u3.x, u3.y
+	);
 	
 }
 
@@ -69,42 +83,16 @@ void main( void ) {
 	#include <vert_in>
 
 	vec3 instancePosition;
-	vec3 instanceScale;
-	vec3 instanceRotation;
 	vec4 instanceColor;
+	mat3 instanceVrk;
 
 	float actualIndex = fetchActualIndex( instanceId );
 
-	fetchData( actualIndex, instancePosition, instanceScale, instanceRotation, instanceColor );
-
-	// 行列計算の準備
-	// クォータニオンから回転行列成分を計算
-	vec4 q = vec4(instanceRotation, 0.0);
-	q = normalize(q);
+	fetchData( actualIndex, instancePosition, instanceColor, instanceVrk );
 	
-	// 回転行列の計算
-	mat3 R = mat3(
-		1.0 - 2.0 * (q.y * q.y + q.z * q.z), 2.0 * (q.x * q.y + q.w * q.z), 2.0 * (q.x * q.z - q.w * q.y),
-		2.0 * (q.x * q.y - q.w * q.z), 1.0 - 2.0 * (q.x * q.x + q.z * q.z), 2.0 * (q.y * q.z + q.w * q.x),
-		2.0 * (q.x * q.z + q.w * q.y), 2.0 * (q.y * q.z - q.w * q.x), 1.0 - 2.0 * (q.x * q.x + q.y * q.y)
-	);
-	
-	// スケール行列とR行列を乗算
-	mat3 SR = mat3(
-		instanceScale.x * R[0][0], instanceScale.x * R[0][1], instanceScale.x * R[0][2],
-		instanceScale.y * R[1][0], instanceScale.y * R[1][1], instanceScale.y * R[1][2],
-		instanceScale.z * R[2][0], instanceScale.z * R[2][1], instanceScale.z * R[2][2]
-	);
-	
-	// 共分散行列の計算
-	mat3 Vrk = mat3(
-		SR[0][0] * SR[0][0] + SR[1][0] * SR[1][0] + SR[2][0] * SR[2][0], SR[0][0] * SR[0][1] + SR[1][0] * SR[1][1] + SR[2][0] * SR[2][1], SR[0][0] * SR[0][2] + SR[1][0] * SR[1][2] + SR[2][0] * SR[2][2],
-		SR[0][0] * SR[0][1] + SR[1][0] * SR[1][1] + SR[2][0] * SR[2][1], SR[0][1] * SR[0][1] + SR[1][1] * SR[1][1] + SR[2][1] * SR[2][1], SR[0][1] * SR[0][2] + SR[1][1] * SR[1][2] + SR[2][1] * SR[2][2],
-		SR[0][0] * SR[0][2] + SR[1][0] * SR[1][2] + SR[2][0] * SR[2][2], SR[0][1] * SR[0][2] + SR[1][1] * SR[1][2] + SR[2][1] * SR[2][2], SR[0][2] * SR[0][2] + SR[1][2] * SR[1][2] + SR[2][2] * SR[2][2]
-	);
-
 	// ビュー変換後の座標を計算
 	vec4 viewPos = uModelViewMatrix * vec4(instancePosition, 1.0);
+	vec4 pos2d = uProjectionMatrix * viewPos;
 	
 	// ヤコビアン行列の計算
 	mat3 J = mat3(
@@ -115,7 +103,7 @@ void main( void ) {
 	
 	// 投影のための変換行列
 	mat3 T = transpose(mat3(uModelViewMatrix)) * J;
-	mat3 cov2d = transpose(T) * Vrk * T;
+	mat3 cov2d = transpose(T) * instanceVrk * T;
 	
 	// 楕円の軸計算
 	float mid = (cov2d[0][0] + cov2d[1][1]) / 2.0;
@@ -131,16 +119,15 @@ void main( void ) {
 	
 	// 楕円の主軸と副軸を計算
 	vec2 diagonalVector = normalize(vec2(cov2d[0][1], lambda1 - cov2d[0][0]));
-	vec2 majorAxis = min(sqrt(2.0 * lambda1), 1024.0) * diagonalVector * 0.05;
-	vec2 minorAxis = min(sqrt(2.0 * lambda2), 1024.0) * vec2(diagonalVector.y, -diagonalVector.x) * 0.05;
+	vec2 majorAxis = min(sqrt(2.0 * lambda1), 1024.0) * diagonalVector;
+	vec2 minorAxis = min(sqrt(2.0 * lambda2), 1024.0) * vec2(diagonalVector.y, -diagonalVector.x);
 	
 	// ローカル座標に軸スケールを適用
 	vec2 localPos = outPos.xy;
 	
 	// 投影後の中心位置を計算
-	vec4 projPos = uProjectionMatrix * viewPos;
-	vec2 vCenter = vec2(projPos.xy) / projPos.w;
-	float depth = projPos.z / projPos.w;
+	vec2 vCenter = vec2(pos2d.xy) / pos2d.w;
+	float depth = pos2d.z / pos2d.w;
 	
 	// 最終位置を計算
 	vec4 finalPos = vec4(
@@ -150,10 +137,10 @@ void main( void ) {
 		depth, 1.0);
 	
 	// 色とアルファ値の設定
-	vColor = instanceColor.rgb * 8.0;
+	vColor = instanceColor.rgb;
 	vAlpha = instanceColor.a;
 	vNormalizedUV = localPos;
-	vCUv = outPos.xy * 2.0;
+	vCUv = outPos.xy;
 	
 	#include <vert_out>
 	

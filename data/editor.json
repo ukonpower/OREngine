@@ -1,9 +1,9 @@
 {
 	"enableRender": true,
-	"resolutionScale": 0.25,
+	"resolutionScale": 1,
 	"viewType": "render",
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,
 	"frameLoop/end": 0,
-	"selectedEntityId": "77"
+	"selectedEntityId": "5e"
 }
