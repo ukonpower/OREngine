@@ -198,7 +198,7 @@ export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: 
 		uRotationTexture: { value: rotationTexture, type: '1i' },
 		uColorTexture: { value: colorTexture, type: '1i' },
 		uSortTex: { value: sortTexture, type: '1i' },
-		uDataTexSize: { value: [ texWidth, texHeight ], type: '2fv' },
+		uDataTexSize: { value: new GLP.Vector( texWidth, texHeight ), type: '2fv' },
 		uInstanceCount: { value: numPoints, type: '1i' },
 		uFocal: { value: new GLP.Vector( 1164.6601287484507, 1159.5880733038064 ), type: '2fv' },
 		uViewport: { value: new GLP.Vector(), type: "2fv" }

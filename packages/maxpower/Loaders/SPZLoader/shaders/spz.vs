@@ -10,12 +10,25 @@ uniform sampler2D uRotationTexture;
 uniform sampler2D uColorTexture;
 uniform sampler2D uSortTex;
 
-void fetchData( float index, out vec3 instancePosition, out vec3 instanceScale, out vec3 instanceRotation, out vec4 instanceColor ) {
+out vec3 vColor;
+out float vAlpha;
+out vec2 vNormalizedUV;
+
+vec2 getUV( float index ) {
 
 	float posIdx = index;
     float tx1 = mod(posIdx, uDataTexSize.x);
     float ty1 = floor(posIdx / uDataTexSize.x);
     vec2 uv = vec2(tx1 + 0.5, ty1 + 0.5) / uDataTexSize;
+	uv.y = 1.0 - uv.y;
+
+	return uv;
+
+}
+
+void fetchData( float index, out vec3 instancePosition, out vec3 instanceScale, out vec3 instanceRotation, out vec4 instanceColor ) {
+
+	vec2 uv = getUV( index );
 
 	instancePosition = texture( uPositionTexture, uv ).xyz;
 	instanceScale = texture( uScaleTexture, uv ).xyz;
@@ -26,10 +39,8 @@ void fetchData( float index, out vec3 instancePosition, out vec3 instanceScale, 
 
 float fetchActualIndex( float index ) {
 
-	float posIdx = index;
-    float tx1 = mod(posIdx, uDataTexSize.x);
-    float ty1 = floor(posIdx / uDataTexSize.x);
-    vec2 uv = vec2(tx1 + 0.5, ty1 + 0.5) / uDataTexSize;
+	vec2 uv = getUV( index );
+
 	return texture( uSortTex, uv ).x;
 
 }
@@ -47,8 +58,13 @@ void main( void ) {
 
 	fetchData( actualIndex, instancePosition, instanceScale, instanceRotation, instanceColor );
 
-	outPos *= instanceScale * 0.5;
+	outPos *= instanceScale * 0.05;
+
 	outPos += instancePosition;
+
+	vColor = instanceColor.xyz * 8.0;
+	vAlpha = instanceColor.w;
+	vNormalizedUV = (vUv - 0.5) * 2.0;
 	
 	#include <vert_out>
 	
