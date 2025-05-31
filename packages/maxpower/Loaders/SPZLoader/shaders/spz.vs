@@ -119,6 +119,10 @@ void main( void ) {
 	
 	// 楕円の主軸と副軸を計算
 	vec2 diagonalVector = normalize(vec2(cov2d[0][1], lambda1 - cov2d[0][0]));
+
+	// 何故か逆
+	diagonalVector.y = - diagonalVector.y;
+	
 	vec2 majorAxis = min(sqrt(2.0 * lambda1), 1024.0) * diagonalVector;
 	vec2 minorAxis = min(sqrt(2.0 * lambda2), 1024.0) * vec2(diagonalVector.y, -diagonalVector.x);
 	
@@ -131,7 +135,7 @@ void main( void ) {
 	
 	// 最終位置を計算
 	vec4 finalPos = vec4(
-		vCenter + 
+		vCenter +
 		localPos.x * majorAxis / uViewport + 
 		localPos.y * minorAxis / uViewport,
 		depth, 1.0);
