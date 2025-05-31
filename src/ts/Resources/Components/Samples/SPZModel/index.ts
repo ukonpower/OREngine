@@ -16,7 +16,10 @@ export class SPZModel extends MXP.Component {
 		this.spzEntity = null;
 		this.spzController = null;
 
-		this.loadSPZ( 'cup.spz' );
+		// this.loadSPZ( '/train.splat' );
+		this.loadSPZ( '/cup.spz' );
+		// this.loadSPZ( "/hornedlizard.spz" );
+		// this.loadSPZ( "/racoonfamily.spz" );
 
 	}
 

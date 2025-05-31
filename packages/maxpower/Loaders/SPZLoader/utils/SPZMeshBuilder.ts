@@ -334,83 +334,83 @@ export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: 
 	};
 
 	// 球面調和関数のテクスチャ処理
-	// if ( gaussianData.sphericalHarmonics ) {
+	if ( gaussianData.sphericalHarmonics ) {
 
-	// 	const shDegree = header.shDegree;
-	// 	const size = getSHSize( shDegree );
+		const shDegree = header.shDegree;
+		const size = getSHSize( shDegree );
 
-	// 	// すべての次数でテクスチャとして設定
-	// 	const numPoints = gaussianData.positions.length / 3;
+		// すべての次数でテクスチャとして設定
+		const numPoints = gaussianData.positions.length / 3;
 
-	// 	// 係数の最大数（4次まで対応可能な16に設定）
-	// 	const maxCoeffs = 16;
+		// 係数の最大数（4次まで対応可能な16に設定）
+		const maxCoeffs = 16;
 
-	// 	// テクスチャサイズの計算（2のべき乗にする）
-	// 	const texWidth = Math.pow( 2, Math.ceil( Math.log2( Math.ceil( Math.sqrt( numPoints * maxCoeffs ) ) ) ) );
-	// 	const texHeight = Math.pow( 2, Math.ceil( Math.log2( Math.ceil( ( numPoints * maxCoeffs ) / texWidth ) ) ) );
+		// テクスチャサイズの計算（2のべき乗にする）
+		const texWidth = Math.pow( 2, Math.ceil( Math.log2( Math.ceil( Math.sqrt( numPoints * maxCoeffs ) ) ) ) );
+		const texHeight = Math.pow( 2, Math.ceil( Math.log2( Math.ceil( ( numPoints * maxCoeffs ) / texWidth ) ) ) );
 
-	// 	// テクスチャデータの作成（RGBA形式、各ピクセルに1つの係数のRGB値を保存）
-	// 	const textureData = new Float32Array( texWidth * texHeight * 4 );
-	// 	textureData.fill( 0 ); // デフォルト値を0に設定
+		// テクスチャデータの作成（RGBA形式、各ピクセルに1つの係数のRGB値を保存）
+		const textureData = new Float32Array( texWidth * texHeight * 4 );
+		textureData.fill( 0 ); // デフォルト値を0に設定
 
-	// 	// 実際の係数の数（次数によって異なる）
-	// 	const numCoeffs = Math.pow( shDegree + 1, 2 ) - 1;
+		// 実際の係数の数（次数によって異なる）
+		const numCoeffs = Math.pow( shDegree + 1, 2 ) - 1;
 
-	// 	// SH係数をテクスチャに詰め込む
-	// 	for ( let p = 0; p < numPoints; p ++ ) {
+		// SH係数をテクスチャに詰め込む
+		for ( let p = 0; p < numPoints; p ++ ) {
 
-	// 		for ( let i = 0; i < numCoeffs; i ++ ) {
+			for ( let i = 0; i < numCoeffs; i ++ ) {
 
-	// 			// テクスチャ内の位置を計算
-	// 			const pixelIndex = p * maxCoeffs + i;
-	// 			const tx = pixelIndex % texWidth;
-	// 			const ty = Math.floor( pixelIndex / texWidth );
-	// 			const tIdx = ( ty * texWidth + tx ) * 4; // RGBA形式なので4倍
+				// テクスチャ内の位置を計算
+				const pixelIndex = p * maxCoeffs + i;
+				const tx = pixelIndex % texWidth;
+				const ty = Math.floor( pixelIndex / texWidth );
+				const tIdx = ( ty * texWidth + tx ) * 4; // RGBA形式なので4倍
 
-	// 			// RGB成分をテクスチャに設定
-	// 			for ( let c = 0; c < 3; c ++ ) { // RGB
+				// RGB成分をテクスチャに設定
+				for ( let c = 0; c < 3; c ++ ) { // RGB
 
-	// 				const shIdx = p * size + i * 3 + c;
-	// 				textureData[ tIdx + c ] = gaussianData.sphericalHarmonics[ shIdx ];
+					const shIdx = p * size + i * 3 + c;
+					textureData[ tIdx + c ] = gaussianData.sphericalHarmonics[ shIdx ];
 
-	// 			}
+				}
 
-	// 			// アルファチャンネルは使用しないが、1.0に設定
-	// 			textureData[ tIdx + 3 ] = 1.0;
+				// アルファチャンネルは使用しないが、1.0に設定
+				textureData[ tIdx + 3 ] = 1.0;
 
-	// 		}
+			}
 
-	// 	}
+		}
 
-	// 	// テクスチャの作成
-	// 	const texture = new GLP.GLPowerTexture( gl );
+		// テクスチャの作成
+		const texture = new GLP.GLPowerTexture( gl );
 
-	// 	// 設定を適用
-	// 	texture.setting( {
-	// 		type: gl.FLOAT,
-	// 		internalFormat: gl.RGBA32F,
-	// 		format: gl.RGBA,
-	// 		magFilter: gl.NEAREST,
-	// 		minFilter: gl.NEAREST,
-	// 	} );
+		// 設定を適用
+		texture.setting( {
+			type: gl.FLOAT,
+			internalFormat: gl.RGBA32F,
+			format: gl.RGBA,
+			magFilter: gl.NEAREST,
+			minFilter: gl.NEAREST,
+		} );
 
-	// 	// イメージデータを作成
-	// 	const imageData = {
-	// 		width: texWidth,
-	// 		height: texHeight,
-	// 		data: textureData
-	// 	};
+		// イメージデータを作成
+		const imageData = {
+			width: texWidth,
+			height: texHeight,
+			data: textureData
+		};
 
-	// 	// テクスチャにデータをアタッチ
-	// 	texture.attach( imageData );
+		// テクスチャにデータをアタッチ
+		texture.attach( imageData );
 
-	// 	// マテリアルにテクスチャとサイズ情報を設定
-	// 	uniforms.uSHTexture = { value: texture, type: '1i' };
-	// 	uniforms.uSHTexSize = { value: [ texWidth, texHeight ], type: '2fv' };
-	// 	uniforms.uSHCoeffCount = { value: numCoeffs, type: '1f' };
-	// 	uniforms.uMaxCoeffCount = { value: maxCoeffs, type: '1f' };
+		// マテリアルにテクスチャとサイズ情報を設定
+		uniforms.uSHTexture = { value: texture, type: '1i' };
+		uniforms.uSHTexSize = { value: [ texWidth, texHeight ], type: '2fv' };
+		uniforms.uSHCoeffCount = { value: numCoeffs, type: '1f' };
+		uniforms.uMaxCoeffCount = { value: maxCoeffs, type: '1f' };
 
-	// }
+	}
 
 	// ガウシアンスプラット用のマテリアルを作成
 	const material = new Material( {
