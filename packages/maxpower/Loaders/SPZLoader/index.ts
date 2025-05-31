@@ -203,10 +203,6 @@ export class SPZLoader extends GLP.EventEmitter {
 
 		}
 
-		console.log( header );
-
-		console.log( gaussianData );
-
 		// 6. メッシュの生成
 		const result = createGaussianEntity( this.gl, gaussianData, header, opts );
 

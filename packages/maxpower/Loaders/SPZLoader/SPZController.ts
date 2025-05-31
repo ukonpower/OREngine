@@ -22,6 +22,7 @@ export class SPZController extends Component {
 	private numPoints: number;
 	private material: Material;
 	private gl: WebGL2RenderingContext;
+	private previousResolution: GLP.Vector | null = null;
 
 	constructor( params: ComponentParams<SPZControllerParams> ) {
 
@@ -39,7 +40,7 @@ export class SPZController extends Component {
 
 		this.updateSort();
 
-		window.addEventListener( "keydown", ( e )=>{
+		window.addEventListener( "keydown", ( e ) => {
 
 			if ( e.key === "s" ) {
 
@@ -50,45 +51,46 @@ export class SPZController extends Component {
 		} );
 
 	}
+	/**
+	 * シーンからカメラコンポーネントを検索
+	 * @returns カメラコンポーネント、見つからない場合はnull
+	 */
+	private findCamera(): Camera | null {
+
+		const rootEntity = this.entity.getRootEntity();
+		const cameraEntity = rootEntity.findEntityByName( "Camera" );
+
+		if ( cameraEntity ) {
+
+			const camera = cameraEntity.getComponentByTag<Camera>( "camera" );
+			if ( camera ) return camera;
+
+		}
+
+		return null;
+
+	}
+
+	/**
+	 * テクスチャサイズを計算（2のべき乗）
+	 * @returns テクスチャの幅と高さ
+	 */
+	private calculateTextureSize(): { width: number, height: number } {
+
+		const width = Math.pow( 2, Math.ceil( Math.log2( Math.sqrt( this.numPoints ) ) ) );
+		const height = Math.pow( 2, Math.ceil( Math.log2( this.numPoints / width ) ) );
+
+		return { width, height };
+
+	}
 
 	/**
 	 * カメラに基づいてガウシアンの深度ソートを実行
-	 * @param camera カメラコンポーネント
 	 */
-	public updateSort() {
+	public updateSort(): void {
 
-		// シーンからカメラを検索
-		const findCameraInEntity = ( ): Camera | null => {
-
-			const rootEntity = this.entity.getRootEntity();
-
-			const cameraEntity = rootEntity.findEntityByName( "Camera" );
-
-			if ( cameraEntity ) {
-
-				const camera = cameraEntity.getComponentByTag<Camera>( "camera" );
-
-				if ( camera ) return camera;
-
-			}
-
-			return null;
-
-		};
-
-		const camera = findCameraInEntity();
-
+		const camera = this.findCamera();
 		if ( ! camera ) return;
-
-		// カメラのプロジェクションパラメータを取得して焦点距離を設定
-		const cameraParams = camera.projectionMatrix;
-		const viewportWidth = 1920 / 4;
-		const viewportHeight = 1080 / 4;
-		const focalX = cameraParams.elm[ 0 ] * viewportWidth / 2.0;
-		const focalY = cameraParams.elm[ 5 ] * viewportHeight / 2.0;
-
-		// 焦点距離とビューポートサイズをユニフォームに設定
-		this.material.uniforms.uFocal.value.set( focalX, focalY );
 
 		// カメラのビュー行列を取得
 		const viewMatrix = camera.viewMatrix;
@@ -105,7 +107,6 @@ export class SPZController extends Component {
 			const z = this.gaussianPositions[ i * 3 + 2 ];
 
 			const outPos = new GLP.Vector( x, y, z ).applyMatrix4AsPosition( viewMatrix );
-
 			depths.push( { index: i, depth: outPos.z } );
 
 		}
@@ -115,18 +116,16 @@ export class SPZController extends Component {
 
 		// ソート後のインデックス配列
 		const sortedIndices = new Float32Array( this.numPoints );
-
 		for ( let i = 0; i < this.numPoints; i ++ ) {
 
 			sortedIndices[ i ] = depths[ i ].index;
 
 		}
 
-		// テクスチャの幅と高さを計算（2のべき乗）
-		const texWidth = Math.pow( 2, Math.ceil( Math.log2( Math.sqrt( this.numPoints ) ) ) );
-		const texHeight = Math.pow( 2, Math.ceil( Math.log2( this.numPoints / texWidth ) ) );
+		// テクスチャサイズを計算
+		const { width: texWidth, height: texHeight } = this.calculateTextureSize();
 
-		// テクスチャデータ
+		// テクスチャデータを作成
 		const textureData = new Float32Array( texWidth * texHeight * 4 );
 		textureData.fill( 0 );
 
@@ -137,16 +136,14 @@ export class SPZController extends Component {
 
 		}
 
+		// テクスチャを更新
 		const texture = this.material.uniforms.uSortTex.value as GLP.GLPowerTexture;
-
-		// イメージデータを作成
 		const imageData = {
 			width: texWidth,
 			height: texHeight,
 			data: textureData
 		};
 
-		// テクスチャにデータをアタッチ
 		texture.attach( imageData );
 
 	}
@@ -154,12 +151,23 @@ export class SPZController extends Component {
 	/**
 	 * コンポーネントの更新処理
 	 */
-	public update( event: ComponentUpdateEvent ) {
+	public update( event: ComponentUpdateEvent ): void {
 
 		super.update( event );
 
-		// this.updateSort();
+		const camera = this.findCamera();
 
+		if ( ! camera ) return;
+
+		// カメラのプロジェクションパラメータを取得して焦点距離を設定
+		const cameraParams = camera.projectionMatrix;
+		const viewportWidth = event.resolution.x;
+		const viewportHeight = event.resolution.y;
+		const focalX = cameraParams.elm[ 0 ] * viewportWidth / 2.0;
+		const focalY = cameraParams.elm[ 5 ] * viewportHeight / 2.0;
+
+		// 焦点距離をユニフォームに設定
+		this.material.uniforms.uFocal.value.set( focalX, focalY );
 		this.material.uniforms.uViewport.value.copy( event.resolution );
 
 	}
