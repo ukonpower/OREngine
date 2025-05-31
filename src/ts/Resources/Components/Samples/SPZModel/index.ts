@@ -17,9 +17,9 @@ export class SPZModel extends MXP.Component {
 		this.spzController = null;
 
 		// this.loadSPZ( '/train.splat' );
-		this.loadSPZ( '/cup.spz' );
+		// this.loadSPZ( '/cup.spz' );
 		// this.loadSPZ( "/hornedlizard.spz" );
-		// this.loadSPZ( "/racoonfamily.spz" );
+		this.loadSPZ( "/racoonfamily.spz" );
 
 	}
 
@@ -39,7 +39,6 @@ export class SPZModel extends MXP.Component {
 				sourceCoordinateSystem: MXP.CoordinateSystem.RDF, // PLY形式から変換された場合
 				antialias: true
 			} );
-
 			console.log( 'SPZ loaded:', result );
 
 			// 既存のSPZエンティティがあれば削除
@@ -73,8 +72,6 @@ export class SPZModel extends MXP.Component {
 					sourceCoordinateSystem: MXP.CoordinateSystem.RDF,
 					antialias: true
 				} );
-
-				console.log( 'SPZ loaded (uncompressed):', result );
 
 				if ( this.spzEntity ) {
 

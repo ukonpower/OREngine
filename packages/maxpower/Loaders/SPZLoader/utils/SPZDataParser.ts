@@ -209,16 +209,6 @@ export function parseGaussianData( arrayBuffer: ArrayBuffer, header: SPZHeader )
 				// 対数エンコーディングされたスケール値をデコード
 				const logScale = dataView.getUint8( scaleOffset + j );
 
-				// デバッグ用：複数のデコード方法を試す
-				if ( i < 3 ) {
-
-					const method1 = Math.exp( logScale / 32.0 - 4.0 ); // 現在の方法
-					const method2 = Math.exp( ( logScale - 128 ) / 32.0 ); // 別の方法
-					const method3 = Math.exp( logScale / 64.0 - 2.0 ); // 別の方法
-					console.log( `Scale[${i}][${j}]: raw=${logScale}, method1=${method1}, method2=${method2}, method3=${method3}` );
-
-				}
-
 				// 指数変換で元のスケール値に戻す
 				scales[ i * 3 + j ] = Math.exp( ( logScale ) / 16.0 - 10.0 );
 
