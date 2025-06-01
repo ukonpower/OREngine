@@ -1,4 +1,3 @@
-import { loadSpzFromUrl } from '@spz-loader/core';
 import * as MXP from 'maxpower';
 
 import { gl } from '~/ts/Globals';
@@ -7,7 +6,7 @@ export class SPZModel extends MXP.Component {
 
 	private isLoading: boolean;
 	private spzEntity: MXP.Entity | null;
-	private spzController: MXP.SPZController | null;
+	private spzController: MXP.GaussianSplattingController | null;
 
 	constructor( params: MXP.ComponentParams ) {
 
@@ -33,7 +32,7 @@ export class SPZModel extends MXP.Component {
 
 		try {
 
-			const loader = new MXP.SPZLoader( gl );
+			const loader = new MXP.GaussianSplattingLoader( gl );
 
 			// SPZモデルをロード（非圧縮モードでもロードを試す）
 			const result = await loader.load( path, {
@@ -55,7 +54,7 @@ export class SPZModel extends MXP.Component {
 			this.entity.add( this.spzEntity );
 
 			// SPZControllerコンポーネントを取得
-			this.spzController = this.spzEntity.getComponent( MXP.SPZController ) || null;
+			this.spzController = this.spzEntity.getComponent( MXP.GaussianSplattingController ) || null;
 
 			// 位置とスケールを設定（必要に応じて調整）
 			this.spzEntity.position.set( 0.0, 0.0, - 3.0 ); // カメラから少し離す
@@ -68,7 +67,7 @@ export class SPZModel extends MXP.Component {
 			// エラーが発生した場合は非圧縮モードで再度試す
 			try {
 
-				const loader = new MXP.SPZLoader( gl );
+				const loader = new MXP.GaussianSplattingLoader( gl );
 				const result = await loader.load( path, {
 					isCompressed: false,
 					sourceCoordinateSystem: MXP.CoordinateSystem.RDF,
@@ -85,7 +84,7 @@ export class SPZModel extends MXP.Component {
 				this.entity.add( this.spzEntity );
 
 				// SPZControllerコンポーネントを取得
-				this.spzController = this.spzEntity.getComponent( MXP.SPZController ) || null;
+				this.spzController = this.spzEntity.getComponent( MXP.GaussianSplattingController ) || null;
 
 				// 位置とスケールを設定（必要に応じて調整）
 				this.spzEntity.position.set( 0.0, 0.0, - 3.0 ); // カメラから少し離す

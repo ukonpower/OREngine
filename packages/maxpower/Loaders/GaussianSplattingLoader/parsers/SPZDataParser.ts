@@ -1,4 +1,5 @@
-import { SPZGaussianData } from './CoordinateSystemConverter';
+import { SPZGaussianData } from '../utils/CoordinateSystemConverter';
+import { gunzipData } from '../utils/SPZDataCompression';
 
 // SPZのヘッダー情報
 export type SPZHeader = {
@@ -10,6 +11,58 @@ export type SPZHeader = {
 	flags: number;
 	reserved: number;
 };
+
+
+/**
+ * SPZファイルからガウシアンデータを解析する
+ * @param buffer ファイルバッファ
+ * @param isCompressed 圧縮されているかどうか
+ * @returns ガウシアンデータとヘッダー
+ */
+export async function parseSPZ( buffer: ArrayBuffer, isCompressed?: boolean ): Promise<{ gaussianData: SPZGaussianData, header: any }> {
+
+	// データの解凍（必要な場合）
+	let decompressedData = buffer;
+
+	// isCompressedが指定されていない場合は自動判定を試行
+	if ( isCompressed === undefined ) {
+
+		try {
+
+			decompressedData = await gunzipData( buffer );
+			console.log( '3DGSLoader: SPZデータを解凍しました' );
+
+		} catch ( error ) {
+
+			console.log( '3DGSLoader: 非圧縮SPZデータとして処理します' );
+			decompressedData = buffer;
+
+		}
+
+	} else if ( isCompressed ) {
+
+		try {
+
+			decompressedData = await gunzipData( buffer );
+
+		} catch ( error ) {
+
+			console.warn( `3DGSLoader: 解凍に失敗しました: ${error}。非圧縮データとして処理を続行します。` );
+
+		}
+
+	}
+
+	// SPZヘッダーの解析
+	const header = parseSPZHeader( decompressedData );
+
+	// SPZデータの解析
+	const gaussianData = parseSPZData( decompressedData, header );
+
+	return { gaussianData, header };
+
+}
+
 
 // 固定小数点からの変換用定数
 const MAX_INT_24 = 0x7FFFFF;
@@ -31,7 +84,7 @@ export function getSHSize( shDegree: number ): number {
  * @param arrayBuffer バイナリデータ
  * @returns SPZヘッダー情報
  */
-export function parseHeader( arrayBuffer: ArrayBuffer ): SPZHeader {
+export function parseSPZHeader( arrayBuffer: ArrayBuffer ): SPZHeader {
 
 	const dataView = new DataView( arrayBuffer );
 
@@ -70,7 +123,7 @@ export function parseHeader( arrayBuffer: ArrayBuffer ): SPZHeader {
  * @param header SPZヘッダー情報
  * @returns SPZガウシアンデータ
  */
-export function parseGaussianData( arrayBuffer: ArrayBuffer, header: SPZHeader ): SPZGaussianData {
+export function parseSPZData( arrayBuffer: ArrayBuffer, header: SPZHeader ): SPZGaussianData {
 
 	const headerSize = 16; // ヘッダーサイズ: 16バイト
 	const numPoints = header.numPoints;
