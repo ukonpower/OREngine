@@ -69,6 +69,18 @@ const MAX_INT_24 = 0x7FFFFF;
 const QUAT_COMPONENT_MAX = 127;
 
 /**
+ * 球面調和関数の量子化された値を元の値に戻す
+ * C++のunquantizeSH関数と同等
+ * @param x 量子化された8ビット値
+ * @returns 逆量子化された値
+ */
+function unquantizeSH( x: number ): number {
+
+	return ( x - 128.0 ) / 128.0;
+
+}
+
+/**
  * 球面調和関数のサイズを計算する
  * @param shDegree 球面調和関数の次数
  * @returns 球面調和関数のサイズ
@@ -235,6 +247,7 @@ export function parseSPZData( arrayBuffer: ArrayBuffer, header: SPZHeader ): SPZ
 
 	// --------- カラーの解析 ---------
 	const maxColorIndex = Math.min( numPoints, Math.floor( ( dataLength - offsetColor ) / COLOR_SIZE ) );
+
 	for ( let i = 0; i < maxColorIndex; i ++ ) {
 
 		const colorOffset = offsetColor + i * COLOR_SIZE;
@@ -244,7 +257,6 @@ export function parseSPZData( arrayBuffer: ArrayBuffer, header: SPZHeader ): SPZ
 
 				// 8ビットカラーを0-1の範囲に正規化
 				colors[ i * 3 + j ] = dataView.getUint8( colorOffset + j ) / 255.0;
-
 
 			}
 
@@ -260,20 +272,11 @@ export function parseSPZData( arrayBuffer: ArrayBuffer, header: SPZHeader ): SPZ
 		const scaleOffset = offsetScale + i * SCALE_SIZE;
 		for ( let j = 0; j < 3; j ++ ) {
 
-			if ( scaleOffset + j < dataLength ) {
+			// 対数エンコーディングされたスケール値をデコード
+			const logScale = dataView.getUint8( scaleOffset + j );
 
-				// 対数エンコーディングされたスケール値をデコード
-				const logScale = dataView.getUint8( scaleOffset + j );
-
-				// 指数変換で元のスケール値に戻す
-				scales[ i * 3 + j ] = Math.exp( ( logScale ) / 16.0 - 10.0 );
-
-			} else {
-
-				// デフォルト値を設定
-				scales[ i * 3 + j ] = 0.01;
-
-			}
+			// 指数変換で元のスケール値に戻す
+			scales[ i * 3 + j ] = Math.exp( ( logScale ) / 16.0 - 10.0 );
 
 		}
 
@@ -285,75 +288,43 @@ export function parseSPZData( arrayBuffer: ArrayBuffer, header: SPZHeader ): SPZ
 
 		const rotOffset = offsetRotation + i * ROTATION_SIZE;
 
-		if ( rotOffset + 2 < dataLength ) {
+		// 符号なし8ビット整数として3成分を読み込み（C++実装に合わせて127.5で除算してから1を引く）
+		const x = dataView.getUint8( rotOffset ) / 127.5 - 1.0;
+		const y = dataView.getUint8( rotOffset + 1 ) / 127.5 - 1.0;
+		const z = dataView.getUint8( rotOffset + 2 ) / 127.5 - 1.0;
 
-			// 符号なし8ビット整数として3成分を読み込み（C++実装に合わせて127.5で除算してから1を引く）
-			const x = dataView.getUint8( rotOffset ) / 127.5 - 1.0;
-			const y = dataView.getUint8( rotOffset + 1 ) / 127.5 - 1.0;
-			const z = dataView.getUint8( rotOffset + 2 ) / 127.5 - 1.0;
+		// w成分の計算 (正規化された四元数なので |x|^2 + |y|^2 + |z|^2 + |w|^2 = 1)
+		let w = 1.0 - x * x - y * y - z * z;
+		w = w > 0 ? Math.sqrt( w ) : 0;
 
-			// w成分の計算 (正規化された四元数なので |x|^2 + |y|^2 + |z|^2 + |w|^2 = 1)
-			let w = 1.0 - x * x - y * y - z * z;
-			w = w > 0 ? Math.sqrt( w ) : 0;
-
-			// 四元数の成分を設定
-			rotations[ i * 4 ] = x;
-			rotations[ i * 4 + 1 ] = y;
-			rotations[ i * 4 + 2 ] = z;
-			rotations[ i * 4 + 3 ] = w;
-
-		} else {
-
-			// デフォルト値（単位クォータニオン）を設定
-			rotations[ i * 4 ] = 0;
-			rotations[ i * 4 + 1 ] = 0;
-			rotations[ i * 4 + 2 ] = 0;
-			rotations[ i * 4 + 3 ] = 1;
-
-		}
+		// 四元数の成分を設定
+		rotations[ i * 4 ] = x;
+		rotations[ i * 4 + 1 ] = y;
+		rotations[ i * 4 + 2 ] = z;
+		rotations[ i * 4 + 3 ] = w;
 
 	}
 
 	// --------- 球面調和関数の解析 ---------
 	if ( sphericalHarmonics && SH_SIZE > 0 && hasSH ) {
 
-		const shCoeffs = SH_SIZE / 3; // RGB成分を除いた係数の数
-		const maxSHIndex = Math.min( numPoints, Math.floor( ( dataLength - offsetSH ) / ( shCoeffs * 3 ) ) );
+		// C++実装と同じシンプルな処理：packed.sh.size()分だけ順番に処理
+		const totalSHElements = numPoints * SH_SIZE;
+		const maxSHElements = Math.min( totalSHElements, dataLength - offsetSH );
 
-		for ( let i = 0; i < maxSHIndex; i ++ ) {
+		for ( let i = 0; i < maxSHElements; i ++ ) {
 
-			const shOffset = offsetSH + i * shCoeffs * 3; // 各ガウシアンごとのオフセット
+			const byteIdx = offsetSH + i;
 
-			for ( let j = 0; j < shCoeffs; j ++ ) {
+			if ( byteIdx < dataLength ) {
 
-				for ( let c = 0; c < 3; c ++ ) { // R, G, B成分
+				const quantizedValue = dataView.getUint8( byteIdx );
 
-					const byteIdx = shOffset + j * 3 + c;
-					if ( byteIdx < dataLength ) {
+				// C++のunquantizeSH関数と同等の逆量子化
+				// (quantizedValue - 128.0) / 128.0 で -1.0 から 1.0 の範囲に変換
+				const value = unquantizeSH( quantizedValue );
 
-						// インデックス計算: 各ガウシアンのSH係数のRGB成分
-						const idx = i * SH_SIZE + j * 3 + c;
-
-						// 8ビット符号付き整数を読み込み、適切にスケーリング
-						let value = dataView.getInt8( byteIdx );
-
-						// 次数に応じた適切なスケーリング
-						// SPZフォーマットでは、0次は5ビット、1次と2次は4ビットの精度
-						if ( j === 0 ) { // DC項（0次）
-
-							value = value / 16.0; // 5ビット精度
-
-						} else { // 1次以上
-
-							value = value / 8.0; // 4ビット精度
-
-						}
-
-						sphericalHarmonics[ idx ] = value;
-
-					}
-
-				}
+				sphericalHarmonics[ i ] = value;
 
 			}
 
@@ -372,7 +343,8 @@ export function parseSPZData( arrayBuffer: ArrayBuffer, header: SPZHeader ): SPZ
 		scales,
 		rotations,
 		alphas,
-		sphericalHarmonics
+		sphericalHarmonics,
+		shDegree: header.shDegree
 	};
 
 }
