@@ -31,33 +31,35 @@ export type SPZLoaderOptions = {
  * @param float 変換するfloat値
  * @returns 16ビット半精度浮動小数点数
  */
-function floatToHalf( float: number ): number {
 
-	// float32をint32に変換するためのビューを作成
-	const floatView = new Float32Array( 1 );
-	const int32View = new Int32Array( floatView.buffer );
+const _floatView = new Float32Array( 1 );
+const _int32View = new Int32Array( _floatView.buffer );
 
-	floatView[ 0 ] = float;
-	const f = int32View[ 0 ];
+function floatToHalf( float: number ) {
+
+	_floatView[ 0 ] = float;
+	const f = _int32View[ 0 ];
 
 	const sign = ( f >> 31 ) & 0x0001;
 	const exp = ( f >> 23 ) & 0x00ff;
-	const frac = f & 0x007fffff;
+	let frac = f & 0x007fffff;
 
 	let newExp;
-	if ( exp === 0 ) {
+	if ( exp == 0 ) {
 
 		newExp = 0;
 
 	} else if ( exp < 113 ) {
 
 		newExp = 0;
-		// frac |= 0x00800000;
-		// frac = frac >> (113 - exp);
-		// if (frac & 0x01000000) {
-		// 	newExp = 1;
-		// 	frac = 0;
-		// }
+		frac |= 0x00800000;
+		frac = frac >> ( 113 - exp );
+		if ( frac & 0x01000000 ) {
+
+			newExp = 1;
+			frac = 0;
+
+		}
 
 	} else if ( exp < 142 ) {
 
@@ -66,7 +68,7 @@ function floatToHalf( float: number ): number {
 	} else {
 
 		newExp = 31;
-		// frac = 0;
+		frac = 0;
 
 	}
 
@@ -160,7 +162,7 @@ export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: 
 		colorData[ idx + 2 ] = gaussianData.colors[ i * 3 + 2 ];
 		colorData[ idx + 3 ] = gaussianData.alphas[ i ]; // アルファ値
 
-		// 共分散行列の計算（main.jsと同様のアルゴリズム）
+		// 共分散行列の計算
 		const rot = [
 			gaussianData.rotations[ i * 4 + 0 ],
 			gaussianData.rotations[ i * 4 + 1 ],
@@ -177,18 +179,18 @@ export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: 
 		// M = S * R の計算
 		const M = [
 			// 第1行
-			( 1.0 - 2.0 * ( rot[ 2 ] * rot[ 2 ] + rot[ 3 ] * rot[ 3 ] ) ) * scale[ 0 ],
-			( 2.0 * ( rot[ 1 ] * rot[ 2 ] + rot[ 0 ] * rot[ 3 ] ) ) * scale[ 0 ],
-			( 2.0 * ( rot[ 1 ] * rot[ 3 ] - rot[ 0 ] * rot[ 2 ] ) ) * scale[ 0 ],
+			( 1.0 - 2.0 * ( rot[ 2 ] * rot[ 2 ] + rot[ 3 ] * rot[ 3 ] ) ),
+			( 2.0 * ( rot[ 1 ] * rot[ 2 ] + rot[ 0 ] * rot[ 3 ] ) ),
+			( 2.0 * ( rot[ 1 ] * rot[ 3 ] - rot[ 0 ] * rot[ 2 ] ) ),
 			// 第2行
-			( 2.0 * ( rot[ 1 ] * rot[ 2 ] - rot[ 0 ] * rot[ 3 ] ) ) * scale[ 1 ],
-			( 1.0 - 2.0 * ( rot[ 1 ] * rot[ 1 ] + rot[ 3 ] * rot[ 3 ] ) ) * scale[ 1 ],
-			( 2.0 * ( rot[ 2 ] * rot[ 3 ] + rot[ 0 ] * rot[ 1 ] ) ) * scale[ 1 ],
+			( 2.0 * ( rot[ 1 ] * rot[ 2 ] - rot[ 0 ] * rot[ 3 ] ) ),
+			( 1.0 - 2.0 * ( rot[ 1 ] * rot[ 1 ] + rot[ 3 ] * rot[ 3 ] ) ),
+			( 2.0 * ( rot[ 2 ] * rot[ 3 ] + rot[ 0 ] * rot[ 1 ] ) ),
 			// 第3行
-			( 2.0 * ( rot[ 1 ] * rot[ 3 ] + rot[ 0 ] * rot[ 2 ] ) ) * scale[ 2 ],
-			( 2.0 * ( rot[ 2 ] * rot[ 3 ] - rot[ 0 ] * rot[ 1 ] ) ) * scale[ 2 ],
-			( 1.0 - 2.0 * ( rot[ 1 ] * rot[ 1 ] + rot[ 2 ] * rot[ 2 ] ) ) * scale[ 2 ]
-		];
+			( 2.0 * ( rot[ 1 ] * rot[ 3 ] + rot[ 0 ] * rot[ 2 ] ) ),
+			( 2.0 * ( rot[ 2 ] * rot[ 3 ] - rot[ 0 ] * rot[ 1 ] ) ),
+			( 1.0 - 2.0 * ( rot[ 1 ] * rot[ 1 ] + rot[ 2 ] * rot[ 2 ] ) )
+		].map( ( k, i ) => k * scale[ Math.floor( i / 3 ) ] );
 
 		// シグマ行列（共分散行列）の計算
 		const sigma = [
