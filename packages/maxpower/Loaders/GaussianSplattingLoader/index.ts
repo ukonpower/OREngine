@@ -1,3 +1,4 @@
+import { loadSpzFromUrl } from '@spz-loader/core';
 import * as GLP from 'glpower';
 
 import { isSplatFormat, parseSplat, createSplatDummyHeader } from './parsers/SplatDataParser';
@@ -122,7 +123,16 @@ export class GaussianSplattingLoader extends GLP.EventEmitter {
 
 		}
 
-		console.log( gaussianData );
+
+		loadSpzFromUrl( path ).then( e => {
+
+			const start = 900000;
+			const end = start + 30;
+
+			console.log( e.sh.slice( start, end ) );
+			console.log( gaussianData.sphericalHarmonics?.slice( start, end ) );
+
+		} );
 
 
 		// 4. メッシュの生成
