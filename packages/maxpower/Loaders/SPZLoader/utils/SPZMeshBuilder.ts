@@ -13,6 +13,8 @@ import { SPZController } from '../SPZController';
 import { SPZGaussianData } from './CoordinateSystemConverter';
 import { SPZHeader, getSHSize } from './SPZDataParser';
 
+import { gl } from '~/ts/Globals';
+
 
 export type SPZResult = {
 	scene: Entity;
@@ -131,14 +133,6 @@ export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: 
 	const positionData = new Float32Array( texWidth * texHeight * 4 );
 	positionData.fill( 0 );
 
-	// スケールテクスチャ
-	const scaleData = new Float32Array( texWidth * texHeight * 4 );
-	scaleData.fill( 0 );
-
-	// 回転テクスチャ
-	const rotationData = new Float32Array( texWidth * texHeight * 4 );
-	rotationData.fill( 0 );
-
 	// 色テクスチャ
 	const colorData = new Float32Array( texWidth * texHeight * 4 );
 	colorData.fill( 0 );
@@ -161,18 +155,6 @@ export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: 
 		positionData[ idx + 1 ] = gaussianData.positions[ i * 3 + 1 ];
 		positionData[ idx + 2 ] = gaussianData.positions[ i * 3 + 2 ];
 		positionData[ idx + 3 ] = 0.0; // パディング
-
-		// スケールデータ (xyz + パディング)
-		scaleData[ idx + 0 ] = gaussianData.scales[ i * 3 + 0 ];
-		scaleData[ idx + 1 ] = gaussianData.scales[ i * 3 + 1 ];
-		scaleData[ idx + 2 ] = gaussianData.scales[ i * 3 + 2 ];
-		scaleData[ idx + 3 ] = 0.0; // パディング
-
-		// 回転データ (xyzw)
-		rotationData[ idx + 0 ] = gaussianData.rotations[ i * 4 + 0 ];
-		rotationData[ idx + 1 ] = gaussianData.rotations[ i * 4 + 1 ];
-		rotationData[ idx + 2 ] = gaussianData.rotations[ i * 4 + 2 ];
-		rotationData[ idx + 3 ] = gaussianData.rotations[ i * 4 + 3 ];
 
 		// 色データ (rgba)
 		colorData[ idx + 0 ] = gaussianData.colors[ i * 3 + 0 ];
@@ -244,36 +226,6 @@ export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: 
 		data: positionData
 	} );
 
-	// スケールテクスチャの作成
-	const scaleTexture = new GLP.GLPowerTexture( gl );
-	scaleTexture.setting( {
-		type: gl.FLOAT,
-		internalFormat: gl.RGBA32F,
-		format: gl.RGBA,
-		magFilter: gl.NEAREST,
-		minFilter: gl.NEAREST,
-	} );
-	scaleTexture.attach( {
-		width: texWidth,
-		height: texHeight,
-		data: scaleData
-	} );
-
-	// 回転テクスチャの作成
-	const rotationTexture = new GLP.GLPowerTexture( gl );
-	rotationTexture.setting( {
-		type: gl.FLOAT,
-		internalFormat: gl.RGBA32F,
-		format: gl.RGBA,
-		magFilter: gl.NEAREST,
-		minFilter: gl.NEAREST,
-	} );
-	rotationTexture.attach( {
-		width: texWidth,
-		height: texHeight,
-		data: rotationData
-	} );
-
 	// 色テクスチャの作成
 	const colorTexture = new GLP.GLPowerTexture( gl );
 	colorTexture.setting( {
@@ -322,8 +274,6 @@ export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: 
 	// ユニフォーム変数の設定
 	const uniforms: GLP.Uniforms = {
 		uPositionTexture: { value: positionTexture, type: '1i' },
-		uScaleTexture: { value: scaleTexture, type: '1i' },
-		uRotationTexture: { value: rotationTexture, type: '1i' },
 		uColorTexture: { value: colorTexture, type: '1i' },
 		uSortTex: { value: sortTexture, type: '1i' },
 		uCovarianceTexture: { value: covarianceTexture, type: '1i' },
