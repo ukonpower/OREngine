@@ -5,8 +5,6 @@ layout ( location = 3 ) in float instanceId;
 
 uniform vec2 uDataTexSize;
 uniform sampler2D uPositionTexture;
-uniform sampler2D uScaleTexture;
-uniform sampler2D uRotationTexture;
 uniform sampler2D uColorTexture;
 uniform sampler2D uSortTex;
 uniform highp usampler2D uCovarianceTexture;  // 共分散行列テクスチャ (uint型)
@@ -100,6 +98,8 @@ void main( void ) {
 		0.0, -uFocal.y / viewPos.z, (uFocal.y * viewPos.y) / (viewPos.z * viewPos.z),
 		0.0, 0.0, 0.0
 	);
+
+    mat3 invy = mat3(1,0,0, 0,-1,0,0,0,1);
 	
 	// 投影のための変換行列
 	mat3 T = transpose(mat3(uModelViewMatrix)) * J;
@@ -108,8 +108,8 @@ void main( void ) {
 	// 楕円の軸計算
 	float mid = (cov2d[0][0] + cov2d[1][1]) / 2.0;
 	float radius = length(vec2((cov2d[0][0] - cov2d[1][1]) / 2.0, cov2d[0][1]));
-	float lambda1 = mid + radius;
-	float lambda2 = mid - radius;
+	float epsilon = 0.0001;
+	float lambda1 = mid + radius + epsilon; float lambda2 = mid - radius;
 	
 	if(lambda2 < 0.0) {
 		// 無効な楕円は描画しない
