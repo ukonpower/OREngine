@@ -1,8 +1,8 @@
 import * as GLP from 'glpower';
 
-import { Component, ComponentParams, ComponentUpdateEvent } from '../../Component';
-import { Camera } from '../../Component/Camera';
-import { Material } from '../../Material';
+import { Component, ComponentParams, ComponentUpdateEvent } from '../../../Component';
+import { Camera } from '../../../Component/Camera';
+import { Material } from '../../../Material';
 
 // SPZコントローラーのパラメータ型
 export type SPZControllerParams = {
@@ -16,7 +16,7 @@ export type SPZControllerParams = {
 /**
  * SPZガウシアンデータを制御するコンポーネント
  */
-export class SPZController extends Component {
+export class GaussianSplattingController extends Component {
 
 	private gaussianPositions: Float32Array;
 	private numPoints: number;
@@ -36,7 +36,7 @@ export class SPZController extends Component {
 		this.gl = args.gl;
 
 		// コンポーネントのタグをつける
-		this._tag = "spz-controller";
+		this._tag = "3dgs-controller";
 
 		this.updateSort();
 

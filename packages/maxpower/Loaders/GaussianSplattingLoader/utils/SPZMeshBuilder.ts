@@ -6,14 +6,12 @@ import { Entity } from '../../../Entity';
 import { PlaneGeometry } from '../../../Geometry/PlaneGeometry';
 import { Material } from '../../../Material';
 import { hotUpdate } from '../../../Utils/Hot';
+import { GaussianSplattingController } from '../GaussianSplattingController';
+import { SPZHeader, getSHSize } from '../parsers/SPZDataParser';
 import spzFrag from '../shaders/spz.fs';
 import spzVert from '../shaders/spz.vs';
-import { SPZController } from '../SPZController';
 
 import { SPZGaussianData } from './CoordinateSystemConverter';
-import { SPZHeader, getSHSize } from './SPZDataParser';
-
-import { gl } from '~/ts/Globals';
 
 
 export type SPZResult = {
@@ -416,7 +414,7 @@ export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: 
 	mesh.material = material;
 
 	// SPZコントローラーコンポーネントを追加
-	const controller = entity.addComponent( SPZController, {
+	const controller = entity.addComponent( GaussianSplattingController, {
 		gaussianPositions: gaussianData.positions,
 		numPoints: numPoints,
 		material: material,
