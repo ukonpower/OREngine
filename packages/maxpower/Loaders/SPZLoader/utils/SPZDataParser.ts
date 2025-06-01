@@ -178,6 +178,8 @@ export function parseGaussianData( arrayBuffer: ArrayBuffer, header: SPZHeader )
 
 	}
 
+	const colorScale = 0.15;
+
 	// --------- カラーの解析 ---------
 	const maxColorIndex = Math.min( numPoints, Math.floor( ( dataLength - offsetColor ) / COLOR_SIZE ) );
 	for ( let i = 0; i < maxColorIndex; i ++ ) {
@@ -189,6 +191,7 @@ export function parseGaussianData( arrayBuffer: ArrayBuffer, header: SPZHeader )
 
 				// 8ビットカラーを0-1の範囲に正規化
 				colors[ i * 3 + j ] = dataView.getUint8( colorOffset + j ) / 255.0;
+
 
 			}
 
@@ -231,10 +234,10 @@ export function parseGaussianData( arrayBuffer: ArrayBuffer, header: SPZHeader )
 
 		if ( rotOffset + 2 < dataLength ) {
 
-			// 符号付き8ビット整数として3成分を読み込み（公式実装に合わせて127.0で除算）
-			const x = dataView.getInt8( rotOffset ) / 127.0;
-			const y = dataView.getInt8( rotOffset + 1 ) / 127.0;
-			const z = dataView.getInt8( rotOffset + 2 ) / 127.0;
+			// 符号なし8ビット整数として3成分を読み込み（C++実装に合わせて127.5で除算してから1を引く）
+			const x = dataView.getUint8( rotOffset ) / 127.5 - 1.0;
+			const y = dataView.getUint8( rotOffset + 1 ) / 127.5 - 1.0;
+			const z = dataView.getUint8( rotOffset + 2 ) / 127.5 - 1.0;
 
 			// w成分の計算 (正規化された四元数なので |x|^2 + |y|^2 + |z|^2 + |w|^2 = 1)
 			let w = 1.0 - x * x - y * y - z * z;
