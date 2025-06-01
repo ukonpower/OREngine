@@ -8,6 +8,7 @@ export type SPZGaussianData = {
 	rotations: Float32Array;
 	alphas: Float32Array;
 	sphericalHarmonics: Float32Array | null;
+	shDegree: number;
 }
 
 /**
