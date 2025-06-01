@@ -11,56 +11,48 @@ uniform highp usampler2D uCovarianceTexture;  // 共分散行列テクスチャ 
 uniform vec2 uFocal;
 uniform vec2 uViewport;
 
-// SH関連のuniform追加
-#ifndef SH_DEGREE
-#define SH_DEGREE 3
-#endif
-
 #if SH_DEGREE > 0
-uniform highp usampler2D uShTexture0;
+	uniform highp usampler2D uShTexture0;
 #endif
 #if SH_DEGREE > 1
-uniform highp usampler2D uShTexture1;
+	uniform highp usampler2D uShTexture1;
 #endif
 #if SH_DEGREE > 2
-uniform highp usampler2D uShTexture2;
+	uniform highp usampler2D uShTexture2;
 #endif
 
 uniform vec3 uCameraPosition;
 
 out vec3 vColor;
 out float vAlpha;
-out vec2 vNormalizedUV;
 out vec2 vCUv;
 
 /*-------------------------------
 	SH関数
 -------------------------------*/
 
-#if SH_DEGREE > 0
 ivec2 getDataUVint(float index, vec2 textureSize) {
-    float y = floor(index / textureSize.x);
-    float x = index - y * textureSize.x;
-    return ivec2(uint(x + 0.5), uint(y + 0.5));
+	float x = mod(index, textureSize.x);
+	float y = floor(index / textureSize.x);
+    y = textureSize.y - y;
+	return ivec2(uint(x + 0.5), uint(y - 0.5));
 }
-#endif
 
 struct Splat {
-    vec3 position;
-    vec4 color;
-    mat3 covariance;
+	vec3 position;
+	vec4 color;
+	mat3 covariance;
 #if SH_DEGREE > 0
-    uvec4 sh0; // 4 * 32bits uint
+	uvec4 sh0; // 4 * 32bits uint
 #endif
 #if SH_DEGREE > 1
-    uvec4 sh1;
+	uvec4 sh1;
 #endif
 #if SH_DEGREE > 2
-    uvec4 sh2;
+	uvec4 sh2;
 #endif
 };
 
-#if defined(WEBGL2) || defined(WEBGPU) || defined(NATIVE)
 // SH色計算関数
 vec3 computeColorFromSHDegree(vec3 dir, const vec3 sh[16])
 {
@@ -82,7 +74,7 @@ vec3 computeColorFromSHDegree(vec3 dir, const vec3 sh[16])
     SH_C3[5] = 1.445305721;
     SH_C3[6] = -0.59004358;
 
-	vec3 result = /*SH_C0 * */sh[0];
+    vec3 result = /*SH_C0 * */sh[0];
 
     #if SH_DEGREE > 0
         float x = dir.x;
@@ -90,27 +82,27 @@ vec3 computeColorFromSHDegree(vec3 dir, const vec3 sh[16])
         float z = dir.z;
         result += - SH_C1 * y * sh[1] + SH_C1 * z * sh[2] - SH_C1 * x * sh[3];
 
-    #if SH_DEGREE > 1
-        float xx = x * x, yy = y * y, zz = z * z;
-        float xy = x * y, yz = y * z, xz = x * z;
-        result += 
-            SH_C2[0] * xy * sh[4] +
-            SH_C2[1] * yz * sh[5] +
-            SH_C2[2] * (2.0 * zz - xx - yy) * sh[6] +
-            SH_C2[3] * xz * sh[7] +
-            SH_C2[4] * (xx - yy) * sh[8];
+        #if SH_DEGREE > 1
+            float xx = x * x, yy = y * y, zz = z * z;
+            float xy = x * y, yz = y * z, xz = x * z;
+            result += 
+                SH_C2[0] * xy * sh[4] +
+                SH_C2[1] * yz * sh[5] +
+                SH_C2[2] * (2.0 * zz - xx - yy) * sh[6] +
+                SH_C2[3] * xz * sh[7] +
+                SH_C2[4] * (xx - yy) * sh[8];
 
-    #if SH_DEGREE > 2
-        result += 
-            SH_C3[0] * y * (3.0 * xx - yy) * sh[9] +
-            SH_C3[1] * xy * z * sh[10] +
-            SH_C3[2] * y * (4.0 * zz - xx - yy) * sh[11] +
-            SH_C3[3] * z * (2.0 * zz - 3.0 * xx - 3.0 * yy) * sh[12] +
-            SH_C3[4] * x * (4.0 * zz - xx - yy) * sh[13] +
-            SH_C3[5] * z * (xx - yy) * sh[14] +
-            SH_C3[6] * x * (xx - 3.0 * yy) * sh[15];
-    #endif
-    #endif
+            #if SH_DEGREE > 2
+                result += 
+                    SH_C3[0] * y * (3.0 * xx - yy) * sh[9] +
+                    SH_C3[1] * xy * z * sh[10] +
+                    SH_C3[2] * y * (4.0 * zz - xx - yy) * sh[11] +
+                    SH_C3[3] * z * (2.0 * zz - 3.0 * xx - 3.0 * yy) * sh[12] +
+                    SH_C3[4] * x * (4.0 * zz - xx - yy) * sh[13] +
+                    SH_C3[5] * z * (xx - yy) * sh[14] +
+                    SH_C3[6] * x * (xx - 3.0 * yy) * sh[15];
+            #endif
+        #endif
     #endif
 
     return result;
@@ -171,43 +163,21 @@ vec3 computeSH(Splat splat, vec3 dir)
 
     return computeColorFromSHDegree(dir, sh);
 }
-#else
-vec3 computeSH(Splat splat, vec3 dir)
-{
-    return vec3(0.,0.,0.);
-}
-#endif
 
 /*-------------------------------
-	GetUV
--------------------------------*/
-
-vec2 getUV( float index ) {
-
-	float posIdx = index;
-    float tx1 = mod(posIdx, uDataTexSize.x);
-    float ty1 = floor(posIdx / uDataTexSize.x);
-    vec2 uv = vec2(tx1 + 0.5, ty1 + 0.5) / uDataTexSize;
-	uv.y = 1.0 - uv.y;
-
-	return uv;
-
-}
-
-/*-------------------------------
-	FetchData - SH対応版
+	FetchData
 -------------------------------*/
 
 Splat fetchSplatData( float index ) {
 
-	vec2 uv = getUV( index );
+	ivec2 splatUVint = getDataUVint(index, uDataTexSize);
+
 	Splat splat;
+	splat.position = texelFetch( uPositionTexture, splatUVint, 0 ).xyz;
+	splat.color = texelFetch( uColorTexture, splatUVint, 0 );
 
-	splat.position = texture( uPositionTexture, uv ).xyz;
-	splat.color = texture( uColorTexture, uv );
-
-	// 共分散行列テクスチャから値を取得（unsigned intとして）
-	uvec4 cov = texelFetch(uCovarianceTexture, ivec2(uv * uDataTexSize), 0);
+	// 共分散行列テクスチャから値を取得
+	uvec4 cov = texelFetch(uCovarianceTexture, splatUVint, 0);
 	
 	// 16ビット値のアンパック
 	vec2 u1 = unpackHalf2x16(cov.x);
@@ -222,7 +192,6 @@ Splat fetchSplatData( float index ) {
 	);
 
     #if SH_DEGREE > 0
-        ivec2 splatUVint = getDataUVint(index, uDataTexSize);
         splat.sh0 = texelFetch(uShTexture0, splatUVint, 0);
     #endif
     #if SH_DEGREE > 1
@@ -241,9 +210,9 @@ Splat fetchSplatData( float index ) {
 
 float fetchActualIndex( float index ) {
 
-	vec2 uv = getUV( index );
+	ivec2 uv = getDataUVint( index, uDataTexSize );
 
-	return texture( uSortTex, uv ).x;
+	return texelFetch( uSortTex, uv, 0 ).x;
 
 }
 
@@ -317,13 +286,12 @@ void main( void ) {
         vec3 shColor = computeSH(splat, viewDirection);
         
         // 元の色にSH補正を加算
-        finalColor += shColor * 1.0;
+        finalColor += shColor;
     #endif
 	
 	// 色とアルファ値の設定
 	vColor = max(finalColor, 0.0); // 負の値をクランプ
 	vAlpha = splat.color.a;
-	vNormalizedUV = localPos;
 	vCUv = outPos.xy;
 	
 	#include <vert_out>
