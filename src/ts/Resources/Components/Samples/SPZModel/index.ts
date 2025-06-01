@@ -1,3 +1,4 @@
+import { loadSpzFromUrl } from '@spz-loader/core';
 import * as MXP from 'maxpower';
 
 import { gl } from '~/ts/Globals';
@@ -17,9 +18,10 @@ export class SPZModel extends MXP.Component {
 		this.spzController = null;
 
 		// this.loadSPZ( '/train.splat' );
-		// this.loadSPZ( '/cup.spz' );
+		this.loadSPZ( '/cup.spz' );
 		// this.loadSPZ( "/hornedlizard.spz" );
-		this.loadSPZ( "/racoonfamily.spz" );
+		// this.loadSPZ( "/racoonfamily.spz" );
+
 
 	}
 
