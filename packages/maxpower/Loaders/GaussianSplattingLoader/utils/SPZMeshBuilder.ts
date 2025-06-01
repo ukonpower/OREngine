@@ -289,78 +289,201 @@ export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: 
 		const shDegree = header.shDegree;
 		const size = getSHSize( shDegree );
 
-		// すべての次数でテクスチャとして設定
-		const numPoints = gaussianData.positions.length / 3;
+		// SH次数に応じてテクスチャを作成
+		if ( shDegree > 0 ) {
 
-		// 係数の最大数（4次まで対応可能な16に設定）
-		const maxCoeffs = 16;
+			// SH0テクスチャ（0次と1次の係数）
+			const sh0Data = new Uint32Array( texWidth * texHeight * 4 );
+			sh0Data.fill( 0 );
 
-		// テクスチャサイズの計算（2のべき乗にする）
-		const texWidth = Math.pow( 2, Math.ceil( Math.log2( Math.ceil( Math.sqrt( numPoints * maxCoeffs ) ) ) ) );
-		const texHeight = Math.pow( 2, Math.ceil( Math.log2( Math.ceil( ( numPoints * maxCoeffs ) / texWidth ) ) ) );
+			for ( let i = 0; i < numPoints; i ++ ) {
 
-		// テクスチャデータの作成（RGBA形式、各ピクセルに1つの係数のRGB値を保存）
-		const textureData = new Float32Array( texWidth * texHeight * 4 );
-		textureData.fill( 0 ); // デフォルト値を0に設定
+				const idx = i * 4;
 
-		// 実際の係数の数（次数によって異なる）
-		const numCoeffs = Math.pow( shDegree + 1, 2 ) - 1;
+				// 1次のSH係数（インデックス1-3）を取得
+				const sh1_r = gaussianData.sphericalHarmonics[ i * size + 1 * 3 + 0 ];
+				const sh1_g = gaussianData.sphericalHarmonics[ i * size + 1 * 3 + 1 ];
+				const sh1_b = gaussianData.sphericalHarmonics[ i * size + 1 * 3 + 2 ];
 
-		// SH係数をテクスチャに詰め込む
-		for ( let p = 0; p < numPoints; p ++ ) {
+				const sh2_r = gaussianData.sphericalHarmonics[ i * size + 2 * 3 + 0 ];
+				const sh2_g = gaussianData.sphericalHarmonics[ i * size + 2 * 3 + 1 ];
+				const sh2_b = gaussianData.sphericalHarmonics[ i * size + 2 * 3 + 2 ];
 
-			for ( let i = 0; i < numCoeffs; i ++ ) {
+				const sh3_r = gaussianData.sphericalHarmonics[ i * size + 3 * 3 + 0 ];
+				const sh3_g = gaussianData.sphericalHarmonics[ i * size + 3 * 3 + 1 ];
+				const sh3_b = gaussianData.sphericalHarmonics[ i * size + 3 * 3 + 2 ];
 
-				// テクスチャ内の位置を計算
-				const pixelIndex = p * maxCoeffs + i;
-				const tx = pixelIndex % texWidth;
-				const ty = Math.floor( pixelIndex / texWidth );
-				const tIdx = ( ty * texWidth + tx ) * 4; // RGBA形式なので4倍
+				// float値を8ビット整数に変換してパック
+				const pack = ( r: number, g: number, b: number, a: number ) => {
 
-				// RGB成分をテクスチャに設定
-				for ( let c = 0; c < 3; c ++ ) { // RGB
+					const ur = Math.max( 0, Math.min( 255, Math.round( ( r + 1.0 ) * 127.5 ) ) );
+					const ug = Math.max( 0, Math.min( 255, Math.round( ( g + 1.0 ) * 127.5 ) ) );
+					const ub = Math.max( 0, Math.min( 255, Math.round( ( b + 1.0 ) * 127.5 ) ) );
+					const ua = Math.max( 0, Math.min( 255, Math.round( ( a + 1.0 ) * 127.5 ) ) );
+					return ( ua << 24 ) | ( ub << 16 ) | ( ug << 8 ) | ur;
 
-					const shIdx = p * size + i * 3 + c;
-					textureData[ tIdx + c ] = gaussianData.sphericalHarmonics[ shIdx ];
+				};
 
-				}
-
-				// アルファチャンネルは使用しないが、1.0に設定
-				textureData[ tIdx + 3 ] = 1.0;
+				sh0Data[ idx + 0 ] = pack( sh1_r, sh1_g, sh1_b, sh2_r );
+				sh0Data[ idx + 1 ] = pack( sh2_g, sh2_b, sh3_r, sh3_g );
+				sh0Data[ idx + 2 ] = pack( sh3_b, 0, 0, 0 );
+				sh0Data[ idx + 3 ] = 0; // パディング
 
 			}
 
+			const sh0Texture = new GLP.GLPowerTexture( gl );
+			sh0Texture.setting( {
+				type: gl.UNSIGNED_INT,
+				internalFormat: gl.RGBA32UI,
+				format: gl.RGBA_INTEGER,
+				magFilter: gl.NEAREST,
+				minFilter: gl.NEAREST,
+			} );
+			sh0Texture.attach( {
+				width: texWidth,
+				height: texHeight,
+				data: sh0Data
+			} );
+
+			uniforms.uShTexture0 = { value: sh0Texture, type: '1i' };
+
 		}
 
-		// テクスチャの作成
-		const texture = new GLP.GLPowerTexture( gl );
+		if ( shDegree > 1 ) {
 
-		// 設定を適用
-		texture.setting( {
-			type: gl.FLOAT,
-			internalFormat: gl.RGBA32F,
-			format: gl.RGBA,
-			magFilter: gl.NEAREST,
-			minFilter: gl.NEAREST,
-		} );
+			// SH1テクスチャ（2次の係数）
+			const sh1Data = new Uint32Array( texWidth * texHeight * 4 );
+			sh1Data.fill( 0 );
 
-		// イメージデータを作成
-		const imageData = {
-			width: texWidth,
-			height: texHeight,
-			data: textureData
-		};
+			for ( let i = 0; i < numPoints; i ++ ) {
 
-		// テクスチャにデータをアタッチ
-		texture.attach( imageData );
+				const idx = i * 4;
 
-		// マテリアルにテクスチャとサイズ情報を設定
-		uniforms.uSHTexture = { value: texture, type: '1i' };
-		uniforms.uSHTexSize = { value: [ texWidth, texHeight ], type: '2fv' };
-		uniforms.uSHCoeffCount = { value: numCoeffs, type: '1f' };
-		uniforms.uMaxCoeffCount = { value: maxCoeffs, type: '1f' };
+				// 2次のSH係数（インデックス4-8）を取得
+				const sh4_r = gaussianData.sphericalHarmonics[ i * size + 4 * 3 + 0 ];
+				const sh4_g = gaussianData.sphericalHarmonics[ i * size + 4 * 3 + 1 ];
+				const sh4_b = gaussianData.sphericalHarmonics[ i * size + 4 * 3 + 2 ];
+
+				const sh5_r = gaussianData.sphericalHarmonics[ i * size + 5 * 3 + 0 ];
+				const sh5_g = gaussianData.sphericalHarmonics[ i * size + 5 * 3 + 1 ];
+				const sh5_b = gaussianData.sphericalHarmonics[ i * size + 5 * 3 + 2 ];
+
+				const sh6_r = gaussianData.sphericalHarmonics[ i * size + 6 * 3 + 0 ];
+				const sh6_g = gaussianData.sphericalHarmonics[ i * size + 6 * 3 + 1 ];
+				const sh6_b = gaussianData.sphericalHarmonics[ i * size + 6 * 3 + 2 ];
+
+				const sh7_r = gaussianData.sphericalHarmonics[ i * size + 7 * 3 + 0 ];
+				const sh7_g = gaussianData.sphericalHarmonics[ i * size + 7 * 3 + 1 ];
+				const sh7_b = gaussianData.sphericalHarmonics[ i * size + 7 * 3 + 2 ];
+
+				const sh8_r = gaussianData.sphericalHarmonics[ i * size + 8 * 3 + 0 ];
+				const sh8_g = gaussianData.sphericalHarmonics[ i * size + 8 * 3 + 1 ];
+				const sh8_b = gaussianData.sphericalHarmonics[ i * size + 8 * 3 + 2 ];
+
+				const pack = ( r: number, g: number, b: number, a: number ) => {
+
+					const ur = Math.max( 0, Math.min( 255, Math.round( ( r + 1.0 ) * 127.5 ) ) );
+					const ug = Math.max( 0, Math.min( 255, Math.round( ( g + 1.0 ) * 127.5 ) ) );
+					const ub = Math.max( 0, Math.min( 255, Math.round( ( b + 1.0 ) * 127.5 ) ) );
+					const ua = Math.max( 0, Math.min( 255, Math.round( ( a + 1.0 ) * 127.5 ) ) );
+					return ( ua << 24 ) | ( ub << 16 ) | ( ug << 8 ) | ur;
+
+				};
+
+				sh1Data[ idx + 0 ] = pack( sh4_r, sh4_g, sh4_b, sh5_r );
+				sh1Data[ idx + 1 ] = pack( sh5_g, sh5_b, sh6_r, sh6_g );
+				sh1Data[ idx + 2 ] = pack( sh6_b, sh7_r, sh7_g, sh7_b );
+				sh1Data[ idx + 3 ] = pack( sh8_r, sh8_g, sh8_b, 0 );
+
+			}
+
+			const sh1Texture = new GLP.GLPowerTexture( gl );
+			sh1Texture.setting( {
+				type: gl.UNSIGNED_INT,
+				internalFormat: gl.RGBA32UI,
+				format: gl.RGBA_INTEGER,
+				magFilter: gl.NEAREST,
+				minFilter: gl.NEAREST,
+			} );
+			sh1Texture.attach( {
+				width: texWidth,
+				height: texHeight,
+				data: sh1Data
+			} );
+
+			uniforms.uShTexture1 = { value: sh1Texture, type: '1i' };
+
+		}
+
+		if ( shDegree > 2 ) {
+
+			// SH2テクスチャ（3次の係数）
+			const sh2Data = new Uint32Array( texWidth * texHeight * 4 );
+			sh2Data.fill( 0 );
+
+			for ( let i = 0; i < numPoints; i ++ ) {
+
+				const idx = i * 4;
+
+				// 3次のSH係数（インデックス9-15）を取得
+				const coeffs = [];
+				for ( let j = 9; j < 16; j ++ ) {
+
+					if ( j * 3 + 2 < size ) {
+
+						coeffs.push(
+							gaussianData.sphericalHarmonics[ i * size + j * 3 + 0 ],
+							gaussianData.sphericalHarmonics[ i * size + j * 3 + 1 ],
+							gaussianData.sphericalHarmonics[ i * size + j * 3 + 2 ]
+						);
+
+					} else {
+
+						coeffs.push( 0, 0, 0 );
+
+					}
+
+				}
+
+				const pack = ( r: number, g: number, b: number, a: number ) => {
+
+					const ur = Math.max( 0, Math.min( 255, Math.round( ( r + 1.0 ) * 127.5 ) ) );
+					const ug = Math.max( 0, Math.min( 255, Math.round( ( g + 1.0 ) * 127.5 ) ) );
+					const ub = Math.max( 0, Math.min( 255, Math.round( ( b + 1.0 ) * 127.5 ) ) );
+					const ua = Math.max( 0, Math.min( 255, Math.round( ( a + 1.0 ) * 127.5 ) ) );
+					return ( ua << 24 ) | ( ub << 16 ) | ( ug << 8 ) | ur;
+
+				};
+
+				sh2Data[ idx + 0 ] = pack( coeffs[ 0 ], coeffs[ 1 ], coeffs[ 2 ], coeffs[ 3 ] );
+				sh2Data[ idx + 1 ] = pack( coeffs[ 4 ], coeffs[ 5 ], coeffs[ 6 ], coeffs[ 7 ] );
+				sh2Data[ idx + 2 ] = pack( coeffs[ 8 ], coeffs[ 9 ], coeffs[ 10 ], coeffs[ 11 ] );
+				sh2Data[ idx + 3 ] = pack( coeffs[ 12 ], coeffs[ 13 ], coeffs[ 14 ], coeffs[ 15 ] );
+
+			}
+
+			const sh2Texture = new GLP.GLPowerTexture( gl );
+			sh2Texture.setting( {
+				type: gl.UNSIGNED_INT,
+				internalFormat: gl.RGBA32UI,
+				format: gl.RGBA_INTEGER,
+				magFilter: gl.NEAREST,
+				minFilter: gl.NEAREST,
+			} );
+			sh2Texture.attach( {
+				width: texWidth,
+				height: texHeight,
+				data: sh2Data
+			} );
+
+			uniforms.uShTexture2 = { value: sh2Texture, type: '1i' };
+
+		}
 
 	}
+
+	console.log( uniforms );
+
 
 	// ガウシアンスプラット用のマテリアルを作成
 	const material = new Material( {
