@@ -8,8 +8,8 @@ import { Material } from '../../../Material';
 import { hotUpdate } from '../../../Utils/Hot';
 import { GaussianSplattingController } from '../GaussianSplattingController';
 import { SPZHeader, getSHSize } from '../parsers/SPZDataParser';
-import spzFrag from '../shaders/spz.fs';
-import spzVert from '../shaders/spz.vs';
+import spzFrag from '../shaders/3dgs.fs';
+import spzVert from '../shaders/3dgs.vs';
 
 import { SPZGaussianData } from './CoordinateSystemConverter';
 
@@ -384,7 +384,7 @@ export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: 
 
 	if ( import.meta.hot ) {
 
-		import.meta.hot.accept( '../shaders/spz.fs', ( module ) => {
+		import.meta.hot.accept( '../shaders/3dgs.fs', ( module ) => {
 
 			if ( module ) {
 
@@ -395,7 +395,7 @@ export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: 
 
 		} );
 
-		import.meta.hot.accept( '../shaders/spz.vs', ( module ) => {
+		import.meta.hot.accept( '../shaders/3dgs.vs', ( module ) => {
 
 			if ( module ) {
 
