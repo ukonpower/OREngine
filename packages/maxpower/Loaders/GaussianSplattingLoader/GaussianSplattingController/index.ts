@@ -170,6 +170,8 @@ export class GaussianSplattingController extends Component {
 		this.material.uniforms.uFocal.value.set( focalX, focalY );
 		this.material.uniforms.uViewport.value.copy( event.resolution );
 
+		this.updateSort();
+
 	}
 
 }

@@ -289,10 +289,28 @@ export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: 
 		const shDegree = header.shDegree;
 		const size = getSHSize( shDegree );
 
+		// Babylon.jsのSHパッキング方法に合わせてpackヘルパー関数を統一
+		const packSHComponent = ( value: number ): number => {
+
+			// 値を [-1, 1] の範囲から [0, 255] にマッピング
+			return Math.max( 0, Math.min( 255, Math.round( ( value + 1.0 ) * 127.5 ) ) );
+
+		};
+
+		const packUint32 = ( r: number, g: number, b: number, a: number ): number => {
+
+			const ur = packSHComponent( r );
+			const ug = packSHComponent( g );
+			const ub = packSHComponent( b );
+			const ua = packSHComponent( a );
+			return ( ua << 24 ) | ( ub << 16 ) | ( ug << 8 ) | ur;
+
+		};
+
 		// SH次数に応じてテクスチャを作成
 		if ( shDegree > 0 ) {
 
-			// SH0テクスチャ（0次と1次の係数）
+			// SH0テクスチャ（1次の係数）
 			const sh0Data = new Uint32Array( texWidth * texHeight * 4 );
 			sh0Data.fill( 0 );
 
@@ -301,6 +319,7 @@ export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: 
 				const idx = i * 4;
 
 				// 1次のSH係数（インデックス1-3）を取得
+				// シェーダーのcomputeSH関数の順序に合わせる: sh[1], sh[2], sh[3]
 				const sh1_r = gaussianData.sphericalHarmonics[ i * size + 1 * 3 + 0 ];
 				const sh1_g = gaussianData.sphericalHarmonics[ i * size + 1 * 3 + 1 ];
 				const sh1_b = gaussianData.sphericalHarmonics[ i * size + 1 * 3 + 2 ];
@@ -313,20 +332,13 @@ export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: 
 				const sh3_g = gaussianData.sphericalHarmonics[ i * size + 3 * 3 + 1 ];
 				const sh3_b = gaussianData.sphericalHarmonics[ i * size + 3 * 3 + 2 ];
 
-				// float値を8ビット整数に変換してパック
-				const pack = ( r: number, g: number, b: number, a: number ) => {
-
-					const ur = Math.max( 0, Math.min( 255, Math.round( ( r + 1.0 ) * 127.5 ) ) );
-					const ug = Math.max( 0, Math.min( 255, Math.round( ( g + 1.0 ) * 127.5 ) ) );
-					const ub = Math.max( 0, Math.min( 255, Math.round( ( b + 1.0 ) * 127.5 ) ) );
-					const ua = Math.max( 0, Math.min( 255, Math.round( ( a + 1.0 ) * 127.5 ) ) );
-					return ( ua << 24 ) | ( ub << 16 ) | ( ug << 8 ) | ur;
-
-				};
-
-				sh0Data[ idx + 0 ] = pack( sh1_r, sh1_g, sh1_b, sh2_r );
-				sh0Data[ idx + 1 ] = pack( sh2_g, sh2_b, sh3_r, sh3_g );
-				sh0Data[ idx + 2 ] = pack( sh3_b, 0, 0, 0 );
+				// シェーダーのデータ読み取り順序に合わせてパック
+				// sh0.x: sh1_r, sh1_g, sh1_b, sh2_r
+				// sh0.y: sh2_g, sh2_b, sh3_r, sh3_g
+				// sh0.z: sh3_b, (padding), (padding), (padding)
+				sh0Data[ idx + 0 ] = packUint32( sh1_r, sh1_g, sh1_b, sh2_r );
+				sh0Data[ idx + 1 ] = packUint32( sh2_g, sh2_b, sh3_r, sh3_g );
+				sh0Data[ idx + 2 ] = packUint32( sh3_b, 0, 0, 0 );
 				sh0Data[ idx + 3 ] = 0; // パディング
 
 			}
@@ -360,6 +372,7 @@ export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: 
 				const idx = i * 4;
 
 				// 2次のSH係数（インデックス4-8）を取得
+				// シェーダーのcomputeSH関数に合わせる順序
 				const sh4_r = gaussianData.sphericalHarmonics[ i * size + 4 * 3 + 0 ];
 				const sh4_g = gaussianData.sphericalHarmonics[ i * size + 4 * 3 + 1 ];
 				const sh4_b = gaussianData.sphericalHarmonics[ i * size + 4 * 3 + 2 ];
@@ -380,20 +393,15 @@ export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: 
 				const sh8_g = gaussianData.sphericalHarmonics[ i * size + 8 * 3 + 1 ];
 				const sh8_b = gaussianData.sphericalHarmonics[ i * size + 8 * 3 + 2 ];
 
-				const pack = ( r: number, g: number, b: number, a: number ) => {
-
-					const ur = Math.max( 0, Math.min( 255, Math.round( ( r + 1.0 ) * 127.5 ) ) );
-					const ug = Math.max( 0, Math.min( 255, Math.round( ( g + 1.0 ) * 127.5 ) ) );
-					const ub = Math.max( 0, Math.min( 255, Math.round( ( b + 1.0 ) * 127.5 ) ) );
-					const ua = Math.max( 0, Math.min( 255, Math.round( ( a + 1.0 ) * 127.5 ) ) );
-					return ( ua << 24 ) | ( ub << 16 ) | ( ug << 8 ) | ur;
-
-				};
-
-				sh1Data[ idx + 0 ] = pack( sh4_r, sh4_g, sh4_b, sh5_r );
-				sh1Data[ idx + 1 ] = pack( sh5_g, sh5_b, sh6_r, sh6_g );
-				sh1Data[ idx + 2 ] = pack( sh6_b, sh7_r, sh7_g, sh7_b );
-				sh1Data[ idx + 3 ] = pack( sh8_r, sh8_g, sh8_b, 0 );
+				// シェーダーのデータ読み取り順序に合わせてパック
+				// sh1.x: sh4_r, sh4_g, sh4_b, sh5_r
+				// sh1.y: sh5_g, sh5_b, sh6_r, sh6_g
+				// sh1.z: sh6_b, sh7_r, sh7_g, sh7_b
+				// sh1.w: sh8_r, sh8_g, sh8_b, (padding)
+				sh1Data[ idx + 0 ] = packUint32( sh4_r, sh4_g, sh4_b, sh5_r );
+				sh1Data[ idx + 1 ] = packUint32( sh5_g, sh5_b, sh6_r, sh6_g );
+				sh1Data[ idx + 2 ] = packUint32( sh6_b, sh7_r, sh7_g, sh7_b );
+				sh1Data[ idx + 3 ] = packUint32( sh8_r, sh8_g, sh8_b, 0 );
 
 			}
 
@@ -426,39 +434,53 @@ export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: 
 				const idx = i * 4;
 
 				// 3次のSH係数（インデックス9-15）を取得
-				const coeffs = [];
-				for ( let j = 9; j < 16; j ++ ) {
+				// シェーダーのcomputeSH関数に合わせる順序
+				const getSHCoeff = ( index: number, channel: number ) => {
 
-					if ( j * 3 + 2 < size ) {
-
-						coeffs.push(
-							gaussianData.sphericalHarmonics[ i * size + j * 3 + 0 ],
-							gaussianData.sphericalHarmonics[ i * size + j * 3 + 1 ],
-							gaussianData.sphericalHarmonics[ i * size + j * 3 + 2 ]
-						);
-
-					} else {
-
-						coeffs.push( 0, 0, 0 );
-
-					}
-
-				}
-
-				const pack = ( r: number, g: number, b: number, a: number ) => {
-
-					const ur = Math.max( 0, Math.min( 255, Math.round( ( r + 1.0 ) * 127.5 ) ) );
-					const ug = Math.max( 0, Math.min( 255, Math.round( ( g + 1.0 ) * 127.5 ) ) );
-					const ub = Math.max( 0, Math.min( 255, Math.round( ( b + 1.0 ) * 127.5 ) ) );
-					const ua = Math.max( 0, Math.min( 255, Math.round( ( a + 1.0 ) * 127.5 ) ) );
-					return ( ua << 24 ) | ( ub << 16 ) | ( ug << 8 ) | ur;
+					const globalIdx = i * size + index * 3 + channel;
+					return globalIdx < gaussianData.sphericalHarmonics!.length ? gaussianData.sphericalHarmonics![ globalIdx ] : 0;
 
 				};
 
-				sh2Data[ idx + 0 ] = pack( coeffs[ 0 ], coeffs[ 1 ], coeffs[ 2 ], coeffs[ 3 ] );
-				sh2Data[ idx + 1 ] = pack( coeffs[ 4 ], coeffs[ 5 ], coeffs[ 6 ], coeffs[ 7 ] );
-				sh2Data[ idx + 2 ] = pack( coeffs[ 8 ], coeffs[ 9 ], coeffs[ 10 ], coeffs[ 11 ] );
-				sh2Data[ idx + 3 ] = pack( coeffs[ 12 ], coeffs[ 13 ], coeffs[ 14 ], coeffs[ 15 ] );
+				// sh[9] から sh[15] までの係数を順番に取得
+				const sh9_r = getSHCoeff( 9, 0 );
+				const sh9_g = getSHCoeff( 9, 1 );
+				const sh9_b = getSHCoeff( 9, 2 );
+
+				const sh10_r = getSHCoeff( 10, 0 );
+				const sh10_g = getSHCoeff( 10, 1 );
+				const sh10_b = getSHCoeff( 10, 2 );
+
+				const sh11_r = getSHCoeff( 11, 0 );
+				const sh11_g = getSHCoeff( 11, 1 );
+				const sh11_b = getSHCoeff( 11, 2 );
+
+				const sh12_r = getSHCoeff( 12, 0 );
+				const sh12_g = getSHCoeff( 12, 1 );
+				const sh12_b = getSHCoeff( 12, 2 );
+
+				const sh13_r = getSHCoeff( 13, 0 );
+				const sh13_g = getSHCoeff( 13, 1 );
+				const sh13_b = getSHCoeff( 13, 2 );
+
+				const sh14_r = getSHCoeff( 14, 0 );
+				const sh14_g = getSHCoeff( 14, 1 );
+				const sh14_b = getSHCoeff( 14, 2 );
+
+				const sh15_r = getSHCoeff( 15, 0 );
+				const sh15_g = getSHCoeff( 15, 1 );
+				const sh15_b = getSHCoeff( 15, 2 );
+
+				// シェーダーのデータ読み取り順序に合わせてパック
+				// sh2.x: sh9_r, sh9_g, sh9_b, sh10_r
+				// sh2.y: sh10_g, sh10_b, sh11_r, sh11_g
+				// sh2.z: sh11_b, sh12_r, sh12_g, sh12_b
+				// sh2.w: sh13_r, sh13_g, sh13_b, sh14_r
+				// 注意: sh[14]とsh[15]の残りの要素はシェーダー側で0にパディング
+				sh2Data[ idx + 0 ] = packUint32( sh9_r, sh9_g, sh9_b, sh10_r );
+				sh2Data[ idx + 1 ] = packUint32( sh10_g, sh10_b, sh11_r, sh11_g );
+				sh2Data[ idx + 2 ] = packUint32( sh11_b, sh12_r, sh12_g, sh12_b );
+				sh2Data[ idx + 3 ] = packUint32( sh13_r, sh13_g, sh13_b, sh14_r );
 
 			}
 

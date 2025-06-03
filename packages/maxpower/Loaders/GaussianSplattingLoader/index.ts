@@ -123,16 +123,9 @@ export class GaussianSplattingLoader extends GLP.EventEmitter {
 
 		}
 
+		const spz = await loadSpzFromUrl( path );
 
-		loadSpzFromUrl( path ).then( e => {
-
-			const start = 900000;
-			const end = start + 30;
-
-			console.log( e.sh.slice( start, end ) );
-			console.log( gaussianData.sphericalHarmonics?.slice( start, end ) );
-
-		} );
+		gaussianData.sphericalHarmonics = spz.sh;
 
 
 		// 4. メッシュの生成

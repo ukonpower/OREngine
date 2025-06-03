@@ -134,31 +134,30 @@ vec3 computeSH(Splat splat, vec3 dir)
         sh[3] = vec3(sh01.z, sh01.w, sh02.x);
     #endif
     #if SH_DEGREE > 1
-        vec4 sh03 = decompose(splat.sh0.w);
         vec4 sh04 = decompose(splat.sh1.x);
         vec4 sh05 = decompose(splat.sh1.y);
-
-        sh[4] = vec3(sh02.y, sh02.z, sh02.w);
-        sh[5] = vec3(sh03.x, sh03.y, sh03.z);
-        sh[6] = vec3(sh03.w, sh04.x, sh04.y);
-        sh[7] = vec3(sh04.z, sh04.w, sh05.x);
-        sh[8] = vec3(sh05.y, sh05.z, sh05.w);
-    #endif
-    #if SH_DEGREE > 2
         vec4 sh06 = decompose(splat.sh1.z);
         vec4 sh07 = decompose(splat.sh1.w);
+
+        sh[4] = vec3(sh04.x, sh04.y, sh04.z);
+        sh[5] = vec3(sh04.w, sh05.x, sh05.y);
+        sh[6] = vec3(sh05.z, sh05.w, sh06.x);
+        sh[7] = vec3(sh06.y, sh06.z, sh06.w);
+        sh[8] = vec3(sh07.x, sh07.y, sh07.z);
+    #endif
+    #if SH_DEGREE > 2
         vec4 sh08 = decompose(splat.sh2.x);
         vec4 sh09 = decompose(splat.sh2.y);
         vec4 sh10 = decompose(splat.sh2.z);
         vec4 sh11 = decompose(splat.sh2.w);
 
-        sh[9] = vec3(sh06.x, sh06.y, sh06.z);
-        sh[10] = vec3(sh06.w, sh07.x, sh07.y);
-        sh[11] = vec3(sh07.z, sh07.w, sh08.x);
-        sh[12] = vec3(sh08.y, sh08.z, sh08.w);
-        sh[13] = vec3(sh09.x, sh09.y, sh09.z);
-        sh[14] = vec3(sh09.w, sh10.x, sh10.y);
-        sh[15] = vec3(sh10.z, sh10.w, sh11.x);    
+        sh[9] = vec3(sh08.x, sh08.y, sh08.z);
+        sh[10] = vec3(sh08.w, sh09.x, sh09.y);
+        sh[11] = vec3(sh09.z, sh09.w, sh10.x);
+        sh[12] = vec3(sh10.y, sh10.z, sh10.w);
+        sh[13] = vec3(sh11.x, sh11.y, sh11.z);
+        sh[14] = vec3(sh11.w, 0.0, 0.0);
+        sh[15] = vec3(0.0, 0.0, 0.0);    
     #endif
 
     return computeColorFromSHDegree(dir, sh);
@@ -283,7 +282,7 @@ void main( void ) {
         vec3 viewDirection = normalize(splat.position - uCameraPosition);
         
         // SH係数による色補正を計算
-        vec3 shColor = computeSH(splat, viewDirection);
+        vec3 shColor = computeSH(splat, viewDirection) * 1.0;
         
         // 元の色にSH補正を加算
         finalColor += shColor;
