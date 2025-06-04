@@ -15,21 +15,21 @@ describe('Entity class', () => {
     expect(parent.children).not.toContain(child);
   });
 
-  it('getEntityByName finds nested children', () => {
+  it('findEntityByName finds nested children', () => {
     const root = new Entity({ name: 'root' });
     const a = new Entity({ name: 'a' });
     const b = new Entity({ name: 'b' });
     root.add(a);
     a.add(b);
 
-    expect(root.getEntityByName('b')).toBe(b);
-    expect(root.getEntityByName('unknown')).toBeUndefined();
+    expect(root.findEntityByName('b')).toBe(b);
+    expect(root.findEntityByName('unknown')).toBeUndefined();
   });
 
-  it('getPath returns hierarchy path', () => {
+  it('getScenePath returns hierarchy path', () => {
     const root = new Entity({ name: 'root' });
     const child = new Entity({ name: 'child' });
     root.add(child);
-    expect(child.getPath()).toBe('/root/child');
+    expect(child.getScenePath()).toBe('/root/child');
   });
 });
