@@ -18,10 +18,10 @@ export class SPZModel extends MXP.Component {
 
 		// this.loadSPZ( '/train.splat' );
 		// this.loadSPZ( '/train.spz' );
-		this.loadSPZ( '/cup.spz' );
+		// this.loadSPZ( '/cup.spz' );
 		// this.loadSPZ( '/cup.splat' );
 		// this.loadSPZ( "/hornedlizard.spz" );
-		// this.loadSPZ( "/racoonfamily.spz" );
+		this.loadSPZ( "/racoonfamily.spz" );
 
 
 	}
