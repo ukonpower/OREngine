@@ -1,15 +1,17 @@
 # OREngine ドキュメント
 
+このディレクトリには、エンジンの利用方法やアーキテクチャを人間向けにまとめています。
+
 ## 概要
 
 OREngine は WebGL を利用した 3D エンジンで、コンポーネントベースのアーキテクチャを採用しています。TypeScript で書かれており、React との統合も可能です。
 
 ## ドキュメント構造
+各サブディレクトリには README を用意しており、まずは `architecture/README.md` や `core/README.md` を参照すると全体像がつかめます。
 
 ### アーキテクチャ
-
+- [README](./architecture/README.md)
 - [概要](./architecture/overview.md)
-
   - システム全体の説明
   - 主要機能の紹介
   - アーキテクチャの設計思想
@@ -26,6 +28,7 @@ OREngine は WebGL を利用した 3D エンジンで、コンポーネントベ
   - ライフサイクル管理
 
 ### コア機能
+- [README](./core/README.md)
 
 - [エンティティシステム](./core/entity.md)
 
@@ -70,12 +73,12 @@ graph TB
     Components --> Light[Light]
     Components --> Custom[Custom]
 
-    style Entity fill:#f9f,stroke:#333
-    style Components fill:#bbf,stroke:#333
-    style Mesh fill:#bfb,stroke:#333
-    style Camera fill:#fbf,stroke:#333
-    style Light fill:#fbb,stroke:#333
-    style Custom fill:#ddf,stroke:#333
+    style Entity fill:#fff,stroke:#000,color:#000
+    style Components fill:#fff,stroke:#000,color:#000
+    style Mesh fill:#fff,stroke:#000,color:#000
+    style Camera fill:#fff,stroke:#000,color:#000
+    style Light fill:#fff,stroke:#000,color:#000
+    style Custom fill:#fff,stroke:#000,color:#000
 ```
 
 - 柔軟なコンポーネント設計
@@ -96,10 +99,10 @@ graph LR
     Deferred --> Post[Post Processing]
     Post --> Final[Final Output]
 
-    style Scene fill:#f9f,stroke:#333
-    style Deferred fill:#bbf,stroke:#333
-    style Post fill:#bfb,stroke:#333
-    style Final fill:#fbf,stroke:#333
+    style Scene fill:#fff,stroke:#000,color:#000
+    style Deferred fill:#fff,stroke:#000,color:#000
+    style Post fill:#fff,stroke:#000,color:#000
+    style Final fill:#fff,stroke:#000,color:#000
 ```
 
 - Deferred レンダリング

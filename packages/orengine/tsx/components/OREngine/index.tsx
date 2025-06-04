@@ -9,7 +9,7 @@ import { useOREngineContext } from "./Hooks/useOREngineContext";
 export const OREngine: React.FC<{children?: React.ReactNode, gl: WebGL2RenderingContext, project:OREngineProjectData | undefined }> = ( props ) => {
 
 	const context = useOREngineContext( props.gl );
-	const { load, engine } = context;
+	const { engine } = context;
 
 	useEffect( () => {
 
@@ -19,9 +19,17 @@ export const OREngine: React.FC<{children?: React.ReactNode, gl: WebGL2Rendering
 
 	useEffect( () => {
 
-		load( props.project );
+		if ( props.project ) {
 
-	}, [ load, props.project ] );
+			engine.load( props.project );
+
+		} else {
+
+			engine.init();
+
+		}
+
+	}, [ engine, props.project ] );
 
 	return <OREngineContext.Provider value={context}>{props.children}</OREngineContext.Provider>;
 
