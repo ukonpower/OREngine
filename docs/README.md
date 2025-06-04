@@ -7,11 +7,11 @@
 OREngine は WebGL を利用した 3D エンジンで、コンポーネントベースのアーキテクチャを採用しています。TypeScript で書かれており、React との統合も可能です。
 
 ## ドキュメント構造
+各サブディレクトリには README を用意しており、まずは `architecture/README.md` や `core/README.md` を参照すると全体像がつかめます。
 
 ### アーキテクチャ
-
+- [README](./architecture/README.md)
 - [概要](./architecture/overview.md)
-
   - システム全体の説明
   - 主要機能の紹介
   - アーキテクチャの設計思想
@@ -28,6 +28,7 @@ OREngine は WebGL を利用した 3D エンジンで、コンポーネントベ
   - ライフサイクル管理
 
 ### コア機能
+- [README](./core/README.md)
 
 - [エンティティシステム](./core/entity.md)
 
