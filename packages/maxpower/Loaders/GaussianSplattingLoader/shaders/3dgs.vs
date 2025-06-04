@@ -282,10 +282,10 @@ void main( void ) {
         vec3 viewDirection = normalize(splat.position - uCameraPosition);
         
         // SH係数による色補正を計算
-        vec3 shColor = computeSH(splat, viewDirection) * 1.0;
+        vec3 shColor = computeSH(splat, viewDirection);
         
         // 元の色にSH補正を加算
-        finalColor += shColor;
+        finalColor += shColor * 0.0;
     #endif
 	
 	// 色とアルファ値の設定
