@@ -11,7 +11,6 @@ export type SPZControllerParams = {
 	gaussianPositions: Float32Array;
 	numPoints: number;
 	material: Material;
-	gl: WebGL2RenderingContext;
 	sortEnabled?: boolean;
 };
 
@@ -23,10 +22,10 @@ export class GaussianSplattingController extends Component {
 	private gaussianPositions: Float32Array;
 	private numPoints: number;
 	private material: Material;
-	private gl: WebGL2RenderingContext;
-	private previousResolution: GLP.Vector | null = null;
 	private sortWorker: Worker | null = null;
 	private isSorting: boolean = false;
+	private oldDirection: GLP.Vector = new GLP.Vector( 0, 0, 0 );
+	private frameIdLastUpdate: number = - 1;
 
 	constructor( params: ComponentParams<SPZControllerParams> ) {
 
@@ -37,33 +36,12 @@ export class GaussianSplattingController extends Component {
 		this.gaussianPositions = args.gaussianPositions;
 		this.numPoints = args.numPoints;
 		this.material = args.material;
-		this.gl = args.gl;
-
-		this.entity.onBeforeRender = () => {
-
-			this.updateSort();
-
-
-		};
-
 
 		// コンポーネントのタグをつける
 		this._tag = "3dgs-controller";
 
 		// WebWorkerを初期化
 		this.initWorker();
-
-		this.updateSort();
-
-		window.addEventListener( "keydown", ( e ) => {
-
-			if ( e.key === "s" ) {
-
-				this.updateSort();
-
-			}
-
-		} );
 
 	}
 
@@ -119,7 +97,7 @@ export class GaussianSplattingController extends Component {
 	/**
 	 * ソートされたインデックスをテクスチャに適用
 	 */
-	private applySortedIndices( sortedIndices: Float32Array ): void {
+	private applySortedIndices( sortedIndices: Uint32Array ): void {
 
 		// テクスチャサイズを計算
 		const { width: texWidth, height: texHeight } = this.calculateTextureSize();
@@ -181,28 +159,46 @@ export class GaussianSplattingController extends Component {
 	}
 
 	/**
-	 * カメラに基づいてガウシアンの深度ソートを実行（WebWorker版）
+	 * カメラに基づいてガウシアンの深度ソートを実行（Babylon.js互換版）
 	 */
 	public updateSort(): void {
-
-		// 既にソート中の場合はスキップ
-		if ( this.isSorting ) return;
 
 		const camera = this.findCamera();
 		if ( ! camera ) return;
 
+		const frameId = Date.now();
+
+		// カメラの向きベクトルを計算
+		const cameraViewMatrix = camera.viewMatrix;
+		const cameraDirection = new GLP.Vector(
+			cameraViewMatrix.elm[ 2 ],
+			cameraViewMatrix.elm[ 6 ],
+			cameraViewMatrix.elm[ 10 ]
+		).normalize();
+
+		// カメラの向きが大きく変わった場合のみソート実行
+		const dot = cameraDirection.dot( this.oldDirection );
+		const shouldSort = frameId !== this.frameIdLastUpdate && Math.abs( dot - 1 ) >= 0.01;
+
+		if ( ! shouldSort && ! this.isSorting ) return;
+
+		// 既にソート中の場合はスキップ
+		if ( this.isSorting ) return;
+
 		this.isSorting = true;
+		this.frameIdLastUpdate = frameId;
+		this.oldDirection.copy( cameraDirection );
 
 		if ( ! this.sortWorker ) return;
 
 		// ビュー行列を平坦化した配列に変換
-		const viewMatrix = Array.from( camera.viewMatrix.elm );
+		const viewMatrixArray = Array.from( camera.viewMatrix.elm );
 
 		const message: SortWorkerMessage = {
 			type: 'sort',
 			gaussianPositions: this.gaussianPositions,
 			numPoints: this.numPoints,
-			viewMatrix: viewMatrix
+			viewMatrix: viewMatrixArray,
 		};
 
 		this.sortWorker.postMessage( message );
@@ -231,7 +227,7 @@ export class GaussianSplattingController extends Component {
 		this.material.uniforms.uFocal.value.set( focalX, focalY );
 		this.material.uniforms.uViewport.value.copy( event.resolution );
 
-		// this.updateSort();
+		this.updateSort();
 
 	}
 
