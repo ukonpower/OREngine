@@ -145,7 +145,27 @@
       "$FONT_DATA": "Le",
       "$Font1": "Ue",
       "$noiseCyclicFrag": "Ne",
-      "$COMPONENTLIST": "Fe"
+      "$COMPONENTLIST": "Fe",
+      "$pn": "Be",
+      "$fc": "Ve",
+      "$op": "Re",
+      "$rootElm": "Oe",
+      "$screenWrapElm": "Ge",
+      "$menuElm": "ke",
+      "$loadingElm": "je",
+      "$loadingBarElm": "He",
+      "$loadingTextElm": "Xe",
+      "$exitElm": "Ye",
+      "$engine": "$e",
+      "$playButton": "Ze",
+      "$musicTotal": "We",
+      "$onLoadProgress": "qe",
+      "$opacity0": "Ke",
+      "$pointerEventsNone": "Qe",
+      "$positionAbsolute": "Je",
+      "$full": "ti",
+      "$fullFlexCenter": "ei",
+      "$blidgeClient": "ii"
     }
   },
   "props": {
@@ -912,7 +932,14 @@
       "$menuElm": "Bf",
       "$rootElm": "kf",
       "$screenWrapElm": "jf",
-      "$exitElm": "Gf"
+      "$exitElm": "Gf",
+      "$applyMatrix4AsPosition": "Vf",
+      "$applyMatrix4AsDirection": "Hf",
+      "$compileDrawParams": "Xf",
+      "$compileShaders": "Yf",
+      "$createEntityUpdateEvent": "$f",
+      "$frameSetting": "Zf",
+      "$Texture": "Wf"
     }
   }
 }

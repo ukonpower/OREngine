@@ -9,7 +9,7 @@ import quadVert from './shaders/quad.vs';
 export interface GPUComputePassParam extends Omit<PostProcessPassParam, 'renderTarget'>{
 	size: GLP.Vector,
 	dataLayerCount: number,
-	textureParam?: Undefineder<GLP.GLPowerTextureSetting>
+	textureParam?: Partial<GLP.GLPowerTextureSetting>
 }
 
 export class GPUComputePass extends PostProcessPass {

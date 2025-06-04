@@ -1,8 +1,7 @@
+import * as fs from 'fs';
+import * as path from 'path';
 
-import fs from 'fs';
-import path from 'path';
-
-import chokidar from 'chokidar';
+import * as chokidar from 'chokidar';
 import { Plugin } from 'vite';
 
 
@@ -18,6 +17,13 @@ const updateComponentList = ( ) => {
 		const files = fs.readdirSync( dir );
 
 		files.forEach( file => {
+
+			// _で始まるディレクトリはスキップ
+			if ( file.startsWith( '_' ) && fs.statSync( path.join( dir, file ) ).isDirectory() ) {
+
+				return;
+
+			}
 
 			const filePath = path.join( dir, file );
 			const stat = fs.statSync( filePath );
