@@ -1,53 +1,63 @@
 # OREngine
 
-OREngine(オーアールエンジン)は WebGL 製オレオレ 3D エンジンです。  
-64KB Intro Demo の制作のために用いることを想定しています。
+OREngine (オーアールエンジン) は WebGL 製の軽量 3D エンジンです。64KB Intro Demo の制作を目的としており、TypeScript で実装されています。
 
 ![OREngine screen shot](./screenshot/OREngine.png)
 
-## Install
+## 特徴
 
-### 1. サブモジュールのインストール / パッケージのインストール
+- コンポーネントベースの柔軟なアーキテクチャ
+- Vite を用いた高速ビルドシステム
+- React との統合や Blender 連携に対応
 
-```
+## インストール
+
+### 1. サブモジュールと依存パッケージの取得
+
+```bash
 npm run init
 ```
 
-### 2. ShaderMinifier をインストール
+### 2. ShaderMinifier の準備
 
-[Shader_Minifier](https://github.com/laurentlb/Shader_Minifier)
+[Shader_Minifier](https://github.com/laurentlb/Shader_Minifier) を取得し、実行ファイルへのパスを通してください。
 
-#### ■ Windows
+#### Windows
 
-ShaderMinifier をインストール後、Path を通してください
+ShaderMinifier をインストール後、Path を設定します。
 
-#### ■ Mac
+#### macOS
 
-`shader_minifier.exe` を `/Documents/application/shader_minifier/shader_minifier.exe` を配置
+`shader_minifier.exe` を `/Documents/application/shader_minifier/shader_minifier.exe` に配置し、Mono をインストールします。
 
-Mono をインストールします  
-https://www.mono-project.com/
-
-```
+```bash
 brew install mono
 ```
 
-## Run
+## 実行
 
-```
+```bash
 npm run dev
 ```
 
-## Build
+## ビルド
 
-```
+```bash
 npm run build
 ```
 
-## Credits
+## ドキュメント
 
-ビルドしたファイルを 64KB 以下に収めるのは以下のツールなくしては到底実現できませんでした。  
-感謝いたします。
+アーキテクチャの詳細やセットアップ手順、Blender との連携方法などは [`docs`](./docs/README.md) ディレクトリにまとめています。
+
+## クレジット
+
+ビルドサイズを 64KB 以下に抑えるにあたり、以下のツールに多大な助力をいただきました。
+作者の皆さまに心より感謝いたします。
 
 - [compeko](https://gist.github.com/0b5vr/09ee96ca2efbe5bf9d64dad7220e923b) by **0b5vr**
 - [Shader Minifier](https://github.com/laurentlb/shader-minifier?tab=readme-ov-file) by **Ctrl-Alt-Test**
+
+## ライセンス
+
+このプロジェクトは [MIT License](./LICENSE) の下で公開されています。
