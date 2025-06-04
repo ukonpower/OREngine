@@ -1,20 +1,20 @@
 
 import * as GLP from 'glpower';
 
-import { ComponentResizeEvent } from '..';
-import { PostProcessPass, PostProcessPassParam } from '../PostProcessPass';
+import { PostProcessPassParam, PostProcessPass } from '../../PostProcess/PostProcessPass';
+import { UniformsUtils } from '../../Utils/Uniforms';
 
 import quadVert from './shaders/quad.vs';
 
-import { gl } from '~/ts/Globals';
-
-
 export interface GPUComputePassParam extends Omit<PostProcessPassParam, 'renderTarget'>{
 	size: GLP.Vector,
-	layerCnt: number,
+	dataLayerCount: number,
+	textureParam?: Undefineder<GLP.GLPowerTextureSetting>
 }
 
 export class GPUComputePass extends PostProcessPass {
+
+	private gl: WebGL2RenderingContext;
 
 	public readonly size: GLP.Vector;
 	public readonly layerCnt: number;
@@ -28,29 +28,38 @@ export class GPUComputePass extends PostProcessPass {
 
 	constructor( gl: WebGL2RenderingContext, param: GPUComputePassParam ) {
 
-		const rt1 = new GLP.GLPowerFrameBuffer( gl ).setTexture( new Array( param.layerCnt ).fill( 0 ).map( () => new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA, magFilter: gl.NEAREST, minFilter: gl.NEAREST } ) ) ).setSize( param.size );
-		const rt2 = new GLP.GLPowerFrameBuffer( gl ).setTexture( new Array( param.layerCnt ).fill( 0 ).map( () => new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA, magFilter: gl.NEAREST, minFilter: gl.NEAREST } ) ) ).setSize( param.size );
+		const textureSetting = Object.assign( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA, magFilter: gl.NEAREST, minFilter: gl.NEAREST }, param.textureParam );
 
-		const outputUniforms: GLP.Uniforms = {};
+		const rt1 = new GLP.GLPowerFrameBuffer( gl ).setTexture( new Array( param.dataLayerCount ).fill( 0 ).map( () => new GLP.GLPowerTexture( gl ).setting( textureSetting ) ) ).setSize( param.size );
+		const rt2 = new GLP.GLPowerFrameBuffer( gl ).setTexture( new Array( param.dataLayerCount ).fill( 0 ).map( () => new GLP.GLPowerTexture( gl ).setting( textureSetting ) ) ).setSize( param.size );
 
-		for ( let i = 0; i < param.layerCnt; i ++ ) {
+		const outputUniforms: GLP.Uniforms = {
+			uGPUResolution: {
+				value: param.size,
+				type: "2fv"
+			}
+		};
 
-			outputUniforms[ 'gpuSampler' + i ] = {
+		for ( let i = 0; i < param.dataLayerCount; i ++ ) {
+
+			outputUniforms[ 'uGPUSampler' + i ] = {
 				value: rt2.textures[ i ],
 				type: '1i'
 			};
 
 		}
 
-		super( { ...param, vert: param.vert || quadVert, renderTarget: rt1, uniforms: GLP.UniformsUtils.merge( param.uniforms, outputUniforms, {
-			uGPUResolution: {
-				value: param.size,
-				type: "2fv"
+		super( gl, { ...param, vert: param.vert || quadVert, renderTarget: rt1, uniforms: UniformsUtils.merge( param.uniforms, outputUniforms, {
+			uDeltaTime: {
+				value: 0.0,
+				type: '1f'
 			}
 		} ) } );
 
+		this.gl = gl;
+
 		this.size = param.size;
-		this.layerCnt = param.layerCnt;
+		this.layerCnt = param.dataLayerCount;
 
 		this.rt1 = rt1;
 		this.rt2 = rt2;
@@ -68,7 +77,7 @@ export class GPUComputePass extends PostProcessPass {
 
 		for ( let i = 0; i < this.layerCnt; i ++ ) {
 
-			this.outputUniforms[ 'gpuSampler' + i ].value = this.renderTarget!.textures[ i ];
+			this.outputUniforms[ 'uGPUSampler' + i ].value = this.renderTarget!.textures[ i ];
 
 		}
 
@@ -83,7 +92,9 @@ export class GPUComputePass extends PostProcessPass {
 
 		for ( let i = 0; i < this.layerCnt; i ++ ) {
 
-			gl.bindTexture( gl.TEXTURE_2D, this.rt2.textures[ i ].getTexture() );
+			this.gl.bindTexture( this.gl.TEXTURE_2D, this.rt2.textures[ i ].getTexture() );
+
+			const array = [];
 
 			for ( let j = 0; j < this.size.y; j ++ ) {
 
@@ -92,21 +103,17 @@ export class GPUComputePass extends PostProcessPass {
 					const x = k;
 					const y = j;
 
-					gl.texSubImage2D( gl.TEXTURE_2D, 0, x, y, 1, 1, gl.RGBA, gl.FLOAT, new Float32Array( cb( i, x, y ) ) );
+					array.push( ...cb( i, x, y ) );
 
 				}
 
 			}
 
+			this.gl.texSubImage2D( this.gl.TEXTURE_2D, 0, 0, 0, this.size.x, this.size.y, this.gl.RGBA, this.gl.FLOAT, new Float32Array( array ) );
+
 		}
 
-		gl.bindTexture( gl.TEXTURE_2D, null );
-
-	}
-
-	public resize( event: ComponentResizeEvent ): void {
-
-		//
+		this.gl.bindTexture( this.gl.TEXTURE_2D, null );
 
 	}
 
