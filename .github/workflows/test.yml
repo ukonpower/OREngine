@@ -10,9 +10,13 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
       - uses: actions/setup-node@v3
         with:
           node-version: '18.x'
+      - name: Update submodules
+        run: git submodule update --init --recursive
       - name: Install dependencies
         run: npm install
       - name: Run tests
