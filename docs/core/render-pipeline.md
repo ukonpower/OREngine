@@ -18,14 +18,14 @@ graph TD
     Post --> UI[UIパス]
     UI --> Display[ディスプレイ出力]
 
-    style Scene fill:#f9f,stroke:#333
-    style Shadow fill:#bbf,stroke:#333
-    style Env fill:#bfb,stroke:#333
-    style Deferred fill:#fbf,stroke:#333
-    style Forward fill:#fbb,stroke:#333
-    style Post fill:#bbf,stroke:#333
-    style UI fill:#bfb,stroke:#333
-    style Display fill:#fff,stroke:#333
+    style Scene fill:#ffcccc,stroke:#333
+    style Shadow fill:#cce5ff,stroke:#333
+    style Env fill:#ccffcc,stroke:#333
+    style Deferred fill:#f3ccff,stroke:#333
+    style Forward fill:#ffd6cc,stroke:#333
+    style Post fill:#cce5ff,stroke:#333
+    style UI fill:#ccffcc,stroke:#333
+    style Display fill:#f8f8f8,stroke:#333
 ```
 
 ## レンダリングステージ詳細
@@ -260,10 +260,10 @@ graph TD
     M4[sdf]
     end
 
-    style Shader fill:#f9f,stroke:#333
-    style Parser fill:#bbf,stroke:#333
-    style Modules fill:#bfb,stroke:#333
-    style Final fill:#fbf,stroke:#333
+    style Shader fill:#ffcccc,stroke:#333
+    style Parser fill:#cce5ff,stroke:#333
+    style Modules fill:#ccffcc,stroke:#333
+    style Final fill:#f3ccff,stroke:#333
 ```
 
 シェーダーモジュールシステムは`#include <モジュール名>`構文を使用して、共通のシェーダーコードを再利用可能な形で管理します。
@@ -305,12 +305,12 @@ graph LR
     D --> E[ループアンロール]
     E --> F[最終シェーダー]
 
-    style A fill:#f9f,stroke:#333
-    style B fill:#bbf,stroke:#333
-    style C fill:#bfb,stroke:#333
-    style D fill:#fbf,stroke:#333
-    style E fill:#fbb,stroke:#333
-    style F fill:#fff,stroke:#333
+    style A fill:#ffcccc,stroke:#333
+    style B fill:#cce5ff,stroke:#333
+    style C fill:#ccffcc,stroke:#333
+    style D fill:#f3ccff,stroke:#333
+    style E fill:#ffd6cc,stroke:#333
+    style F fill:#f8f8f8,stroke:#333
 ```
 
 1. **Define 挿入**: コンパイル時の条件分岐や定数の定義

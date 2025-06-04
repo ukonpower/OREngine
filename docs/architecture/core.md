@@ -163,12 +163,12 @@ flowchart TB
     Light --> PP[ポストプロセス]
     PP --> Out[最終出力]
 
-    style Scene fill:#f9f,stroke:#333
-    style DR fill:#bbf,stroke:#333
-    style GBuf fill:#bfb,stroke:#333
-    style Light fill:#fbf,stroke:#333
-    style PP fill:#fbb,stroke:#333
-    style Out fill:#fff,stroke:#333
+    style Scene fill:#ffcccc,stroke:#333
+    style DR fill:#cce5ff,stroke:#333
+    style GBuf fill:#ccffcc,stroke:#333
+    style Light fill:#f3ccff,stroke:#333
+    style PP fill:#ffd6cc,stroke:#333
+    style Out fill:#f8f8f8,stroke:#333
 ```
 
 ### レンダリングステージ

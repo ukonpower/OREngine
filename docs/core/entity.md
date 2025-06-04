@@ -54,11 +54,11 @@ graph TD
     A --> C[Child Entity 2]
     B --> D[Grandchild 1]
     B --> E[Grandchild 2]
-    style A fill:#f9f,stroke:#333,stroke-width:2px
-    style B fill:#bbf,stroke:#333,stroke-width:2px
-    style C fill:#bbf,stroke:#333,stroke-width:2px
-    style D fill:#ddf,stroke:#333,stroke-width:2px
-    style E fill:#ddf,stroke:#333,stroke-width:2px
+    style A fill:#ffcccc,stroke:#333,stroke-width:2px
+    style B fill:#cce5ff,stroke:#333,stroke-width:2px
+    style C fill:#cce5ff,stroke:#333,stroke-width:2px
+    style D fill:#e6e6ff,stroke:#333,stroke-width:2px
+    style E fill:#e6e6ff,stroke:#333,stroke-width:2px
 ```
 
 ## 変換（Transform）の管理
