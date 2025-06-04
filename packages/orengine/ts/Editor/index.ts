@@ -56,7 +56,7 @@ export class Editor extends MXP.Serializable {
 
 			if ( e.key == ' ' ) {
 
-				if ( this._engine._frame.playing ) {
+				if ( this._engine.frame.playing ) {
 
 					this._engine.stop( );
 
@@ -116,11 +116,11 @@ export class Editor extends MXP.Serializable {
 
 			this._engine.seek( e.current );
 
-			if ( e.playing && ! this._engine._frame.playing ) {
+			if ( e.playing && ! this._engine.frame.playing ) {
 
 				this._engine.play();
 
-			} else if ( ! e.playing && this._engine._frame.playing ) {
+			} else if ( ! e.playing && this._engine.frame.playing ) {
 
 				this._engine.stop();
 
@@ -227,13 +227,13 @@ export class Editor extends MXP.Serializable {
 
 		// timeline
 
-		if ( this._engine._frame.playing ) {
+		if ( this._engine.frame.playing ) {
 
 			// clamp 0
 
-			if ( this._engine._frame.current < 0 || this._engine._frame.current > this._engine._frameSetting.duration ) {
+			if ( this._engine.frame.current < 0 || this._engine.frame.current > this._engine.frameSetting.duration ) {
 
-				this._engine._frame.current = 0;
+				this._engine.seek( 0 );
 
 			}
 
@@ -241,9 +241,9 @@ export class Editor extends MXP.Serializable {
 
 			if ( this._frameLoop.enabled ) {
 
-				if ( this._engine._frame.current < this._frameLoop.start || this._engine._frame.current > this._frameLoop.end ) {
+				if ( this._engine.frame.current < this._frameLoop.start || this._engine.frame.current > this._frameLoop.end ) {
 
-					this._engine._frame.current = this._frameLoop.start;
+					this._engine.seek( this._frameLoop.start );
 
 				}
 
