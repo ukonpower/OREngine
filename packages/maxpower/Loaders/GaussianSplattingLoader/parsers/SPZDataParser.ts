@@ -246,17 +246,25 @@ export function parseSPZData( arrayBuffer: ArrayBuffer, header: SPZHeader ): SPZ
 	const colorScale = 0.15;
 
 	// --------- カラーの解析 ---------
+
+	// https://github.com/BabylonJS/Babylon.js/blob/bf55c4ad156aed0635f6b593289ec8d0eb30fa0e/packages/dev/loaders/src/SPLAT/splatFileLoader.ts#L246-L261
+
 	const maxColorIndex = Math.min( numPoints, Math.floor( ( dataLength - offsetColor ) / COLOR_SIZE ) );
+
+	const shC0 = 0.282;
 
 	for ( let i = 0; i < maxColorIndex; i ++ ) {
 
 		const colorOffset = offsetColor + i * COLOR_SIZE;
-		for ( let j = 0; j < 3; j ++ ) {
 
-			if ( colorOffset + j < dataLength ) {
+		for ( let component = 0; component < 3; component ++ ) {
 
-				// 8ビットカラーを0-1の範囲に正規化
-				colors[ i * 3 + j ] = dataView.getUint8( colorOffset + j ) / 255.0;
+			if ( colorOffset + component < dataLength ) {
+
+				const byteValue = dataView.getUint8( colorOffset + component );
+				const value = ( byteValue - 127.5 ) / ( colorScale * 255 );
+				const rgbValue = ( 0.5 + shC0 * value ) * 255;
+				colors[ i * 3 + component ] = Math.max( 0, Math.min( 255, rgbValue ) ) / 255.0;
 
 			}
 
