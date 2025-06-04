@@ -14,6 +14,8 @@ OREngine (オーアールエンジン) は WebGL 製の軽量 3D エンジンで
 
 ### 1. サブモジュールと依存パッケージの取得
 
+`packages/glpower` は git submodule として提供されています。このサブモジュールを含む依存パッケージ一式を取得するため、以下のコマンドを実行します。
+
 ```bash
 npm run init
 ```
@@ -42,8 +44,18 @@ npm run dev
 
 ## ビルド
 
+> **重要:** ビルドやテストを行う前に一度 `npm run init` を実行してサブモジュール（`packages/glpower` など）を初期化してください。
+
 ```bash
 npm run build
+```
+
+## テスト
+
+ビルドと同様に、事前に `npm run init` を実行してサブモジュールを初期化しておく必要があります。
+
+```bash
+npm run test
 ```
 
 ## ドキュメント
