@@ -4,6 +4,8 @@ import { Component, ComponentParams, ComponentUpdateEvent } from '../../../Compo
 import { Camera } from '../../../Component/Camera';
 import { Material } from '../../../Material';
 
+import { SortWorkerMessage, SortWorkerResponse } from './sortWorker';
+
 // SPZコントローラーのパラメータ型
 export type SPZControllerParams = {
 	gaussianPositions: Float32Array;
@@ -23,6 +25,8 @@ export class GaussianSplattingController extends Component {
 	private material: Material;
 	private gl: WebGL2RenderingContext;
 	private previousResolution: GLP.Vector | null = null;
+	private sortWorker: Worker | null = null;
+	private isSorting: boolean = false;
 
 	constructor( params: ComponentParams<SPZControllerParams> ) {
 
@@ -35,8 +39,19 @@ export class GaussianSplattingController extends Component {
 		this.material = args.material;
 		this.gl = args.gl;
 
+		this.entity.onBeforeRender = () => {
+
+			this.updateSort();
+
+
+		};
+
+
 		// コンポーネントのタグをつける
 		this._tag = "3dgs-controller";
+
+		// WebWorkerを初期化
+		this.initWorker();
 
 		this.updateSort();
 
@@ -51,6 +66,87 @@ export class GaussianSplattingController extends Component {
 		} );
 
 	}
+
+	/**
+	 * WebWorkerを初期化
+	 */
+	private initWorker(): void {
+
+		try {
+
+			// WebWorkerを作成（相対パスを使用）
+			this.sortWorker = new Worker( new URL( './sortWorker.ts', import.meta.url ), {
+				type: 'module'
+			} );
+
+			// Workerからのメッセージを処理
+			this.sortWorker.onmessage = ( e: MessageEvent<SortWorkerResponse> ) => {
+
+				this.handleWorkerMessage( e.data );
+
+			};
+
+			this.sortWorker.onerror = ( error ) => {
+
+				console.error( 'Sort Worker Error:', error );
+				this.isSorting = false;
+
+			};
+
+		} catch ( error ) {
+
+			console.warn( 'WebWorker not supported, falling back to main thread sorting:', error );
+			this.sortWorker = null;
+
+		}
+
+	}
+
+	/**
+	 * Workerからのメッセージを処理
+	 */
+	private handleWorkerMessage( data: SortWorkerResponse ): void {
+
+		if ( data.type === 'sorted' ) {
+
+			this.applySortedIndices( data.sortedIndices );
+			this.isSorting = false;
+
+		}
+
+	}
+
+	/**
+	 * ソートされたインデックスをテクスチャに適用
+	 */
+	private applySortedIndices( sortedIndices: Float32Array ): void {
+
+		// テクスチャサイズを計算
+		const { width: texWidth, height: texHeight } = this.calculateTextureSize();
+
+		// テクスチャデータを作成
+		const textureData = new Float32Array( texWidth * texHeight * 4 );
+		textureData.fill( 0 );
+
+		// インデックスをテクスチャに格納
+		for ( let i = 0; i < this.numPoints; i ++ ) {
+
+			textureData[ i * 4 ] = sortedIndices[ i ];
+
+		}
+
+		// テクスチャを更新
+		const texture = this.material.uniforms.uSortTex.value as GLP.GLPowerTexture;
+		const imageData = {
+			width: texWidth,
+			height: texHeight,
+			data: textureData
+		};
+
+		texture.attach( imageData );
+
+	}
+
 	/**
 	 * シーンからカメラコンポーネントを検索
 	 * @returns カメラコンポーネント、見つからない場合はnull
@@ -85,66 +181,31 @@ export class GaussianSplattingController extends Component {
 	}
 
 	/**
-	 * カメラに基づいてガウシアンの深度ソートを実行
+	 * カメラに基づいてガウシアンの深度ソートを実行（WebWorker版）
 	 */
 	public updateSort(): void {
+
+		// 既にソート中の場合はスキップ
+		if ( this.isSorting ) return;
 
 		const camera = this.findCamera();
 		if ( ! camera ) return;
 
-		// カメラのビュー行列を取得
-		const viewMatrix = camera.viewMatrix;
+		this.isSorting = true;
 
-		// ソート用の深度配列
-		const depths: { index: number, depth: number }[] = [];
+		if ( ! this.sortWorker ) return;
 
-		// 各ガウシアンの深度を計算
-		for ( let i = 0; i < this.numPoints; i ++ ) {
+		// ビュー行列を平坦化した配列に変換
+		const viewMatrix = Array.from( camera.viewMatrix.elm );
 
-			// ガウシアンの位置
-			const x = this.gaussianPositions[ i * 3 ];
-			const y = this.gaussianPositions[ i * 3 + 1 ];
-			const z = this.gaussianPositions[ i * 3 + 2 ];
-
-			const outPos = new GLP.Vector( x, y, z ).applyMatrix4AsPosition( viewMatrix );
-			depths.push( { index: i, depth: outPos.z } );
-
-		}
-
-		// 深度でソート（奥から手前へ）
-		depths.sort( ( a, b ) => a.depth - b.depth );
-
-		// ソート後のインデックス配列
-		const sortedIndices = new Float32Array( this.numPoints );
-		for ( let i = 0; i < this.numPoints; i ++ ) {
-
-			sortedIndices[ i ] = depths[ i ].index;
-
-		}
-
-		// テクスチャサイズを計算
-		const { width: texWidth, height: texHeight } = this.calculateTextureSize();
-
-		// テクスチャデータを作成
-		const textureData = new Float32Array( texWidth * texHeight * 4 );
-		textureData.fill( 0 );
-
-		// インデックスをテクスチャに格納
-		for ( let i = 0; i < this.numPoints; i ++ ) {
-
-			textureData[ i * 4 ] = sortedIndices[ i ];
-
-		}
-
-		// テクスチャを更新
-		const texture = this.material.uniforms.uSortTex.value as GLP.GLPowerTexture;
-		const imageData = {
-			width: texWidth,
-			height: texHeight,
-			data: textureData
+		const message: SortWorkerMessage = {
+			type: 'sort',
+			gaussianPositions: this.gaussianPositions,
+			numPoints: this.numPoints,
+			viewMatrix: viewMatrix
 		};
 
-		texture.attach( imageData );
+		this.sortWorker.postMessage( message );
 
 	}
 
@@ -170,7 +231,23 @@ export class GaussianSplattingController extends Component {
 		this.material.uniforms.uFocal.value.set( focalX, focalY );
 		this.material.uniforms.uViewport.value.copy( event.resolution );
 
-		this.updateSort();
+		// this.updateSort();
+
+	}
+
+	/**
+	 * リソースのクリーンアップ
+	 */
+	public dispose(): void {
+
+		if ( this.sortWorker ) {
+
+			this.sortWorker.terminate();
+			this.sortWorker = null;
+
+		}
+
+		super.dispose();
 
 	}
 
