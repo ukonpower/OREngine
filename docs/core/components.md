@@ -53,14 +53,14 @@ graph TB
     C --> P[PostProcessPipeline]
     C --> B[BLidger]
 
-    style C fill:#000,stroke:#fff,color:#fff,stroke-width:2px
-    style M fill:#000,stroke:#fff,color:#fff,stroke-width:2px
-    style CM fill:#000,stroke:#fff,color:#fff,stroke-width:2px
-    style L fill:#000,stroke:#fff,color:#fff,stroke-width:2px
-    style R fill:#000,stroke:#fff,color:#fff,stroke-width:2px
-    style G fill:#000,stroke:#fff,color:#fff,stroke-width:2px
-    style P fill:#000,stroke:#fff,color:#fff,stroke-width:2px
-    style B fill:#000,stroke:#fff,color:#fff,stroke-width:2px
+    style C fill:#fff,stroke:#000,color:#000,stroke-width:2px
+    style M fill:#fff,stroke:#000,color:#000,stroke-width:2px
+    style CM fill:#fff,stroke:#000,color:#000,stroke-width:2px
+    style L fill:#fff,stroke:#000,color:#000,stroke-width:2px
+    style R fill:#fff,stroke:#000,color:#000,stroke-width:2px
+    style G fill:#fff,stroke:#000,color:#000,stroke-width:2px
+    style P fill:#fff,stroke:#000,color:#000,stroke-width:2px
+    style B fill:#fff,stroke:#000,color:#000,stroke-width:2px
 ```
 
 ### 主要なコンポーネント

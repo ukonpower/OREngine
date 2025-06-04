@@ -73,12 +73,12 @@ graph TB
     Components --> Light[Light]
     Components --> Custom[Custom]
 
-    style Entity fill:#000,stroke:#fff,color:#fff
-    style Components fill:#000,stroke:#fff,color:#fff
-    style Mesh fill:#000,stroke:#fff,color:#fff
-    style Camera fill:#000,stroke:#fff,color:#fff
-    style Light fill:#000,stroke:#fff,color:#fff
-    style Custom fill:#000,stroke:#fff,color:#fff
+    style Entity fill:#fff,stroke:#000,color:#000
+    style Components fill:#fff,stroke:#000,color:#000
+    style Mesh fill:#fff,stroke:#000,color:#000
+    style Camera fill:#fff,stroke:#000,color:#000
+    style Light fill:#fff,stroke:#000,color:#000
+    style Custom fill:#fff,stroke:#000,color:#000
 ```
 
 - 柔軟なコンポーネント設計
@@ -99,10 +99,10 @@ graph LR
     Deferred --> Post[Post Processing]
     Post --> Final[Final Output]
 
-    style Scene fill:#000,stroke:#fff,color:#fff
-    style Deferred fill:#000,stroke:#fff,color:#fff
-    style Post fill:#000,stroke:#fff,color:#fff
-    style Final fill:#000,stroke:#fff,color:#fff
+    style Scene fill:#fff,stroke:#000,color:#000
+    style Deferred fill:#fff,stroke:#000,color:#000
+    style Post fill:#fff,stroke:#000,color:#000
+    style Final fill:#fff,stroke:#000,color:#000
 ```
 
 - Deferred レンダリング

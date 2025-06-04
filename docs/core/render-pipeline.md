@@ -18,14 +18,14 @@ graph TD
     Post --> UI[UIパス]
     UI --> Display[ディスプレイ出力]
 
-    style Scene fill:#000,stroke:#fff,color:#fff
-    style Shadow fill:#000,stroke:#fff,color:#fff
-    style Env fill:#000,stroke:#fff,color:#fff
-    style Deferred fill:#000,stroke:#fff,color:#fff
-    style Forward fill:#000,stroke:#fff,color:#fff
-    style Post fill:#000,stroke:#fff,color:#fff
-    style UI fill:#000,stroke:#fff,color:#fff
-    style Display fill:#000,stroke:#fff,color:#fff
+    style Scene fill:#fff,stroke:#000,color:#000
+    style Shadow fill:#fff,stroke:#000,color:#000
+    style Env fill:#fff,stroke:#000,color:#000
+    style Deferred fill:#fff,stroke:#000,color:#000
+    style Forward fill:#fff,stroke:#000,color:#000
+    style Post fill:#fff,stroke:#000,color:#000
+    style UI fill:#fff,stroke:#000,color:#000
+    style Display fill:#fff,stroke:#000,color:#000
 ```
 
 ## レンダリングステージ詳細
@@ -260,10 +260,10 @@ graph TD
     M4[sdf]
     end
 
-    style Shader fill:#000,stroke:#fff,color:#fff
-    style Parser fill:#000,stroke:#fff,color:#fff
-    style Modules fill:#000,stroke:#fff,color:#fff
-    style Final fill:#000,stroke:#fff,color:#fff
+    style Shader fill:#fff,stroke:#000,color:#000
+    style Parser fill:#fff,stroke:#000,color:#000
+    style Modules fill:#fff,stroke:#000,color:#000
+    style Final fill:#fff,stroke:#000,color:#000
 ```
 
 シェーダーモジュールシステムは`#include <モジュール名>`構文を使用して、共通のシェーダーコードを再利用可能な形で管理します。
@@ -305,12 +305,12 @@ graph LR
     D --> E[ループアンロール]
     E --> F[最終シェーダー]
 
-    style A fill:#000,stroke:#fff,color:#fff
-    style B fill:#000,stroke:#fff,color:#fff
-    style C fill:#000,stroke:#fff,color:#fff
-    style D fill:#000,stroke:#fff,color:#fff
-    style E fill:#000,stroke:#fff,color:#fff
-    style F fill:#000,stroke:#fff,color:#fff
+    style A fill:#fff,stroke:#000,color:#000
+    style B fill:#fff,stroke:#000,color:#000
+    style C fill:#fff,stroke:#000,color:#000
+    style D fill:#fff,stroke:#000,color:#000
+    style E fill:#fff,stroke:#000,color:#000
+    style F fill:#fff,stroke:#000,color:#000
 ```
 
 1. **Define 挿入**: コンパイル時の条件分岐や定数の定義
