@@ -19,11 +19,11 @@ interface SerializeFieldFormatArray {
 
 export type SerializableFieldFormat = SerializeFieldFormatVector | SerializeFieldFormatSelect | SerializeFieldFormatArray
 
-export type SerializableFieldOpt<> = {
-	isFolder?: boolean,
-	noExport?: boolean,
-	hidden?: boolean | ( ( value: SerializeFieldValue ) => boolean ),
-	format?: SerializableFieldFormat,
+export type SerializableFieldOpt = {
+        isFolder?: boolean,
+        noExport?: boolean,
+        hidden?: boolean | ( ( value: SerializeFieldValue ) => boolean ),
+        format?: SerializableFieldFormat,
 } & ValueOpt
 
 export type SerializeFieldPrimitive = number | string | boolean | null | undefined | ( () => void );
