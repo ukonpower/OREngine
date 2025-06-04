@@ -1,183 +1,121 @@
-import * as GLP from 'glpower';
-
 import { Entity, EntityFinalizeEvent } from '../Entity';
-
-import { ValueOpt } from '~/ts/components/ui/Property/Value';
+import { Serializable } from '../Serializable';
 
 export type ComponentUpdateEvent = EntityFinalizeEvent & {
-	entity: Entity,
 }
 
-export type BuiltInComponents =
-	'camera' |
-	'cameraShadowMap' |
-	'perspective' |
-	"orthographic" |
-	'material' |
-	'geometry' |
-	'light' |
-	'blidger' |
-	'scenePostProcess' |
-	'postProcess' |
-	'gpuCompute' |
-( string & {} );
+export type ComponentParams<TArgs = void> = TArgs extends void
+  ? { entity: Entity; args?: TArgs }
+  : { entity: Entity; args: TArgs };
 
-export type ComponentPropsOpt = {
-} & ValueOpt
+export class Component extends Serializable {
 
-export type ComponentProps = {[key: string]: { value: any, opt?: ComponentPropsOpt, } | ComponentProps}
-export type ComponentSetProps = {[key: string]: any }
-
-export type ComponentParams = {
-	disableEdit?: boolean
-}
-
-export class Component extends GLP.EventEmitter {
-
-	public readonly uuid: string;
-
-	public entity: Entity | null;
-
-	public enabled: boolean;
 	public disableEdit: boolean;
+	public order: number;
+	protected _entity: Entity;
+	protected _enabled: boolean;
+	protected _tag: string;
+	protected _disposed: boolean;
 
-	constructor( params?: ComponentParams ) {
+	constructor( params: ComponentParams<any> ) {
 
 		super();
 
-		params = params ?? {};
+		this.disableEdit = false;
+		this._entity = params.entity;
+		this._enabled = true;
+		this._disposed = false;
+		this._tag = "";
+		this.order = 0;
 
-		this.enabled = true;
-		this.disableEdit = params.disableEdit || false;
+		this.field( "enabled", () => this.enabled, value => this.enabled = value, {
+			hidden: true,
+			noExport: true
+		} );
 
-		this.entity = null;
-
-		this.uuid = GLP.ID.genUUID();
-
-	}
-
-	public getProperties(): ComponentProps | null {
-
-		return null;
-
-	}
-
-	public getPropertyValues() {
-
-		const propertyValue:ComponentSetProps = {};
-
-		const _ = ( path: string, props: ComponentProps ): ComponentSetProps => {
-
-			Object.keys( props || {} ).forEach( ( key ) => {
-
-				const path_ = path + key;
-
-				const prop = props[ key ];
-
-				if ( "value" in prop ) {
-
-					propertyValue[ path_ ] = props[ key ].value;
-
-				} else {
-
-					_( path_ + "/", prop );
-
-				}
-
-			} );
-
-			return props;
-
-		};
-
-		_( "", this.getProperties() || {} );
-
-		return propertyValue;
+		this.field( "tag", () => this.tag, value => this._tag = value, {
+			readOnly: true,
+			noExport: true,
+			hidden: ( item ) => item == "",
+		} );
 
 	}
 
-	public setPropertyValues( props: ComponentSetProps ) {
-	}
+	public get tag() {
 
-	public export(): ComponentProps | null {
-
-		return this.getPropertyValues();
+		return this._tag;
 
 	}
 
-	public noticeChanged( type?: string ) {
+	public get entity() {
 
-		this.emit( 'changed', [ type ] );
-
-		if ( this.entity ) {
-
-			this.entity.noticeRecursiveParent( "changed", [ "component" ] );
-
-		}
+		return this._entity;
 
 	}
 
-	public setEntity( entity: Entity | null ) {
+	public set enabled( value: boolean ) {
 
-		const beforeEntity = this.entity;
-
-		this.entity = entity;
-
-		this.setEntityImpl( this.entity, beforeEntity );
+		this._enabled = value;
 
 	}
 
-	public preUpdate( event: ComponentUpdateEvent ) {
+	public get enabled() {
 
-		if ( this.entity && this.enabled ) {
-
-			this.preUpdateImpl( event );
-
-		}
+		return this._enabled;
 
 	}
+
+	// onUpdate
 
 	public update( event: ComponentUpdateEvent ) {
 
-		if ( this.entity && this.enabled ) {
+		if ( ! this.enabled ) return;
 
-			this.updateImpl( event );
-
-		}
+		this.updateImpl( event );
 
 	}
-
-	public postUpdate( event: ComponentUpdateEvent ) {
-
-		if ( this.entity && this.enabled ) {
-
-			this.postUpdateImpl( event );
-
-		}
-
-	}
-
-	public finalize( event: ComponentUpdateEvent ) {
-
-		if ( this.entity && this.enabled ) {
-
-			this.finalizeImpl( event );
-
-		}
-
-	}
-
-	protected setEntityImpl( entity: Entity | null, prevEntity: Entity | null ) {}
-
-	protected preUpdateImpl( event: ComponentUpdateEvent ) {}
 
 	protected updateImpl( event: ComponentUpdateEvent ) {}
 
+	// postUpdate
+
+	public postUpdate( event: ComponentUpdateEvent ) {
+
+		if ( ! this.enabled ) return;
+
+		this.postUpdateImpl( event );
+
+	}
+
 	protected postUpdateImpl( event: ComponentUpdateEvent ) {}
 
-	protected finalizeImpl( event: ComponentUpdateEvent ) {}
+	// beforeRender
+
+	public beforeRender( event: ComponentUpdateEvent ) {
+
+		if ( ! this.enabled ) return;
+
+		this.beforeRenderImpl( event );
+
+	}
+
+	protected beforeRenderImpl( event: ComponentUpdateEvent ) {}
+
+	// afterRender
+
+	public afterRender( event: ComponentUpdateEvent ) {
+
+		if ( ! this.enabled ) return;
+
+		this.afterRenderImpl( event );
+
+	}
+
+	protected afterRenderImpl( event: ComponentUpdateEvent ) {}
 
 	public dispose() {
+
+		this._disposed = true;
 
 		this.emit( 'dispose' );
 

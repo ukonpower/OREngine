@@ -1,0 +1,98 @@
+@use '~/styles/common' as *;
+
+.compoAdd {
+	padding-top: 5px;
+}
+
+$arrowPadding: 20px;
+
+.directory {
+	position: relative;
+	display: block;
+
+	padding: $padding;
+
+	&:hover {
+		background-color: $bgColWindow0_active;
+	}
+
+	&[data-type="item"] {
+		cursor: pointer;
+	}
+
+	&[data-type="dir"] {
+		&::before {
+			position: absolute;
+			top: 50%;
+			font-size: 12px;
+			padding: 0 5px;
+			transform: translateY(-50%);
+		}
+	}
+
+	&[data-direction="left-top"] {
+		padding-left: $arrowPadding;
+
+		.subDirectory {
+			right: 100%;
+			bottom: 0;
+		}
+
+		&[data-type="dir"]::before {
+			content: "<";
+			left: 0;
+		}
+	}
+
+	&[data-direction="left-bottom"] {
+		padding-left: $arrowPadding;
+
+		.subDirectory {
+			right: 100%;
+			top: 0;
+		}
+
+		&[data-type="dir"]::before {
+			content: "<";
+			left: 0;
+		}
+	}
+
+	&[data-direction="right-top"] {
+		padding-right: $arrowPadding;
+
+		.subDirectory {
+			left: 100%;
+			bottom: 0;
+		}
+
+		&[data-type="dir"]::before {
+			content: ">";
+			right: 0;
+		}
+	}
+
+	&[data-direction="right-bottom"] {
+		padding-right: $arrowPadding;
+
+		.subDirectory {
+			left: 100%;
+			bottom: 0;
+		}
+
+		&[data-type="dir"]::before {
+			content: ">";
+			right: 0;
+		}
+	}
+
+}
+
+.subDirectory {
+	position: absolute;
+}
+
+.picker,
+.subDirectory {
+	background-color: $bgColWindow0;
+}

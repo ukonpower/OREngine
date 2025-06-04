@@ -1,6 +1,4 @@
-$width-middle: 1200px;
-$width-tab: 1000px;
-$sp-width: 800px;
+$sp-width: 900px;
 
 $focusCol: #999;
 
@@ -11,16 +9,20 @@ $bgCol2: #2a2a2a;
 $bgCol3: #333;
 $bgCol4: #555;
 
-$bgColWindow0: rgba(#000, 0.9);
+$bgColWindow0: rgba(#000, 1.0);
+$bgColWindow0_active: rgba(#222, 1.0);
 
 $fontCol1: #ccc;
 $fontCol2: #aaa;
 $fontCol3: #777;
+$fontCol4: #333;
 
 $fontSize1: 10px;
 $fontSize2: 12px;
 $fontSize4: 16px;
 $fontSize5: 18px;
+
+$borderCol1: rgb(194, 74, 0);
 
 $padding: 5px;
 

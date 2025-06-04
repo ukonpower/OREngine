@@ -1,0 +1,95 @@
+{
+	"name": "draw(Tokyo);",
+	"position": [
+		0,
+		0,
+		0
+	],
+	"euler": [
+		0,
+		0,
+		0
+	],
+	"scale": [
+		1,
+		1,
+		1
+	],
+	"scene": {
+		"name": "root"
+	},
+	"overrides": [
+		{
+			"path": "/root",
+			"components": [
+				{
+					"name": "BLidgeClient",
+					"props": {
+						"mode": "json",
+						"gltf": true,
+						"gltfPath": "/scene.glb",
+						"websocket/url": "ws://localhost:3100"
+					}
+				},
+				{
+					"name": "TextureGenerator"
+				},
+				{
+					"name": "UniformControls"
+				}
+			]
+		},
+		{
+			"path": "/root/blidgeRoot/Camera",
+			"components": [
+				{
+					"name": "ShakeViewer",
+					"props": {
+						"power": 0.15,
+						"speed": 1
+					}
+				},
+				{
+					"name": "PostProcessPipeline",
+					"props": {
+						"postprocess": [
+							true,
+							true,
+							true,
+							true
+						]
+					}
+				},
+				{
+					"name": "MainCamera"
+				}
+			]
+		},
+		{
+			"path": "/root/blidgeRoot/OREngine",
+			"components": [
+				{
+					"name": "OREngineLogoMaterial"
+				}
+			]
+		},
+		{
+			"path": "/root/blidgeRoot/OREngineCube",
+			"components": [
+				{
+					"name": "OREngineCubeMaterial"
+				}
+			]
+		},
+		{
+			"path": "/root/blidgeRoot/SkyBox",
+			"components": [
+				{
+					"name": "SkyBox"
+				}
+			]
+		}
+	],
+	"timeline/duration": 600,
+	"timeline/fps": 60
+}

@@ -1,0 +1,21 @@
+@use '~/styles/common' as *;
+
+.cursor {
+	position: relative;
+	width: 2px;
+	height: 100%;
+	position: absolute;
+	left: 0;
+	top: 0;
+	background-color: $bgCol4;
+	pointer-events: none;
+	z-index: 1;
+}
+
+.frame {
+	position: absolute;
+	user-select: none;
+	left: 2px;
+	padding: 0px 2px;
+	background-color: #000;
+}

@@ -1,0 +1,35 @@
+@use '~/styles/common' as *;
+
+.container {
+	display: flex;
+	margin-bottom: 3px;
+	align-items: center;
+
+	&[data-vertical="true"] {
+		flex-direction: column;
+		align-items: start;
+	}
+
+}
+
+.label {
+	min-width: 20%;
+	color: $fontCol3;
+	word-break: break-all;
+	margin-right: 5px;
+	font-size: $fontSize1;
+
+	&[data-vertical="true"] {
+		// text-align: right;
+		// text-align: left;
+	}
+
+}
+
+.item {
+	flex: 1;
+
+	&[data-vertical="true"] {
+		width: 100%;
+	}
+}
