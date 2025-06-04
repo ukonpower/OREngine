@@ -14,11 +14,11 @@ graph TD
     Format --> Importer[BLidge Importer]
     Importer --> Engine[OREngine]
 
-    style Blender fill:#ffcccc,stroke:#333
-    style Exporter fill:#cce5ff,stroke:#333
-    style Format fill:#ccffcc,stroke:#333
-    style Importer fill:#f3ccff,stroke:#333
-    style Engine fill:#ffd6cc,stroke:#333
+    style Blender fill:#000,stroke:#fff,color:#fff
+    style Exporter fill:#000,stroke:#fff,color:#fff
+    style Format fill:#000,stroke:#fff,color:#fff
+    style Importer fill:#000,stroke:#fff,color:#fff
+    style Engine fill:#000,stroke:#fff,color:#fff
 ```
 
 ## エクスポート機能
@@ -118,11 +118,11 @@ graph LR
     C --> D[シーン設定]
     D --> E[エクスポート]
 
-    style A fill:#cce5ff,stroke:#333
-    style B fill:#ccffcc,stroke:#333
-    style C fill:#f3ccff,stroke:#333
-    style D fill:#ffd6cc,stroke:#333
-    style E fill:#ffcccc,stroke:#333
+    style A fill:#000,stroke:#fff,color:#fff
+    style B fill:#000,stroke:#fff,color:#fff
+    style C fill:#000,stroke:#fff,color:#fff
+    style D fill:#000,stroke:#fff,color:#fff
+    style E fill:#000,stroke:#fff,color:#fff
 ```
 
 ### 2. エクスポートプロセス
