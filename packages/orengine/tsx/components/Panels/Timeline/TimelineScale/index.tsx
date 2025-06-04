@@ -1,7 +1,6 @@
-import { useContext } from 'react';
-
 import { useSerializableField } from '../../../../hooks/useSerializableProps';
-import { TimelineContext } from '../hooks/useTimeline';
+import { useTimeline } from '../../../../hooks/useTimeline';
+
 
 import style from './index.module.scss';
 
@@ -17,7 +16,7 @@ const formatTime = ( sec: number ) => {
 
 export const TimelineScale = () => {
 
-	const { glEditor, viewPort, viewPortScale } = useContext( TimelineContext );
+	const { glEditor, viewPort, viewPortScale } = useTimeline();
 
 	const [ fps, setFps ] = useSerializableField<number>( glEditor?.engine, "timeline/fps" );
 

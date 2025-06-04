@@ -1,8 +1,8 @@
-import { useContext, useRef } from 'react';
+import { useRef } from 'react';
 
 import { useSerializableField } from '../../../../hooks/useSerializableProps';
+import { useTimeline } from '../../../../hooks/useTimeline';
 import { useWatchSerializable } from '../../../../hooks/useWatchSerializable';
-import { TimelineContext } from '../hooks/useTimeline';
 
 import style from './index.module.scss';
 import { TimelineLoopCursor } from './TimelineLoopCursor';
@@ -10,7 +10,7 @@ import { TimelineLoopCursor } from './TimelineLoopCursor';
 
 export const TimelineLoop = () => {
 
-	const { viewPort, framePlay, glEditor } = useContext( TimelineContext );
+	const { viewPort, framePlay, glEditor } = useTimeline();
 
 	const elmRef = useRef<HTMLDivElement>( null );
 

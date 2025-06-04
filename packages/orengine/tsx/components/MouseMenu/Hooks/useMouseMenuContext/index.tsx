@@ -1,11 +1,8 @@
-import React, { createContext, useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
-export const MouseMenuContext = createContext<HooksContext<typeof useMouseMenu>>( {} );
-export const MouseMenuItemContext = createContext<MouseMenuItem|undefined>( undefined );
+export type Direction = "right-top" | "right-bottom" | "left-top" | "left-bottom";
 
-type Direction = "right-top" | "right-bottom" | "left-top" | "left-bottom"
-
-type MouseMenuItem = {
+export type MouseMenuItem = {
 	id: number,
 	elm: React.ReactNode,
 	direction: Direction,
@@ -15,7 +12,7 @@ type MouseMenuItem = {
 
 let id = 0;
 
-export const useMouseMenu = () => {
+export const useMouseMenuContext = () => {
 
 	const containerRef = useRef<HTMLDivElement>( null );
 

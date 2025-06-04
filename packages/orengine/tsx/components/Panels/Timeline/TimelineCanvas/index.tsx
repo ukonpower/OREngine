@@ -1,7 +1,7 @@
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { useSerializableField } from '../../../../hooks/useSerializableProps';
-import { TimelineContext } from '../hooks/useTimeline';
+import { useTimeline } from '../../../../hooks/useTimeline';
 
 import style from './index.module.scss';
 import { TimelineCanvasRenderer } from './TimelineCanvasRenderer';
@@ -9,7 +9,7 @@ import { TimelineCanvasRenderer } from './TimelineCanvasRenderer';
 
 export const TimelineCanvas = () => {
 
-	const { viewPort, viewPortScale, musicBuffer, musicBufferVersion, glEditor } = useContext( TimelineContext );
+	const { viewPort, viewPortScale, musicBuffer, musicBufferVersion, glEditor } = useTimeline();
 
 	const [ renderer, setRenderer ] = useState<TimelineCanvasRenderer>();
 

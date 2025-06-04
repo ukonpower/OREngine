@@ -1,12 +1,10 @@
-import { useContext } from 'react';
-
-import { TimelineContext } from '../hooks/useTimeline';
+import { useTimeline } from '../../../../hooks/useTimeline';
 
 import style from './index.module.scss';
 
 export const TimelineCursor = () => {
 
-	const { viewPort, framePlay } = useContext( TimelineContext );
+	const { viewPort, framePlay } = useTimeline();
 
 	if ( ! viewPort || ! framePlay ) return null;
 

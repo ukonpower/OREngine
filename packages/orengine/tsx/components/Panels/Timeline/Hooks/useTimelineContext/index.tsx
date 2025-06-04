@@ -1,11 +1,9 @@
-import { useState, useCallback, useEffect, createContext, useRef } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 
 import { FramePlay } from "../../../../../../ts/Engine";
 import { useOREditor } from "../../../../../../tsx/hooks/useOREditor";
 
-export const TimelineContext = createContext<HooksContext<typeof useTimeline>>( {} );
-
-export const useTimeline = () => {
+export const useTimelineContext = () => {
 
 	const { editor: glEditor } = useOREditor();
 

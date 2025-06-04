@@ -1,18 +1,18 @@
 import * as MXP from 'maxpower';
-import { useCallback, useContext } from 'react';
+import { useCallback } from 'react';
 
 import { useSerializableField } from '../../../../hooks/useSerializableProps';
+import { useTimeline } from '../../../../hooks/useTimeline';
 import { Label } from '../../../Label';
 import { Panel } from '../../../Panel';
 import { Value } from '../../../Value';
-import { TimelineContext } from '../hooks/useTimeline';
 
 import style from './index.module.scss';
 
 
 export const TimelineSetting = () => {
 
-	const { framePlay, glEditor } = useContext( TimelineContext );
+	const { framePlay, glEditor } = useTimeline();
 
 	const onChange = useCallback( ( value: MXP.SerializeFieldValue, setter: ( ( value: any ) => void ) | undefined ) => {
 
