@@ -18,7 +18,7 @@ const compat = new FlatCompat( {
 } );
 
 export default [ {
-	ignores: [ "**/dist" ],
+	ignores: [ "**/dist", "packages/glpower/" ],
 }, ...fixupConfigRules( compat.extends(
 	"mdcs",
 	"eslint:recommended",
@@ -48,6 +48,7 @@ export default [ {
 		"@typescript-eslint/no-explicit-any": "off",
 		"@typescript-eslint/ban-types": "off",
 		"@typescript-eslint/no-namespace": "off",
+		"@typescript-eslint/no-empty-object-type": "off",
 
 		"import/order": [ "error", {
 			groups: [

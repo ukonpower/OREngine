@@ -93,11 +93,11 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 					</div>
 					<div style={{ height: '160px' }}>
 						<PanelContainer>
-							<Panel title='MIDIMIXEmu'>
-								<MIDIMIXEmu />
-							</Panel>
 							<Panel title='Timeline' noPadding>
 								<Timeline />
+							</Panel>
+							<Panel title='MIDIMIXEmu'>
+								<MIDIMIXEmu />
 							</Panel>
 						</PanelContainer>
 					</div>
