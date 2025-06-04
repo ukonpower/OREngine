@@ -18,14 +18,14 @@ graph TD
     Post --> UI[UIパス]
     UI --> Display[ディスプレイ出力]
 
-    style Scene fill:#ffcccc,stroke:#333
-    style Shadow fill:#cce5ff,stroke:#333
-    style Env fill:#ccffcc,stroke:#333
-    style Deferred fill:#f3ccff,stroke:#333
-    style Forward fill:#ffd6cc,stroke:#333
-    style Post fill:#cce5ff,stroke:#333
-    style UI fill:#ccffcc,stroke:#333
-    style Display fill:#f8f8f8,stroke:#333
+    style Scene fill:#000,stroke:#fff,color:#fff
+    style Shadow fill:#000,stroke:#fff,color:#fff
+    style Env fill:#000,stroke:#fff,color:#fff
+    style Deferred fill:#000,stroke:#fff,color:#fff
+    style Forward fill:#000,stroke:#fff,color:#fff
+    style Post fill:#000,stroke:#fff,color:#fff
+    style UI fill:#000,stroke:#fff,color:#fff
+    style Display fill:#000,stroke:#fff,color:#fff
 ```
 
 ## レンダリングステージ詳細
@@ -260,10 +260,10 @@ graph TD
     M4[sdf]
     end
 
-    style Shader fill:#ffcccc,stroke:#333
-    style Parser fill:#cce5ff,stroke:#333
-    style Modules fill:#ccffcc,stroke:#333
-    style Final fill:#f3ccff,stroke:#333
+    style Shader fill:#000,stroke:#fff,color:#fff
+    style Parser fill:#000,stroke:#fff,color:#fff
+    style Modules fill:#000,stroke:#fff,color:#fff
+    style Final fill:#000,stroke:#fff,color:#fff
 ```
 
 シェーダーモジュールシステムは`#include <モジュール名>`構文を使用して、共通のシェーダーコードを再利用可能な形で管理します。
@@ -305,12 +305,12 @@ graph LR
     D --> E[ループアンロール]
     E --> F[最終シェーダー]
 
-    style A fill:#ffcccc,stroke:#333
-    style B fill:#cce5ff,stroke:#333
-    style C fill:#ccffcc,stroke:#333
-    style D fill:#f3ccff,stroke:#333
-    style E fill:#ffd6cc,stroke:#333
-    style F fill:#f8f8f8,stroke:#333
+    style A fill:#000,stroke:#fff,color:#fff
+    style B fill:#000,stroke:#fff,color:#fff
+    style C fill:#000,stroke:#fff,color:#fff
+    style D fill:#000,stroke:#fff,color:#fff
+    style E fill:#000,stroke:#fff,color:#fff
+    style F fill:#000,stroke:#fff,color:#fff
 ```
 
 1. **Define 挿入**: コンパイル時の条件分岐や定数の定義
