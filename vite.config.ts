@@ -10,12 +10,14 @@ import shaderminifier from './plugins/shader-minifier-loader';
 const basePath = ``;
 
 // https://vitejs.dev/config/
-export default defineConfig( {
-	root: 'src',
-	server: {
-		port: 3000,
-		host: "0.0.0.0",
-	},
+export default defineConfig( () => {
+        const isTest = !!process.env.VITEST;
+        return {
+                root: isTest ? '.' : 'src',
+                server: {
+                        port: 3000,
+                        host: "0.0.0.0",
+                },
 	build: {
 		outDir: '../dist/',
 	},
