@@ -342,13 +342,14 @@ export class Engine extends MXP.Entity {
 
 	}
 
-	public seek( frame: number ) {
+        public seek( frame: number ) {
 
-		this._time.code = frame / 60;
+                this._time.code = frame / 60;
+                this._frame.current = frame;
 
-		this.emit( "update/frame/play", [ this._frame ] );
+                this.emit( "update/frame/play", [ this._frame ] );
 
-	}
+        }
 
 	/*-------------------------------
 		CompileShaders
