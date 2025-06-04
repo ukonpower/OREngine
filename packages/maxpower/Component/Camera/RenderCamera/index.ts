@@ -1,95 +1,118 @@
 import * as GLP from "glpower";
+import * as MXP from 'maxpower';
 
-import { CameraParam, Camera } from "..";
-import { ComponentProps, ComponentSetProps } from "../..";
-
-import { power } from "~/ts/Globals";
+import { Camera } from "..";
 
 export type RenderCameraTarget = {
 	gBuffer: GLP.GLPowerFrameBuffer,
 	shadingBuffer: GLP.GLPowerFrameBuffer,
 	forwardBuffer: GLP.GLPowerFrameBuffer,
 	uiBuffer: GLP.GLPowerFrameBuffer,
+	normalBuffer: GLP.GLPowerFrameBuffer,
 }
 
-export interface RenderCameraParam extends CameraParam {
-	gl: WebGL2RenderingContext
+type DofParams = {
+	focusDistance: number;
+	kFilmHeight: number;
 }
 
 export class RenderCamera extends Camera {
 
-	public renderTarget: RenderCameraTarget;
+	public dofParams: DofParams;
 
-	constructor( gl: WebGL2RenderingContext, param?: RenderCameraParam ) {
+	private _gl: WebGL2RenderingContext;
+	private _renderTarget: RenderCameraTarget;
+	private _gBuffer: GLP.GLPowerFrameBuffer;
+	private _resolution: GLP.Vector;
 
-		super( param );
+	constructor( params: MXP.ComponentParams<{gl: WebGL2RenderingContext}> ) {
 
-		const gBuffer = new GLP.GLPowerFrameBuffer( gl );
-		gBuffer.setTexture( [
-			power.createTexture().setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA, magFilter: gl.NEAREST, minFilter: gl.NEAREST } ),
-			power.createTexture().setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA } ),
-			power.createTexture(),
-			power.createTexture(),
-			power.createTexture().setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA } ),
+		super( params );
+
+		this.dofParams = {
+			focusDistance: 0.5,
+			kFilmHeight: 0.008,
+		};
+
+		const gl = params.args.gl;
+		this._gl = gl;
+
+		this._resolution = new GLP.Vector();
+
+		this._gBuffer = new GLP.GLPowerFrameBuffer( gl );
+		this._gBuffer.setTexture( [
+			new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA, magFilter: gl.NEAREST, minFilter: gl.NEAREST } ),
+			new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA } ),
+			new GLP.GLPowerTexture( gl ),
+			new GLP.GLPowerTexture( gl ),
+			new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA } ),
 		] );
 
 		const shadingBuffer = new GLP.GLPowerFrameBuffer( gl, { disableDepthBuffer: true } );
 		shadingBuffer.setTexture( [
-			power.createTexture().setting( { type: gl.FLOAT, internalFormat: gl.RGBA16F, format: gl.RGBA } ),
-			power.createTexture().setting( { type: gl.FLOAT, internalFormat: gl.RGBA16F, format: gl.RGBA } ),
+			new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA16F, format: gl.RGBA } ),
+			new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA16F, format: gl.RGBA } ),
 		] );
 
 		const forwardBuffer = new GLP.GLPowerFrameBuffer( gl, { disableDepthBuffer: true } );
-		forwardBuffer.setDepthTexture( gBuffer.depthTexture );
-		forwardBuffer.setTexture( [ shadingBuffer.textures[ 0 ] ] );
+		forwardBuffer.setDepthTexture( this._gBuffer.depthTexture );
+		forwardBuffer.setTexture( [
+			shadingBuffer.textures[ 0 ],
+			this._gBuffer.textures[ 0 ],
+			this._gBuffer.textures[ 4 ],
+		] );
 
 		const uiBuffer = new GLP.GLPowerFrameBuffer( gl, { disableDepthBuffer: true } );
-		uiBuffer.setTexture( [ power.createTexture() ] );
+		uiBuffer.setDepthTexture( this._gBuffer.depthTexture );
+		uiBuffer.setTexture( [ new GLP.GLPowerTexture( gl ) ] );
 
-		this.renderTarget = { gBuffer, shadingBuffer: shadingBuffer, forwardBuffer, uiBuffer };
+		const normalBuffer = new GLP.GLPowerFrameBuffer( gl );
+		normalBuffer.setTexture( [
+			new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA, magFilter: gl.NEAREST, minFilter: gl.NEAREST } )
+		] );
 
-	}
+		this._renderTarget = { gBuffer: this._gBuffer, shadingBuffer: shadingBuffer, forwardBuffer, uiBuffer, normalBuffer };
 
-	public getProperties(): ComponentProps | null {
-
-		return {
-			type: {
-				value: this.cameraType,
-			},
-			fov: {
-				value: this.fov,
-			},
-			near: {
-				value: this.near,
-			},
-			far: {
-				value: this.far,
-			},
-			aspect: {
-				value: this.aspect,
-				opt: { readOnly: true }
-			},
-		};
+		this.resize( this._resolution );
 
 	}
 
-	public setPropertyValues( props: ComponentSetProps ) {
+	public get resolution() {
 
-		this.cameraType = props.type;
-		this.fov = props.fov;
-		this.near = props.near;
-		this.far = props.far;
+		return this._resolution;
 
-		this.updateProjectionMatrix();
+	}
+
+	public get gBuffer() {
+
+		return this._gBuffer;
+
+	}
+
+	public get renderTarget() {
+
+		return this._renderTarget;
 
 	}
 
 	public resize( resolution: GLP.Vector ) {
 
-		this.renderTarget.gBuffer.setSize( resolution );
-		this.renderTarget.shadingBuffer.setSize( resolution );
-		this.renderTarget.forwardBuffer.setSize( resolution );
-		this.renderTarget.uiBuffer.setSize( resolution );
+		if ( resolution.x == this._resolution.x && resolution.y == this._resolution.y ) return;
+
+		this._resolution.copy( resolution );
+		this.aspect = resolution.x / resolution.y;
+
+		if ( this._renderTarget ) {
+
+			this._renderTarget.gBuffer.setSize( this._resolution );
+			this._renderTarget.shadingBuffer.setSize( this._resolution );
+			this._renderTarget.forwardBuffer.setSize( this._resolution );
+			this._renderTarget.uiBuffer.setSize( this._resolution );
+			this._renderTarget.normalBuffer.setSize( this._resolution );
+
+		}
+
+		this.needsUpdateProjectionMatrix = true;
 
 	}
 

@@ -1,10 +1,8 @@
 import * as GLP from 'glpower';
 
-import { Component, ComponentParams, ComponentProps, ComponentUpdateEvent } from "..";
+import { Component, ComponentParams, ComponentUpdateEvent } from "..";
 
 export type CameraType = 'perspective' | 'orthographic'
-export interface CameraParam extends ComponentParams {
-}
 
 export class Camera extends Component {
 
@@ -24,17 +22,15 @@ export class Camera extends Component {
 	public projectionMatrixPrev: GLP.Matrix;
 	public viewMatrixPrev: GLP.Matrix;
 
-	public needsUpdate: boolean;
+	public needsUpdateProjectionMatrix: boolean;
 
 	public displayOut: boolean;
 
 	public viewPort: GLP.Vector | null;
 
-	constructor( params?: CameraParam ) {
+	constructor( params: ComponentParams ) {
 
 		super( params );
-
-		params = params || {};
 
 		this.cameraType = 'perspective';
 
@@ -54,14 +50,21 @@ export class Camera extends Component {
 		this.orthWidth = 1;
 		this.orthHeight = 1;
 
-		this.needsUpdate = true;
+		this.needsUpdateProjectionMatrix = true;
 		this.displayOut = true;
+
+		if ( import.meta.env.DEV ) {
+
+			this.field( "fov", () => this.fov, ( v ) => this.fov = v, { noExport: true } );
+
+		}
+
+		this._tag = "camera";
 
 	}
 
 	public updateProjectionMatrix() {
 
-		this.projectionMatrixPrev.copy( this.projectionMatrix );
 
 		if ( this.cameraType == 'perspective' ) {
 
@@ -73,30 +76,32 @@ export class Camera extends Component {
 
 		}
 
-		this.needsUpdate = false;
+		this.needsUpdateProjectionMatrix = false;
 
 	}
 
 	public updateViewMatrix() {
 
-		if ( this.entity ) {
+		this.viewMatrix.copy( this.entity.matrixWorld ).inverse();
 
-			this.viewMatrixPrev.copy( this.viewMatrix );
-			this.viewMatrix.copy( this.entity.matrixWorld ).inverse();
+	}
+
+	protected beforeRenderImpl( event: ComponentUpdateEvent ): void {
+
+		this.updateViewMatrix();
+
+		if ( this.needsUpdateProjectionMatrix ) {
+
+			this.updateProjectionMatrix();
 
 		}
 
 	}
 
-	protected postUpdateImpl( event: ComponentUpdateEvent ): void {
+	protected afterRenderImpl( event: ComponentUpdateEvent ): void {
 
-		this.updateViewMatrix();
-
-		if ( this.needsUpdate ) {
-
-			this.updateProjectionMatrix();
-
-		}
+		this.viewMatrixPrev.copy( this.viewMatrix );
+		this.projectionMatrixPrev.copy( this.projectionMatrix );
 
 	}
 

@@ -1,44 +1,42 @@
 import * as GLP from 'glpower';
 
-import { Component, ComponentParams, ComponentProps, ComponentUpdateEvent } from "..";
-import { BLidge, BLidgeNode, BLidgeLightParam } from "../../BLidge";
-import { Entity } from '../../Entity';
-import { Geometry } from "../Geometry";
-import { CubeGeometry } from "../Geometry/CubeGeometry";
-import { CylinderGeometry } from "../Geometry/CylinderGeometry";
-import { PlaneGeometry } from "../Geometry/PlaneGeometry";
-import { SphereGeometry } from "../Geometry/SphereGeometry";
+import { Component, ComponentParams, ComponentUpdateEvent } from "..";
+import { BLidge, BLidgeNode, BLidgeLightParam, BLidgeCameraParam } from "../../BLidge";
+import { Geometry } from '../../Geometry';
+import { CubeGeometry } from '../../Geometry/CubeGeometry';
+import { CylinderGeometry } from '../../Geometry/CylinderGeometry';
+import { PlaneGeometry } from '../../Geometry/PlaneGeometry';
+import { SphereGeometry } from '../../Geometry/SphereGeometry';
+import { Camera } from '../Camera';
 import { Light } from '../Light';
-import { Material } from '../Material';
-
-interface BLidgerParams extends ComponentParams {
-	blidge: BLidge;
-	node: BLidgeNode;
-}
+import { Mesh } from '../Mesh';
 
 export class BLidger extends Component {
 
-	private blidge: BLidge;
-
 	public node: BLidgeNode;
-
 	public rotationOffsetX: number;
-
-	public curvePosition?: GLP.FCurveGroup;
-	public curveRotation?: GLP.FCurveGroup;
-	public curveScale?: GLP.FCurveGroup;
-	public curveHide?: GLP.FCurveGroup;
-
+	public animations: Map<string, GLP.FCurveGroup>;
 	public uniforms: GLP.Uniforms;
-	public uniformCurves: {name: string, curve: GLP.FCurveGroup}[];
+	public uniformCurves: Map<string, GLP.FCurveGroup>;
+	public transformAutoUpdate: boolean;
 
-	constructor( params: BLidgerParams ) {
+	private _blidge: BLidge;
+	private _cameraComponent?: Camera;
+	private _lightComponent?: Light;
+
+	constructor( params: ComponentParams<{blidge: BLidge, node: BLidgeNode}> ) {
 
 		super( params );
 
-		this.blidge = params.blidge;
-		this.node = params.node;
 		this.rotationOffsetX = 0;
+		this.animations = new Map();
+		this.uniforms = {};
+		this.uniformCurves = new Map();
+		this.transformAutoUpdate = true;
+		this._blidge = params.args.blidge;
+		this.node = params.args.node;
+
+		// rotationOffset
 
 		if ( this.node.type == "camera" ) {
 
@@ -46,30 +44,31 @@ export class BLidger extends Component {
 
 		}
 
-		this.curvePosition = this.blidge.getCurveGroup( this.node.animation.position );
-		this.curveRotation = this.blidge.getCurveGroup( this.node.animation.rotation );
-		this.curveScale = this.blidge.getCurveGroup( this.node.animation.scale );
-		this.curveHide = this.blidge.getCurveGroup( this.node.animation.hide );
+		// animations
+
+		const animationCurveKeys = Object.keys( this.node.animations );
+
+		for ( let i = 0; i < animationCurveKeys.length; i ++ ) {
+
+			const name = animationCurveKeys[ i ];
+
+			this.animations.set( name, this._blidge.getCurveGroup( this.node.animations[ name ] ) );
+
+		}
 
 		// uniforms
 
-		this.uniforms = {};
-		this.uniformCurves = [];
+		const uniformCurveKeys = Object.keys( this.node.material.uniforms );
 
-		const keys = Object.keys( this.node.material.uniforms );
+		for ( let i = 0; i < uniformCurveKeys.length; i ++ ) {
 
-		for ( let i = 0; i < keys.length; i ++ ) {
-
-			const name = keys[ i ];
+			const name = uniformCurveKeys[ i ];
 			const accessor = this.node.material.uniforms[ name ];
-			const curve = this.blidge.curveGroups.find( curve => curve.name == accessor );
+			const curve = this._blidge.curveGroups[ accessor ];
 
 			if ( curve ) {
 
-				this.uniformCurves.push( {
-					name: name,
-					curve: curve
-				} );
+				this.uniformCurves.set( name, curve );
 
 				this.uniforms[ name ] = {
 					type: '4fv',
@@ -80,254 +79,304 @@ export class BLidger extends Component {
 
 		}
 
-	}
+		const entity = this.entity;
 
-	public getProperties(): ComponentProps | null {
+		entity.name = this.node.name;
 
-		return {
-			name: { value: this.node.name, opt: { readOnly: true } },
-			class: { value: this.node.class, opt: { readOnly: true } },
-			type: { value: this.node.type, opt: { readOnly: true } },
-		};
+		// transform
 
-	}
+		entity.position.set( this.node.position[ 0 ], this.node.position[ 1 ], this.node.position[ 2 ] );
 
-	protected setEntityImpl( entity: Entity | null, prevEntity: Entity | null ): void {
+		entity.quaternion.setFromEuler( {
+			x: this.node.rotation[ 0 ] + this.rotationOffsetX,
+			y: this.node.rotation[ 1 ],
+			z: this.node.rotation[ 2 ],
+		}, 'YZX' );
 
-		if ( entity ) {
+		entity.quaternion.updated = false;
 
-			entity.name = this.node.name;
+		entity.euler.setFromQuaternion( entity.quaternion );
 
-			// transform
+		entity.scale.set( this.node.scale[ 0 ], this.node.scale[ 1 ], this.node.scale[ 2 ] );
 
-			entity.position.set( this.node.position[ 0 ], this.node.position[ 1 ], this.node.position[ 2 ] );
+		// geometry
 
-			entity.quaternion.setFromEuler( {
-				x: this.node.rotation[ 0 ] + this.rotationOffsetX,
-				y: this.node.rotation[ 1 ],
-				z: this.node.rotation[ 2 ],
-			}, 'YZX' );
+		if ( this.node.type == 'cube' ) {
 
-			entity.quaternion.updated = false;
+			const mesh = entity.addComponent( Mesh );
 
-			entity.euler.setFromQuaternion( entity.quaternion );
+			const cubeParam = this.node.param as any;
 
-			entity.scale.set( this.node.scale[ 0 ], this.node.scale[ 1 ], this.node.scale[ 2 ] );
-
-			// geometry
-
-			if ( this.node.type == 'cube' ) {
-
-				const cubeParam = this.node.param as any;
-
-				entity.addComponent( 'geometry', new CubeGeometry( { disableEdit: true, width: cubeParam.x, height: cubeParam.y, depth: cubeParam.z, segmentsWidth: 10, segmentsHeight: 10, segmentsDepth: 10 } ) );
+			mesh.geometry = new CubeGeometry( { width: cubeParam.x, height: cubeParam.y, depth: cubeParam.z, segmentsWidth: 10, segmentsHeight: 10, segmentsDepth: 10 } );
 
 
-			} else if ( this.node.type == 'sphere' ) {
+		} else if ( this.node.type == 'sphere' ) {
 
-				const sphereParam = this.node.param as any;
-				entity.addComponent( 'geometry', new SphereGeometry( { disableEdit: true,
-					radius: sphereParam.r,
-					widthSegments: 32,
-					heightSegments: 16
-				} ) );
+			const mesh = entity.addComponent( Mesh );
 
-			} else if ( this.node.type == 'cylinder' ) {
+			const sphereParam = this.node.param as any;
 
-				entity.addComponent( 'geometry', new CylinderGeometry( { disableEdit: true } ) );
+			mesh.geometry = new SphereGeometry( {
+				radius: sphereParam.r,
+				widthSegments: 32,
+				heightSegments: 16
+			} );
 
-			} else if ( this.node.type == 'plane' ) {
 
-				const planeParam = this.node.param as any;
+		} else if ( this.node.type == 'cylinder' ) {
 
-				entity.addComponent( 'geometry', new PlaneGeometry( { disableEdit: true, width: planeParam.x, height: planeParam.y } ) );
+			const mesh = entity.addComponent( Mesh );
 
-			} else if ( this.node.type == 'mesh' ) {
+			mesh.geometry = new CylinderGeometry();
 
-				const geometryParam = this.node.param as any;
+		} else if ( this.node.type == 'plane' ) {
 
-				const geometry = new Geometry( { disableEdit: true } );
-				geometry.setAttribute( 'position', geometryParam.position, 3 );
-				geometry.setAttribute( 'uv', geometryParam.uv, 2 );
-				geometry.setAttribute( 'normal', geometryParam.normal, 3 );
-				geometry.setAttribute( 'index', geometryParam.index, 3 );
-				entity.addComponent( 'geometry', geometry );
+			const mesh = entity.addComponent( Mesh );
 
-			} else if ( this.node.type == 'gltf' ) {
+			const planeParam = this.node.param as any;
 
-				this.blidge.gltfPrm.then( gltf => {
+			mesh.geometry = new PlaneGeometry( { width: planeParam.x, height: planeParam.y } );
 
-					const gltfEntity = gltf.scene.getEntityByName( this.node.name );
 
-					if ( gltfEntity ) {
+		} else if ( this.node.type == 'mesh' ) {
 
-						const geo = gltfEntity.getComponent<Geometry>( "geometry" );
+			const mesh = entity.addComponent( Mesh );
 
-						if ( geo ) {
+			const geometryParam = this.node.param as any;
 
-							geo.disableEdit = true;
-							entity.addComponent( 'geometry', geo );
+			const geometry = new Geometry();
 
-						}
+			geometry.setAttribute( 'position', geometryParam.position, 3 );
+			geometry.setAttribute( 'uv', geometryParam.uv, 2 );
+			geometry.setAttribute( 'normal', geometryParam.normal, 3 );
+			geometry.setAttribute( 'index', geometryParam.index, 3 );
 
-						const mat = gltfEntity.getComponent<Material>( "material" );
+			mesh.geometry = geometry;
 
-						if ( mat ) {
+		} else if ( this.node.type == 'gltf' ) {
 
-							mat.disableEdit = true;
-							entity.addComponent( 'material', mat );
+			const mesh = entity.addComponent( Mesh );
 
-						}
+			this._blidge.gltfPrm.then( gltf => {
+
+				const gltfEntity = gltf.scene.findEntityByName( this.node.name );
+
+				if ( gltfEntity ) {
+
+					const gltfMesh = gltfEntity.getComponent( Mesh );
+
+					if ( gltfMesh ) {
+
+						mesh.geometry = gltfMesh.geometry;
+						mesh.material = gltfMesh.material;
 
 					}
 
-					entity.noticeRecursiveParent( "blidgeSceneUpdate", [ entity ] );
+				}
 
-				} );
+				entity.noticeEventParent( "update/blidge/scene", [ entity ] );
+
+			} );
+
+		}
+
+		// light
+
+		if ( this.node.type == "light" ) {
+
+			const lightParam = this.node.param as BLidgeLightParam;
+
+			this._lightComponent = entity.addComponent( Light );
+
+			this._lightComponent.deserialize( {
+				...lightParam,
+				lightType: lightParam.type,
+				color: new GLP.Vector().copy( lightParam.color ),
+				castShadow: lightParam.shadowMap,
+			} );
+
+		}
+
+		// camera
+
+		if ( this.node.type == 'camera' ) {
+
+			this._cameraComponent = entity.getComponentsByTag<Camera>( "camera" )[ 0 ];
+
+			if ( this._cameraComponent ) {
+
+				const cameraParam = this.node.param as BLidgeCameraParam;
+
+				this._cameraComponent.fov = cameraParam.fov;
 
 			}
 
-			// base material
+		}
 
-			const mat = entity.getComponent<Material>( "material" );
+		// visibility
 
-			if ( mat ) {
+		entity.visible = this.node.visible;
 
-				mat.uniforms = GLP.UniformsUtils.merge( mat.uniforms, this.uniforms );
+		// fields
 
-			} else if ( entity.getComponent( "geometry" ) ) {
+		if ( import.meta.env.DEV ) {
 
-				entity.addComponent( "material", new Material( { disableEdit: true, name: entity.name, type: [ "deferred", "shadowMap" ] } ) );
+			this.field( "type", () => this.node.type, undefined, {
+				noExport: true,
+				readOnly: true,
+			} );
 
-			}
-
-			// light
-
-			if ( this.node.type == "light" ) {
-
-				const lightParam = this.node.param as BLidgeLightParam;
-				const light = entity.addComponent( 'light', new Light( { disableEdit: true } ) );
-
-				light.setPropertyValues( {
-					...lightParam,
-					lightType: lightParam.type,
-					color: new GLP.Vector().copy( lightParam.color ),
-					useShadowMap: lightParam.shadowMap,
-				} );
-
-			}
-
-			entity.visible = this.node.visible;
+			this.field( "param", () => JSON.stringify( this.node.param ), undefined, {
+				noExport: true,
+				readOnly: true,
+			} );
 
 		}
 
 	}
 
-	protected preUpdateImpl( event: ComponentUpdateEvent ): void {
+	protected updateImpl( event: ComponentUpdateEvent ): void {
 
-		const entity = event.entity;
-		const frame = this.blidge.frame.current;
+		if ( ! this._blidge || ! this.node ) return;
 
-		if ( this.curvePosition ) {
+		const frame = ( event.timeCode * this._blidge.frame.fps );
 
-			const position = this.curvePosition.setFrame( frame ).value;
+		// animations
 
-			if ( this.curvePosition.getFCurve( 'x' ) ) {
+		this.animations.forEach( ( anim ) => {
 
-				entity.position.x = position.x;
+			anim.setFrame( frame );
+
+		} );
+
+		// transform
+
+		if ( this.transformAutoUpdate ) {
+
+			const curvePosition = this.animations.get( 'position' );
+
+			if ( curvePosition ) {
+
+				const position = curvePosition.value;
+
+				if ( curvePosition.getFCurve( 'x' ) ) {
+
+					this.entity.position.x = position.x;
+
+				}
+
+				if ( curvePosition.getFCurve( 'y' ) ) {
+
+					this.entity.position.y = position.y;
+
+				}
+
+				if ( curvePosition.getFCurve( 'z' ) ) {
+
+					this.entity.position.z = position.z;
+
+				}
 
 			}
 
-			if ( this.curvePosition.getFCurve( 'y' ) ) {
+			const curveRotation = this.animations.get( 'rotation' );
 
-				entity.position.y = position.y;
+			if ( curveRotation ) {
+
+				const rot = {
+					x: this.node.rotation[ 0 ],
+					y: this.node.rotation[ 1 ],
+					z: this.node.rotation[ 2 ],
+				};
+
+				const rotValue = curveRotation.value;
+
+				if ( curveRotation.getFCurve( 'x' ) ) {
+
+					rot.x = rotValue.x;
+
+				}
+
+				if ( curveRotation.getFCurve( 'y' ) ) {
+
+					rot.y = rotValue.y;
+
+				}
+
+				if ( curveRotation.getFCurve( 'z' ) ) {
+
+					rot.z = rotValue.z;
+
+				}
+
+				this.entity.quaternion.setFromEuler( {
+					x: rot.x + this.rotationOffsetX,
+					y: rot.y,
+					z: rot.z
+				}, 'YZX' );
 
 			}
 
-			if ( this.curvePosition.getFCurve( 'z' ) ) {
+			const curveScale = this.animations.get( 'scale' );
 
-				entity.position.z = position.z;
+			if ( curveScale ) {
+
+				const scaleValue = curveScale.setFrame( frame ).value;
+
+				if ( curveScale.getFCurve( 'x' ) ) {
+
+					this.entity.scale.x = scaleValue.x;
+
+				}
+
+				if ( curveScale.getFCurve( 'y' ) ) {
+
+					this.entity.scale.y = scaleValue.y;
+
+				}
+
+				if ( curveScale.getFCurve( 'z' ) ) {
+
+					this.entity.scale.z = scaleValue.z;
+
+				}
 
 			}
 
 		}
 
-		if ( this.curveRotation ) {
+		// visibility
 
-			const rot = {
-				x: this.node.rotation[ 0 ],
-				y: this.node.rotation[ 1 ],
-				z: this.node.rotation[ 2 ],
-			};
+		const curveHide = this.animations.get( 'hide' );
 
-			const rotValue = this.curveRotation.setFrame( frame ).value;
+		if ( curveHide ) {
 
-			if ( this.curveRotation.getFCurve( 'x' ) ) {
-
-				rot.x = rotValue.x;
-
-			}
-
-			if ( this.curveRotation.getFCurve( 'y' ) ) {
-
-				rot.y = rotValue.y;
-
-			}
-
-			if ( this.curveRotation.getFCurve( 'z' ) ) {
-
-				rot.z = rotValue.z;
-
-			}
-
-			entity.quaternion.setFromEuler( {
-				x: rot.x + this.rotationOffsetX,
-				y: rot.y,
-				z: rot.z
-			}, 'YZX' );
+			this.entity.visible = curveHide.value.x < 0.5;
 
 		}
 
-		if ( this.curveScale ) {
+		// light
 
-			const scaleValue = this.curveScale.setFrame( frame ).value;
+		if ( this._lightComponent ) {
 
-			if ( this.curveScale.getFCurve( 'x' ) ) {
+			const curveColor = this.animations.get( 'color' );
 
-				entity.scale.x = scaleValue.x;
+			if ( curveColor ) {
 
-			}
-
-			if ( this.curveScale.getFCurve( 'y' ) ) {
-
-				entity.scale.y = scaleValue.y;
-
-			}
-
-			if ( this.curveScale.getFCurve( 'z' ) ) {
-
-				entity.scale.z = scaleValue.z;
+				this._lightComponent.color.copy( curveColor.setFrame( frame ).value );
 
 			}
 
 		}
 
-		if ( this.curveHide ) {
+		// uniforms
 
-			entity.visible = this.curveHide.setFrame( frame ).value.x < 0.5;
+		this.uniformCurves.forEach( ( curve, name ) => {
 
-		}
+			this.uniforms[ name ].value = curve.setFrame( frame ).value;
 
-		for ( let i = 0; i < this.uniformCurves.length; i ++ ) {
+		} );
 
-			const curve = this.uniformCurves[ i ];
-			this.uniforms[ curve.name ].value = curve.curve.setFrame( frame ).value;
-
-		}
-
-	}
-
-	public onCompleteSyncScene() {
 	}
 
 }

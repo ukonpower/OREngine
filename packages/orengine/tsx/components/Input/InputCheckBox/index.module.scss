@@ -1,0 +1,36 @@
+@use '~/styles/common' as *;
+
+.inputBoolean {
+	display: block;
+	width: 14px;
+	height: 14px;
+
+	svg {
+		width: 100%;
+		height: 100%;
+	}
+}
+
+.input {
+	display: none;
+	color: $fontCol2;
+}
+
+.check {
+	cursor: pointer;
+	width: 100%;
+	height: 100%;
+	background-color: $bgCol3;
+	cursor: pointer;
+
+	&[data-read_only="true"] {
+		cursor: default;
+		background-color: transparent;
+
+		svg {
+			rect {
+				fill: $fontCol3;
+			}
+		}
+	}
+}

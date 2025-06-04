@@ -1,71 +1,63 @@
 import * as GLP from 'glpower';
+import * as MXP from 'maxpower';
 
+import { Component, ComponentParams, ComponentUpdateEvent } from "../Component";
+import { RenderStack } from '../Component/Renderer';
+import { Serializable } from '../Serializable';
 
-import { BLidgeNode } from "../BLidge";
-import { Component, ComponentUpdateEvent, BuiltInComponents } from "../Component";
-import { BLidger } from '../Component/BLidger';
-import { Camera } from '../Component/Camera';
-import { Geometry } from '../Component/Geometry';
-import { GPUCompute } from '../Component/GPUCompute';
-import { Light } from '../Component/Light';
-import { Material } from '../Component/Material';
-
-import { RenderStack } from '~/ts/gl/Scene/Renderer';
-
-export type EntityUpdateEvent = {
-	time: number;
-	deltaTime: number;
+export interface EntityUpdateEvent {
+	timeElapsed: number;
+	timeDelta: number;
+	timeCode: number;
+	timeCodeFrame: number;
+	playing: boolean;
+	renderer: MXP.Renderer;
+	resolution: GLP.Vector;
 	matrix?: GLP.Matrix;
 	visibility?: boolean;
 	forceDraw?: boolean
 }
 
-export type EntityFinalizeEvent = {
+export interface EntityFinalizeEvent extends EntityUpdateEvent{
 	renderStack?: RenderStack;
-} & EntityUpdateEvent
+}
 
-export type EntityResizeEvent = {
+export interface EntityResizeEvent {
 	resolution: GLP.Vector
 }
 
-export type EntityParams = {
+export interface EntityParams {
 	name?: string;
 }
 
-export class Entity extends GLP.EventEmitter {
+export type ConstructorArgType<T extends typeof Component> =
+  ConstructorParameters<T>[0] extends ComponentParams<infer A>
+    ? A
+    : never;
 
-	public readonly uuid: string;
+export class Entity extends Serializable {
 
 	public name: string;
-
 	public position: GLP.Vector;
 	public euler: GLP.Euler;
 	public quaternion: GLP.Quaternion;
 	public scale: GLP.Vector;
-
 	public matrix: GLP.Matrix;
 	public matrixWorld: GLP.Matrix;
 	public matrixWorldPrev: GLP.Matrix;
 	public autoMatrixUpdate: boolean;
-
 	public parent: Entity | null;
 	public children: Entity[];
-	public components: Map<string, Component>;
-
-	protected blidgeNode?: BLidgeNode;
-
+	public components: Map<typeof Component, Component>;
+	private componentsSorted: Component[];
 	public visible: boolean;
-
 	public userData: any;
-
-	public noExport: boolean;
 
 	constructor( params?: EntityParams ) {
 
 		super();
 
 		this.name = params && params.name || "";
-		this.uuid = GLP.ID.genUUID();
 
 		this.position = new GLP.Vector( 0.0, 0.0, 0.0, 1.0 );
 		this.euler = new GLP.Euler();
@@ -81,12 +73,25 @@ export class Entity extends GLP.EventEmitter {
 		this.children = [];
 
 		this.components = new Map();
+		this.componentsSorted = [];
 
 		this.visible = true;
-
 		this.userData = {};
 
-		this.noExport = false;
+		this.field( "name", () => this.name, value => this.name = value );
+		this.field( "position", () => this.position.getElm( "vec3" ), value => this.position.setFromArray( value ), { format: { type: "vector" } } );
+		this.field( "euler", () => this.euler.getElm( "vec3" ), value => this.euler.setFromArray( value ), { format: { type: "vector" } } );
+		this.field( "scale", () => this.scale.getElm( "vec3" ), value => this.scale.setFromArray( value ), { format: { type: "vector" } } );
+		this.field( "children", () => this.children.map( c => c.uuid ), { hidden: true } );
+		this.field( "components", () => {
+
+			const list: string[] = [];
+
+			this.components.forEach( c => list.push( c.uuid ) );
+
+			return list;
+
+		}, { hidden: true } );
 
 	}
 
@@ -99,30 +104,21 @@ export class Entity extends GLP.EventEmitter {
 	public update( event: EntityUpdateEvent ) {
 
 		const childEvent = { ...event } as ComponentUpdateEvent;
-		childEvent.entity = this;
 		childEvent.matrix = this.matrixWorld;
 
-		// update components
-
-		// pre
-
-		this.preUpdateImpl( event );
-
-		this.components.forEach( c => {
-
-			c.preUpdate( childEvent );
-
-		} );
-
-		// update
+		// update - entity
 
 		this.updateImpl( event );
 
-		this.components.forEach( c => {
+		// update - components
+
+		for ( let i = 0; i < this.componentsSorted.length; i ++ ) {
+
+			const c = this.componentsSorted[ i ];
 
 			c.update( childEvent );
 
-		} );
+		}
 
 		// matrix
 
@@ -131,16 +127,6 @@ export class Entity extends GLP.EventEmitter {
 			this.updateMatrix();
 
 		}
-
-		// post
-
-		this.postUpdateImpl( event );
-
-		this.components.forEach( c => {
-
-			c.postUpdate( childEvent );
-
-		} );
 
 		// children
 
@@ -152,97 +138,57 @@ export class Entity extends GLP.EventEmitter {
 
 	}
 
-	protected preUpdateImpl( event:EntityUpdateEvent ) {
-	}
-
 	protected updateImpl( event:EntityUpdateEvent ) {
 	}
 
-	protected postUpdateImpl( event:EntityUpdateEvent ) {
-	}
-
 	/*-------------------------------
-		Finalize
+		Before / After Render
 	-------------------------------*/
 
-	public finalize( event:EntityFinalizeEvent ) {
+	public onBeforeRender( event: EntityUpdateEvent ) {
 
-		if ( ! event.renderStack ) event.renderStack = {
-			camera: [],
-			light: [],
-			deferred: [],
-			forward: [],
-			ui: [],
-			shadowMap: [],
-			envMap: [],
-			gpuCompute: [],
-		};
+		// before render - components
 
-		const childEvent = { ...event } as ComponentUpdateEvent;
-		childEvent.entity = this;
-		childEvent.matrix = this.matrixWorld;
+		for ( let i = 0; i < this.componentsSorted.length; i ++ ) {
 
-		const visibility = ( event.visibility || event.visibility === undefined ) && this.visible;
-		childEvent.visibility = visibility;
+			const c = this.componentsSorted[ i ];
 
-		const geometry = this.getComponentEnabled<Geometry>( 'geometry' );
-		const material = this.getComponentEnabled<Material>( 'material' );
-
-		if ( geometry && material && ( visibility || event.forceDraw ) ) {
-
-			if ( material.visibilityFlag.deferred ) event.renderStack.deferred.push( this );
-			if ( material.visibilityFlag.shadowMap ) event.renderStack.shadowMap.push( this );
-			if ( material.visibilityFlag.forward ) event.renderStack.forward.push( this );
-			if ( material.visibilityFlag.ui ) event.renderStack.ui.push( this );
-			if ( material.visibilityFlag.envMap ) event.renderStack.envMap.push( this );
+			c.beforeRender( event );
 
 		}
 
-		const camera = this.getComponentEnabled<Camera>( 'camera' );
-
-		if ( camera ) {
-
-			event.renderStack.camera.push( this );
-
-		}
-
-		const light = this.getComponentEnabled<Light>( 'light' );
-
-		if ( light ) {
-
-			event.renderStack.light.push( this );
-
-		}
-
-		const gpuCompute = this.getComponentEnabled<GPUCompute>( "gpuCompute" );
-
-		if ( gpuCompute ) {
-
-			event.renderStack.gpuCompute.push( this );
-
-		}
-
-		// finalize
-
-		this.finalizeImpl( event );
-
-		this.components.forEach( c => {
-
-			c.finalize( childEvent );
-
-		} );
+		// children
 
 		for ( let i = 0; i < this.children.length; i ++ ) {
 
-			this.children[ i ].finalize( childEvent );
+			this.children[ i ].onBeforeRender( event );
 
 		}
 
-		return event.renderStack;
-
 	}
 
-	protected finalizeImpl( event:EntityFinalizeEvent ) {
+	public onAfterRender( event: EntityUpdateEvent ) {
+
+		this.matrixWorldPrev.copy( this.matrixWorld );
+
+		// after render - components
+
+		for ( let i = 0; i < this.componentsSorted.length; i ++ ) {
+
+			const c = this.componentsSorted[ i ];
+
+			c.afterRender( event );
+
+		}
+
+		// children
+
+		for ( let i = 0; i < this.children.length; i ++ ) {
+
+			this.children[ i ].onAfterRender( event );
+
+		}
+
 	}
 
 	/*-------------------------------
@@ -261,7 +207,7 @@ export class Entity extends GLP.EventEmitter {
 
 		this.children.push( entity );
 
-		entity.noticeRecursiveParent( "changed", [ "add" ] );
+		this.noticeField( "children" );
 
 	}
 
@@ -269,7 +215,7 @@ export class Entity extends GLP.EventEmitter {
 
 		this.children = this.children.filter( c => c.uuid != entity.uuid );
 
-		entity.noticeRecursiveParent( "changed" );
+		this.noticeField( "children" );
 
 	}
 
@@ -287,7 +233,7 @@ export class Entity extends GLP.EventEmitter {
 
 		const matrix = this.parent ? this.parent.matrixWorld : new GLP.Matrix();
 
-		this.matrixWorldPrev.copy( this.matrixWorld );
+		// quaternion to euler
 
 		if ( this.quaternion.updated ) {
 
@@ -307,9 +253,9 @@ export class Entity extends GLP.EventEmitter {
 
 	}
 
-	public applyMatrix( matrix: GLP.Matrix ) {
+	public decomposeMatrix( matrix: GLP.Matrix ) {
 
-		this.matrix.clone().multiply( matrix ).decompose(
+		matrix.decompose(
 			this.position,
 			this.quaternion,
 			this.scale
@@ -319,83 +265,157 @@ export class Entity extends GLP.EventEmitter {
 
 	}
 
+	public applyMatrix( matrix: GLP.Matrix ) {
+
+		this.decomposeMatrix( this.matrix.clone().multiply( matrix ) );
+
+	}
+
+	public lookAt( targetWorldPos: GLP.Vector ) {
+
+		this.updateMatrix();
+
+		const newMatrix = new GLP.Matrix();
+
+		const entityWorldPos = new GLP.Vector();
+		this.matrixWorld.decompose( entityWorldPos );
+
+		const targetPos = this.position.clone().add( targetWorldPos.clone().sub( entityWorldPos ) );
+		newMatrix.lookAt( this.position, targetPos, new GLP.Vector( 0.0, 1.0, 0.0 ) );
+
+		this.decomposeMatrix( newMatrix );
+
+	}
+
 	/*-------------------------------
 		Components
 	-------------------------------*/
 
-	public addComponent<T extends Component>( name: BuiltInComponents, component: T ) {
+	public addComponent<T extends typeof Component>(
+		component: T,
+		...args: ConstructorArgType<T> extends undefined ? [] | [ConstructorArgType<T>]
+		  : [ConstructorArgType<T>]
+	  ): InstanceType<T> {
 
-		const prevComponent = this.components.get( name );
+		this.removeComponent( component );
 
-		if ( prevComponent ) {
+		const [ componentArgs ] = args;
 
-			prevComponent.setEntity( null );
+		const instance = new component( { entity: this, args: componentArgs || {} } );
+
+		this.components.set( component, instance );
+
+		this.componentsSorted.push( instance );
+		this.componentsSorted.sort( ( a, b ) => a.order - b.order );
+
+		this.noticeField( "components" );
+
+		return instance as InstanceType<T>;
+
+	}
+
+	// remove
+
+	public removeComponent<T extends typeof Component>( component: T ) {
+
+		const c = this.components.get( component );
+
+		if ( c ) {
+
+			c.dispose();
 
 		}
 
-		component.setEntity( this );
+		this.components.delete( component );
 
-		this.components.set( name, component );
+		this.componentsSorted = this.componentsSorted.filter( instance => instance !== c );
 
-		if ( name == "blidger" ) {
+		this.noticeField( "components" );
 
-			this.appendBlidger( component as unknown as BLidger );
+	}
+
+	public removeComponentByUUID( uuid: string ) {
+
+		for ( const c of this.components ) {
+
+			const key = c[ 0 ];
+			const component = c[ 1 ];
+
+			if ( component.uuid === uuid ) {
+
+				component.dispose();
+
+				this.components.delete( key );
+
+				this.noticeField( "components" );
+
+				return component;
+
+			}
 
 		}
 
-		return component;
+	}
+
+	// get
+
+	public getComponent<T extends typeof Component>( component: T ) {
+
+		return this.components.get( component ) as InstanceType<T> | undefined;
 
 	}
 
-	public getComponent<T extends Component>( name: BuiltInComponents ): T | undefined {
+	public getComponentByUUID( uuid: string ) {
 
-		return this.components.get( name ) as T;
+		for ( const c of this.components.values() ) {
+
+			if ( c.uuid === uuid ) {
+
+				return c;
+
+			}
+
+		}
+
+		return null;
 
 	}
 
-	public getComponentEnabled<T extends Component>( name: BuiltInComponents ): T | undefined {
+	public getComponentByTag<T extends Component>( tag: string ) {
 
-		const component = this.components.get( name ) as T;
+		for ( const c of this.components.values() ) {
 
-		if ( ! component || ! component.enabled ) return undefined;
+			if ( c.tag === tag ) {
 
-		return component;
+				return c as T;
+
+			}
+
+		}
+
+		return null;
 
 	}
 
-	public removeComponent( name: string ) {
+	public getComponentsByTag<T extends Component>( tag: string ) {
 
-		const component = this.components.get( name );
+		const components: Component[] = [];
 
-		this.components.delete( name );
+		this.components.forEach( c => {
 
-		return component;
+			if ( c.tag == tag ) components.push( c );
+
+		} );
+
+		return components as T[];
 
 	}
 
 	/*-------------------------------
-		BLidger
+		Entity
 	-------------------------------*/
 
-	private appendBlidger( blidger: BLidger ) {
-
-		this.blidgeNode = blidger.node;
-
-		this.appendBlidgerImpl( blidger );
-
-	}
-
-	protected appendBlidgerImpl( blidger: BLidger ) {
-
-		this.emit( "appendBlidger", [ blidger ] );
-
-	}
-
-	/*-------------------------------
-		API
-	-------------------------------*/
-
-	public getEntityByName( name: string ) : Entity | undefined {
+	public findEntityByName( name: string ) : Entity | undefined {
 
 		if ( this.name == name ) {
 
@@ -407,7 +427,7 @@ export class Entity extends GLP.EventEmitter {
 
 			const c = this.children[ i ];
 
-			const entity = c.getEntityByName( name );
+			const entity = c.findEntityByName( name );
 
 			if ( entity ) {
 
@@ -421,13 +441,61 @@ export class Entity extends GLP.EventEmitter {
 
 	}
 
-	public getPath() {
+	public findEntityByUUID( id: string ) : Entity | undefined {
 
-		let path = "/" + this.name;
+		if ( this.uuid == id ) {
+
+			return this;
+
+		}
+
+		for ( let i = 0; i < this.children.length; i ++ ) {
+
+			const c = this.children[ i ];
+
+			const entity = c.findEntityByUUID( id );
+
+			if ( entity ) {
+
+				return entity;
+
+			}
+
+		}
+
+		return undefined;
+
+	}
+
+	public getRootEntity(): Entity {
 
 		if ( this.parent ) {
 
-			path = this.parent.getPath() + path;
+			return this.parent.getRootEntity();
+
+		}
+
+		return this;
+
+	}
+
+	/*-------------------------------
+		Path
+	-------------------------------*/
+
+	public getScenePath( root? : Entity ) {
+
+		let path = "/" + this.name;
+
+		if ( root && ( root.uuid == this.uuid ) ) {
+
+			return path;
+
+		}
+
+		if ( this.parent ) {
+
+			path = this.parent.getScenePath( root ) + path;
 
 		}
 
@@ -439,27 +507,27 @@ export class Entity extends GLP.EventEmitter {
 		Event
 	-------------------------------*/
 
-	public noticeRecursive( eventName: string, ...opt: any ) {
+	public noticeEventChilds( eventName: string, opt: any ) {
 
-		this.emit( eventName, ...opt );
+		this.emit( eventName, opt );
 
 		for ( let i = 0; i < this.children.length; i ++ ) {
 
 			const c = this.children[ i ];
 
-			c.noticeRecursive( eventName, ...opt );
+			c.noticeEventChilds( eventName, opt );
 
 		}
 
 	}
 
-	public noticeRecursiveParent( eventName: string, ...opt: any ) {
+	public noticeEventParent( eventName: string, opt?: any ) {
 
-		this.emit( eventName, ...opt );
+		this.emit( eventName, opt );
 
 		if ( this.parent ) {
 
-			this.parent.noticeRecursiveParent( eventName, ...opt );
+			this.parent.noticeEventParent( eventName, opt );
 
 		}
 
@@ -474,28 +542,64 @@ export class Entity extends GLP.EventEmitter {
 	}
 
 	/*-------------------------------
+		Methods
+	-------------------------------*/
+
+	public isVisibleTraverse(): boolean {
+
+		if ( ! this.visible ) {
+
+			return false;
+
+		}
+
+		if ( this.parent ) {
+
+			return this.parent.isVisibleTraverse();
+
+		}
+
+		return true;
+
+	}
+
+	/*-------------------------------
 		Dispose
 	-------------------------------*/
 
-	public dispose( recursive?: boolean ) {
+	public dispose( ) {
 
 		this.emit( "dispose" );
 
-		this.parent && this.parent.remove( this );
+		if ( this.parent ) {
 
-		this.components.forEach( c => c.setEntity( null ) );
+			this.parent.remove( this );
+
+		}
+
+		this.components.forEach( c => {
+
+			c.dispose();
+
+		} );
 
 		this.components.clear();
 
+		this.componentsSorted = [];
+
+	}
+
+	public disposeRecursive() {
+
+		this.dispose();
+
 		this.children.concat().forEach( c => {
 
-			if ( recursive ) {
-
-				c.dispose();
-
-			}
+			c.disposeRecursive();
 
 		} );
+
+		this.children = [];
 
 	}
 

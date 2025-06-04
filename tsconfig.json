@@ -36,6 +36,9 @@
       "maxpower": [
         "./packages/maxpower"
       ],
+      "orengine": [
+        "./packages/orengine"
+      ],
       "~/*": [
         "./src/*"
       ]

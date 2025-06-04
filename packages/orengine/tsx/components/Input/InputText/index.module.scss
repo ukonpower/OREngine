@@ -1,0 +1,28 @@
+@use '~/styles/common' as *;
+
+.inputNumber {}
+
+.input {
+	padding: 3px 5px;
+	text-align: center;
+	width: 100%;
+	border-radius: $radius1;
+	background-color: $bgCol2;
+	border: none;
+	color: $fontCol2;
+
+	&:disabled {
+		opacity: 0.5;
+	}
+
+	&:read-only {
+		color: $fontCol2;
+		cursor: default;
+		outline: none;
+
+		&[data-lo="true"] {
+			background-color: transparent;
+		}
+
+	}
+}

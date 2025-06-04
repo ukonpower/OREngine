@@ -1,13 +1,16 @@
 import * as GLP from 'glpower';
-import * as MXP from 'maxpower';
 
-import { OREngineResource } from '../gl/Scene/Resources';
-import { GPUState } from '../gl/Scene/utils/GPUState';
+/*-------------------------------
+	Elements
+-------------------------------*/
 
 export const canvas = document.createElement( "canvas" );
 export const gl = canvas.getContext( 'webgl2', { antialias: false } )!;
 export const power = new GLP.Power( gl );
-export const mainCmaera = new MXP.Entity( { name: "camera" } );
+
+/*-------------------------------
+	Uniforms
+-------------------------------*/
 
 export const globalUniforms: {[key: string]: GLP.Uniforms} = {
 	time: {
@@ -15,23 +18,27 @@ export const globalUniforms: {[key: string]: GLP.Uniforms} = {
 			value: 0,
 			type: "1f"
 		},
-		uFractTime: {
+		uTimeF: {
 			value: 0,
 			type: "1f"
 		},
-		uTimeSeq: {
+		uTimeE: {
 			value: 0,
 			type: "1f"
 		},
-		uMove: {
+		uTimeEF: {
 			value: 0,
 			type: "1f"
-		}
+		},
 	},
 	resolution: {
 		uAspectRatio: {
 			value: 1.0,
 			type: '1f'
+		},
+		uResolution: {
+			value: new GLP.Vector(),
+			type: '2f'
 		}
 	},
 	camera: {
@@ -44,23 +51,26 @@ export const globalUniforms: {[key: string]: GLP.Uniforms} = {
 			type: 'Matrix4fv'
 		}
 	},
+	gBuffer: {
+		uGBufferPos: {
+			value: null,
+			type: "1i"
+		},
+		uGBufferNormal: {
+			value: null,
+			type: "1i"
+		},
+	},
 	tex: {
+	},
+	music: {
+		uMusicFreqTex: {
+			value: null,
+			type: "1i"
+		},
+		uMusicDomainTex: {
+			value: null,
+			type: "1i"
+		},
 	}
 };
-
-/*-------------------------------
-	Resouce
--------------------------------*/
-
-export const resource = new OREngineResource();
-
-/*-------------------------------
-	DEBUG
--------------------------------*/
-
-export let gpuState: GPUState | undefined = undefined;
-
-// import 'webgl-memory';
-// gpuState = new GPUState();
-gpuState = undefined;
-

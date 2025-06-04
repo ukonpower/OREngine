@@ -1,0 +1,19 @@
+@use '~/styles/common' as *;
+
+.cursor {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	pointer-events: auto;
+	cursor: col-resize;
+
+	&::before {
+		content: "";
+		display: block;
+		position: absolute;
+		left: 50%;
+		width: 1px;
+		height: 100%;
+		background-color: $borderCol1;
+	}
+}
