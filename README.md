@@ -51,3 +51,12 @@ npm run build
 
 - [compeko](https://gist.github.com/0b5vr/09ee96ca2efbe5bf9d64dad7220e923b) by **0b5vr**
 - [Shader Minifier](https://github.com/laurentlb/shader-minifier?tab=readme-ov-file) by **Ctrl-Alt-Test**
+
+## Documentation
+
+より詳細な解説は [`docs`](./docs/README.md) ディレクトリにまとめています。
+基本的なアーキテクチャやセットアップ手順、Blender との連携方法などを参照できます。
+
+## ライセンス
+
+このプロジェクトは [MIT License](./LICENSE) の下で公開されています。
