@@ -1,3 +1,3 @@
 [submodule "packages/glpower"]
 	path = packages/glpower
-	url = git@github.com:ukonpower/glpower.git
+       url = https://github.com/ukonpower/glpower.git
