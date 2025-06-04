@@ -1,90 +1,88 @@
-// WebWorkerでガウシアンの深度ソート処理を行う
-
 export interface SortWorkerMessage {
 	type: 'sort';
 	gaussianPositions: Float32Array;
 	numPoints: number;
 	viewMatrix: number[]; // 4x4行列を平坦化した配列
+	useRightHandedSystem?: boolean;
 }
 
 export interface SortWorkerResponse {
 	type: 'sorted';
-	sortedIndices: Float32Array;
+	sortedIndices: Uint32Array;
 }
 
-// Vector3クラス（軽量版）
-class Vector3 {
+// https://github.com/BabylonJS/Babylon.js/blob/bf55c4ad156aed0635f6b593289ec8d0eb30fa0e/packages/dev/core/src/Meshes/GaussianSplatting/gaussianSplattingMesh.ts#L1249
 
-	x: number;
-	y: number;
-	z: number;
+/**
+ * BigInt64Arrayを使用してindex+depthをパックしてソート
+ */
+function sortSplatsByDepthFast(
+	positions: Float32Array,
+	viewMatrix: number[],
+	vertexCount: number,
+): Uint32Array {
 
-	constructor( x: number, y: number, z: number ) {
+	// BigInt64Arrayでindex+depthをパック
+	const depthMix = new BigInt64Array( vertexCount );
+	const indices = new Uint32Array( depthMix.buffer );
+	const floatMix = new Float32Array( depthMix.buffer );
 
-		this.x = x;
-		this.y = y;
-		this.z = z;
+	// 各ガウシアンのインデックスを設定
+	for ( let j = 0; j < vertexCount; j ++ ) {
+
+		indices[ 2 * j ] = j;
 
 	}
 
-	// 4x4行列で位置変換
-	applyMatrix4AsPosition( matrix: number[] ): Vector3 {
+	// 各ガウシアンの深度を計算
+	for ( let j = 0; j < vertexCount; j ++ ) {
 
-		const x = this.x;
-		const y = this.y;
-		const z = this.z;
+		const x = positions[ j * 3 + 0 ];
+		const y = positions[ j * 3 + 1 ];
+		const z = positions[ j * 3 + 2 ];
 
-		const w = 1 / ( matrix[ 3 ] * x + matrix[ 7 ] * y + matrix[ 11 ] * z + matrix[ 15 ] );
-
-		return new Vector3(
-			( matrix[ 0 ] * x + matrix[ 4 ] * y + matrix[ 8 ] * z + matrix[ 12 ] ) * w,
-			( matrix[ 1 ] * x + matrix[ 5 ] * y + matrix[ 9 ] * z + matrix[ 13 ] ) * w,
-			( matrix[ 2 ] * x + matrix[ 6 ] * y + matrix[ 10 ] * z + matrix[ 14 ] ) * w
+		// ビュー空間でのZ値を計算
+		const depth = (
+			viewMatrix[ 2 ] * x +
+			viewMatrix[ 6 ] * y +
+			viewMatrix[ 10 ] * z +
+			viewMatrix[ 14 ]
 		);
 
+		// 深度を格納（+10000で負数対策）
+		floatMix[ 2 * j + 1 ] = 10000 + depth;
+
 	}
+
+	// BigInt64Array として高速ソート実行
+	depthMix.sort();
+
+	// ソート済みのインデックス配列を抽出
+	const sortedIndices = new Uint32Array( vertexCount );
+	for ( let j = 0; j < vertexCount; j ++ ) {
+
+		sortedIndices[ j ] = indices[ 2 * j ];
+
+	}
+
+	return sortedIndices;
 
 }
 
 self.onmessage = function ( e: MessageEvent<SortWorkerMessage> ) {
 
-	const { type, gaussianPositions, numPoints, viewMatrix } = e.data;
+	const { gaussianPositions, numPoints, viewMatrix } = e.data;
 
-	if ( type === 'sort' ) {
+	const sortedIndices = sortSplatsByDepthFast(
+		gaussianPositions,
+		viewMatrix,
+		numPoints,
+	);
 
-		// ソート用の深度配列
-		const depths: { index: number, depth: number }[] = [];
-
-		// 各ガウシアンの深度を計算
-		for ( let i = 0; i < numPoints; i ++ ) {
-
-			// ガウシアンの位置
-			const x = gaussianPositions[ i * 3 ];
-			const y = gaussianPositions[ i * 3 + 1 ];
-			const z = gaussianPositions[ i * 3 + 2 ];
-
-			const outPos = new Vector3( x, y, z ).applyMatrix4AsPosition( viewMatrix );
-			depths.push( { index: i, depth: outPos.z } );
-
-		}
-
-		// 深度でソート（奥から手前へ）
-		depths.sort( ( a, b ) => a.depth - b.depth );
-
-		// ソート後のインデックス配列
-		const sortedIndices = new Float32Array( numPoints );
-		for ( let i = 0; i < numPoints; i ++ ) {
-
-			sortedIndices[ i ] = depths[ i ].index;
-
-		}
-
-		// 結果を返す
-		self.postMessage( {
-			type: 'sorted',
-			sortedIndices: sortedIndices
-		} as SortWorkerResponse );
-
-	}
+	// 結果を返す
+	self.postMessage( {
+		type: 'sorted',
+		sortedIndices: sortedIndices
+	} as SortWorkerResponse );
 
 };
