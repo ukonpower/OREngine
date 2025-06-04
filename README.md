@@ -50,6 +50,14 @@ npm run build
 
 アーキテクチャの詳細やセットアップ手順、Blender との連携方法などは [`docs`](./docs/README.md) ディレクトリにまとめています。
 
+## クレジット
+
+ビルドサイズを 64KB 以下に抑えるにあたり、以下のツールに多大な助力をいただきました。
+作者の皆さまに心より感謝いたします。
+
+- [compeko](https://gist.github.com/0b5vr/09ee96ca2efbe5bf9d64dad7220e923b) by **0b5vr**
+- [Shader Minifier](https://github.com/laurentlb/shader-minifier?tab=readme-ov-file) by **Ctrl-Alt-Test**
+
 ## ライセンス
 
 このプロジェクトは [MIT License](./LICENSE) の下で公開されています。
