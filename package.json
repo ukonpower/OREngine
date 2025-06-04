@@ -9,7 +9,7 @@
     "prebuild": "NODE_ENV=production IS_PREVIEW=true vite build",
     "preview": "vite preview",
     "build": "vite build --config vite-player.config.ts && node compeko.js ./dist/build/index.js ./dist/build/index.html",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
+    "lint": "eslint . --report-unused-disable-directives --max-warnings 0"
   },
   "workspaces": [],
   "dependencies": {
