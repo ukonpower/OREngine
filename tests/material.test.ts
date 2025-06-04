@@ -1,9 +1,9 @@
 import { describe, it, expect, vi } from 'vitest';
 
-vi.mock('../packages/maxpower/Component/Material/shaders/basic.fs', () => ({ default: '' }));
-vi.mock('../packages/maxpower/Component/Material/shaders/basic.vs', () => ({ default: '' }));
+vi.mock('../packages/maxpower/Material/shaders/basic.fs', () => ({ default: '' }));
+vi.mock('../packages/maxpower/Material/shaders/basic.vs', () => ({ default: '' }));
 
-import { Material } from '../packages/maxpower/Component/Material';
+import { Material } from '../packages/maxpower/Material';
 
 describe('Material class', () => {
   it('initializes with default flags', () => {
@@ -13,21 +13,18 @@ describe('Material class', () => {
     expect(m.visibilityFlag.forward).toBe(false);
   });
 
-  it('setPropertyValues updates values and resets program cache', () => {
+  it('updates values and resets program cache with requestUpdate', () => {
     const m = new Material();
     (m as any).programCache.example = {};
 
-    m.setPropertyValues({
-      name: 'foo',
-      forward: true,
-      deferred: false,
-      shadowMap: false,
-      ui: false,
-      useLight: false,
-      depthTest: false,
-      cullFace: false,
-      drawType: 'LINES',
-    });
+    m.name = 'foo';
+    m.visibilityFlag.forward = true;
+    m.visibilityFlag.deferred = false;
+    m.useLight = false;
+    m.depthTest = false;
+    m.cullFace = false;
+    m.drawType = 'LINES';
+    m.requestUpdate();
 
     expect(m.name).toBe('foo');
     expect(m.visibilityFlag.forward).toBe(true);
