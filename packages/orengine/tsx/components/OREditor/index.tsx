@@ -6,7 +6,8 @@ import { ErrorBoundary } from 'react-error-boundary';
 
 import { useLayout } from '../../hooks/useLayout';
 import { MouseMenu } from '../MouseMenu';
-import { useMouseMenu, MouseMenuContext } from '../MouseMenu/useMouseMenu';
+import { MouseMenuContext } from '../MouseMenu/Context/MouseMenuContext';
+import { useMouseMenuContext } from '../MouseMenu/Hooks/useMouseMenuContext';
 import { Panel } from '../Panel';
 import { PanelContainer } from '../PanelContainer';
 import { EntityProperty } from '../Panels/EntityProperty';
@@ -50,8 +51,8 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 	}, [ props.editorData, editorContext.editor ] );
 
 
-	const layout = useLayout();
-	const mouseMenuContext = useMouseMenu();
+       const layout = useLayout();
+       const mouseMenuContext = useMouseMenuContext();
 
 	let editorElm = null;
 
