@@ -50,6 +50,10 @@ npm run dev
 npm run build
 ```
 
+## デモ公開 (GitHub Pages)
+
+`main` または `master` ブランチへ push すると、GitHub Actions が `npm run prebuild` を実行して生成された `dist` ディレクトリを GitHub Pages に公開します。ワークフローの設定は `.github/workflows/pages.yml` にあります。将来的に Storybook を追加した場合は、`public/storybook` 以下に成果物を配置することで同じ仕組みでデプロイできます。
+
 ## テスト
 
 ビルドと同様に、事前に `npm run init` を実行してサブモジュールを初期化しておく必要があります。
