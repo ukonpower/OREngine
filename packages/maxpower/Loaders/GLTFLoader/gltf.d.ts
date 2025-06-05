@@ -112,8 +112,8 @@ export interface GLTFNode {
     children?: number[];
 }
 
-export interface GLTFNodeExtras {
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface GLTFNodeExtras {}
 
 export interface GLTFSampler {
     magFilter: number;
@@ -126,8 +126,8 @@ export interface GLTFScene {
     nodes?: number[];
 }
 
-export interface GLTFSceneExtras {
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface GLTFSceneExtras {}
 
 export interface GLTFTexture {
     sampler: number;
