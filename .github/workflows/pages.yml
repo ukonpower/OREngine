@@ -68,10 +68,12 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: ${{ github.ref_name == 'develop' && 'github-pages-develop' || 'github-pages' }}
+
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
         uses: actions/deploy-pages@v1
         with:
           preview: ${{ github.event_name == 'pull_request' }}
+
 
