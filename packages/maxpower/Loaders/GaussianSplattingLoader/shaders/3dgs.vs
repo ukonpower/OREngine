@@ -233,9 +233,11 @@ void main( void ) {
 	// ヤコビアン行列の計算
 	mat3 J = mat3(
 		uFocal.x / viewPos.z, 0.0, -(uFocal.x * viewPos.x) / (viewPos.z * viewPos.z),
-		0.0, -uFocal.y / viewPos.z, (uFocal.y * viewPos.y) / (viewPos.z * viewPos.z),
+		0.0, uFocal.y / viewPos.z, -(uFocal.y * viewPos.y) / (viewPos.z * viewPos.z),
 		0.0, 0.0, 0.0
 	);
+
+    mat3 invy = mat3(1,0,0, 0,-1,0,0,0,1);
 
 	// 投影のための変換行列
 	mat3 T = transpose(mat3(uModelViewMatrix)) * J;
@@ -246,7 +248,7 @@ void main( void ) {
 	float radius = length(vec2((cov2d[0][0] - cov2d[1][1]) / 2.0, cov2d[0][1]));
 	float epsilon = 0.0001;
 	float lambda1 = mid + radius + epsilon; 
-	float lambda2 = mid - radius;
+	float lambda2 = mid - radius + epsilon;
 	
 	if(lambda2 < 0.0) {
 		// 無効な楕円は描画しない
@@ -260,19 +262,20 @@ void main( void ) {
 	vec2 majorAxis = min(sqrt(2.0 * lambda1), 1024.0) * diagonalVector;
 	vec2 minorAxis = min(sqrt(2.0 * lambda2), 1024.0) * vec2(diagonalVector.y, -diagonalVector.x);
 	
-	// ローカル座標に軸スケールを適用
 	vec2 localPos = outPos.xy;
 	
 	// 投影後の中心位置を計算
-	vec2 vCenter = vec2(pos2d.xy) / pos2d.w;
-	float depth = pos2d.z / pos2d.w;
+	vec2 vCenter = vec2(pos2d.xy);
 	
 	// 最終位置を計算
 	vec4 finalPos = vec4(
 		vCenter +
-		localPos.x * majorAxis / uViewport + 
-		localPos.y * minorAxis / uViewport,
-		depth, 1.0);
+		( 
+            localPos.x * majorAxis +
+            localPos.y * minorAxis
+        ) / uViewport * pos2d.w,
+		pos2d.zw 
+    );
 	
 	// SHによる色補正を適用
 	vec3 finalColor = splat.color.rgb;
