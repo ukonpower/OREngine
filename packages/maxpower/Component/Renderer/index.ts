@@ -1,9 +1,8 @@
 import * as GLP from 'glpower';
 
-
-import { PlaneGeometry } from '../..//Geometry/PlaneGeometry';
 import { Entity, EntityUpdateEvent } from '../../Entity';
 import { Geometry } from '../../Geometry';
+import { PlaneGeometry } from '../../Geometry/PlaneGeometry';
 import { MaterialRenderType, Material } from '../../Material';
 import { PostProcess } from '../../PostProcess';
 import { shaderParse } from "../../Utils/ShaderParser";
