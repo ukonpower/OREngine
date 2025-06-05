@@ -31,7 +31,7 @@ export const ComponentView = ( { component }: ComponentViewProps ) => {
 
 		}
 
-	}, [ disableEdit, component ] );
+	}, [ component ] );
 
 	const labelElm = <div className={style.head}>
 		{/* <div className={style.check}>
