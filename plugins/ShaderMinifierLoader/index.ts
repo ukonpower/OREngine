@@ -25,6 +25,8 @@ export const ShaderMinifierLoader = (): Plugin => {
 
 	const filter = createFilter( options.include, options.exclude );
 
+	const skip = process.env.SKIP_SHADER_MINIFIER === 'true';
+
 	return {
 		name: 'shaderMinifier',
 		enforce: 'pre',
@@ -111,7 +113,7 @@ export const ShaderMinifierLoader = (): Plugin => {
 
 			// through
 
-			if ( true ) {
+			if ( skip ) {
 
 				return {
 					code: `export default ${JSON.stringify( code )};`,
