@@ -9,11 +9,12 @@ import { nameCache, MangledJsonLoader, SaveNameCache } from './plugins/MangleMan
 import { ShaderMinifierLoader } from './plugins/ShaderMinifierLoader';
 
 
-const basePath = ``;
+const basePath = process.env.BASE_PATH ?? "";
 
 // player.jsonからreservedに追加するプロパティ名を抽出
 export default defineConfig( {
-	root: 'src',
+        root: 'src',
+        base: basePath,
 	server: {
 		port: 3000,
 		host: "0.0.0.0",
