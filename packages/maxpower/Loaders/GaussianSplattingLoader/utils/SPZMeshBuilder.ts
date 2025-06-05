@@ -27,68 +27,6 @@ export type SPZLoaderOptions = {
 }
 
 /**
- * float値をhalf形式（16ビット）に変換する
- * @param float 変換するfloat値
- * @returns 16ビット半精度浮動小数点数
- */
-
-const _floatView = new Float32Array( 1 );
-const _int32View = new Int32Array( _floatView.buffer );
-
-function floatToHalf( float: number ) {
-
-	_floatView[ 0 ] = float;
-	const f = _int32View[ 0 ];
-
-	const sign = ( f >> 31 ) & 0x0001;
-	const exp = ( f >> 23 ) & 0x00ff;
-	let frac = f & 0x007fffff;
-
-	let newExp;
-	if ( exp == 0 ) {
-
-		newExp = 0;
-
-	} else if ( exp < 113 ) {
-
-		newExp = 0;
-		frac |= 0x00800000;
-		frac = frac >> ( 113 - exp );
-		if ( frac & 0x01000000 ) {
-
-			newExp = 1;
-			frac = 0;
-
-		}
-
-	} else if ( exp < 142 ) {
-
-		newExp = exp - 112;
-
-	} else {
-
-		newExp = 31;
-		frac = 0;
-
-	}
-
-	return ( sign << 15 ) | ( newExp << 10 ) | ( frac >> 13 );
-
-}
-
-/**
- * 2つのfloat値を32ビットのuint値にパックする
- * @param x 1つ目のfloat値
- * @param y 2つ目のfloat値
- * @returns パックされた32ビット値
- */
-function packHalf2x16( x: number, y: number ): number {
-
-	return ( floatToHalf( x ) | ( floatToHalf( y ) << 16 ) ) >>> 0;
-
-}
-
-/**
  * ガウシアンデータからメッシュを生成する
  * @param gl WebGL2コンテキスト
  * @param gaussianData ガウシアンデータ
@@ -141,9 +79,12 @@ export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: 
 	const sortData = new Float32Array( texWidth * texHeight * 4 );
 	sortData.fill( 0 );
 
-	// 共分散行列テクスチャ (σの6要素をUint32としてパッキング)
-	const covarianceData = new Uint32Array( texWidth * texHeight * 4 );
-	covarianceData.fill( 0 );
+	// 共分散行列テクスチャ (σの6要素を2枚のテクスチャに分割)
+	const covariance1Data = new Float32Array( texWidth * texHeight * 4 );
+	covariance1Data.fill( 0 );
+
+	const covariance2Data = new Float32Array( texWidth * texHeight * 4 );
+	covariance2Data.fill( 0 );
 
 	// データを各テクスチャに分離して格納
 	for ( let i = 0; i < numPoints; i ++ ) {
@@ -202,12 +143,18 @@ export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: 
 			M[ 2 ] * M[ 2 ] + M[ 5 ] * M[ 5 ] + M[ 8 ] * M[ 8 ]
 		];
 
-		// 共分散行列データをmain.jsと同じ方法でパッキング
-		// main.jsでは4倍のスケールが適用されている
-		covarianceData[ idx + 0 ] = packHalf2x16( 4 * sigma[ 0 ], 4 * sigma[ 1 ] );
-		covarianceData[ idx + 1 ] = packHalf2x16( 4 * sigma[ 2 ], 4 * sigma[ 3 ] );
-		covarianceData[ idx + 2 ] = packHalf2x16( 4 * sigma[ 4 ], 4 * sigma[ 5 ] );
-		covarianceData[ idx + 3 ] = 0; // パディング
+		// 共分散行列データを2枚のテクスチャに分割して格納（4倍のスケール適用）
+		// 1枚目のテクスチャ: sigma[0], sigma[1], sigma[2]
+		covariance1Data[ idx + 0 ] = 4.0 * sigma[ 0 ];
+		covariance1Data[ idx + 1 ] = 4.0 * sigma[ 1 ];
+		covariance1Data[ idx + 2 ] = 4.0 * sigma[ 2 ];
+		covariance1Data[ idx + 3 ] = 4.0 * 0; // パディング
+
+		// 2枚目のテクスチャ: sigma[3], sigma[4], sigma[5]
+		covariance2Data[ idx + 0 ] = 4.0 * sigma[ 3 ];
+		covariance2Data[ idx + 1 ] = 4.0 * sigma[ 4 ];
+		covariance2Data[ idx + 2 ] = 4.0 * sigma[ 5 ];
+		covariance2Data[ idx + 3 ] = 0; // パディング
 
 	}
 
@@ -256,19 +203,34 @@ export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: 
 		data: sortData
 	} );
 
-	// 共分散行列テクスチャの作成 (UINTテクスチャ)
-	const covarianceTexture = new GLP.GLPowerTexture( gl );
-	covarianceTexture.setting( {
-		type: gl.UNSIGNED_INT,
-		internalFormat: gl.RGBA32UI,
-		format: gl.RGBA_INTEGER,
+	// 共分散行列テクスチャの作成（1枚目）
+	const covariance1Texture = new GLP.GLPowerTexture( gl );
+	covariance1Texture.setting( {
+		type: gl.FLOAT,
+		internalFormat: gl.RGBA32F,
+		format: gl.RGBA,
 		magFilter: gl.NEAREST,
 		minFilter: gl.NEAREST,
 	} );
-	covarianceTexture.attach( {
+	covariance1Texture.attach( {
 		width: texWidth,
 		height: texHeight,
-		data: covarianceData
+		data: covariance1Data
+	} );
+
+	// 共分散行列テクスチャの作成（2枚目）
+	const covariance2Texture = new GLP.GLPowerTexture( gl );
+	covariance2Texture.setting( {
+		type: gl.FLOAT,
+		internalFormat: gl.RGBA32F,
+		format: gl.RGBA,
+		magFilter: gl.NEAREST,
+		minFilter: gl.NEAREST,
+	} );
+	covariance2Texture.attach( {
+		width: texWidth,
+		height: texHeight,
+		data: covariance2Data
 	} );
 
 	// ユニフォーム変数の設定
@@ -276,7 +238,8 @@ export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: 
 		uPositionTexture: { value: positionTexture, type: '1i' },
 		uColorTexture: { value: colorTexture, type: '1i' },
 		uSortTex: { value: sortTexture, type: '1i' },
-		uCovarianceTexture: { value: covarianceTexture, type: '1i' },
+		uCovariance1Texture: { value: covariance1Texture, type: '1i' },
+		uCovariance2Texture: { value: covariance2Texture, type: '1i' },
 		uDataTexSize: { value: new GLP.Vector( texWidth, texHeight ), type: '2fv' },
 		uInstanceCount: { value: numPoints, type: '1i' },
 		uFocal: { value: new GLP.Vector( 1164.6601287484507, 1159.5880733038064 ), type: '2fv' },
@@ -514,9 +477,7 @@ export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: 
 		vert: spzVert,
 		uniforms,
 		defines: {
-			"USE_GAUSSIAN_SPLAT": "",
 			"SH_DEGREE": header.shDegree.toString(),
-			"USE_COVARIANCE_TEXTURE": "" // 共分散行列テクスチャを使用する
 		},
 		// depthTest: false,
 	} );
@@ -565,7 +526,6 @@ export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: 
 		gaussianPositions: gaussianData.positions,
 		numPoints: numPoints,
 		material: material,
-		gl: gl,
 	} );
 
 	// 深度ソート用の関数
