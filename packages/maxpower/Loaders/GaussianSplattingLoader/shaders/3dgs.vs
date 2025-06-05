@@ -172,13 +172,15 @@ Splat fetchSplatData( float index ) {
 
 	ivec2 splatUVint = getDataUVint(index, uDataTexSize);
 
+    vec4 posTex = texelFetch( uPositionTexture, splatUVint, 0 );
+
 	Splat splat;
-	splat.position = texelFetch( uPositionTexture, splatUVint, 0 ).xyz;
+	splat.position = posTex.xyz;
 	splat.color = texelFetch( uColorTexture, splatUVint, 0 );
 
 	// 2枚のテクスチャから直接float値を読み取り
-	vec4 cov1 = texelFetch(uCovariance1Texture, splatUVint, 0);
-	vec4 cov2 = texelFetch(uCovariance2Texture, splatUVint, 0);
+	vec4 cov1 = texelFetch(uCovariance1Texture, splatUVint, 0) * posTex.w;
+	vec4 cov2 = texelFetch(uCovariance2Texture, splatUVint, 0) * posTex.w;
 	
 	// 行列に設定（対称行列）
 	splat.covariance = mat3(
@@ -234,10 +236,8 @@ void main( void ) {
 		0.0, 0.0, 0.0
 	);
 
-    mat3 invy = mat3(1,0,0, 0,-1,0,0,0,1);
-
 	// 投影のための変換行列
-	mat3 T = transpose(mat3(uModelViewMatrix)) * J;
+	mat3 T =  transpose(mat3(uModelViewMatrix)) * J;
 	mat3 cov2d = transpose(T) * splat.covariance * T;
 	
 	// 楕円の軸計算
