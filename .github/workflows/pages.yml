@@ -22,10 +22,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: '18.x'
       - name: Install dependencies
@@ -61,8 +61,8 @@ jobs:
             mkdir -p public/${{ steps.vars.outputs.DIR }}
             cp -r dist/* public/${{ steps.vars.outputs.DIR }}/
           fi
-      - uses: actions/configure-pages@v4
-      - uses: actions/upload-pages-artifact@v1
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
         with:
           path: ./public
   deploy:
@@ -70,7 +70,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: ${{ github.ref_name == 'develop' && 'github-pages-develop' || 'github-pages' }}
-
+        uses: actions/deploy-pages@v4
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
