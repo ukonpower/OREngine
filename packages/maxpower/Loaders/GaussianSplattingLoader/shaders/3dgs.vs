@@ -7,7 +7,8 @@ uniform vec2 uDataTexSize;
 uniform sampler2D uPositionTexture;
 uniform sampler2D uColorTexture;
 uniform sampler2D uSortTex;
-uniform highp usampler2D uCovarianceTexture;  // 共分散行列テクスチャ (uint型)
+uniform sampler2D uCovariance1Texture;
+uniform sampler2D uCovariance2Texture;
 uniform vec2 uFocal;
 uniform vec2 uViewport;
 
@@ -175,19 +176,15 @@ Splat fetchSplatData( float index ) {
 	splat.position = texelFetch( uPositionTexture, splatUVint, 0 ).xyz;
 	splat.color = texelFetch( uColorTexture, splatUVint, 0 );
 
-	// 共分散行列テクスチャから値を取得
-	uvec4 cov = texelFetch(uCovarianceTexture, splatUVint, 0);
-	
-	// 16ビット値のアンパック
-	vec2 u1 = unpackHalf2x16(cov.x);
-	vec2 u2 = unpackHalf2x16(cov.y);
-	vec2 u3 = unpackHalf2x16(cov.z);
+	// 2枚のテクスチャから直接float値を読み取り
+	vec4 cov1 = texelFetch(uCovariance1Texture, splatUVint, 0);
+	vec4 cov2 = texelFetch(uCovariance2Texture, splatUVint, 0);
 	
 	// 行列に設定（対称行列）
 	splat.covariance = mat3(
-		u1.x, u1.y, u2.x,
-		u1.y, u2.y, u3.x,
-		u2.x, u3.x, u3.y
+		cov1.x, cov1.y, cov1.z,
+		cov1.y, cov2.x, cov2.y,
+		cov1.z, cov2.y, cov2.z
 	);
 
     #if SH_DEGREE > 0
