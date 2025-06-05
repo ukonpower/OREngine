@@ -108,7 +108,7 @@ export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: 
 			gaussianData.rotations[ i * 4 + 0 ],
 			gaussianData.rotations[ i * 4 + 1 ],
 			gaussianData.rotations[ i * 4 + 2 ],
-			gaussianData.rotations[ i * 4 + 3 ]
+			- gaussianData.rotations[ i * 4 + 3 ]
 		];
 
 		const scale = [
@@ -117,43 +117,37 @@ export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: 
 			gaussianData.scales[ i * 3 + 2 ]
 		];
 
-		// M = S * R の計算
-		const M = [
-			// 第1行
-			( 1.0 - 2.0 * ( rot[ 2 ] * rot[ 2 ] + rot[ 3 ] * rot[ 3 ] ) ),
-			( 2.0 * ( rot[ 1 ] * rot[ 2 ] + rot[ 0 ] * rot[ 3 ] ) ),
-			( 2.0 * ( rot[ 1 ] * rot[ 3 ] - rot[ 0 ] * rot[ 2 ] ) ),
-			// 第2行
-			( 2.0 * ( rot[ 1 ] * rot[ 2 ] - rot[ 0 ] * rot[ 3 ] ) ),
-			( 1.0 - 2.0 * ( rot[ 1 ] * rot[ 1 ] + rot[ 3 ] * rot[ 3 ] ) ),
-			( 2.0 * ( rot[ 2 ] * rot[ 3 ] + rot[ 0 ] * rot[ 1 ] ) ),
-			// 第3行
-			( 2.0 * ( rot[ 1 ] * rot[ 3 ] + rot[ 0 ] * rot[ 2 ] ) ),
-			( 2.0 * ( rot[ 2 ] * rot[ 3 ] - rot[ 0 ] * rot[ 1 ] ) ),
-			( 1.0 - 2.0 * ( rot[ 1 ] * rot[ 1 ] + rot[ 2 ] * rot[ 2 ] ) )
-		].map( ( k, i ) => k * scale[ Math.floor( i / 3 ) ] );
+		const quaternion = new GLP.Quaternion( rot[ 0 ], rot[ 1 ], rot[ 2 ], rot[ 3 ] );
+		const rotMatrix = new GLP.Matrix().identity().applyQuaternion( quaternion );
+		const scaleMatrix = new GLP.Matrix().applyScale( new GLP.Vector( scale[ 0 ], scale[ 1 ], scale[ 2 ] ).multiply( 2 ) );
+		const m = rotMatrix.preMultiply( scaleMatrix ).elm;
 
-		// シグマ行列（共分散行列）の計算
-		const sigma = [
-			M[ 0 ] * M[ 0 ] + M[ 3 ] * M[ 3 ] + M[ 6 ] * M[ 6 ],
-			M[ 0 ] * M[ 1 ] + M[ 3 ] * M[ 4 ] + M[ 6 ] * M[ 7 ],
-			M[ 0 ] * M[ 2 ] + M[ 3 ] * M[ 5 ] + M[ 6 ] * M[ 8 ],
-			M[ 1 ] * M[ 1 ] + M[ 4 ] * M[ 4 ] + M[ 7 ] * M[ 7 ],
-			M[ 1 ] * M[ 2 ] + M[ 4 ] * M[ 5 ] + M[ 7 ] * M[ 8 ],
-			M[ 2 ] * M[ 2 ] + M[ 5 ] * M[ 5 ] + M[ 8 ] * M[ 8 ]
-		];
+		const covariances = [];
+		covariances[ 0 ] = m[ 0 ] * m[ 0 ] + m[ 1 ] * m[ 1 ] + m[ 2 ] * m[ 2 ];
+		covariances[ 1 ] = m[ 0 ] * m[ 4 ] + m[ 1 ] * m[ 5 ] + m[ 2 ] * m[ 6 ];
+		covariances[ 2 ] = m[ 0 ] * m[ 8 ] + m[ 1 ] * m[ 9 ] + m[ 2 ] * m[ 10 ];
+		covariances[ 3 ] = m[ 4 ] * m[ 4 ] + m[ 5 ] * m[ 5 ] + m[ 6 ] * m[ 6 ];
+		covariances[ 4 ] = m[ 4 ] * m[ 8 ] + m[ 5 ] * m[ 9 ] + m[ 6 ] * m[ 10 ];
+		covariances[ 5 ] = m[ 8 ] * m[ 8 ] + m[ 9 ] * m[ 9 ] + m[ 10 ] * m[ 10 ];
 
-		// 共分散行列データを2枚のテクスチャに分割して格納（4倍のスケール適用）
-		// 1枚目のテクスチャ: sigma[0], sigma[1], sigma[2]
-		covariance1Data[ idx + 0 ] = 4.0 * sigma[ 0 ];
-		covariance1Data[ idx + 1 ] = 4.0 * sigma[ 1 ];
-		covariance1Data[ idx + 2 ] = 4.0 * sigma[ 2 ];
-		covariance1Data[ idx + 3 ] = 4.0 * 0; // パディング
+		// normalize covA, covB
+		let factor = - 10000;
+		for ( let covIndex = 0; covIndex < 6; covIndex ++ ) {
 
-		// 2枚目のテクスチャ: sigma[3], sigma[4], sigma[5]
-		covariance2Data[ idx + 0 ] = 4.0 * sigma[ 3 ];
-		covariance2Data[ idx + 1 ] = 4.0 * sigma[ 4 ];
-		covariance2Data[ idx + 2 ] = 4.0 * sigma[ 5 ];
+			factor = Math.max( factor, Math.abs( covariances[ covIndex ] ) );
+
+		}
+
+		positionData[ idx + 3 ] = factor;
+
+		covariance1Data[ idx + 0 ] = covariances[ 0 ] / factor;
+		covariance1Data[ idx + 1 ] = covariances[ 1 ] / factor;
+		covariance1Data[ idx + 2 ] = covariances[ 2 ] / factor;
+		covariance1Data[ idx + 3 ] = 0; // パディング
+
+		covariance2Data[ idx + 0 ] = covariances[ 3 ] / factor;
+		covariance2Data[ idx + 1 ] = covariances[ 4 ] / factor;
+		covariance2Data[ idx + 2 ] = covariances[ 5 ] / factor;
 		covariance2Data[ idx + 3 ] = 0; // パディング
 
 	}
