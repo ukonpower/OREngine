@@ -52,7 +52,9 @@ npm run build
 
 ## デモ公開 (GitHub Pages)
 
-`main` または `master` へ push すると `https://<user>.github.io/<repo>/` にデプロイされます。`develop` ブランチは `/develop/` 以下に配置され、プルリクエストでは `pr-<番号>` ディレクトリへのプレビューが自動生成されます。ワークフローの設定は `.github/workflows/pages.yml` にあります。将来的に Storybook を追加した場合は `public/storybook` 以下に成果物を配置することで同じ仕組みでデプロイできます。
+`main` または `master` へ push すると `https://<user>.github.io/<repo>/` にデプロイされます。`develop` ブランチは `/develop/` 以下に配置され、プルリクエストでは `pr-<番号>` ディレクトリへのプレビューが自動生成されます。ワークフローの設定は `.github/workflows/pages.yml` にあります。
+
+デモ用のビルドでは ShaderMinifier をスキップしているため、`SKIP_SHADER_MINIFIER=true` が環境変数として渡されます。将来的に Storybook を追加した場合は `public/storybook` 以下に成果物を配置することで同じ仕組みでデプロイできます。
 
 ## テスト
 
