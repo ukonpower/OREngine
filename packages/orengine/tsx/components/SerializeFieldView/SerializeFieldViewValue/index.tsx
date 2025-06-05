@@ -1,7 +1,7 @@
 import { SerializeFieldDirectoryValue } from 'maxpower';
 import React from 'react';
 
-import { useSerializeFieldView } from '..';
+import { useSerializeFieldView } from '../../../hooks/useSerializeFieldView';
 import { Label } from '../../Label';
 import { Value } from '../../Value';
 import { ValueArray } from '../../ValueArray';

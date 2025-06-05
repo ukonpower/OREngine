@@ -1,12 +1,13 @@
-import { useContext } from "react";
 
 import style from './index.module.scss';
-import { MouseMenuContext, MouseMenuItemContext } from "./useMouseMenu";
+import { MouseMenuItemContext } from "./Context/MouseMenuItemContext";
+import { useMouseMenu } from "../../hooks/useMouseMenu";
+import { MouseMenuContext } from "./Context/MouseMenuContext";
 
 
 export const MouseMenu = () => {
 
-	const { itemList, containerRef, closeAll } = useContext( MouseMenuContext );
+        const { itemList, containerRef, closeAll } = useMouseMenu();
 
 	return (
 		<div className={style.mouseMenu} ref={containerRef}>
