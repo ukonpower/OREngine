@@ -1,11 +1,13 @@
 
 import * as MXP from 'maxpower';
 import { ComponentGroup, ResouceComponentItem } from 'packages/orengine/ts/Engine/Resources';
-import React, { MouseEvent, ReactNode, useCallback, useContext, useState } from 'react';
+import React, { MouseEvent, ReactNode, useCallback, useState } from 'react';
 
 import { Engine } from '../../../../../ts/Engine';
+import { useMouseMenu } from '../../../../hooks/useMouseMenu';
+import { useMouseMenuItem } from '../../../../hooks/useMouseMenuItem';
 import { Button } from '../../../Button';
-import { MouseMenuItemContext, MouseMenuContext } from '../../../MouseMenu/useMouseMenu';
+import { MouseMenuItemContext } from '../../../MouseMenu/Context/MouseMenuItemContext';
 
 
 import style from './index.module.scss';
@@ -20,7 +22,9 @@ const ComponentDirectory: React.FC<{
 	onClickAdd: ( compItem: ResouceComponentItem ) => void;
 }> = ( { group, onClickAdd } ) => {
 
-	const menuContext = useContext( MouseMenuItemContext );
+	const menuContext = useMouseMenuItem();
+
+	const [ v, setV ] = useState( false );
 
 	let childItem = null;
 	let onClick = undefined;
@@ -40,12 +44,10 @@ const ComponentDirectory: React.FC<{
 
 	} else {
 
-		onClick = () => onClickAdd( group );
-		type = "item";
+	       onClick = () => onClickAdd( group );
+	       type = "item";
 
 	}
-
-	const [ v, setV ] = useState( false );
 
 	return <div className={style.directory}
 		onPointerEnter={()=> setV( true )}
@@ -66,7 +68,7 @@ const ComponentDirectory: React.FC<{
 
 export const ComponentAdd = ( props: ComponentAddProps ) => {
 
-	const { pushContent, closeAll } = useContext( MouseMenuContext );
+	const { pushContent, closeAll } = useMouseMenu();
 	const resources = Engine.resources;
 
 	const onClickAdd = useCallback( ( e: MouseEvent ) => {
