@@ -27,7 +27,7 @@ jobs:
           submodules: recursive
       - uses: actions/setup-node@v4
         with:
-          node-version: '18.x'
+          node-version: "18.x"
       - name: Install dependencies
         run: npm ci
       - name: Install shader-minifier
@@ -37,21 +37,22 @@ jobs:
       - name: Determine deploy path
         id: vars
         run: |
+          REPO="/${{ github.event.repository.name }}"
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            echo "BASE=/pr-${{ github.event.pull_request.number }}/" >> "$GITHUB_OUTPUT"
+            echo "BASE=${REPO}/pr-${{ github.event.pull_request.number }}/" >> "$GITHUB_OUTPUT"
             echo "DIR=pr-${{ github.event.pull_request.number }}" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.ref_name }}" = "develop" ]; then
-            echo "BASE=/develop/" >> "$GITHUB_OUTPUT"
+            echo "BASE=${REPO}/develop/" >> "$GITHUB_OUTPUT"
             echo "DIR=develop" >> "$GITHUB_OUTPUT"
           else
-            echo "BASE=/" >> "$GITHUB_OUTPUT"
+            echo "BASE=${REPO}/" >> "$GITHUB_OUTPUT"
             echo "DIR=" >> "$GITHUB_OUTPUT"
           fi
       - name: Build demo
         run: npm run prebuild
         env:
           BASE_PATH: ${{ steps.vars.outputs.BASE }}
-          SKIP_SHADER_MINIFIER: 'true'
+          SKIP_SHADER_MINIFIER: "true"
       - name: Prepare Pages artifact
         run: |
           if [ -z "${{ steps.vars.outputs.DIR }}" ]; then
@@ -76,5 +77,3 @@ jobs:
         uses: actions/deploy-pages@v4
         with:
           preview: ${{ github.event_name == 'pull_request' }}
-
-
