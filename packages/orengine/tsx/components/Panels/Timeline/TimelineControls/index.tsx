@@ -1,12 +1,12 @@
-import React, { useCallback, useContext, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 
-import { TimelineContext } from '../hooks/useTimeline';
+import { useTimeline } from '../../../../hooks/useTimeline';
 
 import style from './index.module.scss';
 
 export const TimelineControls: React.FC<{children?: React.ReactNode}> = ( props ) => {
 
-	const { viewPort, setCurrentFrame: setFrame, getFrameViewPort, zoom, scroll, setViewPortCenter } = useContext( TimelineContext );
+  const { viewPort, setCurrentFrame: setFrame, getFrameViewPort, zoom, scroll, setViewPortCenter } = useTimeline();
 
 	const viewPortRef = useRef( [ 0, 0, 0, 0 ] );
 	const viewPortRangeRef = useRef( [ 0, 0 ] );
