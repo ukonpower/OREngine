@@ -52,7 +52,7 @@ npm run build
 
 ## デモ公開 (GitHub Pages)
 
-`main`、`master`、`develop` ブランチへ push すると、GitHub Actions が `npm run prebuild` を実行して生成された `dist` ディレクトリを GitHub Pages に公開します。プルリクエストではプレビュー用のデプロイも自動で行われるため、確認後に削除する必要はありません。ワークフローの設定は `.github/workflows/pages.yml` にあります。将来的に Storybook を追加した場合は、`public/storybook` 以下に成果物を配置することで同じ仕組みでデプロイできます。
+`main` または `master` へ push すると `https://<user>.github.io/<repo>/` にデプロイされます。`develop` ブランチは `/develop/` 以下に配置され、プルリクエストでは `pr-<番号>` ディレクトリへのプレビューが自動生成されます。ワークフローの設定は `.github/workflows/pages.yml` にあります。将来的に Storybook を追加した場合は `public/storybook` 以下に成果物を配置することで同じ仕組みでデプロイできます。
 
 ## テスト
 
