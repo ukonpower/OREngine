@@ -51,6 +51,7 @@ jobs:
         run: npm run prebuild
         env:
           BASE_PATH: ${{ steps.vars.outputs.BASE }}
+          SKIP_SHADER_MINIFIER: 'true'
       - name: Prepare Pages artifact
         run: |
           if [ -z "${{ steps.vars.outputs.DIR }}" ]; then
@@ -60,6 +61,7 @@ jobs:
             mkdir -p public/${{ steps.vars.outputs.DIR }}
             cp -r dist/* public/${{ steps.vars.outputs.DIR }}/
           fi
+      - uses: actions/configure-pages@v4
       - uses: actions/upload-pages-artifact@v1
         with:
           path: ./public
