@@ -939,7 +939,10 @@
       "$compileShaders": "Yf",
       "$createEntityUpdateEvent": "$f",
       "$frameSetting": "Zf",
-      "$Texture": "Wf"
+      "$Texture": "Wf",
+      "$postProcessRenderer": "qf",
+      "$setPostProcessRenderer": "Kf",
+      "$renderProcess": "Qf"
     }
   }
 }
