@@ -28,3 +28,5 @@ dist-ssr
 stats.html
 
 tmp
+*storybook.log
+storybook-static
