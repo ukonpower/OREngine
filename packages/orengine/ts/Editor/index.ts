@@ -138,7 +138,7 @@ export class Editor extends MXP.Serializable {
 
 			this._resolutionScale = Number( v );
 
-			this.resize();
+                        this._resize();
 
 		} );
 
@@ -173,7 +173,7 @@ export class Editor extends MXP.Serializable {
 			Animate
 		-------------------------------*/
 
-		this.animate();
+                this._animate();
 
 	}
 
@@ -203,7 +203,7 @@ export class Editor extends MXP.Serializable {
 		Animate
 	-------------------------------*/
 
-	private animate() {
+        private _animate() {
 
 		if ( this._disposed ) return;
 
@@ -347,7 +347,7 @@ export class Editor extends MXP.Serializable {
 
 		} );
 
-		this.resize();
+            this._resize();
 
 	}
 
@@ -367,7 +367,7 @@ export class Editor extends MXP.Serializable {
 		Resize
 	-------------------------------*/
 
-	private resize() {
+    private _resize() {
 
 		const resolution = new GLP.Vector( 1920, 1080 ).multiply( this._resolutionScale );
 
