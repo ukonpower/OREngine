@@ -159,6 +159,10 @@ export class Renderer extends Entity {
 		this.resolution = new GLP.Vector();
 		this._extDisJointTimerQuery = this.gl.getExtension( "EXT_disjoint_timer_query_webgl2" );
 
+		if ( !this._extDisJointTimerQuery ) {
+			console.warn("[Renderer] EXT_disjoint_timer_query_webgl2 extension is not supported. GPU timing features will be disabled.");
+		}
+
 		// lights
 
 		this._lights = {
@@ -316,7 +320,7 @@ export class Renderer extends Entity {
 
 		entity.onBeforeRender( event );
 
-		if ( import.meta.env.DEV ) {
+		if ( import.meta.env.DEV && this._extDisJointTimerQuery ) {
 
 			const disjoint = this.gl.getParameter( this._extDisJointTimerQuery.GPU_DISJOINT_EXT );
 
@@ -1143,20 +1147,18 @@ export class Renderer extends Entity {
 
 				let query: WebGLQuery | null = null;
 
-				if ( import.meta.env.DEV ) {
+				if ( import.meta.env.DEV && this._extDisJointTimerQuery ) {
 
 					query = this._queryList.pop() || null;
 
 					if ( query == null ) {
 
 						query = this.gl.createQuery();
-
 					}
 
 					if ( query ) {
 
 						this.gl.beginQuery( this._extDisJointTimerQuery.TIME_ELAPSED_EXT, query );
-
 					}
 
 				}
@@ -1191,21 +1193,15 @@ export class Renderer extends Entity {
 
 				// query ------------------------
 
-				if ( import.meta.env.DEV ) {
-
+				if ( import.meta.env.DEV && this._extDisJointTimerQuery ) {
 					if ( query ) {
-
 						this.gl.endQuery( this._extDisJointTimerQuery.TIME_ELAPSED_EXT );
-
 						const label = param && param.label || "_";
-
 						this._queryListQueued.push( {
 							name: `${renderType}/${label}/ [${drawId}]`,
 							query: query
 						} );
-
 					}
-
 				}
 
 				// ----------------------------
