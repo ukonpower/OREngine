@@ -1,0 +1,58 @@
+# PR Cleanup - Remove preview when PR is closed/merged
+name: pr-cleanup
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+      - master
+      - develop
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Remove PR directory and commit
+        run: |
+          PR_DIR="pr-${{ github.event.pull_request.number }}"
+          if [ -d "$PR_DIR" ]; then
+            rm -rf "$PR_DIR"
+            git config --global user.name "GitHub Actions"
+            git config --global user.email "action@github.com"
+            git add -A
+            if [ "${{ github.event.pull_request.merged }}" = "true" ]; then
+              git commit -m "Remove PR ${{ github.event.pull_request.number }} preview directory (merged)"
+            else
+              git commit -m "Remove PR ${{ github.event.pull_request.number }} preview directory (closed)"
+            fi
+            git push origin gh-pages
+            echo "Removed directory: $PR_DIR" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "Directory $PR_DIR not found, nothing to clean up" >> $GITHUB_STEP_SUMMARY
+          fi
+      - name: Comment PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const merged = context.payload.pull_request.merged;
+            const action = merged ? 'merged' : 'closed';
+            
+            const body = `🧹 **Preview cleaned up!**
+            
+            The preview for this PR has been removed since it was ${action}.`;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: body
+            }); 
