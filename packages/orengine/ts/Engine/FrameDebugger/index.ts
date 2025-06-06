@@ -105,7 +105,7 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 		const touchStartPos = new GLP.Vector( 0, 0 );
 
-		const onClick = this.onClick.bind( this );
+                const onClick = this._onClick.bind( this );
 
 		const onPointerDown = ( e: PointerEvent ) => {
 
@@ -136,7 +136,7 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 				this._focus = null;
 
-				this.clear();
+                this._clear();
 
 			}
 
@@ -177,7 +177,7 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 	}
 
-	private calcTilePos( num: number ) {
+        private _calcTilePos( num: number ) {
 
 		const x = num % this._tile.x * this._tileInv.x * this._resolution.x;
 		const y = Math.floor( num / this._tile.x ) * this._tileInv.y * this._resolution.y;
@@ -205,7 +205,7 @@ export class FrameDebugger extends GLP.EventEmitter {
 				this._gl.bindFramebuffer( this._gl.READ_FRAMEBUFFER, this._srcFrameBuffer.getFrameBuffer() );
 				this._gl.bindFramebuffer( this._gl.DRAW_FRAMEBUFFER, this._outFrameBuffer.getFrameBuffer() );
 
-				let { x, y } = this.calcTilePos( this._count );
+                                let { x, y } = this._calcTilePos( this._count );
 				const w = this._tilePixelSize.x, h = this._tilePixelSize.y;
 
 				if ( this._focus !== null ) {
@@ -255,7 +255,7 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 		for ( let i = 0; i < this._frameList.length; i ++ ) {
 
-			const { x, y } = this.calcTilePos( i );
+                        const { x, y } = this._calcTilePos( i );
 
 			const frame = this._frameList[ i ];
 
@@ -269,11 +269,11 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 		this._engine.renderer.renderPostProcess( this._outPostProcess, undefined, this._resolution );
 
-		this.clear();
+                this._clear();
 
 	}
 
-	private clear() {
+        private _clear() {
 
 		// calc status
 
@@ -309,7 +309,7 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 	}
 
-	private onClick( e: MouseEvent ) {
+        private _onClick( e: MouseEvent ) {
 
 		if ( ! this._enable ) {
 
@@ -330,7 +330,7 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 		}
 
-		this.clear();
+                this._clear();
 
 	}
 
