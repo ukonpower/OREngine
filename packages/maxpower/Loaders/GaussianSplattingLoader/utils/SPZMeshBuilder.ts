@@ -461,9 +461,6 @@ export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: 
 
 	}
 
-	console.log( uniforms );
-
-
 	// ガウシアンスプラット用のマテリアルを作成
 	const material = new Material( {
 		phase: [ "ui" ],
@@ -473,7 +470,7 @@ export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: 
 		defines: {
 			"SH_DEGREE": header.shDegree.toString(),
 		},
-		// depthTest: false,
+		depthTest: false,
 	} );
 
 	// 球面調和関数の次数に応じてdefinesを追加
