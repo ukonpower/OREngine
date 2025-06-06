@@ -12,6 +12,8 @@ on:
 
 permissions:
   contents: write
+  issues: write
+  pull-requests: write
 
 concurrency:
   group: pr-preview-${{ github.event.pull_request.number }}
