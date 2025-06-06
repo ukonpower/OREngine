@@ -14,6 +14,8 @@ permissions:
   contents: write
   issues: write
   pull-requests: write
+  pages: write
+  id-token: write
 
 concurrency:
   group: pr-preview-${{ github.event.pull_request.number }}
@@ -116,11 +118,31 @@ jobs:
       - name: Output deployment URL
         run: |
           echo "Deployed to: ${{ steps.vars.outputs.PAGE_URL }}" >> $GITHUB_STEP_SUMMARY
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "."
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
       - name: Comment PR
         uses: actions/github-script@v7
         with:
           script: |
-            const url = '${{ steps.vars.outputs.PAGE_URL }}';
+            const url = '${{ needs.build.outputs.page_url }}';
             const body = `🚀 **Preview deployed!**
             
             📖 **Demo**: ${url}
