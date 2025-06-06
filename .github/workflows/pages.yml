@@ -51,12 +51,12 @@ jobs:
             echo "PAGE_URL=https://${{ github.repository_owner }}.github.io${BASE}" >> "$GITHUB_OUTPUT"
           fi
       - name: Build demo
-        run: npm run prebuild
+        run: npm run build:dev
         env:
           BASE_PATH: ${{ steps.vars.outputs.BASE }}
           SKIP_SHADER_MINIFIER: "true"
       - name: Build storybook
-        run: npm run build-storybook -- --output-dir=storybook-static
+        run: npm run build:storybook -- --output-dir=storybook-static
         env:
           STORYBOOK_BASE_PATH: ${{ steps.vars.outputs.BASE }}storybook/
       - name: Move build output to temp
@@ -92,7 +92,7 @@ jobs:
             mkdir -p /tmp/preserve/.github
             cp -r .github/workflows /tmp/preserve/.github/
           fi
-          
+
           if [ -z "${{ steps.vars.outputs.DIR }}" ]; then
             # Main branch deployment - clear root but preserve subdirectories
             find . -maxdepth 1 -type f -delete || true
@@ -117,7 +117,7 @@ jobs:
             cp -r /tmp/dist/* ${{ steps.vars.outputs.DIR }}/
             cp -r /tmp/storybook-static/* ${{ steps.vars.outputs.DIR }}/storybook/
           fi
-          
+
           # Add .nojekyll file
           touch .nojekyll
       - name: Commit and push to gh-pages
@@ -162,5 +162,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
-
