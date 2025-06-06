@@ -6,13 +6,12 @@
   "scripts": {
     "init": "git submodule init && git submodule update && npm install",
     "dev": "vite",
-    "prebuild": "NODE_ENV=production IS_PREVIEW=true SKIP_SHADER_MINIFIER=true vite build",
-    "preview": "vite preview",
     "build": "vite build --config vite-player.config.ts && node compeko.js ./dist/build/index.js ./dist/build/index.html",
+    "build:dev": "NODE_ENV=development SKIP_SHADER_MINIFIER=true vite build --mode production",
+    "build:storybook": "storybook build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "test": "vitest run",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "storybook": "storybook dev -p 6006"
   },
   "workspaces": [],
   "dependencies": {
