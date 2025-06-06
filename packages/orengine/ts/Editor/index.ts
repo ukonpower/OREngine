@@ -259,7 +259,7 @@ export class Editor extends MXP.Serializable {
 
 		}
 
-		window.requestAnimationFrame( this.animate.bind( this ) );
+                window.requestAnimationFrame( this._animate.bind( this ) );
 
 	}
 
