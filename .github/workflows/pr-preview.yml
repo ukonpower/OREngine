@@ -1,0 +1,181 @@
+# PR Preview deployment to GitHub Pages
+# Note: Set GitHub Pages source to "Deploy from a branch" and select "gh-pages" branch in repository settings
+name: pr-preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
+      - master
+      - develop
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pr-preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      base: ${{ steps.vars.outputs.BASE }}
+      dir: ${{ steps.vars.outputs.DIR }}
+      page_url: ${{ steps.vars.outputs.PAGE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20.x"
+      - name: Install dependencies
+        run: npm ci
+      - name: Determine deploy path
+        id: vars
+        run: |
+          REPO="/${{ github.event.repository.name }}"
+          BASE="${REPO}/pr-${{ github.event.pull_request.number }}/"
+          echo "BASE=${BASE}" >> "$GITHUB_OUTPUT"
+          echo "DIR=pr-${{ github.event.pull_request.number }}" >> "$GITHUB_OUTPUT"
+          echo "PAGE_URL=https://${{ github.repository_owner }}.github.io${BASE}" >> "$GITHUB_OUTPUT"
+      - name: Build demo
+        run: npm run prebuild
+        env:
+          BASE_PATH: ${{ steps.vars.outputs.BASE }}
+          SKIP_SHADER_MINIFIER: "true"
+      - name: Build storybook
+        run: npm run build-storybook -- --output-dir=storybook-static
+        env:
+          STORYBOOK_BASE_PATH: ${{ steps.vars.outputs.BASE }}storybook/
+      - name: Move build output to temp
+        run: |
+          mv dist /tmp/dist
+          mv storybook-static /tmp/storybook-static
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          fetch-depth: 0
+        continue-on-error: true
+      - name: Setup gh-pages branch if not exists
+        run: |
+          if ! git rev-parse --verify gh-pages >/dev/null 2>&1; then
+            echo "Creating new gh-pages branch"
+            git checkout --orphan gh-pages
+            git rm -rf .
+            echo "<html><body><h1>GitHub Pages</h1></body></html>" > index.html
+            git add index.html
+            git config --global user.name "GitHub Actions"
+            git config --global user.email "action@github.com"
+            git commit -m "Initial gh-pages commit"
+            git push origin gh-pages
+          fi
+      - name: Preserve existing content and prepare new deployment
+        run: |
+          # Preserve PR preview directories and .github directory
+          mkdir -p /tmp/preserve
+          find . -maxdepth 1 -type d -name 'pr-*' -exec cp -r {} /tmp/preserve/ \; || true
+          find . -maxdepth 1 -type d -name 'develop' -exec cp -r {} /tmp/preserve/ \; || true
+          if [ -d .github/workflows ]; then
+            mkdir -p /tmp/preserve/.github
+            cp -r .github/workflows /tmp/preserve/.github/
+          fi
+          
+          # PR deployment - clear only target directory
+          rm -rf ${{ steps.vars.outputs.DIR }} || true
+          # Restore preserved directories
+          shopt -s dotglob nullglob
+          mv /tmp/preserve/* . 2>/dev/null || true
+          shopt -u dotglob nullglob
+          # Add new content to subdirectory
+          mkdir -p ${{ steps.vars.outputs.DIR }}/storybook
+          cp -r /tmp/dist/* ${{ steps.vars.outputs.DIR }}/
+          cp -r /tmp/storybook-static/* ${{ steps.vars.outputs.DIR }}/storybook/
+          
+          # Add .nojekyll file
+          touch .nojekyll
+      - name: Commit and push to gh-pages
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "action@github.com"
+          git add -A
+          set +e
+          git diff --staged --exit-code --quiet
+          if [[ $? -eq 1 ]]; then
+            git commit -m "Deploy PR ${{ github.event.pull_request.number }} to gh-pages: ${{ github.sha }}"
+            git push origin gh-pages
+            echo "Successfully deployed PR preview"
+          else
+            echo "No changes to deploy"
+          fi
+      - name: Output deployment URL
+        run: |
+          echo "Deployed to: ${{ steps.vars.outputs.PAGE_URL }}" >> $GITHUB_STEP_SUMMARY
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "."
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+      - name: Comment PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const url = '${{ needs.build.outputs.page_url }}';
+            const body = `🚀 **Preview deployed!**
+            
+            📖 **Demo**: ${url}
+            📚 **Storybook**: ${url}storybook/
+            
+            This preview will be automatically updated when you push new commits to this PR.`;
+            
+            // Find existing comment
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            
+            const existingComment = comments.data.find(comment => 
+              comment.user.login === 'github-actions[bot]' && 
+              comment.body.includes('Preview deployed!')
+            );
+            
+            if (existingComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: body
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
+            } 

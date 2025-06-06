@@ -8,11 +8,12 @@ import { ResourceManager } from './plugins/ResourceManager';
 import { ShaderMinifierLoader } from "./plugins/ShaderMinifierLoader";
 
 
-const basePath = ``;
+const basePath = process.env.BASE_PATH ?? "";
 
 // https://vitejs.dev/config/
 export default defineConfig( {
-	root: 'src',
+        root: 'src',
+        base: basePath,
 	server: {
 		port: 3000,
 		host: "0.0.0.0",
