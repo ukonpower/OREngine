@@ -294,6 +294,14 @@ void main( void ) {
 	vCUv = outPos.xy;
 	
 	#include <vert_out>
+
+    // 以前のフレームのモデル座標からスクリーン座標を計算
+    modelPositionPrev = uModelMatrixPrev * vec4(splat.position, 1.0);
+    mvPositionPrev = uViewMatrixPrev * modelPositionPrev;
+    positionPrev = uProjectionMatrixPrev * mvPositionPrev;
+    // 速度ベクトルを計算
+    vec2 velocity = (pos2d.xy / pos2d.w) - (positionPrev.xy / positionPrev.w);
+    vVelocity = velocity * 0.2; // スケーリング
 	
 	// 最終位置を設定
 	gl_Position = finalPos;
