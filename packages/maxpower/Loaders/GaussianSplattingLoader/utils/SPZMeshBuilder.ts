@@ -463,7 +463,7 @@ export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: 
 
 	// ガウシアンスプラット用のマテリアルを作成
 	const material = new Material( {
-		phase: [ "ui" ],
+		phase: [ "forward" ],
 		frag: spzFrag,
 		vert: spzVert,
 		uniforms,

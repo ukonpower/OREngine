@@ -683,7 +683,6 @@ export class Renderer extends Entity {
 
 		}
 
-
 		// render
 
 		for ( let i = 0; i < entities.length; i ++ ) {
