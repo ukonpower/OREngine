@@ -1,8 +1,6 @@
-import { loadSpzFromUrl } from '@spz-loader/core';
 import * as GLP from 'glpower';
 
-import { isSplatFormat, parseSplat, createSplatDummyHeader } from './parsers/SplatDataParser';
-import { parseSPZ } from './parsers/SPZDataParser';
+import { isSplatFormat } from './parsers/SplatDataParser';
 import { SPZGaussianData } from './utils/CoordinateSystemConverter';
 import { createGaussianEntity, SPZResult, SPZLoaderOptions } from './utils/SPZMeshBuilder';
 
@@ -20,6 +18,8 @@ export enum CoordinateSystem {
 export class GaussianSplattingLoader extends GLP.EventEmitter {
 
 	private gl: WebGL2RenderingContext;
+	private spzWorker: Worker | null = null;
+	private splatWorker: Worker | null = null;
 
 	/**
 	 * コンストラクタ
@@ -93,45 +93,155 @@ export class GaussianSplattingLoader extends GLP.EventEmitter {
 		// 2. ファイル形式の判定
 		const format = GaussianSplattingLoader.detectFormat( arrayBuffer );
 
+		// 3. 形式に応じた処理（専用WebWorkerで実行）
 		let gaussianData: SPZGaussianData;
 		let header: any = null;
 
-		// 3. 形式に応じた処理
-		switch ( format ) {
-
-		case 'splat': {
+		if ( format === 'splat' ) {
 
 			console.log( '3DGSLoader: Splat形式として読み込みます' );
-			gaussianData = parseSplat( arrayBuffer );
-			header = createSplatDummyHeader( gaussianData.positions.length / 3 );
-			break;
-
-		}
-
-		case 'spz': {
-
-			console.log( '3DGSLoader: SPZ形式として読み込みます' );
-			const result = await parseSPZ( arrayBuffer, opts.isCompressed );
+			const result = await this.parseSplatWithWorker( arrayBuffer );
 			gaussianData = result.gaussianData;
 			header = result.header;
-			break;
 
-		}
+		} else if ( format === 'spz' ) {
 
-		default:
+			console.log( '3DGSLoader: SPZ形式として読み込みます' );
+			const result = await this.parseSPZWithWorker( arrayBuffer, opts.isCompressed );
+			gaussianData = result.gaussianData;
+			header = result.header;
+
+		} else {
+
 			throw new Error( '3DGSLoader: サポートされていないファイル形式です。SplatまたはSPZ形式のファイルを指定してください。' );
 
 		}
-
-		const spz = await loadSpzFromUrl( path );
-
-		gaussianData.sphericalHarmonics = spz.sh;
-
 
 		// 4. メッシュの生成
 		const finalResult = createGaussianEntity( this.gl, gaussianData, header, opts );
 
 		return finalResult;
+
+	}
+
+	/**
+	 * SplatファイルをWebWorkerで解析する
+	 * @param buffer ファイルバッファ
+	 * @returns 解析結果
+	 */
+	private async parseSplatWithWorker( buffer: ArrayBuffer ): Promise<{ gaussianData: SPZGaussianData; header: any }> {
+
+		return new Promise( ( resolve, reject ) => {
+
+			if ( ! this.splatWorker ) {
+
+
+				const workerModule = new URL( './workers/SplatParserWorker.ts', import.meta.url );
+				this.splatWorker = new Worker( workerModule, { type: 'module' } );
+
+			}
+
+			this.splatWorker.onmessage = ( event: MessageEvent ) => {
+
+				const { type, data } = event.data;
+
+				if ( type === 'result' ) {
+
+					resolve( data );
+
+				} else if ( type === 'error' ) {
+
+					reject( new Error( data.error ) );
+
+				}
+
+			};
+
+			this.splatWorker.onerror = ( error ) => {
+
+				reject( new Error( `SplatWorker error: ${error.message}` ) );
+
+			};
+
+			const message = {
+				type: 'parse',
+				data: { buffer }
+			};
+
+			this.splatWorker.postMessage( message, [ buffer ] );
+
+		} );
+
+	}
+
+	/**
+	 * SPZファイルをWebWorkerで解析する
+	 * @param buffer ファイルバッファ
+	 * @param isCompressed 圧縮されているかどうか
+	 * @returns 解析結果
+	 */
+	private async parseSPZWithWorker( buffer: ArrayBuffer, isCompressed?: boolean ): Promise<{ gaussianData: SPZGaussianData; header: any }> {
+
+		return new Promise( ( resolve, reject ) => {
+
+			if ( ! this.spzWorker ) {
+
+				const workerModule = new URL( './workers/SPZParserWorker.ts', import.meta.url );
+				this.spzWorker = new Worker( workerModule, { type: 'module' } );
+
+			}
+
+			this.spzWorker.onmessage = ( event: MessageEvent ) => {
+
+				const { type, data } = event.data;
+
+				if ( type === 'result' ) {
+
+					resolve( data );
+
+				} else if ( type === 'error' ) {
+
+					reject( new Error( data.error ) );
+
+				}
+
+			};
+
+			this.spzWorker.onerror = ( error ) => {
+
+				reject( new Error( `SPZWorker error: ${error.message}` ) );
+
+			};
+
+			const message = {
+				type: 'parse',
+				data: { buffer, isCompressed }
+			};
+
+			this.spzWorker.postMessage( message, [ buffer ] );
+
+		} );
+
+	}
+
+	/**
+	 * リソースをクリーンアップしてWebWorkerを終了する
+	 */
+	public terminate(): void {
+
+		if ( this.splatWorker ) {
+
+			this.splatWorker.terminate();
+			this.splatWorker = null;
+
+		}
+
+		if ( this.spzWorker ) {
+
+			this.spzWorker.terminate();
+			this.spzWorker = null;
+
+		}
 
 	}
 
