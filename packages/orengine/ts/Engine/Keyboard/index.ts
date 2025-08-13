@@ -4,16 +4,16 @@ export type PressedKeys = { [key: string]: boolean }
 
 export class Keyboard extends GLP.EventEmitter {
 
-	public pressedKeys: PressedKeys;
+        private _pressedKeys: PressedKeys;
 
-	constructor() {
+        constructor() {
 
 		super();
 
-		this.pressedKeys = {};
+                this._pressedKeys = {};
 
-		const onKeyDown = this.onKeyDown.bind( this );
-		const onKeyUp = this.onKeyUp.bind( this );
+                const onKeyDown = this._onKeyDown.bind( this );
+                const onKeyUp = this._onKeyUp.bind( this );
 
 		window.addEventListener( 'keydown', onKeyDown );
 		window.addEventListener( 'keyup', onKeyUp );
@@ -27,33 +27,37 @@ export class Keyboard extends GLP.EventEmitter {
 
 		this.once( 'dispose', onDispose );
 
+        }
+
+        public get pressedKeys() {
+                return this._pressedKeys;
+        }
+
+        private _onKeyDown( e: KeyboardEvent ) {
+
+                this._pressedKeys[ e.key ] = true;
+
+                this.emit( 'keydown', [ e, this._pressedKeys ] );
+
 	}
 
-	private onKeyDown( e: KeyboardEvent ) {
+        private _onKeyUp( e: KeyboardEvent ) {
 
-		this.pressedKeys[ e.key ] = true;
-
-		this.emit( 'keydown', [ e, this.pressedKeys ] );
-
-	}
-
-	private onKeyUp( e: KeyboardEvent ) {
-
-		this.pressedKeys[ e.key ] = false;
+                this._pressedKeys[ e.key ] = false;
 
 		if ( e.key == "Meta" || e.key == "Control" ) {
 
-			const keys = Object.keys( this.pressedKeys );
+                        const keys = Object.keys( this._pressedKeys );
 
 			for ( let i = 0; i < keys.length; i ++ ) {
 
-				this.pressedKeys[ keys[ i ] ] = false;
+                                this._pressedKeys[ keys[ i ] ] = false;
 
 			}
 
 		}
 
-		this.emit( 'keyup', [ e, this.pressedKeys ] );
+                this.emit( 'keyup', [ e, this._pressedKeys ] );
 
 	}
 

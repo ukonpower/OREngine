@@ -1,5 +1,5 @@
 {
-	"name": "draw(Tokyo);",
+	"name": "OREngine",
 	"position": [
 		0,
 		0,
@@ -16,7 +16,22 @@
 		1
 	],
 	"scene": {
-		"name": "root"
+		"name": "root",
+		"childs": [
+			{
+				"name": "SPZ",
+				"pos": [
+					-0.10000000000000019,
+					0.8500000000000016,
+					61.95000000000004
+				],
+				"scale": [
+					20,
+					20,
+					20
+				]
+			}
+		]
 	},
 	"overrides": [
 		{
@@ -36,6 +51,14 @@
 				},
 				{
 					"name": "TextureGenerator"
+				}
+			]
+		},
+		{
+			"path": "/root/SPZ",
+			"components": [
+				{
+					"name": "SPZModel"
 				}
 			]
 		},
@@ -81,14 +104,6 @@
 				},
 				{
 					"name": "ObjectRotate"
-				}
-			]
-		},
-		{
-			"path": "/root/blidgeRoot/SkyBox",
-			"components": [
-				{
-					"name": "SkyBox"
 				}
 			]
 		}

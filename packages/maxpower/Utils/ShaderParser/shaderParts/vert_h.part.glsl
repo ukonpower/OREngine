@@ -4,6 +4,7 @@ uniform mat4 uProjectionMatrix;
 uniform mat4 uNormalMatrix;
 
 uniform mat4 uModelMatrixPrev;
+uniform mat4 uModelViewMatrix;
 uniform mat4 uViewMatrixPrev;
 uniform mat4 uProjectionMatrixPrev;
 

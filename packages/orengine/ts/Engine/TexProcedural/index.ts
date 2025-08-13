@@ -9,10 +9,10 @@ export class TexProcedural extends GLP.GLPowerTexture {
 
 	public material: MXP.PostProcessPass;
 
-	private renderer: MXP.Renderer;
-	private resolution: GLP.Vector;
-	private postProcess: MXP.PostProcess;
-	private frameBuffer: GLP.GLPowerFrameBuffer;
+        private _renderer: MXP.Renderer;
+        private _resolution: GLP.Vector;
+        private _postProcess: MXP.PostProcess;
+        private _frameBuffer: GLP.GLPowerFrameBuffer;
 
 	constructor( renderer: MXP.Renderer, param: TexProceduralParam ) {
 
@@ -20,9 +20,9 @@ export class TexProcedural extends GLP.GLPowerTexture {
 
 		super( gl );
 
-		this.renderer = renderer;
+                this._renderer = renderer;
 
-		this.resolution = param.resolution || new GLP.Vector( 1024, 1024 );
+                this._resolution = param.resolution || new GLP.Vector( 1024, 1024 );
 
 		this.setting( {
 			wrapS: gl.REPEAT,
@@ -31,11 +31,11 @@ export class TexProcedural extends GLP.GLPowerTexture {
 			minFilter: gl.LINEAR,
 		} );
 
-		this.frameBuffer = new GLP.GLPowerFrameBuffer( gl ).setTexture( [ this ] ).setSize( this.resolution );
+                this._frameBuffer = new GLP.GLPowerFrameBuffer( gl ).setTexture( [ this ] ).setSize( this._resolution );
 
-		this.material = new MXP.PostProcessPass( gl, { ...param, renderTarget: this.frameBuffer } );
+                this.material = new MXP.PostProcessPass( gl, { ...param, renderTarget: this._frameBuffer } );
 
-		this.postProcess = new MXP.PostProcess( {
+                this._postProcess = new MXP.PostProcess( {
 			pipeline: new MXP.PostProcessPipeline( { entity: new MXP.Entity() } ),
 			passes: [ this.material ]
 		} );
@@ -46,7 +46,7 @@ export class TexProcedural extends GLP.GLPowerTexture {
 
 	public render() {
 
-		this.renderer.renderPostProcess( this.postProcess, undefined, this.resolution );
+                this._renderer.renderPostProcess( this._postProcess, undefined, this._resolution );
 
 	}
 
