@@ -92,6 +92,6 @@ void main( void ) {
 	
 	outColor.xyz += texture( uLightShaftTexture, vUv ).xyz;
 
-	glFragOut0 = glFragOut1 = vec4( outColor, 1.0 );
+	glFragOut0 = glFragOut1 = vec4( max( vec3( 0.0 ), outColor.xyz ), 1.0 );
 
 }
