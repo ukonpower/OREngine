@@ -16,22 +16,7 @@
 		1
 	],
 	"scene": {
-		"name": "root",
-		"childs": [
-			{
-				"name": "SPZ",
-				"pos": [
-					-0.10000000000000019,
-					0.8500000000000016,
-					61.95000000000004
-				],
-				"scale": [
-					20,
-					20,
-					20
-				]
-			}
-		]
+		"name": "root"
 	},
 	"overrides": [
 		{
@@ -51,14 +36,6 @@
 				},
 				{
 					"name": "TextureGenerator"
-				}
-			]
-		},
-		{
-			"path": "/root/SPZ",
-			"components": [
-				{
-					"name": "SPZModel"
 				}
 			]
 		},
