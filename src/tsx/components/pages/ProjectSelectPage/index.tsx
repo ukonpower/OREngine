@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import style from './index.module.scss';
 
@@ -11,6 +11,12 @@ export const ProjectSelectPage: React.FC<Props> = ( { onSelectProject } ) => {
 	const [ projects, setProjects ] = useState<string[]>( [] );
 	const [ newName, setNewName ] = useState( '' );
 	const [ loading, setLoading ] = useState( true );
+	const [ menuOpen, setMenuOpen ] = useState<string | null>( null );
+	const [ renaming, setRenaming ] = useState<string | null>( null );
+	const [ renameValue, setRenameValue ] = useState( '' );
+	const [ duplicating, setDuplicating ] = useState<string | null>( null );
+	const [ duplicateValue, setDuplicateValue ] = useState( '' );
+	const menuRef = useRef<HTMLDivElement>( null );
 
 	const fetchProjects = () => {
 
@@ -26,6 +32,26 @@ export const ProjectSelectPage: React.FC<Props> = ( { onSelectProject } ) => {
 		fetchProjects();
 
 	}, [] );
+
+	useEffect( () => {
+
+		if ( ! menuOpen ) return;
+
+		const handleClick = ( e: MouseEvent ) => {
+
+			if ( menuRef.current && ! menuRef.current.contains( e.target as Node ) ) {
+
+				setMenuOpen( null );
+
+			}
+
+		};
+
+		document.addEventListener( 'mousedown', handleClick );
+
+		return () => document.removeEventListener( 'mousedown', handleClick );
+
+	}, [ menuOpen ] );
 
 	const selectProject = async ( name: string ) => {
 
@@ -84,6 +110,107 @@ export const ProjectSelectPage: React.FC<Props> = ( { onSelectProject } ) => {
 
 	};
 
+	const deleteProject = async ( name: string ) => {
+
+		if ( ! confirm( `Delete project "${name}"?` ) ) return;
+
+		const res = await fetch( `/api/projects/${encodeURIComponent( name )}`, { method: 'DELETE' } );
+
+		if ( res.ok ) {
+
+			fetchProjects();
+
+		} else {
+
+			const data = await res.json();
+			alert( data.error );
+
+		}
+
+		setMenuOpen( null );
+
+	};
+
+	const renameProject = async ( oldName: string, newName: string ) => {
+
+		const trimmed = newName.trim();
+
+		if ( ! trimmed || trimmed === oldName ) {
+
+			setRenaming( null );
+			return;
+
+		}
+
+		const res = await fetch( `/api/projects/${encodeURIComponent( oldName )}`, {
+			method: 'PUT',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify( { newName: trimmed } ),
+		} );
+
+		if ( res.ok ) {
+
+			fetchProjects();
+
+		} else {
+
+			const data = await res.json();
+			alert( data.error );
+
+		}
+
+		setRenaming( null );
+
+	};
+
+	const duplicateProject = async ( name: string, newName: string ) => {
+
+		const trimmed = newName.trim();
+
+		if ( ! trimmed ) {
+
+			setDuplicating( null );
+			return;
+
+		}
+
+		const res = await fetch( `/api/projects/${encodeURIComponent( name )}/duplicate`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify( { newName: trimmed } ),
+		} );
+
+		if ( res.ok ) {
+
+			fetchProjects();
+
+		} else {
+
+			const data = await res.json();
+			alert( data.error );
+
+		}
+
+		setDuplicating( null );
+
+	};
+
+	const startRename = ( name: string ) => {
+
+		setMenuOpen( null );
+		setRenaming( name );
+		setRenameValue( name );
+
+	};
+
+	const startDuplicate = ( name: string ) => {
+
+		setMenuOpen( null );
+		setDuplicating( name );
+		setDuplicateValue( name + '_copy' );
+
+	};
+
 	const onKeyDown = ( e: React.KeyboardEvent ) => {
 
 		if ( e.key === 'Enter' ) {
@@ -112,8 +239,54 @@ export const ProjectSelectPage: React.FC<Props> = ( { onSelectProject } ) => {
 					<div className={style.sectionTitle}>Projects</div>
 					<div className={style.projectList}>
 						{projects.map( name => (
-							<div key={name} className={style.projectItem} onClick={() => selectProject( name )}>
-								<span className={style.projectName}>{name}</span>
+							<div key={name} className={style.projectItem}>
+								{renaming === name ? (
+									<input
+										className={style.renameInput}
+										value={renameValue}
+										onChange={e => setRenameValue( e.target.value )}
+										onKeyDown={e => {
+
+											if ( e.key === 'Enter' ) renameProject( name, renameValue );
+											if ( e.key === 'Escape' ) setRenaming( null );
+
+										}}
+										onBlur={() => setRenaming( null )}
+										autoFocus
+									/>
+								) : duplicating === name ? (
+									<input
+										className={style.renameInput}
+										value={duplicateValue}
+										onChange={e => setDuplicateValue( e.target.value )}
+										onKeyDown={e => {
+
+											if ( e.key === 'Enter' ) duplicateProject( name, duplicateValue );
+											if ( e.key === 'Escape' ) setDuplicating( null );
+
+										}}
+										onBlur={() => setDuplicating( null )}
+										autoFocus
+										placeholder="New name"
+									/>
+								) : (
+									<>
+										<span className={style.projectName} onClick={() => selectProject( name )}>{name}</span>
+										<button className={style.menuButton} onClick={( e ) => {
+
+											e.stopPropagation();
+											setMenuOpen( menuOpen === name ? null : name );
+
+										}}>...</button>
+									</>
+								)}
+								{menuOpen === name && (
+									<div className={style.menu} ref={menuRef}>
+										<div className={style.menuItem} onClick={() => startRename( name )}>Rename</div>
+										<div className={style.menuItem} onClick={() => startDuplicate( name )}>Duplicate</div>
+										<div className={style.menuItemDanger} onClick={() => deleteProject( name )}>Delete</div>
+									</div>
+								)}
 							</div>
 						) )}
 						{projects.length === 0 && (

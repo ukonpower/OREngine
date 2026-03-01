@@ -34,7 +34,12 @@ export const ProjectControl = () => {
 					}
 
 				}}>Save</Button>
-				<div className={style.export}>
+				<Button onClick={() => {
+
+				window.location.href = '/';
+
+			}}>Projects</Button>
+			<div className={style.export}>
 					<Button onClick={()=>{
 
 						if ( editor ) {
