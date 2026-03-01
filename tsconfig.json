@@ -39,6 +39,9 @@
       "orengine/*": [
         "./packages/orengine/*"
       ],
+      "~project/*": [
+        "./projects/default/*"
+      ],
       "~/*": [
         "./src/*"
       ]

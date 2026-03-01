@@ -6,8 +6,8 @@ import { Plugin } from 'vite';
 
 let watcher: chokidar.FSWatcher | null = null;
 
-const componentsDir = "./src/ts/Resources/Components/";
-const componentListFile = "./src/ts/Resources/_data/componentList.ts";
+let componentsDir = "./src/ts/Resources/Components/";
+let componentListFile = "./src/ts/Resources/_data/componentList.ts";
 
 const updateComponentList = ( ) => {
 
@@ -161,7 +161,8 @@ const updateComponentList = ( ) => {
 
 	};
 
-	_( componentCatGroups[ "Components" ] );
+	const rootKey = path.basename( componentsDir.replace( /\/+$/, '' ) );
+	_( componentCatGroups[ rootKey ] );
 
 	file += "};\n";
 
@@ -169,7 +170,15 @@ const updateComponentList = ( ) => {
 
 };
 
-export const ResourceManager = (): Plugin => ( {
+export const ResourceManager = ( options?: {
+	componentsDir?: string;
+	outputFile?: string;
+} ): Plugin => {
+
+	if ( options?.componentsDir ) componentsDir = options.componentsDir;
+	if ( options?.outputFile ) componentListFile = options.outputFile;
+
+	return ( {
 	name: 'ResourceManager',
 	enforce: 'pre',
 	configureServer: ( server ) => {
@@ -241,3 +250,4 @@ export const ResourceManager = (): Plugin => ( {
 
 	},
 } );
+};
