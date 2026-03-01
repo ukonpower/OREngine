@@ -21,6 +21,7 @@ export const ProjectSelectPage: React.FC<Props> = ( { onSelectProject } ) => {
 	const [ editing, setEditing ] = useState<EditingState | null>( null );
 	const menuRef = useRef<HTMLDivElement>( null );
 	const escapePressedRef = useRef( false );
+	const committingRef = useRef( false );
 
 	const fetchProjects = () => {
 
@@ -198,7 +199,9 @@ export const ProjectSelectPage: React.FC<Props> = ( { onSelectProject } ) => {
 
 	const commitEdit = async () => {
 
-		if ( ! editing ) return;
+		if ( ! editing || committingRef.current ) return;
+
+		committingRef.current = true;
 
 		if ( editing.mode === 'rename' ) {
 
@@ -211,6 +214,7 @@ export const ProjectSelectPage: React.FC<Props> = ( { onSelectProject } ) => {
 		}
 
 		setEditing( null );
+		committingRef.current = false;
 
 	};
 
