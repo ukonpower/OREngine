@@ -1,9 +1,11 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { fileURLToPath } from 'url';
 
 import * as chokidar from 'chokidar';
 import { Plugin, ViteDevServer } from 'vite';
 
+const __dirname = path.dirname( fileURLToPath( import.meta.url ) );
 const PROJECTS_DIR = path.resolve( __dirname, '../../projects' );
 const ACTIVE_FILE = path.join( PROJECTS_DIR, '.active' );
 
