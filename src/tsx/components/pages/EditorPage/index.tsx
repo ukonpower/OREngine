@@ -3,14 +3,12 @@ import { OREditor, OREngine } from "orengine/react";
 import { OREngineProjectData } from "packages/orengine/ts/Engine/ProjectSerializer";
 import { useEffect, useState } from "react";
 
-import ProjectData from "~/../data/scene.json";
 import { gl } from "~/ts/Globals";
-import { initResouces } from "~/ts/Resources";
-import { FileSystem } from "~/ts/Utils/FileSystem";
-
-const fileSystem = new FileSystem();
+import { initResouces } from "~project/index";
 
 initResouces();
+
+const projectName = new URLSearchParams( location.search ).get( 'project' ) || 'default';
 
 export const EditorPage = () => {
 
@@ -19,27 +17,30 @@ export const EditorPage = () => {
 
 	useEffect( () => {
 
-		fileSystem.get<OREngineProjectData>( "scene.json" ).then( ( data ) => {
+		fetch( `/api/projects/${projectName}/scene` ).then( r => r.json() ).then( ( data ) => {
 
 			if ( ! data ) return;
 
 			setProjectData( data );
 
+		} ).catch( () => {
+
+			// fallback: try import for production
+			import( "~project/scene.json" ).then( ( mod ) => {
+
+				setProjectData( mod.default );
+
+			} );
+
 		} );
 
-		fileSystem.get<MXP.SerializeField>( "editor.json" ).then( ( data ) => {
+		fetch( `/api/projects/${projectName}/editor` ).then( r => r.json() ).then( ( data ) => {
 
 			if ( ! data ) return;
 
 			setEditorData( data );
 
-		} );
-
-		if ( import.meta.env.MODE === "production" ) {
-
-			setProjectData( ProjectData );
-
-		}
+		} ).catch( () => {} );
 
 	}, [] );
 
@@ -47,8 +48,17 @@ export const EditorPage = () => {
 		<OREngine gl={gl} project={projectData} >
 			<OREditor editorData={editorData} onSave={( projectData, editorData ) => {
 
-				fileSystem.set( "scene.json", projectData );
-				fileSystem.set( "editor.json", editorData );
+				fetch( `/api/projects/${projectName}/scene`, {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify( projectData ),
+				} );
+
+				fetch( `/api/projects/${projectName}/editor`, {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify( editorData ),
+				} );
 
 			}} />
 		</OREngine>

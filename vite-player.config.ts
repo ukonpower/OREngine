@@ -1,15 +1,19 @@
+import fs from 'fs';
 import path from 'path';
 
 import terser from '@rollup/plugin-terser';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig } from 'vite';
 
-import playerJson from './data/scene.json';
 import { nameCache, MangledJsonLoader, SaveNameCache } from './plugins/MangleManager';
 import { ShaderMinifierLoader } from './plugins/ShaderMinifierLoader';
 
 
 const basePath = process.env.BASE_PATH ?? "";
+const activeProject = process.env.ORENGINE_PROJECT || 'default';
+const sceneJsonPath = `./projects/${activeProject}/scene.json`;
+
+const playerJson = JSON.parse( fs.readFileSync( sceneJsonPath, 'utf-8' ) );
 
 // player.jsonからreservedに追加するプロパティ名を抽出
 export default defineConfig( {
@@ -20,7 +24,7 @@ export default defineConfig( {
 		host: "0.0.0.0",
 	},
 	build: {
-		outDir: '../dist/build/',
+		outDir: `../dist/${activeProject}/`,
 		minify: 'terser',
 		rollupOptions: {
 			input: {
@@ -96,6 +100,7 @@ export default defineConfig( {
 			"glpower": path.join( __dirname, "packages/glpower/packages/glpower/src" ),
 			"maxpower": path.join( __dirname, "packages/maxpower" ),
 			"orengine": path.join( __dirname, "packages/orengine" ),
+			"~project": path.join( __dirname, `projects/${activeProject}` ),
 			"~": path.join( __dirname, "src" ),
 		},
 	},

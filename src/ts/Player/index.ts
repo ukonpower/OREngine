@@ -1,9 +1,9 @@
 import * as GLP from 'glpower';
 import { Engine } from 'orengine';
 
-import SceneData from '../../../data/scene.json';
-import { initResouces } from '../Resources';
-import { BLidgeClient } from '../Resources/Components/Utilities/BLidgeClient';
+import SceneData from '~project/scene.json';
+import { initResouces } from '~project/index';
+import { BLidgeClient } from '~project/components/Utilities/BLidgeClient';
 
 import { gl } from '~/ts/Globals';
 
