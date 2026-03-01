@@ -1,6 +1,13 @@
 import * as MXP from 'maxpower';
 
-import { Engine } from '..';
+/*-------------------------------
+	ComponentResolver
+-------------------------------*/
+
+export type ComponentResolver = {
+	resolve: ( name: string ) => { component: typeof MXP.Component } | undefined;
+	getName: ( component: MXP.Component ) => string;
+};
 
 /*-------------------------------
 	SceneData
@@ -16,7 +23,7 @@ export interface OREngineDataEntityOverride {
 	components?: OREngineDataEntityOverrideComponent[]
 }
 
-interface OREngineDataEntity {
+export interface OREngineDataEntity {
 	name: string,
 	pos?: number[],
 	rot?: number[],
@@ -25,9 +32,12 @@ interface OREngineDataEntity {
 }
 
 export interface OREngineProjectData {
-	name: string
-	scene: OREngineDataEntity | null
-	overrides: OREngineDataEntityOverride[],
+	name: string;
+	scene: OREngineDataEntity | null;
+	overrides: OREngineDataEntityOverride[];
+	"timeline/duration"?: number;
+	"timeline/fps"?: number;
+	[key: string]: unknown;
 }
 
 /*-------------------------------
@@ -74,7 +84,7 @@ export class ProjectSerializer {
 
 	}
 
-	public static serializeEntityOverride( sceneRoot: MXP.Entity ): OREngineDataEntityOverride[] {
+	public static serializeEntityOverride( sceneRoot: MXP.Entity, resolver: ComponentResolver ): OREngineDataEntityOverride[] {
 
 		const objectOverride: OREngineDataEntityOverride[] = [];
 
@@ -94,7 +104,7 @@ export class ProjectSerializer {
 				const hasFields = Object.keys( exportFields ).length > 0;
 
 				const value: {name: string, props?: MXP.SerializeField} = {
-					name: c.constructor.name
+					name: resolver.getName( c )
 				};
 
 				if ( ! hasFields && c.initiator !== "user" ) {
@@ -137,7 +147,7 @@ export class ProjectSerializer {
 		Deserialize
 	-------------------------------*/
 
-	public static deserializeOverride( overrideData: OREngineDataEntityOverride[], projectRoot: MXP.Entity, targetRoot: MXP.Entity ) {
+	public static deserializeOverride( overrideData: OREngineDataEntityOverride[], projectRoot: MXP.Entity, targetRoot: MXP.Entity, resolver: ComponentResolver ) {
 
 		targetRoot.traverse( entity => {
 
@@ -149,7 +159,7 @@ export class ProjectSerializer {
 
 				( overrideDataItem.components || [] ).forEach( c => {
 
-					const compItem = Engine.resources.getComponent( c.name );
+					const compItem = resolver.resolve( c.name );
 
 					if ( compItem ) {
 
