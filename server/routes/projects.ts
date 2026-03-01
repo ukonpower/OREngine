@@ -5,6 +5,51 @@ import * as path from 'path';
 export const projectsRouter = express.Router();
 
 const PROJECTS_DIR = path.resolve( __dirname, '../../projects' );
+const ACTIVE_FILE = path.join( PROJECTS_DIR, '.active' );
+
+// --- Active Project ---
+
+projectsRouter.get( '/projects/active', ( _req, res ) => {
+
+	try {
+
+		const active = fs.readFileSync( ACTIVE_FILE, 'utf-8' ).trim();
+		res.json( { name: active } );
+
+	} catch {
+
+		res.json( { name: 'default' } );
+
+	}
+
+} );
+
+projectsRouter.post( '/projects/active', ( req, res ) => {
+
+	const { name } = req.body;
+
+	if ( !name || typeof name !== 'string' ) {
+
+		res.status( 400 ).json( { error: 'Project name is required' } );
+		return;
+
+	}
+
+	const projectDir = path.join( PROJECTS_DIR, name );
+
+	if ( !fs.existsSync( projectDir ) ) {
+
+		res.status( 404 ).json( { error: 'Project not found' } );
+		return;
+
+	}
+
+	fs.writeFileSync( ACTIVE_FILE, name );
+	res.json( { name } );
+
+} );
+
+// --- Project List ---
 
 projectsRouter.get( '/projects', ( _req, res ) => {
 
@@ -33,6 +78,150 @@ projectsRouter.get( '/projects', ( _req, res ) => {
 
 } );
 
+// --- Project Creation ---
+
+const GLOBALS_TEMPLATE = `import * as GLP from 'glpower';
+
+/*-------------------------------
+	Elements
+-------------------------------*/
+
+export const canvas = document.createElement( "canvas" );
+export const gl = canvas.getContext( 'webgl2', { antialias: false } )!;
+export const power = new GLP.Power( gl );
+
+/*-------------------------------
+	Uniforms
+-------------------------------*/
+
+export const globalUniforms: {[key: string]: GLP.Uniforms} = {
+	time: {
+		uTime: {
+			value: 0,
+			type: "1f"
+		},
+		uTimeF: {
+			value: 0,
+			type: "1f"
+		},
+		uTimeE: {
+			value: 0,
+			type: "1f"
+		},
+		uTimeEF: {
+			value: 0,
+			type: "1f"
+		},
+	},
+	resolution: {
+		uAspectRatio: {
+			value: 1.0,
+			type: '1f'
+		},
+		uResolution: {
+			value: new GLP.Vector(),
+			type: '2f'
+		}
+	},
+	camera: {
+		projectionMatrix: {
+			value: new GLP.Matrix(),
+			type: 'Matrix4fv'
+		},
+		viewMatrix: {
+			value: new GLP.Matrix(),
+			type: 'Matrix4fv'
+		}
+	},
+	gBuffer: {
+		uGBufferPos: {
+			value: null,
+			type: "1i"
+		},
+		uGBufferNormal: {
+			value: null,
+			type: "1i"
+		},
+	},
+	tex: {
+	},
+	music: {
+		uMusicFreqTex: {
+			value: null,
+			type: "1i"
+		},
+		uMusicDomainTex: {
+			value: null,
+			type: "1i"
+		},
+	}
+};
+`;
+
+const INDEX_TEMPLATE = `
+import * as MXP from 'maxpower';
+import { ComponentGroup, Engine } from 'orengine';
+
+import { COMPONENTLIST } from './_generated/componentList';
+
+type ComponentLIst = {
+	[key: string]: ( ComponentLIst | ( typeof MXP.Component ) )
+};
+
+export const initResouces = () => {
+
+	/*-------------------------------
+		Components
+	-------------------------------*/
+
+	Engine.resources.clear();
+
+	const _ = ( list: ComponentLIst, group: ComponentGroup ) => {
+
+		const keys = Object.keys( list );
+
+		for ( let i = 0; i < keys.length; i ++ ) {
+
+			const name = keys[ i ];
+			const value = list[ name ];
+
+			if ( typeof value == "function" ) {
+
+				group.addComponent( name, value );
+
+			} else {
+
+				const newGroup = group.createGroup( name );
+
+				_( value, newGroup );
+
+			}
+
+		}
+
+	};
+
+	const light = Engine.resources.addComponentGroup( "Light" );
+	light.addComponent( "Light", MXP.Light );
+
+	const rootKeys = Object.keys( COMPONENTLIST );
+
+	for ( let i = 0; i < rootKeys.length; i ++ ) {
+
+		const name = rootKeys[ i ];
+		const value = COMPONENTLIST[ name ];
+
+		const group = Engine.resources.addComponentGroup( name );
+
+		_( value, group );
+
+	}
+
+};
+`;
+
+const COMPONENTLIST_TEMPLATE = `export const COMPONENTLIST: {[key: string]: any} = {\n};\n`;
+
 projectsRouter.post( '/projects', ( req, res ) => {
 
 	try {
@@ -46,7 +235,6 @@ projectsRouter.post( '/projects', ( req, res ) => {
 
 		}
 
-		// サニタイズ: ディレクトリトラバーサル防止
 		if ( name.includes( '..' ) || name.includes( '/' ) || name.includes( '\\' ) ) {
 
 			res.status( 400 ).json( { error: 'Invalid project name' } );
@@ -63,10 +251,9 @@ projectsRouter.post( '/projects', ( req, res ) => {
 
 		}
 
-		// プロジェクトディレクトリとサブディレクトリを作成
 		fs.mkdirSync( path.join( projectDir, 'components' ), { recursive: true } );
+		fs.mkdirSync( path.join( projectDir, '_generated' ), { recursive: true } );
 
-		// テンプレートファイルを配置
 		const defaultScene = {
 			name: name,
 			scene: {
@@ -94,6 +281,21 @@ projectsRouter.post( '/projects', ( req, res ) => {
 		fs.writeFileSync(
 			path.join( projectDir, 'editor.json' ),
 			JSON.stringify( defaultEditor, null, '\t' ) + '\n'
+		);
+
+		fs.writeFileSync(
+			path.join( projectDir, 'globals.ts' ),
+			GLOBALS_TEMPLATE
+		);
+
+		fs.writeFileSync(
+			path.join( projectDir, 'index.ts' ),
+			INDEX_TEMPLATE
+		);
+
+		fs.writeFileSync(
+			path.join( projectDir, '_generated', 'componentList.ts' ),
+			COMPONENTLIST_TEMPLATE
 		);
 
 		res.status( 201 ).json( { name, path: projectDir } );

@@ -31,3 +31,5 @@ tmp
 projects/*/_generated/
 *storybook.log
 storybook-static
+
+.claude/workflow/
