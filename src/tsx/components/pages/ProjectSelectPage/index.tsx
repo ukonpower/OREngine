@@ -238,57 +238,57 @@ export const ProjectSelectPage: React.FC<Props> = ( { onSelectProject } ) => {
 				<div className={style.section}>
 					<div className={style.sectionTitle}>Projects</div>
 					<div className={style.projectList}>
-						{projects.map( name => (
-							<div key={name} className={style.projectItem}>
-								{renaming === name ? (
-									<input
-										className={style.renameInput}
-										value={renameValue}
-										onChange={e => setRenameValue( e.target.value )}
-										onKeyDown={e => {
+						{projects.map( project => (
+						<div key={project} className={style.projectItem}>
+							{renaming === project ? (
+								<input
+									className={style.renameInput}
+									value={renameValue}
+									onChange={e => setRenameValue( e.target.value )}
+									onKeyDown={e => {
 
-											if ( e.key === 'Enter' ) renameProject( name, renameValue );
-											if ( e.key === 'Escape' ) setRenaming( null );
+										if ( e.key === 'Enter' ) renameProject( project, renameValue );
+										if ( e.key === 'Escape' ) setRenaming( null );
 
-										}}
-										onBlur={() => setRenaming( null )}
-										autoFocus
-									/>
-								) : duplicating === name ? (
-									<input
-										className={style.renameInput}
-										value={duplicateValue}
-										onChange={e => setDuplicateValue( e.target.value )}
-										onKeyDown={e => {
+									}}
+									onBlur={() => setRenaming( null )}
+									autoFocus
+								/>
+							) : duplicating === project ? (
+								<input
+									className={style.renameInput}
+									value={duplicateValue}
+									onChange={e => setDuplicateValue( e.target.value )}
+									onKeyDown={e => {
 
-											if ( e.key === 'Enter' ) duplicateProject( name, duplicateValue );
-											if ( e.key === 'Escape' ) setDuplicating( null );
+										if ( e.key === 'Enter' ) duplicateProject( project, duplicateValue );
+										if ( e.key === 'Escape' ) setDuplicating( null );
 
-										}}
-										onBlur={() => setDuplicating( null )}
-										autoFocus
-										placeholder="New name"
-									/>
-								) : (
-									<>
-										<span className={style.projectName} onClick={() => selectProject( name )}>{name}</span>
-										<button className={style.menuButton} onClick={( e ) => {
+									}}
+									onBlur={() => setDuplicating( null )}
+									autoFocus
+									placeholder="New name"
+								/>
+							) : (
+								<>
+									<span className={style.projectName} onClick={() => selectProject( project )}>{project}</span>
+									<button className={style.menuButton} onClick={( e ) => {
 
-											e.stopPropagation();
-											setMenuOpen( menuOpen === name ? null : name );
+										e.stopPropagation();
+										setMenuOpen( menuOpen === project ? null : project );
 
-										}}>...</button>
-									</>
-								)}
-								{menuOpen === name && (
-									<div className={style.menu} ref={menuRef}>
-										<div className={style.menuItem} onClick={() => startRename( name )}>Rename</div>
-										<div className={style.menuItem} onClick={() => startDuplicate( name )}>Duplicate</div>
-										<div className={style.menuItemDanger} onClick={() => deleteProject( name )}>Delete</div>
-									</div>
-								)}
-							</div>
-						) )}
+									}}>...</button>
+								</>
+							)}
+							{menuOpen === project && (
+								<div className={style.menu} ref={menuRef}>
+									<div className={style.menuItem} onClick={() => startRename( project )}>Rename</div>
+									<div className={style.menuItem} onClick={() => startDuplicate( project )}>Duplicate</div>
+									<div className={style.menuItemDanger} onClick={() => deleteProject( project )}>Delete</div>
+								</div>
+							)}
+						</div>
+					) )}
 						{projects.length === 0 && (
 							<div className={style.empty}>No projects</div>
 						)}

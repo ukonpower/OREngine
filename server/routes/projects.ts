@@ -66,11 +66,11 @@ projectsRouter.get( '/projects', ( _req, res ) => {
 		}
 
 		const entries = fs.readdirSync( PROJECTS_DIR, { withFileTypes: true } );
-		const dirs = entries
+		const projects = entries
 			.filter( ( e ) => e.isDirectory() )
 			.map( ( e ) => e.name );
 
-		res.json( dirs );
+		res.json( projects );
 
 	} catch ( err ) {
 
@@ -169,16 +169,6 @@ projectsRouter.put( '/projects/:name', async ( req, res ) => {
 
 		await fs.promises.rename( oldDir, newDir );
 
-		const sceneFile = path.join( newDir, 'scene.json' );
-
-		if ( fs.existsSync( sceneFile ) ) {
-
-			const scene = JSON.parse( fs.readFileSync( sceneFile, 'utf-8' ) );
-			scene.name = newName;
-			fs.writeFileSync( sceneFile, JSON.stringify( scene, null, '\t' ) + '\n' );
-
-		}
-
 		try {
 
 			const active = fs.readFileSync( ACTIVE_FILE, 'utf-8' ).trim();
@@ -238,16 +228,6 @@ projectsRouter.post( '/projects/:name/duplicate', async ( req, res ) => {
 		}
 
 		await fs.promises.cp( srcDir, destDir, { recursive: true } );
-
-		const sceneFile = path.join( destDir, 'scene.json' );
-
-		if ( fs.existsSync( sceneFile ) ) {
-
-			const scene = JSON.parse( fs.readFileSync( sceneFile, 'utf-8' ) );
-			scene.name = newName;
-			fs.writeFileSync( sceneFile, JSON.stringify( scene, null, '\t' ) + '\n' );
-
-		}
 
 		res.status( 201 ).json( { name: newName } );
 
@@ -357,7 +337,6 @@ projectsRouter.post( '/projects', ( req, res ) => {
 		fs.mkdirSync( path.join( projectDir, '_generated' ), { recursive: true } );
 
 		const defaultScene = {
-			name: name,
 			scene: {
 				name: "root"
 			},

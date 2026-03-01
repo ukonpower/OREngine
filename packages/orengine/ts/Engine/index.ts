@@ -117,8 +117,6 @@ export class Engine extends MXP.Entity {
 		this._root.name = "root";
 		this.add( this._root );
 
-		this.field( "name", () => this.name, ( v ) => this.name = v );
-
 		this.field( "scene", () => ProjectSerializer.serializeEntity( this._root ), ( v ) => {
 
 			ProjectSerializer.deserializeEntity( v, this._root );
