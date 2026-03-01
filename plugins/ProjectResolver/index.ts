@@ -56,7 +56,7 @@ export const ProjectResolver = (): Plugin => {
 					console.log( `[ProjectResolver] Active project changed to: ${activeProject}` );
 
 					server!.moduleGraph.invalidateAll();
-					server!.ws.send( { type: 'full-reload' } );
+					server!.ws.send( { type: 'custom', event: 'project-changed', data: { project: activeProject } } );
 
 				}
 
@@ -69,16 +69,18 @@ export const ProjectResolver = (): Plugin => {
 			} );
 
 		},
-		resolveId( source ) {
+		async resolveId( source, importer, options ) {
 
 			if ( source === '~project' || source.startsWith( '~project/' ) ) {
 
-				const resolved = source.replace(
+				const replaced = source.replace(
 					'~project',
 					path.resolve( PROJECTS_DIR, activeProject )
 				);
 
-				return resolved;
+				const resolved = await this.resolve( replaced, importer, { ...options, skipSelf: true } );
+
+				return resolved || replaced;
 
 			}
 
