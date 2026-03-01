@@ -6,10 +6,17 @@ import { Plugin } from 'vite';
 
 let watcher: chokidar.FSWatcher | null = null;
 
-let componentsDir = "./src/ts/Resources/Components/";
-let componentListFile = "./src/ts/Resources/_data/componentList.ts";
+const updateComponentListForDir = ( compDir: string, outFile: string ) => {
 
-const updateComponentList = ( ) => {
+	if ( ! fs.existsSync( compDir ) ) return;
+
+	const outDir = path.dirname( outFile );
+
+	if ( ! fs.existsSync( outDir ) ) {
+
+		fs.mkdirSync( outDir, { recursive: true } );
+
+	}
 
 	const getIndexTsFiles = ( dir: string, fileList:string[] = [] ) => {
 
@@ -17,7 +24,6 @@ const updateComponentList = ( ) => {
 
 		files.forEach( file => {
 
-			// _で始まるディレクトリはスキップ
 			if ( file.startsWith( '_' ) && fs.statSync( path.join( dir, file ) ).isDirectory() ) {
 
 				return;
@@ -43,7 +49,7 @@ const updateComponentList = ( ) => {
 
 	};
 
-	const fileList = getIndexTsFiles( componentsDir );
+	const fileList = getIndexTsFiles( compDir );
 
 	const components = fileList.map( ( file ) => {
 
@@ -66,17 +72,14 @@ const updateComponentList = ( ) => {
 		return {
 
 			name: componentName,
-			path: path.relative( path.dirname( componentsDir ), file ).replace( /\\/g, '/' ),
-			relativePath: path.relative( path.dirname( componentListFile ), file ).replace( /\\/g, '/' ),
-
+			path: path.relative( path.dirname( compDir ), file ).replace( /\\/g, '/' ),
+			relativePath: path.relative( path.dirname( outFile ), file ).replace( /\\/g, '/' ),
 
 		};
 
 	} );
 
-	// componentlist
-
-	const componentCatGroups: {[category: string]: any} = {};
+	const componentCatGroups: {[category: string]: unknown} = {};
 
 	components.forEach( ( component ) => {
 
@@ -88,7 +91,7 @@ const updateComponentList = ( ) => {
 
 		const splitPath = component.path.split( '/' );
 
-		let targetGropus = componentCatGroups;
+		let targetGroups = componentCatGroups as {[key: string]: unknown};
 
 		for ( let i = 0; i < splitPath.length; i ++ ) {
 
@@ -96,22 +99,19 @@ const updateComponentList = ( ) => {
 
 			if ( i == splitPath.length - 2 ) {
 
-				targetGropus[ dir ] = [ component.name, component.relativePath ];
+				targetGroups[ dir ] = [ component.name, component.relativePath ];
 
 				break;
 
 			}
 
-			const catArray = targetGropus[ dir ] = targetGropus[ dir ] || {};
+			const catArray = targetGroups[ dir ] = targetGroups[ dir ] || {};
 
-			targetGropus = catArray;
+			targetGroups = catArray as {[key: string]: unknown};
 
 		}
 
-
 	} );
-
-	// write file
 
 	let file = "";
 
@@ -133,7 +133,7 @@ const updateComponentList = ( ) => {
 
 	let indent = "";
 
-	const _ = ( obj: any ) => {
+	const writeObj = ( obj: {[key: string]: unknown} ) => {
 
 		indent += "\t";
 
@@ -149,7 +149,7 @@ const updateComponentList = ( ) => {
 
 				file += `${indent}${key}: {\n`;
 
-				_( value );
+				writeObj( value as {[key: string]: unknown} );
 
 				file += `${indent}},\n`;
 
@@ -161,93 +161,145 @@ const updateComponentList = ( ) => {
 
 	};
 
-	const rootKey = path.basename( componentsDir.replace( /\/+$/, '' ) );
-	_( componentCatGroups[ rootKey ] );
+	const rootKey = path.basename( compDir.replace( /\/+$/, '' ) );
+	const rootObj = componentCatGroups[ rootKey ];
+
+	if ( rootObj && typeof rootObj === 'object' && ! Array.isArray( rootObj ) ) {
+
+		writeObj( rootObj as {[key: string]: unknown} );
+
+	}
 
 	file += "};\n";
 
-	fs.writeFileSync( componentListFile, file );
+	fs.writeFileSync( outFile, file );
+
+};
+
+const updateAllProjects = ( projectsDir: string ) => {
+
+	if ( ! fs.existsSync( projectsDir ) ) return;
+
+	const entries = fs.readdirSync( projectsDir, { withFileTypes: true } );
+
+	entries
+		.filter( ( e ) => e.isDirectory() && ! e.name.startsWith( '.' ) )
+		.forEach( ( e ) => {
+
+			const compDir = path.join( projectsDir, e.name, 'components' );
+			const outFile = path.join( projectsDir, e.name, '_generated', 'componentList.ts' );
+
+			updateComponentListForDir( compDir, outFile );
+
+		} );
 
 };
 
 export const ResourceManager = ( options?: {
 	componentsDir?: string;
 	outputFile?: string;
+	projectsDir?: string;
 } ): Plugin => {
 
-	if ( options?.componentsDir ) componentsDir = options.componentsDir;
-	if ( options?.outputFile ) componentListFile = options.outputFile;
+	const useProjectsDir = !! options?.projectsDir;
+	let componentsDir = options?.componentsDir || "./src/ts/Resources/Components/";
+	let componentListFile = options?.outputFile || "./src/ts/Resources/_data/componentList.ts";
 
 	return ( {
-	name: 'ResourceManager',
-	enforce: 'pre',
-	configureServer: ( server ) => {
+		name: 'ResourceManager',
+		enforce: 'pre',
+		configureServer: () => {
 
-		if ( watcher !== null ) {
+			if ( watcher !== null ) {
 
-			watcher.close();
-
-		}
-
-		watcher = chokidar.watch( componentsDir, {
-			ignored: /[\\/\\]\./,
-			persistent: true
-		} );
-
-		const onAddFile = ( ) => {
-
-			updateComponentList();
-
-		};
-
-		const onUnlinkFile = ( ) => {
-
-			updateComponentList();
-
-		};
-
-		const onChangeFile = ( path: string ) => {
-
-			if ( path.endsWith( 'index.ts' ) ) {
-
-				updateComponentList();
+				watcher.close();
 
 			}
 
-		};
+			if ( useProjectsDir ) {
 
-		watcher.on( 'ready', () => {
+				const projectsDir = options!.projectsDir!;
 
-			watcher.on( 'add', onAddFile );
+				updateAllProjects( projectsDir );
 
-			watcher.on( 'change', onChangeFile );
+				watcher = chokidar.watch( path.join( projectsDir, '*/components' ), {
+					ignored: /[\\/\\]\./,
+					persistent: true,
+				} );
 
-			watcher.on( 'unlink', onUnlinkFile );
+				const onFileChange = ( filePath: string ) => {
 
-			watcher.on( 'error', function ( err ) {
+					const relative = path.relative( projectsDir, filePath );
+					const projectName = relative.split( path.sep )[ 0 ];
 
-				console.log( `Watcher error: ${err}` );
+					const compDir = path.join( projectsDir, projectName, 'components' );
+					const outFile = path.join( projectsDir, projectName, '_generated', 'componentList.ts' );
 
-			} );
+					updateComponentListForDir( compDir, outFile );
 
-		} );
+				};
 
+				watcher.on( 'ready', () => {
 
-	},
-	buildStart: () => {
+					watcher!.on( 'add', onFileChange );
+					watcher!.on( 'change', ( p ) => {
 
-		updateComponentList();
+						if ( p.endsWith( 'index.ts' ) ) onFileChange( p );
 
-	},
-	buildEnd: () => {
+					} );
+					watcher!.on( 'unlink', onFileChange );
+					watcher!.on( 'error', ( err ) => console.log( `Watcher error: ${err}` ) );
 
-		if ( watcher ) {
+				} );
 
-			watcher.close();
-			watcher = null;
+			} else {
 
-		}
+				watcher = chokidar.watch( componentsDir, {
+					ignored: /[\\/\\]\./,
+					persistent: true
+				} );
 
-	},
-} );
+				const onChange = () => updateComponentListForDir( componentsDir, componentListFile );
+
+				watcher.on( 'ready', () => {
+
+					watcher!.on( 'add', onChange );
+					watcher!.on( 'change', ( p ) => {
+
+						if ( p.endsWith( 'index.ts' ) ) onChange();
+
+					} );
+					watcher!.on( 'unlink', onChange );
+					watcher!.on( 'error', ( err ) => console.log( `Watcher error: ${err}` ) );
+
+				} );
+
+			}
+
+		},
+		buildStart: () => {
+
+			if ( useProjectsDir ) {
+
+				updateAllProjects( options!.projectsDir! );
+
+			} else {
+
+				updateComponentListForDir( componentsDir, componentListFile );
+
+			}
+
+		},
+		buildEnd: () => {
+
+			if ( watcher ) {
+
+				watcher.close();
+				watcher = null;
+
+			}
+
+		},
+	} );
+
 };
