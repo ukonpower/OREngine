@@ -83,6 +83,14 @@
 					"name": "ObjectRotate"
 				}
 			]
+		},
+		{
+			"path": "/root/blidgeRoot/SkyBox",
+			"components": [
+				{
+					"name": "SkyBox"
+				}
+			]
 		}
 	],
 	"timeline/duration": 600,
