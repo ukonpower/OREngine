@@ -1,7 +1,7 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { OREngineProjectData, OREngineProjectFrame, ProjectSerializer } from './ProjectSerializer';
+import { ComponentResolver, OREngineProjectData, OREngineProjectFrame, ProjectSerializer } from './ProjectSerializer';
 import { Resources } from './Resources';
 
 export interface SceneTime {
@@ -80,7 +80,7 @@ export class Engine extends MXP.Entity {
 
 			if ( this._projectCache ) {
 
-				ProjectSerializer.deserializeOverride( this._projectCache.overrides, this._root, blidgeRoot );
+				ProjectSerializer.deserializeOverride( this._projectCache.overrides, this._root, blidgeRoot, this._createComponentResolver() );
 
 			}
 
@@ -125,9 +125,9 @@ export class Engine extends MXP.Entity {
 
 		} );
 
-		this.field( "overrides", () => ProjectSerializer.serializeEntityOverride( this._root ), ( v ) => {
+		this.field( "overrides", () => ProjectSerializer.serializeEntityOverride( this._root, this._createComponentResolver() ), ( v ) => {
 
-			ProjectSerializer.deserializeOverride( v, this._root, this._root );
+			ProjectSerializer.deserializeOverride( v, this._root, this._root, this._createComponentResolver() );
 
 		} );
 
@@ -210,6 +210,27 @@ export class Engine extends MXP.Entity {
 	public get disposed() {
 
 		return this._disposed;
+
+	}
+
+	/*-------------------------------
+		ComponentResolver
+	-------------------------------*/
+
+	private _createComponentResolver(): ComponentResolver {
+
+		return {
+			resolve: ( name ) => Engine.resources.getComponent( name ),
+			getName: ( c ) => {
+
+				const item = Engine.resources.componentList.find(
+					item => c instanceof item.component
+				);
+
+				return item ? item.name : c.constructor.name;
+
+			}
+		};
 
 	}
 
