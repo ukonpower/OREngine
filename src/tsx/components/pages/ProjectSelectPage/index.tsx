@@ -6,17 +6,21 @@ type Props = {
 	onSelectProject: ( name: string ) => void;
 };
 
+type EditingState = {
+	project: string;
+	mode: 'rename' | 'duplicate';
+	value: string;
+};
+
 export const ProjectSelectPage: React.FC<Props> = ( { onSelectProject } ) => {
 
 	const [ projects, setProjects ] = useState<string[]>( [] );
 	const [ newName, setNewName ] = useState( '' );
 	const [ loading, setLoading ] = useState( true );
 	const [ menuOpen, setMenuOpen ] = useState<string | null>( null );
-	const [ renaming, setRenaming ] = useState<string | null>( null );
-	const [ renameValue, setRenameValue ] = useState( '' );
-	const [ duplicating, setDuplicating ] = useState<string | null>( null );
-	const [ duplicateValue, setDuplicateValue ] = useState( '' );
+	const [ editing, setEditing ] = useState<EditingState | null>( null );
 	const menuRef = useRef<HTMLDivElement>( null );
+	const escapePressedRef = useRef( false );
 
 	const fetchProjects = () => {
 
@@ -135,12 +139,7 @@ export const ProjectSelectPage: React.FC<Props> = ( { onSelectProject } ) => {
 
 		const trimmed = newName.trim();
 
-		if ( ! trimmed || trimmed === oldName ) {
-
-			setRenaming( null );
-			return;
-
-		}
+		if ( ! trimmed || trimmed === oldName ) return;
 
 		const res = await fetch( `/api/projects/${encodeURIComponent( oldName )}`, {
 			method: 'PUT',
@@ -159,20 +158,13 @@ export const ProjectSelectPage: React.FC<Props> = ( { onSelectProject } ) => {
 
 		}
 
-		setRenaming( null );
-
 	};
 
 	const duplicateProject = async ( name: string, newName: string ) => {
 
 		const trimmed = newName.trim();
 
-		if ( ! trimmed ) {
-
-			setDuplicating( null );
-			return;
-
-		}
+		if ( ! trimmed ) return;
 
 		const res = await fetch( `/api/projects/${encodeURIComponent( name )}/duplicate`, {
 			method: 'POST',
@@ -191,23 +183,40 @@ export const ProjectSelectPage: React.FC<Props> = ( { onSelectProject } ) => {
 
 		}
 
-		setDuplicating( null );
+	};
+
+	const startEdit = ( project: string, mode: 'rename' | 'duplicate' ) => {
+
+		setMenuOpen( null );
+		setEditing( {
+			project,
+			mode,
+			value: mode === 'rename' ? project : project + '_copy',
+		} );
 
 	};
 
-	const startRename = ( name: string ) => {
+	const commitEdit = async () => {
 
-		setMenuOpen( null );
-		setRenaming( name );
-		setRenameValue( name );
+		if ( ! editing ) return;
+
+		if ( editing.mode === 'rename' ) {
+
+			await renameProject( editing.project, editing.value );
+
+		} else {
+
+			await duplicateProject( editing.project, editing.value );
+
+		}
+
+		setEditing( null );
 
 	};
 
-	const startDuplicate = ( name: string ) => {
+	const cancelEdit = () => {
 
-		setMenuOpen( null );
-		setDuplicating( name );
-		setDuplicateValue( name + '_copy' );
+		setEditing( null );
 
 	};
 
@@ -240,34 +249,37 @@ export const ProjectSelectPage: React.FC<Props> = ( { onSelectProject } ) => {
 					<div className={style.projectList}>
 						{projects.map( project => (
 						<div key={project} className={style.projectItem}>
-							{renaming === project ? (
+							{editing?.project === project ? (
 								<input
 									className={style.renameInput}
-									value={renameValue}
-									onChange={e => setRenameValue( e.target.value )}
+									value={editing.value}
+									onChange={e => setEditing( { ...editing, value: e.target.value } )}
 									onKeyDown={e => {
 
-										if ( e.key === 'Enter' ) renameProject( project, renameValue );
-										if ( e.key === 'Escape' ) setRenaming( null );
+										if ( e.key === 'Enter' ) e.currentTarget.blur();
+										if ( e.key === 'Escape' ) {
+
+											escapePressedRef.current = true;
+											e.currentTarget.blur();
+
+										}
 
 									}}
-									onBlur={() => setRenaming( null )}
-									autoFocus
-								/>
-							) : duplicating === project ? (
-								<input
-									className={style.renameInput}
-									value={duplicateValue}
-									onChange={e => setDuplicateValue( e.target.value )}
-									onKeyDown={e => {
+									onBlur={() => {
 
-										if ( e.key === 'Enter' ) duplicateProject( project, duplicateValue );
-										if ( e.key === 'Escape' ) setDuplicating( null );
+										if ( escapePressedRef.current ) {
+
+											escapePressedRef.current = false;
+											cancelEdit();
+											return;
+
+										}
+
+										commitEdit();
 
 									}}
-									onBlur={() => setDuplicating( null )}
 									autoFocus
-									placeholder="New name"
+									placeholder={editing.mode === 'duplicate' ? 'New name' : undefined}
 								/>
 							) : (
 								<>
@@ -282,8 +294,8 @@ export const ProjectSelectPage: React.FC<Props> = ( { onSelectProject } ) => {
 							)}
 							{menuOpen === project && (
 								<div className={style.menu} ref={menuRef}>
-									<div className={style.menuItem} onClick={() => startRename( project )}>Rename</div>
-									<div className={style.menuItem} onClick={() => startDuplicate( project )}>Duplicate</div>
+									<div className={style.menuItem} onClick={() => startEdit( project, 'rename' )}>Rename</div>
+									<div className={style.menuItem} onClick={() => startEdit( project, 'duplicate' )}>Duplicate</div>
 									<div className={style.menuItemDanger} onClick={() => deleteProject( project )}>Delete</div>
 								</div>
 							)}
