@@ -81,6 +81,185 @@ projectsRouter.get( '/projects', ( _req, res ) => {
 
 } );
 
+// --- Validation ---
+
+const validateProjectName = ( name: unknown ): string | null => {
+
+	if ( !name || typeof name !== 'string' ) return 'Project name is required';
+	if ( name.includes( '..' ) || name.includes( '/' ) || name.includes( '\\' ) ) return 'Invalid project name';
+	return null;
+
+};
+
+// --- Project Delete ---
+
+projectsRouter.delete( '/projects/:name', async ( req, res ) => {
+
+	try {
+
+		const { name } = req.params;
+		const projectDir = path.join( PROJECTS_DIR, name );
+
+		if ( !fs.existsSync( projectDir ) ) {
+
+			res.status( 404 ).json( { error: 'Project not found' } );
+			return;
+
+		}
+
+		try {
+
+			const active = fs.readFileSync( ACTIVE_FILE, 'utf-8' ).trim();
+
+			if ( active === name ) {
+
+				res.status( 400 ).json( { error: 'Cannot delete active project' } );
+				return;
+
+			}
+
+		} catch {}
+
+		await fs.promises.rm( projectDir, { recursive: true } );
+		res.json( { success: true } );
+
+	} catch ( err ) {
+
+		console.error( 'Failed to delete project:', err );
+		res.status( 500 ).json( { error: 'Failed to delete project' } );
+
+	}
+
+} );
+
+// --- Project Rename ---
+
+projectsRouter.put( '/projects/:name', async ( req, res ) => {
+
+	try {
+
+		const { name } = req.params;
+		const { newName } = req.body;
+
+		const err = validateProjectName( newName );
+
+		if ( err ) {
+
+			res.status( 400 ).json( { error: err } );
+			return;
+
+		}
+
+		const oldDir = path.join( PROJECTS_DIR, name );
+		const newDir = path.join( PROJECTS_DIR, newName );
+
+		if ( !fs.existsSync( oldDir ) ) {
+
+			res.status( 404 ).json( { error: 'Project not found' } );
+			return;
+
+		}
+
+		if ( fs.existsSync( newDir ) ) {
+
+			res.status( 409 ).json( { error: 'Project already exists' } );
+			return;
+
+		}
+
+		await fs.promises.rename( oldDir, newDir );
+
+		const sceneFile = path.join( newDir, 'scene.json' );
+
+		if ( fs.existsSync( sceneFile ) ) {
+
+			const scene = JSON.parse( fs.readFileSync( sceneFile, 'utf-8' ) );
+			scene.name = newName;
+			fs.writeFileSync( sceneFile, JSON.stringify( scene, null, '\t' ) + '\n' );
+
+		}
+
+		try {
+
+			const active = fs.readFileSync( ACTIVE_FILE, 'utf-8' ).trim();
+
+			if ( active === name ) {
+
+				fs.writeFileSync( ACTIVE_FILE, newName );
+
+			}
+
+		} catch {}
+
+		res.json( { name: newName } );
+
+	} catch ( err ) {
+
+		console.error( 'Failed to rename project:', err );
+		res.status( 500 ).json( { error: 'Failed to rename project' } );
+
+	}
+
+} );
+
+// --- Project Duplicate ---
+
+projectsRouter.post( '/projects/:name/duplicate', async ( req, res ) => {
+
+	try {
+
+		const { name } = req.params;
+		const { newName } = req.body;
+
+		const err = validateProjectName( newName );
+
+		if ( err ) {
+
+			res.status( 400 ).json( { error: err } );
+			return;
+
+		}
+
+		const srcDir = path.join( PROJECTS_DIR, name );
+		const destDir = path.join( PROJECTS_DIR, newName );
+
+		if ( !fs.existsSync( srcDir ) ) {
+
+			res.status( 404 ).json( { error: 'Project not found' } );
+			return;
+
+		}
+
+		if ( fs.existsSync( destDir ) ) {
+
+			res.status( 409 ).json( { error: 'Project already exists' } );
+			return;
+
+		}
+
+		await fs.promises.cp( srcDir, destDir, { recursive: true } );
+
+		const sceneFile = path.join( destDir, 'scene.json' );
+
+		if ( fs.existsSync( sceneFile ) ) {
+
+			const scene = JSON.parse( fs.readFileSync( sceneFile, 'utf-8' ) );
+			scene.name = newName;
+			fs.writeFileSync( sceneFile, JSON.stringify( scene, null, '\t' ) + '\n' );
+
+		}
+
+		res.status( 201 ).json( { name: newName } );
+
+	} catch ( err ) {
+
+		console.error( 'Failed to duplicate project:', err );
+		res.status( 500 ).json( { error: 'Failed to duplicate project' } );
+
+	}
+
+} );
+
 // --- Project Creation ---
 
 const GLOBALS_TEMPLATE = `export { canvas, gl, power, globalUniforms } from '~/ts/Globals';
@@ -156,16 +335,11 @@ projectsRouter.post( '/projects', ( req, res ) => {
 
 		const { name } = req.body;
 
-		if ( !name || typeof name !== 'string' ) {
+		const validationError = validateProjectName( name );
 
-			res.status( 400 ).json( { error: 'Project name is required' } );
-			return;
+		if ( validationError ) {
 
-		}
-
-		if ( name.includes( '..' ) || name.includes( '/' ) || name.includes( '\\' ) ) {
-
-			res.status( 400 ).json( { error: 'Invalid project name' } );
+			res.status( 400 ).json( { error: validationError } );
 			return;
 
 		}
