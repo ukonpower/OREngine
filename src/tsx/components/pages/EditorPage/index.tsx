@@ -1,10 +1,11 @@
 import * as MXP from 'maxpower';
 import { OREditor, OREngine } from "orengine/react";
-import { OREngineProjectData } from "packages/orengine/ts/Engine/ProjectSerializer";
+import { OREngineProjectData } from "orengine";
 import { useEffect, useState } from "react";
 
 import { gl } from "~/ts/Globals";
 import { initResouces } from "~project/index";
+import { MIDIMIX } from "~/ts/Resources/Components/_Samples/MIDI/MIDIMIX";
 
 initResouces();
 
@@ -46,7 +47,7 @@ export const EditorPage = () => {
 
 	return (
 		<OREngine gl={gl} project={projectData} >
-			<OREditor editorData={editorData} onSave={( projectData, editorData ) => {
+			<OREditor editorData={editorData} midiMixController={MIDIMIX} onSave={( projectData, editorData ) => {
 
 				fetch( `/api/projects/${projectName}/scene`, {
 					method: "POST",

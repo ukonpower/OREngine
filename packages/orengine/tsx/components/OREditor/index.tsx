@@ -13,7 +13,7 @@ import { PanelContainer } from '../PanelContainer';
 import { EntityProperty } from '../Panels/EntityProperty';
 import { Timer } from '../Panels/GPUTimer';
 import { Hierarchy } from '../Panels/Hierarchy';
-import { MIDIMIXEmu } from '../Panels/MIDIMIXEmu';
+import { MIDIMIXController, MIDIMIXEmu } from '../Panels/MIDIMIXEmu';
 import { ProjectControl } from '../Panels/ProjectControl';
 import { Screen } from '../Panels/Screen';
 import { Timeline } from '../Panels/Timeline';
@@ -24,7 +24,7 @@ import style from './index.module.scss';
 
  type OREditorSaveCallback = ( projectData: OREngineProjectData, editorData: MXP.SerializeField ) => void
 
-export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP.SerializeField }> = ( props ) => {
+export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP.SerializeField, midiMixController?: MIDIMIXController }> = ( props ) => {
 
 	const editorContext = useOREditorContext( );
 
@@ -97,9 +97,9 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 							<Panel title='Timeline' noPadding>
 								<Timeline />
 							</Panel>
-							<Panel title='MIDIMIXEmu'>
-								<MIDIMIXEmu />
-							</Panel>
+							{props.midiMixController && <Panel title='MIDIMIXEmu'>
+								<MIDIMIXEmu controller={props.midiMixController}/>
+							</Panel>}
 						</PanelContainer>
 					</div>
 				</div>
@@ -150,9 +150,9 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 									<Timeline />
 								</ErrorBoundary>
 							</Panel>
-							<Panel title='MIDIMIXEmu'>
-								<MIDIMIXEmu />
-							</Panel>
+							{props.midiMixController && <Panel title='MIDIMIXEmu'>
+								<MIDIMIXEmu controller={props.midiMixController}/>
+							</Panel>}
 						</PanelContainer>
 					</div>
 				</div>
