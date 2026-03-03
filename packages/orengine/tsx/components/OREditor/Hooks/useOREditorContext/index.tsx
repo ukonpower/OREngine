@@ -4,7 +4,7 @@ import { Editor } from "../../../../../ts/Editor";
 import { useOREngine } from "../../../../hooks/useOREngine";
 
 
-export const useOREditorContext = ( ) => {
+export const useOREditorContext = ( projectName?: string ) => {
 
 	const { engine } = useOREngine();
 
@@ -35,7 +35,8 @@ export const useOREditorContext = ( ) => {
 
 	return {
 		engine,
-		editor
+		editor,
+		projectName,
 	};
 
 };

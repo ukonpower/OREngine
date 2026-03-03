@@ -245,69 +245,9 @@ projectsRouter.post( '/projects/:name/duplicate', async ( req, res ) => {
 const GLOBALS_TEMPLATE = `export { canvas, gl, power, globalUniforms } from '~/ts/Globals';
 `;
 
-const INDEX_TEMPLATE = `
-import * as MXP from 'maxpower';
-import { ComponentGroup, Engine } from 'orengine';
-
-import { COMPONENTLIST } from './_generated/componentList';
-
-type ComponentLIst = {
-	[key: string]: ( ComponentLIst | ( typeof MXP.Component ) )
-};
-
-export const initResouces = () => {
-
-	/*-------------------------------
-		Components
-	-------------------------------*/
-
-	Engine.resources.clear();
-
-	const _ = ( list: ComponentLIst, group: ComponentGroup ) => {
-
-		const keys = Object.keys( list );
-
-		for ( let i = 0; i < keys.length; i ++ ) {
-
-			const name = keys[ i ];
-			const value = list[ name ];
-
-			if ( typeof value == "function" ) {
-
-				group.addComponent( name, value );
-
-			} else {
-
-				const newGroup = group.createGroup( name );
-
-				_( value, newGroup );
-
-			}
-
-		}
-
-	};
-
-	const light = Engine.resources.addComponentGroup( "Light" );
-	light.addComponent( "Light", MXP.Light );
-
-	const rootKeys = Object.keys( COMPONENTLIST );
-
-	for ( let i = 0; i < rootKeys.length; i ++ ) {
-
-		const name = rootKeys[ i ];
-		const value = COMPONENTLIST[ name ];
-
-		const group = Engine.resources.addComponentGroup( name );
-
-		_( value, group );
-
-	}
-
-};
+const INDEX_TEMPLATE = `export { initResouces } from '~/ts/Resources';
 `;
 
-const COMPONENTLIST_TEMPLATE = `export const COMPONENTLIST: {[key: string]: any} = {\n};\n`;
 
 projectsRouter.post( '/projects', ( req, res ) => {
 
@@ -333,8 +273,7 @@ projectsRouter.post( '/projects', ( req, res ) => {
 
 		}
 
-		fs.mkdirSync( path.join( projectDir, 'components' ), { recursive: true } );
-		fs.mkdirSync( path.join( projectDir, '_generated' ), { recursive: true } );
+		fs.mkdirSync( projectDir, { recursive: true } );
 
 		const defaultScene = {
 			scene: {
@@ -372,11 +311,6 @@ projectsRouter.post( '/projects', ( req, res ) => {
 		fs.writeFileSync(
 			path.join( projectDir, 'index.ts' ),
 			INDEX_TEMPLATE
-		);
-
-		fs.writeFileSync(
-			path.join( projectDir, '_generated', 'componentList.ts' ),
-			COMPONENTLIST_TEMPLATE
 		);
 
 		res.status( 201 ).json( { name, path: projectDir } );

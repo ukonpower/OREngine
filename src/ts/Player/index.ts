@@ -3,7 +3,7 @@ import { Engine } from 'orengine';
 
 import SceneData from '~project/scene.json';
 import { initResouces } from '~project/index';
-import { BLidgeClient } from '~project/components/Utilities/BLidgeClient';
+import { BLidgeClient } from '~/ts/Resources/Components/Utilities/BLidgeClient';
 
 import { gl } from '~/ts/Globals';
 

@@ -10,6 +10,7 @@ import { MouseMenuContext } from '../MouseMenu/Context/MouseMenuContext';
 import { useMouseMenuContext } from '../MouseMenu/Hooks/useMouseMenuContext';
 import { Panel } from '../Panel';
 import { PanelContainer } from '../PanelContainer';
+import { ComponentExplorer } from '../Panels/ComponentExplorer';
 import { EntityProperty } from '../Panels/EntityProperty';
 import { Timer } from '../Panels/GPUTimer';
 import { Hierarchy } from '../Panels/Hierarchy';
@@ -24,9 +25,9 @@ import style from './index.module.scss';
 
  type OREditorSaveCallback = ( projectData: OREngineProjectData, editorData: MXP.SerializeField ) => void
 
-export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP.SerializeField, midiMixController?: MIDIMIXController }> = ( props ) => {
+export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP.SerializeField, projectName?: string, midiMixController?: MIDIMIXController }> = ( props ) => {
 
-	const editorContext = useOREditorContext( );
+	const editorContext = useOREditorContext( props.projectName );
 
 	useEffect( () => {
 
@@ -67,6 +68,9 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 								<PanelContainer>
 									<Panel title='Scene'>
 										<Hierarchy />
+									</Panel>
+									<Panel title='Components'>
+										<ComponentExplorer />
 									</Panel>
 									<Panel title='Project'>
 										<ProjectControl />
@@ -121,6 +125,9 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 								<PanelContainer>
 									<Panel title='Scene'>
 										<Hierarchy />
+									</Panel>
+									<Panel title='Components'>
+										<ComponentExplorer />
 									</Panel>
 									<Panel title='Project'>
 										<ProjectControl />

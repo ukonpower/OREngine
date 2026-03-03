@@ -47,7 +47,7 @@ export const EditorPage = () => {
 
 	return (
 		<OREngine gl={gl} project={projectData} >
-			<OREditor editorData={editorData} midiMixController={MIDIMIX} onSave={( projectData, editorData ) => {
+			<OREditor editorData={editorData} projectName={projectName} midiMixController={MIDIMIX} onSave={( projectData, editorData ) => {
 
 				fetch( `/api/projects/${projectName}/scene`, {
 					method: "POST",

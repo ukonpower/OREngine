@@ -1,0 +1,45 @@
+@use '../../../../styles' as *;
+
+.item {
+	display: flex;
+	align-items: center;
+	height: 22px;
+	padding-left: 4px;
+	cursor: pointer;
+	font-size: $fontSize2;
+	color: $fontCol2;
+
+	&:hover {
+		background-color: $bgCol2;
+	}
+
+	&[data-selected="true"] {
+		background-color: $bgCol3;
+	}
+}
+
+.name {
+	flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.menu {
+	width: 24px;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: $fontSize2;
+	color: $fontCol3;
+	opacity: 0;
+
+	.item:hover & {
+		opacity: 1;
+	}
+
+	&:hover {
+		color: $fontCol1;
+	}
+}

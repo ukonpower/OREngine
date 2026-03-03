@@ -48,6 +48,7 @@ export class Resources extends GLP.EventEmitter {
                 this._componentList = [];
                 this._componentGroups = [];
                 this._textures.clear();
+                this.emit( "update" );
 
 	}
 
@@ -104,6 +105,8 @@ export class Resources extends GLP.EventEmitter {
 		group = createGroup( groupName );
 
                 this._componentGroups.push( group );
+
+                this.emit( "update" );
 
 		return group;
 
