@@ -3,6 +3,8 @@ import React from 'react';
 
 import { Button } from '../Button';
 import { InputBoolean } from '../Input/InputCheckBox';
+import { InputComponentRef } from '../Input/InputComponentRef';
+import { InputEntityRef } from '../Input/InputEntityRef';
 import { InputNumber } from '../Input/InputNumber';
 import { InputSelect } from '../Input/InputSelect';
 import { InputText } from '../Input/InputText';
@@ -39,11 +41,17 @@ export const Value = <T extends SerializeFieldObjective>( props : ValueProps<T> 
 
 	};
 
-	if ( value === undefined || value === null ) return null;
-
 	if ( format ) {
 
-		if ( format.type == "vector" && Array.isArray( value ) ) {
+		if ( format.type == "entity" ) {
+
+			inputElm = <InputEntityRef value={value as string | null} onChange={onChangeValue} />;
+
+		} else if ( format.type == "component" ) {
+
+			inputElm = <InputComponentRef value={value as string | null} onChange={onChangeValue} />;
+
+		} else if ( format.type == "vector" && Array.isArray( value ) ) {
 
 			inputElm = <Vector value={value as number[]} onChange={onChangeValue} />;
 
@@ -54,6 +62,8 @@ export const Value = <T extends SerializeFieldObjective>( props : ValueProps<T> 
 		}
 
 	}
+
+	if ( value === undefined || value === null ) return inputElm;
 
 	if ( ! inputElm ) {
 

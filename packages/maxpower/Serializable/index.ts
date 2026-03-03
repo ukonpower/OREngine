@@ -17,7 +17,15 @@ interface SerializeFieldFormatArray {
 	labels?: ( value: SerializeFieldValue, index: number ) => string
 }
 
-export type SerializableFieldFormat = SerializeFieldFormatVector | SerializeFieldFormatSelect | SerializeFieldFormatArray
+interface SerializeFieldFormatEntity {
+	type: "entity",
+}
+
+interface SerializeFieldFormatComponent {
+	type: "component",
+}
+
+export type SerializableFieldFormat = SerializeFieldFormatVector | SerializeFieldFormatSelect | SerializeFieldFormatArray | SerializeFieldFormatEntity | SerializeFieldFormatComponent
 
 export type SerializableFieldOpt = {
         isFolder?: boolean,
@@ -74,6 +82,14 @@ export class Serializable extends GLP.EventEmitter {
 		this.fields_ = new Map();
 
 		this.initiator = 'script';
+
+	}
+
+	public restoreUUID( uuid: string ) {
+
+		( this as { uuid: string } ).uuid = uuid;
+
+		GLP.ID.advanceCounter( uuid );
 
 	}
 
