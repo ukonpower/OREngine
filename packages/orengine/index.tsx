@@ -5,4 +5,5 @@ export * from "./ts/Engine/Keyboard";
 export * from "./ts/Engine/Pointer";
 export * from "./ts/Engine/Modeler";
 export * from "./ts/Engine/Resources";
+export * from "./ts/Engine/ProjectSerializer";
 
