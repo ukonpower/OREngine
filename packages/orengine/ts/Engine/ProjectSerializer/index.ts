@@ -15,6 +15,7 @@ export type ComponentResolver = {
 
 export interface OREngineDataEntityOverrideComponent {
 	name: string,
+	uuid: string,
 	props?: {[key:string]: any} | undefined
 }
 
@@ -25,6 +26,7 @@ export interface OREngineDataEntityOverride {
 
 export interface OREngineDataEntity {
 	name: string,
+	uuid: string,
 	pos?: number[],
 	rot?: number[],
 	scale?: number[],
@@ -72,6 +74,7 @@ export class ProjectSerializer {
 
 			return {
 				name: entity.name,
+				uuid: entity.uuid,
 				pos: entity.position.x == 0 && entity.position.y == 0 && entity.position.z == 0 ? undefined : entity.position.getElm( "vec3" ),
 				rot: entity.euler.x == 0 && entity.euler.y == 0 && entity.euler.z == 0 ? undefined : entity.euler.getElm( "vec3" ),
 				scale: entity.scale.x == 1 && entity.scale.y == 1 && entity.scale.z == 1 ? undefined : entity.scale.getElm( "vec3" ),
@@ -103,8 +106,9 @@ export class ProjectSerializer {
 				const exportFields: MXP.SerializeField = c.serialize( { mode: "export" } );
 				const hasFields = Object.keys( exportFields ).length > 0;
 
-				const value: {name: string, props?: MXP.SerializeField} = {
-					name: resolver.getName( c )
+				const value: OREngineDataEntityOverrideComponent = {
+					name: resolver.getName( c ),
+					uuid: c.uuid,
 				};
 
 				if ( ! hasFields && c.initiator !== "user" ) {
@@ -172,6 +176,8 @@ export class ProjectSerializer {
 
 						}
 
+						component.restoreUUID( c.uuid );
+
 						if ( c.props ) {
 
 							component.deserialize( c.props );
@@ -195,6 +201,7 @@ export class ProjectSerializer {
 			const entity = target || new MXP.Entity();
 			entity.initiator = "user";
 			entity.name = node.name;
+			entity.restoreUUID( node.uuid );
 
 			const pos = node.pos || [ 0, 0, 0 ];
 			entity.position.x = pos[ 0 ];
