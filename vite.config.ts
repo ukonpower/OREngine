@@ -47,7 +47,8 @@ export default defineConfig( {
 		ProjectResolver(),
 		ShaderMinifierLoader(),
 		ResourceManager( {
-			projectsDir: './projects/',
+			componentsDir: './src/ts/Resources/Components/',
+			outputFile: './src/ts/Resources/_data/componentList.ts',
 		} ),
 	],
 	define: {
