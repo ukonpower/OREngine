@@ -312,12 +312,22 @@ export class Editor extends MXP.Serializable {
 			this._editorCamera.needsUpdateProjectionMatrix = true;
 
 			this._editorCameraEntity.update( event );
+			this._editorCameraEntity.onBeforeRender( event );
 
 		}
 
 		// update
 
 		this._engine.update();
+
+		// editor camera afterRender
+
+		if ( this._useEditorCamera ) {
+
+			const event = this._engine.createEntityUpdateEvent();
+			this._editorCameraEntity.onAfterRender( event );
+
+		}
 
 		// window
 
