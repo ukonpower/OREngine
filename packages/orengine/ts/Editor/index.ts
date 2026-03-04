@@ -58,6 +58,7 @@ export class Editor extends MXP.Serializable {
 		this._useEditorCamera = true;
 		this._cameraMode = "scene";
 		engine.cameraEntity = this._editorCameraEntity;
+		engine.renderer.setOverride( { motionBlur: false } );
 		this._syncEditorCameraFromScene();
 
 		const onPointerDown = ( e: PointerEvent ) => {
@@ -215,12 +216,14 @@ export class Editor extends MXP.Serializable {
 				engine.cameraEntity = this._editorCameraEntity;
 				this._orbitControls.enabled = true;
 				this._useEditorCamera = true;
+				engine.renderer.setOverride( { motionBlur: false } );
 
 			} else {
 
 				engine.cameraEntity = null;
 				this._orbitControls.enabled = false;
 				this._useEditorCamera = false;
+				engine.renderer.clearOverrides();
 
 			}
 

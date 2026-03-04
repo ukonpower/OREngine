@@ -5,6 +5,7 @@ import { Geometry } from '../../Geometry';
 import { PlaneGeometry } from '../../Geometry/PlaneGeometry';
 import { MaterialRenderType, Material } from '../../Material';
 import { PostProcess } from '../../PostProcess';
+import { Serializable } from '../../Serializable';
 import { shaderParse } from "../../Utils/ShaderParser";
 import { Camera } from '../Camera';
 import { Light, LightType } from '../Light';
@@ -98,15 +99,28 @@ interface CompileDrawParam {
 	param: DrawParam;
 }
 
+// pipeline config
+
+export type PipelineConfig = {
+	motionBlur?: boolean;
+	ssr?: boolean;
+	ssao?: boolean;
+	lightShaft?: boolean;
+};
+
 // texture unit
 
 export let TextureUnitCounter = 0;
 
-export class Renderer extends Entity {
+export class Renderer extends Serializable {
 
 	public gl: WebGL2RenderingContext;
 	public resolution: GLP.Vector;
 	private _renderTarget: RenderCameraTarget;
+
+	// pipeline config
+	private _pipelineConfig: Required<PipelineConfig>;
+	private _overrides: Partial<PipelineConfig>;
 	private _extDisJointTimerQuery: any;
 
 	// program
@@ -158,7 +172,7 @@ export class Renderer extends Entity {
 
 	constructor( gl: WebGL2RenderingContext ) {
 
-		super( { name: "Renderer" } );
+		super();
 
 		this.gl = gl;
 
@@ -260,6 +274,43 @@ export class Renderer extends Entity {
 		// render target
 
 		this._renderTarget = Renderer.createRenderTarget( gl );
+
+		// pipeline config
+
+		this._pipelineConfig = {
+			motionBlur: true,
+			ssr: true,
+			ssao: true,
+			lightShaft: true,
+		};
+
+		this._overrides = {};
+
+		const pipeline = this.fieldDir( "pipeline" );
+		pipeline.field( "motionBlur", () => this._pipelineConfig.motionBlur, ( v: boolean ) => {
+
+			this._pipelineConfig.motionBlur = v;
+			this._applyEffectiveConfig();
+
+		} );
+		pipeline.field( "ssr", () => this._pipelineConfig.ssr, ( v: boolean ) => {
+
+			this._pipelineConfig.ssr = v;
+			this._applyEffectiveConfig();
+
+		} );
+		pipeline.field( "ssao", () => this._pipelineConfig.ssao, ( v: boolean ) => {
+
+			this._pipelineConfig.ssao = v;
+			this._applyEffectiveConfig();
+
+		} );
+		pipeline.field( "lightShaft", () => this._pipelineConfig.lightShaft, ( v: boolean ) => {
+
+			this._pipelineConfig.lightShaft = v;
+			this._applyEffectiveConfig();
+
+		} );
 
 	}
 
@@ -1265,6 +1316,45 @@ export class Renderer extends Entity {
 			} );
 
 		}
+
+	}
+
+	public applyPipelineConfig( config: PipelineConfig ): void {
+
+		this._deferredRenderer.setPassEnabled( {
+			ssao: config.ssao,
+			lightShaft: config.lightShaft,
+		} );
+		this._pipelinePostProcess.setPassEnabled( {
+			motionBlur: config.motionBlur,
+			ssr: config.ssr,
+		} );
+
+	}
+
+	public setOverride( config: Partial<PipelineConfig> ): void {
+
+		this._overrides = { ...this._overrides, ...config };
+		this._applyEffectiveConfig();
+
+	}
+
+	public clearOverrides(): void {
+
+		this._overrides = {};
+		this._applyEffectiveConfig();
+
+	}
+
+	private _applyEffectiveConfig(): void {
+
+		const effective: PipelineConfig = {
+			motionBlur: this._overrides.motionBlur ?? this._pipelineConfig.motionBlur,
+			ssr: this._overrides.ssr ?? this._pipelineConfig.ssr,
+			ssao: this._overrides.ssao ?? this._pipelineConfig.ssao,
+			lightShaft: this._overrides.lightShaft ?? this._pipelineConfig.lightShaft,
+		};
+		this.applyPipelineConfig( effective );
 
 	}
 

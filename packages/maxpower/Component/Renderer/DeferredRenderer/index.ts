@@ -34,6 +34,11 @@ type Params = {
 	envMapCube?: GLP.GLPowerTextureCube
 }
 
+export type DeferredRendererPassConfig = {
+	ssao?: boolean;
+	lightShaft?: boolean;
+};
+
 export class DeferredRenderer extends GLP.EventEmitter {
 
 	// uniforms
@@ -61,6 +66,7 @@ export class DeferredRenderer extends GLP.EventEmitter {
 	public rtSSAO2: GLP.GLPowerFrameBuffer;
 
 	public ssaoBlur: MXP.PostProcessPass;
+	public ssaoBlurV: MXP.PostProcessPass;
 	private ssaoBlurUni: GLP.Uniforms;
 
 	// shading
@@ -286,6 +292,7 @@ export class DeferredRenderer extends GLP.EventEmitter {
 		this.rtSSAO2 = rtSSAO2;
 
 		this.ssaoBlur = ssaoBlurH;
+		this.ssaoBlurV = ssaoBlurV;
 		this.ssaoBlurUni = ssaoBlurUni;
 
 		this.rtLightShaft1 = rtLightShaft1;
@@ -336,6 +343,24 @@ export class DeferredRenderer extends GLP.EventEmitter {
 		this.ssao.setRendertarget( this.rtSSAO1 );
 		this.ssaoBlur.uniforms.uSSAOTexture.value = this.rtSSAO1.textures[ 0 ];
 		this.ssao.uniforms.uSSAOBackBuffer.value = this.rtSSAO2.textures[ 0 ];
+
+	}
+
+	public setPassEnabled( config: DeferredRendererPassConfig ): void {
+
+		if ( config.ssao !== undefined ) {
+
+			this.ssao.enabled = config.ssao;
+			this.ssaoBlur.enabled = config.ssao;
+			this.ssaoBlurV.enabled = config.ssao;
+
+		}
+
+		if ( config.lightShaft !== undefined ) {
+
+			this.lightShaft.enabled = config.lightShaft;
+
+		}
 
 	}
 

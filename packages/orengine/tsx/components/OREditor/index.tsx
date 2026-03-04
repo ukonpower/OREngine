@@ -16,6 +16,7 @@ import { Timer } from '../Panels/GPUTimer';
 import { Hierarchy } from '../Panels/Hierarchy';
 import { MIDIMIXController, MIDIMIXEmu } from '../Panels/MIDIMIXEmu';
 import { ProjectControl } from '../Panels/ProjectControl';
+import { RendererSettings } from '../Panels/RendererSettings';
 import { Screen } from '../Panels/Screen';
 import { Timeline } from '../Panels/Timeline';
 
@@ -72,8 +73,11 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 									<Panel title='Components'>
 										<ComponentExplorer />
 									</Panel>
-									<Panel title='Project'>
+																		<Panel title='Project'>
 										<ProjectControl />
+									</Panel>
+									<Panel title='Renderer'>
+										<RendererSettings />
 									</Panel>
 								</PanelContainer>
 							</div>
@@ -129,8 +133,11 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 									<Panel title='Components'>
 										<ComponentExplorer />
 									</Panel>
-									<Panel title='Project'>
+																		<Panel title='Project'>
 										<ProjectControl />
+									</Panel>
+									<Panel title='Renderer'>
+										<RendererSettings />
 									</Panel>
 								</PanelContainer>
 							</div>

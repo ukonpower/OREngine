@@ -88,7 +88,8 @@ export const Screen = () => {
 							}}/>
 					</Label>
 				</div>
-				<div className={style.externalBtn}>
+
+			<div className={style.externalBtn}>
 					<Button onClick={() => {
 
 						editor.openInExternalWindow();
