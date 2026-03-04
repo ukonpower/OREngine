@@ -31,6 +31,7 @@ export class Engine extends MXP.Entity {
 	private _frame: FramePlay;
 	private _frameSetting: OREngineProjectFrame;
 	private _disposed: boolean;
+	private _cameraEntity: MXP.Entity | null;
 
 	constructor( gl: WebGL2RenderingContext ) {
 
@@ -96,6 +97,7 @@ export class Engine extends MXP.Entity {
 
 		this.seek( 0 );
 		this.enableRender = true;
+		this._cameraEntity = null;
 
 		// root
 
@@ -192,6 +194,18 @@ export class Engine extends MXP.Entity {
 
 	}
 
+	public set cameraEntity( entity: MXP.Entity | null ) {
+
+		this._cameraEntity = entity;
+
+	}
+
+	public get cameraEntity(): MXP.Entity | null {
+
+		return this._cameraEntity;
+
+	}
+
 	/*-------------------------------
 		ComponentResolver
 	-------------------------------*/
@@ -269,7 +283,13 @@ export class Engine extends MXP.Entity {
 
 		if ( this.enableRender ) {
 
-			this._renderer.render( this._root, event );
+			const camera = this._cameraEntity || this._findCameraEntity();
+
+			if ( camera ) {
+
+				this._renderer.render( this._root, camera, event );
+
+			}
 
 		}
 
@@ -357,7 +377,29 @@ export class Engine extends MXP.Entity {
 
 		const event = this.createEntityUpdateEvent( { forceDraw: true } );
 
-		return this.renderer.compileShaders( this._root, event, onProgress );
+		const camera = this._cameraEntity || this._findCameraEntity();
+
+		if ( ! camera ) return Promise.resolve();
+
+		return this.renderer.compileShaders( this._root, camera, event, onProgress );
+
+	}
+
+	private _findCameraEntity(): MXP.Entity | null {
+
+		let found: MXP.Entity | null = null;
+
+		this._root.traverse( ( entity ) => {
+
+			if ( entity.getComponentsByTag( "camera" ).length > 0 ) {
+
+				found = entity;
+
+			}
+
+		} );
+
+		return found;
 
 	}
 

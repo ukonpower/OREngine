@@ -4,6 +4,11 @@ import { Component, ComponentParams, ComponentUpdateEvent } from "..";
 
 export type CameraType = 'perspective' | 'orthographic'
 
+export type DofParams = {
+	focusDistance: number;
+	kFilmHeight: number;
+}
+
 export class Camera extends Component {
 
 	public cameraType: CameraType;
@@ -27,6 +32,8 @@ export class Camera extends Component {
 	public displayOut: boolean;
 
 	public viewPort: GLP.Vector | null;
+
+	public dofParams: DofParams;
 
 	constructor( params: ComponentParams ) {
 
@@ -52,6 +59,11 @@ export class Camera extends Component {
 
 		this.needsUpdateProjectionMatrix = true;
 		this.displayOut = true;
+
+		this.dofParams = {
+			focusDistance: 0.5,
+			kFilmHeight: 0.008,
+		};
 
 		if ( import.meta.env.DEV ) {
 

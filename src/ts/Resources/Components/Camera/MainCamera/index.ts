@@ -1,37 +1,23 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
+import { Engine } from 'orengine';
 
 import { ShakeViewer } from '../../ObjectControls/CameraShake';
-import { LookAt } from '../../ObjectControls/LookAt';
-import { OrbitControls } from '../../ObjectControls/OrbitControls';
+import { LookAt } from 'orengine';
 
 import { Bloom } from './PostProcess/Bloom';
 import { ColorGrading } from './PostProcess/ColorGrading';
 import { Finalize } from './PostProcess/Finalize';
 import { FXAA } from './PostProcess/FXAA';
 
-import { gl, globalUniforms, canvas } from '~/ts/Globals';
-
-const emitter = new GLP.EventEmitter();
-
-export const RenderCameraWaiter = new Promise<MXP.RenderCamera>( ( resolve ) => {
-
-	emitter.once( "createdCamera", ( camera: MXP.RenderCamera ) => {
-
-		resolve( camera );
-
-	} );
-
-} );
+import { gl, globalUniforms } from '~/ts/Globals';
 
 export class MainCamera extends MXP.Component {
 
-	public renderCamera: MXP.RenderCamera;
+	public camera: MXP.Camera;
 
 	private _commonUniforms: GLP.Uniforms;
-	private _renderTarget: MXP.RenderCameraTarget;
 	private _lookAt: LookAt;
-	private _orbitControls?: OrbitControls;
 	private postProcessPipeline: MXP.PostProcessPipeline;
 	private _resolution: GLP.Vector;
 	private _resolutionInv: GLP.Vector;
@@ -70,16 +56,16 @@ export class MainCamera extends MXP.Component {
 			Components
 		-------------------------------*/
 
-		this.renderCamera = this.entity.addComponent( MXP.RenderCamera, { gl: gl } );
-		this._renderTarget = this.renderCamera.renderTarget;
+		this.camera = this.entity.addComponent( MXP.Camera );
 		this._lookAt = this.entity.addComponent( LookAt );
 		this.entity.addComponent( ShakeViewer );
-
-		emitter.emit( "createdCamera", [ this.renderCamera ] );
 
 		/*-------------------------------
 			PostProcess
 		-------------------------------*/
+
+		const renderer = Engine.getInstance( gl ).renderer;
+		const renderTarget = renderer.renderTarget;
 
 		this.postProcessPipeline = this.entity.addComponent( MXP.PostProcessPipeline );
 
@@ -89,7 +75,7 @@ export class MainCamera extends MXP.Component {
 
 		// bloom
 
-		const bloom = this.postProcessPipeline.add( new Bloom( this.renderCamera.renderTarget.shadingBuffer.textures[ 0 ] ) );
+		const bloom = this.postProcessPipeline.add( new Bloom( renderTarget.shadingBuffer.textures[ 0 ] ) );
 		bloom.threshold = 1.0;
 		bloom.brightness = 1;
 
@@ -151,91 +137,8 @@ export class MainCamera extends MXP.Component {
 
 		} );
 
-
-		/*-------------------------------
-			DEV: OrbitControls
-		-------------------------------*/
-
-		if ( import.meta.env.DEV ) {
-
-			this._orbitControls = undefined;
-			this._orbitControls = this.entity.addComponent( OrbitControls );
-			this._orbitControls.setElm( canvas );
-			this._orbitControls.enabled = false;
-
-			const activeOrbitControls = ( activeOrbitcontrols: boolean ) => {
-
-				if ( this._orbitControls ) {
-
-					this._orbitControls.enabled = activeOrbitcontrols;
-
-				}
-
-				const blidger = this._entity.getComponent( MXP.BLidger );
-				const lookat = this._entity.getComponent( LookAt );
-
-				if ( blidger ) {
-
-					blidger.transformAutoUpdate = ! activeOrbitcontrols;
-
-				}
-
-				if ( lookat ) {
-
-					lookat.enabled = ! activeOrbitcontrols;
-
-				}
-
-			};
-
-			const onMouseDown = ( e: PointerEvent ) => {
-
-				if ( this._orbitControls && this._orbitControls.enabled ) return;
-
-				const elm = e.target as HTMLElement;
-
-				elm.setPointerCapture( e.pointerId );
-
-				activeOrbitControls( true );
-
-			};
-
-			const onWheel = () => {
-
-				if ( this._orbitControls && this._orbitControls.enabled ) return;
-
-				activeOrbitControls( true );
-
-			};
-
-			const onKeyDown = ( e: KeyboardEvent ) => {
-
-				if ( e.key === 'Escape' ) {
-
-					activeOrbitControls( false );
-
-				}
-
-			};
-
-			canvas.addEventListener( "pointerdown", onMouseDown );
-			canvas.addEventListener( "wheel", onWheel );
-			window.addEventListener( "keydown", onKeyDown );
-
-			const onDispose = () => {
-
-				canvas.removeEventListener( "pointerdown", onMouseDown );
-				canvas.removeEventListener( "wheel", onWheel );
-				window.removeEventListener( "keydown", onKeyDown );
-
-			};
-
-			this.once( "dispose", onDispose );
-
-		}
-
-		globalUniforms.gBuffer.uGBufferPos.value = this.renderCamera.gBuffer.textures[ 0 ];
-		globalUniforms.gBuffer.uGBufferNormal.value = this.renderCamera.gBuffer.textures[ 1 ];
+		globalUniforms.gBuffer.uGBufferPos.value = renderTarget.gBuffer.textures[ 0 ];
+		globalUniforms.gBuffer.uGBufferNormal.value = renderTarget.gBuffer.textures[ 1 ];
 
 		const root = this.entity.getRootEntity();
 
@@ -266,7 +169,7 @@ export class MainCamera extends MXP.Component {
 
 		}
 
-		this.renderCamera.dofParams.focusDistance = this._tmpVector1.sub( this._tmpVector2 ).length();
+		this.camera.dofParams.focusDistance = this._tmpVector1.sub( this._tmpVector2 ).length();
 
 	}
 
@@ -277,7 +180,8 @@ export class MainCamera extends MXP.Component {
 		this._resolution.copy( resolution );
 		this._resolutionInv.set( 1.0 / resolution.x, 1.0 / resolution.y, 0.0, 0.0 );
 
-		this.renderCamera.resize( this._resolution );
+		this.camera.aspect = this._resolution.x / this._resolution.y;
+		this.camera.needsUpdateProjectionMatrix = true;
 
 		this.postProcessPipeline.resize( resolution );
 
@@ -287,10 +191,9 @@ export class MainCamera extends MXP.Component {
 
 	private updateCameraParams() {
 
-		this.renderCamera.aspect = this._resolution.x / this._resolution.y;
-		this.renderCamera.near = 0.5;
-		this.renderCamera.far = 3000;
-		this.renderCamera.needsUpdateProjectionMatrix = true;
+		this.camera.near = 0.5;
+		this.camera.far = 3000;
+		this.camera.needsUpdateProjectionMatrix = true;
 
 	}
 

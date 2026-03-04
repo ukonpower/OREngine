@@ -12,7 +12,7 @@ export class CameraFloating extends MXP.Component {
 	private lookatStart: GLP.Vector;
 	private lookAtMove: GLP.Vector;
 
-	private cameraComponent: MXP.RenderCamera;
+	private cameraComponent: MXP.Camera;
 
 	constructor( params: MXP.ComponentParams ) {
 
@@ -60,7 +60,7 @@ export class CameraFloating extends MXP.Component {
 
 		// camera
 
-		this.cameraComponent = this.entity.getComponent( MXP.RenderCamera )!;
+		this.cameraComponent = this.entity.getComponent( MXP.Camera )!;
 
 	}
 

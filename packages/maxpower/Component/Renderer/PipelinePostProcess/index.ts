@@ -26,7 +26,8 @@ export class PipelinePostProcess {
 	private _dofParams: GLP.Vector;
 	private _motionBlur: MXP.PostProcessPass;
 	private _motionBlurTile: MXP.PostProcessPass;
-	private _renderCamera: MXP.RenderCamera | null;
+	private _camera: MXP.Camera | null;
+	private _renderTarget: MXP.RenderCameraTarget | null;
 
 	constructor( gl: WebGL2RenderingContext ) {
 
@@ -284,13 +285,14 @@ export class PipelinePostProcess {
 		this._dofParams = dofParams;
 		this.rtSSR1 = rtSSR1;
 		this.rtSSR2 = rtSSR2;
-		this._renderCamera = null;
+		this._camera = null;
+		this._renderTarget = null;
 
 	}
 
 	public update( event: MXP.EntityUpdateEvent ): void {
 
-		if ( ! this._renderCamera ) return;
+		if ( ! this._camera ) return;
 
 		// uniforms
 
@@ -298,9 +300,9 @@ export class PipelinePostProcess {
 
 		// dof params
 
-		const fov = this._renderCamera.fov;
-		const focusDistance = this._renderCamera.dofParams.focusDistance;
-		const kFilmHeight = this._renderCamera.dofParams.kFilmHeight;
+		const fov = this._camera.fov;
+		const focusDistance = this._camera.dofParams.focusDistance;
+		const kFilmHeight = this._camera.dofParams.kFilmHeight;
 		const flocalLength = kFilmHeight / Math.tan( 0.5 * ( fov / 180 * Math.PI ) );
 
 		const maxCoc = ( 1 / this.dofBokeh.renderTarget!.size.y ) * ( 5 );
@@ -327,13 +329,10 @@ export class PipelinePostProcess {
 
 	}
 
-	public setRenderCamera( renderCamera: MXP.RenderCamera ) {
+	public setRenderCamera( camera: MXP.Camera, renderTarget: MXP.RenderCameraTarget ) {
 
-		this._renderCamera = renderCamera;
-
-		const renderTarget = renderCamera.renderTarget;
-
-		if ( ! renderTarget ) return;
+		this._camera = camera;
+		this._renderTarget = renderTarget;
 
 		if ( this.postprocess.passes[ 0 ] ) {
 

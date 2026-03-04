@@ -7,7 +7,6 @@ import { MaterialRenderType, Material } from '../../Material';
 import { PostProcess } from '../../PostProcess';
 import { shaderParse } from "../../Utils/ShaderParser";
 import { Camera } from '../Camera';
-import { RenderCamera } from '../Camera/RenderCamera';
 import { Light, LightType } from '../Light';
 import { MaterialOverride } from '../MaterialOverride';
 import { Mesh } from '../Mesh';
@@ -18,11 +17,20 @@ import { PipelinePostProcess } from './PipelinePostProcess';
 import { PMREMRender } from './PMREMRender';
 import { ProgramManager } from './ProgramManager';
 
+// render target
+
+export type RenderCameraTarget = {
+	gBuffer: GLP.GLPowerFrameBuffer,
+	shadingBuffer: GLP.GLPowerFrameBuffer,
+	forwardBuffer: GLP.GLPowerFrameBuffer,
+	uiBuffer: GLP.GLPowerFrameBuffer,
+	normalBuffer: GLP.GLPowerFrameBuffer,
+}
+
 // render stack
 
 export type RenderStack = {
 	light: Entity[];
-	camera: Entity[];
 	envMap: Entity[];
 	shadowMap: Entity[];
 	deferred: Entity[];
@@ -98,6 +106,7 @@ export class Renderer extends Entity {
 
 	public gl: WebGL2RenderingContext;
 	public resolution: GLP.Vector;
+	private _renderTarget: RenderCameraTarget;
 	private _extDisJointTimerQuery: any;
 
 	// program
@@ -248,12 +257,69 @@ export class Renderer extends Entity {
 
 		this.gl.blendFunc( this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA );
 
+		// render target
+
+		this._renderTarget = Renderer.createRenderTarget( gl );
+
+	}
+
+	public get renderTarget() {
+
+		return this._renderTarget;
+
+	}
+
+	public static createRenderTarget( gl: WebGL2RenderingContext ): RenderCameraTarget {
+
+		const gBuffer = new GLP.GLPowerFrameBuffer( gl );
+		gBuffer.setTexture( [
+			new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA, magFilter: gl.NEAREST, minFilter: gl.NEAREST } ),
+			new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA } ),
+			new GLP.GLPowerTexture( gl ),
+			new GLP.GLPowerTexture( gl ),
+			new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA } ),
+		] );
+
+		const shadingBuffer = new GLP.GLPowerFrameBuffer( gl, { disableDepthBuffer: true } );
+		shadingBuffer.setTexture( [
+			new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA16F, format: gl.RGBA } ),
+			new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA16F, format: gl.RGBA } ),
+		] );
+
+		const forwardBuffer = new GLP.GLPowerFrameBuffer( gl, { disableDepthBuffer: true } );
+		forwardBuffer.setDepthTexture( gBuffer.depthTexture );
+		forwardBuffer.setTexture( [
+			shadingBuffer.textures[ 0 ],
+			gBuffer.textures[ 0 ],
+			gBuffer.textures[ 4 ],
+		] );
+
+		const uiBuffer = new GLP.GLPowerFrameBuffer( gl, { disableDepthBuffer: true } );
+		uiBuffer.setDepthTexture( gBuffer.depthTexture );
+		uiBuffer.setTexture( [ new GLP.GLPowerTexture( gl ) ] );
+
+		const normalBuffer = new GLP.GLPowerFrameBuffer( gl );
+		normalBuffer.setTexture( [
+			new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA, magFilter: gl.NEAREST, minFilter: gl.NEAREST } )
+		] );
+
+		return { gBuffer, shadingBuffer, forwardBuffer, uiBuffer, normalBuffer };
+
+	}
+
+	public static resizeRenderTarget( rt: RenderCameraTarget, resolution: GLP.Vector ) {
+
+		rt.gBuffer.setSize( resolution );
+		rt.shadingBuffer.setSize( resolution );
+		rt.forwardBuffer.setSize( resolution );
+		rt.uiBuffer.setSize( resolution );
+		rt.normalBuffer.setSize( resolution );
+
 	}
 
 	public getRenderStack( entity: Entity ) {
 
 		const stack: RenderStack = {
-			camera: [],
 			light: [],
 			deferred: [],
 			forward: [],
@@ -278,14 +344,6 @@ export class Renderer extends Entity {
 				if ( material.visibilityFlag.forward ) stack.forward.push( entity );
 				if ( material.visibilityFlag.ui ) stack.ui.push( entity );
 				if ( material.visibilityFlag.envMap ) stack.envMap.push( entity );
-
-			}
-
-			const camera = entity.getComponent( RenderCamera );
-
-			if ( camera && camera.enabled ) {
-
-				stack.camera.push( entity );
 
 			}
 
@@ -316,7 +374,7 @@ export class Renderer extends Entity {
 
 	}
 
-	public render( entity: Entity, event: EntityUpdateEvent ) {
+	public render( entity: Entity, cameraEntity: Entity, event: EntityUpdateEvent, renderTarget?: RenderCameraTarget ) {
 
 		entity.onBeforeRender( event );
 
@@ -463,20 +521,18 @@ export class Renderer extends Entity {
 
 		this._pmremRender.swap();
 
-		for ( let i = 0; i < stack.camera.length; i ++ ) {
+		const rt = renderTarget || this._renderTarget;
+		const cameraComponent = cameraEntity.getComponentsByTag<Camera>( "camera" )[ 0 ];
 
-			const cameraEntity = stack.camera[ i ];
-			const cameraComponent = cameraEntity.getComponent( RenderCamera )!;
+		if ( cameraComponent ) {
 
 			// deferred
 
 			this.gl.disable( this.gl.BLEND );
 
-			if ( ! cameraComponent.renderTarget ) continue;
+			this.renderCamera( "deferred", cameraEntity, stack.deferred, rt.gBuffer, this.resolution );
 
-			this.renderCamera( "deferred", cameraEntity, stack.deferred, cameraComponent.renderTarget.gBuffer, this.resolution );
-
-			this._deferredRenderer.setRenderCamera( cameraComponent );
+			this._deferredRenderer.setRenderCamera( cameraComponent, rt );
 
 			this.renderPostProcess( this._deferredRenderer.postprocess, undefined, this.resolution, { cameraOverride: {
 				viewMatrix: cameraComponent.viewMatrix,
@@ -492,14 +548,14 @@ export class Renderer extends Entity {
 
 			this.gl.enable( this.gl.BLEND );
 
-			this.renderCamera( "forward", cameraEntity, stack.forward, cameraComponent.renderTarget.forwardBuffer, this.resolution, {
+			this.renderCamera( "forward", cameraEntity, stack.forward, rt.forwardBuffer, this.resolution, {
 				uniformOverride: {
 					uDeferredTexture: {
-						value: cameraComponent.renderTarget.shadingBuffer.textures[ 1 ],
+						value: rt.shadingBuffer.textures[ 1 ],
 						type: '1i'
 					},
 					uDeferredResolution: {
-						value: cameraComponent.renderTarget.shadingBuffer.size,
+						value: rt.shadingBuffer.size,
 						type: '2fv'
 					},
 					uEnvMap: {
@@ -514,7 +570,7 @@ export class Renderer extends Entity {
 
 			// scene
 
-			this._pipelinePostProcess.setRenderCamera( cameraComponent );
+			this._pipelinePostProcess.setRenderCamera( cameraComponent, rt );
 
 			this.renderPostProcess( this._pipelinePostProcess.postprocess, undefined, this.resolution, { cameraOverride: {
 				viewMatrix: cameraComponent.viewMatrix,
@@ -559,7 +615,7 @@ export class Renderer extends Entity {
 			if ( backBuffer ) {
 
 				this.gl.bindFramebuffer( this.gl.READ_FRAMEBUFFER, backBuffer.getFrameBuffer() );
-				this.gl.bindFramebuffer( this.gl.DRAW_FRAMEBUFFER, cameraComponent.renderTarget.uiBuffer.getFrameBuffer() );
+				this.gl.bindFramebuffer( this.gl.DRAW_FRAMEBUFFER, rt.uiBuffer.getFrameBuffer() );
 
 				const size = backBuffer.size;
 
@@ -572,10 +628,10 @@ export class Renderer extends Entity {
 
 			this.gl.enable( this.gl.BLEND );
 
-			this.renderCamera( "forward", cameraEntity, stack.ui, cameraComponent.renderTarget.uiBuffer, this.resolution, {
+			this.renderCamera( "forward", cameraEntity, stack.ui, rt.uiBuffer, this.resolution, {
 				uniformOverride: {
 					uDeferredTexture: {
-						value: cameraComponent.renderTarget.shadingBuffer.textures[ 1 ],
+						value: rt.shadingBuffer.textures[ 1 ],
 						type: '1i'
 					} },
 				disableClear: true
@@ -583,19 +639,17 @@ export class Renderer extends Entity {
 
 			this.gl.disable( this.gl.BLEND );
 
-			if ( cameraComponent.displayOut ) {
+			// display out
 
-				const outBuffer = cameraComponent.renderTarget.uiBuffer;
+			const outBuffer = rt.uiBuffer;
 
-				this.gl.bindFramebuffer( this.gl.READ_FRAMEBUFFER, outBuffer === null ? null : outBuffer.getFrameBuffer() );
-				this.gl.bindFramebuffer( this.gl.DRAW_FRAMEBUFFER, null );
+			this.gl.bindFramebuffer( this.gl.READ_FRAMEBUFFER, outBuffer.getFrameBuffer() );
+			this.gl.bindFramebuffer( this.gl.DRAW_FRAMEBUFFER, null );
 
-				this.gl.blitFramebuffer(
-					0, 0, this.resolution.x, this.resolution.y,
-					0, 0, this.resolution.x, this.resolution.y,
-					this.gl.COLOR_BUFFER_BIT, this.gl.NEAREST );
-
-			}
+			this.gl.blitFramebuffer(
+				0, 0, this.resolution.x, this.resolution.y,
+				0, 0, this.resolution.x, this.resolution.y,
+				this.gl.COLOR_BUFFER_BIT, this.gl.NEAREST );
 
 		}
 
@@ -1217,12 +1271,13 @@ export class Renderer extends Entity {
 	public resize( resolution: GLP.Vector ) {
 
 		this.resolution.copy( resolution );
+		Renderer.resizeRenderTarget( this._renderTarget, resolution );
 		this._deferredRenderer.resize( this.resolution );
 		this._pipelinePostProcess.resize( this.resolution );
 
 	}
 
-	public async compileShaders( entity: Entity, event: EntityUpdateEvent, cb?: ( label: string, loaded: number, total: number ) => void ) {
+	public async compileShaders( entity: Entity, cameraEntity: Entity, event: EntityUpdateEvent, cb?: ( label: string, loaded: number, total: number ) => void ) {
 
 		/*-------------------------------
 			Correct Compiles
@@ -1231,7 +1286,7 @@ export class Renderer extends Entity {
 
 		this.compileDrawParams = [];
 
-		this.render( entity, event );
+		this.render( entity, cameraEntity, event );
 
 		this._isCorrentCompiles = false;
 

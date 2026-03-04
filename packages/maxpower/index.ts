@@ -7,7 +7,6 @@ export * from './Component/Camera';
 export * from './Component/GPUCompute';
 export * from './Component/GPUComputePass';
 export * from './Component/Mesh';
-export * from './Component/Camera/RenderCamera';
 export * from './Component/Camera/ShadowMapCamera';
 export * from './Component/Light';
 export * from './Component/MaterialOverride';
