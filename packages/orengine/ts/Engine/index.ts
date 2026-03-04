@@ -391,9 +391,18 @@ export class Engine extends MXP.Entity {
 
 		this._root.traverse( ( entity ) => {
 
-			if ( entity.getComponentsByTag( "camera" ).length > 0 ) {
+			if ( found ) return;
 
-				found = entity;
+			const cameras = entity.getComponentsByTag<MXP.Camera>( "camera" );
+
+			for ( let i = 0; i < cameras.length; i ++ ) {
+
+				if ( cameras[ i ].displayOut ) {
+
+					found = entity;
+					return;
+
+				}
 
 			}
 
