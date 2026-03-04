@@ -18,6 +18,8 @@ export class ShadowMapCamera extends Camera {
 		this.near = 0.1;
 		this.far = 100;
 
+		this.displayOut = false;
+
 	}
 
 	protected beforeRenderImpl( event: ComponentUpdateEvent ): void {
