@@ -6,6 +6,7 @@ import { Engine } from '../Engine';
 import { FrameDebugger } from '../Engine/FrameDebugger';
 import { Keyboard, PressedKeys } from '../Engine/Keyboard';
 import { EditorAPI } from './EditorAPI';
+import { EditorAPIBridge } from './EditorAPIBridge';
 import { TranslateGizmo } from './Gizmo/TranslateGizmo';
 
 import selectionVert from './shaders/selection.vs';
@@ -33,6 +34,7 @@ export class Editor extends MXP.Serializable {
 
 	private _disposed: boolean;
 	private _api: EditorAPI;
+	private _apiBridge: EditorAPIBridge;
 
 	// editor camera
 	private _editorCameraEntity: MXP.Entity;
@@ -352,6 +354,12 @@ export class Editor extends MXP.Serializable {
 			}
 
 		} );
+
+		/*-------------------------------
+			API Bridge
+		-------------------------------*/
+
+		this._apiBridge = new EditorAPIBridge( this );
 
 		/*-------------------------------
 			Animate
@@ -749,6 +757,7 @@ export class Editor extends MXP.Serializable {
 
 		this._disposed = true;
 		this._api.dispose();
+		this._apiBridge.dispose();
 		this._keyBoard.dispose();
 		this._frameDebugger.dispose();
 		this._editorCameraEntity.dispose();
