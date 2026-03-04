@@ -27,6 +27,7 @@ export class Editor extends MXP.Serializable {
 	private _audioBuffer: AudioBuffer | null;
 	private _frameLoop: EditorTimelineLoop;
 	private _resolutionScale: number;
+	private _baseResolution: GLP.Vector;
 	private _viewType: "render" | "debug";
 	private _frameDebugger: FrameDebugger;
 	private _externalWindow: Window | null;
@@ -63,6 +64,7 @@ export class Editor extends MXP.Serializable {
 		this._viewType = "render";
 		this._selectedEntityId = null;
 		this._resolutionScale = 1.0;
+		this._baseResolution = new GLP.Vector( 1920, 1080 );
 		this._externalWindow = null;
 		this._externalCanvasBitmapContext = null;
 		this._disposed = false;
@@ -304,6 +306,20 @@ export class Editor extends MXP.Serializable {
                         this._resize();
 
 		} );
+
+		const resolutionDir = this.fieldDir( "resolution" );
+		resolutionDir.field( "width", () => this._baseResolution.x, ( v: number ) => {
+
+			this._baseResolution.x = v;
+			this._resize();
+
+		}, { step: 1 } );
+		resolutionDir.field( "height", () => this._baseResolution.y, ( v: number ) => {
+
+			this._baseResolution.y = v;
+			this._resize();
+
+		}, { step: 1 } );
 
 		this.field( "viewType", () => this._viewType, v => {
 
@@ -726,7 +742,7 @@ export class Editor extends MXP.Serializable {
 
     private _resize() {
 
-		const resolution = new GLP.Vector( 1920, 1080 ).multiply( this._resolutionScale );
+		const resolution = this._baseResolution.clone().multiply( this._resolutionScale );
 
 		this.engine.setSize( resolution );
 
