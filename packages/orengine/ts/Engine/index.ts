@@ -112,6 +112,11 @@ export class Engine extends MXP.Entity {
 
 		} );
 
+		this.field( "renderer",
+			() => this._renderer.serialize( { mode: "export" } ),
+			( v ) => this._renderer.deserialize( v )
+		);
+
 		const tl = this.fieldDir( "timeline" );
 		tl.field( "duration", () => this._frameSetting.duration, ( v ) => this._frameSetting.duration = v );
 		tl.field( "fps", () => this._frameSetting.fps, ( v ) => this._frameSetting.fps = v );
@@ -233,9 +238,7 @@ export class Engine extends MXP.Entity {
 
 	public init() {
 
-		this._root.remove( this._renderer );
 		this._root.disposeRecursive();
-		this._root.add( this._renderer );
 
 		this._root.position.set( 0, 0, 0 );
 		this._root.euler.set( 0, 0, 0 );
@@ -421,7 +424,6 @@ export class Engine extends MXP.Entity {
 		super.dispose();
 
 		this._disposed = true;
-		this._root.remove( this._renderer );
 		this._root.disposeRecursive();
 
 	}

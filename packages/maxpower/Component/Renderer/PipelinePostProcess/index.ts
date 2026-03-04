@@ -11,6 +11,11 @@ import motionBlurTileFrag from './shaders/motionBlurTile.fs';
 import ssCompositeFrag from './shaders/ssComposite.fs';
 import ssrFrag from './shaders/ssr.fs';
 
+export type PipelinePostProcessPassConfig = {
+	motionBlur?: boolean;
+	ssr?: boolean;
+};
+
 export class PipelinePostProcess {
 
 	public dofCoc: MXP.PostProcessPass;
@@ -26,6 +31,7 @@ export class PipelinePostProcess {
 	private _dofParams: GLP.Vector;
 	private _motionBlur: MXP.PostProcessPass;
 	private _motionBlurTile: MXP.PostProcessPass;
+	private _motionBlurNeighbor: MXP.PostProcessPass;
 	private _camera: MXP.Camera | null;
 	private _renderTarget: MXP.RenderCameraTarget | null;
 
@@ -282,6 +288,7 @@ export class PipelinePostProcess {
 		this.dofComposite = dofComposite;
 		this._motionBlur = motionBlur;
 		this._motionBlurTile = motionBlurTile;
+		this._motionBlurNeighbor = motionBlurNeighbor;
 		this._dofParams = dofParams;
 		this.rtSSR1 = rtSSR1;
 		this.rtSSR2 = rtSSR2;
@@ -326,6 +333,25 @@ export class PipelinePostProcess {
 	public resize( resolution: GLP.Vector ) {
 
 		this.postprocess.resize( resolution );
+
+	}
+
+	public setPassEnabled( config: PipelinePostProcessPassConfig ): void {
+
+		if ( config.motionBlur !== undefined ) {
+
+			this._motionBlurTile.enabled = config.motionBlur;
+			this._motionBlurNeighbor.enabled = config.motionBlur;
+			this._motionBlur.enabled = config.motionBlur;
+
+		}
+
+		if ( config.ssr !== undefined ) {
+
+			this._ssr.enabled = config.ssr;
+			this._ssComposite.enabled = config.ssr;
+
+		}
 
 	}
 
