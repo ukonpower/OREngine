@@ -14,10 +14,15 @@
 	height: 20px;
 	background-color: $bgCol2;
 	font-size: $fontSize2;
+	display: flex;
 
 	&_item {
 		height: 100%;
 		display: inline-flex;
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 		align-items: center;
 		justify-content: center;
 		padding: 0 8px;

@@ -34,6 +34,7 @@ export class PipelinePostProcess {
 	private _motionBlurNeighbor: MXP.PostProcessPass;
 	private _camera: MXP.Camera | null;
 	private _renderTarget: MXP.RenderCameraTarget | null;
+	private _gl: WebGL2RenderingContext;
 
 	constructor( gl: WebGL2RenderingContext ) {
 
@@ -294,6 +295,7 @@ export class PipelinePostProcess {
 		this.rtSSR2 = rtSSR2;
 		this._camera = null;
 		this._renderTarget = null;
+		this._gl = gl;
 
 	}
 
@@ -344,6 +346,13 @@ export class PipelinePostProcess {
 			this._motionBlurNeighbor.enabled = config.motionBlur;
 			this._motionBlur.enabled = config.motionBlur;
 
+			if ( ! config.motionBlur ) {
+
+				if ( this._motionBlurTile.renderTarget ) this.clearFrameBuffer( this._motionBlurTile.renderTarget );
+				if ( this._motionBlurNeighbor.renderTarget ) this.clearFrameBuffer( this._motionBlurNeighbor.renderTarget );
+
+			}
+
 		}
 
 		if ( config.ssr !== undefined ) {
@@ -351,7 +360,24 @@ export class PipelinePostProcess {
 			this._ssr.enabled = config.ssr;
 			this._ssComposite.enabled = config.ssr;
 
+			if ( ! config.ssr ) {
+
+				this.clearFrameBuffer( this.rtSSR1 );
+				this.clearFrameBuffer( this.rtSSR2 );
+
+			}
+
 		}
+
+	}
+
+	private clearFrameBuffer( fb: GLP.GLPowerFrameBuffer ): void {
+
+		this._gl.bindFramebuffer( this._gl.FRAMEBUFFER, fb.getFrameBuffer() );
+		this._gl.drawBuffers( fb.textureAttachmentList );
+		this._gl.clearColor( 0, 0, 0, 0 );
+		this._gl.clear( this._gl.COLOR_BUFFER_BIT );
+		this._gl.bindFramebuffer( this._gl.FRAMEBUFFER, null );
 
 	}
 
