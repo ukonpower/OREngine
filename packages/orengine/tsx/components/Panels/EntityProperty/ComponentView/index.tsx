@@ -2,6 +2,7 @@
 import * as MXP from 'maxpower';
 import { MouseEvent, useCallback } from 'react';
 
+import { useOREditor } from '../../../../hooks/useOREditor';
 import { useSerializableField } from '../../../../hooks/useSerializableProps';
 import { Block } from '../../../Block';
 import { CrossIcon } from '../../../Icons/CrossIcon';
@@ -15,6 +16,7 @@ type ComponentViewProps = {
 
 export const ComponentView = ( { component }: ComponentViewProps ) => {
 
+	const { editor } = useOREditor();
 	const [ enabled, setEnabled ] = useSerializableField<boolean>( component, "enabled" );
 
 	const disableEdit = component.initiator !== "user";
@@ -27,11 +29,20 @@ export const ComponentView = ( { component }: ComponentViewProps ) => {
 
 		if ( entity ) {
 
-			entity.removeComponentByUUID( component.uuid );
+			for ( const [ compClass, comp ] of entity.components ) {
+
+				if ( comp.uuid === component.uuid ) {
+
+					editor.api.removeComponent( entity, compClass, component );
+					break;
+
+				}
+
+			}
 
 		}
 
-	}, [ component ] );
+	}, [ component, editor ] );
 
 	const labelElm = <div className={style.head}>
 		{/* <div className={style.check}>

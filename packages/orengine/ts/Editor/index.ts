@@ -5,6 +5,7 @@ import { OrbitControls } from '../Controls/OrbitControls';
 import { Engine } from '../Engine';
 import { FrameDebugger } from '../Engine/FrameDebugger';
 import { Keyboard, PressedKeys } from '../Engine/Keyboard';
+import { EditorAPI } from './EditorAPI';
 
 export type EditorTimelineLoop = {
 	enabled: boolean,
@@ -26,6 +27,7 @@ export class Editor extends MXP.Serializable {
 	private _externalCanvasBitmapContext: ImageBitmapRenderingContext | null;
 
 	private _disposed: boolean;
+	private _api: EditorAPI;
 
 	// editor camera
 	private _editorCameraEntity: MXP.Entity;
@@ -45,6 +47,7 @@ export class Editor extends MXP.Serializable {
 		this._externalWindow = null;
 		this._externalCanvasBitmapContext = null;
 		this._disposed = false;
+		this._api = new EditorAPI( this );
 
 		/*-------------------------------
 			Editor Camera
@@ -88,6 +91,22 @@ export class Editor extends MXP.Serializable {
 				e.preventDefault();
 
 				this.save();
+
+			}
+
+			if ( ( pressedKeys[ "Meta" ] || pressedKeys[ "Control" ] ) && pressedKeys[ "z" ] ) {
+
+				e.preventDefault();
+
+				if ( pressedKeys[ "Shift" ] ) {
+
+					this._api.redo();
+
+				} else {
+
+					this._api.undo();
+
+				}
 
 			}
 
@@ -244,6 +263,12 @@ export class Editor extends MXP.Serializable {
 	public get engine() {
 
 		return this._engine;
+
+	}
+
+	public get api() {
+
+		return this._api;
 
 	}
 
@@ -497,6 +522,7 @@ export class Editor extends MXP.Serializable {
 	public dispose() {
 
 		this._disposed = true;
+		this._api.dispose();
 		this._keyBoard.dispose();
 		this._frameDebugger.dispose();
 		this._editorCameraEntity.dispose();

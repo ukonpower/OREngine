@@ -6,6 +6,7 @@ import React, { MouseEvent, ReactNode, useCallback, useState } from 'react';
 import { Engine } from '../../../../../ts/Engine';
 import { useMouseMenu } from '../../../../hooks/useMouseMenu';
 import { useMouseMenuItem } from '../../../../hooks/useMouseMenuItem';
+import { useOREditor } from '../../../../hooks/useOREditor';
 import { Button } from '../../../Button';
 import { MouseMenuItemContext } from '../../../MouseMenu/Context/MouseMenuItemContext';
 
@@ -68,6 +69,7 @@ const ComponentDirectory: React.FC<{
 
 export const ComponentAdd = ( props: ComponentAddProps ) => {
 
+	const { editor } = useOREditor();
 	const { pushContent, closeAll } = useMouseMenu();
 	const resources = Engine.resources;
 
@@ -79,7 +81,7 @@ export const ComponentAdd = ( props: ComponentAddProps ) => {
 
 		const onClickComponentItem = ( compItem: ResouceComponentItem ) => {
 
-			props.entity.addComponent( compItem.component ).initiator = 'user';
+			editor.api.addComponent( props.entity, compItem.component );
 
 			closeAll();
 
@@ -101,7 +103,7 @@ export const ComponentAdd = ( props: ComponentAddProps ) => {
 
 		);
 
-	}, [ pushContent, resources, props.entity, closeAll ] );
+	}, [ pushContent, resources, props.entity, closeAll, editor ] );
 
 	return <div className={style.compAdd}>
 		<Button onClick={onClickAdd}>Add Component</Button>
