@@ -74,9 +74,9 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 					pushContent(
 						<InputGroup initialValues={{ name: '' }} onSubmit={( e ) => {
 
-							const newEntity = editor.createEntity( props.entity, e.name as string );
+							const newEntity = editor.api.createEntity( props.entity, e.name as string );
 
-							editor.selectEntity( newEntity );
+							editor.api.selectEntity( newEntity );
 
 							closeAll();
 
@@ -90,7 +90,7 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 				label: "Delete Entity",
 				onClick: () => {
 
-					editor.deleteEntity( props.entity );
+					editor.api.deleteEntity( props.entity );
 
 					closeAll();
 

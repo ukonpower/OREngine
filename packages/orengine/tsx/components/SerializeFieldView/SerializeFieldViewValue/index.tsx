@@ -1,6 +1,7 @@
 import { SerializeFieldDirectoryValue } from 'maxpower';
 import React from 'react';
 
+import { useOREditor } from '../../../hooks/useOREditor';
 import { useSerializeFieldView } from '../../../hooks/useSerializeFieldView';
 import { Label } from '../../Label';
 import { Value } from '../../Value';
@@ -9,6 +10,7 @@ import { Vector } from '../../Vector';
 
 export const SerializeFieldViewValue: React.FC<{ path:string, field: SerializeFieldDirectoryValue }> = ( props ) => {
 
+	const { editor } = useOREditor();
 	const { target } = useSerializeFieldView();
 	const value = props.field.value;
 	const valueType = typeof value;
@@ -25,7 +27,7 @@ export const SerializeFieldViewValue: React.FC<{ path:string, field: SerializeFi
 
 			valueElm = <Vector value={value as number[]} {...opt} onChange={( v ) => {
 
-				target.setField( props.path, v );
+				editor.api.setField( target, props.path, v );
 
 			}} />;
 
@@ -34,7 +36,7 @@ export const SerializeFieldViewValue: React.FC<{ path:string, field: SerializeFi
 
 			valueElm = <ValueArray value={value} {...opt} onChange={( v ) => {
 
-				target.setField( props.path, v );
+				editor.api.setField( target, props.path, v );
 
 			} }/>;
 
@@ -44,7 +46,7 @@ export const SerializeFieldViewValue: React.FC<{ path:string, field: SerializeFi
 
 		valueElm = <Value value={value} {...opt} onChange={( v ) => {
 
-			target.setField( props.path, v );
+			editor.api.setField( target, props.path, v );
 
 		}}/>;
 
