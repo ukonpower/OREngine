@@ -6,6 +6,11 @@ import { Engine } from '../Engine';
 import { FrameDebugger } from '../Engine/FrameDebugger';
 import { Keyboard, PressedKeys } from '../Engine/Keyboard';
 import { EditorAPI } from './EditorAPI';
+import { TranslateGizmo } from './Gizmo/TranslateGizmo';
+
+import selectionVert from './shaders/selection.vs';
+import selectionFrag from './shaders/selection.fs';
+import outlineFrag from './shaders/outline.fs';
 
 export type EditorTimelineLoop = {
 	enabled: boolean,
@@ -36,6 +41,18 @@ export class Editor extends MXP.Serializable {
 	private _useEditorCamera: boolean;
 	private _cameraMode: "scene" | "preview";
 
+	// click selection
+	private _raycaster: MXP.Raycaster;
+	private _pointerDownPos: GLP.Vector | null;
+
+	// selection outline
+	private _selectionBuffer: GLP.GLPowerFrameBuffer;
+	private _selectionMaterial: MXP.Material;
+	private _outlinePostProcess: MXP.PostProcess;
+
+	// gizmo
+	private _gizmo: TranslateGizmo;
+
 	constructor( engine: Engine ) {
 
 		super();
@@ -64,19 +81,107 @@ export class Editor extends MXP.Serializable {
 		engine.renderer.setOverride( { motionBlur: false } );
 		this._syncEditorCameraFromScene();
 
+		/*-------------------------------
+			Click Selection
+		-------------------------------*/
+
+		this._raycaster = new MXP.Raycaster();
+		this._pointerDownPos = null;
+
 		const onPointerDown = ( e: PointerEvent ) => {
 
 			( e.target as HTMLElement ).setPointerCapture( e.pointerId );
+			this._pointerDownPos = new GLP.Vector( e.clientX, e.clientY );
 
 		};
 
-		( engine.canvas as HTMLCanvasElement ).addEventListener( "pointerdown", onPointerDown );
+		const onPointerUp = ( e: PointerEvent ) => {
+
+			if ( ! this._pointerDownPos ) return;
+
+			const dx = e.clientX - this._pointerDownPos.x;
+			const dy = e.clientY - this._pointerDownPos.y;
+			const dist = Math.sqrt( dx * dx + dy * dy );
+			this._pointerDownPos = null;
+
+			if ( dist > 5 ) return;
+
+			const canvas = engine.canvas as HTMLCanvasElement;
+			const rect = canvas.getBoundingClientRect();
+			const x = ( ( e.clientX - rect.left ) / rect.width ) * 2 - 1;
+			const y = - ( ( e.clientY - rect.top ) / rect.height ) * 2 + 1;
+			const ndc = new GLP.Vector( x, y );
+
+			const cameraEntity = this._useEditorCamera
+				? this._editorCameraEntity
+				: engine.cameraEntity;
+
+			if ( ! cameraEntity ) return;
+
+			this._raycaster.setFromCamera( ndc, cameraEntity );
+			const results = this._raycaster.intersectEntities( engine.root );
+
+			if ( results.length > 0 ) {
+
+				const hit = results.find( r => r.entity.initiator !== "god" );
+				this.selectEntity( hit ? hit.entity : null );
+
+			} else {
+
+				this.selectEntity( null );
+
+			}
+
+		};
+
+		const canvasElm = engine.canvas as HTMLCanvasElement;
+		canvasElm.addEventListener( "pointerdown", onPointerDown );
+		canvasElm.addEventListener( "pointerup", onPointerUp );
 
 		this.once( "dispose", () => {
 
-			( engine.canvas as HTMLCanvasElement ).removeEventListener( "pointerdown", onPointerDown );
+			canvasElm.removeEventListener( "pointerdown", onPointerDown );
+			canvasElm.removeEventListener( "pointerup", onPointerUp );
 
 		} );
+
+		/*-------------------------------
+			Selection Outline
+		-------------------------------*/
+
+		const gl = engine.renderer.gl;
+
+		this._selectionBuffer = new GLP.GLPowerFrameBuffer( gl )
+			.setTexture( [
+				new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
+			] );
+		this._selectionBuffer.setSize( engine.renderer.resolution );
+
+		this._selectionMaterial = new MXP.Material( {
+			vert: selectionVert,
+			frag: selectionFrag,
+		} );
+		this._selectionMaterial.visibilityFlag = { deferred: false, forward: true, shadowMap: false, envMap: false, ui: false, postprocess: false };
+
+		const outlinePass = new MXP.PostProcessPass( gl, {
+			frag: outlineFrag,
+			renderTarget: null,
+			uniforms: {
+				uMaskTexture: { value: this._selectionBuffer.textures[ 0 ], type: '1i' },
+				uOutlineColor: { value: new GLP.Vector( 1.0, 0.6, 0.0 ), type: '3fv' },
+			},
+		} );
+
+		this._outlinePostProcess = new MXP.PostProcess( {
+			name: "editorOutline",
+			passes: [ outlinePass ],
+		} );
+
+		/*-------------------------------
+			Gizmo
+		-------------------------------*/
+
+		this._gizmo = new TranslateGizmo();
 
 		/*-------------------------------
 			KeyEvents
@@ -326,8 +431,13 @@ export class Editor extends MXP.Serializable {
 		}
 
 		// update
-
 		this._engine.update();
+
+		// gizmo update
+		this._updateGizmo();
+
+		// selection outline
+		this._renderSelectionOutline();
 
 		// editor camera afterRender
 
@@ -387,6 +497,118 @@ export class Editor extends MXP.Serializable {
 		}
 
                 window.requestAnimationFrame( this._animate.bind( this ) );
+
+	}
+
+	/*-------------------------------
+		Gizmo
+	-------------------------------*/
+
+	private _updateGizmo() {
+
+		const selectedEntity = this._selectedEntityId
+			? this._engine.root.findEntityByUUID( this._selectedEntityId )
+			: null;
+
+		this._gizmo.setTarget( selectedEntity || null );
+
+		if ( this._gizmo.entity.visible ) {
+
+			// update gizmo matrices
+			this._gizmo.entity.updateMatrix( true );
+
+			const event = this._engine.createEntityUpdateEvent();
+			this._gizmo.entity.update( event );
+
+			// render gizmo
+			const cameraEntity = this._useEditorCamera
+				? this._editorCameraEntity
+				: this._engine.cameraEntity;
+
+			if ( cameraEntity ) {
+
+				const gizmoEntities: MXP.Entity[] = [];
+
+				this._gizmo.entity.traverse( ( child ) => {
+
+					if ( child.getComponent( MXP.Mesh ) ) {
+
+						gizmoEntities.push( child );
+
+					}
+
+				} );
+
+				if ( gizmoEntities.length > 0 ) {
+
+					this._engine.renderer.renderCamera(
+						"forward",
+						cameraEntity,
+						gizmoEntities,
+						null,
+						this._engine.renderer.resolution,
+						{ disableClear: true }
+					);
+
+				}
+
+			}
+
+		}
+
+	}
+
+	/*-------------------------------
+		Selection Outline
+	-------------------------------*/
+
+	private _renderSelectionOutline() {
+
+		const selectedEntity = this._selectedEntityId
+			? this._engine.root.findEntityByUUID( this._selectedEntityId )
+			: null;
+
+		if ( ! selectedEntity ) return;
+
+		const mesh = selectedEntity.getComponent( MXP.Mesh );
+
+		if ( ! mesh ) return;
+
+		const cameraEntity = this._useEditorCamera
+			? this._editorCameraEntity
+			: this._engine.cameraEntity;
+
+		if ( ! cameraEntity ) return;
+
+		// resize selection buffer if needed
+		const res = this._engine.renderer.resolution;
+
+		if ( this._selectionBuffer.size.x !== res.x || this._selectionBuffer.size.y !== res.y ) {
+
+			this._selectionBuffer.setSize( res );
+
+		}
+
+		// render selected entity to mask buffer with override material
+		const origMaterial = mesh.material;
+		mesh.material = this._selectionMaterial;
+
+		this._engine.renderer.renderCamera(
+			"forward",
+			cameraEntity,
+			[ selectedEntity ],
+			this._selectionBuffer,
+			res
+		);
+
+		mesh.material = origMaterial;
+
+		// render outline postprocess to screen
+		this._engine.renderer.renderPostProcess(
+			this._outlinePostProcess,
+			undefined,
+			res
+		);
 
 	}
 
@@ -505,6 +727,10 @@ export class Editor extends MXP.Serializable {
 		// editor camera aspect
 		this._editorCamera.aspect = resolution.x / resolution.y;
 		this._editorCamera.needsUpdateProjectionMatrix = true;
+
+		// selection buffer resize
+		this._selectionBuffer.setSize( resolution );
+		this._outlinePostProcess.resize( resolution );
 
 		if ( this._externalCanvasBitmapContext ) {
 
