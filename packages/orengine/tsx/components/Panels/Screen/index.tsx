@@ -1,5 +1,6 @@
 
 
+import { useLayout } from '../../../hooks/useLayout';
 import { useOREditor } from '../../../hooks/useOREditor';
 import { useSerializableField } from '../../../hooks/useSerializableProps';
 import { Button } from '../../Button';
@@ -13,6 +14,7 @@ import style from './index.module.scss';
 export const Screen = () => {
 
 	const { editor } = useOREditor();
+	const layout = useLayout();
 
 	const [ render, setRender ] = useSerializableField<boolean>( editor, "enableRender" );
 	const [ cameraMode, setCameraMode ] = useSerializableField<string>( editor, "cameraMode" );
@@ -34,7 +36,7 @@ export const Screen = () => {
 				) )}
 			</div>
 			<div className={style.header_right}>
-				<div className={style.header_item}>
+				{layout.isPC && <div className={style.header_item}>
 					<Label title='Render'>
 						<Value value={render} onChange={( value ) => {
 
@@ -46,8 +48,8 @@ export const Screen = () => {
 
 						}}/>
 					</Label>
-				</div>
-				<div className={style.header_item}>
+				</div>}
+				{layout.isPC && <div className={style.header_item}>
 					<Label title='View'>
 						<Value
 							value={viewType}
@@ -62,9 +64,9 @@ export const Screen = () => {
 
 							}}/>
 					</Label>
-				</div>
+				</div>}
 				<div className={style.header_item}>
-					<Label title='Resolution'>
+					<Label title={layout.isPC ? 'Resolution' : 'Res'}>
 						<Value
 							value={resolutionScale}
 							format={{ type: "select", list: new Array( 6 ).fill( 0 ).map( ( _, i ) => {
@@ -89,7 +91,7 @@ export const Screen = () => {
 					</Label>
 				</div>
 
-			<div className={style.externalBtn}>
+				{layout.isPC && <div className={style.externalBtn}>
 					<Button onClick={() => {
 
 						editor.openInExternalWindow();
@@ -110,7 +112,7 @@ export const Screen = () => {
 
 					</Button>
 
-				</div>
+				</div>}
 			</div>
 		</div>
 		<div className={style.content}>

@@ -20,3 +20,14 @@
 .flex {
 	flex: 1;
 }
+
+.sp_viewport {
+	height: 35vh;
+	min-height: 200px;
+	flex-shrink: 0;
+}
+
+.sp_timeline {
+	height: 120px;
+	flex-shrink: 0;
+}

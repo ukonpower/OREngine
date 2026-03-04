@@ -12,7 +12,7 @@
 
 .self {
 	display: flex;
-	height: 22px;
+	height: var(--or-list-row-height);
 	cursor: pointer;
 
 	&:hover {
