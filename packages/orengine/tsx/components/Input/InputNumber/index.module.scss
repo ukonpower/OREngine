@@ -3,7 +3,7 @@
 .inputNumber {}
 
 .input {
-	padding: 3px 5px;
+	padding: var(--or-input-padding);
 	text-align: center;
 	width: 100%;
 	border-radius: $radius1;
@@ -11,6 +11,7 @@
 	border: none;
 	cursor: ew-resize;
 	color: $fontCol2;
+	font-size: var(--or-input-font-size);
 
 	&:disabled {
 		opacity: 0.3;
