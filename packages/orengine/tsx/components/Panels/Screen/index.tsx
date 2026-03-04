@@ -15,11 +15,24 @@ export const Screen = () => {
 	const { editor } = useOREditor();
 
 	const [ render, setRender ] = useSerializableField<boolean>( editor, "enableRender" );
+	const [ cameraMode, setCameraMode ] = useSerializableField<string>( editor, "cameraMode" );
 	const [ viewType, setViewType ] = useSerializableField<string>( editor, "viewType" );
 	const [ resolutionScale, setResolutionScale ] = useSerializableField<number>( editor, "resolutionScale" );
 
 	return <div className={style.screen}>
 		<div className={style.header}>
+			<div className={style.header_tabs}>
+				{( [ "scene", "preview" ] as const ).map( ( mode ) => (
+					<div
+						key={mode}
+						className={style.header_tab}
+						data-active={cameraMode === mode}
+						onClick={() => setCameraMode && setCameraMode( mode )}
+					>
+						{mode.charAt( 0 ).toUpperCase() + mode.slice( 1 )}
+					</div>
+				) )}
+			</div>
 			<div className={style.header_right}>
 				<div className={style.header_item}>
 					<Label title='Render'>

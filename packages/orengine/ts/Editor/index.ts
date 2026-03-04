@@ -32,6 +32,7 @@ export class Editor extends MXP.Serializable {
 	private _editorCamera: MXP.Camera;
 	private _orbitControls: OrbitControls;
 	private _useEditorCamera: boolean;
+	private _cameraMode: "scene" | "preview";
 
 	constructor( engine: Engine ) {
 
@@ -53,64 +54,23 @@ export class Editor extends MXP.Serializable {
 		this._editorCamera = this._editorCameraEntity.addComponent( MXP.Camera );
 		this._orbitControls = this._editorCameraEntity.addComponent( OrbitControls );
 		this._orbitControls.setElm( engine.canvas as HTMLCanvasElement );
-		this._orbitControls.enabled = false;
-		this._useEditorCamera = false;
-
-		const activateEditorCamera = ( active: boolean ) => {
-
-			this._useEditorCamera = active;
-			this._orbitControls.enabled = active;
-
-			if ( active ) {
-
-				this._syncEditorCameraFromScene();
-				engine.cameraEntity = this._editorCameraEntity;
-
-			} else {
-
-				engine.cameraEntity = null;
-
-			}
-
-		};
+		this._orbitControls.enabled = true;
+		this._useEditorCamera = true;
+		this._cameraMode = "scene";
+		engine.cameraEntity = this._editorCameraEntity;
+		this._syncEditorCameraFromScene();
 
 		const onPointerDown = ( e: PointerEvent ) => {
 
-			if ( this._useEditorCamera ) return;
-
 			( e.target as HTMLElement ).setPointerCapture( e.pointerId );
-
-			activateEditorCamera( true );
-
-		};
-
-		const onWheel = () => {
-
-			if ( this._useEditorCamera ) return;
-
-			activateEditorCamera( true );
-
-		};
-
-		const onKeyDown = ( e: KeyboardEvent ) => {
-
-			if ( e.key === 'Escape' ) {
-
-				activateEditorCamera( false );
-
-			}
 
 		};
 
 		( engine.canvas as HTMLCanvasElement ).addEventListener( "pointerdown", onPointerDown );
-		( engine.canvas as HTMLCanvasElement ).addEventListener( "wheel", onWheel );
-		window.addEventListener( "keydown", onKeyDown );
 
 		this.once( "dispose", () => {
 
 			( engine.canvas as HTMLCanvasElement ).removeEventListener( "pointerdown", onPointerDown );
-			( engine.canvas as HTMLCanvasElement ).removeEventListener( "wheel", onWheel );
-			window.removeEventListener( "keydown", onKeyDown );
 
 		} );
 
@@ -242,6 +202,27 @@ export class Editor extends MXP.Serializable {
 		this.field( "selectedEntityId", () => this._selectedEntityId, v => {
 
 			this._selectedEntityId = v;
+
+		} );
+
+		this.field( "cameraMode", () => this._cameraMode, ( v: "scene" | "preview" ) => {
+
+			this._cameraMode = v;
+
+			if ( v === "scene" ) {
+
+				this._syncEditorCameraFromScene();
+				engine.cameraEntity = this._editorCameraEntity;
+				this._orbitControls.enabled = true;
+				this._useEditorCamera = true;
+
+			} else {
+
+				engine.cameraEntity = null;
+				this._orbitControls.enabled = false;
+				this._useEditorCamera = false;
+
+			}
 
 		} );
 
