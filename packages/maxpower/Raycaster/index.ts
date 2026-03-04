@@ -69,12 +69,15 @@ export class Raycaster {
 		const invMatrix = entity.matrixWorld.clone().inverse();
 
 		const localRay = new Ray();
-		localRay.origin.copy( this.ray.origin ).applyMatrix4( invMatrix );
+		localRay.origin.copy( this.ray.origin );
+		localRay.origin.w = 1;
+		localRay.origin.applyMatrix4( invMatrix );
 		localRay.origin.x /= localRay.origin.w;
 		localRay.origin.y /= localRay.origin.w;
 		localRay.origin.z /= localRay.origin.w;
 
 		const dirEnd = this.ray.origin.clone().add( this.ray.direction );
+		dirEnd.w = 1;
 		dirEnd.applyMatrix4( invMatrix );
 		dirEnd.x /= dirEnd.w;
 		dirEnd.y /= dirEnd.w;
@@ -103,7 +106,9 @@ export class Raycaster {
 
 			if ( hit ) {
 
-				const worldPoint = hit.point.clone().applyMatrix4( entity.matrixWorld );
+				const worldPoint = hit.point.clone();
+				worldPoint.w = 1;
+				worldPoint.applyMatrix4( entity.matrixWorld );
 				worldPoint.x /= worldPoint.w;
 				worldPoint.y /= worldPoint.w;
 				worldPoint.z /= worldPoint.w;
