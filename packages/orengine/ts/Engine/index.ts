@@ -25,7 +25,6 @@ export class Engine extends MXP.Entity {
 	private _renderer: MXP.Renderer;
 	private _gl: WebGL2RenderingContext;
 	private _canvas: HTMLCanvasElement | OffscreenCanvas;
-	private _projectCache: OREngineProjectData | null;
 	private _root: MXP.Entity;
 	private _uniforms: GLP.Uniforms;
 	private _time: SceneTime;
@@ -74,18 +73,6 @@ export class Engine extends MXP.Entity {
 			Project
 		-------------------------------*/
 
-		this._projectCache = null;
-
-		this.on( "update/blidge/scene", ( blidgeRoot: MXP.Entity ) => {
-
-			if ( this._projectCache ) {
-
-				ProjectSerializer.deserializeOverride( this._projectCache.overrides, this._root, blidgeRoot, this._createComponentResolver() );
-
-			}
-
-		} );
-
 		// time
 
 		this._time = {
@@ -117,15 +104,9 @@ export class Engine extends MXP.Entity {
 		this._root.name = "root";
 		this.add( this._root );
 
-		this.field( "scene", () => ProjectSerializer.serializeEntity( this._root ), ( v ) => {
+		this.field( "scene", () => ProjectSerializer.serializeEntity( this._root, this._createComponentResolver() ), ( v ) => {
 
-			ProjectSerializer.deserializeEntity( v, this._root );
-
-		} );
-
-		this.field( "overrides", () => ProjectSerializer.serializeEntityOverride( this._root, this._createComponentResolver() ), ( v ) => {
-
-			ProjectSerializer.deserializeOverride( v, this._root, this._root, this._createComponentResolver() );
+			ProjectSerializer.deserializeEntity( v, this._root, this._createComponentResolver() );
 
 		} );
 
@@ -260,8 +241,6 @@ export class Engine extends MXP.Entity {
 		this.init();
 
 		this.deserialize( project );
-
-		this._projectCache = project || null;
 
 		this.emit( "update/graph" );
 		this.emit( "loaded" );
