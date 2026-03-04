@@ -41,6 +41,8 @@ export type DeferredRendererPassConfig = {
 
 export class DeferredRenderer extends GLP.EventEmitter {
 
+	private gl: WebGL2RenderingContext;
+
 	// uniforms
 
 	private timeUniforms_: GLP.Uniforms;
@@ -78,6 +80,7 @@ export class DeferredRenderer extends GLP.EventEmitter {
 		super();
 
 		const gl = params.gl;
+		this.gl = gl;
 
 		// uniforms
 
@@ -354,13 +357,39 @@ export class DeferredRenderer extends GLP.EventEmitter {
 			this.ssaoBlur.enabled = config.ssao;
 			this.ssaoBlurV.enabled = config.ssao;
 
+			if ( ! config.ssao ) {
+
+				this.clearFrameBuffer( this.rtSSAO1 );
+				this.clearFrameBuffer( this.rtSSAO2 );
+				if ( this.ssaoBlur.renderTarget ) this.clearFrameBuffer( this.ssaoBlur.renderTarget );
+				if ( this.ssaoBlurV.renderTarget ) this.clearFrameBuffer( this.ssaoBlurV.renderTarget );
+
+			}
+
 		}
 
 		if ( config.lightShaft !== undefined ) {
 
 			this.lightShaft.enabled = config.lightShaft;
 
+			if ( ! config.lightShaft ) {
+
+				this.clearFrameBuffer( this.rtLightShaft1 );
+				this.clearFrameBuffer( this.rtLightShaft2 );
+
+			}
+
 		}
+
+	}
+
+	private clearFrameBuffer( fb: GLP.GLPowerFrameBuffer ): void {
+
+		this.gl.bindFramebuffer( this.gl.FRAMEBUFFER, fb.getFrameBuffer() );
+		this.gl.drawBuffers( fb.textureAttachmentList );
+		this.gl.clearColor( 0, 0, 0, 0 );
+		this.gl.clear( this.gl.COLOR_BUFFER_BIT );
+		this.gl.bindFramebuffer( this.gl.FRAMEBUFFER, null );
 
 	}
 
