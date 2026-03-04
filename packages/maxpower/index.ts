@@ -28,6 +28,8 @@ export * from './Loaders/GaussianSplattingLoader/GaussianSplattingController';
 export * from './Material';
 export * from './PostProcess';
 export * from './PostProcess/PostProcessPass';
+export * from './Ray';
+export * from './Raycaster';
 export * from './Serializable';
 export * from './Utils/Hot';
 export * from './Utils/ShaderParser';
