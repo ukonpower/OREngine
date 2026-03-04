@@ -371,6 +371,12 @@ export class PipelinePostProcess {
 
 	}
 
+	public setMotionBlurPower( power: number ): void {
+
+		this._motionBlur.uniforms.uPower.value = power;
+
+	}
+
 	private clearFrameBuffer( fb: GLP.GLPowerFrameBuffer ): void {
 
 		this._gl.bindFramebuffer( this._gl.FRAMEBUFFER, fb.getFrameBuffer() );
