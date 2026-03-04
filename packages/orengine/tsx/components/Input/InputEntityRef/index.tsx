@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { useOREditor } from '../../../../hooks/useOREditor';
+import { useOREditor } from '../../../hooks/useOREditor';
 import { SelectList } from '../InputSelect';
 
 import style from '../InputSelect/index.module.scss';
