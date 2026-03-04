@@ -1,6 +1,7 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
+import { OrbitControls } from '../Controls/OrbitControls';
 import { Engine } from '../Engine';
 import { FrameDebugger } from '../Engine/FrameDebugger';
 import { Keyboard, PressedKeys } from '../Engine/Keyboard';
@@ -26,6 +27,12 @@ export class Editor extends MXP.Serializable {
 
 	private _disposed: boolean;
 
+	// editor camera
+	private _editorCameraEntity: MXP.Entity;
+	private _editorCamera: MXP.Camera;
+	private _orbitControls: OrbitControls;
+	private _useEditorCamera: boolean;
+
 	constructor( engine: Engine ) {
 
 		super();
@@ -37,6 +44,75 @@ export class Editor extends MXP.Serializable {
 		this._externalWindow = null;
 		this._externalCanvasBitmapContext = null;
 		this._disposed = false;
+
+		/*-------------------------------
+			Editor Camera
+		-------------------------------*/
+
+		this._editorCameraEntity = new MXP.Entity( { name: "__editorCamera" } );
+		this._editorCamera = this._editorCameraEntity.addComponent( MXP.Camera );
+		this._orbitControls = this._editorCameraEntity.addComponent( OrbitControls );
+		this._orbitControls.setElm( engine.canvas as HTMLCanvasElement );
+		this._orbitControls.enabled = false;
+		this._useEditorCamera = false;
+
+		const activateEditorCamera = ( active: boolean ) => {
+
+			this._useEditorCamera = active;
+			this._orbitControls.enabled = active;
+
+			if ( active ) {
+
+				this._syncEditorCameraFromScene();
+				engine.cameraEntity = this._editorCameraEntity;
+
+			} else {
+
+				engine.cameraEntity = null;
+
+			}
+
+		};
+
+		const onPointerDown = ( e: PointerEvent ) => {
+
+			if ( this._useEditorCamera ) return;
+
+			( e.target as HTMLElement ).setPointerCapture( e.pointerId );
+
+			activateEditorCamera( true );
+
+		};
+
+		const onWheel = () => {
+
+			if ( this._useEditorCamera ) return;
+
+			activateEditorCamera( true );
+
+		};
+
+		const onKeyDown = ( e: KeyboardEvent ) => {
+
+			if ( e.key === 'Escape' ) {
+
+				activateEditorCamera( false );
+
+			}
+
+		};
+
+		( engine.canvas as HTMLCanvasElement ).addEventListener( "pointerdown", onPointerDown );
+		( engine.canvas as HTMLCanvasElement ).addEventListener( "wheel", onWheel );
+		window.addEventListener( "keydown", onKeyDown );
+
+		this.once( "dispose", () => {
+
+			( engine.canvas as HTMLCanvasElement ).removeEventListener( "pointerdown", onPointerDown );
+			( engine.canvas as HTMLCanvasElement ).removeEventListener( "wheel", onWheel );
+			window.removeEventListener( "keydown", onKeyDown );
+
+		} );
 
 		/*-------------------------------
 			KeyEvents
@@ -200,12 +276,44 @@ export class Editor extends MXP.Serializable {
 	}
 
 	/*-------------------------------
+		Editor Camera
+	-------------------------------*/
+
+	private _syncEditorCameraFromScene() {
+
+		const sceneCamera = this._engine.root.findEntityByName( "Camera" );
+
+		if ( sceneCamera ) {
+
+			const pos = new GLP.Vector();
+			sceneCamera.matrixWorld.decompose( pos );
+
+			this._orbitControls.setPosition( pos, new GLP.Vector( 0, 0, 0 ) );
+
+		}
+
+	}
+
+	/*-------------------------------
 		Animate
 	-------------------------------*/
 
         private _animate() {
 
 		if ( this._disposed ) return;
+
+		// editor camera update
+		if ( this._useEditorCamera ) {
+
+			const event = this._engine.createEntityUpdateEvent();
+			this._editorCameraEntity.updateMatrix();
+
+			this._editorCamera.aspect = this._engine.renderer.resolution.x / this._engine.renderer.resolution.y;
+			this._editorCamera.needsUpdateProjectionMatrix = true;
+
+			this._editorCameraEntity.update( event );
+
+		}
 
 		// update
 
@@ -375,6 +483,10 @@ export class Editor extends MXP.Serializable {
 
 		this._frameDebugger.resize( resolution );
 
+		// editor camera aspect
+		this._editorCamera.aspect = resolution.x / resolution.y;
+		this._editorCamera.needsUpdateProjectionMatrix = true;
+
 		if ( this._externalCanvasBitmapContext ) {
 
 			this._externalCanvasBitmapContext.canvas.width = resolution.x;
@@ -393,6 +505,7 @@ export class Editor extends MXP.Serializable {
 		this._disposed = true;
 		this._keyBoard.dispose();
 		this._frameDebugger.dispose();
+		this._editorCameraEntity.dispose();
 
 	}
 

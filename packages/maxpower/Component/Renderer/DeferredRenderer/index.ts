@@ -1,6 +1,5 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
-import { Engine } from 'orengine';
 
 import deferredShadingFrag from './shaders/deferredShading.fs';
 import lightShaftFrag from './shaders/lightShaft.fs';
@@ -340,11 +339,7 @@ export class DeferredRenderer extends GLP.EventEmitter {
 
 	}
 
-	public setRenderCamera( renderCamera: MXP.RenderCamera ) {
-
-		const renderTarget = renderCamera.renderTarget;
-
-		if ( ! renderTarget	) return;
+	public setRenderCamera( camera: MXP.Camera, renderTarget: MXP.RenderCameraTarget ) {
 
 		for ( let i = 0; i < renderTarget.gBuffer.textures.length; i ++ ) {
 
