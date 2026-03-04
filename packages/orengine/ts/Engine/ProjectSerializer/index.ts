@@ -13,15 +13,10 @@ export type ComponentResolver = {
 	SceneData
 -------------------------------*/
 
-export interface OREngineDataEntityOverrideComponent {
+export interface OREngineDataEntityComponent {
 	name: string,
 	uuid: string,
 	props?: {[key:string]: any} | undefined
-}
-
-export interface OREngineDataEntityOverride {
-	path: string,
-	components?: OREngineDataEntityOverrideComponent[]
 }
 
 export interface OREngineDataEntity {
@@ -30,13 +25,13 @@ export interface OREngineDataEntity {
 	pos?: number[],
 	rot?: number[],
 	scale?: number[],
+	components?: OREngineDataEntityComponent[],
 	childs?: OREngineDataEntity[]
 }
 
 export interface OREngineProjectData {
 	name: string;
 	scene: OREngineDataEntity | null;
-	overrides: OREngineDataEntityOverride[];
 	"timeline/duration"?: number;
 	"timeline/fps"?: number;
 	[key: string]: unknown;
@@ -58,7 +53,7 @@ export class ProjectSerializer {
 		Serialize
 	-------------------------------*/
 
-	public static serializeEntity( sceneRoot: MXP.Entity ): OREngineDataEntity {
+	public static serializeEntity( sceneRoot: MXP.Entity, resolver: ComponentResolver ): OREngineDataEntity {
 
 		const _ = ( entity: MXP.Entity ): OREngineDataEntity => {
 
@@ -72,12 +67,33 @@ export class ProjectSerializer {
 
 			} );
 
+			const components: OREngineDataEntityComponent[] = [];
+
+			entity.components.forEach( c => {
+
+				const exportFields: MXP.SerializeField = c.serialize( { mode: "export" } );
+				const hasFields = Object.keys( exportFields ).length > 0;
+
+				if ( ! hasFields && c.initiator !== "user" ) return;
+
+				const comp: OREngineDataEntityComponent = {
+					name: resolver.getName( c ),
+					uuid: c.uuid,
+				};
+
+				if ( hasFields ) comp.props = exportFields;
+
+				components.push( comp );
+
+			} );
+
 			return {
 				name: entity.name,
 				uuid: entity.uuid,
 				pos: entity.position.x == 0 && entity.position.y == 0 && entity.position.z == 0 ? undefined : entity.position.getElm( "vec3" ),
 				rot: entity.euler.x == 0 && entity.euler.y == 0 && entity.euler.z == 0 ? undefined : entity.euler.getElm( "vec3" ),
 				scale: entity.scale.x == 1 && entity.scale.y == 1 && entity.scale.z == 1 ? undefined : entity.scale.getElm( "vec3" ),
+				components: components.length > 0 ? components : undefined,
 				childs: childs.length > 0 ? childs : undefined
 			};
 
@@ -87,81 +103,37 @@ export class ProjectSerializer {
 
 	}
 
-	public static serializeEntityOverride( sceneRoot: MXP.Entity, resolver: ComponentResolver ): OREngineDataEntityOverride[] {
-
-		const objectOverride: OREngineDataEntityOverride[] = [];
-
-		sceneRoot.traverse( ( e ) => {
-
-			const path_ = e.getScenePath( sceneRoot );
-
-			const entityOverrideData: OREngineDataEntityOverride = {
-				path: path_,
-			};
-
-			const components: OREngineDataEntityOverrideComponent[] = [];
-
-			e.components.forEach( ( c ) => {
-
-				const exportFields: MXP.SerializeField = c.serialize( { mode: "export" } );
-				const hasFields = Object.keys( exportFields ).length > 0;
-
-				const value: OREngineDataEntityOverrideComponent = {
-					name: resolver.getName( c ),
-					uuid: c.uuid,
-				};
-
-				if ( ! hasFields && c.initiator !== "user" ) {
-
-					return;
-
-				}
-
-				if ( hasFields ) {
-
-					value.props = exportFields;
-
-				}
-
-				components.push( value );
-
-			} );
-
-			if ( components.length > 0 ) {
-
-				entityOverrideData.components = components;
-
-			}
-
-			if ( e.initiator !== 'user' && ! entityOverrideData.components ) {
-
-				return;
-
-			}
-
-			objectOverride.push( entityOverrideData );
-
-		} );
-
-		return objectOverride;
-
-	}
-
 	/*-------------------------------
 		Deserialize
 	-------------------------------*/
 
-	public static deserializeOverride( overrideData: OREngineDataEntityOverride[], projectRoot: MXP.Entity, targetRoot: MXP.Entity, resolver: ComponentResolver ) {
+	public static deserializeEntity( rootEnttyData: OREngineDataEntity, target: MXP.Entity, resolver: ComponentResolver ) {
 
-		targetRoot.traverse( entity => {
+		const _ = ( node: OREngineDataEntity, target?: MXP.Entity ): MXP.Entity => {
 
-			const path = entity.getScenePath( projectRoot );
+			const entity = target || new MXP.Entity();
+			entity.initiator = "user";
+			entity.name = node.name;
+			entity.restoreUUID( node.uuid );
 
-			const overrideDataItem = overrideData.find( o => o.path == path );
+			const pos = node.pos || [ 0, 0, 0 ];
+			entity.position.x = pos[ 0 ];
+			entity.position.y = pos[ 1 ];
+			entity.position.z = pos[ 2 ];
 
-			if ( overrideDataItem ) {
+			const rot = node.rot || [ 0, 0, 0 ];
+			entity.euler.x = rot[ 0 ];
+			entity.euler.y = rot[ 1 ];
+			entity.euler.z = rot[ 2 ];
 
-				( overrideDataItem.components || [] ).forEach( c => {
+			const scale = node.scale || [ 1, 1, 1 ];
+			entity.scale.x = scale[ 0 ];
+			entity.scale.y = scale[ 1 ];
+			entity.scale.z = scale[ 2 ];
+
+			if ( node.components ) {
+
+				node.components.forEach( c => {
 
 					const compItem = resolver.resolve( c.name );
 
@@ -189,34 +161,6 @@ export class ProjectSerializer {
 				} );
 
 			}
-
-		} );
-
-	}
-
-	public static deserializeEntity( rootEnttyData: OREngineDataEntity, target: MXP.Entity ) {
-
-		const _ = ( node: OREngineDataEntity, target?: MXP.Entity ): MXP.Entity => {
-
-			const entity = target || new MXP.Entity();
-			entity.initiator = "user";
-			entity.name = node.name;
-			entity.restoreUUID( node.uuid );
-
-			const pos = node.pos || [ 0, 0, 0 ];
-			entity.position.x = pos[ 0 ];
-			entity.position.y = pos[ 1 ];
-			entity.position.z = pos[ 2 ];
-
-			const rot = node.rot || [ 0, 0, 0 ];
-			entity.euler.x = rot[ 0 ];
-			entity.euler.y = rot[ 1 ];
-			entity.euler.z = rot[ 2 ];
-
-			const scale = node.scale || [ 1, 1, 1 ];
-			entity.scale.x = scale[ 0 ];
-			entity.scale.y = scale[ 1 ];
-			entity.scale.z = scale[ 2 ];
 
 			if ( node.childs ) {
 

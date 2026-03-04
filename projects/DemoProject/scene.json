@@ -1,98 +1,91 @@
 {
 	"name": "New Project",
-	"position": [
-		0,
-		0,
-		0
-	],
-	"euler": [
-		0,
-		0,
-		0
-	],
-	"scale": [
-		1,
-		1,
-		1
-	],
 	"scene": {
-		"name": "root"
+		"name": "root",
+		"uuid": "0",
+		"components": [
+			{
+				"name": "BLidgeClient",
+				"uuid": "1",
+				"props": {
+					"mode": "json",
+					"gltf": true,
+					"gltfPath": "/scene.glb",
+					"websocket/url": "ws://localhost:3100",
+					"attachments": [
+						{
+							"name": "Camera",
+							"components": [
+								{
+									"name": "ShakeViewer",
+									"uuid": "10",
+									"props": {
+										"power": 0.15,
+										"speed": 1
+									}
+								},
+								{
+									"name": "PostProcessPipeline",
+									"uuid": "11",
+									"props": {
+										"postprocess": [
+											true,
+											true,
+											true,
+											true
+										]
+									}
+								},
+								{
+									"name": "MainCamera",
+									"uuid": "12"
+								}
+							]
+						},
+						{
+							"name": "OREngine",
+							"components": [
+								{
+									"name": "OREngineLogoMaterial",
+									"uuid": "13"
+								}
+							]
+						},
+						{
+							"name": "OREngineCube",
+							"components": [
+								{
+									"name": "OREngineCubeMaterial",
+									"uuid": "14"
+								},
+								{
+									"name": "ObjectRotate",
+									"uuid": "15"
+								}
+							]
+						},
+						{
+							"name": "SkyBox",
+							"components": [
+								{
+									"name": "SkyBox",
+									"uuid": "16"
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"name": "UniformControls",
+				"uuid": "2"
+			},
+			{
+				"name": "TextureGenerator",
+				"uuid": "3"
+			}
+		]
 	},
-	"overrides": [
-		{
-			"path": "/root",
-			"components": [
-				{
-					"name": "BLidgeClient",
-					"props": {
-						"mode": "json",
-						"gltf": true,
-						"gltfPath": "/scene.glb",
-						"websocket/url": "ws://localhost:3100"
-					}
-				},
-				{
-					"name": "UniformControls"
-				},
-				{
-					"name": "TextureGenerator"
-				}
-			]
-		},
-		{
-			"path": "/root/blidgeRoot/Camera",
-			"components": [
-				{
-					"name": "ShakeViewer",
-					"props": {
-						"power": 0.15,
-						"speed": 1
-					}
-				},
-				{
-					"name": "PostProcessPipeline",
-					"props": {
-						"postprocess": [
-							true,
-							true,
-							true,
-							true
-						]
-					}
-				},
-				{
-					"name": "MainCamera"
-				}
-			]
-		},
-		{
-			"path": "/root/blidgeRoot/OREngine",
-			"components": [
-				{
-					"name": "OREngineLogoMaterial"
-				}
-			]
-		},
-		{
-			"path": "/root/blidgeRoot/OREngineCube",
-			"components": [
-				{
-					"name": "OREngineCubeMaterial"
-				},
-				{
-					"name": "ObjectRotate"
-				}
-			]
-		},
-		{
-			"path": "/root/blidgeRoot/SkyBox",
-			"components": [
-				{
-					"name": "SkyBox"
-				}
-			]
-		}
-	],
 	"timeline/duration": 600,
 	"timeline/fps": 60
 }

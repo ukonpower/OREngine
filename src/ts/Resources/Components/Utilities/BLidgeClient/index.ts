@@ -1,7 +1,13 @@
 import * as MXP from 'maxpower';
+import { Engine, OREngineDataEntityComponent } from 'orengine';
 
 import { gl } from '~/ts/Globals';
 import SceneData from '~/ts/Resources/scene.json';
+
+interface BLidgeAttachment {
+	name: string,
+	components: OREngineDataEntityComponent[]
+}
 
 /**
  * BLidgeClient
@@ -19,6 +25,9 @@ export class BLidgeClient extends MXP.Component {
 	private blidgeRoot: MXP.Entity | null;
 	/** 名前をキーとするエンティティのマップ */
 	private entities: Map<string, MXP.Entity>;
+
+	/** BLidgeエンティティへのコンポーネント付加データ */
+	private attachments: BLidgeAttachment[];
 
 	// connection
 	/** WebSocket接続情報 */
@@ -43,6 +52,7 @@ export class BLidgeClient extends MXP.Component {
 
 		// 初期化
 		this.entities = new Map();
+		this.attachments = [];
 		this.type = "websocket";
 		this.connection = {
 			enabled: true,
@@ -152,6 +162,111 @@ export class BLidgeClient extends MXP.Component {
 		// WebSocket URL設定
 		ws.field( "url", () => this.connection.url, v => this.connection.url = v );
 
+		// attachments フィールド（UIには非表示、保存対象）
+		this.field( "attachments",
+			() => this.serializeAttachments(),
+			( v ) => { this.attachments = v || []; },
+			{ hidden: true }
+		);
+
+	}
+
+	private serializeAttachments(): BLidgeAttachment[] {
+
+		if ( ! this.blidgeRoot ) return [];
+
+		const resolver = {
+			getName: ( c: MXP.Component ): string => {
+
+				const item = Engine.resources.componentList.find(
+					item => c instanceof item.component
+				);
+
+				return item ? item.name : c.constructor.name;
+
+			}
+		};
+
+		const result: BLidgeAttachment[] = [];
+
+		this.blidgeRoot.traverse( entity => {
+
+			const components: OREngineDataEntityComponent[] = [];
+
+			entity.components.forEach( c => {
+
+				const exportFields = c.serialize( { mode: "export" } );
+				const hasFields = Object.keys( exportFields ).length > 0;
+
+				if ( ! hasFields && c.initiator !== "user" ) return;
+
+				const comp: OREngineDataEntityComponent = {
+					name: resolver.getName( c ),
+					uuid: c.uuid,
+				};
+
+				if ( hasFields ) comp.props = exportFields;
+
+				components.push( comp );
+
+			} );
+
+			if ( components.length > 0 ) {
+
+				result.push( {
+					name: entity.name,
+					components
+				} );
+
+			}
+
+		} );
+
+		return result;
+
+	}
+
+	private applyAttachments( blidgeRoot: MXP.Entity ) {
+
+		if ( ! this.attachments.length ) return;
+
+		const attachmentMap = new Map<string, BLidgeAttachment>();
+		this.attachments.forEach( a => attachmentMap.set( a.name, a ) );
+
+		blidgeRoot.traverse( entity => {
+
+			const attachment = attachmentMap.get( entity.name );
+			if ( ! attachment ) return;
+
+			attachment.components.forEach( c => {
+
+				const compItem = Engine.resources.getComponent( c.name );
+
+				if ( compItem ) {
+
+					let component = entity.getComponent( compItem.component );
+
+					if ( ! component ) {
+
+						component = entity.addComponent( compItem.component );
+						component.initiator = "user";
+
+					}
+
+					component.restoreUUID( c.uuid );
+
+					if ( c.props ) {
+
+						component.deserialize( c.props );
+
+					}
+
+				}
+
+			} );
+
+		} );
+
 	}
 
 	/**
@@ -249,6 +364,13 @@ export class BLidgeClient extends MXP.Component {
 			}
 
 		} );
+
+		// attachments からコンポーネントを適用
+		if ( this.blidgeRoot ) {
+
+			this.applyAttachments( this.blidgeRoot );
+
+		}
 
 		// イベント通知
 		if ( this.entity ) {
