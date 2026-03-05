@@ -20,12 +20,8 @@
 	color: $fontCol3;
 	display: flex;
 	align-items: center;
-	justify-content: center;
+	justify-content: flex-start;
 	padding-top: 2px;
-
-	@include sp {
-		justify-content: flex-start;
-	}
 
 	&_tabs {
 		display: flex;
@@ -45,6 +41,32 @@
 		&[data-active='true'] {
 			color: $fontCol1;
 			background-color: $bgCol2;
+		}
+
+		&:hover {
+			background-color: $bgCol2;
+		}
+	}
+
+	&_gizmoMode {
+		display: flex;
+		gap: 2px;
+		margin-left: 8px;
+		height: 100%;
+	}
+
+	&_gizmoBtn {
+		padding: 0 6px;
+		cursor: pointer;
+		opacity: 0.5;
+		font-size: 12px;
+		display: flex;
+		align-items: center;
+		user-select: none;
+
+		&[data-active='true'] {
+			opacity: 1.0;
+			background: $bgCol2;
 		}
 
 		&:hover {

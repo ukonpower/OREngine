@@ -7,7 +7,11 @@ import { FrameDebugger } from '../Engine/FrameDebugger';
 import { Keyboard, PressedKeys } from '../Engine/Keyboard';
 import { EditorAPI } from './EditorAPI';
 import { EditorAPIBridge } from './EditorAPIBridge';
+import { SetFieldCommand } from './Commands/SetFieldCommand';
+import { Gizmo, GizmoAxis, GizmoMode } from './Gizmo';
 import { TranslateGizmo } from './Gizmo/TranslateGizmo';
+import { RotateGizmo } from './Gizmo/RotateGizmo';
+import { ScaleGizmo } from './Gizmo/ScaleGizmo';
 
 import selectionVert from './shaders/selection.vs';
 import selectionFrag from './shaders/selection.fs';
@@ -53,7 +57,13 @@ export class Editor extends MXP.Serializable {
 	private _outlinePostProcess: MXP.PostProcess;
 
 	// gizmo
-	private _gizmo: TranslateGizmo;
+	private _translateGizmo: TranslateGizmo;
+	private _rotateGizmo: RotateGizmo;
+	private _scaleGizmo: ScaleGizmo;
+	private _activeGizmo: Gizmo;
+	private _gizmoMode: GizmoMode;
+	private _gizmoDragging: boolean;
+	private _gizmoDragStartValue: { position: number[], euler: number[], scale: number[] } | null;
 
 	constructor( engine: Engine ) {
 
@@ -84,20 +94,178 @@ export class Editor extends MXP.Serializable {
 		this._syncEditorCameraFromScene();
 
 		/*-------------------------------
-			Click Selection
+			Click Selection & Gizmo Drag
 		-------------------------------*/
 
 		this._raycaster = new MXP.Raycaster();
 		this._pointerDownPos = null;
+		this._gizmoDragging = false;
+		this._gizmoDragStartValue = null;
+
+		const canvasElm = engine.canvas as HTMLCanvasElement;
+
+		const getNDC = ( e: PointerEvent ): GLP.Vector => {
+
+			const rect = canvasElm.getBoundingClientRect();
+			const x = ( ( e.clientX - rect.left ) / rect.width ) * 2 - 1;
+			const y = - ( ( e.clientY - rect.top ) / rect.height ) * 2 + 1;
+
+			return new GLP.Vector( x, y );
+
+		};
+
+		const getCameraEntity = (): MXP.Entity | null => {
+
+			return this._useEditorCamera
+				? this._editorCameraEntity
+				: this._engine.cameraEntity;
+
+		};
 
 		const onPointerDown = ( e: PointerEvent ) => {
 
 			( e.target as HTMLElement ).setPointerCapture( e.pointerId );
 			this._pointerDownPos = new GLP.Vector( e.clientX, e.clientY );
 
+			// Gizmo軸ヒットテスト
+			if ( this._activeGizmo.entity.visible ) {
+
+				const ndc = getNDC( e );
+				const cameraEntity = getCameraEntity();
+
+				if ( cameraEntity ) {
+
+					this._raycaster.setFromCamera( ndc, cameraEntity );
+
+					const axisEntities = this._activeGizmo.getAxisEntities();
+					let closestHit: { axis: GizmoAxis, distance: number } | null = null;
+
+					for ( const { axis, entity: axisEntity } of axisEntities ) {
+
+						const hits = this._raycaster.intersectEntities( axisEntity );
+
+						if ( hits.length > 0 && ( ! closestHit || hits[ 0 ].distance < closestHit.distance ) ) {
+
+							closestHit = { axis, distance: hits[ 0 ].distance };
+
+						}
+
+					}
+
+					if ( closestHit ) {
+
+						const selectedEntity = this._selectedEntityId
+							? this._engine.root.findEntityByUUID( this._selectedEntityId )
+							: null;
+
+						if ( selectedEntity ) {
+
+							this._gizmoDragging = true;
+							this._orbitControls.enabled = false;
+
+							this._gizmoDragStartValue = {
+								position: selectedEntity.position.getElm( 'vec3' ) as number[],
+								euler: selectedEntity.euler.getElm( 'vec3' ) as number[],
+								scale: selectedEntity.scale.getElm( 'vec3' ) as number[],
+							};
+
+							this._activeGizmo.startDrag( closestHit.axis, this._raycaster.ray, selectedEntity );
+
+						}
+
+					}
+
+				}
+
+			}
+
+		};
+
+		const onPointerMove = ( e: PointerEvent ) => {
+
+			if ( ! this._gizmoDragging ) return;
+
+			const selectedEntity = this._selectedEntityId
+				? this._engine.root.findEntityByUUID( this._selectedEntityId )
+				: null;
+
+			if ( ! selectedEntity ) return;
+
+			const ndc = getNDC( e );
+			const cameraEntity = getCameraEntity();
+
+			if ( ! cameraEntity ) return;
+
+			this._raycaster.setFromCamera( ndc, cameraEntity );
+			const result = this._activeGizmo.updateDrag( this._raycaster.ray, selectedEntity );
+
+			if ( result ) {
+
+				if ( result.position ) {
+
+					const localPos = result.position.clone();
+
+					if ( selectedEntity.parent ) {
+
+						localPos.applyMatrix4( selectedEntity.parent.matrixWorld.clone().inverse() );
+
+					}
+
+					selectedEntity.position.copy( localPos );
+
+				}
+
+				if ( result.euler ) {
+
+					selectedEntity.euler.set( result.euler.x, result.euler.y, result.euler.z );
+
+				}
+
+				if ( result.scale ) {
+
+					selectedEntity.scale.set( result.scale.x, result.scale.y, result.scale.z );
+
+				}
+
+				selectedEntity.updateMatrix( true );
+
+			}
+
 		};
 
 		const onPointerUp = ( e: PointerEvent ) => {
+
+			if ( this._gizmoDragging ) {
+
+				this._activeGizmo.endDrag();
+				this._gizmoDragging = false;
+				this._orbitControls.enabled = true;
+
+				const selectedEntity = this._selectedEntityId
+					? this._engine.root.findEntityByUUID( this._selectedEntityId )
+					: null;
+
+				if ( selectedEntity && this._gizmoDragStartValue ) {
+
+					const fieldName = this._gizmoMode === 'translate' ? 'position'
+						: this._gizmoMode === 'rotate' ? 'euler'
+							: 'scale';
+
+					const oldValue = this._gizmoDragStartValue[ fieldName ];
+					const newValue = selectedEntity[ fieldName ].getElm( 'vec3' ) as number[];
+
+					this._api.commandManager.execute(
+						new SetFieldCommand( selectedEntity, fieldName, oldValue, newValue )
+					);
+
+				}
+
+				this._gizmoDragStartValue = null;
+				this._pointerDownPos = null;
+
+				return;
+
+			}
 
 			if ( ! this._pointerDownPos ) return;
 
@@ -108,15 +276,8 @@ export class Editor extends MXP.Serializable {
 
 			if ( dist > 5 ) return;
 
-			const canvas = engine.canvas as HTMLCanvasElement;
-			const rect = canvas.getBoundingClientRect();
-			const x = ( ( e.clientX - rect.left ) / rect.width ) * 2 - 1;
-			const y = - ( ( e.clientY - rect.top ) / rect.height ) * 2 + 1;
-			const ndc = new GLP.Vector( x, y );
-
-			const cameraEntity = this._useEditorCamera
-				? this._editorCameraEntity
-				: engine.cameraEntity;
+			const ndc = getNDC( e );
+			const cameraEntity = getCameraEntity();
 
 			if ( ! cameraEntity ) return;
 
@@ -136,13 +297,14 @@ export class Editor extends MXP.Serializable {
 
 		};
 
-		const canvasElm = engine.canvas as HTMLCanvasElement;
 		canvasElm.addEventListener( "pointerdown", onPointerDown );
+		canvasElm.addEventListener( "pointermove", onPointerMove );
 		canvasElm.addEventListener( "pointerup", onPointerUp );
 
 		this.once( "dispose", () => {
 
 			canvasElm.removeEventListener( "pointerdown", onPointerDown );
+			canvasElm.removeEventListener( "pointermove", onPointerMove );
 			canvasElm.removeEventListener( "pointerup", onPointerUp );
 
 		} );
@@ -183,7 +345,11 @@ export class Editor extends MXP.Serializable {
 			Gizmo
 		-------------------------------*/
 
-		this._gizmo = new TranslateGizmo();
+		this._translateGizmo = new TranslateGizmo();
+		this._rotateGizmo = new RotateGizmo();
+		this._scaleGizmo = new ScaleGizmo();
+		this._gizmoMode = 'translate';
+		this._activeGizmo = this._translateGizmo;
 
 		/*-------------------------------
 			KeyEvents
@@ -230,6 +396,11 @@ export class Editor extends MXP.Serializable {
 				}
 
 			}
+
+			// Gizmoモード切替
+			if ( e.key === 'w' ) this.setField( "gizmoMode", "translate" );
+			if ( e.key === 'e' ) this.setField( "gizmoMode", "rotate" );
+			if ( e.key === 'r' ) this.setField( "gizmoMode", "scale" );
 
 		} );
 
@@ -352,6 +523,16 @@ export class Editor extends MXP.Serializable {
 				engine.renderer.clearOverrides();
 
 			}
+
+		} );
+
+		this.field( "gizmoMode", () => this._gizmoMode, ( v: GizmoMode ) => {
+
+			this._gizmoMode = v;
+
+			if ( v === 'translate' ) this._activeGizmo = this._translateGizmo;
+			else if ( v === 'rotate' ) this._activeGizmo = this._rotateGizmo;
+			else this._activeGizmo = this._scaleGizmo;
 
 		} );
 
@@ -518,15 +699,20 @@ export class Editor extends MXP.Serializable {
 			? this._engine.root.findEntityByUUID( this._selectedEntityId )
 			: null;
 
-		this._gizmo.setTarget( selectedEntity || null );
+		// 全Gizmoを非表示にしてからアクティブなもののみ更新
+		this._translateGizmo.entity.visible = false;
+		this._rotateGizmo.entity.visible = false;
+		this._scaleGizmo.entity.visible = false;
 
-		if ( this._gizmo.entity.visible ) {
+		this._activeGizmo.setTarget( selectedEntity || null );
+
+		if ( this._activeGizmo.entity.visible ) {
 
 			// update gizmo matrices
-			this._gizmo.entity.updateMatrix( true );
+			this._activeGizmo.entity.updateMatrix( true );
 
 			const event = this._engine.createEntityUpdateEvent();
-			this._gizmo.entity.update( event );
+			this._activeGizmo.entity.update( event );
 
 			// render gizmo
 			const cameraEntity = this._useEditorCamera
@@ -537,7 +723,7 @@ export class Editor extends MXP.Serializable {
 
 				const gizmoEntities: MXP.Entity[] = [];
 
-				this._gizmo.entity.traverse( ( child ) => {
+				this._activeGizmo.entity.traverse( ( child ) => {
 
 					if ( child.getComponent( MXP.Mesh ) ) {
 
