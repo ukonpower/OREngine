@@ -103,6 +103,7 @@ interface CompileDrawParam {
 
 export type PipelineConfig = {
 	motionBlur?: boolean;
+	motionBlurPower?: number;
 	ssr?: boolean;
 	ssao?: boolean;
 	lightShaft?: boolean;
@@ -279,6 +280,7 @@ export class Renderer extends Serializable {
 
 		this._pipelineConfig = {
 			motionBlur: true,
+			motionBlurPower: 1.0,
 			ssr: true,
 			ssao: true,
 			lightShaft: true,
@@ -287,25 +289,39 @@ export class Renderer extends Serializable {
 		this._overrides = {};
 
 		const pipeline = this.fieldDir( "pipeline" );
-		pipeline.field( "motionBlur", () => this._pipelineConfig.motionBlur, ( v: boolean ) => {
+
+		const motionBlurDir = pipeline.dir( "motionBlur" );
+		motionBlurDir.field( "enabled", () => this._pipelineConfig.motionBlur, ( v: boolean ) => {
 
 			this._pipelineConfig.motionBlur = v;
 			this._applyEffectiveConfig();
 
 		} );
-		pipeline.field( "ssr", () => this._pipelineConfig.ssr, ( v: boolean ) => {
+		motionBlurDir.field( "power", () => this._pipelineConfig.motionBlurPower, ( v: number ) => {
+
+			this._pipelineConfig.motionBlurPower = v;
+			this._applyEffectiveConfig();
+
+		}, { step: 0.1 } );
+
+		const ssrDir = pipeline.dir( "ssr" );
+		ssrDir.field( "enabled", () => this._pipelineConfig.ssr, ( v: boolean ) => {
 
 			this._pipelineConfig.ssr = v;
 			this._applyEffectiveConfig();
 
 		} );
-		pipeline.field( "ssao", () => this._pipelineConfig.ssao, ( v: boolean ) => {
+
+		const ssaoDir = pipeline.dir( "ssao" );
+		ssaoDir.field( "enabled", () => this._pipelineConfig.ssao, ( v: boolean ) => {
 
 			this._pipelineConfig.ssao = v;
 			this._applyEffectiveConfig();
 
 		} );
-		pipeline.field( "lightShaft", () => this._pipelineConfig.lightShaft, ( v: boolean ) => {
+
+		const lightShaftDir = pipeline.dir( "lightShaft" );
+		lightShaftDir.field( "enabled", () => this._pipelineConfig.lightShaft, ( v: boolean ) => {
 
 			this._pipelineConfig.lightShaft = v;
 			this._applyEffectiveConfig();
@@ -1330,6 +1346,12 @@ export class Renderer extends Serializable {
 			ssr: config.ssr,
 		} );
 
+		if ( config.motionBlurPower !== undefined ) {
+
+			this._pipelinePostProcess.setMotionBlurPower( config.motionBlurPower );
+
+		}
+
 	}
 
 	public setOverride( config: Partial<PipelineConfig> ): void {
@@ -1350,6 +1372,7 @@ export class Renderer extends Serializable {
 
 		const effective: PipelineConfig = {
 			motionBlur: this._overrides.motionBlur ?? this._pipelineConfig.motionBlur,
+			motionBlurPower: this._overrides.motionBlurPower ?? this._pipelineConfig.motionBlurPower,
 			ssr: this._overrides.ssr ?? this._pipelineConfig.ssr,
 			ssao: this._overrides.ssao ?? this._pipelineConfig.ssao,
 			lightShaft: this._overrides.lightShaft ?? this._pipelineConfig.lightShaft,
