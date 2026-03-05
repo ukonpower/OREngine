@@ -13,11 +13,11 @@
 
 	@media only screen and (max-width: $sp-width) {
 		--or-tab-height: 32px;
-		--or-tab-font-size: 14px;
+		--or-tab-font-size: #{$fontSize2};
 		--or-tab-padding: 0 12px;
 		--or-screen-header-height: 36px;
 		--or-list-row-height: 28px;
-		--or-input-font-size: 16px;
+		--or-input-font-size: inherit;
 		--or-input-padding: 4px 5px;
 		--or-checkbox-size: 20px;
 		--or-btn-padding: 6px 0;
