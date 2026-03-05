@@ -5,6 +5,9 @@ import React, { useEffect } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 
 import { useLayout } from '../../hooks/useLayout';
+import { InputWindow } from '../InputWindow';
+import { InputWindowContext } from '../InputWindow/Context/InputWindowContext';
+import { useInputWindowContext } from '../InputWindow/Hooks/useInputWindowContext';
 import { MouseMenu } from '../MouseMenu';
 import { MouseMenuContext } from '../MouseMenu/Context/MouseMenuContext';
 import { useMouseMenuContext } from '../MouseMenu/Hooks/useMouseMenuContext';
@@ -55,6 +58,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 
        const layout = useLayout();
        const mouseMenuContext = useMouseMenuContext();
+       const inputWindowContext = useInputWindowContext();
 
 	let editorElm = null;
 
@@ -163,9 +167,12 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 
 	return <OREditorContext.Provider value={editorContext}>
 		<MouseMenuContext.Provider value={mouseMenuContext}>
-			<div className={style.editor}>
-				{editorElm}
-			</div>
+			<InputWindowContext.Provider value={inputWindowContext}>
+				<div className={style.editor}>
+					{editorElm}
+				</div>
+				<InputWindow />
+			</InputWindowContext.Provider>
 		</MouseMenuContext.Provider>
 	</OREditorContext.Provider>;
 

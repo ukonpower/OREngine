@@ -2,6 +2,9 @@
 
 import { useCallback, useEffect, useState } from 'react';
 
+import { useInputWindow } from '../../../hooks/useInputWindow';
+import { useLayout } from '../../../hooks/useLayout';
+
 import style from './index.module.scss';
 
 interface InputTextProps {
@@ -12,6 +15,9 @@ interface InputTextProps {
 }
 
 export const InputText = ( { onChange, value, ...props }: InputTextProps ) => {
+
+	const { open } = useInputWindow();
+	const { isSP } = useLayout();
 
 	const [ currentInput, setCurrentInput ] = useState( value );
 
@@ -31,18 +37,35 @@ export const InputText = ( { onChange, value, ...props }: InputTextProps ) => {
 
 	}, [ value ] );
 
+	const onClickInput = useCallback( () => {
+
+		if ( ! isSP || props.readOnly || props.disabled ) return;
+
+		open( {
+			type: "text",
+			value: currentInput,
+			onChange: ( v ) => {
+
+				if ( onChange ) onChange( v as string );
+
+			}
+		} );
+
+	}, [ isSP, currentInput, onChange, open, props.readOnly, props.disabled ] );
+
 	return <div className={style.container}>
-		<input className={style.input} type="text" value={currentInput} placeholder={props.readOnly ? '-' : ''} disabled={props.disabled} readOnly={props.readOnly} data-lo={props.readOnly }
+		<input className={style.input} type="text" value={currentInput} placeholder={props.readOnly ? '-' : ''} disabled={props.disabled} readOnly={isSP || props.readOnly} data-lo={props.readOnly }
 			onChange={( e ) => {
 
 				setCurrentInput( e.target.value );
 
 			}}
-			onBlur={( e ) => {
+			onBlur={() => {
 
 				submit();
 
 			}}
+			onClick={onClickInput}
 			onKeyDown={( e ) => {
 
 				if ( e.key === 'Enter' ) {
