@@ -126,6 +126,8 @@ export class Editor extends MXP.Serializable {
 
 		const onPointerDown = ( e: PointerEvent ) => {
 
+			if ( e.pointerType === 'touch' && this._gizmoDragging ) return;
+
 			( e.target as HTMLElement ).setPointerCapture( e.pointerId );
 			this._pointerDownPos = new GLP.Vector( e.clientX, e.clientY );
 
