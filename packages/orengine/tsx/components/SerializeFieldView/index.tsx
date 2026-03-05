@@ -6,16 +6,29 @@ import { SerializeFieldViewDir } from './SerializeFieldViewDir';
 
 type SerializeFieldViewProps = {
         target: MXP.Serializable
+        filter?: string
 };
 
 export const SerializeFieldView: React.FC<SerializeFieldViewProps > = ( props ) => {
 
 	const context = useSerializeFieldViewContext( props );
 
-	const fields = context.target.serializeToDirectory();
+	let fields = context.target.serializeToDirectory();
+
+	if ( props.filter ) {
+
+		const child = fields.childs[ props.filter ];
+
+		if ( child && child.type === "folder" ) {
+
+			fields = child;
+
+		}
+
+	}
 
 	return <SerializeFieldViewContext.Provider value={context} >
-		<SerializeFieldViewDir fields={fields}/>
+		<SerializeFieldViewDir fields={fields} basePath={props.filter}/>
 	</SerializeFieldViewContext.Provider>;
 
 };
