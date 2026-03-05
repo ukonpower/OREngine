@@ -138,6 +138,10 @@ export class Pointer extends GLP.EventEmitter {
 
                                 this._touchEventHandler( e.pageX, e.pageY, type, e as PointerEvent );
 
+			} else if ( pointerType == 'touch' ) {
+
+                                this._touchEventHandler( e.pageX, e.pageY, type, e as PointerEvent );
+
 			}
 
 		} else {
