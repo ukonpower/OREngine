@@ -129,10 +129,8 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 					</div>
 					<div className={`${style.flex}`}>
 						<PanelContainer>
-							<Panel title='Scene'>
+							<Panel title='Scene / Property'>
 								<Hierarchy />
-							</Panel>
-							<Panel title='Property'>
 								<EntityProperty />
 							</Panel>
 							<Panel title='Components'>
