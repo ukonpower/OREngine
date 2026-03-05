@@ -1,21 +1,32 @@
 import { useState } from 'react';
 
-import { Panel } from '../Panel';
-
 import style from './index.module.scss';
 
-type PanelElmType = React.ReactElement<any, typeof Panel>;
+type TabProps = {
+	title: string;
+	children?: React.ReactNode;
+};
 
-export type PanelProps = {
-	children?: PanelElmType | PanelElmType[]
-}
+const Tab = ( props: TabProps ) => {
 
-export const PanelContainer = ( props: PanelProps ) => {
+	return <>
+		{props.children}
+	</>;
+
+};
+
+type PanelContainerChild = React.ReactElement<TabProps> | false | null | undefined;
+
+type PanelContainerProps = {
+	children?: PanelContainerChild | PanelContainerChild[];
+};
+
+export const PanelContainer = ( props: PanelContainerProps ) => {
 
 	const [ selected, setSelected ] = useState<number>( 0 );
 
-	let childs = props.children || [];
-	childs = Array.isArray( childs ) ? childs : [ childs ];
+	const rawChilds = props.children || [];
+	const childs = ( Array.isArray( rawChilds ) ? rawChilds : [ rawChilds ] ).filter( ( c ): c is React.ReactElement<TabProps> => !! c );
 
 	return <div className={style.panelContainer}>
 		<div className={style.header}>
@@ -35,3 +46,5 @@ export const PanelContainer = ( props: PanelProps ) => {
 	</div>;
 
 };
+
+PanelContainer.Tab = Tab;

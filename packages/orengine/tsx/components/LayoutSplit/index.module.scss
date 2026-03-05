@@ -1,0 +1,31 @@
+@use '../../styles' as *;
+
+.layout {
+	display: flex;
+	width: 100%;
+	height: 100%;
+
+	&[data-direction="vertical"] {
+		flex-direction: column;
+
+		> .item + .item {
+			border-top: 1px solid $bgCol0;
+		}
+	}
+
+	&[data-direction="horizontal"] {
+
+		> .item + .item {
+			border-left: 1px solid $bgCol0;
+		}
+	}
+}
+
+.item {
+	min-width: 0;
+	min-height: 0;
+
+	&_inner {
+		padding: $padding;
+	}
+}
