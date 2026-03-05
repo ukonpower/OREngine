@@ -20,6 +20,7 @@ export const Screen = () => {
 	const [ cameraMode, setCameraMode ] = useSerializableField<string>( editor, "cameraMode" );
 	const [ viewType, setViewType ] = useSerializableField<string>( editor, "viewType" );
 	const [ resolutionScale, setResolutionScale ] = useSerializableField<number>( editor, "resolutionScale" );
+	const [ gizmoMode, setGizmoMode ] = useSerializableField<string>( editor, "gizmoMode" );
 
 	return <div className={style.screen}>
 		<div className={style.header}>
@@ -32,6 +33,19 @@ export const Screen = () => {
 						onClick={() => setCameraMode && setCameraMode( mode )}
 					>
 						{mode.charAt( 0 ).toUpperCase() + mode.slice( 1 )}
+					</div>
+				) )}
+			</div>
+			<div className={style.header_gizmoMode}>
+				{( [ "translate", "rotate", "scale" ] as const ).map( ( mode ) => (
+					<div
+						key={mode}
+						className={style.header_gizmoBtn}
+						data-active={gizmoMode === mode}
+						onClick={() => setGizmoMode && setGizmoMode( mode )}
+						title={`${mode} (${mode === 'translate' ? 'W' : mode === 'rotate' ? 'E' : 'R'})`}
+					>
+						{mode === 'translate' ? 'T' : mode === 'rotate' ? 'R' : 'S'}
 					</div>
 				) )}
 			</div>

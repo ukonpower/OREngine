@@ -6,7 +6,7 @@ import gizmoFrag from '../../shaders/gizmo.fs';
 
 import { Gizmo, GizmoAxis, GizmoDragResult } from '..';
 
-export class TranslateGizmo implements Gizmo {
+export class ScaleGizmo implements Gizmo {
 
 	public entity: MXP.Entity;
 	private _xAxis: MXP.Entity;
@@ -15,18 +15,20 @@ export class TranslateGizmo implements Gizmo {
 	private _activeAxis: GizmoAxis | null;
 	private _dragging: boolean;
 	private _dragStartPos: GLP.Vector;
-	private _dragOffset: GLP.Vector;
+	private _dragStartProjection: number;
+	private _dragStartScale: GLP.Vector;
 
 	constructor() {
 
-		this.entity = new MXP.Entity( { name: "__gizmo" } );
+		this.entity = new MXP.Entity( { name: "__gizmo_scale" } );
 		this.entity.initiator = "god";
 		this.entity.visible = false;
 
 		this._activeAxis = null;
 		this._dragging = false;
 		this._dragStartPos = new GLP.Vector();
-		this._dragOffset = new GLP.Vector();
+		this._dragStartProjection = 0;
+		this._dragStartScale = new GLP.Vector();
 
 		this._xAxis = this._createAxis( new GLP.Vector( 1, 0, 0 ), [ 1.0, 0.2, 0.2 ] );
 		this._yAxis = this._createAxis( new GLP.Vector( 0, 1, 0 ), [ 0.2, 1.0, 0.2 ] );
@@ -45,8 +47,7 @@ export class TranslateGizmo implements Gizmo {
 
 		const shaftLength = 0.8;
 		const shaftRadius = 0.015;
-		const headLength = 0.2;
-		const headRadius = 0.05;
+		const headSize = 0.08;
 
 		// shaft
 		const shaft = new MXP.Entity( { name: "__gizmo_shaft" } );
@@ -73,17 +74,14 @@ export class TranslateGizmo implements Gizmo {
 		shaft.addComponent( MXP.Mesh, { geometry: shaftGeo, material: shaftMat } );
 		shaft.position.set( direction.x * shaftLength / 2, direction.y * shaftLength / 2, direction.z * shaftLength / 2 );
 
-		// head (cone-like cylinder)
+		// head (cube)
 		const head = new MXP.Entity( { name: "__gizmo_head" } );
 		head.initiator = "god";
 
-		const headGeo = new MXP.CylinderGeometry( {
-			radiusTop: 0.001,
-			radiusBottom: headRadius,
-			height: headLength,
-			radSegments: 6,
-			heightSegments: 1,
-			caps: true,
+		const headGeo = new MXP.CubeGeometry( {
+			width: headSize,
+			height: headSize,
+			depth: headSize,
 		} );
 
 		const headMat = new MXP.Material( {
@@ -97,21 +95,19 @@ export class TranslateGizmo implements Gizmo {
 
 		head.addComponent( MXP.Mesh, { geometry: headGeo, material: headMat } );
 		head.position.set(
-			direction.x * ( shaftLength + headLength / 2 ),
-			direction.y * ( shaftLength + headLength / 2 ),
-			direction.z * ( shaftLength + headLength / 2 )
+			direction.x * ( shaftLength + headSize / 2 ),
+			direction.y * ( shaftLength + headSize / 2 ),
+			direction.z * ( shaftLength + headSize / 2 )
 		);
 
-		// orient shaft and head along the axis direction
+		// orient shaft along the axis direction
 		if ( direction.x > 0.5 ) {
 
 			shaft.euler.set( 0, 0, - Math.PI / 2 );
-			head.euler.set( 0, 0, - Math.PI / 2 );
 
 		} else if ( direction.z > 0.5 ) {
 
 			shaft.euler.set( Math.PI / 2, 0, 0 );
-			head.euler.set( Math.PI / 2, 0, 0 );
 
 		}
 
@@ -179,23 +175,13 @@ export class TranslateGizmo implements Gizmo {
 
 	}
 
-	public startDrag( axis: GizmoAxis, ray: MXP.Ray, _targetEntity: MXP.Entity ): void {
+	public startDrag( axis: GizmoAxis, ray: MXP.Ray, targetEntity: MXP.Entity ): void {
 
 		this._activeAxis = axis;
 		this._dragging = true;
 		this._dragStartPos.copy( this.entity.position );
-
-		const projected = this._projectRayOnAxis( ray, axis );
-
-		if ( projected ) {
-
-			this._dragOffset.set(
-				this._dragStartPos.x - projected.x,
-				this._dragStartPos.y - projected.y,
-				this._dragStartPos.z - projected.z,
-			);
-
-		}
+		this._dragStartProjection = this._getAxisProjection( ray, axis );
+		this._dragStartScale.set( targetEntity.scale.x, targetEntity.scale.y, targetEntity.scale.z );
 
 	}
 
@@ -203,17 +189,21 @@ export class TranslateGizmo implements Gizmo {
 
 		if ( ! this._dragging || ! this._activeAxis ) return null;
 
-		const projected = this._projectRayOnAxis( ray, this._activeAxis );
+		const currentProjection = this._getAxisProjection( ray, this._activeAxis );
+		const delta = currentProjection - this._dragStartProjection;
 
-		if ( ! projected ) return null;
+		const newScale = this._dragStartScale.clone();
 
-		const newPos = new GLP.Vector(
-			projected.x + this._dragOffset.x,
-			projected.y + this._dragOffset.y,
-			projected.z + this._dragOffset.z,
-		);
+		if ( this._activeAxis === 'x' ) newScale.x += delta;
+		else if ( this._activeAxis === 'y' ) newScale.y += delta;
+		else newScale.z += delta;
 
-		return { position: newPos };
+		// スケールが0以下にならないように制限
+		newScale.x = Math.max( 0.01, newScale.x );
+		newScale.y = Math.max( 0.01, newScale.y );
+		newScale.z = Math.max( 0.01, newScale.z );
+
+		return { scale: newScale };
 
 	}
 
@@ -224,7 +214,7 @@ export class TranslateGizmo implements Gizmo {
 
 	}
 
-	private _projectRayOnAxis( ray: MXP.Ray, axis: GizmoAxis ): GLP.Vector | null {
+	private _getAxisProjection( ray: MXP.Ray, axis: GizmoAxis ): number {
 
 		const axisDir = new GLP.Vector(
 			axis === 'x' ? 1 : 0,
@@ -232,11 +222,7 @@ export class TranslateGizmo implements Gizmo {
 			axis === 'z' ? 1 : 0,
 		);
 
-		const gizmoPos = new GLP.Vector(
-			this._dragStartPos.x,
-			this._dragStartPos.y,
-			this._dragStartPos.z
-		);
+		const gizmoPos = this._dragStartPos;
 
 		const diff = new GLP.Vector(
 			ray.origin.x - gizmoPos.x,
@@ -250,13 +236,7 @@ export class TranslateGizmo implements Gizmo {
 		const denom = 1.0 - dotDirAxis * dotDirAxis + 0.0001;
 		const t = - dotDiffAxis / denom;
 
-		const projected = dotDiffAxis + t * dotDirAxis;
-
-		return new GLP.Vector(
-			gizmoPos.x + axisDir.x * projected,
-			gizmoPos.y + axisDir.y * projected,
-			gizmoPos.z + axisDir.z * projected,
-		);
+		return dotDiffAxis + t * dotDirAxis;
 
 	}
 
