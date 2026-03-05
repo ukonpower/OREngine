@@ -1,13 +1,19 @@
 @use '../../../../styles' as *;
 
-.item {
+.node {
+	font-size: $fontSize2;
+	color: $fontCol2;
+
+	&[data-builtin="true"] {
+		color: $fontCol3;
+	}
+}
+
+.row {
 	display: flex;
 	align-items: center;
 	height: var(--or-list-row-height);
-	padding-left: 4px;
 	cursor: pointer;
-	font-size: $fontSize2;
-	color: $fontCol2;
 
 	&:hover {
 		background-color: $bgCol2;
@@ -18,11 +24,25 @@
 	}
 }
 
+.fold {
+	width: 20px;
+	flex-shrink: 0;
+
+	&_button {
+		display: flex;
+		width: 100%;
+		height: 100%;
+		align-items: center;
+		justify-content: center;
+	}
+}
+
 .name {
 	flex: 1;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+	padding-left: 2px;
 }
 
 .menu {
@@ -35,11 +55,17 @@
 	color: $fontCol3;
 	opacity: 0;
 
-	.item:hover & {
+	.row:hover & {
 		opacity: 1;
 	}
 
 	&:hover {
 		color: $fontCol1;
+	}
+}
+
+.child {
+	&[data-open="false"] {
+		display: none;
 	}
 }
