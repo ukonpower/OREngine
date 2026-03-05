@@ -118,60 +118,45 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 	} else {
 
 		editorElm = (
-			<div className={style.editor}>
+			<>
 				<div className={style.vert}>
-					<div className={`${style.flex}`}>
+					<div className={style.sp_viewport}>
 						<Screen />
 					</div>
-					<div className={style.horiz} style={{ height: '55vh' }}>
-						<div className={style.vert} style={{ width: '45vw' }}>
-							<div style={{ flex: '1' }}>
-								<PanelContainer>
-									<Panel title='Scene'>
-										<Hierarchy />
-									</Panel>
-									<Panel title='Components'>
-										<ComponentExplorer />
-									</Panel>
-																		<Panel title='Project'>
-										<ProjectControl />
-									</Panel>
-									<Panel title='Renderer'>
-										<RendererSettings />
-									</Panel>
-								</PanelContainer>
-							</div>
-							<div style={{ height: '15vh' }}>
-								<PanelContainer>
-									<Panel title='Timer' noPadding>
-										<Timer />
-									</Panel>
-								</PanelContainer>
-							</div>
-						</div>
-						<div className={`${style.flex}`}>
-							<PanelContainer>
-								<Panel title='Property'>
-									<EntityProperty />
-								</Panel>
-							</PanelContainer>
-						</div>
+					<div className={`${style.flex}`}>
+						<PanelContainer>
+							<Panel title='Scene'>
+								<Hierarchy />
+							</Panel>
+							<Panel title='Property'>
+								<EntityProperty />
+							</Panel>
+							<Panel title='Components'>
+								<ComponentExplorer />
+							</Panel>
+							<Panel title='Project'>
+								<ProjectControl />
+							</Panel>
+							<Panel title='Renderer'>
+								<RendererSettings />
+							</Panel>
+							{props.midiMixController && <Panel title='MIDI'>
+								<MIDIMIXEmu controller={props.midiMixController}/>
+							</Panel>}
+						</PanelContainer>
 					</div>
-					<div style={{ height: '15vh' }}>
+					<div className={style.sp_timeline}>
 						<PanelContainer>
 							<Panel title='Timeline' noPadding>
 								<ErrorBoundary fallback={<div>エラーだよ</div>}>
 									<Timeline />
 								</ErrorBoundary>
 							</Panel>
-							{props.midiMixController && <Panel title='MIDIMIXEmu'>
-								<MIDIMIXEmu controller={props.midiMixController}/>
-							</Panel>}
 						</PanelContainer>
 					</div>
 				</div>
 				<MouseMenu />
-			</div>
+			</>
 		);
 
 	}

@@ -11,16 +11,16 @@
 .header {
 	position: relative;
 	width: 100%;
-	height: 30px;
+	height: var(--or-screen-header-height);
 	background-color: $bgCol0;
 	text-align: center;
 	font-weight: bold;
-	font-size: $fontSize2;
+	font-size: var(--or-tab-font-size);
 	border-bottom: 1px solid $bgCol1;
 	color: $fontCol3;
 	display: flex;
 	align-items: center;
-	justify-content: center;
+	justify-content: flex-start;
 	padding-top: 2px;
 
 	&_tabs {
@@ -33,7 +33,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		padding: 0 10px;
+		padding: var(--or-tab-padding);
 		cursor: pointer;
 		user-select: none;
 		color: $fontCol3;
@@ -48,11 +48,41 @@
 		}
 	}
 
+	&_gizmoMode {
+		display: flex;
+		gap: 2px;
+		margin-left: 8px;
+		height: 100%;
+	}
+
+	&_gizmoBtn {
+		padding: 0 6px;
+		cursor: pointer;
+		opacity: 0.5;
+		font-size: 12px;
+		display: flex;
+		align-items: center;
+		user-select: none;
+
+		&[data-active='true'] {
+			opacity: 1.0;
+			background: $bgCol2;
+		}
+
+		&:hover {
+			background-color: $bgCol2;
+		}
+	}
+
 	&_right {
 		position: absolute;
 		display: flex;
 		right: 10px;
 		height: 100%;
+
+		@include sp {
+			right: 5px;
+		}
 	}
 
 	&_item {
@@ -61,6 +91,10 @@
 		display: flex;
 		align-items: center;
 		margin-right: 20px;
+
+		@include sp {
+			margin-right: 8px;
+		}
 	}
 }
 
