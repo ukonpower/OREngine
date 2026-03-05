@@ -3,11 +3,10 @@ import { ResouceComponentItem } from 'packages/orengine/ts/Engine/Resources';
 import { useCallback, useEffect, useState } from 'react';
 
 import { Engine } from '../../../../ts/Engine';
-import { Block } from '../../Block';
 
 import { ComponentCreateForm } from './ComponentCreateForm';
 import { ComponentDetail } from './ComponentDetail';
-import { ComponentExplorerGroup } from './ComponentExplorerGroup';
+import { ComponentExplorerNode } from './ComponentExplorerNode';
 import style from './index.module.scss';
 
 export const ComponentExplorer = () => {
@@ -38,33 +37,18 @@ export const ComponentExplorer = () => {
 	}, [] );
 
 	const groups = Engine.resources.componentGroups;
-	const builtinGroups = groups.filter( g => g.name.startsWith( "_" ) );
-	const customGroups = groups.filter( g => ! g.name.startsWith( "_" ) );
 
 	return <div className={style.explorer}>
 		<ComponentCreateForm />
-		{builtinGroups.length > 0 && <Block label="Built-in" accordion defaultClose>
-			{builtinGroups.map( ( g, i ) => (
+		{groups.map( ( g, i ) => (
 
-				<ComponentExplorerGroup
-					key={i}
-					group={g}
-					displayName={g.name.replace( /^_/, '' )}
-					isBuiltin={true}
-					onSelect={onSelect}
-					selected={selectedItem}
-				/>
-
-			) )}
-		</Block>}
-		{customGroups.map( ( g, i ) => (
-
-			<ComponentExplorerGroup
+			<ComponentExplorerNode
 				key={i}
-				group={g}
-				isBuiltin={false}
+				node={g}
+				depth={0}
+				isBuiltin={g.name.startsWith( '_' )}
+				selectedItem={selectedItem}
 				onSelect={onSelect}
-				selected={selectedItem}
 			/>
 
 		) )}
