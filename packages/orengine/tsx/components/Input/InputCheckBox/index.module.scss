@@ -2,8 +2,8 @@
 
 .inputBoolean {
 	display: block;
-	width: 14px;
-	height: 14px;
+	width: var(--or-checkbox-size);
+	height: var(--or-checkbox-size);
 
 	svg {
 		width: 100%;

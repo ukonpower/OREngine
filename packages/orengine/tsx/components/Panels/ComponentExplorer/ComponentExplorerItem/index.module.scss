@@ -3,7 +3,7 @@
 .item {
 	display: flex;
 	align-items: center;
-	height: 22px;
+	height: var(--or-list-row-height);
 	padding-left: 4px;
 	cursor: pointer;
 	font-size: $fontSize2;
