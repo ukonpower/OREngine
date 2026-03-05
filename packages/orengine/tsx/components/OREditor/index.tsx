@@ -8,6 +8,7 @@ import { useLayout } from '../../hooks/useLayout';
 import { InputWindow } from '../InputWindow';
 import { InputWindowContext } from '../InputWindow/Context/InputWindowContext';
 import { useInputWindowContext } from '../InputWindow/Hooks/useInputWindowContext';
+import { LayoutSplit } from '../LayoutSplit';
 import { MouseMenu } from '../MouseMenu';
 import { MouseMenuContext } from '../MouseMenu/Context/MouseMenuContext';
 import { useMouseMenuContext } from '../MouseMenu/Hooks/useMouseMenuContext';
@@ -66,55 +67,75 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 
 		editorElm = (
 			<>
-				<div className={style.vert}>
-					<div className={`${style.horiz} ${style.flex}`}>
-						<div className={style.vert} style={{ width: '300px' }}>
-							<div className={style.flex}>
+				<LayoutSplit direction="vertical">
+					<LayoutSplit.Item flex={1}>
+						<LayoutSplit direction="horizontal">
+							<LayoutSplit.Item size="300px">
+								<LayoutSplit direction="vertical">
+									<LayoutSplit.Item flex={1}>
+										<PanelContainer>
+											<PanelContainer.Tab title='Scene'>
+												<Panel>
+													<Hierarchy />
+												</Panel>
+											</PanelContainer.Tab>
+											<PanelContainer.Tab title='Components'>
+												<Panel>
+													<ComponentExplorer />
+												</Panel>
+											</PanelContainer.Tab>
+											<PanelContainer.Tab title='Project'>
+												<Panel>
+													<ProjectControl />
+												</Panel>
+											</PanelContainer.Tab>
+											<PanelContainer.Tab title='Renderer'>
+												<Panel>
+													<RendererSettings />
+												</Panel>
+											</PanelContainer.Tab>
+										</PanelContainer>
+									</LayoutSplit.Item>
+									<LayoutSplit.Item size="20vh">
+										<PanelContainer>
+											<PanelContainer.Tab title='Timer'>
+												<Panel noPadding>
+													<Timer />
+												</Panel>
+											</PanelContainer.Tab>
+										</PanelContainer>
+									</LayoutSplit.Item>
+								</LayoutSplit>
+							</LayoutSplit.Item>
+							<LayoutSplit.Item flex={1}>
+								<Screen />
+							</LayoutSplit.Item>
+							<LayoutSplit.Item size="300px">
 								<PanelContainer>
-									<Panel title='Scene'>
-										<Hierarchy />
-									</Panel>
-									<Panel title='Components'>
-										<ComponentExplorer />
-									</Panel>
-																		<Panel title='Project'>
-										<ProjectControl />
-									</Panel>
-									<Panel title='Renderer'>
-										<RendererSettings />
-									</Panel>
+									<PanelContainer.Tab title='Property'>
+										<Panel>
+											<EntityProperty />
+										</Panel>
+									</PanelContainer.Tab>
 								</PanelContainer>
-							</div>
-							<div style={{ height: '20vh' }}>
-								<PanelContainer>
-									<Panel title='Timer' noPadding>
-										<Timer />
-									</Panel>
-								</PanelContainer>
-							</div>
-						</div>
-						<div className={`${style.flex}`}>
-							<Screen />
-						</div>
-						<div style={{ width: '300px' }}>
-							<PanelContainer>
-								<Panel title='Property'>
-									<EntityProperty />
-								</Panel>
-							</PanelContainer>
-						</div>
-					</div>
-					<div style={{ height: '160px' }}>
+							</LayoutSplit.Item>
+						</LayoutSplit>
+					</LayoutSplit.Item>
+					<LayoutSplit.Item size="160px">
 						<PanelContainer>
-							<Panel title='Timeline' noPadding>
-								<Timeline />
-							</Panel>
-							{props.midiMixController && <Panel title='MIDIMIXEmu'>
-								<MIDIMIXEmu controller={props.midiMixController}/>
-							</Panel>}
+							<PanelContainer.Tab title='Timeline'>
+								<Panel noPadding>
+									<Timeline />
+								</Panel>
+							</PanelContainer.Tab>
+							{props.midiMixController && <PanelContainer.Tab title='MIDIMIXEmu'>
+								<Panel>
+									<MIDIMIXEmu controller={props.midiMixController}/>
+								</Panel>
+							</PanelContainer.Tab>}
 						</PanelContainer>
-					</div>
-				</div>
+					</LayoutSplit.Item>
+				</LayoutSplit>
 				<MouseMenu />
 			</>
 		);
@@ -123,40 +144,56 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 
 		editorElm = (
 			<>
-				<div className={style.vert}>
-					<div className={style.sp_viewport}>
+				<LayoutSplit direction="vertical">
+					<LayoutSplit.Item size="35vh" style={{ minHeight: '200px' }}>
 						<Screen />
-					</div>
-					<div className={`${style.flex}`}>
+					</LayoutSplit.Item>
+					<LayoutSplit.Item flex={1}>
 						<PanelContainer>
-							<Panel title='Scene / Property'>
-								<Hierarchy />
-								<EntityProperty />
-							</Panel>
-							<Panel title='Components'>
-								<ComponentExplorer />
-							</Panel>
-							<Panel title='Project'>
-								<ProjectControl />
-							</Panel>
-							<Panel title='Renderer'>
-								<RendererSettings />
-							</Panel>
-							{props.midiMixController && <Panel title='MIDI'>
-								<MIDIMIXEmu controller={props.midiMixController}/>
-							</Panel>}
+							<PanelContainer.Tab title='Scene / Property'>
+								<LayoutSplit direction="horizontal">
+									<LayoutSplit.Item flex={1} overflow padding>
+										<Hierarchy />
+									</LayoutSplit.Item>
+									<LayoutSplit.Item flex={1} overflow padding>
+										<EntityProperty />
+									</LayoutSplit.Item>
+								</LayoutSplit>
+							</PanelContainer.Tab>
+							<PanelContainer.Tab title='Components'>
+								<Panel>
+									<ComponentExplorer />
+								</Panel>
+							</PanelContainer.Tab>
+							<PanelContainer.Tab title='Project'>
+								<Panel>
+									<ProjectControl />
+								</Panel>
+							</PanelContainer.Tab>
+							<PanelContainer.Tab title='Renderer'>
+								<Panel>
+									<RendererSettings />
+								</Panel>
+							</PanelContainer.Tab>
+							{props.midiMixController && <PanelContainer.Tab title='MIDI'>
+								<Panel>
+									<MIDIMIXEmu controller={props.midiMixController}/>
+								</Panel>
+							</PanelContainer.Tab>}
 						</PanelContainer>
-					</div>
-					<div className={style.sp_timeline}>
+					</LayoutSplit.Item>
+					<LayoutSplit.Item size="120px">
 						<PanelContainer>
-							<Panel title='Timeline' noPadding>
-								<ErrorBoundary fallback={<div>エラーだよ</div>}>
-									<Timeline />
-								</ErrorBoundary>
-							</Panel>
+							<PanelContainer.Tab title='Timeline'>
+								<Panel noPadding>
+									<ErrorBoundary fallback={<div>エラーだよ</div>}>
+										<Timeline />
+									</ErrorBoundary>
+								</Panel>
+							</PanelContainer.Tab>
 						</PanelContainer>
-					</div>
-				</div>
+					</LayoutSplit.Item>
+				</LayoutSplit>
 				<MouseMenu />
 			</>
 		);

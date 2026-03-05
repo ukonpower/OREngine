@@ -1,3 +1,6 @@
+// Components - Layout
+export * from "./tsx/components/LayoutSplit";
+
 // Components - Primitives
 export * from "./tsx/components/Block";
 export * from "./tsx/components/Button";
