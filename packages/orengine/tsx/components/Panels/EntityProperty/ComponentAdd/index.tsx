@@ -29,7 +29,7 @@ const ComponentDirectory: React.FC<{
 	let onClick = undefined;
 	let type = "dir";
 
-	if ( group.name.startsWith( "_" ) ) return null;
+	const displayName = group.name.startsWith( "_" ) ? group.name.slice( 1 ) : group.name;
 
 	if ( "child" in group ) {
 
@@ -56,7 +56,7 @@ const ComponentDirectory: React.FC<{
 		data-direction={menuContext?.direction}
 	>
 
-		{group.name}
+		{displayName}
 		{v && <div className={style.subDirectory}>
 			{childItem}
 		</div>}

@@ -27,6 +27,12 @@ export type GeometryGroup = {
 	createGroup: ( name: string ) => GeometryGroup;
 };
 
+export type ResourceShaderItem = {
+	name: string;
+	hasVert: boolean;
+	hasFrag: boolean;
+};
+
 export type ResourceMaterialData = {
 	vert?: string;
 	frag?: string;
@@ -53,6 +59,8 @@ export class Resources extends GLP.EventEmitter {
 
 	private _materialList: ResourceMaterialItem[];
 
+	private _shaderList: ResourceShaderItem[];
+
 	private _textures: Map<string, GLP.GLPowerTexture>;
 
 	constructor() {
@@ -64,6 +72,7 @@ export class Resources extends GLP.EventEmitter {
 		this._geometryList = [];
 		this._geometryGroups = [];
 		this._materialList = [];
+		this._shaderList = [];
 
 	}
 
@@ -97,6 +106,12 @@ export class Resources extends GLP.EventEmitter {
 
 	}
 
+	public get shaderList() {
+
+		return this._shaderList;
+
+	}
+
 	public get textures() {
 
 		return this._textures;
@@ -110,6 +125,7 @@ export class Resources extends GLP.EventEmitter {
 		this._geometryList = [];
 		this._geometryGroups = [];
 		this._materialList = [];
+		this._shaderList = [];
 		this._textures.clear();
 		this.emit( "update" );
 
@@ -234,6 +250,24 @@ export class Resources extends GLP.EventEmitter {
 
 		const item: ResourceMaterialItem = { name, ...data };
 		this._materialList.push( item );
+		this.emit( "update" );
+
+	}
+
+	/*-------------------------------
+		Shader
+	-------------------------------*/
+
+	public getShader( name: string ) {
+
+		return this._shaderList.find( s => s.name === name );
+
+	}
+
+	public addShader( name: string, hasVert: boolean, hasFrag: boolean ) {
+
+		const item: ResourceShaderItem = { name, hasVert, hasFrag };
+		this._shaderList.push( item );
 		this.emit( "update" );
 
 	}

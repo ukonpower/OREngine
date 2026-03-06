@@ -15,6 +15,8 @@ import { useMouseMenuContext } from '../MouseMenu/Hooks/useMouseMenuContext';
 import { Panel } from '../Panel';
 import { PanelContainer } from '../PanelContainer';
 import { ComponentExplorer } from '../Panels/ComponentExplorer';
+import { MaterialExplorer } from '../Panels/MaterialExplorer';
+import { ShaderExplorer } from '../Panels/ShaderExplorer';
 import { EntityProperty } from '../Panels/EntityProperty';
 import { Timer } from '../Panels/GPUTimer';
 import { Hierarchy } from '../Panels/Hierarchy';
@@ -82,6 +84,16 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 											<PanelContainer.Tab title='Components'>
 												<Panel>
 													<ComponentExplorer />
+												</Panel>
+											</PanelContainer.Tab>
+											<PanelContainer.Tab title='Materials'>
+												<Panel>
+													<MaterialExplorer />
+												</Panel>
+											</PanelContainer.Tab>
+											<PanelContainer.Tab title='Shaders'>
+												<Panel>
+													<ShaderExplorer />
 												</Panel>
 											</PanelContainer.Tab>
 											<PanelContainer.Tab title='Project'>
@@ -163,6 +175,16 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 							<PanelContainer.Tab title='Components'>
 								<Panel>
 									<ComponentExplorer />
+								</Panel>
+							</PanelContainer.Tab>
+							<PanelContainer.Tab title='Materials'>
+								<Panel>
+									<MaterialExplorer />
+								</Panel>
+							</PanelContainer.Tab>
+							<PanelContainer.Tab title='Shaders'>
+								<Panel>
+									<ShaderExplorer />
 								</Panel>
 							</PanelContainer.Tab>
 							<PanelContainer.Tab title='Project'>

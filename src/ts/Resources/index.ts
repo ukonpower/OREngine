@@ -5,6 +5,7 @@ import { ComponentGroup, GeometryGroup, Engine } from 'orengine';
 import { COMPONENTLIST } from './_data/componentList';
 import { GEOMETRYLIST } from './_data/geometryList';
 import { MATERIALLIST } from './_data/materialList';
+import { SHADERLIST } from './_data/shaderList';
 
 type ClassList = {
 	[key: string]: any
@@ -114,6 +115,17 @@ export const initResouces = () => {
 		const data = MATERIALLIST[ name ];
 
 		Engine.resources.addMaterial( name, data );
+
+	}
+
+	/*-------------------------------
+		Shaders
+	-------------------------------*/
+
+	for ( let i = 0; i < SHADERLIST.length; i ++ ) {
+
+		const s = SHADERLIST[ i ];
+		Engine.resources.addShader( s.name, s.hasVert, s.hasFrag );
 
 	}
 
