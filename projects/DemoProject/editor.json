@@ -7,7 +7,7 @@
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,
 	"frameLoop/end": 0,
-	"selectedEntityId": "00000100",
+	"selectedEntityId": "00000109",
 	"cameraMode": "scene",
 	"gizmoMode": "translate",
 	"helpers/show": true,
@@ -16,9 +16,9 @@
 	"helpers/light": true,
 	"helpers/wireframe": false,
 	"camera/position": [
-		-1.0808984762819003,
-		1.440348934467734,
-		2.461223383886626
+		1.0371331541386268,
+		2.384853353200273,
+		3.760982512384661
 	],
 	"camera/target": [
 		0.08298773547201654,
