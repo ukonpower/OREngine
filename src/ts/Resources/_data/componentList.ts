@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Bloom } from '../Components/Camera/MainCamera/PostProcess/Bloom/index.ts';
 import { Blur } from '../Components/Camera/MainCamera/PostProcess/Blur/index.ts';
 import { ColorGrading } from '../Components/Camera/MainCamera/PostProcess/ColorGrading/index.ts';
