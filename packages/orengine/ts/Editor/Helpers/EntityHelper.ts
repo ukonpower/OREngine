@@ -1,3 +1,4 @@
+import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
 import gizmoFrag from '../shaders/gizmo.fs';
@@ -16,6 +17,7 @@ export class EntityHelper {
 	public type: HelperType;
 	public targetEntityUUID: string;
 	private _geometry: MXP.Geometry;
+	private _matrixOffset: GLP.Quaternion | null;
 
 	constructor( type: HelperType, targetEntityUUID: string ) {
 
@@ -42,6 +44,16 @@ export class EntityHelper {
 
 		this._geometry = this._createGeometry();
 		this.entity.addComponent( MXP.Mesh, { geometry: this._geometry, material: mat } );
+
+		if ( type === 'spotLight' || type === 'directionalLight' ) {
+
+			this._matrixOffset = new GLP.Quaternion().setFromEuler( { x: - Math.PI / 2, y: 0, z: 0 } );
+
+		} else {
+
+			this._matrixOffset = null;
+
+		}
 
 	}
 
@@ -74,6 +86,12 @@ export class EntityHelper {
 	public syncTransform( targetEntity: MXP.Entity ) {
 
 		this.entity.matrixWorld.copy( targetEntity.matrixWorld );
+
+		if ( this._matrixOffset ) {
+
+			this.entity.matrixWorld.applyQuaternion( this._matrixOffset );
+
+		}
 
 		if ( this.type === 'camera' ) {
 
