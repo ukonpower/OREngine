@@ -52,7 +52,7 @@ export class GizmoManager {
 		this._rotateGizmo.entity.visible = false;
 		this._scaleGizmo.entity.visible = false;
 
-		this._activeGizmo.setTarget( selectedEntity || null );
+		this._activeGizmo.setTarget( selectedEntity || null, cameraEntity );
 
 		if ( ! this._activeGizmo.entity.visible ) return;
 

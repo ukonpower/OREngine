@@ -27,7 +27,7 @@ export interface Gizmo {
 	entity: MXP.Entity;
 	readonly activeAxis: GizmoAxis | null;
 	readonly dragging: boolean;
-	setTarget( entity: MXP.Entity | null ): void;
+	setTarget( entity: MXP.Entity | null, cameraEntity: MXP.Entity | null ): void;
 	getAxisEntities(): { axis: GizmoAxis, entity: MXP.Entity }[];
 	startDrag( axis: GizmoAxis, ray: MXP.Ray, targetEntity: MXP.Entity ): void;
 	updateDrag( ray: MXP.Ray, targetEntity: MXP.Entity ): GizmoDragResult | null;
