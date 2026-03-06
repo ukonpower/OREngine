@@ -1,0 +1,10 @@
+@use '../../../../styles' as *;
+
+.createBtn {
+	padding: $padding;
+}
+
+.form {
+	padding: $padding;
+	min-width: 200px;
+}

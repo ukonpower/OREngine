@@ -2,7 +2,7 @@ import * as GLP from 'glpower';
 import { Engine } from 'orengine';
 
 import SceneData from '~project/scene.json';
-import { initResouces } from '~project/index';
+import { initResouces, initResourceInstances } from '~project/index';
 import { BLidgeClient } from '~/ts/Resources/Components/Utilities/BLidgeClient';
 
 import { gl } from '~/ts/Globals';
@@ -73,6 +73,7 @@ const exitElm = document.getElementById( 'e' )!;
 -------------------------------*/
 
 const engine = new Engine( gl );
+initResourceInstances( gl );
 engine.setSize( new GLP.Vector( 1920, 1080 ) );
 
 // canvas

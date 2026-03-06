@@ -6,12 +6,18 @@ import { useEffect } from "react";
 import { OREngineContext } from "./Context/OREngineContext";
 import { useOREngineContext } from "./Hooks/useOREngineContext";
 
-export const OREngine: React.FC<{children?: React.ReactNode, gl: WebGL2RenderingContext, project:OREngineProjectData | undefined }> = ( props ) => {
+export const OREngine: React.FC<{children?: React.ReactNode, gl: WebGL2RenderingContext, project:OREngineProjectData | undefined, onEngineInit?: ( gl: WebGL2RenderingContext ) => void }> = ( props ) => {
 
 	const context = useOREngineContext( props.gl );
 	const { engine } = context;
 
 	useEffect( () => {
+
+		if ( props.onEngineInit ) {
+
+			props.onEngineInit( props.gl );
+
+		}
 
 		engine.setSize( new GLP.Vector( 1920, 1080 ) );
 

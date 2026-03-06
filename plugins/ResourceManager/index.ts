@@ -361,6 +361,94 @@ const updateShaderListForDir = ( shadersDir: string, outFile: string, exportName
 
 };
 
+const updateTextureListForDir = ( texDir: string, shadersDir: string, outFile: string, exportName: string ) => {
+
+	if ( ! fs.existsSync( texDir ) ) return;
+
+	const outDir = path.dirname( outFile );
+
+	if ( ! fs.existsSync( outDir ) ) {
+
+		fs.mkdirSync( outDir, { recursive: true } );
+
+	}
+
+	const texFiles: { name: string, config: any, relativePath: string }[] = [];
+
+	const scanDir = ( dir: string ) => {
+
+		const entries = fs.readdirSync( dir, { withFileTypes: true } );
+
+		entries.forEach( entry => {
+
+			if ( entry.name.startsWith( '_' ) ) return;
+
+			const fullPath = path.join( dir, entry.name );
+
+			if ( entry.isDirectory() ) {
+
+				scanDir( fullPath );
+
+			} else if ( entry.isFile() && entry.name.endsWith( '.tex' ) ) {
+
+				const name = path.basename( entry.name, '.tex' );
+				const config = JSON.parse( fs.readFileSync( fullPath, 'utf-8' ) );
+				texFiles.push( { name, config, relativePath: path.relative( path.dirname( outFile ), fullPath ).replace( /\\/g, '/' ) } );
+
+			}
+
+		} );
+
+	};
+
+	scanDir( texDir );
+
+	let file = "// @ts-nocheck\n";
+
+	const imports: string[] = [];
+	const shaderVarMap: Map<string, string> = new Map();
+
+	texFiles.forEach( ( tex ) => {
+
+		const shaderName = tex.config.shader;
+
+		if ( shaderName && ! shaderVarMap.has( shaderName ) ) {
+
+			const fragPath = path.join( shadersDir, shaderName, 'index.fs' );
+
+			if ( fs.existsSync( fragPath ) ) {
+
+				const varName = `${shaderName.replace( /^_/, '' )}Frag`;
+				const relPath = path.relative( path.dirname( outFile ), fragPath ).replace( /\\/g, '/' );
+				imports.push( `import ${varName} from '${relPath}';` );
+				shaderVarMap.set( shaderName, varName );
+
+			}
+
+		}
+
+	} );
+
+	file += imports.join( "\n" ) + "\n\n";
+	file += `export const ${exportName}: {name: string, frag?: string, resolution: number[], filter?: string, updateEveryFrame?: boolean}[] = [\n`;
+
+	texFiles.forEach( ( tex ) => {
+
+		const shaderName = tex.config.shader;
+		const fragVar = shaderName ? shaderVarMap.get( shaderName ) : undefined;
+		const res = tex.config.resolution || [ 1024, 1024 ];
+		const filter = tex.config.filter ? `, filter: ${JSON.stringify( tex.config.filter )}` : '';
+		const update = tex.config.updateEveryFrame ? `, updateEveryFrame: true` : '';
+		file += `\t{ name: ${JSON.stringify( tex.name )}, frag: ${fragVar || 'undefined'}, resolution: ${JSON.stringify( res )}${filter}${update} },\n`;
+
+	} );
+
+	file += "];\n";
+
+	fs.writeFileSync( outFile, file );
+
+};
+
 const updateAllProjects = ( projectsDir: string ) => {
 
 	if ( ! fs.existsSync( projectsDir ) ) return;
@@ -385,7 +473,7 @@ export const ResourceManager = ( options?: {
 	outputFile?: string;
 	projectsDir?: string;
 	exportName?: string;
-	type?: 'class' | 'material' | 'shader';
+	type?: 'class' | 'material' | 'shader' | 'texture';
 	shadersDir?: string;
 } ): Plugin => {
 
@@ -408,6 +496,10 @@ export const ResourceManager = ( options?: {
 		} else if ( scanType === 'shader' ) {
 
 			updateShaderListForDir( componentsDir, componentListFile, exportName );
+
+		} else if ( scanType === 'texture' ) {
+
+			updateTextureListForDir( componentsDir, shadersDir, componentListFile, exportName );
 
 		} else {
 
@@ -468,7 +560,7 @@ export const ResourceManager = ( options?: {
 
 				const watchDirs = [ componentsDir ];
 
-				if ( scanType === 'material' && shadersDir && fs.existsSync( shadersDir ) ) {
+				if ( ( scanType === 'material' || scanType === 'texture' ) && shadersDir && fs.existsSync( shadersDir ) ) {
 
 					watchDirs.push( shadersDir );
 
@@ -489,6 +581,10 @@ export const ResourceManager = ( options?: {
 						if ( scanType === 'material' ) {
 
 							if ( p.endsWith( '.mat' ) || p.endsWith( '.vs' ) || p.endsWith( '.fs' ) ) onChange();
+
+						} else if ( scanType === 'texture' ) {
+
+							if ( p.endsWith( '.tex' ) || p.endsWith( '.fs' ) ) onChange();
 
 						} else if ( scanType === 'shader' ) {
 

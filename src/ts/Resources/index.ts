@@ -6,6 +6,7 @@ import { COMPONENTLIST } from './_data/componentList';
 import { GEOMETRYLIST } from './_data/geometryList';
 import { MATERIALLIST } from './_data/materialList';
 import { SHADERLIST } from './_data/shaderList';
+import { TEXTURELIST } from './_data/textureList';
 
 import { globalUniforms } from '~/ts/Globals';
 
@@ -106,6 +107,33 @@ export const initResouces = () => {
 	}
 
 	/*-------------------------------
+		Shaders
+	-------------------------------*/
+
+	for ( let i = 0; i < SHADERLIST.length; i ++ ) {
+
+		const s = SHADERLIST[ i ];
+		Engine.resources.addShader( s.name, s.hasVert, s.hasFrag );
+
+	}
+
+	/*-------------------------------
+		Textures
+	-------------------------------*/
+
+	for ( let i = 0; i < TEXTURELIST.length; i ++ ) {
+
+		const t = TEXTURELIST[ i ];
+		Engine.resources.addTextureResource( t.name, {
+			frag: t.frag,
+			resolution: t.resolution,
+			filter: t.filter,
+			updateEveryFrame: t.updateEveryFrame,
+		} );
+
+	}
+
+	/*-------------------------------
 		Materials
 	-------------------------------*/
 
@@ -121,23 +149,20 @@ export const initResouces = () => {
 	}
 
 	/*-------------------------------
-		Shaders
-	-------------------------------*/
-
-	for ( let i = 0; i < SHADERLIST.length; i ++ ) {
-
-		const s = SHADERLIST[ i ];
-		Engine.resources.addShader( s.name, s.hasVert, s.hasFrag );
-
-	}
-
-	/*-------------------------------
 		Mesh static callbacks
 	-------------------------------*/
 
 	MXP.Mesh.getGeometryList = () => Engine.resources.geometryList;
 	MXP.Mesh.getMaterialList = () => Engine.resources.materialList;
 	MXP.Mesh.getMaterialInstance = ( name ) => Engine.resources.getMaterialInstance( name );
+
+};
+
+export const initResourceInstances = ( glCtx: WebGL2RenderingContext ) => {
+
+	const engine = Engine.getInstance( glCtx );
+
+	Engine.resources.buildTextureInstances( engine.renderer, glCtx, engine.uniforms );
 
 	Engine.resources.setGlobalUniforms( globalUniforms.time, globalUniforms.music, {
 		uNoiseTex: {
