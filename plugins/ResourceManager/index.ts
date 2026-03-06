@@ -99,13 +99,32 @@ const updateComponentListForDir = ( compDir: string, outFile: string ) => {
 
 			if ( i == splitPath.length - 2 ) {
 
-				targetGroups[ dir ] = [ component.name, component.relativePath ];
+				const existing = targetGroups[ dir ];
+
+				if ( existing && typeof existing === 'object' && ! Array.isArray( existing ) ) {
+
+					( existing as {[key: string]: unknown} )[ component.name ] = [ component.name, component.relativePath ];
+
+				} else {
+
+					targetGroups[ dir ] = [ component.name, component.relativePath ];
+
+				}
 
 				break;
 
 			}
 
-			const catArray = targetGroups[ dir ] = targetGroups[ dir ] || {};
+			let catArray = targetGroups[ dir ] = targetGroups[ dir ] || {};
+
+			if ( Array.isArray( catArray ) ) {
+
+				const existingComp = catArray;
+				catArray = {};
+				( catArray as {[key: string]: unknown} )[ existingComp[ 0 ] as string ] = existingComp;
+				targetGroups[ dir ] = catArray;
+
+			}
 
 			targetGroups = catArray as {[key: string]: unknown};
 
@@ -113,7 +132,7 @@ const updateComponentListForDir = ( compDir: string, outFile: string ) => {
 
 	} );
 
-	let file = "";
+	let file = "// @ts-nocheck\n";
 
 	components.forEach( ( component ) => {
 

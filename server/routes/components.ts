@@ -165,7 +165,7 @@ componentsRouter.delete( '/components/:componentPath(*)', ( req, res ) => {
 
 	try {
 
-		const componentPath = req.params.componentPath;
+		const componentPath = req.params[ "componentPath(*)" ];
 		const resolved = resolveComponentPath( componentPath );
 
 		if ( ! resolved ) {
@@ -215,7 +215,7 @@ componentsRouter.get( '/components/:componentPath(*)/filepath', ( req, res ) => 
 
 	try {
 
-		const componentPath = req.params.componentPath;
+		const componentPath = req.params[ "componentPath(*)" ];
 		const resolved = resolveComponentPath( componentPath );
 
 		if ( ! resolved ) {

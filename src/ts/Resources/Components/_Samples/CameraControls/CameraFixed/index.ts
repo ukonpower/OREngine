@@ -16,7 +16,7 @@ export class CameraFixed extends MXP.Component {
 
 	}
 
-	protected updateImpl( event: MXP.ComponentUpdateEvent ): void {
+	protected updateImpl( _event: MXP.ComponentUpdateEvent ): void {
 
 		this.entity.position.copy( this.position );
 		this.entity.lookAt( new GLP.Vector( 0, 0, 0 ) );

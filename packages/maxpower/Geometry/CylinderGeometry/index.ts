@@ -1,7 +1,6 @@
 import { Vector } from "glpower";
 
 import { Geometry } from "..";
-import { ComponentParams } from "../..";
 
 interface CylinderGeometryParams{
 	height?: number,

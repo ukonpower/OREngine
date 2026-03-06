@@ -10,13 +10,10 @@ export class Modeler {
 
         private _power: GLP.Power;
         private _gl: WebGL2RenderingContext;
-        private _tf: GLP.GLPowerTransformFeedback;
-
 	constructor( power: GLP.Power ) {
 
                 this._power = power;
                 this._gl = this._power.gl;
-                this._tf = new GLP.GLPowerTransformFeedback( this._power.gl );
 
 	}
 

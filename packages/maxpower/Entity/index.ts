@@ -138,7 +138,7 @@ export class Entity extends Serializable {
 
 	}
 
-	protected updateImpl( event:EntityUpdateEvent ) {
+	protected updateImpl( _event:EntityUpdateEvent ) {
 	}
 
 	/*-------------------------------

@@ -1,4 +1,3 @@
-import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
 import glitchFrag from './shaders/glitch.fs';

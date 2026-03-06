@@ -18,7 +18,7 @@ export const TimelineScale = () => {
 
         const { glEditor, viewPort, viewPortScale } = useTimeline();
 
-	const [ fps, setFps ] = useSerializableField<number>( glEditor?.engine, "timeline/fps" );
+	const [ fps, _setFps ] = useSerializableField<number>( glEditor?.engine, "timeline/fps" );
 
 	if ( ! viewPort || ! viewPortScale || fps === undefined ) return null;
 

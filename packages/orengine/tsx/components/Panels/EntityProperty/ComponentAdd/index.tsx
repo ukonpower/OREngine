@@ -8,8 +8,6 @@ import { useMouseMenu } from '../../../../hooks/useMouseMenu';
 import { useMouseMenuItem } from '../../../../hooks/useMouseMenuItem';
 import { useOREditor } from '../../../../hooks/useOREditor';
 import { Button } from '../../../Button';
-import { MouseMenuItemContext } from '../../../MouseMenu/Context/MouseMenuItemContext';
-
 
 import style from './index.module.scss';
 
@@ -73,7 +71,7 @@ export const ComponentAdd = ( props: ComponentAddProps ) => {
 	const { pushContent, closeAll } = useMouseMenu();
 	const resources = Engine.resources;
 
-	const onClickAdd = useCallback( ( e: MouseEvent ) => {
+	const onClickAdd = useCallback( ( _e: MouseEvent ) => {
 
 		if ( ! resources || ! pushContent || ! closeAll ) return;
 

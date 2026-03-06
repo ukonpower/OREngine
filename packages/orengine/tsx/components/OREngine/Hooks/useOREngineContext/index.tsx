@@ -32,7 +32,11 @@ export const useOREngineContext = ( gl: WebGL2RenderingContext ) => {
 
 	const load = useCallback( ( data: OREngineProjectData | undefined ) => {
 
-		engine.load( data );
+		if ( data ) {
+
+			engine.load( data );
+
+		}
 
 	}, [ engine ] );
 

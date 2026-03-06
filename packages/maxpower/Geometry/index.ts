@@ -91,8 +91,6 @@ export class Geometry extends Serializable {
 
 	public dispose() {
 
-		super.dispose();
-
 		this.attributes.forEach( ( attr ) => {
 
 			attr.buffer?.dispose();

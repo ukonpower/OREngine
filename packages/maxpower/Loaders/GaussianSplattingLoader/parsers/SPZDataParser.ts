@@ -64,10 +64,6 @@ export async function parseSPZ( buffer: ArrayBuffer, isCompressed?: boolean ): P
 }
 
 
-// 固定小数点からの変換用定数
-const MAX_INT_24 = 0x7FFFFF;
-const QUAT_COMPONENT_MAX = 127;
-
 /**
  * 球面調和関数の量子化された値を元の値に戻す
  * C++のunquantizeSH関数と同等

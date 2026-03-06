@@ -17,7 +17,7 @@ type ComponentViewProps = {
 export const ComponentView = ( { component }: ComponentViewProps ) => {
 
 	const { editor } = useOREditor();
-	const [ enabled, setEnabled ] = useSerializableField<boolean>( component, "enabled" );
+	const [ _enabled, _setEnabled ] = useSerializableField<boolean>( component, "enabled" );
 
 	const disableEdit = component.initiator !== "user";
 

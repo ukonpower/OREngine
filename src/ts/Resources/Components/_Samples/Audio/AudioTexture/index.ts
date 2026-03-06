@@ -158,7 +158,7 @@ export class AudioTexture extends MXP.Component {
 
 	}
 
-	protected updateImpl( event: MXP.ComponentUpdateEvent ): void {
+	protected updateImpl( _event: MXP.ComponentUpdateEvent ): void {
 
 		if ( ! this._isInitialized || ! this._analyser || ! this._waveArray || ! this._freqArray ) return;
 

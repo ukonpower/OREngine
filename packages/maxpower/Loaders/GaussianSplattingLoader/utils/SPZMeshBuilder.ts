@@ -34,7 +34,7 @@ export type SPZLoaderOptions = {
  * @param options ローダーオプション
  * @returns SPZ結果オブジェクト
  */
-export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: SPZGaussianData, header: SPZHeader, options: SPZLoaderOptions ): SPZResult {
+export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: SPZGaussianData, header: SPZHeader, _options: SPZLoaderOptions ): SPZResult {
 
 	const entity = new Entity();
 
@@ -421,12 +421,6 @@ export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: 
 				const sh13_b = getSHCoeff( 13, 2 );
 
 				const sh14_r = getSHCoeff( 14, 0 );
-				const sh14_g = getSHCoeff( 14, 1 );
-				const sh14_b = getSHCoeff( 14, 2 );
-
-				const sh15_r = getSHCoeff( 15, 0 );
-				const sh15_g = getSHCoeff( 15, 1 );
-				const sh15_b = getSHCoeff( 15, 2 );
 
 				// シェーダーのデータ読み取り順序に合わせてパック
 				// sh2.x: sh9_r, sh9_g, sh9_b, sh10_r
@@ -520,7 +514,7 @@ export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: 
 	} );
 
 	// 深度ソート用の関数
-	const updateSort = ( camera: Camera ) => {
+	const updateSort = ( _camera: Camera ) => {
 
 		controller.updateSort();
 

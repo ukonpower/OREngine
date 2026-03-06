@@ -1,9 +1,7 @@
 
 
-import { Entity } from '../../Entity';
 import { PostProcess } from '../../PostProcess';
 import { GPUComputePass } from '../GPUComputePass';
-import { PostProcessPipeline } from '../PostProcessPipeline';
 import { Renderer } from '../Renderer';
 
 export class GPUCompute extends PostProcess {
@@ -14,7 +12,7 @@ export class GPUCompute extends PostProcess {
 
 	constructor( params: {passes: GPUComputePass[]} ) {
 
-		super( { ...params, pipeline: new PostProcessPipeline( { entity: new Entity() } ) } );
+		super( { ...params } );
 
 		this._passes = params.passes;
 

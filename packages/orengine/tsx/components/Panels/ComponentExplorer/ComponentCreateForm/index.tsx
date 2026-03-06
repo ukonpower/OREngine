@@ -11,7 +11,7 @@ export const ComponentCreateForm = () => {
 
 	const { pushContent, closeAll } = useMouseMenu();
 
-	const onClickNew = useCallback( ( e: MouseEvent ) => {
+	const onClickNew = useCallback( ( _e: MouseEvent ) => {
 
 		if ( ! pushContent || ! closeAll ) return;
 

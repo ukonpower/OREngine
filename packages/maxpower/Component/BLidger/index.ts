@@ -2,6 +2,7 @@ import * as GLP from 'glpower';
 
 import { Component, ComponentParams, ComponentUpdateEvent } from "..";
 import { BLidge, BLidgeNode, BLidgeLightParam, BLidgeCameraParam } from "../../BLidge";
+import { SerializeFieldValue } from '../../Serializable';
 import { Geometry } from '../../Geometry';
 import { CubeGeometry } from '../../Geometry/CubeGeometry';
 import { CylinderGeometry } from '../../Geometry/CylinderGeometry';
@@ -191,7 +192,7 @@ export class BLidger extends Component {
 			this._lightComponent.deserialize( {
 				...lightParam,
 				lightType: lightParam.type,
-				color: new GLP.Vector().copy( lightParam.color ),
+				color: new GLP.Vector().copy( lightParam.color ) as unknown as SerializeFieldValue,
 				castShadow: lightParam.shadowMap,
 			} );
 

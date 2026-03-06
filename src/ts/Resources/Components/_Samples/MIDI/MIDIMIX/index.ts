@@ -12,17 +12,6 @@ type MIDIMIXLine = {
 	btn2Lerped: number,
 }
 
-type MIDIMIXSide = {
-	btn1: number,
-	btn2: number,
-	btn3: number,
-	btn1Lerped: number,
-	btn2Lerped: number,
-	btn3Lerped: number,
-	master: number,
-	masterLerped: number,
-}
-
 const tmpVector = new GLP.Vector();
 const eventEmitter = new GLP.EventEmitter();
 

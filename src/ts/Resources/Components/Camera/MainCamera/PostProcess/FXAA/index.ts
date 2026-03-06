@@ -1,5 +1,3 @@
-import { name } from 'assert';
-
 import * as MXP from 'maxpower';
 
 import fxaaFrag from './shaders/fxaa.fs';

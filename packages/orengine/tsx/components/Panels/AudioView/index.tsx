@@ -1,8 +1,8 @@
 import * as MXP from 'maxpower';
-import { FramePlay } from 'orengine';
 import { useState, useRef, useEffect, useCallback } from 'react';
 
-import { OREngineProjectFrame } from '../../../../ts/Engine/IO/ProjectSerializer';
+import { FramePlay } from '../../../../ts/Engine';
+import { OREngineProjectFrame } from '../../../../ts/Engine/ProjectSerializer';
 import { useOREditor } from '../../../hooks/useOREditor';
 
 import { AudioViewRenderer } from './AudioViewRenderer';
@@ -63,8 +63,8 @@ export const AudioView = () => {
 		const onUpdateSceneProps = ( props: MXP.SerializeField ) => {
 
 			setFrameSetting( {
-				duration: props[ "timeline/duration" ],
-				fps: props[ "timeline/fps" ]
+				duration: props[ "timeline/duration" ] as number,
+				fps: props[ "timeline/fps" ] as number
 			} );
 
 		};
@@ -84,7 +84,7 @@ export const AudioView = () => {
 		};
 
 		onUpdateSceneProps( engine.serialize() );
-		onUpdateFramePlay( engine._frame );
+		onUpdateFramePlay( engine.frame );
 
 		engine.on( "fields/update", onUpdateSceneProps );
 		engine.on( "update/music", onUpdateMusic );

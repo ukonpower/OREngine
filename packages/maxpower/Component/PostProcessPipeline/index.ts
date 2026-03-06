@@ -7,20 +7,18 @@ export class PostProcessPipeline extends Component {
 
 	private _resolution: GLP.Vector;
 	private _postProcesses: PostProcess[];
-	private _postProcessesDict: Map<typeof PostProcess, PostProcess>;
 
 	constructor( param: ComponentParams ) {
 
 		super( param );
 
 		this._postProcesses = [];
-		this._postProcessesDict = new Map();
 		this._resolution = new GLP.Vector();
 
 		this.field( "postprocess",
 			() => {
 
-				return this._postProcesses.map( ( postProcess, index ) => postProcess.enabled );
+				return this._postProcesses.map( ( postProcess ) => postProcess.enabled );
 
 			},
 			( v ) => {
@@ -40,7 +38,7 @@ export class PostProcessPipeline extends Component {
 			}, {
 				format: {
 					type: "array",
-					labels: ( value, i ) => {
+					labels: ( _value, i ) => {
 
 						return this._postProcesses[ i ].name;
 

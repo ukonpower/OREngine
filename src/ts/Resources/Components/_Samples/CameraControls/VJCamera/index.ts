@@ -3,7 +3,6 @@ import * as MXP from 'maxpower';
 
 export class VJCamera extends MXP.Component {
 
-	private position: GLP.Vector;
 	private lookAtPos: GLP.Vector;
 	private animator: GLP.Animator;
 
@@ -11,7 +10,6 @@ export class VJCamera extends MXP.Component {
 
 		super( params );
 
-		this.position = new GLP.Vector();
 		this.lookAtPos = new GLP.Vector();
 		this.animator = new GLP.Animator();
 
@@ -44,29 +42,25 @@ export class VJCamera extends MXP.Component {
 
 	}
 
-	protected updateImpl( { entity, timeDelta }: MXP.ComponentUpdateEvent ): void {
+	protected updateImpl( { timeDelta }: MXP.ComponentUpdateEvent ): void {
 
 		this.animator.update( timeDelta );
 
-		if ( entity ) {
-
-			entity.position.copy( this.animator.get<GLP.Vector>( "pos" )!.value );
-
-		}
+		this.entity.position.copy( this.animator.get<GLP.Vector>( "pos" )!.value );
 
 	}
 
-	protected finalizeImpl( { entity }: MXP.ComponentUpdateEvent ): void {
+	protected finalizeImpl( _event: MXP.ComponentUpdateEvent ): void {
 
-		entity.matrixWorld.lookAt( entity.position, this.lookAtPos, new GLP.Vector( 0, 1, 0 ) );
+		this.entity.matrixWorld.lookAt( this.entity.position, this.lookAtPos, new GLP.Vector( 0, 1, 0 ) );
 
 		// calc viewmatrix
 
-		const cameraComponent = entity.getComponent( MXP.Camera );
+		const cameraComponent = this.entity.getComponent( MXP.Camera );
 
 		if ( cameraComponent ) {
 
-			cameraComponent.viewMatrix.copy( entity.matrixWorld ).inverse();
+			cameraComponent.viewMatrix.copy( this.entity.matrixWorld ).inverse();
 
 		}
 

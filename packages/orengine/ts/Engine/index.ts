@@ -1,7 +1,7 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { ComponentResolver, OREngineProjectData, OREngineProjectFrame, ProjectSerializer } from './ProjectSerializer';
+import { ComponentResolver, OREngineDataEntity, OREngineProjectData, OREngineProjectFrame, ProjectSerializer } from './ProjectSerializer';
 import { Resources } from './Resources';
 
 export interface SceneTime {
@@ -106,9 +106,9 @@ export class Engine extends MXP.Entity {
 		this._root.name = "root";
 		this.add( this._root );
 
-		this.field( "scene", () => ProjectSerializer.serializeEntity( this._root, this._createComponentResolver() ), ( v ) => {
+		this.field( "scene", () => ProjectSerializer.serializeEntity( this._root, this._createComponentResolver() ) as unknown as MXP.SerializeFieldValue, ( v: MXP.SerializeFieldValue ) => {
 
-			ProjectSerializer.deserializeEntity( v, this._root, this._createComponentResolver() );
+			ProjectSerializer.deserializeEntity( v as unknown as OREngineDataEntity, this._root, this._createComponentResolver() );
 
 		} );
 
@@ -257,7 +257,7 @@ export class Engine extends MXP.Entity {
 
 		this.init();
 
-		this.deserialize( project );
+		this.deserialize( project as unknown as MXP.SerializeField );
 
 		this.emit( "update/graph" );
 		this.emit( "loaded" );

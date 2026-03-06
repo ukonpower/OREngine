@@ -33,7 +33,6 @@ export class PipelinePostProcess {
 	private _motionBlurTile: MXP.PostProcessPass;
 	private _motionBlurNeighbor: MXP.PostProcessPass;
 	private _camera: MXP.Camera | null;
-	private _renderTarget: MXP.RenderCameraTarget | null;
 	private _gl: WebGL2RenderingContext;
 
 	constructor( gl: WebGL2RenderingContext ) {
@@ -294,7 +293,7 @@ export class PipelinePostProcess {
 		this.rtSSR1 = rtSSR1;
 		this.rtSSR2 = rtSSR2;
 		this._camera = null;
-		this._renderTarget = null;
+
 		this._gl = gl;
 
 	}
@@ -390,7 +389,6 @@ export class PipelinePostProcess {
 	public setRenderCamera( camera: MXP.Camera, renderTarget: MXP.RenderCameraTarget ) {
 
 		this._camera = camera;
-		this._renderTarget = renderTarget;
 
 		if ( this.postprocess.passes[ 0 ] ) {
 

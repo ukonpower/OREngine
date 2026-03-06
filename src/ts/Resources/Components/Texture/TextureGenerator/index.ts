@@ -69,7 +69,7 @@ export class TextureGenerator extends MXP.Component {
 
 	}
 
-	protected updateImpl( event: MXP.ComponentUpdateEvent ): void {
+	protected updateImpl( _event: MXP.ComponentUpdateEvent ): void {
 
 		for ( let i = 0; i < this.updateTextures.length; i ++ ) {
 

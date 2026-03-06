@@ -8,7 +8,7 @@ export const Hierarchy = () => {
 
 	const { editor } = useOREditor();
 
-	const rootEntity = editor.engine._root;
+	const rootEntity = editor.engine.root;
 
 	return <div className={style.hierarchy}>
 		{rootEntity && <HierarchyNode entity={rootEntity} />}
