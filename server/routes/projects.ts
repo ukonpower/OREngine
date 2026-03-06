@@ -287,10 +287,8 @@ projectsRouter.post( '/projects', ( req, res ) => {
 		};
 
 		const defaultEditor = {
-			camera: {
-				position: [ 0, 1, 5 ],
-				target: [ 0, 0, 0 ]
-			}
+			"camera/position": [ 0, 1, 5 ],
+			"camera/target": [ 0, 0, 0 ]
 		};
 
 		fs.writeFileSync(

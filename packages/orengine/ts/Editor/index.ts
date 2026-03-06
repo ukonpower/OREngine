@@ -554,6 +554,30 @@ export class Editor extends MXP.Serializable {
 
 		} );
 
+		const cameraDir = this.fieldDir( "camera" );
+		cameraDir.field( "position",
+			() => [ this._orbitControls.eye.x, this._orbitControls.eye.y, this._orbitControls.eye.z ],
+			( v: number[] ) => {
+
+				this._orbitControls.setPosition(
+					new GLP.Vector( v[ 0 ], v[ 1 ], v[ 2 ] ),
+					new GLP.Vector( this._orbitControls.target.x, this._orbitControls.target.y, this._orbitControls.target.z )
+				);
+
+			}
+		);
+		cameraDir.field( "target",
+			() => [ this._orbitControls.target.x, this._orbitControls.target.y, this._orbitControls.target.z ],
+			( v: number[] ) => {
+
+				this._orbitControls.setPosition(
+					new GLP.Vector( this._orbitControls.eye.x, this._orbitControls.eye.y, this._orbitControls.eye.z ),
+					new GLP.Vector( v[ 0 ], v[ 1 ], v[ 2 ] )
+				);
+
+			}
+		);
+
 		/*-------------------------------
 			API Bridge
 		-------------------------------*/
