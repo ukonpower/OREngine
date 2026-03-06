@@ -137,15 +137,13 @@ export const initResouces = () => {
 
 	MXP.Mesh.getGeometryList = () => Engine.resources.geometryList;
 	MXP.Mesh.getMaterialList = () => Engine.resources.materialList;
-	MXP.Mesh.onMaterialBuild = ( material ) => {
+	MXP.Mesh.getMaterialInstance = ( name ) => Engine.resources.getMaterialInstance( name );
 
-		MXP.UniformsUtils.assign( material.uniforms, globalUniforms.time, globalUniforms.music, {
-			uNoiseTex: {
-				value: Engine.resources.getTexture( "noise" ),
-				type: "1i"
-			}
-		} );
-
-	};
+	Engine.resources.setGlobalUniforms( globalUniforms.time, globalUniforms.music, {
+		uNoiseTex: {
+			value: Engine.resources.getTexture( "noise" ),
+			type: "1i"
+		}
+	} );
 
 };

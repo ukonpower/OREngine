@@ -4,11 +4,10 @@ import { MouseEvent, useCallback, useEffect, useState } from 'react';
 
 import { Engine } from '../../../../ts/Engine';
 import { useMouseMenu } from '../../../hooks/useMouseMenu';
-import { Block } from '../../Block';
-import { Button } from '../../Button';
 import { Picker } from '../../Picker';
 
 import { MaterialCreateForm } from './MaterialCreateForm';
+import { MaterialDetail } from './MaterialDetail';
 import style from './index.module.scss';
 
 export const MaterialExplorer = () => {
@@ -104,32 +103,7 @@ export const MaterialExplorer = () => {
 
 		) )}
 		{selected && <div className={style.detail}>
-			<Block label={`Selected: ${selected.name}`} accordion>
-				{Object.entries( selected ).filter( ( [ k ] ) => k !== 'name' ).map( ( [ key, value ] ) => (
-
-					<div key={key} className={style.detailRow}>
-						{key}: {typeof value === 'object' ? JSON.stringify( value ) : String( value )}
-					</div>
-
-				) )}
-				<div className={style.actions}>
-					<Button onClick={() => {
-
-						fetch( `/api/materials/${encodeURIComponent( selected.name )}/filepath` )
-							.then( r => r.json() )
-							.then( data => {
-
-								if ( data.absolutePath ) {
-
-									window.open( `vscode://file/${data.absolutePath}`, '_blank' );
-
-								}
-
-							} );
-
-					}}>Open in Editor</Button>
-				</div>
-			</Block>
+			<MaterialDetail name={selected.name} />
 		</div>}
 	</div>;
 

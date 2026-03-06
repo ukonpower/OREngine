@@ -58,6 +58,8 @@ export class Resources extends GLP.EventEmitter {
 	private _geometryGroups: GeometryGroup[];
 
 	private _materialList: ResourceMaterialItem[];
+	private _materialInstances: Map<string, MXP.Material>;
+	private _globalUniforms: GLP.Uniforms[] | null;
 
 	private _shaderList: ResourceShaderItem[];
 
@@ -72,6 +74,8 @@ export class Resources extends GLP.EventEmitter {
 		this._geometryList = [];
 		this._geometryGroups = [];
 		this._materialList = [];
+		this._materialInstances = new Map();
+		this._globalUniforms = null;
 		this._shaderList = [];
 
 	}
@@ -106,6 +110,12 @@ export class Resources extends GLP.EventEmitter {
 
 	}
 
+	public get materialInstances() {
+
+		return this._materialInstances;
+
+	}
+
 	public get shaderList() {
 
 		return this._shaderList;
@@ -125,6 +135,7 @@ export class Resources extends GLP.EventEmitter {
 		this._geometryList = [];
 		this._geometryGroups = [];
 		this._materialList = [];
+		this._materialInstances.clear();
 		this._shaderList = [];
 		this._textures.clear();
 		this.emit( "update" );
@@ -250,7 +261,68 @@ export class Resources extends GLP.EventEmitter {
 
 		const item: ResourceMaterialItem = { name, ...data };
 		this._materialList.push( item );
+
+		const material = new MXP.Material( {
+			vert: data.vert,
+			frag: data.frag,
+			phase: data.phase as MXP.MaterialRenderType[],
+			useLight: data.useLight,
+			depthTest: data.depthTest,
+			depthWrite: data.depthWrite,
+			cullFace: data.cullFace,
+			blending: data.blending as MXP.Blending,
+			drawType: data.drawType as MXP.DrawType,
+		} );
+
+		material.name = name;
+
+		if ( this._globalUniforms ) {
+
+			MXP.UniformsUtils.assign( material.uniforms, ...this._globalUniforms );
+
+		}
+
+		this._materialInstances.set( name, material );
 		this.emit( "update" );
+
+	}
+
+	public getMaterialInstance( name: string ): MXP.Material | undefined {
+
+		return this._materialInstances.get( name );
+
+	}
+
+	public updateMaterialInstance( name: string, data: ResourceMaterialData ) {
+
+		const material = this._materialInstances.get( name );
+
+		if ( ! material ) return;
+
+		if ( data.vert !== undefined ) material.vert = data.vert;
+		if ( data.frag !== undefined ) material.frag = data.frag;
+		if ( data.phase !== undefined ) material.setVisibility( data.phase as MXP.MaterialRenderType[] );
+		if ( data.useLight !== undefined ) material.useLight = data.useLight;
+		if ( data.depthTest !== undefined ) material.depthTest = data.depthTest;
+		if ( data.depthWrite !== undefined ) material.depthWrite = data.depthWrite;
+		if ( data.cullFace !== undefined ) material.cullFace = data.cullFace;
+		if ( data.blending !== undefined ) material.blending = data.blending as MXP.Blending;
+		if ( data.drawType !== undefined ) material.drawType = data.drawType as MXP.DrawType;
+
+		material.requestUpdate();
+		this.emit( "update/material" );
+
+	}
+
+	public setGlobalUniforms( ...uniforms: GLP.Uniforms[] ) {
+
+		this._globalUniforms = uniforms;
+
+		this._materialInstances.forEach( ( mat ) => {
+
+			MXP.UniformsUtils.assign( mat.uniforms, ...uniforms );
+
+		} );
 
 	}
 

@@ -74,7 +74,7 @@ export class Material extends Serializable {
 
 	}
 
-	private setVisibility( typeArray: MaterialRenderType[] ) {
+	public setVisibility( typeArray: MaterialRenderType[] ) {
 
 		this.visibilityFlag = {
 			shadowMap: typeArray.indexOf( 'shadowMap' ) > - 1,

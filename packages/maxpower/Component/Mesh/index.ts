@@ -6,8 +6,6 @@ import { PlaneGeometry } from "../../Geometry/PlaneGeometry";
 import { SphereGeometry } from "../../Geometry/SphereGeometry";
 import { Material } from "../../Material";
 
-import type { Blending, DrawType, MaterialRenderType } from "../../Material";
-
 type MaterialData = {
 	name: string;
 	vert?: string;
@@ -31,7 +29,7 @@ export class Mesh extends Component {
 
 	public static getGeometryList: () => { name: string, geometryClass: typeof Geometry }[] = () => [];
 	public static getMaterialList: () => MaterialData[] = () => [];
-	public static onMaterialBuild: ( material: Material ) => void = () => {};
+	public static getMaterialInstance: ( name: string ) => Material | undefined = () => undefined;
 
 	private _geometryType: string;
 	private _geometryParams: { [key: string]: number | boolean };
@@ -279,23 +277,13 @@ export class Mesh extends Component {
 
 		if ( ! this._materialType ) return;
 
-		const item = Mesh.getMaterialList().find( m => m.name === this._materialType );
+		const instance = Mesh.getMaterialInstance( this._materialType );
 
-		if ( ! item ) return;
+		if ( instance ) {
 
-		this.material = new Material( {
-			vert: item.vert,
-			frag: item.frag,
-			phase: item.phase as MaterialRenderType[],
-			useLight: item.useLight,
-			depthTest: item.depthTest,
-			depthWrite: item.depthWrite,
-			cullFace: item.cullFace,
-			blending: item.blending as Blending,
-			drawType: item.drawType as DrawType,
-		} );
+			this.material = instance;
 
-		Mesh.onMaterialBuild( this.material );
+		}
 
 	}
 
