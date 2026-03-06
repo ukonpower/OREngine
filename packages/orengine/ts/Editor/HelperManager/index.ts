@@ -1,0 +1,178 @@
+import * as MXP from 'maxpower';
+
+import { Engine } from '../../Engine';
+import { EntityHelper, HelperType } from '../Helpers/EntityHelper';
+
+export class HelperManager {
+
+	private _showHelpers: boolean;
+	private _showEmptyHelpers: boolean;
+	private _showCameraHelpers: boolean;
+	private _showLightHelpers: boolean;
+	private _helpers: Map<string, EntityHelper>;
+
+	constructor() {
+
+		this._showHelpers = true;
+		this._showEmptyHelpers = true;
+		this._showCameraHelpers = true;
+		this._showLightHelpers = true;
+		this._helpers = new Map();
+
+	}
+
+	public get showHelpers() {
+
+		return this._showHelpers;
+
+	}
+
+	public set showHelpers( v: boolean ) {
+
+		this._showHelpers = v;
+
+	}
+
+	public get showEmptyHelpers() {
+
+		return this._showEmptyHelpers;
+
+	}
+
+	public set showEmptyHelpers( v: boolean ) {
+
+		this._showEmptyHelpers = v;
+
+	}
+
+	public get showCameraHelpers() {
+
+		return this._showCameraHelpers;
+
+	}
+
+	public set showCameraHelpers( v: boolean ) {
+
+		this._showCameraHelpers = v;
+
+	}
+
+	public get showLightHelpers() {
+
+		return this._showLightHelpers;
+
+	}
+
+	public set showLightHelpers( v: boolean ) {
+
+		this._showLightHelpers = v;
+
+	}
+
+	public render( cameraMode: string, cameraEntity: MXP.Entity | null, engine: Engine ) {
+
+		if ( ! this._showHelpers || cameraMode !== "scene" ) return;
+
+		if ( ! cameraEntity ) return;
+
+		const activeUUIDs = new Set<string>();
+		const helperEntities: MXP.Entity[] = [];
+
+		engine.root.traverse( ( entity ) => {
+
+			if ( entity.initiator === "god" ) return;
+			if ( ! entity.visible ) return;
+
+			const helperType = this._getHelperType( entity );
+			if ( ! helperType ) return;
+			if ( ! this._isHelperTypeEnabled( helperType ) ) return;
+
+			activeUUIDs.add( entity.uuid );
+
+			let helper = this._helpers.get( entity.uuid );
+
+			if ( ! helper ) {
+
+				helper = new EntityHelper( helperType, entity.uuid );
+				this._helpers.set( entity.uuid, helper );
+
+			}
+
+			helper.syncTransform( entity );
+
+			const event = engine.createEntityUpdateEvent();
+			helper.entity.update( event );
+
+			helper.entity.traverse( ( child ) => {
+
+				if ( child.getComponent( MXP.Mesh ) ) {
+
+					helperEntities.push( child );
+
+				}
+
+			} );
+
+		} );
+
+		this._helpers.forEach( ( _, uuid ) => {
+
+			if ( ! activeUUIDs.has( uuid ) ) {
+
+				this._helpers.delete( uuid );
+
+			}
+
+		} );
+
+		if ( helperEntities.length > 0 ) {
+
+			engine.renderer.renderCamera(
+				"forward",
+				cameraEntity,
+				helperEntities,
+				null,
+				engine.renderer.resolution,
+				{ disableClear: true }
+			);
+
+		}
+
+	}
+
+	private _getHelperType( entity: MXP.Entity ): HelperType | null {
+
+		const light = entity.getComponent( MXP.Light );
+
+		if ( light ) {
+
+			return light.lightType === 'spot' ? 'spotLight' : 'directionalLight';
+
+		}
+
+		const camera = entity.getComponentsByTag<MXP.Camera>( "camera" )[ 0 ];
+
+		if ( camera ) return 'camera';
+
+		const mesh = entity.getComponent( MXP.Mesh );
+
+		if ( ! mesh ) return 'empty';
+
+		return null;
+
+	}
+
+	private _isHelperTypeEnabled( type: HelperType ): boolean {
+
+		switch ( type ) {
+
+		case 'empty': return this._showEmptyHelpers;
+		case 'camera': return this._showCameraHelpers;
+		case 'spotLight':
+		case 'directionalLight': return this._showLightHelpers;
+
+		}
+
+	}
+
+}
