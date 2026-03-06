@@ -6,9 +6,12 @@ import gizmoFrag from '../shaders/gizmo.fs';
 import gizmoVert from '../shaders/gizmo.vs';
 
 import { CameraHelperGeometry } from './Geometries/CameraHelperGeometry';
+import { CameraHitAreaGeometry } from './Geometries/CameraHitAreaGeometry';
 import { DirectionalLightHelperGeometry } from './Geometries/DirectionalLightHelperGeometry';
+import { DirectionalLightHitAreaGeometry } from './Geometries/DirectionalLightHitAreaGeometry';
 import { EmptyHelperGeometry } from './Geometries/EmptyHelperGeometry';
 import { SpotLightHelperGeometry } from './Geometries/SpotLightHelperGeometry';
+import { SpotLightHitAreaGeometry } from './Geometries/SpotLightHitAreaGeometry';
 
 export type HelperType = 'empty' | 'camera' | 'spotLight' | 'directionalLight';
 
@@ -19,6 +22,7 @@ export class EntityHelper {
 	public type: HelperType;
 	public targetEntityUUID: string;
 	private _geometry: MXP.Geometry;
+	private _hitAreaGeometry: MXP.Geometry;
 	private _matrixOffset: GLP.Quaternion | null;
 
 	constructor( type: HelperType, targetEntityUUID: string ) {
@@ -48,10 +52,11 @@ export class EntityHelper {
 		this.entity.addComponent( MXP.Mesh, { geometry: this._geometry, material: mat } );
 
 		// hit area
+		this._hitAreaGeometry = this._createHitAreaGeometry();
 		this.hitAreaEntity = new MXP.Entity( { name: "__helper_hit" } );
 		this.hitAreaEntity.initiator = "god";
 		this.hitAreaEntity.addComponent( MXP.Mesh, {
-			geometry: this._createHitAreaGeometry(),
+			geometry: this._hitAreaGeometry,
 			material: createHitAreaMaterial(),
 		} );
 
@@ -98,34 +103,11 @@ export class EntityHelper {
 		switch ( this.type ) {
 
 		case 'empty': return new MXP.CubeGeometry( { width: 0.3, height: 0.3, depth: 0.3 } );
-		case 'camera': return this._createOffsetCube( 1.5, 1.5, 2.0, 0, 0, - 1.0 );
-		case 'spotLight': return this._createOffsetCube( 2.0, 2.0, 5.0, 0, 0, - 2.5 );
-		case 'directionalLight': return this._createOffsetCube( 0.6, 0.6, 1.2, 0, 0, - 0.6 );
+		case 'camera': return new CameraHitAreaGeometry();
+		case 'spotLight': return new SpotLightHitAreaGeometry();
+		case 'directionalLight': return new DirectionalLightHitAreaGeometry();
 
 		}
-
-	}
-
-	private _createOffsetCube( w: number, h: number, d: number, ox: number, oy: number, oz: number ): MXP.Geometry {
-
-		const geo = new MXP.CubeGeometry( { width: w, height: h, depth: d } );
-		const posAttr = geo.getAttribute( 'position' );
-
-		if ( posAttr ) {
-
-			const arr = posAttr.array as Float32Array;
-
-			for ( let i = 0; i < arr.length; i += 3 ) {
-
-				arr[ i ] += ox;
-				arr[ i + 1 ] += oy;
-				arr[ i + 2 ] += oz;
-
-			}
-
-		}
-
-		return geo;
 
 	}
 
@@ -145,9 +127,19 @@ export class EntityHelper {
 
 			const camera = targetEntity.getComponentsByTag<MXP.Camera>( 'camera' )[ 0 ];
 
-			if ( camera && this._geometry instanceof CameraHelperGeometry ) {
+			if ( camera ) {
 
-				this._geometry.update( camera.fov, camera.aspect, 0.1, 2.0 );
+				if ( this._geometry instanceof CameraHelperGeometry ) {
+
+					this._geometry.update( camera.fov, camera.aspect, 0.1, 2.0 );
+
+				}
+
+				if ( this._hitAreaGeometry instanceof CameraHitAreaGeometry ) {
+
+					this._hitAreaGeometry.update( camera.fov, camera.aspect, 0.1, 2.0 );
+
+				}
 
 			}
 
@@ -155,9 +147,21 @@ export class EntityHelper {
 
 			const light = targetEntity.getComponent( MXP.Light );
 
-			if ( light && this._geometry instanceof SpotLightHelperGeometry ) {
+			if ( light ) {
 
-				this._geometry.update( light.angle, Math.min( light.distance, 10 ) );
+				const distance = Math.min( light.distance, 10 );
+
+				if ( this._geometry instanceof SpotLightHelperGeometry ) {
+
+					this._geometry.update( light.angle, distance );
+
+				}
+
+				if ( this._hitAreaGeometry instanceof SpotLightHitAreaGeometry ) {
+
+					this._hitAreaGeometry.update( light.angle, distance );
+
+				}
 
 			}
 
