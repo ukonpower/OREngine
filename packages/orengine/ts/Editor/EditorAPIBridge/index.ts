@@ -11,13 +11,6 @@ type BridgeRequest = {
 	params: Record<string, any>;
 };
 
-type BridgeResponseData = {
-	id: string;
-	success: boolean;
-	data?: unknown;
-	error?: string;
-};
-
 export class EditorAPIBridge {
 
 	private _ws: WebSocket | null = null;
@@ -60,7 +53,62 @@ export class EditorAPIBridge {
 
 	private _handleMessage( e: MessageEvent ) {
 
-		const req: BridgeRequest = JSON.parse( e.data );
+		const msg = JSON.parse( e.data );
+
+		switch ( msg.type ) {
+
+			case 'syncRequest':
+				this._handleSyncRequest( msg );
+				break;
+
+			case 'executeAction':
+				this._handleExecuteAction( msg );
+				break;
+
+			default:
+				// 既存の BridgeRequest 処理（後方互換）
+				if ( msg.id && msg.action ) {
+
+					this._handleLegacyRequest( msg as BridgeRequest );
+
+				}
+
+				break;
+
+		}
+
+	}
+
+	// サーバーからの同期リクエスト: 現在のシーンスナップショットを返す
+	private _handleSyncRequest( msg: { id: string; projectName: string } ) {
+
+		const sceneData = this._engine.serialize( { mode: "export" } );
+
+		this._send( {
+			type: 'syncResponse',
+			id: msg.id,
+			sceneData,
+		} as any );
+
+	}
+
+	// サーバーからの操作実行指示: EditorAPI経由で実行（Undo可能）
+	private _handleExecuteAction( msg: { projectName: string; action: string; params: Record<string, any> } ) {
+
+		try {
+
+			this._dispatch( msg.action, msg.params );
+
+		} catch ( err: any ) {
+
+			console.error( `executeAction failed: ${msg.action}`, err );
+
+		}
+
+	}
+
+	// 既存の BridgeRequest 処理
+	private _handleLegacyRequest( req: BridgeRequest ) {
 
 		try {
 
@@ -312,7 +360,7 @@ export class EditorAPIBridge {
 
 	}
 
-	private _send( data: BridgeResponseData ) {
+	private _send( data: any ) {
 
 		if ( this._ws?.readyState === WebSocket.OPEN ) {
 
