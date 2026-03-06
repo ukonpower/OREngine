@@ -1,7 +1,7 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { BPM } from '~/ts/Resources/Components/DrawTokyo/System/BPM';
+const BPM = new GLP.EventEmitter();
 
 export class BeatExecuter extends GLP.EventEmitter {
 

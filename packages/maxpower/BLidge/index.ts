@@ -429,7 +429,7 @@ export class BLidge extends GLP.EventEmitter {
 		WS Events
 	-------------------------------*/
 
-	private onOpen( event: Event ) {
+	private onOpen( _event: Event ) {
 	}
 
 	private onMessage( e: MessageEvent ) {
@@ -456,7 +456,7 @@ export class BLidge extends GLP.EventEmitter {
 
 	}
 
-	private onClose( e:CloseEvent ) {
+	private onClose( _e:CloseEvent ) {
 
 		this.disconnect();
 

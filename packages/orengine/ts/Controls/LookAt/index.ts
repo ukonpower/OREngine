@@ -28,7 +28,7 @@ export class LookAt extends MXP.Component {
 
 	}
 
-	public beforeRenderImpl( event: MXP.ComponentUpdateEvent ): void {
+	public beforeRenderImpl( _event: MXP.ComponentUpdateEvent ): void {
 
 		if ( this.target && this._enabled ) {
 

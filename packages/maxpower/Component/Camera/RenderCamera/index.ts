@@ -20,14 +20,13 @@ export class RenderCamera extends Camera {
 
 	public dofParams: DofParams;
 
-	private _gl: WebGL2RenderingContext;
 	private _renderTarget: RenderCameraTarget;
 	private _gBuffer: GLP.GLPowerFrameBuffer;
 	private _resolution: GLP.Vector;
 
-	constructor( params: MXP.ComponentParams<{gl: WebGL2RenderingContext}> ) {
+	constructor( params: MXP.ComponentParams & { args: {gl: WebGL2RenderingContext} } ) {
 
-		super( params );
+		super( { entity: params.entity } );
 
 		this.dofParams = {
 			focusDistance: 0.5,
@@ -35,7 +34,6 @@ export class RenderCamera extends Camera {
 		};
 
 		const gl = params.args.gl;
-		this._gl = gl;
 
 		this._resolution = new GLP.Vector();
 

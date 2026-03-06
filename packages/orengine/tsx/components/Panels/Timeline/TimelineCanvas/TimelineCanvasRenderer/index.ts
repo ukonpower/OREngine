@@ -250,9 +250,9 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 
 		this.canvasTexture.attach( this.canvas );
 
-		if ( this.postProcess._passes ) {
+		if ( this.postProcess.passes ) {
 
-			this.postProcess._passes[ 0 ].uniforms.uCanvasTex.value = this.canvasTexture;
+			this.postProcess.passes[ 0 ].uniforms.uCanvasTex.value = this.canvasTexture;
 
 		}
 

@@ -393,7 +393,7 @@ export class DeferredRenderer extends GLP.EventEmitter {
 
 	}
 
-	public setRenderCamera( camera: MXP.Camera, renderTarget: MXP.RenderCameraTarget ) {
+	public setRenderCamera( _camera: MXP.Camera, renderTarget: MXP.RenderCameraTarget ) {
 
 		for ( let i = 0; i < renderTarget.gBuffer.textures.length; i ++ ) {
 

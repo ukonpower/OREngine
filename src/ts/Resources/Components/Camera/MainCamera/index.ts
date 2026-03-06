@@ -16,7 +16,6 @@ export class MainCamera extends MXP.Component {
 
 	public camera: MXP.Camera;
 
-	private _commonUniforms: GLP.Uniforms;
 	private _lookAt: LookAt;
 	private postProcessPipeline: MXP.PostProcessPipeline;
 	private _resolution: GLP.Vector;
@@ -41,7 +40,7 @@ export class MainCamera extends MXP.Component {
 
 		// uniforms
 
-		this._commonUniforms = MXP.UniformsUtils.merge( {
+		MXP.UniformsUtils.merge( {
 			uResolution: {
 				type: "2f",
 				value: this._resolution

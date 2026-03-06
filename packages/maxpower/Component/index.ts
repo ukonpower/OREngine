@@ -75,7 +75,7 @@ export class Component extends Serializable {
 
 	}
 
-	protected updateImpl( event: ComponentUpdateEvent ) {}
+	protected updateImpl( _event: ComponentUpdateEvent ) {}
 
 	// postUpdate
 
@@ -87,7 +87,7 @@ export class Component extends Serializable {
 
 	}
 
-	protected postUpdateImpl( event: ComponentUpdateEvent ) {}
+	protected postUpdateImpl( _event: ComponentUpdateEvent ) {}
 
 	// beforeRender
 
@@ -99,7 +99,7 @@ export class Component extends Serializable {
 
 	}
 
-	protected beforeRenderImpl( event: ComponentUpdateEvent ) {}
+	protected beforeRenderImpl( _event: ComponentUpdateEvent ) {}
 
 	// afterRender
 
@@ -111,7 +111,7 @@ export class Component extends Serializable {
 
 	}
 
-	protected afterRenderImpl( event: ComponentUpdateEvent ) {}
+	protected afterRenderImpl( _event: ComponentUpdateEvent ) {}
 
 	public dispose() {
 

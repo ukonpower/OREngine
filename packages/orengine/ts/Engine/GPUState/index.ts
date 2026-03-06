@@ -1,5 +1,3 @@
-import { gl } from "~/ts/gl/GLGlobals";
-
 export class GPUState {
 
         private _memoryElm: HTMLElement | null;
@@ -8,15 +6,17 @@ export class GPUState {
         private _extMemory: any;
         private _renderTimeList: {name: string, time: number}[];
         private _memoryInterval: number | null;
+        private _gl: WebGL2RenderingContext;
 
-	constructor() {
+	constructor( gl: WebGL2RenderingContext ) {
 
                 this._memoryElm = null;
                 this._timerElm = null;
                 this._memoryInterval = null;
                 this._renderTimeList = [];
+                this._gl = gl;
 
-                this._extMemory = gl.getExtension( 'GMAN_webgl_memory' );
+                this._extMemory = this._gl.getExtension( 'GMAN_webgl_memory' );
 
 	}
 

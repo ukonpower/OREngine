@@ -51,7 +51,7 @@ export class OrbitControls extends MXP.Component {
 
 		let touching = false;
 
-		const onPointerStart = ( e: PointerEventArgs ) => {
+		const onPointerStart = ( _e: PointerEventArgs ) => {
 
 			if ( touching ) return;
 
@@ -81,7 +81,7 @@ export class OrbitControls extends MXP.Component {
 
 		};
 
-		const onPointerEnd = ( e: PointerEventArgs ) => {
+		const onPointerEnd = ( _e: PointerEventArgs ) => {
 
 			if ( ! touching ) return;
 

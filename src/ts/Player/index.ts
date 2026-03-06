@@ -147,7 +147,7 @@ if ( blidgeClient ) {
 
 	blidgeClient.on( "loaded", () => {
 
-		engine.compileShaders( ( label, loaded, total ) => {
+		engine.compileShaders( ( label: string, loaded: number, total: number ) => {
 
 			const progress = loaded / total;
 

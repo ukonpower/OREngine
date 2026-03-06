@@ -2,7 +2,6 @@
 import style from './index.module.scss';
 import { MouseMenuItemContext } from "./Context/MouseMenuItemContext";
 import { useMouseMenu } from "../../hooks/useMouseMenu";
-import { MouseMenuContext } from "./Context/MouseMenuContext";
 
 
 export const MouseMenu = () => {
@@ -19,7 +18,7 @@ export const MouseMenu = () => {
 
 			}} />}
 			{
-				itemList && itemList.map( ( item, i ) => {
+				itemList && itemList.map( ( item ) => {
 
 					const pos = item.pos;
 

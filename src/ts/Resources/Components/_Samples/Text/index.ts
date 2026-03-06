@@ -68,7 +68,7 @@ export class Text extends MXP.Component {
 
 	public setText( text: string, align?: string ): void {
 
-		const font = resource.getFont( Font1 )!;
+		const font = ( null as any )?.getFont( Font1 )!;
 
 		const uvMatrixArray = [];
 		const geoMatrixArray = [];

@@ -164,8 +164,8 @@ export class BLidgeClient extends MXP.Component {
 
 		// attachments フィールド（UIには非表示、保存対象）
 		this.field( "attachments",
-			() => this.serializeAttachments(),
-			( v ) => { this.attachments = v || []; },
+			() => this.serializeAttachments() as any,
+			( v: any ) => { this.attachments = v || []; },
 			{ hidden: true }
 		);
 
@@ -179,7 +179,7 @@ export class BLidgeClient extends MXP.Component {
 			getName: ( c: MXP.Component ): string => {
 
 				const item = Engine.resources.componentList.find(
-					item => c instanceof item.component
+					( ci ) => c instanceof ci.component
 				);
 
 				return item ? item.name : c.constructor.name;

@@ -22,7 +22,19 @@ import { UniformControls } from '../Components/Utilities/UniformsControls/index.
 
 export const COMPONENTLIST: {[key: string]: any} = {
 	Camera: {
-		MainCamera,
+		MainCamera: {
+			PostProcess: {
+				Bloom,
+				Blur,
+				ColorGrading,
+				FXAA,
+				Finalize,
+				Glitch,
+				OverlayMixer,
+				PixelSort,
+			},
+			MainCamera,
+		},
 	},
 	DemoProject: {
 		DemoMusic,

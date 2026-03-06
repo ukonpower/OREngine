@@ -31,13 +31,13 @@ async function bridgeAction( action: string, params: Record<string, unknown>, re
 
 // --- 読み取り系 ---
 
-editorRouter.get( '/editor/status', ( req, res ) => {
+editorRouter.get( '/editor/status', ( _req, res ) => {
 
 	bridgeAction( 'getStatus', {}, res );
 
 } );
 
-editorRouter.get( '/editor/scene', ( req, res ) => {
+editorRouter.get( '/editor/scene', ( _req, res ) => {
 
 	bridgeAction( 'getScene', {}, res );
 
@@ -55,7 +55,7 @@ editorRouter.get( '/editor/search', ( req, res ) => {
 
 } );
 
-editorRouter.get( '/editor/components', ( req, res ) => {
+editorRouter.get( '/editor/components', ( _req, res ) => {
 
 	bridgeAction( 'getAvailableComponents', {}, res );
 
@@ -117,13 +117,13 @@ editorRouter.post( '/editor/field', ( req, res ) => {
 
 // --- Undo/Redo ---
 
-editorRouter.post( '/editor/undo', ( req, res ) => {
+editorRouter.post( '/editor/undo', ( _req, res ) => {
 
 	bridgeAction( 'undo', {}, res );
 
 } );
 
-editorRouter.post( '/editor/redo', ( req, res ) => {
+editorRouter.post( '/editor/redo', ( _req, res ) => {
 
 	bridgeAction( 'redo', {}, res );
 

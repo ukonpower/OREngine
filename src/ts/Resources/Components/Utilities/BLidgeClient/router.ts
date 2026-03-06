@@ -1,6 +1,6 @@
 import * as MXP from 'maxpower';
 
-export const router = ( node: MXP.BLidgeNode ) => {
+export const router = ( _node: MXP.BLidgeNode ) => {
 
 	// class
 

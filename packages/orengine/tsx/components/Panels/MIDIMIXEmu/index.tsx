@@ -49,7 +49,7 @@ const MIDIValue: React.FC<{value: number, id: number, controller: MIDIMIXControl
 
 export const MIDIMIXEmu: React.FC<{controller: MIDIMIXController}> = ( { controller } ) => {
 
-	const [ state, setState ] = React.useState( 0 );
+	const [ _state, setState ] = React.useState( 0 );
 
 	useEffect( () => {
 

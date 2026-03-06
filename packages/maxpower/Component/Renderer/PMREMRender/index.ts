@@ -1,7 +1,7 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { PostProcessRenderer } from '../PostProcessRenderer';
+import { Renderer } from '../';
 
 import pmremFrag from './shaders/pmrem.fs';
 
@@ -15,7 +15,7 @@ export class PMREMRender extends GLP.EventEmitter {
 	private pmremPasses: MXP.PostProcessPass[];
 	private swapBuffers: SwapBuffer[];
 	private timeUniforms: GLP.Uniforms;
-	private postProcessRenderer: PostProcessRenderer | null;
+	private postProcessRenderer: Renderer | null;
 
 	constructor( gl: WebGL2RenderingContext, param: {input: GLP.GLPowerTextureCube[], resolution: GLP.Vector} ) {
 
@@ -144,7 +144,7 @@ export class PMREMRender extends GLP.EventEmitter {
 
 	}
 
-	public setPostProcessRenderer( postProcessRenderer: PostProcessRenderer ) {
+	public setRenderer( postProcessRenderer: Renderer ) {
 
 		this.postProcessRenderer = postProcessRenderer;
 
@@ -158,7 +158,7 @@ export class PMREMRender extends GLP.EventEmitter {
 
 		} else {
 
-			console.warn( "PostProcessRenderer has not been set in PMREMRender. Call setPostProcessRenderer first." );
+			console.warn( "Renderer has not been set in PMREMRender. Call setRenderer first." );
 
 		}
 
@@ -184,7 +184,7 @@ export class PMREMRender extends GLP.EventEmitter {
 
 	}
 
-	public resize( resolution: GLP.Vector ): void {
+	public resize( _resolution: GLP.Vector ): void {
 
 		return;
 

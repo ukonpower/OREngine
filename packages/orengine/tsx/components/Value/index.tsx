@@ -1,4 +1,4 @@
-import { SerializableFieldFormat, SerializeFieldObjective, SerializeFieldPrimitive, SerializeFieldValue } from 'maxpower';
+import { SerializableFieldFormat, SerializeFieldObjective } from 'maxpower';
 import React from 'react';
 
 import { Button } from '../Button';
@@ -9,6 +9,8 @@ import { InputNumber } from '../Input/InputNumber';
 import { InputSelect } from '../Input/InputSelect';
 import { InputText } from '../Input/InputText';
 import { Vector } from '../Vector';
+
+export type ValueType = SerializeFieldObjective;
 
 export type ValueOpt = {
 	label?: string | React.ReactNode,

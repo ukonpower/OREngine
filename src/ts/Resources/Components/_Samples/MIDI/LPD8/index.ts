@@ -323,7 +323,7 @@ export class LPD8 extends MXP.Component {
 
 	private restore() {
 
-		const data = localStorage.getItem( "LPD8" );
+		localStorage.getItem( "LPD8" );
 
 	}
 

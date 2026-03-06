@@ -66,7 +66,8 @@ export function parseSplat( buffer: ArrayBuffer ): SPZGaussianData {
 		scales,
 		rotations,
 		alphas,
-		sphericalHarmonics: null // .splatファイルにはSHデータが含まれていない
+		sphericalHarmonics: null, // .splatファイルにはSHデータが含まれていない
+		shDegree: 0
 	};
 
 }

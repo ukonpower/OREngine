@@ -56,7 +56,7 @@ export class DemoMusic extends MXP.Component {
 
 	// render
 
-	private currentRender: ReturnType<typeof this.render> | null;
+	private currentRender: { stop: () => void } | null;
 
 	constructor( params: MXP.ComponentParams ) {
 
@@ -78,14 +78,6 @@ export class DemoMusic extends MXP.Component {
 		// samples
 
 		this.progress = [ 0, 0 ];
-
-		let len = 512 * 1024;
-
-		if ( process.env.NODE_ENV === 'development' ) {
-
-			len = 512 * 256;
-
-		}
 
 		this.blockLength = Math.min( 512 * 512, this.bufferLength );
 		this.numSampleBlocks = Math.ceil( ( this.audioContext.sampleRate * MUSIC_DURATION ) / this.blockLength );
@@ -177,7 +169,7 @@ export class DemoMusic extends MXP.Component {
 
 	}
 
-	private render() {
+	private render(): { stop: () => void } {
 
 		this.progress = [ 0, 0 ];
 
@@ -354,13 +346,13 @@ export class DemoMusic extends MXP.Component {
 
 	}
 
-	public setEntityImpl( entity: MXP.Entity ): void {
+	public setEntityImpl( _entity: MXP.Entity ): void {
 
 		this.notice();
 
 	}
 
-	protected unsetEntityImpl( prevEntity: MXP.Entity ): void {
+	protected unsetEntityImpl( _prevEntity: MXP.Entity ): void {
 
 		this.stop();
 
