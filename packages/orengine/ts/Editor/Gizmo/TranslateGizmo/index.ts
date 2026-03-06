@@ -288,9 +288,10 @@ export class TranslateGizmo implements Gizmo {
 
 		const dotDirAxis = ray.direction.x * axisDir.x + ray.direction.y * axisDir.y + ray.direction.z * axisDir.z;
 		const dotDiffAxis = diff.x * axisDir.x + diff.y * axisDir.y + diff.z * axisDir.z;
+		const dotDiffDir = diff.x * ray.direction.x + diff.y * ray.direction.y + diff.z * ray.direction.z;
 
 		const denom = 1.0 - dotDirAxis * dotDirAxis + 0.0001;
-		const t = - dotDiffAxis / denom;
+		const t = ( dotDiffAxis * dotDirAxis - dotDiffDir ) / denom;
 
 		const projected = dotDiffAxis + t * dotDirAxis;
 
