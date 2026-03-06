@@ -1,9 +1,23 @@
 {
 	"enableRender": true,
 	"resolutionScale": 0.5,
+	"resolution/width": 1920,
+	"resolution/height": 1080,
 	"viewType": "render",
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,
 	"frameLoop/end": 0,
-	"selectedEntityId": "8b"
+	"selectedEntityId": "00000115",
+	"cameraMode": "scene",
+	"gizmoMode": "translate",
+	"camera/position": [
+		-0.6213865602992241,
+		1.3553225346421192,
+		2.942006981327853
+	],
+	"camera/target": [
+		0.08298773547201654,
+		1.048399464912236,
+		-0.08670338737736771
+	]
 }

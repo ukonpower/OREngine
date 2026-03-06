@@ -1,5 +1,7 @@
 
 
+import { useCallback, useEffect, useRef, useState } from 'react';
+
 import { useLayout } from '../../../hooks/useLayout';
 import { useOREditor } from '../../../hooks/useOREditor';
 import { useSerializableField } from '../../../hooks/useSerializableProps';
@@ -21,6 +23,41 @@ export const Screen = () => {
 	const [ viewType, setViewType ] = useSerializableField<string>( editor, "viewType" );
 	const [ resolutionScale, setResolutionScale ] = useSerializableField<number>( editor, "resolutionScale" );
 	const [ gizmoMode, setGizmoMode ] = useSerializableField<string>( editor, "gizmoMode" );
+
+	const [ showHelpers, setShowHelpers ] = useSerializableField<boolean>( editor, "helpers/show" );
+	const [ showEmpty, setShowEmpty ] = useSerializableField<boolean>( editor, "helpers/empty" );
+	const [ showCamera, setShowCamera ] = useSerializableField<boolean>( editor, "helpers/camera" );
+	const [ showLight, setShowLight ] = useSerializableField<boolean>( editor, "helpers/light" );
+	const [ showWireframe, setShowWireframe ] = useSerializableField<boolean>( editor, "helpers/wireframe" );
+
+	const [ overlayOpen, setOverlayOpen ] = useState( false );
+	const overlayRef = useRef<HTMLDivElement>( null );
+
+	const handleClickOutside = useCallback( ( e: MouseEvent ) => {
+
+		if ( overlayRef.current && ! overlayRef.current.contains( e.target as Node ) ) {
+
+			setOverlayOpen( false );
+
+		}
+
+	}, [] );
+
+	useEffect( () => {
+
+		if ( overlayOpen ) {
+
+			document.addEventListener( 'pointerdown', handleClickOutside );
+
+		}
+
+		return () => {
+
+			document.removeEventListener( 'pointerdown', handleClickOutside );
+
+		};
+
+	}, [ overlayOpen, handleClickOutside ] );
 
 	return <div className={style.screen}>
 		<div className={style.header}>
@@ -104,6 +141,40 @@ export const Screen = () => {
 							}}/>
 					</Label>
 				</div>
+
+				{layout.isPC && <div className={style.header_overlay} ref={overlayRef}>
+					<div
+						className={style.header_overlayBtn}
+						data-active={overlayOpen}
+						onClick={() => setOverlayOpen( ! overlayOpen )}
+						title="Display Options"
+					>
+						&#9881;
+					</div>
+					{overlayOpen && <div className={style.overlay}>
+						<div className={style.overlay_item} onClick={() => setShowHelpers && setShowHelpers( ! showHelpers )}>
+							<span className={style.overlay_check}>{showHelpers ? '\u2713' : ''}</span>
+							Helpers
+						</div>
+						<div className={style.overlay_item} data-indent="true" onClick={() => setShowEmpty && setShowEmpty( ! showEmpty )}>
+							<span className={style.overlay_check}>{showEmpty ? '\u2713' : ''}</span>
+							Empty
+						</div>
+						<div className={style.overlay_item} data-indent="true" onClick={() => setShowCamera && setShowCamera( ! showCamera )}>
+							<span className={style.overlay_check}>{showCamera ? '\u2713' : ''}</span>
+							Camera
+						</div>
+						<div className={style.overlay_item} data-indent="true" onClick={() => setShowLight && setShowLight( ! showLight )}>
+							<span className={style.overlay_check}>{showLight ? '\u2713' : ''}</span>
+							Light
+						</div>
+						<div className={style.overlay_separator} />
+						<div className={style.overlay_item} onClick={() => setShowWireframe && setShowWireframe( ! showWireframe )}>
+							<span className={style.overlay_check}>{showWireframe ? '\u2713' : ''}</span>
+							Wireframe
+						</div>
+					</div>}
+				</div>}
 
 				{layout.isPC && <div className={style.externalBtn}>
 					<Button onClick={() => {
