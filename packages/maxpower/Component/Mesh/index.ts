@@ -31,6 +31,7 @@ export class Mesh extends Component {
 
 	public static getGeometryList: () => { name: string, geometryClass: typeof Geometry }[] = () => [];
 	public static getMaterialList: () => MaterialData[] = () => [];
+	public static onMaterialBuild: ( material: Material ) => void = () => {};
 
 	private _geometryType: string;
 	private _geometryParams: { [key: string]: number | boolean };
@@ -366,6 +367,8 @@ export class Mesh extends Component {
 			blending: item.blending as Blending,
 			drawType: item.drawType as DrawType,
 		} );
+
+		Mesh.onMaterialBuild( this.material );
 
 	}
 

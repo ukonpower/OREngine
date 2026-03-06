@@ -9,8 +9,6 @@ import { OverlayMixer } from '../Components/Camera/MainCamera/PostProcess/Overla
 import { PixelSort } from '../Components/Camera/MainCamera/PostProcess/PixelSort/index.ts';
 import { MainCamera } from '../Components/Camera/MainCamera/index.ts';
 import { DemoMusic } from '../Components/DemoProject/DemoMusic/index.ts';
-import { OREngineCubeMaterial } from '../Components/DemoProject/OREngineCubeMaterial/index.ts';
-import { OREngineLogoMaterial } from '../Components/DemoProject/OREngineLogoMaterial/index.ts';
 import { SkyBox } from '../Components/DemoProject/SkyBox/index.ts';
 import { ShakeViewer } from '../Components/ObjectControls/CameraShake/index.ts';
 import { LookAt } from '../Components/ObjectControls/LookAt/index.ts';
@@ -39,8 +37,6 @@ export const COMPONENTLIST: {[key: string]: any} = {
 	},
 	DemoProject: {
 		DemoMusic,
-		OREngineCubeMaterial,
-		OREngineLogoMaterial,
 		SkyBox,
 	},
 	ObjectControls: {
