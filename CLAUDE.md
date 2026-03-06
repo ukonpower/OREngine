@@ -48,4 +48,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **maxpower**: エンジンコア。Entity-Componentシステム、Serializable基底クラスによるシリアライズ/デシリアライズ、Renderer、Geometry、Material、PostProcess
 - **orengine**: エディタUI（React）+ Engineクラス。tsx/components以下にパネル・入力・ビューコンポーネント
 - **src/**: アプリケーションエントリ。EditorPage, ProjectSelectPage等
+- **server/**: Express + WebSocketサーバー。REST API、WebSocketブリッジ、プロジェクト管理
 - 継承階層: `EventEmitter` → `Serializable` → `Entity` / `Component`
+
+## ドキュメント
+仕様の詳細は `docs/` ディレクトリに記載されている。API仕様やアーキテクチャを変更した場合は、対応するドキュメントも必ず更新すること。
+
+- `docs/architecture.md` - 全体アーキテクチャ、WebSocket仕様、データ構造、データフロー
+- `docs/editor-rest-api.md` - エディタ操作REST API
+- `docs/project-api.md` - プロジェクト管理・シーン・エディタデータAPI
+- `docs/resource-api.md` - コンポーネント・マテリアル・シェーダー管理API
