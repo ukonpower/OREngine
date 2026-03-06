@@ -67,6 +67,12 @@ export default defineConfig( {
 			type: 'material',
 			shadersDir: './src/ts/Resources/Shaders/',
 		} ),
+		ResourceManager( {
+			componentsDir: './src/ts/Resources/Shaders/',
+			outputFile: './src/ts/Resources/_data/shaderList.ts',
+			exportName: 'SHADERLIST',
+			type: 'shader',
+		} ),
 	],
 	define: {
 		BASE_PATH: `"${basePath}"`,

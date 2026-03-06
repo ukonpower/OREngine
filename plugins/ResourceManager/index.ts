@@ -314,6 +314,53 @@ const updateMaterialListForDir = ( matDir: string, shadersDir: string, outFile: 
 
 };
 
+const updateShaderListForDir = ( shadersDir: string, outFile: string, exportName: string ) => {
+
+	if ( ! fs.existsSync( shadersDir ) ) return;
+
+	const outDir = path.dirname( outFile );
+
+	if ( ! fs.existsSync( outDir ) ) {
+
+		fs.mkdirSync( outDir, { recursive: true } );
+
+	}
+
+	const shaderItems: { name: string, hasVert: boolean, hasFrag: boolean }[] = [];
+
+	const entries = fs.readdirSync( shadersDir, { withFileTypes: true } );
+
+	entries.forEach( entry => {
+
+		if ( ! entry.isDirectory() || entry.name.startsWith( '_' ) ) return;
+
+		const shaderDir = path.join( shadersDir, entry.name );
+		const hasVert = fs.existsSync( path.join( shaderDir, 'index.vs' ) );
+		const hasFrag = fs.existsSync( path.join( shaderDir, 'index.fs' ) );
+
+		if ( hasVert || hasFrag ) {
+
+			shaderItems.push( { name: entry.name, hasVert, hasFrag } );
+
+		}
+
+	} );
+
+	let file = "// @ts-nocheck\n\n";
+	file += `export const ${exportName}: {name: string, hasVert: boolean, hasFrag: boolean}[] = [\n`;
+
+	shaderItems.forEach( item => {
+
+		file += `\t{ name: ${JSON.stringify( item.name )}, hasVert: ${item.hasVert}, hasFrag: ${item.hasFrag} },\n`;
+
+	} );
+
+	file += "];\n";
+
+	fs.writeFileSync( outFile, file );
+
+};
+
 const updateAllProjects = ( projectsDir: string ) => {
 
 	if ( ! fs.existsSync( projectsDir ) ) return;
@@ -338,7 +385,7 @@ export const ResourceManager = ( options?: {
 	outputFile?: string;
 	projectsDir?: string;
 	exportName?: string;
-	type?: 'class' | 'material';
+	type?: 'class' | 'material' | 'shader';
 	shadersDir?: string;
 } ): Plugin => {
 
@@ -357,6 +404,10 @@ export const ResourceManager = ( options?: {
 		if ( scanType === 'material' ) {
 
 			updateMaterialListForDir( componentsDir, shadersDir, componentListFile, exportName );
+
+		} else if ( scanType === 'shader' ) {
+
+			updateShaderListForDir( componentsDir, componentListFile, exportName );
 
 		} else {
 
@@ -415,9 +466,15 @@ export const ResourceManager = ( options?: {
 
 			} else {
 
-				const watchPattern = scanType === 'material' ? componentsDir : componentsDir;
+				const watchDirs = [ componentsDir ];
 
-				watcher = chokidar.watch( watchPattern, {
+				if ( scanType === 'material' && shadersDir && fs.existsSync( shadersDir ) ) {
+
+					watchDirs.push( shadersDir );
+
+				}
+
+				watcher = chokidar.watch( watchDirs, {
 					ignored: /[\\/\\]\./,
 					persistent: true
 				} );
@@ -431,7 +488,11 @@ export const ResourceManager = ( options?: {
 
 						if ( scanType === 'material' ) {
 
-							if ( p.endsWith( '.mat' ) ) onChange();
+							if ( p.endsWith( '.mat' ) || p.endsWith( '.vs' ) || p.endsWith( '.fs' ) ) onChange();
+
+						} else if ( scanType === 'shader' ) {
+
+							onChange();
 
 						} else {
 
