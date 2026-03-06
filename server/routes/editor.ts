@@ -20,34 +20,45 @@ async function handleAction(
 
 	try {
 
-		const project = projectManager.getProject( projectName );
 		const bridge = getWSBridge();
 		const browserConnected = bridge && bridge.connected;
 
-		// 書き込み操作 & ブラウザ接続中 → まずブラウザの状態を同期
-		if ( MUTATING_ACTIONS.has( action ) && browserConnected ) {
+		if ( browserConnected ) {
 
-			const snapshot = await bridge!.requestSync( projectName );
+			// ブラウザ接続中: ブラウザに操作を委譲
+			const result = await bridge!.send( action, params );
 
-			if ( snapshot ) {
+			if ( ! result.success ) {
 
-				project.syncFromBrowser( snapshot );
+				res.status( 400 ).json( { error: result.error } );
+				return;
 
 			}
 
+			// 書き込み操作後はオンメモリ状態を同期
+			if ( MUTATING_ACTIONS.has( action ) ) {
+
+				const project = projectManager.getProject( projectName );
+				const snapshot = await bridge!.requestSync( projectName );
+
+				if ( snapshot ) {
+
+					project.syncFromBrowser( snapshot );
+
+				}
+
+			}
+
+			res.json( result.data );
+
+		} else {
+
+			// ブラウザ未接続: サーバーのオンメモリ状態で処理
+			const project = projectManager.getProject( projectName );
+			const data = project.dispatch( action, params );
+			res.json( data );
+
 		}
-
-		// サーバーのオンメモリ状態に操作を適用
-		const data = project.dispatch( action, params );
-
-		// 書き込み操作 & ブラウザ接続中 → ブラウザにコマンド実行を指示
-		if ( MUTATING_ACTIONS.has( action ) && browserConnected ) {
-
-			bridge!.executeAction( projectName, action, params );
-
-		}
-
-		res.json( data );
 
 	} catch ( err: any ) {
 
@@ -59,49 +70,9 @@ async function handleAction(
 
 // --- ステータス ---
 
-editorRouter.get( '/projects/:projectName/editor/status', async ( req, res ) => {
+editorRouter.get( '/projects/:projectName/editor/status', ( req, res ) => {
 
-	try {
-
-		const bridge = getWSBridge();
-		const browserConnected = bridge && bridge.connected;
-
-		if ( browserConnected ) {
-
-			const result = await bridge!.send( 'getStatus', {} );
-
-			if ( result.success ) {
-
-				res.json( result.data );
-				return;
-
-			}
-
-		}
-
-		// 未接続時はサーバーの情報のみ
-		try {
-
-			const project = projectManager.getProject( req.params.projectName );
-			const data = project.dispatch( 'getStatus', {} );
-			res.json( data );
-
-		} catch {
-
-			res.json( {
-				connected: false,
-				canUndo: false,
-				canRedo: false,
-				selectedEntityId: null,
-			} );
-
-		}
-
-	} catch ( err: any ) {
-
-		res.status( 400 ).json( { error: err.message || String( err ) } );
-
-	}
+	handleAction( req.params.projectName, 'getStatus', {}, res );
 
 } );
 
