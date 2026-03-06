@@ -20,7 +20,7 @@ void main( void ) {
 	// outPos *= 1.0 + n;
 	vPosBase = outPos;
 	vNoise = n;
-	
+
 	#include <vert_out>
-	
+
 }

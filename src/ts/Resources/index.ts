@@ -7,6 +7,8 @@ import { GEOMETRYLIST } from './_data/geometryList';
 import { MATERIALLIST } from './_data/materialList';
 import { SHADERLIST } from './_data/shaderList';
 
+import { globalUniforms } from '~/ts/Globals';
+
 type ClassList = {
 	[key: string]: any
 };
@@ -135,5 +137,15 @@ export const initResouces = () => {
 
 	MXP.Mesh.getGeometryList = () => Engine.resources.geometryList;
 	MXP.Mesh.getMaterialList = () => Engine.resources.materialList;
+	MXP.Mesh.onMaterialBuild = ( material ) => {
+
+		MXP.UniformsUtils.assign( material.uniforms, globalUniforms.time, globalUniforms.music, {
+			uNoiseTex: {
+				value: Engine.resources.getTexture( "noise" ),
+				type: "1i"
+			}
+		} );
+
+	};
 
 };

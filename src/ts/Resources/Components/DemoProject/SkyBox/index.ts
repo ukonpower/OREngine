@@ -1,6 +1,6 @@
 import * as MXP from 'maxpower';
 
-import skyboxFrag from './shaders/skybox.fs';
+import skyboxFrag from '../../../Shaders/SkyBox/index.fs';
 
 import { globalUniforms } from '~/ts/Globals';
 
@@ -21,7 +21,7 @@ export class SkyBox extends MXP.Component {
 
 		if ( import.meta.hot ) {
 
-			import.meta.hot.accept( './shaders/skybox.fs', ( module ) => {
+			import.meta.hot.accept( '../../../Shaders/SkyBox/index.fs', ( module ) => {
 
 				if ( module ) {
 

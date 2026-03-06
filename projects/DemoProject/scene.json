@@ -58,11 +58,48 @@
 							]
 						},
 						{
+							"name": "Cube.001",
+							"components": [
+								{
+									"name": "Mesh",
+									"uuid": "0000018c",
+									"props": {
+										"geometry/type": "",
+										"geometry/width": 1,
+										"geometry/height": 1,
+										"geometry/depth": 1,
+										"geometry/radius": 0.5,
+										"geometry/widthSegments": 8,
+										"geometry/heightSegments": 8,
+										"geometry/floor": false,
+										"geometry/radiusTop": 1,
+										"geometry/radiusBottom": 1,
+										"geometry/caps": true,
+										"material/name": "OREngineCube"
+									}
+								}
+							]
+						},
+						{
 							"name": "OREngine",
 							"components": [
 								{
-									"name": "OREngineLogoMaterial",
-									"uuid": "13"
+									"name": "Mesh",
+									"uuid": "0000018f",
+									"props": {
+										"geometry/type": "",
+										"geometry/width": 1,
+										"geometry/height": 1,
+										"geometry/depth": 1,
+										"geometry/radius": 0.5,
+										"geometry/widthSegments": 8,
+										"geometry/heightSegments": 8,
+										"geometry/floor": false,
+										"geometry/radiusTop": 1,
+										"geometry/radiusBottom": 1,
+										"geometry/caps": true,
+										"material/name": "OREngineLogo"
+									}
 								}
 							]
 						},
@@ -70,18 +107,50 @@
 							"name": "OREngineCube",
 							"components": [
 								{
-									"name": "OREngineCubeMaterial",
-									"uuid": "14"
-								},
-								{
 									"name": "ObjectRotate",
 									"uuid": "15"
+								},
+								{
+									"name": "Mesh",
+									"uuid": "00000191",
+									"props": {
+										"geometry/type": "",
+										"geometry/width": 1,
+										"geometry/height": 1,
+										"geometry/depth": 1,
+										"geometry/radius": 0.5,
+										"geometry/widthSegments": 8,
+										"geometry/heightSegments": 8,
+										"geometry/floor": false,
+										"geometry/radiusTop": 1,
+										"geometry/radiusBottom": 1,
+										"geometry/caps": true,
+										"material/name": "OREngineCube"
+									}
 								}
 							]
 						},
 						{
 							"name": "SkyBox",
 							"components": [
+								{
+									"name": "Mesh",
+									"uuid": "00000143",
+									"props": {
+										"geometry/type": "",
+										"geometry/width": 1,
+										"geometry/height": 1,
+										"geometry/depth": 1,
+										"geometry/radius": 0.5,
+										"geometry/widthSegments": 8,
+										"geometry/heightSegments": 8,
+										"geometry/floor": false,
+										"geometry/radiusTop": 1,
+										"geometry/radiusBottom": 1,
+										"geometry/caps": true,
+										"material/name": ""
+									}
+								},
 								{
 									"name": "SkyBox",
 									"uuid": "16"

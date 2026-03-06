@@ -1,0 +1,5 @@
+{
+  "shader": "SkyBox",
+  "phase": ["deferred", "envMap"],
+  "cullFace": false
+}

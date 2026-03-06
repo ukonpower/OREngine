@@ -1,0 +1,4 @@
+{
+  "shader": "OREngineLogo",
+  "phase": ["deferred", "shadowMap"]
+}
