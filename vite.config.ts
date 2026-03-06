@@ -68,6 +68,13 @@ export default defineConfig( {
 			shadersDir: './src/ts/Resources/Shaders/',
 		} ),
 		ResourceManager( {
+			componentsDir: './src/ts/Resources/Textures/',
+			outputFile: './src/ts/Resources/_data/textureList.ts',
+			exportName: 'TEXTURELIST',
+			type: 'texture',
+			shadersDir: './src/ts/Resources/Shaders/',
+		} ),
+		ResourceManager( {
 			componentsDir: './src/ts/Resources/Shaders/',
 			outputFile: './src/ts/Resources/_data/shaderList.ts',
 			exportName: 'SHADERLIST',

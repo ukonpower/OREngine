@@ -282,6 +282,14 @@ export class Engine extends MXP.Entity {
 		this._uniforms.uTime.value = this._time.code;
 		this._uniforms.uTimeE.value = this._time.engine;
 
+		const updateTextures = Engine.resources.updateEveryFrameTextures;
+
+		for ( let i = 0; i < updateTextures.length; i ++ ) {
+
+			updateTextures[ i ].render();
+
+		}
+
 		this._root.update( event );
 
 		if ( this.enableRender ) {

@@ -4,7 +4,7 @@ import { OREngineProjectData } from "orengine";
 import { useEffect, useState } from "react";
 
 import { gl } from "~/ts/Globals";
-import { initResouces } from "~project/index";
+import { initResouces, initResourceInstances } from "~project/index";
 import { MIDIMIX } from "~/ts/Resources/Components/_Samples/MIDI/MIDIMIX";
 
 initResouces();
@@ -46,7 +46,7 @@ export const EditorPage = () => {
 	}, [] );
 
 	return (
-		<OREngine gl={gl} project={projectData} >
+		<OREngine gl={gl} project={projectData} onEngineInit={initResourceInstances} >
 			<OREditor editorData={editorData} projectName={projectName} midiMixController={MIDIMIX} onSave={( projectData, editorData ) => {
 
 				fetch( `/api/projects/${projectName}/scene`, {

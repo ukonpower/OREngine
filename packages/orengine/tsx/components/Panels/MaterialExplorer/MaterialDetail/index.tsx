@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { Engine } from '../../../../../ts/Engine';
+import { Button } from '../../../Button';
 import { InputBoolean } from '../../../Input/InputCheckBox';
 import { InputSelect } from '../../../Input/InputSelect';
 
@@ -9,7 +10,7 @@ import style from './index.module.scss';
 
 const PHASE_OPTIONS = [ "deferred", "forward", "shadowMap", "envMap", "ui" ];
 
-type MaterialConfig = Record<string, string | string[] | boolean | undefined>;
+type MaterialConfig = Record<string, string | string[] | boolean | { [key: string]: string } | undefined>;
 
 type MaterialDetailProps = {
 	name: string;
@@ -27,7 +28,7 @@ export const MaterialDetail = ( { name }: MaterialDetailProps ) => {
 
 	}, [ name ] );
 
-	const updateConfig = useCallback( ( key: string, value: string | string[] | boolean | undefined ) => {
+	const updateConfig = useCallback( ( key: string, value: string | string[] | boolean | { [key: string]: string } | undefined ) => {
 
 		setConfig( prev => {
 
@@ -164,6 +165,52 @@ export const MaterialDetail = ( { name }: MaterialDetailProps ) => {
 					onChange={( v ) => updateConfig( "cullFace", v )}
 				/>
 			</div>
+		</div>
+		<div className={style.uniformSection}>
+			<div className={style.uniformHeader}>
+				<span>Texture Uniforms</span>
+				<Button onClick={() => {
+
+					const uniName = prompt( "Uniform name:" );
+					if ( ! uniName ) return;
+					const textureUniforms = ( config.uniforms as { [key: string]: string } ) || {};
+					updateConfig( "uniforms", { ...textureUniforms, [ uniName ]: "" } );
+
+				}}>+</Button>
+			</div>
+			{Object.keys( ( config.uniforms as { [key: string]: string } ) || {} ).map( ( uniformName ) => (
+
+				<div key={uniformName} className={style.row}>
+					<div className={style.row_label}>{uniformName}</div>
+					<div className={style.row_value}>
+						<InputSelect
+							value={( ( config.uniforms as { [key: string]: string } ) || {} )[ uniformName ] || ""}
+							selectList={[
+								{ label: "(None)", value: "" },
+								...Engine.resources.textureList.map( t => ( { label: t.name, value: t.name } ) ),
+							]}
+							onChange={( v ) => {
+
+								const textureUniforms = { ...( ( config.uniforms as { [key: string]: string } ) || {} ) };
+
+								if ( v ) {
+
+									textureUniforms[ uniformName ] = v;
+
+								} else {
+
+									delete textureUniforms[ uniformName ];
+
+								}
+
+								updateConfig( "uniforms", Object.keys( textureUniforms ).length > 0 ? textureUniforms : undefined );
+
+							}}
+						/>
+					</div>
+				</div>
+
+			) )}
 		</div>
 	</div>;
 

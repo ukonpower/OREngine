@@ -6,6 +6,7 @@ import { materialsRouter } from './routes/materials';
 import { projectsRouter } from './routes/projects';
 import { sceneRouter } from './routes/scene';
 import { shadersRouter } from './routes/shaders';
+import { texturesRouter } from './routes/textures';
 import { initWSBridge } from './ws';
 
 const app = express();
@@ -18,6 +19,7 @@ app.use( '/api', sceneRouter );
 app.use( '/api', componentsRouter );
 app.use( '/api', materialsRouter );
 app.use( '/api', shadersRouter );
+app.use( '/api', texturesRouter );
 app.use( '/api', editorRouter );
 
 const server = app.listen( PORT, () => {

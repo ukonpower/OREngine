@@ -1,6 +1,6 @@
 # OREngine リソース管理 REST API
 
-コンポーネント・マテリアル・シェーダーのファイル管理API。
+コンポーネント・マテリアル・シェーダー・テクスチャのファイル管理API。
 これらのAPIはファイルシステム上のリソースを直接操作する。
 
 ## ベースURL
@@ -383,4 +383,158 @@ curl -X DELETE http://localhost:3001/api/shaders/MyShader
 **curl:**
 ```bash
 curl http://localhost:3001/api/shaders/MyShader/filepath
+```
+
+---
+
+## テクスチャ管理
+
+ソースファイル: `src/ts/Resources/Textures/` 以下（`.tex` JSON ファイル）
+
+テクスチャはプロシージャル生成方式で、シェーダー（フラグメント）と解像度を指定して生成する。
+
+### .tex ファイル形式
+
+```json
+{
+  "shader": "_Noise",
+  "resolution": [1024, 1024],
+  "filter": "linear",
+  "updateEveryFrame": false
+}
+```
+
+| フィールド | 型 | 必須 | 説明 |
+|---|---|---|---|
+| `shader` | string | No | `Shaders/` 内のシェーダー名（フラグメントのみ使用） |
+| `resolution` | number[] | No | テクスチャ解像度 `[width, height]`（デフォルト: `[1024, 1024]`） |
+| `filter` | string | No | テクスチャフィルター `"linear"` / `"nearest"`（デフォルト: `"linear"`） |
+| `updateEveryFrame` | boolean | No | 毎フレーム再レンダリングするか（デフォルト: `false`） |
+
+### GET /textures
+
+テクスチャ一覧を取得する。
+
+**レスポンス例:**
+```json
+[
+  {
+    "name": "noise",
+    "config": {
+      "shader": "_Noise",
+      "resolution": [1024, 1024]
+    }
+  }
+]
+```
+
+**curl:**
+```bash
+curl http://localhost:3001/api/textures
+```
+
+---
+
+### GET /textures/:name
+
+テクスチャの詳細を取得する。
+
+**レスポンス例:**
+```json
+{
+  "name": "noise",
+  "config": {
+    "shader": "_Noise",
+    "resolution": [1024, 1024]
+  }
+}
+```
+
+**curl:**
+```bash
+curl http://localhost:3001/api/textures/noise
+```
+
+---
+
+### POST /textures
+
+新しいテクスチャを作成する。
+
+**リクエストボディ:**
+```json
+{
+  "name": "myTexture",
+  "resolution": [1024, 1024]
+}
+```
+
+`name` 以外のフィールドが config として保存される。
+
+**レスポンス例（201）:**
+```json
+{
+  "name": "myTexture",
+  "config": {
+    "resolution": [1024, 1024]
+  }
+}
+```
+
+**curl:**
+```bash
+curl -X POST http://localhost:3001/api/textures \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"myTexture","resolution":[1024,1024]}'
+```
+
+---
+
+### PUT /textures/:name
+
+テクスチャを更新する。
+
+**リクエストボディ:** config オブジェクト全体
+
+**curl:**
+```bash
+curl -X PUT http://localhost:3001/api/textures/myTexture \
+  -H 'Content-Type: application/json' \
+  -d '{"shader":"_Noise","resolution":[512,512]}'
+```
+
+---
+
+### DELETE /textures/:name
+
+テクスチャを削除する。
+
+**レスポンス例:**
+```json
+{
+  "deleted": true
+}
+```
+
+**curl:**
+```bash
+curl -X DELETE http://localhost:3001/api/textures/myTexture
+```
+
+---
+
+### GET /textures/:name/filepath
+
+テクスチャファイル（`.tex`）の絶対パスを取得する。
+
+**レスポンス例:**
+```json
+{
+  "absolutePath": "/path/to/src/ts/Resources/Textures/myTexture.tex"
+}
+```
+
+**curl:**
+```bash
+curl http://localhost:3001/api/textures/myTexture/filepath
 ```

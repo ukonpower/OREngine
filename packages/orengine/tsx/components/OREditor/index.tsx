@@ -17,6 +17,7 @@ import { PanelContainer } from '../PanelContainer';
 import { ComponentExplorer } from '../Panels/ComponentExplorer';
 import { MaterialExplorer } from '../Panels/MaterialExplorer';
 import { ShaderExplorer } from '../Panels/ShaderExplorer';
+import { TextureExplorer } from '../Panels/TextureExplorer';
 import { EntityProperty } from '../Panels/EntityProperty';
 import { Timer } from '../Panels/GPUTimer';
 import { Hierarchy } from '../Panels/Hierarchy';
@@ -94,6 +95,11 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 											<PanelContainer.Tab title='Shaders'>
 												<Panel>
 													<ShaderExplorer />
+												</Panel>
+											</PanelContainer.Tab>
+											<PanelContainer.Tab title='Textures'>
+												<Panel>
+													<TextureExplorer />
 												</Panel>
 											</PanelContainer.Tab>
 											<PanelContainer.Tab title='Project'>
@@ -185,6 +191,11 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 							<PanelContainer.Tab title='Shaders'>
 								<Panel>
 									<ShaderExplorer />
+								</Panel>
+							</PanelContainer.Tab>
+							<PanelContainer.Tab title='Textures'>
+								<Panel>
+									<TextureExplorer />
 								</Panel>
 							</PanelContainer.Tab>
 							<PanelContainer.Tab title='Project'>

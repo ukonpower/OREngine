@@ -245,7 +245,7 @@ projectsRouter.post( '/projects/:name/duplicate', async ( req, res ) => {
 const GLOBALS_TEMPLATE = `export { canvas, gl, power, globalUniforms } from '~/ts/Globals';
 `;
 
-const INDEX_TEMPLATE = `export { initResouces } from '~/ts/Resources';
+const INDEX_TEMPLATE = `export { initResouces, initResourceInstances } from '~/ts/Resources';
 `;
 
 

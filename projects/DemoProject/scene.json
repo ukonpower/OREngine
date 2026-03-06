@@ -163,10 +163,6 @@
 			{
 				"name": "UniformControls",
 				"uuid": "2"
-			},
-			{
-				"name": "TextureGenerator",
-				"uuid": "3"
 			}
 		]
 	},
