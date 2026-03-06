@@ -3,6 +3,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 
+import { projectManager } from '../Project';
+
 const __dirname = path.dirname( fileURLToPath( import.meta.url ) );
 
 export const sceneRouter = express.Router();
@@ -86,16 +88,27 @@ function writeJsonFile( filePath: string, data: unknown, res: express.Response )
 // Scene
 sceneRouter.get( '/projects/:name/scene', ( req, res ) => {
 
-	const projectDir = resolveProjectDir( req.params.name );
+	try {
 
-	if ( !projectDir ) {
+		const project = projectManager.getProject( req.params.name );
+		const sceneData = project.getSceneFileData();
+		res.json( sceneData );
 
-		res.status( 400 ).json( { error: 'Invalid project name' } );
-		return;
+	} catch {
+
+		// ProjectManager に無い場合はファイルから読む（フォールバック）
+		const projectDir = resolveProjectDir( req.params.name );
+
+		if ( !projectDir ) {
+
+			res.status( 400 ).json( { error: 'Invalid project name' } );
+			return;
+
+		}
+
+		readJsonFile( path.join( projectDir, 'scene.json' ), res );
 
 	}
-
-	readJsonFile( path.join( projectDir, 'scene.json' ), res );
 
 } );
 
@@ -111,6 +124,14 @@ sceneRouter.post( '/projects/:name/scene', ( req, res ) => {
 	}
 
 	writeJsonFile( path.join( projectDir, 'scene.json' ), req.body, res );
+
+	// オンメモリ状態も更新
+	try {
+
+		const project = projectManager.getProject( req.params.name );
+		project.syncFromBrowser( req.body );
+
+	} catch { /* ignore */ }
 
 } );
 
