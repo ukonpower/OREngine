@@ -42,6 +42,44 @@ export class Ray {
 
 	}
 
+	public intersectAABB( min: GLP.Vector, max: GLP.Vector ): { distance: number, point: GLP.Vector } | null {
+
+		const invDirX = 1 / this.direction.x;
+		const invDirY = 1 / this.direction.y;
+		const invDirZ = 1 / this.direction.z;
+
+		let t1 = ( min.x - this.origin.x ) * invDirX;
+		let t2 = ( max.x - this.origin.x ) * invDirX;
+
+		let tmin = Math.min( t1, t2 );
+		let tmax = Math.max( t1, t2 );
+
+		t1 = ( min.y - this.origin.y ) * invDirY;
+		t2 = ( max.y - this.origin.y ) * invDirY;
+
+		tmin = Math.max( tmin, Math.min( t1, t2 ) );
+		tmax = Math.min( tmax, Math.max( t1, t2 ) );
+
+		t1 = ( min.z - this.origin.z ) * invDirZ;
+		t2 = ( max.z - this.origin.z ) * invDirZ;
+
+		tmin = Math.max( tmin, Math.min( t1, t2 ) );
+		tmax = Math.min( tmax, Math.max( t1, t2 ) );
+
+		if ( tmax < 0 || tmin > tmax ) return null;
+
+		const t = tmin >= 0 ? tmin : tmax;
+
+		const point = new GLP.Vector(
+			this.origin.x + this.direction.x * t,
+			this.origin.y + this.direction.y * t,
+			this.origin.z + this.direction.z * t
+		);
+
+		return { distance: t, point };
+
+	}
+
 	public intersectTriangle( v0: GLP.Vector, v1: GLP.Vector, v2: GLP.Vector ): { distance: number, point: GLP.Vector } | null {
 
 		const EPSILON = 1e-8;
