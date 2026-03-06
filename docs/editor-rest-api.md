@@ -1,4 +1,4 @@
-# OREngine Editor REST API
+# OREngine エディタ操作 REST API
 
 EditorAPIをREST経由で操作するためのAPI。開発サーバー（Express）を通じてブラウザ上のエディタと通信する。
 
@@ -8,18 +8,21 @@ EditorAPIをREST経由で操作するためのAPI。開発サーバー（Express
 2. ブラウザでエディタを開く（`http://localhost:3000`）
 3. エディタがWebSocketでサーバーに接続される（自動）
 
-エディタが接続されていない場合、全てのAPIは `503 Service Unavailable` を返す。
+ブラウザが接続されている場合、操作はWebSocket経由でブラウザに委譲される（Undo/Redo対応）。
+ブラウザが未接続の場合、サーバーのオンメモリ状態で直接処理される（Undo/Redo不可）。
 
 ## ベースURL
 
 ```
-http://localhost:3001/api/editor
+http://localhost:3001/api/projects/{projectName}/editor
 ```
 
 Viteプロキシ経由でもアクセス可能:
 ```
-http://localhost:3000/api/editor
+http://localhost:3000/api/projects/{projectName}/editor
 ```
+
+`{projectName}` はプロジェクト名（例: `DemoProject`）。
 
 ## エラーレスポンス
 
@@ -33,8 +36,7 @@ http://localhost:3000/api/editor
 
 | ステータスコード | 意味 |
 |:---:|---|
-| 400 | リクエストエラー（存在しないUUID、不正なパラメータ等） |
-| 503 | エディタ未接続 |
+| 400 | リクエストエラー（存在しないUUID、不正なパラメータ、ブラウザ側でのエラー等） |
 
 ---
 
@@ -56,7 +58,7 @@ http://localhost:3000/api/editor
 
 **curl:**
 ```bash
-curl http://localhost:3001/api/editor/status
+curl http://localhost:3001/api/projects/DemoProject/editor/status
 ```
 
 ---
@@ -92,7 +94,7 @@ curl http://localhost:3001/api/editor/status
 
 **curl:**
 ```bash
-curl http://localhost:3001/api/editor/scene
+curl http://localhost:3001/api/projects/DemoProject/editor/scene
 ```
 
 ---
@@ -125,7 +127,7 @@ curl http://localhost:3001/api/editor/scene
 
 **curl:**
 ```bash
-curl http://localhost:3001/api/editor/entity/<uuid>
+curl http://localhost:3001/api/projects/DemoProject/editor/entity/<uuid>
 ```
 
 ---
@@ -153,7 +155,7 @@ curl http://localhost:3001/api/editor/entity/<uuid>
 
 **curl:**
 ```bash
-curl 'http://localhost:3001/api/editor/search?q=Camera'
+curl 'http://localhost:3001/api/projects/DemoProject/editor/search?q=Camera'
 ```
 
 ---
@@ -175,7 +177,7 @@ curl 'http://localhost:3001/api/editor/search?q=Camera'
 
 **curl:**
 ```bash
-curl http://localhost:3001/api/editor/components
+curl http://localhost:3001/api/projects/DemoProject/editor/components
 ```
 
 ---
@@ -208,7 +210,7 @@ curl http://localhost:3001/api/editor/components
 
 **curl:**
 ```bash
-curl http://localhost:3001/api/editor/entity/<uuid>/component/Light
+curl http://localhost:3001/api/projects/DemoProject/editor/entity/<uuid>/component/Light
 ```
 
 ---
@@ -217,7 +219,7 @@ curl http://localhost:3001/api/editor/entity/<uuid>/component/Light
 
 ### POST /editor/entity
 
-新しいエンティティを作成する。
+新しいエンティティを作成する（Undo可能）。
 
 **リクエストボディ:**
 ```json
@@ -242,7 +244,7 @@ curl http://localhost:3001/api/editor/entity/<uuid>/component/Light
 
 **curl:**
 ```bash
-curl -X POST http://localhost:3001/api/editor/entity \
+curl -X POST http://localhost:3001/api/projects/DemoProject/editor/entity \
   -H 'Content-Type: application/json' \
   -d '{"parentUuid":"<parent-uuid>","name":"MyEntity"}'
 ```
@@ -255,7 +257,7 @@ curl -X POST http://localhost:3001/api/editor/entity \
 
 **curl:**
 ```bash
-curl -X DELETE http://localhost:3001/api/editor/entity/<uuid>
+curl -X DELETE http://localhost:3001/api/projects/DemoProject/editor/entity/<uuid>
 ```
 
 ---
@@ -266,7 +268,7 @@ curl -X DELETE http://localhost:3001/api/editor/entity/<uuid>
 
 **curl:**
 ```bash
-curl -X POST http://localhost:3001/api/editor/entity/<uuid>/select
+curl -X POST http://localhost:3001/api/projects/DemoProject/editor/entity/<uuid>/select
 ```
 
 ---
@@ -296,7 +298,7 @@ curl -X POST http://localhost:3001/api/editor/entity/<uuid>/select
 
 **curl:**
 ```bash
-curl -X POST http://localhost:3001/api/editor/entity/<uuid>/component \
+curl -X POST http://localhost:3001/api/projects/DemoProject/editor/entity/<uuid>/component \
   -H 'Content-Type: application/json' \
   -d '{"componentName":"Light"}'
 ```
@@ -309,7 +311,7 @@ curl -X POST http://localhost:3001/api/editor/entity/<uuid>/component \
 
 **curl:**
 ```bash
-curl -X DELETE http://localhost:3001/api/editor/entity/<uuid>/component/Light
+curl -X DELETE http://localhost:3001/api/projects/DemoProject/editor/entity/<uuid>/component/Light
 ```
 
 ---
@@ -344,12 +346,12 @@ Serializableオブジェクト（Entity or Component）のフィールド値を�
 **curl:**
 ```bash
 # positionを変更
-curl -X POST http://localhost:3001/api/editor/field \
+curl -X POST http://localhost:3001/api/projects/DemoProject/editor/field \
   -H 'Content-Type: application/json' \
   -d '{"targetUuid":"<uuid>","path":"position","value":[1,2,3]}'
 
 # 名前を変更
-curl -X POST http://localhost:3001/api/editor/field \
+curl -X POST http://localhost:3001/api/projects/DemoProject/editor/field \
   -H 'Content-Type: application/json' \
   -d '{"targetUuid":"<uuid>","path":"name","value":"NewName"}'
 ```
@@ -358,6 +360,8 @@ curl -X POST http://localhost:3001/api/editor/field \
 
 ## Undo/Redo API
 
+ブラウザ接続時のみ使用可能。未接続時は `400` エラーを返す。
+
 ### POST /editor/undo
 
 最後の操作を元に戻す。
@@ -365,15 +369,13 @@ curl -X POST http://localhost:3001/api/editor/field \
 **レスポンス例:**
 ```json
 {
-  "success": true,
-  "canUndo": false,
-  "canRedo": true
+  "success": true
 }
 ```
 
 **curl:**
 ```bash
-curl -X POST http://localhost:3001/api/editor/undo
+curl -X POST http://localhost:3001/api/projects/DemoProject/editor/undo
 ```
 
 ---
@@ -385,15 +387,33 @@ curl -X POST http://localhost:3001/api/editor/undo
 **レスポンス例:**
 ```json
 {
-  "success": true,
-  "canUndo": true,
-  "canRedo": false
+  "success": true
 }
 ```
 
 **curl:**
 ```bash
-curl -X POST http://localhost:3001/api/editor/redo
+curl -X POST http://localhost:3001/api/projects/DemoProject/editor/redo
+```
+
+---
+
+## セーブAPI
+
+### POST /editor/save
+
+現在のシーンをディスクに保存する。ブラウザ接続中はsyncRequestでスナップショットを取得してから保存する。
+
+**レスポンス例:**
+```json
+{
+  "success": true
+}
+```
+
+**curl:**
+```bash
+curl -X POST http://localhost:3001/api/projects/DemoProject/editor/save
 ```
 
 ---
@@ -402,46 +422,35 @@ curl -X POST http://localhost:3001/api/editor/redo
 
 ```bash
 # 1. シーン構造を把握
-curl http://localhost:3001/api/editor/scene
+curl http://localhost:3001/api/projects/DemoProject/editor/scene
 
 # 2. 利用可能なコンポーネントを確認
-curl http://localhost:3001/api/editor/components
+curl http://localhost:3001/api/projects/DemoProject/editor/components
 
 # 3. エンティティを検索
-curl 'http://localhost:3001/api/editor/search?q=Cube'
+curl 'http://localhost:3001/api/projects/DemoProject/editor/search?q=Cube'
 
 # 4. エンティティの詳細を確認
-curl http://localhost:3001/api/editor/entity/<uuid>
+curl http://localhost:3001/api/projects/DemoProject/editor/entity/<uuid>
 
 # 5. 新しいエンティティを作成
-curl -X POST http://localhost:3001/api/editor/entity \
+curl -X POST http://localhost:3001/api/projects/DemoProject/editor/entity \
   -H 'Content-Type: application/json' \
   -d '{"parentUuid":"<root-uuid>","name":"NewLight"}'
 
 # 6. コンポーネントを追加
-curl -X POST http://localhost:3001/api/editor/entity/<new-uuid>/component \
+curl -X POST http://localhost:3001/api/projects/DemoProject/editor/entity/<new-uuid>/component \
   -H 'Content-Type: application/json' \
   -d '{"componentName":"Light"}'
 
 # 7. フィールドを変更
-curl -X POST http://localhost:3001/api/editor/field \
+curl -X POST http://localhost:3001/api/projects/DemoProject/editor/field \
   -H 'Content-Type: application/json' \
   -d '{"targetUuid":"<new-uuid>","path":"position","value":[0,5,0]}'
 
-# 8. 問題があればUndo
-curl -X POST http://localhost:3001/api/editor/undo
-```
+# 8. 保存
+curl -X POST http://localhost:3001/api/projects/DemoProject/editor/save
 
-## アーキテクチャ
-
+# 9. 問題があればUndo
+curl -X POST http://localhost:3001/api/projects/DemoProject/editor/undo
 ```
-外部ツール ──HTTP──→ Express (:3001) ──WebSocket──→ ブラウザ (EditorAPI)
-                          ↑                              │
-                     REST応答 ←──WebSocket Result────────┘
-```
-
-- ExpressサーバーとWebSocketサーバーは同一ポート（3001）で動作
-- WebSocketパス: `/ws/editor`
-- ブラウザ側はViteプロキシ経由で接続（`ws://localhost:3000/ws/editor`）
-- 自動再接続: 切断時3秒間隔で再接続を試行
-- タイムアウト: 各リクエスト10秒

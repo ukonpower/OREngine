@@ -148,7 +148,7 @@
 										"geometry/radiusTop": 1,
 										"geometry/radiusBottom": 1,
 										"geometry/caps": true,
-										"material/name": ""
+										"material/name": "SkyBox"
 									}
 								},
 								{
