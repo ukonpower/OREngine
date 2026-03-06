@@ -4,7 +4,7 @@ import * as MXP from 'maxpower';
 import gizmoVert from '../../shaders/gizmo.vs';
 import gizmoFrag from '../../shaders/gizmo.fs';
 
-import { Gizmo, GizmoAxis, GizmoDragResult } from '..';
+import { Gizmo, GizmoAxis, GizmoDragResult, createHitAreaMaterial } from '..';
 
 export class TranslateGizmo implements Gizmo {
 
@@ -115,8 +115,32 @@ export class TranslateGizmo implements Gizmo {
 
 		}
 
+		// hit area - shaft
+		const hitShaft = new MXP.Entity( { name: "__gizmo_hit_shaft" } );
+		hitShaft.initiator = "god";
+		const hitShaftGeo = new MXP.CylinderGeometry( {
+			radiusTop: 0.06, radiusBottom: 0.06,
+			height: shaftLength, radSegments: 6, heightSegments: 1, caps: true,
+		} );
+		hitShaft.addComponent( MXP.Mesh, { geometry: hitShaftGeo, material: createHitAreaMaterial() } );
+		hitShaft.position.copy( shaft.position );
+		hitShaft.euler.copy( shaft.euler );
+
+		// hit area - head
+		const hitHead = new MXP.Entity( { name: "__gizmo_hit_head" } );
+		hitHead.initiator = "god";
+		const hitHeadGeo = new MXP.CylinderGeometry( {
+			radiusTop: 0.001, radiusBottom: 0.1,
+			height: headLength * 1.5, radSegments: 6, heightSegments: 1, caps: true,
+		} );
+		hitHead.addComponent( MXP.Mesh, { geometry: hitHeadGeo, material: createHitAreaMaterial() } );
+		hitHead.position.copy( head.position );
+		hitHead.euler.copy( head.euler );
+
 		axisEntity.add( shaft );
 		axisEntity.add( head );
+		axisEntity.add( hitShaft );
+		axisEntity.add( hitHead );
 
 		return axisEntity;
 
@@ -145,11 +169,13 @@ export class TranslateGizmo implements Gizmo {
 
 		const result: { axis: GizmoAxis, entity: MXP.Entity }[] = [];
 
-		const collectMeshEntities = ( axisEntity: MXP.Entity, axis: GizmoAxis ) => {
+		const collectHitEntities = ( axisEntity: MXP.Entity, axis: GizmoAxis ) => {
 
 			axisEntity.traverse( ( child ) => {
 
-				if ( child.getComponent( MXP.Mesh ) ) {
+				const mesh = child.getComponent( MXP.Mesh );
+
+				if ( mesh && mesh.material && ! mesh.material.visibilityFlag.forward ) {
 
 					result.push( { axis, entity: child } );
 
@@ -159,9 +185,9 @@ export class TranslateGizmo implements Gizmo {
 
 		};
 
-		collectMeshEntities( this._xAxis, 'x' );
-		collectMeshEntities( this._yAxis, 'y' );
-		collectMeshEntities( this._zAxis, 'z' );
+		collectHitEntities( this._xAxis, 'x' );
+		collectHitEntities( this._yAxis, 'y' );
+		collectHitEntities( this._zAxis, 'z' );
 
 		return result;
 

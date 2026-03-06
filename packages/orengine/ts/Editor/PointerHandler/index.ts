@@ -6,6 +6,7 @@ import { SetFieldCommand } from '../Commands/SetFieldCommand';
 import { EditorCamera } from '../EditorCamera';
 import { GizmoAxis, GizmoMode } from '../Gizmo';
 import { GizmoManager } from '../GizmoManager';
+import { HelperManager } from '../HelperManager';
 
 import type { EditorAPI } from '../EditorAPI';
 
@@ -15,12 +16,14 @@ export class PointerHandler {
 	private _pointerDownPos: GLP.Vector | null;
 	private _gizmoDragging: boolean;
 	private _gizmoDragStartValue: { position: number[], euler: number[], scale: number[] } | null;
+	private _hoveredTarget: 'gizmo' | 'helper' | null;
 	private _disposeListeners: () => void;
 
 	constructor(
 		engine: Engine,
 		editorCamera: EditorCamera,
 		gizmoManager: GizmoManager,
+		helperManager: HelperManager,
 		api: EditorAPI,
 		getSelectedEntityId: () => string | null,
 		getGizmoMode: () => GizmoMode,
@@ -31,6 +34,7 @@ export class PointerHandler {
 		this._pointerDownPos = null;
 		this._gizmoDragging = false;
 		this._gizmoDragStartValue = null;
+		this._hoveredTarget = null;
 
 		const canvasElm = engine.canvas as HTMLCanvasElement;
 
@@ -92,6 +96,7 @@ export class PointerHandler {
 
 							this._gizmoDragging = true;
 							editorCamera.orbitControls.enabled = false;
+							canvasElm.style.cursor = 'grabbing';
 
 							this._gizmoDragStartValue = {
 								position: selectedEntity.position.getElm( 'vec3' ) as number[],
@@ -113,52 +118,118 @@ export class PointerHandler {
 
 		const onPointerMove = ( e: PointerEvent ) => {
 
-			if ( ! this._gizmoDragging ) return;
-
-			const selectedEntityId = getSelectedEntityId();
-			const selectedEntity = selectedEntityId
-				? engine.root.findEntityByUUID( selectedEntityId )
-				: null;
-
-			if ( ! selectedEntity ) return;
-
 			const ndc = getNDC( e );
 			const cameraEntity = getCameraEntity();
 
 			if ( ! cameraEntity ) return;
 
 			this._raycaster.setFromCamera( ndc, cameraEntity );
-			const result = gizmoManager.activeGizmo.updateDrag( this._raycaster.ray, selectedEntity );
 
-			if ( result ) {
+			if ( this._gizmoDragging ) {
 
-				if ( result.position ) {
+				const selectedEntityId = getSelectedEntityId();
+				const selectedEntity = selectedEntityId
+					? engine.root.findEntityByUUID( selectedEntityId )
+					: null;
 
-					const localPos = result.position.clone();
+				if ( ! selectedEntity ) return;
 
-					if ( selectedEntity.parent ) {
+				const result = gizmoManager.activeGizmo.updateDrag( this._raycaster.ray, selectedEntity );
 
-						localPos.applyMatrix4( selectedEntity.parent.matrixWorld.clone().inverse() );
+				if ( result ) {
+
+					if ( result.position ) {
+
+						const localPos = result.position.clone();
+
+						if ( selectedEntity.parent ) {
+
+							localPos.applyMatrix4( selectedEntity.parent.matrixWorld.clone().inverse() );
+
+						}
+
+						selectedEntity.position.copy( localPos );
 
 					}
 
-					selectedEntity.position.copy( localPos );
+					if ( result.euler ) {
+
+						selectedEntity.euler.set( result.euler.x, result.euler.y, result.euler.z );
+
+					}
+
+					if ( result.scale ) {
+
+						selectedEntity.scale.set( result.scale.x, result.scale.y, result.scale.z );
+
+					}
+
+					selectedEntity.updateMatrix( true );
 
 				}
 
-				if ( result.euler ) {
+				return;
 
-					selectedEntity.euler.set( result.euler.x, result.euler.y, result.euler.z );
+			}
+
+			// hover detection
+			let newHover: 'gizmo' | 'helper' | null = null;
+
+			if ( gizmoManager.activeGizmo.entity.visible ) {
+
+				const axisEntities = gizmoManager.activeGizmo.getAxisEntities();
+
+				for ( const { entity: axisEntity } of axisEntities ) {
+
+					const hits = this._raycaster.intersectEntities( axisEntity );
+
+					if ( hits.length > 0 ) {
+
+						newHover = 'gizmo';
+						break;
+
+					}
 
 				}
 
-				if ( result.scale ) {
+			}
 
-					selectedEntity.scale.set( result.scale.x, result.scale.y, result.scale.z );
+			if ( ! newHover ) {
+
+				const hitAreas = helperManager.getHitAreaEntities();
+
+				for ( const { hitEntity } of hitAreas ) {
+
+					const hits = this._raycaster.intersectEntities( hitEntity );
+
+					if ( hits.length > 0 ) {
+
+						newHover = 'helper';
+						break;
+
+					}
 
 				}
 
-				selectedEntity.updateMatrix( true );
+			}
+
+			if ( newHover !== this._hoveredTarget ) {
+
+				this._hoveredTarget = newHover;
+
+				if ( newHover === 'gizmo' ) {
+
+					canvasElm.style.cursor = 'grab';
+
+				} else if ( newHover === 'helper' ) {
+
+					canvasElm.style.cursor = 'pointer';
+
+				} else {
+
+					canvasElm.style.cursor = '';
+
+				}
 
 			}
 
@@ -171,6 +242,7 @@ export class PointerHandler {
 				gizmoManager.activeGizmo.endDrag();
 				this._gizmoDragging = false;
 				editorCamera.orbitControls.enabled = true;
+				canvasElm.style.cursor = this._hoveredTarget === 'gizmo' ? 'grab' : '';
 
 				const selectedEntityId = getSelectedEntityId();
 				const selectedEntity = selectedEntityId
@@ -220,7 +292,36 @@ export class PointerHandler {
 			if ( results.length > 0 ) {
 
 				const hit = results.find( r => r.entity.initiator !== "god" );
-				onSelectEntity( hit ? hit.entity : null );
+
+				if ( hit ) {
+
+					onSelectEntity( hit.entity );
+					return;
+
+				}
+
+			}
+
+			// helper hit area detection
+			const hitAreas = helperManager.getHitAreaEntities();
+			let closestHelper: { targetEntityUUID: string, distance: number } | null = null;
+
+			for ( const { hitEntity, targetEntityUUID } of hitAreas ) {
+
+				const hits = this._raycaster.intersectEntities( hitEntity );
+
+				if ( hits.length > 0 && ( ! closestHelper || hits[ 0 ].distance < closestHelper.distance ) ) {
+
+					closestHelper = { targetEntityUUID, distance: hits[ 0 ].distance };
+
+				}
+
+			}
+
+			if ( closestHelper ) {
+
+				const targetEntity = engine.root.findEntityByUUID( closestHelper.targetEntityUUID );
+				onSelectEntity( targetEntity || null );
 
 			} else {
 

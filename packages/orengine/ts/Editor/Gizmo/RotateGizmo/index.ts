@@ -4,7 +4,7 @@ import * as MXP from 'maxpower';
 import gizmoVert from '../../shaders/gizmo.vs';
 import gizmoFrag from '../../shaders/gizmo.fs';
 
-import { Gizmo, GizmoAxis, GizmoDragResult } from '..';
+import { Gizmo, GizmoAxis, GizmoDragResult, createHitAreaMaterial } from '..';
 
 export class RotateGizmo implements Gizmo {
 
@@ -40,6 +40,9 @@ export class RotateGizmo implements Gizmo {
 
 	private _createRing( axis: GizmoAxis, color: number[] ): MXP.Entity {
 
+		const wrapperEntity = new MXP.Entity( { name: "__gizmo_ring_wrapper" } );
+		wrapperEntity.initiator = "god";
+
 		const ringEntity = new MXP.Entity( { name: "__gizmo_ring" } );
 		ringEntity.initiator = "god";
 
@@ -62,21 +65,35 @@ export class RotateGizmo implements Gizmo {
 
 		ringEntity.addComponent( MXP.Mesh, { geometry: geo, material: mat } );
 
+		// hit area
+		const hitRing = new MXP.Entity( { name: "__gizmo_hit_ring" } );
+		hitRing.initiator = "god";
+		const hitGeo = new MXP.RingGeometry( {
+			innerRadius: 0.6, outerRadius: 0.95,
+			thetaSegments: 32, phiSegments: 1,
+		} );
+		const hitMat = createHitAreaMaterial();
+		hitMat.cullFace = false;
+		hitRing.addComponent( MXP.Mesh, { geometry: hitGeo, material: hitMat } );
+
+		wrapperEntity.add( ringEntity );
+		wrapperEntity.add( hitRing );
+
 		// RingGeometryはXY平面に生成される
 		// x軸回転用: YZ平面 → Y軸周りに90度回転
 		// y軸回転用: XZ平面 → X軸周りに90度回転
 		// z軸回転用: XY平面 → そのまま
 		if ( axis === 'x' ) {
 
-			ringEntity.euler.set( 0, Math.PI / 2, 0 );
+			wrapperEntity.euler.set( 0, Math.PI / 2, 0 );
 
 		} else if ( axis === 'y' ) {
 
-			ringEntity.euler.set( Math.PI / 2, 0, 0 );
+			wrapperEntity.euler.set( Math.PI / 2, 0, 0 );
 
 		}
 
-		return ringEntity;
+		return wrapperEntity;
 
 	}
 
@@ -103,11 +120,13 @@ export class RotateGizmo implements Gizmo {
 
 		const result: { axis: GizmoAxis, entity: MXP.Entity }[] = [];
 
-		const addRing = ( ringEntity: MXP.Entity, axis: GizmoAxis ) => {
+		const collectHitEntities = ( ringWrapper: MXP.Entity, axis: GizmoAxis ) => {
 
-			ringEntity.traverse( ( child ) => {
+			ringWrapper.traverse( ( child ) => {
 
-				if ( child.getComponent( MXP.Mesh ) ) {
+				const mesh = child.getComponent( MXP.Mesh );
+
+				if ( mesh && mesh.material && ! mesh.material.visibilityFlag.forward ) {
 
 					result.push( { axis, entity: child } );
 
@@ -117,9 +136,9 @@ export class RotateGizmo implements Gizmo {
 
 		};
 
-		addRing( this._xRing, 'x' );
-		addRing( this._yRing, 'y' );
-		addRing( this._zRing, 'z' );
+		collectHitEntities( this._xRing, 'x' );
+		collectHitEntities( this._yRing, 'y' );
+		collectHitEntities( this._zRing, 'z' );
 
 		return result;
 

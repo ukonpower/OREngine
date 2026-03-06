@@ -100,6 +100,7 @@ export class HelperManager {
 
 			const event = engine.createEntityUpdateEvent();
 			helper.entity.update( event );
+			helper.hitAreaEntity.update( event );
 
 			helper.syncTransform( entity );
 
@@ -137,6 +138,23 @@ export class HelperManager {
 			);
 
 		}
+
+	}
+
+	public getHitAreaEntities(): { hitEntity: MXP.Entity, targetEntityUUID: string }[] {
+
+		const result: { hitEntity: MXP.Entity, targetEntityUUID: string }[] = [];
+
+		this._helpers.forEach( ( helper ) => {
+
+			result.push( {
+				hitEntity: helper.hitAreaEntity,
+				targetEntityUUID: helper.targetEntityUUID,
+			} );
+
+		} );
+
+		return result;
 
 	}
 

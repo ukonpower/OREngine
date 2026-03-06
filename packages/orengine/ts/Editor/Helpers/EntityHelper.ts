@@ -1,6 +1,7 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
+import { createHitAreaMaterial } from '../Gizmo';
 import gizmoFrag from '../shaders/gizmo.fs';
 import gizmoVert from '../shaders/gizmo.vs';
 
@@ -14,6 +15,7 @@ export type HelperType = 'empty' | 'camera' | 'spotLight' | 'directionalLight';
 export class EntityHelper {
 
 	public entity: MXP.Entity;
+	public hitAreaEntity: MXP.Entity;
 	public type: HelperType;
 	public targetEntityUUID: string;
 	private _geometry: MXP.Geometry;
@@ -44,6 +46,14 @@ export class EntityHelper {
 
 		this._geometry = this._createGeometry();
 		this.entity.addComponent( MXP.Mesh, { geometry: this._geometry, material: mat } );
+
+		// hit area
+		this.hitAreaEntity = new MXP.Entity( { name: "__helper_hit" } );
+		this.hitAreaEntity.initiator = "god";
+		this.hitAreaEntity.addComponent( MXP.Mesh, {
+			geometry: this._createHitAreaGeometry(),
+			material: createHitAreaMaterial(),
+		} );
 
 		if ( type === 'spotLight' || type === 'directionalLight' ) {
 
@@ -83,9 +93,23 @@ export class EntityHelper {
 
 	}
 
+	private _createHitAreaGeometry(): MXP.Geometry {
+
+		switch ( this.type ) {
+
+		case 'empty': return new MXP.CubeGeometry( { width: 0.3, height: 0.3, depth: 0.3 } );
+		case 'camera': return new MXP.CubeGeometry( { width: 0.5, height: 0.5, depth: 0.5 } );
+		case 'spotLight': return new MXP.CubeGeometry( { width: 0.4, height: 0.4, depth: 0.4 } );
+		case 'directionalLight': return new MXP.CubeGeometry( { width: 0.5, height: 0.5, depth: 0.5 } );
+
+		}
+
+	}
+
 	public syncTransform( targetEntity: MXP.Entity ) {
 
 		this.entity.matrixWorld.copy( targetEntity.matrixWorld );
+		this.hitAreaEntity.matrixWorld.copy( targetEntity.matrixWorld );
 
 		if ( this._matrixOffset ) {
 

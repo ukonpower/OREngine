@@ -67,7 +67,9 @@ export class GizmoManager {
 
 		this._activeGizmo.entity.traverse( ( child ) => {
 
-			if ( child.getComponent( MXP.Mesh ) ) {
+			const mesh = child.getComponent( MXP.Mesh );
+
+			if ( mesh && mesh.material && mesh.material.visibilityFlag.forward ) {
 
 				gizmoEntities.push( child );
 
