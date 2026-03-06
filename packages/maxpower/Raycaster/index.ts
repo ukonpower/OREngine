@@ -61,10 +61,9 @@ export class Raycaster {
 	private intersectMesh( entity: Entity, mesh: Mesh ): RaycastResult[] | null {
 
 		const geometry = mesh.geometry;
-		const posAttr = geometry.getAttribute( 'position' );
-		const indexAttr = geometry.getAttribute( 'index' );
+		const boundingBox = geometry.boundingBox;
 
-		if ( ! posAttr ) return null;
+		if ( ! boundingBox ) return null;
 
 		const invMatrix = entity.matrixWorld.clone().inverse();
 
@@ -89,68 +88,27 @@ export class Raycaster {
 			dirEnd.z - localRay.origin.z
 		).normalize();
 
-		const results: RaycastResult[] = [];
-		const positions = posAttr.array as Float32Array;
+		const hit = localRay.intersectAABB( boundingBox.min, boundingBox.max );
 
-		const v0 = new GLP.Vector();
-		const v1 = new GLP.Vector();
-		const v2 = new GLP.Vector();
+		if ( ! hit ) return null;
 
-		const testTriangle = ( i0: number, i1: number, i2: number ) => {
+		const worldPoint = hit.point.clone();
+		worldPoint.w = 1;
+		worldPoint.applyMatrix4( entity.matrixWorld );
+		worldPoint.x /= worldPoint.w;
+		worldPoint.y /= worldPoint.w;
+		worldPoint.z /= worldPoint.w;
 
-			v0.set( positions[ i0 * 3 ], positions[ i0 * 3 + 1 ], positions[ i0 * 3 + 2 ] );
-			v1.set( positions[ i1 * 3 ], positions[ i1 * 3 + 1 ], positions[ i1 * 3 + 2 ] );
-			v2.set( positions[ i2 * 3 ], positions[ i2 * 3 + 1 ], positions[ i2 * 3 + 2 ] );
+		const dx = worldPoint.x - this.ray.origin.x;
+		const dy = worldPoint.y - this.ray.origin.y;
+		const dz = worldPoint.z - this.ray.origin.z;
+		const worldDistance = Math.sqrt( dx * dx + dy * dy + dz * dz );
 
-			const hit = localRay.intersectTriangle( v0, v1, v2 );
-
-			if ( hit ) {
-
-				const worldPoint = hit.point.clone();
-				worldPoint.w = 1;
-				worldPoint.applyMatrix4( entity.matrixWorld );
-				worldPoint.x /= worldPoint.w;
-				worldPoint.y /= worldPoint.w;
-				worldPoint.z /= worldPoint.w;
-
-				const dx = worldPoint.x - this.ray.origin.x;
-				const dy = worldPoint.y - this.ray.origin.y;
-				const dz = worldPoint.z - this.ray.origin.z;
-				const worldDistance = Math.sqrt( dx * dx + dy * dy + dz * dz );
-
-				results.push( {
-					entity,
-					distance: worldDistance,
-					point: worldPoint,
-				} );
-
-			}
-
-		};
-
-		if ( indexAttr ) {
-
-			const indices = indexAttr.array;
-
-			for ( let i = 0; i < indices.length; i += 3 ) {
-
-				testTriangle( indices[ i ], indices[ i + 1 ], indices[ i + 2 ] );
-
-			}
-
-		} else {
-
-			const vertCount = positions.length / 3;
-
-			for ( let i = 0; i < vertCount; i += 3 ) {
-
-				testTriangle( i, i + 1, i + 2 );
-
-			}
-
-		}
-
-		return results.length > 0 ? results : null;
+		return [ {
+			entity,
+			distance: worldDistance,
+			point: worldPoint,
+		} ];
 
 	}
 

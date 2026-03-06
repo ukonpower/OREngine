@@ -16,6 +16,7 @@ export class Geometry extends Serializable {
 	public vertCount: number;
 	public attributes: Map<string, Attribute >;
 	public vaoCache: Map<GLP.GLPowerVAO, boolean>;
+	public boundingBox: { min: GLP.Vector, max: GLP.Vector } | null;
 
 	constructor() {
 
@@ -24,6 +25,7 @@ export class Geometry extends Serializable {
 		this.vertCount = 0;
 		this.attributes = new Map();
 		this.vaoCache = new Map();
+		this.boundingBox = null;
 
 	}
 
@@ -44,6 +46,12 @@ export class Geometry extends Serializable {
 		} );
 
 		this.updateVertCount();
+
+		if ( name === 'position' ) {
+
+			this.computeBoundingBox();
+
+		}
 
 		return this;
 
@@ -80,6 +88,40 @@ export class Geometry extends Serializable {
 			}
 
 		} );
+
+	}
+
+	public computeBoundingBox() {
+
+		const posAttr = this.attributes.get( 'position' );
+
+		if ( ! posAttr ) {
+
+			this.boundingBox = null;
+			return;
+
+		}
+
+		const positions = posAttr.array as Float32Array;
+		const min = new GLP.Vector( Infinity, Infinity, Infinity );
+		const max = new GLP.Vector( - Infinity, - Infinity, - Infinity );
+
+		for ( let i = 0; i < positions.length; i += 3 ) {
+
+			const x = positions[ i ];
+			const y = positions[ i + 1 ];
+			const z = positions[ i + 2 ];
+
+			if ( x < min.x ) min.x = x;
+			if ( y < min.y ) min.y = y;
+			if ( z < min.z ) min.z = z;
+			if ( x > max.x ) max.x = x;
+			if ( y > max.y ) max.y = y;
+			if ( z > max.z ) max.z = z;
+
+		}
+
+		this.boundingBox = { min, max };
 
 	}
 
