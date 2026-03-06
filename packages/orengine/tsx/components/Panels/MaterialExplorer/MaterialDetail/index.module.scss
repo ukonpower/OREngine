@@ -1,0 +1,36 @@
+@use '../../../../styles' as *;
+
+.detail {
+	padding: $padding 0;
+}
+
+.row {
+	display: flex;
+	align-items: center;
+	min-height: var(--or-list-row-height);
+	padding: 0 $padding;
+
+	&_label {
+		width: 100px;
+		font-size: $fontSize1;
+		color: $fontCol3;
+	}
+
+	&_value {
+		flex: 1;
+	}
+}
+
+.phaseGroup {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+}
+
+.phaseItem {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+	font-size: $fontSize1;
+	color: $fontCol2;
+}
