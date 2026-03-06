@@ -82,6 +82,26 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 													<Hierarchy />
 												</Panel>
 											</PanelContainer.Tab>
+										</PanelContainer>
+									</LayoutSplit.Item>
+									<LayoutSplit.Item size="20vh">
+										<PanelContainer>
+											<PanelContainer.Tab title='Timer'>
+												<Panel noPadding>
+													<Timer />
+												</Panel>
+											</PanelContainer.Tab>
+										</PanelContainer>
+									</LayoutSplit.Item>
+								</LayoutSplit>
+							</LayoutSplit.Item>
+							<LayoutSplit.Item flex={1}>
+								<LayoutSplit direction="vertical">
+									<LayoutSplit.Item flex={1}>
+										<Screen />
+									</LayoutSplit.Item>
+									<LayoutSplit.Item size="200px">
+										<PanelContainer>
 											<PanelContainer.Tab title='Components'>
 												<Panel>
 													<ComponentExplorer />
@@ -102,37 +122,25 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 													<TextureExplorer />
 												</Panel>
 											</PanelContainer.Tab>
-											<PanelContainer.Tab title='Project'>
-												<Panel>
-													<ProjectControl />
-												</Panel>
-											</PanelContainer.Tab>
-											<PanelContainer.Tab title='Renderer'>
-												<Panel>
-													<RendererSettings />
-												</Panel>
-											</PanelContainer.Tab>
-										</PanelContainer>
-									</LayoutSplit.Item>
-									<LayoutSplit.Item size="20vh">
-										<PanelContainer>
-											<PanelContainer.Tab title='Timer'>
-												<Panel noPadding>
-													<Timer />
-												</Panel>
-											</PanelContainer.Tab>
 										</PanelContainer>
 									</LayoutSplit.Item>
 								</LayoutSplit>
-							</LayoutSplit.Item>
-							<LayoutSplit.Item flex={1}>
-								<Screen />
 							</LayoutSplit.Item>
 							<LayoutSplit.Item size="300px">
 								<PanelContainer>
 									<PanelContainer.Tab title='Property'>
 										<Panel>
 											<EntityProperty />
+										</Panel>
+									</PanelContainer.Tab>
+									<PanelContainer.Tab title='Project'>
+										<Panel>
+											<ProjectControl />
+										</Panel>
+									</PanelContainer.Tab>
+									<PanelContainer.Tab title='Renderer'>
+										<Panel>
+											<RendererSettings />
 										</Panel>
 									</PanelContainer.Tab>
 								</PanelContainer>
