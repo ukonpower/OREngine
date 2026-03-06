@@ -1,22 +1,22 @@
 
 import * as MXP from 'maxpower';
-import { ComponentGroup, Engine } from 'orengine';
+import { ComponentGroup, GeometryGroup, Engine } from 'orengine';
 
 import { COMPONENTLIST } from './_data/componentList';
+import { GEOMETRYLIST } from './_data/geometryList';
+import { MATERIALLIST } from './_data/materialList';
 
-type ComponentLIst = {
-	[key: string]: ( ComponentLIst | ( typeof MXP.Component ) )
+type ClassList = {
+	[key: string]: any
 };
 
 export const initResouces = () => {
 
+	Engine.resources.clear();
+
 	/*-------------------------------
 		Components
 	-------------------------------*/
-
-	Engine.resources.clear();
-
-	// Built-in
 
 	const builtin = Engine.resources.addComponentGroup( "_Built-in" );
 	builtin.addComponent( "Light", MXP.Light );
@@ -24,9 +24,7 @@ export const initResouces = () => {
 	builtin.addComponent( "Mesh", MXP.Mesh );
 	builtin.addComponent( "PostProcessPipeline", MXP.PostProcessPipeline );
 
-	// Custom
-
-	const _ = ( list: ComponentLIst, group: ComponentGroup ) => {
+	const _ = ( list: ClassList, group: ComponentGroup ) => {
 
 		const keys = Object.keys( list );
 
@@ -63,5 +61,67 @@ export const initResouces = () => {
 		_( value, group );
 
 	}
+
+	/*-------------------------------
+		Geometries
+	-------------------------------*/
+
+	const registerGeometries = ( list: ClassList, group: GeometryGroup ) => {
+
+		const keys = Object.keys( list );
+
+		for ( let i = 0; i < keys.length; i ++ ) {
+
+			const name = keys[ i ];
+			const value = list[ name ];
+
+			if ( typeof value === "function" ) {
+
+				group.addGeometry( name, value as typeof MXP.Geometry );
+
+			} else {
+
+				const newGroup = group.createGroup( name );
+				registerGeometries( value, newGroup );
+
+			}
+
+		}
+
+	};
+
+	const geoKeys = Object.keys( GEOMETRYLIST );
+
+	for ( let i = 0; i < geoKeys.length; i ++ ) {
+
+		const name = geoKeys[ i ];
+		const value = GEOMETRYLIST[ name ];
+
+		const group = Engine.resources.addGeometryGroup( name );
+		registerGeometries( value, group );
+
+	}
+
+	/*-------------------------------
+		Materials
+	-------------------------------*/
+
+	const matKeys = Object.keys( MATERIALLIST );
+
+	for ( let i = 0; i < matKeys.length; i ++ ) {
+
+		const name = matKeys[ i ];
+		const data = MATERIALLIST[ name ];
+
+		Engine.resources.addMaterial( name, data );
+
+	}
+
+	/*-------------------------------
+		Mesh static callbacks
+	-------------------------------*/
+
+	MXP.Mesh.getGeometryList = () => Engine.resources.geometryList;
+	MXP.Mesh.getMaterialList = () => Engine.resources.materialList;
 
 };
