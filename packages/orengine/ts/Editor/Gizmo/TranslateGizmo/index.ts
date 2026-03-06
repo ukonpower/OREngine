@@ -8,6 +8,8 @@ import { Gizmo, GizmoAxis, GizmoDragResult, createHitAreaMaterial } from '..';
 
 export class TranslateGizmo implements Gizmo {
 
+	private static readonly BASE_SCALE_FACTOR = 0.15;
+
 	public entity: MXP.Entity;
 	private _xAxis: MXP.Entity;
 	private _yAxis: MXP.Entity;
@@ -146,7 +148,7 @@ export class TranslateGizmo implements Gizmo {
 
 	}
 
-	public setTarget( entity: MXP.Entity | null ): void {
+	public setTarget( entity: MXP.Entity | null, cameraEntity: MXP.Entity | null ): void {
 
 		if ( entity ) {
 
@@ -156,6 +158,20 @@ export class TranslateGizmo implements Gizmo {
 				entity.matrixWorld.elm[ 13 ],
 				entity.matrixWorld.elm[ 14 ]
 			);
+
+			if ( cameraEntity ) {
+
+				const camX = cameraEntity.matrixWorld.elm[ 12 ];
+				const camY = cameraEntity.matrixWorld.elm[ 13 ];
+				const camZ = cameraEntity.matrixWorld.elm[ 14 ];
+				const dx = this.entity.position.x - camX;
+				const dy = this.entity.position.y - camY;
+				const dz = this.entity.position.z - camZ;
+				const dist = Math.sqrt( dx * dx + dy * dy + dz * dz );
+				const s = Math.max( 0.01, dist * TranslateGizmo.BASE_SCALE_FACTOR );
+				this.entity.scale.set( s, s, s );
+
+			}
 
 		} else {
 
