@@ -99,7 +99,7 @@ export class EntityHelper {
 
 			if ( camera && this._geometry instanceof CameraHelperGeometry ) {
 
-				this._geometry.update( camera.fov, 1.0, 0.1, 2.0 );
+				this._geometry.update( camera.fov, camera.aspect, 0.1, 2.0 );
 
 			}
 
