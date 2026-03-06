@@ -135,6 +135,18 @@ export class OrbitControls extends MXP.Component {
 
 	}
 
+	public get eye(): GLP.Vector {
+
+		return this.eye_;
+
+	}
+
+	public get target(): GLP.Vector {
+
+		return this.target_;
+
+	}
+
 	public setElm( elm: HTMLElement ) {
 
 		if ( this.elmDisposer ) this.elmDisposer();
