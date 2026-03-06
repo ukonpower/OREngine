@@ -101,6 +101,13 @@
 			}
 		]
 	},
+	"renderer": {
+		"pipeline/motionBlur/enabled": true,
+		"pipeline/motionBlur/power": 1,
+		"pipeline/ssr/enabled": true,
+		"pipeline/ssao/enabled": true,
+		"pipeline/lightShaft/enabled": true
+	},
 	"timeline/duration": 600,
 	"timeline/fps": 60
 }

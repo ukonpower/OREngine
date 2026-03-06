@@ -5,17 +5,20 @@ import { OrbitControls } from '../Controls/OrbitControls';
 import { Engine } from '../Engine';
 import { FrameDebugger } from '../Engine/FrameDebugger';
 import { Keyboard, PressedKeys } from '../Engine/Keyboard';
+
+import { SetFieldCommand } from './Commands/SetFieldCommand';
 import { EditorAPI } from './EditorAPI';
 import { EditorAPIBridge } from './EditorAPIBridge';
-import { SetFieldCommand } from './Commands/SetFieldCommand';
 import { Gizmo, GizmoAxis, GizmoMode } from './Gizmo';
-import { TranslateGizmo } from './Gizmo/TranslateGizmo';
 import { RotateGizmo } from './Gizmo/RotateGizmo';
 import { ScaleGizmo } from './Gizmo/ScaleGizmo';
-
-import selectionVert from './shaders/selection.vs';
-import selectionFrag from './shaders/selection.fs';
+import { TranslateGizmo } from './Gizmo/TranslateGizmo';
+import { EntityHelper, HelperType } from './Helpers/EntityHelper';
+import gizmoFrag from './shaders/gizmo.fs';
+import gizmoVert from './shaders/gizmo.vs';
 import outlineFrag from './shaders/outline.fs';
+import selectionFrag from './shaders/selection.fs';
+import selectionVert from './shaders/selection.vs';
 
 export type EditorTimelineLoop = {
 	enabled: boolean,
@@ -65,6 +68,18 @@ export class Editor extends MXP.Serializable {
 	private _gizmoMode: GizmoMode;
 	private _gizmoDragging: boolean;
 	private _gizmoDragStartValue: { position: number[], euler: number[], scale: number[] } | null;
+
+	// helpers
+	private _showHelpers: boolean;
+	private _showEmptyHelpers: boolean;
+	private _showCameraHelpers: boolean;
+	private _showLightHelpers: boolean;
+	private _helpers: Map<string, EntityHelper>;
+
+	// wireframe
+	private _showWireframe: boolean;
+	private _wireframeMaterial: MXP.Material;
+	private _wireframeGeometryCache: Map<MXP.Geometry, MXP.Geometry>;
 
 	constructor( engine: Engine ) {
 
@@ -356,6 +371,37 @@ export class Editor extends MXP.Serializable {
 		this._activeGizmo = this._translateGizmo;
 
 		/*-------------------------------
+			Helpers
+		-------------------------------*/
+
+		this._showHelpers = true;
+		this._showEmptyHelpers = true;
+		this._showCameraHelpers = true;
+		this._showLightHelpers = true;
+		this._helpers = new Map();
+
+		/*-------------------------------
+			Wireframe
+		-------------------------------*/
+
+		this._showWireframe = false;
+		this._wireframeGeometryCache = new Map();
+
+		this._wireframeMaterial = new MXP.Material( {
+			vert: gizmoVert,
+			frag: gizmoFrag,
+			drawType: 'LINES',
+		} );
+		this._wireframeMaterial.uniforms.uColor = { value: [ 0.3, 0.8, 0.3 ], type: '3fv' };
+		this._wireframeMaterial.depthTest = true;
+		this._wireframeMaterial.depthWrite = false;
+		this._wireframeMaterial.visibilityFlag = {
+			deferred: false, forward: true,
+			shadowMap: false, envMap: false,
+			ui: false, postprocess: false
+		};
+
+		/*-------------------------------
 			KeyEvents
 		-------------------------------*/
 
@@ -554,6 +600,13 @@ export class Editor extends MXP.Serializable {
 
 		} );
 
+		const helperDir = this.fieldDir( "helpers" );
+		helperDir.field( "show", () => this._showHelpers, v => this._showHelpers = v );
+		helperDir.field( "empty", () => this._showEmptyHelpers, v => this._showEmptyHelpers = v );
+		helperDir.field( "camera", () => this._showCameraHelpers, v => this._showCameraHelpers = v );
+		helperDir.field( "light", () => this._showLightHelpers, v => this._showLightHelpers = v );
+		helperDir.field( "wireframe", () => this._showWireframe, v => this._showWireframe = v );
+
 		const cameraDir = this.fieldDir( "camera" );
 		cameraDir.field( "position",
 			() => [ this._orbitControls.eye.x, this._orbitControls.eye.y, this._orbitControls.eye.z ],
@@ -664,6 +717,12 @@ export class Editor extends MXP.Serializable {
 		// update
 		this._engine.update();
 
+		// helper update
+		this._updateHelpers();
+
+		// wireframe
+		this._renderWireframe();
+
 		// gizmo update
 		this._updateGizmo();
 
@@ -728,6 +787,246 @@ export class Editor extends MXP.Serializable {
 		}
 
                 window.requestAnimationFrame( this._animate.bind( this ) );
+
+	}
+
+	/*-------------------------------
+		Helpers
+	-------------------------------*/
+
+	private _updateHelpers() {
+
+		if ( ! this._showHelpers || this._cameraMode !== "scene" ) return;
+
+		const cameraEntity = this._useEditorCamera
+			? this._editorCameraEntity
+			: this._engine.cameraEntity;
+
+		if ( ! cameraEntity ) return;
+
+		const activeUUIDs = new Set<string>();
+		const helperEntities: MXP.Entity[] = [];
+
+		this._engine.root.traverse( ( entity ) => {
+
+			if ( entity.initiator === "god" ) return;
+			if ( ! entity.visible ) return;
+
+			const helperType = this._getHelperType( entity );
+			if ( ! helperType ) return;
+			if ( ! this._isHelperTypeEnabled( helperType ) ) return;
+
+			activeUUIDs.add( entity.uuid );
+
+			let helper = this._helpers.get( entity.uuid );
+
+			if ( ! helper ) {
+
+				helper = new EntityHelper( helperType, entity.uuid );
+				this._helpers.set( entity.uuid, helper );
+
+			}
+
+			helper.syncTransform( entity );
+
+			const event = this._engine.createEntityUpdateEvent();
+			helper.entity.update( event );
+
+			helper.entity.traverse( ( child ) => {
+
+				if ( child.getComponent( MXP.Mesh ) ) {
+
+					helperEntities.push( child );
+
+				}
+
+			} );
+
+		} );
+
+		this._helpers.forEach( ( _, uuid ) => {
+
+			if ( ! activeUUIDs.has( uuid ) ) {
+
+				this._helpers.delete( uuid );
+
+			}
+
+		} );
+
+		if ( helperEntities.length > 0 ) {
+
+			this._engine.renderer.renderCamera(
+				"forward",
+				cameraEntity,
+				helperEntities,
+				null,
+				this._engine.renderer.resolution,
+				{ disableClear: true }
+			);
+
+		}
+
+	}
+
+	private _getHelperType( entity: MXP.Entity ): HelperType | null {
+
+		const light = entity.getComponent( MXP.Light );
+
+		if ( light ) {
+
+			return light.lightType === 'spot' ? 'spotLight' : 'directionalLight';
+
+		}
+
+		const camera = entity.getComponentsByTag<MXP.Camera>( "camera" )[ 0 ];
+
+		if ( camera ) return 'camera';
+
+		const mesh = entity.getComponent( MXP.Mesh );
+
+		if ( ! mesh ) return 'empty';
+
+		return null;
+
+	}
+
+	private _isHelperTypeEnabled( type: HelperType ): boolean {
+
+		switch ( type ) {
+
+		case 'empty': return this._showEmptyHelpers;
+		case 'camera': return this._showCameraHelpers;
+		case 'spotLight':
+		case 'directionalLight': return this._showLightHelpers;
+
+		}
+
+	}
+
+	/*-------------------------------
+		Wireframe
+	-------------------------------*/
+
+	private _renderWireframe() {
+
+		if ( ! this._showWireframe || this._cameraMode !== "scene" ) return;
+
+		const cameraEntity = this._useEditorCamera
+			? this._editorCameraEntity
+			: this._engine.cameraEntity;
+
+		if ( ! cameraEntity ) return;
+
+		const stack = this._engine.renderer.getRenderStack( this._engine.root );
+		const meshEntities = [ ...stack.deferred, ...stack.forward ];
+
+		const origMaterials: Map<MXP.Entity, MXP.Material> = new Map();
+		const origGeometries: Map<MXP.Entity, MXP.Geometry> = new Map();
+
+		for ( const entity of meshEntities ) {
+
+			const mesh = entity.getComponent( MXP.Mesh );
+			if ( ! mesh ) continue;
+
+			origMaterials.set( entity, mesh.material );
+			origGeometries.set( entity, mesh.geometry );
+
+			mesh.material = this._wireframeMaterial;
+
+			let wireGeo = this._wireframeGeometryCache.get( mesh.geometry );
+
+			if ( ! wireGeo ) {
+
+				wireGeo = this._createWireframeGeometry( mesh.geometry );
+				this._wireframeGeometryCache.set( mesh.geometry, wireGeo );
+
+			}
+
+			mesh.geometry = wireGeo;
+
+		}
+
+		this._engine.renderer.renderCamera(
+			"forward",
+			cameraEntity,
+			meshEntities,
+			null,
+			this._engine.renderer.resolution,
+			{ disableClear: true }
+		);
+
+		for ( const entity of meshEntities ) {
+
+			const mesh = entity.getComponent( MXP.Mesh );
+			if ( ! mesh ) continue;
+
+			const origMat = origMaterials.get( entity );
+			const origGeo = origGeometries.get( entity );
+
+			if ( origMat ) mesh.material = origMat;
+			if ( origGeo ) mesh.geometry = origGeo;
+
+		}
+
+	}
+
+	private _createWireframeGeometry( srcGeometry: MXP.Geometry ): MXP.Geometry {
+
+		const geo = new MXP.Geometry();
+		const posAttr = srcGeometry.getAttribute( 'position' );
+		const indexAttr = srcGeometry.getAttribute( 'index' );
+
+		if ( ! posAttr ) return geo;
+
+		geo.setAttribute( 'position', posAttr.array, 3 );
+
+		const normalAttr = srcGeometry.getAttribute( 'normal' );
+
+		if ( normalAttr ) {
+
+			geo.setAttribute( 'normal', normalAttr.array, 3 );
+
+		}
+
+		if ( indexAttr ) {
+
+			const indices = indexAttr.array;
+			const edgeSet = new Set<string>();
+			const lineIndices: number[] = [];
+
+			for ( let i = 0; i < indices.length; i += 3 ) {
+
+				const a = indices[ i ];
+				const b = indices[ i + 1 ];
+				const c = indices[ i + 2 ];
+
+				const edges = [
+					[ Math.min( a, b ), Math.max( a, b ) ],
+					[ Math.min( b, c ), Math.max( b, c ) ],
+					[ Math.min( c, a ), Math.max( c, a ) ],
+				];
+
+				for ( const [ e0, e1 ] of edges ) {
+
+					const key = `${e0}_${e1}`;
+
+					if ( ! edgeSet.has( key ) ) {
+
+						edgeSet.add( key );
+						lineIndices.push( e0, e1 );
+
+					}
+
+				}
+
+			}
+
+			geo.setAttribute( 'index', new Uint16Array( lineIndices ), 1 );
+
+		}
+
+		return geo;
 
 	}
 

@@ -119,6 +119,75 @@
 	}
 }
 
+.header {
+
+	&_overlay {
+		position: relative;
+		height: 100%;
+		display: flex;
+		align-items: center;
+		margin-right: 8px;
+	}
+
+	&_overlayBtn {
+		padding: 0 8px;
+		cursor: pointer;
+		opacity: 0.6;
+		font-size: 14px;
+		user-select: none;
+		height: 100%;
+		display: flex;
+		align-items: center;
+
+		&:hover, &[data-active='true'] {
+			opacity: 1.0;
+			background-color: $bgCol2;
+		}
+	}
+}
+
+.overlay {
+	position: absolute;
+	top: 100%;
+	right: 0;
+	min-width: 160px;
+	background-color: $bgCol0;
+	border: 1px solid $bgCol2;
+	z-index: 100;
+	padding: 4px 0;
+
+	&_item {
+		padding: 4px 12px;
+		cursor: pointer;
+		font-size: 12px;
+		color: $fontCol2;
+		white-space: nowrap;
+		display: flex;
+		align-items: center;
+		gap: 6px;
+
+		&:hover {
+			background-color: $bgCol2;
+		}
+
+		&[data-indent='true'] {
+			padding-left: 24px;
+		}
+	}
+
+	&_check {
+		width: 12px;
+		display: inline-block;
+		font-size: 10px;
+	}
+
+	&_separator {
+		height: 1px;
+		background-color: $bgCol2;
+		margin: 4px 0;
+	}
+}
+
 .externalBtn {
 	height: 100%;
 	padding: 1px 0 4px;
