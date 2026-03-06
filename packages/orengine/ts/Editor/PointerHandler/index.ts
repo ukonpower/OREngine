@@ -16,7 +16,10 @@ export class PointerHandler {
 	private _pointerDownPos: GLP.Vector | null;
 	private _gizmoDragging: boolean;
 	private _gizmoDragStartValue: { position: number[], euler: number[], scale: number[] } | null;
-	private _hoveredTarget: 'gizmo' | 'helper' | null;
+	private _hoveredTarget: 'gizmo' | 'helper' | 'mesh' | null;
+	private _lastClickNDC: GLP.Vector | null;
+	private _lastClickCandidateUUIDs: string[];
+	private _lastClickCycleIndex: number;
 	private _disposeListeners: () => void;
 
 	constructor(
@@ -35,6 +38,9 @@ export class PointerHandler {
 		this._gizmoDragging = false;
 		this._gizmoDragStartValue = null;
 		this._hoveredTarget = null;
+		this._lastClickNDC = null;
+		this._lastClickCandidateUUIDs = [];
+		this._lastClickCycleIndex = -1;
 
 		const canvasElm = engine.canvas as HTMLCanvasElement;
 
@@ -173,7 +179,7 @@ export class PointerHandler {
 			}
 
 			// hover detection
-			let newHover: 'gizmo' | 'helper' | null = null;
+			let newHover: 'gizmo' | 'helper' | 'mesh' | null = null;
 
 			if ( gizmoManager.activeGizmo.entity.visible ) {
 
@@ -213,6 +219,19 @@ export class PointerHandler {
 
 			}
 
+			if ( ! newHover ) {
+
+				const sceneHits = this._raycaster.intersectEntities( engine.root );
+				const meshHit = sceneHits.find( r => r.entity.initiator !== "god" );
+
+				if ( meshHit ) {
+
+					newHover = 'mesh';
+
+				}
+
+			}
+
 			if ( newHover !== this._hoveredTarget ) {
 
 				this._hoveredTarget = newHover;
@@ -221,7 +240,7 @@ export class PointerHandler {
 
 					canvasElm.style.cursor = 'grab';
 
-				} else if ( newHover === 'helper' ) {
+				} else if ( newHover === 'helper' || newHover === 'mesh' ) {
 
 					canvasElm.style.cursor = 'pointer';
 
@@ -288,47 +307,97 @@ export class PointerHandler {
 
 			this._raycaster.setFromCamera( ndc, cameraEntity );
 
-			// helper hit area detection (priority over scene entities)
+			// unified raycast: helpers + scene meshes
+			type ClickCandidate = { entity: MXP.Entity, distance: number, type: 'helper' | 'mesh' };
+			const candidates: ClickCandidate[] = [];
+
 			const hitAreas = helperManager.getHitAreaEntities();
-			let closestHelper: { targetEntityUUID: string, distance: number } | null = null;
 
 			for ( const { hitEntity, targetEntityUUID } of hitAreas ) {
 
 				const hits = this._raycaster.intersectEntities( hitEntity );
 
-				if ( hits.length > 0 && ( ! closestHelper || hits[ 0 ].distance < closestHelper.distance ) ) {
+				if ( hits.length > 0 ) {
 
-					closestHelper = { targetEntityUUID, distance: hits[ 0 ].distance };
+					const targetEntity = engine.root.findEntityByUUID( targetEntityUUID );
+
+					if ( targetEntity ) {
+
+						candidates.push( {
+							entity: targetEntity,
+							distance: hits[ 0 ].distance,
+							type: 'helper',
+						} );
+
+					}
 
 				}
 
 			}
 
-			if ( closestHelper ) {
+			const sceneResults = this._raycaster.intersectEntities( engine.root );
 
-				const targetEntity = engine.root.findEntityByUUID( closestHelper.targetEntityUUID );
-				onSelectEntity( targetEntity || null );
+			for ( const r of sceneResults ) {
+
+				if ( r.entity.initiator !== "god" ) {
+
+					candidates.push( {
+						entity: r.entity,
+						distance: r.distance,
+						type: 'mesh',
+					} );
+
+				}
+
+			}
+
+			candidates.sort( ( a, b ) => a.distance - b.distance );
+
+			// filter: helpers are transparent, first mesh blocks everything behind it
+			const validCandidates: ClickCandidate[] = [];
+
+			for ( const c of candidates ) {
+
+				validCandidates.push( c );
+
+				if ( c.type === 'mesh' ) break;
+
+			}
+
+			if ( validCandidates.length === 0 ) {
+
+				this._lastClickNDC = null;
+				this._lastClickCandidateUUIDs = [];
+				this._lastClickCycleIndex = - 1;
+				onSelectEntity( null );
 				return;
 
 			}
 
-			// scene entity raycast
-			const results = this._raycaster.intersectEntities( engine.root );
+			// cycle selection on repeated clicks at the same position
+			const CYCLE_THRESHOLD = 0.02;
+			const isSamePosition = this._lastClickNDC &&
+				Math.abs( ndc.x - this._lastClickNDC.x ) < CYCLE_THRESHOLD &&
+				Math.abs( ndc.y - this._lastClickNDC.y ) < CYCLE_THRESHOLD;
 
-			if ( results.length > 0 ) {
+			const candidateUUIDs = validCandidates.map( c => c.entity.uuid );
+			const isSameCandidates = isSamePosition &&
+				candidateUUIDs.length === this._lastClickCandidateUUIDs.length &&
+				candidateUUIDs.every( ( uuid, i ) => uuid === this._lastClickCandidateUUIDs[ i ] );
 
-				const hit = results.find( r => r.entity.initiator !== "god" );
+			let cycleIndex = 0;
 
-				if ( hit ) {
+			if ( isSameCandidates && validCandidates.length > 1 ) {
 
-					onSelectEntity( hit.entity );
-					return;
-
-				}
+				cycleIndex = ( this._lastClickCycleIndex + 1 ) % validCandidates.length;
 
 			}
 
-			onSelectEntity( null );
+			this._lastClickNDC = new GLP.Vector( ndc.x, ndc.y );
+			this._lastClickCandidateUUIDs = candidateUUIDs;
+			this._lastClickCycleIndex = cycleIndex;
+
+			onSelectEntity( validCandidates[ cycleIndex ].entity );
 
 		};
 
