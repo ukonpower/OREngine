@@ -98,11 +98,34 @@ export class EntityHelper {
 		switch ( this.type ) {
 
 		case 'empty': return new MXP.CubeGeometry( { width: 0.3, height: 0.3, depth: 0.3 } );
-		case 'camera': return new MXP.CubeGeometry( { width: 0.5, height: 0.5, depth: 0.5 } );
-		case 'spotLight': return new MXP.CubeGeometry( { width: 0.4, height: 0.4, depth: 0.4 } );
-		case 'directionalLight': return new MXP.CubeGeometry( { width: 0.5, height: 0.5, depth: 0.5 } );
+		case 'camera': return this._createOffsetCube( 1.5, 1.5, 2.0, 0, 0, - 1.0 );
+		case 'spotLight': return this._createOffsetCube( 2.0, 2.0, 5.0, 0, 0, - 2.5 );
+		case 'directionalLight': return this._createOffsetCube( 0.6, 0.6, 1.2, 0, 0, - 0.6 );
 
 		}
+
+	}
+
+	private _createOffsetCube( w: number, h: number, d: number, ox: number, oy: number, oz: number ): MXP.Geometry {
+
+		const geo = new MXP.CubeGeometry( { width: w, height: h, depth: d } );
+		const posAttr = geo.getAttribute( 'position' );
+
+		if ( posAttr ) {
+
+			const arr = posAttr.array as Float32Array;
+
+			for ( let i = 0; i < arr.length; i += 3 ) {
+
+				arr[ i ] += ox;
+				arr[ i + 1 ] += oy;
+				arr[ i + 2 ] += oz;
+
+			}
+
+		}
+
+		return geo;
 
 	}
 
@@ -114,6 +137,7 @@ export class EntityHelper {
 		if ( this._matrixOffset ) {
 
 			this.entity.matrixWorld.applyQuaternion( this._matrixOffset );
+			this.hitAreaEntity.matrixWorld.applyQuaternion( this._matrixOffset );
 
 		}
 

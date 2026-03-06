@@ -287,22 +287,8 @@ export class PointerHandler {
 			if ( ! cameraEntity ) return;
 
 			this._raycaster.setFromCamera( ndc, cameraEntity );
-			const results = this._raycaster.intersectEntities( engine.root );
 
-			if ( results.length > 0 ) {
-
-				const hit = results.find( r => r.entity.initiator !== "god" );
-
-				if ( hit ) {
-
-					onSelectEntity( hit.entity );
-					return;
-
-				}
-
-			}
-
-			// helper hit area detection
+			// helper hit area detection (priority over scene entities)
 			const hitAreas = helperManager.getHitAreaEntities();
 			let closestHelper: { targetEntityUUID: string, distance: number } | null = null;
 
@@ -322,12 +308,27 @@ export class PointerHandler {
 
 				const targetEntity = engine.root.findEntityByUUID( closestHelper.targetEntityUUID );
 				onSelectEntity( targetEntity || null );
-
-			} else {
-
-				onSelectEntity( null );
+				return;
 
 			}
+
+			// scene entity raycast
+			const results = this._raycaster.intersectEntities( engine.root );
+
+			if ( results.length > 0 ) {
+
+				const hit = results.find( r => r.entity.initiator !== "god" );
+
+				if ( hit ) {
+
+					onSelectEntity( hit.entity );
+					return;
+
+				}
+
+			}
+
+			onSelectEntity( null );
 
 		};
 
