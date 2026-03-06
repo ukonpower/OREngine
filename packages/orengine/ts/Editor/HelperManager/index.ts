@@ -98,10 +98,10 @@ export class HelperManager {
 
 			}
 
-			helper.syncTransform( entity );
-
 			const event = engine.createEntityUpdateEvent();
 			helper.entity.update( event );
+
+			helper.syncTransform( entity );
 
 			helper.entity.traverse( ( child ) => {
 

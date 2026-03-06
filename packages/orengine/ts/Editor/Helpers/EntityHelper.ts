@@ -81,10 +81,7 @@ export class EntityHelper {
 
 			if ( camera && this._geometry instanceof CameraHelperGeometry ) {
 
-				this._geometry.update(
-					camera.fov, camera.aspect, camera.near,
-					Math.min( camera.far, 20 )
-				);
+				this._geometry.update( camera.fov, 1.0, 0.1, 2.0 );
 
 			}
 
