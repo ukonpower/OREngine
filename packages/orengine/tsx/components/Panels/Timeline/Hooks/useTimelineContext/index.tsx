@@ -63,8 +63,7 @@ export const useTimelineContext = () => {
 
 			const onLoadProject = () => {
 
-				// const props = scene.serialize();
-				// setViewPort( [ 0, 0, props[ "timeline/duration" ], 0 ] );
+				setViewPort( [ 0, 0, scene.frameSetting.duration, 0 ] );
 
 			};
 
@@ -74,13 +73,13 @@ export const useTimelineContext = () => {
 
 			scene.on( "update/frame/play", onUpdateFramePlay );
 			scene.on( "update/music", onUpdateMusic );
-			glEditor.on( "loadedProject", onLoadProject );
+			scene.on( "loaded", onLoadProject );
 
 			return () => {
 
 				scene.off( "update/frame/play", onUpdateFramePlay );
 				scene.off( "update/music", onUpdateMusic );
-				glEditor.off( "loadedProject", onLoadProject );
+				scene.off( "loaded", onLoadProject );
 
 			};
 
