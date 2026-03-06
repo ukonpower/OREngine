@@ -74,6 +74,7 @@ export class Editor extends MXP.Serializable {
 			engine,
 			this._editorCamera,
 			this._gizmoManager,
+			this._helperManager,
 			this._api,
 			() => this._selectedEntityId,
 			() => this._gizmoManager.mode,
