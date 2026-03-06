@@ -1,6 +1,25 @@
 import { Component, ComponentParams } from "..";
 import { Geometry } from "../../Geometry";
+import { CubeGeometry } from "../../Geometry/CubeGeometry";
+import { CylinderGeometry } from "../../Geometry/CylinderGeometry";
+import { PlaneGeometry } from "../../Geometry/PlaneGeometry";
+import { SphereGeometry } from "../../Geometry/SphereGeometry";
 import { Material } from "../../Material";
+
+import type { Blending, DrawType, MaterialRenderType } from "../../Material";
+
+type MaterialData = {
+	name: string;
+	vert?: string;
+	frag?: string;
+	phase?: string[];
+	useLight?: boolean;
+	depthTest?: boolean;
+	depthWrite?: boolean;
+	cullFace?: boolean;
+	blending?: string;
+	drawType?: string;
+};
 
 const defaultGeometry = new Geometry();
 const defaultMaterial = new Material();
@@ -10,6 +29,14 @@ export class Mesh extends Component {
 	public geometry: Geometry;
 	public material: Material;
 
+	public static getGeometryList: () => { name: string, geometryClass: typeof Geometry }[] = () => [];
+	public static getMaterialList: () => MaterialData[] = () => [];
+
+	private _geometryType: string;
+	private _geometryParams: { [key: string]: number | boolean };
+
+	private _materialType: string;
+
 	constructor( params: ComponentParams<{ geometry?: Geometry; material?: Material } | void> ) {
 
 		super( params );
@@ -18,13 +45,343 @@ export class Mesh extends Component {
 
 		this.geometry = args.geometry || defaultGeometry;
 		this.material = args.material || defaultMaterial;
+		this._geometryType = "";
+		this._geometryParams = {};
+		this._materialType = "";
 
-		this.field( "material", () => {
+		/*-------------------------------
+			Geometry Fields
+		-------------------------------*/
 
-			return this.material.name;
+		const geo = this.fieldDir( "geometry" );
 
+		geo.field( "type", () => this._geometryType, ( v ) => {
+
+			this._geometryType = v;
+			this._rebuildGeometry();
+
+		}, {
+			format: {
+				type: "select",
+				list: () => {
+
+					const list: { label: string, value: string }[] = [ { label: "(None)", value: "" } ];
+
+					Mesh.getGeometryList().forEach( g => {
+
+						list.push( { label: g.name, value: g.name } );
+
+					} );
+
+					return list;
+
+				}
+			}
 		} );
 
+		geo.field( "width",
+			() => this._geometryParams.width ?? 1,
+			( v ) => {
+
+				this._geometryParams.width = v;
+				this._rebuildGeometry();
+
+			},
+			{ hidden: () => this._geometryType !== "Cube" && this._geometryType !== "Plane", step: 0.1 }
+		);
+
+		geo.field( "height",
+			() => this._geometryParams.height ?? 1,
+			( v ) => {
+
+				this._geometryParams.height = v;
+				this._rebuildGeometry();
+
+			},
+			{ hidden: () => this._geometryType !== "Cube" && this._geometryType !== "Cylinder", step: 0.1 }
+		);
+
+		geo.field( "depth",
+			() => this._geometryParams.depth ?? 1,
+			( v ) => {
+
+				this._geometryParams.depth = v;
+				this._rebuildGeometry();
+
+			},
+			{ hidden: () => this._geometryType !== "Cube", step: 0.1 }
+		);
+
+		geo.field( "radius",
+			() => this._geometryParams.radius ?? 0.5,
+			( v ) => {
+
+				this._geometryParams.radius = v;
+				this._rebuildGeometry();
+
+			},
+			{ hidden: () => this._geometryType !== "Sphere", step: 0.1 }
+		);
+
+		geo.field( "widthSegments",
+			() => this._geometryParams.widthSegments ?? 8,
+			( v ) => {
+
+				this._geometryParams.widthSegments = v;
+				this._rebuildGeometry();
+
+			},
+			{ hidden: () => this._geometryType !== "Sphere" && this._geometryType !== "Cylinder", step: 1 }
+		);
+
+		geo.field( "heightSegments",
+			() => this._geometryParams.heightSegments ?? 8,
+			( v ) => {
+
+				this._geometryParams.heightSegments = v;
+				this._rebuildGeometry();
+
+			},
+			{ hidden: () => this._geometryType !== "Sphere" && this._geometryType !== "Cylinder", step: 1 }
+		);
+
+		geo.field( "floor",
+			() => this._geometryParams.floor ?? false,
+			( v ) => {
+
+				this._geometryParams.floor = v;
+				this._rebuildGeometry();
+
+			},
+			{ hidden: () => this._geometryType !== "Plane" }
+		);
+
+		geo.field( "radiusTop",
+			() => this._geometryParams.radiusTop ?? 1,
+			( v ) => {
+
+				this._geometryParams.radiusTop = v;
+				this._rebuildGeometry();
+
+			},
+			{ hidden: () => this._geometryType !== "Cylinder", step: 0.1 }
+		);
+
+		geo.field( "radiusBottom",
+			() => this._geometryParams.radiusBottom ?? 1,
+			( v ) => {
+
+				this._geometryParams.radiusBottom = v;
+				this._rebuildGeometry();
+
+			},
+			{ hidden: () => this._geometryType !== "Cylinder", step: 0.1 }
+		);
+
+		geo.field( "caps",
+			() => this._geometryParams.caps ?? true,
+			( v ) => {
+
+				this._geometryParams.caps = v;
+				this._rebuildGeometry();
+
+			},
+			{ hidden: () => this._geometryType !== "Cylinder" }
+		);
+
+		/*-------------------------------
+			Material Fields
+		-------------------------------*/
+
+		const mat = this.fieldDir( "material" );
+
+		mat.field( "name", () => this._materialType, ( v ) => {
+
+			this._materialType = v;
+			this._rebuildMaterial();
+
+		}, {
+			format: {
+				type: "select",
+				list: () => {
+
+					const list: { label: string, value: string }[] = [ { label: "(None)", value: "" } ];
+
+					Mesh.getMaterialList().forEach( m => {
+
+						list.push( { label: m.name, value: m.name } );
+
+					} );
+
+					return list;
+
+				}
+			}
+		} );
+
+		mat.field( "drawType",
+			() => this.material.drawType,
+			( v ) => {
+
+				this.material.drawType = v as DrawType;
+				this.material.requestUpdate();
+
+			},
+			{
+				format: {
+					type: "select",
+					list: [ "TRIANGLES", "LINES", "POINTS" ]
+				},
+				noExport: true,
+			}
+		);
+
+		mat.field( "blending",
+			() => this.material.blending,
+			( v ) => {
+
+				this.material.blending = v as Blending;
+
+			},
+			{
+				format: {
+					type: "select",
+					list: [ "NORMAL", "ADD", "DIFF" ]
+				},
+				noExport: true,
+			}
+		);
+
+		mat.field( "useLight",
+			() => this.material.useLight,
+			( v ) => {
+
+				this.material.useLight = v;
+
+			},
+			{ noExport: true }
+		);
+
+		mat.field( "depthTest",
+			() => this.material.depthTest,
+			( v ) => {
+
+				this.material.depthTest = v;
+
+			},
+			{ noExport: true }
+		);
+
+		mat.field( "depthWrite",
+			() => this.material.depthWrite,
+			( v ) => {
+
+				this.material.depthWrite = v;
+
+			},
+			{ noExport: true }
+		);
+
+		mat.field( "cullFace",
+			() => this.material.cullFace,
+			( v ) => {
+
+				this.material.cullFace = v;
+
+			},
+			{ noExport: true }
+		);
+
+	}
+
+	/*-------------------------------
+		Geometry Rebuild
+	-------------------------------*/
+
+	private _rebuildGeometry() {
+
+		if ( ! this._geometryType ) return;
+
+		this.geometry.dispose();
+		this.geometry = this._createGeometryWithParams( this._geometryType );
+
+	}
+
+	private _createGeometryWithParams( type: string ): Geometry {
+
+		const p = this._geometryParams;
+
+		switch ( type ) {
+
+		case "Cube":
+			return new CubeGeometry( { width: p.width as number, height: p.height as number, depth: p.depth as number } );
+
+		case "Sphere":
+			return new SphereGeometry( { radius: p.radius as number, widthSegments: p.widthSegments as number, heightSegments: p.heightSegments as number } );
+
+		case "Plane":
+			return new PlaneGeometry( { width: p.width as number, height: p.height as number, floor: p.floor as boolean } );
+
+		case "Cylinder":
+			return new CylinderGeometry( { height: p.height as number, radiusTop: p.radiusTop as number, radiusBottom: p.radiusBottom as number, caps: p.caps as boolean } );
+
+		default: {
+
+			const item = Mesh.getGeometryList().find( g => g.name === type );
+
+			if ( item ) {
+
+				return new item.geometryClass();
+
+			}
+
+			return new Geometry();
+
+		}
+
+		}
+
+	}
+
+	/*-------------------------------
+		Material Rebuild
+	-------------------------------*/
+
+	private _rebuildMaterial() {
+
+		if ( ! this._materialType ) return;
+
+		const item = Mesh.getMaterialList().find( m => m.name === this._materialType );
+
+		if ( ! item ) return;
+
+		this.material = new Material( {
+			vert: item.vert,
+			frag: item.frag,
+			phase: item.phase as MaterialRenderType[],
+			useLight: item.useLight,
+			depthTest: item.depthTest,
+			depthWrite: item.depthWrite,
+			cullFace: item.cullFace,
+			blending: item.blending as Blending,
+			drawType: item.drawType as DrawType,
+		} );
+
+	}
+
+	/*-------------------------------
+		Dispose
+	-------------------------------*/
+
+	public dispose() {
+
+		if ( this._geometryType ) {
+
+			this.geometry.dispose();
+
+		}
+
+		super.dispose();
 
 	}
 

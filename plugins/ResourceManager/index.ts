@@ -4,9 +4,7 @@ import * as path from 'path';
 import * as chokidar from 'chokidar';
 import { Plugin } from 'vite';
 
-let watcher: chokidar.FSWatcher | null = null;
-
-const updateComponentListForDir = ( compDir: string, outFile: string ) => {
+const updateComponentListForDir = ( compDir: string, outFile: string, exportName: string ) => {
 
 	if ( ! fs.existsSync( compDir ) ) return;
 
@@ -148,7 +146,7 @@ const updateComponentListForDir = ( compDir: string, outFile: string ) => {
 
 	file += "\n";
 
-	file += "export const COMPONENTLIST: {[key: string]: any} = {\n";
+	file += `export const ${exportName}: {[key: string]: any} = {\n`;
 
 	let indent = "";
 
@@ -195,6 +193,127 @@ const updateComponentListForDir = ( compDir: string, outFile: string ) => {
 
 };
 
+const updateMaterialListForDir = ( matDir: string, shadersDir: string, outFile: string, exportName: string ) => {
+
+	if ( ! fs.existsSync( matDir ) ) return;
+
+	const outDir = path.dirname( outFile );
+
+	if ( ! fs.existsSync( outDir ) ) {
+
+		fs.mkdirSync( outDir, { recursive: true } );
+
+	}
+
+	const matFiles: { name: string, matPath: string, config: any, relativePath: string }[] = [];
+
+	const scanDir = ( dir: string ) => {
+
+		const entries = fs.readdirSync( dir, { withFileTypes: true } );
+
+		entries.forEach( entry => {
+
+			if ( entry.name.startsWith( '_' ) ) return;
+
+			const fullPath = path.join( dir, entry.name );
+
+			if ( entry.isDirectory() ) {
+
+				scanDir( fullPath );
+
+			} else if ( entry.isFile() && entry.name.endsWith( '.mat' ) ) {
+
+				const name = path.basename( entry.name, '.mat' );
+				const config = JSON.parse( fs.readFileSync( fullPath, 'utf-8' ) );
+				const relativePath = path.relative( path.dirname( matDir ), fullPath ).replace( /\\/g, '/' );
+				matFiles.push( { name, matPath: fullPath, config, relativePath } );
+
+			}
+
+		} );
+
+	};
+
+	scanDir( matDir );
+
+	let file = "// @ts-nocheck\n";
+
+	const imports: string[] = [];
+	const shaderVarMap: Map<string, { vertVar?: string, fragVar?: string }> = new Map();
+
+	matFiles.forEach( ( mat ) => {
+
+		const shaderName = mat.config.shader;
+
+		if ( shaderName && ! shaderVarMap.has( shaderName ) ) {
+
+			const shaderDir = path.join( shadersDir, shaderName );
+			const vertPath = path.join( shaderDir, 'index.vs' );
+			const fragPath = path.join( shaderDir, 'index.fs' );
+			const hasVert = fs.existsSync( vertPath );
+			const hasFrag = fs.existsSync( fragPath );
+
+			const vars: { vertVar?: string, fragVar?: string } = {};
+
+			if ( hasVert ) {
+
+				vars.vertVar = `${shaderName}Vert`;
+				const relPath = path.relative( path.dirname( outFile ), vertPath ).replace( /\\/g, '/' );
+				imports.push( `import ${vars.vertVar} from '${relPath}';` );
+
+			}
+
+			if ( hasFrag ) {
+
+				vars.fragVar = `${shaderName}Frag`;
+				const relPath = path.relative( path.dirname( outFile ), fragPath ).replace( /\\/g, '/' );
+				imports.push( `import ${vars.fragVar} from '${relPath}';` );
+
+			}
+
+			shaderVarMap.set( shaderName, vars );
+
+		}
+
+	} );
+
+	file += imports.join( "\n" ) + "\n\n";
+	file += `export const ${exportName}: {[key: string]: any} = {\n`;
+
+	matFiles.forEach( ( mat ) => {
+
+		file += `\t${mat.name}: {\n`;
+
+		const shaderName = mat.config.shader;
+
+		if ( shaderName && shaderVarMap.has( shaderName ) ) {
+
+			const vars = shaderVarMap.get( shaderName )!;
+
+			if ( vars.vertVar ) file += `\t\tvert: ${vars.vertVar},\n`;
+			if ( vars.fragVar ) file += `\t\tfrag: ${vars.fragVar},\n`;
+
+		}
+
+		Object.keys( mat.config ).forEach( key => {
+
+			if ( key === "shader" ) return;
+
+			const value = mat.config[ key ];
+			file += `\t\t${key}: ${JSON.stringify( value )},\n`;
+
+		} );
+
+		file += `\t},\n`;
+
+	} );
+
+	file += "};\n";
+
+	fs.writeFileSync( outFile, file );
+
+};
+
 const updateAllProjects = ( projectsDir: string ) => {
 
 	if ( ! fs.existsSync( projectsDir ) ) return;
@@ -208,7 +327,7 @@ const updateAllProjects = ( projectsDir: string ) => {
 			const compDir = path.join( projectsDir, e.name, 'components' );
 			const outFile = path.join( projectsDir, e.name, '_generated', 'componentList.ts' );
 
-			updateComponentListForDir( compDir, outFile );
+			updateComponentListForDir( compDir, outFile, 'COMPONENTLIST' );
 
 		} );
 
@@ -218,14 +337,37 @@ export const ResourceManager = ( options?: {
 	componentsDir?: string;
 	outputFile?: string;
 	projectsDir?: string;
+	exportName?: string;
+	type?: 'class' | 'material';
+	shadersDir?: string;
 } ): Plugin => {
 
+	const scanType = options?.type || 'class';
+	const exportName = options?.exportName || "COMPONENTLIST";
+
 	const useProjectsDir = !! options?.projectsDir;
-	let componentsDir = options?.componentsDir || "./src/ts/Resources/Components/";
-	let componentListFile = options?.outputFile || "./src/ts/Resources/_data/componentList.ts";
+	const componentsDir = options?.componentsDir || "./src/ts/Resources/Components/";
+	const componentListFile = options?.outputFile || "./src/ts/Resources/_data/componentList.ts";
+	const shadersDir = options?.shadersDir || "";
+
+	let watcher: chokidar.FSWatcher | null = null;
+
+	const update = () => {
+
+		if ( scanType === 'material' ) {
+
+			updateMaterialListForDir( componentsDir, shadersDir, componentListFile, exportName );
+
+		} else {
+
+			updateComponentListForDir( componentsDir, componentListFile, exportName );
+
+		}
+
+	};
 
 	return ( {
-		name: 'ResourceManager',
+		name: `ResourceManager-${exportName}`,
 		enforce: 'pre',
 		configureServer: () => {
 
@@ -254,7 +396,7 @@ export const ResourceManager = ( options?: {
 					const compDir = path.join( projectsDir, projectName, 'components' );
 					const outFile = path.join( projectsDir, projectName, '_generated', 'componentList.ts' );
 
-					updateComponentListForDir( compDir, outFile );
+					updateComponentListForDir( compDir, outFile, 'COMPONENTLIST' );
 
 				};
 
@@ -273,19 +415,29 @@ export const ResourceManager = ( options?: {
 
 			} else {
 
-				watcher = chokidar.watch( componentsDir, {
+				const watchPattern = scanType === 'material' ? componentsDir : componentsDir;
+
+				watcher = chokidar.watch( watchPattern, {
 					ignored: /[\\/\\]\./,
 					persistent: true
 				} );
 
-				const onChange = () => updateComponentListForDir( componentsDir, componentListFile );
+				const onChange = () => update();
 
 				watcher.on( 'ready', () => {
 
 					watcher!.on( 'add', onChange );
 					watcher!.on( 'change', ( p ) => {
 
-						if ( p.endsWith( 'index.ts' ) ) onChange();
+						if ( scanType === 'material' ) {
+
+							if ( p.endsWith( '.mat' ) ) onChange();
+
+						} else {
+
+							if ( p.endsWith( 'index.ts' ) ) onChange();
+
+						}
 
 					} );
 					watcher!.on( 'unlink', onChange );
@@ -304,7 +456,7 @@ export const ResourceManager = ( options?: {
 
 			} else {
 
-				updateComponentListForDir( componentsDir, componentListFile );
+				update();
 
 			}
 

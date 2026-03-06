@@ -53,6 +53,19 @@ export default defineConfig( {
 		ResourceManager( {
 			componentsDir: './src/ts/Resources/Components/',
 			outputFile: './src/ts/Resources/_data/componentList.ts',
+			exportName: 'COMPONENTLIST',
+		} ),
+		ResourceManager( {
+			componentsDir: './src/ts/Resources/Geometries/',
+			outputFile: './src/ts/Resources/_data/geometryList.ts',
+			exportName: 'GEOMETRYLIST',
+		} ),
+		ResourceManager( {
+			componentsDir: './src/ts/Resources/Materials/',
+			outputFile: './src/ts/Resources/_data/materialList.ts',
+			exportName: 'MATERIALLIST',
+			type: 'material',
+			shadersDir: './src/ts/Resources/Shaders/',
 		} ),
 	],
 	define: {

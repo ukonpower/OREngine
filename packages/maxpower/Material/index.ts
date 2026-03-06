@@ -21,6 +21,7 @@ export interface MaterialParam {
 	vert?: string;
 	defines?: MaterialDefines;
 	uniforms?: GLP.Uniforms;
+	useLight?: boolean;
 	depthTest?: boolean;
 	depthWrite?: boolean;
 	cullFace? :boolean;
@@ -57,7 +58,7 @@ export class Material extends Serializable {
 		this.visibilityFlag = {};
 		this.setVisibility( params.phase || [ "shadowMap", "deferred" ] );
 
-		this.useLight = true;
+		this.useLight = params.useLight !== undefined ? params.useLight : true;
 		this.depthTest = true;
 		this.cullFace = false;
 		this.depthWrite = params.depthTest !== undefined ? params.depthTest : true;
