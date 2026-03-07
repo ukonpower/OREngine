@@ -29,6 +29,5 @@ stats.html
 
 tmp
 projects/*/_generated/
-.claude/workflow/
 
 .serena/cache
