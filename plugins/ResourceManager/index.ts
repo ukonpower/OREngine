@@ -385,43 +385,31 @@ const updateTextureListForDir = ( texDir: string, shadersDir: string, outFile: s
 
 	scanDir( texDir );
 
-	let file = "// @ts-nocheck\n";
+	let file = "// @ts-nocheck\n\n";
 
-	const imports: string[] = [];
-	const shaderVarMap: Map<string, string> = new Map();
-
-	texFiles.forEach( ( tex ) => {
-
-		const shaderName = tex.config.shader;
-
-		if ( shaderName && ! shaderVarMap.has( shaderName ) ) {
-
-			const fragPath = path.join( shadersDir, shaderName, 'index.fs' );
-
-			if ( fs.existsSync( fragPath ) ) {
-
-				const varName = `${shaderName.replace( /^_/, '' )}Frag`;
-				const relPath = path.relative( path.dirname( outFile ), fragPath ).replace( /\\/g, '/' );
-				imports.push( `import ${varName} from '${relPath}';` );
-				shaderVarMap.set( shaderName, varName );
-
-			}
-
-		}
-
-	} );
-
-	file += imports.join( "\n" ) + "\n\n";
 	file += `export const ${exportName}: {name: string, frag?: string, resolution: number[], filter?: string, updateEveryFrame?: boolean}[] = [\n`;
 
 	texFiles.forEach( ( tex ) => {
 
 		const shaderName = tex.config.shader;
-		const fragVar = shaderName ? shaderVarMap.get( shaderName ) : undefined;
+		let fragName: string | undefined;
+
+		if ( shaderName ) {
+
+			const fragPath = path.join( shadersDir, shaderName, 'index.fs' );
+
+			if ( fs.existsSync( fragPath ) ) {
+
+				fragName = `${shaderName}/frag`;
+
+			}
+
+		}
+
 		const res = tex.config.resolution || [ 1024, 1024 ];
 		const filter = tex.config.filter ? `, filter: ${JSON.stringify( tex.config.filter )}` : '';
 		const update = tex.config.updateEveryFrame ? `, updateEveryFrame: true` : '';
-		file += `\t{ name: ${JSON.stringify( tex.name )}, frag: ${fragVar || 'undefined'}, resolution: ${JSON.stringify( res )}${filter}${update} },\n`;
+		file += `\t{ name: ${JSON.stringify( tex.name )}, frag: ${fragName ? JSON.stringify( fragName ) : 'undefined'}, resolution: ${JSON.stringify( res )}${filter}${update} },\n`;
 
 	} );
 

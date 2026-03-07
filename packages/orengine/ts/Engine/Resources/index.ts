@@ -6,9 +6,11 @@ import { TexProcedural } from '../TexProcedural';
 
 import { MaterialResource } from './MaterialResource';
 import { ShaderResource } from './ShaderResource';
+import { TextureResource } from './TextureResource';
 
 export { ShaderResource } from './ShaderResource';
 export { MaterialResource } from './MaterialResource';
+export { TextureResource } from './TextureResource';
 
 export type ResouceComponentItem = {
 	name: string,
@@ -35,17 +37,6 @@ export type GeometryGroup = {
 	createGroup: ( name: string ) => GeometryGroup;
 };
 
-export type ResourceTextureData = {
-	frag?: string;
-	resolution?: number[];
-	filter?: string;
-	updateEveryFrame?: boolean;
-};
-
-export type ResourceTextureItem = {
-	name: string;
-} & ResourceTextureData;
-
 export class Resources extends GLP.EventEmitter {
 
 	private _componentList: ( ResouceComponentItem )[];
@@ -60,7 +51,7 @@ export class Resources extends GLP.EventEmitter {
 
 	private _shaders: Map<string, ShaderResource>;
 
-	private _textureList: ResourceTextureItem[];
+	private _textureResources: Map<string, TextureResource>;
 	private _textures: Map<string, GLP.GLPowerTexture>;
 	private _updateEveryFrameTextures: TexProcedural[];
 
@@ -76,7 +67,7 @@ export class Resources extends GLP.EventEmitter {
 		this._materialInstances = new Map();
 		this._globalUniforms = null;
 		this._shaders = new Map();
-		this._textureList = [];
+		this._textureResources = new Map();
 		this._updateEveryFrameTextures = [];
 
 	}
@@ -123,9 +114,9 @@ export class Resources extends GLP.EventEmitter {
 
 	}
 
-	public get textureList() {
+	public get textureList(): TextureResource[] {
 
-		return this._textureList;
+		return Array.from( this._textureResources.values() );
 
 	}
 
@@ -150,7 +141,7 @@ export class Resources extends GLP.EventEmitter {
 		this._materialResources.clear();
 		this._materialInstances.clear();
 		this._shaders.clear();
-		this._textureList = [];
+		this._textureResources.clear();
 		this._textures.clear();
 		this._updateEveryFrameTextures = [];
 		this.emit( "update" );
@@ -361,14 +352,17 @@ export class Resources extends GLP.EventEmitter {
 
 	}
 
-	public exportTextureConfigs(): { name: string, config: ResourceTextureData }[] {
+	public exportTextureConfigs(): { name: string, config: any }[] {
 
-		return this._textureList.map( t => {
+		const result: { name: string, config: any }[] = [];
 
-			const { name, ...config } = t;
-			return { name, config };
+		this._textureResources.forEach( ( tr, name ) => {
+
+			result.push( { name, config: tr.serialize( { mode: "export" } ) } );
 
 		} );
+
+		return result;
 
 	}
 
@@ -431,37 +425,33 @@ export class Resources extends GLP.EventEmitter {
 		Texture
 	-------------------------------*/
 
-	public addTextureResource( name: string, data: ResourceTextureData ) {
+	public addTextureResource( name: string, data: {
+		frag?: string;
+		resolution?: number[];
+		filter?: string;
+		updateEveryFrame?: boolean;
+	} ) {
 
-		const item: ResourceTextureItem = { name, ...data };
-		this._textureList.push( item );
+		const resource = new TextureResource( name, {
+			data,
+			getShader: ( n ) => this._shaders.get( n ),
+			getShaderList: () => this.shaderList,
+		} );
+
+		this._textureResources.set( name, resource );
 		this.emit( "update" );
 
 	}
 
-	public getTextureResource( name: string ) {
+	public getTextureResource( name: string ): TextureResource | undefined {
 
-		return this._textureList.find( t => t.name === name );
-
-	}
-
-	public updateTextureResource( name: string, data: ResourceTextureData ) {
-
-		const idx = this._textureList.findIndex( t => t.name === name );
-
-		if ( idx >= 0 ) {
-
-			this._textureList[ idx ] = { ...this._textureList[ idx ], ...data };
-
-		}
-
-		this.emit( "update/texture" );
+		return this._textureResources.get( name );
 
 	}
 
 	public removeTextureResource( name: string ) {
 
-		this._textureList = this._textureList.filter( t => t.name !== name );
+		this._textureResources.delete( name );
 
 		const tex = this._textures.get( name );
 
@@ -490,19 +480,20 @@ export class Resources extends GLP.EventEmitter {
 
 	}
 
-	private _buildTexture( item: ResourceTextureItem, renderer: MXP.Renderer, gl: WebGL2RenderingContext ): TexProcedural | null {
+	private _buildTexture( resource: TextureResource, renderer: MXP.Renderer, gl: WebGL2RenderingContext ): TexProcedural | null {
 
-		if ( ! item.frag ) return null;
+		const fragSource = resource.fragSource;
+		if ( ! fragSource ) return null;
 
 		const tex = new TexProcedural( renderer, {
-			frag: item.frag,
+			frag: fragSource,
 			resolution: new GLP.Vector(
-				item.resolution?.[ 0 ] || 1024,
-				item.resolution?.[ 1 ] || 1024
+				resource.resolution[ 0 ] || 1024,
+				resource.resolution[ 1 ] || 1024
 			),
 		} );
 
-		if ( item.filter === "nearest" ) {
+		if ( resource.filter === "nearest" ) {
 
 			tex.setting( {
 				magFilter: gl.NEAREST,
@@ -521,23 +512,23 @@ export class Resources extends GLP.EventEmitter {
 
 		this._updateEveryFrameTextures = [];
 
-		this._textureList.forEach( ( item ) => {
+		this._textureResources.forEach( ( resource ) => {
 
-			if ( this._textures.has( item.name ) ) return;
+			if ( this._textures.has( resource.name ) ) return;
 
-			const tex = this._buildTexture( item, renderer, gl );
+			const tex = this._buildTexture( resource, renderer, gl );
 
 			if ( ! tex ) return;
 
-			if ( item.updateEveryFrame && engineUniforms ) {
+			if ( resource.updateEveryFrame && engineUniforms ) {
 
 				MXP.UniformsUtils.assign( tex.material.uniforms, engineUniforms );
 
 			}
 
-			this._textures.set( item.name, tex );
+			this._textures.set( resource.name, tex );
 
-			if ( item.updateEveryFrame ) {
+			if ( resource.updateEveryFrame ) {
 
 				this._updateEveryFrameTextures.push( tex );
 
@@ -551,8 +542,8 @@ export class Resources extends GLP.EventEmitter {
 
 	public rebuildTexture( name: string, renderer: MXP.Renderer, gl: WebGL2RenderingContext ) {
 
-		const item = this._textureList.find( t => t.name === name );
-		if ( ! item ) return;
+		const resource = this._textureResources.get( name );
+		if ( ! resource ) return;
 
 		const existing = this._textures.get( name );
 
@@ -564,13 +555,13 @@ export class Resources extends GLP.EventEmitter {
 
 		}
 
-		const tex = this._buildTexture( item, renderer, gl );
+		const tex = this._buildTexture( resource, renderer, gl );
 
 		if ( ! tex ) return;
 
 		this._textures.set( name, tex );
 
-		if ( item.updateEveryFrame ) {
+		if ( resource.updateEveryFrame ) {
 
 			this._updateEveryFrameTextures.push( tex );
 

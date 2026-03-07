@@ -7,7 +7,6 @@ import { useSerializableField } from "../../../hooks/useSerializableProps";
 import { Block } from "../../Block";
 import { SerializeFieldView } from "../../SerializeFieldView";
 import { ComponentDetail } from "../ComponentExplorer/ComponentDetail";
-import { TextureDetail } from "../TextureExplorer/TextureDetail";
 
 import { ComponentAdd } from "./ComponentAdd";
 import { ComponentList } from "./ComponentList";
@@ -73,10 +72,16 @@ const AssetPropertyView = ( { asset }: { asset: SelectedAssetInfo } ) => {
 
 		}
 
-		case "texture":
+		case "texture": {
+
+			const resource = Engine.resources.getTextureResource( asset.name );
+			if ( ! resource ) return null;
+
 			return <Block label={`Texture: ${asset.name}`} accordion>
-				<TextureDetail name={asset.name} />
+				<SerializeFieldView target={resource} />
 			</Block>;
+
+		}
 
 		case "component": {
 
