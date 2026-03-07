@@ -6,6 +6,7 @@ import { InputBoolean } from '../Input/InputCheckBox';
 import { InputComponentRef } from '../Input/InputComponentRef';
 import { InputEntityRef } from '../Input/InputEntityRef';
 import { InputNumber } from '../Input/InputNumber';
+import { InputResourceSelect } from '../Input/InputResourceSelect';
 import { InputSelect } from '../Input/InputSelect';
 import { InputText } from '../Input/InputText';
 import { Vector } from '../Vector';
@@ -60,6 +61,10 @@ export const Value = <T extends SerializeFieldObjective>( props : ValueProps<T> 
 		} else if ( format.type == "select" ) {
 
 			inputElm = <InputSelect value={value} onChange={onChangeValue} selectList={format.list}/>;
+
+		} else if ( format.type == "resource" ) {
+
+			inputElm = <InputResourceSelect value={value} onChange={onChangeValue} selectList={format.list} resourceType={format.resourceType}/>;
 
 		}
 

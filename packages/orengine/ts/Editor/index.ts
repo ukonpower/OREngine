@@ -21,6 +21,11 @@ export type SelectedAssetInfo = {
 	path?: string;
 } | null;
 
+export type NavigateAssetRequest = {
+	assetType: "material" | "texture" | "shader" | "component";
+	name: string;
+} | null;
+
 export type EditorTimelineLoop = {
 	enabled: boolean,
 	start: number,
@@ -32,6 +37,7 @@ export class Editor extends MXP.Serializable {
 	private _engine: Engine;
 	private _selectedEntityId: string | null;
 	private _selectedAsset: SelectedAssetInfo;
+	private _navigateAsset: NavigateAssetRequest;
 	private _propertyTarget: "entity" | "asset";
 	private _audioBuffer: AudioBuffer | null;
 	private _frameLoop: EditorTimelineLoop;
@@ -62,6 +68,7 @@ export class Editor extends MXP.Serializable {
 		this._viewType = "render";
 		this._selectedEntityId = null;
 		this._selectedAsset = null;
+		this._navigateAsset = null;
 		this._propertyTarget = "entity";
 		this._resolutionScale = 1.0;
 		this._baseResolution = new GLP.Vector( 1920, 1080 );
@@ -241,6 +248,12 @@ export class Editor extends MXP.Serializable {
 				this.noticeField( "propertyTarget" );
 
 			}
+
+		} );
+
+		this.field( "navigateAsset", () => this._navigateAsset, v => {
+
+			this._navigateAsset = v;
 
 		} );
 

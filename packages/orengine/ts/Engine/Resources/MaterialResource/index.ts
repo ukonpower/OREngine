@@ -142,7 +142,8 @@ export class MaterialResource extends MXP.Serializable {
 
 		}, {
 			format: {
-				type: "select",
+				type: "resource",
+				resourceType: "shader",
 				list: () => this._buildShaderSelectList( "vert" )
 			}
 		} );
@@ -157,7 +158,8 @@ export class MaterialResource extends MXP.Serializable {
 
 		}, {
 			format: {
-				type: "select",
+				type: "resource",
+				resourceType: "shader",
 				list: () => this._buildShaderSelectList( "frag" )
 			}
 		} );
@@ -291,7 +293,8 @@ export class MaterialResource extends MXP.Serializable {
 
 					}, {
 						format: {
-							type: "select",
+							type: "resource",
+							resourceType: "texture",
 							list: () => [
 								{ label: "(None)", value: "" },
 								...this._getTextureList()

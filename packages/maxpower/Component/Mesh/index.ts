@@ -194,7 +194,8 @@ export class Mesh extends Component {
 
 		}, {
 			format: {
-				type: "select",
+				type: "resource",
+				resourceType: "material",
 				list: () => {
 
 					const list: { label: string, value: string }[] = [ { label: "(None)", value: "" } ];
