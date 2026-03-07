@@ -225,7 +225,7 @@ export class Editor extends MXP.Serializable {
 			if ( v ) {
 
 				this._propertyTarget = "entity";
-				this.emit( "update/field/propertyTarget" );
+				this.noticeField( "propertyTarget" );
 
 			}
 
@@ -238,7 +238,7 @@ export class Editor extends MXP.Serializable {
 			if ( v ) {
 
 				this._propertyTarget = "asset";
-				this.emit( "update/field/propertyTarget" );
+				this.noticeField( "propertyTarget" );
 
 			}
 
