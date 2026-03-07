@@ -270,7 +270,7 @@ export class Resources extends GLP.EventEmitter {
 		blending?: string; useLight?: boolean;
 		depthTest?: boolean; depthWrite?: boolean;
 		cullFace?: boolean;
-		uniforms?: { [key: string]: { type: string, value: any } };
+		[key: string]: any;
 	} ) {
 
 		let vertSource: string | undefined;
@@ -425,23 +425,21 @@ export class Resources extends GLP.EventEmitter {
 		this._materialResources.forEach( ( resource ) => {
 
 			const exported = resource.serialize( { mode: "export" } ) as any;
-			const uniforms = exported.uniforms;
 
-			if ( ! uniforms ) return;
+			for ( const key of Object.keys( exported ) ) {
 
-			for ( const uniformName of Object.keys( uniforms ) ) {
+				if ( ! key.startsWith( "uniforms/" ) ) continue;
 
-				const u = uniforms[ uniformName ];
+				const value = exported[ key ];
 
-				if ( u.type === "sampler2D" && u.value ) {
+				if ( typeof value !== "string" || ! value ) continue;
 
-					const texture = this._textures.get( u.value );
+				const uniformName = key.slice( "uniforms/".length );
+				const texture = this._textures.get( value );
 
-					if ( texture ) {
+				if ( texture ) {
 
-						resource.material.uniforms[ uniformName ] = { value: texture, type: "1i" };
-
-					}
+					resource.material.uniforms[ uniformName ] = { value: texture, type: "1i" };
 
 				}
 
