@@ -70,14 +70,11 @@ export const TextureExplorer = () => {
 
 					}
 
-					fetch( `/api/textures/${encodeURIComponent( item.name )}`, { method: 'DELETE' } )
-						.then( () => {
+					Engine.resources.removeTextureResource( item.name );
 
-							if ( selected === item ) setSelected( null );
+					if ( selected === item ) setSelected( null );
 
-							closeAll();
-
-						} );
+					closeAll();
 
 				},
 			},

@@ -70,14 +70,11 @@ export const MaterialExplorer = () => {
 
 					}
 
-					fetch( `/api/materials/${encodeURIComponent( item.name )}`, { method: 'DELETE' } )
-						.then( () => {
+					Engine.resources.removeMaterial( item.name );
 
-							if ( selected === item ) setSelected( null );
+					if ( selected === item ) setSelected( null );
 
-							closeAll();
-
-						} );
+					closeAll();
 
 				},
 			},

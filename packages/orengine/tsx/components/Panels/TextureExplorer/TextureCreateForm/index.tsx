@@ -1,6 +1,7 @@
 
 import { MouseEvent, useCallback } from 'react';
 
+import { Engine } from '../../../../../ts/Engine';
 import { useMouseMenu } from '../../../../hooks/useMouseMenu';
 import { Button } from '../../../Button';
 import { InputGroup } from '../../../InputGroup';
@@ -23,23 +24,15 @@ export const TextureCreateForm = () => {
 
 					if ( ! name ) return;
 
-					fetch( '/api/textures', {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify( { name, resolution: [ 1024, 1024 ] } ),
-					} ).then( r => {
+					if ( Engine.resources.getTextureResource( name ) ) {
 
-						if ( r.ok ) {
+						alert( 'Texture already exists' );
+						return;
 
-							closeAll();
+					}
 
-						} else {
-
-							r.json().then( data => alert( data.error ) );
-
-						}
-
-					} );
+					Engine.resources.addTextureResource( name, { resolution: [ 1024, 1024 ] } );
+					closeAll();
 
 				}} />
 			</div>

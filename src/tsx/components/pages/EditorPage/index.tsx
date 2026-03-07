@@ -1,6 +1,7 @@
 import * as MXP from 'maxpower';
 import { OREditor, OREngine } from "orengine/react";
 import { OREngineProjectData } from "orengine";
+import { Engine } from "orengine/ts/Engine";
 import { useEffect, useState } from "react";
 
 import { gl } from "~/ts/Globals";
@@ -59,6 +60,42 @@ export const EditorPage = () => {
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify( editorData ),
+				} );
+
+				const materials = Engine.resources.exportMaterialConfigs();
+
+				for ( const m of materials ) {
+
+					fetch( `/api/materials/${encodeURIComponent( m.name )}`, {
+						method: 'PUT',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify( m.config ),
+					} );
+
+				}
+
+				const textures = Engine.resources.exportTextureConfigs();
+
+				for ( const t of textures ) {
+
+					fetch( `/api/textures/${encodeURIComponent( t.name )}`, {
+						method: 'PUT',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify( t.config ),
+					} );
+
+				}
+
+				fetch( '/api/materials/sync', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify( { names: materials.map( m => m.name ) } ),
+				} );
+
+				fetch( '/api/textures/sync', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify( { names: textures.map( t => t.name ) } ),
 				} );
 
 			}} />
