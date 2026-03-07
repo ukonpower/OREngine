@@ -67,6 +67,47 @@ materialsRouter.get( '/materials', ( _req, res ) => {
 
 } );
 
+// POST: マテリアル同期（インスタンスに存在するリソース名一覧を受け取り、サーバー上で一覧にないファイルを削除）
+materialsRouter.post( '/materials/sync', ( req, res ) => {
+
+	try {
+
+		const names: string[] = req.body.names || [];
+
+		if ( ! fs.existsSync( MATERIALS_DIR ) ) {
+
+			res.json( { deleted: [] } );
+			return;
+
+		}
+
+		const deleted: string[] = [];
+		const files = fs.readdirSync( MATERIALS_DIR ).filter( f => f.endsWith( '.mat' ) );
+
+		for ( const file of files ) {
+
+			const name = path.basename( file, '.mat' );
+
+			if ( ! names.includes( name ) ) {
+
+				fs.unlinkSync( path.join( MATERIALS_DIR, file ) );
+				deleted.push( name );
+
+			}
+
+		}
+
+		res.json( { deleted } );
+
+	} catch ( err ) {
+
+		console.error( 'Failed to sync materials:', err );
+		res.status( 500 ).json( { error: 'Failed to sync materials' } );
+
+	}
+
+} );
+
 // GET: マテリアル詳細
 materialsRouter.get( '/materials/:name', ( req, res ) => {
 
@@ -157,15 +198,13 @@ materialsRouter.put( '/materials/:name', ( req, res ) => {
 
 		}
 
-		const matPath = path.join( MATERIALS_DIR, `${name}.mat` );
+		if ( ! fs.existsSync( MATERIALS_DIR ) ) {
 
-		if ( ! fs.existsSync( matPath ) ) {
-
-			res.status( 404 ).json( { error: 'Material not found' } );
-			return;
+			fs.mkdirSync( MATERIALS_DIR, { recursive: true } );
 
 		}
 
+		const matPath = path.join( MATERIALS_DIR, `${name}.mat` );
 		fs.writeFileSync( matPath, JSON.stringify( req.body, null, 2 ) );
 		res.json( { name, config: req.body } );
 

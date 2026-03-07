@@ -1,6 +1,8 @@
 
+import { ResourceMaterialData } from 'packages/orengine/ts/Engine/Resources';
 import { MouseEvent, useCallback } from 'react';
 
+import { Engine } from '../../../../../ts/Engine';
 import { useMouseMenu } from '../../../../hooks/useMouseMenu';
 import { Button } from '../../../Button';
 import { InputGroup } from '../../../InputGroup';
@@ -24,27 +26,19 @@ export const MaterialCreateForm = () => {
 
 					if ( ! name ) return;
 
-					const body: any = { name };
+					if ( Engine.resources.getMaterial( name ) ) {
 
-					if ( shader ) body.shader = shader;
+						alert( 'Material already exists' );
+						return;
 
-					fetch( '/api/materials', {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify( body ),
-					} ).then( r => {
+					}
 
-						if ( r.ok ) {
+					const data: ResourceMaterialData = {};
 
-							closeAll();
+					if ( shader ) data.frag = shader;
 
-						} else {
-
-							r.json().then( data => alert( data.error ) );
-
-						}
-
-					} );
+					Engine.resources.addMaterial( name, data );
+					closeAll();
 
 				}} />
 			</div>

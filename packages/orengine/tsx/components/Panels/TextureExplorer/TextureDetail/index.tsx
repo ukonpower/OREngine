@@ -31,9 +31,14 @@ export const TextureDetail = ( { name }: TextureDetailProps ) => {
 
 	useEffect( () => {
 
-		fetch( `/api/textures/${encodeURIComponent( name )}` )
-			.then( r => r.json() )
-			.then( data => setConfig( data.config || {} ) );
+		const item = Engine.resources.getTextureResource( name );
+
+		if ( item ) {
+
+			const { name: _, ...config } = item;
+			setConfig( config );
+
+		}
 
 	}, [ name ] );
 
@@ -42,12 +47,6 @@ export const TextureDetail = ( { name }: TextureDetailProps ) => {
 		setConfig( prev => {
 
 			const next = { ...prev, [ key ]: value };
-
-			fetch( `/api/textures/${encodeURIComponent( name )}`, {
-				method: 'PUT',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify( next ),
-			} );
 
 			Engine.resources.updateTextureResource( name, next );
 

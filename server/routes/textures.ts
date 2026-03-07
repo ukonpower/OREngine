@@ -67,6 +67,47 @@ texturesRouter.get( '/textures', ( _req, res ) => {
 
 } );
 
+// POST: テクスチャ同期（インスタンスに存在するリソース名一覧を受け取り、サーバー上で一覧にないファイルを削除）
+texturesRouter.post( '/textures/sync', ( req, res ) => {
+
+	try {
+
+		const names: string[] = req.body.names || [];
+
+		if ( ! fs.existsSync( TEXTURES_DIR ) ) {
+
+			res.json( { deleted: [] } );
+			return;
+
+		}
+
+		const deleted: string[] = [];
+		const files = fs.readdirSync( TEXTURES_DIR ).filter( f => f.endsWith( '.tex' ) );
+
+		for ( const file of files ) {
+
+			const name = path.basename( file, '.tex' );
+
+			if ( ! names.includes( name ) ) {
+
+				fs.unlinkSync( path.join( TEXTURES_DIR, file ) );
+				deleted.push( name );
+
+			}
+
+		}
+
+		res.json( { deleted } );
+
+	} catch ( err ) {
+
+		console.error( 'Failed to sync textures:', err );
+		res.status( 500 ).json( { error: 'Failed to sync textures' } );
+
+	}
+
+} );
+
 // GET: テクスチャ詳細
 texturesRouter.get( '/textures/:name', ( req, res ) => {
 
@@ -157,15 +198,13 @@ texturesRouter.put( '/textures/:name', ( req, res ) => {
 
 		}
 
-		const texPath = path.join( TEXTURES_DIR, `${name}.tex` );
+		if ( ! fs.existsSync( TEXTURES_DIR ) ) {
 
-		if ( ! fs.existsSync( texPath ) ) {
-
-			res.status( 404 ).json( { error: 'Texture not found' } );
-			return;
+			fs.mkdirSync( TEXTURES_DIR, { recursive: true } );
 
 		}
 
+		const texPath = path.join( TEXTURES_DIR, `${name}.tex` );
 		fs.writeFileSync( texPath, JSON.stringify( req.body, null, 2 ) );
 		res.json( { name, config: req.body } );
 

@@ -329,6 +329,14 @@ export class Resources extends GLP.EventEmitter {
 
 	public updateMaterialInstance( name: string, data: ResourceMaterialData ) {
 
+		const idx = this._materialList.findIndex( m => m.name === name );
+
+		if ( idx >= 0 ) {
+
+			this._materialList[ idx ] = { ...this._materialList[ idx ], ...data };
+
+		}
+
 		const material = this._materialInstances.get( name );
 
 		if ( ! material ) return;
@@ -346,6 +354,38 @@ export class Resources extends GLP.EventEmitter {
 
 		material.requestUpdate();
 		this.emit( "update/material" );
+
+	}
+
+	public removeMaterial( name: string ) {
+
+		this._materialList = this._materialList.filter( m => m.name !== name );
+
+		this._materialInstances.delete( name );
+
+		this.emit( "update" );
+
+	}
+
+	public exportMaterialConfigs(): { name: string, config: ResourceMaterialData }[] {
+
+		return this._materialList.map( m => {
+
+			const { name, ...config } = m;
+			return { name, config };
+
+		} );
+
+	}
+
+	public exportTextureConfigs(): { name: string, config: ResourceTextureData }[] {
+
+		return this._textureList.map( t => {
+
+			const { name, ...config } = t;
+			return { name, config };
+
+		} );
 
 	}
 

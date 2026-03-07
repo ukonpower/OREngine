@@ -22,9 +22,14 @@ export const MaterialDetail = ( { name }: MaterialDetailProps ) => {
 
 	useEffect( () => {
 
-		fetch( `/api/materials/${encodeURIComponent( name )}` )
-			.then( r => r.json() )
-			.then( data => setConfig( data.config || {} ) );
+		const item = Engine.resources.getMaterial( name );
+
+		if ( item ) {
+
+			const { name: _, ...config } = item;
+			setConfig( config );
+
+		}
 
 	}, [ name ] );
 
@@ -43,12 +48,6 @@ export const MaterialDetail = ( { name }: MaterialDetailProps ) => {
 				next[ key ] = value;
 
 			}
-
-			fetch( `/api/materials/${encodeURIComponent( name )}`, {
-				method: 'PUT',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify( next ),
-			} );
 
 			Engine.resources.updateMaterialInstance( name, next );
 
