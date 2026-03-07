@@ -1,5 +1,5 @@
 {
-  "shader": "SkyBox",
+  "frag": "SkyBox/frag",
   "phase": ["deferred", "envMap"],
   "cullFace": false
 }

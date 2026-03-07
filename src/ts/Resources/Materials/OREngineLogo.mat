@@ -1,4 +1,5 @@
 {
-  "shader": "OREngineLogo",
+  "vert": "OREngineLogo/vert",
+  "frag": "OREngineLogo/frag",
   "phase": ["deferred", "shadowMap"]
 }

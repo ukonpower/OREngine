@@ -1,5 +1,4 @@
 
-import { ResourceMaterialData } from 'packages/orengine/ts/Engine/Resources';
 import { MouseEvent, useCallback } from 'react';
 
 import { Engine } from '../../../../../ts/Engine';
@@ -33,7 +32,7 @@ export const MaterialCreateForm = () => {
 
 					}
 
-					const data: ResourceMaterialData = {};
+					const data: { frag?: string } = {};
 
 					if ( shader ) data.frag = shader;
 

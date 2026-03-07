@@ -6,19 +6,6 @@ import { PlaneGeometry } from "../../Geometry/PlaneGeometry";
 import { SphereGeometry } from "../../Geometry/SphereGeometry";
 import { Material } from "../../Material";
 
-type MaterialData = {
-	name: string;
-	vert?: string;
-	frag?: string;
-	phase?: string[];
-	useLight?: boolean;
-	depthTest?: boolean;
-	depthWrite?: boolean;
-	cullFace?: boolean;
-	blending?: string;
-	drawType?: string;
-};
-
 const defaultGeometry = new Geometry();
 const defaultMaterial = new Material();
 
@@ -28,7 +15,7 @@ export class Mesh extends Component {
 	public material: Material;
 
 	public static getGeometryList: () => { name: string, geometryClass: typeof Geometry }[] = () => [];
-	public static getMaterialList: () => MaterialData[] = () => [];
+	public static getMaterialList: () => { name: string }[] = () => [];
 	public static getMaterialInstance: ( name: string ) => Material | undefined = () => undefined;
 
 	private _geometryType: string;

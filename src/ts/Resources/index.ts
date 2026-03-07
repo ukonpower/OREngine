@@ -113,7 +113,29 @@ export const initResouces = () => {
 	for ( let i = 0; i < SHADERLIST.length; i ++ ) {
 
 		const s = SHADERLIST[ i ];
-		Engine.resources.addShader( s.name, s.hasVert, s.hasFrag );
+		Engine.resources.addShader( s.name, s.source );
+
+	}
+
+	if ( import.meta.hot ) {
+
+		import.meta.hot.accept( './_data/shaderList', ( newModule ) => {
+
+			if ( ! newModule ) return;
+
+			for ( const s of newModule.SHADERLIST ) {
+
+				const shader = Engine.resources.getShader( s.name );
+
+				if ( shader ) {
+
+					shader.updateSource( s.source );
+
+				}
+
+			}
+
+		} );
 
 	}
 
