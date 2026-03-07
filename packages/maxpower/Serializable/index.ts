@@ -287,6 +287,14 @@ export class Serializable extends GLP.EventEmitter {
 
 	}
 
+	public removeField( path: string ) {
+
+		const normalizedPath = path.startsWith( "/" ) ? path.slice( 1 ) : path;
+
+		this.fields_.delete( normalizedPath );
+
+	}
+
 	/*-------------------------------
 		Set / Get Field
 	-------------------------------*/

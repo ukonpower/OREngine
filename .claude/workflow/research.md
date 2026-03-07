@@ -1,129 +1,118 @@
-# Research: TextureResource導入 & シェーダー選択UIの統一
+# Research: Materialへのテクスチャuniform設定をエディタで行えるようにする
 
 ## タスク概要
-1. テクスチャデータを `TextureResource` クラス（Serializable継承）で管理する（ShaderResource/MaterialResourceと同じパターン）
-2. エディタのテクスチャ表示をSerializeFieldViewベースに統一する
-3. シェーダーの選択UIをマテリアルと同じselectフォーマットにする
+Materialのシェーダー（GLSL）からsampler2Dのuniform宣言を自動解析し、エディタUIでテクスチャリソースを選択・設定できるようにする。現状はハードコードのglobalUniformsでテクスチャを渡しているが、これをMaterialResource単位で管理可能にする。
 
-## 現状の分析
+## 現状の仕組み
 
-### テクスチャの現在の管理方法
-- **プレーンオブジェクト**: `ResourceTextureItem = { name, frag?, resolution?, filter?, updateEveryFrame? }`
-- `Resources`クラス内で `_textureList: ResourceTextureItem[]` として配列管理
-- `_textures: Map<string, GLPowerTexture>` にテクスチャインスタンスを保持
-- テクスチャリソースにはSerializableベースのクラスが**存在しない**
+### テクスチャuniformの現在の設定方法
+- `src/ts/Resources/index.ts:189-194` で `uNoiseTex` を **globalUniforms としてハードコード** している
+- `Resources._applyTextureUniforms()` (l.381-404) が `material.uniforms[name] = { value: texture, type: "1i" }` でテクスチャを設定
+- `Resources.addMaterial()` (l.266-325) は `data.uniforms?: { [key: string]: string }` を受け取り、`uniformName → textureName` のマッピングとして `_applyTextureUniforms` に渡す
+- しかし **MaterialResource はこの uniforms データをSerializableフィールドとして管理していない** → エディタUIに表示されない
 
-### ShaderResource（参考パターン）
-- `GLP.EventEmitter` を継承（Serializableではない）
-- `packages/orengine/ts/Engine/Resources/ShaderResource/index.ts`
-- プロパティ: `name`, `source`
-- `updateSource()` でソース更新 → `"update"` イベント発火
-- シンプルなイベントエミッタパターン
-
-### MaterialResource（参考パターン）
-- `MXP.Serializable` を継承
-- `packages/orengine/ts/Engine/Resources/MaterialResource/index.ts`
-- `field()` APIでエディタ表示可能なフィールドを定義:
-  - `vert`: select形式（シェーダーリストからvert系をフィルタ）
-  - `frag`: select形式（シェーダーリストからfrag系をフィルタ）
-  - `phase`, `drawType`, `blending`, `useLight`, `depthTest`, `depthWrite`, `cullFace`
-- `_buildShaderSelectList()` でシェーダー名に `/vert` `/frag` サフィックスでフィルタ
-- シェーダーリソースの `"update"` イベントをリッスンしてマテリアル更新
-- Propertyパネルでは `<SerializeFieldView target={resource} />` で自動表示
-
-### テクスチャのエディタUI（現状）
-- **TextureExplorer** (`packages/orengine/tsx/components/Panels/TextureExplorer/index.tsx`):
-  - リストで表示、クリックで選択→TextureDetail表示
-- **TextureDetail** (`TextureExplorer/TextureDetail/index.tsx`):
-  - **手動のInputSelect/InputBoolean** でフィールドを個別に描画
-  - shader, resolution(w/h), filter, updateEveryFrame
-  - `Engine.resources.updateTextureResource()` を直接呼び出し
-- **PropertyPanel（EntityProperty）** (`Panels/EntityProperty/index.tsx`):
-  - `case "texture":` → `<TextureDetail name={asset.name} />` を表示
-  - MaterialはSerializeFieldView、TextureはTextureDetail（手動）
-
-### AssetViewer
-- `packages/orengine/tsx/components/Panels/AssetViewer/`
-- 4タイプ（component/material/shader/texture）を統合表示
-- `buildEntries.ts` でアセット一覧を構築
-- `AssetGrid` でアイコングリッド表示
-- 選択時に `editor.setField("selectedAsset", ...)` で PropertyPanel に通知
-
-### テクスチャデータの永続化
-- **textureList.ts** (`src/ts/Resources/_data/textureList.ts`): ハードコードされたテクスチャリスト
-- **サーバーAPI** (`server/routes/textures.ts`): `.tex` JSONファイルによるCRUD
-- **EditorPage** (`src/tsx/components/pages/EditorPage/index.tsx`): 保存時に `exportTextureConfigs()` → PUT API → sync API
-
-### Meshコンポーネントでのマテリアル選択
-- `packages/maxpower/Component/Mesh/index.ts`
-- `Mesh.getMaterialList` static callback → selectリスト生成
-- `Mesh.getMaterialInstance` でインスタンス取得
-- `field("name", ..., { format: { type: "select", list: () => ... } })` パターン
+### テクスチャの描画時処理
+- `setUniforms()` (Renderer/index.ts:1459-1523) がテクスチャを処理
+- `'isTexture' in v` で GLPowerTexture を判定 → `v.activate(TextureUnitCounter++)` → `program.setUniform(name, type, [v.unit])`
+- つまり `material.uniforms` に `{ value: GLPowerTexture, type: "1i" }` を入れれば動く
 
 ## 関連ファイル・シンボル
 
 | ファイル | 主要シンボル | 役割 |
 |---------|------------|------|
-| `packages/orengine/ts/Engine/Resources/index.ts` | `Resources`, `ResourceTextureItem`, `ResourceTextureData` | リソース管理の中心 |
-| `packages/orengine/ts/Engine/Resources/ShaderResource/index.ts` | `ShaderResource` | シェーダーリソースクラス |
-| `packages/orengine/ts/Engine/Resources/MaterialResource/index.ts` | `MaterialResource` | マテリアルリソースクラス（Serializable） |
-| `packages/orengine/ts/Engine/TexProcedural/index.ts` | `TexProcedural` | プロシージャルテクスチャ生成 |
-| `packages/orengine/tsx/components/Panels/TextureExplorer/index.tsx` | `TextureExplorer` | テクスチャ一覧UI |
-| `packages/orengine/tsx/components/Panels/TextureExplorer/TextureDetail/index.tsx` | `TextureDetail` | テクスチャ詳細UI（手動描画） |
-| `packages/orengine/tsx/components/Panels/TextureExplorer/TextureCreateForm/index.tsx` | `TextureCreateForm` | テクスチャ作成UI |
-| `packages/orengine/tsx/components/Panels/MaterialExplorer/MaterialDetail/index.tsx` | `MaterialDetail` | マテリアル詳細UI（SerializeFieldView） |
-| `packages/orengine/tsx/components/Panels/EntityProperty/index.tsx` | `EntityProperty`, `AssetPropertyView` | Property表示の切り替え |
-| `packages/orengine/tsx/components/Panels/AssetViewer/buildEntries.ts` | `buildTextureEntries` | テクスチャのAssetViewerエントリ構築 |
-| `packages/orengine/tsx/components/Panels/AssetViewer/AssetGrid/index.tsx` | `AssetGrid`, `deleteAsset` | アセットグリッドUI |
-| `src/ts/Resources/index.ts` | `initResouces`, `initResourceInstances` | リソース初期化 |
-| `src/ts/Resources/_data/textureList.ts` | `TEXTURELIST` | テクスチャ定義データ |
-| `server/routes/textures.ts` | `texturesRouter` | テクスチャREST API |
-| `src/tsx/components/pages/EditorPage/index.tsx` | - | 保存時テクスチャ同期 |
-| `packages/maxpower/Component/Mesh/index.ts` | `Mesh` | マテリアル選択UIの参考実装 |
+| `packages/maxpower/Material/index.ts` | `Material`, `MaterialParam` | Materialクラス本体。`uniforms: GLP.Uniforms` を持つ |
+| `packages/glpower/.../GLPowerProgram.ts` | `Uniforms`, `UniformType`, `Uniformable` | uniform型定義。`Uniforms = {[key:string]: {value: any, type: UniformType}}` |
+| `packages/orengine/ts/Engine/Resources/MaterialResource/index.ts` | `MaterialResource` | マテリアルのSerializable管理。vert/frag/phase等のフィールドあり。**uniformsフィールドなし** |
+| `packages/orengine/ts/Engine/Resources/TextureResource/index.ts` | `TextureResource` | テクスチャリソース。Serializableフィールドとしてfrag/resolution/filterを管理 |
+| `packages/orengine/ts/Engine/Resources/index.ts` | `Resources` | リソース全体管理。`_textures: Map<string, GLPowerTexture>`, `_applyTextureUniforms()` |
+| `packages/maxpower/Serializable/index.ts` | `Serializable`, `field()`, `fieldDir()` | フィールド管理基底クラス。`format: { type: "select", list: [...] }` でドロップダウンUI対応 |
+| `packages/maxpower/Utils/ShaderParser/index.ts` | `shaderParse`, `shaderInclude` | シェーダー文字列パース（#include展開、defines挿入、ループ展開）。**uniform解析機能はなし** |
+| `packages/maxpower/Component/Renderer/index.ts` | `setUniforms`, `TextureUnitCounter` | uniform→GPU転送。テクスチャは`isTexture`判定でactivate |
+| `packages/orengine/tsx/components/SerializeFieldView/index.tsx` | `SerializeFieldView` | Serializableのフィールドを自動UIレンダリング |
+| `packages/orengine/tsx/components/Panels/EntityProperty/index.tsx` | `AssetPropertyView` | マテリアルアセット選択時に `SerializeFieldView` で表示 |
+| `server/routes/materials.ts` | `materialsRouter` | `.mat` ファイルのCRUD REST API |
+| `src/ts/Resources/_data/materialList.ts` | `MATERIALLIST` | ビルド時生成マテリアル設定データ |
+| `src/ts/Resources/Materials/*.mat` | - | マテリアル設定JSONファイル。現状uniformsフィールドなし |
 
 ## 依存関係
 
-- `Resources` → `ResourceTextureItem`（プレーンオブジェクト）: テクスチャリソースの定義
-- `Resources` → `ShaderResource`: シェーダーリソースの管理
-- `Resources` → `MaterialResource`: マテリアルリソースの管理
-- `MaterialResource` → `ShaderResource`: シェーダーの参照と `"update"` イベント購読
-- `TextureDetail` → `Resources.updateTextureResource()`: テクスチャ更新
-- `TextureDetail` → `Resources.shaderList`: シェーダーリスト取得（テクスチャのshaderフィールド用）
-- `EntityProperty` → `TextureDetail`: テクスチャ詳細表示（手動UI）
-- `EntityProperty` → `SerializeFieldView`: マテリアル詳細表示（自動UI）
-- `EditorPage` → `Resources.exportTextureConfigs()`: テクスチャ保存
-- `TexProcedural` → フラグシェーダーソース: テクスチャ生成
-- `Resources._buildTexture()` → `ResourceTextureItem.frag`: テクスチャの実体化
+```
+.mat ファイル → MATERIALLIST (ビルド時生成) → Resources.addMaterial(name, data)
+  → data.uniforms を _applyTextureUniforms() でMaterialインスタンスに適用
+  → MaterialResource (Serializable) を生成してエディタUI表示
+
+Resources._textures (Map<string, GLPowerTexture>)
+  ← TextureResource + ShaderResource から TexProcedural で生成
+  → _applyTextureUniforms() で material.uniforms に GLPowerTexture を設定
+
+MaterialResource → SerializeFieldView → エディタPropertyパネル
+```
 
 ## 既存パターン
 
-### MaterialResourceのSerializableパターン
-- Serializable継承 → `field()` でUI表示用フィールド定義
-- select形式のフィールド: `{ format: { type: "select", list: () => [...] } }`
-- PropertyパネルではSerializeFieldViewコンポーネントで自動描画
-- serialize/deserializeメソッドで永続化
+### Serializableフィールド + select形式ドロップダウン
+TextureResourceとMaterialResourceの両方で使用されている。例:
+```typescript
+this.field( "frag", () => this._frag, ( v ) => { ... }, {
+    format: {
+        type: "select",
+        list: () => this._buildShaderSelectList()
+    }
+});
+```
+`list` に関数を渡すと動的にリスト生成。`{ label, value }` の配列を返す。
 
-### テクスチャのシェーダー選択（TextureDetail）
-- 現在は全シェーダーリストを表示（vert/fragフィルタなし）
-- `Engine.resources.shaderList` を直接参照
-- InputSelectで表示（Serializableのfieldではない）
+### uniformsマッピング（Resources._applyTextureUniforms）
+```typescript
+// data.uniforms = { "uNoiseTex": "noise" } (uniformName → textureName)
+// → material.uniforms["uNoiseTex"] = { value: textures.get("noise"), type: "1i" }
+```
 
 ## 制約・注意点
 
-1. **テクスチャリストの管理方式の変更**: 現在 `_textureList: ResourceTextureItem[]` → `Map<string, TextureResource>` に変更必要
-2. **`exportTextureConfigs()` の互換性**: EditorPageからの保存処理が依存
-3. **`buildTextureInstances()`**: ResourceTextureItemのfragプロパティを使ってTexProceduralを生成 → TextureResourceに移行時に対応必要
-4. **`rebuildTexture()`**: テクスチャ再生成のロジック → TextureResourceに内包するか外に残すか
-5. **テクスチャのシェーダーフィールド**: MaterialResourceと同様にShaderResourceを参照してフィルタリングすべき（fragのみ）
-6. **`_applyTextureUniforms()`**: テクスチャ名でGLPowerTextureを取得 → TextureResource導入後も名前ベースのルックアップが必要
-7. **TextureExplorer/TextureDetail**: TextureResourceがSerializableになればTextureDetailは不要になりSerializeFieldViewで代替可能
-8. **initResouces()での登録方法**: `addTextureResource(name, data)` のシグネチャ変更が必要
+1. **シェーダーパースの複雑さ**: `#include <frag_h>` 等でシステムuniform（uModelMatrix, uViewMatrix等）も展開される。sampler2D解析時にこれらのシステムuniformを除外する必要がある（例: `uDeferredTexture`, `uBackBuffer0`, シャドウマップ等）
+2. **パース対象**: vertシェーダーとfragシェーダー両方にsampler2Dがありうるが、fragが主。`shaderInclude()` で展開後のソースをパースするか、展開前の生ソースをパースするかの選択肢がある。**展開前がシンプル**（ユーザー定義のuniformだけ取れる）
+3. **テクスチャリソース名 vs GLPowerTexture名**: `_textures` Mapのキーが名前。TextureResourceの名前と一致する
+4. **動的更新**: シェーダーが変更されたらuniformリストも更新する必要がある
+5. **.matファイルへの永続化**: `uniforms` フィールドを `.mat` JSON に追加する必要がある。サーバーAPIは既にJSONをそのまま保存するので、スキーマ変更不要
+6. **globalUniformsとの競合**: `Resources.setGlobalUniforms()` がマテリアルのuniformsにマージされる。テクスチャuniformの優先順位を考慮
+7. **Serializableフィールドの動的追加/削除**: `fields_` はMapなのでsetで追加可能。ただし削除のpublic APIはない（`fields_.delete()` は private）。シェーダー変更時のフィールド再構築に検討が必要
+
+## 設計案
+
+### アプローチA: シェーダー自動解析 + 動的フィールド生成
+
+1. **sampler2D解析ユーティリティ**
+   - シェーダーソース（`#include`展開前）から `uniform sampler2D <name>;` を正規表現で抽出
+   - 正規表現: `/uniform\s+sampler2D\s+(\w+)\s*;/g`
+
+2. **MaterialResourceにuniformsフィールド追加**
+   - `_uniforms: { [uniformName: string]: string }` を管理
+   - `fieldDir("uniforms")` 配下に各sampler2Dのselectフィールドを動的生成
+   - select list = `Resources.textureList` から動的生成 + `(None)` オプション
+
+3. **シェーダー変更時のフィールド再構築**
+   - vert/fragのsetter内でsampler2Dを再解析
+   - 既存のuniformsマッピングを保持しつつフィールドを再生成
+
+4. **.matファイルの拡張**
+   ```json
+   {
+     "vert": "...", "frag": "...",
+     "uniforms": { "uNoiseTex": "noise" }
+   }
+   ```
+
+### アプローチB: 手動マッピングのみ（シェーダー解析なし）
+
+- uniformsフィールドに手動でキー/値ペアを追加するUI
+- シンプルだがUXが劣る
+
+### 推奨: アプローチA
+シェーダーの展開前ソースからsampler2Dを解析するのが最もシンプルで、ユーザー定義のuniformだけが対象になる。
 
 ## 参考になる既存実装
-
-- **MaterialResource** (`packages/orengine/ts/Engine/Resources/MaterialResource/index.ts`):
-  - Serializable継承、fieldでUI定義、シェーダー選択のselectパターン
-  - `_buildShaderSelectList()` でシェーダーをvert/fragでフィルタ
-- **Resources.addMaterial()**: MaterialResourceのインスタンス化とMapへの登録パターン
-- **EntityProperty case "material"**: `SerializeFieldView` での表示
-- **Mesh.field("material/name")**: select形式でマテリアルリストを表示するパターン
+- `TextureResource.field("frag", ...)` - selectドロップダウンでシェーダー名を選択するパターン
+- `MaterialResource._syncShaderToMaterial()` - シェーダー変更時のMaterialインスタンス同期
+- `Resources._applyTextureUniforms()` - uniformName→textureName→GLPowerTextureの解決ロジック
+- `Serializable.fieldDir()` - フィールドをフォルダ構造にグループ化
