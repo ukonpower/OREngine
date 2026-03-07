@@ -75,7 +75,7 @@ export class SelectionOutline {
 
 		engine.renderer.renderPostProcess(
 			this._outlinePostProcess,
-			undefined,
+			engine.renderer.renderTarget.uiBuffer,
 			res
 		);
 
