@@ -145,6 +145,35 @@ curl http://localhost:3001/api/components/Effects/MyComponent/filepath
 
 ソースファイル: `src/ts/Resources/Materials/` 以下（`.mat` JSON ファイル）
 
+### .mat ファイル形式
+
+```json
+{
+  "vert": "ShaderName/vert",
+  "frag": "ShaderName/frag",
+  "phase": ["shadowMap", "deferred"],
+  "drawType": "",
+  "blending": "",
+  "useLight": true,
+  "depthTest": true,
+  "depthWrite": true,
+  "cullFace": false,
+  "uniforms/uMyFloat": 0.5,
+  "uniforms/uMyColor": [1, 0, 0],
+  "uniforms/uMyTexture": "noise"
+}
+```
+
+カスタムuniformは `uniforms/` プレフィックスで指定する。型マッピング:
+
+| GLSL型 | JSON値 | 例 |
+|---|---|---|
+| `float` | number | `0.5` |
+| `vec2` | number[2] | `[1.0, 0.5]` |
+| `vec3` | number[3] | `[1.0, 0.0, 0.5]` |
+| `vec4` | number[4] | `[1, 0, 0.5, 1]` |
+| `sampler2D` | string（テクスチャ名） | `"noise"` |
+
 ### GET /materials
 
 マテリアル一覧を取得する。再帰的にスキャンされる。
@@ -311,30 +340,28 @@ curl http://localhost:3001/api/shaders
 
 ### POST /shaders
 
-新しいシェーダーを作成する。テンプレートの `index.vs` と `index.fs` が自動生成される。
+新しいシェーダーを作成する。`template` パラメータで用途別テンプレートを選択可能。
 
 **リクエストボディ:**
 ```json
 {
-  "name": "MyShader"
+  "name": "MyShader",
+  "template": "mesh"
 }
 ```
 
-生成されるテンプレート:
+| フィールド | 型 | 必須 | 説明 |
+|---|---|---|---|
+| `name` | string | Yes | シェーダー名（PascalCase推奨） |
+| `template` | string | No | テンプレート種別（デフォルト: 最小テンプレート） |
 
-`index.vs`:
-```glsl
-void main() {
-	gl_Position = vec4( 0.0, 0.0, 0.0, 1.0 );
-}
-```
+**template 有効値:**
 
-`index.fs`:
-```glsl
-void main() {
-	outColor0 = vec4( 1.0, 1.0, 1.0, 1.0 );
-}
-```
+| 値 | 説明 | 用途 |
+|---|---|---|
+| 未指定 | 最小テンプレート | 汎用 |
+| `"mesh"` | メッシュ用テンプレート（`#include <vert_h>`, `<frag_h>`, `<frag_in>`, `<frag_out>` 付き） | 3Dオブジェクトのマテリアル |
+| `"texture"` | テクスチャ用テンプレート（`vUv` 使用可能、`layout(location=0) out vec4 outColor`） | プロシージャルテクスチャ |
 
 **レスポンス例（201）:**
 ```json
@@ -347,9 +374,15 @@ void main() {
 
 **curl:**
 ```bash
+# メッシュ用シェーダー
 curl -X POST http://localhost:3001/api/shaders \
   -H 'Content-Type: application/json' \
-  -d '{"name":"MyShader"}'
+  -d '{"name":"MyShader","template":"mesh"}'
+
+# テクスチャ用シェーダー
+curl -X POST http://localhost:3001/api/shaders \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"MyTexShader","template":"texture"}'
 ```
 
 ---

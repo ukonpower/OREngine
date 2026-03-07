@@ -1,7 +1,8 @@
-import express from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
+
+import express from 'express';
 
 import { projectManager } from '../Project';
 import { getWSBridge } from '../ws';
@@ -37,111 +38,183 @@ async function persistResourceChange(
 
 	switch ( action ) {
 
-		case 'addMaterial': {
+	case 'addMaterial': {
 
-			const name = params.name as string;
+		const name = params.name as string;
 
-			if ( ! validateName( name ) ) break;
+		if ( ! validateName( name ) ) break;
 
-			if ( ! fs.existsSync( MATERIALS_DIR ) ) {
+		if ( ! fs.existsSync( MATERIALS_DIR ) ) {
 
-				fs.mkdirSync( MATERIALS_DIR, { recursive: true } );
-
-			}
-
-			const config = result?.config ?? params.config ?? {};
-			fs.writeFileSync( path.join( MATERIALS_DIR, `${name}.mat` ), JSON.stringify( config, null, '\t' ) + '\n' );
-			break;
+			fs.mkdirSync( MATERIALS_DIR, { recursive: true } );
 
 		}
 
-		case 'updateMaterial': {
+		const config = result?.config ?? params.config ?? {};
+		fs.writeFileSync( path.join( MATERIALS_DIR, `${name}.mat` ), JSON.stringify( config, null, '\t' ) + '\n' );
+		break;
 
-			const name = params.name as string;
+	}
 
-			if ( ! validateName( name ) ) break;
+	case 'updateMaterial': {
 
-			if ( ! fs.existsSync( MATERIALS_DIR ) ) {
+		const name = params.name as string;
 
-				fs.mkdirSync( MATERIALS_DIR, { recursive: true } );
+		if ( ! validateName( name ) ) break;
 
-			}
+		if ( ! fs.existsSync( MATERIALS_DIR ) ) {
 
-			const config = result?.config ?? params.config ?? {};
-			fs.writeFileSync( path.join( MATERIALS_DIR, `${name}.mat` ), JSON.stringify( config, null, '\t' ) + '\n' );
-			break;
-
-		}
-
-		case 'removeMaterial': {
-
-			const name = params.name as string;
-
-			if ( ! validateName( name ) ) break;
-
-			const matPath = path.join( MATERIALS_DIR, `${name}.mat` );
-
-			if ( fs.existsSync( matPath ) ) {
-
-				fs.unlinkSync( matPath );
-
-			}
-
-			break;
+			fs.mkdirSync( MATERIALS_DIR, { recursive: true } );
 
 		}
 
-		case 'addTexture': {
+		const config = result?.config ?? params.config ?? {};
+		fs.writeFileSync( path.join( MATERIALS_DIR, `${name}.mat` ), JSON.stringify( config, null, '\t' ) + '\n' );
+		break;
 
-			const name = params.name as string;
+	}
 
-			if ( ! validateName( name ) ) break;
+	case 'removeMaterial': {
 
-			if ( ! fs.existsSync( TEXTURES_DIR ) ) {
+		const name = params.name as string;
 
-				fs.mkdirSync( TEXTURES_DIR, { recursive: true } );
+		if ( ! validateName( name ) ) break;
 
-			}
+		const matPath = path.join( MATERIALS_DIR, `${name}.mat` );
 
-			const config = result?.config ?? params.config ?? {};
-			fs.writeFileSync( path.join( TEXTURES_DIR, `${name}.tex` ), JSON.stringify( config, null, '\t' ) + '\n' );
-			break;
+		if ( fs.existsSync( matPath ) ) {
 
-		}
-
-		case 'updateTexture': {
-
-			const name = params.name as string;
-
-			if ( ! validateName( name ) ) break;
-
-			if ( ! fs.existsSync( TEXTURES_DIR ) ) {
-
-				fs.mkdirSync( TEXTURES_DIR, { recursive: true } );
-
-			}
-
-			const config = result?.config ?? params.config ?? {};
-			fs.writeFileSync( path.join( TEXTURES_DIR, `${name}.tex` ), JSON.stringify( config, null, '\t' ) + '\n' );
-			break;
+			fs.unlinkSync( matPath );
 
 		}
 
-		case 'removeTexture': {
+		break;
 
-			const name = params.name as string;
+	}
 
-			if ( ! validateName( name ) ) break;
+	case 'addTexture': {
 
-			const texPath = path.join( TEXTURES_DIR, `${name}.tex` );
+		const name = params.name as string;
 
-			if ( fs.existsSync( texPath ) ) {
+		if ( ! validateName( name ) ) break;
 
-				fs.unlinkSync( texPath );
+		if ( ! fs.existsSync( TEXTURES_DIR ) ) {
 
-			}
+			fs.mkdirSync( TEXTURES_DIR, { recursive: true } );
 
-			break;
+		}
+
+		const config = result?.config ?? params.config ?? {};
+		fs.writeFileSync( path.join( TEXTURES_DIR, `${name}.tex` ), JSON.stringify( config, null, '\t' ) + '\n' );
+		break;
+
+	}
+
+	case 'updateTexture': {
+
+		const name = params.name as string;
+
+		if ( ! validateName( name ) ) break;
+
+		if ( ! fs.existsSync( TEXTURES_DIR ) ) {
+
+			fs.mkdirSync( TEXTURES_DIR, { recursive: true } );
+
+		}
+
+		const config = result?.config ?? params.config ?? {};
+		fs.writeFileSync( path.join( TEXTURES_DIR, `${name}.tex` ), JSON.stringify( config, null, '\t' ) + '\n' );
+		break;
+
+	}
+
+	case 'removeTexture': {
+
+		const name = params.name as string;
+
+		if ( ! validateName( name ) ) break;
+
+		const texPath = path.join( TEXTURES_DIR, `${name}.tex` );
+
+		if ( fs.existsSync( texPath ) ) {
+
+			fs.unlinkSync( texPath );
+
+		}
+
+		break;
+
+	}
+
+	}
+
+}
+
+async function handleActionInternal(
+	projectName: string,
+	action: string,
+	params: Record<string, unknown>,
+): Promise<any> {
+
+	const bridge = getWSBridge();
+	const browserConnected = bridge && bridge.connected;
+
+	if ( browserConnected ) {
+
+		const result = await bridge!.send( action, params );
+
+		if ( ! result.success ) {
+
+			throw new Error( result.error );
+
+		}
+
+		if ( RESOURCE_MUTATING_ACTIONS.has( action ) ) {
+
+			await persistResourceChange( action, params, result.data );
+
+		}
+
+		return result.data;
+
+	} else {
+
+		const project = projectManager.getProject( projectName );
+
+		if ( RESOURCE_MUTATING_ACTIONS.has( action ) ) {
+
+			await persistResourceChange( action, params, params );
+			project.markDirty();
+			return { success: true };
+
+		} else if ( MUTATING_ACTIONS.has( action ) ) {
+
+			const data = project.dispatch( action, params );
+			project.markDirty();
+			return data;
+
+		} else {
+
+			return project.dispatch( action, params );
+
+		}
+
+	}
+
+}
+
+async function syncFromBrowser( projectName: string ) {
+
+	const bridge = getWSBridge();
+
+	if ( bridge && bridge.connected ) {
+
+		const project = projectManager.getProject( projectName );
+		const snapshot = await bridge.requestSync( projectName );
+
+		if ( snapshot ) {
+
+			project.syncFromBrowser( snapshot );
 
 		}
 
@@ -158,71 +231,15 @@ async function handleAction(
 
 	try {
 
-		const bridge = getWSBridge();
-		const browserConnected = bridge && bridge.connected;
+		const data = await handleActionInternal( projectName, action, params );
 
-		if ( browserConnected ) {
+		if ( MUTATING_ACTIONS.has( action ) ) {
 
-			// ブラウザ接続中: ブラウザに操作を委譲
-			const result = await bridge!.send( action, params );
-
-			if ( ! result.success ) {
-
-				res.status( 400 ).json( { error: result.error } );
-				return;
-
-			}
-
-			// 書き込み操作後はオンメモリ状態を同期
-			if ( MUTATING_ACTIONS.has( action ) ) {
-
-				const project = projectManager.getProject( projectName );
-				const snapshot = await bridge!.requestSync( projectName );
-
-				if ( snapshot ) {
-
-					project.syncFromBrowser( snapshot );
-
-				}
-
-			}
-
-			// リソース変更のファイル永続化
-			if ( RESOURCE_MUTATING_ACTIONS.has( action ) ) {
-
-				await persistResourceChange( action, params, result.data );
-
-			}
-
-			res.json( result.data );
-
-		} else {
-
-			const project = projectManager.getProject( projectName );
-
-			if ( RESOURCE_MUTATING_ACTIONS.has( action ) ) {
-
-				// ブラウザ未接続時のリソース変更: ファイル永続化 + dirtyフラグ
-				await persistResourceChange( action, params, params );
-				project.markDirty();
-				res.json( { success: true } );
-
-			} else if ( MUTATING_ACTIONS.has( action ) ) {
-
-				// ブラウザ未接続時のシーン変更: オンメモリ処理 + dirtyフラグ
-				const data = project.dispatch( action, params );
-				project.markDirty();
-				res.json( data );
-
-			} else {
-
-				// 読み取り操作
-				const data = project.dispatch( action, params );
-				res.json( data );
-
-			}
+			await syncFromBrowser( projectName );
 
 		}
+
+		res.json( data );
 
 	} catch ( err: any ) {
 
@@ -445,5 +462,143 @@ editorRouter.put( '/projects/:projectName/editor/textures/:name', ( req, res ) =
 editorRouter.delete( '/projects/:projectName/editor/textures/:name', ( req, res ) => {
 
 	handleAction( req.params.projectName, 'removeTexture', { name: req.params.name }, res );
+
+} );
+
+// --- バッチ操作 ---
+
+editorRouter.post( '/projects/:projectName/editor/entities', async ( req, res ) => {
+
+	try {
+
+		const projectName = req.params.projectName;
+		const { entities } = req.body as {
+			entities: {
+				name?: string;
+				parentUuid: string;
+				position?: number[];
+				euler?: number[];
+				scale?: number[];
+				components?: {
+					componentName: string;
+					fields?: Record<string, unknown>;
+				}[];
+			}[];
+		};
+
+		if ( ! Array.isArray( entities ) ) {
+
+			res.status( 400 ).json( { error: 'entities must be an array' } );
+			return;
+
+		}
+
+		const results = [];
+
+		for ( const entityDef of entities ) {
+
+			const createResult = await handleActionInternal(
+				projectName, 'createEntity',
+				{ parentUuid: entityDef.parentUuid, name: entityDef.name }
+			);
+			const entityUuid = createResult.uuid;
+
+			if ( entityDef.position ) {
+
+				await handleActionInternal( projectName, 'setField',
+					{ targetUuid: entityUuid, path: 'position', value: entityDef.position } );
+
+			}
+
+			if ( entityDef.euler ) {
+
+				await handleActionInternal( projectName, 'setField',
+					{ targetUuid: entityUuid, path: 'euler', value: entityDef.euler } );
+
+			}
+
+			if ( entityDef.scale ) {
+
+				await handleActionInternal( projectName, 'setField',
+					{ targetUuid: entityUuid, path: 'scale', value: entityDef.scale } );
+
+			}
+
+			const componentResults = [];
+
+			if ( entityDef.components ) {
+
+				for ( const compDef of entityDef.components ) {
+
+					const compResult = await handleActionInternal(
+						projectName, 'addComponent',
+						{ uuid: entityUuid, componentName: compDef.componentName }
+					);
+					const compUuid = compResult.uuid;
+
+					if ( compDef.fields ) {
+
+						for ( const [ fieldPath, fieldValue ] of Object.entries( compDef.fields ) ) {
+
+							await handleActionInternal( projectName, 'setField',
+								{ targetUuid: compUuid, path: fieldPath, value: fieldValue } );
+
+						}
+
+					}
+
+					componentResults.push( { uuid: compUuid, componentName: compDef.componentName } );
+
+				}
+
+			}
+
+			results.push( { uuid: entityUuid, name: entityDef.name, components: componentResults } );
+
+		}
+
+		await syncFromBrowser( projectName );
+
+		res.json( { entities: results } );
+
+	} catch ( err: any ) {
+
+		res.status( 400 ).json( { error: err.message || String( err ) } );
+
+	}
+
+} );
+
+editorRouter.post( '/projects/:projectName/editor/fields', async ( req, res ) => {
+
+	try {
+
+		const projectName = req.params.projectName;
+		const { fields } = req.body as {
+			fields: { targetUuid: string; path: string; value: unknown }[];
+		};
+
+		if ( ! Array.isArray( fields ) ) {
+
+			res.status( 400 ).json( { error: 'fields must be an array' } );
+			return;
+
+		}
+
+		for ( const field of fields ) {
+
+			await handleActionInternal( projectName, 'setField', field );
+
+		}
+
+		await syncFromBrowser( projectName );
+
+		res.json( { success: true, count: fields.length } );
+
+	} catch ( err: any ) {
+
+		res.status( 400 ).json( { error: err.message || String( err ) } );
+
+	}
 
 } );
