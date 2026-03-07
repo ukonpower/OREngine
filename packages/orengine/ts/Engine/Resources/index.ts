@@ -320,7 +320,7 @@ export class Resources extends GLP.EventEmitter {
 
 				const list: { label: string, value: string }[] = [];
 
-				this._textures.forEach( ( _, texName ) => {
+				this._textureResources.forEach( ( _, texName ) => {
 
 					list.push( { label: texName, value: texName } );
 
