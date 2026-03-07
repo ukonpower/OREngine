@@ -1,7 +1,8 @@
-import express from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
+
+import express from 'express';
 
 export const shadersRouter = express.Router();
 
@@ -24,6 +25,62 @@ const FRAG_TEMPLATE = `void main() {
 	outColor0 = vec4( 1.0, 1.0, 1.0, 1.0 );
 }
 `;
+
+const VERT_TEMPLATE_MESH = `#include <common>
+#include <vert_h>
+
+void main( void ) {
+
+	#include <vert_in>
+
+	#include <vert_out>
+
+}
+`;
+
+const FRAG_TEMPLATE_MESH = `#include <common>
+#include <packing>
+#include <frag_h>
+
+void main( void ) {
+
+	#include <frag_in>
+
+	outColor = vec4( 1.0 );
+
+	#include <frag_out>
+
+}
+`;
+
+const FRAG_TEMPLATE_TEXTURE = `#include <common>
+#include <frag_h>
+
+layout ( location = 0 ) out vec4 outColor;
+
+void main( void ) {
+
+	outColor = vec4( vUv, 0.0, 1.0 );
+
+}
+`;
+
+function getTemplates( template?: string ): { vert: string; frag: string } {
+
+	switch ( template ) {
+
+	case 'mesh':
+		return { vert: VERT_TEMPLATE_MESH, frag: FRAG_TEMPLATE_MESH };
+
+	case 'texture':
+		return { vert: VERT_TEMPLATE, frag: FRAG_TEMPLATE_TEXTURE };
+
+	default:
+		return { vert: VERT_TEMPLATE, frag: FRAG_TEMPLATE };
+
+	}
+
+}
 
 // GET: シェーダー一覧
 shadersRouter.get( '/shaders', ( _req, res ) => {
@@ -72,7 +129,7 @@ shadersRouter.post( '/shaders', ( req, res ) => {
 
 	try {
 
-		const { name } = req.body;
+		const { name, template } = req.body;
 
 		if ( ! name || ! validateName( name ) ) {
 
@@ -90,9 +147,11 @@ shadersRouter.post( '/shaders', ( req, res ) => {
 
 		}
 
+		const templates = getTemplates( template );
+
 		fs.mkdirSync( shaderDir, { recursive: true } );
-		fs.writeFileSync( path.join( shaderDir, 'index.vs' ), VERT_TEMPLATE );
-		fs.writeFileSync( path.join( shaderDir, 'index.fs' ), FRAG_TEMPLATE );
+		fs.writeFileSync( path.join( shaderDir, 'index.vs' ), templates.vert );
+		fs.writeFileSync( path.join( shaderDir, 'index.fs' ), templates.frag );
 
 		res.status( 201 ).json( { name, hasVert: true, hasFrag: true } );
 

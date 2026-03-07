@@ -55,6 +55,39 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 仕様の詳細は `docs/` ディレクトリに記載されている。API仕様やアーキテクチャを変更した場合は、対応するドキュメントも必ず更新すること。
 
 - `docs/architecture.md` - 全体アーキテクチャ、WebSocket仕様、データ構造、データフロー
-- `docs/editor-rest-api.md` - エディタ操作REST API
+- `docs/editor-rest-api.md` - エディタ操作REST API（バッチAPI含む）
 - `docs/project-api.md` - プロジェクト管理・シーン・エディタデータAPI
 - `docs/resource-api.md` - コンポーネント・マテリアル・シェーダー管理API
+- `docs/shader-reference.md` - シェーダーuniform/varying/モジュール全リファレンス
+- `docs/component-fields.md` - コンポーネントフィールド一覧（Mesh, Light, Camera等）
+
+## シーン作成（REST API経由）
+
+### エンティティのバッチ作成
+`POST /api/projects/{name}/editor/entities` でエンティティ・コンポーネント・フィールドを一括作成可能。transform（position/euler/scale）とコンポーネント（fields含む）を1リクエストで指定できる。
+
+### Meshコンポーネント
+- `geometry/type`: `"Cube"` | `"Sphere"` | `"Plane"` | `"Cylinder"` (**PascalCase必須**)
+- `material/name`: マテリアル名（文字列）
+- フィールド設定には**コンポーネントUUID**（エンティティUUIDではない）が必要。バッチAPIではこの区別は不要
+
+### Lightコンポーネント
+- `lightType`: `"spot"` (default) | `"directional"`
+- `color`: [r, g, b]、`intensity`: number、`castShadow`: boolean
+- spot専用: `angle`(rad), `blend`, `distance`, `decay`
+
+### マテリアル (.mat) config
+- uniform形式: `"uniforms/uName": value`
+- 型: float→number, vec2→[x,y], vec3→[x,y,z], vec4→[x,y,z,w], sampler2D→テクスチャ名(string)
+- phase: `["shadowMap", "deferred"]` が標準。forward描画は `["forward"]`
+
+### シェーダー作成
+- `POST /api/shaders` に `"template": "mesh"` でメッシュ用テンプレート生成
+- `"template": "texture"` でテクスチャ用テンプレート生成
+- 頂点で使えないuniform: `uCameraPosition`, `uResolution`（frag_h専用）
+- テクスチャ用FSには `in vec2 vUv;` を明示宣言するか `#include <frag_h>` を使用
+- 詳細: `docs/shader-reference.md`
+
+### コンポーネント作成
+- `import * as GLP from 'glpower'` + `import * as MXP from 'maxpower'`
+- `ComponentUpdateEvent`: `timeDelta`（秒）, `timeElapsed`（累積秒）, `playing`, `renderer`, `resolution` 等

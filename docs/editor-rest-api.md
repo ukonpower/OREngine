@@ -561,7 +561,143 @@ curl -X DELETE http://localhost:3001/api/projects/DemoProject/editor/textures/no
 
 ---
 
+## バッチ操作API
+
+### POST /editor/entities
+
+複数エンティティを一括作成する。コンポーネント追加・フィールド設定も同時に行える。
+
+**リクエストボディ:**
+```json
+{
+  "entities": [
+    {
+      "parentUuid": "root-uuid",
+      "name": "MyCube",
+      "position": [1, 2, 3],
+      "euler": [0, 0.5, 0],
+      "scale": [2, 2, 2],
+      "components": [
+        {
+          "componentName": "Mesh",
+          "fields": {
+            "geometry/type": "Cube",
+            "geometry/width": 2,
+            "material/name": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "parentUuid": "root-uuid",
+      "name": "MyLight",
+      "position": [0, 5, 0],
+      "components": [
+        {
+          "componentName": "Light",
+          "fields": {
+            "color": [1, 0.5, 0],
+            "intensity": 2
+          }
+        }
+      ]
+    }
+  ]
+}
+```
+
+| フィールド | 型 | 必須 | 説明 |
+|---|---|---|---|
+| `entities` | array | Yes | エンティティ定義の配列 |
+| `entities[].parentUuid` | string | Yes | 親エンティティのUUID |
+| `entities[].name` | string | No | エンティティ名 |
+| `entities[].position` | number[3] | No | 位置 [x, y, z] |
+| `entities[].euler` | number[3] | No | 回転 [x, y, z]（ラジアン） |
+| `entities[].scale` | number[3] | No | スケール [x, y, z] |
+| `entities[].components` | array | No | コンポーネント定義の配列 |
+| `entities[].components[].componentName` | string | Yes | コンポーネント名 |
+| `entities[].components[].fields` | object | No | フィールドパス→値のマップ |
+
+**レスポンス例:**
+```json
+{
+  "entities": [
+    {
+      "uuid": "new-entity-uuid",
+      "name": "MyCube",
+      "components": [
+        { "uuid": "comp-uuid", "componentName": "Mesh" }
+      ]
+    }
+  ]
+}
+```
+
+**curl:**
+```bash
+curl -X POST http://localhost:3001/api/projects/DemoProject/editor/entities \
+  -H 'Content-Type: application/json' \
+  -d '{"entities":[{"parentUuid":"0","name":"TestCube","position":[0,1,0],"components":[{"componentName":"Mesh","fields":{"geometry/type":"Cube","material/name":"Default"}}]}]}'
+```
+
+---
+
+### POST /editor/fields
+
+複数フィールドを一括設定する。
+
+**リクエストボディ:**
+```json
+{
+  "fields": [
+    { "targetUuid": "entity-or-component-uuid", "path": "position", "value": [1, 2, 3] },
+    { "targetUuid": "component-uuid", "path": "geometry/type", "value": "Sphere" }
+  ]
+}
+```
+
+**レスポンス例:**
+```json
+{
+  "success": true,
+  "count": 2
+}
+```
+
+**curl:**
+```bash
+curl -X POST http://localhost:3001/api/projects/DemoProject/editor/fields \
+  -H 'Content-Type: application/json' \
+  -d '{"fields":[{"targetUuid":"<uuid>","path":"position","value":[1,2,3]},{"targetUuid":"<uuid>","path":"scale","value":[2,2,2]}]}'
+```
+
+---
+
 ## 典型的なワークフロー（AIエージェント向け）
+
+### バッチAPIを使った効率的なシーン構築
+
+```bash
+# 1. シーン構造を把握
+curl http://localhost:3001/api/projects/DemoProject/editor/scene
+
+# 2. リソースを確認
+curl http://localhost:3001/api/projects/DemoProject/editor/resources
+
+# 3. 必要ならシェーダー・マテリアル・テクスチャを作成
+curl -X POST http://localhost:3001/api/shaders -H 'Content-Type: application/json' \
+  -d '{"name":"MyShader","template":"mesh"}'
+
+# 4. エンティティを一括作成（コンポーネント・フィールド含む）
+curl -X POST http://localhost:3001/api/projects/DemoProject/editor/entities \
+  -H 'Content-Type: application/json' \
+  -d '{"entities":[...]}'
+
+# 5. 保存
+curl -X POST http://localhost:3001/api/projects/DemoProject/editor/save
+```
+
+### 単体APIを使った従来のワークフロー
 
 ```bash
 # 1. シーン構造を把握
