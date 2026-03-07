@@ -7,12 +7,12 @@
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,
 	"frameLoop/end": 0,
-	"selectedEntityId": "0000011d",
+	"selectedEntityId": "00000995",
 	"selectedAsset": {
-		"name": "noise",
-		"assetType": "texture"
+		"name": "OREngineCube",
+		"assetType": "material"
 	},
-	"propertyTarget": "entity",
+	"propertyTarget": "asset",
 	"cameraMode": "scene",
 	"gizmoMode": "translate",
 	"helpers/show": true,
@@ -21,9 +21,9 @@
 	"helpers/light": true,
 	"helpers/wireframe": false,
 	"camera/position": [
-		1.4534146342788306,
-		0.885165785484481,
-		6.133505385246925
+		-0.13182550374265145,
+		2.856361881920991,
+		5.894197290253627
 	],
 	"camera/target": [
 		1.2051980715779704,
