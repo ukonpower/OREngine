@@ -1,85 +1,89 @@
-# Research: マテリアルのテクスチャが反映されない問題
+# Research: BLidger glTFメッシュのマテリアル上書きが反映されない問題
 
 ## タスク概要
-マテリアルにテクスチャを設定しても描画に反映されない。
+BLidgerのglTFタイプのメッシュに対して、エディタUIからマテリアルを上書き設定しても反映されなくなった。
 
 ## 根本原因
 
-2段階の問題が重なっている:
+**BLidger glTFの非同期ロードが、ユーザー設定のマテリアルを常に上書きしている。**
 
-### 原因1: `.tex`ファイルのfrag参照が消失
+### 実行順序の問題
 
-- **元の`.tex`形式**: `{ "shader": "Noise" }` （コミット93a0dc9で作成）
-- **現在の`.tex`形式**: `{ "frag": "" }` （コミット915df35で上書き）
+`BLidgeClient.onSyncScene` が呼ばれた時の処理順:
 
-コミット915df35の`updateTexture`サーバーアクションで、TextureResourceのシリアライズ結果が`.tex`ファイルに書き戻された。TextureResourceは`frag`フィールド（旧形式の`shader`とは異なるキー）で管理しており、旧形式の`shader`キーを読めなかったため`_frag = ""`で初期化された。結果、全`.tex`ファイルの`frag`が空になった。
+1. **同期** エンティティツリー構築 → BLidgerコンストラクタ実行
+   - `entity.addComponent(Mesh)` でMeshを追加（`packages/maxpower/Component/BLidger/index.ts:159`）
+   - `this._blidge.gltfPrm.then(...)` でglTF非同期ロード開始（`:161`）
+2. **同期** `applyAttachments(this.blidgeRoot)` 実行（`src/ts/Resources/Components/Utilities/BLidgeClient/index.ts:371`）
+   - 保存済みのMeshプロパティをデシリアライズ
+   - `_materialType` が復元 → `_rebuildMaterial()` → `this.material = ユーザー選択マテリアル` ✅
+3. **非同期（後で実行）** glTF Promiseが解決（BLidger `:161-180`）
+   - `mesh.material = gltfMesh.material` → **ユーザーのマテリアルを上書き** ❌
 
-### 原因2: `updateTextureListForDir`ジェネレータのキー不一致
-
-`plugins/ResourceManager/index.ts:394` で `tex.config.shader` を読んでいるが、新しい`.tex`形式は `"frag"` キーを使用。ジェネレータが`frag`を認識できず、生成される`textureList.ts`で全テクスチャの`frag: undefined`になる。
-
-### 結果のフロー
-
+### 該当コード（BLidger:157-181）
+```ts
+} else if ( this.node.type == 'gltf' ) {
+    const mesh = entity.addComponent( Mesh );
+    this._blidge.gltfPrm.then( gltf => {
+        const gltfEntity = gltf.scene.findEntityByName( this.node.name );
+        if ( gltfEntity ) {
+            const gltfMesh = gltfEntity.getComponent( Mesh );
+            if ( gltfMesh ) {
+                mesh.geometry = gltfMesh.geometry;
+                mesh.material = gltfMesh.material;  // ← ここが常に上書き
+            }
+        }
+        entity.noticeEventParent( "update/blidge/scene", [ entity ] );
+    } );
+}
 ```
-.tex("frag":"") → updateTextureListForDir(reads "shader" key → not found)
-  → textureList.ts(frag: undefined) → addTextureResource(_frag="")
-  → _buildTexture(fragSource=undefined → return null)
-  → _textures Map is EMPTY → applyUniform silently fails
-```
+
+**ポイント**: `gltfPrm` が既にresolveされていても、`.then()` コールバックはマイクロタスクキューに入るため、同期処理（applyAttachments）の**後**に必ず実行される。
 
 ## 関連ファイル・シンボル
 
 | ファイル | 主要シンボル | 役割 |
 |---------|------------|------|
-| `plugins/ResourceManager/index.ts` | `updateTextureListForDir` | `.tex` → `textureList.ts`ジェネレータ。`tex.config.shader`を読む（L394） |
-| `src/ts/Resources/_data/textureList.ts` | `TEXTURELIST` | 自動生成。現在全テクスチャの`frag: undefined` |
-| `src/ts/Resources/Textures/*.tex` | - | テクスチャ設定ファイル。現在`"frag": ""`（本来は`"Noise/frag"`等） |
-| `packages/orengine/ts/Engine/Resources/index.ts` | `Resources._buildTexture`, `applyUniform` callback | テクスチャビルド＆uniform適用。`_textures`マップ管理 |
-| `packages/orengine/ts/Engine/Resources/MaterialResource/index.ts` | `MaterialResource._rebuildUniformFields` | uniform UIフィールド生成・applyUniform呼び出し |
-| `packages/orengine/ts/Engine/Resources/TextureResource/index.ts` | `TextureResource` | テクスチャリソース。`frag`フィールドでシェーダー参照 |
-| `src/ts/Resources/index.ts` | `initResouces`, `initResourceInstances` | 初期化フロー |
-| `server/routes/editor.ts` | `updateTexture` handler | `.tex`ファイル書き出し |
+| `packages/maxpower/Component/BLidger/index.ts` | `BLidger` | Blenderノードからエンティティを構築。glTFメッシュのgeometry/materialを設定 |
+| `src/ts/Resources/Components/Utilities/BLidgeClient/index.ts` | `BLidgeClient`, `applyAttachments`, `serializeAttachments` | シーン同期、ユーザーのコンポーネント設定（attachments）の保存・復元 |
+| `packages/maxpower/Component/Mesh/index.ts` | `Mesh`, `_materialType`, `_rebuildMaterial` | メッシュコンポーネント。`material/name` フィールドでマテリアル選択、`_rebuildMaterial()` で反映 |
+| `packages/maxpower/Component/Renderer/index.ts:817-820` | Renderer (renderPass内) | 描画時に `MaterialOverride` → `mesh.material` の優先順位でマテリアルを決定 |
+| `packages/maxpower/Component/MaterialOverride/index.tsx` | `MaterialOverride` | タグ `"materialOverride"` によるマテリアル上書きコンポーネント（現在どこからも追加されていない） |
 
 ## 依存関係
 
-- `.tex`ファイル → `updateTextureListForDir`（ビルド時） → `textureList.ts` → `initResouces` → `addTextureResource` → `TextureResource`
-- `TextureResource._frag` → `_bindShaderResource` → `ShaderResource` → `fragSource`
-- `Resources._buildTexture` → `fragSource` → `TexProcedural` → `_textures` Map
-- `_textures` Map → `applyUniform` callback → `material.uniforms[name]` → Renderer
+- `BLidgeClient.onSyncScene` → `BLidger` constructor → `Mesh.addComponent`
+- `BLidgeClient.onSyncScene` → `applyAttachments` → `Mesh.deserialize` → `_rebuildMaterial`
+- `BLidger` constructor → `gltfPrm.then` (async) → `mesh.material = ...` (上書き)
+- `Mesh._rebuildMaterial` → `Mesh.getMaterialInstance` → `Engine.resources.getMaterialInstance`
 
-## テクスチャとシェーダーの対応表
+## 既存パターン
 
-| テクスチャ | .texファイル | 対応シェーダー | シェーダー存在 |
-|-----------|-------------|--------------|-------------|
-| hash | `Textures/hash.tex` | `Hash/frag` (`Shaders/Hash/index.fs`) | ✓ |
-| noise | `Textures/noise.tex` | `Noise/frag` (`Shaders/Noise/index.fs`) | ✓ |
-| noiseCyclic | `Textures/noiseCyclic.tex` | `NoiseCyclic/frag` (`Shaders/NoiseCyclic/index.fs`) | ✓ |
-| noiseCyclicAnime | `Textures/noiseCyclicAnime.tex` | 要確認 | ? |
+- **attachments機構**（`ccef9f9`で追加）: BLidgeClient がBLidgeエンティティのユーザー追加コンポーネント・設定をシリアライズ/デシリアライズする仕組み。`onSyncScene` のエンティティツリー構築後に `applyAttachments` を呼ぶ。
+- **Mesh.material/nameフィールド**: Meshの `material/name` フィールドでマテリアル名を選択し、`_rebuildMaterial()` で `Mesh.getMaterialInstance` 経由でインスタンスを取得・設定。
+- **MaterialOverrideコンポーネント**: Renderer描画時に `getComponentsByTag("materialOverride")` でチェック。存在すればそのマテリアルを使用。ただし現在コンポーネントリストに登録されておらず、コード上どこからも `addComponent` されていない。
 
-## 修正が必要な箇所
+## 修正方針の候補
 
-### 1. `updateTextureListForDir`のキー対応修正
-**ファイル**: `plugins/ResourceManager/index.ts:394`
-- `tex.config.frag`も読むように修正
-- 新形式: `"frag": "Noise/frag"` → そのまま使用
-- 旧形式: `"shader": "Noise"` → `"Noise/frag"`に変換（後方互換）
+### 案1: BLidgerでユーザー設定マテリアルを保護（推奨）
+BLidgerのglTFコールバック内で、Meshに既にユーザー設定のマテリアルがある場合は上書きしない。
+- `Mesh` に `_materialType` の公開ゲッター（例: `get materialType()`）を追加
+- BLidger側で `if (!mesh.materialType) mesh.material = gltfMesh.material;` とする
+- `getMaterialInstance` が undefined を返す場合のフォールバックとしてglTFマテリアルも保持
 
-### 2. `.tex`ファイルの修正
-全`.tex`ファイルの`frag`を正しいシェーダー名に設定:
-- `hash.tex`: `"frag": "Hash/frag"`
-- `noise.tex`: `"frag": "Noise/frag"`
-- `noiseCyclic.tex`: `"frag": "NoiseCyclic/frag"`
-- `noiseCyclicAnime.tex`: 要確認（専用シェーダーがあるか）
+### 案2: BLidgeClientで glTFロード後にattachmentsを再適用
+BLidger の glTFコールバックが `update/blidge/scene` イベントを発火するので、BLidgeClient側でこれを受けて `applyAttachments` を再度呼ぶ。
+- 問題点: 毎回全attachmentsを再適用するのは無駄が大きい。イベントの重複発火にも注意が必要。
 
-### 3. noiseCyclicAnimeの確認
-専用のシェーダーディレクトリが存在するか、NoiseCyclicを共用するか確認が必要。
+### 案3: BLidgerにglTF materialのみ別保持
+BLidgerがglTFのmaterialを `gltfMaterial` として保持し、Meshにはgeometryのみ設定。materialの設定はMeshの `_rebuildMaterial` に任せ、フォールバックとしてglTFマテリアルを使う。
+- 大きなリファクタリングが必要
 
 ## 制約・注意点
-
-- `initResourceInstances`の`setGlobalUniforms`で`uNoiseTex`がハードコードされているが、これも`_textures.get("noise")`が`undefined`を返すため壊れている（テクスチャビルド問題を修正すれば自動解消）
-- `.tex`ファイルを修正後、Viteの再ビルドで`textureList.ts`が自動再生成される
-- `_reapplyTextureUniforms`は`buildTextureInstances`後に呼ばれるため、テクスチャが正しくビルドされれば初期化時のuniform適用は動く
+- `_materialType` は `Mesh` のprivateフィールド。外部からアクセスするにはgetterの追加が必要。
+- glTFのgeometryは常にセットすべき（ユーザーがgeometryを上書きするケースは想定しない）。
+- `applyAttachments` は `onSyncScene` の度に呼ばれるため、WebSocket再接続時にも正しく動作する必要がある。
+- `Mesh.getMaterialInstance` が undefined を返す場合（リソース未ロード時）は、glTFのmaterialをフォールバックとして使うべき。
 
 ## 参考になる既存実装
-
-- `updateMaterialListForDir`（同ファイル内L196-275）: `.mat`ファイルから`shader`キーを読み`vert`/`frag`に変換する類似パターン
+- `BLidger` の cube/sphere/cylinder/plane タイプ: geometryのみ設定し、materialはMeshのデフォルトまたはユーザー設定に任せている。glTFだけが geometry + material の両方を上書きしている点が異なる。

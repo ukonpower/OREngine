@@ -23,6 +23,12 @@ export class Mesh extends Component {
 
 	private _materialType: string;
 
+	public get materialType() {
+
+		return this._materialType;
+
+	}
+
 	constructor( params: ComponentParams<{ geometry?: Geometry; material?: Material } | void> ) {
 
 		super( params );
