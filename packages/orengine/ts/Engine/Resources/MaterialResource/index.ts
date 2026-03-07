@@ -58,7 +58,7 @@ export class MaterialResource extends MXP.Serializable {
 	private _getShader: ( name: string ) => ShaderResource | undefined;
 	private _getShaderList: () => ShaderResource[];
 
-	private _uniforms: { [key: string]: { type: string, value: any } };
+	private _uniforms: { [key: string]: any };
 	private _getTextureList: () => { label: string, value: string }[];
 	private _applyUniform: ( material: MXP.Material, uniformName: string, glslType: string, value: any ) => void;
 	private _registeredUniformFields: string[];
@@ -74,7 +74,7 @@ export class MaterialResource extends MXP.Serializable {
 			depthTest?: boolean;
 			depthWrite?: boolean;
 			cullFace?: boolean;
-			uniforms?: { [key: string]: { type: string, value: any } };
+			[key: string]: any;
 		};
 		getShader: ( name: string ) => ShaderResource | undefined;
 		getShaderList: () => ShaderResource[];
@@ -111,7 +111,23 @@ export class MaterialResource extends MXP.Serializable {
 		this._depthTest = data?.depthTest ?? true;
 		this._depthWrite = data?.depthWrite ?? true;
 		this._cullFace = data?.cullFace ?? false;
-		this._uniforms = data?.uniforms ? JSON.parse( JSON.stringify( data.uniforms ) ) : {};
+		const savedUniforms: { [key: string]: any } = {};
+
+		if ( data ) {
+
+			for ( const key of Object.keys( data ) ) {
+
+				if ( key.startsWith( "uniforms/" ) ) {
+
+					savedUniforms[ key.slice( "uniforms/".length ) ] = data[ key ];
+
+				}
+
+			}
+
+		}
+
+		this._uniforms = savedUniforms;
 
 		this._bindShaderResource( "vert", this._vert );
 		this._bindShaderResource( "frag", this._frag );
@@ -212,35 +228,6 @@ export class MaterialResource extends MXP.Serializable {
 
 		} );
 
-		this.field( "uniforms", () => {
-
-			const result: { [key: string]: { type: string, value: any } } = {};
-
-			for ( const key of Object.keys( this._uniforms ) ) {
-
-				const u = this._uniforms[ key ];
-				const defaultVal = uniformDefaultValue( u.type );
-				const isDefault = JSON.stringify( u.value ) === JSON.stringify( defaultVal );
-
-				if ( ! isDefault ) {
-
-					result[ key ] = u;
-
-				}
-
-			}
-
-			return Object.keys( result ).length > 0 ? result : undefined;
-
-		}, ( v ) => {
-
-			this._uniforms = ( v as any ) || {};
-			this._rebuildUniformFields();
-
-		}, {
-			hidden: true,
-		} );
-
 		this._rebuildUniformFields();
 
 	}
@@ -289,22 +276,17 @@ export class MaterialResource extends MXP.Serializable {
 				const { name: uniformName, type: glslType } = uniformInfo;
 				const fieldPath = `uniforms/${uniformName}`;
 
-				if ( ! this._uniforms[ uniformName ] ) {
+				if ( this._uniforms[ uniformName ] === undefined ) {
 
-					this._uniforms[ uniformName ] = {
-						type: glslType,
-						value: uniformDefaultValue( glslType ),
-					};
+					this._uniforms[ uniformName ] = uniformDefaultValue( glslType );
 
 				}
 
-				const uniformData = this._uniforms[ uniformName ];
-
 				if ( glslType === "sampler2D" ) {
 
-					this.field( fieldPath, () => uniformData.value || "", ( v ) => {
+					this.field( fieldPath, () => this._uniforms[ uniformName ] || "", ( v ) => {
 
-						uniformData.value = v;
+						this._uniforms[ uniformName ] = v;
 						this._applyUniform( this.material, uniformName, glslType, v );
 
 					}, {
@@ -319,9 +301,9 @@ export class MaterialResource extends MXP.Serializable {
 
 				} else if ( glslType === "vec2" || glslType === "vec3" || glslType === "vec4" ) {
 
-					this.field( fieldPath, () => uniformData.value, ( v ) => {
+					this.field( fieldPath, () => this._uniforms[ uniformName ], ( v ) => {
 
-						uniformData.value = v;
+						this._uniforms[ uniformName ] = v;
 						this._applyUniform( this.material, uniformName, glslType, v );
 
 					}, {
@@ -330,9 +312,9 @@ export class MaterialResource extends MXP.Serializable {
 
 				} else if ( glslType === "int" ) {
 
-					this.field( fieldPath, () => uniformData.value, ( v ) => {
+					this.field( fieldPath, () => this._uniforms[ uniformName ], ( v ) => {
 
-						uniformData.value = v;
+						this._uniforms[ uniformName ] = v;
 						this._applyUniform( this.material, uniformName, glslType, v );
 
 					}, {
@@ -341,9 +323,9 @@ export class MaterialResource extends MXP.Serializable {
 
 				} else {
 
-					this.field( fieldPath, () => uniformData.value, ( v ) => {
+					this.field( fieldPath, () => this._uniforms[ uniformName ], ( v ) => {
 
-						uniformData.value = v;
+						this._uniforms[ uniformName ] = v;
 						this._applyUniform( this.material, uniformName, glslType, v );
 
 					} );
@@ -352,7 +334,7 @@ export class MaterialResource extends MXP.Serializable {
 
 				this._registeredUniformFields.push( fieldPath );
 
-				this._applyUniform( this.material, uniformName, glslType, uniformData.value );
+				this._applyUniform( this.material, uniformName, glslType, this._uniforms[ uniformName ] );
 
 			}
 
