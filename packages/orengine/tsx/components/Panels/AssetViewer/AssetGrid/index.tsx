@@ -1,7 +1,12 @@
-import { MouseEvent, useCallback } from 'react';
+import { MouseEvent, ReactNode, useCallback } from 'react';
 
 import { Engine } from '../../../../../ts/Engine';
 import { useMouseMenu } from '../../../../hooks/useMouseMenu';
+import { ComponentIcon } from '../../../Icons/ComponentIcon';
+import { FolderIcon } from '../../../Icons/FolderIcon';
+import { MaterialIcon } from '../../../Icons/MaterialIcon';
+import { ShaderIcon } from '../../../Icons/ShaderIcon';
+import { TextureIcon } from '../../../Icons/TextureIcon';
 import { Picker } from '../../../Picker';
 
 import { AssetEntry, AssetFolder, AssetItem } from '..';
@@ -59,7 +64,9 @@ export const AssetGrid = ( { entries, selected, onNavigate, onSelect }: AssetGri
 				onContextMenu={( e ) => onContextMenu( e, entry )}
 			>
 				<div className={style.gridItem_icon}>
-					{entry.type === "folder" ? "📁" : getAssetIcon( entry.assetType )}
+					{entry.type === "folder"
+						? <FolderIcon assetType={entry.assetType} />
+						: getAssetIcon( entry.assetType )}
 				</div>
 				<div className={style.gridItem_name}>
 					{entry.name}
@@ -71,15 +78,15 @@ export const AssetGrid = ( { entries, selected, onNavigate, onSelect }: AssetGri
 
 };
 
-function getAssetIcon( assetType: string ): string {
+function getAssetIcon( assetType: string ): ReactNode {
 
 	switch ( assetType ) {
 
-		case "component": return "⚙";
-		case "material": return "🎨";
-		case "shader": return "📝";
-		case "texture": return "🖼";
-		default: return "📄";
+		case "component": return <ComponentIcon />;
+		case "material": return <MaterialIcon />;
+		case "shader": return <ShaderIcon />;
+		case "texture": return <TextureIcon />;
+		default: return null;
 
 	}
 

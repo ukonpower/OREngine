@@ -6,9 +6,7 @@
 	padding: 2px $padding;
 	font-size: $fontSize2;
 	color: $fontCol3;
-	border-bottom: 1px solid $bgCol2;
-	height: var(--or-list-row-height);
-	flex-shrink: 0;
+	height: 100%;
 }
 
 .segment {

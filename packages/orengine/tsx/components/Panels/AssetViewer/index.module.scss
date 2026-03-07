@@ -12,6 +12,16 @@
 	align-items: center;
 	border-bottom: 1px solid $bgCol2;
 	flex-shrink: 0;
+	height: var(--or-list-row-height);
+}
+
+.toolbar_breadcrumb {
+	flex: 1;
+	min-width: 0;
+}
+
+.toolbar_create {
+	flex-shrink: 0;
 }
 
 .content {

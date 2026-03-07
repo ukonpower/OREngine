@@ -62,7 +62,7 @@ function buildComponentEntries( subPath: string[] ): AssetEntry[] {
 
 		if ( 'child' in item ) {
 
-			entries.push( { type: "folder", name: item.name } );
+			entries.push( { type: "folder", name: item.name, assetType: "component" } );
 
 		} else {
 
@@ -110,7 +110,7 @@ function buildShaderEntries( subPath: string[] ): AssetEntry[] {
 			if ( ! folderSet.has( folderName ) ) {
 
 				folderSet.add( folderName );
-				entries.push( { type: "folder", name: folderName } );
+				entries.push( { type: "folder", name: folderName, assetType: "shader" } );
 
 			}
 

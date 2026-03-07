@@ -95,10 +95,16 @@ export const AssetViewer = () => {
 
 	};
 
+	const createForm = getCreateForm();
+
 	return <div className={style.assetViewer}>
 		<div className={style.toolbar}>
-			<AssetBreadcrumb path={currentPath} onNavigate={onNavigateTo} />
-			{getCreateForm()}
+			<div className={style.toolbar_breadcrumb}>
+				<AssetBreadcrumb path={currentPath} onNavigate={onNavigateTo} />
+			</div>
+			{createForm && <div className={style.toolbar_create}>
+				{createForm}
+			</div>}
 		</div>
 		<div className={style.content}>
 			<AssetGrid
