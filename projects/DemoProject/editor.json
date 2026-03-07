@@ -7,7 +7,12 @@
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,
 	"frameLoop/end": 0,
-	"selectedEntityId": "0000011e",
+	"selectedEntityId": "0000011d",
+	"selectedAsset": {
+		"name": "noise",
+		"assetType": "texture"
+	},
+	"propertyTarget": "entity",
 	"cameraMode": "scene",
 	"gizmoMode": "translate",
 	"helpers/show": true,
@@ -16,9 +21,9 @@
 	"helpers/light": true,
 	"helpers/wireframe": false,
 	"camera/position": [
-		-2.3168198896258136,
-		2.0829863776531274,
-		3.5560611753186357
+		1.4534146342788306,
+		0.885165785484481,
+		6.133505385246925
 	],
 	"camera/target": [
 		1.2051980715779704,

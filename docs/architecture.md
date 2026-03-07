@@ -112,6 +112,7 @@ Express Server
 |---|---|---|
 | `syncRequest` | シーンスナップショットを要求 | `{ type, id, projectName }` |
 | `executeAction` | 操作実行を指示（Fire & Forget） | `{ type, projectName, action, params }` |
+| `statePush` | 再接続時の状態プッシュ | `{ type, sceneData?, resources? }` |
 | (Legacy) | BridgeRequest形式 | `{ id, action, params }` |
 
 #### ブラウザ → サーバー
@@ -153,6 +154,49 @@ WebSocket経由で受信したアクションをブラウザ内で実行する�
 | `removeComponent` | コンポーネント削除 |
 | `setField` | フィールド値変更 |
 | `undo` / `redo` | Undo/Redo |
+| `getResources` | 全リソース一覧取得 |
+| `addMaterial` / `removeMaterial` / `updateMaterial` / `getMaterial` | マテリアル操作 |
+| `addTexture` / `removeTexture` / `updateTexture` / `getTexture` | テクスチャ操作 |
+| `notifyShaderAdded` / `notifyShaderRemoved` | シェーダー変更通知 |
+
+---
+
+## リソース操作のブラウザファースト設計
+
+リソース（マテリアル・テクスチャ）操作もエディタ操作と同じブラウザファーストパターン:
+
+```
+【ブラウザ接続中】
+外部クライアント → REST API → WebSocket → ブラウザで実行（CommandManager経由、Undo/Redo可能）
+                                         ↓
+                              persistResourceChange() → ファイル永続化
+
+【ブラウザ未接続時】
+外部クライアント → REST API → persistResourceChange() → ファイル永続化
+                            → ProjectData.markDirty()
+```
+
+## 再接続同期（statePush）
+
+ブラウザ切断中にAPI経由で変更された状態を再接続時にブラウザへプッシュする:
+
+```
+【ブラウザ切断中】
+外部クライアント → REST API → ファイル更新 + ProjectData._dirty = true
+
+【ブラウザ再接続時】
+WebSocket connection イベント
+  ↓
+サーバー: dirty フラグ確認
+  ↓ dirty == true の場合
+サーバー → ブラウザ: { type: "statePush", sceneData, resources }
+  ↓
+ブラウザ: Engine.deserialize(sceneData) でシーン復元
+        + Resources の差分適用（マテリアル/テクスチャの追加・削除・更新）
+  ↓
+CommandManager.clear() （切断中の変更はundo不可）
+ProjectData._dirty = false
+```
 
 ---
 

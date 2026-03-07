@@ -418,6 +418,149 @@ curl -X POST http://localhost:3001/api/projects/DemoProject/editor/save
 
 ---
 
+## リソース操作API
+
+エディタ経由でリソース（マテリアル・テクスチャ）を操作する。ブラウザ接続中はCommandManager経由でUndo/Redo対応。
+ブラウザ未接続時はファイル操作のみ行い、再接続時にstatePushでブラウザに同期される。
+
+### GET /editor/resources
+
+全リソース（マテリアル・テクスチャ・シェーダー）の一覧を取得する。
+
+**レスポンス例:**
+```json
+{
+  "materials": [
+    { "name": "Default", "config": { "vert": "...", "frag": "..." } }
+  ],
+  "textures": [
+    { "name": "noise", "config": { "shader": "_Noise", "resolution": [1024, 1024] } }
+  ],
+  "shaders": [
+    { "name": "BasicShader" }
+  ]
+}
+```
+
+**curl:**
+```bash
+curl http://localhost:3001/api/projects/DemoProject/editor/resources
+```
+
+---
+
+### POST /editor/materials
+
+マテリアルを追加する（Undo可能）。
+
+**リクエストボディ:**
+```json
+{
+  "name": "MyMaterial",
+  "config": { "frag": "BasicShader/frag" }
+}
+```
+
+**curl:**
+```bash
+curl -X POST http://localhost:3001/api/projects/DemoProject/editor/materials \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"MyMaterial","config":{"frag":"BasicShader/frag"}}'
+```
+
+---
+
+### GET /editor/materials/:name
+
+マテリアルの詳細を取得する。
+
+**curl:**
+```bash
+curl http://localhost:3001/api/projects/DemoProject/editor/materials/Default
+```
+
+---
+
+### PUT /editor/materials/:name
+
+マテリアルのフィールドを更新する（Undo可能）。リクエストボディがconfigとして適用される。
+
+**curl:**
+```bash
+curl -X PUT http://localhost:3001/api/projects/DemoProject/editor/materials/Default \
+  -H 'Content-Type: application/json' \
+  -d '{"frag":"NewShader/frag"}'
+```
+
+---
+
+### DELETE /editor/materials/:name
+
+マテリアルを削除する（Undo可能）。
+
+**curl:**
+```bash
+curl -X DELETE http://localhost:3001/api/projects/DemoProject/editor/materials/Default
+```
+
+---
+
+### POST /editor/textures
+
+テクスチャを追加する（Undo可能）。
+
+**リクエストボディ:**
+```json
+{
+  "name": "myTexture",
+  "config": { "resolution": [1024, 1024] }
+}
+```
+
+**curl:**
+```bash
+curl -X POST http://localhost:3001/api/projects/DemoProject/editor/textures \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"myTexture","config":{"resolution":[1024,1024]}}'
+```
+
+---
+
+### GET /editor/textures/:name
+
+テクスチャの詳細を取得する。
+
+**curl:**
+```bash
+curl http://localhost:3001/api/projects/DemoProject/editor/textures/noise
+```
+
+---
+
+### PUT /editor/textures/:name
+
+テクスチャのフィールドを更新する（Undo可能）。
+
+**curl:**
+```bash
+curl -X PUT http://localhost:3001/api/projects/DemoProject/editor/textures/noise \
+  -H 'Content-Type: application/json' \
+  -d '{"resolution":[512,512]}'
+```
+
+---
+
+### DELETE /editor/textures/:name
+
+テクスチャを削除する（Undo可能）。
+
+**curl:**
+```bash
+curl -X DELETE http://localhost:3001/api/projects/DemoProject/editor/textures/noise
+```
+
+---
+
 ## 典型的なワークフロー（AIエージェント向け）
 
 ```bash

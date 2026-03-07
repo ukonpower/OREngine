@@ -98,7 +98,7 @@
 										"geometry/radiusTop": 1,
 										"geometry/radiusBottom": 1,
 										"geometry/caps": true,
-										"material/name": "OREngineLogo"
+										"material/name": "Default"
 									}
 								}
 							]

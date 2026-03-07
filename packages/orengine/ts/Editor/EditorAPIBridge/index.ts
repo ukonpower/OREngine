@@ -65,6 +65,10 @@ export class EditorAPIBridge {
 				this._handleExecuteAction( msg );
 				break;
 
+			case 'statePush':
+				this._handleStatePush( msg );
+				break;
+
 			default:
 				// 既存の BridgeRequest 処理（後方互換）
 				if ( msg.id && msg.action ) {
@@ -104,6 +108,60 @@ export class EditorAPIBridge {
 			console.error( `executeAction failed: ${msg.action}`, err );
 
 		}
+
+	}
+
+	// サーバーからの再接続時の状態プッシュ
+	private _handleStatePush( msg: {
+		sceneData?: any;
+		resources?: {
+			materials: { name: string; config: any }[];
+			textures: { name: string; config: any }[];
+		};
+	} ) {
+
+		if ( msg.sceneData ) {
+
+			this._engine.deserialize( msg.sceneData );
+			this._engine.emit( "update/graph" );
+
+		}
+
+		if ( msg.resources ) {
+
+			const { materials, textures } = msg.resources;
+
+			const currentMaterials = Engine.resources.materialList.map( m => m.name );
+
+			for ( const name of currentMaterials ) {
+
+				Engine.resources.removeMaterial( name );
+
+			}
+
+			for ( const m of materials ) {
+
+				Engine.resources.addMaterial( m.name, m.config );
+
+			}
+
+			const currentTextures = Engine.resources.textureList.map( t => t.name );
+
+			for ( const name of currentTextures ) {
+
+				Engine.resources.removeTextureResource( name );
+
+			}
+
+			for ( const t of textures ) {
+
+				Engine.resources.addTextureResource( t.name, t.config );
+
+			}
+
+		}
+
+		this._api.commandManager.clear();
 
 	}
 
@@ -269,6 +327,116 @@ export class EditorAPIBridge {
 			case 'redo':
 				this._api.redo();
 				return { success: true, canUndo: this._api.canUndo, canRedo: this._api.canRedo };
+
+			// --- リソース読み取り ---
+
+			case 'getResources': {
+
+				return {
+					materials: Engine.resources.materialList.map( m => ( {
+						name: m.name,
+						config: m.serialize( { mode: "export" } ),
+					} ) ),
+					textures: Engine.resources.textureList.map( t => ( {
+						name: t.name,
+						config: t.serialize( { mode: "export" } ),
+					} ) ),
+					shaders: Engine.resources.shaderList.map( s => ( {
+						name: s.name,
+					} ) ),
+				};
+
+			}
+
+			// --- マテリアル操作 ---
+
+			case 'addMaterial': {
+
+				const { name, config } = params as { name: string; config: any };
+				this._api.addMaterial( name, config || {} );
+				return { name };
+
+			}
+
+			case 'updateMaterial': {
+
+				const { name, config } = params as { name: string; config: any };
+				this._api.updateMaterial( name, config );
+				const resource = Engine.resources.getMaterial( name );
+				return { name, config: resource?.serialize( { mode: "export" } ) };
+
+			}
+
+			case 'removeMaterial': {
+
+				const { name } = params as { name: string };
+				this._api.removeMaterial( name );
+				return { success: true };
+
+			}
+
+			case 'getMaterial': {
+
+				const { name } = params as { name: string };
+				const resource = Engine.resources.getMaterial( name );
+				if ( ! resource ) throw new Error( `Material not found: ${name}` );
+
+				return { name, config: resource.serialize( { mode: "export" } ) };
+
+			}
+
+			// --- テクスチャ操作 ---
+
+			case 'addTexture': {
+
+				const { name, config } = params as { name: string; config: any };
+				this._api.addTexture( name, config || {} );
+				return { name };
+
+			}
+
+			case 'updateTexture': {
+
+				const { name, config } = params as { name: string; config: any };
+				this._api.updateTexture( name, config );
+				const resource = Engine.resources.getTextureResource( name );
+				return { name, config: resource?.serialize( { mode: "export" } ) };
+
+			}
+
+			case 'removeTexture': {
+
+				const { name } = params as { name: string };
+				this._api.removeTexture( name );
+				return { success: true };
+
+			}
+
+			case 'getTexture': {
+
+				const { name } = params as { name: string };
+				const resource = Engine.resources.getTextureResource( name );
+				if ( ! resource ) throw new Error( `Texture not found: ${name}` );
+
+				return { name, config: resource.serialize( { mode: "export" } ) };
+
+			}
+
+			// --- シェーダー通知 ---
+
+			case 'notifyShaderAdded': {
+
+				Engine.resources.emit( "update" );
+				return { success: true };
+
+			}
+
+			case 'notifyShaderRemoved': {
+
+				Engine.resources.emit( "update" );
+				return { success: true };
+
+			}
 
 			default:
 				throw new Error( `Unknown action: ${action}` );

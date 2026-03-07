@@ -10,6 +10,7 @@ export class ProjectData {
 	private _projectDir: string;
 	private _entityStore: EntityStore;
 	private _sceneData: SceneFileData | null = null;
+	private _dirty: boolean = false;
 
 	constructor( name: string, projectDir: string ) {
 
@@ -22,6 +23,84 @@ export class ProjectData {
 	get name(): string {
 
 		return this._name;
+
+	}
+
+	// --- dirty管理 ---
+
+	get dirty(): boolean {
+
+		return this._dirty;
+
+	}
+
+	markDirty(): void {
+
+		this._dirty = true;
+
+	}
+
+	clearDirty(): void {
+
+		this._dirty = false;
+
+	}
+
+	// --- リソース状態取得（ファイルから読み込み） ---
+
+	getResourcesSnapshot(): {
+		materials: { name: string; config: any }[];
+		textures: { name: string; config: any }[];
+	} {
+
+		return {
+			materials: this._readMaterialFiles(),
+			textures: this._readTextureFiles(),
+		};
+
+	}
+
+	private _readMaterialFiles(): { name: string; config: any }[] {
+
+		const materialsDir = path.resolve( this._projectDir, '../../src/ts/Resources/Materials' );
+
+		if ( ! fs.existsSync( materialsDir ) ) return [];
+
+		const items: { name: string; config: any }[] = [];
+
+		const files = fs.readdirSync( materialsDir ).filter( f => f.endsWith( '.mat' ) );
+
+		for ( const file of files ) {
+
+			const name = path.basename( file, '.mat' );
+			const config = JSON.parse( fs.readFileSync( path.join( materialsDir, file ), 'utf-8' ) );
+			items.push( { name, config } );
+
+		}
+
+		return items;
+
+	}
+
+	private _readTextureFiles(): { name: string; config: any }[] {
+
+		const texturesDir = path.resolve( this._projectDir, '../../src/ts/Resources/Textures' );
+
+		if ( ! fs.existsSync( texturesDir ) ) return [];
+
+		const items: { name: string; config: any }[] = [];
+
+		const files = fs.readdirSync( texturesDir ).filter( f => f.endsWith( '.tex' ) );
+
+		for ( const file of files ) {
+
+			const name = path.basename( file, '.tex' );
+			const config = JSON.parse( fs.readFileSync( path.join( texturesDir, file ), 'utf-8' ) );
+			items.push( { name, config } );
+
+		}
+
+		return items;
 
 	}
 

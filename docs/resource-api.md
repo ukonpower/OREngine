@@ -3,6 +3,9 @@
 コンポーネント・マテリアル・シェーダー・テクスチャのファイル管理API。
 これらのAPIはファイルシステム上のリソースを直接操作する。
 
+> **Note:** ブラウザとの同期・Undo/Redo対応が必要な場合は、エディタAPI（`/api/projects/:name/editor/materials`等）を使用してください。
+> 詳細は [editor-rest-api.md](./editor-rest-api.md) のリソース操作APIセクションを参照。
+
 ## ベースURL
 
 ```
