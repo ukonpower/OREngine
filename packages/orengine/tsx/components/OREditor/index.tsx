@@ -14,10 +14,7 @@ import { MouseMenuContext } from '../MouseMenu/Context/MouseMenuContext';
 import { useMouseMenuContext } from '../MouseMenu/Hooks/useMouseMenuContext';
 import { Panel } from '../Panel';
 import { PanelContainer } from '../PanelContainer';
-import { ComponentExplorer } from '../Panels/ComponentExplorer';
-import { MaterialExplorer } from '../Panels/MaterialExplorer';
-import { ShaderExplorer } from '../Panels/ShaderExplorer';
-import { TextureExplorer } from '../Panels/TextureExplorer';
+import { AssetViewer } from '../Panels/AssetViewer';
 import { EntityProperty } from '../Panels/EntityProperty';
 import { Timer } from '../Panels/GPUTimer';
 import { Hierarchy } from '../Panels/Hierarchy';
@@ -102,24 +99,9 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 									</LayoutSplit.Item>
 									<LayoutSplit.Item size="200px">
 										<PanelContainer>
-											<PanelContainer.Tab title='Components'>
-												<Panel>
-													<ComponentExplorer />
-												</Panel>
-											</PanelContainer.Tab>
-											<PanelContainer.Tab title='Materials'>
-												<Panel>
-													<MaterialExplorer />
-												</Panel>
-											</PanelContainer.Tab>
-											<PanelContainer.Tab title='Shaders'>
-												<Panel>
-													<ShaderExplorer />
-												</Panel>
-											</PanelContainer.Tab>
-											<PanelContainer.Tab title='Textures'>
-												<Panel>
-													<TextureExplorer />
+											<PanelContainer.Tab title='Assets'>
+												<Panel noPadding>
+													<AssetViewer />
 												</Panel>
 											</PanelContainer.Tab>
 										</PanelContainer>
@@ -186,24 +168,9 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 									</LayoutSplit.Item>
 								</LayoutSplit>
 							</PanelContainer.Tab>
-							<PanelContainer.Tab title='Components'>
-								<Panel>
-									<ComponentExplorer />
-								</Panel>
-							</PanelContainer.Tab>
-							<PanelContainer.Tab title='Materials'>
-								<Panel>
-									<MaterialExplorer />
-								</Panel>
-							</PanelContainer.Tab>
-							<PanelContainer.Tab title='Shaders'>
-								<Panel>
-									<ShaderExplorer />
-								</Panel>
-							</PanelContainer.Tab>
-							<PanelContainer.Tab title='Textures'>
-								<Panel>
-									<TextureExplorer />
+							<PanelContainer.Tab title='Assets'>
+								<Panel noPadding>
+									<AssetViewer />
 								</Panel>
 							</PanelContainer.Tab>
 							<PanelContainer.Tab title='Project'>

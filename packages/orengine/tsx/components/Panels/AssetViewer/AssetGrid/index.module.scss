@@ -1,0 +1,43 @@
+@use '../../../../styles' as *;
+
+.grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+	gap: 4px;
+	padding: $padding;
+}
+
+.gridItem {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 6px 4px;
+	border-radius: $radius1;
+	cursor: pointer;
+	font-size: $fontSize2;
+	color: $fontCol2;
+	overflow: hidden;
+
+	&:hover {
+		background-color: $bgCol2;
+	}
+
+	&[data-selected="true"] {
+		background-color: $bgCol3;
+	}
+}
+
+.gridItem_icon {
+	font-size: 24px;
+	margin-bottom: 2px;
+	user-select: none;
+}
+
+.gridItem_name {
+	text-align: center;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	width: 100%;
+	font-size: $fontSize1;
+}

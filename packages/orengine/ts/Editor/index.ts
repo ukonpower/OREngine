@@ -15,6 +15,12 @@ import { PointerHandler } from './PointerHandler';
 import { SelectionOutline } from './SelectionOutline';
 import { WireframeRenderer } from './WireframeRenderer';
 
+export type SelectedAssetInfo = {
+	name: string;
+	assetType: "component" | "material" | "shader" | "texture";
+	path?: string;
+} | null;
+
 export type EditorTimelineLoop = {
 	enabled: boolean,
 	start: number,
@@ -25,6 +31,8 @@ export class Editor extends MXP.Serializable {
 
 	private _engine: Engine;
 	private _selectedEntityId: string | null;
+	private _selectedAsset: SelectedAssetInfo;
+	private _propertyTarget: "entity" | "asset";
 	private _audioBuffer: AudioBuffer | null;
 	private _frameLoop: EditorTimelineLoop;
 	private _resolutionScale: number;
@@ -53,6 +61,8 @@ export class Editor extends MXP.Serializable {
 		this._engine = engine;
 		this._viewType = "render";
 		this._selectedEntityId = null;
+		this._selectedAsset = null;
+		this._propertyTarget = "entity";
 		this._resolutionScale = 1.0;
 		this._baseResolution = new GLP.Vector( 1920, 1080 );
 		this._externalWindow = null;
@@ -211,6 +221,32 @@ export class Editor extends MXP.Serializable {
 		this.field( "selectedEntityId", () => this._selectedEntityId, v => {
 
 			this._selectedEntityId = v;
+
+			if ( v ) {
+
+				this._propertyTarget = "entity";
+				this.emit( "update/field/propertyTarget" );
+
+			}
+
+		} );
+
+		this.field( "selectedAsset", () => this._selectedAsset, v => {
+
+			this._selectedAsset = v;
+
+			if ( v ) {
+
+				this._propertyTarget = "asset";
+				this.emit( "update/field/propertyTarget" );
+
+			}
+
+		} );
+
+		this.field( "propertyTarget", () => this._propertyTarget, v => {
+
+			this._propertyTarget = v;
 
 		} );
 
