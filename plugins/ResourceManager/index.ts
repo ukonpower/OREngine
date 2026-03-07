@@ -236,75 +236,35 @@ const updateMaterialListForDir = ( matDir: string, shadersDir: string, outFile: 
 
 	scanDir( matDir );
 
-	let file = "// @ts-nocheck\n";
-
-	const imports: string[] = [];
-	const shaderVarMap: Map<string, { vertVar?: string, fragVar?: string }> = new Map();
-
-	matFiles.forEach( ( mat ) => {
-
-		const shaderName = mat.config.shader;
-
-		if ( shaderName && ! shaderVarMap.has( shaderName ) ) {
-
-			const shaderDir = path.join( shadersDir, shaderName );
-			const vertPath = path.join( shaderDir, 'index.vs' );
-			const fragPath = path.join( shaderDir, 'index.fs' );
-			const hasVert = fs.existsSync( vertPath );
-			const hasFrag = fs.existsSync( fragPath );
-
-			const vars: { vertVar?: string, fragVar?: string } = {};
-
-			if ( hasVert ) {
-
-				vars.vertVar = `${shaderName}Vert`;
-				const relPath = path.relative( path.dirname( outFile ), vertPath ).replace( /\\/g, '/' );
-				imports.push( `import ${vars.vertVar} from '${relPath}';` );
-
-			}
-
-			if ( hasFrag ) {
-
-				vars.fragVar = `${shaderName}Frag`;
-				const relPath = path.relative( path.dirname( outFile ), fragPath ).replace( /\\/g, '/' );
-				imports.push( `import ${vars.fragVar} from '${relPath}';` );
-
-			}
-
-			shaderVarMap.set( shaderName, vars );
-
-		}
-
-	} );
-
-	file += imports.join( "\n" ) + "\n\n";
+	let file = "// @ts-nocheck\n\n";
 	file += `export const ${exportName}: {[key: string]: any} = {\n`;
 
 	matFiles.forEach( ( mat ) => {
 
-		file += `\t${mat.name}: {\n`;
+		const config = { ...mat.config };
 
-		const shaderName = mat.config.shader;
+		if ( config.shader ) {
 
-		if ( shaderName && shaderVarMap.has( shaderName ) ) {
+			const shaderName = config.shader;
+			const shaderDir = path.join( shadersDir, shaderName );
 
-			const vars = shaderVarMap.get( shaderName )!;
+			if ( fs.existsSync( path.join( shaderDir, 'index.vs' ) ) ) {
 
-			if ( vars.vertVar ) file += `\t\tvert: ${vars.vertVar},\n`;
-			if ( vars.fragVar ) file += `\t\tfrag: ${vars.fragVar},\n`;
+				config.vert = `${shaderName}/vert`;
+
+			}
+
+			if ( fs.existsSync( path.join( shaderDir, 'index.fs' ) ) ) {
+
+				config.frag = `${shaderName}/frag`;
+
+			}
+
+			delete config.shader;
 
 		}
 
-		Object.keys( mat.config ).forEach( key => {
-
-			if ( key === "shader" ) return;
-
-			const value = mat.config[ key ];
-			file += `\t\t${key}: ${JSON.stringify( value )},\n`;
-
-		} );
-
-		file += `\t},\n`;
+		file += `\t${mat.name}: ${JSON.stringify( config )},\n`;
 
 	} );
 
@@ -326,7 +286,7 @@ const updateShaderListForDir = ( shadersDir: string, outFile: string, exportName
 
 	}
 
-	const shaderItems: { name: string, hasVert: boolean, hasFrag: boolean }[] = [];
+	const shaderItems: { name: string, varName: string, relPath: string }[] = [];
 
 	const entries = fs.readdirSync( shadersDir, { withFileTypes: true } );
 
@@ -335,23 +295,45 @@ const updateShaderListForDir = ( shadersDir: string, outFile: string, exportName
 		if ( ! entry.isDirectory() || entry.name.startsWith( '_' ) ) return;
 
 		const shaderDir = path.join( shadersDir, entry.name );
-		const hasVert = fs.existsSync( path.join( shaderDir, 'index.vs' ) );
-		const hasFrag = fs.existsSync( path.join( shaderDir, 'index.fs' ) );
+		const vertPath = path.join( shaderDir, 'index.vs' );
+		const fragPath = path.join( shaderDir, 'index.fs' );
 
-		if ( hasVert || hasFrag ) {
+		if ( fs.existsSync( vertPath ) ) {
 
-			shaderItems.push( { name: entry.name, hasVert, hasFrag } );
+			shaderItems.push( {
+				name: `${entry.name}/vert`,
+				varName: `${entry.name}Vert`,
+				relPath: path.relative( path.dirname( outFile ), vertPath ).replace( /\\/g, '/' ),
+			} );
+
+		}
+
+		if ( fs.existsSync( fragPath ) ) {
+
+			shaderItems.push( {
+				name: `${entry.name}/frag`,
+				varName: `${entry.name}Frag`,
+				relPath: path.relative( path.dirname( outFile ), fragPath ).replace( /\\/g, '/' ),
+			} );
 
 		}
 
 	} );
 
-	let file = "// @ts-nocheck\n\n";
-	file += `export const ${exportName}: {name: string, hasVert: boolean, hasFrag: boolean}[] = [\n`;
+	let file = "// @ts-nocheck\n";
 
 	shaderItems.forEach( item => {
 
-		file += `\t{ name: ${JSON.stringify( item.name )}, hasVert: ${item.hasVert}, hasFrag: ${item.hasFrag} },\n`;
+		file += `import ${item.varName} from '${item.relPath}';\n`;
+
+	} );
+
+	file += "\n";
+	file += `export const ${exportName}: {name: string, source: string}[] = [\n`;
+
+	shaderItems.forEach( item => {
+
+		file += `\t{ name: ${JSON.stringify( item.name )}, source: ${item.varName} },\n`;
 
 	} );
 

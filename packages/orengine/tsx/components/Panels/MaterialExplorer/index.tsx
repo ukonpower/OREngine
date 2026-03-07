@@ -1,5 +1,5 @@
 
-import { ResourceMaterialItem } from 'packages/orengine/ts/Engine/Resources';
+import { MaterialResource } from 'packages/orengine/ts/Engine/Resources/MaterialResource';
 import { MouseEvent, useCallback, useEffect, useState } from 'react';
 
 import { Engine } from '../../../../ts/Engine';
@@ -12,7 +12,7 @@ import style from './index.module.scss';
 
 export const MaterialExplorer = () => {
 
-	const [ selected, setSelected ] = useState<ResourceMaterialItem | null>( null );
+	const [ selected, setSelected ] = useState<MaterialResource | null>( null );
 	const [ , setUpdateCount ] = useState( 0 );
 	const { pushContent, closeAll } = useMouseMenu();
 
@@ -32,7 +32,7 @@ export const MaterialExplorer = () => {
 
 	const materials = Engine.resources.materialList;
 
-	const onContextMenu = useCallback( ( e: MouseEvent, item: ResourceMaterialItem ) => {
+	const onContextMenu = useCallback( ( e: MouseEvent, item: MaterialResource ) => {
 
 		e.preventDefault();
 
@@ -84,23 +84,22 @@ export const MaterialExplorer = () => {
 
 	return <div className={style.explorer}>
 		<MaterialCreateForm />
-		{materials.map( ( m, i ) => (
+		{materials.map( ( m ) => (
 
 			<div
-				key={i}
+				key={m.uuid}
 				className={style.item}
 				data-selected={selected === m}
 				onClick={() => setSelected( m )}
 				onContextMenu={( e ) => onContextMenu( e, m )}
 			>
 				<div className={style.item_name}>{m.name}</div>
-				{m.vert && <span className={style.item_shader}>shader</span>}
 				<button className={style.item_menu} onClick={( e ) => onContextMenu( e, m )}>⋯</button>
 			</div>
 
 		) )}
 		{selected && <div className={style.detail}>
-			<MaterialDetail name={selected.name} />
+			<MaterialDetail resource={selected} />
 		</div>}
 	</div>;
 

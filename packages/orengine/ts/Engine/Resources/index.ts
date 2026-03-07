@@ -4,6 +4,12 @@ import * as MXP from 'maxpower';
 
 import { TexProcedural } from '../TexProcedural';
 
+import { MaterialResource } from './MaterialResource';
+import { ShaderResource } from './ShaderResource';
+
+export { ShaderResource } from './ShaderResource';
+export { MaterialResource } from './MaterialResource';
+
 export type ResouceComponentItem = {
 	name: string,
 	component: typeof MXP.Component;
@@ -29,12 +35,6 @@ export type GeometryGroup = {
 	createGroup: ( name: string ) => GeometryGroup;
 };
 
-export type ResourceShaderItem = {
-	name: string;
-	hasVert: boolean;
-	hasFrag: boolean;
-};
-
 export type ResourceTextureData = {
 	frag?: string;
 	resolution?: number[];
@@ -46,23 +46,6 @@ export type ResourceTextureItem = {
 	name: string;
 } & ResourceTextureData;
 
-export type ResourceMaterialData = {
-	vert?: string;
-	frag?: string;
-	phase?: string[];
-	useLight?: boolean;
-	depthTest?: boolean;
-	depthWrite?: boolean;
-	cullFace?: boolean;
-	blending?: string;
-	drawType?: string;
-	uniforms?: { [key: string]: string };
-};
-
-export type ResourceMaterialItem = {
-	name: string;
-} & ResourceMaterialData;
-
 export class Resources extends GLP.EventEmitter {
 
 	private _componentList: ( ResouceComponentItem )[];
@@ -71,11 +54,11 @@ export class Resources extends GLP.EventEmitter {
 	private _geometryList: ResourceGeometryItem[];
 	private _geometryGroups: GeometryGroup[];
 
-	private _materialList: ResourceMaterialItem[];
+	private _materialResources: Map<string, MaterialResource>;
 	private _materialInstances: Map<string, MXP.Material>;
 	private _globalUniforms: GLP.Uniforms[] | null;
 
-	private _shaderList: ResourceShaderItem[];
+	private _shaders: Map<string, ShaderResource>;
 
 	private _textureList: ResourceTextureItem[];
 	private _textures: Map<string, GLP.GLPowerTexture>;
@@ -89,10 +72,10 @@ export class Resources extends GLP.EventEmitter {
 		this._componentGroups = [];
 		this._geometryList = [];
 		this._geometryGroups = [];
-		this._materialList = [];
+		this._materialResources = new Map();
 		this._materialInstances = new Map();
 		this._globalUniforms = null;
-		this._shaderList = [];
+		this._shaders = new Map();
 		this._textureList = [];
 		this._updateEveryFrameTextures = [];
 
@@ -122,9 +105,9 @@ export class Resources extends GLP.EventEmitter {
 
 	}
 
-	public get materialList() {
+	public get materialList(): MaterialResource[] {
 
-		return this._materialList;
+		return Array.from( this._materialResources.values() );
 
 	}
 
@@ -134,9 +117,9 @@ export class Resources extends GLP.EventEmitter {
 
 	}
 
-	public get shaderList() {
+	public get shaderList(): ShaderResource[] {
 
-		return this._shaderList;
+		return Array.from( this._shaders.values() );
 
 	}
 
@@ -164,9 +147,9 @@ export class Resources extends GLP.EventEmitter {
 		this._componentGroups = [];
 		this._geometryList = [];
 		this._geometryGroups = [];
-		this._materialList = [];
+		this._materialResources.clear();
 		this._materialInstances.clear();
-		this._shaderList = [];
+		this._shaders.clear();
 		this._textureList = [];
 		this._textures.clear();
 		this._updateEveryFrameTextures = [];
@@ -283,20 +266,40 @@ export class Resources extends GLP.EventEmitter {
 		Material
 	-------------------------------*/
 
-	public getMaterial( name: string ) {
+	public getMaterial( name: string ): MaterialResource | undefined {
 
-		return this._materialList.find( m => m.name === name );
+		return this._materialResources.get( name );
 
 	}
 
-	public addMaterial( name: string, data: ResourceMaterialData ) {
+	public addMaterial( name: string, data: {
+		vert?: string; frag?: string;
+		phase?: string[]; drawType?: string;
+		blending?: string; useLight?: boolean;
+		depthTest?: boolean; depthWrite?: boolean;
+		cullFace?: boolean; uniforms?: { [key: string]: string };
+	} ) {
 
-		const item: ResourceMaterialItem = { name, ...data };
-		this._materialList.push( item );
+		let vertSource: string | undefined;
+		let fragSource: string | undefined;
+
+		if ( data.vert ) {
+
+			const sr = this._shaders.get( data.vert );
+			if ( sr ) vertSource = sr.source;
+
+		}
+
+		if ( data.frag ) {
+
+			const sr = this._shaders.get( data.frag );
+			if ( sr ) fragSource = sr.source;
+
+		}
 
 		const material = new MXP.Material( {
-			vert: data.vert,
-			frag: data.frag,
+			vert: vertSource,
+			frag: fragSource,
 			phase: data.phase as MXP.MaterialRenderType[],
 			useLight: data.useLight,
 			depthTest: data.depthTest,
@@ -317,6 +320,15 @@ export class Resources extends GLP.EventEmitter {
 		this._applyTextureUniforms( material, data.uniforms );
 
 		this._materialInstances.set( name, material );
+
+		const resource = new MaterialResource( name, material, {
+			data,
+			getShader: ( n ) => this._shaders.get( n ),
+			getShaderList: () => this.shaderList,
+		} );
+
+		this._materialResources.set( name, resource );
+
 		this.emit( "update" );
 
 	}
@@ -327,54 +339,25 @@ export class Resources extends GLP.EventEmitter {
 
 	}
 
-	public updateMaterialInstance( name: string, data: ResourceMaterialData ) {
-
-		const idx = this._materialList.findIndex( m => m.name === name );
-
-		if ( idx >= 0 ) {
-
-			this._materialList[ idx ] = { ...this._materialList[ idx ], ...data };
-
-		}
-
-		const material = this._materialInstances.get( name );
-
-		if ( ! material ) return;
-
-		if ( data.vert !== undefined ) material.vert = data.vert;
-		if ( data.frag !== undefined ) material.frag = data.frag;
-		if ( data.phase !== undefined ) material.setVisibility( data.phase as MXP.MaterialRenderType[] );
-		if ( data.useLight !== undefined ) material.useLight = data.useLight;
-		if ( data.depthTest !== undefined ) material.depthTest = data.depthTest;
-		if ( data.depthWrite !== undefined ) material.depthWrite = data.depthWrite;
-		if ( data.cullFace !== undefined ) material.cullFace = data.cullFace;
-		if ( data.blending !== undefined ) material.blending = data.blending as MXP.Blending;
-		if ( data.drawType !== undefined ) material.drawType = data.drawType as MXP.DrawType;
-		if ( data.uniforms !== undefined ) this._applyTextureUniforms( material, data.uniforms );
-
-		material.requestUpdate();
-		this.emit( "update/material" );
-
-	}
-
 	public removeMaterial( name: string ) {
 
-		this._materialList = this._materialList.filter( m => m.name !== name );
-
+		this._materialResources.delete( name );
 		this._materialInstances.delete( name );
-
 		this.emit( "update" );
 
 	}
 
-	public exportMaterialConfigs(): { name: string, config: ResourceMaterialData }[] {
+	public exportMaterialConfigs(): { name: string, config: any }[] {
 
-		return this._materialList.map( m => {
+		const result: { name: string, config: any }[] = [];
 
-			const { name, ...config } = m;
-			return { name, config };
+		this._materialResources.forEach( ( mr, name ) => {
+
+			result.push( { name, config: mr.serialize( { mode: "export" } ) } );
 
 		} );
+
+		return result;
 
 	}
 
@@ -430,16 +413,16 @@ export class Resources extends GLP.EventEmitter {
 		Shader
 	-------------------------------*/
 
-	public getShader( name: string ) {
+	public getShader( name: string ): ShaderResource | undefined {
 
-		return this._shaderList.find( s => s.name === name );
+		return this._shaders.get( name );
 
 	}
 
-	public addShader( name: string, hasVert: boolean, hasFrag: boolean ) {
+	public addShader( name: string, source: string ) {
 
-		const item: ResourceShaderItem = { name, hasVert, hasFrag };
-		this._shaderList.push( item );
+		const shader = new ShaderResource( name, source );
+		this._shaders.set( name, shader );
 		this.emit( "update" );
 
 	}

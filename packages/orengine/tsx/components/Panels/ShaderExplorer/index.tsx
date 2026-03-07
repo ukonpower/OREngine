@@ -1,5 +1,5 @@
 
-import { ResourceShaderItem } from 'packages/orengine/ts/Engine/Resources';
+import { ShaderResource } from 'packages/orengine/ts/Engine/Resources';
 import { MouseEvent, useCallback, useEffect, useState } from 'react';
 
 import { Engine } from '../../../../ts/Engine';
@@ -30,7 +30,7 @@ export const ShaderExplorer = () => {
 
 	const shaders = Engine.resources.shaderList;
 
-	const onContextMenu = useCallback( ( e: MouseEvent, item: ResourceShaderItem ) => {
+	const onContextMenu = useCallback( ( e: MouseEvent, item: ShaderResource ) => {
 
 		e.preventDefault();
 
@@ -88,8 +88,8 @@ export const ShaderExplorer = () => {
 			>
 				<div className={style.item_name}>{s.name}</div>
 				<span className={style.item_tags}>
-					{s.hasVert && <span>VS</span>}
-					{s.hasFrag && <span>FS</span>}
+					{s.name.endsWith( "/vert" ) && <span>VS</span>}
+					{s.name.endsWith( "/frag" ) && <span>FS</span>}
 				</span>
 				<button className={style.item_menu} onClick={( e ) => onContextMenu( e, s )}>⋯</button>
 			</div>
