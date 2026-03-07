@@ -1,3 +1,4 @@
+uniform sampler2D uBackBuffer0;
 uniform sampler2D uMaskTexture;
 uniform vec3 uOutlineColor;
 uniform vec2 uPPResolution;

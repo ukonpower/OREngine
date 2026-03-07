@@ -1,0 +1,31 @@
+@use '../../../../styles' as *;
+
+.breadcrumb {
+	display: flex;
+	align-items: center;
+	padding: 2px $padding;
+	font-size: $fontSize2;
+	color: $fontCol3;
+	border-bottom: 1px solid $bgCol2;
+	height: var(--or-list-row-height);
+	flex-shrink: 0;
+}
+
+.segment {
+	cursor: pointer;
+	padding: 0 2px;
+	color: $fontCol2;
+
+	&:hover {
+		color: $fontCol1;
+	}
+
+	&[data-active="true"] {
+		color: $fontCol1;
+	}
+}
+
+.separator {
+	margin: 0 2px;
+	color: $fontCol3;
+}
