@@ -25,7 +25,13 @@ interface SerializeFieldFormatComponent {
 	type: "component",
 }
 
-export type SerializableFieldFormat = SerializeFieldFormatVector | SerializeFieldFormatSelect | SerializeFieldFormatArray | SerializeFieldFormatEntity | SerializeFieldFormatComponent
+interface SerializeFieldFormatResource {
+	type: "resource",
+	resourceType: "material" | "texture" | "shader",
+	list: SelectList | ( () => SelectList )
+}
+
+export type SerializableFieldFormat = SerializeFieldFormatVector | SerializeFieldFormatSelect | SerializeFieldFormatArray | SerializeFieldFormatEntity | SerializeFieldFormatComponent | SerializeFieldFormatResource
 
 export type SerializableFieldOpt = {
         isFolder?: boolean,

@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { Engine } from '../../../../ts/Engine';
+import { NavigateAssetRequest } from '../../../../ts/Editor';
 import { useOREditor } from '../../../hooks/useOREditor';
+import { useSerializableField } from '../../../hooks/useSerializableProps';
 import { ComponentCreateForm } from '../ComponentExplorer/ComponentCreateForm';
 import { MaterialCreateForm } from '../MaterialExplorer/MaterialCreateForm';
 import { ShaderCreateForm } from '../ShaderExplorer/ShaderCreateForm';
@@ -36,6 +38,7 @@ export const AssetViewer = () => {
 	const [ currentPath, setCurrentPath ] = useState<string[]>( [] );
 	const [ selected, setSelected ] = useState<AssetItem | null>( null );
 	const [ , setUpdateCount ] = useState( 0 );
+	const [ navigateAsset ] = useSerializableField<NavigateAssetRequest>( editor, "navigateAsset" );
 
 	useEffect( () => {
 
@@ -44,6 +47,29 @@ export const AssetViewer = () => {
 		return () => { Engine.resources.off( "update", onUpdate ); };
 
 	}, [] );
+
+	useEffect( () => {
+
+		if ( ! navigateAsset ) return;
+
+		const folderMap: Record<string, string> = {
+			material: "Materials",
+			texture: "Textures",
+			shader: "Shaders",
+			component: "Components",
+		};
+
+		const folder = folderMap[ navigateAsset.assetType ];
+
+		if ( folder ) {
+
+			setCurrentPath( [ folder ] );
+
+		}
+
+		editor.setField( "navigateAsset", null );
+
+	}, [ navigateAsset, editor ] );
 
 	const entries = buildEntries( currentPath );
 

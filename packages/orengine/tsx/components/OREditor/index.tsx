@@ -14,6 +14,7 @@ import { MouseMenuContext } from '../MouseMenu/Context/MouseMenuContext';
 import { useMouseMenuContext } from '../MouseMenu/Hooks/useMouseMenuContext';
 import { Panel } from '../Panel';
 import { PanelContainer } from '../PanelContainer';
+import { AssetProperty } from '../Panels/AssetProperty';
 import { AssetViewer } from '../Panels/AssetViewer';
 import { EntityProperty } from '../Panels/EntityProperty';
 import { Timer } from '../Panels/GPUTimer';
@@ -109,23 +110,36 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 								</LayoutSplit>
 							</LayoutSplit.Item>
 							<LayoutSplit.Item size="300px">
-								<PanelContainer>
-									<PanelContainer.Tab title='Property'>
-										<Panel>
-											<EntityProperty />
-										</Panel>
-									</PanelContainer.Tab>
-									<PanelContainer.Tab title='Project'>
-										<Panel>
-											<ProjectControl />
-										</Panel>
-									</PanelContainer.Tab>
-									<PanelContainer.Tab title='Renderer'>
-										<Panel>
-											<RendererSettings />
-										</Panel>
-									</PanelContainer.Tab>
-								</PanelContainer>
+								<LayoutSplit direction="vertical">
+									<LayoutSplit.Item flex={1}>
+										<PanelContainer>
+											<PanelContainer.Tab title='Property'>
+												<Panel>
+													<EntityProperty />
+												</Panel>
+											</PanelContainer.Tab>
+											<PanelContainer.Tab title='Project'>
+												<Panel>
+													<ProjectControl />
+												</Panel>
+											</PanelContainer.Tab>
+											<PanelContainer.Tab title='Renderer'>
+												<Panel>
+													<RendererSettings />
+												</Panel>
+											</PanelContainer.Tab>
+										</PanelContainer>
+									</LayoutSplit.Item>
+									<LayoutSplit.Item size="35%">
+										<PanelContainer>
+											<PanelContainer.Tab title='Asset'>
+												<Panel>
+													<AssetProperty />
+												</Panel>
+											</PanelContainer.Tab>
+										</PanelContainer>
+									</LayoutSplit.Item>
+								</LayoutSplit>
 							</LayoutSplit.Item>
 						</LayoutSplit>
 					</LayoutSplit.Item>

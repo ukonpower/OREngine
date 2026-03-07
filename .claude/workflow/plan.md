@@ -1,393 +1,304 @@
-# Plan: Claude Codeによるシーン作成のAPI改善
+# Plan: リソース選択UIの編集ボタン追加 & 右パネル上下分割
 
 ## 概要
-Claude CodeがREST API経由でOREngineのシーンをスムーズに作成できるよう、以下を実施する:
-1. **バッチAPI**の追加（エンティティ一括作成・フィールド一括設定）
-2. **シェーダーテンプレート**の用途別改善
-3. **ドキュメント整備**（シェーダーリファレンス・コンポーネントフィールド一覧）
-4. **CLAUDE.md**への知識追記
+1. Meshのmaterial/name等のリソース選択UIに「編集ボタン」を追加し、押すとアセットパネルでそのリソースが選択・編集可能になる
+2. 右パネルを上下に分割し、上=EntityProperty（エンティティ）、下=AssetProperty（アセット編集）の独立表示にする
 
 ## 実装ステップ
 
-### 1. バッチエンティティ作成API `POST /editor/entities`
-- **対象ファイル**: `server/routes/editor.ts`
-- **変更内容**: 複数エンティティを1リクエストで作成し、コンポーネント追加・フィールド設定まで一括実行するエンドポイントを追加
+### 1. 右パネルの上下分割（OREditor レイアウト変更）
+
+- **対象ファイル**: `packages/orengine/tsx/components/OREditor/index.tsx`
+- **変更内容**: 右パネル（300px）の `PanelContainer` 内を `LayoutSplit` で上下分割。上にEntityProperty、下にAssetPropertyを配置
 - **コードスニペット**:
-  ```typescript
-  // --- バッチエンティティ作成 ---
-  editorRouter.post( '/projects/:projectName/editor/entities', async ( req, res ) => {
-
-      try {
-
-          const projectName = req.params.projectName;
-          const { entities } = req.body as {
-              entities: {
-                  name?: string;
-                  parentUuid: string;
-                  position?: number[];
-                  euler?: number[];
-                  scale?: number[];
-                  components?: {
-                      componentName: string;
-                      fields?: Record<string, unknown>;
-                  }[];
-              }[];
-          };
-
-          if ( !Array.isArray( entities ) ) {
-              res.status( 400 ).json( { error: 'entities must be an array' } );
-              return;
-          }
-
-          const results = [];
-
-          for ( const entityDef of entities ) {
-
-              // 1. エンティティ作成
-              const createResult = await handleActionInternal(
-                  projectName, 'createEntity',
-                  { parentUuid: entityDef.parentUuid, name: entityDef.name }
-              );
-              const entityUuid = createResult.uuid;
-
-              // 2. transform設定
-              if ( entityDef.position ) {
-                  await handleActionInternal( projectName, 'setField',
-                      { targetUuid: entityUuid, path: 'position', value: entityDef.position } );
-              }
-              if ( entityDef.euler ) {
-                  await handleActionInternal( projectName, 'setField',
-                      { targetUuid: entityUuid, path: 'euler', value: entityDef.euler } );
-              }
-              if ( entityDef.scale ) {
-                  await handleActionInternal( projectName, 'setField',
-                      { targetUuid: entityUuid, path: 'scale', value: entityDef.scale } );
-              }
-
-              // 3. コンポーネント追加 + フィールド設定
-              const componentResults = [];
-              if ( entityDef.components ) {
-                  for ( const compDef of entityDef.components ) {
-                      const compResult = await handleActionInternal(
-                          projectName, 'addComponent',
-                          { uuid: entityUuid, componentName: compDef.componentName }
-                      );
-                      const compUuid = compResult.uuid;
-
-                      if ( compDef.fields ) {
-                          for ( const [ fieldPath, fieldValue ] of Object.entries( compDef.fields ) ) {
-                              await handleActionInternal( projectName, 'setField',
-                                  { targetUuid: compUuid, path: fieldPath, value: fieldValue } );
-                          }
-                      }
-
-                      componentResults.push( { uuid: compUuid, componentName: compDef.componentName } );
-                  }
-              }
-
-              results.push( { uuid: entityUuid, name: entityDef.name, components: componentResults } );
-
-          }
-
-          res.json( { entities: results } );
-
-      } catch ( err: any ) {
-          res.status( 400 ).json( { error: err.message || String( err ) } );
-      }
-
-  } );
+  ```tsx
+  // 変更前（L111-129）: 右パネルは PanelContainer 内にタブで Entity/Project/Renderer
+  // 変更後: 上下分割
+  <LayoutSplit.Item size="300px">
+    <LayoutSplit direction="vertical">
+      <LayoutSplit.Item flex={1}>
+        <PanelContainer>
+          <PanelContainer.Tab title='Property'>
+            <Panel>
+              <EntityProperty />
+            </Panel>
+          </PanelContainer.Tab>
+          <PanelContainer.Tab title='Project'>
+            <Panel>
+              <ProjectControl />
+            </Panel>
+          </PanelContainer.Tab>
+          <PanelContainer.Tab title='Renderer'>
+            <Panel>
+              <RendererSettings />
+            </Panel>
+          </PanelContainer.Tab>
+        </PanelContainer>
+      </LayoutSplit.Item>
+      <LayoutSplit.Item size="35%">
+        <PanelContainer>
+          <PanelContainer.Tab title='Asset'>
+            <Panel>
+              <AssetProperty />
+            </Panel>
+          </PanelContainer.Tab>
+        </PanelContainer>
+      </LayoutSplit.Item>
+    </LayoutSplit>
+  </LayoutSplit.Item>
   ```
-- **注意点**:
-  - `handleAction` を内部呼び出し用に `handleActionInternal` としてリファクタリングする必要がある（レスポンスオブジェクトなしでPromise<data>を返す版）
-  - ブラウザ接続中は各操作がWebSocket経由で逐次実行されるため、エンティティ数が多い場合はタイムアウトに注意
-  - sync（requestSync）はバッチ全体の最後に1回だけ行うよう最適化すべき
+- **注意点**: 下部のサイズは `35%` 程度が妥当か要検討。ユーザーの好みに合わせて調整
 
-### 2. handleActionInternal の抽出
-- **対象ファイル**: `server/routes/editor.ts`
-- **変更内容**: 既存の`handleAction`からレスポンス処理を分離し、Promise<data>を返す内部関数を作成。既存の`handleAction`はこれを呼ぶラッパーにする
+### 2. AssetProperty コンポーネントの分離
+
+- **対象ファイル**: `packages/orengine/tsx/components/Panels/EntityProperty/index.tsx`
+- **変更内容**:
+  - `AssetPropertyView` を独立した `AssetProperty` コンポーネントとして分離
+  - `EntityProperty` からはアセット表示ロジックを削除し、エンティティ専用にする
+  - 新しい `AssetProperty` は `selectedAsset` を監視してアセット編集UIを表示
+- **新規ファイル**: `packages/orengine/tsx/components/Panels/AssetProperty/index.tsx`
+- **コードスニペット**:
+  ```tsx
+  // AssetProperty/index.tsx
+  export const AssetProperty = () => {
+    const { editor: gui } = useOREditor();
+    const [ selectedAsset ] = useSerializableField<SelectedAssetInfo>( gui, "selectedAsset" );
+
+    if ( !selectedAsset ) return null;
+
+    const onClose = useCallback( () => {
+      gui.setField( "selectedAsset", null );
+    }, [ gui ] );
+
+    return <div className={style.container}>
+      <div className={style.header}>
+        <span className={style.header_title}>{selectedAsset.assetType}: {selectedAsset.name}</span>
+        <button className={style.header_close} onClick={onClose}><CrossIcon /></button>
+      </div>
+      <AssetPropertyView asset={selectedAsset} />
+    </div>;
+  };
+  ```
+- **動作**: `selectedAsset` が null なら何も表示しない。閉じるボタンで `selectedAsset` を null に戻す
+- **EntityProperty の変更**: `propertyTarget` の分岐を削除し、常にエンティティのみ表示
+  ```tsx
+  export const EntityProperty = () => {
+    const { editor: gui, engine } = useOREditor();
+    const [ selectedEntityId ] = useSerializableField<string>( gui, "selectedEntityId" );
+    // propertyTarget の監視は不要に
+
+    const selectedEntity = useMemo( () => {
+      if ( !selectedEntityId ) return undefined;
+      return engine.findEntityByUUID( selectedEntityId );
+    }, [ engine, selectedEntityId ] );
+
+    if ( !selectedEntity ) return null;
+
+    return <div className={style.container}>
+      <Block label="Fields" accordion>
+        <SerializeFieldView target={selectedEntity} />
+      </Block>
+      <Block label="Components" accordion>
+        <ComponentList entity={selectedEntity}/>
+        <ComponentAdd entity={selectedEntity} />
+      </Block>
+    </div>;
+  };
+  ```
+- **注意点**: `propertyTarget` フィールドは後方互換のため残すが、UIの排他制御には使わなくなる
+
+### 3. フォーマット型の拡張 - `resource` タイプ追加
+
+- **対象ファイル**: `packages/maxpower/Serializable/index.ts`
+- **変更内容**: `SerializableFieldFormat` に新しいリソース参照型を追加
 - **コードスニペット**:
   ```typescript
-  // レスポンスなしの内部版（バッチAPIで使用）
-  async function handleActionInternal(
-      projectName: string,
-      action: string,
-      params: Record<string, unknown>,
-  ): Promise<any> {
-
-      const bridge = getWSBridge();
-      const browserConnected = bridge && bridge.connected;
-
-      if ( browserConnected ) {
-
-          const result = await bridge!.send( action, params );
-          if ( !result.success ) throw new Error( result.error );
-
-          // リソース変更のファイル永続化
-          if ( RESOURCE_MUTATING_ACTIONS.has( action ) ) {
-              await persistResourceChange( action, params, result.data );
-          }
-
-          return result.data;
-
-      } else {
-
-          const project = projectManager.getProject( projectName );
-
-          if ( RESOURCE_MUTATING_ACTIONS.has( action ) ) {
-              await persistResourceChange( action, params, params );
-              project.markDirty();
-              return { success: true };
-          } else if ( MUTATING_ACTIONS.has( action ) ) {
-              const data = project.dispatch( action, params );
-              project.markDirty();
-              return data;
-          } else {
-              return project.dispatch( action, params );
-          }
-
-      }
-
+  interface SerializeFieldFormatResource {
+    type: "resource",
+    resourceType: "material" | "texture" | "shader",
+    list: SelectList | ( () => SelectList )
   }
 
-  // 既存APIはラッパーに変更
-  async function handleAction(
-      projectName: string,
-      action: string,
-      params: Record<string, unknown>,
-      res: express.Response,
-  ) {
-      try {
-          const data = await handleActionInternal( projectName, action, params );
-
-          // MUTATING_ACTIONSの同期処理（バッチ内で個別にやるのは非効率なので、
-          // 単体呼び出し時のみここで実行）
-          if ( MUTATING_ACTIONS.has( action ) ) {
-              const bridge = getWSBridge();
-              if ( bridge && bridge.connected ) {
-                  const project = projectManager.getProject( projectName );
-                  const snapshot = await bridge.requestSync( projectName );
-                  if ( snapshot ) project.syncFromBrowser( snapshot );
-              }
-          }
-
-          res.json( data );
-      } catch ( err: any ) {
-          res.status( 400 ).json( { error: err.message || String( err ) } );
-      }
-  }
+  export type SerializableFieldFormat =
+    SerializeFieldFormatVector | SerializeFieldFormatSelect | SerializeFieldFormatArray |
+    SerializeFieldFormatEntity | SerializeFieldFormatComponent | SerializeFieldFormatResource
   ```
-- **注意点**: sync処理の分離。バッチAPIでは最後に1回だけsyncする。単体APIでは毎回sync（既存動作維持）
+- **注意点**: 既存の `select` 型との後方互換を維持。`resource` 型は `select` + 「編集ボタン」
 
-### 3. バッチフィールド設定API `POST /editor/fields`
-- **対象ファイル**: `server/routes/editor.ts`
-- **変更内容**: 複数フィールドを1リクエストで設定するエンドポイント追加
-- **コードスニペット**:
+### 4. AssetViewer の外部ナビゲーション対応
+
+- **対象ファイル**: `packages/orengine/ts/Editor/index.ts`
+- **変更内容**: Editor に `navigateAsset` フィールドを追加。編集ボタン押下時にこのフィールドをセットし、AssetViewer が監視してナビゲーションを実行
+- **コードスニペット**（Editor側）:
   ```typescript
-  editorRouter.post( '/projects/:projectName/editor/fields', async ( req, res ) => {
+  export type NavigateAssetRequest = {
+    assetType: "material" | "texture" | "shader" | "component";
+    name: string;
+  } | null;
 
-      try {
-
-          const projectName = req.params.projectName;
-          const { fields } = req.body as {
-              fields: { targetUuid: string; path: string; value: unknown }[];
-          };
-
-          if ( !Array.isArray( fields ) ) {
-              res.status( 400 ).json( { error: 'fields must be an array' } );
-              return;
-          }
-
-          for ( const field of fields ) {
-              await handleActionInternal( projectName, 'setField', field );
-          }
-
-          // バッチ完了後に1回だけsync
-          const bridge = getWSBridge();
-          if ( bridge && bridge.connected ) {
-              const project = projectManager.getProject( projectName );
-              const snapshot = await bridge.requestSync( projectName );
-              if ( snapshot ) project.syncFromBrowser( snapshot );
-          }
-
-          res.json( { success: true, count: fields.length } );
-
-      } catch ( err: any ) {
-          res.status( 400 ).json( { error: err.message || String( err ) } );
-      }
-
+  // Editorコンストラクタ内
+  this._navigateAsset = null;
+  this.field( "navigateAsset", () => this._navigateAsset, v => {
+    this._navigateAsset = v;
   } );
   ```
 
-### 4. シェーダーテンプレートの用途別改善
-- **対象ファイル**: `server/routes/shaders.ts`
-- **変更内容**: `template` パラメータに応じて用途別テンプレートを生成
+- **対象ファイル**: `packages/orengine/tsx/components/Panels/AssetViewer/index.tsx`
+- **変更内容**: `navigateAsset` フィールドを監視し、値が変わったら `currentPath` を適切なフォルダに変更し、該当アイテムを選択
+- **コードスニペット**（AssetViewer側）:
+  ```tsx
+  const [ navigateAsset ] = useSerializableField<NavigateAssetRequest>( editor, "navigateAsset" );
+
+  useEffect( () => {
+    if ( !navigateAsset ) return;
+
+    // assetType → ルートフォルダ名のマッピング
+    const folderMap: Record<string, string> = {
+      material: "Materials",
+      texture: "Textures",
+      shader: "Shaders",
+      component: "Components",
+    };
+    const folder = folderMap[ navigateAsset.assetType ];
+    if ( folder ) {
+      setCurrentPath( [ folder ] );
+      // 選択状態もセット
+      // selectedAsset は編集ボタン側で既にセットされている
+    }
+
+    // 消費済みにする
+    editor.setField( "navigateAsset", null );
+  }, [ navigateAsset, editor ] );
+  ```
+- **注意点**: `navigateAsset` は一回限りのリクエストなので、処理後に `null` に戻す
+
+### 5. InputResourceSelect コンポーネントの新規作成
+
+- **新規ファイル**: `packages/orengine/tsx/components/Input/InputResourceSelect/index.tsx`
+- **変更内容**: `InputSelect` を拡張し、セレクトボックスの横に「編集」ボタンを配置
+- **コードスニペット**:
+  ```tsx
+  type InputResourceSelectProps<T> = {
+    value: T;
+    selectList: SelectList | ( () => SelectList );
+    resourceType: "material" | "texture" | "shader";
+    onChange?: ( value: T ) => void;
+  };
+
+  export const InputResourceSelect = <T extends string | number,>( props: InputResourceSelectProps<T> ) => {
+    const { editor } = useOREditor();
+
+    const onClickEdit = useCallback( () => {
+      if ( !props.value ) return;
+
+      // AssetViewer にナビゲーションを指示
+      editor.setField( "navigateAsset", {
+        assetType: props.resourceType,
+        name: String( props.value ),
+      } );
+
+      // アセットプロパティパネルに選択状態をセット
+      editor.setField( "selectedAsset", {
+        name: String( props.value ),
+        assetType: props.resourceType,
+      } );
+    }, [ editor, props.value, props.resourceType ] );
+
+    return <div className={style.inputResourceSelect}>
+      <InputSelect
+        value={props.value}
+        selectList={props.selectList}
+        onChange={props.onChange}
+      />
+      {props.value && <button
+        className={style.editButton}
+        onClick={onClickEdit}
+        title="Edit resource"
+      >
+        ✎
+      </button>}
+    </div>;
+  };
+  ```
+- **SCSS**: セレクトボックスとボタンを横並びにするスタイル
+
+### 6. Value コンポーネントで resource フォーマットの処理追加
+
+- **対象ファイル**: `packages/orengine/tsx/components/Value/index.tsx`
+- **変更内容**: `format.type == "resource"` の分岐を追加
+- **コードスニペット**:
+  ```tsx
+  } else if ( format.type == "resource" ) {
+    inputElm = <InputResourceSelect
+      value={value}
+      onChange={onChangeValue}
+      selectList={format.list}
+      resourceType={format.resourceType}
+    />;
+  }
+  ```
+
+### 7. Mesh の material/name フィールドを resource 型に変更
+
+- **対象ファイル**: `packages/maxpower/Component/Mesh/index.ts`
+- **変更内容**: `material/name` の `format` を `select` → `resource` に変更
 - **コードスニペット**:
   ```typescript
-  const VERT_TEMPLATE_MINIMAL = `void main() {
-  	gl_Position = vec4( 0.0, 0.0, 0.0, 1.0 );
-  }
-  `;
-
-  const FRAG_TEMPLATE_MINIMAL = `void main() {
-  	outColor0 = vec4( 1.0, 1.0, 1.0, 1.0 );
-  }
-  `;
-
-  const VERT_TEMPLATE_MESH = `#include <common>
-  #include <vert_h>
-
-  void main( void ) {
-
-  	#include <vert_in>
-
-  	#include <vert_out>
-
-  }
-  `;
-
-  const FRAG_TEMPLATE_MESH = `#include <common>
-  #include <packing>
-  #include <frag_h>
-
-  void main( void ) {
-
-  	#include <frag_in>
-
-  	outColor = vec4( 1.0 );
-
-  	#include <frag_out>
-
-  }
-  `;
-
-  const FRAG_TEMPLATE_TEXTURE = `#include <common>
-  #include <frag_h>
-
-  layout ( location = 0 ) out vec4 outColor;
-
-  void main( void ) {
-
-  	outColor = vec4( vUv, 0.0, 1.0 );
-
-  }
-  `;
-
-  // POSTハンドラ内で:
-  const { name, template } = req.body;  // template: "mesh" | "texture" | "minimal" (default)
-
-  let vertContent: string;
-  let fragContent: string;
-
-  switch ( template ) {
-      case 'mesh':
-          vertContent = VERT_TEMPLATE_MESH;
-          fragContent = FRAG_TEMPLATE_MESH;
-          break;
-      case 'texture':
-          vertContent = VERT_TEMPLATE_MINIMAL;  // テクスチャはvertを使わない
-          fragContent = FRAG_TEMPLATE_TEXTURE;
-          break;
-      default:
-          vertContent = VERT_TEMPLATE_MINIMAL;
-          fragContent = FRAG_TEMPLATE_MINIMAL;
-  }
+  mat.field( "name", () => this._materialType, ( v ) => {
+    this._materialType = v;
+    this._rebuildMaterial();
+  }, {
+    format: {
+      type: "resource",
+      resourceType: "material",
+      list: () => {
+        const list: { label: string, value: string }[] = [ { label: "(None)", value: "" } ];
+        Mesh.getMaterialList().forEach( m => {
+          list.push( { label: m.name, value: m.name } );
+        } );
+        return list;
+      }
+    }
+  } );
   ```
-- **注意点**: 既存のデフォルト動作（template未指定）は変更しない。後方互換性維持
 
-### 5. ドキュメント: `docs/shader-reference.md` の新設
-- **対象ファイル**: `docs/shader-reference.md`（新規作成）
-- **変更内容**: シェーダー開発に必要な全リファレンスを1ファイルにまとめる
-- **含める内容**:
-  - 頂点シェーダーで使えるuniform一覧（uModelMatrix, uViewMatrix等）
-  - フラグメントシェーダーで使えるuniform一覧（+ uCameraPosition, uResolution）
-  - varying一覧（vUv, vPos, vNormal等）
-  - フラグメント出力変数一覧（outColor, outEmission, outRoughness等）
-  - #include可能なモジュール一覧と主要関数シグネチャ
-  - 用途別テンプレート（メッシュ用、テクスチャ用）
-  - テクスチャシェーダーの注意事項（`in vec2 vUv;` 宣言が必要な場合）
+### 8. MaterialResource の uniform sampler2D を resource 型に変更
 
-### 6. ドキュメント: `docs/component-fields.md` の新設
-- **対象ファイル**: `docs/component-fields.md`（新規作成）
-- **変更内容**: 主要コンポーネントのフィールドパス・型・有効値・デフォルト値を一覧化
-- **含める内容**:
-  - **Mesh**: geometry/type（有効値: `""`, `"Cube"`, `"Sphere"`, `"Plane"`, `"Cylinder"`）、各パラメータ、material/name
-  - **Light**: lightType, color, intensity, castShadow, angle, blend, distance, decay
-  - **Camera**: cameraType, fov, near, far, aspect
-  - **PostProcess系**: Bloom, ColorGrading等のパラメータ
+- **対象ファイル**: `packages/orengine/ts/Engine/Resources/MaterialResource/index.ts`
+- **変更内容**: テクスチャ参照のuniformフィールドの format を `resource` 型に変更
+- **コードスニペット**: テクスチャ選択部分（`_textureResources.forEach`でリスト構築している箇所）のformatを `type: "resource", resourceType: "texture"` に変更
 
-### 7. 既存ドキュメントの改善
-- **対象ファイル**: `docs/editor-rest-api.md`
-- **変更内容**:
-  - バッチAPI（`POST /editor/entities`, `POST /editor/fields`）のドキュメント追加
-  - フィールドAPIの型情報詳細化（geometry/typeの有効値リスト等）
-  - AIエージェント向けワークフローにバッチAPIの使用例を追加
-- **対象ファイル**: `docs/resource-api.md`
-- **変更内容**:
-  - .matファイルのuniform形式（`"uniforms/uName": value`）を明記
-  - .texファイルのconfigスキーマ詳細化
-  - シェーダーAPI `template` パラメータの説明追加
+### 9. Editor の状態管理調整（任意）
 
-### 8. CLAUDE.mdへのシーン作成知識追記
-- **対象ファイル**: `CLAUDE.md`
-- **変更内容**: `## シーン作成` セクションを追加し、AIエージェントが必要とする知識を集約
-- **コードスニペット**:
-  ```markdown
-  ## シーン作成（REST API経由）
-
-  ### エンティティのバッチ作成
-  `POST /api/projects/{name}/editor/entities` でエンティティ・コンポーネント・フィールドを一括作成可能。
-
-  ### Meshコンポーネント
-  - `geometry/type`: `"Cube"` | `"Sphere"` | `"Plane"` | `"Cylinder"` (PascalCase必須)
-  - `material/name`: マテリアル名（文字列）
-  - フィールド設定には**コンポーネントUUID**（エンティティUUIDではない）が必要
-
-  ### Lightコンポーネント
-  - `lightType`: `"spot"` (default) | `"directional"`
-  - `color`: [r, g, b]、`intensity`: number、`castShadow`: boolean
-  - spot専用: `angle`, `blend`, `distance`, `decay`
-
-  ### マテリアル (.mat) config
-  - uniform形式: `"uniforms/uName": value`
-  - 型: float→number, vec3→[x,y,z], sampler2D→テクスチャ名(string)
-
-  ### シェーダー作成
-  - `POST /api/shaders` に `"template": "mesh"` でメッシュ用テンプレート生成
-  - `"template": "texture"` でテクスチャ用テンプレート生成
-  - 頂点で使えないuniform: `uCameraPosition`, `uResolution`（frag_h専用）
-  - テクスチャ用FSには `in vec2 vUv;` を明示宣言するか `#include <frag_h>` を使用
-
-  ### 詳細リファレンス
-  - `docs/shader-reference.md` - シェーダーuniform/varying/モジュール全一覧
-  - `docs/component-fields.md` - コンポーネントフィールド一覧
-  ```
+- **対象ファイル**: `packages/orengine/ts/Editor/index.ts`
+- **変更内容**: `selectedEntityId` 設定時の `propertyTarget = "entity"` 切替を削除（上下分割により排他制御不要）。`selectedAsset` 設定時の `propertyTarget = "asset"` も不要だが、互換性のため残しても良い
+- **注意点**: 上下分割により排他制御は不要だが、副作用の検証が必要
 
 ## 変更対象ファイル一覧
-- [x] `server/routes/editor.ts` - handleActionInternal抽出 + バッチAPI 2つ追加
-- [x] `server/routes/shaders.ts` - 用途別テンプレート追加
-- [x] `docs/shader-reference.md` - 新規作成（シェーダーリファレンス）
-- [x] `docs/component-fields.md` - 新規作成（コンポーネントフィールド一覧）
-- [x] `docs/editor-rest-api.md` - バッチAPI・フィールド詳細追記
-- [x] `docs/resource-api.md` - .mat/.texスキーマ・templateパラメータ追記
-- [x] `CLAUDE.md` - シーン作成セクション追加
+- [x] `packages/maxpower/Serializable/index.ts` - `SerializeFieldFormatResource` 型追加
+- [x] `packages/orengine/ts/Editor/index.ts` - `navigateAsset` フィールド追加 + 状態管理調整
+- [x] `packages/orengine/tsx/components/Panels/AssetViewer/index.tsx` - `navigateAsset` 監視でナビゲーション連動
+- [x] `packages/orengine/tsx/components/Input/InputResourceSelect/index.tsx` - 新規作成
+- [x] `packages/orengine/tsx/components/Input/InputResourceSelect/index.module.scss` - 新規作成
+- [x] `packages/orengine/tsx/components/Value/index.tsx` - `resource` フォーマット分岐追加
+- [x] `packages/orengine/tsx/components/Panels/AssetProperty/index.tsx` - 新規作成（AssetPropertyView を移動）
+- [x] `packages/orengine/tsx/components/Panels/AssetProperty/index.module.scss` - 新規作成
+- [x] `packages/orengine/tsx/components/Panels/EntityProperty/index.tsx` - アセット表示ロジック削除、エンティティ専用に
+- [x] `packages/orengine/tsx/components/OREditor/index.tsx` - 右パネル上下分割レイアウト
+- [x] `packages/maxpower/Component/Mesh/index.ts` - material/name の format を resource 型に
+- [x] `packages/orengine/ts/Engine/Resources/MaterialResource/index.ts` - sampler2D uniform の format を resource 型に（vert/frag のシェーダー選択も含む）
 
 ## 考慮事項・リスク
-
-1. **バッチAPI + ブラウザファースト設計**: ブラウザ接続中は各操作がWebSocket経由で逐次実行される。sync（requestSync）をバッチ全体の最後に1回だけにすることで、大幅にオーバーヘッドを削減する。ただしバッチ途中で失敗した場合のロールバックは非対応（Undo可能なので許容）
-2. **タイムアウト**: 大量エンティティ（50+）のバッチでは、WebSocket send の累積時間が問題になる可能性。将来的に`executeAction`（Fire & Forget）ベースに切り替える余地を残す
-3. **後方互換性**: 全ての変更は既存APIに影響しない。テンプレートのデフォルト値も既存のまま
+- **排他制御の廃止**: 現在はentity/assetの排他表示だが、分割後は両方同時に見える。`propertyTarget` の扱いを整理する必要がある
+- **パネルサイズ**: 右パネル300pxを上下分割すると、それぞれの表示領域が狭くなる可能性。スクロール対応が重要
+- **モバイルレイアウト**: PC版のみ上下分割し、モバイル版は現状維持か別の対応が必要
+- **シェーダーの「編集」**: シェーダーは外部エディタで編集するため、resourceType="shader" の編集ボタンはAssetViewerでの選択ではなく外部エディタ起動にするか検討
 
 ## テスト方針
-
-- `npm run typecheck` で型エラーなし
-- `npm run lint` でリントエラーなし
-- バッチAPI手動テスト:
-  - `POST /editor/entities` で複数エンティティ+Mesh+Light一括作成
-  - 作成されたエンティティのgeometry/material/transformが正しいことを `GET /editor/scene` で確認
-  - ブラウザ画面にも反映されていることを確認
-- シェーダーテンプレートテスト:
-  - `POST /api/shaders` に `template: "mesh"` で作成 → index.vs/index.fs がメッシュテンプレートになっていることを確認
-  - `template: "texture"` → テクスチャテンプレート
-  - `template` 未指定 → 従来のminimalテンプレート（後方互換）
-- ドキュメントレビュー:
-  - 新設ドキュメントの内容がresearch.mdの調査結果と一致していることを確認
+- `npm run typecheck` で型チェック通過を確認
+- 開発サーバーで以下を確認:
+  1. 右パネルが上下分割され、上にEntityProperty、下にAssetPropertyが表示される
+  2. Meshのmaterial/nameセレクトに「編集ボタン」が表示される
+  3. 編集ボタン押下でAssetPropertyパネルに該当マテリアルの編集UIが表示される
+  4. エンティティ選択とアセット選択が独立して動作する
+  5. モバイルレイアウトが壊れていない
