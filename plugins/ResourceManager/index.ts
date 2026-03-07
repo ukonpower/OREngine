@@ -189,7 +189,13 @@ const updateComponentListForDir = ( compDir: string, outFile: string, exportName
 
 	file += "};\n";
 
-	fs.writeFileSync( outFile, file );
+	const existing = fs.existsSync( outFile ) ? fs.readFileSync( outFile, 'utf-8' ) : '';
+
+	if ( existing !== file ) {
+
+		fs.writeFileSync( outFile, file );
+
+	}
 
 };
 
@@ -223,10 +229,14 @@ const updateMaterialListForDir = ( matDir: string, shadersDir: string, outFile: 
 
 			} else if ( entry.isFile() && entry.name.endsWith( '.mat' ) ) {
 
-				const name = path.basename( entry.name, '.mat' );
-				const config = JSON.parse( fs.readFileSync( fullPath, 'utf-8' ) );
-				const relativePath = path.relative( path.dirname( matDir ), fullPath ).replace( /\\/g, '/' );
-				matFiles.push( { name, matPath: fullPath, config, relativePath } );
+				try {
+
+					const name = path.basename( entry.name, '.mat' );
+					const config = JSON.parse( fs.readFileSync( fullPath, 'utf-8' ) );
+					const relativePath = path.relative( path.dirname( matDir ), fullPath ).replace( /\\/g, '/' );
+					matFiles.push( { name, matPath: fullPath, config, relativePath } );
+
+				} catch { /* skip incomplete file */ }
 
 			}
 
@@ -270,7 +280,13 @@ const updateMaterialListForDir = ( matDir: string, shadersDir: string, outFile: 
 
 	file += "};\n";
 
-	fs.writeFileSync( outFile, file );
+	const existing = fs.existsSync( outFile ) ? fs.readFileSync( outFile, 'utf-8' ) : '';
+
+	if ( existing !== file ) {
+
+		fs.writeFileSync( outFile, file );
+
+	}
 
 };
 
@@ -339,7 +355,13 @@ const updateShaderListForDir = ( shadersDir: string, outFile: string, exportName
 
 	file += "];\n";
 
-	fs.writeFileSync( outFile, file );
+	const existing = fs.existsSync( outFile ) ? fs.readFileSync( outFile, 'utf-8' ) : '';
+
+	if ( existing !== file ) {
+
+		fs.writeFileSync( outFile, file );
+
+	}
 
 };
 
@@ -373,9 +395,13 @@ const updateTextureListForDir = ( texDir: string, shadersDir: string, outFile: s
 
 			} else if ( entry.isFile() && entry.name.endsWith( '.tex' ) ) {
 
-				const name = path.basename( entry.name, '.tex' );
-				const config = JSON.parse( fs.readFileSync( fullPath, 'utf-8' ) );
-				texFiles.push( { name, config, relativePath: path.relative( path.dirname( outFile ), fullPath ).replace( /\\/g, '/' ) } );
+				try {
+
+					const name = path.basename( entry.name, '.tex' );
+					const config = JSON.parse( fs.readFileSync( fullPath, 'utf-8' ) );
+					texFiles.push( { name, config, relativePath: path.relative( path.dirname( outFile ), fullPath ).replace( /\\/g, '/' ) } );
+
+				} catch { /* skip incomplete file */ }
 
 			}
 
@@ -391,20 +417,7 @@ const updateTextureListForDir = ( texDir: string, shadersDir: string, outFile: s
 
 	texFiles.forEach( ( tex ) => {
 
-		const shaderName = tex.config.shader;
-		let fragName: string | undefined;
-
-		if ( shaderName ) {
-
-			const fragPath = path.join( shadersDir, shaderName, 'index.fs' );
-
-			if ( fs.existsSync( fragPath ) ) {
-
-				fragName = `${shaderName}/frag`;
-
-			}
-
-		}
+		const fragName = tex.config.frag || undefined;
 
 		const res = tex.config.resolution || [ 1024, 1024 ];
 		const filter = tex.config.filter ? `, filter: ${JSON.stringify( tex.config.filter )}` : '';
@@ -415,7 +428,13 @@ const updateTextureListForDir = ( texDir: string, shadersDir: string, outFile: s
 
 	file += "];\n";
 
-	fs.writeFileSync( outFile, file );
+	const existing = fs.existsSync( outFile ) ? fs.readFileSync( outFile, 'utf-8' ) : '';
+
+	if ( existing !== file ) {
+
+		fs.writeFileSync( outFile, file );
+
+	}
 
 };
 
