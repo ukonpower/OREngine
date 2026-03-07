@@ -169,7 +169,12 @@ export class BLidger extends Component {
 					if ( gltfMesh ) {
 
 						mesh.geometry = gltfMesh.geometry;
-						mesh.material = gltfMesh.material;
+
+						if ( ! mesh.materialType ) {
+
+							mesh.material = gltfMesh.material;
+
+						}
 
 					}
 

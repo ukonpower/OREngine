@@ -1,96 +1,89 @@
-# Plan: マテリアルのテクスチャが反映されない問題の修正
+# Plan: BLidger glTFメッシュのマテリアル上書きが反映されない問題の修正
 
 ## 概要
 
-マテリアルにテクスチャを設定しても反映されない。根本原因は2つ:
-1. `.tex`ファイルのfrag参照が消失している（`"shader": "Noise"` → `"frag": ""`に書き換えられた）
-2. `updateTextureListForDir`ジェネレータが旧キー`shader`のみ読み、新キー`frag`を読めない
-
-これにより`_textures` Mapが空のまま、`applyUniform`でテクスチャが無言で失敗する。
+BLidgerのglTFタイプメッシュに対して、エディタUIでマテリアルを設定しても反映されない。
+原因はBLidgerのglTF非同期ロードコールバックが `mesh.material` を無条件に上書きするため、
+`applyAttachments` で復元されたユーザー設定マテリアルが毎回消される。
 
 ## 実装ステップ
 
-### 1. `updateTextureListForDir`のキー対応修正
+### 1. Meshに `materialType` 公開ゲッターを追加
 
-- **対象ファイル**: `plugins/ResourceManager/index.ts`
-- **変更内容**: `tex.config.frag`（新形式）と`tex.config.shader`（旧形式）の両方に対応
+- **対象ファイル**: `packages/maxpower/Component/Mesh/index.ts`
+- **変更内容**: privateフィールド `_materialType` を外部から読み取れるようにゲッターを追加
 - **コードスニペット**:
   ```typescript
-  // L393-407を修正: shader キーを廃止し frag キーのみ読む
-  const fragName = tex.config.frag || undefined;
-  ```
-- **注意点**: 旧`shader`キーは廃止。`.tex`ファイル側で`frag`キーに統一する
+  // _geometryType, _materialType 定義の後あたりに追加
+  public get materialType() {
 
-### 2. `.tex`ファイルのfrag参照を修正
+      return this._materialType;
 
-- **対象ファイル**: `src/ts/Resources/Textures/*.tex`（4ファイル）
-- **変更内容**: 各テクスチャの`frag`フィールドに正しいシェーダー参照名を設定
-- **具体的な変更**:
-
-  `hash.tex`:
-  ```json
-  {
-    "frag": "Hash/frag",
-    "resolution": [512, 512],
-    "filter": "nearest",
-    "updateEveryFrame": false
   }
   ```
+- **注意点**: setterは不要。既存の `material/name` フィールドのsetterが `_rebuildMaterial()` を呼ぶ設計を維持する
 
-  `noise.tex`:
-  ```json
-  {
-    "frag": "Noise/frag",
-    "resolution": [1024, 1024],
-    "filter": "linear",
-    "updateEveryFrame": true
+### 2. BLidgerのglTFコールバックでマテリアル上書きを条件付きにする
+
+- **対象ファイル**: `packages/maxpower/Component/BLidger/index.ts`
+- **変更内容**: glTF Promiseコールバック内で、Meshに既にユーザー設定のマテリアルがある場合はmaterial上書きをスキップ
+- **コードスニペット**:
+  ```typescript
+  } else if ( this.node.type == 'gltf' ) {
+
+      const mesh = entity.addComponent( Mesh );
+
+      this._blidge.gltfPrm.then( gltf => {
+
+          const gltfEntity = gltf.scene.findEntityByName( this.node.name );
+
+          if ( gltfEntity ) {
+
+              const gltfMesh = gltfEntity.getComponent( Mesh );
+
+              if ( gltfMesh ) {
+
+                  mesh.geometry = gltfMesh.geometry;
+
+                  if ( ! mesh.materialType ) {
+
+                      mesh.material = gltfMesh.material;
+
+                  }
+
+              }
+
+          }
+
+          entity.noticeEventParent( "update/blidge/scene", [ entity ] );
+
+      } );
+
   }
   ```
+- **注意点**: `mesh.materialType` が空文字列 `""` の場合はユーザー未設定と判断してglTFマテリアルを使用する。`_materialType` のデフォルト値は `""` なので、falsy判定（`!mesh.materialType`）で問題ない
 
-  `noiseCyclic.tex`:
-  ```json
-  {
-    "frag": "NoiseCyclic/frag",
-    "resolution": [1024, 1024],
-    "filter": "linear",
-    "updateEveryFrame": false
-  }
-  ```
+### 3. 型チェック
 
-  `noiseCyclicAnime.tex` (元々`"shader": "NoiseCyclic"`を参照していた):
-  ```json
-  {
-    "frag": "NoiseCyclic/frag",
-    "resolution": [512, 512],
-    "filter": "linear",
-    "updateEveryFrame": true
-  }
-  ```
-
-### 3. 動作確認
-
-- Vite再ビルドで`textureList.ts`が自動再生成されることを確認
-- `npm run typecheck`で型エラーがないことを確認
+- `npm run typecheck` で型エラーがないことを確認
 
 ## 変更対象ファイル一覧
 
-- [x] `plugins/ResourceManager/index.ts` - `updateTextureListForDir`で旧`shader`キーを廃止し`frag`キーに変更
-- [x] `src/ts/Resources/Textures/hash.tex` - frag: `"Hash/frag"` を設定
-- [x] `src/ts/Resources/Textures/noise.tex` - frag: `"Noise/frag"` を設定
-- [x] `src/ts/Resources/Textures/noiseCyclic.tex` - frag: `"NoiseCyclic/frag"` を設定
-- [x] `src/ts/Resources/Textures/noiseCyclicAnime.tex` - frag: `"NoiseCyclic/frag"` を設定
+- [x] `packages/maxpower/Component/Mesh/index.ts` - `materialType` 公開ゲッターを追加
+- [x] `packages/maxpower/Component/BLidger/index.ts` - glTFコールバック内のmaterial設定を条件付きに変更
 
 ## 考慮事項・リスク
 
-1. **textureList.ts再生成**: `.tex`ファイル修正後、Viteのchokidarウォッチャーが検知して自動再生成される。開発サーバー非起動時は`npm run dev`で再生成される
-2. **globalUniformsのuNoiseTex**: `src/ts/Resources/index.ts:191`の`Engine.resources.getTexture("noise")`も修正により正常に動くようになる（`_textures`にnoiseが入るため）
-3. **今後の`.tex`保存**: エディタからTextureResourceを更新・保存すると`"frag": "Noise/frag"`形式で書き出されるため、ジェネレータ修正（Step 1）により正常に読める
-4. **旧`shader`キー**: 廃止する。今後は`frag`キーに統一
+1. **フォールバック動作**: ユーザーがマテリアルを未設定の場合は従来通りglTFのマテリアルが使われる。既存動作に影響なし
+2. **`getMaterialInstance` が undefined を返すケース**: `_rebuildMaterial()` 内で `getMaterialInstance` が undefined を返した場合、`this.material` は更新されない（既存の動作）。この場合、`_materialType` は設定されているがmaterialインスタンスが得られない状態になる。ユーザーが有効なマテリアル名を選択していれば問題ない
+3. **WebSocket再接続時**: `onSyncScene` が再度呼ばれ BLidger が再作成されるが、`applyAttachments` → glTFコールバックの順序は変わらないため、同じ修正で正しく動作する
+4. **他のメッシュタイプへの影響**: cube/sphere/cylinder/plane/meshタイプはglTFを使わないため影響なし
 
 ## テスト方針
 
-- `npm run typecheck`で型エラーなし
-- `npm run dev`で以下を手動確認:
-  - マテリアル（OREngineCube等）のテクスチャuniform（uNoiseTex）が3Dビューに反映される
-  - エディタのマテリアルPropertyパネルでテクスチャドロップダウンからテクスチャを変更 → 反映される
-  - ページリロード後もテクスチャが正常に表示される
+- `npm run typecheck` で型エラーなし
+- `npm run dev` で以下を手動確認:
+  - glTFメッシュのエンティティにMeshコンポーネントの `material/name` でマテリアルを選択 → 反映される
+  - ページリロード後もマテリアル設定が維持される
+  - マテリアル未設定のglTFメッシュは従来通りglTFのマテリアルで描画される
+  - WebSocket再接続（Blender側で再送信）後もマテリアル設定が維持される
