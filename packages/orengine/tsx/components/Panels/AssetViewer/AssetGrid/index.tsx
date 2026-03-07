@@ -1,7 +1,8 @@
-import { MouseEvent, ReactNode, useCallback } from 'react';
+import { MouseEvent, ReactNode, useCallback, useEffect, useState } from 'react';
 
 import { Engine } from '../../../../../ts/Engine';
 import { useMouseMenu } from '../../../../hooks/useMouseMenu';
+import { useOREditor } from '../../../../hooks/useOREditor';
 import { ComponentIcon } from '../../../Icons/ComponentIcon';
 import { FolderIcon } from '../../../Icons/FolderIcon';
 import { MaterialIcon } from '../../../Icons/MaterialIcon';
@@ -22,7 +23,9 @@ type AssetGridProps = {
 
 export const AssetGrid = ( { entries, selected, onNavigate, onSelect }: AssetGridProps ) => {
 
+	const { engine } = useOREditor();
 	const { pushContent, closeAll } = useMouseMenu();
+	const [ , setPreviewVersion ] = useState( 0 );
 
 	const onClick = useCallback( ( entry: AssetEntry ) => {
 
@@ -51,6 +54,28 @@ export const AssetGrid = ( { entries, selected, onNavigate, onSelect }: AssetGri
 
 	}, [ pushContent, closeAll ] );
 
+	useEffect( () => {
+
+		const previewMgr = engine.assetPreviewManager;
+		const onUpdate = () => {
+
+			previewMgr.invalidateAll();
+			setPreviewVersion( ( v ) => v + 1 );
+
+		};
+
+		Engine.resources.on( "update", onUpdate );
+		Engine.resources.on( "update/texture", onUpdate );
+
+		return () => {
+
+			Engine.resources.off( "update", onUpdate );
+			Engine.resources.off( "update/texture", onUpdate );
+
+		};
+
+	}, [ engine ] );
+
 	return <div className={style.grid}>
 		{entries.map( ( entry, i ) => (
 
@@ -66,7 +91,7 @@ export const AssetGrid = ( { entries, selected, onNavigate, onSelect }: AssetGri
 				<div className={style.gridItem_icon}>
 					{entry.type === "folder"
 						? <FolderIcon assetType={entry.assetType} />
-						: getAssetIcon( entry.assetType )}
+						: getAssetIcon( entry.assetType, entry, engine )}
 				</div>
 				<div className={style.gridItem_name}>
 					{entry.name}
@@ -78,7 +103,23 @@ export const AssetGrid = ( { entries, selected, onNavigate, onSelect }: AssetGri
 
 };
 
-function getAssetIcon( assetType: string ): ReactNode {
+function getAssetIcon( assetType: string, entry: AssetItem, engine: Engine ): ReactNode {
+
+	const previewMgr = engine.assetPreviewManager;
+
+	if ( assetType === "texture" ) {
+
+		const preview = previewMgr.getTexturePreview( entry.name );
+		if ( preview ) return <img src={preview} className={style.gridItem_preview} />;
+
+	}
+
+	if ( assetType === "material" ) {
+
+		const preview = previewMgr.getMaterialPreview( entry.name );
+		if ( preview ) return <img src={preview} className={style.gridItem_preview} />;
+
+	}
 
 	switch ( assetType ) {
 

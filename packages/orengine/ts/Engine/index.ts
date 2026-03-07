@@ -1,6 +1,7 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
+import { AssetPreviewManager } from './AssetPreviewManager';
 import { ComponentResolver, OREngineDataEntity, OREngineProjectData, OREngineProjectFrame, ProjectSerializer } from './ProjectSerializer';
 import { Resources } from './Resources';
 
@@ -32,6 +33,7 @@ export class Engine extends MXP.Entity {
 	private _frameSetting: OREngineProjectFrame;
 	private _disposed: boolean;
 	private _cameraEntity: MXP.Entity | null;
+	private _assetPreviewManager: AssetPreviewManager;
 
 	constructor( gl: WebGL2RenderingContext ) {
 
@@ -122,6 +124,12 @@ export class Engine extends MXP.Entity {
 		tl.field( "fps", () => this._frameSetting.fps, ( v ) => this._frameSetting.fps = v );
 
 		/*-------------------------------
+			AssetPreview
+		-------------------------------*/
+
+		this._assetPreviewManager = new AssetPreviewManager( gl, this._renderer );
+
+		/*-------------------------------
 			Register
 		-------------------------------*/
 
@@ -196,6 +204,12 @@ export class Engine extends MXP.Entity {
 	public get disposed() {
 
 		return this._disposed;
+
+	}
+
+	public get assetPreviewManager() {
+
+		return this._assetPreviewManager;
 
 	}
 
@@ -432,6 +446,7 @@ export class Engine extends MXP.Entity {
 		super.dispose();
 
 		this._disposed = true;
+		this._assetPreviewManager.dispose();
 		this._root.disposeRecursive();
 
 	}
