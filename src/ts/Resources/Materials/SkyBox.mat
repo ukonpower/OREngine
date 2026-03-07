@@ -1,5 +1,14 @@
 {
+  "vert": "",
   "frag": "SkyBox/frag",
-  "phase": ["deferred", "envMap"],
+  "phase": [
+    "deferred",
+    "envMap"
+  ],
+  "drawType": "",
+  "blending": "",
+  "useLight": true,
+  "depthTest": true,
+  "depthWrite": true,
   "cullFace": false
 }

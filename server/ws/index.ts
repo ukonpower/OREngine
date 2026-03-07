@@ -1,6 +1,13 @@
+import * as fs from 'fs';
+import * as path from 'path';
+import { fileURLToPath } from 'url';
 import { WebSocketServer, WebSocket } from 'ws';
 
+import { projectManager } from '../Project';
+
 import type { Server } from 'http';
+
+const __dirname = path.dirname( fileURLToPath( import.meta.url ) );
 
 export type BridgeRequest = {
 	id: string;
@@ -32,6 +39,9 @@ class EditorWSBridge {
 		this._wss.on( 'connection', ( ws ) => {
 
 			this._client = ws;
+
+			// 切断中に変更があった場合、再接続時にstatePushを送信
+			this._pushDirtyState( ws );
 
 			ws.on( 'message', ( raw ) => {
 
@@ -147,6 +157,47 @@ class EditorWSBridge {
 		if ( this._client?.readyState === WebSocket.OPEN ) {
 
 			this._client.send( JSON.stringify( { type: 'executeAction', projectName, action, params } ) );
+
+		}
+
+	}
+
+	private _pushDirtyState( ws: WebSocket ) {
+
+		const activeProjectPath = path.resolve( __dirname, '../../projects/.active' );
+		let activeProject: string | null = null;
+
+		try {
+
+			activeProject = fs.readFileSync( activeProjectPath, 'utf-8' ).trim();
+
+		} catch {
+
+			return;
+
+		}
+
+		if ( ! activeProject ) return;
+
+		try {
+
+			const project = projectManager.getProject( activeProject );
+
+			if ( ! project.dirty ) return;
+
+			const payload: any = {
+				type: 'statePush',
+			};
+
+			payload.sceneData = project.getSceneFileData();
+			payload.resources = project.getResourcesSnapshot();
+
+			ws.send( JSON.stringify( payload ) );
+			project.clearDirty();
+
+		} catch ( err ) {
+
+			console.error( 'Failed to push dirty state:', err );
 
 		}
 

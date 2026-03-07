@@ -1,1 +1,14 @@
-{}
+{
+  "vert": "",
+  "frag": "",
+  "phase": [
+    "shadowMap",
+    "deferred"
+  ],
+  "drawType": "",
+  "blending": "",
+  "useLight": true,
+  "depthTest": true,
+  "depthWrite": true,
+  "cullFace": false
+}
