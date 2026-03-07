@@ -3,6 +3,7 @@ import * as MXP from 'maxpower';
 
 import { Engine } from '..';
 
+import previewShadingFrag from './shaders/previewShading.fs';
 import textureCopyFrag from './shaders/textureCopy.fs';
 
 const PREVIEW_SIZE = 128;
@@ -22,7 +23,10 @@ export class AssetPreviewManager {
 	private _texPreviewFB: GLP.GLPowerFrameBuffer;
 
 	// material preview
-	private _matRenderTarget: MXP.RenderCameraTarget;
+	private _matGBuffer: GLP.GLPowerFrameBuffer;
+	private _matShadingPass: MXP.PostProcessPass;
+	private _matShadingPostProcess: MXP.PostProcess;
+	private _matOutputFB: GLP.GLPowerFrameBuffer;
 	private _matScene: MXP.Entity;
 	private _matSphere: MXP.Entity;
 	private _matMesh: MXP.Mesh;
@@ -50,10 +54,30 @@ export class AssetPreviewManager {
 		} );
 		this._texCopyPostProcess = new MXP.PostProcess( { passes: [ this._texCopyPass ] } );
 
-		// material preview: mini scene
-		this._matRenderTarget = MXP.Renderer.createRenderTarget( gl );
-		MXP.Renderer.resizeRenderTarget( this._matRenderTarget, new GLP.Vector( PREVIEW_SIZE, PREVIEW_SIZE ) );
+		// material preview: GBuffer + custom shading
+		const size = new GLP.Vector( PREVIEW_SIZE, PREVIEW_SIZE );
 
+		this._matGBuffer = new GLP.GLPowerFrameBuffer( gl );
+		this._matGBuffer.setTexture( [
+			new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA, magFilter: gl.NEAREST, minFilter: gl.NEAREST } ),
+			new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA } ),
+			new GLP.GLPowerTexture( gl ),
+			new GLP.GLPowerTexture( gl ),
+			new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA } ),
+		] );
+		this._matGBuffer.setSize( size );
+
+		this._matOutputFB = new GLP.GLPowerFrameBuffer( gl, { disableDepthBuffer: true } );
+		this._matOutputFB.setTexture( [ new GLP.GLPowerTexture( gl ) ] );
+		this._matOutputFB.setSize( size );
+
+		this._matShadingPass = new MXP.PostProcessPass( gl, {
+			frag: previewShadingFrag,
+			renderTarget: this._matOutputFB,
+		} );
+		this._matShadingPostProcess = new MXP.PostProcess( { passes: [ this._matShadingPass ] } );
+
+		// mini scene
 		this._matScene = new MXP.Entity();
 		this._matSphere = new MXP.Entity();
 		this._matMesh = this._matSphere.addComponent( MXP.Mesh );
@@ -82,9 +106,6 @@ export class AssetPreviewManager {
 		camera.aspect = 1;
 		camera.displayOut = false;
 		this._matCameraEntity.position.set( 0, 0, 1.5 );
-		this._matCameraEntity.updateMatrix();
-		camera.updateViewMatrix();
-		camera.updateProjectionMatrix();
 		this._matScene.add( this._matCameraEntity );
 
 		// light (directional)
@@ -95,7 +116,6 @@ export class AssetPreviewManager {
 		light.intensity = 2;
 		light.castShadow = false;
 		this._matLightEntity.position.set( 2, 3, 4 );
-		this._matLightEntity.updateMatrix();
 		this._matScene.add( this._matLightEntity );
 
 	}
@@ -133,23 +153,7 @@ export class AssetPreviewManager {
 		// apply material to sphere
 		this._matMesh.material = material;
 
-		// update matrices
-		this._matScene.updateMatrix();
-		this._matSphere.updateMatrix();
-		this._matCameraEntity.updateMatrix();
-		this._matLightEntity.updateMatrix();
-
-		const camera = this._matCameraEntity.getComponent( MXP.Camera );
-		if ( camera ) {
-
-			camera.updateViewMatrix();
-			camera.updateProjectionMatrix();
-
-		}
-
-		// temporarily change renderer resolution
-		const prevResolution = this._renderer.resolution.clone();
-		this._renderer.resolution.set( PREVIEW_SIZE, PREVIEW_SIZE );
+		const previewSize = new GLP.Vector( PREVIEW_SIZE, PREVIEW_SIZE );
 
 		const event: MXP.EntityUpdateEvent = {
 			playing: false,
@@ -157,22 +161,36 @@ export class AssetPreviewManager {
 			timeDelta: 0,
 			timeCode: 0,
 			timeCodeFrame: 0,
-			resolution: new GLP.Vector( PREVIEW_SIZE, PREVIEW_SIZE ),
+			resolution: previewSize,
 			renderer: this._renderer,
 			forceDraw: true,
 		};
 
-		this._renderer.render(
-			this._matScene,
+		// update entity tree (matrices, components, geometry buffers)
+		this._matScene.update( event );
+
+		// 1. render sphere to GBuffer (deferred pass only)
+		this._renderer.renderCamera(
+			"deferred",
 			this._matCameraEntity,
-			event,
-			this._matRenderTarget
+			[ this._matSphere ],
+			this._matGBuffer,
+			previewSize
 		);
 
-		// restore resolution
-		this._renderer.resolution.copy( prevResolution );
+		// 2. custom shading pass (no envMap, no skybox)
+		const lightDir = new GLP.Vector( 2, 3, 4 ).normalize();
+		this._matShadingPass.uniforms.uLightDir = { value: lightDir, type: "3fv" };
+		this._matShadingPass.uniforms.uLightColor = { value: new GLP.Vector( 2, 2, 2 ), type: "3fv" };
+		this._matShadingPass.uniforms.uCameraPosition = { value: this._matCameraEntity.position, type: "3fv" };
 
-		const dataUrl = this._readFBToDataURL( this._matRenderTarget.uiBuffer );
+		this._renderer.renderPostProcess(
+			this._matShadingPostProcess,
+			this._matGBuffer,
+			previewSize
+		);
+
+		const dataUrl = this._readFBToDataURL( this._matOutputFB );
 		this._cache.set( key, dataUrl );
 		return dataUrl;
 
@@ -220,11 +238,8 @@ export class AssetPreviewManager {
 
 		this._cache.clear();
 		this._texPreviewFB.dispose();
-		this._matRenderTarget.gBuffer.dispose();
-		this._matRenderTarget.shadingBuffer.dispose();
-		this._matRenderTarget.forwardBuffer.dispose();
-		this._matRenderTarget.uiBuffer.dispose();
-		this._matRenderTarget.normalBuffer.dispose();
+		this._matGBuffer.dispose();
+		this._matOutputFB.dispose();
 		this._matScene.disposeRecursive();
 
 	}
