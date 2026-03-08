@@ -62,33 +62,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `docs/adr/006-gbuffer-layout-and-depth-sharing.md` - GBufferレイアウトとDepth共有
 - `docs/adr/007-editor-context-architecture.md` - エディタContext体系
 
-## シーン作成（REST API経由）
+### ADRの参照ルール
+- 関連する設計領域のコードを変更する前に、対応するADRを読んで設計意図を理解すること
+- ADRには実装の詳細（API仕様、フィールド一覧等）は書かない。実装の詳細はコードが正（source of truth）
+- 新しい機能を追加する際、既存のADRの設計原則に反していないか確認すること
 
-### エンティティのバッチ作成
-`POST /api/projects/{name}/editor/entities` でエンティティ・コンポーネント・フィールドを一括作成可能。transform（position/euler/scale）とコンポーネント（fields含む）を1リクエストで指定できる。
-
-### Meshコンポーネント
-- `geometry/type`: `"Cube"` | `"Sphere"` | `"Plane"` | `"Cylinder"` (**PascalCase必須**)
-- `material/name`: マテリアル名（文字列）
-- フィールド設定には**コンポーネントUUID**（エンティティUUIDではない）が必要。バッチAPIではこの区別は不要
-
-### Lightコンポーネント
-- `lightType`: `"spot"` (default) | `"directional"`
-- `color`: [r, g, b]、`intensity`: number、`castShadow`: boolean
-- spot専用: `angle`(rad), `blend`, `distance`, `decay`
-
-### マテリアル (.mat) config
-- uniform形式: `"uniforms/uName": value`
-- 型: float→number, vec2→[x,y], vec3→[x,y,z], vec4→[x,y,z,w], sampler2D→テクスチャ名(string)
-- phase: `["shadowMap", "deferred"]` が標準。forward描画は `["forward"]`
-
-### シェーダー作成
-- `POST /api/shaders` に `"template": "mesh"` でメッシュ用テンプレート生成
-- `"template": "texture"` でテクスチャ用テンプレート生成
-- 頂点で使えないuniform: `uCameraPosition`, `uResolution`（frag_h専用）
-- テクスチャ用FSには `in vec2 vUv;` を明示宣言するか `#include <frag_h>` を使用
-- シェーダーモジュール: GLSLソース `packages/maxpower/Component/Renderer/ShaderParser/shaderModules/` を参照
-
-### コンポーネント作成
-- `import * as GLP from 'glpower'` + `import * as MXP from 'maxpower'`
-- `ComponentUpdateEvent`: `timeDelta`（秒）, `timeElapsed`（累積秒）, `playing`, `renderer`, `resolution` 等
+### ADRの更新ルール
+- **更新が必要な場合**: 設計の根幹（アーキテクチャパターン、データフロー方向、継承構造等）を変更するとき
+- **更新が不要な場合**: APIエンドポイント追加、フィールド追加、UIコンポーネント追加、バグ修正、リファクタリング等の日常的な変更
+- 新しい設計判断が必要になった場合は、次の番号でADRを新規追加する
+- 既存の設計判断を廃止する場合は、ステータスを「廃止」に変更し、後継ADRへの参照を記載する
