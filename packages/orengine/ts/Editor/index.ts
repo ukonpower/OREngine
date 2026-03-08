@@ -49,6 +49,7 @@ export class Editor extends MXP.Serializable {
 	private _externalCanvasBitmapContext: ImageBitmapRenderingContext | null;
 
 	private _disposed: boolean;
+	private _projectName: string | undefined;
 	private _api: EditorAPI;
 	private _apiBridge: EditorAPIBridge;
 
@@ -60,11 +61,12 @@ export class Editor extends MXP.Serializable {
 	private _pointerHandler: PointerHandler;
 	private _keyboardHandler: KeyboardHandler;
 
-	constructor( engine: Engine ) {
+	constructor( engine: Engine, projectName?: string ) {
 
 		super();
 
 		this._engine = engine;
+		this._projectName = projectName;
 		this._viewType = "render";
 		this._selectedEntityId = null;
 		this._selectedAsset = null;
@@ -322,7 +324,7 @@ export class Editor extends MXP.Serializable {
 			API Bridge
 		-------------------------------*/
 
-		this._apiBridge = new EditorAPIBridge( this );
+		this._apiBridge = new EditorAPIBridge( this, this._projectName || 'default' );
 
 		/*-------------------------------
 			Animate

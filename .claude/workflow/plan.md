@@ -1,152 +1,118 @@
-# Plan: ドキュメントのADR化
+# Plan: アクティブプロジェクト概念の廃止（シンプル版）
 
 ## 概要
-`docs/` の詳細実装仕様ドキュメント（10ファイル・3,536行）をADR（Architecture Decision Records）スタイルに移行する。「コードから読み取れる情報」を削除し、「設計判断の理由」のみを残すことで、ドキュメント陳腐化リスクとメンテナンスコストを削減する。
+「アクティブプロジェクト」（`.active` ファイル + ProjectResolver の HMR 監視）を廃止し、URLクエリパラメータ `?project=<name>` のみでプロジェクトを指定する設計に移行する。
+
+現在の未コミット修正のうち8ファイルはそのまま採用し、`EditorPage` の `import.meta.glob` を `~/ts/Resources` 直接importに置き換えることで大幅にシンプル化する。
+
+## 現在の修正の評価
+
+### そのまま採用（8ファイル）
+これらは既に正しく実装されており、変更不要:
+- `plugins/ProjectResolver/index.ts` - chokidar・HMR削除、環境変数ベースのみに
+- `server/routes/projects.ts` - active API削除、delete/renameの`.active`連携削除
+- `server/ws/index.ts` - `_client` → `_clients: Map<WebSocket, string>` マルチクライアント化
+- `server/routes/editor.ts` - `bridge.send(projectName, action)` に変更
+- `packages/orengine/ts/Editor/index.ts` - `constructor(engine, projectName?)` に変更
+- `packages/orengine/ts/Editor/EditorAPIBridge/index.ts` - register時にprojectName送信
+- `packages/orengine/tsx/components/OREditor/Hooks/useOREditorContext/index.tsx` - projectName伝搬
+- `src/tsx/components/pages/ProjectSelectPage/index.tsx` - selectProject同期化
+
+### 修正が必要（2ファイル）
+調査で判明: 全プロジェクトの `index.ts` は `~/ts/Resources` のre-exportであり、`import.meta.glob` は過剰。
 
 ## 実装ステップ
 
-### 1. ADRディレクトリ作成とADR執筆
+### 1. EditorPage を `~/ts/Resources` 直接importに変更
 
-- **対象ファイル**: `docs/adr/` ディレクトリ（新規作成）
-- **変更内容**: 以下のADRを新規作成する。各ADRには既存ドキュメントから「なぜ」の部分を抽出して記述する。
+- **対象ファイル**: `src/tsx/components/pages/EditorPage/index.tsx`
+- **変更内容**: `import.meta.glob` による動的import → `~/ts/Resources` の静的importに置き換え
+- **コードスニペット**（ファイル全体の最終形）:
+  ```typescript
+  import * as MXP from 'maxpower';
+  import { OREditor, OREngine } from "orengine/react";
+  import { OREngineProjectData } from "orengine";
+  import { Engine } from "orengine/ts/Engine";
+  import { useEffect, useState } from "react";
 
-#### ADR一覧
+  import { gl } from "~/ts/Globals";
+  import { initResouces, initResourceInstances } from "~/ts/Resources";
+  import { MIDIMIX } from "~/ts/Resources/Components/_Samples/MIDI/MIDIMIX";
 
-| ADR | タイトル | 元ドキュメント | 抽出する設計判断 |
-|-----|---------|--------------|----------------|
-| 001 | ブラウザファースト設計 | `architecture.md` | なぜブラウザがsource of truthなのか、なぜサーバーではなく |
-| 002 | WebSocket委譲パターン | `architecture.md` | なぜREST→WS→ブラウザの委譲か（Undo/Redo対応のため） |
-| 003 | Entity-Component継承階層 | `entity-component-system.md` | なぜEventEmitter→Serializable→Entity/Component構造なのか |
-| 004 | Serializableフィールドシステム | `serializable-system.md` | なぜスラッシュ区切りフラットパス、なぜgetter/setter方式 |
-| 005 | Deferredレンダリングパイプライン | `rendering-pipeline.md` | なぜこの描画順序か、なぜdeferred+forward混合か |
-| 006 | GBufferレイアウトとDepth共有 | `rendering-pipeline.md` | なぜ5テクスチャ、なぜEmission分散、なぜdepth共有 |
-| 007 | エディタContext体系 | `editor-ui-architecture.md` | なぜOREngine/OREditor/MouseMenu/InputWindow分離か |
+  initResouces();
 
-- **注意点**: ADRの「コンテキスト」と「理由」セクションはユーザー（設計者）の判断が必要。コードから推測できる範囲で草稿を書き、ユーザーにレビューしてもらう
+  const projectName = new URLSearchParams( location.search ).get( 'project' ) || 'default';
 
-#### ADRテンプレート
+  export const EditorPage = () => {
 
-```markdown
-# ADR-{番号}: {タイトル}
+  	const [ projectData, setProjectData ] = useState<OREngineProjectData>();
+  	const [ editorData, setEditorData ] = useState<MXP.SerializeField>();
 
-## ステータス
-承認済み
+  	useEffect( () => {
 
-## コンテキスト
-{この設計判断に至った背景・課題}
+  		fetch( `/api/projects/${projectName}/scene` ).then( r => r.json() ).then( ( data ) => {
 
-## 決定
-{何を決定したか}
+  			if ( ! data ) return;
 
-## 理由
-{なぜこの決定に至ったか、代替案との比較}
+  			setProjectData( data );
 
-## 結果
-{この決定によって生じる影響、トレードオフ}
+  		} ).catch( () => {} );
 
-## 関連コード
-{実装の起点となるファイルパス}
-```
+  		fetch( `/api/projects/${projectName}/editor` ).then( r => r.json() ).then( ( data ) => {
 
----
+  			if ( ! data ) return;
 
-### 2. 旧ドキュメントの削除
+  			setEditorData( data );
 
-- **対象ファイル**: `docs/` 直下の全10ファイル
-- **変更内容**: 以下を削除する
+  		} ).catch( () => {} );
 
-| 削除ファイル | 理由 |
-|------------|------|
-| `architecture.md` | ADR-001, 002に設計意思を移行。残りはコードが正 |
-| `component-fields.md` | フィールドパス・デフォルト値はコードの`field()`呼び出しが正 |
-| `editor-rest-api.md` | ルーティングコードが正。主要パターンはCLAUDE.mdに既存 |
-| `editor-ui-architecture.md` | ADR-007に設計意思を移行。残りはコードが正 |
-| `entity-component-system.md` | ADR-003に設計意思を移行。残りはコードが正 |
-| `project-api.md` | ルーティングコードが正 |
-| `rendering-pipeline.md` | ADR-005, 006に設計意思を移行。残りはコードが正 |
-| `resource-api.md` | ルーティングコードが正 |
-| `serializable-system.md` | ADR-004に設計意思を移行。残りはコードが正 |
-| `shader-reference.md` | GLSLソースが正 |
+  	}, [] );
 
----
+  	return (
+  		<OREngine gl={gl} project={projectData} onEngineInit={initResourceInstances} >
+  			<OREditor editorData={editorData} projectName={projectName} midiMixController={MIDIMIX} onSave={( projectData, editorData ) => {
+  				// ... onSave は現在の修正のまま維持 ...
+  			}} />
+  		</OREngine>
+  	);
 
-### 3. CLAUDE.mdの更新
+  };
+  ```
+- **削除されるもの**:
+  - `import.meta.glob` とその型定義
+  - `console.log( '[EditorPage] projectModules:' ... )`
+  - `resourcesReady` 状態と `if ( ! resourcesReady ) return null`
+  - `initResourceInstancesRef` と `onEngineInit` コールバック
+  - `useCallback`, `useRef` のimport（不要になる場合）
+- **注意点**: `onSave` コールバックの中身は現在の修正のまま維持する
 
-- **対象ファイル**: `CLAUDE.md`
-- **変更内容**: ドキュメントセクションをADR体系に合わせて書き換える
+### 2. Resources のデバッグ用 console.log 削除
 
-#### 3a. 「ドキュメント」セクションの書き換え
-
-**Before（現在）:**
-```markdown
-## ドキュメント
-仕様の詳細は `docs/` ディレクトリに記載されている。**実装を変更した場合は、関連するドキュメントも必ず同時に更新すること。** コード変更とドキュメント更新は同じコミットに含める。特に以下の変更時は対応するドキュメントの確認・更新が必須:
-- Entity/Component/Serializableのインターフェース変更 → `entity-component-system.md`, `serializable-system.md`
-- レンダリングパイプライン・描画フェーズ・GBuffer変更 → `rendering-pipeline.md`
-- エディタUI・hooks・パネル変更 → `editor-ui-architecture.md`
-- REST API変更 → `editor-rest-api.md`, `project-api.md`, `resource-api.md`
-- シェーダーモジュール・uniform変更 → `shader-reference.md`
-- コンポーネントフィールド変更 → `component-fields.md`
-
-### 内部実装仕様
-（10ファイル分のリスト）
-```
-
-**After:**
-```markdown
-## 設計ドキュメント（ADR）
-`docs/adr/` に設計判断の記録（Architecture Decision Records）がある。ADRには「なぜその設計にしたか」が記述されている。**設計の根幹を変更する場合のみ**、対応するADRを更新または新規追加する。日常的なコード変更ではADRの更新は不要。
-
-- `docs/adr/001-browser-first-architecture.md` - ブラウザファースト設計
-- `docs/adr/002-websocket-delegation-pattern.md` - WebSocket委譲パターン
-- `docs/adr/003-entity-component-hierarchy.md` - Entity-Component継承階層
-- `docs/adr/004-serializable-field-system.md` - Serializableフィールドシステム
-- `docs/adr/005-deferred-rendering-pipeline.md` - Deferredレンダリングパイプライン
-- `docs/adr/006-gbuffer-layout-and-depth-sharing.md` - GBufferレイアウトとDepth共有
-- `docs/adr/007-editor-context-architecture.md` - エディタContext体系
-```
-
-#### 3b. 「シーン作成」セクション内の参照更新
-
-**Before:**
-```markdown
-- 詳細: `docs/shader-reference.md`
-```
-
-**After:**
-```markdown
-- シェーダーモジュール: GLSLソース `packages/maxpower/Component/Renderer/ShaderParser/shaderModules/` を参照
-```
-
----
+- **対象ファイル**: `src/ts/Resources/index.ts`
+- **変更内容**: `console.log("やっほー", Engine.resources)` を削除
+- **注意点**: 181行目付近の1行のみ
 
 ## 変更対象ファイル一覧
 
-- [x] `docs/adr/001-browser-first-architecture.md` - 新規作成
-- [x] `docs/adr/002-websocket-delegation-pattern.md` - 新規作成
-- [x] `docs/adr/003-entity-component-hierarchy.md` - 新規作成
-- [x] `docs/adr/004-serializable-field-system.md` - 新規作成
-- [x] `docs/adr/005-deferred-rendering-pipeline.md` - 新規作成
-- [x] `docs/adr/006-gbuffer-layout-and-depth-sharing.md` - 新規作成
-- [x] `docs/adr/007-editor-context-architecture.md` - 新規作成
-- [x] `docs/architecture.md` - 削除
-- [x] `docs/component-fields.md` - 削除
-- [x] `docs/editor-rest-api.md` - 削除
-- [x] `docs/editor-ui-architecture.md` - 削除
-- [x] `docs/entity-component-system.md` - 削除
-- [x] `docs/project-api.md` - 削除
-- [x] `docs/rendering-pipeline.md` - 削除
-- [x] `docs/resource-api.md` - 削除
-- [x] `docs/serializable-system.md` - 削除
-- [x] `docs/shader-reference.md` - 削除
-- [x] `CLAUDE.md` - ドキュメントセクション書き換え
+- [x] `plugins/ProjectResolver/index.ts` - 現在の修正のまま
+- [x] `server/routes/projects.ts` - 現在の修正のまま
+- [x] `server/ws/index.ts` - 現在の修正のまま
+- [x] `server/routes/editor.ts` - 現在の修正のまま
+- [x] `packages/orengine/ts/Editor/index.ts` - 現在の修正のまま
+- [x] `packages/orengine/ts/Editor/EditorAPIBridge/index.ts` - 現在の修正のまま
+- [x] `packages/orengine/tsx/components/OREditor/Hooks/useOREditorContext/index.tsx` - 現在の修正のまま
+- [x] `src/tsx/components/pages/ProjectSelectPage/index.tsx` - 現在の修正のまま
+- [x] `src/tsx/components/pages/EditorPage/index.tsx` - `import.meta.glob` → 直接import
+- [x] `src/ts/Resources/index.ts` - デバッグ console.log 削除
+- [x] `projects/.active` - ファイル削除のまま
 
 ## 考慮事項・リスク
 
-1. **REST APIリファレンス喪失**: 旧ドキュメント削除でClaude Codeがエンドポイント一覧を失う。**対策**: CLAUDE.mdの「シーン作成」セクションに主要なAPIパターン（バッチAPI、シェーダー/マテリアル作成）は既に記載済み。必要時はルーティングコード（`server/routes/`）を直接読む運用とする
-2. **ADRの「理由」が不十分**: コードから推測してADRを書くため、設計者の真意と異なる可能性がある。**対策**: ADR草稿をユーザーにレビューしてもらい、修正サイクルを回す
-3. **MEMORYへの影響**: auto-memoryのMEMORY.mdにドキュメント対応表がある。**対策**: MEMORY.mdも同時に更新する
+1. **将来のプロジェクト固有リソース**: 現在は全プロジェクトの `index.ts` が同一テンプレートだが、将来カスタマイズが必要になった場合は `import.meta.glob` に戻せる（YAGNI原則）
+2. **Player ビルドへの影響**: なし。`vite-player.config.ts` は環境変数 `ORENGINE_PROJECT` で `~project` を解決しており、今回の変更と独立
 
 ## テスト方針
-- ドキュメント変更のみでコード変更なし。`npm run typecheck` / `npm run build` への影響はない
-- CLAUDE.mdの構文が正しいことを目視確認
+
+- `npm run typecheck` が通ること
+- 開発サーバーでプロジェクト選択→エディタ表示が正常に動作すること
+- WebSocket接続が正しくプロジェクト名で登録されること

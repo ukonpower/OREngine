@@ -58,37 +58,7 @@ export const ProjectSelectPage: React.FC<Props> = ( { onSelectProject } ) => {
 
 	}, [ menuOpen ] );
 
-	const selectProject = async ( name: string ) => {
-
-		const waitForReady = new Promise<void>( ( resolve ) => {
-
-			if ( import.meta.hot ) {
-
-				const handler = () => {
-
-					resolve();
-					import.meta.hot!.off( 'project-changed', handler );
-
-				};
-
-				import.meta.hot.on( 'project-changed', handler );
-				setTimeout( resolve, 3000 );
-
-			} else {
-
-				resolve();
-
-			}
-
-		} );
-
-		await fetch( '/api/projects/active', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify( { name } ),
-		} );
-
-		await waitForReady;
+	const selectProject = ( name: string ) => {
 
 		onSelectProject( name );
 

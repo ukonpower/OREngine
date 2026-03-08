@@ -178,6 +178,7 @@ export const initResouces = () => {
 	MXP.Mesh.getMaterialList = () => Engine.resources.materialList;
 	MXP.Mesh.getMaterialInstance = ( name ) => Engine.resources.getMaterialInstance( name );
 
+
 };
 
 export const initResourceInstances = ( glCtx: WebGL2RenderingContext ) => {

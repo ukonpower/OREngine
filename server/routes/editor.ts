@@ -157,11 +157,11 @@ async function handleActionInternal(
 ): Promise<any> {
 
 	const bridge = getWSBridge();
-	const browserConnected = bridge && bridge.connected;
+	const browserConnected = bridge && bridge.isProjectConnected( projectName );
 
 	if ( browserConnected ) {
 
-		const result = await bridge!.send( action, params );
+		const result = await bridge!.send( projectName, action, params );
 
 		if ( ! result.success ) {
 
