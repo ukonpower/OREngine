@@ -52,8 +52,21 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - 継承階層: `EventEmitter` → `Serializable` → `Entity` / `Component`
 
 ## ドキュメント
-仕様の詳細は `docs/` ディレクトリに記載されている。API仕様やアーキテクチャを変更した場合は、対応するドキュメントも必ず更新すること。
+仕様の詳細は `docs/` ディレクトリに記載されている。**実装を変更した場合は、関連するドキュメントも必ず同時に更新すること。** コード変更とドキュメント更新は同じコミットに含める。特に以下の変更時は対応するドキュメントの確認・更新が必須:
+- Entity/Component/Serializableのインターフェース変更 → `entity-component-system.md`, `serializable-system.md`
+- レンダリングパイプライン・描画フェーズ・GBuffer変更 → `rendering-pipeline.md`
+- エディタUI・hooks・パネル変更 → `editor-ui-architecture.md`
+- REST API変更 → `editor-rest-api.md`, `project-api.md`, `resource-api.md`
+- シェーダーモジュール・uniform変更 → `shader-reference.md`
+- コンポーネントフィールド変更 → `component-fields.md`
 
+### 内部実装仕様
+- `docs/entity-component-system.md` - Entity-Componentシステム仕様（ライフサイクル、更新ループ、コンポーネント管理）
+- `docs/serializable-system.md` - Serializableフィールドシステム仕様（フィールド登録、serialize/deserialize）
+- `docs/rendering-pipeline.md` - レンダリングパイプライン仕様（描画フェーズ、GBuffer、PostProcess）
+- `docs/editor-ui-architecture.md` - エディタUIアーキテクチャ（React構造、hooks、状態管理）
+
+### API・リファレンス
 - `docs/architecture.md` - 全体アーキテクチャ、WebSocket仕様、データ構造、データフロー
 - `docs/editor-rest-api.md` - エディタ操作REST API（バッチAPI含む）
 - `docs/project-api.md` - プロジェクト管理・シーン・エディタデータAPI

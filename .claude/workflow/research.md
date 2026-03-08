@@ -1,115 +1,181 @@
-# Research: Gizmo表示時にワイヤーフレームが見えなくなる問題
+# Research: ドキュメント整備計画
 
 ## タスク概要
-Gizmoが表示されている状態でワイヤーフレームが見えなくなる。エディタの描画パイプラインにおける描画順序・renderTarget・depthバッファ管理の問題を調査・修正する。
+OREngineのドキュメントを整備する。対象読者は2つ:
+1. **ユーザー（開発者）**: OREngineを使ってシーンやコンポーネントを作る人
+2. **Claude Code（AI）**: コーディングを代行する際に参照するドキュメント
 
-## 全体の描画パイプライン
+## 現状のドキュメント
 
-### engine.update() 内の Renderer.render() (Renderer/index.ts:444-725)
-1. **deferred** → `gBuffer` (depth書き込みあり、clearあり)
-2. deferred shading (PostProcess) → `shadingBuffer`
-3. **forward** → `forwardBuffer` (gBuffer.depth共有、clearなし)
-4. pipeline PostProcess
-5. camera PostProcess
-6. **blitFramebuffer**: backBuffer COLOR → `uiBuffer` にコピー（COLOR_BUFFER_BITのみ）
-7. **ui** → `uiBuffer` (gBuffer.depth共有、clearなし)
-8. **blitFramebuffer**: `uiBuffer` COLOR → `null`(デフォルトFB)にコピー（COLOR_BUFFER_BITのみ）
+### 既存ドキュメント一覧
+| ファイル | 内容 | 対象読者 | 状態 |
+|---------|------|---------|------|
+| `README.md` | プロジェクト概要、インストール、実行方法 | ユーザー | 基本的な内容あり |
+| `CLAUDE.md` | コードスタイル、命名規則、パスエイリアス、API概要 | Claude Code | 充実 |
+| `docs/architecture.md` | サーバー/ブラウザ構成、WebSocket、データ構造 | 両方 | 充実 |
+| `docs/editor-rest-api.md` | エディタ操作REST API全仕様 | Claude Code | 充実 |
+| `docs/project-api.md` | プロジェクト管理API | Claude Code | 充実 |
+| `docs/resource-api.md` | リソース（コンポーネント/マテリアル/シェーダー/テクスチャ）管理API | Claude Code | 充実 |
+| `docs/shader-reference.md` | シェーダーuniform/varying/モジュール全リファレンス | 両方 | 充実 |
+| `docs/component-fields.md` | Mesh/Light/Camera等のフィールド一覧 | Claude Code | 充実 |
 
-### Editor._animate() の後続描画 (Editor/index.ts:367-430)
-engine.update()の後に以下が順に呼ばれる:
-1. `helperManager.render()` → `uiBuffer` に描画（clearなし）★最近変更
-2. `wireframeRenderer.render()` → `null`(デフォルトFB) に描画（clearなし）
-3. `gizmoManager.render()` → `null`(デフォルトFB) に描画（clearなし）
-4. `selectionOutline.render()` → selectionBuffer → outline PostProcess → null
+### 現状の評価
 
-## 根本原因
+**強い領域:**
+- REST API仕様は非常に詳細（editor, project, resource全て網羅）
+- シェーダーリファレンスは完全（uniform、varying、モジュール一覧）
+- CLAUDE.mdによるコードスタイル・規約の指示
 
-### デフォルトFBのdepthバッファがフレーム間でクリアされない問題
+**不足している領域:**
 
-1. engine.update() の最後で `blitFramebuffer(uiBuffer → null, COLOR_BUFFER_BIT)` が実行される
-   - **COLOR_BUFFER_BIT のみ** コピーされ、デフォルトFBの**depthバッファはクリアされない**
-2. ワイヤーフレーム（depthTest=true, depthWrite=false）がデフォルトFBに描画される
-3. Gizmo（depthTest=false, **depthWrite=true**）がデフォルトFBに描画される
-   - depthTestしないので常に描画されるが、**depthバッファには書き込む**
-4. 次フレームで再び blitFramebuffer(COLOR_BUFFER_BITのみ) → depthバッファはGizmoの値が残る
-5. ワイヤーフレーム(depthTest=true) が前フレームのGizmo depthに遮られて描画されない
+#### 1. ユーザー向けドキュメントがほぼ不在
+- エンジンの使い方（エディタUIの操作方法）がない
+- コンポーネントの作り方のガイドがない
+- シェーダーの書き方チュートリアルがない
+- マテリアル/テクスチャの作成ワークフローがない
 
-### 追加の問題: HelperManagerのrenderTarget変更
+#### 2. Claude Code向けのアーキテクチャ理解に必要な情報が分散
+- Entity-Componentシステムの詳細仕様（ライフサイクル、フィールドシステム）がない
+- Serializableの仕組み（fields、serialize/deserialize）のドキュメントがない
+- Rendererのパイプライン（Deferred → PostProcess）の説明がない
+- エディタUIの構造（React コンポーネント階層、hooks）のドキュメントがない
 
-先の変更で HelperManager の renderTarget を `null` → `uiBuffer` に変更したが:
-- uiBuffer に描画した後、デフォルトFBへの再blitは行われていない
-- そのためHelperが画面に表示されなくなっている可能性がある
+#### 3. 開発ガイド的なものがない
+- 新規コンポーネントを追加する手順
+- 新規シェーダーを追加する手順
+- エディタUIパネルを追加する手順
+- カスタムPostProcessを追加する手順
 
-## 関連ファイル・シンボル
+## 提案するドキュメント構成
 
+### A. ユーザー向け（Getting Started / Guides）
+
+| ドキュメント | 内容 | 優先度 |
+|------------|------|-------|
+| `docs/getting-started.md` | セットアップ〜最初のシーン作成まで | 高 |
+| `docs/editor-guide.md` | エディタUI操作ガイド（パネル説明、ショートカット、ギズモ操作） | 高 |
+| `docs/component-guide.md` | カスタムコンポーネント作成ガイド（ライフサイクル、フィールド定義、実例） | 高 |
+| `docs/shader-guide.md` | シェーダー作成ガイド（メッシュ用/テクスチャ用、#includeの使い方、実例） | 中 |
+| `docs/material-texture-guide.md` | マテリアル・テクスチャの作成と設定ガイド | 中 |
+
+### B. Claude Code向け（内部仕様 / Architecture Deep Dive）
+
+| ドキュメント | 内容 | 優先度 |
+|------------|------|-------|
+| `docs/entity-component-system.md` | Entity-Componentシステム詳細仕様 | 高 |
+| `docs/serializable-system.md` | Serializableクラスのフィールドシステム、シリアライズ/デシリアライズ仕様 | 高 |
+| `docs/rendering-pipeline.md` | レンダリングパイプライン（GBuffer → Deferred → PostProcess → Forward → UI） | 中 |
+| `docs/editor-ui-architecture.md` | エディタUIのReactコンポーネント構造、hooks、状態管理 | 中 |
+| `docs/build-system.md` | Viteプラグイン構成、リソース自動生成、ShaderMinifier | 低 |
+
+### C. 既存ドキュメントの改善
+
+| ドキュメント | 改善点 |
+|------------|-------|
+| `README.md` | docsへのリンク整理、ドキュメント一覧の追加 |
+| `docs/architecture.md` | パッケージ間依存関係の図を追加 |
+| `CLAUDE.md` | 新規ドキュメントへの参照を追加 |
+
+## 関連ファイル・シンボル（ドキュメント化が必要な主要コード）
+
+### Entity-Componentシステム
 | ファイル | 主要シンボル | 役割 |
 |---------|------------|------|
-| packages/orengine/ts/Editor/index.ts:367 | Editor._animate() | エディタの描画ループ、描画順序の制御 |
-| packages/orengine/ts/Editor/GizmoManager/index.ts:49 | GizmoManager.render() | Gizmo描画（renderTarget=null） |
-| packages/orengine/ts/Editor/WireframeRenderer/index.ts:46 | WireframeRenderer.render() | ワイヤーフレーム描画（renderTarget=null） |
-| packages/orengine/ts/Editor/HelperManager/index.ts:72 | HelperManager.render() | Helper描画（renderTarget=uiBuffer ←変更済） |
-| packages/orengine/ts/Editor/SelectionOutline/index.ts:47 | SelectionOutline.render() | 選択アウトライン描画 |
-| packages/orengine/ts/Editor/Helpers/EntityHelper.ts:28 | EntityHelper | Helper マテリアル設定 |
-| packages/maxpower/Component/Renderer/index.ts:444 | Renderer.render() | レンダリングパイプライン本体 |
-| packages/maxpower/Component/Renderer/index.ts:727 | Renderer.renderCamera() | カメラ描画（FBバインドとclear） |
-| packages/maxpower/Material/index.ts:50 | Material constructor | depthTest/depthWrite のデフォルト値 |
-| packages/orengine/ts/Editor/Gizmo/TranslateGizmo/index.ts | TranslateGizmo._createAxis() | Gizmoマテリアル(depthTest=false, depthWrite=true) |
-| packages/orengine/ts/Editor/Gizmo/RotateGizmo/index.ts | RotateGizmo._createRing() | 同上 |
-| packages/orengine/ts/Editor/Gizmo/ScaleGizmo/index.ts | ScaleGizmo._createAxis() | 同上 |
+| `packages/maxpower/Serializable/index.ts` | `Serializable`, `SerializableField` | フィールドシステム基底 |
+| `packages/maxpower/Entity/index.ts` | `Entity` | シーングラフノード |
+| `packages/maxpower/Component/index.ts` | `Component`, `ComponentUpdateEvent` | コンポーネント基底 |
 
-## FBとdepthの共有関係 (Renderer.createRenderTarget: 339-375)
+### レンダリング
+| ファイル | 主要シンボル | 役割 |
+|---------|------------|------|
+| `packages/maxpower/Component/Renderer/index.ts` | `Renderer` | メインレンダラー |
+| `packages/maxpower/Component/Renderer/DeferredRenderer/index.ts` | `DeferredRenderer` | Deferred Rendering |
+| `packages/maxpower/Component/Renderer/PipelinePostProcess/index.ts` | `PipelinePostProcess` | ポストプロセスチェーン |
+| `packages/maxpower/Material/index.ts` | `Material` | マテリアルクラス |
 
-```
-gBuffer         : 独自のdepthTexture（シーンの深度情報の源）
-shadingBuffer   : depthバッファなし (disableDepthBuffer: true)
-forwardBuffer   : gBuffer.depthTexture を共有 (356-357行目)
-uiBuffer        : gBuffer.depthTexture を共有 (364-365行目)
-デフォルトFB(null): WebGLが自動管理するdepth（シーンとは完全に独立）
-```
+### エディタ
+| ファイル | 主要シンボル | 役割 |
+|---------|------------|------|
+| `packages/orengine/ts/Engine/index.ts` | `Engine` | エンジン本体 |
+| `packages/orengine/ts/Editor/index.ts` | `Editor` | エディタ本体 |
+| `packages/orengine/ts/Editor/CommandManager/index.ts` | `CommandManager` | Undo/Redo管理 |
+| `packages/orengine/tsx/OREditor/index.tsx` | `OREditor` | エディタReactコンポーネント |
 
-## 各描画のdepth設定
+## 各ドキュメントの詳細内容案
 
-| 描画 | renderTarget | depthTest | depthWrite | 問題 |
-|------|-------------|-----------|------------|------|
-| Gizmo shaft/head | null | false | **true**(暗黙デフォルト) | depthに書き込むが次フレームでクリアされない |
-| Wireframe | null | true | false(明示) | 前フレームのGizmo depthに遮られる |
-| Helper | uiBuffer(変更済) | true | true | uiBuffer→画面の再blitがない |
-| SelectionOutline mask | selectionBuffer | - | - | 独立のため影響なし |
-| SelectionOutline composite | null | - | - | PostProcessで上書き |
+### docs/entity-component-system.md（高優先度・Claude Code向け）
+- **Entityクラス**: 親子関係、transform（position/euler/scale）、matrixWorldの自動計算、コンポーネントの追加/削除
+- **Componentクラス**: ライフサイクル（`setEntityImpl` → `finalizeImpl` → `updateImpl` → `disposeImpl`）、`ComponentUpdateEvent`の中身
+- **フィールドシステム**: `registerFields()` によるフィールド定義、フィールドパス（`"geometry/type"`のスラッシュ区切り）、型、selectオプション
+- **コンポーネント検索**: `getComponent<T>()`、`getComponentsByTag()`
+- **イベントシステム**: `notice()` と `watchNotice()` によるコンポーネント間通信
 
-### depthWriteのデフォルト値に注意 (Material/index.ts:64)
-```typescript
-this.depthWrite = params.depthTest !== undefined ? params.depthTest : true;
-```
-`params.depthTest` が undefined の場合 depthWrite=true。Gizmoはコンストラクタ後に `mat.depthTest = false` を設定するが、コンストラクタ時の params には depthTest がないため **depthWrite は true のまま**。
+### docs/serializable-system.md（高優先度・Claude Code向け）
+- **SerializableFieldの型**: `number`, `boolean`, `string`, `vec2`/`vec3`/`vec4`, `select`
+- **serialize/deserialize**: `SceneDataEntity`/`SceneDataComponent` とのマッピング
+- **フィールドのディレクトリ構造**: ネストしたフォルダとしての表現（`fieldsDirectory`）
+- **`props`フィールド**: シリアライズ時のprops変換ルール
 
-## 解決の方向性
+### docs/rendering-pipeline.md（中優先度・Claude Code向け）
+- **描画フェーズ**: `shadowMap` → `deferred`(GBuffer) → deferred shading → `forward` → pipeline PostProcess → camera PostProcess → `ui`
+- **GBufferレイアウト**: 5つのレンダーターゲット（position+emission, normal+emission, baseColor, roughness/metallic/SSN/env, velocity+emission）
+- **FrameBufferの共有関係**: gBuffer.depth が forwardBuffer/uiBuffer で共有
+- **PostProcessPass**: クアッド描画によるスクリーンスペースエフェクト
+- **Material.phase**: どのフェーズで描画されるかの指定方法
 
-### 案1: デフォルトFBへの描画前にdepthをクリアする
-blitFramebuffer後、エディタ描画の前にデフォルトFBのdepthをクリアする。
-→ ワイヤーフレームやHelperのdepthTestも無意味になる（シーンのdepthがない）
-→ ユーザーの要望（シーンオブジェクトに対するdepthTest）を満たせない
+### docs/component-guide.md（高優先度・ユーザー向け）
+- **基本構造**: MXP.Componentの継承、コンストラクタ、registerFields
+- **ライフサイクル例**: 初期化 → 毎フレーム更新 → 破棄
+- **フィールド定義の実例**: 数値スライダー、セレクトボックス、ベクトル入力
+- **実例**: 回転するコンポーネント、マウスに追従するコンポーネント等
+- **REST API/UIからの追加方法**
 
-### 案2: エディタ描画をすべてuiBufferで行い最後にblitする
-Helper、ワイヤーフレーム、Gizmo、アウトラインすべてを `uiBuffer` に描画し、最後にデフォルトFBにblitする。
-→ gBuffer.depthTexture を共有しているので、シーンオブジェクトに対するdepthTestが効く
-→ 描画順序の管理が統一的になる
-→ Gizmoは depthWrite=false にして他の描画に影響を与えないようにする
+### docs/shader-guide.md（中優先度・ユーザー向け）
+- **メッシュ用シェーダーの書き方**: vert_h/vert_in/vert_out、frag_h/frag_in/frag_outの役割
+- **テクスチャ用シェーダーの書き方**: vUvを使ったプロシージャルテクスチャ
+- **ユーティリティモジュール活用**: noise, sdf, randomの使い方
+- **実例**: グラデーションマテリアル、ノイズテクスチャ、レイマーチング
+- **デバッグのコツ**: outEmissionで光らせて確認等
 
-### 案3: Gizmo の depthWrite を false にするだけ
-Gizmoは常に最前面に描画したいのでdepthWrite=falseにする。
-→ 他の描画に影響を与えなくなる
-→ HelperのdepthTest問題は解決しない（renderTarget=null のまま → シーンdepthがない）
+### docs/editor-guide.md（高優先度・ユーザー向け）
+- **パネル構成**: Hierarchy, EntityProperty, Screen, Timeline, AssetViewer等
+- **エンティティ操作**: 作成、削除、選択、transform変更
+- **ギズモ**: 移動/回転/スケールの切り替え
+- **キーボードショートカット**: Ctrl+S（保存）、Ctrl+Z/Y（Undo/Redo）、Space（再生）等
+- **リソース管理**: マテリアル/シェーダー/テクスチャの追加・編集
 
-### 推奨: 案2（uiBuffer統一）
-- すべてのエディタ描画を `uiBuffer` に統一（gBuffer.depthでシーンに対するdepthTestが効く）
-- Gizmo は depthTest=false, depthWrite=false（常に最前面、他に影響なし）
-- 最後にまとめて uiBuffer → デフォルトFB に blit
-- Engine.render()の最後のblit(uiBuffer→null)は残し、_animate()最後に再度blitする
+### docs/editor-ui-architecture.md（中優先度・Claude Code向け）
+- **Reactコンポーネント階層**: OREditor → LayoutSplit → 各Panel
+- **hooks**: useOREditor, useOREngine, useSerializableField, useWatchSerializable
+- **状態管理**: Editor クラスのイベント → React hooks → UI更新
+- **パネル追加手順**: 新しいパネルコンポーネントの作り方
 
 ## 制約・注意点
-- `uiBuffer` は `gBuffer.depthTexture` を共有しているため、ここに描画するものは**deferredで確定したシーンdepth**に対してdepthTestが効く
-- engine.update() の最後で uiBuffer → null に blit されるが、エディタ描画後に再度 blit する必要がある
-- SelectionOutline の outline PostProcess は renderTarget=null で画面直接描画している → uiBuffer に変更するか、最後の blit の後に実行する必要がある
-- Renderer.render() 内で `gl.enable/disable(BLEND)` を管理しているため、外部からの renderCamera 呼び出し時のblend状態にも注意
-- WireframeRendererのdepthWrite=falseは明示設定済みなので、uiBufferに統一すればdepthTestが正しく機能する
+
+1. **docs/ は CLAUDE.md から参照されている**: 新規ドキュメントを追加したら CLAUDE.md のドキュメントセクションも更新が必要
+2. **コードとドキュメントの同期**: 既存のREST APIドキュメントは実装と同期されているが、内部仕様ドキュメントは実装変更時に陳腐化しやすい
+3. **ドキュメントの粒度**: Claude Code向けは実装の詳細を含むべきだが、あまり細かすぎるとメンテナンスコストが高い。「概念・設計意図・制約」に焦点を当て、具体的なAPI/型は既存ドキュメントに委譲すべき
+4. **対象読者の分離**: ユーザー向けガイドとClaude Code向け仕様書は明確に分離した方が良い。Claude Code向けはCLAUDE.mdに参照を入れることで活用される
+
+## 参考になる既存実装
+- `src/ts/Resources/Components/_Samples/` - サンプルコンポーネント群。コンポーネントガイドの実例として使える
+- `src/ts/Resources/Shaders/` - 実際のシェーダー群。シェーダーガイドの実例として使える
+- `server/routes/components.ts` のコンポーネントテンプレート生成 - コンポーネント作成ガイドで参照
+
+## 推奨する作成順序
+
+### Phase 1（高優先度 - Claude Codeの生産性向上）
+1. `docs/entity-component-system.md` - コーディング時に最も参照頻度が高い
+2. `docs/serializable-system.md` - フィールド操作の理解に不可欠
+3. `docs/component-guide.md` - ユーザーにもClaude Codeにも有用
+
+### Phase 2（中優先度 - 理解の深化）
+4. `docs/rendering-pipeline.md` - レンダリング関連の変更時に必要
+5. `docs/shader-guide.md` - シェーダー作成のハウツー
+6. `docs/editor-guide.md` - エディタ操作の理解
+
+### Phase 3（低優先度 - 網羅性）
+7. `docs/editor-ui-architecture.md` - UI変更時に参照
+8. `docs/material-texture-guide.md` - マテリアル/テクスチャ作成ガイド
+9. `docs/getting-started.md` - 新規ユーザー向け
+10. `docs/build-system.md` - ビルド設定変更時に参照
