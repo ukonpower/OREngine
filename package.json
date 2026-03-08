@@ -12,7 +12,10 @@
     "build:project": "vite build --config vite-player.config.ts",
     "build:dev": "NODE_ENV=development SKIP_SHADER_MINIFIER=true vite build --mode production",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "workspaces": [],
   "dependencies": {
@@ -37,6 +40,7 @@
     "@typescript-eslint/eslint-plugin": "^8.12.2",
     "@typescript-eslint/parser": "^8.12.2",
     "@vitejs/plugin-react": "^4.3.3",
+    "@vitest/coverage-v8": "^4.0.18",
     "body-parser": "^1.20.3",
     "concurrently": "^9.1.0",
     "eslint": "^9.14.0",
@@ -55,6 +59,7 @@
     "tsx": "^4.19.0",
     "typescript": "^5.6.3",
     "vite": "^5.4.10",
+    "vitest": "^4.0.18",
     "ws": "^8.19.0"
   },
   "volta": {
