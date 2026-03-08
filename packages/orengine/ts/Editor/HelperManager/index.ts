@@ -132,7 +132,7 @@ export class HelperManager {
 				"forward",
 				cameraEntity,
 				helperEntities,
-				null,
+				engine.renderer.renderTarget.uiBuffer,
 				engine.renderer.resolution,
 				{ disableClear: true }
 			);

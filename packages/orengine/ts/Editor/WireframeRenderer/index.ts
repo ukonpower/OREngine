@@ -19,15 +19,11 @@ export class WireframeRenderer {
 			vert: gizmoVert,
 			frag: gizmoFrag,
 			drawType: 'LINES',
+			phase: [ "forward" ],
+			depthTest: true,
+			depthWrite: false,
+			uniforms: { uColor: { value: [ 0.3, 0.8, 0.3 ], type: '3fv' } },
 		} );
-		this._wireframeMaterial.uniforms.uColor = { value: [ 0.3, 0.8, 0.3 ], type: '3fv' };
-		this._wireframeMaterial.depthTest = true;
-		this._wireframeMaterial.depthWrite = false;
-		this._wireframeMaterial.visibilityFlag = {
-			deferred: false, forward: true,
-			shadowMap: false, envMap: false,
-			ui: false, postprocess: false
-		};
 
 	}
 
@@ -82,7 +78,7 @@ export class WireframeRenderer {
 			"forward",
 			cameraEntity,
 			meshEntities,
-			null,
+			engine.renderer.renderTarget.uiBuffer,
 			engine.renderer.resolution,
 			{ disableClear: true }
 		);

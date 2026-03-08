@@ -58,12 +58,12 @@ export class RotateGizmo implements Gizmo {
 		const mat = new MXP.Material( {
 			vert: gizmoVert,
 			frag: gizmoFrag,
+			phase: [ "forward" ],
+			depthTest: false,
+			depthWrite: false,
+			cullFace: false,
+			uniforms: { uColor: { value: color, type: '3fv' } },
 		} );
-
-		mat.uniforms.uColor = { value: color, type: '3fv' };
-		mat.depthTest = false;
-		mat.cullFace = false;
-		mat.visibilityFlag = { deferred: false, forward: true, shadowMap: false, envMap: false, ui: false, postprocess: false };
 
 		ringEntity.addComponent( MXP.Mesh, { geometry: geo, material: mat } );
 

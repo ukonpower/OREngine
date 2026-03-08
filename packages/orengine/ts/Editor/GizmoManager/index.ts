@@ -83,7 +83,7 @@ export class GizmoManager {
 				"forward",
 				cameraEntity,
 				gizmoEntities,
-				null,
+				engine.renderer.renderTarget.uiBuffer,
 				engine.renderer.resolution,
 				{ disableClear: true }
 			);
