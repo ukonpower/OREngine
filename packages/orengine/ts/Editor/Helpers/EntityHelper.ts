@@ -39,14 +39,10 @@ export class EntityHelper {
 			vert: gizmoVert,
 			frag: gizmoFrag,
 			drawType: 'LINES',
+			phase: [ "forward" ],
+			depthTest: true,
+			uniforms: { uColor: { value: color, type: '3fv' } },
 		} );
-		mat.uniforms.uColor = { value: color, type: '3fv' };
-		mat.depthTest = false;
-		mat.visibilityFlag = {
-			deferred: false, forward: true,
-			shadowMap: false, envMap: false,
-			ui: false, postprocess: false
-		};
 
 		this._geometry = this._createGeometry();
 		this.entity.addComponent( MXP.Mesh, { geometry: this._geometry, material: mat } );

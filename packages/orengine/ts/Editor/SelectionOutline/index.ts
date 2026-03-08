@@ -11,6 +11,7 @@ export class SelectionOutline {
 	private _selectionBuffer: GLP.GLPowerFrameBuffer;
 	private _selectionMaterial: MXP.Material;
 	private _outlinePostProcess: MXP.PostProcess;
+	private _outlinePass: MXP.PostProcessPass;
 
 	constructor( engine: Engine ) {
 
@@ -25,10 +26,10 @@ export class SelectionOutline {
 		this._selectionMaterial = new MXP.Material( {
 			vert: selectionVert,
 			frag: selectionFrag,
+			phase: [ "forward" ],
 		} );
-		this._selectionMaterial.visibilityFlag = { deferred: false, forward: true, shadowMap: false, envMap: false, ui: false, postprocess: false };
 
-		const outlinePass = new MXP.PostProcessPass( gl, {
+		this._outlinePass = new MXP.PostProcessPass( gl, {
 			frag: outlineFrag,
 			renderTarget: null,
 			uniforms: {
@@ -39,7 +40,7 @@ export class SelectionOutline {
 
 		this._outlinePostProcess = new MXP.PostProcess( {
 			name: "editorOutline",
-			passes: [ outlinePass ],
+			passes: [ this._outlinePass ],
 		} );
 
 	}
@@ -72,6 +73,8 @@ export class SelectionOutline {
 		);
 
 		mesh.material = origMaterial;
+
+		this._outlinePass.setRendertarget( engine.renderer.renderTarget.uiBuffer );
 
 		engine.renderer.renderPostProcess(
 			this._outlinePostProcess,

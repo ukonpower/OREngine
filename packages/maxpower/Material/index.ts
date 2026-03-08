@@ -59,9 +59,9 @@ export class Material extends Serializable {
 		this.setVisibility( params.phase || [ "shadowMap", "deferred" ] );
 
 		this.useLight = params.useLight !== undefined ? params.useLight : true;
-		this.depthTest = true;
-		this.cullFace = false;
-		this.depthWrite = params.depthTest !== undefined ? params.depthTest : true;
+		this.depthTest = params.depthTest !== undefined ? params.depthTest : true;
+		this.cullFace = params.cullFace !== undefined ? params.cullFace : false;
+		this.depthWrite = params.depthWrite !== undefined ? params.depthWrite : true;
 		this.drawType = params.drawType || "TRIANGLES";
 		this.blending = params.blending || "NORMAL";
 

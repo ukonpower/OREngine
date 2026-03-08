@@ -66,11 +66,11 @@ export class TranslateGizmo implements Gizmo {
 		const shaftMat = new MXP.Material( {
 			vert: gizmoVert,
 			frag: gizmoFrag,
+			phase: [ "forward" ],
+			depthTest: false,
+			depthWrite: false,
+			uniforms: { uColor: { value: color, type: '3fv' } },
 		} );
-
-		shaftMat.uniforms.uColor = { value: color, type: '3fv' };
-		shaftMat.depthTest = false;
-		shaftMat.visibilityFlag = { deferred: false, forward: true, shadowMap: false, envMap: false, ui: false, postprocess: false };
 
 		shaft.addComponent( MXP.Mesh, { geometry: shaftGeo, material: shaftMat } );
 		shaft.position.set( direction.x * shaftLength / 2, direction.y * shaftLength / 2, direction.z * shaftLength / 2 );
@@ -91,11 +91,11 @@ export class TranslateGizmo implements Gizmo {
 		const headMat = new MXP.Material( {
 			vert: gizmoVert,
 			frag: gizmoFrag,
+			phase: [ "forward" ],
+			depthTest: false,
+			depthWrite: false,
+			uniforms: { uColor: { value: color, type: '3fv' } },
 		} );
-
-		headMat.uniforms.uColor = { value: color, type: '3fv' };
-		headMat.depthTest = false;
-		headMat.visibilityFlag = { deferred: false, forward: true, shadowMap: false, envMap: false, ui: false, postprocess: false };
 
 		head.addComponent( MXP.Mesh, { geometry: headGeo, material: headMat } );
 		head.position.set(
