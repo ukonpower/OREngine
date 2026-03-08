@@ -17,13 +17,15 @@ export class EditorAPIBridge {
 	private _editor: Editor;
 	private _api: EditorAPI;
 	private _engine: Engine;
+	private _projectName: string;
 	private _disposed = false;
 
-	constructor( editor: Editor ) {
+	constructor( editor: Editor, projectName: string ) {
 
 		this._editor = editor;
 		this._api = editor.api;
 		this._engine = editor.engine;
+		this._projectName = projectName;
 		this._connect();
 
 	}
@@ -34,6 +36,12 @@ export class EditorAPIBridge {
 
 		const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
 		this._ws = new WebSocket( `${protocol}//${location.host}/ws/editor` );
+
+		this._ws.onopen = () => {
+
+			this._send( { type: 'register', projectName: this._projectName } );
+
+		};
 
 		this._ws.onmessage = ( e ) => this._handleMessage( e );
 

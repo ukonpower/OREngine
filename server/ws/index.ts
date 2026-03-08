@@ -1,13 +1,8 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import { fileURLToPath } from 'url';
 import { WebSocketServer, WebSocket } from 'ws';
 
 import { projectManager } from '../Project';
 
 import type { Server } from 'http';
-
-const __dirname = path.dirname( fileURLToPath( import.meta.url ) );
 
 export type BridgeRequest = {
 	id: string;
@@ -25,7 +20,7 @@ export type BridgeResponse = {
 class EditorWSBridge {
 
 	private _wss: WebSocketServer;
-	private _client: WebSocket | null = null;
+	private _clients: Map<WebSocket, string> = new Map();
 	private _pending: Map<string, {
 		resolve: ( value: any ) => void;
 		timer: NodeJS.Timeout;
@@ -38,16 +33,18 @@ class EditorWSBridge {
 
 		this._wss.on( 'connection', ( ws ) => {
 
-			this._client = ws;
-
-			// 切断中に変更があった場合、再接続時にstatePushを送信
-			this._pushDirtyState( ws );
-
 			ws.on( 'message', ( raw ) => {
 
 				const msg = JSON.parse( raw.toString() );
 
-				// syncResponse の場合
+				if ( msg.type === 'register' && msg.projectName ) {
+
+					this._clients.set( ws, msg.projectName );
+					this._pushDirtyState( ws, msg.projectName );
+					return;
+
+				}
+
 				if ( msg.type === 'syncResponse' && msg.id ) {
 
 					const pending = this._pending.get( msg.id );
@@ -64,7 +61,6 @@ class EditorWSBridge {
 
 				}
 
-				// 既存の BridgeResponse
 				const res: BridgeResponse = msg;
 				const pending = this._pending.get( res.id );
 
@@ -80,7 +76,7 @@ class EditorWSBridge {
 
 			ws.on( 'close', () => {
 
-				if ( this._client === ws ) this._client = null;
+				this._clients.delete( ws );
 
 			} );
 
@@ -90,15 +86,33 @@ class EditorWSBridge {
 
 	get connected(): boolean {
 
-		return this._client?.readyState === WebSocket.OPEN;
+		return this._clients.size > 0;
 
 	}
 
-	send( action: string, params: Record<string, unknown> = {}, timeout = 10000 ): Promise<BridgeResponse> {
+	private _findClient( projectName: string ): WebSocket | null {
+
+		for ( const [ ws, name ] of this._clients ) {
+
+			if ( name === projectName && ws.readyState === WebSocket.OPEN ) {
+
+				return ws;
+
+			}
+
+		}
+
+		return null;
+
+	}
+
+	send( projectName: string, action: string, params: Record<string, unknown> = {}, timeout = 10000 ): Promise<BridgeResponse> {
 
 		return new Promise( ( resolve ) => {
 
-			if ( ! this._client || this._client.readyState !== WebSocket.OPEN ) {
+			const client = this._findClient( projectName );
+
+			if ( ! client ) {
 
 				resolve( { id: '', success: false, error: 'Editor not connected' } );
 				return;
@@ -115,7 +129,7 @@ class EditorWSBridge {
 			}, timeout );
 
 			this._pending.set( id, { resolve, timer } );
-			this._client.send( JSON.stringify( { id, action, params } ) );
+			client.send( JSON.stringify( { id, action, params } ) );
 
 		} );
 
@@ -123,7 +137,9 @@ class EditorWSBridge {
 
 	async requestSync( projectName: string, timeout = 5000 ): Promise<any | null> {
 
-		if ( ! this.connected ) return null;
+		const client = this._findClient( projectName );
+
+		if ( ! client ) return null;
 
 		const id = String( ++ this._idCounter );
 
@@ -146,7 +162,7 @@ class EditorWSBridge {
 				timer,
 			} );
 
-			this._client!.send( JSON.stringify( { type: 'syncRequest', id, projectName } ) );
+			client.send( JSON.stringify( { type: 'syncRequest', id, projectName } ) );
 
 		} );
 
@@ -154,34 +170,29 @@ class EditorWSBridge {
 
 	executeAction( projectName: string, action: string, params: Record<string, unknown> ): void {
 
-		if ( this._client?.readyState === WebSocket.OPEN ) {
+		for ( const [ ws, name ] of this._clients ) {
 
-			this._client.send( JSON.stringify( { type: 'executeAction', projectName, action, params } ) );
+			if ( name === projectName && ws.readyState === WebSocket.OPEN ) {
+
+				ws.send( JSON.stringify( { type: 'executeAction', projectName, action, params } ) );
+
+			}
 
 		}
 
 	}
 
-	private _pushDirtyState( ws: WebSocket ) {
+	isProjectConnected( projectName: string ): boolean {
 
-		const activeProjectPath = path.resolve( __dirname, '../../projects/.active' );
-		let activeProject: string | null = null;
+		return this._findClient( projectName ) !== null;
 
-		try {
+	}
 
-			activeProject = fs.readFileSync( activeProjectPath, 'utf-8' ).trim();
-
-		} catch {
-
-			return;
-
-		}
-
-		if ( ! activeProject ) return;
+	private _pushDirtyState( ws: WebSocket, projectName: string ) {
 
 		try {
 
-			const project = projectManager.getProject( activeProject );
+			const project = projectManager.getProject( projectName );
 
 			if ( ! project.dirty ) return;
 

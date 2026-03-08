@@ -8,49 +8,6 @@ const __dirname = path.dirname( fileURLToPath( import.meta.url ) );
 export const projectsRouter = express.Router();
 
 const PROJECTS_DIR = path.resolve( __dirname, '../../projects' );
-const ACTIVE_FILE = path.join( PROJECTS_DIR, '.active' );
-
-// --- Active Project ---
-
-projectsRouter.get( '/projects/active', ( _req, res ) => {
-
-	try {
-
-		const active = fs.readFileSync( ACTIVE_FILE, 'utf-8' ).trim();
-		res.json( { name: active } );
-
-	} catch {
-
-		res.json( { name: 'default' } );
-
-	}
-
-} );
-
-projectsRouter.post( '/projects/active', ( req, res ) => {
-
-	const { name } = req.body;
-
-	if ( !name || typeof name !== 'string' ) {
-
-		res.status( 400 ).json( { error: 'Project name is required' } );
-		return;
-
-	}
-
-	const projectDir = path.join( PROJECTS_DIR, name );
-
-	if ( !fs.existsSync( projectDir ) ) {
-
-		res.status( 404 ).json( { error: 'Project not found' } );
-		return;
-
-	}
-
-	fs.writeFileSync( ACTIVE_FILE, name );
-	res.json( { name } );
-
-} );
 
 // --- Project List ---
 
@@ -107,19 +64,6 @@ projectsRouter.delete( '/projects/:name', async ( req, res ) => {
 
 		}
 
-		try {
-
-			const active = fs.readFileSync( ACTIVE_FILE, 'utf-8' ).trim();
-
-			if ( active === name ) {
-
-				res.status( 400 ).json( { error: 'Cannot delete active project' } );
-				return;
-
-			}
-
-		} catch {}
-
 		await fs.promises.rm( projectDir, { recursive: true } );
 		res.json( { success: true } );
 
@@ -168,18 +112,6 @@ projectsRouter.put( '/projects/:name', async ( req, res ) => {
 		}
 
 		await fs.promises.rename( oldDir, newDir );
-
-		try {
-
-			const active = fs.readFileSync( ACTIVE_FILE, 'utf-8' ).trim();
-
-			if ( active === name ) {
-
-				fs.writeFileSync( ACTIVE_FILE, newName );
-
-			}
-
-		} catch {}
 
 		res.json( { name: newName } );
 

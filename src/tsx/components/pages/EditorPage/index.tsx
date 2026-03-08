@@ -5,7 +5,7 @@ import { Engine } from "orengine/ts/Engine";
 import { useEffect, useState } from "react";
 
 import { gl } from "~/ts/Globals";
-import { initResouces, initResourceInstances } from "~project/index";
+import { initResouces, initResourceInstances } from "~/ts/Resources";
 import { MIDIMIX } from "~/ts/Resources/Components/_Samples/MIDI/MIDIMIX";
 
 initResouces();
@@ -25,16 +25,7 @@ export const EditorPage = () => {
 
 			setProjectData( data );
 
-		} ).catch( () => {
-
-			// fallback: try import for production
-			import( "~project/scene.json" ).then( ( mod ) => {
-
-				setProjectData( mod.default );
-
-			} );
-
-		} );
+		} ).catch( () => {} );
 
 		fetch( `/api/projects/${projectName}/editor` ).then( r => r.json() ).then( ( data ) => {
 
