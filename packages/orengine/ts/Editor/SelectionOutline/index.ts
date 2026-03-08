@@ -17,21 +17,22 @@ export class SelectionOutline {
 
 		const gl = engine.renderer.gl;
 
-		this._selectionBuffer = new GLP.GLPowerFrameBuffer( gl )
+		this._selectionBuffer = new GLP.GLPowerFrameBuffer( gl, { disableDepthBuffer: true } )
 			.setTexture( [
 				new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
 			] );
+		this._selectionBuffer.setDepthTexture( engine.renderer.renderTarget.gBuffer.depthTexture );
 		this._selectionBuffer.setSize( engine.renderer.resolution );
 
 		this._selectionMaterial = new MXP.Material( {
 			vert: selectionVert,
 			frag: selectionFrag,
 			phase: [ "forward" ],
+			depthTest: false,
 		} );
 
 		this._outlinePass = new MXP.PostProcessPass( gl, {
 			frag: outlineFrag,
-			renderTarget: null,
 			uniforms: {
 				uMaskTexture: { value: this._selectionBuffer.textures[ 0 ], type: '1i' },
 				uOutlineColor: { value: new GLP.Vector( 1.0, 0.6, 0.0 ), type: '3fv' },
@@ -64,6 +65,10 @@ export class SelectionOutline {
 		const origMaterial = mesh.material;
 		mesh.material = this._selectionMaterial;
 
+		const gl = engine.renderer.gl;
+
+		gl.depthFunc( gl.LEQUAL );
+
 		engine.renderer.renderCamera(
 			"forward",
 			cameraEntity,
@@ -72,14 +77,24 @@ export class SelectionOutline {
 			res
 		);
 
-		mesh.material = origMaterial;
+		gl.depthFunc( gl.LESS );
 
-		this._outlinePass.setRendertarget( engine.renderer.renderTarget.uiBuffer );
+		mesh.material = origMaterial;
 
 		engine.renderer.renderPostProcess(
 			this._outlinePostProcess,
 			engine.renderer.renderTarget.uiBuffer,
 			res
+		);
+
+		const outlineFB = this._outlinePass.renderTarget!;
+
+		gl.bindFramebuffer( gl.READ_FRAMEBUFFER, outlineFB.getFrameBuffer() );
+		gl.bindFramebuffer( gl.DRAW_FRAMEBUFFER, engine.renderer.renderTarget.uiBuffer.getFrameBuffer() );
+		gl.blitFramebuffer(
+			0, 0, res.x, res.y,
+			0, 0, res.x, res.y,
+			gl.COLOR_BUFFER_BIT, gl.NEAREST
 		);
 
 	}
