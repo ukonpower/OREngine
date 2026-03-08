@@ -51,28 +51,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **server/**: Express + WebSocketサーバー。REST API、WebSocketブリッジ、プロジェクト管理
 - 継承階層: `EventEmitter` → `Serializable` → `Entity` / `Component`
 
-## ドキュメント
-仕様の詳細は `docs/` ディレクトリに記載されている。**実装を変更した場合は、関連するドキュメントも必ず同時に更新すること。** コード変更とドキュメント更新は同じコミットに含める。特に以下の変更時は対応するドキュメントの確認・更新が必須:
-- Entity/Component/Serializableのインターフェース変更 → `entity-component-system.md`, `serializable-system.md`
-- レンダリングパイプライン・描画フェーズ・GBuffer変更 → `rendering-pipeline.md`
-- エディタUI・hooks・パネル変更 → `editor-ui-architecture.md`
-- REST API変更 → `editor-rest-api.md`, `project-api.md`, `resource-api.md`
-- シェーダーモジュール・uniform変更 → `shader-reference.md`
-- コンポーネントフィールド変更 → `component-fields.md`
+## 設計ドキュメント（ADR）
+`docs/adr/` に設計判断の記録（Architecture Decision Records）がある。ADRには「なぜその設計にしたか」が記述されている。**設計の根幹を変更する場合のみ**、対応するADRを更新または新規追加する。日常的なコード変更ではADRの更新は不要。
 
-### 内部実装仕様
-- `docs/entity-component-system.md` - Entity-Componentシステム仕様（ライフサイクル、更新ループ、コンポーネント管理）
-- `docs/serializable-system.md` - Serializableフィールドシステム仕様（フィールド登録、serialize/deserialize）
-- `docs/rendering-pipeline.md` - レンダリングパイプライン仕様（描画フェーズ、GBuffer、PostProcess）
-- `docs/editor-ui-architecture.md` - エディタUIアーキテクチャ（React構造、hooks、状態管理）
-
-### API・リファレンス
-- `docs/architecture.md` - 全体アーキテクチャ、WebSocket仕様、データ構造、データフロー
-- `docs/editor-rest-api.md` - エディタ操作REST API（バッチAPI含む）
-- `docs/project-api.md` - プロジェクト管理・シーン・エディタデータAPI
-- `docs/resource-api.md` - コンポーネント・マテリアル・シェーダー管理API
-- `docs/shader-reference.md` - シェーダーuniform/varying/モジュール全リファレンス
-- `docs/component-fields.md` - コンポーネントフィールド一覧（Mesh, Light, Camera等）
+- `docs/adr/001-browser-first-architecture.md` - ブラウザファースト設計
+- `docs/adr/002-websocket-delegation-pattern.md` - WebSocket委譲パターン
+- `docs/adr/003-entity-component-hierarchy.md` - Entity-Component継承階層
+- `docs/adr/004-serializable-field-system.md` - Serializableフィールドシステム
+- `docs/adr/005-deferred-rendering-pipeline.md` - Deferredレンダリングパイプライン
+- `docs/adr/006-gbuffer-layout-and-depth-sharing.md` - GBufferレイアウトとDepth共有
+- `docs/adr/007-editor-context-architecture.md` - エディタContext体系
 
 ## シーン作成（REST API経由）
 
@@ -99,7 +87,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `"template": "texture"` でテクスチャ用テンプレート生成
 - 頂点で使えないuniform: `uCameraPosition`, `uResolution`（frag_h専用）
 - テクスチャ用FSには `in vec2 vUv;` を明示宣言するか `#include <frag_h>` を使用
-- 詳細: `docs/shader-reference.md`
+- シェーダーモジュール: GLSLソース `packages/maxpower/Component/Renderer/ShaderParser/shaderModules/` を参照
 
 ### コンポーネント作成
 - `import * as GLP from 'glpower'` + `import * as MXP from 'maxpower'`
