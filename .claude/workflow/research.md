@@ -1,181 +1,186 @@
-# Research: ドキュメント整備計画
+# Research: テスト充実化
 
 ## タスク概要
-OREngineのドキュメントを整備する。対象読者は2つ:
-1. **ユーザー（開発者）**: OREngineを使ってシーンやコンポーネントを作る人
-2. **Claude Code（AI）**: コーディングを代行する際に参照するドキュメント
+OREngineプロジェクトのテストを充実させる。現状の把握、優先度の高いテスト対象の特定、テスト戦略の策定を行う。
 
-## 現状のドキュメント
+## 現状のテストカバレッジ
 
-### 既存ドキュメント一覧
-| ファイル | 内容 | 対象読者 | 状態 |
-|---------|------|---------|------|
-| `README.md` | プロジェクト概要、インストール、実行方法 | ユーザー | 基本的な内容あり |
-| `CLAUDE.md` | コードスタイル、命名規則、パスエイリアス、API概要 | Claude Code | 充実 |
-| `docs/architecture.md` | サーバー/ブラウザ構成、WebSocket、データ構造 | 両方 | 充実 |
-| `docs/editor-rest-api.md` | エディタ操作REST API全仕様 | Claude Code | 充実 |
-| `docs/project-api.md` | プロジェクト管理API | Claude Code | 充実 |
-| `docs/resource-api.md` | リソース（コンポーネント/マテリアル/シェーダー/テクスチャ）管理API | Claude Code | 充実 |
-| `docs/shader-reference.md` | シェーダーuniform/varying/モジュール全リファレンス | 両方 | 充実 |
-| `docs/component-fields.md` | Mesh/Light/Camera等のフィールド一覧 | Claude Code | 充実 |
+### テスト済み（glpowerのみ）
+| ファイル | テスト対象 | フレームワーク |
+|---------|----------|-------------|
+| `packages/glpower/packages/glpower/tests/Math/Vector.test.ts` | Vector | Jest + ts-jest |
+| `packages/glpower/packages/glpower/tests/Math/Matrix.test.ts` | Matrix | Jest + ts-jest |
+| `packages/glpower/packages/glpower/tests/Math/Quaternion.test.ts` | Quaternion | Jest + ts-jest |
+| `packages/glpower/packages/glpower/tests/Math/Euler.test.ts` | Euler | Jest + ts-jest |
+| `packages/glpower/packages/glpower/tests/Math/Utils.test.ts` | Math Utils | Jest + ts-jest |
+| `packages/glpower/packages/glpower/tests/Animation/Bezier.test.ts` | Bezier | Jest + ts-jest |
+| `packages/glpower/packages/glpower/tests/Animation/FCurve.test.ts` | FCurve | Jest + ts-jest |
+| `packages/glpower/packages/glpower/tests/Animation/FCurveKeyFrame.test.ts` | FCurveKeyFrame | Jest + ts-jest |
+| `packages/glpower/packages/glpower/tests/Animation/Easings.test.ts` | Easings | Jest + ts-jest |
+| `packages/glpower/tests/Docs.test.ts` | E2Eビジュアルテスト | Jest + Puppeteer |
 
-### 現状の評価
+### 未テスト
+- **maxpower パッケージ**: テストなし（Entity, Component, Serializable, Renderer, Geometry, Material等）
+- **orengine パッケージ**: テストなし（Engine, Editor, CommandManager, Resources等）
+- **server/**: テストなし（REST API, WebSocket, EntityStore等）
+- **ルートプロジェクト (src/)**: テストなし
 
-**強い領域:**
-- REST API仕様は非常に詳細（editor, project, resource全て網羅）
-- シェーダーリファレンスは完全（uniform、varying、モジュール一覧）
-- CLAUDE.mdによるコードスタイル・規約の指示
+### テスト環境
+- **フレームワーク**: Jest 28.x（glpowerのみ）
+- **TypeScript**: ts-jest 28.x
+- **DOM環境**: jsdom
+- **E2E**: Puppeteer + jest-image-snapshot
+- **カバレッジ閾値**: 80%（glpower設定）
+- **ルートにはテストスクリプトなし**
 
-**不足している領域:**
+## 関連ファイル・シンボル（テスト優先度別）
 
-#### 1. ユーザー向けドキュメントがほぼ不在
-- エンジンの使い方（エディタUIの操作方法）がない
-- コンポーネントの作り方のガイドがない
-- シェーダーの書き方チュートリアルがない
-- マテリアル/テクスチャの作成ワークフローがない
+### 優先度1: 純粋ロジック・高テスト可能性
 
-#### 2. Claude Code向けのアーキテクチャ理解に必要な情報が分散
-- Entity-Componentシステムの詳細仕様（ライフサイクル、フィールドシステム）がない
-- Serializableの仕組み（fields、serialize/deserialize）のドキュメントがない
-- Rendererのパイプライン（Deferred → PostProcess）の説明がない
-- エディタUIの構造（React コンポーネント階層、hooks）のドキュメントがない
+| ファイル | 主要シンボル | 役割 | テストすべき理由 |
+|---------|------------|------|----------------|
+| `packages/maxpower/Serializable/index.ts` | Serializable, serialize, deserialize, serializeToDirectory, fieldDir | フィールドシステム基盤 | 全Entity/Componentが継承。パス解析ロジックが複雑で境界条件が多い |
+| `packages/maxpower/Entity/index.ts` | Entity, update, updateMatrix, addComponent, removeComponent, findEntityByUUID | シーングラフ・コンポーネント管理 | システムの中核。行列計算、コンポーネントorder管理等 |
+| `packages/maxpower/Component/index.ts` | Component, update, dispose | コンポーネント基底クラス | ライフサイクル管理 |
+| `packages/glpower/packages/glpower/src/utils/EventEmitter/index.ts` | EventEmitter, on, off, emit | イベントシステム基盤 | 全クラスが依存。未テスト |
+| `packages/maxpower/Geometry/index.ts` | Geometry, CubeGeometry, SphereGeometry等 | メッシュデータ生成 | 頂点・インデックス計算は純粋関数 |
+| `packages/maxpower/Utils/Ray/index.ts` | Ray, Raycaster | 交差判定 | 数学的に検証可能 |
 
-#### 3. 開発ガイド的なものがない
-- 新規コンポーネントを追加する手順
-- 新規シェーダーを追加する手順
-- エディタUIパネルを追加する手順
-- カスタムPostProcessを追加する手順
+### 優先度2: サーバーサイドロジック
 
-## 提案するドキュメント構成
+| ファイル | 主要シンボル | 役割 | テストすべき理由 |
+|---------|------------|------|----------------|
+| `server/Project/EntityStore/index.ts` | EntityStore, findEntity, findParent, findComponent, setField, _setNestedValue | オンメモリエンティティ操作 | 動的パス設定、再帰検索。境界条件多数 |
+| `server/routes/editor.ts` | editorRouter, handleActionInternal, バッチAPI | エディタ操作REST API | 3重ループのバッチ処理、部分失敗時のロールバックなし |
+| `server/ws/index.ts` | EditorWSBridge, send, requestSync | WebSocket通信 | タイムアウト機構、ペンディング管理 |
+| `server/routes/projects.ts` | projectsRouter, validateProjectName | プロジェクト管理 | パストラバーサル対策の検証 |
+| `server/routes/materials.ts` | materialsRouter, validateName | マテリアルCRUD | 入力バリデーション |
 
-### A. ユーザー向け（Getting Started / Guides）
+### 優先度3: エディタロジック（UI非依存部分）
 
-| ドキュメント | 内容 | 優先度 |
-|------------|------|-------|
-| `docs/getting-started.md` | セットアップ〜最初のシーン作成まで | 高 |
-| `docs/editor-guide.md` | エディタUI操作ガイド（パネル説明、ショートカット、ギズモ操作） | 高 |
-| `docs/component-guide.md` | カスタムコンポーネント作成ガイド（ライフサイクル、フィールド定義、実例） | 高 |
-| `docs/shader-guide.md` | シェーダー作成ガイド（メッシュ用/テクスチャ用、#includeの使い方、実例） | 中 |
-| `docs/material-texture-guide.md` | マテリアル・テクスチャの作成と設定ガイド | 中 |
+| ファイル | 主要シンボル | 役割 | テストすべき理由 |
+|---------|------------|------|----------------|
+| `packages/orengine/ts/Engine/index.ts` | Engine | エンジン統合 | シーン・リソース・タイム管理 |
+| `packages/orengine/ts/Editor/index.ts` | Editor | エディタ制御 | エンティティ操作、状態管理 |
+| `packages/orengine/ts/Editor/CommandManager/index.ts` | CommandManager, execute, undo, redo | Undo/Redo | コマンドパターンの正確性 |
+| `packages/orengine/ts/Resources/index.ts` | Resources | リソース管理 | マルチリソース管理 |
 
-### B. Claude Code向け（内部仕様 / Architecture Deep Dive）
+## 依存関係
 
-| ドキュメント | 内容 | 優先度 |
-|------------|------|-------|
-| `docs/entity-component-system.md` | Entity-Componentシステム詳細仕様 | 高 |
-| `docs/serializable-system.md` | Serializableクラスのフィールドシステム、シリアライズ/デシリアライズ仕様 | 高 |
-| `docs/rendering-pipeline.md` | レンダリングパイプライン（GBuffer → Deferred → PostProcess → Forward → UI） | 中 |
-| `docs/editor-ui-architecture.md` | エディタUIのReactコンポーネント構造、hooks、状態管理 | 中 |
-| `docs/build-system.md` | Viteプラグイン構成、リソース自動生成、ShaderMinifier | 低 |
+```
+EventEmitter (glpower) ← 全クラスが継承
+  └─ Serializable (maxpower) ← フィールドシステム基盤
+      ├─ Entity (maxpower) ← シーングラフ
+      │   ├─ children: Entity[]
+      │   └─ components: Map<ComponentClass, Component>
+      ├─ Component (maxpower) ← 機能モジュール
+      │   ├─ Mesh (Geometry + Material)
+      │   ├─ Camera
+      │   ├─ Light
+      │   └─ Renderer (最複雑)
+      └─ Material (maxpower) ← シェーダ設定
 
-### C. 既存ドキュメントの改善
+EntityStore (server) ← SceneDataEntity ツリー操作（独立、maxpowerに非依存）
+EditorWSBridge (server) ← WebSocket通信（独立）
+CommandManager (orengine) ← Engine/Editor に依存
+```
 
-| ドキュメント | 改善点 |
-|------------|-------|
-| `README.md` | docsへのリンク整理、ドキュメント一覧の追加 |
-| `docs/architecture.md` | パッケージ間依存関係の図を追加 |
-| `CLAUDE.md` | 新規ドキュメントへの参照を追加 |
+## 既存パターン
 
-## 関連ファイル・シンボル（ドキュメント化が必要な主要コード）
+### テストコードスタイル（glpowerの既存テストより）
+```typescript
+describe( 'Vector', () => {
+	let vector: Vector;
+	beforeEach( () => {
+		vector = new Vector( 1, 2, 3, 4 );
+	} );
+	it( 'init', () => {
+		expect( vector.x ).toBe( 1 );
+	} );
+} );
+```
+- MrDoob Code Style（タブインデント、括弧内スペース）
+- describe/it/beforeEach パターン
+- jest の expect/toBe/toBeCloseTo
 
-### Entity-Componentシステム
-| ファイル | 主要シンボル | 役割 |
-|---------|------------|------|
-| `packages/maxpower/Serializable/index.ts` | `Serializable`, `SerializableField` | フィールドシステム基底 |
-| `packages/maxpower/Entity/index.ts` | `Entity` | シーングラフノード |
-| `packages/maxpower/Component/index.ts` | `Component`, `ComponentUpdateEvent` | コンポーネント基底 |
+### テスト設定（glpower）
+- `jest/unit.config.js`: testEnvironment=jsdom, ts-jest, カバレッジ80%
+- テストファイル: `tests/` ディレクトリ内、`*.test.ts`
 
-### レンダリング
-| ファイル | 主要シンボル | 役割 |
-|---------|------------|------|
-| `packages/maxpower/Component/Renderer/index.ts` | `Renderer` | メインレンダラー |
-| `packages/maxpower/Component/Renderer/DeferredRenderer/index.ts` | `DeferredRenderer` | Deferred Rendering |
-| `packages/maxpower/Component/Renderer/PipelinePostProcess/index.ts` | `PipelinePostProcess` | ポストプロセスチェーン |
-| `packages/maxpower/Material/index.ts` | `Material` | マテリアルクラス |
+## 複雑で境界条件が多い箇所（テスト最重要ポイント）
 
-### エディタ
-| ファイル | 主要シンボル | 役割 |
-|---------|------------|------|
-| `packages/orengine/ts/Engine/index.ts` | `Engine` | エンジン本体 |
-| `packages/orengine/ts/Editor/index.ts` | `Editor` | エディタ本体 |
-| `packages/orengine/ts/Editor/CommandManager/index.ts` | `CommandManager` | Undo/Redo管理 |
-| `packages/orengine/tsx/OREditor/index.tsx` | `OREditor` | エディタReactコンポーネント |
+### 1. Serializable.serializeToDirectory() のパス解析
+- `""` (空文字列), `"/"` (スラッシュのみ), `"a//b"` (連続スラッシュ), `"/a/b/"` (先頭/末尾スラッシュ)
+- パス分割 → ツリー構造変換のロジック
+- `type: "value"` と `type: "folder"` の判定
 
-## 各ドキュメントの詳細内容案
+### 2. Entity.updateMatrix() の quaternion/euler 同期
+- `quaternion.updated` フラグによる方向判定
+- 両方同時変更時の動作
+- `updateParent=true` での再帰計算
+- parent の matrixWorld が未計算の場合
 
-### docs/entity-component-system.md（高優先度・Claude Code向け）
-- **Entityクラス**: 親子関係、transform（position/euler/scale）、matrixWorldの自動計算、コンポーネントの追加/削除
-- **Componentクラス**: ライフサイクル（`setEntityImpl` → `finalizeImpl` → `updateImpl` → `disposeImpl`）、`ComponentUpdateEvent`の中身
-- **フィールドシステム**: `registerFields()` によるフィールド定義、フィールドパス（`"geometry/type"`のスラッシュ区切り）、型、selectオプション
-- **コンポーネント検索**: `getComponent<T>()`、`getComponentsByTag()`
-- **イベントシステム**: `notice()` と `watchNotice()` によるコンポーネント間通信
+### 3. EntityStore._setNestedValue() の動的オブジェクト生成
+- 中間パスが存在しない場合の自動生成
+- 既存値が非オブジェクトの場合の上書き
+- 空パス、スラッシュのみのパス
 
-### docs/serializable-system.md（高優先度・Claude Code向け）
-- **SerializableFieldの型**: `number`, `boolean`, `string`, `vec2`/`vec3`/`vec4`, `select`
-- **serialize/deserialize**: `SceneDataEntity`/`SceneDataComponent` とのマッピング
-- **フィールドのディレクトリ構造**: ネストしたフォルダとしての表現（`fieldsDirectory`）
-- **`props`フィールド**: シリアライズ時のprops変換ルール
+### 4. WebSocket ペンディング管理
+- 同時複数リクエスト
+- タイムアウト発火タイミング
+- 接続切断中の送信試行
 
-### docs/rendering-pipeline.md（中優先度・Claude Code向け）
-- **描画フェーズ**: `shadowMap` → `deferred`(GBuffer) → deferred shading → `forward` → pipeline PostProcess → camera PostProcess → `ui`
-- **GBufferレイアウト**: 5つのレンダーターゲット（position+emission, normal+emission, baseColor, roughness/metallic/SSN/env, velocity+emission）
-- **FrameBufferの共有関係**: gBuffer.depth が forwardBuffer/uiBuffer で共有
-- **PostProcessPass**: クアッド描画によるスクリーンスペースエフェクト
-- **Material.phase**: どのフェーズで描画されるかの指定方法
+### 5. バッチAPI の3重ループ
+- エンティティ作成 → コンポーネント追加 → フィールド設定
+- 途中失敗時の状態（ロールバックなし）
+- UUIDの依存チェーン
 
-### docs/component-guide.md（高優先度・ユーザー向け）
-- **基本構造**: MXP.Componentの継承、コンストラクタ、registerFields
-- **ライフサイクル例**: 初期化 → 毎フレーム更新 → 破棄
-- **フィールド定義の実例**: 数値スライダー、セレクトボックス、ベクトル入力
-- **実例**: 回転するコンポーネント、マウスに追従するコンポーネント等
-- **REST API/UIからの追加方法**
-
-### docs/shader-guide.md（中優先度・ユーザー向け）
-- **メッシュ用シェーダーの書き方**: vert_h/vert_in/vert_out、frag_h/frag_in/frag_outの役割
-- **テクスチャ用シェーダーの書き方**: vUvを使ったプロシージャルテクスチャ
-- **ユーティリティモジュール活用**: noise, sdf, randomの使い方
-- **実例**: グラデーションマテリアル、ノイズテクスチャ、レイマーチング
-- **デバッグのコツ**: outEmissionで光らせて確認等
-
-### docs/editor-guide.md（高優先度・ユーザー向け）
-- **パネル構成**: Hierarchy, EntityProperty, Screen, Timeline, AssetViewer等
-- **エンティティ操作**: 作成、削除、選択、transform変更
-- **ギズモ**: 移動/回転/スケールの切り替え
-- **キーボードショートカット**: Ctrl+S（保存）、Ctrl+Z/Y（Undo/Redo）、Space（再生）等
-- **リソース管理**: マテリアル/シェーダー/テクスチャの追加・編集
-
-### docs/editor-ui-architecture.md（中優先度・Claude Code向け）
-- **Reactコンポーネント階層**: OREditor → LayoutSplit → 各Panel
-- **hooks**: useOREditor, useOREngine, useSerializableField, useWatchSerializable
-- **状態管理**: Editor クラスのイベント → React hooks → UI更新
-- **パネル追加手順**: 新しいパネルコンポーネントの作り方
+### 6. Component order ソートと実行順序
+- 同一 order のコンポーネント順序
+- addComponent 時の既存削除 → 再作成
 
 ## 制約・注意点
 
-1. **docs/ は CLAUDE.md から参照されている**: 新規ドキュメントを追加したら CLAUDE.md のドキュメントセクションも更新が必要
-2. **コードとドキュメントの同期**: 既存のREST APIドキュメントは実装と同期されているが、内部仕様ドキュメントは実装変更時に陳腐化しやすい
-3. **ドキュメントの粒度**: Claude Code向けは実装の詳細を含むべきだが、あまり細かすぎるとメンテナンスコストが高い。「概念・設計意図・制約」に焦点を当て、具体的なAPI/型は既存ドキュメントに委譲すべき
-4. **対象読者の分離**: ユーザー向けガイドとClaude Code向け仕様書は明確に分離した方が良い。Claude Code向けはCLAUDE.mdに参照を入れることで活用される
+### テスト環境の課題
+- **maxpower/orengine にはテスト環境がない**: テスト設定の新規作成が必要
+- **server/ にもテスト環境がない**: supertest 等の導入が必要
+- **WebGL依存クラス**: Renderer, Material, GLPower系はモックが必要
+- **React UIコンポーネント**: testing-library 等の導入が必要（優先度低）
+
+### アーキテクチャ上の制約
+- Entity/Component は EventEmitter を継承 → イベント発火の検証が可能
+- Serializable の serialize/deserialize は純粋に近い → テスト容易
+- EntityStore はサーバーサイドの独立クラス → モック不要でテスト可能
+- Renderer は WebGL2RenderingContext に強く依存 → テスト困難
+
+### テストフレームワークの選択肢
+- **案1: Jest統一** - glpowerの既存設定に合わせる。設定の一貫性
+- **案2: Vitest導入** - Viteプロジェクトとの親和性が高い。ESM対応が容易。maxpower/orengine/serverに適切
 
 ## 参考になる既存実装
-- `src/ts/Resources/Components/_Samples/` - サンプルコンポーネント群。コンポーネントガイドの実例として使える
-- `src/ts/Resources/Shaders/` - 実際のシェーダー群。シェーダーガイドの実例として使える
-- `server/routes/components.ts` のコンポーネントテンプレート生成 - コンポーネント作成ガイドで参照
+- `packages/glpower/jest/unit.config.js` - ユニットテスト設定のテンプレート
+- `packages/glpower/packages/glpower/tests/Math/Vector.test.ts` - テストコードの書き方の参考
 
-## 推奨する作成順序
+## テスト戦略提案（優先度順）
 
-### Phase 1（高優先度 - Claude Codeの生産性向上）
-1. `docs/entity-component-system.md` - コーディング時に最も参照頻度が高い
-2. `docs/serializable-system.md` - フィールド操作の理解に不可欠
-3. `docs/component-guide.md` - ユーザーにもClaude Codeにも有用
+### Phase 1: 基盤テスト（最優先・効果最大）
+1. **EventEmitter** - 全クラスの基盤。on/off/emit/once の正確性
+2. **Serializable** - serialize/deserialize の双方向性、serializeToDirectory のパス解析
+3. **Entity 基本操作** - add/remove children、addComponent/removeComponent、findEntityByUUID
+4. **EntityStore** - _setNestedValue、findEntity/findParent/findComponent、setField
 
-### Phase 2（中優先度 - 理解の深化）
-4. `docs/rendering-pipeline.md` - レンダリング関連の変更時に必要
-5. `docs/shader-guide.md` - シェーダー作成のハウツー
-6. `docs/editor-guide.md` - エディタ操作の理解
+### Phase 2: コアロジック
+5. **Entity.updateMatrix()** - 行列合成、quaternion/euler同期
+6. **Component ライフサイクル** - update/dispose 順序
+7. **Geometry** - 頂点・インデックス生成の正確性（Cube, Sphere等）
+8. **Ray/Raycaster** - AABB・三角形交差判定
 
-### Phase 3（低優先度 - 網羅性）
-7. `docs/editor-ui-architecture.md` - UI変更時に参照
-8. `docs/material-texture-guide.md` - マテリアル/テクスチャ作成ガイド
-9. `docs/getting-started.md` - 新規ユーザー向け
-10. `docs/build-system.md` - ビルド設定変更時に参照
+### Phase 3: サーバーサイド
+9. **REST API エンドポイント** - CRUD操作、バリデーション、エラーレスポンス
+10. **バッチAPI** - 複数エンティティ作成、部分失敗
+11. **WebSocket通信** - ペンディング管理、タイムアウト
+12. **パストラバーサル対策** - 各バリデーション関数
+
+### Phase 4: エディタロジック
+13. **CommandManager** - execute/undo/redo の正確性
+14. **Resources** - リソースCRUD
