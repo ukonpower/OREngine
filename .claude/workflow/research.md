@@ -1,186 +1,123 @@
-# Research: テスト充実化
+# Research: ドキュメントのADR化検討
 
 ## タスク概要
-OREngineプロジェクトのテストを充実させる。現状の把握、優先度の高いテスト対象の特定、テスト戦略の策定を行う。
+現在の `docs/` ディレクトリに含まれる詳細な実装仕様ドキュメントを、ADR（Architecture Decision Records）スタイルに移行すべきか検討する。目的は「仕様が変わった時にドキュメントとの不整合が生じて混乱を招く」問題の解消。
 
-## 現状のテストカバレッジ
+## 現在のドキュメント分析
 
-### テスト済み（glpowerのみ）
-| ファイル | テスト対象 | フレームワーク |
-|---------|----------|-------------|
-| `packages/glpower/packages/glpower/tests/Math/Vector.test.ts` | Vector | Jest + ts-jest |
-| `packages/glpower/packages/glpower/tests/Math/Matrix.test.ts` | Matrix | Jest + ts-jest |
-| `packages/glpower/packages/glpower/tests/Math/Quaternion.test.ts` | Quaternion | Jest + ts-jest |
-| `packages/glpower/packages/glpower/tests/Math/Euler.test.ts` | Euler | Jest + ts-jest |
-| `packages/glpower/packages/glpower/tests/Math/Utils.test.ts` | Math Utils | Jest + ts-jest |
-| `packages/glpower/packages/glpower/tests/Animation/Bezier.test.ts` | Bezier | Jest + ts-jest |
-| `packages/glpower/packages/glpower/tests/Animation/FCurve.test.ts` | FCurve | Jest + ts-jest |
-| `packages/glpower/packages/glpower/tests/Animation/FCurveKeyFrame.test.ts` | FCurveKeyFrame | Jest + ts-jest |
-| `packages/glpower/packages/glpower/tests/Animation/Easings.test.ts` | Easings | Jest + ts-jest |
-| `packages/glpower/tests/Docs.test.ts` | E2Eビジュアルテスト | Jest + Puppeteer |
+### ファイル一覧と行数
 
-### 未テスト
-- **maxpower パッケージ**: テストなし（Entity, Component, Serializable, Renderer, Geometry, Material等）
-- **orengine パッケージ**: テストなし（Engine, Editor, CommandManager, Resources等）
-- **server/**: テストなし（REST API, WebSocket, EntityStore等）
-- **ルートプロジェクト (src/)**: テストなし
+| ファイル | 行数 | 分類 | 内容の性質 |
+|---------|------|------|-----------|
+| `architecture.md` | 344 | 混合 | 全体構成図 + WebSocket仕様詳細 + データ構造定義 |
+| `component-fields.md` | 136 | 詳細リファレンス | REST APIフィールドパス・型・デフォルト値の一覧表 |
+| `editor-rest-api.md` | 736 | 詳細リファレンス | 全REST APIエンドポイント + curlサンプル |
+| `editor-ui-architecture.md` | 412 | 混合 | React構造概要 + hooks API詳細 + コンポーネントProps定義 |
+| `entity-component-system.md` | 314 | 詳細仕様 | クラスプロパティ一覧 + メソッドシグネチャ + ライフサイクル |
+| `project-api.md` | 286 | 詳細リファレンス | プロジェクト管理REST API全エンドポイント |
+| `rendering-pipeline.md` | 255 | 混合 | パイプライン概念図 + GBuffer具体的レイアウト + FB共有詳細 |
+| `resource-api.md` | 577 | 詳細リファレンス | リソース管理REST API全エンドポイント |
+| `serializable-system.md` | 253 | 詳細仕様 | フィールドAPI詳細 + serialize/deserialize仕様 |
+| `shader-reference.md` | 228 | 詳細リファレンス | uniform/varying/モジュール全一覧 |
+| **合計** | **3,536** | | |
 
-### テスト環境
-- **フレームワーク**: Jest 28.x（glpowerのみ）
-- **TypeScript**: ts-jest 28.x
-- **DOM環境**: jsdom
-- **E2E**: Puppeteer + jest-image-snapshot
-- **カバレッジ閾値**: 80%（glpower設定）
-- **ルートにはテストスクリプトなし**
+### 問題の分析
 
-## 関連ファイル・シンボル（テスト優先度別）
+#### 1. 変更コストが高い
+- CLAUDE.mdに「**実装を変更した場合は、関連するドキュメントも必ず同時に更新すること**」というルールがある
+- 6つの対応表（Entity変更→2ドキュメント更新、API変更→3ドキュメント更新...）を管理
+- 実際にドキュメント更新を忘れると、次回Claude Codeが間違った仕様に基づいてコーディングするリスク
 
-### 優先度1: 純粋ロジック・高テスト可能性
+#### 2. コードから読み取れる情報の重複
+現在のドキュメントの多くは「コードを読めばわかる情報」を人間可読にしたもの:
+- **REST APIエンドポイント**: ルーティングコードから自明
+- **クラスプロパティ一覧**: TypeScriptの型定義から自明
+- **フィールドパス・デフォルト値**: `field()` 呼び出しから自明
+- **uniform/varying一覧**: GLSLソースから自明
+- **curlサンプル**: エンドポイント定義から生成可能
 
-| ファイル | 主要シンボル | 役割 | テストすべき理由 |
-|---------|------------|------|----------------|
-| `packages/maxpower/Serializable/index.ts` | Serializable, serialize, deserialize, serializeToDirectory, fieldDir | フィールドシステム基盤 | 全Entity/Componentが継承。パス解析ロジックが複雑で境界条件が多い |
-| `packages/maxpower/Entity/index.ts` | Entity, update, updateMatrix, addComponent, removeComponent, findEntityByUUID | シーングラフ・コンポーネント管理 | システムの中核。行列計算、コンポーネントorder管理等 |
-| `packages/maxpower/Component/index.ts` | Component, update, dispose | コンポーネント基底クラス | ライフサイクル管理 |
-| `packages/glpower/packages/glpower/src/utils/EventEmitter/index.ts` | EventEmitter, on, off, emit | イベントシステム基盤 | 全クラスが依存。未テスト |
-| `packages/maxpower/Geometry/index.ts` | Geometry, CubeGeometry, SphereGeometry等 | メッシュデータ生成 | 頂点・インデックス計算は純粋関数 |
-| `packages/maxpower/Utils/Ray/index.ts` | Ray, Raycaster | 交差判定 | 数学的に検証可能 |
+#### 3. コードから読み取り**にくい**情報（＝ADRに残すべき）
+- **ブラウザファースト設計**: なぜサーバーではなくブラウザが source of truth なのか
+- **WebSocket委譲パターン**: なぜREST→WebSocket→ブラウザという回り道をするのか（Undo/Redo対応のため）
+- **GBufferレイアウトの理由**: なぜ5テクスチャなのか、なぜEmissionが3つに分散しているのか
+- **depth共有の理由**: なぜforwardBuffer/uiBufferがgBuffer.depthを共有するのか
+- **描画パイプラインの順序**: なぜこの順序で描画するのか
+- **Serializableパターンの採用理由**: なぜEntity/Componentの共通基底としてSerializableを使うのか
+- **フィールドシステムのパス設計**: なぜスラッシュ区切りのフラットパスなのか
 
-### 優先度2: サーバーサイドロジック
+### カテゴリ別の判定
 
-| ファイル | 主要シンボル | 役割 | テストすべき理由 |
-|---------|------------|------|----------------|
-| `server/Project/EntityStore/index.ts` | EntityStore, findEntity, findParent, findComponent, setField, _setNestedValue | オンメモリエンティティ操作 | 動的パス設定、再帰検索。境界条件多数 |
-| `server/routes/editor.ts` | editorRouter, handleActionInternal, バッチAPI | エディタ操作REST API | 3重ループのバッチ処理、部分失敗時のロールバックなし |
-| `server/ws/index.ts` | EditorWSBridge, send, requestSync | WebSocket通信 | タイムアウト機構、ペンディング管理 |
-| `server/routes/projects.ts` | projectsRouter, validateProjectName | プロジェクト管理 | パストラバーサル対策の検証 |
-| `server/routes/materials.ts` | materialsRouter, validateName | マテリアルCRUD | 入力バリデーション |
+#### A. 削除候補（コードが正、ドキュメントが陳腐化リスク大）
+- `component-fields.md`: フィールドパス・デフォルト値はコードの `field()` 呼び出しが正
+- `editor-rest-api.md`: エンドポイント定義・パラメータはルーティングコードが正
+- `project-api.md`: 同上
+- `resource-api.md`: 同上
+- `shader-reference.md`: uniform/varyingはGLSLソースが正
 
-### 優先度3: エディタロジック（UI非依存部分）
+#### B. ADR化候補（設計意思を残し、詳細仕様は削除）
+- `architecture.md`: ブラウザファースト設計の「なぜ」、WebSocket委譲パターンの「なぜ」を残す
+- `rendering-pipeline.md`: パイプライン順序の「なぜ」、GBuffer設計の「なぜ」、depth共有の「なぜ」を残す
+- `entity-component-system.md`: Serializable継承階層の「なぜ」、更新ループ設計の「なぜ」を残す
+- `serializable-system.md`: フィールドシステムの設計意図を残す
+- `editor-ui-architecture.md`: Context体系の設計意図を残す
 
-| ファイル | 主要シンボル | 役割 | テストすべき理由 |
-|---------|------------|------|----------------|
-| `packages/orengine/ts/Engine/index.ts` | Engine | エンジン統合 | シーン・リソース・タイム管理 |
-| `packages/orengine/ts/Editor/index.ts` | Editor | エディタ制御 | エンティティ操作、状態管理 |
-| `packages/orengine/ts/Editor/CommandManager/index.ts` | CommandManager, execute, undo, redo | Undo/Redo | コマンドパターンの正確性 |
-| `packages/orengine/ts/Resources/index.ts` | Resources | リソース管理 | マルチリソース管理 |
+### CLAUDE.mdへの影響
 
-## 依存関係
+現在CLAUDE.mdには以下のセクションがある:
+1. **ドキュメント対応表**: 6エントリの変更→ドキュメント更新マッピング
+2. **シーン作成（REST API経由）**: component-fields.mdの一部重複
+3. **docs/ への参照**: 10ファイルへの参照
+
+ADR化すると:
+- ドキュメント対応表は大幅に簡素化（ADRは設計の根幹が変わった時のみ更新）
+- REST APIの使い方はCLAUDE.mdのシーン作成セクションに集約可能
+- docs/の参照先が減る
+
+## 提案するADR構成
 
 ```
-EventEmitter (glpower) ← 全クラスが継承
-  └─ Serializable (maxpower) ← フィールドシステム基盤
-      ├─ Entity (maxpower) ← シーングラフ
-      │   ├─ children: Entity[]
-      │   └─ components: Map<ComponentClass, Component>
-      ├─ Component (maxpower) ← 機能モジュール
-      │   ├─ Mesh (Geometry + Material)
-      │   ├─ Camera
-      │   ├─ Light
-      │   └─ Renderer (最複雑)
-      └─ Material (maxpower) ← シェーダ設定
-
-EntityStore (server) ← SceneDataEntity ツリー操作（独立、maxpowerに非依存）
-EditorWSBridge (server) ← WebSocket通信（独立）
-CommandManager (orengine) ← Engine/Editor に依存
+docs/
+  adr/
+    001-browser-first-architecture.md     ← なぜブラウザがsource of truthなのか
+    002-websocket-delegation-pattern.md   ← なぜREST→WS→ブラウザの委譲なのか
+    003-serializable-field-system.md      ← なぜフィールドシステムを設計したか
+    004-deferred-rendering-pipeline.md    ← なぜこのパイプライン構成なのか
+    005-gbuffer-layout.md                 ← なぜこのGBufferレイアウトなのか
+    006-entity-component-hierarchy.md     ← なぜEventEmitter→Serializable→Entity/Componentなのか
+    007-editor-context-architecture.md    ← なぜこのContext体系なのか
+    008-depth-sharing-strategy.md         ← なぜFB間でdepthを共有するのか
 ```
 
-## 既存パターン
+### ADRテンプレート案
 
-### テストコードスタイル（glpowerの既存テストより）
-```typescript
-describe( 'Vector', () => {
-	let vector: Vector;
-	beforeEach( () => {
-		vector = new Vector( 1, 2, 3, 4 );
-	} );
-	it( 'init', () => {
-		expect( vector.x ).toBe( 1 );
-	} );
-} );
+```markdown
+# ADR-{番号}: {タイトル}
+
+## ステータス
+承認済み / 廃止
+
+## コンテキスト
+{この設計判断に至った背景・課題}
+
+## 決定
+{何を決定したか}
+
+## 理由
+{なぜこの決定に至ったか、代替案との比較}
+
+## 結果
+{この決定によって生じる影響、トレードオフ}
+
+## 関連コード
+{実装の起点となるファイルパス（詳細はコードを参照）}
 ```
-- MrDoob Code Style（タブインデント、括弧内スペース）
-- describe/it/beforeEach パターン
-- jest の expect/toBe/toBeCloseTo
-
-### テスト設定（glpower）
-- `jest/unit.config.js`: testEnvironment=jsdom, ts-jest, カバレッジ80%
-- テストファイル: `tests/` ディレクトリ内、`*.test.ts`
-
-## 複雑で境界条件が多い箇所（テスト最重要ポイント）
-
-### 1. Serializable.serializeToDirectory() のパス解析
-- `""` (空文字列), `"/"` (スラッシュのみ), `"a//b"` (連続スラッシュ), `"/a/b/"` (先頭/末尾スラッシュ)
-- パス分割 → ツリー構造変換のロジック
-- `type: "value"` と `type: "folder"` の判定
-
-### 2. Entity.updateMatrix() の quaternion/euler 同期
-- `quaternion.updated` フラグによる方向判定
-- 両方同時変更時の動作
-- `updateParent=true` での再帰計算
-- parent の matrixWorld が未計算の場合
-
-### 3. EntityStore._setNestedValue() の動的オブジェクト生成
-- 中間パスが存在しない場合の自動生成
-- 既存値が非オブジェクトの場合の上書き
-- 空パス、スラッシュのみのパス
-
-### 4. WebSocket ペンディング管理
-- 同時複数リクエスト
-- タイムアウト発火タイミング
-- 接続切断中の送信試行
-
-### 5. バッチAPI の3重ループ
-- エンティティ作成 → コンポーネント追加 → フィールド設定
-- 途中失敗時の状態（ロールバックなし）
-- UUIDの依存チェーン
-
-### 6. Component order ソートと実行順序
-- 同一 order のコンポーネント順序
-- addComponent 時の既存削除 → 再作成
 
 ## 制約・注意点
 
-### テスト環境の課題
-- **maxpower/orengine にはテスト環境がない**: テスト設定の新規作成が必要
-- **server/ にもテスト環境がない**: supertest 等の導入が必要
-- **WebGL依存クラス**: Renderer, Material, GLPower系はモックが必要
-- **React UIコンポーネント**: testing-library 等の導入が必要（優先度低）
-
-### アーキテクチャ上の制約
-- Entity/Component は EventEmitter を継承 → イベント発火の検証が可能
-- Serializable の serialize/deserialize は純粋に近い → テスト容易
-- EntityStore はサーバーサイドの独立クラス → モック不要でテスト可能
-- Renderer は WebGL2RenderingContext に強く依存 → テスト困難
-
-### テストフレームワークの選択肢
-- **案1: Jest統一** - glpowerの既存設定に合わせる。設定の一貫性
-- **案2: Vitest導入** - Viteプロジェクトとの親和性が高い。ESM対応が容易。maxpower/orengine/serverに適切
+1. **REST APIリファレンスの扱い**: 現在のドキュメントはClaude CodeがAPIを叩くときのリファレンスとしても使われている。ADR化で削除すると、Claude Codeがルーティングコードを毎回読む必要がある。CLAUDE.mdの「シーン作成」セクションに最低限のAPIパターン（バッチAPI等）を残すか検討が必要
+2. **shader-reference.md**: シェーダーのuniform/module一覧は「使えるもの一覧」としてコードを読まなくても参照できる価値がある。ただしGLSLソースの `#include` ファイルを読めば同じ情報は取れる
+3. **移行コスト**: 既存の10ドキュメントを整理してADR化する作業量は中程度
+4. **CLAUDE.mdの更新**: ドキュメント対応表、docs参照部分の書き換えが必要
 
 ## 参考になる既存実装
-- `packages/glpower/jest/unit.config.js` - ユニットテスト設定のテンプレート
-- `packages/glpower/packages/glpower/tests/Math/Vector.test.ts` - テストコードの書き方の参考
-
-## テスト戦略提案（優先度順）
-
-### Phase 1: 基盤テスト（最優先・効果最大）
-1. **EventEmitter** - 全クラスの基盤。on/off/emit/once の正確性
-2. **Serializable** - serialize/deserialize の双方向性、serializeToDirectory のパス解析
-3. **Entity 基本操作** - add/remove children、addComponent/removeComponent、findEntityByUUID
-4. **EntityStore** - _setNestedValue、findEntity/findParent/findComponent、setField
-
-### Phase 2: コアロジック
-5. **Entity.updateMatrix()** - 行列合成、quaternion/euler同期
-6. **Component ライフサイクル** - update/dispose 順序
-7. **Geometry** - 頂点・インデックス生成の正確性（Cube, Sphere等）
-8. **Ray/Raycaster** - AABB・三角形交差判定
-
-### Phase 3: サーバーサイド
-9. **REST API エンドポイント** - CRUD操作、バリデーション、エラーレスポンス
-10. **バッチAPI** - 複数エンティティ作成、部分失敗
-11. **WebSocket通信** - ペンディング管理、タイムアウト
-12. **パストラバーサル対策** - 各バリデーション関数
-
-### Phase 4: エディタロジック
-13. **CommandManager** - execute/undo/redo の正確性
-14. **Resources** - リソースCRUD
+- CLAUDE.mdの「シーン作成（REST API経由）」セクション: すでにAPIの要点を凝縮したスタイルで書かれており、ADR化後のAPIガイドのモデルになる
