@@ -115,7 +115,7 @@ export class AssetPreviewManager {
 		light.color.set( 1, 1, 1 );
 		light.intensity = 2;
 		light.castShadow = false;
-		this._matLightEntity.position.set( 2, 3, 4 );
+		this._matLightEntity.position.set( -3, -4, 5 );
 		this._matScene.add( this._matLightEntity );
 
 	}
@@ -179,7 +179,7 @@ export class AssetPreviewManager {
 		);
 
 		// 2. custom shading pass (no envMap, no skybox)
-		const lightDir = new GLP.Vector( 2, 3, 4 ).normalize();
+		const lightDir = new GLP.Vector( -3, -4, 5 ).normalize();
 		this._matShadingPass.uniforms.uLightDir = { value: lightDir, type: "3fv" };
 		this._matShadingPass.uniforms.uLightColor = { value: new GLP.Vector( 2, 2, 2 ), type: "3fv" };
 		this._matShadingPass.uniforms.uCameraPosition = { value: this._matCameraEntity.position, type: "3fv" };
