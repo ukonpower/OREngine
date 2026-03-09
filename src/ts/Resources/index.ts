@@ -7,10 +7,6 @@ import { GEOMETRYLIST } from './_data/geometryList';
 import { MATERIALLIST } from './_data/materialList';
 import { SHADERLIST } from './_data/shaderList';
 import { TEXTURELIST } from './_data/textureList';
-import { Bloom } from './Components/PostProcess/Bloom';
-import { ColorGrading } from './Components/PostProcess/ColorGrading';
-import { Finalize } from './Components/PostProcess/Finalize';
-import { FXAA } from './Components/PostProcess/FXAA';
 
 import { globalUniforms } from '~/ts/Globals';
 
@@ -30,7 +26,6 @@ export const initResouces = () => {
 	builtin.addComponent( "Light", MXP.Light );
 	builtin.addComponent( "Camera", MXP.Camera );
 	builtin.addComponent( "Mesh", MXP.Mesh );
-	builtin.addComponent( "PostProcessPipeline", MXP.PostProcessPipeline );
 
 	const _ = ( list: ClassList, group: ComponentGroup ) => {
 
@@ -198,24 +193,5 @@ export const initResourceInstances = ( glCtx: WebGL2RenderingContext ) => {
 		}
 	} );
 
-	/*-------------------------------
-		PostProcess Registration
-	-------------------------------*/
-
-	const renderTarget = engine.renderer.renderTarget;
-
-	MXP.PostProcessPipeline.postProcessList = [
-		{ name: "FXAA", create: () => new FXAA() },
-		{ name: "Bloom", create: () => {
-
-			const bloom = new Bloom( renderTarget.shadingBuffer.textures[ 0 ] );
-			bloom.threshold = 1.0;
-			bloom.brightness = 1;
-			return bloom;
-
-		} },
-		{ name: "ColorGrading", create: () => new ColorGrading() },
-		{ name: "Finalize", create: () => new Finalize() },
-	];
 
 };

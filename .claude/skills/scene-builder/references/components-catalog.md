@@ -9,7 +9,7 @@ OREngineで利用可能なコンポーネント一覧とフィールド詳細。
 | **Mesh** | メッシュ描画 | `geometry/type`, `geometry/width`, `geometry/height`, `geometry/depth`, `geometry/radius`, `geometry/widthSegments`, `geometry/heightSegments`, `geometry/floor`, `geometry/radiusTop`, `geometry/radiusBottom`, `geometry/caps`, `material/name` |
 | **Light** | ライト | `fov`, `intensity` |
 | **Camera** | カメラ（aspect自動同期、displayOutで画面出力ON/OFF） | `fov`, `near`, `far` |
-| **PostProcessPipeline** | ポストプロセス管理 | `postprocess` ({name, enabled}[]) |
+| **CustomPostProcess** | ポストプロセス管理 | `postprocess` ({name, enabled}[]) |
 | **ShakeViewer** | カメラ揺れ | `power`, `speed` |
 | **LookAt** | 注視 | - |
 | **SkyBox** | スカイボックス | - |
@@ -42,13 +42,13 @@ OREngineで利用可能なコンポーネント一覧とフィールド詳細。
 
 ### 標準カメラセット
 ```
-Camera + ShakeViewer + PostProcessPipeline
+Camera + ShakeViewer + CustomPostProcess
 ```
 - Camera: カメラ基本機能（fov, near, far、aspect自動同期）
 - ShakeViewer: カメラ揺れ演出（power, speed）
-- PostProcessPipeline: ポストエフェクト（`postprocess` で名前ベース個別ON/OFF）
+- CustomPostProcess: ポストエフェクト（FXAA, Bloom, ColorGrading, Finalize を内蔵、`postprocess` で個別ON/OFF）
 
-### PostProcessPipeline の postprocess フィールド
+### CustomPostProcess の postprocess フィールド
 
 ```json
 "postprocess": [
@@ -59,7 +59,7 @@ Camera + ShakeViewer + PostProcessPipeline
 ]
 ```
 
-利用可能なPostProcess名は `PostProcessPipeline.postProcessList` に登録されたものに限る。
+CustomPostProcess内に固定で4つのPostProcessが含まれる。フィールドではenabled状態のみ制御可能。
 
 ### 標準ライト
 ```

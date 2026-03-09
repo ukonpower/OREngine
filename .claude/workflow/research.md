@@ -1,111 +1,104 @@
-# Research: Camera系コンポーネントの統合・簡素化
+# Research: PostProcessをCustomPostProcessコンポーネントに統合
 
 ## タスク概要
-Camera, RenderCamera, MainCameraの3つのコンポーネントをシンプルにする。
-ユーザーが`Camera`をアタッチするだけでレンダリングされるようにしたい。
-PostProcessは別途アタッチする方式にする。
 
-## 現状の構造
+現在のPostProcess管理の問題点を解消するため、個別のPostProcessクラス（Bloom, FXAA等）をエディタUI上で「コンポーネント」として扱うのをやめ、**CustomPostProcess** という単一のComponentを作成する。CustomPostProcessコンポーネントをCameraのEntityに追加すると、PostProcessPipelineにPostProcess効果が追加される仕組みにする。
 
-### コンポーネント一覧
-| ファイル | クラス | 継承元 | 役割 |
-|---------|--------|--------|------|
-| `packages/maxpower/Component/Camera/index.ts` | `Camera` | Component | 基本カメラ（行列計算、fov/near/far等） |
-| `packages/maxpower/Component/Camera/RenderCamera/index.ts` | `RenderCamera` | Camera | GBuffer等レンダーターゲット管理（**実質未使用**） |
-| `packages/maxpower/Component/Camera/ShadowMapCamera/index.ts` | `ShadowMapCamera` | Camera | Light用シャドウマップカメラ |
-| `src/ts/Resources/Components/Camera/MainCamera/index.ts` | `MainCamera` | Component | Camera + LookAt + ShakeViewer + PostProcessPipeline統合 |
-| `packages/maxpower/Component/PostProcessPipeline/index.ts` | `PostProcessPipeline` | Component | PostProcess管理コンポーネント |
+### 現状の問題点
+1. **型の不整合**: PostProcessクラス（`PostProcess extends Serializable`）はComponentではないのに、`componentList.ts`で`@ts-nocheck`付きでComponent扱い
+2. **二重登録**: PostProcessが`componentList.ts`（エディタUI用）と`PostProcessPipeline.postProcessList`（ファクトリ用）の2箇所で登録
+3. **PostProcessPipeline.postProcessList**: staticなファクトリリストにハードコードされており拡張性が低い
 
-### 重要な発見: RenderCameraは実質未使用
-- `Renderer`は自前で`RenderCameraTarget`を作成・管理している（`Renderer.createRenderTarget()`）
-- `RenderCamera`クラスと`Renderer`内の`RenderCameraTarget`型は**完全重複**（同じGBuffer構成）
-- `Renderer.render()`は`RenderCamera`を一切使わず、`cameraEntity.getComponentsByTag<Camera>("camera")[0]`で`Camera`を取得
-- `RenderCameraTarget`型は`Renderer/index.ts`と`RenderCamera/index.ts`の**2箇所で定義**されている
+## 関連ファイル・シンボル
 
-### Renderer内でのカメラ使用フロー
-```typescript
-// Renderer.render() L592
-const cameraComponent = cameraEntity.getComponentsByTag<Camera>("camera")[0];
-// → Camera基底クラスのみ使用（RenderCameraではない）
+| ファイル | 主要シンボル | 役割 |
+|---------|------------|------|
+| `packages/maxpower/PostProcess/index.ts` | `PostProcess` | PostProcess基底クラス（Serializable継承） |
+| `packages/maxpower/PostProcess/PostProcessPass/index.ts` | `PostProcessPass` | Material継承、個別のレンダリングパス |
+| `packages/maxpower/Component/PostProcessPipeline/index.ts` | `PostProcessPipeline` | PostProcess管理コンポーネント（static postProcessList, field "postprocess"） |
+| `src/ts/Resources/index.ts` | `initResouces`, `initResourceInstances` | コンポーネント登録 + PostProcessPipeline.postProcessList設定 |
+| `src/ts/Resources/_data/componentList.ts` | `COMPONENTLIST` | エディタUI用コンポーネントリスト（`@ts-nocheck`） |
+| **個別PostProcessクラス**（`src/ts/Resources/Components/PostProcess/`） | | |
+| `Bloom/index.ts` | `Bloom` | 複雑（7 passes: bright→blur×4→composite）、srcTexture引数が必要 |
+| `Blur/index.ts` | `Blur` | 2 passes (v/h gaussian) |
+| `ColorGrading/index.ts` | `ColorGrading` | 1 pass |
+| `FXAA/index.ts` | `FXAA` | 1 pass |
+| `Finalize/index.ts` | `Finalize` | 1 pass |
+| `Glitch/index.ts` | `Glitch` | 1 pass, globalUniforms使用 |
+| `OverlayMixer/index.ts` | `OverlayMixer` | 1 pass |
+| `PixelSort/index.ts` | `PixelSort` | 可変 passes, resize時に動的再生成 |
 
-// PostProcessPipeline取得 L656
-const postProcessManager = cameraEntity.getComponent(PostProcessPipeline);
+### シーンデータ（scene.json）での参照
+
+Camera Entityに以下の形でアタッチ:
+```json
+{
+  "name": "PostProcessPipeline",
+  "props": {
+    "postprocess": [
+      { "name": "FXAA", "enabled": true },
+      { "name": "Bloom", "enabled": true },
+      { "name": "ColorGrading", "enabled": true },
+      { "name": "Finalize", "enabled": true }
+    ]
+  }
+}
 ```
-
-### MainCameraの役割
-MainCameraはComponentを継承し、内部でCameraや他コンポーネントを`entity.addComponent()`で追加する「統合コンテナ」:
-- `Camera` - カメラ本体
-- `LookAt` - ルックアットターゲット
-- `ShakeViewer` - カメラシェイク
-- `PostProcessPipeline` - FXAA, Bloom, ColorGrading, Finalize
-
-MainCameraはプロジェクト固有（OREngine側`src/ts/`に存在）で、maxpower側のエンジンコアには含まれない。
 
 ## 依存関係
 
-### Camera → 依存されている箇所
-- `Renderer.render()` → タグ`"camera"`でCameraを取得
-- `Renderer.renderCamera()` → Camera.viewMatrix, projectionMatrix等を使用
-- `DeferredRenderer.setRenderCamera()` → Camera + RenderCameraTargetを受け取る
-- `PipelinePostProcess.setRenderCamera()` → Camera + RenderCameraTargetを受け取る
-- `MainCamera` → `entity.addComponent(Camera)`で内部保持
-- `ShadowMapCamera` → Cameraを継承
-- Renderer内envMapカメラ → `entity.addComponent(Camera)`で6つ作成
+- `PostProcess` ← `Serializable`（NOT Component）
+- `PostProcessPipeline` ← `Component` ← `Serializable`
+- `PostProcessPass` ← `Material`
+- `Renderer.render()` → `cameraEntity.getComponent(PostProcessPipeline)` → `postProcessManager.postProcesses` をイテレート
+- `Bloom` コンストラクタは `renderTarget.shadingBuffer.textures[0]` が必要（`initResourceInstances`で注入）
+- `componentList.ts` の `@ts-nocheck` は PostProcess→Component の型不整合を隠蔽
 
-### RenderCamera → 依存されている箇所
-- **なし** — 実質的にどこからも使われていない
-- `RenderCameraTarget`型のみ`Renderer`, `DeferredRenderer`, `PipelinePostProcess`で使用
+### データフロー
+```
+Camera Entity
+  ├─ Camera Component (viewMatrix, projectionMatrix)
+  └─ PostProcessPipeline Component
+       ├─ FXAA (PostProcess)
+       ├─ Bloom (PostProcess)
+       ├─ ColorGrading (PostProcess)
+       └─ Finalize (PostProcess)
 
-### PostProcessPipeline → 依存
-- `Renderer.render()` L656-678 → `cameraEntity.getComponent(PostProcessPipeline)`で取得しポストプロセス実行
-- `MainCamera` → `entity.addComponent(PostProcessPipeline)`で追加
-
-### componentList.ts
-MainCameraはUIのコンポーネント追加メニューに登録されている:
-```typescript
-Camera: { MainCamera: { PostProcess: { Bloom, ... }, MainCamera } }
+Renderer.render() → PostProcessPipeline.postProcesses をチェーン実行
 ```
 
-## PostProcessの実行順序（Renderer.render()内）
-1. GBuffer（Deferred）描画
-2. DeferredRenderer（SSAO, LightShaft, Shading）— Renderer内蔵
-3. Forward描画
-4. PipelinePostProcess（SSR, MotionBlur, DoF）— Renderer内蔵
-5. **ユーザーPostProcessPipeline**（FXAA, Bloom等）— cameraEntity上のPostProcessPipeline
-6. UI描画
-7. Screen出力
+## 既存パターン
 
-## 設計上の論点
+### PostProcessPipeline の Serializable field パターン
+- getter: `{name, enabled}[]` を返す
+- setter: `PostProcessPipeline.postProcessList`（staticファクトリリスト）から名前で検索して `factory.create()` でインスタンス生成
+- レガシー互換: `boolean[]` フォーマットもサポート
 
-### 1. RenderCameraの扱い
-- 完全に削除可能。`RenderCameraTarget`型はRendererに既に存在する
-- GBuffer等のレンダーターゲットはRenderer側が管理するのが自然（現状もそうなっている）
+### コンポーネント登録パターン
+```typescript
+// initResouces() で Resources に登録
+builtin.addComponent( "PostProcessPipeline", MXP.PostProcessPipeline );
+// componentList.ts でグループ化（エディタUI表示用）
+PostProcess: { Bloom, FXAA, ... }
+```
 
-### 2. MainCameraをどうするか
-MainCameraの現在の役割:
-- Camera追加 → Cameraを直接アタッチすれば不要
-- LookAt, ShakeViewer追加 → プロジェクト固有。ユーザーが個別にアタッチすればよい
-- PostProcessPipeline(FXAA, Bloom等) → ユーザーが個別にアタッチ
-- DoF距離計算、near/far設定 → Camera自体に持たせるかユーザー実装
-
-**→ MainCameraは廃止し、Cameraを直接使う方式に移行可能**
-
-### 3. PostProcessの扱い
-現在: MainCameraがPostProcessPipelineを内包し、FXAA/Bloom/ColorGrading/Finalizeをハードコード
-提案: ユーザーが`PostProcessPipeline`を個別にアタッチし、好きなPostProcessを追加
-
-Rendererは既に`cameraEntity.getComponent(PostProcessPipeline)`でPostProcessを取得する仕組みを持っているので、Cameraアタッチ後にPostProcessPipelineを別途追加すれば動く。
-
-### 4. ShadowMapCameraはそのまま
-Light用のシャドウマップカメラは独立した関心事であり、今回の変更対象外。
+### コンポーネント復元フロー
+```
+scene.json → ProjectSerializer.deserializeEntity()
+  → resolver.resolve(componentName) → { component: typeof MXP.Component }
+  → entity.addComponent(component) → component.deserialize(props)
+```
 
 ## 制約・注意点
-- Rendererが`getComponentsByTag<Camera>("camera")[0]`でカメラを探索 → Cameraの`_tag = "camera"`は維持必須
-- `displayOut`フラグ → Cameraの画面出力ON/OFF制御。ShadowMapCameraはfalseに設定
-- シーンJSON（`projects/DemoProject/scene.json`）にMainCameraが使われている可能性 → デシリアライズへの影響確認必要
-- componentList.ts → MainCamera廃止時に更新必要
-- `scene-builder`スキルの`components-catalog.md` → MainCamera参照があれば更新必要
+
+1. **Bloom の特殊性**: `renderTarget.shadingBuffer.textures[0]` が必要。`initResourceInstances`で注入されている。CustomPostProcessでも同様の仕組みが必要
+2. **scene.json の後方互換**: 既存のシーンデータでPostProcessPipelineの`postprocess`フィールドを使っている。新しい仕組みに移行する際、scene.jsonの変更が必要
+3. **PostProcessの実行順序**: Rendererは`PostProcessPipeline.postProcesses`配列の順序でチェーン実行。順序管理が重要
+4. **Renderer統合**: RendererはCamera EntityからPostProcessPipelineを`getComponent(PostProcessPipeline)`で取得。この仕組みは維持する必要がある
+5. **componentList.tsの@ts-nocheck**: PostProcessをComponentListから除去すればこのハックも不要になる可能性
 
 ## 参考になる既存実装
-- `PostProcessPipeline`コンポーネント: 既に独立コンポーネントとして存在し、Rendererから参照される仕組みが完成
-- `Light`コンポーネント: ShadowMapCameraを内部で管理するパターン（統合コンテナの良い例）
+
+- **PipelinePostProcess** (`packages/maxpower/Component/Renderer/PipelinePostProcess/index.ts`): Renderer内蔵のPostProcess（SSR, MotionBlur等）。パイプライン固有のPostProcessの管理方法
+- **Mesh Component**: Geometry/Material をSerializable fieldで管理するパターン（リソース名ベースの復元）
+- **PostProcessPipeline**: 現在のファクトリベース復元パターンの参考
