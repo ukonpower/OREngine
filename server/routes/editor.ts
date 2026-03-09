@@ -337,6 +337,195 @@ editorRouter.post( '/projects/:projectName/editor/field', ( req, res ) => {
 
 } );
 
+// --- オブジェクトコントロール ---
+
+// lookAt行列からquaternionを抽出
+function matrixToQuaternion( m: number[] ): number[] {
+
+	// m: column-major [col0x, col0y, col0z, 0, col1x, col1y, col1z, 0, col2x, col2y, col2z, 0, ...]
+	const m11 = m[ 0 ], m12 = m[ 4 ], m13 = m[ 8 ];
+	const m21 = m[ 1 ], m22 = m[ 5 ], m23 = m[ 9 ];
+	const m31 = m[ 2 ], m32 = m[ 6 ], m33 = m[ 10 ];
+
+	const trace = m11 + m22 + m33;
+	let x: number, y: number, z: number, w: number;
+
+	if ( trace > 0 ) {
+
+		const s = 0.5 / Math.sqrt( trace + 1.0 );
+		w = 0.25 / s;
+		x = ( m32 - m23 ) * s;
+		y = ( m13 - m31 ) * s;
+		z = ( m21 - m12 ) * s;
+
+	} else if ( m11 > m22 && m11 > m33 ) {
+
+		const s = 2.0 * Math.sqrt( 1.0 + m11 - m22 - m33 );
+		w = ( m32 - m23 ) / s;
+		x = 0.25 * s;
+		y = ( m12 + m21 ) / s;
+		z = ( m13 + m31 ) / s;
+
+	} else if ( m22 > m33 ) {
+
+		const s = 2.0 * Math.sqrt( 1.0 + m22 - m11 - m33 );
+		w = ( m13 - m31 ) / s;
+		x = ( m12 + m21 ) / s;
+		y = 0.25 * s;
+		z = ( m23 + m32 ) / s;
+
+	} else {
+
+		const s = 2.0 * Math.sqrt( 1.0 + m33 - m11 - m22 );
+		w = ( m21 - m12 ) / s;
+		x = ( m13 + m31 ) / s;
+		y = ( m23 + m32 ) / s;
+		z = 0.25 * s;
+
+	}
+
+	return [ x, y, z, w ];
+
+}
+
+// quaternion乗算: a * b
+function quatMultiply( a: number[], b: number[] ): number[] {
+
+	const ax = a[ 0 ], ay = a[ 1 ], az = a[ 2 ], aw = a[ 3 ];
+	const bx = b[ 0 ], by = b[ 1 ], bz = b[ 2 ], bw = b[ 3 ];
+
+	return [
+		aw * bx + ax * bw + ay * bz - az * by,
+		aw * by - ax * bz + ay * bw + az * bx,
+		aw * bz + ax * by - ay * bx + az * bw,
+		aw * bw - ax * bx - ay * by - az * bz,
+	];
+
+}
+
+// quaternionからXYZ euler抽出
+function quatToEulerXYZ( q: number[] ): number[] {
+
+	const x = q[ 0 ], y = q[ 1 ], z = q[ 2 ], w = q[ 3 ];
+
+	// quaternion → rotation matrix elements
+	const m11 = 1 - 2 * ( y * y + z * z );
+	const m12 = 2 * ( x * y - z * w );
+	const m13 = 2 * ( x * z + y * w );
+	const m22 = 1 - 2 * ( x * x + z * z );
+	const m23 = 2 * ( y * z - x * w );
+	const m32 = 2 * ( y * z + x * w );
+	const m33 = 1 - 2 * ( x * x + y * y );
+
+	const eulerY = Math.asin( Math.min( 1.0, Math.max( - 1.0, m13 ) ) );
+	let eulerX: number, eulerZ: number;
+
+	if ( Math.abs( m13 ) < 0.9999999 ) {
+
+		eulerX = Math.atan2( - m23, m33 );
+		eulerZ = Math.atan2( - m12, m11 );
+
+	} else {
+
+		eulerX = Math.atan2( m32, m22 );
+		eulerZ = 0;
+
+	}
+
+	return [ eulerX, eulerY, eulerZ ];
+
+}
+
+function computeLookAtEuler(
+	eyeX: number, eyeY: number, eyeZ: number,
+	targetX: number, targetY: number, targetZ: number,
+	isLight: boolean,
+): number[] {
+
+	// lookAt行列構築 (Matrix.lookAt と同じ)
+	let zx = eyeX - targetX, zy = eyeY - targetY, zz = eyeZ - targetZ;
+	const zLen = Math.sqrt( zx * zx + zy * zy + zz * zz ) || 1;
+	zx /= zLen; zy /= zLen; zz /= zLen;
+
+	// xAxis = normalize(up × zAxis), up = (0,1,0)
+	let xx = zz, xy = 0, xz = - zx;
+	const xLen = Math.sqrt( xx * xx + xz * xz ) || 1;
+	xx /= xLen; xz /= xLen;
+
+	// yAxis = zAxis × xAxis
+	const yx = zy * xz - zz * xy;
+	const yy = zz * xx - zx * xz;
+	const yz = zx * xy - zy * xx;
+
+	// column-major matrix: col0=xAxis, col1=yAxis, col2=zAxis
+	const mat = [
+		xx, xy, xz, 0,
+		yx, yy, yz, 0,
+		zx, zy, zz, 0,
+		0, 0, 0, 1,
+	];
+
+	let quat = matrixToQuaternion( mat );
+
+	// Light補正: entity.lookAt後に quaternion.multiply(Quaternion.fromEuler(PI/2, 0, 0))
+	if ( isLight ) {
+
+		const halfAngle = Math.PI / 4; // PI/2 の半分
+		const correctionQuat = [ Math.sin( halfAngle ), 0, 0, Math.cos( halfAngle ) ];
+		quat = quatMultiply( quat, correctionQuat );
+
+	}
+
+	return quatToEulerXYZ( quat );
+
+}
+
+editorRouter.post( '/projects/:projectName/editor/entity/:uuid/lookAt', async ( req, res ) => {
+
+	try {
+
+		const projectName = req.params.projectName;
+		const uuid = req.params.uuid;
+		const { target } = req.body as { target: number[] };
+
+		if ( ! Array.isArray( target ) || target.length < 3 ) {
+
+			res.status( 400 ).json( { error: 'target must be [x, y, z]' } );
+			return;
+
+		}
+
+		// エンティティの現在位置を取得
+		const entity = await handleActionInternal( projectName, 'getEntity', { uuid } );
+		const pos = entity.position || entity.pos || { x: 0, y: 0, z: 0 };
+		const eyeX = pos.x ?? pos[ 0 ] ?? 0;
+		const eyeY = pos.y ?? pos[ 1 ] ?? 0;
+		const eyeZ = pos.z ?? pos[ 2 ] ?? 0;
+
+		const hasLight = entity.components?.some(
+			( c: any ) => c.name === 'Light'
+		);
+
+		const euler = computeLookAtEuler( eyeX, eyeY, eyeZ, target[ 0 ], target[ 1 ], target[ 2 ], !! hasLight );
+
+		await handleActionInternal( projectName, 'setField', {
+			targetUuid: uuid,
+			path: 'euler',
+			value: euler,
+		} );
+
+		await syncFromBrowser( projectName );
+
+		res.json( { success: true, euler, lightCorrected: !! hasLight } );
+
+	} catch ( err: any ) {
+
+		res.status( 400 ).json( { error: err.message || String( err ) } );
+
+	}
+
+} );
+
 // --- Undo/Redo ---
 
 editorRouter.post( '/projects/:projectName/editor/undo', ( _req, res ) => {

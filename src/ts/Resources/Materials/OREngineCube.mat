@@ -1,18 +1,18 @@
 {
-  "vert": "OREngineCube/vert",
-  "frag": "OREngineCube/frag",
-  "phase": [
-    "shadowMap",
-    "deferred"
-  ],
-  "drawType": "",
-  "blending": "",
-  "useLight": true,
-  "depthTest": true,
-  "depthWrite": true,
-  "cullFace": false,
-  "uniforms/uTime": 0,
-  "uniforms/uNoiseTex": "noise",
-  "uniforms/uEmission": 0,
-  "uniforms/uTestAAA": 0
+	"vert": "OREngineCube/vert",
+	"frag": "OREngineCube/frag",
+	"phase": [
+		"shadowMap",
+		"deferred"
+	],
+	"drawType": "",
+	"blending": "",
+	"useLight": true,
+	"depthTest": true,
+	"depthWrite": true,
+	"cullFace": false,
+	"uniforms/uTime": 0,
+	"uniforms/uNoiseTex": "noise",
+	"uniforms/uEmission": 3,
+	"uniforms/uTestAAA": 0
 }
