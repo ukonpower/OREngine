@@ -1,169 +1,187 @@
-# Plan: PostProcessをCustomPostProcessコンポーネントに統合
+# Plan: BLidger FOV反映修正 + CameraControllerコンポーネント作成
 
 ## 概要
 
-個別のPostProcessクラスをComponent扱いする`@ts-nocheck`ハックを解消する。
-`CustomPostProcess`コンポーネント1つに統合し、内部で直接PostProcessインスタンスを生成するシンプルな設計にする。
+Camera系コンポーネント統合（f39f49a）でMainCameraを削除した結果、2つの問題が発生:
+1. BLidgerからのFOV設定が反映されない（タイミング問題 + projectionMatrix更新フラグ問題）
+2. LookAtターゲットの自動設定が失われた
 
-**データフロー（変更後）:**
-```
-Camera Entity
-  ├─ Camera Component
-  └─ CustomPostProcess Component (initiator="user", シリアライズ対象)
-       └─ 内部で PostProcessPipeline を作成 (initiator="script", シリアライズ対象外)
-            ├─ FXAA      ← 直接 new
-            ├─ Bloom      ← 直接 new
-            ├─ ColorGrading ← 直接 new
-            └─ Finalize   ← 直接 new
-
-Renderer.render() → cameraEntity.getComponent(PostProcessPipeline) → 変更なし
-```
+FOVバグをBLidger側で修正。CustomPostProcessを削除し、PostProcess管理・LookAt・DoFをすべて担うCameraControllerコンポーネントを新規作成する。
 
 ## 実装ステップ
 
-### 1. PostProcessPipelineの簡素化
+### 1. BLidgerのFOV設定を修正
 
-- **対象ファイル**: `packages/maxpower/Component/PostProcessPipeline/index.ts`
+- **対象ファイル**: `packages/maxpower/Component/BLidger/index.ts`
 - **変更内容**:
-  - `static postProcessList` を削除
-  - `PostProcessListItem` 型を削除
-  - `field("postprocess")` を削除
-  - `add()`, `remove()`, `resize()`, `postProcesses` getter はそのまま維持
-- **変更後のクラス**: constructorでfield登録をしない以外は既存メソッドそのまま
+  - コンストラクタのカメラFOV設定部分（L206-220）で`needsUpdateProjectionMatrix = true`を追加
+  - `updateImpl`にカメラコンポーネントの遅延取得ロジックを追加（初回ロード時のタイミング問題対策）
+- **コードスニペット**:
+  ```typescript
+  // コンストラクタ内（L206-220）既存部分に追加
+  if ( this._cameraComponent ) {
+    const cameraParam = this.node.param as BLidgeCameraParam;
+    this._cameraComponent.fov = cameraParam.fov;
+    this._cameraComponent.needsUpdateProjectionMatrix = true; // 追加
+  }
 
-### 2. CustomPostProcessコンポーネントの作成
+  // updateImpl内に追加（タイミング問題対策）
+  if ( this.node.type == 'camera' && !this._cameraComponent ) {
+    this._cameraComponent = this.entity.getComponentsByTag<Camera>( "camera" )[ 0 ];
+    if ( this._cameraComponent ) {
+      const cameraParam = this.node.param as BLidgeCameraParam;
+      this._cameraComponent.fov = cameraParam.fov;
+      this._cameraComponent.needsUpdateProjectionMatrix = true;
+    }
+  }
+  ```
 
-- **対象ファイル**: `src/ts/Resources/Components/PostProcess/CustomPostProcess/index.ts`（新規）
-- **設計**: ファクトリパターンを使わず、内部で直接PostProcessインスタンスを生成
+### 2. CameraControllerコンポーネントの作成（CustomPostProcessを統合）
+
+- **対象ファイル**: `src/ts/Resources/Components/ObjectControls/CameraController/index.ts`（新規）
+- **設計**: 旧MainCamera + 旧CustomPostProcessの機能を統合
+  - LookAtコンポーネントの追加・ターゲット設定（"CamLook"）
+  - DoFターゲット設定（"CamDof"）+ DoFパラメータ更新
+  - PostProcessPipelineの作成・管理（旧CustomPostProcessの機能）
+  - `sceneCreated`イベントのリスン
 - **コードスニペット**:
   ```typescript
   import * as GLP from 'glpower';
   import * as MXP from 'maxpower';
   import { Engine } from 'orengine';
+  import { LookAt } from '../LookAt';
+  import { Bloom } from '../../PostProcess/Bloom';
+  import { ColorGrading } from '../../PostProcess/ColorGrading';
+  import { FXAA } from '../../PostProcess/FXAA';
+  import { Finalize } from '../../PostProcess/Finalize';
   import { gl } from '~/ts/Globals';
 
-  import { Bloom } from '../Bloom';
-  import { ColorGrading } from '../ColorGrading';
-  import { FXAA } from '../FXAA';
-  import { Finalize } from '../Finalize';
+  export class CameraController extends MXP.Component {
 
-  export class CustomPostProcess extends MXP.Component {
+    private _lookAt: LookAt;
+    private _dofTarget: MXP.Entity | null;
+    private _tmpVector1: GLP.Vector;
+    private _tmpVector2: GLP.Vector;
 
-    constructor( param: MXP.ComponentParams ) {
-      super( param );
+    constructor( params: MXP.ComponentParams ) {
+      super( params );
 
-      // field("postprocess") で {name, enabled}[] をシリアライズ
-      // getter: pipeline.postProcesses から {name, enabled}[] を返す
-      // setter: _createPostProcesses() を呼んで再構築
-    }
+      // LookAt
+      this._lookAt = this.entity.addComponent( LookAt );
 
-    protected setEntityImpl( entity: MXP.Entity ): void {
-      entity.addComponent( MXP.PostProcessPipeline );
-      this._createPostProcesses();
-    }
+      // DoF
+      this._dofTarget = null;
+      this._tmpVector1 = new GLP.Vector();
+      this._tmpVector2 = new GLP.Vector();
 
-    protected unsetEntityImpl( prevEntity: MXP.Entity ): void {
-      prevEntity.removeComponent( MXP.PostProcessPipeline );
-    }
-
-    private _createPostProcesses() {
-      const pipeline = this._entity?.getComponent( MXP.PostProcessPipeline );
-      if ( !pipeline ) return;
-
+      // PostProcessPipeline（旧CustomPostProcessの機能）
+      const pipeline = this.entity.addComponent( MXP.PostProcessPipeline );
       const engine = Engine.getInstance( gl );
       const rt = engine.renderer.renderTarget;
 
-      // 直接生成
       const bloom = new Bloom( rt.shadingBuffer.textures[ 0 ] );
       bloom.threshold = 1.0;
       bloom.brightness = 1;
 
-      const postProcesses = [
-        new FXAA(),
-        bloom,
-        new ColorGrading(),
-        new Finalize(),
-      ];
+      pipeline.add( new FXAA() );
+      pipeline.add( bloom );
+      pipeline.add( new ColorGrading() );
+      pipeline.add( new Finalize() );
 
-      // config(deserializeされた設定)に基づいてenabled設定
-      postProcesses.forEach( pp => {
-        const config = this._postProcessConfig.find( c => c.name === pp.name );
-        if ( config ) pp.enabled = config.enabled;
-        pipeline.add( pp );
+      // fieldなし。PostProcessは固定構成で直接生成するのみ
+
+      // sceneCreatedイベント
+      const onSceneCreated = ( root: MXP.Entity ) => {
+        const lookAtTarget = root.findEntityByName( "CamLook" ) || null;
+        this._lookAt.setTarget( lookAtTarget );
+        this._dofTarget = root.findEntityByName( 'CamDof' ) || null;
+      };
+      this.entity.on( 'sceneCreated', onSceneCreated );
+      this.once( "dispose", () => {
+        this.entity.off( 'sceneCreated', onSceneCreated );
       } );
+
+      // 既存シーンからも検索
+      const root = this.entity.getRootEntity();
+      const lookAtTarget = root.findEntityByName( "CamLook" ) || null;
+      this._lookAt.setTarget( lookAtTarget );
+      this._dofTarget = root.findEntityByName( 'CamDof' ) || null;
+    }
+
+    protected updateImpl( _event: MXP.ComponentUpdateEvent ): void {
+      // DoFパラメータ更新
+      const camera = this.entity.getComponentsByTag<MXP.Camera>( "camera" )[ 0 ];
+      if ( camera && this._dofTarget ) {
+        this.entity.matrixWorld.decompose( this._tmpVector1 );
+        this._dofTarget.matrixWorld.decompose( this._tmpVector2 );
+        camera.dofParams.focusDistance = this._tmpVector1.sub( this._tmpVector2 ).length();
+      }
+    }
+
+    public dispose(): void {
+      super.dispose();
+      this.entity.removeComponent( LookAt );
+      this.entity.removeComponent( MXP.PostProcessPipeline );
     }
   }
   ```
-- **注意点**: `Engine.getInstance(gl)` で Bloom に必要な `shadingBuffer.textures[0]` を取得。ファクトリ不要
 
-### 3. initResourceInstancesからPostProcess登録を削除
+### 3. CustomPostProcessの削除
 
-- **対象ファイル**: `src/ts/Resources/index.ts`
-- **変更内容**:
-  - `MXP.PostProcessPipeline.postProcessList = [...]` のブロックを丸ごと削除
-  - PostProcess関連のimport（Bloom, FXAA, ColorGrading, Finalize）を削除
-  - `builtin.addComponent( "PostProcessPipeline", MXP.PostProcessPipeline )` を削除
+- **対象ファイル**: `src/ts/Resources/Components/PostProcess/CustomPostProcess/index.ts`
+- **変更内容**: ファイル削除
 
 ### 4. componentList.tsの更新
 
 - **対象ファイル**: `src/ts/Resources/_data/componentList.ts`
 - **変更内容**:
-  - `@ts-nocheck` を削除
-  - 個別PostProcessクラスのimportをすべて削除
-  - `CustomPostProcess` のimportを追加
-  - `PostProcess`グループの中身を`CustomPostProcess`のみに変更
+  - CustomPostProcessのimport・登録を削除
+  - CameraControllerをimportし、ObjectControlsグループに追加
+  - PostProcessグループが空になるため削除
 - **変更後**:
   ```typescript
-  import { CustomPostProcess } from '../Components/PostProcess/CustomPostProcess/index.ts';
-  // 既存の非PostProcess importはそのまま
+  import { CameraController } from '../Components/ObjectControls/CameraController/index.ts';
+  // CustomPostProcessのimport削除
 
-  export const COMPONENTLIST: {[key: string]: any} = {
-    // ...
-    PostProcess: { CustomPostProcess },
-    // ...
-  };
+  ObjectControls: {
+    CameraController,
+    ShakeViewer,
+    LookAt,
+    ObjectRotate,
+    OrbitControls,
+  },
+  // PostProcess: { CustomPostProcess }, ← 削除
   ```
 
-### 5. maxpowerのexport更新
-
-- **対象ファイル**: `packages/maxpower/index.ts`
-- **変更内容**: `PostProcessListItem` 型のexportを削除
-
-### 6. シーンJSONの更新
+### 5. scene.jsonのattachmentsを更新
 
 - **対象ファイル**: `projects/DemoProject/scene.json`
-- **変更内容**: `"name": "PostProcessPipeline"` → `"name": "CustomPostProcess"`
-- **propsフォーマットは変更なし**
-
-### 7. scene-builderスキルの更新
-
-- **対象ファイル**: `.claude/skills/scene-builder/references/components-catalog.md`
-- **変更内容**: PostProcessPipelineの記述をCustomPostProcessに変更
+- **変更内容**: CustomPostProcess → CameraControllerに置き換え（propsなし、PostProcessは固定構成）
+- **変更後**:
+  ```json
+  {
+    "name": "Camera",
+    "components": [
+      { "name": "ShakeViewer", "uuid": "10", "props": { "power": 0.15, "speed": 1 } },
+      { "name": "Camera", "uuid": "12" },
+      { "name": "CameraController", "uuid": "17" }
+    ]
+  }
+  ```
 
 ## 変更対象ファイル一覧
 
-- [x] `packages/maxpower/Component/PostProcessPipeline/index.ts` - field/static削除で簡素化
-- [x] `packages/maxpower/index.ts` - PostProcessListItem export削除（export *で自動）
-- [x] `src/ts/Resources/Components/PostProcess/CustomPostProcess/index.ts` - 新規作成
-- [x] `src/ts/Resources/index.ts` - PostProcess登録削除、built-in登録削除
-- [x] `src/ts/Resources/_data/componentList.ts` - @ts-nocheck削除、CustomPostProcessのみ
-- [x] `projects/DemoProject/scene.json` - PostProcessPipeline→CustomPostProcess
-- [x] `.claude/skills/scene-builder/references/components-catalog.md` - 更新
+- [x] `packages/maxpower/Component/BLidger/index.ts` - FOV設定時にprojectionMatrix更新フラグ追加 + 遅延取得
+- [x] `src/ts/Resources/Components/ObjectControls/CameraController/index.ts` - 新規作成（LookAt + DoF + PostProcess）
+- [x] `src/ts/Resources/Components/PostProcess/CustomPostProcess/index.ts` - 削除
+- [x] `src/ts/Resources/_data/componentList.ts` - CustomPostProcess→CameraControllerに変更
+- [x] `projects/DemoProject/scene.json` - CustomPostProcess→CameraControllerに置き換え
 
 ## 考慮事項・リスク
 
-### PostProcessPipelineのシリアライズ除外
-PostProcessPipelineはCustomPostProcessが`entity.addComponent()`で作成 → `initiator="script"`。fieldなし → `serializeEntity`で `!hasFields && initiator !== "user"` → スキップされる。
-
-### setEntityImplとdeserializeの呼び出し順序
-1. `addComponent(CustomPostProcess)` → `setEntityImpl` → PostProcessPipeline作成
-2. `deserialize(props)` → field setter → PostProcess生成・enabled設定
-順序問題なし。
-
-### Bloom の shadingTexture 取得
-`Engine.getInstance(gl).renderer.renderTarget.shadingBuffer.textures[0]` で取得。CustomPostProcessは`src/ts/`（アプリ層）にあるため、Engine/glへの依存は問題なし。
+- **sceneCreatedイベントのタイミング**: applyAttachments直後にnoticeEventChildsが発火するため、CameraControllerはイベントを受け取れる
+- **BLidger遅延FOV設定**: `updateImpl`でのカメラ検索は`_cameraComponent`がnullの間のみ実行
 
 ## テスト方針
 - `npm run typecheck` で型エラーがないことを確認
-- `npm run dev` でエディタが正常起動
-- DemoProjectのシーンが正常ロードされ、PostProcessが適用されていることを確認
+- `npm run dev` でエディタ起動 → DemoProjectロード → FOV・LookAt・PostProcessすべて動作確認

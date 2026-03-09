@@ -44,28 +44,8 @@
 									"uuid": "12"
 								},
 								{
-									"name": "CustomPostProcess",
-									"uuid": "000006bc",
-									"props": {
-										"postprocess": [
-											{
-												"name": "FXAA",
-												"enabled": true
-											},
-											{
-												"name": "Bloom",
-												"enabled": true
-											},
-											{
-												"name": "ColorGrading",
-												"enabled": true
-											},
-											{
-												"name": "Finalize",
-												"enabled": true
-											}
-										]
-									}
+									"name": "CameraController",
+									"uuid": "000001e9"
 								}
 							]
 						},

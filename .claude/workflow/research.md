@@ -1,104 +1,84 @@
-# Research: PostProcessをCustomPostProcessコンポーネントに統合
+# Research: BLidger FOV反映バグ + CameraControllerコンポーネント作成
 
 ## タスク概要
+1. **FOVバグ**: Camera系コンポーネント統合（f39f49a）後、BLidgerからのFOVが反映されなくなった
+2. **LookAt問題**: MainCamera削除に伴い、LookAtターゲット（"CamLook"エンティティ）の自動設定が失われた
+3. **CameraController作成**: LookAtのアタッチやDofTarget設定をスクリプトから行うCameraControllerコンポーネントを作成する
 
-現在のPostProcess管理の問題点を解消するため、個別のPostProcessクラス（Bloom, FXAA等）をエディタUI上で「コンポーネント」として扱うのをやめ、**CustomPostProcess** という単一のComponentを作成する。CustomPostProcessコンポーネントをCameraのEntityに追加すると、PostProcessPipelineにPostProcess効果が追加される仕組みにする。
+## 根本原因の分析
 
-### 現状の問題点
-1. **型の不整合**: PostProcessクラス（`PostProcess extends Serializable`）はComponentではないのに、`componentList.ts`で`@ts-nocheck`付きでComponent扱い
-2. **二重登録**: PostProcessが`componentList.ts`（エディタUI用）と`PostProcessPipeline.postProcessList`（ファクトリ用）の2箇所で登録
-3. **PostProcessPipeline.postProcessList**: staticなファクトリリストにハードコードされており拡張性が低い
+### FOVバグ: 2つの問題が重なっている
+
+**問題1: タイミング問題（初回ロード時）**
+- `onSyncScene`の処理順序:
+  1. BLidger追加（コンストラクタで`entity.getComponentsByTag<Camera>("camera")`を呼ぶ）
+  2. **この時点でCameraコンポーネントはまだ存在しない**（attachmentsはまだ適用されていない）
+  3. `applyAttachments()`でCameraが追加される → デフォルトFOV=50のまま
+- WebSocket再同期時はCameraが既に存在するため、BLidgerがFOVを設定できる
+
+**問題2: projectionMatrix更新フラグの問題（再同期時）**
+- BLidgerが`camera.fov = cameraParam.fov`を設定するが、`needsUpdateProjectionMatrix = true`を設定しない
+- **以前**: MainCameraの`updateCameraParams()`が毎フレーム`needsUpdateProjectionMatrix = true`を設定 → FOV変更が自動反映
+- **現在**: Camera.updateImplはアスペクト比変更時のみフラグを立てる → FOV変更が反映されない
+
+### LookAt問題: MainCamera削除による機能喪失
+
+削除されたMainCameraが担っていた機能:
+```typescript
+// MainCameraコンストラクタ内
+this._lookAt = this.entity.addComponent( LookAt );
+
+// sceneCreatedイベントハンドラ内
+const lookAtTarget = root.findEntityByName( "CamLook" ) || null;
+this._lookAt.setTarget( lookAtTarget );
+this._dofTarget = root.findEntityByName( 'CamDof' ) || null;
+```
+→ 現在、"CamLook"エンティティの検索・LookAtターゲット設定を行うコードが存在しない
 
 ## 関連ファイル・シンボル
 
 | ファイル | 主要シンボル | 役割 |
 |---------|------------|------|
-| `packages/maxpower/PostProcess/index.ts` | `PostProcess` | PostProcess基底クラス（Serializable継承） |
-| `packages/maxpower/PostProcess/PostProcessPass/index.ts` | `PostProcessPass` | Material継承、個別のレンダリングパス |
-| `packages/maxpower/Component/PostProcessPipeline/index.ts` | `PostProcessPipeline` | PostProcess管理コンポーネント（static postProcessList, field "postprocess"） |
-| `src/ts/Resources/index.ts` | `initResouces`, `initResourceInstances` | コンポーネント登録 + PostProcessPipeline.postProcessList設定 |
-| `src/ts/Resources/_data/componentList.ts` | `COMPONENTLIST` | エディタUI用コンポーネントリスト（`@ts-nocheck`） |
-| **個別PostProcessクラス**（`src/ts/Resources/Components/PostProcess/`） | | |
-| `Bloom/index.ts` | `Bloom` | 複雑（7 passes: bright→blur×4→composite）、srcTexture引数が必要 |
-| `Blur/index.ts` | `Blur` | 2 passes (v/h gaussian) |
-| `ColorGrading/index.ts` | `ColorGrading` | 1 pass |
-| `FXAA/index.ts` | `FXAA` | 1 pass |
-| `Finalize/index.ts` | `Finalize` | 1 pass |
-| `Glitch/index.ts` | `Glitch` | 1 pass, globalUniforms使用 |
-| `OverlayMixer/index.ts` | `OverlayMixer` | 1 pass |
-| `PixelSort/index.ts` | `PixelSort` | 可変 passes, resize時に動的再生成 |
-
-### シーンデータ（scene.json）での参照
-
-Camera Entityに以下の形でアタッチ:
-```json
-{
-  "name": "PostProcessPipeline",
-  "props": {
-    "postprocess": [
-      { "name": "FXAA", "enabled": true },
-      { "name": "Bloom", "enabled": true },
-      { "name": "ColorGrading", "enabled": true },
-      { "name": "Finalize", "enabled": true }
-    ]
-  }
-}
-```
+| `packages/maxpower/Component/Camera/index.ts` | Camera | カメラ基底クラス。FOV・aspect・projectionMatrix管理 |
+| `packages/maxpower/Component/BLidger/index.ts` | BLidger | Blenderデータ→Entity変換。カメラFOV設定（L206-220） |
+| `packages/orengine/ts/Controls/LookAt/index.ts` | LookAt | Entity間のLookAt制御コンポーネント（order=9999） |
+| `src/ts/Resources/Components/ObjectControls/LookAt/index.ts` | LookAt | LookAtのResources版コピー |
+| `src/ts/Resources/Components/ObjectControls/CameraShake/index.ts` | ShakeViewer | カメラシェイクコンポーネント |
+| `src/ts/Resources/Components/Utilities/BLidgeClient/index.ts` | BLidgeClient | BLidgeシーン管理。attachments適用（L229-270） |
+| `src/ts/Resources/_data/componentList.ts` | COMPONENTLIST | コンポーネント登録リスト |
+| `src/ts/Resources/index.ts` | initResouces | リソース初期化 |
+| `projects/DemoProject/scene.json` | - | シーン定義。Camera attachments設定 |
+| `packages/maxpower/Entity/index.ts` | Entity.lookAt | Entity.lookAt()メソッド |
 
 ## 依存関係
-
-- `PostProcess` ← `Serializable`（NOT Component）
-- `PostProcessPipeline` ← `Component` ← `Serializable`
-- `PostProcessPass` ← `Material`
-- `Renderer.render()` → `cameraEntity.getComponent(PostProcessPipeline)` → `postProcessManager.postProcesses` をイテレート
-- `Bloom` コンストラクタは `renderTarget.shadingBuffer.textures[0]` が必要（`initResourceInstances`で注入）
-- `componentList.ts` の `@ts-nocheck` は PostProcess→Component の型不整合を隠蔽
-
-### データフロー
-```
-Camera Entity
-  ├─ Camera Component (viewMatrix, projectionMatrix)
-  └─ PostProcessPipeline Component
-       ├─ FXAA (PostProcess)
-       ├─ Bloom (PostProcess)
-       ├─ ColorGrading (PostProcess)
-       └─ Finalize (PostProcess)
-
-Renderer.render() → PostProcessPipeline.postProcesses をチェーン実行
-```
+- `BLidger` → `Camera`: タグ"camera"でコンポーネント検索、FOV設定
+- `BLidgeClient` → `BLidger`: BLidgerコンポーネントをentityに追加
+- `BLidgeClient.applyAttachments` → `Camera`: attachmentsからCameraコンポーネントを追加
+- `LookAt` → `Camera`: viewMatrix更新（beforeRenderImpl内）
+- `LookAt` → `Entity.matrixWorld`: lookAt変換
+- MainCamera(削除済) → `LookAt`, `Camera`, `ShakeViewer`: コンポーネント追加・管理
 
 ## 既存パターン
 
-### PostProcessPipeline の Serializable field パターン
-- getter: `{name, enabled}[]` を返す
-- setter: `PostProcessPipeline.postProcessList`（staticファクトリリスト）から名前で検索して `factory.create()` でインスタンス生成
-- レガシー互換: `boolean[]` フォーマットもサポート
-
 ### コンポーネント登録パターン
-```typescript
-// initResouces() で Resources に登録
-builtin.addComponent( "PostProcessPipeline", MXP.PostProcessPipeline );
-// componentList.ts でグループ化（エディタUI表示用）
-PostProcess: { Bloom, FXAA, ... }
-```
+1. `src/ts/Resources/Components/` にコンポーネントクラスを配置
+2. `src/ts/Resources/_data/componentList.ts` に登録
+3. エディタUIからattachments経由で利用可能になる
 
-### コンポーネント復元フロー
-```
-scene.json → ProjectSerializer.deserializeEntity()
-  → resolver.resolve(componentName) → { component: typeof MXP.Component }
-  → entity.addComponent(component) → component.deserialize(props)
-```
+### MainCameraが行っていた初期化パターン
+- `sceneCreated`イベントをlistenし、BLidgeシーンから名前でエンティティを検索
+- "CamLook" → LookAtターゲット
+- "CamDof" → DoFフォーカスターゲット
 
 ## 制約・注意点
 
-1. **Bloom の特殊性**: `renderTarget.shadingBuffer.textures[0]` が必要。`initResourceInstances`で注入されている。CustomPostProcessでも同様の仕組みが必要
-2. **scene.json の後方互換**: 既存のシーンデータでPostProcessPipelineの`postprocess`フィールドを使っている。新しい仕組みに移行する際、scene.jsonの変更が必要
-3. **PostProcessの実行順序**: Rendererは`PostProcessPipeline.postProcesses`配列の順序でチェーン実行。順序管理が重要
-4. **Renderer統合**: RendererはCamera EntityからPostProcessPipelineを`getComponent(PostProcessPipeline)`で取得。この仕組みは維持する必要がある
-5. **componentList.tsの@ts-nocheck**: PostProcessをComponentListから除去すればこのハックも不要になる可能性
+- CameraControllerはResourcesコンポーネントとして作成し、componentListに登録する必要がある
+- `scene.json`のattachments設定も更新が必要（CameraControllerを追加）
+- LookAtコンポーネントは`order = 9999`で実行される（beforeRender内で最後に実行）
+- Camera.fovの`noExport: true`は開発モード専用フィールドの設定であり、FOV自体はBLidgerから設定される
+- BLidgerの`rotationOffsetX = -Math.PI / 2`はカメラの座標系補正
 
 ## 参考になる既存実装
 
-- **PipelinePostProcess** (`packages/maxpower/Component/Renderer/PipelinePostProcess/index.ts`): Renderer内蔵のPostProcess（SSR, MotionBlur等）。パイプライン固有のPostProcessの管理方法
-- **Mesh Component**: Geometry/Material をSerializable fieldで管理するパターン（リソース名ベースの復元）
-- **PostProcessPipeline**: 現在のファクトリベース復元パターンの参考
+- 削除されたMainCamera - CameraControllerの機能設計の参考（sceneCreatedイベントリスン、LookAt/DofTarget設定）
+- `src/ts/Resources/Components/ObjectControls/CameraShake/index.ts` - ObjectControls配下のコンポーネント配置パターン
