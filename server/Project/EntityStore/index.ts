@@ -193,7 +193,7 @@ export class EntityStore {
 
 			if ( ! compResult.component.props ) compResult.component.props = {};
 
-			this._setNestedValue( compResult.component.props, fieldPath, value );
+			compResult.component.props[ fieldPath ] = value;
 			return;
 
 		}
@@ -293,30 +293,6 @@ export class EntityStore {
 				return;
 
 		}
-
-	}
-
-	private _setNestedValue( obj: Record<string, unknown>, path: string, value: unknown ): void {
-
-		const keys = path.split( '/' ).filter( k => k.length > 0 );
-
-		if ( keys.length === 0 ) return;
-
-		let current: Record<string, unknown> = obj;
-
-		for ( let i = 0; i < keys.length - 1; i ++ ) {
-
-			if ( ! current[ keys[ i ] ] || typeof current[ keys[ i ] ] !== 'object' ) {
-
-				current[ keys[ i ] ] = {};
-
-			}
-
-			current = current[ keys[ i ] ] as Record<string, unknown>;
-
-		}
-
-		current[ keys[ keys.length - 1 ] ] = value;
 
 	}
 

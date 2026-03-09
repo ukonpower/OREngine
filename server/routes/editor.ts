@@ -207,7 +207,7 @@ async function syncFromBrowser( projectName: string ) {
 
 	const bridge = getWSBridge();
 
-	if ( bridge && bridge.connected ) {
+	if ( bridge && bridge.isProjectConnected( projectName ) ) {
 
 		const project = projectManager.getProject( projectName );
 		const snapshot = await bridge.requestSync( projectName );
@@ -382,7 +382,7 @@ editorRouter.post( '/projects/:projectName/editor/save', async ( req, res ) => {
 		const project = projectManager.getProject( req.params.projectName );
 		const bridge = getWSBridge();
 
-		if ( bridge && bridge.connected ) {
+		if ( bridge && bridge.isProjectConnected( req.params.projectName ) ) {
 
 			const snapshot = await bridge.requestSync( req.params.projectName );
 
@@ -499,7 +499,7 @@ editorRouter.post( '/projects/:projectName/editor/entities', async ( req, res ) 
 
 			const createResult = await handleActionInternal(
 				projectName, 'createEntity',
-				{ parentUuid: entityDef.parentUuid, name: entityDef.name }
+				{ parentUuid: entityDef.parentUuid || '0', name: entityDef.name }
 			);
 			const entityUuid = createResult.uuid;
 

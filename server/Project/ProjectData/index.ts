@@ -114,6 +114,13 @@ export class ProjectData {
 
 		}
 
+		// ルートエンティティにUUIDがない場合は付与
+		if ( this._sceneData.scene && ! this._sceneData.scene.uuid ) {
+
+			this._sceneData.scene.uuid = '0';
+
+		}
+
 		return this._sceneData;
 
 	}
@@ -135,6 +142,7 @@ export class ProjectData {
 		if ( this._sceneData ) {
 
 			this._writeSceneFile( this._sceneData );
+			this._dirty = false;
 
 		}
 
