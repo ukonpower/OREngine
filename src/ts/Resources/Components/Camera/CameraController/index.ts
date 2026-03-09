@@ -3,7 +3,7 @@ import * as MXP from 'maxpower';
 
 import { Engine } from 'orengine';
 
-import { LookAt } from '../../ObjectControls/LookAt';
+import { LookAt } from '../LookAt';
 import { Bloom } from '../../_PostProcess/Bloom';
 import { ColorGrading } from '../../_PostProcess/ColorGrading';
 import { FXAA } from '../../_PostProcess/FXAA';

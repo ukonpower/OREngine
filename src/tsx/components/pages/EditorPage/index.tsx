@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 
 import { gl } from "~/ts/Globals";
 import { initResouces, initResourceInstances } from "~/ts/Resources";
-import { MIDIMIX } from "~/ts/Resources/Components/_Samples/MIDI/MIDIMIX";
+import { MIDIMIX } from "~/ts/Resources/Components/Samples/MIDI/MIDIMIX";
 
 initResouces();
 
