@@ -3,8 +3,6 @@
 #include <frag_h>
 
 uniform sampler2D uNoiseTex;
-uniform float uEmission;
-uniform float uTestAAA;
 
 in float vNoise;
 in vec3 vPosBase;
@@ -20,8 +18,6 @@ void main( void ) {
 
 	outNormal.xz += noise.yz * 0.03;
 	outNormal = normalize( outNormal );
-
-	outEmission += uEmission;
 
 	#include <frag_out>
 

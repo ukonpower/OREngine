@@ -12,7 +12,5 @@
   "depthWrite": true,
   "cullFace": false,
   "uniforms/uTime": 0,
-  "uniforms/uNoiseTex": "noise",
-  "uniforms/uEmission": 3,
-  "uniforms/uTestAAA": 0
+  "uniforms/uNoiseTex": "noise"
 }
