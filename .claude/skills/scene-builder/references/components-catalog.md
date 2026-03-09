@@ -8,19 +8,13 @@ OREngineで利用可能なコンポーネント一覧とフィールド詳細。
 |----------------|------|--------------|
 | **Mesh** | メッシュ描画 | `geometry/type`, `geometry/width`, `geometry/height`, `geometry/depth`, `geometry/radius`, `geometry/widthSegments`, `geometry/heightSegments`, `geometry/floor`, `geometry/radiusTop`, `geometry/radiusBottom`, `geometry/caps`, `material/name` |
 | **Light** | ライト | `fov`, `intensity` |
-| **Camera** | カメラ（自動追加） | `fov`, `near`, `far` |
-| **MainCamera** | メインカメラマーカー | - |
-| **PostProcessPipeline** | ポストプロセス | `postprocess` (boolean[4]) |
+| **Camera** | カメラ（aspect自動同期、displayOutで画面出力ON/OFF） | `fov`, `near`, `far` |
+| **PostProcessPipeline** | ポストプロセス管理 | `postprocess` ({name, enabled}[]) |
 | **ShakeViewer** | カメラ揺れ | `power`, `speed` |
 | **LookAt** | 注視 | - |
 | **SkyBox** | スカイボックス | - |
 | **ObjectRotate** | 自動回転 | - |
 | **OrbitControls** | オービットコントロール | - |
-| **Bloom** | ブルーム | - |
-| **Blur** | ブラー | - |
-| **ColorGrading** | カラーグレーディング | - |
-| **FXAA** | アンチエイリアス | - |
-| **Glitch** | グリッチ | - |
 
 ## Mesh コンポーネント詳細
 
@@ -48,12 +42,24 @@ OREngineで利用可能なコンポーネント一覧とフィールド詳細。
 
 ### 標準カメラセット
 ```
-Camera + MainCamera + ShakeViewer + PostProcessPipeline
+Camera + ShakeViewer + PostProcessPipeline
 ```
-- Camera: カメラ基本機能（fov, near, far）
-- MainCamera: レンダリングに使用するカメラのマーカー
+- Camera: カメラ基本機能（fov, near, far、aspect自動同期）
 - ShakeViewer: カメラ揺れ演出（power, speed）
-- PostProcessPipeline: ポストエフェクト（`postprocess` boolean[4]で個別ON/OFF）
+- PostProcessPipeline: ポストエフェクト（`postprocess` で名前ベース個別ON/OFF）
+
+### PostProcessPipeline の postprocess フィールド
+
+```json
+"postprocess": [
+  { "name": "FXAA", "enabled": true },
+  { "name": "Bloom", "enabled": true },
+  { "name": "ColorGrading", "enabled": true },
+  { "name": "Finalize", "enabled": true }
+]
+```
+
+利用可能なPostProcess名は `PostProcessPipeline.postProcessList` に登録されたものに限る。
 
 ### 標準ライト
 ```

@@ -657,6 +657,8 @@ export class Renderer extends Serializable {
 
 			if ( postProcessManager ) {
 
+				postProcessManager.resize( this.resolution );
+
 				for ( let i = 0; i < postProcessManager.postProcesses.length; i ++ ) {
 
 					const postProcess = postProcessManager.postProcesses[ i ];

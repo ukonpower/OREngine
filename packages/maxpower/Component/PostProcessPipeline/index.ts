@@ -3,7 +3,14 @@ import * as GLP from 'glpower';
 import { Component, ComponentParams } from '..';
 import { PostProcess } from '../../PostProcess';
 
+export type PostProcessListItem = {
+	name: string;
+	create: () => PostProcess;
+}
+
 export class PostProcessPipeline extends Component {
+
+	public static postProcessList: PostProcessListItem[] = [];
 
 	private _resolution: GLP.Vector;
 	private _postProcesses: PostProcess[];
@@ -18,29 +25,53 @@ export class PostProcessPipeline extends Component {
 		this.field( "postprocess",
 			() => {
 
-				return this._postProcesses.map( ( postProcess ) => postProcess.enabled );
+				return this._postProcesses.map( ( postProcess ) => ( { name: postProcess.name, enabled: postProcess.enabled } ) );
 
 			},
 			( v ) => {
 
-				v.forEach( ( enabled, i ) => {
+				this._postProcesses = [];
 
-					const postProcess = this._postProcesses[ i ];
+				v.forEach( ( item: {name: string, enabled: boolean} | boolean, i: number ) => {
 
-					if ( postProcess ) {
+					if ( typeof item === 'boolean' ) {
 
-						postProcess.enabled = enabled;
+						// legacy format: boolean[]
+						const factory = PostProcessPipeline.postProcessList[ i ];
+
+						if ( factory ) {
+
+							const pp = factory.create();
+							pp.enabled = item;
+							this._postProcesses.push( pp );
+
+						}
+
+						return;
+
+					}
+
+					const factory = PostProcessPipeline.postProcessList.find( f => f.name === item.name );
+
+					if ( factory ) {
+
+						const pp = factory.create();
+						pp.enabled = item.enabled;
+						this._postProcesses.push( pp );
 
 					}
 
 				} );
+
+				this.resizePostProcesses();
 
 			}, {
 				format: {
 					type: "array",
 					labels: ( _value, i ) => {
 
-						return this._postProcesses[ i ].name;
+						const pp = this._postProcesses[ i ];
+						return pp ? pp.name : `PostProcess ${i}`;
 
 					}
 				}
@@ -81,9 +112,15 @@ export class PostProcessPipeline extends Component {
 
 		this._resolution.copy( resolution );
 
+		this.resizePostProcesses();
+
+	}
+
+	private resizePostProcesses() {
+
 		this.postProcesses.forEach( postProcess => {
 
-			postProcess.resize( resolution );
+			postProcess.resize( this._resolution );
 
 		} );
 

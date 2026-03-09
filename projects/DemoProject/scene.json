@@ -40,20 +40,20 @@
 									}
 								},
 								{
+									"name": "Camera",
+									"uuid": "12"
+								},
+								{
 									"name": "PostProcessPipeline",
 									"uuid": "11",
 									"props": {
 										"postprocess": [
-											true,
-											true,
-											true,
-											true
+											{ "name": "FXAA", "enabled": true },
+											{ "name": "Bloom", "enabled": true },
+											{ "name": "ColorGrading", "enabled": true },
+											{ "name": "Finalize", "enabled": true }
 										]
 									}
-								},
-								{
-									"name": "MainCamera",
-									"uuid": "12"
 								}
 							]
 						},
