@@ -483,6 +483,9 @@ export class Editor extends MXP.Serializable {
 		const wasPlaying = this._engine.frame.playing;
 		this._engine.stop();
 
+		const prevCameraEntity = this._engine.cameraEntity;
+		this._engine.cameraEntity = null;
+
 		try {
 
 			const blob = await this._sceneExporter.export(
@@ -506,6 +509,8 @@ export class Editor extends MXP.Serializable {
 			console.error( "Export failed:", e );
 
 		}
+
+		this._engine.cameraEntity = prevCameraEntity;
 
 		this._isExporting = false;
 		this._exportProgress = null;
