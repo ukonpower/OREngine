@@ -385,14 +385,59 @@ export class Engine extends MXP.Entity {
 
 	}
 
-        public seek( frame: number ) {
+	public seek( frame: number ) {
 
-                this._time.code = frame / 60;
-                this._frame.current = frame;
+		this._time.code = frame / 60;
+		this._frame.current = frame;
 
-                this.emit( "update/frame/play", [ this._frame ] );
+		this.emit( "update/frame/play", [ this._frame ] );
 
-        }
+	}
+
+	/*-------------------------------
+		UpdateOffline
+	-------------------------------*/
+
+	public updateOffline( frame: number, fps: number ) {
+
+		const timeCode = frame / fps;
+		const delta = 1 / fps;
+
+		this._time.delta = delta;
+		this._time.current = new Date().getTime();
+		this._time.engine += delta;
+		this._time.code = timeCode;
+		this._frame.current = timeCode * 60;
+		this._frame.playing = true;
+
+		const event = this.createEntityUpdateEvent( { forceDraw: true } );
+
+		this._uniforms.uTime.value = this._time.code;
+		this._uniforms.uTimeE.value = this._time.engine;
+
+		const updateTextures = Engine.resources.updateEveryFrameTextures;
+
+		for ( let i = 0; i < updateTextures.length; i ++ ) {
+
+			updateTextures[ i ].render();
+
+		}
+
+		this._root.update( event );
+
+		if ( this.enableRender ) {
+
+			const camera = this._cameraEntity || this._findCameraEntity();
+
+			if ( camera ) {
+
+				this._renderer.render( this._root, camera, event );
+
+			}
+
+		}
+
+	}
 
 	/*-------------------------------
 		CompileShaders

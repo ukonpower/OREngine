@@ -22,6 +22,7 @@
     "@rollup/plugin-terser": "^0.4.4",
     "@spz-loader/core": "^0.2.0",
     "express": "^4.21.0",
+    "mediabunny": "^1.38.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-error-boundary": "^5.0.0",
