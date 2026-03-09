@@ -44,14 +44,26 @@
 									"uuid": "12"
 								},
 								{
-									"name": "PostProcessPipeline",
-									"uuid": "11",
+									"name": "CustomPostProcess",
+									"uuid": "000006bc",
 									"props": {
 										"postprocess": [
-											{ "name": "FXAA", "enabled": true },
-											{ "name": "Bloom", "enabled": true },
-											{ "name": "ColorGrading", "enabled": true },
-											{ "name": "Finalize", "enabled": true }
+											{
+												"name": "FXAA",
+												"enabled": true
+											},
+											{
+												"name": "Bloom",
+												"enabled": true
+											},
+											{
+												"name": "ColorGrading",
+												"enabled": true
+											},
+											{
+												"name": "Finalize",
+												"enabled": true
+											}
 										]
 									}
 								}
