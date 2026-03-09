@@ -3,6 +3,7 @@ import * as MXP from 'maxpower';
 
 import { Engine } from '../Engine';
 import { FrameDebugger } from '../Engine/FrameDebugger';
+import { SceneExporter, SceneExporterProgress } from '../Engine/SceneExporter';
 
 import { EditorAPI } from './EditorAPI';
 import { EditorAPIBridge } from './EditorAPIBridge';
@@ -61,6 +62,10 @@ export class Editor extends MXP.Serializable {
 	private _pointerHandler: PointerHandler;
 	private _keyboardHandler: KeyboardHandler;
 
+	private _sceneExporter: SceneExporter;
+	private _isExporting: boolean;
+	private _exportProgress: SceneExporterProgress | null;
+
 	constructor( engine: Engine, projectName?: string ) {
 
 		super();
@@ -78,6 +83,9 @@ export class Editor extends MXP.Serializable {
 		this._externalCanvasBitmapContext = null;
 		this._disposed = false;
 		this._api = new EditorAPI( this );
+		this._sceneExporter = new SceneExporter( engine );
+		this._isExporting = false;
+		this._exportProgress = null;
 
 		/*-------------------------------
 			Modules
@@ -370,77 +378,144 @@ export class Editor extends MXP.Serializable {
 
 		if ( this._disposed ) return;
 
-		this._editorCamera.updateBeforeRender( this._engine );
+		if ( ! this._isExporting ) {
 
-		this._engine.update();
+			this._editorCamera.updateBeforeRender( this._engine );
 
-		const cameraEntity = this._editorCamera.getCameraEntity( this._engine );
-		const selectedEntity = this._selectedEntityId
-			? this._engine.root.findEntityByUUID( this._selectedEntityId ) ?? null
-			: null;
+			this._engine.update();
 
-		this._helperManager.render( this._editorCamera.cameraMode, cameraEntity, this._engine );
+			const cameraEntity = this._editorCamera.getCameraEntity( this._engine );
+			const selectedEntity = this._selectedEntityId
+				? this._engine.root.findEntityByUUID( this._selectedEntityId ) ?? null
+				: null;
 
-		this._wireframeRenderer.render( this._editorCamera.cameraMode, cameraEntity, this._engine );
+			this._helperManager.render( this._editorCamera.cameraMode, cameraEntity, this._engine );
 
-		this._gizmoManager.render( selectedEntity, cameraEntity, this._engine );
+			this._wireframeRenderer.render( this._editorCamera.cameraMode, cameraEntity, this._engine );
 
-		this._selectionOutline.render( selectedEntity, cameraEntity, this._engine );
+			this._gizmoManager.render( selectedEntity, cameraEntity, this._engine );
 
-		// uiBuffer → デフォルトFBにblit
-		const gl = this._engine.renderer.gl;
-		const rt = this._engine.renderer.renderTarget;
-		const res = this._engine.renderer.resolution;
+			this._selectionOutline.render( selectedEntity, cameraEntity, this._engine );
 
-		gl.bindFramebuffer( gl.READ_FRAMEBUFFER, rt.uiBuffer.getFrameBuffer() );
-		gl.bindFramebuffer( gl.DRAW_FRAMEBUFFER, null );
-		gl.blitFramebuffer(
-			0, 0, res.x, res.y,
-			0, 0, res.x, res.y,
-			gl.COLOR_BUFFER_BIT, gl.NEAREST
-		);
+			// uiBuffer → デフォルトFBにblit
+			const gl = this._engine.renderer.gl;
+			const rt = this._engine.renderer.renderTarget;
+			const res = this._engine.renderer.resolution;
 
-		this._editorCamera.updateAfterRender( this._engine );
+			gl.bindFramebuffer( gl.READ_FRAMEBUFFER, rt.uiBuffer.getFrameBuffer() );
+			gl.bindFramebuffer( gl.DRAW_FRAMEBUFFER, null );
+			gl.blitFramebuffer(
+				0, 0, res.x, res.y,
+				0, 0, res.x, res.y,
+				gl.COLOR_BUFFER_BIT, gl.NEAREST
+			);
 
-		if ( this._externalCanvasBitmapContext ) {
+			this._editorCamera.updateAfterRender( this._engine );
 
-			const context = this._externalCanvasBitmapContext;
+			if ( this._externalCanvasBitmapContext ) {
 
-			createImageBitmap( this.engine.canvas ).then( bitmap => {
+				const context = this._externalCanvasBitmapContext;
 
-				context.transferFromImageBitmap( bitmap );
+				createImageBitmap( this.engine.canvas ).then( bitmap => {
 
-			} );
+					context.transferFromImageBitmap( bitmap );
 
-		}
-
-		if ( this._engine.frame.playing ) {
-
-			if ( this._engine.frame.current < 0 || this._engine.frame.current > this._engine.frameSetting.duration ) {
-
-				this._engine.seek( 0 );
+				} );
 
 			}
 
-			if ( this._frameLoop.enabled ) {
+			if ( this._engine.frame.playing ) {
 
-				if ( this._engine.frame.current < this._frameLoop.start || this._engine.frame.current > this._frameLoop.end ) {
+				if ( this._engine.frame.current < 0 || this._engine.frame.current > this._engine.frameSetting.duration ) {
 
-					this._engine.seek( this._frameLoop.start );
+					this._engine.seek( 0 );
+
+				}
+
+				if ( this._frameLoop.enabled ) {
+
+					if ( this._engine.frame.current < this._frameLoop.start || this._engine.frame.current > this._frameLoop.end ) {
+
+						this._engine.seek( this._frameLoop.start );
+
+					}
 
 				}
 
 			}
 
-		}
+			if ( this._frameDebugger && this._frameDebugger.enable ) {
 
-		if ( this._frameDebugger && this._frameDebugger.enable ) {
+				this._frameDebugger.draw();
 
-			this._frameDebugger.draw();
+			}
 
 		}
 
 		window.requestAnimationFrame( this._animate.bind( this ) );
+
+	}
+
+	/*-------------------------------
+		Export
+	-------------------------------*/
+
+	public get isExporting() {
+
+		return this._isExporting;
+
+	}
+
+	public get exportProgress() {
+
+		return this._exportProgress;
+
+	}
+
+	public async exportMP4() {
+
+		if ( this._isExporting ) return;
+
+		this._isExporting = true;
+		this._exportProgress = null;
+		this.emit( "update/export" );
+
+		const wasPlaying = this._engine.frame.playing;
+		this._engine.stop();
+
+		try {
+
+			const blob = await this._sceneExporter.export(
+				{
+					fps: this._engine.frameSetting.fps,
+					duration: this._engine.frameSetting.duration,
+					resolution: this._baseResolution.clone(),
+				},
+				( progress ) => {
+
+					this._exportProgress = progress;
+					this.emit( "update/export" );
+
+				}
+			);
+
+			SceneExporter.download( blob );
+
+		} catch ( e ) {
+
+			console.error( "Export failed:", e );
+
+		}
+
+		this._isExporting = false;
+		this._exportProgress = null;
+		this.emit( "update/export" );
+
+		if ( wasPlaying ) {
+
+			this._engine.play();
+
+		}
 
 	}
 
