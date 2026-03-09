@@ -238,7 +238,7 @@ describe( 'EntityStore', () => {
 
 			store.setField( root, 'comp-1', 'geometry/type', 'Sphere' );
 			const comp = store.findComponent( root, 'comp-1' );
-			expect( ( comp?.component.props as any ).geometry.type ).toBe( 'Sphere' );
+			expect( ( comp?.component.props as any )[ 'geometry/type' ] ).toBe( 'Sphere' );
 
 		} );
 
@@ -250,30 +250,22 @@ describe( 'EntityStore', () => {
 
 	} );
 
-	describe( '_setNestedValue (via setField on component)', () => {
+	describe( 'setField on component (flat key)', () => {
 
-		it( 'should create intermediate objects', () => {
+		it( 'should store field path as flat key', () => {
 
 			store.setField( root, 'comp-1', 'a/b/c', 42 );
 			const props = store.findComponent( root, 'comp-1' )?.component.props as any;
-			expect( props.a.b.c ).toBe( 42 );
+			expect( props[ 'a/b/c' ] ).toBe( 42 );
 
 		} );
 
-		it( 'should handle paths with empty segments', () => {
-
-			store.setField( root, 'comp-1', 'a//b', 99 );
-			const props = store.findComponent( root, 'comp-1' )?.component.props as any;
-			expect( props.a.b ).toBe( 99 );
-
-		} );
-
-		it( 'should overwrite non-object intermediate values', () => {
+		it( 'should overwrite previous value', () => {
 
 			store.setField( root, 'comp-1', 'x', 'string' );
-			store.setField( root, 'comp-1', 'x/y', 42 );
+			store.setField( root, 'comp-1', 'x', 42 );
 			const props = store.findComponent( root, 'comp-1' )?.component.props as any;
-			expect( props.x.y ).toBe( 42 );
+			expect( props[ 'x' ] ).toBe( 42 );
 
 		} );
 

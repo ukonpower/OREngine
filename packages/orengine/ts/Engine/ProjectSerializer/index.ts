@@ -164,6 +164,18 @@ export class ProjectSerializer {
 
 			if ( node.childs ) {
 
+				// 既存の子エンティティを削除（initiator="script" のものは残す）
+				const existingChildren = [ ...entity.children ];
+				existingChildren.forEach( c => {
+
+					if ( c.initiator !== "script" ) {
+
+						entity.remove( c );
+
+					}
+
+				} );
+
 				node.childs.forEach( c => {
 
 					entity.add( _( c ) );
