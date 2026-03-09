@@ -28,6 +28,8 @@ dist-ssr
 stats.html
 
 tmp
+projects/*
+!projects/DemoProject/
 projects/*/_generated/
 
 .serena/cache
