@@ -200,6 +200,15 @@ POST /projects/:p/editor/save
 | DELETE | `/components/:path` | コンポーネント削除 | - |
 | GET | `/components/:path/filepath` | コンポーネントファイル絶対パス取得 | - |
 
+## オブジェクトコントロール
+
+| メソッド | パス | 説明 | ボディ |
+|---------|------|------|--------|
+| POST | `/projects/:p/editor/entity/:uuid/lookAt` | エンティティを指定座標に向ける | `{ "target": [x, y, z] }` |
+
+エンティティの現在位置から `target` 座標を向くようにeuler（XYZ順）を自動計算して設定する。
+ライトやカメラの向きを特定の座標に向けたい場合に使用。
+
 ## 利用可能なコンポーネント
 
 | コンポーネント名 | 説明 | 主要フィールド |
