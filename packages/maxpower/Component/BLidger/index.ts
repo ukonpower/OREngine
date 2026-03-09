@@ -214,6 +214,7 @@ export class BLidger extends Component {
 				const cameraParam = this.node.param as BLidgeCameraParam;
 
 				this._cameraComponent.fov = cameraParam.fov;
+				this._cameraComponent.needsUpdateProjectionMatrix = true;
 
 			}
 
@@ -370,6 +371,23 @@ export class BLidger extends Component {
 			if ( curveColor ) {
 
 				this._lightComponent.color.copy( curveColor.setFrame( frame ).value );
+
+			}
+
+		}
+
+		// camera (deferred lookup)
+
+		if ( this.node.type == 'camera' && ! this._cameraComponent ) {
+
+			this._cameraComponent = this.entity.getComponentsByTag<Camera>( "camera" )[ 0 ];
+
+			if ( this._cameraComponent ) {
+
+				const cameraParam = this.node.param as BLidgeCameraParam;
+
+				this._cameraComponent.fov = cameraParam.fov;
+				this._cameraComponent.needsUpdateProjectionMatrix = true;
 
 			}
 
