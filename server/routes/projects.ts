@@ -1,3 +1,4 @@
+import * as crypto from 'crypto';
 import express from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -209,7 +210,57 @@ projectsRouter.post( '/projects', ( req, res ) => {
 
 		const defaultScene = {
 			scene: {
-				name: "root"
+				name: "root",
+				childs: [
+					{
+						name: "Cube",
+						uuid: crypto.randomUUID(),
+						pos: [ 0, 0.5, 0 ],
+						components: [
+							{
+								name: "Mesh",
+								uuid: crypto.randomUUID(),
+								props: {
+									"geometry/type": "Cube",
+									"geometry/width": 1,
+									"geometry/height": 1,
+									"geometry/depth": 1,
+									"geometry/widthSegments": 8,
+									"geometry/heightSegments": 8,
+									"material/name": ""
+								}
+							}
+						]
+					},
+					{
+						name: "Light",
+						uuid: crypto.randomUUID(),
+						pos: [ 3, 4, 2 ],
+						rot: [ 1.0196797, 0.6664389, - 0.7878875 ],
+						components: [
+							{
+								name: "Light",
+								uuid: crypto.randomUUID()
+							}
+						]
+					},
+					{
+						name: "Camera",
+						uuid: crypto.randomUUID(),
+						pos: [ 0, 1.5, 4 ],
+						rot: [ - 0.2, 0, 0 ],
+						components: [
+							{
+								name: "Camera",
+								uuid: crypto.randomUUID()
+							},
+							{
+								name: "CameraController",
+								uuid: crypto.randomUUID()
+							}
+						]
+					}
+				]
 			},
 			timeline: {
 				duration: 0,
