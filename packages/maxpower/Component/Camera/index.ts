@@ -98,6 +98,23 @@ export class Camera extends Component {
 
 	}
 
+	protected updateImpl( event: ComponentUpdateEvent ): void {
+
+		if ( this.displayOut ) {
+
+			const newAspect = event.resolution.x / event.resolution.y;
+
+			if ( this.aspect !== newAspect ) {
+
+				this.aspect = newAspect;
+				this.needsUpdateProjectionMatrix = true;
+
+			}
+
+		}
+
+	}
+
 	protected beforeRenderImpl( _event: ComponentUpdateEvent ): void {
 
 		this.updateViewMatrix();
