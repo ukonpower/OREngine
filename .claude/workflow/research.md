@@ -1,107 +1,84 @@
-# Research: f_draw_t の GPGPU パーティクルコンポーネントを DemoProject に追加
+# Research: スクリプト生成Meshのgeometry/materialフィールド編集制御
 
 ## タスク概要
-`/Users/ukonpower/Documents/work-space/f_draw_t` で使っている GPGPU ベースのパーティクルコンポーネントを OREngine の DemoProject に `Samples` コンポーネントとして追加する。orengine スキルを使ってエンティティ配置まで行う。
 
-## 参照元: f_draw_t の Particles コンポーネント
+- スクリプト（Componentコード）から追加されたMeshのgeometry/materialフィールドはエディタで編集不可にしたい
+- ユーザーがエディタから手動追加したMeshのgeometry/materialフィールドはエディタで編集可にしたい
 
-### ファイル構成
-```
-src/ts/Resources/Components/DrawTokyo/Entities/Particles/
-├── index.ts
-└── shaders/
-    ├── particles.glsl  (GPGPU compute シェーダー)
-    ├── particles.vs    (vertex shader - instanced)
-    └── particles.fs    (fragment shader - deferred)
-```
+## 関連ファイル・シンボル
 
-### 構造の要点
-- `MXP.GPUCompute` + `MXP.GPUComputePass` でGPGPU計算
-- `size = Vector(64, 64)` → 64×64=4096パーティクル
-- `dataLayerCount: 2` → position(w=lifetime) / velocity を別テクスチャで管理
-- `MXP.SphereGeometry` をインスタンシングで描画
-- `geometry.setAttribute("id", ...)` と `geometry.setAttribute("cuv", ...)` でインスタンスごとにComputeUVを渡す
-- マテリアルの phase: `["deferred", "shadowMap"]`
-
-### f_draw_t 固有の依存 (OREngine では不要/変更が必要)
-
-| 依存 | f_draw_t | OREngine 対応 |
-|------|----------|--------------|
-| `Engine.getInstance(gl).uniforms` | Engineのグローバルuniform | `globalUniforms.time` に置き換え |
-| `MIDIMIX.getLine(0).valuesLerped` | MIDI入力 (uMidi) | 固定値 uniform に変更 |
-| `BPM.uniforms` | BPMタイミング (uBeatTime) | `globalUniforms.time.uTimeE` を代用 |
-| `AudioTexture.uniforms` (static) | 音声テクスチャ (uAudioWaveTex/uAudioFreqTex) | vertex shader から除去 |
-| `process.env.NODE_ENV` | HMR判定 | `import.meta.hot` のみに変更 |
-
-## 追加先: OREngine の構造
-
-### 関連ファイル・シンボル
 | ファイル | 主要シンボル | 役割 |
 |---------|------------|------|
-| `src/ts/Resources/_data/componentList.ts` | `COMPONENTLIST` | コンポーネント登録リスト |
-| `src/ts/Resources/index.ts` | `initResouces` | コンポーネント登録処理 |
-| `src/ts/Globals/index.ts` | `globalUniforms`, `gl` | グローバルuniform・WebGL context |
-| `packages/maxpower/Component/GPUCompute/index.ts` | `GPUCompute` | GPGPU計算クラス |
-| `packages/maxpower/Component/GPUComputePass/index.ts` | `GPUComputePass` | GPUパスクラス |
+| `packages/maxpower/Serializable/index.ts` | `Serializable`, `SerializableFieldOpt`, `fieldDir()` | フィールド定義の基底。`hidden` オプションで表示/非表示を制御 |
+| `packages/maxpower/Component/Mesh/index.ts` | `Mesh` | geometry/materialフィールドを `fieldDir()` で定義 |
+| `packages/orengine/tsx/components/Panels/EntityProperty/ComponentView/index.tsx` | `ComponentView`, `disableEdit` | `component.initiator !== "user"` で `data-disable_component` を設定（CSS opacity 0.5のみ） |
+| `packages/orengine/tsx/components/SerializeFieldView/SerializeFieldViewDir/index.tsx` | `SerializeFieldViewDir` | `opt.hidden` を評価してフィールドの表示/非表示を決定 |
+| `packages/orengine/ts/Editor/Commands/AddComponentCommand/index.ts` | `AddComponentCommand` | エディタからのコンポーネント追加時に `initiator = "user"` をセット |
 
-### globalUniforms で利用可能なもの
-- `globalUniforms.time.uTimeE` - エンジン時間 (float)
-- `globalUniforms.time.uTime` - コード時間 (float)
+## initiator の仕組み
 
-### GPUComputePass の自動追加 uniform
-- `uDeltaTime` (1f) - 自動計算されるデルタタイム
-- `uGPUSampler0`, `uGPUSampler1` - 出力テクスチャ
-- `uGPUResolution` - テクスチャ解像度
+- `Serializable` のデフォルト: `this.initiator = 'script'`
+- エディタから追加: `AddComponentCommand.execute()` で `this.instance.initiator = "user"`
+- スクリプトから追加: initiator は "script" のまま（デフォルト）
+- God系（Gizmo/Helper）: `initiator = "god"`
 
-## 追加するファイル
+## 現状の編集制御
 
-```
-src/ts/Resources/Components/Samples/Particles/
-├── index.ts          ← メインコンポーネント
-└── shaders/
-    ├── particles.glsl  ← GPGPU compute (uMidi依存を調整)
-    ├── particles.vs    ← vertex (uAudioTex参照を除去)
-    └── particles.fs    ← fragment (uBeatTime を uTimeE に変更)
+```tsx
+// ComponentView/index.tsx
+const disableEdit = component.initiator !== "user";
+// → data-disable_component="true" で CSS opacity: 0.5 を適用するだけ
+// → 実際にフィールドの編集は防げていない（入力は操作可能）
 ```
 
-## シェーダー変更点
+`SerializeFieldView` / `SerializeFieldViewValue` には `readOnly` の概念は伝わっていない。
 
-### particles.glsl (compute)
-- `uMidi.y` → 定数 `0.0` (noise強度)
-- `uMidi.x` → 定数 `0.5` (lifetime offset)
-- `uniform vec4 uMidi;` を削除
-
-### particles.vs (vertex)
-- `uniform sampler2D uAudioWaveTex;` / `uAudioFreqTex;` を削除
-- `uniform vec4 uMidi;` を削除 (uMidi参照箇所は定数に)
-
-### particles.fs (fragment)
-- `uniform float uBeatTime;` を `uTimeE` で代用
-- `uType` は `uType` のままでSerializableField経由で公開検討
-- `uMidi` 参照を削除
-
-## componentList.ts への登録
+## fieldDir の hidden オプション
 
 ```typescript
-// Samples グループに追加
-Samples: {
-  // ... 既存 ...
-  Particles: {
-    GPUParticles,
-  }
+// Serializable/index.ts
+public fieldDir( name:string, opt?: SerializableFieldOpt ) {
+    this.field( dir + "/", () => null, undefined, { ...opt, isFolder: true } );
+    // → フォルダ自体の opt (hidden 含む) が serializeToDirectory() で保持される
+    ...
 }
 ```
 
+`SerializeFieldViewDir` は各フィールド（フォルダ含む）の `opt.hidden` を評価し、`true` ならそのエントリをスキップ（描画しない）。
+
+`hidden` には関数 `(value) => boolean` を渡せるため、**実行時に `this.initiator` を参照して動的に制御できる**。
+
+## 実装方針
+
+`Mesh/index.ts` の `fieldDir` 呼び出しに `hidden` オプションを追加する:
+
+```typescript
+const geo = this.fieldDir( "geometry", {
+    hidden: () => this.initiator !== "user"
+} );
+
+const mat = this.fieldDir( "material", {
+    hidden: () => this.initiator !== "user"
+} );
+```
+
+- `initiator` が `"user"` でない場合（= スクリプト由来）→ geometry/material フォルダごと非表示
+- `initiator` が `"user"` の場合（= エディタ追加）→ 通常表示
+
+## 依存関係
+
+- `Mesh` → `fieldDir()` → `Serializable.field()` でフォルダのoptを格納
+- `serializeToDirectory()` → フォルダの opt を子ノードに付与
+- `SerializeFieldViewDir` → `opt.hidden` を評価してスキップ
+
 ## 制約・注意点
-- コンポーネント名は `GPUParticles` (Particlesは他と衝突の可能性)
-- `gl` は `~/ts/Globals` からimport
-- HMR は `import.meta.hot` を使う
-- `dispose()` で `this.entity.removeComponent(MXP.Mesh)` と `this._gpu.dispose()` を呼ぶ
-- `computeUVArray` のサイズは `size.x * size.y` = 4096インスタンス
-- インスタンシングのため geometry の `instanceDivisor: 1` が必要
-- インスタンスとして `SphereGeometry` を使うため、attributeは `instanceDivisor: 1` で設定
+
+- `hidden` 関数はレンダリングのたびに評価される。構築時ではなく実行時に `this.initiator` を参照するため、コンストラクタ完了後に `initiator` が `"user"` へ変更されても正しく動作する
+- 変更対象は `packages/maxpower/Component/Mesh/index.ts` のみ（最小変更）
+- geometry/material フォルダ全体が非表示になる（子フィールドも含む）
+- `fieldDir` の2つ目引数 `opt` は既存コードで使われていない → 安全に追加可能
 
 ## 参考になる既存実装
-- `src/ts/Resources/Components/Samples/Materials/Raymarch/index.ts` - Samplesコンポーネントの基本パターン
-- `src/ts/Resources/Components/Samples/Audio/AudioTexture/index.ts` - AudioTexture の構造
-- f_draw_t の `Particles/index.ts` - 移植元
+
+- `geo.field("width", ..., { hidden: () => this._geometryType !== "Cube" && ... })` → 既存の条件付き hidden の使用例
+- `SerializeFieldViewDir/index.tsx` L25-37: hidden の評価ロジック

@@ -5,6 +5,7 @@
 
 	&[data-disable_component="true"] {
 		opacity: 0.5;
+		pointer-events: none;
 	}
 }
 

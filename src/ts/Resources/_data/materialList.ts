@@ -2,7 +2,7 @@
 
 export const MATERIALLIST: {[key: string]: any} = {
 	Default: {"vert":"","frag":"","phase":["shadowMap","deferred"],"drawType":"","blending":"","useLight":true,"depthTest":true,"depthWrite":true,"cullFace":false},
-	OREngineCube: {"vert":"OREngineCube/vert","frag":"OREngineCube/frag","phase":["shadowMap","deferred"],"drawType":"","blending":"","useLight":true,"depthTest":true,"depthWrite":true,"cullFace":false,"uniforms/uTime":0,"uniforms/uNoiseTex":"noise"},
-	OREngineLogo: {"vert":"OREngineLogo/vert","frag":"OREngineLogo/frag","phase":["deferred","shadowMap"],"drawType":"","blending":"","useLight":true,"depthTest":true,"depthWrite":true,"cullFace":false,"uniforms/uTimeE":0},
-	SkyBox: {"vert":"","frag":"SkyBox/frag","phase":["deferred","envMap"],"drawType":"","blending":"","useLight":true,"depthTest":true,"depthWrite":true,"cullFace":false,"uniforms/uTimeE":0,"uniforms/uAspectRatio":0},
+	OREngineCube: {"vert":"OREngineCube/vert","frag":"OREngineCube/frag","phase":["shadowMap","deferred"],"drawType":"","blending":"","useLight":true,"depthTest":true,"depthWrite":true,"cullFace":false,"uniforms/uNoiseTex":"noise"},
+	OREngineLogo: {"vert":"OREngineLogo/vert","frag":"OREngineLogo/frag","phase":["deferred","shadowMap"],"drawType":"","blending":"","useLight":true,"depthTest":true,"depthWrite":true,"cullFace":false},
+	SkyBox: {"vert":"","frag":"SkyBox/frag","phase":["deferred","envMap"],"drawType":"","blending":"","useLight":true,"depthTest":true,"depthWrite":true,"cullFace":false,"uniforms/uAspectRatio":0},
 };
