@@ -2,8 +2,6 @@
 #include <vert_h>
 #include <noise_value>
 
-uniform float uTimeE;
-
 out float vNoise;
 out vec3 vPosBase;
 

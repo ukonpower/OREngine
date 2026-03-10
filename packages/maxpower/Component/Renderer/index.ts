@@ -117,6 +117,7 @@ export class Renderer extends Serializable {
 
 	public gl: WebGL2RenderingContext;
 	public resolution: GLP.Vector;
+	public globalUniforms: GLP.Uniforms;
 	private _renderTarget: RenderCameraTarget;
 
 	// pipeline config
@@ -176,6 +177,7 @@ export class Renderer extends Serializable {
 		super();
 
 		this.gl = gl;
+		this.globalUniforms = {};
 
 		this._isCorrentCompiles = false;
 		this.compileDrawParams = [];
@@ -1204,7 +1206,7 @@ export class Renderer extends Serializable {
 
 		}
 
-		setUniforms( program, { ...material.uniforms, ...( param && param.uniformOverride ) } );
+		setUniforms( program, { ...this.globalUniforms, ...material.uniforms, ...( param && param.uniformOverride ) } );
 
 		const vao = program.getVAO( drawId.toString() );
 

@@ -186,7 +186,7 @@ export const initResourceInstances = ( glCtx: WebGL2RenderingContext ) => {
 
 	Engine.resources.buildTextureInstances( engine.renderer, glCtx, engine.uniforms );
 
-	Engine.resources.setGlobalUniforms( globalUniforms.time, globalUniforms.music, {
+	Engine.resources.setGlobalUniforms( globalUniforms.music, {
 		uNoiseTex: {
 			value: Engine.resources.getTexture( "noise" ),
 			type: "1i"

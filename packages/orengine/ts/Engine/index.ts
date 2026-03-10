@@ -46,14 +46,6 @@ export class Engine extends MXP.Entity {
 		this._disposed = false;
 
 		this._uniforms = {
-			uTime: {
-				value: 0,
-				type: "1f"
-			},
-			uTimeE: {
-				value: 0,
-				type: '1f'
-			},
 			uEnvMapIntensity: {
 				value: 1,
 				type: '1f'
@@ -71,6 +63,13 @@ export class Engine extends MXP.Entity {
 		-------------------------------*/
 
 		this._renderer = new MXP.Renderer( gl );
+
+		this._renderer.globalUniforms = {
+			uTime: { value: 0, type: "1f" },
+			uTimeF: { value: 0, type: "1f" },
+			uTimeE: { value: 0, type: "1f" },
+			uTimeEF: { value: 0, type: "1f" },
+		};
 
 		/*-------------------------------
 			Project
@@ -293,8 +292,10 @@ export class Engine extends MXP.Entity {
 
 		const event = this.createEntityUpdateEvent( { forceDraw: param?.forceDraw } );
 
-		this._uniforms.uTime.value = this._time.code;
-		this._uniforms.uTimeE.value = this._time.engine;
+		this._renderer.globalUniforms.uTime.value = this._time.code;
+		this._renderer.globalUniforms.uTimeF.value = this._time.code % 1;
+		this._renderer.globalUniforms.uTimeE.value = this._time.engine;
+		this._renderer.globalUniforms.uTimeEF.value = this._time.engine % 1;
 
 		const updateTextures = Engine.resources.updateEveryFrameTextures;
 
@@ -412,8 +413,10 @@ export class Engine extends MXP.Entity {
 
 		const event = this.createEntityUpdateEvent( { forceDraw: true } );
 
-		this._uniforms.uTime.value = this._time.code;
-		this._uniforms.uTimeE.value = this._time.engine;
+		this._renderer.globalUniforms.uTime.value = this._time.code;
+		this._renderer.globalUniforms.uTimeF.value = this._time.code % 1;
+		this._renderer.globalUniforms.uTimeE.value = this._time.engine;
+		this._renderer.globalUniforms.uTimeEF.value = this._time.engine % 1;
 
 		const updateTextures = Engine.resources.updateEveryFrameTextures;
 

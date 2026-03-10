@@ -10,19 +10,12 @@ import { gl } from '~/ts/Globals';
 export class GPUParticles extends MXP.Component {
 
 	private _gpu: MXP.GPUCompute;
-	private _timeUniforms: GLP.Uniforms;
 
 	constructor( params: MXP.ComponentParams ) {
 
 		super( params );
 
 		const size = new GLP.Vector( 64, 64 );
-
-		this._timeUniforms = {
-			uTimeE: { value: 0, type: "1f" },
-		};
-
-		const commonUniforms = MXP.UniformsUtils.merge( this._timeUniforms );
 
 		this._gpu = new MXP.GPUCompute( {
 			passes: [
@@ -31,7 +24,6 @@ export class GPUParticles extends MXP.Component {
 					size,
 					dataLayerCount: 2,
 					frag: particlesCompute,
-					uniforms: commonUniforms,
 				} )
 			]
 		} );
@@ -73,7 +65,6 @@ export class GPUParticles extends MXP.Component {
 				frag: MXP.hotGet( 'gpuParticlesFrag', particlesFrag ),
 				vert: MXP.hotGet( 'gpuParticlesVert', particlesVert ),
 				uniforms: MXP.UniformsUtils.merge(
-					commonUniforms,
 					this._gpu.passes[ 0 ].outputUniforms,
 				),
 			} )
@@ -126,8 +117,6 @@ export class GPUParticles extends MXP.Component {
 	protected updateImpl( event: MXP.ComponentUpdateEvent ): void {
 
 		if ( ! this.entity.isVisibleTraverse() ) return;
-
-		this._timeUniforms.uTimeE.value = event.timeElapsed;
 
 		this._gpu.compute( event.renderer );
 
