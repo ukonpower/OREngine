@@ -11,6 +11,5 @@
   "depthTest": true,
   "depthWrite": true,
   "cullFace": false,
-  "uniforms/uTimeE": 0,
   "uniforms/uAspectRatio": 0
 }
