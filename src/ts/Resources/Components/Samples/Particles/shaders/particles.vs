@@ -6,8 +6,6 @@
 layout (location = 3) in vec2 cuv;
 layout (location = 4) in vec4 id;
 
-uniform float uTimeE;
-
 uniform sampler2D uGPUSampler0;
 uniform sampler2D uGPUSampler1;
 
@@ -29,9 +27,10 @@ void main( void ) {
 
 	outPos.z *= 1.0 + 30.0 * length( vGPUVel.xyz ) * 0.0;
 	float velLen = length( vGPUVel.xyz );
-	// mat3 rot = makeRotationDir( -vGPUVel.xyz / velLen, vec3( 0.0, -1.0, 0.0 ) );
-	// outPos *= rot;
-	// outNormal *= rot;
+	
+	mat3 rot = makeRotationDir( -vGPUVel.xyz / velLen, vec3( 0.0, -1.0, 0.0 ) );
+	outPos *= rot;
+	outNormal *= rot;
 
 	outPos *= 0.01 + mix( id.y, id.y * 0.6, 0.0 );
 

@@ -14,7 +14,7 @@ export class Raymarch extends MXP.Component {
 			material: new MXP.Material( {
 				frag: MXP.hotGet( 'raymarchFrag', raymarchFrag ),
 				phase: [ 'deferred', 'shadowMap' ],
-				uniforms: MXP.UniformsUtils.merge( globalUniforms.time, globalUniforms.resolution )
+				uniforms: MXP.UniformsUtils.merge( globalUniforms.resolution )
 			} ),
 			geometry: new MXP.SphereGeometry( { radius: 2.5 } )
 		} );

@@ -6,7 +6,7 @@ import pixelSortFrag from './shaders/pixelSort.fs';
 import pixelSortMaskFrag from './shaders/pixelSortMask.fs';
 import pixelSortRangeFrag from './shaders/pixelSortRange.fs';
 
-import { globalUniforms, gl } from "~/ts/Globals";
+import { gl } from "~/ts/Globals";
 
 export class PixelSort extends MXP.PostProcess {
 
@@ -32,7 +32,7 @@ export class PixelSort extends MXP.PostProcess {
 
 		const currentResolution = new GLP.Vector( 0, 0 );
 
-		this._uniforms = MXP.UniformsUtils.merge( globalUniforms.time, {
+		this._uniforms = MXP.UniformsUtils.merge( {
 			uThresholdMin: {
 				value: 0.2,
 				type: '1f'
@@ -58,7 +58,7 @@ export class PixelSort extends MXP.PostProcess {
 				name: 'pixelSortMask',
 				frag: MXP.hotUpdate( "pixelSortMask", pixelSortMaskFrag ),
 				passThrough: true,
-				uniforms: MXP.UniformsUtils.merge( globalUniforms.time, this._uniforms ),
+				uniforms: MXP.UniformsUtils.merge( this._uniforms ),
 				fixedResotluion: pixelSortResolution.clone(),
 			} );
 

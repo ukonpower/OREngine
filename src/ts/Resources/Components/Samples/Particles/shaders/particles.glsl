@@ -17,7 +17,7 @@ in vec2 vUv;
 
 void main( void ) {
 
-	float t = uTimeE * 3.0;
+	float t = uTimeE;
 
 	float id = vUv.x + vUv.y * uGPUResolution.x;
 
@@ -27,13 +27,12 @@ void main( void ) {
 	// velocity
 
 	float tOffset = t + id * 0.015;
-	vec3 noisePosition = position.xyz * ( 1.0 );
+	vec3 noisePosition = position.xyz * ( 2.0 );
 
-	vec3 noise = noiseCyc( 10.0 + noisePosition + vec3( 0.0, -t * 1.3, 0.0 ) + tOffset ) * 0.03;
+	vec3 noise = noiseCyc( noisePosition + vec3( 0.0, -t * 1.3, 0.0 ) + tOffset ) * 0.01;
 
 	velocity.xyz += noise;
-	velocity.xyz *= 0.99 - smoothstep( 0.6, 1.0, position.w) * 0.4;
-	// velocity.x += 0.001;
+	velocity.xyz *= 0.99 - smoothstep( 0.6, 1.0, position.w) * 0.6;
 
 	//  position
 
@@ -44,7 +43,7 @@ void main( void ) {
 	if( position.w > 1.0 ) {
 
 		position = vec4( 0.0, 0.0, 0.0, random( position.xy ) * 0.5 );
-		velocity = vec4( 0.1 );
+		velocity = vec4( 0.0 );
 
 	}
 

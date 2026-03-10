@@ -36,3 +36,8 @@ uniform vec2 uResolution;
 	layout (location = 1) out vec4 outColor1;
 	layout (location = 2) out vec4 outColor2;
 #endif
+
+uniform float uTime;
+uniform float uTimeF;
+uniform float uTimeE;
+uniform float uTimeEF;

@@ -4,8 +4,6 @@
 #include <noise_value>
 #include <rotate>
 
-uniform float uTimeE;
-
 uniform float uAspectRatio;
 
 void main( void ) {

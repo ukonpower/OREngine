@@ -25,7 +25,6 @@ export class PipelinePostProcess {
 	public rtSSR2: GLP.GLPowerFrameBuffer;
 	public postprocess: MXP.PostProcess;
 
-	private _timeUniforms: GLP.Uniforms;
 	private _ssr: MXP.PostProcessPass;
 	private _ssComposite: MXP.PostProcessPass;
 	private _dofParams: GLP.Vector;
@@ -36,15 +35,6 @@ export class PipelinePostProcess {
 	private _gl: WebGL2RenderingContext;
 
 	constructor( gl: WebGL2RenderingContext ) {
-
-		// uniforms
-
-		const timeUniforms: GLP.Uniforms = {
-			uTimeEF: {
-				value: 0,
-				type: "1f"
-			}
-		};
 
 		const colorCollection = new MXP.PostProcessPass( gl, {
 			name: 'collection',
@@ -65,7 +55,7 @@ export class PipelinePostProcess {
 			name: 'ssr',
 			frag: MXP.hotGet( "ssr", ssrFrag ),
 			renderTarget: rtSSR1,
-			uniforms: MXP.UniformsUtils.merge( timeUniforms, {
+			uniforms: MXP.UniformsUtils.merge( {
 				uGbufferPos: {
 					value: null,
 					type: '1i'
@@ -147,7 +137,7 @@ export class PipelinePostProcess {
 		const dofCoc = new MXP.PostProcessPass( gl, {
 			name: 'dof/coc',
 			frag: dofCocFrag,
-			uniforms: MXP.UniformsUtils.merge( timeUniforms, {
+			uniforms: MXP.UniformsUtils.merge( {
 				uGbufferPos: {
 					value: null,
 					type: "1i"
@@ -167,7 +157,7 @@ export class PipelinePostProcess {
 		const dofBokeh = new MXP.PostProcessPass( gl, {
 			name: 'dof/bokeh',
 			frag: dofBokehFrag,
-			uniforms: MXP.UniformsUtils.merge( timeUniforms, {
+			uniforms: MXP.UniformsUtils.merge( {
 				uCocTex: {
 					value: dofCoc.renderTarget!.textures[ 0 ],
 					type: '1i'
@@ -280,7 +270,6 @@ export class PipelinePostProcess {
 			motionBlur,
 		] } );
 
-		this._timeUniforms = timeUniforms;
 		this._ssr = ssr;
 		this._ssComposite = ssComposite;
 		this.dofCoc = dofCoc;
@@ -298,13 +287,9 @@ export class PipelinePostProcess {
 
 	}
 
-	public update( event: MXP.EntityUpdateEvent ): void {
+	public update( _event: MXP.EntityUpdateEvent ): void {
 
 		if ( ! this._camera ) return;
-
-		// uniforms
-
-		this._timeUniforms.uTimeEF.value = ( this._timeUniforms.uTimeEF.value + event.timeDelta ) % 1;
 
 		// dof params
 

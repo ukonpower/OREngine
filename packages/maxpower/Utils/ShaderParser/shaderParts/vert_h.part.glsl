@@ -25,3 +25,8 @@ layout ( location = 2 ) in vec3 normal;
 	out vec3 o_position;
 	out vec3 o_normal;
 #endif
+
+uniform float uTime;
+uniform float uTimeF;
+uniform float uTimeE;
+uniform float uTimeEF;

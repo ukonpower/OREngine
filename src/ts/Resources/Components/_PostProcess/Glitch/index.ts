@@ -2,7 +2,7 @@ import * as MXP from 'maxpower';
 
 import glitchFrag from './shaders/glitch.fs';
 
-import { gl, globalUniforms } from '~/ts/Globals';
+import { gl } from '~/ts/Globals';
 
 export class Glitch extends MXP.PostProcess {
 
@@ -14,7 +14,7 @@ export class Glitch extends MXP.PostProcess {
 				new MXP.PostProcessPass( gl, {
 					name: 'glitch',
 					frag: glitchFrag,
-					uniforms: MXP.UniformsUtils.merge( globalUniforms.time, {
+					uniforms: MXP.UniformsUtils.merge( {
 						uGlitch: {
 							value: 0,
 							type: '1f'

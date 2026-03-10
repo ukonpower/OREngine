@@ -6,7 +6,7 @@ import { Font1 } from '../../../Fonts/Font1';
 import textFrag from './shaders/text.fs';
 import textVert from './shaders/text.vs';
 
-import { globalUniforms, gl } from '~/ts/Globals';
+import { gl } from '~/ts/Globals';
 
 export class Text extends MXP.Component {
 
@@ -28,12 +28,6 @@ export class Text extends MXP.Component {
 		this.material = new MXP.Material( {
 			frag: MXP.hotGet( 'textFrag', textFrag ),
 			vert: MXP.hotGet( 'textVert', textVert ),
-			uniforms: MXP.UniformsUtils.merge( globalUniforms.time, {
-				// uTex: {
-				// 	value: font.texture,
-				// 	type: '1i'
-				// }
-			} )
 		} );
 
 		if ( import.meta.hot ) {

@@ -43,10 +43,6 @@ export class DeferredRenderer extends GLP.EventEmitter {
 
 	private gl: WebGL2RenderingContext;
 
-	// uniforms
-
-	private timeUniforms_: GLP.Uniforms;
-
 	// renderer postprocess
 
 	public postprocess: MXP.PostProcess;
@@ -81,15 +77,6 @@ export class DeferredRenderer extends GLP.EventEmitter {
 
 		const gl = params.gl;
 		this.gl = gl;
-
-		// uniforms
-
-		const timeUniforms: GLP.Uniforms = {
-			uTimeEF: {
-				value: 0,
-				type: "1f"
-			}
-		};
 
 		// normal buffer
 
@@ -128,7 +115,7 @@ export class DeferredRenderer extends GLP.EventEmitter {
 			name: 'lightShaft',
 			frag: lightShaftFrag,
 			renderTarget: rtLightShaft1,
-			uniforms: MXP.UniformsUtils.merge( timeUniforms, {
+			uniforms: MXP.UniformsUtils.merge( {
 				uLightShaftBackBuffer: {
 					value: rtLightShaft2.textures[ 0 ],
 					type: '1i'
@@ -156,7 +143,7 @@ export class DeferredRenderer extends GLP.EventEmitter {
 			name: 'ssao',
 			frag: ssaoFrag,
 			renderTarget: MXP.hotGet( "ssao", rtSSAO1 ),
-			uniforms: MXP.UniformsUtils.merge( timeUniforms, {
+			uniforms: MXP.UniformsUtils.merge( {
 				uSSAOBackBuffer: {
 					value: rtSSAO2.textures[ 0 ],
 					type: '1i'
@@ -188,7 +175,7 @@ export class DeferredRenderer extends GLP.EventEmitter {
 
 		const SSAOSAMPLE = 8;
 
-		const ssaoBlurUni = MXP.UniformsUtils.merge( timeUniforms, {
+		const ssaoBlurUni = MXP.UniformsUtils.merge( {
 			uSSAOTexture: {
 				value: rtSSAO2.textures[ 0 ],
 				type: '1i'
@@ -286,7 +273,6 @@ export class DeferredRenderer extends GLP.EventEmitter {
 			shading,
 		] } );
 
-		this.timeUniforms_ = timeUniforms;
 		this.shading = shading;
 		this.lightShaft = lightShaft;
 		this.ssao = ssao;
@@ -321,11 +307,7 @@ export class DeferredRenderer extends GLP.EventEmitter {
 
 	}
 
-	public update( event: MXP.EntityUpdateEvent ): void {
-
-		// uniforms
-
-		this.timeUniforms_.uTimeEF.value = ( this.timeUniforms_.uTimeEF.value + event.timeDelta ) % 1;
+	public update( _event: MXP.EntityUpdateEvent ): void {
 
 		// light shaft swap
 
