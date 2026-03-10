@@ -43,6 +43,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `~project/*` → `projects/default/*`
 - `~/*` → `src/*`
 
+## リソース自動生成（Vite プラグイン）
+
+`plugins/ResourceManager` が Vite プラグインとして動作し、以下のファイルを**自動生成**する。手動で編集してはいけない（`npm run dev` または `npm run build` で上書きされる）。
+
+| 自動生成ファイル | スキャン対象ディレクトリ | 条件 |
+|-----------------|----------------------|------|
+| `src/ts/Resources/_data/componentList.ts` | `src/ts/Resources/Components/` | `index.ts` に `export class Xxx` があること |
+| `src/ts/Resources/_data/geometryList.ts` | `src/ts/Resources/Geometries/` | 同上 |
+| `src/ts/Resources/_data/materialList.ts` | `src/ts/Resources/Materials/` | `.mat` ファイル |
+| `src/ts/Resources/_data/shaderList.ts` | `src/ts/Resources/Shaders/` | `index.vs` / `index.fs` |
+| `src/ts/Resources/_data/textureList.ts` | `src/ts/Resources/Textures/` | `.tex` ファイル |
+
+**コンポーネントを追加するには**、`src/ts/Resources/Components/<グループ>/<名前>/index.ts` に `export class Xxx extends MXP.Component` を置くだけでよい。`componentList.ts` への手動登録は不要。ディレクトリ名が先頭 `_` のものはスキャン対象外。
+
 ## アーキテクチャ
 - **glpower**: WebGL低レベルラッパー（Vector, Matrix, Quaternion, EventEmitter, GLPowerFrameBuffer等）
 - **maxpower**: エンジンコア。Entity-Componentシステム、Serializable基底クラスによるシリアライズ/デシリアライズ、Renderer、Geometry、Material、PostProcess

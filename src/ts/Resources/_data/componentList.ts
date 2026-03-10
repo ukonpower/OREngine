@@ -18,6 +18,7 @@ import { VJCamera } from '../Components/Samples/CameraControls/VJCamera/index.ts
 import { LPD8 } from '../Components/Samples/MIDI/LPD8/index.ts';
 import { MIDIMIX } from '../Components/Samples/MIDI/MIDIMIX/index.ts';
 import { Raymarch } from '../Components/Samples/Materials/Raymarch/index.ts';
+import { GPUParticles } from '../Components/Samples/Particles/index.ts';
 import { SPZModel } from '../Components/Samples/SPZModel/index.ts';
 import { Text } from '../Components/Samples/Text/index.ts';
 import { BLidgeClient } from '../Components/Utility/BLidgeClient/index.ts';
@@ -58,6 +59,7 @@ export const COMPONENTLIST: {[key: string]: any} = {
 		Materials: {
 			Raymarch,
 		},
+		GPUParticles,
 		SPZModel,
 		Text,
 	},
