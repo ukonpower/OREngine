@@ -1,6 +1,6 @@
 # コンポーネントカタログ
 
-OREngineで利用可能なコンポーネント一覧とフィールド詳細。
+OREngineで利用可能なビルトインコンポーネント一覧とフィールド詳細。
 
 ## コンポーネント一覧
 
@@ -34,8 +34,6 @@ OREngineで利用可能なコンポーネント一覧とフィールド詳細。
 | `""` | デフォルトマテリアル（None）- 基本的なグレーシェーディング |
 | `"MaterialName"` | リソース登録済みの名前付きマテリアル |
 
-名前付きマテリアルはプロジェクトリソースとして事前登録が必要。
-バッチAPIで `"material/name": ""` を指定した場合はデフォルトマテリアルが適用される（正常動作）。
 利用可能なマテリアル名は `GET /api/materials` または `GET /api/projects/:p/editor/resources` で確認。
 
 ## よく使うコンポーネント組み合わせ
@@ -59,16 +57,12 @@ Camera + ShakeViewer + CustomPostProcess
 ]
 ```
 
-CustomPostProcess内に固定で4つのPostProcessが含まれる。フィールドではenabled状態のみ制御可能。
-
 ### 標準ライト
 ```
 Light
 ```
 - euler（回転）でライト方向を制御
 - `lookAt` APIで特定座標に向けることも可能
-- `fov`: スポットライトの視野角
-- `intensity`: 光の強度
 
 ### メッシュオブジェクト
 ```

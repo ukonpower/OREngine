@@ -1,4 +1,4 @@
-# エンティティ操作 API リファレンス
+# シーン操作 API リファレンス
 
 ベースURL: `http://localhost:3001/api`
 
@@ -12,16 +12,7 @@
 | PUT | `/projects/:name` | プロジェクト名変更 | `{ "newName": "NewName" }` |
 | POST | `/projects/:name/duplicate` | プロジェクト複製 | `{ "newName": "CopyName" }` |
 
-## シーン・エディタデータ（Raw JSON）
-
-| メソッド | パス | 説明 | ボディ |
-|---------|------|------|--------|
-| GET | `/projects/:p/scene` | scene.json 取得 | - |
-| POST | `/projects/:p/scene` | scene.json 上書き | JSONボディ全体 |
-| GET | `/projects/:p/editor` | editor.json 取得（カメラ位置等） | - |
-| POST | `/projects/:p/editor` | editor.json 上書き | JSONボディ全体 |
-
-## シーン読み取り（Editor経由）
+## シーン読み取り
 
 | メソッド | パス | 説明 |
 |---------|------|------|
@@ -124,20 +115,10 @@ POST /projects/:p/editor/entities
 |---------|------|------|--------|
 | POST | `/projects/:p/editor/entity/:uuid/lookAt` | エンティティを指定座標に向ける | `{ "target": [x, y, z] }` |
 
-エンティティの現在位置から `target` 座標を向くようにeuler（XYZ順）を自動計算して設定する。
-ライトやカメラの向きを特定の座標に向けたい場合に使用。
-
-## Undo/Redo
-
-| メソッド | パス | 説明 |
-|---------|------|------|
-| POST | `/projects/:p/editor/undo` | 元に戻す（ブラウザ接続時のみ） |
-| POST | `/projects/:p/editor/redo` | やり直す（ブラウザ接続時のみ） |
-
-## セーブ
+## 保存・Undo/Redo
 
 ```
-POST /projects/:p/editor/save
+POST /projects/:p/editor/save              # 保存
+POST /projects/:p/editor/undo              # 元に戻す（ブラウザ接続時のみ）
+POST /projects/:p/editor/redo              # やり直す（ブラウザ接続時のみ）
 ```
-
-ブラウザ接続時はブラウザから最新状態を同期してから保存する。
