@@ -1,84 +1,107 @@
-# Research: BLidger FOV反映バグ + CameraControllerコンポーネント作成
+# Research: f_draw_t の GPGPU パーティクルコンポーネントを DemoProject に追加
 
 ## タスク概要
-1. **FOVバグ**: Camera系コンポーネント統合（f39f49a）後、BLidgerからのFOVが反映されなくなった
-2. **LookAt問題**: MainCamera削除に伴い、LookAtターゲット（"CamLook"エンティティ）の自動設定が失われた
-3. **CameraController作成**: LookAtのアタッチやDofTarget設定をスクリプトから行うCameraControllerコンポーネントを作成する
+`/Users/ukonpower/Documents/work-space/f_draw_t` で使っている GPGPU ベースのパーティクルコンポーネントを OREngine の DemoProject に `Samples` コンポーネントとして追加する。orengine スキルを使ってエンティティ配置まで行う。
 
-## 根本原因の分析
+## 参照元: f_draw_t の Particles コンポーネント
 
-### FOVバグ: 2つの問題が重なっている
-
-**問題1: タイミング問題（初回ロード時）**
-- `onSyncScene`の処理順序:
-  1. BLidger追加（コンストラクタで`entity.getComponentsByTag<Camera>("camera")`を呼ぶ）
-  2. **この時点でCameraコンポーネントはまだ存在しない**（attachmentsはまだ適用されていない）
-  3. `applyAttachments()`でCameraが追加される → デフォルトFOV=50のまま
-- WebSocket再同期時はCameraが既に存在するため、BLidgerがFOVを設定できる
-
-**問題2: projectionMatrix更新フラグの問題（再同期時）**
-- BLidgerが`camera.fov = cameraParam.fov`を設定するが、`needsUpdateProjectionMatrix = true`を設定しない
-- **以前**: MainCameraの`updateCameraParams()`が毎フレーム`needsUpdateProjectionMatrix = true`を設定 → FOV変更が自動反映
-- **現在**: Camera.updateImplはアスペクト比変更時のみフラグを立てる → FOV変更が反映されない
-
-### LookAt問題: MainCamera削除による機能喪失
-
-削除されたMainCameraが担っていた機能:
-```typescript
-// MainCameraコンストラクタ内
-this._lookAt = this.entity.addComponent( LookAt );
-
-// sceneCreatedイベントハンドラ内
-const lookAtTarget = root.findEntityByName( "CamLook" ) || null;
-this._lookAt.setTarget( lookAtTarget );
-this._dofTarget = root.findEntityByName( 'CamDof' ) || null;
+### ファイル構成
 ```
-→ 現在、"CamLook"エンティティの検索・LookAtターゲット設定を行うコードが存在しない
+src/ts/Resources/Components/DrawTokyo/Entities/Particles/
+├── index.ts
+└── shaders/
+    ├── particles.glsl  (GPGPU compute シェーダー)
+    ├── particles.vs    (vertex shader - instanced)
+    └── particles.fs    (fragment shader - deferred)
+```
 
-## 関連ファイル・シンボル
+### 構造の要点
+- `MXP.GPUCompute` + `MXP.GPUComputePass` でGPGPU計算
+- `size = Vector(64, 64)` → 64×64=4096パーティクル
+- `dataLayerCount: 2` → position(w=lifetime) / velocity を別テクスチャで管理
+- `MXP.SphereGeometry` をインスタンシングで描画
+- `geometry.setAttribute("id", ...)` と `geometry.setAttribute("cuv", ...)` でインスタンスごとにComputeUVを渡す
+- マテリアルの phase: `["deferred", "shadowMap"]`
 
+### f_draw_t 固有の依存 (OREngine では不要/変更が必要)
+
+| 依存 | f_draw_t | OREngine 対応 |
+|------|----------|--------------|
+| `Engine.getInstance(gl).uniforms` | Engineのグローバルuniform | `globalUniforms.time` に置き換え |
+| `MIDIMIX.getLine(0).valuesLerped` | MIDI入力 (uMidi) | 固定値 uniform に変更 |
+| `BPM.uniforms` | BPMタイミング (uBeatTime) | `globalUniforms.time.uTimeE` を代用 |
+| `AudioTexture.uniforms` (static) | 音声テクスチャ (uAudioWaveTex/uAudioFreqTex) | vertex shader から除去 |
+| `process.env.NODE_ENV` | HMR判定 | `import.meta.hot` のみに変更 |
+
+## 追加先: OREngine の構造
+
+### 関連ファイル・シンボル
 | ファイル | 主要シンボル | 役割 |
 |---------|------------|------|
-| `packages/maxpower/Component/Camera/index.ts` | Camera | カメラ基底クラス。FOV・aspect・projectionMatrix管理 |
-| `packages/maxpower/Component/BLidger/index.ts` | BLidger | Blenderデータ→Entity変換。カメラFOV設定（L206-220） |
-| `packages/orengine/ts/Controls/LookAt/index.ts` | LookAt | Entity間のLookAt制御コンポーネント（order=9999） |
-| `src/ts/Resources/Components/ObjectControls/LookAt/index.ts` | LookAt | LookAtのResources版コピー |
-| `src/ts/Resources/Components/ObjectControls/CameraShake/index.ts` | ShakeViewer | カメラシェイクコンポーネント |
-| `src/ts/Resources/Components/Utilities/BLidgeClient/index.ts` | BLidgeClient | BLidgeシーン管理。attachments適用（L229-270） |
-| `src/ts/Resources/_data/componentList.ts` | COMPONENTLIST | コンポーネント登録リスト |
-| `src/ts/Resources/index.ts` | initResouces | リソース初期化 |
-| `projects/DemoProject/scene.json` | - | シーン定義。Camera attachments設定 |
-| `packages/maxpower/Entity/index.ts` | Entity.lookAt | Entity.lookAt()メソッド |
+| `src/ts/Resources/_data/componentList.ts` | `COMPONENTLIST` | コンポーネント登録リスト |
+| `src/ts/Resources/index.ts` | `initResouces` | コンポーネント登録処理 |
+| `src/ts/Globals/index.ts` | `globalUniforms`, `gl` | グローバルuniform・WebGL context |
+| `packages/maxpower/Component/GPUCompute/index.ts` | `GPUCompute` | GPGPU計算クラス |
+| `packages/maxpower/Component/GPUComputePass/index.ts` | `GPUComputePass` | GPUパスクラス |
 
-## 依存関係
-- `BLidger` → `Camera`: タグ"camera"でコンポーネント検索、FOV設定
-- `BLidgeClient` → `BLidger`: BLidgerコンポーネントをentityに追加
-- `BLidgeClient.applyAttachments` → `Camera`: attachmentsからCameraコンポーネントを追加
-- `LookAt` → `Camera`: viewMatrix更新（beforeRenderImpl内）
-- `LookAt` → `Entity.matrixWorld`: lookAt変換
-- MainCamera(削除済) → `LookAt`, `Camera`, `ShakeViewer`: コンポーネント追加・管理
+### globalUniforms で利用可能なもの
+- `globalUniforms.time.uTimeE` - エンジン時間 (float)
+- `globalUniforms.time.uTime` - コード時間 (float)
 
-## 既存パターン
+### GPUComputePass の自動追加 uniform
+- `uDeltaTime` (1f) - 自動計算されるデルタタイム
+- `uGPUSampler0`, `uGPUSampler1` - 出力テクスチャ
+- `uGPUResolution` - テクスチャ解像度
 
-### コンポーネント登録パターン
-1. `src/ts/Resources/Components/` にコンポーネントクラスを配置
-2. `src/ts/Resources/_data/componentList.ts` に登録
-3. エディタUIからattachments経由で利用可能になる
+## 追加するファイル
 
-### MainCameraが行っていた初期化パターン
-- `sceneCreated`イベントをlistenし、BLidgeシーンから名前でエンティティを検索
-- "CamLook" → LookAtターゲット
-- "CamDof" → DoFフォーカスターゲット
+```
+src/ts/Resources/Components/Samples/Particles/
+├── index.ts          ← メインコンポーネント
+└── shaders/
+    ├── particles.glsl  ← GPGPU compute (uMidi依存を調整)
+    ├── particles.vs    ← vertex (uAudioTex参照を除去)
+    └── particles.fs    ← fragment (uBeatTime を uTimeE に変更)
+```
+
+## シェーダー変更点
+
+### particles.glsl (compute)
+- `uMidi.y` → 定数 `0.0` (noise強度)
+- `uMidi.x` → 定数 `0.5` (lifetime offset)
+- `uniform vec4 uMidi;` を削除
+
+### particles.vs (vertex)
+- `uniform sampler2D uAudioWaveTex;` / `uAudioFreqTex;` を削除
+- `uniform vec4 uMidi;` を削除 (uMidi参照箇所は定数に)
+
+### particles.fs (fragment)
+- `uniform float uBeatTime;` を `uTimeE` で代用
+- `uType` は `uType` のままでSerializableField経由で公開検討
+- `uMidi` 参照を削除
+
+## componentList.ts への登録
+
+```typescript
+// Samples グループに追加
+Samples: {
+  // ... 既存 ...
+  Particles: {
+    GPUParticles,
+  }
+}
+```
 
 ## 制約・注意点
-
-- CameraControllerはResourcesコンポーネントとして作成し、componentListに登録する必要がある
-- `scene.json`のattachments設定も更新が必要（CameraControllerを追加）
-- LookAtコンポーネントは`order = 9999`で実行される（beforeRender内で最後に実行）
-- Camera.fovの`noExport: true`は開発モード専用フィールドの設定であり、FOV自体はBLidgerから設定される
-- BLidgerの`rotationOffsetX = -Math.PI / 2`はカメラの座標系補正
+- コンポーネント名は `GPUParticles` (Particlesは他と衝突の可能性)
+- `gl` は `~/ts/Globals` からimport
+- HMR は `import.meta.hot` を使う
+- `dispose()` で `this.entity.removeComponent(MXP.Mesh)` と `this._gpu.dispose()` を呼ぶ
+- `computeUVArray` のサイズは `size.x * size.y` = 4096インスタンス
+- インスタンシングのため geometry の `instanceDivisor: 1` が必要
+- インスタンスとして `SphereGeometry` を使うため、attributeは `instanceDivisor: 1` で設定
 
 ## 参考になる既存実装
-
-- 削除されたMainCamera - CameraControllerの機能設計の参考（sceneCreatedイベントリスン、LookAt/DofTarget設定）
-- `src/ts/Resources/Components/ObjectControls/CameraShake/index.ts` - ObjectControls配下のコンポーネント配置パターン
+- `src/ts/Resources/Components/Samples/Materials/Raymarch/index.ts` - Samplesコンポーネントの基本パターン
+- `src/ts/Resources/Components/Samples/Audio/AudioTexture/index.ts` - AudioTexture の構造
+- f_draw_t の `Particles/index.ts` - 移植元

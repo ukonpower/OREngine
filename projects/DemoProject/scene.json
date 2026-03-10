@@ -156,6 +156,18 @@
 				"name": "UniformControls",
 				"uuid": "2"
 			}
+		],
+		"childs": [
+			{
+				"name": "GPUParticles",
+				"uuid": "000002c3",
+				"components": [
+					{
+						"name": "GPUParticles",
+						"uuid": "000002c4"
+					}
+				]
+			}
 		]
 	},
 	"renderer": {
