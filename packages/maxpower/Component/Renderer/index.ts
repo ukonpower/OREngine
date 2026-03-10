@@ -3,6 +3,7 @@ import * as GLP from 'glpower';
 import { Entity, EntityUpdateEvent } from '../../Entity';
 import { Geometry } from '../../Geometry';
 import { PlaneGeometry } from '../../Geometry/PlaneGeometry';
+import { SphereGeometry } from '../../Geometry/SphereGeometry';
 import { MaterialRenderType, Material } from '../../Material';
 import { PostProcess } from '../../PostProcess';
 import { Serializable } from '../../Serializable';
@@ -17,6 +18,92 @@ import { DeferredRenderer } from './DeferredRenderer';
 import { PipelinePostProcess } from './PipelinePostProcess';
 import { PMREMRender } from './PMREMRender';
 import { ProgramManager } from './ProgramManager';
+import skyFrag from './shaders/sky.fs';
+
+// sky
+
+export class RendererSky {
+
+	public readonly entity: Entity;
+	public readonly mesh: Mesh;
+	public readonly material: Material;
+	public readonly color: GLP.Vector;
+	public readonly groundColor: GLP.Vector;
+
+	private _intensity: number;
+	private _materialType: string;
+
+	constructor() {
+
+		this.color = new GLP.Vector( 1.0, 1.0, 1.0 );
+		this.groundColor = new GLP.Vector( 0.3, 0.3, 0.3 );
+		this._intensity = 1.0;
+		this._materialType = "";
+
+		this.material = new Material( {
+			phase: [ "deferred", "envMap" ],
+			frag: skyFrag,
+			cullFace: false,
+			uniforms: {
+				uSkyColor: { value: this.color, type: "3fv" },
+				uGroundColor: { value: this.groundColor, type: "3fv" },
+				uSkyIntensity: { value: this._intensity, type: "1f" },
+			}
+		} );
+
+		this.entity = new Entity( { name: "sky" } );
+		this.mesh = this.entity.addComponent( Mesh );
+		this.mesh.geometry = new SphereGeometry( { radius: 500, widthSegments: 32, heightSegments: 32 } );
+		this.mesh.material = this.material;
+
+	}
+
+	public get intensity(): number {
+
+		return this._intensity;
+
+	}
+
+	public set intensity( v: number ) {
+
+		this._intensity = v;
+		this.material.uniforms.uSkyIntensity.value = v;
+
+	}
+
+	public get materialType(): string {
+
+		return this._materialType;
+
+	}
+
+	public set materialType( v: string ) {
+
+		this._materialType = v;
+		this._rebuildMaterial();
+
+	}
+
+	private _rebuildMaterial(): void {
+
+		if ( ! this._materialType ) {
+
+			this.mesh.material = this.material;
+			return;
+
+		}
+
+		const instance = Mesh.getMaterialInstance( this._materialType );
+
+		if ( instance ) {
+
+			this.mesh.material = instance;
+
+		}
+
+	}
+
+}
 
 // render target
 
@@ -144,6 +231,10 @@ export class Renderer extends Serializable {
 
 	private _deferredRenderer: DeferredRenderer;
 	private _pipelinePostProcess: PipelinePostProcess;
+
+	// sky
+
+	public sky: RendererSky;
 
 	// quad
 
@@ -278,6 +369,10 @@ export class Renderer extends Serializable {
 
 		this._renderTarget = Renderer.createRenderTarget( gl );
 
+		// sky
+
+		this.sky = new RendererSky();
+
 		// pipeline config
 
 		this._pipelineConfig = {
@@ -289,6 +384,46 @@ export class Renderer extends Serializable {
 		};
 
 		this._overrides = {};
+
+		// sky fields
+
+		const skyDir = this.fieldDir( "sky" );
+
+		skyDir.field( "skyColor",
+			() => this.sky.color.getElm( "vec3" ),
+			( v: number[] ) => { this.sky.color.set( v[ 0 ], v[ 1 ], v[ 2 ] ); },
+			{ format: { type: "vector" } }
+		);
+
+		skyDir.field( "groundColor",
+			() => this.sky.groundColor.getElm( "vec3" ),
+			( v: number[] ) => { this.sky.groundColor.set( v[ 0 ], v[ 1 ], v[ 2 ] ); },
+			{ format: { type: "vector" } }
+		);
+
+		skyDir.field( "intensity",
+			() => this.sky.intensity,
+			( v: number ) => { this.sky.intensity = v; },
+			{ step: 0.1 }
+		);
+
+		skyDir.field( "material",
+			() => this.sky.materialType,
+			( v: string ) => { this.sky.materialType = v; },
+			{
+				format: {
+					type: "resource",
+					resourceType: "material",
+					list: () => {
+
+						const list: { label: string, value: string }[] = [ { label: "(Default)", value: "" } ];
+						Mesh.getMaterialList().forEach( m => list.push( { label: m.name, value: m.name } ) );
+						return list;
+
+					}
+				}
+			}
+		);
 
 		const pipeline = this.fieldDir( "pipeline" );
 
@@ -438,6 +573,8 @@ export class Renderer extends Serializable {
 		};
 
 		_( { entity, visibility: true } );
+
+		_( { entity: this.sky.entity, visibility: true } );
 
 		return stack;
 
