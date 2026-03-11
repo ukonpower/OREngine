@@ -1,119 +1,223 @@
-# Research: OREngine skill/API設計の改善点
+# Research: サーバー単独でのシーン構築API対応
 
 ## タスク概要
+ブラウザが接続されていなくても、サーバーのREST APIだけでシーン構築（エンティティ作成、コンポーネント追加、フィールド設定等）ができる仕組みを作る。ブラウザが接続されている場合は従来通りWebSocket委譲パターンでブラウザ側で処理する。
 
-今回のセッション（新規エンティティへのイケイケビカビカマテリアル設定）で発生した
-やりづらかった点を整理し、skill・API設計の改善に活かす。
+## ユーザー要件（確定）
 
----
+### ユースケース: APIとブラウザの共同編集
+```
+1. ブラウザ開いてる → APIで編集 → ブラウザにリアルタイム反映
+2. ブラウザでちょっと手動調整
+3. ブラウザ閉じる → APIでの編集を続行（サーバーだけで処理）
+4. ブラウザを再度開く → API操作の結果が全部反映されてる
+5. またブラウザで調整、またAPI操作…の繰り返し
+```
 
-## 発生した問題と原因
+### 要件
+1. **共同編集**: APIとブラウザの両方からシーンを編集でき、APIの操作がブラウザにリアルタイム反映される
+2. **シームレスなハンドオフ**: ブラウザの開閉をまたいでAPI編集を続行できる
+3. **明示的セーブ**: API操作でscene.jsonを即座に上書きしない。セーブは明示的に行う
+4. **ブラウザ単独動作の維持**: サーバーなしでもブラウザだけでシーン編集できる既存の仕組みを壊さない
 
-### 問題1: バッチAPIのコンポーネント指定プロパティ名が不明瞭
+## 現状のアーキテクチャ
 
-**何が起きたか**
-`POST /editor/entities` のバッチ作成で `"name": "Mesh"` と書いたら、
-コンポーネントがアタッチされずに `{ "uuid": "..." }` だけの状態になった。
+### データフロー（現状）
+```
+[REST API] → editor.ts/handleActionInternal()
+  ↓
+  ブラウザ接続中？
+    Yes → WebSocket Bridge → ブラウザ EditorAPIBridge._dispatch() → EditorAPI/CommandManager → 結果返却
+    No  → throw new Error('Browser not connected') → 503エラー
+```
 
-**正しいプロパティ名**: `componentName`（`name` ではない）
+**核心的な問題**: ブラウザ未接続時は全ての editor API が 503 を返す。サーバー側にはシーンデータを操作するロジックが一切ない。
 
-**なぜ気づきにくいか**
-- `api-scene.md` のバッチAPIのサンプルに `componentName` と書いてあるが、
-  コンポーネント操作テーブル（`POST /editor/entity/:uuid/component`）と
-  表記が微妙に異なる印象がある
-- レスポンスにコンポーネントの `name` が返ってこないため、
-  「作成されたが名前が取れていない」のか「アタッチ失敗」なのかが区別できない
-- シーンツリー上でも `{ "uuid": "..." }` として出現するため一見「存在する」ように見える
+### ADR設計思想
+- **ADR-001**: ブラウザファースト設計。ブラウザ接続中はブラウザがsource of truth
+- **ADR-002**: WebSocket委譲パターン。書き込みはWS経由でブラウザに委譲
 
-**改善案**
-- バッチAPI で `componentName` が指定されなかった場合にエラーを返す（現状: silent失敗）
-- レスポンスの components に `componentName` を必ず含めて、成功可否を確認できるようにする
+ADR-001に「ブラウザ未接続時のみサーバーのオンメモリ状態（ProjectData）で直接処理する」と記載あり。しかし現状の実装ではこのフォールバックが未実装。
 
----
+## 関連ファイル・シンボル
 
-### 問題2: シェーダーで使える変数名がドキュメントにない
+| ファイル | 主要シンボル | 役割 |
+|---------|------------|------|
+| `server/routes/editor.ts` | `handleActionInternal()`, `handleAction()` | REST APIルーティング、ブラウザ委譲 |
+| `server/ws/index.ts` | `EditorWSBridge` | WebSocketブリッジ（サーバー↔ブラウザ） |
+| `server/Project/ProjectData/index.ts` | `ProjectData` | プロジェクトデータ管理（scene.json読み書き） |
+| `server/Project/types.ts` | `SceneFileData`, `SceneDataEntity`, `SceneDataComponent` | シーンデータの型定義 |
+| `server/Project/index.ts` | `ProjectManager`, `projectManager` | プロジェクト管理シングルトン |
+| `server/SceneDataEditor/` | (空ディレクトリ) | シーンデータ編集用に用意されたと思われる |
+| `packages/orengine/ts/Editor/EditorAPIBridge/index.ts` | `EditorAPIBridge._dispatch()` | ブラウザ側アクション実行（全アクションのswitch文） |
+| `packages/orengine/ts/Editor/EditorAPI/index.ts` | `EditorAPI` | CommandManager経由のエンティティ・コンポーネント操作 |
+| `packages/orengine/ts/Engine/ProjectSerializer/index.ts` | `ProjectSerializer`, `OREngineDataEntity` | Entity↔JSONシリアライズ/デシリアライズ |
+| `packages/orengine/ts/Engine/index.ts` | `Engine` | エンジンコア（WebGL2依存） |
+| `packages/orengine/ts/Engine/Resources/index.ts` | `Resources` | コンポーネント/マテリアル/シェーダー/テクスチャのリソース管理 |
 
-**何が起きたか**
-- 頂点シェーダーで `localPosition` を使ったが存在せず → 正しくは `outPos`
-- フラグメントシェーダーで `outMetallic` を使ったが存在せず → 正しくは `outMetalic`（l が1つ）
+## 依存関係
 
-**実際の定義箇所**
-- `packages/maxpower/Utils/ShaderParser/shaderParts/vert_in.part.glsl`:
-  ```glsl
-  vec3 outPos = position;   // 頂点位置（書き込み可能）
-  vec3 outNormal = normal;
-  vec2 outUv = uv;
-  ```
-- `packages/maxpower/Utils/ShaderParser/shaderParts/frag_in.part.glsl`:
-  ```glsl
-  vec4 outColor = vec4(1.0);
-  vec3 outEmission = vec3(0.0);
-  float outRoughness = 0.5;
-  float outMetalic = 0.0;   // ← Metallic ではなく Metaric（typo）
-  vec3 outPos = vPos;
-  ```
+### ブラウザ側アクション実行チェーン
+```
+EditorAPIBridge._dispatch()
+  → EditorAPI.createEntity() / setField() / addComponent() 等
+    → CommandManager.execute() (Undo/Redo管理)
+      → Entity/Component 操作
+```
 
-**なぜ気づきにくいか**
-- `shader-guide.md` の「カスタマイズ可能な出力変数」テーブルに `outMetallic` と
-  記載されているが、実際のGLSLは `outMetalic`（typo）でドキュメントと実装が乖離
-- 頂点シェーダーで書き換え可能な変数（`outPos` 等）がドキュメントに明記されていない
+### サーバー側の現在の処理
+```
+editor.ts handleActionInternal()
+  → getWSBridge() → bridge.send() (WebSocket委譲)
+  → ブラウザ未接続時は Error('Browser not connected')
+```
 
-**改善案**
-- `shader-guide.md` に `<vert_in>` で展開される変数一覧を追記する
-- `outMetalic` のスペルをどちらかに統一する（理想は `outMetallic`）
+### シーンデータ構造（scene.json = SceneFileData）
+```typescript
+interface SceneFileData {
+  name: string;
+  scene: SceneDataEntity; // ルートエンティティ
+  [key: string]: unknown; // renderer, timeline等の追加データ
+}
+interface SceneDataEntity {
+  name: string; uuid: string;
+  pos?: number[]; rot?: number[]; scale?: number[];
+  components?: SceneDataComponent[];
+  childs?: SceneDataEntity[];
+}
+interface SceneDataComponent {
+  name: string; uuid: string;
+  props?: Record<string, unknown>;
+}
+```
 
----
+## ブラウザ側 _dispatch() がサポートするアクション一覧
 
-### 問題3: 複数プロジェクトがある際に操作対象を確認しなかった
+### 読み取り系
+- `getStatus` - 接続状態、Undo/Redo可否
+- `getScene` - シーンツリー全体
+- `getEntity` - 個別エンティティ詳細
+- `searchEntities` - エンティティ名検索
+- `getAvailableComponents` - 利用可能コンポーネント一覧
+- `getComponentDetail` - コンポーネント詳細
+- `getResources` - マテリアル/テクスチャ/シェーダー一覧
+- `getMaterial` / `getTexture` - 個別リソース
+- `getShaderErrors` - シェーダーエラー
 
-**何が起きたか**
-DemoProject でエンティティを作成したあと「Project0 に追加して欲しかった」と指摘された。
+### 書き込み系
+- `createEntity` - エンティティ作成
+- `deleteEntity` - エンティティ削除
+- `selectEntity` - エンティティ選択
+- `addComponent` - コンポーネント追加
+- `removeComponent` - コンポーネント削除
+- `setField` - フィールド値設定
+- `addMaterial` / `updateMaterial` / `removeMaterial`
+- `addTexture` / `updateTexture` / `removeTexture`
+- `undo` / `redo`
 
-**なぜ起きたか**
-- サーバー起動確認時に `["DemoProject", "Project0"]` と2つ見えていたのに
-  最初に出てきた DemoProject をそのまま選んでしまった
-- skill の冒頭フローに「プロジェクトを確認する」とはあるが、
-  複数プロジェクトがある場合に「どちらを使うかユーザーに聞く」とは明記されていない
+## サーバー側で実装が必要な範囲
 
-**改善案**
-- skill の鉄則に「複数プロジェクトが存在する場合は操作対象をユーザーに確認する」を追記
-- `check-server.sh` の出力に「現在ブラウザで開かれているプロジェクト」を
-  表示できると自動判断できる（`/editor/status` API の活用）
+### 実装可能（JSONデータ操作のみ）
+- `getScene` - scene.jsonのツリー構造を返す
+- `getEntity` - UUIDでエンティティを検索
+- `searchEntities` - 名前でエンティティを検索
+- `createEntity` - scene.jsonにエンティティノードを追加
+- `deleteEntity` - scene.jsonからエンティティノードを削除
+- `addComponent` - エンティティにコンポーネント定義を追加
+- `removeComponent` - エンティティからコンポーネント定義を削除
+- `setField` - エンティティ/コンポーネントのフィールド値を変更
+- `getAvailableComponents` - componentList.ts をパースして取得可能
+- `getResources` - .mat/.tex ファイルから読み取り
+- `addMaterial` / `removeMaterial` - .matファイル操作（既に persistResourceChange で部分実装あり）
+- `addTexture` / `removeTexture` - .texファイル操作（同上）
 
----
+### 実装困難（WebGL/ランタイム依存）
+- `getShaderErrors` - シェーダーコンパイルはGPU必要
+- `getComponentDetail` - コンポーネントのserialize()はインスタンス必要（ただしpropsから部分対応可能）
+- `selectEntity` - エディタUI操作のみ
+- `undo` / `redo` - CommandManagerはブラウザ側のみ
 
-### 問題4: `GET /editor/resources` が動かなかった
+## 既存パターン
 
-**何が起きたか**
-`curl http://localhost:3001/api/projects/DemoProject/editor/resources` が
-`{"error": "Unknown action: getResources"}` を返した。
+### UUID生成
+- ブラウザ側: `Serializable` 基底クラスで自動生成
+- サーバー側: 独自にUUID生成が必要（crypto.randomUUID() 等）
 
-**改善案**
-- 動作しないエンドポイントをドキュメントから削除するか `[未実装]` と注記する
+### scene.json の操作
+- `ProjectData.getSceneFileData()` で読み取り
+- `ProjectData.syncFromBrowser()` でオンメモリ更新
+- `ProjectData.save()` でファイル書き込み
 
----
+### ブラウザ再接続時の同期
+- `EditorAPIBridge._handleStatePush()` がサーバーからの状態プッシュを処理
+- `sceneData` と `resources`（materials/textures）をまとめて受信・適用
 
-### 問題5: ブラウザ未接続時のエラーメッセージが不親切
+### setField のパスマッピング
+EditorAPIBridge._dispatch() の `setField` は `_findSerializable(uuid)` で対象を検索:
+- エンティティのUUID → position/euler/scale 等のフィールドに対応
+- コンポーネントのUUID → コンポーネントの props に対応
 
-**何が起きたか**
-Project0 をブラウザで開く前にAPIを叩いたら `{"error": "Timeout"}` が返った。
+サーバー側では scene.json の構造上:
+- エンティティの `position` → `pos` フィールド（number[3]）
+- エンティティの `euler` → `rot` フィールド（number[3]）
+- エンティティの `scale` → `scale` フィールド（number[3]）
+- コンポーネントの props → `components[].props` オブジェクト内のキー
 
-**なぜ気づきにくいか**
-- 「タイムアウト」という言葉だけでは「ブラウザで開いていないから」とは推測しにくい
+## 設計方針: データフロー（確定）
 
-**改善案**
-- エラーレスポンスを `{"error": "Timeout", "hint": "対象プロジェクトをブラウザで開いてください"}` のように詳細化する
+### 2つのモードと切り替え
 
----
+**モード1: ブラウザ接続中** → 現状のWS委譲を維持
+```
+API操作 → WS bridge.send() → ブラウザが実行 → 画面に即反映 → 結果返却
+                                                  ↓
+                                           syncRequestでProjectDataも更新
+```
+- 共同編集が自然に成立（ブラウザが常にsource of truth）
+- ブラウザの手動操作もそのまま有効
+- **追加**: 各WS委譲操作の後に syncRequest で ProjectData を最新に保つ
+  → ブラウザが閉じた瞬間にサーバーが最新状態を持っている保証
 
-## まとめ: 優先度別改善案
+**モード2: ブラウザ未接続** → SceneDataEditor（新規）がフォールバック処理
+```
+API操作 → SceneDataEditor が ProjectData._sceneData を直接操作
+```
+- ProjectData のオンメモリ状態（モード1で常に同期済み、またはscene.jsonから遅延ロード）を操作
+- scene.json には書き込まない
 
-| 優先度 | 対象 | 改善内容 |
-|--------|------|---------|
-| 高 | skill: `shader-guide.md` | `<vert_in>` の書き換え可能変数一覧を追記、`outMetalic` のスペル修正 |
-| 高 | skill: `api-scene.md` | バッチAPIで `componentName` を強調・必須明記 |
-| 高 | skill: 鉄則 | 複数プロジェクト時に操作対象をユーザー確認するルールを追加 |
-| 中 | API: batch entities | `componentName` 未指定時にエラーを返す |
-| 中 | API: エラーレスポンス | Timeout 時に hint を付与 |
-| 低 | エンジン: GLSL変数 | `outMetalic` → `outMetallic` に統一 |
-| 低 | skill: `api-resources.md` | 未実装エンドポイントの注記 |
+**ブラウザ再接続時**:
+```
+ブラウザがWSに接続 → サーバーがProjectDataの現在の状態を statePush → ブラウザに反映
+```
+
+**明示的セーブ時（POST /editor/save）**:
+```
+ブラウザ接続中ならsyncRequestで最新取得 → ProjectData.save() → scene.json 書き込み
+```
+
+### ハンドオフのシナリオ
+```
+1. ブラウザ開、API操作 → WS委譲 → ブラウザが処理、ProjectDataも同期
+2. ブラウザ閉じる       → ProjectData は最新状態を保持
+3. API操作を続行       → SceneDataEditor が ProjectData を操作
+4. ブラウザ再度開く     → statePush でAPI操作分がブラウザに反映
+5. ブラウザで手動調整   → ブラウザ内で処理
+6. API操作             → WS委譲 → ブラウザが処理、ProjectDataも同期
+```
+
+## 制約・注意点
+
+1. **明示的セーブ**: API操作でscene.jsonを即座に上書きしない。変更はProjectData._sceneDataにのみ保持
+2. **WS委譲後のProjectData同期**: ブラウザ接続中のAPI操作後にsyncRequestでサーバー側状態を更新。ブラウザ切断時のハンドオフを保証
+3. **ブラウザ再接続時のstatePush**: サーバーで変更されたProjectDataの内容をブラウザに送信。既存の`_handleStatePush()`を活用
+4. **Undo/Redo**: WS委譲中はブラウザのCommandManagerが管理。SceneDataEditor操作はUndo/Redo対象外。ブラウザ再接続時のstatePushでCommandManagerはクリアされる
+5. **ブラウザ単独動作**: サーバー起動なしでもブラウザは完全に動作。今回の変更はサーバー側のみ
+6. **コンポーネントの解決**: サーバー側は名前ベースの操作のみ（ランタイムなし）
+7. **setField の対象UUID解決**: エンティティ・コンポーネント両方のUUID検索が必要
+
+## 参考になる既存実装
+
+- `EditorAPIBridge._dispatch()` (packages/orengine/ts/Editor/EditorAPIBridge/index.ts) - 全アクションの処理ロジックのリファレンス
+- `ProjectSerializer` (packages/orengine/ts/Engine/ProjectSerializer/index.ts) - シリアライズ/デシリアライズの参考
+- `persistResourceChange()` (server/routes/editor.ts:27-145) - マテリアル/テクスチャのファイル永続化
+- `EditorAPIBridge._handleStatePush()` - ブラウザ再接続時の状態同期処理

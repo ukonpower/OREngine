@@ -20,6 +20,7 @@ export class EditorAPIBridge {
 	private _engine: Engine;
 	private _projectName: string;
 	private _disposed = false;
+	private _syncTimer: number | null = null;
 
 	constructor( editor: Editor, projectName: string ) {
 
@@ -28,6 +29,12 @@ export class EditorAPIBridge {
 		this._engine = editor.engine;
 		this._projectName = projectName;
 		this._connect();
+
+		this._api.commandManager.on( 'change', () => {
+
+			this._debouncedSyncToServer();
+
+		} );
 
 	}
 
@@ -66,27 +73,27 @@ export class EditorAPIBridge {
 
 		switch ( msg.type ) {
 
-			case 'syncRequest':
-				this._handleSyncRequest( msg );
-				break;
+		case 'syncRequest':
+			this._handleSyncRequest( msg );
+			break;
 
-			case 'executeAction':
-				this._handleExecuteAction( msg );
-				break;
+		case 'executeAction':
+			this._handleExecuteAction( msg );
+			break;
 
-			case 'statePush':
-				this._handleStatePush( msg );
-				break;
+		case 'statePush':
+			this._handleStatePush( msg );
+			break;
 
-			default:
-				// 既存の BridgeRequest 処理（後方互換）
-				if ( msg.id && msg.action ) {
+		default:
+			// 既存の BridgeRequest 処理（後方互換）
+			if ( msg.id && msg.action ) {
 
-					this._handleLegacyRequest( msg as BridgeRequest );
+				this._handleLegacyRequest( msg as BridgeRequest );
 
-				}
+			}
 
-				break;
+			break;
 
 		}
 
@@ -123,11 +130,20 @@ export class EditorAPIBridge {
 	// サーバーからの再接続時の状態プッシュ
 	private _handleStatePush( msg: {
 		sceneData?: any;
+		fullReload?: boolean;
 		resources?: {
 			materials: { name: string; config: any }[];
 			textures: { name: string; config: any }[];
 		};
 	} ) {
+
+		if ( msg.fullReload && msg.sceneData ) {
+
+			this._engine.load( msg.sceneData );
+			this._api.commandManager.clear();
+			return;
+
+		}
 
 		if ( msg.sceneData ) {
 
@@ -190,272 +206,300 @@ export class EditorAPIBridge {
 
 	}
 
+	private _debouncedSyncToServer(): void {
+
+		if ( this._syncTimer !== null ) {
+
+			clearTimeout( this._syncTimer );
+
+		}
+
+		this._syncTimer = window.setTimeout( () => {
+
+			this._syncTimer = null;
+			this._syncToServer();
+
+		}, 500 );
+
+	}
+
+	private _syncToServer(): void {
+
+		const sceneData = this._engine.serialize( { mode: "export" } );
+
+		this._send( {
+			type: 'syncPush',
+			sceneData,
+		} );
+
+	}
+
 	private _dispatch( action: string, params: Record<string, any> ): unknown {
 
 		switch ( action ) {
 
-			case 'getStatus':
-				return {
-					connected: true,
-					canUndo: this._api.canUndo,
-					canRedo: this._api.canRedo,
-					selectedEntityId: this._editor.serialize()?.selectedEntityId ?? null,
-				};
+		case 'getStatus':
+			return {
+				connected: true,
+				canUndo: this._api.canUndo,
+				canRedo: this._api.canRedo,
+				selectedEntityId: this._editor.serialize()?.selectedEntityId ?? null,
+			};
 
-			case 'getScene':
-				return this._buildSceneTree( this._engine.root );
+		case 'getScene':
+			return this._buildSceneTree( this._engine.root );
 
-			case 'getEntity': {
+		case 'getEntity': {
 
-				const entity = this._findEntity( params.uuid as string );
-				return this._serializeEntity( entity );
+			const entity = this._findEntity( params.uuid as string );
+			return this._serializeEntity( entity );
 
-			}
+		}
 
-			case 'searchEntities': {
+		case 'searchEntities': {
 
-				const query = ( params.query as string || '' ).toLowerCase();
-				const results: unknown[] = [];
+			const query = ( params.query as string || '' ).toLowerCase();
+			const results: unknown[] = [];
 
-				this._engine.root.traverse( ( e ) => {
+			this._engine.root.traverse( ( e ) => {
 
-					if ( e.name.toLowerCase().includes( query ) ) {
+				if ( e.name.toLowerCase().includes( query ) ) {
 
-						results.push( {
-							uuid: e.uuid,
-							name: e.name,
-							parentUuid: e.parent?.uuid ?? null,
-							components: Array.from( e.components.values() ).map(
-								c => c.constructor.name
-							),
-						} );
-
-					}
-
-				} );
-
-				return results;
-
-			}
-
-			case 'getAvailableComponents': {
-
-				const list = Engine.resources?.componentList || [];
-
-				return list.map( ( item ) => ( {
-					name: item.name,
-					className: item.component.name,
-				} ) );
-
-			}
-
-			case 'getComponentDetail': {
-
-				const entity = this._findEntity( params.uuid as string );
-				const compClass = this._resolveComponentClass( params.componentName as string );
-				const comp = entity.getComponent( compClass );
-
-				if ( ! comp ) throw new Error( `Component ${params.componentName} not found` );
-
-				return {
-					uuid: comp.uuid,
-					name: comp.constructor.name,
-					fields: comp.serialize(),
-					fieldsDirectory: comp.serializeToDirectory(),
-				};
-
-			}
-
-			case 'createEntity': {
-
-				const parent = this._findEntity( params.parentUuid as string );
-				const created = this._api.createEntity( parent, params.name as string || 'New Entity' );
-				return { uuid: created.uuid, name: created.name };
-
-			}
-
-			case 'deleteEntity': {
-
-				const entity = this._findEntity( params.uuid as string );
-				this._api.deleteEntity( entity );
-				return { success: true };
-
-			}
-
-			case 'selectEntity': {
-
-				if ( ! params.uuid ) {
-
-					this._api.selectEntity( null );
-
-				} else {
-
-					const entity = this._findEntity( params.uuid as string );
-					this._api.selectEntity( entity );
+					results.push( {
+						uuid: e.uuid,
+						name: e.name,
+						parentUuid: e.parent?.uuid ?? null,
+						components: Array.from( e.components.values() ).map(
+							c => c.constructor.name
+						),
+					} );
 
 				}
 
-				return { success: true };
+			} );
 
-			}
+			return results;
 
-			case 'addComponent': {
+		}
+
+		case 'getAvailableComponents': {
+
+			const list = Engine.resources?.componentList || [];
+
+			return list.map( ( item ) => ( {
+				name: item.name,
+				className: item.component.name,
+			} ) );
+
+		}
+
+		case 'getComponentDetail': {
+
+			const entity = this._findEntity( params.uuid as string );
+			const compClass = this._resolveComponentClass( params.componentName as string );
+			const comp = entity.getComponent( compClass );
+
+			if ( ! comp ) throw new Error( `Component ${params.componentName} not found` );
+
+			return {
+				uuid: comp.uuid,
+				name: comp.constructor.name,
+				fields: comp.serialize(),
+				fieldsDirectory: comp.serializeToDirectory(),
+			};
+
+		}
+
+		case 'createEntity': {
+
+			const parent = this._findEntity( params.parentUuid as string );
+			const created = this._api.createEntity( parent, params.name as string || 'New Entity' );
+			return { uuid: created.uuid, name: created.name };
+
+		}
+
+		case 'deleteEntity': {
+
+			const entity = this._findEntity( params.uuid as string );
+			this._api.deleteEntity( entity );
+			return { success: true };
+
+		}
+
+		case 'selectEntity': {
+
+			if ( ! params.uuid ) {
+
+				this._api.selectEntity( null );
+
+			} else {
 
 				const entity = this._findEntity( params.uuid as string );
-				const compClass = this._resolveComponentClass( params.componentName as string );
-				const comp = this._api.addComponent( entity, compClass );
-				return { uuid: comp.uuid, componentName: params.componentName };
+				this._api.selectEntity( entity );
 
 			}
 
-			case 'removeComponent': {
+			return { success: true };
 
-				const entity = this._findEntity( params.uuid as string );
-				const compClass = this._resolveComponentClass( params.componentName as string );
-				const comp = entity.getComponent( compClass );
+		}
 
-				if ( ! comp ) throw new Error( `Component ${params.componentName} not found on entity` );
+		case 'addComponent': {
 
-				this._api.removeComponent( entity, compClass, comp );
-				return { success: true };
+			const entity = this._findEntity( params.uuid as string );
+			const compClass = this._resolveComponentClass( params.componentName as string );
+			const comp = this._api.addComponent( entity, compClass );
+			return { uuid: comp.uuid, componentName: params.componentName };
 
-			}
+		}
 
-			case 'setField': {
+		case 'removeComponent': {
 
-				const target = this._findSerializable( params.targetUuid as string );
-				this._api.setField( target, params.path as string, params.value );
-				return { success: true };
+			const entity = this._findEntity( params.uuid as string );
+			const compClass = this._resolveComponentClass( params.componentName as string );
+			const comp = entity.getComponent( compClass );
 
-			}
+			if ( ! comp ) throw new Error( `Component ${params.componentName} not found on entity` );
 
-			case 'undo':
-				this._api.undo();
-				return { success: true, canUndo: this._api.canUndo, canRedo: this._api.canRedo };
+			this._api.removeComponent( entity, compClass, comp );
+			return { success: true };
 
-			case 'redo':
-				this._api.redo();
-				return { success: true, canUndo: this._api.canUndo, canRedo: this._api.canRedo };
+		}
+
+		case 'setField': {
+
+			const target = this._findSerializable( params.targetUuid as string );
+			this._api.setField( target, params.path as string, params.value );
+			return { success: true };
+
+		}
+
+		case 'undo':
+			this._api.undo();
+			return { success: true, canUndo: this._api.canUndo, canRedo: this._api.canRedo };
+
+		case 'redo':
+			this._api.redo();
+			return { success: true, canUndo: this._api.canUndo, canRedo: this._api.canRedo };
 
 			// --- リソース読み取り ---
 
-			case 'getResources': {
+		case 'getResources': {
 
-				return {
-					materials: Engine.resources.materialList.map( m => ( {
-						name: m.name,
-						config: m.serialize( { mode: "export" } ),
-					} ) ),
-					textures: Engine.resources.textureList.map( t => ( {
-						name: t.name,
-						config: t.serialize( { mode: "export" } ),
-					} ) ),
-					shaders: Engine.resources.shaderList.map( s => ( {
-						name: s.name,
-					} ) ),
-				};
+			return {
+				materials: Engine.resources.materialList.map( m => ( {
+					name: m.name,
+					config: m.serialize( { mode: "export" } ),
+				} ) ),
+				textures: Engine.resources.textureList.map( t => ( {
+					name: t.name,
+					config: t.serialize( { mode: "export" } ),
+				} ) ),
+				shaders: Engine.resources.shaderList.map( s => ( {
+					name: s.name,
+				} ) ),
+			};
 
-			}
+		}
 
-			// --- マテリアル操作 ---
+		// --- マテリアル操作 ---
 
-			case 'addMaterial': {
+		case 'addMaterial': {
 
-				const { name, config } = params as { name: string; config: any };
-				this._api.addMaterial( name, config || {} );
-				return { name };
+			const { name, config } = params as { name: string; config: any };
+			this._api.addMaterial( name, config || {} );
+			return { name };
 
-			}
+		}
 
-			case 'updateMaterial': {
+		case 'updateMaterial': {
 
-				const { name, config } = params as { name: string; config: any };
-				this._api.updateMaterial( name, config );
-				const resource = Engine.resources.getMaterial( name );
-				return { name, config: resource?.serialize( { mode: "export" } ) };
+			const { name, config } = params as { name: string; config: any };
+			this._api.updateMaterial( name, config );
+			const resource = Engine.resources.getMaterial( name );
+			return { name, config: resource?.serialize( { mode: "export" } ) };
 
-			}
+		}
 
-			case 'removeMaterial': {
+		case 'removeMaterial': {
 
-				const { name } = params as { name: string };
-				this._api.removeMaterial( name );
-				return { success: true };
+			const { name } = params as { name: string };
+			this._api.removeMaterial( name );
+			return { success: true };
 
-			}
+		}
 
-			case 'getMaterial': {
+		case 'getMaterial': {
 
-				const { name } = params as { name: string };
-				const resource = Engine.resources.getMaterial( name );
-				if ( ! resource ) throw new Error( `Material not found: ${name}` );
+			const { name } = params as { name: string };
+			const resource = Engine.resources.getMaterial( name );
+			if ( ! resource ) throw new Error( `Material not found: ${name}` );
 
-				return { name, config: resource.serialize( { mode: "export" } ) };
+			return { name, config: resource.serialize( { mode: "export" } ) };
 
-			}
+		}
 
-			// --- テクスチャ操作 ---
+		// --- テクスチャ操作 ---
 
-			case 'addTexture': {
+		case 'addTexture': {
 
-				const { name, config } = params as { name: string; config: any };
-				this._api.addTexture( name, config || {} );
-				return { name };
+			const { name, config } = params as { name: string; config: any };
+			this._api.addTexture( name, config || {} );
+			return { name };
 
-			}
+		}
 
-			case 'updateTexture': {
+		case 'updateTexture': {
 
-				const { name, config } = params as { name: string; config: any };
-				this._api.updateTexture( name, config );
-				const resource = Engine.resources.getTextureResource( name );
-				return { name, config: resource?.serialize( { mode: "export" } ) };
+			const { name, config } = params as { name: string; config: any };
+			this._api.updateTexture( name, config );
+			const resource = Engine.resources.getTextureResource( name );
+			return { name, config: resource?.serialize( { mode: "export" } ) };
 
-			}
+		}
 
-			case 'removeTexture': {
+		case 'removeTexture': {
 
-				const { name } = params as { name: string };
-				this._api.removeTexture( name );
-				return { success: true };
+			const { name } = params as { name: string };
+			this._api.removeTexture( name );
+			return { success: true };
 
-			}
+		}
 
-			case 'getTexture': {
+		case 'getTexture': {
 
-				const { name } = params as { name: string };
-				const resource = Engine.resources.getTextureResource( name );
-				if ( ! resource ) throw new Error( `Texture not found: ${name}` );
+			const { name } = params as { name: string };
+			const resource = Engine.resources.getTextureResource( name );
+			if ( ! resource ) throw new Error( `Texture not found: ${name}` );
 
-				return { name, config: resource.serialize( { mode: "export" } ) };
+			return { name, config: resource.serialize( { mode: "export" } ) };
 
-			}
+		}
 
-			// --- シェーダー通知 ---
+		// --- シェーダー通知 ---
 
-			case 'notifyShaderAdded': {
+		case 'notifyShaderAdded': {
 
-				Engine.resources.emit( "update" );
-				return { success: true };
+			Engine.resources.emit( "update" );
+			return { success: true };
 
-			}
+		}
 
-			case 'notifyShaderRemoved': {
+		case 'notifyShaderRemoved': {
 
-				Engine.resources.emit( "update" );
-				return { success: true };
+			Engine.resources.emit( "update" );
+			return { success: true };
 
-			}
+		}
 
-			case 'getShaderErrors': {
+		case 'getShaderErrors': {
 
-				const errors = Array.from( GLP.shaderErrors.entries() ).map( ( [ name, log ] ) => ( { name, log } ) );
-				return { errors };
+			const errors = Array.from( GLP.shaderErrors.entries() ).map( ( [ name, log ] ) => ( { name, log } ) );
+			return { errors };
 
-			}
+		}
 
-			default:
-				throw new Error( `Unknown action: ${action}` );
+		default:
+			throw new Error( `Unknown action: ${action}` );
 
 		}
 
@@ -557,6 +601,14 @@ export class EditorAPIBridge {
 	public dispose() {
 
 		this._disposed = true;
+
+		if ( this._syncTimer !== null ) {
+
+			clearTimeout( this._syncTimer );
+			this._syncTimer = null;
+
+		}
+
 		this._ws?.close();
 
 	}

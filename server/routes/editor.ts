@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import express from 'express';
 
 import { projectManager } from '../Project';
+import { SceneDataEditor } from '../SceneDataEditor';
 import { getWSBridge } from '../ws';
 
 export const editorRouter = express.Router();
@@ -144,6 +145,130 @@ async function persistResourceChange(
 
 }
 
+const WRITE_ACTIONS = new Set( [
+	'createEntity', 'deleteEntity', 'addComponent', 'removeComponent', 'setField',
+] );
+
+const BUILTIN_COMPONENTS = [
+	{ name: 'Light', className: 'Light' },
+	{ name: 'Camera', className: 'Camera' },
+	{ name: 'Mesh', className: 'Mesh' },
+];
+
+function getAvailableComponentsFromFiles(): { name: string; className: string }[] {
+
+	const componentsDir = path.resolve( __dirname, '../../src/ts/Resources/Components' );
+	const result: { name: string; className: string }[] = [ ...BUILTIN_COMPONENTS ];
+
+	function scan( dir: string ) {
+
+		if ( ! fs.existsSync( dir ) ) return;
+
+		const entries = fs.readdirSync( dir, { withFileTypes: true } )
+			.filter( e => e.isDirectory() && ! e.name.startsWith( '_' ) );
+
+		for ( const entry of entries ) {
+
+			const entryPath = path.join( dir, entry.name );
+			const hasIndex = fs.existsSync( path.join( entryPath, 'index.ts' ) );
+
+			if ( hasIndex ) {
+
+				result.push( { name: entry.name, className: entry.name } );
+
+			}
+
+			scan( entryPath );
+
+		}
+
+	}
+
+	scan( componentsDir );
+
+	return result;
+
+}
+
+function handleActionLocal(
+	projectName: string,
+	action: string,
+	params: Record<string, unknown>,
+): unknown {
+
+	const project = projectManager.getProject( projectName );
+	const sceneData = project.getSceneFileData();
+	const editor = new SceneDataEditor( sceneData );
+
+	let result: unknown;
+
+	switch ( action ) {
+
+	case 'getScene':
+		result = editor.getScene();
+		break;
+
+	case 'getEntity':
+		result = editor.getEntity( params.uuid as string );
+		break;
+
+	case 'searchEntities':
+		result = editor.searchEntities( params.query as string || '' );
+		break;
+
+	case 'createEntity':
+		result = editor.createEntity( params.parentUuid as string || '0', params.name as string || 'New Entity' );
+		break;
+
+	case 'deleteEntity':
+		editor.deleteEntity( params.uuid as string );
+		result = { success: true };
+		break;
+
+	case 'addComponent':
+		result = editor.addComponent( params.uuid as string, params.componentName as string );
+		break;
+
+	case 'removeComponent':
+		editor.removeComponent( params.uuid as string, params.componentName as string );
+		result = { success: true };
+		break;
+
+	case 'setField':
+		editor.setField( params.targetUuid as string, params.path as string, params.value );
+		result = { success: true };
+		break;
+
+	case 'getAvailableComponents':
+		result = getAvailableComponentsFromFiles();
+		break;
+
+	case 'getStatus':
+		result = { connected: false, canUndo: false, canRedo: false, selectedEntityId: null };
+		break;
+
+	case 'getShaderErrors':
+	case 'getComponentDetail':
+	case 'selectEntity':
+	case 'undo':
+	case 'redo':
+		throw new Error( `Action '${action}' requires browser connection` );
+
+	default:
+		throw new Error( `Unknown action: ${action}` );
+
+	}
+
+	if ( WRITE_ACTIONS.has( action ) ) {
+
+		project.incrementRevision();
+
+	}
+
+	return result;
+
+}
+
 async function handleActionInternal(
 	projectName: string,
 	action: string,
@@ -152,27 +277,27 @@ async function handleActionInternal(
 
 	const bridge = getWSBridge();
 
-	if ( ! bridge || ! bridge.isProjectConnected( projectName ) ) {
+	if ( bridge && bridge.isProjectConnected( projectName ) ) {
 
-		throw new Error( 'Browser not connected' );
+		const result = await bridge.send( projectName, action, params );
+
+		if ( ! result.success ) {
+
+			throw new Error( result.error );
+
+		}
+
+		if ( RESOURCE_MUTATING_ACTIONS.has( action ) ) {
+
+			await persistResourceChange( action, params, result.data );
+
+		}
+
+		return result.data;
 
 	}
 
-	const result = await bridge.send( projectName, action, params );
-
-	if ( ! result.success ) {
-
-		throw new Error( result.error );
-
-	}
-
-	if ( RESOURCE_MUTATING_ACTIONS.has( action ) ) {
-
-		await persistResourceChange( action, params, result.data );
-
-	}
-
-	return result.data;
+	return handleActionLocal( projectName, action, params );
 
 }
 
@@ -191,12 +316,14 @@ async function handleAction(
 	} catch ( err: any ) {
 
 		const message = err.message || String( err );
-		const isConnectionError = message === 'Timeout' || message === 'Browser not connected';
+		const requiresBrowser = message.includes( 'requires browser connection' );
+		const isTimeout = message === 'Timeout';
+		const status = ( requiresBrowser || isTimeout ) ? 503 : 400;
 		const body: Record<string, string> = { error: message };
 
-		if ( isConnectionError ) body.hint = '対象プロジェクトをブラウザで開いてください';
+		if ( requiresBrowser ) body.hint = '対象プロジェクトをブラウザで開いてください';
 
-		res.status( 503 ).json( body );
+		res.status( status ).json( body );
 
 	}
 
@@ -401,7 +528,8 @@ function computeLookAtEuler(
 	zx /= zLen; zy /= zLen; zz /= zLen;
 
 	// xAxis = normalize(up × zAxis), up = (0,1,0)
-	let xx = zz, xy = 0, xz = - zx;
+	let xx = zz, xz = - zx;
+	const xy = 0;
 	const xLen = Math.sqrt( xx * xx + xz * xz ) || 1;
 	xx /= xLen; xz /= xLen;
 
