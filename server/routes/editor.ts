@@ -13,12 +13,6 @@ const __dirname = path.dirname( fileURLToPath( import.meta.url ) );
 const MATERIALS_DIR = path.resolve( __dirname, '../../src/ts/Resources/Materials' );
 const TEXTURES_DIR = path.resolve( __dirname, '../../src/ts/Resources/Textures' );
 
-const MUTATING_ACTIONS = new Set( [
-	'createEntity', 'deleteEntity',
-	'addComponent', 'removeComponent',
-	'setField',
-] );
-
 const RESOURCE_MUTATING_ACTIONS = new Set( [
 	'addMaterial', 'updateMaterial', 'removeMaterial',
 	'addTexture', 'updateTexture', 'removeTexture',
@@ -157,68 +151,28 @@ async function handleActionInternal(
 ): Promise<any> {
 
 	const bridge = getWSBridge();
-	const browserConnected = bridge && bridge.isProjectConnected( projectName );
 
-	if ( browserConnected ) {
+	if ( ! bridge || ! bridge.isProjectConnected( projectName ) ) {
 
-		const result = await bridge!.send( projectName, action, params );
-
-		if ( ! result.success ) {
-
-			throw new Error( result.error );
-
-		}
-
-		if ( RESOURCE_MUTATING_ACTIONS.has( action ) ) {
-
-			await persistResourceChange( action, params, result.data );
-
-		}
-
-		return result.data;
-
-	} else {
-
-		const project = projectManager.getProject( projectName );
-
-		if ( RESOURCE_MUTATING_ACTIONS.has( action ) ) {
-
-			await persistResourceChange( action, params, params );
-			project.markDirty();
-			return { success: true };
-
-		} else if ( MUTATING_ACTIONS.has( action ) ) {
-
-			const data = project.dispatch( action, params );
-			project.markDirty();
-			return data;
-
-		} else {
-
-			return project.dispatch( action, params );
-
-		}
+		throw new Error( 'Browser not connected' );
 
 	}
 
-}
+	const result = await bridge.send( projectName, action, params );
 
-async function syncFromBrowser( projectName: string ) {
+	if ( ! result.success ) {
 
-	const bridge = getWSBridge();
-
-	if ( bridge && bridge.isProjectConnected( projectName ) ) {
-
-		const project = projectManager.getProject( projectName );
-		const snapshot = await bridge.requestSync( projectName );
-
-		if ( snapshot ) {
-
-			project.syncFromBrowser( snapshot );
-
-		}
+		throw new Error( result.error );
 
 	}
+
+	if ( RESOURCE_MUTATING_ACTIONS.has( action ) ) {
+
+		await persistResourceChange( action, params, result.data );
+
+	}
+
+	return result.data;
 
 }
 
@@ -232,18 +186,11 @@ async function handleAction(
 	try {
 
 		const data = await handleActionInternal( projectName, action, params );
-
-		if ( MUTATING_ACTIONS.has( action ) ) {
-
-			await syncFromBrowser( projectName );
-
-		}
-
 		res.json( data );
 
 	} catch ( err: any ) {
 
-		res.status( 400 ).json( { error: err.message || String( err ) } );
+		res.status( 503 ).json( { error: err.message || String( err ) } );
 
 	}
 
@@ -514,8 +461,6 @@ editorRouter.post( '/projects/:projectName/editor/entity/:uuid/lookAt', async ( 
 			value: euler,
 		} );
 
-		await syncFromBrowser( projectName );
-
 		res.json( { success: true, euler, lightCorrected: !! hasLight } );
 
 	} catch ( err: any ) {
@@ -746,8 +691,6 @@ editorRouter.post( '/projects/:projectName/editor/entities', async ( req, res ) 
 
 		}
 
-		await syncFromBrowser( projectName );
-
 		res.json( { entities: results } );
 
 	} catch ( err: any ) {
@@ -779,8 +722,6 @@ editorRouter.post( '/projects/:projectName/editor/fields', async ( req, res ) =>
 			await handleActionInternal( projectName, 'setField', field );
 
 		}
-
-		await syncFromBrowser( projectName );
 
 		res.json( { success: true, count: fields.length } );
 

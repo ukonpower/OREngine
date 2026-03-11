@@ -1,7 +1,5 @@
 import { WebSocketServer, WebSocket } from 'ws';
 
-import { projectManager } from '../Project';
-
 import type { Server } from 'http';
 
 export type BridgeRequest = {
@@ -40,7 +38,6 @@ class EditorWSBridge {
 				if ( msg.type === 'register' && msg.projectName ) {
 
 					this._clients.set( ws, msg.projectName );
-					this._pushDirtyState( ws, msg.projectName );
 					return;
 
 				}
@@ -185,32 +182,6 @@ class EditorWSBridge {
 	isProjectConnected( projectName: string ): boolean {
 
 		return this._findClient( projectName ) !== null;
-
-	}
-
-	private _pushDirtyState( ws: WebSocket, projectName: string ) {
-
-		try {
-
-			const project = projectManager.getProject( projectName );
-
-			if ( ! project.dirty ) return;
-
-			const payload: any = {
-				type: 'statePush',
-			};
-
-			payload.sceneData = project.getSceneFileData();
-			payload.resources = project.getResourcesSnapshot();
-
-			ws.send( JSON.stringify( payload ) );
-			project.clearDirty();
-
-		} catch ( err ) {
-
-			console.error( 'Failed to push dirty state:', err );
-
-		}
 
 	}
 
