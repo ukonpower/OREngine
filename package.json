@@ -6,7 +6,7 @@
   "scripts": {
     "init": "git submodule init && git submodule update && npm install",
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:vite\"",
-    "dev:server": "tsx server/index.ts",
+    "dev:server": "tsx watch server/index.ts",
     "dev:vite": "vite",
     "build": "vite build --config vite-player.config.ts && node compeko.js ./dist/default/index.js ./dist/default/index.html",
     "build:project": "vite build --config vite-player.config.ts",
