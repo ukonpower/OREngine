@@ -1,3 +1,4 @@
+import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
 import { Engine } from '../../Engine';
@@ -443,6 +444,13 @@ export class EditorAPIBridge {
 
 				Engine.resources.emit( "update" );
 				return { success: true };
+
+			}
+
+			case 'getShaderErrors': {
+
+				const errors = Array.from( GLP.shaderErrors.entries() ).map( ( [ name, log ] ) => ( { name, log } ) );
+				return { errors };
 
 			}
 

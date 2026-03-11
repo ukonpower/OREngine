@@ -76,6 +76,8 @@ POST /projects/:p/editor/fields
 
 ## バッチ エンティティ作成
 
+> ⚠️ コンポーネント指定は **`componentName`** を使うこと。`name` は無効（silent失敗）。
+
 ```
 POST /projects/:p/editor/entities
 {
@@ -114,6 +116,19 @@ POST /projects/:p/editor/entities
 | メソッド | パス | 説明 | ボディ |
 |---------|------|------|--------|
 | POST | `/projects/:p/editor/entity/:uuid/lookAt` | エンティティを指定座標に向ける | `{ "target": [x, y, z] }` |
+
+## シェーダーエラー確認
+
+```
+GET /projects/:p/editor/shader-errors
+```
+
+レスポンス例:
+```json
+{ "errors": [ { "name": "MyShader", "log": "ERROR: 0:15: 'outPos'..." } ] }
+```
+
+`errors` が空配列なら問題なし。
 
 ## 保存・Undo/Redo
 

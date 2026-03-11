@@ -126,6 +126,12 @@ src/ts/Resources/Shaders/{ShaderName}/
 - **フィールド設定のtargetUuidはコンポーネントUUID**（エンティティUUIDではない）
 - **コンポーネント作成後は `npm run typecheck` で型チェックを実行する**
 - **同じAPIが3回失敗したら `references/troubleshooting.md` を確認する**
+- **プロジェクトが複数存在する場合は、操作対象をユーザーに確認してから進める**（`check-server.sh` の Browser Connection 欄で接続中プロジェクトを確認できる）
+- **Meshコンポーネントを持つエンティティを作成・シェーダーを編集したら、必ずシェーダーエラーを確認する**
+  ```bash
+  curl -s http://localhost:3001/api/projects/{PROJECT}/editor/shader-errors | python3 -m json.tool
+  ```
+  `errors` 配列が空でない場合はシェーダーを修正してから次の作業へ進む。
 
 ## References
 
