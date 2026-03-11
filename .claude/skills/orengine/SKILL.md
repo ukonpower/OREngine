@@ -96,9 +96,9 @@ curl -s -X POST http://localhost:3001/api/projects/{PROJECT}/editor/camera/posit
   -H "Content-Type: application/json" \
   -d '{"eye": {"x": 5, "y": 3, "z": 5}, "target": {"x": 0, "y": 0, "z": 0}}'
 
-# 3. スクリーンショット取得（JPEG推奨: サイズが小さい）
-curl -s "http://localhost:3001/api/projects/{PROJECT}/editor/screenshot?format=jpeg&quality=0.7" \
-  | python3 -c "import sys,json,base64; d=json.load(sys.stdin); open('/tmp/orengine_screenshot.jpg','wb').write(base64.b64decode(d['image'].split(',')[1]))"
+# 3. スクリーンショット取得（APIが直接画像バイナリを返す。JPEG推奨: サイズが小さい）
+curl -s -o /tmp/orengine_screenshot.jpg "http://localhost:3001/api/projects/{PROJECT}/editor/screenshot?format=jpeg&quality=0.7"
+# PNG: curl -s -o /tmp/orengine_screenshot.png "http://localhost:3001/api/projects/{PROJECT}/editor/screenshot"
 
 # 4. スクリーンショットをReadツールで確認
 # → Read /tmp/orengine_screenshot.jpg
