@@ -262,20 +262,22 @@ export class SceneDataEditor {
 
 	private _setEntityField( entity: SceneDataEntity, fieldPath: string, value: unknown ): void {
 
-		const arr = this._toArray( value );
-
 		switch ( fieldPath ) {
 
+		case 'name':
+			entity.name = String( value );
+			break;
+
 		case 'position':
-			entity.pos = arr;
+			entity.pos = this._toArray( value );
 			break;
 
 		case 'euler':
-			entity.rot = arr;
+			entity.rot = this._toArray( value );
 			break;
 
 		case 'scale':
-			entity.scale = arr;
+			entity.scale = this._toArray( value );
 			break;
 
 		default:

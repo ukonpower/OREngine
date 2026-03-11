@@ -9,20 +9,29 @@
 2. 起動完了まで待つ（通常数秒）
 3. `curl -sf http://localhost:3001/api/projects` で接続確認
 
-## ブラウザ未接続時の制限
+## ブラウザ未接続時の動作
 
-エディタがブラウザで開かれていない場合、一部機能に制限がある:
+ブラウザ未接続時はサーバー側のSceneDataEditorがフォールバック処理する。
+ブラウザを再接続すると、サーバー側の変更がフルリロードでブラウザに反映される。
 
 | 機能 | ブラウザ接続時 | ブラウザ未接続時 |
 |------|-------------|---------------|
-| エンティティCRUD | OK | OK（scene.json直接操作） |
-| フィールド設定 | OK | OK（scene.json直接操作） |
-| バッチ操作 | OK | OK（scene.json直接操作） |
-| マテリアル/テクスチャ作成（Editor経由） | OK | 制限あり |
-| Undo/Redo | OK | 不可 |
-| Save | OK（ブラウザ同期後保存） | OK（scene.json直接保存） |
+| シーンツリー取得 | OK | OK |
+| エンティティCRUD | OK | OK |
+| コンポーネント追加/削除 | OK | OK |
+| フィールド設定（position/euler/scale/name） | OK | OK |
+| コンポーネントフィールド設定（props） | OK | OK |
+| バッチ操作（entities/fields） | OK | OK |
+| コンポーネント一覧（built-in含む） | OK | OK |
+| エンティティ名検索 | OK | OK |
+| Save | OK | OK |
+| コンポーネント詳細（fieldsDirectory） | OK | **503**（ランタイム必要） |
+| シェーダーエラー確認 | OK | **503**（GPU必要） |
+| Undo/Redo | OK | **503** |
+| エンティティ選択 | OK | **503** |
+| Editor経由リソース操作（materials/textures） | OK | **503**（将来対応予定） |
 
-**対処**: シーン操作の基本機能はブラウザなしでも動作する。マテリアル管理が必要な場合はブラウザでエディタを開く。
+**対処**: シーン操作の基本機能はブラウザなしでも動作する。コンポーネント詳細やシェーダーエラー確認が必要な場合はブラウザでエディタを開く。
 
 ## UUID不正
 
@@ -51,7 +60,7 @@
 **症状**: フィールド設定が反映されない
 
 **対処**:
-1. `GET /api/projects/:p/editor/entity/:uuid/component/:name` でコンポーネントの `fieldsDirectory` を確認
+1. `GET /api/projects/:p/editor/entity/:uuid/component/:name` でコンポーネントの `fieldsDirectory` を確認（ブラウザ接続時のみ）
 2. `path` はフィールドのキーと完全一致が必要（例: `"geometry/type"` であって `"geometryType"` ではない）
 3. 値の型を確認（number[3] が必要なフィールドに string を渡していないか等）
 
@@ -71,7 +80,7 @@
 **対処**:
 1. importパスが正しいか確認（`glpower`, `maxpower`, `orengine`のエイリアスを使用）
 2. `ComponentParams` 型を使用しているか確認
-3. `componentList.ts` のインポートパスが正しいか確認
+3. `componentList.ts` は自動生成されるため手動編集しないこと
 
 ## Stop Conditions
 
