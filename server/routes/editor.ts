@@ -254,6 +254,13 @@ function handleActionLocal(
 	case 'selectEntity':
 	case 'undo':
 	case 'redo':
+	case 'timelinePlay':
+	case 'timelineStop':
+	case 'timelineSeek':
+	case 'getTimelineStatus':
+	case 'captureScreenshot':
+	case 'setCameraPosition':
+	case 'getCameraPosition':
 		throw new Error( `Action '${action}' requires browser connection` );
 
 	default:
@@ -894,5 +901,59 @@ editorRouter.get( '/projects/:projectName/editor/console-errors', ( req, res ) =
 editorRouter.post( '/projects/:projectName/editor/console-errors/clear', ( req, res ) => {
 
 	handleAction( req.params.projectName, 'clearConsoleErrors', {}, res );
+
+} );
+
+// --- タイムライン制御 ---
+
+editorRouter.post( '/projects/:projectName/editor/timeline/play', ( req, res ) => {
+
+	handleAction( req.params.projectName, 'timelinePlay', {}, res );
+
+} );
+
+editorRouter.post( '/projects/:projectName/editor/timeline/stop', ( req, res ) => {
+
+	handleAction( req.params.projectName, 'timelineStop', {}, res );
+
+} );
+
+editorRouter.post( '/projects/:projectName/editor/timeline/seek', ( req, res ) => {
+
+	handleAction( req.params.projectName, 'timelineSeek', { frame: req.body.frame }, res );
+
+} );
+
+editorRouter.get( '/projects/:projectName/editor/timeline/status', ( req, res ) => {
+
+	handleAction( req.params.projectName, 'getTimelineStatus', {}, res );
+
+} );
+
+// --- スクリーンショット ---
+
+editorRouter.get( '/projects/:projectName/editor/screenshot', ( req, res ) => {
+
+	handleAction( req.params.projectName, 'captureScreenshot', {
+		format: req.query.format,
+		quality: req.query.quality ? parseFloat( req.query.quality as string ) : undefined,
+	}, res );
+
+} );
+
+// --- カメラ制御 ---
+
+editorRouter.get( '/projects/:projectName/editor/camera/position', ( req, res ) => {
+
+	handleAction( req.params.projectName, 'getCameraPosition', {}, res );
+
+} );
+
+editorRouter.post( '/projects/:projectName/editor/camera/position', ( req, res ) => {
+
+	handleAction( req.params.projectName, 'setCameraPosition', {
+		eye: req.body.eye,
+		target: req.body.target,
+	}, res );
 
 } );
