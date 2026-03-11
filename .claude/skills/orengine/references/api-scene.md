@@ -2,6 +2,9 @@
 
 ベースURL: `http://localhost:3001/api`
 
+> **オフライン対応**: シーン読み取り・エンティティCRUD・コンポーネント操作・フィールド設定・保存はブラウザ未接続時もサーバー単独で動作する。
+> コンポーネント詳細（`fieldsDirectory`）、シェーダーエラー確認、Undo/Redo、エンティティ選択はブラウザ接続が必要（503を返す）。
+
 ## プロジェクト管理
 
 | メソッド | パス | 説明 | ボディ |
@@ -20,8 +23,8 @@
 | GET | `/projects/:p/editor/entity/:uuid` | エンティティ詳細（コンポーネントfields含む） |
 | GET | `/projects/:p/editor/search?q=name` | エンティティ名検索 |
 | GET | `/projects/:p/editor/components` | 利用可能コンポーネント一覧（シーン内） |
-| GET | `/projects/:p/editor/entity/:uuid/component/:name` | コンポーネント詳細（fieldsDirectory含む） |
-| GET | `/projects/:p/editor/status` | ステータス（接続状態等） |
+| GET | `/projects/:p/editor/entity/:uuid/component/:name` | コンポーネント詳細（fieldsDirectory含む）⚠️ ブラウザ接続時のみ |
+| GET | `/projects/:p/editor/status` | ステータス（接続状態等）。`connected: false` ならブラウザ未接続 |
 | GET | `/projects/:p/editor/resources` | リソース一覧（マテリアル・テクスチャ） |
 
 ## エンティティ操作

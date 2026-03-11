@@ -112,7 +112,7 @@ src/ts/Resources/Shaders/{ShaderName}/
 
 **手順:**
 1. `src/ts/Resources/Components/{Category}/{Name}/index.ts` にコンポーネントクラスを実装
-2. `src/ts/Resources/_data/componentList.ts` にクラスを登録
+   - `componentList.ts` への手動登録は不要（Viteプラグインが自動生成する）
 
 開発パターンの詳細は `references/component-development.md` を参照。
 
