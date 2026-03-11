@@ -370,6 +370,12 @@ export class Editor extends MXP.Serializable {
 
 	}
 
+	public get editorCamera() {
+
+		return this._editorCamera;
+
+	}
+
 	/*-------------------------------
 		Animate
 	-------------------------------*/

@@ -5,7 +5,7 @@ import * as GLP from 'glpower';
 -------------------------------*/
 
 export const canvas = document.createElement( "canvas" );
-export const gl = canvas.getContext( 'webgl2', { antialias: false } )!;
+export const gl = canvas.getContext( 'webgl2', { antialias: false, preserveDrawingBuffer: true } )!;
 export const power = new GLP.Power( gl );
 
 /*-------------------------------

@@ -512,6 +512,78 @@ export class EditorAPIBridge {
 
 		}
 
+		// --- タイムライン制御 ---
+
+		case 'timelinePlay': {
+
+			this._engine.play();
+			return { success: true };
+
+		}
+
+		case 'timelineStop': {
+
+			this._engine.stop();
+			return { success: true };
+
+		}
+
+		case 'timelineSeek': {
+
+			this._engine.seek( params.frame as number );
+			return { frame: params.frame };
+
+		}
+
+		case 'getTimelineStatus': {
+
+			return {
+				playing: this._engine.frame.playing,
+				currentFrame: this._engine.frame.current,
+				duration: this._engine.frameSetting.duration,
+				fps: this._engine.frameSetting.fps,
+			};
+
+		}
+
+		// --- カメラ制御 ---
+
+		case 'setCameraPosition': {
+
+			const eye = params.eye as { x: number; y: number; z: number };
+			const target = params.target as { x: number; y: number; z: number };
+			const orbitControls = this._editor.editorCamera.orbitControls;
+			orbitControls.setPosition(
+				new GLP.Vector( eye.x, eye.y, eye.z ),
+				new GLP.Vector( target.x, target.y, target.z )
+			);
+			return { success: true };
+
+		}
+
+		case 'getCameraPosition': {
+
+			const orbitControls = this._editor.editorCamera.orbitControls;
+			return {
+				eye: { x: orbitControls.eye.x, y: orbitControls.eye.y, z: orbitControls.eye.z },
+				target: { x: orbitControls.target.x, y: orbitControls.target.y, z: orbitControls.target.z },
+			};
+
+		}
+
+		// --- スクリーンショット ---
+
+		case 'captureScreenshot': {
+
+			const canvas = this._engine.canvas as HTMLCanvasElement;
+			const format = ( params.format as string ) || 'png';
+			const quality = ( params.quality as number ) || 0.9;
+			const mimeType = format === 'jpeg' ? 'image/jpeg' : 'image/png';
+			const dataUrl = canvas.toDataURL( mimeType, quality );
+			return { image: dataUrl, width: canvas.width, height: canvas.height, format };
+
+		}
+
 		default:
 			throw new Error( `Unknown action: ${action}` );
 
