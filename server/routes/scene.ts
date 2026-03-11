@@ -91,22 +91,11 @@ sceneRouter.get( '/projects/:name/scene', ( req, res ) => {
 	try {
 
 		const project = projectManager.getProject( req.params.name );
-		const sceneData = project.getSceneFileData();
-		res.json( sceneData );
+		res.json( project.getSceneFileData() );
 
-	} catch {
+	} catch ( err: any ) {
 
-		// ProjectManager に無い場合はファイルから読む（フォールバック）
-		const projectDir = resolveProjectDir( req.params.name );
-
-		if ( !projectDir ) {
-
-			res.status( 400 ).json( { error: 'Invalid project name' } );
-			return;
-
-		}
-
-		readJsonFile( path.join( projectDir, 'scene.json' ), res );
+		res.status( 500 ).json( { error: err.message || 'Failed to get scene' } );
 
 	}
 

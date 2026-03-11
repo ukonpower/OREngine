@@ -1,84 +1,131 @@
-# Research: スクリプト生成Meshのgeometry/materialフィールド編集制御
+# Research: ブラウザ未接続時のフォールバック削除・ブラウザ前提シンプル化
 
 ## タスク概要
+現在、ブラウザが未接続の場合にサーバーがAPIリクエストをフォールバック処理しているロジックをすべて削除し、「ブラウザが繋がっている前提」でシンプルに実装する。ブラウザが繋がっていない場合はエラーを返す。
 
-- スクリプト（Componentコード）から追加されたMeshのgeometry/materialフィールドはエディタで編集不可にしたい
-- ユーザーがエディタから手動追加したMeshのgeometry/materialフィールドはエディタで編集可にしたい
+---
 
 ## 関連ファイル・シンボル
 
 | ファイル | 主要シンボル | 役割 |
 |---------|------------|------|
-| `packages/maxpower/Serializable/index.ts` | `Serializable`, `SerializableFieldOpt`, `fieldDir()` | フィールド定義の基底。`hidden` オプションで表示/非表示を制御 |
-| `packages/maxpower/Component/Mesh/index.ts` | `Mesh` | geometry/materialフィールドを `fieldDir()` で定義 |
-| `packages/orengine/tsx/components/Panels/EntityProperty/ComponentView/index.tsx` | `ComponentView`, `disableEdit` | `component.initiator !== "user"` で `data-disable_component` を設定（CSS opacity 0.5のみ） |
-| `packages/orengine/tsx/components/SerializeFieldView/SerializeFieldViewDir/index.tsx` | `SerializeFieldViewDir` | `opt.hidden` を評価してフィールドの表示/非表示を決定 |
-| `packages/orengine/ts/Editor/Commands/AddComponentCommand/index.ts` | `AddComponentCommand` | エディタからのコンポーネント追加時に `initiator = "user"` をセット |
+| `server/routes/editor.ts` | `handleActionInternal`, `handleAction`, `syncFromBrowser`, `MUTATING_ACTIONS`, `RESOURCE_MUTATING_ACTIONS`, `persistResourceChange` | 主たる変更対象。ブラウザ未接続フォールバック処理がここに集中している |
+| `server/ws/index.ts` | `EditorWSBridge`, `_pushDirtyState`, `requestSync`, `send`, `executeAction` | WebSocketブリッジ。`_pushDirtyState` は dirty 状態をブラウザへ push する（フォールバック不要になれば削除対象） |
+| `server/Project/ProjectData/index.ts` | `ProjectData`, `dispatch()`, `_entityStore`, `dirty/markDirty/clearDirty`, `getResourcesSnapshot()` | サーバーサイドのフォールバック実装の中核。`dispatch()` と EntityStore、dirty 管理が削除対象 |
+| `server/Project/EntityStore/index.ts` | `EntityStore` | サーバーサイドのシーン操作実装（`dispatch()` からのみ使用）→ **削除対象** |
+| `server/Project/EntityStore/EntityStore.test.ts` | - | EntityStore のテスト → **削除対象** |
+| `server/Project/index.ts` | `ProjectManager` | ProjectData を管理。`getProject()` は save/scene.ts からも使用。ほぼそのまま |
+| `server/routes/scene.ts` | `sceneRouter.get('/projects/:name/scene')` | `try/catch` でフォールバックしてファイル読み取り → 簡略化可能 |
 
-## initiator の仕組み
+---
 
-- `Serializable` のデフォルト: `this.initiator = 'script'`
-- エディタから追加: `AddComponentCommand.execute()` で `this.instance.initiator = "user"`
-- スクリプトから追加: initiator は "script" のまま（デフォルト）
-- God系（Gizmo/Helper）: `initiator = "god"`
+## 現状の処理フロー
 
-## 現状の編集制御
+### `handleActionInternal` (editor.ts)
+```
+ブラウザ接続あり → bridge.send() でブラウザへ委譲
+                  → RESOURCE_MUTATING_ACTIONS なら persistResourceChange() でファイル保存
 
-```tsx
-// ComponentView/index.tsx
-const disableEdit = component.initiator !== "user";
-// → data-disable_component="true" で CSS opacity: 0.5 を適用するだけ
-// → 実際にフィールドの編集は防げていない（入力は操作可能）
+ブラウザ接続なし → projectManager.dispatch() でサーバーサイド処理  ← 削除対象
+                  → RESOURCE_MUTATING_ACTIONS なら persistResourceChange() + markDirty()  ← 削除対象
+                  → MUTATING_ACTIONS なら project.dispatch() + markDirty()  ← 削除対象
+                  → それ以外は project.dispatch()  ← 削除対象
 ```
 
-`SerializeFieldView` / `SerializeFieldViewValue` には `readOnly` の概念は伝わっていない。
+### `_pushDirtyState` (ws/index.ts)
+```
+ブラウザ再接続時 → project.dirty をチェック → dirty ならシーンデータをブラウザへ push
+```
+フォールバックがなければ dirty になることがないため、この関数は不要。
 
-## fieldDir の hidden オプション
+### `syncFromBrowser` (editor.ts の関数)
+```
+MUTATING_ACTIONS 後に呼ばれる → bridge.requestSync() でブラウザから最新状態を取得
+                                → project.syncFromBrowser(snapshot) でサーバーのメモリ状態を更新
+```
+`save` エンドポイントがすでに save 前に `requestSync()` しているため、各変更後の sync は不要。
 
-```typescript
-// Serializable/index.ts
-public fieldDir( name:string, opt?: SerializableFieldOpt ) {
-    this.field( dir + "/", () => null, undefined, { ...opt, isFolder: true } );
-    // → フォルダ自体の opt (hidden 含む) が serializeToDirectory() で保持される
-    ...
-}
+---
+
+## 削除対象
+
+### 完全削除
+- `server/Project/EntityStore/index.ts` ── `dispatch()` からしか使われない
+- `server/Project/EntityStore/EntityStore.test.ts` ── テスト
+
+### `server/routes/editor.ts` から削除
+- `MUTATING_ACTIONS` セット（使用箇所: フォールバック + syncFromBrowser 呼び出し）
+- `syncFromBrowser()` 関数（`handleAction` 内での呼び出しも含む）
+- `handleActionInternal` の `else`（未接続）ブランチ全体
+
+### `server/Project/ProjectData/index.ts` から削除
+- `_entityStore: EntityStore` フィールドと `EntityStore` インポート
+- `dispatch()` メソッド全体
+- `_getAvailableComponents()` メソッド
+- `_scanComponents()` メソッド
+- `dirty/markDirty/clearDirty()` （dirty 状態管理）
+- `getResourcesSnapshot()` メソッド（`_pushDirtyState` からのみ使用）
+- `_readMaterialFiles()`, `_readTextureFiles()` メソッド
+
+### `server/ws/index.ts` から削除
+- `_pushDirtyState()` メソッドと connection 時の呼び出し
+
+### `server/routes/scene.ts` の簡略化
+- `sceneRouter.get('/projects/:name/scene')` の `try/catch` フォールバック削除
+  - `projectManager.getProject()` で `getSceneFileData()` を呼ぶシンプルな形に
+
+---
+
+## 残すもの（変更後も必要）
+
+| 場所 | 残す理由 |
+|------|---------|
+| `ProjectData.save()` + `_writeSceneFile()` | saveエンドポイントがファイル保存に使用 |
+| `ProjectData.syncFromBrowser(sceneData)` + `_sceneData` | saveエンドポイントがブラウザからsync後に保存 |
+| `ProjectData.getSceneFileData()` + `_readSceneFile()` | scene.ts GET エンドポイントが使用 |
+| `ProjectData._ensureLoaded()` | getSceneFileData() から使用 |
+| `persistResourceChange()` | ブラウザ接続時も resource mutation でファイル保存が必要 |
+| `RESOURCE_MUTATING_ACTIONS` | persistResourceChange() の条件判定に使用 |
+| `EditorWSBridge.send()`, `requestSync()`, `executeAction()` | 全て引き続き使用 |
+| `ProjectManager` | save/scene endpoints から使用 |
+
+---
+
+## 変更後のシンプルなフロー
+
+```
+API リクエスト
+  ↓
+bridge.send(projectName, action, params)
+  ↓
+ブラウザ未接続 → 503 "Browser not connected" エラー
+ブラウザ接続中 → ブラウザが処理 → 結果を返す
+  ↓ (RESOURCE_MUTATING_ACTIONS の場合)
+persistResourceChange() でファイルに保存
+  ↓
+res.json(result)
 ```
 
-`SerializeFieldViewDir` は各フィールド（フォルダ含む）の `opt.hidden` を評価し、`true` ならそのエントリをスキップ（描画しない）。
-
-`hidden` には関数 `(value) => boolean` を渡せるため、**実行時に `this.initiator` を参照して動的に制御できる**。
-
-## 実装方針
-
-`Mesh/index.ts` の `fieldDir` 呼び出しに `hidden` オプションを追加する:
-
-```typescript
-const geo = this.fieldDir( "geometry", {
-    hidden: () => this.initiator !== "user"
-} );
-
-const mat = this.fieldDir( "material", {
-    hidden: () => this.initiator !== "user"
-} );
-```
-
-- `initiator` が `"user"` でない場合（= スクリプト由来）→ geometry/material フォルダごと非表示
-- `initiator` が `"user"` の場合（= エディタ追加）→ 通常表示
-
-## 依存関係
-
-- `Mesh` → `fieldDir()` → `Serializable.field()` でフォルダのoptを格納
-- `serializeToDirectory()` → フォルダの opt を子ノードに付与
-- `SerializeFieldViewDir` → `opt.hidden` を評価してスキップ
+---
 
 ## 制約・注意点
 
-- `hidden` 関数はレンダリングのたびに評価される。構築時ではなく実行時に `this.initiator` を参照するため、コンストラクタ完了後に `initiator` が `"user"` へ変更されても正しく動作する
-- 変更対象は `packages/maxpower/Component/Mesh/index.ts` のみ（最小変更）
-- geometry/material フォルダ全体が非表示になる（子フィールドも含む）
-- `fieldDir` の2つ目引数 `opt` は既存コードで使われていない → 安全に追加可能
+1. `EntityStore.test.ts` を削除する場合、テストランナーが壊れないか確認
+2. `ProjectData` から `dispatch()` を削除すると、`getAvailableComponents` アクションも消える。これはブラウザ側の `getAvailableComponents` 実装が担うことになる（ブラウザ前提なので問題なし）
+3. `RESOURCE_MUTATING_ACTIONS` による `persistResourceChange` は**ブラウザ接続時でも必要**（ブラウザが material/texture を操作した後、サーバーのファイルにも保存する必要がある）
+4. `scene.ts` POST エンドポイントも `project.syncFromBrowser()` を呼んでいるが、これは file save を伴うエンドポイントのため残す
+
+---
 
 ## 参考になる既存実装
 
-- `geo.field("width", ..., { hidden: () => this._geometryType !== "Cube" && ... })` → 既存の条件付き hidden の使用例
-- `SerializeFieldViewDir/index.tsx` L25-37: hidden の評価ロジック
+- `editorRouter.post('/editor/undo')`, `('/editor/redo')` — すでに「ブラウザ接続前提、未接続ならエラー」のシンプル実装になっている：
+  ```ts
+  if (bridge && bridge.connected) {
+      bridge.executeAction(...);
+      res.json({ success: true });
+  } else {
+      res.status(400).json({ error: 'Undo requires browser connection' });
+  }
+  ```
+  これを全アクションに統一するイメージ。
