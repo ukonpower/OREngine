@@ -2,6 +2,7 @@ import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
 import { Engine } from '../../Engine';
+import { capturedLogs, clearCapturedLogs } from '../../Engine/ConsoleCapture';
 
 import type { Editor } from '..';
 import type { EditorAPI } from '../EditorAPI';
@@ -495,6 +496,19 @@ export class EditorAPIBridge {
 
 			const errors = Array.from( GLP.shaderErrors.entries() ).map( ( [ name, log ] ) => ( { name, log } ) );
 			return { errors };
+
+		}
+
+		case 'getConsoleErrors': {
+
+			return { errors: [ ...capturedLogs ] };
+
+		}
+
+		case 'clearConsoleErrors': {
+
+			clearCapturedLogs();
+			return { success: true };
 
 		}
 

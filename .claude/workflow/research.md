@@ -1,223 +1,120 @@
-# Research: サーバー単独でのシーン構築API対応
+# Research: ブラウザコンソールエラーのAPI経由チェック機構
 
 ## タスク概要
-ブラウザが接続されていなくても、サーバーのREST APIだけでシーン構築（エンティティ作成、コンポーネント追加、フィールド設定等）ができる仕組みを作る。ブラウザが接続されている場合は従来通りWebSocket委譲パターンでブラウザ側で処理する。
+コンポーネントをアタッチした後、ブラウザ側でランタイムエラー（console.error等）が発生していないかをAPI越しにチェックする仕組みを設計する。シェーダーエラー以外の一般的なJSランタイムエラーも対象。
 
-## ユーザー要件（確定）
+## 1. JSからコンソール出力をキャプチャする方法
 
-### ユースケース: APIとブラウザの共同編集
+### 結論: **可能**。以下の3つのアプローチを組み合わせる
+
+### (A) console メソッドのモンキーパッチ
+```typescript
+const originalError = console.error;
+console.error = function( ...args: any[] ) {
+    capturedErrors.push( { type: 'error', args, timestamp: Date.now() } );
+    originalError.apply( console, args );
+};
 ```
-1. ブラウザ開いてる → APIで編集 → ブラウザにリアルタイム反映
-2. ブラウザでちょっと手動調整
-3. ブラウザ閉じる → APIでの編集を続行（サーバーだけで処理）
-4. ブラウザを再度開く → API操作の結果が全部反映されてる
-5. またブラウザで調整、またAPI操作…の繰り返し
+- `console.log`, `console.warn`, `console.error` 等すべてのメソッドで可能
+- 元のメソッドを保持し `apply` で呼ぶことで通常の出力も維持
+- **全モダンブラウザで動作**
+
+### (B) window.onerror - 未キャッチのランタイムエラー
+```typescript
+window.onerror = ( message, source, lineno, colno, error ) => {
+    capturedErrors.push( { type: 'uncaughtError', message, source, lineno, colno, stack: error?.stack } );
+    return false; // falseでコンソールにも表示
+};
+```
+- `console.error` を経由しないスローされたエラーをキャッチ
+- クロスオリジンスクリプトは "Script error." のみ（CORS設定が必要）
+
+### (C) window.addEventListener('unhandledrejection') - 未処理Promise
+```typescript
+window.addEventListener( 'unhandledrejection', ( event ) => {
+    capturedErrors.push( { type: 'unhandledRejection', reason: event.reason } );
+} );
+```
+- Promise の `.catch()` がないrejectをキャッチ
+
+### 制限事項
+- クロスオリジンスクリプトのエラー詳細取得にはCORS設定が必要（OREngineは同一オリジンなので問題なし）
+- iframe は別ウィンドウなので個別にフックが必要（OREngineではiframe不使用のため問題なし）
+- 高頻度キャプチャ（レンダーループ内のログ等）はバッファリングが必要
+
+## 2. 既存の類似実装: シェーダーエラー取得システム
+
+### データ蓄積（ブラウザ側）
+- `packages/glpower/packages/glpower/src/GLPowerProgram.ts:28`
+  - `export const shaderErrors: Map<string, string> = new Map()` でグローバルにエラーを蓄積
+  - シェーダーコンパイル成功時に `delete`、失敗時に `set`
+
+### API経由取得（ブラウザ側Bridge）
+- `packages/orengine/ts/Editor/EditorAPIBridge/index.ts:494-498`
+  - `getShaderErrors` アクションで `GLP.shaderErrors` から取得してレスポンス
+
+### REST APIエンドポイント（サーバー側）
+- `server/routes/editor.ts:878-882`
+  - `GET /projects/:projectName/editor/shader-errors`
+  - WebSocket Bridge経由でブラウザに問い合わせ
+  - **ブラウザ未接続時は503エラー**（`requires browser connection`）
+
+## 3. 通信アーキテクチャ
+
+### 概要
+```
+REST API (server/) → WebSocket Bridge (server/ws/) → Browser (EditorAPIBridge)
 ```
 
-### 要件
-1. **共同編集**: APIとブラウザの両方からシーンを編集でき、APIの操作がブラウザにリアルタイム反映される
-2. **シームレスなハンドオフ**: ブラウザの開閉をまたいでAPI編集を続行できる
-3. **明示的セーブ**: API操作でscene.jsonを即座に上書きしない。セーブは明示的に行う
-4. **ブラウザ単独動作の維持**: サーバーなしでもブラウザだけでシーン編集できる既存の仕組みを壊さない
+### フロー
+1. REST APIリクエスト → `handleAction()` → `handleActionInternal()`
+2. ブラウザ接続時: `bridge.send(projectName, action, params)` でWebSocket経由
+3. ブラウザ側 `EditorAPIBridge._handleLegacyRequest()` → `_dispatch()` で処理
+4. 結果をWebSocket経由で返却
 
-## 現状のアーキテクチャ
-
-### データフロー（現状）
-```
-[REST API] → editor.ts/handleActionInternal()
-  ↓
-  ブラウザ接続中？
-    Yes → WebSocket Bridge → ブラウザ EditorAPIBridge._dispatch() → EditorAPI/CommandManager → 結果返却
-    No  → throw new Error('Browser not connected') → 503エラー
-```
-
-**核心的な問題**: ブラウザ未接続時は全ての editor API が 503 を返す。サーバー側にはシーンデータを操作するロジックが一切ない。
-
-### ADR設計思想
-- **ADR-001**: ブラウザファースト設計。ブラウザ接続中はブラウザがsource of truth
-- **ADR-002**: WebSocket委譲パターン。書き込みはWS経由でブラウザに委譲
-
-ADR-001に「ブラウザ未接続時のみサーバーのオンメモリ状態（ProjectData）で直接処理する」と記載あり。しかし現状の実装ではこのフォールバックが未実装。
-
-## 関連ファイル・シンボル
-
+### 関連ファイル
 | ファイル | 主要シンボル | 役割 |
 |---------|------------|------|
-| `server/routes/editor.ts` | `handleActionInternal()`, `handleAction()` | REST APIルーティング、ブラウザ委譲 |
-| `server/ws/index.ts` | `EditorWSBridge` | WebSocketブリッジ（サーバー↔ブラウザ） |
-| `server/Project/ProjectData/index.ts` | `ProjectData` | プロジェクトデータ管理（scene.json読み書き） |
-| `server/Project/types.ts` | `SceneFileData`, `SceneDataEntity`, `SceneDataComponent` | シーンデータの型定義 |
-| `server/Project/index.ts` | `ProjectManager`, `projectManager` | プロジェクト管理シングルトン |
-| `server/SceneDataEditor/` | (空ディレクトリ) | シーンデータ編集用に用意されたと思われる |
-| `packages/orengine/ts/Editor/EditorAPIBridge/index.ts` | `EditorAPIBridge._dispatch()` | ブラウザ側アクション実行（全アクションのswitch文） |
-| `packages/orengine/ts/Editor/EditorAPI/index.ts` | `EditorAPI` | CommandManager経由のエンティティ・コンポーネント操作 |
-| `packages/orengine/ts/Engine/ProjectSerializer/index.ts` | `ProjectSerializer`, `OREngineDataEntity` | Entity↔JSONシリアライズ/デシリアライズ |
-| `packages/orengine/ts/Engine/index.ts` | `Engine` | エンジンコア（WebGL2依存） |
-| `packages/orengine/ts/Engine/Resources/index.ts` | `Resources` | コンポーネント/マテリアル/シェーダー/テクスチャのリソース管理 |
+| `server/routes/editor.ts` | `editorRouter`, `handleAction`, `handleActionInternal` | REST APIルーティング |
+| `server/ws/index.ts` | `EditorWSBridge`, `send`, `initWSBridge` | WebSocketブリッジ（サーバー側） |
+| `packages/orengine/ts/Editor/EditorAPIBridge/index.ts` | `EditorAPIBridge`, `_dispatch` | WebSocketブリッジ（ブラウザ側） |
+| `packages/glpower/packages/glpower/src/GLPowerProgram.ts` | `shaderErrors` | シェーダーエラー蓄積（参考実装） |
 
-## 依存関係
+## 4. 設計案: consoleErrorsのシェーダーエラーと同パターン実装
 
-### ブラウザ側アクション実行チェーン
-```
-EditorAPIBridge._dispatch()
-  → EditorAPI.createEntity() / setField() / addComponent() 等
-    → CommandManager.execute() (Undo/Redo管理)
-      → Entity/Component 操作
-```
+既存の `shaderErrors` パターンに倣い、以下のように実装可能：
 
-### サーバー側の現在の処理
-```
-editor.ts handleActionInternal()
-  → getWSBridge() → bridge.send() (WebSocket委譲)
-  → ブラウザ未接続時は Error('Browser not connected')
-```
+### ブラウザ側
+1. グローバルなエラーバッファ（`Map` or `Array`）を作成
+2. アプリ初期化時に `console.error`, `window.onerror`, `unhandledrejection` をフック
+3. エラーをバッファに蓄積（上限を設けてメモリリーク防止）
+4. `EditorAPIBridge._dispatch` に `getConsoleErrors` アクションを追加
+5. オプション: `clearConsoleErrors` で取得後にクリア
 
-### シーンデータ構造（scene.json = SceneFileData）
-```typescript
-interface SceneFileData {
-  name: string;
-  scene: SceneDataEntity; // ルートエンティティ
-  [key: string]: unknown; // renderer, timeline等の追加データ
-}
-interface SceneDataEntity {
-  name: string; uuid: string;
-  pos?: number[]; rot?: number[]; scale?: number[];
-  components?: SceneDataComponent[];
-  childs?: SceneDataEntity[];
-}
-interface SceneDataComponent {
-  name: string; uuid: string;
-  props?: Record<string, unknown>;
-}
+### サーバー側
+1. `server/routes/editor.ts` に `GET /projects/:projectName/editor/console-errors` を追加
+2. `getShaderErrors` と同じ `handleAction` パターンで実装
+3. ブラウザ未接続時は503
+
+### API設計案
+```
+GET /projects/:projectName/editor/console-errors
+  → { errors: [{ type: 'error'|'uncaughtError'|'unhandledRejection', message: string, timestamp: number, stack?: string }] }
+
+POST /projects/:projectName/editor/console-errors/clear
+  → { success: true }
 ```
 
-## ブラウザ側 _dispatch() がサポートするアクション一覧
+## 5. 制約・注意点
 
-### 読み取り系
-- `getStatus` - 接続状態、Undo/Redo可否
-- `getScene` - シーンツリー全体
-- `getEntity` - 個別エンティティ詳細
-- `searchEntities` - エンティティ名検索
-- `getAvailableComponents` - 利用可能コンポーネント一覧
-- `getComponentDetail` - コンポーネント詳細
-- `getResources` - マテリアル/テクスチャ/シェーダー一覧
-- `getMaterial` / `getTexture` - 個別リソース
-- `getShaderErrors` - シェーダーエラー
+- **パフォーマンス**: レンダーループ中のエラーが大量に蓄積される可能性 → リングバッファ（最新N件のみ保持）が望ましい
+- **ブラウザ接続必須**: `shaderErrors` と同様、ブラウザが接続していないと取得不可
+- **タイミング**: コンポーネントアタッチ直後のエラーを拾うには、アタッチ後に少し待ってからチェックする必要あり（非同期初期化のため）
+- **エラーの区別**: コンポーネント由来のエラーとそれ以外のエラーを区別するのは困難。タイムスタンプベースでフィルタする方法が現実的
+- **既存のconsole出力との競合**: OREngineコード内で既に `console.error` を使っている箇所があるため、モンキーパッチ時に二重キャプチャに注意
 
-### 書き込み系
-- `createEntity` - エンティティ作成
-- `deleteEntity` - エンティティ削除
-- `selectEntity` - エンティティ選択
-- `addComponent` - コンポーネント追加
-- `removeComponent` - コンポーネント削除
-- `setField` - フィールド値設定
-- `addMaterial` / `updateMaterial` / `removeMaterial`
-- `addTexture` / `updateTexture` / `removeTexture`
-- `undo` / `redo`
+## 6. 参考になる既存実装
 
-## サーバー側で実装が必要な範囲
-
-### 実装可能（JSONデータ操作のみ）
-- `getScene` - scene.jsonのツリー構造を返す
-- `getEntity` - UUIDでエンティティを検索
-- `searchEntities` - 名前でエンティティを検索
-- `createEntity` - scene.jsonにエンティティノードを追加
-- `deleteEntity` - scene.jsonからエンティティノードを削除
-- `addComponent` - エンティティにコンポーネント定義を追加
-- `removeComponent` - エンティティからコンポーネント定義を削除
-- `setField` - エンティティ/コンポーネントのフィールド値を変更
-- `getAvailableComponents` - componentList.ts をパースして取得可能
-- `getResources` - .mat/.tex ファイルから読み取り
-- `addMaterial` / `removeMaterial` - .matファイル操作（既に persistResourceChange で部分実装あり）
-- `addTexture` / `removeTexture` - .texファイル操作（同上）
-
-### 実装困難（WebGL/ランタイム依存）
-- `getShaderErrors` - シェーダーコンパイルはGPU必要
-- `getComponentDetail` - コンポーネントのserialize()はインスタンス必要（ただしpropsから部分対応可能）
-- `selectEntity` - エディタUI操作のみ
-- `undo` / `redo` - CommandManagerはブラウザ側のみ
-
-## 既存パターン
-
-### UUID生成
-- ブラウザ側: `Serializable` 基底クラスで自動生成
-- サーバー側: 独自にUUID生成が必要（crypto.randomUUID() 等）
-
-### scene.json の操作
-- `ProjectData.getSceneFileData()` で読み取り
-- `ProjectData.syncFromBrowser()` でオンメモリ更新
-- `ProjectData.save()` でファイル書き込み
-
-### ブラウザ再接続時の同期
-- `EditorAPIBridge._handleStatePush()` がサーバーからの状態プッシュを処理
-- `sceneData` と `resources`（materials/textures）をまとめて受信・適用
-
-### setField のパスマッピング
-EditorAPIBridge._dispatch() の `setField` は `_findSerializable(uuid)` で対象を検索:
-- エンティティのUUID → position/euler/scale 等のフィールドに対応
-- コンポーネントのUUID → コンポーネントの props に対応
-
-サーバー側では scene.json の構造上:
-- エンティティの `position` → `pos` フィールド（number[3]）
-- エンティティの `euler` → `rot` フィールド（number[3]）
-- エンティティの `scale` → `scale` フィールド（number[3]）
-- コンポーネントの props → `components[].props` オブジェクト内のキー
-
-## 設計方針: データフロー（確定）
-
-### 2つのモードと切り替え
-
-**モード1: ブラウザ接続中** → 現状のWS委譲を維持
-```
-API操作 → WS bridge.send() → ブラウザが実行 → 画面に即反映 → 結果返却
-                                                  ↓
-                                           syncRequestでProjectDataも更新
-```
-- 共同編集が自然に成立（ブラウザが常にsource of truth）
-- ブラウザの手動操作もそのまま有効
-- **追加**: 各WS委譲操作の後に syncRequest で ProjectData を最新に保つ
-  → ブラウザが閉じた瞬間にサーバーが最新状態を持っている保証
-
-**モード2: ブラウザ未接続** → SceneDataEditor（新規）がフォールバック処理
-```
-API操作 → SceneDataEditor が ProjectData._sceneData を直接操作
-```
-- ProjectData のオンメモリ状態（モード1で常に同期済み、またはscene.jsonから遅延ロード）を操作
-- scene.json には書き込まない
-
-**ブラウザ再接続時**:
-```
-ブラウザがWSに接続 → サーバーがProjectDataの現在の状態を statePush → ブラウザに反映
-```
-
-**明示的セーブ時（POST /editor/save）**:
-```
-ブラウザ接続中ならsyncRequestで最新取得 → ProjectData.save() → scene.json 書き込み
-```
-
-### ハンドオフのシナリオ
-```
-1. ブラウザ開、API操作 → WS委譲 → ブラウザが処理、ProjectDataも同期
-2. ブラウザ閉じる       → ProjectData は最新状態を保持
-3. API操作を続行       → SceneDataEditor が ProjectData を操作
-4. ブラウザ再度開く     → statePush でAPI操作分がブラウザに反映
-5. ブラウザで手動調整   → ブラウザ内で処理
-6. API操作             → WS委譲 → ブラウザが処理、ProjectDataも同期
-```
-
-## 制約・注意点
-
-1. **明示的セーブ**: API操作でscene.jsonを即座に上書きしない。変更はProjectData._sceneDataにのみ保持
-2. **WS委譲後のProjectData同期**: ブラウザ接続中のAPI操作後にsyncRequestでサーバー側状態を更新。ブラウザ切断時のハンドオフを保証
-3. **ブラウザ再接続時のstatePush**: サーバーで変更されたProjectDataの内容をブラウザに送信。既存の`_handleStatePush()`を活用
-4. **Undo/Redo**: WS委譲中はブラウザのCommandManagerが管理。SceneDataEditor操作はUndo/Redo対象外。ブラウザ再接続時のstatePushでCommandManagerはクリアされる
-5. **ブラウザ単独動作**: サーバー起動なしでもブラウザは完全に動作。今回の変更はサーバー側のみ
-6. **コンポーネントの解決**: サーバー側は名前ベースの操作のみ（ランタイムなし）
-7. **setField の対象UUID解決**: エンティティ・コンポーネント両方のUUID検索が必要
-
-## 参考になる既存実装
-
-- `EditorAPIBridge._dispatch()` (packages/orengine/ts/Editor/EditorAPIBridge/index.ts) - 全アクションの処理ロジックのリファレンス
-- `ProjectSerializer` (packages/orengine/ts/Engine/ProjectSerializer/index.ts) - シリアライズ/デシリアライズの参考
-- `persistResourceChange()` (server/routes/editor.ts:27-145) - マテリアル/テクスチャのファイル永続化
-- `EditorAPIBridge._handleStatePush()` - ブラウザ再接続時の状態同期処理
+- **`shaderErrors` パターン**: グローバル Map → Bridge dispatch → REST API の完全な参考実装が存在
+- `EditorAPIBridge._dispatch` の switch 文にアクション追加するだけで拡張可能
+- `server/routes/editor.ts` の `handleAction` に1行追加でエンドポイント追加可能

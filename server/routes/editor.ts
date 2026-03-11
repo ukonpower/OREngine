@@ -248,6 +248,8 @@ function handleActionLocal(
 		break;
 
 	case 'getShaderErrors':
+	case 'getConsoleErrors':
+	case 'clearConsoleErrors':
 	case 'getComponentDetail':
 	case 'selectEntity':
 	case 'undo':
@@ -878,5 +880,19 @@ editorRouter.post( '/projects/:projectName/editor/fields', async ( req, res ) =>
 editorRouter.get( '/projects/:projectName/editor/shader-errors', async ( req, res ) => {
 
 	handleAction( req.params.projectName, 'getShaderErrors', {}, res );
+
+} );
+
+// --- コンソールエラー ---
+
+editorRouter.get( '/projects/:projectName/editor/console-errors', ( req, res ) => {
+
+	handleAction( req.params.projectName, 'getConsoleErrors', {}, res );
+
+} );
+
+editorRouter.post( '/projects/:projectName/editor/console-errors/clear', ( req, res ) => {
+
+	handleAction( req.params.projectName, 'clearConsoleErrors', {}, res );
 
 } );

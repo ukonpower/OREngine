@@ -2,6 +2,7 @@ import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
 import { AssetPreviewManager } from './AssetPreviewManager';
+import { initConsoleCapture } from './ConsoleCapture';
 import { ComponentResolver, OREngineDataEntity, OREngineProjectData, OREngineProjectFrame, ProjectSerializer } from './ProjectSerializer';
 import { Resources } from './Resources';
 
@@ -38,6 +39,8 @@ export class Engine extends MXP.Entity {
 	constructor( gl: WebGL2RenderingContext ) {
 
 		super();
+
+		initConsoleCapture();
 
 		Engine.instances.set( gl, this );
 
