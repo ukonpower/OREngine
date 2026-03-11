@@ -932,12 +932,35 @@ editorRouter.get( '/projects/:projectName/editor/timeline/status', ( req, res ) 
 
 // --- スクリーンショット ---
 
-editorRouter.get( '/projects/:projectName/editor/screenshot', ( req, res ) => {
+editorRouter.get( '/projects/:projectName/editor/screenshot', async ( req, res ) => {
 
-	handleAction( req.params.projectName, 'captureScreenshot', {
-		format: req.query.format,
-		quality: req.query.quality ? parseFloat( req.query.quality as string ) : undefined,
-	}, res );
+	try {
+
+		const format = ( req.query.format as string ) || 'png';
+		const quality = req.query.quality ? parseFloat( req.query.quality as string ) : undefined;
+
+		const data = await handleActionInternal( req.params.projectName, 'captureScreenshot', {
+			format,
+			quality,
+		} );
+
+		const dataUrl = data.image as string;
+		const base64 = dataUrl.split( ',' )[ 1 ];
+		const buffer = Buffer.from( base64, 'base64' );
+		const mimeType = format === 'jpeg' ? 'image/jpeg' : 'image/png';
+
+		res.setHeader( 'Content-Type', mimeType );
+		res.setHeader( 'Content-Length', buffer.length );
+		res.send( buffer );
+
+	} catch ( err: any ) {
+
+		const message = err.message || String( err );
+		const requiresBrowser = message.includes( 'requires browser connection' );
+		const status = requiresBrowser ? 503 : 400;
+		res.status( status ).json( { error: message } );
+
+	}
 
 } );
 
