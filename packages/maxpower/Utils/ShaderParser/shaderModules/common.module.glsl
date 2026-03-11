@@ -15,7 +15,7 @@ struct Geometry {
 struct Material {
 	vec3 color;
 	float roughness;
-	float metalic;
+	float metallic;
 	vec3 emission;
 	vec3 diffuseColor;
 	vec3 specularColor;

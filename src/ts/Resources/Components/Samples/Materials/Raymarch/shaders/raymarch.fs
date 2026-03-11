@@ -106,12 +106,12 @@ void main( void ) {
 		outEmission = vec3( 0.4, 0.7, 1.0 ) * ( 1.5 + pulse );
 		outColor = vec4( 0.2, 0.5, 0.9, 1.0 );
 		outRoughness = 0.1;
-		outMetalic = 1.0;
+		outMetallic = 1.0;
 	} else {
 		// メインボディ
 		outColor = vec4( 0.9, 0.92, 0.95, 1.0 );
 		outRoughness = 0.15;
-		outMetalic = 0.9;
+		outMetallic = 0.9;
 		outEmission = vec3( 0.02, 0.04, 0.08 );
 	}
 

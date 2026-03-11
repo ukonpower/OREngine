@@ -44,7 +44,7 @@ void main( void ) {
 
 	// PBRパラメータ
 	outRoughness = 0.05;
-	outMetalic = 0.9;
+	outMetallic = 0.9;
 
 	#include <frag_out>
 

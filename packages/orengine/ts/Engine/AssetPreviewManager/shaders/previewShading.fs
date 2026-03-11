@@ -3,7 +3,7 @@ precision highp float;
 uniform sampler2D uBackBuffer0; // position.xyz, emission.x
 uniform sampler2D uBackBuffer1; // normal.xyz, emission.y
 uniform sampler2D uBackBuffer2; // albedo
-uniform sampler2D uBackBuffer3; // roughness, metalic, SSN, envMapIntensity
+uniform sampler2D uBackBuffer3; // roughness, metallic, SSN, envMapIntensity
 
 uniform vec3 uLightDir;
 uniform vec3 uLightColor;
@@ -47,7 +47,7 @@ void main( void ) {
 	vec3 normal = tex1.xyz;
 	vec3 albedo = tex2.xyz;
 	float roughness = tex3.x;
-	float metalic = tex3.y;
+	float metallic = tex3.y;
 	vec3 emission = vec3( tex0.w, tex1.w, 0.0 );
 
 	// discard background pixels
@@ -62,14 +62,14 @@ void main( void ) {
 
 	// diffuse (lambert)
 	float NdotL = max( dot( normal, uLightDir ), 0.0 );
-	vec3 diffuse = albedo * ( 1.0 - metalic ) * NdotL * uLightColor;
+	vec3 diffuse = albedo * ( 1.0 - metallic ) * NdotL * uLightColor;
 
 	// specular (blinn-phong)
 	vec3 halfDir = normalize( uLightDir + viewDir );
 	float NdotH = max( dot( normal, halfDir ), 0.0 );
 	float shininess = mix( 8.0, 256.0, 1.0 - roughness );
 	float spec = pow( NdotH, shininess );
-	vec3 specColor = mix( vec3( 0.04 ), albedo, metalic );
+	vec3 specColor = mix( vec3( 0.04 ), albedo, metallic );
 	vec3 specular = specColor * spec * uLightColor;
 
 	// ambient

@@ -8,7 +8,7 @@
 uniform sampler2D sampler0; // position.xyz, emission.x
 uniform sampler2D sampler1; // normal.xyz, emission.y
 uniform sampler2D sampler2; // albedo, 
-uniform sampler2D sampler3; // roughness, metalic, normalSelect, envSelect, 
+uniform sampler2D sampler3; // roughness, metallic, normalSelect, envSelect, 
 uniform sampler2D sampler4; // velocity.xy, 0.0, emission.z
 
 uniform sampler2D uSSAOTexture;
@@ -46,7 +46,7 @@ void main( void ) {
 	vec3 normal = tex1.xyz;
 	vec3 color = tex2.xyz;
 	float roughness = tex3.x;
-	float metalic = tex3.y;
+	float metallic = tex3.y;
 	vec3 emission = vec3( tex0.w, tex1.w, tex4.w );
 	float envMapIntensity= tex3.w;
 
@@ -62,10 +62,10 @@ void main( void ) {
 	Material mat = Material(
 		color,
 		roughness,
-		metalic,
+		metallic,
 		emission,
-		mix( color, vec3( 0.0, 0.0, 0.0 ), metalic ),
-		mix( vec3( 1.0, 1.0, 1.0 ), color, metalic ),
+		mix( color, vec3( 0.0, 0.0, 0.0 ), metallic ),
+		mix( vec3( 1.0, 1.0, 1.0 ), color, metallic ),
 		envMapIntensity
 	);
 	vec3 outColor = vec3( 0.0 );
