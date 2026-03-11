@@ -8,6 +8,7 @@ export class ProjectData {
 	private _name: string;
 	private _projectDir: string;
 	private _sceneData: SceneFileData | null = null;
+	private _revision = 0;
 
 	constructor( name: string, projectDir: string ) {
 
@@ -22,6 +23,18 @@ export class ProjectData {
 
 	}
 
+	get revision(): number {
+
+		return this._revision;
+
+	}
+
+	incrementRevision(): void {
+
+		this._revision ++;
+
+	}
+
 	getSceneFileData(): SceneFileData {
 
 		return this._ensureLoaded();
@@ -31,6 +44,7 @@ export class ProjectData {
 	syncFromBrowser( sceneData: SceneFileData ): void {
 
 		this._sceneData = sceneData;
+		this._revision = 0;
 
 	}
 

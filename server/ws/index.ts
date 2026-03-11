@@ -1,6 +1,9 @@
 import { WebSocketServer, WebSocket } from 'ws';
 
+import { projectManager } from '../Project';
+
 import type { Server } from 'http';
+
 
 export type BridgeRequest = {
 	id: string;
@@ -38,6 +41,23 @@ class EditorWSBridge {
 				if ( msg.type === 'register' && msg.projectName ) {
 
 					this._clients.set( ws, msg.projectName );
+					this._pushStateIfModified( ws, msg.projectName );
+					return;
+
+				}
+
+				if ( msg.type === 'syncPush' && msg.sceneData ) {
+
+					const projectName = this._clients.get( ws );
+					if ( ! projectName ) return;
+
+					try {
+
+						const project = projectManager.getProject( projectName );
+						project.syncFromBrowser( msg.sceneData );
+
+					} catch ( _e ) { /* ignore */ }
+
 					return;
 
 				}
@@ -182,6 +202,26 @@ class EditorWSBridge {
 	isProjectConnected( projectName: string ): boolean {
 
 		return this._findClient( projectName ) !== null;
+
+	}
+
+	private _pushStateIfModified( ws: WebSocket, projectName: string ): void {
+
+		try {
+
+			const project = projectManager.getProject( projectName );
+
+			if ( project.revision === 0 ) return;
+
+			const sceneData = project.getSceneFileData();
+
+			ws.send( JSON.stringify( {
+				type: 'statePush',
+				sceneData,
+				fullReload: true,
+			} ) );
+
+		} catch ( _e ) { /* ignore */ }
 
 	}
 
