@@ -1,0 +1,11 @@
+{
+  "vert": "VortexDisplace/vert",
+  "frag": "VortexDisplace/frag",
+  "phase": [
+    "deferred"
+  ],
+  "useLight": true,
+  "depthTest": true,
+  "depthWrite": true,
+  "cullFace": false
+}
