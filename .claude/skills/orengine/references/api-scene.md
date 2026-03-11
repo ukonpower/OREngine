@@ -133,6 +133,65 @@ GET /projects/:p/editor/shader-errors
 
 `errors` が空配列なら問題なし。
 
+## タイムライン制御 ⚠️ ブラウザ接続時のみ
+
+| メソッド | パス | 説明 | ボディ |
+|---------|------|------|--------|
+| POST | `/projects/:p/editor/timeline/play` | タイムライン再生開始 | - |
+| POST | `/projects/:p/editor/timeline/stop` | タイムライン停止 | - |
+| POST | `/projects/:p/editor/timeline/seek` | 指定フレームにシーク | `{ "frame": 120 }` |
+| GET | `/projects/:p/editor/timeline/status` | タイムライン状態取得 | - |
+
+`timeline/status` レスポンス例:
+```json
+{ "playing": false, "currentFrame": 120, "duration": 3600, "fps": 60 }
+```
+
+## スクリーンショット取得 ⚠️ ブラウザ接続時のみ
+
+```
+GET /projects/:p/editor/screenshot?format=jpeg&quality=0.7
+```
+
+| パラメータ | 型 | デフォルト | 説明 |
+|-----------|-----|-----------|------|
+| `format` | string | `png` | `png` or `jpeg` |
+| `quality` | number | `0.9` | JPEG圧縮品質（0.0〜1.0） |
+
+レスポンス例:
+```json
+{ "image": "data:image/jpeg;base64,...", "width": 1920, "height": 1080, "format": "jpeg" }
+```
+
+**スクリーンショットをファイルに保存して確認する例:**
+```bash
+curl -s "http://localhost:3001/api/projects/{PROJECT}/editor/screenshot?format=jpeg&quality=0.7" \
+  | python3 -c "import sys,json,base64; d=json.load(sys.stdin); open('/tmp/orengine_screenshot.jpg','wb').write(base64.b64decode(d['image'].split(',')[1]))"
+# → Read /tmp/orengine_screenshot.jpg で画像確認
+```
+
+## エディタカメラ制御 ⚠️ ブラウザ接続時のみ
+
+| メソッド | パス | 説明 | ボディ |
+|---------|------|------|--------|
+| GET | `/projects/:p/editor/camera/position` | カメラ位置・注視点取得 | - |
+| POST | `/projects/:p/editor/camera/position` | カメラ位置・注視点設定 | `{ "eye": {x,y,z}, "target": {x,y,z} }` |
+
+`GET camera/position` レスポンス例:
+```json
+{ "eye": { "x": 5, "y": 3, "z": 5 }, "target": { "x": 0, "y": 0, "z": 0 } }
+```
+
+`POST camera/position` リクエスト例:
+```json
+{ "eye": { "x": 8, "y": 5, "z": 8 }, "target": { "x": 0, "y": 0, "z": 0 } }
+```
+
+**カメラ位置の目安:**
+- シーン全体俯瞰: `eye: {x:8, y:5, z:8}`, `target: {x:0, y:0, z:0}`
+- 正面: `eye: {x:0, y:1, z:5}`, `target: {x:0, y:0, z:0}`
+- 真上: `eye: {x:0, y:10, z:0.1}`, `target: {x:0, y:0, z:0}`
+
 ## 保存・Undo/Redo
 
 ```

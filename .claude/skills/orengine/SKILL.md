@@ -75,6 +75,34 @@ curl -s -X POST http://localhost:3001/api/projects/{PROJECT}/editor/save
 
 API詳細は `references/api-scene.md` を参照。
 
+### Flow 1.5: シーン確認（スクリーンショット）
+
+**シーン構築後・変更後は必ずスクリーンショットで結果を目視確認する。**
+
+```bash
+# 1. タイムラインを適切なフレームに移動（アニメーションがある場合）
+curl -s -X POST http://localhost:3001/api/projects/{PROJECT}/editor/timeline/seek \
+  -H "Content-Type: application/json" -d '{"frame": 0}'
+
+# 2. カメラを見やすい位置に移動
+curl -s -X POST http://localhost:3001/api/projects/{PROJECT}/editor/camera/position \
+  -H "Content-Type: application/json" \
+  -d '{"eye": {"x": 5, "y": 3, "z": 5}, "target": {"x": 0, "y": 0, "z": 0}}'
+
+# 3. スクリーンショット取得（JPEG推奨: サイズが小さい）
+curl -s "http://localhost:3001/api/projects/{PROJECT}/editor/screenshot?format=jpeg&quality=0.7" \
+  | python3 -c "import sys,json,base64; d=json.load(sys.stdin); open('/tmp/orengine_screenshot.jpg','wb').write(base64.b64decode(d['image'].split(',')[1]))"
+
+# 4. スクリーンショットをReadツールで確認
+# → Read /tmp/orengine_screenshot.jpg
+```
+
+**カメラ位置の目安:**
+- シーン全体を見渡す: `eye: {x:8, y:5, z:8}`, `target: {x:0, y:0, z:0}`
+- 正面から: `eye: {x:0, y:1, z:5}`, `target: {x:0, y:0, z:0}`
+- 上から: `eye: {x:0, y:10, z:0.1}`, `target: {x:0, y:0, z:0}`
+- 特定オブジェクト注視: targetをオブジェクトのpositionに設定
+
 ### Flow 2: リソース作成（REST API）
 
 マテリアル・シェーダー・テクスチャの作成はREST API経由。
@@ -132,6 +160,10 @@ src/ts/Resources/Shaders/{ShaderName}/
   curl -s http://localhost:3001/api/projects/{PROJECT}/editor/shader-errors | python3 -m json.tool
   ```
   `errors` 配列が空でない場合はシェーダーを修正してから次の作業へ進む。
+- **シーン構築・変更後は必ずスクリーンショットを取得して結果を目視確認する**（Flow 1.5 参照）
+  - カメラ位置をシーンに合わせて調整してから撮影する
+  - アニメーションがある場合はフレームをシークして複数時点を確認する
+  - スクリーンショットで問題を発見したら修正してから次の作業へ進む
 
 ## References
 
