@@ -1185,7 +1185,7 @@ export class Renderer extends Serializable {
 			const vert = shaderParse( material.vert, defines, this._lights );
 			const frag = shaderParse( material.frag, defines, this._lights );
 
-			program = this.programManager.get( vert, frag );
+			program = this.programManager.get( vert, frag, material.name );
 
 			material.programCache[ renderType ] = program;
 

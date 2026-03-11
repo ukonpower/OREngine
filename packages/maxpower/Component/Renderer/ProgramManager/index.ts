@@ -12,7 +12,7 @@ export class ProgramManager {
 
 	}
 
-	public get( vertexShader: string, fragmentShader: string ) {
+	public get( vertexShader: string, fragmentShader: string, name?: string ) {
 
 		const id = vertexShader + fragmentShader;
 
@@ -25,6 +25,8 @@ export class ProgramManager {
 		}
 
 		const program = new GLP.GLPowerProgram( this.gl );
+
+		if ( name ) program.name = name;
 
 		program.setShader( vertexShader, fragmentShader );
 

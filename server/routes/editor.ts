@@ -190,7 +190,13 @@ async function handleAction(
 
 	} catch ( err: any ) {
 
-		res.status( 503 ).json( { error: err.message || String( err ) } );
+		const message = err.message || String( err );
+		const isConnectionError = message === 'Timeout' || message === 'Browser not connected';
+		const body: Record<string, string> = { error: message };
+
+		if ( isConnectionError ) body.hint = '対象プロジェクトをブラウザで開いてください';
+
+		res.status( 503 ).json( body );
 
 	}
 
@@ -664,6 +670,12 @@ editorRouter.post( '/projects/:projectName/editor/entities', async ( req, res ) 
 
 				for ( const compDef of entityDef.components ) {
 
+					if ( ! compDef.componentName ) {
+
+						throw new Error( 'components[].componentName is required' );
+
+					}
+
 					const compResult = await handleActionInternal(
 						projectName, 'addComponent',
 						{ uuid: entityUuid, componentName: compDef.componentName }
@@ -730,5 +742,13 @@ editorRouter.post( '/projects/:projectName/editor/fields', async ( req, res ) =>
 		res.status( 400 ).json( { error: err.message || String( err ) } );
 
 	}
+
+} );
+
+// --- シェーダーエラー ---
+
+editorRouter.get( '/projects/:projectName/editor/shader-errors', async ( req, res ) => {
+
+	handleAction( req.params.projectName, 'getShaderErrors', {}, res );
 
 } );

@@ -1,231 +1,259 @@
-# Plan: ブラウザ未接続フォールバック削除・ブラウザ前提シンプル化
+# Plan: skill/API設計の改善
 
 ## 概要
 
-サーバーAPIがブラウザ未接続時にサーバーサイドでフォールバック処理している実装を全て削除し、「常にブラウザが接続されている前提」でシンプルに実装する。ブラウザが未接続の場合は 503 エラーを返す。
+今回のセッションで発生した5つの問題に対する修正。
+大きく「A. APIサーバー改善」「B. シェーダーエラー取得システム」「C. skillドキュメント修正」の3グループに分ける。
 
 ---
 
-## 実装ステップ
+## A. APIサーバー改善
 
-### 1. `server/Project/EntityStore/` ディレクトリを削除
-
-- **対象ファイル**:
-  - `server/Project/EntityStore/index.ts`
-  - `server/Project/EntityStore/EntityStore.test.ts`
-- **変更内容**: ディレクトリごと削除する。`EntityStore` は `ProjectData.dispatch()` からのみ使用されており、dispatch() を削除すれば参照がなくなる。
-
----
-
-### 2. `server/Project/ProjectData/index.ts` をスリム化
-
-- **対象ファイル**: `server/Project/ProjectData/index.ts`
-- **変更内容**: 以下のメンバーを全て削除する。残すのは `save()`、`syncFromBrowser()`、`getSceneFileData()` と関連のプライベートメソッドのみ。
-
-**削除するメンバー:**
-- `import { EntityStore }` + `_entityStore` フィールド
-- `dirty`, `markDirty()`, `clearDirty()` （dirty状態管理）
-- `getResourcesSnapshot()`, `_readMaterialFiles()`, `_readTextureFiles()`
-- `dispatch()` メソッド全体
-- `_getAvailableComponents()`, `_scanComponents()` メソッド
-
-**変更後のクラス構造（概要）:**
-```typescript
-export class ProjectData {
-    private _name: string;
-    private _projectDir: string;
-    private _sceneData: SceneFileData | null = null;
-
-    get name(): string { ... }
-
-    getSceneFileData(): SceneFileData { ... }    // scene.ts GET で使用
-    syncFromBrowser( sceneData: SceneFileData ): void { ... }  // save で使用
-    save(): void { ... }                         // save エンドポイントで使用
-
-    private _ensureLoaded(): SceneFileData { ... }
-    private _readSceneFile(): SceneFileData { ... }
-    private _writeSceneFile( data: SceneFileData ): void { ... }
-}
-```
-
----
-
-### 3. `server/ws/index.ts` から `_pushDirtyState` を削除
-
-- **対象ファイル**: `server/ws/index.ts`
-- **変更内容**:
-  - `_pushDirtyState()` メソッドを削除
-  - `connection` ハンドラ内の `this._pushDirtyState(ws, msg.projectName)` 呼び出しを削除
-  - `projectManager` のインポートを削除（`_pushDirtyState` が唯一の使用箇所）
-
-**変更前 (connection ハンドラ内):**
-```typescript
-if ( msg.type === 'register' && msg.projectName ) {
-    this._clients.set( ws, msg.projectName );
-    this._pushDirtyState( ws, msg.projectName );  // ← 削除
-    return;
-}
-```
-
-**変更後:**
-```typescript
-if ( msg.type === 'register' && msg.projectName ) {
-    this._clients.set( ws, msg.projectName );
-    return;
-}
-```
-
----
-
-### 4. `server/routes/editor.ts` をシンプル化
+### A-1. バッチAPI: `componentName` 未指定時にバリデーションエラーを返す
 
 - **対象ファイル**: `server/routes/editor.ts`
-- **変更内容**: `handleActionInternal` からフォールバックブランチを削除し、ブラウザ未接続時は即エラーにする。`MUTATING_ACTIONS` と `syncFromBrowser()` 関数も削除する。
+- **変更内容**: `entityDef.components` のループ内で `compDef.componentName` が
+  falsy な場合にエラーをスローする。現在は `componentName: undefined` のまま
+  `addComponent` アクションが呼ばれ、UUID だけのゾンビコンポーネントが生まれる。
 
-**削除するもの:**
-- `MUTATING_ACTIONS` セット
-- `syncFromBrowser()` 関数
-- `projectManager` のインポート（editor.ts内での使用がなくなる）
-- `handleAction()` 内の `syncFromBrowser()` 呼び出し
-
-**`handleActionInternal` 変更前:**
 ```typescript
-async function handleActionInternal( projectName, action, params ) {
-    const bridge = getWSBridge();
-    const browserConnected = bridge && bridge.isProjectConnected( projectName );
+for ( const compDef of entityDef.components ) {
 
-    if ( browserConnected ) {
-        const result = await bridge!.send( projectName, action, params );
-        if ( !result.success ) throw new Error( result.error );
-        if ( RESOURCE_MUTATING_ACTIONS.has( action ) ) {
-            await persistResourceChange( action, params, result.data );
-        }
-        return result.data;
-    } else {
-        // ←── このelseブランチ全体を削除
-        const project = projectManager.getProject( projectName );
-        if ( RESOURCE_MUTATING_ACTIONS.has( action ) ) { ... }
-        else if ( MUTATING_ACTIONS.has( action ) ) { ... }
-        else { ... }
+    // ↓ この行を追加
+    if ( ! compDef.componentName ) {
+        throw new Error( `components[].componentName is required` );
     }
-}
+
+    const compResult = await handleActionInternal( ... );
 ```
-
-**`handleActionInternal` 変更後:**
-```typescript
-async function handleActionInternal( projectName: string, action: string, params: Record<string, unknown> ) {
-
-    const bridge = getWSBridge();
-
-    if ( !bridge || !bridge.isProjectConnected( projectName ) ) {
-        throw new Error( 'Browser not connected' );
-    }
-
-    const result = await bridge.send( projectName, action, params );
-
-    if ( !result.success ) throw new Error( result.error );
-
-    if ( RESOURCE_MUTATING_ACTIONS.has( action ) ) {
-        await persistResourceChange( action, params, result.data );
-    }
-
-    return result.data;
-
-}
-```
-
-**`handleAction` 変更前:**
-```typescript
-async function handleAction( projectName, action, params, res ) {
-    try {
-        const data = await handleActionInternal( projectName, action, params );
-        if ( MUTATING_ACTIONS.has( action ) ) {
-            await syncFromBrowser( projectName );  // ← 削除
-        }
-        res.json( data );
-    } catch ( err ) {
-        res.status( 400 ).json( ... );
-    }
-}
-```
-
-**`handleAction` 変更後:**
-```typescript
-async function handleAction( projectName: string, action: string, params: Record<string, unknown>, res: express.Response ) {
-
-    try {
-        const data = await handleActionInternal( projectName, action, params );
-        res.json( data );
-    } catch ( err: any ) {
-        res.status( 503 ).json( { error: err.message || String( err ) } );
-    }
-
-}
-```
-
-> ※ エラーステータスは 503 (Service Unavailable) を使用。ブラウザ未接続は「サービス一時不能」が適切。
 
 ---
 
-### 5. `server/routes/scene.ts` の scene GET を簡略化
+### A-2. Timeout エラーに `hint` を付与
 
-- **対象ファイル**: `server/routes/scene.ts`
-- **変更内容**: `sceneRouter.get('/projects/:name/scene')` の `try/catch` フォールバック（ファイル直接読み込み）を削除してシンプルにする。
+- **対象ファイル**: `server/ws/index.ts`（または `handleActionInternal` のエラーハンドリング箇所）
+- **変更内容**: ブラウザ未接続でタイムアウトした際のエラーレスポンスに
+  `hint` フィールドを追加する。
 
-**変更前:**
 ```typescript
-sceneRouter.get( '/projects/:name/scene', ( req, res ) => {
-    try {
-        const project = projectManager.getProject( req.params.name );
-        const sceneData = project.getSceneFileData();
-        res.json( sceneData );
-    } catch {
-        // ProjectManager に無い場合はファイルから読む（フォールバック）
-        const projectDir = resolveProjectDir( req.params.name );
-        if ( !projectDir ) { res.status( 400 ).json(...); return; }
-        readJsonFile( path.join( projectDir, 'scene.json' ), res );
-    }
+// 現在
+res.status( 503 ).json( { error: 'Browser not connected' } );
+
+// 変更後
+res.status( 503 ).json( {
+    error: 'Browser not connected',
+    hint: '対象プロジェクトをブラウザで開いてください',
 } );
 ```
 
-**変更後:**
+---
+
+### A-3. `check-server.sh` に接続中プロジェクトを表示
+
+- **対象ファイル**: `.claude/skills/orengine/scripts/check-server.sh`
+- **変更内容**: `GET /api/projects/:p/editor/status` を全プロジェクトに対して
+  実行し、ブラウザ接続中のものを表示する。
+
+```bash
+echo ""
+echo "=== Browser Connection ==="
+for project in $(curl -s http://localhost:3001/api/projects | python3 -c "import sys,json; [print(p) for p in json.load(sys.stdin)]"); do
+    status=$(curl -s "http://localhost:3001/api/projects/$project/editor/status" 2>/dev/null)
+    connected=$(echo "$status" | python3 -c "import sys,json; d=json.load(sys.stdin); print('CONNECTED' if d.get('connected') else 'disconnected')" 2>/dev/null)
+    echo "  $project: $connected"
+done
+```
+
+---
+
+## B. シェーダーエラー取得システム（新規）
+
+シェーダーコンパイルエラーは現在ブラウザの `console.error()` にしか出ない。
+これを「サーバーから取得可能」にする。
+
+### B-1. ブラウザ側: シェーダーエラーをストアに蓄積
+
+- **対象ファイル**: `packages/glpower/packages/glpower/src/GLPowerProgram.ts`
+- **変更内容**: `console.error` に加えて、エラーをモジュールレベルの
+  `Map<string, string>` に蓄積する。シェーダーの識別は `programName`（または
+  ソースの先頭コメント等）で行う。
+
 ```typescript
-sceneRouter.get( '/projects/:name/scene', ( req, res ) => {
+// ファイル内に追加
+export const shaderErrors: Map<string, string> = new Map();
+
+// compileShader 内のエラー処理に追加
+if ( errorLog ) {
+    shaderErrors.set( this.name ?? shaderSrc.slice( 0, 40 ), errorLog );
+    // ... 既存の console.error ...
+}
+```
+
+> ※ `GLPowerProgram` に `name` フィールドが無い場合は追加、または呼び出し元から
+> シェーダー名を渡す形に変更する。
+
+---
+
+### B-2. ブラウザ側: `getShaderErrors` WebSocket アクションに応答
+
+- **対象**: ブラウザ側の WebSocket アクションハンドラ（エディタアクション処理部分）
+- **変更内容**: `action === 'getShaderErrors'` を受け取ったら
+  `shaderErrors` の内容を返す。
+
+```typescript
+case 'getShaderErrors': {
+    const errors = Array.from( shaderErrors.entries() ).map( ( [ name, log ] ) => ( { name, log } ) );
+    return { errors };
+}
+```
+
+---
+
+### B-3. サーバー側: `GET /editor/shader-errors` エンドポイント追加
+
+- **対象ファイル**: `server/routes/editor.ts`
+- **変更内容**: ブラウザに `getShaderErrors` アクションを送り、結果を返す
+  エンドポイントを追加する。
+
+```typescript
+editorRouter.get( '/projects/:projectName/editor/shader-errors', async ( req, res ) => {
 
     try {
-        const project = projectManager.getProject( req.params.name );
-        res.json( project.getSceneFileData() );
+
+        const data = await handleActionInternal( req.params.projectName, 'getShaderErrors', {} );
+        res.json( data );
+
     } catch ( err: any ) {
-        res.status( 500 ).json( { error: err.message || 'Failed to get scene' } );
+
+        res.status( 503 ).json( { error: err.message, hint: 'ブラウザが接続されていません' } );
+
     }
 
 } );
 ```
 
-> ※ `readJsonFile`, `writeJsonFile`, `resolveProjectDir` の各ヘルパー関数も、他の使用箇所（POST `/scene`, GET/POST `/editor`）があるため残す。
+レスポンス例:
+```json
+{
+  "errors": [
+    { "name": "BikabikaShader", "log": "ERROR: 0:15: 'localPosition' : undeclared..." }
+  ]
+}
+```
+
+---
+
+### B-4. skill: Guardrail にシェーダーエラー確認を追加
+
+- **対象ファイル**: `.claude/skills/orengine/orengine.md`（または `references/troubleshooting.md`）
+- **変更内容**: Guardrails セクションに以下を追加する。
+
+```markdown
+- **Meshコンポーネントを持つエンティティを作成・更新したら、必ずシェーダーエラーを確認する**
+  ```bash
+  curl -s http://localhost:3001/api/projects/{PROJECT}/editor/shader-errors | python3 -m json.tool
+  ```
+  `errors` 配列が空でない場合はシェーダーを修正してから次の作業へ進む。
+```
+
+---
+
+## C. skillドキュメント修正
+
+### C-1. `shader-guide.md`: `<vert_in>` / `<frag_in>` の変数一覧を追記
+
+- **対象ファイル**: `.claude/skills/orengine/references/shader-guide.md`
+- **変更内容**: 「カスタマイズ可能な出力変数」テーブルに `<vert_in>` の変数も
+  追記し、`outMetalic`（実際のスペル）に修正する。
+
+```markdown
+### `<vert_in>` で展開される書き込み可能変数（頂点シェーダー）
+
+| 変数 | 型 | 説明 |
+|------|----|------|
+| `outPos` | vec3 | 頂点位置（変形に使う） |
+| `outNormal` | vec3 | 法線 |
+| `outUv` | vec2 | UV座標 |
+
+### `<frag_in>` で展開される書き込み可能変数（フラグメントシェーダー）
+
+| 変数 | 型 | デフォルト | 説明 |
+|------|-----|----------|------|
+| `outColor` | vec4 | `vec4(1.0)` | アルベドカラー |
+| `outRoughness` | float | `0.5` | ラフネス |
+| `outMetalic` | float | `0.0` | メタリック ※スペル注意（l が1つ） |
+| `outEmission` | vec3 | `vec3(0.0)` | エミッション |
+| `outNormal` | vec3 | 頂点法線 | 法線 |
+| `outPos` | vec3 | `vPos` | フラグメント位置（読み取り） |
+```
+
+---
+
+### C-2. `api-scene.md`: `componentName` を強調
+
+- **対象ファイル**: `.claude/skills/orengine/references/api-scene.md`
+- **変更内容**: バッチAPIのコンポーネント指定部分に注釈を追加。
+
+```markdown
+> ⚠️ **`componentName` は必須**。`name` では動作しない。
+> 未指定の場合はサーバーがエラーを返す（A-1の修正後）。
+```
+
+---
+
+### C-3. orengine.md（鉄則）: 複数プロジェクト時の確認を追加
+
+- **対象ファイル**: `.claude/skills/orengine/orengine.md`
+- **変更内容**: 「鉄則」セクションに追記。
+
+```markdown
+- **プロジェクトが複数存在する場合は、操作対象をユーザーに確認してから進める**
+  （check-server.sh の「Browser Connection」欄で接続中プロジェクトを確認する手段も使える）
+```
+
+---
+
+### C-4. `api-resources.md`: 未実装エンドポイントの注記
+
+- **対象ファイル**: `.claude/skills/orengine/references/api-resources.md`
+- **変更内容**: `GET /projects/:p/editor/resources` に注釈を追加。
+
+```markdown
+| GET | `/projects/:p/editor/resources` | リソース一覧 ※現在未実装 (`Unknown action: getResources` が返る) |
+```
 
 ---
 
 ## 変更対象ファイル一覧
 
-- [x] `server/Project/EntityStore/index.ts` — **ファイル削除**
-- [x] `server/Project/EntityStore/EntityStore.test.ts` — **ファイル削除**
-- [x] `server/Project/ProjectData/index.ts` — dispatch, dirty管理, getResourcesSnapshot等を削除してスリム化
-- [x] `server/ws/index.ts` — `_pushDirtyState` と `projectManager` インポートを削除
-- [x] `server/routes/editor.ts` — `handleActionInternal` の else ブランチ、`MUTATING_ACTIONS`、`syncFromBrowser` を削除
-- [x] `server/routes/scene.ts` — scene GET のフォールバック削除
+### APIサーバー
+- [x] `server/routes/editor.ts` — A-1: componentName バリデーション、A-2: Timeoutヒント、B-3: shader-errors エンドポイント
+
+### ブラウザ/エンジン
+- [x] `packages/glpower/packages/glpower/src/GLPowerProgram.ts` — B-1: shaderErrors ストア、name フィールド追加
+- [x] `packages/maxpower/Component/Renderer/ProgramManager/index.ts` — material.name を get() に渡す
+- [x] `packages/maxpower/Component/Renderer/index.ts` — programManager.get() に material.name を渡す
+- [x] `packages/orengine/ts/Editor/EditorAPIBridge/index.ts` — B-2: getShaderErrors アクション対応
+
+### skill
+- [x] `.claude/skills/orengine/scripts/check-server.sh` — A-3: 接続中プロジェクト表示
+- [x] `.claude/skills/orengine/SKILL.md` — B-4, C-3: Guardrailsとプロジェクト確認
+- [x] `.claude/skills/orengine/references/shader-guide.md` — C-1: 変数一覧追記
+- [x] `.claude/skills/orengine/references/api-scene.md` — C-2: componentName強調、shader-errors API追記
+- [x] `.claude/skills/orengine/references/api-resources.md` — C-4: 未実装注記
 
 ---
 
 ## 考慮事項・リスク
 
-- **`getAvailableComponents` アクション**: `dispatch()` 削除後はブラウザ側が処理することになる。ブラウザ接続前提なので問題なし。
-- **`RESOURCE_MUTATING_ACTIONS` と `persistResourceChange` は残す**: ブラウザ接続時もマテリアル/テクスチャのファイル保存は必要。
-- **`scene.ts` の POST `/scene`**: `project.syncFromBrowser()` を呼んでいるが、これはファイル保存を伴うエンドポイントのため変更しない。
-- **エラーステータス**: `handleAction` のキャッチで 503 を返すことで、呼び出し側がブラウザ未接続と判別できる。
+- **B-1 の `shaderErrors` Map**: ページ遷移やシェーダー再コンパイル時に古いエラーが残る可能性がある。
+  シェーダー再コンパイル成功時にエントリを削除する処理も追加する。
+- **B-2 のブラウザ側アクションハンドラ**: 現在の実装箇所を先に調査する必要がある。
+- **A-1 のバリデーション**: `componentName` が undefined のときに現在ブラウザ側で
+  どう処理されているかを確認してから修正する（ブラウザ側もエラーを返しているかもしれない）。
 
-## テスト方針
+## 実装順序の推奨
 
-1. `npm run typecheck` でエラーがないことを確認
-2. ブラウザを開いた状態でエンティティ作成・削除・フィールド変更が正常に動作することを確認
-3. ブラウザを閉じた状態でAPIリクエストを送ると 503 が返ることを確認
+1. **C グループ（skill修正）** — コード変更なし、即効果が高い
+2. **A グループ（APIサーバー）** — 比較的シンプルな変更
+3. **B グループ（シェーダーエラー）** — ブラウザ/エンジン側まで及ぶため最後

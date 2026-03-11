@@ -1,0 +1,13 @@
+{
+  "vert": "BikabikaShader/vert",
+  "frag": "BikabikaShader/frag",
+  "phase": [
+    "deferred"
+  ],
+  "drawType": "",
+  "blending": "",
+  "useLight": true,
+  "depthTest": true,
+  "depthWrite": true,
+  "cullFace": false
+}

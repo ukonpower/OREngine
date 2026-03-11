@@ -114,17 +114,24 @@ outColor3 = vec4( roughness, metallic, ssn, env );   // PBR パラメータ
 outColor4 = vec4( velocity, 0.0, emission.z );       // velocity + emission.z
 ```
 
-### カスタマイズ可能な出力変数
+### `<vert_in>` で展開される書き込み可能変数（頂点シェーダー）
 
-`<frag_in>` 後に以下の変数を設定することでGBuffer出力を制御:
+| 変数 | 型 | 説明 |
+|------|----|------|
+| `outPos` | vec3 | 頂点位置（変形に使う） |
+| `outNormal` | vec3 | 法線 |
+| `outUv` | vec2 | UV座標 |
+
+### `<frag_in>` で展開される書き込み可能変数（フラグメントシェーダー）
 
 | 変数 | 型 | デフォルト | 説明 |
 |------|-----|----------|------|
 | `outColor` | vec4 | `vec4(1.0)` | アルベドカラー |
 | `outRoughness` | float | `0.5` | ラフネス |
-| `outMetallic` | float | `0.0` | メタリック |
+| `outMetalic` | float | `0.0` | メタリック ⚠️ スペル注意（`l` が1つ） |
 | `outEmission` | vec3 | `vec3(0.0)` | エミッション |
-| `outNormal` | vec3 | 頂点法線 | 法線 |
+| `outNormal` | vec3 | 頂点法線 | 法線（上書き可） |
+| `outPos` | vec3 | `vPos` | フラグメント位置（読み取り用） |
 
 ## ユニフォーム
 

@@ -78,7 +78,7 @@
 
 | メソッド | パス | 説明 |
 |---------|------|------|
-| GET | `/projects/:p/editor/resources` | リソース一覧（マテリアル・テクスチャ） |
+| GET | `/projects/:p/editor/resources` | リソース一覧 ⚠️ 現在未実装（`Unknown action: getResources` が返る） |
 | POST | `/projects/:p/editor/materials` | マテリアル作成（Editor経由） |
 | GET/PUT/DELETE | `/projects/:p/editor/materials/:name` | マテリアル操作（Editor経由） |
 | POST | `/projects/:p/editor/textures` | テクスチャ作成（Editor経由） |

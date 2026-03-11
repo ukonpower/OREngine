@@ -1,131 +1,119 @@
-# Research: ブラウザ未接続時のフォールバック削除・ブラウザ前提シンプル化
+# Research: OREngine skill/API設計の改善点
 
 ## タスク概要
-現在、ブラウザが未接続の場合にサーバーがAPIリクエストをフォールバック処理しているロジックをすべて削除し、「ブラウザが繋がっている前提」でシンプルに実装する。ブラウザが繋がっていない場合はエラーを返す。
+
+今回のセッション（新規エンティティへのイケイケビカビカマテリアル設定）で発生した
+やりづらかった点を整理し、skill・API設計の改善に活かす。
 
 ---
 
-## 関連ファイル・シンボル
+## 発生した問題と原因
 
-| ファイル | 主要シンボル | 役割 |
-|---------|------------|------|
-| `server/routes/editor.ts` | `handleActionInternal`, `handleAction`, `syncFromBrowser`, `MUTATING_ACTIONS`, `RESOURCE_MUTATING_ACTIONS`, `persistResourceChange` | 主たる変更対象。ブラウザ未接続フォールバック処理がここに集中している |
-| `server/ws/index.ts` | `EditorWSBridge`, `_pushDirtyState`, `requestSync`, `send`, `executeAction` | WebSocketブリッジ。`_pushDirtyState` は dirty 状態をブラウザへ push する（フォールバック不要になれば削除対象） |
-| `server/Project/ProjectData/index.ts` | `ProjectData`, `dispatch()`, `_entityStore`, `dirty/markDirty/clearDirty`, `getResourcesSnapshot()` | サーバーサイドのフォールバック実装の中核。`dispatch()` と EntityStore、dirty 管理が削除対象 |
-| `server/Project/EntityStore/index.ts` | `EntityStore` | サーバーサイドのシーン操作実装（`dispatch()` からのみ使用）→ **削除対象** |
-| `server/Project/EntityStore/EntityStore.test.ts` | - | EntityStore のテスト → **削除対象** |
-| `server/Project/index.ts` | `ProjectManager` | ProjectData を管理。`getProject()` は save/scene.ts からも使用。ほぼそのまま |
-| `server/routes/scene.ts` | `sceneRouter.get('/projects/:name/scene')` | `try/catch` でフォールバックしてファイル読み取り → 簡略化可能 |
+### 問題1: バッチAPIのコンポーネント指定プロパティ名が不明瞭
 
----
+**何が起きたか**
+`POST /editor/entities` のバッチ作成で `"name": "Mesh"` と書いたら、
+コンポーネントがアタッチされずに `{ "uuid": "..." }` だけの状態になった。
 
-## 現状の処理フロー
+**正しいプロパティ名**: `componentName`（`name` ではない）
 
-### `handleActionInternal` (editor.ts)
-```
-ブラウザ接続あり → bridge.send() でブラウザへ委譲
-                  → RESOURCE_MUTATING_ACTIONS なら persistResourceChange() でファイル保存
+**なぜ気づきにくいか**
+- `api-scene.md` のバッチAPIのサンプルに `componentName` と書いてあるが、
+  コンポーネント操作テーブル（`POST /editor/entity/:uuid/component`）と
+  表記が微妙に異なる印象がある
+- レスポンスにコンポーネントの `name` が返ってこないため、
+  「作成されたが名前が取れていない」のか「アタッチ失敗」なのかが区別できない
+- シーンツリー上でも `{ "uuid": "..." }` として出現するため一見「存在する」ように見える
 
-ブラウザ接続なし → projectManager.dispatch() でサーバーサイド処理  ← 削除対象
-                  → RESOURCE_MUTATING_ACTIONS なら persistResourceChange() + markDirty()  ← 削除対象
-                  → MUTATING_ACTIONS なら project.dispatch() + markDirty()  ← 削除対象
-                  → それ以外は project.dispatch()  ← 削除対象
-```
-
-### `_pushDirtyState` (ws/index.ts)
-```
-ブラウザ再接続時 → project.dirty をチェック → dirty ならシーンデータをブラウザへ push
-```
-フォールバックがなければ dirty になることがないため、この関数は不要。
-
-### `syncFromBrowser` (editor.ts の関数)
-```
-MUTATING_ACTIONS 後に呼ばれる → bridge.requestSync() でブラウザから最新状態を取得
-                                → project.syncFromBrowser(snapshot) でサーバーのメモリ状態を更新
-```
-`save` エンドポイントがすでに save 前に `requestSync()` しているため、各変更後の sync は不要。
+**改善案**
+- バッチAPI で `componentName` が指定されなかった場合にエラーを返す（現状: silent失敗）
+- レスポンスの components に `componentName` を必ず含めて、成功可否を確認できるようにする
 
 ---
 
-## 削除対象
+### 問題2: シェーダーで使える変数名がドキュメントにない
 
-### 完全削除
-- `server/Project/EntityStore/index.ts` ── `dispatch()` からしか使われない
-- `server/Project/EntityStore/EntityStore.test.ts` ── テスト
+**何が起きたか**
+- 頂点シェーダーで `localPosition` を使ったが存在せず → 正しくは `outPos`
+- フラグメントシェーダーで `outMetallic` を使ったが存在せず → 正しくは `outMetalic`（l が1つ）
 
-### `server/routes/editor.ts` から削除
-- `MUTATING_ACTIONS` セット（使用箇所: フォールバック + syncFromBrowser 呼び出し）
-- `syncFromBrowser()` 関数（`handleAction` 内での呼び出しも含む）
-- `handleActionInternal` の `else`（未接続）ブランチ全体
-
-### `server/Project/ProjectData/index.ts` から削除
-- `_entityStore: EntityStore` フィールドと `EntityStore` インポート
-- `dispatch()` メソッド全体
-- `_getAvailableComponents()` メソッド
-- `_scanComponents()` メソッド
-- `dirty/markDirty/clearDirty()` （dirty 状態管理）
-- `getResourcesSnapshot()` メソッド（`_pushDirtyState` からのみ使用）
-- `_readMaterialFiles()`, `_readTextureFiles()` メソッド
-
-### `server/ws/index.ts` から削除
-- `_pushDirtyState()` メソッドと connection 時の呼び出し
-
-### `server/routes/scene.ts` の簡略化
-- `sceneRouter.get('/projects/:name/scene')` の `try/catch` フォールバック削除
-  - `projectManager.getProject()` で `getSceneFileData()` を呼ぶシンプルな形に
-
----
-
-## 残すもの（変更後も必要）
-
-| 場所 | 残す理由 |
-|------|---------|
-| `ProjectData.save()` + `_writeSceneFile()` | saveエンドポイントがファイル保存に使用 |
-| `ProjectData.syncFromBrowser(sceneData)` + `_sceneData` | saveエンドポイントがブラウザからsync後に保存 |
-| `ProjectData.getSceneFileData()` + `_readSceneFile()` | scene.ts GET エンドポイントが使用 |
-| `ProjectData._ensureLoaded()` | getSceneFileData() から使用 |
-| `persistResourceChange()` | ブラウザ接続時も resource mutation でファイル保存が必要 |
-| `RESOURCE_MUTATING_ACTIONS` | persistResourceChange() の条件判定に使用 |
-| `EditorWSBridge.send()`, `requestSync()`, `executeAction()` | 全て引き続き使用 |
-| `ProjectManager` | save/scene endpoints から使用 |
-
----
-
-## 変更後のシンプルなフロー
-
-```
-API リクエスト
-  ↓
-bridge.send(projectName, action, params)
-  ↓
-ブラウザ未接続 → 503 "Browser not connected" エラー
-ブラウザ接続中 → ブラウザが処理 → 結果を返す
-  ↓ (RESOURCE_MUTATING_ACTIONS の場合)
-persistResourceChange() でファイルに保存
-  ↓
-res.json(result)
-```
-
----
-
-## 制約・注意点
-
-1. `EntityStore.test.ts` を削除する場合、テストランナーが壊れないか確認
-2. `ProjectData` から `dispatch()` を削除すると、`getAvailableComponents` アクションも消える。これはブラウザ側の `getAvailableComponents` 実装が担うことになる（ブラウザ前提なので問題なし）
-3. `RESOURCE_MUTATING_ACTIONS` による `persistResourceChange` は**ブラウザ接続時でも必要**（ブラウザが material/texture を操作した後、サーバーのファイルにも保存する必要がある）
-4. `scene.ts` POST エンドポイントも `project.syncFromBrowser()` を呼んでいるが、これは file save を伴うエンドポイントのため残す
-
----
-
-## 参考になる既存実装
-
-- `editorRouter.post('/editor/undo')`, `('/editor/redo')` — すでに「ブラウザ接続前提、未接続ならエラー」のシンプル実装になっている：
-  ```ts
-  if (bridge && bridge.connected) {
-      bridge.executeAction(...);
-      res.json({ success: true });
-  } else {
-      res.status(400).json({ error: 'Undo requires browser connection' });
-  }
+**実際の定義箇所**
+- `packages/maxpower/Utils/ShaderParser/shaderParts/vert_in.part.glsl`:
+  ```glsl
+  vec3 outPos = position;   // 頂点位置（書き込み可能）
+  vec3 outNormal = normal;
+  vec2 outUv = uv;
   ```
-  これを全アクションに統一するイメージ。
+- `packages/maxpower/Utils/ShaderParser/shaderParts/frag_in.part.glsl`:
+  ```glsl
+  vec4 outColor = vec4(1.0);
+  vec3 outEmission = vec3(0.0);
+  float outRoughness = 0.5;
+  float outMetalic = 0.0;   // ← Metallic ではなく Metaric（typo）
+  vec3 outPos = vPos;
+  ```
+
+**なぜ気づきにくいか**
+- `shader-guide.md` の「カスタマイズ可能な出力変数」テーブルに `outMetallic` と
+  記載されているが、実際のGLSLは `outMetalic`（typo）でドキュメントと実装が乖離
+- 頂点シェーダーで書き換え可能な変数（`outPos` 等）がドキュメントに明記されていない
+
+**改善案**
+- `shader-guide.md` に `<vert_in>` で展開される変数一覧を追記する
+- `outMetalic` のスペルをどちらかに統一する（理想は `outMetallic`）
+
+---
+
+### 問題3: 複数プロジェクトがある際に操作対象を確認しなかった
+
+**何が起きたか**
+DemoProject でエンティティを作成したあと「Project0 に追加して欲しかった」と指摘された。
+
+**なぜ起きたか**
+- サーバー起動確認時に `["DemoProject", "Project0"]` と2つ見えていたのに
+  最初に出てきた DemoProject をそのまま選んでしまった
+- skill の冒頭フローに「プロジェクトを確認する」とはあるが、
+  複数プロジェクトがある場合に「どちらを使うかユーザーに聞く」とは明記されていない
+
+**改善案**
+- skill の鉄則に「複数プロジェクトが存在する場合は操作対象をユーザーに確認する」を追記
+- `check-server.sh` の出力に「現在ブラウザで開かれているプロジェクト」を
+  表示できると自動判断できる（`/editor/status` API の活用）
+
+---
+
+### 問題4: `GET /editor/resources` が動かなかった
+
+**何が起きたか**
+`curl http://localhost:3001/api/projects/DemoProject/editor/resources` が
+`{"error": "Unknown action: getResources"}` を返した。
+
+**改善案**
+- 動作しないエンドポイントをドキュメントから削除するか `[未実装]` と注記する
+
+---
+
+### 問題5: ブラウザ未接続時のエラーメッセージが不親切
+
+**何が起きたか**
+Project0 をブラウザで開く前にAPIを叩いたら `{"error": "Timeout"}` が返った。
+
+**なぜ気づきにくいか**
+- 「タイムアウト」という言葉だけでは「ブラウザで開いていないから」とは推測しにくい
+
+**改善案**
+- エラーレスポンスを `{"error": "Timeout", "hint": "対象プロジェクトをブラウザで開いてください"}` のように詳細化する
+
+---
+
+## まとめ: 優先度別改善案
+
+| 優先度 | 対象 | 改善内容 |
+|--------|------|---------|
+| 高 | skill: `shader-guide.md` | `<vert_in>` の書き換え可能変数一覧を追記、`outMetalic` のスペル修正 |
+| 高 | skill: `api-scene.md` | バッチAPIで `componentName` を強調・必須明記 |
+| 高 | skill: 鉄則 | 複数プロジェクト時に操作対象をユーザー確認するルールを追加 |
+| 中 | API: batch entities | `componentName` 未指定時にエラーを返す |
+| 中 | API: エラーレスポンス | Timeout 時に hint を付与 |
+| 低 | エンジン: GLSL変数 | `outMetalic` → `outMetallic` に統一 |
+| 低 | skill: `api-resources.md` | 未実装エンドポイントの注記 |
