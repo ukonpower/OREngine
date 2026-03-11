@@ -10,10 +10,10 @@ Geometry geo = Geometry(
 Material mat = Material(
 	vec3( 1.0 ),
 	outRoughness,
-	outMetalic,
+	outMetallic,
 	outEmission,
-	mix( outColor.xyz, vec3( 0.0, 0.0, 0.0 ), outMetalic ),
-	mix( vec3( 1.0, 1.0, 1.0 ), outColor.xyz, outMetalic ),
+	mix( outColor.xyz, vec3( 0.0, 0.0, 0.0 ), outMetallic ),
+	mix( vec3( 1.0, 1.0, 1.0 ), outColor.xyz, outMetallic ),
 	outEnv
 );
 

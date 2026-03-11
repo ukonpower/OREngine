@@ -167,6 +167,42 @@
 						"uuid": "000002c4"
 					}
 				]
+			},
+			{
+				"name": "IkikaObject",
+				"uuid": "e5b210c5-a994-4b18-ad9f-10df610cca0c",
+				"pos": [
+					0,
+					0,
+					0
+				],
+				"rot": [
+					0,
+					0,
+					0
+				],
+				"scale": [
+					1.5,
+					1.5,
+					1.5
+				],
+				"components": [
+					{
+						"name": "Mesh",
+						"uuid": "2942e5cd-255c-491d-9aa6-b73d8e7f5efc",
+						"props": {
+							"geometry/type": "Sphere",
+							"geometry/radius": 0.8,
+							"geometry/widthSegments": 64,
+							"geometry/heightSegments": 64,
+							"material/name": "IkikaMaterial"
+						}
+					},
+					{
+						"name": "ObjectRotate",
+						"uuid": "316596b5-e8e2-4145-a9f5-3028fe73f392"
+					}
+				]
 			}
 		]
 	},

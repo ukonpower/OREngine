@@ -86,13 +86,13 @@ void main( void ) {
 
 	if( outColor.w < 0.5 ) discard;
 
-	outMetalic = 1.0;
+	outMetallic = 1.0;
 
 	#ifdef USE_MR_MAP
 
 		vec4 mr = texture( uMRMap, mapUv );
 		outRoughness = mr.y;
-		outMetalic = mr.z;
+		outMetallic = mr.z;
 
 	#endif
 	
@@ -111,7 +111,7 @@ void main( void ) {
 
 	#ifdef USE_METALNESS
 
-		outMetalic = uMetalness;
+		outMetallic = uMetalness;
 
 	#endif
 
