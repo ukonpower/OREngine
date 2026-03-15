@@ -33,13 +33,14 @@ REST APIでエンティティ操作、ファイル編集でシェーダー・コ
 
 - 新規シーン構築 → Flow 1: シーン構築
 - 既存シーンにオブジェクト追加 → Flow 1: シーン構築
+- オブジェクトを表示したい（静的な形状・シェーダーアニメーション） → Flow 1 + Flow 2（ビルトインMesh + Material + シェーダーで十分）
 - マテリアル・シェーダー・テクスチャ作成 → Flow 2: リソース作成
 - シェーダーのGLSLコード編集 → Flow 3: シェーダー編集
-- カスタムコンポーネント作成 → Flow 4: コンポーネント開発
+- 毎フレームのTS制御・インスタンシング・外部データ連携 → Flow 4: コンポーネント開発
 - エンティティAPI仕様 → `references/api-scene.md`
 - リソースAPI仕様 → `references/api-resources.md`
 - コンポーネント一覧・フィールド → `references/components-catalog.md`
-- コンポーネント開発パターン → `references/component-development.md`
+- コンポーネント開発ガイド → `references/component-development.md`
 - シェーダー記述リファレンス → `references/shader-guide.md`
 - エラー・うまくいかない → `references/troubleshooting.md`
 
@@ -143,13 +144,18 @@ src/ts/Resources/Shaders/{ShaderName}/
 
 ### Flow 4: コンポーネント開発（直接コード編集）
 
-カスタムコンポーネントはコードを直接記述して作成する。
+**まず本当にカスタムコンポーネントが必要か判断する。**
+
+- ただ表示するだけ → **不要**。ビルトインMesh + Material + シェーダーで十分（Flow 1 + Flow 2）
+- シェーダーだけで実現できるアニメーション → **不要**。シェーダー編集で対応（Flow 3）
+- 毎フレームのTS制御・インスタンシング・外部データ連携が必要 → **必要**。以下の手順で作成
 
 **手順:**
 1. `src/ts/Resources/Components/{Category}/{Name}/index.ts` にコンポーネントクラスを実装
    - `componentList.ts` への手動登録は不要（Viteプラグインが自動生成する）
+2. `npm run typecheck` で型チェック
 
-開発パターンの詳細は `references/component-development.md` を参照。
+コンポーネントの3カテゴリ（ビジュアル/制御/データ）、ライフサイクル、フィールドシステム等の詳細は `references/component-development.md` を参照。
 
 ## Examples
 
