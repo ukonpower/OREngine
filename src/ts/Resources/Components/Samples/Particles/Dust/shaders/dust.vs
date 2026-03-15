@@ -3,7 +3,6 @@
 
 out float vAlpha;
 
-uniform float uTimeE;
 uniform vec2 uDeferredResolution;
 
 void main( void ) {

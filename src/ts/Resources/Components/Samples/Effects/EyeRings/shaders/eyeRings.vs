@@ -2,8 +2,6 @@
 #include <vert_h>
 #include <rotate>
 
-uniform float uTimeE;
-
 out vec3 vInstance;
 
 layout(location = 3) in vec3 instance;

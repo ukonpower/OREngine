@@ -18,7 +18,6 @@ import { CameraRotateY } from '../Components/Samples/CameraControls/CameraRotate
 import { VJCamera } from '../Components/Samples/CameraControls/VJCamera/index.ts';
 import { EyeRings } from '../Components/Samples/Effects/EyeRings/index.ts';
 import { FlashLine } from '../Components/Samples/Effects/FlashLine/index.ts';
-import { NoiseFlare } from '../Components/Samples/Effects/NoiseFlare/index.ts';
 import { VectorField } from '../Components/Samples/Effects/VectorField/index.ts';
 import { GridCross } from '../Components/Samples/Geometry/GridCross/index.ts';
 import { GridDots } from '../Components/Samples/Geometry/GridDots/index.ts';
@@ -64,7 +63,6 @@ export const COMPONENTLIST: {[key: string]: any} = {
 		Effects: {
 			EyeRings,
 			FlashLine,
-			NoiseFlare,
 			VectorField,
 		},
 		Geometry: {
