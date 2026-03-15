@@ -1,154 +1,209 @@
-# Research: orengineスキルの見直し（Anthropic公式ガイド準拠）
+# Research: コンポーネント作成マニュアル
 
 ## タスク概要
+Samplesコンポーネント群を調査し、コンポーネントの作成方針・設計パターンをドキュメント化するための調査。細かな実装よりも「どういう方針でコンポーネントを作成するか」に焦点を当てる。
 
-Anthropic公式「The Complete Guide to Building Skills for Claude」の内容に基づき、OREngineのorengineスキルを見直す。PDFガイドのベストプラクティスと現状のスキル構造を比較し、改善点を特定する。
+## コンポーネントの分類
 
-## 現状のスキル構成
+Samples以下の21コンポーネント + 標準コンポーネントを分析した結果、以下の3カテゴリに分類できる:
 
-### 2つのバージョンが存在
-| バージョン | パス | 行数 | 特徴 |
-|-----------|------|------|------|
-| ローカル版 | `.claude/skills/orengine/SKILL.md` | 178行 | progressive disclosure対応、references/あり |
-| プラグイン版 | `plugins/.../orengine-tools/.../scene-builder/SKILL.md` | 318行 | APIリファレンス全インライン、references/なし |
+### カテゴリA: ビジュアルコンポーネント（Mesh生成型）
+Geometry + Material + Mesh を構築して描画するコンポーネント。コンポーネント数最多。
 
-### ローカル版のファイル構造
+| コンポーネント | ジオメトリ | インスタンシング | レンダリングフェーズ |
+|-------------|-----------|---------------|-----------------|
+| Dust | カスタム（POINTS） | なし | forward |
+| GridCross | CubeGeometry | あり（instancePos, instanceRot） | forward |
+| FlashLine | CylinderGeometry | あり（oPos） | forward, envMap |
+| VectorField | CubeGeometry | あり（instancePos, instanceId） | forward |
+| EyeRings | RingGeometry | あり（instance） | deferred, shadowMap |
+| Text | PlaneGeometry | あり（geoMatrix, uvMatrix） | デフォルト |
+
+### カテゴリB: 制御コンポーネント（Transform操作型）
+Entityのposition/quaternionを操作するコンポーネント。Meshを追加しない。
+
+| コンポーネント | 操作対象 | ライフサイクル |
+|-------------|---------|-------------|
+| ObjectRotate | entity.quaternion | updateImpl |
+| CameraOrbitAnim | entity.position + lookAt | updateImpl |
+| CameraFloating | entity.position + lookAt + DoF | updateImpl |
+| VJCamera | entity.position + matrixWorld | updateImpl + finalizeImpl |
+| LookAt | entity.matrixWorld | beforeRenderImpl |
+
+### カテゴリC: データ/ユーティリティコンポーネント
+外部デバイスやデータソースとの橋渡し。
+
+| コンポーネント | 役割 |
+|-------------|------|
+| AudioTexture | Web Audio API → テクスチャ → uniform |
+| MIDIMIX / LPD8 | MIDI デバイス → uniform |
+| UniformControls | 時間・解像度 → globalUniforms |
+
+## 既存パターン
+
+### パターン1: コンストラクタ完結型（最も一般的）
+constructorでGeometry・Material・Meshをすべて構築し、updateImplが不要なパターン。
+**該当**: Dust, GridCross, FlashLine, VectorField, EyeRings, Text
+
+```typescript
+export class XxxComponent extends MXP.Component {
+    constructor( params: MXP.ComponentParams ) {
+        super( params );
+        const geometry = new MXP.XxxGeometry( ... );
+        geometry.setAttribute( "instanceXxx", new Float32Array(...), N, { instanceDivisor: 1 } );
+        const material = new MXP.Material( { frag, vert, phase, uniforms } );
+        this.entity.addComponent( MXP.Mesh, { geometry, material } );
+        // HMR設定
+    }
+    public dispose(): void {
+        super.dispose();
+        this.entity.removeComponent( MXP.Mesh );
+    }
+}
 ```
-.claude/skills/orengine/
-├── SKILL.md                              # 178行
-├── scripts/
-│   └── check-server.sh
-└── references/
-    ├── api-scene.md                      # 201行
-    ├── api-resources.md                  # 85行
-    ├── components-catalog.md             # 80行
-    ├── component-development.md          # 182行
-    ├── shader-guide.md                   # 159行
-    └── troubleshooting.md               # 93行
-```
-合計: SKILL.md 178行 + references 800行 = 978行
 
-## PDFガイドのベストプラクティスとの比較
+### パターン2: updateImpl駆動型
+毎フレームEntityのTransformを更新するパターン。
+**該当**: ObjectRotate, CameraOrbitAnim, CameraFloating, 各カメラコントロール
 
-### 1. Description（トリガー記述）— 要改善
-
-**ガイドの推奨構造:** `[What it does] + [When to use it] + [Key capabilities]`
-
-**現状のdescription:**
-```yaml
-description: >
-  This skill should be used when the user asks to "シーンを作って", "エンティティを追加",
-  "オブジェクトを配置", "マテリアルを設定", ...
-  or mentions scene construction, entity manipulation, component development,
-  shader programming, or 3D object placement in OREngine.
+```typescript
+export class XxxComponent extends MXP.Component {
+    constructor( params: MXP.ComponentParams ) {
+        super( params );
+        // パラメータ初期化 + Serializableフィールド定義
+    }
+    protected updateImpl( event: MXP.ComponentUpdateEvent ): void {
+        // entity.position / entity.quaternion の操作
+    }
+}
 ```
 
-**問題点:**
-- 「What it does」（何をするか）が完全に欠落。トリガーフレーズの羅列のみ
-- ガイドのBad example の逆パターン: トリガーはあるが目的がない
-- descriptionの構造: `[目的] + [トリガー] + [主要機能]` にリストラクチャすべき
+### パターン3: 複数ライフサイクル利用型
+updateImpl + finalizeImpl（または beforeRenderImpl）を組み合わせるパターン。
+**該当**: VJCamera, LookAt
 
-**ガイドの良い例との比較:**
+- `updateImpl`: Entity位置の更新
+- `finalizeImpl`: matrixWorld確定後のlookAt適用
+- `beforeRenderImpl`: レンダリング直前の最終調整
+
+## レンダリングフェーズの使い分け
+
+| フェーズ | 用途 | 例 |
+|---------|------|-----|
+| `deferred` | 不透明オブジェクト。GBufferに出力。ライティング対応 | EyeRings |
+| `forward` | 半透明・特殊描画。直接フォワードレンダリング | Dust, GridCross, FlashLine |
+| `shadowMap` | シャドウマップに描画 | EyeRings |
+| `envMap` | 環境マップに描画 | FlashLine |
+| 指定なし | デフォルト（deferred） | Text |
+
+**方針**: 不透明で通常のライティングを受けるオブジェクトは `deferred`、パーティクルや半透明エフェクトは `forward`。影を落としたい場合は `shadowMap` を追加。
+
+## ユニフォームの取得方法（2パターン）
+
+### Engine.getInstance(gl).uniforms
+エンジン全体のユニフォームセットを一括取得。
+```typescript
+uniforms: MXP.UniformsUtils.merge( Engine.getInstance( gl ).uniforms )
 ```
-# ガイドの良い例
-"Manages Linear project workflows including sprint planning, task creation,
-and status tracking. Use when user mentions 'sprint', 'Linear tasks',
-'project planning', or asks to 'create tickets'."
 
-# 現状（悪い）
-"This skill should be used when the user asks to 'シーンを作って'..."
-→ 何をするスキルなのかが書かれていない
+### globalUniforms から個別選択
+必要なユニフォームだけを選択的にマージ。
+```typescript
+uniforms: MXP.UniformsUtils.merge( globalUniforms.resolution, globalUniforms.time )
 ```
 
-### 2. Progressive Disclosure（段階的開示）— ローカル版は良好
+## HMRパターン
 
-**ガイドの3レベルシステム:**
-- Level 1（YAML frontmatter）: 常にロード → トリガー判定用
-- Level 2（SKILL.md body）: 関連時にロード → コアワークフロー
-- Level 3（references/）: 必要時のみClaudeが参照 → 詳細リファレンス
+シェーダーのホットリロード対応。推奨パターン:
 
-**ローカル版: ✅ 概ね良好**
-- SKILL.md: Decision Map + Canonical Flows + Guardrails
-- references/: 詳細API・カタログ・ガイド
-- 「リファレンスは問題が発生したときのみ参照する」と明記 ✅
+```typescript
+// 初期値をhotGetで取得
+const mat = new MXP.Material( {
+    frag: MXP.hotGet( 'uniqueKey', fragShader ),
+    vert: MXP.hotGet( 'uniqueKey', vertShader ),
+} );
+// HMR時にhotUpdateで更新
+import.meta.hot.accept( './shaders/xxx.fs', ( module ) => {
+    mat.frag = MXP.hotUpdate( 'uniqueKey', module.default );
+    mat.requestUpdate();
+} );
+```
 
-**プラグイン版: ❌ 非対応**
-- 318行のSKILL.mdにAPIリファレンス全体がインライン
-- references/なし → Level 2と3が混在
+## Serializableフィールドシステム
 
-### 3. SKILL.md本体の構造 — Examplesが欠落
+エディタUIでパラメータを編集可能にする仕組み。
 
-**ガイドの推奨構造:** Instructions → Steps → **Examples** → **Troubleshooting**
+```typescript
+// 基本使用
+this.field( "radius", () => this.radius, v => this.radius = v as number );
 
-**現状:**
-- 前提条件 ✅
-- Decision Map ✅（良い工夫）
-- 鉄則（操作前確認） ✅
-- Canonical Flows ✅
-- Guardrails ✅
-- References リスト ✅
-- **Examples セクション ❌ 欠落** — ガイドが強く推奨
-- **Troubleshooting（インライン） ❌ 欠落** — references/にはあるが、よくあるエラーのクイックフィックスがSKILL.md内にない
+// フォルダ構造化
+const settings = this.fieldDir( "Settings" );
+settings.field( "value", () => this._value, v => this._value = v );
 
-### 4. 命名・構造ルール — ✅ 準拠
+// セレクト形式
+this.field( "deviceId", () => this._deviceId, v => { ... }, {
+    format: { type: "select", list: () => this._deviceList }
+} );
 
-| 項目 | 現状 | 判定 |
-|------|------|------|
-| SKILL.md命名 | `SKILL.md` | ✅ |
-| フォルダ名 | `orengine` / `scene-builder` | ✅ kebab-case |
-| README.md | なし | ✅ 正しい |
-| allowed-tools | あり | ✅ |
+// 値変更通知（非同期でリストが変わった場合等）
+this.noticeField( "fieldName" );
+```
 
-### 5. metadataフィールド — ❌ なし
+## コンストラクタ引数パターン
 
-ガイドは author, version, mcp-server などの metadata を推奨。
+```typescript
+// 引数なし（一般的）
+constructor( params: MXP.ComponentParams ) { ... }
 
-### 6. negative trigger — ❌ なし
+// カスタム引数あり
+constructor( params: MXP.ComponentParams<{num?: number} | void> ) {
+    const count = params.args?.num || 2048;
+}
+```
 
-ガイドは overtriggering 防止のため、negative trigger（「Do NOT use for...」）を推奨。
-現状、一般的なTypeScript/GLSL質問でもトリガーしうる。
+## disposeパターン
 
-### 7. エラーハンドリング指示 — 要改善
+| パターン | 方法 | 該当 |
+|---------|------|------|
+| Mesh追加型 | `super.dispose(); this.entity.removeComponent( MXP.Mesh );` | Dust, FlashLine等 |
+| タイマー管理型 | `this.once( "dispose", () => clearInterval(id) );` | VJCamera |
+| 制御型 | disposeオーバーライド不要 | ObjectRotate, CameraOrbitAnim |
 
-ガイドは「Include error handling」を強く推奨。現状のGuardrailsセクションにエラー時の対処が一部あるが、具体的なエラーメッセージと対処法のペアが不足。
+## order プロパティ
+コンポーネントの実行順序を制御。デフォルト: 0。
+- LookAt: `this.order = 9999`（他の位置更新より後に実行）
+- CameraFloating: `this.order = 1`
 
-## 主要な改善ポイントまとめ
+## ディレクトリ構造規約
 
-### 優先度高
-1. **description改善**: `[目的] + [トリガー] + [主要機能]` に再構成
-2. **Examplesセクション追加**: 具体的な使用シナリオ2-3個
-3. **プラグイン版の更新**: references/を活用したprogressive disclosure対応
+```
+src/ts/Resources/Components/
+├── <グループ名>/           ← カテゴリ別グループ
+│   └── <コンポーネント名>/  ← PascalCase
+│       ├── index.ts        ← export class Xxx extends MXP.Component（必須）
+│       └── shaders/        ← シェーダーファイル（オプション）
+│           ├── xxx.vs
+│           └── xxx.fs
+└── _PostProcess/           ← アンダースコアプレフィックスはスキャン対象外
+```
 
-### 優先度中
-4. **Troubleshootingのインライン化**: よくあるエラー（サーバー未起動、ブラウザ未接続、503）のクイックフィックス
-5. **metadataフィールド追加**: version, author
-6. **negative trigger追加**: 一般プログラミングやGLSL文法の質問ではトリガーしないよう明示
-
-### 優先度低
-7. **SKILL.mdサイズ**: 178行は「5,000 words以下」推奨の範囲内で問題なし
+- Viteプラグインが `export class Xxx` を自動検出して `componentList.ts` に登録
+- 手動登録は不要
 
 ## 関連ファイル
 
 | ファイル | 役割 |
 |---------|------|
-| `.claude/skills/orengine/SKILL.md` | ローカル版メインスキル（**主な改善対象**） |
-| `.claude/skills/orengine/scripts/check-server.sh` | サーバー状態確認スクリプト |
-| `.claude/skills/orengine/references/*.md` | 6つのリファレンスファイル |
-| `plugins/.../orengine-tools/.../scene-builder/SKILL.md` | プラグイン版スキル |
+| `packages/maxpower/Component/index.ts` | Component基底クラス |
+| `packages/maxpower/Serializable/index.ts` | フィールドシステム基底 |
+| `src/ts/Globals/index.ts` | globalUniforms定義 |
+| `plugins/ResourceManager/` | Viteプラグイン（自動登録） |
 
 ## 制約・注意点
 
-- ローカル版は**このプロジェクト専用**（`.claude/skills/`配下）
-- プラグイン版は**claude-plugins リポジトリ**で管理（別リポジトリ）
-- description内でXMLタグ（`<` `>`）は使用禁止
-- description は 1024文字以内
-
-## PDFガイドから特に重要なポイント
-
-- descriptionは「Claudeがスキルをロードするか判断する最重要フィールド」
-- 「What it does + When to use it + Key capabilities」の構造
-- Progressive disclosureの3レベル設計
-- Examples と Troubleshooting は recommended structure の必須要素
-- negative trigger で overtriggering を防止
-- 「Instructions too verbose → Keep instructions concise, Use bullet points」
-- 「Critical instructions at the top, Use ## Important headers」
+- `_data/` 以下のファイル（componentList.ts等）は自動生成のため手動編集禁止
+- ディレクトリ名が `_` 始まりのものは自動スキャン対象外（_PostProcess等）
+- HMRのキー名はプロジェクト全体でユニークにする必要がある
+- `Engine.getInstance(gl)` でgl contextが必要（`~/ts/Globals` からimport）
+- Meshを追加したコンポーネントは必ずdisposeでremoveComponentすること
