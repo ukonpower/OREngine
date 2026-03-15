@@ -16,7 +16,7 @@ void main( void ) {
 		vPos,
 		vec3( 0.0, 0.0, 0.0 ),
 		0.0,
-		normalize( cameraPosition - vPos ),
+		normalize( uCameraPosition - vPos ),
 		vec3( 0.0 ),
 		0.0
 	);

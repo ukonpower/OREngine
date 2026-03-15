@@ -1,5 +1,4 @@
 #include <common>
-#include <uni_time>
 #include <frag_h>
 
 in vec4 vOPos;

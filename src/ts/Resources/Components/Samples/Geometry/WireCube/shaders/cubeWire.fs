@@ -1,8 +1,6 @@
 #include <common>
 #include <frag_h>
 
-uniform float uTimeE;
-
 void main( void ) {
 
 	#include <frag_in>
