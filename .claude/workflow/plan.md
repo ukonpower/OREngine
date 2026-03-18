@@ -1,132 +1,57 @@
-# Plan: コンポーネント作成マニュアル
+# Plan: GIZMOレイキャストの位置ズレ修正
 
 ## 概要
-
-Samplesコンポーネント群の分析結果を基に、OREngineのコンポーネント作成方針ガイドを作成する。
-細かなAPI仕様ではなく「どういう方針でコンポーネントを作るか」を中心にした設計ガイドドキュメント。
-
-**成果物**: `docs/component-guide.md`（1ファイル）
-
-## ドキュメント構成
-
-### 全体構造
-
-```
-# コンポーネント作成ガイド
-
-## コンポーネントとは
-## はじめに: 最小のコンポーネント
-## コンポーネントの3つのカテゴリ
-  - ビジュアル（Mesh生成型）
-  - 制御（Transform操作型）
-  - データ/ユーティリティ
-## ライフサイクル
-## レンダリングフェーズの選び方
-## ユニフォームの扱い方
-## Serializableフィールド（エディタ連携）
-## シェーダーとHMR
-## disposeとリソース管理
-## ディレクトリ配置と自動登録
-```
+`object-fit: contain` によるレターボックス/ピラーボックスの余白を `getNDC()` が考慮していないため、マウス座標→NDC変換がズレている。`getNDC()` にキャンバスバッファのアスペクト比補正を追加して修正する。
 
 ## 実装ステップ
 
-### 1. ドキュメントファイルの作成
+### 1. `getNDC()` に `object-fit: contain` のオフセット補正を追加
 
-- **対象ファイル**: `docs/component-guide.md`（新規）
-- **変更内容**: 以下の各セクションを含むマニュアルを作成
+- **対象ファイル**: `packages/orengine/ts/Editor/PointerHandler/index.ts`
+- **変更内容**: `getNDC()` 関数（L47-55）で、`canvasElm.width/height`（バッファサイズ）と `rect.width/height`（CSS矩形サイズ）のアスペクト比を比較し、`object-fit: contain` による余白オフセットを差し引いてからNDC座標を計算する。
+- **コードスニペット**:
+  ```typescript
+  const getNDC = ( e: PointerEvent ): GLP.Vector => {
 
-#### セクション1: コンポーネントとは
-- Component基底クラスの継承階層（EventEmitter → Serializable → Component）
-- Entityに追加して振る舞いを付与する仕組みであること
-- 「1つのコンポーネント = 1つの責務」の原則
+      const rect = canvasElm.getBoundingClientRect();
+      const canvasAspect = canvasElm.width / canvasElm.height;
+      const rectAspect = rect.width / rect.height;
 
-#### セクション2: はじめに: 最小のコンポーネント
-- ObjectRotateをベースにした最小構成の例
-- ファイル配置 → `export class` → 自動登録の流れ
-- 「これだけで動く」という最小限を示す
+      let contentWidth = rect.width;
+      let contentHeight = rect.height;
+      let offsetX = 0;
+      let offsetY = 0;
 
-#### セクション3: コンポーネントの3つのカテゴリ
-research.mdの分類をそのままガイド化:
+      if ( rectAspect > canvasAspect ) {
 
-**A. ビジュアルコンポーネント（Mesh生成型）**
-- 方針: constructorでGeometry + Material + Meshを構築
-- いつ使う: 画面に何かを描画したいとき
-- 代表例: Dust, GridCross, EyeRings
-- 判断ポイント:
-  - 不透明 → `deferred` / 半透明・パーティクル → `forward`
-  - 大量描画 → インスタンシング
-  - 影を落とす → `shadowMap` を追加
+          contentWidth = rect.height * canvasAspect;
+          offsetX = ( rect.width - contentWidth ) / 2;
 
-**B. 制御コンポーネント（Transform操作型）**
-- 方針: updateImplでEntityのTransformを毎フレーム操作
-- いつ使う: オブジェクトの動き・カメラ制御
-- 代表例: ObjectRotate, CameraOrbitAnim
-- 判断ポイント:
-  - 通常はupdateImplのみで十分
-  - matrixWorld確定後に処理が必要 → finalizeImpl
-  - レンダリング直前に最終調整 → beforeRenderImpl
-  - 実行順序の制御が必要 → orderプロパティ
+      } else {
 
-**C. データ/ユーティリティコンポーネント**
-- 方針: 外部データを取得してuniformに流す
-- いつ使う: オーディオ・MIDI等の外部入力を扱うとき
-- 代表例: AudioTexture, UniformControls
+          contentHeight = rect.width / canvasAspect;
+          offsetY = ( rect.height - contentHeight ) / 2;
 
-#### セクション4: ライフサイクル
-- updateImpl / postUpdateImpl / finalizeImpl / beforeRenderImpl / afterRenderImpl の役割
-- 「どれを使うべきか」のフローチャート的な説明
-- orderプロパティによる実行順序制御
+      }
 
-#### セクション5: レンダリングフェーズの選び方
-- deferred / forward / shadowMap / envMap の判断基準
-- 簡潔な判断フロー:
-  - 不透明でライティングあり → deferred
-  - 半透明・パーティクル・特殊描画 → forward
-  - 影を落とす → shadowMap 追加
-  - 環境マップに映り込む → envMap 追加
+      const x = ( ( e.clientX - rect.left - offsetX ) / contentWidth ) * 2 - 1;
+      const y = - ( ( e.clientY - rect.top - offsetY ) / contentHeight ) * 2 + 1;
 
-#### セクション6: ユニフォームの扱い方
-- Engine.getInstance(gl).uniforms（一括取得）
-- globalUniformsから個別選択
-- カスタムuniformの追加方法
-- 「迷ったらEngine.getInstance(gl).uniformsを使う」
+      return new GLP.Vector( x, y );
 
-#### セクション7: Serializableフィールド（エディタ連携）
-- this.field() の基本パターン
-- fieldDir() によるフォルダ構造化
-- formatオプション（select等）
-- 「エディタから操作したいパラメータにだけfieldを定義する」方針
-
-#### セクション8: シェーダーとHMR
-- shaders/ ディレクトリの配置
-- hotGet / hotUpdate パターン
-- import.meta.hot.accept の書き方
-- 「開発効率のためにHMR対応は推奨」
-
-#### セクション9: disposeとリソース管理
-- Mesh追加した → removeComponent必須
-- タイマー・イベント → this.once("dispose", ...) で解放
-- 何も追加していない → dispose不要
-- 「追加したものは必ず片付ける」原則
-
-#### セクション10: ディレクトリ配置と自動登録
-- ディレクトリ構造の規約
-- export class の命名
-- `_` プレフィックスでスキャン除外
-- 手動登録不要の仕組み
+  };
+  ```
+- **注意点**: `canvasElm.width / canvasElm.height` は `_baseResolution * _resolutionScale` と同じアスペクト比。均一スケールなのでアスペクト比は不変。
 
 ## 変更対象ファイル一覧
-
-- [x] `docs/component-guide.md` - コンポーネント作成ガイド（新規作成）
+- [x] `packages/orengine/ts/Editor/PointerHandler/index.ts` - `getNDC()` に `object-fit: contain` 補正を追加
 
 ## 考慮事項・リスク
-
-- **ドキュメントの肥大化**: 方針ガイドに徹し、API仕様の詳細は書かない。コード例は最小限の抜粋に留める
-- **既存ドキュメントとの整合**: CLAUDE.mdにはアーキテクチャ概要とコードスタイルが書かれている。重複を避け、component-guide.mdはコンポーネント固有の方針に集中する
-- **ADRとの関係**: ADR 003（Entity-Component継承階層）に関連するが、ADRは「なぜその設計にしたか」、本ガイドは「どう使うか」という棲み分け
+- **余白領域でのクリック**: NDC が [-1, 1] の範囲外になるが、レイキャストは正しく「ヒットなし」を返すため問題ない
+- **OrbitControls への影響**: マウスの相対移動量を使うため、この変更の影響を受けない
 
 ## テスト方針
-
-- ドキュメント内のコード例が既存のSamplesコンポーネントと一致しているか目視確認
-- 記載したディレクトリ構造が実際のプロジェクト構造と一致しているか確認
+- エディタを起動し、Screenパネルのアスペクト比を16:9以外にリサイズ
+- Translate/Rotate/Scale 各ギズモの軸をクリック・ドラッグし、カーソル位置と一致することを確認
+- シーン上のオブジェクトのクリック選択がカーソル位置と一致することを確認
+- `resolutionScale` を 1/2, 1/4 に変更してもズレがないことを確認
