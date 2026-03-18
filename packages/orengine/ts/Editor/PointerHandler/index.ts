@@ -47,8 +47,28 @@ export class PointerHandler {
 		const getNDC = ( e: PointerEvent ): GLP.Vector => {
 
 			const rect = canvasElm.getBoundingClientRect();
-			const x = ( ( e.clientX - rect.left ) / rect.width ) * 2 - 1;
-			const y = - ( ( e.clientY - rect.top ) / rect.height ) * 2 + 1;
+			const canvasAspect = canvasElm.width / canvasElm.height;
+			const rectAspect = rect.width / rect.height;
+
+			let contentWidth = rect.width;
+			let contentHeight = rect.height;
+			let offsetX = 0;
+			let offsetY = 0;
+
+			if ( rectAspect > canvasAspect ) {
+
+				contentWidth = rect.height * canvasAspect;
+				offsetX = ( rect.width - contentWidth ) / 2;
+
+			} else {
+
+				contentHeight = rect.width / canvasAspect;
+				offsetY = ( rect.height - contentHeight ) / 2;
+
+			}
+
+			const x = ( ( e.clientX - rect.left - offsetX ) / contentWidth ) * 2 - 1;
+			const y = - ( ( e.clientY - rect.top - offsetY ) / contentHeight ) * 2 + 1;
 
 			return new GLP.Vector( x, y );
 
