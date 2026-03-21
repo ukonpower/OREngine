@@ -29,6 +29,8 @@ export class OrbitControls extends MXP.Component {
 
 	private elmDisposer?: () => void;
 
+	private touching_: boolean;
+
 	constructor( params: MXP.ComponentParams ) {
 
 		super( params );
@@ -47,22 +49,25 @@ export class OrbitControls extends MXP.Component {
 		this._memPos = new GLP.Vector();
 		this._memTarget = new GLP.Vector();
 		this._multiTouching = false;
+		this.touching_ = false;
 
 		this.order = 999;
 
-		let touching = false;
-
 		const onPointerStart = ( _e: PointerEventArgs ) => {
 
-			if ( touching ) return;
+			if ( ! this._enabled ) return;
 
-			touching = true;
+			if ( this.touching_ ) return;
+
+			this.touching_ = true;
 
 		};
 
 		const onPointerMove = ( e: PointerEventArgs ) => {
 
-			if ( ! touching ) return;
+			if ( ! this._enabled ) return;
+
+			if ( ! this.touching_ ) return;
 			if ( this._multiTouching ) return;
 
 			const delta = { x: e.delta.x * 1.0, y: e.delta.y * 1.0 };
@@ -84,9 +89,11 @@ export class OrbitControls extends MXP.Component {
 
 		const onPointerEnd = ( _e: PointerEventArgs ) => {
 
-			if ( ! touching ) return;
+			if ( ! this._enabled ) return;
 
-			touching = false;
+			if ( ! this.touching_ ) return;
+
+			this.touching_ = false;
 
 		};
 
@@ -124,6 +131,13 @@ export class OrbitControls extends MXP.Component {
 			}
 
 			this.calc( this.entity );
+
+		} else {
+
+			this.mouseVelOrbit_.set( 0, 0, 0 );
+			this.mouseVelMove_.set( 0, 0, 0 );
+			this.distanceVel_ = 0;
+			this.touching_ = false;
 
 		}
 
