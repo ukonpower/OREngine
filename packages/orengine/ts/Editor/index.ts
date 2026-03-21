@@ -395,7 +395,7 @@ export class Editor extends MXP.Serializable {
 				? this._engine.root.findEntityByUUID( this._selectedEntityId ) ?? null
 				: null;
 
-			this._helperManager.render( this._editorCamera.cameraMode, cameraEntity, this._engine );
+			this._helperManager.render( this._editorCamera.cameraMode, cameraEntity, this._engine, this._selectedEntityId );
 
 			this._wireframeRenderer.render( this._editorCamera.cameraMode, cameraEntity, this._engine );
 

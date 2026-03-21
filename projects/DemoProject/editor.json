@@ -1,13 +1,13 @@
 {
 	"enableRender": true,
-	"resolutionScale": 0.5,
+	"resolutionScale": 0.25,
 	"resolution/width": 1920,
 	"resolution/height": 1080,
 	"viewType": "render",
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,
 	"frameLoop/end": 0,
-	"selectedEntityId": "0000013a",
+	"selectedEntityId": "000002c3",
 	"selectedAsset": {
 		"name": "OREngineCube",
 		"assetType": "material"
@@ -22,9 +22,9 @@
 	"helpers/light": true,
 	"helpers/wireframe": false,
 	"camera/position": [
-		-1.8297358460795021,
-		2.2841552330673203,
-		10.806092350257133
+		13.037483223620107,
+		3.7882917960416354,
+		1.961302093386283
 	],
 	"camera/target": [
 		0.5649376068599679,
