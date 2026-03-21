@@ -15,7 +15,7 @@ export function createHitAreaMaterial(): MXP.Material {
 }
 
 export type GizmoAxis = 'x' | 'y' | 'z';
-export type GizmoMode = 'translate' | 'rotate' | 'scale';
+export type GizmoMode = 'select' | 'translate' | 'rotate' | 'scale';
 
 export interface GizmoDragResult {
 	position?: GLP.Vector;

@@ -74,15 +74,15 @@ export const Screen = () => {
 				) )}
 			</div>
 			<div className={style.header_gizmoMode}>
-				{( [ "translate", "rotate", "scale" ] as const ).map( ( mode ) => (
+				{( [ "select", "translate", "rotate", "scale" ] as const ).map( ( mode ) => (
 					<div
 						key={mode}
 						className={style.header_gizmoBtn}
 						data-active={gizmoMode === mode}
 						onClick={() => setGizmoMode && setGizmoMode( mode )}
-						title={`${mode} (${mode === 'translate' ? 'W' : mode === 'rotate' ? 'E' : 'R'})`}
+						title={`${mode} (${mode === 'select' ? 'Q' : mode === 'translate' ? 'W' : mode === 'rotate' ? 'E' : 'R'})`}
 					>
-						{mode === 'translate' ? 'T' : mode === 'rotate' ? 'R' : 'S'}
+						{mode === 'select' ? 'Q' : mode === 'translate' ? 'T' : mode === 'rotate' ? 'R' : 'S'}
 					</div>
 				) )}
 			</div>
