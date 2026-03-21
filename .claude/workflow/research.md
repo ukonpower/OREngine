@@ -1,64 +1,103 @@
-# Research: Gizmoドラッグ終了時のOrbitControlsカメラ移動問題
+# Research: Gizmo「選択のみ」モードの追加
 
 ## タスク概要
-Gizmoをドラッグすると、ドラッグ終了時にOrbitControlsによるカメラ移動が発生してしまう。Gizmoドラッグ中のマウス移動量がOrbitControlsの速度として蓄積され、ドラッグ終了後に適用されることが原因。
+現在、エンティティを選択すると必ずtranslate/rotate/scaleのいずれかのGizmoが表示される。Gizmoを表示せず、ただ選択だけするモード（"select"モード）を追加したい。基本はこのモードにしたい。
 
 ## 関連ファイル・シンボル
 
 | ファイル | 主要シンボル | 役割 |
 |---------|------------|------|
-| `packages/orengine/ts/Controls/OrbitControls/index.ts` | OrbitControls, updateImpl, mouseVelOrbit_, mouseVelMove_ | カメラの軌道制御。マウス速度を蓄積して毎フレーム適用 |
-| `packages/orengine/ts/Editor/PointerHandler/index.ts` | PointerHandler, onPointerDown, onPointerUp | Gizmoドラッグの開始/終了管理。OrbitControls.enabled の切り替え |
-| `packages/orengine/ts/Engine/Pointer/index.ts` | Pointer | ポインターイベント抽象化層。EventEmitterでstart/move/endを配信 |
-| `packages/orengine/ts/Editor/EditorCamera/index.ts` | EditorCamera | エディタカメラ管理。orbitControlsゲッター |
+| `packages/orengine/ts/Editor/Gizmo/index.ts` | `GizmoMode`, `Gizmo` interface | Gizmoの型定義。`GizmoMode = 'translate' \| 'rotate' \| 'scale'` |
+| `packages/orengine/ts/Editor/GizmoManager/index.ts` | `GizmoManager` | Gizmo管理。`setMode()`, `render()`, `activeGizmo` |
+| `packages/orengine/ts/Editor/index.ts` | `Editor` | `field("gizmoMode", ...)` でSerializableフィールド登録（行282-286）。`_animate()`内で毎フレーム`_gizmoManager.render()`呼び出し（行402） |
+| `packages/orengine/ts/Editor/PointerHandler/index.ts` | `PointerHandler` | マウス処理。ドラッグ開始時にGizmo軸のレイキャスト（行90-141）、選択処理 |
+| `packages/orengine/ts/Editor/KeyboardHandler/index.ts` | `KeyboardHandler` | `w`=translate, `e`=rotate, `r`=scale ショートカット |
+| `tsx/components/Panels/Screen/index.tsx` | Screen コンポーネント | GizmoモードUIボタン（行76-88）。`T`/`R`/`S`ボタン |
+| `tsx/components/Panels/Screen/index.module.scss` | SCSS | ボタンのスタイル |
 
-## 根本原因の詳細
+## 依存関係
 
-### 1. `enabled = false` がイベントリスナーを無効化しない
-
-OrbitControls の `enabled` setter (L109-130) は `_enabled` フラグを設定するだけ。Pointer の EventEmitter リスナー（onPointerStart/Move/End）は登録されたまま動作し続ける。
-
-```typescript
-// L109-130: enabled setter - フラグ設定のみ、リスナー制御なし
-public set enabled( value: boolean ) {
-    this._enabled = value;
-    // ...位置の復元処理のみ（true設定時）
-}
+```
+KeyboardHandler / Screen UI
+  ↓ setGizmoMode(mode)
+Editor.setField("gizmoMode", mode)
+  ↓
+GizmoManager.setMode(mode)
+  ↓
+GizmoManager._activeGizmo = 対応するGizmoインスタンス
+  ↓
+GizmoManager.render() → activeGizmo.setTarget() → visible制御
+  ↓
+PointerHandler: activeGizmo.entity.visible チェック → ドラッグ処理
 ```
 
-### 2. `_enabled` フラグがどこでもチェックされない
+## 既存パターン
 
-`_enabled` は getter (L132-136) で返されるだけ。以下の箇所で参照されていない:
-- `onPointerStart` (L55-61): `touching = true` を無条件で設定
-- `onPointerMove` (L63-83): `mouseVelOrbit_.add(delta)` を無条件で実行
-- `onPointerEnd` (L85-91): `touching = false` を無条件で設定
-- `updateImpl` (L280-307): `orbit_ += mouseVelOrbit_ * 0.001` を無条件で適用
+### GizmoMode型（変更必須）
+```typescript
+// packages/orengine/ts/Editor/Gizmo/index.ts
+export type GizmoMode = 'translate' | 'rotate' | 'scale';
+```
+→ `'select'` を追加する必要がある
 
-### 3. イベントフロー（時系列）
+### GizmoManager.setMode（変更必須）
+```typescript
+public setMode(v: GizmoMode) {
+  this._mode = v;
+  if (v === 'translate') this._activeGizmo = this._translateGizmo;
+  else if (v === 'rotate') this._activeGizmo = this._rotateGizmo;
+  else this._activeGizmo = this._scaleGizmo;
+}
+```
+→ `'select'`時に`_activeGizmo`を`null`にする
 
-| ステップ | 処理 | 状態変化 |
-|---------|------|---------|
-| pointerdown | PointerHandler: `_gizmoDragging=true`, `enabled=false` (L123-124) | Gizmoドラッグ開始 |
-| Pointer emit "start" | OrbitControls: `touching=true` (L59) | **touchingがtrue（enabledチェックなし）** |
-| pointermove × N | Pointer emit "move" → OrbitControls: `mouseVelOrbit_.add(delta)` (L76) | **速度が蓄積され続ける** |
-| pointerup | PointerHandler: `endDrag()`, `enabled=true` (L281-283) | Gizmoドラッグ終了 |
-| 次フレーム | OrbitControls.updateImpl: `orbit_ += mouseVelOrbit_ * 0.001` (L293-295) | **蓄積速度でカメラが動く** |
+### GizmoManager.render（変更必須）
+render()内で`_activeGizmo`が存在する前提の処理がある:
+- `this._activeGizmo.setTarget(...)` 呼び出し
+- `this._activeGizmo.entity.visible` チェック
+→ selectモード時はGizmo描画をスキップ
 
-### 4. `touching` がローカル変数
+### PointerHandler のドラッグ開始（変更必須）
+```typescript
+if (gizmoManager.activeGizmo.entity.visible) {
+  // Gizmo軸のレイキャスト
+}
+```
+→ `activeGizmo`がnullの場合のガード必要
 
-`touching` (L53) はコンストラクタ内のローカル変数のため、外部からリセットする手段がない。
+### キーボードショートカット
+```typescript
+if (e.key === 'w') callbacks.onSetGizmoMode('translate');
+if (e.key === 'e') callbacks.onSetGizmoMode('rotate');
+if (e.key === 'r') callbacks.onSetGizmoMode('scale');
+```
+→ `'q'`キーをselectモードに割り当てるのが自然
 
-## 修正方針
-
-**OrbitControlsの3つのイベントハンドラで `_enabled` をチェックする + enabled setter で状態リセット**
-
-1. `onPointerStart` の先頭に `if (!this._enabled) return;` 追加
-2. `onPointerMove` の先頭に `if (!this._enabled) return;` 追加
-3. `onPointerEnd` の先頭に `if (!this._enabled) return;` 追加
-4. `touching` をクラスフィールドに昇格
-5. `enabled = false` 設定時に `mouseVelOrbit_`, `mouseVelMove_`, `distanceVel_` をゼロリセット + `touching` を false に
+### Screen UIボタン（行76-88）
+```typescript
+{(['translate', 'rotate', 'scale'] as const).map((mode) => (
+  <div ... onClick={() => setGizmoMode && setGizmoMode(mode)}>
+    {mode === 'translate' ? 'T' : mode === 'rotate' ? 'R' : 'S'}
+  </div>
+))}
+```
+→ 配列に`'select'`を追加、表示文字と`title`を設定
 
 ## 制約・注意点
-- `touching` はコンストラクタ内ローカル変数 → クラスフィールドへ昇格が必要
-- `enabled` setter の `true` 設定時には位置復元処理があり、`false` 設定時の処理追加は安全
-- `updateImpl` にもガードを入れる方法もあるが、速度蓄積自体を防ぐのが根本的解決
+
+1. **`_activeGizmo`のnull安全性**: 現在`_activeGizmo`は常にGizmoインスタンスが入っている前提。selectモードでは`null`にするため、`activeGizmo` getter の戻り型を `Gizmo | null` に変更し、参照箇所すべてにnullチェック必要。
+2. **SelectionOutlineは維持**: selectモード時もSelectionOutlineは表示したい（選択されていることは分かるべき）。SelectionOutlineはEditor._animate()で別途render()されるため、GizmoManagerのrender()をスキップするだけでOK。
+3. **PointerHandler内のドラッグ処理**: `gizmoManager.activeGizmo`がnullならドラッグ処理全体をスキップ。選択処理（onPointerUp）は影響なし。
+4. **シリアライズ互換**: `gizmoMode`フィールドがSerializableで保存される。既存のセーブデータには`'select'`がないが、デフォルト値を`'select'`にすれば新規は対応。既存データは従来値のまま読み込まれる。
+5. **Editor初期化時のデフォルト値**: 現在のデフォルトモードを`'select'`にする（「基本はそうしたい」という要件）。
+
+## 変更箇所まとめ
+
+1. `GizmoMode`型に `'select'` を追加
+2. `GizmoManager.setMode()` で `'select'` 時に `_activeGizmo = null`
+3. `GizmoManager.render()` で `_activeGizmo === null` 時にGizmo描画スキップ
+4. `GizmoManager` の `activeGizmo` getter の戻り型を `Gizmo | null` に
+5. `PointerHandler` の `activeGizmo` 参照箇所にnullチェック追加
+6. `KeyboardHandler` に `'q'` → `'select'` マッピング追加
+7. `Screen/index.tsx` にselectボタン追加（先頭に配置）
+8. Editor初期化のデフォルトgizmoModeを `'select'` に変更

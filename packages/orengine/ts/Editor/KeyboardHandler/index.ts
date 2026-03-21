@@ -1,11 +1,13 @@
 import { Keyboard, PressedKeys } from '../../Engine/Keyboard';
 
+import { GizmoMode } from '../Gizmo';
+
 export type KeyboardHandlerCallbacks = {
 	onSave: () => void;
 	onUndo: () => void;
 	onRedo: () => void;
 	onPlayToggle: () => void;
-	onSetGizmoMode: ( mode: 'translate' | 'rotate' | 'scale' ) => void;
+	onSetGizmoMode: ( mode: GizmoMode ) => void;
 };
 
 export class KeyboardHandler {
@@ -48,6 +50,7 @@ export class KeyboardHandler {
 
 			}
 
+			if ( e.key === 'q' ) callbacks.onSetGizmoMode( 'select' );
 			if ( e.key === 'w' ) callbacks.onSetGizmoMode( 'translate' );
 			if ( e.key === 'e' ) callbacks.onSetGizmoMode( 'rotate' );
 			if ( e.key === 'r' ) callbacks.onSetGizmoMode( 'scale' );

@@ -87,7 +87,7 @@ export class PointerHandler {
 			( e.target as HTMLElement ).setPointerCapture( e.pointerId );
 			this._pointerDownPos = new GLP.Vector( e.clientX, e.clientY );
 
-			if ( gizmoManager.activeGizmo.entity.visible ) {
+			if ( gizmoManager.activeGizmo && gizmoManager.activeGizmo.entity.visible ) {
 
 				const ndc = getNDC( e );
 				const cameraEntity = getCameraEntity();
@@ -160,7 +160,7 @@ export class PointerHandler {
 
 				if ( ! selectedEntity ) return;
 
-				const result = gizmoManager.activeGizmo.updateDrag( this._raycaster.ray, selectedEntity );
+				const result = gizmoManager.activeGizmo!.updateDrag( this._raycaster.ray, selectedEntity );
 
 				if ( result ) {
 
@@ -201,7 +201,7 @@ export class PointerHandler {
 			// hover detection
 			let newHover: 'gizmo' | 'helper' | 'mesh' | null = null;
 
-			if ( gizmoManager.activeGizmo.entity.visible ) {
+			if ( gizmoManager.activeGizmo && gizmoManager.activeGizmo.entity.visible ) {
 
 				const axisEntities = gizmoManager.activeGizmo.getAxisEntities();
 
@@ -278,7 +278,7 @@ export class PointerHandler {
 
 			if ( this._gizmoDragging ) {
 
-				gizmoManager.activeGizmo.endDrag();
+				gizmoManager.activeGizmo!.endDrag();
 				this._gizmoDragging = false;
 				editorCamera.orbitControls.enabled = true;
 				canvasElm.style.cursor = this._hoveredTarget === 'gizmo' ? 'grab' : '';

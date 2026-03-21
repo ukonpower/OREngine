@@ -11,7 +11,7 @@ export class GizmoManager {
 	private _translateGizmo: TranslateGizmo;
 	private _rotateGizmo: RotateGizmo;
 	private _scaleGizmo: ScaleGizmo;
-	private _activeGizmo: Gizmo;
+	private _activeGizmo: Gizmo | null;
 	private _mode: GizmoMode;
 
 	constructor() {
@@ -19,12 +19,12 @@ export class GizmoManager {
 		this._translateGizmo = new TranslateGizmo();
 		this._rotateGizmo = new RotateGizmo();
 		this._scaleGizmo = new ScaleGizmo();
-		this._mode = 'translate';
-		this._activeGizmo = this._translateGizmo;
+		this._mode = 'select';
+		this._activeGizmo = null;
 
 	}
 
-	public get activeGizmo() {
+	public get activeGizmo(): Gizmo | null {
 
 		return this._activeGizmo;
 
@@ -42,7 +42,8 @@ export class GizmoManager {
 
 		if ( v === 'translate' ) this._activeGizmo = this._translateGizmo;
 		else if ( v === 'rotate' ) this._activeGizmo = this._rotateGizmo;
-		else this._activeGizmo = this._scaleGizmo;
+		else if ( v === 'scale' ) this._activeGizmo = this._scaleGizmo;
+		else this._activeGizmo = null;
 
 	}
 
@@ -51,6 +52,8 @@ export class GizmoManager {
 		this._translateGizmo.entity.visible = false;
 		this._rotateGizmo.entity.visible = false;
 		this._scaleGizmo.entity.visible = false;
+
+		if ( ! this._activeGizmo ) return;
 
 		this._activeGizmo.setTarget( selectedEntity || null, cameraEntity );
 
