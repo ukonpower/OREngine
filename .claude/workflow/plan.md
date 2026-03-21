@@ -1,116 +1,66 @@
-# Plan: Gizmo「選択のみ」モードの追加
+# Plan: ヘルパー選択時のワイヤーフレーム色変更
 
 ## 概要
-エンティティ選択時に必ずGizmo（translate/rotate/scale）が表示される現状を変更し、Gizmoを表示しない「select」モードを追加する。デフォルトをselectモードにする。
+ヘルパー（empty, camera, light）はワイヤーフレーム表示のためSelectionOutlineが効かず、選択状態がわかりづらい。ヘルパーのワイヤーフレーム色を選択中にオレンジに変更し、視覚的フィードバックを追加する。
 
 ## 実装ステップ
 
-### 1. GizmoMode型に'select'を追加
-- **対象ファイル**: `packages/orengine/ts/Editor/Gizmo/index.ts`
-- **変更内容**: GizmoMode型に`'select'`を追加
+### 1. EntityHelperに選択色切り替え機能を追加
+- **対象ファイル**: `packages/orengine/ts/Editor/Helpers/EntityHelper.ts`
+- **変更内容**: 元の色を保持するプロパティと、選択状態で色を切り替えるメソッドを追加
 - **コードスニペット**:
   ```typescript
-  export type GizmoMode = 'select' | 'translate' | 'rotate' | 'scale';
+  // 新規プロパティ
+  private _baseColor: number[];
+  private _colorUniform: number[];
+
+  // コンストラクタ内
+  const color = this._getColor();
+  this._baseColor = color;
+  this._colorUniform = [ ...color ];
+  // mat の uniforms: { uColor: { value: this._colorUniform, type: '3fv' } }
+
+  // 新規メソッド
+  public setSelected( selected: boolean ) {
+      const c = selected ? [ 1.0, 0.6, 0.0 ] : this._baseColor;
+      this._colorUniform[ 0 ] = c[ 0 ];
+      this._colorUniform[ 1 ] = c[ 1 ];
+      this._colorUniform[ 2 ] = c[ 2 ];
+  }
   ```
+- **注意点**: uniformのvalueは参照渡しの配列なので、要素を直接書き換える。選択色`[1.0, 0.6, 0.0]`はSelectionOutlineのアウトライン色と統一。
 
-### 2. GizmoManagerをnullable activeGizmoに対応
-- **対象ファイル**: `packages/orengine/ts/Editor/GizmoManager/index.ts`
-- **変更内容**:
-  - `_activeGizmo`の型を`Gizmo | null`に変更
-  - コンストラクタの初期値を`null`、初期モードを`'select'`に
-  - `setMode()`で`'select'`時に`_activeGizmo = null`
-  - `render()`で`_activeGizmo`がnullの場合は全Gizmo非表示にして早期return
+### 2. HelperManager.render()に選択エンティティIDを渡す
+- **対象ファイル**: `packages/orengine/ts/Editor/HelperManager/index.ts`
+- **変更内容**: `render()`のシグネチャに`selectedEntityId`を追加し、traverse内で選択ヘルパーの色を切り替え
 - **コードスニペット**:
   ```typescript
-  private _activeGizmo: Gizmo | null;
-
-  constructor() {
-      // ...
-      this._mode = 'select';
-      this._activeGizmo = null;
-  }
-
-  public get activeGizmo(): Gizmo | null {
-      return this._activeGizmo;
-  }
-
-  public setMode( v: GizmoMode ) {
-      this._mode = v;
-      if ( v === 'translate' ) this._activeGizmo = this._translateGizmo;
-      else if ( v === 'rotate' ) this._activeGizmo = this._rotateGizmo;
-      else if ( v === 'scale' ) this._activeGizmo = this._scaleGizmo;
-      else this._activeGizmo = null;
-  }
-
-  public render( ... ) {
-      this._translateGizmo.entity.visible = false;
-      this._rotateGizmo.entity.visible = false;
-      this._scaleGizmo.entity.visible = false;
-
-      if ( !this._activeGizmo ) return;  // selectモード: 早期return
-
-      this._activeGizmo.setTarget( selectedEntity || null, cameraEntity );
-      // ...以降は既存通り
+  public render( cameraMode: string, cameraEntity: MXP.Entity | null, engine: Engine, selectedEntityId: string | null ) {
+      // ... 既存のtraverse内、helper取得後に追加:
+      helper.setSelected( entity.uuid === selectedEntityId );
   }
   ```
 
-### 3. PointerHandlerのnullチェック追加
-- **対象ファイル**: `packages/orengine/ts/Editor/PointerHandler/index.ts`
-- **変更内容**: `gizmoManager.activeGizmo`参照箇所（3箇所）にnullチェック追加
-- **変更箇所**:
-  1. **L90** `onPointerDown`: `if ( gizmoManager.activeGizmo.entity.visible )` → `if ( gizmoManager.activeGizmo && gizmoManager.activeGizmo.entity.visible )`
-  2. **L163** `onPointerMove`ドラッグ中: `gizmoManager.activeGizmo.updateDrag(...)` → `gizmoManager.activeGizmo!.updateDrag(...)` (ドラッグ中は必ずactiveGizmoが存在するため`!`で安全)
-  3. **L204** `onPointerMove`ホバー: `if ( gizmoManager.activeGizmo.entity.visible )` → `if ( gizmoManager.activeGizmo && gizmoManager.activeGizmo.entity.visible )`
-  4. **L281** `onPointerUp`ドラッグ終了: `gizmoManager.activeGizmo.endDrag()` → `gizmoManager.activeGizmo!.endDrag()` (同上)
-
-### 4. KeyboardHandlerにselectモードショートカット追加
-- **対象ファイル**: `packages/orengine/ts/Editor/KeyboardHandler/index.ts`
-- **変更内容**:
-  - `onSetGizmoMode`のコールバック型にGizmoModeを使用
-  - `'q'`キーでselectモードに切り替え
+### 3. Editor._animate()の呼び出しを修正
+- **対象ファイル**: `packages/orengine/ts/Editor/index.ts`
+- **変更内容**: `_helperManager.render()`にselectedEntityIdを渡す
 - **コードスニペット**:
   ```typescript
-  import { GizmoMode } from '../Gizmo';
-
-  onSetGizmoMode: ( mode: GizmoMode ) => void;
-
-  // キーバインド追加
-  if ( e.key === 'q' ) callbacks.onSetGizmoMode( 'select' );
-  ```
-
-### 5. Screen UIにselectボタン追加
-- **対象ファイル**: `packages/orengine/tsx/components/Panels/Screen/index.tsx`
-- **変更内容**: gizmoModeボタン配列の先頭に`'select'`を追加
-- **コードスニペット**:
-  ```tsx
-  {( [ "select", "translate", "rotate", "scale" ] as const ).map( ( mode ) => (
-      <div
-          key={mode}
-          className={style.header_gizmoBtn}
-          data-active={gizmoMode === mode}
-          onClick={() => setGizmoMode && setGizmoMode( mode )}
-          title={`${mode} (${mode === 'select' ? 'Q' : mode === 'translate' ? 'W' : mode === 'rotate' ? 'E' : 'R'})`}
-      >
-          {mode === 'select' ? 'Q' : mode === 'translate' ? 'T' : mode === 'rotate' ? 'R' : 'S'}
-      </div>
-  ) )}
+  // L398 変更:
+  this._helperManager.render( this._editorCamera.cameraMode, cameraEntity, this._engine, this._selectedEntityId );
   ```
 
 ## 変更対象ファイル一覧
-- [x] `packages/orengine/ts/Editor/Gizmo/index.ts` - GizmoMode型に'select'追加
-- [x] `packages/orengine/ts/Editor/GizmoManager/index.ts` - activeGizmo nullable化、selectモード処理
-- [x] `packages/orengine/ts/Editor/PointerHandler/index.ts` - activeGizmo nullチェック追加
-- [x] `packages/orengine/ts/Editor/KeyboardHandler/index.ts` - 'q'キーショートカット追加、型修正
-- [x] `packages/orengine/tsx/components/Panels/Screen/index.tsx` - selectボタン追加
+- [x] `packages/orengine/ts/Editor/Helpers/EntityHelper.ts` - 選択色切り替え機能追加
+- [x] `packages/orengine/ts/Editor/HelperManager/index.ts` - render()にselectedEntityId引数追加
+- [x] `packages/orengine/ts/Editor/index.ts` - render()呼び出しにselectedEntityId追加
 
 ## 考慮事項・リスク
-- **PointerHandlerのドラッグ中のnon-null assertion**: `_gizmoDragging === true`の場合、ドラッグ開始時にactiveGizmoが存在したことが保証されるため`!`で安全。ただしドラッグ中にモード変更されるとnullになりうる → ドラッグ中はモード変更しない前提で問題ない（UIがそれを許可しない）
-- **シリアライズ互換**: 既存セーブデータには`'translate'`等が保存されており、読み込み時はそのモードが適用される。新規作成時のみデフォルトが`'select'`になる
+- **選択色の統一感**: SelectionOutlineのアウトライン色 `[1.0, 0.6, 0.0]`（オレンジ）と統一することで一貫性を保つ
+- **パフォーマンス**: 毎フレーム`setSelected()`を呼ぶが、配列要素の代入のみなので影響は軽微
 
 ## テスト方針
-- `npm run typecheck` でコンパイルエラーがないこと
-- selectモード時にエンティティをクリックして選択できること、Gizmoが表示されないこと
-- SelectionOutline（選択アウトライン）はselectモードでも表示されること
-- Q/W/E/Rキーでモード切り替えが正常に動作すること
-- UIボタンのハイライトが正しく切り替わること
-- translate/rotate/scaleモードの動作が従来通りであること
+- エディタでempty/camera/lightエンティティを選択し、ワイヤーフレームがオレンジに変わることを確認
+- 選択解除後に元の色に戻ることを確認
+- メッシュエンティティの選択時にアウトラインが従来通り表示されることを確認
+- `npm run typecheck` でエラーがないことを確認

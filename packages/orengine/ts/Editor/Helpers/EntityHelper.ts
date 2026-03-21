@@ -24,6 +24,8 @@ export class EntityHelper {
 	private _geometry: MXP.Geometry;
 	private _hitAreaGeometry: MXP.Geometry;
 	private _matrixOffset: GLP.Quaternion | null;
+	private _baseColor: number[];
+	private _colorUniform: number[];
 
 	constructor( type: HelperType, targetEntityUUID: string ) {
 
@@ -34,6 +36,8 @@ export class EntityHelper {
 		this.entity.initiator = "god";
 
 		const color = this._getColor();
+		this._baseColor = color;
+		this._colorUniform = [ ...color ];
 
 		const mat = new MXP.Material( {
 			vert: gizmoVert,
@@ -41,7 +45,7 @@ export class EntityHelper {
 			drawType: 'LINES',
 			phase: [ "forward" ],
 			depthTest: true,
-			uniforms: { uColor: { value: color, type: '3fv' } },
+			uniforms: { uColor: { value: this._colorUniform, type: '3fv' } },
 		} );
 
 		this._geometry = this._createGeometry();
@@ -104,6 +108,15 @@ export class EntityHelper {
 		case 'directionalLight': return new DirectionalLightHitAreaGeometry();
 
 		}
+
+	}
+
+	public setSelected( selected: boolean ) {
+
+		const c = selected ? [ 1.0, 0.6, 0.0 ] : this._baseColor;
+		this._colorUniform[ 0 ] = c[ 0 ];
+		this._colorUniform[ 1 ] = c[ 1 ];
+		this._colorUniform[ 2 ] = c[ 2 ];
 
 	}
 

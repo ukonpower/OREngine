@@ -69,7 +69,7 @@ export class HelperManager {
 
 	}
 
-	public render( cameraMode: string, cameraEntity: MXP.Entity | null, engine: Engine ) {
+	public render( cameraMode: string, cameraEntity: MXP.Entity | null, engine: Engine, selectedEntityId: string | null ) {
 
 		if ( ! this._showHelpers || cameraMode !== "scene" ) return;
 
@@ -102,6 +102,7 @@ export class HelperManager {
 			helper.entity.update( event );
 			helper.hitAreaEntity.update( event );
 
+			helper.setSelected( entity.uuid === selectedEntityId );
 			helper.syncTransform( entity );
 
 			helper.entity.traverse( ( child ) => {
