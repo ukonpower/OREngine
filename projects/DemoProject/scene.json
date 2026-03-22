@@ -121,33 +121,6 @@
 									}
 								}
 							]
-						},
-						{
-							"name": "SkyBox",
-							"components": [
-								{
-									"name": "Mesh",
-									"uuid": "00000143",
-									"props": {
-										"geometry/type": "",
-										"geometry/width": 1,
-										"geometry/height": 1,
-										"geometry/depth": 1,
-										"geometry/radius": 0.5,
-										"geometry/widthSegments": 8,
-										"geometry/heightSegments": 8,
-										"geometry/floor": false,
-										"geometry/radiusTop": 1,
-										"geometry/radiusBottom": 1,
-										"geometry/caps": true,
-										"material/name": "SkyBox"
-									}
-								},
-								{
-									"name": "SkyBox",
-									"uuid": "16"
-								}
-							]
 						}
 					]
 				}
@@ -170,7 +143,7 @@
 			0.3
 		],
 		"sky/intensity": 1,
-		"sky/material": "",
+		"sky/material": "SkyBox",
 		"pipeline/motionBlur/enabled": true,
 		"pipeline/motionBlur/power": 1,
 		"pipeline/ssr/enabled": true,

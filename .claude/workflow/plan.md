@@ -1,66 +1,56 @@
-# Plan: ヘルパー選択時のワイヤーフレーム色変更
+# Plan: エンジンのスカイボックスにマテリアルが設定されない問題の修正
 
 ## 概要
-ヘルパー（empty, camera, light）はワイヤーフレーム表示のためSelectionOutlineが効かず、選択状態がわかりづらい。ヘルパーのワイヤーフレーム色を選択中にオレンジに変更し、視覚的フィードバックを追加する。
+scene.jsonで`sky/material: "SkyBox"`を設定したが、RendererSkyにマテリアルが適用されていない。コードフロー上は正しく動作するはずだが、実際には設定されていない。考えられる原因と対策を実装する。
+
+## 原因分析
+
+コードフロー上は、`engine.load()` → `renderer.deserialize()` → `sky.materialType = "SkyBox"` → `_rebuildMaterial()` → `Mesh.getMaterialInstance("SkyBox")` で正しく動作するはずだが、以下の可能性がある：
+
+1. **サーバーキャッシュ**: devサーバーが古い scene.json（`sky/material: ""`）をキャッシュしている
+2. **`_rebuildMaterial`の失敗黙殺**: `getMaterialInstance`が`undefined`を返した時、何もログを出さずにスキップしている
+3. **RendererSkyの`_rebuildMaterial`と`Mesh._rebuildMaterial`は同じパターンだが、Meshは正常に動いているので、根本的なフロー問題ではない**
 
 ## 実装ステップ
 
-### 1. EntityHelperに選択色切り替え機能を追加
-- **対象ファイル**: `packages/orengine/ts/Editor/Helpers/EntityHelper.ts`
-- **変更内容**: 元の色を保持するプロパティと、選択状態で色を切り替えるメソッドを追加
+### 1. devサーバーの再起動確認（手動）
+- `npm run dev`を再起動してサーバーキャッシュをクリアし、scene.jsonを再読み込みさせる
+- これで解決する場合、以降のステップは不要
+
+### 2. `_rebuildMaterial`にデバッグログを追加
+- **対象ファイル**: `packages/maxpower/Component/Renderer/index.ts`
+- **変更内容**: `_rebuildMaterial`でマテリアルが見つからない場合にwarningを出す
 - **コードスニペット**:
   ```typescript
-  // 新規プロパティ
-  private _baseColor: number[];
-  private _colorUniform: number[];
-
-  // コンストラクタ内
-  const color = this._getColor();
-  this._baseColor = color;
-  this._colorUniform = [ ...color ];
-  // mat の uniforms: { uColor: { value: this._colorUniform, type: '3fv' } }
-
-  // 新規メソッド
-  public setSelected( selected: boolean ) {
-      const c = selected ? [ 1.0, 0.6, 0.0 ] : this._baseColor;
-      this._colorUniform[ 0 ] = c[ 0 ];
-      this._colorUniform[ 1 ] = c[ 1 ];
-      this._colorUniform[ 2 ] = c[ 2 ];
+  private _rebuildMaterial(): void {
+      if ( ! this._materialType ) {
+          this.mesh.material = this.material;
+          return;
+      }
+      const instance = Mesh.getMaterialInstance( this._materialType );
+      if ( instance ) {
+          this.mesh.material = instance;
+      } else if ( import.meta.env.DEV ) {
+          console.warn( `[RendererSky] Material "${this._materialType}" not found` );
+      }
   }
   ```
-- **注意点**: uniformのvalueは参照渡しの配列なので、要素を直接書き換える。選択色`[1.0, 0.6, 0.0]`はSelectionOutlineのアウトライン色と統一。
+- **注意点**: `import.meta.env.DEV` で本番環境ではログを出さない
 
-### 2. HelperManager.render()に選択エンティティIDを渡す
-- **対象ファイル**: `packages/orengine/ts/Editor/HelperManager/index.ts`
-- **変更内容**: `render()`のシグネチャに`selectedEntityId`を追加し、traverse内で選択ヘルパーの色を切り替え
-- **コードスニペット**:
-  ```typescript
-  public render( cameraMode: string, cameraEntity: MXP.Entity | null, engine: Engine, selectedEntityId: string | null ) {
-      // ... 既存のtraverse内、helper取得後に追加:
-      helper.setSelected( entity.uuid === selectedEntityId );
-  }
-  ```
-
-### 3. Editor._animate()の呼び出しを修正
-- **対象ファイル**: `packages/orengine/ts/Editor/index.ts`
-- **変更内容**: `_helperManager.render()`にselectedEntityIdを渡す
-- **コードスニペット**:
-  ```typescript
-  // L398 変更:
-  this._helperManager.render( this._editorCamera.cameraMode, cameraEntity, this._engine, this._selectedEntityId );
-  ```
+### 3. `materialType`セッターに再試行メカニズムを追加（必要な場合のみ）
+もしステップ2のwarningが出る場合、マテリアルがまだ登録されていないタイミングで`_rebuildMaterial`が呼ばれている可能性がある。その場合、`resources`の`update`イベントを監視して再試行する方法を検討する。
+- **対象ファイル**: `packages/maxpower/Component/Renderer/index.ts`
+- **注意点**: Rendererはmaxpower（エンジン）側なので、`Engine.resources`には直接依存できない。`Mesh.getMaterialInstance`のstatic callbackに依存するのみ。
 
 ## 変更対象ファイル一覧
-- [x] `packages/orengine/ts/Editor/Helpers/EntityHelper.ts` - 選択色切り替え機能追加
-- [x] `packages/orengine/ts/Editor/HelperManager/index.ts` - render()にselectedEntityId引数追加
-- [x] `packages/orengine/ts/Editor/index.ts` - render()呼び出しにselectedEntityId追加
+- [x] `packages/maxpower/Component/Renderer/index.ts` - `_rebuildMaterial`にデバッグログ追加
 
 ## 考慮事項・リスク
-- **選択色の統一感**: SelectionOutlineのアウトライン色 `[1.0, 0.6, 0.0]`（オレンジ）と統一することで一貫性を保つ
-- **パフォーマンス**: 毎フレーム`setSelected()`を呼ぶが、配列要素の代入のみなので影響は軽微
+- devサーバー再起動で解決する場合、コード変更は最小限（デバッグログ追加のみ）で済む
+- マテリアル登録タイミング問題の場合、Rendererレベルでの再試行が必要になる可能性がある
 
 ## テスト方針
-- エディタでempty/camera/lightエンティティを選択し、ワイヤーフレームがオレンジに変わることを確認
-- 選択解除後に元の色に戻ることを確認
-- メッシュエンティティの選択時にアウトラインが従来通り表示されることを確認
-- `npm run typecheck` でエラーがないことを確認
+- `npm run dev`を再起動し、ブラウザコンソールでwarningが出ないことを確認
+- エディタのRendererパネルでsky materialが"SkyBox"になっていることを確認
+- SkyBoxのプロシージャルシェーダーが描画されていることを目視確認
+- `npm run typecheck` でエラーなし

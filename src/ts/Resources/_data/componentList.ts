@@ -5,7 +5,6 @@ import { ShakeViewer } from '../Components/Camera/CameraShake/index.ts';
 import { LookAt } from '../Components/Camera/LookAt/index.ts';
 import { OrbitControls } from '../Components/Camera/OrbitControls/index.ts';
 import { DemoMusic } from '../Components/DemoProject/DemoMusic/index.ts';
-import { SkyBox } from '../Components/DemoProject/SkyBox/index.ts';
 import { ObjectRotate } from '../Components/Object/ObjectRotate/index.ts';
 import { AudioTexture } from '../Components/Samples/Audio/AudioTexture/index.ts';
 import { CameraFixed } from '../Components/Samples/CameraControls/CameraFixed/index.ts';
@@ -41,7 +40,6 @@ export const COMPONENTLIST: {[key: string]: any} = {
 	},
 	DemoProject: {
 		DemoMusic,
-		SkyBox,
 	},
 	Object: {
 		ObjectRotate,

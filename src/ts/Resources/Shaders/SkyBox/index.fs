@@ -15,9 +15,11 @@ void main( void ) {
 	outColor *= 0.0;
 	outColor.xyz = vec3( 0.0, 0.05, 0.1);
 
-	float n = noiseValue( outPos * 0.15 + uTimeE * 0.1 );
+	vec3 sPos = outPos * 0.1;
 
-	vec3 n2Pos = outPos;
+	float n = noiseValue( sPos * 0.15 + uTimeE * 0.1 );
+
+	vec3 n2Pos = sPos;
 	n2Pos.xz *= rotate( n2Pos.y * 0.02 );
 	float n2 = noiseValue( n2Pos * 0.15 + vec3( 0.0, 0.0, uTimeE * 0.1 + n ) );
 
