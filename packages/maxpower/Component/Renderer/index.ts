@@ -425,6 +425,15 @@ export class Renderer extends Serializable {
 			}
 		);
 
+		skyDir.field( "reset", () => () => {
+
+			this.setField( "sky/skyColor", [ 1.0, 1.0, 1.0 ] );
+			this.setField( "sky/groundColor", [ 0.3, 0.3, 0.3 ] );
+			this.setField( "sky/intensity", 1.0 );
+			this.setField( "sky/material", "" );
+
+		}, undefined, { label: "Reset to Default" } );
+
 		const pipeline = this.fieldDir( "pipeline" );
 
 		const motionBlurDir = pipeline.dir( "motionBlur" );
