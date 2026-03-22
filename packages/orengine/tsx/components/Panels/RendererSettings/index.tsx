@@ -19,6 +19,9 @@ export const RendererSettings = () => {
 			<Block label="Pipeline" accordion>
 				<SerializeFieldView target={renderer} filter="pipeline" />
 			</Block>
+			<Block label="Sky" accordion>
+				<SerializeFieldView target={renderer} filter="sky" />
+			</Block>
 		</div>
 	</div>;
 
