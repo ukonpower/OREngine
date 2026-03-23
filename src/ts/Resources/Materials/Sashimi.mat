@@ -1,0 +1,14 @@
+{
+  "vert": "Sashimi/vert",
+  "frag": "Sashimi/frag",
+  "phase": [
+    "deferred"
+  ],
+  "drawType": "",
+  "blending": "",
+  "useLight": true,
+  "depthTest": true,
+  "depthWrite": true,
+  "cullFace": false,
+  "uniforms/uNoiseTex": "noise"
+}
