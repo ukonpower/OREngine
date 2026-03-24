@@ -2,7 +2,7 @@ import * as MXP from 'maxpower';
 import { Engine, OREngineDataEntityComponent } from 'orengine';
 
 import { gl } from '~/ts/Globals';
-import SceneData from '~project/scene.json';
+import BLidgeSceneData from '~project/blidge-scene.json';
 
 interface BLidgeAttachment {
 	name: string,
@@ -107,14 +107,12 @@ export class BLidgeClient extends MXP.Component {
 
 			if ( this.type == "json" ) {
 
-				// JSONデータからシーンを読み込む
-				await this.blidge.loadScene( SceneData as unknown as MXP.BLidgeScene, this.useGLTF ? this.gltfPath : undefined );
+				await this.blidge.loadScene( BLidgeSceneData as unknown as MXP.BLidgeScene, this.useGLTF ? this.gltfPath : undefined );
 
 				this.emit( "loaded" );
 
 			} else {
 
-				// WebSocketで接続してシーンを読み込む
 				this.blidge.connect( this.connection.url, this.useGLTF ? this.gltfPath : undefined );
 
 			}
