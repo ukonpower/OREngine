@@ -10,7 +10,7 @@ import { ShaderMinifierLoader } from './plugins/ShaderMinifierLoader';
 
 
 const basePath = process.env.BASE_PATH ?? "";
-const activeProject = process.env.ORENGINE_PROJECT || 'default';
+const activeProject = process.env.ORENGINE_PROJECT || 'DemoProject';
 const sceneJsonPath = `./projects/${activeProject}/scene.json`;
 
 const playerJson = JSON.parse( fs.readFileSync( sceneJsonPath, 'utf-8' ) );

@@ -1,124 +1,174 @@
-# Research: Renderer Sky設定のデフォルトシェーダー復元問題
+# Research: OREngineのエンジン/プロジェクト分離
 
 ## タスク概要
-エディタでRendererのSky設定（マテリアル/シェーダー）を一度変更すると、デフォルトのシェーダーに戻せなくなる問題への対応を検討する。
+OREngineをエンジンとして独立させ、プロジェクトをエンジンリポジトリの外部から作成・管理できる構造にする。現状はエンジンリポジトリ内にプロジェクト固有コード（Components, Shaders, Materials等）が混在しており、分離が必要。
 
-## 現状の仕組み
+## 現状の問題点
 
-### RendererSky クラス (`packages/maxpower/Component/Renderer/index.ts:25-106`)
+### 1. エンジンコードとプロジェクトコードが同一リポジトリに混在
+- `src/ts/Resources/Components/` にプロジェクト固有のコンポーネント（`DemoProject/`, `Samples/`, `Effects/`等）がある
+- `src/ts/Resources/Shaders/`, `Materials/`, `Textures/`, `Geometries/` も同様
+- `projects/` にシーンデータ（scene.json, editor.json）があるが、そのプロジェクトが使うコンポーネント定義は `src/ts/Resources/` にある
 
-- コンストラクタでデフォルトMaterialを生成（`this.material`）
-  - `skyFrag`（`shaders/sky.fs`）をフラグメントシェーダーとして使用
-  - uniforms: `uSkyColor`, `uGroundColor`, `uSkyIntensity`
-- `_materialType: string` でカスタムマテリアル名を管理（デフォルト: `""`）
-- `materialType` setter → `_rebuildMaterial()`:
-  - `""` → `this.mesh.material = this.material`（デフォルト復元）
-  - それ以外 → `Mesh.getMaterialInstance(name)` でカスタムマテリアルに切替
+### 2. プロジェクト間でリソースが共有されてしまう
+- ResourceManagerが `src/ts/Resources/Components/` 全体をスキャンして `componentList.ts` を自動生成
+- 全プロジェクトのコンポーネントが1つのリストに入る
+- プロジェクトAのコンポーネントがプロジェクトBのエディタにも表示される
 
-### Renderer側のフィールド定義 (`index.ts:388-426`)
-
-```ts
-// sky/material フィールド
-skyDir.field( "material",
-    () => this.sky.materialType,
-    ( v: string ) => { this.sky.materialType = v; },
-    {
-        format: {
-            type: "resource",
-            resourceType: "material",
-            list: () => {
-                const list = [ { label: "(Default)", value: "" } ];
-                Mesh.getMaterialList().forEach( m => list.push( { label: m.name, value: m.name } ) );
-                return list;
-            }
-        }
-    }
-);
-```
-
-**重要**: `{ label: "(Default)", value: "" }` が選択肢に含まれており、UIドロップダウンで "(Default)" を選べばデフォルトに戻る仕組み自体は存在する。
-
-### シリアライズ・デシリアライズ
-
-- `Engine.field("renderer")` で Renderer の全フィールドがプロジェクト保存時にシリアライズされる
-- `sky/material: ""` もシリアライズ対象 → 空文字列でもフィールドは保存される
-- デシリアライズ時: `field.set("")` → `sky.materialType = ""` → デフォルト復元
+### 3. プロジェクトの独立性がない
+- `projects/DemoProject/index.ts` は単に `export { initResouces, initResourceInstances } from '~/ts/Resources'` を再エクスポートするだけ
+- プロジェクト固有のリソース初期化ロジックがない
+- すべてのプロジェクトが同じ `src/ts/Resources/` を共有
 
 ## 関連ファイル・シンボル
 
 | ファイル | 主要シンボル | 役割 |
 |---------|------------|------|
-| `packages/maxpower/Component/Renderer/index.ts` | `RendererSky`, `Renderer` | Sky管理、フィールド定義 |
-| `packages/maxpower/Component/Renderer/shaders/sky.fs` | - | デフォルトSkyシェーダー |
-| `packages/maxpower/Serializable/index.ts` | `Serializable` | フィールドシステム基盤 |
-| `packages/orengine/tsx/components/Panels/RendererSettings/index.tsx` | `RendererSettings` | エディタUI |
-| `packages/orengine/tsx/components/Input/InputResourceSelect/index.tsx` | `InputResourceSelect` | リソース選択UI |
-| `packages/orengine/tsx/components/Input/InputSelect/index.tsx` | `InputSelect` | セレクトボックスUI |
-| `packages/orengine/tsx/components/Value/index.tsx` | `Value` | フィールド値描画分岐 |
-| `packages/orengine/ts/Engine/Resources/MaterialResource/index.ts` | `MaterialResource` | マテリアルリソース管理 |
-| `packages/orengine/ts/Engine/index.ts` | `Engine` | Rendererフィールド登録 |
+| `src/ts/Resources/index.ts` | `initResouces()`, `initResourceInstances()` | リソース登録の中心。自動生成リストからEngine.resourcesに登録 |
+| `projects/*/index.ts` | `initResouces`, `initResourceInstances` | プロジェクトエントリ。現状は `~/ts/Resources` を再エクスポートするだけ |
+| `packages/orengine/ts/Engine/index.ts` | `Engine` (extends MXP.Entity) | エンジンコア。`static resources: Resources` を持つ |
+| `src/ts/Player/index.ts` | - | プレイヤーエントリ。`~project/index` から initResouces をimport |
+| `src/tsx/components/pages/EditorPage/index.tsx` | `EditorPage` | エディタページ。`~/ts/Resources` から直接 initResouces を呼ぶ |
+| `plugins/ResourceManager/index.ts` | `ResourceManager` | Viteプラグイン。ディレクトリスキャンで `_data/*.ts` を自動生成 |
+| `plugins/ProjectResolver/index.ts` | `ProjectResolver` | `~project/` パスを `projects/{name}/` に解決 |
+| `vite.config.ts` | - | 開発設定。ResourceManagerのスキャン対象は `src/ts/Resources/` |
+| `vite-player.config.ts` | - | ビルド設定。プレイヤー(64KB Intro)向け |
+| `server/Project/index.ts` | `ProjectManager` | `projects/` ディレクトリからプロジェクト管理 |
+| `server/routes/*.ts` | 各ルーター | REST API（scene/editor/components/materials/shaders/textures） |
+| `tsconfig.json` | - | パスエイリアス定義。`~project/*` → `projects/DemoProject/*` |
+| `package.json` | - | npm scripts。workspacesは空配列 |
+| `src/ts/Globals/index.ts` | `gl`, `globalUniforms` | グローバルWebGLコンテキスト |
 
 ## 依存関係
 
-- `RendererSettings` → `SerializeFieldView` → `Value` → `InputResourceSelect` → `InputSelect`
-- `Renderer.field("sky/material")` → `RendererSky.materialType` setter → `_rebuildMaterial()`
-- `_rebuildMaterial()` → `Mesh.getMaterialInstance()` (カスタム) or `this.material` (デフォルト)
-- `Engine.field("renderer")` → `Renderer.serialize/deserialize` （プロジェクト保存/読み込み）
+### エンジン内部の依存（変更不要）
+```
+glpower (submodule, Math+WebGL wrapper)
+  ↑
+maxpower (Entity-Component, Renderer, Serializable)
+  ↑
+orengine (Engine, Editor, React UI)
+```
 
-## 問題の分析
+### アプリケーション層の依存（要リファクタリング）
+```
+src/ts/Resources/index.ts
+  ├── imports: _data/componentList.ts (自動生成)
+  ├── imports: _data/geometryList.ts (自動生成)
+  ├── imports: _data/materialList.ts (自動生成)
+  ├── imports: _data/shaderList.ts (自動生成)
+  ├── imports: _data/textureList.ts (自動生成)
+  ├── imports: ~/ts/Globals (globalUniforms)
+  └── uses: Engine.resources (static)
 
-### 現状で「戻せる」部分
-- **sky/material フィールド**: ドロップダウンに "(Default)" オプションがあり、選択すれば `materialType = ""` → デフォルトシェーダーに復元される
+src/ts/Resources/Components/
+  ├── Camera/ → maxpower Component
+  ├── DemoProject/ → プロジェクト固有（分離対象）
+  ├── Samples/ → プロジェクト固有 or 組み込み
+  ├── Effects/ → 組み込み？
+  ├── Object/ → 組み込み？
+  ├── Utility/ (BLidgeClient等) → 組み込み
+  └── _PostProcess/ → 組み込み
 
-### 現状で「戻せない」可能性がある部分
+projects/*/index.ts → src/ts/Resources (再エクスポート)
+src/ts/Player/index.ts → ~project/index, ~project/scene.json
+src/tsx/EditorPage → ~/ts/Resources
+```
 
-1. **UXの発見しにくさ**: "(Default)" オプションが存在することがユーザーにとって直感的でない可能性
-2. **色/強度のリセット不可**: `skyColor`, `groundColor`, `intensity` にはリセット機構がない
-   - デフォルト値: `skyColor=(1,1,1)`, `groundColor=(0.3,0.3,0.3)`, `intensity=1.0`
-   - 一度変更すると、元の値を覚えていないと戻せない
-3. **一括リセット不可**: Sky設定全体を「初期状態に戻す」ボタンがない
-4. **MaterialResource内のシェーダー選択**: MaterialResource の vert/frag フィールドは `(None)` がデフォルトで、「デフォルトに戻す」概念がない（これは今回のスコープ外かもしれない）
+### エンジン → プロジェクト の密結合ポイント（解消すべき）
+1. `vite.config.ts` のResourceManagerが `./src/ts/Resources/` をハードコード
+2. `tsconfig.json` の `~project/*` が `./projects/DemoProject/*` をハードコード
+3. `server/Project/index.ts` が `../../projects` をハードコード
+4. `src/ts/Player/index.ts` が `~project/scene.json` をimport
+5. `src/tsx/EditorPage` が `~/ts/Resources` を直接import
 
 ## 既存パターン
 
-### リソース選択のデフォルト値パターン
-- `sky/material`: `{ label: "(Default)", value: "" }` — 空文字列でデフォルトに戻る
-- `MaterialResource.drawType`: `{ label: "(Default)", value: "" }` — 同様のパターン
-- `MaterialResource.vert/frag`: `{ label: "(None)", value: "" }` — 「なし」を意味する空文字列
+### リソース自動生成パターン（ResourceManager）
+- **入力**: ディレクトリ内のファイルをスキャン
+- **出力**: `_data/*.ts` に export 文を自動生成（`@ts-nocheck`付き）
+- **トリガー**: Viteのdev/build起動時 + chokidarによるファイル監視
+- **設定**: `componentsDir`, `outputFile`, `exportName`, `type` をオプションで受け取る → **外部パス指定が既に可能な設計**
 
-### Serializableフィールドシステムの制約
-- フィールドに `defaultValue` 概念がない
-- 個別フィールドの「リセット」UIが存在しない
-- getter/setter のみで、初期値の記録/復元の仕組みがない
+### プロジェクト解決パターン（ProjectResolver）
+- `~project/` → `projects/{ORENGINE_PROJECT}/` に解決
+- 環境変数 `ORENGINE_PROJECT` でビルド対象を切替
+- **拡張ポイント**: 外部絶対パスへの解決に変更可能
+
+### サーバーのプロジェクト管理パターン
+- `ProjectManager(projectsDir)` — コンストラクタでディレクトリを受け取る設計
+- REST APIで scene/editor/components/materials/shaders/textures を管理
+- **拡張ポイント**: `projectsDir` を環境変数から受け取るように変更可能
 
 ## 制約・注意点
 
-- `RendererSky.material`（デフォルトMaterial）はリソースシステムに登録されていない内部オブジェクト
-- デフォルトシェーダー `sky.fs` は `import skyFrag from './shaders/sky.fs'` で直接読み込み
-- `Mesh.getMaterialList()` にはリソースシステム登録済みのマテリアルのみが含まれる
-- Serializableフィールドシステム全体に「デフォルト値」の概念を追加すると影響が大きい
+### 1. 組み込みリソースとプロジェクトリソースの分離基準
+`src/ts/Resources/Components/` の中身を分類する必要がある:
+- **エンジン組み込み**: Camera, _PostProcess, Utility/BLidgeClient — エンジン側に残す
+- **プロジェクト固有**: DemoProject/, Samples/ — プロジェクト側に移動
+- **グレーゾーン**: Effects/, Object/ — 判断が必要
 
-## 対応案
+### 2. 64KB Intro ビルドパイプライン
+`vite-player.config.ts` + `compeko.js` による極限圧縮がある。プロジェクト分離後も維持が必要:
+- MangleManager（変数名難読化）
+- ShaderMinifier（GLSL最小化）
+- zopfli圧縮 → 自己展開SVG
 
-### 案A: Sky設定に「デフォルトに戻す」ボタンを追加（最小スコープ）
-- RendererSettings UIに「Reset Sky」ボタンを追加
-- クリック時に `skyColor=(1,1,1)`, `groundColor=(0.3,0.3,0.3)`, `intensity=1.0`, `material=""` に一括リセット
-- **メリット**: 実装が簡単、影響範囲が小さい
-- **デメリット**: Sky専用の解決策
+### 3. HMR（Hot Module Replacement）
+`src/ts/Resources/index.ts:119-137` でシェーダーHMRが実装されている。プロジェクト固有シェーダーのHMRも維持する必要がある。
 
-### 案B: Serializableフィールドに `defaultValue` を追加（汎用）
-- `field()` の opt に `defaultValue` を追加
-- UIに各フィールドの「リセット」アイコンを表示
-- **メリット**: 全フィールドで使える汎用的な仕組み
-- **デメリット**: Serializable全体の変更が必要、影響範囲が大きい
+### 4. glpower はgit submodule
+`packages/glpower` はgitサブモジュール。npmパッケージ化する場合はサブモジュールから脱却する必要がある。
 
-### 案C: materialフィールドの現状維持 + 色/強度にのみリセット対応
-- material ドロップダウンの "(Default)" は既に動作するので変更不要
-- `skyColor`, `groundColor`, `intensity` にデフォルト値リセットを追加
-- **メリット**: 本当に必要な箇所だけ対応
+### 5. 自動生成ファイルの再配置
+`_data/*.ts` の生成先がプロジェクト側に変わるため、ResourceManagerプラグインのパス指定を柔軟にする必要がある。
+
+## 分離の方向性
+
+### A案: モノレポ内でプロジェクトを独立ワークスペースに
+```
+orengine/                 # モノレポ
+├── packages/
+│   ├── glpower/          # npm workspace パッケージ
+│   ├── maxpower/         # npm workspace パッケージ
+│   ├── orengine/         # npm workspace パッケージ（Engine + Editor + UI）
+│   ├── orengine-server/  # npm workspace パッケージ（開発サーバー）
+│   └── orengine-plugins/ # npm workspace パッケージ（Viteプラグイン）
+├── projects/
+│   └── DemoProject/      # 独立したワークスペース（自分のpackage.json持ち）
+│       ├── package.json  # @orengine/* への依存
+│       ├── src/Resources/ # プロジェクト固有リソース
+│       ├── scenes/
+│       └── vite.config.ts
+└── package.json          # workspaces 定義
+```
+
+### B案: 完全分離（エンジンをnpmパッケージとして配布）
+```
+# エンジンリポジトリ（npm公開）
+orengine/
+├── packages/{glpower,maxpower,orengine}/
+├── server/
+├── plugins/
+└── templates/
+
+# プロジェクトリポジトリ（ユーザーが作成）
+my-project/
+├── package.json          # "orengine": "^x.x.x"
+├── src/Resources/
+├── scenes/
+└── vite.config.ts
+```
+
+### C案: ハイブリッド（モノレポ + テンプレート）
+- エンジン部分はモノレポのworkspace
+- `create-orengine-project` CLIで新規プロジェクトをscaffold
+- プロジェクトはモノレポ内にも外にも作れる
 
 ## 参考になる既存実装
 
-- `MaterialResource.drawType` のデフォルト選択肢パターン (`index.ts:182-186`)
-- `MaterialResource._buildShaderSelectList` の `(None)` パターン (`index.ts:361-378`)
-- `InputResourceSelect` の編集ボタン表示制御 (`value` が truthy の場合のみ表示)
+- **ResourceManager** (`plugins/ResourceManager/index.ts`): スキャンディレクトリはオプションで渡されており（`componentsDir`）、外部から指定可能な設計
+- **ProjectResolver** (`plugins/ProjectResolver/index.ts`): `~project/` のパス解決は環境変数ベースで動的
+- **ProjectManager** (`server/Project/index.ts`): コンストラクタで `projectsDir` を受け取る設計
+- **Engine.resources** (static): `initResouces()` で初期化。プロジェクト側からの追加登録パターンを追加しやすい構造
+- **`projects/*/index.ts`**: 既に `initResouces` を re-export する「プロジェクトエントリ」の概念が存在。これを拡張すれば自然に分離できる

@@ -3,6 +3,7 @@ import { ComponentGroup, ResouceComponentItem } from 'packages/orengine/ts/Engin
 import { MouseEvent, useCallback, useState } from 'react';
 
 import { useMouseMenu } from '../../../../hooks/useMouseMenu';
+import { useOREditor } from '../../../../hooks/useOREditor';
 import { ArrowIcon } from '../../../Icons/ArrowIcon';
 import { Picker } from '../../../Picker';
 
@@ -22,6 +23,7 @@ export const ComponentExplorerNode = ( { node, depth = 0, isBuiltin, selectedIte
 	const isGroup = 'child' in node;
 	const [ open, setOpen ] = useState<boolean>( ! isBuiltin );
 	const { pushContent, closeAll } = useMouseMenu();
+	const { projectName } = useOREditor();
 	const nodePath = parentPath ? `${parentPath}/${node.name}` : node.name;
 	const offsetPx = depth * 20;
 
@@ -60,7 +62,7 @@ export const ComponentExplorerNode = ( { node, depth = 0, isBuiltin, selectedIte
 				label: "Open in Editor",
 				onClick: () => {
 
-					fetch( `/api/components/${encodeURIComponent( componentPath )}/filepath` )
+					fetch( `/api/projects/${projectName}/components/${encodeURIComponent( componentPath )}/filepath` )
 						.then( r => r.json() )
 						.then( data => {
 
@@ -87,14 +89,14 @@ export const ComponentExplorerNode = ( { node, depth = 0, isBuiltin, selectedIte
 
 					}
 
-					fetch( `/api/components/${encodeURIComponent( componentPath )}`, { method: 'DELETE' } )
+					fetch( `/api/projects/${projectName}/components/${encodeURIComponent( componentPath )}`, { method: 'DELETE' } )
 						.then( () => closeAll() );
 
 				},
 			},
 		]} /> );
 
-	}, [ isGroup, isBuiltin, node, nodePath, pushContent, closeAll ] );
+	}, [ isGroup, isBuiltin, node, nodePath, pushContent, closeAll, projectName ] );
 
 	const isSelected = ! isGroup && selectedItem === node;
 	const hasChild = isGroup && ( node as ComponentGroup ).child.length > 0;

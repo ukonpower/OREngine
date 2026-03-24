@@ -2,6 +2,7 @@
 import { MouseEvent, useCallback } from 'react';
 
 import { useMouseMenu } from '../../../../hooks/useMouseMenu';
+import { useOREditor } from '../../../../hooks/useOREditor';
 import { Button } from '../../../Button';
 import { InputGroup } from '../../../InputGroup';
 
@@ -10,6 +11,7 @@ import style from './index.module.scss';
 export const ComponentCreateForm = () => {
 
 	const { pushContent, closeAll } = useMouseMenu();
+	const { projectName } = useOREditor();
 
 	const onClickNew = useCallback( ( _e: MouseEvent ) => {
 
@@ -24,7 +26,7 @@ export const ComponentCreateForm = () => {
 
 					if ( ! componentName ) return;
 
-					fetch( '/api/components', {
+					fetch( `/api/projects/${projectName}/components`, {
 						method: 'POST',
 						headers: { 'Content-Type': 'application/json' },
 						body: JSON.stringify( { dirPath: dirPath || undefined, componentName } ),
@@ -46,7 +48,7 @@ export const ComponentCreateForm = () => {
 			</div>
 		);
 
-	}, [ pushContent, closeAll ] );
+	}, [ pushContent, closeAll, projectName ] );
 
 	return <div className={style.createBtn}>
 		<Button onClick={onClickNew}>+ New</Button>

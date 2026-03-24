@@ -60,7 +60,11 @@
     "plugins",
     "vite.config.ts",
     "vite-player.config.ts",
-    "packages/glpower"
+    "packages/glpower",
+    "projects/Sushi",
+    "projects/DigitalNexus",
+    "projects/Project0",
+    "templates"
   ],
   "references": [
     {

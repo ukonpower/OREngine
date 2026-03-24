@@ -3,6 +3,7 @@ import * as MXP from 'maxpower';
 import { ResouceComponentItem } from 'packages/orengine/ts/Engine/Resources';
 import { useCallback, useEffect, useMemo } from 'react';
 
+import { useOREditor } from '../../../../hooks/useOREditor';
 import { Block } from '../../../Block';
 import { Button } from '../../../Button';
 import { SerializeFieldView } from '../../../SerializeFieldView';
@@ -15,6 +16,8 @@ type ComponentDetailProps = {
 };
 
 export const ComponentDetail = ( { item, componentPath }: ComponentDetailProps ) => {
+
+	const { projectName } = useOREditor();
 
 	const dummy = useMemo( () => {
 
@@ -48,7 +51,7 @@ export const ComponentDetail = ( { item, componentPath }: ComponentDetailProps )
 
 		if ( ! componentPath ) return;
 
-		fetch( `/api/components/${encodeURIComponent( componentPath )}/filepath` )
+		fetch( `/api/projects/${projectName}/components/${encodeURIComponent( componentPath )}/filepath` )
 			.then( r => r.json() )
 			.then( data => {
 
@@ -60,7 +63,7 @@ export const ComponentDetail = ( { item, componentPath }: ComponentDetailProps )
 
 			} );
 
-	}, [ componentPath ] );
+	}, [ componentPath, projectName ] );
 
 	return <div className={style.detail}>
 		<Block label={`Selected: ${item.name}`} accordion>

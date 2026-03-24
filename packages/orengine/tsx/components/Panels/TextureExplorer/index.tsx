@@ -4,6 +4,7 @@ import { MouseEvent, useCallback, useEffect, useState } from 'react';
 
 import { Engine } from '../../../../ts/Engine';
 import { useMouseMenu } from '../../../hooks/useMouseMenu';
+import { useOREditor } from '../../../hooks/useOREditor';
 import { Picker } from '../../Picker';
 import { SerializeFieldView } from '../../SerializeFieldView';
 
@@ -15,6 +16,7 @@ export const TextureExplorer = () => {
 	const [ selected, setSelected ] = useState<TextureResource | null>( null );
 	const [ , setUpdateCount ] = useState( 0 );
 	const { pushContent, closeAll } = useMouseMenu();
+	const { projectName } = useOREditor();
 
 	useEffect( () => {
 
@@ -43,7 +45,7 @@ export const TextureExplorer = () => {
 				label: "Open in Editor",
 				onClick: () => {
 
-					fetch( `/api/textures/${encodeURIComponent( item.name )}/filepath` )
+					fetch( `/api/projects/${projectName}/textures/${encodeURIComponent( item.name )}/filepath` )
 						.then( r => r.json() )
 						.then( data => {
 
@@ -80,7 +82,7 @@ export const TextureExplorer = () => {
 			},
 		]} /> );
 
-	}, [ pushContent, closeAll, selected ] );
+	}, [ pushContent, closeAll, selected, projectName ] );
 
 	return <div className={style.explorer}>
 		<TextureCreateForm />

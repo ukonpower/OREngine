@@ -4,6 +4,7 @@ import { MouseEvent, useCallback, useEffect, useState } from 'react';
 
 import { Engine } from '../../../../ts/Engine';
 import { useMouseMenu } from '../../../hooks/useMouseMenu';
+import { useOREditor } from '../../../hooks/useOREditor';
 import { Picker } from '../../Picker';
 
 import { ShaderCreateForm } from './ShaderCreateForm';
@@ -13,6 +14,7 @@ export const ShaderExplorer = () => {
 
 	const [ , setUpdateCount ] = useState( 0 );
 	const { pushContent, closeAll } = useMouseMenu();
+	const { projectName } = useOREditor();
 
 	useEffect( () => {
 
@@ -41,7 +43,7 @@ export const ShaderExplorer = () => {
 				label: "Open in Editor",
 				onClick: () => {
 
-					fetch( `/api/shaders/${encodeURIComponent( item.name )}/filepath` )
+					fetch( `/api/projects/${projectName}/shaders/${encodeURIComponent( item.name )}/filepath` )
 						.then( r => r.json() )
 						.then( data => {
 
@@ -68,14 +70,14 @@ export const ShaderExplorer = () => {
 
 					}
 
-					fetch( `/api/shaders/${encodeURIComponent( item.name )}`, { method: 'DELETE' } )
+					fetch( `/api/projects/${projectName}/shaders/${encodeURIComponent( item.name )}`, { method: 'DELETE' } )
 						.then( () => closeAll() );
 
 				},
 			},
 		]} /> );
 
-	}, [ pushContent, closeAll ] );
+	}, [ pushContent, closeAll, projectName ] );
 
 	return <div className={style.explorer}>
 		<ShaderCreateForm />

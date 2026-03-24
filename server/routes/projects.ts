@@ -175,12 +175,32 @@ projectsRouter.post( '/projects/:name/duplicate', async ( req, res ) => {
 
 // --- Project Creation ---
 
-const GLOBALS_TEMPLATE = `export { canvas, gl, power, globalUniforms } from '~/ts/Globals';
-`;
+const TEMPLATES_DIR = path.resolve( __dirname, '../../templates/default' );
 
-const INDEX_TEMPLATE = `export { initResouces, initResourceInstances } from '~/ts/Resources';
-`;
+function copyDirSync( src: string, dest: string ) {
 
+	fs.mkdirSync( dest, { recursive: true } );
+
+	const entries = fs.readdirSync( src, { withFileTypes: true } );
+
+	for ( const entry of entries ) {
+
+		const srcPath = path.join( src, entry.name );
+		const destPath = path.join( dest, entry.name );
+
+		if ( entry.isDirectory() ) {
+
+			copyDirSync( srcPath, destPath );
+
+		} else {
+
+			fs.copyFileSync( srcPath, destPath );
+
+		}
+
+	}
+
+}
 
 projectsRouter.post( '/projects', ( req, res ) => {
 
@@ -206,7 +226,7 @@ projectsRouter.post( '/projects', ( req, res ) => {
 
 		}
 
-		fs.mkdirSync( projectDir, { recursive: true } );
+		copyDirSync( TEMPLATES_DIR, projectDir );
 
 		const defaultScene = {
 			scene: {
@@ -282,16 +302,6 @@ projectsRouter.post( '/projects', ( req, res ) => {
 		fs.writeFileSync(
 			path.join( projectDir, 'editor.json' ),
 			JSON.stringify( defaultEditor, null, '\t' ) + '\n'
-		);
-
-		fs.writeFileSync(
-			path.join( projectDir, 'globals.ts' ),
-			GLOBALS_TEMPLATE
-		);
-
-		fs.writeFileSync(
-			path.join( projectDir, 'index.ts' ),
-			INDEX_TEMPLATE
 		);
 
 		res.status( 201 ).json( { name, path: projectDir } );
