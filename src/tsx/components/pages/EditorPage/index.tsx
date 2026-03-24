@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 
 import { gl, globalUniforms } from "~/ts/Globals";
 import { initResouces, initResourceInstances } from "~project/Resources";
-import { MIDIMIX } from "~project/Resources/Components/Samples/MIDI/MIDIMIX";
+
 
 initResouces();
 
@@ -39,7 +39,7 @@ export const EditorPage = () => {
 
 	return (
 		<OREngine gl={gl} project={projectData} onEngineInit={( glCtx ) => initResourceInstances( glCtx, globalUniforms )} >
-			<OREditor editorData={editorData} projectName={projectName} midiMixController={MIDIMIX} onSave={( projectData, editorData ) => {
+			<OREditor editorData={editorData} projectName={projectName} onSave={( projectData, editorData ) => {
 
 				fetch( `/api/projects/${projectName}/scene`, {
 					method: "POST",
