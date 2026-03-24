@@ -1,0 +1,11 @@
+{
+	"name": "New Project",
+	"position": [0, 0, 0],
+	"scale": [1, 1, 1],
+	"scene": {
+		"name": "root",
+		"uuid": "0",
+		"components": [],
+		"childs": []
+	}
+}

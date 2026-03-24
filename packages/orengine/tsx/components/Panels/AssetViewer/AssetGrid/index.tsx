@@ -23,7 +23,7 @@ type AssetGridProps = {
 
 export const AssetGrid = ( { entries, selected, onNavigate, onSelect }: AssetGridProps ) => {
 
-	const { engine } = useOREditor();
+	const { engine, projectName } = useOREditor();
 	const { pushContent, closeAll } = useMouseMenu();
 	const [ , setPreviewVersion ] = useState( 0 );
 
@@ -48,11 +48,11 @@ export const AssetGrid = ( { entries, selected, onNavigate, onSelect }: AssetGri
 		if ( entry.type !== "item" || ! pushContent || ! closeAll ) return;
 
 		const item = entry;
-		const menuItems = buildContextMenu( item, closeAll );
+		const menuItems = buildContextMenu( item, closeAll, projectName );
 
 		pushContent( <Picker label={item.name} list={menuItems} /> );
 
-	}, [ pushContent, closeAll ] );
+	}, [ pushContent, closeAll, projectName ] );
 
 	useEffect( () => {
 
@@ -133,18 +133,18 @@ function getAssetIcon( assetType: string, entry: AssetItem, engine: Engine ): Re
 
 }
 
-function getApiPath( item: AssetItem ): string | null {
+function getApiPath( item: AssetItem, projectName?: string ): string | null {
 
 	switch ( item.assetType ) {
 
 		case "material":
-			return `/api/materials/${encodeURIComponent( item.name )}`;
+			return `/api/projects/${projectName}/materials/${encodeURIComponent( item.name )}`;
 		case "shader":
-			return `/api/shaders/${encodeURIComponent( item.data.name )}`;
+			return `/api/projects/${projectName}/shaders/${encodeURIComponent( item.data.name )}`;
 		case "texture":
-			return `/api/textures/${encodeURIComponent( item.name )}`;
+			return `/api/projects/${projectName}/textures/${encodeURIComponent( item.name )}`;
 		case "component":
-			return item.path ? `/api/components/${encodeURIComponent( item.path )}` : null;
+			return item.path ? `/api/projects/${projectName}/components/${encodeURIComponent( item.path )}` : null;
 		default:
 			return null;
 
@@ -152,7 +152,7 @@ function getApiPath( item: AssetItem ): string | null {
 
 }
 
-function deleteAsset( item: AssetItem ) {
+function deleteAsset( item: AssetItem, projectName?: string ) {
 
 	switch ( item.assetType ) {
 
@@ -163,12 +163,12 @@ function deleteAsset( item: AssetItem ) {
 			Engine.resources.removeTextureResource( item.name );
 			break;
 		case "shader":
-			fetch( `/api/shaders/${encodeURIComponent( item.data.name )}`, { method: 'DELETE' } );
+			fetch( `/api/projects/${projectName}/shaders/${encodeURIComponent( item.data.name )}`, { method: 'DELETE' } );
 			break;
 		case "component":
 			if ( item.path ) {
 
-				fetch( `/api/components/${encodeURIComponent( item.path )}`, { method: 'DELETE' } );
+				fetch( `/api/projects/${projectName}/components/${encodeURIComponent( item.path )}`, { method: 'DELETE' } );
 
 			}
 
@@ -178,11 +178,11 @@ function deleteAsset( item: AssetItem ) {
 
 }
 
-function buildContextMenu( item: AssetItem, closeAll: () => void ) {
+function buildContextMenu( item: AssetItem, closeAll: () => void, projectName?: string ) {
 
 	const list: { label: string, onClick: () => void }[] = [];
 
-	const apiPath = getApiPath( item );
+	const apiPath = getApiPath( item, projectName );
 
 	if ( apiPath ) {
 
@@ -220,7 +220,7 @@ function buildContextMenu( item: AssetItem, closeAll: () => void ) {
 
 			}
 
-			deleteAsset( item );
+			deleteAsset( item, projectName );
 			closeAll();
 
 		},

@@ -31,5 +31,7 @@ tmp
 projects/*
 !projects/DemoProject/
 projects/*/_generated/
+projects/**/Resources/_data/
+packages/orengine/BuiltinResources/_data/
 
 .serena/cache

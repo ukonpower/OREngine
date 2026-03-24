@@ -1,1 +1,1 @@
-export { initResouces, initResourceInstances } from '~/ts/Resources';
+export { initResouces, initResourceInstances } from './Resources';

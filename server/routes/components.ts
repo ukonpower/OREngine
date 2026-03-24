@@ -1,13 +1,10 @@
 import express from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
-import { fileURLToPath } from 'url';
+
+import { projectManager } from '../Project';
 
 export const componentsRouter = express.Router();
-
-const __filename = fileURLToPath( import.meta.url );
-const __dirname = path.dirname( __filename );
-const COMPONENTS_DIR = path.resolve( __dirname, '../../src/ts/Resources/Components' );
 
 function validateSegment( segment: string ): boolean {
 
@@ -15,7 +12,7 @@ function validateSegment( segment: string ): boolean {
 
 }
 
-function resolveComponentPath( relativePath: string ): string | null {
+function resolveComponentPath( componentsDir: string, relativePath: string ): string | null {
 
 	const segments = relativePath.split( '/' ).filter( s => s.length > 0 );
 
@@ -25,9 +22,9 @@ function resolveComponentPath( relativePath: string ): string | null {
 
 	}
 
-	const resolved = path.resolve( COMPONENTS_DIR, ...segments );
+	const resolved = path.resolve( componentsDir, ...segments );
 
-	if ( ! resolved.startsWith( path.resolve( COMPONENTS_DIR ) ) ) return null;
+	if ( ! resolved.startsWith( path.resolve( componentsDir ) ) ) return null;
 
 	return resolved;
 
@@ -71,11 +68,21 @@ function scanComponentTree( dir: string, relativePath: string = '' ): ComponentT
 }
 
 // GET: コンポーネントツリー一覧
-componentsRouter.get( '/components', ( _req, res ) => {
+componentsRouter.get( '/projects/:project/components', ( req, res ) => {
 
 	try {
 
-		const tree = scanComponentTree( COMPONENTS_DIR );
+		const resourcesDir = projectManager.getResourcesDir( req.params.project );
+
+		if ( ! resourcesDir ) {
+
+			res.status( 404 ).json( { error: 'Project not found' } );
+			return;
+
+		}
+
+		const componentsDir = path.join( resourcesDir, 'Components' );
+		const tree = scanComponentTree( componentsDir );
 		res.json( tree );
 
 	} catch ( err ) {
@@ -88,10 +95,20 @@ componentsRouter.get( '/components', ( _req, res ) => {
 } );
 
 // POST: コンポーネント作成
-componentsRouter.post( '/components', ( req, res ) => {
+componentsRouter.post( '/projects/:project/components', ( req, res ) => {
 
 	try {
 
+		const resourcesDir = projectManager.getResourcesDir( req.params.project );
+
+		if ( ! resourcesDir ) {
+
+			res.status( 404 ).json( { error: 'Project not found' } );
+			return;
+
+		}
+
+		const componentsDir = path.join( resourcesDir, 'Components' );
 		const { dirPath, componentName } = req.body;
 
 		if ( ! componentName || ! validateSegment( componentName ) ) {
@@ -101,11 +118,11 @@ componentsRouter.post( '/components', ( req, res ) => {
 
 		}
 
-		let targetDir = COMPONENTS_DIR;
+		let targetDir = componentsDir;
 
 		if ( dirPath && dirPath.trim() ) {
 
-			const resolved = resolveComponentPath( dirPath );
+			const resolved = resolveComponentPath( componentsDir, dirPath );
 
 			if ( ! resolved ) {
 
@@ -161,12 +178,22 @@ export class ${componentName} extends MXP.Component {
 } );
 
 // DELETE: コンポーネント削除
-componentsRouter.delete( '/components/:componentPath(*)', ( req, res ) => {
+componentsRouter.delete( '/projects/:project/components/:componentPath(*)', ( req, res ) => {
 
 	try {
 
+		const resourcesDir = projectManager.getResourcesDir( req.params.project );
+
+		if ( ! resourcesDir ) {
+
+			res.status( 404 ).json( { error: 'Project not found' } );
+			return;
+
+		}
+
+		const componentsDir = path.join( resourcesDir, 'Components' );
 		const componentPath = req.params[ "componentPath(*)" ];
-		const resolved = resolveComponentPath( componentPath );
+		const resolved = resolveComponentPath( componentsDir, componentPath );
 
 		if ( ! resolved ) {
 
@@ -187,7 +214,7 @@ componentsRouter.delete( '/components/:componentPath(*)', ( req, res ) => {
 		// 親ディレクトリが空なら削除
 		const parentDir = path.dirname( resolved );
 
-		if ( parentDir !== path.resolve( COMPONENTS_DIR ) && fs.existsSync( parentDir ) ) {
+		if ( parentDir !== path.resolve( componentsDir ) && fs.existsSync( parentDir ) ) {
 
 			const remaining = fs.readdirSync( parentDir );
 
@@ -211,12 +238,22 @@ componentsRouter.delete( '/components/:componentPath(*)', ( req, res ) => {
 } );
 
 // GET: コンポーネントファイルの絶対パス（外部エディタ用）
-componentsRouter.get( '/components/:componentPath(*)/filepath', ( req, res ) => {
+componentsRouter.get( '/projects/:project/components/:componentPath(*)/filepath', ( req, res ) => {
 
 	try {
 
+		const resourcesDir = projectManager.getResourcesDir( req.params.project );
+
+		if ( ! resourcesDir ) {
+
+			res.status( 404 ).json( { error: 'Project not found' } );
+			return;
+
+		}
+
+		const componentsDir = path.join( resourcesDir, 'Components' );
 		const componentPath = req.params[ "componentPath(*)" ];
-		const resolved = resolveComponentPath( componentPath );
+		const resolved = resolveComponentPath( componentsDir, componentPath );
 
 		if ( ! resolved ) {
 

@@ -4,13 +4,13 @@ import { OREngineProjectData } from "orengine";
 import { Engine } from "orengine/ts/Engine";
 import { useEffect, useState } from "react";
 
-import { gl } from "~/ts/Globals";
-import { initResouces, initResourceInstances } from "~/ts/Resources";
-import { MIDIMIX } from "~/ts/Resources/Components/Samples/MIDI/MIDIMIX";
+import { gl, globalUniforms } from "~/ts/Globals";
+import { initResouces, initResourceInstances } from "~project/Resources";
+import { MIDIMIX } from "~project/Resources/Components/Samples/MIDI/MIDIMIX";
 
 initResouces();
 
-const projectName = new URLSearchParams( location.search ).get( 'project' ) || 'default';
+const projectName = new URLSearchParams( location.search ).get( 'project' ) || 'DemoProject';
 
 export const EditorPage = () => {
 
@@ -38,7 +38,7 @@ export const EditorPage = () => {
 	}, [] );
 
 	return (
-		<OREngine gl={gl} project={projectData} onEngineInit={initResourceInstances} >
+		<OREngine gl={gl} project={projectData} onEngineInit={( glCtx ) => initResourceInstances( glCtx, globalUniforms )} >
 			<OREditor editorData={editorData} projectName={projectName} midiMixController={MIDIMIX} onSave={( projectData, editorData ) => {
 
 				fetch( `/api/projects/${projectName}/scene`, {
@@ -57,7 +57,7 @@ export const EditorPage = () => {
 
 				for ( const m of materials ) {
 
-					fetch( `/api/materials/${encodeURIComponent( m.name )}`, {
+					fetch( `/api/projects/${projectName}/materials/${encodeURIComponent( m.name )}`, {
 						method: 'PUT',
 						headers: { 'Content-Type': 'application/json' },
 						body: JSON.stringify( m.config ),
@@ -69,7 +69,7 @@ export const EditorPage = () => {
 
 				for ( const t of textures ) {
 
-					fetch( `/api/textures/${encodeURIComponent( t.name )}`, {
+					fetch( `/api/projects/${projectName}/textures/${encodeURIComponent( t.name )}`, {
 						method: 'PUT',
 						headers: { 'Content-Type': 'application/json' },
 						body: JSON.stringify( t.config ),
@@ -77,13 +77,13 @@ export const EditorPage = () => {
 
 				}
 
-				fetch( '/api/materials/sync', {
+				fetch( `/api/projects/${projectName}/materials/sync`, {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify( { names: materials.map( m => m.name ) } ),
 				} );
 
-				fetch( '/api/textures/sync', {
+				fetch( `/api/projects/${projectName}/textures/sync`, {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify( { names: textures.map( t => t.name ) } ),

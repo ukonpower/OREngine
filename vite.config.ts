@@ -9,6 +9,9 @@ import { ShaderMinifierLoader } from "./plugins/ShaderMinifierLoader";
 
 
 const basePath = process.env.BASE_PATH ?? "";
+const activeProject = process.env.ORENGINE_PROJECT || 'DemoProject';
+const projectResourcesDir = `./projects/${activeProject}/Resources`;
+const builtinResourcesDir = `./packages/orengine/BuiltinResources`;
 
 // https://vitejs.dev/config/
 export default defineConfig( {
@@ -51,32 +54,42 @@ export default defineConfig( {
 		ProjectResolver(),
 		ShaderMinifierLoader(),
 		ResourceManager( {
-			componentsDir: './src/ts/Resources/Components/',
-			outputFile: './src/ts/Resources/_data/componentList.ts',
+			componentsDir: `${builtinResourcesDir}/Components/`,
+			outputFile: `${builtinResourcesDir}/_data/builtinComponentList.ts`,
+			exportName: 'BUILTIN_COMPONENTLIST',
+		} ),
+		ResourceManager( {
+			componentsDir: `${builtinResourcesDir}/Geometries/`,
+			outputFile: `${builtinResourcesDir}/_data/builtinGeometryList.ts`,
+			exportName: 'BUILTIN_GEOMETRYLIST',
+		} ),
+		ResourceManager( {
+			componentsDir: `${projectResourcesDir}/Components/`,
+			outputFile: `${projectResourcesDir}/_data/componentList.ts`,
 			exportName: 'COMPONENTLIST',
 		} ),
 		ResourceManager( {
-			componentsDir: './src/ts/Resources/Geometries/',
-			outputFile: './src/ts/Resources/_data/geometryList.ts',
+			componentsDir: `${projectResourcesDir}/Geometries/`,
+			outputFile: `${projectResourcesDir}/_data/geometryList.ts`,
 			exportName: 'GEOMETRYLIST',
 		} ),
 		ResourceManager( {
-			componentsDir: './src/ts/Resources/Materials/',
-			outputFile: './src/ts/Resources/_data/materialList.ts',
+			componentsDir: `${projectResourcesDir}/Materials/`,
+			outputFile: `${projectResourcesDir}/_data/materialList.ts`,
 			exportName: 'MATERIALLIST',
 			type: 'material',
-			shadersDir: './src/ts/Resources/Shaders/',
+			shadersDir: `${projectResourcesDir}/Shaders/`,
 		} ),
 		ResourceManager( {
-			componentsDir: './src/ts/Resources/Textures/',
-			outputFile: './src/ts/Resources/_data/textureList.ts',
+			componentsDir: `${projectResourcesDir}/Textures/`,
+			outputFile: `${projectResourcesDir}/_data/textureList.ts`,
 			exportName: 'TEXTURELIST',
 			type: 'texture',
-			shadersDir: './src/ts/Resources/Shaders/',
+			shadersDir: `${projectResourcesDir}/Shaders/`,
 		} ),
 		ResourceManager( {
-			componentsDir: './src/ts/Resources/Shaders/',
-			outputFile: './src/ts/Resources/_data/shaderList.ts',
+			componentsDir: `${projectResourcesDir}/Shaders/`,
+			outputFile: `${projectResourcesDir}/_data/shaderList.ts`,
 			exportName: 'SHADERLIST',
 			type: 'shader',
 		} ),

@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { fileURLToPath } from 'url';
 
 import express from 'express';
 
@@ -9,10 +8,6 @@ import { SceneDataEditor } from '../SceneDataEditor';
 import { getWSBridge } from '../ws';
 
 export const editorRouter = express.Router();
-
-const __dirname = path.dirname( fileURLToPath( import.meta.url ) );
-const MATERIALS_DIR = path.resolve( __dirname, '../../src/ts/Resources/Materials' );
-const TEXTURES_DIR = path.resolve( __dirname, '../../src/ts/Resources/Textures' );
 
 const RESOURCE_MUTATING_ACTIONS = new Set( [
 	'addMaterial', 'updateMaterial', 'removeMaterial',
@@ -26,10 +21,18 @@ function validateName( name: string ): boolean {
 }
 
 async function persistResourceChange(
+	projectName: string,
 	action: string,
 	params: Record<string, unknown>,
 	result: any,
 ) {
+
+	const resourcesDir = projectManager.getResourcesDir( projectName );
+
+	if ( ! resourcesDir ) return;
+
+	const materialsDir = path.join( resourcesDir, 'Materials' );
+	const texturesDir = path.join( resourcesDir, 'Textures' );
 
 	switch ( action ) {
 
@@ -39,14 +42,14 @@ async function persistResourceChange(
 
 		if ( ! validateName( name ) ) break;
 
-		if ( ! fs.existsSync( MATERIALS_DIR ) ) {
+		if ( ! fs.existsSync( materialsDir ) ) {
 
-			fs.mkdirSync( MATERIALS_DIR, { recursive: true } );
+			fs.mkdirSync( materialsDir, { recursive: true } );
 
 		}
 
 		const config = result?.config ?? params.config ?? {};
-		fs.writeFileSync( path.join( MATERIALS_DIR, `${name}.mat` ), JSON.stringify( config, null, '\t' ) + '\n' );
+		fs.writeFileSync( path.join( materialsDir, `${name}.mat` ), JSON.stringify( config, null, '\t' ) + '\n' );
 		break;
 
 	}
@@ -57,14 +60,14 @@ async function persistResourceChange(
 
 		if ( ! validateName( name ) ) break;
 
-		if ( ! fs.existsSync( MATERIALS_DIR ) ) {
+		if ( ! fs.existsSync( materialsDir ) ) {
 
-			fs.mkdirSync( MATERIALS_DIR, { recursive: true } );
+			fs.mkdirSync( materialsDir, { recursive: true } );
 
 		}
 
 		const config = result?.config ?? params.config ?? {};
-		fs.writeFileSync( path.join( MATERIALS_DIR, `${name}.mat` ), JSON.stringify( config, null, '\t' ) + '\n' );
+		fs.writeFileSync( path.join( materialsDir, `${name}.mat` ), JSON.stringify( config, null, '\t' ) + '\n' );
 		break;
 
 	}
@@ -75,7 +78,7 @@ async function persistResourceChange(
 
 		if ( ! validateName( name ) ) break;
 
-		const matPath = path.join( MATERIALS_DIR, `${name}.mat` );
+		const matPath = path.join( materialsDir, `${name}.mat` );
 
 		if ( fs.existsSync( matPath ) ) {
 
@@ -93,14 +96,14 @@ async function persistResourceChange(
 
 		if ( ! validateName( name ) ) break;
 
-		if ( ! fs.existsSync( TEXTURES_DIR ) ) {
+		if ( ! fs.existsSync( texturesDir ) ) {
 
-			fs.mkdirSync( TEXTURES_DIR, { recursive: true } );
+			fs.mkdirSync( texturesDir, { recursive: true } );
 
 		}
 
 		const config = result?.config ?? params.config ?? {};
-		fs.writeFileSync( path.join( TEXTURES_DIR, `${name}.tex` ), JSON.stringify( config, null, '\t' ) + '\n' );
+		fs.writeFileSync( path.join( texturesDir, `${name}.tex` ), JSON.stringify( config, null, '\t' ) + '\n' );
 		break;
 
 	}
@@ -111,14 +114,14 @@ async function persistResourceChange(
 
 		if ( ! validateName( name ) ) break;
 
-		if ( ! fs.existsSync( TEXTURES_DIR ) ) {
+		if ( ! fs.existsSync( texturesDir ) ) {
 
-			fs.mkdirSync( TEXTURES_DIR, { recursive: true } );
+			fs.mkdirSync( texturesDir, { recursive: true } );
 
 		}
 
 		const config = result?.config ?? params.config ?? {};
-		fs.writeFileSync( path.join( TEXTURES_DIR, `${name}.tex` ), JSON.stringify( config, null, '\t' ) + '\n' );
+		fs.writeFileSync( path.join( texturesDir, `${name}.tex` ), JSON.stringify( config, null, '\t' ) + '\n' );
 		break;
 
 	}
@@ -129,7 +132,7 @@ async function persistResourceChange(
 
 		if ( ! validateName( name ) ) break;
 
-		const texPath = path.join( TEXTURES_DIR, `${name}.tex` );
+		const texPath = path.join( texturesDir, `${name}.tex` );
 
 		if ( fs.existsSync( texPath ) ) {
 
@@ -155,9 +158,10 @@ const BUILTIN_COMPONENTS = [
 	{ name: 'Mesh', className: 'Mesh' },
 ];
 
-function getAvailableComponentsFromFiles(): { name: string; className: string }[] {
+function getAvailableComponentsFromFiles( projectName: string ): { name: string; className: string }[] {
 
-	const componentsDir = path.resolve( __dirname, '../../src/ts/Resources/Components' );
+	const resourcesDir = projectManager.getResourcesDir( projectName );
+	const componentsDir = resourcesDir ? path.join( resourcesDir, 'Components' ) : '';
 	const result: { name: string; className: string }[] = [ ...BUILTIN_COMPONENTS ];
 
 	function scan( dir: string ) {
@@ -240,7 +244,7 @@ function handleActionLocal(
 		break;
 
 	case 'getAvailableComponents':
-		result = getAvailableComponentsFromFiles();
+		result = getAvailableComponentsFromFiles( projectName );
 		break;
 
 	case 'getStatus':
@@ -298,7 +302,7 @@ async function handleActionInternal(
 
 		if ( RESOURCE_MUTATING_ACTIONS.has( action ) ) {
 
-			await persistResourceChange( action, params, result.data );
+			await persistResourceChange( projectName, action, params, result.data );
 
 		}
 

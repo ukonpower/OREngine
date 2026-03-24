@@ -1,13 +1,10 @@
 import express from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
-import { fileURLToPath } from 'url';
+
+import { projectManager } from '../Project';
 
 export const texturesRouter = express.Router();
-
-const __filename = fileURLToPath( import.meta.url );
-const __dirname = path.dirname( __filename );
-const TEXTURES_DIR = path.resolve( __dirname, '../../src/ts/Resources/Textures' );
 
 function validateName( name: string ): boolean {
 
@@ -16,11 +13,22 @@ function validateName( name: string ): boolean {
 }
 
 // GET: テクスチャ一覧
-texturesRouter.get( '/textures', ( _req, res ) => {
+texturesRouter.get( '/projects/:project/textures', ( req, res ) => {
 
 	try {
 
-		if ( ! fs.existsSync( TEXTURES_DIR ) ) {
+		const resourcesDir = projectManager.getResourcesDir( req.params.project );
+
+		if ( ! resourcesDir ) {
+
+			res.status( 404 ).json( { error: 'Project not found' } );
+			return;
+
+		}
+
+		const texturesDir = path.join( resourcesDir, 'Textures' );
+
+		if ( ! fs.existsSync( texturesDir ) ) {
 
 			res.json( [] );
 			return;
@@ -55,7 +63,7 @@ texturesRouter.get( '/textures', ( _req, res ) => {
 
 		};
 
-		scanDir( TEXTURES_DIR );
+		scanDir( texturesDir );
 		res.json( items );
 
 	} catch ( err ) {
@@ -68,13 +76,23 @@ texturesRouter.get( '/textures', ( _req, res ) => {
 } );
 
 // POST: テクスチャ同期（インスタンスに存在するリソース名一覧を受け取り、サーバー上で一覧にないファイルを削除）
-texturesRouter.post( '/textures/sync', ( req, res ) => {
+texturesRouter.post( '/projects/:project/textures/sync', ( req, res ) => {
 
 	try {
 
+		const resourcesDir = projectManager.getResourcesDir( req.params.project );
+
+		if ( ! resourcesDir ) {
+
+			res.status( 404 ).json( { error: 'Project not found' } );
+			return;
+
+		}
+
+		const texturesDir = path.join( resourcesDir, 'Textures' );
 		const names: string[] = req.body.names || [];
 
-		if ( ! fs.existsSync( TEXTURES_DIR ) ) {
+		if ( ! fs.existsSync( texturesDir ) ) {
 
 			res.json( { deleted: [] } );
 			return;
@@ -82,7 +100,7 @@ texturesRouter.post( '/textures/sync', ( req, res ) => {
 		}
 
 		const deleted: string[] = [];
-		const files = fs.readdirSync( TEXTURES_DIR ).filter( f => f.endsWith( '.tex' ) );
+		const files = fs.readdirSync( texturesDir ).filter( f => f.endsWith( '.tex' ) );
 
 		for ( const file of files ) {
 
@@ -90,7 +108,7 @@ texturesRouter.post( '/textures/sync', ( req, res ) => {
 
 			if ( ! names.includes( name ) ) {
 
-				fs.unlinkSync( path.join( TEXTURES_DIR, file ) );
+				fs.unlinkSync( path.join( texturesDir, file ) );
 				deleted.push( name );
 
 			}
@@ -109,10 +127,20 @@ texturesRouter.post( '/textures/sync', ( req, res ) => {
 } );
 
 // GET: テクスチャ詳細
-texturesRouter.get( '/textures/:name', ( req, res ) => {
+texturesRouter.get( '/projects/:project/textures/:name', ( req, res ) => {
 
 	try {
 
+		const resourcesDir = projectManager.getResourcesDir( req.params.project );
+
+		if ( ! resourcesDir ) {
+
+			res.status( 404 ).json( { error: 'Project not found' } );
+			return;
+
+		}
+
+		const texturesDir = path.join( resourcesDir, 'Textures' );
 		const name = req.params.name;
 
 		if ( ! validateName( name ) ) {
@@ -122,7 +150,7 @@ texturesRouter.get( '/textures/:name', ( req, res ) => {
 
 		}
 
-		const texPath = path.join( TEXTURES_DIR, `${name}.tex` );
+		const texPath = path.join( texturesDir, `${name}.tex` );
 
 		if ( ! fs.existsSync( texPath ) ) {
 
@@ -144,10 +172,20 @@ texturesRouter.get( '/textures/:name', ( req, res ) => {
 } );
 
 // POST: テクスチャ作成
-texturesRouter.post( '/textures', ( req, res ) => {
+texturesRouter.post( '/projects/:project/textures', ( req, res ) => {
 
 	try {
 
+		const resourcesDir = projectManager.getResourcesDir( req.params.project );
+
+		if ( ! resourcesDir ) {
+
+			res.status( 404 ).json( { error: 'Project not found' } );
+			return;
+
+		}
+
+		const texturesDir = path.join( resourcesDir, 'Textures' );
 		const { name, ...config } = req.body;
 
 		if ( ! name || ! validateName( name ) ) {
@@ -157,13 +195,13 @@ texturesRouter.post( '/textures', ( req, res ) => {
 
 		}
 
-		if ( ! fs.existsSync( TEXTURES_DIR ) ) {
+		if ( ! fs.existsSync( texturesDir ) ) {
 
-			fs.mkdirSync( TEXTURES_DIR, { recursive: true } );
+			fs.mkdirSync( texturesDir, { recursive: true } );
 
 		}
 
-		const texPath = path.join( TEXTURES_DIR, `${name}.tex` );
+		const texPath = path.join( texturesDir, `${name}.tex` );
 
 		if ( fs.existsSync( texPath ) ) {
 
@@ -185,10 +223,20 @@ texturesRouter.post( '/textures', ( req, res ) => {
 } );
 
 // PUT: テクスチャ更新
-texturesRouter.put( '/textures/:name', ( req, res ) => {
+texturesRouter.put( '/projects/:project/textures/:name', ( req, res ) => {
 
 	try {
 
+		const resourcesDir = projectManager.getResourcesDir( req.params.project );
+
+		if ( ! resourcesDir ) {
+
+			res.status( 404 ).json( { error: 'Project not found' } );
+			return;
+
+		}
+
+		const texturesDir = path.join( resourcesDir, 'Textures' );
 		const name = req.params.name;
 
 		if ( ! validateName( name ) ) {
@@ -198,13 +246,13 @@ texturesRouter.put( '/textures/:name', ( req, res ) => {
 
 		}
 
-		if ( ! fs.existsSync( TEXTURES_DIR ) ) {
+		if ( ! fs.existsSync( texturesDir ) ) {
 
-			fs.mkdirSync( TEXTURES_DIR, { recursive: true } );
+			fs.mkdirSync( texturesDir, { recursive: true } );
 
 		}
 
-		const texPath = path.join( TEXTURES_DIR, `${name}.tex` );
+		const texPath = path.join( texturesDir, `${name}.tex` );
 		fs.writeFileSync( texPath, JSON.stringify( req.body, null, 2 ) );
 		res.json( { name, config: req.body } );
 
@@ -218,10 +266,20 @@ texturesRouter.put( '/textures/:name', ( req, res ) => {
 } );
 
 // DELETE: テクスチャ削除
-texturesRouter.delete( '/textures/:name', ( req, res ) => {
+texturesRouter.delete( '/projects/:project/textures/:name', ( req, res ) => {
 
 	try {
 
+		const resourcesDir = projectManager.getResourcesDir( req.params.project );
+
+		if ( ! resourcesDir ) {
+
+			res.status( 404 ).json( { error: 'Project not found' } );
+			return;
+
+		}
+
+		const texturesDir = path.join( resourcesDir, 'Textures' );
 		const name = req.params.name;
 
 		if ( ! validateName( name ) ) {
@@ -231,7 +289,7 @@ texturesRouter.delete( '/textures/:name', ( req, res ) => {
 
 		}
 
-		const texPath = path.join( TEXTURES_DIR, `${name}.tex` );
+		const texPath = path.join( texturesDir, `${name}.tex` );
 
 		if ( ! fs.existsSync( texPath ) ) {
 
@@ -253,10 +311,20 @@ texturesRouter.delete( '/textures/:name', ( req, res ) => {
 } );
 
 // GET: テクスチャファイルの絶対パス
-texturesRouter.get( '/textures/:name/filepath', ( req, res ) => {
+texturesRouter.get( '/projects/:project/textures/:name/filepath', ( req, res ) => {
 
 	try {
 
+		const resourcesDir = projectManager.getResourcesDir( req.params.project );
+
+		if ( ! resourcesDir ) {
+
+			res.status( 404 ).json( { error: 'Project not found' } );
+			return;
+
+		}
+
+		const texturesDir = path.join( resourcesDir, 'Textures' );
 		const name = req.params.name;
 
 		if ( ! validateName( name ) ) {
@@ -266,7 +334,7 @@ texturesRouter.get( '/textures/:name/filepath', ( req, res ) => {
 
 		}
 
-		const texPath = path.join( TEXTURES_DIR, `${name}.tex` );
+		const texPath = path.join( texturesDir, `${name}.tex` );
 
 		if ( ! fs.existsSync( texPath ) ) {
 

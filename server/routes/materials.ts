@@ -1,13 +1,10 @@
 import express from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
-import { fileURLToPath } from 'url';
+
+import { projectManager } from '../Project';
 
 export const materialsRouter = express.Router();
-
-const __filename = fileURLToPath( import.meta.url );
-const __dirname = path.dirname( __filename );
-const MATERIALS_DIR = path.resolve( __dirname, '../../src/ts/Resources/Materials' );
 
 function validateName( name: string ): boolean {
 
@@ -16,11 +13,22 @@ function validateName( name: string ): boolean {
 }
 
 // GET: マテリアル一覧
-materialsRouter.get( '/materials', ( _req, res ) => {
+materialsRouter.get( '/projects/:project/materials', ( req, res ) => {
 
 	try {
 
-		if ( ! fs.existsSync( MATERIALS_DIR ) ) {
+		const resourcesDir = projectManager.getResourcesDir( req.params.project );
+
+		if ( ! resourcesDir ) {
+
+			res.status( 404 ).json( { error: 'Project not found' } );
+			return;
+
+		}
+
+		const materialsDir = path.join( resourcesDir, 'Materials' );
+
+		if ( ! fs.existsSync( materialsDir ) ) {
 
 			res.json( [] );
 			return;
@@ -55,7 +63,7 @@ materialsRouter.get( '/materials', ( _req, res ) => {
 
 		};
 
-		scanDir( MATERIALS_DIR );
+		scanDir( materialsDir );
 		res.json( items );
 
 	} catch ( err ) {
@@ -68,13 +76,23 @@ materialsRouter.get( '/materials', ( _req, res ) => {
 } );
 
 // POST: マテリアル同期（インスタンスに存在するリソース名一覧を受け取り、サーバー上で一覧にないファイルを削除）
-materialsRouter.post( '/materials/sync', ( req, res ) => {
+materialsRouter.post( '/projects/:project/materials/sync', ( req, res ) => {
 
 	try {
 
+		const resourcesDir = projectManager.getResourcesDir( req.params.project );
+
+		if ( ! resourcesDir ) {
+
+			res.status( 404 ).json( { error: 'Project not found' } );
+			return;
+
+		}
+
+		const materialsDir = path.join( resourcesDir, 'Materials' );
 		const names: string[] = req.body.names || [];
 
-		if ( ! fs.existsSync( MATERIALS_DIR ) ) {
+		if ( ! fs.existsSync( materialsDir ) ) {
 
 			res.json( { deleted: [] } );
 			return;
@@ -82,7 +100,7 @@ materialsRouter.post( '/materials/sync', ( req, res ) => {
 		}
 
 		const deleted: string[] = [];
-		const files = fs.readdirSync( MATERIALS_DIR ).filter( f => f.endsWith( '.mat' ) );
+		const files = fs.readdirSync( materialsDir ).filter( f => f.endsWith( '.mat' ) );
 
 		for ( const file of files ) {
 
@@ -90,7 +108,7 @@ materialsRouter.post( '/materials/sync', ( req, res ) => {
 
 			if ( ! names.includes( name ) ) {
 
-				fs.unlinkSync( path.join( MATERIALS_DIR, file ) );
+				fs.unlinkSync( path.join( materialsDir, file ) );
 				deleted.push( name );
 
 			}
@@ -109,10 +127,20 @@ materialsRouter.post( '/materials/sync', ( req, res ) => {
 } );
 
 // GET: マテリアル詳細
-materialsRouter.get( '/materials/:name', ( req, res ) => {
+materialsRouter.get( '/projects/:project/materials/:name', ( req, res ) => {
 
 	try {
 
+		const resourcesDir = projectManager.getResourcesDir( req.params.project );
+
+		if ( ! resourcesDir ) {
+
+			res.status( 404 ).json( { error: 'Project not found' } );
+			return;
+
+		}
+
+		const materialsDir = path.join( resourcesDir, 'Materials' );
 		const name = req.params.name;
 
 		if ( ! validateName( name ) ) {
@@ -122,7 +150,7 @@ materialsRouter.get( '/materials/:name', ( req, res ) => {
 
 		}
 
-		const matPath = path.join( MATERIALS_DIR, `${name}.mat` );
+		const matPath = path.join( materialsDir, `${name}.mat` );
 
 		if ( ! fs.existsSync( matPath ) ) {
 
@@ -144,10 +172,20 @@ materialsRouter.get( '/materials/:name', ( req, res ) => {
 } );
 
 // POST: マテリアル作成
-materialsRouter.post( '/materials', ( req, res ) => {
+materialsRouter.post( '/projects/:project/materials', ( req, res ) => {
 
 	try {
 
+		const resourcesDir = projectManager.getResourcesDir( req.params.project );
+
+		if ( ! resourcesDir ) {
+
+			res.status( 404 ).json( { error: 'Project not found' } );
+			return;
+
+		}
+
+		const materialsDir = path.join( resourcesDir, 'Materials' );
 		const { name, ...config } = req.body;
 
 		if ( ! name || ! validateName( name ) ) {
@@ -157,13 +195,13 @@ materialsRouter.post( '/materials', ( req, res ) => {
 
 		}
 
-		if ( ! fs.existsSync( MATERIALS_DIR ) ) {
+		if ( ! fs.existsSync( materialsDir ) ) {
 
-			fs.mkdirSync( MATERIALS_DIR, { recursive: true } );
+			fs.mkdirSync( materialsDir, { recursive: true } );
 
 		}
 
-		const matPath = path.join( MATERIALS_DIR, `${name}.mat` );
+		const matPath = path.join( materialsDir, `${name}.mat` );
 
 		if ( fs.existsSync( matPath ) ) {
 
@@ -185,10 +223,20 @@ materialsRouter.post( '/materials', ( req, res ) => {
 } );
 
 // PUT: マテリアル更新
-materialsRouter.put( '/materials/:name', ( req, res ) => {
+materialsRouter.put( '/projects/:project/materials/:name', ( req, res ) => {
 
 	try {
 
+		const resourcesDir = projectManager.getResourcesDir( req.params.project );
+
+		if ( ! resourcesDir ) {
+
+			res.status( 404 ).json( { error: 'Project not found' } );
+			return;
+
+		}
+
+		const materialsDir = path.join( resourcesDir, 'Materials' );
 		const name = req.params.name;
 
 		if ( ! validateName( name ) ) {
@@ -198,13 +246,13 @@ materialsRouter.put( '/materials/:name', ( req, res ) => {
 
 		}
 
-		if ( ! fs.existsSync( MATERIALS_DIR ) ) {
+		if ( ! fs.existsSync( materialsDir ) ) {
 
-			fs.mkdirSync( MATERIALS_DIR, { recursive: true } );
+			fs.mkdirSync( materialsDir, { recursive: true } );
 
 		}
 
-		const matPath = path.join( MATERIALS_DIR, `${name}.mat` );
+		const matPath = path.join( materialsDir, `${name}.mat` );
 		fs.writeFileSync( matPath, JSON.stringify( req.body, null, 2 ) );
 		res.json( { name, config: req.body } );
 
@@ -218,10 +266,20 @@ materialsRouter.put( '/materials/:name', ( req, res ) => {
 } );
 
 // DELETE: マテリアル削除
-materialsRouter.delete( '/materials/:name', ( req, res ) => {
+materialsRouter.delete( '/projects/:project/materials/:name', ( req, res ) => {
 
 	try {
 
+		const resourcesDir = projectManager.getResourcesDir( req.params.project );
+
+		if ( ! resourcesDir ) {
+
+			res.status( 404 ).json( { error: 'Project not found' } );
+			return;
+
+		}
+
+		const materialsDir = path.join( resourcesDir, 'Materials' );
 		const name = req.params.name;
 
 		if ( ! validateName( name ) ) {
@@ -231,7 +289,7 @@ materialsRouter.delete( '/materials/:name', ( req, res ) => {
 
 		}
 
-		const matPath = path.join( MATERIALS_DIR, `${name}.mat` );
+		const matPath = path.join( materialsDir, `${name}.mat` );
 
 		if ( ! fs.existsSync( matPath ) ) {
 
@@ -253,10 +311,20 @@ materialsRouter.delete( '/materials/:name', ( req, res ) => {
 } );
 
 // GET: マテリアルファイルの絶対パス
-materialsRouter.get( '/materials/:name/filepath', ( req, res ) => {
+materialsRouter.get( '/projects/:project/materials/:name/filepath', ( req, res ) => {
 
 	try {
 
+		const resourcesDir = projectManager.getResourcesDir( req.params.project );
+
+		if ( ! resourcesDir ) {
+
+			res.status( 404 ).json( { error: 'Project not found' } );
+			return;
+
+		}
+
+		const materialsDir = path.join( resourcesDir, 'Materials' );
 		const name = req.params.name;
 
 		if ( ! validateName( name ) ) {
@@ -266,7 +334,7 @@ materialsRouter.get( '/materials/:name/filepath', ( req, res ) => {
 
 		}
 
-		const matPath = path.join( MATERIALS_DIR, `${name}.mat` );
+		const matPath = path.join( materialsDir, `${name}.mat` );
 
 		if ( ! fs.existsSync( matPath ) ) {
 

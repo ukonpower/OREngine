@@ -9,3 +9,5 @@ export * from "./ts/Engine/ProjectSerializer";
 export * from "./ts/Controls/LookAt";
 export * from "./ts/Controls/OrbitControls";
 
+export { BUILTIN_COMPONENTLIST } from './BuiltinResources/_data/builtinComponentList';
+export { BUILTIN_GEOMETRYLIST } from './BuiltinResources/_data/builtinGeometryList';

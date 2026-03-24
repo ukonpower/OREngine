@@ -39,6 +39,16 @@ export class ProjectManager {
 
 	}
 
+	getResourcesDir( name: string ): string | null {
+
+		const projectDir = this._resolveProjectDir( name );
+
+		if ( ! projectDir ) return null;
+
+		return path.join( projectDir, 'Resources' );
+
+	}
+
 	private _resolveProjectDir( name: string ): string | null {
 
 		if ( ! name || name.includes( '..' ) || name.includes( '/' ) || name.includes( '\\' ) ) {
