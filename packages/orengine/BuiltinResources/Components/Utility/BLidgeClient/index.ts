@@ -2,7 +2,7 @@ import * as MXP from 'maxpower';
 import { Engine, OREngineDataEntityComponent } from 'orengine';
 
 import { gl } from '~/ts/Globals';
-import SceneData from '~/ts/Resources/scene.json';
+import SceneData from '~project/scene.json';
 
 interface BLidgeAttachment {
 	name: string,

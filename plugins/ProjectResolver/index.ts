@@ -8,7 +8,7 @@ const PROJECTS_DIR = path.resolve( __dirname, '../../projects' );
 
 export const ProjectResolver = (): Plugin => {
 
-	const activeProject = process.env.ORENGINE_PROJECT || 'default';
+	const activeProject = process.env.ORENGINE_PROJECT || 'DemoProject';
 
 	return {
 		name: 'project-resolver',
