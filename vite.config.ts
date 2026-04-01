@@ -10,7 +10,10 @@ import { ShaderMinifierLoader } from "./plugins/ShaderMinifierLoader";
 
 const basePath = process.env.BASE_PATH ?? "";
 const activeProject = process.env.ORENGINE_PROJECT || 'DemoProject';
-const projectResourcesDir = `./projects/${activeProject}/Resources`;
+const projectDir = process.env.ORENGINE_PROJECT_DIR
+	? path.resolve( process.env.ORENGINE_PROJECT_DIR )
+	: `./projects/${activeProject}`;
+const projectResourcesDir = `${projectDir}/Resources`;
 const builtinResourcesDir = `./packages/orengine/BuiltinResources`;
 
 // https://vitejs.dev/config/

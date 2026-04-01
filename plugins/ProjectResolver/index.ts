@@ -9,6 +9,9 @@ const PROJECTS_DIR = path.resolve( __dirname, '../../projects' );
 export const ProjectResolver = (): Plugin => {
 
 	const activeProject = process.env.ORENGINE_PROJECT || 'DemoProject';
+	const PROJECT_DIR = process.env.ORENGINE_PROJECT_DIR
+		? path.resolve( process.env.ORENGINE_PROJECT_DIR )
+		: path.resolve( PROJECTS_DIR, activeProject );
 
 	return {
 		name: 'project-resolver',
@@ -19,7 +22,7 @@ export const ProjectResolver = (): Plugin => {
 
 				const replaced = source.replace(
 					'~project',
-					path.resolve( PROJECTS_DIR, activeProject )
+					PROJECT_DIR
 				);
 
 				const resolved = await this.resolve( replaced, importer, { ...options, skipSelf: true } );

@@ -10,10 +10,20 @@ export class ProjectManager {
 
 	private _projects: Map<string, ProjectData> = new Map();
 	private _projectsDir: string;
+	private _externalProjectDir: string | null;
 
 	constructor( projectsDir: string ) {
 
 		this._projectsDir = projectsDir;
+		this._externalProjectDir = process.env.ORENGINE_PROJECT_DIR
+			? path.resolve( process.env.ORENGINE_PROJECT_DIR )
+			: null;
+
+	}
+
+	get isExternalMode(): boolean {
+
+		return this._externalProjectDir !== null;
 
 	}
 
@@ -49,7 +59,23 @@ export class ProjectManager {
 
 	}
 
+	getExternalProjectName(): string | null {
+
+		if ( ! this._externalProjectDir ) return null;
+
+		return path.basename( this._externalProjectDir );
+
+	}
+
 	private _resolveProjectDir( name: string ): string | null {
+
+		if ( this._externalProjectDir ) {
+
+			if ( ! fs.existsSync( this._externalProjectDir ) ) return null;
+
+			return this._externalProjectDir;
+
+		}
 
 		if ( ! name || name.includes( '..' ) || name.includes( '/' ) || name.includes( '\\' ) ) {
 
