@@ -10,11 +10,16 @@ const __dirname = path.dirname( fileURLToPath( import.meta.url ) );
 export const sceneRouter = express.Router();
 
 const PROJECTS_DIR = path.resolve( __dirname, '../../projects' );
+const EXTERNAL_PROJECT_DIR = process.env.ORENGINE_PROJECT_DIR
+	? path.resolve( process.env.ORENGINE_PROJECT_DIR )
+	: null;
 
 /**
  * プロジェクト名をサニタイズし、安全なディレクトリパスを返す
  */
 function resolveProjectDir( name: string ): string | null {
+
+	if ( EXTERNAL_PROJECT_DIR ) return EXTERNAL_PROJECT_DIR;
 
 	if ( !name || name.includes( '..' ) || name.includes( '/' ) || name.includes( '\\' ) ) {
 

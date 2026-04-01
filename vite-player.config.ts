@@ -11,7 +11,10 @@ import { ShaderMinifierLoader } from './plugins/ShaderMinifierLoader';
 
 const basePath = process.env.BASE_PATH ?? "";
 const activeProject = process.env.ORENGINE_PROJECT || 'DemoProject';
-const sceneJsonPath = `./projects/${activeProject}/scene.json`;
+const projectDir = process.env.ORENGINE_PROJECT_DIR
+	? path.resolve( process.env.ORENGINE_PROJECT_DIR )
+	: path.join( __dirname, `projects/${activeProject}` );
+const sceneJsonPath = path.join( projectDir, 'scene.json' );
 
 const playerJson = JSON.parse( fs.readFileSync( sceneJsonPath, 'utf-8' ) );
 
@@ -100,7 +103,7 @@ export default defineConfig( {
 			"glpower": path.join( __dirname, "packages/glpower/packages/glpower/src" ),
 			"maxpower": path.join( __dirname, "packages/maxpower" ),
 			"orengine": path.join( __dirname, "packages/orengine" ),
-			"~project": path.join( __dirname, `projects/${activeProject}` ),
+			"~project": projectDir,
 			"~": path.join( __dirname, "src" ),
 		},
 	},

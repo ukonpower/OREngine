@@ -4,6 +4,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 
+import { projectManager } from '../Project';
+
 const __dirname = path.dirname( fileURLToPath( import.meta.url ) );
 
 export const projectsRouter = express.Router();
@@ -15,6 +17,14 @@ const PROJECTS_DIR = path.resolve( __dirname, '../../projects' );
 projectsRouter.get( '/projects', ( _req, res ) => {
 
 	try {
+
+		if ( projectManager.isExternalMode ) {
+
+			const name = projectManager.getExternalProjectName();
+			res.json( name ? [ name ] : [] );
+			return;
+
+		}
 
 		if ( !fs.existsSync( PROJECTS_DIR ) ) {
 
@@ -53,6 +63,13 @@ const validateProjectName = ( name: unknown ): string | null => {
 
 projectsRouter.delete( '/projects/:name', async ( req, res ) => {
 
+	if ( projectManager.isExternalMode ) {
+
+		res.status( 400 ).json( { error: 'Cannot delete projects in external mode' } );
+		return;
+
+	}
+
 	try {
 
 		const { name } = req.params;
@@ -80,6 +97,13 @@ projectsRouter.delete( '/projects/:name', async ( req, res ) => {
 // --- Project Rename ---
 
 projectsRouter.put( '/projects/:name', async ( req, res ) => {
+
+	if ( projectManager.isExternalMode ) {
+
+		res.status( 400 ).json( { error: 'Cannot rename projects in external mode' } );
+		return;
+
+	}
 
 	try {
 
@@ -128,6 +152,13 @@ projectsRouter.put( '/projects/:name', async ( req, res ) => {
 // --- Project Duplicate ---
 
 projectsRouter.post( '/projects/:name/duplicate', async ( req, res ) => {
+
+	if ( projectManager.isExternalMode ) {
+
+		res.status( 400 ).json( { error: 'Cannot duplicate projects in external mode' } );
+		return;
+
+	}
 
 	try {
 
@@ -203,6 +234,13 @@ function copyDirSync( src: string, dest: string ) {
 }
 
 projectsRouter.post( '/projects', ( req, res ) => {
+
+	if ( projectManager.isExternalMode ) {
+
+		res.status( 400 ).json( { error: 'Cannot create projects in external mode' } );
+		return;
+
+	}
 
 	try {
 
