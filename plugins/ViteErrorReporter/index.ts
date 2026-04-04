@@ -8,6 +8,12 @@ type ViteError = {
 	timestamp: number;
 };
 
+type HmrEvent = {
+	file: string;
+	moduleCount: number;
+	timestamp: number;
+};
+
 const SERVER_URL = `http://localhost:${process.env.ORENGINE_SERVER_PORT || 3001}`;
 
 export const ViteErrorReporter = (): Plugin => {
@@ -20,6 +26,18 @@ export const ViteErrorReporter = (): Plugin => {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify( error ),
+		} ).catch( () => {} );
+
+	};
+
+	const reportHmr = ( file: string, moduleCount: number ) => {
+
+		const event: HmrEvent = { file, moduleCount, timestamp: Date.now() };
+
+		fetch( `${SERVER_URL}/api/internal/hmr-events`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify( event ),
 		} ).catch( () => {} );
 
 	};
@@ -46,6 +64,12 @@ export const ViteErrorReporter = (): Plugin => {
 				}
 
 			};
+
+		},
+
+		handleHotUpdate( { file, modules } ) {
+
+			reportHmr( file, modules.length );
 
 		},
 	};

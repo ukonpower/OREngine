@@ -1,5 +1,52 @@
 # トラブルシューティング
 
+## 一括診断
+
+問題が発生したらまず一括診断スクリプトを実行する:
+
+```bash
+bash ${CLAUDE_SKILL_DIR}/scripts/diagnose.sh {PROJECT}
+```
+
+出力内容:
+- Vite Errors — Viteプラグインのtransformエラー
+- Shader Errors — GLSLコンパイル/リンクエラー
+- Console Errors (error/warn) — ブラウザの `console.error` / `console.warn` / 未捕捉例外
+- Console Logs (log/info) — ブラウザの `console.log` / `console.info`
+- HMR Events — 直近のHot Module Replacement更新イベント
+- Registered Components — 登録済みコンポーネント一覧
+- Server Log — Expressサーバーのログ（末尾30行）
+- Vite Log — Vite devサーバーのログ（末尾30行）
+
+## console.logでのデバッグ
+
+コンポーネントやシェーダーの値をデバッグする場合、`console.log` を追加してAPI経由で取得できる:
+
+```bash
+# console.logの出力のみ取得
+curl -s http://localhost:3001/api/projects/{PROJECT}/editor/console-errors?level=log | python3 -m json.tool
+
+# エラーとワーニングのみ取得
+curl -s http://localhost:3001/api/projects/{PROJECT}/editor/console-errors?level=error,warn | python3 -m json.tool
+
+# 全レベル取得（log, info, error, warn, uncaughtError, unhandledRejection）
+curl -s http://localhost:3001/api/projects/{PROJECT}/editor/console-errors | python3 -m json.tool
+
+# ログをクリア
+curl -s -X POST http://localhost:3001/api/projects/{PROJECT}/editor/console-errors/clear
+```
+
+**注意**: `console.log` の捕捉にはブラウザ接続が必要（503が返る場合はブラウザで開く）。
+
+## サーバーログの確認方法
+
+`npm run dev` のターミナル出力はログファイルに保存される:
+
+- **Expressサーバーログ**: `/tmp/orengine-server.log`
+- **Vite devサーバーログ**: `/tmp/orengine-vite.log`
+
+Claude側からは `Read /tmp/orengine-server.log` で末尾を読める。
+
 ## サーバー未起動
 
 **症状**: `curl: (7) Failed to connect to localhost port 3001: Connection refused`
@@ -89,13 +136,18 @@
 **原因**: シェーダーファイル（.vs/.fs/.glsl）のimport/transformが失敗し、コンポーネントのimportチェーンが壊れている。
 ResourceManagerはimportに成功したコンポーネントのみを `componentList.ts` に登録するため、importが壊れたコンポーネントはエンジンに登録されず、デシリアライズ時にスキップされる。
 
-**エラーの3段階**:
+**エラー・ログの段階**:
 
 | API | 検出対象 | タイミング |
 |-----|---------|-----------|
 | `GET /editor/vite-errors` | Viteプラグインのtransformエラー | ビルド/HMR時 |
 | `GET /editor/shader-errors` | GLSLコンパイルエラー | GPU上でのコンパイル時 |
-| `GET /editor/console-errors` | ブラウザランタイムエラー | 実行時 |
+| `GET /editor/console-errors` | ブラウザの全コンソール出力（error/warn/log/info/uncaught） | 実行時 |
+| `GET /editor/console-errors?level=error,warn` | エラーとワーニングのみ | 実行時 |
+| `GET /editor/console-errors?level=log` | console.logのみ（デバッグ値確認） | 実行時 |
+| `GET /editor/hmr-events` | HMR更新イベント（ファイル名、モジュール数） | ファイル変更時 |
+| `/tmp/orengine-server.log` | Expressサーバーのstdout/stderr | 常時 |
+| `/tmp/orengine-vite.log` | Vite devサーバーのstdout/stderr | 常時 |
 
 **診断手順**:
 1. `GET /editor/vite-errors` — transformエラーがあればファイルと原因が表示される

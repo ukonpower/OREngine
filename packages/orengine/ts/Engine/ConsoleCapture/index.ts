@@ -1,11 +1,11 @@
 export type CapturedLog = {
-	type: 'error' | 'warn' | 'uncaughtError' | 'unhandledRejection';
+	type: 'error' | 'warn' | 'log' | 'info' | 'uncaughtError' | 'unhandledRejection';
 	message: string;
 	timestamp: number;
 	stack?: string;
 };
 
-const MAX_ENTRIES = 100;
+const MAX_ENTRIES = 500;
 
 export const capturedLogs: CapturedLog[] = [];
 
@@ -63,6 +63,24 @@ export function initConsoleCapture(): void {
 
 	};
 
+	const origLog = console.log;
+
+	console.log = function ( ...args: any[] ) {
+
+		pushLog( { type: 'log', message: argsToString( args ), timestamp: Date.now() } );
+		origLog.apply( console, args );
+
+	};
+
+	const origInfo = console.info;
+
+	console.info = function ( ...args: any[] ) {
+
+		pushLog( { type: 'info', message: argsToString( args ), timestamp: Date.now() } );
+		origInfo.apply( console, args );
+
+	};
+
 	window.onerror = ( message, _source, _lineno, _colno, error ) => {
 
 		pushLog( {
@@ -90,6 +108,40 @@ export function initConsoleCapture(): void {
 		} );
 
 	} );
+
+	const origFetch = window.fetch;
+
+	window.fetch = async function ( ...args: Parameters<typeof fetch> ) {
+
+		try {
+
+			const response = await origFetch.apply( window, args );
+
+			if ( !response.ok ) {
+
+				pushLog( {
+					type: 'warn',
+					message: `[fetch] ${response.status} ${response.statusText} - ${args[ 0 ]}`,
+					timestamp: Date.now(),
+				} );
+
+			}
+
+			return response;
+
+		} catch ( e: any ) {
+
+			pushLog( {
+				type: 'error',
+				message: `[fetch] Network error - ${args[ 0 ]}: ${e.message}`,
+				timestamp: Date.now(),
+			} );
+
+			throw e;
+
+		}
+
+	};
 
 }
 

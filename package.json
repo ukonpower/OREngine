@@ -6,8 +6,8 @@
   "scripts": {
     "init": "git submodule init && git submodule update && npm install",
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:vite\"",
-    "dev:server": "tsx watch server/index.ts",
-    "dev:vite": "vite",
+    "dev:server": "tsx watch server/index.ts 2>&1 | tee /tmp/orengine-server.log",
+    "dev:vite": "vite 2>&1 | tee /tmp/orengine-vite.log",
     "build": "vite build --config vite-player.config.ts && node compeko.js ./dist/default/index.js ./dist/default/index.html",
     "build:project": "vite build --config vite-player.config.ts",
     "build:dev": "NODE_ENV=development SKIP_SHADER_MINIFIER=true vite build --mode production",

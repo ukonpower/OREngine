@@ -37,6 +37,11 @@ REST APIでエンティティ操作、ファイル編集でシェーダー・コ
 - マテリアル・シェーダー・テクスチャ作成 → Flow 2: リソース作成
 - シェーダーのGLSLコード編集 → Flow 3: シェーダー編集
 - 毎フレームのTS制御・インスタンシング・外部データ連携 → Flow 4: コンポーネント開発
+- デバッグ・一括診断 → `bash ${CLAUDE_SKILL_DIR}/scripts/diagnose.sh {PROJECT}`
+- サーバーログ確認 → `Read /tmp/orengine-server.log`（末尾を読む）
+- Viteログ確認 → `Read /tmp/orengine-vite.log`（末尾を読む）
+- HMR状態確認 → `GET /editor/hmr-events`
+- console.log確認 → `GET /editor/console-errors?level=log`
 - エンティティAPI仕様 → `references/api-scene.md`
 - リソースAPI仕様 → `references/api-resources.md`
 - コンポーネント一覧・フィールド → `references/components-catalog.md`
@@ -54,20 +59,15 @@ REST APIでエンティティ操作、ファイル編集でシェーダー・コ
 
 ### Diagnostic Flow A: コンポーネントが表示されない
 
-以下のステップを**すべてAPI経由で自動実行**する:
+**まず `bash ${CLAUDE_SKILL_DIR}/scripts/diagnose.sh {PROJECT}` で一括診断を実行する。**
 
-1. `GET /editor/components` でコンポーネントが登録されているか確認
-2. **登録されていない場合**:
-   - `GET /editor/vite-errors` でViteのtransformエラーを確認
-   - よくある原因: シェーダーファイル（.vs/.fs/.glsl）のimportエラー、TypeScript構文エラー
-   - vite-errorsが空の場合は `npm run typecheck` で静的解析
-3. **登録されている場合**:
-   - `GET /editor/entity/:uuid` でコンポーネントがエンティティに付与されているか確認
-4. **付与されている場合**:
-   - `GET /editor/shader-errors` でGLSLコンパイルエラーを確認
-   - `GET /editor/console-errors` でブラウザのランタイムエラーを確認
-5. **エラーなし**:
-   - スクリーンショットで可視性確認（カメラ位置、オブジェクト位置）
+出力の読み方:
+1. **Vite Errors** にエラーあり → シェーダーファイル/importチェーンを修正
+2. **Registered Components** に未登録 → Vite transformエラーが原因（上記で表示済）
+3. **Shader Errors** にエラーあり → GLSLコンパイルエラーを修正
+4. **Console Errors** にエラーあり → ブラウザランタイムエラーを修正
+5. **エラーなし** → スクリーンショットでカメラ/オブジェクト位置を確認
+6. **上記すべてで解決しない** → サーバーログ（`/tmp/orengine-server.log`）を確認
 
 ## 鉄則: 操作前の既存シーン確認（必須）
 
@@ -228,10 +228,13 @@ Result: カスタムGLSLシェーダーが適用されたマテリアル
 - **scene.jsonを直接編集しない。** エンティティ操作は必ずREST API経由。
   理由: APIサーバーはin-memoryでシーンデータを管理しており、scene.jsonの直接編集はin-memoryに反映されない。
   直接編集してしまった場合は `POST /editor/reload` でディスクから再読み込み+ブラウザリロード
-- **エラー診断は3段階のAPIで確認する:**
+- **エラー診断は `diagnose.sh` で一括実行する。** 個別に確認する場合は以下のAPI:
   1. `GET /editor/vite-errors` — Viteのtransformエラー（importチェーン破壊等）
   2. `GET /editor/shader-errors` — GLSLコンパイルエラー（GPU上のコンパイル失敗）
-  3. `GET /editor/console-errors` — ブラウザのランタイムエラー（console.error, 未捕捉例外等）
+  3. `GET /editor/console-errors` — ブラウザのランタイムエラー（console.error, warn, log, info, 未捕捉例外等）
+  4. `GET /editor/console-errors?level=error,warn` — エラーとワーニングのみ
+  5. `GET /editor/console-errors?level=log` — console.logのみ（デバッグ値確認）
+  6. `GET /editor/hmr-events` — 直近のHMR更新イベント
 - **操作前にGET /editor/sceneで現状確認する。** 操作後にも確認して結果を報告する
 - **エンティティ作成後は必ずsaveを呼ぶ**
 - **ルートエンティティのUUIDは `"0"`**
@@ -240,6 +243,8 @@ Result: カスタムGLSLシェーダーが適用されたマテリアル
 - **コンポーネント作成後は `npm run typecheck` で型チェックを実行する**
 - **同じAPIが3回失敗したら `references/troubleshooting.md` を確認する**
 - **プロジェクトが複数存在する場合は、操作対象をユーザーに確認してから進める**（`check-server.sh` の Browser Connection 欄で接続中プロジェクトを確認できる）
+- **ファイル編集後は2秒待ってからエラー確認する。** HMRの反映に時間がかかるため、`sleep 2` の後に `diagnose.sh` または個別エラーAPIを叩く
+- **`console.log` でデバッグ値を確認できる。** コンポーネントに `console.log` を追加すれば `GET /editor/console-errors?level=log` で取得可能
 - **Meshコンポーネントを持つエンティティを作成・シェーダーを編集したら、必ずシェーダーエラーを確認する**
   ```bash
   curl -s http://localhost:3001/api/projects/{PROJECT}/editor/shader-errors | python3 -m json.tool
@@ -282,6 +287,13 @@ Result: カスタムGLSLシェーダーが適用されたマテリアル
 ### ブラウザ側でランタイムエラーが発生している
 原因: コンポーネントの初期化エラー、シェーダーエラー等
 対処: `GET /editor/console-errors` でブラウザのconsole.error/warn/未捕捉例外を確認
+
+### HMRが反映されない
+原因: ファイル編集直後はHMRがまだ完了していない
+対処:
+1. `GET /editor/hmr-events` で最新のHMRイベントを確認
+2. 2秒以上待ってから再確認
+3. HMRイベントが記録されない場合は `POST /editor/reload` でフルリロード
 
 詳細は `references/troubleshooting.md` を参照。
 
