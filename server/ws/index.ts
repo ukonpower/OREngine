@@ -18,15 +18,21 @@ export type BridgeResponse = {
 	error?: string;
 };
 
+type ClientInfo = {
+	projectName: string;
+	clientId: string;
+};
+
 class EditorWSBridge {
 
 	private _wss: WebSocketServer;
-	private _clients: Map<WebSocket, string> = new Map();
+	private _clients: Map<WebSocket, ClientInfo> = new Map();
 	private _pending: Map<string, {
 		resolve: ( value: any ) => void;
 		timer: NodeJS.Timeout;
 	}> = new Map();
 	private _idCounter = 0;
+	private _clientIdCounter = 0;
 
 	constructor( server: Server ) {
 
@@ -42,19 +48,31 @@ class EditorWSBridge {
 
 					this._touchClient( ws, msg.projectName );
 					this._pushStateIfModified( msg.projectName );
+					this._broadcastClientStatus( msg.projectName );
+					return;
+
+				}
+
+				if ( msg.type === 'requestPrimary' ) {
+
+					const info = this._clients.get( ws );
+					if ( ! info ) return;
+
+					this._touchClient( ws, info.projectName );
+					this._broadcastClientStatus( info.projectName );
 					return;
 
 				}
 
 				if ( msg.type === 'syncPush' && msg.sceneData ) {
 
-					const projectName = this._clients.get( ws );
-					if ( ! projectName ) return;
-					this._touchClient( ws, projectName );
+					const info = this._clients.get( ws );
+					if ( ! info ) return;
+					this._touchClient( ws, info.projectName );
 
 					try {
 
-						const project = projectManager.getProject( projectName );
+						const project = projectManager.getProject( info.projectName );
 						project.syncFromBrowser( msg.sceneData );
 
 					} catch ( _e ) { /* ignore */ }
@@ -98,7 +116,14 @@ class EditorWSBridge {
 
 			ws.on( 'close', () => {
 
+				const info = this._clients.get( ws );
 				this._clients.delete( ws );
+
+				if ( info ) {
+
+					this._broadcastClientStatus( info.projectName );
+
+				}
 
 			} );
 
@@ -114,12 +139,15 @@ class EditorWSBridge {
 
 	private _touchClient( ws: WebSocket, projectName?: string ): void {
 
-		const name = projectName ?? this._clients.get( ws );
+		const existing = this._clients.get( ws );
+		const name = projectName ?? existing?.projectName;
 
 		if ( ! name ) return;
 
+		const clientId = existing?.clientId ?? String( ++ this._clientIdCounter );
+
 		this._clients.delete( ws );
-		this._clients.set( ws, name );
+		this._clients.set( ws, { projectName: name, clientId } );
 
 	}
 
@@ -127,9 +155,9 @@ class EditorWSBridge {
 
 		const clients: WebSocket[] = [];
 
-		for ( const [ ws, name ] of this._clients ) {
+		for ( const [ ws, info ] of this._clients ) {
 
-			if ( name === projectName && ws.readyState === WebSocket.OPEN ) {
+			if ( info.projectName === projectName && ws.readyState === WebSocket.OPEN ) {
 
 				clients.push( ws );
 
@@ -138,6 +166,26 @@ class EditorWSBridge {
 		}
 
 		return clients;
+
+	}
+
+	private _broadcastClientStatus( projectName: string ): void {
+
+		const clients = this._findClients( projectName );
+		const primaryWs = this._findClient( projectName );
+
+		for ( const ws of clients ) {
+
+			const info = this._clients.get( ws );
+
+			ws.send( JSON.stringify( {
+				type: 'clientStatus',
+				isPrimary: ws === primaryWs,
+				clientId: info?.clientId,
+				clientCount: clients.length,
+			} ) );
+
+		}
 
 	}
 
@@ -218,9 +266,9 @@ class EditorWSBridge {
 
 	executeAction( projectName: string, action: string, params: Record<string, unknown> ): void {
 
-		for ( const [ ws, name ] of this._clients ) {
+		for ( const [ ws, info ] of this._clients ) {
 
-			if ( name === projectName && ws.readyState === WebSocket.OPEN ) {
+			if ( info.projectName === projectName && ws.readyState === WebSocket.OPEN ) {
 
 				ws.send( JSON.stringify( { type: 'executeAction', projectName, action, params } ) );
 

@@ -66,6 +66,10 @@ export class Editor extends MXP.Serializable {
 	private _isExporting: boolean;
 	private _exportProgress: SceneExporterProgress | null;
 
+	private _apiConnected: boolean;
+	private _apiPrimary: boolean;
+	private _apiClientCount: number;
+
 	constructor( engine: Engine, projectName?: string ) {
 
 		super();
@@ -86,6 +90,9 @@ export class Editor extends MXP.Serializable {
 		this._sceneExporter = new SceneExporter( engine );
 		this._isExporting = false;
 		this._exportProgress = null;
+		this._apiConnected = false;
+		this._apiPrimary = false;
+		this._apiClientCount = 0;
 
 		/*-------------------------------
 			Modules
@@ -334,6 +341,21 @@ export class Editor extends MXP.Serializable {
 
 		this._apiBridge = new EditorAPIBridge( this, this._projectName || 'default' );
 
+		this.on( 'update/apiStatus', ( status: { connected: boolean; isPrimary: boolean; clientCount: number } ) => {
+
+			this._apiConnected = status.connected;
+			this._apiPrimary = status.isPrimary;
+			this._apiClientCount = status.clientCount;
+			this.noticeField( 'apiConnected' );
+			this.noticeField( 'apiPrimary' );
+			this.noticeField( 'apiClientCount' );
+
+		} );
+
+		this.field( 'apiConnected', () => this._apiConnected );
+		this.field( 'apiPrimary', () => this._apiPrimary );
+		this.field( 'apiClientCount', () => this._apiClientCount );
+
 		/*-------------------------------
 			Animate
 		-------------------------------*/
@@ -562,6 +584,16 @@ export class Editor extends MXP.Serializable {
 			parent.remove( entity );
 
 		}
+
+	}
+
+	/*-------------------------------
+		API Bridge
+	-------------------------------*/
+
+	public requestApiPrimary(): void {
+
+		this._apiBridge.requestPrimary();
 
 	}
 

@@ -30,6 +30,15 @@ export const Screen = () => {
 	const [ showLight, setShowLight ] = useSerializableField<boolean>( editor, "helpers/light" );
 	const [ showWireframe, setShowWireframe ] = useSerializableField<boolean>( editor, "helpers/wireframe" );
 
+	const [ apiConnected ] = useSerializableField<boolean>( editor, "apiConnected" );
+	const [ apiPrimary ] = useSerializableField<boolean>( editor, "apiPrimary" );
+
+	const handleRequestPrimary = useCallback( () => {
+
+		editor?.requestApiPrimary();
+
+	}, [ editor ] );
+
 	const [ overlayOpen, setOverlayOpen ] = useState( false );
 	const overlayRef = useRef<HTMLDivElement>( null );
 
@@ -87,6 +96,19 @@ export const Screen = () => {
 				) )}
 			</div>
 			<div className={style.header_right}>
+				{apiConnected && (
+					<div className={style.header_item}>
+						<div className={style.apiStatus} data-primary={apiPrimary}>
+							<span className={style.apiStatus_dot} />
+							{apiPrimary ? 'API Primary' : 'API Connected'}
+							{! apiPrimary && (
+								<button className={style.apiStatus_btn} onClick={handleRequestPrimary}>
+									Use
+								</button>
+							)}
+						</div>
+					</div>
+				)}
 				{layout.isPC && <div className={style.header_item}>
 					<Label title='Render'>
 						<Value value={render} onChange={( value ) => {

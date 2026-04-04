@@ -22,6 +22,8 @@ export class EditorAPIBridge {
 	private _projectName: string;
 	private _disposed = false;
 	private _syncTimer: number | null = null;
+	private _isPrimary = false;
+	private _clientCount = 0;
 
 	constructor( editor: Editor, projectName: string ) {
 
@@ -56,6 +58,15 @@ export class EditorAPIBridge {
 
 		this._ws.onclose = () => {
 
+			this._isPrimary = false;
+			this._clientCount = 0;
+
+			this._editor.emit( 'update/apiStatus', [ {
+				connected: false,
+				isPrimary: false,
+				clientCount: 0,
+			} ] );
+
 			if ( ! this._disposed ) setTimeout( () => this._connect(), 3000 );
 
 		};
@@ -84,6 +95,16 @@ export class EditorAPIBridge {
 
 		case 'statePush':
 			this._handleStatePush( msg );
+			break;
+
+		case 'clientStatus':
+			this._isPrimary = msg.isPrimary;
+			this._clientCount = msg.clientCount;
+			this._editor.emit( 'update/apiStatus', [ {
+				connected: true,
+				isPrimary: this._isPrimary,
+				clientCount: this._clientCount,
+			} ] );
 			break;
 
 		default:
@@ -681,6 +702,12 @@ export class EditorAPIBridge {
 			this._ws.send( JSON.stringify( data ) );
 
 		}
+
+	}
+
+	public requestPrimary(): void {
+
+		this._send( { type: 'requestPrimary' } );
 
 	}
 
