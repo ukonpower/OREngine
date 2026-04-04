@@ -12,8 +12,12 @@ $arrowPadding: 20px;
 
 	padding: $padding;
 
-	&:hover {
-		background-color: $bgColWindow0_active;
+	@media (hover: hover) {
+
+		&:hover {
+			background-color: $bgColWindow0_active;
+		}
+
 	}
 
 	&[data-type="item"] {
