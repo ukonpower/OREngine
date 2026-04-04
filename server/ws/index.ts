@@ -263,6 +263,18 @@ class EditorWSBridge {
 
 	}
 
+	pushFullReload( projectName: string ): void {
+
+		try {
+
+			const project = projectManager.getProject( projectName );
+			const sceneData = project.getSceneFileData();
+			this.broadcastState( projectName, sceneData, { fullReload: true } );
+
+		} catch ( _e ) { /* ignore */ }
+
+	}
+
 	private _pushStateIfModified( projectName: string ): void {
 
 		try {
