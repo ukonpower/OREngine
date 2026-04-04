@@ -52,6 +52,7 @@ export class Entity extends Serializable {
 	private componentsSorted: Component[];
 	public visible: boolean;
 	public userData: any;
+	public unresolvedComponents: { name: string; uuid: string; props?: Record<string, unknown> }[];
 
 	constructor( params?: EntityParams ) {
 
@@ -77,6 +78,7 @@ export class Entity extends Serializable {
 
 		this.visible = true;
 		this.userData = {};
+		this.unresolvedComponents = [];
 
 		this.field( "name", () => this.name, value => this.name = value );
 		this.field( "position", () => this.position.getElm( "vec3" ), value => this.position.setFromArray( value ), { format: { type: "vector" } } );

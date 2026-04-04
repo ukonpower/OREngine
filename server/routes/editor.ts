@@ -292,6 +292,7 @@ async function handleActionInternal(
 
 	if ( bridge && bridge.isProjectConnected( projectName ) ) {
 
+		const primaryClient = bridge.getPrimaryClient( projectName );
 		const result = await bridge.send( projectName, action, params );
 
 		if ( ! result.success ) {
@@ -303,6 +304,23 @@ async function handleActionInternal(
 		if ( RESOURCE_MUTATING_ACTIONS.has( action ) ) {
 
 			await persistResourceChange( projectName, action, params, result.data );
+
+		}
+
+		if ( WRITE_ACTIONS.has( action ) ) {
+
+			const snapshot = await bridge.requestSync( projectName );
+
+			if ( snapshot ) {
+
+				const project = projectManager.getProject( projectName );
+				project.syncFromBrowser( snapshot );
+				bridge.broadcastState( projectName, snapshot, {
+					fullReload: true,
+					exclude: primaryClient,
+				} );
+
+			}
 
 		}
 
