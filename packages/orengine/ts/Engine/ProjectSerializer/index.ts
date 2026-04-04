@@ -87,6 +87,16 @@ export class ProjectSerializer {
 
 			} );
 
+			for ( const uc of entity.unresolvedComponents ) {
+
+				components.push( {
+					name: uc.name,
+					uuid: uc.uuid,
+					props: uc.props,
+				} );
+
+			}
+
 			return {
 				name: entity.name,
 				uuid: entity.uuid,
@@ -131,6 +141,8 @@ export class ProjectSerializer {
 			entity.scale.y = scale[ 1 ];
 			entity.scale.z = scale[ 2 ];
 
+			entity.unresolvedComponents = [];
+
 			if ( node.components ) {
 
 				node.components.forEach( c => {
@@ -155,6 +167,16 @@ export class ProjectSerializer {
 							component.deserialize( c.props );
 
 						}
+
+					} else {
+
+						console.warn( `[ProjectSerializer] Component "${c.name}" not found in resolver. Preserving data for round-trip.` );
+
+						entity.unresolvedComponents.push( {
+							name: c.name,
+							uuid: c.uuid,
+							props: c.props as Record<string, unknown> | undefined,
+						} );
 
 					}
 

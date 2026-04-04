@@ -1,9 +1,11 @@
-import express from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 
+import express from 'express';
+
 import { projectManager } from '../Project';
+import { getWSBridge } from '../ws';
 
 const __dirname = path.dirname( fileURLToPath( import.meta.url ) );
 
@@ -21,7 +23,7 @@ function resolveProjectDir( name: string ): string | null {
 
 	if ( EXTERNAL_PROJECT_DIR ) return EXTERNAL_PROJECT_DIR;
 
-	if ( !name || name.includes( '..' ) || name.includes( '/' ) || name.includes( '\\' ) ) {
+	if ( ! name || name.includes( '..' ) || name.includes( '/' ) || name.includes( '\\' ) ) {
 
 		return null;
 
@@ -31,7 +33,7 @@ function resolveProjectDir( name: string ): string | null {
 	const resolved = path.resolve( projectDir );
 
 	// PROJECTS_DIR 配下であることを確認
-	if ( !resolved.startsWith( path.resolve( PROJECTS_DIR ) ) ) {
+	if ( ! resolved.startsWith( path.resolve( PROJECTS_DIR ) ) ) {
 
 		return null;
 
@@ -43,7 +45,7 @@ function resolveProjectDir( name: string ): string | null {
 
 function readJsonFile( filePath: string, res: express.Response ): void {
 
-	if ( !fs.existsSync( filePath ) ) {
+	if ( ! fs.existsSync( filePath ) ) {
 
 		res.status( 404 ).json( { error: 'File not found' } );
 		return;
@@ -71,7 +73,7 @@ function writeJsonFile( filePath: string, data: unknown, res: express.Response )
 
 		const dir = path.dirname( filePath );
 
-		if ( !fs.existsSync( dir ) ) {
+		if ( ! fs.existsSync( dir ) ) {
 
 			res.status( 404 ).json( { error: 'Project not found' } );
 			return;
@@ -110,7 +112,7 @@ sceneRouter.post( '/projects/:name/scene', ( req, res ) => {
 
 	const projectDir = resolveProjectDir( req.params.name );
 
-	if ( !projectDir ) {
+	if ( ! projectDir ) {
 
 		res.status( 400 ).json( { error: 'Invalid project name' } );
 		return;
@@ -125,6 +127,13 @@ sceneRouter.post( '/projects/:name/scene', ( req, res ) => {
 		const project = projectManager.getProject( req.params.name );
 		project.syncFromBrowser( req.body );
 
+		const bridge = getWSBridge();
+		if ( bridge ) {
+
+			bridge.broadcastState( req.params.name, req.body, { fullReload: true } );
+
+		}
+
 	} catch { /* ignore */ }
 
 } );
@@ -134,7 +143,7 @@ sceneRouter.get( '/projects/:name/editor', ( req, res ) => {
 
 	const projectDir = resolveProjectDir( req.params.name );
 
-	if ( !projectDir ) {
+	if ( ! projectDir ) {
 
 		res.status( 400 ).json( { error: 'Invalid project name' } );
 		return;
@@ -149,7 +158,7 @@ sceneRouter.post( '/projects/:name/editor', ( req, res ) => {
 
 	const projectDir = resolveProjectDir( req.params.name );
 
-	if ( !projectDir ) {
+	if ( ! projectDir ) {
 
 		res.status( 400 ).json( { error: 'Invalid project name' } );
 		return;

@@ -40,8 +40,8 @@ class EditorWSBridge {
 
 				if ( msg.type === 'register' && msg.projectName ) {
 
-					this._clients.set( ws, msg.projectName );
-					this._pushStateIfModified( ws, msg.projectName );
+					this._touchClient( ws, msg.projectName );
+					this._pushStateIfModified( msg.projectName );
 					return;
 
 				}
@@ -50,6 +50,7 @@ class EditorWSBridge {
 
 					const projectName = this._clients.get( ws );
 					if ( ! projectName ) return;
+					this._touchClient( ws, projectName );
 
 					try {
 
@@ -64,6 +65,8 @@ class EditorWSBridge {
 
 				if ( msg.type === 'syncResponse' && msg.id ) {
 
+					this._touchClient( ws );
+
 					const pending = this._pending.get( msg.id );
 
 					if ( pending ) {
@@ -77,6 +80,8 @@ class EditorWSBridge {
 					return;
 
 				}
+
+				this._touchClient( ws );
 
 				const res: BridgeResponse = msg;
 				const pending = this._pending.get( res.id );
@@ -107,19 +112,45 @@ class EditorWSBridge {
 
 	}
 
-	private _findClient( projectName: string ): WebSocket | null {
+	private _touchClient( ws: WebSocket, projectName?: string ): void {
+
+		const name = projectName ?? this._clients.get( ws );
+
+		if ( ! name ) return;
+
+		this._clients.delete( ws );
+		this._clients.set( ws, name );
+
+	}
+
+	private _findClients( projectName: string ): WebSocket[] {
+
+		const clients: WebSocket[] = [];
 
 		for ( const [ ws, name ] of this._clients ) {
 
 			if ( name === projectName && ws.readyState === WebSocket.OPEN ) {
 
-				return ws;
+				clients.push( ws );
 
 			}
 
 		}
 
-		return null;
+		return clients;
+
+	}
+
+	private _findClient( projectName: string ): WebSocket | null {
+
+		const clients = this._findClients( projectName );
+		return clients.at( - 1 ) ?? null;
+
+	}
+
+	getPrimaryClient( projectName: string ): WebSocket | null {
+
+		return this._findClient( projectName );
 
 	}
 
@@ -205,7 +236,34 @@ class EditorWSBridge {
 
 	}
 
-	private _pushStateIfModified( ws: WebSocket, projectName: string ): void {
+	broadcastState(
+		projectName: string,
+		sceneData: unknown,
+		options: {
+			exclude?: WebSocket | null;
+			fullReload?: boolean;
+		} = {},
+	): void {
+
+		for ( const ws of this._findClients( projectName ) ) {
+
+			if ( options.exclude && ws === options.exclude ) {
+
+				continue;
+
+			}
+
+			ws.send( JSON.stringify( {
+				type: 'statePush',
+				sceneData,
+				fullReload: options.fullReload ?? true,
+			} ) );
+
+		}
+
+	}
+
+	private _pushStateIfModified( projectName: string ): void {
 
 		try {
 
@@ -214,12 +272,7 @@ class EditorWSBridge {
 			if ( project.revision === 0 ) return;
 
 			const sceneData = project.getSceneFileData();
-
-			ws.send( JSON.stringify( {
-				type: 'statePush',
-				sceneData,
-				fullReload: true,
-			} ) );
+			this.broadcastState( projectName, sceneData, { fullReload: true, exclude: null } );
 
 		} catch ( _e ) { /* ignore */ }
 
