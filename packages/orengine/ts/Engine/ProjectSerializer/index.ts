@@ -74,7 +74,7 @@ export class ProjectSerializer {
 				const exportFields: MXP.SerializeField = c.serialize( { mode: "export" } );
 				const hasFields = Object.keys( exportFields ).length > 0;
 
-				if ( ! hasFields && c.initiator !== "user" ) return;
+				if ( c.initiator !== "user" ) return;
 
 				const comp: OREngineDataEntityComponent = {
 					name: resolver.getName( c ),
