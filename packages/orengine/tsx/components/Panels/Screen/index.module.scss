@@ -197,3 +197,44 @@
 		height: 100%;
 	}
 }
+
+.apiStatus {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	font-size: 10px;
+	color: $fontCol3;
+	height: 100%;
+	padding: 0 6px;
+
+	&[data-primary='true'] {
+		color: $borderCol1;
+	}
+
+	&_dot {
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+		background-color: $fontCol3;
+	}
+
+	&[data-primary='true'] &_dot {
+		background-color: $borderCol1;
+	}
+
+	&_btn {
+		margin-left: 4px;
+		padding: 1px 6px;
+		font-size: 10px;
+		cursor: pointer;
+		background: $bgCol2;
+		color: $fontCol2;
+		border: 1px solid $bgCol3;
+		border-radius: $radius1;
+
+		&:hover {
+			background: $bgCol3;
+			color: $fontCol1;
+		}
+	}
+}
