@@ -20,6 +20,9 @@ const builtinResourcesDir = `./packages/orengine/BuiltinResources`;
 export default defineConfig( {
         root: 'src',
         base: basePath,
+	publicDir: process.env.ORENGINE_PROJECT_DIR
+		? path.join( path.resolve( process.env.ORENGINE_PROJECT_DIR ), 'public' )
+		: 'public',
 	server: {
 		port: 3000,
 		host: "0.0.0.0",
