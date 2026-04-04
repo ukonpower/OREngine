@@ -916,7 +916,8 @@ editorRouter.get( '/projects/:projectName/editor/shader-errors', async ( req, re
 
 editorRouter.get( '/projects/:projectName/editor/console-errors', ( req, res ) => {
 
-	handleAction( req.params.projectName, 'getConsoleErrors', {}, res );
+	const level = req.query.level as string | undefined;
+	handleAction( req.params.projectName, 'getConsoleErrors', { level }, res );
 
 } );
 
@@ -1000,6 +1001,24 @@ editorRouter.post( '/projects/:projectName/editor/camera/position', ( req, res )
 		eye: req.body.eye,
 		target: req.body.target,
 	}, res );
+
+} );
+
+// --- HMRイベント ---
+
+const hmrEvents: { file: string; moduleCount: number; timestamp: number }[] = [];
+
+editorRouter.post( '/internal/hmr-events', ( req, res ) => {
+
+	hmrEvents.push( req.body );
+	if ( hmrEvents.length > 50 ) hmrEvents.shift();
+	res.json( { success: true } );
+
+} );
+
+editorRouter.get( '/projects/:projectName/editor/hmr-events', ( _req, res ) => {
+
+	res.json( { events: [ ...hmrEvents ] } );
 
 } );
 

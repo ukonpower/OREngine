@@ -522,7 +522,16 @@ export class EditorAPIBridge {
 
 		case 'getConsoleErrors': {
 
-			return { errors: [ ...capturedLogs ] };
+			let logs = [ ...capturedLogs ];
+
+			if ( params.level ) {
+
+				const levels = new Set( ( params.level as string ).split( ',' ) );
+				logs = logs.filter( l => levels.has( l.type ) );
+
+			}
+
+			return { errors: logs };
 
 		}
 
