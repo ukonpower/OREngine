@@ -6,6 +6,7 @@ import { defineConfig } from 'vite';
 import { ProjectResolver } from './plugins/ProjectResolver';
 import { ResourceManager } from './plugins/ResourceManager';
 import { ShaderMinifierLoader } from "./plugins/ShaderMinifierLoader";
+import { ViteErrorReporter } from "./plugins/ViteErrorReporter";
 
 
 const basePath = process.env.BASE_PATH ?? "";
@@ -99,6 +100,7 @@ export default defineConfig( {
 			exportName: 'SHADERLIST',
 			type: 'shader',
 		} ),
+		ViteErrorReporter(),
 	],
 	define: {
 		BASE_PATH: `"${basePath}"`,

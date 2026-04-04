@@ -42,7 +42,32 @@ REST APIでエンティティ操作、ファイル編集でシェーダー・コ
 - コンポーネント一覧・フィールド → `references/components-catalog.md`
 - コンポーネント開発ガイド → `references/component-development.md`
 - シェーダー記述リファレンス → `references/shader-guide.md`
-- エラー・うまくいかない → `references/troubleshooting.md`
+- エラー・うまくいかない → トラブルシューティング分岐（下記）
+
+### トラブルシューティング分岐
+
+- コンポーネントが表示されない・動かない → Diagnostic Flow A
+- シェーダーエラー → `GET /editor/shader-errors` 確認、詳細は `references/troubleshooting.md`
+- API が 503 → ブラウザ未接続。ブラウザで http://localhost:3001 を開く
+- API が ECONNREFUSED → `npm run dev` でサーバー起動
+- それ以外 → `references/troubleshooting.md`
+
+### Diagnostic Flow A: コンポーネントが表示されない
+
+以下のステップを**すべてAPI経由で自動実行**する:
+
+1. `GET /editor/components` でコンポーネントが登録されているか確認
+2. **登録されていない場合**:
+   - `GET /editor/vite-errors` でViteのtransformエラーを確認
+   - よくある原因: シェーダーファイル（.vs/.fs/.glsl）のimportエラー、TypeScript構文エラー
+   - vite-errorsが空の場合は `npm run typecheck` で静的解析
+3. **登録されている場合**:
+   - `GET /editor/entity/:uuid` でコンポーネントがエンティティに付与されているか確認
+4. **付与されている場合**:
+   - `GET /editor/shader-errors` でGLSLコンパイルエラーを確認
+   - `GET /editor/console-errors` でブラウザのランタイムエラーを確認
+5. **エラーなし**:
+   - スクリーンショットで可視性確認（カメラ位置、オブジェクト位置）
 
 ## 鉄則: 操作前の既存シーン確認（必須）
 
@@ -200,7 +225,13 @@ Result: カスタムGLSLシェーダーが適用されたマテリアル
 
 ## Guardrails
 
-- **scene.jsonを直接編集しない。** エンティティ操作は必ずREST API経由
+- **scene.jsonを直接編集しない。** エンティティ操作は必ずREST API経由。
+  理由: APIサーバーはin-memoryでシーンデータを管理しており、scene.jsonの直接編集はin-memoryに反映されない。
+  直接編集してしまった場合は `POST /editor/reload` でディスクから再読み込み+ブラウザリロード
+- **エラー診断は3段階のAPIで確認する:**
+  1. `GET /editor/vite-errors` — Viteのtransformエラー（importチェーン破壊等）
+  2. `GET /editor/shader-errors` — GLSLコンパイルエラー（GPU上のコンパイル失敗）
+  3. `GET /editor/console-errors` — ブラウザのランタイムエラー（console.error, 未捕捉例外等）
 - **操作前にGET /editor/sceneで現状確認する。** 操作後にも確認して結果を報告する
 - **エンティティ作成後は必ずsaveを呼ぶ**
 - **ルートエンティティのUUIDは `"0"`**
@@ -236,6 +267,21 @@ Result: カスタムGLSLシェーダーが適用されたマテリアル
 ### フィールド設定が反映されない
 原因: targetUuid にエンティティUUIDを使っている（コンポーネントUUIDが必要）
 対処: `GET /editor/entity/:uuid` でコンポーネントのUUIDを確認し、それを targetUuid に使う
+
+### カスタムコンポーネントが /editor/components に表示されない
+原因: コンポーネントのimportチェーンが壊れている（シェーダーファイルのtransformエラー、TypeScript構文エラー等）
+対処:
+1. `GET /editor/vite-errors` でViteのtransformエラーを確認
+2. コンポーネントが依存しているシェーダーファイル（.vs/.fs/.glsl）の存在を確認
+3. `npm run typecheck` でTypeScriptエラーを確認
+
+### scene.jsonを直接編集したが変更が反映されない
+原因: APIサーバーはin-memoryでシーンデータを管理。scene.jsonは永続化先に過ぎない
+対処: `POST /editor/reload` でディスクから再読み込み+ブラウザリロード
+
+### ブラウザ側でランタイムエラーが発生している
+原因: コンポーネントの初期化エラー、シェーダーエラー等
+対処: `GET /editor/console-errors` でブラウザのconsole.error/warn/未捕捉例外を確認
 
 詳細は `references/troubleshooting.md` を参照。
 

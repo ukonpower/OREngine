@@ -1002,3 +1002,57 @@ editorRouter.post( '/projects/:projectName/editor/camera/position', ( req, res )
 	}, res );
 
 } );
+
+// --- Viteエラー ---
+
+const viteErrors: { file: string; message: string; plugin?: string; timestamp: number }[] = [];
+
+editorRouter.post( '/internal/vite-errors', ( req, res ) => {
+
+	viteErrors.push( req.body );
+	if ( viteErrors.length > 100 ) viteErrors.shift();
+	res.json( { success: true } );
+
+} );
+
+editorRouter.get( '/projects/:projectName/editor/vite-errors', ( _req, res ) => {
+
+	res.json( { errors: [ ...viteErrors ] } );
+
+} );
+
+editorRouter.post( '/projects/:projectName/editor/vite-errors/clear', ( _req, res ) => {
+
+	viteErrors.length = 0;
+	res.json( { success: true } );
+
+} );
+
+// --- リロード ---
+
+editorRouter.post( '/projects/:projectName/editor/reload', async ( req, res ) => {
+
+	const { projectName } = req.params;
+
+	try {
+
+		const project = projectManager.getProject( projectName );
+		project.reloadFromDisk();
+
+		const bridge = getWSBridge();
+
+		if ( bridge ) {
+
+			bridge.pushFullReload( projectName );
+
+		}
+
+		res.json( { success: true } );
+
+	} catch ( e: any ) {
+
+		res.status( 500 ).json( { error: e.message } );
+
+	}
+
+} );

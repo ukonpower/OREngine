@@ -82,6 +82,55 @@
 2. `ComponentParams` 型を使用しているか確認
 3. `componentList.ts` は自動生成されるため手動編集しないこと
 
+## Viteプラグインエラー（transformエラー）
+
+**症状**: カスタムコンポーネントが `/editor/components` に表示されない。シーンに配置済みでも描画されない。
+
+**原因**: シェーダーファイル（.vs/.fs/.glsl）のimport/transformが失敗し、コンポーネントのimportチェーンが壊れている。
+ResourceManagerはimportに成功したコンポーネントのみを `componentList.ts` に登録するため、importが壊れたコンポーネントはエンジンに登録されず、デシリアライズ時にスキップされる。
+
+**エラーの3段階**:
+
+| API | 検出対象 | タイミング |
+|-----|---------|-----------|
+| `GET /editor/vite-errors` | Viteプラグインのtransformエラー | ビルド/HMR時 |
+| `GET /editor/shader-errors` | GLSLコンパイルエラー | GPU上でのコンパイル時 |
+| `GET /editor/console-errors` | ブラウザランタイムエラー | 実行時 |
+
+**診断手順**:
+1. `GET /editor/vite-errors` — transformエラーがあればファイルと原因が表示される
+2. `GET /editor/components` — コンポーネントが一覧に含まれるか確認
+3. エラーを修正したら `POST /editor/vite-errors/clear` でクリア
+
+## scene.jsonとAPIの乖離
+
+**症状**: scene.jsonをファイルとして直接編集したが、APIのレスポンスに変更が反映されない
+
+**原因**: APIサーバーは起動時にscene.jsonを読み込み、以降はin-memoryでシーンデータを管理する。REST APIの操作はin-memoryを変更し、`POST /editor/save` でscene.jsonに書き出す。scene.jsonを直接編集してもin-memoryは更新されない。
+
+**対処**:
+1. `POST /editor/reload` — ディスクからscene.jsonを再読み込み、ブラウザにフルリロード指示
+2. またはサーバーを再起動する（Ctrl+C → `npm run dev`）
+
+**データフロー**:
+```
+scene.json → [サーバー起動時に読み込み] → in-memory
+REST API → [操作] → in-memory → [POST /editor/save] → scene.json
+scene.json直接編集 → in-memoryに反映されない
+POST /editor/reload → scene.jsonを再読み込み → in-memory更新 → ブラウザにフルリロード指示
+```
+
+## ブラウザランタイムエラー
+
+**症状**: コンポーネントは登録済みだが描画されない、または動作がおかしい
+
+**原因**: ブラウザ上で実行時エラーが発生している（コンポーネントの初期化失敗、未定義参照等）
+
+**対処**:
+1. `GET /editor/console-errors` — ブラウザの console.error, console.warn, uncaughtError, unhandledRejection を取得
+2. エラーの内容に応じてコンポーネントやシェーダーを修正
+3. `POST /editor/console-errors/clear` でクリア
+
 ## Stop Conditions
 
 以下の状況では、現在のアプローチを見直す:

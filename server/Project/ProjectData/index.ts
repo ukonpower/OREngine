@@ -91,6 +91,13 @@ export class ProjectData {
 
 	}
 
+	reloadFromDisk(): void {
+
+		this._sceneData = this._readSceneFile();
+		this._revision ++;
+
+	}
+
 	private _writeSceneFile( data: SceneFileData ): void {
 
 		const filePath = path.join( this._projectDir, 'scene.json' );
