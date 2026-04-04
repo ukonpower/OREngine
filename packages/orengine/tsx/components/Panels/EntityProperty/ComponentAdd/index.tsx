@@ -48,10 +48,25 @@ const ComponentDirectory: React.FC<{
 
 	}
 
+	const canHover = window.matchMedia( "(hover: hover)" ).matches;
+
 	return <div className={style.directory}
-		onPointerEnter={()=> setV( true )}
-		onPointerLeave={() => setV( false )}
-		onClick={onClick}
+		onPointerEnter={canHover ? () => setV( true ) : undefined}
+		onPointerLeave={canHover ? () => setV( false ) : undefined}
+		onClick={( e ) => {
+
+			if ( onClick ) {
+
+				onClick();
+
+			} else {
+
+				e.stopPropagation();
+				setV( !v );
+
+			}
+
+		}}
 		data-type={type}
 		data-direction={menuContext?.direction}
 	>

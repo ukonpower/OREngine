@@ -28,12 +28,37 @@
 		display: flex;
 		align-items: center;
 		padding-left: 2px;
+		overflow: hidden;
 
 		span {
 			opacity: 0.7;
 			font-size: 0.8em;
 		}
 
+	}
+}
+
+.menu {
+	width: 24px;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: $fontSize2;
+	color: $fontCol3;
+	opacity: 0;
+	flex-shrink: 0;
+
+	.self:hover & {
+		opacity: 1;
+	}
+
+	@media (hover: none) {
+		opacity: 1;
+	}
+
+	&:hover {
+		color: $fontCol1;
 	}
 }
 

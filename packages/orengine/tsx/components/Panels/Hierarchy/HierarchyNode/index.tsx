@@ -108,6 +108,7 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 			<div className={style.self_name}>
 				<p>{props.entity.name || "-"} <span>[{ props.entity.uuid }]</span></p>
 			</div>
+			{! noEditable && <button className={style.menu} onClick={onRightClickNode}>⋯</button>}
 		</div>
 		{hasChild && <div className={style.child} data-open={open} >
 			{
