@@ -68,11 +68,16 @@ export const ShaderMinifierLoader = (): Plugin => {
 			code = code.replaceAll( "\\t", "\t" );
 			code = code.replaceAll( "precision highp float;", "//[\nprecision highp float;\n//]\n" );
 
-			const fileName = id.replaceAll( '/', "_" ) + new Date().getTime();
-			const inputFilePath = `./tmp/${fileName}_in.txt`;
-			const outputFilePath = `./tmp/${fileName}_out.txt`;
+			// through
 
-			await fs.promises.writeFile( inputFilePath, code );
+			if ( skip || true ) {
+
+				return {
+					code: `export default ${JSON.stringify( code )};`,
+					map: { mappings: '' }
+				};
+
+			}
 
 			const functionPattern = /^\s*(float|vec2|vec3|vec4|mat2|mat3|mat4|void)\s+(\w+)\s*\(/gm;
 			const structPattern = /^\s*struct\s+(\w+)\s*\{/gm;
@@ -111,16 +116,17 @@ export const ShaderMinifierLoader = (): Plugin => {
 
 			}
 
-			// through
+			const fileName = id.replaceAll( '/', "_" ) + new Date().getTime();
+			const inputFilePath = `./tmp/${fileName}_in.txt`;
+			const outputFilePath = `./tmp/${fileName}_out.txt`;
 
-			if ( skip || true ) {
+			if ( ! fs.existsSync( "./tmp" ) ) {
 
-				return {
-					code: `export default ${JSON.stringify( code )};`,
-					map: { mappings: '' }
-				};
+				fs.mkdirSync( "./tmp", { recursive: true } );
 
 			}
+
+			await fs.promises.writeFile( inputFilePath, code );
 
 			// MINIFIER!!
 			try {
