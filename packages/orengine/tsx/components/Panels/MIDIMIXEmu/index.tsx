@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 
 import { InputBoolean } from '../../Input/InputCheckBox';
 import { InputNumber } from '../../Input/InputNumber';
@@ -71,8 +71,40 @@ export const MIDIMIXEmu: React.FC<{controller: MIDIMIXController}> = ( { control
 
 	}, [ controller ] );
 
+	const onReset = useCallback( () => {
+
+		const valueIds = [ 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62 ];
+
+		for ( const id of valueIds ) {
+
+			controller.emulateControl( 176, id, 0 );
+
+		}
+
+		const btnIds = [ 1, 2, 4, 5, 7, 8, 10, 11, 13, 14, 16, 17, 19, 20, 22, 23, 25, 26, 27 ];
+
+		for ( const id of btnIds ) {
+
+			const line = controller.getLine( Math.floor( ( id - 1 ) / 3 ) );
+			const btn = ( id + 2 ) % 3 === 0 ? 1 : 2;
+			const isOn = id >= 25
+				? ( id === 25 ? controller.side.btn1 : id === 26 ? controller.side.btn2 : controller.side.btn3 ) > 0.5
+				: ( btn === 1 ? line.btn1 : line.btn2 ) > 0.5;
+
+			if ( isOn ) {
+
+				controller.emulateControl( 144, id, 1 );
+
+			}
+
+		}
+
+	}, [ controller ] );
 
 	return <div className={style.container}>
+		<div className={style.row}>
+			<button className={style.resetBtn} onClick={onReset}>Reset</button>
+		</div>
 		<div className={style.row}>
 			<MIDIValue id={16} value={controller.getLine( 0 ).values.x} controller={controller}/>
 			<MIDIValue id={17} value={controller.getLine( 0 ).values.y} controller={controller}/>
