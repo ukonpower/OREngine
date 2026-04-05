@@ -38,7 +38,13 @@ export const EditorPage = () => {
 	}, [] );
 
 	return (
-		<OREngine gl={gl} project={projectData} onEngineInit={( glCtx ) => initResourceInstances( glCtx, globalUniforms )} >
+		<OREngine gl={gl} project={projectData} onEngineInit={( glCtx ) => {
+
+			console.warn( '[DEBUG] Engine.resources.componentList:', JSON.stringify( Engine.resources.componentList.map( c => ( { name: c.name, type: typeof c.component } ) ) ) );
+
+			initResourceInstances( glCtx, globalUniforms );
+
+		}} >
 			<OREditor editorData={editorData} projectName={projectName} onSave={( projectData, editorData ) => {
 
 				fetch( `/api/projects/${projectName}/scene`, {
