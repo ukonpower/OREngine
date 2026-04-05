@@ -5,6 +5,7 @@ import React, { useEffect } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 
 import { useLayout } from '../../hooks/useLayout';
+import { useSerializableField } from '../../hooks/useSerializableProps';
 import { InputWindow } from '../InputWindow';
 import { InputWindowContext } from '../InputWindow/Context/InputWindowContext';
 import { useInputWindowContext } from '../InputWindow/Hooks/useInputWindowContext';
@@ -59,6 +60,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 
 
        const layout = useLayout();
+       const [ selectedAsset ] = useSerializableField( editorContext.editor, "selectedAsset" );
        const mouseMenuContext = useMouseMenuContext();
        const inputWindowContext = useInputWindowContext();
 
@@ -130,7 +132,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 											</PanelContainer.Tab>
 										</PanelContainer>
 									</LayoutSplit.Item>
-									<LayoutSplit.Item size="35%">
+									{selectedAsset && <LayoutSplit.Item size="35%">
 										<PanelContainer>
 											<PanelContainer.Tab title='Asset'>
 												<Panel>
@@ -138,7 +140,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 												</Panel>
 											</PanelContainer.Tab>
 										</PanelContainer>
-									</LayoutSplit.Item>
+									</LayoutSplit.Item>}
 								</LayoutSplit>
 							</LayoutSplit.Item>
 						</LayoutSplit>

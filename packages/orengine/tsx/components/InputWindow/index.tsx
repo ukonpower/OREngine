@@ -10,23 +10,30 @@ export const InputWindow = () => {
 	const { config, close } = useInputWindow();
 	const inputRef = useRef<HTMLInputElement>( null );
 	const [ tempValue, setTempValue ] = useState<string>( "" );
+	const shouldSelectRef = useRef( false );
 
 	useEffect( () => {
 
 		if ( config ) {
 
 			setTempValue( String( config.value ) );
-
-			setTimeout( () => {
-
-				inputRef.current?.focus();
-				inputRef.current?.select();
-
-			}, 0 );
+			shouldSelectRef.current = true;
 
 		}
 
 	}, [ config ] );
+
+	useEffect( () => {
+
+		if ( shouldSelectRef.current ) {
+
+			shouldSelectRef.current = false;
+			inputRef.current?.focus();
+			inputRef.current?.select();
+
+		}
+
+	}, [ tempValue ] );
 
 	const submit = useCallback( () => {
 
@@ -67,7 +74,8 @@ export const InputWindow = () => {
 				<input
 					ref={inputRef}
 					className={style.input}
-					type={config.type === "number" ? "number" : "text"}
+					type="text"
+					inputMode={config.type === "number" ? "decimal" : "text"}
 					value={tempValue}
 					step={config.step}
 					min={config.min}
