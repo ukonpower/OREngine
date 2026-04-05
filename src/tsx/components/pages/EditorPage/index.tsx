@@ -55,7 +55,7 @@ export const EditorPage = () => {
 
 		}} >
 			<OREditor editorData={editorData} projectName={projectName} customTabs={{
-				property: (
+				assets: (
 					<PanelContainer.Tab title='MIDIMIXEmu'>
 						<Panel>
 							<MIDIMIXEmu controller={midimixAdapter} />
