@@ -1,16 +1,25 @@
 import * as MXP from 'maxpower';
-import { OREditor, OREngine } from "orengine/react";
+import { MIDIMIXController, MIDIMIXEmu, OREditor, OREngine, Panel, PanelContainer } from "orengine/react";
 import { OREngineProjectData } from "orengine";
 import { Engine } from "orengine/ts/Engine";
 import { useEffect, useState } from "react";
 
 import { gl, globalUniforms } from "~/ts/Globals";
 import { initResouces, initResourceInstances } from "~project/Resources";
+import { MIDIMIX } from "~project/Resources/Components/VJ/MIDIMIX";
 
 
 initResouces();
 
 const projectName = new URLSearchParams( location.search ).get( 'project' ) || 'DemoProject';
+
+const midimixAdapter: MIDIMIXController = {
+	getLine: ( index ) => MIDIMIX.getLine( index ),
+	get side() { return MIDIMIX.side; },
+	emulateControl: ( type, id, value ) => MIDIMIX.emulateControl( type, id, value ),
+	on: ( event, callback ) => MIDIMIX.on( event, callback ),
+	off: ( event, callback ) => MIDIMIX.off( event, callback ),
+};
 
 export const EditorPage = () => {
 
@@ -45,7 +54,15 @@ export const EditorPage = () => {
 			initResourceInstances( glCtx, globalUniforms );
 
 		}} >
-			<OREditor editorData={editorData} projectName={projectName} onSave={( projectData, editorData ) => {
+			<OREditor editorData={editorData} projectName={projectName} customTabs={{
+				property: (
+					<PanelContainer.Tab title='MIDIMIXEmu'>
+						<Panel>
+							<MIDIMIXEmu controller={midimixAdapter} />
+						</Panel>
+					</PanelContainer.Tab>
+				),
+			}} onSave={( projectData, editorData ) => {
 
 				fetch( `/api/projects/${projectName}/scene`, {
 					method: "POST",
