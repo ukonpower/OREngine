@@ -120,12 +120,22 @@ export const InputNumber = ( props: Props ) => {
 			draggedRef.current = false;
 
 			window.removeEventListener( "pointerup", onPointerUp );
-			window.removeEventListener( "pointermove", onPointerMoveNumber );
+
+			if ( !isSP ) {
+
+				window.removeEventListener( "pointermove", onPointerMoveNumber );
+
+			}
 
 		};
 
 		window.addEventListener( "pointerup", onPointerUp );
-		window.addEventListener( "pointermove", onPointerMoveNumber );
+
+		if ( !isSP ) {
+
+			window.addEventListener( "pointermove", onPointerMoveNumber );
+
+		}
 
 	}, [ onPointerMoveNumber, isSP, openInputWindow ] );
 
