@@ -16,3 +16,18 @@
 	justify-content: center;
 	gap: 2px;
 }
+
+.resetBtn {
+	padding: 4px 8px;
+	font-size: 10px;
+	cursor: pointer;
+	background: #333;
+	color: #aaa;
+	border: 1px solid #555;
+	border-radius: 3px;
+
+	&:hover {
+		background: #444;
+		color: #fff;
+	}
+}
