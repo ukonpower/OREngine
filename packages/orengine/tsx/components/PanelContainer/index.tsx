@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 import style from './index.module.scss';
 
@@ -15,10 +15,8 @@ const Tab = ( props: TabProps ) => {
 
 };
 
-type PanelContainerChild = React.ReactElement<TabProps> | false | null | undefined;
-
 type PanelContainerProps = {
-	children?: PanelContainerChild | PanelContainerChild[];
+	children?: React.ReactNode;
 };
 
 export const PanelContainer = ( props: PanelContainerProps ) => {
@@ -26,7 +24,7 @@ export const PanelContainer = ( props: PanelContainerProps ) => {
 	const [ selected, setSelected ] = useState<number>( 0 );
 
 	const rawChilds = props.children || [];
-	const childs = ( Array.isArray( rawChilds ) ? rawChilds : [ rawChilds ] ).filter( ( c ): c is React.ReactElement<TabProps> => !! c );
+	const childs = ( Array.isArray( rawChilds ) ? rawChilds.flat() : [ rawChilds ] ).filter( ( c ): c is React.ReactElement<TabProps> => React.isValidElement( c ) );
 
 	return <div className={style.panelContainer}>
 		<div className={style.header}>

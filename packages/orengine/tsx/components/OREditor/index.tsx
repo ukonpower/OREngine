@@ -20,7 +20,6 @@ import { AssetViewer } from '../Panels/AssetViewer';
 import { EntityProperty } from '../Panels/EntityProperty';
 import { Timer } from '../Panels/GPUTimer';
 import { Hierarchy } from '../Panels/Hierarchy';
-import { MIDIMIXController, MIDIMIXEmu } from '../Panels/MIDIMIXEmu';
 import { ProjectControl } from '../Panels/ProjectControl';
 import { RendererSettings } from '../Panels/RendererSettings';
 import { Screen } from '../Panels/Screen';
@@ -32,7 +31,9 @@ import style from './index.module.scss';
 
  type OREditorSaveCallback = ( projectData: OREngineProjectData, editorData: MXP.SerializeField ) => void
 
-export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP.SerializeField, projectName?: string, midiMixController?: MIDIMIXController }> = ( props ) => {
+export type PanelSlot = "scene" | "timer" | "assets" | "property" | "timeline";
+
+export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP.SerializeField, projectName?: string, customTabs?: Partial<Record<PanelSlot, React.ReactNode>> }> = ( props ) => {
 
 	const editorContext = useOREditorContext( props.projectName );
 
@@ -82,6 +83,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 													<Hierarchy />
 												</Panel>
 											</PanelContainer.Tab>
+											{props.customTabs?.scene}
 										</PanelContainer>
 									</LayoutSplit.Item>
 									<LayoutSplit.Item size="20vh">
@@ -91,6 +93,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 													<Timer />
 												</Panel>
 											</PanelContainer.Tab>
+											{props.customTabs?.timer}
 										</PanelContainer>
 									</LayoutSplit.Item>
 								</LayoutSplit>
@@ -107,6 +110,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 													<AssetViewer />
 												</Panel>
 											</PanelContainer.Tab>
+											{props.customTabs?.assets}
 										</PanelContainer>
 									</LayoutSplit.Item>
 								</LayoutSplit>
@@ -130,6 +134,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 													<RendererSettings />
 												</Panel>
 											</PanelContainer.Tab>
+											{props.customTabs?.property}
 										</PanelContainer>
 									</LayoutSplit.Item>
 									{selectedAsset && <LayoutSplit.Item size="35%">
@@ -152,11 +157,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 									<Timeline />
 								</Panel>
 							</PanelContainer.Tab>
-							{props.midiMixController && <PanelContainer.Tab title='MIDIMIXEmu'>
-								<Panel>
-									<MIDIMIXEmu controller={props.midiMixController}/>
-								</Panel>
-							</PanelContainer.Tab>}
+							{props.customTabs?.timeline}
 						</PanelContainer>
 					</LayoutSplit.Item>
 				</LayoutSplit>
@@ -199,11 +200,11 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 									<RendererSettings />
 								</Panel>
 							</PanelContainer.Tab>
-							{props.midiMixController && <PanelContainer.Tab title='MIDI'>
-								<Panel>
-									<MIDIMIXEmu controller={props.midiMixController}/>
-								</Panel>
-							</PanelContainer.Tab>}
+							{props.customTabs?.scene}
+							{props.customTabs?.property}
+							{props.customTabs?.assets}
+							{props.customTabs?.timeline}
+							{props.customTabs?.timer}
 						</PanelContainer>
 					</LayoutSplit.Item>
 					<LayoutSplit.Item size="120px">
