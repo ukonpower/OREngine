@@ -70,13 +70,6 @@ class EditorWSBridge {
 					if ( ! info ) return;
 					this._touchClient( ws, info.projectName );
 
-					try {
-
-						const project = projectManager.getProject( info.projectName );
-						project.syncFromBrowser( msg.sceneData );
-
-					} catch ( _e ) { /* ignore */ }
-
 					return;
 
 				}
