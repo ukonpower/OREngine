@@ -222,7 +222,7 @@ export const ProjectSelectPage: React.FC<Props> = ( { onSelectProject } ) => {
 					<div className={style.sectionTitle}>Projects</div>
 					<div className={style.projectList}>
 						{projects.map( project => (
-						<div key={project} className={style.projectItem}>
+						<div key={project} className={style.projectItem} onClick={() => ! editing && selectProject( project )}>
 							{editing?.project === project ? (
 								<input
 									className={style.renameInput}
@@ -257,7 +257,7 @@ export const ProjectSelectPage: React.FC<Props> = ( { onSelectProject } ) => {
 								/>
 							) : (
 								<>
-									<span className={style.projectName} onClick={() => selectProject( project )}>{project}</span>
+									<span className={style.projectName}>{project}</span>
 									<button className={style.menuButton} onClick={( e ) => {
 
 										e.stopPropagation();

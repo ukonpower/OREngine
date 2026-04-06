@@ -53,6 +53,7 @@
 	align-items: center;
 	justify-content: space-between;
 	position: relative;
+	cursor: pointer;
 
 	&:hover {
 		background-color: $bgCol2;
@@ -62,7 +63,6 @@
 .projectName {
 	font-size: $fontSize2;
 	color: $fontCol1;
-	cursor: pointer;
 	flex: 1;
 }
 

@@ -7,6 +7,10 @@ import { useEffect, useState } from "react";
 import { gl, globalUniforms } from "~/ts/Globals";
 import { initResouces, initResourceInstances } from "~project/Resources";
 import { MIDIMIX } from "~project/Resources/Components/VJ/MIDIMIX";
+import { VJEffectVariant } from "~project/Resources/Components/VJ/VJEffectVariant";
+import { VJManager } from "~project/Resources/Components/VJ/VJManager";
+
+import { VJDebug, VJDebugController } from '../../VJDebug';
 
 
 initResouces();
@@ -19,6 +23,23 @@ const midimixAdapter: MIDIMIXController = {
 	emulateControl: ( type, id, value ) => MIDIMIX.emulateControl( type, id, value ),
 	on: ( event, callback ) => MIDIMIX.on( event, callback ),
 	off: ( event, callback ) => MIDIMIX.off( event, callback ),
+};
+
+const vjDebugAdapter: VJDebugController = {
+	getAutoPattern: () => VJManager.autoPattern,
+	setAutoPattern: ( v ) => { VJManager.autoPattern = v; },
+	getManualIntensity: () => VJManager.manualIntensity,
+	setManualIntensity: ( v ) => { VJManager.manualIntensity = v; },
+	regeneratePattern: () => VJManager.regeneratePattern(),
+	getEffectNames: () => VJEffectVariant.getEffectNames(),
+	getVariantIds: ( name ) => VJEffectVariant.getVariantIds( name ),
+	getActiveVariants: () => VJEffectVariant.getActiveVariants(),
+	setVariant: ( name, id ) => VJEffectVariant.setVariant( name, id ),
+	getBeatIndex: () => VJManager.beatIndex,
+	getPatternCell: ( name, idx ) => VJManager.currentPattern?.[ name ]?.[ idx ] ?? null,
+	setPatternCell: ( name, idx, id ) => VJManager.setPatternCell( name, idx, id ),
+	onChange: ( cb ) => VJEffectVariant.onChange( cb ),
+	offChange: ( cb ) => VJEffectVariant.offChange( cb ),
 };
 
 export const EditorPage = () => {
@@ -55,13 +76,18 @@ export const EditorPage = () => {
 
 		}} >
 			<OREditor editorData={editorData} projectName={projectName} customTabs={{
-				assets: (
-					<PanelContainer.Tab title='MIDIMIXEmu'>
+				assets: [
+					<PanelContainer.Tab key="midimix" title='MIDIMIXEmu'>
 						<Panel>
 							<MIDIMIXEmu controller={midimixAdapter} />
 						</Panel>
-					</PanelContainer.Tab>
-				),
+					</PanelContainer.Tab>,
+					<PanelContainer.Tab key="vjdebug" title='VJDebug'>
+						<Panel>
+							<VJDebug controller={vjDebugAdapter} />
+						</Panel>
+					</PanelContainer.Tab>,
+				],
 			}} onSave={( projectData, editorData ) => {
 
 				fetch( `/api/projects/${projectName}/scene`, {

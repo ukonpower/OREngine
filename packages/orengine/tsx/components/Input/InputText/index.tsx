@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { useInputWindow } from '../../../hooks/useInputWindow';
-import { useLayout } from '../../../hooks/useLayout';
+import { useMobileDevice } from '../../../hooks/useMobileDevice';
 
 import style from './index.module.scss';
 
@@ -17,7 +17,7 @@ interface InputTextProps {
 export const InputText = ( { onChange, value, ...props }: InputTextProps ) => {
 
 	const { open } = useInputWindow();
-	const { isSP } = useLayout();
+	const isSP = useMobileDevice();
 
 	const [ currentInput, setCurrentInput ] = useState( value );
 
