@@ -10,7 +10,7 @@ in vec2 vUv;
 void main( void ) {
 
 	vec4 bb = texture( uBackBuffer0, vUv );
-	vec4 canvas = texture(uCanvas, vUv );
+	vec4 canvas = texture( uCanvas, vec2( vUv.x, 1.0 - vUv.y ) );
 
 	// outColor = mix( bb, canvas, canvas.w );
 	vec3 invert = canvas.xyz * canvas.w;
