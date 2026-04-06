@@ -59,9 +59,6 @@ export class Light extends ShadowMapCamera {
 			"intensity",
 			() => this.intensity,
 			( value: number ) => this.intensity = value,
-			{
-				noExport: true
-			}
 		);
 
 		this.updateProjectionMatrix();

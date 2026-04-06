@@ -1222,7 +1222,12 @@
       "$autoPattern": "Ox",
       "$manualIntensity": "Xx",
       "$regeneratePattern": "Hx",
-      "$setPatternCell": "Jx"
+      "$setPatternCell": "Jx",
+      "$FeatureRect": "Wx",
+      "$neon": "jx",
+      "$rectSize": "Zx",
+      "$fastThreshold": "Yx",
+      "$emaFactor": "Kx"
     }
   }
 }

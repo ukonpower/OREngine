@@ -1,5 +1,5 @@
 
-import { useRef, useCallback, MouseEvent } from 'react';
+import { useRef, useCallback, useState, MouseEvent } from 'react';
 
 import { useInputWindow } from '../../../hooks/useInputWindow';
 import { useMobileDevice } from '../../../hooks/useMobileDevice';
@@ -22,6 +22,10 @@ export const InputNumber = ( props: Props ) => {
 
 	const { open } = useInputWindow();
 	const isSP = useMobileDevice();
+
+	const inputRef = useRef<HTMLInputElement>( null );
+	const [ editing, setEditing ] = useState( false );
+	const [ localValue, setLocalValue ] = useState( "" );
 
 	const pointerDownRef = useRef( false );
 	const pointerStartRef = useRef<{ x: number, y: number } | null>( null );
@@ -83,7 +87,7 @@ export const InputNumber = ( props: Props ) => {
 
 		open( {
 			type: "number",
-			value: valueRef.current || 0,
+			value: valueRef.current ?? 0,
 			step: props.step,
 			min: props.min,
 			max: props.max,
@@ -99,6 +103,8 @@ export const InputNumber = ( props: Props ) => {
 
 	const onPointerDown = useCallback( ( e: MouseEvent ) => {
 
+		e.preventDefault();
+
 		pointerDownRef.current = true;
 		pointerStartRef.current = { x: e.clientX, y: e.clientY };
 		draggedRef.current = false;
@@ -110,6 +116,18 @@ export const InputNumber = ( props: Props ) => {
 				if ( isSP ) {
 
 					openInputWindow();
+
+				} else {
+
+					setEditing( true );
+					setLocalValue( String( Number( ( valueRef.current ?? 0 ).toFixed( props.precision ?? 3 ) ) ) );
+
+					requestAnimationFrame( () => {
+
+						inputRef.current?.focus();
+						inputRef.current?.select();
+
+					} );
 
 				}
 
@@ -139,16 +157,41 @@ export const InputNumber = ( props: Props ) => {
 
 	}, [ onPointerMoveNumber, isSP, openInputWindow ] );
 
-	const v = Number( ( props.value || 0 ).toFixed( props.precision ?? 3 ) );
+	const displayValue = editing
+		? localValue
+		: String( Number( ( props.value ?? 0 ).toFixed( props.precision ?? 3 ) ) );
 
 	return <div className={style.inputNumber}>
-		<input className={style.input} type="number" value={v} disabled={props.disabled} readOnly={isSP || props.readOnly} data-lo={props.readOnly }
+		<input ref={inputRef} className={style.input} type={editing ? "text" : "number"} inputMode={editing ? "decimal" : undefined} value={displayValue} disabled={props.disabled} readOnly={isSP || props.readOnly} data-lo={props.readOnly }
 			step={props.step || 1}
 			min={props.min}
 			max={props.max}
+			onBlur={() => {
+
+				if ( ! editing ) return;
+
+				setEditing( false );
+
+				if ( props.onChange ) {
+
+					const num = Number( localValue );
+					props.onChange( isNaN( num ) ? 0 : num );
+
+				}
+
+			}}
 			onChange={( e ) => {
 
-				if ( props.onChange ) props.onChange( Number( e.target.value ) );
+				setLocalValue( e.target.value );
+
+			}}
+			onKeyDown={( e ) => {
+
+				if ( e.key === "Enter" ) {
+
+					inputRef.current?.blur();
+
+				}
 
 			}}
 			onPointerDown={onPointerDown}

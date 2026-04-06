@@ -95,8 +95,6 @@ export class Serializable extends GLP.EventEmitter {
 
 		( this as { uuid: string } ).uuid = uuid;
 
-		GLP.ID.advanceCounter( uuid );
-
 	}
 
 	/*-------------------------------
