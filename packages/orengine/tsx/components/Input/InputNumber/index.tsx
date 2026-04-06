@@ -2,7 +2,7 @@
 import { useRef, useCallback, MouseEvent } from 'react';
 
 import { useInputWindow } from '../../../hooks/useInputWindow';
-import { useLayout } from '../../../hooks/useLayout';
+import { useMobileDevice } from '../../../hooks/useMobileDevice';
 import { ValueProps } from '../../Value';
 
 import style from './index.module.scss';
@@ -21,7 +21,7 @@ const DRAG_THRESHOLD = 3;
 export const InputNumber = ( props: Props ) => {
 
 	const { open } = useInputWindow();
-	const { isSP } = useLayout();
+	const isSP = useMobileDevice();
 
 	const pointerDownRef = useRef( false );
 	const pointerStartRef = useRef<{ x: number, y: number } | null>( null );
