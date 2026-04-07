@@ -1,30 +1,43 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
-import { InputBoolean } from 'orengine/react';
 import { InputNumber } from 'orengine/react';
 
 import style from './index.module.scss';
 
-export interface VJDebugController {
-	getAutoPattern(): boolean;
-	setAutoPattern( v: boolean ): void;
-	getManualIntensity(): number;
-	setManualIntensity( v: number ): void;
-	regeneratePattern(): void;
+export interface VJPreset {
+	name: string;
+	effectPattern: Record<string, ( string | null )[]>;
+	intensity: number;
+}
 
+export interface VJDebugController {
 	getEffectNames(): string[];
 	getVariantIds( effectName: string ): string[];
 	getActiveVariants(): Map<string, string | null>;
-
 	setVariant( effectName: string, variantId: string | null ): void;
-
 	getBeatIndex(): number;
-	getPatternCell( effectName: string, beatIdx: number ): string | null;
-	setPatternCell( effectName: string, beatIdx: number, variantId: string | null ): void;
-
 	onChange( cb: () => void ): void;
 	offChange( cb: () => void ): void;
+
+	getPresets(): VJPreset[];
+	getActivePresetIndex(): number;
+	selectPreset( index: number ): void;
+	addPreset( preset: VJPreset ): void;
+	removePreset( index: number ): void;
+	updatePreset( index: number, preset: VJPreset ): void;
+
+	generateRandomPreset( intensity?: number ): VJPreset;
+}
+
+function createDefaultPreset(): VJPreset {
+
+	return {
+		name: "New",
+		effectPattern: {},
+		intensity: 0.5,
+	};
+
 }
 
 export const VJDebug: React.FC<{ controller: VJDebugController }> = ( { controller } ) => {
@@ -51,44 +64,46 @@ export const VJDebug: React.FC<{ controller: VJDebugController }> = ( { controll
 	const effectNames = controller.getEffectNames();
 	const activeVariants = controller.getActiveVariants();
 	const beatIndex = controller.getBeatIndex();
-	const autoPattern = controller.getAutoPattern();
+
+	const presets = controller.getPresets();
+	const activeIdx = controller.getActivePresetIndex();
+	const activePreset = presets[ activeIdx ];
+
+	const handleUpdateField = useCallback( ( field: Partial<VJPreset> ) => {
+
+		if ( ! activePreset ) return;
+
+		controller.updatePreset( activeIdx, { ...activePreset, ...field } );
+
+	}, [ controller, activeIdx, activePreset ] );
 
 	return <div className={style.container}>
 
+		{/* Presets */}
 		<div className={style.section}>
+			<div className={style.sectionTitle}>Presets</div>
 			<div className={style.controls}>
-				<label className={style.label}>Auto</label>
-				<InputBoolean checked={autoPattern} onChange={( v ) => controller.setAutoPattern( v )} />
-				{! autoPattern && <>
-					<label className={style.label}>Intensity</label>
-					<InputNumber step={0.05} value={controller.getManualIntensity()} onChange={( v ) => controller.setManualIntensity( Math.min( 1, Math.max( 0, v ) ) )} />
-				</>}
-				<button className={style.btn} onClick={() => controller.regeneratePattern()}>Regen</button>
+				<select value={activeIdx} onChange={( e ) => controller.selectPreset( Number( e.target.value ) )}>
+					{presets.map( ( p, i ) => (
+						<option key={i} value={i}>{p.name}</option>
+					) )}
+				</select>
+				<button className={style.btn} onClick={() => controller.addPreset( createDefaultPreset() )}>Add</button>
+				<button className={style.btn} onClick={() => controller.addPreset( controller.generateRandomPreset() )}>Rand</button>
+				<button className={style.btn} onClick={() => controller.removePreset( activeIdx )}>Rm</button>
 				<span className={style.beatLabel}>Beat: {beatIndex}</span>
 			</div>
+			{activePreset && <div className={style.presetFields}>
+				<label className={style.label}>Name</label>
+				<input className={style.textInput} value={activePreset.name}
+					onChange={( e ) => handleUpdateField( { name: e.target.value } )} />
+				<label className={style.label}>Intensity</label>
+				<InputNumber step={0.05} value={activePreset.intensity}
+					onChange={( v ) => handleUpdateField( { intensity: Math.min( 1, Math.max( 0, v ) ) } )} />
+			</div>}
 		</div>
 
-		<div className={style.section}>
-			<div className={style.sectionTitle}>Effects</div>
-			<div className={style.effects}>
-				{effectNames.map( ( name ) => {
-
-					const active = activeVariants.get( name ) ?? null;
-					const ids = controller.getVariantIds( name );
-
-					return <EffectRow
-						key={name}
-						name={name}
-						active={active}
-						variantIds={ids}
-						onFire={( id ) => controller.setVariant( name, id )}
-						onClear={() => controller.setVariant( name, null )}
-					/>;
-
-				} )}
-			</div>
-		</div>
-
+		{/* Matrix */}
 		<div className={style.section}>
 			<div className={style.sectionTitle}>Matrix</div>
 			<div className={style.matrix} style={{ gridTemplateColumns: `60px repeat(8, 1fr)` }}>
@@ -108,15 +123,20 @@ export const VJDebug: React.FC<{ controller: VJDebugController }> = ( { controll
 						<div className={style.matrixLabel}>{name.slice( 0, 7 )}</div>
 						{Array.from( { length: 8 }, ( _, b ) => {
 
-							const val = controller.getPatternCell( name, b );
+							const val = activePreset?.effectPattern?.[ name ]?.[ b ] ?? null;
 
 							return <div key={b} className={style.matrixCell} data-current={b === beatIndex}>
 								<select
 									value={val ?? "_null"}
 									onChange={( e ) => {
 
+										if ( ! activePreset ) return;
+
 										const v = e.target.value;
-										controller.setPatternCell( name, b, v === "_null" ? null : v );
+										const newPattern = { ...activePreset.effectPattern };
+										newPattern[ name ] = [ ...( newPattern[ name ] ?? Array( 8 ).fill( null ) ) ];
+										newPattern[ name ][ b ] = v === "_null" ? null : v;
+										controller.updatePreset( activeIdx, { ...activePreset, effectPattern: newPattern } );
 
 									}}
 								>
@@ -132,6 +152,28 @@ export const VJDebug: React.FC<{ controller: VJDebugController }> = ( { controll
 
 				} )}
 
+			</div>
+		</div>
+
+		{/* Effects (manual fire) */}
+		<div className={style.section}>
+			<div className={style.sectionTitle}>Effects</div>
+			<div className={style.effects}>
+				{effectNames.map( ( name ) => {
+
+					const active = activeVariants.get( name ) ?? null;
+					const ids = controller.getVariantIds( name );
+
+					return <EffectRow
+						key={name}
+						name={name}
+						active={active}
+						variantIds={ids}
+						onFire={( id ) => controller.setVariant( name, id )}
+						onClear={() => controller.setVariant( name, null )}
+					/>;
+
+				} )}
 			</div>
 		</div>
 

@@ -51,6 +51,34 @@
 	}
 }
 
+// Preset Fields
+
+.presetFields {
+	display: grid;
+	grid-template-columns: 80px 1fr;
+	gap: 4px;
+	align-items: center;
+	margin-top: 6px;
+
+	select, input {
+		font-size: $fontSize1;
+		background: $bgCol2;
+		color: $fontCol2;
+		border: none;
+		border-radius: $radius1;
+		padding: 2px 4px;
+	}
+}
+
+.textInput {
+	font-size: $fontSize1;
+	background: $bgCol2;
+	color: $fontCol2;
+	border: none;
+	border-radius: $radius1;
+	padding: 2px 4px;
+}
+
 // Effects
 
 .effects {

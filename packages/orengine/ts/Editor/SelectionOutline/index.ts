@@ -56,6 +56,8 @@ export class SelectionOutline {
 
 		const res = engine.renderer.resolution;
 
+		if ( res.x === 0 || res.y === 0 ) return;
+
 		if ( this._selectionBuffer.size.x !== res.x || this._selectionBuffer.size.y !== res.y ) {
 
 			this._selectionBuffer.setSize( res );
