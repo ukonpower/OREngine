@@ -1247,7 +1247,9 @@
       "$blurEnabled": "hy",
       "$pass": "ly",
       "$colorShift": "uy",
-      "$sortLength": "vy"
+      "$sortLength": "vy",
+      "$beatJump": "my",
+      "$triggerBeat": "py"
     }
   }
 }

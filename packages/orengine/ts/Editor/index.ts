@@ -430,13 +430,17 @@ export class Editor extends MXP.Serializable {
 			const rt = this._engine.renderer.renderTarget;
 			const res = this._engine.renderer.resolution;
 
-			gl.bindFramebuffer( gl.READ_FRAMEBUFFER, rt.uiBuffer.getFrameBuffer() );
-			gl.bindFramebuffer( gl.DRAW_FRAMEBUFFER, null );
-			gl.blitFramebuffer(
-				0, 0, res.x, res.y,
-				0, 0, res.x, res.y,
-				gl.COLOR_BUFFER_BIT, gl.NEAREST
-			);
+			if ( res.x > 0 && res.y > 0 ) {
+
+				gl.bindFramebuffer( gl.READ_FRAMEBUFFER, rt.uiBuffer.getFrameBuffer() );
+				gl.bindFramebuffer( gl.DRAW_FRAMEBUFFER, null );
+				gl.blitFramebuffer(
+					0, 0, res.x, res.y,
+					0, 0, res.x, res.y,
+					gl.COLOR_BUFFER_BIT, gl.NEAREST
+				);
+
+			}
 
 			this._editorCamera.updateAfterRender( this._engine );
 

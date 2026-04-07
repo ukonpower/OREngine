@@ -26,20 +26,20 @@ const midimixAdapter: MIDIMIXController = {
 };
 
 const vjDebugAdapter: VJDebugController = {
-	getAutoPattern: () => VJManager.autoPattern,
-	setAutoPattern: ( v ) => { VJManager.autoPattern = v; },
-	getManualIntensity: () => VJManager.manualIntensity,
-	setManualIntensity: ( v ) => { VJManager.manualIntensity = v; },
-	regeneratePattern: () => VJManager.regeneratePattern(),
 	getEffectNames: () => VJEffectVariant.getEffectNames(),
 	getVariantIds: ( name ) => VJEffectVariant.getVariantIds( name ),
 	getActiveVariants: () => VJEffectVariant.getActiveVariants(),
 	setVariant: ( name, id ) => VJEffectVariant.setVariant( name, id ),
 	getBeatIndex: () => VJManager.beatIndex,
-	getPatternCell: ( name, idx ) => VJManager.currentPattern?.[ name ]?.[ idx ] ?? null,
-	setPatternCell: ( name, idx, id ) => VJManager.setPatternCell( name, idx, id ),
 	onChange: ( cb ) => VJEffectVariant.onChange( cb ),
 	offChange: ( cb ) => VJEffectVariant.offChange( cb ),
+	getPresets: () => VJManager.presets,
+	getActivePresetIndex: () => VJManager.activePresetIndex,
+	selectPreset: ( i ) => VJManager.selectPreset( i ),
+	addPreset: ( p ) => VJManager.addPreset( p ),
+	removePreset: ( i ) => VJManager.removePreset( i ),
+	updatePreset: ( i, p ) => VJManager.updatePreset( i, p ),
+	generateRandomPreset: ( intensity ) => VJManager.generateRandomPreset( intensity ),
 };
 
 export const EditorPage = () => {

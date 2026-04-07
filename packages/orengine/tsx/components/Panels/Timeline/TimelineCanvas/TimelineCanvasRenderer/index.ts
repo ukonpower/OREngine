@@ -109,6 +109,8 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 
 			const resolution = new GLP.Vector( this.wrapperElm.clientWidth, this.wrapperElm.clientHeight );
 
+			if ( resolution.x === 0 || resolution.y === 0 ) return;
+
 			this.glCanvas.width = this.canvas.width = resolution.x;
 			this.glCanvas.height = this.canvas.height = resolution.y;
 
