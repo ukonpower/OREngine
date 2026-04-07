@@ -70,8 +70,6 @@ export const EditorPage = () => {
 	return (
 		<OREngine gl={gl} project={projectData} onEngineInit={( glCtx ) => {
 
-			console.warn( '[DEBUG] Engine.resources.componentList:', JSON.stringify( Engine.resources.componentList.map( c => ( { name: c.name, type: typeof c.component } ) ) ) );
-
 			initResourceInstances( glCtx, globalUniforms );
 
 		}} >
