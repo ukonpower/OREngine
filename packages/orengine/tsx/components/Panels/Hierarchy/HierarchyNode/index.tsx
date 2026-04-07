@@ -1,9 +1,12 @@
 import * as MXP from 'maxpower';
-import { MouseEvent, useCallback, useState } from 'react';
+import { MouseEvent, useCallback, useMemo, useState } from 'react';
 
 import { useOREditor } from '../../../../hooks/useOREditor';
 import { useSerializableField } from '../../../../hooks/useSerializableProps';
 import { ArrowIcon } from '../../../Icons/ArrowIcon';
+import { CameraIcon } from '../../../Icons/CameraIcon';
+import { LightIcon } from '../../../Icons/LightIcon';
+import { MeshIcon } from '../../../Icons/MeshIcon';
 import { InputGroup } from '../../../InputGroup';
 import { useMouseMenu } from '../../../../hooks/useMouseMenu';
 import { Picker } from '../../../Picker';
@@ -32,6 +35,20 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 	const offsetPx = depth * 20;
 
 	const noEditable = props.entity.initiator == "script";
+
+	// component icon
+
+	const icon = useMemo( () => {
+
+		const iconSize = 14;
+
+		if ( props.entity.getComponent( MXP.Light ) ) return <LightIcon size={iconSize} />;
+		if ( props.entity.getComponent( MXP.Camera ) ) return <CameraIcon size={iconSize} />;
+		if ( props.entity.getComponent( MXP.Mesh ) ) return <MeshIcon size={iconSize} />;
+
+		return null;
+
+	}, [ props.entity ] );
 
 	// click fold controls
 
@@ -105,8 +122,9 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 			<div className={style.fold} data-hnode_open={open}>
 				{hasChild && <button className={style.fold_button} onClick={onClickFoldControls} ><ArrowIcon open={open}/></button> }
 			</div>
+			{icon && <div className={style.icon}>{icon}</div>}
 			<div className={style.self_name}>
-				<p>{props.entity.name || "-"} <span>[{ props.entity.uuid }]</span></p>
+				<p>{props.entity.name || "-"}</p>
 			</div>
 			{! noEditable && <button className={style.menu} onClick={onRightClickNode}>⋯</button>}
 		</div>

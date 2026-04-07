@@ -1263,7 +1263,17 @@
       "$updatePreset": "_y",
       "$generateRandomPreset": "Ty",
       "$horizontal": "By",
-      "$complex": "Dy"
+      "$complex": "Dy",
+      "$flash": "zy",
+      "$full": "Ly",
+      "$strobe": "Ey",
+      "$animateThresholdMax": "Iy",
+      "$darkLight": "Vy",
+      "$darkIntense": "Uy",
+      "$activePreset": "Fy",
+      "$presetsData": "Ay",
+      "$animateThresholdMin": "Ry",
+      "$stopThresholdMinAnimate": "ky"
     }
   }
 }
