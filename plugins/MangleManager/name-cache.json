@@ -201,7 +201,8 @@
       "$ColorGrading$1": "In",
       "$FXAA$1": "Vn",
       "$Finalize$1": "Un",
-      "$gaussBlurFrag": "An"
+      "$gaussBlurFrag": "An",
+      "$SAMPLE_PRESETS": "Fn"
     }
   },
   "props": {
@@ -1249,7 +1250,20 @@
       "$colorShift": "uy",
       "$sortLength": "vy",
       "$beatJump": "my",
-      "$triggerBeat": "py"
+      "$triggerBeat": "py",
+      "$mirrorType": "xy",
+      "$availablePatterns": "gy",
+      "$effectPattern": "yy",
+      "$mirror": "wy",
+      "$presets": "Py",
+      "$activePresetIndex": "My",
+      "$selectPreset": "Cy",
+      "$addPreset": "Sy",
+      "$removePreset": "by",
+      "$updatePreset": "_y",
+      "$generateRandomPreset": "Ty",
+      "$horizontal": "By",
+      "$complex": "Dy"
     }
   }
 }
