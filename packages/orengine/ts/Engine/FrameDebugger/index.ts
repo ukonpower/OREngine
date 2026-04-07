@@ -36,7 +36,9 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 	// controls
 
-	private _focus: number | null;
+	private _focus: string | null;
+	private _prevFrameLabels: string[];
+	private _labelCount: Map<string, number>;
 
 	// postprocess
 
@@ -71,6 +73,8 @@ export class FrameDebugger extends GLP.EventEmitter {
 		this._tileInv = new GLP.Vector( 1, 1 );
 
 		this._focus = null;
+		this._prevFrameLabels = [];
+		this._labelCount = new Map();
 
 		this._resolution = new GLP.Vector();
 
@@ -144,7 +148,9 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 				if ( this._focus !== null ) {
 
-				 this._focus ++;
+					const idx = this._prevFrameLabels.indexOf( this._focus );
+					const next = Math.min( idx + 1, this._prevFrameLabels.length - 1 );
+					this._focus = this._prevFrameLabels[ next ] ?? this._focus;
 
 				}
 
@@ -154,7 +160,9 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 				if ( this._focus !== null ) {
 
-				 this._focus --;
+					const idx = this._prevFrameLabels.indexOf( this._focus );
+					const prev = Math.max( idx - 1, 0 );
+					this._focus = this._prevFrameLabels[ prev ] ?? this._focus;
 
 				}
 
@@ -190,7 +198,12 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 		for ( let i = 0; i < frameBuffer.textures.length; i ++ ) {
 
-			if ( this._focus == null || this._focus == this._count ) {
+			const baseLabel = label ? label + ( frameBuffer.textures.length > 1 ? "_" + i : '' ) : String( this._count );
+			const occurrence = this._labelCount.get( baseLabel ) || 0;
+			this._labelCount.set( baseLabel, occurrence + 1 );
+			const uniqueLabel = occurrence > 0 ? baseLabel + "#" + occurrence : baseLabel;
+
+			if ( this._focus == null || this._focus == uniqueLabel ) {
 
 				const tex = frameBuffer.textures[ i ];
 				const textarget = "currentFace" in frameBuffer ? frameBuffer.currentFace : this._gl.TEXTURE_2D;
@@ -205,7 +218,7 @@ export class FrameDebugger extends GLP.EventEmitter {
 				this._gl.bindFramebuffer( this._gl.READ_FRAMEBUFFER, this._srcFrameBuffer.getFrameBuffer() );
 				this._gl.bindFramebuffer( this._gl.DRAW_FRAMEBUFFER, this._outFrameBuffer.getFrameBuffer() );
 
-                                let { x, y } = this._calcTilePos( this._count );
+				let { x, y } = this._calcTilePos( this._count );
 				const w = this._tilePixelSize.x, h = this._tilePixelSize.y;
 
 				if ( this._focus !== null ) {
@@ -226,7 +239,7 @@ export class FrameDebugger extends GLP.EventEmitter {
 				this._frameList.push( {
 					frameBuffer: frameBuffer,
 					texture: tex,
-					label: label ? label + ( frameBuffer.textures.length > 1 ? "_" + i : '' ) : ''
+					label: uniqueLabel,
 				} );
 
 			}
@@ -255,7 +268,7 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 		for ( let i = 0; i < this._frameList.length; i ++ ) {
 
-                        const { x, y } = this._calcTilePos( i );
+			const { x, y } = this._calcTilePos( i );
 
 			const frame = this._frameList[ i ];
 
@@ -273,11 +286,13 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 	}
 
-        private _clear() {
+	private _clear() {
 
 		// calc status
 
 		this._total = this._count;
+
+		this._prevFrameLabels = this._frameList.map( f => f.label );
 
 		const sqrt = Math.sqrt( this._focus !== null ? 1 : this._total );
 		this._tile.set( Math.round( sqrt ), Math.ceil( sqrt ) );
@@ -286,6 +301,7 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 		this._frameList = [];
 		this._count = 0;
+		this._labelCount.clear();
 
 	}
 
@@ -309,7 +325,7 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 	}
 
-        private _onClick( e: MouseEvent ) {
+	private _onClick( e: MouseEvent ) {
 
 		if ( ! this._enable ) {
 
@@ -325,12 +341,17 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 			const x = Math.floor( ( e.offsetX ) / tileSize.x );
 			const y = Math.floor( ( e.offsetY ) / tileSize.y );
+			const index = x + y * this._tile.x;
 
-			this._focus = x + y * this._tile.x;
+			if ( index >= 0 && index < this._prevFrameLabels.length ) {
+
+				this._focus = this._prevFrameLabels[ index ];
+
+			}
 
 		}
 
-                this._clear();
+		this._clear();
 
 	}
 
