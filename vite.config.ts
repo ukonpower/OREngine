@@ -27,6 +27,11 @@ export default defineConfig( {
 	server: {
 		port: 3000,
 		host: "0.0.0.0",
+		fs: {
+			allow: [
+				path.resolve( __dirname, '..' ),
+			]
+		},
 		watch: {
 			ignored: [ "**/projects/**/scene.json", "**/projects/**/editor.json" ],
 		},

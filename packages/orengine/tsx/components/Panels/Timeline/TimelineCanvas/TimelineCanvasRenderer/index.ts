@@ -116,9 +116,9 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 
 			this.postProcess.resize( resolution );
 
-		}
+			this.render();
 
-		this.render();
+		}
 
 	}
 

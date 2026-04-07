@@ -591,6 +591,8 @@ export class Renderer extends Serializable {
 
 	public render( entity: Entity, cameraEntity: Entity, event: EntityUpdateEvent, renderTarget?: RenderCameraTarget ) {
 
+		if ( this.resolution.x === 0 || this.resolution.y === 0 ) return;
+
 		entity.onBeforeRender( event );
 
 		if ( import.meta.env.DEV && this._extDisJointTimerQuery ) {

@@ -194,7 +194,14 @@
       "$generateLoopPattern": "_n",
       "$EFFECT_DEFS": "Tn",
       "$CAM_PATTERNS": "Bn",
-      "$EFFECT_UNLOCKS": "En"
+      "$EFFECT_UNLOCKS": "En",
+      "$slicePlaneUniforms": "Dn",
+      "$GLPowerTexture3D$1": "Ln",
+      "$Bloom$1": "zn",
+      "$ColorGrading$1": "In",
+      "$FXAA$1": "Vn",
+      "$Finalize$1": "Un",
+      "$gaussBlurFrag": "An"
     }
   },
   "props": {
@@ -1227,7 +1234,20 @@
       "$neon": "jx",
       "$rectSize": "Zx",
       "$fastThreshold": "Yx",
-      "$emaFactor": "Kx"
+      "$emaFactor": "Kx",
+      "$CTScanFrame": "qx",
+      "$CTSlice": "Qx",
+      "$flowStrength": "$x",
+      "$flowScale": "ty",
+      "$showDebugText": "ey",
+      "$dashLength": "ny",
+      "$gapLength": "iy",
+      "$sliceScale": "sy",
+      "$autoAnimate": "oy",
+      "$blurEnabled": "hy",
+      "$pass": "ly",
+      "$colorShift": "uy",
+      "$sortLength": "vy"
     }
   }
 }
