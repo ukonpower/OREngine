@@ -82,121 +82,38 @@ export const Screen = () => {
 					</div>
 				) )}
 			</div>
-			<div className={style.header_gizmoMode}>
-				{( [ "select", "translate", "rotate", "scale" ] as const ).map( ( mode ) => (
-					<div
-						key={mode}
-						className={style.header_gizmoBtn}
-						data-active={gizmoMode === mode}
-						onClick={() => setGizmoMode && setGizmoMode( mode )}
-						title={`${mode} (${mode === 'select' ? 'Q' : mode === 'translate' ? 'W' : mode === 'rotate' ? 'E' : 'R'})`}
-					>
-						{mode === 'select' ? 'Q' : mode === 'translate' ? 'T' : mode === 'rotate' ? 'R' : 'S'}
-					</div>
-				) )}
-			</div>
 			<div className={style.header_right}>
 				{apiConnected && (
 					<div className={style.header_item}>
-						<div className={style.apiStatus} data-primary={apiPrimary}>
+						<div className={style.apiStatus} data-primary={apiPrimary} onClick={! apiPrimary ? handleRequestPrimary : undefined} title={apiPrimary ? 'API Primary' : 'API Connected (click to use)'}>
 							<span className={style.apiStatus_dot} />
-							{apiPrimary ? 'API Primary' : 'API Connected'}
-							{! apiPrimary && (
-								<button className={style.apiStatus_btn} onClick={handleRequestPrimary}>
-									Use
-								</button>
-							)}
 						</div>
 					</div>
 				)}
-				{layout.isPC && <div className={style.header_item}>
-					<Label title='Render'>
-						<Value value={render} onChange={( value ) => {
-
-							if ( setRender ) {
-
-								setRender( value );
-
-							}
-
-						}}/>
-					</Label>
-				</div>}
-				{layout.isPC && <div className={style.header_item}>
+				<div className={style.header_item}>
 					<Label title='View'>
 						<Value
 							value={viewType}
-							format={{ type: "select", list: [ "render", "debug" ] } }
-							onChange={( value ) => {
-
-								if ( setViewType ) {
-
-									setViewType( value );
-
-								}
-
-							}}/>
+							format={{ type: "select", list: [ "render", "debug" ] }}
+							onChange={( v ) => setViewType && setViewType( v )}/>
 					</Label>
-				</div>}
+				</div>
 				<div className={style.header_item}>
-					<Label title={layout.isPC ? 'Resolution' : 'Res'}>
+					<Label title='Res'>
 						<Value
 							value={resolutionScale}
 							format={{ type: "select", list: new Array( 6 ).fill( 0 ).map( ( _, i ) => {
 
 								const invScale = Math.pow( 2, i );
-
 								const value = 1.0 / invScale;
 								const label = value == 1 ? '1' : '1/' + invScale;
 
 								return { value: value, label: label };
 
-							} ) } }
-							onChange={( value ) => {
-
-								if ( setResolutionScale ) {
-
-									setResolutionScale( value );
-
-								}
-
-							}}/>
+							} ) }}
+							onChange={( v ) => setResolutionScale && setResolutionScale( v )}/>
 					</Label>
 				</div>
-
-				{layout.isPC && <div className={style.header_overlay} ref={overlayRef}>
-					<div
-						className={style.header_overlayBtn}
-						data-active={overlayOpen}
-						onClick={() => setOverlayOpen( ! overlayOpen )}
-						title="Display Options"
-					>
-						&#9881;
-					</div>
-					{overlayOpen && <div className={style.overlay}>
-						<div className={style.overlay_item} onClick={() => setShowHelpers && setShowHelpers( ! showHelpers )}>
-							<span className={style.overlay_check}>{showHelpers ? '\u2713' : ''}</span>
-							Helpers
-						</div>
-						<div className={style.overlay_item} data-indent="true" onClick={() => setShowEmpty && setShowEmpty( ! showEmpty )}>
-							<span className={style.overlay_check}>{showEmpty ? '\u2713' : ''}</span>
-							Empty
-						</div>
-						<div className={style.overlay_item} data-indent="true" onClick={() => setShowCamera && setShowCamera( ! showCamera )}>
-							<span className={style.overlay_check}>{showCamera ? '\u2713' : ''}</span>
-							Camera
-						</div>
-						<div className={style.overlay_item} data-indent="true" onClick={() => setShowLight && setShowLight( ! showLight )}>
-							<span className={style.overlay_check}>{showLight ? '\u2713' : ''}</span>
-							Light
-						</div>
-						<div className={style.overlay_separator} />
-						<div className={style.overlay_item} onClick={() => setShowWireframe && setShowWireframe( ! showWireframe )}>
-							<span className={style.overlay_check}>{showWireframe ? '\u2713' : ''}</span>
-							Wireframe
-						</div>
-					</div>}
-				</div>}
 
 				{layout.isPC && <div className={style.externalBtn}>
 					<Button onClick={() => {
@@ -223,6 +140,65 @@ export const Screen = () => {
 			</div>
 		</div>
 		<div className={style.content}>
+			<div className={style.displayOptions} ref={overlayRef}>
+				<div
+					className={style.displayOptions_btn}
+					data-active={overlayOpen}
+					onClick={() => setOverlayOpen( ! overlayOpen )}
+					title="Display Options"
+				>
+					&#9881;
+				</div>
+				{overlayOpen && <div className={style.overlay}>
+					<div className={style.overlay_label}>Rendering</div>
+					<div className={style.overlay_field}>
+						<Label title='Render'>
+							<Value value={render} onChange={( v ) => setRender && setRender( v )}/>
+						</Label>
+					</div>
+					<div className={style.overlay_separator} />
+					<div className={style.overlay_label}>Helpers</div>
+					<div className={style.overlay_field}>
+						<Label title='Show'>
+							<Value value={showHelpers} onChange={( v ) => setShowHelpers && setShowHelpers( v )}/>
+						</Label>
+					</div>
+					<div className={style.overlay_field} data-indent="true">
+						<Label title='Empty'>
+							<Value value={showEmpty} onChange={( v ) => setShowEmpty && setShowEmpty( v )}/>
+						</Label>
+					</div>
+					<div className={style.overlay_field} data-indent="true">
+						<Label title='Camera'>
+							<Value value={showCamera} onChange={( v ) => setShowCamera && setShowCamera( v )}/>
+						</Label>
+					</div>
+					<div className={style.overlay_field} data-indent="true">
+						<Label title='Light'>
+							<Value value={showLight} onChange={( v ) => setShowLight && setShowLight( v )}/>
+						</Label>
+					</div>
+					<div className={style.overlay_separator} />
+					<div className={style.overlay_field}>
+						<Label title='Wireframe'>
+							<Value value={showWireframe} onChange={( v ) => setShowWireframe && setShowWireframe( v )}/>
+						</Label>
+					</div>
+				</div>}
+			</div>
+			<div className={style.gizmoMode}>
+				{( [ "select", "translate", "rotate", "scale" ] as const ).map( ( mode ) => (
+					<div
+						key={mode}
+						className={style.gizmoMode_btn}
+						data-active={gizmoMode === mode}
+						onClick={() => setGizmoMode && setGizmoMode( mode )}
+						title={`${mode} (${mode === 'select' ? 'Q' : mode === 'translate' ? 'W' : mode === 'rotate' ? 'E' : 'R'})`}
+					>
+						{mode === 'select' ? 'Q' : mode === 'translate' ? 'T' : mode === 'rotate' ? 'R' : 'S'}
+					</div>
+				) )}
+			</div>
 			<div className={style.canvas}>
 				<Canvas />
 			</div>
