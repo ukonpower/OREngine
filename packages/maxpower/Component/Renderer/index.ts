@@ -111,6 +111,7 @@ export type RenderCameraTarget = {
 	gBuffer: GLP.GLPowerFrameBuffer,
 	shadingBuffer: GLP.GLPowerFrameBuffer,
 	forwardBuffer: GLP.GLPowerFrameBuffer,
+	refractionBuffer: GLP.GLPowerFrameBuffer,
 	uiBuffer: GLP.GLPowerFrameBuffer,
 	normalBuffer: GLP.GLPowerFrameBuffer,
 }
@@ -507,6 +508,14 @@ export class Renderer extends Serializable {
 			gBuffer.textures[ 4 ],
 		] );
 
+		const refractionBuffer = new GLP.GLPowerFrameBuffer( gl, { disableDepthBuffer: true } );
+		refractionBuffer.setTexture( [
+			new GLP.GLPowerTexture( gl ).setting( {
+				type: gl.FLOAT, internalFormat: gl.RGBA16F, format: gl.RGBA,
+				magFilter: gl.LINEAR, minFilter: gl.LINEAR,
+			} ),
+		] );
+
 		const uiBuffer = new GLP.GLPowerFrameBuffer( gl, { disableDepthBuffer: true } );
 		uiBuffer.setDepthTexture( gBuffer.depthTexture );
 		uiBuffer.setTexture( [ new GLP.GLPowerTexture( gl ) ] );
@@ -516,7 +525,7 @@ export class Renderer extends Serializable {
 			new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA, magFilter: gl.NEAREST, minFilter: gl.NEAREST } )
 		] );
 
-		return { gBuffer, shadingBuffer, forwardBuffer, uiBuffer, normalBuffer };
+		return { gBuffer, shadingBuffer, forwardBuffer, refractionBuffer, uiBuffer, normalBuffer };
 
 	}
 
@@ -525,6 +534,7 @@ export class Renderer extends Serializable {
 		rt.gBuffer.setSize( resolution );
 		rt.shadingBuffer.setSize( resolution );
 		rt.forwardBuffer.setSize( resolution );
+		rt.refractionBuffer.setSize( resolution );
 		rt.uiBuffer.setSize( resolution );
 		rt.normalBuffer.setSize( resolution );
 
@@ -763,25 +773,66 @@ export class Renderer extends Serializable {
 
 			// forward
 
+			// refractionBuffer の初期状態を deferred 結果（shadingBuffer[0]）で満たす
+			this._copyToRefraction( rt );
+
+			// renderOrder 昇順で sort し、同一 order ごとにグループ化
+			const sortedForward = stack.forward.slice().sort( ( a, b ) => {
+
+				const oa = a.getComponent( Mesh )?.material.renderOrder ?? 0;
+				const ob = b.getComponent( Mesh )?.material.renderOrder ?? 0;
+				return oa - ob;
+
+			} );
+
+			const forwardGroups: Entity[][] = [];
+			let currentOrder: number | null = null;
+
+			for ( const ent of sortedForward ) {
+
+				const o = ent.getComponent( Mesh )?.material.renderOrder ?? 0;
+
+				if ( currentOrder === null || o !== currentOrder ) {
+
+					forwardGroups.push( [] );
+					currentOrder = o;
+
+				}
+
+				forwardGroups[ forwardGroups.length - 1 ].push( ent );
+
+			}
+
 			this.gl.enable( this.gl.BLEND );
 
-			this.renderCamera( "forward", cameraEntity, stack.forward, rt.forwardBuffer, this.resolution, {
-				uniformOverride: {
-					uDeferredTexture: {
-						value: rt.shadingBuffer.textures[ 1 ],
-						type: '1i'
+			for ( let gi = 0; gi < forwardGroups.length; gi ++ ) {
+
+				if ( gi > 0 ) {
+
+					// 前グループの描画結果を refractionBuffer に反映
+					this._copyToRefraction( rt );
+
+				}
+
+				this.renderCamera( "forward", cameraEntity, forwardGroups[ gi ], rt.forwardBuffer, this.resolution, {
+					uniformOverride: {
+						uDeferredTexture: {
+							value: rt.refractionBuffer.textures[ 0 ],
+							type: '1i'
+						},
+						uDeferredResolution: {
+							value: rt.shadingBuffer.size,
+							type: '2fv'
+						},
+						uEnvMap: {
+							value: this._pmremRender.renderTarget.textures[ 0 ],
+							type: '1i'
+						}
 					},
-					uDeferredResolution: {
-						value: rt.shadingBuffer.size,
-						type: '2fv'
-					},
-					uEnvMap: {
-						value: this._pmremRender.renderTarget.textures[ 0 ],
-						type: '1i'
-					}
-				},
-				disableClear: true,
-			} );
+					disableClear: true,
+				} );
+
+			}
 
 			this.gl.disable( this.gl.BLEND );
 
@@ -850,7 +901,7 @@ export class Renderer extends Serializable {
 			this.renderCamera( "forward", cameraEntity, stack.ui, rt.uiBuffer, this.resolution, {
 				uniformOverride: {
 					uDeferredTexture: {
-						value: rt.shadingBuffer.textures[ 1 ],
+						value: rt.refractionBuffer.textures[ 0 ],
 						type: '1i'
 					} },
 				disableClear: true
@@ -982,6 +1033,23 @@ export class Renderer extends Serializable {
 
 		this.emit( "drawPass", [ renderTarget, "camera/" + renderType ] );
 
+
+	}
+
+	private _copyToRefraction( rt: RenderCameraTarget ) {
+
+		const gl = this.gl;
+		gl.bindFramebuffer( gl.READ_FRAMEBUFFER, rt.shadingBuffer.getFrameBuffer() );
+		gl.readBuffer( gl.COLOR_ATTACHMENT0 );
+		gl.bindFramebuffer( gl.DRAW_FRAMEBUFFER, rt.refractionBuffer.getFrameBuffer() );
+		gl.drawBuffers( [ gl.COLOR_ATTACHMENT0 ] );
+
+		const size = rt.shadingBuffer.size;
+		gl.blitFramebuffer(
+			0, 0, size.x, size.y,
+			0, 0, size.x, size.y,
+			gl.COLOR_BUFFER_BIT, gl.LINEAR
+		);
 
 	}
 
