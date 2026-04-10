@@ -45,6 +45,7 @@ export class Entity extends Serializable {
 	public matrix: GLP.Matrix;
 	public matrixWorld: GLP.Matrix;
 	public matrixWorldPrev: GLP.Matrix;
+	private _matrixWorldHistoryInitialized: boolean;
 	public autoMatrixUpdate: boolean;
 	public parent: Entity | null;
 	public children: Entity[];
@@ -68,6 +69,7 @@ export class Entity extends Serializable {
 		this.matrix = new GLP.Matrix();
 		this.matrixWorld = new GLP.Matrix();
 		this.matrixWorldPrev = new GLP.Matrix();
+		this._matrixWorldHistoryInitialized = false;
 		this.autoMatrixUpdate = true;
 
 		this.parent = null;
@@ -148,6 +150,15 @@ export class Entity extends Serializable {
 	-------------------------------*/
 
 	public onBeforeRender( event: EntityUpdateEvent ) {
+
+		if ( ! this._matrixWorldHistoryInitialized ) {
+
+			// Seed previous-frame data before the first draw so velocity-based effects
+			// do not treat the initial frame as a large teleport from identity.
+			this.matrixWorldPrev.copy( this.matrixWorld );
+			this._matrixWorldHistoryInitialized = true;
+
+		}
 
 		// before render - components
 

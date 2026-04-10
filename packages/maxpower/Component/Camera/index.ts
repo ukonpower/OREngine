@@ -26,6 +26,7 @@ export class Camera extends Component {
 
 	public projectionMatrixPrev: GLP.Matrix;
 	public viewMatrixPrev: GLP.Matrix;
+	private _historyInitialized: boolean;
 
 	public needsUpdateProjectionMatrix: boolean;
 
@@ -46,6 +47,7 @@ export class Camera extends Component {
 
 		this.viewMatrixPrev = new GLP.Matrix();
 		this.projectionMatrixPrev = new GLP.Matrix();
+		this._historyInitialized = false;
 
 		this.viewPort = null;
 
@@ -122,6 +124,14 @@ export class Camera extends Component {
 		if ( this.needsUpdateProjectionMatrix ) {
 
 			this.updateProjectionMatrix();
+
+		}
+
+		if ( ! this._historyInitialized ) {
+
+			this.viewMatrixPrev.copy( this.viewMatrix );
+			this.projectionMatrixPrev.copy( this.projectionMatrix );
+			this._historyInitialized = true;
 
 		}
 
