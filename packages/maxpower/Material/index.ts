@@ -17,6 +17,7 @@ export type Blending = 'ADD' | 'NORMAL' | "DIFF";
 export interface MaterialParam {
 	name?: string,
 	phase?: MaterialRenderType[];
+	renderOrder?: number;
 	frag?: string;
 	vert?: string;
 	defines?: MaterialDefines;
@@ -43,6 +44,7 @@ export class Material extends Serializable {
 	public cullFace: boolean;
 	public drawType: DrawType;
 	public blending: Blending;
+	public renderOrder: number;
 
 	public visibilityFlag: MaterialVisibility;
 	public programCache: MaterialProgramCache;
@@ -64,6 +66,7 @@ export class Material extends Serializable {
 		this.depthWrite = params.depthWrite !== undefined ? params.depthWrite : true;
 		this.drawType = params.drawType || "TRIANGLES";
 		this.blending = params.blending || "NORMAL";
+		this.renderOrder = params.renderOrder ?? 0;
 
 		this.vert = params.vert || basicVert;
 		this.frag = params.frag || basicFrag;
