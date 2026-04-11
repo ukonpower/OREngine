@@ -1,6 +1,6 @@
+import fs from 'fs';
 import path from 'path';
 
-import basicSsl from '@vitejs/plugin-basic-ssl';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
@@ -11,6 +11,14 @@ import { ViteErrorReporter } from "./plugins/ViteErrorReporter";
 
 
 const enableHttps = process.env.ORENGINE_HTTPS === '1';
+const sslCertPath = process.env.ORENGINE_SSL_CERT;
+const sslKeyPath = process.env.ORENGINE_SSL_KEY;
+const httpsConfig = enableHttps && sslCertPath && sslKeyPath
+	? {
+		cert: fs.readFileSync( sslCertPath ),
+		key: fs.readFileSync( sslKeyPath ),
+	}
+	: undefined;
 const basePath = process.env.BASE_PATH ?? "";
 const activeProject = process.env.ORENGINE_PROJECT || 'DemoProject';
 const projectDir = process.env.ORENGINE_PROJECT_DIR
@@ -29,6 +37,7 @@ export default defineConfig( {
 	server: {
 		port: 3000,
 		host: "0.0.0.0",
+		https: httpsConfig,
 		fs: {
 			allow: [
 				path.resolve( __dirname, '..' ),
@@ -64,7 +73,6 @@ export default defineConfig( {
 		},
 	},
 	plugins: [
-		...( enableHttps ? [ basicSsl() ] : [] ),
 		react(),
 		ProjectResolver(),
 		ShaderMinifierLoader(),

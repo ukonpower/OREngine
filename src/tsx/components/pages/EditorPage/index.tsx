@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { gl, globalUniforms } from "~/ts/Globals";
 import { initResouces, initResourceInstances } from "~project/Resources";
 import { MIDIMIX } from "~project/Resources/Components/VJ/MIDIMIX";
+import { MIDIMIXMapping } from "~project/Resources/Components/VJ/MIDIMIXMapping";
 import { VJEffectVariant } from "~project/Resources/Components/VJ/VJEffectVariant";
 import { VJManager } from "~project/Resources/Components/VJ/VJManager";
 
@@ -77,7 +78,7 @@ export const EditorPage = () => {
 				assets: [
 					<PanelContainer.Tab key="midimix" title='MIDIMIXEmu'>
 						<Panel>
-							<MIDIMIXEmu controller={midimixAdapter} />
+							<MIDIMIXEmu controller={midimixAdapter} labels={{ buttons: MIDIMIXMapping.getLabels() }} />
 						</Panel>
 					</PanelContainer.Tab>,
 					<PanelContainer.Tab key="vjdebug" title='VJDebug'>

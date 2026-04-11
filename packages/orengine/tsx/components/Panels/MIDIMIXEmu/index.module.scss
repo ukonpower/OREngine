@@ -17,6 +17,21 @@
 	gap: 2px;
 }
 
+.btnWrap {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1px;
+}
+
+.label {
+	font-size: 8px;
+	color: #888;
+	white-space: nowrap;
+	line-height: 1;
+	user-select: none;
+}
+
 .resetBtn {
 	padding: 4px 8px;
 	font-size: 10px;
