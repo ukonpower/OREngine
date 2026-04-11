@@ -1,5 +1,6 @@
 import path from 'path';
 
+import basicSsl from '@vitejs/plugin-basic-ssl';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
@@ -9,6 +10,7 @@ import { ShaderMinifierLoader } from "./plugins/ShaderMinifierLoader";
 import { ViteErrorReporter } from "./plugins/ViteErrorReporter";
 
 
+const enableHttps = process.env.ORENGINE_HTTPS === '1';
 const basePath = process.env.BASE_PATH ?? "";
 const activeProject = process.env.ORENGINE_PROJECT || 'DemoProject';
 const projectDir = process.env.ORENGINE_PROJECT_DIR
@@ -62,6 +64,7 @@ export default defineConfig( {
 		},
 	},
 	plugins: [
+		...( enableHttps ? [ basicSsl() ] : [] ),
 		react(),
 		ProjectResolver(),
 		ShaderMinifierLoader(),
