@@ -218,7 +218,12 @@
       "$MAPPINGS": "Yn",
       "$SCENE_BUTTONS": "Qn",
       "$BEAT_EVENTS": "Kn",
-      "$CAMERA_BUTTONS": "$n"
+      "$CAMERA_BUTTONS": "$n",
+      "$bindings": "ni",
+      "$blackoutWriter": "ri",
+      "$readFader": "si",
+      "$MochiSkyBoxFrag": "oi",
+      "$sceneObjects": "ai"
     }
   },
   "props": {
@@ -1413,7 +1418,20 @@
       "$switch/mode": "$P",
       "$switch/beatInterval": "tS",
       "$switch/presetPattern": "eS",
-      "$lineIndex": "nS"
+      "$lineIndex": "nS",
+      "$lerped": "tM",
+      "$registerEffect": "eM",
+      "$registerBlackout": "nM",
+      "$setBlackout": "iM",
+      "$setManual": "rM",
+      "$VJManualFader": "sM",
+      "$phase/phasesData": "oM",
+      "$phase/active": "aM",
+      "$dim": "iS",
+      "$Mochi": "rS",
+      "$MochiSkyBox": "sS",
+      "$alwaysVisible": "oS",
+      "$phases": "aS"
     }
   }
 }
