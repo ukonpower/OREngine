@@ -13,17 +13,17 @@ type LayoutSplitItemProps = {
 };
 
 type InternalItemProps = LayoutSplitItemProps & {
-	_resolvedSize?: number | null;
+	_ratio?: number | null;
 };
 
 const Item = ( props: InternalItemProps ) => {
 
 	const itemStyle: React.CSSProperties = { ...props.style };
-	const override = props._resolvedSize;
+	const ratio = props._ratio;
 
-	if ( typeof override === "number" ) {
+	if ( typeof ratio === "number" ) {
 
-		itemStyle.flex = `0 0 ${ override }px`;
+		itemStyle.flex = `0 0 ${ ratio * 100 }%`;
 
 	} else if ( props.size !== undefined ) {
 
@@ -68,6 +68,8 @@ type LayoutSplitProps = {
 	children?: React.ReactNode;
 };
 
+const STORAGE_VERSION = 2;
+
 const loadFromStorage = ( storageKey: string | undefined, expectedLength: number ): ( number | null )[] | null => {
 
 	if ( ! storageKey ) return null;
@@ -78,9 +80,18 @@ const loadFromStorage = ( storageKey: string | undefined, expectedLength: number
 		if ( ! raw ) return null;
 
 		const parsed = JSON.parse( raw );
-		if ( ! Array.isArray( parsed ) || parsed.length !== expectedLength ) return null;
 
-		return parsed.map( ( v ) => ( typeof v === "number" ? v : null ) );
+		// v2: 比率ベース { v: 2, sizes: [...] }
+		if ( parsed && typeof parsed === 'object' && parsed.v === STORAGE_VERSION && Array.isArray( parsed.sizes ) ) {
+
+			if ( parsed.sizes.length !== expectedLength ) return null;
+
+			return parsed.sizes.map( ( v: unknown ) => ( typeof v === "number" ? v : null ) );
+
+		}
+
+		// 旧フォーマット（px値の配列）は無視
+		return null;
 
 	} catch ( _e ) {
 
@@ -101,23 +112,23 @@ export const LayoutSplit = ( props: LayoutSplitProps ) => {
 		( c ): c is React.ReactElement<LayoutSplitItemProps> => React.isValidElement( c )
 	);
 
-	const [ overrideSizes, setOverrideSizes ] = useState<( number | null )[]>( () =>
+	const [ overrideRatios, setOverrideRatios ] = useState<( number | null )[]>( () =>
 		loadFromStorage( storageKey, items.length ) ?? new Array( items.length ).fill( null )
 	);
-	const overrideSizesRef = useRef<( number | null )[]>( overrideSizes );
-	overrideSizesRef.current = overrideSizes;
+	const overrideRatiosRef = useRef<( number | null )[]>( overrideRatios );
+	overrideRatiosRef.current = overrideRatios;
 
 	const [ draggingIndex, setDraggingIndex ] = useState<number | null>( null );
 	const containerRef = useRef<HTMLDivElement>( null );
 
 	useEffect( () => {
 
-		if ( overrideSizesRef.current.length !== items.length ) {
+		if ( overrideRatiosRef.current.length !== items.length ) {
 
 			const restored = loadFromStorage( storageKey, items.length );
 			const next = restored ?? new Array( items.length ).fill( null );
-			overrideSizesRef.current = next;
-			setOverrideSizes( next );
+			overrideRatiosRef.current = next;
+			setOverrideRatios( next );
 
 		}
 
@@ -130,6 +141,12 @@ export const LayoutSplit = ( props: LayoutSplitProps ) => {
 
 		const container = containerRef.current;
 		if ( ! container ) return;
+
+		// CSS transform対応: レンダリングサイズとレイアウトサイズの比率でスケール係数を算出
+		const rect = container.getBoundingClientRect();
+		const layoutSize = direction === "horizontal" ? container.clientWidth : container.clientHeight;
+		const renderSize = direction === "horizontal" ? rect.width : rect.height;
+		const scaleFactor = layoutSize > 0 ? renderSize / layoutSize : 1;
 
 		const isTouchStart = 'touches' in event;
 		const startPos = isTouchStart
@@ -156,28 +173,13 @@ export const LayoutSplit = ( props: LayoutSplitProps ) => {
 		let pendingLeft = pixelSizes[ splitterIndex ];
 		let pendingRight = pixelSizes[ splitterIndex + 1 ];
 
-		const applyPaneStyle = ( el: HTMLElement, px: number ) => {
-
-			el.style.flex = `0 0 ${ px }px`;
-			if ( direction === "horizontal" ) {
-
-				el.style.width = `${ px }px`;
-
-			} else {
-
-				el.style.height = `${ px }px`;
-
-			}
-
-		};
-
 		const onMove = ( ev: MouseEvent | TouchEvent ) => {
 
 			const isTouchMove = 'touches' in ev;
 			const cur = isTouchMove
 				? ( direction === "horizontal" ? ev.touches[ 0 ].clientX : ev.touches[ 0 ].clientY )
 				: ( direction === "horizontal" ? ev.clientX : ev.clientY );
-			const delta = cur - startPos;
+			const delta = ( cur - startPos ) / scaleFactor;
 
 			let nextLeft = pixelSizes[ splitterIndex ] + delta;
 			let nextRight = pixelSizes[ splitterIndex + 1 ] - delta;
@@ -204,8 +206,8 @@ export const LayoutSplit = ( props: LayoutSplitProps ) => {
 				rafId = requestAnimationFrame( () => {
 
 					rafId = null;
-					applyPaneStyle( leftEl, pendingLeft );
-					applyPaneStyle( rightEl, pendingRight );
+					leftEl.style.flex = `0 0 ${ pendingLeft }px`;
+					rightEl.style.flex = `0 0 ${ pendingRight }px`;
 
 				} );
 
@@ -229,17 +231,22 @@ export const LayoutSplit = ( props: LayoutSplitProps ) => {
 
 			setDraggingIndex( null );
 
-			const finalized = [ ...overrideSizesRef.current ];
-			finalized[ splitterIndex ] = pendingLeft;
-			finalized[ splitterIndex + 1 ] = pendingRight;
-			overrideSizesRef.current = finalized;
-			setOverrideSizes( finalized );
+			// px → 比率に変換して保存
+			const containerSize = direction === "horizontal"
+				? container.clientWidth
+				: container.clientHeight;
+
+			const finalized = [ ...overrideRatiosRef.current ];
+			finalized[ splitterIndex ] = containerSize > 0 ? pendingLeft / containerSize : null;
+			finalized[ splitterIndex + 1 ] = containerSize > 0 ? pendingRight / containerSize : null;
+			overrideRatiosRef.current = finalized;
+			setOverrideRatios( finalized );
 
 			if ( storageKey ) {
 
 				try {
 
-					localStorage.setItem( storageKey, JSON.stringify( finalized ) );
+					localStorage.setItem( storageKey, JSON.stringify( { v: STORAGE_VERSION, sizes: finalized } ) );
 
 				} catch ( _err ) {
 
@@ -271,7 +278,7 @@ export const LayoutSplit = ( props: LayoutSplitProps ) => {
 			{items.map( ( item, index ) => {
 
 				const isLast = index === items.length - 1;
-				const override = overrideSizes[ index ] ?? null;
+				const ratio = overrideRatios[ index ] ?? null;
 
 				const splitterClassName = [
 					style.splitter,
@@ -285,7 +292,7 @@ export const LayoutSplit = ( props: LayoutSplitProps ) => {
 
 				return (
 					<React.Fragment key={index}>
-						<Item {...item.props} _resolvedSize={override} />
+						<Item {...item.props} _ratio={ratio} />
 						{ ! isLast && (
 							<div
 								className={splitterClassName}

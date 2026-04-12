@@ -34,7 +34,7 @@ export interface MIDIMIXLabels {
 -------------------------------*/
 
 const NATURAL_W = 800;
-const NATURAL_H = 420;
+const NATURAL_H = 520;
 const HANDLE_H = 16;
 
 /*-------------------------------
@@ -265,6 +265,7 @@ export const MIDIMIXEmu: React.FC<{controller: MIDIMIXController, labels?: MIDIM
 
 	const [ _state, setState ] = useState( 0 );
 	const [ scale, setScale ] = useState( 1 );
+	const [ offset, setOffset ] = useState( { x: 0, y: 0 } );
 	const containerRef = useRef<HTMLDivElement>( null );
 
 	// コンテナサイズ監視 → object-fit: contain 的スケーリング
@@ -278,7 +279,12 @@ export const MIDIMIXEmu: React.FC<{controller: MIDIMIXController, labels?: MIDIM
 			const { width, height } = entry.contentRect;
 			const sx = width / NATURAL_W;
 			const sy = height / NATURAL_H;
-			setScale( Math.min( sx, sy ) );
+			const s = Math.min( sx, sy );
+			setScale( s );
+			setOffset( {
+				x: ( width - NATURAL_W * s ) / 2,
+				y: ( height - NATURAL_H * s ) / 2,
+			} );
 
 		} );
 
@@ -343,7 +349,7 @@ export const MIDIMIXEmu: React.FC<{controller: MIDIMIXController, labels?: MIDIM
 	return <div ref={containerRef} className={style.container}>
 		<div
 			className={style.inner}
-			style={{ width: NATURAL_W, height: NATURAL_H, transform: `scale(${scale})` }}
+			style={{ width: NATURAL_W, height: NATURAL_H, transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})` }}
 		>
 			<div className={style.header}>
 				<span className={style.title}>MIDI MIX</span>
