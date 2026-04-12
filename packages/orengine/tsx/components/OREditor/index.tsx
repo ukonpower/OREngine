@@ -71,12 +71,12 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 
 		editorElm = (
 			<>
-				<LayoutSplit direction="vertical">
-					<LayoutSplit.Item flex={1}>
-						<LayoutSplit direction="horizontal">
-							<LayoutSplit.Item size="300px">
-								<LayoutSplit direction="vertical">
-									<LayoutSplit.Item flex={1}>
+				<LayoutSplit direction="vertical" storageKey="orengine-editor-pc-main">
+					<LayoutSplit.Item flex={1} minSize={300}>
+						<LayoutSplit direction="horizontal" storageKey="orengine-editor-pc-horizontal">
+							<LayoutSplit.Item size="300px" minSize={200}>
+								<LayoutSplit direction="vertical" storageKey="orengine-editor-pc-left">
+									<LayoutSplit.Item flex={1} minSize={150}>
 										<PanelContainer>
 											<PanelContainer.Tab title='Scene'>
 												<Panel>
@@ -86,7 +86,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 											{props.customTabs?.scene}
 										</PanelContainer>
 									</LayoutSplit.Item>
-									<LayoutSplit.Item size="20vh">
+									<LayoutSplit.Item size="20vh" minSize={100}>
 										<PanelContainer>
 											<PanelContainer.Tab title='Timer'>
 												<Panel noPadding>
@@ -98,12 +98,12 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 									</LayoutSplit.Item>
 								</LayoutSplit>
 							</LayoutSplit.Item>
-							<LayoutSplit.Item flex={1}>
-								<LayoutSplit direction="vertical">
-									<LayoutSplit.Item flex={1}>
+							<LayoutSplit.Item flex={1} minSize={300}>
+								<LayoutSplit direction="vertical" storageKey="orengine-editor-pc-center">
+									<LayoutSplit.Item flex={1} minSize={200}>
 										<Screen />
 									</LayoutSplit.Item>
-									<LayoutSplit.Item size="200px">
+									<LayoutSplit.Item size="200px" minSize={120}>
 										<PanelContainer>
 											<PanelContainer.Tab title='Assets'>
 												<Panel noPadding>
@@ -115,9 +115,9 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 									</LayoutSplit.Item>
 								</LayoutSplit>
 							</LayoutSplit.Item>
-							<LayoutSplit.Item size="300px">
-								<LayoutSplit direction="vertical">
-									<LayoutSplit.Item flex={1}>
+							<LayoutSplit.Item size="300px" minSize={200}>
+								<LayoutSplit direction="vertical" storageKey={selectedAsset ? "orengine-editor-pc-right-asset" : "orengine-editor-pc-right"}>
+									<LayoutSplit.Item flex={1} minSize={200}>
 										<PanelContainer>
 											<PanelContainer.Tab title='Property'>
 												<Panel>
@@ -137,7 +137,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 											{props.customTabs?.property}
 										</PanelContainer>
 									</LayoutSplit.Item>
-									{selectedAsset && <LayoutSplit.Item size="35%">
+									{selectedAsset && <LayoutSplit.Item size="35%" minSize={150}>
 										<PanelContainer>
 											<PanelContainer.Tab title='Asset'>
 												<Panel>
@@ -150,7 +150,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 							</LayoutSplit.Item>
 						</LayoutSplit>
 					</LayoutSplit.Item>
-					<LayoutSplit.Item size="160px">
+					<LayoutSplit.Item size="160px" minSize={80}>
 						<PanelContainer>
 							<PanelContainer.Tab title='Timeline'>
 								<Panel noPadding>
@@ -169,18 +169,18 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 
 		editorElm = (
 			<>
-				<LayoutSplit direction="vertical">
-					<LayoutSplit.Item size="35vh" style={{ minHeight: '200px' }}>
+				<LayoutSplit direction="vertical" storageKey="orengine-editor-sp-main">
+					<LayoutSplit.Item size="35vh" minSize={200} style={{ minHeight: '200px' }}>
 						<Screen />
 					</LayoutSplit.Item>
-					<LayoutSplit.Item flex={1}>
+					<LayoutSplit.Item flex={1} minSize={200}>
 						<PanelContainer>
 							<PanelContainer.Tab title='Scene / Property'>
-								<LayoutSplit direction="horizontal">
-									<LayoutSplit.Item flex={1} overflow padding>
+								<LayoutSplit direction="horizontal" storageKey="orengine-editor-sp-sceneProp">
+									<LayoutSplit.Item flex={1} minSize={120} overflow padding>
 										<Hierarchy />
 									</LayoutSplit.Item>
-									<LayoutSplit.Item flex={1} overflow padding>
+									<LayoutSplit.Item flex={1} minSize={120} overflow padding>
 										<EntityProperty />
 									</LayoutSplit.Item>
 								</LayoutSplit>
@@ -207,7 +207,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 							{props.customTabs?.timer}
 						</PanelContainer>
 					</LayoutSplit.Item>
-					<LayoutSplit.Item size="120px">
+					<LayoutSplit.Item size="120px" minSize={80}>
 						<PanelContainer>
 							<PanelContainer.Tab title='Timeline'>
 								<Panel noPadding>
