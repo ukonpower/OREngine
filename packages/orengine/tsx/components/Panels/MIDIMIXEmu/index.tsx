@@ -1,8 +1,5 @@
 
-import React, { useCallback, useEffect } from 'react';
-
-import { InputBoolean } from '../../Input/InputCheckBox';
-import { InputNumber } from '../../Input/InputNumber';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import style from './index.module.scss';
 
@@ -29,40 +26,272 @@ export interface MIDIMIXController {
 
 export interface MIDIMIXLabels {
 	buttons?: Record<number, string>;
+	values?: Record<number, string>;
 }
 
-const MIDIButton: React.FC<{id: number, value: number, controller: MIDIMIXController, label?: string}> = ( props ) => {
+/*-------------------------------
+	Constants
+-------------------------------*/
 
-	return <div className={style.btnWrap}>
-		<InputBoolean checked={props.value > 0.5} onChange={( v ) => {
+const NATURAL_W = 800;
+const NATURAL_H = 420;
+const HANDLE_H = 16;
 
-			props.controller.emulateControl( 144, props.id, v ? 1.0 : 0.0 );
+/*-------------------------------
+	Helpers
+-------------------------------*/
 
-		}}/>
-		{props.label && <span className={style.label}>{props.label}</span>}
-	</div>;
+const clamp01 = ( v: number ) => Math.min( 1, Math.max( 0, v ) );
+
+/*-------------------------------
+	MIDIKnob
+-------------------------------*/
+
+const MIDIKnob: React.FC<{
+	id: number; value: number; controller: MIDIMIXController; label?: string;
+}> = ( { id, value, controller, label } ) => {
+
+	const valueRef = useRef( value );
+	valueRef.current = value;
+
+	const handleChange = useCallback( ( v: number ) => {
+
+		controller.emulateControl( 176, id, v );
+
+	}, [ id, controller ] );
+
+	const onPointerDown = useCallback( ( e: React.PointerEvent ) => {
+
+		e.preventDefault();
+
+		const startY = e.clientY;
+		const startValue = valueRef.current;
+
+		const onMove = ( ev: PointerEvent ) => {
+
+			const dy = startY - ev.clientY;
+			const sensitivity = ev.shiftKey ? 400 : 150;
+			handleChange( clamp01( startValue + dy / sensitivity ) );
+
+		};
+
+		const onUp = () => {
+
+			window.removeEventListener( 'pointermove', onMove );
+			window.removeEventListener( 'pointerup', onUp );
+
+		};
+
+		window.addEventListener( 'pointermove', onMove );
+		window.addEventListener( 'pointerup', onUp );
+
+	}, [ handleChange ] );
+
+	const onDoubleClick = useCallback( () => handleChange( 0 ), [ handleChange ] );
+
+	const angle = - 135 + value * 270;
+	const r = 16;
+	const cx = 20;
+	const cy = 20;
+	const arcTotal = 270;
+
+	const polarToXY = ( deg: number ) => {
+
+		const rad = ( deg - 90 ) * Math.PI / 180;
+		return [ cx + r * Math.cos( rad ), cy + r * Math.sin( rad ) ];
+
+	};
+
+	const [ sx, sy ] = polarToXY( - 135 );
+	const [ ex, ey ] = polarToXY( angle );
+	const largeArc = ( value * arcTotal ) > 180 ? 1 : 0;
+
+	const [ tsx, tsy ] = polarToXY( - 135 );
+	const [ tex, tey ] = polarToXY( 135 );
+
+	return (
+		<div className={style.knob}>
+			<div
+				className={style.knob_body}
+				onPointerDown={onPointerDown}
+				onDoubleClick={onDoubleClick}
+				title={value.toFixed( 2 )}
+			>
+				<svg className={style.knob_svg} viewBox="0 0 40 40">
+					<path
+						d={`M ${tsx} ${tsy} A ${r} ${r} 0 1 0 ${tex} ${tey}`}
+						className={style.knob_track}
+					/>
+					{value > 0.001 && <path
+						d={`M ${sx} ${sy} A ${r} ${r} 0 ${largeArc} 1 ${ex} ${ey}`}
+						className={style.knob_fill}
+					/>}
+					<circle cx={cx} cy={cy} r={11} className={style.knob_center} />
+					<line
+						x1={cx}
+						y1={cy}
+						x2={cx + Math.sin( angle * Math.PI / 180 ) * 10}
+						y2={cy - Math.cos( angle * Math.PI / 180 ) * 10}
+						className={style.knob_indicator}
+					/>
+				</svg>
+			</div>
+			<span className={style.elementLabel} style={label ? undefined : { visibility: 'hidden' }}>{label || '\u00A0'}</span>
+		</div>
+	);
 
 };
 
-const MIDIValue: React.FC<{value: number, id: number, controller: MIDIMIXController}> = ( props ) => {
+/*-------------------------------
+	MIDIFader
+-------------------------------*/
 
-	return <InputNumber step={0.05} value={props.value} onChange={( v ) => {
+const MIDIFader: React.FC<{
+	id: number; value: number; controller: MIDIMIXController; label?: string; isMaster?: boolean;
+}> = ( { id, value, controller, label, isMaster } ) => {
 
-		props.controller.emulateControl( 176, props.id, Math.min( 1.0, Math.max( 0.0, v ) ) );
+	const trackRef = useRef<HTMLDivElement>( null );
 
-	}}/>;
+	const handleChange = useCallback( ( v: number ) => {
+
+		controller.emulateControl( 176, id, v );
+
+	}, [ id, controller ] );
+
+	const onPointerDown = useCallback( ( e: React.PointerEvent ) => {
+
+		e.preventDefault();
+
+		const track = trackRef.current;
+		if ( ! track ) return;
+
+		const update = ( clientY: number ) => {
+
+			const rect = track.getBoundingClientRect();
+			const usable = rect.height - HANDLE_H;
+			const rel = 1 - ( clientY - rect.top - HANDLE_H / 2 ) / usable;
+			handleChange( clamp01( rel ) );
+
+		};
+
+		update( e.clientY );
+
+		const onMove = ( ev: PointerEvent ) => update( ev.clientY );
+
+		const onUp = () => {
+
+			window.removeEventListener( 'pointermove', onMove );
+			window.removeEventListener( 'pointerup', onUp );
+
+		};
+
+		window.addEventListener( 'pointermove', onMove );
+		window.addEventListener( 'pointerup', onUp );
+
+	}, [ handleChange ] );
+
+	const onDoubleClick = useCallback( () => handleChange( 0 ), [ handleChange ] );
+
+	// ハンドル位置: value=0 → bottom:0, value=1 → bottom:100%-handleH
+	const handleBottom = `calc(${value * 100}% - ${value * HANDLE_H}px)`;
+
+	return (
+		<div className={`${style.fader} ${isMaster ? style.fader__master : ''}`}>
+			<div
+				ref={trackRef}
+				className={style.fader_track}
+				onPointerDown={onPointerDown}
+				onDoubleClick={onDoubleClick}
+				title={value.toFixed( 2 )}
+			>
+				<div className={style.fader_fill} style={{ height: `${value * 100}%` }} />
+				<div className={style.fader_handle} style={{ bottom: handleBottom }} />
+			</div>
+			<span className={style.elementLabel} style={label ? undefined : { visibility: 'hidden' }}>{label || '\u00A0'}</span>
+		</div>
+	);
 
 };
+
+/*-------------------------------
+	MIDIButton
+-------------------------------*/
+
+const MIDIButton: React.FC<{
+	id: number; value: number; controller: MIDIMIXController; label?: string;
+}> = ( { id, value, controller, label } ) => {
+
+	const active = value > 0.5;
+
+	const onClick = useCallback( () => {
+
+		controller.emulateControl( 144, id, active ? 0 : 1 );
+
+	}, [ id, active, controller ] );
+
+	return (
+		<div className={style.btn}>
+			<button
+				type="button"
+				onClick={onClick}
+				className={`${style.btn_body} ${active ? style.btn_body__on : ''}`}
+			/>
+			<span className={style.elementLabel} style={label ? undefined : { visibility: 'hidden' }}>{label || '\u00A0'}</span>
+		</div>
+	);
+
+};
+
+/*-------------------------------
+	Channel data
+-------------------------------*/
+
+const CHANNELS: { lineIndex: number; valueIds: [number, number, number, number]; btn1Id: number; btn2Id: number; btn2LabelId: number }[] = [
+	{ lineIndex: 0, valueIds: [ 16, 17, 18, 19 ], btn1Id: 1, btn2Id: 2, btn2LabelId: 3 },
+	{ lineIndex: 1, valueIds: [ 20, 21, 22, 23 ], btn1Id: 4, btn2Id: 5, btn2LabelId: 5 },
+	{ lineIndex: 2, valueIds: [ 24, 25, 26, 27 ], btn1Id: 7, btn2Id: 8, btn2LabelId: 8 },
+	{ lineIndex: 3, valueIds: [ 28, 29, 30, 31 ], btn1Id: 10, btn2Id: 11, btn2LabelId: 11 },
+	{ lineIndex: 4, valueIds: [ 46, 47, 48, 49 ], btn1Id: 13, btn2Id: 14, btn2LabelId: 14 },
+	{ lineIndex: 5, valueIds: [ 50, 51, 52, 53 ], btn1Id: 16, btn2Id: 17, btn2LabelId: 17 },
+	{ lineIndex: 6, valueIds: [ 54, 55, 56, 57 ], btn1Id: 19, btn2Id: 20, btn2LabelId: 20 },
+	{ lineIndex: 7, valueIds: [ 58, 59, 60, 61 ], btn1Id: 22, btn2Id: 23, btn2LabelId: 23 },
+];
+
+/*-------------------------------
+	MIDIMIXEmu
+-------------------------------*/
 
 export const MIDIMIXEmu: React.FC<{controller: MIDIMIXController, labels?: MIDIMIXLabels}> = ( { controller, labels } ) => {
 
-	const [ _state, setState ] = React.useState( 0 );
+	const [ _state, setState ] = useState( 0 );
+	const [ scale, setScale ] = useState( 1 );
+	const containerRef = useRef<HTMLDivElement>( null );
+
+	// コンテナサイズ監視 → object-fit: contain 的スケーリング
+	useEffect( () => {
+
+		const el = containerRef.current;
+		if ( ! el ) return;
+
+		const observer = new ResizeObserver( ( [ entry ] ) => {
+
+			const { width, height } = entry.contentRect;
+			const sx = width / NATURAL_W;
+			const sy = height / NATURAL_H;
+			setScale( Math.min( sx, sy ) );
+
+		} );
+
+		observer.observe( el );
+		return () => observer.disconnect();
+
+	}, [] );
 
 	useEffect( () => {
 
 		const onChangeValue = () => {
 
-			setState( state=>state + 1 );
+			setState( state => state + 1 );
 
 		};
 
@@ -108,79 +337,48 @@ export const MIDIMIXEmu: React.FC<{controller: MIDIMIXController, labels?: MIDIM
 
 	}, [ controller ] );
 
-	return <div className={style.container}>
-		<div className={style.row}>
-			<button className={style.resetBtn} onClick={onReset}>Reset</button>
-		</div>
-		<div className={style.row}>
-			<MIDIValue id={16} value={controller.getLine( 0 ).values.x} controller={controller}/>
-			<MIDIValue id={17} value={controller.getLine( 0 ).values.y} controller={controller}/>
-			<MIDIValue id={18} value={controller.getLine( 0 ).values.z} controller={controller}/>
-			<MIDIButton id={1} value={controller.getLine( 0 ).btn1} controller={controller} label={labels?.buttons?.[ 1 ]}/>
-			<MIDIButton id={2} value={controller.getLine( 0 ).btn2} controller={controller} label={labels?.buttons?.[ 3 ]}/>
-			<MIDIValue id={19} value={controller.getLine( 0 ).values.w} controller={controller}/>
-		</div>
-		<div className={style.row}>
-			<MIDIValue id={20} value={controller.getLine( 1 ).values.x} controller={controller}/>
-			<MIDIValue id={21} value={controller.getLine( 1 ).values.y} controller={controller}/>
-			<MIDIValue id={22} value={controller.getLine( 1 ).values.z} controller={controller}/>
-			<MIDIButton id={4} value={controller.getLine( 1 ).btn1} controller={controller} label={labels?.buttons?.[ 4 ]}/>
-			<MIDIButton id={5} value={controller.getLine( 1 ).btn2} controller={controller} label={labels?.buttons?.[ 5 ]}/>
-			<MIDIValue id={23} value={controller.getLine( 1 ).values.w} controller={controller}/>
-		</div>
-		<div className={style.row}>
-			<MIDIValue id={24} value={controller.getLine( 2 ).values.x} controller={controller}/>
-			<MIDIValue id={25} value={controller.getLine( 2 ).values.y} controller={controller}/>
-			<MIDIValue id={26} value={controller.getLine( 2 ).values.z} controller={controller}/>
-			<MIDIButton id={7} value={controller.getLine( 2 ).btn1} controller={controller} label={labels?.buttons?.[ 7 ]}/>
-			<MIDIButton id={8} value={controller.getLine( 2 ).btn2} controller={controller} label={labels?.buttons?.[ 8 ]}/>
-			<MIDIValue id={27} value={controller.getLine( 2 ).values.w} controller={controller}/>
-		</div>
-		<div className={style.row}>
-			<MIDIValue id={28} value={controller.getLine( 3 ).values.x} controller={controller}/>
-			<MIDIValue id={29} value={controller.getLine( 3 ).values.y} controller={controller}/>
-			<MIDIValue id={30} value={controller.getLine( 3 ).values.z} controller={controller}/>
-			<MIDIButton id={10} value={controller.getLine( 3 ).btn1} controller={controller} label={labels?.buttons?.[ 10 ]}/>
-			<MIDIButton id={11} value={controller.getLine( 3 ).btn2} controller={controller} label={labels?.buttons?.[ 11 ]}/>
-			<MIDIValue id={31} value={controller.getLine( 3 ).values.w} controller={controller}/>
-		</div>
-		<div className={style.row}>
-			<MIDIValue id={46} value={controller.getLine( 4 ).values.x} controller={controller}/>
-			<MIDIValue id={47} value={controller.getLine( 4 ).values.y} controller={controller}/>
-			<MIDIValue id={48} value={controller.getLine( 4 ).values.z} controller={controller}/>
-			<MIDIButton id={13} value={controller.getLine( 4 ).btn1} controller={controller} label={labels?.buttons?.[ 13 ]}/>
-			<MIDIButton id={14} value={controller.getLine( 4 ).btn2} controller={controller} label={labels?.buttons?.[ 14 ]}/>
-			<MIDIValue id={49} value={controller.getLine( 4 ).values.w} controller={controller}/>
-		</div>
-		<div className={style.row}>
-			<MIDIValue id={50} value={controller.getLine( 5 ).values.x} controller={controller}/>
-			<MIDIValue id={51} value={controller.getLine( 5 ).values.y} controller={controller}/>
-			<MIDIValue id={52} value={controller.getLine( 5 ).values.z} controller={controller}/>
-			<MIDIButton id={16} value={controller.getLine( 5 ).btn1} controller={controller} label={labels?.buttons?.[ 16 ]}/>
-			<MIDIButton id={17} value={controller.getLine( 5 ).btn2} controller={controller} label={labels?.buttons?.[ 17 ]}/>
-			<MIDIValue id={53} value={controller.getLine( 5 ).values.w} controller={controller}/>
-		</div>
-		<div className={style.row}>
-			<MIDIValue id={54} value={controller.getLine( 6 ).values.x} controller={controller}/>
-			<MIDIValue id={55} value={controller.getLine( 6 ).values.y} controller={controller}/>
-			<MIDIValue id={56} value={controller.getLine( 6 ).values.z} controller={controller}/>
-			<MIDIButton id={19} value={controller.getLine( 6 ).btn1} controller={controller} label={labels?.buttons?.[ 19 ]}/>
-			<MIDIButton id={20} value={controller.getLine( 6 ).btn2} controller={controller} label={labels?.buttons?.[ 20 ]}/>
-			<MIDIValue id={57} value={controller.getLine( 6 ).values.w} controller={controller}/>
-		</div>
-		<div className={style.row}>
-			<MIDIValue id={58} value={controller.getLine( 7 ).values.x} controller={controller}/>
-			<MIDIValue id={59} value={controller.getLine( 7 ).values.y} controller={controller}/>
-			<MIDIValue id={60} value={controller.getLine( 7 ).values.z} controller={controller}/>
-			<MIDIButton id={22} value={controller.getLine( 7 ).btn1} controller={controller} label={labels?.buttons?.[ 22 ]}/>
-			<MIDIButton id={23} value={controller.getLine( 7 ).btn2} controller={controller} label={labels?.buttons?.[ 23 ]}/>
-			<MIDIValue id={61} value={controller.getLine( 7 ).values.w} controller={controller}/>
-		</div>
-		<div className={style.row}>
-			<MIDIButton id={25} value={controller.side.btn1} controller={controller} label={labels?.buttons?.[ 25 ]}/>
-			<MIDIButton id={26} value={controller.side.btn2} controller={controller} label={labels?.buttons?.[ 26 ]}/>
-			<MIDIButton id={27} value={controller.side.btn3} controller={controller} label={labels?.buttons?.[ 27 ]}/>
-			<MIDIValue id={62} value={controller.side.master} controller={controller}/>
+	const btnLabel = ( id: number ) => labels?.buttons?.[ id ];
+	const valLabel = ( id: number ) => labels?.values?.[ id ];
+
+	return <div ref={containerRef} className={style.container}>
+		<div
+			className={style.inner}
+			style={{ width: NATURAL_W, height: NATURAL_H, transform: `scale(${scale})` }}
+		>
+			<div className={style.header}>
+				<span className={style.title}>MIDI MIX</span>
+				<button className={style.resetBtn} onClick={onReset}>RESET</button>
+			</div>
+			<div className={style.grid}>
+				{CHANNELS.map( ( ch ) => {
+
+					const line = controller.getLine( ch.lineIndex );
+
+					return <div key={ch.lineIndex} className={style.channel}>
+						<div className={style.channel_num}>{ch.lineIndex + 1}</div>
+						<div className={style.channel_knobs}>
+							<MIDIKnob id={ch.valueIds[ 0 ]} value={line.values.x} controller={controller} label={valLabel( ch.valueIds[ 0 ] )}/>
+							<MIDIKnob id={ch.valueIds[ 1 ]} value={line.values.y} controller={controller} label={valLabel( ch.valueIds[ 1 ] )}/>
+							<MIDIKnob id={ch.valueIds[ 2 ]} value={line.values.z} controller={controller} label={valLabel( ch.valueIds[ 2 ] )}/>
+						</div>
+						<div className={style.channel_buttons}>
+							<MIDIButton id={ch.btn1Id} value={line.btn1} controller={controller} label={btnLabel( ch.btn1Id )}/>
+							<MIDIButton id={ch.btn2Id} value={line.btn2} controller={controller} label={btnLabel( ch.btn2LabelId )}/>
+						</div>
+						<MIDIFader id={ch.valueIds[ 3 ]} value={line.values.w} controller={controller} label={valLabel( ch.valueIds[ 3 ] )}/>
+					</div>;
+
+				} )}
+				<div className={`${style.channel} ${style.channel__master}`}>
+					<div className={style.channel_num}>M</div>
+					<div className={style.channel_buttons}>
+						<MIDIButton id={25} value={controller.side.btn1} controller={controller} label={btnLabel( 25 )}/>
+						<MIDIButton id={26} value={controller.side.btn2} controller={controller} label={btnLabel( 26 )}/>
+						<MIDIButton id={27} value={controller.side.btn3} controller={controller} label={btnLabel( 27 )}/>
+					</div>
+					<MIDIFader id={62} value={controller.side.master} controller={controller} label={valLabel( 62 )} isMaster/>
+				</div>
+			</div>
 		</div>
 	</div>;
 

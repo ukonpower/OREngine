@@ -78,7 +78,7 @@ export const EditorPage = () => {
 				assets: [
 					<PanelContainer.Tab key="midimix" title='MIDIMIXEmu'>
 						<Panel>
-							<MIDIMIXEmu controller={midimixAdapter} labels={{ buttons: MIDIMIXMapping.getLabels() }} />
+							<MIDIMIXEmu controller={midimixAdapter} labels={MIDIMIXMapping.getLabels()} />
 						</Panel>
 					</PanelContainer.Tab>,
 					<PanelContainer.Tab key="vjdebug" title='VJDebug'>
