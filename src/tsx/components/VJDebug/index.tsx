@@ -65,9 +65,9 @@ export const VJDebug: React.FC<{ controller: VJDebugController }> = ( { controll
 	const activeVariants = controller.getActiveVariants();
 	const beatIndex = controller.getBeatIndex();
 
-	const presets = controller.getPresets();
+	const presets = controller.getPresets() ?? [];
 	const activeIdx = controller.getActivePresetIndex();
-	const activePreset = presets[ activeIdx ];
+	const activePreset = activeIdx >= 0 ? presets[ activeIdx ] : undefined;
 
 	const handleUpdateField = useCallback( ( field: Partial<VJPreset> ) => {
 

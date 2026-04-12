@@ -1,5 +1,5 @@
 import * as MXP from 'maxpower';
-import { MIDIMIXController, MIDIMIXEmu, OREditor, OREngine, Panel, PanelContainer } from "orengine/react";
+import { LayoutSplit, MIDIMIXController, MIDIMIXEmu, OREditor, OREngine, Panel, PanelContainer } from "orengine/react";
 import { OREngineProjectData } from "orengine";
 import { Engine } from "orengine/ts/Engine";
 import { useEffect, useState } from "react";
@@ -31,16 +31,16 @@ const vjDebugAdapter: VJDebugController = {
 	getVariantIds: ( name ) => VJEffectVariant.getVariantIds( name ),
 	getActiveVariants: () => VJEffectVariant.getActiveVariants(),
 	setVariant: ( name, id ) => VJEffectVariant.setVariant( name, id ),
-	getBeatIndex: () => VJManager.beatIndex,
+	getBeatIndex: () => VJManager.beatCount,
 	onChange: ( cb ) => VJEffectVariant.onChange( cb ),
 	offChange: ( cb ) => VJEffectVariant.offChange( cb ),
-	getPresets: () => VJManager.presets,
-	getActivePresetIndex: () => VJManager.activePresetIndex,
-	selectPreset: ( i ) => VJManager.selectPreset( i ),
-	addPreset: ( p ) => VJManager.addPreset( p ),
-	removePreset: ( i ) => VJManager.removePreset( i ),
-	updatePreset: ( i, p ) => VJManager.updatePreset( i, p ),
-	generateRandomPreset: ( intensity ) => VJManager.generateRandomPreset( intensity ),
+	getPresets: () => [],
+	getActivePresetIndex: () => - 1,
+	selectPreset: () => {},
+	addPreset: () => {},
+	removePreset: () => {},
+	updatePreset: () => {},
+	generateRandomPreset: () => ( { name: "Random", effectPattern: {}, intensity: 0.5 } ),
 };
 
 export const EditorPage = () => {
@@ -76,14 +76,16 @@ export const EditorPage = () => {
 		}} >
 			<OREditor editorData={editorData} projectName={projectName} customTabs={{
 				assets: [
-					<PanelContainer.Tab key="midimix" title='MIDIMIXEmu'>
+					<PanelContainer.Tab key="vjpanel" title='VJ'>
 						<Panel>
-							<MIDIMIXEmu controller={midimixAdapter} labels={MIDIMIXMapping.getLabels()} />
-						</Panel>
-					</PanelContainer.Tab>,
-					<PanelContainer.Tab key="vjdebug" title='VJDebug'>
-						<Panel>
-							<VJDebug controller={vjDebugAdapter} />
+							<LayoutSplit direction="horizontal" storageKey="vjpanel-split">
+								<LayoutSplit.Item flex={1} minSize={300}>
+									<MIDIMIXEmu controller={midimixAdapter} labels={MIDIMIXMapping.getLabels()} />
+								</LayoutSplit.Item>
+								<LayoutSplit.Item flex={1} minSize={200}>
+									<VJDebug controller={vjDebugAdapter} />
+								</LayoutSplit.Item>
+							</LayoutSplit>
 						</Panel>
 					</PanelContainer.Tab>,
 				],
