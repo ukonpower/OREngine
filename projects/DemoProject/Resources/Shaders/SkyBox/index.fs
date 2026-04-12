@@ -17,11 +17,11 @@ void main( void ) {
 
 	vec3 sPos = outPos * 0.1;
 
-	float n = noiseValue( sPos * 0.15 + uTimeE * 0.1 );
+	float n = noiseValue( sPos * 0.05 + uTimeE * 0.1 );
 
 	vec3 n2Pos = sPos;
 	n2Pos.xz *= rotate( n2Pos.y * 0.02 );
-	float n2 = noiseValue( n2Pos * 0.15 + vec3( 0.0, 0.0, uTimeE * 0.1 + n ) );
+	float n2 = noiseValue( n2Pos * 0.01 + vec3( 0.0, 0.0, uTimeE * 0.5 + n ) );
 
 	float phase = 4.5;
 
