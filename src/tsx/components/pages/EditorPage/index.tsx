@@ -1,5 +1,5 @@
 import * as MXP from 'maxpower';
-import { LayoutSplit, MIDIMIXController, MIDIMIXEmu, OREditor, OREngine, Panel, PanelContainer } from "orengine/react";
+import { LayoutSplit, OREditor, OREngine, Panel, PanelContainer } from "orengine/react";
 import { OREngineProjectData } from "orengine";
 import { Engine } from "orengine/ts/Engine";
 import { useEffect, useState } from "react";
@@ -11,7 +11,8 @@ import { MIDIMIXMapping } from "~project/Resources/Components/VJ/MIDIMIXMapping"
 import { VJEffectVariant } from "~project/Resources/Components/VJ/VJEffectVariant";
 import { VJManager } from "~project/Resources/Components/VJ/VJManager";
 
-import { VJDebug, VJDebugController } from '../../VJDebug';
+import { MIDIMIXController, MIDIMIXEmu } from '~project/tsx/MIDIMIXEmu';
+import { VJDebug, VJDebugController } from '~project/tsx/VJDebug';
 
 
 initResouces();

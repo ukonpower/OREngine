@@ -45,7 +45,7 @@ export * from "./tsx/components/Panels/Timeline";
 export * from "./tsx/components/Panels/ProjectControl";
 export * from "./tsx/components/Panels/GPUTimer";
 export * from "./tsx/components/Panels/AudioView";
-export * from "./tsx/components/Panels/MIDIMIXEmu";
+
 
 // Hooks
 export * from "./tsx/hooks/useLayout";
