@@ -5,6 +5,7 @@ import { useOREditor } from '../../../../hooks/useOREditor';
 import { useSerializableField } from '../../../../hooks/useSerializableProps';
 import { ArrowIcon } from '../../../Icons/ArrowIcon';
 import { CameraIcon } from '../../../Icons/CameraIcon';
+import { EyeIcon } from '../../../Icons/EyeIcon';
 import { LightIcon } from '../../../Icons/LightIcon';
 import { MeshIcon } from '../../../Icons/MeshIcon';
 import { InputGroup } from '../../../InputGroup';
@@ -25,6 +26,7 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 	const [ selectedEntityId ] = useSerializableField<string>( editor, "selectedEntityId" );
 	const selectedEntity = selectedEntityId !== undefined && engine.findEntityByUUID( selectedEntityId );
 
+	const [ entityVisible, setEntityVisible ] = useSerializableField<boolean>( props.entity, "visible" );
 	const [ childrenIdList ] = useSerializableField<string[]>( props.entity, "children" );
 
 	const childrens = ( childrenIdList || [] ).map( id => engine.findEntityByUUID( id ) ).filter( e => e !== undefined ) as MXP.Entity[];
@@ -70,6 +72,20 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 		editor.selectEntity( props.entity );
 
 	}, [ editor, props.entity ] );
+
+	// toggle visibility
+
+	const onClickVisibility = useCallback( ( e: MouseEvent ) => {
+
+		e.stopPropagation();
+
+		if ( setEntityVisible ) {
+
+			setEntityVisible( ! entityVisible );
+
+		}
+
+	}, [ entityVisible, setEntityVisible ] );
 
        // right click node
 
@@ -126,6 +142,7 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 			<div className={style.self_name}>
 				<p>{props.entity.name || "-"}</p>
 			</div>
+			<button className={style.visibility} onClick={onClickVisibility} data-visible={entityVisible !== false}><EyeIcon size={14} visible={entityVisible !== false} /></button>
 			{! noEditable && <button className={style.menu} onClick={onRightClickNode}>⋯</button>}
 		</div>
 		{hasChild && <div className={style.child} data-open={open} >
