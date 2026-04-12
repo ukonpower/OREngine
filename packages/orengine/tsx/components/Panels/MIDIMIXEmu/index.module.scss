@@ -140,6 +140,40 @@
 
 }
 
+/* ---- Tooltip mixin ---- */
+
+@mixin tooltip {
+
+	&::after {
+
+		content: attr(data-tooltip);
+		position: absolute;
+		bottom: calc(100% + 4px);
+		left: 50%;
+		transform: translateX(-50%);
+		padding: 2px 6px;
+		font-size: 10px;
+		font-weight: bold;
+		color: #fff;
+		background: rgba(0, 0, 0, 0.85);
+		border: 1px solid #555;
+		border-radius: 3px;
+		white-space: nowrap;
+		pointer-events: none;
+		opacity: 0;
+		transition: opacity 0.15s;
+		z-index: 10;
+
+	}
+
+	&:hover::after {
+
+		opacity: 1;
+
+	}
+
+}
+
 /* ---- Element Label ---- */
 
 .elementLabel {
@@ -171,6 +205,7 @@
 		cursor: ns-resize;
 		touch-action: none;
 		position: relative;
+		@include tooltip;
 
 	}
 
@@ -228,6 +263,15 @@
 	gap: 4px;
 	flex: 1;
 	min-height: 0;
+	position: relative;
+	@include tooltip;
+
+	&::after {
+
+		bottom: auto;
+		top: calc(100% + 4px);
+
+	}
 
 	&__master {
 
@@ -321,6 +365,7 @@
 		padding: 0;
 		position: relative;
 		transition: all 0.1s;
+		@include tooltip;
 
 		&:hover {
 

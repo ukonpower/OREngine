@@ -115,7 +115,7 @@ const MIDIKnob: React.FC<{
 				className={style.knob_body}
 				onPointerDown={onPointerDown}
 				onDoubleClick={onDoubleClick}
-				title={value.toFixed( 2 )}
+				data-tooltip={`CC:${id}`}
 			>
 				<svg className={style.knob_svg} viewBox="0 0 40 40">
 					<path
@@ -196,13 +196,12 @@ const MIDIFader: React.FC<{
 	const handleBottom = `calc(${value * 100}% - ${value * HANDLE_H}px)`;
 
 	return (
-		<div className={`${style.fader} ${isMaster ? style.fader__master : ''}`}>
+		<div className={`${style.fader} ${isMaster ? style.fader__master : ''}`} data-tooltip={`CC:${id}`}>
 			<div
 				ref={trackRef}
 				className={style.fader_track}
 				onPointerDown={onPointerDown}
 				onDoubleClick={onDoubleClick}
-				title={value.toFixed( 2 )}
 			>
 				<div className={style.fader_fill} style={{ height: `${value * 100}%` }} />
 				<div className={style.fader_handle} style={{ bottom: handleBottom }} />
@@ -235,6 +234,7 @@ const MIDIButton: React.FC<{
 				type="button"
 				onClick={onClick}
 				className={`${style.btn_body} ${active ? style.btn_body__on : ''}`}
+				data-tooltip={`Note:${id}`}
 			/>
 			<span className={style.elementLabel} style={label ? undefined : { visibility: 'hidden' }}>{label || '\u00A0'}</span>
 		</div>
