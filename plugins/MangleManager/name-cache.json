@@ -223,7 +223,9 @@
       "$blackoutWriter": "ri",
       "$readFader": "si",
       "$MochiSkyBoxFrag": "oi",
-      "$sceneObjects": "ai"
+      "$sceneObjects": "ai",
+      "$generateIcosphereSurface": "hi",
+      "$IFSCubeFrag": "li"
     }
   },
   "props": {
@@ -1431,7 +1433,11 @@
       "$Mochi": "rS",
       "$MochiSkyBox": "sS",
       "$alwaysVisible": "oS",
-      "$phases": "aS"
+      "$phases": "aS",
+      "$numVerts": "hS",
+      "$shapeBlend": "lS",
+      "$Fractal": "cS",
+      "$IFSCube": "uS"
     }
   }
 }
