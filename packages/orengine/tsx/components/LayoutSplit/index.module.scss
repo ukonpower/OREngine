@@ -7,25 +7,43 @@
 
 	&[data-direction="vertical"] {
 		flex-direction: column;
-
-		> .item + .item {
-			border-top: 1px solid $bgCol0;
-		}
 	}
 
 	&[data-direction="horizontal"] {
-
-		> .item + .item {
-			border-left: 1px solid $bgCol0;
-		}
+		flex-direction: row;
 	}
 }
 
 .item {
 	min-width: 0;
 	min-height: 0;
+	position: relative;
+	overflow: hidden;
 
 	&_inner {
 		padding: $padding;
+	}
+}
+
+.splitter {
+	flex-shrink: 0;
+	background: $bgCol0;
+	user-select: none;
+	transition: background-color 0.1s ease;
+
+	&:hover {
+		background-color: $bgCol3;
+	}
+
+	&.dragging {
+		background-color: $bgCol4;
+	}
+
+	&.horizontal {
+		cursor: col-resize;
+	}
+
+	&.vertical {
+		cursor: row-resize;
 	}
 }
