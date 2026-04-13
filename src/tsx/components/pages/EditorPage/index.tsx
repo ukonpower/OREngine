@@ -10,6 +10,7 @@ import { MIDIMIX } from "~project/Resources/Components/VJ/MIDIMIX";
 import { MIDIMIXMapping } from "~project/Resources/Components/VJ/MIDIMIXMapping";
 import { VJEffectVariant } from "~project/Resources/Components/VJ/VJEffectVariant";
 import { VJManager } from "~project/Resources/Components/VJ/VJManager";
+import { VJMatrix } from "~project/Resources/Components/VJ/VJMatrix";
 
 import { MIDIMIXController, MIDIMIXEmu } from '~project/tsx/MIDIMIXEmu';
 import { VJDebug, VJDebugController } from '~project/tsx/VJDebug';
@@ -33,15 +34,20 @@ const vjDebugAdapter: VJDebugController = {
 	getActiveVariants: () => VJEffectVariant.getActiveVariants(),
 	setVariant: ( name, id ) => VJEffectVariant.setVariant( name, id ),
 	getBeatIndex: () => VJManager.beatCount,
-	onChange: ( cb ) => VJEffectVariant.onChange( cb ),
-	offChange: ( cb ) => VJEffectVariant.offChange( cb ),
-	getPresets: () => [],
-	getActivePresetIndex: () => - 1,
-	selectPreset: () => {},
-	addPreset: () => {},
-	removePreset: () => {},
-	updatePreset: () => {},
-	generateRandomPreset: () => ( { name: "Random", effectPattern: {}, intensity: 0.5 } ),
+	onChange: ( cb ) => {
+
+		VJEffectVariant.onChange( cb );
+		VJMatrix.onChange( cb );
+
+	},
+	offChange: ( cb ) => {
+
+		VJEffectVariant.offChange( cb );
+		VJMatrix.offChange( cb );
+
+	},
+	getPattern: () => VJMatrix.getPattern(),
+	setCell: ( name, beat, id ) => VJMatrix.setCell( name, beat, id ),
 };
 
 export const EditorPage = () => {
