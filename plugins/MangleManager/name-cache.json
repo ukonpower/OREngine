@@ -226,7 +226,8 @@
       "$sceneObjects": "ai",
       "$generateIcosphereSurface": "hi",
       "$IFSCubeFrag": "li",
-      "$OBJECT_BUTTONS": "ui"
+      "$OBJECT_BUTTONS": "ui",
+      "$EFFECT_TOGGLE_BUTTONS": "ci"
     }
   },
   "props": {
@@ -1454,7 +1455,11 @@
       "$VJMatrix": "PM",
       "$visible/Typograph": "wM",
       "$visible/Softbody": "MM",
-      "$visible/CT": "SM"
+      "$visible/CT": "SM",
+      "$visible/FeatureRect": "CM",
+      "$randomize": "TM",
+      "$slow": "bM",
+      "$fast": "_M"
     }
   }
 }
