@@ -66,6 +66,15 @@ export default defineConfig( {
 		},
 	},
 	css: {
+		modules: {
+			generateScopedName( name, filename, css ) {
+
+				const dir = path.basename( path.dirname( filename ) );
+				const hash = Buffer.from( css ).toString( 'base64' ).slice( 0, 5 );
+				return `${dir}__${name}___${hash}`;
+
+			},
+		},
 		preprocessorOptions: {
 			scss: {
 				api: "modern-compiler",
