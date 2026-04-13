@@ -225,7 +225,8 @@
       "$MochiSkyBoxFrag": "oi",
       "$sceneObjects": "ai",
       "$generateIcosphereSurface": "hi",
-      "$IFSCubeFrag": "li"
+      "$IFSCubeFrag": "li",
+      "$OBJECT_BUTTONS": "ui"
     }
   },
   "props": {
@@ -1442,7 +1443,18 @@
       "$Common": "lM",
       "$CommonObjects": "cM",
       "$Typography": "uM",
-      "$Typograph": "fM"
+      "$Typograph": "fM",
+      "$pendingVisible": "vM",
+      "$hasPending": "mM",
+      "$requestToggle": "dM",
+      "$getPendingVisible": "pM",
+      "$getObjectLabels": "xM",
+      "$getPattern": "yM",
+      "$setCell": "gM",
+      "$VJMatrix": "PM",
+      "$visible/Typograph": "wM",
+      "$visible/Softbody": "MM",
+      "$visible/CT": "SM"
     }
   }
 }
