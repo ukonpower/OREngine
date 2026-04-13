@@ -14,6 +14,7 @@ type LayoutSplitItemProps = {
 
 type InternalItemProps = LayoutSplitItemProps & {
 	_ratio?: number | null;
+	_totalSplitterSize?: number;
 };
 
 const Item = ( props: InternalItemProps ) => {
@@ -23,7 +24,8 @@ const Item = ( props: InternalItemProps ) => {
 
 	if ( typeof ratio === "number" ) {
 
-		itemStyle.flex = `0 0 ${ ratio * 100 }%`;
+		const splitterOffset = props._totalSplitterSize ?? 0;
+		itemStyle.flex = `0 0 calc( ${ ratio * 100 }% - ${ splitterOffset * ratio }px )`;
 
 	} else if ( props.size !== undefined ) {
 
@@ -34,13 +36,6 @@ const Item = ( props: InternalItemProps ) => {
 	} else {
 
 		itemStyle.flex = props.flex ?? 1;
-
-	}
-
-	if ( props.minSize !== undefined ) {
-
-		itemStyle.minWidth = `${ props.minSize }px`;
-		itemStyle.minHeight = `${ props.minSize }px`;
 
 	}
 
@@ -231,14 +226,17 @@ export const LayoutSplit = ( props: LayoutSplitProps ) => {
 
 			setDraggingIndex( null );
 
-			// px → 比率に変換して保存
-			const containerSize = direction === "horizontal"
-				? container.clientWidth
-				: container.clientHeight;
+			// px → 比率に変換して保存（合計が1.0になるよう正規化）
+			const updatedPx = [ ...pixelSizes ];
+			updatedPx[ splitterIndex ] = pendingLeft;
+			updatedPx[ splitterIndex + 1 ] = pendingRight;
 
-			const finalized = [ ...overrideRatiosRef.current ];
-			finalized[ splitterIndex ] = containerSize > 0 ? pendingLeft / containerSize : null;
-			finalized[ splitterIndex + 1 ] = containerSize > 0 ? pendingRight / containerSize : null;
+			const totalPx = updatedPx.reduce( ( sum, v ) => sum + v, 0 );
+
+			const finalized = overrideRatiosRef.current.map( ( _, i ) =>
+				totalPx > 0 ? updatedPx[ i ] / totalPx : null
+			);
+
 			overrideRatiosRef.current = finalized;
 			setOverrideRatios( finalized );
 
@@ -292,7 +290,7 @@ export const LayoutSplit = ( props: LayoutSplitProps ) => {
 
 				return (
 					<React.Fragment key={index}>
-						<Item {...item.props} _ratio={ratio} />
+						<Item {...item.props} _ratio={ratio} _totalSplitterSize={( items.length - 1 ) * splitterSize} />
 						{ ! isLast && (
 							<div
 								className={splitterClassName}
