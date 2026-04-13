@@ -1437,7 +1437,12 @@
       "$numVerts": "hS",
       "$shapeBlend": "lS",
       "$Fractal": "cS",
-      "$IFSCube": "uS"
+      "$IFSCube": "uS",
+      "$setBeatInterval": "hM",
+      "$Common": "lM",
+      "$CommonObjects": "cM",
+      "$Typography": "uM",
+      "$Typograph": "fM"
     }
   }
 }

@@ -77,7 +77,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 							<LayoutSplit.Item size="300px" minSize={200}>
 								<LayoutSplit direction="vertical" storageKey="orengine-editor-pc-left">
 									<LayoutSplit.Item flex={1} minSize={150}>
-										<PanelContainer>
+										<PanelContainer storageKey="orengine-panel-scene">
 											<PanelContainer.Tab title='Scene'>
 												<Panel>
 													<Hierarchy />
@@ -87,7 +87,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 										</PanelContainer>
 									</LayoutSplit.Item>
 									<LayoutSplit.Item size="20vh" minSize={100}>
-										<PanelContainer>
+										<PanelContainer storageKey="orengine-panel-timer">
 											<PanelContainer.Tab title='Timer'>
 												<Panel noPadding>
 													<Timer />
@@ -104,7 +104,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 										<Screen />
 									</LayoutSplit.Item>
 									<LayoutSplit.Item size="200px" minSize={120}>
-										<PanelContainer>
+										<PanelContainer storageKey="orengine-panel-assets">
 											<PanelContainer.Tab title='Assets'>
 												<Panel noPadding>
 													<AssetViewer />
@@ -118,7 +118,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 							<LayoutSplit.Item size="300px" minSize={200}>
 								<LayoutSplit direction="vertical" storageKey={selectedAsset ? "orengine-editor-pc-right-asset" : "orengine-editor-pc-right"}>
 									<LayoutSplit.Item flex={1} minSize={200}>
-										<PanelContainer>
+										<PanelContainer storageKey="orengine-panel-property">
 											<PanelContainer.Tab title='Property'>
 												<Panel>
 													<EntityProperty />
@@ -138,7 +138,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 										</PanelContainer>
 									</LayoutSplit.Item>
 									{selectedAsset && <LayoutSplit.Item size="35%" minSize={150}>
-										<PanelContainer>
+										<PanelContainer storageKey="orengine-panel-asset">
 											<PanelContainer.Tab title='Asset'>
 												<Panel>
 													<AssetProperty />
@@ -151,7 +151,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 						</LayoutSplit>
 					</LayoutSplit.Item>
 					<LayoutSplit.Item size="160px" minSize={80}>
-						<PanelContainer>
+						<PanelContainer storageKey="orengine-panel-timeline">
 							<PanelContainer.Tab title='Timeline'>
 								<Panel noPadding>
 									<Timeline />
@@ -174,7 +174,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 						<Screen />
 					</LayoutSplit.Item>
 					<LayoutSplit.Item flex={1} minSize={200}>
-						<PanelContainer>
+						<PanelContainer storageKey="orengine-panel-sp-main">
 							<PanelContainer.Tab title='Scene / Property'>
 								<LayoutSplit direction="horizontal" storageKey="orengine-editor-sp-sceneProp">
 									<LayoutSplit.Item flex={1} minSize={120} overflow padding>
@@ -208,7 +208,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 						</PanelContainer>
 					</LayoutSplit.Item>
 					<LayoutSplit.Item size="120px" minSize={80}>
-						<PanelContainer>
+						<PanelContainer storageKey="orengine-panel-sp-timeline">
 							<PanelContainer.Tab title='Timeline'>
 								<Panel noPadding>
 									<ErrorBoundary fallback={<div>エラーだよ</div>}>
