@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "init": "git submodule init && git submodule update && npm install",
-    "predev": "lsof -ti:${ORENGINE_SERVER_PORT:-3001} | xargs kill -9 2>/dev/null; true",
+    "predev": "node -e \"try{require('child_process').execSync('lsof -ti:'+(process.env.ORENGINE_SERVER_PORT||3001)+' | xargs kill -9',{stdio:'ignore'})}catch(e){}\"",
     "dev": "concurrently --kill-others-on-fail \"npm run dev:server\" \"npm run dev:vite\"",
     "dev:https": "ORENGINE_HTTPS=1 concurrently --kill-others-on-fail \"npm run dev:server\" \"npm run dev:vite\"",
     "dev:server": "tsx watch server/index.ts 2>&1 | tee /tmp/orengine-server.log",
