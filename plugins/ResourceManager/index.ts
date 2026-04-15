@@ -4,9 +4,38 @@ import * as path from 'path';
 import * as chokidar from 'chokidar';
 import { Plugin } from 'vite';
 
+const writeEmptyExport = ( outFile: string, exportName: string, format: 'object' | 'array', arrayType?: string ) => {
+
+	const outDir = path.dirname( outFile );
+
+	if ( ! fs.existsSync( outDir ) ) {
+
+		fs.mkdirSync( outDir, { recursive: true } );
+
+	}
+
+	const file = format === 'object'
+		? `// @ts-nocheck\n\nexport const ${exportName}: {[key: string]: any} = {\n};\n`
+		: `// @ts-nocheck\n\nexport const ${exportName}: ${arrayType}[] = [\n];\n`;
+
+	const existing = fs.existsSync( outFile ) ? fs.readFileSync( outFile, 'utf-8' ) : '';
+
+	if ( existing !== file ) {
+
+		fs.writeFileSync( outFile, file );
+
+	}
+
+};
+
 const updateComponentListForDir = ( compDir: string, outFile: string, exportName: string ) => {
 
-	if ( ! fs.existsSync( compDir ) ) return;
+	if ( ! fs.existsSync( compDir ) ) {
+
+		writeEmptyExport( outFile, exportName, 'object' );
+		return;
+
+	}
 
 	const outDir = path.dirname( outFile );
 
@@ -201,7 +230,12 @@ const updateComponentListForDir = ( compDir: string, outFile: string, exportName
 
 const updateMaterialListForDir = ( matDir: string, shadersDir: string, outFile: string, exportName: string ) => {
 
-	if ( ! fs.existsSync( matDir ) ) return;
+	if ( ! fs.existsSync( matDir ) ) {
+
+		writeEmptyExport( outFile, exportName, 'object' );
+		return;
+
+	}
 
 	const outDir = path.dirname( outFile );
 
@@ -292,7 +326,12 @@ const updateMaterialListForDir = ( matDir: string, shadersDir: string, outFile: 
 
 const updateShaderListForDir = ( shadersDir: string, outFile: string, exportName: string ) => {
 
-	if ( ! fs.existsSync( shadersDir ) ) return;
+	if ( ! fs.existsSync( shadersDir ) ) {
+
+		writeEmptyExport( outFile, exportName, 'array', '{name: string, source: string}' );
+		return;
+
+	}
 
 	const outDir = path.dirname( outFile );
 
@@ -367,7 +406,12 @@ const updateShaderListForDir = ( shadersDir: string, outFile: string, exportName
 
 const updateTextureListForDir = ( texDir: string, shadersDir: string, outFile: string, exportName: string ) => {
 
-	if ( ! fs.existsSync( texDir ) ) return;
+	if ( ! fs.existsSync( texDir ) ) {
+
+		writeEmptyExport( outFile, exportName, 'array', '{name: string, frag?: string, resolution: number[], filter?: string, updateEveryFrame?: boolean}' );
+		return;
+
+	}
 
 	const outDir = path.dirname( outFile );
 
