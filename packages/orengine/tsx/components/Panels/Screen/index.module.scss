@@ -111,12 +111,20 @@
 	flex: 1;
 }
 
-.audioView {
-	height: 100px;
+.audioViewHandle {
+	height: 6px;
+	cursor: ns-resize;
+	background-color: $bgCol1;
+	flex-shrink: 0;
+	position: relative;
 
-	@include sp {
-		height: 50px;
+	&:hover, &:active {
+		background-color: $bgCol2;
 	}
+}
+
+.audioView {
+	flex-shrink: 0;
 }
 
 .displayOptions {

@@ -12,6 +12,7 @@
     "dev:vite": "vite",
     "build": "vite build --config vite-player.config.ts && node compeko.js ./dist/default/index.js ./dist/default/index.html",
     "build:project": "vite build --config vite-player.config.ts",
+    "build:static": "vite build --config vite-static.config.ts",
     "build:dev": "NODE_ENV=development SKIP_SHADER_MINIFIER=true vite build --mode production",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "typecheck": "tsc --noEmit",

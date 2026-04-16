@@ -39,6 +39,9 @@ export const Screen = () => {
 
 	}, [ editor ] );
 
+	const [ audioViewHeight, setAudioViewHeight ] = useState( 100 );
+	const audioViewDragRef = useRef<{ startY: number; startHeight: number } | null>( null );
+
 	const [ overlayOpen, setOverlayOpen ] = useState( false );
 	const overlayRef = useRef<HTMLDivElement>( null );
 
@@ -202,7 +205,31 @@ export const Screen = () => {
 			<div className={style.canvas}>
 				<Canvas />
 			</div>
-			<div className={style.audioView}>
+			<div
+				className={style.audioViewHandle}
+				onPointerDown={( e ) => {
+
+					e.preventDefault();
+					e.currentTarget.setPointerCapture( e.pointerId );
+					audioViewDragRef.current = { startY: e.clientY, startHeight: audioViewHeight };
+
+				}}
+				onPointerMove={( e ) => {
+
+					if ( ! audioViewDragRef.current ) return;
+
+					const delta = audioViewDragRef.current.startY - e.clientY;
+					const newHeight = Math.max( 30, Math.min( 400, audioViewDragRef.current.startHeight + delta ) );
+					setAudioViewHeight( newHeight );
+
+				}}
+				onPointerUp={() => {
+
+					audioViewDragRef.current = null;
+
+				}}
+			/>
+			<div className={style.audioView} style={{ height: audioViewHeight }}>
 				<AudioView />
 			</div>
 		</div>
