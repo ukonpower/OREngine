@@ -227,7 +227,9 @@
       "$generateIcosphereSurface": "hi",
       "$IFSCubeFrag": "li",
       "$OBJECT_BUTTONS": "ui",
-      "$EFFECT_TOGGLE_BUTTONS": "ci"
+      "$EFFECT_TOGGLE_BUTTONS": "ci",
+      "$CAMERA_CYCLE_BUTTON_event": "fi",
+      "$momentaryNoteIds": "vi"
     }
   },
   "props": {
@@ -1459,7 +1461,12 @@
       "$visible/FeatureRect": "CM",
       "$randomize": "TM",
       "$slow": "bM",
-      "$fast": "_M"
+      "$fast": "_M",
+      "$VJSkyBox": "VM",
+      "$setMomentary": "DM",
+      "$repulsionStrength": "IM",
+      "$coarse": "BM",
+      "$fine": "zM"
     }
   }
 }
