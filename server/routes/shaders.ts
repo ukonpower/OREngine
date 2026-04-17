@@ -1,11 +1,9 @@
+import express from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
 
-import express from 'express';
+import { ProjectManager } from '../Project';
 
-import { projectManager } from '../Project';
-
-export const shadersRouter = express.Router();
 
 function validateName( name: string ): boolean {
 
@@ -79,194 +77,170 @@ function getTemplates( template?: string ): { vert: string; frag: string } {
 
 }
 
-// GET: シェーダー一覧
-shadersRouter.get( '/projects/:project/shaders', ( req, res ) => {
+export const createShadersRouter = ( pm: ProjectManager ) => {
 
-	try {
+	const router = express.Router();
 
-		const resourcesDir = projectManager.getResourcesDir( req.params.project );
+	// GET: シェーダー一覧
+	router.get( '/projects/:project/shaders', ( _req, res ) => {
 
-		if ( ! resourcesDir ) {
+		try {
 
-			res.status( 404 ).json( { error: 'Project not found' } );
-			return;
+			const resourcesDir = pm.getResourcesDir();
+			const shadersDir = path.join( resourcesDir, 'Shaders' );
 
-		}
+			if ( ! fs.existsSync( shadersDir ) ) {
 
-		const shadersDir = path.join( resourcesDir, 'Shaders' );
-
-		if ( ! fs.existsSync( shadersDir ) ) {
-
-			res.json( [] );
-			return;
-
-		}
-
-		const entries = fs.readdirSync( shadersDir, { withFileTypes: true } );
-		const items: { name: string, hasVert: boolean, hasFrag: boolean }[] = [];
-
-		entries.forEach( entry => {
-
-			if ( ! entry.isDirectory() || entry.name.startsWith( '_' ) ) return;
-
-			const shaderDir = path.join( shadersDir, entry.name );
-			const hasVert = fs.existsSync( path.join( shaderDir, 'index.vs' ) );
-			const hasFrag = fs.existsSync( path.join( shaderDir, 'index.fs' ) );
-
-			if ( hasVert || hasFrag ) {
-
-				items.push( { name: entry.name, hasVert, hasFrag } );
+				res.json( [] );
+				return;
 
 			}
 
-		} );
+			const entries = fs.readdirSync( shadersDir, { withFileTypes: true } );
+			const items: { name: string, hasVert: boolean, hasFrag: boolean }[] = [];
 
-		res.json( items );
+			entries.forEach( entry => {
 
-	} catch ( err ) {
+				if ( ! entry.isDirectory() || entry.name.startsWith( '_' ) ) return;
 
-		console.error( 'Failed to list shaders:', err );
-		res.status( 500 ).json( { error: 'Failed to list shaders' } );
+				const shaderDir = path.join( shadersDir, entry.name );
+				const hasVert = fs.existsSync( path.join( shaderDir, 'index.vs' ) );
+				const hasFrag = fs.existsSync( path.join( shaderDir, 'index.fs' ) );
 
-	}
+				if ( hasVert || hasFrag ) {
 
-} );
+					items.push( { name: entry.name, hasVert, hasFrag } );
 
-// POST: シェーダー作成
-shadersRouter.post( '/projects/:project/shaders', ( req, res ) => {
+				}
 
-	try {
+			} );
 
-		const resourcesDir = projectManager.getResourcesDir( req.params.project );
+			res.json( items );
 
-		if ( ! resourcesDir ) {
+		} catch ( err ) {
 
-			res.status( 404 ).json( { error: 'Project not found' } );
-			return;
-
-		}
-
-		const shadersDir = path.join( resourcesDir, 'Shaders' );
-		const { name, template } = req.body;
-
-		if ( ! name || ! validateName( name ) ) {
-
-			res.status( 400 ).json( { error: 'Invalid shader name' } );
-			return;
+			console.error( 'Failed to list shaders:', err );
+			res.status( 500 ).json( { error: 'Failed to list shaders' } );
 
 		}
 
-		const shaderDir = path.join( shadersDir, name );
+	} );
 
-		if ( fs.existsSync( shaderDir ) ) {
+	// POST: シェーダー作成
+	router.post( '/projects/:project/shaders', ( req, res ) => {
 
-			res.status( 409 ).json( { error: 'Shader already exists' } );
-			return;
+		try {
 
-		}
+			const resourcesDir = pm.getResourcesDir();
+			const shadersDir = path.join( resourcesDir, 'Shaders' );
+			const { name, template } = req.body;
 
-		const templates = getTemplates( template );
+			if ( ! name || ! validateName( name ) ) {
 
-		fs.mkdirSync( shaderDir, { recursive: true } );
-		fs.writeFileSync( path.join( shaderDir, 'index.vs' ), templates.vert );
-		fs.writeFileSync( path.join( shaderDir, 'index.fs' ), templates.frag );
+				res.status( 400 ).json( { error: 'Invalid shader name' } );
+				return;
 
-		res.status( 201 ).json( { name, hasVert: true, hasFrag: true } );
+			}
 
-	} catch ( err ) {
+			const shaderDir = path.join( shadersDir, name );
 
-		console.error( 'Failed to create shader:', err );
-		res.status( 500 ).json( { error: 'Failed to create shader' } );
+			if ( fs.existsSync( shaderDir ) ) {
 
-	}
+				res.status( 409 ).json( { error: 'Shader already exists' } );
+				return;
 
-} );
+			}
 
-// DELETE: シェーダー削除
-shadersRouter.delete( '/projects/:project/shaders/:name', ( req, res ) => {
+			const templates = getTemplates( template );
 
-	try {
+			fs.mkdirSync( shaderDir, { recursive: true } );
+			fs.writeFileSync( path.join( shaderDir, 'index.vs' ), templates.vert );
+			fs.writeFileSync( path.join( shaderDir, 'index.fs' ), templates.frag );
 
-		const resourcesDir = projectManager.getResourcesDir( req.params.project );
+			res.status( 201 ).json( { name, hasVert: true, hasFrag: true } );
 
-		if ( ! resourcesDir ) {
+		} catch ( err ) {
 
-			res.status( 404 ).json( { error: 'Project not found' } );
-			return;
-
-		}
-
-		const shadersDir = path.join( resourcesDir, 'Shaders' );
-		const name = req.params.name;
-
-		if ( ! validateName( name ) ) {
-
-			res.status( 400 ).json( { error: 'Invalid name' } );
-			return;
+			console.error( 'Failed to create shader:', err );
+			res.status( 500 ).json( { error: 'Failed to create shader' } );
 
 		}
 
-		const shaderDir = path.join( shadersDir, name );
+	} );
 
-		if ( ! fs.existsSync( shaderDir ) ) {
+	// DELETE: シェーダー削除
+	router.delete( '/projects/:project/shaders/:name', ( req, res ) => {
 
-			res.status( 404 ).json( { error: 'Shader not found' } );
-			return;
+		try {
 
-		}
+			const resourcesDir = pm.getResourcesDir();
+			const shadersDir = path.join( resourcesDir, 'Shaders' );
+			const name = req.params.name;
 
-		fs.rmSync( shaderDir, { recursive: true } );
-		res.json( { deleted: true } );
+			if ( ! validateName( name ) ) {
 
-	} catch ( err ) {
+				res.status( 400 ).json( { error: 'Invalid name' } );
+				return;
 
-		console.error( 'Failed to delete shader:', err );
-		res.status( 500 ).json( { error: 'Failed to delete shader' } );
+			}
 
-	}
+			const shaderDir = path.join( shadersDir, name );
 
-} );
+			if ( ! fs.existsSync( shaderDir ) ) {
 
-// GET: シェーダーディレクトリの絶対パス
-shadersRouter.get( '/projects/:project/shaders/:name/filepath', ( req, res ) => {
+				res.status( 404 ).json( { error: 'Shader not found' } );
+				return;
 
-	try {
+			}
 
-		const resourcesDir = projectManager.getResourcesDir( req.params.project );
+			fs.rmSync( shaderDir, { recursive: true } );
+			res.json( { deleted: true } );
 
-		if ( ! resourcesDir ) {
+		} catch ( err ) {
 
-			res.status( 404 ).json( { error: 'Project not found' } );
-			return;
-
-		}
-
-		const shadersDir = path.join( resourcesDir, 'Shaders' );
-		const name = req.params.name;
-
-		if ( ! validateName( name ) ) {
-
-			res.status( 400 ).json( { error: 'Invalid name' } );
-			return;
+			console.error( 'Failed to delete shader:', err );
+			res.status( 500 ).json( { error: 'Failed to delete shader' } );
 
 		}
 
-		const shaderDir = path.join( shadersDir, name );
+	} );
 
-		if ( ! fs.existsSync( shaderDir ) ) {
+	// GET: シェーダーディレクトリの絶対パス
+	router.get( '/projects/:project/shaders/:name/filepath', ( req, res ) => {
 
-			res.status( 404 ).json( { error: 'Shader not found' } );
-			return;
+		try {
+
+			const resourcesDir = pm.getResourcesDir();
+			const shadersDir = path.join( resourcesDir, 'Shaders' );
+			const name = req.params.name;
+
+			if ( ! validateName( name ) ) {
+
+				res.status( 400 ).json( { error: 'Invalid name' } );
+				return;
+
+			}
+
+			const shaderDir = path.join( shadersDir, name );
+
+			if ( ! fs.existsSync( shaderDir ) ) {
+
+				res.status( 404 ).json( { error: 'Shader not found' } );
+				return;
+
+			}
+
+			res.json( { absolutePath: shaderDir } );
+
+		} catch ( err ) {
+
+			console.error( 'Failed to get shader path:', err );
+			res.status( 500 ).json( { error: 'Failed to get shader path' } );
 
 		}
 
-		res.json( { absolutePath: shaderDir } );
+	} );
 
-	} catch ( err ) {
+	return router;
 
-		console.error( 'Failed to get shader path:', err );
-		res.status( 500 ).json( { error: 'Failed to get shader path' } );
-
-	}
-
-} );
+};

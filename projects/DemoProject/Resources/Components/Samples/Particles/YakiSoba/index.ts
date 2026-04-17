@@ -6,7 +6,7 @@ import yakiSobaFrag from './shaders/yakiSoba.fs';
 import yakiSobaVert from './shaders/yakiSoba.vs';
 import yakiSobaCompute from './shaders/yakiSobaCompute.glsl';
 
-import { gl, globalUniforms } from '~/ts/Globals';
+import { gl, globalUniforms } from '~orengine/ts/Globals';
 
 export class YakiSoba extends MXP.Component {
 

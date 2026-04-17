@@ -1,31 +1,13 @@
-import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-import { componentsRouter } from './routes/components';
-import { editorRouter } from './routes/editor';
-import { materialsRouter } from './routes/materials';
-import { projectsRouter } from './routes/projects';
-import { sceneRouter } from './routes/scene';
-import { shadersRouter } from './routes/shaders';
-import { texturesRouter } from './routes/textures';
-import { initWSBridge } from './ws';
+import { startOrengineServer } from './factory';
 
-const app = express();
-const PORT = process.env.ORENGINE_SERVER_PORT || 3001;
+const __filename = fileURLToPath( import.meta.url );
+const __dirname = path.dirname( __filename );
 
-app.use( express.json( { limit: '50mb' } ) );
+const projectDir = process.env.ORENGINE_PROJECT_DIR
+	? path.resolve( process.env.ORENGINE_PROJECT_DIR )
+	: path.resolve( __dirname, '../projects/DemoProject' );
 
-app.use( '/api', projectsRouter );
-app.use( '/api', sceneRouter );
-app.use( '/api', componentsRouter );
-app.use( '/api', materialsRouter );
-app.use( '/api', shadersRouter );
-app.use( '/api', texturesRouter );
-app.use( '/api', editorRouter );
-
-const server = app.listen( PORT, () => {
-
-	console.log( `OREngine Server running on port ${PORT}` );
-
-} );
-
-initWSBridge( server );
+startOrengineServer( { projectDir } );

@@ -1,0 +1,32 @@
+{
+	"compilerOptions": {
+		"target": "ES2021",
+		"useDefineForClassFields": true,
+		"lib": [ "ES2021", "DOM", "DOM.Iterable" ],
+		"types": [ "vite/client", "node" ],
+		"module": "ESNext",
+		"skipLibCheck": true,
+		"moduleResolution": "bundler",
+		"allowImportingTsExtensions": true,
+		"resolveJsonModule": true,
+		"isolatedModules": true,
+		"noEmit": true,
+		"jsx": "react-jsx",
+		"strict": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noFallthroughCasesInSwitch": true,
+		"baseUrl": ".",
+		"paths": {
+			"glpower": [ "../../packages/glpower/packages/glpower/src" ],
+			"maxpower": [ "../../packages/maxpower" ],
+			"orengine": [ "../../packages/orengine/index.tsx" ],
+			"orengine/*": [ "../../packages/orengine/*" ],
+			"packages/*": [ "../../packages/*" ],
+			"plugins/*": [ "../../plugins/*" ],
+			"~orengine/*": [ "../../src/*" ]
+		}
+	},
+	"include": [ "**/*.ts", "**/*.tsx" ],
+	"exclude": [ "node_modules", "dist", "Resources/_data" ]
+}

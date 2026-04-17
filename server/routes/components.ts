@@ -2,9 +2,7 @@ import express from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { projectManager } from '../Project';
-
-export const componentsRouter = express.Router();
+import { ProjectManager } from '../Project';
 
 function validateSegment( segment: string ): boolean {
 
@@ -67,86 +65,74 @@ function scanComponentTree( dir: string, relativePath: string = '' ): ComponentT
 
 }
 
-// GET: コンポーネントツリー一覧
-componentsRouter.get( '/projects/:project/components', ( req, res ) => {
+export const createComponentsRouter = ( pm: ProjectManager ) => {
 
-	try {
+	const router = express.Router();
 
-		const resourcesDir = projectManager.getResourcesDir( req.params.project );
+	// GET: コンポーネントツリー一覧
+	router.get( '/projects/:project/components', ( _req, res ) => {
 
-		if ( ! resourcesDir ) {
+		try {
 
-			res.status( 404 ).json( { error: 'Project not found' } );
-			return;
+			const resourcesDir = pm.getResourcesDir();
+			const componentsDir = path.join( resourcesDir, 'Components' );
+			const tree = scanComponentTree( componentsDir );
+			res.json( tree );
 
-		}
+		} catch ( err ) {
 
-		const componentsDir = path.join( resourcesDir, 'Components' );
-		const tree = scanComponentTree( componentsDir );
-		res.json( tree );
-
-	} catch ( err ) {
-
-		console.error( 'Failed to list components:', err );
-		res.status( 500 ).json( { error: 'Failed to list components' } );
-
-	}
-
-} );
-
-// POST: コンポーネント作成
-componentsRouter.post( '/projects/:project/components', ( req, res ) => {
-
-	try {
-
-		const resourcesDir = projectManager.getResourcesDir( req.params.project );
-
-		if ( ! resourcesDir ) {
-
-			res.status( 404 ).json( { error: 'Project not found' } );
-			return;
+			console.error( 'Failed to list components:', err );
+			res.status( 500 ).json( { error: 'Failed to list components' } );
 
 		}
 
-		const componentsDir = path.join( resourcesDir, 'Components' );
-		const { dirPath, componentName } = req.body;
+	} );
 
-		if ( ! componentName || ! validateSegment( componentName ) ) {
+	// POST: コンポーネント作成
+	router.post( '/projects/:project/components', ( req, res ) => {
 
-			res.status( 400 ).json( { error: 'Invalid component name' } );
-			return;
+		try {
 
-		}
+			const resourcesDir = pm.getResourcesDir();
+			const componentsDir = path.join( resourcesDir, 'Components' );
+			const { dirPath, componentName } = req.body;
 
-		let targetDir = componentsDir;
+			if ( ! componentName || ! validateSegment( componentName ) ) {
 
-		if ( dirPath && dirPath.trim() ) {
-
-			const resolved = resolveComponentPath( componentsDir, dirPath );
-
-			if ( ! resolved ) {
-
-				res.status( 400 ).json( { error: 'Invalid directory path' } );
+				res.status( 400 ).json( { error: 'Invalid component name' } );
 				return;
 
 			}
 
-			targetDir = resolved;
+			let targetDir = componentsDir;
 
-		}
+			if ( dirPath && dirPath.trim() ) {
 
-		const componentDir = path.join( targetDir, componentName );
+				const resolved = resolveComponentPath( componentsDir, dirPath );
 
-		if ( fs.existsSync( componentDir ) ) {
+				if ( ! resolved ) {
 
-			res.status( 409 ).json( { error: 'Component already exists' } );
-			return;
+					res.status( 400 ).json( { error: 'Invalid directory path' } );
+					return;
 
-		}
+				}
 
-		fs.mkdirSync( componentDir, { recursive: true } );
+				targetDir = resolved;
 
-		const template = `import * as MXP from 'maxpower';
+			}
+
+			const componentDir = path.join( targetDir, componentName );
+
+			if ( fs.existsSync( componentDir ) ) {
+
+				res.status( 409 ).json( { error: 'Component already exists' } );
+				return;
+
+			}
+
+			fs.mkdirSync( componentDir, { recursive: true } );
+
+			const template = `import * as MXP from 'maxpower';
 
 export class ${componentName} extends MXP.Component {
 
@@ -159,125 +145,113 @@ export class ${componentName} extends MXP.Component {
 }
 `;
 
-		fs.writeFileSync( path.join( componentDir, 'index.ts' ), template );
+			fs.writeFileSync( path.join( componentDir, 'index.ts' ), template );
 
-		const relativePath = dirPath ? `${dirPath}/${componentName}` : componentName;
+			const relativePath = dirPath ? `${dirPath}/${componentName}` : componentName;
 
-		res.status( 201 ).json( {
-			componentName,
-			path: relativePath,
-		} );
+			res.status( 201 ).json( {
+				componentName,
+				path: relativePath,
+			} );
 
-	} catch ( err ) {
+		} catch ( err ) {
 
-		console.error( 'Failed to create component:', err );
-		res.status( 500 ).json( { error: 'Failed to create component' } );
-
-	}
-
-} );
-
-// DELETE: コンポーネント削除
-componentsRouter.delete( '/projects/:project/components/:componentPath(*)', ( req, res ) => {
-
-	try {
-
-		const resourcesDir = projectManager.getResourcesDir( req.params.project );
-
-		if ( ! resourcesDir ) {
-
-			res.status( 404 ).json( { error: 'Project not found' } );
-			return;
+			console.error( 'Failed to create component:', err );
+			res.status( 500 ).json( { error: 'Failed to create component' } );
 
 		}
 
-		const componentsDir = path.join( resourcesDir, 'Components' );
-		const componentPath = req.params[ "componentPath(*)" ];
-		const resolved = resolveComponentPath( componentsDir, componentPath );
+	} );
 
-		if ( ! resolved ) {
+	// DELETE: コンポーネント削除
+	router.delete( '/projects/:project/components/:componentPath(*)', ( req, res ) => {
 
-			res.status( 400 ).json( { error: 'Invalid path' } );
-			return;
+		try {
 
-		}
+			const resourcesDir = pm.getResourcesDir();
+			const componentsDir = path.join( resourcesDir, 'Components' );
+			const componentPath = req.params[ "componentPath(*)" ];
+			const resolved = resolveComponentPath( componentsDir, componentPath );
 
-		if ( ! fs.existsSync( resolved ) ) {
+			if ( ! resolved ) {
 
-			res.status( 404 ).json( { error: 'Component not found' } );
-			return;
-
-		}
-
-		fs.rmSync( resolved, { recursive: true } );
-
-		// 親ディレクトリが空なら削除
-		const parentDir = path.dirname( resolved );
-
-		if ( parentDir !== path.resolve( componentsDir ) && fs.existsSync( parentDir ) ) {
-
-			const remaining = fs.readdirSync( parentDir );
-
-			if ( remaining.length === 0 ) {
-
-				fs.rmSync( parentDir, { recursive: true } );
+				res.status( 400 ).json( { error: 'Invalid path' } );
+				return;
 
 			}
 
-		}
+			if ( ! fs.existsSync( resolved ) ) {
 
-		res.json( { deleted: true } );
+				res.status( 404 ).json( { error: 'Component not found' } );
+				return;
 
-	} catch ( err ) {
+			}
 
-		console.error( 'Failed to delete component:', err );
-		res.status( 500 ).json( { error: 'Failed to delete component' } );
+			fs.rmSync( resolved, { recursive: true } );
 
-	}
+			// 親ディレクトリが空なら削除
+			const parentDir = path.dirname( resolved );
 
-} );
+			if ( parentDir !== path.resolve( componentsDir ) && fs.existsSync( parentDir ) ) {
 
-// GET: コンポーネントファイルの絶対パス（外部エディタ用）
-componentsRouter.get( '/projects/:project/components/:componentPath(*)/filepath', ( req, res ) => {
+				const remaining = fs.readdirSync( parentDir );
 
-	try {
+				if ( remaining.length === 0 ) {
 
-		const resourcesDir = projectManager.getResourcesDir( req.params.project );
+					fs.rmSync( parentDir, { recursive: true } );
 
-		if ( ! resourcesDir ) {
+				}
 
-			res.status( 404 ).json( { error: 'Project not found' } );
-			return;
+			}
 
-		}
+			res.json( { deleted: true } );
 
-		const componentsDir = path.join( resourcesDir, 'Components' );
-		const componentPath = req.params[ "componentPath(*)" ];
-		const resolved = resolveComponentPath( componentsDir, componentPath );
+		} catch ( err ) {
 
-		if ( ! resolved ) {
-
-			res.status( 400 ).json( { error: 'Invalid path' } );
-			return;
+			console.error( 'Failed to delete component:', err );
+			res.status( 500 ).json( { error: 'Failed to delete component' } );
 
 		}
 
-		const filePath = path.join( resolved, 'index.ts' );
+	} );
 
-		if ( ! fs.existsSync( filePath ) ) {
+	// GET: コンポーネントファイルの絶対パス（外部エディタ用）
+	router.get( '/projects/:project/components/:componentPath(*)/filepath', ( req, res ) => {
 
-			res.status( 404 ).json( { error: 'File not found' } );
-			return;
+		try {
+
+			const resourcesDir = pm.getResourcesDir();
+			const componentsDir = path.join( resourcesDir, 'Components' );
+			const componentPath = req.params[ "componentPath(*)" ];
+			const resolved = resolveComponentPath( componentsDir, componentPath );
+
+			if ( ! resolved ) {
+
+				res.status( 400 ).json( { error: 'Invalid path' } );
+				return;
+
+			}
+
+			const filePath = path.join( resolved, 'index.ts' );
+
+			if ( ! fs.existsSync( filePath ) ) {
+
+				res.status( 404 ).json( { error: 'File not found' } );
+				return;
+
+			}
+
+			res.json( { absolutePath: filePath } );
+
+		} catch ( err ) {
+
+			console.error( 'Failed to get component path:', err );
+			res.status( 500 ).json( { error: 'Failed to get component path' } );
 
 		}
 
-		res.json( { absolutePath: filePath } );
+	} );
 
-	} catch ( err ) {
+	return router;
 
-		console.error( 'Failed to get component path:', err );
-		res.status( 500 ).json( { error: 'Failed to get component path' } );
-
-	}
-
-} );
+};

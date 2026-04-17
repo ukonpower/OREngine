@@ -4,7 +4,7 @@ import { Engine } from 'orengine';
 import cubeWireFrag from './shaders/cubeWire.fs';
 import cubeWireVert from './shaders/cubeWire.vs';
 
-import { gl } from '~/ts/Globals';
+import { gl } from '~orengine/ts/Globals';
 
 export class WireCube extends MXP.Component {
 

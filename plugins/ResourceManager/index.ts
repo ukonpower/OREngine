@@ -404,7 +404,7 @@ const updateShaderListForDir = ( shadersDir: string, outFile: string, exportName
 
 };
 
-const updateTextureListForDir = ( texDir: string, shadersDir: string, outFile: string, exportName: string ) => {
+const updateTextureListForDir = ( texDir: string, _shadersDir: string, outFile: string, exportName: string ) => {
 
 	if ( ! fs.existsSync( texDir ) ) {
 

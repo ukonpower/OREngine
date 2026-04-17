@@ -5,7 +5,7 @@ import { Engine } from 'orengine';
 import flFrag from './shaders/flashLine.fs';
 import flVert from './shaders/flashLine.vs';
 
-import { gl } from '~/ts/Globals';
+import { gl } from '~orengine/ts/Globals';
 
 export class FlashLine extends MXP.Component {
 

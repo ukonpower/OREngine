@@ -1,6 +1,6 @@
 import * as MXP from 'maxpower';
 
-import { globalUniforms } from '~/ts/Globals';
+import { globalUniforms } from '~orengine/ts/Globals';
 
 export class UniformControls extends MXP.Component {
 

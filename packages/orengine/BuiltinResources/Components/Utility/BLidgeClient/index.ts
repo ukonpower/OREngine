@@ -1,8 +1,7 @@
 import * as MXP from 'maxpower';
 import { Engine, OREngineDataEntityComponent } from 'orengine';
 
-import { gl } from '~/ts/Globals';
-import BLidgeSceneData from '~project/blidge-scene.json';
+import { gl } from '~orengine/ts/Globals';
 
 interface BLidgeAttachment {
 	name: string,
@@ -107,7 +106,16 @@ export class BLidgeClient extends MXP.Component {
 
 			if ( this.type == "json" ) {
 
-				await this.blidge.loadScene( BLidgeSceneData as unknown as MXP.BLidgeScene, this.useGLTF ? this.gltfPath : undefined );
+				const res = await fetch( BASE_PATH + '/blidge-scene.json' );
+				if ( ! res.ok ) {
+
+					console.warn( `BLidgeClient: failed to load /blidge-scene.json (${res.status})` );
+					return;
+
+				}
+
+				const sceneData = await res.json();
+				await this.blidge.loadScene( sceneData as MXP.BLidgeScene, this.useGLTF ? this.gltfPath : undefined );
 
 				this.emit( "loaded" );
 

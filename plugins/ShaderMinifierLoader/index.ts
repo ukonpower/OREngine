@@ -141,7 +141,7 @@ export const ShaderMinifierLoader = (): Plugin => {
 
 				}
 
-			} catch ( e ) {
+			} catch ( e: any ) {
 
 				this.error( `ShaderMinifierLoader: ${e.stdout}` );
 
