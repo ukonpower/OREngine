@@ -132,6 +132,12 @@ export const createDevConfig = ( opts: OrengineConfigOptions ): UserConfig => de
 	build: {
 		outDir: path.join( opts.projectDir, 'dist' ),
 	},
+	optimizeDeps: {
+		entries: [
+			path.join( opts.projectDir, 'index.html' ),
+			path.join( opts.projectDir, 'static.html' ),
+		],
+	},
 	resolve: sharedResolve(),
 	css: sharedCss(),
 	plugins: [
