@@ -1,152 +1,148 @@
 import * as GLP from 'glpower';
-import { Engine } from 'orengine';
-
-import SceneData from '~project/scene.json';
-import { initResouces, initResourceInstances } from '~project/index';
+import { Engine, OREngineProjectData } from 'orengine';
 import { BLidgeClient } from 'orengine/BuiltinResources/Components/Utility/BLidgeClient';
 
-import { gl } from '~/ts/Globals';
+import { gl } from '~orengine/ts/Globals';
 
-/*-------------------------------
-	Resources
--------------------------------*/
 
-initResouces();
-
-/*-------------------------------
-	HTML
--------------------------------*/
-
-const opacity0 = "opacity:0;";
-const pointerEventsNone = "pointer-events:none;";
-const positionAbsolute = "position:absolute;";
-const full = positionAbsolute + "width:100%;height:100%;";
-const fullFlexCenter = full + "display:flex;justify-content:center;align-items:center;";
-
-document.body.innerHTML = `
-	<style>
-		*{color:#fff;font-size:13px;text-align:center;}
-		body{margin:0;font-family:sans-serif;}
-		button{display:block;width:200px;margin:0 auto 10px auto;padding:10px;border:1px solid #fff;background:none;cursor:pointer;}
-		#r{${fullFlexCenter}overflow:hidden;background:#000;}
-		#cw{${pointerEventsNone}${fullFlexCenter}${opacity0}}
-		canvas{${full}object-fit:contain;}
-		#l{${pointerEventsNone}${positionAbsolute}width:100%;}
-		#b{width:100%;height:1px;background:#fff;margin-bottom:10px;}
-		#t{font-size:11px;margin-top:5px;}
-		#m{${pointerEventsNone}${opacity0}}
-		#e{${fullFlexCenter}${opacity0}${pointerEventsNone}}
-	</style>
-	<div id="r">
-		<div id="cw">
-		</div>
-		<div id="m">
-			<button id="fl">1. Full Screen</button>
-			<button id="pl">2. Play!</button>
-		</div>
-		<div id="l">
-			<div id="b"></div>
-			<div id="t"></div>
-		</div>
-		<div id="e">
-			Press Esc to exit.
-		</div>
-	</div>
-`;
-
-document.title = "OREngine";
-
-/*-------------------------------
-	DOM
--------------------------------*/
-
-const rootElm = document.getElementById( 'r' )!;
-const screenWrapElm = document.getElementById( 'cw' )!;
-const menuElm = document.getElementById( 'm' )!;
-const loadingElm = document.getElementById( 'l' )!;
-const loadingBarElm = document.getElementById( 'b' )!;
-const loadingTextElm = document.getElementById( 't' )!;
-const exitElm = document.getElementById( 'e' )!;
-
-/*-------------------------------
-	Engine
--------------------------------*/
-
-const engine = new Engine( gl );
-initResourceInstances( gl );
-engine.setSize( new GLP.Vector( 1920, 1080 ) );
-
-// canvas
-
-if ( engine.canvas instanceof HTMLCanvasElement ) {
-
-	screenWrapElm.appendChild( engine.canvas );
-
+export interface StartPlayerOptions {
+	sceneData: OREngineProjectData;
+	initResourceInstances: ( gl: WebGL2RenderingContext ) => void;
+	title?: string;
+	size?: { width: number; height: number };
 }
 
-/*-------------------------------
-	Full Screen
--------------------------------*/
+export const startPlayer = ( opts: StartPlayerOptions ): Engine => {
 
-const fullScreen = document.getElementById( 'fl' ) as HTMLButtonElement;
-fullScreen.onclick = () => {
+	const opacity0 = "opacity:0;";
+	const pointerEventsNone = "pointer-events:none;";
+	const positionAbsolute = "position:absolute;";
+	const full = positionAbsolute + "width:100%;height:100%;";
+	const fullFlexCenter = full + "display:flex;justify-content:center;align-items:center;";
 
-	const elem = document.documentElement;
-	if ( elem.requestFullscreen ) {
+	document.body.innerHTML = `
+		<style>
+			*{color:#fff;font-size:13px;text-align:center;}
+			body{margin:0;font-family:sans-serif;}
+			button{display:block;width:200px;margin:0 auto 10px auto;padding:10px;border:1px solid #fff;background:none;cursor:pointer;}
+			#r{${fullFlexCenter}overflow:hidden;background:#000;}
+			#cw{${pointerEventsNone}${fullFlexCenter}${opacity0}}
+			canvas{${full}object-fit:contain;}
+			#l{${pointerEventsNone}${positionAbsolute}width:100%;}
+			#b{width:100%;height:1px;background:#fff;margin-bottom:10px;}
+			#t{font-size:11px;margin-top:5px;}
+			#m{${pointerEventsNone}${opacity0}}
+			#e{${fullFlexCenter}${opacity0}${pointerEventsNone}}
+		</style>
+		<div id="r">
+			<div id="cw">
+			</div>
+			<div id="m">
+				<button id="fl">1. Full Screen</button>
+				<button id="pl">2. Play!</button>
+			</div>
+			<div id="l">
+				<div id="b"></div>
+				<div id="t"></div>
+			</div>
+			<div id="e">
+				Press Esc to exit.
+			</div>
+		</div>
+	`;
 
-		elem.requestFullscreen();
+	document.title = opts.title ?? 'OREngine';
+
+	const rootElm = document.getElementById( 'r' )!;
+	const screenWrapElm = document.getElementById( 'cw' )!;
+	const menuElm = document.getElementById( 'm' )!;
+	const loadingElm = document.getElementById( 'l' )!;
+	const loadingBarElm = document.getElementById( 'b' )!;
+	const loadingTextElm = document.getElementById( 't' )!;
+	const exitElm = document.getElementById( 'e' )!;
+
+	const engine = new Engine( gl );
+	opts.initResourceInstances( gl );
+
+	const size = opts.size ?? { width: 1920, height: 1080 };
+	engine.setSize( new GLP.Vector( size.width, size.height ) );
+
+	if ( engine.canvas instanceof HTMLCanvasElement ) {
+
+		screenWrapElm.appendChild( engine.canvas );
 
 	}
 
-};
+	const fullScreen = document.getElementById( 'fl' ) as HTMLButtonElement;
+	fullScreen.onclick = () => {
 
-/*-------------------------------
-	Play
--------------------------------*/
+		const elem = document.documentElement;
+		if ( elem.requestFullscreen ) {
 
-const playButton = document.getElementById( 'pl' ) as HTMLButtonElement;
-playButton.disabled = true;
-
-playButton.onclick = () => {
-
-	menuElm.style.opacity = "0";
-	menuElm.style.pointerEvents = "none";
-	screenWrapElm.style.opacity = '1';
-	rootElm.style.cursor = 'none';
-	engine.play();
-
-	// アニメーション関数
-	function animate() {
-
-		engine.update();
-
-		if ( engine.frame.current > engine.frameSetting.duration ) {
-
-			exitElm.style.opacity = '1';
-			return;
+			elem.requestFullscreen();
 
 		}
 
-		window.requestAnimationFrame( animate );
+	};
 
-	}
+	const playButton = document.getElementById( 'pl' ) as HTMLButtonElement;
+	playButton.disabled = true;
 
-	animate();
+	playButton.onclick = () => {
 
-};
+		menuElm.style.opacity = "0";
+		menuElm.style.pointerEvents = "none";
+		screenWrapElm.style.opacity = '1';
+		rootElm.style.cursor = 'none';
+		engine.play();
+
+		function animate() {
+
+			engine.update();
+
+			if ( engine.frame.current > engine.frameSetting.duration ) {
+
+				exitElm.style.opacity = '1';
+				return;
+
+			}
+
+			window.requestAnimationFrame( animate );
+
+		}
+
+		animate();
+
+	};
+
+	engine.load( opts.sceneData );
+
+	const blidgeClient = engine.root.getComponent( BLidgeClient );
+
+	if ( blidgeClient ) {
+
+		blidgeClient.on( "loaded", () => {
+
+			engine.compileShaders( ( label: string, loaded: number, total: number ) => {
+
+				const progress = loaded / total;
+
+				loadingBarElm.style.transform = `scaleX(${progress})`;
+				loadingTextElm.textContent = `${label}`;
+
+			} ).then( () => {
+
+				loadingElm.style.opacity = "0";
+				menuElm.style.opacity = "1";
+				menuElm.style.pointerEvents = "auto";
+				playButton.disabled = false;
+
+			} );
 
 
-/*-------------------------------
-	Load
--------------------------------*/
+		} );
 
-engine.load( SceneData );
-
-const blidgeClient = engine.root.getComponent( BLidgeClient );
-
-if ( blidgeClient ) {
-
-	blidgeClient.on( "loaded", () => {
+	} else {
 
 		engine.compileShaders( ( label: string, loaded: number, total: number ) => {
 
@@ -164,9 +160,8 @@ if ( blidgeClient ) {
 
 		} );
 
+	}
 
-	} );
+	return engine;
 
-}
-
-
+};

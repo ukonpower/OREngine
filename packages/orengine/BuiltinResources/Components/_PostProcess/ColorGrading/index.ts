@@ -2,7 +2,7 @@ import * as MXP from 'maxpower';
 
 import colorGradingFrag from './shaders/colorGrading.fs';
 
-import { gl } from '~/ts/Globals';
+import { gl } from '~orengine/ts/Globals';
 
 export class ColorGrading extends MXP.PostProcess {
 

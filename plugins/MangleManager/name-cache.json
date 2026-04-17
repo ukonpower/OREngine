@@ -1466,7 +1466,9 @@
       "$setMomentary": "DM",
       "$repulsionStrength": "IM",
       "$coarse": "BM",
-      "$fine": "zM"
+      "$fine": "zM",
+      "$initResourceInstances": "EM",
+      "$sceneData": "LM"
     }
   }
 }

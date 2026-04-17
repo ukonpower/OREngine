@@ -11,7 +11,8 @@
     ]
   },
   "include": [
-    "vite.config.ts",
-    "./plugins"
+    "./plugins",
+    "./vite-plugins",
+    "./vite-configs"
   ]
 }

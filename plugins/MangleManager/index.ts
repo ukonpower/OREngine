@@ -59,24 +59,8 @@ export function MangledJsonLoader(): Plugin {
 
 			try {
 
-				const result = code;
-
-				// propsとvarsの両方のプロパティを処理
-				for ( const props of [ nameCache?.props?.props || {}, nameCache?.vars?.props || {} ] ) {
-
-					for ( const [ key, mangled ] of Object.entries( props ) ) {
-
-						// componentsの配列内のnameプロパティの値のみを置換
-						const original = key.replace( '$', '' );
-						const regex = new RegExp( `("components":\\s*\\[(?:[^\\[\\]]|\\[[^\\[\\]]*\\])*?"name":\\s*)(["'/])${original}\\2`, 'g' );
-						// result = result.replace( regex, `$1$2${mangled}$2` );
-
-					}
-
-				}
-
 				return {
-					code: result,
+					code,
 					map: null
 				};
 

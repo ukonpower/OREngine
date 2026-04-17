@@ -4,7 +4,7 @@ import * as MXP from 'maxpower';
 import gridDotsFrag from './shaders/gridDots.fs';
 import gridDotsVert from './shaders/gridDots.vs';
 
-import { globalUniforms } from '~/ts/Globals';
+import { globalUniforms } from '~orengine/ts/Globals';
 
 
 export class GridDots extends MXP.Component {

@@ -1,6 +1,6 @@
 import { WebSocketServer, WebSocket } from 'ws';
 
-import { projectManager } from '../Project';
+import { ProjectManager } from '../Project';
 
 import type { Server } from 'http';
 
@@ -26,6 +26,7 @@ type ClientInfo = {
 class EditorWSBridge {
 
 	private _wss: WebSocketServer;
+	private _pm: ProjectManager;
 	private _clients: Map<WebSocket, ClientInfo> = new Map();
 	private _pending: Map<string, {
 		resolve: ( value: any ) => void;
@@ -34,8 +35,9 @@ class EditorWSBridge {
 	private _idCounter = 0;
 	private _clientIdCounter = 0;
 
-	constructor( server: Server ) {
+	constructor( server: Server, pm: ProjectManager ) {
 
+		this._pm = pm;
 		this._wss = new WebSocketServer( { server, path: '/ws/editor' } );
 
 		this._wss.on( 'connection', ( ws ) => {
@@ -308,8 +310,7 @@ class EditorWSBridge {
 
 		try {
 
-			const project = projectManager.getProject( projectName );
-			const sceneData = project.getSceneFileData();
+			const sceneData = this._pm.getProject().getSceneFileData();
 			this.broadcastState( projectName, sceneData, { fullReload: true } );
 
 		} catch ( _e ) { /* ignore */ }
@@ -320,7 +321,7 @@ class EditorWSBridge {
 
 		try {
 
-			const project = projectManager.getProject( projectName );
+			const project = this._pm.getProject();
 
 			if ( project.revision === 0 ) return;
 
@@ -335,9 +336,9 @@ class EditorWSBridge {
 
 let bridge: EditorWSBridge | null = null;
 
-export function initWSBridge( server: Server ): EditorWSBridge {
+export function initWSBridge( server: Server, pm: ProjectManager ): EditorWSBridge {
 
-	bridge = new EditorWSBridge( server );
+	bridge = new EditorWSBridge( server, pm );
 	return bridge;
 
 }

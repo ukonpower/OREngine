@@ -3,11 +3,20 @@ import * as path from 'path';
 
 import express from 'express';
 
-import { projectManager } from '../Project';
+import { ProjectManager } from '../Project';
 import { SceneDataEditor } from '../SceneDataEditor';
 import { getWSBridge } from '../ws';
 
-export const editorRouter = express.Router();
+let pm: ProjectManager;
+
+export const createEditorRouter = ( projectManager: ProjectManager ) => {
+
+	pm = projectManager;
+	return editorRouter;
+
+};
+
+const editorRouter = express.Router();
 
 const RESOURCE_MUTATING_ACTIONS = new Set( [
 	'addMaterial', 'updateMaterial', 'removeMaterial',
@@ -21,13 +30,13 @@ function validateName( name: string ): boolean {
 }
 
 async function persistResourceChange(
-	projectName: string,
+	_projectName: string,
 	action: string,
 	params: Record<string, unknown>,
 	result: any,
 ) {
 
-	const resourcesDir = projectManager.getResourcesDir( projectName );
+	const resourcesDir = pm.getResourcesDir();
 
 	if ( ! resourcesDir ) return;
 
@@ -158,9 +167,9 @@ const BUILTIN_COMPONENTS = [
 	{ name: 'Mesh', className: 'Mesh' },
 ];
 
-function getAvailableComponentsFromFiles( projectName: string ): { name: string; className: string }[] {
+function getAvailableComponentsFromFiles( _projectName: string ): { name: string; className: string }[] {
 
-	const resourcesDir = projectManager.getResourcesDir( projectName );
+	const resourcesDir = pm.getResourcesDir();
 	const componentsDir = resourcesDir ? path.join( resourcesDir, 'Components' ) : '';
 	const result: { name: string; className: string }[] = [ ...BUILTIN_COMPONENTS ];
 
@@ -200,7 +209,7 @@ function handleActionLocal(
 	params: Record<string, unknown>,
 ): unknown {
 
-	const project = projectManager.getProject( projectName );
+	const project = pm.getProject();
 	const sceneData = project.getSceneFileData();
 	const editor = new SceneDataEditor( sceneData );
 
@@ -313,7 +322,7 @@ async function handleActionInternal(
 
 			if ( snapshot ) {
 
-				const project = projectManager.getProject( projectName );
+				const project = pm.getProject();
 				project.syncFromBrowser( snapshot );
 				bridge.broadcastState( projectName, snapshot, {
 					fullReload: true,
@@ -678,7 +687,7 @@ editorRouter.post( '/projects/:projectName/editor/save', async ( req, res ) => {
 
 	try {
 
-		const project = projectManager.getProject( req.params.projectName );
+		const project = pm.getProject();
 		const bridge = getWSBridge();
 
 		if ( bridge && bridge.isProjectConnected( req.params.projectName ) ) {
@@ -1055,7 +1064,7 @@ editorRouter.post( '/projects/:projectName/editor/reload', async ( req, res ) =>
 
 	try {
 
-		const project = projectManager.getProject( projectName );
+		const project = pm.getProject();
 		project.reloadFromDisk();
 
 		const bridge = getWSBridge();

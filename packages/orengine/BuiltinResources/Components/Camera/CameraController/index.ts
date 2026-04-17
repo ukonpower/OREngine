@@ -9,7 +9,7 @@ import { ColorGrading } from '../../_PostProcess/ColorGrading';
 import { FXAA } from '../../_PostProcess/FXAA';
 import { Finalize } from '../../_PostProcess/Finalize';
 
-import { gl } from '~/ts/Globals';
+import { gl } from '~orengine/ts/Globals';
 
 export class CameraController extends MXP.Component {
 

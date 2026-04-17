@@ -42,10 +42,7 @@
       "orengine/*": [
         "./packages/orengine/*"
       ],
-      "~project/*": [
-        "./projects/DemoProject/*"
-      ],
-      "~/*": [
+      "~orengine/*": [
         "./src/*"
       ]
     }
@@ -58,12 +55,13 @@
     "node_modules",
     "dist",
     "plugins",
-    "vite.config.ts",
-    "vite-player.config.ts",
+    "vite-plugins",
+    "vite-configs",
     "packages/glpower",
     "projects/Sushi",
     "projects/DigitalNexus",
     "projects/Project0",
+    "projects/DemoProject",
     "templates"
   ],
   "references": [

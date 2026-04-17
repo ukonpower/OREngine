@@ -4,7 +4,7 @@ import { Engine } from 'orengine';
 import eyeRingsFrag from './shaders/eyeRings.fs';
 import eyeRingsVert from './shaders/eyeRings.vs';
 
-import { gl } from '~/ts/Globals';
+import { gl } from '~orengine/ts/Globals';
 
 export class EyeRings extends MXP.Component {
 

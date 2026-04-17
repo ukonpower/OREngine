@@ -1,113 +1,77 @@
 import * as MXP from 'maxpower';
-import { LayoutSplit, OREditor, OREngine, Panel, PanelContainer } from "orengine/react";
+import { OREditor, OREngine } from "orengine/react";
 import { OREngineProjectData } from "orengine";
 import { Engine } from "orengine/ts/Engine";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
-import { gl, globalUniforms } from "~/ts/Globals";
-import { initResouces, initResourceInstances } from "~project/Resources";
-import { MIDIMIX } from "~project/Resources/Components/VJ/MIDIMIX";
-import { MIDIMIXMapping } from "~project/Resources/Components/VJ/MIDIMIXMapping";
-import { VJEffectVariant } from "~project/Resources/Components/VJ/VJEffectVariant";
-import { VJManager } from "~project/Resources/Components/VJ/VJManager";
-import { VJMatrix } from "~project/Resources/Components/VJ/VJMatrix";
+import { gl, globalUniforms } from "~orengine/ts/Globals";
 
-import { MIDIMIXController, MIDIMIXEmu } from '~project/tsx/MIDIMIXEmu';
-import { VJDebug, VJDebugController } from '~project/tsx/VJDebug';
+import "~orengine/styles/style.scss";
 
+export type EditorCustomTabs = Record<string, ReactNode[]>;
 
-initResouces();
+export interface EditorPageProps {
+	projectName?: string;
+	sceneData?: OREngineProjectData;
+	editorData?: MXP.SerializeField;
+	initResourceInstances: ( gl: WebGL2RenderingContext, globals?: { [key: string]: any } ) => void;
+	customTabs?: EditorCustomTabs;
+	onBeforeSave?: () => void;
+}
 
-const projectName = new URLSearchParams( location.search ).get( 'project' ) || 'DemoProject';
+export const EditorPage = ( props: EditorPageProps ) => {
 
-const midimixAdapter: MIDIMIXController = {
-	getLine: ( index ) => MIDIMIX.getLine( index ),
-	get side() { return MIDIMIX.side; },
-	emulateControl: ( type, id, value ) => MIDIMIX.emulateControl( type, id, value ),
-	on: ( event, callback ) => MIDIMIX.on( event, callback ),
-	off: ( event, callback ) => MIDIMIX.off( event, callback ),
-};
+	const projectName = props.projectName ?? 'DefaultProject';
 
-const vjDebugAdapter: VJDebugController = {
-	getEffectNames: () => VJEffectVariant.getEffectNames(),
-	getVariantIds: ( name ) => VJEffectVariant.getVariantIds( name ),
-	getActiveVariants: () => VJEffectVariant.getActiveVariants(),
-	setVariant: ( name, id ) => VJEffectVariant.setVariant( name, id ),
-	getBeatIndex: () => VJManager.beatCount,
-	onChange: ( cb ) => {
-
-		VJEffectVariant.onChange( cb );
-		VJMatrix.onChange( cb );
-
-	},
-	offChange: ( cb ) => {
-
-		VJEffectVariant.offChange( cb );
-		VJMatrix.offChange( cb );
-
-	},
-	getPattern: () => VJMatrix.getPattern(),
-	setCell: ( name, beat, id ) => VJMatrix.setCell( name, beat, id ),
-};
-
-export const EditorPage = () => {
-
-	const [ projectData, setProjectData ] = useState<OREngineProjectData>();
-	const [ editorData, setEditorData ] = useState<MXP.SerializeField>();
+	const [ projectData, setProjectData ] = useState<OREngineProjectData | undefined>( props.sceneData );
+	const [ editorData, setEditorData ] = useState<MXP.SerializeField | undefined>( props.editorData );
 
 	useEffect( () => {
+
+		if ( props.sceneData ) return;
 
 		fetch( `/api/projects/${projectName}/scene` ).then( r => r.json() ).then( ( data ) => {
 
 			if ( ! data ) return;
-
 			setProjectData( data );
 
 		} ).catch( () => {} );
 
+	}, [ props.sceneData, projectName ] );
+
+	useEffect( () => {
+
+		if ( props.editorData ) return;
+
 		fetch( `/api/projects/${projectName}/editor` ).then( r => r.json() ).then( ( data ) => {
 
 			if ( ! data ) return;
-
 			setEditorData( data );
 
 		} ).catch( () => {} );
 
-	}, [] );
+	}, [ props.editorData, projectName ] );
 
 	return (
 		<OREngine gl={gl} project={projectData} onEngineInit={( glCtx ) => {
 
-			initResourceInstances( glCtx, globalUniforms );
+			props.initResourceInstances( glCtx, globalUniforms );
 
 		}} >
-			<OREditor editorData={editorData} projectName={projectName} customTabs={{
-				assets: [
-					<PanelContainer.Tab key="vjpanel" title='VJ'>
-						<Panel>
-							<LayoutSplit direction="horizontal" storageKey="vjpanel-split">
-								<LayoutSplit.Item flex={1} minSize={300}>
-									<MIDIMIXEmu controller={midimixAdapter} labels={MIDIMIXMapping.getLabels()} />
-								</LayoutSplit.Item>
-								<LayoutSplit.Item flex={1} minSize={200}>
-									<VJDebug controller={vjDebugAdapter} />
-								</LayoutSplit.Item>
-							</LayoutSplit>
-						</Panel>
-					</PanelContainer.Tab>,
-				],
-			}} onSave={( projectData, editorData ) => {
+			<OREditor editorData={editorData} projectName={projectName} customTabs={props.customTabs} onSave={( savedScene, savedEditor ) => {
+
+				props.onBeforeSave?.();
 
 				fetch( `/api/projects/${projectName}/scene`, {
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify( projectData ),
+					body: JSON.stringify( savedScene ),
 				} );
 
 				fetch( `/api/projects/${projectName}/editor`, {
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify( editorData ),
+					body: JSON.stringify( savedEditor ),
 				} );
 
 				const materials = Engine.resources.exportMaterialConfigs();

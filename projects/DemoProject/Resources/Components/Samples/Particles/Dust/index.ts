@@ -5,7 +5,7 @@ import { Engine } from 'orengine';
 import dustFrag from './shaders/dust.fs';
 import dustVert from './shaders/dust.vs';
 
-import { gl } from '~/ts/Globals';
+import { gl } from '~orengine/ts/Globals';
 
 export class Dust extends MXP.Component {
 

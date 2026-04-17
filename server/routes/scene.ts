@@ -1,47 +1,10 @@
+import express from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
-import { fileURLToPath } from 'url';
 
-import express from 'express';
-
-import { projectManager } from '../Project';
+import { ProjectManager } from '../Project';
 import { getWSBridge } from '../ws';
 
-const __dirname = path.dirname( fileURLToPath( import.meta.url ) );
-
-export const sceneRouter = express.Router();
-
-const PROJECTS_DIR = path.resolve( __dirname, '../../projects' );
-const EXTERNAL_PROJECT_DIR = process.env.ORENGINE_PROJECT_DIR
-	? path.resolve( process.env.ORENGINE_PROJECT_DIR )
-	: null;
-
-/**
- * プロジェクト名をサニタイズし、安全なディレクトリパスを返す
- */
-function resolveProjectDir( name: string ): string | null {
-
-	if ( EXTERNAL_PROJECT_DIR ) return EXTERNAL_PROJECT_DIR;
-
-	if ( ! name || name.includes( '..' ) || name.includes( '/' ) || name.includes( '\\' ) ) {
-
-		return null;
-
-	}
-
-	const projectDir = path.join( PROJECTS_DIR, name );
-	const resolved = path.resolve( projectDir );
-
-	// PROJECTS_DIR 配下であることを確認
-	if ( ! resolved.startsWith( path.resolve( PROJECTS_DIR ) ) ) {
-
-		return null;
-
-	}
-
-	return resolved;
-
-}
 
 function readJsonFile( filePath: string, res: express.Response ): void {
 
@@ -92,79 +55,58 @@ function writeJsonFile( filePath: string, data: unknown, res: express.Response )
 
 }
 
-// Scene
-sceneRouter.get( '/projects/:name/scene', ( req, res ) => {
+export const createSceneRouter = ( pm: ProjectManager ) => {
 
-	try {
+	const router = express.Router();
 
-		const project = projectManager.getProject( req.params.name );
-		res.json( project.getSceneFileData() );
+	// Scene
+	router.get( '/projects/:name/scene', ( _req, res ) => {
 
-	} catch ( err: any ) {
+		try {
 
-		res.status( 500 ).json( { error: err.message || 'Failed to get scene' } );
+			res.json( pm.getProject().getSceneFileData() );
 
-	}
+		} catch ( err: any ) {
 
-} );
-
-sceneRouter.post( '/projects/:name/scene', ( req, res ) => {
-
-	const projectDir = resolveProjectDir( req.params.name );
-
-	if ( ! projectDir ) {
-
-		res.status( 400 ).json( { error: 'Invalid project name' } );
-		return;
-
-	}
-
-	writeJsonFile( path.join( projectDir, 'scene.json' ), req.body, res );
-
-	// オンメモリ状態も更新
-	try {
-
-		const project = projectManager.getProject( req.params.name );
-		project.syncFromBrowser( req.body );
-
-		const bridge = getWSBridge();
-		if ( bridge ) {
-
-			bridge.broadcastState( req.params.name, req.body, { fullReload: true } );
+			res.status( 500 ).json( { error: err.message || 'Failed to get scene' } );
 
 		}
 
-	} catch { /* ignore */ }
+	} );
 
-} );
+	router.post( '/projects/:name/scene', ( req, res ) => {
 
-// Editor
-sceneRouter.get( '/projects/:name/editor', ( req, res ) => {
+		writeJsonFile( path.join( pm.projectDir, 'scene.json' ), req.body, res );
 
-	const projectDir = resolveProjectDir( req.params.name );
+		// オンメモリ状態も更新
+		try {
 
-	if ( ! projectDir ) {
+			pm.getProject().syncFromBrowser( req.body );
 
-		res.status( 400 ).json( { error: 'Invalid project name' } );
-		return;
+			const bridge = getWSBridge();
+			if ( bridge ) {
 
-	}
+				bridge.broadcastState( pm.name, req.body, { fullReload: true } );
 
-	readJsonFile( path.join( projectDir, 'editor.json' ), res );
+			}
 
-} );
+		} catch { /* ignore */ }
 
-sceneRouter.post( '/projects/:name/editor', ( req, res ) => {
+	} );
 
-	const projectDir = resolveProjectDir( req.params.name );
+	// Editor
+	router.get( '/projects/:name/editor', ( _req, res ) => {
 
-	if ( ! projectDir ) {
+		readJsonFile( path.join( pm.projectDir, 'editor.json' ), res );
 
-		res.status( 400 ).json( { error: 'Invalid project name' } );
-		return;
+	} );
 
-	}
+	router.post( '/projects/:name/editor', ( req, res ) => {
 
-	writeJsonFile( path.join( projectDir, 'editor.json' ), req.body, res );
+		writeJsonFile( path.join( pm.projectDir, 'editor.json' ), req.body, res );
 
-} );
+	} );
+
+	return router;
+
+};

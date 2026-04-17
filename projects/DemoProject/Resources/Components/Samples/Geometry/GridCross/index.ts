@@ -4,7 +4,7 @@ import * as MXP from 'maxpower';
 import gridCrossFrag from './shaders/gridCross.fs';
 import gridCrossVert from './shaders/gridCross.vs';
 
-import { globalUniforms } from '~/ts/Globals';
+import { globalUniforms } from '~orengine/ts/Globals';
 
 
 export class GridCross extends MXP.Component {
