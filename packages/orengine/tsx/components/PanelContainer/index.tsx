@@ -17,6 +17,7 @@ const Tab = ( props: TabProps ) => {
 
 type PanelContainerProps = {
 	storageKey?: string;
+	defaultTabTitle?: string;
 	children?: React.ReactNode;
 };
 
@@ -27,21 +28,30 @@ export const PanelContainer = ( props: PanelContainerProps ) => {
 
 	const [ selected, setSelected ] = useState<number>( () => {
 
-		if ( ! props.storageKey ) return 0;
+		if ( props.storageKey ) {
 
-		try {
+			try {
 
-			const v = localStorage.getItem( props.storageKey );
+				const v = localStorage.getItem( props.storageKey );
 
-			if ( v !== null ) {
+				if ( v !== null ) {
 
-				const n = parseInt( v, 10 );
+					const n = parseInt( v, 10 );
 
-				if ( ! isNaN( n ) && n >= 0 ) return n;
+					if ( ! isNaN( n ) && n >= 0 ) return n;
 
-			}
+				}
 
-		} catch ( _e ) { /* */ }
+			} catch ( _e ) { /* */ }
+
+		}
+
+		if ( props.defaultTabTitle ) {
+
+			const idx = childs.findIndex( ( c ) => c.props.title === props.defaultTabTitle );
+			if ( idx >= 0 ) return idx;
+
+		}
 
 		return 0;
 
