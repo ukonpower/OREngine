@@ -195,6 +195,7 @@ export type PipelineConfig = {
 	ssr?: boolean;
 	ssao?: boolean;
 	lightShaft?: boolean;
+	dof?: boolean;
 };
 
 // texture unit
@@ -382,6 +383,7 @@ export class Renderer extends Serializable {
 			ssr: true,
 			ssao: true,
 			lightShaft: true,
+			dof: true,
 		};
 
 		this._overrides = {};
@@ -463,6 +465,14 @@ export class Renderer extends Serializable {
 		ssaoDir.field( "enabled", () => this._pipelineConfig.ssao, ( v: boolean ) => {
 
 			this._pipelineConfig.ssao = v;
+			this._applyEffectiveConfig();
+
+		} );
+
+		const dofDir = pipeline.dir( "dof" );
+		dofDir.field( "enabled", () => this._pipelineConfig.dof, ( v: boolean ) => {
+
+			this._pipelineConfig.dof = v;
 			this._applyEffectiveConfig();
 
 		} );
@@ -1564,6 +1574,7 @@ export class Renderer extends Serializable {
 		this._pipelinePostProcess.setPassEnabled( {
 			motionBlur: config.motionBlur,
 			ssr: config.ssr,
+			dof: config.dof,
 		} );
 
 		if ( config.motionBlurPower !== undefined ) {
@@ -1596,6 +1607,7 @@ export class Renderer extends Serializable {
 			ssr: this._overrides.ssr ?? this._pipelineConfig.ssr,
 			ssao: this._overrides.ssao ?? this._pipelineConfig.ssao,
 			lightShaft: this._overrides.lightShaft ?? this._pipelineConfig.lightShaft,
+			dof: this._overrides.dof ?? this._pipelineConfig.dof,
 		};
 		this.applyPipelineConfig( effective );
 
