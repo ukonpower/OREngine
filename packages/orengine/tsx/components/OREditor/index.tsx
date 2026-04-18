@@ -31,9 +31,26 @@ import style from './index.module.scss';
 
  type OREditorSaveCallback = ( projectData: OREngineProjectData, editorData: MXP.SerializeField ) => void
 
-export type PanelSlot = "scene" | "timer" | "assets" | "property" | "timeline";
+export type PanelSlot = "leftTop" | "leftBottom" | "mainBottom" | "rightTop" | "footer";
 
-export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP.SerializeField, projectName?: string, customTabs?: Partial<Record<PanelSlot, React.ReactNode>> }> = ( props ) => {
+export type CustomTab = {
+	title: string;
+	content: React.ReactNode;
+};
+
+const renderCustomTabs = ( tabs: CustomTab[] | undefined ) => {
+
+	if ( ! tabs ) return null;
+
+	return tabs.map( ( tab ) => (
+		<PanelContainer.Tab key={tab.title} title={tab.title}>
+			<Panel>{tab.content}</Panel>
+		</PanelContainer.Tab>
+	) );
+
+};
+
+export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP.SerializeField, projectName?: string, customTabs?: Partial<Record<PanelSlot, CustomTab[]>> }> = ( props ) => {
 
 	const editorContext = useOREditorContext( props.projectName );
 
@@ -83,7 +100,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 													<Hierarchy />
 												</Panel>
 											</PanelContainer.Tab>
-											{props.customTabs?.scene}
+											{renderCustomTabs( props.customTabs?.leftTop )}
 										</PanelContainer>
 									</LayoutSplit.Item>
 									<LayoutSplit.Item size="20vh" minSize={100}>
@@ -93,7 +110,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 													<Timer />
 												</Panel>
 											</PanelContainer.Tab>
-											{props.customTabs?.timer}
+											{renderCustomTabs( props.customTabs?.leftBottom )}
 										</PanelContainer>
 									</LayoutSplit.Item>
 								</LayoutSplit>
@@ -110,7 +127,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 													<AssetViewer />
 												</Panel>
 											</PanelContainer.Tab>
-											{props.customTabs?.assets}
+											{renderCustomTabs( props.customTabs?.mainBottom )}
 										</PanelContainer>
 									</LayoutSplit.Item>
 								</LayoutSplit>
@@ -134,7 +151,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 													<RendererSettings />
 												</Panel>
 											</PanelContainer.Tab>
-											{props.customTabs?.property}
+											{renderCustomTabs( props.customTabs?.rightTop )}
 										</PanelContainer>
 									</LayoutSplit.Item>
 									{selectedAsset && <LayoutSplit.Item size="35%" minSize={150}>
@@ -157,7 +174,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 									<Timeline />
 								</Panel>
 							</PanelContainer.Tab>
-							{props.customTabs?.timeline}
+							{renderCustomTabs( props.customTabs?.footer )}
 						</PanelContainer>
 					</LayoutSplit.Item>
 				</LayoutSplit>
@@ -200,11 +217,11 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 									<RendererSettings />
 								</Panel>
 							</PanelContainer.Tab>
-							{props.customTabs?.scene}
-							{props.customTabs?.property}
-							{props.customTabs?.assets}
-							{props.customTabs?.timeline}
-							{props.customTabs?.timer}
+							{renderCustomTabs( props.customTabs?.leftTop )}
+							{renderCustomTabs( props.customTabs?.leftBottom )}
+							{renderCustomTabs( props.customTabs?.mainBottom )}
+							{renderCustomTabs( props.customTabs?.rightTop )}
+							{renderCustomTabs( props.customTabs?.footer )}
 						</PanelContainer>
 					</LayoutSplit.Item>
 					<LayoutSplit.Item size="120px" minSize={80}>

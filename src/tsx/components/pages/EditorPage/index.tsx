@@ -1,14 +1,14 @@
 import * as MXP from 'maxpower';
-import { OREditor, OREngine } from "orengine/react";
+import { OREditor, OREngine, type PanelSlot, type CustomTab } from "orengine/react";
 import { OREngineProjectData } from "orengine";
 import { Engine } from "orengine/ts/Engine";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState } from "react";
 
 import { gl, globalUniforms } from "~orengine/ts/Globals";
 
 import "~orengine/styles/style.scss";
 
-export type EditorCustomTabs = Record<string, ReactNode[]>;
+export type EditorCustomTabs = Partial<Record<PanelSlot, CustomTab[]>>;
 
 export interface EditorPageProps {
 	projectName?: string;
