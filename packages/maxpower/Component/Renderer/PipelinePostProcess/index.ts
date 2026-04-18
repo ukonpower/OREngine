@@ -14,6 +14,7 @@ import ssrFrag from './shaders/ssr.fs';
 export type PipelinePostProcessPassConfig = {
 	motionBlur?: boolean;
 	ssr?: boolean;
+	dof?: boolean;
 };
 
 export class PipelinePostProcess {
@@ -348,6 +349,21 @@ export class PipelinePostProcess {
 
 				this.clearFrameBuffer( this.rtSSR1 );
 				this.clearFrameBuffer( this.rtSSR2 );
+
+			}
+
+		}
+
+		if ( config.dof !== undefined ) {
+
+			this.dofCoc.enabled = config.dof;
+			this.dofBokeh.enabled = config.dof;
+			this.dofComposite.enabled = config.dof;
+
+			if ( ! config.dof ) {
+
+				if ( this.dofBokeh.renderTarget ) this.clearFrameBuffer( this.dofBokeh.renderTarget );
+				if ( this.dofComposite.renderTarget ) this.clearFrameBuffer( this.dofComposite.renderTarget );
 
 			}
 

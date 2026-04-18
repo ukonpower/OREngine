@@ -22,7 +22,7 @@ export class EditorCamera {
 		this._useEditorCamera = true;
 		this._cameraMode = "scene";
 		engine.cameraEntity = this._entity;
-		engine.renderer.setOverride( { motionBlur: false } );
+		engine.renderer.setOverride( { motionBlur: false, dof: false } );
 		this._syncFromScene( engine );
 
 	}
@@ -67,7 +67,7 @@ export class EditorCamera {
 			engine.cameraEntity = this._entity;
 			this._orbitControls.enabled = true;
 			this._useEditorCamera = true;
-			engine.renderer.setOverride( { motionBlur: false } );
+			engine.renderer.setOverride( { motionBlur: false, dof: false } );
 
 		} else {
 
