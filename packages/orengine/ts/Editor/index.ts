@@ -357,6 +357,12 @@ export class Editor extends MXP.Serializable {
 		this.field( 'apiClientCount', () => this._apiClientCount );
 
 		/*-------------------------------
+			Initial Resize
+		-------------------------------*/
+
+		this._resize();
+
+		/*-------------------------------
 			Animate
 		-------------------------------*/
 

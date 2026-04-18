@@ -1,5 +1,4 @@
 
-import * as GLP from 'glpower';
 import { OREngineProjectData } from "packages/orengine/ts/Engine/ProjectSerializer";
 import { useEffect } from "react";
 
@@ -18,8 +17,6 @@ export const OREngine: React.FC<{children?: React.ReactNode, gl: WebGL2Rendering
 			props.onEngineInit( props.gl );
 
 		}
-
-		engine.setSize( new GLP.Vector( 1920, 1080 ) );
 
 	}, [ engine ] );
 
