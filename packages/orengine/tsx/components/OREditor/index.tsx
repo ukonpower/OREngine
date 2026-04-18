@@ -36,6 +36,7 @@ export type PanelSlot = "leftTop" | "leftBottom" | "mainBottom" | "rightTop" | "
 export type CustomTab = {
 	title: string;
 	content: React.ReactNode;
+	default?: boolean;
 };
 
 const renderCustomTabs = ( tabs: CustomTab[] | undefined ) => {
@@ -49,6 +50,8 @@ const renderCustomTabs = ( tabs: CustomTab[] | undefined ) => {
 	) );
 
 };
+
+const defaultTabTitle = ( tabs: CustomTab[] | undefined ) => tabs?.find( ( t ) => t.default )?.title;
 
 export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP.SerializeField, projectName?: string, customTabs?: Partial<Record<PanelSlot, CustomTab[]>> }> = ( props ) => {
 
@@ -94,7 +97,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 							<LayoutSplit.Item size="300px" minSize={200}>
 								<LayoutSplit direction="vertical" storageKey="orengine-editor-pc-left">
 									<LayoutSplit.Item flex={1} minSize={150}>
-										<PanelContainer storageKey="orengine-panel-scene">
+										<PanelContainer storageKey="orengine-panel-scene" defaultTabTitle={defaultTabTitle( props.customTabs?.leftTop )}>
 											<PanelContainer.Tab title='Scene'>
 												<Panel>
 													<Hierarchy />
@@ -104,7 +107,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 										</PanelContainer>
 									</LayoutSplit.Item>
 									<LayoutSplit.Item size="20vh" minSize={100}>
-										<PanelContainer storageKey="orengine-panel-timer">
+										<PanelContainer storageKey="orengine-panel-timer" defaultTabTitle={defaultTabTitle( props.customTabs?.leftBottom )}>
 											<PanelContainer.Tab title='Timer'>
 												<Panel noPadding>
 													<Timer />
@@ -121,7 +124,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 										<Screen />
 									</LayoutSplit.Item>
 									<LayoutSplit.Item size="200px" minSize={120}>
-										<PanelContainer storageKey="orengine-panel-assets">
+										<PanelContainer storageKey="orengine-panel-assets" defaultTabTitle={defaultTabTitle( props.customTabs?.mainBottom )}>
 											<PanelContainer.Tab title='Assets'>
 												<Panel noPadding>
 													<AssetViewer />
@@ -135,7 +138,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 							<LayoutSplit.Item size="300px" minSize={200}>
 								<LayoutSplit direction="vertical" storageKey={selectedAsset ? "orengine-editor-pc-right-asset" : "orengine-editor-pc-right"}>
 									<LayoutSplit.Item flex={1} minSize={200}>
-										<PanelContainer storageKey="orengine-panel-property">
+										<PanelContainer storageKey="orengine-panel-property" defaultTabTitle={defaultTabTitle( props.customTabs?.rightTop )}>
 											<PanelContainer.Tab title='Property'>
 												<Panel>
 													<EntityProperty />
@@ -168,7 +171,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 						</LayoutSplit>
 					</LayoutSplit.Item>
 					<LayoutSplit.Item size="160px" minSize={80}>
-						<PanelContainer storageKey="orengine-panel-timeline">
+						<PanelContainer storageKey="orengine-panel-timeline" defaultTabTitle={defaultTabTitle( props.customTabs?.footer )}>
 							<PanelContainer.Tab title='Timeline'>
 								<Panel noPadding>
 									<Timeline />
@@ -191,7 +194,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 						<Screen />
 					</LayoutSplit.Item>
 					<LayoutSplit.Item flex={1} minSize={200}>
-						<PanelContainer storageKey="orengine-panel-sp-main">
+						<PanelContainer storageKey="orengine-panel-sp-main" defaultTabTitle={defaultTabTitle( props.customTabs?.mainBottom ) ?? defaultTabTitle( props.customTabs?.leftTop ) ?? defaultTabTitle( props.customTabs?.leftBottom ) ?? defaultTabTitle( props.customTabs?.rightTop ) ?? defaultTabTitle( props.customTabs?.footer )}>
 							<PanelContainer.Tab title='Scene / Property'>
 								<LayoutSplit direction="horizontal" storageKey="orengine-editor-sp-sceneProp">
 									<LayoutSplit.Item flex={1} minSize={120} overflow padding>
