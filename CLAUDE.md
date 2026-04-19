@@ -39,9 +39,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## パスエイリアス
 - `glpower` → `packages/glpower/packages/glpower/src`
 - `maxpower` → `packages/maxpower`
-- `orengine/*` → `packages/orengine/*`
-- `~project/*` → `projects/default/*`
-- `~/*` → `src/*`
+- `orengine` / `orengine/*` → `packages/orengine/*`
+- `~orengine/*` → `src/*`
 
 ## リソース自動生成（Vite プラグイン）
 

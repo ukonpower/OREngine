@@ -8,6 +8,6 @@ const __dirname = path.dirname( __filename );
 
 const projectDir = process.env.ORENGINE_PROJECT_DIR
 	? path.resolve( process.env.ORENGINE_PROJECT_DIR )
-	: path.resolve( __dirname, '../projects/DemoProject' );
+	: path.resolve( __dirname, '../demo' );
 
 startOrengineServer( { projectDir } );

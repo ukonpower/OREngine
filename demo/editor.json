@@ -14,7 +14,7 @@
 	},
 	"navigateAsset": null,
 	"propertyTarget": "entity",
-	"cameraMode": "scene",
+	"cameraMode": "preview",
 	"gizmoMode": "translate",
 	"helpers/show": true,
 	"helpers/empty": true,
@@ -22,9 +22,9 @@
 	"helpers/light": true,
 	"helpers/wireframe": false,
 	"camera/position": [
-		5.445996559013547,
-		6.300401085876238,
-		9.037604776178199
+		2.7583638445660386,
+		2.132483440540936,
+		2.383337354744866
 	],
 	"camera/target": [
 		0.5649376068599679,
