@@ -10,7 +10,7 @@
     "build:static": "vite build --config vite-static.config.ts"
   },
   "dependencies": {
-    "orengine": "file:../.."
+    "orengine": "file:.."
   },
   "devDependencies": {
     "concurrently": "^9.1.0",

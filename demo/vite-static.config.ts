@@ -1,11 +1,12 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { createPlayerConfig } from '../../vite-configs';
+import { createStaticConfig } from '../vite-configs';
 
 
 const __dirname = path.dirname( fileURLToPath( import.meta.url ) );
 
-export default createPlayerConfig( {
+export default createStaticConfig( {
 	projectDir: __dirname,
+	input: path.join( __dirname, 'static.html' ),
 } );

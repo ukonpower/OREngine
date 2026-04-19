@@ -58,10 +58,7 @@
     "vite-plugins",
     "vite-configs",
     "packages/glpower",
-    "projects/Sushi",
-    "projects/DigitalNexus",
-    "projects/Project0",
-    "projects/DemoProject",
+    "demo",
     "templates"
   ],
   "references": [

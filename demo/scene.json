@@ -15,6 +15,7 @@
 		1,
 		1
 	],
+	"visible": true,
 	"scene": {
 		"name": "root",
 		"uuid": "0",
@@ -121,6 +122,30 @@
 									}
 								}
 							]
+						},
+						{
+							"name": "Spot.001",
+							"components": [
+								{
+									"name": "Light",
+									"uuid": "d4a127b7-bdff-442c-8b9a-b9a184c724ef",
+									"props": {
+										"intensity": 3
+									}
+								}
+							]
+						},
+						{
+							"name": "Spot.002",
+							"components": [
+								{
+									"name": "Light",
+									"uuid": "253d4bc1-ff59-44b5-b39e-8515a6f01cad",
+									"props": {
+										"intensity": 2
+									}
+								}
+							]
 						}
 					]
 				}
@@ -148,6 +173,7 @@
 		"pipeline/motionBlur/power": 1,
 		"pipeline/ssr/enabled": true,
 		"pipeline/ssao/enabled": true,
+		"pipeline/dof/enabled": true,
 		"pipeline/lightShaft/enabled": true
 	},
 	"timeline/duration": 600,

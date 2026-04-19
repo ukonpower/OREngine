@@ -18,13 +18,13 @@
 		"noFallthroughCasesInSwitch": true,
 		"baseUrl": ".",
 		"paths": {
-			"glpower": [ "../../packages/glpower/packages/glpower/src" ],
-			"maxpower": [ "../../packages/maxpower" ],
-			"orengine": [ "../../packages/orengine/index.tsx" ],
-			"orengine/*": [ "../../packages/orengine/*" ],
-			"packages/*": [ "../../packages/*" ],
-			"plugins/*": [ "../../plugins/*" ],
-			"~orengine/*": [ "../../src/*" ]
+			"glpower": [ "../packages/glpower/packages/glpower/src" ],
+			"maxpower": [ "../packages/maxpower" ],
+			"orengine": [ "../packages/orengine/index.tsx" ],
+			"orengine/*": [ "../packages/orengine/*" ],
+			"packages/*": [ "../packages/*" ],
+			"plugins/*": [ "../plugins/*" ],
+			"~orengine/*": [ "../src/*" ]
 		}
 	},
 	"include": [ "**/*.ts", "**/*.tsx" ],
