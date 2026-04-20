@@ -7,17 +7,13 @@ import react from '@vitejs/plugin-react';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig, UserConfig } from 'vite';
 
-import {
-	ResourceManager,
-	ShaderMinifierLoader,
-	ViteErrorReporter,
-	MangledJsonLoader,
-	SaveNameCache,
-	nameCache,
-} from '../vite-plugins';
+import { MangledJsonLoader, SaveNameCache, nameCache } from './vite-plugins/MangleManager';
+import { ResourceManager } from './vite-plugins/ResourceManager';
+import { ShaderMinifierLoader } from './vite-plugins/ShaderMinifierLoader';
+import { ViteErrorReporter } from './vite-plugins/ViteErrorReporter';
 
 
-const orengineRoot = path.resolve( fileURLToPath( import.meta.url ), '../..' );
+const orengineRoot = path.resolve( fileURLToPath( import.meta.url ), '..' );
 
 export interface OrengineConfigOptions {
 	projectDir: string;

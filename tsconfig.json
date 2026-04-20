@@ -54,12 +54,10 @@
   "exclude": [
     "node_modules",
     "dist",
-    "plugins",
     "vite-plugins",
-    "vite-configs",
     "packages/glpower",
     "demo",
-    "templates"
+    "vite-configs.ts"
   ],
   "references": [
     {
