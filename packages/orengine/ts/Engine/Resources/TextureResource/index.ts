@@ -30,12 +30,28 @@ export class TextureResource extends MXP.Serializable {
 
 	}
 
-	public get frag() { return this._frag; }
+	public get frag() {
 
-	public get resolution() { return this._resolution; }
+		return this._frag;
 
-	public get filter() { return this._filter; }
+	}
 
-	public get updateEveryFrame() { return this._updateEveryFrame; }
+	public get resolution() {
+
+		return this._resolution;
+
+	}
+
+	public get filter() {
+
+		return this._filter;
+
+	}
+
+	public get updateEveryFrame() {
+
+		return this._updateEveryFrame;
+
+	}
 
 }

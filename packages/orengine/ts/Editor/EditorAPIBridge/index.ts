@@ -154,7 +154,6 @@ export class EditorAPIBridge {
 		sceneData?: any;
 		fullReload?: boolean;
 		resources?: {
-			materials: { name: string; config: any }[];
 			textures: { name: string; config: any }[];
 		};
 	} ) {
@@ -176,21 +175,7 @@ export class EditorAPIBridge {
 
 		if ( msg.resources ) {
 
-			const { materials, textures } = msg.resources;
-
-			const currentMaterials = Engine.resources.materialList.map( m => m.name );
-
-			for ( const name of currentMaterials ) {
-
-				Engine.resources.removeMaterial( name );
-
-			}
-
-			for ( const m of materials ) {
-
-				Engine.resources.addMaterial( m.name, m.config );
-
-			}
+			const { textures } = msg.resources;
 
 			const currentTextures = Engine.resources.textureList.map( t => t.name );
 
@@ -408,55 +393,11 @@ export class EditorAPIBridge {
 		case 'getResources': {
 
 			return {
-				materials: Engine.resources.materialList.map( m => ( {
-					name: m.name,
-					config: m.serialize( { mode: "export" } ),
-				} ) ),
 				textures: Engine.resources.textureList.map( t => ( {
 					name: t.name,
 					config: t.serialize( { mode: "export" } ),
 				} ) ),
-				shaders: Engine.resources.shaderList.map( s => ( {
-					name: s.name,
-				} ) ),
 			};
-
-		}
-
-		// --- マテリアル操作 ---
-
-		case 'addMaterial': {
-
-			const { name, config } = params as { name: string; config: any };
-			this._api.addMaterial( name, config || {} );
-			return { name };
-
-		}
-
-		case 'updateMaterial': {
-
-			const { name, config } = params as { name: string; config: any };
-			this._api.updateMaterial( name, config );
-			const resource = Engine.resources.getMaterial( name );
-			return { name, config: resource?.serialize( { mode: "export" } ) };
-
-		}
-
-		case 'removeMaterial': {
-
-			const { name } = params as { name: string };
-			this._api.removeMaterial( name );
-			return { success: true };
-
-		}
-
-		case 'getMaterial': {
-
-			const { name } = params as { name: string };
-			const resource = Engine.resources.getMaterial( name );
-			if ( ! resource ) throw new Error( `Material not found: ${name}` );
-
-			return { name, config: resource.serialize( { mode: "export" } ) };
 
 		}
 

@@ -74,19 +74,10 @@ export const EditorPage = ( props: EditorPageProps ) => {
 					body: JSON.stringify( savedEditor ),
 				} );
 
-				const materials = Engine.resources.exportMaterialConfigs();
-
-				for ( const m of materials ) {
-
-					fetch( `/api/projects/${projectName}/materials/${encodeURIComponent( m.name )}`, {
-						method: 'PUT',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify( m.config ),
-					} );
-
-				}
-
-				const textures = Engine.resources.exportTextureConfigs();
+				const textures = Engine.resources.textureList.map( t => ( {
+					name: t.name,
+					config: t.serialize( { mode: "export" } ),
+				} ) );
 
 				for ( const t of textures ) {
 
@@ -97,12 +88,6 @@ export const EditorPage = ( props: EditorPageProps ) => {
 					} );
 
 				}
-
-				fetch( `/api/projects/${projectName}/materials/sync`, {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify( { names: materials.map( m => m.name ) } ),
-				} );
 
 				fetch( `/api/projects/${projectName}/textures/sync`, {
 					method: 'POST',

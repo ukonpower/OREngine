@@ -19,7 +19,6 @@ export const createEditorRouter = ( projectManager: ProjectManager ) => {
 const editorRouter = express.Router();
 
 const RESOURCE_MUTATING_ACTIONS = new Set( [
-	'addMaterial', 'updateMaterial', 'removeMaterial',
 	'addTexture', 'updateTexture', 'removeTexture',
 ] );
 
@@ -40,64 +39,9 @@ async function persistResourceChange(
 
 	if ( ! resourcesDir ) return;
 
-	const materialsDir = path.join( resourcesDir, 'Materials' );
 	const texturesDir = path.join( resourcesDir, 'Textures' );
 
 	switch ( action ) {
-
-	case 'addMaterial': {
-
-		const name = params.name as string;
-
-		if ( ! validateName( name ) ) break;
-
-		if ( ! fs.existsSync( materialsDir ) ) {
-
-			fs.mkdirSync( materialsDir, { recursive: true } );
-
-		}
-
-		const config = result?.config ?? params.config ?? {};
-		fs.writeFileSync( path.join( materialsDir, `${name}.mat` ), JSON.stringify( config, null, '\t' ) + '\n' );
-		break;
-
-	}
-
-	case 'updateMaterial': {
-
-		const name = params.name as string;
-
-		if ( ! validateName( name ) ) break;
-
-		if ( ! fs.existsSync( materialsDir ) ) {
-
-			fs.mkdirSync( materialsDir, { recursive: true } );
-
-		}
-
-		const config = result?.config ?? params.config ?? {};
-		fs.writeFileSync( path.join( materialsDir, `${name}.mat` ), JSON.stringify( config, null, '\t' ) + '\n' );
-		break;
-
-	}
-
-	case 'removeMaterial': {
-
-		const name = params.name as string;
-
-		if ( ! validateName( name ) ) break;
-
-		const matPath = path.join( materialsDir, `${name}.mat` );
-
-		if ( fs.existsSync( matPath ) ) {
-
-			fs.unlinkSync( matPath );
-
-		}
-
-		break;
-
-	}
 
 	case 'addTexture': {
 
@@ -718,32 +662,6 @@ editorRouter.post( '/projects/:projectName/editor/save', async ( req, res ) => {
 editorRouter.get( '/projects/:projectName/editor/resources', ( req, res ) => {
 
 	handleAction( req.params.projectName, 'getResources', {}, res );
-
-} );
-
-// マテリアル
-
-editorRouter.post( '/projects/:projectName/editor/materials', ( req, res ) => {
-
-	handleAction( req.params.projectName, 'addMaterial', req.body, res );
-
-} );
-
-editorRouter.get( '/projects/:projectName/editor/materials/:name', ( req, res ) => {
-
-	handleAction( req.params.projectName, 'getMaterial', { name: req.params.name }, res );
-
-} );
-
-editorRouter.put( '/projects/:projectName/editor/materials/:name', ( req, res ) => {
-
-	handleAction( req.params.projectName, 'updateMaterial', { name: req.params.name, config: req.body }, res );
-
-} );
-
-editorRouter.delete( '/projects/:projectName/editor/materials/:name', ( req, res ) => {
-
-	handleAction( req.params.projectName, 'removeMaterial', { name: req.params.name }, res );
 
 } );
 

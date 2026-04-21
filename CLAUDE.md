@@ -44,17 +44,33 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## リソース自動生成（Vite プラグイン）
 
-`plugins/ResourceManager` が Vite プラグインとして動作し、以下のファイルを**自動生成**する。手動で編集してはいけない（`npm run dev` または `npm run build` で上書きされる）。
+`vite-plugins/ResourceManager` が Vite プラグインとして動作し、以下のファイルを**自動生成**する。手動で編集してはいけない（`npm run dev` または `npm run build` で上書きされる）。
 
 | 自動生成ファイル | スキャン対象ディレクトリ | 条件 |
 |-----------------|----------------------|------|
-| `src/ts/Resources/_data/componentList.ts` | `src/ts/Resources/Components/` | `index.ts` に `export class Xxx` があること |
-| `src/ts/Resources/_data/geometryList.ts` | `src/ts/Resources/Geometries/` | 同上 |
-| `src/ts/Resources/_data/materialList.ts` | `src/ts/Resources/Materials/` | `.mat` ファイル |
-| `src/ts/Resources/_data/shaderList.ts` | `src/ts/Resources/Shaders/` | `index.vs` / `index.fs` |
-| `src/ts/Resources/_data/textureList.ts` | `src/ts/Resources/Textures/` | `.tex` ファイル |
+| `<project>/Resources/_data/componentList.ts` | `<project>/Resources/Components/` | `index.ts` に `export class Xxx` があること |
+| `<project>/Resources/_data/geometryList.ts` | `<project>/Resources/Geometries/` | 同上 |
+| `<project>/Resources/_data/textureList.ts` | `<project>/Resources/Textures/` | `.tex` ファイル（中の `frag` は同ディレクトリからの相対パスで `.fs` を指す） |
 
-**コンポーネントを追加するには**、`src/ts/Resources/Components/<グループ>/<名前>/index.ts` に `export class Xxx extends MXP.Component` を置くだけでよい。`componentList.ts` への手動登録は不要。ディレクトリ名が先頭 `_` のものはスキャン対象外。
+**コンポーネントを追加するには**、`<project>/Resources/Components/<グループ>/<名前>/index.ts` に `export class Xxx extends MXP.Component` を置くだけでよい。`componentList.ts` への手動登録は不要。ディレクトリ名が先頭 `_` のものはスキャン対象外。
+
+### Material / Shader の扱い
+
+Material と Shader はエディタUIから編集しない。Component ディレクトリ内に同梱し、TS コードから直接 import する。
+
+```
+<project>/Resources/Components/<Group>/<Name>/
+├── index.ts          # Component 本体。.vs / .fs を import して Material を生成
+└── shaders/
+    ├── main.vs
+    └── main.fs
+```
+
+- `.vs` / `.fs` ファイルは `import vert from './shaders/main.vs'` で文字列として読み込む（`ShaderMinifierLoader` プラグインが `export default "..."` に変換する）
+- Material は Component のコンストラクタ内で `new MXP.Material({ vert, frag, phase, uniforms, ... })` として生成する
+- Mesh に Material を適用する場合は、同じ Entity の Mesh コンポーネントを取得して `mesh.material = this.material` とする
+- `demo/Resources/Components/Samples/Materials/` 配下の `OREngineCubeMaterial` / `OREngineLogoMaterial` / `SkyBoxMaterial` が参考実装
+- HMR: `import.meta.hot.accept('./shaders/main.fs', ...)` でシェーダーのホットリロードに対応（`MXP.hotGet` / `MXP.hotUpdate` を使うとキャッシュ管理まで面倒を見てくれる）
 
 ## アーキテクチャ
 - **glpower**: WebGL低レベルラッパー（Vector, Matrix, Quaternion, EventEmitter, GLPowerFrameBuffer等）
