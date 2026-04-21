@@ -80,24 +80,10 @@ const resourcePlugins = ( projectDir: string ) => {
 			exportName: 'GEOMETRYLIST',
 		} ),
 		ResourceManager( {
-			componentsDir: `${projectResources}/Materials/`,
-			outputFile: `${projectResources}/_data/materialList.ts`,
-			exportName: 'MATERIALLIST',
-			type: 'material',
-			shadersDir: `${projectResources}/Shaders/`,
-		} ),
-		ResourceManager( {
 			componentsDir: `${projectResources}/Textures/`,
 			outputFile: `${projectResources}/_data/textureList.ts`,
 			exportName: 'TEXTURELIST',
 			type: 'texture',
-			shadersDir: `${projectResources}/Shaders/`,
-		} ),
-		ResourceManager( {
-			componentsDir: `${projectResources}/Shaders/`,
-			outputFile: `${projectResources}/_data/shaderList.ts`,
-			exportName: 'SHADERLIST',
-			type: 'shader',
 		} ),
 	];
 

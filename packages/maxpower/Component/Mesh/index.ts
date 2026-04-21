@@ -7,7 +7,7 @@ import { SphereGeometry } from "../../Geometry/SphereGeometry";
 import { Material } from "../../Material";
 
 const defaultGeometry = new Geometry();
-const defaultMaterial = new Material();
+export const defaultMeshMaterial = new Material();
 
 export class Mesh extends Component {
 
@@ -15,19 +15,9 @@ export class Mesh extends Component {
 	public material: Material;
 
 	public static getGeometryList: () => { name: string, geometryClass: typeof Geometry }[] = () => [];
-	public static getMaterialList: () => { name: string }[] = () => [];
-	public static getMaterialInstance: ( name: string ) => Material | undefined = () => undefined;
 
 	private _geometryType: string;
 	private _geometryParams: { [key: string]: number | boolean };
-
-	private _materialType: string;
-
-	public get materialType() {
-
-		return this._materialType;
-
-	}
 
 	constructor( params: ComponentParams<{ geometry?: Geometry; material?: Material } | void> ) {
 
@@ -36,10 +26,9 @@ export class Mesh extends Component {
 		const args = params.args || {};
 
 		this.geometry = args.geometry || defaultGeometry;
-		this.material = args.material || defaultMaterial;
+		this.material = args.material || defaultMeshMaterial;
 		this._geometryType = "";
 		this._geometryParams = {};
-		this._materialType = "";
 
 		/*-------------------------------
 			Geometry Fields
@@ -181,37 +170,6 @@ export class Mesh extends Component {
 			{ hidden: () => this._geometryType !== "Cylinder" }
 		);
 
-		/*-------------------------------
-			Material Fields
-		-------------------------------*/
-
-		const mat = this.fieldDir( "material" );
-
-		mat.field( "name", () => this._materialType, ( v ) => {
-
-			this._materialType = v;
-			this._rebuildMaterial();
-
-		}, {
-			format: {
-				type: "resource",
-				resourceType: "material",
-				list: () => {
-
-					const list: { label: string, value: string }[] = [ { label: "(None)", value: "" } ];
-
-					Mesh.getMaterialList().forEach( m => {
-
-						list.push( { label: m.name, value: m.name } );
-
-					} );
-
-					return list;
-
-				}
-			}
-		} );
-
 	}
 
 	/*-------------------------------
@@ -258,24 +216,6 @@ export class Mesh extends Component {
 			return new Geometry();
 
 		}
-
-		}
-
-	}
-
-	/*-------------------------------
-		Material Rebuild
-	-------------------------------*/
-
-	private _rebuildMaterial() {
-
-		if ( ! this._materialType ) return;
-
-		const instance = Mesh.getMaterialInstance( this._materialType );
-
-		if ( instance ) {
-
-			this.material = instance;
 
 		}
 

@@ -4,8 +4,6 @@ import { ComponentGroup, GeometryGroup, Engine, BUILTIN_COMPONENTLIST, BUILTIN_G
 
 import { COMPONENTLIST } from './_data/componentList';
 import { GEOMETRYLIST } from './_data/geometryList';
-import { MATERIALLIST } from './_data/materialList';
-import { SHADERLIST } from './_data/shaderList';
 import { TEXTURELIST } from './_data/textureList';
 
 type ClassList = {
@@ -137,39 +135,6 @@ export const initResouces = () => {
 	}
 
 	/*-------------------------------
-		Shaders
-	-------------------------------*/
-
-	for ( let i = 0; i < SHADERLIST.length; i ++ ) {
-
-		const s = SHADERLIST[ i ];
-		Engine.resources.addShader( s.name, s.source );
-
-	}
-
-	if ( import.meta.hot ) {
-
-		import.meta.hot.accept( './_data/shaderList', ( newModule ) => {
-
-			if ( ! newModule ) return;
-
-			for ( const s of newModule.SHADERLIST ) {
-
-				const shader = Engine.resources.getShader( s.name );
-
-				if ( shader ) {
-
-					shader.updateSource( s.source );
-
-				}
-
-			}
-
-		} );
-
-	}
-
-	/*-------------------------------
 		Textures
 	-------------------------------*/
 
@@ -186,46 +151,17 @@ export const initResouces = () => {
 	}
 
 	/*-------------------------------
-		Materials
-	-------------------------------*/
-
-	const matKeys = Object.keys( MATERIALLIST );
-
-	for ( let i = 0; i < matKeys.length; i ++ ) {
-
-		const name = matKeys[ i ];
-		const data = MATERIALLIST[ name ];
-
-		Engine.resources.addMaterial( name, data );
-
-	}
-
-	/*-------------------------------
 		Mesh static callbacks
 	-------------------------------*/
 
 	MXP.Mesh.getGeometryList = () => Engine.resources.geometryList;
-	MXP.Mesh.getMaterialList = () => Engine.resources.materialList;
-	MXP.Mesh.getMaterialInstance = ( name ) => Engine.resources.getMaterialInstance( name );
-
 
 };
 
-export const initResourceInstances = ( glCtx: WebGL2RenderingContext, globalUniforms?: any ) => {
+export const initResourceInstances = ( glCtx: WebGL2RenderingContext ) => {
 
 	const engine = Engine.getInstance( glCtx );
 
 	Engine.resources.buildTextureInstances( engine.renderer, glCtx, engine.uniforms );
-
-	if ( globalUniforms?.music ) {
-
-		Engine.resources.setGlobalUniforms( globalUniforms.music, {
-			uNoiseTex: {
-				value: Engine.resources.getTexture( "noise" ),
-				type: "1i"
-			}
-		} );
-
-	}
 
 };

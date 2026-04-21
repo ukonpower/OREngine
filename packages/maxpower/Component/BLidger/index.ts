@@ -10,7 +10,7 @@ import { PlaneGeometry } from '../../Geometry/PlaneGeometry';
 import { SphereGeometry } from '../../Geometry/SphereGeometry';
 import { Camera } from '../Camera';
 import { Light } from '../Light';
-import { Mesh } from '../Mesh';
+import { Mesh, defaultMeshMaterial } from '../Mesh';
 
 export class BLidger extends Component {
 
@@ -170,7 +170,7 @@ export class BLidger extends Component {
 
 						mesh.geometry = gltfMesh.geometry;
 
-						if ( ! mesh.materialType ) {
+						if ( mesh.material === defaultMeshMaterial ) {
 
 							mesh.material = gltfMesh.material;
 

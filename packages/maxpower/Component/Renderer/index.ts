@@ -31,14 +31,12 @@ export class RendererSky {
 	public readonly groundColor: GLP.Vector;
 
 	private _intensity: number;
-	private _materialType: string;
 
 	constructor() {
 
 		this.color = new GLP.Vector( 1.0, 1.0, 1.0 );
 		this.groundColor = new GLP.Vector( 0.3, 0.3, 0.3 );
 		this._intensity = 1.0;
-		this._materialType = "";
 
 		this.material = new Material( {
 			phase: [ "deferred", "envMap" ],
@@ -68,38 +66,6 @@ export class RendererSky {
 
 		this._intensity = v;
 		this.material.uniforms.uSkyIntensity.value = v;
-
-	}
-
-	public get materialType(): string {
-
-		return this._materialType;
-
-	}
-
-	public set materialType( v: string ) {
-
-		this._materialType = v;
-		this._rebuildMaterial();
-
-	}
-
-	private _rebuildMaterial(): void {
-
-		if ( ! this._materialType ) {
-
-			this.mesh.material = this.material;
-			return;
-
-		}
-
-		const instance = Mesh.getMaterialInstance( this._materialType );
-
-		if ( instance ) {
-
-			this.mesh.material = instance;
-
-		}
 
 	}
 
@@ -410,30 +376,11 @@ export class Renderer extends Serializable {
 			{ step: 0.1 }
 		);
 
-		skyDir.field( "material",
-			() => this.sky.materialType,
-			( v: string ) => { this.sky.materialType = v; },
-			{
-				format: {
-					type: "resource",
-					resourceType: "material",
-					list: () => {
-
-						const list: { label: string, value: string }[] = [ { label: "(Default)", value: "" } ];
-						Mesh.getMaterialList().forEach( m => list.push( { label: m.name, value: m.name } ) );
-						return list;
-
-					}
-				}
-			}
-		);
-
 		skyDir.field( "reset", () => () => {
 
 			this.setField( "sky/skyColor", [ 1.0, 1.0, 1.0 ] );
 			this.setField( "sky/groundColor", [ 0.3, 0.3, 0.3 ] );
 			this.setField( "sky/intensity", 1.0 );
-			this.setField( "sky/material", "" );
 
 		}, undefined, { label: "Reset to Default" } );
 
