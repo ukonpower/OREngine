@@ -2,12 +2,12 @@ import * as GLP from 'glpower';
 
 import { Component, ComponentParams, ComponentUpdateEvent } from "..";
 import { BLidge, BLidgeNode, BLidgeLightParam, BLidgeCameraParam } from "../../BLidge";
-import { SerializeFieldValue } from '../../Serializable';
 import { Geometry } from '../../Geometry';
 import { CubeGeometry } from '../../Geometry/CubeGeometry';
 import { CylinderGeometry } from '../../Geometry/CylinderGeometry';
 import { PlaneGeometry } from '../../Geometry/PlaneGeometry';
 import { SphereGeometry } from '../../Geometry/SphereGeometry';
+import { SerializeFieldValue } from '../../Serializable';
 import { Camera } from '../Camera';
 import { Light } from '../Light';
 import { Mesh, defaultMeshMaterial } from '../Mesh';

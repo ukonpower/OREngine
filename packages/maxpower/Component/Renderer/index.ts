@@ -244,8 +244,10 @@ export class Renderer extends Serializable {
 		this.resolution = new GLP.Vector();
 		this._extDisJointTimerQuery = this.gl.getExtension( "EXT_disjoint_timer_query_webgl2" );
 
-		if ( !this._extDisJointTimerQuery ) {
-			console.warn("[Renderer] EXT_disjoint_timer_query_webgl2 extension is not supported. GPU timing features will be disabled.");
+		if ( ! this._extDisJointTimerQuery ) {
+
+			console.warn( "[Renderer] EXT_disjoint_timer_query_webgl2 extension is not supported. GPU timing features will be disabled." );
+
 		}
 
 		// lights
@@ -360,19 +362,31 @@ export class Renderer extends Serializable {
 
 		skyDir.field( "skyColor",
 			() => this.sky.color.getElm( "vec3" ),
-			( v: number[] ) => { this.sky.color.set( v[ 0 ], v[ 1 ], v[ 2 ] ); },
+			( v: number[] ) => {
+
+				this.sky.color.set( v[ 0 ], v[ 1 ], v[ 2 ] );
+
+			},
 			{ format: { type: "vector" } }
 		);
 
 		skyDir.field( "groundColor",
 			() => this.sky.groundColor.getElm( "vec3" ),
-			( v: number[] ) => { this.sky.groundColor.set( v[ 0 ], v[ 1 ], v[ 2 ] ); },
+			( v: number[] ) => {
+
+				this.sky.groundColor.set( v[ 0 ], v[ 1 ], v[ 2 ] );
+
+			},
 			{ format: { type: "vector" } }
 		);
 
 		skyDir.field( "intensity",
 			() => this.sky.intensity,
-			( v: number ) => { this.sky.intensity = v; },
+			( v: number ) => {
+
+				this.sky.intensity = v;
+
+			},
 			{ step: 0.1 }
 		);
 
@@ -1452,11 +1466,13 @@ export class Renderer extends Serializable {
 					if ( query == null ) {
 
 						query = this.gl.createQuery();
+
 					}
 
 					if ( query ) {
 
 						this.gl.beginQuery( this._extDisJointTimerQuery.TIME_ELAPSED_EXT, query );
+
 					}
 
 				}
@@ -1492,14 +1508,18 @@ export class Renderer extends Serializable {
 				// query ------------------------
 
 				if ( import.meta.env.DEV && this._extDisJointTimerQuery ) {
+
 					if ( query ) {
+
 						this.gl.endQuery( this._extDisJointTimerQuery.TIME_ELAPSED_EXT );
 						const label = param && param.label || "_";
 						this._queryListQueued.push( {
 							name: `${renderType}/${label}/ [${drawId}]`,
 							query: query
 						} );
+
 					}
+
 				}
 
 				// ----------------------------

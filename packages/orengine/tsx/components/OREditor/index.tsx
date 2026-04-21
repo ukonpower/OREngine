@@ -5,7 +5,6 @@ import React, { useEffect } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 
 import { useLayout } from '../../hooks/useLayout';
-import { useSerializableField } from '../../hooks/useSerializableProps';
 import { InputWindow } from '../InputWindow';
 import { InputWindowContext } from '../InputWindow/Context/InputWindowContext';
 import { useInputWindowContext } from '../InputWindow/Hooks/useInputWindowContext';
@@ -15,8 +14,6 @@ import { MouseMenuContext } from '../MouseMenu/Context/MouseMenuContext';
 import { useMouseMenuContext } from '../MouseMenu/Hooks/useMouseMenuContext';
 import { Panel } from '../Panel';
 import { PanelContainer } from '../PanelContainer';
-import { AssetProperty } from '../Panels/AssetProperty';
-import { AssetViewer } from '../Panels/AssetViewer';
 import { EntityProperty } from '../Panels/EntityProperty';
 import { Timer } from '../Panels/GPUTimer';
 import { Hierarchy } from '../Panels/Hierarchy';
@@ -79,11 +76,9 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 
 	}, [ props.editorData, editorContext.editor ] );
 
-
-       const layout = useLayout();
-       const [ selectedAsset ] = useSerializableField( editorContext.editor, "selectedAsset" );
-       const mouseMenuContext = useMouseMenuContext();
-       const inputWindowContext = useInputWindowContext();
+	const layout = useLayout();
+	const mouseMenuContext = useMouseMenuContext();
+	const inputWindowContext = useInputWindowContext();
 
 	let editorElm = null;
 
@@ -123,50 +118,32 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 									<LayoutSplit.Item flex={1} minSize={200}>
 										<Screen />
 									</LayoutSplit.Item>
-									<LayoutSplit.Item size="200px" minSize={120}>
+									{props.customTabs?.mainBottom && <LayoutSplit.Item size="200px" minSize={120}>
 										<PanelContainer storageKey="orengine-panel-assets" defaultTabTitle={defaultTabTitle( props.customTabs?.mainBottom )}>
-											<PanelContainer.Tab title='Assets'>
-												<Panel noPadding>
-													<AssetViewer />
-												</Panel>
-											</PanelContainer.Tab>
 											{renderCustomTabs( props.customTabs?.mainBottom )}
-										</PanelContainer>
-									</LayoutSplit.Item>
-								</LayoutSplit>
-							</LayoutSplit.Item>
-							<LayoutSplit.Item size="300px" minSize={200}>
-								<LayoutSplit direction="vertical" storageKey={selectedAsset ? "orengine-editor-pc-right-asset" : "orengine-editor-pc-right"}>
-									<LayoutSplit.Item flex={1} minSize={200}>
-										<PanelContainer storageKey="orengine-panel-property" defaultTabTitle={defaultTabTitle( props.customTabs?.rightTop )}>
-											<PanelContainer.Tab title='Property'>
-												<Panel>
-													<EntityProperty />
-												</Panel>
-											</PanelContainer.Tab>
-											<PanelContainer.Tab title='Project'>
-												<Panel>
-													<ProjectControl />
-												</Panel>
-											</PanelContainer.Tab>
-											<PanelContainer.Tab title='Renderer'>
-												<Panel>
-													<RendererSettings />
-												</Panel>
-											</PanelContainer.Tab>
-											{renderCustomTabs( props.customTabs?.rightTop )}
-										</PanelContainer>
-									</LayoutSplit.Item>
-									{selectedAsset && <LayoutSplit.Item size="35%" minSize={150}>
-										<PanelContainer storageKey="orengine-panel-asset">
-											<PanelContainer.Tab title='Asset'>
-												<Panel>
-													<AssetProperty />
-												</Panel>
-											</PanelContainer.Tab>
 										</PanelContainer>
 									</LayoutSplit.Item>}
 								</LayoutSplit>
+							</LayoutSplit.Item>
+							<LayoutSplit.Item size="300px" minSize={200}>
+								<PanelContainer storageKey="orengine-panel-property" defaultTabTitle={defaultTabTitle( props.customTabs?.rightTop )}>
+									<PanelContainer.Tab title='Property'>
+										<Panel>
+											<EntityProperty />
+										</Panel>
+									</PanelContainer.Tab>
+									<PanelContainer.Tab title='Project'>
+										<Panel>
+											<ProjectControl />
+										</Panel>
+									</PanelContainer.Tab>
+									<PanelContainer.Tab title='Renderer'>
+										<Panel>
+											<RendererSettings />
+										</Panel>
+									</PanelContainer.Tab>
+									{renderCustomTabs( props.customTabs?.rightTop )}
+								</PanelContainer>
 							</LayoutSplit.Item>
 						</LayoutSplit>
 					</LayoutSplit.Item>
@@ -204,11 +181,6 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 										<EntityProperty />
 									</LayoutSplit.Item>
 								</LayoutSplit>
-							</PanelContainer.Tab>
-							<PanelContainer.Tab title='Assets'>
-								<Panel noPadding>
-									<AssetViewer />
-								</Panel>
 							</PanelContainer.Tab>
 							<PanelContainer.Tab title='Project'>
 								<Panel>

@@ -4,10 +4,8 @@ import type { Server } from 'http';
 import { ProjectManager } from './Project';
 import { createComponentsRouter } from './routes/components';
 import { createEditorRouter } from './routes/editor';
-import { createMaterialsRouter } from './routes/materials';
 import { createProjectsRouter } from './routes/projects';
 import { createSceneRouter } from './routes/scene';
-import { createShadersRouter } from './routes/shaders';
 import { createTexturesRouter } from './routes/textures';
 import { initWSBridge } from './ws';
 
@@ -34,8 +32,6 @@ export const startOrengineServer = ( opts: OrengineServerOptions ): Promise<Oren
 	app.use( '/api', createProjectsRouter( pm ) );
 	app.use( '/api', createSceneRouter( pm ) );
 	app.use( '/api', createComponentsRouter( pm ) );
-	app.use( '/api', createMaterialsRouter( pm ) );
-	app.use( '/api', createShadersRouter( pm ) );
 	app.use( '/api', createTexturesRouter( pm ) );
 	app.use( '/api', createEditorRouter( pm ) );
 
