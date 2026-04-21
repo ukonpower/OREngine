@@ -228,187 +228,13 @@ const updateComponentListForDir = ( compDir: string, outFile: string, exportName
 
 };
 
-const updateMaterialListForDir = ( matDir: string, shadersDir: string, outFile: string, exportName: string ) => {
+const updateTextureListForDir = ( texDir: string, outFile: string, exportName: string ) => {
 
-	if ( ! fs.existsSync( matDir ) ) {
-
-		writeEmptyExport( outFile, exportName, 'object' );
-		return;
-
-	}
-
-	const outDir = path.dirname( outFile );
-
-	if ( ! fs.existsSync( outDir ) ) {
-
-		fs.mkdirSync( outDir, { recursive: true } );
-
-	}
-
-	const matFiles: { name: string, matPath: string, config: any, relativePath: string }[] = [];
-
-	const scanDir = ( dir: string ) => {
-
-		const entries = fs.readdirSync( dir, { withFileTypes: true } );
-
-		entries.forEach( entry => {
-
-			if ( entry.name.startsWith( '_' ) ) return;
-
-			const fullPath = path.join( dir, entry.name );
-
-			if ( entry.isDirectory() ) {
-
-				scanDir( fullPath );
-
-			} else if ( entry.isFile() && entry.name.endsWith( '.mat' ) ) {
-
-				try {
-
-					const name = path.basename( entry.name, '.mat' );
-					const config = JSON.parse( fs.readFileSync( fullPath, 'utf-8' ) );
-					const relativePath = path.relative( path.dirname( matDir ), fullPath ).replace( /\\/g, '/' );
-					matFiles.push( { name, matPath: fullPath, config, relativePath } );
-
-				} catch { /* skip incomplete file */ }
-
-			}
-
-		} );
-
-	};
-
-	scanDir( matDir );
-
-	let file = "// @ts-nocheck\n\n";
-	file += `export const ${exportName}: {[key: string]: any} = {\n`;
-
-	matFiles.forEach( ( mat ) => {
-
-		const config = { ...mat.config };
-
-		if ( config.shader ) {
-
-			const shaderName = config.shader;
-			const shaderDir = path.join( shadersDir, shaderName );
-
-			if ( fs.existsSync( path.join( shaderDir, 'index.vs' ) ) ) {
-
-				config.vert = `${shaderName}/vert`;
-
-			}
-
-			if ( fs.existsSync( path.join( shaderDir, 'index.fs' ) ) ) {
-
-				config.frag = `${shaderName}/frag`;
-
-			}
-
-			delete config.shader;
-
-		}
-
-		file += `\t${mat.name}: ${JSON.stringify( config )},\n`;
-
-	} );
-
-	file += "};\n";
-
-	const existing = fs.existsSync( outFile ) ? fs.readFileSync( outFile, 'utf-8' ) : '';
-
-	if ( existing !== file ) {
-
-		fs.writeFileSync( outFile, file );
-
-	}
-
-};
-
-const updateShaderListForDir = ( shadersDir: string, outFile: string, exportName: string ) => {
-
-	if ( ! fs.existsSync( shadersDir ) ) {
-
-		writeEmptyExport( outFile, exportName, 'array', '{name: string, source: string}' );
-		return;
-
-	}
-
-	const outDir = path.dirname( outFile );
-
-	if ( ! fs.existsSync( outDir ) ) {
-
-		fs.mkdirSync( outDir, { recursive: true } );
-
-	}
-
-	const shaderItems: { name: string, varName: string, relPath: string }[] = [];
-
-	const entries = fs.readdirSync( shadersDir, { withFileTypes: true } );
-
-	entries.forEach( entry => {
-
-		if ( ! entry.isDirectory() || entry.name.startsWith( '_' ) ) return;
-
-		const shaderDir = path.join( shadersDir, entry.name );
-		const vertPath = path.join( shaderDir, 'index.vs' );
-		const fragPath = path.join( shaderDir, 'index.fs' );
-
-		if ( fs.existsSync( vertPath ) ) {
-
-			shaderItems.push( {
-				name: `${entry.name}/vert`,
-				varName: `${entry.name}Vert`,
-				relPath: path.relative( path.dirname( outFile ), vertPath ).replace( /\\/g, '/' ),
-			} );
-
-		}
-
-		if ( fs.existsSync( fragPath ) ) {
-
-			shaderItems.push( {
-				name: `${entry.name}/frag`,
-				varName: `${entry.name}Frag`,
-				relPath: path.relative( path.dirname( outFile ), fragPath ).replace( /\\/g, '/' ),
-			} );
-
-		}
-
-	} );
-
-	let file = "// @ts-nocheck\n";
-
-	shaderItems.forEach( item => {
-
-		file += `import ${item.varName} from '${item.relPath}';\n`;
-
-	} );
-
-	file += "\n";
-	file += `export const ${exportName}: {name: string, source: string}[] = [\n`;
-
-	shaderItems.forEach( item => {
-
-		file += `\t{ name: ${JSON.stringify( item.name )}, source: ${item.varName} },\n`;
-
-	} );
-
-	file += "];\n";
-
-	const existing = fs.existsSync( outFile ) ? fs.readFileSync( outFile, 'utf-8' ) : '';
-
-	if ( existing !== file ) {
-
-		fs.writeFileSync( outFile, file );
-
-	}
-
-};
-
-const updateTextureListForDir = ( texDir: string, _shadersDir: string, outFile: string, exportName: string ) => {
+	const typeDecl = '{name: string, frag?: string, resolution: number[], filter?: string, updateEveryFrame?: boolean}';
 
 	if ( ! fs.existsSync( texDir ) ) {
 
-		writeEmptyExport( outFile, exportName, 'array', '{name: string, frag?: string, resolution: number[], filter?: string, updateEveryFrame?: boolean}' );
+		writeEmptyExport( outFile, exportName, 'array', typeDecl );
 		return;
 
 	}
@@ -421,7 +247,7 @@ const updateTextureListForDir = ( texDir: string, _shadersDir: string, outFile: 
 
 	}
 
-	const texFiles: { name: string, config: any, relativePath: string }[] = [];
+	const texFiles: { name: string, config: any, texPath: string }[] = [];
 
 	const scanDir = ( dir: string ) => {
 
@@ -443,7 +269,7 @@ const updateTextureListForDir = ( texDir: string, _shadersDir: string, outFile: 
 
 					const name = path.basename( entry.name, '.tex' );
 					const config = JSON.parse( fs.readFileSync( fullPath, 'utf-8' ) );
-					texFiles.push( { name, config, relativePath: path.relative( path.dirname( outFile ), fullPath ).replace( /\\/g, '/' ) } );
+					texFiles.push( { name, config, texPath: fullPath } );
 
 				} catch { /* skip incomplete file */ }
 
@@ -455,21 +281,69 @@ const updateTextureListForDir = ( texDir: string, _shadersDir: string, outFile: 
 
 	scanDir( texDir );
 
-	let file = "// @ts-nocheck\n\n";
+	const imports: { varName: string, relPath: string }[] = [];
+	const usedVarNames = new Map<string, string>();
 
-	file += `export const ${exportName}: {name: string, frag?: string, resolution: number[], filter?: string, updateEveryFrame?: boolean}[] = [\n`;
+	const getImportVar = ( texPath: string, fragRef: string ) => {
+
+		const fragAbsPath = path.resolve( path.dirname( texPath ), fragRef );
+		const relPath = path.relative( path.dirname( outFile ), fragAbsPath ).replace( /\\/g, '/' );
+
+		const existing = usedVarNames.get( relPath );
+		if ( existing ) return existing;
+
+		const base = path.basename( fragAbsPath, path.extname( fragAbsPath ) );
+		let varName = `${base}_frag`;
+		let suffix = 0;
+
+		while ( Array.from( usedVarNames.values() ).includes( varName ) ) {
+
+			suffix ++;
+			varName = `${base}_frag_${suffix}`;
+
+		}
+
+		usedVarNames.set( relPath, varName );
+		imports.push( { varName, relPath } );
+
+		return varName;
+
+	};
+
+	const entries: string[] = [];
 
 	texFiles.forEach( ( tex ) => {
-
-		const fragName = tex.config.frag || undefined;
 
 		const res = tex.config.resolution || [ 1024, 1024 ];
 		const filter = tex.config.filter ? `, filter: ${JSON.stringify( tex.config.filter )}` : '';
 		const update = tex.config.updateEveryFrame ? `, updateEveryFrame: true` : '';
-		file += `\t{ name: ${JSON.stringify( tex.name )}, frag: ${fragName ? JSON.stringify( fragName ) : 'undefined'}, resolution: ${JSON.stringify( res )}${filter}${update} },\n`;
+
+		let fragEntry = 'undefined';
+
+		if ( tex.config.frag ) {
+
+			const varName = getImportVar( tex.texPath, tex.config.frag );
+			fragEntry = varName;
+
+		}
+
+		entries.push( `\t{ name: ${JSON.stringify( tex.name )}, frag: ${fragEntry}, resolution: ${JSON.stringify( res )}${filter}${update} },` );
 
 	} );
 
+	let file = "// @ts-nocheck\n";
+
+	imports.forEach( imp => {
+
+		file += `import ${imp.varName} from '${imp.relPath.startsWith( '.' ) ? imp.relPath : './' + imp.relPath}';\n`;
+
+	} );
+
+	if ( imports.length > 0 ) file += "\n";
+
+	file += `export const ${exportName}: ${typeDecl}[] = [\n`;
+	file += entries.join( '\n' );
+	if ( entries.length > 0 ) file += "\n";
 	file += "];\n";
 
 	const existing = fs.existsSync( outFile ) ? fs.readFileSync( outFile, 'utf-8' ) : '';
@@ -506,8 +380,7 @@ export const ResourceManager = ( options?: {
 	outputFile?: string;
 	projectsDir?: string;
 	exportName?: string;
-	type?: 'class' | 'material' | 'shader' | 'texture';
-	shadersDir?: string;
+	type?: 'class' | 'texture';
 } ): Plugin => {
 
 	const scanType = options?.type || 'class';
@@ -516,23 +389,14 @@ export const ResourceManager = ( options?: {
 	const useProjectsDir = !! options?.projectsDir;
 	const componentsDir = options?.componentsDir || "./src/ts/Resources/Components/";
 	const componentListFile = options?.outputFile || "./src/ts/Resources/_data/componentList.ts";
-	const shadersDir = options?.shadersDir || "";
 
 	let watcher: chokidar.FSWatcher | null = null;
 
 	const update = () => {
 
-		if ( scanType === 'material' ) {
+		if ( scanType === 'texture' ) {
 
-			updateMaterialListForDir( componentsDir, shadersDir, componentListFile, exportName );
-
-		} else if ( scanType === 'shader' ) {
-
-			updateShaderListForDir( componentsDir, componentListFile, exportName );
-
-		} else if ( scanType === 'texture' ) {
-
-			updateTextureListForDir( componentsDir, shadersDir, componentListFile, exportName );
+			updateTextureListForDir( componentsDir, componentListFile, exportName );
 
 		} else {
 
@@ -591,15 +455,7 @@ export const ResourceManager = ( options?: {
 
 			} else {
 
-				const watchDirs = [ componentsDir ];
-
-				if ( ( scanType === 'material' || scanType === 'texture' ) && shadersDir && fs.existsSync( shadersDir ) ) {
-
-					watchDirs.push( shadersDir );
-
-				}
-
-				watcher = chokidar.watch( watchDirs, {
+				watcher = chokidar.watch( [ componentsDir ], {
 					ignored: /[\\/\\]\./,
 					persistent: true
 				} );
@@ -611,17 +467,9 @@ export const ResourceManager = ( options?: {
 					watcher!.on( 'add', onChange );
 					watcher!.on( 'change', ( p ) => {
 
-						if ( scanType === 'material' ) {
+						if ( scanType === 'texture' ) {
 
-							if ( p.endsWith( '.mat' ) || p.endsWith( '.vs' ) || p.endsWith( '.fs' ) ) onChange();
-
-						} else if ( scanType === 'texture' ) {
-
-							if ( p.endsWith( '.tex' ) || p.endsWith( '.fs' ) ) onChange();
-
-						} else if ( scanType === 'shader' ) {
-
-							onChange();
+							if ( p.endsWith( '.tex' ) ) onChange();
 
 						} else {
 

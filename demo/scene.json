@@ -67,9 +67,12 @@
 										"geometry/floor": false,
 										"geometry/radiusTop": 1,
 										"geometry/radiusBottom": 1,
-										"geometry/caps": true,
-										"material/name": "OREngineCube"
+										"geometry/caps": true
 									}
+								},
+								{
+									"name": "OREngineCubeMaterial",
+									"uuid": "0000018d"
 								}
 							]
 						},
@@ -90,9 +93,12 @@
 										"geometry/floor": false,
 										"geometry/radiusTop": 1,
 										"geometry/radiusBottom": 1,
-										"geometry/caps": true,
-										"material/name": "OREngineLogo"
+										"geometry/caps": true
 									}
+								},
+								{
+									"name": "OREngineLogoMaterial",
+									"uuid": "00000190"
 								}
 							]
 						},
@@ -117,9 +123,12 @@
 										"geometry/floor": false,
 										"geometry/radiusTop": 1,
 										"geometry/radiusBottom": 1,
-										"geometry/caps": true,
-										"material/name": "OREngineCube"
+										"geometry/caps": true
 									}
+								},
+								{
+									"name": "OREngineCubeMaterial",
+									"uuid": "00000192"
 								}
 							]
 						},
@@ -153,6 +162,10 @@
 			{
 				"name": "UniformControls",
 				"uuid": "2"
+			},
+			{
+				"name": "SkyBoxMaterial",
+				"uuid": "3"
 			}
 		]
 	},
@@ -168,7 +181,6 @@
 			0.3
 		],
 		"sky/intensity": 1,
-		"sky/material": "SkyBox",
 		"pipeline/motionBlur/enabled": true,
 		"pipeline/motionBlur/power": 1,
 		"pipeline/ssr/enabled": true,
