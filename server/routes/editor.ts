@@ -227,7 +227,10 @@ function handleActionLocal(
 
 	if ( WRITE_ACTIONS.has( action ) ) {
 
-		project.incrementRevision();
+		project.writeSceneFile( sceneData );
+
+		const bridge = getWSBridge();
+		if ( bridge ) bridge.broadcastState( projectName, sceneData, { fullReload: true } );
 
 	}
 
@@ -245,7 +248,6 @@ async function handleActionInternal(
 
 	if ( bridge && bridge.isProjectConnected( projectName ) ) {
 
-		const primaryClient = bridge.getPrimaryClient( projectName );
 		const result = await bridge.send( projectName, action, params );
 
 		if ( ! result.success ) {
@@ -257,23 +259,6 @@ async function handleActionInternal(
 		if ( RESOURCE_MUTATING_ACTIONS.has( action ) ) {
 
 			await persistResourceChange( projectName, action, params, result.data );
-
-		}
-
-		if ( WRITE_ACTIONS.has( action ) ) {
-
-			const snapshot = await bridge.requestSync( projectName );
-
-			if ( snapshot ) {
-
-				const project = pm.getProject();
-				project.syncFromBrowser( snapshot );
-				bridge.broadcastState( projectName, snapshot, {
-					fullReload: true,
-					exclude: primaryClient,
-				} );
-
-			}
 
 		}
 
@@ -625,38 +610,6 @@ editorRouter.post( '/projects/:projectName/editor/redo', ( _req, res ) => {
 
 } );
 
-// --- セーブ ---
-
-editorRouter.post( '/projects/:projectName/editor/save', async ( req, res ) => {
-
-	try {
-
-		const project = pm.getProject();
-		const bridge = getWSBridge();
-
-		if ( bridge && bridge.isProjectConnected( req.params.projectName ) ) {
-
-			const snapshot = await bridge.requestSync( req.params.projectName );
-
-			if ( snapshot ) {
-
-				project.syncFromBrowser( snapshot );
-
-			}
-
-		}
-
-		project.save();
-		res.json( { success: true } );
-
-	} catch ( err: any ) {
-
-		res.status( 400 ).json( { error: err.message || String( err ) } );
-
-	}
-
-} );
-
 // --- リソース操作 ---
 
 editorRouter.get( '/projects/:projectName/editor/resources', ( req, res ) => {
@@ -974,31 +927,3 @@ editorRouter.post( '/projects/:projectName/editor/vite-errors/clear', ( _req, re
 
 } );
 
-// --- リロード ---
-
-editorRouter.post( '/projects/:projectName/editor/reload', async ( req, res ) => {
-
-	const { projectName } = req.params;
-
-	try {
-
-		const project = pm.getProject();
-		project.reloadFromDisk();
-
-		const bridge = getWSBridge();
-
-		if ( bridge ) {
-
-			bridge.pushFullReload( projectName );
-
-		}
-
-		res.json( { success: true } );
-
-	} catch ( e: any ) {
-
-		res.status( 500 ).json( { error: e.message } );
-
-	}
-
-} );

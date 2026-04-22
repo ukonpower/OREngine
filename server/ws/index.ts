@@ -1,7 +1,5 @@
 import { WebSocketServer, WebSocket } from 'ws';
 
-import { ProjectManager } from '../Project';
-
 import type { Server } from 'http';
 
 
@@ -26,7 +24,6 @@ type ClientInfo = {
 class EditorWSBridge {
 
 	private _wss: WebSocketServer;
-	private _pm: ProjectManager;
 	private _clients: Map<WebSocket, ClientInfo> = new Map();
 	private _pending: Map<string, {
 		resolve: ( value: any ) => void;
@@ -35,9 +32,8 @@ class EditorWSBridge {
 	private _idCounter = 0;
 	private _clientIdCounter = 0;
 
-	constructor( server: Server, pm: ProjectManager ) {
+	constructor( server: Server ) {
 
-		this._pm = pm;
 		this._wss = new WebSocketServer( { server, path: '/ws/editor' } );
 
 		this._wss.on( 'connection', ( ws ) => {
@@ -49,7 +45,6 @@ class EditorWSBridge {
 				if ( msg.type === 'register' && msg.projectName ) {
 
 					this._touchClient( ws, msg.projectName );
-					this._pushStateIfModified( msg.projectName );
 					this._broadcastClientStatus( msg.projectName );
 					return;
 
@@ -62,34 +57,6 @@ class EditorWSBridge {
 
 					this._touchClient( ws, info.projectName );
 					this._broadcastClientStatus( info.projectName );
-					return;
-
-				}
-
-				if ( msg.type === 'syncPush' && msg.sceneData ) {
-
-					const info = this._clients.get( ws );
-					if ( ! info ) return;
-					this._touchClient( ws, info.projectName );
-
-					return;
-
-				}
-
-				if ( msg.type === 'syncResponse' && msg.id ) {
-
-					this._touchClient( ws );
-
-					const pending = this._pending.get( msg.id );
-
-					if ( pending ) {
-
-						clearTimeout( pending.timer );
-						pending.resolve( msg );
-						this._pending.delete( msg.id );
-
-					}
-
 					return;
 
 				}
@@ -242,39 +209,6 @@ class EditorWSBridge {
 
 	}
 
-	async requestSync( projectName: string, timeout = 5000 ): Promise<any | null> {
-
-		const client = this._findClient( projectName );
-
-		if ( ! client ) return null;
-
-		const id = String( ++ this._idCounter );
-
-		return new Promise( ( resolve ) => {
-
-			const timer = setTimeout( () => {
-
-				this._pending.delete( id );
-				resolve( null );
-
-			}, timeout );
-
-			this._pending.set( id, {
-				resolve: ( res: any ) => {
-
-					clearTimeout( timer );
-					resolve( res.sceneData ?? null );
-
-				},
-				timer,
-			} );
-
-			client.send( JSON.stringify( { type: 'syncRequest', id, projectName } ) );
-
-		} );
-
-	}
-
 	executeAction( projectName: string, action: string, params: Record<string, unknown> ): void {
 
 		for ( const [ ws, info ] of this._clients ) {
@@ -322,39 +256,13 @@ class EditorWSBridge {
 
 	}
 
-	pushFullReload( projectName: string ): void {
-
-		try {
-
-			const sceneData = this._pm.getProject().getSceneFileData();
-			this.broadcastState( projectName, sceneData, { fullReload: true } );
-
-		} catch ( _e ) { /* ignore */ }
-
-	}
-
-	private _pushStateIfModified( projectName: string ): void {
-
-		try {
-
-			const project = this._pm.getProject();
-
-			if ( project.revision === 0 ) return;
-
-			const sceneData = project.getSceneFileData();
-			this.broadcastState( projectName, sceneData, { fullReload: true, exclude: null } );
-
-		} catch ( _e ) { /* ignore */ }
-
-	}
-
 }
 
 let bridge: EditorWSBridge | null = null;
 
-export function initWSBridge( server: Server, pm: ProjectManager ): EditorWSBridge {
+export function initWSBridge( server: Server ): EditorWSBridge {
 
-	bridge = new EditorWSBridge( server, pm );
+	bridge = new EditorWSBridge( server );
 	return bridge;
 
 }

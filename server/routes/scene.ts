@@ -78,22 +78,16 @@ export const createSceneRouter = ( pm: ProjectManager ) => {
 
 		writeJsonFile( path.join( pm.projectDir, 'scene.json' ), req.body, res );
 
-		// オンメモリ状態も更新
-		try {
+		const bridge = getWSBridge();
 
-			pm.getProject().syncFromBrowser( req.body );
+		if ( bridge ) {
 
-			const bridge = getWSBridge();
-			if ( bridge ) {
+			const clientId = req.header( 'x-orengine-client-id' );
+			const exclude = clientId ? bridge.findClientById( pm.name, clientId ) : null;
 
-				const clientId = req.header( 'x-orengine-client-id' );
-				const exclude = clientId ? bridge.findClientById( pm.name, clientId ) : null;
+			bridge.broadcastState( pm.name, req.body, { fullReload: true, exclude } );
 
-				bridge.broadcastState( pm.name, req.body, { fullReload: true, exclude } );
-
-			}
-
-		} catch { /* ignore */ }
+		}
 
 	} );
 

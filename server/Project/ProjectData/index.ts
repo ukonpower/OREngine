@@ -7,8 +7,6 @@ export class ProjectData {
 
 	private _name: string;
 	private _projectDir: string;
-	private _sceneData: SceneFileData | null = null;
-	private _revision = 0;
 
 	constructor( name: string, projectDir: string ) {
 
@@ -23,56 +21,24 @@ export class ProjectData {
 
 	}
 
-	get revision(): number {
-
-		return this._revision;
-
-	}
-
-	incrementRevision(): void {
-
-		this._revision ++;
-
-	}
-
 	getSceneFileData(): SceneFileData {
 
-		return this._ensureLoaded();
+		const data = this._readSceneFile();
 
-	}
+		if ( data.scene && ! data.scene.uuid ) {
 
-	syncFromBrowser( sceneData: SceneFileData ): void {
-
-		this._sceneData = sceneData;
-		this._revision = 0;
-
-	}
-
-	save(): void {
-
-		if ( this._sceneData ) {
-
-			this._writeSceneFile( this._sceneData );
+			data.scene.uuid = '0';
 
 		}
 
+		return data;
+
 	}
 
-	private _ensureLoaded(): SceneFileData {
+	writeSceneFile( data: SceneFileData ): void {
 
-		if ( ! this._sceneData ) {
-
-			this._sceneData = this._readSceneFile();
-
-		}
-
-		if ( this._sceneData.scene && ! this._sceneData.scene.uuid ) {
-
-			this._sceneData.scene.uuid = '0';
-
-		}
-
-		return this._sceneData;
+		const filePath = path.join( this._projectDir, 'scene.json' );
+		fs.writeFileSync( filePath, JSON.stringify( data, null, '\t' ) + '\n' );
 
 	}
 
@@ -88,20 +54,6 @@ export class ProjectData {
 
 		const content = fs.readFileSync( filePath, 'utf-8' );
 		return JSON.parse( content ) as SceneFileData;
-
-	}
-
-	reloadFromDisk(): void {
-
-		this._sceneData = this._readSceneFile();
-		this._revision ++;
-
-	}
-
-	private _writeSceneFile( data: SceneFileData ): void {
-
-		const filePath = path.join( this._projectDir, 'scene.json' );
-		fs.writeFileSync( filePath, JSON.stringify( data, null, '\t' ) + '\n' );
 
 	}
 

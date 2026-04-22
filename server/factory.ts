@@ -40,7 +40,7 @@ export const startOrengineServer = ( opts: OrengineServerOptions ): Promise<Oren
 		const server = app.listen( port, () => {
 
 			console.log( `OREngine Server running on port ${port} (project: ${pm.name})` );
-			initWSBridge( server, pm );
+			initWSBridge( server );
 
 			resolve( {
 				server,
