@@ -85,7 +85,7 @@
 								},
 								{
 									"name": "Mesh",
-									"uuid": "a1673531-0b99-4703-8399-81a694d0bdb0",
+									"uuid": "0000018f",
 									"props": {
 										"geometry/type": "",
 										"geometry/width": 1,
@@ -99,10 +99,6 @@
 										"geometry/radiusBottom": 1,
 										"geometry/caps": true
 									}
-								},
-								{
-									"name": "GridCross",
-									"uuid": "b1cbf4d4-0ddb-496f-88c4-66a7d6701279"
 								}
 							]
 						},
@@ -110,12 +106,12 @@
 							"name": "OREngineCube",
 							"components": [
 								{
-									"name": "ObjectRotate",
-									"uuid": "15"
+									"name": "OREngineCube",
+									"uuid": "e3093905-c1d4-4d42-8400-9eb233837df0"
 								},
 								{
-									"name": "OREngineCube",
-									"uuid": "00000192"
+									"name": "ObjectRotate",
+									"uuid": "6aa837ca-5823-43a6-8ddd-ddf09f4f0dc8"
 								},
 								{
 									"name": "Mesh",
