@@ -26,7 +26,7 @@ import { OREditorContext } from './Context/OREditorContext';
 import { useOREditorContext } from './Hooks/useOREditorContext';
 import style from './index.module.scss';
 
- type OREditorSaveCallback = ( projectData: OREngineProjectData, editorData: MXP.SerializeField ) => void
+ type OREditorSaveCallback = ( projectData: OREngineProjectData, editorData: MXP.SerializeField, clientId: string | null ) => void
 
 export type PanelSlot = "leftTop" | "leftBottom" | "mainBottom" | "rightTop" | "footer";
 

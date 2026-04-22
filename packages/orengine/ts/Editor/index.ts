@@ -607,13 +607,19 @@ export class Editor extends MXP.Serializable {
 
 	}
 
+	public get apiClientId(): string | null {
+
+		return this._apiBridge.clientId;
+
+	}
+
 	/*-------------------------------
 		Export
 	-------------------------------*/
 
 	public save() {
 
-		this.emit( "save", [ this.exportEngine(), this.exportEditor() ] );
+		this.emit( "save", [ this.exportEngine(), this.exportEditor(), this.apiClientId ] );
 
 	}
 

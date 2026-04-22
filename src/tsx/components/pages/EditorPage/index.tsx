@@ -58,19 +58,21 @@ export const EditorPage = ( props: EditorPageProps ) => {
 			props.initResourceInstances( glCtx, globalUniforms );
 
 		}} >
-			<OREditor editorData={editorData} projectName={projectName} customTabs={props.customTabs} onSave={( savedScene, savedEditor ) => {
+			<OREditor editorData={editorData} projectName={projectName} customTabs={props.customTabs} onSave={( savedScene, savedEditor, clientId ) => {
 
 				props.onBeforeSave?.();
 
+				const clientHeader: Record<string, string> = clientId ? { "X-Orengine-Client-Id": clientId } : {};
+
 				fetch( `/api/projects/${projectName}/scene`, {
 					method: "POST",
-					headers: { "Content-Type": "application/json" },
+					headers: { "Content-Type": "application/json", ...clientHeader },
 					body: JSON.stringify( savedScene ),
 				} );
 
 				fetch( `/api/projects/${projectName}/editor`, {
 					method: "POST",
-					headers: { "Content-Type": "application/json" },
+					headers: { "Content-Type": "application/json", ...clientHeader },
 					body: JSON.stringify( savedEditor ),
 				} );
 
@@ -83,7 +85,7 @@ export const EditorPage = ( props: EditorPageProps ) => {
 
 					fetch( `/api/projects/${projectName}/textures/${encodeURIComponent( t.name )}`, {
 						method: 'PUT',
-						headers: { 'Content-Type': 'application/json' },
+						headers: { 'Content-Type': 'application/json', ...clientHeader },
 						body: JSON.stringify( t.config ),
 					} );
 
@@ -91,7 +93,7 @@ export const EditorPage = ( props: EditorPageProps ) => {
 
 				fetch( `/api/projects/${projectName}/textures/sync`, {
 					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
+					headers: { 'Content-Type': 'application/json', ...clientHeader },
 					body: JSON.stringify( { names: textures.map( t => t.name ) } ),
 				} );
 
