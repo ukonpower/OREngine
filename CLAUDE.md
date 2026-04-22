@@ -66,11 +66,18 @@ Material と Shader はエディタUIから編集しない。Component ディレ
     └── main.fs
 ```
 
+**ルール**:
+- **`Materials` という専用ディレクトリを作らない**。「Material を初期化するだけのコンポーネント」を束ねる構造は禁止。
+- Material は**それを使うコンポーネントの `index.ts` 内で生成する**。自分で Mesh も生成する場合は `this.entity.addComponent(MXP.Mesh, { geometry, material })`、GLTF 等で既に存在する Mesh に塗る場合は `this.entity.getComponent(MXP.Mesh).material = this.material` とする。
+- コンポーネントのディレクトリ名・クラス名は**対象オブジェクトの意味**で命名する（`OREngineCube`, `SkyBox` など）。`〜Material` という接尾辞は付けない。
 - `.vs` / `.fs` ファイルは `import vert from './shaders/main.vs'` で文字列として読み込む（`ShaderMinifierLoader` プラグインが `export default "..."` に変換する）
 - Material は Component のコンストラクタ内で `new MXP.Material({ vert, frag, phase, uniforms, ... })` として生成する
-- Mesh に Material を適用する場合は、同じ Entity の Mesh コンポーネントを取得して `mesh.material = this.material` とする
-- `demo/Resources/Components/Samples/Materials/` 配下の `OREngineCubeMaterial` / `OREngineLogoMaterial` / `SkyBoxMaterial` が参考実装
 - HMR: `import.meta.hot.accept('./shaders/main.fs', ...)` でシェーダーのホットリロードに対応（`MXP.hotGet` / `MXP.hotUpdate` を使うとキャッシュ管理まで面倒を見てくれる）
+
+**参考実装**:
+- 自己完結型（Geometry + Material + Mesh を全て生成）: `demo/Resources/Components/Samples/Effects/EyeRings/`, `Samples/Geometry/WireCube/`
+- 塗布型（既存 Mesh に Material を塗る）: `demo/Resources/Components/Samples/Objects/OREngineCube/`, `Samples/Objects/OREngineLogo/`
+- グローバル差し替え型（`renderer.sky.mesh.material` に適用）: `demo/Resources/Components/Samples/Environment/SkyBox/`
 
 ## アーキテクチャ
 - **glpower**: WebGL低レベルラッパー（Vector, Matrix, Quaternion, EventEmitter, GLPowerFrameBuffer等）
