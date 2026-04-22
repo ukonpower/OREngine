@@ -70,9 +70,9 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 
 	useEffect( () => {
 
-		if ( ! editorContext.editor || ! props.editorData ) return;
+		if ( ! editorContext.editor ) return;
 
-		editorContext.editor.deserialize( props.editorData );
+		editorContext.editor.bootstrap( props.editorData );
 
 	}, [ props.editorData, editorContext.editor ] );
 

@@ -27,6 +27,10 @@ export class BLidgeClient extends MXP.Component {
 
 	/** BLidgeエンティティへのコンポーネント付加データ */
 	private attachments: BLidgeAttachment[];
+	/** applyAttachments が一度成功したかのフラグ */
+	private _attachmentsApplied: boolean;
+	/** Engine.resources で解決できなかった attachment をラウンドトリップ保全する */
+	private _unresolvedByEntity: Map<string, OREngineDataEntityComponent[]>;
 
 	// connection
 	/** WebSocket接続情報 */
@@ -52,6 +56,8 @@ export class BLidgeClient extends MXP.Component {
 		// 初期化
 		this.entities = new Map();
 		this.attachments = [];
+		this._attachmentsApplied = false;
+		this._unresolvedByEntity = new Map();
 		this.type = "websocket";
 		this.connection = {
 			enabled: true,
@@ -169,9 +175,27 @@ export class BLidgeClient extends MXP.Component {
 		ws.field( "url", () => this.connection.url, v => this.connection.url = v );
 
 		// attachments フィールド（UIには非表示、保存対象）
+		// 非同期 sync 完了前（apply 未実行）の保存で空配列を書き出してデータを壊さないよう、
+		// 未 apply 時は deserialize で受け取った元データをそのまま返す
 		this.field( "attachments",
-			() => this.serializeAttachments() as any,
-			( v: any ) => { this.attachments = v || []; },
+			() => {
+
+				if ( ! this.blidgeRoot || ! this._attachmentsApplied ) {
+
+					return this.attachments as any;
+
+				}
+
+				return this.serializeAttachments() as any;
+
+			},
+			( v: any ) => {
+
+				this.attachments = v || [];
+				this._attachmentsApplied = false;
+				this._unresolvedByEntity.clear();
+
+			},
 			{ hidden: true }
 		);
 
@@ -217,6 +241,14 @@ export class BLidgeClient extends MXP.Component {
 
 			} );
 
+			const unresolved = this._unresolvedByEntity.get( entity.name );
+
+			if ( unresolved ) {
+
+				components.push( ...unresolved );
+
+			}
+
 			if ( components.length > 0 ) {
 
 				result.push( {
@@ -233,6 +265,8 @@ export class BLidgeClient extends MXP.Component {
 	}
 
 	private applyAttachments( blidgeRoot: MXP.Entity ) {
+
+		this._unresolvedByEntity.clear();
 
 		if ( ! this.attachments.length ) return;
 
@@ -266,6 +300,14 @@ export class BLidgeClient extends MXP.Component {
 						component.deserialize( c.props );
 
 					}
+
+				} else {
+
+					console.warn( `[BLidgeClient] unresolved attachment component "${c.name}" on entity "${entity.name}". Preserving data for round-trip.` );
+
+					const list = this._unresolvedByEntity.get( entity.name ) || [];
+					list.push( { name: c.name, uuid: c.uuid, props: c.props } );
+					this._unresolvedByEntity.set( entity.name, list );
 
 				}
 
@@ -375,6 +417,7 @@ export class BLidgeClient extends MXP.Component {
 		if ( this.blidgeRoot ) {
 
 			this.applyAttachments( this.blidgeRoot );
+			this._attachmentsApplied = true;
 
 		}
 
@@ -406,6 +449,9 @@ export class BLidgeClient extends MXP.Component {
 			this.blidgeRoot = null;
 
 		}
+
+		this._attachmentsApplied = false;
+		this._unresolvedByEntity.clear();
 
 	}
 
