@@ -105,6 +105,16 @@ export const createDevConfig = ( opts: OrengineConfigOptions ): UserConfig => de
 			'/ws': {
 				target: `ws://localhost:${opts.apiPort ?? 3001}`,
 				ws: true,
+				configure: ( proxy ) => {
+
+					proxy.on( 'error', ( err: NodeJS.ErrnoException ) => {
+
+						if ( err.code === 'ECONNRESET' ) return;
+						console.error( err );
+
+					} );
+
+				},
 			},
 		},
 	},
