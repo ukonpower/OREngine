@@ -191,6 +191,22 @@ class EditorWSBridge {
 
 	}
 
+	findClientById( projectName: string, clientId: string ): WebSocket | null {
+
+		for ( const [ ws, info ] of this._clients ) {
+
+			if ( info.projectName === projectName && info.clientId === clientId && ws.readyState === WebSocket.OPEN ) {
+
+				return ws;
+
+			}
+
+		}
+
+		return null;
+
+	}
+
 	getPrimaryClient( projectName: string ): WebSocket | null {
 
 		return this._findClient( projectName );

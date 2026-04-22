@@ -86,7 +86,10 @@ export const createSceneRouter = ( pm: ProjectManager ) => {
 			const bridge = getWSBridge();
 			if ( bridge ) {
 
-				bridge.broadcastState( pm.name, req.body, { fullReload: true } );
+				const clientId = req.header( 'x-orengine-client-id' );
+				const exclude = clientId ? bridge.findClientById( pm.name, clientId ) : null;
+
+				bridge.broadcastState( pm.name, req.body, { fullReload: true, exclude } );
 
 			}
 

@@ -24,6 +24,7 @@ export class EditorAPIBridge {
 	private _syncTimer: number | null = null;
 	private _isPrimary = false;
 	private _clientCount = 0;
+	private _clientId: string | null = null;
 
 	constructor( editor: Editor, projectName: string ) {
 
@@ -38,6 +39,12 @@ export class EditorAPIBridge {
 			this._debouncedSyncToServer();
 
 		} );
+
+	}
+
+	public get clientId(): string | null {
+
+		return this._clientId;
 
 	}
 
@@ -60,6 +67,7 @@ export class EditorAPIBridge {
 
 			this._isPrimary = false;
 			this._clientCount = 0;
+			this._clientId = null;
 
 			this._editor.emit( 'update/apiStatus', [ {
 				connected: false,
@@ -100,6 +108,7 @@ export class EditorAPIBridge {
 		case 'clientStatus':
 			this._isPrimary = msg.isPrimary;
 			this._clientCount = msg.clientCount;
+			this._clientId = msg.clientId ?? null;
 			this._editor.emit( 'update/apiStatus', [ {
 				connected: true,
 				isPrimary: this._isPrimary,
