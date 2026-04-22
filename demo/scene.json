@@ -71,7 +71,7 @@
 									}
 								},
 								{
-									"name": "OREngineCubeMaterial",
+									"name": "OREngineCube",
 									"uuid": "0000018d"
 								}
 							]
@@ -97,7 +97,7 @@
 									}
 								},
 								{
-									"name": "OREngineLogoMaterial",
+									"name": "OREngineLogo",
 									"uuid": "00000190"
 								}
 							]
@@ -127,7 +127,7 @@
 									}
 								},
 								{
-									"name": "OREngineCubeMaterial",
+									"name": "OREngineCube",
 									"uuid": "00000192"
 								}
 							]
@@ -164,7 +164,7 @@
 				"uuid": "2"
 			},
 			{
-				"name": "SkyBoxMaterial",
+				"name": "SkyBox",
 				"uuid": "3"
 			}
 		]

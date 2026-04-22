@@ -6,7 +6,7 @@ import vertSrc from './shaders/main.vs';
 
 import { gl } from '~orengine/ts/Globals';
 
-export class OREngineLogoMaterial extends MXP.Component {
+export class OREngineLogo extends MXP.Component {
 
 	private material: MXP.Material;
 
@@ -19,8 +19,8 @@ export class OREngineLogoMaterial extends MXP.Component {
 		this.material = new MXP.Material( {
 			name: "OREngineLogo",
 			phase: [ "deferred", "shadowMap" ],
-			vert: MXP.hotGet( "OREngineLogoMaterialVert", vertSrc ),
-			frag: MXP.hotGet( "OREngineLogoMaterialFrag", fragSrc ),
+			vert: MXP.hotGet( "OREngineLogoVert", vertSrc ),
+			frag: MXP.hotGet( "OREngineLogoFrag", fragSrc ),
 			uniforms: MXP.UniformsUtils.merge( engine.uniforms )
 		} );
 
@@ -38,7 +38,7 @@ export class OREngineLogoMaterial extends MXP.Component {
 
 				if ( module ) {
 
-					this.material.vert = MXP.hotUpdate( "OREngineLogoMaterialVert", module.default );
+					this.material.vert = MXP.hotUpdate( "OREngineLogoVert", module.default );
 					this.material.requestUpdate();
 
 				}
@@ -49,7 +49,7 @@ export class OREngineLogoMaterial extends MXP.Component {
 
 				if ( module ) {
 
-					this.material.frag = MXP.hotUpdate( "OREngineLogoMaterialFrag", module.default );
+					this.material.frag = MXP.hotUpdate( "OREngineLogoFrag", module.default );
 					this.material.requestUpdate();
 
 				}

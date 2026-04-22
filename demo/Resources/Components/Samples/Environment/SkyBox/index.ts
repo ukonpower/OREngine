@@ -5,7 +5,7 @@ import fragSrc from './shaders/main.fs';
 
 import { gl } from '~orengine/ts/Globals';
 
-export class SkyBoxMaterial extends MXP.Component {
+export class SkyBox extends MXP.Component {
 
 	private material: MXP.Material;
 
@@ -18,7 +18,7 @@ export class SkyBoxMaterial extends MXP.Component {
 		this.material = new MXP.Material( {
 			name: "SkyBox",
 			phase: [ "deferred", "envMap" ],
-			frag: MXP.hotGet( "SkyBoxMaterialFrag", fragSrc ),
+			frag: MXP.hotGet( "SkyBoxFrag", fragSrc ),
 			uniforms: MXP.UniformsUtils.merge( engine.uniforms, {
 				uAspectRatio: { value: 0, type: "1f" }
 			} )
@@ -32,7 +32,7 @@ export class SkyBoxMaterial extends MXP.Component {
 
 				if ( module ) {
 
-					this.material.frag = MXP.hotUpdate( "SkyBoxMaterialFrag", module.default );
+					this.material.frag = MXP.hotUpdate( "SkyBoxFrag", module.default );
 					this.material.requestUpdate();
 
 				}
