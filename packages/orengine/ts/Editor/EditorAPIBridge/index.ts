@@ -21,7 +21,6 @@ export class EditorAPIBridge {
 	private _engine: Engine;
 	private _projectName: string;
 	private _disposed = false;
-	private _syncTimer: number | null = null;
 	private _isPrimary = false;
 	private _clientCount = 0;
 	private _clientId: string | null = null;
@@ -33,12 +32,6 @@ export class EditorAPIBridge {
 		this._engine = editor.engine;
 		this._projectName = projectName;
 		this._connect();
-
-		this._api.commandManager.on( 'change', () => {
-
-			this._debouncedSyncToServer();
-
-		} );
 
 	}
 
@@ -93,10 +86,6 @@ export class EditorAPIBridge {
 
 		switch ( msg.type ) {
 
-		case 'syncRequest':
-			this._handleSyncRequest( msg );
-			break;
-
 		case 'executeAction':
 			this._handleExecuteAction( msg );
 			break;
@@ -127,19 +116,6 @@ export class EditorAPIBridge {
 			break;
 
 		}
-
-	}
-
-	// サーバーからの同期リクエスト: 現在のシーンスナップショットを返す
-	private _handleSyncRequest( msg: { id: string; projectName: string } ) {
-
-		const sceneData = this._engine.serialize( { mode: "export" } );
-
-		this._send( {
-			type: 'syncResponse',
-			id: msg.id,
-			sceneData,
-		} as any );
 
 	}
 
@@ -219,34 +195,6 @@ export class EditorAPIBridge {
 			this._send( { id: req.id, success: false, error: err.message || String( err ) } );
 
 		}
-
-	}
-
-	private _debouncedSyncToServer(): void {
-
-		if ( this._syncTimer !== null ) {
-
-			clearTimeout( this._syncTimer );
-
-		}
-
-		this._syncTimer = window.setTimeout( () => {
-
-			this._syncTimer = null;
-			this._syncToServer();
-
-		}, 500 );
-
-	}
-
-	private _syncToServer(): void {
-
-		const sceneData = this._engine.serialize( { mode: "export" } );
-
-		this._send( {
-			type: 'syncPush',
-			sceneData,
-		} );
 
 	}
 
@@ -673,14 +621,6 @@ export class EditorAPIBridge {
 	public dispose() {
 
 		this._disposed = true;
-
-		if ( this._syncTimer !== null ) {
-
-			clearTimeout( this._syncTimer );
-			this._syncTimer = null;
-
-		}
-
 		this._ws?.close();
 
 	}

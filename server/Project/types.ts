@@ -45,21 +45,9 @@ export interface EntityDetailResponse {
 }
 
 // WS メッセージ型
-export type SyncRequest = {
-	type: 'syncRequest';
-	id: string;
-	projectName: string;
-};
-
 export type ExecuteAction = {
 	type: 'executeAction';
 	projectName: string;
 	action: string;
 	params: Record<string, unknown>;
-};
-
-export type SyncResponse = {
-	type: 'syncResponse';
-	id: string;
-	sceneData: SceneFileData;
 };

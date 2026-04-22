@@ -100,9 +100,6 @@ export const createDevConfig = ( opts: OrengineConfigOptions ): UserConfig => de
 		fs: {
 			allow: [ opts.projectDir, orengineRoot ],
 		},
-		watch: {
-			ignored: [ '**/scene.json', '**/editor.json' ],
-		},
 		proxy: {
 			'/api': `http://localhost:${opts.apiPort ?? 3001}`,
 			'/ws': {
