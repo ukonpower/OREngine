@@ -39,7 +39,6 @@ export class PMREMRender extends GLP.EventEmitter {
 				minFilter: gl.LINEAR,
 				wrapS: gl.CLAMP_TO_EDGE,
 				wrapT: gl.CLAMP_TO_EDGE,
-				generateMipmap: true
 			} ),
 		] );
 
