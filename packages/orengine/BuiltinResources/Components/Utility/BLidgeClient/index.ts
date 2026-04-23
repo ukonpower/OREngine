@@ -223,10 +223,10 @@ export class BLidgeClient extends MXP.Component {
 
 			entity.components.forEach( c => {
 
+				if ( c.initiator !== "user" ) return;
+
 				const exportFields = c.serialize( { mode: "export" } );
 				const hasFields = Object.keys( exportFields ).length > 0;
-
-				if ( ! hasFields && c.initiator !== "user" ) return;
 
 				const comp: OREngineDataEntityComponent = {
 					name: resolver.getName( c ),
@@ -282,15 +282,10 @@ export class BLidgeClient extends MXP.Component {
 
 				if ( compItem ) {
 
-					let component = entity.getComponent( compItem.component );
-
-					if ( ! component ) {
-
-						component = entity.addComponent( compItem.component );
-						component.initiator = "user";
-
-					}
-
+					// BLidger の Mesh 差し替えに追従するため、毎 sync でコンストラクタを再実行させる
+					entity.removeComponent( compItem.component );
+					const component = entity.addComponent( compItem.component );
+					component.initiator = "user";
 					component.restoreUUID( c.uuid );
 
 					if ( c.props ) {
@@ -320,7 +315,10 @@ export class BLidgeClient extends MXP.Component {
 	 * BLidgeからシーンデータを受け取った際に呼ばれる
 	 * @param blidge BLidgeインスタンス
 	 */
-	private onSyncScene( blidge: MXP.BLidge ) {
+	private async onSyncScene( blidge: MXP.BLidge ) {
+
+		// sync 中の中間保存で空 attachments が書き出されるのを防ぐ
+		this._attachmentsApplied = false;
 
 		// 現在のタイムスタンプを取得（更新されたエンティティを追跡するため）
 		const timeStamp = new Date().getTime();
@@ -410,6 +408,13 @@ export class BLidgeClient extends MXP.Component {
 			}
 
 		} );
+
+		// BLidger 内の gltfPrm.then(...) ハンドラが drain してから apply するため await を挟む
+		if ( blidge.gltf ) {
+
+			await blidge.gltfPrm;
+
+		}
 
 		// attachments からコンポーネントを適用
 		if ( this.blidgeRoot ) {
