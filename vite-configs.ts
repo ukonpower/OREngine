@@ -137,6 +137,7 @@ export const createDevConfig = ( opts: OrengineConfigOptions ): UserConfig => de
 	],
 	define: {
 		BASE_PATH: JSON.stringify( opts.basePath ?? '' ),
+		__OR_PROJECT_NAME__: JSON.stringify( path.basename( opts.projectDir ) ),
 	},
 } );
 
