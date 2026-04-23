@@ -4,8 +4,6 @@ import * as MXP from 'maxpower';
 import gridDotsFrag from './shaders/gridDots.fs';
 import gridDotsVert from './shaders/gridDots.vs';
 
-import { globalUniforms } from '~orengine/ts/Globals';
-
 
 export class GridDots extends MXP.Component {
 
@@ -53,7 +51,6 @@ export class GridDots extends MXP.Component {
 			frag: MXP.hotGet( 'gridDotsFrag', gridDotsFrag ),
 			vert: MXP.hotGet( 'gridDotsVert', gridDotsVert ),
 			phase: [ "forward" ],
-			uniforms: MXP.UniformsUtils.merge( globalUniforms.resolution, globalUniforms.time )
 		} );
 
 		this.entity.addComponent( MXP.Mesh, {

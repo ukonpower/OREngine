@@ -2,12 +2,10 @@ import * as GLP from 'glpower';
 import { Engine, OREngineProjectData } from 'orengine';
 import { BLidgeClient } from 'orengine/BuiltinResources/Components/Utility/BLidgeClient';
 
-import { gl } from '~orengine/ts/Globals';
-
 
 export interface StartPlayerOptions {
 	sceneData: OREngineProjectData;
-	initResourceInstances: ( gl: WebGL2RenderingContext ) => void;
+	initResourceInstances: ( engine: Engine ) => void;
 	title?: string;
 	size?: { width: number; height: number };
 }
@@ -61,17 +59,13 @@ export const startPlayer = ( opts: StartPlayerOptions ): Engine => {
 	const loadingTextElm = document.getElementById( 't' )!;
 	const exitElm = document.getElementById( 'e' )!;
 
-	const engine = new Engine( gl );
-	opts.initResourceInstances( gl );
+	const engine = new Engine();
+	opts.initResourceInstances( engine );
 
 	const size = opts.size ?? { width: 1920, height: 1080 };
 	engine.setSize( new GLP.Vector( size.width, size.height ) );
 
-	if ( engine.canvas instanceof HTMLCanvasElement ) {
-
-		screenWrapElm.appendChild( engine.canvas );
-
-	}
+	screenWrapElm.appendChild( engine.canvas );
 
 	const fullScreen = document.getElementById( 'fl' ) as HTMLButtonElement;
 	fullScreen.onclick = () => {

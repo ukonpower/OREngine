@@ -21,13 +21,12 @@ export interface FramePlay {
 export class Engine extends MXP.Serializable implements MXP.Engine {
 
 	public static resources: Resources;
-	public static instances: Map<WebGL2RenderingContext, Engine>;
 	public name: string;
 	public enableRender: boolean;
 
 	private _renderer: MXP.Renderer;
 	private _gl: WebGL2RenderingContext;
-	private _canvas: HTMLCanvasElement | OffscreenCanvas;
+	private _canvas: HTMLCanvasElement;
 	private _root: MXP.Entity;
 	private _uniforms: GLP.Uniforms;
 	private _time: SceneTime;
@@ -37,15 +36,15 @@ export class Engine extends MXP.Serializable implements MXP.Engine {
 	private _cameraEntity: MXP.Entity | null;
 	private _assetPreviewManager: AssetPreviewManager;
 
-	constructor( gl: WebGL2RenderingContext ) {
+	constructor() {
 
 		super();
 
 		initConsoleCapture();
 
-		Engine.instances.set( gl, this );
+		this._canvas = document.createElement( "canvas" );
+		this._gl = this._canvas.getContext( "webgl2", { antialias: false, preserveDrawingBuffer: true } )!;
 
-		this._gl = gl;
 		this.name = "OREngine";
 		this._disposed = false;
 
@@ -57,22 +56,18 @@ export class Engine extends MXP.Serializable implements MXP.Engine {
 		};
 
 		/*-------------------------------
-			Canvas
-		-------------------------------*/
-
-		this._canvas = gl.canvas;
-
-		/*-------------------------------
 			Renderer
 		-------------------------------*/
 
-		this._renderer = new MXP.Renderer( gl, this );
+		this._renderer = new MXP.Renderer( this._gl, this );
 
 		this._renderer.globalUniforms = {
 			uTime: { value: 0, type: "1f" },
 			uTimeF: { value: 0, type: "1f" },
 			uTimeE: { value: 0, type: "1f" },
 			uTimeEF: { value: 0, type: "1f" },
+			uResolution: { value: new GLP.Vector(), type: "2fv" },
+			uAspectRatio: { value: 1.0, type: "1f" },
 		};
 
 		/*-------------------------------
@@ -130,25 +125,11 @@ export class Engine extends MXP.Serializable implements MXP.Engine {
 			AssetPreview
 		-------------------------------*/
 
-		this._assetPreviewManager = new AssetPreviewManager( gl, this._renderer );
+		this._assetPreviewManager = new AssetPreviewManager( this._gl, this._renderer );
 
 		/*-------------------------------
 			Register
 		-------------------------------*/
-
-	}
-
-	public static getInstance( gl: WebGL2RenderingContext ) {
-
-		const instance = this.instances.get( gl );
-
-		if ( ! instance ) {
-
-			throw new Error( "ERROR: NO ENGINE INSTANCE!!!" );
-
-		}
-
-		return instance;
 
 	}
 
@@ -379,6 +360,10 @@ export class Engine extends MXP.Serializable implements MXP.Engine {
 		this._canvas.width = resolution.x;
 		this._canvas.height = resolution.y;
 
+		const uRes = this._renderer.globalUniforms.uResolution.value as GLP.Vector;
+		uRes.copy( resolution );
+		this._renderer.globalUniforms.uAspectRatio.value = resolution.x / Math.max( resolution.y, 1 );
+
 	}
 
 	/*-------------------------------
@@ -514,4 +499,3 @@ export class Engine extends MXP.Serializable implements MXP.Engine {
 
 // 初期化演算子を使うとterserに消されるのでこっちで初期化
 Engine.resources = new Resources();
-Engine.instances = new Map();

@@ -2,11 +2,9 @@ import * as MXP from 'maxpower';
 
 import finalizeFrag from './shaders/finalize.fs';
 
-import { gl } from '~orengine/ts/Globals';
-
 export class Finalize extends MXP.PostProcess {
 
-	constructor() {
+	constructor( gl: WebGL2RenderingContext ) {
 
 		super( {
 			name: "Finalize",

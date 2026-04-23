@@ -3,9 +3,9 @@ import React, { useCallback, useEffect } from "react";
 
 import { Engine } from "../../../../../ts/Engine";
 
-export const useOREngineContext = ( gl: WebGL2RenderingContext ) => {
+export const useOREngineContext = () => {
 
-	const [ engine, setEngine ] = React.useState<Engine>( () => new Engine( gl ) );
+	const [ engine, setEngine ] = React.useState<Engine>( () => new Engine() );
 	const engineRef = React.useRef<Engine>( engine );
 	engineRef.current = engine;
 
@@ -13,11 +13,9 @@ export const useOREngineContext = ( gl: WebGL2RenderingContext ) => {
 
 		if ( ! engineRef.current.disposed ) return;
 
-		const newEngine = new Engine( gl );
+		setEngine( new Engine() );
 
-		setEngine( newEngine );
-
-	}, [ gl ] );
+	}, [] );
 
 	useEffect( () => {
 

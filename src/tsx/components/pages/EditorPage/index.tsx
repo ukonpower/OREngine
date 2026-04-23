@@ -1,10 +1,8 @@
 import * as MXP from 'maxpower';
-import { OREditor, OREngine, type PanelSlot, type CustomTab } from "orengine/react";
 import { OREngineProjectData } from "orengine";
+import { OREditor, OREngine, type PanelSlot, type CustomTab } from "orengine/react";
 import { Engine } from "orengine/ts/Engine";
 import { useEffect, useState } from "react";
-
-import { gl, globalUniforms } from "~orengine/ts/Globals";
 
 import "~orengine/styles/style.scss";
 
@@ -14,7 +12,7 @@ export interface EditorPageProps {
 	projectName?: string;
 	sceneData?: OREngineProjectData;
 	editorData?: MXP.SerializeField;
-	initResourceInstances: ( gl: WebGL2RenderingContext, globals?: { [key: string]: any } ) => void;
+	initResourceInstances: ( engine: Engine ) => void;
 	customTabs?: EditorCustomTabs;
 	onBeforeSave?: () => void;
 }
@@ -53,9 +51,9 @@ export const EditorPage = ( props: EditorPageProps ) => {
 	}, [ props.editorData, projectName ] );
 
 	return (
-		<OREngine gl={gl} project={projectData} onEngineInit={( glCtx ) => {
+		<OREngine project={projectData} onEngineInit={( engine ) => {
 
-			props.initResourceInstances( glCtx, globalUniforms );
+			props.initResourceInstances( engine );
 
 		}} >
 			<OREditor editorData={editorData} projectName={projectName} customTabs={props.customTabs} onSave={( savedScene, savedEditor, clientId ) => {

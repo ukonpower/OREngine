@@ -149,9 +149,6 @@ type BLidgeConnection = {
 
 export class BLidge extends GLP.EventEmitter {
 
-	// gl
-
-	private gl: WebGL2RenderingContext;
 	private _engine: Engine;
 
 	// connection
@@ -176,11 +173,10 @@ export class BLidge extends GLP.EventEmitter {
 
 	public currentScene: BLidgeScene | null;
 
-	constructor( gl: WebGL2RenderingContext, engine: Engine, url?: string ) {
+	constructor( engine: Engine, url?: string ) {
 
 		super();
 
-		this.gl = gl;
 		this._engine = engine;
 
 		this.root = null;
@@ -280,7 +276,7 @@ export class BLidge extends GLP.EventEmitter {
 
 		if ( gltfPath ) {
 
-			const loader = new GLTFLoader( this.gl, this._engine );
+			const loader = new GLTFLoader( this._engine );
 
 			await loader.load( gltfPath ).then( gltf => {
 

@@ -7,11 +7,9 @@ import gaussBlurFrag from '../shaders/gaussBlur.fs';
 import bloomBrightFrag from './shaders/bloomBright.fs';
 import bloomCompositeFrag from './shaders/bloomComposite.fs';
 
-import { gl } from '~orengine/ts/Globals';
-
 export class Bloom extends MXP.PostProcess {
 
-	constructor( srcTexture: GLP.GLPowerTexture ) {
+	constructor( gl: WebGL2RenderingContext, srcTexture: GLP.GLPowerTexture ) {
 
 		const renderCount = 4;
 
