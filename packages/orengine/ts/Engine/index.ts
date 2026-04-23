@@ -18,10 +18,11 @@ export interface FramePlay {
 	playing: boolean,
 }
 
-export class Engine extends MXP.Entity {
+export class Engine extends MXP.Serializable {
 
 	public static resources: Resources;
 	public static instances: Map<WebGL2RenderingContext, Engine>;
+	public name: string;
 	public enableRender: boolean;
 
 	private _renderer: MXP.Renderer;
@@ -108,7 +109,8 @@ export class Engine extends MXP.Entity {
 		this._root = new MXP.Entity();
 		this._root.initiator = "god";
 		this._root.name = "root";
-		this.add( this._root );
+
+		this.field( "name", () => this.name, v => this.name = v );
 
 		this.field( "scene", () => ProjectSerializer.serializeEntity( this._root, this._createComponentResolver() ) as unknown as MXP.SerializeFieldValue, ( v: MXP.SerializeFieldValue ) => {
 
@@ -259,7 +261,6 @@ export class Engine extends MXP.Entity {
 		this._root.position.set( 0, 0, 0 );
 		this._root.euler.set( 0, 0, 0 );
 		this._root.scale.set( 1, 1, 1 );
-		this.add( this._root );
 
 		this.name = "New Project";
 
@@ -493,8 +494,6 @@ export class Engine extends MXP.Entity {
 	-------------------------------*/
 
 	public dispose() {
-
-		super.dispose();
 
 		this._disposed = true;
 		this._assetPreviewManager.dispose();
