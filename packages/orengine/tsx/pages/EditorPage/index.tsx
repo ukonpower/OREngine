@@ -4,7 +4,7 @@ import { OREditor, OREngine, type PanelSlot, type CustomTab } from "orengine/rea
 import { Engine } from "orengine/ts/Engine";
 import { useEffect, useState } from "react";
 
-import "~orengine/styles/style.scss";
+import "../../styles/style.scss";
 
 export type EditorCustomTabs = Partial<Record<PanelSlot, CustomTab[]>>;
 

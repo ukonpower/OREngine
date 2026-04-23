@@ -41,9 +41,6 @@
       ],
       "orengine/*": [
         "./packages/orengine/*"
-      ],
-      "~orengine/*": [
-        "./src/*"
       ]
     }
   },

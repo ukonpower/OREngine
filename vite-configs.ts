@@ -25,7 +25,7 @@ export interface OrengineConfigOptions {
 
 const sharedResolve = () => ( {
 	alias: [
-		{ find: /^orengine\/player$/, replacement: path.join( orengineRoot, 'src/ts/Player/index.ts' ) },
+		{ find: /^orengine\/player$/, replacement: path.join( orengineRoot, 'packages/orengine/ts/Player/index.ts' ) },
 		{ find: /^orengine\/react$/, replacement: path.join( orengineRoot, 'packages/orengine/react.tsx' ) },
 		{ find: /^orengine\/engine$/, replacement: path.join( orengineRoot, 'packages/orengine/ts/Engine/index.ts' ) },
 		{ find: /^orengine\/maxpower$/, replacement: path.join( orengineRoot, 'packages/maxpower/index.ts' ) },
@@ -34,7 +34,6 @@ const sharedResolve = () => ( {
 		{ find: /^orengine$/, replacement: path.join( orengineRoot, 'packages/orengine/index.tsx' ) },
 		{ find: /^glpower$/, replacement: path.join( orengineRoot, 'packages/glpower/packages/glpower/src' ) },
 		{ find: /^maxpower$/, replacement: path.join( orengineRoot, 'packages/maxpower' ) },
-		{ find: /^~orengine\/(.*)$/, replacement: path.join( orengineRoot, 'src/$1' ) },
 	],
 } );
 

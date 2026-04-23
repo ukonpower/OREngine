@@ -45,7 +45,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `glpower` → `packages/glpower/packages/glpower/src`
 - `maxpower` → `packages/maxpower`
 - `orengine` / `orengine/*` → `packages/orengine/*`
-- `~orengine/*` → `src/*`
 
 ## リソース自動生成（Vite プラグイン）
 
@@ -87,8 +86,7 @@ Material と Shader はエディタUIから編集しない。Component ディレ
 ## アーキテクチャ
 - **glpower**: WebGL低レベルラッパー（Vector, Matrix, Quaternion, EventEmitter, GLPowerFrameBuffer等）
 - **maxpower**: エンジンコア。Entity-Componentシステム、Serializable基底クラスによるシリアライズ/デシリアライズ、Renderer、Geometry、Material、PostProcess
-- **orengine**: エディタUI（React）+ Engineクラス。tsx/components以下にパネル・入力・ビューコンポーネント
-- **src/**: アプリケーションエントリ。EditorPage, ProjectSelectPage等
+- **orengine**: エディタUI（React）+ Engineクラス。tsx/components以下にパネル・入力・ビューコンポーネント、tsx/pages に EditorPage、ts/Player にプレイヤーエントリ
 - **server/**: Express + WebSocketサーバー。REST API、WebSocketブリッジ、プロジェクト管理
 - 継承階層: `EventEmitter` → `Serializable` → `Entity` / `Component`
 
