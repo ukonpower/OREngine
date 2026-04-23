@@ -39,7 +39,7 @@ export const Screen = () => {
 
 	}, [ editor ] );
 
-	const [ audioViewHeight, setAudioViewHeight ] = useState( 100 );
+	const [ audioViewHeight, setAudioViewHeight ] = useState( 50 );
 	const audioViewDragRef = useRef<{ startY: number; startHeight: number } | null>( null );
 
 	const [ overlayOpen, setOverlayOpen ] = useState( false );
@@ -219,7 +219,7 @@ export const Screen = () => {
 					if ( ! audioViewDragRef.current ) return;
 
 					const delta = audioViewDragRef.current.startY - e.clientY;
-					const newHeight = Math.max( 30, Math.min( 400, audioViewDragRef.current.startHeight + delta ) );
+					const newHeight = Math.max( 20, Math.min( 400, audioViewDragRef.current.startHeight + delta ) );
 					setAudioViewHeight( newHeight );
 
 				}}
