@@ -335,6 +335,8 @@ export class Entity extends Serializable {
 
 		this.noticeField( "components" );
 
+		this.emit( "componentAdded", [ instance ] );
+
 		return instance as InstanceType<T>;
 
 	}
@@ -357,6 +359,12 @@ export class Entity extends Serializable {
 
 		this.noticeField( "components" );
 
+		if ( c ) {
+
+			this.emit( "componentRemoved", [ c ] );
+
+		}
+
 	}
 
 	public removeComponentByUUID( uuid: string ) {
@@ -371,8 +379,11 @@ export class Entity extends Serializable {
 				component.dispose();
 
 				this.components.delete( key );
+				this.componentsSorted = this.componentsSorted.filter( instance => instance !== component );
 
 				this.noticeField( "components" );
+
+				this.emit( "componentRemoved", [ component ] );
 
 				return component;
 

@@ -7,7 +7,7 @@
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,
 	"frameLoop/end": 0,
-	"selectedEntityId": "e49460d4-3dc5-4642-900a-a39768a63bf4",
+	"selectedEntityId": "34e12786-4d92-4f7c-8d33-32730687bdb6",
 	"selectedAsset": {
 		"name": "OREngineCube",
 		"assetType": "material"
@@ -22,13 +22,13 @@
 	"helpers/light": true,
 	"helpers/wireframe": false,
 	"camera/position": [
-		-0.9742387925724678,
-		1.8730615065039669,
-		0.9820790067067269
+		0.05483466718929176,
+		2.1441760888120505,
+		12.417943092713458
 	],
 	"camera/target": [
-		-0.20207709177493635,
-		1.1823430252149938,
-		-2.297202257365475
+		0,
+		0,
+		0
 	]
 }

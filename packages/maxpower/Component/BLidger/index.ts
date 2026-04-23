@@ -22,7 +22,6 @@ export class BLidger extends Component {
 	public transformAutoUpdate: boolean;
 
 	private _blidge: BLidge;
-	private _cameraComponent?: Camera;
 	private _lightComponent?: Light;
 
 	constructor( params: ComponentParams<{blidge: BLidge, node: BLidgeNode}> ) {
@@ -186,6 +185,38 @@ export class BLidger extends Component {
 
 		}
 
+		// camera: attachments で後から Camera コンポーネントが add されるタイミングで fov を反映する
+
+		if ( this.node.type == 'camera' ) {
+
+			const applyCameraParam = ( camera: Camera ) => {
+
+				const cameraParam = this.node.param as BLidgeCameraParam;
+				camera.fov = cameraParam.fov;
+				camera.needsUpdateProjectionMatrix = true;
+
+			};
+
+			const existing = entity.getComponentsByTag<Camera>( "camera" )[ 0 ];
+
+			if ( existing ) applyCameraParam( existing );
+
+			const onComponentAdded = ( c: Component ) => {
+
+				if ( c instanceof Camera ) applyCameraParam( c );
+
+			};
+
+			entity.on( "componentAdded", onComponentAdded );
+
+			this.once( "dispose", () => {
+
+				entity.off( "componentAdded", onComponentAdded );
+
+			} );
+
+		}
+
 		// light
 
 		if ( this.node.type == "light" ) {
@@ -200,23 +231,6 @@ export class BLidger extends Component {
 				color: new GLP.Vector().copy( lightParam.color ) as unknown as SerializeFieldValue,
 				castShadow: lightParam.shadowMap,
 			} );
-
-		}
-
-		// camera
-
-		if ( this.node.type == 'camera' ) {
-
-			this._cameraComponent = entity.getComponentsByTag<Camera>( "camera" )[ 0 ];
-
-			if ( this._cameraComponent ) {
-
-				const cameraParam = this.node.param as BLidgeCameraParam;
-
-				this._cameraComponent.fov = cameraParam.fov;
-				this._cameraComponent.needsUpdateProjectionMatrix = true;
-
-			}
 
 		}
 
@@ -371,23 +385,6 @@ export class BLidger extends Component {
 			if ( curveColor ) {
 
 				this._lightComponent.color.copy( curveColor.setFrame( frame ).value );
-
-			}
-
-		}
-
-		// camera (deferred lookup)
-
-		if ( this.node.type == 'camera' && ! this._cameraComponent ) {
-
-			this._cameraComponent = this.entity.getComponentsByTag<Camera>( "camera" )[ 0 ];
-
-			if ( this._cameraComponent ) {
-
-				const cameraParam = this.node.param as BLidgeCameraParam;
-
-				this._cameraComponent.fov = cameraParam.fov;
-				this._cameraComponent.needsUpdateProjectionMatrix = true;
 
 			}
 
