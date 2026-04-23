@@ -13,9 +13,6 @@ export class OREngineCube extends MXP.Component {
 		super( params );
 
 		const engine = this.engine as Engine;
-
-		console.log(Engine.resources.getTexture( "noise" ));
-		
 		
 		this.material = new MXP.Material( {
 			name: "OREngineCube",

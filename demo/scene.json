@@ -17,29 +17,12 @@
 							"name": "Camera",
 							"components": [
 								{
-									"name": "ShakeViewer",
-									"uuid": "10",
-									"props": {
-										"power": 0.15,
-										"speed": 1
-									}
-								},
-								{
 									"name": "Camera",
-									"uuid": "12"
+									"uuid": "4ec0479f-f58f-4644-a7f4-0204813c5c99"
 								},
 								{
 									"name": "CameraController",
-									"uuid": "000001e9"
-								}
-							]
-						},
-						{
-							"name": "Cube.001",
-							"components": [
-								{
-									"name": "OREngineCube",
-									"uuid": "0000018d"
+									"uuid": "3d0e3c4f-7110-43bc-917a-00850232c7b1"
 								}
 							]
 						},
@@ -48,7 +31,7 @@
 							"components": [
 								{
 									"name": "OREngineLogo",
-									"uuid": "e2589e70-cc33-41c7-a5eb-c959da2e0c22"
+									"uuid": "2999221c-8614-47c8-91a4-129c6585343f"
 								}
 							]
 						},
@@ -56,36 +39,8 @@
 							"name": "OREngineCube",
 							"components": [
 								{
-									"name": "ObjectRotate",
-									"uuid": "6aa837ca-5823-43a6-8ddd-ddf09f4f0dc8"
-								},
-								{
 									"name": "OREngineCube",
-									"uuid": "a014c6b1-c6e1-4e16-868f-898654c01146"
-								}
-							]
-						},
-						{
-							"name": "Spot.001",
-							"components": [
-								{
-									"name": "Light",
-									"uuid": "d4a127b7-bdff-442c-8b9a-b9a184c724ef",
-									"props": {
-										"intensity": 3
-									}
-								}
-							]
-						},
-						{
-							"name": "Spot.002",
-							"components": [
-								{
-									"name": "Light",
-									"uuid": "253d4bc1-ff59-44b5-b39e-8515a6f01cad",
-									"props": {
-										"intensity": 2
-									}
+									"uuid": "056176b4-e208-42ce-bd17-5ea264f09d86"
 								}
 							]
 						}
