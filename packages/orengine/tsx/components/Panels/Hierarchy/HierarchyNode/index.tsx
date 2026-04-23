@@ -24,12 +24,12 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 
 	const { editor, engine } = useOREditor();
 	const [ selectedEntityId ] = useSerializableField<string>( editor, "selectedEntityId" );
-	const selectedEntity = selectedEntityId !== undefined && engine.findEntityByUUID( selectedEntityId );
+	const selectedEntity = selectedEntityId !== undefined && engine.root.findEntityByUUID( selectedEntityId );
 
 	const [ entityVisible, setEntityVisible ] = useSerializableField<boolean>( props.entity, "visible" );
 	const [ childrenIdList ] = useSerializableField<string[]>( props.entity, "children" );
 
-	const childrens = ( childrenIdList || [] ).map( id => engine.findEntityByUUID( id ) ).filter( e => e !== undefined ) as MXP.Entity[];
+	const childrens = ( childrenIdList || [] ).map( id => engine.root.findEntityByUUID( id ) ).filter( e => e !== undefined ) as MXP.Entity[];
 
 	const depth = props.depth || 0;
 	const sortedChildren = childrens && childrens.concat().sort( ( a, b ) => a.name.localeCompare( b.name ) ) || [];

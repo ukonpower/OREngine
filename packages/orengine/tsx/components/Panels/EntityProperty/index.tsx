@@ -19,7 +19,7 @@ export const EntityProperty = () => {
 
 		if ( ! selectedEntityId ) return undefined;
 
-		return engine.findEntityByUUID( selectedEntityId );
+		return engine.root.findEntityByUUID( selectedEntityId );
 
 	}, [ engine, selectedEntityId ] );
 
