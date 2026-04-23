@@ -150,12 +150,6 @@ export const initResouces = () => {
 
 	}
 
-	/*-------------------------------
-		Mesh static callbacks
-	-------------------------------*/
-
-	MXP.Mesh.getGeometryList = () => Engine.resources.geometryList;
-
 };
 
 export const initResourceInstances = ( engine: Engine ) => {
