@@ -43,13 +43,18 @@
 									"uuid": "056176b4-e208-42ce-bd17-5ea264f09d86"
 								}
 							]
+						},
+						{
+							"name": "SkyBox",
+							"components": [
+								{
+									"name": "SkyBox",
+									"uuid": "38b46f5d-36cb-49af-b6b2-57643941c4d5"
+								}
+							]
 						}
 					]
 				}
-			},
-			{
-				"name": "SkyBox",
-				"uuid": "3"
 			}
 		]
 	},

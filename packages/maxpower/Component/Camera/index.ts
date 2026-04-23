@@ -69,7 +69,46 @@ export class Camera extends Component {
 
 		if ( import.meta.env.DEV ) {
 
-			this.field( "fov", () => this.fov, ( v ) => this.fov = v, { noExport: true } );
+			const markDirty = () => {
+
+				this.needsUpdateProjectionMatrix = true;
+
+			};
+
+			this.field( "fov", () => this.fov, ( v ) => {
+
+				this.fov = v;
+				markDirty();
+
+			}, { noExport: true } );
+
+			this.field( "near", () => this.near, ( v ) => {
+
+				this.near = v;
+				markDirty();
+
+			}, { noExport: true } );
+
+			this.field( "far", () => this.far, ( v ) => {
+
+				this.far = v;
+				markDirty();
+
+			}, { noExport: true } );
+
+			this.field( "orthWidth", () => this.orthWidth, ( v ) => {
+
+				this.orthWidth = v;
+				markDirty();
+
+			}, { noExport: true } );
+
+			this.field( "orthHeight", () => this.orthHeight, ( v ) => {
+
+				this.orthHeight = v;
+				markDirty();
+
+			}, { noExport: true } );
 
 		}
 
