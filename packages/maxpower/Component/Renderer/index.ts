@@ -244,6 +244,11 @@ export class Renderer extends Serializable {
 		this.compileDrawParams = [];
 		this.programManager = new ProgramManager( this.gl );
 		this.resolution = new GLP.Vector();
+
+		this.gl.getExtension( "EXT_color_buffer_float" );
+		this.gl.getExtension( "EXT_color_buffer_half_float" );
+		this.gl.getExtension( "OES_texture_float_linear" );
+
 		this._extDisJointTimerQuery = this.gl.getExtension( "EXT_disjoint_timer_query_webgl2" );
 
 		if ( ! this._extDisJointTimerQuery ) {
