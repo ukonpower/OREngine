@@ -23,8 +23,7 @@
 			"orengine": [ "../packages/orengine/index.tsx" ],
 			"orengine/*": [ "../packages/orengine/*" ],
 			"packages/*": [ "../packages/*" ],
-			"vite-plugins/*": [ "../vite-plugins/*" ],
-			"~orengine/*": [ "../src/*" ]
+			"vite-plugins/*": [ "../vite-plugins/*" ]
 		}
 	},
 	"include": [ "**/*.ts", "**/*.tsx" ],

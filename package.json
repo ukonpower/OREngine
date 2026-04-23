@@ -12,7 +12,7 @@
     "./maxpower": "./packages/maxpower/index.ts",
     "./glpower": "./packages/glpower/packages/glpower/src/index.ts",
     "./BuiltinResources/*": "./packages/orengine/BuiltinResources/*",
-    "./player": "./src/ts/Player/index.ts",
+    "./player": "./packages/orengine/ts/Player/index.ts",
     "./package.json": "./package.json"
   },
   "scripts": {

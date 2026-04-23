@@ -48,8 +48,8 @@ export * from "./tsx/components/Panels/AudioView";
 
 
 // Components - Pages (EditorPage / EditorPageStatic)
-export * from "../../src/tsx/components/pages/EditorPage";
-export * from "../../src/tsx/components/pages/EditorPageStatic";
+export * from "./tsx/pages/EditorPage";
+export * from "./tsx/pages/EditorPageStatic";
 
 // Hooks
 export * from "./tsx/hooks/useLayout";

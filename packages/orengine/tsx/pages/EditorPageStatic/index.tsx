@@ -5,7 +5,7 @@ import { Engine } from "orengine/ts/Engine";
 
 import type { EditorCustomTabs } from "../EditorPage";
 
-import "~orengine/styles/style.scss";
+import "../../styles/style.scss";
 
 
 export interface EditorPageStaticProps {
