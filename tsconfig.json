@@ -57,6 +57,7 @@
     "vite-plugins",
     "packages/glpower",
     "demo",
+    "scripts",
     "vite-configs.ts"
   ],
   "references": [

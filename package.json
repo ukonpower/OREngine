@@ -16,11 +16,11 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "init": "git submodule init && git submodule update && npm install && npm --prefix demo install",
+    "init": "git submodule init && git submodule update && npm install && node scripts/run.mjs install",
     "predev": "node -e \"try{require('child_process').execSync('lsof -ti:'+(process.env.ORENGINE_SERVER_PORT||3001)+' | xargs kill -9',{stdio:'ignore'})}catch(e){}\"",
-    "dev": "npm --prefix demo run dev",
-    "build": "npm --prefix demo run build",
-    "build:static": "npm --prefix demo run build:static",
+    "dev": "node scripts/run.mjs dev",
+    "build": "node scripts/run.mjs build",
+    "build:static": "node scripts/run.mjs build:static",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
