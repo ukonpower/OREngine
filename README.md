@@ -42,6 +42,26 @@ brew install mono
 npm run dev
 ```
 
+## プロジェクト切替
+
+アクティブなプロジェクトはルート直下の `orengine.config.json` の `project` フィールドで指定します。切り替えは値を書き換えて `npm run dev` を実行するだけです。
+
+```json
+{
+	"project": "demo"
+}
+```
+
+一時的に切り替える場合は環境変数 `ORENGINE_PROJECT` を利用できます。
+
+```bash
+ORENGINE_PROJECT=<name> npm run dev
+```
+
+## 新規プロジェクト作成
+
+`orengine.config.json` の `project` に未存在の名前を書いて `npm run dev` するだけです。自動でテンプレート（`scripts/templates/project/`）から雛形が生成され、ルートの `package.json` の `workspaces`、`tsconfig.json` の `exclude`、`.gitignore` が更新され、`npm install` が走ります。
+
 ## ビルド
 
 > **重要:** ビルドやテストを行う前に一度 `npm run init` を実行してサブモジュール（`packages/glpower` など）を初期化してください。

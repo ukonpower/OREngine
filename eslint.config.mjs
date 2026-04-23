@@ -18,7 +18,7 @@ const compat = new FlatCompat( {
 } );
 
 export default [{
-	ignores: [ "**/dist", "packages/glpower/" ],
+	ignores: [ "**/dist", "packages/glpower/", "scripts/" ],
 }, ...fixupConfigRules( compat.extends(
 	"mdcs",
 	"eslint:recommended",

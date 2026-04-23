@@ -1,6 +1,6 @@
 {
 	"enableRender": true,
-	"resolutionScale": 0.5,
+	"resolutionScale": 0.25,
 	"resolution/width": 1920,
 	"resolution/height": 1080,
 	"viewType": "render",

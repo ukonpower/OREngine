@@ -8,6 +8,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run lint` - ESLint実行
 - `npm run typecheck` - TypeScript型チェック（コーディング後に必ず実行すること）
 
+## アクティブプロジェクト
+- ルート直下の `orengine.config.json` の `project` で切替
+- 一時切替は `ORENGINE_PROJECT=<name> npm run dev`
+- 指定ディレクトリが不在の場合は `scripts/templates/project/` から自動生成される（ルートの `package.json`/`tsconfig.json`/`.gitignore` も自動更新され `npm install` が走る）
+
 ## Git
 - コミットメッセージは日本語で記述すること
 
