@@ -14,12 +14,51 @@ type ComponentViewProps = {
 	component: MXP.Component
 };
 
+const hasVisibleFields = ( folder: MXP.SerializeFieldDirectoryFolder ): boolean => {
+
+	const keys = Object.keys( folder.childs );
+
+	for ( let i = 0; i < keys.length; i ++ ) {
+
+		const field = folder.childs[ keys[ i ] ];
+		const { opt } = field;
+
+		let hidden = false;
+
+		if ( opt ) {
+
+			if ( typeof opt.hidden === "function" ) {
+
+				hidden = opt.hidden( field.type === "value" ? field.value : null );
+
+			} else {
+
+				hidden = opt.hidden || false;
+
+			}
+
+		}
+
+		if ( hidden ) continue;
+
+		if ( field.type === "value" ) return true;
+
+		if ( hasVisibleFields( field ) ) return true;
+
+	}
+
+	return false;
+
+};
+
 export const ComponentView = ( { component }: ComponentViewProps ) => {
 
 	const { editor } = useOREditor();
 	const [ _enabled, _setEnabled ] = useSerializableField<boolean>( component, "enabled" );
 
 	const disableEdit = component.initiator !== "user";
+
+	const hasFields = hasVisibleFields( component.serializeToDirectory() );
 
 	const onClickDelete = useCallback( ( e: MouseEvent ) => {
 
@@ -58,8 +97,8 @@ export const ComponentView = ( { component }: ComponentViewProps ) => {
 
 	return <div className={style.compoView} data-disable_component={disableEdit}>
 		<div className={style.content}>
-			<Block label={labelElm} accordion bg defaultClose={false}>
-				<SerializeFieldView target={component} />
+			<Block label={labelElm} accordion={hasFields} bg defaultClose={false}>
+				{hasFields && <SerializeFieldView target={component} />}
 			</Block>
 		</div>
 	</div>;
