@@ -4,8 +4,6 @@ import { Engine } from 'orengine';
 import fragSrc from './shaders/main.fs';
 import vertSrc from './shaders/main.vs';
 
-import { gl } from '~orengine/ts/Globals';
-
 export class OREngineCube extends MXP.Component {
 
 	private material: MXP.Material;
@@ -14,7 +12,7 @@ export class OREngineCube extends MXP.Component {
 
 		super( params );
 
-		const engine = Engine.getInstance( gl );
+		const engine = this.engine as Engine;
 
 		this.material = new MXP.Material( {
 			name: "OREngineCube",

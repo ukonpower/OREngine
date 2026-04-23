@@ -1,19 +1,29 @@
-import { Entity, Component } from 'maxpower';
+import { Component } from 'maxpower';
 import { describe, it, expect, vi } from 'vitest';
+
+import { createTestEntity, mockEngine } from './helpers';
 
 describe( 'Component', () => {
 
 	it( 'should have entity reference', () => {
 
-		const e = new Entity();
+		const e = createTestEntity();
 		const c = e.addComponent( Component );
 		expect( c.entity ).toBe( e );
 
 	} );
 
+	it( 'should have engine reference', () => {
+
+		const e = createTestEntity();
+		const c = e.addComponent( Component );
+		expect( c.engine ).toBe( mockEngine );
+
+	} );
+
 	it( 'should be enabled by default', () => {
 
-		const e = new Entity();
+		const e = createTestEntity();
 		const c = e.addComponent( Component );
 		expect( c.enabled ).toBe( true );
 
@@ -21,7 +31,7 @@ describe( 'Component', () => {
 
 	it( 'should not call updateImpl when disabled', () => {
 
-		const e = new Entity();
+		const e = createTestEntity();
 		const c = e.addComponent( Component );
 		c.enabled = false;
 		const spy = vi.spyOn( c as any, 'updateImpl' );
@@ -32,7 +42,7 @@ describe( 'Component', () => {
 
 	it( 'should call updateImpl when enabled', () => {
 
-		const e = new Entity();
+		const e = createTestEntity();
 		const c = e.addComponent( Component );
 		const spy = vi.spyOn( c as any, 'updateImpl' );
 		c.update( {} as any );
@@ -42,7 +52,7 @@ describe( 'Component', () => {
 
 	it( 'should not call postUpdateImpl when disabled', () => {
 
-		const e = new Entity();
+		const e = createTestEntity();
 		const c = e.addComponent( Component );
 		c.enabled = false;
 		const spy = vi.spyOn( c as any, 'postUpdateImpl' );
@@ -53,7 +63,7 @@ describe( 'Component', () => {
 
 	it( 'should not call beforeRenderImpl when disabled', () => {
 
-		const e = new Entity();
+		const e = createTestEntity();
 		const c = e.addComponent( Component );
 		c.enabled = false;
 		const spy = vi.spyOn( c as any, 'beforeRenderImpl' );
@@ -64,7 +74,7 @@ describe( 'Component', () => {
 
 	it( 'should not call afterRenderImpl when disabled', () => {
 
-		const e = new Entity();
+		const e = createTestEntity();
 		const c = e.addComponent( Component );
 		c.enabled = false;
 		const spy = vi.spyOn( c as any, 'afterRenderImpl' );
@@ -75,7 +85,7 @@ describe( 'Component', () => {
 
 	it( 'should set disposed flag on dispose', () => {
 
-		const e = new Entity();
+		const e = createTestEntity();
 		const c = e.addComponent( Component );
 		c.dispose();
 		expect( ( c as any )._disposed ).toBe( true );
@@ -84,7 +94,7 @@ describe( 'Component', () => {
 
 	it( 'should emit dispose event', () => {
 
-		const e = new Entity();
+		const e = createTestEntity();
 		const c = e.addComponent( Component );
 		const cb = vi.fn();
 		c.on( 'dispose', cb );
@@ -95,7 +105,7 @@ describe( 'Component', () => {
 
 	it( 'should have default order 0', () => {
 
-		const e = new Entity();
+		const e = createTestEntity();
 		const c = e.addComponent( Component );
 		expect( c.order ).toBe( 0 );
 
@@ -103,7 +113,7 @@ describe( 'Component', () => {
 
 	it( 'should have empty tag by default', () => {
 
-		const e = new Entity();
+		const e = createTestEntity();
 		const c = e.addComponent( Component );
 		expect( c.tag ).toBe( '' );
 

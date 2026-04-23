@@ -4,13 +4,13 @@ import { Engine } from 'orengine';
 import cubeWireFrag from './shaders/cubeWire.fs';
 import cubeWireVert from './shaders/cubeWire.vs';
 
-import { gl } from '~orengine/ts/Globals';
-
 export class WireCube extends MXP.Component {
 
 	constructor( params: MXP.ComponentParams ) {
 
 		super( params );
+
+		const engine = this.engine as Engine;
 
 		const w = 3.3;
 		const hw = w / 2.0;
@@ -68,7 +68,7 @@ export class WireCube extends MXP.Component {
 			frag: cubeWireFrag,
 			vert: cubeWireVert,
 			uniforms: MXP.UniformsUtils.merge(
-				Engine.getInstance( gl ).uniforms
+				engine.uniforms
 			)
 		} );
 

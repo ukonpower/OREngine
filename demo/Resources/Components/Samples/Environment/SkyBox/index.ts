@@ -3,8 +3,6 @@ import { Engine } from 'orengine';
 
 import fragSrc from './shaders/main.fs';
 
-import { gl } from '~orengine/ts/Globals';
-
 export class SkyBox extends MXP.Component {
 
 	private material: MXP.Material;
@@ -13,7 +11,7 @@ export class SkyBox extends MXP.Component {
 
 		super( params );
 
-		const engine = Engine.getInstance( gl );
+		const engine = this.engine as Engine;
 
 		this.material = new MXP.Material( {
 			name: "SkyBox",

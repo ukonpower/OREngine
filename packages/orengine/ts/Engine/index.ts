@@ -18,7 +18,7 @@ export interface FramePlay {
 	playing: boolean,
 }
 
-export class Engine extends MXP.Serializable {
+export class Engine extends MXP.Serializable implements MXP.Engine {
 
 	public static resources: Resources;
 	public static instances: Map<WebGL2RenderingContext, Engine>;
@@ -66,7 +66,7 @@ export class Engine extends MXP.Serializable {
 			Renderer
 		-------------------------------*/
 
-		this._renderer = new MXP.Renderer( gl );
+		this._renderer = new MXP.Renderer( gl, this );
 
 		this._renderer.globalUniforms = {
 			uTime: { value: 0, type: "1f" },
@@ -106,15 +106,14 @@ export class Engine extends MXP.Serializable {
 
 		// root
 
-		this._root = new MXP.Entity();
+		this._root = this.createEntity( { name: "root" } );
 		this._root.initiator = "god";
-		this._root.name = "root";
 
 		this.field( "name", () => this.name, v => this.name = v );
 
 		this.field( "scene", () => ProjectSerializer.serializeEntity( this._root, this._createComponentResolver() ) as unknown as MXP.SerializeFieldValue, ( v: MXP.SerializeFieldValue ) => {
 
-			ProjectSerializer.deserializeEntity( v as unknown as OREngineDataEntity, this._root, this._createComponentResolver() );
+			ProjectSerializer.deserializeEntity( v as unknown as OREngineDataEntity, this._root, this._createComponentResolver(), this );
 
 		} );
 
@@ -150,6 +149,16 @@ export class Engine extends MXP.Serializable {
 		}
 
 		return instance;
+
+	}
+
+	/*-------------------------------
+		Entity Factory
+	-------------------------------*/
+
+	public createEntity( params?: Omit<MXP.EntityParams, 'engine'> ): MXP.Entity {
+
+		return new MXP.Entity( { engine: this, ...params } );
 
 	}
 

@@ -10,6 +10,8 @@ import { GLTFFormat, GLTFBufferView, GLTFNode } from './gltf';
 import gltfFrag from './shaders/gltf.fs';
 import gltfVert from './shaders/gltf.vs';
 
+import type { Engine } from '../../Engine';
+
 const GLB_HEADER_LENGTH = 12;
 const GLB_CHUNK_HEADER_LENGTH = 8;
 
@@ -52,12 +54,14 @@ export type GLTF = {
 export class GLTFLoader extends GLP.EventEmitter {
 
 	private gl: WebGL2RenderingContext;
+	private _engine: Engine;
 
-	constructor( gl: WebGL2RenderingContext ) {
+	constructor( gl: WebGL2RenderingContext, engine: Engine ) {
 
 		super();
 
 		this.gl = gl;
+		this._engine = engine;
 
 	}
 
@@ -487,7 +491,7 @@ export class GLTFLoader extends GLP.EventEmitter {
 
 		const createEntity = ( ( nodeNum: number, node: GLTFNode ) => {
 
-			const entity = new Entity();
+			const entity = this._engine.createEntity();
 
 			// transform
 
@@ -515,7 +519,7 @@ export class GLTFLoader extends GLP.EventEmitter {
 
 					meshList.forEach( ( mesh, i ) => {
 
-						const meshPartEntity = new Entity();
+						const meshPartEntity = this._engine.createEntity();
 						meshPartEntity.name = node.name + "_" + i;
 						const meshComponent = meshPartEntity.addComponent( Mesh );
 						meshComponent.geometry = mesh.geometry;
@@ -567,7 +571,7 @@ export class GLTFLoader extends GLP.EventEmitter {
 
 		} );
 
-		const scene = new Entity();
+		const scene = this._engine.createEntity();
 
 		const sceneNode = gltfJson.scenes && gltfJson.scenes[ 0 ];
 

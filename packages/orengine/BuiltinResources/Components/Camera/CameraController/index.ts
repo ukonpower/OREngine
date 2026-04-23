@@ -1,15 +1,12 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
-
 import { Engine } from 'orengine';
 
-import { LookAt } from '../LookAt';
 import { Bloom } from '../../_PostProcess/Bloom';
 import { ColorGrading } from '../../_PostProcess/ColorGrading';
-import { FXAA } from '../../_PostProcess/FXAA';
 import { Finalize } from '../../_PostProcess/Finalize';
-
-import { gl } from '~orengine/ts/Globals';
+import { FXAA } from '../../_PostProcess/FXAA';
+import { LookAt } from '../LookAt';
 
 export class CameraController extends MXP.Component {
 
@@ -35,7 +32,7 @@ export class CameraController extends MXP.Component {
 		// PostProcessPipeline
 
 		const pipeline = this.entity.addComponent( MXP.PostProcessPipeline );
-		const engine = Engine.getInstance( gl );
+		const engine = this.engine as Engine;
 		const rt = engine.renderer.renderTarget;
 
 		const bloom = new Bloom( rt.shadingBuffer.textures[ 0 ] );

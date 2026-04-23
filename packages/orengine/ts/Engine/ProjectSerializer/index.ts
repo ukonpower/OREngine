@@ -117,11 +117,11 @@ export class ProjectSerializer {
 		Deserialize
 	-------------------------------*/
 
-	public static deserializeEntity( rootEnttyData: OREngineDataEntity, target: MXP.Entity, resolver: ComponentResolver ) {
+	public static deserializeEntity( rootEnttyData: OREngineDataEntity, target: MXP.Entity, resolver: ComponentResolver, engine: MXP.Engine ) {
 
 		const _ = ( node: OREngineDataEntity, target?: MXP.Entity ): MXP.Entity => {
 
-			const entity = target || new MXP.Entity();
+			const entity = target || engine.createEntity();
 			entity.initiator = "user";
 			entity.name = node.name;
 			entity.restoreUUID( node.uuid );

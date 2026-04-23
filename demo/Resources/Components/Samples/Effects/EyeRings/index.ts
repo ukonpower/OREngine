@@ -4,13 +4,13 @@ import { Engine } from 'orengine';
 import eyeRingsFrag from './shaders/eyeRings.fs';
 import eyeRingsVert from './shaders/eyeRings.vs';
 
-import { gl } from '~orengine/ts/Globals';
-
 export class EyeRings extends MXP.Component {
 
 	constructor( params: MXP.ComponentParams ) {
 
 		super( params );
+
+		const engine = this.engine as Engine;
 
 		const geometry = new MXP.RingGeometry( {
 			thetaSegments: 64,
@@ -38,7 +38,7 @@ export class EyeRings extends MXP.Component {
 			phase: [ 'deferred', 'shadowMap' ],
 			frag: eyeRingsFrag,
 			vert: eyeRingsVert,
-			uniforms: Engine.getInstance( gl ).uniforms,
+			uniforms: engine.uniforms,
 		} );
 
 		const mesh = this.entity.addComponent( MXP.Mesh, {

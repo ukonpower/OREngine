@@ -5,13 +5,13 @@ import { Engine } from 'orengine';
 import dustFrag from './shaders/dust.fs';
 import dustVert from './shaders/dust.vs';
 
-import { gl } from '~orengine/ts/Globals';
-
 export class Dust extends MXP.Component {
 
 	constructor( params: MXP.ComponentParams<{num?: number} | void> ) {
 
 		super( params );
+
+		const engine = this.engine as Engine;
 
 		const geometry = new MXP.Geometry();
 
@@ -39,7 +39,7 @@ export class Dust extends MXP.Component {
 			drawType: "POINTS",
 			frag: dustFrag,
 			vert: dustVert,
-			uniforms: MXP.UniformsUtils.merge( Engine.getInstance( gl ).uniforms ),
+			uniforms: MXP.UniformsUtils.merge( engine.uniforms ),
 		} );
 
 		const mesh = this.entity.addComponent( MXP.Mesh, {

@@ -5,6 +5,8 @@ import { Component, ComponentParams, ComponentUpdateEvent } from "../Component";
 import { RenderStack } from '../Component/Renderer';
 import { Serializable } from '../Serializable';
 
+import type { Engine } from '../Engine';
+
 export interface EntityUpdateEvent {
 	timeElapsed: number;
 	timeDelta: number;
@@ -27,6 +29,7 @@ export interface EntityResizeEvent {
 }
 
 export interface EntityParams {
+	engine: Engine;
 	name?: string;
 }
 
@@ -54,12 +57,14 @@ export class Entity extends Serializable {
 	public visible: boolean;
 	public userData: any;
 	public unresolvedComponents: { name: string; uuid: string; props?: Record<string, unknown> }[];
+	protected _engine: Engine;
 
-	constructor( params?: EntityParams ) {
+	constructor( params: EntityParams ) {
 
 		super();
 
-		this.name = params && params.name || "";
+		this._engine = params.engine;
+		this.name = params.name ?? "";
 
 		this.position = new GLP.Vector( 0.0, 0.0, 0.0, 1.0 );
 		this.euler = new GLP.Euler();
@@ -97,6 +102,12 @@ export class Entity extends Serializable {
 			return list;
 
 		}, { hidden: true } );
+
+	}
+
+	public get engine() {
+
+		return this._engine;
 
 	}
 
@@ -315,7 +326,7 @@ export class Entity extends Serializable {
 
 		const [ componentArgs ] = args;
 
-		const instance = new component( { entity: this, args: componentArgs || {} } );
+		const instance = new component( { entity: this, engine: this._engine, args: componentArgs || {} } );
 
 		this.components.set( component, instance );
 

@@ -1,15 +1,16 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import gizmoVert from '../../shaders/gizmo.vs';
-import gizmoFrag from '../../shaders/gizmo.fs';
-
 import { Gizmo, GizmoAxis, GizmoDragResult, createHitAreaMaterial } from '..';
+import gizmoFrag from '../../shaders/gizmo.fs';
+import gizmoVert from '../../shaders/gizmo.vs';
+
 
 export class TranslateGizmo implements Gizmo {
 
 	private static readonly BASE_SCALE_FACTOR = 0.15;
 
+	private _engine: MXP.Engine;
 	public entity: MXP.Entity;
 	private _xAxis: MXP.Entity;
 	private _yAxis: MXP.Entity;
@@ -19,9 +20,10 @@ export class TranslateGizmo implements Gizmo {
 	private _dragStartPos: GLP.Vector;
 	private _dragOffset: GLP.Vector;
 
-	constructor() {
+	constructor( engine: MXP.Engine ) {
 
-		this.entity = new MXP.Entity( { name: "__gizmo" } );
+		this._engine = engine;
+		this.entity = engine.createEntity( { name: "__gizmo" } );
 		this.entity.initiator = "god";
 		this.entity.visible = false;
 
@@ -42,7 +44,7 @@ export class TranslateGizmo implements Gizmo {
 
 	private _createAxis( direction: GLP.Vector, color: number[] ): MXP.Entity {
 
-		const axisEntity = new MXP.Entity( { name: "__gizmo_axis" } );
+		const axisEntity = this._engine.createEntity( { name: "__gizmo_axis" } );
 		axisEntity.initiator = "god";
 
 		const shaftLength = 0.8;
@@ -51,7 +53,7 @@ export class TranslateGizmo implements Gizmo {
 		const headRadius = 0.05;
 
 		// shaft
-		const shaft = new MXP.Entity( { name: "__gizmo_shaft" } );
+		const shaft = this._engine.createEntity( { name: "__gizmo_shaft" } );
 		shaft.initiator = "god";
 
 		const shaftGeo = new MXP.CylinderGeometry( {
@@ -76,7 +78,7 @@ export class TranslateGizmo implements Gizmo {
 		shaft.position.set( direction.x * shaftLength / 2, direction.y * shaftLength / 2, direction.z * shaftLength / 2 );
 
 		// head (cone-like cylinder)
-		const head = new MXP.Entity( { name: "__gizmo_head" } );
+		const head = this._engine.createEntity( { name: "__gizmo_head" } );
 		head.initiator = "god";
 
 		const headGeo = new MXP.CylinderGeometry( {
@@ -118,7 +120,7 @@ export class TranslateGizmo implements Gizmo {
 		}
 
 		// hit area - shaft
-		const hitShaft = new MXP.Entity( { name: "__gizmo_hit_shaft" } );
+		const hitShaft = this._engine.createEntity( { name: "__gizmo_hit_shaft" } );
 		hitShaft.initiator = "god";
 		const hitShaftGeo = new MXP.CylinderGeometry( {
 			radiusTop: 0.06, radiusBottom: 0.06,
@@ -129,7 +131,7 @@ export class TranslateGizmo implements Gizmo {
 		hitShaft.euler.copy( shaft.euler );
 
 		// hit area - head
-		const hitHead = new MXP.Entity( { name: "__gizmo_hit_head" } );
+		const hitHead = this._engine.createEntity( { name: "__gizmo_hit_head" } );
 		hitHead.initiator = "god";
 		const hitHeadGeo = new MXP.CylinderGeometry( {
 			radiusTop: 0.001, radiusBottom: 0.1,

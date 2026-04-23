@@ -73,7 +73,11 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 
 		// gl
 
-		this.glRenderer = new MXP.Renderer( this.gl );
+		const isolatedEngine: MXP.Engine = {
+			createEntity: ( params ) => new MXP.Entity( { ...params, engine: isolatedEngine } ),
+		};
+
+		this.glRenderer = new MXP.Renderer( this.gl, isolatedEngine );
 		this.canvasTexture = new GLP.GLPowerTexture( this.gl );
 
 		// music

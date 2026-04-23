@@ -14,11 +14,11 @@ export class GizmoManager {
 	private _activeGizmo: Gizmo | null;
 	private _mode: GizmoMode;
 
-	constructor() {
+	constructor( engine: MXP.Engine ) {
 
-		this._translateGizmo = new TranslateGizmo();
-		this._rotateGizmo = new RotateGizmo();
-		this._scaleGizmo = new ScaleGizmo();
+		this._translateGizmo = new TranslateGizmo( engine );
+		this._rotateGizmo = new RotateGizmo( engine );
+		this._scaleGizmo = new ScaleGizmo( engine );
 		this._mode = 'select';
 		this._activeGizmo = null;
 

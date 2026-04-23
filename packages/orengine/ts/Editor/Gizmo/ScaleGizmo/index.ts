@@ -1,15 +1,16 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import gizmoVert from '../../shaders/gizmo.vs';
-import gizmoFrag from '../../shaders/gizmo.fs';
-
 import { Gizmo, GizmoAxis, GizmoDragResult, createHitAreaMaterial } from '..';
+import gizmoFrag from '../../shaders/gizmo.fs';
+import gizmoVert from '../../shaders/gizmo.vs';
+
 
 export class ScaleGizmo implements Gizmo {
 
 	private static readonly BASE_SCALE_FACTOR = 0.15;
 
+	private _engine: MXP.Engine;
 	public entity: MXP.Entity;
 	private _xAxis: MXP.Entity;
 	private _yAxis: MXP.Entity;
@@ -20,9 +21,10 @@ export class ScaleGizmo implements Gizmo {
 	private _dragStartProjection: number;
 	private _dragStartScale: GLP.Vector;
 
-	constructor() {
+	constructor( engine: MXP.Engine ) {
 
-		this.entity = new MXP.Entity( { name: "__gizmo_scale" } );
+		this._engine = engine;
+		this.entity = engine.createEntity( { name: "__gizmo_scale" } );
 		this.entity.initiator = "god";
 		this.entity.visible = false;
 
@@ -44,7 +46,7 @@ export class ScaleGizmo implements Gizmo {
 
 	private _createAxis( direction: GLP.Vector, color: number[] ): MXP.Entity {
 
-		const axisEntity = new MXP.Entity( { name: "__gizmo_axis" } );
+		const axisEntity = this._engine.createEntity( { name: "__gizmo_axis" } );
 		axisEntity.initiator = "god";
 
 		const shaftLength = 0.8;
@@ -52,7 +54,7 @@ export class ScaleGizmo implements Gizmo {
 		const headSize = 0.08;
 
 		// shaft
-		const shaft = new MXP.Entity( { name: "__gizmo_shaft" } );
+		const shaft = this._engine.createEntity( { name: "__gizmo_shaft" } );
 		shaft.initiator = "god";
 
 		const shaftGeo = new MXP.CylinderGeometry( {
@@ -77,7 +79,7 @@ export class ScaleGizmo implements Gizmo {
 		shaft.position.set( direction.x * shaftLength / 2, direction.y * shaftLength / 2, direction.z * shaftLength / 2 );
 
 		// head (cube)
-		const head = new MXP.Entity( { name: "__gizmo_head" } );
+		const head = this._engine.createEntity( { name: "__gizmo_head" } );
 		head.initiator = "god";
 
 		const headGeo = new MXP.CubeGeometry( {
@@ -114,7 +116,7 @@ export class ScaleGizmo implements Gizmo {
 		}
 
 		// hit area - shaft
-		const hitShaft = new MXP.Entity( { name: "__gizmo_hit_shaft" } );
+		const hitShaft = this._engine.createEntity( { name: "__gizmo_hit_shaft" } );
 		hitShaft.initiator = "god";
 		const hitShaftGeo = new MXP.CylinderGeometry( {
 			radiusTop: 0.06, radiusBottom: 0.06,
@@ -125,7 +127,7 @@ export class ScaleGizmo implements Gizmo {
 		hitShaft.euler.copy( shaft.euler );
 
 		// hit area - head
-		const hitHead = new MXP.Entity( { name: "__gizmo_hit_head" } );
+		const hitHead = this._engine.createEntity( { name: "__gizmo_hit_head" } );
 		hitHead.initiator = "god";
 		const hitHeadGeo = new MXP.CubeGeometry( {
 			width: headSize * 2, height: headSize * 2, depth: headSize * 2,

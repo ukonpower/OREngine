@@ -13,6 +13,8 @@ import spzVert from '../shaders/3dgs.vs';
 
 import { SPZGaussianData } from './CoordinateSystemConverter';
 
+import type { Engine } from '../../../Engine';
+
 
 export type SPZResult = {
 	scene: Entity;
@@ -34,9 +36,9 @@ export type SPZLoaderOptions = {
  * @param options ローダーオプション
  * @returns SPZ結果オブジェクト
  */
-export function createGaussianEntity( gl: WebGL2RenderingContext, gaussianData: SPZGaussianData, header: SPZHeader, _options: SPZLoaderOptions ): SPZResult {
+export function createGaussianEntity( gl: WebGL2RenderingContext, engine: Engine, gaussianData: SPZGaussianData, header: SPZHeader, _options: SPZLoaderOptions ): SPZResult {
 
-	const entity = new Entity();
+	const entity = engine.createEntity();
 
 	const geometry = new PlaneGeometry( {
 		width: 4,

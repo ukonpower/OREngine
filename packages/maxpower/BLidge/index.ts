@@ -2,6 +2,8 @@ import * as GLP from 'glpower';
 
 import { GLTF, GLTFLoader } from '../Loaders/GLTFLoader';
 
+import type { Engine } from '../Engine';
+
 export type BLidgeNodeType = 'empty' | 'cube' | 'sphere' | 'cylinder' | 'mesh' | 'camera' | 'plane' | 'light' | 'gltf';
 
 // scene
@@ -150,6 +152,7 @@ export class BLidge extends GLP.EventEmitter {
 	// gl
 
 	private gl: WebGL2RenderingContext;
+	private _engine: Engine;
 
 	// connection
 
@@ -173,11 +176,12 @@ export class BLidge extends GLP.EventEmitter {
 
 	public currentScene: BLidgeScene | null;
 
-	constructor( gl: WebGL2RenderingContext, url?: string ) {
+	constructor( gl: WebGL2RenderingContext, engine: Engine, url?: string ) {
 
 		super();
 
 		this.gl = gl;
+		this._engine = engine;
 
 		this.root = null;
 		this.nodes = [];
@@ -276,7 +280,7 @@ export class BLidge extends GLP.EventEmitter {
 
 		if ( gltfPath ) {
 
-			const loader = new GLTFLoader( this.gl );
+			const loader = new GLTFLoader( this.gl, this._engine );
 
 			await loader.load( gltfPath ).then( gltf => {
 

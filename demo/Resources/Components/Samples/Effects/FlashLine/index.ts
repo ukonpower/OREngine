@@ -5,8 +5,6 @@ import { Engine } from 'orengine';
 import flFrag from './shaders/flashLine.fs';
 import flVert from './shaders/flashLine.vs';
 
-import { gl } from '~orengine/ts/Globals';
-
 export class FlashLine extends MXP.Component {
 
 	private geometry: MXP.Geometry;
@@ -15,6 +13,8 @@ export class FlashLine extends MXP.Component {
 	constructor( params: MXP.ComponentParams ) {
 
 		super( params );
+
+		const engine = this.engine as Engine;
 
 		// geometry
 
@@ -44,7 +44,7 @@ export class FlashLine extends MXP.Component {
 			phase: [ "forward", "envMap" ],
 			frag: MXP.hotGet( "flFrag", flFrag ),
 			vert: MXP.hotGet( "flVert", flVert ),
-			uniforms: MXP.UniformsUtils.merge( Engine.getInstance( gl ).uniforms )
+			uniforms: MXP.UniformsUtils.merge( engine.uniforms )
 		} );
 
 		this.entity.addComponent( MXP.Mesh, {

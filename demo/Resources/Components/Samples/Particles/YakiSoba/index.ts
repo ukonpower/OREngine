@@ -16,6 +16,8 @@ export class YakiSoba extends MXP.Component {
 
 		super( params );
 
+		const engine = this.engine as Engine;
+
 		const num = new GLP.Vector( 64, 512 );
 
 		// gpu
@@ -28,7 +30,7 @@ export class YakiSoba extends MXP.Component {
 					dataLayerCount: 2,
 					frag: MXP.hotGet( "yakiSobaCompute", yakiSobaCompute ),
 					uniforms: MXP.UniformsUtils.merge( {
-					}, Engine.getInstance( gl ).uniforms ),
+					}, engine.uniforms ),
 				} )
 			]
 		} );

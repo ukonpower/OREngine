@@ -8,6 +8,7 @@ export class CreateEntityCommand implements Command {
 	private entity: MXP.Entity | null = null;
 
 	constructor(
+		private engine: MXP.Engine,
 		private parent: MXP.Entity,
 		private entityName: string,
 	) {}
@@ -20,8 +21,7 @@ export class CreateEntityCommand implements Command {
 
 		} else {
 
-			this.entity = new MXP.Entity();
-			this.entity.name = this.entityName;
+			this.entity = this.engine.createEntity( { name: this.entityName } );
 			this.entity.initiator = "user";
 			this.parent.add( this.entity );
 
