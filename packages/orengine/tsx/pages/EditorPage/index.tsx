@@ -74,27 +74,6 @@ export const EditorPage = ( props: EditorPageProps ) => {
 					body: JSON.stringify( savedEditor ),
 				} );
 
-				const textures = Engine.resources.textureList.map( t => ( {
-					name: t.name,
-					config: t.serialize( { mode: "export" } ),
-				} ) );
-
-				for ( const t of textures ) {
-
-					fetch( `/api/projects/${projectName}/textures/${encodeURIComponent( t.name )}`, {
-						method: 'PUT',
-						headers: { 'Content-Type': 'application/json', ...clientHeader },
-						body: JSON.stringify( t.config ),
-					} );
-
-				}
-
-				fetch( `/api/projects/${projectName}/textures/sync`, {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json', ...clientHeader },
-					body: JSON.stringify( { names: textures.map( t => t.name ) } ),
-				} );
-
 			}} />
 		</OREngine>
 	);

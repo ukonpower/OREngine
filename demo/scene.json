@@ -1,21 +1,5 @@
 {
 	"name": "New Project",
-	"position": [
-		0,
-		0,
-		0
-	],
-	"euler": [
-		0,
-		0,
-		0
-	],
-	"scale": [
-		1,
-		1,
-		1
-	],
-	"visible": true,
 	"scene": {
 		"name": "root",
 		"uuid": "0",
@@ -56,23 +40,6 @@
 								{
 									"name": "OREngineCube",
 									"uuid": "0000018d"
-								},
-								{
-									"name": "Mesh",
-									"uuid": "0000018c",
-									"props": {
-										"geometry/type": "",
-										"geometry/width": 1,
-										"geometry/height": 1,
-										"geometry/depth": 1,
-										"geometry/radius": 0.5,
-										"geometry/widthSegments": 8,
-										"geometry/heightSegments": 8,
-										"geometry/floor": false,
-										"geometry/radiusTop": 1,
-										"geometry/radiusBottom": 1,
-										"geometry/caps": true
-									}
 								}
 							]
 						},
@@ -81,24 +48,7 @@
 							"components": [
 								{
 									"name": "OREngineLogo",
-									"uuid": "00000190"
-								},
-								{
-									"name": "Mesh",
-									"uuid": "0000018f",
-									"props": {
-										"geometry/type": "",
-										"geometry/width": 1,
-										"geometry/height": 1,
-										"geometry/depth": 1,
-										"geometry/radius": 0.5,
-										"geometry/widthSegments": 8,
-										"geometry/heightSegments": 8,
-										"geometry/floor": false,
-										"geometry/radiusTop": 1,
-										"geometry/radiusBottom": 1,
-										"geometry/caps": true
-									}
+									"uuid": "e2589e70-cc33-41c7-a5eb-c959da2e0c22"
 								}
 							]
 						},
@@ -106,29 +56,12 @@
 							"name": "OREngineCube",
 							"components": [
 								{
-									"name": "OREngineCube",
-									"uuid": "e3093905-c1d4-4d42-8400-9eb233837df0"
-								},
-								{
 									"name": "ObjectRotate",
 									"uuid": "6aa837ca-5823-43a6-8ddd-ddf09f4f0dc8"
 								},
 								{
-									"name": "Mesh",
-									"uuid": "00000191",
-									"props": {
-										"geometry/type": "",
-										"geometry/width": 1,
-										"geometry/height": 1,
-										"geometry/depth": 1,
-										"geometry/radius": 0.5,
-										"geometry/widthSegments": 8,
-										"geometry/heightSegments": 8,
-										"geometry/floor": false,
-										"geometry/radiusTop": 1,
-										"geometry/radiusBottom": 1,
-										"geometry/caps": true
-									}
+									"name": "OREngineCube",
+									"uuid": "a014c6b1-c6e1-4e16-868f-898654c01146"
 								}
 							]
 						},

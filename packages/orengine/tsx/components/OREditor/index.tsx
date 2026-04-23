@@ -14,6 +14,7 @@ import { MouseMenuContext } from '../MouseMenu/Context/MouseMenuContext';
 import { useMouseMenuContext } from '../MouseMenu/Hooks/useMouseMenuContext';
 import { Panel } from '../Panel';
 import { PanelContainer } from '../PanelContainer';
+import { Textures } from '../Panels/Textures';
 import { EntityProperty } from '../Panels/EntityProperty';
 import { Timer } from '../Panels/GPUTimer';
 import { Hierarchy } from '../Panels/Hierarchy';
@@ -132,6 +133,11 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 											<EntityProperty />
 										</Panel>
 									</PanelContainer.Tab>
+									<PanelContainer.Tab title='Textures'>
+										<Panel noPadding>
+											<Textures />
+										</Panel>
+									</PanelContainer.Tab>
 									<PanelContainer.Tab title='Project'>
 										<Panel>
 											<ProjectControl />
@@ -181,6 +187,11 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 										<EntityProperty />
 									</LayoutSplit.Item>
 								</LayoutSplit>
+							</PanelContainer.Tab>
+							<PanelContainer.Tab title='Textures'>
+								<Panel noPadding>
+									<Textures />
+								</Panel>
 							</PanelContainer.Tab>
 							<PanelContainer.Tab title='Project'>
 								<Panel>
