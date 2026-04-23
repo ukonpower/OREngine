@@ -99,8 +99,8 @@ export class Editor extends MXP.Serializable {
 		-------------------------------*/
 
 		this._editorCamera = new EditorCamera( engine );
-		this._gizmoManager = new GizmoManager();
-		this._helperManager = new HelperManager();
+		this._gizmoManager = new GizmoManager( engine );
+		this._helperManager = new HelperManager( engine );
 		this._wireframeRenderer = new WireframeRenderer();
 		this._selectionOutline = new SelectionOutline( engine );
 
@@ -584,8 +584,7 @@ export class Editor extends MXP.Serializable {
 
 	public createEntity( parentEntity: MXP.Entity, name: string ) {
 
-		const newEntity = new MXP.Entity();
-		newEntity.name = name;
+		const newEntity = this._engine.createEntity( { name } );
 		newEntity.initiator = "user";
 		parentEntity.add( newEntity );
 

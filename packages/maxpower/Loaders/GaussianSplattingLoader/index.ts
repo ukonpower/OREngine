@@ -1,8 +1,11 @@
 import * as GLP from 'glpower';
 
+
 import { isSplatFormat } from './parsers/SplatDataParser';
 import { SPZGaussianData } from './utils/CoordinateSystemConverter';
 import { createGaussianEntity, SPZResult, SPZLoaderOptions } from './utils/SPZMeshBuilder';
+
+import type { Engine } from '../../Engine';
 
 // 3DGSの座標系タイプ
 export enum CoordinateSystem {
@@ -18,18 +21,21 @@ export enum CoordinateSystem {
 export class GaussianSplattingLoader extends GLP.EventEmitter {
 
 	private gl: WebGL2RenderingContext;
+	private _engine: Engine;
 	private spzWorker: Worker | null = null;
 	private splatWorker: Worker | null = null;
 
 	/**
 	 * コンストラクタ
 	 * @param gl WebGL2コンテキスト
+	 * @param engine Engine 参照
 	 */
-	constructor( gl: WebGL2RenderingContext ) {
+	constructor( gl: WebGL2RenderingContext, engine: Engine ) {
 
 		super();
 
 		this.gl = gl;
+		this._engine = engine;
 
 	}
 
@@ -118,7 +124,7 @@ export class GaussianSplattingLoader extends GLP.EventEmitter {
 		}
 
 		// 4. メッシュの生成
-		const finalResult = createGaussianEntity( this.gl, gaussianData, header, opts );
+		const finalResult = createGaussianEntity( this.gl, this._engine, gaussianData, header, opts );
 
 		return finalResult;
 

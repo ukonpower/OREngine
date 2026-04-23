@@ -27,12 +27,12 @@ export class EntityHelper {
 	private _baseColor: number[];
 	private _colorUniform: number[];
 
-	constructor( type: HelperType, targetEntityUUID: string ) {
+	constructor( engine: MXP.Engine, type: HelperType, targetEntityUUID: string ) {
 
 		this.type = type;
 		this.targetEntityUUID = targetEntityUUID;
 
-		this.entity = new MXP.Entity( { name: "__helper" } );
+		this.entity = engine.createEntity( { name: "__helper" } );
 		this.entity.initiator = "god";
 
 		const color = this._getColor();
@@ -53,7 +53,7 @@ export class EntityHelper {
 
 		// hit area
 		this._hitAreaGeometry = this._createHitAreaGeometry();
-		this.hitAreaEntity = new MXP.Entity( { name: "__helper_hit" } );
+		this.hitAreaEntity = engine.createEntity( { name: "__helper_hit" } );
 		this.hitAreaEntity.initiator = "god";
 		this.hitAreaEntity.addComponent( MXP.Mesh, {
 			geometry: this._hitAreaGeometry,

@@ -43,7 +43,7 @@ export class EditorAPI {
 
 	public createEntity( parent: MXP.Entity, name: string ): MXP.Entity {
 
-		const cmd = new CreateEntityCommand( parent, name );
+		const cmd = new CreateEntityCommand( this._editor.engine, parent, name );
 		this._commandManager.execute( cmd );
 
 		return cmd.createdEntity!;

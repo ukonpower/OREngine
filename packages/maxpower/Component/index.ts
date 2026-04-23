@@ -1,18 +1,21 @@
 import { Entity, EntityFinalizeEvent } from '../Entity';
 import { Serializable } from '../Serializable';
 
+import type { Engine } from '../Engine';
+
 export type ComponentUpdateEvent = EntityFinalizeEvent & {
 }
 
 export type ComponentParams<TArgs = void> = TArgs extends void
-  ? { entity: Entity; args?: TArgs }
-  : { entity: Entity; args: TArgs };
+  ? { entity: Entity; engine: Engine; args?: TArgs }
+  : { entity: Entity; engine: Engine; args: TArgs };
 
 export class Component extends Serializable {
 
 	public disableEdit: boolean;
 	public order: number;
 	protected _entity: Entity;
+	protected _engine: Engine;
 	protected _enabled: boolean;
 	protected _tag: string;
 	protected _disposed: boolean;
@@ -23,6 +26,7 @@ export class Component extends Serializable {
 
 		this.disableEdit = false;
 		this._entity = params.entity;
+		this._engine = params.engine;
 		this._enabled = true;
 		this._disposed = false;
 		this._tag = "";
@@ -50,6 +54,12 @@ export class Component extends Serializable {
 	public get entity() {
 
 		return this._entity;
+
+	}
+
+	public get engine() {
+
+		return this._engine;
 
 	}
 

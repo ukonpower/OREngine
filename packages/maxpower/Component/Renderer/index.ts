@@ -20,6 +20,8 @@ import { PMREMRender } from './PMREMRender';
 import { ProgramManager } from './ProgramManager';
 import skyFrag from './shaders/sky.fs';
 
+import type { Engine } from '../../Engine';
+
 // sky
 
 export class RendererSky {
@@ -32,7 +34,7 @@ export class RendererSky {
 
 	private _intensity: number;
 
-	constructor() {
+	constructor( engine: Engine ) {
 
 		this.color = new GLP.Vector( 1.0, 1.0, 1.0 );
 		this.groundColor = new GLP.Vector( 0.3, 0.3, 0.3 );
@@ -49,7 +51,7 @@ export class RendererSky {
 			}
 		} );
 
-		this.entity = new Entity( { name: "sky" } );
+		this.entity = engine.createEntity( { name: "sky" } );
 		this.mesh = this.entity.addComponent( Mesh );
 		this.mesh.geometry = new SphereGeometry( { radius: 500, widthSegments: 32, heightSegments: 32 } );
 		this.mesh.material = this.material;
@@ -231,7 +233,7 @@ export class Renderer extends Serializable {
 	private _tmpModelMatrixInverse: GLP.Matrix;
 	private _tmpProjectionMatrixInverse: GLP.Matrix;
 
-	constructor( gl: WebGL2RenderingContext ) {
+	constructor( gl: WebGL2RenderingContext, engine: Engine ) {
 
 		super();
 
@@ -281,7 +283,7 @@ export class Renderer extends Serializable {
 
 		for ( let i = 0; i < 6; i ++ ) {
 
-			const entity = new Entity( { name: "envMapCamera/" + i } );
+			const entity = engine.createEntity( { name: "envMapCamera/" + i } );
 			const camera = entity.addComponent( Camera );
 			camera.fov = 90;
 			camera.near = 0.1;
@@ -341,7 +343,7 @@ export class Renderer extends Serializable {
 
 		// sky
 
-		this.sky = new RendererSky();
+		this.sky = new RendererSky( engine );
 
 		// pipeline config
 

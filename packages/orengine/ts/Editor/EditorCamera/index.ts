@@ -14,7 +14,7 @@ export class EditorCamera {
 
 	constructor( engine: Engine ) {
 
-		this._entity = new MXP.Entity( { name: "__editorCamera" } );
+		this._entity = engine.createEntity( { name: "__editorCamera" } );
 		this._camera = this._entity.addComponent( MXP.Camera );
 		this._orbitControls = this._entity.addComponent( OrbitControls );
 		this._orbitControls.setElm( engine.canvas as HTMLCanvasElement );

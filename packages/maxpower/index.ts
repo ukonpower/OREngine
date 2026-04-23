@@ -14,6 +14,7 @@ export * from './Component/PostProcessPipeline';
 export * from './Component/Renderer';
 export * from "./Component/Renderer/DeferredRenderer";
 export * from './Component/Renderer/ProgramManager';
+export * from './Engine';
 export * from './Entity';
 export * from './Geometry';
 export * from './Geometry/CubeGeometry';

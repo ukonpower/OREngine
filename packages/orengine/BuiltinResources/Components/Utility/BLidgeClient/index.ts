@@ -72,7 +72,7 @@ export class BLidgeClient extends MXP.Component {
 
 		this.blidgeRoot = null;
 
-		this.blidge = new MXP.BLidge( gl );
+		this.blidge = new MXP.BLidge( gl, this.engine );
 
 		// シーン同期イベントハンドラ
 		const onSyncScene = this.onSyncScene.bind( this );
@@ -335,7 +335,7 @@ export class BLidgeClient extends MXP.Component {
 		const _ = ( node: MXP.BLidgeNode ): MXP.Entity => {
 
 			// 既存のエンティティがあれば取得、なければ新規作成
-			const entity: MXP.Entity = ( this.entities.get( node.name ) || new MXP.Entity() );
+			const entity: MXP.Entity = ( this.entities.get( node.name ) || this.engine.createEntity() );
 
 			// カメラノードの場合、カメラパラメータを設定
 			if ( node.type == 'camera' ) {

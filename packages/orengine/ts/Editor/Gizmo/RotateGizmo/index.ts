@@ -1,15 +1,16 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import gizmoVert from '../../shaders/gizmo.vs';
-import gizmoFrag from '../../shaders/gizmo.fs';
-
 import { Gizmo, GizmoAxis, GizmoDragResult, createHitAreaMaterial } from '..';
+import gizmoFrag from '../../shaders/gizmo.fs';
+import gizmoVert from '../../shaders/gizmo.vs';
+
 
 export class RotateGizmo implements Gizmo {
 
 	private static readonly BASE_SCALE_FACTOR = 0.15;
 
+	private _engine: MXP.Engine;
 	public entity: MXP.Entity;
 	private _xRing: MXP.Entity;
 	private _yRing: MXP.Entity;
@@ -19,9 +20,10 @@ export class RotateGizmo implements Gizmo {
 	private _dragStartAngle: number;
 	private _dragStartEuler: GLP.Vector;
 
-	constructor() {
+	constructor( engine: MXP.Engine ) {
 
-		this.entity = new MXP.Entity( { name: "__gizmo_rotate" } );
+		this._engine = engine;
+		this.entity = engine.createEntity( { name: "__gizmo_rotate" } );
 		this.entity.initiator = "god";
 		this.entity.visible = false;
 
@@ -42,10 +44,10 @@ export class RotateGizmo implements Gizmo {
 
 	private _createRing( axis: GizmoAxis, color: number[] ): MXP.Entity {
 
-		const wrapperEntity = new MXP.Entity( { name: "__gizmo_ring_wrapper" } );
+		const wrapperEntity = this._engine.createEntity( { name: "__gizmo_ring_wrapper" } );
 		wrapperEntity.initiator = "god";
 
-		const ringEntity = new MXP.Entity( { name: "__gizmo_ring" } );
+		const ringEntity = this._engine.createEntity( { name: "__gizmo_ring" } );
 		ringEntity.initiator = "god";
 
 		const geo = new MXP.RingGeometry( {
@@ -68,7 +70,7 @@ export class RotateGizmo implements Gizmo {
 		ringEntity.addComponent( MXP.Mesh, { geometry: geo, material: mat } );
 
 		// hit area
-		const hitRing = new MXP.Entity( { name: "__gizmo_hit_ring" } );
+		const hitRing = this._engine.createEntity( { name: "__gizmo_hit_ring" } );
 		hitRing.initiator = "god";
 		const hitGeo = new MXP.RingGeometry( {
 			innerRadius: 0.6, outerRadius: 0.95,
