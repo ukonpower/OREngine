@@ -2,19 +2,21 @@
 import { OREngineProjectData } from "packages/orengine/ts/Engine/ProjectSerializer";
 import { useEffect } from "react";
 
+import { Engine } from "../../../ts/Engine";
+
 import { OREngineContext } from "./Context/OREngineContext";
 import { useOREngineContext } from "./Hooks/useOREngineContext";
 
-export const OREngine: React.FC<{children?: React.ReactNode, gl: WebGL2RenderingContext, project:OREngineProjectData | undefined, onEngineInit?: ( gl: WebGL2RenderingContext ) => void }> = ( props ) => {
+export const OREngine: React.FC<{children?: React.ReactNode, project:OREngineProjectData | undefined, onEngineInit?: ( engine: Engine ) => void }> = ( props ) => {
 
-	const context = useOREngineContext( props.gl );
+	const context = useOREngineContext();
 	const { engine } = context;
 
 	useEffect( () => {
 
 		if ( props.onEngineInit ) {
 
-			props.onEngineInit( props.gl );
+			props.onEngineInit( engine );
 
 		}
 

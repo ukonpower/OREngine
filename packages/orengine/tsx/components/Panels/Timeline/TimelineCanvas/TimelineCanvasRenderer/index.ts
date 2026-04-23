@@ -74,6 +74,7 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 		// gl
 
 		const isolatedEngine: MXP.Engine = {
+			gl: this.gl,
 			createEntity: ( params ) => new MXP.Entity( { ...params, engine: isolatedEngine } ),
 		};
 

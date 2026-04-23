@@ -53,15 +53,19 @@ export type GLTF = {
 
 export class GLTFLoader extends GLP.EventEmitter {
 
-	private gl: WebGL2RenderingContext;
 	private _engine: Engine;
 
-	constructor( gl: WebGL2RenderingContext, engine: Engine ) {
+	constructor( engine: Engine ) {
 
 		super();
 
-		this.gl = gl;
 		this._engine = engine;
+
+	}
+
+	private get gl(): WebGL2RenderingContext {
+
+		return this._engine.gl;
 
 	}
 

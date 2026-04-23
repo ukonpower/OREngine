@@ -4,8 +4,6 @@ import * as MXP from 'maxpower';
 import gridCrossFrag from './shaders/gridCross.fs';
 import gridCrossVert from './shaders/gridCross.vs';
 
-import { globalUniforms } from '~orengine/ts/Globals';
-
 
 export class GridCross extends MXP.Component {
 
@@ -58,7 +56,6 @@ export class GridCross extends MXP.Component {
 			frag: MXP.hotGet( 'gridCrossFrag', gridCrossFrag ),
 			vert: MXP.hotGet( 'gridCrossVert', gridCrossVert ),
 			phase: [ "forward" ],
-			uniforms: MXP.UniformsUtils.merge( globalUniforms.resolution, globalUniforms.time )
 		} );
 
 		this.entity.addComponent( MXP.Mesh, {

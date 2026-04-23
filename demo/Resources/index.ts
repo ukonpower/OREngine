@@ -158,10 +158,8 @@ export const initResouces = () => {
 
 };
 
-export const initResourceInstances = ( glCtx: WebGL2RenderingContext ) => {
+export const initResourceInstances = ( engine: Engine ) => {
 
-	const engine = Engine.getInstance( glCtx );
-
-	Engine.resources.buildTextureInstances( engine.renderer, glCtx, engine.uniforms );
+	Engine.resources.buildTextureInstances( engine.renderer, engine.gl, engine.uniforms );
 
 };

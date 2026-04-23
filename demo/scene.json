@@ -160,10 +160,6 @@
 				}
 			},
 			{
-				"name": "UniformControls",
-				"uuid": "2"
-			},
-			{
 				"name": "SkyBox",
 				"uuid": "3"
 			}

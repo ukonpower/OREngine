@@ -1,8 +1,6 @@
 import * as MXP from 'maxpower';
 import { Engine, OREngineDataEntityComponent } from 'orengine';
 
-import { gl } from '~orengine/ts/Globals';
-
 interface BLidgeAttachment {
 	name: string,
 	components: OREngineDataEntityComponent[]
@@ -72,7 +70,7 @@ export class BLidgeClient extends MXP.Component {
 
 		this.blidgeRoot = null;
 
-		this.blidge = new MXP.BLidge( gl, this.engine );
+		this.blidge = new MXP.BLidge( this.engine );
 
 		// シーン同期イベントハンドラ
 		const onSyncScene = this.onSyncScene.bind( this );

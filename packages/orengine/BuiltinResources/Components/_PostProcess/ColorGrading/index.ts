@@ -2,11 +2,9 @@ import * as MXP from 'maxpower';
 
 import colorGradingFrag from './shaders/colorGrading.fs';
 
-import { gl } from '~orengine/ts/Globals';
-
 export class ColorGrading extends MXP.PostProcess {
 
-	constructor() {
+	constructor( gl: WebGL2RenderingContext ) {
 
 		super( {
 			name: "ColorGrading",

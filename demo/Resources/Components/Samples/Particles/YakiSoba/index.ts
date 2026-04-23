@@ -6,8 +6,6 @@ import yakiSobaFrag from './shaders/yakiSoba.fs';
 import yakiSobaVert from './shaders/yakiSoba.vs';
 import yakiSobaCompute from './shaders/yakiSobaCompute.glsl';
 
-import { gl, globalUniforms } from '~orengine/ts/Globals';
-
 export class YakiSoba extends MXP.Component {
 
 	private _gpu: MXP.GPUCompute;
@@ -24,13 +22,12 @@ export class YakiSoba extends MXP.Component {
 
 		this._gpu = new MXP.GPUCompute( {
 			passes: [
-				new MXP.GPUComputePass( gl, {
+				new MXP.GPUComputePass( engine.gl, {
 					name: "yakisoba",
 					size: num,
 					dataLayerCount: 2,
 					frag: MXP.hotGet( "yakiSobaCompute", yakiSobaCompute ),
-					uniforms: MXP.UniformsUtils.merge( {
-					}, engine.uniforms ),
+					uniforms: MXP.UniformsUtils.merge( {}, engine.uniforms, engine.renderer.globalUniforms ),
 				} )
 			]
 		} );
@@ -78,7 +75,7 @@ export class YakiSoba extends MXP.Component {
 			frag: MXP.hotGet( 'chainFrag', yakiSobaFrag ),
 			vert: MXP.hotGet( 'chainVert', yakiSobaVert ),
 			phase: [ 'deferred', 'shadowMap' ],
-			uniforms: MXP.UniformsUtils.merge( globalUniforms.time, this._gpu.passes[ 0 ].outputUniforms )
+			uniforms: MXP.UniformsUtils.merge( {}, this._gpu.passes[ 0 ].outputUniforms )
 		} );
 
 		// mesh
