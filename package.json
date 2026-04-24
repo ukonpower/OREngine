@@ -22,7 +22,7 @@
     "build": "node scripts/run.mjs build",
     "build:static": "node scripts/run.mjs build:static",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && find packages -name '*.scss' | xargs -I{} sass --no-source-map --quiet {} /dev/null",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"

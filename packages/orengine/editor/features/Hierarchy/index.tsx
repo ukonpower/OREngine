@@ -1,6 +1,6 @@
 import { useOREditor } from '../OREditor/hooks/useOREditor';
 
-import { HierarchyNode } from './HierarchyNode';
+import { HierarchyNode } from './components/HierarchyNode';
 import style from './index.module.scss';
 
 

@@ -5,8 +5,8 @@ import { useSerializableField } from "../SerializableField/hooks/useSerializable
 import { Block } from "../../components/primitives/Block";
 import { SerializeFieldView } from "../SerializableField/components/SerializeFieldView";
 
-import { ComponentAdd } from "./ComponentAdd";
-import { ComponentList } from "./ComponentList";
+import { ComponentAdd } from "./components/ComponentAdd";
+import { ComponentList } from "./components/ComponentList";
 
 
 export const EntityProperty = () => {

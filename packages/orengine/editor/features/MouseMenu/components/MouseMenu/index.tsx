@@ -1,6 +1,6 @@
 
 import style from './index.module.scss';
-import { MouseMenuItemContext } from "./Context/MouseMenuItemContext";
+import { MouseMenuItemContext } from "./contexts/MouseMenuItemContext";
 import { useMouseMenu } from "../../hooks/useMouseMenu";
 
 

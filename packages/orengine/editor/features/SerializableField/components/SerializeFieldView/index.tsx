@@ -1,6 +1,6 @@
 import * as MXP from 'maxpower';
-import { SerializeFieldViewContext } from './Context/SerializeFieldViewContext';
-import { useSerializeFieldViewContext } from './Hooks/useSerializeFieldViewContext';
+import { SerializeFieldViewContext } from './contexts/SerializeFieldViewContext';
+import { useSerializeFieldViewContext } from './hooks/useSerializeFieldViewContext';
 
 import { SerializeFieldViewDir } from './SerializeFieldViewDir';
 
