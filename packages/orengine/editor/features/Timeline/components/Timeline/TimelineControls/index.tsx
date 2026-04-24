@@ -6,7 +6,7 @@ import style from './index.module.scss';
 
 export const TimelineControls: React.FC<{children?: React.ReactNode}> = ( props ) => {
 
-  const { viewPort, setCurrentFrame: setFrame, getFrameViewPort, zoom, scroll, setViewPortCenter } = useTimeline();
+	const { viewPort, setCurrentFrame: setFrame, getFrameViewPort, zoom, scroll, setViewPortCenter } = useTimeline();
 
 	const viewPortRef = useRef( [ 0, 0, 0, 0 ] );
 	const viewPortRangeRef = useRef( [ 0, 0 ] );

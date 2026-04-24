@@ -17,7 +17,7 @@ const compat = new FlatCompat( {
 	allConfig: js.configs.all
 } );
 
-export default [{
+export default [ {
 	ignores: [ "**/dist", "packages/glpower/", "scripts/" ],
 }, ...fixupConfigRules( compat.extends(
 	"mdcs",
@@ -90,4 +90,4 @@ export default [{
 			},
 		} ],
 	},
-}];
+} ];

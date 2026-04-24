@@ -2,11 +2,11 @@
 import * as MXP from 'maxpower';
 import { MouseEvent, useCallback } from 'react';
 
-import { useOREditor } from '../../../OREditor/hooks/useOREditor';
-import { useSerializableField } from '../../../SerializableField/hooks/useSerializableProps';
 import { Block } from '../../../../components/primitives/Block';
 import { CrossIcon } from '../../../../components/primitives/Icons/CrossIcon';
+import { useOREditor } from '../../../OREditor/hooks/useOREditor';
 import { SerializeFieldView } from '../../../SerializableField/components/SerializeFieldView';
+import { useSerializableField } from '../../../SerializableField/hooks/useSerializableProps';
 
 import style from './index.module.scss';
 

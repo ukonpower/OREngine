@@ -4,7 +4,7 @@ import style from './index.module.scss';
 
 export const TimelineCursor = () => {
 
-        const { viewPort, framePlay } = useTimeline();
+	const { viewPort, framePlay } = useTimeline();
 
 	if ( ! viewPort || ! framePlay ) return null;
 

@@ -1,6 +1,7 @@
-import express from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
+
+import express from 'express';
 
 import { ProjectManager } from '../Project';
 import { getWSBridge } from '../ws';

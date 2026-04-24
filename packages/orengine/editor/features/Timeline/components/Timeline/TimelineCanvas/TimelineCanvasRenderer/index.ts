@@ -1,6 +1,5 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
-
 import { OREngineProjectFrame } from 'orengine';
 
 import timelineFrag from './shaders/timeline.fs';

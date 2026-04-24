@@ -34,7 +34,11 @@ describe( 'Serializable', () => {
 		it( 'should register and serialize a field', () => {
 
 			let value = 42;
-			s.field( 'myField', () => value, ( v: number ) => { value = v; } );
+			s.field( 'myField', () => value, ( v: number ) => {
+
+				value = v;
+
+			} );
 			const result = s.serialize();
 			expect( result[ 'myField' ] ).toBe( 42 );
 
@@ -43,7 +47,11 @@ describe( 'Serializable', () => {
 		it( 'should deserialize and update value', () => {
 
 			let value = 42;
-			s.field( 'myField', () => value, ( v: number ) => { value = v; } );
+			s.field( 'myField', () => value, ( v: number ) => {
+
+				value = v;
+
+			} );
 			s.deserialize( { 'myField': 100 } );
 			expect( value ).toBe( 100 );
 
@@ -52,7 +60,11 @@ describe( 'Serializable', () => {
 		it( 'should skip noExport fields in export mode', () => {
 
 			let v1 = 1;
-			s.field( 'visible', () => v1, ( v: number ) => { v1 = v; } );
+			s.field( 'visible', () => v1, ( v: number ) => {
+
+				v1 = v;
+
+			} );
 			s.field( 'internal', () => 2, { noExport: true } );
 			const result = s.serialize( { mode: 'export' } );
 			expect( result[ 'visible' ] ).toBe( 1 );
@@ -63,7 +75,11 @@ describe( 'Serializable', () => {
 		it( 'should ignore unknown keys on deserialize', () => {
 
 			let value = 42;
-			s.field( 'myField', () => value, ( v: number ) => { value = v; } );
+			s.field( 'myField', () => value, ( v: number ) => {
+
+				value = v;
+
+			} );
 			s.deserialize( { 'unknownKey': 999 } );
 			expect( value ).toBe( 42 );
 
@@ -81,8 +97,16 @@ describe( 'Serializable', () => {
 		it( 'should serialize multiple fields', () => {
 
 			let a = 1, b = 'test';
-			s.field( 'a', () => a, ( v: number ) => { a = v; } );
-			s.field( 'b', () => b, ( v: string ) => { b = v; } );
+			s.field( 'a', () => a, ( v: number ) => {
+
+				a = v;
+
+			} );
+			s.field( 'b', () => b, ( v: string ) => {
+
+				b = v;
+
+			} );
 			const result = s.serialize();
 			expect( result[ 'a' ] ).toBe( 1 );
 			expect( result[ 'b' ] ).toBe( 'test' );
@@ -92,7 +116,11 @@ describe( 'Serializable', () => {
 		it( 'should normalize leading slash in path', () => {
 
 			let value = 10;
-			s.field( '/leadingSlash', () => value, ( v: number ) => { value = v; } );
+			s.field( '/leadingSlash', () => value, ( v: number ) => {
+
+				value = v;
+
+			} );
 			const result = s.serialize();
 			expect( result[ 'leadingSlash' ] ).toBe( 10 );
 
@@ -106,8 +134,16 @@ describe( 'Serializable', () => {
 
 			let x = 1, y = 2;
 			const dir = s.fieldDir( 'transform' );
-			dir.field( 'x', () => x, ( v: number ) => { x = v; } );
-			dir.field( 'y', () => y, ( v: number ) => { y = v; } );
+			dir.field( 'x', () => x, ( v: number ) => {
+
+				x = v;
+
+			} );
+			dir.field( 'y', () => y, ( v: number ) => {
+
+				y = v;
+
+			} );
 			const result = s.serialize();
 			expect( result[ 'transform/x' ] ).toBe( 1 );
 			expect( result[ 'transform/y' ] ).toBe( 2 );
@@ -119,7 +155,11 @@ describe( 'Serializable', () => {
 			let v = 10;
 			const outer = s.fieldDir( 'a' );
 			const inner = outer.dir( 'b' );
-			inner.field( 'c', () => v, ( val: number ) => { v = val; } );
+			inner.field( 'c', () => v, ( val: number ) => {
+
+				v = val;
+
+			} );
 			const result = s.serialize();
 			expect( result[ 'a/b/c' ] ).toBe( 10 );
 
@@ -132,8 +172,16 @@ describe( 'Serializable', () => {
 		it( 'should convert flat fields to tree structure', () => {
 
 			let gType = 'Cube', gSize = 1;
-			s.field( 'geometry/type', () => gType, ( v: string ) => { gType = v; } );
-			s.field( 'geometry/size', () => gSize, ( v: number ) => { gSize = v; } );
+			s.field( 'geometry/type', () => gType, ( v: string ) => {
+
+				gType = v;
+
+			} );
+			s.field( 'geometry/size', () => gSize, ( v: number ) => {
+
+				gSize = v;
+
+			} );
 			const dir = s.serializeToDirectory();
 			expect( dir.type ).toBe( 'folder' );
 
@@ -161,7 +209,11 @@ describe( 'Serializable', () => {
 		it( 'should handle single-level field', () => {
 
 			let v = 99;
-			s.field( 'simple', () => v, ( val: number ) => { v = val; } );
+			s.field( 'simple', () => v, ( val: number ) => {
+
+				v = val;
+
+			} );
 			const dir = s.serializeToDirectory();
 
 			if ( dir.type === 'folder' ) {
@@ -186,7 +238,11 @@ describe( 'Serializable', () => {
 		it( 'should set and get field value', () => {
 
 			let value = 0;
-			s.field( 'x', () => value, ( v: number ) => { value = v; } );
+			s.field( 'x', () => value, ( v: number ) => {
+
+				value = v;
+
+			} );
 			s.setField( 'x', 42 );
 			expect( value ).toBe( 42 );
 			expect( s.getField( 'x' ) ).toBe( 42 );
@@ -206,7 +262,11 @@ describe( 'Serializable', () => {
 		it( 'should remove a registered field', () => {
 
 			let v = 1;
-			s.field( 'temp', () => v, ( val: number ) => { v = val; } );
+			s.field( 'temp', () => v, ( val: number ) => {
+
+				v = val;
+
+			} );
 			s.removeField( 'temp' );
 			const result = s.serialize();
 			expect( result[ 'temp' ] ).toBeUndefined();
@@ -221,7 +281,11 @@ describe( 'Serializable', () => {
 
 			let value = 0;
 			const cb = vi.fn();
-			s.field( 'x', () => value, ( v: number ) => { value = v; } );
+			s.field( 'x', () => value, ( v: number ) => {
+
+				value = v;
+
+			} );
 			s.on( 'fields/update', cb );
 			s.setField( 'x', 5 );
 			expect( cb ).toHaveBeenCalled();
@@ -232,7 +296,11 @@ describe( 'Serializable', () => {
 
 			let value = 0;
 			const cb = vi.fn();
-			s.field( 'x', () => value, ( v: number ) => { value = v; } );
+			s.field( 'x', () => value, ( v: number ) => {
+
+				value = v;
+
+			} );
 			s.on( 'fields/update/x', cb );
 			s.setField( 'x', 5 );
 			expect( cb ).toHaveBeenCalled();

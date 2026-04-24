@@ -2,10 +2,11 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 
 import { useOREditor } from '../OREditor/hooks/useOREditor';
 import { useOREngine } from '../OREngine/hooks/useOREngine';
+
+import style from './index.module.scss';
 import { TimerDataBuffer } from './TimerDataBuffer';
 import { TimerDuration, TimerStatistics } from './types';
 
-import style from './index.module.scss';
 
 const getColorForDuration = ( duration: number ): string => {
 

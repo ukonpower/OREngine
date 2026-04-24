@@ -2,14 +2,14 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { Value } from '../../components/composites/Value';
+import { Button } from '../../components/primitives/Button';
+import { Label } from '../../components/primitives/Label';
+import { AudioView } from '../AudioView';
 import { useLayout } from '../Layout/hooks/useLayout';
 import { useOREditor } from '../OREditor/hooks/useOREditor';
-import { useSerializableField } from '../SerializableField/hooks/useSerializableProps';
-import { Button } from '../../components/primitives/Button';
 import { Canvas } from '../SerializableField/components/Canvas';
-import { Label } from '../../components/primitives/Label';
-import { Value } from '../../components/composites/Value';
-import { AudioView } from '../AudioView';
+import { useSerializableField } from '../SerializableField/hooks/useSerializableProps';
 
 import style from './index.module.scss';
 

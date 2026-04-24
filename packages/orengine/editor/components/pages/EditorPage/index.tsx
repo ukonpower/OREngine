@@ -1,7 +1,7 @@
 import * as MXP from 'maxpower';
 import { OREngineProjectData } from "orengine";
-import { OREditor, OREngine, type PanelSlot, type CustomTab } from "orengine/react";
 import { Engine } from "orengine";
+import { OREditor, OREngine, type PanelSlot, type CustomTab } from "orengine/react";
 import { useEffect, useState } from "react";
 
 import "../../../styles/style.scss";

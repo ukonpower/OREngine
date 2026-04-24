@@ -13,7 +13,7 @@ export class OREngineCube extends MXP.Component {
 		super( params );
 
 		const engine = this.engine as Engine;
-		
+
 		this.material = new MXP.Material( {
 			name: "OREngineCube",
 			phase: [ "shadowMap", "deferred" ],

@@ -1,16 +1,16 @@
 import * as MXP from 'maxpower';
 import { MouseEvent, useCallback, useMemo, useState } from 'react';
 
-import { useOREditor } from '../../../OREditor/hooks/useOREditor';
-import { useSerializableField } from '../../../SerializableField/hooks/useSerializableProps';
+import { InputGroup } from '../../../../components/composites/InputGroup';
 import { ArrowIcon } from '../../../../components/primitives/Icons/ArrowIcon';
 import { CameraIcon } from '../../../../components/primitives/Icons/CameraIcon';
 import { EyeIcon } from '../../../../components/primitives/Icons/EyeIcon';
 import { LightIcon } from '../../../../components/primitives/Icons/LightIcon';
 import { MeshIcon } from '../../../../components/primitives/Icons/MeshIcon';
-import { InputGroup } from '../../../../components/composites/InputGroup';
-import { useMouseMenu } from '../../../MouseMenu/hooks/useMouseMenu';
 import { Picker } from '../../../MouseMenu/components/Picker';
+import { useMouseMenu } from '../../../MouseMenu/hooks/useMouseMenu';
+import { useOREditor } from '../../../OREditor/hooks/useOREditor';
+import { useSerializableField } from '../../../SerializableField/hooks/useSerializableProps';
 
 import style from './index.module.scss';
 
@@ -87,9 +87,9 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 
 	}, [ entityVisible, setEntityVisible ] );
 
-       // right click node
+	// right click node
 
-       const { pushContent, closeAll } = useMouseMenu();
+	const { pushContent, closeAll } = useMouseMenu();
 
 	const onRightClickNode = useCallback( ( e: MouseEvent ) => {
 

@@ -10,7 +10,7 @@ import { TimelineLoopCursor } from './TimelineLoopCursor';
 
 export const TimelineLoop = () => {
 
-        const { viewPort, framePlay, glEditor } = useTimeline();
+	const { viewPort, framePlay, glEditor } = useTimeline();
 
 	const elmRef = useRef<HTMLDivElement>( null );
 

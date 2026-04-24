@@ -65,7 +65,11 @@ export const PanelContainer = ( props: PanelContainerProps ) => {
 
 		if ( props.storageKey ) {
 
-			try { localStorage.setItem( props.storageKey, String( index ) ); } catch ( _e ) { /* */ }
+			try {
+
+				localStorage.setItem( props.storageKey, String( index ) );
+
+			} catch ( _e ) { /* */ }
 
 		}
 

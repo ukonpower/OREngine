@@ -1,8 +1,8 @@
 import * as GLP from 'glpower';
 import { useCallback, useRef } from 'react';
 
-import { InputNumber } from '../Input/InputNumber';
 import { Label } from '../../primitives/Label';
+import { InputNumber } from '../Input/InputNumber';
 
 import style from './index.module.scss';
 

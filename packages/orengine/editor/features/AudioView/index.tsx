@@ -1,7 +1,7 @@
 import * as MXP from 'maxpower';
+import { FramePlay, OREngineProjectFrame } from 'orengine';
 import { useState, useRef, useEffect, useCallback } from 'react';
 
-import { FramePlay, OREngineProjectFrame } from 'orengine';
 import { useOREditor } from '../OREditor/hooks/useOREditor';
 
 import { AudioViewRenderer } from './components/AudioViewRenderer';

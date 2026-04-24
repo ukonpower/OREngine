@@ -7,7 +7,7 @@ export type PointerEventArgs = {
 
 export class Pointer extends GLP.EventEmitter {
 
-        protected _isTouching: boolean;
+	protected _isTouching: boolean;
 	public element: HTMLElement | null = null;
 
 	public position: GLP.Vector;
@@ -17,16 +17,16 @@ export class Pointer extends GLP.EventEmitter {
 
 		super();
 
-                this.position = new GLP.Vector( NaN, NaN );
-                this.delta = new GLP.Vector( NaN, NaN );
-                this._isTouching = false;
+		this.position = new GLP.Vector( NaN, NaN );
+		this.delta = new GLP.Vector( NaN, NaN );
+		this._isTouching = false;
 
 		/*-------------------------------
 			WindowEvent
 		-------------------------------*/
 
-                const onPointerMove = this._onPointer.bind( this, "move" );
-                const onPointerUp = this._onPointer.bind( this, "end" );
+		const onPointerMove = this._onPointer.bind( this, "move" );
+		const onPointerUp = this._onPointer.bind( this, "end" );
 
 		window.addEventListener( 'pointermove', onPointerMove );
 		window.addEventListener( 'pointerup', onPointerUp );
@@ -55,7 +55,7 @@ export class Pointer extends GLP.EventEmitter {
 
 		this.element = elm;
 
-                const onPointerDown = this._onPointer.bind( this, "start" );
+		const onPointerDown = this._onPointer.bind( this, "start" );
 
 		elm.addEventListener( 'pointerdown', onPointerDown );
 
@@ -112,7 +112,7 @@ export class Pointer extends GLP.EventEmitter {
 
 	}
 
-        protected _setPos( x: number, y: number ) {
+	protected _setPos( x: number, y: number ) {
 
 		if ( this.position.x !== this.position.x || this.position.y !== this.position.y ) {
 
@@ -128,7 +128,7 @@ export class Pointer extends GLP.EventEmitter {
 
 	}
 
-        protected _onPointer( type: string, e: PointerEvent | DragEvent ) {
+	protected _onPointer( type: string, e: PointerEvent | DragEvent ) {
 
 		const pointerType = ( e as PointerEvent ).pointerType;
 
@@ -136,44 +136,44 @@ export class Pointer extends GLP.EventEmitter {
 
 			if ( pointerType == 'mouse' && ( e.button == - 1 || e.button == 0 ) ) {
 
-                                this._touchEventHandler( e.pageX, e.pageY, type, e as PointerEvent );
+				this._touchEventHandler( e.pageX, e.pageY, type, e as PointerEvent );
 
 			} else if ( pointerType == 'touch' ) {
 
-                                this._touchEventHandler( e.pageX, e.pageY, type, e as PointerEvent );
+				this._touchEventHandler( e.pageX, e.pageY, type, e as PointerEvent );
 
 			}
 
 		} else {
 
-                        this._touchEventHandler( e.pageX, e.pageY, type, e );
+			this._touchEventHandler( e.pageX, e.pageY, type, e );
 
 		}
 
 	}
 
-        protected _touchEventHandler( posX: number, posY: number, type: string, e: TouchEvent | PointerEvent | DragEvent ) {
+	protected _touchEventHandler( posX: number, posY: number, type: string, e: TouchEvent | PointerEvent | DragEvent ) {
 
 		let dispatch = false;
 
 		const x = posX - window.pageXOffset;
 		const y = posY - window.pageYOffset;
 
-                if ( type == 'start' ) {
+		if ( type == 'start' ) {
 
-                        this._isTouching = true;
+			this._isTouching = true;
 
-                        this._setPos( x, y );
+			this._setPos( x, y );
 
 			this.delta.set( 0, 0 );
 
 			dispatch = true;
 
-                } else if ( type == 'move' ) {
+		} else if ( type == 'move' ) {
 
-                        this._setPos( x, y );
+			this._setPos( x, y );
 
-                        if ( this._isTouching ) {
+			if ( this._isTouching ) {
 
 				dispatch = true;
 
@@ -185,13 +185,13 @@ export class Pointer extends GLP.EventEmitter {
 
 				if ( e.targetTouches.length == 0 ) {
 
-                                        this._isTouching = false;
+					this._isTouching = false;
 
 				}
 
 			} else {
 
-                                this._isTouching = false;
+				this._isTouching = false;
 
 			}
 
