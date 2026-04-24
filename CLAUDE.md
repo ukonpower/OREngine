@@ -69,7 +69,8 @@ public updateMatrix() {
 - **メソッド/関数/変数**: camelCase（`updateImpl`, `matrixWorld`, `autoMatrixUpdate`）
 - **protectedフィールド**: アンダースコアプレフィックス `_`（`_entity`, `_enabled`, `_tag`）
 - **privateフィールド**: サフィックス `_` またはプレフィックスなし（`fields_`, `componentsSorted`）
-- **ディレクトリ/モジュール**: PascalCase（`Entity/`, `Component/`, `Serializable/`）、各モジュールは `index.ts` をエントリポイントとする
+- **モジュールディレクトリ（クラス/コンポーネントを持つ葉ノード）**: PascalCase（`Entity/`, `Component/`, `Serializable/`, `OREditor/`, `Hierarchy/`, `Block/`）。各モジュールは `index.ts`（または `index.tsx`）をエントリポイントとする
+- **カテゴリディレクトリ（複数モジュールをまとめる中間層）**: lowercase（`engine/`, `editor/`, `lib/`, `components/`, `features/`, `hooks/`, `contexts/`, `primitives/`, `composites/`, `pages/`, `styles/`）
 - **Reactコンポーネント**: PascalCase関数コンポーネント（`const Screen = () => {}`）
 - **Reactフック**: `use` プレフィックス camelCase（`useOREditor`, `useSerializableField`）
 - **SCSSモジュール**: `index.module.scss`、BEM風ネスト（`&_tabs`, `&_right`）
@@ -85,11 +86,16 @@ public updateMatrix() {
 ## パスエイリアス
 - `glpower` → `packages/glpower/packages/glpower/src`
 - `maxpower` → `packages/maxpower`
-- `orengine` / `orengine/*` → `packages/orengine/*`
+- `orengine` → `packages/orengine/index.ts`（非Reactエントリ: engine + editor/lib）
+- `orengine/react` → `packages/orengine/react.tsx`（Reactエントリ: editor/components + editor/features）
+- `orengine/engine` → `packages/orengine/engine/index.ts`
+- `orengine/player` → `packages/orengine/player.ts`
+- `orengine/*` → `packages/orengine/*`（その他のサブパス）
 
 ## コンポーネント追加ルール
 - `<project>/Resources/Components/<グループ>/<名前>/index.ts` に `export class Xxx extends MXP.Component` を置くだけで自動認識される
-- `<project>/Resources/_data/componentList.ts` などは Vite プラグイン（`vite-plugins/ResourceManager`）が自動生成する。**手動で編集してはいけない**（`npm run dev` / `npm run build` で上書きされる）
+- `packages/orengine/builtin/Components/<グループ>/<名前>/index.ts` にビルトインコンポーネントを追加できる
+- `<project>/Resources/_data/componentList.ts`、`packages/orengine/builtin/_data/builtinComponentList.ts` などは Vite プラグイン（`vite-plugins/ResourceManager`）が自動生成する。**手動で編集してはいけない**（`npm run dev` / `npm run build` で上書きされる）
 - 先頭が `_` のディレクトリはスキャン対象外
 
 ## 設計ドキュメント（ADR）

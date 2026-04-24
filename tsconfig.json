@@ -37,7 +37,7 @@
         "./packages/maxpower"
       ],
       "orengine": [
-        "./packages/orengine/index.tsx"
+        "./packages/orengine/index.ts"
       ],
       "orengine/*": [
         "./packages/orengine/*"
