@@ -1,9 +1,9 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { Engine } from '../../engine/Engine';
-import { FrameDebugger } from '../../engine/FrameDebugger';
-import { SceneExporter, SceneExporterProgress } from '../../engine/SceneExporter';
+import { Engine } from '../../core/Engine';
+import { FrameDebugger } from '../../core/FrameDebugger';
+import { SceneExporter, SceneExporterProgress } from '../../core/SceneExporter';
 
 import { EditorAPI } from './EditorAPI';
 import { EditorAPIBridge } from './EditorAPIBridge';

@@ -40,7 +40,7 @@ export default [ {
 
 }, {
 	files: [
-		"packages/orengine/engine/**/*.ts",
+		"packages/orengine/core/**/*.ts",
 		"packages/orengine/editor/lib/**/*.ts",
 		"packages/orengine/builtin/**/*.ts",
 	],

@@ -1,7 +1,7 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { Engine } from '../../../../engine/Engine';
+import { Engine } from '../../../../core/Engine';
 import outlineFrag from '../shaders/outline.fs';
 import selectionFrag from '../shaders/selection.fs';
 import selectionVert from '../shaders/selection.vs';

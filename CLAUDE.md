@@ -85,9 +85,9 @@ public updateMatrix() {
 ## パスエイリアス
 - `glpower` → `packages/glpower/packages/glpower/src`
 - `maxpower` → `packages/maxpower`
-- `orengine` → `packages/orengine/index.ts`（非Reactエントリ: engine + editor/lib）
+- `orengine` → `packages/orengine/index.ts`（非Reactエントリ: core + editor/lib）
 - `orengine/react` → `packages/orengine/react.tsx`（Reactエントリ: editor/components + editor/features）
-- `orengine/engine` → `packages/orengine/engine/index.ts`
+- `orengine/core` → `packages/orengine/core/index.ts`
 - `orengine/player` → `packages/orengine/player.ts`
 - `orengine/*` → `packages/orengine/*`（その他のサブパス）
 

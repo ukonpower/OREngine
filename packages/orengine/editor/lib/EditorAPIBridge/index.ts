@@ -1,8 +1,8 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { capturedLogs, clearCapturedLogs } from '../../../engine/ConsoleCapture';
-import { Engine } from '../../../engine/Engine';
+import { capturedLogs, clearCapturedLogs } from '../../../core/ConsoleCapture';
+import { Engine } from '../../../core/Engine';
 
 import type { Editor } from '..';
 import type { EditorAPI } from '../EditorAPI';

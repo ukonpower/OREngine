@@ -6,7 +6,7 @@
   "exports": {
     ".": "./packages/orengine/index.tsx",
     "./react": "./packages/orengine/react.tsx",
-    "./engine": "./packages/orengine/ts/Engine/index.ts",
+    "./core": "./packages/orengine/core/index.ts",
     "./server": "./server/factory.ts",
     "./configs": "./vite-configs.ts",
     "./maxpower": "./packages/maxpower/index.ts",

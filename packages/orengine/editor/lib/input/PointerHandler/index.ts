@@ -1,7 +1,7 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { Engine } from '../../../../engine/Engine';
+import { Engine } from '../../../../core/Engine';
 import { SetFieldCommand } from '../../command/Commands/SetFieldCommand';
 import { EditorCamera } from '../../EditorCamera';
 import { GizmoAxis, GizmoMode } from '../../gizmo/Gizmo';

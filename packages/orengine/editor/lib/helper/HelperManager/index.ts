@@ -1,6 +1,6 @@
 import * as MXP from 'maxpower';
 
-import { Engine } from '../../../../engine/Engine';
+import { Engine } from '../../../../core/Engine';
 import { EntityHelper, HelperType } from '../Helpers/EntityHelper';
 
 export class HelperManager {
