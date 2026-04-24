@@ -25,13 +25,13 @@ export interface OrengineConfigOptions {
 
 const sharedResolve = () => ( {
 	alias: [
-		{ find: /^orengine\/player$/, replacement: path.join( orengineRoot, 'packages/orengine/ts/Player/index.ts' ) },
+		{ find: /^orengine\/player$/, replacement: path.join( orengineRoot, 'packages/orengine/player.ts' ) },
 		{ find: /^orengine\/react$/, replacement: path.join( orengineRoot, 'packages/orengine/react.tsx' ) },
-		{ find: /^orengine\/engine$/, replacement: path.join( orengineRoot, 'packages/orengine/ts/Engine/index.ts' ) },
+		{ find: /^orengine\/engine$/, replacement: path.join( orengineRoot, 'packages/orengine/engine/index.ts' ) },
 		{ find: /^orengine\/maxpower$/, replacement: path.join( orengineRoot, 'packages/maxpower/index.ts' ) },
 		{ find: /^orengine\/glpower$/, replacement: path.join( orengineRoot, 'packages/glpower/packages/glpower/src/index.ts' ) },
 		{ find: /^orengine\/(.*)$/, replacement: path.join( orengineRoot, 'packages/orengine/$1' ) },
-		{ find: /^orengine$/, replacement: path.join( orengineRoot, 'packages/orengine/index.tsx' ) },
+		{ find: /^orengine$/, replacement: path.join( orengineRoot, 'packages/orengine/index.ts' ) },
 		{ find: /^glpower$/, replacement: path.join( orengineRoot, 'packages/glpower/packages/glpower/src' ) },
 		{ find: /^maxpower$/, replacement: path.join( orengineRoot, 'packages/maxpower' ) },
 	],
@@ -54,7 +54,7 @@ const sharedCss = () => ( {
 
 const resourcePlugins = ( projectDir: string ) => {
 
-	const builtinDir = path.join( orengineRoot, 'packages/orengine/BuiltinResources' );
+	const builtinDir = path.join( orengineRoot, 'packages/orengine/builtin' );
 	const projectResources = path.join( projectDir, 'Resources' );
 
 	return [

@@ -1,0 +1,28 @@
+@use '../../../../styles' as *;
+
+.inputResourceSelect {
+	display: flex;
+	width: 100%;
+	gap: 4px;
+	align-items: center;
+}
+
+.select {
+	flex: 1;
+	min-width: 0;
+}
+
+.editButton {
+	flex-shrink: 0;
+	padding: 2px 6px;
+	border-radius: $radius1;
+	background-color: $bgCol2;
+	border: none;
+	color: $fontCol2;
+	font-size: var(--or-input-font-size);
+	cursor: pointer;
+
+	&:hover {
+		background-color: $bgCol3;
+	}
+}

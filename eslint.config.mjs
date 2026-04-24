@@ -38,6 +38,25 @@ export default [{
 		parser: tsParser,
 	},
 
+}, {
+	files: [
+		"packages/orengine/engine/**/*.ts",
+		"packages/orengine/editor/lib/**/*.ts",
+		"packages/orengine/builtin/**/*.ts",
+	],
+
+	rules: {
+		"no-restricted-imports": [ "error", {
+			paths: [
+				{ name: "react", message: "React import禁止: このディレクトリは非Reactコア専用です" },
+				{ name: "react-dom", message: "React import禁止: このディレクトリは非Reactコア専用です" },
+			],
+			patterns: [
+				{ group: [ "react/*", "react-dom/*" ], message: "React import禁止" },
+			],
+		} ],
+	},
+}, {
 	rules: {
 		indent: [ "error", "tab" ],
 		"no-self-assign": "off",
