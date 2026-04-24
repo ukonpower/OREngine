@@ -1,5 +1,10 @@
 import * as GLP from 'glpower';
-import * as MXP from 'maxpower';
+
+import { Mesh } from '../../Component/Mesh';
+import { setUniforms } from '../../Component/Renderer';
+import { Entity } from '../../Entity';
+import { Geometry } from '../../Geometry';
+import { shaderParse } from '../../shader/ShaderParser';
 
 
 type BakeAttribute = {
@@ -17,9 +22,9 @@ export class Modeler {
 
 	}
 
-	public bakeTf( baseGeometry: MXP.Geometry, vertexShader: string, uniforms?: any, defines?: any ) {
+	public bakeTf( baseGeometry: Geometry, vertexShader: string, uniforms?: any, defines?: any ) {
 
-		const resultGeo = new MXP.Geometry();
+		const resultGeo = new Geometry();
 
 		const program = new GLP.GLPowerProgram( this._gl );
 		const tf = new GLP.GLPowerTransformFeedback( this._gl );
@@ -47,7 +52,7 @@ export class Modeler {
 
 		tf.bind( () => {
 
-			program.setShader( MXP.shaderParse( vertexShader, { ...defines, "TF_MODELER": "" } ), "void main(){ discard; }", { transformFeedbackVaryings: [ 'o_position', 'o_normal' ] } );
+			program.setShader( shaderParse( vertexShader, { ...defines, "TF_MODELER": "" } ), "void main(){ discard; }", { transformFeedbackVaryings: [ 'o_position', 'o_normal' ] } );
 
 		} );
 
@@ -69,7 +74,7 @@ export class Modeler {
 
 			if ( uniforms ) {
 
-				MXP.setUniforms( program, uniforms );
+				setUniforms( program, uniforms );
 
 			}
 
@@ -152,9 +157,9 @@ export class Modeler {
 	}
 
 
-	public bakeEntity( entity: MXP.Entity, attrs?: BakeAttribute ) {
+	public bakeEntity( entity: Entity, attrs?: BakeAttribute ) {
 
-		const resultGeo = new MXP.Geometry();
+		const resultGeo = new Geometry();
 		const posArray: number[] = [];
 		const normalArray : number[] = [];
 		const tangentArray : number[] = [];
@@ -168,9 +173,9 @@ export class Modeler {
 
 		const bakedAttributes: {[key: string]: number[]} = {};
 
-		const _ = ( e: MXP.Entity, matrix: GLP.Matrix ) => {
+		const _ = ( e: Entity, matrix: GLP.Matrix ) => {
 
-			const mesh = e.getComponent( MXP.Mesh );
+			const mesh = e.getComponent( Mesh );
 
 			const geo = mesh ? mesh.geometry : undefined;
 

@@ -7,7 +7,7 @@ import { SphereGeometry } from '../../Geometry/SphereGeometry';
 import { MaterialRenderType, Material } from '../../Material';
 import { PostProcess } from '../../PostProcess';
 import { Serializable } from '../../Serializable';
-import { shaderParse } from "../../Utils/ShaderParser";
+import { shaderParse } from "../../shader/ShaderParser";
 import { Camera } from '../Camera';
 import { Light, LightType } from '../Light';
 import { MaterialOverride } from '../MaterialOverride';

@@ -3,7 +3,6 @@ export * from './Resources';
 export * from './ProjectSerializer';
 export * from './SceneExporter';
 export * from './AssetPreviewManager';
-export * from './Modeler';
 export * from './TexProcedural';
 export * from './Keyboard';
 export * from './Pointer';
