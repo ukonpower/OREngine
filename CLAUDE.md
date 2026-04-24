@@ -14,8 +14,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **例外**: ユーザーが明示的に開発サーバーの起動を指示した場合のみ実行する
 
 ### コード変更後の確認
-- **必須**: コード変更後は `npm run typecheck` で型チェックを実行する
-- **必須**: コミット前に `npm run lint` を実行し、ESLintエラーを修正する
+- **必須**: コード変更後は `npm run typecheck` で型チェックを実行し、続けて `npm run lint --fix` でESLintエラーを自動修正する
 
 ### ライブラリ利用時のドキュメント参照
 - **必須**: 新しいライブラリを追加する場合、`context7` MCPサーバーでドキュメントを調査してから作業を開始する
