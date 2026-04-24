@@ -1,6 +1,6 @@
 import * as MXP from 'maxpower';
 
-import { Engine } from '../../../engine/Engine';
+import { Engine } from '../../../core/Engine';
 import { CommandManager } from '../command/CommandManager';
 import { AddComponentCommand } from '../command/Commands/AddComponentCommand';
 import { AddTextureCommand } from '../command/Commands/AddTextureCommand';

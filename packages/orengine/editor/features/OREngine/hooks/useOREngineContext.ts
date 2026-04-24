@@ -1,7 +1,7 @@
 import { OREngineProjectData } from "orengine";
 import React, { useCallback, useEffect } from "react";
 
-import { Engine } from "../../../../engine/Engine";
+import { Engine } from "../../../../core/Engine";
 
 export const useOREngineContext = () => {
 

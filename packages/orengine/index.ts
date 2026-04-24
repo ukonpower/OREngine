@@ -1,4 +1,4 @@
-export * from "./engine";
+export * from "./core";
 export * from "./editor/lib";
 
 export { BUILTIN_COMPONENTLIST } from './builtin/_data/builtinComponentList';

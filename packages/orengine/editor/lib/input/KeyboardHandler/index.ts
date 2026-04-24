@@ -1,4 +1,4 @@
-import { Keyboard, PressedKeys } from '../../../../engine/Keyboard';
+import { Keyboard, PressedKeys } from '../../../../core/Keyboard';
 import { GizmoMode } from '../../gizmo/Gizmo';
 
 export type KeyboardHandlerCallbacks = {

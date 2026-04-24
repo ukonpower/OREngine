@@ -2,7 +2,7 @@ import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
 import { OrbitControls } from '../../../builtin/Components/Camera/OrbitControls';
-import { Engine } from '../../../engine/Engine';
+import { Engine } from '../../../core/Engine';
 
 export class EditorCamera {
 

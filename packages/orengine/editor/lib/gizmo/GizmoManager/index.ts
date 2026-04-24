@@ -1,6 +1,6 @@
 import * as MXP from 'maxpower';
 
-import { Engine } from '../../../../engine/Engine';
+import { Engine } from '../../../../core/Engine';
 import { Gizmo, GizmoMode } from '../Gizmo';
 import { RotateGizmo } from '../Gizmo/RotateGizmo';
 import { ScaleGizmo } from '../Gizmo/ScaleGizmo';
