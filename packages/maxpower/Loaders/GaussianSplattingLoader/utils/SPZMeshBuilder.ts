@@ -5,7 +5,7 @@ import { Mesh } from '../../../Component/Mesh';
 import { Entity } from '../../../Entity';
 import { PlaneGeometry } from '../../../Geometry/PlaneGeometry';
 import { Material } from '../../../Material';
-import { hotUpdate } from '../../../Utils/Hot';
+import { hotUpdate } from '../../../utils/Hot';
 import { GaussianSplattingController } from '../GaussianSplattingController';
 import { SPZHeader, getSHSize } from '../parsers/SPZDataParser';
 import spzFrag from '../shaders/3dgs.fs';

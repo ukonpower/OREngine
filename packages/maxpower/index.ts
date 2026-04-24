@@ -29,11 +29,12 @@ export * from './Loaders/GaussianSplattingLoader/GaussianSplattingController';
 export * from './Material';
 export * from './PostProcess';
 export * from './PostProcess/PostProcessPass';
-export * from './Ray';
-export * from './Raycaster';
 export * from './Serializable';
-export * from './Utils/Hot';
-export * from './Utils/ShaderParser';
-export * from './Utils/Uniforms';
-export * from './Utils/Curve';
+export * from './shader/ShaderParser';
+export * from './utils/Curve';
+export * from './utils/Hot';
+export * from './utils/Modeler';
+export * from './utils/Ray';
+export * from './utils/Raycaster';
+export * from './utils/Uniforms';
 

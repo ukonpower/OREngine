@@ -1,8 +1,8 @@
 import * as GLP from 'glpower';
 
-import { Camera } from '../Component/Camera';
-import { Mesh } from '../Component/Mesh';
-import { Entity } from '../Entity';
+import { Camera } from '../../Component/Camera';
+import { Mesh } from '../../Component/Mesh';
+import { Entity } from '../../Entity';
 import { Ray } from '../Ray';
 
 export type RaycastResult = {
