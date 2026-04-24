@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { MouseMenuContext } from "../components/MouseMenu/Context/MouseMenuContext";
+import { MouseMenuContext } from "../components/MouseMenu/contexts/MouseMenuContext";
 
 export const useMouseMenu = () => {
   const context = useContext(MouseMenuContext);

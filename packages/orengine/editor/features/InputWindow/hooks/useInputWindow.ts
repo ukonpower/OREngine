@@ -1,7 +1,7 @@
 
 import { useContext } from "react";
 
-import { InputWindowContext } from "../components/InputWindow/Context/InputWindowContext";
+import { InputWindowContext } from "../components/InputWindow/contexts/InputWindowContext";
 
 export const useInputWindow = () => {
 

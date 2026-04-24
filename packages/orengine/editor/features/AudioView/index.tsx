@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { FramePlay, OREngineProjectFrame } from 'orengine';
 import { useOREditor } from '../OREditor/hooks/useOREditor';
 
-import { AudioViewRenderer } from './AudioViewRenderer';
+import { AudioViewRenderer } from './components/AudioViewRenderer';
 import style from './index.module.scss';
 
 

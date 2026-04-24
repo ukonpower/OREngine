@@ -6,12 +6,12 @@ import { ErrorBoundary } from 'react-error-boundary';
 
 import { useLayout } from '../Layout/hooks/useLayout';
 import { InputWindow } from '../InputWindow/components/InputWindow';
-import { InputWindowContext } from '../InputWindow/components/InputWindow/Context/InputWindowContext';
-import { useInputWindowContext } from '../InputWindow/components/InputWindow/Hooks/useInputWindowContext';
+import { InputWindowContext } from '../InputWindow/components/InputWindow/contexts/InputWindowContext';
+import { useInputWindowContext } from '../InputWindow/components/InputWindow/hooks/useInputWindowContext';
 import { LayoutSplit } from '../../components/composites/LayoutSplit';
 import { MouseMenu } from '../MouseMenu/components/MouseMenu';
-import { MouseMenuContext } from '../MouseMenu/components/MouseMenu/Context/MouseMenuContext';
-import { useMouseMenuContext } from '../MouseMenu/components/MouseMenu/Hooks/useMouseMenuContext';
+import { MouseMenuContext } from '../MouseMenu/components/MouseMenu/contexts/MouseMenuContext';
+import { useMouseMenuContext } from '../MouseMenu/components/MouseMenu/hooks/useMouseMenuContext';
 import { Panel } from '../../components/primitives/Panel';
 import { PanelContainer } from '../../components/primitives/PanelContainer';
 import { Textures } from '../Textures';
@@ -21,7 +21,7 @@ import { Hierarchy } from '../Hierarchy';
 import { ProjectControl } from '../ProjectControl';
 import { RendererSettings } from '../RendererSettings';
 import { Screen } from '../Screen';
-import { Timeline } from '../Timeline/Timeline';
+import { Timeline } from '../Timeline/components/Timeline';
 
 import { OREditorContext } from './contexts/OREditorContext';
 import { useOREditorContext } from './hooks/useOREditorContext';

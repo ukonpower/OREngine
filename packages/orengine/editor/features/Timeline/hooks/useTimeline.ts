@@ -1,6 +1,6 @@
 import { useContext } from "react";
 
-import { TimelineContext } from "../Timeline/Context/TimelineContext";
+import { TimelineContext } from "../components/Timeline/contexts/TimelineContext";
 
 export const useTimeline = () => {
 
