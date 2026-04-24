@@ -2,7 +2,7 @@
 import { OREngineProjectData } from "orengine";
 import { useEffect } from "react";
 
-import { Engine } from "../../../engine/lib/Engine";
+import { Engine } from "../../../engine/Engine";
 
 import { OREngineContext } from "./contexts/OREngineContext";
 import { useOREngineContext } from "./hooks/useOREngineContext";

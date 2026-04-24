@@ -1,4 +1,4 @@
-import { Keyboard, PressedKeys } from '../../../../engine/lib/Keyboard';
+import { Keyboard, PressedKeys } from '../../../../engine/Keyboard';
 
 import { GizmoMode } from '../../gizmo/Gizmo';
 
