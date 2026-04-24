@@ -1,5 +1,5 @@
 import { TimelineContext } from './contexts/TimelineContext';
-import { useTimelineContext } from './hooks/useTimelineContext';
+import { useTimelineContext } from '../../hooks/useTimelineContext';
 import style from './index.module.scss';
 import { TimelineCanvas } from './TimelineCanvas';
 import { TimelineControls } from './TimelineControls';

@@ -1,5 +1,5 @@
 import * as MXP from 'maxpower';
-import { useWatchSerializable } from '../../../../hooks/useWatchSerializable';
+import { useWatchSerializable } from '../useWatchSerializable';
 
 export const useSerializeFieldViewContext = (props: { target: MXP.Serializable }) => {
   useWatchSerializable(props.target);
