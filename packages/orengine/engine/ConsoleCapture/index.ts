@@ -117,7 +117,7 @@ export function initConsoleCapture(): void {
 
 			const response = await origFetch.apply( window, args );
 
-			if ( !response.ok ) {
+			if ( ! response.ok ) {
 
 				pushLog( {
 					type: 'warn',

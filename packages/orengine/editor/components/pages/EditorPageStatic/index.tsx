@@ -1,7 +1,7 @@
 import * as MXP from 'maxpower';
 import { OREngineProjectData } from "orengine";
-import { OREditor, OREngine } from "orengine/react";
 import { Engine } from "orengine";
+import { OREditor, OREngine } from "orengine/react";
 
 import type { EditorCustomTabs } from "../EditorPage";
 

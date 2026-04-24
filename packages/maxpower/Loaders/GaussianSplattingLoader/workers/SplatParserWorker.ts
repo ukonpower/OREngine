@@ -29,7 +29,7 @@ export type SplatWorkerResponse = {
 		try {
 
 			console.log( 'SplatParseWorker: Splat形式として解析開始' );
-			
+
 			const { buffer } = data;
 			const gaussianData = parseSplat( buffer );
 			const header = createSplatDummyHeader( gaussianData.positions.length / 3 );

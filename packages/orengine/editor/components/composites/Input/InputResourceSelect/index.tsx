@@ -12,7 +12,7 @@ type InputResourceSelectProps<T> = {
 	onChange?: ( value: T ) => void;
 };
 
-export const InputResourceSelect = <T extends string | number,>( props: InputResourceSelectProps<T> ) => {
+export const InputResourceSelect = <T extends string | number, >( props: InputResourceSelectProps<T> ) => {
 
 	const { editor } = useOREditor();
 

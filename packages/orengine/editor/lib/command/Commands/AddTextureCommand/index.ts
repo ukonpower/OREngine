@@ -1,5 +1,4 @@
 import { Engine } from '../../../../../engine/Engine';
-
 import { Command } from '../../CommandManager';
 
 export class AddTextureCommand implements Command {

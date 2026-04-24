@@ -1,10 +1,10 @@
-import ReactDOM from 'react-dom/client';
 
 import { EditorPageStatic } from 'orengine/react';
+import ReactDOM from 'react-dom/client';
 
-import SceneData from '../scene.json';
 import EditorData from '../editor.json';
 import { initResouces, initResourceInstances } from '../Resources';
+import SceneData from '../scene.json';
 
 
 initResouces();

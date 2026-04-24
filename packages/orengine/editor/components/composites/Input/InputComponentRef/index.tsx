@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { useOREditor } from '../../../../features/OREditor/hooks/useOREditor';
 import { SelectList } from '../InputSelect';
-
 import style from '../InputSelect/index.module.scss';
 
 interface InputComponentRefProps {

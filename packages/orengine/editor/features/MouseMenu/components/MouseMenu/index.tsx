@@ -1,12 +1,13 @@
 
-import style from './index.module.scss';
-import { MouseMenuItemContext } from "./contexts/MouseMenuItemContext";
 import { useMouseMenu } from "../../hooks/useMouseMenu";
+
+import { MouseMenuItemContext } from "./contexts/MouseMenuItemContext";
+import style from './index.module.scss';
 
 
 export const MouseMenu = () => {
 
-        const { itemList, containerRef, closeAll } = useMouseMenu();
+	const { itemList, containerRef, closeAll } = useMouseMenu();
 
 	return (
 		<div className={style.mouseMenu} ref={containerRef}>

@@ -1,10 +1,10 @@
 import * as MXP from 'maxpower';
 import { useCallback } from 'react';
 
-import { useSerializableField } from '../../../../SerializableField/hooks/useSerializableProps';
+import { Value } from '../../../../../components/composites/Value';
 import { Label } from '../../../../../components/primitives/Label';
 import { Panel } from '../../../../../components/primitives/Panel';
-import { Value } from '../../../../../components/composites/Value';
+import { useSerializableField } from '../../../../SerializableField/hooks/useSerializableProps';
 import { useTimeline } from '../../../hooks/useTimeline';
 
 import style from './index.module.scss';
@@ -12,7 +12,7 @@ import style from './index.module.scss';
 
 export const TimelineSetting = () => {
 
-  const { framePlay, glEditor } = useTimeline();
+	const { framePlay, glEditor } = useTimeline();
 
 	const onChange = useCallback( ( value: MXP.SerializeFieldValue, setter: ( ( value: any ) => void ) | undefined ) => {
 

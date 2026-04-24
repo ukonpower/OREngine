@@ -112,7 +112,7 @@ export interface GLTFNode {
     children?: number[];
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+
 export interface GLTFNodeExtras {}
 
 export interface GLTFSampler {
@@ -126,7 +126,7 @@ export interface GLTFScene {
     nodes?: number[];
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+
 export interface GLTFSceneExtras {}
 
 export interface GLTFTexture {

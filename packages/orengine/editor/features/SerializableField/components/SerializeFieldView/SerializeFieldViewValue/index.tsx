@@ -1,12 +1,12 @@
 import { SerializeFieldDirectoryValue } from 'maxpower';
 import React from 'react';
 
-import { useOREditor } from '../../../../OREditor/hooks/useOREditor';
-import { useSerializeFieldView } from '../../../hooks/useSerializeFieldView';
-import { Label } from '../../../../../components/primitives/Label';
 import { Value } from '../../../../../components/composites/Value';
 import { ValueArray } from '../../../../../components/composites/ValueArray';
 import { Vector } from '../../../../../components/composites/Vector';
+import { Label } from '../../../../../components/primitives/Label';
+import { useOREditor } from '../../../../OREditor/hooks/useOREditor';
+import { useSerializeFieldView } from '../../../hooks/useSerializeFieldView';
 
 export const SerializeFieldViewValue: React.FC<{ path:string, field: SerializeFieldDirectoryValue }> = ( props ) => {
 

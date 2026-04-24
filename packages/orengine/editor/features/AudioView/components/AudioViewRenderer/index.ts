@@ -1,5 +1,4 @@
 import * as GLP from 'glpower';
-
 import { OREngineProjectFrame, FramePlay } from 'orengine';
 
 export class AudioViewRenderer extends GLP.EventEmitter {

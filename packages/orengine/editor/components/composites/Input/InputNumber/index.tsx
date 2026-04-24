@@ -139,7 +139,7 @@ export const InputNumber = ( props: Props ) => {
 
 			window.removeEventListener( "pointerup", onPointerUp );
 
-			if ( !isSP ) {
+			if ( ! isSP ) {
 
 				window.removeEventListener( "pointermove", onPointerMoveNumber );
 
@@ -149,7 +149,7 @@ export const InputNumber = ( props: Props ) => {
 
 		window.addEventListener( "pointerup", onPointerUp );
 
-		if ( !isSP ) {
+		if ( ! isSP ) {
 
 			window.addEventListener( "pointermove", onPointerMoveNumber );
 

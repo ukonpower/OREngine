@@ -1,6 +1,6 @@
 
-import { useOREditor } from '../OREditor/hooks/useOREditor';
 import { Block } from '../../components/primitives/Block';
+import { useOREditor } from '../OREditor/hooks/useOREditor';
 import { SerializeFieldView } from '../SerializableField/components/SerializeFieldView';
 
 import style from './index.module.scss';

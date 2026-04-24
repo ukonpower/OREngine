@@ -109,7 +109,7 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 		const touchStartPos = new GLP.Vector( 0, 0 );
 
-                const onClick = this._onClick.bind( this );
+		const onClick = this._onClick.bind( this );
 
 		const onPointerDown = ( e: PointerEvent ) => {
 
@@ -140,7 +140,7 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 				this._focus = null;
 
-                this._clear();
+				this._clear();
 
 			}
 
@@ -185,7 +185,7 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 	}
 
-        private _calcTilePos( num: number ) {
+	private _calcTilePos( num: number ) {
 
 		const x = num % this._tile.x * this._tileInv.x * this._resolution.x;
 		const y = Math.floor( num / this._tile.x ) * this._tileInv.y * this._resolution.y;
@@ -282,7 +282,7 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 		this._engine.renderer.renderPostProcess( this._outPostProcess, undefined, this._resolution );
 
-                this._clear();
+		this._clear();
 
 	}
 

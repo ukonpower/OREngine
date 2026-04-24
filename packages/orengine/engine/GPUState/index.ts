@@ -1,44 +1,44 @@
 export class GPUState {
 
-        private _memoryElm: HTMLElement | null;
-        private _timerElm: HTMLElement | null;
+	private _memoryElm: HTMLElement | null;
+	private _timerElm: HTMLElement | null;
 
-        private _extMemory: any;
-        private _renderTimeList: {name: string, time: number}[];
-        private _memoryInterval: number | null;
-        private _gl: WebGL2RenderingContext;
+	private _extMemory: any;
+	private _renderTimeList: {name: string, time: number}[];
+	private _memoryInterval: number | null;
+	private _gl: WebGL2RenderingContext;
 
 	constructor( gl: WebGL2RenderingContext ) {
 
-                this._memoryElm = null;
-                this._timerElm = null;
-                this._memoryInterval = null;
-                this._renderTimeList = [];
-                this._gl = gl;
+		this._memoryElm = null;
+		this._timerElm = null;
+		this._memoryInterval = null;
+		this._renderTimeList = [];
+		this._gl = gl;
 
-                this._extMemory = this._gl.getExtension( 'GMAN_webgl_memory' );
+		this._extMemory = this._gl.getExtension( 'GMAN_webgl_memory' );
 
 	}
 
-        public init( memoryElm: HTMLElement, timerElm: HTMLElement ) {
+	public init( memoryElm: HTMLElement, timerElm: HTMLElement ) {
 
-                this._memoryElm = memoryElm;
-                this._timerElm = timerElm;
+		this._memoryElm = memoryElm;
+		this._timerElm = timerElm;
 
 		this.memoryUpdate();
 
-                if ( this._memoryInterval != null ) window.clearInterval( this._memoryInterval );
+		if ( this._memoryInterval != null ) window.clearInterval( this._memoryInterval );
 
-                this._memoryInterval = window.setInterval( this.memoryUpdate.bind( this ), 500 );
+		this._memoryInterval = window.setInterval( this.memoryUpdate.bind( this ), 500 );
 
 	}
 
 	public memoryUpdate() {
 
-                if ( this._extMemory && this._memoryElm ) {
+		if ( this._extMemory && this._memoryElm ) {
 
-                        const info = this._extMemory.getMemoryInfo();
-                        this._memoryElm.innerText = JSON.stringify( info, null, " " );
+			const info = this._extMemory.getMemoryInfo();
+			this._memoryElm.innerText = JSON.stringify( info, null, " " );
 
 		}
 
@@ -47,14 +47,14 @@ export class GPUState {
 
 	public update() {
 
-                if ( this._timerElm ) {
+		if ( this._timerElm ) {
 
 			let body = '';
 			let total = 0;
 
-                        for ( let i = 0; i < this._renderTimeList.length; i ++ ) {
+			for ( let i = 0; i < this._renderTimeList.length; i ++ ) {
 
-                                const t = this._renderTimeList[ i ];
+				const t = this._renderTimeList[ i ];
 
 				body += `${t.name}:\t${( t.time.toPrecision( 3 ) )} <br/>`;
 
@@ -64,7 +64,7 @@ export class GPUState {
 
 			body += 'total: ' + total.toPrecision( 3 );
 
-                        this._timerElm.innerHTML = body;
+			this._timerElm.innerHTML = body;
 
 		}
 
@@ -73,9 +73,9 @@ export class GPUState {
 	public setRenderTime( name: string, time: number ) {
 
 		let found = false;
-                for ( let i = 0; i < this._renderTimeList.length; i ++ ) {
+		for ( let i = 0; i < this._renderTimeList.length; i ++ ) {
 
-                        const t = this._renderTimeList[ i ];
+			const t = this._renderTimeList[ i ];
 
 			if ( t.name == name ) {
 
@@ -90,7 +90,7 @@ export class GPUState {
 
 		if ( ! found ) {
 
-                        this._renderTimeList.unshift( {
+			this._renderTimeList.unshift( {
 				name, time
 			} );
 

@@ -1,5 +1,6 @@
-import { TimelineContext } from './contexts/TimelineContext';
 import { useTimelineContext } from '../../hooks/useTimelineContext';
+
+import { TimelineContext } from './contexts/TimelineContext';
 import style from './index.module.scss';
 import { TimelineCanvas } from './TimelineCanvas';
 import { TimelineControls } from './TimelineControls';
@@ -11,7 +12,7 @@ import { TimelineSetting } from './TimelineSetting';
 
 export const Timeline = () => {
 
-  const timelineContext = useTimelineContext();
+	const timelineContext = useTimelineContext();
 
 	return <TimelineContext.Provider value={timelineContext}>
 		<div className={style.timeline}>

@@ -8,12 +8,12 @@ type BakeAttribute = {
 
 export class Modeler {
 
-        private _power: GLP.Power;
-        private _gl: WebGL2RenderingContext;
+	private _power: GLP.Power;
+	private _gl: WebGL2RenderingContext;
 	constructor( power: GLP.Power ) {
 
-                this._power = power;
-                this._gl = this._power.gl;
+		this._power = power;
+		this._gl = this._power.gl;
 
 	}
 
@@ -21,8 +21,8 @@ export class Modeler {
 
 		const resultGeo = new MXP.Geometry();
 
-                const program = new GLP.GLPowerProgram( this._gl );
-                const tf = new GLP.GLPowerTransformFeedback( this._gl );
+		const program = new GLP.GLPowerProgram( this._gl );
+		const tf = new GLP.GLPowerTransformFeedback( this._gl );
 
 		let instanceCount = 1;
 
@@ -36,11 +36,11 @@ export class Modeler {
 
 		} );
 
-                const outBufferPosition = new GLP.GLPowerBuffer( this._gl );
-                outBufferPosition.setData( new Float32Array( ( baseGeometry.attributes.get( 'position' )?.array.length || 0 ) * instanceCount ), 'vbo', this._gl.DYNAMIC_COPY );
+		const outBufferPosition = new GLP.GLPowerBuffer( this._gl );
+		outBufferPosition.setData( new Float32Array( ( baseGeometry.attributes.get( 'position' )?.array.length || 0 ) * instanceCount ), 'vbo', this._gl.DYNAMIC_COPY );
 
-                const outBufferNormal = new GLP.GLPowerBuffer( this._gl );
-                outBufferNormal.setData( new Float32Array( ( baseGeometry.attributes.get( 'normal' )?.array.length || 0 ) * instanceCount ), 'vbo', this._gl.DYNAMIC_COPY );
+		const outBufferNormal = new GLP.GLPowerBuffer( this._gl );
+		outBufferNormal.setData( new Float32Array( ( baseGeometry.attributes.get( 'normal' )?.array.length || 0 ) * instanceCount ), 'vbo', this._gl.DYNAMIC_COPY );
 
 		tf.setBuffer( "position", outBufferPosition, 0 );
 		tf.setBuffer( "normal", outBufferNormal, 1 );
@@ -55,7 +55,7 @@ export class Modeler {
 
 		if ( vao ) {
 
-                        baseGeometry.createBuffers( this._gl );
+			baseGeometry.createBuffers( this._gl );
 
 			baseGeometry.attributes.forEach( ( attr, key ) => {
 
@@ -79,25 +79,25 @@ export class Modeler {
 
 				tf.use( () => {
 
-                                this._gl.beginTransformFeedback( this._gl.POINTS );
-                                this._gl.enable( this._gl.RASTERIZER_DISCARD );
+					this._gl.beginTransformFeedback( this._gl.POINTS );
+					this._gl.enable( this._gl.RASTERIZER_DISCARD );
 
-                                        vao.use( () => {
+					vao.use( () => {
 
-                                                if ( vao.instanceCount > 0 ) {
+						if ( vao.instanceCount > 0 ) {
 
-                                                        this._gl.drawArraysInstanced( this._gl.POINTS, 0, vao.vertCount, vao.instanceCount );
+							this._gl.drawArraysInstanced( this._gl.POINTS, 0, vao.vertCount, vao.instanceCount );
 
-                                                } else {
+						} else {
 
-                                                        this._gl.drawArrays( this._gl.POINTS, 0, vao.vertCount );
+							this._gl.drawArrays( this._gl.POINTS, 0, vao.vertCount );
 
-                                                }
+						}
 
-                                        } );
+					} );
 
-                                        this._gl.disable( this._gl.RASTERIZER_DISCARD );
-                                        this._gl.endTransformFeedback();
+					this._gl.disable( this._gl.RASTERIZER_DISCARD );
+					this._gl.endTransformFeedback();
 
 				} );
 
@@ -105,11 +105,11 @@ export class Modeler {
 				const outPos = new Float32Array( outBufferPosition.array!.length );
 				const outNormal = new Float32Array( outBufferNormal.array!.length );
 
-                                this._gl.bindBuffer( this._gl.ARRAY_BUFFER, outBufferPosition.buffer );
-                                this._gl.getBufferSubData( this._gl.ARRAY_BUFFER, 0, outPos );
+				this._gl.bindBuffer( this._gl.ARRAY_BUFFER, outBufferPosition.buffer );
+				this._gl.getBufferSubData( this._gl.ARRAY_BUFFER, 0, outPos );
 
-                                this._gl.bindBuffer( this._gl.ARRAY_BUFFER, outBufferNormal.buffer );
-                                this._gl.getBufferSubData( this._gl.ARRAY_BUFFER, 0, outNormal );
+				this._gl.bindBuffer( this._gl.ARRAY_BUFFER, outBufferNormal.buffer );
+				this._gl.getBufferSubData( this._gl.ARRAY_BUFFER, 0, outNormal );
 
 				resultGeo.setAttribute( 'position', outPos, 3 );
 				resultGeo.setAttribute( 'normal', outNormal, 3 );
@@ -145,9 +145,9 @@ export class Modeler {
 
 		}
 
-                resultGeo.setAttribute( 'index', new ( TypedArray )( indexArray ), 1 );
+		resultGeo.setAttribute( 'index', new ( TypedArray )( indexArray ), 1 );
 
-                return resultGeo;
+		return resultGeo;
 
 	}
 

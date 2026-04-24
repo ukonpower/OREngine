@@ -40,7 +40,7 @@ export class PointerHandler {
 		this._hoveredTarget = null;
 		this._lastClickNDC = null;
 		this._lastClickCandidateUUIDs = [];
-		this._lastClickCycleIndex = -1;
+		this._lastClickCycleIndex = - 1;
 
 		const canvasElm = engine.canvas as HTMLCanvasElement;
 

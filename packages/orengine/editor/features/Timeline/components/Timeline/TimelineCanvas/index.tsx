@@ -9,7 +9,7 @@ import { TimelineCanvasRenderer } from './TimelineCanvasRenderer';
 
 export const TimelineCanvas = () => {
 
-  const { viewPort, viewPortScale, musicBuffer, musicBufferVersion, glEditor } = useTimeline();
+	const { viewPort, viewPortScale, musicBuffer, musicBufferVersion, glEditor } = useTimeline();
 
 	const [ renderer, setRenderer ] = useState<TimelineCanvasRenderer>();
 

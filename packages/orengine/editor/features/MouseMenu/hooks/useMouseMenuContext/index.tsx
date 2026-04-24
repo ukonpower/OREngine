@@ -41,10 +41,10 @@ export const useMouseMenuContext = () => {
 
 	// content
 
-        const [ itemList, setContentList ] = useState<MouseMenuItem[]>( [] );
+	const [ itemList, setContentList ] = useState<MouseMenuItem[]>( [] );
 
-        const itemListRef = useRef( itemList );
-        itemListRef.current = itemList;
+	const itemListRef = useRef( itemList );
+	itemListRef.current = itemList;
 
 	const closeContent = useCallback( ( id: number ) => {
 
