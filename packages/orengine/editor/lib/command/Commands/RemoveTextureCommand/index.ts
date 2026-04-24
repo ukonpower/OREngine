@@ -1,4 +1,4 @@
-import { Engine } from '../../../../../engine/lib/Engine';
+import { Engine } from '../../../../../engine/Engine';
 
 import { Command } from '../../CommandManager';
 

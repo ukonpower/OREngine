@@ -1,6 +1,6 @@
 import * as MXP from 'maxpower';
 
-import { Engine } from '../../../../engine/lib/Engine';
+import { Engine } from '../../../../engine/Engine';
 import gizmoFrag from '../shaders/gizmo.fs';
 import gizmoVert from '../shaders/gizmo.vs';
 
