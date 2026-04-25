@@ -97,14 +97,6 @@ public updateMatrix() {
 - `<project>/Resources/_data/componentList.ts`、`packages/orengine/builtin/_data/builtinComponentList.ts` などは Vite プラグイン（`vite-plugins/ResourceManager`）が自動生成する。**手動で編集してはいけない**（`npm run dev` / `npm run build` で上書きされる）
 - 先頭が `_` のディレクトリはスキャン対象外
 
-## 設計ドキュメント（ADR）
-- `docs/adr/` に設計判断の記録（Architecture Decision Records）がある
-- **参照**: 関連する設計領域のコードを変更する前に、対応するADRを読んで設計意図を理解すること
-- **更新が必要**: 設計の根幹（アーキテクチャパターン、データフロー方向、継承構造等）を変更するとき
-- **更新不要**: APIエンドポイント追加、フィールド追加、UIコンポーネント追加、バグ修正、リファクタリング等の日常的な変更
-- ADRには「なぜその設計にしたか」を書く。実装の詳細（API仕様、フィールド一覧等）はコードが正（source of truth）
-- 既存の設計判断を廃止する場合は、ステータスを「廃止」に変更し、後継ADRへの参照を記載する
-
 ## アクティブプロジェクト切替
 - ルート直下の `orengine.config.json` の `project` で切替
 - 一時切替は `ORENGINE_PROJECT=<name> npm run dev`
