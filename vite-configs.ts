@@ -14,6 +14,7 @@ import { ViteErrorReporter } from './vite-plugins/ViteErrorReporter';
 
 
 const orengineRoot = path.resolve( fileURLToPath( import.meta.url ), '..' );
+const templatesRoot = path.join( orengineRoot, 'host/templates' );
 
 export interface OrengineConfigOptions {
 	projectDir: string;
@@ -23,8 +24,15 @@ export interface OrengineConfigOptions {
 	apiPort?: number;
 }
 
-const sharedResolve = () => ( {
+const projectAliases = ( projectDir: string ) => [
+	{ find: /^@or-scene$/, replacement: path.join( projectDir, 'scene.json' ) },
+	{ find: /^@or-editor$/, replacement: path.join( projectDir, 'editor.json' ) },
+	{ find: /^@or-resources\/(.*)$/, replacement: path.join( projectDir, 'Resources/$1' ) },
+];
+
+const sharedResolve = ( projectDir: string ) => ( {
 	alias: [
+		...projectAliases( projectDir ),
 		{ find: /^orengine\/player$/, replacement: path.join( orengineRoot, 'packages/orengine/player.ts' ) },
 		{ find: /^orengine\/react$/, replacement: path.join( orengineRoot, 'packages/orengine/react.tsx' ) },
 		{ find: /^orengine\/core$/, replacement: path.join( orengineRoot, 'packages/orengine/core/index.ts' ) },
@@ -48,7 +56,7 @@ const sharedCss = () => ( {
 		},
 	},
 	preprocessorOptions: {
-		scss: { api: 'modern-compiler' },
+		scss: { api: 'modern' },
 	},
 } );
 
@@ -89,7 +97,7 @@ const resourcePlugins = ( projectDir: string ) => {
 };
 
 export const createDevConfig = ( opts: OrengineConfigOptions ): UserConfig => defineConfig( {
-	root: opts.projectDir,
+	root: templatesRoot,
 	base: opts.basePath ?? '',
 	publicDir: path.join( opts.projectDir, 'public' ),
 	server: {
@@ -97,7 +105,7 @@ export const createDevConfig = ( opts: OrengineConfigOptions ): UserConfig => de
 		host: '0.0.0.0',
 		https: opts.https,
 		fs: {
-			allow: [ opts.projectDir, orengineRoot ],
+			allow: [ templatesRoot, orengineRoot, opts.projectDir ],
 		},
 		proxy: {
 			'/api': `http://localhost:${opts.apiPort ?? 3001}`,
@@ -122,11 +130,11 @@ export const createDevConfig = ( opts: OrengineConfigOptions ): UserConfig => de
 	},
 	optimizeDeps: {
 		entries: [
-			path.join( opts.projectDir, 'index.html' ),
-			path.join( opts.projectDir, 'static.html' ),
+			path.join( templatesRoot, 'index.html' ),
+			path.join( templatesRoot, 'static.html' ),
 		],
 	},
-	resolve: sharedResolve(),
+	resolve: sharedResolve( opts.projectDir ),
 	css: sharedCss(),
 	plugins: [
 		react(),
@@ -175,11 +183,11 @@ export const createPlayerConfig = ( opts: PlayerConfigOptions ): UserConfig => {
 
 	addComponentNames( sceneJson );
 
-	const entry = opts.entry ?? path.join( opts.projectDir, 'src/player.ts' );
+	const entry = opts.entry ?? path.join( templatesRoot, 'src/player.ts' );
 	const outDir = path.join( opts.projectDir, 'dist', opts.outSubDir ?? 'player' );
 
 	return defineConfig( {
-		root: opts.projectDir,
+		root: templatesRoot,
 		base: opts.basePath ?? '',
 		server: {
 			port: opts.port ?? 3000,
@@ -225,10 +233,10 @@ export const createPlayerConfig = ( opts: PlayerConfigOptions ): UserConfig => {
 				],
 			},
 		},
-		resolve: sharedResolve(),
+		resolve: sharedResolve( opts.projectDir ),
 		css: {
 			preprocessorOptions: {
-				scss: { api: 'modern-compiler' },
+				scss: { api: 'modern' },
 			},
 		},
 		plugins: [
@@ -252,11 +260,11 @@ export interface StaticConfigOptions extends OrengineConfigOptions {
 
 export const createStaticConfig = ( opts: StaticConfigOptions ): UserConfig => {
 
-	const input = opts.input ?? path.join( opts.projectDir, 'index.html' );
+	const input = opts.input ?? path.join( templatesRoot, 'static.html' );
 	const outDir = path.join( opts.projectDir, 'dist', opts.outSubDir ?? 'static' );
 
 	return defineConfig( {
-		root: opts.projectDir,
+		root: templatesRoot,
 		base: opts.basePath ?? '',
 		publicDir: path.join( opts.projectDir, 'public' ),
 		build: {
@@ -266,7 +274,7 @@ export const createStaticConfig = ( opts: StaticConfigOptions ): UserConfig => {
 				input: { main: input },
 			},
 		},
-		resolve: sharedResolve(),
+		resolve: sharedResolve( opts.projectDir ),
 		css: sharedCss(),
 		plugins: [
 			react(),

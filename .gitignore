@@ -28,9 +28,8 @@ dist-ssr
 stats.html
 
 tmp
-demo/_generated/
 demo/Resources/_data/
-packages/orengine/BuiltinResources/_data/
+packages/orengine/builtin/_data/
 
 .serena/
 .workflow-tools/

@@ -1,11 +1,12 @@
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
 import { Plugin } from 'vite';
 
 export let nameCache: Record<string, any> | undefined = {};
 
-const nameCacheFile = path.resolve( __dirname, 'name-cache.json' );
+const nameCacheFile = path.resolve( fileURLToPath( import.meta.url ), '..', 'name-cache.json' );
 
 if ( fs.existsSync( nameCacheFile ) ) {
 

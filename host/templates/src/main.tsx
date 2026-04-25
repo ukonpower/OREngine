@@ -1,9 +1,10 @@
 import { EditorPage } from 'orengine/react';
 import ReactDOM from 'react-dom/client';
 
+import { initResouces, initResourceInstances } from '../Resources/registry';
 
-import { initResouces, initResourceInstances } from '../Resources';
 
+document.title = __OR_PROJECT_NAME__;
 
 initResouces();
 

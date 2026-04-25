@@ -1,11 +1,12 @@
-
+import EditorData from '@or-editor';
+import SceneData from '@or-scene';
 import { EditorPageStatic } from 'orengine/react';
 import ReactDOM from 'react-dom/client';
 
-import EditorData from '../editor.json';
-import { initResouces, initResourceInstances } from '../Resources';
-import SceneData from '../scene.json';
+import { initResouces, initResourceInstances } from '../Resources/registry';
 
+
+document.title = __OR_PROJECT_NAME__;
 
 initResouces();
 

@@ -1,6 +1,5 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 import { repoRoot } from './resolveProject.mjs';
@@ -36,15 +35,6 @@ const copyDir = ( src, dst, replacements ) => {
 
 };
 
-const updateJsonArray = ( filePath, key, value ) => {
-
-	const json = JSON.parse( fs.readFileSync( filePath, 'utf-8' ) );
-	json[ key ] = json[ key ] || [];
-	if ( ! json[ key ].includes( value ) ) json[ key ].push( value );
-	fs.writeFileSync( filePath, JSON.stringify( json, null, '\t' ) + '\n' );
-
-};
-
 const appendGitignoreLines = ( lines ) => {
 
 	const p = path.join( repoRoot, '.gitignore' );
@@ -63,15 +53,9 @@ export const ensureProjectExists = ( projectDir, projectName ) => {
 	console.log( `[orengine] scaffolding new project: ${projectName}` );
 	copyDir( templateDir, projectDir, { PROJECT_NAME: projectName } );
 
-	updateJsonArray( path.join( repoRoot, 'package.json' ), 'workspaces', projectName );
-	updateJsonArray( path.join( repoRoot, 'tsconfig.json' ), 'exclude', projectName );
 	appendGitignoreLines( [
-		`${projectName}/_generated/`,
 		`${projectName}/Resources/_data/`,
 	] );
-
-	console.log( `[orengine] running npm install for new workspace...` );
-	execSync( 'npm install', { cwd: repoRoot, stdio: 'inherit' } );
 
 	return true;
 
