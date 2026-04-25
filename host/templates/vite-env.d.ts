@@ -17,3 +17,13 @@ declare module '*.glsl' {
 	const content: string;
 	export default content;
 }
+
+declare module '@or-scene' {
+	const data: any;
+	export default data;
+}
+
+declare module '@or-editor' {
+	const data: any;
+	export default data;
+}

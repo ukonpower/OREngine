@@ -22,11 +22,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## コマンド
 
 ```bash
-npm run dev        # 開発サーバー起動（express + vite）
-npm run build      # プロダクションビルド
-npm run lint       # ESLint実行
-npm run typecheck  # TypeScript型チェック
+npm run dev          # 開発サーバー起動（express + vite）
+npm run build        # player バンドルのプロダクションビルド
+npm run build:static # static (エディタ込み HTML) のビルド
+npm run lint         # ESLint実行
+npm run typecheck    # TypeScript型チェック
 ```
+
+OREngine 自体の開発エントリは `orengine/host/` に集約されている:
+
+- `host/index.ts` / `host/runner.ts` - `runDev` / `runBuildPlayer` / `runBuildStatic` の API
+- `host/templates/` - 全プロジェクト共通の `index.html` / `static.html` / `src/` / `Resources/registry.ts`
+
+`scripts/run.mjs` がこれらを呼び出して `demo/` を駆動する。projectDir 引数を変えれば任意のプロジェクトディレクトリで動作するため、外部リポ（ORShorts 等）からも `orengine/host` を import して利用できる（`exports."./host"` で公開）。
 
 ## コードスタイル（eslint-config-mdcs / MrDoob Code Style）
 - インデント: **タブ**
@@ -96,6 +104,14 @@ public updateMatrix() {
 - `packages/orengine/builtin/Components/<グループ>/<名前>/index.ts` にビルトインコンポーネントを追加できる
 - `<project>/Resources/_data/componentList.ts`、`packages/orengine/builtin/_data/builtinComponentList.ts` などは Vite プラグイン（`vite-plugins/ResourceManager`）が自動生成する。**手動で編集してはいけない**（`npm run dev` / `npm run build` で上書きされる）
 - 先頭が `_` のディレクトリはスキャン対象外
+
+## プロジェクト構造（demo / 外部プロジェクト共通）
+プロジェクトディレクトリの中身は `Resources/` / `scene.json` / `editor.json` / `public/` のみ。HTML / src / vite config 等のボイラープレートはすべて `host/templates/` に集約されている。
+
+プロジェクト固有のデータは Vite の `resolve.alias` 経由で参照する:
+- `@or-scene` → `<projectDir>/scene.json`
+- `@or-editor` → `<projectDir>/editor.json`
+- `@or-resources/*` → `<projectDir>/Resources/*`
 
 ## アクティブプロジェクト切替
 - ルート直下の `orengine.config.json` の `project` で切替

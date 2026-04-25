@@ -1,7 +1,7 @@
+import SceneData from '@or-scene';
 import { startPlayer } from 'orengine/player';
 
-import SceneData from '../scene.json';
-import { initResouces, initResourceInstances } from '../Resources';
+import { initResouces, initResourceInstances } from '../Resources/registry';
 
 
 initResouces();

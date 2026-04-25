@@ -1,10 +1,9 @@
-
+import { COMPONENTLIST } from '@or-resources/_data/componentList';
+import { GEOMETRYLIST } from '@or-resources/_data/geometryList';
+import { TEXTURELIST } from '@or-resources/_data/textureList';
 import * as MXP from 'maxpower';
 import { ComponentGroup, GeometryGroup, Engine, BUILTIN_COMPONENTLIST, BUILTIN_GEOMETRYLIST } from 'orengine';
 
-import { COMPONENTLIST } from './_data/componentList';
-import { GEOMETRYLIST } from './_data/geometryList';
-import { TEXTURELIST } from './_data/textureList';
 
 type ClassList = {
 	[key: string]: any

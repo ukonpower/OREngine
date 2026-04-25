@@ -41,6 +41,15 @@
       ],
       "orengine/*": [
         "./packages/orengine/*"
+      ],
+      "@or-scene": [
+        "./demo/scene.json"
+      ],
+      "@or-editor": [
+        "./demo/editor.json"
+      ],
+      "@or-resources/*": [
+        "./demo/Resources/*"
       ]
     }
   },
@@ -55,7 +64,9 @@
     "packages/glpower",
     "demo",
     "scripts",
-    "vite-configs.ts"
+    "vite-configs.ts",
+    "host/runner.ts",
+    "host/index.ts"
   ],
   "references": [
     {

@@ -12,6 +12,8 @@
   },
   "include": [
     "./vite-plugins",
-    "./vite-configs.ts"
+    "./vite-configs.ts",
+    "./host/runner.ts",
+    "./host/index.ts"
   ]
 }
