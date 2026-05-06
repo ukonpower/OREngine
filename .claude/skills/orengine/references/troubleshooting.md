@@ -5,7 +5,7 @@
 問題が発生したらまず一括診断スクリプトを実行する:
 
 ```bash
-bash ${CLAUDE_SKILL_DIR}/scripts/diagnose.sh {PROJECT}
+bash .claude/skills/orengine/scripts/diagnose.sh {PROJECT}
 ```
 
 出力内容:
@@ -58,7 +58,7 @@ Claude側からは `Read /tmp/orengine-server.log` で末尾を読める。
 
 ## ブラウザ未接続時の動作
 
-ブラウザ未接続時はサーバー側のSceneDataEditorがフォールバック処理する。
+ブラウザ未接続時はサーバー側の `SceneDataEditor` がフォールバック処理する。
 ブラウザを再接続すると、サーバー側の変更がフルリロードでブラウザに反映される。
 
 | 機能 | ブラウザ接続時 | ブラウザ未接続時 |
@@ -71,14 +71,50 @@ Claude側からは `Read /tmp/orengine-server.log` で末尾を読める。
 | バッチ操作（entities/fields） | OK | OK |
 | コンポーネント一覧（built-in含む） | OK | OK |
 | エンティティ名検索 | OK | OK |
-| Save | OK | OK |
+| シーンの永続化（scene.json への書き出し） | `Ctrl+S` または `POST /api/projects/:p/scene` | `WRITE_ACTIONS` 都度自動 |
 | コンポーネント詳細（fieldsDirectory） | OK | **503**（ランタイム必要） |
 | シェーダーエラー確認 | OK | **503**（GPU必要） |
 | Undo/Redo | OK | **503** |
 | エンティティ選択 | OK | **503** |
-| Editor経由リソース操作（materials/textures） | OK | **503**（将来対応予定） |
+| スクリーンショット / カメラ制御 / タイムライン | OK | **503** |
+| Editor経由リソース操作（textures） | OK | **503**（将来対応予定） |
 
-**対処**: シーン操作の基本機能はブラウザなしでも動作する。コンポーネント詳細やシェーダーエラー確認が必要な場合はブラウザでエディタを開く。
+**対処**: シーン操作の基本機能はブラウザなしでも動作する。コンポーネント詳細やシェーダーエラー確認、スクリーンショットが必要な場合はブラウザでエディタを開く。
+
+## screenshot が黒い / 白い
+
+**症状**: `/editor/screenshot?format=jpeg` で取った画像が真っ黒または真っ白。シーンには物体が置いてあるはず。
+
+**原因**: WebGL canvas は `preserveDrawingBuffer: true` で値は保持されているが、JPEG はアルファチャンネルを保持できないため、ブラウザの flatten 実装次第で黒/白になる。
+
+**対処**: `format=png` で再撮影する。
+
+```bash
+curl -s -o /tmp/check.png \
+  "http://localhost:3001/api/projects/{PROJECT}/editor/screenshot"
+```
+
+## HMR フルリロードで API で作ったエンティティが消えた
+
+**症状**: `Resources/Components/...` に新規ファイルを Write した直後、API で作っていたエンティティが全部消えた。
+
+**原因**: ResourceManager が `_data/componentList.ts` を再生成 → Vite がフルリロード → ブラウザが scene.json を再 fetch する。ws 接続中の API 操作は揮発なので未保存のものが消える。
+
+**対処**:
+1. **順序**: コンポーネントファイルは **エンティティ作成より先に書く**
+2. ファイル Write 直後は数秒待ってから `/editor/components` で登録確認
+3. 重要な作業の途中では `POST /api/projects/:p/scene` で明示保存
+
+## field 設定が成功レスポンスなのに反映されない
+
+**症状**: `POST /editor/field` または `/editor/fields` が `success: true` を返すのに、実際の値が変わらない。
+
+**原因**: `Serializable.deserialize()` は `fields_` Map に存在しない path をスキップする（silent skip）。サーバー側フォールバックは props に何でも書き込むがコンポーネントが参照しなければ無効。
+
+**対処**:
+1. `GET /editor/entity/:uuid/component/:name` で `fieldsDirectory` を確認（ws 接続必須）
+2. `path` が `fieldsDirectory` のキーと一致しているか検証
+3. `Mesh` / `Camera.displayOut` / `Light.color` 等は **そもそも field 登録されていない** ので API 経由では設定不可
 
 ## UUID不正
 
@@ -91,34 +127,18 @@ Claude側からは `Read /tmp/orengine-server.log` で末尾を読める。
 
 **注意**: フィールド設定（`/editor/field`, `/editor/fields`）の `targetUuid` は:
 - Entityレベルフィールド（position, euler, scale等）→ エンティティUUID
-- Componentレベルフィールド（geometry/type等）→ **コンポーネントUUID**（エンティティUUIDではない）
+- Componentレベルフィールド → **コンポーネントUUID**（エンティティUUIDではない）
 
 ## コンポーネント名が見つからない
 
-**症状**: コンポーネント追加時にエラー
+**症状**: コンポーネント追加時に `400 Component not found` 等のエラー
 
 **対処**:
 1. `GET /api/projects/:p/editor/components` で利用可能なコンポーネント一覧を取得
 2. コンポーネント名の大文字小文字を確認（例: `"Mesh"` であって `"mesh"` ではない）
-3. [components-catalog.md](components-catalog.md) で正式名称を確認
-
-## フィールドパスが不正
-
-**症状**: フィールド設定が反映されない
-
-**対処**:
-1. `GET /api/projects/:p/editor/entity/:uuid/component/:name` でコンポーネントの `fieldsDirectory` を確認（ブラウザ接続時のみ）
-2. `path` はフィールドのキーと完全一致が必要（例: `"geometry/type"` であって `"geometryType"` ではない）
-3. 値の型を確認（number[3] が必要なフィールドに string を渡していないか等）
-
-## 保存に失敗する
-
-**症状**: `POST /editor/save` でエラー
-
-**対処**:
-1. プロジェクトが存在するか確認: `GET /api/projects`
-2. プロジェクト名が正しいか確認
-3. ブラウザ接続中に保存する場合、ブラウザ側でエラーが出ていないか確認
+3. `references/components-catalog.md` で正式名称を確認
+4. `CustomPostProcess` のような過去の名前を使っていないか確認（**存在しない**）
+5. カスタムコンポーネント追加直後なら、HMR の再生成完了まで数秒待つ
 
 ## TypeScriptの型エラー（コンポーネント開発時）
 
@@ -154,23 +174,18 @@ ResourceManagerはimportに成功したコンポーネントのみを `component
 2. `GET /editor/components` — コンポーネントが一覧に含まれるか確認
 3. エラーを修正したら `POST /editor/vite-errors/clear` でクリア
 
-## scene.jsonとAPIの乖離
-
-**症状**: scene.jsonをファイルとして直接編集したが、APIのレスポンスに変更が反映されない
-
-**原因**: APIサーバーは起動時にscene.jsonを読み込み、以降はin-memoryでシーンデータを管理する。REST APIの操作はin-memoryを変更し、`POST /editor/save` でscene.jsonに書き出す。scene.jsonを直接編集してもin-memoryは更新されない。
-
-**対処**:
-1. `POST /editor/reload` — ディスクからscene.jsonを再読み込み、ブラウザにフルリロード指示
-2. またはサーバーを再起動する（Ctrl+C → `npm run dev`）
+## scene.json と in-memory の関係
 
 **データフロー**:
 ```
 scene.json → [サーバー起動時に読み込み] → in-memory
-REST API → [操作] → in-memory → [POST /editor/save] → scene.json
-scene.json直接編集 → in-memoryに反映されない
-POST /editor/reload → scene.jsonを再読み込み → in-memory更新 → ブラウザにフルリロード指示
+REST API → [操作] → in-memory
+  ├─ ws 未接続: WRITE_ACTIONS で都度 scene.json へ自動保存
+  └─ ws 接続中: 揮発（Ctrl+S または POST /api/projects/:p/scene まで書かれない）
+HMR フルリロード → ブラウザが GET /api/projects/:p/scene で再ロード
 ```
+
+scene.json を直接編集してしまった場合は、サーバーを再起動する（Ctrl+C → `npm run dev`）。`/editor/reload` のような再読み込みエンドポイントは存在しない。
 
 ## ブラウザランタイムエラー
 
@@ -189,6 +204,6 @@ POST /editor/reload → scene.jsonを再読み込み → in-memory更新 → ブ
 
 - **同じAPIが3回連続失敗**: サーバー状態を確認。`GET /api/projects/:p/editor/status` でステータスチェック
 - **UUIDが見つからない**: シーンツリーを再取得。別のエンティティが操作対象かもしれない
-- **フィールド設定が反映されない**: コンポーネントのfieldsDirectoryを確認し、正しいパスと型を使っているか検証
-- **ブラウザ連携が必要な操作でエラー**: ファイルシステム直接API（`/api/materials`, `/api/textures`等）への切り替えを検討
+- **フィールド設定が反映されない**: コンポーネントの `fieldsDirectory` を確認し、正しいパスと型を使っているか検証
+- **ブラウザ連携が必要な操作でエラー**: ブラウザで `http://localhost:3001` を開く / ファイルシステム直接API（`/api/projects/:p/textures` 等）への切り替えを検討
 - **TypeScript型エラーが解消しない**: 既存コンポーネントのコードを参照して正しいパターンを確認

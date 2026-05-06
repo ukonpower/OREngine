@@ -2,10 +2,11 @@
 name: orengine
 description: >
   OREngineの3Dシーン構築・コンポーネント開発・シェーダー作成を行うワークフロースキル。
-  REST API経由でエンティティ作成・配置・マテリアル設定・保存を自動化し、スクリーンショットで結果確認する。
+  シーンはREST APIで編集し、見た目のあるオブジェクトはカスタムコンポーネント内で
+  Geometry + Material + Mesh を組み立てる。
   Use when user asks to "シーンを作って", "エンティティを追加", "オブジェクトを配置",
-  "マテリアルを設定", "ライトを追加", "カメラを配置", "シーンを修正", "コンポーネントを追加",
-  "コンポーネントを作成", "シェーダーを作成", "シェーダーを書いて", "テクスチャを設定",
+  "ライトを追加", "カメラを配置", "シーンを修正", "コンポーネントを追加",
+  "コンポーネントを作成", "シェーダーを作成", "シェーダーを書いて",
   "シーンを確認", "シーンを保存", or mentions scene construction, entity manipulation,
   component development, shader programming, or 3D object placement in OREngine.
   Do NOT use for general TypeScript/JavaScript questions, GLSL syntax reference,
@@ -13,297 +14,326 @@ description: >
 allowed-tools: Bash(curl:*), Bash(bash:*), Bash(chmod:*), Read, Write, Edit, Glob, Grep
 metadata:
   author: ukonpower
-  version: 1.1.0
+  version: 2.1.0
 ---
 
 # OREngine スキル
 
-OREngineのシーン構築・コンポーネント開発・リソース管理を行うスキル。
-REST APIでエンティティ操作、ファイル編集でシェーダー・コンポーネント開発を行う。
-リファレンスは詳細が必要な場合のみClaudeが自動参照する。
+OREngineのシーン構築・コンポーネント開発を行うスキル。
 
-## 前提条件
+- **シーン編集は REST API**（`scene.json` は直接編集しない）
+- **見た目を持つオブジェクトはコンポーネントで作る**（Geometry / Material / Mesh をコンポーネントのコンストラクタで生成）
+- **マテリアル / シェーダーを作る独立 API は存在しない**（`.mat` ファイルは廃止）
+- **`/editor/save` は存在しない**。保存挙動はブラウザ接続有無で変わる（後述）
 
-- 開発サーバーが `http://localhost:3001` で起動していること（`npm run dev`）
-- サーバー状態確認: `bash ${CLAUDE_SKILL_DIR}/scripts/check-server.sh`
+## 前提
+
+- 開発サーバーが `http://localhost:3001` で起動していること
+- 状態確認: `bash .claude/skills/orengine/scripts/check-server.sh`
 
 ## Decision Map
 
-何をしたいかに応じて適切なフローへ進む:
+| やりたいこと | フロー |
+|---|---|
+| シーンに何かを置く / 並べる / 動かす | Flow 1: シーン編集 API |
+| 見た目のあるオブジェクト（カスタム形状 / シェーダー付き） | Flow 2: コンポーネント開発 |
+| GLSL シェーダーを書く | Flow 3: シェーダー編集 |
+| 結果を目で確認する | Flow 4: スクリーンショット |
+| 動かない・表示されない | `bash .claude/skills/orengine/scripts/diagnose.sh {PROJECT}` |
 
-- 新規シーン構築 → Flow 1: シーン構築
-- 既存シーンにオブジェクト追加 → Flow 1: シーン構築
-- オブジェクトを表示したい（静的な形状・シェーダーアニメーション） → Flow 1 + Flow 2（ビルトインMesh + Material + シェーダーで十分）
-- マテリアル・シェーダー・テクスチャ作成 → Flow 2: リソース作成
-- シェーダーのGLSLコード編集 → Flow 3: シェーダー編集
-- 毎フレームのTS制御・インスタンシング・外部データ連携 → Flow 4: コンポーネント開発
-- デバッグ・一括診断 → `bash ${CLAUDE_SKILL_DIR}/scripts/diagnose.sh {PROJECT}`
-- サーバーログ確認 → `Read /tmp/orengine-server.log`（末尾を読む）
-- Viteログ確認 → `Read /tmp/orengine-vite.log`（末尾を読む）
-- HMR状態確認 → `GET /editor/hmr-events`
-- console.log確認 → `GET /editor/console-errors?level=log`
-- エンティティAPI仕様 → `references/api-scene.md`
-- リソースAPI仕様 → `references/api-resources.md`
-- コンポーネント一覧・フィールド → `references/components-catalog.md`
-- コンポーネント開発ガイド → `references/component-development.md`
-- シェーダー記述リファレンス → `references/shader-guide.md`
-- エラー・うまくいかない → トラブルシューティング分岐（下記）
+参考リファレンス:
+- API 仕様: `references/api-scene.md`
+- テクスチャ API: `references/api-textures.md`
+- ビルトインコンポーネント一覧: `references/components-catalog.md`
+- コンポーネント開発ガイド: `references/component-development.md`
+- シェーダーガイド: `references/shader-guide.md`
+- トラブルシューティング: `references/troubleshooting.md`
 
-### トラブルシューティング分岐
-
-- コンポーネントが表示されない・動かない → Diagnostic Flow A
-- シェーダーエラー → `GET /editor/shader-errors` 確認、詳細は `references/troubleshooting.md`
-- API が 503 → ブラウザ未接続。ブラウザで http://localhost:3001 を開く
-- API が ECONNREFUSED → `npm run dev` でサーバー起動
-- それ以外 → `references/troubleshooting.md`
-
-### Diagnostic Flow A: コンポーネントが表示されない
-
-**まず `bash ${CLAUDE_SKILL_DIR}/scripts/diagnose.sh {PROJECT}` で一括診断を実行する。**
-
-出力の読み方:
-1. **Vite Errors** にエラーあり → シェーダーファイル/importチェーンを修正
-2. **Registered Components** に未登録 → Vite transformエラーが原因（上記で表示済）
-3. **Shader Errors** にエラーあり → GLSLコンパイルエラーを修正
-4. **Console Errors** にエラーあり → ブラウザランタイムエラーを修正
-5. **エラーなし** → スクリーンショットでカメラ/オブジェクト位置を確認
-6. **上記すべてで解決しない** → サーバーログ（`/tmp/orengine-server.log`）を確認
-
-## 鉄則: 操作前の既存シーン確認（必須）
-
-**シーン操作の前に、必ず以下を実行して既存シーンの状態を把握する。**
+## 鉄則: 操作前に状態を 3 つ確認
 
 ```bash
-# 1. プロジェクト一覧確認
-curl -s http://localhost:3001/api/projects | python3 -m json.tool
+# 1. サーバー起動 + ブラウザ接続確認
+bash .claude/skills/orengine/scripts/check-server.sh
 
-# 2. シーンツリー取得（全エンティティの名前・UUID・構成）
+# 2. ブラウザ接続が必要な操作（screenshot, shader-errors, console-errors, camera/position, timeline）の前に
+curl -s http://localhost:3001/api/projects/{PROJECT}/editor/status | python3 -m json.tool
+# → connected: false なら「対応プロジェクトをブラウザで開いてください」とユーザーに依頼
+
+# 3. シーン現状とコンポーネント実在確認
 curl -s http://localhost:3001/api/projects/{PROJECT}/editor/scene | python3 -m json.tool
-
-# 3. リソース確認（マテリアル・テクスチャ）
-curl -s http://localhost:3001/api/projects/{PROJECT}/editor/resources | python3 -m json.tool
+curl -s http://localhost:3001/api/projects/{PROJECT}/editor/components | python3 -m json.tool
 ```
 
-取得結果から以下を把握する:
-- 既存エンティティの名前・UUID・親子関係
-- 重複作成を防ぐため、追加したいエンティティが既に存在しないか確認
-- 修正・削除対象のエンティティのUUIDを特定
-- 利用可能なマテリアル・テクスチャの名前
+エンティティの UUID・既存コンポーネント・**実在するコンポーネント名**を把握してから操作する。`/editor/components` に無い名前を `addComponent` してもエラーになる。
 
-## Canonical Flows
+## Flow 1: シーン編集（REST API）
 
-### Flow 1: シーン構築（REST API）
-
-エンティティの作成・配置・フィールド設定・保存はすべてREST API経由。
+エンティティ・コンポーネント・トランスフォームの操作はすべて API で行う。
 
 ```bash
-# 新規シーン: DELETE project → POST project → POST /editor/entities (batch) → POST /editor/save
-curl -s -X DELETE http://localhost:3001/api/projects/{PROJECT}
-curl -s -X POST http://localhost:3001/api/projects -H "Content-Type: application/json" -d '{"name": "{PROJECT}"}'
-curl -s -X POST http://localhost:3001/api/projects/{PROJECT}/editor/entities -H "Content-Type: application/json" -d '{"entities": [...]}'
-curl -s -X POST http://localhost:3001/api/projects/{PROJECT}/editor/save
+# 単発作成
+curl -s -X POST http://localhost:3001/api/projects/{PROJECT}/editor/entity \
+  -H "Content-Type: application/json" \
+  -d '{"parentUuid": "0", "name": "MyEntity"}'
 
-# 既存シーンへの追加: GET /editor/scene → POST /editor/entity → POST component → POST /editor/fields → POST /editor/save
+# コンポーネント追加（ビルトイン or 自作）
+curl -s -X POST http://localhost:3001/api/projects/{PROJECT}/editor/entity/{UUID}/component \
+  -H "Content-Type: application/json" \
+  -d '{"componentName": "Light"}'
+
+# トランスフォームやフィールド設定
+curl -s -X POST http://localhost:3001/api/projects/{PROJECT}/editor/field \
+  -H "Content-Type: application/json" \
+  -d '{"targetUuid": "{ENTITY_OR_COMPONENT_UUID}", "path": "position", "value": [0, 1, 0]}'
+
+# 一括作成（推奨）
+curl -s -X POST http://localhost:3001/api/projects/{PROJECT}/editor/entities \
+  -H "Content-Type: application/json" \
+  -d '{"entities": [...]}'
 ```
 
-API詳細は `references/api-scene.md` を参照。
+`targetUuid` は対象に応じて使い分ける:
+- Entity フィールド (`position`, `euler`, `scale`, `name`) → エンティティ UUID
+- Component フィールド (コンポーネント固有のプロパティ) → **コンポーネント UUID**
 
-### Flow 1.5: シーン確認（スクリーンショット）
+詳細は `references/api-scene.md`。
 
-**シーン構築後・変更後は必ずスクリーンショットで結果を目視確認する。**
+## Flow 2: コンポーネント開発（見た目のあるオブジェクト）
+
+**見た目のあるオブジェクトは、対応するカスタムコンポーネントを 1 つ作るのが基本。** Mesh / Geometry / Material は API では作らず、コンポーネントのコンストラクタ内で生成して `addComponent(MXP.Mesh, { geometry, material })` で組み込む。
+
+### ファイル配置
+
+```
+projects/{PROJECT}/Resources/Components/{Group}/{Name}/
+├── index.ts        # export class XXX extends MXP.Component
+├── index.vs        # （任意）頂点シェーダー
+└── index.fs        # （任意）フラグメントシェーダー
+```
+
+ResourceManager の Vite プラグインがファイル配置を検出して自動登録する。`_data/*` は自動生成なので手動編集禁止。
+
+### 最小サンプル（Geometry + Material + Mesh をコンポーネント化）
+
+```ts
+import * as MXP from 'maxpower';
+import { Engine } from 'orengine';
+import { gl } from '~/ts/Globals';
+
+import frag from './index.fs';
+import vert from './index.vs';
+
+export class MyBox extends MXP.Component {
+
+	constructor( params: MXP.ComponentParams ) {
+
+		super( params );
+
+		const geometry = new MXP.CubeGeometry( { width: 1, height: 1, depth: 1 } );
+
+		const material = new MXP.Material( {
+			vert,
+			frag,
+			phase: [ 'deferred', 'shadowMap' ],
+			useLight: true,
+			uniforms: MXP.UniformsUtils.merge( Engine.getInstance( gl ).uniforms ),
+		} );
+
+		this.entity.addComponent( MXP.Mesh, { geometry, material } );
+
+	}
+
+	public dispose(): void {
+
+		super.dispose();
+		this.entity.removeComponent( MXP.Mesh );
+
+	}
+
+}
+```
+
+### 手順
+
+1. `index.ts` を作成（必要なら `index.vs` / `index.fs` も）
+2. `npm run typecheck` でエラーがないか確認
+3. **コンポーネント登録完了を待ってから** `GET /editor/components` で確認（HMR フルリロードで揮発作業が消えうるため、エンティティ作成より先にこれを終わらせる）
+4. シーンに追加: `POST /editor/entity` → `POST /editor/entity/:uuid/component { "componentName": "MyBox" }`
+5. ブラウザ接続中なら明示保存（`POST /api/projects/:p/scene` で現状を書き戻す）+ スクリーンショット
+
+詳細パターン（制御コンポーネント・データコンポーネント・ライフサイクル・HMR）は `references/component-development.md`。
+
+## Flow 3: シェーダー編集
+
+GLSL は通常コンポーネントと同じディレクトリに `.vs` / `.fs` で置き、TS から `import` する。
+
+```
+projects/{PROJECT}/Resources/Components/{Group}/{Name}/
+├── index.ts
+├── index.vs
+└── index.fs
+```
+
+書き方・インクルード（`<vert_h>`, `<frag_out>` 等）は `references/shader-guide.md`。
+
+シェーダー編集後は必ず確認:
 
 ```bash
-# 1. タイムラインを適切なフレームに移動（アニメーションがある場合）
-curl -s -X POST http://localhost:3001/api/projects/{PROJECT}/editor/timeline/seek \
-  -H "Content-Type: application/json" -d '{"frame": 0}'
+curl -s http://localhost:3001/api/projects/{PROJECT}/editor/shader-errors | python3 -m json.tool
+```
 
-# 2. カメラを見やすい位置に移動
+`errors` が空でなければ修正してから次の作業へ。
+
+## Flow 4: スクリーンショット確認
+
+シーン構築・変更後は必ず目視確認する。
+
+```bash
+# 撮影前に必ずブラウザ接続を確認
+curl -s http://localhost:3001/api/projects/{PROJECT}/editor/status
+
+# カメラを見やすい位置に移動
 curl -s -X POST http://localhost:3001/api/projects/{PROJECT}/editor/camera/position \
   -H "Content-Type: application/json" \
   -d '{"eye": {"x": 5, "y": 3, "z": 5}, "target": {"x": 0, "y": 0, "z": 0}}'
 
-# 3. スクリーンショット取得（APIが直接画像バイナリを返す。JPEG推奨: サイズが小さい）
-curl -s -o /tmp/orengine_screenshot.jpg "http://localhost:3001/api/projects/{PROJECT}/editor/screenshot?format=jpeg&quality=0.7"
-# PNG: curl -s -o /tmp/orengine_screenshot.png "http://localhost:3001/api/projects/{PROJECT}/editor/screenshot"
+# PNGで撮影（推奨。JPEGは暗いシーンで黒になることがある）
+curl -s -o /tmp/orengine_screenshot.png \
+  "http://localhost:3001/api/projects/{PROJECT}/editor/screenshot"
 
-# 4. スクリーンショットをReadツールで確認
-# → Read /tmp/orengine_screenshot.jpg
+# Read /tmp/orengine_screenshot.png で確認
 ```
 
-**カメラ位置の目安:**
-- シーン全体を見渡す: `eye: {x:8, y:5, z:8}`, `target: {x:0, y:0, z:0}`
-- 正面から: `eye: {x:0, y:1, z:5}`, `target: {x:0, y:0, z:0}`
-- 上から: `eye: {x:0, y:10, z:0.1}`, `target: {x:0, y:0, z:0}`
-- 特定オブジェクト注視: targetをオブジェクトのpositionに設定
+サイズを抑えたい場合のみ JPEG (`?format=jpeg&quality=0.7`)。真っ黒に見えたら **PNG で再撮影**。
 
-### Flow 2: リソース作成（REST API）
-
-マテリアル・シェーダー・テクスチャの作成はREST API経由。
-
-```bash
-# マテリアル作成
-curl -s -X POST http://localhost:3001/api/materials -H "Content-Type: application/json" -d '{"name": "MyMaterial"}'
-
-# シェーダー作成（テンプレート: "mesh" or "texture"）
-curl -s -X POST http://localhost:3001/api/shaders -H "Content-Type: application/json" -d '{"name": "MyShader", "template": "mesh"}'
-
-# Meshコンポーネントにマテリアル割当
-curl -s -X POST http://localhost:3001/api/projects/{PROJECT}/editor/field \
-  -H "Content-Type: application/json" \
-  -d '{"targetUuid": "<COMPONENT_UUID>", "path": "material/name", "value": "MyMaterial"}'
-```
-
-API詳細は `references/api-resources.md` を参照。
-
-### Flow 3: シェーダー編集（直接コード編集）
-
-シェーダーのGLSLコードは直接ファイルを編集する。
-
-```
-src/ts/Resources/Shaders/{ShaderName}/
-├── index.vs   # 頂点シェーダー
-└── index.fs   # フラグメントシェーダー
-```
-
-シェーダーの書き方は `references/shader-guide.md` を参照。
-
-### Flow 4: コンポーネント開発（直接コード編集）
-
-**まず本当にカスタムコンポーネントが必要か判断する。**
-
-- ただ表示するだけ → **不要**。ビルトインMesh + Material + シェーダーで十分（Flow 1 + Flow 2）
-- シェーダーだけで実現できるアニメーション → **不要**。シェーダー編集で対応（Flow 3）
-- 毎フレームのTS制御・インスタンシング・外部データ連携が必要 → **必要**。以下の手順で作成
-
-**手順:**
-1. `src/ts/Resources/Components/{Category}/{Name}/index.ts` にコンポーネントクラスを実装
-   - `componentList.ts` への手動登録は不要（Viteプラグインが自動生成する）
-2. `npm run typecheck` で型チェック
-
-コンポーネントの3カテゴリ（ビジュアル/制御/データ）、ライフサイクル、フィールドシステム等の詳細は `references/component-development.md` を参照。
+アニメーションがある場合は `POST /editor/timeline/seek { "frame": N }` で複数時点を撮る。
 
 ## Examples
 
-### Example 1: 新規シーンの構築
-ユーザー: 「赤い球体と青い床のシーンを作って」
+### Example 0: 立方体を 1 個出す（最短レシピ）
 
-アクション:
-1. GET /projects でプロジェクト確認
-2. DELETE + POST /projects でシーン初期化
-3. POST /editor/entities でエンティティ一括作成（Floor, Sphere, Light, Camera）
-4. POST /materials でカスタムマテリアル作成
-5. POST /editor/fields でマテリアル割当
-6. POST /editor/save で保存
-7. スクリーンショットで結果確認
+ビルトインの `Mesh` コンポーネントは API でジオメトリ/マテリアルを差せない。**カスタムコンポーネントが必須**。
 
-Result: ライティング付きの赤い球体が青い床の上に配置されたシーン
+1. `projects/{PROJECT}/Resources/Components/Object/CubeMesh/index.ts` を作成:
 
-### Example 2: 既存シーンへのオブジェクト追加
-ユーザー: 「シーンにライトをもう一つ追加して」
+```ts
+import * as MXP from 'maxpower';
+import { Engine } from 'orengine';
+import { gl } from '~/ts/Globals';
 
-アクション:
-1. GET /editor/scene で現状のシーンツリー確認
-2. POST /editor/entity で新規エンティティ作成
-3. POST /editor/entity/:uuid/component で Light コンポーネント追加
-4. POST /editor/fields で位置・強度設定
-5. POST /editor/save で保存
-6. スクリーンショットで結果確認
+export class CubeMesh extends MXP.Component {
 
-Result: 既存シーンを維持したまま新しいライトが追加された
+	constructor( params: MXP.ComponentParams ) {
 
-### Example 3: カスタムシェーダーの作成
-ユーザー: 「グラデーションのシェーダーを作って」
+		super( params );
 
-アクション:
-1. POST /shaders でシェーダーテンプレート作成
-2. src/ts/Resources/Shaders/ のファイルを直接編集（index.vs, index.fs）
-3. POST /materials でマテリアル作成、シェーダー割当
-4. npm run typecheck で型チェック
-5. GET /editor/shader-errors でシェーダーエラー確認
+		const geometry = new MXP.CubeGeometry( { width: 1, height: 1, depth: 1 } );
+		const material = new MXP.Material( {
+			phase: [ 'deferred', 'shadowMap' ],
+			useLight: true,
+			uniforms: MXP.UniformsUtils.merge( Engine.getInstance( gl ).uniforms ),
+		} );
 
-Result: カスタムGLSLシェーダーが適用されたマテリアル
+		this.entity.addComponent( MXP.Mesh, { geometry, material } );
+
+	}
+
+	public dispose(): void {
+
+		super.dispose();
+		this.entity.removeComponent( MXP.Mesh );
+
+	}
+
+}
+```
+
+2. HMR でフルリロード起こる可能性があるので、**コンポーネント登録完了**まで待つ:
+
+```bash
+sleep 2
+curl -s http://localhost:3001/api/projects/{PROJECT}/editor/components | grep CubeMesh
+```
+
+3. シーンに Cube + Light + Camera をバッチ作成:
+
+```bash
+curl -s -X POST http://localhost:3001/api/projects/{PROJECT}/editor/entities \
+  -H "Content-Type: application/json" \
+  -d '{"entities":[
+    {"name":"Cube","parentUuid":"0","components":[{"componentName":"CubeMesh"}]},
+    {"name":"Light","parentUuid":"0","position":[3,3,3],"components":[{"componentName":"Light"}]},
+    {"name":"MainCamera","parentUuid":"0","position":[5,3,5],"components":[
+      {"componentName":"Camera"},
+      {"componentName":"CameraController"}
+    ]}
+  ]}'
+```
+
+4. Light を原点に向ける（lookAt API は Light 補正自動）:
+
+```bash
+curl -s -X POST http://localhost:3001/api/projects/{PROJECT}/editor/entity/{LIGHT_UUID}/lookAt \
+  -H "Content-Type: application/json" \
+  -d '{"target":[0,0,0]}'
+```
+
+5. ブラウザ接続確認 → PNG でスクショ → Read で確認
+
+ws 接続中はこの時点で in-memory のみ更新されている。**確実に保存したい場合は `POST /api/projects/:p/scene` で明示保存**するか、ユーザーに `Ctrl+S` を依頼する。
+
+### Example 1: ライトとカメラだけのシーン
+
+1. `GET /editor/scene` で現状確認
+2. `POST /editor/entities` で Camera エンティティと Light エンティティをまとめて作成
+3. ws 接続中なら `POST /api/projects/:p/scene` で明示保存
+4. スクリーンショット
+
+### Example 2: 赤い球体を置く
+
+1. `projects/{PROJECT}/Resources/Components/Object/RedSphere/index.ts` を作成
+   - `new MXP.SphereGeometry()` + `new MXP.Material({ ... })` を内部で生成して `addComponent(MXP.Mesh, ...)`
+2. `npm run typecheck`
+3. `POST /editor/entity` でエンティティ作成
+4. `POST /editor/entity/:uuid/component { "componentName": "RedSphere" }`
+5. 明示保存 + スクリーンショット
+
+### Example 3: カスタムシェーダーで動くオブジェクト
+
+1. コンポーネントディレクトリに `index.vs` / `index.fs` を作成
+2. `index.ts` で `import frag from './index.fs'` して Material に渡す
+3. `updateImpl` で uniform を更新
+4. `GET /editor/shader-errors` で確認
+5. シーンへ追加 + スクリーンショット
 
 ## Guardrails
 
-- **scene.jsonを直接編集しない。** エンティティ操作は必ずREST API経由。
-  理由: APIサーバーはin-memoryでシーンデータを管理しており、scene.jsonの直接編集はin-memoryに反映されない。
-  直接編集してしまった場合は `POST /editor/reload` でディスクから再読み込み+ブラウザリロード
-- **エラー診断は `diagnose.sh` で一括実行する。** 個別に確認する場合は以下のAPI:
-  1. `GET /editor/vite-errors` — Viteのtransformエラー（importチェーン破壊等）
-  2. `GET /editor/shader-errors` — GLSLコンパイルエラー（GPU上のコンパイル失敗）
-  3. `GET /editor/console-errors` — ブラウザのランタイムエラー（console.error, warn, log, info, 未捕捉例外等）
-  4. `GET /editor/console-errors?level=error,warn` — エラーとワーニングのみ
-  5. `GET /editor/console-errors?level=log` — console.logのみ（デバッグ値確認）
-  6. `GET /editor/hmr-events` — 直近のHMR更新イベント
-- **操作前にGET /editor/sceneで現状確認する。** 操作後にも確認して結果を報告する
-- **エンティティ作成後は必ずsaveを呼ぶ**
-- **ルートエンティティのUUIDは `"0"`**
-- **バッチAPIを活用して効率的に操作する**
-- **フィールド設定のtargetUuidはコンポーネントUUID**（エンティティUUIDではない）
-- **コンポーネント作成後は `npm run typecheck` で型チェックを実行する**
-- **同じAPIが3回失敗したら `references/troubleshooting.md` を確認する**
-- **プロジェクトが複数存在する場合は、操作対象をユーザーに確認してから進める**（`check-server.sh` の Browser Connection 欄で接続中プロジェクトを確認できる）
-- **ファイル編集後は2秒待ってからエラー確認する。** HMRの反映に時間がかかるため、`sleep 2` の後に `diagnose.sh` または個別エラーAPIを叩く
-- **`console.log` でデバッグ値を確認できる。** コンポーネントに `console.log` を追加すれば `GET /editor/console-errors?level=log` で取得可能
-- **Meshコンポーネントを持つエンティティを作成・シェーダーを編集したら、必ずシェーダーエラーを確認する**
-  ```bash
-  curl -s http://localhost:3001/api/projects/{PROJECT}/editor/shader-errors | python3 -m json.tool
-  ```
-  `errors` 配列が空でない場合はシェーダーを修正してから次の作業へ進む。
-- **シーン構築・変更後は必ずスクリーンショットを取得して結果を目視確認する**（Flow 1.5 参照）
-  - カメラ位置をシーンに合わせて調整してから撮影する
-  - アニメーションがある場合はフレームをシークして複数時点を確認する
-  - スクリーンショットで問題を発見したら修正してから次の作業へ進む
+- **`scene.json` を直接編集しない**
+- **マテリアル / シェーダーを作る独立 API はない**。`.mat` ファイルも存在しない。Material はコンポーネント内で `new MXP.Material(...)` する
+- **見た目のあるオブジェクト = カスタムコンポーネント**を基本とする。エディタで Mesh コンポーネントだけ追加して見た目を組み立てる旧フローは廃止
+- **コンポーネントの `_data/*` は手動編集しない**（Vite プラグインが上書きする）
+- **Component フィールドの `targetUuid` はコンポーネント UUID**（エンティティ UUID と混同しない）
+- **未知の field path は silent fail**（成功レスポンスでも反映ゼロ）。`/editor/entity/:uuid/component/:name` の `fieldsDirectory` で実在 path を確認すること（ws 接続時のみ取得可）
+- **`/editor/save` は存在しない**。保存挙動はモード依存:
+  - ws **未接続**時: `WRITE_ACTIONS` (createEntity/deleteEntity/addComponent/removeComponent/setField) で都度自動保存
+  - ws **接続**時: 揮発。確実に保存するには (a) ユーザーに `Ctrl+S` を依頼する or (b) `POST /api/projects/:p/scene` を直接 PUT
+- **新規コンポーネントファイル追加 → HMR フルリロードで揮発作業が消えうる**。順序: `(a) component 書く → (b) /editor/components で登録確認 → (c) エンティティ作成`
+- **コンポーネント・シェーダー編集後は `npm run typecheck` と `GET /editor/shader-errors` を実行する**
+- **ファイル編集後は HMR 反映に 2 秒程度待ってからエラー確認**
+- **シーン変更後はスクリーンショット**で目視確認する。ブラウザ未接続時は 503 になる
+- 同じ API が 3 回失敗したら `references/troubleshooting.md` を参照する
+- プロジェクトが複数ある場合は `check-server.sh` の Browser Connection 欄で接続中プロジェクトを確認してから作業する
 
 ## Common Issues
 
-### サーバーに接続できない（ECONNREFUSED）
-原因: 開発サーバーが起動していない
-対処: `npm run dev` を実行してサーバーを起動
+| 症状 | 対処 |
+|---|---|
+| `ECONNREFUSED` | `npm run dev` でサーバー起動 |
+| `503 Service Unavailable` | ブラウザで `http://localhost:3001` を開く（screenshot/shader-errors/console-errors/timeline 系は ws 接続必須） |
+| screenshot が真っ黒/真っ白 | PNG で再撮影 (`?format=png` に切替)。JPEG は alpha flatten で暗いシーンが破綻する |
+| シェーダーコンパイルエラー | `GET /editor/shader-errors` 確認 → `references/shader-guide.md` |
+| field 設定したのに反映されない | `/editor/entity/:uuid/component/:name` で `fieldsDirectory` を確認。**未知の path は silent skip** |
+| 直前まで作っていたエンティティが消えた | HMR フルリロード（component 新規追加トリガ）+ ws 接続中は揮発。コンポーネント追加後にエンティティを作り直す |
+| カスタムコンポーネントが一覧に出ない | `GET /editor/vite-errors` で transform エラー確認。先頭 `_` のディレクトリは無視される |
 
-### 503 Service Unavailable
-原因: ブラウザがOREngineエディタに接続していない
-対処: ブラウザで http://localhost:3001 を開く
-
-### シェーダーコンパイルエラー
-原因: GLSL構文エラー
-対処: `GET /editor/shader-errors` で詳細確認 → `references/shader-guide.md` 参照
-
-### フィールド設定が反映されない
-原因: targetUuid にエンティティUUIDを使っている（コンポーネントUUIDが必要）
-対処: `GET /editor/entity/:uuid` でコンポーネントのUUIDを確認し、それを targetUuid に使う
-
-### カスタムコンポーネントが /editor/components に表示されない
-原因: コンポーネントのimportチェーンが壊れている（シェーダーファイルのtransformエラー、TypeScript構文エラー等）
-対処:
-1. `GET /editor/vite-errors` でViteのtransformエラーを確認
-2. コンポーネントが依存しているシェーダーファイル（.vs/.fs/.glsl）の存在を確認
-3. `npm run typecheck` でTypeScriptエラーを確認
-
-### scene.jsonを直接編集したが変更が反映されない
-原因: APIサーバーはin-memoryでシーンデータを管理。scene.jsonは永続化先に過ぎない
-対処: `POST /editor/reload` でディスクから再読み込み+ブラウザリロード
-
-### ブラウザ側でランタイムエラーが発生している
-原因: コンポーネントの初期化エラー、シェーダーエラー等
-対処: `GET /editor/console-errors` でブラウザのconsole.error/warn/未捕捉例外を確認
-
-### HMRが反映されない
-原因: ファイル編集直後はHMRがまだ完了していない
-対処:
-1. `GET /editor/hmr-events` で最新のHMRイベントを確認
-2. 2秒以上待ってから再確認
-3. HMRイベントが記録されない場合は `POST /editor/reload` でフルリロード
-
-詳細は `references/troubleshooting.md` を参照。
-
-## References
-
-詳細が必要な場合のみ参照する:
-
-- **[references/api-scene.md](references/api-scene.md)** - シーン操作API（エンティティCRUD・フィールド設定・保存）
-- **[references/api-resources.md](references/api-resources.md)** - マテリアル・シェーダー・テクスチャAPI
-- **[references/components-catalog.md](references/components-catalog.md)** - ビルトインコンポーネント一覧とフィールド
-- **[references/component-development.md](references/component-development.md)** - カスタムコンポーネント開発ガイド
-- **[references/shader-guide.md](references/shader-guide.md)** - シェーダー記述ガイド（インクルード・GBuffer出力）
-- **[references/troubleshooting.md](references/troubleshooting.md)** - エラー対処・Stop Conditions
+詳細は `references/troubleshooting.md`。

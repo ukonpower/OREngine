@@ -1,14 +1,22 @@
 # シェーダー記述ガイド
 
-## ファイル構造
+## ファイル配置
+
+シェーダーは使用するコンポーネントと同じディレクトリに置き、TS から `import` する。**マテリアル / シェーダーを作る独立 API は存在しない**。
 
 ```
-src/ts/Resources/Shaders/{ShaderName}/
-├── index.vs   # 頂点シェーダー
-└── index.fs   # フラグメントシェーダー
+projects/{PROJECT}/Resources/Components/{Group}/{Name}/
+├── index.ts   # import frag from './index.fs'
+├── index.vs
+└── index.fs
 ```
 
-シェーダーの作成はAPI経由（`POST /shaders`）、GLSLコードの編集は直接ファイルを修正する。
+```ts
+import frag from './index.fs';
+import vert from './index.vs';
+
+const material = new MXP.Material( { vert, frag, /* ... */ } );
+```
 
 ## メッシュ用シェーダーテンプレート
 
@@ -145,15 +153,6 @@ uniform sampler2D uNoiseTex;    // テクスチャ参照
 
 自動抽出対象の型: `float`, `vec2`, `vec3`, `vec4`, `int`, `sampler2D`
 
-## マテリアルとの関連
+## デフォルトシェーダー
 
-マテリアル（`.mat`ファイル）からシェーダーを参照:
-
-```json
-{
-  "vert": "MyShader/vert",
-  "frag": "MyShader/frag"
-}
-```
-
-空文字の場合は基本シェーダー（`packages/maxpower/Material/shaders/basic.{vs,fs}`）が使用される。
+`MXP.Material` のコンストラクタに `vert` / `frag` を渡さない場合、`packages/maxpower/Material/shaders/basic.{vs,fs}` が使用される。試作中に GLSL を書きたくないときはこれで十分。
