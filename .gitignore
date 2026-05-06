@@ -33,4 +33,5 @@ packages/orengine/builtin/_data/
 
 .serena/
 .workflow-tools/
-.claude/
+.claude/*
+!.claude/skills/

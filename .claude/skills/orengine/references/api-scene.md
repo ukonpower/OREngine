@@ -2,8 +2,10 @@
 
 ベースURL: `http://localhost:3001/api`
 
-> **オフライン対応**: シーン読み取り・エンティティCRUD・コンポーネント操作・フィールド設定・保存はブラウザ未接続時もサーバー単独で動作する。
-> コンポーネント詳細（`fieldsDirectory`）、シェーダーエラー確認、Undo/Redo、エンティティ選択はブラウザ接続が必要（503を返す）。
+> **オフライン対応**: シーン読み取り・エンティティCRUD・コンポーネント操作・フィールド設定はブラウザ未接続時もサーバー単独で動作する。
+> コンポーネント詳細（`fieldsDirectory`）、シェーダーエラー確認、Undo/Redo、エンティティ選択、スクリーンショット、タイムライン、エディタカメラ制御はブラウザ接続が必要（503を返す）。
+>
+> **`/editor/save` は存在しない**。保存モデルはこのファイル末尾の「保存モデル」を参照。
 
 ## プロジェクト管理
 
@@ -15,6 +17,22 @@
 | PUT | `/projects/:name` | プロジェクト名変更 | `{ "newName": "NewName" }` |
 | POST | `/projects/:name/duplicate` | プロジェクト複製 | `{ "newName": "CopyName" }` |
 
+## シーン直接 CRUD（scene.json への入出力）
+
+| メソッド | パス | 説明 |
+|---------|------|------|
+| GET | `/projects/:name/scene` | scene.json 全体を返す（in-memory ベース） |
+| POST | `/projects/:name/scene` | scene.json 全体を上書き保存（ブラウザ接続中ならフルリロードもブロードキャスト） |
+
+ブラウザ接続中に作業を確実に永続化したい場合の典型パターン:
+
+```bash
+SCENE=$(curl -s http://localhost:3001/api/projects/{PROJECT}/scene)
+curl -s -X POST http://localhost:3001/api/projects/{PROJECT}/scene \
+  -H "Content-Type: application/json" \
+  -d "$SCENE"
+```
+
 ## シーン読み取り
 
 | メソッド | パス | 説明 |
@@ -22,10 +40,10 @@
 | GET | `/projects/:p/editor/scene` | シーンツリー取得 |
 | GET | `/projects/:p/editor/entity/:uuid` | エンティティ詳細（コンポーネントfields含む） |
 | GET | `/projects/:p/editor/search?q=name` | エンティティ名検索 |
-| GET | `/projects/:p/editor/components` | 利用可能コンポーネント一覧（シーン内） |
+| GET | `/projects/:p/editor/components` | 利用可能コンポーネント一覧（ビルトイン+プロジェクト固有） |
 | GET | `/projects/:p/editor/entity/:uuid/component/:name` | コンポーネント詳細（fieldsDirectory含む）⚠️ ブラウザ接続時のみ |
 | GET | `/projects/:p/editor/status` | ステータス（接続状態等）。`connected: false` ならブラウザ未接続 |
-| GET | `/projects/:p/editor/resources` | リソース一覧（マテリアル・テクスチャ） |
+| GET | `/projects/:p/editor/resources` | テクスチャ等のリソース一覧 |
 
 ## エンティティ操作
 
@@ -45,6 +63,9 @@
 | DELETE | `/projects/:p/editor/entity/:uuid/component/:name` | コンポーネント削除 | - |
 
 ## フィールド設定
+
+> ⚠️ **silent fail に注意**: ブラウザ側 `Serializable.deserialize` は `fields_` Map に存在しない path をスキップする。サーバー側フォールバックは props に何でも書き込むがコンポーネントが参照しなければ無効。**成功レスポンス (`{success:true}`) でも反映ゼロのケースが存在**する。
+> 対策: `GET /editor/entity/:uuid/component/:name` で **`fieldsDirectory` の実在 path を確認**してから setField する（ws 接続時のみ取得可）。
 
 ### 単一フィールド
 
@@ -75,7 +96,7 @@ POST /projects/:p/editor/fields
 
 **Componentレベルのフィールド** (`targetUuid` = コンポーネントUUID):
 
-`path` はコンポーネントの `props` キーと一致する（例: `"geometry/type"`, `"power"`）。
+`path` はコンポーネントが `field()` / `fieldDir()` で公開しているキーと一致する（例: `"power"`, `"radius"`, `"intensity"`）。値や使えるフィールドはコンポーネントの実装に依存する。**未登録の public プロパティ（`Mesh.geometry`, `Camera.displayOut`, `Light.color` 等）には書き込めない**。
 
 ## バッチ エンティティ作成
 
@@ -93,10 +114,9 @@ POST /projects/:p/editor/entities
       "scale": [sx, sy, sz],
       "components": [
         {
-          "componentName": "Mesh",
+          "componentName": "Light",
           "fields": {
-            "geometry/type": "Cube",
-            "material/name": ""
+            "intensity": 1.0
           }
         }
       ]
@@ -119,6 +139,8 @@ POST /projects/:p/editor/entities
 | メソッド | パス | 説明 | ボディ |
 |---------|------|------|--------|
 | POST | `/projects/:p/editor/entity/:uuid/lookAt` | エンティティを指定座標に向ける | `{ "target": [x, y, z] }` |
+
+Light の場合はサーバー側 `computeLookAtEuler` で `isLight` 判定が入り **+π/2 X 補正が自動適用**される（euler 直指定するより安全）。
 
 ## シェーダーエラー確認
 
@@ -150,7 +172,7 @@ GET /projects/:p/editor/shader-errors
 ## スクリーンショット取得 ⚠️ ブラウザ接続時のみ
 
 ```
-GET /projects/:p/editor/screenshot?format=jpeg&quality=0.7
+GET /projects/:p/editor/screenshot?format=png
 ```
 
 | パラメータ | 型 | デフォルト | 説明 |
@@ -162,11 +184,12 @@ GET /projects/:p/editor/screenshot?format=jpeg&quality=0.7
 
 **スクリーンショットをファイルに保存して確認する例:**
 ```bash
-# JPEG（軽量、推奨）
-curl -s -o /tmp/orengine_screenshot.jpg "http://localhost:3001/api/projects/{PROJECT}/editor/screenshot?format=jpeg&quality=0.7"
-# PNG
+# PNG（推奨）
 curl -s -o /tmp/orengine_screenshot.png "http://localhost:3001/api/projects/{PROJECT}/editor/screenshot"
-# → Read /tmp/orengine_screenshot.jpg で画像確認
+
+# JPEG（サイズを抑えたい場合のみ。ただし alpha flatten で暗いシーンが黒/白になる）
+curl -s -o /tmp/orengine_screenshot.jpg "http://localhost:3001/api/projects/{PROJECT}/editor/screenshot?format=jpeg&quality=0.7"
+# → Read /tmp/orengine_screenshot.png で画像確認
 ```
 
 ## エディタカメラ制御 ⚠️ ブラウザ接続時のみ
@@ -191,10 +214,22 @@ curl -s -o /tmp/orengine_screenshot.png "http://localhost:3001/api/projects/{PRO
 - 正面: `eye: {x:0, y:1, z:5}`, `target: {x:0, y:0, z:0}`
 - 真上: `eye: {x:0, y:10, z:0.1}`, `target: {x:0, y:0, z:0}`
 
-## 保存・Undo/Redo
+## 保存モデル
 
-```
-POST /projects/:p/editor/save              # 保存
-POST /projects/:p/editor/undo              # 元に戻す（ブラウザ接続時のみ）
-POST /projects/:p/editor/redo              # やり直す（ブラウザ接続時のみ）
-```
+OREngine API は **明示的な save エンドポイントを持たない**。実態は接続モードで二分される:
+
+| モード | 保存タイミング | scene.json への書き込み |
+|---|---|---|
+| ws **未接続**（ブラウザを開いていない） | `WRITE_ACTIONS` (createEntity / deleteEntity / addComponent / removeComponent / setField) ごとに自動保存 | サーバーが直接 `project.writeSceneFile()` |
+| ws **接続中**（ブラウザを開いている） | 揮発（in-memory のみ） | ユーザーが `Ctrl+S` を押すか、明示的に `POST /api/projects/:p/scene` を叩くまで書かれない |
+
+ブラウザ接続中に作業を確実に永続化したい場合は、上の「シーン直接 CRUD」セクションの GET → POST パターンで明示保存する。
+
+ブラウザが HMR フルリロード（コンポーネントファイル新規追加など）すると、`EditorPage` が `GET /api/projects/:p/scene` で **scene.json を再ロード** する。ws 接続中の API 操作は揮発なので、未保存のものは消える。
+
+## Undo/Redo（ws 接続時のみ）
+
+| メソッド | パス | 説明 |
+|---|---|---|
+| POST | `/projects/:p/editor/undo` | 元に戻す |
+| POST | `/projects/:p/editor/redo` | やり直す |
