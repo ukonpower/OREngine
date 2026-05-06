@@ -229,7 +229,29 @@
       "$OBJECT_BUTTONS": "ui",
       "$EFFECT_TOGGLE_BUTTONS": "ci",
       "$CAMERA_CYCLE_BUTTON_event": "fi",
-      "$momentaryNoteIds": "vi"
+      "$momentaryNoteIds": "vi",
+      "$__commonJSMin": "tr",
+      "$_Lerps": "er",
+      "$EventEmitter$1": "nr",
+      "$defaultMeshMaterial": "rr",
+      "$GPUCompute": "ir",
+      "$GPUComputePass": "sr",
+      "$ssaoBlur_default": "or",
+      "$RendererSky": "ar",
+      "$RingGeometry": "hr",
+      "$AssetPreviewManager": "cr",
+      "$capturedLogs": "lr",
+      "$pushLog": "ur",
+      "$AvcNalUnitType": "vr",
+      "$HevcNalUnitType": "fr",
+      "$HevcNaluOrderState": "dr",
+      "$FlacBlockType": "mr",
+      "$TextureResource": "pr",
+      "$require___vite_browser_external": "xr",
+      "$lastVideoGcErrorLog": "gr",
+      "$lastAudioGcErrorLog": "yr",
+      "$BLidgeClient": "wr",
+      "$noiseCyclic_default": "Pr"
     }
   },
   "props": {
@@ -1468,7 +1490,18 @@
       "$coarse": "BM",
       "$fine": "zM",
       "$initResourceInstances": "EM",
-      "$sceneData": "LM"
+      "$sceneData": "LM",
+      "$createEntity": "AM",
+      "$dof": "NM",
+      "$RSV_IRAP_VCL23": "UM",
+      "$audAllowed": "RM",
+      "$beforeFirstVcl": "FM",
+      "$afterFirstVcl": "OM",
+      "$eoBitstreamAllowed": "kM",
+      "$noMoreDataAllowed": "GM",
+      "$Environment": "HM",
+      "$Objects": "XM",
+      "$pipeline/dof/enabled": "jM"
     }
   }
 }
