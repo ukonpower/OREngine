@@ -1,5 +1,7 @@
 import { WebSocketServer, WebSocket } from 'ws';
 
+import { HeadlessBrowser } from '../headless/HeadlessBrowser';
+
 import type { Server } from 'http';
 
 
@@ -31,6 +33,7 @@ class EditorWSBridge {
 	}> = new Map();
 	private _idCounter = 0;
 	private _clientIdCounter = 0;
+	private _headless: HeadlessBrowser | null = null;
 
 	constructor( server: Server ) {
 
@@ -177,6 +180,51 @@ class EditorWSBridge {
 	getPrimaryClient( projectName: string ): WebSocket | null {
 
 		return this._findClient( projectName );
+
+	}
+
+	setHeadlessFallback( headless: HeadlessBrowser | null ): void {
+
+		this._headless = headless;
+
+	}
+
+	async ensurePrimaryClient( projectName: string, waitMs = 15000 ): Promise<WebSocket | null> {
+
+		const existing = this._findClient( projectName );
+		if ( existing ) {
+
+			this._headless?.touch();
+			return existing;
+
+		}
+
+		if ( ! this._headless ) return null;
+
+		await this._headless.ensureStarted();
+
+		const start = Date.now();
+
+		while ( Date.now() - start < waitMs ) {
+
+			const client = this._findClient( projectName );
+			if ( client ) return client;
+			await new Promise( ( r ) => setTimeout( r, 200 ) );
+
+		}
+
+		return null;
+
+	}
+
+	async closeHeadless(): Promise<void> {
+
+		if ( this._headless ) {
+
+			await this._headless.close();
+			this._headless = null;
+
+		}
 
 	}
 

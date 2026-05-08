@@ -390,6 +390,9 @@ export const ResourceManager = ( options?: {
 	const componentsDir = options?.componentsDir || "./src/ts/Resources/Components/";
 	const componentListFile = options?.outputFile || "./src/ts/Resources/_data/componentList.ts";
 
+	const generatedFiles = new Set<string>();
+	generatedFiles.add( path.resolve( componentListFile ) );
+
 	let watcher: chokidar.FSWatcher | null = null;
 
 	const update = () => {
@@ -507,6 +510,23 @@ export const ResourceManager = ( options?: {
 				watcher = null;
 
 			}
+
+		},
+		handleHotUpdate: ( ctx ) => {
+
+			if ( ! generatedFiles.has( ctx.file ) ) return;
+
+			const mod = ctx.server.moduleGraph.getModuleById( ctx.file );
+
+			if ( mod ) ctx.server.moduleGraph.invalidateModule( mod );
+
+			ctx.server.ws.send( {
+				type: 'custom',
+				event: 'orengine:resource-list-updated',
+				data: { exportName, file: ctx.file },
+			} );
+
+			return [];
 
 		},
 	} );

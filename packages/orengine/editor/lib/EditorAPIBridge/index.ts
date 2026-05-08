@@ -249,11 +249,28 @@ export class EditorAPIBridge {
 		case 'getAvailableComponents': {
 
 			const list = Engine.resources?.componentList || [];
+			const withSchema = params.withSchema as boolean | undefined;
 
-			return list.map( ( item ) => ( {
-				name: item.name,
-				className: item.component.name,
-			} ) );
+			return list.map( ( item ) => {
+
+				const base = {
+					name: item.name,
+					className: item.component.name,
+				};
+
+				if ( ! withSchema ) return base;
+
+				return { ...base, ...this._probeComponentSchema( item.name, item.component ) };
+
+			} );
+
+		}
+
+		case 'getComponentSchema': {
+
+			const componentName = params.componentName as string;
+			const compClass = this._resolveComponentClass( componentName );
+			return { name: componentName, ...this._probeComponentSchema( componentName, compClass ) };
 
 		}
 
@@ -562,6 +579,28 @@ export class EditorAPIBridge {
 		if ( ! item ) throw new Error( `Component class not found: ${name}` );
 
 		return item.component;
+
+	}
+
+	private _probeComponentSchema( name: string, compClass: typeof MXP.Component ): { fields?: MXP.SerializeField; fieldsDirectory?: MXP.SerializeFieldDirectory; error?: string } {
+
+		const tmpEntity = new MXP.Entity( { engine: this._engine, name: `__probe_${name}` } );
+
+		try {
+
+			const comp = tmpEntity.addComponent( compClass );
+			const fields = comp.serialize();
+			const fieldsDirectory = comp.serializeToDirectory();
+			tmpEntity.dispose();
+
+			return { fields, fieldsDirectory };
+
+		} catch ( err: any ) {
+
+			tmpEntity.dispose();
+			return { error: err?.message || String( err ) };
+
+		}
 
 	}
 
