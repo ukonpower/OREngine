@@ -197,6 +197,12 @@ function handleActionLocal(
 		break;
 
 	case 'getAvailableComponents':
+		if ( params.withSchema ) {
+
+			throw new Error( `Action 'getAvailableComponents' with withSchema requires browser connection` );
+
+		}
+
 		result = getAvailableComponentsFromFiles( projectName );
 		break;
 
@@ -208,6 +214,7 @@ function handleActionLocal(
 	case 'getConsoleErrors':
 	case 'clearConsoleErrors':
 	case 'getComponentDetail':
+	case 'getComponentSchema':
 	case 'selectEntity':
 	case 'undo':
 	case 'redo':
@@ -246,23 +253,29 @@ async function handleActionInternal(
 
 	const bridge = getWSBridge();
 
-	if ( bridge && bridge.isProjectConnected( projectName ) ) {
+	if ( bridge ) {
 
-		const result = await bridge.send( projectName, action, params );
+		const client = await bridge.ensurePrimaryClient( projectName );
 
-		if ( ! result.success ) {
+		if ( client ) {
 
-			throw new Error( result.error );
+			const result = await bridge.send( projectName, action, params );
+
+			if ( ! result.success ) {
+
+				throw new Error( result.error );
+
+			}
+
+			if ( RESOURCE_MUTATING_ACTIONS.has( action ) ) {
+
+				await persistResourceChange( projectName, action, params, result.data );
+
+			}
+
+			return result.data;
 
 		}
-
-		if ( RESOURCE_MUTATING_ACTIONS.has( action ) ) {
-
-			await persistResourceChange( projectName, action, params, result.data );
-
-		}
-
-		return result.data;
 
 	}
 
@@ -328,7 +341,16 @@ editorRouter.get( '/projects/:projectName/editor/search', ( req, res ) => {
 
 editorRouter.get( '/projects/:projectName/editor/components', ( req, res ) => {
 
-	handleAction( req.params.projectName, 'getAvailableComponents', {}, res );
+	const withSchema = req.query.withSchema === '1' || req.query.withSchema === 'true';
+	handleAction( req.params.projectName, 'getAvailableComponents', { withSchema }, res );
+
+} );
+
+editorRouter.get( '/projects/:projectName/editor/components/:name/schema', ( req, res ) => {
+
+	handleAction( req.params.projectName, 'getComponentSchema', {
+		componentName: req.params.name,
+	}, res );
 
 } );
 

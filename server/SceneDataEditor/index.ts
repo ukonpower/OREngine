@@ -1,14 +1,14 @@
+import { randomUUID } from 'crypto';
+
 import type { SceneFileData, SceneDataEntity, SceneDataComponent, EntityTreeResponse, EntityDetailResponse } from '../Project/types';
 
 export class SceneDataEditor {
 
 	private _data: SceneFileData;
-	private _nextUuid: number;
 
 	constructor( data: SceneFileData ) {
 
 		this._data = data;
-		this._nextUuid = this._scanMaxUuid( data.scene ) + 1;
 
 	}
 
@@ -178,44 +178,7 @@ export class SceneDataEditor {
 
 	private _allocUuid(): string {
 
-		return ( this._nextUuid ++ ).toString( 16 ).padStart( 8, '0' );
-
-	}
-
-	private _scanMaxUuid( entity: SceneDataEntity ): number {
-
-		let max = this._parseUuid( entity.uuid );
-
-		if ( entity.components ) {
-
-			for ( const comp of entity.components ) {
-
-				const v = this._parseUuid( comp.uuid );
-				if ( v > max ) max = v;
-
-			}
-
-		}
-
-		if ( entity.childs ) {
-
-			for ( const child of entity.childs ) {
-
-				const v = this._scanMaxUuid( child );
-				if ( v > max ) max = v;
-
-			}
-
-		}
-
-		return max;
-
-	}
-
-	private _parseUuid( uuid: string ): number {
-
-		const num = parseInt( uuid, 16 );
-		return isNaN( num ) ? 0 : num;
+		return randomUUID();
 
 	}
 

@@ -156,3 +156,14 @@ export const initResourceInstances = ( engine: Engine ) => {
 	Engine.resources.buildTextureInstances( engine.renderer, engine.gl, engine.uniforms );
 
 };
+
+if ( import.meta.hot ) {
+
+	import.meta.hot.accept( ( newModule ) => {
+
+		newModule?.initResouces?.();
+		Engine.resources.emit( "update" );
+
+	} );
+
+}

@@ -15,6 +15,7 @@ export interface HostRunOptions {
 	apiPort?: number;
 	basePath?: string;
 	https?: { cert: Buffer | string; key: Buffer | string };
+	headlessFallback?: boolean;
 }
 
 export interface DevHandle {
@@ -46,6 +47,14 @@ export const runDev = async ( opts: HostRunOptions ): Promise<DevHandle> => {
 	const vite = await createServer( createDevConfig( opts ) as InlineConfig );
 	await vite.listen();
 	vite.printUrls();
+
+	if ( opts.headlessFallback !== false ) {
+
+		const url = vite.resolvedUrls?.local[ 0 ];
+
+		if ( url ) api.enableHeadlessFallback( { url } );
+
+	}
 
 	const close = async () => {
 

@@ -65,6 +65,7 @@
     "globals": "^15.12.0",
     "install": "^0.13.0",
     "node-zopfli": "^2.1.4",
+    "playwright": "^1.49.0",
     "pnpm": "^10.33.3",
     "rollup-plugin-visualizer": "^5.12.0",
     "sass-embedded": "^1.80.6",

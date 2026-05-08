@@ -305,7 +305,15 @@ export class Serializable extends GLP.EventEmitter {
 
 	public setField( path: string, value: SerializeFieldValue ) {
 
-		this.deserialize( { [ path ]: value } );
+		const field = this.fields_.get( path );
+
+		if ( ! field ) {
+
+			throw new Error( `Unknown field path: ${path}` );
+
+		}
+
+		field.set( value );
 
 	}
 
