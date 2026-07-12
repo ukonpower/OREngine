@@ -1,8 +1,6 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { AssetPreviewManager } from '../AssetPreviewManager';
-import { initConsoleCapture } from '../ConsoleCapture';
 import { ComponentResolver, OREngineDataEntity, OREngineProjectData, OREngineProjectFrame, ProjectSerializer } from '../ProjectSerializer';
 import { Resources } from '../Resources';
 
@@ -34,13 +32,10 @@ export class Engine extends MXP.Serializable implements MXP.Engine {
 	private _frameSetting: OREngineProjectFrame;
 	private _disposed: boolean;
 	private _cameraEntity: MXP.Entity | null;
-	private _assetPreviewManager: AssetPreviewManager;
 
 	constructor() {
 
 		super();
-
-		initConsoleCapture();
 
 		this._canvas = document.createElement( "canvas" );
 		this._gl = this._canvas.getContext( "webgl2", { antialias: false, preserveDrawingBuffer: true } )!;
@@ -122,12 +117,6 @@ export class Engine extends MXP.Serializable implements MXP.Engine {
 		tl.field( "fps", () => this._frameSetting.fps, ( v ) => this._frameSetting.fps = v );
 
 		/*-------------------------------
-			AssetPreview
-		-------------------------------*/
-
-		this._assetPreviewManager = new AssetPreviewManager( this._gl, this._renderer );
-
-		/*-------------------------------
 			Register
 		-------------------------------*/
 
@@ -198,12 +187,6 @@ export class Engine extends MXP.Serializable implements MXP.Engine {
 	public get disposed() {
 
 		return this._disposed;
-
-	}
-
-	public get assetPreviewManager() {
-
-		return this._assetPreviewManager;
 
 	}
 
@@ -490,7 +473,6 @@ export class Engine extends MXP.Serializable implements MXP.Engine {
 	public dispose() {
 
 		this._disposed = true;
-		this._assetPreviewManager.dispose();
 		this._root.disposeRecursive();
 
 	}

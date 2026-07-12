@@ -8,14 +8,14 @@ import style from './index.module.scss';
 
 export const Textures = () => {
 
-	const { engine } = useOREditor();
+	const { engine, editor } = useOREditor();
 	const [ , setTick ] = useState( 0 );
 
 	useEffect( () => {
 
 		const onUpdate = () => {
 
-			engine.assetPreviewManager.invalidateAll();
+			editor.assetPreviewManager.invalidateAll();
 			setTick( ( v ) => v + 1 );
 
 		};
@@ -30,14 +30,14 @@ export const Textures = () => {
 
 		};
 
-	}, [ engine ] );
+	}, [ engine, editor ] );
 
 	const textures = Engine.resources.textureList;
 
 	return <div className={style.textures}>
 		{textures.map( ( t ) => {
 
-			const url = engine.assetPreviewManager.getTexturePreview( t.name );
+			const url = editor.assetPreviewManager.getTexturePreview( t.name );
 
 			return <div key={t.name} className={style.item}>
 				<div className={style.preview}>

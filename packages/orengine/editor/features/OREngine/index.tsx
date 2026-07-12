@@ -1,6 +1,6 @@
 
 import { OREngineProjectData } from "orengine";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import { Engine } from "../../../core/Engine";
 
@@ -12,13 +12,13 @@ export const OREngine: React.FC<{children?: React.ReactNode, project:OREnginePro
 	const context = useOREngineContext();
 	const { engine } = context;
 
+	// 呼び出し元がインライン関数を渡しても engine 生成時のみ発火させる
+	const onEngineInitRef = useRef( props.onEngineInit );
+	onEngineInitRef.current = props.onEngineInit;
+
 	useEffect( () => {
 
-		if ( props.onEngineInit ) {
-
-			props.onEngineInit( engine );
-
-		}
+		onEngineInitRef.current?.( engine );
 
 	}, [ engine ] );
 

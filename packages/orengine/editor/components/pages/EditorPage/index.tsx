@@ -56,21 +56,19 @@ export const EditorPage = ( props: EditorPageProps ) => {
 			props.initResourceInstances( engine );
 
 		}} >
-			<OREditor editorData={editorData} projectName={projectName} customTabs={props.customTabs} onSave={( savedScene, savedEditor, clientId ) => {
+			<OREditor editorData={editorData} projectName={projectName} customTabs={props.customTabs} onSave={( savedScene, savedEditor ) => {
 
 				props.onBeforeSave?.();
 
-				const clientHeader: Record<string, string> = clientId ? { "X-Orengine-Client-Id": clientId } : {};
-
 				fetch( `/api/projects/${projectName}/scene`, {
 					method: "POST",
-					headers: { "Content-Type": "application/json", ...clientHeader },
+					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify( savedScene ),
 				} );
 
 				fetch( `/api/projects/${projectName}/editor`, {
 					method: "POST",
-					headers: { "Content-Type": "application/json", ...clientHeader },
+					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify( savedEditor ),
 				} );
 

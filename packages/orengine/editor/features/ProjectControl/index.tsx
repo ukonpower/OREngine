@@ -1,5 +1,5 @@
 
-import { SceneExporterProgress } from 'orengine';
+import { SceneExporterProgress } from 'orengine/editor';
 import { useEffect, useState } from 'react';
 
 import { Block } from '../../components/primitives/Block';

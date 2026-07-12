@@ -30,15 +30,6 @@ export const Screen = () => {
 	const [ showLight, setShowLight ] = useSerializableField<boolean>( editor, "helpers/light" );
 	const [ showWireframe, setShowWireframe ] = useSerializableField<boolean>( editor, "helpers/wireframe" );
 
-	const [ apiConnected ] = useSerializableField<boolean>( editor, "apiConnected" );
-	const [ apiPrimary ] = useSerializableField<boolean>( editor, "apiPrimary" );
-
-	const handleRequestPrimary = useCallback( () => {
-
-		editor?.requestApiPrimary();
-
-	}, [ editor ] );
-
 	const [ audioViewHeight, setAudioViewHeight ] = useState( 50 );
 	const audioViewDragRef = useRef<{ startY: number; startHeight: number } | null>( null );
 
@@ -86,13 +77,6 @@ export const Screen = () => {
 				) )}
 			</div>
 			<div className={style.header_right}>
-				{apiConnected && (
-					<div className={style.header_item}>
-						<div className={style.apiStatus} data-primary={apiPrimary} onClick={! apiPrimary ? handleRequestPrimary : undefined} title={apiPrimary ? 'API Primary' : 'API Connected (click to use)'}>
-							<span className={style.apiStatus_dot} />
-						</div>
-					</div>
-				)}
 				<div className={style.header_item}>
 					<Label title='View'>
 						<Value

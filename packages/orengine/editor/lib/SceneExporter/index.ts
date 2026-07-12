@@ -1,7 +1,7 @@
 import * as GLP from 'glpower';
 import { Output, BufferTarget, Mp4OutputFormat, CanvasSource } from 'mediabunny';
 
-import { Engine } from '../Engine';
+import { Engine } from '../../../core/Engine';
 
 export interface SceneExporterOption {
 	fps: number;

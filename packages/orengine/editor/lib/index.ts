@@ -2,12 +2,11 @@ import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
 import { Engine } from '../../core/Engine';
-import { FrameDebugger } from '../../core/FrameDebugger';
-import { SceneExporter, SceneExporterProgress } from '../../core/SceneExporter';
 
+import { AssetPreviewManager } from './AssetPreviewManager';
 import { EditorAPI } from './EditorAPI';
-import { EditorAPIBridge } from './EditorAPIBridge';
 import { EditorCamera } from './EditorCamera';
+import { FrameDebugger } from './FrameDebugger';
 import { GizmoMode } from './gizmo/Gizmo';
 import { GizmoManager } from './gizmo/GizmoManager';
 import { HelperManager } from './helper/HelperManager';
@@ -15,6 +14,10 @@ import { KeyboardHandler } from './input/KeyboardHandler';
 import { PointerHandler } from './input/PointerHandler';
 import { SelectionOutline } from './render/SelectionOutline';
 import { WireframeRenderer } from './render/WireframeRenderer';
+import { SceneExporter, SceneExporterProgress } from './SceneExporter';
+
+export * from './GPUState';
+export type { SceneExporterOption, SceneExporterProgress } from './SceneExporter';
 
 export type SelectedAssetInfo = {
 	name: string;
@@ -46,13 +49,12 @@ export class Editor extends MXP.Serializable {
 	private _baseResolution: GLP.Vector;
 	private _viewType: "render" | "debug";
 	private _frameDebugger: FrameDebugger;
+	private _assetPreviewManager: AssetPreviewManager;
 	private _externalWindow: Window | null;
 	private _externalCanvasBitmapContext: ImageBitmapRenderingContext | null;
 
 	private _disposed: boolean;
-	private _projectName: string | undefined;
 	private _api: EditorAPI;
-	private _apiBridge: EditorAPIBridge;
 
 	private _editorCamera: EditorCamera;
 	private _gizmoManager: GizmoManager;
@@ -66,16 +68,11 @@ export class Editor extends MXP.Serializable {
 	private _isExporting: boolean;
 	private _exportProgress: SceneExporterProgress | null;
 
-	private _apiConnected: boolean;
-	private _apiPrimary: boolean;
-	private _apiClientCount: number;
-
-	constructor( engine: Engine, projectName?: string ) {
+	constructor( engine: Engine ) {
 
 		super();
 
 		this._engine = engine;
-		this._projectName = projectName;
 		this._viewType = "render";
 		this._selectedEntityId = null;
 		this._selectedAsset = null;
@@ -87,12 +84,10 @@ export class Editor extends MXP.Serializable {
 		this._externalCanvasBitmapContext = null;
 		this._disposed = false;
 		this._api = new EditorAPI( this );
+		this._assetPreviewManager = new AssetPreviewManager( engine.gl, engine.renderer );
 		this._sceneExporter = new SceneExporter( engine );
 		this._isExporting = false;
 		this._exportProgress = null;
-		this._apiConnected = false;
-		this._apiPrimary = false;
-		this._apiClientCount = 0;
 
 		/*-------------------------------
 			Modules
@@ -336,27 +331,6 @@ export class Editor extends MXP.Serializable {
 		);
 
 		/*-------------------------------
-			API Bridge
-		-------------------------------*/
-
-		this._apiBridge = new EditorAPIBridge( this, this._projectName || 'default' );
-
-		this.on( 'update/apiStatus', ( status: { connected: boolean; isPrimary: boolean; clientCount: number } ) => {
-
-			this._apiConnected = status.connected;
-			this._apiPrimary = status.isPrimary;
-			this._apiClientCount = status.clientCount;
-			this.noticeField( 'apiConnected' );
-			this.noticeField( 'apiPrimary' );
-			this.noticeField( 'apiClientCount' );
-
-		} );
-
-		this.field( 'apiConnected', () => this._apiConnected );
-		this.field( 'apiPrimary', () => this._apiPrimary );
-		this.field( 'apiClientCount', () => this._apiClientCount );
-
-		/*-------------------------------
 			Animate
 		-------------------------------*/
 
@@ -411,6 +385,12 @@ export class Editor extends MXP.Serializable {
 	public get editorCamera() {
 
 		return this._editorCamera;
+
+	}
+
+	public get assetPreviewManager() {
+
+		return this._assetPreviewManager;
 
 	}
 
@@ -607,28 +587,12 @@ export class Editor extends MXP.Serializable {
 	}
 
 	/*-------------------------------
-		API Bridge
-	-------------------------------*/
-
-	public requestApiPrimary(): void {
-
-		this._apiBridge.requestPrimary();
-
-	}
-
-	public get apiClientId(): string | null {
-
-		return this._apiBridge.clientId;
-
-	}
-
-	/*-------------------------------
 		Export
 	-------------------------------*/
 
 	public save() {
 
-		this.emit( "save", [ this.exportEngine(), this.exportEditor(), this.apiClientId ] );
+		this.emit( "save", [ this.exportEngine(), this.exportEditor() ] );
 
 	}
 
@@ -720,11 +684,11 @@ export class Editor extends MXP.Serializable {
 
 		this._disposed = true;
 		this._api.dispose();
-		this._apiBridge.dispose();
 		this._editorCamera.dispose();
 		this._pointerHandler.dispose();
 		this._keyboardHandler.dispose();
 		this._frameDebugger.dispose();
+		this._assetPreviewManager.dispose();
 
 	}
 

@@ -4,7 +4,7 @@ import * as path from 'path';
 import express from 'express';
 
 import { ProjectManager } from '../Project';
-import { getWSBridge } from '../ws';
+import { markWritten } from '../recentWrites';
 
 
 function readJsonFile( filePath: string, res: express.Response ): void {
@@ -45,6 +45,7 @@ function writeJsonFile( filePath: string, data: unknown, res: express.Response )
 		}
 
 		fs.writeFileSync( filePath, JSON.stringify( data, null, '\t' ) + '\n' );
+		markWritten( filePath );
 		res.json( { success: true } );
 
 	} catch ( err ) {
@@ -78,17 +79,6 @@ export const createSceneRouter = ( pm: ProjectManager ) => {
 	router.post( '/projects/:name/scene', ( req, res ) => {
 
 		writeJsonFile( path.join( pm.projectDir, 'scene.json' ), req.body, res );
-
-		const bridge = getWSBridge();
-
-		if ( bridge ) {
-
-			const clientId = req.header( 'x-orengine-client-id' );
-			const exclude = clientId ? bridge.findClientById( pm.name, clientId ) : null;
-
-			bridge.broadcastState( pm.name, req.body, { fullReload: true, exclude } );
-
-		}
 
 	} );
 

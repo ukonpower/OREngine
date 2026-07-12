@@ -155,7 +155,7 @@ export const InputNumber = ( props: Props ) => {
 
 		}
 
-	}, [ onPointerMoveNumber, isSP, openInputWindow ] );
+	}, [ onPointerMoveNumber, isSP, openInputWindow, props.precision ] );
 
 	const displayValue = editing
 		? localValue

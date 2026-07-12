@@ -36,6 +36,8 @@ OREngine 自体の開発エントリは `orengine/host/` に集約されてい�
 
 `scripts/run.mjs` がこれらを呼び出して `demo/` を駆動する。projectDir 引数を変えれば任意のプロジェクトディレクトリで動作するため、外部リポ（ORShorts 等）からも `orengine/host` を import して利用できる（`exports."./host"` で公開）。
 
+`runDev` は express（`server/factory.ts`）と vite devサーバーを同一プロセスで起動する。express は `scene.json` / `editor.json` / コンポーネントファイル / `.tex` の読み書きを行うファイルI/O層のみで、シーン編集用の操作APIは持たない。シーンの編集は `scene.json` の直接編集で行い、vite のプロジェクトwatch（`vite-plugins/ProjectWatchReload`）が外部からの変更を検知してブラウザを自動リロードする。
+
 ## コードスタイル（eslint-config-mdcs / MrDoob Code Style）
 - インデント: **タブ**
 - 括弧内スペース: `( value )`, `[ item ]`, `{ key: value }`
@@ -93,11 +95,17 @@ public updateMatrix() {
 ## パスエイリアス
 - `glpower` → `packages/glpower/packages/glpower/src`
 - `maxpower` → `packages/maxpower`
-- `orengine` → `packages/orengine/index.ts`（非Reactエントリ: core + editor/lib）
+- `orengine` → `packages/orengine/index.ts`（**ランタイム専用エントリ**: core + builtin。エディタ関心事を含まない）
+- `orengine/editor` → `packages/orengine/editor.ts`（エディタ中核ロジック: `editor/lib`）
 - `orengine/react` → `packages/orengine/react.tsx`（Reactエントリ: editor/components + editor/features）
 - `orengine/core` → `packages/orengine/core/index.ts`
 - `orengine/player` → `packages/orengine/player.ts`
+- `orengine/server` → `server/factory.ts`（express ベースのファイルI/O API）
+- `orengine/host` → `host/index.ts`
+- `orengine/configs` → `vite-configs.ts`
 - `orengine/*` → `packages/orengine/*`（その他のサブパス）
+
+`orengine`（ランタイム）から `orengine/editor` / `orengine/react`（エディタ）への import は eslint-plugin-boundaries（`eslint.config.mjs`）でエラーになる。playerビルドにエディタコードが混入するのを機械的に防ぐための境界。
 
 ## コンポーネント追加ルール
 - `<project>/Resources/Components/<グループ>/<名前>/index.ts` に `export class Xxx extends MXP.Component` を置くだけで自動認識される

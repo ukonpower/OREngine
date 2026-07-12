@@ -8,7 +8,7 @@ export const useOREditorContext = ( projectName?: string ) => {
 
 	const { engine } = useOREngine();
 
-	const [ editor, setEditor ] = useState<Editor>( () => new Editor( engine, projectName ) );
+	const [ editor, setEditor ] = useState<Editor>( () => new Editor( engine ) );
 	const editorRef = React.useRef<Editor>( editor );
 	editorRef.current = editor;
 
@@ -16,7 +16,7 @@ export const useOREditorContext = ( projectName?: string ) => {
 
 		if ( ! editorRef.current.disposed && editorRef.current.engine.uuid == engine.uuid ) return;
 
-		const editor = new Editor( engine, projectName );
+		const editor = new Editor( engine );
 
 		setEditor( editor );
 
