@@ -194,21 +194,3 @@
 	}
 }
 
-.apiStatus {
-	display: flex;
-	align-items: center;
-	height: 100%;
-	padding: 0 4px;
-	cursor: pointer;
-
-	&_dot {
-		width: 8px;
-		height: 8px;
-		border-radius: 50%;
-		background-color: $fontCol3;
-	}
-
-	&[data-primary='true'] &_dot {
-		background-color: $borderCol1;
-	}
-}

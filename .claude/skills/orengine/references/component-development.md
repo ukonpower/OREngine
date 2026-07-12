@@ -15,9 +15,9 @@ projects/{PROJECT}/Resources/Components/{Group}/{Name}/
 └── index.fs        # （任意）フラグメントシェーダー
 ```
 
-ResourceManager の Vite プラグインが `export class` を自動検出して登録する。**手動登録不要**。`_data/` 以下は自動生成のため**手動編集禁止**。先頭が `_` のディレクトリはスキャン対象外。
+ResourceManager の Vite プラグインが `export class` を自動検出して登録する。**手動登録不要**。`_data/` 以下は自動生成のため**手動編集禁止**（読み取りは可）。先頭が `_` のディレクトリはスキャン対象外。
 
-新規コンポーネントファイルを Write すると ResourceManager が `_data/componentList.ts` を再生成し、Vite がフルリロードを発行する。**ws 接続中の API 操作は揮発なので、コンポーネント追加 → 登録確認 → エンティティ作成の順で進める**こと。
+新規コンポーネントファイルを Write すると ResourceManager が `_data/componentList.ts` を再生成し、Vite がフルリロードを発行する。scene.json への参照追加はファイル編集のため保存内容が消えることはないが、**コンポーネント登録（HMR再生成）が完了する前に scene.json 側で参照すると一時的に描画されない**ことがあるので、コンポーネント追加 → `_data/componentList.ts` に反映されたことを確認 → scene.json 編集の順で進めるとよい。
 
 ## コンポーネントの3カテゴリ
 
@@ -28,7 +28,6 @@ ResourceManager の Vite プラグインが `export class` を自動検出して
 ```ts
 import * as MXP from 'maxpower';
 import { Engine } from 'orengine';
-import { gl } from '~/ts/Globals';
 
 import frag from './index.fs';
 import vert from './index.vs';
@@ -39,6 +38,8 @@ export class MyVisual extends MXP.Component {
 
 		super( params );
 
+		const engine = this.engine as Engine;
+
 		const geometry = new MXP.SphereGeometry( { radius: 0.5 } );
 
 		const material = new MXP.Material( {
@@ -46,7 +47,7 @@ export class MyVisual extends MXP.Component {
 			frag,
 			phase: [ 'deferred', 'shadowMap' ],
 			useLight: true,
-			uniforms: MXP.UniformsUtils.merge( Engine.getInstance( gl ).uniforms ),
+			uniforms: MXP.UniformsUtils.merge( engine.uniforms ),
 		} );
 
 		this.entity.addComponent( MXP.Mesh, { geometry, material } );
@@ -134,18 +135,18 @@ interface ComponentUpdateEvent {
 
 ```ts
 // グローバル uniform をまとめて取り込む（推奨）
-uniforms: MXP.UniformsUtils.merge( Engine.getInstance( gl ).uniforms )
+uniforms: MXP.UniformsUtils.merge( engine.uniforms )
 
 // カスタム追加
 uniforms: MXP.UniformsUtils.merge(
-	Engine.getInstance( gl ).uniforms,
+	engine.uniforms,
 	{ uMyValue: { value: 1.0, type: '1f' } },
 )
 ```
 
 ## エディタ UI 連携（field）
 
-エディタから操作したいパラメータだけを公開する。**`field()` で登録した path だけが API 経由で `setField` できる**（未登録の public プロパティは silent fail）。
+エディタから操作したいパラメータだけを公開する。**`field()` で登録した path だけが scene.json の `props` 経由で設定できる**（未登録の public プロパティを `props` に書いても silent skip される）。
 
 ```ts
 this.field( "radius", () => this._radius, v => this._radius = v as number );
@@ -217,8 +218,9 @@ this.entity.getComponentByTag( 'target' )
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 import { Engine } from 'orengine';
-import { gl, globalUniforms } from '~/ts/Globals';
 ```
+
+グローバルの `gl` / `globalUniforms` は存在しない。Engine へのアクセスはコンポーネント内で `const engine = this.engine as Engine;`（注入済み参照）を使う。
 
 ## コンストラクタ引数
 
@@ -237,4 +239,4 @@ constructor( params: MXP.ComponentParams<{ num?: number } | void> ) {
 - クラス名は **PascalCase**、ディレクトリ名と一致
 - `protected` フィールドは `_` プレフィックス
 - 編集後は `npm run typecheck` を必ず実行
-- シェーダーを書いた / 編集した場合は `GET /editor/shader-errors` も確認
+- シェーダーを書いた / 編集した場合は agent-browser スキルでエディタページを開き、ブラウザコンソールと見た目を確認する（専用の観測 API は存在しない）

@@ -1,7 +1,7 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { Engine } from '../Engine';
+import { Engine } from '../../../core/Engine';
 
 import textureCopyFrag from './shaders/textureCopy.fs';
 

@@ -35,3 +35,4 @@ packages/orengine/builtin/_data/
 .workflow-tools/
 .claude/*
 !.claude/skills/
+.handoff/

@@ -1,209 +1,87 @@
 # トラブルシューティング
 
-## 一括診断
-
-問題が発生したらまず一括診断スクリプトを実行する:
-
-```bash
-bash .claude/skills/orengine/scripts/diagnose.sh {PROJECT}
-```
-
-出力内容:
-- Vite Errors — Viteプラグインのtransformエラー
-- Shader Errors — GLSLコンパイル/リンクエラー
-- Console Errors (error/warn) — ブラウザの `console.error` / `console.warn` / 未捕捉例外
-- Console Logs (log/info) — ブラウザの `console.log` / `console.info`
-- HMR Events — 直近のHot Module Replacement更新イベント
-- Registered Components — 登録済みコンポーネント一覧
-- Server Log — Expressサーバーのログ（末尾30行）
-- Vite Log — Vite devサーバーのログ（末尾30行）
-
-## console.logでのデバッグ
-
-コンポーネントやシェーダーの値をデバッグする場合、`console.log` を追加してAPI経由で取得できる:
-
-```bash
-# console.logの出力のみ取得
-curl -s http://localhost:3001/api/projects/{PROJECT}/editor/console-errors?level=log | python3 -m json.tool
-
-# エラーとワーニングのみ取得
-curl -s http://localhost:3001/api/projects/{PROJECT}/editor/console-errors?level=error,warn | python3 -m json.tool
-
-# 全レベル取得（log, info, error, warn, uncaughtError, unhandledRejection）
-curl -s http://localhost:3001/api/projects/{PROJECT}/editor/console-errors | python3 -m json.tool
-
-# ログをクリア
-curl -s -X POST http://localhost:3001/api/projects/{PROJECT}/editor/console-errors/clear
-```
-
-**注意**: `console.log` の捕捉にはブラウザ接続が必要（503が返る場合はブラウザで開く）。
-
 ## サーバーログの確認方法
 
-`npm run dev` のターミナル出力はログファイルに保存される:
-
-- **Expressサーバーログ**: `/tmp/orengine-server.log`
-- **Vite devサーバーログ**: `/tmp/orengine-vite.log`
-
-Claude側からは `Read /tmp/orengine-server.log` で末尾を読める。
+`npm run dev` は express（ファイルI/O API）と vite devサーバーを同一プロセスで起動する。ターミナル出力を直接確認するか、バックグラウンド起動している場合はそのログファイル（起動コマンドで指定したリダイレクト先）を `Read` で確認する。
 
 ## サーバー未起動
 
-**症状**: `curl: (7) Failed to connect to localhost port 3001: Connection refused`
+**症状**: `curl: (7) Failed to connect to localhost port 3001` や、ブラウザで開発ページが表示されない。
 
 **対処**:
-1. `npm run dev` で開発サーバーを起動
+1. `npm run dev` で開発サーバーを起動（ユーザーの明示的な指示がある場合のみ。CLAUDE.md 参照）
 2. 起動完了まで待つ（通常数秒）
-3. `curl -sf http://localhost:3001/api/projects` で接続確認
+3. `curl -sf http://localhost:3001/api/projects` で疎通確認（このエンドポイントはファイルI/O層として現存する）
 
-## ブラウザ未接続時の動作
+## scene.json / editor.json を編集しても反映されない
 
-ブラウザ未接続時はサーバー側の `SceneDataEditor` がフォールバック処理する。
-ブラウザを再接続すると、サーバー側の変更がフルリロードでブラウザに反映される。
+**症状**: ファイルを保存したのにブラウザ側の表示が変わらない。
 
-| 機能 | ブラウザ接続時 | ブラウザ未接続時 |
-|------|-------------|---------------|
-| シーンツリー取得 | OK | OK |
-| エンティティCRUD | OK | OK |
-| コンポーネント追加/削除 | OK | OK |
-| フィールド設定（position/euler/scale/name） | OK | OK |
-| コンポーネントフィールド設定（props） | OK | OK |
-| バッチ操作（entities/fields） | OK | OK |
-| コンポーネント一覧（built-in含む） | OK | OK |
-| エンティティ名検索 | OK | OK |
-| シーンの永続化（scene.json への書き出し） | `Ctrl+S` または `POST /api/projects/:p/scene` | `WRITE_ACTIONS` 都度自動 |
-| コンポーネント詳細（fieldsDirectory） | OK | **503**（ランタイム必要） |
-| シェーダーエラー確認 | OK | **503**（GPU必要） |
-| Undo/Redo | OK | **503** |
-| エンティティ選択 | OK | **503** |
-| スクリーンショット / カメラ制御 / タイムライン | OK | **503** |
-| Editor経由リソース操作（textures） | OK | **503**（将来対応予定） |
+**原因候補**:
+1. devサーバーが起動していない、または対象プロジェクトを開いていない
+2. `vite-plugins/ProjectWatchReload/index.ts` の watch 対象は `<projectDir>/scene.json` と `<projectDir>/editor.json` のみ。パスが対象プロジェクトのものと一致しているか確認
+3. 直近の API 書き込み（`recentWrites`）と判定されて抑制されている場合があるが、これは同一プロセス内のエディタ自身の保存（Ctrl+S）にのみ適用される。ファイル編集ツールでの書き込みは対象外なので通常は full-reload される
 
-**対処**: シーン操作の基本機能はブラウザなしでも動作する。コンポーネント詳細やシェーダーエラー確認、スクリーンショットが必要な場合はブラウザでエディタを開く。
+**対処**: vite のログに `full-reload` 相当の出力が出ているか確認する。出ていなければサーバーの再起動（`npm run dev` を再実行）を検討する。
 
-## screenshot が黒い / 白い
+## JSON構文エラー
 
-**症状**: `/editor/screenshot?format=jpeg` で取った画像が真っ黒または真っ白。シーンには物体が置いてあるはず。
+**症状**: scene.json / editor.json / `.tex` を編集後、シーンが一切読み込まれなくなった。
 
-**原因**: WebGL canvas は `preserveDrawingBuffer: true` で値は保持されているが、JPEG はアルファチャンネルを保持できないため、ブラウザの flatten 実装次第で黒/白になる。
+**原因**: JSON構文が壊れている（末尾カンマ、閉じ括弧不足等）。
 
-**対処**: `format=png` で再撮影する。
+**対処**: `python3 -m json.tool <file>` で構文チェックしてから保存する。壊れた場合は `git diff` で差分確認 → `git checkout -- <file>` で復元。
 
-```bash
-curl -s -o /tmp/check.png \
-  "http://localhost:3001/api/projects/{PROJECT}/editor/screenshot"
-```
+## コンポーネント名が見つからない / 反映されない
 
-## HMR フルリロードで API で作ったエンティティが消えた
-
-**症状**: `Resources/Components/...` に新規ファイルを Write した直後、API で作っていたエンティティが全部消えた。
-
-**原因**: ResourceManager が `_data/componentList.ts` を再生成 → Vite がフルリロード → ブラウザが scene.json を再 fetch する。ws 接続中の API 操作は揮発なので未保存のものが消える。
+**症状**: scene.json に `components` を追加したのにシーンに反映されない。
 
 **対処**:
-1. **順序**: コンポーネントファイルは **エンティティ作成より先に書く**
-2. ファイル Write 直後は数秒待ってから `/editor/components` で登録確認
-3. 重要な作業の途中では `POST /api/projects/:p/scene` で明示保存
-
-## field 設定が成功レスポンスなのに反映されない
-
-**症状**: `POST /editor/field` または `/editor/fields` が `success: true` を返すのに、実際の値が変わらない。
-
-**原因**: `Serializable.deserialize()` は `fields_` Map に存在しない path をスキップする（silent skip）。サーバー側フォールバックは props に何でも書き込むがコンポーネントが参照しなければ無効。
-
-**対処**:
-1. `GET /editor/entity/:uuid/component/:name` で `fieldsDirectory` を確認（ws 接続必須）
-2. `path` が `fieldsDirectory` のキーと一致しているか検証
-3. `Mesh` / `Camera.displayOut` / `Light.color` 等は **そもそも field 登録されていない** ので API 経由では設定不可
-
-## UUID不正
-
-**症状**: `404` または `Entity not found`
-
-**対処**:
-1. `GET /api/projects/:p/editor/scene` でシーンツリーを再取得
-2. 正しいUUIDを確認
-3. エンティティUUIDとコンポーネントUUIDを混同していないか確認
-
-**注意**: フィールド設定（`/editor/field`, `/editor/fields`）の `targetUuid` は:
-- Entityレベルフィールド（position, euler, scale等）→ エンティティUUID
-- Componentレベルフィールド → **コンポーネントUUID**（エンティティUUIDではない）
-
-## コンポーネント名が見つからない
-
-**症状**: コンポーネント追加時に `400 Component not found` 等のエラー
-
-**対処**:
-1. `GET /api/projects/:p/editor/components` で利用可能なコンポーネント一覧を取得
+1. 自動生成ファイルで実在確認: `packages/orengine/builtin/_data/builtinComponentList.ts`（ビルトイン）/ `<projectDir>/Resources/_data/componentList.ts`（プロジェクト固有）
 2. コンポーネント名の大文字小文字を確認（例: `"Mesh"` であって `"mesh"` ではない）
 3. `references/components-catalog.md` で正式名称を確認
-4. `CustomPostProcess` のような過去の名前を使っていないか確認（**存在しない**）
-5. カスタムコンポーネント追加直後なら、HMR の再生成完了まで数秒待つ
+4. カスタムコンポーネント追加直後なら、Vite の HMR（`_data/componentList.ts` の再生成）完了まで数秒待ってから再確認する
+
+未知のコンポーネント名は **エラーにならず** `ProjectSerializer.deserializeEntity` が `unresolvedComponents` として保持するだけで描画されない（`[ProjectSerializer] Component "..." not found in resolver` の warning がブラウザコンソールに出る）。
+
+## props（field）が反映されない
+
+**症状**: scene.json のコンポーネント `props` に値を書いたのに実際の値が変わらない。
+
+**原因**: `Serializable.deserialize()` は `fields_` Map に存在しない path を silent skip する。
+
+**対処**:
+1. 対象コンポーネントの `index.ts` を Read し、`this.field(...)` / `this.fieldDir(...)` で実際に登録されているパスを確認する
+2. `Mesh.geometry` / `Camera.displayOut` / `Light.color` 等、public プロパティであっても `field()` 未登録なら **props 経由では設定不可**（コンポーネント実装を変更するしかない）
 
 ## TypeScriptの型エラー（コンポーネント開発時）
 
 **症状**: `npm run typecheck` でエラー
 
 **対処**:
-1. importパスが正しいか確認（`glpower`, `maxpower`, `orengine`のエイリアスを使用）
+1. importパスが正しいか確認（`glpower`, `maxpower`, `orengine` のエイリアスを使用）
 2. `ComponentParams` 型を使用しているか確認
-3. `componentList.ts` は自動生成されるため手動編集しないこと
+3. `_data/componentList.ts` は自動生成されるため手動編集しないこと
 
 ## Viteプラグインエラー（transformエラー）
 
-**症状**: カスタムコンポーネントが `/editor/components` に表示されない。シーンに配置済みでも描画されない。
+**症状**: カスタムコンポーネントが `_data/componentList.ts` に登録されない。シーンに配置済みでも描画されない。
 
-**原因**: シェーダーファイル（.vs/.fs/.glsl）のimport/transformが失敗し、コンポーネントのimportチェーンが壊れている。
-ResourceManagerはimportに成功したコンポーネントのみを `componentList.ts` に登録するため、importが壊れたコンポーネントはエンジンに登録されず、デシリアライズ時にスキップされる。
-
-**エラー・ログの段階**:
-
-| API | 検出対象 | タイミング |
-|-----|---------|-----------|
-| `GET /editor/vite-errors` | Viteプラグインのtransformエラー | ビルド/HMR時 |
-| `GET /editor/shader-errors` | GLSLコンパイルエラー | GPU上でのコンパイル時 |
-| `GET /editor/console-errors` | ブラウザの全コンソール出力（error/warn/log/info/uncaught） | 実行時 |
-| `GET /editor/console-errors?level=error,warn` | エラーとワーニングのみ | 実行時 |
-| `GET /editor/console-errors?level=log` | console.logのみ（デバッグ値確認） | 実行時 |
-| `GET /editor/hmr-events` | HMR更新イベント（ファイル名、モジュール数） | ファイル変更時 |
-| `/tmp/orengine-server.log` | Expressサーバーのstdout/stderr | 常時 |
-| `/tmp/orengine-vite.log` | Vite devサーバーのstdout/stderr | 常時 |
-
-**診断手順**:
-1. `GET /editor/vite-errors` — transformエラーがあればファイルと原因が表示される
-2. `GET /editor/components` — コンポーネントが一覧に含まれるか確認
-3. エラーを修正したら `POST /editor/vite-errors/clear` でクリア
-
-## scene.json と in-memory の関係
-
-**データフロー**:
-```
-scene.json → [サーバー起動時に読み込み] → in-memory
-REST API → [操作] → in-memory
-  ├─ ws 未接続: WRITE_ACTIONS で都度 scene.json へ自動保存
-  └─ ws 接続中: 揮発（Ctrl+S または POST /api/projects/:p/scene まで書かれない）
-HMR フルリロード → ブラウザが GET /api/projects/:p/scene で再ロード
-```
-
-scene.json を直接編集してしまった場合は、サーバーを再起動する（Ctrl+C → `npm run dev`）。`/editor/reload` のような再読み込みエンドポイントは存在しない。
-
-## ブラウザランタイムエラー
-
-**症状**: コンポーネントは登録済みだが描画されない、または動作がおかしい
-
-**原因**: ブラウザ上で実行時エラーが発生している（コンポーネントの初期化失敗、未定義参照等）
+**原因**: シェーダーファイル（`.vs`/`.fs`/`.glsl`）のimport/transformが失敗し、コンポーネントのimportチェーンが壊れている。ResourceManagerはimportに成功したコンポーネントのみを登録するため、importが壊れたコンポーネントはエンジンに登録されず、デシリアライズ時にスキップされる。
 
 **対処**:
-1. `GET /editor/console-errors` — ブラウザの console.error, console.warn, uncaughtError, unhandledRejection を取得
-2. エラーの内容に応じてコンポーネントやシェーダーを修正
-3. `POST /editor/console-errors/clear` でクリア
+1. `npm run typecheck` でTypeScript側のエラーがないか確認
+2. `<projectDir>/Resources/_data/componentList.ts` を Read し、対象コンポーネントの import が存在するか確認
+3. agent-browser スキルでエディタページを開き、ブラウザコンソール（devtools）のエラーを確認する
+
+## 見た目の確認・ブラウザ側のランタイムエラー確認
+
+専用の観測 API（screenshot / console-errors 等）は存在しない。agent-browser スキルでエディタページ（`http://localhost:<vite-port>`）を開き、スクリーンショットとブラウザコンソールログで直接確認する。
 
 ## Stop Conditions
 
 以下の状況では、現在のアプローチを見直す:
 
-- **同じAPIが3回連続失敗**: サーバー状態を確認。`GET /api/projects/:p/editor/status` でステータスチェック
-- **UUIDが見つからない**: シーンツリーを再取得。別のエンティティが操作対象かもしれない
-- **フィールド設定が反映されない**: コンポーネントの `fieldsDirectory` を確認し、正しいパスと型を使っているか検証
-- **ブラウザ連携が必要な操作でエラー**: ブラウザで `http://localhost:3001` を開く / ファイルシステム直接API（`/api/projects/:p/textures` 等）への切り替えを検討
+- **同じ修正を3回連続で試して改善しない**: scene.json / コンポーネント実装のどちらが原因か切り分ける（コンポーネント単体の field 登録を先に確認）
+- **コンポーネント名 / UUID が見つからない**: 自動生成ファイルとシーン木構造を再確認。別のエンティティ/コンポーネントを操作対象にしていないか確認
 - **TypeScript型エラーが解消しない**: 既存コンポーネントのコードを参照して正しいパターンを確認

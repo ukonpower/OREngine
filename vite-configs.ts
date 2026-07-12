@@ -8,9 +8,9 @@ import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig, UserConfig } from 'vite';
 
 import { MangledJsonLoader, SaveNameCache, nameCache } from './vite-plugins/MangleManager';
+import { ProjectWatchReload } from './vite-plugins/ProjectWatchReload';
 import { ResourceManager } from './vite-plugins/ResourceManager';
 import { ShaderMinifierLoader } from './vite-plugins/ShaderMinifierLoader';
-import { ViteErrorReporter } from './vite-plugins/ViteErrorReporter';
 
 
 const orengineRoot = path.resolve( fileURLToPath( import.meta.url ), '..' );
@@ -109,20 +109,6 @@ export const createDevConfig = ( opts: OrengineConfigOptions ): UserConfig => de
 		},
 		proxy: {
 			'/api': `http://localhost:${opts.apiPort ?? 3001}`,
-			'/ws': {
-				target: `ws://localhost:${opts.apiPort ?? 3001}`,
-				ws: true,
-				configure: ( proxy ) => {
-
-					proxy.on( 'error', ( err: NodeJS.ErrnoException ) => {
-
-						if ( err.code === 'ECONNRESET' ) return;
-						console.error( err );
-
-					} );
-
-				},
-			},
 		},
 	},
 	build: {
@@ -140,7 +126,7 @@ export const createDevConfig = ( opts: OrengineConfigOptions ): UserConfig => de
 		react(),
 		ShaderMinifierLoader(),
 		...resourcePlugins( opts.projectDir ),
-		ViteErrorReporter(),
+		ProjectWatchReload( opts.projectDir ),
 	],
 	define: {
 		BASE_PATH: JSON.stringify( opts.basePath ?? '' ),

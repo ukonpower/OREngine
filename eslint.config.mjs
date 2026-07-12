@@ -5,6 +5,7 @@ import { fixupConfigRules, fixupPluginRules } from "@eslint/compat";
 import { FlatCompat } from "@eslint/eslintrc";
 import js from "@eslint/js";
 import tsParser from "@typescript-eslint/parser";
+import boundaries from "eslint-plugin-boundaries";
 import _import from "eslint-plugin-import";
 import reactRefresh from "eslint-plugin-react-refresh";
 import globals from "globals";
@@ -18,7 +19,7 @@ const compat = new FlatCompat( {
 } );
 
 export default [ {
-	ignores: [ "**/dist", "packages/glpower/", "scripts/" ],
+	ignores: [ "**/dist", "packages/glpower/", "scripts/", "**/_data/" ],
 }, ...fixupConfigRules( compat.extends(
 	"mdcs",
 	"eslint:recommended",
@@ -53,6 +54,52 @@ export default [ {
 			],
 			patterns: [
 				{ group: [ "react/*", "react-dom/*" ], message: "React import禁止" },
+			],
+		} ],
+	},
+}, {
+	plugins: {
+		boundaries,
+	},
+
+	settings: {
+		"import/resolver": {
+			node: {
+				extensions: [ ".js", ".jsx", ".ts", ".tsx" ],
+			},
+		},
+
+		"boundaries/elements": [
+			{ type: "runtime", pattern: [
+				"packages/glpower/**",
+				"packages/maxpower/**",
+				"packages/orengine/core/**",
+				"packages/orengine/builtin/**",
+			] },
+			{ type: "runtime", partialMatch: false, pattern: [
+				"packages/orengine/player.ts",
+				"packages/orengine/index.ts",
+			] },
+			{ type: "editor", pattern: [
+				"packages/orengine/editor/**",
+				"server/**",
+			] },
+			{ type: "editor", partialMatch: false, pattern: [
+				"packages/orengine/editor.ts",
+				"packages/orengine/react.tsx",
+			] },
+		],
+	},
+
+	rules: {
+		"boundaries/dependencies": [ "error", {
+			default: "allow",
+			policies: [
+				{
+					from: { element: { types: "runtime" } },
+					disallow: { element: { types: "editor" } },
+					message: "ランタイム領域からエディタ領域への import は禁止です",
+				},
 			],
 		} ],
 	},
