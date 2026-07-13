@@ -89,7 +89,7 @@ export const createDevConfig = ( opts: OrengineConfigOptions ): UserConfig => de
 	css: sharedCss(),
 	plugins: [
 		react(),
-		ShaderMinifierLoader(),
+		ShaderMinifierLoader( { scanDirs: [ orengineRoot, opts.projectDir ] } ),
 		TexLoader(),
 		ProjectWatchReload( opts.projectDir ),
 	],
@@ -176,7 +176,7 @@ export const createPlayerConfig = ( opts: PlayerConfigOptions ): UserConfig => {
 			},
 		},
 		plugins: [
-			ShaderMinifierLoader(),
+			ShaderMinifierLoader( { scanDirs: [ orengineRoot, opts.projectDir ] } ),
 			TexLoader(),
 			PlayerRegistry( { projectDir: opts.projectDir, usage } ),
 			visualizer( { template: 'treemap', gzipSize: true } ),
@@ -214,7 +214,7 @@ export const createStaticConfig = ( opts: StaticConfigOptions ): UserConfig => {
 		css: sharedCss(),
 		plugins: [
 			react(),
-			ShaderMinifierLoader(),
+			ShaderMinifierLoader( { scanDirs: [ orengineRoot, opts.projectDir ] } ),
 			TexLoader(),
 		],
 		define: {
