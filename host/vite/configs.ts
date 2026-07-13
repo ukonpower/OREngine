@@ -7,9 +7,11 @@ import react from '@vitejs/plugin-react';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig, UserConfig } from 'vite';
 
+import { PlayerRegistry } from './plugins/PlayerRegistry';
 import { ProjectWatchReload } from './plugins/ProjectWatchReload';
 import { ShaderMinifierLoader } from './plugins/ShaderMinifierLoader';
 import { TexLoader } from './plugins/TexLoader';
+import { collectJsonKeys, collectSceneUsage } from './sceneScan';
 
 
 const orengineRoot = path.resolve( fileURLToPath( import.meta.url ), '../../..' );
@@ -107,30 +109,13 @@ export const createPlayerConfig = ( opts: PlayerConfigOptions ): UserConfig => {
 	const sceneJsonPath = path.join( opts.projectDir, 'scene.json' );
 	const sceneJson = JSON.parse( fs.readFileSync( sceneJsonPath, 'utf-8' ) );
 
-	const reserved = new Set<string>();
-	const addComponentNames = ( obj: any ) => {
+	const usage = collectSceneUsage( sceneJson );
 
-		if ( obj.components ) {
-
-			obj.components.forEach( ( comp: any ) => {
-
-				if ( comp.name ) reserved.add( comp.name );
-				if ( comp.props ) {
-
-					Object.keys( comp.props ).forEach( prop => reserved.add( prop ) );
-
-				}
-
-			} );
-
-		}
-
-		if ( obj.childs ) obj.childs.forEach( addComponentNames );
-		if ( obj.overrides ) obj.overrides.forEach( addComponentNames );
-
-	};
-
-	addComponentNames( sceneJson );
+	// バンドルに焼き込まれる blidge-scene.json のキーは、BLidge内のプロパティアクセスと食い違わないよう mangle から保護する
+	const blidgeScenePath = path.join( opts.projectDir, 'public/blidge-scene.json' );
+	const blidgeSceneKeys = fs.existsSync( blidgeScenePath )
+		? collectJsonKeys( JSON.parse( fs.readFileSync( blidgeScenePath, 'utf-8' ) ) )
+		: new Set<string>();
 
 	const entry = opts.entry ?? path.join( appRoot, 'src/player.ts' );
 	const outDir = path.join( opts.projectDir, 'dist', opts.outSubDir ?? 'player' );
@@ -138,6 +123,7 @@ export const createPlayerConfig = ( opts: PlayerConfigOptions ): UserConfig => {
 	return defineConfig( {
 		root: appRoot,
 		base: opts.basePath ?? '',
+		publicDir: path.join( opts.projectDir, 'public' ),
 		server: {
 			port: opts.port ?? 3000,
 			host: '0.0.0.0',
@@ -159,7 +145,9 @@ export const createPlayerConfig = ( opts: PlayerConfigOptions ): UserConfig => {
 									'overrides',
 									'side',
 									'scene',
-									...Array.from( reserved ),
+									...usage.componentNames,
+									...usage.propKeys,
+									...blidgeSceneKeys,
 								],
 							},
 						},
@@ -190,6 +178,7 @@ export const createPlayerConfig = ( opts: PlayerConfigOptions ): UserConfig => {
 		plugins: [
 			ShaderMinifierLoader(),
 			TexLoader(),
+			PlayerRegistry( { projectDir: opts.projectDir, usage } ),
 			visualizer( { template: 'treemap', gzipSize: true } ),
 		],
 		define: {

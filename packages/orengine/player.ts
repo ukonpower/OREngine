@@ -1,6 +1,5 @@
 import * as GLP from 'glpower';
 import { Engine, OREngineProjectData } from 'orengine';
-import { BLidgeClient } from 'orengine/builtin/Components/Utility/BLidgeClient';
 
 
 export interface StartPlayerOptions {
@@ -111,32 +110,10 @@ export const startPlayer = ( opts: StartPlayerOptions ): Engine => {
 
 	engine.load( opts.sceneData );
 
-	const blidgeClient = engine.root.getComponent( BLidgeClient );
+	const item = Engine.resources.getComponent( 'BLidgeClient' );
+	const blidgeClient = item && engine.root.getComponent( item.component );
 
-	if ( blidgeClient ) {
-
-		blidgeClient.on( "loaded", () => {
-
-			engine.compileShaders( ( label: string, loaded: number, total: number ) => {
-
-				const progress = loaded / total;
-
-				loadingBarElm.style.transform = `scaleX(${progress})`;
-				loadingTextElm.textContent = `${label}`;
-
-			} ).then( () => {
-
-				loadingElm.style.opacity = "0";
-				menuElm.style.opacity = "1";
-				menuElm.style.pointerEvents = "auto";
-				playButton.disabled = false;
-
-			} );
-
-
-		} );
-
-	} else {
+	const compile = () => {
 
 		engine.compileShaders( ( label: string, loaded: number, total: number ) => {
 
@@ -153,6 +130,16 @@ export const startPlayer = ( opts: StartPlayerOptions ): Engine => {
 			playButton.disabled = false;
 
 		} );
+
+	};
+
+	if ( blidgeClient ) {
+
+		blidgeClient.on( 'loaded', compile );
+
+	} else {
+
+		compile();
 
 	}
 

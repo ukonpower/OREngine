@@ -1,17 +1,11 @@
 import * as MXP from 'maxpower';
-import { ComponentGroup, GeometryGroup, Engine, BUILTIN_COMPONENTLIST, BUILTIN_GEOMETRYLIST, buildClassTree } from 'orengine';
+import { ComponentGroup, GeometryGroup, Engine, buildClassTree } from 'orengine';
+import { BUILTIN_COMPONENTLIST, BUILTIN_GEOMETRYLIST } from 'orengine/builtin';
 
-type TexModule = {
-	name: string;
-	frag?: string;
-	resolution?: number[];
-	filter?: string;
-	updateEveryFrame?: boolean;
-} | null;
+import { registerProjectTextures, initResourceInstances } from './registryCommon';
 
 const componentModules = import.meta.glob( [ '@or-resources/Components/**/index.ts', '!**/_*/**' ], { eager: true } );
 const geometryModules = import.meta.glob( [ '@or-resources/Geometries/**/index.ts', '!**/_*/**' ], { eager: true } );
-const texModules = import.meta.glob<TexModule>( [ '@or-resources/Textures/**/*.tex', '!**/_*', '!**/_*/**' ], { eager: true, import: 'default' } );
 
 type ClassList = {
 	[key: string]: any
@@ -66,25 +60,9 @@ const registerGeometries = ( list: ClassList, group: GeometryGroup ) => {
 
 };
 
-// .tex モジュール（TexLoaderプラグインがビルド時にfragを解決済み）を登録する
-const registerTextures = () => {
-
-	for ( const tex of Object.values( texModules ) ) {
-
-		if ( ! tex ) continue;
-
-		Engine.resources.addTextureResource( tex.name, {
-			frag: tex.frag,
-			resolution: tex.resolution || [ 1024, 1024 ],
-			filter: tex.filter,
-			updateEveryFrame: tex.updateEveryFrame,
-		} );
-
-	}
-
-};
-
 export const initResouces = () => {
+
+	MXP.BLidge.gltfLoaderFactory = ( engine ) => new MXP.GLTFLoader( engine );
 
 	Engine.resources.clear();
 
@@ -165,15 +143,11 @@ export const initResouces = () => {
 		Textures
 	-------------------------------*/
 
-	registerTextures();
+	registerProjectTextures();
 
 };
 
-export const initResourceInstances = ( engine: Engine ) => {
-
-	Engine.resources.buildTextureInstances( engine.renderer, engine.gl, engine.uniforms );
-
-};
+export { initResourceInstances };
 
 if ( import.meta.hot ) {
 
