@@ -60,11 +60,10 @@
   "exclude": [
     "node_modules",
     "dist",
-    "vite-plugins",
     "packages/glpower",
     "demo",
     "scripts",
-    "vite-configs.ts",
+    "host/vite",
     "host/runner.ts",
     "host/index.ts"
   ],

@@ -1,7 +1,7 @@
 # scene.json スキーマリファレンス
 
 > 正はコードの型定義（`packages/orengine/core/ProjectSerializer/index.ts`）である。迷ったらそちらを読む。
-> サーバー側の型（`server/Project/types.ts`）も同一構造のミラー。
+> サーバー側の型（`host/server/Project/types.ts`）も同一構造のミラー。
 
 `<projectDir>/scene.json` は Read/Write/Edit ツールで直接編集する。編集後の反映は devサーバー起動中なら vite watch が検知して自動 full-reload する（API呼び出し不要）。
 
@@ -39,7 +39,7 @@ interface OREngineDataEntity {
 
 - `pos` / `rot` / `scale` はデフォルト値と一致する場合は省略してよい（シリアライズ時も省略される）
 - `childs` は子エンティティの配列。ネストして木構造を作る
-- **ルートエンティティの `uuid` は常に `"0"`**（`server/Project/ProjectData/index.ts` が省略時に補完する。新規プロジェクトでも明示しておくこと）
+- **ルートエンティティの `uuid` は常に `"0"`**（`host/server/Project/ProjectData/index.ts` が省略時に補完する。新規プロジェクトでも明示しておくこと）
 
 ## コンポーネント（`OREngineDataEntityComponent`）
 
@@ -51,7 +51,7 @@ interface OREngineDataEntityComponent {
 }
 ```
 
-- `name` に指定できるのは実在するコンポーネント名のみ。実在確認は `packages/orengine/builtin/_data/builtinComponentList.ts`（ビルトイン）と `<projectDir>/Resources/_data/componentList.ts`（プロジェクト固有、自動生成）を Read して確認する。**未知の名前でもエラーにはならず**、`ProjectSerializer.deserializeEntity` が `unresolvedComponents` として保持するだけで反映されない（コンソールに warning が出る）
+- `name` に指定できるのは実在するコンポーネント名のみ。実在確認は `packages/orengine/builtin/Components/`（ビルトイン）と `<projectDir>/Resources/Components/`（プロジェクト固有）の `export class` 名で行う（登録名 = クラス名）。**未知の名前でもエラーにはならず**、`ProjectSerializer.deserializeEntity` が `unresolvedComponents` として保持するだけで反映されない（コンソールに warning が出る）
 - `props` のキーはコンポーネント実装側の `this.field(path, ...)` / `this.fieldDir(dir)` で登録されたパスと一致している必要がある。未登録パスは silent skip（`Serializable.deserialize` が `fields_` Map にないキーを無視する）。実装（コンポーネントの `index.ts`）を読んで実在パスを確認すること
 
 ## UUID の生成規則
@@ -99,7 +99,7 @@ git checkout -- demo/scene.json  # 変更を破棄して復元
 
 ## 反映確認
 
-devサーバー起動中（`npm run dev`）に scene.json を保存すると、`vite-plugins/ProjectWatchReload/index.ts` がファイル変更を検知してブラウザへ `full-reload` を送る。ログに以下が出れば発火している:
+devサーバー起動中（`npm run dev`）に scene.json を保存すると、`host/vite/plugins/ProjectWatchReload/index.ts` がファイル変更を検知してブラウザへ `full-reload` を送る。ログに以下が出れば発火している:
 
 ```
 [vite] page reload demo/scene.json

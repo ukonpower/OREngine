@@ -3,9 +3,9 @@
 OREngine で利用可能なビルトインコンポーネント一覧。
 **見た目のあるオブジェクト（独自 Geometry / Material）は基本的にカスタムコンポーネントで作る**ため、ここに並ぶのは制御系・カメラ系・ユーティリティ系が中心。
 
-利用可能なコンポーネント名は自動生成ファイルを Read して確認する（操作前に必ず確認。手動編集は禁止だが読み取りは可）:
-- ビルトイン: `packages/orengine/builtin/_data/builtinComponentList.ts`
-- プロジェクト固有: `<projectDir>/Resources/_data/componentList.ts`
+利用可能なコンポーネント名は `export class` 名で確認する（操作前に必ず確認。登録名 = クラス名）:
+- ビルトイン: `grep -r "export class" packages/orengine/builtin/Components/`
+- プロジェクト固有: `grep -r "export class" <projectDir>/Resources/Components/`
 
 ## 登録済みビルトイン
 
@@ -24,7 +24,7 @@ OREngine で利用可能なビルトインコンポーネント一覧。
 
 ## 重要な注意
 
-- **Bloom / FXAA / ColorGrading / Finalize は単独でアタッチできない**。`_PostProcess/` 配下にあり ResourceManager のスキャン対象外。`CameraController` を足すと内部で `MXP.PostProcessPipeline` 経由で自動構築される
+- **Bloom / FXAA / ColorGrading / Finalize は単独でアタッチできない**。`_PostProcess/` 配下にあり glob のスキャン対象外（先頭 `_` のディレクトリは除外）。`CameraController` を足すと内部で `MXP.PostProcessPipeline` 経由で自動構築される
 - **`CustomPostProcess` というコンポーネントは存在しない**（過去の名前）
 - **未知のコンポーネント名を scene.json に書いても反映されない**（エラーにもならず `unresolvedComponents` として保持されるだけ）。操作前に自動生成ファイル（`components-catalog.md` 冒頭参照）で実在確認する
 - **field 未登録のプロパティ（`Mesh.geometry`, `Camera.displayOut`, `Light.color` 等）は scene.json の `props` では設定できない**。コンポーネントの `index.ts` で `field()` していないパスは silent skip される

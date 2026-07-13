@@ -1,9 +1,17 @@
-import { COMPONENTLIST } from '@or-resources/_data/componentList';
-import { GEOMETRYLIST } from '@or-resources/_data/geometryList';
-import { TEXTURELIST } from '@or-resources/_data/textureList';
 import * as MXP from 'maxpower';
-import { ComponentGroup, GeometryGroup, Engine, BUILTIN_COMPONENTLIST, BUILTIN_GEOMETRYLIST } from 'orengine';
+import { ComponentGroup, GeometryGroup, Engine, BUILTIN_COMPONENTLIST, BUILTIN_GEOMETRYLIST, buildClassTree } from 'orengine';
 
+type TexModule = {
+	name: string;
+	frag?: string;
+	resolution?: number[];
+	filter?: string;
+	updateEveryFrame?: boolean;
+} | null;
+
+const componentModules = import.meta.glob( [ '@or-resources/Components/**/index.ts', '!**/_*/**' ], { eager: true } );
+const geometryModules = import.meta.glob( [ '@or-resources/Geometries/**/index.ts', '!**/_*/**' ], { eager: true } );
+const texModules = import.meta.glob<TexModule>( [ '@or-resources/Textures/**/*.tex', '!**/_*', '!**/_*/**' ], { eager: true, import: 'default' } );
 
 type ClassList = {
 	[key: string]: any
@@ -58,6 +66,24 @@ const registerGeometries = ( list: ClassList, group: GeometryGroup ) => {
 
 };
 
+// .tex モジュール（TexLoaderプラグインがビルド時にfragを解決済み）を登録する
+const registerTextures = () => {
+
+	for ( const tex of Object.values( texModules ) ) {
+
+		if ( ! tex ) continue;
+
+		Engine.resources.addTextureResource( tex.name, {
+			frag: tex.frag,
+			resolution: tex.resolution || [ 1024, 1024 ],
+			filter: tex.filter,
+			updateEveryFrame: tex.updateEveryFrame,
+		} );
+
+	}
+
+};
+
 export const initResouces = () => {
 
 	Engine.resources.clear();
@@ -104,6 +130,7 @@ export const initResouces = () => {
 		Project Components
 	-------------------------------*/
 
+	const COMPONENTLIST = buildClassTree( componentModules, 'Components' );
 	const rootKeys = Object.keys( COMPONENTLIST );
 
 	for ( let i = 0; i < rootKeys.length; i ++ ) {
@@ -121,6 +148,7 @@ export const initResouces = () => {
 		Project Geometries
 	-------------------------------*/
 
+	const GEOMETRYLIST = buildClassTree( geometryModules, 'Geometries' );
 	const geoKeys = Object.keys( GEOMETRYLIST );
 
 	for ( let i = 0; i < geoKeys.length; i ++ ) {
@@ -137,17 +165,7 @@ export const initResouces = () => {
 		Textures
 	-------------------------------*/
 
-	for ( let i = 0; i < TEXTURELIST.length; i ++ ) {
-
-		const t = TEXTURELIST[ i ];
-		Engine.resources.addTextureResource( t.name, {
-			frag: t.frag,
-			resolution: t.resolution,
-			filter: t.filter,
-			updateEveryFrame: t.updateEveryFrame,
-		} );
-
-	}
+	registerTextures();
 
 };
 

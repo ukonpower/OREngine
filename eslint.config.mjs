@@ -19,7 +19,7 @@ const compat = new FlatCompat( {
 } );
 
 export default [ {
-	ignores: [ "**/dist", "packages/glpower/", "scripts/", "**/_data/" ],
+	ignores: [ "**/dist", "packages/glpower/", "scripts/" ],
 }, ...fixupConfigRules( compat.extends(
 	"mdcs",
 	"eslint:recommended",
@@ -82,7 +82,7 @@ export default [ {
 			] },
 			{ type: "editor", pattern: [
 				"packages/orengine/editor/**",
-				"server/**",
+				"host/server/**",
 			] },
 			{ type: "editor", partialMatch: false, pattern: [
 				"packages/orengine/editor.ts",

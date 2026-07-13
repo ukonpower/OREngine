@@ -21,7 +21,7 @@ export default defineConfig( {
 		},
 	],
 	test: {
-		include: [ 'packages/maxpower/**/*.test.ts', 'server/**/*.test.ts' ],
+		include: [ 'packages/maxpower/**/*.test.ts', 'host/server/**/*.test.ts' ],
 		coverage: {
 			provider: 'v8',
 			reporter: [ 'text', 'text-summary', 'html', 'json-summary' ],
@@ -32,7 +32,7 @@ export default defineConfig( {
 				'packages/maxpower/Component/index.ts',
 				'packages/maxpower/Geometry/**/*.ts',
 				'packages/maxpower/Utils/Ray/**/*.ts',
-				'server/Project/EntityStore/**/*.ts',
+				'host/server/Project/EntityStore/**/*.ts',
 			],
 			exclude: [
 				'**/*.test.ts',
@@ -53,7 +53,7 @@ export default defineConfig( {
 					functions: 70,
 					branches: 60,
 				},
-				'server/Project/EntityStore/**/*.ts': {
+				'host/server/Project/EntityStore/**/*.ts': {
 					lines: 80,
 					functions: 80,
 					branches: 70,

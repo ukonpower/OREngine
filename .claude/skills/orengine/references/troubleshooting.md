@@ -19,7 +19,7 @@
 
 **原因候補**:
 1. devサーバーが起動していない、または対象プロジェクトを開いていない
-2. `vite-plugins/ProjectWatchReload/index.ts` の watch 対象は `<projectDir>/scene.json` と `<projectDir>/editor.json` のみ。パスが対象プロジェクトのものと一致しているか確認
+2. `host/vite/plugins/ProjectWatchReload/index.ts` の watch 対象は `<projectDir>/scene.json` と `<projectDir>/editor.json` のみ。パスが対象プロジェクトのものと一致しているか確認
 3. 直近の API 書き込み（`recentWrites`）と判定されて抑制されている場合があるが、これは同一プロセス内のエディタ自身の保存（Ctrl+S）にのみ適用される。ファイル編集ツールでの書き込みは対象外なので通常は full-reload される
 
 **対処**: vite のログに `full-reload` 相当の出力が出ているか確認する。出ていなければサーバーの再起動（`npm run dev` を再実行）を検討する。
@@ -37,10 +37,10 @@
 **症状**: scene.json に `components` を追加したのにシーンに反映されない。
 
 **対処**:
-1. 自動生成ファイルで実在確認: `packages/orengine/builtin/_data/builtinComponentList.ts`（ビルトイン）/ `<projectDir>/Resources/_data/componentList.ts`（プロジェクト固有）
+1. `export class` 名で実在確認: `grep -r "export class" packages/orengine/builtin/Components/`（ビルトイン）/ `grep -r "export class" <projectDir>/Resources/Components/`（プロジェクト固有）
 2. コンポーネント名の大文字小文字を確認（例: `"Mesh"` であって `"mesh"` ではない）
 3. `references/components-catalog.md` で正式名称を確認
-4. カスタムコンポーネント追加直後なら、Vite の HMR（`_data/componentList.ts` の再生成）完了まで数秒待ってから再確認する
+4. カスタムコンポーネント追加直後なら、Vite のリロード完了を待ってから再確認する
 
 未知のコンポーネント名は **エラーにならず** `ProjectSerializer.deserializeEntity` が `unresolvedComponents` として保持するだけで描画されない（`[ProjectSerializer] Component "..." not found in resolver` の warning がブラウザコンソールに出る）。
 
@@ -61,18 +61,17 @@
 **対処**:
 1. importパスが正しいか確認（`glpower`, `maxpower`, `orengine` のエイリアスを使用）
 2. `ComponentParams` 型を使用しているか確認
-3. `_data/componentList.ts` は自動生成されるため手動編集しないこと
+3. 登録は `import.meta.glob` による自動検出のため、手動の登録作業は不要
 
 ## Viteプラグインエラー（transformエラー）
 
-**症状**: カスタムコンポーネントが `_data/componentList.ts` に登録されない。シーンに配置済みでも描画されない。
+**症状**: カスタムコンポーネントが登録されない。シーンに配置済みでも描画されない。
 
-**原因**: シェーダーファイル（`.vs`/`.fs`/`.glsl`）のimport/transformが失敗し、コンポーネントのimportチェーンが壊れている。ResourceManagerはimportに成功したコンポーネントのみを登録するため、importが壊れたコンポーネントはエンジンに登録されず、デシリアライズ時にスキップされる。
+**原因**: シェーダーファイル（`.vs`/`.fs`/`.glsl`）のimport/transformが失敗し、コンポーネントのimportチェーンが壊れている。importが壊れたコンポーネントはエンジンに登録されず、デシリアライズ時にスキップされる。
 
 **対処**:
 1. `npm run typecheck` でTypeScript側のエラーがないか確認
-2. `<projectDir>/Resources/_data/componentList.ts` を Read し、対象コンポーネントの import が存在するか確認
-3. agent-browser スキルでエディタページを開き、ブラウザコンソール（devtools）のエラーを確認する
+2. agent-browser スキルでエディタページを開き、ブラウザコンソール（devtools）のエラーを確認する
 
 ## 見た目の確認・ブラウザ側のランタイムエラー確認
 

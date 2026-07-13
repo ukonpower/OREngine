@@ -1,6 +1,6 @@
 import path from 'path';
 
-import { wasRecentlyWritten } from '../../server/recentWrites';
+import { wasRecentlyWritten } from '../../../server/recentWrites';
 
 import type { Plugin } from 'vite';
 

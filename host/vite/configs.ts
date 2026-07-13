@@ -7,14 +7,13 @@ import react from '@vitejs/plugin-react';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig, UserConfig } from 'vite';
 
-import { MangledJsonLoader, SaveNameCache, nameCache } from './vite-plugins/MangleManager';
-import { ProjectWatchReload } from './vite-plugins/ProjectWatchReload';
-import { ResourceManager } from './vite-plugins/ResourceManager';
-import { ShaderMinifierLoader } from './vite-plugins/ShaderMinifierLoader';
+import { ProjectWatchReload } from './plugins/ProjectWatchReload';
+import { ShaderMinifierLoader } from './plugins/ShaderMinifierLoader';
+import { TexLoader } from './plugins/TexLoader';
 
 
-const orengineRoot = path.resolve( fileURLToPath( import.meta.url ), '..' );
-const templatesRoot = path.join( orengineRoot, 'host/templates' );
+const orengineRoot = path.resolve( fileURLToPath( import.meta.url ), '../../..' );
+const appRoot = path.join( orengineRoot, 'host/app' );
 
 export interface OrengineConfigOptions {
 	projectDir: string;
@@ -60,44 +59,8 @@ const sharedCss = () => ( {
 	},
 } );
 
-const resourcePlugins = ( projectDir: string ) => {
-
-	const builtinDir = path.join( orengineRoot, 'packages/orengine/builtin' );
-	const projectResources = path.join( projectDir, 'Resources' );
-
-	return [
-		ResourceManager( {
-			componentsDir: `${builtinDir}/Components/`,
-			outputFile: `${builtinDir}/_data/builtinComponentList.ts`,
-			exportName: 'BUILTIN_COMPONENTLIST',
-		} ),
-		ResourceManager( {
-			componentsDir: `${builtinDir}/Geometries/`,
-			outputFile: `${builtinDir}/_data/builtinGeometryList.ts`,
-			exportName: 'BUILTIN_GEOMETRYLIST',
-		} ),
-		ResourceManager( {
-			componentsDir: `${projectResources}/Components/`,
-			outputFile: `${projectResources}/_data/componentList.ts`,
-			exportName: 'COMPONENTLIST',
-		} ),
-		ResourceManager( {
-			componentsDir: `${projectResources}/Geometries/`,
-			outputFile: `${projectResources}/_data/geometryList.ts`,
-			exportName: 'GEOMETRYLIST',
-		} ),
-		ResourceManager( {
-			componentsDir: `${projectResources}/Textures/`,
-			outputFile: `${projectResources}/_data/textureList.ts`,
-			exportName: 'TEXTURELIST',
-			type: 'texture',
-		} ),
-	];
-
-};
-
 export const createDevConfig = ( opts: OrengineConfigOptions ): UserConfig => defineConfig( {
-	root: templatesRoot,
+	root: appRoot,
 	base: opts.basePath ?? '',
 	publicDir: path.join( opts.projectDir, 'public' ),
 	server: {
@@ -105,7 +68,7 @@ export const createDevConfig = ( opts: OrengineConfigOptions ): UserConfig => de
 		host: '0.0.0.0',
 		https: opts.https,
 		fs: {
-			allow: [ templatesRoot, orengineRoot, opts.projectDir ],
+			allow: [ appRoot, orengineRoot, opts.projectDir ],
 		},
 		proxy: {
 			'/api': `http://localhost:${opts.apiPort ?? 3001}`,
@@ -116,8 +79,8 @@ export const createDevConfig = ( opts: OrengineConfigOptions ): UserConfig => de
 	},
 	optimizeDeps: {
 		entries: [
-			path.join( templatesRoot, 'index.html' ),
-			path.join( templatesRoot, 'static.html' ),
+			path.join( appRoot, 'index.html' ),
+			path.join( appRoot, 'static.html' ),
 		],
 	},
 	resolve: sharedResolve( opts.projectDir ),
@@ -125,7 +88,7 @@ export const createDevConfig = ( opts: OrengineConfigOptions ): UserConfig => de
 	plugins: [
 		react(),
 		ShaderMinifierLoader(),
-		...resourcePlugins( opts.projectDir ),
+		TexLoader(),
 		ProjectWatchReload( opts.projectDir ),
 	],
 	define: {
@@ -169,11 +132,11 @@ export const createPlayerConfig = ( opts: PlayerConfigOptions ): UserConfig => {
 
 	addComponentNames( sceneJson );
 
-	const entry = opts.entry ?? path.join( templatesRoot, 'src/player.ts' );
+	const entry = opts.entry ?? path.join( appRoot, 'src/player.ts' );
 	const outDir = path.join( opts.projectDir, 'dist', opts.outSubDir ?? 'player' );
 
 	return defineConfig( {
-		root: templatesRoot,
+		root: appRoot,
 		base: opts.basePath ?? '',
 		server: {
 			port: opts.port ?? 3000,
@@ -200,7 +163,6 @@ export const createPlayerConfig = ( opts: PlayerConfigOptions ): UserConfig => {
 								],
 							},
 						},
-						nameCache,
 						compress: {
 							passes: 16,
 							arguments: true,
@@ -226,10 +188,9 @@ export const createPlayerConfig = ( opts: PlayerConfigOptions ): UserConfig => {
 			},
 		},
 		plugins: [
-			MangledJsonLoader(),
 			ShaderMinifierLoader(),
+			TexLoader(),
 			visualizer( { template: 'treemap', gzipSize: true } ),
-			SaveNameCache(),
 		],
 		define: {
 			BASE_PATH: JSON.stringify( opts.basePath ?? '' ),
@@ -246,11 +207,11 @@ export interface StaticConfigOptions extends OrengineConfigOptions {
 
 export const createStaticConfig = ( opts: StaticConfigOptions ): UserConfig => {
 
-	const input = opts.input ?? path.join( templatesRoot, 'static.html' );
+	const input = opts.input ?? path.join( appRoot, 'static.html' );
 	const outDir = path.join( opts.projectDir, 'dist', opts.outSubDir ?? 'static' );
 
 	return defineConfig( {
-		root: templatesRoot,
+		root: appRoot,
 		base: opts.basePath ?? '',
 		publicDir: path.join( opts.projectDir, 'public' ),
 		build: {
@@ -265,7 +226,7 @@ export const createStaticConfig = ( opts: StaticConfigOptions ): UserConfig => {
 		plugins: [
 			react(),
 			ShaderMinifierLoader(),
-			...resourcePlugins( opts.projectDir ),
+			TexLoader(),
 		],
 		define: {
 			BASE_PATH: JSON.stringify( opts.basePath ?? '' ),

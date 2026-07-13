@@ -7,6 +7,7 @@ import { TexProcedural } from '../TexProcedural';
 import { TextureResource } from './TextureResource';
 
 export { TextureResource } from './TextureResource';
+export { buildClassTree } from './classTree';
 
 export type ResouceComponentItem = {
 	name: string,

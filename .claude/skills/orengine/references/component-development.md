@@ -15,9 +15,9 @@ projects/{PROJECT}/Resources/Components/{Group}/{Name}/
 └── index.fs        # （任意）フラグメントシェーダー
 ```
 
-ResourceManager の Vite プラグインが `export class` を自動検出して登録する。**手動登録不要**。`_data/` 以下は自動生成のため**手動編集禁止**（読み取りは可）。先頭が `_` のディレクトリはスキャン対象外。
+`import.meta.glob`（`host/app/Resources/registry.ts`）が `export class` を自動検出して登録する。**手動登録不要**。登録名は export されたクラス名。先頭が `_` のディレクトリはスキャン対象外。
 
-新規コンポーネントファイルを Write すると ResourceManager が `_data/componentList.ts` を再生成し、Vite がフルリロードを発行する。scene.json への参照追加はファイル編集のため保存内容が消えることはないが、**コンポーネント登録（HMR再生成）が完了する前に scene.json 側で参照すると一時的に描画されない**ことがあるので、コンポーネント追加 → `_data/componentList.ts` に反映されたことを確認 → scene.json 編集の順で進めるとよい。
+新規コンポーネントファイルを Write すると Vite が glob の依存変化を検知してリロードを発行する。コンポーネント追加 → リロード完了 → scene.json 編集の順で進めるとよい。
 
 ## コンポーネントの3カテゴリ
 

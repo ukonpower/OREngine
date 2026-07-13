@@ -1,10 +1,7 @@
-import fs from 'node:fs';
-import path from 'node:path';
-
 import { build, createServer, InlineConfig } from 'vite';
 
-import { startOrengineServer, OrengineServerHandle } from '../server/factory';
-import { createDevConfig, createPlayerConfig, createStaticConfig } from '../vite-configs';
+import { startOrengineServer, OrengineServerHandle } from './server/factory';
+import { createDevConfig, createPlayerConfig, createStaticConfig } from './vite/configs';
 
 import type { ViteDevServer } from 'vite';
 
@@ -22,19 +19,6 @@ export interface DevHandle {
 	api: OrengineServerHandle;
 	close: () => Promise<void>;
 }
-
-const ensureDataReady = ( projectDir: string ) => {
-
-	const dataDir = path.join( projectDir, 'Resources/_data' );
-	const componentList = path.join( dataDir, 'componentList.ts' );
-	if ( ! fs.existsSync( componentList ) ) {
-
-		console.warn( `[orengine/host] Resources/_data is not generated yet at ${dataDir}.` );
-		console.warn( '[orengine/host] Run "build:static" or "dev" first to generate it before "build".' );
-
-	}
-
-};
 
 export const runDev = async ( opts: HostRunOptions ): Promise<DevHandle> => {
 
@@ -77,7 +61,6 @@ export const runDev = async ( opts: HostRunOptions ): Promise<DevHandle> => {
 
 export const runBuildPlayer = async ( opts: HostRunOptions ) => {
 
-	ensureDataReady( opts.projectDir );
 	return build( createPlayerConfig( opts ) as InlineConfig );
 
 };
