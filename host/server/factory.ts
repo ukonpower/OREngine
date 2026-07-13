@@ -2,10 +2,7 @@ import express from 'express';
 
 
 import { ProjectManager } from './Project';
-import { createComponentsRouter } from './routes/components';
-import { createProjectsRouter } from './routes/projects';
 import { createSceneRouter } from './routes/scene';
-import { createTexturesRouter } from './routes/textures';
 
 import type { Server } from 'http';
 
@@ -29,10 +26,7 @@ export const startOrengineServer = ( opts: OrengineServerOptions ): Promise<Oren
 	const app = express();
 	app.use( express.json( { limit: '50mb' } ) );
 
-	app.use( '/api', createProjectsRouter( pm ) );
 	app.use( '/api', createSceneRouter( pm ) );
-	app.use( '/api', createComponentsRouter( pm ) );
-	app.use( '/api', createTexturesRouter( pm ) );
 
 	return new Promise( ( resolve ) => {
 

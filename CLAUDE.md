@@ -23,7 +23,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 npm run dev          # 開発サーバー起動（express + vite）
-npm run build        # player バンドルのプロダクションビルド
+npm run build        # player バンドルのプロダクションビルド + compeko で自己解凍 html にパック（dist/player/out.html）
 npm run build:static # static (エディタ込み HTML) のビルド
 npm run lint         # ESLint実行
 npm run typecheck    # TypeScript型チェック
@@ -36,7 +36,7 @@ OREngine 自体の開発エントリは `orengine/host/` に集約されてい�
 
 `scripts/run.mjs` がこれらを呼び出して `demo/` を駆動する。projectDir 引数を変えれば任意のプロジェクトディレクトリで動作するため、外部リポ（ORShorts 等）からも `orengine/host` を import して利用できる（`exports."./host"` で公開）。
 
-`runDev` は express（`host/server/factory.ts`）と vite devサーバーを同一プロセスで起動する。express は `scene.json` / `editor.json` / コンポーネントファイル / `.tex` の読み書きを行うファイルI/O層のみで、シーン編集用の操作APIは持たない。シーンの編集は `scene.json` の直接編集で行い、vite のプロジェクトwatch（`host/vite/plugins/ProjectWatchReload`）が外部からの変更を検知してブラウザを自動リロードする。
+`runDev` は express（`host/server/factory.ts`）と vite devサーバーを同一プロセスで起動する。express は `scene.json` / `editor.json` の読み書きを行うファイルI/O層のみで、シーン編集用の操作APIは持たない。コンポーネントファイルや `.tex` の編集は直接ファイル編集で行う。シーンの編集は `scene.json` の直接編集で行い、vite のプロジェクトwatch（`host/vite/plugins/ProjectWatchReload`）が外部からの変更を検知してブラウザを自動リロードする。
 
 ## コードスタイル（eslint-config-mdcs / MrDoob Code Style）
 - インデント: **タブ**

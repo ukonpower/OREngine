@@ -24,8 +24,6 @@ export * from './Geometry/PlaneGeometry';
 export * from './Geometry/RingGeometry';
 export * from './Geometry/SphereGeometry';
 export * from './Loaders/GLTFLoader';
-export * from './Loaders/GaussianSplattingLoader';
-export * from './Loaders/GaussianSplattingLoader/GaussianSplattingController';
 export * from './Material';
 export * from './PostProcess';
 export * from './PostProcess/PostProcessPass';

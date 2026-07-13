@@ -11,7 +11,7 @@
 **対処**:
 1. `npm run dev` で開発サーバーを起動（ユーザーの明示的な指示がある場合のみ。CLAUDE.md 参照）
 2. 起動完了まで待つ（通常数秒）
-3. `curl -sf http://localhost:3001/api/projects` で疎通確認（このエンドポイントはファイルI/O層として現存する）
+3. `curl -sf http://localhost:3001/api/projects/_/scene` で疎通確認（プロジェクト名部分は無視されるので任意の文字列でよい）
 
 ## scene.json / editor.json を編集しても反映されない
 

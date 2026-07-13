@@ -16,7 +16,6 @@ import { SelectionOutline } from './render/SelectionOutline';
 import { WireframeRenderer } from './render/WireframeRenderer';
 import { SceneExporter, SceneExporterProgress } from './SceneExporter';
 
-export * from './GPUState';
 export type { SceneExporterOption, SceneExporterProgress } from './SceneExporter';
 
 export type SelectedAssetInfo = {

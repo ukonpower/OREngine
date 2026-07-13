@@ -33,10 +33,4 @@ export class ProjectManager {
 
 	}
 
-	getResourcesDir( _name?: string ): string {
-
-		return path.join( this._projectDir, 'Resources' );
-
-	}
-
 }
