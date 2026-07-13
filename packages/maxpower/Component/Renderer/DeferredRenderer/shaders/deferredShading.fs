@@ -33,8 +33,6 @@ layout (location = 1) out vec4 glFragOut1;
 
 void main( void ) {
 
-	//[
-
 	float occlusion = texture( uSSAOTexture, vUv ).x;
 
 	vec4 tex0 = texture( sampler0, vUv );
@@ -69,8 +67,7 @@ void main( void ) {
 		envMapIntensity
 	);
 	vec3 outColor = vec3( 0.0 );
-	//]
-	
+
 	// lighting
 
 	#include <lighting_light>
