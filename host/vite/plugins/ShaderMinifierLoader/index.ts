@@ -81,6 +81,31 @@ export const ShaderMinifierLoader = (): Plugin => {
 
 			const functionPattern = /^\s*(float|vec2|vec3|vec4|mat2|mat3|mat4|void)\s+(\w+)\s*\(/gm;
 			const structPattern = /^\s*struct\s+(\w+)\s*\{/gm;
+			const structBodyPattern = /^\s*struct\s+\w+\s*\{([^}]*)\}/gm;
+
+			// 構造体フィールド名を抽出する（モジュールを跨いだ参照でリネームが食い違うのを防ぐ）
+			function extractStructFieldNames( code: string ) {
+
+				const names: string[] = [];
+				let matches;
+
+				while ( ( matches = structBodyPattern.exec( code ) ) !== null ) {
+
+					const body = matches[ 1 ];
+					let fieldMatch;
+					const fieldPattern = /(\w+)\s*(?:\[[^\]]*\])?\s*;/g;
+
+					while ( ( fieldMatch = fieldPattern.exec( body ) ) !== null ) {
+
+						names.push( fieldMatch[ 1 ] );
+
+					}
+
+				}
+
+				return names;
+
+			}
 
 			function extractNames( pattern: RegExp, code: string ) {
 
@@ -106,7 +131,7 @@ export const ShaderMinifierLoader = (): Plugin => {
 			if ( isModule ) {
 
 				args += " --no-remove-unused";
-				noRenamingList = [ ...noRenamingList, ...extractNames( functionPattern, code ), ...extractNames( structPattern, code ) ];
+				noRenamingList = [ ...noRenamingList, ...extractNames( functionPattern, code ), ...extractNames( structPattern, code ), ...extractStructFieldNames( code ) ];
 
 			}
 
