@@ -1,4 +1,5 @@
 import * as GLP from 'glpower';
+import { EventEmitter } from 'glpower';
 
 const N = 2;
 
@@ -6,7 +7,8 @@ export type CurvePoint = GLP.IVector3 & {
 	weight?: number
 }
 
-export class Curve extends GLP.EventEmitter {
+// namespace import経由のextends（GLP.EventEmitter）はRollupがtree-shakeできないため、named importでextendsする
+export class Curve extends EventEmitter {
 
 	public points: CurvePoint[];
 	private knot: number[];

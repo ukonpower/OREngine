@@ -1,11 +1,13 @@
 import * as GLP from 'glpower';
+import { EventEmitter } from 'glpower';
 export type PointerEventArgs = {
 	pointerEvent: PointerEvent,
 	position: GLP.Vector,
 	delta: GLP.Vector,
 }
 
-export class Pointer extends GLP.EventEmitter {
+// namespace import経由のextends（GLP.EventEmitter）はRollupがtree-shakeできないため、named importでextendsする
+export class Pointer extends EventEmitter {
 
 	protected _isTouching: boolean;
 	public element: HTMLElement | null = null;
