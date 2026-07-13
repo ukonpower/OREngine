@@ -154,6 +154,53 @@ const composeShader = async ( code: string ) => {
 
 };
 
+// uniform宣言に使われる構造体のフィールド名を抽出する。
+// CPU側は 'directionalLight[0].direction' のような元の名前でuniform locationを引くため、
+// これらのフィールドはリネームさせない（--preserve-externals はuniform変数名しか保護しない）
+const extractUniformStructFieldNames = ( sources: Iterable<string> ) => {
+
+	const structBodies = new Map<string, string>();
+	const uniformTypes = new Set<string>();
+
+	for ( let code of sources ) {
+
+		code = code.replace( /\/\/.*$/gm, '' ).replace( /\/\*[\s\S]*?\*\//g, '' );
+
+		for ( const m of code.matchAll( /struct\s+(\w+)\s*\{([^}]*)\}/g ) ) structBodies.set( m[ 1 ], m[ 2 ] );
+
+		for ( const m of code.matchAll( /uniform\s+(\w+)/g ) ) uniformTypes.add( m[ 1 ] );
+
+	}
+
+	const fields = new Set<string>();
+	const visited = new Set<string>();
+
+	// ネストした構造体フィールドも 'a.b.c' 形式で参照されうるため再帰的にたどる
+	const visit = ( type: string ) => {
+
+		if ( visited.has( type ) ) return;
+
+		visited.add( type );
+
+		const body = structBodies.get( type );
+
+		if ( ! body ) return;
+
+		for ( const m of body.matchAll( /(\w+)\s+(\w+)\s*(?:\[[^\]]*\])?\s*;/g ) ) {
+
+			fields.add( m[ 2 ] );
+			visit( m[ 1 ] );
+
+		}
+
+	};
+
+	for ( const type of uniformTypes ) visit( type );
+
+	return [ ...fields ];
+
+};
+
 /*-------------------------------
 	プラグイン本体
 -------------------------------*/
@@ -228,7 +275,10 @@ export const ShaderMinifierLoader = ( options: ShaderMinifierLoaderOptions ): Pl
 			const outputPath = path.join( batchDir, 'out.js' );
 			// --no-overloading: minifierは別関数ファミリ（hashvとfbm等）に同じ短縮名を割り当てることがあり、
 			// 同一シグネチャのオーバーロードが衝突して二重定義になるため無効化する
-			const args = '--format js --preserve-externals --no-overloading';
+			// --no-renaming-list はデフォルトリスト（main を含む）を置き換える。
+			// main を外すと未使用削除のルートが消え全関数が削除されるため必ず含める
+			const noRenamingList = [ 'main', ...extractUniformStructFieldNames( sources.values() ) ];
+			const args = `--format js --preserve-externals --no-overloading --no-renaming-list ${noRenamingList.join( ',' )}`;
 			const bin = process.platform === 'darwin' ? 'mono ~/Documents/application/shader_minifier/shader_minifier.exe' : 'shader_minifier.exe';
 
 			try {
