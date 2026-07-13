@@ -48,4 +48,4 @@ const material = new MXP.Material( {
 
 ## 補足: サーバーAPI
 
-`.tex` ファイルは `server/routes/textures.ts` の REST（`GET/POST/PUT/DELETE /api/projects/:p/textures*`）からも読み書きできる（GUI エディタが内部で使用）。ただしエージェントの作業はファイル直接編集で完結するため、通常このAPIを呼ぶ必要はない。
+`.tex` ファイルは `host/server/routes/textures.ts` の REST（`GET/POST/PUT/DELETE /api/projects/:p/textures*`）からも読み書きできる（GUI エディタが内部で使用）。ただしエージェントの作業はファイル直接編集で完結するため、通常このAPIを呼ぶ必要はない。

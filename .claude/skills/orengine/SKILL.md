@@ -52,11 +52,12 @@ OREngineのシーン構築・コンポーネント開発を行うスキル。
 cat <projectDir>/scene.json
 
 # 実在するコンポーネント名の確認（ビルトイン / プロジェクト固有）
-cat packages/orengine/builtin/_data/builtinComponentList.ts
-cat <projectDir>/Resources/_data/componentList.ts
+# 登録名は各 index.ts の export クラス名（通常はディレクトリ名と一致）
+grep -r "export class" packages/orengine/builtin/Components/
+grep -r "export class" <projectDir>/Resources/Components/
 ```
 
-エンティティの UUID・既存コンポーネント・**実在するコンポーネント名**を把握してから編集する。`componentList.ts` に無い名前を `scene.json` に書いてもエラーにはならず、静かに無視される（`references/troubleshooting.md` 参照）。
+エンティティの UUID・既存コンポーネント・**実在するコンポーネント名**を把握してから編集する。実在しないコンポーネント名を `scene.json` に書いてもエラーにはならず、静かに無視される（`references/troubleshooting.md` 参照）。
 
 ## Flow 1: シーン編集（scene.json 直接編集）
 
@@ -82,7 +83,7 @@ cat <projectDir>/Resources/_data/componentList.ts
 └── index.fs        # （任意）フラグメントシェーダー
 ```
 
-ResourceManager の Vite プラグインがファイル配置を検出して自動登録する（`_data/*` は自動生成なので手動編集禁止）。
+`import.meta.glob`（`host/app/Resources/registry.ts`）がファイル配置を検出して自動登録する。登録名は export されたクラス名。先頭が `_` のディレクトリはスキャン対象外。
 
 ### 最小サンプル（Geometry + Material + Mesh をコンポーネント化）
 
@@ -129,7 +130,7 @@ export class MyBox extends MXP.Component {
 
 1. `index.ts` を作成（必要なら `index.vs` / `index.fs` も）
 2. `npm run typecheck` でエラーがないか確認
-3. `<projectDir>/Resources/_data/componentList.ts` に登録されたことを確認（Vite の HMR 再生成を数秒待つ）
+3. devサーバー起動中なら Vite がファイル追加を検知して自動で登録・リロードする
 4. scene.json にエンティティ・`{ "name": "MyBox", "uuid": "..." }` を追加
 
 詳細パターン（制御コンポーネント・データコンポーネント・ライフサイクル・HMR）は `references/component-development.md`。
@@ -201,11 +202,7 @@ export class CubeMesh extends MXP.Component {
 }
 ```
 
-2. HMR での `_data/componentList.ts` 再生成を数秒待ってから登録を確認:
-
-```bash
-grep CubeMesh <projectDir>/Resources/_data/componentList.ts
-```
+2. `npm run typecheck` でエラーがないことを確認（登録は Vite の glob が自動で行う）
 
 3. `<projectDir>/scene.json` に Cube + Light + Camera を追加（Read → Edit）:
 
@@ -264,11 +261,9 @@ grep CubeMesh <projectDir>/Resources/_data/componentList.ts
 - **REST APIは存在しない**。すべてファイル（scene.json / editor.json / コンポーネントファイル / `.tex`）の直接編集で完結する
 - **マテリアル / シェーダーを作る独立 API はない**。`.mat` ファイルも存在しない。Material はコンポーネント内で `new MXP.Material(...)` する
 - **見た目のあるオブジェクト = カスタムコンポーネント**を基本とする
-- **`_data/*` は手動編集しない**（Vite プラグインが上書きする。読み取りは可）
-- **未知のコンポーネント名は silent fail**（エラーにならず描画もされない）。`Resources/_data/componentList.ts` / `builtin/_data/builtinComponentList.ts` で実在確認すること
+- **未知のコンポーネント名は silent fail**（エラーにならず描画もされない）。`Resources/Components/` / `builtin/Components/` の `export class` 名で実在確認すること
 - **未登録の field path も silent fail**（`props` に書いても反映ゼロ）。対象コンポーネントの `index.ts` で `field()` 登録パスを確認すること
 - **コンポーネント・シェーダー編集後は `npm run typecheck` を実行する**
-- **ファイル編集後は HMR 反映（`_data/componentList.ts` 再生成）に数秒待ってから確認する**
 - **シーン変更後は agent-browser でスクリーンショット**して目視確認する
 - **`npm run dev` を勝手に起動しない**（ユーザーの明示的な指示がある場合のみ）
 - 同じ問題が3回連続で解消しない場合は `references/troubleshooting.md` を参照する
@@ -279,7 +274,7 @@ grep CubeMesh <projectDir>/Resources/_data/componentList.ts
 |---|---|
 | `ECONNREFUSED` (devサーバー疎通確認時) | ユーザーに `npm run dev` の起動を依頼、または明示的な指示があれば起動する |
 | scene.json 編集がブラウザに反映されない | vite ログの full-reload 出力を確認。`references/troubleshooting.md` |
-| コンポーネントが一覧に出ない | `_data/componentList.ts` の再生成を待つ。TypeScript/Viteのtransformエラーが無いか確認 |
+| コンポーネントが一覧に出ない | TypeScript/Viteのtransformエラーが無いか確認（importが壊れたコンポーネントは登録されない） |
 | props を設定したのに反映されない | コンポーネント実装の `field()` 登録パスを確認。**未知の path は silent skip** |
 | scene.json の JSON構文エラー | `python3 -m json.tool <file>` で検証。壊れたら `git checkout -- <file>` |
 

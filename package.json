@@ -8,9 +8,9 @@
     "./react": "./packages/orengine/react.tsx",
     "./editor": "./packages/orengine/editor.ts",
     "./core": "./packages/orengine/core/index.ts",
-    "./server": "./server/factory.ts",
+    "./server": "./host/server/factory.ts",
     "./host": "./host/index.ts",
-    "./configs": "./vite-configs.ts",
+    "./configs": "./host/vite/configs.ts",
     "./maxpower": "./packages/maxpower/index.ts",
     "./glpower": "./packages/glpower/packages/glpower/src/index.ts",
     "./player": "./packages/orengine/player.ts",
@@ -30,14 +30,12 @@
   },
   "dependencies": {
     "@rollup/plugin-terser": "^1.0.0",
-    "@spz-loader/core": "^0.2.0",
     "chokidar": "^3.6.0",
     "express": "^4.21.0",
     "mediabunny": "^1.38.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-error-boundary": "^5.0.0",
-    "webgl-memory": "^1.1.1"
+    "react-error-boundary": "^5.0.0"
   },
   "devDependencies": {
     "@eslint/compat": "^1.2.3",
@@ -48,14 +46,11 @@
     "@types/node": "^22.8.7",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
-    "@types/ws": "^8.18.1",
     "@typescript-eslint/eslint-plugin": "^8.12.2",
     "@typescript-eslint/parser": "^8.12.2",
-    "@vitejs/plugin-basic-ssl": "^2.3.0",
     "@vitejs/plugin-react": "^6.0.1",
     "@vitest/coverage-v8": "^4.0.18",
     "body-parser": "^1.20.3",
-    "concurrently": "^9.1.0",
     "eslint": "^9.14.0",
     "eslint-config-mdcs": "^5.0.0",
     "eslint-plugin-boundaries": "^7.0.2",
@@ -64,18 +59,14 @@
     "eslint-plugin-react-refresh": "^0.4.14",
     "eslint-plugin-unused-imports": "^4.1.4",
     "globals": "^15.12.0",
-    "install": "^0.13.0",
     "node-zopfli": "^2.1.4",
-    "playwright": "^1.49.0",
-    "pnpm": "^10.33.3",
     "rollup-plugin-visualizer": "^5.12.0",
     "sass-embedded": "^1.80.6",
     "terser": "^5.36.0",
     "tsx": "^4.19.0",
     "typescript": "^5.6.3",
     "vite": "^8.0.10",
-    "vitest": "^4.0.18",
-    "ws": "^8.19.0"
+    "vitest": "^4.0.18"
   },
   "volta": {
     "node": "23.3.0"

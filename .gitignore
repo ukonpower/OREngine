@@ -28,10 +28,7 @@ dist-ssr
 stats.html
 
 tmp
-demo/Resources/_data/
-packages/orengine/builtin/_data/
 
-.serena/
 .workflow-tools/
 .claude/*
 !.claude/skills/

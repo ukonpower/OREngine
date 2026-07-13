@@ -60,7 +60,7 @@ ORENGINE_PROJECT=<name> npm run dev
 
 ## 新規プロジェクト作成
 
-`orengine.config.json` の `project` に未存在の名前を書いて `npm run dev` するだけです。自動でテンプレート（`scripts/templates/project/`）から雛形が生成され、ルートの `package.json` の `workspaces`、`tsconfig.json` の `exclude`、`.gitignore` が更新され、`npm install` が走ります。
+`orengine.config.json` の `project` に未存在の名前を書いて `npm run dev` するだけです。テンプレート（`host/scaffold/project/`）から雛形が生成されます。
 
 ## ビルド
 
@@ -86,7 +86,7 @@ npm run test
 
 ## ドキュメント
 
-アーキテクチャの詳細やセットアップ手順、Blender との連携方法などは [`docs`](./docs/README.md) ディレクトリにまとめています。
+補足ドキュメントは [`docs`](./docs) ディレクトリにまとめています。
 
 ## クレジット
 

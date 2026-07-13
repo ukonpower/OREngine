@@ -32,11 +32,11 @@ npm run typecheck    # TypeScript型チェック
 OREngine 自体の開発エントリは `orengine/host/` に集約されている:
 
 - `host/index.ts` / `host/runner.ts` - `runDev` / `runBuildPlayer` / `runBuildStatic` の API
-- `host/templates/` - 全プロジェクト共通の `index.html` / `static.html` / `src/` / `Resources/registry.ts`
+- `host/app/` - 全プロジェクト共通の `index.html` / `static.html` / `src/` / `Resources/registry.ts`
 
 `scripts/run.mjs` がこれらを呼び出して `demo/` を駆動する。projectDir 引数を変えれば任意のプロジェクトディレクトリで動作するため、外部リポ（ORShorts 等）からも `orengine/host` を import して利用できる（`exports."./host"` で公開）。
 
-`runDev` は express（`server/factory.ts`）と vite devサーバーを同一プロセスで起動する。express は `scene.json` / `editor.json` / コンポーネントファイル / `.tex` の読み書きを行うファイルI/O層のみで、シーン編集用の操作APIは持たない。シーンの編集は `scene.json` の直接編集で行い、vite のプロジェクトwatch（`vite-plugins/ProjectWatchReload`）が外部からの変更を検知してブラウザを自動リロードする。
+`runDev` は express（`host/server/factory.ts`）と vite devサーバーを同一プロセスで起動する。express は `scene.json` / `editor.json` / コンポーネントファイル / `.tex` の読み書きを行うファイルI/O層のみで、シーン編集用の操作APIは持たない。シーンの編集は `scene.json` の直接編集で行い、vite のプロジェクトwatch（`host/vite/plugins/ProjectWatchReload`）が外部からの変更を検知してブラウザを自動リロードする。
 
 ## コードスタイル（eslint-config-mdcs / MrDoob Code Style）
 - インデント: **タブ**
@@ -100,9 +100,9 @@ public updateMatrix() {
 - `orengine/react` → `packages/orengine/react.tsx`（Reactエントリ: editor/components + editor/features）
 - `orengine/core` → `packages/orengine/core/index.ts`
 - `orengine/player` → `packages/orengine/player.ts`
-- `orengine/server` → `server/factory.ts`（express ベースのファイルI/O API）
+- `orengine/server` → `host/server/factory.ts`（express ベースのファイルI/O API）
 - `orengine/host` → `host/index.ts`
-- `orengine/configs` → `vite-configs.ts`
+- `orengine/configs` → `host/vite/configs.ts`
 - `orengine/*` → `packages/orengine/*`（その他のサブパス）
 
 `orengine`（ランタイム）から `orengine/editor` / `orengine/react`（エディタ）への import は eslint-plugin-boundaries（`eslint.config.mjs`）でエラーになる。playerビルドにエディタコードが混入するのを機械的に防ぐための境界。
@@ -110,11 +110,11 @@ public updateMatrix() {
 ## コンポーネント追加ルール
 - `<project>/Resources/Components/<グループ>/<名前>/index.ts` に `export class Xxx extends MXP.Component` を置くだけで自動認識される
 - `packages/orengine/builtin/Components/<グループ>/<名前>/index.ts` にビルトインコンポーネントを追加できる
-- `<project>/Resources/_data/componentList.ts`、`packages/orengine/builtin/_data/builtinComponentList.ts` などは Vite プラグイン（`vite-plugins/ResourceManager`）が自動生成する。**手動で編集してはいけない**（`npm run dev` / `npm run build` で上書きされる）
+- 自動認識の実体は `import.meta.glob`（`host/app/Resources/registry.ts` と `packages/orengine/builtin/index.ts`）。登録名は export されたクラス名になる
 - 先頭が `_` のディレクトリはスキャン対象外
 
 ## プロジェクト構造（demo / 外部プロジェクト共通）
-プロジェクトディレクトリの中身は `Resources/` / `scene.json` / `editor.json` / `public/` のみ。HTML / src / vite config 等のボイラープレートはすべて `host/templates/` に集約されている。
+プロジェクトディレクトリの中身は `Resources/` / `scene.json` / `editor.json` / `public/` のみ。HTML / src / vite config 等のボイラープレートはすべて `host/app/` に集約されている。
 
 プロジェクト固有のデータは Vite の `resolve.alias` 経由で参照する:
 - `@or-scene` → `<projectDir>/scene.json`

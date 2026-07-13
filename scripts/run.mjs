@@ -1,6 +1,85 @@
-import { resolveProject } from './resolveProject.mjs';
-import { ensureProjectExists } from './scaffoldProject.mjs';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
+const repoRoot = path.resolve( fileURLToPath( import.meta.url ), '../..' );
+const templateDir = path.join( repoRoot, 'host/scaffold/project' );
+
+/*-------------------------------
+	プロジェクト解決
+-------------------------------*/
+
+// ORENGINE_PROJECT または orengine.config.json からアクティブプロジェクトを決める
+const resolveProject = () => {
+
+	let name = process.env.ORENGINE_PROJECT;
+
+	if ( ! name ) {
+
+		const cfgPath = path.join( repoRoot, 'orengine.config.json' );
+		if ( ! fs.existsSync( cfgPath ) ) {
+
+			throw new Error( 'orengine.config.json not found and ORENGINE_PROJECT not set' );
+
+		}
+
+		name = JSON.parse( fs.readFileSync( cfgPath, 'utf-8' ) ).project;
+
+	}
+
+	if ( ! name ) throw new Error( 'project name is empty' );
+
+	const projectDir = path.resolve( repoRoot, name );
+
+	return { projectName: path.basename( projectDir ), projectDir };
+
+};
+
+/*-------------------------------
+	scaffold（プロジェクトが無ければ雛形を生成）
+-------------------------------*/
+
+const copyDir = ( src, dst, replacements ) => {
+
+	fs.mkdirSync( dst, { recursive: true } );
+
+	for ( const entry of fs.readdirSync( src, { withFileTypes: true } ) ) {
+
+		const s = path.join( src, entry.name );
+		const d = path.join( dst, entry.name );
+
+		if ( entry.isDirectory() ) {
+
+			copyDir( s, d, replacements );
+
+		} else {
+
+			let content = fs.readFileSync( s, 'utf-8' );
+			for ( const [ k, v ] of Object.entries( replacements ) ) {
+
+				content = content.split( `{{${k}}}` ).join( v );
+
+			}
+			fs.writeFileSync( d, content );
+
+		}
+
+	}
+
+};
+
+const ensureProjectExists = ( projectDir, projectName ) => {
+
+	if ( fs.existsSync( projectDir ) ) return;
+
+	console.log( `[orengine] scaffolding new project: ${projectName}` );
+	copyDir( templateDir, projectDir, { PROJECT_NAME: projectName } );
+
+};
+
+/*-------------------------------
+	実行
+-------------------------------*/
 
 const cmd = process.argv[ 2 ];
 if ( ! cmd ) {
