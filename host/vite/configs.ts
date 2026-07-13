@@ -9,7 +9,7 @@ import { defineConfig, UserConfig } from 'vite';
 
 import { PlayerRegistry } from './plugins/PlayerRegistry';
 import { ProjectWatchReload } from './plugins/ProjectWatchReload';
-import { ShaderMinifierLoader } from './plugins/ShaderMinifierLoader';
+import { ShaderBuilder } from './plugins/ShaderBuilder';
 import { TexLoader } from './plugins/TexLoader';
 import { collectJsonKeys, collectSceneUsage } from './sceneScan';
 
@@ -89,7 +89,7 @@ export const createDevConfig = ( opts: OrengineConfigOptions ): UserConfig => de
 	css: sharedCss(),
 	plugins: [
 		react(),
-		ShaderMinifierLoader( { scanDirs: [ orengineRoot, opts.projectDir ] } ),
+		ShaderBuilder( { scanDirs: [ orengineRoot, opts.projectDir ] } ),
 		TexLoader(),
 		ProjectWatchReload( opts.projectDir ),
 	],
@@ -176,7 +176,7 @@ export const createPlayerConfig = ( opts: PlayerConfigOptions ): UserConfig => {
 			},
 		},
 		plugins: [
-			ShaderMinifierLoader( { scanDirs: [ orengineRoot, opts.projectDir ] } ),
+			ShaderBuilder( { scanDirs: [ orengineRoot, opts.projectDir ] } ),
 			TexLoader(),
 			PlayerRegistry( { projectDir: opts.projectDir, usage } ),
 			visualizer( { template: 'treemap', gzipSize: true } ),
@@ -214,7 +214,7 @@ export const createStaticConfig = ( opts: StaticConfigOptions ): UserConfig => {
 		css: sharedCss(),
 		plugins: [
 			react(),
-			ShaderMinifierLoader( { scanDirs: [ orengineRoot, opts.projectDir ] } ),
+			ShaderBuilder( { scanDirs: [ orengineRoot, opts.projectDir ] } ),
 			TexLoader(),
 		],
 		define: {
