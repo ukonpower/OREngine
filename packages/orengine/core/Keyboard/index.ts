@@ -1,8 +1,9 @@
-import * as GLP from 'glpower';
+import { EventEmitter } from 'glpower';
 
 export type PressedKeys = { [key: string]: boolean }
 
-export class Keyboard extends GLP.EventEmitter {
+// namespace import経由のextends（GLP.EventEmitter）はRollupがtree-shakeできないため、named importでextendsする
+export class Keyboard extends EventEmitter {
 
 	private _pressedKeys: PressedKeys;
 
