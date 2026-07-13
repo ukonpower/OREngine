@@ -70,7 +70,7 @@ export const ShaderMinifierLoader = (): Plugin => {
 
 			// through
 
-			if ( skip || true ) {
+			if ( skip ) {
 
 				return {
 					code: `export default ${JSON.stringify( code )};`,
@@ -143,7 +143,15 @@ export const ShaderMinifierLoader = (): Plugin => {
 
 			} catch ( e: any ) {
 
-				this.error( `ShaderMinifierLoader: ${e.stdout}` );
+				// shader_minifier が無い環境では minify せず生 GLSL にフォールバックする
+				this.warn( `ShaderMinifierLoader: minify をスキップしました (${e.message})` );
+
+				fs.unlinkSync( inputFilePath );
+
+				return {
+					code: `export default ${JSON.stringify( code )};`,
+					map: { mappings: '' }
+				};
 
 			}
 
