@@ -12,7 +12,7 @@ const exec = util.promisify( childProcess.exec );
 const SHADER_EXT = /\.(vs|fs|vert|frag|glsl)$/;
 const SKIP_DIRS = new Set( [ 'node_modules', 'dist', 'tmp', '.git' ] );
 
-export interface ShaderMinifierLoaderOptions {
+export interface ShaderBuilderOptions {
 	scanDirs: string[];
 }
 
@@ -205,7 +205,7 @@ const extractUniformStructFieldNames = ( sources: Iterable<string> ) => {
 	プラグイン本体
 -------------------------------*/
 
-export const ShaderMinifierLoader = ( options: ShaderMinifierLoaderOptions ): Plugin => {
+export const ShaderBuilder = ( options: ShaderBuilderOptions ): Plugin => {
 
 	const filter = createFilter( [
 		'**/*.vs',
@@ -288,7 +288,7 @@ export const ShaderMinifierLoader = ( options: ShaderMinifierLoaderOptions ): Pl
 			} catch ( e: any ) {
 
 				// shader_minifier が無い環境やminifyエラー時は生GLSLにフォールバックする
-				warn( `ShaderMinifierLoader: minify をスキップしました (${e.message})` );
+				warn( `ShaderBuilder: minify をスキップしました (${e.message})` );
 
 				return rawFallback();
 
@@ -307,7 +307,7 @@ export const ShaderMinifierLoader = ( options: ShaderMinifierLoaderOptions ): Pl
 
 			if ( result.size !== targetFiles.length ) {
 
-				warn( `ShaderMinifierLoader: minify出力の対応付けに失敗しました (${result.size}/${targetFiles.length}) 生GLSLにフォールバックします` );
+				warn( `ShaderBuilder: minify出力の対応付けに失敗しました (${result.size}/${targetFiles.length}) 生GLSLにフォールバックします` );
 
 				return rawFallback();
 
@@ -326,7 +326,7 @@ export const ShaderMinifierLoader = ( options: ShaderMinifierLoaderOptions ): Pl
 	const isShaderFile = ( file: string ) => SHADER_EXT.test( file );
 
 	return {
-		name: 'shaderMinifier',
+		name: 'shader-builder',
 		enforce: 'pre',
 
 		// シェーダーファイルの追加・削除・変更でバッチ全体を無効化する
@@ -386,7 +386,7 @@ export const ShaderMinifierLoader = ( options: ShaderMinifierLoaderOptions ): Pl
 
 			if ( minified === undefined ) {
 
-				this.warn( `ShaderMinifierLoader: バッチ対象外のシェーダーです。生GLSLを使用します: ${filePath}` );
+				this.warn( `ShaderBuilder: バッチ対象外のシェーダーです。生GLSLを使用します: ${filePath}` );
 
 				return {
 					code: `export default ${JSON.stringify( await composeShader( code ) )};`,
