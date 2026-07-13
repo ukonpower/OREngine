@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const repoRoot = path.resolve( fileURLToPath( import.meta.url ), '../..' );
-const templateDir = path.join( repoRoot, 'host/scaffold/project' );
+const templateDir = path.join( repoRoot, 'host/template/project' );
 
 /*-------------------------------
 	プロジェクト解決
@@ -36,7 +36,7 @@ const resolveProject = () => {
 };
 
 /*-------------------------------
-	scaffold（プロジェクトが無ければ雛形を生成）
+	雛形生成（プロジェクトが無ければテンプレートからコピー）
 -------------------------------*/
 
 const copyDir = ( src, dst, replacements ) => {
@@ -72,7 +72,7 @@ const ensureProjectExists = ( projectDir, projectName ) => {
 
 	if ( fs.existsSync( projectDir ) ) return;
 
-	console.log( `[orengine] scaffolding new project: ${projectName}` );
+	console.log( `[orengine] creating new project from template: ${projectName}` );
 	copyDir( templateDir, projectDir, { PROJECT_NAME: projectName } );
 
 };

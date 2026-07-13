@@ -60,7 +60,7 @@ ORENGINE_PROJECT=<name> npm run dev
 
 ## 新規プロジェクト作成
 
-`orengine.config.json` の `project` に未存在の名前を書いて `npm run dev` するだけです。テンプレート（`host/scaffold/project/`）から雛形が生成されます。
+`orengine.config.json` の `project` に未存在の名前を書いて `npm run dev` するだけです。テンプレート（`host/template/project/`）から雛形が生成されます。
 
 ## ビルド
 
