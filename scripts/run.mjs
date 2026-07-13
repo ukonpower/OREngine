@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -103,6 +104,11 @@ if ( cmd === 'dev' ) {
 } else if ( cmd === 'build' ) {
 
 	await runBuildPlayer( { projectDir } );
+
+	// playerバンドルを自己解凍html（64k配布形式）にパックする
+	const playerJs = path.join( projectDir, 'dist/player/index.js' );
+	const packedHtml = path.join( projectDir, 'dist/player/out.html' );
+	execFileSync( 'node', [ path.join( repoRoot, 'tools/compeko.js' ), playerJs, packedHtml ], { stdio: 'inherit' } );
 
 } else if ( cmd === 'build:static' ) {
 

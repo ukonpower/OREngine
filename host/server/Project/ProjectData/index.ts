@@ -35,13 +35,6 @@ export class ProjectData {
 
 	}
 
-	writeSceneFile( data: SceneFileData ): void {
-
-		const filePath = path.join( this._projectDir, 'scene.json' );
-		fs.writeFileSync( filePath, JSON.stringify( data, null, '\t' ) + '\n' );
-
-	}
-
 	private _readSceneFile(): SceneFileData {
 
 		const filePath = path.join( this._projectDir, 'scene.json' );
