@@ -1,6 +1,7 @@
 import childProcess from 'child_process';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import util from 'util';
 
 import { createFilter } from '@rollup/pluginutils';
@@ -11,18 +12,69 @@ const exec = util.promisify( childProcess.exec );
 const SHADER_EXT = /\.(vs|fs|vert|frag|glsl)$/;
 const SKIP_DIRS = new Set( [ 'node_modules', 'dist', 'tmp', '.git' ] );
 
-// preserveリスト抽出時に識別子として扱わないGLSLキーワード・組み込み型
-const GLSL_KEYWORDS = new Set( (
-	'void float int bool vec2 vec3 vec4 ivec2 ivec3 ivec4 bvec2 bvec3 bvec4 ' +
-	'mat2 mat3 mat4 sampler2D samplerCube sampler3D if else for while do ' +
-	'return break continue discard struct uniform in out inout const ' +
-	'precision highp mediump lowp true false layout flat attribute varying ' +
-	'define ifdef ifndef endif elif include pragma version es main defined'
-).split( ' ' ) );
-
 export interface ShaderMinifierLoaderOptions {
 	scanDirs: string[];
 }
+
+/*-------------------------------
+	#include 解決
+-------------------------------*/
+
+// 実行時のシェーダー結合をビルド時に前倒しするための include キー → ファイルの対応表。
+// minifierには結合済みの完成形シェーダーを渡す必要がある（minifierは各入力ファイルを
+// 独立したシェーダーとして扱うため、ファイルを跨ぐリネーム・未使用削除は成立しない）
+const SHADER_PARSER_DIR = path.resolve( fileURLToPath( import.meta.url ), '../../../../../packages/maxpower/shader/ShaderParser' );
+
+const INCLUDE_FILES = new Map<string, string>( [
+	[ 'common', 'shaderModules/common.module.glsl' ],
+	[ 'sdf', 'shaderModules/sdf.module.glsl' ],
+	[ 'rotate', 'shaderModules/rotate.module.glsl' ],
+	[ 'random', 'shaderModules/random.module.glsl' ],
+	[ 'noise_simplex', 'shaderModules/noiseSimplex.module.glsl' ],
+	[ 'noise_cyclic', 'shaderModules/noiseCyclic.module.glsl' ],
+	[ 'noise_value', 'shaderModules/noiseValue.module.glsl' ],
+	[ 'light', 'shaderModules/light.module.glsl' ],
+	[ 'pmrem', 'shaderModules/pmrem.module.glsl' ],
+	[ 'rm_normal', 'shaderModules/raymarch_normal.module.glsl' ],
+	[ 'lighting_light', 'shaderParts/lighting_light.part.glsl' ],
+	[ 'lighting_env', 'shaderParts/lighting_env.part.glsl' ],
+	[ 'lighting_forwardIn', 'shaderParts/lighting_forwardIn.part.glsl' ],
+	[ 'vert_h', 'shaderParts/vert_h.part.glsl' ],
+	[ 'vert_in', 'shaderParts/vert_in.part.glsl' ],
+	[ 'vert_out', 'shaderParts/vert_out.part.glsl' ],
+	[ 'frag_h', 'shaderParts/frag_h.part.glsl' ],
+	[ 'frag_in', 'shaderParts/frag_in.part.glsl' ],
+	[ 'frag_out', 'shaderParts/frag_out.part.glsl' ],
+	[ 'rm_h', 'shaderParts/raymarch_h.part.glsl' ],
+	[ 'rm_ray_obj', 'shaderParts/raymarch_ray_object.part.glsl' ],
+	[ 'rm_ray_world', 'shaderParts/raymarch_ray_world.part.glsl' ],
+	[ 'rm_out_obj', 'shaderParts/raymarch_out_obj.part.glsl' ],
+	[ 'uni_time', 'shaderParts/uniform_time.part.glsl' ],
+] );
+
+// #include<key> を対応するモジュール/partファイルの中身に置換する。未知のキーは空文字（実行時挙動と同一）
+const inlineIncludes = async ( code: string ) => {
+
+	const includePattern = /#include\s?<([\S]*)>/g;
+	const keys = [ ...code.matchAll( includePattern ) ].map( ( m ) => m[ 1 ] );
+
+	const contents = new Map<string, string>();
+
+	for ( const key of new Set( keys ) ) {
+
+		const file = INCLUDE_FILES.get( key );
+
+		contents.set( key, file ? await fs.promises.readFile( path.join( SHADER_PARSER_DIR, file ), 'utf-8' ) : '' );
+
+	}
+
+	return code.replace( includePattern, ( _, key: string ) => contents.get( key ) ?? '' );
+
+};
+
+/*-------------------------------
+	シェーダー収集・前処理
+-------------------------------*/
 
 // scanDirs以下のシェーダーファイルを再帰的に収集する
 const collectShaderFiles = ( scanDirs: string[] ) => {
@@ -95,32 +147,16 @@ const preprocess = ( code: string ) => {
 
 };
 
-// partファイル群から識別子を抽出する。partはminifyされず生のまま実行時に結合されるため、
-// partが参照・宣言する名前はminify対象ファイル側でもリネームせず保持する必要がある
-const extractPartIdentifiers = ( partCodes: string[] ) => {
+// include解決＋前処理を行い、minifierに渡せる完成形のシェーダーソースを作る
+const composeShader = async ( code: string ) => {
 
-	const names = new Set<string>();
-
-	for ( let code of partCodes ) {
-
-		code = code.replace( /\/\/.*$/gm, '' ).replace( /\/\*[\s\S]*?\*\//g, '' );
-
-		for ( const match of code.matchAll( /[A-Za-z_][A-Za-z0-9_]*/g ) ) {
-
-			const word = match[ 0 ];
-
-			// 全て大文字の語はマクロ（NUM_LIGHT_DIR等）とみなして除外する
-			if ( GLSL_KEYWORDS.has( word ) || word.startsWith( 'gl_' ) || word === word.toUpperCase() ) continue;
-
-			names.add( word );
-
-		}
-
-	}
-
-	return [ ...names ];
+	return preprocess( await inlineIncludes( code ) );
 
 };
+
+/*-------------------------------
+	プラグイン本体
+-------------------------------*/
 
 export const ShaderMinifierLoader = ( options: ShaderMinifierLoaderOptions ): Plugin => {
 
@@ -134,22 +170,20 @@ export const ShaderMinifierLoader = ( options: ShaderMinifierLoaderOptions ): Pl
 
 	const skip = process.env.SKIP_SHADER_MINIFIER === 'true';
 
-	// 全シェーダーを1回のinvocationで一括minifyした結果（絶対パス→minify済みコード）。
-	// ファイルごとに個別にminifyするとリネームがファイル間で食い違いシンボル解決が壊れるため、
-	// 必ず全ファイルを同一のシンボルテーブルで処理する
+	// 全シェーダーを1回のinvocationで一括minifyした結果（絶対パス→minify済みコード）
 	let batchPromise: Promise<Map<string, string>> | null = null;
 
 	const runBatchMinify = async ( warn: ( msg: string ) => void ) => {
 
-		const allFiles = collectShaderFiles( options.scanDirs );
-		const partFiles = allFiles.filter( ( f ) => f.endsWith( '.part.glsl' ) );
-		const targetFiles = allFiles.filter( ( f ) => ! f.endsWith( '.part.glsl' ) );
+		// module/partは実行時に単体で使われることはなく、include解決で各シェーダーに焼き込まれる
+		const targetFiles = collectShaderFiles( options.scanDirs )
+			.filter( ( f ) => ! f.endsWith( '.part.glsl' ) && ! f.endsWith( '.module.glsl' ) );
 
 		const sources = new Map<string, string>();
 
 		for ( const file of targetFiles ) {
 
-			sources.set( file, preprocess( await fs.promises.readFile( file, 'utf-8' ) ) );
+			sources.set( file, await composeShader( await fs.promises.readFile( file, 'utf-8' ) ) );
 
 		}
 
@@ -168,9 +202,6 @@ export const ShaderMinifierLoader = ( options: ShaderMinifierLoaderOptions ): Pl
 		const rawFallback = () => finish( new Map( sources ) );
 
 		if ( targetFiles.length === 0 ) return rawFallback();
-
-		const partCodes = await Promise.all( partFiles.map( ( f ) => fs.promises.readFile( f, 'utf-8' ) ) );
-		const noRenamingList = [ 'main', 'D', ...extractPartIdentifiers( partCodes ) ];
 
 		const batchDir = path.join( './tmp', `shader_batch_${Date.now()}` );
 		await fs.promises.mkdir( batchDir, { recursive: true } );
@@ -195,9 +226,9 @@ export const ShaderMinifierLoader = ( options: ShaderMinifierLoaderOptions ): Pl
 			}
 
 			const outputPath = path.join( batchDir, 'out.js' );
-			// --no-remove-unused は付けない: バッチ全体の使用解析で未使用コードを削除させる。
-			// partが参照するシンボルは --no-renaming-list が削除からも保護する（実測確認済み）
-			const args = `--format js --preserve-externals --no-renaming-list ${noRenamingList.join( ',' )}`;
+			// --no-overloading: minifierは別関数ファミリ（hashvとfbm等）に同じ短縮名を割り当てることがあり、
+			// 同一シグネチャのオーバーロードが衝突して二重定義になるため無効化する
+			const args = '--format js --preserve-externals --no-overloading';
 			const bin = process.platform === 'darwin' ? 'mono ~/Documents/application/shader_minifier/shader_minifier.exe' : 'shader_minifier.exe';
 
 			try {
@@ -285,19 +316,10 @@ export const ShaderMinifierLoader = ( options: ShaderMinifierLoaderOptions ): Pl
 
 			const filePath = id.split( '?' )[ 0 ];
 
-			if ( filePath.endsWith( '.part.glsl' ) ) {
-
-				return {
-					code: `export default ${JSON.stringify( code.replaceAll( /[\n]+/g, '' ) )};`,
-					map: { mappings: '' }
-				};
-
-			}
-
 			if ( skip ) {
 
 				return {
-					code: `export default ${JSON.stringify( preprocess( code ) )};`,
+					code: `export default ${JSON.stringify( await composeShader( code ) )};`,
 					map: { mappings: '' }
 				};
 
@@ -317,7 +339,7 @@ export const ShaderMinifierLoader = ( options: ShaderMinifierLoaderOptions ): Pl
 				this.warn( `ShaderMinifierLoader: バッチ対象外のシェーダーです。生GLSLを使用します: ${filePath}` );
 
 				return {
-					code: `export default ${JSON.stringify( preprocess( code ) )};`,
+					code: `export default ${JSON.stringify( await composeShader( code ) )};`,
 					map: { mappings: '' }
 				};
 
