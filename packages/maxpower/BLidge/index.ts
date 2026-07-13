@@ -1,8 +1,8 @@
 import * as GLP from 'glpower';
 
-import { GLTF, GLTFLoader } from '../Loaders/GLTFLoader';
-
 import type { Engine } from '../Engine';
+import type { GLTF } from '../Loaders/GLTFLoader';
+
 
 export type BLidgeNodeType = 'empty' | 'cube' | 'sphere' | 'cylinder' | 'mesh' | 'camera' | 'plane' | 'light' | 'gltf';
 
@@ -147,7 +147,13 @@ type BLidgeConnection = {
 	gltfPath?: string,
 }
 
+export interface BLidgeGLTFLoaderLike {
+	load( path: string ): Promise<GLTF>;
+}
+
 export class BLidge extends GLP.EventEmitter {
+
+	public static gltfLoaderFactory: ( ( engine: Engine ) => BLidgeGLTFLoaderLike ) | null = null;
 
 	private _engine: Engine;
 
@@ -276,15 +282,23 @@ export class BLidge extends GLP.EventEmitter {
 
 		if ( gltfPath ) {
 
-			const loader = new GLTFLoader( this._engine );
+			if ( BLidge.gltfLoaderFactory ) {
 
-			await loader.load( gltfPath ).then( gltf => {
+				const loader = BLidge.gltfLoaderFactory( this._engine );
 
-				this.gltf = gltf;
+				await loader.load( gltfPath ).then( gltf => {
 
-				this.emit( "gltfLoaded", [ gltf ] );
+					this.gltf = gltf;
 
-			} );
+					this.emit( "gltfLoaded", [ gltf ] );
+
+				} );
+
+			} else {
+
+				console.warn( 'BLidge: gltfLoaderFactory not wired' );
+
+			}
 
 		}
 

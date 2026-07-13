@@ -30,6 +30,9 @@ export class BLidgeClient extends MXP.Component {
 	/** Engine.resources で解決できなかった attachment をラウンドトリップ保全する */
 	private _unresolvedByEntity: Map<string, OREngineDataEntityComponent[]>;
 
+	/** ビルド時に焼き込まれたシーンデータ。未設定なら実行時に /blidge-scene.json を fetch する */
+	public static sceneData: MXP.BLidgeScene | null = null;
+
 	// connection
 	/** WebSocket接続情報 */
 	private connection: {
@@ -110,16 +113,23 @@ export class BLidgeClient extends MXP.Component {
 
 			if ( this.type == "json" ) {
 
-				const res = await fetch( BASE_PATH + '/blidge-scene.json' );
-				if ( ! res.ok ) {
+				let sceneData = BLidgeClient.sceneData;
 
-					console.warn( `BLidgeClient: failed to load /blidge-scene.json (${res.status})` );
-					return;
+				if ( ! sceneData ) {
+
+					const res = await fetch( BASE_PATH + '/blidge-scene.json' );
+					if ( ! res.ok ) {
+
+						console.warn( `BLidgeClient: failed to load /blidge-scene.json (${res.status})` );
+						return;
+
+					}
+
+					sceneData = await res.json() as MXP.BLidgeScene;
 
 				}
 
-				const sceneData = await res.json();
-				await this.blidge.loadScene( sceneData as MXP.BLidgeScene, this.useGLTF ? this.gltfPath : undefined );
+				await this.blidge.loadScene( sceneData, this.useGLTF ? this.gltfPath : undefined );
 
 				this.emit( "loaded" );
 
