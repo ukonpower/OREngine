@@ -2,6 +2,14 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## プロジェクトの目的と最重要制約（64kb intro）
+- OREngine の主目的は **64kb intro 制作**。最終成果物は player ビルド（`npm run build` → `dist/player/out.html`）であり、この **packed サイズが最重要指標**
+- エディタ（React UI / server）は制作を支える道具であって主役ではない。player ビルドに editor / server の関心事を持ち込まない（eslint-plugin-boundaries で機械的に防止している）
+- core / builtin に機能を足すときは「それは64kランタイムに必要か」を必ず問う。エディタ都合の機能は editor 側に置く
+- ランタイム（player に入るコード）には外部依存を追加しない
+- サイズへの影響は必ず `npm run build` の packed（out.html）サイズで実測して判断する。minify前のコード量や gzip 前のバンドルサイズで判断しない
+- tree-shaking を壊すパターンを避ける: `import * as NS` したメンバーを `extends` しない（extends 対象は named import にする）、`export namespace` を使わない（個別 `export function` にする）
+
 ## 開発ワークフロー
 
 ### Git運用ルール
@@ -69,9 +77,20 @@ public updateMatrix() {
   - 短いファイルには不要
 
 ## 実装方針
+- **極力シンプルに実装する**。動く最小のコードを書き、将来の拡張を見越した抽象化・設定オプション・汎用化は書かない（必要になった時点で書く）
 - **後方互換性は考慮しない**。シンプルでフラットな実装を優先する（旧APIのエイリアス保持、deprecated ラッパー、移行期間のための分岐などは書かない）
 - 後方互換性が必要な場合はユーザーが明示的に指示する
 - 使われなくなったコード・フィールド・型は残さず削除する
+- 同じ機能に二重の経路（例: REST 経由とファイル直編集の併存）を作らない。1機能1経路
+
+## シェーダー実装の注意
+シェーダーはビルド時に `#include<key>` を解決した完成形を shader_minifier で一括minifyする方式（`host/vite/plugins` の ShaderMinifierLoader）。dev でも minify が走るのは意図的（minifier による破壊を保存→リロードで即検知するカナリア）。この前提から:
+
+- モジュール/part を個別・断片のまま minify に渡す方式へ戻さない
+- 新しい `#include` キーを増やしたら、ローダー内の `INCLUDE_FILES` に対応を登録する
+- ソースに `//[` `//]`（minifier の verbatim マーカー）を書かない（区間内だけリネームされず宣言側と食い違って壊れる）
+- uniform 構造体のフィールド名（CPU側が `'directionalLight[0].direction'` 形式で参照する名前）はローダーが自動抽出して保護している。この形式の参照を増やしたら minify 後の描画を確認する
+- minify 結果の構文検証はブラウザ不要で `glslangValidator`（`brew install glslang`）に最終結合形を食わせると確実。デバッグダンプは `tmp/shader-minified/`
 
 ## 命名規則
 - **クラス/インターフェース/型**: PascalCase（`Entity`, `ComponentUpdateEvent`, `RenderStack`）
