@@ -33,7 +33,6 @@ export class PipelinePostProcess {
 	private _motionBlurTile: MXP.PostProcessPass;
 	private _motionBlurNeighbor: MXP.PostProcessPass;
 	private _camera: MXP.Camera | null;
-	private _gl: WebGL2RenderingContext;
 
 	constructor( gl: WebGL2RenderingContext ) {
 
@@ -284,8 +283,6 @@ export class PipelinePostProcess {
 		this.rtSSR2 = rtSSR2;
 		this._camera = null;
 
-		this._gl = gl;
-
 	}
 
 	public update( _event: MXP.EntityUpdateEvent ): void {
@@ -333,8 +330,8 @@ export class PipelinePostProcess {
 
 			if ( ! config.motionBlur ) {
 
-				if ( this._motionBlurTile.renderTarget ) this.clearFrameBuffer( this._motionBlurTile.renderTarget );
-				if ( this._motionBlurNeighbor.renderTarget ) this.clearFrameBuffer( this._motionBlurNeighbor.renderTarget );
+				if ( this._motionBlurTile.renderTarget ) this._motionBlurTile.renderTarget.clear();
+				if ( this._motionBlurNeighbor.renderTarget ) this._motionBlurNeighbor.renderTarget.clear();
 
 			}
 
@@ -347,8 +344,8 @@ export class PipelinePostProcess {
 
 			if ( ! config.ssr ) {
 
-				this.clearFrameBuffer( this.rtSSR1 );
-				this.clearFrameBuffer( this.rtSSR2 );
+				this.rtSSR1.clear();
+				this.rtSSR2.clear();
 
 			}
 
@@ -362,8 +359,8 @@ export class PipelinePostProcess {
 
 			if ( ! config.dof ) {
 
-				if ( this.dofBokeh.renderTarget ) this.clearFrameBuffer( this.dofBokeh.renderTarget );
-				if ( this.dofComposite.renderTarget ) this.clearFrameBuffer( this.dofComposite.renderTarget );
+				if ( this.dofBokeh.renderTarget ) this.dofBokeh.renderTarget.clear();
+				if ( this.dofComposite.renderTarget ) this.dofComposite.renderTarget.clear();
 
 			}
 
@@ -374,16 +371,6 @@ export class PipelinePostProcess {
 	public setMotionBlurPower( power: number ): void {
 
 		this._motionBlur.uniforms.uPower.value = power;
-
-	}
-
-	private clearFrameBuffer( fb: GLP.GLPowerFrameBuffer ): void {
-
-		this._gl.bindFramebuffer( this._gl.FRAMEBUFFER, fb.getFrameBuffer() );
-		this._gl.drawBuffers( fb.textureAttachmentList );
-		this._gl.clearColor( 0, 0, 0, 0 );
-		this._gl.clear( this._gl.COLOR_BUFFER_BIT );
-		this._gl.bindFramebuffer( this._gl.FRAMEBUFFER, null );
 
 	}
 

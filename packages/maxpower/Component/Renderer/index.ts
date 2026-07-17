@@ -142,7 +142,7 @@ interface DrawParam extends CameraParam {
 // state
 
 type GPUState = {
-	[key: string] : {state: boolean},
+	[key: number]: boolean,
 }
 
 // compile draw param
@@ -170,6 +170,39 @@ export type PipelineConfig = {
 
 export let TextureUnitCounter = 0;
 
+// light uniform names
+// draw毎の文字列連結を避けるため、ライトインデックスごとにuniform名をキャッシュする
+
+const _dirLightNames: { [key: string]: string }[] = [];
+const _spotLightNames: { [key: string]: string }[] = [];
+
+const getDirLightNames = ( i: number ) => _dirLightNames[ i ] || ( _dirLightNames[ i ] = {
+	direction: `directionalLight[${i}].direction`,
+	color: `directionalLight[${i}].color`,
+	camNear: `uDirectionalLightCamera[${i}].near`,
+	camFar: `uDirectionalLightCamera[${i}].far`,
+	camViewMatrix: `uDirectionalLightCamera[${i}].viewMatrix`,
+	camProjectionMatrix: `uDirectionalLightCamera[${i}].projectionMatrix`,
+	camResolution: `uDirectionalLightCamera[${i}].resolution`,
+	shadowMap: `directionalLightShadowMap[${i}]`,
+} );
+
+const getSpotLightNames = ( i: number ) => _spotLightNames[ i ] || ( _spotLightNames[ i ] = {
+	position: `uSpotLight[${i}].position`,
+	direction: `uSpotLight[${i}].direction`,
+	color: `uSpotLight[${i}].color`,
+	angle: `uSpotLight[${i}].angle`,
+	blend: `uSpotLight[${i}].blend`,
+	distance: `uSpotLight[${i}].distance`,
+	decay: `uSpotLight[${i}].decay`,
+	camNear: `uSpotLightCamera[${i}].near`,
+	camFar: `uSpotLightCamera[${i}].far`,
+	camViewMatrix: `uSpotLightCamera[${i}].viewMatrix`,
+	camProjectionMatrix: `uSpotLightCamera[${i}].projectionMatrix`,
+	camResolution: `uSpotLightCamera[${i}].resolution`,
+	shadowMap: `spotLightShadowMap[${i}]`,
+} );
+
 export class Renderer extends Serializable {
 
 	public gl: WebGL2RenderingContext;
@@ -179,7 +212,6 @@ export class Renderer extends Serializable {
 
 	// pipeline config
 	private _pipelineConfig: Required<PipelineConfig>;
-	private _overrides: Partial<PipelineConfig>;
 	private _extDisJointTimerQuery: any;
 
 	// program
@@ -190,6 +222,7 @@ export class Renderer extends Serializable {
 
 	private _lights: CollectedLights;
 	private _lightsUpdated: boolean;
+	private _lightInfoCache: Map<Light, LightInfo>;
 
 	// envmap
 
@@ -212,7 +245,7 @@ export class Renderer extends Serializable {
 
 	// gpu state
 
-	private _glStateCahce: GPUState;
+	private _glStateCache: GPUState;
 
 	// render query
 
@@ -232,6 +265,10 @@ export class Renderer extends Serializable {
 	private _tmpLightDirection: GLP.Vector;
 	private _tmpModelMatrixInverse: GLP.Matrix;
 	private _tmpProjectionMatrixInverse: GLP.Matrix;
+	private _tmpResolution: GLP.Vector;
+	private _tmpResolutionUniform: GLP.Uniforms[string];
+	private _tmpUniformOverride: GLP.Uniforms;
+	private _tmpDrawParam: DrawParam;
 
 	constructor( gl: WebGL2RenderingContext, engine: Engine ) {
 
@@ -265,6 +302,7 @@ export class Renderer extends Serializable {
 		};
 
 		this._lightsUpdated = false;
+		this._lightInfoCache = new Map();
 
 		// envmap
 
@@ -324,7 +362,7 @@ export class Renderer extends Serializable {
 
 		// gpu
 
-		this._glStateCahce = {};
+		this._glStateCache = {};
 
 		// query
 
@@ -339,6 +377,10 @@ export class Renderer extends Serializable {
 		this._tmpProjectionMatrixInverse = new GLP.Matrix();
 		this._tmpModelViewMatrix = new GLP.Matrix();
 		this._tmpNormalMatrix = new GLP.Matrix();
+		this._tmpResolution = new GLP.Vector();
+		this._tmpResolutionUniform = { value: this._tmpResolution, type: '2fv' };
+		this._tmpUniformOverride = {};
+		this._tmpDrawParam = {};
 
 		this.gl.blendFunc( this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA );
 
@@ -360,8 +402,6 @@ export class Renderer extends Serializable {
 			lightShaft: true,
 			dof: true,
 		};
-
-		this._overrides = {};
 
 		// sky fields
 
@@ -407,49 +447,27 @@ export class Renderer extends Serializable {
 
 		const pipeline = this.fieldDir( "pipeline" );
 
-		const motionBlurDir = pipeline.dir( "motionBlur" );
-		motionBlurDir.field( "enabled", () => this._pipelineConfig.motionBlur, ( v: boolean ) => {
+		( [ "motionBlur", "ssr", "ssao", "dof", "lightShaft" ] as const ).forEach( ( key ) => {
 
-			this._pipelineConfig.motionBlur = v;
-			this._applyEffectiveConfig();
+			const dir = pipeline.dir( key );
 
-		} );
-		motionBlurDir.field( "power", () => this._pipelineConfig.motionBlurPower, ( v: number ) => {
+			dir.field( "enabled", () => this._pipelineConfig[ key ], ( v: boolean ) => {
 
-			this._pipelineConfig.motionBlurPower = v;
-			this._applyEffectiveConfig();
+				this._pipelineConfig[ key ] = v;
+				this.applyPipelineConfig( this._pipelineConfig );
 
-		}, { step: 0.1 } );
+			} );
 
-		const ssrDir = pipeline.dir( "ssr" );
-		ssrDir.field( "enabled", () => this._pipelineConfig.ssr, ( v: boolean ) => {
+			if ( key === "motionBlur" ) {
 
-			this._pipelineConfig.ssr = v;
-			this._applyEffectiveConfig();
+				dir.field( "power", () => this._pipelineConfig.motionBlurPower, ( v: number ) => {
 
-		} );
+					this._pipelineConfig.motionBlurPower = v;
+					this.applyPipelineConfig( this._pipelineConfig );
 
-		const ssaoDir = pipeline.dir( "ssao" );
-		ssaoDir.field( "enabled", () => this._pipelineConfig.ssao, ( v: boolean ) => {
+				}, { step: 0.1 } );
 
-			this._pipelineConfig.ssao = v;
-			this._applyEffectiveConfig();
-
-		} );
-
-		const dofDir = pipeline.dir( "dof" );
-		dofDir.field( "enabled", () => this._pipelineConfig.dof, ( v: boolean ) => {
-
-			this._pipelineConfig.dof = v;
-			this._applyEffectiveConfig();
-
-		} );
-
-		const lightShaftDir = pipeline.dir( "lightShaft" );
-		lightShaftDir.field( "enabled", () => this._pipelineConfig.lightShaft, ( v: boolean ) => {
-
-			this._pipelineConfig.lightShaft = v;
-			this._applyEffectiveConfig();
+			}
 
 		} );
 
@@ -529,51 +547,44 @@ export class Renderer extends Serializable {
 			envMap: [],
 		};
 
-		const _ = ( event: {entity: Entity, visibility: boolean} ) => {
-
-			const entity = event.entity;
-
-			const visibility = ( event.visibility || event.visibility === undefined ) && entity.visible;
-			const mesh = entity.getComponent( Mesh );
-
-			if ( mesh && visibility ) {
-
-				const material = mesh.material;
-
-				if ( material.visibilityFlag.deferred ) stack.deferred.push( entity );
-				if ( material.visibilityFlag.shadowMap ) stack.shadowMap.push( entity );
-				if ( material.visibilityFlag.forward ) stack.forward.push( entity );
-				if ( material.visibilityFlag.ui ) stack.ui.push( entity );
-				if ( material.visibilityFlag.envMap ) stack.envMap.push( entity );
-
-			}
-
-			const light = entity.getComponent( Light );
-
-			if ( light && light.enabled && visibility ) {
-
-				stack.light.push( entity );
-
-			}
-
-			for ( let i = 0; i < entity.children.length; i ++ ) {
-
-				_( {
-					entity: entity.children[ i ],
-					visibility
-				} );
-
-			}
-
-			return stack;
-
-		};
-
-		_( { entity, visibility: true } );
-
-		_( { entity: this.sky.entity, visibility: true } );
+		this._collectRenderStack( entity, true, stack );
+		this._collectRenderStack( this.sky.entity, true, stack );
 
 		return stack;
+
+	}
+
+	// entity以下を再帰的に走査してRenderStackへ振り分ける
+	private _collectRenderStack( entity: Entity, parentVisibility: boolean, stack: RenderStack ) {
+
+		const visibility = parentVisibility && entity.visible;
+		const mesh = entity.getComponent( Mesh );
+
+		if ( mesh && visibility ) {
+
+			const material = mesh.material;
+
+			if ( material.visibilityFlag.deferred ) stack.deferred.push( entity );
+			if ( material.visibilityFlag.shadowMap ) stack.shadowMap.push( entity );
+			if ( material.visibilityFlag.forward ) stack.forward.push( entity );
+			if ( material.visibilityFlag.ui ) stack.ui.push( entity );
+			if ( material.visibilityFlag.envMap ) stack.envMap.push( entity );
+
+		}
+
+		const light = entity.getComponent( Light );
+
+		if ( light && light.enabled && visibility ) {
+
+			stack.light.push( entity );
+
+		}
+
+		for ( let i = 0; i < entity.children.length; i ++ ) {
+
+			this._collectRenderStack( entity.children[ i ], visibility, stack );
+
+		}
 
 	}
 
@@ -911,62 +922,37 @@ export class Renderer extends Serializable {
 
 		renderOption = renderOption || {};
 
-		const drawParam: DrawParam = {
-			viewMatrix: camera.viewMatrix,
-			viewMatrixPrev: camera.viewMatrixPrev,
-			projectionMatrix: camera.projectionMatrix,
-			projectionMatrixPrev: camera.projectionMatrixPrev,
-			cameraMatrixWorld: cameraEntity.matrixWorld,
-			cameraNear: camera.near,
-			cameraFar: camera.far,
-			renderTarget: renderTarget,
-			uniformOverride: renderOption.uniformOverride,
-			...renderOption.cameraOverride,
-		};
+		const drawParam = this._tmpDrawParam;
 
-		if ( camera.viewPort ) {
+		drawParam.viewMatrix = camera.viewMatrix;
+		drawParam.viewMatrixPrev = camera.viewMatrixPrev;
+		drawParam.projectionMatrix = camera.projectionMatrix;
+		drawParam.projectionMatrixPrev = camera.projectionMatrixPrev;
+		drawParam.cameraMatrixWorld = cameraEntity.matrixWorld;
+		drawParam.cameraNear = camera.near;
+		drawParam.cameraFar = camera.far;
+		drawParam.renderTarget = renderTarget;
+		drawParam.uniformOverride = renderOption.uniformOverride || this._tmpUniformOverride;
 
-			const v = camera.viewPort;
+		if ( renderOption.cameraOverride ) {
 
-			this.gl.viewport( v.x, v.y, v.z, v.w );
-
-		} else {
-
-			if ( renderTarget ) {
-
-				this.gl.viewport( 0, 0, renderTarget.size.x, renderTarget.size.y );
-
-			} else {
-
-				this.gl.viewport( 0, 0, canvasSize.x, canvasSize.y );
-
-			}
+			Object.assign( drawParam, renderOption.cameraOverride );
 
 		}
 
-		const resolution = new GLP.Vector();
+		this._bindRenderTarget( renderTarget, camera.viewPort, canvasSize );
 
 		if ( renderTarget ) {
 
-			this.gl.bindFramebuffer( this.gl.FRAMEBUFFER, renderTarget.getFrameBuffer() );
-			this.gl.drawBuffers( renderTarget.textureAttachmentList );
-
-			resolution.set( renderTarget.size.x, renderTarget.size.y );
+			this._tmpResolution.set( renderTarget.size.x, renderTarget.size.y );
 
 		} else {
 
-			this.gl.bindFramebuffer( this.gl.FRAMEBUFFER, null );
-
-			resolution.set( canvasSize.x, canvasSize.y );
+			this._tmpResolution.set( canvasSize.x, canvasSize.y );
 
 		}
 
-		if ( ! drawParam.uniformOverride ) drawParam.uniformOverride = {};
-
-		drawParam.uniformOverride.uResolution = {
-			value: resolution,
-			type: '2fv'
-		};
+		drawParam.uniformOverride.uResolution = this._tmpResolutionUniform;
 
 		// clear
 
@@ -1009,8 +995,62 @@ export class Renderer extends Serializable {
 
 		}
 
-		this.emit( "drawPass", [ renderTarget, "camera/" + renderType ] );
+		if ( import.meta.env.DEV ) {
 
+			this.emit( "drawPass", [ renderTarget, "camera/" + renderType ] );
+
+		}
+
+	}
+
+	// GLステートをキャッシュと比較し、変化があった時だけ切り替える
+	private _setGLState( type: number, state: boolean ) {
+
+		if ( this._glStateCache[ type ] !== state ) {
+
+			if ( state ) {
+
+				this.gl.enable( type );
+
+			} else {
+
+				this.gl.disable( type );
+
+			}
+
+			this._glStateCache[ type ] = state;
+
+		}
+
+	}
+
+	// viewport設定とframebufferバインドをまとめて行う
+	private _bindRenderTarget( renderTarget: GLP.GLPowerFrameBuffer | null, viewPort?: GLP.Vector | null, canvasSize?: GLP.Vector ) {
+
+		if ( viewPort ) {
+
+			this.gl.viewport( viewPort.x, viewPort.y, viewPort.z, viewPort.w );
+
+		} else if ( renderTarget ) {
+
+			this.gl.viewport( 0, 0, renderTarget.size.x, renderTarget.size.y );
+
+		} else if ( canvasSize ) {
+
+			this.gl.viewport( 0, 0, canvasSize.x, canvasSize.y );
+
+		}
+
+		if ( renderTarget ) {
+
+			this.gl.bindFramebuffer( this.gl.FRAMEBUFFER, renderTarget.getFrameBuffer() );
+			this.gl.drawBuffers( renderTarget.textureAttachmentList );
+
+		} else {
+
+			this.gl.bindFramebuffer( this.gl.FRAMEBUFFER, null );
+
+		}
 
 	}
 
@@ -1035,12 +1075,25 @@ export class Renderer extends Serializable {
 
 		const type = lightComponent.lightType;
 
-		const info: LightInfo = {
-			position: new GLP.Vector( 0.0, 0.0, 0.0, 1.0 ).applyMatrix4( lightEntity.matrixWorld ),
-			direction: new GLP.Vector( 0.0, 1.0, 0.0, 0.0 ).applyMatrix4( lightEntity.matrixWorld ).normalize(),
-			color: new GLP.Vector( lightComponent.color.x, lightComponent.color.y, lightComponent.color.z ).multiply( lightComponent.intensity * Math.PI ),
-			component: lightComponent,
-		};
+		// LightInfoはライトごとに使い回してフレーム毎のVector生成を避ける
+		let info = this._lightInfoCache.get( lightComponent );
+
+		if ( ! info ) {
+
+			info = {
+				position: new GLP.Vector(),
+				direction: new GLP.Vector(),
+				color: new GLP.Vector(),
+				component: lightComponent,
+			};
+
+			this._lightInfoCache.set( lightComponent, info );
+
+		}
+
+		info.position.set( 0.0, 0.0, 0.0, 1.0 ).applyMatrix4( lightEntity.matrixWorld );
+		info.direction.set( 0.0, 1.0, 0.0, 0.0 ).applyMatrix4( lightEntity.matrixWorld ).normalize();
+		info.color.set( lightComponent.color.x, lightComponent.color.y, lightComponent.color.z ).multiply( lightComponent.intensity * Math.PI );
 
 		if ( type == 'directional' ) {
 
@@ -1078,40 +1131,7 @@ export class Renderer extends Serializable {
 
 			const renderTarget = pass.renderTarget;
 
-			if ( pass.viewPort ) {
-
-				const v = pass.viewPort;
-
-				this.gl.viewport( v.x, v.y, v.z, v.w );
-
-			} else {
-
-				if ( renderTarget ) {
-
-					this.gl.viewport( 0, 0, renderTarget.size.x, renderTarget.size.y );
-
-				} else {
-
-					if ( canvasSize ) {
-
-						this.gl.viewport( 0, 0, canvasSize.x, canvasSize.y );
-
-					}
-
-				}
-
-			}
-
-			if ( renderTarget ) {
-
-				this.gl.bindFramebuffer( this.gl.FRAMEBUFFER, renderTarget.getFrameBuffer() );
-				this.gl.drawBuffers( renderTarget.textureAttachmentList );
-
-			} else {
-
-				this.gl.bindFramebuffer( this.gl.FRAMEBUFFER, null );
-
-			}
+			this._bindRenderTarget( renderTarget, pass.viewPort, canvasSize );
 
 			// clear
 
@@ -1133,7 +1153,7 @@ export class Renderer extends Serializable {
 
 			if ( clear !== 0 ) {
 
-				this.gl.clear( this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT );
+				this.gl.clear( clear );
 
 			}
 
@@ -1167,7 +1187,11 @@ export class Renderer extends Serializable {
 
 			}
 
-			this.emit( "drawPass", [ pass.renderTarget, pass.name ] );
+			if ( import.meta.env.DEV ) {
+
+				this.emit( "drawPass", [ pass.renderTarget, pass.name ] );
+
+			}
 
 		}
 
@@ -1185,45 +1209,8 @@ export class Renderer extends Serializable {
 
 		TextureUnitCounter = 0;
 
-		// cull face
-
-		let gpuStateType: number = this.gl.CULL_FACE;
-
-		const cullStateCache = this._glStateCahce[ gpuStateType ];
-
-		if ( cullStateCache === undefined || cullStateCache.state != material.cullFace ) {
-
-			if ( material.cullFace ) {
-
-				this.gl.enable( gpuStateType );
-
-			} else {
-
-				this.gl.disable( gpuStateType );
-
-			}
-
-		}
-
-		// depth
-
-		gpuStateType = this.gl.DEPTH_TEST;
-
-		const depthStateCache = this._glStateCahce[ gpuStateType ];
-
-		if ( depthStateCache === undefined || depthStateCache.state != material.depthTest ) {
-
-			if ( material.depthTest ) {
-
-				this.gl.enable( gpuStateType );
-
-			} else {
-
-				this.gl.disable( gpuStateType );
-
-			}
-
-		}
+		this._setGLState( this.gl.CULL_FACE, material.cullFace );
+		this._setGLState( this.gl.DEPTH_TEST, material.depthTest );
 
 		this.gl.depthMask( material.depthWrite );
 
@@ -1339,22 +1326,21 @@ export class Renderer extends Serializable {
 			for ( let i = 0; i < this._lights.directional.length; i ++ ) {
 
 				const dLight = this._lights.directional[ i ];
+				const names = getDirLightNames( i );
 
-				program.setUniform( 'directionalLight[' + i + '].direction', '3fv', dLight.direction.getElm( 'vec3' ) );
-				program.setUniform( 'directionalLight[' + i + '].color', '3fv', dLight.color.getElm( 'vec3' ) );
+				program.setUniform( names.direction, '3fv', dLight.direction.getElm( 'vec3' ) );
+				program.setUniform( names.color, '3fv', dLight.color.getElm( 'vec3' ) );
 
 				if ( dLight.component.renderTarget ) {
 
 					const texture = dLight.component.renderTarget.textures[ 0 ].activate( TextureUnitCounter ++ );
 
-					const dc = `uDirectionalLightCamera[${i}]`;
-
-					program.setUniform( dc + '.near', '1fv', [ dLight.component.near ] );
-					program.setUniform( dc + '.far', '1fv', [ dLight.component.far ] );
-					program.setUniform( dc + '.viewMatrix', 'Matrix4fv', dLight.component.viewMatrix.elm );
-					program.setUniform( dc + '.projectionMatrix', 'Matrix4fv', dLight.component.projectionMatrix.elm );
-					program.setUniform( dc + '.resolution', '2fv', texture.size.getElm( "vec2" ) );
-					program.setUniform( 'directionalLightShadowMap[' + i + ']', '1i', [ texture.unit ] );
+					program.setUniform( names.camNear, '1fv', [ dLight.component.near ] );
+					program.setUniform( names.camFar, '1fv', [ dLight.component.far ] );
+					program.setUniform( names.camViewMatrix, 'Matrix4fv', dLight.component.viewMatrix.elm );
+					program.setUniform( names.camProjectionMatrix, 'Matrix4fv', dLight.component.projectionMatrix.elm );
+					program.setUniform( names.camResolution, '2fv', texture.size.getElm( "vec2" ) );
+					program.setUniform( names.shadowMap, '1i', [ texture.unit ] );
 
 				}
 
@@ -1363,6 +1349,7 @@ export class Renderer extends Serializable {
 			for ( let i = 0; i < this._lights.spot.length; i ++ ) {
 
 				const sLight = this._lights.spot[ i ];
+				const names = getSpotLightNames( i );
 
 				if ( param && param.viewMatrix ) {
 
@@ -1370,29 +1357,24 @@ export class Renderer extends Serializable {
 
 				}
 
-				const sl = `uSpotLight[${i}]`;
-
-				program.setUniform( sl + '.position', '3fv', sLight.position.getElm( 'vec3' ) );
-				program.setUniform( sl + '.direction', '3fv', sLight.direction.getElm( 'vec3' ) );
-				program.setUniform( sl + '.color', '3fv', sLight.color.getElm( 'vec3' ) );
-				program.setUniform( sl + '.angle', '1fv', [ Math.cos( sLight.component.angle / 2 ) ] );
-				program.setUniform( sl + '.blend', '1fv', [ sLight.component.blend ] );
-				program.setUniform( sl + '.distance', '1fv', [ sLight.component.distance ] );
-				program.setUniform( sl + '.decay', '1fv', [ sLight.component.decay ] );
-
+				program.setUniform( names.position, '3fv', sLight.position.getElm( 'vec3' ) );
+				program.setUniform( names.direction, '3fv', sLight.direction.getElm( 'vec3' ) );
+				program.setUniform( names.color, '3fv', sLight.color.getElm( 'vec3' ) );
+				program.setUniform( names.angle, '1fv', [ Math.cos( sLight.component.angle / 2 ) ] );
+				program.setUniform( names.blend, '1fv', [ sLight.component.blend ] );
+				program.setUniform( names.distance, '1fv', [ sLight.component.distance ] );
+				program.setUniform( names.decay, '1fv', [ sLight.component.decay ] );
 
 				if ( sLight.component.renderTarget ) {
 
 					const texture = sLight.component.renderTarget.textures[ 0 ].activate( TextureUnitCounter ++ );
 
-					const sc = `uSpotLightCamera[${i}]`;
-
-					program.setUniform( sc + '.near', '1fv', [ sLight.component.near ] );
-					program.setUniform( sc + '.far', '1fv', [ sLight.component.far ] );
-					program.setUniform( sc + '.viewMatrix', 'Matrix4fv', sLight.component.viewMatrix.elm );
-					program.setUniform( sc + '.projectionMatrix', 'Matrix4fv', sLight.component.projectionMatrix.elm );
-					program.setUniform( sc + '.resolution', '2fv', texture.size.getElm( "vec2" ) );
-					program.setUniform( 'spotLightShadowMap[' + i + ']', '1i', [ texture.unit ] );
+					program.setUniform( names.camNear, '1fv', [ sLight.component.near ] );
+					program.setUniform( names.camFar, '1fv', [ sLight.component.far ] );
+					program.setUniform( names.camViewMatrix, 'Matrix4fv', sLight.component.viewMatrix.elm );
+					program.setUniform( names.camProjectionMatrix, 'Matrix4fv', sLight.component.projectionMatrix.elm );
+					program.setUniform( names.camResolution, '2fv', texture.size.getElm( "vec2" ) );
+					program.setUniform( names.shadowMap, '1i', [ texture.unit ] );
 
 				}
 
@@ -1400,7 +1382,7 @@ export class Renderer extends Serializable {
 
 		}
 
-		setUniforms( program, { ...this.globalUniforms, ...material.uniforms, ...( param && param.uniformOverride ) } );
+		setUniforms( program, this.globalUniforms, material.uniforms, param && param.uniformOverride );
 
 		const vao = program.getVAO( drawId.toString() );
 
@@ -1559,31 +1541,9 @@ export class Renderer extends Serializable {
 
 	}
 
-	public setOverride( config: Partial<PipelineConfig> ): void {
+	public get pipelineConfig(): Required<PipelineConfig> {
 
-		this._overrides = { ...this._overrides, ...config };
-		this._applyEffectiveConfig();
-
-	}
-
-	public clearOverrides(): void {
-
-		this._overrides = {};
-		this._applyEffectiveConfig();
-
-	}
-
-	private _applyEffectiveConfig(): void {
-
-		const effective: PipelineConfig = {
-			motionBlur: this._overrides.motionBlur ?? this._pipelineConfig.motionBlur,
-			motionBlurPower: this._overrides.motionBlurPower ?? this._pipelineConfig.motionBlurPower,
-			ssr: this._overrides.ssr ?? this._pipelineConfig.ssr,
-			ssao: this._overrides.ssao ?? this._pipelineConfig.ssao,
-			lightShaft: this._overrides.lightShaft ?? this._pipelineConfig.lightShaft,
-			dof: this._overrides.dof ?? this._pipelineConfig.dof,
-		};
-		this.applyPipelineConfig( effective );
+		return this._pipelineConfig;
 
 	}
 
@@ -1662,65 +1622,78 @@ export class Renderer extends Serializable {
 
 }
 
-export const setUniforms = ( program: GLP.GLPowerProgram, uniforms: GLP.Uniforms ) => {
+// uniform値の展開先を使い回してdraw毎の配列生成を避ける
+// （GLPowerProgram.setUniformが値を内部配列へコピーする前提）
+const _uniformArrayValue: ( number | boolean )[] = [];
 
-	const keys = Object.keys( uniforms );
+const pushUniformValue = ( v: GLP.Uniformable, type: string ) => {
 
-	for ( let i = 0; i < keys.length; i ++ ) {
+	if ( v == null ) return;
 
-		const name = keys[ i ];
-		const uni = uniforms[ name ];
+	if ( typeof v == 'number' || typeof v == 'boolean' ) {
 
-		if ( ! uni ) continue;
+		_uniformArrayValue.push( v );
 
-		const type = uni.type;
-		const value = uni.value;
+	} else if ( 'isVector' in v ) {
 
-		const arrayValue: ( number | boolean )[] = [];
+		_uniformArrayValue.push( ...v.getElm( ( 'vec' + type.charAt( 0 ) ) as any ) );
 
-		const _ = ( v: GLP.Uniformable ) => {
+	} else if ( 'isTexture' in v ) {
 
-			if ( v == null ) return;
+		v.activate( TextureUnitCounter ++ );
 
-			if ( typeof v == 'number' || typeof v == 'boolean' ) {
+		_uniformArrayValue.push( v.unit );
 
-				arrayValue.push( v );
+	} else {
 
-			} else if ( 'isVector' in v ) {
+		_uniformArrayValue.push( ...v.elm );
 
-				arrayValue.push( ...v.getElm( ( 'vec' + type.charAt( 0 ) ) as any ) );
+	}
 
-			} else if ( 'isTexture' in v ) {
+};
 
-				v.activate( TextureUnitCounter ++ );
+// 複数のuniformオブジェクトを順に走査して設定する（後のオブジェクトが同名キーを上書きする）
+export const setUniforms = ( program: GLP.GLPowerProgram, ...uniformsList: ( GLP.Uniforms | undefined )[] ) => {
 
-				arrayValue.push( v.unit );
+	for ( let ui = 0; ui < uniformsList.length; ui ++ ) {
+
+		const uniforms = uniformsList[ ui ];
+
+		if ( ! uniforms ) continue;
+
+		const keys = Object.keys( uniforms );
+
+		for ( let i = 0; i < keys.length; i ++ ) {
+
+			const name = keys[ i ];
+			const uni = uniforms[ name ];
+
+			if ( ! uni ) continue;
+
+			const type = uni.type;
+			const value = uni.value;
+
+			_uniformArrayValue.length = 0;
+
+			if ( Array.isArray( value ) ) {
+
+				for ( let j = 0; j < value.length; j ++ ) {
+
+					pushUniformValue( value[ j ], type );
+
+				}
 
 			} else {
 
-				arrayValue.push( ...v.elm );
+				pushUniformValue( value, type );
 
 			}
 
-		};
+			if ( _uniformArrayValue.length > 0 ) {
 
-		if ( Array.isArray( value ) ) {
-
-			for ( let j = 0; j < value.length; j ++ ) {
-
-				_( value[ j ] );
+				program.setUniform( name, type, _uniformArrayValue );
 
 			}
-
-		} else {
-
-			_( value );
-
-		}
-
-		if ( arrayValue.length > 0 ) {
-
-			program.setUniform( name, type, arrayValue );
 
 		}
 
