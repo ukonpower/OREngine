@@ -29,6 +29,9 @@ uniform vec2 uResolution;
 #ifdef IS_FORWARD
 	uniform sampler2D uDeferredTexture;
 	uniform vec2 uDeferredResolution;
+	uniform sampler2D uGbufferNormal;
+	uniform sampler2D uGbufferAlbedo;
+	uniform sampler2D uGbufferMaterial;
 #endif
 
 #if defined(IS_FORWARD) || defined(IS_DEPTH)

@@ -816,6 +816,19 @@ export class Renderer extends Serializable {
 						uEnvMap: {
 							value: this._pmremRender.renderTarget.textures[ 0 ],
 							type: '1i'
+						},
+						// gBufferのうちforwardBufferにアタッチされていない（フィードバックしない）テクスチャのみ公開する
+						uGbufferNormal: {
+							value: rt.normalBuffer.textures[ 0 ],
+							type: '1i'
+						},
+						uGbufferAlbedo: {
+							value: rt.gBuffer.textures[ 2 ],
+							type: '1i'
+						},
+						uGbufferMaterial: {
+							value: rt.gBuffer.textures[ 3 ],
+							type: '1i'
 						}
 					},
 					disableClear: true,
