@@ -1,8 +1,6 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { Renderer } from '../';
-
 import pmremFrag from './shaders/pmrem.fs';
 
 type SwapBuffer = {rt1: GLP.GLPowerFrameBuffer, rt2: GLP.GLPowerFrameBuffer};
@@ -15,7 +13,6 @@ export class PMREMRender extends GLP.EventEmitter {
 	private pmremPasses: MXP.PostProcessPass[];
 	private swapBuffers: SwapBuffer[];
 	private timeUniforms: GLP.Uniforms;
-	private postProcessRenderer: Renderer | null;
 
 	constructor( gl: WebGL2RenderingContext, param: {input: GLP.GLPowerTextureCube[], resolution: GLP.Vector} ) {
 
@@ -64,8 +61,7 @@ export class PMREMRender extends GLP.EventEmitter {
 				rt2: new GLP.GLPowerFrameBuffer( gl ).setTexture( [ new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA16F, format: gl.RGBA } ) ] ),
 			} );
 
-			let roughness = 1 / ( mipmapLevel - 1.0 ) * i;
-			roughness = roughness;
+			const roughness = 1 / ( mipmapLevel - 1.0 ) * i;
 
 			const pmremPass = new MXP.PostProcessPass( gl, {
 				renderTarget: swapBuffers[ i ].rt1,
@@ -120,7 +116,6 @@ export class PMREMRender extends GLP.EventEmitter {
 		this.pmremPasses = pmremPasses;
 		this.swapBuffers = swapBuffers;
 		this.timeUniforms = timeUniforms;
-		this.postProcessRenderer = null;
 
 		if ( import.meta.hot ) {
 
@@ -138,26 +133,6 @@ export class PMREMRender extends GLP.EventEmitter {
 				}
 
 			} );
-
-		}
-
-	}
-
-	public setRenderer( postProcessRenderer: Renderer ) {
-
-		this.postProcessRenderer = postProcessRenderer;
-
-	}
-
-	public renderProcess() {
-
-		if ( this.postProcessRenderer ) {
-
-			this.postProcessRenderer.renderPostProcess( this.postprocess, undefined, this.resolution );
-
-		} else {
-
-			console.warn( "Renderer has not been set in PMREMRender. Call setRenderer first." );
 
 		}
 

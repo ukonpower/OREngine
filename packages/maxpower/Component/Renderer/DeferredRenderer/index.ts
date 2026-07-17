@@ -41,8 +41,6 @@ export type DeferredRendererPassConfig = {
 
 export class DeferredRenderer extends GLP.EventEmitter {
 
-	private gl: WebGL2RenderingContext;
-
 	// renderer postprocess
 
 	public postprocess: MXP.PostProcess;
@@ -76,7 +74,6 @@ export class DeferredRenderer extends GLP.EventEmitter {
 		super();
 
 		const gl = params.gl;
-		this.gl = gl;
 
 		// normal buffer
 
@@ -341,10 +338,10 @@ export class DeferredRenderer extends GLP.EventEmitter {
 
 			if ( ! config.ssao ) {
 
-				this.clearFrameBuffer( this.rtSSAO1 );
-				this.clearFrameBuffer( this.rtSSAO2 );
-				if ( this.ssaoBlur.renderTarget ) this.clearFrameBuffer( this.ssaoBlur.renderTarget );
-				if ( this.ssaoBlurV.renderTarget ) this.clearFrameBuffer( this.ssaoBlurV.renderTarget );
+				this.rtSSAO1.clear();
+				this.rtSSAO2.clear();
+				if ( this.ssaoBlur.renderTarget ) this.ssaoBlur.renderTarget.clear();
+				if ( this.ssaoBlurV.renderTarget ) this.ssaoBlurV.renderTarget.clear();
 
 			}
 
@@ -356,22 +353,12 @@ export class DeferredRenderer extends GLP.EventEmitter {
 
 			if ( ! config.lightShaft ) {
 
-				this.clearFrameBuffer( this.rtLightShaft1 );
-				this.clearFrameBuffer( this.rtLightShaft2 );
+				this.rtLightShaft1.clear();
+				this.rtLightShaft2.clear();
 
 			}
 
 		}
-
-	}
-
-	private clearFrameBuffer( fb: GLP.GLPowerFrameBuffer ): void {
-
-		this.gl.bindFramebuffer( this.gl.FRAMEBUFFER, fb.getFrameBuffer() );
-		this.gl.drawBuffers( fb.textureAttachmentList );
-		this.gl.clearColor( 0, 0, 0, 0 );
-		this.gl.clear( this.gl.COLOR_BUFFER_BIT );
-		this.gl.bindFramebuffer( this.gl.FRAMEBUFFER, null );
 
 	}
 

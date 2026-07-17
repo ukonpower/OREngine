@@ -22,7 +22,7 @@ export class EditorCamera {
 		this._useEditorCamera = true;
 		this._cameraMode = "scene";
 		engine.cameraEntity = this._entity;
-		engine.renderer.setOverride( { motionBlur: false, dof: false } );
+		this._applyEditorPipelineConfig( engine );
 		this._syncFromScene( engine );
 
 	}
@@ -67,16 +67,23 @@ export class EditorCamera {
 			engine.cameraEntity = this._entity;
 			this._orbitControls.enabled = true;
 			this._useEditorCamera = true;
-			engine.renderer.setOverride( { motionBlur: false, dof: false } );
+			this._applyEditorPipelineConfig( engine );
 
 		} else {
 
 			engine.cameraEntity = null;
 			this._orbitControls.enabled = false;
 			this._useEditorCamera = false;
-			engine.renderer.clearOverrides();
+			engine.renderer.applyPipelineConfig( engine.renderer.pipelineConfig );
 
 		}
+
+	}
+
+	// エディタカメラ操作中はmotionBlur / dofを無効化する（sceneの設定値は変更しない）
+	private _applyEditorPipelineConfig( engine: Engine ) {
+
+		engine.renderer.applyPipelineConfig( { ...engine.renderer.pipelineConfig, motionBlur: false, dof: false } );
 
 	}
 
