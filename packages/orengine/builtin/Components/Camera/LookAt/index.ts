@@ -6,19 +6,25 @@ export class LookAt extends MXP.Component {
 	public target: MXP.Entity | null;
 
 	private up: GLP.Vector;
-	private entityWorldPos: GLP.Vector;
 	private targetWorldPos: GLP.Vector;
+	private targetLocalPos: GLP.Vector;
+	private localUp: GLP.Vector;
+	private lookAtMatrix: GLP.Matrix;
+	private parentInverse: GLP.Matrix;
 
 	constructor( params: MXP.ComponentParams ) {
 
 		super( params );
 
 		this.target = null;
-		this.entityWorldPos = new GLP.Vector();
 		this.targetWorldPos = new GLP.Vector();
+		this.targetLocalPos = new GLP.Vector();
+		this.localUp = new GLP.Vector();
 		this.up = new GLP.Vector( 0.0, 1.0, 0.0 );
+		this.lookAtMatrix = new GLP.Matrix();
+		this.parentInverse = new GLP.Matrix();
 
-		this.order = 9999;
+		this.order = 100;
 
 	}
 
@@ -28,22 +34,24 @@ export class LookAt extends MXP.Component {
 
 	}
 
-	public beforeRenderImpl( _event: MXP.ComponentUpdateEvent ): void {
+	protected postUpdateImpl( _event: MXP.ComponentUpdateEvent ): void {
 
 		if ( this.target && this._enabled ) {
 
-			this.entity.matrixWorld.decompose( this.entityWorldPos );
 			this.target.matrixWorld.decompose( this.targetWorldPos );
+			this.targetLocalPos.copy( this.targetWorldPos );
+			this.localUp.copy( this.up );
 
-			this.entity.matrixWorld.lookAt( this.entityWorldPos, this.targetWorldPos, this.up );
+			if ( this.entity.parent ) {
 
-			const camera = this.entity.getComponentsByTag<MXP.Camera>( "camera" )[ 0 ];
-
-			if ( camera ) {
-
-				camera.viewMatrix.copy( this.entity.matrixWorld ).inverse();
+				this.parentInverse.copy( this.entity.parent.matrixWorld ).inverse();
+				this.targetLocalPos.applyMatrix4AsPosition( this.parentInverse );
+				this.localUp.applyMatrix4AsDirection( this.parentInverse ).normalize();
 
 			}
+
+			this.lookAtMatrix.lookAt( this.entity.position, this.targetLocalPos, this.localUp );
+			this.entity.quaternion.setFromMatrix( this.lookAtMatrix );
 
 		}
 

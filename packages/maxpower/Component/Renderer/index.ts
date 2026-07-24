@@ -592,8 +592,6 @@ export class Renderer extends Serializable {
 
 		if ( this.resolution.x === 0 || this.resolution.y === 0 ) return;
 
-		entity.onBeforeRender( event );
-
 		if ( import.meta.env.DEV && this._extDisJointTimerQuery ) {
 
 			const disjoint = this.gl.getParameter( this._extDisJointTimerQuery.GPU_DISJOINT_EXT );
@@ -924,8 +922,6 @@ export class Renderer extends Serializable {
 				this.gl.COLOR_BUFFER_BIT, this.gl.NEAREST );
 
 		}
-
-		entity.onAfterRender( event );
 
 	}
 

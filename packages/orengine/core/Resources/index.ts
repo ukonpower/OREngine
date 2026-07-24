@@ -228,6 +228,7 @@ export class Resources extends GLP.EventEmitter {
 		resolution?: number[];
 		filter?: string;
 		updateEveryFrame?: boolean;
+		textures?: { [key: string]: string };
 	} ) {
 
 		const resource = new TextureResource( name, { data } );
@@ -274,13 +275,14 @@ export class Resources extends GLP.EventEmitter {
 
 	}
 
-	private _buildTexture( resource: TextureResource, renderer: MXP.Renderer, gl: WebGL2RenderingContext ): TexProcedural | null {
+	private _buildTexture( resource: TextureResource, renderer: MXP.Renderer, gl: WebGL2RenderingContext, uniforms?: GLP.Uniforms ): TexProcedural | null {
 
 		const fragSource = resource.frag;
 		if ( ! fragSource ) return null;
 
 		const tex = new TexProcedural( renderer, {
 			frag: fragSource,
+			uniforms,
 			resolution: new GLP.Vector(
 				resource.resolution[ 0 ] || 1024,
 				resource.resolution[ 1 ] || 1024
@@ -302,58 +304,51 @@ export class Resources extends GLP.EventEmitter {
 
 	}
 
-	public buildTextureInstances( renderer: MXP.Renderer, gl: WebGL2RenderingContext, engineUniforms?: GLP.Uniforms ) {
+	// 依存テクスチャ（resource.textures）を先にビルドしてから自身をビルドする
+	private _ensureTexture( resource: TextureResource, renderer: MXP.Renderer, gl: WebGL2RenderingContext, engineUniforms: GLP.Uniforms | undefined, building: Set<string> ): GLP.GLPowerTexture | null {
 
-		this._updateEveryFrameTextures = [];
+		const built = this._textures.get( resource.name );
 
-		this._textureResources.forEach( ( resource ) => {
+		if ( built ) return built;
 
-			if ( this._textures.has( resource.name ) ) return;
+		// 循環参照はビルドせずスキップする
+		if ( building.has( resource.name ) ) return null;
 
-			const tex = this._buildTexture( resource, renderer, gl );
+		building.add( resource.name );
 
-			if ( ! tex ) return;
+		const uniforms: GLP.Uniforms = {};
+		const texNames = resource.textures;
+		const keys = Object.keys( texNames );
 
-			if ( resource.updateEveryFrame && engineUniforms ) {
+		for ( let i = 0; i < keys.length; i ++ ) {
 
-				MXP.UniformsUtils.assign( tex.material.uniforms, engineUniforms );
+			const uniformName = keys[ i ];
+			const depName = texNames[ uniformName ];
+			const depResource = this._textureResources.get( depName );
+
+			const dep = depResource
+				? this._ensureTexture( depResource, renderer, gl, engineUniforms, building )
+				: this._textures.get( depName );
+
+			if ( dep ) {
+
+				uniforms[ uniformName ] = { value: dep, type: '1i' };
 
 			}
-
-			this._textures.set( resource.name, tex );
-
-			if ( resource.updateEveryFrame ) {
-
-				this._updateEveryFrameTextures.push( tex );
-
-			}
-
-		} );
-
-		this.emit( "update" );
-
-	}
-
-	public rebuildTexture( name: string, renderer: MXP.Renderer, gl: WebGL2RenderingContext ) {
-
-		const resource = this._textureResources.get( name );
-		if ( ! resource ) return;
-
-		const existing = this._textures.get( name );
-
-		if ( existing ) {
-
-			existing.dispose();
-			this._updateEveryFrameTextures = this._updateEveryFrameTextures.filter( t => t !== existing );
-			this._textures.delete( name );
 
 		}
 
-		const tex = this._buildTexture( resource, renderer, gl );
+		const tex = this._buildTexture( resource, renderer, gl, uniforms );
 
-		if ( ! tex ) return;
+		if ( ! tex ) return null;
 
-		this._textures.set( name, tex );
+		if ( resource.updateEveryFrame && engineUniforms ) {
+
+			MXP.UniformsUtils.assign( tex.material.uniforms, engineUniforms );
+
+		}
+
+		this._textures.set( resource.name, tex );
 
 		if ( resource.updateEveryFrame ) {
 
@@ -361,7 +356,23 @@ export class Resources extends GLP.EventEmitter {
 
 		}
 
-		this.emit( "update/texture" );
+		return tex;
+
+	}
+
+	public buildTextureInstances( renderer: MXP.Renderer, gl: WebGL2RenderingContext, engineUniforms?: GLP.Uniforms ) {
+
+		this._updateEveryFrameTextures = [];
+
+		const building = new Set<string>();
+
+		this._textureResources.forEach( ( resource ) => {
+
+			this._ensureTexture( resource, renderer, gl, engineUniforms, building );
+
+		} );
+
+		this.emit( "update" );
 
 	}
 

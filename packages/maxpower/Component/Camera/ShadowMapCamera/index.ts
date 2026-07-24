@@ -22,9 +22,9 @@ export class ShadowMapCamera extends Camera {
 
 	}
 
-	protected beforeRenderImpl( event: ComponentUpdateEvent ): void {
+	protected prepareRenderImpl( event: ComponentUpdateEvent ): void {
 
-		super.beforeRenderImpl( event );
+		super.prepareRenderImpl( event );
 
 		this.viewMatrix.copy( this.entity.matrixWorld ).applyQuaternion( this.viewMatrixOffset ).inverse();
 

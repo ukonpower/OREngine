@@ -11,9 +11,18 @@
 	"frag": "./shaders/hash.fs",   // フラグメントシェーダーへの相対パス
 	"resolution": [512, 512],       // [width, height]
 	"filter": "nearest",            // "nearest" | "linear"
-	"updateEveryFrame": false       // true なら毎フレーム再レンダリング
+	"updateEveryFrame": false,      // true なら毎フレーム再レンダリング
+	"textures": {                   // 他のテクスチャを uniform として参照（省略可）
+		"uSrc": "noise"             // uniform名（uXxx 形式必須） : 参照先テクスチャ名
+	}
 }
 ```
+
+## 他のテクスチャを参照する（textures フィールド）
+
+`textures` に `{ uniform名: テクスチャ名 }` を書くと、参照先テクスチャが先にビルドされ、`uniform sampler2D uXxx;` としてシェーダーから読める。依存順は自動解決される（循環参照はビルドされずスキップ）。`updateEveryFrame` 同士の依存でも参照先が先に描画される。
+
+uniform名は必ず `u` + 大文字始まり（`uSrc`, `uNoise` 等）にする。この命名だけが terser のプロパティマングリングから保護されている。
 
 ## ファイル配置
 

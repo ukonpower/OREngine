@@ -72,7 +72,7 @@ export class CameraController extends MXP.Component {
 
 	}
 
-	protected updateImpl( _event: MXP.ComponentUpdateEvent ): void {
+	protected prepareRenderImpl( _event: MXP.ComponentUpdateEvent ): void {
 
 		const camera = this.entity.getComponentsByTag<MXP.Camera>( "camera" )[ 0 ];
 

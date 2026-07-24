@@ -99,29 +99,29 @@ export class Component extends Serializable {
 
 	protected postUpdateImpl( _event: ComponentUpdateEvent ) {}
 
-	// beforeRender
+	// prepareRender
 
-	public beforeRender( event: ComponentUpdateEvent ) {
-
-		if ( ! this.enabled ) return;
-
-		this.beforeRenderImpl( event );
-
-	}
-
-	protected beforeRenderImpl( _event: ComponentUpdateEvent ) {}
-
-	// afterRender
-
-	public afterRender( event: ComponentUpdateEvent ) {
+	public prepareRender( event: ComponentUpdateEvent ) {
 
 		if ( ! this.enabled ) return;
 
-		this.afterRenderImpl( event );
+		this.prepareRenderImpl( event );
 
 	}
 
-	protected afterRenderImpl( _event: ComponentUpdateEvent ) {}
+	protected prepareRenderImpl( _event: ComponentUpdateEvent ) {}
+
+	// commitFrame
+
+	public commitFrame( event: ComponentUpdateEvent ) {
+
+		if ( ! this.enabled ) return;
+
+		this.commitFrameImpl( event );
+
+	}
+
+	protected commitFrameImpl( _event: ComponentUpdateEvent ) {}
 
 	public dispose() {
 

@@ -6,6 +6,7 @@ export type TexModule = {
 	resolution?: number[];
 	filter?: string;
 	updateEveryFrame?: boolean;
+	textures?: { [key: string]: string };
 } | null;
 
 const texModules = import.meta.glob<TexModule>( [ '@or-resources/Textures/**/*.tex', '!**/_*', '!**/_*/**' ], { eager: true, import: 'default' } );
@@ -22,6 +23,7 @@ export const registerProjectTextures = () => {
 			resolution: tex.resolution || [ 1024, 1024 ],
 			filter: tex.filter,
 			updateEveryFrame: tex.updateEveryFrame,
+			textures: tex.textures,
 		} );
 
 	}

@@ -9,6 +9,7 @@ export class TextureResource extends MXP.Serializable {
 	private _resolution: number[];
 	private _filter: string;
 	private _updateEveryFrame: boolean;
+	private _textures: { [key: string]: string };
 
 	constructor( name: string, options: {
 		data?: {
@@ -16,6 +17,7 @@ export class TextureResource extends MXP.Serializable {
 			resolution?: number[];
 			filter?: string;
 			updateEveryFrame?: boolean;
+			textures?: { [key: string]: string };
 		};
 	} ) {
 
@@ -27,6 +29,7 @@ export class TextureResource extends MXP.Serializable {
 		this._resolution = data?.resolution || [ 1024, 1024 ];
 		this._filter = data?.filter || "linear";
 		this._updateEveryFrame = data?.updateEveryFrame ?? false;
+		this._textures = data?.textures || {};
 
 	}
 
@@ -51,6 +54,12 @@ export class TextureResource extends MXP.Serializable {
 	public get updateEveryFrame() {
 
 		return this._updateEveryFrame;
+
+	}
+
+	public get textures() {
+
+		return this._textures;
 
 	}
 
