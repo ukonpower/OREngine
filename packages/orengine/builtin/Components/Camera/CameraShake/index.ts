@@ -6,9 +6,8 @@ export class ShakeViewer extends MXP.Component {
 	private shakePower: number;
 	private shakeSpeed: number;
 	private shakeMatrix: GLP.Matrix;
+	private cameraMatrixWorld: GLP.Matrix;
 	private shakeQua: GLP.Quaternion;
-
-	private cameraComponent?: MXP.Camera;
 
 	constructor( params: MXP.ComponentParams ) {
 
@@ -17,6 +16,7 @@ export class ShakeViewer extends MXP.Component {
 		this.shakePower = 0.15;
 		this.shakeSpeed = 1.0;
 		this.shakeMatrix = new GLP.Matrix();
+		this.cameraMatrixWorld = new GLP.Matrix();
 		this.shakeQua = new GLP.Quaternion();
 		this.order = 999 + 1;
 
@@ -25,15 +25,14 @@ export class ShakeViewer extends MXP.Component {
 
 	}
 
-	public updateImpl( event: MXP.ComponentUpdateEvent ): void {
+	protected prepareRenderImpl( event: MXP.ComponentUpdateEvent ): void {
+
+		const camera = this.entity.getComponentsByTag<MXP.Camera>( "camera" )[ 0 ];
+
+		if ( ! camera ) return;
 
 		let shake = 0.008 * this.shakePower;
-
-		if ( this.cameraComponent ) {
-
-			shake *= this.cameraComponent.fov / 50.0;
-
-		}
+		shake *= camera.fov / 50.0;
 
 		const t = event.timeElapsed * this.shakeSpeed;
 
@@ -41,15 +40,8 @@ export class ShakeViewer extends MXP.Component {
 
 		this.shakeMatrix.identity().applyQuaternion( this.shakeQua );
 
-		this.entity.matrixWorld.multiply( this.shakeMatrix );
-
-		const camera = this.entity.getComponentsByTag<MXP.Camera>( "camera" )[ 0 ];
-
-		if ( camera ) {
-
-			camera.viewMatrix.copy( this.entity.matrixWorld ).inverse();
-
-		}
+		this.cameraMatrixWorld.copy( this.entity.matrixWorld ).multiply( this.shakeMatrix );
+		camera.viewMatrix.copy( this.cameraMatrixWorld ).inverse();
 
 	}
 

@@ -157,11 +157,31 @@ export class Entity extends Serializable {
 	protected updateImpl( _event:EntityUpdateEvent ) {
 	}
 
+	public postUpdate( event: EntityUpdateEvent ) {
+
+		const childEvent = { ...event, matrix: this.matrixWorld } as ComponentUpdateEvent;
+
+		for ( let i = 0; i < this.componentsSorted.length; i ++ ) {
+
+			this.componentsSorted[ i ].postUpdate( childEvent );
+
+		}
+
+		for ( let i = 0; i < this.children.length; i ++ ) {
+
+			this.children[ i ].postUpdate( childEvent );
+
+		}
+
+	}
+
 	/*-------------------------------
-		Before / After Render
+		Prepare Render / Commit Frame
 	-------------------------------*/
 
-	public onBeforeRender( event: EntityUpdateEvent ) {
+	public prepareRender( event: EntityUpdateEvent ) {
+
+		const childEvent = { ...event, matrix: this.matrixWorld } as ComponentUpdateEvent;
 
 		if ( ! this._matrixWorldHistoryInitialized ) {
 
@@ -172,13 +192,13 @@ export class Entity extends Serializable {
 
 		}
 
-		// before render - components
+		// prepare render - components
 
 		for ( let i = 0; i < this.componentsSorted.length; i ++ ) {
 
 			const c = this.componentsSorted[ i ];
 
-			c.beforeRender( event );
+			c.prepareRender( childEvent );
 
 		}
 
@@ -186,23 +206,25 @@ export class Entity extends Serializable {
 
 		for ( let i = 0; i < this.children.length; i ++ ) {
 
-			this.children[ i ].onBeforeRender( event );
+			this.children[ i ].prepareRender( childEvent );
 
 		}
 
 	}
 
-	public onAfterRender( event: EntityUpdateEvent ) {
+	public commitFrame( event: EntityUpdateEvent ) {
+
+		const childEvent = { ...event, matrix: this.matrixWorld } as ComponentUpdateEvent;
 
 		this.matrixWorldPrev.copy( this.matrixWorld );
 
-		// after render - components
+		// commit frame - components
 
 		for ( let i = 0; i < this.componentsSorted.length; i ++ ) {
 
 			const c = this.componentsSorted[ i ];
 
-			c.afterRender( event );
+			c.commitFrame( childEvent );
 
 		}
 
@@ -210,7 +232,7 @@ export class Entity extends Serializable {
 
 		for ( let i = 0; i < this.children.length; i ++ ) {
 
-			this.children[ i ].onAfterRender( event );
+			this.children[ i ].commitFrame( childEvent );
 
 		}
 
@@ -278,6 +300,22 @@ export class Entity extends Serializable {
 
 	}
 
+	public updateMatrixRecursive( updateParent?: boolean ) {
+
+		if ( this.autoMatrixUpdate ) {
+
+			this.updateMatrix( updateParent );
+
+		}
+
+		for ( let i = 0; i < this.children.length; i ++ ) {
+
+			this.children[ i ].updateMatrixRecursive();
+
+		}
+
+	}
+
 	public decomposeMatrix( matrix: GLP.Matrix ) {
 
 		matrix.decompose(
@@ -298,17 +336,20 @@ export class Entity extends Serializable {
 
 	public lookAt( targetWorldPos: GLP.Vector ) {
 
+		const targetLocalPos = targetWorldPos.clone();
+		const localUp = new GLP.Vector( 0.0, 1.0, 0.0, 0.0 );
+
+		if ( this.parent ) {
+
+			const parentInverse = this.parent.matrixWorld.clone().inverse();
+			targetLocalPos.applyMatrix4AsPosition( parentInverse );
+			localUp.applyMatrix4AsDirection( parentInverse ).normalize();
+
+		}
+
+		const newMatrix = new GLP.Matrix().lookAt( this.position, targetLocalPos, localUp );
+		this.quaternion.setFromMatrix( newMatrix );
 		this.updateMatrix();
-
-		const newMatrix = new GLP.Matrix();
-
-		const entityWorldPos = new GLP.Vector();
-		this.matrixWorld.decompose( entityWorldPos );
-
-		const targetPos = this.position.clone().add( targetWorldPos.clone().sub( entityWorldPos ) );
-		newMatrix.lookAt( this.position, targetPos, new GLP.Vector( 0.0, 1.0, 0.0 ) );
-
-		this.decomposeMatrix( newMatrix );
 
 	}
 

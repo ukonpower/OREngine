@@ -104,7 +104,9 @@ export class EditorCamera {
 		this._camera.needsUpdateProjectionMatrix = true;
 
 		this._entity.update( event );
-		this._entity.onBeforeRender( event );
+		this._entity.postUpdate( event );
+		this._entity.updateMatrixRecursive();
+		this._entity.prepareRender( event );
 
 	}
 
@@ -113,7 +115,7 @@ export class EditorCamera {
 		if ( ! this._useEditorCamera ) return;
 
 		const event = engine.createEntityUpdateEvent();
-		this._entity.onAfterRender( event );
+		this._entity.commitFrame( event );
 
 	}
 

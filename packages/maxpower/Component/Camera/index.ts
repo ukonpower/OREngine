@@ -156,7 +156,7 @@ export class Camera extends Component {
 
 	}
 
-	protected beforeRenderImpl( _event: ComponentUpdateEvent ): void {
+	protected prepareRenderImpl( _event: ComponentUpdateEvent ): void {
 
 		this.updateViewMatrix();
 
@@ -176,7 +176,7 @@ export class Camera extends Component {
 
 	}
 
-	protected afterRenderImpl( _event: ComponentUpdateEvent ): void {
+	protected commitFrameImpl( _event: ComponentUpdateEvent ): void {
 
 		this.viewMatrixPrev.copy( this.viewMatrix );
 		this.projectionMatrixPrev.copy( this.projectionMatrix );

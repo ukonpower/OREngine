@@ -21,12 +21,10 @@ export const Textures = () => {
 		};
 
 		Engine.resources.on( "update", onUpdate );
-		Engine.resources.on( "update/texture", onUpdate );
 
 		return () => {
 
 			Engine.resources.off( "update", onUpdate );
-			Engine.resources.off( "update/texture", onUpdate );
 
 		};
 

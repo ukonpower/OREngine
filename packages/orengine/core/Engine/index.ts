@@ -283,6 +283,9 @@ export class Engine extends MXP.Serializable implements MXP.Engine {
 		}
 
 		this._root.update( event );
+		this._root.postUpdate( event );
+		this._root.updateMatrixRecursive();
+		this._root.prepareRender( event );
 
 		if ( this.enableRender ) {
 
@@ -295,6 +298,8 @@ export class Engine extends MXP.Serializable implements MXP.Engine {
 			}
 
 		}
+
+		this._root.commitFrame( event );
 
 		if ( this._frame.playing ) {
 
@@ -408,6 +413,9 @@ export class Engine extends MXP.Serializable implements MXP.Engine {
 		}
 
 		this._root.update( event );
+		this._root.postUpdate( event );
+		this._root.updateMatrixRecursive();
+		this._root.prepareRender( event );
 
 		if ( this.enableRender ) {
 
@@ -420,6 +428,8 @@ export class Engine extends MXP.Serializable implements MXP.Engine {
 			}
 
 		}
+
+		this._root.commitFrame( event );
 
 	}
 
