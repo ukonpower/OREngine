@@ -45,7 +45,11 @@ export class PostProcessPipeline extends Component {
 
 	}
 
+	// 毎フレーム呼ばれるため、実際に解像度が変わったときだけ各パスへ伝搬する
+	// （WebGPUバックエンドでは setSize がテクスチャ再生成を伴い、毎フレーム実行するとメモリを食い潰す）
 	public resize( resolution: GLP.Vector ) {
+
+		if ( this._resolution.x == resolution.x && this._resolution.y == resolution.y ) return;
 
 		this._resolution.copy( resolution );
 
