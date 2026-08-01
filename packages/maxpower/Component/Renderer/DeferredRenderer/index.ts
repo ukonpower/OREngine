@@ -1,11 +1,15 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
+import { GL } from '../../../Backend';
+
 import deferredShadingFrag from './shaders/deferredShading.fs';
 import lightShaftFrag from './shaders/lightShaft.fs';
 import normalSelectorFrag from './shaders/normalSelector.fs';
 import ssaoFrag from './shaders/ssao.fs';
 import ssaoBlurFrag from './shaders/ssaoBlur.fs';
+
+import type { Backend, BackendCubeTexture, BackendFrameBuffer, BackendTexture } from '../../../Backend';
 
 const ssaoKernel = ( kernelSize: number ) => {
 
@@ -29,9 +33,9 @@ const ssaoKernel = ( kernelSize: number ) => {
 };
 
 type Params = {
-	gl: WebGL2RenderingContext;
-	envMap: GLP.GLPowerTexture;
-	envMapCube?: GLP.GLPowerTextureCube
+	backend: Backend;
+	envMap: BackendTexture;
+	envMapCube?: BackendCubeTexture
 }
 
 export type DeferredRendererPassConfig = {
@@ -52,14 +56,14 @@ export class DeferredRenderer extends GLP.EventEmitter {
 	// light shaft
 
 	public lightShaft: MXP.PostProcessPass;
-	public rtLightShaft1: GLP.GLPowerFrameBuffer;
-	public rtLightShaft2: GLP.GLPowerFrameBuffer;
+	public rtLightShaft1: BackendFrameBuffer;
+	public rtLightShaft2: BackendFrameBuffer;
 
 	// ssao
 
 	public ssao: MXP.PostProcessPass;
-	public rtSSAO1: GLP.GLPowerFrameBuffer;
-	public rtSSAO2: GLP.GLPowerFrameBuffer;
+	public rtSSAO1: BackendFrameBuffer;
+	public rtSSAO2: BackendFrameBuffer;
 
 	public ssaoBlur: MXP.PostProcessPass;
 	public ssaoBlurV: MXP.PostProcessPass;
@@ -73,11 +77,11 @@ export class DeferredRenderer extends GLP.EventEmitter {
 
 		super();
 
-		const gl = params.gl;
+		const backend = params.backend;
 
 		// normal buffer
 
-		const normalSelector = new MXP.PostProcessPass( gl, {
+		const normalSelector = new MXP.PostProcessPass( backend, {
 			name: 'normalSelector',
 			frag: normalSelectorFrag,
 			renderTarget: null,
@@ -100,15 +104,15 @@ export class DeferredRenderer extends GLP.EventEmitter {
 
 		// light shaft
 
-		const rtLightShaft1 = new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-			new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
+		const rtLightShaft1 = backend.createFrameBuffer().setTexture( [
+			backend.createTexture().setting( { magFilter: GL.LINEAR, minFilter: GL.LINEAR } ),
 		] );
 
-		const rtLightShaft2 = new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-			new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
+		const rtLightShaft2 = backend.createFrameBuffer().setTexture( [
+			backend.createTexture().setting( { magFilter: GL.LINEAR, minFilter: GL.LINEAR } ),
 		] );
 
-		const lightShaft = new MXP.PostProcessPass( gl, {
+		const lightShaft = new MXP.PostProcessPass( backend, {
 			name: 'lightShaft',
 			frag: lightShaftFrag,
 			renderTarget: rtLightShaft1,
@@ -128,15 +132,15 @@ export class DeferredRenderer extends GLP.EventEmitter {
 
 		// ssao
 
-		const rtSSAO1 = new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-			new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
+		const rtSSAO1 = backend.createFrameBuffer().setTexture( [
+			backend.createTexture().setting( { magFilter: GL.LINEAR, minFilter: GL.LINEAR } ),
 		] );
 
-		const rtSSAO2 = new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-			new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
+		const rtSSAO2 = backend.createFrameBuffer().setTexture( [
+			backend.createTexture().setting( { magFilter: GL.LINEAR, minFilter: GL.LINEAR } ),
 		] );
 
-		const ssao = new MXP.PostProcessPass( gl, {
+		const ssao = new MXP.PostProcessPass( backend, {
 			name: 'ssao',
 			frag: ssaoFrag,
 			renderTarget: MXP.hotGet( "ssao", rtSSAO1 ),
@@ -191,7 +195,7 @@ export class DeferredRenderer extends GLP.EventEmitter {
 			},
 		} );
 
-		const ssaoBlurH = new MXP.PostProcessPass( gl, {
+		const ssaoBlurH = new MXP.PostProcessPass( backend, {
 			name: 'ssaoBlur/h',
 			frag: MXP.hotGet( "ssaoBlur", ssaoBlurFrag ),
 			uniforms: ssaoBlurUni,
@@ -202,7 +206,7 @@ export class DeferredRenderer extends GLP.EventEmitter {
 			}
 		} );
 
-		const ssaoBlurV = new MXP.PostProcessPass( gl, {
+		const ssaoBlurV = new MXP.PostProcessPass( backend, {
 			name: 'ssaoBlur/v',
 			frag: MXP.hotGet( "ssaoBlur", ssaoBlurFrag ),
 			uniforms: MXP.UniformsUtils.merge( ssaoBlurUni, {
@@ -238,7 +242,7 @@ export class DeferredRenderer extends GLP.EventEmitter {
 
 		// shading
 
-		const shading = new MXP.PostProcessPass( gl, {
+		const shading = new MXP.PostProcessPass( backend, {
 			name: "deferredShading",
 			frag: MXP.hotGet( "deferredShading", deferredShadingFrag ),
 			uniforms: MXP.UniformsUtils.merge( {

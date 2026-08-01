@@ -3,9 +3,11 @@ import * as GLP from 'glpower';
 import { Camera } from "..";
 import { ComponentParams, ComponentUpdateEvent } from "../..";
 
+import type { BackendFrameBuffer } from '../../../Backend';
+
 export class ShadowMapCamera extends Camera {
 
-	public renderTarget: GLP.GLPowerFrameBuffer | null;
+	public renderTarget: BackendFrameBuffer | null;
 	private viewMatrixOffset: GLP.Quaternion;
 
 	constructor( params: ComponentParams ) {

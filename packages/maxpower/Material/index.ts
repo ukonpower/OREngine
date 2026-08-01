@@ -6,9 +6,11 @@ import { Serializable } from '../Serializable';
 import basicFrag from './shaders/basic.fs';
 import basicVert from './shaders/basic.vs';
 
+import type { BackendProgram } from '../Backend';
+
 type MaterialDefines = {[key: string]: any};
 type MaterialVisibility = {[K in MaterialRenderType]?: boolean}
-type MaterialProgramCache = {[K in MaterialRenderType]?: GLP.GLPowerProgram}
+type MaterialProgramCache = {[K in MaterialRenderType]?: BackendProgram}
 
 export type MaterialRenderType = "shadowMap" | "deferred" | "forward" | "envMap" | 'ui' | "postprocess"
 export type DrawType = 'TRIANGLES' | 'LINES' | 'POINTS';

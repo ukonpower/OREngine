@@ -24,8 +24,15 @@
     "noFallthroughCasesInSwitch": true,
     "allowUnreachableCode": true,
     "typeRoots": [
+      "node_modules",
       "node_modules/@types",
       "./node_modules/@figma"
+    ],
+    "types": [
+      "@webgpu/types",
+      "node",
+      "dom-mediacapture-transform",
+      "dom-webcodecs"
     ],
     "rootDir": "./",
     "baseUrl": "./",
@@ -41,6 +48,9 @@
       ],
       "orengine/*": [
         "./packages/orengine/*"
+      ],
+      "@or-backend": [
+        "./packages/maxpower/Backend/GLBackend/index.ts"
       ],
       "@or-scene": [
         "./demo/scene.json"

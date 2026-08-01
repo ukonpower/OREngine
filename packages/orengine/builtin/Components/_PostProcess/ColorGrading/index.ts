@@ -4,12 +4,12 @@ import colorGradingFrag from './shaders/colorGrading.fs';
 
 export class ColorGrading extends MXP.PostProcess {
 
-	constructor( gl: WebGL2RenderingContext ) {
+	constructor( backend: MXP.Backend ) {
 
 		super( {
 			name: "ColorGrading",
 			passes: [
-				new MXP.PostProcessPass( gl, {
+				new MXP.PostProcessPass( backend, {
 					frag: colorGradingFrag,
 				} )
 			]

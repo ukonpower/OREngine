@@ -15,7 +15,7 @@ export const Textures = () => {
 
 		const onUpdate = () => {
 
-			editor.assetPreviewManager.invalidateAll();
+			editor.assetPreviewManager?.invalidateAll();
 			setTick( ( v ) => v + 1 );
 
 		};
@@ -35,7 +35,7 @@ export const Textures = () => {
 	return <div className={style.textures}>
 		{textures.map( ( t ) => {
 
-			const url = editor.assetPreviewManager.getTexturePreview( t.name );
+			const url = editor.assetPreviewManager?.getTexturePreview( t.name );
 
 			return <div key={t.name} className={style.item}>
 				<div className={style.preview}>

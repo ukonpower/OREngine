@@ -3,6 +3,8 @@ import * as GLP from 'glpower';
 import { ComponentParams } from '..';
 import { ShadowMapCamera } from '../Camera/ShadowMapCamera';
 
+import type { BackendFrameBuffer } from '../../Backend';
+
 export type LightType = 'directional' | 'spot'
 
 export class Light extends ShadowMapCamera {
@@ -73,7 +75,7 @@ export class Light extends ShadowMapCamera {
 
 	}
 
-	public setShadowMap( renderTarget: GLP.GLPowerFrameBuffer ) {
+	public setShadowMap( renderTarget: BackendFrameBuffer ) {
 
 		this.renderTarget = renderTarget;
 		this.renderTarget.setSize( this.shadowMapSize );

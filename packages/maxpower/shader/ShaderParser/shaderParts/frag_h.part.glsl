@@ -1,9 +1,10 @@
+// 宣言順はvert_h.part.glslのoutと一致させる（WGSL変換時にロケーションが宣言順で振られるため）
 in vec2 vUv;
-in vec3 vNormal;
 in vec3 vViewNormal;
-in vec3 vPos;
+in vec3 vNormal;
 in vec3 vMVPosition;
 in vec3 vMVPPosition;
+in vec3 vPos;
 in vec2 vVelocity;
 
 uniform mat4 uModelMatrix;

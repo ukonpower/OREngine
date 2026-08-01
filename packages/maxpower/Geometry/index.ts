@@ -2,10 +2,12 @@ import * as GLP from 'glpower';
 
 import { Serializable } from '../Serializable';
 
+import type { Backend, BackendBuffer, BackendVAO } from '../Backend';
+
 type Attribute = {
 	array: GLP.TArrayBuffer;
 	size: number;
-	buffer?: GLP.GLPowerBuffer
+	buffer?: BackendBuffer
 	opt?: GLP.AttributeOptions,
 }
 
@@ -15,7 +17,7 @@ export class Geometry extends Serializable {
 
 	public vertCount: number;
 	public attributes: Map<string, Attribute >;
-	public vaoCache: Map<GLP.GLPowerVAO, boolean>;
+	public vaoCache: Map<BackendVAO, boolean>;
 	public boundingBox: { min: GLP.Vector, max: GLP.Vector } | null;
 
 	constructor() {
@@ -77,13 +79,13 @@ export class Geometry extends Serializable {
 
 	}
 
-	public createBuffers( gl: WebGL2RenderingContext ) {
+	public createBuffers( backend: Backend ) {
 
 		this.attributes.forEach( ( attr, key ) => {
 
 			if ( ! attr.buffer ) {
 
-				attr.buffer = new GLP.GLPowerBuffer( gl ).setData( attr.array, key == 'index' ? "ibo" : 'vbo', attr.opt && attr.opt.usage );
+				attr.buffer = backend.createBuffer().setData( attr.array, key == 'index' ? "ibo" : 'vbo', attr.opt && attr.opt.usage );
 
 			}
 

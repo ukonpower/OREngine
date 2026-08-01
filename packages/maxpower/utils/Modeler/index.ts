@@ -1,5 +1,6 @@
 import * as GLP from 'glpower';
 
+import { GLBackend } from '../../Backend/GLBackend';
 import { Mesh } from '../../Component/Mesh';
 import { setUniforms } from '../../Component/Renderer';
 import { Entity } from '../../Entity';
@@ -11,14 +12,15 @@ type BakeAttribute = {
 	[key: string]: {size: number, type: Float32ArrayConstructor | Uint16ArrayConstructor | Uint8ArrayConstructor | Int8ArrayConstructor | Int16ArrayConstructor}
 }
 
+// Transform Feedbackを使うGL専用のジオメトリベイクユーティリティ
 export class Modeler {
 
-	private _power: GLP.Power;
+	private _backend: GLBackend;
 	private _gl: WebGL2RenderingContext;
-	constructor( power: GLP.Power ) {
+	constructor( backend: GLBackend ) {
 
-		this._power = power;
-		this._gl = this._power.gl;
+		this._backend = backend;
+		this._gl = this._backend.gl;
 
 	}
 
@@ -60,13 +62,13 @@ export class Modeler {
 
 		if ( vao ) {
 
-			baseGeometry.createBuffers( this._gl );
+			baseGeometry.createBuffers( this._backend );
 
 			baseGeometry.attributes.forEach( ( attr, key ) => {
 
 				if ( attr.buffer ) {
 
-					vao.setAttribute( key, attr.buffer, attr.size, attr.opt );
+					vao.setAttribute( key, attr.buffer as GLP.GLPowerBuffer, attr.size, attr.opt );
 
 				}
 

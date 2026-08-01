@@ -3,6 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 import terser from '@rollup/plugin-terser';
+import basicSsl from '@vitejs/plugin-basic-ssl';
 import react from '@vitejs/plugin-react';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig, UserConfig } from 'vite';
@@ -11,6 +12,7 @@ import { PlayerRegistry } from './plugins/PlayerRegistry';
 import { ProjectWatchReload } from './plugins/ProjectWatchReload';
 import { ShaderBuilder } from './plugins/ShaderBuilder';
 import { TexLoader } from './plugins/TexLoader';
+import { WgslTranspiler } from './plugins/WgslTranspiler';
 import { collectJsonKeys, collectSceneUsage } from './sceneScan';
 
 
@@ -31,9 +33,18 @@ const projectAliases = ( projectDir: string ) => [
 	{ find: /^@or-resources\/(.*)$/, replacement: path.join( projectDir, 'Resources/$1' ) },
 ];
 
-const sharedResolve = ( projectDir: string ) => ( {
+type BackendName = 'webgl' | 'webgpu';
+
+const backendPath: { [key in BackendName]: string } = {
+	webgl: 'packages/maxpower/Backend/GLBackend/index.ts',
+	webgpu: 'packages/maxpower/Backend/WebGPUBackend/index.ts',
+};
+
+// playerビルドへWebGPUコードが混入しないよう、バックエンドはビルド時のaliasで固定する
+const sharedResolve = ( projectDir: string, backend: BackendName ) => ( {
 	alias: [
 		...projectAliases( projectDir ),
+		{ find: /^@or-backend$/, replacement: path.join( orengineRoot, backendPath[ backend ] ) },
 		{ find: /^orengine\/player$/, replacement: path.join( orengineRoot, 'packages/orengine/player.ts' ) },
 		{ find: /^orengine\/react$/, replacement: path.join( orengineRoot, 'packages/orengine/react.tsx' ) },
 		{ find: /^orengine\/core$/, replacement: path.join( orengineRoot, 'packages/orengine/core/index.ts' ) },
@@ -61,6 +72,9 @@ const sharedCss = () => ( {
 	},
 } );
 
+// WebGPUはsecure context必須のため、wgpu起動時はHTTPS（証明書は自動生成・キャッシュ）で立てる
+const devBackend = () => process.env.ORENGINE_BACKEND === 'webgpu' ? 'webgpu' : 'webgl' as const;
+
 export const createDevConfig = ( opts: OrengineConfigOptions ): UserConfig => defineConfig( {
 	root: appRoot,
 	base: opts.basePath ?? '',
@@ -85,12 +99,14 @@ export const createDevConfig = ( opts: OrengineConfigOptions ): UserConfig => de
 			path.join( appRoot, 'static.html' ),
 		],
 	},
-	resolve: sharedResolve( opts.projectDir ),
+	resolve: sharedResolve( opts.projectDir, devBackend() ),
 	css: sharedCss(),
 	plugins: [
+		...( devBackend() === 'webgpu' ? [ basicSsl() ] : [] ),
 		react(),
 		ShaderBuilder( { scanDirs: [ orengineRoot, opts.projectDir ] } ),
 		TexLoader(),
+		WgslTranspiler(),
 		ProjectWatchReload( opts.projectDir ),
 	],
 	define: {
@@ -169,7 +185,7 @@ export const createPlayerConfig = ( opts: PlayerConfigOptions ): UserConfig => {
 				],
 			},
 		},
-		resolve: sharedResolve( opts.projectDir ),
+		resolve: sharedResolve( opts.projectDir, 'webgl' ),
 		css: {
 			preprocessorOptions: {
 				scss: { api: 'modern' },
@@ -210,7 +226,7 @@ export const createStaticConfig = ( opts: StaticConfigOptions ): UserConfig => {
 				input: { main: input },
 			},
 		},
-		resolve: sharedResolve( opts.projectDir ),
+		resolve: sharedResolve( opts.projectDir, 'webgl' ),
 		css: sharedCss(),
 		plugins: [
 			react(),

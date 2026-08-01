@@ -1,4 +1,6 @@
 
+export * from './Backend';
+export * from './Backend/GLBackend';
 export * from './BLidge';
 export * from './Component';
 export * from './Component/BLidger';

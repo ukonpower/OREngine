@@ -1,3 +1,4 @@
+import { createBackend } from '@or-backend';
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
@@ -23,8 +24,7 @@ export class Engine extends MXP.Serializable implements MXP.Engine {
 	public enableRender: boolean;
 
 	private _renderer: MXP.Renderer;
-	private _gl: WebGL2RenderingContext;
-	private _canvas: HTMLCanvasElement;
+	private _backend: MXP.Backend;
 	private _root: MXP.Entity;
 	private _uniforms: GLP.Uniforms;
 	private _time: SceneTime;
@@ -37,8 +37,7 @@ export class Engine extends MXP.Serializable implements MXP.Engine {
 
 		super();
 
-		this._canvas = document.createElement( "canvas" );
-		this._gl = this._canvas.getContext( "webgl2", { antialias: false, preserveDrawingBuffer: true } )!;
+		this._backend = createBackend();
 
 		this.name = "OREngine";
 		this._disposed = false;
@@ -54,7 +53,7 @@ export class Engine extends MXP.Serializable implements MXP.Engine {
 			Renderer
 		-------------------------------*/
 
-		this._renderer = new MXP.Renderer( this._gl, this );
+		this._renderer = new MXP.Renderer( this._backend, this );
 
 		this._renderer.globalUniforms = {
 			uTime: { value: 0, type: "1f" },
@@ -136,15 +135,15 @@ export class Engine extends MXP.Serializable implements MXP.Engine {
 		Getters
 	-------------------------------*/
 
-	public get gl() {
+	public get backend() {
 
-		return this._gl;
+		return this._backend;
 
 	}
 
 	public get canvas() {
 
-		return this._canvas;
+		return this._backend.canvas;
 
 	}
 
@@ -345,8 +344,8 @@ export class Engine extends MXP.Serializable implements MXP.Engine {
 	public setSize( resolution: GLP.Vector ) {
 
 		this._renderer.resize( resolution );
-		this._canvas.width = resolution.x;
-		this._canvas.height = resolution.y;
+		this._backend.canvas.width = resolution.x;
+		this._backend.canvas.height = resolution.y;
 
 		const uRes = this._renderer.globalUniforms.uResolution.value as GLP.Vector;
 		uRes.copy( resolution );

@@ -15,13 +15,14 @@ export class SelectionOutline {
 
 	constructor( engine: Engine ) {
 
-		const gl = engine.renderer.gl;
+		const backend = engine.renderer.backend as MXP.GLBackend;
+		const gl = backend.gl;
 
 		this._selectionBuffer = new GLP.GLPowerFrameBuffer( gl, { disableDepthBuffer: true } )
 			.setTexture( [
 				new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
 			] );
-		this._selectionBuffer.setDepthTexture( engine.renderer.renderTarget.gBuffer.depthTexture );
+		this._selectionBuffer.setDepthTexture( engine.renderer.renderTarget.gBuffer.depthTexture as GLP.GLPowerTexture );
 		this._selectionBuffer.setSize( engine.renderer.resolution );
 
 		this._selectionMaterial = new MXP.Material( {
@@ -31,7 +32,7 @@ export class SelectionOutline {
 			depthTest: false,
 		} );
 
-		this._outlinePass = new MXP.PostProcessPass( gl, {
+		this._outlinePass = new MXP.PostProcessPass( backend, {
 			frag: outlineFrag,
 			uniforms: {
 				uMaskTexture: { value: this._selectionBuffer.textures[ 0 ], type: '1i' },
@@ -67,7 +68,7 @@ export class SelectionOutline {
 		const origMaterial = mesh.material;
 		mesh.material = this._selectionMaterial;
 
-		const gl = engine.renderer.gl;
+		const gl = ( engine.renderer.backend as MXP.GLBackend ).gl;
 
 		gl.depthFunc( gl.LEQUAL );
 

@@ -1,6 +1,8 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
+import { GL } from '../../../Backend';
+
 import colorCollectionFrag from './shaders/colorCollection.fs';
 import dofBokehFrag from './shaders/dofBokeh.fs';
 import dofCocFrag from './shaders/dofCoc.fs';
@@ -10,6 +12,8 @@ import motionBlurNeighborFrag from './shaders/motionBlurNeighbor.fs';
 import motionBlurTileFrag from './shaders/motionBlurTile.fs';
 import ssCompositeFrag from './shaders/ssComposite.fs';
 import ssrFrag from './shaders/ssr.fs';
+
+import type { Backend, BackendFrameBuffer } from '../../../Backend';
 
 export type PipelinePostProcessPassConfig = {
 	motionBlur?: boolean;
@@ -22,8 +26,8 @@ export class PipelinePostProcess {
 	public dofCoc: MXP.PostProcessPass;
 	public dofBokeh: MXP.PostProcessPass;
 	public dofComposite: MXP.PostProcessPass;
-	public rtSSR1: GLP.GLPowerFrameBuffer;
-	public rtSSR2: GLP.GLPowerFrameBuffer;
+	public rtSSR1: BackendFrameBuffer;
+	public rtSSR2: BackendFrameBuffer;
 	public postprocess: MXP.PostProcess;
 
 	private _ssr: MXP.PostProcessPass;
@@ -34,24 +38,24 @@ export class PipelinePostProcess {
 	private _motionBlurNeighbor: MXP.PostProcessPass;
 	private _camera: MXP.Camera | null;
 
-	constructor( gl: WebGL2RenderingContext ) {
+	constructor( backend: Backend ) {
 
-		const colorCollection = new MXP.PostProcessPass( gl, {
+		const colorCollection = new MXP.PostProcessPass( backend, {
 			name: 'collection',
 			frag: colorCollectionFrag,
 		} );
 
 		// ssr
 
-		const rtSSR1 = new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-			new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
+		const rtSSR1 = backend.createFrameBuffer().setTexture( [
+			backend.createTexture().setting( { magFilter: GL.LINEAR, minFilter: GL.LINEAR } ),
 		] );
 
-		const rtSSR2 = new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-			new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
+		const rtSSR2 = backend.createFrameBuffer().setTexture( [
+			backend.createTexture().setting( { magFilter: GL.LINEAR, minFilter: GL.LINEAR } ),
 		] );
 
-		const ssr = new MXP.PostProcessPass( gl, {
+		const ssr = new MXP.PostProcessPass( backend, {
 			name: 'ssr',
 			frag: MXP.hotGet( "ssr", ssrFrag ),
 			renderTarget: rtSSR1,
@@ -95,7 +99,7 @@ export class PipelinePostProcess {
 
 		// ss-composite
 
-		const ssComposite = new MXP.PostProcessPass( gl, {
+		const ssComposite = new MXP.PostProcessPass( backend, {
 			name: 'ssComposite',
 			frag: MXP.hotGet( "ssComposite", ssCompositeFrag ),
 			uniforms: MXP.UniformsUtils.merge( {
@@ -134,7 +138,7 @@ export class PipelinePostProcess {
 
 		const dofParams = new GLP.Vector( 10, 0.05, 20, 0.05 );
 
-		const dofCoc = new MXP.PostProcessPass( gl, {
+		const dofCoc = new MXP.PostProcessPass( backend, {
 			name: 'dof/coc',
 			frag: dofCocFrag,
 			uniforms: MXP.UniformsUtils.merge( {
@@ -147,14 +151,14 @@ export class PipelinePostProcess {
 					type: '4f'
 				},
 			} ),
-			renderTarget: new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-				new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR, internalFormat: gl.RGBA16F, type: gl.HALF_FLOAT, format: gl.RGBA } ),
+			renderTarget: backend.createFrameBuffer().setTexture( [
+				backend.createTexture().setting( { magFilter: GL.LINEAR, minFilter: GL.LINEAR, internalFormat: GL.RGBA16F, type: GL.HALF_FLOAT, format: GL.RGBA } ),
 			] ),
 			passThrough: true,
 			resolutionRatio: 0.5,
 		} );
 
-		const dofBokeh = new MXP.PostProcessPass( gl, {
+		const dofBokeh = new MXP.PostProcessPass( backend, {
 			name: 'dof/bokeh',
 			frag: dofBokehFrag,
 			uniforms: MXP.UniformsUtils.merge( {
@@ -167,14 +171,14 @@ export class PipelinePostProcess {
 					type: '4f'
 				}
 			} ),
-			renderTarget: new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-				new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
+			renderTarget: backend.createFrameBuffer().setTexture( [
+				backend.createTexture().setting( { magFilter: GL.LINEAR, minFilter: GL.LINEAR } ),
 			] ),
 			passThrough: true,
 			resolutionRatio: 0.5,
 		} );
 
-		const dofComposite = new MXP.PostProcessPass( gl, {
+		const dofComposite = new MXP.PostProcessPass( backend, {
 			name: 'dof/composite',
 			frag: dofCompositeFrag,
 			uniforms: MXP.UniformsUtils.merge( {
@@ -183,8 +187,8 @@ export class PipelinePostProcess {
 					type: '1i'
 				}
 			} ),
-			renderTarget: new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-				new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR, internalFormat: gl.RGBA16F, type: gl.HALF_FLOAT, format: gl.RGBA } ),
+			renderTarget: backend.createFrameBuffer().setTexture( [
+				backend.createTexture().setting( { magFilter: GL.LINEAR, minFilter: GL.LINEAR, internalFormat: GL.RGBA16F, type: GL.HALF_FLOAT, format: GL.RGBA } ),
 			] )
 		} );
 
@@ -192,7 +196,7 @@ export class PipelinePostProcess {
 
 		const motionBlurTileNum = 16;
 
-		const motionBlurTile = new MXP.PostProcessPass( gl, {
+		const motionBlurTile = new MXP.PostProcessPass( backend, {
 			name: 'motionBlurTile',
 			frag: motionBlurTileFrag,
 			uniforms: MXP.UniformsUtils.merge( {
@@ -201,8 +205,8 @@ export class PipelinePostProcess {
 					type: '1i'
 				},
 			} ),
-			renderTarget: new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-				new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA } ),
+			renderTarget: backend.createFrameBuffer().setTexture( [
+				backend.createTexture().setting( { type: GL.FLOAT, internalFormat: GL.RGBA32F, format: GL.RGBA } ),
 			] ),
 			defines: {
 				"TILE": motionBlurTileNum,
@@ -211,7 +215,7 @@ export class PipelinePostProcess {
 			passThrough: true,
 		} );
 
-		const motionBlurNeighbor = new MXP.PostProcessPass( gl, {
+		const motionBlurNeighbor = new MXP.PostProcessPass( backend, {
 			name: 'motionBlurNeighbor',
 			frag: motionBlurNeighborFrag,
 			uniforms: MXP.UniformsUtils.merge( {
@@ -223,14 +227,14 @@ export class PipelinePostProcess {
 			defines: {
 				"TILE": motionBlurTileNum,
 			},
-			renderTarget: new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-				new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA } ),
+			renderTarget: backend.createFrameBuffer().setTexture( [
+				backend.createTexture().setting( { type: GL.FLOAT, internalFormat: GL.RGBA32F, format: GL.RGBA } ),
 			] ),
 			resolutionRatio: 1 / motionBlurTileNum,
 			passThrough: true,
 		} );
 
-		const motionBlur = new MXP.PostProcessPass( gl, {
+		const motionBlur = new MXP.PostProcessPass( backend, {
 			name: 'motionBlur',
 			frag: motionBlurFrag,
 			uniforms: MXP.UniformsUtils.merge( {

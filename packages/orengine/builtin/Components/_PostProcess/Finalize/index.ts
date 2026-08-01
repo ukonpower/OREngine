@@ -4,12 +4,12 @@ import finalizeFrag from './shaders/finalize.fs';
 
 export class Finalize extends MXP.PostProcess {
 
-	constructor( gl: WebGL2RenderingContext ) {
+	constructor( backend: MXP.Backend ) {
 
 		super( {
 			name: "Finalize",
 			passes: [
-				new MXP.PostProcessPass( gl, {
+				new MXP.PostProcessPass( backend, {
 					frag: finalizeFrag,
 				} )
 			]
