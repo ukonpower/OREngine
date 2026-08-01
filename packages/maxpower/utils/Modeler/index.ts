@@ -82,39 +82,13 @@ export class Modeler {
 
 				program.uploadUniforms();
 
-				tf.use( () => {
-
-					this._gl.beginTransformFeedback( this._gl.POINTS );
-					this._gl.enable( this._gl.RASTERIZER_DISCARD );
-
-					vao.use( () => {
-
-						if ( vao.instanceCount > 0 ) {
-
-							this._gl.drawArraysInstanced( this._gl.POINTS, 0, vao.vertCount, vao.instanceCount );
-
-						} else {
-
-							this._gl.drawArrays( this._gl.POINTS, 0, vao.vertCount );
-
-						}
-
-					} );
-
-					this._gl.disable( this._gl.RASTERIZER_DISCARD );
-					this._gl.endTransformFeedback();
-
-				} );
-
+				tf.dispatchPoints( vao );
 
 				const outPos = new Float32Array( outBufferPosition.array!.length );
 				const outNormal = new Float32Array( outBufferNormal.array!.length );
 
-				this._gl.bindBuffer( this._gl.ARRAY_BUFFER, outBufferPosition.buffer );
-				this._gl.getBufferSubData( this._gl.ARRAY_BUFFER, 0, outPos );
-
-				this._gl.bindBuffer( this._gl.ARRAY_BUFFER, outBufferNormal.buffer );
-				this._gl.getBufferSubData( this._gl.ARRAY_BUFFER, 0, outNormal );
+				outBufferPosition.read( outPos );
+				outBufferNormal.read( outNormal );
 
 				resultGeo.setAttribute( 'position', outPos, 3 );
 				resultGeo.setAttribute( 'normal', outNormal, 3 );

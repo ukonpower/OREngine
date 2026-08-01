@@ -240,9 +240,7 @@ export class GLTFLoader extends GLP.EventEmitter {
 
 				if ( source ) {
 
-					this.gl.pixelStorei( this.gl.UNPACK_FLIP_Y_WEBGL, true );
-					texture.attach( source );
-					this.gl.pixelStorei( this.gl.UNPACK_FLIP_Y_WEBGL, false );
+					texture.attach( source, true );
 
 					return texture;
 
