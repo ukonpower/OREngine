@@ -32,6 +32,6 @@ export const registerProjectTextures = () => {
 
 export const initResourceInstances = ( engine: Engine ) => {
 
-	Engine.resources.buildTextureInstances( engine.renderer, engine.gl, engine.uniforms );
+	Engine.resources.buildTextureInstances( engine.renderer, engine.uniforms );
 
 };

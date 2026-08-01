@@ -1,5 +1,6 @@
 import * as GLP from 'glpower';
 
+import { GL } from '../../Backend';
 import { Entity, EntityUpdateEvent } from '../../Entity';
 import { Geometry } from '../../Geometry';
 import { PlaneGeometry } from '../../Geometry/PlaneGeometry';
@@ -15,12 +16,12 @@ import { Mesh } from '../Mesh';
 import { PostProcessPipeline } from '../PostProcessPipeline';
 
 import { DeferredRenderer } from './DeferredRenderer';
-import { GLBackend } from './GLBackend';
 import { PipelinePostProcess } from './PipelinePostProcess';
 import { PMREMRender } from './PMREMRender';
 import { ProgramManager } from './ProgramManager';
 import skyFrag from './shaders/sky.fs';
 
+import type { Backend, BackendCubeFrameBuffer, BackendFrameBuffer, BackendProgram, BackendTexture } from '../../Backend';
 import type { Engine } from '../../Engine';
 
 // sky
@@ -77,12 +78,12 @@ export class RendererSky {
 // render target
 
 export type RenderCameraTarget = {
-	gBuffer: GLP.GLPowerFrameBuffer,
-	shadingBuffer: GLP.GLPowerFrameBuffer,
-	forwardBuffer: GLP.GLPowerFrameBuffer,
-	refractionBuffer: GLP.GLPowerFrameBuffer,
-	uiBuffer: GLP.GLPowerFrameBuffer,
-	normalBuffer: GLP.GLPowerFrameBuffer,
+	gBuffer: BackendFrameBuffer,
+	shadingBuffer: BackendFrameBuffer,
+	forwardBuffer: BackendFrameBuffer,
+	refractionBuffer: BackendFrameBuffer,
+	uiBuffer: BackendFrameBuffer,
+	normalBuffer: BackendFrameBuffer,
 }
 
 // render stack
@@ -136,7 +137,7 @@ interface DrawParam extends CameraParam {
 	label?: string;
 	modelMatrixWorld?: GLP.Matrix;
 	modelMatrixWorldPrev?: GLP.Matrix;
-	renderTarget?: GLP.GLPowerFrameBuffer | null;
+	renderTarget?: BackendFrameBuffer | null;
 	uniformOverride?: GLP.Uniforms,
 }
 
@@ -205,8 +206,7 @@ const getSpotLightNames = ( i: number ) => _spotLightNames[ i ] || ( _spotLightN
 
 export class Renderer extends Serializable {
 
-	public gl: WebGL2RenderingContext;
-	public readonly backend: GLBackend;
+	public readonly backend: Backend;
 	public resolution: GLP.Vector;
 	public globalUniforms: GLP.Uniforms;
 	private _renderTarget: RenderCameraTarget;
@@ -227,7 +227,7 @@ export class Renderer extends Serializable {
 	// envmap
 
 	private _envMapCameras: EnvMapCamera[];
-	private _envMapRenderTarget: GLP.GLPowerFrameBufferCube;
+	private _envMapRenderTarget: BackendCubeFrameBuffer;
 	private _pmremRender: PMREMRender;
 
 	// postprocess
@@ -261,17 +261,16 @@ export class Renderer extends Serializable {
 	private _tmpUniformOverride: GLP.Uniforms;
 	private _tmpDrawParam: DrawParam;
 
-	constructor( gl: WebGL2RenderingContext, engine: Engine ) {
+	constructor( backend: Backend, engine: Engine ) {
 
 		super();
 
-		this.gl = gl;
-		this.backend = new GLBackend( gl );
+		this.backend = backend;
 		this.globalUniforms = {};
 
 		this._isCorrentCompiles = false;
 		this.compileDrawParams = [];
-		this.programManager = new ProgramManager( this.gl );
+		this.programManager = new ProgramManager( backend );
 		this.resolution = new GLP.Vector();
 
 		// lights
@@ -286,8 +285,8 @@ export class Renderer extends Serializable {
 
 		// envmap
 
-		const envMap = new GLP.GLPowerTextureCube( this.gl );
-		this._envMapRenderTarget = new GLP.GLPowerFrameBufferCube( this.gl ).setTexture( [ envMap ] );
+		const envMap = backend.createCubeTexture();
+		this._envMapRenderTarget = backend.createCubeFrameBuffer().setTexture( [ envMap ] );
 		this._envMapRenderTarget.setSize( 256, 256 );
 
 		const origin = new GLP.Vector( 0, 0, 0 );
@@ -321,7 +320,7 @@ export class Renderer extends Serializable {
 
 		// pmrem
 
-		this._pmremRender = new PMREMRender( this.gl, {
+		this._pmremRender = new PMREMRender( backend, {
 			input: [ envMap ],
 			resolution: new GLP.Vector( 256 * 3, 256 * 4 ),
 		} );
@@ -329,12 +328,12 @@ export class Renderer extends Serializable {
 		// postprocess
 
 		this._deferredRenderer = new DeferredRenderer( {
-			gl,
-			envMap: this._pmremRender.renderTarget.textures[ 0 ] as GLP.GLPowerTexture,
-			envMapCube: envMap as GLP.GLPowerTextureCube,
+			backend,
+			envMap: this._pmremRender.renderTarget.textures[ 0 ],
+			envMapCube: envMap,
 		} );
 
-		this._pipelinePostProcess = new PipelinePostProcess( gl );
+		this._pipelinePostProcess = new PipelinePostProcess( backend );
 
 		// quad
 
@@ -355,7 +354,7 @@ export class Renderer extends Serializable {
 
 		// render target
 
-		this._renderTarget = Renderer.createRenderTarget( gl );
+		this._renderTarget = Renderer.createRenderTarget( backend );
 
 		// sky
 
@@ -448,24 +447,24 @@ export class Renderer extends Serializable {
 
 	}
 
-	public static createRenderTarget( gl: WebGL2RenderingContext ): RenderCameraTarget {
+	public static createRenderTarget( backend: Backend ): RenderCameraTarget {
 
-		const gBuffer = new GLP.GLPowerFrameBuffer( gl );
+		const gBuffer = backend.createFrameBuffer();
 		gBuffer.setTexture( [
-			new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA, magFilter: gl.NEAREST, minFilter: gl.NEAREST } ),
-			new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA } ),
-			new GLP.GLPowerTexture( gl ),
-			new GLP.GLPowerTexture( gl ),
-			new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA } ),
+			backend.createTexture().setting( { type: GL.FLOAT, internalFormat: GL.RGBA32F, format: GL.RGBA, magFilter: GL.NEAREST, minFilter: GL.NEAREST } ),
+			backend.createTexture().setting( { type: GL.FLOAT, internalFormat: GL.RGBA32F, format: GL.RGBA } ),
+			backend.createTexture(),
+			backend.createTexture(),
+			backend.createTexture().setting( { type: GL.FLOAT, internalFormat: GL.RGBA32F, format: GL.RGBA } ),
 		] );
 
-		const shadingBuffer = new GLP.GLPowerFrameBuffer( gl, { disableDepthBuffer: true } );
+		const shadingBuffer = backend.createFrameBuffer( { disableDepthBuffer: true } );
 		shadingBuffer.setTexture( [
-			new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA16F, format: gl.RGBA } ),
-			new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA16F, format: gl.RGBA } ),
+			backend.createTexture().setting( { type: GL.FLOAT, internalFormat: GL.RGBA16F, format: GL.RGBA } ),
+			backend.createTexture().setting( { type: GL.FLOAT, internalFormat: GL.RGBA16F, format: GL.RGBA } ),
 		] );
 
-		const forwardBuffer = new GLP.GLPowerFrameBuffer( gl, { disableDepthBuffer: true } );
+		const forwardBuffer = backend.createFrameBuffer( { disableDepthBuffer: true } );
 		forwardBuffer.setDepthTexture( gBuffer.depthTexture );
 		forwardBuffer.setTexture( [
 			shadingBuffer.textures[ 0 ],
@@ -473,21 +472,21 @@ export class Renderer extends Serializable {
 			gBuffer.textures[ 4 ],
 		] );
 
-		const refractionBuffer = new GLP.GLPowerFrameBuffer( gl, { disableDepthBuffer: true } );
+		const refractionBuffer = backend.createFrameBuffer( { disableDepthBuffer: true } );
 		refractionBuffer.setTexture( [
-			new GLP.GLPowerTexture( gl ).setting( {
-				type: gl.FLOAT, internalFormat: gl.RGBA16F, format: gl.RGBA,
-				magFilter: gl.LINEAR, minFilter: gl.LINEAR,
+			backend.createTexture().setting( {
+				type: GL.FLOAT, internalFormat: GL.RGBA16F, format: GL.RGBA,
+				magFilter: GL.LINEAR, minFilter: GL.LINEAR,
 			} ),
 		] );
 
-		const uiBuffer = new GLP.GLPowerFrameBuffer( gl, { disableDepthBuffer: true } );
+		const uiBuffer = backend.createFrameBuffer( { disableDepthBuffer: true } );
 		uiBuffer.setDepthTexture( gBuffer.depthTexture );
-		uiBuffer.setTexture( [ new GLP.GLPowerTexture( gl ) ] );
+		uiBuffer.setTexture( [ backend.createTexture() ] );
 
-		const normalBuffer = new GLP.GLPowerFrameBuffer( gl );
+		const normalBuffer = backend.createFrameBuffer();
 		normalBuffer.setTexture( [
-			new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA, magFilter: gl.NEAREST, minFilter: gl.NEAREST } )
+			backend.createTexture().setting( { type: GL.FLOAT, internalFormat: GL.RGBA32F, format: GL.RGBA, magFilter: GL.NEAREST, minFilter: GL.NEAREST } )
 		] );
 
 		return { gBuffer, shadingBuffer, forwardBuffer, refractionBuffer, uiBuffer, normalBuffer };
@@ -843,7 +842,7 @@ export class Renderer extends Serializable {
 
 	}
 
-	public renderCamera( renderType: MaterialRenderType, cameraEntity: Entity, entities: Entity[], renderTarget: GLP.GLPowerFrameBuffer | null, canvasSize: GLP.Vector, renderOption?: RenderOption ) {
+	public renderCamera( renderType: MaterialRenderType, cameraEntity: Entity, entities: Entity[], renderTarget: BackendFrameBuffer | null, canvasSize: GLP.Vector, renderOption?: RenderOption ) {
 
 		const camera = cameraEntity.getComponentsByTag<Camera>( "camera" )[ 0 ] || cameraEntity.getComponent( Light )!;
 
@@ -962,18 +961,18 @@ export class Renderer extends Serializable {
 		if ( lightComponent.castShadow && lightComponent.renderTarget == null ) {
 
 			lightComponent.setShadowMap(
-				new GLP.GLPowerFrameBuffer( this.gl ).setTexture( [ new GLP.GLPowerTexture( this.gl ).setting( { magFilter: this.gl.LINEAR, minFilter: this.gl.LINEAR } ) ] )
+				this.backend.createFrameBuffer().setTexture( [ this.backend.createTexture().setting( { magFilter: GL.LINEAR, minFilter: GL.LINEAR } ) ] )
 			);
 
 		}
 
 	}
 
-	public renderPostProcess( postprocess: PostProcess, input?: GLP.GLPowerFrameBuffer, canvasSize?: GLP.Vector, renderOption?: RenderOption ) {
+	public renderPostProcess( postprocess: PostProcess, input?: BackendFrameBuffer, canvasSize?: GLP.Vector, renderOption?: RenderOption ) {
 
 		// render
 
-		let backbuffers: GLP.GLPowerTexture[] | undefined = input ? input.textures : undefined;
+		let backbuffers: BackendTexture[] | undefined = input ? input.textures : undefined;
 
 		if ( ! postprocess.passes ) return;
 
@@ -1221,7 +1220,7 @@ export class Renderer extends Serializable {
 
 			if ( ! geometry.vaoCache.get( vao ) ) {
 
-				geometry.createBuffers( this.gl );
+				geometry.createBuffers( this.backend );
 
 				geometry.attributes.forEach( ( attr, key ) => {
 
@@ -1351,7 +1350,7 @@ export class Renderer extends Serializable {
 // （GLPowerProgram.setUniformが値を内部配列へコピーする前提）
 const _uniformArrayValue: ( number | boolean )[] = [];
 
-const pushUniformValue = ( v: GLP.Uniformable, type: string ) => {
+const pushUniformValue = ( v: boolean | number | GLP.Vector | GLP.Matrix | BackendTexture, type: string ) => {
 
 	if ( v == null ) return;
 
@@ -1378,7 +1377,7 @@ const pushUniformValue = ( v: GLP.Uniformable, type: string ) => {
 };
 
 // 複数のuniformオブジェクトを順に走査して設定する（後のオブジェクトが同名キーを上書きする）
-export const setUniforms = ( program: GLP.GLPowerProgram, ...uniformsList: ( GLP.Uniforms | undefined )[] ) => {
+export const setUniforms = ( program: BackendProgram, ...uniformsList: ( GLP.Uniforms | undefined )[] ) => {
 
 	for ( let ui = 0; ui < uniformsList.length; ui ++ ) {
 

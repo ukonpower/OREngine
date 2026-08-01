@@ -20,7 +20,9 @@ export class AssetPreviewManager {
 	private _texCopyPostProcess: MXP.PostProcess;
 	private _texPreviewFB: GLP.GLPowerFrameBuffer;
 
-	constructor( gl: WebGL2RenderingContext, renderer: MXP.Renderer ) {
+	constructor( backend: MXP.GLBackend, renderer: MXP.Renderer ) {
+
+		const gl = backend.gl;
 
 		this._gl = gl;
 		this._renderer = renderer;
@@ -34,7 +36,7 @@ export class AssetPreviewManager {
 		this._texPreviewFB = new GLP.GLPowerFrameBuffer( gl, { disableDepthBuffer: true } );
 		this._texPreviewFB.setTexture( [ new GLP.GLPowerTexture( gl ) ] );
 		this._texPreviewFB.setSize( new GLP.Vector( PREVIEW_SIZE, PREVIEW_SIZE ) );
-		this._texCopyPass = new MXP.PostProcessPass( gl, {
+		this._texCopyPass = new MXP.PostProcessPass( backend, {
 			frag: textureCopyFrag,
 			renderTarget: this._texPreviewFB,
 		} );

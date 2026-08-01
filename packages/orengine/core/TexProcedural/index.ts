@@ -16,7 +16,9 @@ export class TexProcedural extends GLP.GLPowerTexture {
 
 	constructor( renderer: MXP.Renderer, param: TexProceduralParam ) {
 
-		const gl = renderer.gl;
+		// GLPowerTexture継承のGL専用テクスチャなので、具象バックエンドから生glを取り出す
+		const backend = renderer.backend as MXP.GLBackend;
+		const gl = backend.gl;
 
 		super( gl );
 
@@ -33,7 +35,7 @@ export class TexProcedural extends GLP.GLPowerTexture {
 
 		this._frameBuffer = new GLP.GLPowerFrameBuffer( gl ).setTexture( [ this ] ).setSize( this._resolution );
 
-		this.material = new MXP.PostProcessPass( gl, { ...param, renderTarget: this._frameBuffer } );
+		this.material = new MXP.PostProcessPass( backend, { ...param, renderTarget: this._frameBuffer } );
 
 		this._postProcess = new MXP.PostProcess( {
 			passes: [ this.material ]

@@ -9,7 +9,7 @@ import bloomCompositeFrag from './shaders/bloomComposite.fs';
 
 export class Bloom extends MXP.PostProcess {
 
-	constructor( gl: WebGL2RenderingContext, srcTexture: GLP.GLPowerTexture ) {
+	constructor( backend: MXP.Backend, srcTexture: MXP.BackendTexture ) {
 
 		const renderCount = 4;
 
@@ -22,12 +22,12 @@ export class Bloom extends MXP.PostProcess {
 
 		for ( let i = 0; i < renderCount; i ++ ) {
 
-			rtVerticalList.push( new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-				new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
+			rtVerticalList.push( backend.createFrameBuffer().setTexture( [
+				backend.createTexture().setting( { magFilter: MXP.GL.LINEAR, minFilter: MXP.GL.LINEAR } ),
 			] ) );
 
-			rtHorizontalList.push( new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-				new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
+			rtHorizontalList.push( backend.createFrameBuffer().setTexture( [
+				backend.createTexture().setting( { magFilter: MXP.GL.LINEAR, minFilter: MXP.GL.LINEAR } ),
 			] ) );
 
 		}
@@ -38,7 +38,7 @@ export class Bloom extends MXP.PostProcess {
 
 		let bloomInvScale = 2.0;
 
-		const brightPass = new MXP.PostProcessPass( gl, {
+		const brightPass = new MXP.PostProcessPass( backend, {
 			name: 'bloom/bright/',
 			frag: bloomBrightFrag,
 			passThrough: true,
@@ -66,7 +66,7 @@ export class Bloom extends MXP.PostProcess {
 
 		const blurPasses = [];
 
-		let bloomInput: GLP.GLPowerTexture[] = brightPass.renderTarget!.textures;
+		let bloomInput: MXP.BackendTexture[] = brightPass.renderTarget!.textures;
 
 		for ( let i = 0; i < renderCount; i ++ ) {
 
@@ -105,9 +105,9 @@ export class Bloom extends MXP.PostProcess {
 				resolutionRatio: 1.0 / bloomInvScale
 			};
 
-			blurPasses.push( new MXP.PostProcessPass( gl, blurParam ) );
+			blurPasses.push( new MXP.PostProcessPass( backend, blurParam ) );
 
-			blurPasses.push( new MXP.PostProcessPass( gl, {
+			blurPasses.push( new MXP.PostProcessPass( backend, {
 				...blurParam,
 				name: 'bloom/blur/' + i + '/h',
 				renderTarget: rtHorizonal,
@@ -134,7 +134,7 @@ export class Bloom extends MXP.PostProcess {
 			Composite
 		-------------------------------*/
 
-		const compositePass = new MXP.PostProcessPass( gl, {
+		const compositePass = new MXP.PostProcessPass( backend, {
 			name: 'bloom/composite/',
 			frag: bloomCompositeFrag,
 			uniforms: {

@@ -15,6 +15,7 @@ type Frame = {
 export class FrameDebugger extends GLP.EventEmitter {
 
 	private _engine: Engine;
+	private _backend: MXP.GLBackend;
 	private _gl: WebGL2RenderingContext;
 
 	// buffers
@@ -57,7 +58,8 @@ export class FrameDebugger extends GLP.EventEmitter {
 		super();
 
 		this._engine = engine;
-		this._gl = engine.gl;
+		this._backend = engine.backend as MXP.GLBackend;
+		this._gl = this._backend.gl;
 		this._elm = engine.canvas as HTMLCanvasElement;
 
 		this._srcFrameBuffer = new GLP.GLPowerFrameBuffer( this._gl, { disableDepthBuffer: true } );
@@ -95,7 +97,7 @@ export class FrameDebugger extends GLP.EventEmitter {
 		};
 
 		this._outPostProcess = new MXP.PostProcess( { passes: [
-			new MXP.PostProcessPass( this._gl, {
+			new MXP.PostProcessPass( this._backend, {
 				uniforms: this._uniforms,
 				renderTarget: null,
 				frag: frameDebuggerFrag,

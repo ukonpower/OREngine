@@ -1,20 +1,24 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
+import { GL } from '../../../Backend';
+
 import pmremFrag from './shaders/pmrem.fs';
 
-type SwapBuffer = {rt1: GLP.GLPowerFrameBuffer, rt2: GLP.GLPowerFrameBuffer};
+import type { Backend, BackendCubeTexture, BackendFrameBuffer } from '../../../Backend';
+
+type SwapBuffer = {rt1: BackendFrameBuffer, rt2: BackendFrameBuffer};
 
 export class PMREMRender extends GLP.EventEmitter {
 
 	public postprocess: MXP.PostProcess;
 	public resolution: GLP.Vector;
-	public renderTarget: GLP.GLPowerFrameBuffer;
+	public renderTarget: BackendFrameBuffer;
 	private pmremPasses: MXP.PostProcessPass[];
 	private swapBuffers: SwapBuffer[];
 	private timeUniforms: GLP.Uniforms;
 
-	constructor( gl: WebGL2RenderingContext, param: {input: GLP.GLPowerTextureCube[], resolution: GLP.Vector} ) {
+	constructor( backend: Backend, param: {input: BackendCubeTexture[], resolution: GLP.Vector} ) {
 
 		super();
 
@@ -27,15 +31,15 @@ export class PMREMRender extends GLP.EventEmitter {
 			},
 		};
 
-		const renderTarget = new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-			new GLP.GLPowerTexture( gl ).setting( {
-				type: gl.FLOAT,
-				internalFormat: gl.RGBA16F,
-				format: gl.RGBA,
-				magFilter: gl.LINEAR,
-				minFilter: gl.LINEAR,
-				wrapS: gl.CLAMP_TO_EDGE,
-				wrapT: gl.CLAMP_TO_EDGE,
+		const renderTarget = backend.createFrameBuffer().setTexture( [
+			backend.createTexture().setting( {
+				type: GL.FLOAT,
+				internalFormat: GL.RGBA16F,
+				format: GL.RGBA,
+				magFilter: GL.LINEAR,
+				minFilter: GL.LINEAR,
+				wrapS: GL.CLAMP_TO_EDGE,
+				wrapT: GL.CLAMP_TO_EDGE,
 			} ),
 		] );
 
@@ -57,13 +61,13 @@ export class PMREMRender extends GLP.EventEmitter {
 			viewPortY += height;
 
 			swapBuffers.push( {
-				rt1: new GLP.GLPowerFrameBuffer( gl ).setTexture( [ new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA16F, format: gl.RGBA } ) ] ),
-				rt2: new GLP.GLPowerFrameBuffer( gl ).setTexture( [ new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA16F, format: gl.RGBA } ) ] ),
+				rt1: backend.createFrameBuffer().setTexture( [ backend.createTexture().setting( { type: GL.FLOAT, internalFormat: GL.RGBA16F, format: GL.RGBA } ) ] ),
+				rt2: backend.createFrameBuffer().setTexture( [ backend.createTexture().setting( { type: GL.FLOAT, internalFormat: GL.RGBA16F, format: GL.RGBA } ) ] ),
 			} );
 
 			const roughness = 1 / ( mipmapLevel - 1.0 ) * i;
 
-			const pmremPass = new MXP.PostProcessPass( gl, {
+			const pmremPass = new MXP.PostProcessPass( backend, {
 				renderTarget: swapBuffers[ i ].rt1,
 				frag: pmremFrag,
 				uniforms: MXP.UniformsUtils.merge( timeUniforms, {
@@ -91,7 +95,7 @@ export class PMREMRender extends GLP.EventEmitter {
 
 			pmremPass.resize( new GLP.Vector( width, height ) );
 
-			const blitPass = new MXP.PostProcessPass( gl, {
+			const blitPass = new MXP.PostProcessPass( backend, {
 				renderTarget: renderTarget,
 				viewPort,
 				passThrough: true,

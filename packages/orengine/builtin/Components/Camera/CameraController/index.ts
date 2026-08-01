@@ -35,14 +35,14 @@ export class CameraController extends MXP.Component {
 		const engine = this.engine as Engine;
 		const rt = engine.renderer.renderTarget;
 
-		const bloom = new Bloom( engine.gl, rt.shadingBuffer.textures[ 0 ] );
+		const bloom = new Bloom( engine.backend, rt.shadingBuffer.textures[ 0 ] );
 		bloom.threshold = 1.0;
 		bloom.brightness = 1;
 
-		pipeline.add( new FXAA( engine.gl ) );
+		pipeline.add( new FXAA( engine.backend ) );
 		pipeline.add( bloom );
-		pipeline.add( new ColorGrading( engine.gl ) );
-		pipeline.add( new Finalize( engine.gl ) );
+		pipeline.add( new ColorGrading( engine.backend ) );
+		pipeline.add( new Finalize( engine.backend ) );
 
 		// sceneCreated
 

@@ -1,13 +1,13 @@
-import * as GLP from 'glpower';
+import type { Backend, BackendProgram } from '../../../Backend';
 
 export class ProgramManager {
 
-	private gl: WebGL2RenderingContext;
-	private pool: Map<string, GLP.GLPowerProgram>;
+	private backend: Backend;
+	private pool: Map<string, BackendProgram>;
 
-	constructor( gl: WebGL2RenderingContext ) {
+	constructor( backend: Backend ) {
 
-		this.gl = gl;
+		this.backend = backend;
 		this.pool = new Map();
 
 	}
@@ -24,7 +24,7 @@ export class ProgramManager {
 
 		}
 
-		const program = new GLP.GLPowerProgram( this.gl );
+		const program = this.backend.createProgram();
 
 		if ( name ) program.name = name;
 

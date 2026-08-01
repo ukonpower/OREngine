@@ -10,6 +10,7 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 	private wrapperElm: HTMLElement | null;
 
 	private glCanvas: HTMLCanvasElement;
+	private backend: MXP.GLBackend;
 	private gl: WebGL2RenderingContext;
 	private canvasTexture: GLP.GLPowerTexture;
 
@@ -43,8 +44,8 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 		this.canvasCtx = this.canvas.getContext( '2d' )!;
 
 		this.glCanvas = document.createElement( 'canvas' );
-		const power = new GLP.Power( this.glCanvas.getContext( 'webgl2' )! );
-		this.gl = power.gl;
+		this.backend = new MXP.GLBackend( this.glCanvas.getContext( 'webgl2' )! );
+		this.gl = this.backend.gl;
 
 		this.canvasSize = new GLP.Vector( this.glCanvas.width, this.glCanvas.height );
 
@@ -73,11 +74,11 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 		// gl
 
 		const isolatedEngine: MXP.Engine = {
-			gl: this.gl,
+			backend: this.backend,
 			createEntity: ( params ) => new MXP.Entity( { ...params, engine: isolatedEngine } ),
 		};
 
-		this.glRenderer = new MXP.Renderer( this.gl, isolatedEngine );
+		this.glRenderer = new MXP.Renderer( this.backend, isolatedEngine );
 		this.canvasTexture = new GLP.GLPowerTexture( this.gl );
 
 		// music
@@ -88,7 +89,7 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 
 		this.postProcess = new MXP.PostProcess( {
 			passes: [
-				new MXP.PostProcessPass( this.gl, {
+				new MXP.PostProcessPass( this.backend, {
 					frag: timelineFrag,
 					uniforms: {
 						uCanvasTex: {

@@ -10,6 +10,7 @@ import { GLTFFormat, GLTFBufferView, GLTFNode } from './gltf';
 import gltfFrag from './shaders/gltf.fs';
 import gltfVert from './shaders/gltf.vs';
 
+import type { Backend } from '../../Backend';
 import type { Engine } from '../../Engine';
 
 const GLB_HEADER_LENGTH = 12;
@@ -63,9 +64,9 @@ export class GLTFLoader extends GLP.EventEmitter {
 
 	}
 
-	private get gl(): WebGL2RenderingContext {
+	private get backend(): Backend {
 
-		return this._engine.gl;
+		return this._engine.backend;
 
 	}
 
@@ -234,7 +235,7 @@ export class GLTFLoader extends GLP.EventEmitter {
 
 			if ( gltfTexture ) {
 
-				const texture = new GLP.GLPowerTexture( this.gl );
+				const texture = this.backend.createTexture();
 
 				const source = parsedImages.get( gltfTexture.source );
 

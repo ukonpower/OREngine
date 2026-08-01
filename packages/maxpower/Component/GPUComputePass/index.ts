@@ -1,10 +1,13 @@
 
 import * as GLP from 'glpower';
 
+import { GL } from '../../Backend';
 import { PostProcessPassParam, PostProcessPass } from '../../PostProcess/PostProcessPass';
 import { UniformsUtils } from '../../utils/Uniforms';
 
 import quadVert from './shaders/quad.vs';
+
+import type { Backend, BackendFrameBuffer } from '../../Backend';
 
 export interface GPUComputePassParam extends Omit<PostProcessPassParam, 'renderTarget'>{
 	size: GLP.Vector,
@@ -19,17 +22,17 @@ export class GPUComputePass extends PostProcessPass {
 
 	public clearColor: GLP.Vector | null;
 
-	public rt1: GLP.GLPowerFrameBuffer;
-	public rt2: GLP.GLPowerFrameBuffer;
+	public rt1: BackendFrameBuffer;
+	public rt2: BackendFrameBuffer;
 
 	public outputUniforms: GLP.Uniforms;
 
-	constructor( gl: WebGL2RenderingContext, param: GPUComputePassParam ) {
+	constructor( backend: Backend, param: GPUComputePassParam ) {
 
-		const textureSetting = Object.assign( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA, magFilter: gl.NEAREST, minFilter: gl.NEAREST }, param.textureParam );
+		const textureSetting = Object.assign( { type: GL.FLOAT, internalFormat: GL.RGBA32F, format: GL.RGBA, magFilter: GL.NEAREST, minFilter: GL.NEAREST }, param.textureParam );
 
-		const rt1 = new GLP.GLPowerFrameBuffer( gl ).setTexture( new Array( param.dataLayerCount ).fill( 0 ).map( () => new GLP.GLPowerTexture( gl ).setting( textureSetting ) ) ).setSize( param.size );
-		const rt2 = new GLP.GLPowerFrameBuffer( gl ).setTexture( new Array( param.dataLayerCount ).fill( 0 ).map( () => new GLP.GLPowerTexture( gl ).setting( textureSetting ) ) ).setSize( param.size );
+		const rt1 = backend.createFrameBuffer().setTexture( new Array( param.dataLayerCount ).fill( 0 ).map( () => backend.createTexture().setting( textureSetting ) ) ).setSize( param.size );
+		const rt2 = backend.createFrameBuffer().setTexture( new Array( param.dataLayerCount ).fill( 0 ).map( () => backend.createTexture().setting( textureSetting ) ) ).setSize( param.size );
 
 		const outputUniforms: GLP.Uniforms = {
 			uGPUResolution: {
@@ -47,7 +50,7 @@ export class GPUComputePass extends PostProcessPass {
 
 		}
 
-		super( gl, { ...param, vert: param.vert || quadVert, renderTarget: rt1, uniforms: UniformsUtils.merge( param.uniforms, outputUniforms, {
+		super( backend, { ...param, vert: param.vert || quadVert, renderTarget: rt1, uniforms: UniformsUtils.merge( param.uniforms, outputUniforms, {
 			uDeltaTime: {
 				value: 0.0,
 				type: '1f'

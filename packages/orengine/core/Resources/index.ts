@@ -275,7 +275,7 @@ export class Resources extends GLP.EventEmitter {
 
 	}
 
-	private _buildTexture( resource: TextureResource, renderer: MXP.Renderer, gl: WebGL2RenderingContext, uniforms?: GLP.Uniforms ): TexProcedural | null {
+	private _buildTexture( resource: TextureResource, renderer: MXP.Renderer, uniforms?: GLP.Uniforms ): TexProcedural | null {
 
 		const fragSource = resource.frag;
 		if ( ! fragSource ) return null;
@@ -292,8 +292,8 @@ export class Resources extends GLP.EventEmitter {
 		if ( resource.filter === "nearest" ) {
 
 			tex.setting( {
-				magFilter: gl.NEAREST,
-				minFilter: gl.NEAREST,
+				magFilter: MXP.GL.NEAREST,
+				minFilter: MXP.GL.NEAREST,
 			} );
 
 			tex.render();
@@ -305,7 +305,7 @@ export class Resources extends GLP.EventEmitter {
 	}
 
 	// 依存テクスチャ（resource.textures）を先にビルドしてから自身をビルドする
-	private _ensureTexture( resource: TextureResource, renderer: MXP.Renderer, gl: WebGL2RenderingContext, engineUniforms: GLP.Uniforms | undefined, building: Set<string> ): GLP.GLPowerTexture | null {
+	private _ensureTexture( resource: TextureResource, renderer: MXP.Renderer, engineUniforms: GLP.Uniforms | undefined, building: Set<string> ): GLP.GLPowerTexture | null {
 
 		const built = this._textures.get( resource.name );
 
@@ -327,7 +327,7 @@ export class Resources extends GLP.EventEmitter {
 			const depResource = this._textureResources.get( depName );
 
 			const dep = depResource
-				? this._ensureTexture( depResource, renderer, gl, engineUniforms, building )
+				? this._ensureTexture( depResource, renderer, engineUniforms, building )
 				: this._textures.get( depName );
 
 			if ( dep ) {
@@ -338,7 +338,7 @@ export class Resources extends GLP.EventEmitter {
 
 		}
 
-		const tex = this._buildTexture( resource, renderer, gl, uniforms );
+		const tex = this._buildTexture( resource, renderer, uniforms );
 
 		if ( ! tex ) return null;
 
@@ -360,7 +360,17 @@ export class Resources extends GLP.EventEmitter {
 
 	}
 
-	public buildTextureInstances( renderer: MXP.Renderer, gl: WebGL2RenderingContext, engineUniforms?: GLP.Uniforms ) {
+	public buildTextureInstances( renderer: MXP.Renderer, engineUniforms?: GLP.Uniforms ) {
+
+		// TexProceduralはGL専用のため、非GLバックエンドでは.texテクスチャを構築しない。
+		// WebGPUはdev専用なのでDEVで括り、playerビルドからはガードごと消えるようにする
+		if ( import.meta.env.DEV && ! ( renderer.backend instanceof MXP.GLBackend ) ) {
+
+			console.warn( "[Resources] WebGLバックエンドではないため、.tex テクスチャの構築をスキップします" );
+
+			return;
+
+		}
 
 		this._updateEveryFrameTextures = [];
 
@@ -368,7 +378,7 @@ export class Resources extends GLP.EventEmitter {
 
 		this._textureResources.forEach( ( resource ) => {
 
-			this._ensureTexture( resource, renderer, gl, engineUniforms, building );
+			this._ensureTexture( resource, renderer, engineUniforms, building );
 
 		} );
 

@@ -1,8 +1,8 @@
 import * as GLP from 'glpower';
 
 export interface PostProcessPassParam extends MaterialParam{
-	backBufferOverride?:GLP.GLPowerTexture[],
-	renderTarget?: GLP.GLPowerFrameBuffer | null,
+	backBufferOverride?:BackendTexture[],
+	renderTarget?: BackendFrameBuffer | null,
 	clearColor?: GLP.Vector;
 	clearDepth?: number;
 	resolutionRatio?: number;
@@ -11,17 +11,20 @@ export interface PostProcessPassParam extends MaterialParam{
 	fixedResotluion?: GLP.Vector
 }
 
+import { GL } from '../../Backend';
 import { MaterialParam, Material } from '../../Material';
 
 import passFrag from './shaders/pass.fs';
 import quadVert from './shaders/quad.vs';
 
+import type { Backend, BackendFrameBuffer, BackendTexture } from '../../Backend';
+
 export class PostProcessPass extends Material {
 
 	public enabled: boolean;
 
-	public renderTarget: GLP.GLPowerFrameBuffer | null;
-	public backBufferOverride: GLP.GLPowerTexture[] | null;
+	public renderTarget: BackendFrameBuffer | null;
+	public backBufferOverride: BackendTexture[] | null;
 
 	public clearColor: GLP.Vector | null;
 	public clearDepth: number | null;
@@ -34,7 +37,7 @@ export class PostProcessPass extends Material {
 	public viewPort: GLP.Vector | null;
 	private _fixedResolution: GLP.Vector | null;
 
-	constructor( gl: WebGL2RenderingContext, param: PostProcessPassParam ) {
+	constructor( backend: Backend, param: PostProcessPassParam ) {
 
 		super( { ...param, frag: param.frag || passFrag, vert: param.vert || quadVert } );
 
@@ -55,8 +58,8 @@ export class PostProcessPass extends Material {
 			type: '2fv'
 		};
 
-		this.renderTarget = param.renderTarget !== undefined ? param.renderTarget : new GLP.GLPowerFrameBuffer( gl ).setTexture( [
-			new GLP.GLPowerTexture( gl ).setting( { magFilter: gl.LINEAR, minFilter: gl.LINEAR } ),
+		this.renderTarget = param.renderTarget !== undefined ? param.renderTarget : backend.createFrameBuffer().setTexture( [
+			backend.createTexture().setting( { magFilter: GL.LINEAR, minFilter: GL.LINEAR } ),
 		] );
 
 		this.clearColor = param.clearColor ?? null;
@@ -108,7 +111,7 @@ export class PostProcessPass extends Material {
 
 	}
 
-	public setRendertarget( renderTarget:GLP.GLPowerFrameBuffer | null ) {
+	public setRendertarget( renderTarget:BackendFrameBuffer | null ) {
 
 		this.renderTarget = renderTarget;
 
