@@ -91,13 +91,7 @@ export class SelectionOutline {
 
 		const outlineFB = this._outlinePass.renderTarget!;
 
-		gl.bindFramebuffer( gl.READ_FRAMEBUFFER, outlineFB.getFrameBuffer() );
-		gl.bindFramebuffer( gl.DRAW_FRAMEBUFFER, engine.renderer.renderTarget.uiBuffer.getFrameBuffer() );
-		gl.blitFramebuffer(
-			0, 0, res.x, res.y,
-			0, 0, res.x, res.y,
-			gl.COLOR_BUFFER_BIT, gl.NEAREST
-		);
+		engine.renderer.backend.blit( outlineFB, engine.renderer.renderTarget.uiBuffer, res.x, res.y );
 
 	}
 

@@ -421,19 +421,12 @@ export class Editor extends MXP.Serializable {
 			this._selectionOutline.render( selectedEntity, cameraEntity, this._engine );
 
 			// uiBuffer → デフォルトFBにblit
-			const gl = this._engine.renderer.gl;
 			const rt = this._engine.renderer.renderTarget;
 			const res = this._engine.renderer.resolution;
 
 			if ( res.x > 0 && res.y > 0 ) {
 
-				gl.bindFramebuffer( gl.READ_FRAMEBUFFER, rt.uiBuffer.getFrameBuffer() );
-				gl.bindFramebuffer( gl.DRAW_FRAMEBUFFER, null );
-				gl.blitFramebuffer(
-					0, 0, res.x, res.y,
-					0, 0, res.x, res.y,
-					gl.COLOR_BUFFER_BIT, gl.NEAREST
-				);
+				this._engine.renderer.backend.blit( rt.uiBuffer, null, res.x, res.y );
 
 			}
 

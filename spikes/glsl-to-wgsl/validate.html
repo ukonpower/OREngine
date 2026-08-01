@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>glsl-to-wgsl: WGSL validation</title>
+</head>
+<body>
+<pre id="result">running...</pre>
+<script type="module">
+
+// 生成された WGSL を実ブラウザの WGSL 実装（Chrome = Tint）で検証する。
+// naga のバリデータとは別実装なので、naga 検証済みでも独立した確認になる。
+
+const TARGETS = [
+	'out/minimal.direct.wgsl',
+	'out/minimal.spv.wgsl',
+	'out/deferredShading.direct.wgsl',
+	'out/deferredShading.spv.wgsl',
+];
+
+const lines = [];
+const log = ( s ) => {
+
+	lines.push( s );
+	document.getElementById( 'result' ).textContent = lines.join( '\n' );
+	console.log( s );
+
+};
+
+const run = async () => {
+
+	if ( ! navigator.gpu ) {
+
+		log( 'FAIL: navigator.gpu is undefined (WebGPU unavailable)' );
+		return;
+
+	}
+
+	const adapter = await navigator.gpu.requestAdapter();
+
+	if ( ! adapter ) {
+
+		log( 'FAIL: requestAdapter() returned null' );
+		return;
+
+	}
+
+	const device = await adapter.requestDevice();
+
+	log( `adapter: ${adapter.info?.vendor ?? '?'} / ${adapter.info?.architecture ?? '?'}` );
+
+	let failed = 0;
+
+	for ( const target of TARGETS ) {
+
+		const code = await ( await fetch( target ) ).text();
+
+		device.pushErrorScope( 'validation' );
+
+		const module = device.createShaderModule( { code } );
+		const info = await module.getCompilationInfo();
+
+		const scope = await device.popErrorScope();
+
+		const errors = info.messages.filter( ( m ) => m.type === 'error' );
+		const warnings = info.messages.filter( ( m ) => m.type === 'warning' );
+
+		if ( errors.length === 0 && ! scope ) {
+
+			log( `PASS ${target} (${code.length} bytes, warnings=${warnings.length})` );
+
+		} else {
+
+			failed ++;
+			log( `FAIL ${target}` );
+
+			for ( const m of info.messages ) log( `  [${m.type}] ${m.lineNum}:${m.linePos} ${m.message}` );
+
+			if ( scope ) log( `  [scope] ${scope.message}` );
+
+		}
+
+	}
+
+	log( failed === 0 ? `RESULT: PASS (${TARGETS.length}/${TARGETS.length})` : `RESULT: FAIL (${failed}/${TARGETS.length} failed)` );
+
+};
+
+run().catch( ( e ) => log( `FAIL: ${e}` ) );
+
+</script>
+</body>
+</html>

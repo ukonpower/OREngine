@@ -15,6 +15,7 @@ import { Mesh } from '../Mesh';
 import { PostProcessPipeline } from '../PostProcessPipeline';
 
 import { DeferredRenderer } from './DeferredRenderer';
+import { GLBackend } from './GLBackend';
 import { PipelinePostProcess } from './PipelinePostProcess';
 import { PMREMRender } from './PMREMRender';
 import { ProgramManager } from './ProgramManager';
@@ -139,12 +140,6 @@ interface DrawParam extends CameraParam {
 	uniformOverride?: GLP.Uniforms,
 }
 
-// state
-
-type GPUState = {
-	[key: number]: boolean,
-}
-
 // compile draw param
 
 interface CompileDrawParam {
@@ -169,6 +164,11 @@ export type PipelineConfig = {
 // texture unit
 
 export let TextureUnitCounter = 0;
+
+// clear color
+
+const _clearColorWhite = new GLP.Vector( 1.0, 1.0, 1.0, 1.0 );
+const _clearColorBlack = new GLP.Vector( 0.0, 0.0, 0.0, 1.0 );
 
 // light uniform names
 // draw毎の文字列連結を避けるため、ライトインデックスごとにuniform名をキャッシュする
@@ -206,13 +206,13 @@ const getSpotLightNames = ( i: number ) => _spotLightNames[ i ] || ( _spotLightN
 export class Renderer extends Serializable {
 
 	public gl: WebGL2RenderingContext;
+	public readonly backend: GLBackend;
 	public resolution: GLP.Vector;
 	public globalUniforms: GLP.Uniforms;
 	private _renderTarget: RenderCameraTarget;
 
 	// pipeline config
 	private _pipelineConfig: Required<PipelineConfig>;
-	private _extDisJointTimerQuery: any;
 
 	// program
 
@@ -243,15 +243,6 @@ export class Renderer extends Serializable {
 
 	private _quad: Geometry;
 
-	// gpu state
-
-	private _glStateCache: GPUState;
-
-	// render query
-
-	private _queryList: WebGLQuery[];
-	private _queryListQueued: {name: string, query: WebGLQuery}[];
-
 	// compile
 
 	private _isCorrentCompiles: boolean;
@@ -275,24 +266,13 @@ export class Renderer extends Serializable {
 		super();
 
 		this.gl = gl;
+		this.backend = new GLBackend( gl );
 		this.globalUniforms = {};
 
 		this._isCorrentCompiles = false;
 		this.compileDrawParams = [];
 		this.programManager = new ProgramManager( this.gl );
 		this.resolution = new GLP.Vector();
-
-		this.gl.getExtension( "EXT_color_buffer_float" );
-		this.gl.getExtension( "EXT_color_buffer_half_float" );
-		this.gl.getExtension( "OES_texture_float_linear" );
-
-		this._extDisJointTimerQuery = this.gl.getExtension( "EXT_disjoint_timer_query_webgl2" );
-
-		if ( ! this._extDisJointTimerQuery ) {
-
-			console.warn( "[Renderer] EXT_disjoint_timer_query_webgl2 extension is not supported. GPU timing features will be disabled." );
-
-		}
 
 		// lights
 
@@ -360,15 +340,6 @@ export class Renderer extends Serializable {
 
 		this._quad = new PlaneGeometry( { width: 2.0, height: 2.0 } );
 
-		// gpu
-
-		this._glStateCache = {};
-
-		// query
-
-		this._queryList = [];
-		this._queryListQueued = [];
-
 		// tmp
 
 		this._tmpLightDirection = new GLP.Vector();
@@ -381,8 +352,6 @@ export class Renderer extends Serializable {
 		this._tmpResolutionUniform = { value: this._tmpResolution, type: '2fv' };
 		this._tmpUniformOverride = {};
 		this._tmpDrawParam = {};
-
-		this.gl.blendFunc( this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA );
 
 		// render target
 
@@ -592,50 +561,13 @@ export class Renderer extends Serializable {
 
 		if ( this.resolution.x === 0 || this.resolution.y === 0 ) return;
 
-		if ( import.meta.env.DEV && this._extDisJointTimerQuery ) {
+		if ( import.meta.env.DEV ) {
 
-			const disjoint = this.gl.getParameter( this._extDisJointTimerQuery.GPU_DISJOINT_EXT );
+			const timerResults = this.backend.collectTimerQueries();
 
-			if ( disjoint ) {
+			if ( timerResults ) {
 
-				this._queryList.forEach( q => this.gl.deleteQuery( q ) );
-
-				this._queryList.length = 0;
-
-			} else {
-
-				const updatedList = [];
-
-				if ( this._queryListQueued.length > 0 ) {
-
-					const l = this._queryListQueued.length;
-
-					for ( let i = l - 1; i >= 0; i -- ) {
-
-						const q = this._queryListQueued[ i ];
-
-						const resultAvailable = this.gl.getQueryParameter( q.query, this.gl.QUERY_RESULT_AVAILABLE );
-
-						if ( resultAvailable ) {
-
-							const result = this.gl.getQueryParameter( q.query, this.gl.QUERY_RESULT );
-
-							updatedList.push( {
-								name: q.name,
-								duration: result / 1000 / 1000
-							} );
-
-							this._queryList.push( q.query );
-
-							this._queryListQueued.splice( i, 1 );
-
-						}
-
-					}
-
-				}
-
-				this.emit( "timer", [ updatedList ] );
+				this.emit( "timer", [ timerResults ] );
 
 			}
 
@@ -742,7 +674,7 @@ export class Renderer extends Serializable {
 
 			// deferred
 
-			this.gl.disable( this.gl.BLEND );
+			this.backend.setBlendEnabled( false );
 
 			this.renderCamera( "deferred", cameraEntity, stack.deferred, rt.gBuffer, this.resolution );
 
@@ -790,7 +722,7 @@ export class Renderer extends Serializable {
 
 			}
 
-			this.gl.enable( this.gl.BLEND );
+			this.backend.setBlendEnabled( true );
 
 			for ( let gi = 0; gi < forwardGroups.length; gi ++ ) {
 
@@ -834,7 +766,7 @@ export class Renderer extends Serializable {
 
 			}
 
-			this.gl.disable( this.gl.BLEND );
+			this.backend.setBlendEnabled( false );
 
 			// scene
 
@@ -884,19 +816,13 @@ export class Renderer extends Serializable {
 
 			if ( backBuffer ) {
 
-				this.gl.bindFramebuffer( this.gl.READ_FRAMEBUFFER, backBuffer.getFrameBuffer() );
-				this.gl.bindFramebuffer( this.gl.DRAW_FRAMEBUFFER, rt.uiBuffer.getFrameBuffer() );
-
 				const size = backBuffer.size;
 
-				this.gl.blitFramebuffer(
-					0, 0, size.x, size.y,
-					0, 0, size.x, size.y,
-					this.gl.COLOR_BUFFER_BIT, this.gl.NEAREST );
+				this.backend.blit( backBuffer, rt.uiBuffer, size.x, size.y );
 
 			}
 
-			this.gl.enable( this.gl.BLEND );
+			this.backend.setBlendEnabled( true );
 
 			this.renderCamera( "forward", cameraEntity, stack.ui, rt.uiBuffer, this.resolution, {
 				uniformOverride: {
@@ -907,19 +833,11 @@ export class Renderer extends Serializable {
 				disableClear: true
 			} );
 
-			this.gl.disable( this.gl.BLEND );
+			this.backend.setBlendEnabled( false );
 
 			// display out
 
-			const outBuffer = rt.uiBuffer;
-
-			this.gl.bindFramebuffer( this.gl.READ_FRAMEBUFFER, outBuffer.getFrameBuffer() );
-			this.gl.bindFramebuffer( this.gl.DRAW_FRAMEBUFFER, null );
-
-			this.gl.blitFramebuffer(
-				0, 0, this.resolution.x, this.resolution.y,
-				0, 0, this.resolution.x, this.resolution.y,
-				this.gl.COLOR_BUFFER_BIT, this.gl.NEAREST );
+			this.backend.blit( rt.uiBuffer, null, this.resolution.x, this.resolution.y );
 
 		}
 
@@ -949,7 +867,7 @@ export class Renderer extends Serializable {
 
 		}
 
-		this._bindRenderTarget( renderTarget, camera.viewPort, canvasSize );
+		this.backend.bindRenderTarget( renderTarget, camera.viewPort, canvasSize );
 
 		if ( renderTarget ) {
 
@@ -967,20 +885,7 @@ export class Renderer extends Serializable {
 
 		if ( ! renderOption.disableClear ) {
 
-			if ( renderType == "shadowMap" ) {
-
-				this.gl.clearColor( 1.0, 1.0, 1.0, 1.0 );
-				this.gl.clearDepth( 1.0 );
-
-
-			} else {
-
-				this.gl.clearColor( 0.0, 0.0, 0.0, 1.0 );
-				this.gl.clearDepth( 1.0 );
-
-			}
-
-			this.gl.clear( this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT );
+			this.backend.clear( renderType == "shadowMap" ? _clearColorWhite : _clearColorBlack, 1.0 );
 
 		}
 
@@ -1012,71 +917,11 @@ export class Renderer extends Serializable {
 
 	}
 
-	// GLステートをキャッシュと比較し、変化があった時だけ切り替える
-	private _setGLState( type: number, state: boolean ) {
-
-		if ( this._glStateCache[ type ] !== state ) {
-
-			if ( state ) {
-
-				this.gl.enable( type );
-
-			} else {
-
-				this.gl.disable( type );
-
-			}
-
-			this._glStateCache[ type ] = state;
-
-		}
-
-	}
-
-	// viewport設定とframebufferバインドをまとめて行う
-	private _bindRenderTarget( renderTarget: GLP.GLPowerFrameBuffer | null, viewPort?: GLP.Vector | null, canvasSize?: GLP.Vector ) {
-
-		if ( viewPort ) {
-
-			this.gl.viewport( viewPort.x, viewPort.y, viewPort.z, viewPort.w );
-
-		} else if ( renderTarget ) {
-
-			this.gl.viewport( 0, 0, renderTarget.size.x, renderTarget.size.y );
-
-		} else if ( canvasSize ) {
-
-			this.gl.viewport( 0, 0, canvasSize.x, canvasSize.y );
-
-		}
-
-		if ( renderTarget ) {
-
-			this.gl.bindFramebuffer( this.gl.FRAMEBUFFER, renderTarget.getFrameBuffer() );
-			this.gl.drawBuffers( renderTarget.textureAttachmentList );
-
-		} else {
-
-			this.gl.bindFramebuffer( this.gl.FRAMEBUFFER, null );
-
-		}
-
-	}
-
 	private _copyToRefraction( rt: RenderCameraTarget ) {
 
-		const gl = this.gl;
-		gl.bindFramebuffer( gl.READ_FRAMEBUFFER, rt.shadingBuffer.getFrameBuffer() );
-		gl.readBuffer( gl.COLOR_ATTACHMENT0 );
-		gl.bindFramebuffer( gl.DRAW_FRAMEBUFFER, rt.refractionBuffer.getFrameBuffer() );
-		gl.drawBuffers( [ gl.COLOR_ATTACHMENT0 ] );
-
 		const size = rt.shadingBuffer.size;
-		gl.blitFramebuffer(
-			0, 0, size.x, size.y,
-			0, 0, size.x, size.y,
-			gl.COLOR_BUFFER_BIT, gl.LINEAR
-		);
+
+		this.backend.blit( rt.shadingBuffer, rt.refractionBuffer, size.x, size.y, true, true );
 
 	}
 
@@ -1140,31 +985,11 @@ export class Renderer extends Serializable {
 
 			const renderTarget = pass.renderTarget;
 
-			this._bindRenderTarget( renderTarget, pass.viewPort, canvasSize );
+			this.backend.bindRenderTarget( renderTarget, pass.viewPort, canvasSize );
 
 			// clear
 
-			let clear = 0;
-
-			if ( pass.clearColor ) {
-
-				this.gl.clearColor( pass.clearColor.x, pass.clearColor.y, pass.clearColor.z, pass.clearColor.w );
-				clear |= this.gl.COLOR_BUFFER_BIT;
-
-			}
-
-			if ( pass.clearDepth !== null ) {
-
-				this.gl.clearDepth( pass.clearDepth );
-				clear |= this.gl.DEPTH_BUFFER_BIT;
-
-			}
-
-			if ( clear !== 0 ) {
-
-				this.gl.clear( clear );
-
-			}
+			this.backend.clear( pass.clearColor, pass.clearDepth );
 
 			const backBuffer = pass.backBufferOverride || backbuffers || null;
 
@@ -1218,10 +1043,7 @@ export class Renderer extends Serializable {
 
 		TextureUnitCounter = 0;
 
-		this._setGLState( this.gl.CULL_FACE, material.cullFace );
-		this._setGLState( this.gl.DEPTH_TEST, material.depthTest );
-
-		this.gl.depthMask( material.depthWrite );
+		this.backend.setMaterialState( material.cullFace, material.depthTest, material.depthWrite );
 
 		// program
 
@@ -1421,110 +1243,15 @@ export class Renderer extends Serializable {
 
 			}
 
-			program.use( ( program ) => {
+			let queryName: string | undefined = undefined;
 
-				program.uploadUniforms();
+			if ( import.meta.env.DEV ) {
 
-				this.gl.bindVertexArray( vao.getVAO() );
+				queryName = `${renderType}/${param && param.label || "_"}/ [${drawId}]`;
 
-				const indexBuffer = vao.indexBuffer;
+			}
 
-				let indexBufferArrayType: number = this.gl.UNSIGNED_SHORT;
-
-				if ( indexBuffer && indexBuffer.array && indexBuffer.array.BYTES_PER_ELEMENT == 4 ) {
-
-					indexBufferArrayType = this.gl.UNSIGNED_INT;
-
-				}
-
-				if ( material.blending == 'NORMAL' ) {
-
-					this.gl.blendFunc( this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA );
-
-				} else if ( material.blending == 'ADD' ) {
-
-					this.gl.blendFunc( this.gl.SRC_ALPHA, this.gl.ONE );
-
-				} else if ( material.blending == 'DIFF' ) {
-
-					this.gl.blendFunc( this.gl.ONE_MINUS_DST_COLOR, this.gl.ONE_MINUS_DST_COLOR );
-
-				}
-
-				const drawType = this.gl[ material.drawType ];
-
-				// query ------------------------
-
-				let query: WebGLQuery | null = null;
-
-				if ( import.meta.env.DEV && this._extDisJointTimerQuery ) {
-
-					query = this._queryList.pop() || null;
-
-					if ( query == null ) {
-
-						query = this.gl.createQuery();
-
-					}
-
-					if ( query ) {
-
-						this.gl.beginQuery( this._extDisJointTimerQuery.TIME_ELAPSED_EXT, query );
-
-					}
-
-				}
-
-				// -----------------------------
-
-				if ( vao.instanceCount > 0 ) {
-
-					if ( indexBuffer ) {
-
-						this.gl.drawElementsInstanced( drawType, vao.indexCount, indexBufferArrayType, 0, vao.instanceCount );
-
-					} else {
-
-						this.gl.drawArraysInstanced( drawType, 0, vao.vertCount, vao.instanceCount );
-
-					}
-
-				} else {
-
-					if ( indexBuffer ) {
-
-						this.gl.drawElements( drawType, vao.indexCount, indexBufferArrayType, 0 );
-
-					} else {
-
-						this.gl.drawArrays( drawType, 0, vao.vertCount );
-
-					}
-
-				}
-
-				// query ------------------------
-
-				if ( import.meta.env.DEV && this._extDisJointTimerQuery ) {
-
-					if ( query ) {
-
-						this.gl.endQuery( this._extDisJointTimerQuery.TIME_ELAPSED_EXT );
-						const label = param && param.label || "_";
-						this._queryListQueued.push( {
-							name: `${renderType}/${label}/ [${drawId}]`,
-							query: query
-						} );
-
-					}
-
-				}
-
-				// ----------------------------
-
-				this.gl.bindVertexArray( null );
-
-			} );
+			this.backend.draw( program, vao, material.drawType, material.blending, queryName );
 
 		}
 
@@ -1589,18 +1316,7 @@ export class Renderer extends Serializable {
 
 			const param = this.compileDrawParams[ i ];
 
-			const renderTarget = param.param.renderTarget;
-
-			if ( renderTarget ) {
-
-				this.gl.bindFramebuffer( this.gl.FRAMEBUFFER, renderTarget.getFrameBuffer() );
-				this.gl.drawBuffers( renderTarget.textureAttachmentList );
-
-			} else {
-
-				this.gl.bindFramebuffer( this.gl.FRAMEBUFFER, null );
-
-			}
+			this.backend.bindRenderTarget( param.param.renderTarget || null );
 
 			this.draw( param.drawId, param.renderType, param.geometry, param.material, param.param );
 

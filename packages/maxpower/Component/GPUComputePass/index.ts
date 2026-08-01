@@ -14,8 +14,6 @@ export interface GPUComputePassParam extends Omit<PostProcessPassParam, 'renderT
 
 export class GPUComputePass extends PostProcessPass {
 
-	private gl: WebGL2RenderingContext;
-
 	public readonly size: GLP.Vector;
 	public readonly layerCnt: number;
 
@@ -56,8 +54,6 @@ export class GPUComputePass extends PostProcessPass {
 			}
 		} ) } );
 
-		this.gl = gl;
-
 		this.size = param.size;
 		this.layerCnt = param.dataLayerCount;
 
@@ -92,8 +88,6 @@ export class GPUComputePass extends PostProcessPass {
 
 		for ( let i = 0; i < this.layerCnt; i ++ ) {
 
-			this.gl.bindTexture( this.gl.TEXTURE_2D, this.rt2.textures[ i ].getTexture() );
-
 			const array = [];
 
 			for ( let j = 0; j < this.size.y; j ++ ) {
@@ -109,11 +103,9 @@ export class GPUComputePass extends PostProcessPass {
 
 			}
 
-			this.gl.texSubImage2D( this.gl.TEXTURE_2D, 0, 0, 0, this.size.x, this.size.y, this.gl.RGBA, this.gl.FLOAT, new Float32Array( array ) );
+			this.rt2.textures[ i ].subImage( new Float32Array( array ), this.size.x, this.size.y );
 
 		}
-
-		this.gl.bindTexture( this.gl.TEXTURE_2D, null );
 
 	}
 
