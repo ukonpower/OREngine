@@ -9,11 +9,11 @@
 				"uuid": "0f1c1a3a-6f7c-4f7f-9a55-1c1a3a6f7c4f",
 				"pos": [
 					0,
-					2,
-					6
+					4,
+					9
 				],
 				"rot": [
-					-0.32,
+					-0.38,
 					0,
 					0
 				],
@@ -21,25 +21,19 @@
 					{
 						"name": "Camera",
 						"uuid": "1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d"
+					},
+					{
+						"name": "Post",
+						"uuid": "aabbccdd-1122-4334-8556-6677889900aa"
 					}
 				]
 			},
 			{
-				"name": "Light",
+				"name": "Floor",
 				"uuid": "2b3c4d5e-6f7a-4b8c-9d0e-1f2a3b4c5d6e",
-				"pos": [
-					0,
-					8,
-					2
-				],
-				"rot": [
-					3.141592653589793,
-					0,
-					0
-				],
 				"components": [
 					{
-						"name": "Light",
+						"name": "Floor",
 						"uuid": "3c4d5e6f-7a8b-4c9d-0e1f-2a3b4c5d6e7f"
 					}
 				]
@@ -53,27 +47,51 @@
 						"uuid": "5e6f7a8b-9c0d-4e1f-2a3b-4c5d6e7f8a9b"
 					}
 				]
+			},
+			{
+				"name": "Spheres",
+				"uuid": "1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c60",
+				"components": [
+					{
+						"name": "Spheres",
+						"uuid": "2b3c4d5e-6f7a-4b8c-9d0e-1f2a3b4c5d61"
+					}
+				]
+			},
+			{
+				"name": "SunLight",
+				"uuid": "6f7a8b9c-0d1e-4f2a-3b4c-5d6e7f8a9b0c",
+				"components": [
+					{
+						"name": "SunLight",
+						"uuid": "7a8b9c0d-1e2f-4a3b-4c5d-6e7f8a9b0c1d"
+					}
+				]
+			},
+			{
+				"name": "SpotLight",
+				"uuid": "8b9c0d1e-2f3a-4b4c-5d6e-7f8a9b0c1d2e",
+				"components": [
+					{
+						"name": "SpotLight",
+						"uuid": "9c0d1e2f-3a4b-4c5d-6e7f-8a9b0c1d2e3f"
+					}
+				]
 			}
 		]
 	},
 	"renderer": {
 		"sky/skyColor": [
-			1,
-			1,
-			1
+			0.45,
+			0.62,
+			0.85
 		],
 		"sky/groundColor": [
-			0.3,
-			0.3,
-			0.3
+			0.12,
+			0.11,
+			0.1
 		],
-		"sky/intensity": 1,
-		"pipeline/motionBlur/enabled": true,
-		"pipeline/motionBlur/power": 1,
-		"pipeline/ssr/enabled": true,
-		"pipeline/ssao/enabled": true,
-		"pipeline/dof/enabled": true,
-		"pipeline/lightShaft/enabled": true
+		"sky/intensity": 0.5
 	},
 	"timeline/duration": 600,
 	"timeline/fps": 60

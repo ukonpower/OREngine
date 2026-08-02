@@ -7,32 +7,42 @@ const repoRoot = path.resolve( fileURLToPath( import.meta.url ), '../..' );
 const templateDir = path.join( repoRoot, 'host/template/project' );
 
 /*-------------------------------
-	プロジェクト解決
+	設定解決
 -------------------------------*/
 
+const readConfig = () => {
+
+	const cfgPath = path.join( repoRoot, 'orengine.config.json' );
+
+	return fs.existsSync( cfgPath ) ? JSON.parse( fs.readFileSync( cfgPath, 'utf-8' ) ) : {};
+
+};
+
 // ORENGINE_PROJECT または orengine.config.json からアクティブプロジェクトを決める
-const resolveProject = () => {
+const resolveProject = ( cfg ) => {
 
-	let name = process.env.ORENGINE_PROJECT;
+	const name = process.env.ORENGINE_PROJECT || cfg.project;
 
-	if ( ! name ) {
-
-		const cfgPath = path.join( repoRoot, 'orengine.config.json' );
-		if ( ! fs.existsSync( cfgPath ) ) {
-
-			throw new Error( 'orengine.config.json not found and ORENGINE_PROJECT not set' );
-
-		}
-
-		name = JSON.parse( fs.readFileSync( cfgPath, 'utf-8' ) ).project;
-
-	}
-
-	if ( ! name ) throw new Error( 'project name is empty' );
+	if ( ! name ) throw new Error( 'project name is empty. set orengine.config.json project or ORENGINE_PROJECT' );
 
 	const projectDir = path.resolve( repoRoot, name );
 
 	return { projectName: path.basename( projectDir ), projectDir };
+
+};
+
+// ORENGINE_RENDERER または orengine.config.json からレンダラーバックエンドを決める
+const resolveRenderer = ( cfg ) => {
+
+	const name = process.env.ORENGINE_RENDERER || cfg.renderer || 'webgl';
+
+	if ( name !== 'webgl' && name !== 'webgpu' ) {
+
+		throw new Error( `unknown renderer: ${name} (expected webgl or webgpu)` );
+
+	}
+
+	return name;
 
 };
 
@@ -90,7 +100,9 @@ if ( ! cmd ) {
 
 }
 
-const { projectName, projectDir } = resolveProject();
+const config = readConfig();
+const { projectName, projectDir } = resolveProject( config );
+const renderer = resolveRenderer( config );
 ensureProjectExists( projectDir, projectName );
 
 const { runDev, runBuildPlayer, runBuildStatic } = await import( '../host/index.ts' );
@@ -99,7 +111,9 @@ console.log( `[orengine] project = ${projectName}` );
 
 if ( cmd === 'dev' ) {
 
-	await runDev( { projectDir } );
+	console.log( `[orengine] renderer = ${renderer}` );
+
+	await runDev( { projectDir, renderer } );
 
 } else if ( cmd === 'build' ) {
 

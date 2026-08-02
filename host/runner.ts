@@ -3,6 +3,7 @@ import { build, createServer, InlineConfig } from 'vite';
 import { startOrengineServer, OrengineServerHandle } from './server/factory';
 import { createDevConfig, createPlayerConfig, createStaticConfig } from './vite/configs';
 
+import type { RendererName } from './vite/configs';
 import type { ViteDevServer } from 'vite';
 
 
@@ -12,6 +13,8 @@ export interface HostRunOptions {
 	apiPort?: number;
 	basePath?: string;
 	https?: { cert: Buffer | string; key: Buffer | string };
+	// dev のみ有効。player / static は webgl 固定
+	renderer?: RendererName;
 }
 
 export interface DevHandle {

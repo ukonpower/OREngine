@@ -9,7 +9,7 @@ import bloomCompositeFrag from './shaders/bloomComposite.fs';
 
 export class Bloom extends MXP.PostProcess {
 
-	constructor( backend: MXP.Backend, srcTexture: MXP.BackendTexture ) {
+	constructor( backend: MXP.GLBackend, srcTexture: GLP.GLPowerTexture ) {
 
 		const renderCount = 4;
 
@@ -66,7 +66,7 @@ export class Bloom extends MXP.PostProcess {
 
 		const blurPasses = [];
 
-		let bloomInput: MXP.BackendTexture[] = brightPass.renderTarget!.textures;
+		let bloomInput: GLP.GLPowerTexture[] = brightPass.renderTarget!.textures;
 
 		for ( let i = 0; i < renderCount; i ++ ) {
 

@@ -4,7 +4,7 @@ import colorGradingFrag from './shaders/colorGrading.fs';
 
 export class ColorGrading extends MXP.PostProcess {
 
-	constructor( backend: MXP.Backend ) {
+	constructor( backend: MXP.GLBackend ) {
 
 		super( {
 			name: "ColorGrading",

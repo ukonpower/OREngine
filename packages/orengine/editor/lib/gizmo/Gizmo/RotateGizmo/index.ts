@@ -1,16 +1,14 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { Gizmo, GizmoAxis, GizmoDragResult, createHitAreaMaterial } from '..';
-import gizmoFrag from '../../../render/shaders/gizmo.fs';
-import gizmoVert from '../../../render/shaders/gizmo.vs';
-
+import { Gizmo, GizmoAxis, GizmoDragResult } from '..';
 
 export class RotateGizmo implements Gizmo {
 
 	private static readonly BASE_SCALE_FACTOR = 0.15;
 
 	private _engine: MXP.Engine;
+	private _draw: MXP.EditorDraw;
 	public entity: MXP.Entity;
 	private _xRing: MXP.Entity;
 	private _yRing: MXP.Entity;
@@ -20,9 +18,10 @@ export class RotateGizmo implements Gizmo {
 	private _dragStartAngle: number;
 	private _dragStartEuler: GLP.Vector;
 
-	constructor( engine: MXP.Engine ) {
+	constructor( engine: MXP.Engine, draw: MXP.EditorDraw ) {
 
 		this._engine = engine;
+		this._draw = draw;
 		this.entity = engine.createEntity( { name: "__gizmo_rotate" } );
 		this.entity.initiator = "god";
 		this.entity.visible = false;
@@ -57,15 +56,7 @@ export class RotateGizmo implements Gizmo {
 			phiSegments: 1,
 		} );
 
-		const mat = new MXP.Material( {
-			vert: gizmoVert,
-			frag: gizmoFrag,
-			phase: [ "forward" ],
-			depthTest: false,
-			depthWrite: false,
-			cullFace: false,
-			uniforms: { uColor: { value: color, type: '3fv' } },
-		} );
+		const mat = this._draw.materials.flat( { color, depthTest: false, depthWrite: false } );
 
 		ringEntity.addComponent( MXP.Mesh, { geometry: geo, material: mat } );
 
@@ -76,9 +67,7 @@ export class RotateGizmo implements Gizmo {
 			innerRadius: 0.6, outerRadius: 0.95,
 			thetaSegments: 32, phiSegments: 1,
 		} );
-		const hitMat = createHitAreaMaterial();
-		hitMat.cullFace = false;
-		hitRing.addComponent( MXP.Mesh, { geometry: hitGeo, material: hitMat } );
+		hitRing.addComponent( MXP.Mesh, { geometry: hitGeo } );
 
 		wrapperEntity.add( ringEntity );
 		wrapperEntity.add( hitRing );
@@ -144,7 +133,7 @@ export class RotateGizmo implements Gizmo {
 
 				const mesh = child.getComponent( MXP.Mesh );
 
-				if ( mesh && mesh.material && ! mesh.material.visibilityFlag.forward ) {
+				if ( mesh && ! mesh.material ) {
 
 					result.push( { axis, entity: child } );
 

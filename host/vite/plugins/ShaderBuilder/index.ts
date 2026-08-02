@@ -23,7 +23,7 @@ export interface ShaderBuilderOptions {
 // 実行時のシェーダー結合をビルド時に前倒しするための include キー → ファイルの対応表。
 // minifierには結合済みの完成形シェーダーを渡す必要がある（minifierは各入力ファイルを
 // 独立したシェーダーとして扱うため、ファイルを跨ぐリネーム・未使用削除は成立しない）
-const SHADER_PARSER_DIR = path.resolve( fileURLToPath( import.meta.url ), '../../../../../packages/maxpower/shader/ShaderParser' );
+const SHADER_PARSER_DIR = path.resolve( fileURLToPath( import.meta.url ), '../../../../../packages/maxpower/webgl/shader/ShaderParser' );
 
 const INCLUDE_FILES = new Map<string, string>( [
 	[ 'common', 'shaderModules/common.module.glsl' ],

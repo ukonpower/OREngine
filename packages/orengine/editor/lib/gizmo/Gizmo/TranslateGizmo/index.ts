@@ -1,16 +1,14 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { Gizmo, GizmoAxis, GizmoDragResult, createHitAreaMaterial } from '..';
-import gizmoFrag from '../../../render/shaders/gizmo.fs';
-import gizmoVert from '../../../render/shaders/gizmo.vs';
-
+import { Gizmo, GizmoAxis, GizmoDragResult } from '..';
 
 export class TranslateGizmo implements Gizmo {
 
 	private static readonly BASE_SCALE_FACTOR = 0.15;
 
 	private _engine: MXP.Engine;
+	private _draw: MXP.EditorDraw;
 	public entity: MXP.Entity;
 	private _xAxis: MXP.Entity;
 	private _yAxis: MXP.Entity;
@@ -20,9 +18,10 @@ export class TranslateGizmo implements Gizmo {
 	private _dragStartPos: GLP.Vector;
 	private _dragOffset: GLP.Vector;
 
-	constructor( engine: MXP.Engine ) {
+	constructor( engine: MXP.Engine, draw: MXP.EditorDraw ) {
 
 		this._engine = engine;
+		this._draw = draw;
 		this.entity = engine.createEntity( { name: "__gizmo" } );
 		this.entity.initiator = "god";
 		this.entity.visible = false;
@@ -65,14 +64,7 @@ export class TranslateGizmo implements Gizmo {
 			caps: false,
 		} );
 
-		const shaftMat = new MXP.Material( {
-			vert: gizmoVert,
-			frag: gizmoFrag,
-			phase: [ "forward" ],
-			depthTest: false,
-			depthWrite: false,
-			uniforms: { uColor: { value: color, type: '3fv' } },
-		} );
+		const shaftMat = this._draw.materials.flat( { color, depthTest: false, depthWrite: false } );
 
 		shaft.addComponent( MXP.Mesh, { geometry: shaftGeo, material: shaftMat } );
 		shaft.position.set( direction.x * shaftLength / 2, direction.y * shaftLength / 2, direction.z * shaftLength / 2 );
@@ -90,14 +82,7 @@ export class TranslateGizmo implements Gizmo {
 			caps: true,
 		} );
 
-		const headMat = new MXP.Material( {
-			vert: gizmoVert,
-			frag: gizmoFrag,
-			phase: [ "forward" ],
-			depthTest: false,
-			depthWrite: false,
-			uniforms: { uColor: { value: color, type: '3fv' } },
-		} );
+		const headMat = this._draw.materials.flat( { color, depthTest: false, depthWrite: false } );
 
 		head.addComponent( MXP.Mesh, { geometry: headGeo, material: headMat } );
 		head.position.set(
@@ -126,7 +111,7 @@ export class TranslateGizmo implements Gizmo {
 			radiusTop: 0.06, radiusBottom: 0.06,
 			height: shaftLength, radSegments: 6, heightSegments: 1, caps: true,
 		} );
-		hitShaft.addComponent( MXP.Mesh, { geometry: hitShaftGeo, material: createHitAreaMaterial() } );
+		hitShaft.addComponent( MXP.Mesh, { geometry: hitShaftGeo } );
 		hitShaft.position.copy( shaft.position );
 		hitShaft.euler.copy( shaft.euler );
 
@@ -137,7 +122,7 @@ export class TranslateGizmo implements Gizmo {
 			radiusTop: 0.001, radiusBottom: 0.1,
 			height: headLength * 1.5, radSegments: 6, heightSegments: 1, caps: true,
 		} );
-		hitHead.addComponent( MXP.Mesh, { geometry: hitHeadGeo, material: createHitAreaMaterial() } );
+		hitHead.addComponent( MXP.Mesh, { geometry: hitHeadGeo } );
 		hitHead.position.copy( head.position );
 		hitHead.euler.copy( head.euler );
 
@@ -193,7 +178,7 @@ export class TranslateGizmo implements Gizmo {
 
 				const mesh = child.getComponent( MXP.Mesh );
 
-				if ( mesh && mesh.material && ! mesh.material.visibilityFlag.forward ) {
+				if ( mesh && ! mesh.material ) {
 
 					result.push( { axis, entity: child } );
 
