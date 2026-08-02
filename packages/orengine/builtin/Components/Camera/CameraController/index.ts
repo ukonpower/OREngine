@@ -1,11 +1,7 @@
+import { setupCameraPostProcess } from '@or-renderer';
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
-import { Engine } from 'orengine';
 
-import { Bloom } from '../../_PostProcess/Bloom';
-import { ColorGrading } from '../../_PostProcess/ColorGrading';
-import { Finalize } from '../../_PostProcess/Finalize';
-import { FXAA } from '../../_PostProcess/FXAA';
 import { LookAt } from '../LookAt';
 
 export class CameraController extends MXP.Component {
@@ -29,22 +25,9 @@ export class CameraController extends MXP.Component {
 		this._tmpVector1 = new GLP.Vector();
 		this._tmpVector2 = new GLP.Vector();
 
-		// PostProcessPipeline
+		// カメラ標準ポストプロセス（実体はバックエンドごとの実装に委ねる）
 
-		const pipeline = this.entity.addComponent( MXP.PostProcessPipeline );
-		const engine = this.engine as Engine;
-		const renderer = engine.renderer;
-		const backend = renderer.backend;
-		const rt = renderer.renderTarget;
-
-		const bloom = new Bloom( backend, rt.shadingBuffer.textures[ 0 ] );
-		bloom.threshold = 1.0;
-		bloom.brightness = 1;
-
-		pipeline.add( new FXAA( backend ) );
-		pipeline.add( bloom );
-		pipeline.add( new ColorGrading( backend ) );
-		pipeline.add( new Finalize( backend ) );
+		const removeCameraPostProcess = setupCameraPostProcess( this.engine as any, this.entity );
 
 		// sceneCreated
 
@@ -62,6 +45,8 @@ export class CameraController extends MXP.Component {
 		this.once( "dispose", () => {
 
 			this.entity.off( 'sceneCreated', onSceneCreated );
+
+			removeCameraPostProcess();
 
 		} );
 
@@ -93,7 +78,6 @@ export class CameraController extends MXP.Component {
 		super.dispose();
 
 		this.entity.removeComponent( LookAt );
-		this.entity.removeComponent( MXP.PostProcessPipeline );
 
 	}
 

@@ -1,4 +1,4 @@
 {
-	"project": "demo",
+	"project": "demo-webgl",
 	"renderer": "webgl"
 }

@@ -69,7 +69,7 @@ packages/maxpower/
 
 ## バックエンド宣言と切替配線
 
-- `orengine.config.json`: `{ "project": "demo", "renderer": "webgl" }`（既定 webgl）。一時切替は `ORENGINE_RENDERER=webgpu`（`ORENGINE_PROJECT` と同じ流儀）
+- `orengine.config.json`: `{ "project": "demo-webgl", "renderer": "webgl" }`（既定 webgl）。一時切替は `ORENGINE_RENDERER=webgpu`（`ORENGINE_PROJECT` と同じ流儀）
 - viteエイリアス `@or-renderer` → `maxpower/webgl/index.ts` または `maxpower/webgpu/index.ts`。`host/app/src` のEngine組み立てだけがこれをimportする（プロジェクトのコンポーネントはエイリアス不要、自分のバックエンドを普通にimport）
 - player / static ビルドは `webgl` **固定**（現 `@or-backend` と同じ構図。WebGPUコードはplayerバンドルに構文的に到達しない）
 - tsconfigの `@or-renderer` はwebglに固定（型チェックのベースライン）。webgpu側は通常ソースとして型チェックされる
@@ -173,15 +173,15 @@ interface EditorDraw {
 - `@or-backend` エイリアス（vite / tsconfig）と `createBackend` 間接化
 - `packages/maxpower/Backend/index.ts` の中立interface群（GLBackendへ統合）
 
-`webgpu-test/` プロジェクトは残し、B段階からwebgpuレンダラーのテストプロジェクトとして使う。
+`demo-webgpu/` プロジェクトは残し、B段階からwebgpuレンダラーのテストプロジェクトとして使う。
 
 ## 段階計画
 
 | 段階 | 内容 | 完了ゲート |
 |---|---|---|
 | **A. 土台と撤去** | A1: maxpowerをcore/webglに内部分割（index.ts再輸出で既存import無変更）。A2: Camera/Lightリソース分離。A3: RendererContract化・`@or-renderer` 配線・config `renderer` 追加。A4: 旧WebGPU資材の撤去。A5: EditorDraw契約定義＋GL実装＋5機能の書き換え | typecheck / lint / `npm run build` packed **39,231bytes から悪化なし** / dev目視 / エディタ5機能動作 |
-| **B. webgpu縦一本** | device初期化・WGSL Material・forwardパスでwebgpu-testのキューブ描画（HTTPS dev） | キューブが表示・リサイズ・バリデーションエラーゼロ |
-| **C. deferred再構築** | C1: gBuffer→shading→light/shadow。C2: sky / envMap / PMREM。C3: PipelinePostProcess移植（DoF / bloom / SSR / SSAO / motion blur…） | webgpu-testでライティング＋シャドウ、demo相当シーンの見た目一致 |
+| **B. webgpu縦一本** | device初期化・WGSL Material・forwardパスでdemo-webgpuのキューブ描画（HTTPS dev） | キューブが表示・リサイズ・バリデーションエラーゼロ |
+| **C. deferred再構築** | C1: gBuffer→shading→light/shadow。C2: sky / envMap / PMREM。C3: PipelinePostProcess移植（DoF / bloom / SSR / SSAO / motion blur…） | demo-webgpuでライティング＋シャドウ、demo相当シーンの見た目一致 |
 | **D. EditorDraw webgpu実装** | 4メソッド＋レシピ＋onDrawPassの実装 | エディタ5機能がwebgpuプロジェクトで動作 |
 | **E. compute** | GPUComputePassのwebgpu版（compute pass）。Modeler相当が必要になればここで | — |
 
