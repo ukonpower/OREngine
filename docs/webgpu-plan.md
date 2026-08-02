@@ -158,7 +158,7 @@ interface EditorDraw {
 - **Material**: WGSL手書き。1マテリアル＝1 WGSLモジュールとし、**フェーズごとのentry point**（`vsMain` / `fsDeferred` / `fsForward` / `fsDepth` …）を持つ。GLのdefines切り替えの代替。shadowMapの「fragment出力数とアタッチメント数の不一致」問題は構造的に消える
 - **uniforms**: 名前ベース辞書（`GLP.Uniforms`）のDXは維持。旧UniformBinder（archive参照）を流用してstd140相当に自動パックし、binding宣言はuniforms辞書からWGSL先頭に自動生成・注入する。bind group構成は group0=フレーム（time / camera）、group1=オブジェクト（model行列）、group2=マテリアル（uniforms＋テクスチャ）
 - **クリップ空間**: GL規約（z∈[-1,1] / Y上）との差は、webgpu側でprojection行列に補正行列を1回乗算して吸収する（旧R9のようなシェーダー機械書き換えはしない）
-- **deferred構成**: webglと同じパス編成（shadowMap → gBuffer MRT5 → shading → forward → PipelinePostProcess）をrender passネイティブで再構築。スパイクで確定済みの制約を引き継ぐ: `maxColorAttachmentBytesPerSample` の引き上げ要求（gBufferは56 bytes/sample）、rgba32floatは `unfilterable-float`、depthサンプルはnon-filtering
+- **deferred構成**: webglと同じパス編成（shadowMap → gBuffer MRT5 → shading → forward → PipelinePostProcess）をrender passネイティブで再構築。スパイクで確定済みの制約を引き継ぐ: `maxColorAttachmentBytesPerSample` の引き上げ要求（gBufferは64 bytes/sample。仕様のrender target byte costでrgba8unormは4でなく8）、rgba32floatは `unfilterable-float`、depthサンプルはnon-filtering
 - **シェーダー移植**: archiveブランチのトランスパイラ（前処理R0〜R10＋naga）を**一回きりのオフライン移植ツール**として使い初版WGSLを生成 → 手直しして以後は手で保守。実行時変換・devサーバー依存は持たない
 - **GPUタイミング**: `timestamp-query` でネイティブ実装（GL側のEXT_disjoint_timer_queryに相当）
 - device初期化は非同期。ready前のフレームはスキップ（旧実装の方式を踏襲）

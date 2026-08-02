@@ -72,13 +72,14 @@ export const OBJECT_FIELDS: UniformField[] = [
 -------------------------------*/
 
 // webgl側 frag_out.part.glsl の IS_DEFERRED 出力と同じ並び。
-// bytes/sample = 16+16+4+4+16 = 56 で、既定上限32を超えるためdevice要求時に引き上げる
+// bytes は仕様の render target pixel byte cost（rgba8unorm はメモリ上4バイトだが仕様上8）。
+// bytes/sample = 16+16+8+8+16 = 64 で、既定上限32を超えるためdevice要求時に引き上げる
 // rgba32float は filtering サンプラーで引けないため sampleType は unfilterable-float になる
 export const GBUFFER_ATTACHMENTS = [
 	{ name: 'position', format: 'rgba32float', bytes: 16, sampleType: 'unfilterable-float' },
 	{ name: 'normal', format: 'rgba32float', bytes: 16, sampleType: 'unfilterable-float' },
-	{ name: 'albedo', format: 'rgba8unorm', bytes: 4, sampleType: 'float' },
-	{ name: 'material', format: 'rgba8unorm', bytes: 4, sampleType: 'float' },
+	{ name: 'albedo', format: 'rgba8unorm', bytes: 8, sampleType: 'float' },
+	{ name: 'material', format: 'rgba8unorm', bytes: 8, sampleType: 'float' },
 	{ name: 'velocity', format: 'rgba32float', bytes: 16, sampleType: 'unfilterable-float' },
 ] as const;
 
