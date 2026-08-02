@@ -14,10 +14,11 @@ import { PREFILTER_FIELDS, prefilterWgsl } from '../shaders/prefilter';
 /*-------------------------------
 	環境マップのGPUリソース
 
-	6面をキューブテクスチャのミップ0へ描き、ミップ1〜4を roughness ごとに
-	事前フィルタする。webgl側の PMREMRender が3x2の面アトラスを作っていたのは
-	WebGL2でキューブのミップを明示指定して引けないための回避策で、
-	WebGPUではキューブのミップをそのまま使えるためアトラスは要らない。
+	6面をソース用キューブへ描き、そこから全ミップ（0〜4）を roughness ごとに
+	事前フィルタして時間累積する。ミップ0（roughness 0）も累積を通すのは
+	webgl側 PMREMRender と同じで、鏡面反射のチラつきも平滑化するため。
+	webgl側が3x2の面アトラスを作っていたのはWebGL2でキューブのミップを
+	明示指定して引けないための回避策で、WebGPUでは不要。
 -------------------------------*/
 
 // GL規約の視線行列。並びはキューブのレイヤー番号（+X, -X, +Y, -Y, +Z, -Z）
@@ -33,8 +34,13 @@ const FACES = [
 const NEAR = 0.1;
 const FAR = 1000;
 
-// ミップ1〜4のサンプル数。roughnessが上がるほど広く積むので数を増やす
-const SAMPLE_COUNTS = [ 32, 64, 96, 128 ];
+// ミップ0〜4の1フレームあたりのサンプル数。時間累積が前提。
+// ミップが1段下がるとピクセル数が1/4になるため、4倍ずつ増やして
+// ミップあたりの総コストを一定に保ちつつ、粗いミップの分散を抑える
+const SAMPLE_COUNTS = [ 2, 8, 32, 128, 512 ];
+
+// 累積の混合率。webgl側 pmrem.fs の mix( backBuffer, sum, 0.04 ) と同じ
+const ACCUMULATION_RATE = 0.04;
 
 // キューブ1面ぶんの描画先とカメラ
 export type FaceRender = {
@@ -50,8 +56,11 @@ export class EnvMap {
 	public readonly sampler: GPUSampler;
 	public readonly faceRenders: FaceRender[];
 	public readonly depthView: GPUTextureView;
+	// FrameDebugger用。[mip][face] の2Dビュー
+	public readonly mipViews: GPUTextureView[][];
 
 	private _texture: GPUTexture;
+	private _sourceTexture: GPUTexture;
 	private _depthTexture: GPUTexture;
 	private _binders: UniformBinder[];
 
@@ -59,7 +68,6 @@ export class EnvMap {
 	private _pipelines: GPURenderPipeline[];
 	private _faceBindGroups: GPUBindGroup[];
 	private _faceBinders: UniformBinder[];
-	private _mipViews: GPUTextureView[][];
 
 	constructor( device: GPUDevice, frameLayout: GPUBindGroupLayout ) {
 
@@ -68,6 +76,14 @@ export class EnvMap {
 			size: [ ENVMAP_SIZE, ENVMAP_SIZE, 6 ],
 			format: ENVMAP_FORMAT,
 			mipLevelCount: ENVMAP_MIP_COUNT,
+			usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING,
+		} );
+
+		// シーン描画先。累積するPMREM本体と分けることで、鏡面（ミップ0）も累積を通せる
+		this._sourceTexture = device.createTexture( {
+			label: 'envMap/source',
+			size: [ ENVMAP_SIZE, ENVMAP_SIZE, 6 ],
+			format: ENVMAP_FORMAT,
 			usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING,
 		} );
 
@@ -110,7 +126,12 @@ export class EnvMap {
 
 			return {
 				label: `envMap/${face.name}`,
-				view: this._faceView( 0, i ),
+				view: this._sourceTexture.createView( {
+					label: `envMap/source/${face.name}`,
+					dimension: '2d',
+					baseArrayLayer: i,
+					arrayLayerCount: 1,
+				} ),
 				frameBindGroup: device.createBindGroup( {
 					label: `envMap/${face.name}`,
 					layout: frameLayout,
@@ -133,13 +154,7 @@ export class EnvMap {
 			],
 		} );
 
-		// 事前フィルタの入力はミップ0だけに絞る。書き込み先のミップと重ならないようにするため
-		const sourceView = this._texture.createView( {
-			label: 'envMap/source',
-			dimension: 'cube',
-			baseMipLevel: 0,
-			mipLevelCount: 1,
-		} );
+		const sourceView = this._sourceTexture.createView( { label: 'envMap/source', dimension: 'cube' } );
 
 		this._faceBinders = [];
 		this._faceBindGroups = FACES.map( ( face, i ) => {
@@ -166,24 +181,52 @@ export class EnvMap {
 		const pipelineLayout = device.createPipelineLayout( { bindGroupLayouts: [ layout ] } );
 
 		this._pipelines = [];
-		this._mipViews = [];
+		this.mipViews = [];
 
-		for ( let mip = 1; mip < ENVMAP_MIP_COUNT; mip ++ ) {
+		for ( let mip = 0; mip < ENVMAP_MIP_COUNT; mip ++ ) {
 
 			const constants = {
 				uRoughness: mip / ( ENVMAP_MIP_COUNT - 1 ),
-				uSampleCount: SAMPLE_COUNTS[ mip - 1 ],
+				uSampleCount: SAMPLE_COUNTS[ mip ],
 			};
 
 			this._pipelines.push( device.createRenderPipeline( {
 				label: `prefilter/mip${mip}`,
 				layout: pipelineLayout,
 				vertex: { module, entryPoint: 'vsMain' },
-				fragment: { module, entryPoint: 'fsMain', constants, targets: [ { format: ENVMAP_FORMAT } ] },
+				fragment: { module, entryPoint: 'fsMain', constants, targets: [ {
+					format: ENVMAP_FORMAT,
+					// 既存のミップ内容と混ぜて時間累積する（比率はブレンド定数で与える）
+					blend: {
+						color: { srcFactor: 'constant', dstFactor: 'one-minus-constant' },
+						alpha: { srcFactor: 'one', dstFactor: 'zero' },
+					},
+				} ] },
 				primitive: { topology: 'triangle-list' },
 			} ) );
 
-			this._mipViews.push( FACES.map( ( _, face ) => this._faceView( mip, face ) ) );
+			this.mipViews.push( FACES.map( ( _, face ) => this._faceView( mip, face ) ) );
+
+		}
+
+	}
+
+	// 時間系のuniformを全faceへ反映する。カメラ・解像度は固定なので触らない
+	public update( globalUniforms: GLP.Uniforms ) {
+
+		const time = {
+			uTime: globalUniforms.uTime,
+			uTimeF: globalUniforms.uTimeF,
+			uTimeE: globalUniforms.uTimeE,
+			uTimeEF: globalUniforms.uTimeEF,
+		};
+
+		const jitter = { uTimeEF: globalUniforms.uTimeEF };
+
+		for ( let i = 0; i < this._binders.length; i ++ ) {
+
+			this._binders[ i ].update( time );
+			this._faceBinders[ i ].update( jitter );
 
 		}
 
@@ -202,7 +245,7 @@ export class EnvMap {
 
 	}
 
-	// ミップ0の描画結果から、roughnessごとのミップを作り直す
+	// ソースの描画結果を、roughnessごとのミップへ時間累積しながら焼き込む
 	public prefilter( encoder: GPUCommandEncoder ) {
 
 		for ( let i = 0; i < this._pipelines.length; i ++ ) {
@@ -210,17 +253,17 @@ export class EnvMap {
 			for ( let face = 0; face < FACES.length; face ++ ) {
 
 				const pass = encoder.beginRenderPass( {
-					label: `prefilter/mip${i + 1}/${FACES[ face ].name}`,
+					label: `prefilter/mip${i}/${FACES[ face ].name}`,
 					colorAttachments: [ {
-						view: this._mipViews[ i ][ face ],
-						loadOp: 'clear',
+						view: this.mipViews[ i ][ face ],
+						loadOp: 'load',
 						storeOp: 'store',
-						clearValue: { r: 0, g: 0, b: 0, a: 1 },
 					} ],
 				} );
 
 				pass.setPipeline( this._pipelines[ i ] );
 				pass.setBindGroup( 0, this._faceBindGroups[ face ] );
+				pass.setBlendConstant( { r: ACCUMULATION_RATE, g: ACCUMULATION_RATE, b: ACCUMULATION_RATE, a: ACCUMULATION_RATE } );
 				pass.draw( 3 );
 
 				pass.end();
@@ -234,6 +277,7 @@ export class EnvMap {
 	public dispose() {
 
 		this._texture.destroy();
+		this._sourceTexture.destroy();
 		this._depthTexture.destroy();
 		this._binders.concat( this._faceBinders ).forEach( ( binder ) => binder.dispose() );
 

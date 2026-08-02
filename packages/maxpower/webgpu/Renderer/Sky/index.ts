@@ -4,7 +4,7 @@ import { Mesh } from '../../../core/Component/Mesh';
 import { SphereGeometry } from '../../../core/Geometry/SphereGeometry';
 import { Material } from '../../Material';
 
-import skyWgsl from './shaders/sky.wgsl';
+import defaultSkyWgsl from './shaders/defaultSky.wgsl';
 
 import type { Engine } from '../../../core/Engine';
 import type { Entity } from '../../../core/Entity';
@@ -35,9 +35,9 @@ export class Sky {
 		this._intensity = 1.0;
 
 		this.material = new Material( {
-			name: 'sky',
+			name: 'defaultSky',
 			phase: [ 'deferred', 'envMap' ],
-			wgsl: skyWgsl,
+			wgsl: defaultSkyWgsl,
 			uniforms: {
 				uSkyColor: { value: this.color, type: '3fv' },
 				uGroundColor: { value: this.groundColor, type: '3fv' },

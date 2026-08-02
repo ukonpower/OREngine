@@ -1,6 +1,6 @@
 {
 	"enableRender": true,
-	"resolutionScale": 0.5,
+	"resolutionScale": 1,
 	"resolution/width": 1920,
 	"resolution/height": 1080,
 	"viewType": "render",
@@ -19,9 +19,9 @@
 	"helpers/light": true,
 	"helpers/wireframe": false,
 	"camera/position": [
-		0,
-		2,
-		6
+		0.03899999999999999,
+		1.525,
+		8.831999999999999
 	],
 	"camera/target": [
 		0,

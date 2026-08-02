@@ -1,6 +1,8 @@
 // envMap の事前フィルタ（PMREM）本体。
 // webgl側の pmrem.fs（Hammersley + GGX importance sampling）を移植したもの。
 // ただし出力先は3x2の面アトラスではなく、キューブテクスチャのミップレベル。
+// サンプル列は uTimeEF で毎フレームずらし、出力先ミップへのアルファブレンド
+// （ブレンド定数、EnvMap側で設定）で時間累積する。
 // struct PrefilterUniforms は PREFILTER_FIELDS から生成して前置される
 
 const PI = 3.14159265359;
@@ -69,6 +71,12 @@ fn hammersley( index: u32, numSamples: u32 ) -> vec2f {
 
 }
 
+fn random( st: vec2f ) -> f32 {
+
+	return fract( sin( dot( st, vec2f( 12.9898, 78.233 ) ) ) * 43758.5453123 );
+
+}
+
 fn importanceSampleGGX( xi: vec2f, roughness: f32, normal: vec3f ) -> vec3f {
 
 	let a = roughness * roughness;
@@ -95,9 +103,16 @@ fn fsMain( input: FullscreenOutput ) -> @location(0) vec4f {
 	var color = vec3f( 0.0 );
 	var totalWeight = 0.0;
 
+	// 毎フレーム別のサンプル列になるよう乱数でずらす（webgl側と同じ）
+	let jitter = vec2f(
+		random( input.uv + prefilter.uTimeEF * 0.1 ),
+		random( input.uv + prefilter.uTimeEF * 0.1 + 1.0 )
+	);
+
 	for ( var i = 0u; i < uSampleCount; i ++ ) {
 
-		let h = importanceSampleGGX( hammersley( i, uSampleCount ), uRoughness, normal );
+		let xi = fract( hammersley( i, uSampleCount ) + jitter );
+		let h = importanceSampleGGX( xi, uRoughness, normal );
 		let l = 2.0 * dot( normal, h ) * h - normal;
 		let nol = clamp( dot( normal, l ), 0.0, 1.0 );
 

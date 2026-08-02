@@ -8,6 +8,7 @@ import {
 	CLIP_CORRECTION,
 	DEPTH_FORMAT,
 	ENVMAP_FORMAT,
+	ENVMAP_SIZE,
 	FRAME_FIELDS,
 	GBUFFER_ATTACHMENTS,
 	GBUFFER_BYTES_PER_SAMPLE,
@@ -540,6 +541,8 @@ export class Renderer extends Serializable implements RendererContract {
 
 		const envMap = this._envMap!;
 
+		envMap.update( this.globalUniforms );
+
 		for ( let i = 0; i < envMap.faceRenders.length; i ++ ) {
 
 			const face = envMap.faceRenders[ i ];
@@ -570,9 +573,20 @@ export class Renderer extends Serializable implements RendererContract {
 
 			pass.end();
 
+			this._emitPass( face.view, ENVMAP_SIZE, ENVMAP_SIZE, face.label );
+
 		}
 
 		envMap.prefilter( encoder );
+
+		// 累積後のミップ（+X面）をFrameDebuggerへ。ミップ0=鏡面〜ミップ4=最も粗い
+		for ( let mip = 0; mip < envMap.mipViews.length; mip ++ ) {
+
+			const size = ENVMAP_SIZE >> mip;
+
+			this._emitPass( envMap.mipViews[ mip ][ 0 ], size, size, `envMap/mip${mip}` );
+
+		}
 
 	}
 
