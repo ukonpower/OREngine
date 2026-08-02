@@ -1,6 +1,7 @@
 import * as GLP from 'glpower';
 
 import { SCENE_FORMAT } from '../Bindings';
+import { onShaderReload, requestShaderReload } from '../hotReload';
 import { Material } from '../Material';
 
 import { EditorPass } from './EditorPass';
@@ -13,6 +14,30 @@ import type { EditorDraw, EditorFrame, EditorRect, EditorRecipe, EditorRenderEnt
 import type { Engine } from '../../core/Engine';
 import type { MaterialBase } from '../../core/Material';
 import type { Renderer } from '../Renderer';
+
+// HMRで差し替わるシェーダーソース。playerでは初期値のまま使われる
+let hotCopyWgsl = copyWgsl;
+let hotOutlineWgsl = outlineWgsl;
+
+if ( import.meta.hot ) {
+
+	import.meta.hot.accept( './shaders/copy.wgsl', ( m ) => {
+
+		if ( m ) hotCopyWgsl = m.default;
+
+		requestShaderReload();
+
+	} );
+
+	import.meta.hot.accept( './shaders/outline.wgsl', ( m ) => {
+
+		if ( m ) hotOutlineWgsl = m.default;
+
+		requestShaderReload();
+
+	} );
+
+}
 
 /*-------------------------------
 	エディタ描画のWebGPU実装
@@ -115,6 +140,20 @@ export class WebGPUEditorDraw implements EditorDraw {
 		this._copyPass = null;
 		this._outlinePass = null;
 
+		if ( import.meta.hot ) {
+
+			// パスを捨てておけば、次に使われるときに差し替え済みのソースで作り直される
+			onShaderReload( () => {
+
+				this._copyPass?.dispose();
+				this._outlinePass?.dispose();
+				this._copyPass = null;
+				this._outlinePass = null;
+
+			} );
+
+		}
+
 	}
 
 	// deviceはレンダラーの初期化が終わるまで存在しないので、最初に触ったときに組み立てる
@@ -128,14 +167,14 @@ export class WebGPUEditorDraw implements EditorDraw {
 
 			this._copyPass = new EditorPass( device, {
 				name: 'editor/copy',
-				wgsl: copyWgsl,
+				wgsl: hotCopyWgsl,
 				inputCount: 1,
 				format: SCENE_FORMAT,
 			} );
 
 			this._outlinePass = new EditorPass( device, {
 				name: 'editor/outline',
-				wgsl: outlineWgsl,
+				wgsl: hotOutlineWgsl,
 				inputCount: 2,
 				format: SCENE_FORMAT,
 				uniforms: {

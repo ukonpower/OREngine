@@ -1,5 +1,6 @@
 import * as GLP from 'glpower';
 
+import { requestShaderReload } from '../hotReload';
 import { VERTEX_INPUT_WGSL } from '../resources/GeometryBuffer';
 import { buildStructWgsl } from '../resources/UniformBinder';
 
@@ -7,6 +8,30 @@ import gbufferWgsl from './shaders/gbuffer.wgsl';
 import vertexOutputWgsl from './shaders/vertexOutput.wgsl';
 
 import type { UniformField } from '../resources/UniformBinder';
+
+// HMRで差し替わるシェーダーソース。playerでは初期値のまま使われる
+let hotGbufferWgsl = gbufferWgsl;
+let hotVertexOutputWgsl = vertexOutputWgsl;
+
+if ( import.meta.hot ) {
+
+	import.meta.hot.accept( './shaders/gbuffer.wgsl', ( m ) => {
+
+		if ( m ) hotGbufferWgsl = m.default;
+
+		requestShaderReload();
+
+	} );
+
+	import.meta.hot.accept( './shaders/vertexOutput.wgsl', ( m ) => {
+
+		if ( m ) hotVertexOutputWgsl = m.default;
+
+		requestShaderReload();
+
+	} );
+
+}
 
 /*-------------------------------
 	シェーダーとパイプラインが共有する束縛の定義
@@ -114,7 +139,7 @@ export const buildShaderSource = ( body: string, materialFields: UniformField[] 
 
 	const chunks = [
 		VERTEX_INPUT_WGSL,
-		vertexOutputWgsl,
+		hotVertexOutputWgsl,
 		buildStructWgsl( 'FrameUniforms', FRAME_FIELDS ),
 		`@group(${GROUP_FRAME}) @binding(0) var<uniform> frame: FrameUniforms;`,
 		buildStructWgsl( 'ObjectUniforms', OBJECT_FIELDS ),
@@ -130,7 +155,7 @@ export const buildShaderSource = ( body: string, materialFields: UniformField[] 
 	}
 
 	chunks.push( GBUFFER_OUTPUT_WGSL );
-	chunks.push( gbufferWgsl );
+	chunks.push( hotGbufferWgsl );
 	chunks.push( body );
 
 	return chunks.join( '\n\n' );

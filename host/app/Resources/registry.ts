@@ -148,14 +148,3 @@ export const initResouces = () => {
 };
 
 export { initResourceInstances };
-
-if ( import.meta.hot ) {
-
-	import.meta.hot.accept( ( newModule ) => {
-
-		newModule?.initResouces?.();
-		Engine.resources.emit( "update" );
-
-	} );
-
-}

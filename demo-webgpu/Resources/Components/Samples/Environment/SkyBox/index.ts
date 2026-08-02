@@ -11,11 +11,25 @@ export class SkyBox extends MXP.Component {
 
 		const engine = this.engine as MXP.GPUEngine;
 
-		engine.renderer.sky.mesh.material = new MXP.Material( {
+		const material = new MXP.Material( {
 			name: "SkyBox",
 			phase: [ "deferred", "envMap" ],
 			wgsl: MXP.standardVertexWgsl + skyBoxWgsl,
 		} );
+
+		engine.renderer.sky.mesh.material = material;
+
+		if ( import.meta.hot ) {
+
+			import.meta.hot.accept( './shaders/skyBox.wgsl', ( m ) => {
+
+				if ( m ) material.wgsl = MXP.standardVertexWgsl + m.default;
+
+				MXP.requestShaderReload();
+
+			} );
+
+		}
 
 	}
 

@@ -2,6 +2,7 @@ import * as GLP from 'glpower';
 
 import { Mesh } from '../../../core/Component/Mesh';
 import { SphereGeometry } from '../../../core/Geometry/SphereGeometry';
+import { requestShaderReload } from '../../hotReload';
 import { Material } from '../../Material';
 
 import defaultSkyWgsl from './shaders/defaultSky.wgsl';
@@ -49,6 +50,18 @@ export class Sky {
 		this.mesh = this.entity.addComponent( Mesh );
 		this.mesh.geometry = new SphereGeometry( { radius: 500, widthSegments: 32, heightSegments: 32 } );
 		this.mesh.material = this.material;
+
+		if ( import.meta.hot ) {
+
+			import.meta.hot.accept( './shaders/defaultSky.wgsl', ( m ) => {
+
+				if ( m ) this.material.wgsl = m.default;
+
+				requestShaderReload();
+
+			} );
+
+		}
 
 	}
 

@@ -47,7 +47,7 @@ fn fsDeferred( input: VertexOutput ) -> GBufferOutput {
 	let sky = skyBox( input );
 
 	surface.albedo = sky.albedo;
-	surface.emission = sky.emission * 4.0;
+	surface.emission = sky.emission;
 	surface.roughness = 1.0;
 	surface.envIntensity = 0.0;
 
