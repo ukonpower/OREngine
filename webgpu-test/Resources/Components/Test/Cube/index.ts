@@ -1,20 +1,7 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower/webgpu';
 
-const cubeWgsl = MXP.standardVertexWgsl + /* wgsl */`
-@fragment
-fn fsDeferred( input: VertexOutput ) -> GBufferOutput {
-
-	var surface = defaultSurface( input );
-
-	surface.albedo = material.uColor;
-	surface.roughness = 0.35;
-	surface.metallic = 0.0;
-
-	return packGBuffer( input, surface );
-
-}
-`;
+import cubeWgsl from './cube.wgsl';
 
 // deferredパスへ入る回転キューブ
 export class Cube extends MXP.Component {
@@ -30,7 +17,7 @@ export class Cube extends MXP.Component {
 			geometry: new MXP.CubeGeometry( { width: 2, height: 2, depth: 2 } ),
 			material: new MXP.Material( {
 				name: 'Cube',
-				wgsl: cubeWgsl,
+				wgsl: MXP.standardVertexWgsl + cubeWgsl,
 				uniforms: {
 					uColor: { value: new GLP.Vector( 0.9, 0.5, 0.2 ), type: '3fv' },
 				},

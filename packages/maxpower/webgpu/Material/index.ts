@@ -1,7 +1,7 @@
 import { buildShaderSource } from '../Bindings';
 import { fieldsFromUniforms } from '../resources/UniformBinder';
 
-import { basicWgsl } from './shaders/basic';
+import basicWgsl from './shaders/basic.wgsl';
 
 import type { MaterialBase } from '../../core/Material';
 import type { UniformField } from '../resources/UniformBinder';

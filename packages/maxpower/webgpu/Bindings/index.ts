@@ -3,6 +3,9 @@ import * as GLP from 'glpower';
 import { VERTEX_INPUT_WGSL } from '../resources/GeometryBuffer';
 import { buildStructWgsl } from '../resources/UniformBinder';
 
+import gbufferWgsl from './shaders/gbuffer.wgsl';
+import vertexOutputWgsl from './shaders/vertexOutput.wgsl';
+
 import type { UniformField } from '../resources/UniformBinder';
 
 /*-------------------------------
@@ -101,56 +104,17 @@ export const ENVMAP_MIP_COUNT = 5;
 	WGSL 宣言
 -------------------------------*/
 
-const VERTEX_OUTPUT_WGSL = `struct VertexOutput {
-	@builtin(position) position: vec4f,
-	@location(0) normal: vec3f,
-	@location(1) uv: vec2f,
-	@location(2) worldPosition: vec3f,
-	// 画面上の移動量。モーションブラーが読む
-	@location(3) velocity: vec2f,
-};`;
-
-const GBUFFER_WGSL = `struct GBufferOutput {
+// gBufferの出力structはアタッチメント表から作る
+const GBUFFER_OUTPUT_WGSL = `struct GBufferOutput {
 ${GBUFFER_ATTACHMENTS.map( ( a, i ) => `\t@location(${i}) ${a.name}: vec4f,` ).join( '\n' )}
-};
-
-struct Surface {
-	albedo: vec3f,
-	normal: vec3f,
-	roughness: f32,
-	metallic: f32,
-	emission: vec3f,
-	envIntensity: f32,
-};
-
-// マテリアルが値を上書きする土台
-fn defaultSurface( input: VertexOutput ) -> Surface {
-
-	return Surface( vec3f( 0.8 ), normalize( input.normal ), 0.5, 0.0, vec3f( 0.0 ), 1.0 );
-
-}
-
-// Surface を gBuffer の5枚へ詰める
-fn packGBuffer( input: VertexOutput, surface: Surface ) -> GBufferOutput {
-
-	var output: GBufferOutput;
-
-	output.position = vec4f( input.worldPosition, surface.emission.x );
-	output.normal = vec4f( normalize( surface.normal ), surface.emission.y );
-	output.albedo = vec4f( surface.albedo, 0.0 );
-	output.material = vec4f( surface.roughness, surface.metallic, 0.0, surface.envIntensity );
-	output.velocity = vec4f( input.velocity, 0.0, surface.emission.z );
-
-	return output;
-
-}`;
+};`;
 
 // マテリアルのWGSL本体の先頭へ、頂点入出力とuniformの宣言を差し込んで完成形を作る
 export const buildShaderSource = ( body: string, materialFields: UniformField[] ) => {
 
 	const chunks = [
 		VERTEX_INPUT_WGSL,
-		VERTEX_OUTPUT_WGSL,
+		vertexOutputWgsl,
 		buildStructWgsl( 'FrameUniforms', FRAME_FIELDS ),
 		`@group(${GROUP_FRAME}) @binding(0) var<uniform> frame: FrameUniforms;`,
 		buildStructWgsl( 'ObjectUniforms', OBJECT_FIELDS ),
@@ -165,7 +129,8 @@ export const buildShaderSource = ( body: string, materialFields: UniformField[] 
 
 	}
 
-	chunks.push( GBUFFER_WGSL );
+	chunks.push( GBUFFER_OUTPUT_WGSL );
+	chunks.push( gbufferWgsl );
 	chunks.push( body );
 
 	return chunks.join( '\n\n' );

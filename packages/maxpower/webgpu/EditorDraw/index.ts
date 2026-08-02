@@ -2,10 +2,12 @@ import * as GLP from 'glpower';
 
 import { SCENE_FORMAT } from '../Bindings';
 import { Material } from '../Material';
-import { standardVertexWgsl } from '../Material/shaders/basic';
 
 import { EditorPass } from './EditorPass';
-import { copyWgsl, flatWgsl, maskWgsl, outlineWgsl } from './shaders';
+import copyWgsl from './shaders/copy.wgsl';
+import flatWgsl from './shaders/flat.wgsl';
+import maskWgsl from './shaders/mask.wgsl';
+import outlineWgsl from './shaders/outline.wgsl';
 
 import type { EditorDraw, EditorFrame, EditorRect, EditorRecipe, EditorRenderEntitiesParam, EditorTarget } from '../../core/EditorDraw';
 import type { Engine } from '../../core/Engine';
@@ -397,7 +399,7 @@ export class WebGPUEditorDraw implements EditorDraw {
 
 		flat: ( opt: { color: number[]; lines?: boolean; depthTest?: boolean; depthWrite?: boolean } ): MaterialBase => new Material( {
 			name: 'editorFlat',
-			wgsl: standardVertexWgsl + flatWgsl,
+			wgsl: flatWgsl,
 			phase: [ 'forward' ],
 			drawType: opt.lines ? 'LINES' : 'TRIANGLES',
 			depthTest: opt.depthTest ?? true,
@@ -408,7 +410,7 @@ export class WebGPUEditorDraw implements EditorDraw {
 
 		mask: (): MaterialBase => new Material( {
 			name: 'editorMask',
-			wgsl: standardVertexWgsl + maskWgsl,
+			wgsl: maskWgsl,
 			phase: [ 'forward' ],
 			depthTest: false,
 		} ),

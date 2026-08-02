@@ -11,8 +11,8 @@ import gltfFrag from './shaders/gltf.fs';
 import gltfVert from './shaders/gltf.vs';
 
 import type { GLTF } from '../../../core/BLidge';
-import type { GLEngine } from '../../Component/Renderer';
 import type { GLBackend } from '../../GLBackend';
+import type { GLEngine } from '../../Renderer';
 
 const GLB_HEADER_LENGTH = 12;
 const GLB_CHUNK_HEADER_LENGTH = 8;

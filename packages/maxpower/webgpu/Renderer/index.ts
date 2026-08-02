@@ -28,7 +28,7 @@ import { EnvMap } from './EnvMap';
 import { Lights } from './Lights';
 import { PipelinePostProcess } from './PipelinePostProcess';
 import { RenderTargets } from './RenderTargets';
-import { presentWgsl } from './shaders/present';
+import presentWgsl from './shaders/present.wgsl';
 import { ENVMAP_BINDING, ENVMAP_SAMPLER_BINDING, LIGHTSHAFT_BINDING, SSAO_BINDING, buildShadingSource } from './shaders/shading';
 import { Sky } from './Sky';
 

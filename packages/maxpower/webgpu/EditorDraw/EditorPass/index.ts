@@ -1,5 +1,5 @@
 import { UniformBinder, buildStructWgsl, fieldsFromUniforms } from '../../resources/UniformBinder';
-import { EDITOR_FULLSCREEN_WGSL } from '../shaders';
+import editorFullscreenWgsl from '../shaders/fullscreen.wgsl';
 
 import type { UniformField } from '../../resources/UniformBinder';
 import type * as GLP from 'glpower';
@@ -59,7 +59,7 @@ export class EditorPass {
 
 		chunks.push( inputs.join( '\n' ) );
 		chunks.push( `@group(0) @binding(${param.inputCount + 1}) var editorSampler: sampler;` );
-		chunks.push( EDITOR_FULLSCREEN_WGSL );
+		chunks.push( editorFullscreenWgsl );
 		chunks.push( param.wgsl );
 
 		const entries: GPUBindGroupLayoutEntry[] = [];
