@@ -4,7 +4,7 @@ import { Mesh } from '../../../core/Component/Mesh';
 import { SphereGeometry } from '../../../core/Geometry/SphereGeometry';
 import { Material } from '../../Material';
 
-import skyFrag from './shaders/sky.fs';
+import defaultSkyFrag from './shaders/defaultSky.fs';
 
 import type { Engine } from '../../../core/Engine';
 import type { Entity } from '../../../core/Entity';
@@ -36,7 +36,7 @@ export class Sky {
 
 		this.material = new Material( {
 			phase: [ "deferred", "envMap" ],
-			frag: skyFrag,
+			frag: defaultSkyFrag,
 			cullFace: false,
 			uniforms: {
 				uSkyColor: { value: this.color, type: "3fv" },

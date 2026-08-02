@@ -1,6 +1,6 @@
 import * as MXP from 'maxpower/webgpu';
 
-import skyBoxWgsl from './shaders/main.wgsl';
+import skyBoxWgsl from './shaders/skyBox.wgsl';
 
 // レンダラーが持つ空の球へ独自マテリアルを差し込む
 export class SkyBox extends MXP.Component {

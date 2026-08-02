@@ -13,6 +13,7 @@ import type { UniformField } from '../../resources/UniformBinder';
 
 export const PREFILTER_FIELDS: UniformField[] = [
 	{ name: 'uFace', type: 'i32' },
+	{ name: 'uTimeEF', type: 'f32' },
 ];
 
 export const prefilterWgsl = [

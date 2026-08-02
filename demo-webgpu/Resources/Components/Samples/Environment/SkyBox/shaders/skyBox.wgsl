@@ -1,4 +1,4 @@
-// demo-webgl の SkyBox/shaders/main.fs のWGSL移植。
+// demo-webgl の SkyBox/shaders/skyBox.fs のWGSL移植。
 // 前置される宣言: VertexOutput / GBufferOutput / frame / Surface系（Bindings）
 
 #include "../../../_common/noise.wgsl"
@@ -33,7 +33,7 @@ fn skyBox( input: VertexOutput ) -> SkyResult {
 
 	let emit = min( line + pattern, 1.0 );
 
-	result.emission = vec3f( emit * 20.0 * smoothstep( 0.4, 1.0, n ) );
+	result.emission = vec3f( emit * 3.0 * smoothstep( 0.4, 1.0, n ) );
 
 	return result;
 
@@ -47,7 +47,7 @@ fn fsDeferred( input: VertexOutput ) -> GBufferOutput {
 	let sky = skyBox( input );
 
 	surface.albedo = sky.albedo;
-	surface.emission = sky.emission;
+	surface.emission = sky.emission * 4.0;
 	surface.roughness = 1.0;
 	surface.envIntensity = 0.0;
 

@@ -1,4 +1,4 @@
-// レンダラーが持つ空。deferred（背景として見える）と envMap（環境光の元）の両方に参加する
+// レンダラー既定の空。プロジェクト側が renderer.sky.mesh.material を差し替えると使われなくなる
 
 #include "../../../Material/shaders/standardVertex.wgsl"
 

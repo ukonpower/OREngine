@@ -1,7 +1,7 @@
 import * as MXP from 'maxpower';
 import { Engine } from 'orengine';
 
-import fragSrc from './shaders/main.fs';
+import fragSrc from './shaders/skyBox.fs';
 
 export class SkyBox extends MXP.Component {
 
@@ -26,7 +26,7 @@ export class SkyBox extends MXP.Component {
 
 		if ( import.meta.hot ) {
 
-			import.meta.hot.accept( './shaders/main.fs', ( module ) => {
+			import.meta.hot.accept( './shaders/skyBox.fs', ( module ) => {
 
 				if ( module ) {
 
