@@ -1,4 +1,5 @@
 import { buildShaderSource } from '../Bindings';
+import { requestShaderReload } from '../hotReload';
 import { fieldsFromUniforms } from '../resources/UniformBinder';
 
 import basicWgsl from './shaders/basic.wgsl';
@@ -6,6 +7,21 @@ import basicWgsl from './shaders/basic.wgsl';
 import type { MaterialBase } from '../../core/Material';
 import type { UniformField } from '../resources/UniformBinder';
 import type * as GLP from 'glpower';
+
+// HMRで差し替わるシェーダーソース。playerでは初期値のまま使われる
+let hotBasicWgsl = basicWgsl;
+
+if ( import.meta.hot ) {
+
+	import.meta.hot.accept( './shaders/basic.wgsl', ( m ) => {
+
+		if ( m ) hotBasicWgsl = m.default;
+
+		requestShaderReload();
+
+	} );
+
+}
 
 export type DrawType = 'TRIANGLES' | 'LINES';
 
@@ -32,7 +48,6 @@ export interface MaterialParam {
 export class Material implements MaterialBase {
 
 	public name: string;
-	public wgsl: string;
 	public uniforms: GLP.Uniforms;
 
 	public depthTest: boolean;
@@ -45,12 +60,14 @@ export class Material implements MaterialBase {
 
 	public readonly fields: UniformField[];
 
+	private _wgsl: string | null;
+
 	constructor( params?: MaterialParam ) {
 
 		params = params || {};
 
 		this.name = params.name || 'material';
-		this.wgsl = params.wgsl || basicWgsl;
+		this._wgsl = params.wgsl || null;
 		this.uniforms = params.uniforms || {};
 
 		this.depthTest = params.depthTest !== undefined ? params.depthTest : true;
@@ -74,6 +91,19 @@ export class Material implements MaterialBase {
 			forward: phases.indexOf( 'forward' ) > - 1,
 			envMap: phases.indexOf( 'envMap' ) > - 1,
 		};
+
+	}
+
+	// 未指定のマテリアルは既定のWGSLで描く
+	public get wgsl() {
+
+		return this._wgsl ?? hotBasicWgsl;
+
+	}
+
+	public set wgsl( value: string ) {
+
+		this._wgsl = value;
 
 	}
 

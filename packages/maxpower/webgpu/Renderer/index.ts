@@ -21,6 +21,7 @@ import {
 	SHADOW_FORMAT,
 } from '../Bindings';
 import { PostProcessPipeline } from '../Component/PostProcessPipeline';
+import { onShaderReload, requestShaderReload } from '../hotReload';
 import { Material } from '../Material';
 import { GeometryBuffer, VERTEX_BUFFER_LAYOUT } from '../resources/GeometryBuffer';
 import { UniformBinder } from '../resources/UniformBinder';
@@ -40,6 +41,48 @@ import type { MaterialPhase } from '../Material';
 import type { PipelineConfig } from './PipelinePostProcess';
 
 export type { PipelineConfig };
+
+// HMRで差し替わるシェーダー資源の供給元。playerでは初期値のまま使われる
+let hotPipelinePostProcess = PipelinePostProcess;
+let hotEnvMap = EnvMap;
+let hotBuildShadingSource = buildShadingSource;
+let hotPresentWgsl = presentWgsl;
+
+if ( import.meta.hot ) {
+
+	import.meta.hot.accept( './PipelinePostProcess', ( m ) => {
+
+		if ( m ) hotPipelinePostProcess = m.PipelinePostProcess;
+
+		requestShaderReload();
+
+	} );
+
+	import.meta.hot.accept( './EnvMap', ( m ) => {
+
+		if ( m ) hotEnvMap = m.EnvMap;
+
+		requestShaderReload();
+
+	} );
+
+	import.meta.hot.accept( './shaders/shading', ( m ) => {
+
+		if ( m ) hotBuildShadingSource = m.buildShadingSource;
+
+		requestShaderReload();
+
+	} );
+
+	import.meta.hot.accept( './shaders/present.wgsl', ( m ) => {
+
+		if ( m ) hotPresentWgsl = m.default;
+
+		requestShaderReload();
+
+	} );
+
+}
 
 // mesh.materialはバックエンド不透明型なので、webgpu側でMaterialへ絞る（未設定時は既定マテリアル）
 const _defaultMaterial = new Material( { name: 'default' } );
@@ -198,6 +241,32 @@ export class Renderer extends Serializable implements RendererContract {
 		this._registerFields();
 
 		this._init();
+
+		if ( import.meta.hot ) {
+
+			// シェーダーHMR: 差し替え済みのソースから、シェーダー由来のGPU資源を一括で作り直す
+			onShaderReload( () => {
+
+				const device = this._device;
+
+				if ( ! device ) return;
+
+				this._materialResources.forEach( ( resource ) => resource.binder?.dispose() );
+				this._materialResources.clear();
+				this._editorPipelines.clear();
+
+				this._envMap!.dispose();
+				this._envMap = new hotEnvMap( device, this._uniformLayout! );
+
+				this._pipeline!.dispose();
+				this._createPostProcess( device );
+				this._createScreenPipelines( device );
+
+				if ( this._targets.width > 0 ) this._connectTargets( device );
+
+			} );
+
+		}
 
 	}
 
@@ -370,33 +439,46 @@ export class Renderer extends Serializable implements RendererContract {
 		} );
 
 		this._lights = new Lights( device, this._uniformLayout );
-		this._envMap = new EnvMap( device, this._uniformLayout );
-		this._pipeline = new PipelinePostProcess( device, this._uniformLayout, this._lights.bindGroupLayout, this._passResolution, this._passPixelSize );
+		this._envMap = new hotEnvMap( device, this._uniformLayout );
+		this._createPostProcess( device );
+		this._createScreenPipelines( device );
+
+		this._device = device;
+
+	}
+
+	// レンダラー自身が持つポストプロセス一式を作る
+	private _createPostProcess( device: GPUDevice ) {
+
+		this._pipeline = new hotPipelinePostProcess( device, this._uniformLayout!, this._lights!.bindGroupLayout, this._passResolution, this._passPixelSize );
 		this._pipeline.applyPipelineConfig( this.pipelineConfig );
 
-		const shadingModule = device.createShaderModule( { label: 'shading', code: buildShadingSource() } );
+	}
+
+	// シェーディングとpresentのパイプラインを作る
+	private _createScreenPipelines( device: GPUDevice ) {
+
+		const shadingModule = device.createShaderModule( { label: 'shading', code: hotBuildShadingSource() } );
 
 		this._shadingPipeline = device.createRenderPipeline( {
 			label: 'shading',
 			layout: device.createPipelineLayout( {
-				bindGroupLayouts: [ this._uniformLayout, this._gBufferLayout, this._lights.bindGroupLayout ],
+				bindGroupLayouts: [ this._uniformLayout!, this._gBufferLayout!, this._lights!.bindGroupLayout ],
 			} ),
 			vertex: { module: shadingModule, entryPoint: 'vsMain' },
 			fragment: { module: shadingModule, entryPoint: 'fsMain', targets: [ { format: SCENE_FORMAT } ] },
 			primitive: { topology: 'triangle-list' },
 		} );
 
-		const presentModule = device.createShaderModule( { label: 'present', code: presentWgsl } );
+		const presentModule = device.createShaderModule( { label: 'present', code: hotPresentWgsl } );
 
 		this._presentPipeline = device.createRenderPipeline( {
 			label: 'present',
-			layout: device.createPipelineLayout( { bindGroupLayouts: [ this._sceneLayout ] } ),
+			layout: device.createPipelineLayout( { bindGroupLayouts: [ this._sceneLayout! ] } ),
 			vertex: { module: presentModule, entryPoint: 'vsMain' },
 			fragment: { module: presentModule, entryPoint: 'fsMain', targets: [ { format: this._canvasFormat } ] },
 			primitive: { topology: 'triangle-list' },
 		} );
-
-		this._device = device;
 
 	}
 
@@ -830,9 +912,16 @@ export class Renderer extends Serializable implements RendererContract {
 
 		this._targets.setSize( device, width, height );
 
+		this._connectTargets( device );
+
+	}
+
+	// 中間バッファを参照するパイプラインを繋ぎ、bind groupを作り直す
+	private _connectTargets( device: GPUDevice ) {
+
 		const pipeline = this._pipeline!;
 
-		pipeline.setSize( device, width, height );
+		pipeline.setSize( device, this._targets.width, this._targets.height );
 		pipeline.setGBuffer(
 			this._targets.gBufferViews[ 0 ],
 			this._targets.gBufferViews[ 1 ],

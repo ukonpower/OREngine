@@ -2,12 +2,28 @@ import * as GLP from 'glpower';
 
 import { Light } from '../../../core/Component/Light';
 import { CLIP_CORRECTION, FRAME_FIELDS, SHADOW_FORMAT } from '../../Bindings';
+import { requestShaderReload } from '../../hotReload';
 import { UniformBinder, buildStructWgsl } from '../../resources/UniformBinder';
 
 import shadowWgsl from './shaders/shadow.wgsl';
 
 import type { Entity } from '../../../core/Entity';
 import type { UniformField } from '../../resources/UniformBinder';
+
+// HMRで差し替わるシェーダーソース。playerでは初期値のまま使われる
+let hotShadowWgsl = shadowWgsl;
+
+if ( import.meta.hot ) {
+
+	import.meta.hot.accept( './shaders/shadow.wgsl', ( m ) => {
+
+		if ( m ) hotShadowWgsl = m.default;
+
+		requestShaderReload();
+
+	} );
+
+}
 
 /*-------------------------------
 	ライトのGPUリソース
@@ -70,7 +86,7 @@ export const buildLightWgsl = ( group: number ) => [
 	`@group(${group}) @binding(1) var directionalShadowMap: texture_depth_2d_array;`,
 	`@group(${group}) @binding(2) var spotShadowMap: texture_depth_2d_array;`,
 	`@group(${group}) @binding(3) var shadowSampler: sampler_comparison;`,
-	shadowWgsl,
+	hotShadowWgsl,
 ].join( '\n\n' );
 
 // シャドウマップ1枚ぶんの描画先とライト視点のフレームuniform

@@ -1,8 +1,24 @@
+import { requestShaderReload } from '../../hotReload';
 import { UniformBinder, buildStructWgsl, fieldsFromUniforms } from '../../resources/UniformBinder';
 import editorFullscreenWgsl from '../shaders/fullscreen.wgsl';
 
 import type { UniformField } from '../../resources/UniformBinder';
 import type * as GLP from 'glpower';
+
+// HMRで差し替わるシェーダーソース。playerでは初期値のまま使われる
+let hotFullscreenWgsl = editorFullscreenWgsl;
+
+if ( import.meta.hot ) {
+
+	import.meta.hot.accept( '../shaders/fullscreen.wgsl', ( m ) => {
+
+		if ( m ) hotFullscreenWgsl = m.default;
+
+		requestShaderReload();
+
+	} );
+
+}
 
 /*-------------------------------
 	エディタ用のフルスクリーンパス
@@ -63,7 +79,7 @@ export class EditorPass {
 
 		chunks.push( inputs.join( '\n' ) );
 		chunks.push( `@group(0) @binding(${param.inputCount + 1}) var editorSampler: sampler;` );
-		chunks.push( editorFullscreenWgsl );
+		chunks.push( hotFullscreenWgsl );
 		chunks.push( param.wgsl );
 
 		const entries: GPUBindGroupLayoutEntry[] = [];

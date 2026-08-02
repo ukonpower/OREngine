@@ -13,11 +13,25 @@ export class OREngineLogo extends MXP.Component {
 
 		if ( mesh ) {
 
-			mesh.material = new MXP.Material( {
+			const material = new MXP.Material( {
 				name: "OREngineLogo",
 				phase: [ "deferred", "shadowMap" ],
 				wgsl: MXP.standardVertexWgsl + fragWgsl,
 			} );
+
+			mesh.material = material;
+
+			if ( import.meta.hot ) {
+
+				import.meta.hot.accept( './shaders/main.wgsl', ( m ) => {
+
+					if ( m ) material.wgsl = MXP.standardVertexWgsl + m.default;
+
+					MXP.requestShaderReload();
+
+				} );
+
+			}
 
 		}
 

@@ -1,4 +1,5 @@
 import { FRAME_FIELDS, GROUP_FRAME, SCENE_FORMAT } from '../Bindings';
+import { requestShaderReload } from '../hotReload';
 import { buildLightWgsl } from '../Renderer/Lights';
 import { UniformBinder, buildStructWgsl, fieldsFromUniforms } from '../resources/UniformBinder';
 
@@ -6,6 +7,21 @@ import fullscreenWgsl from './shaders/fullscreen.wgsl';
 
 import type { UniformField } from '../resources/UniformBinder';
 import type * as GLP from 'glpower';
+
+// HMRで差し替わるシェーダーソース。playerでは初期値のまま使われる
+let hotFullscreenWgsl = fullscreenWgsl;
+
+if ( import.meta.hot ) {
+
+	import.meta.hot.accept( './shaders/fullscreen.wgsl', ( m ) => {
+
+		if ( m ) hotFullscreenWgsl = m.default;
+
+		requestShaderReload();
+
+	} );
+
+}
 
 /*-------------------------------
 	フルスクリーンパスの土台
@@ -143,7 +159,7 @@ export class PostProcessPass {
 			`@group(1) @binding(${this._inputNames.length + 1}) var ppSampler: sampler;`,
 			`@group(1) @binding(${this._inputNames.length + 2}) var ppSamplerNearest: sampler;`,
 			this._lightWgsl,
-			fullscreenWgsl,
+			hotFullscreenWgsl,
 			this._wgsl,
 		].filter( Boolean ).join( '\n\n' );
 
