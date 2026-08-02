@@ -3,9 +3,9 @@ import * as GLP from 'glpower';
 import { Mesh } from '../../../core/Component/Mesh';
 import { Entity } from '../../../core/Entity';
 import { Geometry } from '../../../core/Geometry';
-import { setUniforms } from '../../Component/Renderer';
 import { GLBackend } from '../../GLBackend';
-import { shaderParse } from '../../shader/ShaderParser';
+import { setUniforms } from '../../Renderer';
+import { shaderParse } from '../../ShaderParser';
 
 
 type BakeAttribute = {

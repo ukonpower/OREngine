@@ -92,6 +92,14 @@ public updateMatrix() {
 - uniform 構造体のフィールド名（CPU側が `'directionalLight[0].direction'` 形式で参照する名前）はローダーが自動抽出して保護している。この形式の参照を増やしたら minify 後の描画を確認する
 - minify 結果の構文検証はブラウザ不要で `glslangValidator`（`brew install glslang`）に最終結合形を食わせると確実。デバッグダンプは `tmp/shader-minified/`
 
+## WGSL（WebGPUバックエンド）の注意
+WGSLは `.wgsl` ファイルに置き、`import xxxWgsl from './xxx.wgsl'` で読む。ローダーは `host/vite/plugins/WgslLoader` で、GLSL側の ShaderBuilder とは別系統（shader_minifier はGLSL専用なのでWGSLはminifyしない）。
+
+- 置き場所は、使う側と同じディレクトリの `shaders/`。1シェーダー1ファイル
+- 共通部分の取り込みは `#include "./相対パス.wgsl"`（GLSL側の `#include<key>` と違い登録表への登録は不要。同じファイルは1回だけ展開される）
+- 束縛の宣言（`@group ... var<uniform>` や uniform struct）と、パス生成時に値が決まる定数（ぼかし重み・カーネル等）はTS側が完成形の先頭に前置する。WGSLファイル側は、外から与えられる名前を冒頭コメントに書いておく
+- 新しい `.wgsl` を足しても設定変更は不要（拡張子で拾う）
+
 ## 命名規則
 - **クラス/インターフェース/型**: PascalCase（`Entity`, `ComponentUpdateEvent`, `RenderStack`）
 - **メソッド/関数/変数**: camelCase（`updateImpl`, `matrixWorld`, `autoMatrixUpdate`）

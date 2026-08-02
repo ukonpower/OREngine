@@ -1,20 +1,7 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower/webgpu';
 
-const sphereWgsl = MXP.standardVertexWgsl + /* wgsl */`
-@fragment
-fn fsDeferred( input: VertexOutput ) -> GBufferOutput {
-
-	var surface = defaultSurface( input );
-
-	surface.albedo = material.uColor;
-	surface.roughness = material.uRoughness;
-	surface.metallic = material.uMetallic;
-
-	return packGBuffer( input, surface );
-
-}
-`;
+import sphereWgsl from './sphere.wgsl';
 
 const SPHERES = [
 	{ name: 'mirror', x: - 3.5, color: new GLP.Vector( 0.95, 0.93, 0.88 ), roughness: 0.05, metallic: 1.0 },
@@ -39,7 +26,7 @@ export class Spheres extends MXP.Component {
 				geometry: new MXP.SphereGeometry( { radius: 1.4, widthSegments: 32, heightSegments: 24 } ),
 				material: new MXP.Material( {
 					name: sphere.name,
-					wgsl: sphereWgsl,
+					wgsl: MXP.standardVertexWgsl + sphereWgsl,
 					uniforms: {
 						uColor: { value: sphere.color, type: '3fv' },
 						uRoughness: { value: sphere.roughness, type: '1f' },

@@ -12,6 +12,7 @@ import { PlayerRegistry } from './plugins/PlayerRegistry';
 import { ProjectWatchReload } from './plugins/ProjectWatchReload';
 import { ShaderBuilder } from './plugins/ShaderBuilder';
 import { TexLoader } from './plugins/TexLoader';
+import { WgslLoader } from './plugins/WgslLoader';
 import { collectJsonKeys, collectSceneUsage } from './sceneScan';
 
 
@@ -107,6 +108,7 @@ export const createDevConfig = ( opts: OrengineConfigOptions ): UserConfig => de
 		react(),
 		ShaderBuilder( { scanDirs: [ orengineRoot, opts.projectDir ] } ),
 		TexLoader(),
+		WgslLoader(),
 		ProjectWatchReload( opts.projectDir ),
 	],
 	define: {
@@ -194,6 +196,7 @@ export const createPlayerConfig = ( opts: PlayerConfigOptions ): UserConfig => {
 		plugins: [
 			ShaderBuilder( { scanDirs: [ orengineRoot, opts.projectDir ] } ),
 			TexLoader(),
+			WgslLoader(),
 			PlayerRegistry( { projectDir: opts.projectDir, usage } ),
 			visualizer( { template: 'treemap', gzipSize: true } ),
 		],
@@ -232,6 +235,7 @@ export const createStaticConfig = ( opts: StaticConfigOptions ): UserConfig => {
 			react(),
 			ShaderBuilder( { scanDirs: [ orengineRoot, opts.projectDir ] } ),
 			TexLoader(),
+			WgslLoader(),
 		],
 		define: {
 			BASE_PATH: JSON.stringify( opts.basePath ?? '' ),

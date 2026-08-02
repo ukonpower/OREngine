@@ -2,11 +2,11 @@ import * as GLP from 'glpower';
 
 import { Mesh } from '../../core/Component/Mesh';
 import { EditorDraw, EditorFrame, EditorRect, EditorRecipe, EditorRenderEntitiesParam, EditorTarget } from '../../core/EditorDraw';
-import { Renderer } from '../Component/Renderer';
 import { GL } from '../GLBackend';
 import { Material } from '../Material';
 import { PostProcess } from '../PostProcess';
 import { PostProcessPass } from '../PostProcess/PostProcessPass';
+import { Renderer } from '../Renderer';
 
 import flatFrag from './shaders/flat.fs';
 import flatVert from './shaders/flat.vs';

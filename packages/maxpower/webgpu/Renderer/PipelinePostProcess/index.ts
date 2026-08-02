@@ -3,28 +3,26 @@ import * as GLP from 'glpower';
 import { PostProcessChain, PostProcessPass } from '../../PostProcess';
 
 import {
-	bloomBrightWgsl,
 	buildBloomCompositeWgsl,
 	buildGaussBlurWgsl,
-	buildSsaoBlurWgsl,
-	buildSsaoWgsl,
-	colorCollectionWgsl,
-	fxaaWgsl,
-} from './shaders';
-import {
-	buildDofBokehWgsl,
 	buildMotionBlurTileWgsl,
 	buildMotionBlurWgsl,
-	colorGradingWgsl,
-	dofCocWgsl,
-	dofCompositeWgsl,
-	finalizeWgsl,
-	lightShaftWgsl,
-	motionBlurNeighborWgsl,
-	normalSelectorWgsl,
-	ssCompositeWgsl,
-	ssrWgsl,
-} from './shaders/screen';
+	buildSsaoBlurWgsl,
+	buildSsaoWgsl,
+} from './shaders';
+import bloomBrightWgsl from './shaders/bloomBright.wgsl';
+import colorCollectionWgsl from './shaders/colorCollection.wgsl';
+import colorGradingWgsl from './shaders/colorGrading.wgsl';
+import dofBokehWgsl from './shaders/dofBokeh.wgsl';
+import dofCocWgsl from './shaders/dofCoc.wgsl';
+import dofCompositeWgsl from './shaders/dofComposite.wgsl';
+import finalizeWgsl from './shaders/finalize.wgsl';
+import fxaaWgsl from './shaders/fxaa.wgsl';
+import lightShaftWgsl from './shaders/lightShaft.wgsl';
+import motionBlurNeighborWgsl from './shaders/motionBlurNeighbor.wgsl';
+import normalSelectorWgsl from './shaders/normalSelector.wgsl';
+import ssCompositeWgsl from './shaders/ssComposite.wgsl';
+import ssrWgsl from './shaders/ssr.wgsl';
 
 import type { Camera } from '../../../core/Component/Camera';
 import type { PostProcessPassParam } from '../../PostProcess';
@@ -221,7 +219,7 @@ export class PipelinePostProcess {
 
 		this._dofBokeh = pass( {
 			name: 'dof/bokeh',
-			wgsl: buildDofBokehWgsl(),
+			wgsl: dofBokehWgsl,
 			inputs: [ 'uCocTex' ],
 			uniforms: dofUniforms,
 			resolutionRatio: 0.5,
@@ -236,7 +234,7 @@ export class PipelinePostProcess {
 
 		this._motionBlurTile = pass( {
 			name: 'motionBlur/tile',
-			wgsl: buildMotionBlurTileWgsl( MOTION_BLUR_TILE, 'uVelTex' ),
+			wgsl: buildMotionBlurTileWgsl( MOTION_BLUR_TILE ),
 			inputs: [ NEAREST( 'uVelTex' ) ],
 			resolutionRatio: 1 / MOTION_BLUR_TILE,
 			passThrough: true,
