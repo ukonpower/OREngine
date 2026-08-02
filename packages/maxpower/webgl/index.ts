@@ -12,5 +12,6 @@ export * from './EditorDraw';
 export * from './Loaders/GLTFLoader';
 export * from './PostProcess';
 export * from './PostProcess/PostProcessPass';
+export * from './PostProcess/setupCameraPostProcess';
 export * from './ShaderParser';
 export * from './utils/Modeler';

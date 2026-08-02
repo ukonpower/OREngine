@@ -48,7 +48,7 @@ npm run dev
 
 ```json
 {
-	"project": "demo"
+	"project": "demo-webgl"
 }
 ```
 

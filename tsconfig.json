@@ -56,13 +56,13 @@
         "./packages/maxpower/index.ts"
       ],
       "@or-scene": [
-        "./demo/scene.json"
+        "./demo-webgl/scene.json"
       ],
       "@or-editor": [
-        "./demo/editor.json"
+        "./demo-webgl/editor.json"
       ],
       "@or-resources/*": [
-        "./demo/Resources/*"
+        "./demo-webgl/Resources/*"
       ]
     }
   },
@@ -74,7 +74,7 @@
     "node_modules",
     "dist",
     "packages/glpower",
-    "demo",
+    "demo-webgl",
     "scripts",
     "host/vite",
     "host/runner.ts",

@@ -124,7 +124,14 @@ export class Renderer extends Serializable implements RendererContract {
 		this.canvas = canvas;
 		this.globalUniforms = {};
 		this.resolution = new GLP.Vector();
-		this.pipelineConfig = {};
+		this.pipelineConfig = {
+			motionBlur: true,
+			motionBlurPower: 1.0,
+			ssr: true,
+			ssao: true,
+			lightShaft: true,
+			dof: true,
+		};
 
 		this._context = canvas.getContext( 'webgpu' );
 		this._device = null;
@@ -222,6 +229,30 @@ export class Renderer extends Serializable implements RendererContract {
 			},
 			{ step: 0.1 }
 		);
+
+		const pipeline = this.fieldDir( 'pipeline' );
+
+		( [ 'motionBlur', 'ssr', 'ssao', 'dof', 'lightShaft' ] as const ).forEach( ( key ) => {
+
+			const dir = pipeline.dir( key );
+
+			dir.field( 'enabled', () => this.pipelineConfig[ key ] ?? true, ( v: boolean ) => {
+
+				this.applyPipelineConfig( { [ key ]: v } );
+
+			} );
+
+			if ( key === 'motionBlur' ) {
+
+				dir.field( 'power', () => this.pipelineConfig.motionBlurPower ?? 1.0, ( v: number ) => {
+
+					this.applyPipelineConfig( { motionBlurPower: v } );
+
+				}, { step: 0.1 } );
+
+			}
+
+		} );
 
 	}
 

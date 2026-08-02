@@ -1,0 +1,31 @@
+{
+	"enableRender": true,
+	"resolutionScale": 0.5,
+	"resolution/width": 1920,
+	"resolution/height": 1080,
+	"viewType": "render",
+	"frameLoop/enabled": false,
+	"frameLoop/start": 0,
+	"frameLoop/end": 0,
+	"selectedEntityId": null,
+	"selectedAsset": null,
+	"navigateAsset": null,
+	"propertyTarget": "entity",
+	"cameraMode": "preview",
+	"gizmoMode": "translate",
+	"helpers/show": true,
+	"helpers/empty": true,
+	"helpers/camera": true,
+	"helpers/light": true,
+	"helpers/wireframe": false,
+	"camera/position": [
+		0,
+		2,
+		6
+	],
+	"camera/target": [
+		0,
+		0,
+		0
+	]
+}

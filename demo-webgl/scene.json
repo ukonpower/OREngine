@@ -1,0 +1,82 @@
+{
+	"name": "demo-webgl",
+	"scene": {
+		"name": "root",
+		"uuid": "0",
+		"components": [
+			{
+				"name": "BLidgeClient",
+				"uuid": "1",
+				"props": {
+					"mode": "json",
+					"gltf": true,
+					"gltfPath": "/scene.glb",
+					"websocket/url": "ws://localhost:3100",
+					"attachments": [
+						{
+							"name": "Camera",
+							"components": [
+								{
+									"name": "Camera",
+									"uuid": "4ec0479f-f58f-4644-a7f4-0204813c5c99"
+								},
+								{
+									"name": "CameraController",
+									"uuid": "3d0e3c4f-7110-43bc-917a-00850232c7b1"
+								}
+							]
+						},
+						{
+							"name": "OREngine",
+							"components": [
+								{
+									"name": "OREngineLogo",
+									"uuid": "2999221c-8614-47c8-91a4-129c6585343f"
+								}
+							]
+						},
+						{
+							"name": "OREngineCube",
+							"components": [
+								{
+									"name": "OREngineCube",
+									"uuid": "056176b4-e208-42ce-bd17-5ea264f09d86"
+								}
+							]
+						},
+						{
+							"name": "SkyBox",
+							"components": [
+								{
+									"name": "SkyBox",
+									"uuid": "38b46f5d-36cb-49af-b6b2-57643941c4d5"
+								}
+							]
+						}
+					]
+				}
+			}
+		]
+	},
+	"renderer": {
+		"sky/skyColor": [
+			1,
+			1,
+			1
+		],
+		"sky/groundColor": [
+			0.3,
+			0.3,
+			0.3
+		],
+		"sky/intensity": 1,
+		"pipeline/motionBlur/enabled": true,
+		"pipeline/motionBlur/power": 1,
+		"pipeline/ssr/enabled": true,
+		"pipeline/ssao/enabled": true,
+		"pipeline/dof/enabled": true,
+		"pipeline/lightShaft/enabled": true
+	},
+	"timeline/duration": 600,
+	"timeline/fps": 60
+}

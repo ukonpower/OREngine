@@ -20,7 +20,7 @@
     "init": "git submodule init && git submodule update && npm install",
     "predev": "node -e \"try{require('child_process').execSync('lsof -ti:'+(process.env.ORENGINE_SERVER_PORT||3001)+' | xargs kill -9',{stdio:'ignore'})}catch(e){}\"",
     "dev": "tsx scripts/run.mjs dev",
-    "wgpu": "ORENGINE_RENDERER=webgpu ORENGINE_PROJECT=${ORENGINE_PROJECT:-webgpu-test} npm run dev",
+    "wgpu": "ORENGINE_RENDERER=webgpu ORENGINE_PROJECT=${ORENGINE_PROJECT:-demo-webgpu} npm run dev",
     "build": "tsx scripts/run.mjs build",
     "build:static": "tsx scripts/run.mjs build:static",
     "lint": "eslint \"**/*.{ts,tsx}\" --report-unused-disable-directives --max-warnings 0",

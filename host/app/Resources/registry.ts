@@ -1,4 +1,4 @@
-import * as MXP from 'maxpower';
+import * as MXP from '@or-renderer';
 import { ComponentGroup, GeometryGroup, Engine, buildClassTree } from 'orengine';
 import { BUILTIN_COMPONENTLIST, BUILTIN_GEOMETRYLIST } from 'orengine/builtin';
 
