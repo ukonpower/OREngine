@@ -1,4 +1,3 @@
-import { createBackend } from '@or-backend';
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
@@ -17,14 +16,13 @@ export interface FramePlay {
 	playing: boolean,
 }
 
-export class Engine extends MXP.Serializable implements MXP.Engine {
+export class Engine extends MXP.Serializable implements MXP.Engine<MXP.Renderer> {
 
 	public static resources: Resources;
 	public name: string;
 	public enableRender: boolean;
 
 	private _renderer: MXP.Renderer;
-	private _backend: MXP.Backend;
 	private _root: MXP.Entity;
 	private _uniforms: GLP.Uniforms;
 	private _time: SceneTime;
@@ -33,11 +31,9 @@ export class Engine extends MXP.Serializable implements MXP.Engine {
 	private _disposed: boolean;
 	private _cameraEntity: MXP.Entity | null;
 
-	constructor() {
+	constructor( createRenderer: ( engine: MXP.Engine ) => MXP.Renderer ) {
 
 		super();
-
-		this._backend = createBackend();
 
 		this.name = "OREngine";
 		this._disposed = false;
@@ -53,7 +49,7 @@ export class Engine extends MXP.Serializable implements MXP.Engine {
 			Renderer
 		-------------------------------*/
 
-		this._renderer = new MXP.Renderer( this._backend, this );
+		this._renderer = createRenderer( this );
 
 		this._renderer.globalUniforms = {
 			uTime: { value: 0, type: "1f" },
@@ -135,15 +131,9 @@ export class Engine extends MXP.Serializable implements MXP.Engine {
 		Getters
 	-------------------------------*/
 
-	public get backend() {
-
-		return this._backend;
-
-	}
-
 	public get canvas() {
 
-		return this._backend.canvas;
+		return this._renderer.canvas;
 
 	}
 
@@ -344,8 +334,8 @@ export class Engine extends MXP.Serializable implements MXP.Engine {
 	public setSize( resolution: GLP.Vector ) {
 
 		this._renderer.resize( resolution );
-		this._backend.canvas.width = resolution.x;
-		this._backend.canvas.height = resolution.y;
+		this._renderer.canvas.width = resolution.x;
+		this._renderer.canvas.height = resolution.y;
 
 		const uRes = this._renderer.globalUniforms.uResolution.value as GLP.Vector;
 		uRes.copy( resolution );

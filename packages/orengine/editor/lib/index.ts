@@ -1,3 +1,4 @@
+import { createEditorDraw } from '@or-renderer';
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
@@ -47,21 +48,20 @@ export class Editor extends MXP.Serializable {
 	private _resolutionScale: number;
 	private _baseResolution: GLP.Vector;
 	private _viewType: "render" | "debug";
-	// GL専用のサブシステムはWebGLバックエンドのときだけ動かす
-	private _glBackend: MXP.GLBackend | null;
-	private _frameDebugger: FrameDebugger | null;
-	private _assetPreviewManager: AssetPreviewManager | null;
+	private _frameDebugger: FrameDebugger;
+	private _assetPreviewManager: AssetPreviewManager;
 	private _externalWindow: Window | null;
 	private _externalCanvasBitmapContext: ImageBitmapRenderingContext | null;
 
 	private _disposed: boolean;
 	private _api: EditorAPI;
+	private _draw: MXP.EditorDraw;
 
 	private _editorCamera: EditorCamera;
 	private _gizmoManager: GizmoManager;
 	private _helperManager: HelperManager;
 	private _wireframeRenderer: WireframeRenderer;
-	private _selectionOutline: SelectionOutline | null;
+	private _selectionOutline: SelectionOutline;
 	private _pointerHandler: PointerHandler;
 	private _keyboardHandler: KeyboardHandler;
 
@@ -85,15 +85,8 @@ export class Editor extends MXP.Serializable {
 		this._externalCanvasBitmapContext = null;
 		this._disposed = false;
 		this._api = new EditorAPI( this );
-		this._glBackend = engine.backend instanceof MXP.GLBackend ? engine.backend : null;
-
-		if ( ! this._glBackend ) {
-
-			console.warn( "[Editor] WebGLバックエンドではないため、SelectionOutline / FrameDebugger / AssetPreviewManager を無効化します" );
-
-		}
-
-		this._assetPreviewManager = this._glBackend ? new AssetPreviewManager( this._glBackend, engine.renderer ) : null;
+		this._draw = createEditorDraw( engine );
+		this._assetPreviewManager = new AssetPreviewManager( this._draw );
 		this._sceneExporter = new SceneExporter( engine );
 		this._isExporting = false;
 		this._exportProgress = null;
@@ -103,10 +96,10 @@ export class Editor extends MXP.Serializable {
 		-------------------------------*/
 
 		this._editorCamera = new EditorCamera( engine );
-		this._gizmoManager = new GizmoManager( engine );
-		this._helperManager = new HelperManager( engine );
-		this._wireframeRenderer = new WireframeRenderer();
-		this._selectionOutline = this._glBackend ? new SelectionOutline( engine ) : null;
+		this._gizmoManager = new GizmoManager( engine, this._draw );
+		this._helperManager = new HelperManager( engine, this._draw );
+		this._wireframeRenderer = new WireframeRenderer( this._draw );
+		this._selectionOutline = new SelectionOutline( this._draw );
 
 		this._pointerHandler = new PointerHandler(
 			engine,
@@ -143,17 +136,7 @@ export class Editor extends MXP.Serializable {
 			Frame Debugger
 		-------------------------------*/
 
-		this._frameDebugger = this._glBackend ? new FrameDebugger( engine ) : null;
-
-		this.engine.renderer.on( 'drawPass', ( rt?: GLP.GLPowerFrameBuffer, label?: string ) => {
-
-			if ( this._frameDebugger && this._frameDebugger.enable && rt ) {
-
-				this._frameDebugger.push( rt, label );
-
-			}
-
-		} );
+		this._frameDebugger = new FrameDebugger( engine.canvas as HTMLCanvasElement, this._draw );
 
 		/*-------------------------------
 			Audio
@@ -229,11 +212,7 @@ export class Editor extends MXP.Serializable {
 
 			this._viewType = v;
 
-			if ( this._frameDebugger ) {
-
-				this._frameDebugger.enable = this._viewType === "debug";
-
-			}
+			this._frameDebugger.enable = this._viewType === "debug";
 
 		} );
 
@@ -424,17 +403,9 @@ export class Editor extends MXP.Serializable {
 
 			this._gizmoManager.render( selectedEntity, cameraEntity, this._engine );
 
-			this._selectionOutline?.render( selectedEntity, cameraEntity, this._engine );
+			this._selectionOutline.render( selectedEntity, cameraEntity );
 
-			// uiBuffer → デフォルトFBにblit
-			const rt = this._engine.renderer.renderTarget;
-			const res = this._engine.renderer.resolution;
-
-			if ( res.x > 0 && res.y > 0 ) {
-
-				this._engine.renderer.backend.blit( rt.uiBuffer, null, res.x, res.y );
-
-			}
+			this._draw.present();
 
 			this._editorCamera.updateAfterRender( this._engine );
 
@@ -470,7 +441,7 @@ export class Editor extends MXP.Serializable {
 
 			}
 
-			if ( this._frameDebugger && this._frameDebugger.enable ) {
+			if ( this._frameDebugger.enable ) {
 
 				this._frameDebugger.draw();
 
@@ -659,11 +630,11 @@ export class Editor extends MXP.Serializable {
 
 		this.engine.setSize( resolution );
 
-		this._frameDebugger?.resize( resolution );
+		this._draw.resize( resolution );
+
+		this._frameDebugger.resize( resolution );
 
 		this._editorCamera.resize( resolution );
-
-		this._selectionOutline?.resize( resolution );
 
 		if ( this._externalCanvasBitmapContext ) {
 
@@ -685,8 +656,8 @@ export class Editor extends MXP.Serializable {
 		this._editorCamera.dispose();
 		this._pointerHandler.dispose();
 		this._keyboardHandler.dispose();
-		this._frameDebugger?.dispose();
-		this._assetPreviewManager?.dispose();
+		this._frameDebugger.dispose();
+		this._assetPreviewManager.dispose();
 
 	}
 

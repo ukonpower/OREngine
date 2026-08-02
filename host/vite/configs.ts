@@ -12,12 +12,13 @@ import { PlayerRegistry } from './plugins/PlayerRegistry';
 import { ProjectWatchReload } from './plugins/ProjectWatchReload';
 import { ShaderBuilder } from './plugins/ShaderBuilder';
 import { TexLoader } from './plugins/TexLoader';
-import { WgslTranspiler } from './plugins/WgslTranspiler';
 import { collectJsonKeys, collectSceneUsage } from './sceneScan';
 
 
 const orengineRoot = path.resolve( fileURLToPath( import.meta.url ), '../../..' );
 const appRoot = path.join( orengineRoot, 'host/app' );
+
+export type RendererName = 'webgl' | 'webgpu';
 
 export interface OrengineConfigOptions {
 	projectDir: string;
@@ -25,6 +26,7 @@ export interface OrengineConfigOptions {
 	https?: { cert: Buffer | string; key: Buffer | string };
 	port?: number;
 	apiPort?: number;
+	renderer?: RendererName;
 }
 
 const projectAliases = ( projectDir: string ) => [
@@ -33,18 +35,17 @@ const projectAliases = ( projectDir: string ) => [
 	{ find: /^@or-resources\/(.*)$/, replacement: path.join( projectDir, 'Resources/$1' ) },
 ];
 
-type BackendName = 'webgl' | 'webgpu';
-
-const backendPath: { [key in BackendName]: string } = {
-	webgl: 'packages/maxpower/Backend/GLBackend/index.ts',
-	webgpu: 'packages/maxpower/Backend/WebGPUBackend/index.ts',
+// maxpowerのエントリ。index.ts が core + webgl、webgpu.ts が core + webgpu
+const rendererPath: { [key in RendererName]: string } = {
+	webgl: 'packages/maxpower/index.ts',
+	webgpu: 'packages/maxpower/webgpu.ts',
 };
 
-// playerビルドへWebGPUコードが混入しないよう、バックエンドはビルド時のaliasで固定する
-const sharedResolve = ( projectDir: string, backend: BackendName ) => ( {
+// playerビルドへWebGPUコードが混入しないよう、レンダラーはビルド時のaliasで固定する
+const sharedResolve = ( projectDir: string, renderer: RendererName ) => ( {
 	alias: [
 		...projectAliases( projectDir ),
-		{ find: /^@or-backend$/, replacement: path.join( orengineRoot, backendPath[ backend ] ) },
+		{ find: /^@or-renderer$/, replacement: path.join( orengineRoot, rendererPath[ renderer ] ) },
 		{ find: /^orengine\/player$/, replacement: path.join( orengineRoot, 'packages/orengine/player.ts' ) },
 		{ find: /^orengine\/react$/, replacement: path.join( orengineRoot, 'packages/orengine/react.tsx' ) },
 		{ find: /^orengine\/core$/, replacement: path.join( orengineRoot, 'packages/orengine/core/index.ts' ) },
@@ -53,6 +54,8 @@ const sharedResolve = ( projectDir: string, backend: BackendName ) => ( {
 		{ find: /^orengine\/(.*)$/, replacement: path.join( orengineRoot, 'packages/orengine/$1' ) },
 		{ find: /^orengine$/, replacement: path.join( orengineRoot, 'packages/orengine/index.ts' ) },
 		{ find: /^glpower$/, replacement: path.join( orengineRoot, 'packages/glpower/packages/glpower/src' ) },
+		// WebGPUプロジェクトのコンポーネントが自分のバックエンドAPIを直接importするための口
+		{ find: /^maxpower\/webgpu$/, replacement: path.join( orengineRoot, 'packages/maxpower/webgpu.ts' ) },
 		{ find: /^maxpower$/, replacement: path.join( orengineRoot, 'packages/maxpower' ) },
 	],
 } );
@@ -71,9 +74,6 @@ const sharedCss = () => ( {
 		scss: { api: 'modern' },
 	},
 } );
-
-// WebGPUはsecure context必須のため、wgpu起動時はHTTPS（証明書は自動生成・キャッシュ）で立てる
-const devBackend = () => process.env.ORENGINE_BACKEND === 'webgpu' ? 'webgpu' : 'webgl' as const;
 
 export const createDevConfig = ( opts: OrengineConfigOptions ): UserConfig => defineConfig( {
 	root: appRoot,
@@ -99,14 +99,14 @@ export const createDevConfig = ( opts: OrengineConfigOptions ): UserConfig => de
 			path.join( appRoot, 'static.html' ),
 		],
 	},
-	resolve: sharedResolve( opts.projectDir, devBackend() ),
+	resolve: sharedResolve( opts.projectDir, opts.renderer ?? 'webgl' ),
 	css: sharedCss(),
 	plugins: [
-		...( devBackend() === 'webgpu' ? [ basicSsl() ] : [] ),
+		// WebGPUはsecure context必須のため、webgpu起動時はHTTPS（証明書は自動生成・キャッシュ）で立てる
+		...( opts.renderer === 'webgpu' ? [ basicSsl() ] : [] ),
 		react(),
 		ShaderBuilder( { scanDirs: [ orengineRoot, opts.projectDir ] } ),
 		TexLoader(),
-		WgslTranspiler(),
 		ProjectWatchReload( opts.projectDir ),
 	],
 	define: {

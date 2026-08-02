@@ -22,7 +22,7 @@ export class YakiSoba extends MXP.Component {
 
 		this._gpu = new MXP.GPUCompute( {
 			passes: [
-				new MXP.GPUComputePass( engine.backend, {
+				new MXP.GPUComputePass( engine.renderer.backend, {
 					name: "yakisoba",
 					size: num,
 					dataLayerCount: 2,
@@ -137,7 +137,7 @@ export class YakiSoba extends MXP.Component {
 
 		}
 
-		this._gpu.compute( event.renderer );
+		this._gpu.compute( event.renderer as MXP.Renderer );
 
 	}
 

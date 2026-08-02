@@ -1,19 +1,6 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-export function createHitAreaMaterial(): MXP.Material {
-
-	const mat = new MXP.Material();
-	mat.visibilityFlag = {
-		deferred: false, forward: false,
-		shadowMap: false, envMap: false,
-		ui: false, postprocess: false,
-	};
-
-	return mat;
-
-}
-
 export type GizmoAxis = 'x' | 'y' | 'z';
 export type GizmoMode = 'select' | 'translate' | 'rotate' | 'scale';
 

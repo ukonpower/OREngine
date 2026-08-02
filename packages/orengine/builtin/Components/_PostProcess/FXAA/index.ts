@@ -4,7 +4,7 @@ import fxaaFrag from './shaders/fxaa.fs';
 
 export class FXAA extends MXP.PostProcess {
 
-	constructor( backend: MXP.Backend ) {
+	constructor( backend: MXP.GLBackend ) {
 
 		super( {
 			name: "FXAA",

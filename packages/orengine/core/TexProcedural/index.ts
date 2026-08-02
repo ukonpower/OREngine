@@ -16,8 +16,7 @@ export class TexProcedural extends GLP.GLPowerTexture {
 
 	constructor( renderer: MXP.Renderer, param: TexProceduralParam ) {
 
-		// GLPowerTexture継承のGL専用テクスチャなので、具象バックエンドから生glを取り出す
-		const backend = renderer.backend as MXP.GLBackend;
+		const backend = renderer.backend;
 		const gl = backend.gl;
 
 		super( gl );

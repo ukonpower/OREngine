@@ -4,7 +4,7 @@ import finalizeFrag from './shaders/finalize.fs';
 
 export class Finalize extends MXP.PostProcess {
 
-	constructor( backend: MXP.Backend ) {
+	constructor( backend: MXP.GLBackend ) {
 
 		super( {
 			name: "Finalize",

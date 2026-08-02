@@ -43,14 +43,17 @@
       "maxpower": [
         "./packages/maxpower"
       ],
+      "maxpower/webgpu": [
+        "./packages/maxpower/webgpu.ts"
+      ],
       "orengine": [
         "./packages/orengine/index.ts"
       ],
       "orengine/*": [
         "./packages/orengine/*"
       ],
-      "@or-backend": [
-        "./packages/maxpower/Backend/GLBackend/index.ts"
+      "@or-renderer": [
+        "./packages/maxpower/index.ts"
       ],
       "@or-scene": [
         "./demo/scene.json"
