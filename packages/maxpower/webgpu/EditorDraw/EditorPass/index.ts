@@ -13,6 +13,10 @@ import type * as GLP from 'glpower';
 
 	bind group は group0 だけ（uniform + 入力テクスチャ + サンプラー）で、
 	レンダラーのフレームuniformには依存しない。
+
+	入力には gBuffer（rgba32float = unfilterable-float）も流れてくるため、
+	テクスチャ束縛は unfilterable-float + non-filtering サンプラーで統一し、
+	どの書式でも1本のパイプラインで受けられるようにしている。
 -------------------------------*/
 
 export class EditorPass {
@@ -72,11 +76,11 @@ export class EditorPass {
 
 		for ( let i = 0; i < param.inputCount; i ++ ) {
 
-			entries.push( { binding: i + 1, visibility: GPUShaderStage.FRAGMENT, texture: { sampleType: 'float' } } );
+			entries.push( { binding: i + 1, visibility: GPUShaderStage.FRAGMENT, texture: { sampleType: 'unfilterable-float' } } );
 
 		}
 
-		entries.push( { binding: param.inputCount + 1, visibility: GPUShaderStage.FRAGMENT, sampler: { type: 'filtering' } } );
+		entries.push( { binding: param.inputCount + 1, visibility: GPUShaderStage.FRAGMENT, sampler: { type: 'non-filtering' } } );
 
 		this._layout = device.createBindGroupLayout( { label: param.name, entries } );
 
@@ -94,8 +98,6 @@ export class EditorPass {
 
 		this._sampler = device.createSampler( {
 			label: 'editor',
-			magFilter: 'linear',
-			minFilter: 'linear',
 			addressModeU: 'clamp-to-edge',
 			addressModeV: 'clamp-to-edge',
 		} );
@@ -109,10 +111,12 @@ export class EditorPass {
 	}
 
 	// rectを渡すとその矩形にだけ描く（FrameDebuggerのタイル転写）。左上原点
+	// encoderを渡すとそこへ記録だけ行い、submitは呼び出し側に任せる
 	public render( target: GPUTextureView, inputs: GPUTextureView[], opt?: {
 		uniforms?: GLP.Uniforms;
 		rect?: { x: number, y: number, width: number, height: number };
 		clear?: boolean;
+		encoder?: GPUCommandEncoder;
 	} ) {
 
 		if ( inputs.length < this._inputCount ) return;
@@ -139,7 +143,8 @@ export class EditorPass {
 
 		entries.push( { binding: this._inputCount + 1, resource: this._sampler } );
 
-		const encoder = this._device.createCommandEncoder();
+		const external = opt && opt.encoder;
+		const encoder = external || this._device.createCommandEncoder();
 
 		const pass = encoder.beginRenderPass( {
 			label: 'editorPass',
@@ -163,7 +168,7 @@ export class EditorPass {
 
 		pass.end();
 
-		this._device.queue.submit( [ encoder.finish() ] );
+		if ( ! external ) this._device.queue.submit( [ encoder.finish() ] );
 
 	}
 

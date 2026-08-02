@@ -233,7 +233,8 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 		this._prevFrameLabels = this._frameLabels;
 
-		const sqrt = Math.sqrt( this._focus !== null ? 1 : this._total );
+		// フレーム外から呼ばれると_countが0のことがある。タイル0分割はゼロ除算になるので最低1を保証する
+		const sqrt = Math.sqrt( this._focus !== null ? 1 : Math.max( this._total, 1 ) );
 		this._tile.set( Math.round( sqrt ), Math.ceil( sqrt ) );
 		this._tileInv.set( 1.0, 1.0 ).divide( this._tile );
 		this._tilePixelSize.copy( this._tileInv ).multiply( this._resolution );

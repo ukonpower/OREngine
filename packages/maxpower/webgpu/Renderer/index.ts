@@ -101,6 +101,10 @@ export class Renderer extends Serializable implements RendererContract {
 	private _sceneBindGroup: GPUBindGroup | null;
 	private _sceneView: GPUTextureView | null;
 
+	// フレームのコマンド記録中だけ有効。drawPass通知を受けたエディタのblitが
+	// パス出力直後の位置へ差し込むために参照する
+	private _frameEncoder: GPUCommandEncoder | null;
+
 	// cache
 	private _materialResources: Map<Material, MaterialResource>;
 	private _objectResources: Map<Entity, ObjectResource>;
@@ -140,6 +144,7 @@ export class Renderer extends Serializable implements RendererContract {
 		this._uniformLayout = null;
 		this._gBufferLayout = null;
 		this._sceneLayout = null;
+		this._frameEncoder = null;
 
 		// 時間・解像度は engine の globalUniforms から入る
 		this._frameUniforms = {
@@ -452,6 +457,8 @@ export class Renderer extends Serializable implements RendererContract {
 
 		const encoder = device.createCommandEncoder();
 
+		this._frameEncoder = encoder;
+
 		this._renderShadowMaps( device, encoder );
 		this._renderEnvMap( device, encoder );
 		this._renderGBuffer( device, encoder );
@@ -482,7 +489,15 @@ export class Renderer extends Serializable implements RendererContract {
 
 		this._renderPresent( device, encoder, colorTexture.createView(), output );
 
+		this._frameEncoder = null;
+
 		device.queue.submit( [ encoder.finish() ] );
+
+	}
+
+	public get frameEncoder() {
+
+		return this._frameEncoder;
 
 	}
 

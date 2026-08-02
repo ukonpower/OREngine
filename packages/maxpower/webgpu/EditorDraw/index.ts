@@ -236,7 +236,29 @@ export class WebGPUEditorDraw implements EditorDraw {
 
 		if ( ! view || ! s.view ) return;
 
-		this._copyPass.render( view, [ s.view ], { rect: dstRect } );
+		let rect = dstRect;
+
+		// WebGPUのsetViewportは範囲外を許さないため、GLのviewportと同じ寛容さになるよう
+		// ターゲット内へ収め、空になった転写はスキップする
+		if ( rect ) {
+
+			const w = target ? target.width : this._renderer.resolution.x;
+			const h = target ? target.height : this._renderer.resolution.y;
+			const x = Math.min( Math.max( rect.x, 0 ), w );
+			const y = Math.min( Math.max( rect.y, 0 ), h );
+			const width = Math.min( rect.width, w - x );
+			const height = Math.min( rect.height, h - y );
+
+			// 否定形で比較し、NaNの混入もここで弾く（setViewportはnon-finiteをエラーにする）
+			if ( ! ( width > 0 ) || ! ( height > 0 ) ) return;
+
+			rect = { x, y, width, height };
+
+		}
+
+		// フレーム記録中（drawPass通知経由）はレンダラーのencoderへ差し込み、
+		// パス出力直後の内容を写す。フレーム外では自前でsubmitする
+		this._copyPass.render( view, [ s.view ], { rect, encoder: this._renderer.frameEncoder || undefined } );
 
 	}
 

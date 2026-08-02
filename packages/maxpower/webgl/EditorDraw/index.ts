@@ -200,8 +200,10 @@ export class GLEditorDraw implements EditorDraw {
 
 		const gl = this._gl;
 		const s = src as GLEditorFrame;
-		const dstFrameBuffer = dst ? ( dst as GLEditorTarget ).frameBuffer : null;
-		const dstSize = dstFrameBuffer ? dstFrameBuffer.size : this._renderer.resolution;
+
+		// dst省略時はuiバッファへ描く（presentで画面に出る。webgpu側と同じ契約）
+		const dstFrameBuffer = dst ? ( dst as GLEditorTarget ).frameBuffer : this._renderer.renderTarget.uiBuffer;
+		const dstSize = dstFrameBuffer.size;
 
 		const rect = dstRect || { x: 0, y: 0, width: dstSize.x, height: dstSize.y };
 
@@ -211,7 +213,7 @@ export class GLEditorDraw implements EditorDraw {
 		gl.framebufferTexture2D( gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, s.textarget, s.texture.getTexture(), 0 );
 
 		gl.bindFramebuffer( gl.READ_FRAMEBUFFER, this._readFrameBuffer.getFrameBuffer() );
-		gl.bindFramebuffer( gl.DRAW_FRAMEBUFFER, dstFrameBuffer ? dstFrameBuffer.getFrameBuffer() : null );
+		gl.bindFramebuffer( gl.DRAW_FRAMEBUFFER, dstFrameBuffer.getFrameBuffer() );
 
 		// dstRectは左上原点。GLの下原点へ反転する
 		gl.blitFramebuffer(

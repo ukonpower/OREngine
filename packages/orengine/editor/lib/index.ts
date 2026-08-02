@@ -405,6 +405,13 @@ export class Editor extends MXP.Serializable {
 
 			this._selectionOutline.render( selectedEntity, cameraEntity );
 
+			// present前にuiバッファへ描き込む（present後ではwebgpuの画面に反映されない）
+			if ( this._frameDebugger.enable ) {
+
+				this._frameDebugger.draw();
+
+			}
+
 			this._draw.present();
 
 			this._editorCamera.updateAfterRender( this._engine );
@@ -438,12 +445,6 @@ export class Editor extends MXP.Serializable {
 					}
 
 				}
-
-			}
-
-			if ( this._frameDebugger.enable ) {
-
-				this._frameDebugger.draw();
 
 			}
 
