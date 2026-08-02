@@ -346,9 +346,12 @@ export class UniformBinder {
 
 		}
 
-		const values = typeof value == 'number' || typeof value == 'boolean'
+		// 値は数値・GLP.Vector・配列（number[] / TypedArray）のいずれもあり得る
+		const values: ArrayLike<number> = typeof value == 'number' || typeof value == 'boolean'
 			? [ Number( value ) ]
-			: ( value as GLP.Vector ).getElm( `vec${t.count}` as 'vec2' | 'vec3' | 'vec4' );
+			: typeof value.getElm == 'function'
+				? ( value as GLP.Vector ).getElm( `vec${t.count}` as 'vec2' | 'vec3' | 'vec4' )
+				: value;
 
 		for ( let i = 0; i < t.count; i ++ ) {
 
