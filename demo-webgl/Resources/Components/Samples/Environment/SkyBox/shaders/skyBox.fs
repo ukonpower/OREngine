@@ -1,14 +1,13 @@
-#include <common>
-#include <packing>
-#include <frag_h>
-#include <noise_value>
-#include <rotate>
+#include <module:common>
+#include <part:frag_h>
+#include <module:noise_value>
+#include <module:rotate>
 
 uniform float uAspectRatio;
 
 void main( void ) {
 
-	#include <frag_in>
+	#include <part:frag_in>
 
 	vec3 normal = normalize( - vNormal );
 	outRoughness = 1.0;
@@ -40,6 +39,6 @@ void main( void ) {
 
 	outEnv = 0.0;
 
-	#include <frag_out>
+	#include <part:frag_out>
 
 }

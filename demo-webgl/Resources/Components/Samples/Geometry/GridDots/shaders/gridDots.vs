@@ -1,13 +1,13 @@
-#include <common>
-#include <rotate>
-#include <vert_h>
+#include <module:common>
+#include <module:rotate>
+#include <part:vert_h>
 
 layout (location=3) in vec3 instancePos;
 layout (location=4) in vec3 instanceRot;
 
 void main( void ) {
 
-	#include <vert_in>
+	#include <part:vert_in>
 
 	outPos *= 0.25;
 	outPos.yz *= rotate( instanceRot.x );
@@ -16,6 +16,6 @@ void main( void ) {
 	outPos += instancePos * vec3(15.0, 5.0, 15.0 );
 
 
-	#include <vert_out>
+	#include <part:vert_out>
 
 }

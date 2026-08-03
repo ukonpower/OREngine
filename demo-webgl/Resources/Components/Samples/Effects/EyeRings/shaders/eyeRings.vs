@@ -1,6 +1,6 @@
-#include <common>
-#include <vert_h>
-#include <rotate>
+#include <module:common>
+#include <part:vert_h>
+#include <module:rotate>
 
 out vec3 vInstance;
 
@@ -8,7 +8,7 @@ layout(location = 3) in vec3 instance;
 
 void main( void ) {
 
-	#include <vert_in>
+	#include <part:vert_in>
 
 	outPos.xy *= 1.0 + (1.0 - instance.z) * 0.2;
 	outPos.yz *= rotate( (-HPI + sin( uTimeE * 0.3 + instance.z * 0.3 ) * HPI )  );
@@ -18,6 +18,6 @@ void main( void ) {
 	vInstance = instance;
 
 	
-	#include <vert_out>
+	#include <part:vert_out>
 
 }

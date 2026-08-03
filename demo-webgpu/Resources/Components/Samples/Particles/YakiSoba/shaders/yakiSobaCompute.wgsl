@@ -2,7 +2,7 @@
 // 前置される名前: GPU_COUNT / GPU_WORKGROUP / SEG / TRAILS（定数）,
 // frame（FrameUniforms）, src / dst（array<TrailPoint>）, TrailPoint
 
-#include "../../../_common/noise.wgsl"
+#include <module:noise>
 
 // 値ノイズ3つから向きを作る（webgl側の4Dシンプレックスノイズの代替）
 fn noiseDir( p: vec3f, t: f32 ) -> vec3f {
@@ -34,7 +34,7 @@ fn csMain( @builtin(global_invocation_id) id: vec3u ) {
 	var vel = src[ i ].vel;
 
 	let tOffset = frame.uTimeE * 0.4 + trailRatio * 0.8;
-	let noise = noiseDir( pos.xyz * 0.23, tOffset ) * ( 0.002 + trailRatio * 0.001 );
+	let noise = noiseDir( pos.xyz * 1.23, tOffset ) * ( 0.002 + trailRatio * 0.001 );
 
 	if ( seg == 0u ) {
 

@@ -55,7 +55,7 @@ const shaderUnrollLoop = ( shader: string ) => {
 
 };
 
-// シェーダーの #include はビルド時に ShaderMinifierLoader が解決済み。
+// シェーダーの #include はビルド時に ShaderBuilder が解決済み。
 // ここでは define 注入・ライト数の埋め込み・ループ展開のみ行う
 export const shaderParse = ( shader: string, defines?: Defines, lights?: CollectedLights ) => {
 

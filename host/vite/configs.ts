@@ -108,7 +108,7 @@ export const createDevConfig = ( opts: OrengineConfigOptions ): UserConfig => de
 		react(),
 		ShaderBuilder( { scanDirs: [ orengineRoot, opts.projectDir ] } ),
 		TexLoader(),
-		WgslLoader(),
+		WgslLoader( { moduleDirs: [ path.join( opts.projectDir, 'Resources/shaders' ) ] } ),
 		ProjectWatchReload( opts.projectDir ),
 	],
 	define: {
@@ -196,7 +196,7 @@ export const createPlayerConfig = ( opts: PlayerConfigOptions ): UserConfig => {
 		plugins: [
 			ShaderBuilder( { scanDirs: [ orengineRoot, opts.projectDir ] } ),
 			TexLoader(),
-			WgslLoader(),
+			WgslLoader( { moduleDirs: [ path.join( opts.projectDir, 'Resources/shaders' ) ] } ),
 			PlayerRegistry( { projectDir: opts.projectDir, usage } ),
 			visualizer( { template: 'treemap', gzipSize: true } ),
 		],
@@ -235,7 +235,7 @@ export const createStaticConfig = ( opts: StaticConfigOptions ): UserConfig => {
 			react(),
 			ShaderBuilder( { scanDirs: [ orengineRoot, opts.projectDir ] } ),
 			TexLoader(),
-			WgslLoader(),
+			WgslLoader( { moduleDirs: [ path.join( opts.projectDir, 'Resources/shaders' ) ] } ),
 		],
 		define: {
 			BASE_PATH: JSON.stringify( opts.basePath ?? '' ),

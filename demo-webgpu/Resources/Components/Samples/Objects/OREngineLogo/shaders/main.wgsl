@@ -3,7 +3,7 @@
 // このエンティティは平行移動のみ（回転・スケール無し）かつx=0のため、
 // worldPosition.x で同じ判定になる
 
-#include "../../../_common/noise.wgsl"
+#include <module:noise>
 
 @fragment
 fn fsDeferred( input: VertexOutput ) -> GBufferOutput {

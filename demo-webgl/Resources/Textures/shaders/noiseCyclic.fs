@@ -1,5 +1,5 @@
-#include <common>
-#include <noise_cyclic>
+#include <module:common>
+#include <module:noise_cyclic>
 
 layout (location = 0) out vec4 outColor;
 in vec2 vUv;

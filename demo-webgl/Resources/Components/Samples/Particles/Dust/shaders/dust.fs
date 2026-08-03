@@ -1,12 +1,12 @@
-#include <common>
-#include <frag_h>
-#include <light>
+#include <module:common>
+#include <part:frag_h>
+#include <module:light>
 
 in float vAlpha;
 
 void main( void ) {
 
-	#include <frag_in>
+	#include <part:frag_in>
 
 	float circle = smoothstep( 0.5, 0.4, length( gl_PointCoord.xy - 0.5 ) );
 	
@@ -26,6 +26,6 @@ void main( void ) {
 
 	outColor = vec4( vec3( 1.0 ), circle * 0.2 * ( vAlpha ) );
 
-	#include <frag_out>
+	#include <part:frag_out>
 
 }

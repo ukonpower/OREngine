@@ -1,9 +1,9 @@
-#include <common>
-#include <frag_h>
+#include <module:common>
+#include <part:frag_h>
 
 void main( void ) {
 
-	#include <frag_in>
+	#include <part:frag_in>
 
 	outColor.xyz = vec3( 1.0 );
 
@@ -16,6 +16,6 @@ void main( void ) {
 	outSSN = 1.0;
 
 	
-	#include <frag_out>
+	#include <part:frag_out>
 
 }

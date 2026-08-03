@@ -1,7 +1,7 @@
 // demo-webgl の SkyBox/shaders/skyBox.fs のWGSL移植。
 // 前置される宣言: VertexOutput / GBufferOutput / frame / Surface系（Bindings）
 
-#include "../../../_common/noise.wgsl"
+#include <module:noise>
 
 struct SkyResult {
 	albedo: vec3f,

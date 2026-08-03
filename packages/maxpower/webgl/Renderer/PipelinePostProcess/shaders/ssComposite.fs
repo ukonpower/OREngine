@@ -1,6 +1,5 @@
-#include <common>
-#include <packing>
-#include <light>
+#include <module:common>
+#include <module:light>
 
 uniform sampler2D uBackBuffer0;
 

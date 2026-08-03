@@ -1,12 +1,12 @@
-#include <common>
-#include <frag_h>
+#include <module:common>
+#include <part:frag_h>
 
 in vec4 vOPos;
 in float vT;
 
 void main( void ) {
 
-	#include <frag_in>
+	#include <part:frag_in>
 
 	float emit = exp( vT * -8.0);
 
@@ -18,6 +18,6 @@ void main( void ) {
 
 	}
 	
-	#include <frag_out>
+	#include <part:frag_out>
 
 }

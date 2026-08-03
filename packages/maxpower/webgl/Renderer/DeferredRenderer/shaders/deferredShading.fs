@@ -1,7 +1,6 @@
-#include <common>
-#include <packing>
-#include <light>
-#include <pmrem>
+#include <module:common>
+#include <module:light>
+#include <module:pmrem>
 
 // uniforms
 
@@ -70,11 +69,11 @@ void main( void ) {
 
 	// lighting
 
-	#include <lighting_light>
+	#include <part:lighting_light>
 
 	// env
 
-	#include <lighting_env>
+	#include <part:lighting_env>
 	
 	// occlusion
 

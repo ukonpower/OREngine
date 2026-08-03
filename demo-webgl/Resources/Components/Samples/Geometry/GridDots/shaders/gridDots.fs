@@ -1,14 +1,14 @@
-#include <common>
-#include <frag_h>
+#include <module:common>
+#include <part:frag_h>
 
 void main( void ) {
 
-	#include <frag_in>
+	#include <part:frag_in>
 
 	outEmission += 0.35;
 
 	outColor.w = 0.2;
 	
-	#include <frag_out>
+	#include <part:frag_out>
 
 }

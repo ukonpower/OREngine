@@ -1,4 +1,4 @@
-#include <common>
+#include <module:common>
 
 uniform sampler2D uCocTex;
 uniform vec4 uParams;
