@@ -56,6 +56,7 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 			uTimeF: { value: 0, type: "1f" },
 			uTimeE: { value: 0, type: "1f" },
 			uTimeEF: { value: 0, type: "1f" },
+			uDeltaTime: { value: 0, type: "1f" },
 			uResolution: { value: new GLP.Vector(), type: "2fv" },
 			uAspectRatio: { value: 1.0, type: "1f" },
 		};
@@ -262,6 +263,8 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 		this._renderer.globalUniforms.uTimeF.value = this._time.code % 1;
 		this._renderer.globalUniforms.uTimeE.value = this._time.engine;
 		this._renderer.globalUniforms.uTimeEF.value = this._time.engine % 1;
+		// タブ復帰などの巨大なdeltaでシミュレーションが暴発しないよう上限を切る
+		this._renderer.globalUniforms.uDeltaTime.value = Math.min( this._time.delta, 1 / 60 );
 
 		const updateTextures = Engine.resources.updateEveryFrameTextures;
 

@@ -93,9 +93,16 @@ const getMaterial = ( mesh: Mesh ) => ( mesh.material || _defaultMaterial ) as M
 type MaterialResource = {
 	// フェーズごとのパイプライン。マテリアルが参加しないフェーズは null
 	pipelines: { [K in MaterialPhase]: GPURenderPipeline | null };
-	// uniformを持たないマテリアルは group2 ごと存在しない
+	// uniformもstorageも持たないマテリアルは group2 ごと存在しない
 	binder: UniformBinder | null;
-	bindGroup: GPUBindGroup | null;
+	materialLayout: GPUBindGroupLayout | null;
+	// storageのピンポン読み側は毎フレーム入れ替わるため、パリティの組ごとに持つ
+	bindGroups: Map<number, GPUBindGroup>;
+}
+
+// GPUCompute が実装する、フレーム先頭の compute pass で走るタスク
+export interface ComputeTask {
+	encode( device: GPUDevice, pass: GPUComputePassEncoder, uniformLayout: GPUBindGroupLayout, frameBindGroup: GPUBindGroup ): void;
 }
 
 type ObjectResource = {
@@ -155,6 +162,9 @@ export class Renderer extends Serializable implements RendererContract {
 	private _objectResources: Map<Entity, ObjectResource>;
 	private _geometryBuffers: Map<Geometry, GeometryBuffer>;
 	private _editorPipelines: Map<Material, Map<string, GPURenderPipeline>>;
+
+	// compute
+	private _computeQueue: Set<ComputeTask>;
 
 	// tmp
 	private _stack: RenderStack;
@@ -227,6 +237,8 @@ export class Renderer extends Serializable implements RendererContract {
 		this._objectResources = new Map();
 		this._geometryBuffers = new Map();
 		this._editorPipelines = new Map();
+
+		this._computeQueue = new Set();
 
 		this._stack = { light: [], shadowMap: [], deferred: [], forward: [], envMap: [] };
 		this._cameraPosition = this._frameUniforms.uCameraPosition.value;
@@ -382,12 +394,13 @@ export class Renderer extends Serializable implements RendererContract {
 		this._canvasFormat = gpu.getPreferredCanvasFormat();
 		this._context.configure( { device, format: this._canvasFormat, alphaMode: 'opaque' } );
 
-		// フレーム / オブジェクト / マテリアルは binding0 のuniform bufferひとつという同じ形なので、レイアウトは1つを共有する
+		// フレーム / オブジェクト / マテリアルは binding0 のuniform bufferひとつという同じ形なので、レイアウトは1つを共有する。
+		// COMPUTE はフレームのbind groupを compute pass でも使い回すために含めている
 		this._uniformLayout = device.createBindGroupLayout( {
 			label: 'uniform',
 			entries: [ {
 				binding: 0,
-				visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
+				visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT | GPUShaderStage.COMPUTE,
 				buffer: { type: 'uniform' },
 			} ],
 		} );
@@ -543,6 +556,7 @@ export class Renderer extends Serializable implements RendererContract {
 
 		this._frameEncoder = encoder;
 
+		this._renderCompute( device, encoder );
 		this._renderShadowMaps( device, encoder );
 		this._renderEnvMap( device, encoder );
 		this._renderGBuffer( device, encoder );
@@ -582,6 +596,42 @@ export class Renderer extends Serializable implements RendererContract {
 	public get frameEncoder() {
 
 		return this._frameEncoder;
+
+	}
+
+	/*-------------------------------
+		Compute
+	-------------------------------*/
+
+	// updateで登録されたGPGPUタスク。次のrenderのフレーム先頭でまとめて実行される
+	public enqueueCompute( task: ComputeTask ) {
+
+		this._computeQueue.add( task );
+
+	}
+
+	public cancelCompute( task: ComputeTask ) {
+
+		this._computeQueue.delete( task );
+
+	}
+
+	// キューのタスクを1つの compute pass で実行する
+	private _renderCompute( device: GPUDevice, encoder: GPUCommandEncoder ) {
+
+		if ( this._computeQueue.size === 0 ) return;
+
+		const pass = encoder.beginComputePass( { label: 'gpuCompute' } );
+
+		this._computeQueue.forEach( ( task ) => {
+
+			task.encode( device, pass, this._uniformLayout!, this._frameBindGroup! );
+
+		} );
+
+		pass.end();
+
+		this._computeQueue.clear();
 
 	}
 
@@ -862,13 +912,20 @@ export class Renderer extends Serializable implements RendererContract {
 
 		objectResource.binder.update( this._objectUniforms );
 
-		// material（シャドウパスのパイプラインは group2 を持たない）
+		// material（storageを持たないマテリアルのシャドウパスは group2 なし）
 
-		const useMaterialGroup = phase !== 'shadowMap' && materialResource.bindGroup;
+		const useMaterialGroup = materialResource.materialLayout !== null && ( phase !== 'shadowMap' || material.storages.length > 0 );
+
+		let materialBindGroup: GPUBindGroup | null = null;
 
 		if ( useMaterialGroup ) {
 
-			materialResource.binder!.update( material.uniforms );
+			materialBindGroup = this._getMaterialBindGroup( device, material, materialResource );
+
+			// storageの実体（GPUCompute）がまだ構築されていない間はスキップ
+			if ( ! materialBindGroup ) return;
+
+			materialResource.binder?.update( material.uniforms );
 
 		}
 
@@ -877,9 +934,9 @@ export class Renderer extends Serializable implements RendererContract {
 		pass.setPipeline( pipeline );
 		pass.setBindGroup( GROUP_OBJECT, objectResource.bindGroup );
 
-		if ( useMaterialGroup ) {
+		if ( materialBindGroup ) {
 
-			pass.setBindGroup( GROUP_MATERIAL, materialResource.bindGroup! );
+			pass.setBindGroup( GROUP_MATERIAL, materialBindGroup );
 
 		}
 
@@ -892,11 +949,11 @@ export class Renderer extends Serializable implements RendererContract {
 		if ( geometryBuffer.indexBuffer ) {
 
 			pass.setIndexBuffer( geometryBuffer.indexBuffer, geometryBuffer.indexFormat );
-			pass.drawIndexed( geometryBuffer.drawCount );
+			pass.drawIndexed( geometryBuffer.drawCount, mesh.instanceCount );
 
 		} else {
 
-			pass.draw( geometryBuffer.drawCount );
+			pass.draw( geometryBuffer.drawCount, mesh.instanceCount );
 
 		}
 
@@ -961,9 +1018,40 @@ export class Renderer extends Serializable implements RendererContract {
 		const module = device.createShaderModule( { label: material.name, code: material.shaderSource } );
 
 		const hasUniforms = material.fields.length > 0;
+		const storages = material.storages;
 		const binder = hasUniforms ? new UniformBinder( device, material.fields, material.name ) : null;
 
-		const objectLayouts = hasUniforms ? [ layout, layout, layout ] : [ layout, layout ];
+		// storageを持つマテリアルは group2 が uniform + storage の専用レイアウトになる
+		let materialLayout: GPUBindGroupLayout | null = null;
+
+		if ( storages.length > 0 ) {
+
+			materialLayout = device.createBindGroupLayout( {
+				label: material.name,
+				entries: [
+					...( hasUniforms ? [ {
+						binding: 0,
+						visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
+						buffer: { type: 'uniform' as const },
+					} ] : [] ),
+					...storages.map( ( _, i ) => ( {
+						binding: i + 1,
+						visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
+						buffer: { type: 'read-only-storage' as const },
+					} ) ),
+				],
+			} );
+
+		} else if ( hasUniforms ) {
+
+			materialLayout = layout;
+
+		}
+
+		const objectLayouts = materialLayout ? [ layout, layout, materialLayout ] : [ layout, layout ];
+
+		// 頂点シェーダーがstorageを読むマテリアルは、シャドウパスにも group2 が要る
+		const shadowLayouts = storages.length > 0 ? objectLayouts : [ layout, layout ];
 
 		const primitive: GPUPrimitiveState = {
 			topology: material.drawType === 'LINES' ? 'line-list' : 'triangle-list',
@@ -979,7 +1067,7 @@ export class Renderer extends Serializable implements RendererContract {
 				// シャドウは深度だけを書くのでfragment stageを持たない
 				shadowMap: flag.shadowMap ? device.createRenderPipeline( {
 					label: `${material.name}/shadowMap`,
-					layout: device.createPipelineLayout( { bindGroupLayouts: [ layout, layout ] } ),
+					layout: device.createPipelineLayout( { bindGroupLayouts: shadowLayouts } ),
 					vertex,
 					primitive: { ...primitive, cullMode: 'none' },
 					depthStencil: {
@@ -1039,16 +1127,55 @@ export class Renderer extends Serializable implements RendererContract {
 				} ) : null,
 			},
 			binder,
-			bindGroup: binder ? device.createBindGroup( {
-				label: material.name,
-				layout,
-				entries: [ { binding: 0, resource: { buffer: binder.buffer } } ],
-			} ) : null,
+			materialLayout,
+			bindGroups: new Map(),
 		};
 
 		this._materialResources.set( material, resource );
 
 		return resource;
+
+	}
+
+	// group2 のbind group。storageの読み側は毎フレーム入れ替わるため、パリティの組をキーに遅延生成する
+	private _getMaterialBindGroup( device: GPUDevice, material: Material, resource: MaterialResource ): GPUBindGroup | null {
+
+		if ( ! resource.materialLayout ) return null;
+
+		const storages = material.storages;
+
+		let key = 0;
+
+		for ( let i = 0; i < storages.length; i ++ ) {
+
+			// computeが一度も走っていない間は描画をスキップする
+			if ( ! storages[ i ].source.buffers ) return null;
+
+			key |= storages[ i ].source.readIndex << i;
+
+		}
+
+		let bindGroup = resource.bindGroups.get( key );
+
+		if ( ! bindGroup ) {
+
+			bindGroup = device.createBindGroup( {
+				label: material.name,
+				layout: resource.materialLayout,
+				entries: [
+					...( resource.binder ? [ { binding: 0, resource: { buffer: resource.binder.buffer } } ] : [] ),
+					...storages.map( ( s, i ) => ( {
+						binding: i + 1,
+						resource: { buffer: s.source.buffers![ s.source.readIndex ] },
+					} ) ),
+				],
+			} );
+
+			resource.bindGroups.set( key, bindGroup );
+
+		}
+
+		return bindGroup;
 
 	}
 
@@ -1230,12 +1357,13 @@ export class Renderer extends Serializable implements RendererContract {
 		if ( pipeline ) return pipeline;
 
 		const layout = this._uniformLayout!;
+		const materialLayout = this._getMaterialResource( device, material ).materialLayout;
 		const module = device.createShaderModule( { label: material.name, code: material.shaderSource } );
 
 		pipeline = device.createRenderPipeline( {
 			label: `editor/${material.name}`,
 			layout: device.createPipelineLayout( {
-				bindGroupLayouts: material.fields.length > 0 ? [ layout, layout, layout ] : [ layout, layout ],
+				bindGroupLayouts: materialLayout ? [ layout, layout, materialLayout ] : [ layout, layout ],
 			} ),
 			vertex: { module, entryPoint: 'vsMain', buffers: VERTEX_BUFFER_LAYOUT },
 			fragment: { module, entryPoint: 'fsForward', targets: [ { format } ] },
@@ -1262,6 +1390,10 @@ export class Renderer extends Serializable implements RendererContract {
 		const objectResource = this._getObjectResource( device, entity );
 		const materialResource = this._getMaterialResource( device, material );
 
+		const materialBindGroup = this._getMaterialBindGroup( device, material, materialResource );
+
+		if ( materialResource.materialLayout && ! materialBindGroup ) return;
+
 		this._objectUniforms.uModelMatrix.value = entity.matrixWorld;
 		this._objectUniforms.uModelMatrixPrev.value = entity.matrixWorldPrev;
 		this._normalMatrix.copy( entity.matrixWorld ).inverse().transpose();
@@ -1271,11 +1403,11 @@ export class Renderer extends Serializable implements RendererContract {
 		pass.setPipeline( pipeline );
 		pass.setBindGroup( GROUP_OBJECT, objectResource.bindGroup );
 
-		if ( materialResource.bindGroup ) {
+		if ( materialBindGroup ) {
 
-			materialResource.binder!.update( material.uniforms );
+			materialResource.binder?.update( material.uniforms );
 
-			pass.setBindGroup( GROUP_MATERIAL, materialResource.bindGroup );
+			pass.setBindGroup( GROUP_MATERIAL, materialBindGroup );
 
 		}
 
@@ -1288,11 +1420,11 @@ export class Renderer extends Serializable implements RendererContract {
 		if ( geometryBuffer.indexBuffer ) {
 
 			pass.setIndexBuffer( geometryBuffer.indexBuffer, geometryBuffer.indexFormat );
-			pass.drawIndexed( geometryBuffer.drawCount );
+			pass.drawIndexed( geometryBuffer.drawCount, mesh.instanceCount );
 
 		} else {
 
-			pass.draw( geometryBuffer.drawCount );
+			pass.draw( geometryBuffer.drawCount, mesh.instanceCount );
 
 		}
 

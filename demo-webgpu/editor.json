@@ -1,17 +1,17 @@
 {
 	"enableRender": true,
-	"resolutionScale": 0.5,
+	"resolutionScale": 1,
 	"resolution/width": 1920,
 	"resolution/height": 1080,
 	"viewType": "render",
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,
 	"frameLoop/end": 0,
-	"selectedEntityId": null,
+	"selectedEntityId": "6d446790-0130-4c6b-bb32-82abcb6f0f57",
 	"selectedAsset": null,
 	"navigateAsset": null,
 	"propertyTarget": "entity",
-	"cameraMode": "scene",
+	"cameraMode": "preview",
 	"gizmoMode": "translate",
 	"helpers/show": true,
 	"helpers/empty": true,
@@ -19,13 +19,13 @@
 	"helpers/light": true,
 	"helpers/wireframe": false,
 	"camera/position": [
-		-0.9173142285097267,
-		3.8931726043024804,
-		7.271431379430394
+		3.5276847045302846,
+		-1.1469570265020868,
+		8.159123740009075
 	],
 	"camera/target": [
-		-1.0361241134104964,
-		0.6359176076697907,
-		-1.8159603398810782
+		0,
+		0,
+		0
 	]
 }

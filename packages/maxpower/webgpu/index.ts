@@ -2,6 +2,7 @@
 export * from './Bindings';
 export * from './Components/PostProcessPipeline';
 export * from './EditorDraw';
+export * from './GPUCompute';
 export * from './hotReload';
 export * from './Loaders/GLTFLoader';
 export * from './Material';

@@ -56,6 +56,23 @@
 					]
 				}
 			}
+		],
+		"childs": [
+			{
+				"name": "test",
+				"uuid": "6d446790-0130-4c6b-bb32-82abcb6f0f57",
+				"pos": [
+					1.617491143594225,
+					0.689486384043926,
+					-3.216276504740394
+				],
+				"components": [
+					{
+						"name": "YakiSoba",
+						"uuid": "ee2fa736-63c4-4536-b557-8fbd92e4e2ae"
+					}
+				]
+			}
 		]
 	},
 	"renderer": {
@@ -70,7 +87,7 @@
 			0.3
 		],
 		"sky/intensity": 1,
-		"pipeline/motionBlur/enabled": true,
+		"pipeline/motionBlur/enabled": false,
 		"pipeline/motionBlur/power": 1,
 		"pipeline/ssr/enabled": true,
 		"pipeline/ssao/enabled": true,
