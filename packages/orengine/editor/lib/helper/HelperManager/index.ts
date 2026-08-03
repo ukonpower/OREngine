@@ -6,15 +6,17 @@ import { EntityHelper, HelperType } from '../Helpers/EntityHelper';
 export class HelperManager {
 
 	private _engine: Engine;
+	private _draw: MXP.EditorDrawContract;
 	private _showHelpers: boolean;
 	private _showEmptyHelpers: boolean;
 	private _showCameraHelpers: boolean;
 	private _showLightHelpers: boolean;
 	private _helpers: Map<string, EntityHelper>;
 
-	constructor( engine: Engine ) {
+	constructor( engine: Engine, draw: MXP.EditorDrawContract ) {
 
 		this._engine = engine;
+		this._draw = draw;
 		this._showHelpers = true;
 		this._showEmptyHelpers = true;
 		this._showCameraHelpers = true;
@@ -95,7 +97,7 @@ export class HelperManager {
 
 			if ( ! helper ) {
 
-				helper = new EntityHelper( this._engine, helperType, entity.uuid );
+				helper = new EntityHelper( this._engine, this._draw, helperType, entity.uuid );
 				this._helpers.set( entity.uuid, helper );
 
 			}
@@ -131,14 +133,11 @@ export class HelperManager {
 
 		if ( helperEntities.length > 0 ) {
 
-			engine.renderer.renderCamera(
-				"forward",
-				cameraEntity,
-				helperEntities,
-				engine.renderer.renderTarget.uiBuffer,
-				engine.renderer.resolution,
-				{ disableClear: true }
-			);
+			this._draw.renderEntities( {
+				camera: cameraEntity,
+				entities: helperEntities,
+				target: null,
+			} );
 
 		}
 

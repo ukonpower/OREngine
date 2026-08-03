@@ -362,16 +362,6 @@ export class Resources extends GLP.EventEmitter {
 
 	public buildTextureInstances( renderer: MXP.Renderer, engineUniforms?: GLP.Uniforms ) {
 
-		// TexProceduralはGL専用のため、非GLバックエンドでは.texテクスチャを構築しない。
-		// WebGPUはdev専用なのでDEVで括り、playerビルドからはガードごと消えるようにする
-		if ( import.meta.env.DEV && ! ( renderer.backend instanceof MXP.GLBackend ) ) {
-
-			console.warn( "[Resources] WebGLバックエンドではないため、.tex テクスチャの構築をスキップします" );
-
-			return;
-
-		}
-
 		this._updateEveryFrameTextures = [];
 
 		const building = new Set<string>();

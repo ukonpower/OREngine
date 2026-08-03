@@ -1,28 +1,15 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { Engine } from '../../../core/Engine';
-
-import frameDebuggerFrag from './shaders/frameDebugger.fs';
-
-type Frame = {
-	frameBuffer: GLP.GLPowerFrameBuffer,
-	texture: GLP.GLPowerTexture,
-	label: string,
-}
-
-
 export class FrameDebugger extends GLP.EventEmitter {
 
-	private _engine: Engine;
-	private _backend: MXP.GLBackend;
-	private _gl: WebGL2RenderingContext;
+	private _draw: MXP.EditorDrawContract;
+	private _elm: HTMLCanvasElement;
 
 	// buffers
 
-	private _srcFrameBuffer: GLP.GLPowerFrameBuffer;
-	private _outFrameBuffer: GLP.GLPowerFrameBuffer;
-	private _frameList: Frame[];
+	private _outTarget: MXP.EditorTarget;
+	private _frameLabels: string[];
 
 	// status
 
@@ -41,31 +28,18 @@ export class FrameDebugger extends GLP.EventEmitter {
 	private _prevFrameLabels: string[];
 	private _labelCount: Map<string, number>;
 
-	// postprocess
+	// label overlay
 
-	private _uniforms: GLP.Uniforms;
-	private _outPostProcess: MXP.PostProcess;
+	private _overlay: HTMLDivElement;
 
-	// canvas
-
-	private _elm: HTMLCanvasElement;
-	private _labelCanvas: HTMLCanvasElement;
-	private _cctx: CanvasRenderingContext2D;
-	private _canvasTexture: GLP.GLPowerTexture;
-
-	constructor( engine: Engine ) {
+	constructor( canvas: HTMLCanvasElement, draw: MXP.EditorDrawContract ) {
 
 		super();
 
-		this._engine = engine;
-		this._backend = engine.backend as MXP.GLBackend;
-		this._gl = this._backend.gl;
-		this._elm = engine.canvas as HTMLCanvasElement;
+		this._draw = draw;
+		this._elm = canvas;
 
-		this._srcFrameBuffer = new GLP.GLPowerFrameBuffer( this._gl, { disableDepthBuffer: true } );
-		this._outFrameBuffer = new GLP.GLPowerFrameBuffer( this._gl, { disableDepthBuffer: true } ).setTexture( [
-			new GLP.GLPowerTexture( this._gl ).setting( ),
-		] );
+		this._outTarget = draw.createTarget();
 
 		this._enable = false;
 		this._count = 0;
@@ -75,37 +49,20 @@ export class FrameDebugger extends GLP.EventEmitter {
 		this._tileInv = new GLP.Vector( 1, 1 );
 
 		this._focus = null;
+		this._frameLabels = [];
 		this._prevFrameLabels = [];
 		this._labelCount = new Map();
 
 		this._resolution = new GLP.Vector();
 
-		// canvas
+		// label overlay
 
-		this._labelCanvas = document.createElement( "canvas" );
-		this._cctx = this._labelCanvas.getContext( "2d" )!;
+		this._overlay = document.createElement( "div" );
+		this._overlay.style.cssText = "position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;color:#fff;font-family:'Courier New',monospace;font-weight:500;mix-blend-mode:difference;";
 
-		this._canvasTexture = new GLP.GLPowerTexture( this._gl ).attach( this._labelCanvas );
+		// パス出力の取り込み
 
-		// out
-
-		this._uniforms = {
-			uCanvas: {
-				value: this._canvasTexture,
-				type: "1i"
-			}
-		};
-
-		this._outPostProcess = new MXP.PostProcess( { passes: [
-			new MXP.PostProcessPass( this._backend, {
-				uniforms: this._uniforms,
-				renderTarget: null,
-				frag: frameDebuggerFrag,
-				backBufferOverride: this._outFrameBuffer.textures,
-			} )
-		] } );
-
-		this._frameList = [];
+		draw.onDrawPass( ( frame, label ) => this._push( frame, label ) );
 
 		// click
 
@@ -179,11 +136,9 @@ export class FrameDebugger extends GLP.EventEmitter {
 			this._elm.removeEventListener( "pointerdown", onPointerDown );
 			this._elm.removeEventListener( "pointerup", onPointerUp );
 			window.removeEventListener( "keydown", onKeydown );
+			this._overlay.remove();
 
 		} );
-
-		// this.enable = true;
-		// this.focus = 8;
 
 	}
 
@@ -196,95 +151,77 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 	}
 
-	public push( frameBuffer: GLP.GLPowerFrameBuffer | GLP.GLPowerFrameBufferCube, label?: string ) {
+	// 1パス分の出力をタイル位置へ取り込む
+	private _push( frame: MXP.EditorFrame, label: string ) {
 
-		for ( let i = 0; i < frameBuffer.textures.length; i ++ ) {
+		if ( ! this._enable ) return;
 
-			const baseLabel = label ? label + ( frameBuffer.textures.length > 1 ? "_" + i : '' ) : String( this._count );
-			const occurrence = this._labelCount.get( baseLabel ) || 0;
-			this._labelCount.set( baseLabel, occurrence + 1 );
-			const uniqueLabel = occurrence > 0 ? baseLabel + "#" + occurrence : baseLabel;
+		const baseLabel = label || String( this._count );
+		const occurrence = this._labelCount.get( baseLabel ) || 0;
+		this._labelCount.set( baseLabel, occurrence + 1 );
+		const uniqueLabel = occurrence > 0 ? baseLabel + "#" + occurrence : baseLabel;
 
-			if ( this._focus == null || this._focus == uniqueLabel ) {
+		if ( this._focus == null || this._focus == uniqueLabel ) {
 
-				const tex = frameBuffer.textures[ i ];
-				const textarget = "currentFace" in frameBuffer ? frameBuffer.currentFace : this._gl.TEXTURE_2D;
+			let { x, y } = this._calcTilePos( this._count );
 
-				this._srcFrameBuffer.setSize( tex.size );
+			if ( this._focus !== null ) {
 
-				this._gl.bindFramebuffer( this._gl.FRAMEBUFFER, this._srcFrameBuffer.getFrameBuffer() );
-
-				this._gl.framebufferTexture2D( this._gl.FRAMEBUFFER, this._gl.COLOR_ATTACHMENT0, textarget, tex.getTexture(), 0 );
-				this._gl.bindFramebuffer( this._gl.FRAMEBUFFER, null );
-
-				this._gl.bindFramebuffer( this._gl.READ_FRAMEBUFFER, this._srcFrameBuffer.getFrameBuffer() );
-				this._gl.bindFramebuffer( this._gl.DRAW_FRAMEBUFFER, this._outFrameBuffer.getFrameBuffer() );
-
-				let { x, y } = this._calcTilePos( this._count );
-				const w = this._tilePixelSize.x, h = this._tilePixelSize.y;
-
-				if ( this._focus !== null ) {
-
-					x = 0;
-					y = 0;
-
-				}
-
-				this._gl.blitFramebuffer(
-					0, 0, frameBuffer.size.x, frameBuffer.size.y,
-					x, this._resolution.y - y - h,
-					x + w, this._resolution.y - y,
-					this._gl.COLOR_BUFFER_BIT, this._gl.NEAREST );
-
-				this._srcFrameBuffer.setTexture( [] );
-
-				this._frameList.push( {
-					frameBuffer: frameBuffer,
-					texture: tex,
-					label: uniqueLabel,
-				} );
+				x = 0;
+				y = 0;
 
 			}
 
-			this._count ++;
+			this._draw.blit( frame, this._outTarget, {
+				x, y,
+				width: this._tilePixelSize.x,
+				height: this._tilePixelSize.y,
+			} );
+
+			this._frameLabels.push( uniqueLabel );
 
 		}
 
-
-		this._gl.bindFramebuffer( this._gl.READ_FRAMEBUFFER, null );
-		this._gl.bindFramebuffer( this._gl.DRAW_FRAMEBUFFER, null );
+		this._count ++;
 
 	}
 
 	public draw() {
 
-		// draw canvas
+		this._draw.blit( this._outTarget, null );
 
-		this._cctx.clearRect( 0, 0, this._resolution.x, this._resolution.y );
+		this._drawLabels();
 
-		const pixelRatio = this._resolution.y / 1080;
+		this._clear();
 
-		this._cctx.font = `500 ${28 * pixelRatio}px 'Courier New'`;
+	}
 
-		this._cctx.fillStyle = "#fff";
+	// ラベルはDOMオーバーレイで出す（契約からテクスチャアップロードを外すため）
+	private _drawLabels() {
 
-		for ( let i = 0; i < this._frameList.length; i ++ ) {
+		const parent = this._elm.parentElement;
 
-			const { x, y } = this._calcTilePos( i );
+		if ( ! parent ) return;
 
-			const frame = this._frameList[ i ];
+		if ( this._overlay.parentElement !== parent ) {
 
-			this._cctx.fillText( frame.label, x + 5 * pixelRatio, y + this._tilePixelSize.y - 5 * pixelRatio );
+			parent.appendChild( this._overlay );
 
 		}
 
-		this._canvasTexture.attach( this._labelCanvas );
+		this._overlay.style.fontSize = Math.max( 10, this._elm.clientHeight / 1080 * 28 ) + "px";
+		this._overlay.replaceChildren( ...this._frameLabels.map( ( label, i ) => {
 
-		// out
+			const elm = document.createElement( "div" );
+			elm.textContent = label;
+			elm.style.cssText = "position:absolute;transform:translateY(-100%);white-space:nowrap;";
+			elm.style.left = ( i % this._tile.x ) * this._tileInv.x * 100 + "%";
+			elm.style.top = ( Math.floor( i / this._tile.x ) + 1 ) * this._tileInv.y * 100 + "%";
+			elm.style.paddingLeft = "5px";
 
-		this._engine.renderer.renderPostProcess( this._outPostProcess, undefined, this._resolution );
+			return elm;
 
-		this._clear();
+		} ) );
 
 	}
 
@@ -294,14 +231,15 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 		this._total = this._count;
 
-		this._prevFrameLabels = this._frameList.map( f => f.label );
+		this._prevFrameLabels = this._frameLabels;
 
-		const sqrt = Math.sqrt( this._focus !== null ? 1 : this._total );
+		// フレーム外から呼ばれると_countが0のことがある。タイル0分割はゼロ除算になるので最低1を保証する
+		const sqrt = Math.sqrt( this._focus !== null ? 1 : Math.max( this._total, 1 ) );
 		this._tile.set( Math.round( sqrt ), Math.ceil( sqrt ) );
 		this._tileInv.set( 1.0, 1.0 ).divide( this._tile );
 		this._tilePixelSize.copy( this._tileInv ).multiply( this._resolution );
 
-		this._frameList = [];
+		this._frameLabels = [];
 		this._count = 0;
 		this._labelCount.clear();
 
@@ -316,14 +254,6 @@ export class FrameDebugger extends GLP.EventEmitter {
 	public resize( resolution: GLP.Vector ) {
 
 		this._resolution.copy( resolution );
-
-		this._outFrameBuffer.setSize( resolution );
-
-		this._outPostProcess.resize( resolution );
-
-		this._labelCanvas.width = resolution.x;
-		this._labelCanvas.height = resolution.y;
-		this._canvasTexture.attach( this._labelCanvas );
 
 	}
 
@@ -364,6 +294,10 @@ export class FrameDebugger extends GLP.EventEmitter {
 		if ( value ) {
 
 			this.reflesh();
+
+		} else {
+
+			this._overlay.remove();
 
 		}
 

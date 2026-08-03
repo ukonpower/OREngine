@@ -3,65 +3,59 @@ import * as MXP from 'maxpower';
 
 import { Engine } from '../../../core/Engine';
 
-import textureCopyFrag from './shaders/textureCopy.fs';
-
 const PREVIEW_SIZE = 128;
 
-export class AssetPreviewManager {
+// 読み出しが非同期になったため、出来上がったらイベントで知らせて描き直してもらう
+export class AssetPreviewManager extends GLP.EventEmitter {
 
-	private _gl: WebGL2RenderingContext;
-	private _renderer: MXP.Renderer;
+	private _draw: MXP.EditorDrawContract;
+	private _target: MXP.EditorTarget;
 	private _cache: Map<string, string>;
-	private _readBuffer: Uint8Array;
+	private _pending: Set<string>;
 	private _canvas2d: HTMLCanvasElement;
 	private _ctx2d: CanvasRenderingContext2D;
 
-	private _texCopyPass: MXP.PostProcessPass;
-	private _texCopyPostProcess: MXP.PostProcess;
-	private _texPreviewFB: GLP.GLPowerFrameBuffer;
+	constructor( draw: MXP.EditorDrawContract ) {
 
-	constructor( backend: MXP.GLBackend, renderer: MXP.Renderer ) {
+		super();
 
-		const gl = backend.gl;
-
-		this._gl = gl;
-		this._renderer = renderer;
+		this._draw = draw;
 		this._cache = new Map();
-		this._readBuffer = new Uint8Array( PREVIEW_SIZE * PREVIEW_SIZE * 4 );
+		this._pending = new Set();
 		this._canvas2d = document.createElement( 'canvas' );
 		this._canvas2d.width = PREVIEW_SIZE;
 		this._canvas2d.height = PREVIEW_SIZE;
 		this._ctx2d = this._canvas2d.getContext( '2d' )!;
 
-		this._texPreviewFB = new GLP.GLPowerFrameBuffer( gl, { disableDepthBuffer: true } );
-		this._texPreviewFB.setTexture( [ new GLP.GLPowerTexture( gl ) ] );
-		this._texPreviewFB.setSize( new GLP.Vector( PREVIEW_SIZE, PREVIEW_SIZE ) );
-		this._texCopyPass = new MXP.PostProcessPass( backend, {
-			frag: textureCopyFrag,
-			renderTarget: this._texPreviewFB,
-		} );
-		this._texCopyPostProcess = new MXP.PostProcess( { passes: [ this._texCopyPass ] } );
+		this._target = draw.createTarget( { size: new GLP.Vector( PREVIEW_SIZE, PREVIEW_SIZE ) } );
 
 	}
 
+	// 未生成なら読み出しを始めて null を返す。出来上がると "update" が飛ぶ
 	public getTexturePreview( name: string ): string | null {
 
 		const key = "tex:" + name;
 		const cached = this._cache.get( key );
 		if ( cached ) return cached;
 
+		if ( this._pending.has( key ) ) return null;
+
 		const texture = Engine.resources.getTexture( name );
 		if ( ! texture ) return null;
 
-		this._texCopyPass.uniforms.uPreviewTex = { value: texture, type: "1i" };
-		this._renderer.renderPostProcess(
-			this._texCopyPostProcess, undefined,
-			new GLP.Vector( PREVIEW_SIZE, PREVIEW_SIZE )
-		);
+		this._pending.add( key );
 
-		const dataUrl = this._readFBToDataURL( this._texPreviewFB );
-		this._cache.set( key, dataUrl );
-		return dataUrl;
+		this._draw.drawTexture( texture, this._target );
+
+		this._draw.readPixels( this._target ).then( ( pixels ) => {
+
+			this._pending.delete( key );
+			this._cache.set( key, this._toDataURL( pixels ) );
+			this.emit( "update" );
+
+		} );
+
+		return null;
 
 	}
 
@@ -74,24 +68,23 @@ export class AssetPreviewManager {
 	public invalidateAll(): void {
 
 		this._cache.clear();
+		this._pending.clear();
 
 	}
 
-	private _readFBToDataURL( fb: GLP.GLPowerFrameBuffer ): string {
-
-		const gl = this._gl;
-		gl.bindFramebuffer( gl.FRAMEBUFFER, fb.getFrameBuffer() );
-		gl.readPixels( 0, 0, PREVIEW_SIZE, PREVIEW_SIZE, gl.RGBA, gl.UNSIGNED_BYTE, this._readBuffer );
-		gl.bindFramebuffer( gl.FRAMEBUFFER, null );
+	// 読み出したピクセルは下原点なので上下反転して2Dキャンバスへ載せる
+	private _toDataURL( pixels: Uint8Array ): string {
 
 		const imageData = this._ctx2d.createImageData( PREVIEW_SIZE, PREVIEW_SIZE );
+
 		for ( let y = 0; y < PREVIEW_SIZE; y ++ ) {
 
 			const srcRow = ( PREVIEW_SIZE - 1 - y ) * PREVIEW_SIZE * 4;
 			const dstRow = y * PREVIEW_SIZE * 4;
+
 			for ( let x = 0; x < PREVIEW_SIZE * 4; x ++ ) {
 
-				imageData.data[ dstRow + x ] = this._readBuffer[ srcRow + x ];
+				imageData.data[ dstRow + x ] = pixels[ srcRow + x ];
 
 			}
 
@@ -105,7 +98,8 @@ export class AssetPreviewManager {
 	public dispose(): void {
 
 		this._cache.clear();
-		this._texPreviewFB.dispose();
+		this._pending.clear();
+		this.off( "update" );
 
 	}
 

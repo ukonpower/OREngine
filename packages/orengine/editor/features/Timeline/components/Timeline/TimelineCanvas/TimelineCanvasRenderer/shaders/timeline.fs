@@ -1,4 +1,4 @@
-#include <common>
+#include <module:common>
 
 uniform sampler2D uCanvasTex;
 uniform sampler2D uMusicTex;

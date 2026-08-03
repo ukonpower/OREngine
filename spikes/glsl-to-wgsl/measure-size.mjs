@@ -6,10 +6,10 @@
 // 使い方: node measure-size.mjs
 
 import { execFileSync } from 'child_process';
-import { gzipSync } from 'zlib';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { gzipSync } from 'zlib';
 
 import { transform } from './preprocess.mjs';
 import { shaderParse } from './resolve.mjs';

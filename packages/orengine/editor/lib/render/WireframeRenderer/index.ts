@@ -1,28 +1,24 @@
 import * as MXP from 'maxpower';
 
 import { Engine } from '../../../../core/Engine';
-import gizmoFrag from '../shaders/gizmo.fs';
-import gizmoVert from '../shaders/gizmo.vs';
 
 export class WireframeRenderer {
 
+	private _draw: MXP.EditorDrawContract;
 	private _showWireframe: boolean;
-	private _wireframeMaterial: MXP.Material;
+	private _wireframeMaterial: MXP.MaterialContract;
 	private _wireframeGeometryCache: Map<MXP.Geometry, MXP.Geometry>;
 
-	constructor() {
+	constructor( draw: MXP.EditorDrawContract ) {
 
+		this._draw = draw;
 		this._showWireframe = false;
 		this._wireframeGeometryCache = new Map();
 
-		this._wireframeMaterial = new MXP.Material( {
-			vert: gizmoVert,
-			frag: gizmoFrag,
-			drawType: 'LINES',
-			phase: [ "forward" ],
-			depthTest: true,
+		this._wireframeMaterial = draw.materials.flat( {
+			color: [ 0.3, 0.8, 0.3 ],
+			lines: true,
 			depthWrite: false,
-			uniforms: { uColor: { value: [ 0.3, 0.8, 0.3 ], type: '3fv' } },
 		} );
 
 	}
@@ -45,10 +41,8 @@ export class WireframeRenderer {
 
 		if ( ! cameraEntity ) return;
 
-		const stack = engine.renderer.getRenderStack( engine.root );
-		const meshEntities = [ ...stack.deferred, ...stack.forward ];
+		const meshEntities = this._collectMeshEntities( engine.root );
 
-		const origMaterials: Map<MXP.Entity, MXP.Material> = new Map();
 		const origGeometries: Map<MXP.Entity, MXP.Geometry> = new Map();
 
 		for ( const entity of meshEntities ) {
@@ -56,10 +50,7 @@ export class WireframeRenderer {
 			const mesh = entity.getComponent( MXP.Mesh );
 			if ( ! mesh ) continue;
 
-			origMaterials.set( entity, mesh.material );
 			origGeometries.set( entity, mesh.geometry );
-
-			mesh.material = this._wireframeMaterial;
 
 			let wireGeo = this._wireframeGeometryCache.get( mesh.geometry );
 
@@ -74,27 +65,52 @@ export class WireframeRenderer {
 
 		}
 
-		engine.renderer.renderCamera(
-			"forward",
-			cameraEntity,
-			meshEntities,
-			engine.renderer.renderTarget.uiBuffer,
-			engine.renderer.resolution,
-			{ disableClear: true }
-		);
+		this._draw.renderEntities( {
+			camera: cameraEntity,
+			entities: meshEntities,
+			target: null,
+			materialOverride: this._wireframeMaterial,
+		} );
 
 		for ( const entity of meshEntities ) {
 
 			const mesh = entity.getComponent( MXP.Mesh );
 			if ( ! mesh ) continue;
 
-			const origMat = origMaterials.get( entity );
 			const origGeo = origGeometries.get( entity );
 
-			if ( origMat ) mesh.material = origMat;
 			if ( origGeo ) mesh.geometry = origGeo;
 
 		}
+
+	}
+
+	// 表示中のメッシュエンティティを木から集める
+	private _collectMeshEntities( root: MXP.Entity ): MXP.Entity[] {
+
+		const result: MXP.Entity[] = [];
+
+		const collect = ( entity: MXP.Entity, parentVisible: boolean ) => {
+
+			const visible = parentVisible && entity.visible;
+
+			if ( visible && entity.getComponent( MXP.Mesh ) ) {
+
+				result.push( entity );
+
+			}
+
+			for ( let i = 0; i < entity.children.length; i ++ ) {
+
+				collect( entity.children[ i ], visible );
+
+			}
+
+		};
+
+		collect( root, true );
+
+		return result;
 
 	}
 

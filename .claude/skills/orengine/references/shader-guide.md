@@ -23,16 +23,16 @@ const material = new MXP.Material( { vert, frag, /* ... */ } );
 ### 頂点シェーダー（index.vs）
 
 ```glsl
-#include <common>
-#include <vert_h>
+#include <module:common>
+#include <part:vert_h>
 
 void main( void ) {
 
-	#include <vert_in>
+	#include <part:vert_in>
 
 	// ここでカスタム処理（頂点変形など）
 
-	#include <vert_out>
+	#include <part:vert_out>
 
 }
 ```
@@ -40,18 +40,17 @@ void main( void ) {
 ### フラグメントシェーダー（index.fs）
 
 ```glsl
-#include <common>
-#include <packing>
-#include <frag_h>
+#include <module:common>
+#include <part:frag_h>
 
 void main( void ) {
 
-	#include <frag_in>
+	#include <part:frag_in>
 
 	// outColor に色を設定
 	outColor = vec4( 1.0 );
 
-	#include <frag_out>
+	#include <part:frag_out>
 
 }
 ```
@@ -59,8 +58,8 @@ void main( void ) {
 ## テクスチャ用シェーダーテンプレート
 
 ```glsl
-#include <common>
-#include <frag_h>
+#include <module:common>
+#include <part:frag_h>
 
 layout ( location = 0 ) out vec4 outColor;
 
@@ -73,46 +72,46 @@ void main( void ) {
 
 ## インクルードシステム
 
-`#include <name>` でビルトインのGLSLモジュールを利用可能。
+`#include <module:名前>` / `#include <part:名前>` でビルトインのGLSLモジュール / パーツを利用可能。実体は `packages/maxpower/webgl/ShaderParser` の `shaderModules/名前.module.glsl` / `shaderParts/名前.part.glsl` で、ビルド時に動的解決される（ファイルを置くだけで登録不要。解決できないとビルドエラー）。
 
 ### モジュール
 
 | インクルード | 説明 |
 |------------|------|
-| `<common>` | グローバル定数、構造体、ヘルパー関数 |
-| `<packing>` | float ↔ RGBA 変換 |
-| `<noise_value>` | Value ノイズ |
-| `<noise_simplex>` | Simplex ノイズ |
-| `<noise_cyclic>` | Cyclic ノイズ |
-| `<sdf>` | SDF 関数（Ray Marching用） |
-| `<rotate>` | 回転行列 |
-| `<light>` | ライティング計算 |
-| `<pmrem>` | PMREM 関数 |
+| `<module:common>` | グローバル定数、構造体、ヘルパー関数、float ↔ RGBA 変換 |
+| `<module:random>` | 乱数・ハッシュ関数 |
+| `<module:noise_value>` | Value ノイズ |
+| `<module:noise_simplex>` | Simplex ノイズ |
+| `<module:noise_cyclic>` | Cyclic ノイズ |
+| `<module:sdf>` | SDF 関数（Ray Marching用） |
+| `<module:rotate>` | 回転行列 |
+| `<module:light>` | ライティング計算 |
+| `<module:pmrem>` | PMREM 関数 |
 
 ### パーツ（メッシュシェーダー用）
 
 | インクルード | 説明 |
 |------------|------|
-| `<vert_h>` | Vertex shader の in/out 宣言 |
-| `<vert_in>` | Vertex shader の入力準備 |
-| `<vert_out>` | Vertex shader の出力設定 |
-| `<frag_h>` | Fragment shader の in/out 宣言 |
-| `<frag_in>` | Fragment shader の入力準備 |
-| `<frag_out>` | Fragment shader の出力書き込み（GBuffer へ） |
-| `<uniform_time>` | 時間ユニフォーム宣言 |
+| `<part:vert_h>` | Vertex shader の in/out 宣言 |
+| `<part:vert_in>` | Vertex shader の入力準備 |
+| `<part:vert_out>` | Vertex shader の出力設定 |
+| `<part:frag_h>` | Fragment shader の in/out 宣言 |
+| `<part:frag_in>` | Fragment shader の入力準備 |
+| `<part:frag_out>` | Fragment shader の出力書き込み（GBuffer へ） |
+| `<part:uni_time>` | 時間ユニフォーム宣言 |
 
 ### Ray Marching用パーツ
 
 | インクルード | 説明 |
 |------------|------|
-| `<rm_h>` | Ray Marching ヘッダー |
-| `<rm_normal>` | 法線計算 |
-| `<rm_ray_obj>` | オブジェクト空間レイ |
-| `<rm_out_obj>` | オブジェクト空間出力 |
+| `<part:rm_h>` | Ray Marching ヘッダー |
+| `<module:rm_normal>` | 法線計算 |
+| `<part:rm_ray_obj>` | オブジェクト空間レイ |
+| `<part:rm_out_obj>` | オブジェクト空間出力 |
 
 ## GBuffer出力（frag_out）
 
-`<frag_out>` が書き込む出力:
+`<part:frag_out>` が書き込む出力:
 
 ```
 outColor0 = vec4( outPos, outEmission.x );          // 位置 + emission.x
@@ -122,7 +121,7 @@ outColor3 = vec4( roughness, metallic, ssn, env );   // PBR パラメータ
 outColor4 = vec4( velocity, 0.0, emission.z );       // velocity + emission.z
 ```
 
-### `<vert_in>` で展開される書き込み可能変数（頂点シェーダー）
+### `<part:vert_in>` で展開される書き込み可能変数（頂点シェーダー）
 
 | 変数 | 型 | 説明 |
 |------|----|------|
@@ -130,7 +129,7 @@ outColor4 = vec4( velocity, 0.0, emission.z );       // velocity + emission.z
 | `outNormal` | vec3 | 法線 |
 | `outUv` | vec2 | UV座標 |
 
-### `<frag_in>` で展開される書き込み可能変数（フラグメントシェーダー）
+### `<part:frag_in>` で展開される書き込み可能変数（フラグメントシェーダー）
 
 | 変数 | 型 | デフォルト | 説明 |
 |------|-----|----------|------|

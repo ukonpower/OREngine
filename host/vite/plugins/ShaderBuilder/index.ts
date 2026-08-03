@@ -20,39 +20,19 @@ export interface ShaderBuilderOptions {
 	#include 解決
 -------------------------------*/
 
-// 実行時のシェーダー結合をビルド時に前倒しするための include キー → ファイルの対応表。
+// 実行時のシェーダー結合をビルド時に前倒しして解決する。
 // minifierには結合済みの完成形シェーダーを渡す必要がある（minifierは各入力ファイルを
 // 独立したシェーダーとして扱うため、ファイルを跨ぐリネーム・未使用削除は成立しない）
-const SHADER_PARSER_DIR = path.resolve( fileURLToPath( import.meta.url ), '../../../../../packages/maxpower/shader/ShaderParser' );
+const SHADER_PARSER_DIR = path.resolve( fileURLToPath( import.meta.url ), '../../../../../packages/maxpower/webgl/ShaderParser' );
 
-const INCLUDE_FILES = new Map<string, string>( [
-	[ 'common', 'shaderModules/common.module.glsl' ],
-	[ 'sdf', 'shaderModules/sdf.module.glsl' ],
-	[ 'rotate', 'shaderModules/rotate.module.glsl' ],
-	[ 'random', 'shaderModules/random.module.glsl' ],
-	[ 'noise_simplex', 'shaderModules/noiseSimplex.module.glsl' ],
-	[ 'noise_cyclic', 'shaderModules/noiseCyclic.module.glsl' ],
-	[ 'noise_value', 'shaderModules/noiseValue.module.glsl' ],
-	[ 'light', 'shaderModules/light.module.glsl' ],
-	[ 'pmrem', 'shaderModules/pmrem.module.glsl' ],
-	[ 'rm_normal', 'shaderModules/raymarch_normal.module.glsl' ],
-	[ 'lighting_light', 'shaderParts/lighting_light.part.glsl' ],
-	[ 'lighting_env', 'shaderParts/lighting_env.part.glsl' ],
-	[ 'lighting_forwardIn', 'shaderParts/lighting_forwardIn.part.glsl' ],
-	[ 'vert_h', 'shaderParts/vert_h.part.glsl' ],
-	[ 'vert_in', 'shaderParts/vert_in.part.glsl' ],
-	[ 'vert_out', 'shaderParts/vert_out.part.glsl' ],
-	[ 'frag_h', 'shaderParts/frag_h.part.glsl' ],
-	[ 'frag_in', 'shaderParts/frag_in.part.glsl' ],
-	[ 'frag_out', 'shaderParts/frag_out.part.glsl' ],
-	[ 'rm_h', 'shaderParts/raymarch_h.part.glsl' ],
-	[ 'rm_ray_obj', 'shaderParts/raymarch_ray_object.part.glsl' ],
-	[ 'rm_ray_world', 'shaderParts/raymarch_ray_world.part.glsl' ],
-	[ 'rm_out_obj', 'shaderParts/raymarch_out_obj.part.glsl' ],
-	[ 'uni_time', 'shaderParts/uniform_time.part.glsl' ],
+// #include <prefix:名前> の prefix → 検索ディレクトリとファイル名suffixの対応。
+// ファイル名は名前から一意に決まるため、モジュール/partの追加時にローダーの変更は不要
+const INCLUDE_DIRS = new Map<string, { dir: string; suffix: string }>( [
+	[ 'module', { dir: 'shaderModules', suffix: '.module.glsl' } ],
+	[ 'part', { dir: 'shaderParts', suffix: '.part.glsl' } ],
 ] );
 
-// #include<key> を対応するモジュール/partファイルの中身に置換する。未知のキーは空文字（実行時挙動と同一）
+// #include <module:xxx> / <part:xxx> を対応ファイルの中身に置換する。解決できないincludeはビルドエラー
 const inlineIncludes = async ( code: string ) => {
 
 	const includePattern = /#include\s?<([\S]*)>/g;
@@ -62,9 +42,26 @@ const inlineIncludes = async ( code: string ) => {
 
 	for ( const key of new Set( keys ) ) {
 
-		const file = INCLUDE_FILES.get( key );
+		const [ prefix, name ] = key.split( ':' );
+		const target = name ? INCLUDE_DIRS.get( prefix ) : undefined;
 
-		contents.set( key, file ? await fs.promises.readFile( path.join( SHADER_PARSER_DIR, file ), 'utf-8' ) : '' );
+		if ( ! target ) {
+
+			throw new Error( `ShaderBuilder: 不正なincludeです: #include <${key}>（#include <module:名前> / <part:名前> の形式で書く）` );
+
+		}
+
+		const file = path.join( SHADER_PARSER_DIR, target.dir, name + target.suffix );
+
+		try {
+
+			contents.set( key, await fs.promises.readFile( file, 'utf-8' ) );
+
+		} catch {
+
+			throw new Error( `ShaderBuilder: include先が見つかりません: #include <${key}> (${file})` );
+
+		}
 
 	}
 

@@ -10,6 +10,11 @@ declare module '*.glsl' {
 	export default v;
 }
 
+declare module '*.wgsl' {
+	const v: string;
+	export default v;
+}
+
 declare module '*.vs' {
 	const v: string;
 	export default v;

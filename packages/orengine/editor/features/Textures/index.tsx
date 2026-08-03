@@ -20,11 +20,15 @@ export const Textures = () => {
 
 		};
 
+		const onPreviewReady = () => setTick( ( v ) => v + 1 );
+
 		Engine.resources.on( "update", onUpdate );
+		editor.assetPreviewManager?.on( "update", onPreviewReady );
 
 		return () => {
 
 			Engine.resources.off( "update", onUpdate );
+			editor.assetPreviewManager?.off( "update", onPreviewReady );
 
 		};
 
