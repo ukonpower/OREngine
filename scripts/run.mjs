@@ -117,7 +117,9 @@ if ( cmd === 'dev' ) {
 
 } else if ( cmd === 'build' ) {
 
-	await runBuildPlayer( { projectDir } );
+	console.log( `[orengine] renderer = ${renderer}` );
+
+	await runBuildPlayer( { projectDir, renderer } );
 
 	// playerバンドルを自己解凍html（64k配布形式）にパックする
 	const playerJs = path.join( projectDir, 'dist/player/index.js' );
