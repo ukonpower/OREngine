@@ -1,6 +1,6 @@
 import * as GLP from 'glpower';
 
-import { Mesh } from '../../../core/Component/Mesh';
+import { Mesh } from '../../../core/Components/Mesh';
 import { Entity } from '../../../core/Entity';
 import { Geometry } from '../../../core/Geometry';
 import { GLBackend } from '../../GLBackend';

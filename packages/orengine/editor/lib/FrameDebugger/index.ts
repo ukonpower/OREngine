@@ -3,7 +3,7 @@ import * as MXP from 'maxpower';
 
 export class FrameDebugger extends GLP.EventEmitter {
 
-	private _draw: MXP.EditorDraw;
+	private _draw: MXP.EditorDrawContract;
 	private _elm: HTMLCanvasElement;
 
 	// buffers
@@ -32,7 +32,7 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 	private _overlay: HTMLDivElement;
 
-	constructor( canvas: HTMLCanvasElement, draw: MXP.EditorDraw ) {
+	constructor( canvas: HTMLCanvasElement, draw: MXP.EditorDrawContract ) {
 
 		super();
 

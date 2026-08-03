@@ -23,7 +23,7 @@ export class EntityHelper {
 	private _baseColor: number[];
 	private _colorUniform: number[];
 
-	constructor( engine: MXP.EngineContract, draw: MXP.EditorDraw, type: HelperType, targetEntityUUID: string ) {
+	constructor( engine: MXP.EngineContract, draw: MXP.EditorDrawContract, type: HelperType, targetEntityUUID: string ) {
 
 		this.type = type;
 		this.targetEntityUUID = targetEntityUUID;

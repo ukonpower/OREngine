@@ -8,14 +8,14 @@ const PREVIEW_SIZE = 128;
 // 読み出しが非同期になったため、出来上がったらイベントで知らせて描き直してもらう
 export class AssetPreviewManager extends GLP.EventEmitter {
 
-	private _draw: MXP.EditorDraw;
+	private _draw: MXP.EditorDrawContract;
 	private _target: MXP.EditorTarget;
 	private _cache: Map<string, string>;
 	private _pending: Set<string>;
 	private _canvas2d: HTMLCanvasElement;
 	private _ctx2d: CanvasRenderingContext2D;
 
-	constructor( draw: MXP.EditorDraw ) {
+	constructor( draw: MXP.EditorDrawContract ) {
 
 		super();
 

@@ -1,12 +1,12 @@
 import * as GLP from 'glpower';
 
-import { Mesh } from '../../../core/Component/Mesh';
-import { SphereGeometry } from '../../../core/Geometry/SphereGeometry';
+import { Mesh } from '../../../core/Components/Mesh';
+import { SphereGeometry } from '../../../core/Geometries/SphereGeometry';
 import { Material } from '../../Material';
 
 import defaultSkyFrag from './shaders/defaultSky.fs';
 
-import type { EngineContract } from '../../../core/Engine';
+import type { EngineContract } from '../../../core/Contracts/EngineContract';
 import type { Entity } from '../../../core/Entity';
 
 /*-------------------------------

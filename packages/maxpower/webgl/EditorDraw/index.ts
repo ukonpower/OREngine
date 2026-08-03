@@ -1,7 +1,7 @@
 import * as GLP from 'glpower';
 
-import { Mesh } from '../../core/Component/Mesh';
-import { EditorDraw, EditorFrame, EditorRect, EditorRecipe, EditorRenderEntitiesParam, EditorTarget } from '../../core/EditorDraw';
+import { Mesh } from '../../core/Components/Mesh';
+import { EditorDrawContract, EditorFrame, EditorRect, EditorRecipe, EditorRenderEntitiesParam, EditorTarget } from '../../core/Contracts/EditorDrawContract';
 import { GL } from '../GLBackend';
 import { Material } from '../Material';
 import { PostProcess } from '../PostProcess';
@@ -15,8 +15,8 @@ import maskVert from './shaders/mask.vs';
 import outlineFrag from './shaders/outline.fs';
 import textureFrag from './shaders/texture.fs';
 
-import type { EngineContract } from '../../core/Engine';
-import type { MaterialBase } from '../../core/Material';
+import type { EngineContract } from '../../core/Contracts/EngineContract';
+import type { MaterialContract } from '../../core/Contracts/MaterialContract';
 
 /*-------------------------------
 	Handles
@@ -75,7 +75,7 @@ class GLEditorRecipe implements EditorRecipe {
 	GLEditorDraw
 -------------------------------*/
 
-export class GLEditorDraw implements EditorDraw {
+export class GLEditorDraw implements EditorDrawContract {
 
 	private _renderer: Renderer;
 	private _gl: WebGL2RenderingContext;
@@ -119,7 +119,7 @@ export class GLEditorDraw implements EditorDraw {
 		const renderer = this._renderer;
 		const target = opt.target ? ( opt.target as GLEditorTarget ).frameBuffer : renderer.renderTarget.uiBuffer;
 		const override = opt.materialOverride as Material | undefined;
-		const restore: ( MaterialBase | null )[] = [];
+		const restore: ( MaterialContract | null )[] = [];
 
 		if ( override ) {
 
@@ -340,7 +340,7 @@ export class GLEditorDraw implements EditorDraw {
 
 	public materials = {
 
-		flat: ( opt: { color: number[]; lines?: boolean; depthTest?: boolean; depthWrite?: boolean } ): MaterialBase => new Material( {
+		flat: ( opt: { color: number[]; lines?: boolean; depthTest?: boolean; depthWrite?: boolean } ): MaterialContract => new Material( {
 			vert: flatVert,
 			frag: flatFrag,
 			phase: [ "forward" ],
@@ -350,7 +350,7 @@ export class GLEditorDraw implements EditorDraw {
 			uniforms: { uColor: { value: opt.color, type: '3fv' } },
 		} ),
 
-		mask: (): MaterialBase => new Material( {
+		mask: (): MaterialContract => new Material( {
 			vert: maskVert,
 			frag: maskFrag,
 			phase: [ "forward" ],
@@ -386,4 +386,4 @@ export class GLEditorDraw implements EditorDraw {
 }
 
 // エディタ描画のGL実装を組み立てる（@or-rendererの供給口）
-export const createEditorDraw = ( engine: EngineContract<Renderer> ): EditorDraw => new GLEditorDraw( engine.renderer );
+export const createEditorDraw = ( engine: EngineContract<Renderer> ): EditorDrawContract => new GLEditorDraw( engine.renderer );

@@ -1,6 +1,6 @@
 import * as GLP from 'glpower';
 
-import { Mesh } from '../../../core/Component/Mesh';
+import { Mesh } from '../../../core/Components/Mesh';
 import { Entity } from '../../../core/Entity';
 import { Geometry } from '../../../core/Geometry';
 import { Material } from '../../Material';
@@ -10,7 +10,7 @@ import { GLTFFormat, GLTFBufferView, GLTFNode } from './gltf';
 import gltfFrag from './shaders/gltf.fs';
 import gltfVert from './shaders/gltf.vs';
 
-import type { GLTF } from '../../../core/BLidge';
+import type { GLTF, GLTFLoaderContract } from '../../../core/Contracts/GLTFLoaderContract';
 import type { GLBackend } from '../../GLBackend';
 import type { GLEngine } from '../../Renderer';
 
@@ -49,7 +49,7 @@ const translateAttributeName = ( name: string )=> {
 
 };
 
-export class GLTFLoader extends GLP.EventEmitter {
+export class GLTFLoader extends GLP.EventEmitter implements GLTFLoaderContract {
 
 	private _engine: GLEngine;
 

@@ -6,6 +6,8 @@ import { Serializable } from '../../core/Serializable';
 import basicFrag from './shaders/basic.fs';
 import basicVert from './shaders/basic.vs';
 
+import type { MaterialContract } from '../../core/Contracts/MaterialContract';
+
 
 type MaterialDefines = {[key: string]: any};
 type MaterialVisibility = {[K in MaterialRenderType]?: boolean}
@@ -31,7 +33,7 @@ export interface MaterialParam {
 	drawType?: DrawType;
 }
 
-export class Material extends Serializable {
+export class Material extends Serializable implements MaterialContract {
 
 	public name: string;
 	public vert: string;

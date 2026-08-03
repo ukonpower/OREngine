@@ -1,6 +1,6 @@
 import * as GLP from 'glpower';
 
-import { Light } from '../../../core/Component/Light';
+import { Light } from '../../../core/Components/Light';
 import { CLIP_CORRECTION, FRAME_FIELDS, SHADOW_FORMAT } from '../../Bindings';
 import { requestShaderReload } from '../../hotReload';
 import { UniformBinder, buildStructWgsl } from '../../resources/UniformBinder';

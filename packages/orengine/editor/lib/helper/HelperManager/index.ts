@@ -6,14 +6,14 @@ import { EntityHelper, HelperType } from '../Helpers/EntityHelper';
 export class HelperManager {
 
 	private _engine: Engine;
-	private _draw: MXP.EditorDraw;
+	private _draw: MXP.EditorDrawContract;
 	private _showHelpers: boolean;
 	private _showEmptyHelpers: boolean;
 	private _showCameraHelpers: boolean;
 	private _showLightHelpers: boolean;
 	private _helpers: Map<string, EntityHelper>;
 
-	constructor( engine: Engine, draw: MXP.EditorDraw ) {
+	constructor( engine: Engine, draw: MXP.EditorDrawContract ) {
 
 		this._engine = engine;
 		this._draw = draw;

@@ -4,12 +4,12 @@ import { Engine } from '../../../../core/Engine';
 
 export class WireframeRenderer {
 
-	private _draw: MXP.EditorDraw;
+	private _draw: MXP.EditorDrawContract;
 	private _showWireframe: boolean;
-	private _wireframeMaterial: MXP.MaterialBase;
+	private _wireframeMaterial: MXP.MaterialContract;
 	private _wireframeGeometryCache: Map<MXP.Geometry, MXP.Geometry>;
 
-	constructor( draw: MXP.EditorDraw ) {
+	constructor( draw: MXP.EditorDrawContract ) {
 
 		this._draw = draw;
 		this._showWireframe = false;

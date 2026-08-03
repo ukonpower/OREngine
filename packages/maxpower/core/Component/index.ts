@@ -1,7 +1,7 @@
 import { Entity, EntityUpdateEvent } from '../Entity';
 import { Serializable } from '../Serializable';
 
-import type { EngineContract } from '../Engine';
+import type { EngineContract } from '../Contracts/EngineContract';
 
 export type ComponentUpdateEvent = EntityUpdateEvent;
 
