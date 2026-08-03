@@ -1,6 +1,6 @@
-#include <common>
-#include <frag_h>
-#include <noise_value>
+#include <module:common>
+#include <part:frag_h>
+#include <module:noise_value>
 
 layout (location = 0) out vec4 outColor;
 

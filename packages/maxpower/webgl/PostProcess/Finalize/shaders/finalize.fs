@@ -1,6 +1,6 @@
-#include <common>
-#include <random>
-#include <noise_simplex>
+#include <module:common>
+#include <module:random>
+#include <module:noise_simplex>
 
 uniform sampler2D uBackBuffer0;
 

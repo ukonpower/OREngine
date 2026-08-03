@@ -1,5 +1,5 @@
-#include <common>
-#include <noise_simplex>
+#include <module:common>
+#include <module:noise_simplex>
 
 layout (location = 0) out vec4 outColor0;
 layout (location = 1) out vec4 outColor1;
@@ -11,7 +11,7 @@ uniform vec2 uGPUResolution;
 
 in vec2 vUv;
 
-#include <rotate>
+#include <module:rotate>
 
 void main( void ) {
 

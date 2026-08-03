@@ -1,6 +1,5 @@
-#include <common>
-#include <packing>
-#include <light>
+#include <module:common>
+#include <module:light>
 
 // uniforms
 
@@ -21,7 +20,7 @@ layout (location = 0) out vec4 outColor;
 const float MARCH_LENGTH = 60.0;
 const float MARCH = 16.0;
 
-#include <random>
+#include <module:random>
 
 void main( void ) {
 

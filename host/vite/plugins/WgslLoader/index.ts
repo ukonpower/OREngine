@@ -10,14 +10,30 @@ import { Plugin } from 'vite';
 	WGSLは shader_minifier（GLSL専用）を通せないため、GLSL側の ShaderBuilder とは別系統。
 	やることは #include の展開と文字列としてのexportだけ。
 
-	include は `#include "./相対パス.wgsl"` で書く。GLSL側の `#include<key>` と違い
-	キーの登録表を持たないので、共通部分を足すのにローダーを触る必要がない。
+	include は2形式:
+	- `#include "./相対パス.wgsl"` … 近くのファイルへ分割する用
+	- `#include <module:名前>`     … moduleDirs に登録したディレクトリの `名前.wgsl`（共有モジュール用）
 -------------------------------*/
 
-const INCLUDE_PATTERN = /^[ \t]*#include[ \t]+"([^"]+)"[ \t]*$/gm;
+const INCLUDE_PATTERN = /^[ \t]*#include[ \t]+(?:"([^"]+)"|<module:(\w+)>)[ \t]*$/gm;
+
+// <module:名前> を登録ディレクトリから探す（先勝ち）。見つからなければビルドエラー
+const resolveModule = ( name: string, moduleDirs: string[], from: string ) => {
+
+	for ( const dir of moduleDirs ) {
+
+		const file = path.join( dir, `${name}.wgsl` );
+
+		if ( fs.existsSync( file ) ) return file;
+
+	}
+
+	throw new Error( `WgslLoader: モジュールが見つかりません: <module:${name}> (${from}) 検索先: ${moduleDirs.join( ', ' )}` );
+
+};
 
 // #include を再帰的に展開する。同じファイルは最初の1回だけ差し込む（二重定義よけ）
-const inlineIncludes = async ( file: string, code: string, included: Set<string>, onDep: ( dep: string ) => void ) => {
+const inlineIncludes = async ( file: string, code: string, moduleDirs: string[], included: Set<string>, onDep: ( dep: string ) => void ) => {
 
 	const matches = [ ...code.matchAll( INCLUDE_PATTERN ) ];
 
@@ -27,7 +43,9 @@ const inlineIncludes = async ( file: string, code: string, included: Set<string>
 
 	for ( const match of matches ) {
 
-		const dep = path.resolve( path.dirname( file ), match[ 1 ] );
+		const dep = match[ 1 ]
+			? path.resolve( path.dirname( file ), match[ 1 ] )
+			: resolveModule( match[ 2 ], moduleDirs, file );
 
 		onDep( dep );
 
@@ -48,11 +66,11 @@ const inlineIncludes = async ( file: string, code: string, included: Set<string>
 
 		} catch {
 
-			throw new Error( `WgslLoader: include先が見つかりません: ${match[ 1 ]} (${file})` );
+			throw new Error( `WgslLoader: include先が見つかりません: ${dep} (${file})` );
 
 		}
 
-		contents.set( match[ 0 ], await inlineIncludes( dep, source, included, onDep ) );
+		contents.set( match[ 0 ], await inlineIncludes( dep, source, moduleDirs, included, onDep ) );
 
 	}
 
@@ -60,7 +78,11 @@ const inlineIncludes = async ( file: string, code: string, included: Set<string>
 
 };
 
-export const WgslLoader = (): Plugin => {
+export interface WgslLoaderOptions {
+	moduleDirs: string[];
+}
+
+export const WgslLoader = ( options: WgslLoaderOptions ): Plugin => {
 
 	const filter = createFilter( [ '**/*.wgsl' ] );
 
@@ -113,7 +135,7 @@ export const WgslLoader = (): Plugin => {
 
 			const filePath = id.split( '?' )[ 0 ];
 
-			const source = await inlineIncludes( filePath, code, new Set( [ filePath ] ), ( dep ) => {
+			const source = await inlineIncludes( filePath, code, options.moduleDirs, new Set( [ filePath ] ), ( dep ) => {
 
 				this.addWatchFile( dep );
 

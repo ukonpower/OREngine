@@ -1,13 +1,13 @@
-#include <common>
-#include <vert_h>
-#include <noise_value>
+#include <module:common>
+#include <part:vert_h>
+#include <module:noise_value>
 
 out float vNoise;
 out vec3 vPosBase;
 
 void main( void ) {
 
-	#include <vert_in>
+	#include <part:vert_in>
 
 	// outPos.x += sin( outPos.z  * 10.0 + uTime * 10.0) * 0.1;
 
@@ -19,6 +19,6 @@ void main( void ) {
 	vPosBase = outPos;
 	vNoise = n;
 
-	#include <vert_out>
+	#include <part:vert_out>
 
 }

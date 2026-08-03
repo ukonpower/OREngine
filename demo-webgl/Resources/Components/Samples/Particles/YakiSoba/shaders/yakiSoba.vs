@@ -1,5 +1,5 @@
-#include <common>
-#include <vert_h>
+#include <module:common>
+#include <part:vert_h>
 
 layout (location = 3) in vec2 trailId;
 layout (location = 4) in vec3 id;
@@ -9,11 +9,11 @@ uniform sampler2D uGPUSampler0;
 uniform sampler2D uGPUSampler1;
 uniform vec2 uGPUResolution;
 
-#include <rotate>
+#include <module:rotate>
 
 void main( void ) {
 
-	#include <vert_in>
+	#include <part:vert_in>
 
 	float uid = id.x + id.y * 128.0;
 
@@ -39,6 +39,6 @@ void main( void ) {
 
 	outPos += offsetPosition;
 
-	#include <vert_out>
+	#include <part:vert_out>
 	
 }

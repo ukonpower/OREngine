@@ -1,6 +1,5 @@
-#include <common>
-#include <packing>
-#include <frag_h>
+#include <module:common>
+#include <part:frag_h>
 
 uniform vec3 uSkyColor;
 uniform vec3 uGroundColor;
@@ -8,7 +7,7 @@ uniform float uSkyIntensity;
 
 void main( void ) {
 
-	#include <frag_in>
+	#include <part:frag_in>
 
 	float t = clamp( dot( normalize( vNormal ), vec3( 0.0, 1.0, 0.0 ) ) * 0.5 + 0.5, 0.0, 1.0 );
 	vec3 color = mix( uGroundColor, uSkyColor * 2.0, t );
@@ -18,6 +17,6 @@ void main( void ) {
 	outRoughness = 1.0;
 	outEnv = 0.0;
 
-	#include <frag_out>
+	#include <part:frag_out>
 
 }

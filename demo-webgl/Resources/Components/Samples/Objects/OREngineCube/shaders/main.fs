@@ -1,6 +1,5 @@
-#include <common>
-#include <packing>
-#include <frag_h>
+#include <module:common>
+#include <part:frag_h>
 
 uniform sampler2D uNoiseTex;
 
@@ -9,7 +8,7 @@ in vec3 vPosBase;
 
 void main( void ) {
 
-	#include <frag_in>
+	#include <part:frag_in>
 
 	vec4 noise = texture( uNoiseTex, vUv * 0.1 + 0.1 * texture( uNoiseTex, vUv * 0.5 ).xy );
 
@@ -19,6 +18,6 @@ void main( void ) {
 	outNormal.xz += noise.yz * 0.03;
 	outNormal = normalize( outNormal );
 
-	#include <frag_out>
+	#include <part:frag_out>
 
 }

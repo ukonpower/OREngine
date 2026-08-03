@@ -1,4 +1,4 @@
-#include <common>
+#include <module:common>
 
 uniform sampler2D uBackBuffer0;
 uniform sampler2D uPMREMBackBuffer;
@@ -9,8 +9,8 @@ layout (location = 0) out vec4 outColor;
 
 in vec2 vUv;
 
-#include <random>
-#include <pmrem>
+#include <module:random>
+#include <module:pmrem>
 
 // https://www.shadertoy.com/view/4lscWj
 

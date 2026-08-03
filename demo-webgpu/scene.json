@@ -63,7 +63,7 @@
 				"uuid": "6d446790-0130-4c6b-bb32-82abcb6f0f57",
 				"pos": [
 					1.617491143594225,
-					0.689486384043926,
+					0.718316363836685,
 					-3.216276504740394
 				],
 				"components": [
@@ -87,7 +87,7 @@
 			0.3
 		],
 		"sky/intensity": 1,
-		"pipeline/motionBlur/enabled": false,
+		"pipeline/motionBlur/enabled": true,
 		"pipeline/motionBlur/power": 1,
 		"pipeline/ssr/enabled": true,
 		"pipeline/ssao/enabled": true,

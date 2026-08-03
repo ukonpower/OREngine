@@ -2,7 +2,7 @@
 // webgl側はノイズテクスチャ(.tex)を参照するが、webgpuは.tex未対応のため
 // 値ノイズで同等の模様を手続き的に作る
 
-#include "../../../_common/noise.wgsl"
+#include <module:noise>
 
 @fragment
 fn fsDeferred( input: VertexOutput ) -> GBufferOutput {

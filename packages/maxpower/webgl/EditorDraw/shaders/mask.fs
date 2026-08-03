@@ -1,5 +1,5 @@
-#include <common>
-#include <frag_h>
+#include <module:common>
+#include <part:frag_h>
 
 void main( void ) {
 

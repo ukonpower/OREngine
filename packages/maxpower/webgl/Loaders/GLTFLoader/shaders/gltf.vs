@@ -1,5 +1,5 @@
-#include <common>
-#include <vert_h>
+#include <module:common>
+#include <part:vert_h>
 
 #ifdef USE_TANGENT
 
@@ -11,8 +11,8 @@
 
 void main( void ) {
 
-	#include <vert_in>
-	#include <vert_out>
+	#include <part:vert_in>
+	#include <part:vert_out>
 
 	#ifdef USE_TANGENT
 

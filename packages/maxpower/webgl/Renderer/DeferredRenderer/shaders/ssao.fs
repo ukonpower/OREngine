@@ -1,7 +1,6 @@
-#include <common>
-#include <packing>
-#include <light>
-#include <random>
+#include <module:common>
+#include <module:light>
+#include <module:random>
 
 // uniforms
 

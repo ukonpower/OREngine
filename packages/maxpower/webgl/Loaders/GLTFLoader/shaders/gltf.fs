@@ -1,7 +1,6 @@
-#include <common>
+#include <module:common>
 
-#include <packing>
-#include <frag_h>
+#include <part:frag_h>
 
 #ifdef USE_COLOR
 
@@ -67,7 +66,7 @@
 
 void main( void ) {
 
-	#include <frag_in>
+	#include <part:frag_in>
 
 	vec2 mapUv = vUv;
 	mapUv.y = 1.0 - mapUv.y;
@@ -134,6 +133,6 @@ void main( void ) {
 
 	#endif
 
-	#include <frag_out>
+	#include <part:frag_out>
 
 } 
