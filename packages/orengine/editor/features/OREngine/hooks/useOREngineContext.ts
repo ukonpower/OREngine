@@ -1,3 +1,4 @@
+import { createRenderer } from "@or-renderer";
 import { OREngineProjectData } from "orengine";
 import React, { useCallback, useEffect } from "react";
 
@@ -5,7 +6,7 @@ import { Engine } from "../../../../core/Engine";
 
 export const useOREngineContext = () => {
 
-	const [ engine, setEngine ] = React.useState<Engine>( () => new Engine() );
+	const [ engine, setEngine ] = React.useState<Engine>( () => new Engine( createRenderer ) );
 	const engineRef = React.useRef<Engine>( engine );
 	engineRef.current = engine;
 
@@ -13,7 +14,7 @@ export const useOREngineContext = () => {
 
 		if ( ! engineRef.current.disposed ) return;
 
-		setEngine( new Engine() );
+		setEngine( new Engine( createRenderer ) );
 
 	}, [] );
 

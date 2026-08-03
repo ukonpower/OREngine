@@ -345,6 +345,7 @@ async function main() {
 	} );
 
 	{
+
 		const enc = device.createCommandEncoder();
 		const pass = enc.beginRenderPass( {
 			colorAttachments: targets.map( t => ( {
@@ -364,6 +365,7 @@ async function main() {
 		pass.draw( 3 );
 		pass.end();
 		device.queue.submit( [ enc.finish() ] );
+
 	}
 
 	log( '5 枚 MRT レンダーパス（depth24plus 付き）', true, `${SIZE}x${SIZE}, colorAttachments=5, draw(3)` );
@@ -390,15 +392,18 @@ async function main() {
 	const binder = new UniformBinder( device, UNIFORM_LAYOUT, 'shadingUniforms' );
 
 	{
+
 		const offsets = binder.offsets;
 		const bad = Object.entries( EXPECTED_OFFSETS ).filter( ( [ k, v ] ) => offsets[ k ] !== v );
 		const sizeOk = binder.size === EXPECTED_UBO_SIZE;
 
 		log( 'UBO レイアウト（vec3 パディング + struct 配列 stride）', bad.length === 0 && sizeOk,
 			`size=${binder.size}(expected ${EXPECTED_UBO_SIZE}) ${Object.entries( offsets ).map( ( [ k, v ] ) => `${k}@${v}` ).join( ' ' )}${bad.length ? ` / mismatch: ${bad.map( ( [ k, v ] ) => `${k} expected ${v}` ).join( ', ' )}` : ''}` );
+
 	}
 
 	{
+
 		// 辞書側の型宣言が WGSL 側の型と一致しているか
 		const mismatch = [];
 		for ( const key in uniformsFrameA ) {
@@ -410,6 +415,7 @@ async function main() {
 		}
 
 		log( 'GLP.UniformType → WGSL 型の突き合わせ', mismatch.length === 0, mismatch.length ? mismatch.join( ', ' ) : '全キー一致' );
+
 	}
 
 	const uniformBindGroupLayout = device.createBindGroupLayout( {

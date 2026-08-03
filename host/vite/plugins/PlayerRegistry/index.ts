@@ -17,7 +17,7 @@ const pluginDir = path.dirname( fileURLToPath( import.meta.url ) );
 const registryPath = path.resolve( pluginDir, '../../../app/Resources/registry.ts' );
 const registryCommonPath = path.join( path.dirname( registryPath ), 'registryCommon.ts' );
 const builtinComponentsDir = path.resolve( pluginDir, '../../../../packages/orengine/builtin/Components' );
-const gltfLoaderPath = path.resolve( pluginDir, '../../../../packages/maxpower/Loaders/GLTFLoader/index.ts' );
+const gltfLoaderPath = path.resolve( pluginDir, '../../../../packages/maxpower/webgl/Loaders/GLTFLoader/index.ts' );
 
 // Engine.resources.getComponent(name) はフラット検索のため、player登録もフラットで足りる（グループ階層はエディタUI専用）
 const MANUAL_BUILTIN_COMPONENTS = [ 'Light', 'Camera', 'Mesh' ];

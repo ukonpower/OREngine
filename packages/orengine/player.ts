@@ -1,3 +1,4 @@
+import { createRenderer } from '@or-renderer';
 import * as GLP from 'glpower';
 import { Engine, OREngineProjectData } from 'orengine';
 
@@ -58,7 +59,7 @@ export const startPlayer = ( opts: StartPlayerOptions ): Engine => {
 	const loadingTextElm = document.getElementById( 't' )!;
 	const exitElm = document.getElementById( 'e' )!;
 
-	const engine = new Engine();
+	const engine = new Engine( createRenderer );
 	opts.initResourceInstances( engine );
 
 	const size = opts.size ?? { width: 1920, height: 1080 };

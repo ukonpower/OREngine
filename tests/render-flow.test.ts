@@ -7,7 +7,7 @@ import * as MXP from 'maxpower';
 import { ShakeViewer } from '../packages/orengine/builtin/Components/Camera/CameraShake';
 import { LookAt } from '../packages/orengine/builtin/Components/Camera/LookAt';
 
-const engine = {} as MXP.Engine;
+const engine = {} as MXP.EngineContract;
 const renderer = {} as MXP.Renderer;
 
 const event: MXP.EntityUpdateEvent = {

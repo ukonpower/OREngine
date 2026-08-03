@@ -84,21 +84,31 @@ public updateMatrix() {
 - 同じ機能に二重の経路（例: REST 経由とファイル直編集の併存）を作らない。1機能1経路
 
 ## シェーダー実装の注意
-シェーダーはビルド時に `#include<key>` を解決した完成形を shader_minifier で一括minifyする方式（`host/vite/plugins` の ShaderMinifierLoader）。dev でも minify が走るのは意図的（minifier による破壊を保存→リロードで即検知するカナリア）。この前提から:
+シェーダーはビルド時に `#include <module:名前>` / `#include <part:名前>` を解決した完成形を shader_minifier で一括minifyする方式（`host/vite/plugins` の ShaderBuilder）。dev でも minify が走るのは意図的（minifier による破壊を保存→リロードで即検知するカナリア）。この前提から:
 
 - モジュール/part を個別・断片のまま minify に渡す方式へ戻さない
-- 新しい `#include` キーを増やしたら、ローダー内の `INCLUDE_FILES` に対応を登録する
+- include は `#include <module:名前>` / `#include <part:名前>` 形式。`webgl/ShaderParser` の `shaderModules/名前.module.glsl` / `shaderParts/名前.part.glsl` をビルド時に動的解決するので、ファイルを置くだけで登録は不要。解決できない include はビルドエラーになる
 - ソースに `//[` `//]`（minifier の verbatim マーカー）を書かない（区間内だけリネームされず宣言側と食い違って壊れる）
 - uniform 構造体のフィールド名（CPU側が `'directionalLight[0].direction'` 形式で参照する名前）はローダーが自動抽出して保護している。この形式の参照を増やしたら minify 後の描画を確認する
 - minify 結果の構文検証はブラウザ不要で `glslangValidator`（`brew install glslang`）に最終結合形を食わせると確実。デバッグダンプは `tmp/shader-minified/`
+
+## WGSL（WebGPUバックエンド）の注意
+WGSLは `.wgsl` ファイルに置き、`import xxxWgsl from './xxx.wgsl'` で読む。ローダーは `host/vite/plugins/WgslLoader` で、GLSL側の ShaderBuilder とは別系統（shader_minifier はGLSL専用なのでWGSLはminifyしない）。
+
+- 置き場所は、使う側と同じディレクトリの `shaders/`。1シェーダー1ファイル
+- include は2形式（同じファイルは1回だけ展開される）: 近くのファイルへの分割は `#include "./相対パス.wgsl"`、プロジェクト共有モジュールは `#include <module:名前>`（`<projectDir>/Resources/shaders/名前.wgsl` を解決。ファイルを置くだけで登録は不要）
+- 束縛の宣言（`@group ... var<uniform>` や uniform struct）と、パス生成時に値が決まる定数（ぼかし重み・カーネル等）はTS側が完成形の先頭に前置する。WGSLファイル側は、外から与えられる名前を冒頭コメントに書いておく
+- 新しい `.wgsl` を足しても設定変更は不要（拡張子で拾う）
+- `.wgsl` はHMR対応。`.wgsl` を直接 import するモジュールが `import.meta.hot.accept` でソースを差し替え、`webgpu/hotReload.ts` の `requestShaderReload()` で Renderer / EditorDraw が資源を作り直す。複数箇所から import されるモジュール（Bindings / Lights / PostProcess / Material のようなハブ）に `.wgsl` を足したら、そのモジュール自身に accept を書く（書かないとHMRがエントリまで波及してフルリロードに落ちる）
+- HMR対象外（変更はフルリロード）: `standardVertex.wgsl`（コンポーネント側で連結キャプチャされるため）、エディタギズモの `flat.wgsl` / `mask.wgsl`（生成済み Material が配布先に保持されるため）
 
 ## 命名規則
 - **クラス/インターフェース/型**: PascalCase（`Entity`, `ComponentUpdateEvent`, `RenderStack`）
 - **メソッド/関数/変数**: camelCase（`updateImpl`, `matrixWorld`, `autoMatrixUpdate`）
 - **protectedフィールド**: アンダースコアプレフィックス `_`（`_entity`, `_enabled`, `_tag`）
 - **privateフィールド**: サフィックス `_` またはプレフィックスなし（`fields_`, `componentsSorted`）
-- **モジュールディレクトリ（クラス/コンポーネントを持つ葉ノード）**: PascalCase（`Entity/`, `Component/`, `Serializable/`, `OREditor/`, `Hierarchy/`, `Block/`）。各モジュールは `index.ts`（または `index.tsx`）をエントリポイントとする
-- **カテゴリディレクトリ（複数モジュールをまとめる中間層）**: lowercase（`engine/`, `editor/`, `lib/`, `components/`, `features/`, `hooks/`, `contexts/`, `primitives/`, `composites/`, `pages/`, `styles/`）
+- **モジュールディレクトリ（クラス/型/コンポーネントを持つ葉ノード）**: PascalCase（`Entity/`, `Component/`, `Serializable/`, `EngineContract/`, `OREditor/`, `Hierarchy/`, `Block/`）。各モジュールは `index.ts`（または `index.tsx`）をエントリポイントとする。**interface だけのモジュールも例外ではない**（`Contracts/Engine.ts` のような直置きにせず `Contracts/EngineContract/index.ts` にする）
+- **カテゴリディレクトリ（複数モジュールをまとめる中間層）**: 役割で分ける層は lowercase（`engine/`, `editor/`, `lib/`, `components/`, `features/`, `hooks/`, `contexts/`, `primitives/`, `composites/`, `pages/`, `styles/`）。同種のモジュールを集める層は PascalCase の複数形（`Components/`, `Geometries/`, `Resources/`, `Contracts/`）
 - **Reactコンポーネント**: PascalCase関数コンポーネント（`const Screen = () => {}`）
 - **Reactフック**: `use` プレフィックス camelCase（`useOREditor`, `useSerializableField`）
 - **SCSSモジュール**: `index.module.scss`、BEM風ネスト（`&_tabs`, `&_right`）

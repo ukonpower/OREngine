@@ -73,12 +73,14 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 
 		// gl
 
-		const isolatedEngine: MXP.Engine = {
-			backend: this.backend,
-			createEntity: ( params ) => new MXP.Entity( { ...params, engine: isolatedEngine } ),
+		// Renderer生成にengineが必要なため、rendererは生成後に差し込む
+		const isolatedEngine = {
+			renderer: null as unknown as MXP.Renderer,
+			createEntity: ( params?: Omit<MXP.EntityParams, 'engine'> ) => new MXP.Entity( { ...params, engine: isolatedEngine } ),
 		};
 
 		this.glRenderer = new MXP.Renderer( this.backend, isolatedEngine );
+		isolatedEngine.renderer = this.glRenderer;
 		this.canvasTexture = new GLP.GLPowerTexture( this.gl );
 
 		// music

@@ -8,7 +8,7 @@ export class CreateEntityCommand implements Command {
 	private entity: MXP.Entity | null = null;
 
 	constructor(
-		private engine: MXP.Engine,
+		private engine: MXP.EngineContract,
 		private parent: MXP.Entity,
 		private entityName: string,
 	) {}

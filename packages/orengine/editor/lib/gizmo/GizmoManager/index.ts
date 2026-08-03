@@ -8,17 +8,19 @@ import { TranslateGizmo } from '../Gizmo/TranslateGizmo';
 
 export class GizmoManager {
 
+	private _draw: MXP.EditorDrawContract;
 	private _translateGizmo: TranslateGizmo;
 	private _rotateGizmo: RotateGizmo;
 	private _scaleGizmo: ScaleGizmo;
 	private _activeGizmo: Gizmo | null;
 	private _mode: GizmoMode;
 
-	constructor( engine: MXP.Engine ) {
+	constructor( engine: MXP.EngineContract, draw: MXP.EditorDrawContract ) {
 
-		this._translateGizmo = new TranslateGizmo( engine );
-		this._rotateGizmo = new RotateGizmo( engine );
-		this._scaleGizmo = new ScaleGizmo( engine );
+		this._draw = draw;
+		this._translateGizmo = new TranslateGizmo( engine, draw );
+		this._rotateGizmo = new RotateGizmo( engine, draw );
+		this._scaleGizmo = new ScaleGizmo( engine, draw );
 		this._mode = 'select';
 		this._activeGizmo = null;
 
@@ -72,7 +74,8 @@ export class GizmoManager {
 
 			const mesh = child.getComponent( MXP.Mesh );
 
-			if ( mesh && mesh.material && mesh.material.visibilityFlag.forward ) {
+			// マテリアルを持たないメッシュはヒット判定専用なので描かない
+			if ( mesh && mesh.material ) {
 
 				gizmoEntities.push( child );
 
@@ -82,14 +85,11 @@ export class GizmoManager {
 
 		if ( gizmoEntities.length > 0 ) {
 
-			engine.renderer.renderCamera(
-				"forward",
-				cameraEntity,
-				gizmoEntities,
-				engine.renderer.renderTarget.uiBuffer,
-				engine.renderer.resolution,
-				{ disableClear: true }
-			);
+			this._draw.renderEntities( {
+				camera: cameraEntity,
+				entities: gizmoEntities,
+				target: null,
+			} );
 
 		}
 

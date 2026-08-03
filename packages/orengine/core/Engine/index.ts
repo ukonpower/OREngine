@@ -1,4 +1,3 @@
-import { createBackend } from '@or-backend';
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
@@ -17,14 +16,13 @@ export interface FramePlay {
 	playing: boolean,
 }
 
-export class Engine extends MXP.Serializable implements MXP.Engine {
+export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.Renderer> {
 
 	public static resources: Resources;
 	public name: string;
 	public enableRender: boolean;
 
 	private _renderer: MXP.Renderer;
-	private _backend: MXP.Backend;
 	private _root: MXP.Entity;
 	private _uniforms: GLP.Uniforms;
 	private _time: SceneTime;
@@ -33,11 +31,9 @@ export class Engine extends MXP.Serializable implements MXP.Engine {
 	private _disposed: boolean;
 	private _cameraEntity: MXP.Entity | null;
 
-	constructor() {
+	constructor( createRenderer: ( engine: MXP.EngineContract ) => MXP.Renderer ) {
 
 		super();
-
-		this._backend = createBackend();
 
 		this.name = "OREngine";
 		this._disposed = false;
@@ -53,13 +49,14 @@ export class Engine extends MXP.Serializable implements MXP.Engine {
 			Renderer
 		-------------------------------*/
 
-		this._renderer = new MXP.Renderer( this._backend, this );
+		this._renderer = createRenderer( this );
 
 		this._renderer.globalUniforms = {
 			uTime: { value: 0, type: "1f" },
 			uTimeF: { value: 0, type: "1f" },
 			uTimeE: { value: 0, type: "1f" },
 			uTimeEF: { value: 0, type: "1f" },
+			uDeltaTime: { value: 0, type: "1f" },
 			uResolution: { value: new GLP.Vector(), type: "2fv" },
 			uAspectRatio: { value: 1.0, type: "1f" },
 		};
@@ -135,15 +132,9 @@ export class Engine extends MXP.Serializable implements MXP.Engine {
 		Getters
 	-------------------------------*/
 
-	public get backend() {
-
-		return this._backend;
-
-	}
-
 	public get canvas() {
 
-		return this._backend.canvas;
+		return this._renderer.canvas;
 
 	}
 
@@ -272,6 +263,8 @@ export class Engine extends MXP.Serializable implements MXP.Engine {
 		this._renderer.globalUniforms.uTimeF.value = this._time.code % 1;
 		this._renderer.globalUniforms.uTimeE.value = this._time.engine;
 		this._renderer.globalUniforms.uTimeEF.value = this._time.engine % 1;
+		// タブ復帰などの巨大なdeltaでシミュレーションが暴発しないよう上限を切る
+		this._renderer.globalUniforms.uDeltaTime.value = Math.min( this._time.delta, 1 / 60 );
 
 		const updateTextures = Engine.resources.updateEveryFrameTextures;
 
@@ -344,8 +337,8 @@ export class Engine extends MXP.Serializable implements MXP.Engine {
 	public setSize( resolution: GLP.Vector ) {
 
 		this._renderer.resize( resolution );
-		this._backend.canvas.width = resolution.x;
-		this._backend.canvas.height = resolution.y;
+		this._renderer.canvas.width = resolution.x;
+		this._renderer.canvas.height = resolution.y;
 
 		const uRes = this._renderer.globalUniforms.uResolution.value as GLP.Vector;
 		uRes.copy( resolution );

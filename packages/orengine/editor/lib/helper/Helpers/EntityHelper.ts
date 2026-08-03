@@ -1,10 +1,6 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { createHitAreaMaterial } from '../../gizmo/Gizmo';
-import gizmoFrag from '../../render/shaders/gizmo.fs';
-import gizmoVert from '../../render/shaders/gizmo.vs';
-
 import { CameraHelperGeometry } from './Geometries/CameraHelperGeometry';
 import { CameraHitAreaGeometry } from './Geometries/CameraHitAreaGeometry';
 import { DirectionalLightHelperGeometry } from './Geometries/DirectionalLightHelperGeometry';
@@ -27,7 +23,7 @@ export class EntityHelper {
 	private _baseColor: number[];
 	private _colorUniform: number[];
 
-	constructor( engine: MXP.Engine, type: HelperType, targetEntityUUID: string ) {
+	constructor( engine: MXP.EngineContract, draw: MXP.EditorDrawContract, type: HelperType, targetEntityUUID: string ) {
 
 		this.type = type;
 		this.targetEntityUUID = targetEntityUUID;
@@ -39,14 +35,7 @@ export class EntityHelper {
 		this._baseColor = color;
 		this._colorUniform = [ ...color ];
 
-		const mat = new MXP.Material( {
-			vert: gizmoVert,
-			frag: gizmoFrag,
-			drawType: 'LINES',
-			phase: [ "forward" ],
-			depthTest: true,
-			uniforms: { uColor: { value: this._colorUniform, type: '3fv' } },
-		} );
+		const mat = draw.materials.flat( { color: this._colorUniform, lines: true } );
 
 		this._geometry = this._createGeometry();
 		this.entity.addComponent( MXP.Mesh, { geometry: this._geometry, material: mat } );
@@ -55,10 +44,7 @@ export class EntityHelper {
 		this._hitAreaGeometry = this._createHitAreaGeometry();
 		this.hitAreaEntity = engine.createEntity( { name: "__helper_hit" } );
 		this.hitAreaEntity.initiator = "god";
-		this.hitAreaEntity.addComponent( MXP.Mesh, {
-			geometry: this._hitAreaGeometry,
-			material: createHitAreaMaterial(),
-		} );
+		this.hitAreaEntity.addComponent( MXP.Mesh, { geometry: this._hitAreaGeometry } );
 
 		if ( type === 'spotLight' || type === 'directionalLight' ) {
 
