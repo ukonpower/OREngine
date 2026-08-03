@@ -117,7 +117,7 @@ export class ProjectSerializer {
 		Deserialize
 	-------------------------------*/
 
-	public static deserializeEntity( rootEnttyData: OREngineDataEntity, target: MXP.Entity, resolver: ComponentResolver, engine: MXP.Engine ) {
+	public static deserializeEntity( rootEnttyData: OREngineDataEntity, target: MXP.Entity, resolver: ComponentResolver, engine: MXP.EngineContract ) {
 
 		const _ = ( node: OREngineDataEntity, target?: MXP.Entity ): MXP.Entity => {
 

@@ -20,7 +20,7 @@ import { PMREMRender } from './PMREMRender';
 import { ProgramManager } from './ProgramManager';
 import { Sky } from './Sky';
 
-import type { Engine } from '../../core/Engine';
+import type { EngineContract } from '../../core/Engine';
 
 // render target
 
@@ -218,7 +218,7 @@ export class Renderer extends Serializable {
 	private _tmpUniformOverride: GLP.Uniforms;
 	private _tmpDrawParam: DrawParam;
 
-	constructor( backend: GLBackend, engine: Engine ) {
+	constructor( backend: GLBackend, engine: EngineContract ) {
 
 		super();
 
@@ -1299,11 +1299,11 @@ export class Renderer extends Serializable {
 
 }
 
-// WebGLバックエンドを前提にしたEngine型。コンポーネントからは `engine as GLEngine` で参照する
-export type GLEngine = Engine<Renderer>;
+// WebGLバックエンドを前提にしたEngineContract型。コンポーネントからは `engine as GLEngine` で参照する
+export type GLEngine = EngineContract<Renderer>;
 
 // canvasとWebGL2コンテキストを用意してWebGLレンダラーを組み立てる（@or-rendererの供給口）
-export const createRenderer = ( engine: Engine ): Renderer => {
+export const createRenderer = ( engine: EngineContract ): Renderer => {
 
 	const canvas = document.createElement( "canvas" );
 	const gl = canvas.getContext( "webgl2", { antialias: false, preserveDrawingBuffer: true } )!;

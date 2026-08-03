@@ -7,7 +7,7 @@ import { Material } from '../../Material';
 
 import defaultSkyWgsl from './shaders/defaultSky.wgsl';
 
-import type { Engine } from '../../../core/Engine';
+import type { EngineContract } from '../../../core/Engine';
 import type { Entity } from '../../../core/Entity';
 
 /*-------------------------------
@@ -29,7 +29,7 @@ export class Sky {
 
 	private _intensity: number;
 
-	constructor( engine: Engine ) {
+	constructor( engine: EngineContract ) {
 
 		this.color = new GLP.Vector( 1.0, 1.0, 1.0 );
 		this.groundColor = new GLP.Vector( 0.3, 0.3, 0.3 );

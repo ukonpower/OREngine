@@ -16,7 +16,7 @@ export interface FramePlay {
 	playing: boolean,
 }
 
-export class Engine extends MXP.Serializable implements MXP.Engine<MXP.Renderer> {
+export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.Renderer> {
 
 	public static resources: Resources;
 	public name: string;
@@ -31,7 +31,7 @@ export class Engine extends MXP.Serializable implements MXP.Engine<MXP.Renderer>
 	private _disposed: boolean;
 	private _cameraEntity: MXP.Entity | null;
 
-	constructor( createRenderer: ( engine: MXP.Engine ) => MXP.Renderer ) {
+	constructor( createRenderer: ( engine: MXP.EngineContract ) => MXP.Renderer ) {
 
 		super();
 

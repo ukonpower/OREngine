@@ -1,20 +1,20 @@
 import { Entity, EntityUpdateEvent } from '../Entity';
 import { Serializable } from '../Serializable';
 
-import type { Engine } from '../Engine';
+import type { EngineContract } from '../Engine';
 
 export type ComponentUpdateEvent = EntityUpdateEvent;
 
 export type ComponentParams<TArgs = void> = TArgs extends void
-  ? { entity: Entity; engine: Engine; args?: TArgs }
-  : { entity: Entity; engine: Engine; args: TArgs };
+  ? { entity: Entity; engine: EngineContract; args?: TArgs }
+  : { entity: Entity; engine: EngineContract; args: TArgs };
 
 export class Component extends Serializable {
 
 	public disableEdit: boolean;
 	public order: number;
 	protected _entity: Entity;
-	protected _engine: Engine;
+	protected _engine: EngineContract;
 	protected _enabled: boolean;
 	protected _tag: string;
 	protected _disposed: boolean;

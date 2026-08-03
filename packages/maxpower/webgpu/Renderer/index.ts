@@ -34,7 +34,7 @@ import presentWgsl from './shaders/present.wgsl';
 import { ENVMAP_BINDING, ENVMAP_SAMPLER_BINDING, LIGHTSHAFT_BINDING, SSAO_BINDING, buildShadingSource } from './shaders/shading';
 import { Sky } from './Sky';
 
-import type { Engine, RendererContract } from '../../core/Engine';
+import type { EngineContract, RendererContract } from '../../core/Engine';
 import type { Entity, EntityUpdateEvent } from '../../core/Entity';
 import type { Geometry } from '../../core/Geometry';
 import type { MaterialPhase } from '../Material';
@@ -165,7 +165,7 @@ export class Renderer extends Serializable implements RendererContract {
 	private _passResolution: GLP.Vector;
 	private _passPixelSize: GLP.Vector;
 
-	constructor( canvas: HTMLCanvasElement, engine: Engine ) {
+	constructor( canvas: HTMLCanvasElement, engine: EngineContract ) {
 
 		super();
 
@@ -1324,8 +1324,8 @@ export class Renderer extends Serializable implements RendererContract {
 
 }
 
-// WebGPUバックエンドを前提にしたEngine型。コンポーネントからは `engine as GPUEngine` で参照する
-export type GPUEngine = Engine<Renderer>;
+// WebGPUバックエンドを前提にしたEngineContract型。コンポーネントからは `engine as GPUEngine` で参照する
+export type GPUEngine = EngineContract<Renderer>;
 
 // canvasとWebGPUコンテキストを用意してWebGPUレンダラーを組み立てる（@or-rendererの供給口）
-export const createRenderer = ( engine: Engine ): Renderer => new Renderer( document.createElement( 'canvas' ), engine );
+export const createRenderer = ( engine: EngineContract ): Renderer => new Renderer( document.createElement( 'canvas' ), engine );

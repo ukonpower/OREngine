@@ -7,7 +7,7 @@ export class ScaleGizmo implements Gizmo {
 
 	private static readonly BASE_SCALE_FACTOR = 0.15;
 
-	private _engine: MXP.Engine;
+	private _engine: MXP.EngineContract;
 	private _draw: MXP.EditorDraw;
 	public entity: MXP.Entity;
 	private _xAxis: MXP.Entity;
@@ -19,7 +19,7 @@ export class ScaleGizmo implements Gizmo {
 	private _dragStartProjection: number;
 	private _dragStartScale: GLP.Vector;
 
-	constructor( engine: MXP.Engine, draw: MXP.EditorDraw ) {
+	constructor( engine: MXP.EngineContract, draw: MXP.EditorDraw ) {
 
 		this._engine = engine;
 		this._draw = draw;
