@@ -8,14 +8,14 @@ import { TranslateGizmo } from '../Gizmo/TranslateGizmo';
 
 export class GizmoManager {
 
-	private _draw: MXP.EditorDraw;
+	private _draw: MXP.EditorDrawContract;
 	private _translateGizmo: TranslateGizmo;
 	private _rotateGizmo: RotateGizmo;
 	private _scaleGizmo: ScaleGizmo;
 	private _activeGizmo: Gizmo | null;
 	private _mode: GizmoMode;
 
-	constructor( engine: MXP.EngineContract, draw: MXP.EditorDraw ) {
+	constructor( engine: MXP.EngineContract, draw: MXP.EditorDrawContract ) {
 
 		this._draw = draw;
 		this._translateGizmo = new TranslateGizmo( engine, draw );

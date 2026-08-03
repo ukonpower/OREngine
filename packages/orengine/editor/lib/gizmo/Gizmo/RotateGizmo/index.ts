@@ -8,7 +8,7 @@ export class RotateGizmo implements Gizmo {
 	private static readonly BASE_SCALE_FACTOR = 0.15;
 
 	private _engine: MXP.EngineContract;
-	private _draw: MXP.EditorDraw;
+	private _draw: MXP.EditorDrawContract;
 	public entity: MXP.Entity;
 	private _xRing: MXP.Entity;
 	private _yRing: MXP.Entity;
@@ -18,7 +18,7 @@ export class RotateGizmo implements Gizmo {
 	private _dragStartAngle: number;
 	private _dragStartEuler: GLP.Vector;
 
-	constructor( engine: MXP.EngineContract, draw: MXP.EditorDraw ) {
+	constructor( engine: MXP.EngineContract, draw: MXP.EditorDrawContract ) {
 
 		this._engine = engine;
 		this._draw = draw;

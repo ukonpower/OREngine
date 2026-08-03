@@ -10,9 +10,9 @@ import flatWgsl from './shaders/flat.wgsl';
 import maskWgsl from './shaders/mask.wgsl';
 import outlineWgsl from './shaders/outline.wgsl';
 
-import type { EditorDraw, EditorFrame, EditorRect, EditorRecipe, EditorRenderEntitiesParam, EditorTarget } from '../../core/EditorDraw';
-import type { EngineContract } from '../../core/Engine';
-import type { MaterialBase } from '../../core/Material';
+import type { EditorDrawContract, EditorFrame, EditorRect, EditorRecipe, EditorRenderEntitiesParam, EditorTarget } from '../../core/Contracts/EditorDrawContract';
+import type { EngineContract } from '../../core/Contracts/EngineContract';
+import type { MaterialContract } from '../../core/Contracts/MaterialContract';
 import type { Renderer } from '../Renderer';
 
 // HMRで差し替わるシェーダーソース。playerでは初期値のまま使われる
@@ -118,7 +118,7 @@ class GPUEditorRecipe implements EditorRecipe {
 
 }
 
-export class WebGPUEditorDraw implements EditorDraw {
+export class WebGPUEditorDraw implements EditorDrawContract {
 
 	private _renderer: Renderer;
 	private _resolution: GLP.Vector;
@@ -458,7 +458,7 @@ export class WebGPUEditorDraw implements EditorDraw {
 
 	public materials = {
 
-		flat: ( opt: { color: number[]; lines?: boolean; depthTest?: boolean; depthWrite?: boolean } ): MaterialBase => new Material( {
+		flat: ( opt: { color: number[]; lines?: boolean; depthTest?: boolean; depthWrite?: boolean } ): MaterialContract => new Material( {
 			name: 'editorFlat',
 			wgsl: flatWgsl,
 			phase: [ 'forward' ],
@@ -469,7 +469,7 @@ export class WebGPUEditorDraw implements EditorDraw {
 			uniforms: { uColor: { value: opt.color, type: '3fv' } },
 		} ),
 
-		mask: (): MaterialBase => new Material( {
+		mask: (): MaterialContract => new Material( {
 			name: 'editorMask',
 			wgsl: maskWgsl,
 			phase: [ 'forward' ],
@@ -503,4 +503,4 @@ const halfToFloat = ( value: number ) => {
 };
 
 // エディタ描画のWebGPU実装を組み立てる（@or-rendererの供給口）
-export const createEditorDraw = ( engine: EngineContract<Renderer> ): EditorDraw => new WebGPUEditorDraw( engine.renderer );
+export const createEditorDraw = ( engine: EngineContract<Renderer> ): EditorDrawContract => new WebGPUEditorDraw( engine.renderer );

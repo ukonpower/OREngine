@@ -107,8 +107,8 @@ WGSLは `.wgsl` ファイルに置き、`import xxxWgsl from './xxx.wgsl'` で�
 - **メソッド/関数/変数**: camelCase（`updateImpl`, `matrixWorld`, `autoMatrixUpdate`）
 - **protectedフィールド**: アンダースコアプレフィックス `_`（`_entity`, `_enabled`, `_tag`）
 - **privateフィールド**: サフィックス `_` またはプレフィックスなし（`fields_`, `componentsSorted`）
-- **モジュールディレクトリ（クラス/コンポーネントを持つ葉ノード）**: PascalCase（`Entity/`, `Component/`, `Serializable/`, `OREditor/`, `Hierarchy/`, `Block/`）。各モジュールは `index.ts`（または `index.tsx`）をエントリポイントとする
-- **カテゴリディレクトリ（複数モジュールをまとめる中間層）**: lowercase（`engine/`, `editor/`, `lib/`, `components/`, `features/`, `hooks/`, `contexts/`, `primitives/`, `composites/`, `pages/`, `styles/`）
+- **モジュールディレクトリ（クラス/型/コンポーネントを持つ葉ノード）**: PascalCase（`Entity/`, `Component/`, `Serializable/`, `EngineContract/`, `OREditor/`, `Hierarchy/`, `Block/`）。各モジュールは `index.ts`（または `index.tsx`）をエントリポイントとする。**interface だけのモジュールも例外ではない**（`Contracts/Engine.ts` のような直置きにせず `Contracts/EngineContract/index.ts` にする）
+- **カテゴリディレクトリ（複数モジュールをまとめる中間層）**: 役割で分ける層は lowercase（`engine/`, `editor/`, `lib/`, `components/`, `features/`, `hooks/`, `contexts/`, `primitives/`, `composites/`, `pages/`, `styles/`）。同種のモジュールを集める層は PascalCase の複数形（`Components/`, `Geometries/`, `Resources/`, `Contracts/`）
 - **Reactコンポーネント**: PascalCase関数コンポーネント（`const Screen = () => {}`）
 - **Reactフック**: `use` プレフィックス camelCase（`useOREditor`, `useSerializableField`）
 - **SCSSモジュール**: `index.module.scss`、BEM風ネスト（`&_tabs`, `&_right`）

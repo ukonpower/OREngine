@@ -55,7 +55,7 @@ export class Editor extends MXP.Serializable {
 
 	private _disposed: boolean;
 	private _api: EditorAPI;
-	private _draw: MXP.EditorDraw;
+	private _draw: MXP.EditorDrawContract;
 
 	private _editorCamera: EditorCamera;
 	private _gizmoManager: GizmoManager;

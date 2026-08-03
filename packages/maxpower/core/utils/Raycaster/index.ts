@@ -1,7 +1,7 @@
 import * as GLP from 'glpower';
 
-import { Camera } from '../../Component/Camera';
-import { Mesh } from '../../Component/Mesh';
+import { Camera } from '../../Components/Camera';
+import { Mesh } from '../../Components/Mesh';
 import { Entity } from '../../Entity';
 import { Ray } from '../Ray';
 

@@ -3,7 +3,8 @@ import * as GLP from 'glpower';
 import { Component, ComponentParams, ComponentUpdateEvent } from "../Component";
 import { Serializable } from '../Serializable';
 
-import type { EngineContract, RendererContract } from '../Engine';
+import type { EngineContract } from '../Contracts/EngineContract';
+import type { RendererContract } from '../Contracts/RendererContract';
 
 export interface EntityUpdateEvent {
 	timeElapsed: number;

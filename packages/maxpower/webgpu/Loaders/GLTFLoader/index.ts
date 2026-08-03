@@ -1,8 +1,8 @@
-import { Mesh } from '../../../core/Component/Mesh';
+import { Mesh } from '../../../core/Components/Mesh';
 import { Entity } from '../../../core/Entity';
 import { Geometry } from '../../../core/Geometry';
 
-import type { GLTF } from '../../../core/BLidge';
+import type { GLTF, GLTFLoaderContract } from '../../../core/Contracts/GLTFLoaderContract';
 import type { GPUEngine } from '../../Renderer';
 
 /*-------------------------------
@@ -63,7 +63,7 @@ const ATTRIBUTE_NAMES: { [gltfName: string]: string } = {
 	TEXCOORD_0: 'uv',
 };
 
-export class GLTFLoader {
+export class GLTFLoader implements GLTFLoaderContract {
 
 	private _engine: GPUEngine;
 

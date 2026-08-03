@@ -1,13 +1,13 @@
 import * as GLP from 'glpower';
 
-import { Mesh } from '../../../core/Component/Mesh';
-import { SphereGeometry } from '../../../core/Geometry/SphereGeometry';
+import { Mesh } from '../../../core/Components/Mesh';
+import { SphereGeometry } from '../../../core/Geometries/SphereGeometry';
 import { requestShaderReload } from '../../hotReload';
 import { Material } from '../../Material';
 
 import defaultSkyWgsl from './shaders/defaultSky.wgsl';
 
-import type { EngineContract } from '../../../core/Engine';
+import type { EngineContract } from '../../../core/Contracts/EngineContract';
 import type { Entity } from '../../../core/Entity';
 
 /*-------------------------------

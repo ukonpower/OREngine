@@ -1,7 +1,7 @@
 import * as GLP from 'glpower';
 
-import type { EngineContract } from '../Engine';
-import type { Entity } from '../Entity';
+import type { EngineContract } from '../Contracts/EngineContract';
+import type { GLTF, GLTFLoaderContract } from '../Contracts/GLTFLoaderContract';
 
 
 export type BLidgeNodeType = 'empty' | 'cube' | 'sphere' | 'cylinder' | 'mesh' | 'camera' | 'plane' | 'light' | 'gltf';
@@ -147,18 +147,10 @@ type BLidgeConnection = {
 	gltfPath?: string,
 }
 
-export type GLTF = {
-	scene: Entity;
-}
-
-export interface BLidgeGLTFLoaderLike {
-	load( path: string ): Promise<GLTF>;
-}
-
 export class BLidge extends GLP.EventEmitter {
 
 	// ローダーの実体はバックエンド側にあるため、EngineContractのレンダラー型はここでは特定しない
-	public static gltfLoaderFactory: ( ( engine: EngineContract<any> ) => BLidgeGLTFLoaderLike ) | null = null;
+	public static gltfLoaderFactory: ( ( engine: EngineContract<any> ) => GLTFLoaderContract ) | null = null;
 
 	private _engine: EngineContract;
 

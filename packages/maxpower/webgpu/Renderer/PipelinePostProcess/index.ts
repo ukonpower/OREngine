@@ -24,7 +24,7 @@ import normalSelectorWgsl from './shaders/normalSelector.wgsl';
 import ssCompositeWgsl from './shaders/ssComposite.wgsl';
 import ssrWgsl from './shaders/ssr.wgsl';
 
-import type { Camera } from '../../../core/Component/Camera';
+import type { Camera } from '../../../core/Components/Camera';
 import type { PostProcessPassParam } from '../../PostProcess';
 
 type PassCallback = ( pass: PostProcessPass ) => void;

@@ -4,12 +4,12 @@ const OUTLINE_COLOR = [ 1.0, 0.6, 0.0 ];
 
 export class SelectionOutline {
 
-	private _draw: MXP.EditorDraw;
+	private _draw: MXP.EditorDrawContract;
 	private _maskTarget: MXP.EditorTarget;
-	private _maskMaterial: MXP.MaterialBase;
+	private _maskMaterial: MXP.MaterialContract;
 	private _outline: MXP.EditorRecipe;
 
-	constructor( draw: MXP.EditorDraw ) {
+	constructor( draw: MXP.EditorDrawContract ) {
 
 		this._draw = draw;
 		this._maskTarget = draw.createTarget( { useSceneDepth: true } );

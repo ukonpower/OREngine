@@ -1,8 +1,8 @@
 import * as GLP from 'glpower';
 
-import { Camera } from '../../core/Component/Camera';
-import { Light } from '../../core/Component/Light';
-import { Mesh } from '../../core/Component/Mesh';
+import { Camera } from '../../core/Components/Camera';
+import { Light } from '../../core/Components/Light';
+import { Mesh } from '../../core/Components/Mesh';
 import { Serializable } from '../../core/Serializable';
 import {
 	CLIP_CORRECTION,
@@ -20,7 +20,7 @@ import {
 	SCENE_FORMAT,
 	SHADOW_FORMAT,
 } from '../Bindings';
-import { PostProcessPipeline } from '../Component/PostProcessPipeline';
+import { PostProcessPipeline } from '../Components/PostProcessPipeline';
 import { onShaderReload, requestShaderReload } from '../hotReload';
 import { Material } from '../Material';
 import { GeometryBuffer, VERTEX_BUFFER_LAYOUT } from '../resources/GeometryBuffer';
@@ -34,7 +34,8 @@ import presentWgsl from './shaders/present.wgsl';
 import { ENVMAP_BINDING, ENVMAP_SAMPLER_BINDING, LIGHTSHAFT_BINDING, SSAO_BINDING, buildShadingSource } from './shaders/shading';
 import { Sky } from './Sky';
 
-import type { EngineContract, RendererContract } from '../../core/Engine';
+import type { EngineContract } from '../../core/Contracts/EngineContract';
+import type { RendererContract } from '../../core/Contracts/RendererContract';
 import type { Entity, EntityUpdateEvent } from '../../core/Entity';
 import type { Geometry } from '../../core/Geometry';
 import type { MaterialPhase } from '../Material';

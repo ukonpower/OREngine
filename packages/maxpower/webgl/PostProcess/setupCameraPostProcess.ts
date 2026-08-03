@@ -1,5 +1,5 @@
 import { Entity } from '../../core/Entity';
-import { PostProcessPipeline } from '../Component/PostProcessPipeline';
+import { PostProcessPipeline } from '../Components/PostProcessPipeline';
 
 import { Bloom } from './Bloom';
 import { ColorGrading } from './ColorGrading';

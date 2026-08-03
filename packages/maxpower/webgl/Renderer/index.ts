@@ -1,14 +1,14 @@
 import * as GLP from 'glpower';
 
-import { Camera } from '../../core/Component/Camera';
-import { Light, LightType } from '../../core/Component/Light';
-import { MaterialOverride } from '../../core/Component/MaterialOverride';
-import { Mesh } from '../../core/Component/Mesh';
+import { Camera } from '../../core/Components/Camera';
+import { Light, LightType } from '../../core/Components/Light';
+import { MaterialOverride } from '../../core/Components/MaterialOverride';
+import { Mesh } from '../../core/Components/Mesh';
 import { Entity, EntityUpdateEvent } from '../../core/Entity';
+import { PlaneGeometry } from '../../core/Geometries/PlaneGeometry';
 import { Geometry } from '../../core/Geometry';
-import { PlaneGeometry } from '../../core/Geometry/PlaneGeometry';
 import { Serializable } from '../../core/Serializable';
-import { PostProcessPipeline } from '../Component/PostProcessPipeline';
+import { PostProcessPipeline } from '../Components/PostProcessPipeline';
 import { GL, GLBackend } from '../GLBackend';
 import { MaterialRenderType, Material } from '../Material';
 import { PostProcess } from '../PostProcess';
@@ -20,7 +20,8 @@ import { PMREMRender } from './PMREMRender';
 import { ProgramManager } from './ProgramManager';
 import { Sky } from './Sky';
 
-import type { EngineContract } from '../../core/Engine';
+import type { EngineContract } from '../../core/Contracts/EngineContract';
+import type { RendererContract } from '../../core/Contracts/RendererContract';
 
 // render target
 
@@ -160,7 +161,7 @@ const getSpotLightNames = ( i: number ) => _spotLightNames[ i ] || ( _spotLightN
 	shadowMap: `spotLightShadowMap[${i}]`,
 } );
 
-export class Renderer extends Serializable {
+export class Renderer extends Serializable implements RendererContract {
 
 	public readonly backend: GLBackend;
 	public readonly canvas: HTMLCanvasElement;

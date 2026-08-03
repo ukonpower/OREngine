@@ -4,7 +4,7 @@ import { fieldsFromUniforms } from '../resources/UniformBinder';
 
 import basicWgsl from './shaders/basic.wgsl';
 
-import type { MaterialBase } from '../../core/Material';
+import type { MaterialContract } from '../../core/Contracts/MaterialContract';
 import type { UniformField } from '../resources/UniformBinder';
 import type * as GLP from 'glpower';
 
@@ -45,7 +45,7 @@ export interface MaterialParam {
 }
 
 // 1マテリアル＝1 WGSLモジュール。フェーズごとのentry pointを持つ
-export class Material implements MaterialBase {
+export class Material implements MaterialContract {
 
 	public name: string;
 	public uniforms: GLP.Uniforms;
