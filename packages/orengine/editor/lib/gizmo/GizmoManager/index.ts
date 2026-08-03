@@ -15,7 +15,7 @@ export class GizmoManager {
 	private _activeGizmo: Gizmo | null;
 	private _mode: GizmoMode;
 
-	constructor( engine: MXP.Engine, draw: MXP.EditorDraw ) {
+	constructor( engine: MXP.EngineContract, draw: MXP.EditorDraw ) {
 
 		this._draw = draw;
 		this._translateGizmo = new TranslateGizmo( engine, draw );

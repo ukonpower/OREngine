@@ -15,7 +15,7 @@ import maskVert from './shaders/mask.vs';
 import outlineFrag from './shaders/outline.fs';
 import textureFrag from './shaders/texture.fs';
 
-import type { Engine } from '../../core/Engine';
+import type { EngineContract } from '../../core/Engine';
 import type { MaterialBase } from '../../core/Material';
 
 /*-------------------------------
@@ -386,4 +386,4 @@ export class GLEditorDraw implements EditorDraw {
 }
 
 // エディタ描画のGL実装を組み立てる（@or-rendererの供給口）
-export const createEditorDraw = ( engine: Engine<Renderer> ): EditorDraw => new GLEditorDraw( engine.renderer );
+export const createEditorDraw = ( engine: EngineContract<Renderer> ): EditorDraw => new GLEditorDraw( engine.renderer );

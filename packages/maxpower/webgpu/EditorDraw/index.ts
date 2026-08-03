@@ -11,7 +11,7 @@ import maskWgsl from './shaders/mask.wgsl';
 import outlineWgsl from './shaders/outline.wgsl';
 
 import type { EditorDraw, EditorFrame, EditorRect, EditorRecipe, EditorRenderEntitiesParam, EditorTarget } from '../../core/EditorDraw';
-import type { Engine } from '../../core/Engine';
+import type { EngineContract } from '../../core/Engine';
 import type { MaterialBase } from '../../core/Material';
 import type { Renderer } from '../Renderer';
 
@@ -503,4 +503,4 @@ const halfToFloat = ( value: number ) => {
 };
 
 // エディタ描画のWebGPU実装を組み立てる（@or-rendererの供給口）
-export const createEditorDraw = ( engine: Engine<Renderer> ): EditorDraw => new WebGPUEditorDraw( engine.renderer );
+export const createEditorDraw = ( engine: EngineContract<Renderer> ): EditorDraw => new WebGPUEditorDraw( engine.renderer );

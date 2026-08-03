@@ -3,7 +3,7 @@ import * as GLP from 'glpower';
 import { Component, ComponentParams, ComponentUpdateEvent } from "../Component";
 import { Serializable } from '../Serializable';
 
-import type { Engine, RendererContract } from '../Engine';
+import type { EngineContract, RendererContract } from '../Engine';
 
 export interface EntityUpdateEvent {
 	timeElapsed: number;
@@ -23,7 +23,7 @@ export interface EntityResizeEvent {
 }
 
 export interface EntityParams {
-	engine: Engine;
+	engine: EngineContract;
 	name?: string;
 }
 
@@ -51,7 +51,7 @@ export class Entity extends Serializable {
 	public visible: boolean;
 	public userData: any;
 	public unresolvedComponents: { name: string; uuid: string; props?: Record<string, unknown> }[];
-	protected _engine: Engine;
+	protected _engine: EngineContract;
 
 	constructor( params: EntityParams ) {
 
