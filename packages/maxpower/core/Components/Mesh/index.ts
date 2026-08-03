@@ -10,8 +10,9 @@ export class Mesh extends Component {
 	public geometry: Geometry;
 	// materialはバックエンド不透明型。未設定のときはレンダラーが自分の既定マテリアルを使う
 	public material: MaterialContract | null;
+	public instanceCount: number;
 
-	constructor( params: ComponentParams<{ geometry?: Geometry; material?: MaterialContract } | void> ) {
+	constructor( params: ComponentParams<{ geometry?: Geometry; material?: MaterialContract; instanceCount?: number } | void> ) {
 
 		super( params );
 
@@ -19,6 +20,7 @@ export class Mesh extends Component {
 
 		this.geometry = args.geometry || defaultGeometry;
 		this.material = args.material || null;
+		this.instanceCount = args.instanceCount || 1;
 
 	}
 

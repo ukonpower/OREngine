@@ -74,6 +74,7 @@ export const FRAME_FIELDS: UniformField[] = [
 	{ name: 'uTimeF', type: 'f32' },
 	{ name: 'uTimeE', type: 'f32' },
 	{ name: 'uTimeEF', type: 'f32' },
+	{ name: 'uDeltaTime', type: 'f32' },
 	{ name: 'uResolution', type: 'vec2f' },
 	{ name: 'uAspectRatio', type: 'f32' },
 	{ name: 'uCameraNear', type: 'f32' },
@@ -126,6 +127,25 @@ export const ENVMAP_SIZE = 256;
 export const ENVMAP_MIP_COUNT = 5;
 
 /*-------------------------------
+	storage buffer（GPGPU出力）
+
+	GPUCompute が実装する契約。Material はこれを名前付きで受け取り、
+	group2 の binding1.. に read-only storage として生やす。
+	buffers はピンポン2本で、readIndex が「今フレーム読める側」を指す。
+-------------------------------*/
+
+export interface StorageSource {
+	structName: string;
+	structWgsl: string;
+	// device 準備前・compute 未構築の間は null
+	buffers: [ GPUBuffer, GPUBuffer ] | null;
+	readIndex: number;
+	count: number;
+}
+
+export type MaterialStorage = { name: string, source: StorageSource };
+
+/*-------------------------------
 	WGSL 宣言
 -------------------------------*/
 
@@ -135,7 +155,7 @@ ${GBUFFER_ATTACHMENTS.map( ( a, i ) => `\t@location(${i}) ${a.name}: vec4f,` ).j
 };`;
 
 // マテリアルのWGSL本体の先頭へ、頂点入出力とuniformの宣言を差し込んで完成形を作る
-export const buildShaderSource = ( body: string, materialFields: UniformField[] ) => {
+export const buildShaderSource = ( body: string, materialFields: UniformField[], storages: MaterialStorage[] = [] ) => {
 
 	const chunks = [
 		VERTEX_INPUT_WGSL,
@@ -146,11 +166,22 @@ export const buildShaderSource = ( body: string, materialFields: UniformField[] 
 		`@group(${GROUP_OBJECT}) @binding(0) var<uniform> object: ObjectUniforms;`,
 	];
 
-	// uniformを持たないマテリアルは group2 ごと存在しない（空structはWGSLで書けない）
+	// uniformを持たないマテリアルは binding0 が存在しない（空structはWGSLで書けない）
 	if ( materialFields.length > 0 ) {
 
 		chunks.push( buildStructWgsl( 'MaterialUniforms', materialFields ) );
 		chunks.push( `@group(${GROUP_MATERIAL}) @binding(0) var<uniform> material: MaterialUniforms;` );
+
+	}
+
+	if ( storages.length > 0 ) {
+
+		// 同じGPUComputeを複数の名前で受けても struct 定義は1回だけ出す
+		const structs = new Set( storages.map( ( s ) => s.source.structWgsl ) );
+
+		chunks.push( Array.from( structs ).join( '\n\n' ) );
+		chunks.push( storages.map( ( s, i ) =>
+			`@group(${GROUP_MATERIAL}) @binding(${i + 1}) var<storage, read> ${s.name}: array<${s.source.structName}>;` ).join( '\n' ) );
 
 	}
 
