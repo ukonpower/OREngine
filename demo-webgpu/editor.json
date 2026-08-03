@@ -1,6 +1,6 @@
 {
 	"enableRender": true,
-	"resolutionScale": 1,
+	"resolutionScale": 0.5,
 	"resolution/width": 1920,
 	"resolution/height": 1080,
 	"viewType": "render",
@@ -11,7 +11,7 @@
 	"selectedAsset": null,
 	"navigateAsset": null,
 	"propertyTarget": "entity",
-	"cameraMode": "preview",
+	"cameraMode": "scene",
 	"gizmoMode": "translate",
 	"helpers/show": true,
 	"helpers/empty": true,
@@ -19,13 +19,13 @@
 	"helpers/light": true,
 	"helpers/wireframe": false,
 	"camera/position": [
-		0.03899999999999999,
-		1.525,
-		8.831999999999999
+		-0.9173142285097267,
+		3.8931726043024804,
+		7.271431379430394
 	],
 	"camera/target": [
-		0,
-		0,
-		0
+		-1.0361241134104964,
+		0.6359176076697907,
+		-1.8159603398810782
 	]
 }

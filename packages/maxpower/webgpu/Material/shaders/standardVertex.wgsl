@@ -16,7 +16,10 @@ fn vsMain( input: VertexInput ) -> VertexOutput {
 	output.normal = ( object.uNormalMatrix * vec4f( input.normal, 0.0 ) ).xyz;
 	output.uv = input.uv;
 	output.worldPosition = worldPosition.xyz;
-	output.velocity = ( position.xy / position.w - positionPrev.xy / positionPrev.w ) * 0.2;
+
+	// テクスチャ座標のオフセットとして読まれるので、NDC差分のyを反転してuv空間の向きに揃える
+	let ndcVelocity = position.xy / position.w - positionPrev.xy / positionPrev.w;
+	output.velocity = vec2f( ndcVelocity.x, - ndcVelocity.y ) * 0.2;
 
 	return output;
 

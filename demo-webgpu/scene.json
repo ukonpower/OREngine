@@ -70,7 +70,7 @@
 			0.3
 		],
 		"sky/intensity": 1,
-		"pipeline/motionBlur/enabled": false,
+		"pipeline/motionBlur/enabled": true,
 		"pipeline/motionBlur/power": 1,
 		"pipeline/ssr/enabled": true,
 		"pipeline/ssao/enabled": true,
