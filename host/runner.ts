@@ -13,7 +13,7 @@ export interface HostRunOptions {
 	apiPort?: number;
 	basePath?: string;
 	https?: { cert: Buffer | string; key: Buffer | string };
-	// dev のみ有効。player / static は webgl 固定
+	// dev / player で有効。static は webgl 固定
 	renderer?: RendererName;
 }
 

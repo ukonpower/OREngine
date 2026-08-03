@@ -10,7 +10,7 @@ OREngineのWebGPU対応の設計書。旧方針（GLSL→WGSL実行時変換＋G
 - **エディタ描画系（Gizmo / Wireframe / SelectionOutline / FrameDebugger / AssetPreview）もWebGPUで動かす**。ロジックは共有し、描画は「プリミティブ契約」（後述のEditorDraw）でバックエンドに委ねる
 - Camera / Light は「データ（共有コンポーネント）」と「GPUリソース（レンダラー側が所有）」に分離する
 - バックエンド宣言は `orengine.config.json` の `renderer` フィールド
-- 64kb intro（playerビルド）はWebGL固定のまま。packedサイズが最重要指標である点は不変
+- 64kb intro（playerビルド）は `renderer` 設定に従いWebGL/WebGPUを切り替え可能。packedサイズが最重要指標である点は不変
 
 旧方針を破棄した理由: 抽象の切断面をdrawコマンド最下層に置きGL enum語彙で固定したため、WebGPUBackendが「WebGPU上のWebGL2エミュレータ」になり、WebGPUネイティブの形（bind group / render pass / compute / WGSL）を永遠に表現できなかった。互換が要らないと確定した時点で、エミュレーション層と実行時トランスパイラは存在理由を失った。
 
@@ -71,7 +71,7 @@ packages/maxpower/
 
 - `orengine.config.json`: `{ "project": "demo-webgl", "renderer": "webgl" }`（既定 webgl）。一時切替は `ORENGINE_RENDERER=webgpu`（`ORENGINE_PROJECT` と同じ流儀）
 - viteエイリアス `@or-renderer` → `maxpower/webgl/index.ts` または `maxpower/webgpu/index.ts`。`host/app/src` のEngine組み立てだけがこれをimportする（プロジェクトのコンポーネントはエイリアス不要、自分のバックエンドを普通にimport）
-- player / static ビルドは `webgl` **固定**（現 `@or-backend` と同じ構図。WebGPUコードはplayerバンドルに構文的に到達しない）
+- player ビルドは dev と同じ `renderer` 解決（`ORENGINE_RENDERER` → `orengine.config.json` の `renderer` → 既定 `webgl`）に従いエイリアスを切り替える。static ビルドは `webgl` **固定**（現 `@or-backend` と同じ構図。選ばれなかった側のバックエンドコードはバンドルに構文的に到達しない）
 - tsconfigの `@or-renderer` はwebglに固定（型チェックのベースライン）。webgpu側は通常ソースとして型チェックされる
 - `npm run wgpu` は `ORENGINE_RENDERER=webgpu npm run dev` に付け替え。WebGPUはsecure context必須のためwgpu時のHTTPS起動（basicSsl）は維持
 

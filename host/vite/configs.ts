@@ -187,7 +187,7 @@ export const createPlayerConfig = ( opts: PlayerConfigOptions ): UserConfig => {
 				],
 			},
 		},
-		resolve: sharedResolve( opts.projectDir, 'webgl' ),
+		resolve: sharedResolve( opts.projectDir, opts.renderer ?? 'webgl' ),
 		css: {
 			preprocessorOptions: {
 				scss: { api: 'modern' },
