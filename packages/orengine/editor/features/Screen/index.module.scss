@@ -105,6 +105,29 @@
 			background: rgba( $bgCol2, 0.8 );
 		}
 	}
+
+	&_separator {
+		width: 1px;
+		margin: 2px;
+		background: rgba( $bgCol2, 0.8 );
+	}
+}
+
+.modalStatus {
+	position: absolute;
+	top: 32px;
+	left: 8px;
+	z-index: 1;
+	padding: 2px 6px;
+	font-family: monospace;
+	font-size: 12px;
+	color: $fontCol1;
+	background: rgba( $bgCol0, 0.6 );
+	border-radius: $radius1;
+	white-space: nowrap;
+	user-select: none;
+	// 表示専用なのでビューポートのクリックを奪わない
+	pointer-events: none;
 }
 
 .canvas {

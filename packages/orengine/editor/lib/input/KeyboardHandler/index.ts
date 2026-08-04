@@ -1,12 +1,22 @@
 import { Keyboard, PressedKeys } from '../../../../core/Keyboard';
-import { GizmoMode } from '../../gizmo/Gizmo';
 
 export type KeyboardHandlerCallbacks = {
 	onSave: () => void;
 	onUndo: () => void;
 	onRedo: () => void;
 	onPlayToggle: () => void;
-	onSetGizmoMode: ( mode: GizmoMode ) => void;
+	onTransformKey: ( e: KeyboardEvent ) => boolean;
+};
+
+// テキスト入力中かどうか（エディタのショートカットを奪わないための判定）
+const isTextInputFocused = (): boolean => {
+
+	const elm = document.activeElement as HTMLElement | null;
+
+	if ( ! elm ) return false;
+
+	return elm.tagName === 'INPUT' || elm.tagName === 'TEXTAREA' || elm.isContentEditable;
+
 };
 
 export class KeyboardHandler {
@@ -19,7 +29,12 @@ export class KeyboardHandler {
 
 		this._keyboard.on( "keydown", ( e: KeyboardEvent, pressedKeys: PressedKeys ) => {
 
-			if ( ( pressedKeys[ "Meta" ] || pressedKeys[ "Control" ] ) && pressedKeys[ "s" ] ) {
+			if ( e.isComposing ) return;
+
+			const cmd = pressedKeys[ "Meta" ] || pressedKeys[ "Control" ];
+
+			// 保存だけはブラウザの保存ダイアログを抑止するため入力欄フォーカス中でも受ける
+			if ( cmd && pressedKeys[ "s" ] ) {
 
 				e.preventDefault();
 
@@ -27,7 +42,13 @@ export class KeyboardHandler {
 
 			}
 
-			if ( ( pressedKeys[ "Meta" ] || pressedKeys[ "Control" ] ) && pressedKeys[ "z" ] ) {
+			// 入力欄では undo もブラウザネイティブのテキスト undo に譲る
+			if ( isTextInputFocused() ) return;
+
+			// モーダル変形中は他のショートカットを一切通さない（Space での再生開始などを防ぐ）
+			if ( callbacks.onTransformKey( e ) ) return;
+
+			if ( cmd && pressedKeys[ "z" ] ) {
 
 				e.preventDefault();
 
@@ -43,16 +64,11 @@ export class KeyboardHandler {
 
 			}
 
-			if ( e.key == ' ' ) {
+			if ( e.key == ' ' && ! cmd ) {
 
 				callbacks.onPlayToggle();
 
 			}
-
-			if ( e.key === 'q' ) callbacks.onSetGizmoMode( 'select' );
-			if ( e.key === 'w' ) callbacks.onSetGizmoMode( 'translate' );
-			if ( e.key === 'e' ) callbacks.onSetGizmoMode( 'rotate' );
-			if ( e.key === 'r' ) callbacks.onSetGizmoMode( 'scale' );
 
 		} );
 

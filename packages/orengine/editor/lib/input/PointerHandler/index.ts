@@ -7,6 +7,7 @@ import { EditorCamera } from '../../EditorCamera';
 import { GizmoAxis, GizmoMode } from '../../gizmo/Gizmo';
 import { GizmoManager } from '../../gizmo/GizmoManager';
 import { HelperManager } from '../../helper/HelperManager';
+import { clientToNDC } from '../PointerUtils';
 
 import type { EditorAPI } from '../../EditorAPI';
 
@@ -31,6 +32,7 @@ export class PointerHandler {
 		getSelectedEntityId: () => string | null,
 		getGizmoMode: () => GizmoMode,
 		onSelectEntity: ( entity: MXP.Entity | null ) => void,
+		isModalActive: () => boolean,
 	) {
 
 		this._raycaster = new MXP.Raycaster();
@@ -44,43 +46,19 @@ export class PointerHandler {
 
 		const canvasElm = engine.canvas as HTMLCanvasElement;
 
-		const getNDC = ( e: PointerEvent ): GLP.Vector => {
-
-			const rect = canvasElm.getBoundingClientRect();
-			const canvasAspect = canvasElm.width / canvasElm.height;
-			const rectAspect = rect.width / rect.height;
-
-			let contentWidth = rect.width;
-			let contentHeight = rect.height;
-			let offsetX = 0;
-			let offsetY = 0;
-
-			if ( rectAspect > canvasAspect ) {
-
-				contentWidth = rect.height * canvasAspect;
-				offsetX = ( rect.width - contentWidth ) / 2;
-
-			} else {
-
-				contentHeight = rect.width / canvasAspect;
-				offsetY = ( rect.height - contentHeight ) / 2;
-
-			}
-
-			const x = ( ( e.clientX - rect.left - offsetX ) / contentWidth ) * 2 - 1;
-			const y = - ( ( e.clientY - rect.top - offsetY ) / contentHeight ) * 2 + 1;
-
-			return new GLP.Vector( x, y );
-
-		};
-
 		const getCameraEntity = (): MXP.Entity | null => {
 
 			return editorCamera.getCameraEntity( engine );
 
 		};
 
+		// モーダル変形は window の capture リスナーでポインタを奪うが、取りこぼした場合の保険として二重に止める
 		const onPointerDown = ( e: PointerEvent ) => {
+
+			if ( isModalActive() ) return;
+
+			// 右クリック・中クリックでギズモドラッグや選択が走らないようにする
+			if ( e.pointerType === 'mouse' && e.button !== 0 ) return;
 
 			if ( e.pointerType === 'touch' && this._gizmoDragging ) return;
 
@@ -89,7 +67,7 @@ export class PointerHandler {
 
 			if ( gizmoManager.activeGizmo && gizmoManager.activeGizmo.entity.visible ) {
 
-				const ndc = getNDC( e );
+				const ndc = clientToNDC( canvasElm, e.clientX, e.clientY );
 				const cameraEntity = getCameraEntity();
 
 				if ( cameraEntity ) {
@@ -144,7 +122,9 @@ export class PointerHandler {
 
 		const onPointerMove = ( e: PointerEvent ) => {
 
-			const ndc = getNDC( e );
+			if ( isModalActive() ) return;
+
+			const ndc = clientToNDC( canvasElm, e.clientX, e.clientY );
 			const cameraEntity = getCameraEntity();
 
 			if ( ! cameraEntity ) return;
@@ -170,7 +150,8 @@ export class PointerHandler {
 
 						if ( selectedEntity.parent ) {
 
-							localPos.applyMatrix4( selectedEntity.parent.matrixWorld.clone().inverse() );
+							// 位置ベクトルとして親ローカルへ変換する（applyMatrix4 は w=0 の方向変換になり平行移動が落ちる）
+							localPos.applyMatrix4AsPosition( selectedEntity.parent.matrixWorld.clone().inverse() );
 
 						}
 
@@ -276,6 +257,8 @@ export class PointerHandler {
 
 		const onPointerUp = ( e: PointerEvent ) => {
 
+			if ( isModalActive() ) return;
+
 			if ( this._gizmoDragging ) {
 
 				gizmoManager.activeGizmo!.endDrag();
@@ -320,7 +303,7 @@ export class PointerHandler {
 
 			if ( dist > 5 ) return;
 
-			const ndc = getNDC( e );
+			const ndc = clientToNDC( canvasElm, e.clientX, e.clientY );
 			const cameraEntity = getCameraEntity();
 
 			if ( ! cameraEntity ) return;
@@ -421,15 +404,24 @@ export class PointerHandler {
 
 		};
 
+		// 右クリックはビューポート操作に使うのでブラウザのメニューを出さない
+		const onContextMenu = ( e: MouseEvent ) => {
+
+			e.preventDefault();
+
+		};
+
 		canvasElm.addEventListener( "pointerdown", onPointerDown );
 		canvasElm.addEventListener( "pointermove", onPointerMove );
 		canvasElm.addEventListener( "pointerup", onPointerUp );
+		canvasElm.addEventListener( "contextmenu", onContextMenu );
 
 		this._disposeListeners = () => {
 
 			canvasElm.removeEventListener( "pointerdown", onPointerDown );
 			canvasElm.removeEventListener( "pointermove", onPointerMove );
 			canvasElm.removeEventListener( "pointerup", onPointerUp );
+			canvasElm.removeEventListener( "contextmenu", onContextMenu );
 
 		};
 

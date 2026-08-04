@@ -2,6 +2,7 @@ import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
 import { Gizmo, GizmoAxis, GizmoDragResult } from '..';
+import { getAxisWorldDir, getWorldQuaternion, projectRayOnLine, TransformOrientation } from '../../../transform/TransformUtils';
 
 export class TranslateGizmo implements Gizmo {
 
@@ -13,10 +14,12 @@ export class TranslateGizmo implements Gizmo {
 	private _xAxis: MXP.Entity;
 	private _yAxis: MXP.Entity;
 	private _zAxis: MXP.Entity;
+	private _orientation: TransformOrientation;
 	private _activeAxis: GizmoAxis | null;
 	private _dragging: boolean;
 	private _dragStartPos: GLP.Vector;
-	private _dragOffset: GLP.Vector;
+	private _dragAxisDir: GLP.Vector;
+	private _dragStartProjection: number;
 
 	constructor( engine: MXP.EngineContract, draw: MXP.EditorDrawContract ) {
 
@@ -26,10 +29,12 @@ export class TranslateGizmo implements Gizmo {
 		this.entity.initiator = "god";
 		this.entity.visible = false;
 
+		this._orientation = 'global';
 		this._activeAxis = null;
 		this._dragging = false;
 		this._dragStartPos = new GLP.Vector();
-		this._dragOffset = new GLP.Vector();
+		this._dragAxisDir = new GLP.Vector( 1, 0, 0 );
+		this._dragStartProjection = 0;
 
 		this._xAxis = this._createAxis( new GLP.Vector( 1, 0, 0 ), [ 1.0, 0.2, 0.2 ] );
 		this._yAxis = this._createAxis( new GLP.Vector( 0, 1, 0 ), [ 0.2, 1.0, 0.2 ] );
@@ -135,11 +140,25 @@ export class TranslateGizmo implements Gizmo {
 
 	}
 
-	public setTarget( entity: MXP.Entity | null, cameraEntity: MXP.Entity | null ): void {
+	public setTarget( entity: MXP.Entity | null, cameraEntity: MXP.Entity | null, orientation: TransformOrientation ): void {
+
+		this._orientation = orientation;
 
 		if ( entity ) {
 
 			this.entity.visible = true;
+
+			// root を回すと表示メッシュもヒット用メッシュも子として一緒に向く
+			if ( orientation === 'local' ) {
+
+				this.entity.quaternion.copy( getWorldQuaternion( entity ) );
+
+			} else {
+
+				this.entity.quaternion.set( 0, 0, 0, 1 );
+
+			}
+
 			this.entity.position.set(
 				entity.matrixWorld.elm[ 12 ],
 				entity.matrixWorld.elm[ 13 ],
@@ -208,23 +227,15 @@ export class TranslateGizmo implements Gizmo {
 
 	}
 
-	public startDrag( axis: GizmoAxis, ray: MXP.Ray, _targetEntity: MXP.Entity ): void {
+	public startDrag( axis: GizmoAxis, ray: MXP.Ray, targetEntity: MXP.Entity ): void {
 
 		this._activeAxis = axis;
 		this._dragging = true;
 		this._dragStartPos.copy( this.entity.position );
 
-		const projected = this._projectRayOnAxis( ray, axis );
-
-		if ( projected ) {
-
-			this._dragOffset.set(
-				this._dragStartPos.x - projected.x,
-				this._dragStartPos.y - projected.y,
-				this._dragStartPos.z - projected.z,
-			);
-
-		}
+		// ドラッグ中も setTarget が毎フレーム走るので、軸方向は開始時のものに固定する
+		this._dragAxisDir = getAxisWorldDir( targetEntity, axis, this._orientation );
+		this._dragStartProjection = projectRayOnLine( ray, this._dragStartPos, this._dragAxisDir );
 
 	}
 
@@ -232,14 +243,12 @@ export class TranslateGizmo implements Gizmo {
 
 		if ( ! this._dragging || ! this._activeAxis ) return null;
 
-		const projected = this._projectRayOnAxis( ray, this._activeAxis );
-
-		if ( ! projected ) return null;
+		const delta = projectRayOnLine( ray, this._dragStartPos, this._dragAxisDir ) - this._dragStartProjection;
 
 		const newPos = new GLP.Vector(
-			projected.x + this._dragOffset.x,
-			projected.y + this._dragOffset.y,
-			projected.z + this._dragOffset.z,
+			this._dragStartPos.x + this._dragAxisDir.x * delta,
+			this._dragStartPos.y + this._dragAxisDir.y * delta,
+			this._dragStartPos.z + this._dragAxisDir.z * delta,
 		);
 
 		return { position: newPos };
@@ -250,43 +259,6 @@ export class TranslateGizmo implements Gizmo {
 
 		this._activeAxis = null;
 		this._dragging = false;
-
-	}
-
-	private _projectRayOnAxis( ray: MXP.Ray, axis: GizmoAxis ): GLP.Vector | null {
-
-		const axisDir = new GLP.Vector(
-			axis === 'x' ? 1 : 0,
-			axis === 'y' ? 1 : 0,
-			axis === 'z' ? 1 : 0,
-		);
-
-		const gizmoPos = new GLP.Vector(
-			this._dragStartPos.x,
-			this._dragStartPos.y,
-			this._dragStartPos.z
-		);
-
-		const diff = new GLP.Vector(
-			ray.origin.x - gizmoPos.x,
-			ray.origin.y - gizmoPos.y,
-			ray.origin.z - gizmoPos.z,
-		);
-
-		const dotDirAxis = ray.direction.x * axisDir.x + ray.direction.y * axisDir.y + ray.direction.z * axisDir.z;
-		const dotDiffAxis = diff.x * axisDir.x + diff.y * axisDir.y + diff.z * axisDir.z;
-		const dotDiffDir = diff.x * ray.direction.x + diff.y * ray.direction.y + diff.z * ray.direction.z;
-
-		const denom = 1.0 - dotDirAxis * dotDirAxis + 0.0001;
-		const t = ( dotDiffAxis * dotDirAxis - dotDiffDir ) / denom;
-
-		const projected = dotDiffAxis + t * dotDirAxis;
-
-		return new GLP.Vector(
-			gizmoPos.x + axisDir.x * projected,
-			gizmoPos.y + axisDir.y * projected,
-			gizmoPos.z + axisDir.z * projected,
-		);
 
 	}
 
