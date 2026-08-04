@@ -150,6 +150,7 @@ export class Renderer extends Serializable implements RendererContract {
 	private _shadingPipeline: GPURenderPipeline | null;
 	private _presentPipeline: GPURenderPipeline | null;
 	private _gBufferBindGroup: GPUBindGroup | null;
+	private _gBufferLightShaftView: GPUTextureView | null;
 	private _sceneBindGroup: GPUBindGroup | null;
 	private _sceneView: GPUTextureView | null;
 
@@ -189,6 +190,9 @@ export class Renderer extends Serializable implements RendererContract {
 			ssr: true,
 			ssao: true,
 			lightShaft: true,
+			lightShaftBlur: true,
+			lightShaftTemporal: true,
+			lightShaftTemporalBlend: 0.3,
 			dof: true,
 		};
 
@@ -230,6 +234,7 @@ export class Renderer extends Serializable implements RendererContract {
 		this._shadingPipeline = null;
 		this._presentPipeline = null;
 		this._gBufferBindGroup = null;
+		this._gBufferLightShaftView = null;
 		this._sceneBindGroup = null;
 		this._sceneView = null;
 
@@ -337,6 +342,30 @@ export class Renderer extends Serializable implements RendererContract {
 					this.applyPipelineConfig( { motionBlurPower: v } );
 
 				}, { step: 0.1 } );
+
+			}
+
+			// ノイズのならしは効果とコストを見比べられるよう個別に切れる
+			if ( key === 'lightShaft' ) {
+
+				dir.field( 'blur', () => this.pipelineConfig.lightShaftBlur ?? true, ( v: boolean ) => {
+
+					this.applyPipelineConfig( { lightShaftBlur: v } );
+
+				} );
+
+				dir.field( 'temporal', () => this.pipelineConfig.lightShaftTemporal ?? true, ( v: boolean ) => {
+
+					this.applyPipelineConfig( { lightShaftTemporal: v } );
+
+				} );
+
+				// 大きいほど影の出入りに素早く追従し、小さいほどノイズが減る
+				dir.field( 'temporalBlend', () => this.pipelineConfig.lightShaftTemporalBlend ?? 0.3, ( v: number ) => {
+
+					this.applyPipelineConfig( { lightShaftTemporalBlend: v } );
+
+				}, { step: 0.05 } );
 
 			}
 
@@ -569,6 +598,12 @@ export class Renderer extends Serializable implements RendererContract {
 		this._pipeline!.update( camera );
 		this._pipeline!.renderDeferred( device, encoder, this._frameBindGroup, this._targets.gBufferViews[ 0 ], lights.bindGroup, onPass );
 
+		if ( this._gBufferLightShaftView !== this._pipeline!.lightShaftView ) {
+
+			this._createGBufferBindGroup( device );
+
+		}
+
 		this._renderShading( encoder );
 		this._renderForward( device, encoder );
 
@@ -635,7 +670,7 @@ export class Renderer extends Serializable implements RendererContract {
 
 	}
 
-	// ライトごとに深度だけを描く。fragment stageを持たないパイプラインなので専用のシェーダーは要らない
+	// ライトごとに深度だけを描く。多くのマテリアルは fragment stage を持たないパイプラインで足りる
 	private _renderShadowMaps( device: GPUDevice, encoder: GPUCommandEncoder ) {
 
 		const shadowRenders = this._lights!.shadowRenders;
@@ -912,9 +947,10 @@ export class Renderer extends Serializable implements RendererContract {
 
 		objectResource.binder.update( this._objectUniforms );
 
-		// material（storageを持たないマテリアルのシャドウパスは group2 なし）
+		// material（group2 を要さないマテリアルのシャドウパスは group2 なし）
 
-		const useMaterialGroup = materialResource.materialLayout !== null && ( phase !== 'shadowMap' || material.storages.length > 0 );
+		const useMaterialGroup = materialResource.materialLayout !== null
+			&& ( phase !== 'shadowMap' || material.storages.length > 0 || material.hasShadowFragment );
 
 		let materialBindGroup: GPUBindGroup | null = null;
 
@@ -988,6 +1024,21 @@ export class Renderer extends Serializable implements RendererContract {
 		);
 		pipeline.setScene( this._targets.sceneView! );
 
+		this._createGBufferBindGroup( device );
+
+		// 画面へ出す元は毎フレーム決まるので、ここでは無効化だけしておく
+		this._sceneView = null;
+
+	}
+
+	// シェーディングが読む入力をまとめたbind group。
+	// lightShaft はぼかしを切るとピンポンの描画先が露出し、参照先がフレームごとに変わる
+	private _createGBufferBindGroup( device: GPUDevice ) {
+
+		const pipeline = this._pipeline!;
+
+		this._gBufferLightShaftView = pipeline.lightShaftView;
+
 		this._gBufferBindGroup = device.createBindGroup( {
 			label: 'gBuffer',
 			layout: this._gBufferLayout!,
@@ -998,12 +1049,9 @@ export class Renderer extends Serializable implements RendererContract {
 				{ binding: ENVMAP_BINDING, resource: this._envMap!.view },
 				{ binding: ENVMAP_SAMPLER_BINDING, resource: this._envMap!.sampler },
 				{ binding: SSAO_BINDING, resource: pipeline.ssaoView! },
-				{ binding: LIGHTSHAFT_BINDING, resource: pipeline.lightShaftView! },
+				{ binding: LIGHTSHAFT_BINDING, resource: this._gBufferLightShaftView! },
 			],
 		} );
-
-		// 画面へ出す元は毎フレーム決まるので、ここでは無効化だけしておく
-		this._sceneView = null;
 
 	}
 
@@ -1050,8 +1098,8 @@ export class Renderer extends Serializable implements RendererContract {
 
 		const objectLayouts = materialLayout ? [ layout, layout, materialLayout ] : [ layout, layout ];
 
-		// 頂点シェーダーがstorageを読むマテリアルは、シャドウパスにも group2 が要る
-		const shadowLayouts = storages.length > 0 ? objectLayouts : [ layout, layout ];
+		// storageを読むマテリアルと、fsShadowを持つマテリアルは、シャドウパスにも group2 が要る
+		const shadowLayouts = storages.length > 0 || material.hasShadowFragment ? objectLayouts : [ layout, layout ];
 
 		const primitive: GPUPrimitiveState = {
 			topology: material.drawType === 'LINES' ? 'line-list' : 'triangle-list',
@@ -1064,17 +1112,21 @@ export class Renderer extends Serializable implements RendererContract {
 
 		resource = {
 			pipelines: {
-				// シャドウは深度だけを書くのでfragment stageを持たない
+				// シャドウは深度だけを書くのでfragment stageを持たない。
+				// fsShadow を定義したマテリアルだけ、色を持たないfragment stageで深度を書き直す
 				shadowMap: flag.shadowMap ? device.createRenderPipeline( {
 					label: `${material.name}/shadowMap`,
 					layout: device.createPipelineLayout( { bindGroupLayouts: shadowLayouts } ),
 					vertex,
+					fragment: material.hasShadowFragment ? { module, entryPoint: 'fsShadow', targets: [] } : undefined,
 					primitive: { ...primitive, cullMode: 'none' },
 					depthStencil: {
 						format: SHADOW_FORMAT,
 						depthWriteEnabled: true,
 						depthCompare: 'less',
-						// 傾いた面ほど深く押し込む。定数ぶんのバイアスはシェーダー側で足す
+						// 傾いた面ほど深く押し込む。定数ぶんのバイアスはシェーダー側で足す。
+						// ラスタライズ後の深度を上書きする fsShadow にはこの傾き補正は効かず、
+						// shadow.wgsl の定数バイアスだけが自己遮蔽よけになる
 						depthBiasSlopeScale: 2.0,
 					},
 				} ) : null,

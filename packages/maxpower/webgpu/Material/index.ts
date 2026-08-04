@@ -26,7 +26,7 @@ if ( import.meta.hot ) {
 
 export type DrawType = 'TRIANGLES' | 'LINES';
 
-// マテリアルが参加するパス。shadowMapはvsMainだけを使う深度専用パス。
+// マテリアルが参加するパス。shadowMapは深度だけを書くパスで、既定ではvsMainしか使わない。
 // envMapはキューブ6面へ描く単一ターゲットのパスで、fsForward を使う
 export type MaterialPhase = 'shadowMap' | 'deferred' | 'forward' | 'envMap';
 
@@ -109,6 +109,14 @@ export class Material implements MaterialContract {
 	public set wgsl( value: string ) {
 
 		this._wgsl = value;
+
+	}
+
+	// シャドウパスで深度を書き直すマテリアルか。レイマーチのように面と実体がずれる形は
+	// fsShadow を定義して @builtin(frag_depth) を返す
+	public get hasShadowFragment() {
+
+		return this.wgsl.includes( 'fn fsShadow' );
 
 	}
 

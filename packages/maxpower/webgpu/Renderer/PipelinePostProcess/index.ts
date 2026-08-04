@@ -5,6 +5,7 @@ import { PostProcessChain, PostProcessPass } from '../../PostProcess';
 import {
 	buildBloomCompositeWgsl,
 	buildGaussBlurWgsl,
+	buildLightShaftBlurWgsl,
 	buildMotionBlurTileWgsl,
 	buildMotionBlurWgsl,
 	buildSsaoBlurWgsl,
@@ -46,7 +47,15 @@ type PassCallback = ( pass: PostProcessPass ) => void;
 const BLOOM_LEVELS = 4;
 const BLOOM_BLUR_SAMPLES = 8;
 const SSAO_BLUR_SAMPLES = 8;
+const LIGHT_SHAFT_BLUR_SAMPLES = 6;
 const MOTION_BLUR_TILE = 16;
+
+// 時間方向の蓄積で新しい結果に与える重み。ノイズと影の追従の速さの折り合いで、
+// エディタから触れるよう uniform にも同じ値を入れている
+const LIGHT_SHAFT_TEMPORAL_BLEND = 0.3;
+
+// ジッタの巡回周期。蓄積されるフレーム数（1/LIGHT_SHAFT_TEMPORAL_BLEND）より十分長ければよい
+const LIGHT_SHAFT_JITTER_CYCLE = 64;
 
 // rgba32float のgBufferはfilteringサンプラーで引けない
 const NEAREST = ( name: string ) => ( { name, filterable: false } );
@@ -58,6 +67,9 @@ export type PipelineConfig = {
 	ssr?: boolean;
 	ssao?: boolean;
 	lightShaft?: boolean;
+	lightShaftBlur?: boolean;
+	lightShaftTemporal?: boolean;
+	lightShaftTemporalBlend?: number;
 	dof?: boolean;
 }
 
@@ -76,9 +88,10 @@ export class PipelinePostProcess {
 
 	}
 
+	// ぼかしを切ると参照先がピンポンの描画先になり、フレームごとに入れ替わる
 	public get lightShaftView() {
 
-		return this._lightShaft.targetView;
+		return this._lightShaftBlurV.enabled ? this._lightShaftBlurV.targetView : this._lightShaft.targetView;
 
 	}
 
@@ -91,6 +104,8 @@ export class PipelinePostProcess {
 
 	private _normalSelector: PostProcessPass;
 	private _lightShaft: PostProcessPass;
+	private _lightShaftBlurH: PostProcessPass;
+	private _lightShaftBlurV: PostProcessPass;
 	private _ssao: PostProcessPass;
 	private _ssaoBlurV: PostProcessPass;
 
@@ -136,13 +151,34 @@ export class PipelinePostProcess {
 			passThrough: true,
 		} );
 
+		// ぼかしの入力はチェーン経由で受け取る（ピンポンで毎フレーム入れ替わる描画先を
+		// 名指しで繋ぐと1フレームずれるため）
 		this._lightShaft = pass( {
 			name: 'lightShaft',
 			wgsl: lightShaftWgsl,
 			inputs: [ NEAREST( 'uGbufferPos' ) ],
-			uniforms: { uIntensity: { value: 1, type: '1f' } },
+			uniforms: {
+				uIntensity: { value: 1, type: '1f' },
+				uFrame: { value: 0, type: '1f' },
+				uTemporal: { value: 1, type: '1f' },
+				uTemporalBlend: { value: LIGHT_SHAFT_TEMPORAL_BLEND, type: '1f' },
+			},
 			pingPong: 'uLightShaftBackBuffer',
 			lights: lightLayout,
+			resolutionRatio: 0.5,
+		} );
+
+		this._lightShaftBlurH = pass( {
+			name: 'lightShaft/blur/h',
+			wgsl: buildLightShaftBlurWgsl( LIGHT_SHAFT_BLUR_SAMPLES, false ),
+			inputs: [ 'uBackBuffer0', NEAREST( 'uGbufferPos' ) ],
+			resolutionRatio: 0.5,
+		} );
+
+		this._lightShaftBlurV = pass( {
+			name: 'lightShaft/blur/v',
+			wgsl: buildLightShaftBlurWgsl( LIGHT_SHAFT_BLUR_SAMPLES, true ),
+			inputs: [ 'uBackBuffer0', NEAREST( 'uGbufferPos' ) ],
 			resolutionRatio: 0.5,
 			passThrough: true,
 		} );
@@ -173,6 +209,8 @@ export class PipelinePostProcess {
 		this._deferredChain = new PostProcessChain( device, frameLayout, [
 			this._normalSelector,
 			this._lightShaft,
+			this._lightShaftBlurH,
+			this._lightShaftBlurV,
 			this._ssao,
 			ssaoBlurH,
 			this._ssaoBlurV,
@@ -390,8 +428,13 @@ export class PipelinePostProcess {
 
 	}
 
-	// カメラのDoF設定からCoCの係数を作る（webgl側 PipelinePostProcess.update と同じ式）
+	// カメラのDoF設定からCoCの係数を作る（webgl側 PipelinePostProcess.update と同じ式）。
+	// あわせて lightShaft のジッタを次のフレームへ進める
 	public update( camera: Camera ) {
+
+		const jitter = this._lightShaft.uniforms.uFrame;
+
+		jitter.value = ( jitter.value + 1 ) % LIGHT_SHAFT_JITTER_CYCLE;
 
 		const focusDistance = camera.dofParams.focusDistance;
 		const kFilmHeight = camera.dofParams.kFilmHeight;
@@ -439,6 +482,25 @@ export class PipelinePostProcess {
 		if ( config.lightShaft !== undefined ) {
 
 			this._lightShaft.uniforms.uIntensity.value = config.lightShaft ? 1 : 0;
+
+		}
+
+		if ( config.lightShaftBlur !== undefined ) {
+
+			this._lightShaftBlurH.enabled = config.lightShaftBlur;
+			this._lightShaftBlurV.enabled = config.lightShaftBlur;
+
+		}
+
+		if ( config.lightShaftTemporal !== undefined ) {
+
+			this._lightShaft.uniforms.uTemporal.value = config.lightShaftTemporal ? 1 : 0;
+
+		}
+
+		if ( config.lightShaftTemporalBlend !== undefined ) {
+
+			this._lightShaft.uniforms.uTemporalBlend.value = config.lightShaftTemporalBlend;
 
 		}
 
