@@ -61,6 +61,8 @@ export class OrbitControls extends MXP.Component {
 
 		const onPointerMove = ( e: PointerEventArgs ) => {
 
+			// 無効中に速度を溜めると、有効化された瞬間にまとめて適用されて飛ぶ
+			if ( ! this._enabled ) return;
 			if ( ! touching ) return;
 			if ( this._multiTouching ) return;
 
