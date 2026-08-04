@@ -67,50 +67,46 @@ export class Camera extends Component {
 			kFilmHeight: 0.008,
 		};
 
-		if ( import.meta.env.DEV ) {
+		const markDirty = () => {
 
-			const markDirty = () => {
+			this.needsUpdateProjectionMatrix = true;
 
-				this.needsUpdateProjectionMatrix = true;
+		};
 
-			};
+		this.field( "fov", () => this.fov, ( v ) => {
 
-			this.field( "fov", () => this.fov, ( v ) => {
+			this.fov = v;
+			markDirty();
 
-				this.fov = v;
-				markDirty();
+		} );
 
-			}, { noExport: true } );
+		this.field( "near", () => this.near, ( v ) => {
 
-			this.field( "near", () => this.near, ( v ) => {
+			this.near = v;
+			markDirty();
 
-				this.near = v;
-				markDirty();
+		} );
 
-			}, { noExport: true } );
+		this.field( "far", () => this.far, ( v ) => {
 
-			this.field( "far", () => this.far, ( v ) => {
+			this.far = v;
+			markDirty();
 
-				this.far = v;
-				markDirty();
+		} );
 
-			}, { noExport: true } );
+		this.field( "orthWidth", () => this.orthWidth, ( v ) => {
 
-			this.field( "orthWidth", () => this.orthWidth, ( v ) => {
+			this.orthWidth = v;
+			markDirty();
 
-				this.orthWidth = v;
-				markDirty();
+		} );
 
-			}, { noExport: true } );
+		this.field( "orthHeight", () => this.orthHeight, ( v ) => {
 
-			this.field( "orthHeight", () => this.orthHeight, ( v ) => {
+			this.orthHeight = v;
+			markDirty();
 
-				this.orthHeight = v;
-				markDirty();
-
-			}, { noExport: true } );
-
-		}
+		} );
 
 		this._tag = "camera";
 
