@@ -2,7 +2,10 @@ import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
 import { Gizmo, GizmoAxis, GizmoDragResult } from '..';
+import { getAxisWorldDir, getWorldQuaternion, projectRayOnLine, TransformOrientation } from '../../../transform/TransformUtils';
 
+// 回転済みオブジェクトをグローバル軸でスケールすると TRS で表現できないシアーになるため、
+// このギズモは orientation を無視して常にローカル軸で表示・ドラッグする（Blender との意図的な差異）
 export class ScaleGizmo implements Gizmo {
 
 	private static readonly BASE_SCALE_FACTOR = 0.15;
@@ -16,6 +19,7 @@ export class ScaleGizmo implements Gizmo {
 	private _activeAxis: GizmoAxis | null;
 	private _dragging: boolean;
 	private _dragStartPos: GLP.Vector;
+	private _dragAxisDir: GLP.Vector;
 	private _dragStartProjection: number;
 	private _dragStartScale: GLP.Vector;
 
@@ -30,6 +34,7 @@ export class ScaleGizmo implements Gizmo {
 		this._activeAxis = null;
 		this._dragging = false;
 		this._dragStartPos = new GLP.Vector();
+		this._dragAxisDir = new GLP.Vector( 1, 0, 0 );
 		this._dragStartProjection = 0;
 		this._dragStartScale = new GLP.Vector();
 
@@ -129,11 +134,12 @@ export class ScaleGizmo implements Gizmo {
 
 	}
 
-	public setTarget( entity: MXP.Entity | null, cameraEntity: MXP.Entity | null ): void {
+	public setTarget( entity: MXP.Entity | null, cameraEntity: MXP.Entity | null, _orientation: TransformOrientation ): void {
 
 		if ( entity ) {
 
 			this.entity.visible = true;
+			this.entity.quaternion.copy( getWorldQuaternion( entity ) );
 			this.entity.position.set(
 				entity.matrixWorld.elm[ 12 ],
 				entity.matrixWorld.elm[ 13 ],
@@ -207,7 +213,10 @@ export class ScaleGizmo implements Gizmo {
 		this._activeAxis = axis;
 		this._dragging = true;
 		this._dragStartPos.copy( this.entity.position );
-		this._dragStartProjection = this._getAxisProjection( ray, axis );
+
+		// ドラッグ中も setTarget が毎フレーム走るので、軸方向は開始時のものに固定する
+		this._dragAxisDir = getAxisWorldDir( targetEntity, axis, 'local' );
+		this._dragStartProjection = projectRayOnLine( ray, this._dragStartPos, this._dragAxisDir );
 		this._dragStartScale.set( targetEntity.scale.x, targetEntity.scale.y, targetEntity.scale.z );
 
 	}
@@ -216,8 +225,7 @@ export class ScaleGizmo implements Gizmo {
 
 		if ( ! this._dragging || ! this._activeAxis ) return null;
 
-		const currentProjection = this._getAxisProjection( ray, this._activeAxis );
-		const delta = currentProjection - this._dragStartProjection;
+		const delta = projectRayOnLine( ray, this._dragStartPos, this._dragAxisDir ) - this._dragStartProjection;
 
 		const newScale = this._dragStartScale.clone();
 
@@ -238,33 +246,6 @@ export class ScaleGizmo implements Gizmo {
 
 		this._activeAxis = null;
 		this._dragging = false;
-
-	}
-
-	private _getAxisProjection( ray: MXP.Ray, axis: GizmoAxis ): number {
-
-		const axisDir = new GLP.Vector(
-			axis === 'x' ? 1 : 0,
-			axis === 'y' ? 1 : 0,
-			axis === 'z' ? 1 : 0,
-		);
-
-		const gizmoPos = this._dragStartPos;
-
-		const diff = new GLP.Vector(
-			ray.origin.x - gizmoPos.x,
-			ray.origin.y - gizmoPos.y,
-			ray.origin.z - gizmoPos.z,
-		);
-
-		const dotDirAxis = ray.direction.x * axisDir.x + ray.direction.y * axisDir.y + ray.direction.z * axisDir.z;
-		const dotDiffAxis = diff.x * axisDir.x + diff.y * axisDir.y + diff.z * axisDir.z;
-		const dotDiffDir = diff.x * ray.direction.x + diff.y * ray.direction.y + diff.z * ray.direction.z;
-
-		const denom = 1.0 - dotDirAxis * dotDirAxis + 0.0001;
-		const t = ( dotDiffAxis * dotDirAxis - dotDiffDir ) / denom;
-
-		return dotDiffAxis + t * dotDirAxis;
 
 	}
 

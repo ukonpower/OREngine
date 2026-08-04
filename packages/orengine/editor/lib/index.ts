@@ -12,10 +12,13 @@ import { GizmoMode } from './gizmo/Gizmo';
 import { GizmoManager } from './gizmo/GizmoManager';
 import { HelperManager } from './helper/HelperManager';
 import { KeyboardHandler } from './input/KeyboardHandler';
+import { ModalTransformHandler } from './input/ModalTransformHandler';
 import { PointerHandler } from './input/PointerHandler';
 import { SelectionOutline } from './render/SelectionOutline';
 import { WireframeRenderer } from './render/WireframeRenderer';
 import { SceneExporter, SceneExporterProgress } from './SceneExporter';
+
+import type { TransformOrientation } from './transform/TransformUtils';
 
 export type { SceneExporterOption, SceneExporterProgress } from './SceneExporter';
 
@@ -52,6 +55,7 @@ export class Editor extends MXP.Serializable {
 	private _assetPreviewManager: AssetPreviewManager;
 	private _externalWindow: Window | null;
 	private _externalCanvasBitmapContext: ImageBitmapRenderingContext | null;
+	private _modalStatus: string | null;
 
 	private _disposed: boolean;
 	private _api: EditorAPI;
@@ -64,6 +68,7 @@ export class Editor extends MXP.Serializable {
 	private _selectionOutline: SelectionOutline;
 	private _pointerHandler: PointerHandler;
 	private _keyboardHandler: KeyboardHandler;
+	private _modalTransformHandler: ModalTransformHandler;
 
 	private _sceneExporter: SceneExporter;
 	private _isExporting: boolean;
@@ -83,6 +88,7 @@ export class Editor extends MXP.Serializable {
 		this._baseResolution = new GLP.Vector( 1920, 1080 );
 		this._externalWindow = null;
 		this._externalCanvasBitmapContext = null;
+		this._modalStatus = null;
 		this._disposed = false;
 		this._api = new EditorAPI( this );
 		this._draw = createEditorDraw( engine );
@@ -110,7 +116,27 @@ export class Editor extends MXP.Serializable {
 			() => this._selectedEntityId,
 			() => this._gizmoManager.mode,
 			( entity ) => this.selectEntity( entity ),
+			() => this._modalTransformHandler.active,
 		);
+
+		this._modalTransformHandler = new ModalTransformHandler( {
+			engine,
+			editorCamera: this._editorCamera,
+			api: this._api,
+			getSelectedEntity: () => this._selectedEntityId
+				? engine.root.findEntityByUUID( this._selectedEntityId ) ?? null
+				: null,
+			isPointerBusy: () => this._pointerHandler.gizmoDragging,
+			onStatusChange: ( status ) => {
+
+				// モーダル中は毎 pointermove で呼ばれるので、文字列が変わったときだけ React へ通知する
+				if ( this._modalStatus === status ) return;
+
+				this._modalStatus = status;
+				this.noticeField( "modalStatus" );
+
+			},
+		} );
 
 		this._keyboardHandler = new KeyboardHandler( {
 			onSave: () => this.save(),
@@ -129,7 +155,7 @@ export class Editor extends MXP.Serializable {
 				}
 
 			},
-			onSetGizmoMode: ( mode ) => this.setField( "gizmoMode", mode ),
+			onTransformKey: ( e ) => this._modalTransformHandler.handleKeyDown( e ),
 		} );
 
 		/*-------------------------------
@@ -271,6 +297,15 @@ export class Editor extends MXP.Serializable {
 
 		} );
 
+		this.field( "transformOrientation", () => this._gizmoManager.orientation, ( v: TransformOrientation ) => {
+
+			this._gizmoManager.setOrientation( v );
+
+		} );
+
+		// モーダル変形中だけ出るヘッダテキスト。セッション限りの状態なので editor.json には残さない
+		this.field( "modalStatus", () => this._modalStatus, { noExport: true } );
+
 		const helperDir = this.fieldDir( "helpers" );
 		helperDir.field( "show", () => this._helperManager.showHelpers, v => this._helperManager.showHelpers = v );
 		helperDir.field( "empty", () => this._helperManager.showEmptyHelpers, v => this._helperManager.showEmptyHelpers = v );
@@ -401,7 +436,12 @@ export class Editor extends MXP.Serializable {
 
 			this._wireframeRenderer.render( this._editorCamera.cameraMode, cameraEntity, this._engine );
 
-			this._gizmoManager.render( selectedEntity, cameraEntity, this._engine );
+			// モーダル変形中はギズモが変形結果に追従してちらつくので出さない
+			this._gizmoManager.render(
+				this._modalTransformHandler.active ? null : selectedEntity,
+				cameraEntity,
+				this._engine
+			);
 
 			this._selectionOutline.render( selectedEntity, cameraEntity );
 
@@ -657,6 +697,7 @@ export class Editor extends MXP.Serializable {
 		this._editorCamera.dispose();
 		this._pointerHandler.dispose();
 		this._keyboardHandler.dispose();
+		this._modalTransformHandler.dispose();
 		this._frameDebugger.dispose();
 		this._assetPreviewManager.dispose();
 

@@ -23,6 +23,8 @@ export const Screen = () => {
 	const [ viewType, setViewType ] = useSerializableField<string>( editor, "viewType" );
 	const [ resolutionScale, setResolutionScale ] = useSerializableField<number>( editor, "resolutionScale" );
 	const [ gizmoMode, setGizmoMode ] = useSerializableField<string>( editor, "gizmoMode" );
+	const [ transformOrientation, setTransformOrientation ] = useSerializableField<string>( editor, "transformOrientation" );
+	const [ modalStatus ] = useSerializableField<string>( editor, "modalStatus" );
 
 	const [ showHelpers, setShowHelpers ] = useSerializableField<boolean>( editor, "helpers/show" );
 	const [ showEmpty, setShowEmpty ] = useSerializableField<boolean>( editor, "helpers/empty" );
@@ -180,12 +182,25 @@ export const Screen = () => {
 						className={style.gizmoMode_btn}
 						data-active={gizmoMode === mode}
 						onClick={() => setGizmoMode && setGizmoMode( mode )}
-						title={`${mode} (${mode === 'select' ? 'Q' : mode === 'translate' ? 'W' : mode === 'rotate' ? 'E' : 'R'})`}
+						title={mode.charAt( 0 ).toUpperCase() + mode.slice( 1 )}
 					>
-						{mode === 'select' ? 'Q' : mode === 'translate' ? 'T' : mode === 'rotate' ? 'R' : 'S'}
+						{mode === 'select' ? '↖' : mode === 'translate' ? 'T' : mode === 'rotate' ? 'R' : 'S'}
+					</div>
+				) )}
+				<div className={style.gizmoMode_separator} />
+				{( [ "global", "local" ] as const ).map( ( orientation ) => (
+					<div
+						key={orientation}
+						className={style.gizmoMode_btn}
+						data-active={transformOrientation === orientation}
+						onClick={() => setTransformOrientation && setTransformOrientation( orientation )}
+						title={orientation.charAt( 0 ).toUpperCase() + orientation.slice( 1 )}
+					>
+						{orientation === 'global' ? 'G' : 'L'}
 					</div>
 				) )}
 			</div>
+			{modalStatus && <div className={style.modalStatus}>{modalStatus}</div>}
 			<div className={style.canvas}>
 				<Canvas />
 			</div>

@@ -2,10 +2,18 @@ import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
 import { Gizmo, GizmoAxis, GizmoDragResult } from '..';
+import { composeLocalQuat, getAxisWorldDir, getWorldQuaternion, intersectRayPlane, quaternionFromAxisAngle, TransformOrientation } from '../../../transform/TransformUtils';
 
 export class RotateGizmo implements Gizmo {
 
 	private static readonly BASE_SCALE_FACTOR = 0.15;
+
+	// 回転面内で角度を測る基準軸の組。atan2( dot( p, v ), dot( p, u ) ) が回転軸まわりの右ねじ角になる（u × v = 回転軸）
+	private static readonly PLANE_AXES: Record<GizmoAxis, { u: GizmoAxis, v: GizmoAxis }> = {
+		x: { u: 'y', v: 'z' },
+		y: { u: 'z', v: 'x' },
+		z: { u: 'x', v: 'y' },
+	};
 
 	private _engine: MXP.EngineContract;
 	private _draw: MXP.EditorDrawContract;
@@ -13,10 +21,15 @@ export class RotateGizmo implements Gizmo {
 	private _xRing: MXP.Entity;
 	private _yRing: MXP.Entity;
 	private _zRing: MXP.Entity;
+	private _orientation: TransformOrientation;
 	private _activeAxis: GizmoAxis | null;
 	private _dragging: boolean;
 	private _dragStartAngle: number;
-	private _dragStartEuler: GLP.Vector;
+	private _dragAxisU: GLP.Vector;
+	private _dragAxisV: GLP.Vector;
+	private _dragAxisN: GLP.Vector;
+	private _dragStartWorldQuat: GLP.Quaternion;
+	private _parentWorldQuatInv: GLP.Quaternion;
 
 	constructor( engine: MXP.EngineContract, draw: MXP.EditorDrawContract ) {
 
@@ -26,10 +39,15 @@ export class RotateGizmo implements Gizmo {
 		this.entity.initiator = "god";
 		this.entity.visible = false;
 
+		this._orientation = 'global';
 		this._activeAxis = null;
 		this._dragging = false;
 		this._dragStartAngle = 0;
-		this._dragStartEuler = new GLP.Vector();
+		this._dragAxisU = new GLP.Vector( 1, 0, 0 );
+		this._dragAxisV = new GLP.Vector( 0, 1, 0 );
+		this._dragAxisN = new GLP.Vector( 0, 0, 1 );
+		this._dragStartWorldQuat = new GLP.Quaternion();
+		this._parentWorldQuatInv = new GLP.Quaternion();
 
 		this._xRing = this._createRing( 'x', [ 1.0, 0.2, 0.2 ] );
 		this._yRing = this._createRing( 'y', [ 0.2, 1.0, 0.2 ] );
@@ -90,11 +108,25 @@ export class RotateGizmo implements Gizmo {
 
 	}
 
-	public setTarget( entity: MXP.Entity | null, cameraEntity: MXP.Entity | null ): void {
+	public setTarget( entity: MXP.Entity | null, cameraEntity: MXP.Entity | null, orientation: TransformOrientation ): void {
+
+		this._orientation = orientation;
 
 		if ( entity ) {
 
 			this.entity.visible = true;
+
+			// root を回すと表示メッシュもヒット用メッシュも子として一緒に向く
+			if ( orientation === 'local' ) {
+
+				this.entity.quaternion.copy( getWorldQuaternion( entity ) );
+
+			} else {
+
+				this.entity.quaternion.set( 0, 0, 0, 1 );
+
+			}
+
 			this.entity.position.set(
 				entity.matrixWorld.elm[ 12 ],
 				entity.matrixWorld.elm[ 13 ],
@@ -167,8 +199,18 @@ export class RotateGizmo implements Gizmo {
 
 		this._activeAxis = axis;
 		this._dragging = true;
-		this._dragStartAngle = this._getAngleFromRay( ray, axis );
-		this._dragStartEuler.set( targetEntity.euler.x, targetEntity.euler.y, targetEntity.euler.z );
+
+		// ドラッグ中もリングは setTarget で向きが更新されるので、回転面は開始時のものに固定する
+		const plane = RotateGizmo.PLANE_AXES[ axis ];
+		this._dragAxisU = getAxisWorldDir( targetEntity, plane.u, this._orientation );
+		this._dragAxisV = getAxisWorldDir( targetEntity, plane.v, this._orientation );
+		this._dragAxisN = getAxisWorldDir( targetEntity, axis, this._orientation );
+
+		this._dragStartAngle = this._getAngleFromRay( ray ) ?? 0;
+		this._dragStartWorldQuat = getWorldQuaternion( targetEntity );
+		this._parentWorldQuatInv = targetEntity.parent
+			? getWorldQuaternion( targetEntity.parent ).inverse()
+			: new GLP.Quaternion();
 
 	}
 
@@ -176,16 +218,15 @@ export class RotateGizmo implements Gizmo {
 
 		if ( ! this._dragging || ! this._activeAxis ) return null;
 
-		const currentAngle = this._getAngleFromRay( ray, this._activeAxis );
-		const deltaAngle = currentAngle - this._dragStartAngle;
+		const currentAngle = this._getAngleFromRay( ray );
 
-		const newEuler = this._dragStartEuler.clone();
+		if ( currentAngle === null ) return null;
 
-		if ( this._activeAxis === 'x' ) newEuler.x += deltaAngle;
-		else if ( this._activeAxis === 'y' ) newEuler.y += deltaAngle;
-		else newEuler.z += deltaAngle;
+		// ワールド空間の回転増分として合成する。euler へのローカル加算だとリングの見た目と実際の回転軸がずれる
+		const deltaQ = quaternionFromAxisAngle( this._dragAxisN, currentAngle - this._dragStartAngle );
+		const localQuat = composeLocalQuat( this._parentWorldQuatInv, deltaQ, this._dragStartWorldQuat );
 
-		return { euler: newEuler };
+		return { euler: new GLP.Euler().setFromQuaternion( localQuat ) };
 
 	}
 
@@ -196,36 +237,16 @@ export class RotateGizmo implements Gizmo {
 
 	}
 
-	private _getAngleFromRay( ray: MXP.Ray, axis: GizmoAxis ): number {
+	// 回転面（開始時に固定した u / v / n）上でのポインタの角度。視線が面と平行なら null
+	private _getAngleFromRay( ray: MXP.Ray ): number | null {
 
-		const gizmoPos = this.entity.position;
+		const hit = intersectRayPlane( ray, this.entity.position, this._dragAxisN );
 
-		const normal = new GLP.Vector(
-			axis === 'x' ? 1 : 0,
-			axis === 'y' ? 1 : 0,
-			axis === 'z' ? 1 : 0,
-		);
+		if ( ! hit ) return null;
 
-		const denom = ray.direction.x * normal.x + ray.direction.y * normal.y + ray.direction.z * normal.z;
+		const local = hit.sub( this.entity.position );
 
-		if ( Math.abs( denom ) < 0.0001 ) return 0;
-
-		const diffX = gizmoPos.x - ray.origin.x;
-		const diffY = gizmoPos.y - ray.origin.y;
-		const diffZ = gizmoPos.z - ray.origin.z;
-		const t = ( diffX * normal.x + diffY * normal.y + diffZ * normal.z ) / denom;
-
-		const hitX = ray.origin.x + ray.direction.x * t;
-		const hitY = ray.origin.y + ray.direction.y * t;
-		const hitZ = ray.origin.z + ray.direction.z * t;
-
-		const localX = hitX - gizmoPos.x;
-		const localY = hitY - gizmoPos.y;
-		const localZ = hitZ - gizmoPos.z;
-
-		if ( axis === 'x' ) return Math.atan2( localZ, localY );
-		if ( axis === 'y' ) return Math.atan2( localX, localZ );
-		return Math.atan2( localY, localX );
+		return Math.atan2( local.dot( this._dragAxisV ), local.dot( this._dragAxisU ) );
 
 	}
 

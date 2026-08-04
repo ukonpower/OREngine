@@ -6,6 +6,8 @@ import { RotateGizmo } from '../Gizmo/RotateGizmo';
 import { ScaleGizmo } from '../Gizmo/ScaleGizmo';
 import { TranslateGizmo } from '../Gizmo/TranslateGizmo';
 
+import type { TransformOrientation } from '../../transform/TransformUtils';
+
 export class GizmoManager {
 
 	private _draw: MXP.EditorDrawContract;
@@ -14,6 +16,7 @@ export class GizmoManager {
 	private _scaleGizmo: ScaleGizmo;
 	private _activeGizmo: Gizmo | null;
 	private _mode: GizmoMode;
+	private _orientation: TransformOrientation;
 
 	constructor( engine: MXP.EngineContract, draw: MXP.EditorDrawContract ) {
 
@@ -22,6 +25,7 @@ export class GizmoManager {
 		this._rotateGizmo = new RotateGizmo( engine, draw );
 		this._scaleGizmo = new ScaleGizmo( engine, draw );
 		this._mode = 'select';
+		this._orientation = 'global';
 		this._activeGizmo = null;
 
 	}
@@ -49,6 +53,18 @@ export class GizmoManager {
 
 	}
 
+	public get orientation() {
+
+		return this._orientation;
+
+	}
+
+	public setOrientation( v: TransformOrientation ) {
+
+		this._orientation = v;
+
+	}
+
 	public render( selectedEntity: MXP.Entity | null, cameraEntity: MXP.Entity | null, engine: Engine ) {
 
 		this._translateGizmo.entity.visible = false;
@@ -57,7 +73,7 @@ export class GizmoManager {
 
 		if ( ! this._activeGizmo ) return;
 
-		this._activeGizmo.setTarget( selectedEntity || null, cameraEntity );
+		this._activeGizmo.setTarget( selectedEntity || null, cameraEntity, this._orientation );
 
 		if ( ! this._activeGizmo.entity.visible ) return;
 
