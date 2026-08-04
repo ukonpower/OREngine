@@ -2,6 +2,7 @@ import * as GLP from 'glpower';
 
 import bloomCompositeWgsl from './bloomComposite.wgsl';
 import gaussBlurWgsl from './gaussBlur.wgsl';
+import lightShaftBlurWgsl from './lightShaftBlur.wgsl';
 import motionBlurWgsl from './motionBlur.wgsl';
 import motionBlurTileWgsl from './motionBlurTile.wgsl';
 import ssaoWgsl from './ssao.wgsl';
@@ -80,6 +81,9 @@ export const buildSsaoBlurWgsl = ( samples: number, vertical: boolean ) =>
 
 export const buildGaussBlurWgsl = ( samples: number, vertical: boolean ) =>
 	[ blurConstants( samples, vertical ), gaussBlurWgsl ].join( '\n\n' );
+
+export const buildLightShaftBlurWgsl = ( samples: number, vertical: boolean ) =>
+	[ blurConstants( samples, vertical ), lightShaftBlurWgsl ].join( '\n\n' );
 
 /*-------------------------------
 	bloom
