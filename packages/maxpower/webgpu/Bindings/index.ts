@@ -46,6 +46,10 @@ if ( import.meta.hot ) {
 export const GROUP_FRAME = 0;
 export const GROUP_OBJECT = 1;
 export const GROUP_MATERIAL = 2;
+// forward描画前のシーン（shading結果）のコピー。webgl側の refractionBuffer / uDeferredTexture に相当。
+// レイアウトが付くのは fsForward を使うパイプライン（forward / envMap / editor）だけなので、
+// fsDeferred / fsShadow から refractionTexture を参照するとパイプライン生成に失敗する
+export const GROUP_REFRACTION = 3;
 
 // GLのクリップ空間（z∈[-w,w]）をWebGPU（z∈[0,w]）へ移す補正。
 // カメラ・ライトどちらのprojection行列にも1回だけ乗算する。
@@ -164,6 +168,8 @@ export const buildShaderSource = ( body: string, materialFields: UniformField[],
 		`@group(${GROUP_FRAME}) @binding(0) var<uniform> frame: FrameUniforms;`,
 		buildStructWgsl( 'ObjectUniforms', OBJECT_FIELDS ),
 		`@group(${GROUP_OBJECT}) @binding(0) var<uniform> object: ObjectUniforms;`,
+		`@group(${GROUP_REFRACTION}) @binding(0) var refractionTexture: texture_2d<f32>;`,
+		`@group(${GROUP_REFRACTION}) @binding(1) var refractionSampler: sampler;`,
 	];
 
 	// uniformを持たないマテリアルは binding0 が存在しない（空structはWGSLで書けない）

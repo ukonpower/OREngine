@@ -18,6 +18,8 @@ export class RenderTargets {
 	public depthView: GPUTextureView | null;
 	public scene: GPUTexture | null;
 	public sceneView: GPUTextureView | null;
+	public refraction: GPUTexture | null;
+	public refractionView: GPUTextureView | null;
 
 	constructor() {
 
@@ -29,6 +31,8 @@ export class RenderTargets {
 		this.depthView = null;
 		this.scene = null;
 		this.sceneView = null;
+		this.refraction = null;
+		this.refractionView = null;
 
 	}
 
@@ -66,10 +70,20 @@ export class RenderTargets {
 			label: 'scene',
 			size: [ width, height ],
 			format: SCENE_FORMAT,
-			usage,
+			usage: usage | GPUTextureUsage.COPY_SRC,
 		} );
 
 		this.sceneView = this.scene.createView();
+
+		// forward描画前のシーンのコピー。forwardマテリアルが背景として読む
+		this.refraction = device.createTexture( {
+			label: 'refraction',
+			size: [ width, height ],
+			format: SCENE_FORMAT,
+			usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
+		} );
+
+		this.refractionView = this.refraction.createView();
 
 	}
 
@@ -86,6 +100,10 @@ export class RenderTargets {
 		this.scene?.destroy();
 		this.scene = null;
 		this.sceneView = null;
+
+		this.refraction?.destroy();
+		this.refraction = null;
+		this.refractionView = null;
 
 	}
 
