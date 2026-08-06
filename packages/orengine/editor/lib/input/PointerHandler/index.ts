@@ -4,7 +4,7 @@ import * as MXP from 'maxpower';
 import { Engine } from '../../../../core/Engine';
 import { SetFieldCommand } from '../../command/Commands/SetFieldCommand';
 import { EditorCamera } from '../../EditorCamera';
-import { GizmoAxis, GizmoMode } from '../../gizmo/Gizmo';
+import { GizmoHandle, GizmoMode } from '../../gizmo/Gizmo';
 import { GizmoManager } from '../../gizmo/GizmoManager';
 import { HelperManager } from '../../helper/HelperManager';
 import { EntityHelper } from '../../helper/Helpers/EntityHelper';
@@ -194,13 +194,42 @@ export class PointerHandler {
 
 			for ( const helper of helpers ) {
 
-				const hits = this._raycaster.intersectEntities( helper.hitAreaEntity );
-
-				if ( hits.length === 0 ) continue;
-
 				const targetEntity = engine.root.findEntityByUUID( helper.targetEntityUUID );
 
 				if ( ! targetEntity ) continue;
+
+				// emptyは体積の当たり判定を持たない。Blenderと同じく、描かれている十字線の近くをクリックしたときだけ拾う
+				if ( helper.type === 'empty' ) {
+
+					if ( ! isNearHelperLines( helper, ndc, cameraEntity, content ) ) continue;
+
+					directHitUUIDs.add( helper.targetEntityUUID );
+
+					const elm = helper.entity.matrixWorld.elm;
+					const dx = elm[ 12 ] - this._raycaster.ray.origin.x;
+					const dy = elm[ 13 ] - this._raycaster.ray.origin.y;
+					const dz = elm[ 14 ] - this._raycaster.ray.origin.z;
+					const distance = Math.sqrt( dx * dx + dy * dy + dz * dz );
+
+					const candidate: ClickCandidate = { entity: targetEntity, distance, type: 'helper' };
+
+					if ( distance <= firstMeshDistance ) {
+
+						visibleHelpers.push( candidate );
+
+					} else {
+
+						hiddenHelpers.push( candidate );
+
+					}
+
+					continue;
+
+				}
+
+				const hits = this._raycaster.intersectEntities( helper.hitAreaEntity );
+
+				if ( hits.length === 0 ) continue;
 
 				directHitUUIDs.add( helper.targetEntityUUID );
 
@@ -301,6 +330,31 @@ export class PointerHandler {
 
 		};
 
+		// アクティブなギズモのハンドルのうち、レイに最も近いものを拾う（raycaster は設定済みであること）
+		const pickGizmoHandle = (): { handle: GizmoHandle, distance: number } | null => {
+
+			const gizmo = gizmoManager.activeGizmo;
+
+			if ( ! gizmo || ! gizmo.entity.visible ) return null;
+
+			let closest: { handle: GizmoHandle, distance: number } | null = null;
+
+			for ( const { handle, entity } of gizmo.getHandleEntities() ) {
+
+				const hits = this._raycaster.intersectEntities( entity );
+
+				if ( hits.length > 0 && ( ! closest || hits[ 0 ].distance < closest.distance ) ) {
+
+					closest = { handle, distance: hits[ 0 ].distance };
+
+				}
+
+			}
+
+			return closest;
+
+		};
+
 		// モーダル変形は window の capture リスナーでポインタを奪うが、取りこぼした場合の保険として二重に止める
 		const onPointerDown = ( e: PointerEvent ) => {
 
@@ -332,20 +386,7 @@ export class PointerHandler {
 
 					this._raycaster.setFromCamera( ndc, cameraEntity );
 
-					const axisEntities = gizmoManager.activeGizmo.getAxisEntities();
-					let closestHit: { axis: GizmoAxis, distance: number } | null = null;
-
-					for ( const { axis, entity: axisEntity } of axisEntities ) {
-
-						const hits = this._raycaster.intersectEntities( axisEntity );
-
-						if ( hits.length > 0 && ( ! closestHit || hits[ 0 ].distance < closestHit.distance ) ) {
-
-							closestHit = { axis, distance: hits[ 0 ].distance };
-
-						}
-
-					}
+					const closestHit = pickGizmoHandle();
 
 					if ( closestHit ) {
 
@@ -366,7 +407,7 @@ export class PointerHandler {
 								scale: selectedEntity.scale.getElm( 'vec3' ) as number[],
 							};
 
-							gizmoManager.activeGizmo.startDrag( closestHit.axis, this._raycaster.ray, selectedEntity );
+							gizmoManager.activeGizmo.startDrag( closestHit.handle, this._raycaster.ray, selectedEntity );
 
 						}
 
@@ -464,20 +505,12 @@ export class PointerHandler {
 
 			if ( gizmoManager.activeGizmo && gizmoManager.activeGizmo.entity.visible ) {
 
-				const axisEntities = gizmoManager.activeGizmo.getAxisEntities();
+				const gizmoHit = pickGizmoHandle();
 
-				for ( const { entity: axisEntity } of axisEntities ) {
+				if ( gizmoHit ) newHover = 'gizmo';
 
-					const hits = this._raycaster.intersectEntities( axisEntity );
-
-					if ( hits.length > 0 ) {
-
-						newHover = 'gizmo';
-						break;
-
-					}
-
-				}
+				// 掴めるハンドルを掴む前に光らせる（Blenderのホバーハイライト相当）
+				gizmoManager.activeGizmo.setHover( gizmoHit ? gizmoHit.handle : null );
 
 			}
 

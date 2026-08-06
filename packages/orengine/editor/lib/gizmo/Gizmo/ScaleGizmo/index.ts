@@ -1,251 +1,188 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { Gizmo, GizmoAxis, GizmoDragResult } from '..';
-import { getAxisWorldDir, getWorldQuaternion, projectRayOnLine, TransformOrientation } from '../../../transform/TransformUtils';
+import { GizmoAxis, GizmoDragResult, GizmoHandle, GizmoPlane } from '..';
+import { getAxisWorldDir, getWorldQuaternion, intersectRayPlane, projectRayOnLine, TransformOrientation } from '../../../transform/TransformUtils';
+import { AXIS_COLORS, GizmoBase, PLANE_AXES, PLANE_NORMAL_AXIS } from '../GizmoBase';
+
+// 軸ハンドルの寸法。中心付近を空けて中心ハンドル・平面ハンドルと取り合わないようにする
+const SHAFT_START = 0.25;
+const SHAFT_END = 0.85;
+const SHAFT_RADIUS = 0.02;
+const HEAD_SIZE = 0.1;
+
+// スケール倍率の下限。0 で行列が潰れるのを防ぐ（符号は通すのでミラーはできる）
+const MIN_SCALE_RATIO = 0.001;
+
+// 比率の分母の下限。中心ぴったりを掴んだときの発散を防ぐ
+const MIN_START_AMOUNT = 1e-4;
+
+const AXES: readonly GizmoAxis[] = [ 'x', 'y', 'z' ];
+const PLANES: readonly GizmoPlane[] = [ 'xy', 'yz', 'xz' ];
 
 // 回転済みオブジェクトをグローバル軸でスケールすると TRS で表現できないシアーになるため、
 // このギズモは orientation を無視して常にローカル軸で表示・ドラッグする（Blender との意図的な差異）
-export class ScaleGizmo implements Gizmo {
+export class ScaleGizmo extends GizmoBase {
 
-	private static readonly BASE_SCALE_FACTOR = 0.15;
-
-	private _engine: MXP.EngineContract;
-	private _draw: MXP.EditorDrawContract;
-	public entity: MXP.Entity;
-	private _xAxis: MXP.Entity;
-	private _yAxis: MXP.Entity;
-	private _zAxis: MXP.Entity;
-	private _activeAxis: GizmoAxis | null;
-	private _dragging: boolean;
+	private _centerRoot: MXP.Entity;
 	private _dragStartPos: GLP.Vector;
 	private _dragAxisDir: GLP.Vector;
-	private _dragStartProjection: number;
+	private _dragStartAmount: number;
+	private _dragPlaneNormal: GLP.Vector;
 	private _dragStartScale: GLP.Vector;
 
 	constructor( engine: MXP.EngineContract, draw: MXP.EditorDrawContract ) {
 
-		this._engine = engine;
-		this._draw = draw;
-		this.entity = engine.createEntity( { name: "__gizmo_scale" } );
-		this.entity.initiator = "god";
-		this.entity.visible = false;
+		super( engine, draw, '__gizmo_scale' );
 
-		this._activeAxis = null;
-		this._dragging = false;
 		this._dragStartPos = new GLP.Vector();
 		this._dragAxisDir = new GLP.Vector( 1, 0, 0 );
-		this._dragStartProjection = 0;
-		this._dragStartScale = new GLP.Vector();
+		this._dragStartAmount = 1;
+		this._dragPlaneNormal = new GLP.Vector( 0, 0, 1 );
+		this._dragStartScale = new GLP.Vector( 1, 1, 1 );
 
-		this._xAxis = this._createAxis( new GLP.Vector( 1, 0, 0 ), [ 1.0, 0.2, 0.2 ] );
-		this._yAxis = this._createAxis( new GLP.Vector( 0, 1, 0 ), [ 0.2, 1.0, 0.2 ] );
-		this._zAxis = this._createAxis( new GLP.Vector( 0, 0, 1 ), [ 0.4, 0.4, 1.0 ] );
+		for ( const axis of AXES ) this._addAxisHandle( axis );
+		for ( const plane of PLANES ) this._addPlaneHandle( plane );
 
-		this.entity.add( this._xAxis );
-		this.entity.add( this._yAxis );
-		this.entity.add( this._zAxis );
+		this._centerRoot = this._addCenterHandle();
 
 	}
 
-	private _createAxis( direction: GLP.Vector, color: number[] ): MXP.Entity {
+	// 軸ハンドル（シャフト+立方体ヘッド）。+Y向きに組んでから軸の向きへ回す
+	private _addAxisHandle( axis: GizmoAxis ) {
 
-		const axisEntity = this._engine.createEntity( { name: "__gizmo_axis" } );
-		axisEntity.initiator = "god";
+		const root = this._createEntity( '__gizmo_axis_' + axis );
+		const color = this._registerHandle( axis, root, AXIS_COLORS[ axis ] );
 
-		const shaftLength = 0.8;
-		const shaftRadius = 0.015;
-		const headSize = 0.08;
+		const shaftLength = SHAFT_END - SHAFT_START;
 
-		// shaft
-		const shaft = this._engine.createEntity( { name: "__gizmo_shaft" } );
-		shaft.initiator = "god";
-
-		const shaftGeo = new MXP.CylinderGeometry( {
-			radiusTop: shaftRadius,
-			radiusBottom: shaftRadius,
+		const shaft = this._addVisual( root, new MXP.CylinderGeometry( {
+			radiusTop: SHAFT_RADIUS,
+			radiusBottom: SHAFT_RADIUS,
 			height: shaftLength,
-			radSegments: 6,
+			radSegments: 8,
 			heightSegments: 1,
 			caps: false,
-		} );
+		} ), color );
 
-		const shaftMat = this._draw.materials.flat( { color, depthTest: false, depthWrite: false } );
+		shaft.position.set( 0, SHAFT_START + shaftLength / 2, 0 );
 
-		shaft.addComponent( MXP.Mesh, { geometry: shaftGeo, material: shaftMat } );
-		shaft.position.set( direction.x * shaftLength / 2, direction.y * shaftLength / 2, direction.z * shaftLength / 2 );
+		const head = this._addVisual( root, new MXP.CubeGeometry( {
+			width: HEAD_SIZE,
+			height: HEAD_SIZE,
+			depth: HEAD_SIZE,
+		} ), color );
 
-		// head (cube)
-		const head = this._engine.createEntity( { name: "__gizmo_head" } );
-		head.initiator = "god";
+		head.position.set( 0, SHAFT_END + HEAD_SIZE / 2, 0 );
 
-		const headGeo = new MXP.CubeGeometry( {
-			width: headSize,
-			height: headSize,
-			depth: headSize,
-		} );
-
-		const headMat = this._draw.materials.flat( { color, depthTest: false, depthWrite: false } );
-
-		head.addComponent( MXP.Mesh, { geometry: headGeo, material: headMat } );
-		head.position.set(
-			direction.x * ( shaftLength + headSize / 2 ),
-			direction.y * ( shaftLength + headSize / 2 ),
-			direction.z * ( shaftLength + headSize / 2 )
-		);
-
-		// orient shaft along the axis direction
-		if ( direction.x > 0.5 ) {
-
-			shaft.euler.set( 0, 0, - Math.PI / 2 );
-
-		} else if ( direction.z > 0.5 ) {
-
-			shaft.euler.set( Math.PI / 2, 0, 0 );
-
-		}
-
-		// hit area - shaft
-		const hitShaft = this._engine.createEntity( { name: "__gizmo_hit_shaft" } );
-		hitShaft.initiator = "god";
-		const hitShaftGeo = new MXP.CylinderGeometry( {
-			radiusTop: 0.06, radiusBottom: 0.06,
+		const hitShaft = this._addHit( root, new MXP.CylinderGeometry( {
+			radiusTop: 0.07, radiusBottom: 0.07,
 			height: shaftLength, radSegments: 6, heightSegments: 1, caps: true,
-		} );
-		hitShaft.addComponent( MXP.Mesh, { geometry: hitShaftGeo } );
-		hitShaft.position.copy( shaft.position );
-		hitShaft.euler.copy( shaft.euler );
+		} ) );
 
-		// hit area - head
-		const hitHead = this._engine.createEntity( { name: "__gizmo_hit_head" } );
-		hitHead.initiator = "god";
-		const hitHeadGeo = new MXP.CubeGeometry( {
-			width: headSize * 2, height: headSize * 2, depth: headSize * 2,
-		} );
-		hitHead.addComponent( MXP.Mesh, { geometry: hitHeadGeo } );
+		hitShaft.position.copy( shaft.position );
+
+		const hitHead = this._addHit( root, new MXP.CubeGeometry( {
+			width: HEAD_SIZE * 2, height: HEAD_SIZE * 2, depth: HEAD_SIZE * 2,
+		} ) );
+
 		hitHead.position.copy( head.position );
 
-		axisEntity.add( shaft );
-		axisEntity.add( head );
-		axisEntity.add( hitShaft );
-		axisEntity.add( hitHead );
-
-		return axisEntity;
+		if ( axis === 'x' ) root.euler.set( 0, 0, - Math.PI / 2 );
+		else if ( axis === 'z' ) root.euler.set( Math.PI / 2, 0, 0 );
 
 	}
 
-	public setTarget( entity: MXP.Entity | null, cameraEntity: MXP.Entity | null, _orientation: TransformOrientation ): void {
+	protected _rootQuaternion( entity: MXP.Entity, _orientation: TransformOrientation ): GLP.Quaternion {
 
-		if ( entity ) {
+		return getWorldQuaternion( entity );
 
-			this.entity.visible = true;
-			this.entity.quaternion.copy( getWorldQuaternion( entity ) );
-			this.entity.position.set(
-				entity.matrixWorld.elm[ 12 ],
-				entity.matrixWorld.elm[ 13 ],
-				entity.matrixWorld.elm[ 14 ]
-			);
+	}
 
-			if ( cameraEntity ) {
+	protected _onTargetUpdated(): void {
 
-				const camX = cameraEntity.matrixWorld.elm[ 12 ];
-				const camY = cameraEntity.matrixWorld.elm[ 13 ];
-				const camZ = cameraEntity.matrixWorld.elm[ 14 ];
-				const dx = this.entity.position.x - camX;
-				const dy = this.entity.position.y - camY;
-				const dz = this.entity.position.z - camZ;
-				const dist = Math.sqrt( dx * dx + dy * dy + dz * dz );
-				const s = Math.max( 0.01, dist * ScaleGizmo.BASE_SCALE_FACTOR );
-				this.entity.scale.set( s, s, s );
+		this._centerRoot.quaternion.copy( this._billboardQuat() );
 
-			}
+	}
 
-		} else {
+	protected _onStartDrag( handle: GizmoHandle, ray: MXP.Ray, targetEntity: MXP.Entity ): void {
 
-			this.entity.visible = false;
+		// ドラッグ中も setTarget が毎フレーム走るので、基準は開始時のものに固定する
+		this._dragStartPos.copy( this.entity.position );
+		this._dragStartScale.set( targetEntity.scale.x, targetEntity.scale.y, targetEntity.scale.z );
+
+		if ( handle === 'x' || handle === 'y' || handle === 'z' ) {
+
+			this._dragAxisDir = getAxisWorldDir( targetEntity, handle, 'local' );
+
+			const t = projectRayOnLine( ray, this._dragStartPos, this._dragAxisDir );
+
+			this._dragStartAmount = Math.abs( t ) < MIN_START_AMOUNT ? MIN_START_AMOUNT : t;
+
+			return;
 
 		}
 
-	}
+		// 平面ハンドルは法線軸に垂直な面、中心はビュー平面上で、中心からの距離の比を倍率にする
+		this._dragPlaneNormal = handle === 'center'
+			? ray.origin.clone().sub( this._dragStartPos ).normalize()
+			: getAxisWorldDir( targetEntity, PLANE_NORMAL_AXIS[ handle as GizmoPlane ], 'local' );
 
-	public getAxisEntities(): { axis: GizmoAxis, entity: MXP.Entity }[] {
+		const hit = intersectRayPlane( ray, this._dragStartPos, this._dragPlaneNormal );
+		const dist = hit ? hit.sub( this._dragStartPos ).length() : 0;
 
-		const result: { axis: GizmoAxis, entity: MXP.Entity }[] = [];
-
-		const collectHitEntities = ( axisEntity: MXP.Entity, axis: GizmoAxis ) => {
-
-			axisEntity.traverse( ( child ) => {
-
-				const mesh = child.getComponent( MXP.Mesh );
-
-				if ( mesh && ! mesh.material ) {
-
-					result.push( { axis, entity: child } );
-
-				}
-
-			} );
-
-		};
-
-		collectHitEntities( this._xAxis, 'x' );
-		collectHitEntities( this._yAxis, 'y' );
-		collectHitEntities( this._zAxis, 'z' );
-
-		return result;
-
-	}
-
-	public get activeAxis(): GizmoAxis | null {
-
-		return this._activeAxis;
-
-	}
-
-	public get dragging(): boolean {
-
-		return this._dragging;
-
-	}
-
-	public startDrag( axis: GizmoAxis, ray: MXP.Ray, targetEntity: MXP.Entity ): void {
-
-		this._activeAxis = axis;
-		this._dragging = true;
-		this._dragStartPos.copy( this.entity.position );
-
-		// ドラッグ中も setTarget が毎フレーム走るので、軸方向は開始時のものに固定する
-		this._dragAxisDir = getAxisWorldDir( targetEntity, axis, 'local' );
-		this._dragStartProjection = projectRayOnLine( ray, this._dragStartPos, this._dragAxisDir );
-		this._dragStartScale.set( targetEntity.scale.x, targetEntity.scale.y, targetEntity.scale.z );
+		this._dragStartAmount = Math.max( MIN_START_AMOUNT, dist );
 
 	}
 
 	public updateDrag( ray: MXP.Ray, _targetEntity: MXP.Entity ): GizmoDragResult | null {
 
-		if ( ! this._dragging || ! this._activeAxis ) return null;
+		if ( ! this.dragging || ! this.activeHandle ) return null;
 
-		const delta = projectRayOnLine( ray, this._dragStartPos, this._dragAxisDir ) - this._dragStartProjection;
+		const handle = this.activeHandle;
 
-		const newScale = this._dragStartScale.clone();
+		let ratio: number;
 
-		if ( this._activeAxis === 'x' ) newScale.x += delta;
-		else if ( this._activeAxis === 'y' ) newScale.y += delta;
-		else newScale.z += delta;
+		if ( handle === 'x' || handle === 'y' || handle === 'z' ) {
 
-		// スケールが0以下にならないように制限
-		newScale.x = Math.max( 0.01, newScale.x );
-		newScale.y = Math.max( 0.01, newScale.y );
-		newScale.z = Math.max( 0.01, newScale.z );
+			// 軸ハンドルは中心を跨ぐと符号が反転する（ミラー）
+			ratio = projectRayOnLine( ray, this._dragStartPos, this._dragAxisDir ) / this._dragStartAmount;
 
-		return { scale: newScale };
+		} else {
 
-	}
+			const hit = intersectRayPlane( ray, this._dragStartPos, this._dragPlaneNormal );
 
-	public endDrag(): void {
+			if ( ! hit ) return null;
 
-		this._activeAxis = null;
-		this._dragging = false;
+			ratio = hit.sub( this._dragStartPos ).length() / this._dragStartAmount;
+
+		}
+
+		if ( Math.abs( ratio ) < MIN_SCALE_RATIO ) ratio = ratio < 0 ? - MIN_SCALE_RATIO : MIN_SCALE_RATIO;
+
+		const inConstraint: Record<GizmoAxis, boolean> = { x: false, y: false, z: false };
+
+		if ( handle === 'center' ) {
+
+			inConstraint.x = inConstraint.y = inConstraint.z = true;
+
+		} else if ( handle === 'x' || handle === 'y' || handle === 'z' ) {
+
+			inConstraint[ handle ] = true;
+
+		} else {
+
+			for ( const axis of PLANE_AXES[ handle as GizmoPlane ] ) inConstraint[ axis ] = true;
+
+		}
+
+		return {
+			scale: new GLP.Vector(
+				this._dragStartScale.x * ( inConstraint.x ? ratio : 1 ),
+				this._dragStartScale.y * ( inConstraint.y ? ratio : 1 ),
+				this._dragStartScale.z * ( inConstraint.z ? ratio : 1 ),
+			),
+		};
 
 	}
 

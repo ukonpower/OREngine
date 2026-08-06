@@ -20,6 +20,28 @@ export function quaternionFromAxisAngle( axis: GLP.Vector, angle: number ): GLP.
 
 }
 
+// 方向 from を to へ向ける最小回転の quaternion（ビルボードの向き決めに使う）
+export function quaternionFromTo( from: GLP.Vector, to: GLP.Vector ): GLP.Quaternion {
+
+	const f = from.clone().normalize();
+	const t = to.clone().normalize();
+	const d = f.dot( t );
+
+	if ( d > 0.99999 ) return new GLP.Quaternion();
+
+	// 正反対は回転軸が定まらないので、from に直交する適当な軸で半回転する
+	if ( d < - 0.99999 ) {
+
+		const ref = Math.abs( f.x ) > 0.9 ? new GLP.Vector( 0, 1, 0 ) : new GLP.Vector( 1, 0, 0 );
+
+		return quaternionFromAxisAngle( f.clone().cross( ref ), Math.PI );
+
+	}
+
+	return quaternionFromAxisAngle( f.clone().cross( t ), Math.acos( Math.min( 1, Math.max( - 1, d ) ) ) );
+
+}
+
 // matrixWorld からワールド回転を取り出す
 export function getWorldQuaternion( entity: MXP.Entity ): GLP.Quaternion {
 
