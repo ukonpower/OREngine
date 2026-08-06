@@ -126,6 +126,9 @@ export class Renderer extends Serializable implements RendererContract {
 	public resolution: GLP.Vector;
 	public pipelineConfig: PipelineConfig;
 
+	// エディタ等が一時的に被せる設定。pipelineConfig（シーン本来の値・シリアライズ対象）を汚さないための層
+	private _pipelineOverride: PipelineConfig | null;
+
 	// device
 	private _context: GPUCanvasContext | null;
 	private _device: GPUDevice | null;
@@ -174,6 +177,14 @@ export class Renderer extends Serializable implements RendererContract {
 	// compute
 	private _computeQueue: Set<ComputeTask>;
 
+	// オートフォーカス用の中心深度リードバック
+	private _focusReadbackBuffer: GPUBuffer | null;
+	private _focusReadbackBusy: boolean;
+	private _focusReadbackEncoded: boolean;
+	private _focusViewMatrix: GLP.Matrix;
+	private _focusPosition: GLP.Vector;
+	private _centerDepth: number | null;
+
 	// tmp
 	private _stack: RenderStack;
 	private _cameraPosition: GLP.Vector;
@@ -197,11 +208,13 @@ export class Renderer extends Serializable implements RendererContract {
 			ssr: true,
 			ssao: true,
 			lightShaft: true,
+			lightShaftIntensity: 1.0,
 			lightShaftBlur: true,
 			lightShaftTemporal: true,
 			lightShaftTemporalBlend: 0.3,
 			dof: true,
 		};
+		this._pipelineOverride = null;
 
 		this._context = canvas.getContext( 'webgpu' );
 		this._device = null;
@@ -256,6 +269,13 @@ export class Renderer extends Serializable implements RendererContract {
 		this._editorPipelines = new Map();
 
 		this._computeQueue = new Set();
+
+		this._focusReadbackBuffer = null;
+		this._focusReadbackBusy = false;
+		this._focusReadbackEncoded = false;
+		this._focusViewMatrix = new GLP.Matrix();
+		this._focusPosition = new GLP.Vector();
+		this._centerDepth = null;
 
 		this._stack = { light: [], shadowMap: [], deferred: [], forward: [], envMap: [] };
 		this._cameraPosition = this._frameUniforms.uCameraPosition.value;
@@ -359,6 +379,13 @@ export class Renderer extends Serializable implements RendererContract {
 
 			// ノイズのならしは効果とコストを見比べられるよう個別に切れる
 			if ( key === 'lightShaft' ) {
+
+				// 光条の濃さ。enabled と掛けて uIntensity へ入る
+				dir.field( 'intensity', () => this.pipelineConfig.lightShaftIntensity ?? 1.0, ( v: number ) => {
+
+					this.applyPipelineConfig( { lightShaftIntensity: v } );
+
+				}, { step: 0.1 } );
 
 				dir.field( 'blur', () => this.pipelineConfig.lightShaftBlur ?? true, ( v: boolean ) => {
 
@@ -533,7 +560,7 @@ export class Renderer extends Serializable implements RendererContract {
 	private _createPostProcess( device: GPUDevice ) {
 
 		this._pipeline = new hotPipelinePostProcess( device, this._uniformLayout!, this._lights!.bindGroupLayout, this._passResolution, this._passPixelSize );
-		this._pipeline.applyPipelineConfig( this.pipelineConfig );
+		this._applyEffectivePipelineConfig();
 
 	}
 
@@ -628,6 +655,7 @@ export class Renderer extends Serializable implements RendererContract {
 		this._renderShadowMaps( device, encoder );
 		this._renderEnvMap( device, encoder );
 		this._renderGBuffer( device, encoder );
+		this._encodeFocusReadback( device, encoder, camera );
 
 		const onPass = import.meta.env.DEV
 			? ( p: { name: string, targetView: GPUTextureView | null, width: number, height: number } ) =>
@@ -664,6 +692,82 @@ export class Renderer extends Serializable implements RendererContract {
 		this._frameEncoder = null;
 
 		device.queue.submit( [ encoder.finish() ] );
+
+		this._resolveFocusReadback();
+
+	}
+
+	// 画面中心にあるシーンのビュー空間深度。リードバックが返るまでのフレームは直前の値を保つ
+	public get centerDepth() {
+
+		return this._centerDepth;
+
+	}
+
+	// gBufferのposition中心1pxをステージングバッファへ写す（結果はsubmit後に非同期で受け取る）
+	private _encodeFocusReadback( device: GPUDevice, encoder: GPUCommandEncoder, camera: Camera ) {
+
+		// バッファがmap中（前回の読み出しがまだ返っていない）フレームはスキップする
+		if ( this._focusReadbackBusy ) return;
+
+		if ( ! this._focusReadbackBuffer ) {
+
+			this._focusReadbackBuffer = device.createBuffer( {
+				label: 'focusReadback',
+				size: 16,
+				usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
+			} );
+
+		}
+
+		encoder.copyTextureToBuffer(
+			{ texture: this._targets.gBuffer[ 0 ], origin: [ this._targets.width >> 1, this._targets.height >> 1 ] },
+			{ buffer: this._focusReadbackBuffer },
+			[ 1, 1 ]
+		);
+
+		// 深度化はエンコード時点のビュー行列で行う（解決時にはカメラが動いている）
+		this._focusViewMatrix.copy( camera.viewMatrix );
+		this._focusReadbackEncoded = true;
+
+	}
+
+	// submit済みのリードバックをmapして中心深度を更新する
+	private _resolveFocusReadback() {
+
+		if ( ! this._focusReadbackEncoded || ! this._focusReadbackBuffer ) return;
+
+		this._focusReadbackEncoded = false;
+		this._focusReadbackBusy = true;
+
+		const buffer = this._focusReadbackBuffer;
+
+		buffer.mapAsync( GPUMapMode.READ ).then( () => {
+
+			const data = new Float32Array( buffer.getMappedRange() );
+
+			// gBufferのクリア値（原点）は「何も描かれていない」とみなす
+			if ( data[ 0 ] === 0 && data[ 1 ] === 0 && data[ 2 ] === 0 ) {
+
+				this._centerDepth = null;
+
+			} else {
+
+				this._focusPosition.set( data[ 0 ], data[ 1 ], data[ 2 ], 1 );
+				this._focusPosition.applyMatrix4( this._focusViewMatrix );
+				this._centerDepth = - this._focusPosition.z;
+
+			}
+
+			buffer.unmap();
+
+			this._focusReadbackBusy = false;
+
+		} ).catch( () => {
+
+			this._focusReadbackBusy = false;
+
+		} );
 
 	}
 
@@ -1488,7 +1592,18 @@ export class Renderer extends Serializable implements RendererContract {
 				bindGroupLayouts: [ layout, layout, materialLayout || this._emptyMaterialLayout!, this._refractionLayout! ],
 			} ),
 			vertex: { module, entryPoint: 'vsMain', buffers: VERTEX_BUFFER_LAYOUT },
-			fragment: { module, entryPoint: 'fsForward', targets: [ { format } ] },
+			fragment: {
+				module,
+				entryPoint: 'fsForward',
+				// forwardと同じ合成にしておく。単色で塗るgizmo / helperはアルファ1.0なので上書きと同じ結果になる
+				targets: [ {
+					format,
+					blend: {
+						color: { srcFactor: 'src-alpha', dstFactor: 'one-minus-src-alpha' },
+						alpha: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha' },
+					},
+				} ],
+			},
 			primitive: {
 				topology: material.drawType === 'LINES' ? 'line-list' : 'triangle-list',
 				cullMode: 'none',
@@ -1570,7 +1685,23 @@ export class Renderer extends Serializable implements RendererContract {
 
 		this.pipelineConfig = { ...this.pipelineConfig, ...config };
 
-		this._pipeline?.applyPipelineConfig( config );
+		this._applyEffectivePipelineConfig();
+
+	}
+
+	// シーン設定に触れずに一時的な上書きを重ねる（null で解除）
+	public setPipelineOverride( override: PipelineConfig | null ) {
+
+		this._pipelineOverride = override;
+
+		this._applyEffectivePipelineConfig();
+
+	}
+
+	// シーン本来の値にオーバーライドを重ねた実効値をパスへ流す
+	private _applyEffectivePipelineConfig() {
+
+		this._pipeline?.applyPipelineConfig( { ...this.pipelineConfig, ...this._pipelineOverride } );
 
 	}
 

@@ -12,9 +12,9 @@ OREngine で利用可能なビルトインコンポーネント一覧。
 | 名前 | グループ | 主要 field（コンポーネント実装の `field()`/`fieldDir()` 呼び出しで確認できる範囲） | 用途 |
 |---|---|---|---|
 | **Light** | _Built-in | `enabled`, `tag`, `intensity`（+ Camera 継承で DEV 時のみ `fov` / `near` / `far` / `orthWidth` / `orthHeight`） | 向きは `rot`（euler）で指定。`color` / `castShadow` / `angle` / `blend` / `distance` / `decay` は public プロパティだが **field 未登録 → scene.json の `props` では設定不可** |
-| **Camera** | _Built-in | `enabled`, `tag`, `fov`, `near`, `far`, `orthWidth`, `orthHeight`（field 登録は `import.meta.env.DEV` ガード付き） | タグ `"camera"` で識別。`displayOut` は public プロパティだが **field 未登録 → props では制御不可** |
+| **Camera** | _Built-in | `enabled`, `tag`, `fov`, `near`, `far`, `orthWidth`, `orthHeight`, `fNumber`（field 登録は `import.meta.env.DEV` ガード付き） | タグ `"camera"` で識別。`fNumber` は DoF の絞り（小さいほどボケる、既定 0.3）。`displayOut` は public プロパティだが **field 未登録 → props では制御不可** |
 | **Mesh** | _Built-in | `enabled`, `tag` のみ | **scene.json の `props` で geometry/material は差し込めない**。カスタムコンポーネント内で `addComponent(MXP.Mesh, { geometry, material })` する前提 |
-| **CameraController** | Camera | LookAt 関連 + DoF | **アタッチするだけで `MXP.PostProcessPipeline` + Bloom / FXAA / ColorGrading / Finalize が自動構築**。標準カメラセットの実体 |
+| **CameraController** | Camera | LookAt 関連 + `focus/mode`（`auto` / `target` / `manual`）, `focus/distance`, `focus/speed` | **アタッチするだけで `MXP.PostProcessPipeline` + Bloom / FXAA / ColorGrading / Finalize が自動構築**。標準カメラセットの実体。フォーカスは auto=画面中心の深度（WebGPUのみ、非対応時は target へフォールバック）/ target=`CamDof` エンティティ / manual=距離直指定。`focusMode` / `focusDistance` / `focusSpeed` はスクリプトからも設定可 |
 | **CameraOrbitAnim** | Camera | `radius`, `speed` 他 | 対象周回アニメ |
 | **ShakeViewer** | Camera | `power`, `speed` | カメラ揺れ演出（ディレクトリ名 `CameraShake`、コンポーネント名 `ShakeViewer`） |
 | **LookAt** | Camera | `targetName` | 指定エンティティを注視 |

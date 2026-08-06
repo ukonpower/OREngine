@@ -7,6 +7,7 @@ import { Material } from '../Material';
 import { EditorPass } from './EditorPass';
 import copyWgsl from './shaders/copy.wgsl';
 import flatWgsl from './shaders/flat.wgsl';
+import gridWgsl from './shaders/grid.wgsl';
 import maskWgsl from './shaders/mask.wgsl';
 import outlineWgsl from './shaders/outline.wgsl';
 
@@ -474,6 +475,18 @@ export class WebGPUEditorDraw implements EditorDrawContract {
 			wgsl: maskWgsl,
 			phase: [ 'forward' ],
 			depthTest: false,
+		} ),
+
+		// 半透明で重ねるので深度は読むだけにする
+		grid: ( opt: { color: number[]; params: number[] } ): MaterialContract => new Material( {
+			name: 'editorGrid',
+			wgsl: gridWgsl,
+			phase: [ 'forward' ],
+			depthWrite: false,
+			uniforms: {
+				uColor: { value: opt.color, type: '3fv' },
+				uParams: { value: opt.params, type: '3fv' },
+			},
 		} ),
 
 	};

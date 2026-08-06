@@ -19,7 +19,7 @@ export const Screen = () => {
 	const layout = useLayout();
 
 	const [ render, setRender ] = useSerializableField<boolean>( editor, "enableRender" );
-	const [ cameraMode, setCameraMode ] = useSerializableField<string>( editor, "cameraMode" );
+	const [ preview, setPreview ] = useSerializableField<boolean>( editor, "preview" );
 	const [ viewType, setViewType ] = useSerializableField<string>( editor, "viewType" );
 	const [ resolutionScale, setResolutionScale ] = useSerializableField<number>( editor, "resolutionScale" );
 	const [ gizmoMode, setGizmoMode ] = useSerializableField<string>( editor, "gizmoMode" );
@@ -30,7 +30,10 @@ export const Screen = () => {
 	const [ showEmpty, setShowEmpty ] = useSerializableField<boolean>( editor, "helpers/empty" );
 	const [ showCamera, setShowCamera ] = useSerializableField<boolean>( editor, "helpers/camera" );
 	const [ showLight, setShowLight ] = useSerializableField<boolean>( editor, "helpers/light" );
+	const [ showGrid, setShowGrid ] = useSerializableField<boolean>( editor, "helpers/grid" );
 	const [ showWireframe, setShowWireframe ] = useSerializableField<boolean>( editor, "helpers/wireframe" );
+	const [ showGizmo, setShowGizmo ] = useSerializableField<boolean>( editor, "helpers/gizmo" );
+	const [ showOutline, setShowOutline ] = useSerializableField<boolean>( editor, "helpers/outline" );
 
 	const [ audioViewHeight, setAudioViewHeight ] = useState( 50 );
 	const audioViewDragRef = useRef<{ startY: number; startHeight: number } | null>( null );
@@ -67,16 +70,16 @@ export const Screen = () => {
 	return <div className={style.screen}>
 		<div className={style.header}>
 			<div className={style.header_tabs}>
-				{( [ "scene", "preview" ] as const ).map( ( mode ) => (
-					<div
-						key={mode}
-						className={style.header_tab}
-						data-active={cameraMode === mode}
-						onClick={() => setCameraMode && setCameraMode( mode )}
-					>
-						{mode.charAt( 0 ).toUpperCase() + mode.slice( 1 )}
-					</div>
-				) )}
+				<div
+					className={style.header_tab}
+					data-active={!! preview}
+					onClick={() => setPreview && setPreview( ! preview )}
+					title="Camera Render"
+				>
+					<svg width="14" height="14" viewBox="0 0 512 512" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+						<path d="M32 144 H336 V368 H32 Z M368 224 L480 152 V360 L368 288 Z"/>
+					</svg>
+				</div>
 			</div>
 			<div className={style.header_right}>
 				<div className={style.header_item}>
@@ -169,8 +172,23 @@ export const Screen = () => {
 					</div>
 					<div className={style.overlay_separator} />
 					<div className={style.overlay_field}>
+						<Label title='Grid'>
+							<Value value={showGrid} onChange={( v ) => setShowGrid && setShowGrid( v )}/>
+						</Label>
+					</div>
+					<div className={style.overlay_field}>
 						<Label title='Wireframe'>
 							<Value value={showWireframe} onChange={( v ) => setShowWireframe && setShowWireframe( v )}/>
+						</Label>
+					</div>
+					<div className={style.overlay_field}>
+						<Label title='Gizmo'>
+							<Value value={showGizmo} onChange={( v ) => setShowGizmo && setShowGizmo( v )}/>
+						</Label>
+					</div>
+					<div className={style.overlay_field}>
+						<Label title='Outline'>
+							<Value value={showOutline} onChange={( v ) => setShowOutline && setShowOutline( v )}/>
 						</Label>
 					</div>
 				</div>}

@@ -33,6 +33,7 @@ export class PointerHandler {
 		getGizmoMode: () => GizmoMode,
 		onSelectEntity: ( entity: MXP.Entity | null ) => void,
 		isModalActive: () => boolean,
+		onEscapeToEditorCamera: () => void,
 	) {
 
 		this._raycaster = new MXP.Raycaster();
@@ -59,6 +60,15 @@ export class PointerHandler {
 
 			// 右クリック・中クリックでギズモドラッグや選択が走らないようにする
 			if ( e.pointerType === 'mouse' && e.button !== 0 ) return;
+
+			// プレビュー中は編集操作を受けないが、ドラッグ離脱の判定に押下位置だけ追う
+			if ( editorCamera.preview ) {
+
+				( e.target as HTMLElement ).setPointerCapture( e.pointerId );
+				this._pointerDownPos = new GLP.Vector( e.clientX, e.clientY );
+				return;
+
+			}
 
 			if ( e.pointerType === 'touch' && this._gizmoDragging ) return;
 
@@ -123,6 +133,28 @@ export class PointerHandler {
 		const onPointerMove = ( e: PointerEvent ) => {
 
 			if ( isModalActive() ) return;
+
+			// シーンカメラ視点・プレビューのドラッグはエディタカメラへ抜けて、その視点から操作を続ける（Blenderのカメラビュー相当）
+			if ( ( editorCamera.preview || editorCamera.view === "camera" ) && this._pointerDownPos && ! this._gizmoDragging ) {
+
+				const dragX = e.clientX - this._pointerDownPos.x;
+				const dragY = e.clientY - this._pointerDownPos.y;
+
+				if ( Math.sqrt( dragX * dragX + dragY * dragY ) > 5 ) {
+
+					onEscapeToEditorCamera();
+
+				}
+
+			}
+
+			// プレビュー中は編集操作を受けない
+			if ( editorCamera.preview ) {
+
+				canvasElm.style.cursor = '';
+				return;
+
+			}
 
 			const ndc = clientToNDC( canvasElm, e.clientX, e.clientY );
 			const cameraEntity = getCameraEntity();
@@ -259,11 +291,21 @@ export class PointerHandler {
 
 			if ( isModalActive() ) return;
 
+			// プレビュー中は編集操作を受けない
+			if ( editorCamera.preview ) {
+
+				this._pointerDownPos = null;
+				return;
+
+			}
+
 			if ( this._gizmoDragging ) {
 
 				gizmoManager.activeGizmo!.endDrag();
 				this._gizmoDragging = false;
-				editorCamera.orbitControls.enabled = true;
+
+				// エディタカメラで見ているときだけオービットを有効へ戻す
+				editorCamera.orbitControls.enabled = editorCamera.usingEditorCamera;
 				canvasElm.style.cursor = this._hoveredTarget === 'gizmo' ? 'grab' : '';
 
 				const selectedEntityId = getSelectedEntityId();

@@ -52,7 +52,8 @@ export class RenderTargets {
 			label: `gBuffer/${attachment.name}`,
 			size: [ width, height ],
 			format: attachment.format,
-			usage,
+			// position はオートフォーカスの中心深度リードバック（copyTextureToBuffer）の元になる
+			usage: attachment.name === 'position' ? usage | GPUTextureUsage.COPY_SRC : usage,
 		} ) );
 
 		this.gBufferViews = this.gBuffer.map( ( texture ) => texture.createView() );

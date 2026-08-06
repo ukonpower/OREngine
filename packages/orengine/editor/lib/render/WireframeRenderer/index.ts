@@ -35,9 +35,9 @@ export class WireframeRenderer {
 
 	}
 
-	public render( cameraMode: string, cameraEntity: MXP.Entity | null, engine: Engine ) {
+	public render( cameraEntity: MXP.Entity | null, engine: Engine ) {
 
-		if ( ! this._showWireframe || cameraMode !== "scene" ) return;
+		if ( ! this._showWireframe ) return;
 
 		if ( ! cameraEntity ) return;
 

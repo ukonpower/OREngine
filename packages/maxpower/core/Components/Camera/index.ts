@@ -7,6 +7,8 @@ export type CameraType = 'perspective' | 'orthographic'
 export type DofParams = {
 	focusDistance: number;
 	kFilmHeight: number;
+	// 絞りのF値。小さいほどボケが大きい
+	fNumber: number;
 }
 
 export class Camera extends Component {
@@ -65,6 +67,7 @@ export class Camera extends Component {
 		this.dofParams = {
 			focusDistance: 0.5,
 			kFilmHeight: 0.008,
+			fNumber: 0.3,
 		};
 
 		const markDirty = () => {
@@ -107,6 +110,12 @@ export class Camera extends Component {
 			markDirty();
 
 		} );
+
+		this.field( "fNumber", () => this.dofParams.fNumber, ( v ) => {
+
+			this.dofParams.fNumber = v;
+
+		}, { step: 0.05 } );
 
 		this._tag = "camera";
 
