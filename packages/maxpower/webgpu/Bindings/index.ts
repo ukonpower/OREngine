@@ -158,6 +158,40 @@ const GBUFFER_OUTPUT_WGSL = `struct GBufferOutput {
 ${GBUFFER_ATTACHMENTS.map( ( a, i ) => `\t@location(${i}) ${a.name}: vec4f,` ).join( '\n' )}
 };`;
 
+// マテリアルが書いた fsForward の宣言。entry pointはWGSLでは関数として呼べないため、
+// これを実装関数 forwardColor へ改名し、entry point は FORWARD_ENTRY_WGSL で生成する。
+// 戻り値の @location(0) は entry point 以外では書けないので、シグネチャごと置き換える
+const FORWARD_COLOR_DECL = /@fragment\s+fn\s+fsForward\s*\(\s*(\w+)\s*:\s*VertexOutput\s*\)\s*->\s*@location\(\s*0\s*\)\s*vec4f/;
+
+// forward系のentry point。fsForward は単一ターゲット（envMap / エディタ描画）用。
+// fsForwardMrt はシーン色に加えてgBufferの position / velocity も上書きし、
+// forwardメッシュをDOF・モーションブラーへ乗せる（webgl側 frag_out.part.glsl の IS_FORWARD と同じ構図）。
+// αはgBufferではemissionだが、シェーディング後に読む側はxyzしか見ないので1.0で埋める
+const FORWARD_ENTRY_WGSL = `struct ForwardOutput {
+	@location(0) color: vec4f,
+	@location(1) position: vec4f,
+	@location(2) velocity: vec4f,
+};
+
+@fragment
+fn fsForward( input: VertexOutput ) -> @location(0) vec4f {
+
+	return forwardColor( input );
+
+}
+
+@fragment
+fn fsForwardMrt( input: VertexOutput ) -> ForwardOutput {
+
+	var output: ForwardOutput;
+	output.color = forwardColor( input );
+	output.position = vec4f( input.worldPosition, 1.0 );
+	output.velocity = vec4f( input.velocity, 0.0, 1.0 );
+
+	return output;
+
+}`;
+
 // マテリアルのWGSL本体の先頭へ、頂点入出力とuniformの宣言を差し込んで完成形を作る
 export const buildShaderSource = ( body: string, materialFields: UniformField[], storages: MaterialStorage[] = [] ) => {
 
@@ -193,7 +227,17 @@ export const buildShaderSource = ( body: string, materialFields: UniformField[],
 
 	chunks.push( GBUFFER_OUTPUT_WGSL );
 	chunks.push( hotGbufferWgsl );
-	chunks.push( body );
+
+	if ( FORWARD_COLOR_DECL.test( body ) ) {
+
+		chunks.push( body.replace( FORWARD_COLOR_DECL, 'fn forwardColor( $1: VertexOutput ) -> vec4f' ) );
+		chunks.push( FORWARD_ENTRY_WGSL );
+
+	} else {
+
+		chunks.push( body );
+
+	}
 
 	return chunks.join( '\n\n' );
 

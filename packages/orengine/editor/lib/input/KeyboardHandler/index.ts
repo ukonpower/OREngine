@@ -6,6 +6,7 @@ export type KeyboardHandlerCallbacks = {
 	onRedo: () => void;
 	onPlayToggle: () => void;
 	onCameraViewToggle: () => void;
+	onPreviewToggle: () => void;
 	onSyncToSceneCamera: () => void;
 	onFocusSelected: () => void;
 	onTransformKey: ( e: KeyboardEvent ) => boolean;
@@ -77,6 +78,13 @@ export class KeyboardHandler {
 			if ( ( e.code === 'Numpad0' || e.key === '0' ) && ! cmd ) {
 
 				callbacks.onCameraViewToggle();
+
+			}
+
+			// ヘッダーのカメラアイコンと同じプレビュー（本番同等の見た目）の切り替え
+			if ( e.key === '9' && ! cmd ) {
+
+				callbacks.onPreviewToggle();
 
 			}
 

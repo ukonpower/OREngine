@@ -23,7 +23,6 @@ export class EditorCamera {
 	private _orbitControls: OrbitControls;
 	private _view: "editor" | "camera";
 	private _preview: boolean;
-	private _raycaster: MXP.Raycaster;
 
 	constructor( engine: Engine ) {
 
@@ -33,7 +32,6 @@ export class EditorCamera {
 		this._orbitControls.setElm( engine.canvas as HTMLCanvasElement );
 		this._view = "editor";
 		this._preview = false;
-		this._raycaster = new MXP.Raycaster();
 		this._apply( engine );
 
 	}
@@ -255,9 +253,9 @@ export class EditorCamera {
 		const eye = new GLP.Vector();
 		sceneCameraEntity.matrixWorld.decompose( eye );
 
-		this._orbitControls.setPosition( eye, this._resolveOrbitTarget( engine, sceneCameraEntity, eye ) );
-
 		const sceneCamera = sceneCameraEntity.getComponentsByTag<MXP.Camera>( "camera" )[ 0 ];
+
+		this._orbitControls.setPosition( eye, this._resolveOrbitTarget( sceneCameraEntity, sceneCamera, eye ) );
 
 		if ( sceneCamera ) {
 
@@ -270,18 +268,14 @@ export class EditorCamera {
 
 	}
 
-	// オービットの注視点を、画面中央に写っている物の上に取る。見えている被写体がそのまま回転の軸になる
-	private _resolveOrbitTarget( engine: Engine, sceneCameraEntity: MXP.Entity, eye: GLP.Vector ) {
+	// オービットの注視点を、シーンカメラのDOFピント位置に取る。ピントの合っている被写体がそのまま回転の軸になる
+	private _resolveOrbitTarget( sceneCameraEntity: MXP.Entity, sceneCamera: MXP.Camera | undefined, eye: GLP.Vector ) {
 
-		this._raycaster.setFromCamera( new GLP.Vector( 0, 0 ), sceneCameraEntity );
+		// focusDistance はビュー空間深度なので、光軸に沿って進めた点がそのままピント位置になる。
+		// 0 だと eye と target が一致してオービットが壊れるため下限を入れる
+		const distance = Math.max( sceneCamera ? sceneCamera.dofParams.focusDistance : 5.0, 0.1 );
 
-		const hit = this._raycaster.intersectEntities( engine.root ).find( r => r.entity.initiator !== "god" );
-
-		if ( hit ) return hit.point;
-
-		// 中央に何も無ければ、カメラ前方に今のオービット距離だけ進んだ点で代用する
 		const forward = new GLP.Vector( 0, 0, - 1, 0 ).applyMatrix3( sceneCameraEntity.matrixWorld ).normalize();
-		const distance = this._orbitControls.eye.clone().sub( this._orbitControls.target ).length() || 5.0;
 
 		return eye.clone().add( forward.multiply( distance ) );
 

@@ -184,6 +184,11 @@ export class Editor extends MXP.Serializable {
 				}
 
 			},
+			onPreviewToggle: () => {
+
+				this.setField( "preview", ! this._editorCamera.preview );
+
+			},
 			onSyncToSceneCamera: () => {
 
 				if ( this._editorCamera.preview ) {
