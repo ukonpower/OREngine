@@ -23,6 +23,7 @@ export class EditorCamera {
 	private _orbitControls: OrbitControls;
 	private _view: "editor" | "camera";
 	private _preview: boolean;
+	private _raycaster: MXP.Raycaster;
 
 	constructor( engine: Engine ) {
 
@@ -32,6 +33,7 @@ export class EditorCamera {
 		this._orbitControls.setElm( engine.canvas as HTMLCanvasElement );
 		this._view = "editor";
 		this._preview = false;
+		this._raycaster = new MXP.Raycaster();
 		this._apply( engine );
 
 	}
@@ -253,12 +255,7 @@ export class EditorCamera {
 		const eye = new GLP.Vector();
 		sceneCameraEntity.matrixWorld.decompose( eye );
 
-		// オービットは注視点が必要なので、カメラ前方の現在のオービット距離の位置に置く
-		const forward = new GLP.Vector( 0, 0, - 1, 0 ).applyMatrix3( sceneCameraEntity.matrixWorld ).normalize();
-		const distance = this._orbitControls.eye.clone().sub( this._orbitControls.target ).length() || 5.0;
-		const target = eye.clone().add( forward.multiply( distance ) );
-
-		this._orbitControls.setPosition( eye, target );
+		this._orbitControls.setPosition( eye, this._resolveOrbitTarget( engine, sceneCameraEntity, eye ) );
 
 		const sceneCamera = sceneCameraEntity.getComponentsByTag<MXP.Camera>( "camera" )[ 0 ];
 
@@ -270,6 +267,23 @@ export class EditorCamera {
 			this._camera.needsUpdateProjectionMatrix = true;
 
 		}
+
+	}
+
+	// オービットの注視点を、画面中央に写っている物の上に取る。見えている被写体がそのまま回転の軸になる
+	private _resolveOrbitTarget( engine: Engine, sceneCameraEntity: MXP.Entity, eye: GLP.Vector ) {
+
+		this._raycaster.setFromCamera( new GLP.Vector( 0, 0 ), sceneCameraEntity );
+
+		const hit = this._raycaster.intersectEntities( engine.root ).find( r => r.entity.initiator !== "god" );
+
+		if ( hit ) return hit.point;
+
+		// 中央に何も無ければ、カメラ前方に今のオービット距離だけ進んだ点で代用する
+		const forward = new GLP.Vector( 0, 0, - 1, 0 ).applyMatrix3( sceneCameraEntity.matrixWorld ).normalize();
+		const distance = this._orbitControls.eye.clone().sub( this._orbitControls.target ).length() || 5.0;
+
+		return eye.clone().add( forward.multiply( distance ) );
 
 	}
 
