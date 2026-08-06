@@ -14,6 +14,7 @@ import { HelperManager } from './helper/HelperManager';
 import { KeyboardHandler } from './input/KeyboardHandler';
 import { ModalTransformHandler } from './input/ModalTransformHandler';
 import { PointerHandler } from './input/PointerHandler';
+import { GridRenderer } from './render/GridRenderer';
 import { SelectionOutline } from './render/SelectionOutline';
 import { WireframeRenderer } from './render/WireframeRenderer';
 import { SceneExporter, SceneExporterProgress } from './SceneExporter';
@@ -64,6 +65,7 @@ export class Editor extends MXP.Serializable {
 	private _editorCamera: EditorCamera;
 	private _gizmoManager: GizmoManager;
 	private _helperManager: HelperManager;
+	private _gridRenderer: GridRenderer;
 	private _wireframeRenderer: WireframeRenderer;
 	private _selectionOutline: SelectionOutline;
 	private _pointerHandler: PointerHandler;
@@ -104,6 +106,7 @@ export class Editor extends MXP.Serializable {
 		this._editorCamera = new EditorCamera( engine );
 		this._gizmoManager = new GizmoManager( engine, this._draw );
 		this._helperManager = new HelperManager( engine, this._draw );
+		this._gridRenderer = new GridRenderer( engine, this._draw );
 		this._wireframeRenderer = new WireframeRenderer( this._draw );
 		this._selectionOutline = new SelectionOutline( this._draw );
 
@@ -117,6 +120,17 @@ export class Editor extends MXP.Serializable {
 			() => this._gizmoManager.mode,
 			( entity ) => this.selectEntity( entity ),
 			() => this._modalTransformHandler.active,
+			() => {
+
+				if ( this._editorCamera.preview ) {
+
+					this.setField( "preview", false );
+
+				}
+
+				this.setField( "cameraView", "editor" );
+
+			},
 		);
 
 		this._modalTransformHandler = new ModalTransformHandler( {
@@ -155,7 +169,51 @@ export class Editor extends MXP.Serializable {
 				}
 
 			},
-			onTransformKey: ( e ) => this._modalTransformHandler.handleKeyDown( e ),
+			onCameraViewToggle: () => {
+
+				// プレビュー中はプレビューを抜けてエディタカメラへ戻る
+				if ( this._editorCamera.preview ) {
+
+					this.setField( "preview", false );
+					this.setField( "cameraView", "editor" );
+
+				} else {
+
+					this.setField( "cameraView", this._editorCamera.view === "editor" ? "camera" : "editor" );
+
+				}
+
+			},
+			onSyncToSceneCamera: () => {
+
+				if ( this._editorCamera.preview ) {
+
+					this.setField( "preview", false );
+
+				}
+
+				this.setField( "cameraView", "editor" );
+
+				this._editorCamera.syncFromSceneCamera( this._engine );
+
+			},
+			onFocusSelected: () => {
+
+				if ( this._editorCamera.preview ) return;
+
+				const entity = this._selectedEntityId
+					? this._engine.root.findEntityByUUID( this._selectedEntityId ) ?? null
+					: null;
+
+				if ( ! entity ) return;
+
+				// シーンカメラ視点のままでは寄れないのでエディタカメラへ戻してからフォーカスする
+				this.setField( "cameraView", "editor" );
+
+				this._editorCamera.focus( entity );
+
+			},
+			onTransformKey: ( e ) => this._editorCamera.preview ? false : this._modalTransformHandler.handleKeyDown( e ),
 		} );
 
 		/*-------------------------------
@@ -285,9 +343,15 @@ export class Editor extends MXP.Serializable {
 
 		} );
 
-		this.field( "cameraMode", () => this._editorCamera.cameraMode, ( v: "scene" | "preview" ) => {
+		this.field( "cameraView", () => this._editorCamera.view, ( v: "editor" | "camera" ) => {
 
-			this._editorCamera.setCameraMode( v, engine );
+			this._editorCamera.setView( v, engine );
+
+		} );
+
+		this.field( "preview", () => this._editorCamera.preview, ( v: boolean ) => {
+
+			this._editorCamera.setPreview( v, engine );
 
 		} );
 
@@ -308,10 +372,13 @@ export class Editor extends MXP.Serializable {
 
 		const helperDir = this.fieldDir( "helpers" );
 		helperDir.field( "show", () => this._helperManager.showHelpers, v => this._helperManager.showHelpers = v );
+		helperDir.field( "grid", () => this._gridRenderer.showGrid, v => this._gridRenderer.showGrid = v );
 		helperDir.field( "empty", () => this._helperManager.showEmptyHelpers, v => this._helperManager.showEmptyHelpers = v );
 		helperDir.field( "camera", () => this._helperManager.showCameraHelpers, v => this._helperManager.showCameraHelpers = v );
 		helperDir.field( "light", () => this._helperManager.showLightHelpers, v => this._helperManager.showLightHelpers = v );
 		helperDir.field( "wireframe", () => this._wireframeRenderer.showWireframe, v => this._wireframeRenderer.showWireframe = v );
+		helperDir.field( "gizmo", () => this._gizmoManager.showGizmo, v => this._gizmoManager.showGizmo = v );
+		helperDir.field( "outline", () => this._selectionOutline.showOutline, v => this._selectionOutline.showOutline = v );
 
 		const cameraDir = this.fieldDir( "camera" );
 		cameraDir.field( "position",
@@ -432,18 +499,32 @@ export class Editor extends MXP.Serializable {
 				? this._engine.root.findEntityByUUID( this._selectedEntityId ) ?? null
 				: null;
 
-			this._helperManager.render( this._editorCamera.cameraMode, cameraEntity, this._engine, this._selectedEntityId );
+			const preview = this._editorCamera.preview;
 
-			this._wireframeRenderer.render( this._editorCamera.cameraMode, cameraEntity, this._engine );
+			if ( ! preview ) {
 
+				// ヘルパーやワイヤより先に敷いて、上に載る線を隠さないようにする
+				this._gridRenderer.render( cameraEntity, this._engine );
+
+				this._helperManager.render( cameraEntity, this._engine, this._selectedEntityId );
+
+				this._wireframeRenderer.render( cameraEntity, this._engine );
+
+			}
+
+			// プレビュー中はターゲット無しで呼び、ギズモの visible とヒット判定も落とす。
 			// モーダル変形中はギズモが変形結果に追従してちらつくので出さない
 			this._gizmoManager.render(
-				this._modalTransformHandler.active ? null : selectedEntity,
+				preview || this._modalTransformHandler.active ? null : selectedEntity,
 				cameraEntity,
 				this._engine
 			);
 
-			this._selectionOutline.render( selectedEntity, cameraEntity );
+			if ( ! preview ) {
+
+				this._selectionOutline.render( selectedEntity, cameraEntity );
+
+			}
 
 			// present前にuiバッファへ描き込む（present後ではwebgpuの画面に反映されない）
 			if ( this._frameDebugger.enable ) {
@@ -524,6 +605,9 @@ export class Editor extends MXP.Serializable {
 		const prevCameraEntity = this._engine.cameraEntity;
 		this._engine.cameraEntity = null;
 
+		// 書き出しは本番同等のパイプラインで行う
+		this._engine.renderer.setPipelineOverride( null );
+
 		try {
 
 			const blob = await this._sceneExporter.export(
@@ -549,6 +633,7 @@ export class Editor extends MXP.Serializable {
 		}
 
 		this._engine.cameraEntity = prevCameraEntity;
+		this._editorCamera.syncPipelineOverride( this._engine );
 
 		this._isExporting = false;
 		this._exportProgress = null;

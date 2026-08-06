@@ -67,6 +67,7 @@ export type PipelineConfig = {
 	ssr?: boolean;
 	ssao?: boolean;
 	lightShaft?: boolean;
+	lightShaftIntensity?: number;
 	lightShaftBlur?: boolean;
 	lightShaftTemporal?: boolean;
 	lightShaftTemporalBlend?: number;
@@ -441,7 +442,7 @@ export class PipelinePostProcess {
 		const focalLength = kFilmHeight / Math.tan( 0.5 * ( camera.fov / 180 * Math.PI ) );
 
 		const maxCoc = ( 1 / Math.max( this._height * 0.5, 1 ) ) * 5;
-		const coeff = focalLength * focalLength / ( 0.3 * ( focusDistance - focalLength ) * kFilmHeight * 2.0 );
+		const coeff = focalLength * focalLength / ( camera.dofParams.fNumber * ( focusDistance - focalLength ) * kFilmHeight * 2.0 );
 
 		this._dofParams.set( focusDistance, maxCoc, 1.0 / maxCoc, coeff );
 
@@ -479,9 +480,10 @@ export class PipelinePostProcess {
 
 		}
 
-		if ( config.lightShaft !== undefined ) {
+		// 有効フラグと強さは1つのuniformへまとめる（無効時は0で寄与が消える）
+		if ( config.lightShaft !== undefined || config.lightShaftIntensity !== undefined ) {
 
-			this._lightShaft.uniforms.uIntensity.value = config.lightShaft ? 1 : 0;
+			this._lightShaft.uniforms.uIntensity.value = ( config.lightShaft ?? true ) ? ( config.lightShaftIntensity ?? 1 ) : 0;
 
 		}
 

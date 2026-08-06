@@ -5,7 +5,7 @@
 // 外から与えられる名前:
 //   uGbufferPos … gBufferのワールド座標（NEAREST）
 //   uLightShaftBackBuffer … 前フレームの自分の出力
-//   pp.uIntensity … 0でこのパスの寄与を消す
+//   pp.uIntensity … 光条の強さ。0でこのパスの寄与が消える
 //   pp.uFrame … ジッタを回すためのフレーム番号
 //   pp.uTemporal … 0で時間方向の蓄積をやめ、1フレームぶんの結果をそのまま出す
 //   pp.uTemporalBlend … 新しい結果の重み。小さいほどノイズは減るが、影の出入りが尾を引く

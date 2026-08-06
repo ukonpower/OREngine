@@ -172,6 +172,9 @@ export class Renderer extends Serializable implements RendererContract {
 	// pipeline config
 	private _pipelineConfig: Required<PipelineConfig>;
 
+	// エディタ等が一時的に被せる設定。_pipelineConfig（シーン本来の値・シリアライズ対象）を汚さないための層
+	private _pipelineOverride: PipelineConfig | null;
+
 	// program
 
 	public programManager: ProgramManager;
@@ -329,6 +332,7 @@ export class Renderer extends Serializable implements RendererContract {
 			lightShaft: true,
 			dof: true,
 		};
+		this._pipelineOverride = null;
 
 		// sky fields
 
@@ -1212,6 +1216,26 @@ export class Renderer extends Serializable implements RendererContract {
 
 	public applyPipelineConfig( config: PipelineConfig ): void {
 
+		this._pipelineConfig = { ...this._pipelineConfig, ...config };
+
+		this._applyEffectivePipelineConfig();
+
+	}
+
+	// シーン設定に触れずに一時的な上書きを重ねる（null で解除）
+	public setPipelineOverride( override: PipelineConfig | null ): void {
+
+		this._pipelineOverride = override;
+
+		this._applyEffectivePipelineConfig();
+
+	}
+
+	// シーン本来の値にオーバーライドを重ねた実効値をパスへ流す
+	private _applyEffectivePipelineConfig(): void {
+
+		const config = { ...this._pipelineConfig, ...this._pipelineOverride };
+
 		this._deferredRenderer.setPassEnabled( {
 			ssao: config.ssao,
 			lightShaft: config.lightShaft,
@@ -1222,11 +1246,7 @@ export class Renderer extends Serializable implements RendererContract {
 			dof: config.dof,
 		} );
 
-		if ( config.motionBlurPower !== undefined ) {
-
-			this._pipelinePostProcess.setMotionBlurPower( config.motionBlurPower );
-
-		}
+		this._pipelinePostProcess.setMotionBlurPower( config.motionBlurPower );
 
 	}
 

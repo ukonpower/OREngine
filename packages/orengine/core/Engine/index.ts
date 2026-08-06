@@ -192,6 +192,13 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 
 	}
 
+	// 描画に実際に使われるカメラ（明示指定が無ければシーンのアクティブカメラ）
+	public resolveCameraEntity(): MXP.Entity | null {
+
+		return this._cameraEntity || this.findSceneCameraEntity();
+
+	}
+
 	/*-------------------------------
 		ComponentResolver
 	-------------------------------*/
@@ -281,7 +288,7 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 
 		if ( this.enableRender ) {
 
-			const camera = this._cameraEntity || this._findCameraEntity();
+			const camera = this.resolveCameraEntity();
 
 			if ( camera ) {
 
@@ -411,7 +418,7 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 
 		if ( this.enableRender ) {
 
-			const camera = this._cameraEntity || this._findCameraEntity();
+			const camera = this.resolveCameraEntity();
 
 			if ( camera ) {
 
@@ -433,7 +440,7 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 
 		const event = this.createEntityUpdateEvent( { forceDraw: true } );
 
-		const camera = this._cameraEntity || this._findCameraEntity();
+		const camera = this.resolveCameraEntity();
 
 		if ( ! camera ) return Promise.resolve();
 
@@ -441,7 +448,8 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 
 	}
 
-	private _findCameraEntity(): MXP.Entity | null {
+	// シーン内の displayOut なカメラを探す
+	public findSceneCameraEntity(): MXP.Entity | null {
 
 		let found: MXP.Entity | null = null;
 

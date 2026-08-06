@@ -73,9 +73,9 @@ export class HelperManager {
 
 	}
 
-	public render( cameraMode: string, cameraEntity: MXP.Entity | null, engine: Engine, selectedEntityId: string | null ) {
+	public render( cameraEntity: MXP.Entity | null, engine: Engine, selectedEntityId: string | null ) {
 
-		if ( ! this._showHelpers || cameraMode !== "scene" ) return;
+		if ( ! this._showHelpers ) return;
 
 		if ( ! cameraEntity ) return;
 
@@ -86,6 +86,9 @@ export class HelperManager {
 
 			if ( entity.initiator === "god" ) return;
 			if ( ! entity.visible ) return;
+
+			// 視点にしているカメラ自身のヘルパーは画面を覆うだけなので出さない
+			if ( entity === cameraEntity ) return;
 
 			const helperType = this._getHelperType( entity );
 			if ( ! helperType ) return;

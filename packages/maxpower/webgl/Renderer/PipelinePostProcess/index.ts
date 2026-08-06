@@ -301,7 +301,7 @@ export class PipelinePostProcess {
 
 		const maxCoc = ( 1 / this.dofBokeh.renderTarget!.size.y ) * ( 5 );
 		const rcpMaxCoC = 1.0 / maxCoc;
-		const coeff = flocalLength * flocalLength / ( 0.3 * ( focusDistance - flocalLength ) * kFilmHeight * 2.0 );
+		const coeff = flocalLength * flocalLength / ( this._camera.dofParams.fNumber * ( focusDistance - flocalLength ) * kFilmHeight * 2.0 );
 
 		this._dofParams.set( focusDistance, maxCoc, rcpMaxCoC, coeff );
 

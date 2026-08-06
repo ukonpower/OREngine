@@ -78,6 +78,9 @@ export interface EditorDrawContract {
 		flat( opt: { color: number[]; lines?: boolean; depthTest?: boolean; depthWrite?: boolean } ): MaterialContract;
 		// selectionシルエット
 		mask(): MaterialContract;
+		// XZ平面のグリッド。paramsは [ セルサイズ, 細かい格子の濃さ, フェード距離 ] で、
+		// colorともども参照のまま保持され、書き換えが描画に反映される
+		grid( opt: { color: number[]; params: number[] } ): MaterialContract;
 	};
 
 	recipes: {

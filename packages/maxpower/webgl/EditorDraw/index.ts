@@ -10,6 +10,7 @@ import { Renderer } from '../Renderer';
 
 import flatFrag from './shaders/flat.fs';
 import flatVert from './shaders/flat.vs';
+import gridFrag from './shaders/grid.fs';
 import maskFrag from './shaders/mask.fs';
 import maskVert from './shaders/mask.vs';
 import outlineFrag from './shaders/outline.fs';
@@ -355,6 +356,18 @@ export class GLEditorDraw implements EditorDrawContract {
 			frag: maskFrag,
 			phase: [ "forward" ],
 			depthTest: false,
+		} ),
+
+		// 半透明で重ねるので深度は読むだけにする
+		grid: ( opt: { color: number[]; params: number[] } ): MaterialContract => new Material( {
+			vert: flatVert,
+			frag: gridFrag,
+			phase: [ "forward" ],
+			depthWrite: false,
+			uniforms: {
+				uColor: { value: opt.color, type: '3fv' },
+				uParams: { value: opt.params, type: '3fv' },
+			},
 		} ),
 
 	};

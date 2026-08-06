@@ -204,6 +204,9 @@ export class OrbitControls extends MXP.Component {
 
 			pointers.set( e.pointerId, { x: e.clientX, y: e.clientY } );
 
+			// 無効中に速度を溜めると、有効化された瞬間にまとめて適用されて飛ぶ
+			if ( ! this._enabled ) return;
+
 			if ( pointers.size >= 2 ) {
 
 				const dist = getPointerDistance();
@@ -244,6 +247,10 @@ export class OrbitControls extends MXP.Component {
 		const onWheel = ( e: WheelEvent ) => {
 
 			e.preventDefault();
+
+			// 無効中に速度を溜めると、有効化された瞬間にまとめて適用されて飛ぶ
+			if ( ! this._enabled ) return;
+
 			this.distanceVel_ += e.deltaY;
 
 		};
@@ -327,13 +334,18 @@ export class OrbitControls extends MXP.Component {
 
 		}
 
-		this.orbit_.x = Math.atan2( this.eye_.y - this.target_.y, new GLP.Vector( this.eye_.x, this.eye_.z ).length() - new GLP.Vector( this.target_.x, this.target_.z ).length() );
-		this.orbit_.y = - Math.atan2( this.eye_.x - this.target_.x, this.eye_.z - this.target_.z );
+		const dx = this.eye_.x - this.target_.x;
+		const dy = this.eye_.y - this.target_.y;
+		const dz = this.eye_.z - this.target_.z;
+
+		this.orbit_.x = Math.atan2( dy, Math.sqrt( dx * dx + dz * dz ) );
+		this.orbit_.y = - Math.atan2( dx, dz );
 
 		this.distance_ = this.eye_.clone().sub( this.target_ ).length();
 
 		this.mouseVelOrbit_.set( 0, 0, 0 );
 		this.mouseVelMove_.set( 0, 0, 0 );
+		this.distanceVel_ = 0;
 
 	}
 

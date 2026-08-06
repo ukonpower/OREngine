@@ -5,6 +5,9 @@ export type KeyboardHandlerCallbacks = {
 	onUndo: () => void;
 	onRedo: () => void;
 	onPlayToggle: () => void;
+	onCameraViewToggle: () => void;
+	onSyncToSceneCamera: () => void;
+	onFocusSelected: () => void;
 	onTransformKey: ( e: KeyboardEvent ) => boolean;
 };
 
@@ -67,6 +70,27 @@ export class KeyboardHandler {
 			if ( e.key == ' ' && ! cmd ) {
 
 				callbacks.onPlayToggle();
+
+			}
+
+			// Blender の Numpad 0 相当。テンキーの無いキーボード向けに数字の 0 も受ける
+			if ( ( e.code === 'Numpad0' || e.key === '0' ) && ! cmd ) {
+
+				callbacks.onCameraViewToggle();
+
+			}
+
+			// モーダル変形中の Escape は上の onTransformKey がキャンセルとして消費するのでここには来ない
+			if ( e.key === 'Escape' && ! cmd ) {
+
+				callbacks.onSyncToSceneCamera();
+
+			}
+
+			// Blender の Numpad . 相当。テンキーの無いキーボード向けに '.' も受ける
+			if ( ( e.code === 'NumpadDecimal' || e.key === '.' ) && ! cmd ) {
+
+				callbacks.onFocusSelected();
 
 			}
 

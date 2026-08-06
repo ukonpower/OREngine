@@ -4,13 +4,25 @@ import * as MXP from 'maxpower';
 import { OrbitControls } from '../../../builtin/Components/Camera/OrbitControls';
 import { Engine } from '../../../core/Engine';
 
+// エディタカメラ使用中は無効化するポストエフェクト。オービット操作のブレとフォーカス外れが出るため
+const EDITOR_PIPELINE_OVERRIDE = { motionBlur: false, dof: false };
+
+// フォーカスの寄り具合。境界球がちょうど画面に収まる距離に対する倍率
+const FOCUS_MARGIN = 1.3;
+// ジオメトリを持たないエンティティ（Empty / Light）をフォーカスしたときの半径
+const FOCUS_EMPTY_RADIUS = 1.0;
+// 平面や点のように潰れた境界でカメラがめり込まないようにする下限
+const FOCUS_MIN_RADIUS = 0.1;
+
+// 「どのカメラで見るか（view）」と「プレビュー（完成見た目の確認）」は独立した軸。
+// プレビュー中はシーンカメラ固定・本番同等パイプラインになる
 export class EditorCamera {
 
 	private _entity: MXP.Entity;
 	private _camera: MXP.Camera;
 	private _orbitControls: OrbitControls;
-	private _useEditorCamera: boolean;
-	private _cameraMode: "scene" | "preview";
+	private _view: "editor" | "camera";
+	private _preview: boolean;
 
 	constructor( engine: Engine ) {
 
@@ -18,12 +30,9 @@ export class EditorCamera {
 		this._camera = this._entity.addComponent( MXP.Camera );
 		this._orbitControls = this._entity.addComponent( OrbitControls );
 		this._orbitControls.setElm( engine.canvas as HTMLCanvasElement );
-		this._orbitControls.enabled = true;
-		this._useEditorCamera = true;
-		this._cameraMode = "scene";
-		engine.cameraEntity = this._entity;
-		this._applyEditorPipelineConfig( engine );
-		this._syncFromScene( engine );
+		this._view = "editor";
+		this._preview = false;
+		this._apply( engine );
 
 	}
 
@@ -45,57 +54,159 @@ export class EditorCamera {
 
 	}
 
-	public get useEditorCamera() {
+	public get view() {
 
-		return this._useEditorCamera;
-
-	}
-
-	public get cameraMode() {
-
-		return this._cameraMode;
+		return this._view;
 
 	}
 
-	public setCameraMode( v: "scene" | "preview", engine: Engine ) {
+	public get preview() {
 
-		this._cameraMode = v;
+		return this._preview;
 
-		if ( v === "scene" ) {
+	}
 
-			this._syncFromScene( engine );
+	// エディタカメラで見ているか（プレビュー中とシーンカメラ視点では false）
+	public get usingEditorCamera() {
+
+		return ! this._preview && this._view === "editor";
+
+	}
+
+	public setView( v: "editor" | "camera", engine: Engine ) {
+
+		this._view = v;
+		this._apply( engine );
+
+	}
+
+	public setPreview( v: boolean, engine: Engine ) {
+
+		this._preview = v;
+		this._apply( engine );
+
+	}
+
+	// view / preview の現在値をエンジンへ反映する
+	private _apply( engine: Engine ) {
+
+		if ( this.usingEditorCamera ) {
+
+			// シーンカメラの見た目から切り替わる瞬間だけ姿勢を引き継ぎ、視点が飛ばないようにする
+			if ( engine.cameraEntity !== this._entity ) {
+
+				this.syncFromSceneCamera( engine );
+
+			}
+
 			engine.cameraEntity = this._entity;
 			this._orbitControls.enabled = true;
-			this._useEditorCamera = true;
-			this._applyEditorPipelineConfig( engine );
 
 		} else {
 
 			engine.cameraEntity = null;
 			this._orbitControls.enabled = false;
-			this._useEditorCamera = false;
-			engine.renderer.applyPipelineConfig( engine.renderer.pipelineConfig );
 
 		}
 
+		this.syncPipelineOverride( engine );
+
 	}
 
-	// エディタカメラ操作中はmotionBlur / dofを無効化する（sceneの設定値は変更しない）
-	private _applyEditorPipelineConfig( engine: Engine ) {
+	// 現在の状態に応じたパイプラインの上書きをレンダラーへ反映する
+	public syncPipelineOverride( engine: Engine ) {
 
-		engine.renderer.applyPipelineConfig( { ...engine.renderer.pipelineConfig, motionBlur: false, dof: false } );
+		engine.renderer.setPipelineOverride( this.usingEditorCamera ? EDITOR_PIPELINE_OVERRIDE : null );
+
+	}
+
+	// エンティティの境界球が画面に収まる位置へ、今の視線方向を保ったまま寄る
+	public focus( entity: MXP.Entity ) {
+
+		entity.updateMatrixRecursive( true );
+
+		const bounds = this._getWorldBounds( entity );
+		const center = new GLP.Vector();
+		let radius = FOCUS_EMPTY_RADIUS;
+
+		if ( bounds ) {
+
+			center.copy( bounds.min ).add( bounds.max ).multiply( 0.5 );
+			radius = Math.max( bounds.max.clone().sub( bounds.min ).length() * 0.5, FOCUS_MIN_RADIUS );
+
+		} else {
+
+			entity.matrixWorld.decompose( center );
+
+		}
+
+		// fov は度。半画角の tan で「半径 radius が画面の縦半分に収まる距離」になる
+		const distance = radius / Math.tan( this._camera.fov * Math.PI / 360 ) * FOCUS_MARGIN;
+
+		const dir = this._orbitControls.eye.clone().sub( this._orbitControls.target );
+
+		if ( dir.length() < 1e-6 ) dir.set( 0, 0, 1 );
+
+		dir.normalize().multiply( distance );
+
+		this._orbitControls.setPosition( center.clone().add( dir ), center );
+
+	}
+
+	// 子孫のメッシュから、ワールド空間の境界ボックスを求める
+	private _getWorldBounds( entity: MXP.Entity ) {
+
+		const min = new GLP.Vector( Infinity, Infinity, Infinity );
+		const max = new GLP.Vector( - Infinity, - Infinity, - Infinity );
+		let found = false;
+
+		entity.traverse( ( child ) => {
+
+			if ( ! child.visible ) return;
+
+			const mesh = child.getComponent( MXP.Mesh );
+
+			if ( ! mesh ) return;
+
+			const box = mesh.geometry.boundingBox;
+
+			if ( ! box ) return;
+
+			// ローカルの箱は回転すると軸に沿わなくなるので、8頂点を移してから取り直す
+			for ( let i = 0; i < 8; i ++ ) {
+
+				const p = new GLP.Vector(
+					i & 1 ? box.max.x : box.min.x,
+					i & 2 ? box.max.y : box.min.y,
+					i & 4 ? box.max.z : box.min.z,
+				).applyMatrix4AsPosition( child.matrixWorld );
+
+				min.x = Math.min( min.x, p.x );
+				min.y = Math.min( min.y, p.y );
+				min.z = Math.min( min.z, p.z );
+				max.x = Math.max( max.x, p.x );
+				max.y = Math.max( max.y, p.y );
+				max.z = Math.max( max.z, p.z );
+
+			}
+
+			found = true;
+
+		} );
+
+		return found ? { min, max } : null;
 
 	}
 
 	public getCameraEntity( engine: Engine ): MXP.Entity | null {
 
-		return this._useEditorCamera ? this._entity : engine.cameraEntity;
+		return engine.resolveCameraEntity();
 
 	}
 
 	public updateBeforeRender( engine: Engine ) {
 
-		if ( ! this._useEditorCamera ) return;
+		if ( ! this.usingEditorCamera ) return;
 
 		const event = engine.createEntityUpdateEvent();
 		this._entity.updateMatrix();
@@ -112,7 +223,7 @@ export class EditorCamera {
 
 	public updateAfterRender( engine: Engine ) {
 
-		if ( ! this._useEditorCamera ) return;
+		if ( ! this.usingEditorCamera ) return;
 
 		const event = engine.createEntityUpdateEvent();
 		this._entity.commitFrame( event );
@@ -132,16 +243,31 @@ export class EditorCamera {
 
 	}
 
-	private _syncFromScene( engine: Engine ) {
+	// シーンのアクティブカメラの姿勢と投影パラメータをエディタカメラへ写す
+	public syncFromSceneCamera( engine: Engine ) {
 
-		const sceneCamera = engine.root.findEntityByName( "Camera" );
+		const sceneCameraEntity = engine.findSceneCameraEntity();
+
+		if ( ! sceneCameraEntity ) return;
+
+		const eye = new GLP.Vector();
+		sceneCameraEntity.matrixWorld.decompose( eye );
+
+		// オービットは注視点が必要なので、カメラ前方の現在のオービット距離の位置に置く
+		const forward = new GLP.Vector( 0, 0, - 1, 0 ).applyMatrix3( sceneCameraEntity.matrixWorld ).normalize();
+		const distance = this._orbitControls.eye.clone().sub( this._orbitControls.target ).length() || 5.0;
+		const target = eye.clone().add( forward.multiply( distance ) );
+
+		this._orbitControls.setPosition( eye, target );
+
+		const sceneCamera = sceneCameraEntity.getComponentsByTag<MXP.Camera>( "camera" )[ 0 ];
 
 		if ( sceneCamera ) {
 
-			const pos = new GLP.Vector();
-			sceneCamera.matrixWorld.decompose( pos );
-
-			this._orbitControls.setPosition( pos, new GLP.Vector( 0, 0, 0 ) );
+			this._camera.fov = sceneCamera.fov;
+			this._camera.near = sceneCamera.near;
+			this._camera.far = sceneCamera.far;
+			this._camera.needsUpdateProjectionMatrix = true;
 
 		}
 
