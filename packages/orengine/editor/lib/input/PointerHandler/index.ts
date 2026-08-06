@@ -7,9 +7,18 @@ import { EditorCamera } from '../../EditorCamera';
 import { GizmoAxis, GizmoMode } from '../../gizmo/Gizmo';
 import { GizmoManager } from '../../gizmo/GizmoManager';
 import { HelperManager } from '../../helper/HelperManager';
-import { clientToNDC } from '../PointerUtils';
+import { EntityHelper } from '../../helper/Helpers/EntityHelper';
+import { clientToNDC, getContentRect } from '../PointerUtils';
 
 import type { EditorAPI } from '../../EditorAPI';
+
+type ClickCandidate = { entity: MXP.Entity, distance: number, type: 'helper' | 'mesh' };
+
+// ヒットエリアを外したクリックでもヘルパーを拾う画面上の許容半径（px）
+const HELPER_ASSIST_RADIUS_PX = 12;
+
+// カメラの枠線（錐台のワイヤ・ビューポートの縁）のクリックをカメラ選択として拾う許容距離（px）
+const FRAME_SELECT_RADIUS_PX = 12;
 
 export class PointerHandler {
 
@@ -50,6 +59,245 @@ export class PointerHandler {
 		const getCameraEntity = (): MXP.Entity | null => {
 
 			return editorCamera.getCameraEntity( engine );
+
+		};
+
+		// ワールド座標をカメラの NDC へ投影する（カメラ背後は null）
+		const projectToNDC = ( worldPos: GLP.Vector, cameraEntity: MXP.Entity ): GLP.Vector | null => {
+
+			const camera = cameraEntity.getComponentsByTag<MXP.Camera>( 'camera' )[ 0 ];
+
+			if ( ! camera ) return null;
+
+			const p = new GLP.Vector( worldPos.x, worldPos.y, worldPos.z, 1 );
+			p.applyMatrix4( camera.viewMatrix ).applyMatrix4( camera.projectionMatrix );
+
+			if ( p.w <= 0 ) return null;
+
+			return new GLP.Vector( p.x / p.w, p.y / p.w );
+
+		};
+
+		// カメラとヘルパー原点の間にシーンメッシュの面があるか（画面上で見えていないヘルパーの近傍アシストを抑止する）
+		const occlusionRaycaster = new MXP.Raycaster();
+
+		const isOccluded = ( worldPos: GLP.Vector ): boolean => {
+
+			const origin = this._raycaster.ray.origin;
+			const dx = worldPos.x - origin.x;
+			const dy = worldPos.y - origin.y;
+			const dz = worldPos.z - origin.z;
+			const distance = Math.sqrt( dx * dx + dy * dy + dz * dz );
+
+			if ( distance < 1e-4 ) return false;
+
+			occlusionRaycaster.ray.origin.copy( origin );
+			occlusionRaycaster.ray.direction.set( dx / distance, dy / distance, dz / distance );
+
+			const hits = occlusionRaycaster.intersectEntities( engine.root );
+
+			for ( const hit of hits ) {
+
+				if ( hit.entity.initiator === 'god' ) continue;
+
+				return hit.distance < distance - 1e-3;
+
+			}
+
+			return false;
+
+		};
+
+		// ヒット領域が画面のほぼ全体を覆っているか（四隅へのレイが全部当たるかで見る）。
+		// 視点がカメラの錐台やライトの錐体の中にいると、どこをクリックしてもそのヘルパーに当たってしまう
+		const coverRaycaster = new MXP.Raycaster();
+		const coverNDC = new GLP.Vector();
+
+		const coversViewport = ( hitEntity: MXP.Entity, cameraEntity: MXP.Entity ): boolean => {
+
+			// ±1.0 ちょうどだと視点がカメラ位置に一致したとき境界上で判定が揺れる。
+			// ±0.8 まで内側に寄せて、視点が少し後ろへ引いた（錐台が画面の8割強を覆う）状態まで「覆っている」とみなす
+			for ( const [ x, y ] of [[ - 0.8, - 0.8 ], [ 0.8, - 0.8 ], [ - 0.8, 0.8 ], [ 0.8, 0.8 ]] ) {
+
+				coverNDC.set( x, y );
+				coverRaycaster.setFromCamera( coverNDC, cameraEntity );
+
+				if ( coverRaycaster.intersectEntities( hitEntity ).length === 0 ) return false;
+
+			}
+
+			return true;
+
+		};
+
+		// クリック位置がヘルパーのワイヤ線分の近くにあるか（画面上のpx距離で判定）
+		const isNearHelperLines = ( helper: EntityHelper, ndc: GLP.Vector, cameraEntity: MXP.Entity, content: { width: number, height: number } ): boolean => {
+
+			for ( const seg of helper.getWorldSegments() ) {
+
+				const a = projectToNDC( seg.a, cameraEntity );
+				const b = projectToNDC( seg.b, cameraEntity );
+
+				if ( ! a || ! b ) continue;
+
+				// クリック位置を原点にしたpx座標へ移し、原点から線分への最短距離を測る
+				const ax = ( a.x - ndc.x ) * content.width * 0.5;
+				const ay = ( a.y - ndc.y ) * content.height * 0.5;
+				const bx = ( b.x - ndc.x ) * content.width * 0.5;
+				const by = ( b.y - ndc.y ) * content.height * 0.5;
+
+				const dx = bx - ax;
+				const dy = by - ay;
+				const len2 = dx * dx + dy * dy;
+				const t = len2 > 0 ? Math.max( 0, Math.min( 1, - ( ax * dx + ay * dy ) / len2 ) ) : 0;
+
+				const px = ax + dx * t;
+				const py = ay + dy * t;
+
+				if ( Math.sqrt( px * px + py * py ) <= FRAME_SELECT_RADIUS_PX ) return true;
+
+			}
+
+			return false;
+
+		};
+
+		// カーソル下の選択候補を「見えている順」で集める。
+		// 優先順位: 見えているヘルパー → カーソル近傍の未遮蔽ヘルパー → メッシュ手前順 → メッシュに隠れたヘルパー
+		const collectCandidates = ( ndc: GLP.Vector ): ClickCandidate[] => {
+
+			const cameraEntity = getCameraEntity();
+
+			if ( ! cameraEntity ) return [];
+
+			this._raycaster.setFromCamera( ndc, cameraEntity );
+
+			const meshCandidates: ClickCandidate[] = [];
+
+			for ( const r of this._raycaster.intersectEntities( engine.root ) ) {
+
+				if ( r.entity.initiator !== 'god' ) {
+
+					meshCandidates.push( { entity: r.entity, distance: r.distance, type: 'mesh' } );
+
+				}
+
+			}
+
+			const firstMeshDistance = meshCandidates.length > 0 ? meshCandidates[ 0 ].distance : Infinity;
+
+			const visibleHelpers: ClickCandidate[] = [];
+			const hiddenHelpers: ClickCandidate[] = [];
+			const directHitUUIDs = new Set<string>();
+			const helpers = helperManager.getHelpers();
+			const content = getContentRect( canvasElm );
+
+			for ( const helper of helpers ) {
+
+				const hits = this._raycaster.intersectEntities( helper.hitAreaEntity );
+
+				if ( hits.length === 0 ) continue;
+
+				const targetEntity = engine.root.findEntityByUUID( helper.targetEntityUUID );
+
+				if ( ! targetEntity ) continue;
+
+				directHitUUIDs.add( helper.targetEntityUUID );
+
+				const candidate: ClickCandidate = { entity: targetEntity, distance: hits[ 0 ].distance, type: 'helper' };
+
+				// ヒット領域が画面全体を覆っている状態では面のヒットを捨てて、
+				// 見えている枠線の近くをクリックしたときだけ選択として拾う
+				if ( coversViewport( helper.hitAreaEntity, cameraEntity ) ) {
+
+					if ( isNearHelperLines( helper, ndc, cameraEntity, content ) ) {
+
+						visibleHelpers.push( candidate );
+
+					}
+
+					continue;
+
+				}
+
+				if ( hits[ 0 ].distance <= firstMeshDistance ) {
+
+					visibleHelpers.push( candidate );
+
+				} else {
+
+					hiddenHelpers.push( candidate );
+
+				}
+
+			}
+
+			// シーンカメラ視点ではそのカメラのヘルパーが出ないため、ビューポートの縁のクリックをカメラ選択として拾う（Blenderのカメラ枠クリック相当）
+			if ( editorCamera.view === 'camera' ) {
+
+				const edgePx = Math.min(
+					( 1 - Math.abs( ndc.x ) ) * content.width * 0.5,
+					( 1 - Math.abs( ndc.y ) ) * content.height * 0.5
+				);
+
+				if ( edgePx <= FRAME_SELECT_RADIUS_PX ) {
+
+					visibleHelpers.push( { entity: cameraEntity, distance: 0, type: 'helper' } );
+
+				}
+
+			}
+
+			visibleHelpers.sort( ( a, b ) => a.distance - b.distance );
+			hiddenHelpers.sort( ( a, b ) => a.distance - b.distance );
+
+			// 近傍アシスト: ヒットエリアを外していても、原点がカーソル近傍で遮蔽されていないヘルパーは拾う
+			const assistHelpers: { candidate: ClickCandidate, screenDistance: number }[] = [];
+
+			for ( const { targetEntityUUID } of helpers ) {
+
+				if ( directHitUUIDs.has( targetEntityUUID ) ) continue;
+
+				const targetEntity = engine.root.findEntityByUUID( targetEntityUUID );
+
+				if ( ! targetEntity ) continue;
+
+				const elm = targetEntity.matrixWorld.elm;
+				const worldPos = new GLP.Vector( elm[ 12 ], elm[ 13 ], elm[ 14 ] );
+				const helperNDC = projectToNDC( worldPos, cameraEntity );
+
+				if ( ! helperNDC ) continue;
+
+				const dxPx = ( helperNDC.x - ndc.x ) * content.width * 0.5;
+				const dyPx = ( helperNDC.y - ndc.y ) * content.height * 0.5;
+				const screenDistance = Math.sqrt( dxPx * dxPx + dyPx * dyPx );
+
+				if ( screenDistance > HELPER_ASSIST_RADIUS_PX ) continue;
+				if ( isOccluded( worldPos ) ) continue;
+
+				const ox = worldPos.x - this._raycaster.ray.origin.x;
+				const oy = worldPos.y - this._raycaster.ray.origin.y;
+				const oz = worldPos.z - this._raycaster.ray.origin.z;
+
+				assistHelpers.push( {
+					candidate: {
+						entity: targetEntity,
+						distance: Math.sqrt( ox * ox + oy * oy + oz * oz ),
+						type: 'helper',
+					},
+					screenDistance,
+				} );
+
+			}
+
+			assistHelpers.sort( ( a, b ) => a.screenDistance - b.screenDistance );
+
+			return [
+				...visibleHelpers,
+				...assistHelpers.map( ( a ) => a.candidate ),
+				...meshCandidates,
+				...hiddenHelpers,
+			];
 
 		};
 
@@ -235,31 +483,11 @@ export class PointerHandler {
 
 			if ( ! newHover ) {
 
-				const hitAreas = helperManager.getHitAreaEntities();
+				const candidates = collectCandidates( ndc );
 
-				for ( const { hitEntity } of hitAreas ) {
+				if ( candidates.length > 0 ) {
 
-					const hits = this._raycaster.intersectEntities( hitEntity );
-
-					if ( hits.length > 0 ) {
-
-						newHover = 'helper';
-						break;
-
-					}
-
-				}
-
-			}
-
-			if ( ! newHover ) {
-
-				const sceneHits = this._raycaster.intersectEntities( engine.root );
-				const meshHit = sceneHits.find( r => r.entity.initiator !== "god" );
-
-				if ( meshHit ) {
-
-					newHover = 'mesh';
+					newHover = candidates[ 0 ].type;
 
 				}
 
@@ -346,68 +574,10 @@ export class PointerHandler {
 			if ( dist > 5 ) return;
 
 			const ndc = clientToNDC( canvasElm, e.clientX, e.clientY );
-			const cameraEntity = getCameraEntity();
 
-			if ( ! cameraEntity ) return;
+			if ( ! getCameraEntity() ) return;
 
-			this._raycaster.setFromCamera( ndc, cameraEntity );
-
-			// unified raycast: helpers + scene meshes
-			type ClickCandidate = { entity: MXP.Entity, distance: number, type: 'helper' | 'mesh' };
-			const candidates: ClickCandidate[] = [];
-
-			const hitAreas = helperManager.getHitAreaEntities();
-
-			for ( const { hitEntity, targetEntityUUID } of hitAreas ) {
-
-				const hits = this._raycaster.intersectEntities( hitEntity );
-
-				if ( hits.length > 0 ) {
-
-					const targetEntity = engine.root.findEntityByUUID( targetEntityUUID );
-
-					if ( targetEntity ) {
-
-						candidates.push( {
-							entity: targetEntity,
-							distance: hits[ 0 ].distance,
-							type: 'helper',
-						} );
-
-					}
-
-				}
-
-			}
-
-			const sceneResults = this._raycaster.intersectEntities( engine.root );
-
-			for ( const r of sceneResults ) {
-
-				if ( r.entity.initiator !== "god" ) {
-
-					candidates.push( {
-						entity: r.entity,
-						distance: r.distance,
-						type: 'mesh',
-					} );
-
-				}
-
-			}
-
-			candidates.sort( ( a, b ) => a.distance - b.distance );
-
-			// filter: helpers are transparent, first mesh blocks everything behind it
-			const validCandidates: ClickCandidate[] = [];
-
-			for ( const c of candidates ) {
-
-				validCandidates.push( c );
-
-				if ( c.type === 'mesh' ) break;
-
-			}
+			const validCandidates = collectCandidates( ndc );
 
 			if ( validCandidates.length === 0 ) {
 

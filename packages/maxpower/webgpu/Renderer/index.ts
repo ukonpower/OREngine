@@ -526,6 +526,16 @@ export class Renderer extends Serializable implements RendererContract {
 					visibility: GPUShaderStage.FRAGMENT,
 					sampler: { type: 'filtering' },
 				},
+				{
+					binding: 2,
+					visibility: GPUShaderStage.FRAGMENT,
+					texture: { sampleType: 'float', viewDimension: 'cube' },
+				},
+				{
+					binding: 3,
+					visibility: GPUShaderStage.FRAGMENT,
+					sampler: { type: 'filtering' },
+				},
 			],
 		} );
 
@@ -1198,12 +1208,16 @@ export class Renderer extends Serializable implements RendererContract {
 
 		this._createGBufferBindGroup( device );
 
+		// envMap面パスもこのbind groupを共有するが、そこで描画するのはソースキューブで
+		// 読むのは事前フィルタ済み本体なので、読み書きの衝突は起きない
 		this._refractionBindGroup = device.createBindGroup( {
 			label: 'refraction',
 			layout: this._refractionLayout!,
 			entries: [
 				{ binding: 0, resource: this._targets.refractionView! },
 				{ binding: 1, resource: this._refractionSampler! },
+				{ binding: 2, resource: this._envMap!.view },
+				{ binding: 3, resource: this._envMap!.sampler },
 			],
 		} );
 
@@ -1282,7 +1296,7 @@ export class Renderer extends Serializable implements RendererContract {
 		// storageを読むマテリアルと、fsShadowを持つマテリアルは、シャドウパスにも group2 が要る
 		const shadowLayouts = storages.length > 0 || material.hasShadowFragment ? objectLayouts : [ layout, layout ];
 
-		// fsForwardを使うパイプラインは group3 にrefractionが入る。
+		// fsForwardを使うパイプラインは group3 にrefractionとPMREM環境マップが入る。
 		// group2が無いマテリアルでもgroup3の位置がずれないよう、空レイアウトで埋める
 		const forwardLayouts = [ layout, layout, materialLayout || this._emptyMaterialLayout!, this._refractionLayout! ];
 

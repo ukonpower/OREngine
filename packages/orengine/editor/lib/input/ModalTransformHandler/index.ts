@@ -13,6 +13,13 @@ import type { TransformOrientation } from '../../transform/TransformUtils';
 
 export type ModalTransformMode = 'translate' | 'rotate' | 'scale';
 
+// 拘束軸の描画用情報。quat は軸の向き（global なら恒等）
+export type ConstraintDisplay = {
+	origin: GLP.Vector;
+	quat: GLP.Quaternion;
+	axes: GizmoAxis[];
+};
+
 type Constraint = {
 	axis: GizmoAxis;
 	orientation: TransformOrientation;
@@ -23,6 +30,8 @@ type Constraint = {
 type ModalSession = {
 	mode: ModalTransformMode;
 	entity: MXP.Entity;
+	// 変形対象が視点カメラ自身か（カメラビュー中のモーダルは常にこちら）
+	selfView: boolean;
 	constraint: Constraint | null;
 	numberBuffer: string;
 	trackball: boolean;
@@ -37,6 +46,11 @@ type ModalSession = {
 	camRight: GLP.Vector;
 	camUp: GLP.Vector;
 	camWorldPos: GLP.Vector;
+	// レイと平面・軸の交差計算の基準点。カメラ自身の変形では自位置だと退化するため前方へ置く
+	anchorWorldPos: GLP.Vector;
+	// モーダル中に視点カメラ自身が動いてもレイが揺れないよう、開始時点のカメラ逆行列を凍結する
+	projInv: GLP.Matrix;
+	viewInv: GLP.Matrix;
 	centerClient: GLP.Vector;
 	startPointer: GLP.Vector;
 	lastPointer: GLP.Vector;
@@ -51,6 +65,9 @@ const MIN_SCALE_RATIO = 0.001;
 
 // トラックボールの感度（rad/px）
 const TRACKBALL_SPEED = 0.007;
+
+// カメラ自身を動かすときの基準距離の下限。ピント距離 0 での退化を防ぐ（EditorCamera の注視点解決と同じ値）
+const MIN_SELF_ANCHOR_DISTANCE = 0.1;
 
 // mode と Entity の Serializable field の対応（確定時に積む Command の path）
 const FIELD_NAME: Record<ModalTransformMode, 'position' | 'euler' | 'scale'> = {
@@ -70,7 +87,6 @@ export class ModalTransformHandler {
 	private _isPointerBusy: () => boolean;
 	private _onStatusChange: ( status: string | null ) => void;
 	private _canvas: HTMLCanvasElement;
-	private _raycaster: MXP.Raycaster;
 	private _pointerClient: GLP.Vector;
 	private _session: ModalSession | null;
 	private _disposeListeners: () => void;
@@ -92,7 +108,6 @@ export class ModalTransformHandler {
 		this._onStatusChange = param.onStatusChange;
 
 		this._canvas = param.engine.canvas as HTMLCanvasElement;
-		this._raycaster = new MXP.Raycaster();
 		this._pointerClient = new GLP.Vector();
 		this._session = null;
 
@@ -116,6 +131,29 @@ export class ModalTransformHandler {
 	public get active(): boolean {
 
 		return this._session !== null;
+
+	}
+
+	// 拘束軸を描くための表示情報。拘束なし・トラックボール中は null
+	public get constraintDisplay(): ConstraintDisplay | null {
+
+		const session = this._session;
+
+		if ( ! session || session.trackball || ! session.constraint ) return null;
+
+		const constraint = session.constraint;
+
+		// スケールは orientation によらずローカル成分に掛かるので、表示も常にローカル軸にする
+		const local = session.mode === 'scale' || constraint.orientation === 'local';
+
+		return {
+			// カメラ自身の変形では対象位置＝視点なので、前方に置いた基準点から軸を描く
+			origin: session.anchorWorldPos,
+			quat: local ? session.startWorldQuat : new GLP.Quaternion(),
+			axes: constraint.plane
+				? AXES.filter( ( axis ) => axis !== constraint.axis )
+				: [ constraint.axis ],
+		};
 
 	}
 
@@ -226,13 +264,19 @@ export class ModalTransformHandler {
 
 		if ( this._isPointerBusy() ) return false;
 
-		const entity = this._getSelectedEntity();
+		// カメラビュー中は選択に関係なく視点カメラ自身を動かす（Blender のカメラ選択 G / R 相当）
+		const selfView = this._editorCamera.view === 'camera';
 
-		if ( ! entity ) return false;
+		// カメラ自身のスケールはビュー行列を歪ませるだけなので開始しない
+		if ( selfView && mode === 'scale' ) return false;
 
 		const cameraEntity = this._editorCamera.getCameraEntity( this._engine );
 
 		if ( ! cameraEntity ) return false;
+
+		const entity = selfView ? cameraEntity : this._getSelectedEntity();
+
+		if ( ! entity ) return false;
 
 		const camera = cameraEntity.getComponentsByTag<MXP.Camera>( "camera" )[ 0 ];
 
@@ -248,6 +292,12 @@ export class ModalTransformHandler {
 
 		const worldElm = entity.matrixWorld.elm;
 		const startWorldPos = new GLP.Vector( worldElm[ 12 ], worldElm[ 13 ], worldElm[ 14 ] );
+
+		// カメラ自身の変形では自位置がレイの起点と一致して交差計算が退化するため、
+		// 基準点をピント距離ぶん前方へ置く（オービットの注視点と同じ規約。被写体がマウスに 1:1 で付いてくる）
+		const anchorWorldPos = selfView
+			? startWorldPos.clone().add( camForward.clone().multiply( Math.max( camera.dofParams.focusDistance, MIN_SELF_ANCHOR_DISTANCE ) ) )
+			: startWorldPos.clone();
 
 		const onMove = ( e: PointerEvent ) => {
 
@@ -291,6 +341,7 @@ export class ModalTransformHandler {
 		this._session = {
 			mode,
 			entity,
+			selfView,
 			constraint: null,
 			numberBuffer: '',
 			trackball: false,
@@ -309,6 +360,9 @@ export class ModalTransformHandler {
 			camRight,
 			camUp,
 			camWorldPos,
+			anchorWorldPos,
+			projInv: camera.projectionMatrix.clone().inverse(),
+			viewInv: camera.viewMatrix.clone().inverse(),
 			centerClient: this._projectToClient( startWorldPos, camera ),
 			startPointer: this._pointerClient.clone(),
 			lastPointer: this._pointerClient.clone(),
@@ -475,10 +529,6 @@ export class ModalTransformHandler {
 
 		if ( ! session ) return;
 
-		const cameraEntity = this._editorCamera.getCameraEntity( this._engine );
-
-		if ( ! cameraEntity ) return;
-
 		const numeric = session.numberBuffer === '' ? null : parseFloat( session.numberBuffer );
 
 		let amount = 0;
@@ -490,7 +540,7 @@ export class ModalTransformHandler {
 
 		} else if ( session.mode === 'translate' ) {
 
-			amount = this._applyTranslate( session, cameraEntity, numeric );
+			amount = this._applyTranslate( session, numeric );
 
 		} else if ( session.mode === 'rotate' ) {
 
@@ -508,7 +558,7 @@ export class ModalTransformHandler {
 
 	}
 
-	private _applyTranslate( session: ModalSession, cameraEntity: MXP.Entity, numeric: number | null ): number {
+	private _applyTranslate( session: ModalSession, numeric: number | null ): number {
 
 		const constraint = session.constraint;
 
@@ -522,14 +572,14 @@ export class ModalTransformHandler {
 
 		}
 
-		const startRay = this._rayFromClient( session.startPointer, cameraEntity );
-		const currentRay = this._rayFromClient( session.lastPointer, cameraEntity );
+		const startRay = this._rayFromClient( session.startPointer, session );
+		const currentRay = this._rayFromClient( session.lastPointer, session );
 
 		if ( constraint && ! constraint.plane ) {
 
 			const axisDir = this._axisWorldDir( session, constraint.axis, constraint.orientation );
-			const amount = projectRayOnLine( currentRay, session.startWorldPos, axisDir )
-				- projectRayOnLine( startRay, session.startWorldPos, axisDir );
+			const amount = projectRayOnLine( currentRay, session.anchorWorldPos, axisDir )
+				- projectRayOnLine( startRay, session.anchorWorldPos, axisDir );
 
 			this._setWorldPosition( session, session.startWorldPos.clone().add( axisDir.clone().multiply( amount ) ) );
 
@@ -542,8 +592,8 @@ export class ModalTransformHandler {
 			? this._axisWorldDir( session, constraint.axis, constraint.orientation )
 			: session.camForward;
 
-		const hitStart = intersectRayPlane( startRay, session.startWorldPos, normal );
-		const hitCurrent = intersectRayPlane( currentRay, session.startWorldPos, normal );
+		const hitStart = intersectRayPlane( startRay, session.anchorWorldPos, normal );
+		const hitCurrent = intersectRayPlane( currentRay, session.anchorWorldPos, normal );
 
 		if ( ! hitStart || ! hitCurrent ) return 0;
 
@@ -588,7 +638,10 @@ export class ModalTransformHandler {
 
 		// 右ねじ回転はカメラを向く軸のときだけ画面上で反時計回りに見えるので、軸をカメラ側へ揃えてから角度を適用する
 		// ただし数値入力＋軸拘束は Blender 同様、見た目の回転方向によらず軸まわりの右ねじ角として扱う
-		const toCamera = session.camWorldPos.clone().sub( session.startWorldPos );
+		// カメラ自身の回転では位置差が 0 に潰れるため、視線の逆向きを「カメラへ向かう方向」として使う
+		const toCamera = session.selfView
+			? session.camForward.clone().multiply( - 1 )
+			: session.camWorldPos.clone().sub( session.startWorldPos );
 		const sign = numeric !== null && session.constraint ? 1 : ( axis.dot( toCamera ) < 0 ? - 1 : 1 );
 
 		const angle = numeric !== null
@@ -704,14 +757,12 @@ export class ModalTransformHandler {
 		Utils
 	-------------------------------*/
 
-	// クライアント座標からピッキングレイを作る。raycaster の ray は使い回されるので複製して返す
-	private _rayFromClient( client: GLP.Vector, cameraEntity: MXP.Entity ): MXP.Ray {
+	// クライアント座標からピッキングレイを作る。カメラ自身を動かしてもレイが揺れないよう開始時に凍結した行列を使う
+	private _rayFromClient( client: GLP.Vector, session: ModalSession ): MXP.Ray {
 
 		const ndc = clientToNDC( this._canvas, client.x, client.y );
 
-		this._raycaster.setFromCamera( ndc, cameraEntity );
-
-		return new MXP.Ray( this._raycaster.ray.origin.clone(), this._raycaster.ray.direction.clone() );
+		return new MXP.Ray().setFromCamera( ndc, session.projInv, session.viewInv );
 
 	}
 

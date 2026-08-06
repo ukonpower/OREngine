@@ -14,6 +14,30 @@ import { useSerializableField } from '../../../SerializableField/hooks/useSerial
 
 import style from './index.module.scss';
 
+// 開閉状態は UI 状態なので editor.json ではなく localStorage に持つ（開いているノードの uuid 一覧）
+const OPEN_NODES_STORAGE_KEY = "hierarchyOpenNodes";
+
+// localStorage から開いているノードの uuid 集合を読む
+const loadOpenNodes = (): Set<string> => {
+
+	try {
+
+		const raw = localStorage.getItem( OPEN_NODES_STORAGE_KEY );
+
+		if ( raw ) return new Set( JSON.parse( raw ) as string[] );
+
+	} catch ( e ) { /* 壊れた値は初期状態として扱う */ }
+
+	return new Set();
+
+};
+
+const saveOpenNodes = ( nodes: Set<string> ) => {
+
+	localStorage.setItem( OPEN_NODES_STORAGE_KEY, JSON.stringify( Array.from( nodes ) ) );
+
+};
+
 
 type HierarchyNodeProps = {
 	depth?: number;
@@ -54,14 +78,31 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 
 	// click fold controls
 
-	const [ open, setOpen ] = useState<boolean>( true );
+	const [ open, setOpen ] = useState<boolean>( () => loadOpenNodes().has( props.entity.uuid ) );
 
 	const onClickFoldControls = useCallback( ( e: MouseEvent ) => {
 
-		setOpen( ! open );
+		const next = ! open;
+
+		setOpen( next );
+
+		const nodes = loadOpenNodes();
+
+		if ( next ) {
+
+			nodes.add( props.entity.uuid );
+
+		} else {
+
+			nodes.delete( props.entity.uuid );
+
+		}
+
+		saveOpenNodes( nodes );
+
 		e.stopPropagation();
 
-	}, [ open ] );
+	}, [ open, props.entity.uuid ] );
 
 	// click node
 

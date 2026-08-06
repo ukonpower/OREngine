@@ -146,20 +146,9 @@ export class HelperManager {
 
 	}
 
-	public getHitAreaEntities(): { hitEntity: MXP.Entity, targetEntityUUID: string }[] {
+	public getHelpers(): EntityHelper[] {
 
-		const result: { hitEntity: MXP.Entity, targetEntityUUID: string }[] = [];
-
-		this._helpers.forEach( ( helper ) => {
-
-			result.push( {
-				hitEntity: helper.hitAreaEntity,
-				targetEntityUUID: helper.targetEntityUUID,
-			} );
-
-		} );
-
-		return result;
+		return Array.from( this._helpers.values() );
 
 	}
 
