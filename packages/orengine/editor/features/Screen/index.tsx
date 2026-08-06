@@ -6,6 +6,7 @@ import { Value } from '../../components/composites/Value';
 import { Button } from '../../components/primitives/Button';
 import { Label } from '../../components/primitives/Label';
 import { AudioView } from '../AudioView';
+import { useUISetting } from '../EditorSettings/hooks/useUISetting';
 import { useLayout } from '../Layout/hooks/useLayout';
 import { useOREditor } from '../OREditor/hooks/useOREditor';
 import { Canvas } from '../SerializableField/components/Canvas';
@@ -35,6 +36,7 @@ export const Screen = () => {
 	const [ showGizmo, setShowGizmo ] = useSerializableField<boolean>( editor, "helpers/gizmo" );
 	const [ showOutline, setShowOutline ] = useSerializableField<boolean>( editor, "helpers/outline" );
 
+	const [ showAudioView ] = useUISetting( 'showAudioView' );
 	const [ audioViewHeight, setAudioViewHeight ] = useState( 50 );
 	const audioViewDragRef = useRef<{ startY: number; startHeight: number } | null>( null );
 
@@ -222,33 +224,35 @@ export const Screen = () => {
 			<div className={style.canvas}>
 				<Canvas />
 			</div>
-			<div
-				className={style.audioViewHandle}
-				onPointerDown={( e ) => {
+			{showAudioView && <>
+				<div
+					className={style.audioViewHandle}
+					onPointerDown={( e ) => {
 
-					e.preventDefault();
-					e.currentTarget.setPointerCapture( e.pointerId );
-					audioViewDragRef.current = { startY: e.clientY, startHeight: audioViewHeight };
+						e.preventDefault();
+						e.currentTarget.setPointerCapture( e.pointerId );
+						audioViewDragRef.current = { startY: e.clientY, startHeight: audioViewHeight };
 
-				}}
-				onPointerMove={( e ) => {
+					}}
+					onPointerMove={( e ) => {
 
-					if ( ! audioViewDragRef.current ) return;
+						if ( ! audioViewDragRef.current ) return;
 
-					const delta = audioViewDragRef.current.startY - e.clientY;
-					const newHeight = Math.max( 20, Math.min( 400, audioViewDragRef.current.startHeight + delta ) );
-					setAudioViewHeight( newHeight );
+						const delta = audioViewDragRef.current.startY - e.clientY;
+						const newHeight = Math.max( 20, Math.min( 400, audioViewDragRef.current.startHeight + delta ) );
+						setAudioViewHeight( newHeight );
 
-				}}
-				onPointerUp={() => {
+					}}
+					onPointerUp={() => {
 
-					audioViewDragRef.current = null;
+						audioViewDragRef.current = null;
 
-				}}
-			/>
-			<div className={style.audioView} style={{ height: audioViewHeight }}>
-				<AudioView />
-			</div>
+					}}
+				/>
+				<div className={style.audioView} style={{ height: audioViewHeight }}>
+					<AudioView />
+				</div>
+			</>}
 		</div>
 	</div>;
 

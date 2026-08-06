@@ -1,212 +1,175 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { Gizmo, GizmoAxis, GizmoDragResult } from '..';
-import { composeLocalQuat, getAxisWorldDir, getWorldQuaternion, intersectRayPlane, quaternionFromAxisAngle, TransformOrientation } from '../../../transform/TransformUtils';
+import { GizmoAxis, GizmoDragResult, GizmoHandle } from '..';
+import { composeLocalQuat, getAxisWorldDir, getWorldQuaternion, intersectRayPlane, quaternionFromAxisAngle, rotateVector } from '../../../transform/TransformUtils';
+import { AXIS_COLORS, GizmoBase, VIEW_COLOR } from '../GizmoBase';
 
-export class RotateGizmo implements Gizmo {
+const AXES: readonly GizmoAxis[] = [ 'x', 'y', 'z' ];
 
-	private static readonly BASE_SCALE_FACTOR = 0.15;
+// XY平面上で+X方向を中心に半周だけ開く帯状の円弧。リングの手前半分だけを描く・掴むために使う
+function createArcGeometry( innerRadius: number, outerRadius: number, segments: number ): MXP.Geometry {
 
-	// 回転面内で角度を測る基準軸の組。atan2( dot( p, v ), dot( p, u ) ) が回転軸まわりの右ねじ角になる（u × v = 回転軸）
-	private static readonly PLANE_AXES: Record<GizmoAxis, { u: GizmoAxis, v: GizmoAxis }> = {
-		x: { u: 'y', v: 'z' },
-		y: { u: 'z', v: 'x' },
-		z: { u: 'x', v: 'y' },
-	};
+	const posArray: number[] = [];
+	const normalArray: number[] = [];
+	const uvArray: number[] = [];
+	const indexArray: number[] = [];
 
-	private _engine: MXP.EngineContract;
-	private _draw: MXP.EditorDrawContract;
-	public entity: MXP.Entity;
-	private _xRing: MXP.Entity;
-	private _yRing: MXP.Entity;
-	private _zRing: MXP.Entity;
-	private _orientation: TransformOrientation;
-	private _activeAxis: GizmoAxis | null;
-	private _dragging: boolean;
-	private _dragStartAngle: number;
-	private _dragAxisU: GLP.Vector;
-	private _dragAxisV: GLP.Vector;
+	for ( let i = 0; i <= segments; i ++ ) {
+
+		const theta = - Math.PI / 2 + Math.PI * ( i / segments );
+		const cos = Math.cos( theta );
+		const sin = Math.sin( theta );
+
+		posArray.push( cos * innerRadius, sin * innerRadius, 0 );
+		posArray.push( cos * outerRadius, sin * outerRadius, 0 );
+		normalArray.push( 0, 0, 1, 0, 0, 1 );
+		uvArray.push( i / segments, 0, i / segments, 1 );
+
+		if ( i < segments ) {
+
+			const base = i * 2;
+
+			indexArray.push(
+				base, base + 1, base + 2,
+				base + 1, base + 3, base + 2,
+			);
+
+		}
+
+	}
+
+	const geo = new MXP.Geometry();
+
+	geo.setAttribute( 'position', new Float32Array( posArray ), 3 );
+	geo.setAttribute( 'normal', new Float32Array( normalArray ), 3 );
+	geo.setAttribute( 'uv', new Float32Array( uvArray ), 2 );
+	geo.setAttribute( 'index', new Uint16Array( indexArray ), 1 );
+
+	return geo;
+
+}
+
+type RingRecord = {
+	wrapper: MXP.Entity;
+	base: GLP.Quaternion;
+	baseInv: GLP.Quaternion;
+};
+
+export class RotateGizmo extends GizmoBase {
+
+	private _rings: Record<GizmoAxis, RingRecord>;
+	private _viewRoot: MXP.Entity;
+
+	private _dragCenter: GLP.Vector;
+	private _dragViewNormal: GLP.Vector;
+	private _dragU: GLP.Vector;
+	private _dragV: GLP.Vector;
 	private _dragAxisN: GLP.Vector;
+	private _dragSign: number;
+	private _dragLastAngle: number;
+	private _dragAccumAngle: number;
 	private _dragStartWorldQuat: GLP.Quaternion;
 	private _parentWorldQuatInv: GLP.Quaternion;
 
 	constructor( engine: MXP.EngineContract, draw: MXP.EditorDrawContract ) {
 
-		this._engine = engine;
-		this._draw = draw;
-		this.entity = engine.createEntity( { name: "__gizmo_rotate" } );
-		this.entity.initiator = "god";
-		this.entity.visible = false;
+		super( engine, draw, '__gizmo_rotate' );
 
-		this._orientation = 'global';
-		this._activeAxis = null;
-		this._dragging = false;
-		this._dragStartAngle = 0;
-		this._dragAxisU = new GLP.Vector( 1, 0, 0 );
-		this._dragAxisV = new GLP.Vector( 0, 1, 0 );
+		this._dragCenter = new GLP.Vector();
+		this._dragViewNormal = new GLP.Vector( 0, 0, 1 );
+		this._dragU = new GLP.Vector( 1, 0, 0 );
+		this._dragV = new GLP.Vector( 0, 1, 0 );
 		this._dragAxisN = new GLP.Vector( 0, 0, 1 );
+		this._dragSign = 1;
+		this._dragLastAngle = 0;
+		this._dragAccumAngle = 0;
 		this._dragStartWorldQuat = new GLP.Quaternion();
 		this._parentWorldQuatInv = new GLP.Quaternion();
 
-		this._xRing = this._createRing( 'x', [ 1.0, 0.2, 0.2 ] );
-		this._yRing = this._createRing( 'y', [ 0.2, 1.0, 0.2 ] );
-		this._zRing = this._createRing( 'z', [ 0.4, 0.4, 1.0 ] );
+		// 円弧はXY平面（法線+Z）に生成されるので、法線を各軸へ向ける回転を基底にする
+		const bases: Record<GizmoAxis, GLP.Quaternion> = {
+			x: quaternionFromAxisAngle( new GLP.Vector( 0, 1, 0 ), Math.PI / 2 ),
+			y: quaternionFromAxisAngle( new GLP.Vector( 1, 0, 0 ), - Math.PI / 2 ),
+			z: new GLP.Quaternion(),
+		};
 
-		this.entity.add( this._xRing );
-		this.entity.add( this._yRing );
-		this.entity.add( this._zRing );
+		this._rings = {} as Record<GizmoAxis, RingRecord>;
 
-	}
+		for ( const axis of AXES ) {
 
-	private _createRing( axis: GizmoAxis, color: number[] ): MXP.Entity {
+			const wrapper = this._createEntity( '__gizmo_ring_' + axis );
+			const color = this._registerHandle( axis, wrapper, AXIS_COLORS[ axis ] );
 
-		const wrapperEntity = this._engine.createEntity( { name: "__gizmo_ring_wrapper" } );
-		wrapperEntity.initiator = "god";
+			this._addVisual( wrapper, createArcGeometry( 0.75, 0.8, 48 ), color );
+			this._addHit( wrapper, createArcGeometry( 0.6, 0.95, 24 ) );
 
-		const ringEntity = this._engine.createEntity( { name: "__gizmo_ring" } );
-		ringEntity.initiator = "god";
-
-		const geo = new MXP.RingGeometry( {
-			innerRadius: 0.75,
-			outerRadius: 0.8,
-			thetaSegments: 32,
-			phiSegments: 1,
-		} );
-
-		const mat = this._draw.materials.flat( { color, depthTest: false, depthWrite: false } );
-
-		ringEntity.addComponent( MXP.Mesh, { geometry: geo, material: mat } );
-
-		// hit area
-		const hitRing = this._engine.createEntity( { name: "__gizmo_hit_ring" } );
-		hitRing.initiator = "god";
-		const hitGeo = new MXP.RingGeometry( {
-			innerRadius: 0.6, outerRadius: 0.95,
-			thetaSegments: 32, phiSegments: 1,
-		} );
-		hitRing.addComponent( MXP.Mesh, { geometry: hitGeo } );
-
-		wrapperEntity.add( ringEntity );
-		wrapperEntity.add( hitRing );
-
-		// RingGeometryはXY平面に生成される
-		// x軸回転用: YZ平面 → Y軸周りに90度回転
-		// y軸回転用: XZ平面 → X軸周りに90度回転
-		// z軸回転用: XY平面 → そのまま
-		if ( axis === 'x' ) {
-
-			wrapperEntity.euler.set( 0, Math.PI / 2, 0 );
-
-		} else if ( axis === 'y' ) {
-
-			wrapperEntity.euler.set( Math.PI / 2, 0, 0 );
+			this._rings[ axis ] = {
+				wrapper,
+				base: bases[ axis ],
+				baseInv: bases[ axis ].clone().inverse(),
+			};
 
 		}
 
-		return wrapperEntity;
+		// 視線軸まわりの回転リング（Blenderの外周の白リング）
+		this._viewRoot = this._createEntity( '__gizmo_ring_view' );
+
+		const viewColor = this._registerHandle( 'view', this._viewRoot, VIEW_COLOR );
+
+		this._addVisual( this._viewRoot, new MXP.RingGeometry( { innerRadius: 1.0, outerRadius: 1.05, thetaSegments: 64 } ), viewColor );
+		this._addHit( this._viewRoot, new MXP.RingGeometry( { innerRadius: 0.92, outerRadius: 1.13, thetaSegments: 32 } ) );
 
 	}
 
-	public setTarget( entity: MXP.Entity | null, cameraEntity: MXP.Entity | null, orientation: TransformOrientation ): void {
+	// 各リングの弧の中心（ジオメトリの+X）を、カメラ方向を回転面へ射影した向きへ合わせて手前半分だけ見せる
+	protected _onTargetUpdated(): void {
 
-		this._orientation = orientation;
+		const camDir = this._camDirLocal();
 
-		if ( entity ) {
+		for ( const axis of AXES ) {
 
-			this.entity.visible = true;
+			const ring = this._rings[ axis ];
+			const g = rotateVector( camDir, ring.baseInv );
+			const phi = Math.atan2( g.y, g.x );
 
-			// root を回すと表示メッシュもヒット用メッシュも子として一緒に向く
-			if ( orientation === 'local' ) {
-
-				this.entity.quaternion.copy( getWorldQuaternion( entity ) );
-
-			} else {
-
-				this.entity.quaternion.set( 0, 0, 0, 1 );
-
-			}
-
-			this.entity.position.set(
-				entity.matrixWorld.elm[ 12 ],
-				entity.matrixWorld.elm[ 13 ],
-				entity.matrixWorld.elm[ 14 ]
+			ring.wrapper.quaternion.copy(
+				ring.base.clone().multiply( quaternionFromAxisAngle( new GLP.Vector( 0, 0, 1 ), phi ) )
 			);
 
-			if ( cameraEntity ) {
+		}
 
-				const camX = cameraEntity.matrixWorld.elm[ 12 ];
-				const camY = cameraEntity.matrixWorld.elm[ 13 ];
-				const camZ = cameraEntity.matrixWorld.elm[ 14 ];
-				const dx = this.entity.position.x - camX;
-				const dy = this.entity.position.y - camY;
-				const dz = this.entity.position.z - camZ;
-				const dist = Math.sqrt( dx * dx + dy * dy + dz * dz );
-				const s = Math.max( 0.01, dist * RotateGizmo.BASE_SCALE_FACTOR );
-				this.entity.scale.set( s, s, s );
+		this._viewRoot.quaternion.copy( this._billboardQuat() );
 
-			}
+	}
+
+	protected _onStartDrag( handle: GizmoHandle, ray: MXP.Ray, targetEntity: MXP.Entity ): void {
+
+		this._dragCenter.copy( this.entity.position );
+
+		// 角度は常にビュー平面（カメラへ向く面）上で測る。リングを浅い角度で見ても破綻しない
+		const n = ray.origin.clone().sub( this._dragCenter ).normalize();
+		const ref = Math.abs( n.y ) > 0.99 ? new GLP.Vector( 1, 0, 0 ) : new GLP.Vector( 0, 1, 0 );
+
+		this._dragViewNormal = n;
+		this._dragU = ref.cross( n ).normalize();
+		this._dragV = n.clone().cross( this._dragU ).normalize();
+
+		if ( handle === 'view' ) {
+
+			this._dragAxisN = n.clone();
+			this._dragSign = 1;
 
 		} else {
 
-			this.entity.visible = false;
+			// 軸リングでも見た目の回転方向がポインタに追従するよう、軸がカメラと逆を向くときは符号を反転する
+			this._dragAxisN = getAxisWorldDir( targetEntity, handle as GizmoAxis, this._orientation );
+			this._dragSign = this._dragAxisN.dot( n ) < 0 ? - 1 : 1;
 
 		}
 
-	}
-
-	public getAxisEntities(): { axis: GizmoAxis, entity: MXP.Entity }[] {
-
-		const result: { axis: GizmoAxis, entity: MXP.Entity }[] = [];
-
-		const collectHitEntities = ( ringWrapper: MXP.Entity, axis: GizmoAxis ) => {
-
-			ringWrapper.traverse( ( child ) => {
-
-				const mesh = child.getComponent( MXP.Mesh );
-
-				if ( mesh && ! mesh.material ) {
-
-					result.push( { axis, entity: child } );
-
-				}
-
-			} );
-
-		};
-
-		collectHitEntities( this._xRing, 'x' );
-		collectHitEntities( this._yRing, 'y' );
-		collectHitEntities( this._zRing, 'z' );
-
-		return result;
-
-	}
-
-	public get activeAxis(): GizmoAxis | null {
-
-		return this._activeAxis;
-
-	}
-
-	public get dragging(): boolean {
-
-		return this._dragging;
-
-	}
-
-	public startDrag( axis: GizmoAxis, ray: MXP.Ray, targetEntity: MXP.Entity ): void {
-
-		this._activeAxis = axis;
-		this._dragging = true;
-
-		// ドラッグ中もリングは setTarget で向きが更新されるので、回転面は開始時のものに固定する
-		const plane = RotateGizmo.PLANE_AXES[ axis ];
-		this._dragAxisU = getAxisWorldDir( targetEntity, plane.u, this._orientation );
-		this._dragAxisV = getAxisWorldDir( targetEntity, plane.v, this._orientation );
-		this._dragAxisN = getAxisWorldDir( targetEntity, axis, this._orientation );
-
-		this._dragStartAngle = this._getAngleFromRay( ray ) ?? 0;
+		this._dragLastAngle = this._angleFromRay( ray ) ?? 0;
+		this._dragAccumAngle = 0;
 		this._dragStartWorldQuat = getWorldQuaternion( targetEntity );
 		this._parentWorldQuatInv = targetEntity.parent
 			? getWorldQuaternion( targetEntity.parent ).inverse()
@@ -216,37 +179,39 @@ export class RotateGizmo implements Gizmo {
 
 	public updateDrag( ray: MXP.Ray, _targetEntity: MXP.Entity ): GizmoDragResult | null {
 
-		if ( ! this._dragging || ! this._activeAxis ) return null;
+		if ( ! this.dragging || ! this.activeHandle ) return null;
 
-		const currentAngle = this._getAngleFromRay( ray );
+		const angle = this._angleFromRay( ray );
 
-		if ( currentAngle === null ) return null;
+		if ( angle === null ) return null;
+
+		// atan2の±πの折り返しをまたいでも連続するよう、前回からの増分を積む
+		let inc = angle - this._dragLastAngle;
+
+		if ( inc > Math.PI ) inc -= Math.PI * 2;
+		else if ( inc < - Math.PI ) inc += Math.PI * 2;
+
+		this._dragAccumAngle += inc;
+		this._dragLastAngle = angle;
 
 		// ワールド空間の回転増分として合成する。euler へのローカル加算だとリングの見た目と実際の回転軸がずれる
-		const deltaQ = quaternionFromAxisAngle( this._dragAxisN, currentAngle - this._dragStartAngle );
+		const deltaQ = quaternionFromAxisAngle( this._dragAxisN, this._dragAccumAngle * this._dragSign );
 		const localQuat = composeLocalQuat( this._parentWorldQuatInv, deltaQ, this._dragStartWorldQuat );
 
 		return { euler: new GLP.Euler().setFromQuaternion( localQuat ) };
 
 	}
 
-	public endDrag(): void {
+	// ビュー平面上でのポインタの角度（中心まわりの右ねじ角）。視線が面と平行なら null
+	private _angleFromRay( ray: MXP.Ray ): number | null {
 
-		this._activeAxis = null;
-		this._dragging = false;
-
-	}
-
-	// 回転面（開始時に固定した u / v / n）上でのポインタの角度。視線が面と平行なら null
-	private _getAngleFromRay( ray: MXP.Ray ): number | null {
-
-		const hit = intersectRayPlane( ray, this.entity.position, this._dragAxisN );
+		const hit = intersectRayPlane( ray, this._dragCenter, this._dragViewNormal );
 
 		if ( ! hit ) return null;
 
-		const local = hit.sub( this.entity.position );
+		const p = hit.sub( this._dragCenter );
 
-		return Math.atan2( local.dot( this._dragAxisV ), local.dot( this._dragAxisU ) );
+		return Math.atan2( p.dot( this._dragV ), p.dot( this._dragU ) );
 
 	}
 

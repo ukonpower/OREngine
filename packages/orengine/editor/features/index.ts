@@ -11,6 +11,8 @@ export * from './ProjectControl';
 export * from './GPUTimer';
 export * from './AudioView';
 export * from './RendererSettings';
+export * from './EditorSettings';
+export * from './EditorSettings/hooks/useUISetting';
 export * from './Textures';
 export * from './SerializableField/components/SerializeFieldView';
 export * from './SerializableField/components/Canvas';

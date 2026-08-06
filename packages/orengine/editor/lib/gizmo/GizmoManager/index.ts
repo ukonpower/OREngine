@@ -60,6 +60,9 @@ export class GizmoManager {
 
 		this._mode = v;
 
+		// 切替前のギズモにホバー強調が残らないようにする
+		if ( this._activeGizmo ) this._activeGizmo.setHover( null );
+
 		if ( v === 'translate' ) this._activeGizmo = this._translateGizmo;
 		else if ( v === 'rotate' ) this._activeGizmo = this._rotateGizmo;
 		else if ( v === 'scale' ) this._activeGizmo = this._scaleGizmo;

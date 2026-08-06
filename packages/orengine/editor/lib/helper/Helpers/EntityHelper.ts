@@ -18,7 +18,7 @@ export class EntityHelper {
 	public type: HelperType;
 	public targetEntityUUID: string;
 	private _geometry: MXP.Geometry;
-	private _hitAreaGeometry: MXP.Geometry;
+	private _hitAreaGeometry: MXP.Geometry | null;
 	private _matrixOffset: GLP.Quaternion | null;
 	private _baseColor: number[];
 	private _colorUniform: number[];
@@ -44,7 +44,12 @@ export class EntityHelper {
 		this._hitAreaGeometry = this._createHitAreaGeometry();
 		this.hitAreaEntity = engine.createEntity( { name: "__helper_hit" } );
 		this.hitAreaEntity.initiator = "god";
-		this.hitAreaEntity.addComponent( MXP.Mesh, { geometry: this._hitAreaGeometry } );
+
+		if ( this._hitAreaGeometry ) {
+
+			this.hitAreaEntity.addComponent( MXP.Mesh, { geometry: this._hitAreaGeometry } );
+
+		}
 
 		if ( type === 'spotLight' || type === 'directionalLight' ) {
 
@@ -84,11 +89,12 @@ export class EntityHelper {
 
 	}
 
-	private _createHitAreaGeometry(): MXP.Geometry {
+	// emptyは体積の当たり判定を持たない（描かれる十字線への画面上の近接で選択する。PointerHandler の isNearHelperLines）
+	private _createHitAreaGeometry(): MXP.Geometry | null {
 
 		switch ( this.type ) {
 
-		case 'empty': return new MXP.CubeGeometry( { width: 0.3, height: 0.3, depth: 0.3 } );
+		case 'empty': return null;
 		case 'camera': return new CameraHitAreaGeometry();
 		case 'spotLight': return new SpotLightHitAreaGeometry();
 		case 'directionalLight': return new DirectionalLightHitAreaGeometry();

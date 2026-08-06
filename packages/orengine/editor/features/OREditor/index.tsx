@@ -7,6 +7,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { LayoutSplit } from '../../components/composites/LayoutSplit';
 import { Panel } from '../../components/primitives/Panel';
 import { PanelContainer } from '../../components/primitives/PanelContainer';
+import { EditorSettings } from '../EditorSettings';
 import { EntityProperty } from '../EntityProperty';
 import { Timer } from '../GPUTimer';
 import { Hierarchy } from '../Hierarchy';
@@ -148,6 +149,11 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 											<RendererSettings />
 										</Panel>
 									</PanelContainer.Tab>
+									<PanelContainer.Tab title='Editor'>
+										<Panel>
+											<EditorSettings />
+										</Panel>
+									</PanelContainer.Tab>
 									{renderCustomTabs( props.customTabs?.rightTop )}
 								</PanelContainer>
 							</LayoutSplit.Item>
@@ -201,6 +207,11 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 							<PanelContainer.Tab title='Renderer'>
 								<Panel>
 									<RendererSettings />
+								</Panel>
+							</PanelContainer.Tab>
+							<PanelContainer.Tab title='Editor'>
+								<Panel>
+									<EditorSettings />
 								</Panel>
 							</PanelContainer.Tab>
 							{renderCustomTabs( props.customTabs?.leftTop )}

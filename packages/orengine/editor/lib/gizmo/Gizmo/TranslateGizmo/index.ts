@@ -1,264 +1,146 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { Gizmo, GizmoAxis, GizmoDragResult } from '..';
-import { getAxisWorldDir, getWorldQuaternion, projectRayOnLine, TransformOrientation } from '../../../transform/TransformUtils';
+import { GizmoAxis, GizmoDragResult, GizmoHandle, GizmoPlane } from '..';
+import { getAxisWorldDir, intersectRayPlane, projectRayOnLine } from '../../../transform/TransformUtils';
+import { AXIS_COLORS, GizmoBase, PLANE_NORMAL_AXIS } from '../GizmoBase';
 
-export class TranslateGizmo implements Gizmo {
+// 矢印の寸法。中心付近を空けて中心ハンドル・平面ハンドルと取り合わないようにする
+const SHAFT_START = 0.25;
+const SHAFT_END = 0.85;
+const SHAFT_RADIUS = 0.02;
+const HEAD_LENGTH = 0.22;
+const HEAD_RADIUS = 0.06;
 
-	private static readonly BASE_SCALE_FACTOR = 0.15;
+const AXES: readonly GizmoAxis[] = [ 'x', 'y', 'z' ];
+const PLANES: readonly GizmoPlane[] = [ 'xy', 'yz', 'xz' ];
 
-	private _engine: MXP.EngineContract;
-	private _draw: MXP.EditorDrawContract;
-	public entity: MXP.Entity;
-	private _xAxis: MXP.Entity;
-	private _yAxis: MXP.Entity;
-	private _zAxis: MXP.Entity;
-	private _orientation: TransformOrientation;
-	private _activeAxis: GizmoAxis | null;
-	private _dragging: boolean;
+export class TranslateGizmo extends GizmoBase {
+
+	private _centerRoot: MXP.Entity;
 	private _dragStartPos: GLP.Vector;
 	private _dragAxisDir: GLP.Vector;
 	private _dragStartProjection: number;
+	private _dragPlaneNormal: GLP.Vector;
+	private _dragPlaneStart: GLP.Vector | null;
 
 	constructor( engine: MXP.EngineContract, draw: MXP.EditorDrawContract ) {
 
-		this._engine = engine;
-		this._draw = draw;
-		this.entity = engine.createEntity( { name: "__gizmo" } );
-		this.entity.initiator = "god";
-		this.entity.visible = false;
+		super( engine, draw, '__gizmo_translate' );
 
-		this._orientation = 'global';
-		this._activeAxis = null;
-		this._dragging = false;
 		this._dragStartPos = new GLP.Vector();
 		this._dragAxisDir = new GLP.Vector( 1, 0, 0 );
 		this._dragStartProjection = 0;
+		this._dragPlaneNormal = new GLP.Vector( 0, 0, 1 );
+		this._dragPlaneStart = null;
 
-		this._xAxis = this._createAxis( new GLP.Vector( 1, 0, 0 ), [ 1.0, 0.2, 0.2 ] );
-		this._yAxis = this._createAxis( new GLP.Vector( 0, 1, 0 ), [ 0.2, 1.0, 0.2 ] );
-		this._zAxis = this._createAxis( new GLP.Vector( 0, 0, 1 ), [ 0.4, 0.4, 1.0 ] );
+		for ( const axis of AXES ) this._addArrowHandle( axis );
+		for ( const plane of PLANES ) this._addPlaneHandle( plane );
 
-		this.entity.add( this._xAxis );
-		this.entity.add( this._yAxis );
-		this.entity.add( this._zAxis );
+		this._centerRoot = this._addCenterHandle();
 
 	}
 
-	private _createAxis( direction: GLP.Vector, color: number[] ): MXP.Entity {
+	// 軸ハンドル（シャフト+円錐ヘッド）。+Y向きに組んでから軸の向きへ回す
+	private _addArrowHandle( axis: GizmoAxis ) {
 
-		const axisEntity = this._engine.createEntity( { name: "__gizmo_axis" } );
-		axisEntity.initiator = "god";
+		const root = this._createEntity( '__gizmo_axis_' + axis );
+		const color = this._registerHandle( axis, root, AXIS_COLORS[ axis ] );
 
-		const shaftLength = 0.8;
-		const shaftRadius = 0.015;
-		const headLength = 0.2;
-		const headRadius = 0.05;
+		const shaftLength = SHAFT_END - SHAFT_START;
 
-		// shaft
-		const shaft = this._engine.createEntity( { name: "__gizmo_shaft" } );
-		shaft.initiator = "god";
-
-		const shaftGeo = new MXP.CylinderGeometry( {
-			radiusTop: shaftRadius,
-			radiusBottom: shaftRadius,
+		const shaft = this._addVisual( root, new MXP.CylinderGeometry( {
+			radiusTop: SHAFT_RADIUS,
+			radiusBottom: SHAFT_RADIUS,
 			height: shaftLength,
-			radSegments: 6,
+			radSegments: 8,
 			heightSegments: 1,
 			caps: false,
-		} );
+		} ), color );
 
-		const shaftMat = this._draw.materials.flat( { color, depthTest: false, depthWrite: false } );
+		shaft.position.set( 0, SHAFT_START + shaftLength / 2, 0 );
 
-		shaft.addComponent( MXP.Mesh, { geometry: shaftGeo, material: shaftMat } );
-		shaft.position.set( direction.x * shaftLength / 2, direction.y * shaftLength / 2, direction.z * shaftLength / 2 );
-
-		// head (cone-like cylinder)
-		const head = this._engine.createEntity( { name: "__gizmo_head" } );
-		head.initiator = "god";
-
-		const headGeo = new MXP.CylinderGeometry( {
+		const head = this._addVisual( root, new MXP.CylinderGeometry( {
 			radiusTop: 0.001,
-			radiusBottom: headRadius,
-			height: headLength,
-			radSegments: 6,
+			radiusBottom: HEAD_RADIUS,
+			height: HEAD_LENGTH,
+			radSegments: 8,
 			heightSegments: 1,
 			caps: true,
-		} );
+		} ), color );
 
-		const headMat = this._draw.materials.flat( { color, depthTest: false, depthWrite: false } );
+		head.position.set( 0, SHAFT_END + HEAD_LENGTH / 2, 0 );
 
-		head.addComponent( MXP.Mesh, { geometry: headGeo, material: headMat } );
-		head.position.set(
-			direction.x * ( shaftLength + headLength / 2 ),
-			direction.y * ( shaftLength + headLength / 2 ),
-			direction.z * ( shaftLength + headLength / 2 )
-		);
-
-		// orient shaft and head along the axis direction
-		if ( direction.x > 0.5 ) {
-
-			shaft.euler.set( 0, 0, - Math.PI / 2 );
-			head.euler.set( 0, 0, - Math.PI / 2 );
-
-		} else if ( direction.z > 0.5 ) {
-
-			shaft.euler.set( Math.PI / 2, 0, 0 );
-			head.euler.set( Math.PI / 2, 0, 0 );
-
-		}
-
-		// hit area - shaft
-		const hitShaft = this._engine.createEntity( { name: "__gizmo_hit_shaft" } );
-		hitShaft.initiator = "god";
-		const hitShaftGeo = new MXP.CylinderGeometry( {
-			radiusTop: 0.06, radiusBottom: 0.06,
+		const hitShaft = this._addHit( root, new MXP.CylinderGeometry( {
+			radiusTop: 0.07, radiusBottom: 0.07,
 			height: shaftLength, radSegments: 6, heightSegments: 1, caps: true,
-		} );
-		hitShaft.addComponent( MXP.Mesh, { geometry: hitShaftGeo } );
+		} ) );
+
 		hitShaft.position.copy( shaft.position );
-		hitShaft.euler.copy( shaft.euler );
 
-		// hit area - head
-		const hitHead = this._engine.createEntity( { name: "__gizmo_hit_head" } );
-		hitHead.initiator = "god";
-		const hitHeadGeo = new MXP.CylinderGeometry( {
-			radiusTop: 0.001, radiusBottom: 0.1,
-			height: headLength * 1.5, radSegments: 6, heightSegments: 1, caps: true,
-		} );
-		hitHead.addComponent( MXP.Mesh, { geometry: hitHeadGeo } );
+		const hitHead = this._addHit( root, new MXP.CylinderGeometry( {
+			radiusTop: 0.001, radiusBottom: 0.11,
+			height: HEAD_LENGTH * 1.5, radSegments: 6, heightSegments: 1, caps: true,
+		} ) );
+
 		hitHead.position.copy( head.position );
-		hitHead.euler.copy( head.euler );
 
-		axisEntity.add( shaft );
-		axisEntity.add( head );
-		axisEntity.add( hitShaft );
-		axisEntity.add( hitHead );
-
-		return axisEntity;
+		if ( axis === 'x' ) root.euler.set( 0, 0, - Math.PI / 2 );
+		else if ( axis === 'z' ) root.euler.set( Math.PI / 2, 0, 0 );
 
 	}
 
-	public setTarget( entity: MXP.Entity | null, cameraEntity: MXP.Entity | null, orientation: TransformOrientation ): void {
+	protected _onTargetUpdated(): void {
 
-		this._orientation = orientation;
+		this._centerRoot.quaternion.copy( this._billboardQuat() );
 
-		if ( entity ) {
+	}
 
-			this.entity.visible = true;
+	protected _onStartDrag( handle: GizmoHandle, ray: MXP.Ray, targetEntity: MXP.Entity ): void {
 
-			// root を回すと表示メッシュもヒット用メッシュも子として一緒に向く
-			if ( orientation === 'local' ) {
+		// ドラッグ中も setTarget が毎フレーム走るので、基準は開始時のものに固定する
+		this._dragStartPos.copy( this.entity.position );
+		this._dragPlaneStart = null;
 
-				this.entity.quaternion.copy( getWorldQuaternion( entity ) );
+		if ( handle === 'x' || handle === 'y' || handle === 'z' ) {
 
-			} else {
+			this._dragAxisDir = getAxisWorldDir( targetEntity, handle, this._orientation );
+			this._dragStartProjection = projectRayOnLine( ray, this._dragStartPos, this._dragAxisDir );
 
-				this.entity.quaternion.set( 0, 0, 0, 1 );
-
-			}
-
-			this.entity.position.set(
-				entity.matrixWorld.elm[ 12 ],
-				entity.matrixWorld.elm[ 13 ],
-				entity.matrixWorld.elm[ 14 ]
-			);
-
-			if ( cameraEntity ) {
-
-				const camX = cameraEntity.matrixWorld.elm[ 12 ];
-				const camY = cameraEntity.matrixWorld.elm[ 13 ];
-				const camZ = cameraEntity.matrixWorld.elm[ 14 ];
-				const dx = this.entity.position.x - camX;
-				const dy = this.entity.position.y - camY;
-				const dz = this.entity.position.z - camZ;
-				const dist = Math.sqrt( dx * dx + dy * dy + dz * dz );
-				const s = Math.max( 0.01, dist * TranslateGizmo.BASE_SCALE_FACTOR );
-				this.entity.scale.set( s, s, s );
-
-			}
-
-		} else {
-
-			this.entity.visible = false;
+			return;
 
 		}
 
-	}
+		// 平面ハンドルは法線軸に垂直な面、中心はビュー平面（カメラへ向く面）を滑らせる
+		this._dragPlaneNormal = handle === 'center'
+			? ray.origin.clone().sub( this._dragStartPos ).normalize()
+			: getAxisWorldDir( targetEntity, PLANE_NORMAL_AXIS[ handle as GizmoPlane ], this._orientation );
 
-	public getAxisEntities(): { axis: GizmoAxis, entity: MXP.Entity }[] {
-
-		const result: { axis: GizmoAxis, entity: MXP.Entity }[] = [];
-
-		const collectHitEntities = ( axisEntity: MXP.Entity, axis: GizmoAxis ) => {
-
-			axisEntity.traverse( ( child ) => {
-
-				const mesh = child.getComponent( MXP.Mesh );
-
-				if ( mesh && ! mesh.material ) {
-
-					result.push( { axis, entity: child } );
-
-				}
-
-			} );
-
-		};
-
-		collectHitEntities( this._xAxis, 'x' );
-		collectHitEntities( this._yAxis, 'y' );
-		collectHitEntities( this._zAxis, 'z' );
-
-		return result;
-
-	}
-
-	public get activeAxis(): GizmoAxis | null {
-
-		return this._activeAxis;
-
-	}
-
-	public get dragging(): boolean {
-
-		return this._dragging;
-
-	}
-
-	public startDrag( axis: GizmoAxis, ray: MXP.Ray, targetEntity: MXP.Entity ): void {
-
-		this._activeAxis = axis;
-		this._dragging = true;
-		this._dragStartPos.copy( this.entity.position );
-
-		// ドラッグ中も setTarget が毎フレーム走るので、軸方向は開始時のものに固定する
-		this._dragAxisDir = getAxisWorldDir( targetEntity, axis, this._orientation );
-		this._dragStartProjection = projectRayOnLine( ray, this._dragStartPos, this._dragAxisDir );
+		this._dragPlaneStart = intersectRayPlane( ray, this._dragStartPos, this._dragPlaneNormal );
 
 	}
 
 	public updateDrag( ray: MXP.Ray, _targetEntity: MXP.Entity ): GizmoDragResult | null {
 
-		if ( ! this._dragging || ! this._activeAxis ) return null;
+		if ( ! this.dragging || ! this.activeHandle ) return null;
 
-		const delta = projectRayOnLine( ray, this._dragStartPos, this._dragAxisDir ) - this._dragStartProjection;
+		const handle = this.activeHandle;
 
-		const newPos = new GLP.Vector(
-			this._dragStartPos.x + this._dragAxisDir.x * delta,
-			this._dragStartPos.y + this._dragAxisDir.y * delta,
-			this._dragStartPos.z + this._dragAxisDir.z * delta,
-		);
+		if ( handle === 'x' || handle === 'y' || handle === 'z' ) {
 
-		return { position: newPos };
+			const delta = projectRayOnLine( ray, this._dragStartPos, this._dragAxisDir ) - this._dragStartProjection;
 
-	}
+			return { position: this._dragStartPos.clone().add( this._dragAxisDir.clone().multiply( delta ) ) };
 
-	public endDrag(): void {
+		}
 
-		this._activeAxis = null;
-		this._dragging = false;
+		if ( ! this._dragPlaneStart ) return null;
+
+		const hit = intersectRayPlane( ray, this._dragStartPos, this._dragPlaneNormal );
+
+		if ( ! hit ) return null;
+
+		return { position: this._dragStartPos.clone().add( hit.sub( this._dragPlaneStart ) ) };
 
 	}
 
