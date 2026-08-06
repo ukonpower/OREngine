@@ -986,13 +986,26 @@ export class Renderer extends Serializable implements RendererContract {
 			[ this._targets.width, this._targets.height ]
 		);
 
+		// パイプライン側の targets（シーン色 / gBuffer position / velocity）と並びを合わせる
 		const pass = encoder.beginRenderPass( {
 			label: 'forward',
-			colorAttachments: [ {
-				view: this._targets.sceneView!,
-				loadOp: 'load',
-				storeOp: 'store',
-			} ],
+			colorAttachments: [
+				{
+					view: this._targets.sceneView!,
+					loadOp: 'load',
+					storeOp: 'store',
+				},
+				{
+					view: this._targets.gBufferViews[ 0 ],
+					loadOp: 'load',
+					storeOp: 'store',
+				},
+				{
+					view: this._targets.gBufferViews[ 4 ],
+					loadOp: 'load',
+					storeOp: 'store',
+				},
+			],
 			depthStencilAttachment: {
 				view: this._targets.depthView!,
 				depthLoadOp: 'load',
@@ -1333,14 +1346,21 @@ export class Renderer extends Serializable implements RendererContract {
 					vertex,
 					fragment: {
 						module,
-						entryPoint: 'fsForward',
-						targets: [ {
-							format: SCENE_FORMAT,
-							blend: {
-								color: { srcFactor: 'src-alpha', dstFactor: 'one-minus-src-alpha' },
-								alpha: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha' },
+						entryPoint: 'fsForwardMrt',
+						// シーン色に加えてgBufferの position / velocity も書き、
+						// forwardメッシュをDOF・モーションブラーへ乗せる。
+						// 位置と速度は混ぜても意味がないのでブレンドせず上書きする
+						targets: [
+							{
+								format: SCENE_FORMAT,
+								blend: {
+									color: { srcFactor: 'src-alpha', dstFactor: 'one-minus-src-alpha' },
+									alpha: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha' },
+								},
 							},
-						} ],
+							{ format: GBUFFER_ATTACHMENTS[ 0 ].format },
+							{ format: GBUFFER_ATTACHMENTS[ 4 ].format },
+						],
 					},
 					primitive,
 					depthStencil: {
