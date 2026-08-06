@@ -3,6 +3,7 @@ import * as GLP from 'glpower';
 import { Camera } from '../../Components/Camera';
 import { Mesh } from '../../Components/Mesh';
 import { Entity } from '../../Entity';
+import { Geometry } from '../../Geometry';
 import { Ray } from '../Ray';
 
 export type RaycastResult = {
@@ -14,10 +15,16 @@ export type RaycastResult = {
 export class Raycaster {
 
 	public ray: Ray;
+	private _v0: GLP.Vector;
+	private _v1: GLP.Vector;
+	private _v2: GLP.Vector;
 
 	constructor() {
 
 		this.ray = new Ray();
+		this._v0 = new GLP.Vector();
+		this._v1 = new GLP.Vector();
+		this._v2 = new GLP.Vector();
 
 	}
 
@@ -58,6 +65,7 @@ export class Raycaster {
 
 	}
 
+	// メッシュとレイの最近交点を返す。AABB で足切りしてから三角形単位で判定する
 	private intersectMesh( entity: Entity, mesh: Mesh ): RaycastResult[] | null {
 
 		const geometry = mesh.geometry;
@@ -88,7 +96,9 @@ export class Raycaster {
 			dirEnd.z - localRay.origin.z
 		).normalize();
 
-		const hit = localRay.intersectAABB( boundingBox.min, boundingBox.max );
+		if ( ! localRay.intersectAABB( boundingBox.min, boundingBox.max ) ) return null;
+
+		const hit = this.intersectTriangles( localRay, geometry );
 
 		if ( ! hit ) return null;
 
@@ -109,6 +119,44 @@ export class Raycaster {
 			distance: worldDistance,
 			point: worldPoint,
 		} ];
+
+	}
+
+	// ローカル空間で全三角形と交差判定して最近ヒットを返す
+	private intersectTriangles( ray: Ray, geometry: Geometry ): { distance: number, point: GLP.Vector } | null {
+
+		const posAttr = geometry.getAttribute( 'position' );
+
+		if ( ! posAttr ) return null;
+
+		const pos = posAttr.array;
+		const indexAttr = geometry.getAttribute( 'index' );
+		const index = indexAttr ? indexAttr.array : null;
+		const triCount = Math.floor( ( index ? index.length : geometry.vertCount ) / 3 );
+
+		let closest: { distance: number, point: GLP.Vector } | null = null;
+
+		for ( let t = 0; t < triCount; t ++ ) {
+
+			const i0 = ( index ? index[ t * 3 + 0 ] : t * 3 + 0 ) * 3;
+			const i1 = ( index ? index[ t * 3 + 1 ] : t * 3 + 1 ) * 3;
+			const i2 = ( index ? index[ t * 3 + 2 ] : t * 3 + 2 ) * 3;
+
+			this._v0.set( pos[ i0 ], pos[ i0 + 1 ], pos[ i0 + 2 ] );
+			this._v1.set( pos[ i1 ], pos[ i1 + 1 ], pos[ i1 + 2 ] );
+			this._v2.set( pos[ i2 ], pos[ i2 + 1 ], pos[ i2 + 2 ] );
+
+			const hit = ray.intersectTriangle( this._v0, this._v1, this._v2 );
+
+			if ( hit && ( ! closest || hit.distance < closest.distance ) ) {
+
+				closest = hit;
+
+			}
+
+		}
+
+		return closest;
 
 	}
 

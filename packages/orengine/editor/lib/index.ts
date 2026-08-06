@@ -14,6 +14,7 @@ import { HelperManager } from './helper/HelperManager';
 import { KeyboardHandler } from './input/KeyboardHandler';
 import { ModalTransformHandler } from './input/ModalTransformHandler';
 import { PointerHandler } from './input/PointerHandler';
+import { ConstraintAxisRenderer } from './render/ConstraintAxisRenderer';
 import { GridRenderer } from './render/GridRenderer';
 import { SelectionOutline } from './render/SelectionOutline';
 import { WireframeRenderer } from './render/WireframeRenderer';
@@ -66,6 +67,7 @@ export class Editor extends MXP.Serializable {
 	private _gizmoManager: GizmoManager;
 	private _helperManager: HelperManager;
 	private _gridRenderer: GridRenderer;
+	private _constraintAxisRenderer: ConstraintAxisRenderer;
 	private _wireframeRenderer: WireframeRenderer;
 	private _selectionOutline: SelectionOutline;
 	private _pointerHandler: PointerHandler;
@@ -107,6 +109,7 @@ export class Editor extends MXP.Serializable {
 		this._gizmoManager = new GizmoManager( engine, this._draw );
 		this._helperManager = new HelperManager( engine, this._draw );
 		this._gridRenderer = new GridRenderer( engine, this._draw );
+		this._constraintAxisRenderer = new ConstraintAxisRenderer( engine, this._draw );
 		this._wireframeRenderer = new WireframeRenderer( this._draw );
 		this._selectionOutline = new SelectionOutline( this._draw );
 
@@ -526,6 +529,8 @@ export class Editor extends MXP.Serializable {
 			);
 
 			if ( ! preview ) {
+
+				this._constraintAxisRenderer.render( this._modalTransformHandler.constraintDisplay, cameraEntity, this._engine );
 
 				this._selectionOutline.render( selectedEntity, cameraEntity );
 

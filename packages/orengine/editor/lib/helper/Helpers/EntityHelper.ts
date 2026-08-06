@@ -97,6 +97,30 @@ export class EntityHelper {
 
 	}
 
+	// ヘルパーのワイヤ線分をワールド空間の端点ペアで返す（枠線クリックの判定に使う）
+	public getWorldSegments(): { a: GLP.Vector, b: GLP.Vector }[] {
+
+		const posAttr = this._geometry.getAttribute( 'position' );
+
+		if ( ! posAttr ) return [];
+
+		const pos = posAttr.array;
+		const segments: { a: GLP.Vector, b: GLP.Vector }[] = [];
+
+		// ヘルパーのジオメトリはラインリスト（2頂点で1線分）
+		for ( let i = 0; i + 5 < pos.length; i += 6 ) {
+
+			segments.push( {
+				a: new GLP.Vector( pos[ i + 0 ], pos[ i + 1 ], pos[ i + 2 ] ).applyMatrix4AsPosition( this.entity.matrixWorld ),
+				b: new GLP.Vector( pos[ i + 3 ], pos[ i + 4 ], pos[ i + 5 ] ).applyMatrix4AsPosition( this.entity.matrixWorld ),
+			} );
+
+		}
+
+		return segments;
+
+	}
+
 	public setSelected( selected: boolean ) {
 
 		const c = selected ? [ 1.0, 0.6, 0.0 ] : this._baseColor;

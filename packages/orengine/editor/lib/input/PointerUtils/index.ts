@@ -1,7 +1,7 @@
 import * as GLP from 'glpower';
 
 // canvas 要素の中で実際に描画されている矩形（object-fit: contain 相当のレターボックス）を求める
-const getContentRect = ( canvas: HTMLCanvasElement ) => {
+export const getContentRect = ( canvas: HTMLCanvasElement ) => {
 
 	const rect = canvas.getBoundingClientRect();
 	const canvasAspect = canvas.width / canvas.height;
