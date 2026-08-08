@@ -5,7 +5,7 @@ import { fieldsFromUniforms } from '../resources/UniformBinder';
 import basicWgsl from './shaders/basic.wgsl';
 
 import type { MaterialContract } from '../../core/Contracts/MaterialContract';
-import type { MaterialStorage, StorageSource } from '../Bindings';
+import type { MaterialStorage, MaterialTexture, StorageSource, TextureSource } from '../Bindings';
 import type { UniformField } from '../resources/UniformBinder';
 import type * as GLP from 'glpower';
 
@@ -41,6 +41,8 @@ export interface MaterialParam {
 	uniforms?: GLP.Uniforms;
 	// GPGPU出力。キーがWGSL上の変数名になり、宣言順で group2 の binding1.. に生える
 	storages?: { [name: string]: StorageSource };
+	// テクスチャ。キーがWGSL上の変数名になり、storage の後ろへ texture + <名前>Sampler のペアで生える
+	textures?: { [name: string]: TextureSource };
 	depthTest?: boolean;
 	depthWrite?: boolean;
 	cullFace?: boolean;
@@ -63,6 +65,7 @@ export class Material implements MaterialContract {
 
 	public readonly fields: UniformField[];
 	public readonly storages: MaterialStorage[];
+	public readonly textures: MaterialTexture[];
 
 	private _wgsl: string | null;
 
@@ -74,6 +77,7 @@ export class Material implements MaterialContract {
 		this._wgsl = params.wgsl || null;
 		this.uniforms = params.uniforms || {};
 		this.storages = Object.entries( params.storages || {} ).map( ( [ name, source ] ) => ( { name, source } ) );
+		this.textures = Object.entries( params.textures || {} ).map( ( [ name, source ] ) => ( { name, source } ) );
 
 		this.depthTest = params.depthTest !== undefined ? params.depthTest : true;
 		this.depthWrite = params.depthWrite !== undefined ? params.depthWrite : true;
@@ -123,7 +127,7 @@ export class Material implements MaterialContract {
 	// 宣言部を差し込んだWGSLの完成形
 	public get shaderSource() {
 
-		return buildShaderSource( this.wgsl, this.fields, this.storages );
+		return buildShaderSource( this.wgsl, this.fields, this.storages, this.textures );
 
 	}
 

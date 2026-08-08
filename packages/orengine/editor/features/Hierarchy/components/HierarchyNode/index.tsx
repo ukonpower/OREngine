@@ -1,9 +1,10 @@
 import * as MXP from 'maxpower';
-import { MouseEvent, useCallback, useMemo, useState } from 'react';
+import { MouseEvent, useCallback, useMemo } from 'react';
 
 import { InputGroup } from '../../../../components/composites/InputGroup';
 import { ArrowIcon } from '../../../../components/primitives/Icons/ArrowIcon';
 import { CameraIcon } from '../../../../components/primitives/Icons/CameraIcon';
+import { CursorIcon } from '../../../../components/primitives/Icons/CursorIcon';
 import { EyeIcon } from '../../../../components/primitives/Icons/EyeIcon';
 import { LightIcon } from '../../../../components/primitives/Icons/LightIcon';
 import { MeshIcon } from '../../../../components/primitives/Icons/MeshIcon';
@@ -14,34 +15,11 @@ import { useSerializableField } from '../../../SerializableField/hooks/useSerial
 
 import style from './index.module.scss';
 
-// 開閉状態は UI 状態なので editor.json ではなく localStorage に持つ（開いているノードの uuid 一覧）
-const OPEN_NODES_STORAGE_KEY = "hierarchyOpenNodes";
-
-// localStorage から開いているノードの uuid 集合を読む
-const loadOpenNodes = (): Set<string> => {
-
-	try {
-
-		const raw = localStorage.getItem( OPEN_NODES_STORAGE_KEY );
-
-		if ( raw ) return new Set( JSON.parse( raw ) as string[] );
-
-	} catch ( e ) { /* 壊れた値は初期状態として扱う */ }
-
-	return new Set();
-
-};
-
-const saveOpenNodes = ( nodes: Set<string> ) => {
-
-	localStorage.setItem( OPEN_NODES_STORAGE_KEY, JSON.stringify( Array.from( nodes ) ) );
-
-};
-
-
 type HierarchyNodeProps = {
 	depth?: number;
 	entity: MXP.Entity
+	openNodes: Set<string>;
+	setNodeOpen: ( uuid: string, open: boolean ) => void;
 }
 
 export const HierarchyNode = ( props: HierarchyNodeProps ) => {
@@ -51,7 +29,10 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 	const selectedEntity = selectedEntityId !== undefined && engine.root.findEntityByUUID( selectedEntityId );
 
 	const [ entityVisible, setEntityVisible ] = useSerializableField<boolean>( props.entity, "visible" );
+	const [ unselectableIds, setUnselectableIds ] = useSerializableField<string[]>( editor, "unselectableEntityIds" );
 	const [ childrenIdList ] = useSerializableField<string[]>( props.entity, "children" );
+
+	const entitySelectable = ! ( unselectableIds || [] ).includes( props.entity.uuid );
 
 	const childrens = ( childrenIdList || [] ).map( id => engine.root.findEntityByUUID( id ) ).filter( e => e !== undefined ) as MXP.Entity[];
 
@@ -78,31 +59,15 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 
 	// click fold controls
 
-	const [ open, setOpen ] = useState<boolean>( () => loadOpenNodes().has( props.entity.uuid ) );
+	const open = props.openNodes.has( props.entity.uuid );
 
 	const onClickFoldControls = useCallback( ( e: MouseEvent ) => {
 
-		const next = ! open;
-
-		setOpen( next );
-
-		const nodes = loadOpenNodes();
-
-		if ( next ) {
-
-			nodes.add( props.entity.uuid );
-
-		} else {
-
-			nodes.delete( props.entity.uuid );
-
-		}
-
-		saveOpenNodes( nodes );
+		props.setNodeOpen( props.entity.uuid, ! open );
 
 		e.stopPropagation();
 
-	}, [ open, props.entity.uuid ] );
+	}, [ open, props ] );
 
 	// click node
 
@@ -127,6 +92,28 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 		}
 
 	}, [ entityVisible, setEntityVisible ] );
+
+	// toggle selectable
+
+	const onClickSelectable = useCallback( ( e: MouseEvent ) => {
+
+		e.stopPropagation();
+
+		const ids = new Set( unselectableIds || [] );
+
+		if ( entitySelectable ) {
+
+			ids.add( props.entity.uuid );
+
+		} else {
+
+			ids.delete( props.entity.uuid );
+
+		}
+
+		setUnselectableIds( Array.from( ids ) );
+
+	}, [ entitySelectable, unselectableIds, setUnselectableIds, props.entity.uuid ] );
 
 	// right click node
 
@@ -183,6 +170,7 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 			<div className={style.self_name}>
 				<p>{props.entity.name || "-"}</p>
 			</div>
+			<button className={style.selectable} onClick={onClickSelectable} data-selectable={entitySelectable}><CursorIcon size={14} selectable={entitySelectable} /></button>
 			<button className={style.visibility} onClick={onClickVisibility} data-visible={entityVisible !== false}><EyeIcon size={14} visible={entityVisible !== false} /></button>
 			{! noEditable && <button className={style.menu} onClick={onRightClickNode}>⋯</button>}
 		</div>
@@ -190,7 +178,7 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 			{
 				sortedChildren.map( item => {
 
-					return <HierarchyNode key={item.uuid} entity={item} depth={depth + 1} />;
+					return <HierarchyNode key={item.uuid} entity={item} depth={depth + 1} openNodes={props.openNodes} setNodeOpen={props.setNodeOpen} />;
 
 				} )
 			}

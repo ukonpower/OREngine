@@ -179,7 +179,12 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 		editorElm = (
 			<>
 				<LayoutSplit direction="vertical" storageKey="orengine-editor-sp-main">
-					<LayoutSplit.Item size="35vh" minSize={200} style={{ minHeight: '200px' }}>
+					{/*
+						56.25vw = 16:9（editor/lib の _baseResolution 1920x1080）。canvas は object-fit: contain なので、
+						この高さを下回ると左右に黒帯が出て縮む。77px はヘッダー36px + CameraPad 40px + border 1px。
+						min(55vh) は横長ウィンドウでプレビューが下のパネルを潰さないための上限
+					*/}
+					<LayoutSplit.Item size="calc( min( 56.25vw, 55vh ) + 77px )" minSize={200} style={{ minHeight: '200px' }}>
 						<Screen />
 					</LayoutSplit.Item>
 					<LayoutSplit.Item flex={1} minSize={200}>

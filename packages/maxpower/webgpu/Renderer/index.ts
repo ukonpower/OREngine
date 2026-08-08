@@ -20,12 +20,14 @@ import {
 	OBJECT_FIELDS,
 	SCENE_FORMAT,
 	SHADOW_FORMAT,
+	materialTextureBinding,
 } from '../Bindings';
 import { PostProcessPipeline } from '../Components/PostProcessPipeline';
 import { onShaderReload, requestShaderReload } from '../hotReload';
 import { Material } from '../Material';
 import { GeometryBuffer, VERTEX_BUFFER_LAYOUT } from '../resources/GeometryBuffer';
 import { UniformBinder } from '../resources/UniformBinder';
+import { TexProcedural } from '../TexProcedural';
 
 import { EnvMap } from './EnvMap';
 import { Lights } from './Lights';
@@ -37,6 +39,7 @@ import { Sky } from './Sky';
 
 import type { EngineContract } from '../../core/Contracts/EngineContract';
 import type { RendererContract } from '../../core/Contracts/RendererContract';
+import type { TexProceduralParam } from '../../core/Contracts/TexProceduralContract';
 import type { Entity, EntityUpdateEvent } from '../../core/Entity';
 import type { Geometry } from '../../core/Geometry';
 import type { MaterialPhase } from '../Material';
@@ -94,16 +97,23 @@ const getMaterial = ( mesh: Mesh ) => ( mesh.material || _defaultMaterial ) as M
 type MaterialResource = {
 	// フェーズごとのパイプライン。マテリアルが参加しないフェーズは null
 	pipelines: { [K in MaterialPhase]: GPURenderPipeline | null };
-	// uniformもstorageも持たないマテリアルは group2 ごと存在しない
+	// uniform / storage / テクスチャのいずれも持たないマテリアルは group2 ごと存在しない
 	binder: UniformBinder | null;
 	materialLayout: GPUBindGroupLayout | null;
 	// storageのピンポン読み側は毎フレーム入れ替わるため、パリティの組ごとに持つ
 	bindGroups: Map<number, GPUBindGroup>;
+	// bind group が参照しているテクスチャの実体。差し替わったら bindGroups を作り直す
+	textureViews: ( GPUTextureView | null )[];
 }
 
 // GPUCompute が実装する、フレーム先頭の compute pass で走るタスク
 export interface ComputeTask {
 	encode( device: GPUDevice, pass: GPUComputePassEncoder, uniformLayout: GPUBindGroupLayout, frameBindGroup: GPUBindGroup ): void;
+}
+
+// TexProcedural が実装する、フレーム先頭で走るテクスチャ描画タスク
+export interface TexRenderTask {
+	encode( device: GPUDevice, encoder: GPUCommandEncoder, frameBindGroup: GPUBindGroup ): void;
 }
 
 type ObjectResource = {
@@ -176,6 +186,9 @@ export class Renderer extends Serializable implements RendererContract {
 
 	// compute
 	private _computeQueue: Set<ComputeTask>;
+
+	// プロシージャルテクスチャ。deviceの準備前から予約できるようフレーム先頭で消化する
+	private _texQueue: Set<TexRenderTask>;
 
 	// オートフォーカス用の中心深度リードバック
 	private _focusReadbackBuffer: GPUBuffer | null;
@@ -269,6 +282,7 @@ export class Renderer extends Serializable implements RendererContract {
 		this._editorPipelines = new Map();
 
 		this._computeQueue = new Set();
+		this._texQueue = new Set();
 
 		this._focusReadbackBuffer = null;
 		this._focusReadbackBusy = false;
@@ -661,11 +675,11 @@ export class Renderer extends Serializable implements RendererContract {
 
 		this._frameEncoder = encoder;
 
+		this._renderTexProcedurals( device, encoder );
 		this._renderCompute( device, encoder );
 		this._renderShadowMaps( device, encoder );
 		this._renderEnvMap( device, encoder );
 		this._renderGBuffer( device, encoder );
-		this._encodeFocusReadback( device, encoder, camera );
 
 		const onPass = import.meta.env.DEV
 			? ( p: { name: string, targetView: GPUTextureView | null, width: number, height: number } ) =>
@@ -683,6 +697,9 @@ export class Renderer extends Serializable implements RendererContract {
 
 		this._renderShading( encoder );
 		this._renderForward( device, encoder );
+
+		// forwardもgBufferのpositionへ書くので、読み戻しはforwardの後に置く
+		this._encodeFocusReadback( device, encoder, camera );
 
 		let output = this._pipeline!.renderPost( device, encoder, this._frameBindGroup, this._targets.sceneView!, onPass );
 
@@ -801,6 +818,41 @@ export class Renderer extends Serializable implements RendererContract {
 	public cancelCompute( task: ComputeTask ) {
 
 		this._computeQueue.delete( task );
+
+	}
+
+	// render()で登録されたテクスチャ描画タスク。次のrenderのフレーム先頭でまとめて実行される。
+	// Setの挿入順＝Resourcesの依存解決順なので、依存テクスチャは先に描かれる
+	public enqueueTexRender( task: TexRenderTask ) {
+
+		this._texQueue.add( task );
+
+	}
+
+	public cancelTexRender( task: TexRenderTask ) {
+
+		this._texQueue.delete( task );
+
+	}
+
+	private _renderTexProcedurals( device: GPUDevice, encoder: GPUCommandEncoder ) {
+
+		if ( this._texQueue.size === 0 ) return;
+
+		this._texQueue.forEach( ( task ) => {
+
+			task.encode( device, encoder, this._frameBindGroup! );
+
+		} );
+
+		this._texQueue.clear();
+
+	}
+
+	// .tex の実体を組み立てる。実際の描画はフレーム先頭に予約される
+	public createTexProcedural( param: TexProceduralParam ): TexProcedural {
+
+		return new TexProcedural( this, param );
 
 	}
 
@@ -1262,12 +1314,13 @@ export class Renderer extends Serializable implements RendererContract {
 
 		const hasUniforms = material.fields.length > 0;
 		const storages = material.storages;
+		const textures = material.textures;
 		const binder = hasUniforms ? new UniformBinder( device, material.fields, material.name ) : null;
 
-		// storageを持つマテリアルは group2 が uniform + storage の専用レイアウトになる
+		// storageかテクスチャを持つマテリアルは group2 が専用レイアウトになる
 		let materialLayout: GPUBindGroupLayout | null = null;
 
-		if ( storages.length > 0 ) {
+		if ( storages.length > 0 || textures.length > 0 ) {
 
 			materialLayout = device.createBindGroupLayout( {
 				label: material.name,
@@ -1282,6 +1335,18 @@ export class Renderer extends Serializable implements RendererContract {
 						visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
 						buffer: { type: 'read-only-storage' as const },
 					} ) ),
+					...textures.flatMap( ( _, i ) => [
+						{
+							binding: materialTextureBinding( storages.length, i ),
+							visibility: GPUShaderStage.FRAGMENT,
+							texture: { sampleType: 'float' as const },
+						},
+						{
+							binding: materialTextureBinding( storages.length, i ) + 1,
+							visibility: GPUShaderStage.FRAGMENT,
+							sampler: { type: 'filtering' as const },
+						},
+					] ),
 				],
 			} );
 
@@ -1387,6 +1452,7 @@ export class Renderer extends Serializable implements RendererContract {
 			binder,
 			materialLayout,
 			bindGroups: new Map(),
+			textureViews: textures.map( () => null ),
 		};
 
 		this._materialResources.set( material, resource );
@@ -1401,6 +1467,7 @@ export class Renderer extends Serializable implements RendererContract {
 		if ( ! resource.materialLayout ) return null;
 
 		const storages = material.storages;
+		const textures = material.textures;
 
 		let key = 0;
 
@@ -1410,6 +1477,23 @@ export class Renderer extends Serializable implements RendererContract {
 			if ( ! storages[ i ].source.buffers ) return null;
 
 			key |= storages[ i ].source.readIndex << i;
+
+		}
+
+		for ( let i = 0; i < textures.length; i ++ ) {
+
+			const source = textures[ i ].source;
+
+			// テクスチャの実体ができるまで描画をスキップする
+			if ( ! source.view || ! source.sampler ) return null;
+
+			// 実体が差し替わっていたら（再ビルド等）bind groupを作り直す
+			if ( resource.textureViews[ i ] !== source.view ) {
+
+				resource.textureViews[ i ] = source.view;
+				resource.bindGroups.clear();
+
+			}
 
 		}
 
@@ -1426,6 +1510,10 @@ export class Renderer extends Serializable implements RendererContract {
 						binding: i + 1,
 						resource: { buffer: s.source.buffers![ s.source.readIndex ] },
 					} ) ),
+					...textures.flatMap( ( t, i ) => [
+						{ binding: materialTextureBinding( storages.length, i ), resource: t.source.view! },
+						{ binding: materialTextureBinding( storages.length, i ) + 1, resource: t.source.sampler! },
+					] ),
 				],
 			} );
 

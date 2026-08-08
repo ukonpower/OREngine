@@ -39,6 +39,7 @@ export class PointerHandler {
 		helperManager: HelperManager,
 		api: EditorAPI,
 		getSelectedEntityId: () => string | null,
+		isEntitySelectable: ( entity: MXP.Entity ) => boolean,
 		getGizmoMode: () => GizmoMode,
 		onSelectEntity: ( entity: MXP.Entity | null ) => void,
 		isModalActive: () => boolean,
@@ -174,9 +175,10 @@ export class PointerHandler {
 
 			const meshCandidates: ClickCandidate[] = [];
 
+			// 選択不可のメッシュは候補から外し、クリックを背後へ抜けさせる（firstMeshDistance にも含めない）
 			for ( const r of this._raycaster.intersectEntities( engine.root ) ) {
 
-				if ( r.entity.initiator !== 'god' ) {
+				if ( r.entity.initiator !== 'god' && isEntitySelectable( r.entity ) ) {
 
 					meshCandidates.push( { entity: r.entity, distance: r.distance, type: 'mesh' } );
 
@@ -197,6 +199,7 @@ export class PointerHandler {
 				const targetEntity = engine.root.findEntityByUUID( helper.targetEntityUUID );
 
 				if ( ! targetEntity ) continue;
+				if ( ! isEntitySelectable( targetEntity ) ) continue;
 
 				// emptyは体積の当たり判定を持たない。Blenderと同じく、描かれている十字線の近くをクリックしたときだけ拾う
 				if ( helper.type === 'empty' ) {
@@ -269,7 +272,7 @@ export class PointerHandler {
 					( 1 - Math.abs( ndc.y ) ) * content.height * 0.5
 				);
 
-				if ( edgePx <= FRAME_SELECT_RADIUS_PX ) {
+				if ( edgePx <= FRAME_SELECT_RADIUS_PX && isEntitySelectable( cameraEntity ) ) {
 
 					visibleHelpers.push( { entity: cameraEntity, distance: 0, type: 'helper' } );
 
@@ -290,6 +293,7 @@ export class PointerHandler {
 				const targetEntity = engine.root.findEntityByUUID( targetEntityUUID );
 
 				if ( ! targetEntity ) continue;
+				if ( ! isEntitySelectable( targetEntity ) ) continue;
 
 				const elm = targetEntity.matrixWorld.elm;
 				const worldPos = new GLP.Vector( elm[ 12 ], elm[ 13 ], elm[ 14 ] );

@@ -10,6 +10,7 @@ export * from './Timeline/hooks/useTimeline';
 export * from './ProjectControl';
 export * from './GPUTimer';
 export * from './AudioView';
+export * from './CameraPad';
 export * from './RendererSettings';
 export * from './EditorSettings';
 export * from './EditorSettings/hooks/useUISetting';

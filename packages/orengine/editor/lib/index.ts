@@ -45,6 +45,7 @@ export class Editor extends MXP.Serializable {
 
 	private _engine: Engine;
 	private _selectedEntityId: string | null;
+	private _unselectableEntityIds: Set<string>;
 	private _selectedAsset: SelectedAssetInfo;
 	private _navigateAsset: NavigateAssetRequest;
 	private _propertyTarget: "entity" | "asset";
@@ -85,6 +86,7 @@ export class Editor extends MXP.Serializable {
 		this._engine = engine;
 		this._viewType = "render";
 		this._selectedEntityId = null;
+		this._unselectableEntityIds = new Set();
 		this._selectedAsset = null;
 		this._navigateAsset = null;
 		this._propertyTarget = "entity";
@@ -120,6 +122,7 @@ export class Editor extends MXP.Serializable {
 			this._helperManager,
 			this._api,
 			() => this._selectedEntityId,
+			( entity ) => ! this._unselectableEntityIds.has( entity.uuid ),
 			() => this._gizmoManager.mode,
 			( entity ) => this.selectEntity( entity ),
 			() => this._modalTransformHandler.active,
@@ -192,35 +195,8 @@ export class Editor extends MXP.Serializable {
 				this.setField( "preview", ! this._editorCamera.preview );
 
 			},
-			onSyncToSceneCamera: () => {
-
-				if ( this._editorCamera.preview ) {
-
-					this.setField( "preview", false );
-
-				}
-
-				this.setField( "cameraView", "editor" );
-
-				this._editorCamera.syncFromSceneCamera( this._engine );
-
-			},
-			onFocusSelected: () => {
-
-				if ( this._editorCamera.preview ) return;
-
-				const entity = this._selectedEntityId
-					? this._engine.root.findEntityByUUID( this._selectedEntityId ) ?? null
-					: null;
-
-				if ( ! entity ) return;
-
-				// シーンカメラ視点のままでは寄れないのでエディタカメラへ戻してからフォーカスする
-				this.setField( "cameraView", "editor" );
-
-				this._editorCamera.focus( entity );
-
-			},
+			onSyncToSceneCamera: () => this.syncToSceneCamera(),
+			onFocusSelected: () => this.focusSelected(),
 			onTransformKey: ( e ) => this._editorCamera.preview ? false : this._modalTransformHandler.handleKeyDown( e ),
 		} );
 
@@ -325,6 +301,13 @@ export class Editor extends MXP.Serializable {
 			}
 
 		} );
+
+		// Blenderの選択無効トグルに相当。ここに入っているエンティティはビューポートのクリックで拾わない（Hierarchyからは選択できる）
+		this.field( "unselectableEntityIds", () => Array.from( this._unselectableEntityIds ), ( v: string[] ) => {
+
+			this._unselectableEntityIds = new Set( v );
+
+		}, { hidden: true } );
 
 		this.field( "selectedAsset", () => this._selectedAsset, v => {
 
@@ -664,6 +647,39 @@ export class Editor extends MXP.Serializable {
 	public selectEntity( entity: MXP.Entity | null ) {
 
 		this.setField( "selectedEntityId", entity ? entity.uuid : null );
+
+	}
+
+	// エディタカメラをシーンカメラの視点・画角へ合わせる
+	public syncToSceneCamera() {
+
+		if ( this._editorCamera.preview ) {
+
+			this.setField( "preview", false );
+
+		}
+
+		this.setField( "cameraView", "editor" );
+
+		this._editorCamera.syncFromSceneCamera( this._engine );
+
+	}
+
+	// 選択中のエンティティが画面に収まる位置までエディタカメラを寄せる
+	public focusSelected() {
+
+		if ( this._editorCamera.preview ) return;
+
+		const entity = this._selectedEntityId
+			? this._engine.root.findEntityByUUID( this._selectedEntityId ) ?? null
+			: null;
+
+		if ( ! entity ) return;
+
+		// シーンカメラ視点のままでは寄れないのでエディタカメラへ戻してからフォーカスする
+		this.setField( "cameraView", "editor" );
+
+		this._editorCamera.focus( entity );
 
 	}
 

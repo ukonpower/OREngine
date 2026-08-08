@@ -151,13 +151,51 @@ export interface StorageSource {
 export type MaterialStorage = { name: string, source: StorageSource };
 
 /*-------------------------------
+	マテリアルテクスチャ
+
+	TexProcedural が実装する契約。Material はこれを名前付きで受け取り、
+	group2 の storage の後ろへ texture + sampler のペアとして生やす。
+	実体の生成が非同期なため、view が揃うまでそのマテリアルの描画はスキップされる。
+-------------------------------*/
+
+export interface TextureSource {
+	view: GPUTextureView | null;
+	sampler: GPUSampler | null;
+}
+
+export type MaterialTexture = { name: string, source: TextureSource };
+
+// group2 上のテクスチャの開始binding。0=uniform、1..=storage の後ろに並ぶ
+export const materialTextureBinding = ( storageCount: number, index: number ) => 1 + storageCount + index * 2;
+
+/*-------------------------------
 	WGSL 宣言
 -------------------------------*/
 
-// gBufferの出力structはアタッチメント表から作る
+// gBufferの出力structはアタッチメント表から作る。
+// GBufferDepthOutput はラスタライズした面と実体がずれるマテリアル（レイマーチ等）用で、
+// fsDeferred の戻り値をこちらにすると深度を書き直せる。
+// @builtin(frag_depth) を宣言したフラグメントは early-z が効かなくなるため、
+// 深度をそのまま使えるマテリアルは GBufferOutput のままにしておく
 const GBUFFER_OUTPUT_WGSL = `struct GBufferOutput {
 ${GBUFFER_ATTACHMENTS.map( ( a, i ) => `\t@location(${i}) ${a.name}: vec4f,` ).join( '\n' )}
-};`;
+};
+
+struct GBufferDepthOutput {
+${GBUFFER_ATTACHMENTS.map( ( a, i ) => `\t@location(${i}) ${a.name}: vec4f,` ).join( '\n' )}
+	@builtin(frag_depth) depth: f32,
+};
+
+// gBufferの出力に、書き直したクリップ空間の深度を添える
+fn withDepth( g: GBufferOutput, depth: f32 ) -> GBufferDepthOutput {
+
+	var output: GBufferDepthOutput;
+${GBUFFER_ATTACHMENTS.map( ( a ) => `\toutput.${a.name} = g.${a.name};` ).join( '\n' )}
+	output.depth = depth;
+
+	return output;
+
+}`;
 
 // マテリアルが書いた fsForward の宣言。entry pointはWGSLでは関数として呼べないため、
 // これを実装関数 forwardColor へ改名し、entry point は FORWARD_ENTRY_WGSL で生成する。
@@ -194,7 +232,7 @@ fn fsForwardMrt( input: VertexOutput ) -> ForwardOutput {
 }`;
 
 // マテリアルのWGSL本体の先頭へ、頂点入出力とuniformの宣言を差し込んで完成形を作る
-export const buildShaderSource = ( body: string, materialFields: UniformField[], storages: MaterialStorage[] = [] ) => {
+export const buildShaderSource = ( body: string, materialFields: UniformField[], storages: MaterialStorage[] = [], textures: MaterialTexture[] = [] ) => {
 
 	const chunks = [
 		VERTEX_INPUT_WGSL,
@@ -234,6 +272,18 @@ fn sampleEnvMap( direction: vec3f, roughness: f32 ) -> vec3f {
 		chunks.push( Array.from( structs ).join( '\n\n' ) );
 		chunks.push( storages.map( ( s, i ) =>
 			`@group(${GROUP_MATERIAL}) @binding(${i + 1}) var<storage, read> ${s.name}: array<${s.source.structName}>;` ).join( '\n' ) );
+
+	}
+
+	if ( textures.length > 0 ) {
+
+		chunks.push( textures.map( ( t, i ) => {
+
+			const binding = materialTextureBinding( storages.length, i );
+
+			return `@group(${GROUP_MATERIAL}) @binding(${binding}) var ${t.name}: texture_2d<f32>;\n@group(${GROUP_MATERIAL}) @binding(${binding + 1}) var ${t.name}Sampler: sampler;`;
+
+		} ).join( '\n' ) );
 
 	}
 

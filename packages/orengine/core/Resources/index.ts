@@ -2,8 +2,6 @@
 import * as GLP from 'glpower';
 import * as MXP from 'maxpower';
 
-import { TexProcedural } from '../TexProcedural';
-
 import { TextureResource } from './TextureResource';
 
 export { TextureResource } from './TextureResource';
@@ -43,8 +41,8 @@ export class Resources extends GLP.EventEmitter {
 	private _geometryGroups: GeometryGroup[];
 
 	private _textureResources: Map<string, TextureResource>;
-	private _textures: Map<string, GLP.GLPowerTexture>;
-	private _updateEveryFrameTextures: TexProcedural[];
+	private _textures: Map<string, MXP.TextureContract>;
+	private _updateEveryFrameTextures: MXP.TexProceduralContract[];
 
 	constructor() {
 
@@ -261,7 +259,7 @@ export class Resources extends GLP.EventEmitter {
 
 	}
 
-	public addTexture<T extends GLP.GLPowerTexture>( name: string, texture: T ) {
+	public addTexture<T extends MXP.TextureContract>( name: string, texture: T ) {
 
 		this._textures.set( name, texture );
 
@@ -275,37 +273,27 @@ export class Resources extends GLP.EventEmitter {
 
 	}
 
-	private _buildTexture( resource: TextureResource, renderer: MXP.Renderer, uniforms?: GLP.Uniforms ): TexProcedural | null {
+	private _buildTexture( resource: TextureResource, renderer: MXP.RendererContract, textures: { [ key: string ]: MXP.TextureContract }, engineUniforms?: GLP.Uniforms ): MXP.TexProceduralContract | null {
 
 		const fragSource = resource.frag;
 		if ( ! fragSource ) return null;
 
-		const tex = new TexProcedural( renderer, {
+		return renderer.createTexProcedural( {
+			name: resource.name,
 			frag: fragSource,
-			uniforms,
 			resolution: new GLP.Vector(
 				resource.resolution[ 0 ] || 1024,
 				resource.resolution[ 1 ] || 1024
 			),
+			filter: resource.filter,
+			textures,
+			uniforms: resource.updateEveryFrame ? engineUniforms : undefined,
 		} );
-
-		if ( resource.filter === "nearest" ) {
-
-			tex.setting( {
-				magFilter: MXP.GL.NEAREST,
-				minFilter: MXP.GL.NEAREST,
-			} );
-
-			tex.render();
-
-		}
-
-		return tex;
 
 	}
 
 	// 依存テクスチャ（resource.textures）を先にビルドしてから自身をビルドする
-	private _ensureTexture( resource: TextureResource, renderer: MXP.Renderer, engineUniforms: GLP.Uniforms | undefined, building: Set<string> ): GLP.GLPowerTexture | null {
+	private _ensureTexture( resource: TextureResource, renderer: MXP.RendererContract, engineUniforms: GLP.Uniforms | undefined, building: Set<string> ): MXP.TextureContract | null {
 
 		const built = this._textures.get( resource.name );
 
@@ -316,7 +304,7 @@ export class Resources extends GLP.EventEmitter {
 
 		building.add( resource.name );
 
-		const uniforms: GLP.Uniforms = {};
+		const textures: { [ key: string ]: MXP.TextureContract } = {};
 		const texNames = resource.textures;
 		const keys = Object.keys( texNames );
 
@@ -332,21 +320,15 @@ export class Resources extends GLP.EventEmitter {
 
 			if ( dep ) {
 
-				uniforms[ uniformName ] = { value: dep, type: '1i' };
+				textures[ uniformName ] = dep;
 
 			}
 
 		}
 
-		const tex = this._buildTexture( resource, renderer, uniforms );
+		const tex = this._buildTexture( resource, renderer, textures, engineUniforms );
 
 		if ( ! tex ) return null;
-
-		if ( resource.updateEveryFrame && engineUniforms ) {
-
-			MXP.UniformsUtils.assign( tex.material.uniforms, engineUniforms );
-
-		}
 
 		this._textures.set( resource.name, tex );
 
@@ -360,7 +342,7 @@ export class Resources extends GLP.EventEmitter {
 
 	}
 
-	public buildTextureInstances( renderer: MXP.Renderer, engineUniforms?: GLP.Uniforms ) {
+	public buildTextureInstances( renderer: MXP.RendererContract, engineUniforms?: GLP.Uniforms ) {
 
 		this._updateEveryFrameTextures = [];
 

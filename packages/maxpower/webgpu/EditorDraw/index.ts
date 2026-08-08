@@ -309,11 +309,11 @@ export class WebGPUEditorDraw implements EditorDrawContract {
 
 		if ( ! device || ! this._copyPass || ! dst.view ) return;
 
-		const source = texture as { createView?: () => GPUTextureView };
+		// TexProcedural が createView() でビューを返す。未ビルドの間（null）は
+		// ゴミが残らないようターゲットを空にしておく
+		const source = texture as { createView?: () => GPUTextureView | null };
 
-		// テクスチャリソースはまだ webgl 専用（TexProcedural）なので、webgpuプロジェクトでは
-		// ここに来ない。来た場合もゴミが残らないようターゲットを空にしておく
-		if ( ! source || typeof source.createView !== 'function' ) {
+		if ( ! source || typeof source.createView !== 'function' || ! source.createView() ) {
 
 			this._clear( device, dst.view );
 
@@ -321,7 +321,7 @@ export class WebGPUEditorDraw implements EditorDrawContract {
 
 		}
 
-		this._copyPass.render( dst.view, [ source.createView() ], { clear: true } );
+		this._copyPass.render( dst.view, [ source.createView()! ], { clear: true } );
 
 	}
 
