@@ -6,6 +6,7 @@ import { Value } from '../../components/composites/Value';
 import { Button } from '../../components/primitives/Button';
 import { Label } from '../../components/primitives/Label';
 import { AudioView } from '../AudioView';
+import { CameraPad } from '../CameraPad';
 import { useUISetting } from '../EditorSettings/hooks/useUISetting';
 import { useLayout } from '../Layout/hooks/useLayout';
 import { useOREditor } from '../OREditor/hooks/useOREditor';
@@ -224,7 +225,8 @@ export const Screen = () => {
 			<div className={style.canvas}>
 				<Canvas />
 			</div>
-			{showAudioView && <>
+			{layout.isSP && <CameraPad />}
+			{layout.isPC && showAudioView && <>
 				<div
 					className={style.audioViewHandle}
 					onPointerDown={( e ) => {

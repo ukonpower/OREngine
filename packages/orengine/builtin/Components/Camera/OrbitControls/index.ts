@@ -314,6 +314,33 @@ export class OrbitControls extends MXP.Component {
 
 	}
 
+	// 外部UI（エディタのカメラパッド等）からの操作入力。ピクセル移動量相当の値を速度に加える
+	// 無効中に速度を溜めると、有効化された瞬間にまとめて適用されて飛ぶため無視する
+
+	public addOrbitVelocity( x: number, y: number ) {
+
+		if ( ! this._enabled ) return;
+
+		this.mouseVelOrbit_.add( { x, y } );
+
+	}
+
+	public addMoveVelocity( x: number, y: number ) {
+
+		if ( ! this._enabled ) return;
+
+		this.mouseVelMove_.add( { x, y } );
+
+	}
+
+	public addDistanceVelocity( delta: number ) {
+
+		if ( ! this._enabled ) return;
+
+		this.distanceVel_ += delta;
+
+	}
+
 	public setPosition( eye: GLP.Vector, target: GLP.Vector ) {
 
 		this.eye_.copy( eye );

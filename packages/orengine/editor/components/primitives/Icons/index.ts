@@ -3,6 +3,7 @@ export * from './CameraIcon';
 export * from './Check';
 export * from './ComponentIcon';
 export * from './CrossIcon';
+export * from './CursorIcon';
 export * from './EyeIcon';
 export * from './FolderIcon';
 export * from './LightIcon';

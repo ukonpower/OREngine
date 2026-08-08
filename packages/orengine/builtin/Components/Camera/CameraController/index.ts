@@ -4,13 +4,16 @@ import * as MXP from 'maxpower';
 
 import { LookAt } from '../LookAt';
 
-// フォーカス距離の決め方。auto=画面中心の深度 / target=CamDofエンティティ / manual=距離を直接指定
+// フォーカス距離の決め方。auto=画面中心の深度 / target=focus/targetのエンティティ / manual=距離を直接指定
 export type FocusMode = 'auto' | 'target' | 'manual';
 
 export class CameraController extends MXP.Component {
 
 	private _lookAt: LookAt;
+	private _lookAtTargetUUID: string | null;
+
 	private _dofTarget: MXP.Entity | null;
+	private _dofTargetUUID: string | null;
 	private _tmpVector1: GLP.Vector;
 	private _tmpVector2: GLP.Vector;
 
@@ -27,10 +30,21 @@ export class CameraController extends MXP.Component {
 		// LookAt
 
 		this._lookAt = this.entity.addComponent( LookAt );
+		this._lookAtTargetUUID = null;
+
+		const lookAtDir = this.fieldDir( 'lookAt' );
+
+		lookAtDir.field( 'target', () => this._lookAtTargetUUID, ( v: string | null ) => {
+
+			this._lookAtTargetUUID = v || null;
+			this._lookAt.setTarget( null );
+
+		}, { format: { type: 'entity' } } );
 
 		// DoF
 
 		this._dofTarget = null;
+		this._dofTargetUUID = null;
 		this._tmpVector1 = new GLP.Vector();
 		this._tmpVector2 = new GLP.Vector();
 
@@ -46,6 +60,13 @@ export class CameraController extends MXP.Component {
 			this._focusMode = v;
 
 		}, { format: { type: 'select', list: [ 'auto', 'target', 'manual' ] } } );
+
+		focusDir.field( 'target', () => this._dofTargetUUID, ( v: string | null ) => {
+
+			this._dofTargetUUID = v || null;
+			this._dofTarget = null;
+
+		}, { format: { type: 'entity' } } );
 
 		focusDir.field( 'distance', () => this._focusDistance, ( v: number ) => {
 
@@ -63,33 +84,40 @@ export class CameraController extends MXP.Component {
 
 		const removeCameraPostProcess = setupCameraPostProcess( this.engine as any, this.entity );
 
-		// sceneCreated
-
-		const onSceneCreated = ( root: MXP.Entity ) => {
-
-			const lookAtTarget = root.findEntityByName( "CamLook" ) || null;
-			this._lookAt.setTarget( lookAtTarget );
-
-			this._dofTarget = root.findEntityByName( 'CamDof' ) || null;
-
-		};
-
-		this.entity.on( 'sceneCreated', onSceneCreated );
-
 		this.once( "dispose", () => {
-
-			this.entity.off( 'sceneCreated', onSceneCreated );
 
 			removeCameraPostProcess();
 
 		} );
 
-		// search existing scene tree
+	}
+
+	// UUID からターゲットのエンティティを引く。
+	// デシリアライズはコンポーネントを作り終えてから親へ add するため、
+	// コンストラクタの時点では自分がまだシーンツリーに繋がっておらず解決できない
+	private _resolveTargets() {
+
+		if ( ! this._lookAtTargetUUID && ! this._dofTargetUUID ) return;
 
 		const root = this.entity.getRootEntity();
-		const lookAtTarget = root.findEntityByName( "CamLook" ) || null;
-		this._lookAt.setTarget( lookAtTarget );
-		this._dofTarget = root.findEntityByName( 'CamDof' ) || null;
+
+		if ( this._lookAtTargetUUID && ! this._lookAt.target ) {
+
+			this._lookAt.setTarget( root.findEntityByUUID( this._lookAtTargetUUID ) || null );
+
+		}
+
+		if ( this._dofTargetUUID && ! this._dofTarget ) {
+
+			this._dofTarget = root.findEntityByUUID( this._dofTargetUUID ) || null;
+
+		}
+
+	}
+
+	protected updateImpl(): void {
+
+		this._resolveTargets();
 
 	}
 

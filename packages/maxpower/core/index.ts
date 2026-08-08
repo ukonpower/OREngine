@@ -13,6 +13,7 @@ export * from './Contracts/EngineContract';
 export * from './Contracts/GLTFLoaderContract';
 export * from './Contracts/MaterialContract';
 export * from './Contracts/RendererContract';
+export * from './Contracts/TexProceduralContract';
 export * from './Entity';
 export * from './Geometry';
 export * from './Geometries/CubeGeometry';

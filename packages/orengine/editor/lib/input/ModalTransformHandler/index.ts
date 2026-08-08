@@ -30,7 +30,7 @@ type Constraint = {
 type ModalSession = {
 	mode: ModalTransformMode;
 	entity: MXP.Entity;
-	// 変形対象が視点カメラ自身か（カメラビュー中のモーダルは常にこちら）
+	// 変形対象が視点カメラ自身か（カメラビュー中に無選択またはカメラ自身を選択しているとき）
 	selfView: boolean;
 	constraint: Constraint | null;
 	numberBuffer: string;
@@ -264,17 +264,19 @@ export class ModalTransformHandler {
 
 		if ( this._isPointerBusy() ) return false;
 
-		// カメラビュー中は選択に関係なく視点カメラ自身を動かす（Blender のカメラ選択 G / R 相当）
-		const selfView = this._editorCamera.view === 'camera';
-
-		// カメラ自身のスケールはビュー行列を歪ませるだけなので開始しない
-		if ( selfView && mode === 'scale' ) return false;
-
 		const cameraEntity = this._editorCamera.getCameraEntity( this._engine );
 
 		if ( ! cameraEntity ) return false;
 
-		const entity = selfView ? cameraEntity : this._getSelectedEntity();
+		const selected = this._getSelectedEntity();
+
+		// カメラビュー中でも選択があればそれを動かし、無選択かカメラ自身を選択中のときだけ視点カメラを動かす
+		const selfView = this._editorCamera.view === 'camera' && ( ! selected || selected === cameraEntity );
+
+		// カメラ自身のスケールはビュー行列を歪ませるだけなので開始しない
+		if ( selfView && mode === 'scale' ) return false;
+
+		const entity = selfView ? cameraEntity : selected;
 
 		if ( ! entity ) return false;
 

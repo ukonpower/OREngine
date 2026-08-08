@@ -1,5 +1,6 @@
 import type { Entity, EntityUpdateEvent } from '../../Entity';
 import type { Serializable } from '../../Serializable';
+import type { TexProceduralContract, TexProceduralParam } from '../TexProceduralContract';
 import type * as GLP from 'glpower';
 
 // バックエンドごとのRendererが満たす口。EntityUpdateEvent.renderer としてComponentも触る
@@ -16,5 +17,8 @@ export interface RendererContract extends Serializable {
 
 	render( root: Entity, camera: Entity, event: EntityUpdateEvent ): void;
 	resize( resolution: GLP.Vector ): void;
+
+	// .tex（プロシージャルテクスチャ）をバックエンド固有の実装で組み立てる
+	createTexProcedural( param: TexProceduralParam ): TexProceduralContract;
 
 }

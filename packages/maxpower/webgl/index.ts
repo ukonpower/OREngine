@@ -14,4 +14,5 @@ export * from './PostProcess';
 export * from './PostProcess/PostProcessPass';
 export * from './PostProcess/setupCameraPostProcess';
 export * from './ShaderParser';
+export * from './TexProcedural';
 export * from './utils/Modeler';

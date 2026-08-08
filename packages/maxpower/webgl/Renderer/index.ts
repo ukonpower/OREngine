@@ -13,6 +13,7 @@ import { GL, GLBackend } from '../GLBackend';
 import { MaterialRenderType, Material } from '../Material';
 import { PostProcess } from '../PostProcess';
 import { shaderParse } from "../ShaderParser";
+import { TexProcedural } from '../TexProcedural';
 
 import { DeferredRenderer } from './DeferredRenderer';
 import { PipelinePostProcess } from './PipelinePostProcess';
@@ -22,6 +23,7 @@ import { Sky } from './Sky';
 
 import type { EngineContract } from '../../core/Contracts/EngineContract';
 import type { RendererContract } from '../../core/Contracts/RendererContract';
+import type { TexProceduralParam } from '../../core/Contracts/TexProceduralContract';
 
 // render target
 
@@ -1315,6 +1317,40 @@ export class Renderer extends Serializable implements RendererContract {
 			}
 
 		}
+
+	}
+
+	// .tex の実体を組み立てる。依存テクスチャはサンプラー（'1i' uniform）としてぶら下げる
+	public createTexProcedural( param: TexProceduralParam ): TexProcedural {
+
+		const uniforms: GLP.Uniforms = { ...param.uniforms };
+		const textures = param.textures || {};
+		const keys = Object.keys( textures );
+
+		for ( let i = 0; i < keys.length; i ++ ) {
+
+			uniforms[ keys[ i ] ] = { value: textures[ keys[ i ] ], type: '1i' };
+
+		}
+
+		const tex = new TexProcedural( this, {
+			frag: param.frag,
+			resolution: param.resolution,
+			uniforms,
+		} );
+
+		if ( param.filter === 'nearest' ) {
+
+			tex.setting( {
+				magFilter: GL.NEAREST,
+				minFilter: GL.NEAREST,
+			} );
+
+			tex.render();
+
+		}
+
+		return tex;
 
 	}
 
