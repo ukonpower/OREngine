@@ -1,4 +1,5 @@
 export * from './InputCheckBox';
+export * from './InputColor';
 export * from './InputComponentRef';
 export * from './InputEntityRef';
 export * from './InputNumber';
