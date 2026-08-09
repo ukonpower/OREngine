@@ -7,6 +7,11 @@ interface SerializeFieldFormatVector {
 }
 
 
+// 値は 0..1 の RGB 配列。エディタではカラーピッカーで編集する
+interface SerializeFieldFormatColor {
+	type: "color",
+}
+
 interface SerializeFieldFormatSelect {
 	type: "select",
 	list: SelectList | ( () => SelectList )
@@ -31,7 +36,7 @@ interface SerializeFieldFormatResource {
 	list: SelectList | ( () => SelectList )
 }
 
-export type SerializableFieldFormat = SerializeFieldFormatVector | SerializeFieldFormatSelect | SerializeFieldFormatArray | SerializeFieldFormatEntity | SerializeFieldFormatComponent | SerializeFieldFormatResource
+export type SerializableFieldFormat = SerializeFieldFormatVector | SerializeFieldFormatColor | SerializeFieldFormatSelect | SerializeFieldFormatArray | SerializeFieldFormatEntity | SerializeFieldFormatComponent | SerializeFieldFormatResource
 
 export type SerializableFieldOpt = {
         isFolder?: boolean,

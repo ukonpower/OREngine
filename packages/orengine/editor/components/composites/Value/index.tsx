@@ -3,6 +3,7 @@ import React from 'react';
 
 import { Button } from '../../primitives/Button';
 import { InputBoolean } from '../Input/InputCheckBox';
+import { InputColor } from '../Input/InputColor';
 import { InputComponentRef } from '../Input/InputComponentRef';
 import { InputEntityRef } from '../Input/InputEntityRef';
 import { InputNumber } from '../Input/InputNumber';
@@ -57,6 +58,10 @@ export const Value = <T extends SerializeFieldObjective>( props : ValueProps<T> 
 		} else if ( format.type == "vector" && Array.isArray( value ) ) {
 
 			inputElm = <Vector value={value as number[]} onChange={onChangeValue} />;
+
+		} else if ( format.type == "color" && Array.isArray( value ) ) {
+
+			inputElm = <InputColor value={value as number[]} onChange={onChangeValue} />;
 
 		} else if ( format.type == "select" ) {
 

@@ -1,6 +1,7 @@
 import { SerializeFieldDirectoryValue } from 'maxpower';
 import React from 'react';
 
+import { InputColor } from '../../../../../components/composites/Input/InputColor';
 import { Value } from '../../../../../components/composites/Value';
 import { ValueArray } from '../../../../../components/composites/ValueArray';
 import { Vector } from '../../../../../components/composites/Vector';
@@ -26,6 +27,14 @@ export const SerializeFieldViewValue: React.FC<{ path:string, field: SerializeFi
 		if ( format?.type == "vector" ) {
 
 			valueElm = <Vector value={value as number[]} {...opt} onChange={( v ) => {
+
+				editor.api.setField( target, props.path, v );
+
+			}} />;
+
+		} else if ( format?.type == "color" ) {
+
+			valueElm = <InputColor value={value as number[]} {...opt} onChange={( v ) => {
 
 				editor.api.setField( target, props.path, v );
 
