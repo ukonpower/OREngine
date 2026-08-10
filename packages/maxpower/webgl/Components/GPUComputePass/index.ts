@@ -1,5 +1,6 @@
 
 import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 
 import { UniformsUtils } from '../../../core/utils/Uniforms';
 import { GL, GLBackend } from '../../GLBackend';
@@ -9,22 +10,22 @@ import quadVert from './shaders/quad.vs';
 
 
 export interface GPUComputePassParam extends Omit<PostProcessPassParam, 'renderTarget'>{
-	size: GLP.Vector,
+	size: MTP.Vector,
 	dataLayerCount: number,
 	textureParam?: Partial<GLP.GLPowerTextureSetting>
 }
 
 export class GPUComputePass extends PostProcessPass {
 
-	public readonly size: GLP.Vector;
+	public readonly size: MTP.Vector;
 	public readonly layerCnt: number;
 
-	public clearColor: GLP.Vector | null;
+	public clearColor: MTP.Vector | null;
 
 	public rt1: GLP.GLPowerFrameBuffer;
 	public rt2: GLP.GLPowerFrameBuffer;
 
-	public outputUniforms: GLP.Uniforms;
+	public outputUniforms: MTP.Uniforms;
 
 	constructor( backend: GLBackend, param: GPUComputePassParam ) {
 
@@ -33,7 +34,7 @@ export class GPUComputePass extends PostProcessPass {
 		const rt1 = backend.createFrameBuffer().setTexture( new Array( param.dataLayerCount ).fill( 0 ).map( () => backend.createTexture().setting( textureSetting ) ) ).setSize( param.size );
 		const rt2 = backend.createFrameBuffer().setTexture( new Array( param.dataLayerCount ).fill( 0 ).map( () => backend.createTexture().setting( textureSetting ) ) ).setSize( param.size );
 
-		const outputUniforms: GLP.Uniforms = {
+		const outputUniforms: MTP.Uniforms = {
 			uGPUResolution: {
 				value: param.size,
 				type: "2fv"

@@ -1,14 +1,15 @@
 import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 
 export interface PostProcessPassParam extends MaterialParam{
 	backBufferOverride?:GLP.GLPowerTexture[],
 	renderTarget?: GLP.GLPowerFrameBuffer | null,
-	clearColor?: GLP.Vector;
+	clearColor?: MTP.Vector;
 	clearDepth?: number;
 	resolutionRatio?: number;
 	passThrough?: boolean;
-	viewPort?: GLP.Vector
-	fixedResotluion?: GLP.Vector
+	viewPort?: MTP.Vector
+	fixedResotluion?: MTP.Vector
 }
 
 import { GL, GLBackend } from '../../GLBackend';
@@ -25,16 +26,16 @@ export class PostProcessPass extends Material {
 	public renderTarget: GLP.GLPowerFrameBuffer | null;
 	public backBufferOverride: GLP.GLPowerTexture[] | null;
 
-	public clearColor: GLP.Vector | null;
+	public clearColor: MTP.Vector | null;
 	public clearDepth: number | null;
 
 	public resolutionRatio: number;
 	public passThrough: boolean;
 
-	public resolution: GLP.Vector;
-	public resolutionInv: GLP.Vector;
-	public viewPort: GLP.Vector | null;
-	private _fixedResolution: GLP.Vector | null;
+	public resolution: MTP.Vector;
+	public resolutionInv: MTP.Vector;
+	public viewPort: MTP.Vector | null;
+	private _fixedResolution: MTP.Vector | null;
 
 	constructor( backend: GLBackend, param: PostProcessPassParam ) {
 
@@ -42,8 +43,8 @@ export class PostProcessPass extends Material {
 
 		this.enabled = true;
 		this._fixedResolution = param.fixedResotluion ? param.fixedResotluion.clone() : null;
-		this.resolution = new GLP.Vector();
-		this.resolutionInv = new GLP.Vector();
+		this.resolution = new MTP.Vector();
+		this.resolutionInv = new MTP.Vector();
 
 		this.viewPort = null;
 
@@ -77,18 +78,18 @@ export class PostProcessPass extends Material {
 
 	}
 
-	public set fixedResolution( resolution: GLP.Vector | null ) {
+	public set fixedResolution( resolution: MTP.Vector | null ) {
 
 		this._fixedResolution = resolution;
 
-		this.resize( resolution || new GLP.Vector() );
+		this.resize( resolution || new MTP.Vector() );
 
 	}
 
 	public onAfterRender() {
 	}
 
-	public resize( resolution: GLP.Vector ): void {
+	public resize( resolution: MTP.Vector ): void {
 
 		if ( this._fixedResolution ) {
 

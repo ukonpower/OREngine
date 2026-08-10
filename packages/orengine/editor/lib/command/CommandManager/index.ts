@@ -1,4 +1,4 @@
-import * as GLP from 'glpower';
+import { EventEmitter } from 'mathpower';
 
 export interface Command {
 	name: string;
@@ -7,7 +7,7 @@ export interface Command {
 	mergeWith?( other: Command ): Command | null;
 }
 
-export class CommandManager extends GLP.EventEmitter {
+export class CommandManager extends EventEmitter {
 
 	private _undoStack: Command[] = [];
 	private _redoStack: Command[] = [];

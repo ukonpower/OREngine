@@ -1,4 +1,6 @@
 import * as GLP from 'glpower';
+import { GLPowerTexture } from 'glpower';
+import * as MTP from 'mathpower';
 
 import { PostProcess } from '../PostProcess';
 import { PostProcessPass, PostProcessPassParam } from '../PostProcess/PostProcessPass';
@@ -6,16 +8,16 @@ import { PostProcessPass, PostProcessPassParam } from '../PostProcess/PostProces
 import type { Renderer } from '../Renderer';
 
 interface TexProceduralParam extends PostProcessPassParam {
-	resolution?: GLP.Vector
+	resolution?: MTP.Vector
 }
 
 // .tex のWebGL実装。GLSLのフルスクリーンパスを固定解像度のテクスチャへ焼く
-export class TexProcedural extends GLP.GLPowerTexture {
+export class TexProcedural extends GLPowerTexture {
 
 	public material: PostProcessPass;
 
 	private _renderer: Renderer;
-	private _resolution: GLP.Vector;
+	private _resolution: MTP.Vector;
 	private _postProcess: PostProcess;
 	private _frameBuffer: GLP.GLPowerFrameBuffer;
 
@@ -28,7 +30,7 @@ export class TexProcedural extends GLP.GLPowerTexture {
 
 		this._renderer = renderer;
 
-		this._resolution = param.resolution || new GLP.Vector( 1024, 1024 );
+		this._resolution = param.resolution || new MTP.Vector( 1024, 1024 );
 
 		this.setting( {
 			wrapS: gl.REPEAT,

@@ -1,6 +1,6 @@
 import type { Entity } from '../../Entity';
 import type { MaterialContract } from '../MaterialContract';
-import type * as GLP from 'glpower';
+import type * as MTP from 'mathpower';
 
 /*-------------------------------
 	Handles
@@ -62,12 +62,12 @@ export interface EditorDrawContract {
 	readPixels( target: EditorTarget ): Promise<Uint8Array>;
 
 	// useSceneDepthはシーンdepth共有（outlineの深度テスト用）。sizeを省くと解像度に追従する
-	createTarget( opt?: { useSceneDepth?: boolean; size?: GLP.Vector } ): EditorTarget;
+	createTarget( opt?: { useSceneDepth?: boolean; size?: MTP.Vector } ): EditorTarget;
 
 	// uiバッファを画面へ出す
 	present(): void;
 
-	resize( resolution: GLP.Vector ): void;
+	resize( resolution: MTP.Vector ): void;
 
 	// 各パス完了ごとに不透明ハンドルを通知（FrameDebuggerの観測はこのイベントが正）
 	onDrawPass( cb: ( frame: EditorFrame, label: string ) => void ): void;

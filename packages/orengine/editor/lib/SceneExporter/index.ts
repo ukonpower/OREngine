@@ -1,4 +1,4 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 import { Output, BufferTarget, Mp4OutputFormat, CanvasSource } from 'mediabunny';
 
 import { Engine } from '../../../core/Engine';
@@ -6,7 +6,7 @@ import { Engine } from '../../../core/Engine';
 export interface SceneExporterOption {
 	fps: number;
 	duration: number;
-	resolution: GLP.Vector;
+	resolution: MTP.Vector;
 	bitrate?: number;
 }
 

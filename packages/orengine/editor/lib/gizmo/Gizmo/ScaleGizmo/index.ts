@@ -1,4 +1,4 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
 import { GizmoAxis, GizmoDragResult, GizmoHandle, GizmoPlane } from '..';
@@ -25,21 +25,21 @@ const PLANES: readonly GizmoPlane[] = [ 'xy', 'yz', 'xz' ];
 export class ScaleGizmo extends GizmoBase {
 
 	private _centerRoot: MXP.Entity;
-	private _dragStartPos: GLP.Vector;
-	private _dragAxisDir: GLP.Vector;
+	private _dragStartPos: MTP.Vector;
+	private _dragAxisDir: MTP.Vector;
 	private _dragStartAmount: number;
-	private _dragPlaneNormal: GLP.Vector;
-	private _dragStartScale: GLP.Vector;
+	private _dragPlaneNormal: MTP.Vector;
+	private _dragStartScale: MTP.Vector;
 
 	constructor( engine: MXP.EngineContract, draw: MXP.EditorDrawContract ) {
 
 		super( engine, draw, '__gizmo_scale' );
 
-		this._dragStartPos = new GLP.Vector();
-		this._dragAxisDir = new GLP.Vector( 1, 0, 0 );
+		this._dragStartPos = new MTP.Vector();
+		this._dragAxisDir = new MTP.Vector( 1, 0, 0 );
 		this._dragStartAmount = 1;
-		this._dragPlaneNormal = new GLP.Vector( 0, 0, 1 );
-		this._dragStartScale = new GLP.Vector( 1, 1, 1 );
+		this._dragPlaneNormal = new MTP.Vector( 0, 0, 1 );
+		this._dragStartScale = new MTP.Vector( 1, 1, 1 );
 
 		for ( const axis of AXES ) this._addAxisHandle( axis );
 		for ( const plane of PLANES ) this._addPlaneHandle( plane );
@@ -93,7 +93,7 @@ export class ScaleGizmo extends GizmoBase {
 
 	}
 
-	protected _rootQuaternion( entity: MXP.Entity, _orientation: TransformOrientation ): GLP.Quaternion {
+	protected _rootQuaternion( entity: MXP.Entity, _orientation: TransformOrientation ): MTP.Quaternion {
 
 		return getWorldQuaternion( entity );
 
@@ -177,7 +177,7 @@ export class ScaleGizmo extends GizmoBase {
 		}
 
 		return {
-			scale: new GLP.Vector(
+			scale: new MTP.Vector(
 				this._dragStartScale.x * ( inConstraint.x ? ratio : 1 ),
 				this._dragStartScale.y * ( inConstraint.y ? ratio : 1 ),
 				this._dragStartScale.z * ( inConstraint.z ? ratio : 1 ),

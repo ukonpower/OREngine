@@ -1,4 +1,4 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 
 import { Component } from '../../../core/Component';
 import { PostProcessChain, PostProcessPass } from '../../PostProcess';
@@ -20,9 +20,9 @@ export class PostProcessPipeline extends Component {
 
 	private _params: PostProcessPassParam[];
 	private _chain: PostProcessChain | null;
-	private _resolution: GLP.Vector;
-	private _passResolution: GLP.Vector;
-	private _passPixelSize: GLP.Vector;
+	private _resolution: MTP.Vector;
+	private _passResolution: MTP.Vector;
+	private _passPixelSize: MTP.Vector;
 
 	constructor( params: ComponentParams ) {
 
@@ -30,9 +30,9 @@ export class PostProcessPipeline extends Component {
 
 		this._params = [];
 		this._chain = null;
-		this._resolution = new GLP.Vector();
-		this._passResolution = new GLP.Vector();
-		this._passPixelSize = new GLP.Vector();
+		this._resolution = new MTP.Vector();
+		this._passResolution = new MTP.Vector();
+		this._passPixelSize = new MTP.Vector();
 
 	}
 

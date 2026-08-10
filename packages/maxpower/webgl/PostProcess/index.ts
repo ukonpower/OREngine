@@ -1,4 +1,4 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 
 import { Serializable } from '../../core/Serializable';
 
@@ -56,7 +56,7 @@ export class PostProcess extends Serializable {
 
 	}
 
-	public resize( resolution: GLP.Vector ): void {
+	public resize( resolution: MTP.Vector ): void {
 
 		if ( ! this._passes ) return;
 

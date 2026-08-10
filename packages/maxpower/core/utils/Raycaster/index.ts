@@ -1,4 +1,4 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 
 import { Camera } from '../../Components/Camera';
 import { Mesh } from '../../Components/Mesh';
@@ -9,26 +9,26 @@ import { Ray } from '../Ray';
 export type RaycastResult = {
 	entity: Entity;
 	distance: number;
-	point: GLP.Vector;
+	point: MTP.Vector;
 };
 
 export class Raycaster {
 
 	public ray: Ray;
-	private _v0: GLP.Vector;
-	private _v1: GLP.Vector;
-	private _v2: GLP.Vector;
+	private _v0: MTP.Vector;
+	private _v1: MTP.Vector;
+	private _v2: MTP.Vector;
 
 	constructor() {
 
 		this.ray = new Ray();
-		this._v0 = new GLP.Vector();
-		this._v1 = new GLP.Vector();
-		this._v2 = new GLP.Vector();
+		this._v0 = new MTP.Vector();
+		this._v1 = new MTP.Vector();
+		this._v2 = new MTP.Vector();
 
 	}
 
-	public setFromCamera( ndc: GLP.Vector, cameraEntity: Entity ): void {
+	public setFromCamera( ndc: MTP.Vector, cameraEntity: Entity ): void {
 
 		const camera = cameraEntity.getComponentsByTag<Camera>( "camera" )[ 0 ];
 
@@ -123,7 +123,7 @@ export class Raycaster {
 	}
 
 	// ローカル空間で全三角形と交差判定して最近ヒットを返す
-	private intersectTriangles( ray: Ray, geometry: Geometry ): { distance: number, point: GLP.Vector } | null {
+	private intersectTriangles( ray: Ray, geometry: Geometry ): { distance: number, point: MTP.Vector } | null {
 
 		const posAttr = geometry.getAttribute( 'position' );
 
@@ -134,7 +134,7 @@ export class Raycaster {
 		const index = indexAttr ? indexAttr.array : null;
 		const triCount = Math.floor( ( index ? index.length : geometry.vertCount ) / 3 );
 
-		let closest: { distance: number, point: GLP.Vector } | null = null;
+		let closest: { distance: number, point: MTP.Vector } | null = null;
 
 		for ( let t = 0; t < triCount; t ++ ) {
 

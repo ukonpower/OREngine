@@ -1,9 +1,10 @@
 import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 
 import { Serializable } from '../Serializable';
 
 type Attribute = {
-	array: GLP.TArrayBuffer;
+	array: MTP.TArrayBuffer;
 	size: number;
 	buffer?: GLP.GLPowerBuffer
 	opt?: GLP.AttributeOptions,
@@ -16,7 +17,7 @@ export class Geometry extends Serializable {
 	public vertCount: number;
 	public attributes: Map<string, Attribute >;
 	public vaoCache: Map<GLP.GLPowerVAO, boolean>;
-	public boundingBox: { min: GLP.Vector, max: GLP.Vector } | null;
+	public boundingBox: { min: MTP.Vector, max: MTP.Vector } | null;
 
 	constructor() {
 
@@ -29,7 +30,7 @@ export class Geometry extends Serializable {
 
 	}
 
-	public setAttribute( name: DefaultAttributeName | ( string & {} ), array: GLP.TArrayBuffer, size: number, opt?: GLP.AttributeOptions ) {
+	public setAttribute( name: DefaultAttributeName | ( string & {} ), array: MTP.TArrayBuffer, size: number, opt?: GLP.AttributeOptions ) {
 
 		const currentAttr = this.attributes.get( name );
 
@@ -103,8 +104,8 @@ export class Geometry extends Serializable {
 		}
 
 		const positions = posAttr.array as Float32Array;
-		const min = new GLP.Vector( Infinity, Infinity, Infinity );
-		const max = new GLP.Vector( - Infinity, - Infinity, - Infinity );
+		const min = new MTP.Vector( Infinity, Infinity, Infinity );
+		const max = new MTP.Vector( - Infinity, - Infinity, - Infinity );
 
 		for ( let i = 0; i < positions.length; i += 3 ) {
 

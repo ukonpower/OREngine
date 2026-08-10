@@ -1,4 +1,5 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
+import { EventEmitter } from 'mathpower';
 import { SelectList } from 'packages/orengine/editor/components/composites/Input/InputSelect';
 import { ValueOpt } from 'packages/orengine/editor/components/composites/Value';
 
@@ -78,7 +79,7 @@ interface SerializeFieldProxy {
 }
 
 
-export class Serializable extends GLP.EventEmitter {
+export class Serializable extends EventEmitter {
 
 	public readonly uuid: string;
 	public initiator: string;
@@ -88,7 +89,7 @@ export class Serializable extends GLP.EventEmitter {
 
 		super();
 
-		this.uuid = GLP.ID.genUUID();
+		this.uuid = MTP.ID.genUUID();
 
 		this.fields_ = new Map();
 

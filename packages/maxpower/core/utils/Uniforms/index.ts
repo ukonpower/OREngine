@@ -1,4 +1,4 @@
-import { Uniforms } from "glpower";
+import { Uniforms } from 'mathpower';
 
 export namespace UniformsUtils {
 

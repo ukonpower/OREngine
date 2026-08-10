@@ -1,4 +1,4 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
 import gridDotsFrag from './shaders/gridDots.fs';
@@ -18,7 +18,7 @@ export class GridDots extends MXP.Component {
 		const posArray: number[] = [];
 		const rotArray: number[] = [];
 
-		const num = new GLP.Vector( 32, 2, 32 );
+		const num = new MTP.Vector( 32, 2, 32 );
 
 		const scale = 1.0;
 

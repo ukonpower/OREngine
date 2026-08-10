@@ -1,4 +1,5 @@
 import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 
 import { Mesh } from '../../core/Components/Mesh';
 import { EditorDrawContract, EditorFrame, EditorRect, EditorRecipe, EditorRenderEntitiesParam, EditorTarget } from '../../core/Contracts/EditorDrawContract';
@@ -269,7 +270,7 @@ export class GLEditorDraw implements EditorDrawContract {
 		Resource
 	-------------------------------*/
 
-	public createTarget( opt?: { useSceneDepth?: boolean; size?: GLP.Vector } ) {
+	public createTarget( opt?: { useSceneDepth?: boolean; size?: MTP.Vector } ) {
 
 		const frameBuffer = new GLP.GLPowerFrameBuffer( this._gl, { disableDepthBuffer: true } )
 			.setTexture( [ new GLP.GLPowerTexture( this._gl ).setting( { magFilter: GL.LINEAR, minFilter: GL.LINEAR } ) ] );
@@ -290,7 +291,7 @@ export class GLEditorDraw implements EditorDrawContract {
 
 	}
 
-	public resize( resolution: GLP.Vector ) {
+	public resize( resolution: MTP.Vector ) {
 
 		this._fullscreenBuffer.setSize( resolution );
 
@@ -382,7 +383,7 @@ export class GLEditorDraw implements EditorDrawContract {
 				renderTarget: null,
 				uniforms: {
 					uMaskTexture: { value: ( mask as GLEditorTarget ).texture, type: '1i' },
-					uOutlineColor: { value: new GLP.Vector( color[ 0 ], color[ 1 ], color[ 2 ] ), type: '3fv' },
+					uOutlineColor: { value: new MTP.Vector( color[ 0 ], color[ 1 ], color[ 2 ] ), type: '3fv' },
 				},
 			} );
 

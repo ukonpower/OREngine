@@ -1,4 +1,4 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 
 import { BLidge, BLidgeNode, BLidgeLightParam, BLidgeCameraParam } from "../../BLidge";
 import { Component, ComponentParams, ComponentUpdateEvent } from "../../Component";
@@ -16,9 +16,9 @@ export class BLidger extends Component {
 
 	public node: BLidgeNode;
 	public rotationOffsetX: number;
-	public animations: Map<string, GLP.FCurveGroup>;
-	public uniforms: GLP.Uniforms;
-	public uniformCurves: Map<string, GLP.FCurveGroup>;
+	public animations: Map<string, MTP.FCurveGroup>;
+	public uniforms: MTP.Uniforms;
+	public uniformCurves: Map<string, MTP.FCurveGroup>;
 	public transformAutoUpdate: boolean;
 
 	private _blidge: BLidge;
@@ -228,7 +228,7 @@ export class BLidger extends Component {
 			this._lightComponent.deserialize( {
 				...lightParam,
 				lightType: lightParam.type,
-				color: new GLP.Vector().copy( lightParam.color ) as unknown as SerializeFieldValue,
+				color: new MTP.Vector().copy( lightParam.color ) as unknown as SerializeFieldValue,
 				castShadow: lightParam.shadowMap,
 			} );
 

@@ -1,4 +1,4 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 
 import { Component, ComponentParams } from '../../Component';
 import { BLidger } from '../BLidger';
@@ -7,10 +7,10 @@ import type { Entity } from '../../Entity';
 
 export class BLidgerAnimationReceiver extends Component {
 
-	public animations: Map<string, GLP.FCurveGroup>;
+	public animations: Map<string, MTP.FCurveGroup>;
 
-	public uniforms: GLP.Uniforms;
-	private registeredUniforms: GLP.Uniforms[];
+	public uniforms: MTP.Uniforms;
+	private registeredUniforms: MTP.Uniforms[];
 
 	constructor( params: ComponentParams ) {
 
@@ -23,7 +23,7 @@ export class BLidgerAnimationReceiver extends Component {
 
 	}
 
-	public registerUniforms( uniforms: GLP.Uniforms ) {
+	public registerUniforms( uniforms: MTP.Uniforms ) {
 
 		this.unregisterUniforms( uniforms );
 
@@ -35,7 +35,7 @@ export class BLidgerAnimationReceiver extends Component {
 
 	}
 
-	public unregisterUniforms( uniforms: GLP.Uniforms ) {
+	public unregisterUniforms( uniforms: MTP.Uniforms ) {
 
 		const index = this.registeredUniforms.indexOf( uniforms );
 
@@ -47,7 +47,7 @@ export class BLidgerAnimationReceiver extends Component {
 
 	}
 
-	private assignUniforms( targetUniforms: GLP.Uniforms ) {
+	private assignUniforms( targetUniforms: MTP.Uniforms ) {
 
 		Object.keys( this.uniforms ).forEach( ( name ) => {
 

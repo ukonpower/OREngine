@@ -1,8 +1,8 @@
-import { buildStructWgsl } from '../../resources/UniformBinder';
+import { buildStructWgsl } from 'gpupower';
 
 import prefilterBodyWgsl from './prefilter.wgsl';
 
-import type { UniformField } from '../../resources/UniformBinder';
+import type { UniformField } from 'gpupower';
 
 /*-------------------------------
 	envMap の事前フィルタ（PMREM）の宣言部

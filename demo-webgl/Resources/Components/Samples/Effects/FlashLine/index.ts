@@ -1,4 +1,4 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 import { Engine } from 'orengine';
 
@@ -28,7 +28,7 @@ export class FlashLine extends MXP.Component {
 
 		for ( let index = 0; index < num; index ++ ) {
 
-			const rnd = GLP.MathUtils.randomVector().multiply( new GLP.Vector( 20, 1, 20.0 ) );
+			const rnd = MTP.MathUtils.randomVector().multiply( new MTP.Vector( 20, 1, 20.0 ) );
 
 			oPosArray.push(
 				rnd.x, rnd.y, rnd.z, Math.random()

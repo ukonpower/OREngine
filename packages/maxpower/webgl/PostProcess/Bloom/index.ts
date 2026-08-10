@@ -1,4 +1,5 @@
 import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 
 import { PostProcess } from '..';
 import { GL, GLBackend } from '../../GLBackend';
@@ -91,7 +92,7 @@ export class Bloom extends PostProcess {
 					},
 					uWeights: {
 						type: '1fv',
-						value: GLP.MathUtils.gaussWeights( guassSamples )
+						value: MTP.MathUtils.gaussWeights( guassSamples )
 					},
 					uBlurRange: {
 						value: 2.0,

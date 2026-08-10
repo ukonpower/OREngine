@@ -1,4 +1,4 @@
-import type * as GLP from 'glpower';
+import type * as MTP from 'mathpower';
 
 /*-------------------------------
 	名前ベース uniform 辞書 → WGSL uniform buffer
@@ -36,8 +36,8 @@ const TYPES: { [K in WgslType]: { size: number, align: number, count: number, in
 	mat4x4f: { size: 64, align: 16, count: 16, columns: 4, rows: 4, columnStride: 16 },
 };
 
-// GLP.Uniforms の型指定を WGSL の型へ写す
-const GLP_TYPE: { [key: string]: WgslType } = {
+// MTP.Uniforms の型指定を WGSL の型へ写す
+const TYPE_TO_WGSL: { [key: string]: WgslType } = {
 	'1f': 'f32',
 	'1fv': 'f32',
 	'2f': 'vec2f',
@@ -178,14 +178,14 @@ const flatten = ( measured: Measured, base: number, prefix: string, entries: Map
 };
 
 // 名前ベース辞書からフィールド宣言を作る（宣言順＝辞書のキー順）
-export const fieldsFromUniforms = ( uniforms: GLP.Uniforms ): UniformField[] => {
+export const fieldsFromUniforms = ( uniforms: MTP.Uniforms ): UniformField[] => {
 
 	const fields: UniformField[] = [];
 	const keys = Object.keys( uniforms );
 
 	for ( let i = 0; i < keys.length; i ++ ) {
 
-		const type = GLP_TYPE[ uniforms[ keys[ i ] ].type ];
+		const type = TYPE_TO_WGSL[ uniforms[ keys[ i ] ].type ];
 
 		if ( ! type ) {
 
@@ -282,7 +282,7 @@ export class UniformBinder {
 	}
 
 	// 複数の辞書を順に反映してGPUへ書き戻す（後の辞書が同名キーを上書きする）
-	public update( ...uniformsList: ( GLP.Uniforms | undefined )[] ) {
+	public update( ...uniformsList: ( MTP.Uniforms | undefined )[] ) {
 
 		for ( let i = 0; i < uniformsList.length; i ++ ) {
 
@@ -330,7 +330,7 @@ export class UniformBinder {
 		if ( t.columns ) {
 
 			// 行列は列ごとにアラインメント境界へ置き直す（mat3x3f は 9 要素 → 3 列 × 16 バイト）
-			const elm = ( value as GLP.Matrix ).elm;
+			const elm = ( value as MTP.Matrix ).elm;
 
 			for ( let c = 0; c < t.columns; c ++ ) {
 
@@ -346,11 +346,11 @@ export class UniformBinder {
 
 		}
 
-		// 値は数値・GLP.Vector・配列（number[] / TypedArray）のいずれもあり得る
+		// 値は数値・MTP.Vector・配列（number[] / TypedArray）のいずれもあり得る
 		const values: ArrayLike<number> = typeof value == 'number' || typeof value == 'boolean'
 			? [ Number( value ) ]
 			: typeof value.getElm == 'function'
-				? ( value as GLP.Vector ).getElm( `vec${t.count}` as 'vec2' | 'vec3' | 'vec4' )
+				? ( value as MTP.Vector ).getElm( `vec${t.count}` as 'vec2' | 'vec3' | 'vec4' )
 				: value;
 
 		for ( let i = 0; i < t.count; i ++ ) {

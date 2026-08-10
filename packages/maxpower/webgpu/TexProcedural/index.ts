@@ -1,4 +1,4 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 
 import { PostProcessPass } from '../PostProcess';
 
@@ -93,7 +93,7 @@ export class TexProcedural implements TexProceduralContract, TextureSource {
 			inputs: Object.keys( this._param.textures || {} ),
 			uniforms: this._param.uniforms,
 			format: 'rgba8unorm',
-		}, new GLP.Vector(), new GLP.Vector() );
+		}, new MTP.Vector(), new MTP.Vector() );
 
 		this._pass.build( device, this._renderer.uniformLayout! );
 		this._pass.setSize( device, this._param.resolution.x, this._param.resolution.y );

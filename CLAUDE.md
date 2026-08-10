@@ -112,7 +112,7 @@ WGSLは `.wgsl` ファイルに置き、`import xxxWgsl from './xxx.wgsl'` で�
 - **Reactコンポーネント**: PascalCase関数コンポーネント（`const Screen = () => {}`）
 - **Reactフック**: `use` プレフィックス camelCase（`useOREditor`, `useSerializableField`）
 - **SCSSモジュール**: `index.module.scss`、BEM風ネスト（`&_tabs`, `&_right`）
-- **パッケージ名前空間**: `import * as GLP from 'glpower'`, `import * as MXP from 'maxpower'`
+- **パッケージ名前空間**: `import * as MTP from 'mathpower'`, `import * as GLP from 'glpower'`, `import * as GPP from 'gpupower'`, `import * as MXP from 'maxpower'`。extends する対象は namespace 経由にせず named import で取る（tree-shaking のため）
 
 ## TypeScript設定
 - strict: true
@@ -122,7 +122,9 @@ WGSLは `.wgsl` ファイルに置き、`import xxxWgsl from './xxx.wgsl'` で�
 - jsx: react-jsx
 
 ## パスエイリアス
-- `glpower` → `packages/glpower/packages/glpower/src`
+- `mathpower` → `packages/mathpower`（数学・アニメーション・EventEmitter 等のバックエンド非依存の基盤。他パッケージに依存しない）
+- `glpower` → `packages/glpower`（素の WebGL API ラッパー。mathpower のみに依存）
+- `gpupower` → `packages/gpupower`（素の WebGPU API ユーティリティ。mathpower のみに依存）
 - `maxpower` → `packages/maxpower`
 - `orengine` → `packages/orengine/index.ts`（**ランタイム専用エントリ**: core + builtin。エディタ関心事を含まない）
 - `orengine/editor` → `packages/orengine/editor.ts`（エディタ中核ロジック: `editor/lib`）

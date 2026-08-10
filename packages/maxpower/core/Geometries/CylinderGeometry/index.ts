@@ -1,4 +1,4 @@
-import { Vector } from "glpower";
+import { Vector } from 'mathpower';
 
 import { Geometry } from "../../Geometry";
 

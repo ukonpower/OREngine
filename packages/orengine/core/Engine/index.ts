@@ -1,4 +1,4 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
 import { ComponentResolver, OREngineDataEntity, OREngineProjectData, OREngineProjectFrame, ProjectSerializer } from '../ProjectSerializer';
@@ -24,7 +24,7 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 
 	private _renderer: MXP.Renderer;
 	private _root: MXP.Entity;
-	private _uniforms: GLP.Uniforms;
+	private _uniforms: MTP.Uniforms;
 	private _time: SceneTime;
 	private _frame: FramePlay;
 	private _frameSetting: OREngineProjectFrame;
@@ -57,7 +57,7 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 			uTimeE: { value: 0, type: "1f" },
 			uTimeEF: { value: 0, type: "1f" },
 			uDeltaTime: { value: 0, type: "1f" },
-			uResolution: { value: new GLP.Vector(), type: "2fv" },
+			uResolution: { value: new MTP.Vector(), type: "2fv" },
 			uAspectRatio: { value: 1.0, type: "1f" },
 		};
 
@@ -341,13 +341,13 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 		SetSize
 	-------------------------------*/
 
-	public setSize( resolution: GLP.Vector ) {
+	public setSize( resolution: MTP.Vector ) {
 
 		this._renderer.resize( resolution );
 		this._renderer.canvas.width = resolution.x;
 		this._renderer.canvas.height = resolution.y;
 
-		const uRes = this._renderer.globalUniforms.uResolution.value as GLP.Vector;
+		const uRes = this._renderer.globalUniforms.uResolution.value as MTP.Vector;
 		uRes.copy( resolution );
 		this._renderer.globalUniforms.uAspectRatio.value = resolution.x / Math.max( resolution.y, 1 );
 

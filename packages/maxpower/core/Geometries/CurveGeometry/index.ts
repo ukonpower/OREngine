@@ -1,4 +1,4 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 
 import { Geometry } from "../../Geometry";
 import { Curve } from '../../utils/Curve';
@@ -51,7 +51,7 @@ export class CurveGeometry extends Geometry {
 
 					// normal
 
-					const vec = new GLP.Vector();
+					const vec = new MTP.Vector();
 					vec.x = ( cos * N.x + sin * B.x );
 					vec.y = ( cos * N.y + sin * B.y );
 					vec.z = ( cos * N.z + sin * B.z );

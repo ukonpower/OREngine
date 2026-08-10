@@ -1,4 +1,4 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
 import gridCrossFrag from './shaders/gridCross.fs';
@@ -18,7 +18,7 @@ export class GridCross extends MXP.Component {
 		const posArray: number[] = [];
 		const rotArray: number[] = [];
 
-		const num = new GLP.Vector( 16, 2, 16 );
+		const num = new MTP.Vector( 16, 2, 16 );
 
 		const scale = 1.0;
 

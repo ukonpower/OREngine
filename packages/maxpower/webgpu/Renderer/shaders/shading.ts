@@ -1,5 +1,6 @@
+import { buildStructWgsl } from 'gpupower';
+
 import { ENVMAP_MIP_COUNT, FRAME_FIELDS, GBUFFER_ATTACHMENTS } from '../../Bindings';
-import { buildStructWgsl } from '../../resources/UniformBinder';
 import { buildLightWgsl } from '../Lights';
 
 import shadingWgsl from './shading.wgsl';

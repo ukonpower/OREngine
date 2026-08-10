@@ -1,4 +1,5 @@
 import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 
 import { Camera } from '../../core/Components/Camera';
 import { Light, LightType } from '../../core/Components/Light';
@@ -51,9 +52,9 @@ export type RenderStack = {
 
 // Lightはデータのみを持ち、シャドウマップのGPUリソースはレンダラーがLightごとにここで所有する
 type LightInfo = {
-	position: GLP.Vector;
-	direction: GLP.Vector;
-	color: GLP.Vector;
+	position: MTP.Vector;
+	direction: MTP.Vector;
+	color: MTP.Vector;
 	renderTarget: GLP.GLPowerFrameBuffer | null;
 	component: Light;
 }
@@ -71,26 +72,26 @@ type EnvMapCamera = {
 
 interface RenderOption {
 	cameraOverride?: CameraParam,
-	uniformOverride?: GLP.Uniforms,
+	uniformOverride?: MTP.Uniforms,
 	disableClear?: boolean,
 }
 
 interface CameraParam {
-	viewMatrix?: GLP.Matrix;
-	viewMatrixPrev?: GLP.Matrix;
-	projectionMatrix?: GLP.Matrix;
-	projectionMatrixPrev?: GLP.Matrix;
-	cameraMatrixWorld?: GLP.Matrix;
+	viewMatrix?: MTP.Matrix;
+	viewMatrixPrev?: MTP.Matrix;
+	projectionMatrix?: MTP.Matrix;
+	projectionMatrixPrev?: MTP.Matrix;
+	cameraMatrixWorld?: MTP.Matrix;
 	cameraNear?: number,
 	cameraFar?:number,
 }
 
 interface DrawParam extends CameraParam {
 	label?: string;
-	modelMatrixWorld?: GLP.Matrix;
-	modelMatrixWorldPrev?: GLP.Matrix;
+	modelMatrixWorld?: MTP.Matrix;
+	modelMatrixWorldPrev?: MTP.Matrix;
 	renderTarget?: GLP.GLPowerFrameBuffer | null;
-	uniformOverride?: GLP.Uniforms,
+	uniformOverride?: MTP.Uniforms,
 }
 
 // compile draw param
@@ -127,8 +128,8 @@ export let TextureUnitCounter = 0;
 
 // clear color
 
-const _clearColorWhite = new GLP.Vector( 1.0, 1.0, 1.0, 1.0 );
-const _clearColorBlack = new GLP.Vector( 0.0, 0.0, 0.0, 1.0 );
+const _clearColorWhite = new MTP.Vector( 1.0, 1.0, 1.0, 1.0 );
+const _clearColorBlack = new MTP.Vector( 0.0, 0.0, 0.0, 1.0 );
 
 // light uniform names
 // draw毎の文字列連結を避けるため、ライトインデックスごとにuniform名をキャッシュする
@@ -167,8 +168,8 @@ export class Renderer extends Serializable implements RendererContract {
 
 	public readonly backend: GLBackend;
 	public readonly canvas: HTMLCanvasElement;
-	public resolution: GLP.Vector;
-	public globalUniforms: GLP.Uniforms;
+	public resolution: MTP.Vector;
+	public globalUniforms: MTP.Uniforms;
 	private _renderTarget: RenderCameraTarget;
 
 	// pipeline config
@@ -213,15 +214,15 @@ export class Renderer extends Serializable implements RendererContract {
 
 	// tmp
 
-	private _tmpNormalMatrix: GLP.Matrix;
-	private _tmpModelViewMatrix: GLP.Matrix;
-	private _tmpViewMatrixInverseMatrix: GLP.Matrix;
-	private _tmpLightDirection: GLP.Vector;
-	private _tmpModelMatrixInverse: GLP.Matrix;
-	private _tmpProjectionMatrixInverse: GLP.Matrix;
-	private _tmpResolution: GLP.Vector;
-	private _tmpResolutionUniform: GLP.Uniforms[string];
-	private _tmpUniformOverride: GLP.Uniforms;
+	private _tmpNormalMatrix: MTP.Matrix;
+	private _tmpModelViewMatrix: MTP.Matrix;
+	private _tmpViewMatrixInverseMatrix: MTP.Matrix;
+	private _tmpLightDirection: MTP.Vector;
+	private _tmpModelMatrixInverse: MTP.Matrix;
+	private _tmpProjectionMatrixInverse: MTP.Matrix;
+	private _tmpResolution: MTP.Vector;
+	private _tmpResolutionUniform: MTP.Uniforms[string];
+	private _tmpUniformOverride: MTP.Uniforms;
 	private _tmpDrawParam: DrawParam;
 
 	constructor( backend: GLBackend, engine: EngineContract ) {
@@ -235,7 +236,7 @@ export class Renderer extends Serializable implements RendererContract {
 		this._isCorrentCompiles = false;
 		this.compileDrawParams = [];
 		this.programManager = new ProgramManager( backend );
-		this.resolution = new GLP.Vector();
+		this.resolution = new MTP.Vector();
 
 		// lights
 
@@ -253,16 +254,16 @@ export class Renderer extends Serializable implements RendererContract {
 		this._envMapRenderTarget = backend.createCubeFrameBuffer().setTexture( [ envMap ] );
 		this._envMapRenderTarget.setSize( 256, 256 );
 
-		const origin = new GLP.Vector( 0, 0, 0 );
-		const up = new GLP.Vector( 0, - 1, 0 );
+		const origin = new MTP.Vector( 0, 0, 0 );
+		const up = new MTP.Vector( 0, - 1, 0 );
 
 		const lookAtMatrices = [
-			new GLP.Matrix().lookAt( origin, new GLP.Vector( 1, 0, 0 ), up ),
-			new GLP.Matrix().lookAt( origin, new GLP.Vector( 0, 1, 0 ), new GLP.Vector( 0, 0, 1 ) ),
-			new GLP.Matrix().lookAt( origin, new GLP.Vector( 0, 0, 1 ), up ),
-			new GLP.Matrix().lookAt( origin, new GLP.Vector( - 1, 0, 0 ), up ),
-			new GLP.Matrix().lookAt( origin, new GLP.Vector( 0, - 1, 0 ), new GLP.Vector( 0, 0, - 1 ) ),
-			new GLP.Matrix().lookAt( origin, new GLP.Vector( 0, 0, - 1 ), up ),
+			new MTP.Matrix().lookAt( origin, new MTP.Vector( 1, 0, 0 ), up ),
+			new MTP.Matrix().lookAt( origin, new MTP.Vector( 0, 1, 0 ), new MTP.Vector( 0, 0, 1 ) ),
+			new MTP.Matrix().lookAt( origin, new MTP.Vector( 0, 0, 1 ), up ),
+			new MTP.Matrix().lookAt( origin, new MTP.Vector( - 1, 0, 0 ), up ),
+			new MTP.Matrix().lookAt( origin, new MTP.Vector( 0, - 1, 0 ), new MTP.Vector( 0, 0, - 1 ) ),
+			new MTP.Matrix().lookAt( origin, new MTP.Vector( 0, 0, - 1 ), up ),
 		];
 
 		this._envMapCameras = [];
@@ -286,7 +287,7 @@ export class Renderer extends Serializable implements RendererContract {
 
 		this._pmremRender = new PMREMRender( backend, {
 			input: [ envMap ],
-			resolution: new GLP.Vector( 256 * 3, 256 * 4 ),
+			resolution: new MTP.Vector( 256 * 3, 256 * 4 ),
 		} );
 
 		// postprocess
@@ -305,13 +306,13 @@ export class Renderer extends Serializable implements RendererContract {
 
 		// tmp
 
-		this._tmpLightDirection = new GLP.Vector();
-		this._tmpModelMatrixInverse = new GLP.Matrix();
-		this._tmpViewMatrixInverseMatrix = new GLP.Matrix();
-		this._tmpProjectionMatrixInverse = new GLP.Matrix();
-		this._tmpModelViewMatrix = new GLP.Matrix();
-		this._tmpNormalMatrix = new GLP.Matrix();
-		this._tmpResolution = new GLP.Vector();
+		this._tmpLightDirection = new MTP.Vector();
+		this._tmpModelMatrixInverse = new MTP.Matrix();
+		this._tmpViewMatrixInverseMatrix = new MTP.Matrix();
+		this._tmpProjectionMatrixInverse = new MTP.Matrix();
+		this._tmpModelViewMatrix = new MTP.Matrix();
+		this._tmpNormalMatrix = new MTP.Matrix();
+		this._tmpResolution = new MTP.Vector();
 		this._tmpResolutionUniform = { value: this._tmpResolution, type: '2fv' };
 		this._tmpUniformOverride = {};
 		this._tmpDrawParam = {};
@@ -458,7 +459,7 @@ export class Renderer extends Serializable implements RendererContract {
 
 	}
 
-	public static resizeRenderTarget( rt: RenderCameraTarget, resolution: GLP.Vector ) {
+	public static resizeRenderTarget( rt: RenderCameraTarget, resolution: MTP.Vector ) {
 
 		rt.gBuffer.setSize( resolution );
 		rt.shadingBuffer.setSize( resolution );
@@ -800,7 +801,7 @@ export class Renderer extends Serializable implements RendererContract {
 
 	}
 
-	public renderCamera( renderType: MaterialRenderType, cameraEntity: Entity, entities: Entity[], renderTarget: GLP.GLPowerFrameBuffer | null, canvasSize: GLP.Vector, renderOption?: RenderOption ) {
+	public renderCamera( renderType: MaterialRenderType, cameraEntity: Entity, entities: Entity[], renderTarget: GLP.GLPowerFrameBuffer | null, canvasSize: MTP.Vector, renderOption?: RenderOption ) {
 
 		const camera = cameraEntity.getComponentsByTag<Camera>( "camera" )[ 0 ] || cameraEntity.getComponent( Light )!;
 
@@ -892,9 +893,9 @@ export class Renderer extends Serializable implements RendererContract {
 		if ( ! info ) {
 
 			info = {
-				position: new GLP.Vector(),
-				direction: new GLP.Vector(),
-				color: new GLP.Vector(),
+				position: new MTP.Vector(),
+				direction: new MTP.Vector(),
+				color: new MTP.Vector(),
 				renderTarget: null,
 				component: lightComponent,
 			};
@@ -928,7 +929,7 @@ export class Renderer extends Serializable implements RendererContract {
 
 	}
 
-	public renderPostProcess( postprocess: PostProcess, input?: GLP.GLPowerFrameBuffer, canvasSize?: GLP.Vector, renderOption?: RenderOption ) {
+	public renderPostProcess( postprocess: PostProcess, input?: GLP.GLPowerFrameBuffer, canvasSize?: MTP.Vector, renderOption?: RenderOption ) {
 
 		// render
 
@@ -1258,7 +1259,7 @@ export class Renderer extends Serializable implements RendererContract {
 
 	}
 
-	public resize( resolution: GLP.Vector ) {
+	public resize( resolution: MTP.Vector ) {
 
 		this.resolution.copy( resolution );
 		Renderer.resizeRenderTarget( this._renderTarget, resolution );
@@ -1323,7 +1324,7 @@ export class Renderer extends Serializable implements RendererContract {
 	// .tex の実体を組み立てる。依存テクスチャはサンプラー（'1i' uniform）としてぶら下げる
 	public createTexProcedural( param: TexProceduralParam ): TexProcedural {
 
-		const uniforms: GLP.Uniforms = { ...param.uniforms };
+		const uniforms: MTP.Uniforms = { ...param.uniforms };
 		const textures = param.textures || {};
 		const keys = Object.keys( textures );
 
@@ -1373,7 +1374,7 @@ export const createRenderer = ( engine: EngineContract ): Renderer => {
 // （GLPowerProgram.setUniformが値を内部配列へコピーする前提）
 const _uniformArrayValue: ( number | boolean )[] = [];
 
-const pushUniformValue = ( v: boolean | number | GLP.Vector | GLP.Matrix | GLP.GLPowerTexture, type: string ) => {
+const pushUniformValue = ( v: boolean | number | MTP.Vector | MTP.Matrix | GLP.GLPowerTexture, type: string ) => {
 
 	if ( v == null ) return;
 
@@ -1400,7 +1401,7 @@ const pushUniformValue = ( v: boolean | number | GLP.Vector | GLP.Matrix | GLP.G
 };
 
 // 複数のuniformオブジェクトを順に走査して設定する（後のオブジェクトが同名キーを上書きする）
-export const setUniforms = ( program: GLP.GLPowerProgram, ...uniformsList: ( GLP.Uniforms | undefined )[] ) => {
+export const setUniforms = ( program: GLP.GLPowerProgram, ...uniformsList: ( MTP.Uniforms | undefined )[] ) => {
 
 	for ( let ui = 0; ui < uniformsList.length; ui ++ ) {
 

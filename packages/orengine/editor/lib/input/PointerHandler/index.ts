@@ -1,4 +1,4 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
 import { Engine } from '../../../../core/Engine';
@@ -23,11 +23,11 @@ const FRAME_SELECT_RADIUS_PX = 12;
 export class PointerHandler {
 
 	private _raycaster: MXP.Raycaster;
-	private _pointerDownPos: GLP.Vector | null;
+	private _pointerDownPos: MTP.Vector | null;
 	private _gizmoDragging: boolean;
 	private _gizmoDragStartValue: { position: number[], euler: number[], scale: number[] } | null;
 	private _hoveredTarget: 'gizmo' | 'helper' | 'mesh' | null;
-	private _lastClickNDC: GLP.Vector | null;
+	private _lastClickNDC: MTP.Vector | null;
 	private _lastClickCandidateUUIDs: string[];
 	private _lastClickCycleIndex: number;
 	private _disposeListeners: () => void;
@@ -64,25 +64,25 @@ export class PointerHandler {
 		};
 
 		// ワールド座標をカメラの NDC へ投影する（カメラ背後は null）
-		const projectToNDC = ( worldPos: GLP.Vector, cameraEntity: MXP.Entity ): GLP.Vector | null => {
+		const projectToNDC = ( worldPos: MTP.Vector, cameraEntity: MXP.Entity ): MTP.Vector | null => {
 
 			const camera = cameraEntity.getComponentsByTag<MXP.Camera>( 'camera' )[ 0 ];
 
 			if ( ! camera ) return null;
 
-			const p = new GLP.Vector( worldPos.x, worldPos.y, worldPos.z, 1 );
+			const p = new MTP.Vector( worldPos.x, worldPos.y, worldPos.z, 1 );
 			p.applyMatrix4( camera.viewMatrix ).applyMatrix4( camera.projectionMatrix );
 
 			if ( p.w <= 0 ) return null;
 
-			return new GLP.Vector( p.x / p.w, p.y / p.w );
+			return new MTP.Vector( p.x / p.w, p.y / p.w );
 
 		};
 
 		// カメラとヘルパー原点の間にシーンメッシュの面があるか（画面上で見えていないヘルパーの近傍アシストを抑止する）
 		const occlusionRaycaster = new MXP.Raycaster();
 
-		const isOccluded = ( worldPos: GLP.Vector ): boolean => {
+		const isOccluded = ( worldPos: MTP.Vector ): boolean => {
 
 			const origin = this._raycaster.ray.origin;
 			const dx = worldPos.x - origin.x;
@@ -112,7 +112,7 @@ export class PointerHandler {
 		// ヒット領域が画面のほぼ全体を覆っているか（四隅へのレイが全部当たるかで見る）。
 		// 視点がカメラの錐台やライトの錐体の中にいると、どこをクリックしてもそのヘルパーに当たってしまう
 		const coverRaycaster = new MXP.Raycaster();
-		const coverNDC = new GLP.Vector();
+		const coverNDC = new MTP.Vector();
 
 		const coversViewport = ( hitEntity: MXP.Entity, cameraEntity: MXP.Entity ): boolean => {
 
@@ -132,7 +132,7 @@ export class PointerHandler {
 		};
 
 		// クリック位置がヘルパーのワイヤ線分の近くにあるか（画面上のpx距離で判定）
-		const isNearHelperLines = ( helper: EntityHelper, ndc: GLP.Vector, cameraEntity: MXP.Entity, content: { width: number, height: number } ): boolean => {
+		const isNearHelperLines = ( helper: EntityHelper, ndc: MTP.Vector, cameraEntity: MXP.Entity, content: { width: number, height: number } ): boolean => {
 
 			for ( const seg of helper.getWorldSegments() ) {
 
@@ -165,7 +165,7 @@ export class PointerHandler {
 
 		// カーソル下の選択候補を「見えている順」で集める。
 		// 優先順位: 見えているヘルパー → カーソル近傍の未遮蔽ヘルパー → メッシュ手前順 → メッシュに隠れたヘルパー
-		const collectCandidates = ( ndc: GLP.Vector ): ClickCandidate[] => {
+		const collectCandidates = ( ndc: MTP.Vector ): ClickCandidate[] => {
 
 			const cameraEntity = getCameraEntity();
 
@@ -296,7 +296,7 @@ export class PointerHandler {
 				if ( ! isEntitySelectable( targetEntity ) ) continue;
 
 				const elm = targetEntity.matrixWorld.elm;
-				const worldPos = new GLP.Vector( elm[ 12 ], elm[ 13 ], elm[ 14 ] );
+				const worldPos = new MTP.Vector( elm[ 12 ], elm[ 13 ], elm[ 14 ] );
 				const helperNDC = projectToNDC( worldPos, cameraEntity );
 
 				if ( ! helperNDC ) continue;
@@ -371,7 +371,7 @@ export class PointerHandler {
 			if ( editorCamera.preview ) {
 
 				( e.target as HTMLElement ).setPointerCapture( e.pointerId );
-				this._pointerDownPos = new GLP.Vector( e.clientX, e.clientY );
+				this._pointerDownPos = new MTP.Vector( e.clientX, e.clientY );
 				return;
 
 			}
@@ -379,7 +379,7 @@ export class PointerHandler {
 			if ( e.pointerType === 'touch' && this._gizmoDragging ) return;
 
 			( e.target as HTMLElement ).setPointerCapture( e.pointerId );
-			this._pointerDownPos = new GLP.Vector( e.clientX, e.clientY );
+			this._pointerDownPos = new MTP.Vector( e.clientX, e.clientY );
 
 			if ( gizmoManager.activeGizmo && gizmoManager.activeGizmo.entity.visible ) {
 
@@ -645,7 +645,7 @@ export class PointerHandler {
 
 			}
 
-			this._lastClickNDC = new GLP.Vector( ndc.x, ndc.y );
+			this._lastClickNDC = new MTP.Vector( ndc.x, ndc.y );
 			this._lastClickCandidateUUIDs = candidateUUIDs;
 			this._lastClickCycleIndex = cycleIndex;
 

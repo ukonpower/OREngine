@@ -1,4 +1,5 @@
 import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
 import { GL, GLBackend } from '../../GLBackend';
@@ -31,7 +32,7 @@ export class PipelinePostProcess {
 
 	private _ssr: MXP.PostProcessPass;
 	private _ssComposite: MXP.PostProcessPass;
-	private _dofParams: GLP.Vector;
+	private _dofParams: MTP.Vector;
 	private _motionBlur: MXP.PostProcessPass;
 	private _motionBlurTile: MXP.PostProcessPass;
 	private _motionBlurNeighbor: MXP.PostProcessPass;
@@ -135,7 +136,7 @@ export class PipelinePostProcess {
 
 		// dof
 
-		const dofParams = new GLP.Vector( 10, 0.05, 20, 0.05 );
+		const dofParams = new MTP.Vector( 10, 0.05, 20, 0.05 );
 
 		const dofCoc = new MXP.PostProcessPass( backend, {
 			name: 'dof/coc',
@@ -317,7 +318,7 @@ export class PipelinePostProcess {
 
 	}
 
-	public resize( resolution: GLP.Vector ) {
+	public resize( resolution: MTP.Vector ) {
 
 		this.postprocess.resize( resolution );
 

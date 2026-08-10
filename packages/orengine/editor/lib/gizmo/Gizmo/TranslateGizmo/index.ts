@@ -1,4 +1,4 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
 import { GizmoAxis, GizmoDragResult, GizmoHandle, GizmoPlane } from '..';
@@ -18,20 +18,20 @@ const PLANES: readonly GizmoPlane[] = [ 'xy', 'yz', 'xz' ];
 export class TranslateGizmo extends GizmoBase {
 
 	private _centerRoot: MXP.Entity;
-	private _dragStartPos: GLP.Vector;
-	private _dragAxisDir: GLP.Vector;
+	private _dragStartPos: MTP.Vector;
+	private _dragAxisDir: MTP.Vector;
 	private _dragStartProjection: number;
-	private _dragPlaneNormal: GLP.Vector;
-	private _dragPlaneStart: GLP.Vector | null;
+	private _dragPlaneNormal: MTP.Vector;
+	private _dragPlaneStart: MTP.Vector | null;
 
 	constructor( engine: MXP.EngineContract, draw: MXP.EditorDrawContract ) {
 
 		super( engine, draw, '__gizmo_translate' );
 
-		this._dragStartPos = new GLP.Vector();
-		this._dragAxisDir = new GLP.Vector( 1, 0, 0 );
+		this._dragStartPos = new MTP.Vector();
+		this._dragAxisDir = new MTP.Vector( 1, 0, 0 );
 		this._dragStartProjection = 0;
-		this._dragPlaneNormal = new GLP.Vector( 0, 0, 1 );
+		this._dragPlaneNormal = new MTP.Vector( 0, 0, 1 );
 		this._dragPlaneStart = null;
 
 		for ( const axis of AXES ) this._addArrowHandle( axis );

@@ -1,4 +1,4 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 
 import { Mesh } from '../../../core/Components/Mesh';
 import { SphereGeometry } from '../../../core/Geometries/SphereGeometry';
@@ -24,15 +24,15 @@ export class Sky {
 	public readonly entity: Entity;
 	public readonly mesh: Mesh;
 	public readonly material: Material;
-	public readonly color: GLP.Vector;
-	public readonly groundColor: GLP.Vector;
+	public readonly color: MTP.Vector;
+	public readonly groundColor: MTP.Vector;
 
 	private _intensity: number;
 
 	constructor( engine: EngineContract ) {
 
-		this.color = new GLP.Vector( 1.0, 1.0, 1.0 );
-		this.groundColor = new GLP.Vector( 0.3, 0.3, 0.3 );
+		this.color = new MTP.Vector( 1.0, 1.0, 1.0 );
+		this.groundColor = new MTP.Vector( 0.3, 0.3, 0.3 );
 		this._intensity = 1.0;
 
 		this.material = new Material( {

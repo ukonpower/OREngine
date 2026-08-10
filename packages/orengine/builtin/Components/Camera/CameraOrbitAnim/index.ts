@@ -1,4 +1,4 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
 export class CameraOrbitAnim extends MXP.Component {
@@ -37,7 +37,7 @@ export class CameraOrbitAnim extends MXP.Component {
 		const y = this.baseHeight + Math.sin( angle * 1.7 ) * this.heightAmp;
 
 		this.entity.position.set( x, y, z );
-		this.entity.lookAt( new GLP.Vector( 0, 0, 0 ) );
+		this.entity.lookAt( new MTP.Vector( 0, 0, 0 ) );
 
 	}
 

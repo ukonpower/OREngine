@@ -1,13 +1,13 @@
-import * as GLP from 'glpower';
-import { EventEmitter } from 'glpower';
+import * as MTP from 'mathpower';
+import { EventEmitter } from 'mathpower';
 
 const N = 2;
 
-export type CurvePoint = GLP.IVector3 & {
+export type CurvePoint = MTP.IVector3 & {
 	weight?: number
 }
 
-// namespace import経由のextends（GLP.EventEmitter）はRollupがtree-shakeできないため、named importでextendsする
+// namespace import経由のextends（MTP.EventEmitter）はRollupがtree-shakeできないため、named importでextendsする
 export class Curve extends EventEmitter {
 
 	public points: CurvePoint[];
@@ -75,7 +75,7 @@ export class Curve extends EventEmitter {
 
 		t *= 0.9999;
 
-		const position: GLP.IVector3 = { x: 0, y: 0, z: 0 };
+		const position: MTP.IVector3 = { x: 0, y: 0, z: 0 };
 
 		let weight = 0.0;
 
@@ -106,11 +106,11 @@ export class Curve extends EventEmitter {
 		const p1 = this.getPosition( Math.min( 1.0, t + d ) );
 		const p2 = this.getPosition( Math.max( 0.0, t - d ) );
 
-		const tangent = new GLP.Vector().copy( p1.position ).sub( p2.position ).normalize();
+		const tangent = new MTP.Vector().copy( p1.position ).sub( p2.position ).normalize();
 		const bitangent = tangent.clone().cross( { x: 0.0, y: - 1.0, z: 0.0 } ).normalize();
 		const normal = tangent.clone().cross( bitangent ).normalize();
 
-		const matrix = new GLP.Matrix( [
+		const matrix = new MTP.Matrix( [
 			tangent.x, tangent.y, tangent.z, 0,
 			bitangent.x, bitangent.y, bitangent.z, 0,
 			normal.x, normal.y, normal.z, 0,
@@ -127,11 +127,11 @@ export class Curve extends EventEmitter {
 
 	public getFrenetFrames( segments: number ) {
 
-		const points: {position: GLP.IVector3, weight: number}[] = [];
-		const normals: GLP.Vector[] = [];
-		const bitangents: GLP.Vector[] = [];
-		const tangents: GLP.Vector[] = [];
-		const matrices: GLP.Matrix[] = [];
+		const points: {position: MTP.IVector3, weight: number}[] = [];
+		const normals: MTP.Vector[] = [];
+		const bitangents: MTP.Vector[] = [];
+		const tangents: MTP.Vector[] = [];
+		const matrices: MTP.Matrix[] = [];
 
 		for ( let i = 0; i <= segments; i ++ ) {
 
@@ -141,14 +141,14 @@ export class Curve extends EventEmitter {
 			const p2 = this.getPosition( Math.min( t + d, 1.0 ) );
 			const p3 = this.getPosition( Math.max( t - d, 0.0 ) );
 
-			tangents[ i ] = new GLP.Vector().copy( p2.position ).sub( p3.position ).normalize();
+			tangents[ i ] = new MTP.Vector().copy( p2.position ).sub( p3.position ).normalize();
 			points[ i ] = this.getPosition( t );
 
 		}
 
 		// https://github.com/mrdoob/three.js/blob/master/src/extras/core/Curve.js#L286-L311
 
-		const n = new GLP.Vector( 0.0, 1.0, 0.0 );
+		const n = new MTP.Vector( 0.0, 1.0, 0.0 );
 		let min = Number.MAX_VALUE;
 		const tx = Math.abs( tangents[ 0 ].x );
 		const ty = Math.abs( tangents[ 0 ].y );
@@ -176,14 +176,14 @@ export class Curve extends EventEmitter {
 
 		// https://www.youtube.com/watch?v=5LedteSEgOE
 
-		const vec = new GLP.Vector();
+		const vec = new MTP.Vector();
 		vec.copy( n ).cross( tangents[ 0 ] ).normalize();
 
-		normals[ 0 ] = new GLP.Vector().copy( tangents[ 0 ] ).cross( vec ).normalize();
+		normals[ 0 ] = new MTP.Vector().copy( tangents[ 0 ] ).cross( vec ).normalize();
 
 		for ( let i = 0; i < segments; i ++ ) {
 
-			bitangents[ i ] = new GLP.Vector().copy( tangents[ i ] ).cross( tangents[ i + 1 ] );
+			bitangents[ i ] = new MTP.Vector().copy( tangents[ i ] ).cross( tangents[ i + 1 ] );
 
 			const len = bitangents[ i ].length();
 
@@ -195,18 +195,18 @@ export class Curve extends EventEmitter {
 
 				bitangents[ i ].normalize();
 
-				let v = new GLP.Vector().copy( tangents[ i ] ).dot( tangents[ i + 1 ] );
+				let v = new MTP.Vector().copy( tangents[ i ] ).dot( tangents[ i + 1 ] );
 				v = Math.min( 1.0, Math.max( - 1.0, v ) );
 				const theta = Math.min( 1.0, Math.max( - 1.0, Math.acos( v ) ) );
 
-				normals[ i + 1 ] = normals[ i ].clone().applyMatrix3( new GLP.Matrix().makeRotationAxis( bitangents[ i ], - theta ) );
+				normals[ i + 1 ] = normals[ i ].clone().applyMatrix3( new MTP.Matrix().makeRotationAxis( bitangents[ i ], - theta ) );
 
 
 			}
 
 			bitangents[ i ].copy( tangents[ i ] ).cross( normals[ i ] ).normalize();
 
-			matrices[ i ] = new GLP.Matrix( [
+			matrices[ i ] = new MTP.Matrix( [
 				tangents[ i ].x, tangents[ i ].y, tangents[ i ].z, 0,
 				bitangents[ i ].x, bitangents[ i ].y, bitangents[ i ].z, 0,
 				normals[ i ].x, normals[ i ].y, normals[ i ].z, 0,

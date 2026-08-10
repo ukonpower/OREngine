@@ -1,4 +1,4 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
 import { OrbitControls } from '../../../builtin/Components/Camera/OrbitControls';
@@ -126,7 +126,7 @@ export class EditorCamera {
 		entity.updateMatrixRecursive( true );
 
 		const bounds = this._getWorldBounds( entity );
-		const center = new GLP.Vector();
+		const center = new MTP.Vector();
 		let radius = FOCUS_EMPTY_RADIUS;
 
 		if ( bounds ) {
@@ -156,8 +156,8 @@ export class EditorCamera {
 	// 子孫のメッシュから、ワールド空間の境界ボックスを求める
 	private _getWorldBounds( entity: MXP.Entity ) {
 
-		const min = new GLP.Vector( Infinity, Infinity, Infinity );
-		const max = new GLP.Vector( - Infinity, - Infinity, - Infinity );
+		const min = new MTP.Vector( Infinity, Infinity, Infinity );
+		const max = new MTP.Vector( - Infinity, - Infinity, - Infinity );
 		let found = false;
 
 		entity.traverse( ( child ) => {
@@ -175,7 +175,7 @@ export class EditorCamera {
 			// ローカルの箱は回転すると軸に沿わなくなるので、8頂点を移してから取り直す
 			for ( let i = 0; i < 8; i ++ ) {
 
-				const p = new GLP.Vector(
+				const p = new MTP.Vector(
 					i & 1 ? box.max.x : box.min.x,
 					i & 2 ? box.max.y : box.min.y,
 					i & 4 ? box.max.z : box.min.z,
@@ -230,7 +230,7 @@ export class EditorCamera {
 
 	}
 
-	public resize( resolution: GLP.Vector ) {
+	public resize( resolution: MTP.Vector ) {
 
 		this._camera.aspect = resolution.x / resolution.y;
 		this._camera.needsUpdateProjectionMatrix = true;
@@ -250,7 +250,7 @@ export class EditorCamera {
 
 		if ( ! sceneCameraEntity ) return;
 
-		const eye = new GLP.Vector();
+		const eye = new MTP.Vector();
 		sceneCameraEntity.matrixWorld.decompose( eye );
 
 		const sceneCamera = sceneCameraEntity.getComponentsByTag<MXP.Camera>( "camera" )[ 0 ];
@@ -269,13 +269,13 @@ export class EditorCamera {
 	}
 
 	// オービットの注視点を、シーンカメラのDOFピント位置に取る。ピントの合っている被写体がそのまま回転の軸になる
-	private _resolveOrbitTarget( sceneCameraEntity: MXP.Entity, sceneCamera: MXP.Camera | undefined, eye: GLP.Vector ) {
+	private _resolveOrbitTarget( sceneCameraEntity: MXP.Entity, sceneCamera: MXP.Camera | undefined, eye: MTP.Vector ) {
 
 		// focusDistance はビュー空間深度なので、光軸に沿って進めた点がそのままピント位置になる。
 		// 0 だと eye と target が一致してオービットが壊れるため下限を入れる
 		const distance = Math.max( sceneCamera ? sceneCamera.dofParams.focusDistance : 5.0, 0.1 );
 
-		const forward = new GLP.Vector( 0, 0, - 1, 0 ).applyMatrix3( sceneCameraEntity.matrixWorld ).normalize();
+		const forward = new MTP.Vector( 0, 0, - 1, 0 ).applyMatrix3( sceneCameraEntity.matrixWorld ).normalize();
 
 		return eye.clone().add( forward.multiply( distance ) );
 

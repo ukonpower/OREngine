@@ -1,9 +1,10 @@
+import { UniformBinder, buildStructWgsl, fieldsFromUniforms } from 'gpupower';
+
 import { requestShaderReload } from '../../hotReload';
-import { UniformBinder, buildStructWgsl, fieldsFromUniforms } from '../../resources/UniformBinder';
 import editorFullscreenWgsl from '../shaders/fullscreen.wgsl';
 
-import type { UniformField } from '../../resources/UniformBinder';
-import type * as GLP from 'glpower';
+import type { UniformField } from 'gpupower';
+import type * as MTP from 'mathpower';
 
 // HMRで差し替わるシェーダーソース。playerでは初期値のまま使われる
 let hotFullscreenWgsl = editorFullscreenWgsl;
@@ -51,7 +52,7 @@ export class EditorPass {
 		wgsl: string;
 		inputCount: number;
 		format: GPUTextureFormat;
-		uniforms?: GLP.Uniforms;
+		uniforms?: MTP.Uniforms;
 	} ) {
 
 		this._device = device;
@@ -129,7 +130,7 @@ export class EditorPass {
 	// rectを渡すとその矩形にだけ描く（FrameDebuggerのタイル転写）。左上原点
 	// encoderを渡すとそこへ記録だけ行い、submitは呼び出し側に任せる
 	public render( target: GPUTextureView, inputs: GPUTextureView[], opt?: {
-		uniforms?: GLP.Uniforms;
+		uniforms?: MTP.Uniforms;
 		rect?: { x: number, y: number, width: number, height: number };
 		clear?: boolean;
 		encoder?: GPUCommandEncoder;

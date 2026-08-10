@@ -1,4 +1,4 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 import { useCallback, useRef } from 'react';
 
 import { Label } from '../../primitives/Label';
@@ -10,7 +10,7 @@ type VectorProps = {
 	value: number[],
 	step?: number,
 	disabled?: boolean,
-	onChange?: ( value: GLP.IVector4 ) => void
+	onChange?: ( value: MTP.IVector4 ) => void
 }
 
 const axisDict = [ "x", "y", "z", "w" ];

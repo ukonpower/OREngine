@@ -1,4 +1,4 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 import { Keyboard, Pointer, PointerEventArgs } from 'orengine';
 
@@ -9,20 +9,20 @@ export class OrbitControls extends MXP.Component {
 	private keyborad_: Keyboard;
 	private _pointer: Pointer;
 
-	private orbit_: GLP.Vector;
-	private mouseVelOrbit_: GLP.Vector;
-	private mouseVelMove_: GLP.Vector;
+	private orbit_: MTP.Vector;
+	private mouseVelOrbit_: MTP.Vector;
+	private mouseVelMove_: MTP.Vector;
 
-	private eye_: GLP.Vector;
-	private target_: GLP.Vector;
-	private up_: GLP.Vector;
-	private lookatMatrix_: GLP.Matrix;
+	private eye_: MTP.Vector;
+	private target_: MTP.Vector;
+	private up_: MTP.Vector;
+	private lookatMatrix_: MTP.Matrix;
 
 	private distance_: number;
 	private distanceVel_: number;
 
-	private _memPos: GLP.Vector;
-	private _memTarget: GLP.Vector;
+	private _memPos: MTP.Vector;
+	private _memTarget: MTP.Vector;
 
 	private _multiTouching: boolean;
 
@@ -34,17 +34,17 @@ export class OrbitControls extends MXP.Component {
 
 		this._pointer = new Pointer();
 		this.keyborad_ = new Keyboard();
-		this.orbit_ = new GLP.Vector();
-		this.mouseVelOrbit_ = new GLP.Vector();
-		this.mouseVelMove_ = new GLP.Vector();
-		this.target_ = new GLP.Vector();
-		this.eye_ = new GLP.Vector();
-		this.up_ = new GLP.Vector( 0, 1, 0 );
+		this.orbit_ = new MTP.Vector();
+		this.mouseVelOrbit_ = new MTP.Vector();
+		this.mouseVelMove_ = new MTP.Vector();
+		this.target_ = new MTP.Vector();
+		this.eye_ = new MTP.Vector();
+		this.up_ = new MTP.Vector( 0, 1, 0 );
 		this.distance_ = 5.0;
 		this.distanceVel_ = 0.0;
-		this.lookatMatrix_ = new GLP.Matrix();
-		this._memPos = new GLP.Vector();
-		this._memTarget = new GLP.Vector();
+		this.lookatMatrix_ = new MTP.Matrix();
+		this._memPos = new MTP.Vector();
+		this._memTarget = new MTP.Vector();
 		this._multiTouching = false;
 
 		this.order = 999;
@@ -136,13 +136,13 @@ export class OrbitControls extends MXP.Component {
 
 	}
 
-	public get eye(): GLP.Vector {
+	public get eye(): MTP.Vector {
 
 		return this.eye_;
 
 	}
 
-	public get target(): GLP.Vector {
+	public get target(): MTP.Vector {
 
 		return this.target_;
 
@@ -275,8 +275,8 @@ export class OrbitControls extends MXP.Component {
 
 		this.eye_.set( 0, 0, 0 );
 		this.eye_.z += this.distance_;
-		this.eye_.applyMatrix3( new GLP.Matrix().makeRotationAxis( { x: 1, y: 0, z: 0 }, Math.min( hpi, Math.max( - hpi, this.orbit_.x ) ) ) );
-		this.eye_.applyMatrix3( new GLP.Matrix().makeRotationAxis( { x: 0, y: 1, z: 0 }, this.orbit_.y ) );
+		this.eye_.applyMatrix3( new MTP.Matrix().makeRotationAxis( { x: 1, y: 0, z: 0 }, Math.min( hpi, Math.max( - hpi, this.orbit_.x ) ) ) );
+		this.eye_.applyMatrix3( new MTP.Matrix().makeRotationAxis( { x: 0, y: 1, z: 0 }, this.orbit_.y ) );
 
 		this.eye_.add( this.target_ );
 		this.lookatMatrix_.lookAt( this.eye_, this.target_, this.up_ );
@@ -287,7 +287,7 @@ export class OrbitControls extends MXP.Component {
 
 	protected updateImpl( event: MXP.ComponentUpdateEvent ): void {
 
-		const movement = new GLP.Vector(
+		const movement = new MTP.Vector(
 			- this.mouseVelMove_.x * this.distance_ * 0.00025,
 			this.mouseVelMove_.y * this.distance_ * 0.00025,
 			0,
@@ -341,7 +341,7 @@ export class OrbitControls extends MXP.Component {
 
 	}
 
-	public setPosition( eye: GLP.Vector, target: GLP.Vector ) {
+	public setPosition( eye: MTP.Vector, target: MTP.Vector ) {
 
 		this.eye_.copy( eye );
 		this.target_.copy( target );

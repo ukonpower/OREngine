@@ -1,5 +1,5 @@
 import { createEditorDraw } from '@or-renderer';
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
 import { Engine } from '../../core/Engine';
@@ -52,7 +52,7 @@ export class Editor extends MXP.Serializable {
 	private _audioBuffer: AudioBuffer | null;
 	private _frameLoop: EditorTimelineLoop;
 	private _resolutionScale: number;
-	private _baseResolution: GLP.Vector;
+	private _baseResolution: MTP.Vector;
 	private _viewType: "render" | "debug";
 	private _frameDebugger: FrameDebugger;
 	private _assetPreviewManager: AssetPreviewManager;
@@ -91,7 +91,7 @@ export class Editor extends MXP.Serializable {
 		this._navigateAsset = null;
 		this._propertyTarget = "entity";
 		this._resolutionScale = 1.0;
-		this._baseResolution = new GLP.Vector( 1920, 1080 );
+		this._baseResolution = new MTP.Vector( 1920, 1080 );
 		this._externalWindow = null;
 		this._externalCanvasBitmapContext = null;
 		this._modalStatus = null;
@@ -383,8 +383,8 @@ export class Editor extends MXP.Serializable {
 
 				const target = this._editorCamera.orbitControls.target;
 				this._editorCamera.orbitControls.setPosition(
-					new GLP.Vector( v[ 0 ], v[ 1 ], v[ 2 ] ),
-					new GLP.Vector( target.x, target.y, target.z )
+					new MTP.Vector( v[ 0 ], v[ 1 ], v[ 2 ] ),
+					new MTP.Vector( target.x, target.y, target.z )
 				);
 
 			}
@@ -400,8 +400,8 @@ export class Editor extends MXP.Serializable {
 
 				const eye = this._editorCamera.orbitControls.eye;
 				this._editorCamera.orbitControls.setPosition(
-					new GLP.Vector( eye.x, eye.y, eye.z ),
-					new GLP.Vector( v[ 0 ], v[ 1 ], v[ 2 ] )
+					new MTP.Vector( eye.x, eye.y, eye.z ),
+					new MTP.Vector( v[ 0 ], v[ 1 ], v[ 2 ] )
 				);
 
 			}

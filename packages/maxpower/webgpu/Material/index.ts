@@ -1,13 +1,14 @@
+import { fieldsFromUniforms } from 'gpupower';
+
 import { buildShaderSource } from '../Bindings';
 import { requestShaderReload } from '../hotReload';
-import { fieldsFromUniforms } from '../resources/UniformBinder';
 
 import basicWgsl from './shaders/basic.wgsl';
 
 import type { MaterialContract } from '../../core/Contracts/MaterialContract';
 import type { MaterialStorage, MaterialTexture, StorageSource, TextureSource } from '../Bindings';
-import type { UniformField } from '../resources/UniformBinder';
-import type * as GLP from 'glpower';
+import type { UniformField } from 'gpupower';
+import type * as MTP from 'mathpower';
 
 // HMRで差し替わるシェーダーソース。playerでは初期値のまま使われる
 let hotBasicWgsl = basicWgsl;
@@ -38,7 +39,7 @@ export interface MaterialParam {
 	wgsl?: string;
 	phase?: MaterialPhase[];
 	renderOrder?: number;
-	uniforms?: GLP.Uniforms;
+	uniforms?: MTP.Uniforms;
 	// GPGPU出力。キーがWGSL上の変数名になり、宣言順で group2 の binding1.. に生える
 	storages?: { [name: string]: StorageSource };
 	// テクスチャ。キーがWGSL上の変数名になり、storage の後ろへ texture + <名前>Sampler のペアで生える
@@ -53,7 +54,7 @@ export interface MaterialParam {
 export class Material implements MaterialContract {
 
 	public name: string;
-	public uniforms: GLP.Uniforms;
+	public uniforms: MTP.Uniforms;
 
 	public depthTest: boolean;
 	public depthWrite: boolean;
