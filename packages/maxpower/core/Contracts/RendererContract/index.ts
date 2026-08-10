@@ -1,13 +1,13 @@
 import type { Entity, EntityUpdateEvent } from '../../Entity';
 import type { Serializable } from '../../Serializable';
 import type { TexProceduralContract, TexProceduralParam } from '../TexProceduralContract';
-import type * as GLP from 'glpower';
+import type * as MTP from 'mathpower';
 
 // バックエンドごとのRendererが満たす口。EntityUpdateEvent.renderer としてComponentも触る
 export interface RendererContract extends Serializable {
 
-	globalUniforms: GLP.Uniforms;
-	readonly resolution: GLP.Vector;
+	globalUniforms: MTP.Uniforms;
+	readonly resolution: MTP.Vector;
 	readonly canvas: HTMLCanvasElement;
 
 	// 画面中心にあるシーンのビュー空間深度（オートフォーカス用）。
@@ -16,7 +16,7 @@ export interface RendererContract extends Serializable {
 	readonly centerDepth?: number | null;
 
 	render( root: Entity, camera: Entity, event: EntityUpdateEvent ): void;
-	resize( resolution: GLP.Vector ): void;
+	resize( resolution: MTP.Vector ): void;
 
 	// .tex（プロシージャルテクスチャ）をバックエンド固有の実装で組み立てる
 	createTexProcedural( param: TexProceduralParam ): TexProceduralContract;

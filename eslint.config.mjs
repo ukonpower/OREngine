@@ -19,7 +19,7 @@ const compat = new FlatCompat( {
 } );
 
 export default [ {
-	ignores: [ "**/dist", "packages/glpower/", "scripts/" ],
+	ignores: [ "**/dist", "scripts/" ],
 }, ...fixupConfigRules( compat.extends(
 	"mdcs",
 	"eslint:recommended",
@@ -70,8 +70,10 @@ export default [ {
 		},
 
 		"boundaries/elements": [
+			{ type: "base-math", pattern: [ "packages/mathpower/**" ] },
+			{ type: "base-webgl", pattern: [ "packages/glpower/**" ] },
+			{ type: "base-webgpu", pattern: [ "packages/gpupower/**" ] },
 			{ type: "runtime", pattern: [
-				"packages/glpower/**",
 				"packages/maxpower/**",
 				"packages/orengine/core/**",
 				"packages/orengine/builtin/**",
@@ -99,6 +101,26 @@ export default [ {
 					from: { element: { types: "runtime" } },
 					disallow: { element: { types: "editor" } },
 					message: "ランタイム領域からエディタ領域への import は禁止です",
+				},
+				{
+					from: { element: { types: [ "base-math", "base-webgl", "base-webgpu" ] } },
+					disallow: { element: { types: [ "runtime", "editor" ] } },
+					message: "第1層パッケージ（mathpower/glpower/gpupower）から上位層への import は禁止です",
+				},
+				{
+					from: { element: { types: "base-math" } },
+					disallow: { element: { types: [ "base-webgl", "base-webgpu" ] } },
+					message: "mathpower は他パッケージに依存できません",
+				},
+				{
+					from: { element: { types: "base-webgl" } },
+					disallow: { element: { types: "base-webgpu" } },
+					message: "glpower と gpupower は互いに依存できません",
+				},
+				{
+					from: { element: { types: "base-webgpu" } },
+					disallow: { element: { types: "base-webgl" } },
+					message: "glpower と gpupower は互いに依存できません",
 				},
 			],
 		} ],

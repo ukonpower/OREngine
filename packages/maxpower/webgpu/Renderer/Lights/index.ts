@@ -1,14 +1,14 @@
-import * as GLP from 'glpower';
+import { UniformBinder, buildStructWgsl } from 'gpupower';
+import * as MTP from 'mathpower';
 
 import { Light } from '../../../core/Components/Light';
 import { CLIP_CORRECTION, FRAME_FIELDS, SHADOW_FORMAT } from '../../Bindings';
 import { requestShaderReload } from '../../hotReload';
-import { UniformBinder, buildStructWgsl } from '../../resources/UniformBinder';
 
 import shadowWgsl from './shaders/shadow.wgsl';
 
 import type { Entity } from '../../../core/Entity';
-import type { UniformField } from '../../resources/UniformBinder';
+import type { UniformField } from 'gpupower';
 
 // HMRで差し替わるシェーダーソース。playerでは初期値のまま使われる
 let hotShadowWgsl = shadowWgsl;
@@ -98,10 +98,10 @@ export type ShadowRender = {
 }
 
 type LightSlot = {
-	direction: GLP.Vector;
-	position: GLP.Vector;
-	color: GLP.Vector;
-	shadowMatrix: GLP.Matrix;
+	direction: MTP.Vector;
+	position: MTP.Vector;
+	color: MTP.Vector;
+	shadowMatrix: MTP.Matrix;
 	shadow: ShadowRender;
 }
 
@@ -114,15 +114,15 @@ export class Lights {
 	public readonly shadowRenders: ShadowRender[];
 
 	private _binder: UniformBinder;
-	private _uniforms: GLP.Uniforms;
+	private _uniforms: MTP.Uniforms;
 	private _directional: LightSlot[];
 	private _spot: LightSlot[];
 	private _shadowMaps: GPUTexture[];
 
 	// ライト視点のフレームuniformを書くための一時辞書
-	private _lightFrameUniforms: GLP.Uniforms;
-	private _lightProjectionMatrix: GLP.Matrix;
-	private _lightPosition: GLP.Vector;
+	private _lightFrameUniforms: MTP.Uniforms;
+	private _lightProjectionMatrix: MTP.Matrix;
+	private _lightPosition: MTP.Vector;
 
 	constructor( device: GPUDevice, frameLayout: GPUBindGroupLayout ) {
 
@@ -167,15 +167,15 @@ export class Lights {
 
 		this.shadowRenders = [];
 
-		this._lightProjectionMatrix = new GLP.Matrix();
-		this._lightPosition = new GLP.Vector();
+		this._lightProjectionMatrix = new MTP.Matrix();
+		this._lightPosition = new MTP.Vector();
 		this._lightFrameUniforms = {
 			uCameraNear: { value: 0.1, type: '1f' },
 			uCameraFar: { value: 100, type: '1f' },
 			uCameraPosition: { value: this._lightPosition, type: '3fv' },
-			uViewMatrix: { value: new GLP.Matrix(), type: 'Matrix4fv' },
+			uViewMatrix: { value: new MTP.Matrix(), type: 'Matrix4fv' },
 			uProjectionMatrix: { value: this._lightProjectionMatrix, type: 'Matrix4fv' },
-			uResolution: { value: new GLP.Vector( SHADOW_MAP_SIZE, SHADOW_MAP_SIZE ), type: '2fv' },
+			uResolution: { value: new MTP.Vector( SHADOW_MAP_SIZE, SHADOW_MAP_SIZE ), type: '2fv' },
 		};
 
 	}
@@ -186,10 +186,10 @@ export class Lights {
 		const isSpot = prefix === 'spotLight';
 		const label = `${prefix}[${index}]`;
 
-		const direction = new GLP.Vector();
-		const position = new GLP.Vector();
-		const color = new GLP.Vector();
-		const shadowMatrix = new GLP.Matrix();
+		const direction = new MTP.Vector();
+		const position = new MTP.Vector();
+		const color = new MTP.Vector();
+		const shadowMatrix = new MTP.Matrix();
 
 		this._uniforms[ `${label}.direction` ] = { value: direction, type: '3fv' };
 		this._uniforms[ `${label}.color` ] = { value: color, type: '3fv' };

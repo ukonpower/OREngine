@@ -1,4 +1,6 @@
 import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
+import { EventEmitter } from 'mathpower';
 import * as MXP from 'maxpower';
 
 import { GL, GLBackend } from '../../GLBackend';
@@ -15,7 +17,7 @@ const ssaoKernel = ( kernelSize: number ) => {
 	const kernel = [];
 	for ( let i = 0; i < kernelSize; i ++ ) {
 
-		const sample = new GLP.Vector();
+		const sample = new MTP.Vector();
 		sample.x = Math.random() * 2.0 - 1.0;
 		sample.y = Math.random() * 2.0 - 1.0;
 		sample.z = i / kernelSize * 0.95 + 0.05;
@@ -42,7 +44,7 @@ export type DeferredRendererPassConfig = {
 	lightShaft?: boolean;
 };
 
-export class DeferredRenderer extends GLP.EventEmitter {
+export class DeferredRenderer extends EventEmitter {
 
 	// renderer postprocess
 
@@ -66,7 +68,7 @@ export class DeferredRenderer extends GLP.EventEmitter {
 
 	public ssaoBlur: MXP.PostProcessPass;
 	public ssaoBlurV: MXP.PostProcessPass;
-	private ssaoBlurUni: GLP.Uniforms;
+	private ssaoBlurUni: MTP.Uniforms;
 
 	// shading
 
@@ -190,7 +192,7 @@ export class DeferredRenderer extends GLP.EventEmitter {
 			},
 			uWeights: {
 				type: '1fv',
-				value: GLP.MathUtils.gaussWeights( SSAOSAMPLE )
+				value: MTP.MathUtils.gaussWeights( SSAOSAMPLE )
 			},
 		} );
 
@@ -397,7 +399,7 @@ export class DeferredRenderer extends GLP.EventEmitter {
 
 	}
 
-	public resize( resolution: GLP.Vector ) {
+	public resize( resolution: MTP.Vector ) {
 
 		this.postprocess.resize( resolution );
 

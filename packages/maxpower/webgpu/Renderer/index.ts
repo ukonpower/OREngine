@@ -1,4 +1,6 @@
-import * as GLP from 'glpower';
+import { GeometryBuffer, VERTEX_BUFFER_LAYOUT } from 'gpupower';
+import { UniformBinder } from 'gpupower';
+import * as MTP from 'mathpower';
 
 import { Camera } from '../../core/Components/Camera';
 import { Light } from '../../core/Components/Light';
@@ -25,8 +27,6 @@ import {
 import { PostProcessPipeline } from '../Components/PostProcessPipeline';
 import { onShaderReload, requestShaderReload } from '../hotReload';
 import { Material } from '../Material';
-import { GeometryBuffer, VERTEX_BUFFER_LAYOUT } from '../resources/GeometryBuffer';
-import { UniformBinder } from '../resources/UniformBinder';
 import { TexProcedural } from '../TexProcedural';
 
 import { EnvMap } from './EnvMap';
@@ -132,8 +132,8 @@ type RenderStack = {
 export class Renderer extends Serializable implements RendererContract {
 
 	public readonly canvas: HTMLCanvasElement;
-	public globalUniforms: GLP.Uniforms;
-	public resolution: GLP.Vector;
+	public globalUniforms: MTP.Uniforms;
+	public resolution: MTP.Vector;
 	public pipelineConfig: PipelineConfig;
 
 	// エディタ等が一時的に被せる設定。pipelineConfig（シーン本来の値・シリアライズ対象）を汚さないための層
@@ -153,8 +153,8 @@ export class Renderer extends Serializable implements RendererContract {
 	private _emptyMaterialLayout: GPUBindGroupLayout | null;
 
 	// bindings
-	private _frameUniforms: GLP.Uniforms;
-	private _objectUniforms: GLP.Uniforms;
+	private _frameUniforms: MTP.Uniforms;
+	private _objectUniforms: MTP.Uniforms;
 	private _frameBinder: UniformBinder | null;
 	private _frameBindGroup: GPUBindGroup | null;
 
@@ -194,19 +194,19 @@ export class Renderer extends Serializable implements RendererContract {
 	private _focusReadbackBuffer: GPUBuffer | null;
 	private _focusReadbackBusy: boolean;
 	private _focusReadbackEncoded: boolean;
-	private _focusViewMatrix: GLP.Matrix;
-	private _focusPosition: GLP.Vector;
+	private _focusViewMatrix: MTP.Matrix;
+	private _focusPosition: MTP.Vector;
 	private _centerDepth: number | null;
 
 	// tmp
 	private _stack: RenderStack;
-	private _cameraPosition: GLP.Vector;
-	private _projectionMatrix: GLP.Matrix;
-	private _projectionMatrixInverse: GLP.Matrix;
-	private _projectionMatrixPrev: GLP.Matrix;
-	private _normalMatrix: GLP.Matrix;
-	private _passResolution: GLP.Vector;
-	private _passPixelSize: GLP.Vector;
+	private _cameraPosition: MTP.Vector;
+	private _projectionMatrix: MTP.Matrix;
+	private _projectionMatrixInverse: MTP.Matrix;
+	private _projectionMatrixPrev: MTP.Matrix;
+	private _normalMatrix: MTP.Matrix;
+	private _passResolution: MTP.Vector;
+	private _passPixelSize: MTP.Vector;
 
 	constructor( canvas: HTMLCanvasElement, engine: EngineContract ) {
 
@@ -214,7 +214,7 @@ export class Renderer extends Serializable implements RendererContract {
 
 		this.canvas = canvas;
 		this.globalUniforms = {};
-		this.resolution = new GLP.Vector();
+		this.resolution = new MTP.Vector();
 		this.pipelineConfig = {
 			motionBlur: true,
 			motionBlurPower: 1.0,
@@ -244,19 +244,19 @@ export class Renderer extends Serializable implements RendererContract {
 		this._frameUniforms = {
 			uCameraNear: { value: 0.1, type: '1f' },
 			uCameraFar: { value: 1000, type: '1f' },
-			uCameraPosition: { value: new GLP.Vector(), type: '3fv' },
-			uViewMatrix: { value: new GLP.Matrix(), type: 'Matrix4fv' },
-			uProjectionMatrix: { value: new GLP.Matrix(), type: 'Matrix4fv' },
-			uProjectionMatrixInverse: { value: new GLP.Matrix(), type: 'Matrix4fv' },
-			uCameraMatrix: { value: new GLP.Matrix(), type: 'Matrix4fv' },
-			uViewMatrixPrev: { value: new GLP.Matrix(), type: 'Matrix4fv' },
-			uProjectionMatrixPrev: { value: new GLP.Matrix(), type: 'Matrix4fv' },
+			uCameraPosition: { value: new MTP.Vector(), type: '3fv' },
+			uViewMatrix: { value: new MTP.Matrix(), type: 'Matrix4fv' },
+			uProjectionMatrix: { value: new MTP.Matrix(), type: 'Matrix4fv' },
+			uProjectionMatrixInverse: { value: new MTP.Matrix(), type: 'Matrix4fv' },
+			uCameraMatrix: { value: new MTP.Matrix(), type: 'Matrix4fv' },
+			uViewMatrixPrev: { value: new MTP.Matrix(), type: 'Matrix4fv' },
+			uProjectionMatrixPrev: { value: new MTP.Matrix(), type: 'Matrix4fv' },
 		};
 
 		this._objectUniforms = {
-			uModelMatrix: { value: new GLP.Matrix(), type: 'Matrix4fv' },
-			uNormalMatrix: { value: new GLP.Matrix(), type: 'Matrix4fv' },
-			uModelMatrixPrev: { value: new GLP.Matrix(), type: 'Matrix4fv' },
+			uModelMatrix: { value: new MTP.Matrix(), type: 'Matrix4fv' },
+			uNormalMatrix: { value: new MTP.Matrix(), type: 'Matrix4fv' },
+			uModelMatrixPrev: { value: new MTP.Matrix(), type: 'Matrix4fv' },
 		};
 
 		this._frameBinder = null;
@@ -287,8 +287,8 @@ export class Renderer extends Serializable implements RendererContract {
 		this._focusReadbackBuffer = null;
 		this._focusReadbackBusy = false;
 		this._focusReadbackEncoded = false;
-		this._focusViewMatrix = new GLP.Matrix();
-		this._focusPosition = new GLP.Vector();
+		this._focusViewMatrix = new MTP.Matrix();
+		this._focusPosition = new MTP.Vector();
 		this._centerDepth = null;
 
 		this._stack = { light: [], shadowMap: [], deferred: [], forward: [], envMap: [] };
@@ -297,8 +297,8 @@ export class Renderer extends Serializable implements RendererContract {
 		this._projectionMatrixInverse = this._frameUniforms.uProjectionMatrixInverse.value;
 		this._projectionMatrixPrev = this._frameUniforms.uProjectionMatrixPrev.value;
 		this._normalMatrix = this._objectUniforms.uNormalMatrix.value;
-		this._passResolution = new GLP.Vector();
-		this._passPixelSize = new GLP.Vector();
+		this._passResolution = new MTP.Vector();
+		this._passPixelSize = new MTP.Vector();
 
 		this.sky = new Sky( engine );
 
@@ -1797,7 +1797,7 @@ export class Renderer extends Serializable implements RendererContract {
 		Engine API
 	-------------------------------*/
 
-	public resize( resolution: GLP.Vector ) {
+	public resize( resolution: MTP.Vector ) {
 
 		this.resolution.copy( resolution );
 

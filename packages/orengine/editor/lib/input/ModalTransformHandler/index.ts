@@ -1,4 +1,4 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
 import { Engine } from '../../../../core/Engine';
@@ -15,8 +15,8 @@ export type ModalTransformMode = 'translate' | 'rotate' | 'scale';
 
 // 拘束軸の描画用情報。quat は軸の向き（global なら恒等）
 export type ConstraintDisplay = {
-	origin: GLP.Vector;
-	quat: GLP.Quaternion;
+	origin: MTP.Vector;
+	quat: MTP.Quaternion;
 	axes: GizmoAxis[];
 };
 
@@ -35,25 +35,25 @@ type ModalSession = {
 	constraint: Constraint | null;
 	numberBuffer: string;
 	trackball: boolean;
-	trackballQuat: GLP.Quaternion;
-	trackballPointer: GLP.Vector;
+	trackballQuat: MTP.Quaternion;
+	trackballPointer: MTP.Vector;
 	startValue: { position: number[], euler: number[], scale: number[] };
-	startWorldPos: GLP.Vector;
-	startWorldQuat: GLP.Quaternion;
-	parentWorldInv: GLP.Matrix;
-	parentWorldQuatInv: GLP.Quaternion;
-	camForward: GLP.Vector;
-	camRight: GLP.Vector;
-	camUp: GLP.Vector;
-	camWorldPos: GLP.Vector;
+	startWorldPos: MTP.Vector;
+	startWorldQuat: MTP.Quaternion;
+	parentWorldInv: MTP.Matrix;
+	parentWorldQuatInv: MTP.Quaternion;
+	camForward: MTP.Vector;
+	camRight: MTP.Vector;
+	camUp: MTP.Vector;
+	camWorldPos: MTP.Vector;
 	// レイと平面・軸の交差計算の基準点。カメラ自身の変形では自位置だと退化するため前方へ置く
-	anchorWorldPos: GLP.Vector;
+	anchorWorldPos: MTP.Vector;
 	// モーダル中に視点カメラ自身が動いてもレイが揺れないよう、開始時点のカメラ逆行列を凍結する
-	projInv: GLP.Matrix;
-	viewInv: GLP.Matrix;
-	centerClient: GLP.Vector;
-	startPointer: GLP.Vector;
-	lastPointer: GLP.Vector;
+	projInv: MTP.Matrix;
+	viewInv: MTP.Matrix;
+	centerClient: MTP.Vector;
+	startPointer: MTP.Vector;
+	lastPointer: MTP.Vector;
 	disposeSession: () => void;
 };
 
@@ -87,7 +87,7 @@ export class ModalTransformHandler {
 	private _isPointerBusy: () => boolean;
 	private _onStatusChange: ( status: string | null ) => void;
 	private _canvas: HTMLCanvasElement;
-	private _pointerClient: GLP.Vector;
+	private _pointerClient: MTP.Vector;
 	private _session: ModalSession | null;
 	private _disposeListeners: () => void;
 
@@ -108,7 +108,7 @@ export class ModalTransformHandler {
 		this._onStatusChange = param.onStatusChange;
 
 		this._canvas = param.engine.canvas as HTMLCanvasElement;
-		this._pointerClient = new GLP.Vector();
+		this._pointerClient = new MTP.Vector();
 		this._session = null;
 
 		// モーダルは押した瞬間のマウス位置を基準にするので、アイドル中も位置だけ追い続ける
@@ -149,7 +149,7 @@ export class ModalTransformHandler {
 		return {
 			// カメラ自身の変形では対象位置＝視点なので、前方に置いた基準点から軸を描く
 			origin: session.anchorWorldPos,
-			quat: local ? session.startWorldQuat : new GLP.Quaternion(),
+			quat: local ? session.startWorldQuat : new MTP.Quaternion(),
 			axes: constraint.plane
 				? AXES.filter( ( axis ) => axis !== constraint.axis )
 				: [ constraint.axis ],
@@ -285,15 +285,15 @@ export class ModalTransformHandler {
 		if ( ! camera ) return false;
 
 		const camElm = cameraEntity.matrixWorld.elm;
-		const camWorldPos = new GLP.Vector( camElm[ 12 ], camElm[ 13 ], camElm[ 14 ] );
+		const camWorldPos = new MTP.Vector( camElm[ 12 ], camElm[ 13 ], camElm[ 14 ] );
 
 		// 透視投影はカメラのローカル -Z を覗くので、第3列の反転がビュー方向になる
-		const camForward = new GLP.Vector( - camElm[ 8 ], - camElm[ 9 ], - camElm[ 10 ] ).normalize();
-		const camRight = new GLP.Vector( camElm[ 0 ], camElm[ 1 ], camElm[ 2 ] ).normalize();
-		const camUp = new GLP.Vector( camElm[ 4 ], camElm[ 5 ], camElm[ 6 ] ).normalize();
+		const camForward = new MTP.Vector( - camElm[ 8 ], - camElm[ 9 ], - camElm[ 10 ] ).normalize();
+		const camRight = new MTP.Vector( camElm[ 0 ], camElm[ 1 ], camElm[ 2 ] ).normalize();
+		const camUp = new MTP.Vector( camElm[ 4 ], camElm[ 5 ], camElm[ 6 ] ).normalize();
 
 		const worldElm = entity.matrixWorld.elm;
-		const startWorldPos = new GLP.Vector( worldElm[ 12 ], worldElm[ 13 ], worldElm[ 14 ] );
+		const startWorldPos = new MTP.Vector( worldElm[ 12 ], worldElm[ 13 ], worldElm[ 14 ] );
 
 		// カメラ自身の変形では自位置がレイの起点と一致して交差計算が退化するため、
 		// 基準点をピント距離ぶん前方へ置く（オービットの注視点と同じ規約。被写体がマウスに 1:1 で付いてくる）
@@ -347,7 +347,7 @@ export class ModalTransformHandler {
 			constraint: null,
 			numberBuffer: '',
 			trackball: false,
-			trackballQuat: new GLP.Quaternion(),
+			trackballQuat: new MTP.Quaternion(),
 			trackballPointer: this._pointerClient.clone(),
 			startValue: {
 				position: entity.position.getElm( 'vec3' ) as number[],
@@ -356,8 +356,8 @@ export class ModalTransformHandler {
 			},
 			startWorldPos,
 			startWorldQuat: getWorldQuaternion( entity ),
-			parentWorldInv: entity.parent ? entity.parent.matrixWorld.clone().inverse() : new GLP.Matrix(),
-			parentWorldQuatInv: entity.parent ? getWorldQuaternion( entity.parent ).inverse() : new GLP.Quaternion(),
+			parentWorldInv: entity.parent ? entity.parent.matrixWorld.clone().inverse() : new MTP.Matrix(),
+			parentWorldQuatInv: entity.parent ? getWorldQuaternion( entity.parent ).inverse() : new MTP.Quaternion(),
 			camForward,
 			camRight,
 			camUp,
@@ -468,9 +468,9 @@ export class ModalTransformHandler {
 	}
 
 	// 拘束軸のワールド方向。local は開始時のワールド回転を使う（回転中に軸が自分の結果で回るのを防ぐ）
-	private _axisWorldDir( session: ModalSession, axis: GizmoAxis, orientation: TransformOrientation ): GLP.Vector {
+	private _axisWorldDir( session: ModalSession, axis: GizmoAxis, orientation: TransformOrientation ): MTP.Vector {
 
-		const unit = new GLP.Vector(
+		const unit = new MTP.Vector(
 			axis === 'x' ? 1 : 0,
 			axis === 'y' ? 1 : 0,
 			axis === 'z' ? 1 : 0,
@@ -496,7 +496,7 @@ export class ModalTransformHandler {
 		session.trackball = ! session.trackball;
 		session.constraint = null;
 		session.numberBuffer = '';
-		session.trackballQuat = new GLP.Quaternion();
+		session.trackballQuat = new MTP.Quaternion();
 		session.trackballPointer.copy( session.lastPointer );
 
 		this._update();
@@ -608,11 +608,11 @@ export class ModalTransformHandler {
 	}
 
 	// 数値入力で動かす方向。拘束なしはグローバル X、平面拘束は面内で先頭の軸（Blender の第1成分挙動）
-	private _numericTranslateDir( session: ModalSession ): GLP.Vector {
+	private _numericTranslateDir( session: ModalSession ): MTP.Vector {
 
 		const constraint = session.constraint;
 
-		if ( ! constraint ) return new GLP.Vector( 1, 0, 0 );
+		if ( ! constraint ) return new MTP.Vector( 1, 0, 0 );
 
 		const axis: GizmoAxis = constraint.plane
 			? ( constraint.axis === 'x' ? 'y' : 'x' )
@@ -697,7 +697,7 @@ export class ModalTransformHandler {
 	}
 
 	// ワールド位置を親ローカルへ落として position に書く
-	private _setWorldPosition( session: ModalSession, worldPos: GLP.Vector ) {
+	private _setWorldPosition( session: ModalSession, worldPos: MTP.Vector ) {
 
 		const local = worldPos.applyMatrix4AsPosition( session.parentWorldInv );
 
@@ -706,7 +706,7 @@ export class ModalTransformHandler {
 	}
 
 	// ワールド空間の回転増分を親ローカルへ落として quaternion に書く（euler は Entity 側が再生成する）
-	private _setWorldRotation( session: ModalSession, deltaQ: GLP.Quaternion ) {
+	private _setWorldRotation( session: ModalSession, deltaQ: MTP.Quaternion ) {
 
 		session.entity.quaternion.copy(
 			composeLocalQuat( session.parentWorldQuatInv, deltaQ, session.startWorldQuat )
@@ -760,7 +760,7 @@ export class ModalTransformHandler {
 	-------------------------------*/
 
 	// クライアント座標からピッキングレイを作る。カメラ自身を動かしてもレイが揺れないよう開始時に凍結した行列を使う
-	private _rayFromClient( client: GLP.Vector, session: ModalSession ): MXP.Ray {
+	private _rayFromClient( client: MTP.Vector, session: ModalSession ): MXP.Ray {
 
 		const ndc = clientToNDC( this._canvas, client.x, client.y );
 
@@ -769,9 +769,9 @@ export class ModalTransformHandler {
 	}
 
 	// ワールド座標を canvas 上のクライアント座標へ投影する（回転角・スケール比の中心に使う）
-	private _projectToClient( worldPos: GLP.Vector, camera: MXP.Camera ): GLP.Vector {
+	private _projectToClient( worldPos: MTP.Vector, camera: MXP.Camera ): MTP.Vector {
 
-		const clip = new GLP.Vector( worldPos.x, worldPos.y, worldPos.z, 1 )
+		const clip = new MTP.Vector( worldPos.x, worldPos.y, worldPos.z, 1 )
 			.applyMatrix4( camera.viewMatrix )
 			.applyMatrix4( camera.projectionMatrix );
 
@@ -783,7 +783,7 @@ export class ModalTransformHandler {
 	}
 
 	// 中心から見たポインタの角度。y を反転して画面上の反時計回りを正にする
-	private _screenAngle( pointer: GLP.Vector, center: GLP.Vector ): number {
+	private _screenAngle( pointer: MTP.Vector, center: MTP.Vector ): number {
 
 		return Math.atan2( - ( pointer.y - center.y ), pointer.x - center.x );
 

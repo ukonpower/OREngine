@@ -1,4 +1,4 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 
 import { Component, ComponentParams, ComponentUpdateEvent } from "../Component";
 import { Serializable } from '../Serializable';
@@ -13,14 +13,14 @@ export interface EntityUpdateEvent {
 	timeCodeFrame: number;
 	playing: boolean;
 	renderer: RendererContract;
-	resolution: GLP.Vector;
-	matrix?: GLP.Matrix;
+	resolution: MTP.Vector;
+	matrix?: MTP.Matrix;
 	visibility?: boolean;
 	forceDraw?: boolean
 }
 
 export interface EntityResizeEvent {
-	resolution: GLP.Vector
+	resolution: MTP.Vector
 }
 
 export interface EntityParams {
@@ -36,13 +36,13 @@ export type ConstructorArgType<T extends typeof Component> =
 export class Entity extends Serializable {
 
 	public name: string;
-	public position: GLP.Vector;
-	public euler: GLP.Euler;
-	public quaternion: GLP.Quaternion;
-	public scale: GLP.Vector;
-	public matrix: GLP.Matrix;
-	public matrixWorld: GLP.Matrix;
-	public matrixWorldPrev: GLP.Matrix;
+	public position: MTP.Vector;
+	public euler: MTP.Euler;
+	public quaternion: MTP.Quaternion;
+	public scale: MTP.Vector;
+	public matrix: MTP.Matrix;
+	public matrixWorld: MTP.Matrix;
+	public matrixWorldPrev: MTP.Matrix;
 	private _matrixWorldHistoryInitialized: boolean;
 	public autoMatrixUpdate: boolean;
 	public parent: Entity | null;
@@ -61,14 +61,14 @@ export class Entity extends Serializable {
 		this._engine = params.engine;
 		this.name = params.name ?? "";
 
-		this.position = new GLP.Vector( 0.0, 0.0, 0.0, 1.0 );
-		this.euler = new GLP.Euler();
-		this.quaternion = new GLP.Quaternion( 0.0, 0.0, 0.0, 1.0 );
-		this.scale = new GLP.Vector( 1.0, 1.0, 1.0 );
+		this.position = new MTP.Vector( 0.0, 0.0, 0.0, 1.0 );
+		this.euler = new MTP.Euler();
+		this.quaternion = new MTP.Quaternion( 0.0, 0.0, 0.0, 1.0 );
+		this.scale = new MTP.Vector( 1.0, 1.0, 1.0 );
 
-		this.matrix = new GLP.Matrix();
-		this.matrixWorld = new GLP.Matrix();
-		this.matrixWorldPrev = new GLP.Matrix();
+		this.matrix = new MTP.Matrix();
+		this.matrixWorld = new MTP.Matrix();
+		this.matrixWorldPrev = new MTP.Matrix();
 		this._matrixWorldHistoryInitialized = false;
 		this.autoMatrixUpdate = true;
 
@@ -273,7 +273,7 @@ export class Entity extends Serializable {
 
 		}
 
-		const matrix = this.parent ? this.parent.matrixWorld : new GLP.Matrix();
+		const matrix = this.parent ? this.parent.matrixWorld : new MTP.Matrix();
 
 		// quaternion to euler
 
@@ -311,7 +311,7 @@ export class Entity extends Serializable {
 
 	}
 
-	public decomposeMatrix( matrix: GLP.Matrix ) {
+	public decomposeMatrix( matrix: MTP.Matrix ) {
 
 		matrix.decompose(
 			this.position,
@@ -323,16 +323,16 @@ export class Entity extends Serializable {
 
 	}
 
-	public applyMatrix( matrix: GLP.Matrix ) {
+	public applyMatrix( matrix: MTP.Matrix ) {
 
 		this.decomposeMatrix( this.matrix.clone().multiply( matrix ) );
 
 	}
 
-	public lookAt( targetWorldPos: GLP.Vector ) {
+	public lookAt( targetWorldPos: MTP.Vector ) {
 
 		const targetLocalPos = targetWorldPos.clone();
-		const localUp = new GLP.Vector( 0.0, 1.0, 0.0, 0.0 );
+		const localUp = new MTP.Vector( 0.0, 1.0, 0.0, 0.0 );
 
 		if ( this.parent ) {
 
@@ -342,7 +342,7 @@ export class Entity extends Serializable {
 
 		}
 
-		const newMatrix = new GLP.Matrix().lookAt( this.position, targetLocalPos, localUp );
+		const newMatrix = new MTP.Matrix().lookAt( this.position, targetLocalPos, localUp );
 		this.quaternion.setFromMatrix( newMatrix );
 		this.updateMatrix();
 

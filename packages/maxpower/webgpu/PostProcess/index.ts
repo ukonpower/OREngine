@@ -1,12 +1,13 @@
+import { UniformBinder, buildStructWgsl, fieldsFromUniforms } from 'gpupower';
+
 import { FRAME_FIELDS, GROUP_FRAME, SCENE_FORMAT } from '../Bindings';
 import { requestShaderReload } from '../hotReload';
 import { buildLightWgsl } from '../Renderer/Lights';
-import { UniformBinder, buildStructWgsl, fieldsFromUniforms } from '../resources/UniformBinder';
 
 import fullscreenWgsl from './shaders/fullscreen.wgsl';
 
-import type { UniformField } from '../resources/UniformBinder';
-import type * as GLP from 'glpower';
+import type { UniformField } from 'gpupower';
+import type * as MTP from 'mathpower';
 
 // HMRで差し替わるシェーダーソース。playerでは初期値のまま使われる
 let hotFullscreenWgsl = fullscreenWgsl;
@@ -54,7 +55,7 @@ export type PostProcessPassParam = {
 	// rgba32float のテクスチャは filtering サンプラーで引けないので filterable: false で宣言し、
 	// シェーダー側も ppSamplerNearest で引く（組み合わせは検証スクリプトで機械チェックしている）
 	inputs?: PassInput[];
-	uniforms?: GLP.Uniforms;
+	uniforms?: MTP.Uniforms;
 	format?: GPUTextureFormat;
 	resolutionRatio?: number;
 	// 自分の出力を次のパスへ流さない（別の入力として名指しで使われるパス）
@@ -69,7 +70,7 @@ export type PostProcessPassParam = {
 export class PostProcessPass {
 
 	public readonly name: string;
-	public readonly uniforms: GLP.Uniforms;
+	public readonly uniforms: MTP.Uniforms;
 	public readonly passThrough: boolean;
 	public readonly resolutionRatio: number;
 	public enabled: boolean;
@@ -96,10 +97,10 @@ export class PostProcessPass {
 	private _views: ( GPUTextureView | null )[];
 	private _dirty: boolean;
 
-	private _resolution: GLP.Vector;
-	private _pixelSize: GLP.Vector;
+	private _resolution: MTP.Vector;
+	private _pixelSize: MTP.Vector;
 
-	constructor( param: PostProcessPassParam, resolution: GLP.Vector, pixelSize: GLP.Vector ) {
+	constructor( param: PostProcessPassParam, resolution: MTP.Vector, pixelSize: MTP.Vector ) {
 
 		this.name = param.name;
 		this.uniforms = param.uniforms || {};

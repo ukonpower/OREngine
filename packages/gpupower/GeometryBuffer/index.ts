@@ -1,7 +1,13 @@
-import type { Geometry } from '../../../core/Geometry';
+import type { TArrayBuffer } from 'mathpower';
+
+// maxpower側のGeometryを構造的に受ける最小インターフェース（gpupowerは上位層に依存しない）
+export interface GeometryLike {
+	vertCount: number;
+	getAttribute( name: string ): { array: TArrayBuffer } | undefined | null;
+}
 
 /*-------------------------------
-	共有コアの Geometry（attributeデータ）→ GPUBuffer
+	Geometry（attributeデータ）→ GPUBuffer
 
 	attribute は名前ごとに別々の Float32Array で持たれているため、
 	vertex buffer も1attribute＝1スロットで確保する。
@@ -49,7 +55,7 @@ export class GeometryBuffer {
 	public readonly indexFormat: GPUIndexFormat;
 	public readonly drawCount: number;
 
-	constructor( device: GPUDevice, geometry: Geometry, label: string ) {
+	constructor( device: GPUDevice, geometry: GeometryLike, label: string ) {
 
 		const vertCount = Number.isFinite( geometry.vertCount ) ? geometry.vertCount : 0;
 

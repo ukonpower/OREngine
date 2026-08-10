@@ -1,5 +1,5 @@
 import { createRenderer } from '@or-renderer';
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 import { Engine, OREngineProjectData } from 'orengine';
 
 
@@ -63,7 +63,7 @@ export const startPlayer = ( opts: StartPlayerOptions ): Engine => {
 	opts.initResourceInstances( engine );
 
 	const size = opts.size ?? { width: 1920, height: 1080 };
-	engine.setSize( new GLP.Vector( size.width, size.height ) );
+	engine.setSize( new MTP.Vector( size.width, size.height ) );
 
 	screenWrapElm.appendChild( engine.canvas );
 

@@ -1,4 +1,4 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 
 import { Component, ComponentParams, ComponentUpdateEvent } from "../../Component";
 
@@ -23,18 +23,18 @@ export class Camera extends Component {
 	public orthWidth: number;
 	public orthHeight: number;
 
-	public projectionMatrix: GLP.Matrix;
-	public viewMatrix: GLP.Matrix;
+	public projectionMatrix: MTP.Matrix;
+	public viewMatrix: MTP.Matrix;
 
-	public projectionMatrixPrev: GLP.Matrix;
-	public viewMatrixPrev: GLP.Matrix;
+	public projectionMatrixPrev: MTP.Matrix;
+	public viewMatrixPrev: MTP.Matrix;
 	private _historyInitialized: boolean;
 
 	public needsUpdateProjectionMatrix: boolean;
 
 	public displayOut: boolean;
 
-	public viewPort: GLP.Vector | null;
+	public viewPort: MTP.Vector | null;
 
 	public dofParams: DofParams;
 
@@ -44,11 +44,11 @@ export class Camera extends Component {
 
 		this.cameraType = 'perspective';
 
-		this.viewMatrix = new GLP.Matrix();
-		this.projectionMatrix = new GLP.Matrix();
+		this.viewMatrix = new MTP.Matrix();
+		this.projectionMatrix = new MTP.Matrix();
 
-		this.viewMatrixPrev = new GLP.Matrix();
-		this.projectionMatrixPrev = new GLP.Matrix();
+		this.viewMatrixPrev = new MTP.Matrix();
+		this.projectionMatrixPrev = new MTP.Matrix();
 		this._historyInitialized = false;
 
 		this.viewPort = null;

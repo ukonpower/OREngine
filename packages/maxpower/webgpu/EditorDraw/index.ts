@@ -1,4 +1,4 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 
 import { SCENE_FORMAT } from '../Bindings';
 import { onShaderReload, requestShaderReload } from '../hotReload';
@@ -105,14 +105,14 @@ class GPUEditorRecipe implements EditorRecipe {
 
 	public readonly isEditorRecipe = true;
 	public readonly mask: GPUEditorTarget;
-	public readonly uniforms: GLP.Uniforms;
+	public readonly uniforms: MTP.Uniforms;
 
 	constructor( mask: GPUEditorTarget, color: number[] ) {
 
 		this.mask = mask;
 		this.uniforms = {
-			uResolution: { value: new GLP.Vector(), type: '2fv' },
-			uOutlineColor: { value: new GLP.Vector( color[ 0 ], color[ 1 ], color[ 2 ] ), type: '3fv' },
+			uResolution: { value: new MTP.Vector(), type: '2fv' },
+			uOutlineColor: { value: new MTP.Vector( color[ 0 ], color[ 1 ], color[ 2 ] ), type: '3fv' },
 		};
 
 	}
@@ -122,7 +122,7 @@ class GPUEditorRecipe implements EditorRecipe {
 export class WebGPUEditorDraw implements EditorDrawContract {
 
 	private _renderer: Renderer;
-	private _resolution: GLP.Vector;
+	private _resolution: MTP.Vector;
 
 	private _targets: GPUEditorTarget[];
 
@@ -135,7 +135,7 @@ export class WebGPUEditorDraw implements EditorDrawContract {
 	constructor( renderer: Renderer ) {
 
 		this._renderer = renderer;
-		this._resolution = new GLP.Vector();
+		this._resolution = new MTP.Vector();
 		this._targets = [];
 		this._fullscreenTarget = new GPUEditorTarget( null, true, false );
 		this._copyPass = null;
@@ -179,8 +179,8 @@ export class WebGPUEditorDraw implements EditorDrawContract {
 				inputCount: 2,
 				format: SCENE_FORMAT,
 				uniforms: {
-					uResolution: { value: new GLP.Vector(), type: '2fv' },
-					uOutlineColor: { value: new GLP.Vector(), type: '3fv' },
+					uResolution: { value: new MTP.Vector(), type: '2fv' },
+					uOutlineColor: { value: new MTP.Vector(), type: '3fv' },
 				},
 			} );
 
@@ -201,7 +201,7 @@ export class WebGPUEditorDraw implements EditorDrawContract {
 
 	}
 
-	private _allocate( device: GPUDevice, target: GPUEditorTarget, size: GLP.Vector ) {
+	private _allocate( device: GPUDevice, target: GPUEditorTarget, size: MTP.Vector ) {
 
 		target.setTexture( device.createTexture( {
 			label: 'editorTarget',
@@ -253,7 +253,7 @@ export class WebGPUEditorDraw implements EditorDrawContract {
 
 		if ( ! view || ! r.mask.view || ! this._fullscreenTarget.view ) return;
 
-		( r.uniforms.uResolution.value as GLP.Vector ).set(
+		( r.uniforms.uResolution.value as MTP.Vector ).set(
 			dst ? dst.width : this._resolution.x,
 			dst ? dst.height : this._resolution.y
 		);
@@ -407,7 +407,7 @@ export class WebGPUEditorDraw implements EditorDrawContract {
 		Resource
 	-------------------------------*/
 
-	public createTarget( opt?: { useSceneDepth?: boolean; size?: GLP.Vector } ) {
+	public createTarget( opt?: { useSceneDepth?: boolean; size?: MTP.Vector } ) {
 
 		const device = this._ready();
 		const size = opt && opt.size || this._renderer.resolution;
@@ -421,7 +421,7 @@ export class WebGPUEditorDraw implements EditorDrawContract {
 
 	}
 
-	public resize( resolution: GLP.Vector ) {
+	public resize( resolution: MTP.Vector ) {
 
 		this._resolution.copy( resolution );
 

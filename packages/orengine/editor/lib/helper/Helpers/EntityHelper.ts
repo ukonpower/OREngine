@@ -1,4 +1,4 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
 import { CameraHelperGeometry } from './Geometries/CameraHelperGeometry';
@@ -19,7 +19,7 @@ export class EntityHelper {
 	public targetEntityUUID: string;
 	private _geometry: MXP.Geometry;
 	private _hitAreaGeometry: MXP.Geometry | null;
-	private _matrixOffset: GLP.Quaternion | null;
+	private _matrixOffset: MTP.Quaternion | null;
 	private _baseColor: number[];
 	private _colorUniform: number[];
 
@@ -53,7 +53,7 @@ export class EntityHelper {
 
 		if ( type === 'spotLight' || type === 'directionalLight' ) {
 
-			this._matrixOffset = new GLP.Quaternion().setFromEuler( { x: - Math.PI / 2, y: 0, z: 0 } );
+			this._matrixOffset = new MTP.Quaternion().setFromEuler( { x: - Math.PI / 2, y: 0, z: 0 } );
 
 		} else {
 
@@ -104,21 +104,21 @@ export class EntityHelper {
 	}
 
 	// ヘルパーのワイヤ線分をワールド空間の端点ペアで返す（枠線クリックの判定に使う）
-	public getWorldSegments(): { a: GLP.Vector, b: GLP.Vector }[] {
+	public getWorldSegments(): { a: MTP.Vector, b: MTP.Vector }[] {
 
 		const posAttr = this._geometry.getAttribute( 'position' );
 
 		if ( ! posAttr ) return [];
 
 		const pos = posAttr.array;
-		const segments: { a: GLP.Vector, b: GLP.Vector }[] = [];
+		const segments: { a: MTP.Vector, b: MTP.Vector }[] = [];
 
 		// ヘルパーのジオメトリはラインリスト（2頂点で1線分）
 		for ( let i = 0; i + 5 < pos.length; i += 6 ) {
 
 			segments.push( {
-				a: new GLP.Vector( pos[ i + 0 ], pos[ i + 1 ], pos[ i + 2 ] ).applyMatrix4AsPosition( this.entity.matrixWorld ),
-				b: new GLP.Vector( pos[ i + 3 ], pos[ i + 4 ], pos[ i + 5 ] ).applyMatrix4AsPosition( this.entity.matrixWorld ),
+				a: new MTP.Vector( pos[ i + 0 ], pos[ i + 1 ], pos[ i + 2 ] ).applyMatrix4AsPosition( this.entity.matrixWorld ),
+				b: new MTP.Vector( pos[ i + 3 ], pos[ i + 4 ], pos[ i + 5 ] ).applyMatrix4AsPosition( this.entity.matrixWorld ),
 			} );
 
 		}

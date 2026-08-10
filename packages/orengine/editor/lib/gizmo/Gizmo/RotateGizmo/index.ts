@@ -1,4 +1,4 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
 import { GizmoAxis, GizmoDragResult, GizmoHandle } from '..';
@@ -52,8 +52,8 @@ function createArcGeometry( innerRadius: number, outerRadius: number, segments: 
 
 type RingRecord = {
 	wrapper: MXP.Entity;
-	base: GLP.Quaternion;
-	baseInv: GLP.Quaternion;
+	base: MTP.Quaternion;
+	baseInv: MTP.Quaternion;
 };
 
 export class RotateGizmo extends GizmoBase {
@@ -61,37 +61,37 @@ export class RotateGizmo extends GizmoBase {
 	private _rings: Record<GizmoAxis, RingRecord>;
 	private _viewRoot: MXP.Entity;
 
-	private _dragCenter: GLP.Vector;
-	private _dragViewNormal: GLP.Vector;
-	private _dragU: GLP.Vector;
-	private _dragV: GLP.Vector;
-	private _dragAxisN: GLP.Vector;
+	private _dragCenter: MTP.Vector;
+	private _dragViewNormal: MTP.Vector;
+	private _dragU: MTP.Vector;
+	private _dragV: MTP.Vector;
+	private _dragAxisN: MTP.Vector;
 	private _dragSign: number;
 	private _dragLastAngle: number;
 	private _dragAccumAngle: number;
-	private _dragStartWorldQuat: GLP.Quaternion;
-	private _parentWorldQuatInv: GLP.Quaternion;
+	private _dragStartWorldQuat: MTP.Quaternion;
+	private _parentWorldQuatInv: MTP.Quaternion;
 
 	constructor( engine: MXP.EngineContract, draw: MXP.EditorDrawContract ) {
 
 		super( engine, draw, '__gizmo_rotate' );
 
-		this._dragCenter = new GLP.Vector();
-		this._dragViewNormal = new GLP.Vector( 0, 0, 1 );
-		this._dragU = new GLP.Vector( 1, 0, 0 );
-		this._dragV = new GLP.Vector( 0, 1, 0 );
-		this._dragAxisN = new GLP.Vector( 0, 0, 1 );
+		this._dragCenter = new MTP.Vector();
+		this._dragViewNormal = new MTP.Vector( 0, 0, 1 );
+		this._dragU = new MTP.Vector( 1, 0, 0 );
+		this._dragV = new MTP.Vector( 0, 1, 0 );
+		this._dragAxisN = new MTP.Vector( 0, 0, 1 );
 		this._dragSign = 1;
 		this._dragLastAngle = 0;
 		this._dragAccumAngle = 0;
-		this._dragStartWorldQuat = new GLP.Quaternion();
-		this._parentWorldQuatInv = new GLP.Quaternion();
+		this._dragStartWorldQuat = new MTP.Quaternion();
+		this._parentWorldQuatInv = new MTP.Quaternion();
 
 		// 円弧はXY平面（法線+Z）に生成されるので、法線を各軸へ向ける回転を基底にする
-		const bases: Record<GizmoAxis, GLP.Quaternion> = {
-			x: quaternionFromAxisAngle( new GLP.Vector( 0, 1, 0 ), Math.PI / 2 ),
-			y: quaternionFromAxisAngle( new GLP.Vector( 1, 0, 0 ), - Math.PI / 2 ),
-			z: new GLP.Quaternion(),
+		const bases: Record<GizmoAxis, MTP.Quaternion> = {
+			x: quaternionFromAxisAngle( new MTP.Vector( 0, 1, 0 ), Math.PI / 2 ),
+			y: quaternionFromAxisAngle( new MTP.Vector( 1, 0, 0 ), - Math.PI / 2 ),
+			z: new MTP.Quaternion(),
 		};
 
 		this._rings = {} as Record<GizmoAxis, RingRecord>;
@@ -134,7 +134,7 @@ export class RotateGizmo extends GizmoBase {
 			const phi = Math.atan2( g.y, g.x );
 
 			ring.wrapper.quaternion.copy(
-				ring.base.clone().multiply( quaternionFromAxisAngle( new GLP.Vector( 0, 0, 1 ), phi ) )
+				ring.base.clone().multiply( quaternionFromAxisAngle( new MTP.Vector( 0, 0, 1 ), phi ) )
 			);
 
 		}
@@ -149,7 +149,7 @@ export class RotateGizmo extends GizmoBase {
 
 		// 角度は常にビュー平面（カメラへ向く面）上で測る。リングを浅い角度で見ても破綻しない
 		const n = ray.origin.clone().sub( this._dragCenter ).normalize();
-		const ref = Math.abs( n.y ) > 0.99 ? new GLP.Vector( 1, 0, 0 ) : new GLP.Vector( 0, 1, 0 );
+		const ref = Math.abs( n.y ) > 0.99 ? new MTP.Vector( 1, 0, 0 ) : new MTP.Vector( 0, 1, 0 );
 
 		this._dragViewNormal = n;
 		this._dragU = ref.cross( n ).normalize();
@@ -173,7 +173,7 @@ export class RotateGizmo extends GizmoBase {
 		this._dragStartWorldQuat = getWorldQuaternion( targetEntity );
 		this._parentWorldQuatInv = targetEntity.parent
 			? getWorldQuaternion( targetEntity.parent ).inverse()
-			: new GLP.Quaternion();
+			: new MTP.Quaternion();
 
 	}
 
@@ -198,7 +198,7 @@ export class RotateGizmo extends GizmoBase {
 		const deltaQ = quaternionFromAxisAngle( this._dragAxisN, this._dragAccumAngle * this._dragSign );
 		const localQuat = composeLocalQuat( this._parentWorldQuatInv, deltaQ, this._dragStartWorldQuat );
 
-		return { euler: new GLP.Euler().setFromQuaternion( localQuat ) };
+		return { euler: new MTP.Euler().setFromQuaternion( localQuat ) };
 
 	}
 

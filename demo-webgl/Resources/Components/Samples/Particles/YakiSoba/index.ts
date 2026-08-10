@@ -1,4 +1,4 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 import { Engine } from 'orengine';
 
@@ -16,7 +16,7 @@ export class YakiSoba extends MXP.Component {
 
 		const engine = this.engine as Engine;
 
-		const num = new GLP.Vector( 64, 512 );
+		const num = new MTP.Vector( 64, 512 );
 
 		// gpu
 

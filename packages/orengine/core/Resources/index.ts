@@ -1,5 +1,6 @@
 
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
+import { EventEmitter } from 'mathpower';
 import * as MXP from 'maxpower';
 
 import { TextureResource } from './TextureResource';
@@ -32,7 +33,7 @@ export type GeometryGroup = {
 	createGroup: ( name: string ) => GeometryGroup;
 };
 
-export class Resources extends GLP.EventEmitter {
+export class Resources extends EventEmitter {
 
 	private _componentList: ( ResouceComponentItem )[];
 	private _componentGroups: ComponentGroup[];
@@ -273,7 +274,7 @@ export class Resources extends GLP.EventEmitter {
 
 	}
 
-	private _buildTexture( resource: TextureResource, renderer: MXP.RendererContract, textures: { [ key: string ]: MXP.TextureContract }, engineUniforms?: GLP.Uniforms ): MXP.TexProceduralContract | null {
+	private _buildTexture( resource: TextureResource, renderer: MXP.RendererContract, textures: { [ key: string ]: MXP.TextureContract }, engineUniforms?: MTP.Uniforms ): MXP.TexProceduralContract | null {
 
 		const fragSource = resource.frag;
 		if ( ! fragSource ) return null;
@@ -281,7 +282,7 @@ export class Resources extends GLP.EventEmitter {
 		return renderer.createTexProcedural( {
 			name: resource.name,
 			frag: fragSource,
-			resolution: new GLP.Vector(
+			resolution: new MTP.Vector(
 				resource.resolution[ 0 ] || 1024,
 				resource.resolution[ 1 ] || 1024
 			),
@@ -293,7 +294,7 @@ export class Resources extends GLP.EventEmitter {
 	}
 
 	// 依存テクスチャ（resource.textures）を先にビルドしてから自身をビルドする
-	private _ensureTexture( resource: TextureResource, renderer: MXP.RendererContract, engineUniforms: GLP.Uniforms | undefined, building: Set<string> ): MXP.TextureContract | null {
+	private _ensureTexture( resource: TextureResource, renderer: MXP.RendererContract, engineUniforms: MTP.Uniforms | undefined, building: Set<string> ): MXP.TextureContract | null {
 
 		const built = this._textures.get( resource.name );
 
@@ -342,7 +343,7 @@ export class Resources extends GLP.EventEmitter {
 
 	}
 
-	public buildTextureInstances( renderer: MXP.RendererContract, engineUniforms?: GLP.Uniforms ) {
+	public buildTextureInstances( renderer: MXP.RendererContract, engineUniforms?: MTP.Uniforms ) {
 
 		this._updateEveryFrameTextures = [];
 

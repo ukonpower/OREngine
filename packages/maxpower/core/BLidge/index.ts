@@ -1,4 +1,5 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
+import { EventEmitter } from 'mathpower';
 
 import type { EngineContract } from '../Contracts/EngineContract';
 import type { GLTF, GLTFLoaderContract } from '../Contracts/GLTFLoaderContract';
@@ -75,7 +76,7 @@ export type BLidgeMeshParam = {
 
 type BLidgeLightParamCommon = {
 	type: 'directional' | 'spot'
-	color: GLP.IVector3,
+	color: MTP.IVector3,
 	intensity: number,
 	shadowMap: boolean,
 }
@@ -147,7 +148,7 @@ type BLidgeConnection = {
 	gltfPath?: string,
 }
 
-export class BLidge extends GLP.EventEmitter {
+export class BLidge extends EventEmitter {
 
 	// ローダーの実体はバックエンド側にあるため、EngineContractのレンダラー型はここでは特定しない
 	public static gltfLoaderFactory: ( ( engine: EngineContract<any> ) => GLTFLoaderContract ) | null = null;
@@ -165,7 +166,7 @@ export class BLidge extends GLP.EventEmitter {
 	// animation
 
 	public nodes: BLidgeNode[];
-	public curveGroups: GLP.FCurveGroup[];
+	public curveGroups: MTP.FCurveGroup[];
 	public root: BLidgeNode | null;
 
 	// gltf
@@ -325,11 +326,11 @@ export class BLidge extends GLP.EventEmitter {
 		for ( let i = 0; i < fcurveGroupNames.length; i ++ ) {
 
 			const fcurveGroupName = fcurveGroupNames[ i ];
-			const fcurveGroup = new GLP.FCurveGroup( fcurveGroupName );
+			const fcurveGroup = new MTP.FCurveGroup( fcurveGroupName );
 
 			data.animations[ i ].forEach( fcurveData => {
 
-				const curve = new GLP.FCurve();
+				const curve = new MTP.FCurve();
 
 				curve.set( fcurveData.k.map( keyframe => {
 
@@ -341,11 +342,11 @@ export class BLidge extends GLP.EventEmitter {
 
 					const frames = keyframe[ 1 ];
 
-					return new GLP.FCurveKeyFrame(
+					return new MTP.FCurveKeyFrame(
 						{ x: frames[ 0 ], y: frames[ 1 ] },
 						frames[ 2 ] !== undefined && { x: frames[ 2 ], y: frames[ 3 ] } || undefined,
 						frames[ 4 ] !== undefined && { x: frames[ 4 ], y: frames[ 5 ] } || undefined,
-					interpolation as GLP.FCurveInterpolation );
+					interpolation as MTP.FCurveInterpolation );
 
 				} ) );
 

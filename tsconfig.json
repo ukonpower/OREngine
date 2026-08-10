@@ -38,7 +38,13 @@
     "baseUrl": "./",
     "paths": {
       "glpower": [
-        "./packages/glpower/packages/glpower/src"
+        "./packages/glpower"
+      ],
+      "gpupower": [
+        "./packages/gpupower"
+      ],
+      "mathpower": [
+        "./packages/mathpower"
       ],
       "maxpower": [
         "./packages/maxpower"
@@ -73,7 +79,6 @@
   "exclude": [
     "node_modules",
     "dist",
-    "packages/glpower",
     "demo-webgl",
     "scripts",
     "host/vite",

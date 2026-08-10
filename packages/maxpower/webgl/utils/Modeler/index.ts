@@ -1,4 +1,5 @@
 import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 
 import { Mesh } from '../../../core/Components/Mesh';
 import { Entity } from '../../../core/Entity';
@@ -149,7 +150,7 @@ export class Modeler {
 
 		const bakedAttributes: {[key: string]: number[]} = {};
 
-		const _ = ( e: Entity, matrix: GLP.Matrix ) => {
+		const _ = ( e: Entity, matrix: MTP.Matrix ) => {
 
 			const mesh = e.getComponent( Mesh );
 
@@ -173,7 +174,7 @@ export class Modeler {
 
 					for ( let i = 0; i < pos.array.length; i += 3 ) {
 
-						const p = new GLP.Vector( pos.array[ i + 0 ], pos.array[ i + 1 ], pos.array[ i + 2 ], 1 );
+						const p = new MTP.Vector( pos.array[ i + 0 ], pos.array[ i + 1 ], pos.array[ i + 2 ], 1 );
 						p.applyMatrix4( matrix );
 						posArray.push( p.x, p.y, p.z );
 
@@ -187,7 +188,7 @@ export class Modeler {
 
 					for ( let i = 0; i < normal.array.length; i += 3 ) {
 
-						const p = new GLP.Vector( normal.array[ i + 0 ], normal.array[ i + 1 ], normal.array[ i + 2 ], 0 );
+						const p = new MTP.Vector( normal.array[ i + 0 ], normal.array[ i + 1 ], normal.array[ i + 2 ], 0 );
 						p.applyMatrix4( matrix );
 						normalArray.push( p.x, p.y, p.z );
 
@@ -202,7 +203,7 @@ export class Modeler {
 					for ( let i = 0; i < tangent.array.length; i += 4 ) {
 
 						const w = tangent.array[ i + 3 ];
-						const t = new GLP.Vector( tangent.array[ i + 0 ] * w, tangent.array[ i + 1 ] * w, tangent.array[ i + 2 ] * w, 0 );
+						const t = new MTP.Vector( tangent.array[ i + 0 ] * w, tangent.array[ i + 1 ] * w, tangent.array[ i + 2 ] * w, 0 );
 						t.applyMatrix4( matrix );
 
 
@@ -275,7 +276,7 @@ export class Modeler {
 
 		};
 
-		_( entity, new GLP.Matrix() );
+		_( entity, new MTP.Matrix() );
 
 		const attributeKeys = Object.keys( customAttributes );
 

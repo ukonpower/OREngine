@@ -1,13 +1,13 @@
-import * as GLP from 'glpower';
+import { VERTEX_INPUT_WGSL } from 'gpupower';
+import { buildStructWgsl } from 'gpupower';
+import * as MTP from 'mathpower';
 
 import { requestShaderReload } from '../hotReload';
-import { VERTEX_INPUT_WGSL } from '../resources/GeometryBuffer';
-import { buildStructWgsl } from '../resources/UniformBinder';
 
 import gbufferWgsl from './shaders/gbuffer.wgsl';
 import vertexOutputWgsl from './shaders/vertexOutput.wgsl';
 
-import type { UniformField } from '../resources/UniformBinder';
+import type { UniformField } from 'gpupower';
 
 // HMRで差し替わるシェーダーソース。playerでは初期値のまま使われる
 let hotGbufferWgsl = gbufferWgsl;
@@ -55,7 +55,7 @@ export const GROUP_REFRACTION = 3;
 // GLのクリップ空間（z∈[-w,w]）をWebGPU（z∈[0,w]）へ移す補正。
 // カメラ・ライトどちらのprojection行列にも1回だけ乗算する。
 // もう一方の規約差であるテクスチャ座標のY向きは、シャドウUVを求める箇所だけで吸収する
-export const CLIP_CORRECTION = new GLP.Matrix().set( [
+export const CLIP_CORRECTION = new MTP.Matrix().set( [
 	1, 0, 0, 0,
 	0, 1, 0, 0,
 	0, 0, 0.5, 0,
@@ -66,7 +66,7 @@ export const CLIP_CORRECTION = new GLP.Matrix().set( [
 // キューブ面の v=0 はGL規約だとNDC y=-1 側にあたるため、Yだけ反転してGLと同じ
 // テクセル並びを作る（横方向はGLの視線行列のまま）。裏返るワインディングは
 // envMapパイプラインを cullMode: 'none' にして無効化している
-export const ENVMAP_CLIP_CORRECTION = new GLP.Matrix().set( [
+export const ENVMAP_CLIP_CORRECTION = new MTP.Matrix().set( [
 	1, 0, 0, 0,
 	0, - 1, 0, 0,
 	0, 0, 0.5, 0,

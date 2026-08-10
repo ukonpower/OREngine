@@ -12,12 +12,13 @@
     "./host": "./host/index.ts",
     "./configs": "./host/vite/configs.ts",
     "./maxpower": "./packages/maxpower/index.ts",
-    "./glpower": "./packages/glpower/packages/glpower/src/index.ts",
+    "./glpower": "./packages/glpower/index.ts",
+    "./gpupower": "./packages/gpupower/index.ts",
+    "./mathpower": "./packages/mathpower/index.ts",
     "./player": "./packages/orengine/player.ts",
     "./package.json": "./package.json"
   },
   "scripts": {
-    "init": "git submodule init && git submodule update && npm install",
     "predev": "node -e \"try{require('child_process').execSync('lsof -ti:'+(process.env.ORENGINE_SERVER_PORT||3001)+' | xargs kill -9',{stdio:'ignore'})}catch(e){}\"",
     "dev": "tsx scripts/run.mjs dev",
     "wgpu": "ORENGINE_RENDERER=webgpu ORENGINE_PROJECT=${ORENGINE_PROJECT:-demo-webgpu} npm run dev",

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
 import { ShakeViewer } from '../packages/orengine/builtin/Components/Camera/CameraShake';
@@ -17,12 +17,12 @@ const event: MXP.EntityUpdateEvent = {
 	timeCodeFrame: 60,
 	playing: true,
 	renderer,
-	resolution: new GLP.Vector( 1920, 1080 ),
+	resolution: new MTP.Vector( 1920, 1080 ),
 };
 
 const createEntity = ( name: string ) => new MXP.Entity( { engine, name } );
 
-const assertMatrixClose = ( actual: GLP.Matrix, expected: GLP.Matrix, message: string ) => {
+const assertMatrixClose = ( actual: MTP.Matrix, expected: MTP.Matrix, message: string ) => {
 
 	for ( let i = 0; i < actual.elm.length; i ++ ) {
 
@@ -56,7 +56,7 @@ class MoveInUpdate extends MXP.Component {
 
 class ObserveTargetInPostUpdate extends MXP.Component {
 
-	public observedPosition = new GLP.Vector();
+	public observedPosition = new MTP.Vector();
 
 	protected postUpdateImpl(): void {
 
@@ -70,7 +70,7 @@ class ObserveTargetInPostUpdate extends MXP.Component {
 class TestCamera extends MXP.Component {
 
 	public fov = 50;
-	public viewMatrix = new GLP.Matrix();
+	public viewMatrix = new MTP.Matrix();
 
 	constructor( params: MXP.ComponentParams ) {
 
@@ -155,13 +155,13 @@ test( '回転した親の下でもLookAtはworld spaceのtargetを向く', () =>
 
 	runFramePreparation( root );
 
-	const sourceWorldPos = new GLP.Vector();
-	const targetWorldPos = new GLP.Vector();
+	const sourceWorldPos = new MTP.Vector();
+	const targetWorldPos = new MTP.Vector();
 	source.matrixWorld.decompose( sourceWorldPos );
 	target.matrixWorld.decompose( targetWorldPos );
 
 	const expectedForward = sourceWorldPos.sub( targetWorldPos ).normalize();
-	const actualForward = new GLP.Vector(
+	const actualForward = new MTP.Vector(
 		source.matrixWorld.elm[ 8 ],
 		source.matrixWorld.elm[ 9 ],
 		source.matrixWorld.elm[ 10 ],

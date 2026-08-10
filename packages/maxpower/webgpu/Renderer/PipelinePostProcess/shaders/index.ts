@@ -1,4 +1,4 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 
 import bloomCompositeWgsl from './bloomComposite.wgsl';
 import gaussBlurWgsl from './gaussBlur.wgsl';
@@ -33,7 +33,7 @@ const ssaoKernel = ( kernelSize: number ) => {
 	for ( let i = 0; i < kernelSize; i ++ ) {
 
 		const scale = i / kernelSize * 0.95 + 0.05;
-		const sample = new GLP.Vector( Math.random() * 2.0 - 1.0, Math.random() * 2.0 - 1.0, scale );
+		const sample = new MTP.Vector( Math.random() * 2.0 - 1.0, Math.random() * 2.0 - 1.0, scale );
 
 		sample.normalize().multiply( scale );
 
@@ -72,7 +72,7 @@ export const buildSsaoWgsl = () => {
 
 const blurConstants = ( samples: number, vertical: boolean ) => [
 	`const BLUR_SAMPLES = ${samples};`,
-	`const BLUR_WEIGHTS = array<f32, ${samples}>( ${wgslFloats( GLP.MathUtils.gaussWeights( samples ) )} );`,
+	`const BLUR_WEIGHTS = array<f32, ${samples}>( ${wgslFloats( MTP.MathUtils.gaussWeights( samples ) )} );`,
 	`const BLUR_DIRECTION = vec2f( ${vertical ? '0.0, 1.0' : '1.0, 0.0'} );`,
 ].join( '\n' );
 

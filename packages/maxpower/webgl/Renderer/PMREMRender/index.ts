@@ -1,4 +1,6 @@
 import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
+import { EventEmitter } from 'mathpower';
 import * as MXP from 'maxpower';
 
 import { GL, GLBackend } from '../../GLBackend';
@@ -8,22 +10,22 @@ import pmremFrag from './shaders/pmrem.fs';
 
 type SwapBuffer = {rt1: GLP.GLPowerFrameBuffer, rt2: GLP.GLPowerFrameBuffer};
 
-export class PMREMRender extends GLP.EventEmitter {
+export class PMREMRender extends EventEmitter {
 
 	public postprocess: MXP.PostProcess;
-	public resolution: GLP.Vector;
+	public resolution: MTP.Vector;
 	public renderTarget: GLP.GLPowerFrameBuffer;
 	private pmremPasses: MXP.PostProcessPass[];
 	private swapBuffers: SwapBuffer[];
-	private timeUniforms: GLP.Uniforms;
+	private timeUniforms: MTP.Uniforms;
 
-	constructor( backend: GLBackend, param: {input: GLP.GLPowerTextureCube[], resolution: GLP.Vector} ) {
+	constructor( backend: GLBackend, param: {input: GLP.GLPowerTextureCube[], resolution: MTP.Vector} ) {
 
 		super();
 
 		const resolution = param.resolution;
 
-		const timeUniforms: GLP.Uniforms = {
+		const timeUniforms: MTP.Uniforms = {
 			uTimeEF: {
 				value: 0,
 				type: '1f'
@@ -56,7 +58,7 @@ export class PMREMRender extends GLP.EventEmitter {
 			const width = resolution.x * resolutionScale;
 			const height = resolution.y * resolutionScale * 0.5;
 
-			const viewPort = new GLP.Vector( 0, viewPortY, width, height );
+			const viewPort = new MTP.Vector( 0, viewPortY, width, height );
 			viewPortY += height;
 
 			swapBuffers.push( {
@@ -92,7 +94,7 @@ export class PMREMRender extends GLP.EventEmitter {
 				}
 			} );
 
-			pmremPass.resize( new GLP.Vector( width, height ) );
+			pmremPass.resize( new MTP.Vector( width, height ) );
 
 			const blitPass = new MXP.PostProcessPass( backend, {
 				renderTarget: renderTarget,
@@ -161,7 +163,7 @@ export class PMREMRender extends GLP.EventEmitter {
 
 	}
 
-	public resize( _resolution: GLP.Vector ): void {
+	public resize( _resolution: MTP.Vector ): void {
 
 		return;
 

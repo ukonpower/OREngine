@@ -1,4 +1,5 @@
-import * as GLP from 'glpower';
+import { UniformBinder } from 'gpupower';
+import * as MTP from 'mathpower';
 
 import {
 	DEPTH_FORMAT,
@@ -8,7 +9,6 @@ import {
 	ENVMAP_SIZE,
 	FRAME_FIELDS,
 } from '../../Bindings';
-import { UniformBinder } from '../../resources/UniformBinder';
 import { PREFILTER_FIELDS, prefilterWgsl } from '../shaders/prefilter';
 
 /*-------------------------------
@@ -23,12 +23,12 @@ import { PREFILTER_FIELDS, prefilterWgsl } from '../shaders/prefilter';
 
 // GL規約の視線行列。並びはキューブのレイヤー番号（+X, -X, +Y, -Y, +Z, -Z）
 const FACES = [
-	{ name: '+X', target: new GLP.Vector( 1, 0, 0 ), up: new GLP.Vector( 0, - 1, 0 ) },
-	{ name: '-X', target: new GLP.Vector( - 1, 0, 0 ), up: new GLP.Vector( 0, - 1, 0 ) },
-	{ name: '+Y', target: new GLP.Vector( 0, 1, 0 ), up: new GLP.Vector( 0, 0, 1 ) },
-	{ name: '-Y', target: new GLP.Vector( 0, - 1, 0 ), up: new GLP.Vector( 0, 0, - 1 ) },
-	{ name: '+Z', target: new GLP.Vector( 0, 0, 1 ), up: new GLP.Vector( 0, - 1, 0 ) },
-	{ name: '-Z', target: new GLP.Vector( 0, 0, - 1 ), up: new GLP.Vector( 0, - 1, 0 ) },
+	{ name: '+X', target: new MTP.Vector( 1, 0, 0 ), up: new MTP.Vector( 0, - 1, 0 ) },
+	{ name: '-X', target: new MTP.Vector( - 1, 0, 0 ), up: new MTP.Vector( 0, - 1, 0 ) },
+	{ name: '+Y', target: new MTP.Vector( 0, 1, 0 ), up: new MTP.Vector( 0, 0, 1 ) },
+	{ name: '-Y', target: new MTP.Vector( 0, - 1, 0 ), up: new MTP.Vector( 0, 0, - 1 ) },
+	{ name: '+Z', target: new MTP.Vector( 0, 0, 1 ), up: new MTP.Vector( 0, - 1, 0 ) },
+	{ name: '-Z', target: new MTP.Vector( 0, 0, - 1 ), up: new MTP.Vector( 0, - 1, 0 ) },
 ];
 
 const NEAR = 0.1;
@@ -105,8 +105,8 @@ export class EnvMap {
 		this.depthView = this._depthTexture.createView();
 
 		// 面ごとのカメラ。原点から6方向を90度で見る
-		const projectionMatrix = new GLP.Matrix().perspective( 90, 1, NEAR, FAR ).preMultiply( ENVMAP_CLIP_CORRECTION );
-		const origin = new GLP.Vector( 0, 0, 0 );
+		const projectionMatrix = new MTP.Matrix().perspective( 90, 1, NEAR, FAR ).preMultiply( ENVMAP_CLIP_CORRECTION );
+		const origin = new MTP.Vector( 0, 0, 0 );
 
 		this._binders = [];
 		this.faceRenders = FACES.map( ( face, i ) => {
@@ -117,8 +117,8 @@ export class EnvMap {
 				uCameraNear: { value: NEAR, type: '1f' },
 				uCameraFar: { value: FAR, type: '1f' },
 				uCameraPosition: { value: origin, type: '3fv' },
-				uResolution: { value: new GLP.Vector( ENVMAP_SIZE, ENVMAP_SIZE ), type: '2fv' },
-				uViewMatrix: { value: new GLP.Matrix().lookAt( origin, face.target, face.up ).inverse(), type: 'Matrix4fv' },
+				uResolution: { value: new MTP.Vector( ENVMAP_SIZE, ENVMAP_SIZE ), type: '2fv' },
+				uViewMatrix: { value: new MTP.Matrix().lookAt( origin, face.target, face.up ).inverse(), type: 'Matrix4fv' },
 				uProjectionMatrix: { value: projectionMatrix, type: 'Matrix4fv' },
 			} );
 
@@ -212,7 +212,7 @@ export class EnvMap {
 	}
 
 	// 時間系のuniformを全faceへ反映する。カメラ・解像度は固定なので触らない
-	public update( globalUniforms: GLP.Uniforms ) {
+	public update( globalUniforms: MTP.Uniforms ) {
 
 		const time = {
 			uTime: globalUniforms.uTime,

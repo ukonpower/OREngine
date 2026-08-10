@@ -1,7 +1,8 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
+import { EventEmitter } from 'mathpower';
 import { OREngineProjectFrame, FramePlay } from 'orengine';
 
-export class AudioViewRenderer extends GLP.EventEmitter {
+export class AudioViewRenderer extends EventEmitter {
 
 	private wrapperElm: HTMLElement | null;
 
@@ -63,7 +64,7 @@ export class AudioViewRenderer extends GLP.EventEmitter {
 
 		if ( this.wrapperElm ) {
 
-			const resolution = new GLP.Vector( this.wrapperElm.clientWidth, this.wrapperElm.clientHeight );
+			const resolution = new MTP.Vector( this.wrapperElm.clientWidth, this.wrapperElm.clientHeight );
 
 			this.canvas.width = resolution.x;
 			this.canvas.height = resolution.y;

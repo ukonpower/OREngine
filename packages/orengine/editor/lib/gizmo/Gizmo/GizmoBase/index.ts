@@ -1,4 +1,4 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
 import { Gizmo, GizmoAxis, GizmoDragResult, GizmoHandle, GizmoPlane } from '..';
@@ -41,7 +41,7 @@ export abstract class GizmoBase implements Gizmo {
 	protected _engine: MXP.EngineContract;
 	protected _draw: MXP.EditorDrawContract;
 	protected _orientation: TransformOrientation;
-	protected _camWorldPos: GLP.Vector;
+	protected _camWorldPos: MTP.Vector;
 	private _records: HandleRecord[];
 	private _hoverHandle: GizmoHandle | null;
 	private _activeHandle: GizmoHandle | null;
@@ -56,7 +56,7 @@ export abstract class GizmoBase implements Gizmo {
 		this.entity.visible = false;
 
 		this._orientation = 'global';
-		this._camWorldPos = new GLP.Vector();
+		this._camWorldPos = new MTP.Vector();
 		this._records = [];
 		this._hoverHandle = null;
 		this._activeHandle = null;
@@ -257,11 +257,11 @@ export abstract class GizmoBase implements Gizmo {
 	}
 
 	// ルートの向き。global=無回転 / local=ターゲットのワールド回転（子のハンドルがまとめて向く）
-	protected _rootQuaternion( entity: MXP.Entity, orientation: TransformOrientation ): GLP.Quaternion {
+	protected _rootQuaternion( entity: MXP.Entity, orientation: TransformOrientation ): MTP.Quaternion {
 
 		if ( orientation === 'local' ) return getWorldQuaternion( entity );
 
-		return new GLP.Quaternion();
+		return new MTP.Quaternion();
 
 	}
 
@@ -269,7 +269,7 @@ export abstract class GizmoBase implements Gizmo {
 	protected _onTargetUpdated(): void {}
 
 	// ギズモ中心からカメラへ向かうルートローカルの方向（ビルボードや手前半分の向き決めに使う）
-	protected _camDirLocal(): GLP.Vector {
+	protected _camDirLocal(): MTP.Vector {
 
 		const dir = this._camWorldPos.clone().sub( this.entity.position ).normalize();
 
@@ -278,9 +278,9 @@ export abstract class GizmoBase implements Gizmo {
 	}
 
 	// 子ハンドルをカメラへ正対させる quaternion（ルートの回転を打ち消した上で+Zをカメラへ向ける）
-	protected _billboardQuat(): GLP.Quaternion {
+	protected _billboardQuat(): MTP.Quaternion {
 
-		return quaternionFromTo( new GLP.Vector( 0, 0, 1 ), this._camDirLocal() );
+		return quaternionFromTo( new MTP.Vector( 0, 0, 1 ), this._camDirLocal() );
 
 	}
 

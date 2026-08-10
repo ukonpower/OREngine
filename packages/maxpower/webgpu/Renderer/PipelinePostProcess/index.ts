@@ -1,4 +1,4 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 
 import { PostProcessChain, PostProcessPass } from '../../PostProcess';
 
@@ -129,14 +129,14 @@ export class PipelinePostProcess {
 	private _bloomChain: PostProcessChain;
 	private _finishChain: PostProcessChain;
 
-	private _dofParams: GLP.Vector;
+	private _dofParams: MTP.Vector;
 	private _height: number;
 
-	constructor( device: GPUDevice, frameLayout: GPUBindGroupLayout, lightLayout: GPUBindGroupLayout, resolution: GLP.Vector, pixelSize: GLP.Vector ) {
+	constructor( device: GPUDevice, frameLayout: GPUBindGroupLayout, lightLayout: GPUBindGroupLayout, resolution: MTP.Vector, pixelSize: MTP.Vector ) {
 
 		const pass = ( param: PostProcessPassParam ) => new PostProcessPass( param, resolution, pixelSize );
 
-		this._dofParams = new GLP.Vector( 10, 0.05, 20, 0.05 );
+		this._dofParams = new MTP.Vector( 10, 0.05, 20, 0.05 );
 		this._height = 1;
 
 		/*-------------------------------
@@ -245,7 +245,7 @@ export class PipelinePostProcess {
 			inputs: [ 'uBackBuffer0', NEAREST( 'uGbufferPos' ), NEAREST( 'uGbufferNormal' ), 'uSSRTexture' ],
 		} );
 
-		const dofUniforms: GLP.Uniforms = { uParams: { value: this._dofParams, type: '4fv' } };
+		const dofUniforms: MTP.Uniforms = { uParams: { value: this._dofParams, type: '4fv' } };
 
 		this._dofCoc = pass( {
 			name: 'dof/coc',
@@ -329,7 +329,7 @@ export class PipelinePostProcess {
 		for ( let i = 0; i < BLOOM_LEVELS; i ++ ) {
 
 			const ratio = 0.5 / Math.pow( 2, i );
-			const uniforms: GLP.Uniforms = { uBlurRange: { value: 2.0, type: '1f' } };
+			const uniforms: MTP.Uniforms = { uBlurRange: { value: 2.0, type: '1f' } };
 
 			const vertical = pass( {
 				name: `bloom/blur/${i}/v`,

@@ -1,4 +1,4 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
 import type { TransformOrientation } from '../../transform/TransformUtils';
@@ -12,9 +12,9 @@ export type GizmoHandle = GizmoAxis | GizmoPlane | 'center' | 'view';
 export type GizmoMode = 'select' | 'translate' | 'rotate' | 'scale';
 
 export interface GizmoDragResult {
-	position?: GLP.Vector;
-	euler?: GLP.Vector;
-	scale?: GLP.Vector;
+	position?: MTP.Vector;
+	euler?: MTP.Vector;
+	scale?: MTP.Vector;
 }
 
 export interface Gizmo {

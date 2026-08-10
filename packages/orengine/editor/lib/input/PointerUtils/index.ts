@@ -1,4 +1,4 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 
 // canvas 要素の中で実際に描画されている矩形（object-fit: contain 相当のレターボックス）を求める
 export const getContentRect = ( canvas: HTMLCanvasElement ) => {
@@ -29,25 +29,25 @@ export const getContentRect = ( canvas: HTMLCanvasElement ) => {
 };
 
 // クライアント座標を canvas の描画領域基準の NDC に変換する
-export const clientToNDC = ( canvas: HTMLCanvasElement, clientX: number, clientY: number ): GLP.Vector => {
+export const clientToNDC = ( canvas: HTMLCanvasElement, clientX: number, clientY: number ): MTP.Vector => {
 
 	const content = getContentRect( canvas );
 
 	const x = ( ( clientX - content.left ) / content.width ) * 2 - 1;
 	const y = - ( ( clientY - content.top ) / content.height ) * 2 + 1;
 
-	return new GLP.Vector( x, y );
+	return new MTP.Vector( x, y );
 
 };
 
 // NDC をクライアント座標へ逆変換する（clientToNDC の逆写像）
-export const ndcToClient = ( canvas: HTMLCanvasElement, ndcX: number, ndcY: number ): GLP.Vector => {
+export const ndcToClient = ( canvas: HTMLCanvasElement, ndcX: number, ndcY: number ): MTP.Vector => {
 
 	const content = getContentRect( canvas );
 
 	const x = ( ndcX + 1 ) / 2 * content.width + content.left;
 	const y = ( 1 - ndcY ) / 2 * content.height + content.top;
 
-	return new GLP.Vector( x, y );
+	return new MTP.Vector( x, y );
 
 };

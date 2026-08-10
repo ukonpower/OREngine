@@ -1,4 +1,4 @@
-import type * as GLP from 'glpower';
+import type * as MTP from 'mathpower';
 
 // Resources に登録できるテクスチャの最小の口。実体はバックエンド固有
 export interface TextureContract {
@@ -19,12 +19,12 @@ export interface TexProceduralParam {
 	name?: string;
 	// webgl は GLSL、webgpu は WGSL のフラグメントソース
 	frag: string;
-	resolution: GLP.Vector;
+	resolution: MTP.Vector;
 	// 'linear' | 'nearest'。省略時は linear
 	filter?: string;
 	// 依存テクスチャ。キーがシェーダー上の名前になる
 	textures?: { [ name: string ]: TextureContract };
 	// updateEveryFrame のテクスチャへ渡すエンジンuniform（webgpuはframe uniformsで足りるため未使用）
-	uniforms?: GLP.Uniforms;
+	uniforms?: MTP.Uniforms;
 
 }

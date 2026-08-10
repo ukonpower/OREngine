@@ -1,4 +1,4 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 
 import { ComponentParams } from '../../Component';
 import { ShadowMapCamera } from '../Camera/ShadowMapCamera';
@@ -11,11 +11,11 @@ export class Light extends ShadowMapCamera {
 
 	// common
 
-	public color: GLP.Vector;
+	public color: MTP.Vector;
 	public intensity: number;
 
 	public castShadow: boolean;
-	public shadowMapSize: GLP.Vector;
+	public shadowMapSize: MTP.Vector;
 
 	// spot
 
@@ -33,13 +33,13 @@ export class Light extends ShadowMapCamera {
 		this.lightType = 'spot';
 		this.cameraType = "perspective";
 
-		this.color = new GLP.Vector( 1.0, 1.0, 1.0, 0.0 );
+		this.color = new MTP.Vector( 1.0, 1.0, 1.0, 0.0 );
 		this.intensity = 1;
 
 		// shadow
 
 		this.castShadow = true;
-		this.shadowMapSize = new GLP.Vector( 1024, 1024 );
+		this.shadowMapSize = new MTP.Vector( 1024, 1024 );
 
 		// directional
 
@@ -73,10 +73,10 @@ export class Light extends ShadowMapCamera {
 
 	}
 
-	public lookAt( targetWorldPos: GLP.Vector ) {
+	public lookAt( targetWorldPos: MTP.Vector ) {
 
 		this.entity.lookAt( targetWorldPos );
-		this.entity.quaternion.multiply( new GLP.Quaternion( ).setFromEuler( new GLP.Euler( Math.PI / 2 ) ) );
+		this.entity.quaternion.multiply( new MTP.Quaternion( ).setFromEuler( new MTP.Euler( Math.PI / 2 ) ) );
 
 	}
 

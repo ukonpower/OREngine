@@ -1,20 +1,20 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 
 export class Ray {
 
-	public origin: GLP.Vector;
-	public direction: GLP.Vector;
+	public origin: MTP.Vector;
+	public direction: MTP.Vector;
 
-	constructor( origin?: GLP.Vector, direction?: GLP.Vector ) {
+	constructor( origin?: MTP.Vector, direction?: MTP.Vector ) {
 
-		this.origin = origin || new GLP.Vector();
-		this.direction = direction || new GLP.Vector( 0, 0, - 1 );
+		this.origin = origin || new MTP.Vector();
+		this.direction = direction || new MTP.Vector( 0, 0, - 1 );
 
 	}
 
-	public setFromCamera( ndc: GLP.Vector, projectionMatrixInverse: GLP.Matrix, viewMatrixInverse: GLP.Matrix ): this {
+	public setFromCamera( ndc: MTP.Vector, projectionMatrixInverse: MTP.Matrix, viewMatrixInverse: MTP.Matrix ): this {
 
-		const nearPoint = new GLP.Vector( ndc.x, ndc.y, - 1, 1 )
+		const nearPoint = new MTP.Vector( ndc.x, ndc.y, - 1, 1 )
 			.applyMatrix4( projectionMatrixInverse )
 			.applyMatrix4( viewMatrixInverse );
 
@@ -22,7 +22,7 @@ export class Ray {
 		nearPoint.y /= nearPoint.w;
 		nearPoint.z /= nearPoint.w;
 
-		const farPoint = new GLP.Vector( ndc.x, ndc.y, 1, 1 )
+		const farPoint = new MTP.Vector( ndc.x, ndc.y, 1, 1 )
 			.applyMatrix4( projectionMatrixInverse )
 			.applyMatrix4( viewMatrixInverse );
 
@@ -42,7 +42,7 @@ export class Ray {
 
 	}
 
-	public intersectAABB( min: GLP.Vector, max: GLP.Vector ): { distance: number, point: GLP.Vector } | null {
+	public intersectAABB( min: MTP.Vector, max: MTP.Vector ): { distance: number, point: MTP.Vector } | null {
 
 		const invDirX = 1 / this.direction.x;
 		const invDirY = 1 / this.direction.y;
@@ -70,7 +70,7 @@ export class Ray {
 
 		const t = tmin >= 0 ? tmin : tmax;
 
-		const point = new GLP.Vector(
+		const point = new MTP.Vector(
 			this.origin.x + this.direction.x * t,
 			this.origin.y + this.direction.y * t,
 			this.origin.z + this.direction.z * t
@@ -80,7 +80,7 @@ export class Ray {
 
 	}
 
-	public intersectTriangle( v0: GLP.Vector, v1: GLP.Vector, v2: GLP.Vector ): { distance: number, point: GLP.Vector } | null {
+	public intersectTriangle( v0: MTP.Vector, v1: MTP.Vector, v2: MTP.Vector ): { distance: number, point: MTP.Vector } | null {
 
 		const EPSILON = 1e-8;
 
@@ -122,7 +122,7 @@ export class Ray {
 
 		if ( t > EPSILON ) {
 
-			const point = new GLP.Vector(
+			const point = new MTP.Vector(
 				this.origin.x + this.direction.x * t,
 				this.origin.y + this.direction.y * t,
 				this.origin.z + this.direction.z * t

@@ -1,4 +1,5 @@
 import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 
 import { Blending, DrawType } from '../Material';
 
@@ -137,7 +138,7 @@ export class GLBackend {
 	-------------------------------*/
 
 	// viewport設定とframebufferバインドをまとめて行う
-	public bindRenderTarget( target: GLP.GLPowerFrameBuffer | null, viewPort?: GLP.Vector | null, canvasSize?: GLP.Vector ) {
+	public bindRenderTarget( target: GLP.GLPowerFrameBuffer | null, viewPort?: MTP.Vector | null, canvasSize?: MTP.Vector ) {
 
 		if ( viewPort ) {
 
@@ -167,7 +168,7 @@ export class GLBackend {
 	}
 
 	// 指定された要素だけをclearする
-	public clear( color: GLP.Vector | null, depth: number | null ) {
+	public clear( color: MTP.Vector | null, depth: number | null ) {
 
 		let bits = 0;
 

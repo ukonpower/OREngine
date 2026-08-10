@@ -1,5 +1,5 @@
 import { setupCameraPostProcess } from '@or-renderer';
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
 import { LookAt } from '../LookAt';
@@ -14,8 +14,8 @@ export class CameraController extends MXP.Component {
 
 	private _dofTarget: MXP.Entity | null;
 	private _dofTargetUUID: string | null;
-	private _tmpVector1: GLP.Vector;
-	private _tmpVector2: GLP.Vector;
+	private _tmpVector1: MTP.Vector;
+	private _tmpVector2: MTP.Vector;
 
 	private _focusMode: FocusMode;
 	private _focusDistance: number;
@@ -45,8 +45,8 @@ export class CameraController extends MXP.Component {
 
 		this._dofTarget = null;
 		this._dofTargetUUID = null;
-		this._tmpVector1 = new GLP.Vector();
-		this._tmpVector2 = new GLP.Vector();
+		this._tmpVector1 = new MTP.Vector();
+		this._tmpVector2 = new MTP.Vector();
 
 		this._focusMode = 'auto';
 		this._focusDistance = 5;

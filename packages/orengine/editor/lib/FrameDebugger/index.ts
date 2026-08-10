@@ -1,7 +1,8 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
+import { EventEmitter } from 'mathpower';
 import * as MXP from 'maxpower';
 
-export class FrameDebugger extends GLP.EventEmitter {
+export class FrameDebugger extends EventEmitter {
 
 	private _draw: MXP.EditorDrawContract;
 	private _elm: HTMLCanvasElement;
@@ -15,12 +16,12 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 	private _enable: boolean;
 
-	private _resolution: GLP.Vector;
+	private _resolution: MTP.Vector;
 	private _count: number;
 	private _total: number;
-	private _tile: GLP.Vector;
-	private _tilePixelSize: GLP.Vector;
-	private _tileInv: GLP.Vector;
+	private _tile: MTP.Vector;
+	private _tilePixelSize: MTP.Vector;
+	private _tileInv: MTP.Vector;
 
 	// controls
 
@@ -44,16 +45,16 @@ export class FrameDebugger extends GLP.EventEmitter {
 		this._enable = false;
 		this._count = 0;
 		this._total = 1;
-		this._tile = new GLP.Vector( 1, 1 );
-		this._tilePixelSize = new GLP.Vector( 1, 1 );
-		this._tileInv = new GLP.Vector( 1, 1 );
+		this._tile = new MTP.Vector( 1, 1 );
+		this._tilePixelSize = new MTP.Vector( 1, 1 );
+		this._tileInv = new MTP.Vector( 1, 1 );
 
 		this._focus = null;
 		this._frameLabels = [];
 		this._prevFrameLabels = [];
 		this._labelCount = new Map();
 
-		this._resolution = new GLP.Vector();
+		this._resolution = new MTP.Vector();
 
 		// label overlay
 
@@ -66,7 +67,7 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 		// click
 
-		const touchStartPos = new GLP.Vector( 0, 0 );
+		const touchStartPos = new MTP.Vector( 0, 0 );
 
 		const onClick = this._onClick.bind( this );
 
@@ -78,7 +79,7 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 		const onPointerUp = ( e: PointerEvent ) => {
 
-			const endPos = new GLP.Vector( e.clientX, e.clientY );
+			const endPos = new MTP.Vector( e.clientX, e.clientY );
 
 			if ( touchStartPos.clone().sub( endPos ).length( ) < 10 ) {
 
@@ -251,7 +252,7 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 	}
 
-	public resize( resolution: GLP.Vector ) {
+	public resize( resolution: MTP.Vector ) {
 
 		this._resolution.copy( resolution );
 
@@ -269,7 +270,7 @@ export class FrameDebugger extends GLP.EventEmitter {
 
 		if ( this._focus === null ) {
 
-			const tileSize = new GLP.Vector( this._elm.clientWidth / this._tile.x, this._elm.clientHeight / this._tile.y );
+			const tileSize = new MTP.Vector( this._elm.clientWidth / this._tile.x, this._elm.clientHeight / this._tile.y );
 
 			const x = Math.floor( ( e.offsetX ) / tileSize.x );
 			const y = Math.floor( ( e.offsetY ) / tileSize.y );

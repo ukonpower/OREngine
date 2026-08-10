@@ -1,28 +1,28 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
 export class LookAt extends MXP.Component {
 
 	public target: MXP.Entity | null;
 
-	private up: GLP.Vector;
-	private targetWorldPos: GLP.Vector;
-	private targetLocalPos: GLP.Vector;
-	private localUp: GLP.Vector;
-	private lookAtMatrix: GLP.Matrix;
-	private parentInverse: GLP.Matrix;
+	private up: MTP.Vector;
+	private targetWorldPos: MTP.Vector;
+	private targetLocalPos: MTP.Vector;
+	private localUp: MTP.Vector;
+	private lookAtMatrix: MTP.Matrix;
+	private parentInverse: MTP.Matrix;
 
 	constructor( params: MXP.ComponentParams ) {
 
 		super( params );
 
 		this.target = null;
-		this.targetWorldPos = new GLP.Vector();
-		this.targetLocalPos = new GLP.Vector();
-		this.localUp = new GLP.Vector();
-		this.up = new GLP.Vector( 0.0, 1.0, 0.0 );
-		this.lookAtMatrix = new GLP.Matrix();
-		this.parentInverse = new GLP.Matrix();
+		this.targetWorldPos = new MTP.Vector();
+		this.targetLocalPos = new MTP.Vector();
+		this.localUp = new MTP.Vector();
+		this.up = new MTP.Vector( 0.0, 1.0, 0.0 );
+		this.lookAtMatrix = new MTP.Matrix();
+		this.parentInverse = new MTP.Matrix();
 
 		this.order = 100;
 

@@ -1,4 +1,4 @@
-import * as GLP from 'glpower';
+import { EventEmitter } from 'mathpower';
 
 import { Mesh } from '../../../core/Components/Mesh';
 import { Entity } from '../../../core/Entity';
@@ -49,7 +49,7 @@ const translateAttributeName = ( name: string )=> {
 
 };
 
-export class GLTFLoader extends GLP.EventEmitter implements GLTFLoaderContract {
+export class GLTFLoader extends EventEmitter implements GLTFLoaderContract {
 
 	private _engine: GLEngine;
 

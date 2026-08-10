@@ -1,4 +1,4 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 import { Engine } from 'orengine';
 
@@ -17,7 +17,7 @@ export class Dust extends MXP.Component {
 
 		const count = params.args?.num || 2048;
 
-		const range = new GLP.Vector( 20.0, 5.0, 20.0 );
+		const range = new MTP.Vector( 20.0, 5.0, 20.0 );
 
 		const positionArray = [];
 		const sizeArray = [];

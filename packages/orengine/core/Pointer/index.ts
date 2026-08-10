@@ -1,26 +1,26 @@
-import * as GLP from 'glpower';
-import { EventEmitter } from 'glpower';
+import * as MTP from 'mathpower';
+import { EventEmitter } from 'mathpower';
 export type PointerEventArgs = {
 	pointerEvent: PointerEvent,
-	position: GLP.Vector,
-	delta: GLP.Vector,
+	position: MTP.Vector,
+	delta: MTP.Vector,
 }
 
-// namespace import経由のextends（GLP.EventEmitter）はRollupがtree-shakeできないため、named importでextendsする
+// namespace import経由のextends（MTP.EventEmitter）はRollupがtree-shakeできないため、named importでextendsする
 export class Pointer extends EventEmitter {
 
 	protected _isTouching: boolean;
 	public element: HTMLElement | null = null;
 
-	public position: GLP.Vector;
-	public delta: GLP.Vector;
+	public position: MTP.Vector;
+	public delta: MTP.Vector;
 
 	constructor() {
 
 		super();
 
-		this.position = new GLP.Vector( NaN, NaN );
-		this.delta = new GLP.Vector( NaN, NaN );
+		this.position = new MTP.Vector( NaN, NaN );
+		this.delta = new MTP.Vector( NaN, NaN );
 		this._isTouching = false;
 
 		/*-------------------------------
@@ -83,9 +83,9 @@ export class Pointer extends EventEmitter {
 
 	}
 
-	public getScreenPosition( windowSize: GLP.Vector ) {
+	public getScreenPosition( windowSize: MTP.Vector ) {
 
-		if ( this.position.x != this.position.x ) return new GLP.Vector( NaN, NaN );
+		if ( this.position.x != this.position.x ) return new MTP.Vector( NaN, NaN );
 
 		const p = this.position.clone().divide( windowSize ).multiply( 2.0 ).sub( 1.0 );
 		p.y *= - 1;
@@ -108,7 +108,7 @@ export class Pointer extends EventEmitter {
 
 		}
 
-		const p = new GLP.Vector( x, y );
+		const p = new MTP.Vector( x, y );
 
 		return p;
 

@@ -1,4 +1,5 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
+import { EventEmitter } from 'mathpower';
 import * as MXP from 'maxpower';
 
 import { Engine } from '../../../core/Engine';
@@ -6,7 +7,7 @@ import { Engine } from '../../../core/Engine';
 const PREVIEW_SIZE = 128;
 
 // 読み出しが非同期になったため、出来上がったらイベントで知らせて描き直してもらう
-export class AssetPreviewManager extends GLP.EventEmitter {
+export class AssetPreviewManager extends EventEmitter {
 
 	private _draw: MXP.EditorDrawContract;
 	private _target: MXP.EditorTarget;
@@ -27,7 +28,7 @@ export class AssetPreviewManager extends GLP.EventEmitter {
 		this._canvas2d.height = PREVIEW_SIZE;
 		this._ctx2d = this._canvas2d.getContext( '2d' )!;
 
-		this._target = draw.createTarget( { size: new GLP.Vector( PREVIEW_SIZE, PREVIEW_SIZE ) } );
+		this._target = draw.createTarget( { size: new MTP.Vector( PREVIEW_SIZE, PREVIEW_SIZE ) } );
 
 	}
 

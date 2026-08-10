@@ -1,13 +1,13 @@
-import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
 export class ShakeViewer extends MXP.Component {
 
 	private shakePower: number;
 	private shakeSpeed: number;
-	private shakeMatrix: GLP.Matrix;
-	private cameraMatrixWorld: GLP.Matrix;
-	private shakeQua: GLP.Quaternion;
+	private shakeMatrix: MTP.Matrix;
+	private cameraMatrixWorld: MTP.Matrix;
+	private shakeQua: MTP.Quaternion;
 
 	constructor( params: MXP.ComponentParams ) {
 
@@ -15,9 +15,9 @@ export class ShakeViewer extends MXP.Component {
 
 		this.shakePower = 0.15;
 		this.shakeSpeed = 1.0;
-		this.shakeMatrix = new GLP.Matrix();
-		this.cameraMatrixWorld = new GLP.Matrix();
-		this.shakeQua = new GLP.Quaternion();
+		this.shakeMatrix = new MTP.Matrix();
+		this.cameraMatrixWorld = new MTP.Matrix();
+		this.shakeQua = new MTP.Quaternion();
 		this.order = 999 + 1;
 
 		this.field( "power", () => this.shakePower, value => this.shakePower = value );

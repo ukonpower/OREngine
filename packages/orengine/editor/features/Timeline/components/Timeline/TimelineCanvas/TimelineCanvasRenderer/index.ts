@@ -1,11 +1,13 @@
 import * as GLP from 'glpower';
+import * as MTP from 'mathpower';
+import { EventEmitter } from 'mathpower';
 import * as MXP from 'maxpower';
 import { OREngineProjectFrame } from 'orengine';
 
 import timelineFrag from './shaders/timeline.fs';
 
 
-export class TimelineCanvasRenderer extends GLP.EventEmitter {
+export class TimelineCanvasRenderer extends EventEmitter {
 
 	private wrapperElm: HTMLElement | null;
 
@@ -30,7 +32,7 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 
 	private resizeObserver: ResizeObserver;
 
-	private canvasSize: GLP.Vector;
+	private canvasSize: MTP.Vector;
 
 	constructor() {
 
@@ -47,7 +49,7 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 		this.backend = new MXP.GLBackend( this.glCanvas.getContext( 'webgl2' )! );
 		this.gl = this.backend.gl;
 
-		this.canvasSize = new GLP.Vector( this.glCanvas.width, this.glCanvas.height );
+		this.canvasSize = new MTP.Vector( this.glCanvas.width, this.glCanvas.height );
 
 		// viewport
 
@@ -114,7 +116,7 @@ export class TimelineCanvasRenderer extends GLP.EventEmitter {
 
 		if ( this.wrapperElm ) {
 
-			const resolution = new GLP.Vector( this.wrapperElm.clientWidth, this.wrapperElm.clientHeight );
+			const resolution = new MTP.Vector( this.wrapperElm.clientWidth, this.wrapperElm.clientHeight );
 
 			if ( resolution.x === 0 || resolution.y === 0 ) return;
 
