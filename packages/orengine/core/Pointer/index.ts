@@ -1,12 +1,12 @@
+import { EventEmitter } from 'basepower';
 import * as MTP from 'mathpower';
-import { EventEmitter } from 'mathpower';
 export type PointerEventArgs = {
 	pointerEvent: PointerEvent,
 	position: MTP.Vector,
 	delta: MTP.Vector,
 }
 
-// namespace import経由のextends（MTP.EventEmitter）はRollupがtree-shakeできないため、named importでextendsする
+// namespace import経由のextends（BSP.EventEmitter）はRollupがtree-shakeできないため、named importでextendsする
 export class Pointer extends EventEmitter {
 
 	protected _isTouching: boolean;

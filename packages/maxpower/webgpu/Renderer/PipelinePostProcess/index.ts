@@ -1,3 +1,4 @@
+import * as BSP from 'basepower';
 import * as MTP from 'mathpower';
 
 import { PostProcessChain, PostProcessPass } from '../../PostProcess';
@@ -245,7 +246,7 @@ export class PipelinePostProcess {
 			inputs: [ 'uBackBuffer0', NEAREST( 'uGbufferPos' ), NEAREST( 'uGbufferNormal' ), 'uSSRTexture' ],
 		} );
 
-		const dofUniforms: MTP.Uniforms = { uParams: { value: this._dofParams, type: '4fv' } };
+		const dofUniforms: BSP.Uniforms = { uParams: { value: this._dofParams, type: '4fv' } };
 
 		this._dofCoc = pass( {
 			name: 'dof/coc',
@@ -329,7 +330,7 @@ export class PipelinePostProcess {
 		for ( let i = 0; i < BLOOM_LEVELS; i ++ ) {
 
 			const ratio = 0.5 / Math.pow( 2, i );
-			const uniforms: MTP.Uniforms = { uBlurRange: { value: 2.0, type: '1f' } };
+			const uniforms: BSP.Uniforms = { uBlurRange: { value: 2.0, type: '1f' } };
 
 			const vertical = pass( {
 				name: `bloom/blur/${i}/v`,

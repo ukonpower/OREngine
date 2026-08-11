@@ -1,4 +1,6 @@
-import { Matrix, Types } from "..";
+import { Types } from "basepower";
+
+import { Matrix } from "..";
 
 export type IVector2 = {
 	x: number,

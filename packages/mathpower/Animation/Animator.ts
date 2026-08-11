@@ -1,6 +1,6 @@
+import { EventEmitter, UniformType } from 'basepower';
+
 import { Vector } from "../Math/Vector";
-import { UniformType } from "../types";
-import { EventEmitter } from "../utils/EventEmitter";
 
 import { EasingFunc, easeInOutCubic } from "./Easings";
 import { LerpFunc, Lerps } from "./Lerps";

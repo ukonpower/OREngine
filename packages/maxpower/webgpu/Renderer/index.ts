@@ -1,3 +1,4 @@
+import * as BSP from 'basepower';
 import { GeometryBuffer, VERTEX_BUFFER_LAYOUT } from 'gpupower';
 import { UniformBinder } from 'gpupower';
 import * as MTP from 'mathpower';
@@ -132,7 +133,7 @@ type RenderStack = {
 export class Renderer extends Serializable implements RendererContract {
 
 	public readonly canvas: HTMLCanvasElement;
-	public globalUniforms: MTP.Uniforms;
+	public globalUniforms: BSP.Uniforms;
 	public resolution: MTP.Vector;
 	public pipelineConfig: PipelineConfig;
 
@@ -153,8 +154,8 @@ export class Renderer extends Serializable implements RendererContract {
 	private _emptyMaterialLayout: GPUBindGroupLayout | null;
 
 	// bindings
-	private _frameUniforms: MTP.Uniforms;
-	private _objectUniforms: MTP.Uniforms;
+	private _frameUniforms: BSP.Uniforms;
+	private _objectUniforms: BSP.Uniforms;
 	private _frameBinder: UniformBinder | null;
 	private _frameBindGroup: GPUBindGroup | null;
 

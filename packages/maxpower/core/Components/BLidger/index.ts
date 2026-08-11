@@ -1,3 +1,4 @@
+import * as BSP from 'basepower';
 import * as MTP from 'mathpower';
 
 import { BLidge, BLidgeNode, BLidgeLightParam, BLidgeCameraParam } from "../../BLidge";
@@ -17,7 +18,7 @@ export class BLidger extends Component {
 	public node: BLidgeNode;
 	public rotationOffsetX: number;
 	public animations: Map<string, MTP.FCurveGroup>;
-	public uniforms: MTP.Uniforms;
+	public uniforms: BSP.Uniforms;
 	public uniformCurves: Map<string, MTP.FCurveGroup>;
 	public transformAutoUpdate: boolean;
 

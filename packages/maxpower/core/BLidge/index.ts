@@ -1,5 +1,5 @@
+import { EventEmitter } from 'basepower';
 import * as MTP from 'mathpower';
-import { EventEmitter } from 'mathpower';
 
 import type { EngineContract } from '../Contracts/EngineContract';
 import type { GLTF, GLTFLoaderContract } from '../Contracts/GLTFLoaderContract';

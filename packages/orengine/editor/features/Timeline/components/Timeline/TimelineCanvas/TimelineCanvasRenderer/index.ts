@@ -1,6 +1,6 @@
+import { EventEmitter } from 'basepower';
 import * as GLP from 'glpower';
 import * as MTP from 'mathpower';
-import { EventEmitter } from 'mathpower';
 import * as MXP from 'maxpower';
 import { OREngineProjectFrame } from 'orengine';
 

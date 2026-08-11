@@ -1,10 +1,11 @@
+import * as BSP from 'basepower';
 import * as GLP from 'glpower';
 import * as MTP from 'mathpower';
 
 import { Serializable } from '../Serializable';
 
 type Attribute = {
-	array: MTP.TArrayBuffer;
+	array: BSP.TArrayBuffer;
 	size: number;
 	buffer?: GLP.GLPowerBuffer
 	opt?: GLP.AttributeOptions,
@@ -30,7 +31,7 @@ export class Geometry extends Serializable {
 
 	}
 
-	public setAttribute( name: DefaultAttributeName | ( string & {} ), array: MTP.TArrayBuffer, size: number, opt?: GLP.AttributeOptions ) {
+	public setAttribute( name: DefaultAttributeName | ( string & {} ), array: BSP.TArrayBuffer, size: number, opt?: GLP.AttributeOptions ) {
 
 		const currentAttr = this.attributes.get( name );
 

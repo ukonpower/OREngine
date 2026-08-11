@@ -1,3 +1,4 @@
+import * as BSP from 'basepower';
 import * as MTP from 'mathpower';
 
 import { Component, ComponentParams } from '../../Component';
@@ -9,8 +10,8 @@ export class BLidgerAnimationReceiver extends Component {
 
 	public animations: Map<string, MTP.FCurveGroup>;
 
-	public uniforms: MTP.Uniforms;
-	private registeredUniforms: MTP.Uniforms[];
+	public uniforms: BSP.Uniforms;
+	private registeredUniforms: BSP.Uniforms[];
 
 	constructor( params: ComponentParams ) {
 
@@ -23,7 +24,7 @@ export class BLidgerAnimationReceiver extends Component {
 
 	}
 
-	public registerUniforms( uniforms: MTP.Uniforms ) {
+	public registerUniforms( uniforms: BSP.Uniforms ) {
 
 		this.unregisterUniforms( uniforms );
 
@@ -35,7 +36,7 @@ export class BLidgerAnimationReceiver extends Component {
 
 	}
 
-	public unregisterUniforms( uniforms: MTP.Uniforms ) {
+	public unregisterUniforms( uniforms: BSP.Uniforms ) {
 
 		const index = this.registeredUniforms.indexOf( uniforms );
 
@@ -47,7 +48,7 @@ export class BLidgerAnimationReceiver extends Component {
 
 	}
 
-	private assignUniforms( targetUniforms: MTP.Uniforms ) {
+	private assignUniforms( targetUniforms: BSP.Uniforms ) {
 
 		Object.keys( this.uniforms ).forEach( ( name ) => {
 

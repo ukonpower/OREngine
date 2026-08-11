@@ -1,5 +1,5 @@
+import { EventEmitter } from 'basepower';
 import * as MTP from 'mathpower';
-import { EventEmitter } from 'mathpower';
 
 const N = 2;
 
@@ -7,7 +7,7 @@ export type CurvePoint = MTP.IVector3 & {
 	weight?: number
 }
 
-// namespace import経由のextends（MTP.EventEmitter）はRollupがtree-shakeできないため、named importでextendsする
+// namespace import経由のextends（BSP.EventEmitter）はRollupがtree-shakeできないため、named importでextendsする
 export class Curve extends EventEmitter {
 
 	public points: CurvePoint[];

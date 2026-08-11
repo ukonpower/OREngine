@@ -1,6 +1,7 @@
 
+import * as BSP from 'basepower';
+import { EventEmitter } from 'basepower';
 import * as MTP from 'mathpower';
-import { EventEmitter } from 'mathpower';
 import * as MXP from 'maxpower';
 
 import { TextureResource } from './TextureResource';
@@ -274,7 +275,7 @@ export class Resources extends EventEmitter {
 
 	}
 
-	private _buildTexture( resource: TextureResource, renderer: MXP.RendererContract, textures: { [ key: string ]: MXP.TextureContract }, engineUniforms?: MTP.Uniforms ): MXP.TexProceduralContract | null {
+	private _buildTexture( resource: TextureResource, renderer: MXP.RendererContract, textures: { [ key: string ]: MXP.TextureContract }, engineUniforms?: BSP.Uniforms ): MXP.TexProceduralContract | null {
 
 		const fragSource = resource.frag;
 		if ( ! fragSource ) return null;
@@ -294,7 +295,7 @@ export class Resources extends EventEmitter {
 	}
 
 	// 依存テクスチャ（resource.textures）を先にビルドしてから自身をビルドする
-	private _ensureTexture( resource: TextureResource, renderer: MXP.RendererContract, engineUniforms: MTP.Uniforms | undefined, building: Set<string> ): MXP.TextureContract | null {
+	private _ensureTexture( resource: TextureResource, renderer: MXP.RendererContract, engineUniforms: BSP.Uniforms | undefined, building: Set<string> ): MXP.TextureContract | null {
 
 		const built = this._textures.get( resource.name );
 
@@ -343,7 +344,7 @@ export class Resources extends EventEmitter {
 
 	}
 
-	public buildTextureInstances( renderer: MXP.RendererContract, engineUniforms?: MTP.Uniforms ) {
+	public buildTextureInstances( renderer: MXP.RendererContract, engineUniforms?: BSP.Uniforms ) {
 
 		this._updateEveryFrameTextures = [];
 

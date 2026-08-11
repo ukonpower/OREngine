@@ -1,6 +1,6 @@
 
+import * as BSP from 'basepower';
 import * as GLP from 'glpower';
-import * as MTP from 'mathpower';
 
 import { Serializable } from '../../core/Serializable';
 
@@ -25,7 +25,7 @@ export interface MaterialParam {
 	frag?: string;
 	vert?: string;
 	defines?: MaterialDefines;
-	uniforms?: MTP.Uniforms;
+	uniforms?: BSP.Uniforms;
 	useLight?: boolean;
 	depthTest?: boolean;
 	depthWrite?: boolean;
@@ -40,7 +40,7 @@ export class Material extends Serializable implements MaterialContract {
 	public vert: string;
 	public frag: string;
 	public defines: MaterialDefines;
-	public uniforms: MTP.Uniforms;
+	public uniforms: BSP.Uniforms;
 
 	public useLight: boolean;
 	public depthTest: boolean;

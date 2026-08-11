@@ -1,4 +1,4 @@
-import type { TArrayBuffer } from 'mathpower';
+import type { TArrayBuffer } from 'basepower';
 
 // maxpower側のGeometryを構造的に受ける最小インターフェース（gpupowerは上位層に依存しない）
 export interface GeometryLike {

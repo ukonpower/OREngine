@@ -1,3 +1,4 @@
+import * as BSP from 'basepower';
 import { UniformBinder } from 'gpupower';
 import * as MTP from 'mathpower';
 
@@ -212,7 +213,7 @@ export class EnvMap {
 	}
 
 	// 時間系のuniformを全faceへ反映する。カメラ・解像度は固定なので触らない
-	public update( globalUniforms: MTP.Uniforms ) {
+	public update( globalUniforms: BSP.Uniforms ) {
 
 		const time = {
 			uTime: globalUniforms.uTime,

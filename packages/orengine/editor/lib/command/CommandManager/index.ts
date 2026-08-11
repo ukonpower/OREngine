@@ -1,4 +1,4 @@
-import { EventEmitter } from 'mathpower';
+import { EventEmitter } from 'basepower';
 
 export interface Command {
 	name: string;

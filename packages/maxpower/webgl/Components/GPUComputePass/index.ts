@@ -1,4 +1,5 @@
 
+import * as BSP from 'basepower';
 import * as GLP from 'glpower';
 import * as MTP from 'mathpower';
 
@@ -25,7 +26,7 @@ export class GPUComputePass extends PostProcessPass {
 	public rt1: GLP.GLPowerFrameBuffer;
 	public rt2: GLP.GLPowerFrameBuffer;
 
-	public outputUniforms: MTP.Uniforms;
+	public outputUniforms: BSP.Uniforms;
 
 	constructor( backend: GLBackend, param: GPUComputePassParam ) {
 
@@ -34,7 +35,7 @@ export class GPUComputePass extends PostProcessPass {
 		const rt1 = backend.createFrameBuffer().setTexture( new Array( param.dataLayerCount ).fill( 0 ).map( () => backend.createTexture().setting( textureSetting ) ) ).setSize( param.size );
 		const rt2 = backend.createFrameBuffer().setTexture( new Array( param.dataLayerCount ).fill( 0 ).map( () => backend.createTexture().setting( textureSetting ) ) ).setSize( param.size );
 
-		const outputUniforms: MTP.Uniforms = {
+		const outputUniforms: BSP.Uniforms = {
 			uGPUResolution: {
 				value: param.size,
 				type: "2fv"

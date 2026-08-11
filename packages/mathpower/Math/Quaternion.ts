@@ -1,4 +1,6 @@
-import { IVector3, IVector4, Matrix, Types } from "..";
+import { Types } from "basepower";
+
+import { IVector3, IVector4, Matrix } from "..";
 
 import { Euler, EulerOrder } from "./Euler";
 import { Vector } from "./Vector";

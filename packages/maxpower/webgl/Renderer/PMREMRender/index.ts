@@ -1,6 +1,7 @@
+import * as BSP from 'basepower';
+import { EventEmitter } from 'basepower';
 import * as GLP from 'glpower';
 import * as MTP from 'mathpower';
-import { EventEmitter } from 'mathpower';
 import * as MXP from 'maxpower';
 
 import { GL, GLBackend } from '../../GLBackend';
@@ -17,7 +18,7 @@ export class PMREMRender extends EventEmitter {
 	public renderTarget: GLP.GLPowerFrameBuffer;
 	private pmremPasses: MXP.PostProcessPass[];
 	private swapBuffers: SwapBuffer[];
-	private timeUniforms: MTP.Uniforms;
+	private timeUniforms: BSP.Uniforms;
 
 	constructor( backend: GLBackend, param: {input: GLP.GLPowerTextureCube[], resolution: MTP.Vector} ) {
 
@@ -25,7 +26,7 @@ export class PMREMRender extends EventEmitter {
 
 		const resolution = param.resolution;
 
-		const timeUniforms: MTP.Uniforms = {
+		const timeUniforms: BSP.Uniforms = {
 			uTimeEF: {
 				value: 0,
 				type: '1f'
