@@ -10,7 +10,7 @@ import { Plugin } from 'vite';
 const exec = util.promisify( childProcess.exec );
 
 const SHADER_EXT = /\.(vs|fs|vert|frag|glsl)$/;
-const SKIP_DIRS = new Set( [ 'node_modules', 'dist', 'tmp', '.git', 'spikes' ] );
+const SKIP_DIRS = new Set( [ 'node_modules', 'dist', 'tmp', '.git' ] );
 
 export interface ShaderBuilderOptions {
 	scanDirs: string[];
