@@ -1,6 +1,7 @@
+import * as BSP from 'basepower';
+import { EventEmitter } from 'basepower';
 import * as GLP from 'glpower';
 import * as MTP from 'mathpower';
-import { EventEmitter } from 'mathpower';
 import * as MXP from 'maxpower';
 
 import { GL, GLBackend } from '../../GLBackend';
@@ -68,7 +69,7 @@ export class DeferredRenderer extends EventEmitter {
 
 	public ssaoBlur: MXP.PostProcessPass;
 	public ssaoBlurV: MXP.PostProcessPass;
-	private ssaoBlurUni: MTP.Uniforms;
+	private ssaoBlurUni: BSP.Uniforms;
 
 	// shading
 

@@ -1,3 +1,4 @@
+import * as BSP from 'basepower';
 import * as GLP from 'glpower';
 import * as MTP from 'mathpower';
 
@@ -72,7 +73,7 @@ type EnvMapCamera = {
 
 interface RenderOption {
 	cameraOverride?: CameraParam,
-	uniformOverride?: MTP.Uniforms,
+	uniformOverride?: BSP.Uniforms,
 	disableClear?: boolean,
 }
 
@@ -91,7 +92,7 @@ interface DrawParam extends CameraParam {
 	modelMatrixWorld?: MTP.Matrix;
 	modelMatrixWorldPrev?: MTP.Matrix;
 	renderTarget?: GLP.GLPowerFrameBuffer | null;
-	uniformOverride?: MTP.Uniforms,
+	uniformOverride?: BSP.Uniforms,
 }
 
 // compile draw param
@@ -169,7 +170,7 @@ export class Renderer extends Serializable implements RendererContract {
 	public readonly backend: GLBackend;
 	public readonly canvas: HTMLCanvasElement;
 	public resolution: MTP.Vector;
-	public globalUniforms: MTP.Uniforms;
+	public globalUniforms: BSP.Uniforms;
 	private _renderTarget: RenderCameraTarget;
 
 	// pipeline config
@@ -221,8 +222,8 @@ export class Renderer extends Serializable implements RendererContract {
 	private _tmpModelMatrixInverse: MTP.Matrix;
 	private _tmpProjectionMatrixInverse: MTP.Matrix;
 	private _tmpResolution: MTP.Vector;
-	private _tmpResolutionUniform: MTP.Uniforms[string];
-	private _tmpUniformOverride: MTP.Uniforms;
+	private _tmpResolutionUniform: BSP.Uniforms[string];
+	private _tmpUniformOverride: BSP.Uniforms;
 	private _tmpDrawParam: DrawParam;
 
 	constructor( backend: GLBackend, engine: EngineContract ) {
@@ -1324,7 +1325,7 @@ export class Renderer extends Serializable implements RendererContract {
 	// .tex の実体を組み立てる。依存テクスチャはサンプラー（'1i' uniform）としてぶら下げる
 	public createTexProcedural( param: TexProceduralParam ): TexProcedural {
 
-		const uniforms: MTP.Uniforms = { ...param.uniforms };
+		const uniforms: BSP.Uniforms = { ...param.uniforms };
 		const textures = param.textures || {};
 		const keys = Object.keys( textures );
 
@@ -1401,7 +1402,7 @@ const pushUniformValue = ( v: boolean | number | MTP.Vector | MTP.Matrix | GLP.G
 };
 
 // 複数のuniformオブジェクトを順に走査して設定する（後のオブジェクトが同名キーを上書きする）
-export const setUniforms = ( program: GLP.GLPowerProgram, ...uniformsList: ( MTP.Uniforms | undefined )[] ) => {
+export const setUniforms = ( program: GLP.GLPowerProgram, ...uniformsList: ( BSP.Uniforms | undefined )[] ) => {
 
 	for ( let ui = 0; ui < uniformsList.length; ui ++ ) {
 

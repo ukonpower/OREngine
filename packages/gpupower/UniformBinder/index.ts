@@ -1,3 +1,4 @@
+import type * as BSP from 'basepower';
 import type * as MTP from 'mathpower';
 
 /*-------------------------------
@@ -36,7 +37,7 @@ const TYPES: { [K in WgslType]: { size: number, align: number, count: number, in
 	mat4x4f: { size: 64, align: 16, count: 16, columns: 4, rows: 4, columnStride: 16 },
 };
 
-// MTP.Uniforms の型指定を WGSL の型へ写す
+// BSP.Uniforms の型指定を WGSL の型へ写す
 const TYPE_TO_WGSL: { [key: string]: WgslType } = {
 	'1f': 'f32',
 	'1fv': 'f32',
@@ -178,7 +179,7 @@ const flatten = ( measured: Measured, base: number, prefix: string, entries: Map
 };
 
 // 名前ベース辞書からフィールド宣言を作る（宣言順＝辞書のキー順）
-export const fieldsFromUniforms = ( uniforms: MTP.Uniforms ): UniformField[] => {
+export const fieldsFromUniforms = ( uniforms: BSP.Uniforms ): UniformField[] => {
 
 	const fields: UniformField[] = [];
 	const keys = Object.keys( uniforms );
@@ -282,7 +283,7 @@ export class UniformBinder {
 	}
 
 	// 複数の辞書を順に反映してGPUへ書き戻す（後の辞書が同名キーを上書きする）
-	public update( ...uniformsList: ( MTP.Uniforms | undefined )[] ) {
+	public update( ...uniformsList: ( BSP.Uniforms | undefined )[] ) {
 
 		for ( let i = 0; i < uniformsList.length; i ++ ) {
 

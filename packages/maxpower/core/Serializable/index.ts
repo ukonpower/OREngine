@@ -1,5 +1,5 @@
-import * as MTP from 'mathpower';
-import { EventEmitter } from 'mathpower';
+import * as BSP from 'basepower';
+import { EventEmitter } from 'basepower';
 import { SelectList } from 'packages/orengine/editor/components/composites/Input/InputSelect';
 import { ValueOpt } from 'packages/orengine/editor/components/composites/Value';
 
@@ -89,7 +89,7 @@ export class Serializable extends EventEmitter {
 
 		super();
 
-		this.uuid = MTP.ID.genUUID();
+		this.uuid = BSP.ID.genUUID();
 
 		this.fields_ = new Map();
 

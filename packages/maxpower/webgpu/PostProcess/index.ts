@@ -6,6 +6,7 @@ import { buildLightWgsl } from '../Renderer/Lights';
 
 import fullscreenWgsl from './shaders/fullscreen.wgsl';
 
+import type * as BSP from 'basepower';
 import type { UniformField } from 'gpupower';
 import type * as MTP from 'mathpower';
 
@@ -55,7 +56,7 @@ export type PostProcessPassParam = {
 	// rgba32float のテクスチャは filtering サンプラーで引けないので filterable: false で宣言し、
 	// シェーダー側も ppSamplerNearest で引く（組み合わせは検証スクリプトで機械チェックしている）
 	inputs?: PassInput[];
-	uniforms?: MTP.Uniforms;
+	uniforms?: BSP.Uniforms;
 	format?: GPUTextureFormat;
 	resolutionRatio?: number;
 	// 自分の出力を次のパスへ流さない（別の入力として名指しで使われるパス）
@@ -70,7 +71,7 @@ export type PostProcessPassParam = {
 export class PostProcessPass {
 
 	public readonly name: string;
-	public readonly uniforms: MTP.Uniforms;
+	public readonly uniforms: BSP.Uniforms;
 	public readonly passThrough: boolean;
 	public readonly resolutionRatio: number;
 	public enabled: boolean;

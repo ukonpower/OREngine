@@ -1,3 +1,4 @@
+import * as BSP from 'basepower';
 import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
@@ -24,7 +25,7 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 
 	private _renderer: MXP.Renderer;
 	private _root: MXP.Entity;
-	private _uniforms: MTP.Uniforms;
+	private _uniforms: BSP.Uniforms;
 	private _time: SceneTime;
 	private _frame: FramePlay;
 	private _frameSetting: OREngineProjectFrame;

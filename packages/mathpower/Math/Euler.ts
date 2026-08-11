@@ -1,4 +1,4 @@
-import { Types } from "../types";
+import { Types } from 'basepower';
 
 import { Matrix } from "./Matrix";
 import { Quaternion } from "./Quaternion";

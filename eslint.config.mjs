@@ -70,6 +70,7 @@ export default [ {
 		},
 
 		"boundaries/elements": [
+			{ type: "base-util", pattern: [ "packages/basepower/**" ] },
 			{ type: "base-math", pattern: [ "packages/mathpower/**" ] },
 			{ type: "base-webgl", pattern: [ "packages/glpower/**" ] },
 			{ type: "base-webgpu", pattern: [ "packages/gpupower/**" ] },
@@ -103,14 +104,19 @@ export default [ {
 					message: "ランタイム領域からエディタ領域への import は禁止です",
 				},
 				{
-					from: { element: { types: [ "base-math", "base-webgl", "base-webgpu" ] } },
+					from: { element: { types: [ "base-util", "base-math", "base-webgl", "base-webgpu" ] } },
 					disallow: { element: { types: [ "runtime", "editor" ] } },
-					message: "第1層パッケージ（mathpower/glpower/gpupower）から上位層への import は禁止です",
+					message: "第1層パッケージ（basepower/mathpower/glpower/gpupower）から上位層への import は禁止です",
+				},
+				{
+					from: { element: { types: "base-util" } },
+					disallow: { element: { types: [ "base-math", "base-webgl", "base-webgpu" ] } },
+					message: "basepower は他パッケージに依存できません",
 				},
 				{
 					from: { element: { types: "base-math" } },
 					disallow: { element: { types: [ "base-webgl", "base-webgpu" ] } },
-					message: "mathpower は他パッケージに依存できません",
+					message: "mathpower は basepower 以外のパッケージに依存できません",
 				},
 				{
 					from: { element: { types: "base-webgl" } },

@@ -4,8 +4,8 @@ import { FRAME_FIELDS, GROUP_FRAME } from '../Bindings';
 
 import type { StorageSource } from '../Bindings';
 import type { Renderer } from '../Renderer';
+import type * as BSP from 'basepower';
 import type { UniformField } from 'gpupower';
-import type * as MTP from 'mathpower';
 
 /*-------------------------------
 	GPGPU（compute pass + storage buffer ピンポン）
@@ -34,7 +34,7 @@ export interface GPUComputeParam {
 	struct: { name: string, fields: string[] };
 	// csMain を定義したWGSL本体。宣言部は前置される
 	wgsl: string;
-	uniforms?: MTP.Uniforms;
+	uniforms?: BSP.Uniforms;
 }
 
 export class GPUCompute implements StorageSource {
@@ -43,7 +43,7 @@ export class GPUCompute implements StorageSource {
 	public readonly count: number;
 	public readonly structName: string;
 	public readonly structWgsl: string;
-	public readonly uniforms: MTP.Uniforms;
+	public readonly uniforms: BSP.Uniforms;
 
 	public buffers: [ GPUBuffer, GPUBuffer ] | null;
 	public readIndex: number;

@@ -1,4 +1,4 @@
-import { EventEmitter } from 'mathpower';
+import { EventEmitter } from 'basepower';
 
 import { Mesh } from '../../../core/Components/Mesh';
 import { Entity } from '../../../core/Entity';

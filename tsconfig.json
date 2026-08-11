@@ -37,6 +37,9 @@
     "rootDir": "./",
     "baseUrl": "./",
     "paths": {
+      "basepower": [
+        "./packages/basepower"
+      ],
       "glpower": [
         "./packages/glpower"
       ],

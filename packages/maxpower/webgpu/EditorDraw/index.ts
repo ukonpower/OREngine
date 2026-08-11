@@ -1,3 +1,4 @@
+import * as BSP from 'basepower';
 import * as MTP from 'mathpower';
 
 import { SCENE_FORMAT } from '../Bindings';
@@ -105,7 +106,7 @@ class GPUEditorRecipe implements EditorRecipe {
 
 	public readonly isEditorRecipe = true;
 	public readonly mask: GPUEditorTarget;
-	public readonly uniforms: MTP.Uniforms;
+	public readonly uniforms: BSP.Uniforms;
 
 	constructor( mask: GPUEditorTarget, color: number[] ) {
 

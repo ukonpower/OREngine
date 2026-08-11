@@ -1,4 +1,4 @@
-import { Uniforms } from 'mathpower';
+import { Uniforms } from 'basepower';
 
 export namespace UniformsUtils {
 

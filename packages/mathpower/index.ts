@@ -15,11 +15,3 @@ export * from './Animation/FCurve';
 export * from './Animation/FCurveGroup';
 export * from './Animation/FCurveKeyFrame';
 
-// utils
-
-export * from './utils/EventEmitter';
-export * from './utils/ID';
-
-// types
-
-export * from './types/index';

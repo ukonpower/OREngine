@@ -1,3 +1,4 @@
+import * as BSP from 'basepower';
 import { UniformBinder, buildStructWgsl } from 'gpupower';
 import * as MTP from 'mathpower';
 
@@ -114,13 +115,13 @@ export class Lights {
 	public readonly shadowRenders: ShadowRender[];
 
 	private _binder: UniformBinder;
-	private _uniforms: MTP.Uniforms;
+	private _uniforms: BSP.Uniforms;
 	private _directional: LightSlot[];
 	private _spot: LightSlot[];
 	private _shadowMaps: GPUTexture[];
 
 	// ライト視点のフレームuniformを書くための一時辞書
-	private _lightFrameUniforms: MTP.Uniforms;
+	private _lightFrameUniforms: BSP.Uniforms;
 	private _lightProjectionMatrix: MTP.Matrix;
 	private _lightPosition: MTP.Vector;
 

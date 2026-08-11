@@ -1,5 +1,7 @@
-import { Types, Vector } from '..';
-import { EventEmitter } from '../utils/EventEmitter';
+import { Types } from 'basepower';
+import { EventEmitter } from 'basepower';
+
+import { Vector } from '..';
 
 import { FCurve } from './FCurve';
 

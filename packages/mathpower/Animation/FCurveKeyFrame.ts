@@ -1,5 +1,6 @@
+import { EventEmitter } from 'basepower';
+
 import { IVector2 } from '../Math/Vector';
-import { EventEmitter } from '../utils/EventEmitter';
 
 import { EasingFunc, bezier } from './Easings';
 

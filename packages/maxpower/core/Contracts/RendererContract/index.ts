@@ -1,12 +1,13 @@
 import type { Entity, EntityUpdateEvent } from '../../Entity';
 import type { Serializable } from '../../Serializable';
 import type { TexProceduralContract, TexProceduralParam } from '../TexProceduralContract';
+import type * as BSP from 'basepower';
 import type * as MTP from 'mathpower';
 
 // バックエンドごとのRendererが満たす口。EntityUpdateEvent.renderer としてComponentも触る
 export interface RendererContract extends Serializable {
 
-	globalUniforms: MTP.Uniforms;
+	globalUniforms: BSP.Uniforms;
 	readonly resolution: MTP.Vector;
 	readonly canvas: HTMLCanvasElement;
 
