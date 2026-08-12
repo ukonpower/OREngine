@@ -26,7 +26,7 @@
     "build:static": "tsx scripts/run.mjs build:static",
     "lint": "eslint \"**/*.{ts,tsx}\" --report-unused-disable-directives --max-warnings 0",
     "test:render-flow": "node --import tsx --import ./tests/register-raw-text-loader.mjs --import ./tests/register-webgl-stub.mjs --test tests/render-flow.test.ts",
-    "typecheck": "tsc --noEmit && find packages -name '*.scss' | xargs -I{} sass --no-source-map --quiet {} /dev/null"
+    "typecheck": "tsc --noEmit && find packages -name '*.scss' | xargs -I{} sass --load-path=packages/orengine/editor --no-source-map --quiet {} /dev/null"
   },
   "dependencies": {
     "@rollup/plugin-terser": "^1.0.0",

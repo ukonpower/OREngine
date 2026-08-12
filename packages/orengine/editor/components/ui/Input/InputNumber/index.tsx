@@ -1,19 +1,21 @@
 
 import { useRef, useCallback, useState, MouseEvent } from 'react';
 
-import { useInputWindow } from '../../../../features/InputWindow/hooks/useInputWindow';
-import { useMobileDevice } from '../../../../features/MobileDevice/hooks/useMobileDevice';
-import { ValueProps } from '../../Value';
+import { useInputWindow } from '../../../../hooks/useInputWindow';
+import { useMobileDevice } from '../../../../hooks/useMobileDevice';
 
 import style from './index.module.scss';
 
 
-type Props = ValueProps<number> & {
+type Props = {
+	value: number | undefined;
 	onChange?: ( value: number ) => void;
 	step?: number;
 	min?: number;
 	max?: number;
 	precision?: number;
+	disabled?: boolean;
+	readOnly?: boolean;
 };
 
 const DRAG_THRESHOLD = 3;

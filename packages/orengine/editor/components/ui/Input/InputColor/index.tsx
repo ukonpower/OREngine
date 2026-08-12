@@ -1,6 +1,11 @@
-import { ValueProps } from '../../Value';
-
 import style from './index.module.scss';
+
+interface InputColorProps {
+	value: number[] | undefined;
+	onChange?: ( value: number[] ) => void;
+	disabled?: boolean;
+	readOnly?: boolean;
+}
 
 // 0..1 の RGB 配列を <input type="color"> の16進表記へ変換する
 const toHex = ( value: number[] ) => {
@@ -20,7 +25,7 @@ const fromHex = ( hex: string ) => {
 
 };
 
-export const InputColor = ( props: ValueProps<number[]> ) => {
+export const InputColor = ( props: InputColorProps ) => {
 
 	const value = props.value || [ 1, 1, 1 ];
 

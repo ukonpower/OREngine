@@ -76,7 +76,9 @@ const sharedCss = () => ( {
 		},
 	},
 	preprocessorOptions: {
-		scss: { api: 'modern' },
+		// loadPaths: editor 配下の scss から `@use 'styles' as *` で共有 partial を参照するため
+		// （相対パスは階層移動に弱い。package.json の typecheck の --load-path と一致させること）
+		scss: { api: 'modern', loadPaths: [ path.join( orengineRoot, 'packages/orengine/editor' ) ] },
 	},
 } );
 

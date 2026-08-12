@@ -7,21 +7,21 @@ import * as MXP from 'maxpower';
 import { LayoutSplit } from '../../components/ui/LayoutSplit';
 import { Panel } from '../../components/ui/Panel';
 import { PanelContainer } from '../../components/ui/PanelContainer';
-import { EditorSettings } from '../EditorSettings';
-import { EntityProperty } from '../EntityProperty';
-import { Timer } from '../GPUTimer';
-import { Hierarchy } from '../Hierarchy';
-import { InputWindow } from '../InputWindow';
-import { InputWindowProvider } from '../InputWindow/providers/InputWindowProvider';
-import { useLayout } from '../Layout/hooks/useLayout';
-import { MouseMenu } from '../MouseMenu';
-import { MouseMenuProvider } from '../MouseMenu/providers/MouseMenuProvider';
-import { ProjectControl } from '../ProjectControl';
-import { RendererSettings } from '../RendererSettings';
-import { Screen } from '../Screen';
-import { Textures } from '../Textures';
-import { Timeline } from '../Timeline';
+import { useLayout } from '../../hooks/useLayout';
 
+import { EditorSettings } from './features/EditorSettings';
+import { EntityProperty } from './features/EntityProperty';
+import { Timer } from './features/GPUTimer';
+import { Hierarchy } from './features/Hierarchy';
+import { InputWindow } from './features/InputWindow';
+import { InputWindowProvider } from './features/InputWindow/providers/InputWindowProvider';
+import { MouseMenu } from './features/MouseMenu';
+import { MouseMenuProvider } from './features/MouseMenu/providers/MouseMenuProvider';
+import { ProjectControl } from './features/ProjectControl';
+import { RendererSettings } from './features/RendererSettings';
+import { Screen } from './features/Screen';
+import { Textures } from './features/Textures';
+import { Timeline } from './features/Timeline';
 import style from './index.module.scss';
 import { OREditorProvider, OREditorSaveCallback } from './providers/OREditorProvider';
 
@@ -32,6 +32,8 @@ export type CustomTab = {
 	content: React.ReactNode;
 	default?: boolean;
 };
+
+export type EditorCustomTabs = Partial<Record<PanelSlot, CustomTab[]>>;
 
 const renderCustomTabs = ( tabs: CustomTab[] | undefined ) => {
 
@@ -47,7 +49,7 @@ const renderCustomTabs = ( tabs: CustomTab[] | undefined ) => {
 
 const defaultTabTitle = ( tabs: CustomTab[] | undefined ) => tabs?.find( ( t ) => t.default )?.title;
 
-export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP.SerializeField, projectName?: string, customTabs?: Partial<Record<PanelSlot, CustomTab[]>> }> = ( props ) => {
+export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP.SerializeField, projectName?: string, customTabs?: EditorCustomTabs }> = ( props ) => {
 
 	const layout = useLayout();
 

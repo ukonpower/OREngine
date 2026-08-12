@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useState } from 'react';
 
-import { useInputWindow } from '../../../../features/InputWindow/hooks/useInputWindow';
-import { useMobileDevice } from '../../../../features/MobileDevice/hooks/useMobileDevice';
+import { useInputWindow } from '../../../../hooks/useInputWindow';
+import { useMobileDevice } from '../../../../hooks/useMobileDevice';
 
 import style from './index.module.scss';
 
