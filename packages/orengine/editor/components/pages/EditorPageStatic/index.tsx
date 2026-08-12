@@ -1,9 +1,9 @@
 import * as MXP from 'maxpower';
 import { OREngineProjectData } from "orengine";
 import { Engine } from "orengine";
-import { OREditor, OREngineProvider } from "orengine/react";
 
-import type { EditorCustomTabs } from "../EditorPage";
+import { OREditor, type EditorCustomTabs } from "../../../features/OREditor";
+import { OREngineProvider } from "../../../features/OREngine/providers/OREngineProvider";
 
 import "../../../styles/style.scss";
 

@@ -18,6 +18,13 @@ const compat = new FlatCompat( {
 	allConfig: js.configs.all
 } );
 
+// editor feature の公開 API（feature 外から import してよいファイル）。
+// contexts/・lib/・features/（子feature）は内部実装
+const EDITOR_FEATURE_PUBLIC_API = {
+	type: "editor-feature",
+	fileInternalPath: [ "index.tsx", "components/**", "hooks/**", "providers/**" ],
+};
+
 export default [ {
 	ignores: [ "**/dist", "scripts/" ],
 }, ...fixupConfigRules( compat.extends(
@@ -149,6 +156,67 @@ export default [ {
 					from: { element: { types: "backend-webgpu" } },
 					disallow: { element: { types: [ "backend-webgl", "base-webgl" ] } },
 					message: "webgpu バックエンドは webgl バックエンド・glpower に依存できません",
+				},
+			],
+		} ],
+	},
+}, {
+
+	// editor React 層のレイヤー依存ルール（pages → features → components/ui の一方向）。
+	// flat config の settings マージにより、editor 配下のファイルだけ elements 定義を差し替える
+	files: [ "packages/orengine/editor/**/*.{ts,tsx}" ],
+
+	settings: {
+		"boundaries/elements": [
+			{ type: "editor-page", pattern: "packages/orengine/editor/components/pages/*", capture: [ "pageName" ] },
+			{ type: "editor-ui", pattern: "packages/orengine/editor/components/ui/*", capture: [ "componentName" ] },
+			{ type: "editor-feature", pattern: "packages/orengine/editor/features/*", capture: [ "featureName" ] },
+			{ type: "editor-shared-hooks", pattern: "packages/orengine/editor/hooks" },
+			{ type: "editor-shared-contexts", pattern: "packages/orengine/editor/contexts" },
+			{ type: "editor-core", pattern: "packages/orengine/editor/lib" },
+			{ type: "editor-styles", pattern: "packages/orengine/editor/styles" },
+			// editor 外のローカルファイル（ランタイムパッケージ等）は一括で分類し、依存可否は既存のパッケージ間ルールに委ねる
+			{ type: "outside-editor", pattern: [ "packages/**", "host/**" ] },
+		],
+	},
+
+	rules: {
+		"boundaries/dependencies": [ "error", {
+			default: "disallow",
+			message: "editor React 層のレイヤー依存ルール違反です（{{from.type}} から {{to.type}} は import できません）。CLAUDE.md の「editor の React 層構造」を参照してください。",
+			policies: [
+				{
+					from: { element: { type: "editor-page" } },
+					allow: { to: { element: [
+						EDITOR_FEATURE_PUBLIC_API,
+						{ type: [ "editor-ui", "editor-shared-hooks", "editor-shared-contexts", "editor-core", "editor-styles", "outside-editor" ] },
+					] } },
+				},
+				{
+					// feature が参照できる feature は自分自身（子feature含む）と、
+					// エンジン供給 feature（OREngine）の公開 API のみ
+					from: { element: { type: "editor-feature" } },
+					allow: { to: { element: [
+						{ type: "editor-feature", captured: { featureName: "{{from.featureName}}" } },
+						{ ...EDITOR_FEATURE_PUBLIC_API, captured: { featureName: "OREngine" } },
+						{ type: [ "editor-ui", "editor-shared-hooks", "editor-shared-contexts", "editor-core", "editor-styles", "outside-editor" ] },
+					] } },
+				},
+				{
+					from: { element: { type: "editor-ui" } },
+					allow: { to: { element: { type: [ "editor-ui", "editor-shared-hooks", "editor-shared-contexts", "editor-styles", "outside-editor" ] } } },
+				},
+				{
+					from: { element: { type: "editor-shared-hooks" } },
+					allow: { to: { element: { type: [ "editor-shared-hooks", "editor-shared-contexts", "outside-editor" ] } } },
+				},
+				{
+					from: { element: { type: "editor-shared-contexts" } },
+					allow: { to: { element: { type: "outside-editor" } } },
+				},
+				{
+					from: { element: { type: "editor-core" } },
+					allow: { to: { element: { type: [ "editor-core", "outside-editor" ] } } },
 				},
 			],
 		} ],

@@ -3,11 +3,11 @@ import { useEffect, useState } from "react";
 import * as MXP from 'maxpower';
 import { OREngineProjectData } from "orengine";
 import { Engine } from "orengine";
-import { OREditor, OREngineProvider, type PanelSlot, type CustomTab } from "orengine/react";
+
+import { OREditor, type EditorCustomTabs } from "../../../features/OREditor";
+import { OREngineProvider } from "../../../features/OREngine/providers/OREngineProvider";
 
 import "../../../styles/style.scss";
-
-export type EditorCustomTabs = Partial<Record<PanelSlot, CustomTab[]>>;
 
 export interface EditorPageProps {
 	projectName?: string;
