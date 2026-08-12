@@ -1,9 +1,8 @@
 import { EventEmitter, UniformType } from 'basepower';
+import { Vector } from 'mathpower';
 
-import { Vector } from "../Math/Vector";
-
-import { EasingFunc, easeInOutCubic } from "./Easings";
-import { LerpFunc, Lerps } from "./Lerps";
+import { EasingFunc, easeInOutCubic } from "../Easings";
+import { LerpFunc, Lerps } from "../Lerps";
 
 export type AnimatorVariableType = Vector | number;
 

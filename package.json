@@ -11,7 +11,7 @@
     "./server": "./host/server/factory.ts",
     "./host": "./host/index.ts",
     "./configs": "./host/vite/configs.ts",
-    "./maxpower": "./packages/maxpower/index.ts",
+    "./maxpower": "./packages/maxpower/webgl/index.ts",
     "./glpower": "./packages/glpower/index.ts",
     "./mathpower": "./packages/mathpower/index.ts",
     "./basepower": "./packages/basepower/index.ts",

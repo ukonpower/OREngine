@@ -1,8 +1,7 @@
 import { EventEmitter } from 'basepower';
+import { IVector2 } from 'mathpower';
 
-import { IVector2 } from '../Math/Vector';
-
-import { EasingFunc, bezier } from './Easings';
+import { EasingFunc, bezier } from '../Easings';
 
 export type FCurveInterpolation = "BEZIER" | "LINEAR" | "CONSTANT";
 

@@ -1,6 +1,10 @@
 import { EventEmitter } from 'basepower';
 import * as MTP from 'mathpower';
 
+import { FCurve } from '../Animation/FCurve';
+import { FCurveGroup } from '../Animation/FCurveGroup';
+import { FCurveInterpolation, FCurveKeyFrame } from '../Animation/FCurveKeyFrame';
+
 import type { EngineContract } from '../Contracts/EngineContract';
 import type { GLTF, GLTFLoaderContract } from '../Contracts/GLTFLoaderContract';
 
@@ -166,7 +170,7 @@ export class BLidge extends EventEmitter {
 	// animation
 
 	public nodes: BLidgeNode[];
-	public curveGroups: MTP.FCurveGroup[];
+	public curveGroups: FCurveGroup[];
 	public root: BLidgeNode | null;
 
 	// gltf
@@ -326,11 +330,11 @@ export class BLidge extends EventEmitter {
 		for ( let i = 0; i < fcurveGroupNames.length; i ++ ) {
 
 			const fcurveGroupName = fcurveGroupNames[ i ];
-			const fcurveGroup = new MTP.FCurveGroup( fcurveGroupName );
+			const fcurveGroup = new FCurveGroup( fcurveGroupName );
 
 			data.animations[ i ].forEach( fcurveData => {
 
-				const curve = new MTP.FCurve();
+				const curve = new FCurve();
 
 				curve.set( fcurveData.k.map( keyframe => {
 
@@ -342,11 +346,11 @@ export class BLidge extends EventEmitter {
 
 					const frames = keyframe[ 1 ];
 
-					return new MTP.FCurveKeyFrame(
+					return new FCurveKeyFrame(
 						{ x: frames[ 0 ], y: frames[ 1 ] },
 						frames[ 2 ] !== undefined && { x: frames[ 2 ], y: frames[ 3 ] } || undefined,
 						frames[ 4 ] !== undefined && { x: frames[ 4 ], y: frames[ 5 ] } || undefined,
-					interpolation as MTP.FCurveInterpolation );
+					interpolation as FCurveInterpolation );
 
 				} ) );
 

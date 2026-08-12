@@ -1,6 +1,6 @@
-import { Entity } from '../../core/Entity';
+import { Entity } from '../../../core/Entity';
 
-import type { GPUEngine } from '../Renderer';
+import type { GPUEngine } from '../../Renderer';
 
 // webgl側の setupCameraPostProcess と同じ口。
 // FXAA / Bloom / ColorGrading / Finalize 相当はレンダラーのPipelinePostProcessに

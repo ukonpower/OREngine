@@ -1,8 +1,8 @@
 import { Types } from 'basepower';
 
-import { Matrix } from "./Matrix";
-import { Quaternion } from "./Quaternion";
-import { IVector4, Vector } from "./Vector";
+import { Matrix } from "../Matrix";
+import { Quaternion } from "../Quaternion";
+import { IVector4, Vector } from "../Vector";
 
 export type EulerOrder = 'XYZ' | 'XZY' | 'ZYX' | 'YZX'
 

@@ -1,6 +1,6 @@
-import { IVector2 } from "..";
+import { IVector2 } from 'mathpower';
 
-import { Bezier } from "./Bezier";
+import { Bezier } from "../Bezier";
 
 export type EasingFunc = ( t: number ) => any
 

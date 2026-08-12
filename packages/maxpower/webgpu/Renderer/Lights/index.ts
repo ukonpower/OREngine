@@ -3,7 +3,7 @@ import * as MTP from 'mathpower';
 
 import { Light } from '../../../core/Components/Light';
 import { CLIP_CORRECTION, FRAME_FIELDS, SHADOW_FORMAT } from '../../backend/Bindings';
-import { requestShaderReload } from '../../backend/hotReload';
+import { requestShaderReload } from '../../backend/HotReload';
 import { UniformBinder, buildStructWgsl } from '../../backend/UniformBinder';
 
 import shadowWgsl from './shaders/shadow.wgsl';

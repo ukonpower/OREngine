@@ -1,6 +1,6 @@
 
 import { FRAME_FIELDS, GROUP_FRAME, SCENE_FORMAT } from '../backend/Bindings';
-import { requestShaderReload } from '../backend/hotReload';
+import { requestShaderReload } from '../backend/HotReload';
 import { UniformBinder, buildStructWgsl, fieldsFromUniforms } from '../backend/UniformBinder';
 import { buildLightWgsl } from '../Renderer/Lights';
 

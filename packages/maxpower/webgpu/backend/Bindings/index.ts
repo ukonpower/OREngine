@@ -1,7 +1,7 @@
 import * as MTP from 'mathpower';
 
 import { VERTEX_INPUT_WGSL } from '../GeometryBuffer';
-import { requestShaderReload } from '../hotReload';
+import { requestShaderReload } from '../HotReload';
 import { buildStructWgsl } from '../UniformBinder';
 
 

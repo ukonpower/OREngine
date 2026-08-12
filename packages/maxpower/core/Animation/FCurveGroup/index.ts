@@ -1,9 +1,8 @@
 import { Types } from 'basepower';
 import { EventEmitter } from 'basepower';
+import { Vector } from 'mathpower';
 
-import { Vector } from '..';
-
-import { FCurve } from './FCurve';
+import { FCurve } from '../FCurve';
 
 export class FCurveGroup extends EventEmitter {
 
