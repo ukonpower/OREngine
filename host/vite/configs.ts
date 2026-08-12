@@ -47,8 +47,9 @@ const sharedResolve = ( projectDir: string, renderer: RendererName ) => ( {
 	alias: [
 		...projectAliases( projectDir ),
 		{ find: /^@or-renderer$/, replacement: path.join( orengineRoot, rendererPath[ renderer ] ) },
-		{ find: /^orengine\/player$/, replacement: path.join( orengineRoot, 'packages/orengine/player.ts' ) },
+		{ find: /^orengine\/player$/, replacement: path.join( orengineRoot, 'packages/orengine/player/index.ts' ) },
 		{ find: /^orengine\/react$/, replacement: path.join( orengineRoot, 'packages/orengine/react.tsx' ) },
+		{ find: /^orengine\/editor$/, replacement: path.join( orengineRoot, 'packages/orengine/editor/lib/index.ts' ) },
 		{ find: /^orengine\/core$/, replacement: path.join( orengineRoot, 'packages/orengine/core/index.ts' ) },
 		{ find: /^orengine\/maxpower$/, replacement: path.join( orengineRoot, 'packages/maxpower/webgl/index.ts' ) },
 		{ find: /^orengine\/glpower$/, replacement: path.join( orengineRoot, 'packages/glpower/index.ts' ) },

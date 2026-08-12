@@ -6,7 +6,7 @@
   "exports": {
     ".": "./packages/orengine/index.ts",
     "./react": "./packages/orengine/react.tsx",
-    "./editor": "./packages/orengine/editor.ts",
+    "./editor": "./packages/orengine/editor/lib/index.ts",
     "./core": "./packages/orengine/core/index.ts",
     "./server": "./host/server/factory.ts",
     "./host": "./host/index.ts",
@@ -15,7 +15,7 @@
     "./glpower": "./packages/glpower/index.ts",
     "./mathpower": "./packages/mathpower/index.ts",
     "./basepower": "./packages/basepower/index.ts",
-    "./player": "./packages/orengine/player.ts",
+    "./player": "./packages/orengine/player/index.ts",
     "./package.json": "./package.json"
   },
   "scripts": {

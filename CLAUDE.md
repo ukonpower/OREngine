@@ -161,11 +161,11 @@ editor/
 - `mathpower` → `packages/mathpower`（ベクトル・行列・クォータニオン等の数学。basepower のみに依存）
 - `glpower` → `packages/glpower`（素の WebGL API ラッパー。basepower / mathpower のみに依存）
 - `maxpower` → `packages/maxpower`
-- `orengine` → `packages/orengine/index.ts`（**ランタイム専用エントリ**: core + builtin。エディタ関心事を含まない）
-- `orengine/editor` → `packages/orengine/editor.ts`（エディタ中核ロジック: `editor/lib`）
+- `orengine` → `packages/orengine/index.ts`（**ランタイム専用エントリ**。エディタ関心事を含まない）
+- `orengine/editor` → `packages/orengine/editor/lib/index.ts`（エディタ中核ロジック）
 - `orengine/react` → `packages/orengine/react.tsx`（Reactエントリ: editor/components + editor/features）
 - `orengine/core` → `packages/orengine/core/index.ts`
-- `orengine/player` → `packages/orengine/player.ts`
+- `orengine/player` → `packages/orengine/player/index.ts`
 - `orengine/server` → `host/server/factory.ts`（express ベースのファイルI/O API）
 - `orengine/host` → `host/index.ts`
 - `orengine/configs` → `host/vite/configs.ts`
