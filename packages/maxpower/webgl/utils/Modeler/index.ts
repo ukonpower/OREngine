@@ -63,15 +63,17 @@ export class Modeler {
 
 		if ( vao ) {
 
-			baseGeometry.createBuffers( this._backend.gl );
+			// ベイク用の一時バッファ。dispatchPointsはindexを使わないためindexは除外する
+			const attributeBuffers: GLP.GLPowerBuffer[] = [];
 
 			baseGeometry.attributes.forEach( ( attr, key ) => {
 
-				if ( attr.buffer ) {
+				if ( key == 'index' ) return;
 
-					vao.setAttribute( key, attr.buffer, attr.size, attr.opt );
+				const buffer = new GLP.GLPowerBuffer( this._gl ).setData( attr.array, 'vbo', attr.opt && attr.opt.usage );
 
-				}
+				vao.setAttribute( key, buffer, attr.size, attr.opt );
+				attributeBuffers.push( buffer );
 
 			} );
 
@@ -97,6 +99,8 @@ export class Modeler {
 				resultGeo.setAttribute( 'normal', outNormal, 3 );
 
 			} );
+
+			attributeBuffers.forEach( ( buffer ) => buffer.dispose() );
 
 		}
 

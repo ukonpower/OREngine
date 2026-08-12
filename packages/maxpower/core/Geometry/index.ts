@@ -1,14 +1,18 @@
 import * as BSP from 'basepower';
-import * as GLP from 'glpower';
 import * as MTP from 'mathpower';
 
 import { Serializable } from '../Serializable';
 
+// バックエンド非依存のattributeオプション。webgl側の GLP.AttributeOptions と構造互換
+export type AttributeOptions = {
+	instanceDivisor?: number;
+	usage?: number;
+}
+
 type Attribute = {
 	array: BSP.TArrayBuffer;
 	size: number;
-	buffer?: GLP.GLPowerBuffer
-	opt?: GLP.AttributeOptions,
+	opt?: AttributeOptions,
 }
 
 type DefaultAttributeName = 'position' | 'uv' | 'normal' | 'index';
@@ -17,8 +21,10 @@ export class Geometry extends Serializable {
 
 	public vertCount: number;
 	public attributes: Map<string, Attribute >;
-	public vaoCache: Map<GLP.GLPowerVAO, boolean>;
 	public boundingBox: { min: MTP.Vector, max: MTP.Vector } | null;
+
+	// GPUリソース（バッファ/VAO）はRenderer側が所有し、この番号の変化で再構築を検知する
+	public updateVersion: number;
 
 	constructor() {
 
@@ -26,26 +32,20 @@ export class Geometry extends Serializable {
 
 		this.vertCount = 0;
 		this.attributes = new Map();
-		this.vaoCache = new Map();
 		this.boundingBox = null;
+		this.updateVersion = 0;
 
 	}
 
-	public setAttribute( name: DefaultAttributeName | ( string & {} ), array: BSP.TArrayBuffer, size: number, opt?: GLP.AttributeOptions ) {
-
-		const currentAttr = this.attributes.get( name );
-
-		if ( currentAttr && currentAttr.buffer ) {
-
-			currentAttr.buffer.dispose();
-
-		}
+	public setAttribute( name: DefaultAttributeName | ( string & {} ), array: BSP.TArrayBuffer, size: number, opt?: AttributeOptions ) {
 
 		this.attributes.set( name, {
 			array,
 			size,
 			opt,
 		} );
+
+		this.updateVersion ++;
 
 		this.updateVertCount();
 
@@ -74,20 +74,6 @@ export class Geometry extends Serializable {
 			if ( name == 'index' || attribute.opt && attribute.opt.instanceDivisor ) return;
 
 			this.vertCount = Math.min( attribute.array.length / attribute.size, this.vertCount );
-
-		} );
-
-	}
-
-	public createBuffers( gl: WebGL2RenderingContext ) {
-
-		this.attributes.forEach( ( attr, key ) => {
-
-			if ( ! attr.buffer ) {
-
-				attr.buffer = new GLP.GLPowerBuffer( gl ).setData( attr.array, key == 'index' ? "ibo" : 'vbo', attr.opt && attr.opt.usage );
-
-			}
 
 		} );
 
@@ -129,17 +115,7 @@ export class Geometry extends Serializable {
 
 	public requestUpdate() {
 
-		this.vaoCache.clear();
-
-	}
-
-	public dispose() {
-
-		this.attributes.forEach( ( attr ) => {
-
-			attr.buffer?.dispose();
-
-		} );
+		this.updateVersion ++;
 
 	}
 
