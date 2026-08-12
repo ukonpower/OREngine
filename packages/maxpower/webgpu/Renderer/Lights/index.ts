@@ -2,14 +2,14 @@ import * as BSP from 'basepower';
 import * as MTP from 'mathpower';
 
 import { Light } from '../../../core/Components/Light';
-import { CLIP_CORRECTION, FRAME_FIELDS, SHADOW_FORMAT } from '../../Bindings';
-import { requestShaderReload } from '../../hotReload';
-import { UniformBinder, buildStructWgsl } from '../../UniformBinder';
+import { CLIP_CORRECTION, FRAME_FIELDS, SHADOW_FORMAT } from '../../backend/Bindings';
+import { requestShaderReload } from '../../backend/hotReload';
+import { UniformBinder, buildStructWgsl } from '../../backend/UniformBinder';
 
 import shadowWgsl from './shaders/shadow.wgsl';
 
 import type { Entity } from '../../../core/Entity';
-import type { UniformField } from '../../UniformBinder';
+import type { UniformField } from '../../backend/UniformBinder';
 
 // HMRで差し替わるシェーダーソース。playerでは初期値のまま使われる
 let hotShadowWgsl = shadowWgsl;

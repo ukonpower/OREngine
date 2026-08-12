@@ -1,4 +1,4 @@
-import type { GLBackend } from '../../GLBackend';
+import type { GLBackend } from '../../backend/GLBackend';
 import type * as GLP from 'glpower';
 
 export class ProgramManager {

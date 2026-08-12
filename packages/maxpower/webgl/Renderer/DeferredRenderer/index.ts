@@ -4,7 +4,7 @@ import * as GLP from 'glpower';
 import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
-import { GL, GLBackend } from '../../GLBackend';
+import { GL, GLBackend } from '../../backend/GLBackend';
 
 import deferredShadingFrag from './shaders/deferredShading.fs';
 import lightShaftFrag from './shaders/lightShaft.fs';

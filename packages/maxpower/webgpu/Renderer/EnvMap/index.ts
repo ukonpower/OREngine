@@ -8,8 +8,8 @@ import {
 	ENVMAP_MIP_COUNT,
 	ENVMAP_SIZE,
 	FRAME_FIELDS,
-} from '../../Bindings';
-import { UniformBinder } from '../../UniformBinder';
+} from '../../backend/Bindings';
+import { UniformBinder } from '../../backend/UniformBinder';
 import { PREFILTER_FIELDS, prefilterWgsl } from '../shaders/prefilter';
 
 /*-------------------------------

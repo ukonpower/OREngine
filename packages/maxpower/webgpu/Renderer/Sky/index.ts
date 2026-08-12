@@ -2,7 +2,7 @@ import * as MTP from 'mathpower';
 
 import { Mesh } from '../../../core/Components/Mesh';
 import { SphereGeometry } from '../../../core/Geometries/SphereGeometry';
-import { requestShaderReload } from '../../hotReload';
+import { requestShaderReload } from '../../backend/hotReload';
 import { Material } from '../../Material';
 
 import defaultSkyWgsl from './shaders/defaultSky.wgsl';

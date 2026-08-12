@@ -1,5 +1,5 @@
-import { ENVMAP_MIP_COUNT, FRAME_FIELDS, GBUFFER_ATTACHMENTS } from '../../Bindings';
-import { buildStructWgsl } from '../../UniformBinder';
+import { ENVMAP_MIP_COUNT, FRAME_FIELDS, GBUFFER_ATTACHMENTS } from '../../backend/Bindings';
+import { buildStructWgsl } from '../../backend/UniformBinder';
 import { buildLightWgsl } from '../Lights';
 
 import shadingWgsl from './shading.wgsl';

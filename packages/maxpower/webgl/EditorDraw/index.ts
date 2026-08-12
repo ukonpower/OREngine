@@ -3,7 +3,7 @@ import * as MTP from 'mathpower';
 
 import { Mesh } from '../../core/Components/Mesh';
 import { EditorDrawContract, EditorFrame, EditorRect, EditorRecipe, EditorRenderEntitiesParam, EditorTarget } from '../../core/Contracts/EditorDrawContract';
-import { GL } from '../GLBackend';
+import { GL } from '../backend/GLBackend';
 import { Material } from '../Material';
 import { PostProcess } from '../PostProcess';
 import { PostProcessPass } from '../PostProcess/PostProcessPass';

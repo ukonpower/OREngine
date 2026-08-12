@@ -1,13 +1,13 @@
 
-import { buildShaderSource } from '../Bindings';
-import { requestShaderReload } from '../hotReload';
-import { fieldsFromUniforms } from '../UniformBinder';
+import { buildShaderSource } from '../backend/Bindings';
+import { requestShaderReload } from '../backend/hotReload';
+import { fieldsFromUniforms } from '../backend/UniformBinder';
 
 import basicWgsl from './shaders/basic.wgsl';
 
 import type { MaterialContract } from '../../core/Contracts/MaterialContract';
-import type { MaterialStorage, MaterialTexture, StorageSource, TextureSource } from '../Bindings';
-import type { UniformField } from '../UniformBinder';
+import type { MaterialStorage, MaterialTexture, StorageSource, TextureSource } from '../backend/Bindings';
+import type { UniformField } from '../backend/UniformBinder';
 import type * as BSP from 'basepower';
 
 // HMRで差し替わるシェーダーソース。playerでは初期値のまま使われる

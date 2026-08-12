@@ -2,7 +2,7 @@ import * as GLP from 'glpower';
 import * as MTP from 'mathpower';
 
 import { PostProcess } from '..';
-import { GL, GLBackend } from '../../GLBackend';
+import { GL, GLBackend } from '../../backend/GLBackend';
 import { PostProcessPass, PostProcessPassParam } from '../PostProcessPass';
 import gaussBlurFrag from '../shaders/gaussBlur.fs';
 

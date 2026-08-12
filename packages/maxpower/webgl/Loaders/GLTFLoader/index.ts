@@ -11,7 +11,7 @@ import gltfFrag from './shaders/gltf.fs';
 import gltfVert from './shaders/gltf.vs';
 
 import type { GLTF, GLTFLoaderContract } from '../../../core/Contracts/GLTFLoaderContract';
-import type { GLBackend } from '../../GLBackend';
+import type { GLBackend } from '../../backend/GLBackend';
 import type { GLEngine } from '../../Renderer';
 
 const GLB_HEADER_LENGTH = 12;

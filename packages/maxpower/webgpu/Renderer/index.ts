@@ -22,13 +22,13 @@ import {
 	SCENE_FORMAT,
 	SHADOW_FORMAT,
 	materialTextureBinding,
-} from '../Bindings';
+} from '../backend/Bindings';
+import { GeometryBuffer, VERTEX_BUFFER_LAYOUT } from '../backend/GeometryBuffer';
+import { onShaderReload, requestShaderReload } from '../backend/hotReload';
+import { UniformBinder } from '../backend/UniformBinder';
 import { PostProcessPipeline } from '../Components/PostProcessPipeline';
-import { GeometryBuffer, VERTEX_BUFFER_LAYOUT } from '../GeometryBuffer';
-import { onShaderReload, requestShaderReload } from '../hotReload';
 import { Material } from '../Material';
 import { TexProcedural } from '../TexProcedural';
-import { UniformBinder } from '../UniformBinder';
 
 import { EnvMap } from './EnvMap';
 import { Lights } from './Lights';
