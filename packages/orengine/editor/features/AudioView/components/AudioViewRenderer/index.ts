@@ -1,5 +1,6 @@
 import { EventEmitter } from 'basepower';
 import * as MTP from 'mathpower';
+
 import { OREngineProjectFrame, FramePlay } from 'orengine';
 
 export class AudioViewRenderer extends EventEmitter {

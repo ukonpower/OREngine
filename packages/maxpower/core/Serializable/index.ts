@@ -1,7 +1,11 @@
 import * as BSP from 'basepower';
 import { EventEmitter } from 'basepower';
-import { SelectList } from 'packages/orengine/editor/components/composites/Input/InputSelect';
-import { ValueOpt } from 'packages/orengine/editor/components/composites/Value';
+
+// select / resource フォーマットの選択肢。エディタの選択UIもこの型を参照する
+export type SelectList = ( {
+	value: any,
+	label: string,
+} | string )[]
 
 interface SerializeFieldFormatVector {
 	type: "vector",
@@ -40,11 +44,15 @@ interface SerializeFieldFormatResource {
 export type SerializableFieldFormat = SerializeFieldFormatVector | SerializeFieldFormatColor | SerializeFieldFormatSelect | SerializeFieldFormatArray | SerializeFieldFormatEntity | SerializeFieldFormatComponent | SerializeFieldFormatResource
 
 export type SerializableFieldOpt = {
-        isFolder?: boolean,
-        noExport?: boolean,
-        hidden?: boolean | ( ( value: SerializeFieldValue ) => boolean ),
-        format?: SerializableFieldFormat,
-} & ValueOpt
+	isFolder?: boolean,
+	noExport?: boolean,
+	hidden?: boolean | ( ( value: SerializeFieldValue ) => boolean ),
+	format?: SerializableFieldFormat,
+	label?: string,
+	readOnly?: boolean,
+	step?: number,
+	disabled?: boolean,
+}
 
 export type SerializeFieldPrimitive = number | string | boolean | null | undefined | ( () => void );
 export type SerializeFieldObjective = SerializeFieldPrimitive | SerializeFieldObjective[] | { [key: string]: SerializeFieldObjective };

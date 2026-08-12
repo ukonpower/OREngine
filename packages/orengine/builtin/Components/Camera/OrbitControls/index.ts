@@ -1,5 +1,6 @@
 import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
+
 import { Keyboard, Pointer, PointerEventArgs } from 'orengine';
 
 import { LookAt } from '../LookAt';
