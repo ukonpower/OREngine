@@ -1,9 +1,8 @@
 import { Types } from "basepower";
 
-import { IVector3, IVector4, Matrix } from "..";
-
-import { Euler, EulerOrder } from "./Euler";
-import { Vector } from "./Vector";
+import { Euler, EulerOrder } from "../Euler";
+import { Matrix } from "../Matrix";
+import { IVector3, IVector4, Vector } from "../Vector";
 
 export type Quat = {
 	x: number,

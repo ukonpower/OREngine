@@ -1,6 +1,6 @@
 
 import { buildShaderSource } from '../backend/Bindings';
-import { requestShaderReload } from '../backend/hotReload';
+import { requestShaderReload } from '../backend/HotReload';
 import { fieldsFromUniforms } from '../backend/UniformBinder';
 
 import basicWgsl from './shaders/basic.wgsl';

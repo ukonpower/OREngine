@@ -1,4 +1,4 @@
-import { Vector } from "..";
+import { Vector } from "../Vector";
 
 export namespace MathUtils {
 

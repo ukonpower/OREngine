@@ -24,7 +24,7 @@ import {
 	materialTextureBinding,
 } from '../backend/Bindings';
 import { GeometryBuffer, VERTEX_BUFFER_LAYOUT } from '../backend/GeometryBuffer';
-import { onShaderReload, requestShaderReload } from '../backend/hotReload';
+import { onShaderReload, requestShaderReload } from '../backend/HotReload';
 import { UniformBinder } from '../backend/UniformBinder';
 import { PostProcessPipeline } from '../Components/PostProcessPipeline';
 import { Material } from '../Material';

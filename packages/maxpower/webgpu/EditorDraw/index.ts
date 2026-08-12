@@ -2,7 +2,7 @@ import * as BSP from 'basepower';
 import * as MTP from 'mathpower';
 
 import { SCENE_FORMAT } from '../backend/Bindings';
-import { onShaderReload, requestShaderReload } from '../backend/hotReload';
+import { onShaderReload, requestShaderReload } from '../backend/HotReload';
 import { Material } from '../Material';
 
 import { EditorPass } from './EditorPass';

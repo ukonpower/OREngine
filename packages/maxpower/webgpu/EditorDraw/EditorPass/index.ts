@@ -1,4 +1,4 @@
-import { requestShaderReload } from '../../backend/hotReload';
+import { requestShaderReload } from '../../backend/HotReload';
 import { UniformBinder, buildStructWgsl, fieldsFromUniforms } from '../../backend/UniformBinder';
 import editorFullscreenWgsl from '../shaders/fullscreen.wgsl';
 

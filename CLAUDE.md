@@ -99,7 +99,7 @@ WGSLは `.wgsl` ファイルに置き、`import xxxWgsl from './xxx.wgsl'` で�
 - include は2形式（同じファイルは1回だけ展開される）: 近くのファイルへの分割は `#include "./相対パス.wgsl"`、プロジェクト共有モジュールは `#include <module:名前>`（`<projectDir>/Resources/shaders/名前.wgsl` を解決。ファイルを置くだけで登録は不要）
 - 束縛の宣言（`@group ... var<uniform>` や uniform struct）と、パス生成時に値が決まる定数（ぼかし重み・カーネル等）はTS側が完成形の先頭に前置する。WGSLファイル側は、外から与えられる名前を冒頭コメントに書いておく
 - 新しい `.wgsl` を足しても設定変更は不要（拡張子で拾う）
-- `.wgsl` はHMR対応。`.wgsl` を直接 import するモジュールが `import.meta.hot.accept` でソースを差し替え、`webgpu/hotReload.ts` の `requestShaderReload()` で Renderer / EditorDraw が資源を作り直す。複数箇所から import されるモジュール（Bindings / Lights / PostProcess / Material のようなハブ）に `.wgsl` を足したら、そのモジュール自身に accept を書く（書かないとHMRがエントリまで波及してフルリロードに落ちる）
+- `.wgsl` はHMR対応。`.wgsl` を直接 import するモジュールが `import.meta.hot.accept` でソースを差し替え、`webgpu/backend/HotReload` の `requestShaderReload()` で Renderer / EditorDraw が資源を作り直す。複数箇所から import されるモジュール（Bindings / Lights / PostProcess / Material のようなハブ）に `.wgsl` を足したら、そのモジュール自身に accept を書く（書かないとHMRがエントリまで波及してフルリロードに落ちる）
 - HMR対象外（変更はフルリロード）: `standardVertex.wgsl`（コンポーネント側で連結キャプチャされるため）、エディタギズモの `flat.wgsl` / `mask.wgsl`（生成済み Material が配布先に保持されるため）
 
 ## 命名規則
@@ -107,8 +107,11 @@ WGSLは `.wgsl` ファイルに置き、`import xxxWgsl from './xxx.wgsl'` で�
 - **メソッド/関数/変数**: camelCase（`updateImpl`, `matrixWorld`, `autoMatrixUpdate`）
 - **protectedフィールド**: アンダースコアプレフィックス `_`（`_entity`, `_enabled`, `_tag`）
 - **privateフィールド**: サフィックス `_` またはプレフィックスなし（`fields_`, `componentsSorted`）
-- **モジュールディレクトリ（クラス/型/コンポーネントを持つ葉ノード）**: PascalCase（`Entity/`, `Component/`, `Serializable/`, `EngineContract/`, `OREditor/`, `Hierarchy/`, `Block/`）。各モジュールは `index.ts`（または `index.tsx`）をエントリポイントとする。**interface だけのモジュールも例外ではない**（`Contracts/Engine.ts` のような直置きにせず `Contracts/EngineContract/index.ts` にする）
-- **カテゴリディレクトリ（複数モジュールをまとめる中間層）**: 役割で分ける層は lowercase（`engine/`, `editor/`, `lib/`, `components/`, `features/`, `hooks/`, `contexts/`, `primitives/`, `composites/`, `pages/`, `styles/`）。同種のモジュールを集める層は PascalCase の複数形（`Components/`, `Geometries/`, `Resources/`, `Contracts/`）
+- **モジュールディレクトリ（`index.ts` から `export *` される公開モジュール）**: PascalCase ディレクトリ + `index.ts`（または `index.tsx`）（`Entity/`, `Component/`, `Serializable/`, `EngineContract/`, `OREditor/`, `Hierarchy/`, `Block/`）。**全パッケージ共通で例外を作らない**:
+  - 1ファイルで収まるモジュールも直置き `.ts` にせずディレクトリを掘る（`glpower/GLPowerBuffer/index.ts`, `mathpower/Vector/index.ts`）
+  - interface だけのモジュールも同じ（`Contracts/Engine.ts` ではなく `Contracts/EngineContract/index.ts`）
+  - 関数しか持たないモジュールも同じ。ディレクトリ名は関数名ではなく名詞のモジュール名にする（`setupCameraPostProcess.ts` → `CameraPostProcess/index.ts`、`hotReload.ts` → `HotReload/index.ts`）
+- **カテゴリディレクトリ（複数モジュールをまとめる中間層）**: 役割で分ける層は lowercase（`engine/`, `editor/`, `lib/`, `components/`, `features/`, `hooks/`, `contexts/`, `primitives/`, `composites/`, `pages/`, `styles/`）。同種のモジュールを集める層は PascalCase の複数形（`Components/`, `Geometries/`, `Resources/`, `Contracts/`）。**兄弟が1つしかない中間層は作らない**（`mathpower/Math/` のようにパッケージ内で唯一のカテゴリは情報を持たないのでパッケージ直下へ展開する）
 - **Reactコンポーネント**: PascalCase関数コンポーネント（`const Screen = () => {}`）
 - **Reactフック**: `use` プレフィックス camelCase（`useOREditor`, `useSerializableField`）
 - **SCSSモジュール**: `index.module.scss`、BEM風ネスト（`&_tabs`, `&_right`）
@@ -123,7 +126,7 @@ WGSLは `.wgsl` ファイルに置き、`import xxxWgsl from './xxx.wgsl'` で�
 
 ## パスエイリアス
 - `basepower` → `packages/basepower`（EventEmitter・ID・共有型などドメイン非依存の最下層基盤。他パッケージに依存しない）
-- `mathpower` → `packages/mathpower`（数学・アニメーションカーブ。basepower のみに依存）
+- `mathpower` → `packages/mathpower`（ベクトル・行列・クォータニオン等の数学。basepower のみに依存）
 - `glpower` → `packages/glpower`（素の WebGL API ラッパー。basepower / mathpower のみに依存）
 - `maxpower` → `packages/maxpower`
 - `orengine` → `packages/orengine/index.ts`（**ランタイム専用エントリ**: core + builtin。エディタ関心事を含まない）

@@ -1,6 +1,6 @@
 import * as BSP from 'basepower';
-import * as MTP from 'mathpower';
 
+import { FCurveGroup } from '../../Animation/FCurveGroup';
 import { Component, ComponentParams } from '../../Component';
 import { BLidger } from '../BLidger';
 
@@ -8,7 +8,7 @@ import type { Entity } from '../../Entity';
 
 export class BLidgerAnimationReceiver extends Component {
 
-	public animations: Map<string, MTP.FCurveGroup>;
+	public animations: Map<string, FCurveGroup>;
 
 	public uniforms: BSP.Uniforms;
 	private registeredUniforms: BSP.Uniforms[];

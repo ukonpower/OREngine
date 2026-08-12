@@ -1,4 +1,4 @@
-import { Vector } from "../Math/Vector";
+import { Vector } from 'mathpower';
 
 export declare interface LerpFunc<T>{
 	( a: T, b: T, t: number ): T;

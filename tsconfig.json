@@ -47,10 +47,10 @@
         "./packages/mathpower"
       ],
       "maxpower": [
-        "./packages/maxpower"
+        "./packages/maxpower/webgl"
       ],
       "maxpower/webgpu": [
-        "./packages/maxpower/webgpu.ts"
+        "./packages/maxpower/webgpu"
       ],
       "orengine": [
         "./packages/orengine/index.ts"
@@ -59,7 +59,7 @@
         "./packages/orengine/*"
       ],
       "@or-renderer": [
-        "./packages/maxpower/index.ts"
+        "./packages/maxpower/webgl/index.ts"
       ],
       "@or-scene": [
         "./demo-webgl/scene.json"

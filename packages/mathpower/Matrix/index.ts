@@ -1,7 +1,5 @@
-import { IVector4 } from "..";
-
-import { Quaternion } from "./Quaternion";
-import { IVector3, Vector } from "./Vector";
+import { Quaternion } from "../Quaternion";
+import { IVector3, IVector4, Vector } from "../Vector";
 
 export class Matrix {
 

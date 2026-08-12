@@ -36,10 +36,10 @@ const projectAliases = ( projectDir: string ) => [
 	{ find: /^@or-resources\/(.*)$/, replacement: path.join( projectDir, 'Resources/$1' ) },
 ];
 
-// maxpowerのエントリ。index.ts が core + webgl、webgpu.ts が core + webgpu
+// maxpowerのエントリ。各バックエンドの index.ts が core + 自バックエンドを束ねる
 const rendererPath: { [key in RendererName]: string } = {
-	webgl: 'packages/maxpower/index.ts',
-	webgpu: 'packages/maxpower/webgpu.ts',
+	webgl: 'packages/maxpower/webgl/index.ts',
+	webgpu: 'packages/maxpower/webgpu/index.ts',
 };
 
 // playerビルドへWebGPUコードが混入しないよう、レンダラーはビルド時のaliasで固定する
@@ -50,7 +50,7 @@ const sharedResolve = ( projectDir: string, renderer: RendererName ) => ( {
 		{ find: /^orengine\/player$/, replacement: path.join( orengineRoot, 'packages/orengine/player.ts' ) },
 		{ find: /^orengine\/react$/, replacement: path.join( orengineRoot, 'packages/orengine/react.tsx' ) },
 		{ find: /^orengine\/core$/, replacement: path.join( orengineRoot, 'packages/orengine/core/index.ts' ) },
-		{ find: /^orengine\/maxpower$/, replacement: path.join( orengineRoot, 'packages/maxpower/index.ts' ) },
+		{ find: /^orengine\/maxpower$/, replacement: path.join( orengineRoot, 'packages/maxpower/webgl/index.ts' ) },
 		{ find: /^orengine\/glpower$/, replacement: path.join( orengineRoot, 'packages/glpower/index.ts' ) },
 		{ find: /^orengine\/mathpower$/, replacement: path.join( orengineRoot, 'packages/mathpower/index.ts' ) },
 		{ find: /^orengine\/basepower$/, replacement: path.join( orengineRoot, 'packages/basepower/index.ts' ) },
@@ -60,8 +60,8 @@ const sharedResolve = ( projectDir: string, renderer: RendererName ) => ( {
 		{ find: /^mathpower$/, replacement: path.join( orengineRoot, 'packages/mathpower' ) },
 		{ find: /^basepower$/, replacement: path.join( orengineRoot, 'packages/basepower' ) },
 		// WebGPUプロジェクトのコンポーネントが自分のバックエンドAPIを直接importするための口
-		{ find: /^maxpower\/webgpu$/, replacement: path.join( orengineRoot, 'packages/maxpower/webgpu.ts' ) },
-		{ find: /^maxpower$/, replacement: path.join( orengineRoot, 'packages/maxpower' ) },
+		{ find: /^maxpower\/webgpu$/, replacement: path.join( orengineRoot, 'packages/maxpower/webgpu' ) },
+		{ find: /^maxpower$/, replacement: path.join( orengineRoot, 'packages/maxpower/webgl' ) },
 	],
 } );
 

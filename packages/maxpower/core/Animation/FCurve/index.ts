@@ -1,6 +1,6 @@
 import { EventEmitter } from 'basepower';
 
-import { FCurveKeyFrame } from './FCurveKeyFrame';
+import { FCurveKeyFrame } from '../FCurveKeyFrame';
 
 export class FCurve extends EventEmitter {
 
