@@ -3,7 +3,7 @@ import { EventEmitter } from 'basepower';
 import { Mesh } from '../../../core/Components/Mesh';
 import { Entity } from '../../../core/Entity';
 import { Geometry } from '../../../core/Geometry';
-import { Material } from '../../Material';
+import { Material } from '../../render/Material';
 
 
 import { GLTFFormat, GLTFBufferView, GLTFNode } from './gltf';
@@ -11,8 +11,8 @@ import gltfFrag from './shaders/gltf.fs';
 import gltfVert from './shaders/gltf.vs';
 
 import type { GLTF, GLTFLoaderContract } from '../../../core/Contracts/GLTFLoaderContract';
-import type { GLBackend } from '../../GLBackend';
-import type { GLEngine } from '../../Renderer';
+import type { GLBackend } from '../../backend/GLBackend';
+import type { GLEngine } from '../../render/Renderer';
 
 const GLB_HEADER_LENGTH = 12;
 const GLB_CHUNK_HEADER_LENGTH = 8;

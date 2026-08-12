@@ -52,13 +52,11 @@ const sharedResolve = ( projectDir: string, renderer: RendererName ) => ( {
 		{ find: /^orengine\/core$/, replacement: path.join( orengineRoot, 'packages/orengine/core/index.ts' ) },
 		{ find: /^orengine\/maxpower$/, replacement: path.join( orengineRoot, 'packages/maxpower/index.ts' ) },
 		{ find: /^orengine\/glpower$/, replacement: path.join( orengineRoot, 'packages/glpower/index.ts' ) },
-		{ find: /^orengine\/gpupower$/, replacement: path.join( orengineRoot, 'packages/gpupower/index.ts' ) },
 		{ find: /^orengine\/mathpower$/, replacement: path.join( orengineRoot, 'packages/mathpower/index.ts' ) },
 		{ find: /^orengine\/basepower$/, replacement: path.join( orengineRoot, 'packages/basepower/index.ts' ) },
 		{ find: /^orengine\/(.*)$/, replacement: path.join( orengineRoot, 'packages/orengine/$1' ) },
 		{ find: /^orengine$/, replacement: path.join( orengineRoot, 'packages/orengine/index.ts' ) },
 		{ find: /^glpower$/, replacement: path.join( orengineRoot, 'packages/glpower' ) },
-		{ find: /^gpupower$/, replacement: path.join( orengineRoot, 'packages/gpupower' ) },
 		{ find: /^mathpower$/, replacement: path.join( orengineRoot, 'packages/mathpower' ) },
 		{ find: /^basepower$/, replacement: path.join( orengineRoot, 'packages/basepower' ) },
 		// WebGPUプロジェクトのコンポーネントが自分のバックエンドAPIを直接importするための口

@@ -63,10 +63,11 @@ export default [ {
 	},
 
 	settings: {
-		// tsconfig paths（orengine/... 等のエイリアス import）を boundaries に解決させるために必須
+		// tsconfig paths（orengine/... 等のエイリアス import）を boundaries に解決させるために必須。
+		// tsconfig.json を直接渡すと references の影響で paths が効かないため専用ファイルを使う
 		"import/resolver": {
 			typescript: {
-				project: "./tsconfig.json",
+				project: "./tsconfig.eslint.json",
 			},
 			node: {
 				extensions: [ ".js", ".jsx", ".ts", ".tsx" ],
@@ -77,7 +78,9 @@ export default [ {
 			{ type: "base-util", pattern: [ "packages/basepower/**" ] },
 			{ type: "base-math", pattern: [ "packages/mathpower/**" ] },
 			{ type: "base-webgl", pattern: [ "packages/glpower/**" ] },
-			{ type: "base-webgpu", pattern: [ "packages/gpupower/**" ] },
+			// runtime より先に定義する（分類は先勝ちのため、packages/maxpower/** に飲まれないように）
+			{ type: "backend-webgl", pattern: [ "packages/maxpower/webgl/**" ] },
+			{ type: "backend-webgpu", pattern: [ "packages/maxpower/webgpu/**" ] },
 			{ type: "runtime", pattern: [
 				"packages/maxpower/**",
 				"packages/orengine/core/**",
@@ -113,7 +116,7 @@ export default [ {
 			policies: [
 				{
 					from: [
-						{ element: { types: "runtime" } },
+						{ element: { types: [ "runtime", "backend-webgl", "backend-webgpu" ] } },
 						{ file: { categories: "runtime" } },
 					],
 					disallow: [
@@ -123,29 +126,29 @@ export default [ {
 					message: "ランタイム領域からエディタ領域への import は禁止です",
 				},
 				{
-					from: { element: { types: [ "base-util", "base-math", "base-webgl", "base-webgpu" ] } },
-					disallow: { element: { types: [ "runtime", "editor" ] } },
-					message: "第1層パッケージ（basepower/mathpower/glpower/gpupower）から上位層への import は禁止です",
+					from: { element: { types: [ "base-util", "base-math", "base-webgl" ] } },
+					disallow: { element: { types: [ "runtime", "backend-webgl", "backend-webgpu", "editor" ] } },
+					message: "第1層パッケージ（basepower/mathpower/glpower）から上位層への import は禁止です",
 				},
 				{
 					from: { element: { types: "base-util" } },
-					disallow: { element: { types: [ "base-math", "base-webgl", "base-webgpu" ] } },
+					disallow: { element: { types: [ "base-math", "base-webgl" ] } },
 					message: "basepower は他パッケージに依存できません",
 				},
 				{
 					from: { element: { types: "base-math" } },
-					disallow: { element: { types: [ "base-webgl", "base-webgpu" ] } },
+					disallow: { element: { types: "base-webgl" } },
 					message: "mathpower は basepower 以外のパッケージに依存できません",
 				},
 				{
-					from: { element: { types: "base-webgl" } },
-					disallow: { element: { types: "base-webgpu" } },
-					message: "glpower と gpupower は互いに依存できません",
+					from: { element: { types: "backend-webgl" } },
+					disallow: { element: { types: "backend-webgpu" } },
+					message: "webgl / webgpu バックエンドは互いに依存できません",
 				},
 				{
-					from: { element: { types: "base-webgpu" } },
-					disallow: { element: { types: "base-webgl" } },
-					message: "glpower と gpupower は互いに依存できません",
+					from: { element: { types: "backend-webgpu" } },
+					disallow: { element: { types: [ "backend-webgl", "base-webgl" ] } },
+					message: "webgpu バックエンドは webgl バックエンド・glpower に依存できません",
 				},
 			],
 		} ],

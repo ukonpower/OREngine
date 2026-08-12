@@ -43,9 +43,6 @@
       "glpower": [
         "./packages/glpower"
       ],
-      "gpupower": [
-        "./packages/gpupower"
-      ],
       "mathpower": [
         "./packages/mathpower"
       ],

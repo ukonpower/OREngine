@@ -1,7 +1,7 @@
 
-import * as MXP from 'maxpower';
 import React, { MouseEvent, ReactNode, useCallback, useState } from 'react';
 
+import * as MXP from 'maxpower';
 import { ComponentGroup, Engine, ResouceComponentItem } from 'orengine';
 
 import { Button } from '../../../../components/primitives/Button';

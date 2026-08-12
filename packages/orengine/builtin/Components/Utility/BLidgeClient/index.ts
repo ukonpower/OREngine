@@ -1,5 +1,4 @@
 import * as MXP from 'maxpower';
-
 import { Engine, OREngineDataEntityComponent } from 'orengine';
 
 interface BLidgeAttachment {

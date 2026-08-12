@@ -1,6 +1,6 @@
-import * as MXP from 'maxpower';
 import { useState, useRef, useEffect, useCallback } from 'react';
 
+import * as MXP from 'maxpower';
 import { FramePlay, OREngineProjectFrame } from 'orengine';
 
 import { useOREditor } from '../OREditor/hooks/useOREditor';

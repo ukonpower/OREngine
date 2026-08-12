@@ -1,5 +1,4 @@
 import * as MXP from 'maxpower';
-
 import { Engine } from 'orengine';
 
 import cubeWireFrag from './shaders/cubeWire.fs';

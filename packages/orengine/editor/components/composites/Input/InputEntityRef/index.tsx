@@ -1,5 +1,6 @@
-import { SelectList } from 'maxpower';
 import { useCallback, useEffect, useState } from 'react';
+
+import { SelectList } from 'maxpower';
 
 import { useOREditor } from '../../../../features/OREditor/hooks/useOREditor';
 import style from '../InputSelect/index.module.scss';

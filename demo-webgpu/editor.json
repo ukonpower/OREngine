@@ -7,25 +7,31 @@
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,
 	"frameLoop/end": 0,
-	"selectedEntityId": "6d446790-0130-4c6b-bb32-82abcb6f0f57",
+	"selectedEntityId": "33a8f582-a6ad-4da0-b6f4-ac20eba08e1d",
+	"unselectableEntityIds": [],
 	"selectedAsset": null,
 	"navigateAsset": null,
 	"propertyTarget": "entity",
-	"cameraMode": "scene",
+	"cameraView": "editor",
+	"preview": false,
 	"gizmoMode": "translate",
+	"transformOrientation": "global",
 	"helpers/show": true,
+	"helpers/grid": true,
 	"helpers/empty": true,
 	"helpers/camera": true,
 	"helpers/light": true,
 	"helpers/wireframe": false,
+	"helpers/gizmo": true,
+	"helpers/outline": true,
 	"camera/position": [
-		6.529565988880252,
-		4.837460062579951,
-		1.5323949653524096
+		-6.036112537975983,
+		1.0161452790609298,
+		14.099501022566667
 	],
 	"camera/target": [
-		0.515635284048503,
-		-0.20319180568110726,
-		-2.7984059098297083
+		-0.005950683445575047,
+		0.9394885335807147,
+		-1.3476009279825334
 	]
 }

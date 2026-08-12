@@ -1,5 +1,6 @@
-import { SerializeFieldDirectoryValue } from 'maxpower';
 import React from 'react';
+
+import { SerializeFieldDirectoryValue } from 'maxpower';
 
 import { InputColor } from '../../../../../components/composites/Input/InputColor';
 import { Value } from '../../../../../components/composites/Value';

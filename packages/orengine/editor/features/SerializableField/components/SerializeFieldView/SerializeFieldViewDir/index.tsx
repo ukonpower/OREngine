@@ -1,5 +1,6 @@
-import * as MXP from 'maxpower';
 import React from "react";
+
+import * as MXP from 'maxpower';
 
 import { Block } from '../../../../../components/primitives/Block';
 import { SerializeFieldViewValue } from '../SerializeFieldViewValue';

@@ -1,10 +1,10 @@
 import * as MTP from 'mathpower';
 
-import { PostProcessPass } from '../PostProcess';
+import { PostProcessPass } from '../render/PostProcess';
 
 import type { TexProceduralContract, TexProceduralParam } from '../../core/Contracts/TexProceduralContract';
-import type { TextureSource } from '../Bindings';
-import type { Renderer } from '../Renderer';
+import type { TextureSource } from '../backend/Bindings';
+import type { Renderer } from '../render/Renderer';
 
 // .tex のWebGPU実装。WGSLのフルスクリーンパスを固定解像度のテクスチャへ焼く。
 // deviceの準備が非同期なため、render()は予約だけを行い、実際の描画は

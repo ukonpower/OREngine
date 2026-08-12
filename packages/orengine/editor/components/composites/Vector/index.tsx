@@ -1,5 +1,6 @@
-import * as MTP from 'mathpower';
 import { useCallback, useRef } from 'react';
+
+import * as MTP from 'mathpower';
 
 import { Label } from '../../primitives/Label';
 import { InputNumber } from '../Input/InputNumber';

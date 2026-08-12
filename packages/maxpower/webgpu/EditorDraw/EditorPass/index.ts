@@ -1,10 +1,9 @@
-import { UniformBinder, buildStructWgsl, fieldsFromUniforms } from 'gpupower';
-
+import { UniformBinder, buildStructWgsl, fieldsFromUniforms } from '../../backend/UniformBinder';
 import { requestShaderReload } from '../../hotReload';
 import editorFullscreenWgsl from '../shaders/fullscreen.wgsl';
 
+import type { UniformField } from '../../backend/UniformBinder';
 import type * as BSP from 'basepower';
-import type { UniformField } from 'gpupower';
 
 // HMRで差し替わるシェーダーソース。playerでは初期値のまま使われる
 let hotFullscreenWgsl = editorFullscreenWgsl;

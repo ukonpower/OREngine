@@ -1,5 +1,6 @@
-import { SerializeFieldObjective } from "maxpower";
 import React from "react";
+
+import { SerializeFieldObjective } from "maxpower";
 
 import { Label } from "../../primitives/Label";
 import { Value, ValueProps } from "../Value";
