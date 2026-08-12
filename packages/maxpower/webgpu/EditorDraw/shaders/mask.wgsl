@@ -1,6 +1,6 @@
 // 選択シルエット。白で塗りつぶす
 
-#include "../../render/Material/shaders/standardVertex.wgsl"
+#include "../../Material/shaders/standardVertex.wgsl"
 
 @fragment
 fn fsForward( _input: VertexOutput ) -> @location(0) vec4f {

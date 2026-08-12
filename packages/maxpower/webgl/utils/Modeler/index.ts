@@ -4,9 +4,9 @@ import * as MTP from 'mathpower';
 import { Mesh } from '../../../core/Components/Mesh';
 import { Entity } from '../../../core/Entity';
 import { Geometry } from '../../../core/Geometry';
-import { GLBackend } from '../../backend/GLBackend';
-import { shaderParse } from '../../backend/ShaderParser';
-import { setUniforms } from '../../render/Renderer';
+import { GLBackend } from '../../GLBackend';
+import { setUniforms } from '../../Renderer';
+import { shaderParse } from '../../ShaderParser';
 
 
 type BakeAttribute = {

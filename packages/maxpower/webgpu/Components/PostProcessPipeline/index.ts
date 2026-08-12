@@ -1,10 +1,10 @@
 import * as MTP from 'mathpower';
 
 import { Component } from '../../../core/Component';
-import { PostProcessChain, PostProcessPass } from '../../render/PostProcess';
+import { PostProcessChain, PostProcessPass } from '../../PostProcess';
 
 import type { ComponentParams } from '../../../core/Component';
-import type { PostProcessPassParam } from '../../render/PostProcess';
+import type { PostProcessPassParam } from '../../PostProcess';
 
 /*-------------------------------
 	プロジェクト側がポストプロセスを差し込む口

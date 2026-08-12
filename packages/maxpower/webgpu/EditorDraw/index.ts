@@ -1,9 +1,9 @@
 import * as BSP from 'basepower';
 import * as MTP from 'mathpower';
 
-import { SCENE_FORMAT } from '../backend/Bindings';
+import { SCENE_FORMAT } from '../Bindings';
 import { onShaderReload, requestShaderReload } from '../hotReload';
-import { Material } from '../render/Material';
+import { Material } from '../Material';
 
 import { EditorPass } from './EditorPass';
 import copyWgsl from './shaders/copy.wgsl';
@@ -15,7 +15,7 @@ import outlineWgsl from './shaders/outline.wgsl';
 import type { EditorDrawContract, EditorFrame, EditorRect, EditorRecipe, EditorRenderEntitiesParam, EditorTarget } from '../../core/Contracts/EditorDrawContract';
 import type { EngineContract } from '../../core/Contracts/EngineContract';
 import type { MaterialContract } from '../../core/Contracts/MaterialContract';
-import type { Renderer } from '../render/Renderer';
+import type { Renderer } from '../Renderer';
 
 // HMRで差し替わるシェーダーソース。playerでは初期値のまま使われる
 let hotCopyWgsl = copyWgsl;

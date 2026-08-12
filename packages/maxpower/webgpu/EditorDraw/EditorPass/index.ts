@@ -1,8 +1,8 @@
-import { UniformBinder, buildStructWgsl, fieldsFromUniforms } from '../../backend/UniformBinder';
 import { requestShaderReload } from '../../hotReload';
+import { UniformBinder, buildStructWgsl, fieldsFromUniforms } from '../../UniformBinder';
 import editorFullscreenWgsl from '../shaders/fullscreen.wgsl';
 
-import type { UniformField } from '../../backend/UniformBinder';
+import type { UniformField } from '../../UniformBinder';
 import type * as BSP from 'basepower';
 
 // HMRで差し替わるシェーダーソース。playerでは初期値のまま使われる
