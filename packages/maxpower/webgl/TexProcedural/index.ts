@@ -2,10 +2,10 @@ import * as GLP from 'glpower';
 import { GLPowerTexture } from 'glpower';
 import * as MTP from 'mathpower';
 
-import { PostProcess } from '../PostProcess';
-import { PostProcessPass, PostProcessPassParam } from '../PostProcess/PostProcessPass';
+import { PostProcess } from '../render/PostProcess';
+import { PostProcessPass, PostProcessPassParam } from '../render/PostProcess/PostProcessPass';
 
-import type { Renderer } from '../Renderer';
+import type { Renderer } from '../render/Renderer';
 
 interface TexProceduralParam extends PostProcessPassParam {
 	resolution?: MTP.Vector

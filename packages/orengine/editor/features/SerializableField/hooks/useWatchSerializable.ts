@@ -1,5 +1,6 @@
-import { Serializable, SerializeField } from "maxpower";
 import { useState, useMemo, useEffect } from "react";
+
+import { Serializable, SerializeField } from "maxpower";
 
 export const useWatchSerializable = ( serializable: Serializable | undefined, deps?: ( string | undefined )[] ) => {
 

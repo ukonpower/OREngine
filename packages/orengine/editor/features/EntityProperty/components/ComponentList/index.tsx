@@ -1,5 +1,6 @@
-import * as MXP from 'maxpower';
 import { useMemo } from 'react';
+
+import * as MXP from 'maxpower';
 
 import { useSerializableField } from '../../../SerializableField/hooks/useSerializableProps';
 import { ComponentView } from '../ComponentView';

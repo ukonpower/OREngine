@@ -18,11 +18,26 @@
 							"components": [
 								{
 									"name": "Camera",
-									"uuid": "4ec0479f-f58f-4644-a7f4-0204813c5c99"
+									"uuid": "4ec0479f-f58f-4644-a7f4-0204813c5c99",
+									"props": {
+										"fov": 21.908,
+										"near": 0.1,
+										"far": 1000,
+										"orthWidth": 1,
+										"orthHeight": 1,
+										"fNumber": 0.3
+									}
 								},
 								{
 									"name": "CameraController",
-									"uuid": "3d0e3c4f-7110-43bc-917a-00850232c7b1"
+									"uuid": "3d0e3c4f-7110-43bc-917a-00850232c7b1",
+									"props": {
+										"lookAt/target": "cb074b59-42a0-4e78-b0ba-710332c4bea5",
+										"focus/mode": "auto",
+										"focus/target": null,
+										"focus/distance": 5,
+										"focus/speed": 8
+									}
 								}
 							]
 						},
@@ -62,9 +77,9 @@
 				"name": "test",
 				"uuid": "6d446790-0130-4c6b-bb32-82abcb6f0f57",
 				"pos": [
-					1.617491143594225,
-					0.718316363836685,
-					-3.216276504740394
+					0.5495782803360101,
+					0.2578566060442391,
+					-1.7123941310945874
 				],
 				"components": [
 					{
@@ -92,7 +107,11 @@
 		"pipeline/ssr/enabled": true,
 		"pipeline/ssao/enabled": true,
 		"pipeline/dof/enabled": false,
-		"pipeline/lightShaft/enabled": true
+		"pipeline/lightShaft/enabled": true,
+		"pipeline/lightShaft/intensity": 1,
+		"pipeline/lightShaft/blur": true,
+		"pipeline/lightShaft/temporal": true,
+		"pipeline/lightShaft/temporalBlend": 0.3
 	},
 	"timeline/duration": 600,
 	"timeline/fps": 60

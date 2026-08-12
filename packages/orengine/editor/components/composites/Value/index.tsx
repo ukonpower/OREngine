@@ -1,5 +1,6 @@
-import { SerializableFieldFormat, SerializeFieldObjective } from 'maxpower';
 import React from 'react';
+
+import { SerializableFieldFormat, SerializeFieldObjective } from 'maxpower';
 
 import { Button } from '../../primitives/Button';
 import { InputBoolean } from '../Input/InputCheckBox';

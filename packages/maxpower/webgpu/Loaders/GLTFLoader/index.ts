@@ -3,7 +3,7 @@ import { Entity } from '../../../core/Entity';
 import { Geometry } from '../../../core/Geometry';
 
 import type { GLTF, GLTFLoaderContract } from '../../../core/Contracts/GLTFLoaderContract';
-import type { GPUEngine } from '../../Renderer';
+import type { GPUEngine } from '../../render/Renderer';
 
 /*-------------------------------
 	glTF(glb)ローダー

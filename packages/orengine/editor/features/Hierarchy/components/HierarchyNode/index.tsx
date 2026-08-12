@@ -1,5 +1,6 @@
-import * as MXP from 'maxpower';
 import { MouseEvent, useCallback, useMemo } from 'react';
+
+import * as MXP from 'maxpower';
 
 import { InputGroup } from '../../../../components/composites/InputGroup';
 import { ArrowIcon } from '../../../../components/primitives/Icons/ArrowIcon';

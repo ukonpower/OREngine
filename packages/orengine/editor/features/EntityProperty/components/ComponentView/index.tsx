@@ -1,6 +1,7 @@
 
-import * as MXP from 'maxpower';
 import { MouseEvent, useCallback } from 'react';
+
+import * as MXP from 'maxpower';
 
 import { Block } from '../../../../components/primitives/Block';
 import { CrossIcon } from '../../../../components/primitives/Icons/CrossIcon';

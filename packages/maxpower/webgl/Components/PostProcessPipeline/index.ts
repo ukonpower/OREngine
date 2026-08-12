@@ -1,7 +1,7 @@
 import * as MTP from 'mathpower';
 
 import { Component, ComponentParams } from '../../../core/Component';
-import { PostProcess } from '../../PostProcess';
+import { PostProcess } from '../../render/PostProcess';
 
 export class PostProcessPipeline extends Component {
 

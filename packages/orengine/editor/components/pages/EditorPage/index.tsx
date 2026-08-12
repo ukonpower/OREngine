@@ -1,6 +1,6 @@
-import * as MXP from 'maxpower';
 import { useEffect, useState } from "react";
 
+import * as MXP from 'maxpower';
 import { OREngineProjectData } from "orengine";
 import { Engine } from "orengine";
 import { OREditor, OREngine, type PanelSlot, type CustomTab } from "orengine/react";

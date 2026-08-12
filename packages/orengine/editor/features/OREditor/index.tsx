@@ -1,8 +1,8 @@
 
-import * as MXP from 'maxpower';
 import React, { useEffect } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 
+import * as MXP from 'maxpower';
 import { OREngineProjectData } from 'orengine';
 
 import { LayoutSplit } from '../../components/composites/LayoutSplit';

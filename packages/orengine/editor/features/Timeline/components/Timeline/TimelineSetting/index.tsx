@@ -1,5 +1,6 @@
-import * as MXP from 'maxpower';
 import { useCallback } from 'react';
+
+import * as MXP from 'maxpower';
 
 import { Value } from '../../../../../components/composites/Value';
 import { Label } from '../../../../../components/primitives/Label';

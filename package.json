@@ -13,7 +13,6 @@
     "./configs": "./host/vite/configs.ts",
     "./maxpower": "./packages/maxpower/index.ts",
     "./glpower": "./packages/glpower/index.ts",
-    "./gpupower": "./packages/gpupower/index.ts",
     "./mathpower": "./packages/mathpower/index.ts",
     "./basepower": "./packages/basepower/index.ts",
     "./player": "./packages/orengine/player.ts",

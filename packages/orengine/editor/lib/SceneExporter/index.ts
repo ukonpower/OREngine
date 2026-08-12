@@ -1,5 +1,6 @@
-import * as MTP from 'mathpower';
 import { Output, BufferTarget, Mp4OutputFormat, CanvasSource } from 'mediabunny';
+
+import * as MTP from 'mathpower';
 
 import { Engine } from '../../../core/Engine';
 
