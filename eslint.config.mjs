@@ -41,9 +41,9 @@ export default [ {
 
 }, {
 	files: [
-		"packages/orengine/core/**/*.ts",
-		"packages/orengine/editor/lib/**/*.ts",
-		"packages/orengine/builtin/**/*.ts",
+		"packages/orengine/core/**/*.{ts,tsx}",
+		"packages/orengine/editor/lib/**/*.{ts,tsx}",
+		"packages/orengine/builtin/**/*.{ts,tsx}",
 	],
 
 	rules: {
@@ -63,7 +63,11 @@ export default [ {
 	},
 
 	settings: {
+		// tsconfig paths（orengine/... 等のエイリアス import）を boundaries に解決させるために必須
 		"import/resolver": {
+			typescript: {
+				project: "./tsconfig.json",
+			},
 			node: {
 				extensions: [ ".js", ".jsx", ".ts", ".tsx" ],
 			},
@@ -79,17 +83,26 @@ export default [ {
 				"packages/orengine/core/**",
 				"packages/orengine/builtin/**",
 			] },
-			{ type: "runtime", partialMatch: false, pattern: [
-				"packages/orengine/player.ts",
-				"packages/orengine/index.ts",
-			] },
 			{ type: "editor", pattern: [
 				"packages/orengine/editor/**",
 				"host/server/**",
+				"host/vite/**",
 			] },
-			{ type: "editor", partialMatch: false, pattern: [
+		],
+
+		// 単一ファイルは element でなく file category で分類する（v7 の boundaries/files 形式）
+		"boundaries/files": [
+			{ category: "runtime", pattern: [
+				"packages/orengine/player.ts",
+				"packages/orengine/index.ts",
+				"host/app/src/player.ts",
+				"host/app/Resources/**",
+			] },
+			{ category: "editor", pattern: [
 				"packages/orengine/editor.ts",
 				"packages/orengine/react.tsx",
+				"host/app/src/main.tsx",
+				"host/app/src/static.tsx",
 			] },
 		],
 	},
@@ -99,8 +112,14 @@ export default [ {
 			default: "allow",
 			policies: [
 				{
-					from: { element: { types: "runtime" } },
-					disallow: { element: { types: "editor" } },
+					from: [
+						{ element: { types: "runtime" } },
+						{ file: { categories: "runtime" } },
+					],
+					disallow: [
+						{ element: { types: "editor" } },
+						{ file: { categories: "editor" } },
+					],
 					message: "ランタイム領域からエディタ領域への import は禁止です",
 				},
 				{

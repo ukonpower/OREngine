@@ -1,7 +1,8 @@
 import EditorData from '@or-editor';
 import SceneData from '@or-scene';
-import { EditorPageStatic } from 'orengine/react';
 import ReactDOM from 'react-dom/client';
+
+import { EditorPageStatic } from 'orengine/react';
 
 import { initResouces, initResourceInstances } from '../Resources/registry';
 

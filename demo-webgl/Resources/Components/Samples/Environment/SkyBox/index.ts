@@ -1,4 +1,5 @@
 import * as MXP from 'maxpower';
+
 import { Engine } from 'orengine';
 
 import fragSrc from './shaders/skyBox.fs';

@@ -1,9 +1,6 @@
-import style from './index.module.scss';
+import { SelectList } from 'maxpower';
 
-export type SelectList = ( {
-	value: any,
-	label: string,
-} | string )[]
+import style from './index.module.scss';
 
 interface InputTextProps<T> {
 	value: T;

@@ -2,6 +2,7 @@ import { EventEmitter } from 'basepower';
 import * as GLP from 'glpower';
 import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
+
 import { OREngineProjectFrame } from 'orengine';
 
 import timelineFrag from './shaders/timeline.fs';
