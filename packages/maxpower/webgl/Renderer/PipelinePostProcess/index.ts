@@ -2,7 +2,7 @@ import * as GLP from 'glpower';
 import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
-import { GL, GLBackend } from '../../GLBackend';
+import { GL, GLBackend } from '../../backend/GLBackend';
 
 import colorCollectionFrag from './shaders/colorCollection.fs';
 import dofBokehFrag from './shaders/dofBokeh.fs';

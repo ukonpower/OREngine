@@ -1,8 +1,8 @@
-import { buildStructWgsl } from '../../UniformBinder';
+import { buildStructWgsl } from '../../backend/UniformBinder';
 
 import prefilterBodyWgsl from './prefilter.wgsl';
 
-import type { UniformField } from '../../UniformBinder';
+import type { UniformField } from '../../backend/UniformBinder';
 
 /*-------------------------------
 	envMap の事前フィルタ（PMREM）の宣言部

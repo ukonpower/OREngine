@@ -12,7 +12,7 @@ export interface PostProcessPassParam extends MaterialParam{
 	fixedResotluion?: MTP.Vector
 }
 
-import { GL, GLBackend } from '../../GLBackend';
+import { GL, GLBackend } from '../../backend/GLBackend';
 import { MaterialParam, Material } from '../../Material';
 
 import passFrag from './shaders/pass.fs';

@@ -1,4 +1,4 @@
-import { DEPTH_FORMAT, GBUFFER_ATTACHMENTS, SCENE_FORMAT } from '../../Bindings';
+import { DEPTH_FORMAT, GBUFFER_ATTACHMENTS, SCENE_FORMAT } from '../../backend/Bindings';
 
 /*-------------------------------
 	カメラ1台ぶんの中間バッファ

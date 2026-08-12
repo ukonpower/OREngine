@@ -4,7 +4,7 @@ import * as GLP from 'glpower';
 import * as MTP from 'mathpower';
 
 import { UniformsUtils } from '../../../core/utils/Uniforms';
-import { GL, GLBackend } from '../../GLBackend';
+import { GL, GLBackend } from '../../backend/GLBackend';
 import { PostProcessPassParam, PostProcessPass } from '../../PostProcess/PostProcessPass';
 
 import quadVert from './shaders/quad.vs';

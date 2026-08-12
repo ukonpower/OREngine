@@ -1,5 +1,5 @@
 import { PostProcess } from '..';
-import { GLBackend } from '../../GLBackend';
+import { GLBackend } from '../../backend/GLBackend';
 import { PostProcessPass } from '../PostProcessPass';
 
 import fxaaFrag from './shaders/fxaa.fs';

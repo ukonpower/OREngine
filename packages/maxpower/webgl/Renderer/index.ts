@@ -10,11 +10,11 @@ import { Entity, EntityUpdateEvent } from '../../core/Entity';
 import { PlaneGeometry } from '../../core/Geometries/PlaneGeometry';
 import { Geometry } from '../../core/Geometry';
 import { Serializable } from '../../core/Serializable';
+import { GL, GLBackend } from '../backend/GLBackend';
+import { shaderParse } from "../backend/ShaderParser";
 import { PostProcessPipeline } from '../Components/PostProcessPipeline';
-import { GL, GLBackend } from '../GLBackend';
 import { MaterialRenderType, Material } from '../Material';
 import { PostProcess } from '../PostProcess';
-import { shaderParse } from "../ShaderParser";
 import { TexProcedural } from '../TexProcedural';
 
 import { DeferredRenderer } from './DeferredRenderer';

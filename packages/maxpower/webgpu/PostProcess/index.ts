@@ -1,12 +1,12 @@
 
-import { FRAME_FIELDS, GROUP_FRAME, SCENE_FORMAT } from '../Bindings';
-import { requestShaderReload } from '../hotReload';
+import { FRAME_FIELDS, GROUP_FRAME, SCENE_FORMAT } from '../backend/Bindings';
+import { requestShaderReload } from '../backend/hotReload';
+import { UniformBinder, buildStructWgsl, fieldsFromUniforms } from '../backend/UniformBinder';
 import { buildLightWgsl } from '../Renderer/Lights';
-import { UniformBinder, buildStructWgsl, fieldsFromUniforms } from '../UniformBinder';
 
 import fullscreenWgsl from './shaders/fullscreen.wgsl';
 
-import type { UniformField } from '../UniformBinder';
+import type { UniformField } from '../backend/UniformBinder';
 import type * as BSP from 'basepower';
 import type * as MTP from 'mathpower';
 

@@ -1,5 +1,5 @@
 
-import type { CollectedLights } from '../Renderer';
+import type { CollectedLights } from '../../Renderer';
 
 type Defines = {[key:string]: number | string} | undefined;
 

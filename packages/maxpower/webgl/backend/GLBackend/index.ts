@@ -1,7 +1,7 @@
 import * as GLP from 'glpower';
 import * as MTP from 'mathpower';
 
-import { Blending, DrawType } from '../Material';
+import { Blending, DrawType } from '../../Material';
 
 // フォーマット・フィルタ等のGL定数を型名で修飾せずに参照するための別名
 export const GL = WebGL2RenderingContext;

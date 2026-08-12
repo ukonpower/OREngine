@@ -1,4 +1,4 @@
-import type { Geometry } from '../../core/Geometry';
+import type { Geometry } from '../../../core/Geometry';
 
 /*-------------------------------
 	Geometry（attributeデータ）→ GPUBuffer
