@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { Value } from '../../components/composites/Value';
-import { Button } from '../../components/primitives/Button';
-import { Label } from '../../components/primitives/Label';
+import { Button } from '../../components/ui/Button';
+import { Label } from '../../components/ui/Label';
+import { Value } from '../../components/ui/Value';
 import { AudioView } from '../AudioView';
 import { CameraPad } from '../CameraPad';
 import { useUISetting } from '../EditorSettings/hooks/useUISetting';

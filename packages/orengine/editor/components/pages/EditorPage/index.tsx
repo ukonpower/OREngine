@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import * as MXP from 'maxpower';
 import { OREngineProjectData } from "orengine";
 import { Engine } from "orengine";
-import { OREditor, OREngine, type PanelSlot, type CustomTab } from "orengine/react";
+import { OREditor, OREngineProvider, type PanelSlot, type CustomTab } from "orengine/react";
 
 import "../../../styles/style.scss";
 
@@ -52,7 +52,7 @@ export const EditorPage = ( props: EditorPageProps ) => {
 	}, [ props.editorData, projectName ] );
 
 	return (
-		<OREngine project={projectData} onEngineInit={( engine ) => {
+		<OREngineProvider project={projectData} onEngineInit={( engine ) => {
 
 			props.initResourceInstances( engine );
 
@@ -74,7 +74,7 @@ export const EditorPage = ( props: EditorPageProps ) => {
 				} );
 
 			}} />
-		</OREngine>
+		</OREngineProvider>
 	);
 
 };

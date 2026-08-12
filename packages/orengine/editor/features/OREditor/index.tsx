@@ -1,35 +1,29 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 
 import * as MXP from 'maxpower';
-import { OREngineProjectData } from 'orengine';
 
-import { LayoutSplit } from '../../components/composites/LayoutSplit';
-import { Panel } from '../../components/primitives/Panel';
-import { PanelContainer } from '../../components/primitives/PanelContainer';
+import { LayoutSplit } from '../../components/ui/LayoutSplit';
+import { Panel } from '../../components/ui/Panel';
+import { PanelContainer } from '../../components/ui/PanelContainer';
 import { EditorSettings } from '../EditorSettings';
 import { EntityProperty } from '../EntityProperty';
 import { Timer } from '../GPUTimer';
 import { Hierarchy } from '../Hierarchy';
-import { InputWindow } from '../InputWindow/components/InputWindow';
-import { InputWindowContext } from '../InputWindow/components/InputWindow/contexts/InputWindowContext';
-import { useInputWindowContext } from '../InputWindow/hooks/useInputWindowContext';
+import { InputWindow } from '../InputWindow';
+import { InputWindowProvider } from '../InputWindow/providers/InputWindowProvider';
 import { useLayout } from '../Layout/hooks/useLayout';
-import { MouseMenu } from '../MouseMenu/components/MouseMenu';
-import { MouseMenuContext } from '../MouseMenu/components/MouseMenu/contexts/MouseMenuContext';
-import { useMouseMenuContext } from '../MouseMenu/hooks/useMouseMenuContext';
+import { MouseMenu } from '../MouseMenu';
+import { MouseMenuProvider } from '../MouseMenu/providers/MouseMenuProvider';
 import { ProjectControl } from '../ProjectControl';
 import { RendererSettings } from '../RendererSettings';
 import { Screen } from '../Screen';
 import { Textures } from '../Textures';
-import { Timeline } from '../Timeline/components/Timeline';
+import { Timeline } from '../Timeline';
 
-import { OREditorContext } from './contexts/OREditorContext';
-import { useOREditorContext } from './hooks/useOREditorContext';
 import style from './index.module.scss';
-
- type OREditorSaveCallback = ( projectData: OREngineProjectData, editorData: MXP.SerializeField ) => void
+import { OREditorProvider, OREditorSaveCallback } from './providers/OREditorProvider';
 
 export type PanelSlot = "leftTop" | "leftBottom" | "mainBottom" | "rightTop" | "footer";
 
@@ -55,33 +49,7 @@ const defaultTabTitle = ( tabs: CustomTab[] | undefined ) => tabs?.find( ( t ) =
 
 export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP.SerializeField, projectName?: string, customTabs?: Partial<Record<PanelSlot, CustomTab[]>> }> = ( props ) => {
 
-	const editorContext = useOREditorContext( props.projectName );
-
-	useEffect( () => {
-
-		if ( ! editorContext.editor || ! props.onSave ) return;
-
-		editorContext.editor.on( "save", props.onSave );
-
-		return () => {
-
-			editorContext.editor.off( "save", props.onSave );
-
-		};
-
-	}, [ editorContext.editor, props.onSave ] );
-
-	useEffect( () => {
-
-		if ( ! editorContext.editor ) return;
-
-		editorContext.editor.bootstrap( props.editorData );
-
-	}, [ props.editorData, editorContext.editor ] );
-
 	const layout = useLayout();
-	const mouseMenuContext = useMouseMenuContext();
-	const inputWindowContext = useInputWindowContext();
 
 	let editorElm = null;
 
@@ -245,15 +213,15 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 
 	}
 
-	return <OREditorContext.Provider value={editorContext}>
-		<MouseMenuContext.Provider value={mouseMenuContext}>
-			<InputWindowContext.Provider value={inputWindowContext}>
+	return <OREditorProvider projectName={props.projectName} onSave={props.onSave} editorData={props.editorData}>
+		<MouseMenuProvider>
+			<InputWindowProvider>
 				<div className={style.editor}>
 					{editorElm}
 				</div>
 				<InputWindow />
-			</InputWindowContext.Provider>
-		</MouseMenuContext.Provider>
-	</OREditorContext.Provider>;
+			</InputWindowProvider>
+		</MouseMenuProvider>
+	</OREditorProvider>;
 
 };

@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 
-import { SerializeFieldViewContext } from '../components/SerializeFieldView/contexts/SerializeFieldViewContext';
+import { SerializeFieldViewContext } from '../contexts/SerializeFieldViewContext';
 
 export const useSerializeFieldView = () => {
 

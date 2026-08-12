@@ -3,9 +3,9 @@ import { useEffect, useState } from 'react';
 
 import { SceneExporterProgress } from 'orengine/editor';
 
-import { Block } from '../../components/primitives/Block';
-import { Button } from '../../components/primitives/Button';
-import { ArrowIcon } from '../../components/primitives/Icons/ArrowIcon';
+import { Block } from '../../components/ui/Block';
+import { Button } from '../../components/ui/Button';
+import { ArrowIcon } from '../../components/ui/Icons/ArrowIcon';
 import { useOREditor } from '../OREditor/hooks/useOREditor';
 
 import style from './index.module.scss';

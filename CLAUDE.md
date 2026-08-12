@@ -107,15 +107,40 @@ WGSLは `.wgsl` ファイルに置き、`import xxxWgsl from './xxx.wgsl'` で�
 - **メソッド/関数/変数**: camelCase（`updateImpl`, `matrixWorld`, `autoMatrixUpdate`）
 - **protectedフィールド**: アンダースコアプレフィックス `_`（`_entity`, `_enabled`, `_tag`）
 - **privateフィールド**: サフィックス `_` またはプレフィックスなし（`fields_`, `componentsSorted`）
-- **モジュールディレクトリ（`index.ts` から `export *` される公開モジュール）**: PascalCase ディレクトリ + `index.ts`（または `index.tsx`）（`Entity/`, `Component/`, `Serializable/`, `EngineContract/`, `OREditor/`, `Hierarchy/`, `Block/`）。**全パッケージ共通で例外を作らない**:
+- **モジュールディレクトリ（非React層。`index.ts` から `export *` される公開モジュール）**: PascalCase ディレクトリ + `index.ts`（`Entity/`, `Component/`, `Serializable/`, `EngineContract/`）:
   - 1ファイルで収まるモジュールも直置き `.ts` にせずディレクトリを掘る（`glpower/GLPowerBuffer/index.ts`, `mathpower/Vector/index.ts`）
   - interface だけのモジュールも同じ（`Contracts/Engine.ts` ではなく `Contracts/EngineContract/index.ts`）
   - 関数しか持たないモジュールも同じ。ディレクトリ名は関数名ではなく名詞のモジュール名にする（`setupCameraPostProcess.ts` → `CameraPostProcess/index.ts`、`hotReload.ts` → `HotReload/index.ts`）
-- **カテゴリディレクトリ（複数モジュールをまとめる中間層）**: 役割で分ける層は lowercase（`engine/`, `editor/`, `lib/`, `components/`, `features/`, `hooks/`, `contexts/`, `primitives/`, `composites/`, `pages/`, `styles/`）。同種のモジュールを集める層は PascalCase の複数形（`Components/`, `Geometries/`, `Resources/`, `Contracts/`）。**兄弟が1つしかない中間層は作らない**（`mathpower/Math/` のようにパッケージ内で唯一のカテゴリは情報を持たないのでパッケージ直下へ展開する）
-- **Reactコンポーネント**: PascalCase関数コンポーネント（`const Screen = () => {}`）
+- **カテゴリディレクトリ（複数モジュールをまとめる中間層）**: 役割で分ける層は lowercase（`engine/`, `editor/`, `lib/`, `components/`, `ui/`, `features/`, `hooks/`, `contexts/`, `providers/`, `pages/`, `styles/`）。同種のモジュールを集める層は PascalCase の複数形（`Components/`, `Geometries/`, `Resources/`, `Contracts/`）。**兄弟が1つしかない中間層は作らない**（`mathpower/Math/` のようにパッケージ内で唯一のカテゴリは情報を持たないのでパッケージ直下へ展開する）
+- **Reactコンポーネント**: PascalCase関数コンポーネント（`const Screen = () => {}`）、`ComponentName/index.tsx` + `index.module.scss`
+- **React層の hooks / contexts / providers / lib**: ディレクトリを掘らず直置きファイル（`hooks/useOREditor.ts`, `contexts/OREditorContext.tsx`, `providers/OREditorProvider.tsx`, `lib/types.ts`）。詳細は「editor の React 層構造」を参照
 - **Reactフック**: `use` プレフィックス camelCase（`useOREditor`, `useSerializableField`）
 - **SCSSモジュール**: `index.module.scss`、BEM風ネスト（`&_tabs`, `&_right`）
 - **パッケージ名前空間**: `import * as BSP from 'basepower'`, `import * as MTP from 'mathpower'`, `import * as GLP from 'glpower'`, `import * as MXP from 'maxpower'`。extends する対象は namespace 経由にせず named import で取る（tree-shaking のため）
+
+## editor の React 層構造（components / features）
+`packages/orengine/editor` の React 層は vibecoding-template-next の feature 設計に合わせる。
+
+```
+editor/
+├── components/
+│   ├── ui/       # 汎用UIコンポーネント（Button, Panel, Input 等。features に依存しない）
+│   └── pages/    # 画面コンポーネント（features を組み立てる組成層。EditorPage 等）
+├── features/     # 機能単位（PascalCase）
+│   └── {FeatureName}/
+│       ├── index.tsx + index.module.scss  # メインコンポーネント（主要UIがある場合のみ）
+│       ├── components/   # 機能専用サブコンポーネント（ComponentName/index.tsx）
+│       ├── hooks/        # カスタムHooks（useXxx.ts 直置き）
+│       ├── providers/    # Context Provider 実装（XxxProvider.tsx 直置き）
+│       ├── contexts/     # React Context 定義（XxxContext.tsx 直置き。feature 内部専用）
+│       └── lib/          # 非Reactロジック（レンダラー・純ロジック・型定義）
+├── lib/          # エディタ中核の非React層（Editor クラス・gizmo・入力等。dir+index.ts 形式）
+└── styles/       # 共有Sass partial
+```
+
+- 依存方向は `pages → features → components/ui` の一方向。`components/ui` から features を import しない（既知の例外: `ui/Input` の一部が InputWindow feature に依存している）
+- feature の主要UIは `{FeatureName}/index.tsx` に置く。`features/Timeline/components/Timeline/` のように feature 名を二重に掘らない
+- Context は「定義を `contexts/`、Provider 実装を `providers/`」に分離する。Context 値の生成ロジックは `hooks/useXxxContext.ts` に置く
 
 ## TypeScript設定
 - strict: true

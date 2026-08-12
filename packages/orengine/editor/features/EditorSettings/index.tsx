@@ -1,6 +1,6 @@
-import { Value } from '../../components/composites/Value';
-import { Block } from '../../components/primitives/Block';
-import { Label } from '../../components/primitives/Label';
+import { Block } from '../../components/ui/Block';
+import { Label } from '../../components/ui/Label';
+import { Value } from '../../components/ui/Value';
 
 import { useUISetting } from './hooks/useUISetting';
 import style from './index.module.scss';

@@ -2,13 +2,13 @@ import { MouseEvent, useCallback, useMemo } from 'react';
 
 import * as MXP from 'maxpower';
 
-import { InputGroup } from '../../../../components/composites/InputGroup';
-import { ArrowIcon } from '../../../../components/primitives/Icons/ArrowIcon';
-import { CameraIcon } from '../../../../components/primitives/Icons/CameraIcon';
-import { CursorIcon } from '../../../../components/primitives/Icons/CursorIcon';
-import { EyeIcon } from '../../../../components/primitives/Icons/EyeIcon';
-import { LightIcon } from '../../../../components/primitives/Icons/LightIcon';
-import { MeshIcon } from '../../../../components/primitives/Icons/MeshIcon';
+import { ArrowIcon } from '../../../../components/ui/Icons/ArrowIcon';
+import { CameraIcon } from '../../../../components/ui/Icons/CameraIcon';
+import { CursorIcon } from '../../../../components/ui/Icons/CursorIcon';
+import { EyeIcon } from '../../../../components/ui/Icons/EyeIcon';
+import { LightIcon } from '../../../../components/ui/Icons/LightIcon';
+import { MeshIcon } from '../../../../components/ui/Icons/MeshIcon';
+import { InputGroup } from '../../../../components/ui/InputGroup';
 import { Picker } from '../../../MouseMenu/components/Picker';
 import { useMouseMenu } from '../../../MouseMenu/hooks/useMouseMenu';
 import { useOREditor } from '../../../OREditor/hooks/useOREditor';

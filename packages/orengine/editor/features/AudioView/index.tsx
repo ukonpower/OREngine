@@ -5,8 +5,8 @@ import { FramePlay, OREngineProjectFrame } from 'orengine';
 
 import { useOREditor } from '../OREditor/hooks/useOREditor';
 
-import { AudioViewRenderer } from './components/AudioViewRenderer';
 import style from './index.module.scss';
+import { AudioViewRenderer } from './lib/AudioViewRenderer';
 
 
 export const AudioView = () => {

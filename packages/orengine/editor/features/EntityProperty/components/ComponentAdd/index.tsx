@@ -4,7 +4,7 @@ import React, { MouseEvent, ReactNode, useCallback, useState } from 'react';
 import * as MXP from 'maxpower';
 import { ComponentGroup, Engine, ResouceComponentItem } from 'orengine';
 
-import { Button } from '../../../../components/primitives/Button';
+import { Button } from '../../../../components/ui/Button';
 import { useMouseMenu } from '../../../MouseMenu/hooks/useMouseMenu';
 import { useMouseMenuItem } from '../../../MouseMenu/hooks/useMouseMenuItem';
 import { useOREditor } from '../../../OREditor/hooks/useOREditor';
