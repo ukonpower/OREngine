@@ -4,7 +4,7 @@
 //   material.uParams  x = セルサイズ / y = 細かい格子の濃さ / z = フェード距離
 //   frame.uCameraPosition  フェードの中心
 
-#include "../../render/Material/shaders/standardVertex.wgsl"
+#include "../../Material/shaders/standardVertex.wgsl"
 
 // 軸線の色は TranslateGizmo と揃える
 const AXIS_COLOR_X = vec3f( 1.0, 0.2, 0.2 );

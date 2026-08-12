@@ -23,7 +23,7 @@ export interface ShaderBuilderOptions {
 // 実行時のシェーダー結合をビルド時に前倒しして解決する。
 // minifierには結合済みの完成形シェーダーを渡す必要がある（minifierは各入力ファイルを
 // 独立したシェーダーとして扱うため、ファイルを跨ぐリネーム・未使用削除は成立しない）
-const SHADER_PARSER_DIR = path.resolve( fileURLToPath( import.meta.url ), '../../../../../packages/maxpower/webgl/backend/ShaderParser' );
+const SHADER_PARSER_DIR = path.resolve( fileURLToPath( import.meta.url ), '../../../../../packages/maxpower/webgl/ShaderParser' );
 
 // #include <prefix:名前> の prefix → 検索ディレクトリとファイル名suffixの対応。
 // ファイル名は名前から一意に決まるため、モジュール/partの追加時にローダーの変更は不要

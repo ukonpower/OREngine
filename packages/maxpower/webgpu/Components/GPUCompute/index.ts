@@ -1,10 +1,10 @@
-import { FRAME_FIELDS, GROUP_FRAME } from '../../backend/Bindings';
-import { UniformBinder, buildStructWgsl, fieldsFromUniforms } from '../../backend/UniformBinder';
+import { FRAME_FIELDS, GROUP_FRAME } from '../../Bindings';
+import { UniformBinder, buildStructWgsl, fieldsFromUniforms } from '../../UniformBinder';
 
 
-import type { StorageSource } from '../../backend/Bindings';
-import type { UniformField } from '../../backend/UniformBinder';
-import type { Renderer } from '../../render/Renderer';
+import type { StorageSource } from '../../Bindings';
+import type { Renderer } from '../../Renderer';
+import type { UniformField } from '../../UniformBinder';
 import type * as BSP from 'basepower';
 
 /*-------------------------------

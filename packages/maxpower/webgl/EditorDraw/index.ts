@@ -3,11 +3,11 @@ import * as MTP from 'mathpower';
 
 import { Mesh } from '../../core/Components/Mesh';
 import { EditorDrawContract, EditorFrame, EditorRect, EditorRecipe, EditorRenderEntitiesParam, EditorTarget } from '../../core/Contracts/EditorDrawContract';
-import { GL } from '../backend/GLBackend';
-import { Material } from '../render/Material';
-import { PostProcess } from '../render/PostProcess';
-import { PostProcessPass } from '../render/PostProcess/PostProcessPass';
-import { Renderer } from '../render/Renderer';
+import { GL } from '../GLBackend';
+import { Material } from '../Material';
+import { PostProcess } from '../PostProcess';
+import { PostProcessPass } from '../PostProcess/PostProcessPass';
+import { Renderer } from '../Renderer';
 
 import flatFrag from './shaders/flat.fs';
 import flatVert from './shaders/flat.vs';

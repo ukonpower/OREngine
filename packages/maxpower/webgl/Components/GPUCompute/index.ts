@@ -1,7 +1,7 @@
 
 
-import { PostProcess } from '../../render/PostProcess';
-import { Renderer } from '../../render/Renderer';
+import { PostProcess } from '../../PostProcess';
+import { Renderer } from '../../Renderer';
 import { GPUComputePass } from '../GPUComputePass';
 
 export class GPUCompute extends PostProcess {
