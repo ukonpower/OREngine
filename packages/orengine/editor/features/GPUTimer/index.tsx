@@ -4,8 +4,8 @@ import { useOREditor } from '../OREditor/hooks/useOREditor';
 import { useOREngine } from '../OREngine/hooks/useOREngine';
 
 import style from './index.module.scss';
-import { TimerDataBuffer } from './TimerDataBuffer';
-import { TimerDuration, TimerStatistics } from './types';
+import { TimerDataBuffer } from './lib/TimerDataBuffer';
+import { TimerDuration, TimerStatistics } from './lib/types';
 
 
 const getColorForDuration = ( duration: number ): string => {

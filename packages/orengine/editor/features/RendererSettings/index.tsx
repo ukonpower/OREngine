@@ -1,5 +1,5 @@
 
-import { Block } from '../../components/primitives/Block';
+import { Block } from '../../components/ui/Block';
 import { useOREditor } from '../OREditor/hooks/useOREditor';
 import { SerializeFieldView } from '../SerializableField/components/SerializeFieldView';
 
