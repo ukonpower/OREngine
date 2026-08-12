@@ -105,6 +105,13 @@ interface CompileDrawParam {
 	param: DrawParam;
 }
 
+// Renderer所有のGeometry用GPUリソース。versionがGeometry.updateVersionと一致する間は再利用する
+type GeometryBufferRecord = {
+	buffers: Map<string, GLP.GLPowerBuffer>,
+	vaoVersions: Map<GLP.GLPowerVAO, number>,
+	version: number,
+}
+
 // pipeline config
 
 export type PipelineConfig = {
@@ -183,6 +190,10 @@ export class Renderer extends Serializable implements RendererContract {
 
 	public programManager: ProgramManager;
 
+	// geometry
+
+	private _geometryBuffers: Map<Geometry, GeometryBufferRecord>;
+
 	// lights
 
 	private _lights: CollectedLights;
@@ -237,6 +248,7 @@ export class Renderer extends Serializable implements RendererContract {
 		this._isCorrentCompiles = false;
 		this.compileDrawParams = [];
 		this.programManager = new ProgramManager( backend );
+		this._geometryBuffers = new Map();
 		this.resolution = new MTP.Vector();
 
 		// lights
@@ -1180,27 +1192,29 @@ export class Renderer extends Serializable implements RendererContract {
 
 		if ( vao ) {
 
-			if ( ! geometry.vaoCache.get( vao ) ) {
+			const geometryBuffer = this._getGeometryBuffer( geometry );
 
-				geometry.createBuffers( this.backend.gl );
+			if ( geometryBuffer.vaoVersions.get( vao ) !== geometry.updateVersion ) {
 
 				geometry.attributes.forEach( ( attr, key ) => {
 
-					if ( attr.buffer === undefined ) return;
+					const buffer = geometryBuffer.buffers.get( key );
+
+					if ( buffer === undefined ) return;
 
 					if ( key == 'index' ) {
 
-						vao.setIndex( attr.buffer );
+						vao.setIndex( buffer );
 
 					} else {
 
-						vao.setAttribute( key, attr.buffer, attr.size, attr.opt );
+						vao.setAttribute( key, buffer, attr.size, attr.opt );
 
 					}
 
 				} );
 
-				geometry.vaoCache.set( vao, true );
+				geometryBuffer.vaoVersions.set( vao, geometry.updateVersion );
 
 			}
 
@@ -1215,6 +1229,41 @@ export class Renderer extends Serializable implements RendererContract {
 			this.backend.draw( program, vao, material.drawType, material.blending, queryName );
 
 		}
+
+	}
+
+	// GeometryのGPUバッファを生成・保持する。updateVersionが変わっていたら作り直す
+	private _getGeometryBuffer( geometry: Geometry ): GeometryBufferRecord {
+
+		let record = this._geometryBuffers.get( geometry );
+
+		if ( ! record ) {
+
+			record = { buffers: new Map(), vaoVersions: new Map(), version: - 1 };
+
+			this._geometryBuffers.set( geometry, record );
+
+		}
+
+		if ( record.version !== geometry.updateVersion ) {
+
+			const buffers = record.buffers;
+
+			buffers.forEach( ( buffer ) => buffer.dispose() );
+			buffers.clear();
+			record.vaoVersions.clear();
+
+			geometry.attributes.forEach( ( attr, key ) => {
+
+				buffers.set( key, new GLP.GLPowerBuffer( this.backend.gl ).setData( attr.array, key == 'index' ? 'ibo' : 'vbo', attr.opt && attr.opt.usage ) );
+
+			} );
+
+			record.version = geometry.updateVersion;
+
+		}
+
+		return record;
 
 	}
 
