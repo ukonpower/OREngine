@@ -92,6 +92,7 @@ export default [ {
 				"packages/maxpower/**",
 				"packages/orengine/core/**",
 				"packages/orengine/builtin/**",
+				"packages/orengine/player/**",
 			] },
 			{ type: "editor", pattern: [
 				"packages/orengine/editor/**",
@@ -103,13 +104,11 @@ export default [ {
 		// 単一ファイルは element でなく file category で分類する（v7 の boundaries/files 形式）
 		"boundaries/files": [
 			{ category: "runtime", pattern: [
-				"packages/orengine/player.ts",
 				"packages/orengine/index.ts",
 				"host/app/src/player.ts",
 				"host/app/Resources/**",
 			] },
 			{ category: "editor", pattern: [
-				"packages/orengine/editor.ts",
 				"packages/orengine/react.tsx",
 				"host/app/src/main.tsx",
 				"host/app/src/static.tsx",

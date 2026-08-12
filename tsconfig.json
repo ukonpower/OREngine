@@ -55,6 +55,12 @@
       "orengine": [
         "./packages/orengine/index.ts"
       ],
+      "orengine/editor": [
+        "./packages/orengine/editor/lib/index.ts"
+      ],
+      "orengine/react": [
+        "./packages/orengine/react.tsx"
+      ],
       "orengine/*": [
         "./packages/orengine/*"
       ],
