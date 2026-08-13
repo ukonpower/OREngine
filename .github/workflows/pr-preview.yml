@@ -24,7 +24,7 @@ jobs:
       - uses: actions/setup-node@v4
         if: github.event.action != 'closed'
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
       - run: npm ci
         if: github.event.action != 'closed'
