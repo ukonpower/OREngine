@@ -26,7 +26,7 @@ jobs:
         with:
           node-version: 24
           cache: npm
-      - run: npm ci
+      - run: npm install --no-audit --no-fund
         if: github.event.action != 'closed'
       - name: Build editor demo
         if: github.event.action != 'closed'
