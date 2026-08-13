@@ -52,3 +52,24 @@ jobs:
           preview-branch: gh-pages
           umbrella-dir: pr-preview
           action: auto
+          # コメントは自前で出す（actionの標準コメントはデモ・Storybookの2リンクを載せられない）
+          comment: "false"
+      - name: Comment preview links
+        if: github.event.action != 'closed'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: pr-preview-links
+          message: |
+            ### :rocket: プレビュー
+            | 内容 | URL |
+            | --- | --- |
+            | エディタデモ | https://ukonpower.github.io/OREngine/pr-preview/pr-${{ github.event.pull_request.number }}/ |
+            | Storybook | https://ukonpower.github.io/OREngine/pr-preview/pr-${{ github.event.pull_request.number }}/storybook/ |
+
+            gh-pages への push 後、Pages の反映まで1〜2分かかることがあります。
+      - name: Remove preview links comment
+        if: github.event.action == 'closed'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: pr-preview-links
+          delete: true
