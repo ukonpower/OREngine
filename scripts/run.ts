@@ -6,11 +6,16 @@ import { fileURLToPath } from 'node:url';
 const repoRoot = path.resolve( fileURLToPath( import.meta.url ), '../..' );
 const templateDir = path.join( repoRoot, 'host/template/project' );
 
+type OREngineConfig = {
+	project?: string;
+	renderer?: string;
+};
+
 /*-------------------------------
 	設定解決
 -------------------------------*/
 
-const readConfig = () => {
+const readConfig = (): OREngineConfig => {
 
 	const cfgPath = path.join( repoRoot, 'orengine.config.json' );
 
@@ -19,7 +24,7 @@ const readConfig = () => {
 };
 
 // ORENGINE_PROJECT または orengine.config.json からアクティブプロジェクトを決める
-const resolveProject = ( cfg ) => {
+const resolveProject = ( cfg: OREngineConfig ) => {
 
 	const name = process.env.ORENGINE_PROJECT || cfg.project;
 
@@ -32,7 +37,7 @@ const resolveProject = ( cfg ) => {
 };
 
 // ORENGINE_RENDERER または orengine.config.json からレンダラーバックエンドを決める
-const resolveRenderer = ( cfg ) => {
+const resolveRenderer = ( cfg: OREngineConfig ) => {
 
 	const name = process.env.ORENGINE_RENDERER || cfg.renderer || 'webgl';
 
@@ -50,7 +55,7 @@ const resolveRenderer = ( cfg ) => {
 	雛形生成（プロジェクトが無ければテンプレートからコピー）
 -------------------------------*/
 
-const copyDir = ( src, dst, replacements ) => {
+const copyDir = ( src: string, dst: string, replacements: Record<string, string> ) => {
 
 	fs.mkdirSync( dst, { recursive: true } );
 
@@ -79,7 +84,7 @@ const copyDir = ( src, dst, replacements ) => {
 
 };
 
-const ensureProjectExists = ( projectDir, projectName ) => {
+const ensureProjectExists = ( projectDir: string, projectName: string ) => {
 
 	if ( fs.existsSync( projectDir ) ) return;
 
@@ -95,7 +100,7 @@ const ensureProjectExists = ( projectDir, projectName ) => {
 const cmd = process.argv[ 2 ];
 if ( ! cmd ) {
 
-	console.error( 'Usage: tsx scripts/run.mjs <dev|build|build:static>' );
+	console.error( 'Usage: tsx scripts/run.ts <dev|build|build:static>' );
 	process.exit( 1 );
 
 }
