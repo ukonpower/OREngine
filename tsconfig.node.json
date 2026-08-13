@@ -11,6 +11,8 @@
     ]
   },
   "include": [
+    "./.storybook/main.ts",
+    "./.storybook/vite.config.ts",
     "./host/vite",
     "./host/runner.ts",
     "./host/index.ts",

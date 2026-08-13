@@ -19,7 +19,7 @@ import { collectJsonKeys, collectSceneUsage } from './sceneScan';
 const orengineRoot = path.resolve( fileURLToPath( import.meta.url ), '../../..' );
 const appRoot = path.join( orengineRoot, 'host/app' );
 
-export type RendererName = 'webgl' | 'webgpu';
+export type RendererName = 'webgl' | 'webgpu' | 'headless';
 
 export interface OrengineConfigOptions {
 	projectDir: string;
@@ -40,10 +40,11 @@ const projectAliases = ( projectDir: string ) => [
 const rendererPath: { [key in RendererName]: string } = {
 	webgl: 'packages/maxpower/webgl/index.ts',
 	webgpu: 'packages/maxpower/webgpu/index.ts',
+	headless: 'packages/maxpower/headless/index.ts',
 };
 
 // playerビルドへWebGPUコードが混入しないよう、レンダラーはビルド時のaliasで固定する
-const sharedResolve = ( projectDir: string, renderer: RendererName ) => ( {
+export const sharedResolve = ( projectDir: string, renderer: RendererName ) => ( {
 	alias: [
 		...projectAliases( projectDir ),
 		{ find: /^@or-renderer$/, replacement: path.join( orengineRoot, rendererPath[ renderer ] ) },
@@ -66,7 +67,7 @@ const sharedResolve = ( projectDir: string, renderer: RendererName ) => ( {
 	],
 } );
 
-const sharedCss = () => ( {
+export const sharedCss = () => ( {
 	modules: {
 		generateScopedName( name: string, filename: string, css: string ) {
 
