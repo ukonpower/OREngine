@@ -1,0 +1,54 @@
+# PR ごとにエディタデモ + Storybook を gh-pages の pr-preview/pr-<番号>/ へデプロイする
+# （配置は本番と同じミラー構成: ルート = デモ / storybook/ = Storybook）
+# URL は action が PR にコメントで貼り、クローズ/マージで自動削除される
+# fork からの PR は GITHUB_TOKEN に write 権限が無いため対象外
+name: pr-preview
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, closed]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: pr-preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        if: github.event.action != 'closed'
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+        if: github.event.action != 'closed'
+      - name: Build editor demo
+        if: github.event.action != 'closed'
+        run: npm run build:static
+        env:
+          BASE_PATH: /OREngine/pr-preview/pr-${{ github.event.pull_request.number }}/
+          SKIP_SHADER_MINIFIER: "true"
+      - name: Build storybook
+        if: github.event.action != 'closed'
+        run: npm run build-storybook
+        env:
+          SKIP_SHADER_MINIFIER: "true"
+      - name: Assemble site
+        if: github.event.action != 'closed'
+        run: |
+          mkdir -p site
+          cp -r demo-webgl/dist/static/. site/
+          mv site/static.html site/index.html
+          cp -r storybook-static site/storybook
+      - uses: rossjrw/pr-preview-action@v1
+        with:
+          source-dir: site
+          preview-branch: gh-pages
+          umbrella-dir: pr-preview
+          action: auto

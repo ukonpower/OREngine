@@ -133,7 +133,8 @@ if ( cmd === 'dev' ) {
 
 } else if ( cmd === 'build:static' ) {
 
-	await runBuildStatic( { projectDir } );
+	// CI等でサブパス配下（例: GitHub Pages の /OREngine/）へ配置するときは BASE_PATH で指定する
+	await runBuildStatic( { projectDir, basePath: process.env.BASE_PATH } );
 
 } else {
 
