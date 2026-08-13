@@ -30,6 +30,10 @@ export interface OrengineConfigOptions {
 	renderer?: RendererName;
 }
 
+// ランタイムは BASE_PATH + '/xxx' の形で連結するため、define へ渡す値は末尾スラッシュを落とす
+// （viteの base はスラッシュ終わりを要求するので、そちらは basePath をそのまま使う）
+const defineBasePath = ( basePath?: string ) => JSON.stringify( ( basePath ?? '' ).replace( /\/+$/, '' ) );
+
 const projectAliases = ( projectDir: string ) => [
 	{ find: /^@or-scene$/, replacement: path.join( projectDir, 'scene.json' ) },
 	{ find: /^@or-editor$/, replacement: path.join( projectDir, 'editor.json' ) },
@@ -120,7 +124,7 @@ export const createDevConfig = ( opts: OrengineConfigOptions ): UserConfig => de
 		ProjectWatchReload( opts.projectDir ),
 	],
 	define: {
-		BASE_PATH: JSON.stringify( opts.basePath ?? '' ),
+		BASE_PATH: defineBasePath( opts.basePath ),
 		__OR_PROJECT_NAME__: JSON.stringify( path.basename( opts.projectDir ) ),
 	},
 } );
@@ -209,7 +213,7 @@ export const createPlayerConfig = ( opts: PlayerConfigOptions ): UserConfig => {
 			visualizer( { template: 'treemap', gzipSize: true } ),
 		],
 		define: {
-			BASE_PATH: JSON.stringify( opts.basePath ?? '' ),
+			BASE_PATH: defineBasePath( opts.basePath ),
 			__OR_PROJECT_NAME__: JSON.stringify( path.basename( opts.projectDir ) ),
 		},
 	} );
@@ -246,7 +250,7 @@ export const createStaticConfig = ( opts: StaticConfigOptions ): UserConfig => {
 			WgslLoader( { moduleDirs: [ path.join( opts.projectDir, 'Resources/shaders' ) ] } ),
 		],
 		define: {
-			BASE_PATH: JSON.stringify( opts.basePath ?? '' ),
+			BASE_PATH: defineBasePath( opts.basePath ),
 			__OR_PROJECT_NAME__: JSON.stringify( path.basename( opts.projectDir ) ),
 		},
 	} );
