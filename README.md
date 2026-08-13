@@ -72,12 +72,6 @@ npm run build
 
 デモ用のビルドでは ShaderMinifier をスキップしているため、`SKIP_SHADER_MINIFIER=true` が環境変数として渡されます。将来的に Storybook を追加した場合は `public/storybook` 以下に成果物を配置することで同じ仕組みでデプロイできます。
 
-## テスト
-
-```bash
-npm run test:render-flow
-```
-
 ## ドキュメント
 
 補足ドキュメントは [`docs`](./docs) ディレクトリにまとめています。

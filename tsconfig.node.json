@@ -13,6 +13,7 @@
   "include": [
     "./host/vite",
     "./host/runner.ts",
-    "./host/index.ts"
+    "./host/index.ts",
+    "./scripts"
   ]
 }
