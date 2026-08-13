@@ -41,10 +41,12 @@ export * from './editor/features/OREditor/features/SerializableField/hooks/useSe
 export * from './editor/features/OREditor/features/SerializableField/hooks/useWatchSerializable';
 export * from './editor/features/OREditor/features/SerializableField/hooks/useSerializeFieldView';
 export * from './editor/features/OREditor/features/MouseMenu';
+export * from './editor/features/OREditor/features/MouseMenu/providers/MouseMenuProvider';
 export * from './editor/features/OREditor/features/MouseMenu/components/Picker';
 export * from './editor/features/OREditor/features/MouseMenu/hooks/useMouseMenu';
 export * from './editor/features/OREditor/features/MouseMenu/hooks/useMouseMenuItem';
 export * from './editor/features/OREditor/features/InputWindow';
+export * from './editor/features/OREditor/features/InputWindow/providers/InputWindowProvider';
 
 /*-------------------------------
 	Shared hooks / contexts

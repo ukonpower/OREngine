@@ -41,9 +41,9 @@ const resolveRenderer = ( cfg: OREngineConfig ) => {
 
 	const name = process.env.ORENGINE_RENDERER || cfg.renderer || 'webgl';
 
-	if ( name !== 'webgl' && name !== 'webgpu' ) {
+	if ( name !== 'webgl' && name !== 'webgpu' && name !== 'headless' ) {
 
-		throw new Error( `unknown renderer: ${name} (expected webgl or webgpu)` );
+		throw new Error( `unknown renderer: ${name} (expected webgl, webgpu or headless)` );
 
 	}
 

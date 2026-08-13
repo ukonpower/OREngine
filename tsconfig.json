@@ -67,6 +67,9 @@
       "@or-renderer": [
         "./packages/maxpower/webgl/index.ts"
       ],
+      "@or-storybook/*": [
+        "./.storybook/*"
+      ],
       "@or-scene": [
         "./demo-webgl/scene.json"
       ],
@@ -80,7 +83,10 @@
   },
   "include": [
     "**/*.ts",
-    "**/*.tsx"
+    "**/*.tsx",
+    ".storybook/preview.tsx",
+    ".storybook/decorators/**/*.tsx",
+    ".storybook/fixtures/**/*.ts"
   ],
   "exclude": [
     "node_modules",

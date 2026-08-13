@@ -88,6 +88,7 @@ export default [ {
 			// runtime より先に定義する（分類は先勝ちのため、packages/maxpower/** に飲まれないように）
 			{ type: "backend-webgl", pattern: [ "packages/maxpower/webgl/**" ] },
 			{ type: "backend-webgpu", pattern: [ "packages/maxpower/webgpu/**" ] },
+			{ type: "backend-headless", pattern: [ "packages/maxpower/headless/**" ] },
 			{ type: "runtime", pattern: [
 				"packages/maxpower/**",
 				"packages/orengine/core/**",
@@ -122,7 +123,7 @@ export default [ {
 			policies: [
 				{
 					from: [
-						{ element: { types: [ "runtime", "backend-webgl", "backend-webgpu" ] } },
+						{ element: { types: [ "runtime", "backend-webgl", "backend-webgpu", "backend-headless" ] } },
 						{ file: { categories: "runtime" } },
 					],
 					disallow: [
@@ -133,7 +134,7 @@ export default [ {
 				},
 				{
 					from: { element: { types: [ "base-util", "base-math", "base-webgl" ] } },
-					disallow: { element: { types: [ "runtime", "backend-webgl", "backend-webgpu", "editor" ] } },
+					disallow: { element: { types: [ "runtime", "backend-webgl", "backend-webgpu", "backend-headless", "editor" ] } },
 					message: "第1層パッケージ（basepower/mathpower/glpower）から上位層への import は禁止です",
 				},
 				{
@@ -156,6 +157,11 @@ export default [ {
 					disallow: { element: { types: [ "backend-webgl", "base-webgl" ] } },
 					message: "webgpu バックエンドは webgl バックエンド・glpower に依存できません",
 				},
+				{
+					from: { element: { types: "backend-headless" } },
+					disallow: { element: { types: [ "backend-webgl", "backend-webgpu", "base-webgl" ] } },
+					message: "headless バックエンドは他バックエンド・glpower に依存できません",
+				},
 			],
 		} ],
 	},
@@ -167,6 +173,7 @@ export default [ {
 
 	settings: {
 		"boundaries/elements": [
+			{ type: "storybook-support", pattern: ".storybook/**" },
 			{ type: "editor-page", pattern: "packages/orengine/editor/components/pages/*", capture: [ "pageName" ] },
 			{ type: "editor-ui", pattern: "packages/orengine/editor/components/ui/*", capture: [ "componentName" ] },
 			{ type: "editor-feature", pattern: "packages/orengine/editor/features/*", capture: [ "featureName" ] },
@@ -177,6 +184,12 @@ export default [ {
 			// editor 外のローカルファイル（ランタイムパッケージ等）は一括で分類し、依存可否は既存のパッケージ間ルールに委ねる
 			{ type: "outside-editor", pattern: [ "packages/**", "host/**" ] },
 		],
+
+		// ストーリーは単一ファイルなので element ではなく file category で分類する。
+		// feature の中に同居するが、レイヤー規則は別扱いにして .storybook の足場だけ余分に許す
+		"boundaries/files": [
+			{ category: "editor-story", pattern: [ "packages/orengine/editor/**/*.stories.tsx" ] },
+		],
 	},
 
 	rules: {
@@ -184,6 +197,12 @@ export default [ {
 			default: "disallow",
 			message: "editor React 層のレイヤー依存ルール違反です（{{from.type}} から {{to.type}} は import できません）。CLAUDE.md の「editor の React 層構造」を参照してください。",
 			policies: [
+				{
+					// ストーリーは feature を単体で立てるためのもので、対象は自分が同居する
+					// 子feature自身になる。公開APIの制限をかけると成立しないため feature 全体を許す
+					from: { file: { categories: "editor-story" } },
+					allow: { to: { element: { type: [ "editor-feature", "storybook-support", "editor-ui", "editor-shared-hooks", "editor-shared-contexts", "editor-core", "editor-styles", "outside-editor" ] } } },
+				},
 				{
 					from: { element: { type: "editor-page" } },
 					allow: { to: { element: [
