@@ -28,9 +28,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version-file: .node-version
           cache: npm
-      - run: npm install --no-audit --no-fund
+      - run: npm ci
       - name: Determine deploy path
         id: vars
         run: |
