@@ -1,9 +1,0 @@
-import{i as e,s as t}from"./preload-helper-BdFrVu1K.js";import{n}from"./iframe-iIKVfHB9.js";import{t as r}from"./jsx-runtime-BYwl_lCr.js";import{M as i,N as a}from"./react-BOSJoq71.js";import{c as o,i as s,s as c,t as l}from"./scene-B5b59ZO0.js";var u,d,f,p,m,h,g,_,v,y;e((()=>{u=t(n(),1),c(),l(),a(),d=r(),f={title:`OREditor/SerializableField/InputGroup`},p=`320px`,m=({title:e,initialValues:t})=>{let[n,r]=(0,u.useState)(null);return(0,d.jsxs)(`div`,{children:[(0,d.jsx)(i,{title:e,initialValues:t,onSubmit:e=>{r(JSON.stringify(e))}}),n&&(0,d.jsxs)(`div`,{style:{color:`#ccc`,fontSize:`12px`,padding:`8px`},children:[`submitted: `,n]})]})},h=e=>({render:e,decorators:[e=>(0,d.jsx)(`div`,{style:{width:p},children:(0,d.jsx)(e,{})}),o(s)]}),g=h(()=>(0,d.jsx)(m,{title:`New Entity`,initialValues:{name:`Entity`}})),_=h(()=>(0,d.jsx)(m,{title:`Add Object`,initialValues:{name:`Cube`,count:3,visible:!0}})),v=h(()=>(0,d.jsx)(m,{initialValues:{name:`Untitled`}})),g.__docgenInfo={description:``,methods:[],displayName:`SingleField`},_.__docgenInfo={description:``,methods:[],displayName:`MixedFields`},v.__docgenInfo={description:``,methods:[],displayName:`NoTitle`},g.parameters={...g.parameters,docs:{...g.parameters?.docs,source:{originalSource:`pattern(() => <InputGroupCase title="New Entity" initialValues={{
-  name: 'Entity'
-}} />)`,...g.parameters?.docs?.source}}},_.parameters={..._.parameters,docs:{..._.parameters?.docs,source:{originalSource:`pattern(() => <InputGroupCase title="Add Object" initialValues={{
-  name: 'Cube',
-  count: 3,
-  visible: true
-}} />)`,..._.parameters?.docs?.source}}},v.parameters={...v.parameters,docs:{...v.parameters?.docs,source:{originalSource:`pattern(() => <InputGroupCase initialValues={{
-  name: 'Untitled'
-}} />)`,...v.parameters?.docs?.source}}},y=[`SingleField`,`MixedFields`,`NoTitle`]}))();export{_ as MixedFields,v as NoTitle,g as SingleField,y as __namedExportsOrder,f as default};
