@@ -59,7 +59,7 @@ const server = http.createServer( ( req, res ) => {
 
 if ( ! fs.existsSync( staticDir ) ) {
 
-	throw new Error( `storybook-static が見つかりません。先に npm run build-storybook を実行してください: ${staticDir}` );
+	throw new Error( `storybook-static が見つかりません。先に npm run storybook:build を実行してください: ${staticDir}` );
 
 }
 

@@ -20,24 +20,18 @@ npm install
 
 ### 2. ShaderMinifier の準備
 
-[Shader_Minifier](https://github.com/laurentlb/Shader_Minifier) を取得し、実行ファイルへのパスを通してください。
-
-#### Windows
-
-ShaderMinifier をインストール後、Path を設定します。
-
-#### macOS
-
-`shader_minifier.exe` を `~/Documents/application/shader_minifier/shader_minifier.exe` に配置し、Mono をインストールします。
+macOS / Linux はセットアップスクリプトで [Shader_Minifier](https://github.com/laurentlb/Shader_Minifier) と Mono を導入できます（`~/Documents/application/shader_minifier/` に配置されます）。
 
 ```bash
-brew install mono
+npm run shader-minifier:setup
 ```
+
+Windows は shader_minifier.exe を取得し、Path を設定してください。
 
 配置場所を変えたい場合は、環境変数 `ORENGINE_SHADER_MINIFIER` に実行コマンド全体を指定します。
 
 ```bash
-ORENGINE_SHADER_MINIFIER="mono /path/to/shader_minifier.exe" npm run build
+ORENGINE_SHADER_MINIFIER="mono /path/to/shader_minifier.exe" npm run player:build
 ```
 
 shader_minifier が見つからない環境では minify をスキップして生の GLSL にフォールバックします（警告が出ます。packed サイズは本番相当になりません）。
@@ -50,15 +44,7 @@ npm run dev
 
 ## プロジェクト切替
 
-アクティブなプロジェクトはルート直下の `orengine.config.json` の `project` フィールドで指定します。切り替えは値を書き換えて `npm run dev` を実行するだけです。
-
-```json
-{
-	"project": "demo-webgl"
-}
-```
-
-一時的に切り替える場合は環境変数 `ORENGINE_PROJECT` を利用できます。
+アクティブなプロジェクトは環境変数 `ORENGINE_PROJECT` で指定します（デフォルトは `demo-webgl`）。レンダラーは `ORENGINE_RENDERER`（`webgl` | `webgpu` | `headless`、デフォルトは `webgl`）で切り替えます。
 
 ```bash
 ORENGINE_PROJECT=<name> npm run dev
@@ -66,12 +52,15 @@ ORENGINE_PROJECT=<name> npm run dev
 
 ## 新規プロジェクト作成
 
-`orengine.config.json` の `project` に未存在の名前を書いて `npm run dev` するだけです。テンプレート（`host/template/project/`）から雛形が生成されます。
+`ORENGINE_PROJECT` に未存在の名前を指定して `npm run dev` するだけです。テンプレート（`host/template/project/`）から雛形が生成されます。
 
 ## ビルド
 
+player（64k 配布形式の自己解凍 HTML）とエディタ込み HTML をそれぞれビルドできます。
+
 ```bash
-npm run build
+npm run player:build # dist/player/out.html
+npm run editor:build # dist/static/
 ```
 
 ## デモ公開 (GitHub Pages)
