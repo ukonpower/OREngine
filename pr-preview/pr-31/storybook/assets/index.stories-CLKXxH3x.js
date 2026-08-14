@@ -1,3 +1,0 @@
-import{i as e}from"./preload-helper-BdFrVu1K.js";import{t}from"./jsx-runtime-BYwl_lCr.js";import{b as n,x as r}from"./react-BOSJoq71.js";import{n as i,t as a}from"./Panel-DdoWmBJ5.js";import{c as o,i as s,s as c,t as l}from"./scene-B5b59ZO0.js";var u,d,f,p,m;e((()=>{c(),l(),i(),r(),u=t(),d={title:`OREditor/ProjectControl`,component:n},f=[e=>(0,u.jsx)(`div`,{style:{width:`300px`,height:`240px`},children:(0,u.jsx)(a,{children:(0,u.jsx)(e,{})})}),o(s)],p={decorators:f},p.parameters={...p.parameters,docs:{...p.parameters?.docs,source:{originalSource:`{
-  decorators
-}`,...p.parameters?.docs?.source}}},m=[`Default`]}))();export{p as Default,m as __namedExportsOrder,d as default};
