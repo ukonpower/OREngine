@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { ReactElement, useEffect, useRef, useState } from "react";
 
 import { Block } from "../../../../../../components/ui/Block";
 import { Button } from "../../../../../../components/ui/Button";
@@ -15,7 +15,7 @@ export type InputGroupProps = {
 export const InputGroup = ( props: InputGroupProps ) => {
 
 	const initialValuees = props.initialValues;
-	const propElms: JSX.Element[] = [];
+	const propElms: ReactElement[] = [];
 	const [ values, setValues ] = useState<{[key: string]:ValueType}>( initialValuees );
 
 	useEffect( () => {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { ReactElement, useState } from 'react';
 
 import { OREditorFixtureHost, withOREditor } from '@or-storybook/decorators/withOREditor';
 import { storyFixture } from '@or-storybook/fixtures/scene';
@@ -48,7 +48,7 @@ const labeled = <ValueArrayCase label="keyframes" initial={[ 0, 30, 60 ]} format
 const empty = <ValueArrayCase label="targets" initial={[]} />;
 
 // パネルは幅を親から貰うので枠を与える。配列の先頭が内側
-const pattern = ( render: () => JSX.Element ): Story => ( {
+const pattern = ( render: () => ReactElement ): Story => ( {
 	render,
 	decorators: [
 		( Story ) => <div style={{ width: PANEL_WIDTH }}><Story /></div>,
@@ -66,7 +66,7 @@ export const Labeled = pattern( () => labeled );
 
 export const Empty = pattern( () => empty );
 
-const gridPatterns: { label: string, content: JSX.Element }[] = [
+const gridPatterns: { label: string, content: ReactElement }[] = [
 	{ label: 'number[]', content: numbers },
 	{ label: 'string[]', content: strings },
 	{ label: 'boolean[]', content: booleans },
