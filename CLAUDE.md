@@ -3,11 +3,11 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## プロジェクトの目的と最重要制約（64kb intro）
-- OREngine の主目的は **64kb intro 制作**。最終成果物は player ビルド（`npm run build` → `dist/player/out.html`）であり、この **packed サイズが最重要指標**
+- OREngine の主目的は **64kb intro 制作**。最終成果物は player ビルド（`npm run player:build` → `dist/player/out.html`）であり、この **packed サイズが最重要指標**
 - エディタ（React UI / server）は制作を支える道具であって主役ではない。player ビルドに editor / server の関心事を持ち込まない（eslint-plugin-boundaries で機械的に防止している）
 - core / builtin に機能を足すときは「それは64kランタイムに必要か」を必ず問う。エディタ都合の機能は editor 側に置く
 - ランタイム（player に入るコード）には外部依存を追加しない
-- サイズへの影響は必ず `npm run build` の packed（out.html）サイズで実測して判断する。minify前のコード量や gzip 前のバンドルサイズで判断しない
+- サイズへの影響は必ず `npm run player:build` の packed（out.html）サイズで実測して判断する。minify前のコード量や gzip 前のバンドルサイズで判断しない
 - tree-shaking を壊すパターンを避ける: `import * as NS` したメンバーを `extends` しない（extends 対象は named import にする）、`export namespace` を使わない（個別 `export function` にする）
 
 ## リポジトリ構成
@@ -48,8 +48,7 @@ OREngine 自体の開発エントリは `host/` に集約されている:
 - `@or-resources/*` → `<projectDir>/Resources/*`
 
 ### アクティブプロジェクト・レンダラー切替
-- ルート直下の `orengine.config.json` の `project` / `renderer`（`webgl` | `webgpu` | `headless`）で切替
-- 一時切替は環境変数 `ORENGINE_PROJECT=<name>` / `ORENGINE_RENDERER=<name>`（`npm run wgpu` は webgpu + demo-webgpu のショートカット）
+- 環境変数 `ORENGINE_PROJECT=<name>` / `ORENGINE_RENDERER=<webgl|webgpu|headless>` で切替（デフォルトは demo-webgl / webgl。`npm run wgpu` は webgpu + demo-webgpu のショートカット）。設定ファイルは無い（個人の作業状態を tracked ファイルに持たせない）
 - 指定したプロジェクトディレクトリが存在しなければ `host/template/project` から雛形が生成される
 
 ### コンポーネント追加ルール
@@ -77,11 +76,12 @@ OREngine 自体の開発エントリは `host/` に集約されている:
 
 ### コマンド
 ```bash
+npm run shader-minifier:setup # shader_minifier + mono のセットアップ（macOS / Linux。CI と同じ 1.6.0 に固定）
 npm run dev          # 開発サーバー起動（express + vite）
 npm run wgpu         # WebGPUレンダラーで開発サーバー起動（プロジェクトは既定で demo-webgpu）
-npm run build        # player バンドルのプロダクションビルド + compeko で自己解凍 html にパック（dist/player/out.html）
-npm run build:static # static (エディタ込み HTML) のビルド
-npm run storybook    # Storybook 開発サーバー起動（port 6006）
+npm run player:build # player バンドルのプロダクションビルド + compeko で自己解凍 html にパック（dist/player/out.html）
+npm run editor:build # エディタ込み HTML のビルド（GitHub Pages のエディタデモ配信物）
+npm run storybook:dev # Storybook 開発サーバー起動（port 6006）
 npm run vrt          # Storybook をビルドして VRT（スクリーンショット比較テスト）を実行
 npm run vrt:update   # VRT の基準スクリーンショットを更新
 npm run lint         # ESLint実行

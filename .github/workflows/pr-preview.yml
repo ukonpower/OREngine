@@ -30,13 +30,13 @@ jobs:
         if: github.event.action != 'closed'
       - name: Build editor demo
         if: github.event.action != 'closed'
-        run: npm run build:static
+        run: npm run editor:build
         env:
           BASE_PATH: /OREngine/pr-preview/pr-${{ github.event.pull_request.number }}/
           SKIP_SHADER_MINIFIER: "true"
       - name: Build storybook
         if: github.event.action != 'closed'
-        run: npm run build-storybook
+        run: npm run storybook:build
         env:
           SKIP_SHADER_MINIFIER: "true"
       - name: Assemble site

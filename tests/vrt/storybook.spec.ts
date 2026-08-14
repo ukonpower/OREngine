@@ -36,7 +36,7 @@ const listStories = () => {
 
 	if ( ! fs.existsSync( indexPath ) ) {
 
-		throw new Error( `storybook-static/index.json が見つかりません。先に npm run build-storybook を実行してください: ${indexPath}` );
+		throw new Error( `storybook-static/index.json が見つかりません。先に npm run storybook:build を実行してください: ${indexPath}` );
 
 	}
 

@@ -6,29 +6,14 @@ import { fileURLToPath } from 'node:url';
 const repoRoot = path.resolve( fileURLToPath( import.meta.url ), '../..' );
 const templateDir = path.join( repoRoot, 'host/template/project' );
 
-type OREngineConfig = {
-	project?: string;
-	renderer?: string;
-};
-
 /*-------------------------------
 	設定解決
 -------------------------------*/
 
-const readConfig = (): OREngineConfig => {
+// ORENGINE_PROJECT からアクティブプロジェクトを決める
+const resolveProject = () => {
 
-	const cfgPath = path.join( repoRoot, 'orengine.config.json' );
-
-	return fs.existsSync( cfgPath ) ? JSON.parse( fs.readFileSync( cfgPath, 'utf-8' ) ) : {};
-
-};
-
-// ORENGINE_PROJECT または orengine.config.json からアクティブプロジェクトを決める
-const resolveProject = ( cfg: OREngineConfig ) => {
-
-	const name = process.env.ORENGINE_PROJECT || cfg.project;
-
-	if ( ! name ) throw new Error( 'project name is empty. set orengine.config.json project or ORENGINE_PROJECT' );
+	const name = process.env.ORENGINE_PROJECT || 'demo-webgl';
 
 	const projectDir = path.resolve( repoRoot, name );
 
@@ -36,10 +21,10 @@ const resolveProject = ( cfg: OREngineConfig ) => {
 
 };
 
-// ORENGINE_RENDERER または orengine.config.json からレンダラーバックエンドを決める
-const resolveRenderer = ( cfg: OREngineConfig ) => {
+// ORENGINE_RENDERER からレンダラーバックエンドを決める
+const resolveRenderer = () => {
 
-	const name = process.env.ORENGINE_RENDERER || cfg.renderer || 'webgl';
+	const name = process.env.ORENGINE_RENDERER || 'webgl';
 
 	if ( name !== 'webgl' && name !== 'webgpu' && name !== 'headless' ) {
 
@@ -100,14 +85,13 @@ const ensureProjectExists = ( projectDir: string, projectName: string ) => {
 const cmd = process.argv[ 2 ];
 if ( ! cmd ) {
 
-	console.error( 'Usage: tsx scripts/run.ts <dev|build|build:static>' );
+	console.error( 'Usage: tsx scripts/run.ts <dev|player:build|editor:build>' );
 	process.exit( 1 );
 
 }
 
-const config = readConfig();
-const { projectName, projectDir } = resolveProject( config );
-const renderer = resolveRenderer( config );
+const { projectName, projectDir } = resolveProject();
+const renderer = resolveRenderer();
 ensureProjectExists( projectDir, projectName );
 
 const { runDev, runBuildPlayer, runBuildStatic } = await import( '../host/index.ts' );
@@ -120,7 +104,7 @@ if ( cmd === 'dev' ) {
 
 	await runDev( { projectDir, renderer } );
 
-} else if ( cmd === 'build' ) {
+} else if ( cmd === 'player:build' ) {
 
 	console.log( `[orengine] renderer = ${renderer}` );
 
@@ -131,7 +115,7 @@ if ( cmd === 'dev' ) {
 	const packedHtml = path.join( projectDir, 'dist/player/out.html' );
 	execFileSync( 'node', [ path.join( repoRoot, 'tools/compeko.js' ), playerJs, packedHtml ], { stdio: 'inherit' } );
 
-} else if ( cmd === 'build:static' ) {
+} else if ( cmd === 'editor:build' ) {
 
 	// CI等でサブパス配下（例: GitHub Pages の /OREngine/）へ配置するときは BASE_PATH で指定する
 	await runBuildStatic( { projectDir, basePath: process.env.BASE_PATH } );

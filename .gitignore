@@ -32,5 +32,6 @@ tmp
 
 .workflow-tools/
 .claude/*
+!.claude/settings.json
 !.claude/skills/
 .handoff/

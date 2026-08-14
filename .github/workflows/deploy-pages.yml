@@ -1,5 +1,5 @@
 # master / release/* への push で GitHub Pages（gh-pages ブランチ）を更新する
-# 配置（いずれもミラー構成: ルート = エディタデモ（build:static） / storybook/ = Storybook）:
+# 配置（いずれもミラー構成: ルート = エディタデモ（editor:build） / storybook/ = Storybook）:
 #   master     → サイトルート（pr-preview/ と release/ は他workflowと共存のため消さない）
 #   release/*  → release/<ブランチ名>/ 配下（ブランチ削除で cleanup ジョブが撤去する）
 name: deploy-pages
@@ -43,13 +43,13 @@ jobs:
             echo "BASE=/OREngine/${DIR}/" >> "$GITHUB_OUTPUT"
           fi
       - name: Build editor demo
-        run: npm run build:static
+        run: npm run editor:build
         env:
           BASE_PATH: ${{ steps.vars.outputs.BASE }}
           # CI には shader_minifier が無い。minify はカナリア用途なのでスキップする
           SKIP_SHADER_MINIFIER: "true"
       - name: Build storybook
-        run: npm run build-storybook
+        run: npm run storybook:build
         env:
           SKIP_SHADER_MINIFIER: "true"
       - name: Assemble site
