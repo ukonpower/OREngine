@@ -18,7 +18,7 @@ const axisDict = [ "x", "y", "z", "w" ];
 
 export const Vector = ( { onChange, disabled, ...props }: VectorProps ) => {
 
-	const valueRef = useRef<number[]>( );
+	const valueRef = useRef<number[] | undefined>( undefined );
 	valueRef.current = props.value;
 
 	const onChangeValue = useCallback( ( axisIndex: number, newAxisValue: number ) => {

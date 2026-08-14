@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { ReactElement, useEffect, useState } from 'react';
 
 import { OREditorFixtureHost, withOREditor } from '@or-storybook/decorators/withOREditor';
 import { storyFixture } from '@or-storybook/fixtures/scene';
@@ -88,7 +88,7 @@ const ComponentFields = ( { entityUUID, componentUUID }: { entityUUID: string, c
 };
 
 // パネルは幅を親から貰うので枠を与える。配列の先頭が内側
-const pattern = ( render: () => JSX.Element ): Story => ( {
+const pattern = ( render: () => ReactElement ): Story => ( {
 	render,
 	decorators: [
 		( Story ) => <div style={{ width: PANEL_WIDTH }}><Story /></div>,
@@ -114,7 +114,7 @@ export const CameraComponent = pattern( () => <ComponentFields entityUUID="sb-ca
 // CameraController: フォルダ・エンティティ参照・select・数値が混ざる
 export const CameraControllerComponent = pattern( () => <ComponentFields entityUUID="sb-camera" componentUUID="sb-camera-controller" /> );
 
-const gridPatterns: { label: string, content: JSX.Element }[] = [
+const gridPatterns: { label: string, content: ReactElement }[] = [
 	{ label: 'Editor（filter なし）', content: <EditorFields /> },
 	{ label: 'Editor / resolution', content: <EditorFields filter="resolution" /> },
 	{ label: 'Editor / helpers', content: <EditorFields filter="helpers" /> },
