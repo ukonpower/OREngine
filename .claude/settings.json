@@ -1,0 +1,19 @@
+{
+	"permissions": {
+		"allow": [
+			"Bash(npm run typecheck:*)",
+			"Bash(npm run lint:*)",
+			"Bash(npm run player:build:*)",
+			"Bash(npm run editor:build:*)",
+			"Bash(npm ci)",
+			"Bash(git status:*)",
+			"Bash(git diff:*)",
+			"Bash(git log:*)",
+			"Bash(git show:*)",
+			"Bash(git branch:*)",
+			"Bash(gh pr view:*)",
+			"Bash(gh pr diff:*)",
+			"Bash(gh pr checks:*)"
+		]
+	}
+}
