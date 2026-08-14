@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { ReactElement, useState } from 'react';
 
 import { withOREditor } from '@or-storybook/decorators/withOREditor';
 import { storyEditorData, storyEmptyScene, storyFixture } from '@or-storybook/fixtures/scene';
@@ -33,7 +33,7 @@ const EntityRefCase = ( { initial }: { initial: string | null } ) => {
 };
 
 // パネルは幅を親から貰うので枠を与える。配列の先頭が内側
-const pattern = ( fixture: OREditorFixture, render: () => JSX.Element ): Story => ( {
+const pattern = ( fixture: OREditorFixture, render: () => ReactElement ): Story => ( {
 	render,
 	decorators: [
 		( Story ) => <div style={{ width: PANEL_WIDTH }}><Story /></div>,

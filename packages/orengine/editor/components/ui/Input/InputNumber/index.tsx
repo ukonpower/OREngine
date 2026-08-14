@@ -33,10 +33,10 @@ export const InputNumber = ( props: Props ) => {
 	const pointerStartRef = useRef<{ x: number, y: number } | null>( null );
 	const draggedRef = useRef( false );
 
-	const onChangeRef = useRef<( value: number ) => void>();
+	const onChangeRef = useRef<( ( value: number ) => void ) | undefined>( undefined );
 	onChangeRef.current = props.onChange;
 
-	const valueRef = useRef<number>();
+	const valueRef = useRef<number | undefined>( undefined );
 	valueRef.current = props.value;
 
 	const onPointerMoveNumber = useCallback( ( e: PointerEvent ) => {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { ReactElement, useState } from 'react';
 
 import { withOREditor } from '@or-storybook/decorators/withOREditor';
 import { storyFixture } from '@or-storybook/fixtures/scene';
@@ -38,7 +38,7 @@ const InputGroupCase = ( { title, initialValues }: { title?: string, initialValu
 };
 
 // パネルは幅を親から貰うので枠を与える。配列の先頭が内側
-const pattern = ( render: () => JSX.Element ): Story => ( {
+const pattern = ( render: () => ReactElement ): Story => ( {
 	render,
 	decorators: [
 		( Story ) => <div style={{ width: PANEL_WIDTH }}><Story /></div>,
