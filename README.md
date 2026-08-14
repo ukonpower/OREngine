@@ -28,11 +28,19 @@ ShaderMinifier をインストール後、Path を設定します。
 
 #### macOS
 
-`shader_minifier.exe` を `/Documents/application/shader_minifier/shader_minifier.exe` に配置し、Mono をインストールします。
+`shader_minifier.exe` を `~/Documents/application/shader_minifier/shader_minifier.exe` に配置し、Mono をインストールします。
 
 ```bash
 brew install mono
 ```
+
+配置場所を変えたい場合は、環境変数 `ORENGINE_SHADER_MINIFIER` に実行コマンド全体を指定します。
+
+```bash
+ORENGINE_SHADER_MINIFIER="mono /path/to/shader_minifier.exe" npm run build
+```
+
+shader_minifier が見つからない環境では minify をスキップして生の GLSL にフォールバックします（警告が出ます。packed サイズは本番相当になりません）。
 
 ## 実行
 
