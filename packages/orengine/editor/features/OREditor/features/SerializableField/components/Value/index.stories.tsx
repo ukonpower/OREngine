@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { ReactElement, useState } from 'react';
 
 import { OREditorFixtureHost, withOREditor } from '@or-storybook/decorators/withOREditor';
 import { storyFixture } from '@or-storybook/fixtures/scene';
@@ -78,7 +78,7 @@ const objectField = <ValueCase label="resolution" initial={{ width: 1920, height
 const functionField = <FunctionCase />;
 
 // パネルは幅を親から貰うので枠を与える。配列の先頭が内側
-const pattern = ( render: () => JSX.Element ): Story => ( {
+const pattern = ( render: () => ReactElement ): Story => ( {
 	render,
 	decorators: [
 		( Story ) => <div style={{ width: PANEL_WIDTH }}><Story /></div>,
@@ -112,7 +112,7 @@ export const ObjectField = pattern( () => objectField );
 
 export const FunctionField = pattern( () => functionField );
 
-const gridPatterns: { label: string, content: JSX.Element }[] = [
+const gridPatterns: { label: string, content: ReactElement }[] = [
 	{ label: 'number', content: numberField },
 	{ label: 'string', content: textField },
 	{ label: 'boolean', content: booleanField },

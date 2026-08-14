@@ -127,39 +127,39 @@ export default [ {
 						{ file: { categories: "runtime" } },
 					],
 					disallow: [
-						{ element: { types: "editor" } },
-						{ file: { categories: "editor" } },
+						{ to: { element: { types: "editor" } } },
+						{ to: { file: { categories: "editor" } } },
 					],
 					message: "ランタイム領域からエディタ領域への import は禁止です",
 				},
 				{
 					from: { element: { types: [ "base-util", "base-math", "base-webgl" ] } },
-					disallow: { element: { types: [ "runtime", "backend-webgl", "backend-webgpu", "backend-headless", "editor" ] } },
+					disallow: { to: { element: { types: [ "runtime", "backend-webgl", "backend-webgpu", "backend-headless", "editor" ] } } },
 					message: "第1層パッケージ（basepower/mathpower/glpower）から上位層への import は禁止です",
 				},
 				{
 					from: { element: { types: "base-util" } },
-					disallow: { element: { types: [ "base-math", "base-webgl" ] } },
+					disallow: { to: { element: { types: [ "base-math", "base-webgl" ] } } },
 					message: "basepower は他パッケージに依存できません",
 				},
 				{
 					from: { element: { types: "base-math" } },
-					disallow: { element: { types: "base-webgl" } },
+					disallow: { to: { element: { types: "base-webgl" } } },
 					message: "mathpower は basepower 以外のパッケージに依存できません",
 				},
 				{
 					from: { element: { types: "backend-webgl" } },
-					disallow: { element: { types: "backend-webgpu" } },
+					disallow: { to: { element: { types: "backend-webgpu" } } },
 					message: "webgl / webgpu バックエンドは互いに依存できません",
 				},
 				{
 					from: { element: { types: "backend-webgpu" } },
-					disallow: { element: { types: [ "backend-webgl", "base-webgl" ] } },
+					disallow: { to: { element: { types: [ "backend-webgl", "base-webgl" ] } } },
 					message: "webgpu バックエンドは webgl バックエンド・glpower に依存できません",
 				},
 				{
 					from: { element: { types: "backend-headless" } },
-					disallow: { element: { types: [ "backend-webgl", "backend-webgpu", "base-webgl" ] } },
+					disallow: { to: { element: { types: [ "backend-webgl", "backend-webgpu", "base-webgl" ] } } },
 					message: "headless バックエンドは他バックエンド・glpower に依存できません",
 				},
 			],
@@ -251,6 +251,11 @@ export default [ {
 		"@typescript-eslint/ban-types": "off",
 		"@typescript-eslint/no-namespace": "off",
 		"@typescript-eslint/no-empty-object-type": "off",
+
+		// React Compiler 由来の新ルール（react-hooks v7）。既存の latest-ref パターンと
+		// effect 内 setState の書き換えは別途リファクタリングで対応するまで無効化する
+		"react-hooks/refs": "off",
+		"react-hooks/set-state-in-effect": "off",
 
 		"import/order": [ "error", {
 			groups: [
