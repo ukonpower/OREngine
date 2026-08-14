@@ -24,9 +24,9 @@ jobs:
       - uses: actions/setup-node@v4
         if: github.event.action != 'closed'
         with:
-          node-version: 24
+          node-version-file: .node-version
           cache: npm
-      - run: npm install --no-audit --no-fund
+      - run: npm ci
         if: github.event.action != 'closed'
       - name: Build editor demo
         if: github.event.action != 'closed'
