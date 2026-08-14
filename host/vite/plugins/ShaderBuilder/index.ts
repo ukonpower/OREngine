@@ -276,7 +276,9 @@ export const ShaderBuilder = ( options: ShaderBuilderOptions ): Plugin => {
 			// main を外すと未使用削除のルートが消え全関数が削除されるため必ず含める
 			const noRenamingList = [ 'main', ...extractUniformStructFieldNames( sources.values() ) ];
 			const args = `--format js --preserve-externals --no-overloading --no-renaming-list ${noRenamingList.join( ',' )}`;
-			const bin = process.platform === 'darwin' ? 'mono ~/Documents/application/shader_minifier/shader_minifier.exe' : 'shader_minifier.exe';
+			// 実行コマンドは ORENGINE_SHADER_MINIFIER で上書きできる（例: "mono /path/to/shader_minifier.exe"）
+			const bin = process.env.ORENGINE_SHADER_MINIFIER
+				?? ( process.platform === 'darwin' ? 'mono ~/Documents/application/shader_minifier/shader_minifier.exe' : 'shader_minifier.exe' );
 
 			try {
 
@@ -285,7 +287,7 @@ export const ShaderBuilder = ( options: ShaderBuilderOptions ): Plugin => {
 			} catch ( e: any ) {
 
 				// shader_minifier が無い環境やminifyエラー時は生GLSLにフォールバックする
-				warn( `ShaderBuilder: minify をスキップしました (${e.message})` );
+				warn( `ShaderBuilder: minify をスキップしました。packed サイズは本番相当より大きくなります。shader_minifier のパスは ORENGINE_SHADER_MINIFIER で指定できます (${e.message})` );
 
 				return rawFallback();
 
