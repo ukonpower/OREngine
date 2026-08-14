@@ -1,0 +1,1 @@
+import{i as e}from"./preload-helper-BdFrVu1K.js";import{t}from"./jsx-runtime-BYwl_lCr.js";import{E as n,t as r}from"./react-BOSJoq71.js";var i,a,o=e((()=>{r(),i=t(),a=e=>(0,i.jsx)(n,{children:(0,i.jsx)(e,{})}),a.__docgenInfo={description:``,methods:[],displayName:`withInputWindow`}}));export{a as n,o as t};
