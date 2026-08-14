@@ -1,0 +1,19 @@
+# PR の品質ゲート。ruleset の required status checks に "check" として登録されており、
+# これが通らないと master / release/* へマージできない
+name: ci
+
+on:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
