@@ -1,3 +1,7 @@
+import { execFileSync } from 'node:child_process';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 import { build, createServer, InlineConfig } from 'vite';
 
 import { startOrengineServer, OrengineServerHandle } from './server/factory';
@@ -5,6 +9,8 @@ import { createDevConfig, createPlayerConfig, createStaticConfig } from './vite/
 
 import type { RendererName } from './vite/configs';
 import type { ViteDevServer } from 'vite';
+
+const orengineRoot = path.resolve( fileURLToPath( import.meta.url ), '../..' );
 
 
 export interface HostRunOptions {
@@ -62,9 +68,16 @@ export const runDev = async ( opts: HostRunOptions ): Promise<DevHandle> => {
 
 };
 
+// playerバンドルをビルドし、compeko で自己解凍 html（64k配布形式）にパックする
 export const runBuildPlayer = async ( opts: HostRunOptions ) => {
 
-	return build( createPlayerConfig( opts ) as InlineConfig );
+	const result = await build( createPlayerConfig( opts ) as InlineConfig );
+
+	const playerJs = path.join( opts.projectDir, 'dist/player/index.js' );
+	const packedHtml = path.join( opts.projectDir, 'dist/player/out.html' );
+	execFileSync( 'node', [ path.join( orengineRoot, 'tools/compeko.js' ), playerJs, packedHtml ], { stdio: 'inherit' } );
+
+	return result;
 
 };
 
