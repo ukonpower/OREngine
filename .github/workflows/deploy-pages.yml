@@ -1,13 +1,13 @@
-# master / release/* への push で GitHub Pages（gh-pages ブランチ）を更新する
+# main / release/* への push で GitHub Pages（gh-pages ブランチ）を更新する
 # 配置（いずれもミラー構成: ルート = エディタデモ（editor:build） / storybook/ = Storybook）:
-#   master     → サイトルート（pr-preview/ と release/ は他workflowと共存のため消さない）
+#   main     → サイトルート（pr-preview/ と release/ は他workflowと共存のため消さない）
 #   release/*  → release/<ブランチ名>/ 配下（ブランチ削除で cleanup ジョブが撤去する）
 name: deploy-pages
 
 on:
   push:
     branches:
-      - master
+      - main
       - release/**
   delete:
   workflow_dispatch:
@@ -34,7 +34,7 @@ jobs:
       - name: Determine deploy path
         id: vars
         run: |
-          if [ "${{ github.ref_name }}" = "master" ]; then
+          if [ "${{ github.ref_name }}" = "main" ]; then
             echo "DIR=" >> "$GITHUB_OUTPUT"
             echo "BASE=/OREngine/" >> "$GITHUB_OUTPUT"
           else
@@ -60,7 +60,7 @@ jobs:
           mv site/static.html site/index.html
           cp -r storybook-static site/storybook
           touch site/.nojekyll
-      - name: Deploy (master → site root)
+      - name: Deploy (main → site root)
         if: steps.vars.outputs.DIR == ''
         uses: JamesIves/github-pages-deploy-action@v4
         with:
