@@ -1,0 +1,85 @@
+# PR の品質ゲート。ruleset の required status checks に "check" として登録されており、
+# これが通らないと master / release/* へマージできない
+name: ci
+
+on:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      # player ビルドが壊れていないかの検証。外部依存（shader_minifier の取得）で
+      # required check が落ちないよう minify はスキップする（サイズ実測は size-report が担当）
+      - run: npm run player:build
+        env:
+          SKIP_SHADER_MINIFIER: "true"
+
+  # packed サイズ（dist/player/out.html）を base と比較して PR にコメントする。
+  # required check ではない。fork からの PR は GITHUB_TOKEN に write 権限が無いため対象外
+  size-report:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # base コミットのビルドも行うため全履歴を取得する
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - name: Setup shader_minifier
+        run: |
+          bash scripts/setup-shader-minifier.sh
+          echo "ORENGINE_SHADER_MINIFIER=mono $HOME/Documents/application/shader_minifier/shader_minifier.exe" >> "$GITHUB_ENV"
+      - name: Build head
+        run: |
+          npm ci
+          npm run player:build 2>&1 | tee build-head.log
+          echo "size=$(stat -c%s demo-webgl/dist/player/out.html)" >> "$GITHUB_OUTPUT"
+          grep -q 'minify をスキップ' build-head.log && echo "fallback=true" >> "$GITHUB_OUTPUT" || true
+        id: head
+      - name: Build base
+        run: |
+          git checkout ${{ github.event.pull_request.base.sha }}
+          npm ci
+          # base が player:build へのリネーム前のコミットの場合は旧名 build で実行する
+          ( npm run player:build || npm run build ) 2>&1 | tee build-base.log
+          echo "size=$(stat -c%s demo-webgl/dist/player/out.html)" >> "$GITHUB_OUTPUT"
+          grep -q 'minify をスキップ' build-base.log && echo "fallback=true" >> "$GITHUB_OUTPUT" || true
+        id: base
+      - name: Compose comment
+        run: |
+          BASE=${{ steps.base.outputs.size }}
+          HEAD=${{ steps.head.outputs.size }}
+          DIFF=$(( HEAD - BASE ))
+          SIGN=""; [ "$DIFF" -gt 0 ] && SIGN="+"
+          {
+            echo "## packed サイズ（dist/player/out.html）"
+            echo ""
+            echo "| base | このPR | 増減 |"
+            echo "| --- | --- | --- |"
+            echo "| ${BASE} B | ${HEAD} B | ${SIGN}${DIFF} B |"
+            echo ""
+            echo "demo-webgl / webgl / shader_minifier 1.6.0"
+            if [ "${{ steps.head.outputs.fallback }}" = "true" ] || [ "${{ steps.base.outputs.fallback }}" = "true" ]; then
+              echo ""
+              echo "⚠ minify がフォールバックしたビルドがあります（シェーダーの minify エラーの可能性）。サイズは本番相当ではありません。ジョブログを確認してください"
+            fi
+          } > size-comment.md
+      - uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: packed-size
+          path: size-comment.md

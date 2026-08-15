@@ -26,7 +26,12 @@ dist-ssr
 
 *.blend?*
 stats.html
+storybook-static/
 
 tmp
-*storybook.log
-storybook-static
+
+.workflow-tools/
+.claude/*
+!.claude/settings.json
+!.claude/skills/
+.handoff/

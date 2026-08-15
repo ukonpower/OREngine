@@ -1,0 +1,30 @@
+@use 'styles' as *;
+
+.inputNumber {}
+
+.input {
+	padding: var(--or-input-padding);
+	text-align: center;
+	width: 100%;
+	border-radius: $radius1;
+	background-color: $bgCol2;
+	border: none;
+	cursor: ew-resize;
+	color: $fontCol2;
+	font-size: var(--or-input-font-size);
+
+	&:disabled {
+		opacity: 0.3;
+	}
+
+	&:read-only {
+		color: $fontCol2;
+		border: none;
+		outline: none;
+		cursor: default;
+
+		&[data-lo="true"] {
+			background-color: transparent;
+		}
+	}
+}

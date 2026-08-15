@@ -1,0 +1,70 @@
+@use 'styles' as *;
+
+.inputWindow {
+	position: fixed;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 1000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.overlay {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, 0.5);
+}
+
+.window {
+	position: relative;
+	background: $bgCol1;
+	border-radius: $radius1;
+	padding: 16px;
+	min-width: 250px;
+	max-width: 90vw;
+}
+
+.label {
+	color: $fontCol2;
+	font-size: $fontSize2;
+	margin-bottom: 8px;
+}
+
+.input {
+	width: 100%;
+	padding: 8px;
+	border-radius: $radius1;
+	background-color: $bgCol2;
+	border: none;
+	color: $fontCol2;
+	font-size: $fontSize4;
+	text-align: center;
+}
+
+.buttons {
+	display: flex;
+	gap: 8px;
+	margin-top: 12px;
+	justify-content: flex-end;
+}
+
+.cancelBtn, .okBtn {
+	padding: 6px 16px;
+	border-radius: $radius1;
+	border: none;
+	cursor: pointer;
+}
+
+.cancelBtn {
+	background: $bgCol2;
+	color: $fontCol2;
+}
+
+.okBtn {
+	background: $fontCol2;
+	color: $bgCol1;
+}
