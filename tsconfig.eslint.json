@@ -1,0 +1,8 @@
+{
+	// eslint（eslint-import-resolver-typescript / unrs-resolver）専用の設定。
+	// tsconfig.json をそのまま使うと、同ディレクトリの tsconfig.node.json への references によって
+	// 全ファイルが「paths を持たない参照先プロジェクトの管轄」と誤判定され、paths エイリアス
+	// （maxpower / glpower / @or-renderer 等）が一切解決されなくなる。
+	// extends は references を継承しないため、このファイル経由なら paths が正しく効く。
+	"extends": "./tsconfig.json"
+}

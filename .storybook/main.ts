@@ -1,36 +1,16 @@
 import type { StorybookConfig } from '@storybook/react-vite';
-import { join, dirname } from 'path';
-
-function getAbsolutePath(value: string): any {
-  return dirname(require.resolve(join(value, 'package.json')));
-}
 
 const config: StorybookConfig = {
-  stories: [
-    '../packages/orengine/**/*.mdx',
-    '../packages/orengine/**/*.stories.@(js|jsx|ts|tsx)',
-  ],
-  addons: [
-    getAbsolutePath('@storybook/addon-onboarding'),
-    getAbsolutePath('@storybook/addon-docs'),
-  ],
-  framework: {
-    name: getAbsolutePath('@storybook/react-vite'),
-    options: {},
-  },
-  async viteFinal(config) {
-    if (process.env.STORYBOOK_BASE_PATH) {
-      config.base = process.env.STORYBOOK_BASE_PATH;
-    }
-    config.resolve = config.resolve || {};
-    config.resolve.alias = {
-      ...(config.resolve.alias || {}),
-      glpower: join(__dirname, '../packages/glpower/packages/glpower/src'),
-      maxpower: join(__dirname, '../packages/maxpower'),
-      orengine: join(__dirname, '../packages/orengine'),
-      '~': join(__dirname, '../src'),
-    };
-    return config;
-  },
+	stories: [ '../packages/orengine/editor/**/*.stories.@(ts|tsx)' ],
+	addons: [],
+
+	framework: {
+		name: '@storybook/react-vite',
+		// main.ts は Node の ESM としてそのまま読まれ、ディレクトリ import（dir + index.ts）を
+		// 解決できない。vite設定を別ファイルへ出すと Vite 自身のローダーが読むので、
+		// エンジン側の import 規約のまま host/vite の部品を再利用できる
+		options: { builder: { viteConfigPath: '.storybook/vite.config.ts' } },
+	},
 };
+
 export default config;

@@ -1,0 +1,51 @@
+import express from 'express';
+
+
+import { ProjectManager } from './Project';
+import { createSceneRouter } from './routes/scene';
+
+import type { Server } from 'http';
+
+
+export interface OrengineServerOptions {
+	projectDir: string;
+	port?: number;
+}
+
+export interface OrengineServerHandle {
+	server: Server;
+	projectManager: ProjectManager;
+	close: () => Promise<void>;
+}
+
+export const startOrengineServer = ( opts: OrengineServerOptions ): Promise<OrengineServerHandle> => {
+
+	const pm = new ProjectManager( opts.projectDir );
+	const port = opts.port ?? ( Number( process.env.ORENGINE_SERVER_PORT ) || 3001 );
+
+	const app = express();
+	app.use( express.json( { limit: '50mb' } ) );
+
+	app.use( '/api', createSceneRouter( pm ) );
+
+	return new Promise( ( resolve ) => {
+
+		const server = app.listen( port, () => {
+
+			console.log( `OREngine Server running on port ${port} (project: ${pm.name})` );
+
+			resolve( {
+				server,
+				projectManager: pm,
+				close: () => new Promise( ( done ) => {
+
+					server.close( () => done() );
+
+				} ),
+			} );
+
+		} );
+
+	} );
+
+};

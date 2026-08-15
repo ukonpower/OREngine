@@ -1,0 +1,197 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## プロジェクトの目的と最重要制約（64kb intro）
+- OREngine の主目的は **64kb intro 制作**。最終成果物は player ビルド（`npm run player:build` → `dist/player/out.html`）であり、この **packed サイズが最重要指標**
+- エディタ（React UI / server）は制作を支える道具であって主役ではない。player ビルドに editor / server の関心事を持ち込まない（eslint-plugin-boundaries で機械的に防止している）
+- core / builtin に機能を足すときは「それは64kランタイムに必要か」を必ず問う。エディタ都合の機能は editor 側に置く
+- ランタイム（player に入るコード）には外部依存を追加しない
+- サイズへの影響は必ず `npm run player:build` の packed（out.html）サイズで実測して判断する。minify前のコード量や gzip 前のバンドルサイズで判断しない
+- tree-shaking を壊すパターンを避ける: `import * as NS` したメンバーを `extends` しない（extends 対象は named import にする）、`export namespace` を使わない（個別 `export function` にする）
+
+## リポジトリ構成
+
+### パッケージとパスエイリアス
+- `basepower` → `packages/basepower`（EventEmitter・ID・共有型などドメイン非依存の最下層基盤。他パッケージに依存しない）
+- `mathpower` → `packages/mathpower`（ベクトル・行列・クォータニオン等の数学。basepower のみに依存）
+- `glpower` → `packages/glpower`（素の WebGL API ラッパー。basepower / mathpower のみに依存）
+- `maxpower` → `packages/maxpower/webgl`（エンジン本体。core + WebGLバックエンドの束。`packages/maxpower` は `core` / `webgl` / `webgpu` / `headless` の4分割）
+- `maxpower/webgpu` → `packages/maxpower/webgpu`（WebGPUバックエンド）
+- `@or-renderer` → 選択中レンダラーのバックエンド。vite がビルド時に `maxpower/webgl` か `webgpu` へ固定する（player ビルドへの WebGPU コード混入防止）。tsconfig 上は webgl 固定
+- `orengine` → `packages/orengine/index.ts`（**ランタイム専用エントリ**。エディタ関心事を含まない）
+- `orengine/editor` → `packages/orengine/editor/lib/index.ts`（エディタ中核ロジック）
+- `orengine/react` → `packages/orengine/react.tsx`（Reactエントリ: editor/components + editor/features）
+- `orengine/core` → `packages/orengine/core/index.ts`
+- `orengine/player` → `packages/orengine/player/index.ts`
+- `orengine/server` → `host/server/factory.ts`（express ベースのファイルI/O API）
+- `orengine/host` → `host/index.ts`
+- `orengine/configs` → `host/vite/configs.ts`
+- `orengine/*` → `packages/orengine/*`（その他のサブパス）
+
+### 開発エントリ（host/）
+OREngine 自体の開発エントリは `host/` に集約されている:
+
+- `host/index.ts` / `host/runner.ts` - `runDev` / `runBuildPlayer` / `runBuildStatic` の API
+- `host/app/` - 全プロジェクト共通の `index.html` / `static.html` / `src/` / `Resources/registry.ts`
+
+`scripts/run.ts` がこれらを呼び出して `demo-webgl/` / `demo-webgpu/` を駆動する。projectDir 引数を変えれば任意のプロジェクトディレクトリで動作するため、外部リポ（ORShorts 等）からも `orengine/host` を import して利用できる（`exports."./host"` で公開）。
+
+`runDev` は express（`host/server/factory.ts`）と vite devサーバーを同一プロセスで起動する。express は `scene.json` / `editor.json` の読み書きを行うファイルI/O層のみで、シーン編集用の操作APIは持たない。コンポーネントファイルや `.tex` の編集は直接ファイル編集で行う。シーンの編集は `scene.json` の直接編集で行い、vite のプロジェクトwatch（`host/vite/plugins/ProjectWatchReload`）が外部からの変更を検知してブラウザを自動リロードする。
+
+### プロジェクトディレクトリ（demo-webgl・demo-webgpu / 外部プロジェクト共通）
+プロジェクトディレクトリの中身は `Resources/` / `scene.json` / `editor.json` / `public/` のみ。HTML / src / vite config 等のボイラープレートはすべて `host/app/` に集約されている。
+
+プロジェクト固有のデータは Vite の `resolve.alias` 経由で参照する:
+- `@or-scene` → `<projectDir>/scene.json`
+- `@or-editor` → `<projectDir>/editor.json`
+- `@or-resources/*` → `<projectDir>/Resources/*`
+
+### アクティブプロジェクト・レンダラー切替
+- 環境変数 `ORENGINE_PROJECT=<name>` / `ORENGINE_RENDERER=<webgl|webgpu|headless>` で切替（デフォルトは demo-webgl / webgl。`npm run wgpu` は webgpu + demo-webgpu のショートカット）。設定ファイルは無い（個人の作業状態を tracked ファイルに持たせない）
+- 指定したプロジェクトディレクトリが存在しなければ `host/template/project` から雛形が生成される
+
+### コンポーネント追加ルール
+- `<project>/Resources/Components/<グループ>/<名前>/index.ts` に `export class Xxx extends MXP.Component` を置くだけで自動認識される
+- `packages/orengine/builtin/Components/<グループ>/<名前>/index.ts` にビルトインコンポーネントを追加できる
+- 自動認識の実体は `import.meta.glob`（`host/app/Resources/registry.ts` と `packages/orengine/builtin/index.ts`）。登録名は export されたクラス名になる
+- 先頭が `_` のディレクトリはスキャン対象外
+
+## 開発ワークフロー
+
+### ルール
+- **絶対禁止**: ユーザーの明示的な指示なしに `git commit` や `git push` を実行しない
+- **絶対禁止**: `npm run dev` を勝手に起動しない（ユーザーが明示的に指示した場合のみ実行する）
+- **必須**: コミットメッセージは日本語で記述する
+- **必須**: コード変更後は `npm run typecheck` で型チェックを実行し、続けて `npm run lint --fix` でESLintエラーを自動修正する
+
+### ブランチ運用
+- `master` からリリースブランチ `release/vX.Y.Z`（例: `release/v0.0.1`）を切る
+- `master` / リリースブランチへの直接コミットは禁止（branch protection でも強制）。作業はリリースブランチから対応ブランチ（`feature/xxx` 等）を切って行う
+- 作業開始時に現在のブランチが作業内容と乖離している場合（リリースブランチ上にいる場合も含む）は、最新のリリースブランチから新しく対応ブランチを切ってから作業する
+- 対応ブランチは PR 経由でリリースブランチへマージする
+- 緊急修正のみ `hotfix/xxx` を `master` から切り、PR 経由で `master` へ直接マージする
+- リリースは、リリースブランチを PR 経由で `master` へマージして行う。リリース時は GitHub にリリースを作成する
+- リリース前に `package.json` の `version` をリリース番号に合わせて更新する（`npm version X.Y.Z --no-git-tag-version` で package-lock.json ごと更新し、PR 経由でリリースブランチへ入れる）
+- PR のマージはすべて merge commit で行う（squash / rebase はリポジトリ設定で無効）
+- バージョン番号はセマンティックバージョニングに従う。リリースブランチを切るのはユーザーだが、番号を提案するときは変更内容から major / minor / patch を判断する
+
+### コマンド
+```bash
+npm run shader-minifier:setup # shader_minifier + mono のセットアップ（macOS / Linux。CI と同じ 1.6.0 に固定）
+npm run dev          # 開発サーバー起動（express + vite）
+npm run wgpu         # WebGPUレンダラーで開発サーバー起動（プロジェクトは既定で demo-webgpu）
+npm run player:build # player バンドルのプロダクションビルド + compeko で自己解凍 html にパック（dist/player/out.html）
+npm run editor:build # エディタ込み HTML のビルド（GitHub Pages のエディタデモ配信物）
+npm run storybook:dev # Storybook 開発サーバー起動（port 6006）
+npm run vrt          # Storybook をビルドして VRT（スクリーンショット比較テスト）を実行
+npm run vrt:update   # VRT の基準スクリーンショットを更新
+npm run lint         # ESLint実行
+npm run typecheck    # TypeScript型チェック + 全scssのコンパイル検証
+```
+
+### Storybook / VRT
+- stories はコンポーネントと同居させる（`packages/orengine/editor/**/*.stories.tsx`）。設定は `.storybook/`（main.ts / vite.config.ts / decorators / fixtures）
+- VRT（見た目のスクリーンショット比較テスト）は `tests/vrt/`（Playwright）。見た目に影響する変更をしたら `npm run vrt` で確認し、意図した変更なら `npm run vrt:update` で基準画像を更新する
+
+### CI / GitHub Pages
+- `.github/workflows/deploy-pages.yml` — master / release/* への push でエディタデモと Storybook を gh-pages ブランチへデプロイ（ルート = エディタデモ、`/storybook/`）
+- `.github/workflows/pr-preview.yml` — PR ごとに `/pr-preview/pr-N/` へプレビューをデプロイし、リンクを PR にコメントする
+- サブパス配信は `BASE_PATH` 環境変数で行う
+
+## コーディング規約
+
+### 実装方針
+- **極力シンプルに実装する**。動く最小のコードを書き、将来の拡張を見越した抽象化・設定オプション・汎用化は書かない（必要になった時点で書く）
+- **後方互換性は考慮しない**。シンプルでフラットな実装を優先する（旧APIのエイリアス保持、deprecated ラッパー、移行期間のための分岐などは書かない）
+- 後方互換性が必要な場合はユーザーが明示的に指示する
+- 使われなくなったコード・フィールド・型は残さず削除する
+- 同じ機能に二重の経路（例: REST 経由とファイル直編集の併存）を作らない。1機能1経路
+
+### 命名規則
+- **クラス/インターフェース/型**: PascalCase（`Entity`, `ComponentUpdateEvent`, `RenderStack`）
+- **メソッド/関数/変数**: camelCase（`updateImpl`, `matrixWorld`, `autoMatrixUpdate`）
+- **protectedフィールド**: アンダースコアプレフィックス `_`（`_entity`, `_enabled`, `_tag`）
+- **privateフィールド**: サフィックス `_` またはプレフィックスなし（`fields_`, `componentsSorted`）
+- **モジュールディレクトリ（非React層。`index.ts` から `export *` される公開モジュール）**: PascalCase ディレクトリ + `index.ts`（`Entity/`, `Component/`, `Serializable/`, `EngineContract/`）:
+  - 1ファイルで収まるモジュールも直置き `.ts` にせずディレクトリを掘る（`glpower/GLPowerBuffer/index.ts`, `mathpower/Vector/index.ts`）
+  - interface だけのモジュールも同じ（`Contracts/Engine.ts` ではなく `Contracts/EngineContract/index.ts`）
+  - 関数しか持たないモジュールも同じ。ディレクトリ名は関数名ではなく名詞のモジュール名にする（`setupCameraPostProcess.ts` → `CameraPostProcess/index.ts`、`hotReload.ts` → `HotReload/index.ts`）
+- **カテゴリディレクトリ（複数モジュールをまとめる中間層）**: 役割で分ける層は lowercase（`engine/`, `editor/`, `lib/`, `components/`, `ui/`, `features/`, `hooks/`, `contexts/`, `providers/`, `pages/`, `styles/`）。同種のモジュールを集める層は PascalCase の複数形（`Components/`, `Geometries/`, `Resources/`, `Contracts/`）。**兄弟が1つしかない中間層は作らない**（`mathpower/Math/` のようにパッケージ内で唯一のカテゴリは情報を持たないのでパッケージ直下へ展開する）
+- **Reactコンポーネント**: PascalCase関数コンポーネント（`const Screen = () => {}`）、`ComponentName/index.tsx` + `index.module.scss`
+- **React層の hooks / contexts / providers / lib**: ディレクトリを掘らず直置きファイル（`hooks/useOREditor.ts`, `contexts/OREditorContext.tsx`, `providers/OREditorProvider.tsx`, `lib/types.ts`）。詳細は「editor の React 層構造」を参照
+- **Reactフック**: `use` プレフィックス camelCase（`useOREditor`, `useSerializableField`）
+- **SCSSモジュール**: `index.module.scss`、BEM風ネスト（`&_tabs`, `&_right`）
+- **パッケージ名前空間**: `import * as BSP from 'basepower'`, `import * as MTP from 'mathpower'`, `import * as GLP from 'glpower'`, `import * as MXP from 'maxpower'`。extends する対象は namespace 経由にせず named import で取る（tree-shaking のため）
+
+### コメントの書き方
+- **簡潔でわかりやすく**書く。何をしているかはコード自体で伝わるようにし、コメントは **なぜ** そうしているか等の補足に留める
+- **禁止**: 実装差分・変更履歴を説明するコメント（`// 〜を追加`, `// 旧実装を削除`, `// 〜のため修正` 等）は書かない。差分は git で追える
+- **関数の先頭**: その関数が何をしているかをざっくり一行で説明するコメントを書く
+
+```ts
+// エンティティのワールド行列を再計算して子に伝搬する
+public updateMatrix() {
+	// ...
+}
+```
+
+- **セクション区切りコメント**: 大きなファイルで視覚的に構造を示したい場合、以下の形式を使用する
+
+```ts
+/*-------------------------------
+	XXXXX
+-------------------------------*/
+```
+
+  - クラス内のメンバーをカテゴリごとにまとめる、長いモジュールのセクションを区切る等の用途
+  - 短いファイルには不要
+
+## editor の React 層構造（components / features）
+`packages/orengine/editor` の React 層は vibecoding-template-next の feature 設計に合わせる。
+
+```
+editor/
+├── components/
+│   ├── ui/       # 汎用UIコンポーネント（Button, Panel, Input 等。features に依存しない）
+│   └── pages/    # 画面コンポーネント（features を組み立てる組成層。EditorPage 等）
+├── features/     # 機能単位（PascalCase・再帰構造）。トップレベルは OREditor（エディタ本体）と OREngine（エンジン供給）のみ
+│   └── {FeatureName}/
+│       ├── index.tsx + index.module.scss  # メインコンポーネント（主要UIがある場合のみ）【公開】
+│       ├── components/   # 機能専用サブコンポーネント（ComponentName/index.tsx）【公開】
+│       ├── hooks/        # カスタムHooks（useXxx.ts 直置き）【公開】
+│       ├── providers/    # Context Provider 実装（XxxProvider.tsx 直置き）【公開】
+│       ├── contexts/     # React Context 定義（XxxContext.tsx 直置き）【内部】
+│       ├── lib/          # 非Reactロジック（レンダラー・純ロジック・型定義）【内部】
+│       └── features/     # 子feature（再帰構造。親の内部実装）【内部】
+├── hooks/        # feature 横断で共有する Hooks（useLayout, useMobileDevice, useInputWindow）
+├── contexts/     # feature 横断で共有する Context 定義（InputWindowContext）
+├── lib/          # エディタ中核の非React層（Editor クラス・gizmo・入力等。dir+index.ts 形式）
+└── styles/       # 共有Sass partial
+```
+
+- 【公開】= feature 外から import してよい、【内部】= feature 内からのみ。依存方向のルールは eslint-plugin-boundaries（`eslint.config.mjs` の editor ブロック）で機械強制されるので、違反は lint エラーで分かる
+- ある feature の中でしか使わない機能は、その feature の `features/` に子 feature として置く（例: `OREditor/features/Screen/features/CameraPad`）。複数 feature での共有が必要になった Hooks・Context は editor 直下の `hooks/`・`contexts/` へ昇格する
+- feature の主要UIは `{FeatureName}/index.tsx` に置く。`features/Timeline/components/Timeline/` のように feature 名を二重に掘らない
+- Context は「定義を `contexts/`、Provider 実装を `providers/`」に分離する。Context 値の生成ロジックは `hooks/useXxxContext.ts` に置く
+- 外部への公開面は `packages/orengine/react.tsx` に個別 export で集約する（`features/index.ts` のような中継バレルは作らない）
+- scss から共有 partial を参照するときは相対パスではなく `@use 'styles' as *` を使う（vite の sass `loadPaths` と `npm run typecheck` の `--load-path` で解決。両者は一致させること）
+
+## シェーダー実装の注意（GLSL）
+シェーダーはビルド時に `#include <module:名前>` / `#include <part:名前>` を解決した完成形を shader_minifier で一括minifyする方式（`host/vite/plugins` の ShaderBuilder）。dev でも minify が走るのは意図的（minifier による破壊を保存→リロードで即検知するカナリア）。この前提から:
+
+- モジュール/part を個別・断片のまま minify に渡す方式へ戻さない
+- include は `#include <module:名前>` / `#include <part:名前>` 形式。`webgl/ShaderParser` の `shaderModules/名前.module.glsl` / `shaderParts/名前.part.glsl` をビルド時に動的解決するので、ファイルを置くだけで登録は不要。解決できない include はビルドエラーになる
+- ソースに `//[` `//]`（minifier の verbatim マーカー）を書かない（区間内だけリネームされず宣言側と食い違って壊れる）
+- uniform 構造体のフィールド名（CPU側が `'directionalLight[0].direction'` 形式で参照する名前）はローダーが自動抽出して保護している。この形式の参照を増やしたら minify 後の描画を確認する
+- minify 結果の構文検証はブラウザ不要で `glslangValidator`（`brew install glslang`）に最終結合形を食わせると確実。デバッグダンプは `tmp/shader-minified/`
+
+## WGSL（WebGPUバックエンド）の注意
+WGSLは `.wgsl` ファイルに置き、`import xxxWgsl from './xxx.wgsl'` で読む。ローダーは `host/vite/plugins/WgslLoader` で、GLSL側の ShaderBuilder とは別系統（shader_minifier はGLSL専用なのでWGSLはminifyしない）。
+
+- 置き場所は、使う側と同じディレクトリの `shaders/`。1シェーダー1ファイル
+- include は2形式（同じファイルは1回だけ展開される）: 近くのファイルへの分割は `#include "./相対パス.wgsl"`、プロジェクト共有モジュールは `#include <module:名前>`（`<projectDir>/Resources/shaders/名前.wgsl` を解決。ファイルを置くだけで登録は不要）
+- 束縛の宣言（`@group ... var<uniform>` や uniform struct）と、パス生成時に値が決まる定数（ぼかし重み・カーネル等）はTS側が完成形の先頭に前置する。WGSLファイル側は、外から与えられる名前を冒頭コメントに書いておく
+- 新しい `.wgsl` を足しても設定変更は不要（拡張子で拾う）
+- `.wgsl` はHMR対応。`.wgsl` を直接 import するモジュールが `import.meta.hot.accept` でソースを差し替え、`webgpu/backend/HotReload` の `requestShaderReload()` で Renderer / EditorDraw が資源を作り直す。複数箇所から import されるモジュール（Bindings / Lights / PostProcess / Material のようなハブ）に `.wgsl` を足したら、そのモジュール自身に accept を書く（書かないとHMRがエントリまで波及してフルリロードに落ちる）
+- HMR対象外（変更はフルリロード）: `standardVertex.wgsl`（コンポーネント側で連結キャプチャされるため）、エディタギズモの `flat.wgsl` / `mask.wgsl`（生成済み Material が配布先に保持されるため）

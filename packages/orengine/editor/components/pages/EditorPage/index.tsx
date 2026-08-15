@@ -1,0 +1,80 @@
+import { useEffect, useState } from "react";
+
+import * as MXP from 'maxpower';
+import { OREngineProjectData } from "orengine";
+import { Engine } from "orengine";
+
+import { OREditor, type EditorCustomTabs } from "../../../features/OREditor";
+import { OREngineProvider } from "../../../features/OREngine/providers/OREngineProvider";
+
+import "../../../styles/style.scss";
+
+export interface EditorPageProps {
+	projectName?: string;
+	sceneData?: OREngineProjectData;
+	editorData?: MXP.SerializeField;
+	initResourceInstances: ( engine: Engine ) => void;
+	customTabs?: EditorCustomTabs;
+	onBeforeSave?: () => void;
+}
+
+export const EditorPage = ( props: EditorPageProps ) => {
+
+	const projectName = props.projectName ?? 'DefaultProject';
+
+	const [ projectData, setProjectData ] = useState<OREngineProjectData | undefined>( props.sceneData );
+	const [ editorData, setEditorData ] = useState<MXP.SerializeField | undefined>( props.editorData );
+
+	useEffect( () => {
+
+		if ( props.sceneData ) return;
+
+		fetch( `/api/projects/${projectName}/scene` ).then( r => r.json() ).then( ( data ) => {
+
+			if ( ! data ) return;
+			setProjectData( data );
+
+		} ).catch( () => {} );
+
+	}, [ props.sceneData, projectName ] );
+
+	useEffect( () => {
+
+		if ( props.editorData ) return;
+
+		fetch( `/api/projects/${projectName}/editor` ).then( r => r.json() ).then( ( data ) => {
+
+			if ( ! data ) return;
+			setEditorData( data );
+
+		} ).catch( () => {} );
+
+	}, [ props.editorData, projectName ] );
+
+	return (
+		<OREngineProvider project={projectData} onEngineInit={( engine ) => {
+
+			props.initResourceInstances( engine );
+
+		}} >
+			<OREditor editorData={editorData} projectName={projectName} customTabs={props.customTabs} onSave={( savedScene, savedEditor ) => {
+
+				props.onBeforeSave?.();
+
+				fetch( `/api/projects/${projectName}/scene`, {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify( savedScene ),
+				} );
+
+				fetch( `/api/projects/${projectName}/editor`, {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify( savedEditor ),
+				} );
+
+			}} />
+		</OREngineProvider>
+	);
+
+};

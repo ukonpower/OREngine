@@ -1,0 +1,104 @@
+# master / release/* への push で GitHub Pages（gh-pages ブランチ）を更新する
+# 配置（いずれもミラー構成: ルート = エディタデモ（editor:build） / storybook/ = Storybook）:
+#   master     → サイトルート（pr-preview/ と release/ は他workflowと共存のため消さない）
+#   release/*  → release/<ブランチ名>/ 配下（ブランチ削除で cleanup ジョブが撤去する）
+name: deploy-pages
+
+on:
+  push:
+    branches:
+      - master
+      - release/**
+  delete:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# gh-pages への書き込みを直列化する（cancelすると別ブランチのデプロイを潰すのでキュー待ちにする）
+concurrency:
+  group: deploy-pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.event_name != 'delete'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: npm ci
+      - name: Determine deploy path
+        id: vars
+        run: |
+          if [ "${{ github.ref_name }}" = "master" ]; then
+            echo "DIR=" >> "$GITHUB_OUTPUT"
+            echo "BASE=/OREngine/" >> "$GITHUB_OUTPUT"
+          else
+            DIR="${{ github.ref_name }}"
+            echo "DIR=${DIR}" >> "$GITHUB_OUTPUT"
+            echo "BASE=/OREngine/${DIR}/" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Build editor demo
+        run: npm run editor:build
+        env:
+          BASE_PATH: ${{ steps.vars.outputs.BASE }}
+          # CI には shader_minifier が無い。minify はカナリア用途なのでスキップする
+          SKIP_SHADER_MINIFIER: "true"
+      - name: Build storybook
+        run: npm run storybook:build
+        env:
+          SKIP_SHADER_MINIFIER: "true"
+      - name: Assemble site
+        run: |
+          mkdir -p site
+          cp -r demo-webgl/dist/static/. site/
+          # static ビルドのエントリは static.html なので Pages のルートで開けるようにする
+          mv site/static.html site/index.html
+          cp -r storybook-static site/storybook
+          touch site/.nojekyll
+      - name: Deploy (master → site root)
+        if: steps.vars.outputs.DIR == ''
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: site
+          branch: gh-pages
+          clean: true
+          clean-exclude: |
+            pr-preview/
+            release/
+          force: false
+      - name: Deploy (release branch → release/ subdir)
+        if: steps.vars.outputs.DIR != ''
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: site
+          branch: gh-pages
+          target-folder: ${{ steps.vars.outputs.DIR }}
+          clean: true
+          force: false
+
+  # release ブランチが消えたら対応する release/<名前>/ を gh-pages から撤去する
+  cleanup:
+    if: github.event_name == 'delete' && github.event.ref_type == 'branch' && startsWith(github.event.ref, 'release/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+      - name: Remove release directory
+        run: |
+          DIR="${{ github.event.ref }}"
+          if [ -d "$DIR" ]; then
+            rm -rf "$DIR"
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add -A
+            git commit -m "Remove ${DIR} preview (branch deleted)"
+            git push origin gh-pages
+          else
+            echo "No directory to remove: $DIR"
+          fi

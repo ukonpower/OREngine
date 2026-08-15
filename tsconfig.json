@@ -24,29 +24,78 @@
     "noFallthroughCasesInSwitch": true,
     "allowUnreachableCode": true,
     "typeRoots": [
+      "node_modules",
       "node_modules/@types",
       "./node_modules/@figma"
+    ],
+    "types": [
+      "@webgpu/types",
+      "node",
+      "dom-mediacapture-transform",
+      "dom-webcodecs"
     ],
     "rootDir": "./",
     "baseUrl": "./",
     "paths": {
+      "basepower": [
+        "./packages/basepower"
+      ],
       "glpower": [
-        "./packages/glpower/packages/glpower/src"
+        "./packages/glpower"
+      ],
+      "mathpower": [
+        "./packages/mathpower"
       ],
       "maxpower": [
-        "./packages/maxpower"
+        "./packages/maxpower/webgl"
+      ],
+      "maxpower/webgpu": [
+        "./packages/maxpower/webgpu"
+      ],
+      "orengine": [
+        "./packages/orengine/index.ts"
+      ],
+      "orengine/editor": [
+        "./packages/orengine/editor/lib/index.ts"
+      ],
+      "orengine/react": [
+        "./packages/orengine/react.tsx"
       ],
       "orengine/*": [
         "./packages/orengine/*"
       ],
-      "~/*": [
-        "./src/*"
+      "@or-renderer": [
+        "./packages/maxpower/webgl/index.ts"
+      ],
+      "@or-storybook/*": [
+        "./.storybook/*"
+      ],
+      "@or-scene": [
+        "./demo-webgl/scene.json"
+      ],
+      "@or-editor": [
+        "./demo-webgl/editor.json"
+      ],
+      "@or-resources/*": [
+        "./demo-webgl/Resources/*"
       ]
     }
   },
   "include": [
     "**/*.ts",
-    "**/*.tsx"
+    "**/*.tsx",
+    ".storybook/preview.tsx",
+    ".storybook/decorators/**/*.tsx",
+    ".storybook/fixtures/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "demo-webgl",
+    "scripts",
+    "host/vite",
+    "host/runner.ts",
+    "host/index.ts"
   ],
   "references": [
     {
