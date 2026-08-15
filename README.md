@@ -13,88 +13,49 @@ OREngine (オーアールエンジン) は 64KB Intro 制作のための 3D エ�
 
 OREngine は npm パッケージとしては公開しておらず、git submodule として組み込んで利用します。作品リポジトリ側にはプロジェクトデータ（シーン・コンポーネント）と起動スクリプトだけを置き、開発サーバー・エディタ・ビルドはすべて submodule 側の `orengine/host` が提供します。
 
-### 1. submodule の追加とセットアップ
+### 1. セットアップ
 
-Node.js 24 系で動作します。
+Node.js 24 系で動作します。submodule を追加してセットアップスクリプトを実行するだけです。
 
 ```bash
 git submodule add https://github.com/ukonpower/OREngine.git orengine
 (cd orengine && npm install)
-npm install -D tsx
+npx tsx orengine/scripts/init.ts
+npm install
 ```
 
-依存パッケージはすべて OREngine 側が持っているため、利用側リポジトリに必要なのは実行用の `tsx` だけです。
+`init.ts` が利用側リポジトリに以下を生成します（既存のファイルは上書きしません）。
 
-### 2. プロジェクトディレクトリの作成
+- `project/` — プロジェクトデータ（`scene.json` / `editor.json` / `Resources/` / `public/`）
+- `tsconfig.json` — パスエイリアスを submodule に向けた TypeScript 設定
+- `package.json` — `dev` / `player:build` / `editor:build` の scripts と、実行に必要な `tsx`（依存パッケージはすべて OREngine 側が持ちます）
 
-テンプレートをコピーして始めます。
+### 2. 開発
 
 ```bash
-cp -r orengine/host/template/project ./project
+npm run dev
 ```
 
-```
-project/
-├── scene.json    # シーン定義
-├── editor.json   # エディタ設定
-├── Resources/    # コンポーネント・シェーダー・テクスチャ等
-└── public/       # 静的ファイル
-```
+エディタ付き開発サーバーが起動します。`project/scene.json` やコンポーネントのファイルを直接編集すると、変更検知でブラウザが自動リロードされます。
 
-`Resources/Components/<グループ>/<名前>/index.ts` に `MXP.Component` を継承したクラスを export すると、コンポーネントとして自動で認識されます。
+`project/Resources/Components/<グループ>/<名前>/index.ts` に `MXP.Component` を継承したクラスを export すると、コンポーネントとして自動で認識されます。
 
-### 3. 起動スクリプト
+レンダラーは環境変数で切り替えられます（デフォルトは webgl）。
 
-`orengine/host` の API をプロジェクトディレクトリに向けて呼ぶだけです。tsx 経由で実行します。
-
-```js
-// scripts/run.mjs — 実行: npx tsx scripts/run.mjs
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-const repoRoot = path.resolve( fileURLToPath( import.meta.url ), '../..' );
-const projectDir = path.join( repoRoot, 'project' );
-
-const { runDev } = await import( '../orengine/host/index.ts' );
-
-await runDev( { projectDir } );
+```bash
+ORENGINE_RENDERER=webgpu npm run dev
 ```
 
-- `runDev( { projectDir } )` — エディタ付き開発サーバーを起動。`scene.json` やコンポーネントのファイルを直接編集すると、変更検知でブラウザが自動リロードされます
-- `runBuildPlayer( { projectDir } )` — 64KB 配布形式の自己解凍 HTML を `dist/player/out.html` に出力
-- `runBuildStatic( { projectDir } )` — エディタ込み HTML を `dist/static/` に出力
+### 3. ビルド
 
-オプションで `renderer: 'webgl' | 'webgpu' | 'headless'`（デフォルトは webgl）、`port` / `apiPort` / `basePath` / `https` を指定できます。
-
-### 4. TypeScript 設定
-
-コンポーネントの型チェックには、利用側リポジトリの `tsconfig.json` でパスエイリアスを submodule に向けます。
-
-```jsonc
-{
-	"compilerOptions": {
-		"moduleResolution": "bundler",
-		"baseUrl": ".",
-		"paths": {
-			"basepower": [ "./orengine/packages/basepower" ],
-			"mathpower": [ "./orengine/packages/mathpower" ],
-			"glpower": [ "./orengine/packages/glpower" ],
-			"maxpower": [ "./orengine/packages/maxpower/webgl" ],
-			"maxpower/webgpu": [ "./orengine/packages/maxpower/webgpu" ],
-			"orengine": [ "./orengine/packages/orengine/index.ts" ],
-			"orengine/*": [ "./orengine/packages/orengine/*" ],
-			"@or-renderer": [ "./orengine/packages/maxpower/webgl/index.ts" ],
-			"@or-scene": [ "./project/scene.json" ],
-			"@or-editor": [ "./project/editor.json" ],
-			"@or-resources/*": [ "./project/Resources/*" ]
-		}
-	}
-}
+```bash
+npm run player:build # 64KB 配布形式の自己解凍 HTML → project/dist/player/out.html
+npm run editor:build # エディタ込み HTML → project/dist/static/
 ```
 
-tsc も submodule 側のもの（`./orengine/node_modules/.bin/tsc`）を流用できます。
+生成された scripts は `orengine/scripts/run.ts` を呼んでいるだけです。プログラムから制御したい場合は `orengine/host` の `runDev` / `runBuildPlayer` / `runBuildStatic` を import して使えます（`renderer` / `port` / `apiPort` / `basePath` / `https` を指定可能）。
 
-### 5. Shader Minifier の準備（player ビルドに必要）
+### 4. Shader Minifier の準備（player ビルドに必要）
 
 player ビルドのシェーダー圧縮に [Shader Minifier](https://github.com/laurentlb/Shader_Minifier) を使用します。macOS / Linux はセットアップスクリプトで Shader Minifier と Mono を導入できます（`~/Documents/application/shader_minifier/` に配置されます）。
 
@@ -105,7 +66,7 @@ player ビルドのシェーダー圧縮に [Shader Minifier](https://github.com
 Windows は shader_minifier.exe を取得し、Path を設定してください。配置場所を変えたい場合は、環境変数 `ORENGINE_SHADER_MINIFIER` に実行コマンド全体を指定します。
 
 ```bash
-ORENGINE_SHADER_MINIFIER="mono /path/to/shader_minifier.exe" npx tsx scripts/run.mjs
+ORENGINE_SHADER_MINIFIER="mono /path/to/shader_minifier.exe" npm run player:build
 ```
 
 Shader Minifier が見つからない環境では minify をスキップして生の GLSL にフォールバックします（警告が出ます。packed サイズは本番相当になりません）。
