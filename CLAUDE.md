@@ -72,6 +72,7 @@ OREngine 自体の開発エントリは `host/` に集約されている:
 - 対応ブランチは PR 経由でリリースブランチへマージする
 - 緊急修正のみ `hotfix/xxx` を `master` から切り、PR 経由で `master` へ直接マージする
 - リリースは、リリースブランチを PR 経由で `master` へマージして行う。リリース時は GitHub にリリースを作成する
+- リリース前に `package.json` の `version` をリリース番号に合わせて更新する（`npm version X.Y.Z --no-git-tag-version` で package-lock.json ごと更新し、PR 経由でリリースブランチへ入れる）
 - PR のマージはすべて merge commit で行う（squash / rebase はリポジトリ設定で無効）
 - バージョン番号はセマンティックバージョニングに従う。リリースブランチを切るのはユーザーだが、番号を提案するときは変更内容から major / minor / patch を判断する
 
