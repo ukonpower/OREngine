@@ -1,5 +1,5 @@
 # PR の品質ゲート。ruleset の required status checks に "check" として登録されており、
-# これが通らないと master / release/* へマージできない
+# これが通らないと main / release/* へマージできない
 name: ci
 
 on:

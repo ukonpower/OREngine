@@ -66,12 +66,12 @@ OREngine 自体の開発エントリは `host/` に集約されている:
 - **必須**: コード変更後は `npm run typecheck` で型チェックを実行し、続けて `npm run lint --fix` でESLintエラーを自動修正する
 
 ### ブランチ運用
-- `master` からリリースブランチ `release/vX.Y.Z`（例: `release/v0.0.1`）を切る
-- `master` / リリースブランチへの直接コミットは禁止（branch protection でも強制）。作業はリリースブランチから対応ブランチ（`feature/xxx` 等）を切って行う
+- `main` からリリースブランチ `release/vX.Y.Z`（例: `release/v0.0.1`）を切る
+- `main` / リリースブランチへの直接コミットは禁止（branch protection でも強制）。作業はリリースブランチから対応ブランチ（`feature/xxx` 等）を切って行う
 - 作業開始時に現在のブランチが作業内容と乖離している場合（リリースブランチ上にいる場合も含む）は、最新のリリースブランチから新しく対応ブランチを切ってから作業する
 - 対応ブランチは PR 経由でリリースブランチへマージする
-- 緊急修正のみ `hotfix/xxx` を `master` から切り、PR 経由で `master` へ直接マージする
-- リリースは、リリースブランチを PR 経由で `master` へマージして行う。リリース時は GitHub にリリースを作成する
+- 緊急修正のみ `hotfix/xxx` を `main` から切り、PR 経由で `main` へ直接マージする
+- リリースは、リリースブランチを PR 経由で `main` へマージして行う。リリース時は GitHub にリリースを作成する
 - リリース前に `package.json` の `version` をリリース番号に合わせて更新する（`npm version X.Y.Z --no-git-tag-version` で package-lock.json ごと更新し、PR 経由でリリースブランチへ入れる）
 - PR のマージはすべて merge commit で行う（squash / rebase はリポジトリ設定で無効）
 - バージョン番号はセマンティックバージョニングに従う。リリースブランチを切るのはユーザーだが、番号を提案するときは変更内容から major / minor / patch を判断する
@@ -95,7 +95,7 @@ npm run typecheck    # TypeScript型チェック + 全scssのコンパイル検�
 - VRT（見た目のスクリーンショット比較テスト）は `tests/vrt/`（Playwright）。見た目に影響する変更をしたら `npm run vrt` で確認し、意図した変更なら `npm run vrt:update` で基準画像を更新する
 
 ### CI / GitHub Pages
-- `.github/workflows/deploy-pages.yml` — master / release/* への push でエディタデモと Storybook を gh-pages ブランチへデプロイ（ルート = エディタデモ、`/storybook/`）
+- `.github/workflows/deploy-pages.yml` — main / release/* への push でエディタデモと Storybook を gh-pages ブランチへデプロイ（ルート = エディタデモ、`/storybook/`）
 - `.github/workflows/pr-preview.yml` — PR ごとに `/pr-preview/pr-N/` へプレビューをデプロイし、リンクを PR にコメントする
 - サブパス配信は `BASE_PATH` 環境変数で行う
 
