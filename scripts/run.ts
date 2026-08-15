@@ -1,17 +1,34 @@
-import { execFileSync } from 'node:child_process';
-import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { ensureProjectExists } from './projectTemplate';
+
 const repoRoot = path.resolve( fileURLToPath( import.meta.url ), '../..' );
-const templateDir = path.join( repoRoot, 'host/template/project' );
 
 /*-------------------------------
 	設定解決
 -------------------------------*/
 
-// ORENGINE_PROJECT からアクティブプロジェクトを決める
+// --project（cwd 基準。利用側リポジトリからの実行用）または ORENGINE_PROJECT からアクティブプロジェクトを決める
 const resolveProject = () => {
+
+	const flagIndex = process.argv.indexOf( '--project' );
+
+	if ( flagIndex !== - 1 ) {
+
+		const name = process.argv[ flagIndex + 1 ];
+
+		if ( ! name ) {
+
+			throw new Error( '--project requires a path' );
+
+		}
+
+		const projectDir = path.resolve( process.cwd(), name );
+
+		return { projectName: path.basename( projectDir ), projectDir };
+
+	}
 
 	const name = process.env.ORENGINE_PROJECT || 'demo-webgl';
 
@@ -33,48 +50,6 @@ const resolveRenderer = () => {
 	}
 
 	return name;
-
-};
-
-/*-------------------------------
-	雛形生成（プロジェクトが無ければテンプレートからコピー）
--------------------------------*/
-
-const copyDir = ( src: string, dst: string, replacements: Record<string, string> ) => {
-
-	fs.mkdirSync( dst, { recursive: true } );
-
-	for ( const entry of fs.readdirSync( src, { withFileTypes: true } ) ) {
-
-		const s = path.join( src, entry.name );
-		const d = path.join( dst, entry.name );
-
-		if ( entry.isDirectory() ) {
-
-			copyDir( s, d, replacements );
-
-		} else {
-
-			let content = fs.readFileSync( s, 'utf-8' );
-			for ( const [ k, v ] of Object.entries( replacements ) ) {
-
-				content = content.split( `{{${k}}}` ).join( v );
-
-			}
-			fs.writeFileSync( d, content );
-
-		}
-
-	}
-
-};
-
-const ensureProjectExists = ( projectDir: string, projectName: string ) => {
-
-	if ( fs.existsSync( projectDir ) ) return;
-
-	console.log( `[orengine] creating new project from template: ${projectName}` );
-	copyDir( templateDir, projectDir, { PROJECT_NAME: projectName } );
 
 };
 
@@ -109,11 +84,6 @@ if ( cmd === 'dev' ) {
 	console.log( `[orengine] renderer = ${renderer}` );
 
 	await runBuildPlayer( { projectDir, renderer } );
-
-	// playerバンドルを自己解凍html（64k配布形式）にパックする
-	const playerJs = path.join( projectDir, 'dist/player/index.js' );
-	const packedHtml = path.join( projectDir, 'dist/player/out.html' );
-	execFileSync( 'node', [ path.join( repoRoot, 'tools/compeko.js' ), playerJs, packedHtml ], { stdio: 'inherit' } );
 
 } else if ( cmd === 'editor:build' ) {
 
