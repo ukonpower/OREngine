@@ -1,0 +1,1 @@
+import{n as e}from"./rolldown-runtime-DkW27tQK.js";import{t}from"./jsx-runtime-DeHZSEgm.js";import{S as n,t as r}from"./react-B7YthOYi.js";var i,a;function o(){return(o=e((()=>{r(),i=t(),a=e=>(0,i.jsx)(n,{children:(0,i.jsx)(e,{})}),a.__docgenInfo={description:``,methods:[],displayName:`withInputWindow`}})))()}export{a as n,o as t};
