@@ -69,3 +69,10 @@ export const withOREditor = ( fixture: OREditorFixture ): Decorator => ( Story )
 		<Story />
 	</OREditorFixtureHost>
 );
+
+// OREditor 本体（Provider 一式を内蔵する）のストーリー用。外側で必要なのはエンジン供給だけ
+export const withOREngine = ( scene: OREngineProjectData ): Decorator => ( Story ) => (
+	<OREngineProvider project={scene} onEngineInit={initResourceInstances}>
+		<Story />
+	</OREngineProvider>
+);

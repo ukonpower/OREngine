@@ -15,10 +15,20 @@ const Tab = ( props: TabProps ) => {
 
 };
 
+export type PanelContainerTab = {
+	id: string;
+	title: string;
+	content: React.ReactNode;
+};
+
 type PanelContainerProps = {
 	storageKey?: string;
 	defaultTabTitle?: string;
 	children?: React.ReactNode;
+	// データ駆動モード。指定時はタブ状態の持ち主が親（レイアウトツリー）になり、children は使わない
+	tabs?: PanelContainerTab[];
+	active?: string;
+	onSelect?: ( id: string ) => void;
 };
 
 export const PanelContainer = ( props: PanelContainerProps ) => {
@@ -58,6 +68,29 @@ export const PanelContainer = ( props: PanelContainerProps ) => {
 	} );
 
 	const safeSelected = childs.length > 0 && selected >= childs.length ? 0 : selected;
+
+	if ( props.tabs ) {
+
+		const activeTab = props.tabs.find( ( tab ) => tab.id === props.active ) ?? props.tabs[ 0 ];
+
+		return <div className={style.panelContainer}>
+			<div className={style.header}>
+				{props.tabs.map( ( tab ) => {
+
+					return <div key={tab.id} className={style.header_item} onClick={() => props.onSelect?.( tab.id )} data-active={tab.id === activeTab?.id}>
+						<p>
+							{tab.title}
+						</p>
+					</div>;
+
+				} )}
+			</div>
+			<div className={style.content}>
+				{activeTab?.content}
+			</div>
+		</div>;
+
+	}
 
 	const onSelect = ( index: number ) => {
 

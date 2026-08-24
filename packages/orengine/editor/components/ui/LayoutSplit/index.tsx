@@ -60,6 +60,10 @@ type LayoutSplitProps = {
 	storageKey?: string;
 	splitterSize?: number;
 	enableTouch?: boolean;
+	// 制御モード。指定時は比率の持ち主が親（レイアウトツリー）になり、storageKey による自己管理は使わない
+	ratios?: number[];
+	// ドラッグ終了時に確定した比率一式を通知する（制御モード用）
+	onRatiosChange?: ( ratios: number[] ) => void;
 	children?: React.ReactNode;
 };
 
@@ -102,13 +106,15 @@ export const LayoutSplit = ( props: LayoutSplitProps ) => {
 	const splitterSize = props.splitterSize ?? 4;
 	const enableTouch = props.enableTouch !== false;
 	const storageKey = props.storageKey;
+	const controlled = props.ratios !== undefined;
+	const onRatiosChange = props.onRatiosChange;
 
 	const items = React.Children.toArray( props.children ).filter(
 		( c ): c is React.ReactElement<LayoutSplitItemProps> => React.isValidElement( c )
 	);
 
 	const [ overrideRatios, setOverrideRatios ] = useState<( number | null )[]>( () =>
-		loadFromStorage( storageKey, items.length ) ?? new Array( items.length ).fill( null )
+		( controlled ? null : loadFromStorage( storageKey, items.length ) ) ?? new Array( items.length ).fill( null )
 	);
 	const overrideRatiosRef = useRef<( number | null )[]>( overrideRatios );
 	overrideRatiosRef.current = overrideRatios;
@@ -118,7 +124,7 @@ export const LayoutSplit = ( props: LayoutSplitProps ) => {
 
 	useEffect( () => {
 
-		if ( overrideRatiosRef.current.length !== items.length ) {
+		if ( ! controlled && overrideRatiosRef.current.length !== items.length ) {
 
 			const restored = loadFromStorage( storageKey, items.length );
 			const next = restored ?? new Array( items.length ).fill( null );
@@ -127,7 +133,7 @@ export const LayoutSplit = ( props: LayoutSplitProps ) => {
 
 		}
 
-	}, [ items.length, storageKey ] );
+	}, [ items.length, storageKey, controlled ] );
 
 	const handleSplitterPointerDown = useCallback( ( event: React.MouseEvent | React.TouchEvent, splitterIndex: number ) => {
 
@@ -233,6 +239,14 @@ export const LayoutSplit = ( props: LayoutSplitProps ) => {
 
 			const totalPx = updatedPx.reduce( ( sum, v ) => sum + v, 0 );
 
+			if ( controlled ) {
+
+				if ( totalPx > 0 ) onRatiosChange?.( updatedPx.map( ( v ) => v / totalPx ) );
+
+				return;
+
+			}
+
 			const finalized = overrideRatiosRef.current.map( ( _, i ) =>
 				totalPx > 0 ? updatedPx[ i ] / totalPx : null
 			);
@@ -265,7 +279,7 @@ export const LayoutSplit = ( props: LayoutSplitProps ) => {
 
 		}
 
-	}, [ direction, items, storageKey, enableTouch ] );
+	}, [ direction, items, storageKey, enableTouch, controlled, onRatiosChange ] );
 
 	return (
 		<div
@@ -276,7 +290,7 @@ export const LayoutSplit = ( props: LayoutSplitProps ) => {
 			{items.map( ( item, index ) => {
 
 				const isLast = index === items.length - 1;
-				const ratio = overrideRatios[ index ] ?? null;
+				const ratio = ( controlled ? props.ratios![ index ] : overrideRatios[ index ] ) ?? null;
 
 				const splitterClassName = [
 					style.splitter,
