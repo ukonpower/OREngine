@@ -29,6 +29,9 @@ type PanelContainerProps = {
 	tabs?: PanelContainerTab[];
 	active?: string;
 	onSelect?: ( id: string ) => void;
+	onTabContextMenu?: ( id: string, event: React.MouseEvent ) => void;
+	// タブ追加ボタン（ヘッダー右端の「+」）。指定時のみ表示する
+	onAddClick?: () => void;
 };
 
 export const PanelContainer = ( props: PanelContainerProps ) => {
@@ -77,13 +80,14 @@ export const PanelContainer = ( props: PanelContainerProps ) => {
 			<div className={style.header}>
 				{props.tabs.map( ( tab ) => {
 
-					return <div key={tab.id} className={style.header_item} onClick={() => props.onSelect?.( tab.id )} data-active={tab.id === activeTab?.id}>
+					return <div key={tab.id} className={style.header_item} onClick={() => props.onSelect?.( tab.id )} onContextMenu={( e ) => props.onTabContextMenu?.( tab.id, e )} data-active={tab.id === activeTab?.id}>
 						<p>
 							{tab.title}
 						</p>
 					</div>;
 
 				} )}
+				{props.onAddClick && <div className={style.header_add} onClick={props.onAddClick}>+</div>}
 			</div>
 			<div className={style.content}>
 				{activeTab?.content}

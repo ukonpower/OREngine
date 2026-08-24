@@ -57,6 +57,150 @@ export function defaultLayout( customSlots: CustomSlotTabs = {} ): LayoutNode {
 
 }
 
+// 木の pane を出現順に列挙する
+export function collectPanes( root: LayoutNode ): PaneNode[] {
+
+	if ( root.type === "pane" ) return [ root ];
+
+	return root.children.flatMap( ( item ) => collectPanes( item.node ) );
+
+}
+
+// fixed パネルがすべて「専用 pane に1箇所だけ」置かれているかを検証する（Screen 用の不変条件）
+export function validateFixedPanels( root: LayoutNode, fixedIds: Iterable<PanelId> ): boolean {
+
+	const panes = collectPanes( root );
+
+	for ( const id of fixedIds ) {
+
+		const holders = panes.filter( ( pane ) => pane.tabs.includes( id ) );
+
+		if ( holders.length !== 1 || holders[ 0 ].tabs.length !== 1 ) return false;
+
+	}
+
+	return true;
+
+}
+
+// 不変条件（空 pane なし・split は2子以上・同方向の入れ子なし・ratio 合計1）へ木を畳み直す。
+// すべて畳まれて消えたら null
+const normalize = ( node: LayoutNode ): LayoutNode | null => {
+
+	if ( node.type === "pane" ) return node.tabs.length > 0 ? node : null;
+
+	const flat: SplitItem[] = [];
+
+	node.children.forEach( ( item ) => {
+
+		const child = normalize( item.node );
+
+		if ( ! child ) return;
+
+		if ( child.type === "split" && child.direction === node.direction ) {
+
+			// 同方向の入れ子は親に吸収する。子の取り分は元の区画の ratio で按分
+			child.children.forEach( ( c ) => flat.push( { ratio: item.ratio * c.ratio, node: c.node } ) );
+
+		} else {
+
+			flat.push( child === item.node ? item : { ...item, node: child } );
+
+		}
+
+	} );
+
+	if ( flat.length === 0 ) return null;
+	if ( flat.length === 1 ) return flat[ 0 ].node;
+
+	const sum = flat.reduce( ( s, item ) => s + item.ratio, 0 );
+
+	if ( Math.abs( sum - 1 ) > 1e-6 ) {
+
+		return { ...node, children: flat.map( ( item ) => ( { ...item, ratio: item.ratio / sum } ) ) };
+
+	}
+
+	const changed = flat.length !== node.children.length || flat.some( ( item, i ) => item !== node.children[ i ] );
+
+	return changed ? { ...node, children: flat } : node;
+
+};
+
+// editor.json 由来の値を検証・修復して木にする。未知パネルのタブは落とし、
+// 空になった枝は畳む。修復不能なら null（呼び出し側でデフォルトへ）
+export function parseLayout( value: unknown, knownPanels: ReadonlySet<PanelId> ): LayoutNode | null {
+
+	const seenIds = new Set<string>();
+
+	const takeId = ( raw: unknown ) => {
+
+		const id = typeof raw === "string" && raw !== "" && ! seenIds.has( raw ) ? raw : crypto.randomUUID();
+		seenIds.add( id );
+
+		return id;
+
+	};
+
+	const parseNode = ( v: unknown ): LayoutNode | null => {
+
+		if ( typeof v !== "object" || v === null ) return null;
+
+		const obj = v as Record<string, unknown>;
+
+		if ( obj.type === "pane" ) {
+
+			if ( ! Array.isArray( obj.tabs ) ) return null;
+
+			const tabs = [ ...new Set( obj.tabs.filter( ( t ): t is PanelId => typeof t === "string" && knownPanels.has( t ) ) ) ];
+
+			if ( tabs.length === 0 ) return null;
+
+			const active = typeof obj.active === "string" && tabs.includes( obj.active ) ? obj.active : tabs[ 0 ];
+
+			return { type: "pane", id: takeId( obj.id ), tabs, active };
+
+		}
+
+		if ( obj.type === "split" ) {
+
+			if ( obj.direction !== "horizontal" && obj.direction !== "vertical" ) return null;
+			if ( ! Array.isArray( obj.children ) ) return null;
+
+			const children: SplitItem[] = [];
+
+			obj.children.forEach( ( rawItem ) => {
+
+				if ( typeof rawItem !== "object" || rawItem === null ) return;
+
+				const itemObj = rawItem as Record<string, unknown>;
+				const node = parseNode( itemObj.node );
+
+				if ( ! node ) return;
+
+				const ratio = typeof itemObj.ratio === "number" && isFinite( itemObj.ratio ) && itemObj.ratio > 0 ? itemObj.ratio : 1;
+
+				children.push( { ratio, node } );
+
+			} );
+
+			if ( children.length === 0 ) return null;
+			if ( children.length === 1 ) return children[ 0 ].node;
+
+			return { type: "split", id: takeId( obj.id ), direction: obj.direction, children };
+
+		}
+
+		return null;
+
+	};
+
+	const parsed = parseNode( value );
+
+	return parsed ? normalize( parsed ) : null;
+
+}
+
 // 木を辿って id が一致するノードを replace の結果で差し替える。見つからなければ同一参照を返す
 const replaceNode = ( node: LayoutNode, targetId: string, replace: ( node: LayoutNode ) => LayoutNode ): LayoutNode => {
 
@@ -96,6 +240,41 @@ export function selectTab( root: LayoutNode, paneId: string, panelId: PanelId ):
 		return { ...node, active: panelId };
 
 	} );
+
+}
+
+// pane の末尾へタブを追加してアクティブにする。既に同じタブがある pane へは何もしない
+export function addTab( root: LayoutNode, paneId: string, panelId: PanelId ): LayoutNode {
+
+	return replaceNode( root, paneId, ( node ) => {
+
+		if ( node.type !== "pane" || node.tabs.includes( panelId ) ) return node;
+
+		return { ...node, tabs: [ ...node.tabs, panelId ], active: panelId };
+
+	} );
+
+}
+
+// pane からタブを取り除く。空になった pane は消え、split が畳まれて隣に結合される。
+// 木ごと消える操作（最後の1枚を閉じる等）は無効で、root をそのまま返す
+export function closeTab( root: LayoutNode, paneId: string, panelId: PanelId ): LayoutNode {
+
+	const removed = replaceNode( root, paneId, ( node ) => {
+
+		if ( node.type !== "pane" || ! node.tabs.includes( panelId ) ) return node;
+
+		const index = node.tabs.indexOf( panelId );
+		const tabs = node.tabs.filter( ( t ) => t !== panelId );
+		const active = node.active !== panelId || tabs.length === 0 ? node.active : tabs[ Math.min( index, tabs.length - 1 ) ];
+
+		return { ...node, tabs, active };
+
+	} );
+
+	if ( removed === root ) return root;
+
+	return normalize( removed ) ?? root;
 
 }
 

@@ -52,6 +52,20 @@ const renderCustomTabs = ( tabs: CustomTab[] | undefined ) => {
 
 const defaultTabTitle = ( tabs: CustomTab[] | undefined ) => tabs?.find( ( t ) => t.default )?.title;
 
+// レイアウトツリー上の配置は PanelLayout 側の defaultLayout がこの id を参照して決める。
+// レンダーごとに identity が変わると PanelLayout の派生計算が空回りするのでモジュールスコープに置く
+const builtinPanels: PanelDefinition[] = [
+	{ id: "scene", title: "Scene", content: <Panel><Hierarchy /></Panel> },
+	{ id: "timer", title: "Timer", content: <Panel noPadding><Timer /></Panel> },
+	{ id: "screen", title: "Screen", content: <Screen />, fixed: true },
+	{ id: "property", title: "Property", content: <Panel><EntityProperty /></Panel> },
+	{ id: "textures", title: "Textures", content: <Panel noPadding><Textures /></Panel> },
+	{ id: "project", title: "Project", content: <Panel><ProjectControl /></Panel> },
+	{ id: "renderer", title: "Renderer", content: <Panel><RendererSettings /></Panel> },
+	{ id: "editor-settings", title: "Editor", content: <Panel><EditorSettings /></Panel> },
+	{ id: "timeline", title: "Timeline", content: <Panel noPadding><Timeline /></Panel> },
+];
+
 export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP.SerializeField, projectName?: string, customTabs?: EditorCustomTabs }> = ( props ) => {
 
 	const layout = useLayout();
@@ -59,19 +73,6 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 	let editorElm = null;
 
 	if ( layout.isPC ) {
-
-		// レイアウトツリー上の配置は PanelLayout 側の defaultLayout がこの id を参照して決める
-		const builtinPanels: PanelDefinition[] = [
-			{ id: "scene", title: "Scene", content: <Panel><Hierarchy /></Panel> },
-			{ id: "timer", title: "Timer", content: <Panel noPadding><Timer /></Panel> },
-			{ id: "screen", title: "Screen", content: <Screen />, fixed: true },
-			{ id: "property", title: "Property", content: <Panel><EntityProperty /></Panel> },
-			{ id: "textures", title: "Textures", content: <Panel noPadding><Textures /></Panel> },
-			{ id: "project", title: "Project", content: <Panel><ProjectControl /></Panel> },
-			{ id: "renderer", title: "Renderer", content: <Panel><RendererSettings /></Panel> },
-			{ id: "editor-settings", title: "Editor", content: <Panel><EditorSettings /></Panel> },
-			{ id: "timeline", title: "Timeline", content: <Panel noPadding><Timeline /></Panel> },
-		];
 
 		editorElm = (
 			<>
