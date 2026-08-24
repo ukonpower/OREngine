@@ -66,23 +66,6 @@ export function collectPanes( root: LayoutNode ): PaneNode[] {
 
 }
 
-// fixed パネルがすべて「専用 pane に1箇所だけ」置かれているかを検証する（Screen 用の不変条件）
-export function validateFixedPanels( root: LayoutNode, fixedIds: Iterable<PanelId> ): boolean {
-
-	const panes = collectPanes( root );
-
-	for ( const id of fixedIds ) {
-
-		const holders = panes.filter( ( pane ) => pane.tabs.includes( id ) );
-
-		if ( holders.length !== 1 || holders[ 0 ].tabs.length !== 1 ) return false;
-
-	}
-
-	return true;
-
-}
-
 // 不変条件（空 pane なし・split は2子以上・同方向の入れ子なし・ratio 合計1）へ木を畳み直す。
 // すべて畳まれて消えたら null
 const normalize = ( node: LayoutNode ): LayoutNode | null => {
@@ -128,10 +111,11 @@ const normalize = ( node: LayoutNode ): LayoutNode | null => {
 };
 
 // editor.json 由来の値を検証・修復して木にする。未知パネルのタブは落とし、
-// 空になった枝は畳む。修復不能なら null（呼び出し側でデフォルトへ）
-export function parseLayout( value: unknown, knownPanels: ReadonlySet<PanelId> ): LayoutNode | null {
+// unique パネルの2箇所目以降も落とし、空になった枝は畳む。修復不能なら null（呼び出し側でデフォルトへ）
+export function parseLayout( value: unknown, knownPanels: ReadonlySet<PanelId>, uniquePanels: ReadonlySet<PanelId> = new Set() ): LayoutNode | null {
 
 	const seenIds = new Set<string>();
+	const seenUniqueTabs = new Set<PanelId>();
 
 	const takeId = ( raw: unknown ) => {
 
@@ -152,7 +136,17 @@ export function parseLayout( value: unknown, knownPanels: ReadonlySet<PanelId> )
 
 			if ( ! Array.isArray( obj.tabs ) ) return null;
 
-			const tabs = [ ...new Set( obj.tabs.filter( ( t ): t is PanelId => typeof t === "string" && knownPanels.has( t ) ) ) ];
+			const tabs = [ ...new Set( obj.tabs.filter( ( t ): t is PanelId => typeof t === "string" && knownPanels.has( t ) ) ) ]
+				.filter( ( t ) => {
+
+					if ( ! uniquePanels.has( t ) ) return true;
+					if ( seenUniqueTabs.has( t ) ) return false;
+
+					seenUniqueTabs.add( t );
+
+					return true;
+
+				} );
 
 			if ( tabs.length === 0 ) return null;
 

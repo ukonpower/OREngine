@@ -9,8 +9,9 @@ export interface PanelDefinition {
 	title: string;
 	// Panel ラッパー込みの完成形
 	content: React.ReactNode;
-	// true: この panel を含む pane は分割・結合・タブ移動の対象外で、タブヘッダーも持たない（Screen 用）
-	fixed?: boolean;
+	// true: レイアウト内に同時に1箇所しか置けず、別 pane への追加は移動として扱う（Screen 用。
+	// engine の canvas 要素が単一で、複数マウントすると最後のマウント先へ移動してしまうため）
+	unique?: boolean;
 }
 
 // LayoutSplit の direction と同じ意味（horizontal = 子が横並び）

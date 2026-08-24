@@ -57,7 +57,7 @@ const defaultTabTitle = ( tabs: CustomTab[] | undefined ) => tabs?.find( ( t ) =
 const builtinPanels: PanelDefinition[] = [
 	{ id: "scene", title: "Scene", content: <Panel><Hierarchy /></Panel> },
 	{ id: "timer", title: "Timer", content: <Panel noPadding><Timer /></Panel> },
-	{ id: "screen", title: "Screen", content: <Screen />, fixed: true },
+	{ id: "screen", title: "Screen", content: <Screen />, unique: true },
 	{ id: "property", title: "Property", content: <Panel><EntityProperty /></Panel> },
 	{ id: "textures", title: "Textures", content: <Panel noPadding><Textures /></Panel> },
 	{ id: "project", title: "Project", content: <Panel><ProjectControl /></Panel> },

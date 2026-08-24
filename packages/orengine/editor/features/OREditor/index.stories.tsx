@@ -27,14 +27,15 @@ const fullscreen = ( customTabs?: EditorCustomTabs, editorData = storyEditorData
 export const Default = fullscreen();
 
 // editor.json に保存されたレイアウトツリーの復元描画を固定する。
-// デフォルトとの違い: フッター無し・Timeline は左 pane のタブ・右カラムが上下2分割・アクティブタブの復元
+// デフォルトとの違い: フッター無し・Timeline は左 pane のタブ・Screen は他タブと同居・
+// 右カラムが上下2分割・アクティブタブの復元
 export const SavedLayout = fullscreen( undefined, {
 	...storyEditorData,
 	panelLayout: {
 		type: "split", id: "root", direction: "horizontal",
 		children: [
 			{ ratio: 0.2, node: { type: "pane", id: "left", tabs: [ "scene", "timeline" ], active: "timeline" } },
-			{ ratio: 0.55, node: { type: "pane", id: "center", tabs: [ "screen" ], active: "screen" } },
+			{ ratio: 0.55, node: { type: "pane", id: "center", tabs: [ "screen", "project" ], active: "screen" } },
 			{ ratio: 0.25, node: { type: "split", id: "right", direction: "vertical", children: [
 				{ ratio: 0.6, node: { type: "pane", id: "rightTop", tabs: [ "property", "textures" ], active: "textures" } },
 				{ ratio: 0.4, node: { type: "pane", id: "rightBottom", tabs: [ "timer" ], active: "timer" } },

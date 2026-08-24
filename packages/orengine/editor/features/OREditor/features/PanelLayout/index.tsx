@@ -8,11 +8,11 @@ import { Picker } from '../MouseMenu/components/Picker';
 import { useMouseMenu } from '../MouseMenu/hooks/useMouseMenu';
 import { useSerializableField } from '../SerializableField/hooks/useSerializableProps';
 
-import { addTab, closeTab, collectPanes, defaultLayout, parseLayout, selectTab, setRatios, validateFixedPanels } from './lib/layoutTree';
+import { addTab, closeTab, collectPanes, defaultLayout, parseLayout, selectTab, setRatios } from './lib/layoutTree';
 
 import type { EditorCustomTabs, PanelSlot } from '../..';
 import type { CustomSlotTabs } from './lib/layoutTree';
-import type { LayoutNode, PanelDefinition, PanelId } from './lib/types';
+import type { LayoutNode, PaneNode, PanelDefinition, PanelId } from './lib/types';
 import type * as MXP from 'maxpower';
 
 export type { LayoutNode, PanelDefinition, PanelId } from './lib/types';
@@ -67,6 +67,7 @@ type LayoutNodeViewProps = {
 	onRatiosChange: ( splitId: string, ratios: number[] ) => void;
 	onTabContextMenu: ( paneId: string, panelId: PanelId, event: React.MouseEvent ) => void;
 	onAddTab: ( paneId: string ) => void;
+	hasAddable: ( pane: PaneNode ) => boolean;
 };
 
 // レイアウトツリーを LayoutSplit / PanelContainer に展開する再帰レンダラー
@@ -96,10 +97,7 @@ const LayoutNodeView = ( props: LayoutNodeViewProps ) => {
 
 	if ( defs.length === 0 ) return null;
 
-	// fixed パネル（Screen）はタブヘッダーを持たず pane 全面に表示する
-	if ( defs.length === 1 && defs[ 0 ].fixed ) return defs[ 0 ].content;
-
-	const canAdd = [ ...props.panels.values() ].some( ( def ) => ! def.fixed && ! node.tabs.includes( def.id ) );
+	const canAdd = props.hasAddable( node );
 
 	return <PanelContainer
 		tabs={defs.map( ( def ) => ( { id: def.id, title: def.title, content: def.content } ) )}
@@ -138,15 +136,12 @@ export const PanelLayout = ( props: PanelLayoutProps ) => {
 
 	const [ savedLayout, setSavedLayout ] = useSerializableField<MXP.SerializeFieldValue>( editor, "panelLayout" );
 
-	// 保存値を検証して木にする。壊れている・fixed パネルの配置が崩れている場合はデフォルトへ
+	// 保存値を検証して木にする。壊れている場合はデフォルトへ
 	const layout = useMemo( () => {
 
-		const fixedIds = [ ...panels.values() ].filter( ( def ) => def.fixed ).map( ( def ) => def.id );
-		const parsed = parseLayout( savedLayout, new Set( panels.keys() ) );
+		const uniqueIds = new Set( [ ...panels.values() ].filter( ( def ) => def.unique ).map( ( def ) => def.id ) );
 
-		if ( parsed && validateFixedPanels( parsed, fixedIds ) ) return parsed;
-
-		return defaultLayout( custom.slots );
+		return parseLayout( savedLayout, new Set( panels.keys() ), uniqueIds ) ?? defaultLayout( custom.slots );
 
 	}, [ savedLayout, panels, custom ] );
 
@@ -160,15 +155,18 @@ export const PanelLayout = ( props: PanelLayoutProps ) => {
 	const onSelectTab = ( paneId: string, panelId: PanelId ) => apply( selectTab( layout, paneId, panelId ) );
 	const onRatiosChange = ( splitId: string, ratios: number[] ) => apply( setRatios( layout, splitId, ratios ) );
 
-	// 追加候補は、その pane にまだ無い非 fixed パネル（同じパネルを別 pane に出すのは許す）。
-	// ヘッダーの「+」とタブ右クリックの Add Tab から共通で開く
+	// 追加候補は、その pane にまだ無いパネル（同じパネルを別 pane に出すのは許す）
+	const addablePanels = ( pane: PaneNode ) =>
+		[ ...panels.values() ].filter( ( def ) => ! pane.tabs.includes( def.id ) );
+
+	// ヘッダーの「+」から開くタブ追加メニュー
 	const openAddTabMenu = ( paneId: string ) => {
 
 		const pane = collectPanes( layout ).find( ( p ) => p.id === paneId );
 
 		if ( ! pane ) return;
 
-		const addable = [ ...panels.values() ].filter( ( def ) => ! def.fixed && ! pane.tabs.includes( def.id ) );
+		const addable = addablePanels( pane );
 
 		if ( addable.length === 0 ) return;
 
@@ -176,7 +174,10 @@ export const PanelLayout = ( props: PanelLayoutProps ) => {
 			label: def.title,
 			onClick: () => {
 
-				apply( addTab( layout, paneId, def.id ) );
+				// unique パネル（Screen）は既存の配置から取り除いてから足す＝追加ではなく移動になる
+				const from = def.unique ? collectPanes( layout ).find( ( p ) => p.tabs.includes( def.id ) ) : undefined;
+
+				apply( addTab( from ? closeTab( layout, from.id, def.id ) : layout, paneId, def.id ) );
 				closeAll();
 
 			},
@@ -190,7 +191,7 @@ export const PanelLayout = ( props: PanelLayoutProps ) => {
 		e.preventDefault();
 
 		// 最後の1タブを閉じるとタブヘッダーごと消えて操作の足場が無くなるので閉じさせない
-		const canClose = collectPanes( layout ).reduce( ( n, p ) => n + p.tabs.filter( ( t ) => ! panels.get( t )?.fixed ).length, 0 ) > 1;
+		const canClose = collectPanes( layout ).reduce( ( n, p ) => n + p.tabs.length, 0 ) > 1;
 
 		if ( ! canClose ) return;
 
@@ -208,6 +209,6 @@ export const PanelLayout = ( props: PanelLayoutProps ) => {
 
 	};
 
-	return <LayoutNodeView node={layout} panels={panels} onSelectTab={onSelectTab} onRatiosChange={onRatiosChange} onTabContextMenu={onTabContextMenu} onAddTab={openAddTabMenu} />;
+	return <LayoutNodeView node={layout} panels={panels} onSelectTab={onSelectTab} onRatiosChange={onRatiosChange} onTabContextMenu={onTabContextMenu} onAddTab={openAddTabMenu} hasAddable={( pane ) => addablePanels( pane ).length > 0} />;
 
 };
