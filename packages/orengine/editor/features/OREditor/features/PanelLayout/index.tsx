@@ -8,6 +8,9 @@ import { Picker } from '../MouseMenu/components/Picker';
 import { useMouseMenu } from '../MouseMenu/hooks/useMouseMenu';
 import { useSerializableField } from '../SerializableField/hooks/useSerializableProps';
 
+import { DragOverlay } from './components/DragOverlay';
+import { useTabDrag } from './hooks/useTabDrag';
+import style from './index.module.scss';
 import { addTab, closeTab, collectPanes, defaultLayout, parseLayout, selectTab, setRatios } from './lib/layoutTree';
 
 import type { EditorCustomTabs, PanelSlot } from '../..';
@@ -66,6 +69,7 @@ type LayoutNodeViewProps = {
 	onSelectTab: ( paneId: string, panelId: PanelId ) => void;
 	onRatiosChange: ( splitId: string, ratios: number[] ) => void;
 	onTabContextMenu: ( paneId: string, panelId: PanelId, event: React.MouseEvent ) => void;
+	onTabPointerDown: ( paneId: string, panelId: PanelId, event: React.PointerEvent ) => void;
 	onAddTab: ( paneId: string ) => void;
 	hasAddable: ( pane: PaneNode ) => boolean;
 };
@@ -99,13 +103,16 @@ const LayoutNodeView = ( props: LayoutNodeViewProps ) => {
 
 	const canAdd = props.hasAddable( node );
 
-	return <PanelContainer
-		tabs={defs.map( ( def ) => ( { id: def.id, title: def.title, content: def.content } ) )}
-		active={node.active}
-		onSelect={( id ) => props.onSelectTab( node.id, id )}
-		onTabContextMenu={( id, e ) => props.onTabContextMenu( node.id, id, e )}
-		onAddClick={canAdd ? () => props.onAddTab( node.id ) : undefined}
-	/>;
+	return <div className={style.pane} data-pane-id={node.id}>
+		<PanelContainer
+			tabs={defs.map( ( def ) => ( { id: def.id, title: def.title, content: def.content } ) )}
+			active={node.active}
+			onSelect={( id ) => props.onSelectTab( node.id, id )}
+			onTabContextMenu={( id, e ) => props.onTabContextMenu( node.id, id, e )}
+			onTabPointerDown={( id, e ) => props.onTabPointerDown( node.id, id, e )}
+			onAddClick={canAdd ? () => props.onAddTab( node.id ) : undefined}
+		/>
+	</div>;
 
 };
 
@@ -154,6 +161,8 @@ export const PanelLayout = ( props: PanelLayoutProps ) => {
 
 	const onSelectTab = ( paneId: string, panelId: PanelId ) => apply( selectTab( layout, paneId, panelId ) );
 	const onRatiosChange = ( splitId: string, ratios: number[] ) => apply( setRatios( layout, splitId, ratios ) );
+
+	const { dragState, onTabPointerDown } = useTabDrag( layout, apply, panels );
 
 	// 追加候補は、その pane にまだ無いパネル（同じパネルを別 pane に出すのは許す）
 	const addablePanels = ( pane: PaneNode ) =>
@@ -209,6 +218,9 @@ export const PanelLayout = ( props: PanelLayoutProps ) => {
 
 	};
 
-	return <LayoutNodeView node={layout} panels={panels} onSelectTab={onSelectTab} onRatiosChange={onRatiosChange} onTabContextMenu={onTabContextMenu} onAddTab={openAddTabMenu} hasAddable={( pane ) => addablePanels( pane ).length > 0} />;
+	return <>
+		<LayoutNodeView node={layout} panels={panels} onSelectTab={onSelectTab} onRatiosChange={onRatiosChange} onTabContextMenu={onTabContextMenu} onTabPointerDown={onTabPointerDown} onAddTab={openAddTabMenu} hasAddable={( pane ) => addablePanels( pane ).length > 0} />
+		{dragState && <DragOverlay drag={dragState} />}
+	</>;
 
 };

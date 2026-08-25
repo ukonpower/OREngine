@@ -30,6 +30,8 @@ type PanelContainerProps = {
 	active?: string;
 	onSelect?: ( id: string ) => void;
 	onTabContextMenu?: ( id: string, event: React.MouseEvent ) => void;
+	// タブのドラッグ開始検知用（D&D 自体の判定・描画は親が持つ）
+	onTabPointerDown?: ( id: string, event: React.PointerEvent ) => void;
 	// タブ追加ボタン（ヘッダー右端の「+」）。指定時のみ表示する
 	onAddClick?: () => void;
 };
@@ -77,10 +79,10 @@ export const PanelContainer = ( props: PanelContainerProps ) => {
 		const activeTab = props.tabs.find( ( tab ) => tab.id === props.active ) ?? props.tabs[ 0 ];
 
 		return <div className={style.panelContainer}>
-			<div className={style.header}>
+			<div className={style.header} data-panel-tab-header="">
 				{props.tabs.map( ( tab ) => {
 
-					return <div key={tab.id} className={style.header_item} onClick={() => props.onSelect?.( tab.id )} onContextMenu={( e ) => props.onTabContextMenu?.( tab.id, e )} data-active={tab.id === activeTab?.id}>
+					return <div key={tab.id} className={style.header_item} onClick={() => props.onSelect?.( tab.id )} onContextMenu={( e ) => props.onTabContextMenu?.( tab.id, e )} onPointerDown={( e ) => props.onTabPointerDown?.( tab.id, e )} data-active={tab.id === activeTab?.id} data-panel-tab-id={tab.id}>
 						<p>
 							{tab.title}
 						</p>
@@ -89,7 +91,7 @@ export const PanelContainer = ( props: PanelContainerProps ) => {
 				} )}
 				{props.onAddClick && <div className={style.header_add} onClick={props.onAddClick}>+</div>}
 			</div>
-			<div className={style.content}>
+			<div className={style.content} data-panel-content="">
 				{activeTab?.content}
 			</div>
 		</div>;

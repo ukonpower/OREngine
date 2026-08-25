@@ -1,0 +1,33 @@
+@use 'styles' as *;
+
+.overlay {
+	position: fixed;
+	inset: 0;
+	// InputWindow(1000) より下・パネル内コンテンツより上
+	z-index: 500;
+	pointer-events: none;
+}
+
+.zone {
+	position: fixed;
+	background-color: rgba($focusCol, 0.15);
+	border: 1px solid rgba($focusCol, 0.6);
+}
+
+.insert {
+	position: fixed;
+	background-color: $focusCol;
+}
+
+.ghost {
+	position: fixed;
+	left: 0;
+	top: 0;
+	padding: 2px 8px;
+	background-color: $bgCol3;
+	border: 1px solid $bgCol4;
+	border-radius: $radius1;
+	color: $fontCol1;
+	font-size: var(--or-tab-font-size);
+	white-space: nowrap;
+}

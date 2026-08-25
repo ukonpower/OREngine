@@ -237,16 +237,100 @@ export function selectTab( root: LayoutNode, paneId: string, panelId: PanelId ):
 
 }
 
-// pane の末尾へタブを追加してアクティブにする。既に同じタブがある pane へは何もしない
-export function addTab( root: LayoutNode, paneId: string, panelId: PanelId ): LayoutNode {
+// pane の index 位置へタブを挿してアクティブにする（省略時は末尾）。既に同じタブがある pane へは何もしない
+export function addTab( root: LayoutNode, paneId: string, panelId: PanelId, index?: number ): LayoutNode {
 
 	return replaceNode( root, paneId, ( node ) => {
 
 		if ( node.type !== "pane" || node.tabs.includes( panelId ) ) return node;
 
-		return { ...node, tabs: [ ...node.tabs, panelId ], active: panelId };
+		const tabs = [ ...node.tabs ];
+
+		tabs.splice( Math.max( 0, Math.min( index ?? tabs.length, tabs.length ) ), 0, panelId );
+
+		return { ...node, tabs, active: panelId };
 
 	} );
+
+}
+
+// タブを toPane の index 位置へ移してアクティブにする（index は移動前のタブ列基準・省略時は末尾）。
+// 並びが変わらない指定や、移動先に同じタブが既にある指定は何もしない（rootをそのまま返す）
+export function moveTab( root: LayoutNode, fromPaneId: string, panelId: PanelId, toPaneId: string, index?: number ): LayoutNode {
+
+	if ( fromPaneId === toPaneId ) {
+
+		return replaceNode( root, fromPaneId, ( node ) => {
+
+			if ( node.type !== "pane" ) return node;
+
+			const from = node.tabs.indexOf( panelId );
+
+			if ( from === - 1 ) return node;
+
+			const tabs = node.tabs.filter( ( t ) => t !== panelId );
+
+			// index は自分を含む移動前の並びで数えているので、自分より後ろへの挿入は1つ詰める
+			const raw = index ?? node.tabs.length;
+			const insert = Math.max( 0, Math.min( from < raw ? raw - 1 : raw, tabs.length ) );
+
+			if ( insert === from ) return node;
+
+			tabs.splice( insert, 0, panelId );
+
+			return { ...node, tabs, active: panelId };
+
+		} );
+
+	}
+
+	const panes = collectPanes( root );
+	const from = panes.find( ( p ) => p.id === fromPaneId );
+	const to = panes.find( ( p ) => p.id === toPaneId );
+
+	// 移動先が無い・重複になる状態で closeTab だけ通るとタブが消えてしまうので、先にまとめて弾く
+	if ( ! from || ! to || ! from.tabs.includes( panelId ) || to.tabs.includes( panelId ) ) return root;
+
+	return addTab( closeTab( root, fromPaneId, panelId ), toPaneId, panelId, index );
+
+}
+
+export type SplitEdge = "left" | "right" | "top" | "bottom";
+
+// targetPane の領域を edge 側で50:50に分け、fromPane から抜いたタブだけの新しい pane をそこへ入れる。
+// 親 split が同方向なら normalize が平坦化する（見た目は半々のまま）。何も変わらない指定は root をそのまま返す
+export function splitPane( root: LayoutNode, targetPaneId: string, edge: SplitEdge, fromPaneId: string, panelId: PanelId ): LayoutNode {
+
+	const panes = collectPanes( root );
+	const from = panes.find( ( p ) => p.id === fromPaneId );
+
+	if ( ! from || ! from.tabs.includes( panelId ) || ! panes.some( ( p ) => p.id === targetPaneId ) ) return root;
+
+	// 唯一のタブで自分自身を分割しても元の形に戻るだけ
+	if ( fromPaneId === targetPaneId && from.tabs.length === 1 ) return root;
+
+	const removed = closeTab( root, fromPaneId, panelId );
+
+	const newPane: PaneNode = { type: "pane", id: crypto.randomUUID(), tabs: [ panelId ], active: panelId };
+
+	const replaced = replaceNode( removed, targetPaneId, ( node ) => {
+
+		const children: SplitItem[] = [ { ratio: 0.5, node: newPane }, { ratio: 0.5, node } ];
+
+		if ( edge === "right" || edge === "bottom" ) children.reverse();
+
+		return {
+			type: "split",
+			id: crypto.randomUUID(),
+			direction: edge === "left" || edge === "right" ? "horizontal" : "vertical",
+			children,
+		};
+
+	} );
+
+	if ( replaced === removed ) return root;
+
+	return normalize( replaced ) ?? root;
 
 }
 
