@@ -43,3 +43,18 @@ export const ManyTabs: Story = {
 		</PanelContainer>
 	),
 };
+
+// データ駆動モード（タブ状態の持ち主がレイアウトツリー）。ヘッダー右端にタブ追加の「+」が出る
+export const DataDriven: Story = {
+	render: () => (
+		<PanelContainer
+			tabs={[
+				{ id: 'property', title: 'Property', content: body( 'Property' ) },
+				{ id: 'hierarchy', title: 'Hierarchy', content: body( 'Hierarchy' ) },
+			]}
+			active="hierarchy"
+			onSelect={() => {}}
+			onAddClick={() => {}}
+		/>
+	),
+};

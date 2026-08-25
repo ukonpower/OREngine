@@ -38,6 +38,24 @@
 			background-color: $bgCol4;
 		}
 	}
+
+	&_add {
+		height: 100%;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: var(--or-tab-padding);
+		user-select: none;
+		cursor: pointer;
+		flex-shrink: 0;
+		// タブと誤認しないよう右端へ寄せる
+		margin-left: auto;
+		color: $fontCol3;
+
+		&:hover {
+			background-color: $bgCol4;
+		}
+	}
 }
 
 .content {

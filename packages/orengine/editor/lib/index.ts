@@ -59,6 +59,7 @@ export class Editor extends MXP.Serializable {
 	private _externalWindow: Window | null;
 	private _externalCanvasBitmapContext: ImageBitmapRenderingContext | null;
 	private _modalStatus: string | null;
+	private _panelLayout: MXP.SerializeFieldValue;
 
 	private _disposed: boolean;
 	private _api: EditorAPI;
@@ -95,6 +96,7 @@ export class Editor extends MXP.Serializable {
 		this._externalWindow = null;
 		this._externalCanvasBitmapContext = null;
 		this._modalStatus = null;
+		this._panelLayout = null;
 		this._disposed = false;
 		this._api = new EditorAPI( this );
 		this._draw = createEditorDraw( engine );
@@ -360,6 +362,10 @@ export class Editor extends MXP.Serializable {
 
 		// モーダル変形中だけ出るヘッダテキスト。セッション限りの状態なので editor.json には残さない
 		this.field( "modalStatus", () => this._modalStatus, { noExport: true } );
+
+		// PC パネルレイアウトのツリー。型・検証・操作は React 層（features/PanelLayout）が持ち、ここは素通しの箱。
+		// null はデフォルトレイアウトを意味する
+		this.field( "panelLayout", () => this._panelLayout, v => this._panelLayout = v, { hidden: true } );
 
 		const helperDir = this.fieldDir( "helpers" );
 		helperDir.field( "show", () => this._helperManager.showHelpers, v => this._helperManager.showHelpers = v );
