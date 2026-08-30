@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { LayoutSplit } from '../../../../components/ui/LayoutSplit';
 import { Panel } from '../../../../components/ui/Panel';
@@ -6,15 +6,16 @@ import { PanelContainer } from '../../../../components/ui/PanelContainer';
 import { useOREditor } from '../../hooks/useOREditor';
 import { Picker } from '../MouseMenu/components/Picker';
 import { useMouseMenu } from '../MouseMenu/hooks/useMouseMenu';
+import { VIEWPORT_PANEL_ID } from '../Screen';
 import { useSerializableField } from '../SerializableField/hooks/useSerializableProps';
 
 import { DragOverlay } from './components/DragOverlay';
 import { useTabDrag } from './hooks/useTabDrag';
 import style from './index.module.scss';
-import { addTab, closeTab, collectPanes, defaultLayout, parseLayout, selectTab, setRatios } from './lib/layoutTree';
+import { addTab, closeTab, collectPanes, defaultLayout, findPanel, newTabId, panelContent, parseLayout, selectTab, setRatios, tabInstance } from './lib/layoutTree';
 
 import type { EditorCustomTabs, PanelSlot } from '../..';
-import type { CustomSlotTabs } from './lib/layoutTree';
+import type { CustomSlotTabs, PanelResolver } from './lib/layoutTree';
 import type { LayoutNode, PaneNode, PanelDefinition, PanelId } from './lib/types';
 import type * as MXP from 'maxpower';
 
@@ -65,7 +66,7 @@ const convertCustomTabs = ( customTabs?: EditorCustomTabs ) => {
 
 type LayoutNodeViewProps = {
 	node: LayoutNode;
-	panels: ReadonlyMap<PanelId, PanelDefinition>;
+	resolve: PanelResolver;
 	onSelectTab: ( paneId: string, panelId: PanelId ) => void;
 	onRatiosChange: ( splitId: string, ratios: number[] ) => void;
 	onTabContextMenu: ( paneId: string, panelId: PanelId, event: React.MouseEvent ) => void;
@@ -95,17 +96,21 @@ const LayoutNodeView = ( props: LayoutNodeViewProps ) => {
 
 	}
 
-	const defs = node.tabs
-		.map( ( id ) => props.panels.get( id ) )
-		.filter( ( def ): def is PanelDefinition => def !== undefined );
+	const tabs = node.tabs.flatMap( ( id ) => {
 
-	if ( defs.length === 0 ) return null;
+		const def = props.resolve( id );
+
+		return def ? [ { id, title: def.title, content: panelContent( def, id ) } ] : [];
+
+	} );
+
+	if ( tabs.length === 0 ) return null;
 
 	const canAdd = props.hasAddable( node );
 
 	return <div className={style.pane} data-pane-id={node.id}>
 		<PanelContainer
-			tabs={defs.map( ( def ) => ( { id: def.id, title: def.title, content: def.content } ) )}
+			tabs={tabs}
 			active={node.active}
 			onSelect={( id ) => props.onSelectTab( node.id, id )}
 			onTabContextMenu={( id, e ) => props.onTabContextMenu( node.id, id, e )}
@@ -141,16 +146,24 @@ export const PanelLayout = ( props: PanelLayoutProps ) => {
 
 	}, [ props.panels, custom ] );
 
+	const resolve = useMemo( (): PanelResolver => ( tabId ) => findPanel( panels, tabId ), [ panels ] );
+
 	const [ savedLayout, setSavedLayout ] = useSerializableField<MXP.SerializeFieldValue>( editor, "panelLayout" );
 
 	// 保存値を検証して木にする。壊れている場合はデフォルトへ
-	const layout = useMemo( () => {
+	const layout = useMemo( () => parseLayout( savedLayout, resolve ) ?? defaultLayout( custom.slots ), [ savedLayout, resolve, custom ] );
 
-		const uniqueIds = new Set( [ ...panels.values() ].filter( ( def ) => def.unique ).map( ( def ) => def.id ) );
+	// 閉じた Screen タブのビューポートは戻ってこないので、その設定を保存データに残さない。
+	// Canvas のアンマウント（設定の書き戻し）より後に走るよう effect で行う
+	useEffect( () => {
 
-		return parseLayout( savedLayout, new Set( panels.keys() ), uniqueIds ) ?? defaultLayout( custom.slots );
+		const live = new Set( collectPanes( layout ).flatMap( ( p ) => p.tabs )
+			.filter( ( t ) => resolve( t )?.id === VIEWPORT_PANEL_ID )
+			.map( tabInstance ) );
 
-	}, [ savedLayout, panels, custom ] );
+		editor.pruneViewportSettings( live );
+
+	}, [ layout, resolve, editor ] );
 
 	// field は素通しの箱なので、木の型はこの feature 側で保証して受け渡す
 	const apply = ( next: LayoutNode ) => {
@@ -162,11 +175,12 @@ export const PanelLayout = ( props: PanelLayoutProps ) => {
 	const onSelectTab = ( paneId: string, panelId: PanelId ) => apply( selectTab( layout, paneId, panelId ) );
 	const onRatiosChange = ( splitId: string, ratios: number[] ) => apply( setRatios( layout, splitId, ratios ) );
 
-	const { dragState, onTabPointerDown } = useTabDrag( layout, apply, panels );
+	const { dragState, onTabPointerDown } = useTabDrag( layout, apply, resolve );
 
-	// 追加候補は、その pane にまだ無いパネル（同じパネルを別 pane に出すのは許す）
+	// 追加候補は、その pane にまだ無いパネル（同じパネルを別 pane に出すのは許す）。
+	// multiple なパネルは追加のたびに新しいタブになるので常に候補
 	const addablePanels = ( pane: PaneNode ) =>
-		[ ...panels.values() ].filter( ( def ) => ! pane.tabs.includes( def.id ) );
+		[ ...panels.values() ].filter( ( def ) => def.multiple || ! pane.tabs.includes( def.id ) );
 
 	// ヘッダーの「+」から開くタブ追加メニュー
 	const openAddTabMenu = ( paneId: string ) => {
@@ -183,10 +197,7 @@ export const PanelLayout = ( props: PanelLayoutProps ) => {
 			label: def.title,
 			onClick: () => {
 
-				// unique パネル（Screen）は既存の配置から取り除いてから足す＝追加ではなく移動になる
-				const from = def.unique ? collectPanes( layout ).find( ( p ) => p.tabs.includes( def.id ) ) : undefined;
-
-				apply( addTab( from ? closeTab( layout, from.id, def.id ) : layout, paneId, def.id ) );
+				apply( addTab( layout, paneId, newTabId( def ) ) );
 				closeAll();
 
 			},
@@ -204,7 +215,7 @@ export const PanelLayout = ( props: PanelLayoutProps ) => {
 
 		if ( ! canClose ) return;
 
-		pushContent( <Picker label={panels.get( panelId )?.title} list={[
+		pushContent( <Picker label={resolve( panelId )?.title} list={[
 			{
 				label: "Close Tab",
 				onClick: () => {
@@ -219,7 +230,7 @@ export const PanelLayout = ( props: PanelLayoutProps ) => {
 	};
 
 	return <>
-		<LayoutNodeView node={layout} panels={panels} onSelectTab={onSelectTab} onRatiosChange={onRatiosChange} onTabContextMenu={onTabContextMenu} onTabPointerDown={onTabPointerDown} onAddTab={openAddTabMenu} hasAddable={( pane ) => addablePanels( pane ).length > 0} />
+		<LayoutNodeView node={layout} resolve={resolve} onSelectTab={onSelectTab} onRatiosChange={onRatiosChange} onTabContextMenu={onTabContextMenu} onTabPointerDown={onTabPointerDown} onAddTab={openAddTabMenu} hasAddable={( pane ) => addablePanels( pane ).length > 0} />
 		{dragState && <DragOverlay drag={dragState} />}
 	</>;
 

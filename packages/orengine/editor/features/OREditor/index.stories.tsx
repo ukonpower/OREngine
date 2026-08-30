@@ -35,7 +35,7 @@ export const SavedLayout = fullscreen( undefined, {
 		type: "split", id: "root", direction: "horizontal",
 		children: [
 			{ ratio: 0.2, node: { type: "pane", id: "left", tabs: [ "scene", "timeline" ], active: "timeline" } },
-			{ ratio: 0.55, node: { type: "pane", id: "center", tabs: [ "screen", "project" ], active: "screen" } },
+			{ ratio: 0.55, node: { type: "pane", id: "center", tabs: [ "viewport:main", "project" ], active: "viewport:main" } },
 			{ ratio: 0.25, node: { type: "split", id: "right", direction: "vertical", children: [
 				{ ratio: 0.6, node: { type: "pane", id: "rightTop", tabs: [ "property", "textures" ], active: "textures" } },
 				{ ratio: 0.4, node: { type: "pane", id: "rightBottom", tabs: [ "timer" ], active: "timer" } },

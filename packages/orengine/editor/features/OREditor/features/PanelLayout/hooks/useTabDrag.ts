@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 
 import { collectPanes, moveTab, splitPane } from '../lib/layoutTree';
 
-import type { SplitEdge } from '../lib/layoutTree';
-import type { LayoutNode, PaneNode, PanelDefinition, PanelId } from '../lib/types';
+import type { PanelResolver, SplitEdge } from '../lib/layoutTree';
+import type { LayoutNode, PaneNode, PanelId } from '../lib/types';
 
 // 画面座標の矩形。DragOverlay がそのまま fixed 配置に使う
 export type DropRect = { left: number; top: number; width: number; height: number };
@@ -140,7 +140,7 @@ const sameTarget = ( a: DropTarget | null, b: DropTarget | null ): boolean => {
 
 // タブの掴み上げからドロップ確定までを持つ。ドラッグ中は木を触らず（プレビューはオーバーレイのみ）、
 // ドロップ確定時に1回だけ apply する
-export function useTabDrag( layout: LayoutNode, apply: ( next: LayoutNode ) => void, panels: ReadonlyMap<PanelId, PanelDefinition> ) {
+export function useTabDrag( layout: LayoutNode, apply: ( next: LayoutNode ) => void, resolve: PanelResolver ) {
 
 	const [ dragState, setDragState ] = useState<TabDragState | null>( null );
 
@@ -180,7 +180,7 @@ export function useTabDrag( layout: LayoutNode, apply: ( next: LayoutNode ) => v
 				if ( Math.hypot( ev.clientX - startX, ev.clientY - startY ) < DRAG_THRESHOLD ) return;
 
 				started = true;
-				setDragState( { panelId, title: panels.get( panelId )?.title ?? panelId, startX: ev.clientX, startY: ev.clientY, target: null } );
+				setDragState( { panelId, title: resolve( panelId )?.title ?? panelId, startX: ev.clientX, startY: ev.clientY, target: null } );
 
 			}
 

@@ -1,4 +1,4 @@
-import type { LayoutNode, PaneNode, PanelId, SplitDirection, SplitItem, SplitNode } from './types';
+import type { LayoutNode, PaneNode, PanelDefinition, PanelId, SplitDirection, SplitItem, SplitNode } from './types';
 import type { PanelSlot } from '../../..';
 
 // スロットへ差し込むカスタムパネル群。active は default 指定されたタブ
@@ -8,6 +8,46 @@ export interface SlotTabs {
 }
 
 export type CustomSlotTabs = Partial<Record<PanelSlot, SlotTabs>>;
+
+export type PanelResolver = ( tabId: PanelId ) => PanelDefinition | undefined;
+
+// タブ id から定義を引く。"<定義id>:<instance>" 形式は multiple な定義にだけ解決する
+export function findPanel( panels: ReadonlyMap<PanelId, PanelDefinition>, tabId: PanelId ): PanelDefinition | undefined {
+
+	const exact = panels.get( tabId );
+
+	if ( exact ) return exact;
+
+	const sep = tabId.indexOf( ":" );
+
+	if ( sep === - 1 ) return undefined;
+
+	const def = panels.get( tabId.slice( 0, sep ) );
+
+	return def?.multiple ? def : undefined;
+
+}
+
+// multiple なタブ id の instance 部分（"<定義id>:<instance>" の後半）
+export function tabInstance( tabId: PanelId ) {
+
+	return tabId.slice( tabId.indexOf( ":" ) + 1 );
+
+}
+
+// 定義から新しく置くタブの id を作る。multiple なら毎回別 instance になる
+export function newTabId( def: PanelDefinition ): PanelId {
+
+	return def.multiple ? `${ def.id }:${ crypto.randomUUID() }` : def.id;
+
+}
+
+// 定義とタブ id から表示内容を作る
+export function panelContent( def: PanelDefinition, tabId: PanelId ) {
+
+	return def.multiple ? def.content( tabInstance( tabId ) ) : def.content;
+
+}
 
 const split = ( direction: SplitDirection, children: SplitItem[] ): SplitNode => ( {
 	type: "split",
@@ -32,7 +72,7 @@ const slotPane = ( builtin: PanelId[], slot?: SlotTabs ): PaneNode =>
 // 左下20vh=216px・mainBottom 200px）と一致する値。分母はスプリッタ4pxを除いた実効サイズ
 export function defaultLayout( customSlots: CustomSlotTabs = {} ): LayoutNode {
 
-	const screenPane = pane( [ "screen" ] );
+	const screenPane = pane( [ "viewport:main" ] );
 	const mainBottom = customSlots.mainBottom;
 
 	// mainBottom のカスタムタブがあるときだけ、Screen の下に pane を挟む
@@ -110,12 +150,13 @@ const normalize = ( node: LayoutNode ): LayoutNode | null => {
 
 };
 
-// editor.json 由来の値を検証・修復して木にする。未知パネルのタブは落とし、
-// unique パネルの2箇所目以降も落とし、空になった枝は畳む。修復不能なら null（呼び出し側でデフォルトへ）
-export function parseLayout( value: unknown, knownPanels: ReadonlySet<PanelId>, uniquePanels: ReadonlySet<PanelId> = new Set() ): LayoutNode | null {
+// editor.json 由来の値を検証・修復して木にする。定義に解決できないタブは落とし、
+// multiple なタブ id（= 1つのビューポート）が2箇所以上にあれば最初の1箇所だけ残し、空になった枝は畳む。
+// 修復不能なら null（呼び出し側でデフォルトへ）
+export function parseLayout( value: unknown, resolve: PanelResolver ): LayoutNode | null {
 
 	const seenIds = new Set<string>();
-	const seenUniqueTabs = new Set<PanelId>();
+	const seenInstanceTabs = new Set<PanelId>();
 
 	const takeId = ( raw: unknown ) => {
 
@@ -136,13 +177,16 @@ export function parseLayout( value: unknown, knownPanels: ReadonlySet<PanelId>, 
 
 			if ( ! Array.isArray( obj.tabs ) ) return null;
 
-			const tabs = [ ...new Set( obj.tabs.filter( ( t ): t is PanelId => typeof t === "string" && knownPanels.has( t ) ) ) ]
+			const tabs = [ ...new Set( obj.tabs.filter( ( t ): t is PanelId => typeof t === "string" ) ) ]
 				.filter( ( t ) => {
 
-					if ( ! uniquePanels.has( t ) ) return true;
-					if ( seenUniqueTabs.has( t ) ) return false;
+					const def = resolve( t );
 
-					seenUniqueTabs.add( t );
+					if ( ! def ) return false;
+					if ( ! def.multiple ) return true;
+					if ( seenInstanceTabs.has( t ) ) return false;
+
+					seenInstanceTabs.add( t );
 
 					return true;
 

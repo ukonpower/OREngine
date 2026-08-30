@@ -1,18 +1,18 @@
 import type React from 'react';
 
-// パネル型の識別子（ビルトイン + customTabs 由来）
+// タブの識別子。単一パネルは定義 id そのもの、複数置けるパネルは "<定義id>:<instance>"
 export type PanelId = string;
 
 // レイアウトに配置できるパネル1種の定義。pane = パネルを収める枠 / panel = 中身、と使い分ける
-export interface PanelDefinition {
+export type PanelDefinition = {
 	id: PanelId;
 	title: string;
-	// Panel ラッパー込みの完成形
-	content: React.ReactNode;
-	// true: レイアウト内に同時に1箇所しか置けず、別 pane への追加は移動として扱う（Screen 用。
-	// engine の canvas 要素が単一で、複数マウントすると最後のマウント先へ移動してしまうため）
-	unique?: boolean;
-}
+} & (
+	// レイアウト内に同時1つまで。Panel ラッパー込みの完成形を持つ
+	| { multiple?: false; content: React.ReactNode }
+	// 「+」で追加するたびに "<id>:<instance>" のタブが新しく増える（Screen 用。タブごとに独立したビューポートを持つ）
+	| { multiple: true; content: ( instanceId: string ) => React.ReactNode }
+);
 
 // LayoutSplit の direction と同じ意味（horizontal = 子が横並び）
 export type SplitDirection = "horizontal" | "vertical";

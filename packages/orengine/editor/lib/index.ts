@@ -524,6 +524,25 @@ export class Editor extends MXP.Serializable {
 
 	}
 
+	// keep に無く、生きてもいないビューポートの設定を捨てる（閉じた Screen タブの分を保存データに残さないため）
+	public pruneViewportSettings( keep: ReadonlySet<string> ) {
+
+		for ( const id of this._viewportSettings.keys() ) {
+
+			if ( keep.has( id ) || this._viewports.some( ( v ) => v.id === id ) ) continue;
+
+			this._viewportSettings.delete( id );
+
+			for ( const name of [ "", "cameraView", "preview", "camera/", "camera/position", "camera/target" ] ) {
+
+				this.removeField( `viewports/${id}/${name}` );
+
+			}
+
+		}
+
+	}
+
 	// ビューポート設定のフィールドを id ごとに用意する。ビューポートが生きていればその実値を、無ければ退避値を読み書きする
 	private _registerViewportFields( id: string ) {
 

@@ -4,39 +4,23 @@ import { useOREditor } from "../../../../hooks/useOREditor";
 
 import style from './index.module.scss';
 
-// ビューポートの表示先。マウント中だけエディタにビューポートを作り、アンマウントで破棄する
+// ビューポートの表示先。マウント中だけエディタにビューポートを作り、アンマウントで破棄する。
+// canvas はパネルごとに自前で持ち、描画結果は drawToCanvas でここへ出してもらう（サイズは Viewport が解像度に合わせる）
 export const Canvas: React.FC<{ viewportId: string }> = ( { viewportId } ) => {
 
 	const { engine, editor } = useOREditor();
-	const wrapperElmRef = useRef<HTMLDivElement | null>( null );
+	const canvasRef = useRef<HTMLCanvasElement | null>( null );
 
 	useEffect( () => {
 
-		const wrapperElm = wrapperElmRef.current;
-		if ( ! engine || ! wrapperElm ) return;
-
-		// 表示先には GL コンテキストを持つエンジンの canvas をそのまま使う
-		const canvas = engine.canvas as HTMLCanvasElement;
-		if ( ! canvas ) {
-
-			console.error( 'Canvas element not found in engine' );
-			return;
-
-		}
-
-		wrapperElm.appendChild( canvas );
+		const canvas = canvasRef.current;
+		if ( ! engine || ! canvas ) return;
 
 		const viewport = editor.createViewport( viewportId, canvas );
 
 		return () => {
 
 			viewport.dispose();
-
-			if ( wrapperElm.contains( canvas ) ) {
-
-				wrapperElm.removeChild( canvas );
-
-			}
 
 		};
 
@@ -45,10 +29,11 @@ export const Canvas: React.FC<{ viewportId: string }> = ( { viewportId } ) => {
 	return (
 		<div
 			className={style.container}
-			ref={wrapperElmRef}
 			role="presentation"
 			aria-label="3D Canvas"
-		/>
+		>
+			<canvas ref={canvasRef} />
+		</div>
 	);
 
 };

@@ -20,7 +20,7 @@ import { MouseMenuProvider } from './features/MouseMenu/providers/MouseMenuProvi
 import { PanelLayout } from './features/PanelLayout';
 import { ProjectControl } from './features/ProjectControl';
 import { RendererSettings } from './features/RendererSettings';
-import { Screen } from './features/Screen';
+import { Screen, VIEWPORT_PANEL_ID } from './features/Screen';
 import { Textures } from './features/Textures';
 import { Timeline } from './features/Timeline';
 import style from './index.module.scss';
@@ -57,7 +57,7 @@ const defaultTabTitle = ( tabs: CustomTab[] | undefined ) => tabs?.find( ( t ) =
 const builtinPanels: PanelDefinition[] = [
 	{ id: "scene", title: "Scene", content: <Panel><Hierarchy /></Panel> },
 	{ id: "timer", title: "Timer", content: <Panel noPadding><Timer /></Panel> },
-	{ id: "screen", title: "Screen", content: <Screen />, unique: true },
+	{ id: VIEWPORT_PANEL_ID, title: "Screen", multiple: true, content: ( viewportId ) => <Screen viewportId={viewportId} /> },
 	{ id: "property", title: "Property", content: <Panel><EntityProperty /></Panel> },
 	{ id: "textures", title: "Textures", content: <Panel noPadding><Textures /></Panel> },
 	{ id: "project", title: "Project", content: <Panel><ProjectControl /></Panel> },
@@ -92,7 +92,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 						min(55vh) は横長ウィンドウでプレビューが下のパネルを潰さないための上限
 					*/}
 					<LayoutSplit.Item size="calc( min( 56.25vw, 55vh ) + 77px )" minSize={200} style={{ minHeight: '200px' }}>
-						<Screen />
+						<Screen viewportId="main" />
 					</LayoutSplit.Item>
 					<LayoutSplit.Item flex={1} minSize={200}>
 						<PanelContainer storageKey="orengine-panel-sp-main" defaultTabTitle={defaultTabTitle( props.customTabs?.mainBottom ) ?? defaultTabTitle( props.customTabs?.leftTop ) ?? defaultTabTitle( props.customTabs?.leftBottom ) ?? defaultTabTitle( props.customTabs?.rightTop ) ?? defaultTabTitle( props.customTabs?.footer )}>
