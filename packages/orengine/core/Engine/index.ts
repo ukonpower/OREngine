@@ -185,9 +185,9 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 
 	// 描画する視点を作る。どの view をいつ描くかは呼び出し側が render( view ) で決め、
 	// 使い終わった view の dispose も作った側の責任
-	public createView() {
+	public createView( opt?: MXP.RenderViewOptions ) {
 
-		return this._renderer.createView();
+		return this._renderer.createView( opt );
 
 	}
 
@@ -308,7 +308,7 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 		Render
 	-------------------------------*/
 
-	// view の視点で直近の update の状態を view の出力バッファへ描く（canvas には出さない）
+	// view の視点で直近の update の状態を描く。出力先は view の作り方で決まる（省略時は canvas）
 	public render( view: MXP.RenderViewContract ) {
 
 		if ( ! this._frameEvent ) return;

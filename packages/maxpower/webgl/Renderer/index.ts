@@ -24,7 +24,7 @@ import { Sky } from './Sky';
 
 import type { EngineContract } from '../../core/Contracts/EngineContract';
 import type { RendererContract } from '../../core/Contracts/RendererContract';
-import type { PipelineConfig, RenderViewContract } from '../../core/Contracts/RenderViewContract';
+import type { PipelineConfig, RenderViewContract, RenderViewOptions } from '../../core/Contracts/RenderViewContract';
 import type { TexProceduralParam } from '../../core/Contracts/TexProceduralContract';
 
 // render stack
@@ -395,7 +395,7 @@ export class Renderer extends Serializable implements RendererContract {
 		View
 	-------------------------------*/
 
-	public createView(): RenderView {
+	public createView( opt?: RenderViewOptions ): RenderView {
 
 		const view = new RenderView( {
 			backend: this.backend,
@@ -403,6 +403,7 @@ export class Renderer extends Serializable implements RendererContract {
 			envMapCube: this._envMapCube,
 			sceneConfig: this._pipelineConfig,
 			resolution: this.resolution,
+			offscreen: opt?.offscreen ?? false,
 			onDispose: ( v ) => {
 
 				this._views.splice( this._views.indexOf( v ), 1 );
@@ -599,7 +600,7 @@ export class Renderer extends Serializable implements RendererContract {
 		Render
 	-------------------------------*/
 
-	// view の視点でシーンを view の uiBuffer まで描く。prepareScene の後に呼ぶ
+	// view の視点でシーンを描く。最終出力は view の uiBuffer（offscreen）か canvas。prepareScene の後に呼ぶ
 	public render( viewContract: RenderViewContract, _event: EntityUpdateEvent ) {
 
 		if ( this.resolution.x === 0 || this.resolution.y === 0 ) return;
@@ -756,19 +757,21 @@ export class Renderer extends Serializable implements RendererContract {
 
 		}
 
-		// ui
+		// ui（offscreen なら uiBuffer に留め、そうでなければ canvas へ）
+
+		const output = view.offscreen ? rt.uiBuffer : null;
 
 		if ( backBuffer ) {
 
 			const size = backBuffer.size;
 
-			this.backend.blit( backBuffer, rt.uiBuffer, size.x, size.y );
+			this.backend.blit( backBuffer, output, size.x, size.y );
 
 		}
 
 		this.backend.setBlendEnabled( true );
 
-		this.renderCamera( "forward", cameraEntity, stack.ui, rt.uiBuffer, this.resolution, {
+		this.renderCamera( "forward", cameraEntity, stack.ui, output, this.resolution, {
 			uniformOverride: {
 				uDeferredTexture: {
 					value: rt.refractionBuffer.textures[ 0 ],
@@ -778,13 +781,6 @@ export class Renderer extends Serializable implements RendererContract {
 		} );
 
 		this.backend.setBlendEnabled( false );
-
-	}
-
-	// view の uiBuffer を canvas へ出す
-	public present( view: RenderViewContract ) {
-
-		this.backend.blit( ( view as RenderView ).renderTarget.uiBuffer, null, this.resolution.x, this.resolution.y );
 
 	}
 

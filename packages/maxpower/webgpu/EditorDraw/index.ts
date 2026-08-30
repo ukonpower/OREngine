@@ -133,6 +133,9 @@ export class WebGPUEditorDraw implements EditorDrawContract {
 	private _copyPass: EditorPass | null;
 	private _outlinePass: EditorPass | null;
 
+	// 出力先 canvas ごとの configure 済みコンテキスト
+	private _canvasContexts: WeakMap<HTMLCanvasElement, GPUCanvasContext>;
+
 	constructor( renderer: Renderer ) {
 
 		this._renderer = renderer;
@@ -141,6 +144,7 @@ export class WebGPUEditorDraw implements EditorDrawContract {
 		this._fullscreenTarget = new GPUEditorTarget( null, true );
 		this._copyPass = null;
 		this._outlinePass = null;
+		this._canvasContexts = new WeakMap();
 
 		if ( import.meta.hot ) {
 
@@ -302,6 +306,33 @@ export class WebGPUEditorDraw implements EditorDrawContract {
 		// フレーム記録中（drawPass通知経由）はレンダラーのencoderへ差し込み、
 		// パス出力直後の内容を写す。フレーム外では自前でsubmitする
 		this._copyPass.render( view, [ s.view ], { rect, encoder: this._renderer.frameEncoder || undefined } );
+
+	}
+
+	public drawToCanvas( renderView: RenderViewContract, canvas: HTMLCanvasElement ) {
+
+		const renderer = this._renderer;
+		const device = renderer.device;
+		const view = renderView as RenderView;
+
+		if ( ! device || ! view.outputView ) return;
+
+		// device は canvas に縛られないので、canvas ごとに configure して present パスを直接打つ
+		let context = canvas === renderer.canvas ? renderer.context : this._canvasContexts.get( canvas );
+
+		if ( ! context ) {
+
+			context = canvas.getContext( 'webgpu' )!;
+			context.configure( { device, format: renderer.canvasFormat, alphaMode: 'opaque' } );
+			this._canvasContexts.set( canvas, context );
+
+		}
+
+		const encoder = device.createCommandEncoder();
+
+		renderer.renderPresent( device, encoder, context.getCurrentTexture().createView(), view );
+
+		device.queue.submit( [ encoder.finish() ] );
 
 	}
 

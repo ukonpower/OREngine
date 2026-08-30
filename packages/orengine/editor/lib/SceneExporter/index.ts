@@ -21,11 +21,13 @@ export interface SceneExporterProgress {
 export class SceneExporter {
 
 	private _engine: Engine;
+	private _draw: MXP.EditorDrawContract;
 	private _view: MXP.RenderViewContract;
 
-	constructor( engine: Engine, view: MXP.RenderViewContract ) {
+	constructor( engine: Engine, draw: MXP.EditorDrawContract, view: MXP.RenderViewContract ) {
 
 		this._engine = engine;
+		this._draw = draw;
 		this._view = view;
 
 	}
@@ -62,7 +64,7 @@ export class SceneExporter {
 
 			this._engine.updateOffline( f, fps );
 			this._engine.render( this._view );
-			this._engine.renderer.present( this._view );
+			this._draw.drawToCanvas( this._view, canvas as HTMLCanvasElement );
 
 			await videoSource.add( f / fps, 1 / fps );
 

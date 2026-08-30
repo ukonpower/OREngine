@@ -95,7 +95,6 @@ export const startPlayer = ( opts: StartPlayerOptions ): Engine => {
 
 			engine.update();
 			engine.render( view );
-			engine.renderer.present( view );
 
 			if ( engine.frame.current > engine.frameSetting.duration ) {
 

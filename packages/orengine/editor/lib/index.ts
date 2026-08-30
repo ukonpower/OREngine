@@ -103,9 +103,9 @@ export class Editor extends MXP.Serializable {
 		this._disposed = false;
 		this._api = new EditorAPI( this );
 		this._draw = createEditorDraw( engine );
-		this._view = engine.createView();
+		this._view = engine.createView( { offscreen: true } );
 		this._assetPreviewManager = new AssetPreviewManager( this._draw );
-		this._sceneExporter = new SceneExporter( engine, this._view );
+		this._sceneExporter = new SceneExporter( engine, this._draw, this._view );
 		this._isExporting = false;
 		this._exportProgress = null;
 
@@ -537,14 +537,14 @@ export class Editor extends MXP.Serializable {
 
 			}
 
-			// present前にuiバッファへ描き込む（present後ではwebgpuの画面に反映されない）
+			// canvas へ出す前にuiバッファへ描き込む（後ではwebgpuの画面に反映されない）
 			if ( this._frameDebugger.enable ) {
 
 				this._frameDebugger.draw();
 
 			}
 
-			this._engine.renderer.present( view );
+			this._draw.drawToCanvas( view, this._engine.canvas as HTMLCanvasElement );
 
 			if ( this._externalCanvasBitmapContext ) {
 

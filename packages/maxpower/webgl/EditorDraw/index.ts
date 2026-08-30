@@ -212,7 +212,7 @@ export class GLEditorDraw implements EditorDrawContract {
 		const gl = this._gl;
 		const s = src as GLEditorFrame;
 
-		// dst省略時はuiバッファへ描く（presentで画面に出る。webgpu側と同じ契約）
+		// dst省略時はuiバッファへ描く（drawToCanvas で画面に出る。webgpu側と同じ契約）
 		const dstFrameBuffer = dst ? ( dst as GLEditorTarget ).frameBuffer : view.renderTarget.uiBuffer;
 		const dstSize = dstFrameBuffer.size;
 
@@ -235,6 +235,23 @@ export class GLEditorDraw implements EditorDrawContract {
 
 		gl.bindFramebuffer( gl.READ_FRAMEBUFFER, null );
 		gl.bindFramebuffer( gl.DRAW_FRAMEBUFFER, null );
+
+	}
+
+	public drawToCanvas( view: RenderView, canvas: HTMLCanvasElement ) {
+
+		const renderer = this._renderer;
+		const res = renderer.resolution;
+
+		// GL コンテキストは renderer の canvas に縛られていて他の canvas へ直接描けないので、
+		// いったん default framebuffer へ出してから 2D で写す（preserveDrawingBuffer 済みなので同期で読める）
+		renderer.backend.blit( view.renderTarget.uiBuffer, null, res.x, res.y );
+
+		if ( canvas !== renderer.canvas ) {
+
+			canvas.getContext( '2d' )!.drawImage( renderer.canvas, 0, 0 );
+
+		}
 
 	}
 

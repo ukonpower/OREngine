@@ -15,6 +15,12 @@ export type PipelineConfig = {
 	lightShaftTemporalBlend?: number;
 };
 
+// createView の指定。offscreen のビューは最終出力を自分のバッファに留め、canvas へは出さない
+// （エディタが重ね描きしてから任意の canvas へ写すため）。省略時は render の最後で renderer の canvas に出る
+export type RenderViewOptions = {
+	offscreen?: boolean;
+};
+
 // 視点ごとの描画資源（G-Buffer・ポストプロセスの履歴RT）とその視点の設定。
 // シーン全体で共有する資源（ライト・シャドウ・環境マップ）は Renderer が持つ
 export interface RenderViewContract {

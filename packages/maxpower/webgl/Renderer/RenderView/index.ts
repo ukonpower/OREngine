@@ -24,6 +24,7 @@ type RenderViewParams = {
 	// Renderer のシーン設定と同じオブジェクト（Renderer 側で書き換わる）。上書きと合成した実効値をパスへ流す
 	sceneConfig: PipelineConfig;
 	resolution: MTP.Vector;
+	offscreen: boolean;
 	onDispose: ( view: RenderView ) => void;
 }
 
@@ -78,6 +79,10 @@ const createRenderTarget = ( backend: GLBackend ): RenderCameraTarget => {
 export class RenderView implements RenderViewContract {
 
 	public camera: Entity | null;
+
+	// true なら最終出力を uiBuffer に留め canvas へ出さない（エディタが重ね描きしてから出す）
+	public readonly offscreen: boolean;
+
 	public readonly renderTarget: RenderCameraTarget;
 	public readonly deferredRenderer: DeferredRenderer;
 	public readonly pipelinePostProcess: PipelinePostProcess;
@@ -89,6 +94,7 @@ export class RenderView implements RenderViewContract {
 	constructor( params: RenderViewParams ) {
 
 		this.camera = null;
+		this.offscreen = params.offscreen;
 		this._pipelineOverride = null;
 		this._sceneConfig = params.sceneConfig;
 		this._onDispose = params.onDispose;

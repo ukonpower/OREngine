@@ -60,6 +60,11 @@ export interface EditorDrawContract {
 	// 中間バッファを矩形指定で転写する（dstRectは左上原点）。dst null は view のuiバッファ
 	blit( view: RenderViewContract, src: EditorFrame, dst: EditorTarget | null, dstRect?: EditorRect ): void;
 
+	// offscreen ビューの uiバッファ（重ね描き済み）を canvas へ出す。
+	// バックエンドで手段が違う（WebGL は renderer の canvas 経由、WebGPU は canvas ごとに configure）ので
+	// React 層はここだけ呼ぶ
+	drawToCanvas( view: RenderViewContract, canvas: HTMLCanvasElement ): void;
+
 	// バックエンドのテクスチャをそのままターゲットへ転写する（AssetPreview用）
 	drawTexture( texture: unknown, target: EditorTarget ): void;
 

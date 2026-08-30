@@ -42,6 +42,8 @@ export class HeadlessEditorDraw implements EditorDrawContract {
 
 	public blit() {}
 
+	public drawToCanvas() {}
+
 	public drawTexture() {}
 
 	// AssetPreviewManager がピクセル配列を走査するので、透明黒で正しいサイズを返す

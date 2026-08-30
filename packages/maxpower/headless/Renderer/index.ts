@@ -55,8 +55,6 @@ export class Renderer extends Serializable implements RendererContract {
 
 	public render() {}
 
-	public present() {}
-
 	public resize( resolution: MTP.Vector ) {
 
 		this.resolution.copy( resolution );

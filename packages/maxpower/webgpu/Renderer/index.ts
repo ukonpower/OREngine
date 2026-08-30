@@ -40,7 +40,7 @@ import { Sky } from './Sky';
 
 import type { EngineContract } from '../../core/Contracts/EngineContract';
 import type { RendererContract } from '../../core/Contracts/RendererContract';
-import type { PipelineConfig, RenderViewContract } from '../../core/Contracts/RenderViewContract';
+import type { PipelineConfig, RenderViewContract, RenderViewOptions } from '../../core/Contracts/RenderViewContract';
 import type { TexProceduralParam } from '../../core/Contracts/TexProceduralContract';
 import type { Entity, EntityUpdateEvent } from '../../core/Entity';
 import type { Geometry } from '../../core/Geometry';
@@ -616,10 +616,11 @@ export class Renderer extends Serializable implements RendererContract {
 		Render
 	-------------------------------*/
 
-	public createView(): RenderView {
+	public createView( opt?: RenderViewOptions ): RenderView {
 
 		const view = new RenderView( {
 			sceneConfig: this.pipelineConfig,
+			offscreen: opt?.offscreen ?? false,
 			onDispose: ( v ) => {
 
 				this._views.splice( this._views.indexOf( v ), 1 );
@@ -757,28 +758,17 @@ export class Renderer extends Serializable implements RendererContract {
 
 		view.outputView = output;
 
+		if ( ! view.offscreen && this._context ) {
+
+			this.renderPresent( device, encoder, this._context.getCurrentTexture().createView(), view );
+
+		}
+
 		this._frameEncoder = null;
 
 		device.queue.submit( [ encoder.finish() ] );
 
 		this._resolveFocusReadback( view );
-
-	}
-
-	// view の出力を canvas へ出す
-	public present( viewContract: RenderViewContract ) {
-
-		const device = this._device;
-		const context = this._context;
-		const view = viewContract as RenderView;
-
-		if ( ! device || ! context || ! view.outputView ) return;
-
-		const encoder = device.createCommandEncoder();
-
-		this._renderPresent( device, encoder, context.getCurrentTexture().createView(), view );
-
-		device.queue.submit( [ encoder.finish() ] );
 
 	}
 
@@ -1180,8 +1170,9 @@ export class Renderer extends Serializable implements RendererContract {
 
 	}
 
-	// view の最終出力をキャンバスへ出す。参照先が変わったときだけbind groupを作り直す
-	private _renderPresent( device: GPUDevice, encoder: GPUCommandEncoder, canvasView: GPUTextureView, view: RenderView ) {
+	// view の最終出力をキャンバスへ出す。参照先が変わったときだけbind groupを作り直す。
+	// offscreen ビューを任意の canvas へ出す EditorDraw からも呼ばれる
+	public renderPresent( device: GPUDevice, encoder: GPUCommandEncoder, canvasView: GPUTextureView, view: RenderView ) {
 
 		const source = view.outputView!;
 
@@ -1687,12 +1678,24 @@ export class Renderer extends Serializable implements RendererContract {
 		Editor API
 
 		EditorDraw が使う口。エディタの重ね描きは、ビューの最終出力（outputView）へ描き、
-		present で出し直す形にしている。
+		drawToCanvas（renderPresent）で出し直す形にしている。
 	-------------------------------*/
 
 	public get device() {
 
 		return this._device;
+
+	}
+
+	public get context() {
+
+		return this._context;
+
+	}
+
+	public get canvasFormat() {
+
+		return this._canvasFormat;
 
 	}
 
