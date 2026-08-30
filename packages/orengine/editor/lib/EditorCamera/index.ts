@@ -53,12 +53,12 @@ export class EditorCamera {
 	private _view: "editor" | "camera";
 	private _preview: boolean;
 
-	constructor( engine: Engine, renderView: MXP.RenderViewContract ) {
+	constructor( engine: Engine, renderView: MXP.RenderViewContract, canvas: HTMLCanvasElement ) {
 
 		this._entity = engine.createEntity( { name: "__editorCamera" } );
 		this._camera = this._entity.addComponent( MXP.Camera );
 		this._orbitControls = this._entity.addComponent( OrbitControls );
-		this._orbitControls.setElm( engine.canvas as HTMLCanvasElement );
+		this._orbitControls.setElm( canvas );
 		this._renderView = renderView;
 		this._view = "editor";
 		this._preview = false;

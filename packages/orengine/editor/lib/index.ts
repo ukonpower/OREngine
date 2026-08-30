@@ -6,23 +6,22 @@ import { Engine } from '../../core/Engine';
 
 import { AssetPreviewManager } from './AssetPreviewManager';
 import { EditorAPI } from './EditorAPI';
-import { EditorCamera } from './EditorCamera';
-import { FrameDebugger } from './FrameDebugger';
 import { GizmoMode } from './gizmo/Gizmo';
 import { GizmoManager } from './gizmo/GizmoManager';
 import { HelperManager } from './helper/HelperManager';
 import { KeyboardHandler } from './input/KeyboardHandler';
 import { ModalTransformHandler } from './input/ModalTransformHandler';
-import { PointerHandler } from './input/PointerHandler';
 import { ConstraintAxisRenderer } from './render/ConstraintAxisRenderer';
 import { GridRenderer } from './render/GridRenderer';
 import { SelectionOutline } from './render/SelectionOutline';
 import { WireframeRenderer } from './render/WireframeRenderer';
 import { SceneExporter, SceneExporterProgress } from './SceneExporter';
+import { Viewport } from './Viewport';
 
 import type { TransformOrientation } from './transform/TransformUtils';
 
 export type { SceneExporterOption, SceneExporterProgress } from './SceneExporter';
+export type { Viewport } from './Viewport';
 
 export type SelectedAssetInfo = {
 	name: string;
@@ -41,6 +40,16 @@ export type EditorTimelineLoop = {
 	end: number,
 }
 
+// ビューポートごとに保存する設定。ビューポートはパネルの表示中しか存在しないので、
+// 未生成・破棄済みの間はここに退避しておき、生成時に適用する
+type ViewportSettings = {
+	cameraView: "editor" | "camera";
+	preview: boolean;
+	// null = 未設定（OrbitControls の初期姿勢のまま）
+	cameraPosition: number[] | null;
+	cameraTarget: number[] | null;
+};
+
 export class Editor extends MXP.Serializable {
 
 	private _engine: Engine;
@@ -55,7 +64,6 @@ export class Editor extends MXP.Serializable {
 	private _enableRender: boolean;
 	private _baseResolution: MTP.Vector;
 	private _viewType: "render" | "debug";
-	private _frameDebugger: FrameDebugger;
 	private _assetPreviewManager: AssetPreviewManager;
 	private _externalWindow: Window | null;
 	private _externalCanvasBitmapContext: ImageBitmapRenderingContext | null;
@@ -65,16 +73,18 @@ export class Editor extends MXP.Serializable {
 	private _disposed: boolean;
 	private _api: EditorAPI;
 	private _draw: MXP.EditorDrawContract;
-	private _view: MXP.RenderViewContract;
 
-	private _editorCamera: EditorCamera;
+	private _viewports: Viewport[];
+	// 最後にポインタが入ったビューポート。キーボード操作（視点切替・フォーカス・モーダル変形）の対象
+	private _activeViewport: Viewport | null;
+	private _viewportSettings: Map<string, ViewportSettings>;
+
 	private _gizmoManager: GizmoManager;
 	private _helperManager: HelperManager;
 	private _gridRenderer: GridRenderer;
 	private _constraintAxisRenderer: ConstraintAxisRenderer;
 	private _wireframeRenderer: WireframeRenderer;
 	private _selectionOutline: SelectionOutline;
-	private _pointerHandler: PointerHandler;
 	private _keyboardHandler: KeyboardHandler;
 	private _modalTransformHandler: ModalTransformHandler;
 
@@ -103,9 +113,11 @@ export class Editor extends MXP.Serializable {
 		this._disposed = false;
 		this._api = new EditorAPI( this );
 		this._draw = createEditorDraw( engine );
-		this._view = engine.createView( { offscreen: true } );
+		this._viewports = [];
+		this._activeViewport = null;
+		this._viewportSettings = new Map();
 		this._assetPreviewManager = new AssetPreviewManager( this._draw );
-		this._sceneExporter = new SceneExporter( engine, this._draw, this._view );
+		this._sceneExporter = new SceneExporter( engine );
 		this._isExporting = false;
 		this._exportProgress = null;
 
@@ -113,7 +125,6 @@ export class Editor extends MXP.Serializable {
 			Modules
 		-------------------------------*/
 
-		this._editorCamera = new EditorCamera( engine, this._view );
 		this._gizmoManager = new GizmoManager( engine, this._draw );
 		this._helperManager = new HelperManager( engine, this._draw );
 		this._gridRenderer = new GridRenderer( engine, this._draw );
@@ -121,38 +132,14 @@ export class Editor extends MXP.Serializable {
 		this._wireframeRenderer = new WireframeRenderer( this._draw );
 		this._selectionOutline = new SelectionOutline( this._draw );
 
-		this._pointerHandler = new PointerHandler(
-			engine,
-			this._editorCamera,
-			this._gizmoManager,
-			this._helperManager,
-			this._api,
-			() => this._selectedEntityId,
-			( entity ) => ! this._unselectableEntityIds.has( entity.uuid ),
-			() => this._gizmoManager.mode,
-			( entity ) => this.selectEntity( entity ),
-			() => this._modalTransformHandler.active,
-			() => {
-
-				if ( this._editorCamera.preview ) {
-
-					this.setField( "preview", false );
-
-				}
-
-				this.setField( "cameraView", "editor" );
-
-			},
-		);
-
 		this._modalTransformHandler = new ModalTransformHandler( {
 			engine,
-			editorCamera: this._editorCamera,
+			getViewport: () => this._activeViewport,
 			api: this._api,
 			getSelectedEntity: () => this._selectedEntityId
 				? engine.root.findEntityByUUID( this._selectedEntityId ) ?? null
 				: null,
-			isPointerBusy: () => this._pointerHandler.gizmoDragging,
+			isPointerBusy: () => this._viewports.some( ( v ) => v.gizmoDragging ),
 			onStatusChange: ( status ) => {
 
 				// モーダル中は毎 pointermove で呼ばれるので、文字列が変わったときだけ React へ通知する
@@ -183,34 +170,35 @@ export class Editor extends MXP.Serializable {
 			},
 			onCameraViewToggle: () => {
 
-				// プレビュー中はプレビューを抜けてエディタカメラへ戻る
-				if ( this._editorCamera.preview ) {
+				const viewport = this._activeViewport;
 
-					this.setField( "preview", false );
-					this.setField( "cameraView", "editor" );
+				if ( ! viewport ) return;
+
+				// プレビュー中はプレビューを抜けてエディタカメラへ戻る
+				if ( viewport.editorCamera.preview ) {
+
+					this._escapeToEditorCamera( viewport );
 
 				} else {
 
-					this.setField( "cameraView", this._editorCamera.view === "editor" ? "camera" : "editor" );
+					this.setField( `viewports/${viewport.id}/cameraView`, viewport.editorCamera.view === "editor" ? "camera" : "editor" );
 
 				}
 
 			},
 			onPreviewToggle: () => {
 
-				this.setField( "preview", ! this._editorCamera.preview );
+				const viewport = this._activeViewport;
+
+				if ( ! viewport ) return;
+
+				this.setField( `viewports/${viewport.id}/preview`, ! viewport.editorCamera.preview );
 
 			},
 			onSyncToSceneCamera: () => this.syncToSceneCamera(),
 			onFocusSelected: () => this.focusSelected(),
-			onTransformKey: ( e ) => this._editorCamera.preview ? false : this._modalTransformHandler.handleKeyDown( e ),
+			onTransformKey: ( e ) => this._activeViewport?.editorCamera.preview ? false : this._modalTransformHandler.handleKeyDown( e ),
 		} );
-
-		/*-------------------------------
-			Frame Debugger
-		-------------------------------*/
-
-		this._frameDebugger = new FrameDebugger( engine.canvas as HTMLCanvasElement, this._draw, this._view );
 
 		/*-------------------------------
 			Audio
@@ -286,7 +274,11 @@ export class Editor extends MXP.Serializable {
 
 			this._viewType = v;
 
-			this._frameDebugger.enable = this._viewType === "debug";
+			for ( const viewport of this._viewports ) {
+
+				viewport.frameDebugger.enable = this._viewType === "debug";
+
+			}
 
 		} );
 
@@ -340,18 +332,6 @@ export class Editor extends MXP.Serializable {
 
 		} );
 
-		this.field( "cameraView", () => this._editorCamera.view, ( v: "editor" | "camera" ) => {
-
-			this._editorCamera.setView( v, engine );
-
-		} );
-
-		this.field( "preview", () => this._editorCamera.preview, ( v: boolean ) => {
-
-			this._editorCamera.setPreview( v, engine );
-
-		} );
-
 		this.field( "gizmoMode", () => this._gizmoManager.mode, ( v: GizmoMode ) => {
 
 			this._gizmoManager.setMode( v );
@@ -381,42 +361,6 @@ export class Editor extends MXP.Serializable {
 		helperDir.field( "gizmo", () => this._gizmoManager.showGizmo, v => this._gizmoManager.showGizmo = v );
 		helperDir.field( "outline", () => this._selectionOutline.showOutline, v => this._selectionOutline.showOutline = v );
 
-		const cameraDir = this.fieldDir( "camera" );
-		cameraDir.field( "position",
-			() => {
-
-				const eye = this._editorCamera.orbitControls.eye;
-				return [ eye.x, eye.y, eye.z ];
-
-			},
-			( v: number[] ) => {
-
-				const target = this._editorCamera.orbitControls.target;
-				this._editorCamera.orbitControls.setPosition(
-					new MTP.Vector( v[ 0 ], v[ 1 ], v[ 2 ] ),
-					new MTP.Vector( target.x, target.y, target.z )
-				);
-
-			}
-		);
-		cameraDir.field( "target",
-			() => {
-
-				const target = this._editorCamera.orbitControls.target;
-				return [ target.x, target.y, target.z ];
-
-			},
-			( v: number[] ) => {
-
-				const eye = this._editorCamera.orbitControls.eye;
-				this._editorCamera.orbitControls.setPosition(
-					new MTP.Vector( eye.x, eye.y, eye.z ),
-					new MTP.Vector( v[ 0 ], v[ 1 ], v[ 2 ] )
-				);
-
-			}
-		);
-
 		/*-------------------------------
 			Animate
 		-------------------------------*/
@@ -438,6 +382,21 @@ export class Editor extends MXP.Serializable {
 		}
 
 		this._resize();
+
+	}
+
+	// ビューポートのフィールドは id ごとに動的なので、保存データにある id の分を先に用意してから流し込む
+	public deserialize( props: MXP.SerializeField ) {
+
+		for ( const key of Object.keys( props ) ) {
+
+			const match = key.match( /^viewports\/([^/]+)\// );
+
+			if ( match ) this._registerViewportFields( match[ 1 ] );
+
+		}
+
+		super.deserialize( props );
 
 	}
 
@@ -469,15 +428,224 @@ export class Editor extends MXP.Serializable {
 
 	}
 
-	public get editorCamera() {
+	public get viewports(): readonly Viewport[] {
 
-		return this._editorCamera;
+		return this._viewports;
+
+	}
+
+	public get activeViewport() {
+
+		return this._activeViewport;
 
 	}
 
 	public get assetPreviewManager() {
 
 		return this._assetPreviewManager;
+
+	}
+
+	/*-------------------------------
+		Viewport
+	-------------------------------*/
+
+	// 表示 canvas に紐づくビューポートを作る。表示先が無くなったら作った側が dispose する
+	public createViewport( id: string, canvas: HTMLCanvasElement ): Viewport {
+
+		this._registerViewportFields( id );
+
+		const settings = this._viewportSettings.get( id )!;
+		const engine = this._engine;
+
+		const viewport: Viewport = new Viewport( {
+			id,
+			engine,
+			draw: this._draw,
+			canvas,
+			gizmoManager: this._gizmoManager,
+			helperManager: this._helperManager,
+			api: this._api,
+			getSelectedEntityId: () => this._selectedEntityId,
+			isEntitySelectable: ( entity ) => ! this._unselectableEntityIds.has( entity.uuid ),
+			onSelectEntity: ( entity ) => this.selectEntity( entity ),
+			isModalActive: () => this._modalTransformHandler.active,
+			onEscapeToEditorCamera: () => this._escapeToEditorCamera( viewport ),
+			onActivate: () => {
+
+				this._activeViewport = viewport;
+
+			},
+			onDispose: () => {
+
+				const editorCamera = viewport.editorCamera;
+				const orbit = editorCamera.orbitControls;
+
+				settings.cameraView = editorCamera.view;
+				settings.preview = editorCamera.preview;
+				settings.cameraPosition = [ orbit.eye.x, orbit.eye.y, orbit.eye.z ];
+				settings.cameraTarget = [ orbit.target.x, orbit.target.y, orbit.target.z ];
+
+				this._viewports.splice( this._viewports.indexOf( viewport ), 1 );
+
+				if ( this._activeViewport === viewport ) {
+
+					this._activeViewport = this._viewports[ 0 ] ?? null;
+
+				}
+
+			},
+		} );
+
+		viewport.editorCamera.setView( settings.cameraView, engine );
+		viewport.editorCamera.setPreview( settings.preview, engine );
+
+		if ( settings.cameraPosition || settings.cameraTarget ) {
+
+			this._setOrbit( viewport, settings.cameraPosition, settings.cameraTarget );
+
+		}
+
+		viewport.frameDebugger.enable = this._viewType === "debug";
+		viewport.resize( engine.renderer.resolution );
+
+		this._viewports.push( viewport );
+
+		if ( ! this._activeViewport ) this._activeViewport = viewport;
+
+		// 退避値からビューポートの実値へ読み先が変わるので React に取り直させる
+		for ( const name of [ "cameraView", "preview", "camera/position", "camera/target" ] ) {
+
+			this.noticeField( `viewports/${id}/${name}` );
+
+		}
+
+		return viewport;
+
+	}
+
+	// ビューポート設定のフィールドを id ごとに用意する。ビューポートが生きていればその実値を、無ければ退避値を読み書きする
+	private _registerViewportFields( id: string ) {
+
+		if ( this._viewportSettings.has( id ) ) return;
+
+		const settings: ViewportSettings = { cameraView: "editor", preview: false, cameraPosition: null, cameraTarget: null };
+		this._viewportSettings.set( id, settings );
+
+		const live = () => this._viewports.find( ( v ) => v.id === id ) ?? null;
+		const engine = this._engine;
+		const dir = this.fieldDir( `viewports/${id}` );
+
+		dir.field( "cameraView", () => live()?.editorCamera.view ?? settings.cameraView, ( v: "editor" | "camera" ) => {
+
+			const viewport = live();
+
+			if ( viewport ) {
+
+				viewport.editorCamera.setView( v, engine );
+
+			} else {
+
+				settings.cameraView = v;
+
+			}
+
+		} );
+
+		dir.field( "preview", () => live()?.editorCamera.preview ?? settings.preview, ( v: boolean ) => {
+
+			const viewport = live();
+
+			if ( viewport ) {
+
+				viewport.editorCamera.setPreview( v, engine );
+
+			} else {
+
+				settings.preview = v;
+
+			}
+
+		} );
+
+		const cameraDir = dir.dir( "camera" );
+
+		cameraDir.field( "position", () => {
+
+			const viewport = live();
+
+			if ( ! viewport ) return settings.cameraPosition;
+
+			const eye = viewport.editorCamera.orbitControls.eye;
+
+			return [ eye.x, eye.y, eye.z ];
+
+		}, ( v: number[] | null ) => {
+
+			const viewport = live();
+
+			if ( viewport ) {
+
+				this._setOrbit( viewport, v, null );
+
+			} else {
+
+				settings.cameraPosition = v;
+
+			}
+
+		} );
+
+		cameraDir.field( "target", () => {
+
+			const viewport = live();
+
+			if ( ! viewport ) return settings.cameraTarget;
+
+			const target = viewport.editorCamera.orbitControls.target;
+
+			return [ target.x, target.y, target.z ];
+
+		}, ( v: number[] | null ) => {
+
+			const viewport = live();
+
+			if ( viewport ) {
+
+				this._setOrbit( viewport, null, v );
+
+			} else {
+
+				settings.cameraTarget = v;
+
+			}
+
+		} );
+
+	}
+
+	// オービットの視点・注視点を片方ずつでも更新できるようにする（省いた側は現在値を保つ）
+	private _setOrbit( viewport: Viewport, position: number[] | null, target: number[] | null ) {
+
+		const orbit = viewport.editorCamera.orbitControls;
+
+		orbit.setPosition(
+			position ? new MTP.Vector( position[ 0 ], position[ 1 ], position[ 2 ] ) : orbit.eye.clone(),
+			target ? new MTP.Vector( target[ 0 ], target[ 1 ], target[ 2 ] ) : orbit.target.clone(),
+		);
+
+	}
+
+	// プレビュー・シーンカメラ視点から抜けてエディタカメラで見る
+	private _escapeToEditorCamera( viewport: Viewport ) {
+
+		if ( viewport.editorCamera.preview ) {
+
+			this.setField( `viewports/${viewport.id}/preview`, false );
+
+		}
+
+		this.setField( `viewports/${viewport.id}/cameraView`, "editor" );
 
 	}
 
@@ -491,60 +659,31 @@ export class Editor extends MXP.Serializable {
 
 		if ( ! this._isExporting ) {
 
-			this._editorCamera.updateBeforeRender( this._engine );
+			for ( const viewport of this._viewports ) {
 
-			this._engine.update();
-
-			if ( this._enableRender ) {
-
-				this._engine.render( this._view );
+				viewport.editorCamera.updateBeforeRender( this._engine );
 
 			}
 
-			const cameraEntity = this._editorCamera.getCameraEntity( this._engine );
+			this._engine.update();
+
 			const selectedEntity = this._selectedEntityId
 				? this._engine.root.findEntityByUUID( this._selectedEntityId ) ?? null
 				: null;
 
-			const preview = this._editorCamera.preview;
-			const view = this._view;
+			for ( const viewport of this._viewports ) {
 
-			if ( ! preview ) {
+				if ( this._enableRender ) {
 
-				// ヘルパーやワイヤより先に敷いて、上に載る線を隠さないようにする
-				this._gridRenderer.render( view, cameraEntity, this._engine );
+					this._engine.render( viewport.view );
 
-				this._helperManager.render( view, cameraEntity, this._engine, this._selectedEntityId );
+				}
 
-				this._wireframeRenderer.render( view, cameraEntity, this._engine );
+				this._renderOverlay( viewport, selectedEntity );
 
-			}
-
-			// プレビュー中はターゲット無しで呼び、ギズモの visible とヒット判定も落とす。
-			// モーダル変形中はギズモが変形結果に追従してちらつくので出さない
-			this._gizmoManager.render(
-				view,
-				preview || this._modalTransformHandler.active ? null : selectedEntity,
-				cameraEntity,
-				this._engine
-			);
-
-			if ( ! preview ) {
-
-				this._constraintAxisRenderer.render( view, this._modalTransformHandler.constraintDisplay, cameraEntity, this._engine );
-
-				this._selectionOutline.render( view, selectedEntity, cameraEntity );
+				this._draw.drawToCanvas( viewport.view, viewport.canvas );
 
 			}
-
-			// canvas へ出す前にuiバッファへ描き込む（後ではwebgpuの画面に反映されない）
-			if ( this._frameDebugger.enable ) {
-
-				this._frameDebugger.draw();
-
-			}
-
-			this._draw.drawToCanvas( view, this._engine.canvas as HTMLCanvasElement );
 
 			if ( this._externalCanvasBitmapContext ) {
 
@@ -584,6 +723,50 @@ export class Editor extends MXP.Serializable {
 
 	}
 
+	// シーン描画の上にビューポートの編集用オーバーレイ（グリッド・ヘルパー・ギズモ・アウトライン）を重ねる
+	private _renderOverlay( viewport: Viewport, selectedEntity: MXP.Entity | null ) {
+
+		const cameraEntity = viewport.editorCamera.getCameraEntity( this._engine );
+		const preview = viewport.editorCamera.preview;
+		const view = viewport.view;
+
+		if ( ! preview ) {
+
+			// ヘルパーやワイヤより先に敷いて、上に載る線を隠さないようにする
+			this._gridRenderer.render( view, cameraEntity, this._engine );
+
+			this._helperManager.render( view, cameraEntity, this._engine, this._selectedEntityId );
+
+			this._wireframeRenderer.render( view, cameraEntity, this._engine );
+
+		}
+
+		// プレビュー中はターゲット無しで呼び、ギズモの visible とヒット判定も落とす。
+		// モーダル変形中はギズモが変形結果に追従してちらつくので出さない
+		this._gizmoManager.render(
+			view,
+			preview || this._modalTransformHandler.active ? null : selectedEntity,
+			cameraEntity,
+			this._engine
+		);
+
+		if ( ! preview ) {
+
+			this._constraintAxisRenderer.render( view, this._modalTransformHandler.constraintDisplay, cameraEntity, this._engine );
+
+			this._selectionOutline.render( view, selectedEntity, cameraEntity );
+
+		}
+
+		// canvas へ出す前にuiバッファへ描き込む（後ではwebgpuの画面に反映されない）
+		if ( viewport.frameDebugger.enable ) {
+
+			viewport.frameDebugger.draw();
+
+		}
+
+	}
+
 	/*-------------------------------
 		Export
 	-------------------------------*/
@@ -611,13 +794,6 @@ export class Editor extends MXP.Serializable {
 		const wasPlaying = this._engine.frame.playing;
 		this._engine.stop();
 
-		// 書き出しは本番同等（シーンカメラ・上書きなし）で行う
-		const view = this._view;
-		const prevCamera = view.camera;
-		const prevOverride = view.pipelineOverride;
-		view.camera = null;
-		view.pipelineOverride = null;
-
 		try {
 
 			const blob = await this._sceneExporter.export(
@@ -642,9 +818,6 @@ export class Editor extends MXP.Serializable {
 
 		}
 
-		view.camera = prevCamera;
-		view.pipelineOverride = prevOverride;
-
 		this._isExporting = false;
 		this._exportProgress = null;
 		this.emit( "update/export" );
@@ -667,25 +840,25 @@ export class Editor extends MXP.Serializable {
 
 	}
 
-	// エディタカメラをシーンカメラの視点・画角へ合わせる
+	// アクティブなビューポートのエディタカメラをシーンカメラの視点・画角へ合わせる
 	public syncToSceneCamera() {
 
-		if ( this._editorCamera.preview ) {
+		const viewport = this._activeViewport;
 
-			this.setField( "preview", false );
+		if ( ! viewport ) return;
 
-		}
+		this._escapeToEditorCamera( viewport );
 
-		this.setField( "cameraView", "editor" );
-
-		this._editorCamera.syncFromSceneCamera( this._engine );
+		viewport.editorCamera.syncFromSceneCamera( this._engine );
 
 	}
 
-	// 選択中のエンティティが画面に収まる位置までエディタカメラを寄せる
+	// 選択中のエンティティが画面に収まる位置までアクティブなビューポートのエディタカメラを寄せる
 	public focusSelected() {
 
-		if ( this._editorCamera.preview ) return;
+		const viewport = this._activeViewport;
+
+		if ( ! viewport || viewport.editorCamera.preview ) return;
 
 		const entity = this._selectedEntityId
 			? this._engine.root.findEntityByUUID( this._selectedEntityId ) ?? null
@@ -694,9 +867,9 @@ export class Editor extends MXP.Serializable {
 		if ( ! entity ) return;
 
 		// シーンカメラ視点のままでは寄れないのでエディタカメラへ戻してからフォーカスする
-		this.setField( "cameraView", "editor" );
+		this.setField( `viewports/${viewport.id}/cameraView`, "editor" );
 
-		this._editorCamera.focus( entity );
+		viewport.editorCamera.focus( entity );
 
 	}
 
@@ -801,9 +974,11 @@ export class Editor extends MXP.Serializable {
 
 		this._draw.resize( resolution );
 
-		this._frameDebugger.resize( resolution );
+		for ( const viewport of this._viewports ) {
 
-		this._editorCamera.resize( resolution );
+			viewport.resize( resolution );
+
+		}
 
 		if ( this._externalCanvasBitmapContext ) {
 
@@ -822,13 +997,16 @@ export class Editor extends MXP.Serializable {
 
 		this._disposed = true;
 		this._api.dispose();
-		this._editorCamera.dispose();
-		this._pointerHandler.dispose();
 		this._keyboardHandler.dispose();
 		this._modalTransformHandler.dispose();
-		this._frameDebugger.dispose();
 		this._assetPreviewManager.dispose();
-		this._view.dispose();
+
+		// dispose で配列から抜けるので複製を回す
+		for ( const viewport of [ ...this._viewports ] ) {
+
+			viewport.dispose();
+
+		}
 
 	}
 

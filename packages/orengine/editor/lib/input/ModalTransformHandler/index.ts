@@ -3,13 +3,13 @@ import * as MXP from 'maxpower';
 
 import { Engine } from '../../../../core/Engine';
 import { SetFieldCommand } from '../../command/Commands/SetFieldCommand';
-import { EditorCamera } from '../../EditorCamera';
 import { composeLocalQuat, getWorldQuaternion, intersectRayPlane, projectRayOnLine, quaternionFromAxisAngle, rotateVector } from '../../transform/TransformUtils';
 import { clientToNDC, ndcToClient } from '../PointerUtils';
 
 import type { EditorAPI } from '../../EditorAPI';
 import type { GizmoAxis } from '../../gizmo/Gizmo';
 import type { TransformOrientation } from '../../transform/TransformUtils';
+import type { Viewport } from '../../Viewport';
 
 export type ModalTransformMode = 'translate' | 'rotate' | 'scale';
 
@@ -30,6 +30,8 @@ type Constraint = {
 type ModalSession = {
 	mode: ModalTransformMode;
 	entity: MXP.Entity;
+	// 開始したビューポートの canvas。ポインタ座標の変換はモーダル中ずっとこの要素を基準にする
+	canvas: HTMLCanvasElement;
 	// 変形対象が視点カメラ自身か（カメラビュー中に無選択またはカメラ自身を選択しているとき）
 	selfView: boolean;
 	constraint: Constraint | null;
@@ -81,19 +83,19 @@ const AXES: readonly GizmoAxis[] = [ 'x', 'y', 'z' ];
 export class ModalTransformHandler {
 
 	private _engine: Engine;
-	private _editorCamera: EditorCamera;
+	private _getViewport: () => Viewport | null;
 	private _api: EditorAPI;
 	private _getSelectedEntity: () => MXP.Entity | null;
 	private _isPointerBusy: () => boolean;
 	private _onStatusChange: ( status: string | null ) => void;
-	private _canvas: HTMLCanvasElement;
 	private _pointerClient: MTP.Vector;
 	private _session: ModalSession | null;
 	private _disposeListeners: () => void;
 
 	constructor( param: {
 		engine: Engine,
-		editorCamera: EditorCamera,
+		// 変形を始めるビューポート（キーボード操作の対象）。無ければ開始しない
+		getViewport: () => Viewport | null,
 		api: EditorAPI,
 		getSelectedEntity: () => MXP.Entity | null,
 		isPointerBusy: () => boolean,
@@ -101,13 +103,12 @@ export class ModalTransformHandler {
 	} ) {
 
 		this._engine = param.engine;
-		this._editorCamera = param.editorCamera;
+		this._getViewport = param.getViewport;
 		this._api = param.api;
 		this._getSelectedEntity = param.getSelectedEntity;
 		this._isPointerBusy = param.isPointerBusy;
 		this._onStatusChange = param.onStatusChange;
 
-		this._canvas = param.engine.canvas as HTMLCanvasElement;
 		this._pointerClient = new MTP.Vector();
 		this._session = null;
 
@@ -264,14 +265,19 @@ export class ModalTransformHandler {
 
 		if ( this._isPointerBusy() ) return false;
 
-		const cameraEntity = this._editorCamera.getCameraEntity( this._engine );
+		const viewport = this._getViewport();
+
+		if ( ! viewport ) return false;
+
+		const editorCamera = viewport.editorCamera;
+		const cameraEntity = editorCamera.getCameraEntity( this._engine );
 
 		if ( ! cameraEntity ) return false;
 
 		const selected = this._getSelectedEntity();
 
 		// カメラビュー中でも選択があればそれを動かし、無選択かカメラ自身を選択中のときだけ視点カメラを動かす
-		const selfView = this._editorCamera.view === 'camera' && ( ! selected || selected === cameraEntity );
+		const selfView = editorCamera.view === 'camera' && ( ! selected || selected === cameraEntity );
 
 		// カメラ自身のスケールはビュー行列を歪ませるだけなので開始しない
 		if ( selfView && mode === 'scale' ) return false;
@@ -334,7 +340,7 @@ export class ModalTransformHandler {
 		window.addEventListener( 'pointermove', onMove, { capture: true } );
 		window.addEventListener( 'pointerdown', onDown, { capture: true } );
 
-		const orbitControls = this._editorCamera.orbitControls;
+		const orbitControls = editorCamera.orbitControls;
 
 		// preview カメラモードでは元から false なので、無条件 true 復元にはしない
 		const prevOrbitEnabled = orbitControls.enabled;
@@ -343,6 +349,7 @@ export class ModalTransformHandler {
 		this._session = {
 			mode,
 			entity,
+			canvas: viewport.canvas,
 			selfView,
 			constraint: null,
 			numberBuffer: '',
@@ -365,7 +372,7 @@ export class ModalTransformHandler {
 			anchorWorldPos,
 			projInv: camera.projectionMatrix.clone().inverse(),
 			viewInv: camera.viewMatrix.clone().inverse(),
-			centerClient: this._projectToClient( startWorldPos, camera ),
+			centerClient: this._projectToClient( startWorldPos, camera, viewport.canvas ),
 			startPointer: this._pointerClient.clone(),
 			lastPointer: this._pointerClient.clone(),
 			disposeSession: () => {
@@ -762,23 +769,23 @@ export class ModalTransformHandler {
 	// クライアント座標からピッキングレイを作る。カメラ自身を動かしてもレイが揺れないよう開始時に凍結した行列を使う
 	private _rayFromClient( client: MTP.Vector, session: ModalSession ): MXP.Ray {
 
-		const ndc = clientToNDC( this._canvas, client.x, client.y );
+		const ndc = clientToNDC( session.canvas, client.x, client.y );
 
 		return new MXP.Ray().setFromCamera( ndc, session.projInv, session.viewInv );
 
 	}
 
 	// ワールド座標を canvas 上のクライアント座標へ投影する（回転角・スケール比の中心に使う）
-	private _projectToClient( worldPos: MTP.Vector, camera: MXP.Camera ): MTP.Vector {
+	private _projectToClient( worldPos: MTP.Vector, camera: MXP.Camera, canvas: HTMLCanvasElement ): MTP.Vector {
 
 		const clip = new MTP.Vector( worldPos.x, worldPos.y, worldPos.z, 1 )
 			.applyMatrix4( camera.viewMatrix )
 			.applyMatrix4( camera.projectionMatrix );
 
 		// カメラ平面上（w≒0）だと投影が発散するので画面中央へ逃がす
-		if ( Math.abs( clip.w ) < 0.0001 ) return ndcToClient( this._canvas, 0, 0 );
+		if ( Math.abs( clip.w ) < 0.0001 ) return ndcToClient( canvas, 0, 0 );
 
-		return ndcToClient( this._canvas, clip.x / clip.w, clip.y / clip.w );
+		return ndcToClient( canvas, clip.x / clip.w, clip.y / clip.w );
 
 	}
 

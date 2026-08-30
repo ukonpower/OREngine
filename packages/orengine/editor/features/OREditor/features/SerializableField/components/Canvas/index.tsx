@@ -4,9 +4,10 @@ import { useOREditor } from "../../../../hooks/useOREditor";
 
 import style from './index.module.scss';
 
-export const Canvas: React.FC = () => {
+// ビューポートの表示先。マウント中だけエディタにビューポートを作り、アンマウントで破棄する
+export const Canvas: React.FC<{ viewportId: string }> = ( { viewportId } ) => {
 
-	const { engine } = useOREditor();
+	const { engine, editor } = useOREditor();
 	const wrapperElmRef = useRef<HTMLDivElement | null>( null );
 
 	useEffect( () => {
@@ -14,6 +15,7 @@ export const Canvas: React.FC = () => {
 		const wrapperElm = wrapperElmRef.current;
 		if ( ! engine || ! wrapperElm ) return;
 
+		// 表示先には GL コンテキストを持つエンジンの canvas をそのまま使う
 		const canvas = engine.canvas as HTMLCanvasElement;
 		if ( ! canvas ) {
 
@@ -22,11 +24,13 @@ export const Canvas: React.FC = () => {
 
 		}
 
-		// キャンバスの追加
 		wrapperElm.appendChild( canvas );
 
-		// クリーンアップ関数
+		const viewport = editor.createViewport( viewportId, canvas );
+
 		return () => {
+
+			viewport.dispose();
 
 			if ( wrapperElm.contains( canvas ) ) {
 
@@ -36,7 +40,7 @@ export const Canvas: React.FC = () => {
 
 		};
 
-	}, [ engine ] );
+	}, [ engine, editor, viewportId ] );
 
 	return (
 		<div

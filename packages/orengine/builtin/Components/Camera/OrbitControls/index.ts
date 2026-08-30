@@ -381,6 +381,8 @@ export class OrbitControls extends MXP.Component {
 		super.dispose();
 		this._pointer.dispose();
 
+		if ( this.elmDisposer ) this.elmDisposer();
+
 	}
 
 

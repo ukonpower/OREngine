@@ -21,12 +21,12 @@
 	"helpers/camera": true,
 	"helpers/light": true,
 	"helpers/wireframe": false,
-	"camera/position": [
+	"viewports/main/camera/position": [
 		0.05483466718929176,
 		2.1441760888120505,
 		12.417943092713458
 	],
-	"camera/target": [
+	"viewports/main/camera/target": [
 		0,
 		0,
 		0

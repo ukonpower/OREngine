@@ -471,13 +471,17 @@ export class WebGPUEditorDraw implements EditorDrawContract {
 
 	public onDrawPass( cb: ( frame: EditorFrame, label: string ) => void ) {
 
-		this._renderer.on( 'drawPass', ( view?: GPUTextureView, width?: number, height?: number, label?: string ) => {
+		const listener = ( view?: GPUTextureView, width?: number, height?: number, label?: string ) => {
 
 			if ( ! view ) return;
 
 			cb( new GPUEditorFrame( view, width || 1, height || 1 ), label || '' );
 
-		} );
+		};
+
+		this._renderer.on( 'drawPass', listener );
+
+		return () => this._renderer.off( 'drawPass', listener );
 
 	}
 
