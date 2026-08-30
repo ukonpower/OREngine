@@ -87,6 +87,10 @@ export class Viewport {
 
 	public resize( resolution: MTP.Vector ) {
 
+		// drawToCanvas は等倍で写すので、表示 canvas の画素数は描画解像度と一致させる
+		this.canvas.width = resolution.x;
+		this.canvas.height = resolution.y;
+
 		this.editorCamera.resize( resolution );
 		this.frameDebugger.resize( resolution );
 

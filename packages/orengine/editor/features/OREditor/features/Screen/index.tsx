@@ -15,16 +15,17 @@ import { AudioView } from './features/AudioView';
 import { CameraPad } from './features/CameraPad';
 import style from './index.module.scss';
 
-// Screen パネルはレイアウト内に1つなので、ビューポートの id は固定でよい
-const VIEWPORT_ID = "main";
+// パネルレイアウト上の Screen の定義 id。タブ id は "viewport:<viewportId>" になる
+export const VIEWPORT_PANEL_ID = "viewport";
 
-export const Screen = () => {
+// 1つのビューポートを表示する画面。viewportId ごとに独立した視点・設定（viewports/<id>/…）を持つ
+export const Screen: React.FC<{ viewportId: string }> = ( { viewportId } ) => {
 
 	const { editor } = useOREditor();
 	const layout = useLayout();
 
 	const [ render, setRender ] = useSerializableField<boolean>( editor, "enableRender" );
-	const [ preview, setPreview ] = useSerializableField<boolean>( editor, `viewports/${VIEWPORT_ID}/preview` );
+	const [ preview, setPreview ] = useSerializableField<boolean>( editor, `viewports/${viewportId}/preview` );
 	const [ viewType, setViewType ] = useSerializableField<string>( editor, "viewType" );
 	const [ resolutionScale, setResolutionScale ] = useSerializableField<number>( editor, "resolutionScale" );
 	const [ gizmoMode, setGizmoMode ] = useSerializableField<string>( editor, "gizmoMode" );
@@ -226,7 +227,7 @@ export const Screen = () => {
 			</div>
 			{modalStatus && <div className={style.modalStatus}>{modalStatus}</div>}
 			<div className={style.canvas}>
-				<Canvas viewportId={VIEWPORT_ID} />
+				<Canvas viewportId={viewportId} />
 			</div>
 			{layout.isSP && <CameraPad />}
 			{layout.isPC && showAudioView && <>
