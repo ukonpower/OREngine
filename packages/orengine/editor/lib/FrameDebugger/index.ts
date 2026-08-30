@@ -5,6 +5,7 @@ import * as MXP from 'maxpower';
 export class FrameDebugger extends EventEmitter {
 
 	private _draw: MXP.EditorDrawContract;
+	private _view: MXP.RenderViewContract;
 	private _elm: HTMLCanvasElement;
 
 	// buffers
@@ -33,11 +34,12 @@ export class FrameDebugger extends EventEmitter {
 
 	private _overlay: HTMLDivElement;
 
-	constructor( canvas: HTMLCanvasElement, draw: MXP.EditorDrawContract ) {
+	constructor( canvas: HTMLCanvasElement, draw: MXP.EditorDrawContract, view: MXP.RenderViewContract ) {
 
 		super();
 
 		this._draw = draw;
+		this._view = view;
 		this._elm = canvas;
 
 		this._outTarget = draw.createTarget();
@@ -173,7 +175,7 @@ export class FrameDebugger extends EventEmitter {
 
 			}
 
-			this._draw.blit( frame, this._outTarget, {
+			this._draw.blit( this._view, frame, this._outTarget, {
 				x, y,
 				width: this._tilePixelSize.x,
 				height: this._tilePixelSize.y,
@@ -189,7 +191,7 @@ export class FrameDebugger extends EventEmitter {
 
 	public draw() {
 
-		this._draw.blit( this._outTarget, null );
+		this._draw.blit( this._view, this._outTarget, null );
 
 		this._drawLabels();
 

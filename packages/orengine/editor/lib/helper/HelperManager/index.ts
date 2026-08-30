@@ -73,7 +73,7 @@ export class HelperManager {
 
 	}
 
-	public render( cameraEntity: MXP.Entity | null, engine: Engine, selectedEntityId: string | null ) {
+	public render( view: MXP.RenderViewContract, cameraEntity: MXP.Entity | null, engine: Engine, selectedEntityId: string | null ) {
 
 		if ( ! this._showHelpers ) return;
 
@@ -137,6 +137,7 @@ export class HelperManager {
 		if ( helperEntities.length > 0 ) {
 
 			this._draw.renderEntities( {
+				view,
 				camera: cameraEntity,
 				entities: helperEntities,
 				target: null,

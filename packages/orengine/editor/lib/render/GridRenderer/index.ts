@@ -40,7 +40,7 @@ export class GridRenderer {
 
 	}
 
-	public render( cameraEntity: MXP.Entity | null, engine: Engine ) {
+	public render( view: MXP.RenderViewContract, cameraEntity: MXP.Entity | null, engine: Engine ) {
 
 		if ( ! this._showGrid ) return;
 
@@ -64,6 +64,7 @@ export class GridRenderer {
 		this._entity.update( engine.createEntityUpdateEvent() );
 
 		this._draw.renderEntities( {
+			view,
 			camera: cameraEntity,
 			entities: [ this._entity ],
 			target: null,

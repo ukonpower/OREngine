@@ -69,7 +69,7 @@ export class ConstraintAxisRenderer {
 
 	}
 
-	public render( display: ConstraintDisplay | null, cameraEntity: MXP.Entity | null, engine: Engine ) {
+	public render( view: MXP.RenderViewContract, display: ConstraintDisplay | null, cameraEntity: MXP.Entity | null, engine: Engine ) {
 
 		if ( ! display || ! cameraEntity ) return;
 
@@ -87,6 +87,7 @@ export class ConstraintAxisRenderer {
 		this._root.update( engine.createEntityUpdateEvent() );
 
 		this._draw.renderEntities( {
+			view,
 			camera: cameraEntity,
 			entities: display.axes.map( ( axis ) => this._axisEntities[ axis ] ),
 			target: null,

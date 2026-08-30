@@ -53,13 +53,11 @@ export class HeadlessEditorDraw implements EditorDrawContract {
 
 	}
 
-	public createTarget( opt?: { useSceneDepth?: boolean; size?: MTP.Vector } ): EditorTarget {
+	public createTarget( opt?: { size?: MTP.Vector } ): EditorTarget {
 
 		return new HeadlessTarget( opt && opt.size );
 
 	}
-
-	public present() {}
 
 	public resize( resolution: MTP.Vector ) {
 

@@ -1,6 +1,7 @@
 import { Output, BufferTarget, Mp4OutputFormat, CanvasSource } from 'mediabunny';
 
 import * as MTP from 'mathpower';
+import * as MXP from 'maxpower';
 
 import { Engine } from '../../../core/Engine';
 
@@ -20,10 +21,12 @@ export interface SceneExporterProgress {
 export class SceneExporter {
 
 	private _engine: Engine;
+	private _view: MXP.RenderViewContract;
 
-	constructor( engine: Engine ) {
+	constructor( engine: Engine, view: MXP.RenderViewContract ) {
 
 		this._engine = engine;
+		this._view = view;
 
 	}
 
@@ -58,6 +61,7 @@ export class SceneExporter {
 		for ( let f = 0; f < totalFrames; f ++ ) {
 
 			this._engine.updateOffline( f, fps );
+			this._engine.renderer.present( this._view );
 
 			await videoSource.add( f / fps, 1 / fps );
 

@@ -35,7 +35,7 @@ export class WireframeRenderer {
 
 	}
 
-	public render( cameraEntity: MXP.Entity | null, engine: Engine ) {
+	public render( view: MXP.RenderViewContract, cameraEntity: MXP.Entity | null, engine: Engine ) {
 
 		if ( ! this._showWireframe ) return;
 
@@ -66,6 +66,7 @@ export class WireframeRenderer {
 		}
 
 		this._draw.renderEntities( {
+			view,
 			camera: cameraEntity,
 			entities: meshEntities,
 			target: null,

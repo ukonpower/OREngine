@@ -64,6 +64,7 @@ export class Editor extends MXP.Serializable {
 	private _disposed: boolean;
 	private _api: EditorAPI;
 	private _draw: MXP.EditorDrawContract;
+	private _view: MXP.RenderViewContract;
 
 	private _editorCamera: EditorCamera;
 	private _gizmoManager: GizmoManager;
@@ -100,8 +101,9 @@ export class Editor extends MXP.Serializable {
 		this._disposed = false;
 		this._api = new EditorAPI( this );
 		this._draw = createEditorDraw( engine );
+		this._view = engine.createView();
 		this._assetPreviewManager = new AssetPreviewManager( this._draw );
-		this._sceneExporter = new SceneExporter( engine );
+		this._sceneExporter = new SceneExporter( engine, this._view );
 		this._isExporting = false;
 		this._exportProgress = null;
 
@@ -109,7 +111,7 @@ export class Editor extends MXP.Serializable {
 			Modules
 		-------------------------------*/
 
-		this._editorCamera = new EditorCamera( engine );
+		this._editorCamera = new EditorCamera( engine, this._view );
 		this._gizmoManager = new GizmoManager( engine, this._draw );
 		this._helperManager = new HelperManager( engine, this._draw );
 		this._gridRenderer = new GridRenderer( engine, this._draw );
@@ -206,7 +208,7 @@ export class Editor extends MXP.Serializable {
 			Frame Debugger
 		-------------------------------*/
 
-		this._frameDebugger = new FrameDebugger( engine.canvas as HTMLCanvasElement, this._draw );
+		this._frameDebugger = new FrameDebugger( engine.canvas as HTMLCanvasElement, this._draw, this._view );
 
 		/*-------------------------------
 			Audio
@@ -497,21 +499,23 @@ export class Editor extends MXP.Serializable {
 				: null;
 
 			const preview = this._editorCamera.preview;
+			const view = this._view;
 
 			if ( ! preview ) {
 
 				// ヘルパーやワイヤより先に敷いて、上に載る線を隠さないようにする
-				this._gridRenderer.render( cameraEntity, this._engine );
+				this._gridRenderer.render( view, cameraEntity, this._engine );
 
-				this._helperManager.render( cameraEntity, this._engine, this._selectedEntityId );
+				this._helperManager.render( view, cameraEntity, this._engine, this._selectedEntityId );
 
-				this._wireframeRenderer.render( cameraEntity, this._engine );
+				this._wireframeRenderer.render( view, cameraEntity, this._engine );
 
 			}
 
 			// プレビュー中はターゲット無しで呼び、ギズモの visible とヒット判定も落とす。
 			// モーダル変形中はギズモが変形結果に追従してちらつくので出さない
 			this._gizmoManager.render(
+				view,
 				preview || this._modalTransformHandler.active ? null : selectedEntity,
 				cameraEntity,
 				this._engine
@@ -519,9 +523,9 @@ export class Editor extends MXP.Serializable {
 
 			if ( ! preview ) {
 
-				this._constraintAxisRenderer.render( this._modalTransformHandler.constraintDisplay, cameraEntity, this._engine );
+				this._constraintAxisRenderer.render( view, this._modalTransformHandler.constraintDisplay, cameraEntity, this._engine );
 
-				this._selectionOutline.render( selectedEntity, cameraEntity );
+				this._selectionOutline.render( view, selectedEntity, cameraEntity );
 
 			}
 
@@ -532,7 +536,7 @@ export class Editor extends MXP.Serializable {
 
 			}
 
-			this._draw.present();
+			this._engine.renderer.present( view );
 
 			this._editorCamera.updateAfterRender( this._engine );
 
@@ -601,11 +605,12 @@ export class Editor extends MXP.Serializable {
 		const wasPlaying = this._engine.frame.playing;
 		this._engine.stop();
 
-		const prevCameraEntity = this._engine.cameraEntity;
-		this._engine.cameraEntity = null;
-
-		// 書き出しは本番同等のパイプラインで行う
-		this._engine.renderer.setPipelineOverride( null );
+		// 書き出しは本番同等（シーンカメラ・上書きなし）で行う
+		const view = this._view;
+		const prevCamera = view.camera;
+		const prevOverride = view.pipelineOverride;
+		view.camera = null;
+		view.pipelineOverride = null;
 
 		try {
 
@@ -631,8 +636,8 @@ export class Editor extends MXP.Serializable {
 
 		}
 
-		this._engine.cameraEntity = prevCameraEntity;
-		this._editorCamera.syncPipelineOverride( this._engine );
+		view.camera = prevCamera;
+		view.pipelineOverride = prevOverride;
 
 		this._isExporting = false;
 		this._exportProgress = null;
@@ -817,6 +822,7 @@ export class Editor extends MXP.Serializable {
 		this._modalTransformHandler.dispose();
 		this._frameDebugger.dispose();
 		this._assetPreviewManager.dispose();
+		this._engine.removeView( this._view );
 
 	}
 
