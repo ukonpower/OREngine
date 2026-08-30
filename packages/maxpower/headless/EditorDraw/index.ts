@@ -67,7 +67,11 @@ export class HeadlessEditorDraw implements EditorDrawContract {
 
 	}
 
-	public onDrawPass() {}
+	public onDrawPass() {
+
+		return () => {};
+
+	}
 
 	public materials = {
 		flat: (): MaterialContract => ( { name: "editorFlat" } ),

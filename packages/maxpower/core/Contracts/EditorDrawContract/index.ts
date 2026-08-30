@@ -76,8 +76,8 @@ export interface EditorDrawContract {
 
 	resize( resolution: MTP.Vector ): void;
 
-	// 各パス完了ごとに不透明ハンドルを通知（FrameDebuggerの観測はこのイベントが正）
-	onDrawPass( cb: ( frame: EditorFrame, label: string ) => void ): void;
+	// 各パス完了ごとに不透明ハンドルを通知（FrameDebuggerの観測はこのイベントが正）。戻り値で購読を解除する
+	onDrawPass( cb: ( frame: EditorFrame, label: string ) => void ): () => void;
 
 	// バックエンド言語で実装された固定シェーダーレシピ
 	materials: {

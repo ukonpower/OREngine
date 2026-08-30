@@ -327,7 +327,7 @@ export class GLEditorDraw implements EditorDrawContract {
 
 	public onDrawPass( cb: ( frame: EditorFrame, label: string ) => void ) {
 
-		this._renderer.on( "drawPass", ( frameBuffer?: GLP.GLPowerFrameBuffer | GLP.GLPowerFrameBufferCube, label?: string ) => {
+		const listener = ( frameBuffer?: GLP.GLPowerFrameBuffer | GLP.GLPowerFrameBufferCube, label?: string ) => {
 
 			if ( ! frameBuffer ) return;
 
@@ -342,7 +342,11 @@ export class GLEditorDraw implements EditorDrawContract {
 
 			}
 
-		} );
+		};
+
+		this._renderer.on( "drawPass", listener );
+
+		return () => this._renderer.off( "drawPass", listener );
 
 	}
 

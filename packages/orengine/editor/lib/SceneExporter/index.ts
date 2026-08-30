@@ -1,7 +1,6 @@
 import { Output, BufferTarget, Mp4OutputFormat, CanvasSource } from 'mediabunny';
 
 import * as MTP from 'mathpower';
-import * as MXP from 'maxpower';
 
 import { Engine } from '../../../core/Engine';
 
@@ -18,17 +17,14 @@ export interface SceneExporterProgress {
 	phase: 'encoding' | 'finalizing' | 'done';
 }
 
+// シーンを本番同等（シーンカメラ・上書きなし）で描いて MP4 に書き出す
 export class SceneExporter {
 
 	private _engine: Engine;
-	private _draw: MXP.EditorDrawContract;
-	private _view: MXP.RenderViewContract;
 
-	constructor( engine: Engine, draw: MXP.EditorDrawContract, view: MXP.RenderViewContract ) {
+	constructor( engine: Engine ) {
 
 		this._engine = engine;
-		this._draw = draw;
-		this._view = view;
 
 	}
 
@@ -44,6 +40,9 @@ export class SceneExporter {
 		const prevResolution = this._engine.renderer.resolution.clone();
 		this._engine.setSize( resolution );
 
+		// 書き出し中だけの専用ビュー。offscreen でないので render の最後でエンジンの canvas に出る
+		const view = this._engine.createView();
+
 		const target = new BufferTarget();
 		const output = new Output( {
 			format: new Mp4OutputFormat(),
@@ -58,43 +57,49 @@ export class SceneExporter {
 
 		output.addVideoTrack( videoSource );
 
-		await output.start();
+		try {
 
-		for ( let f = 0; f < totalFrames; f ++ ) {
+			await output.start();
 
-			this._engine.updateOffline( f, fps );
-			this._engine.render( this._view );
-			this._draw.drawToCanvas( this._view, canvas as HTMLCanvasElement );
+			for ( let f = 0; f < totalFrames; f ++ ) {
 
-			await videoSource.add( f / fps, 1 / fps );
+				this._engine.updateOffline( f, fps );
+				this._engine.render( view );
+
+				await videoSource.add( f / fps, 1 / fps );
+
+				if ( onProgress ) {
+
+					onProgress( {
+						current: f + 1,
+						total: totalFrames,
+						phase: 'encoding',
+					} );
+
+				}
+
+				if ( f % 10 === 0 ) {
+
+					await new Promise( r => setTimeout( r, 0 ) );
+
+				}
+
+			}
 
 			if ( onProgress ) {
 
-				onProgress( {
-					current: f + 1,
-					total: totalFrames,
-					phase: 'encoding',
-				} );
+				onProgress( { current: totalFrames, total: totalFrames, phase: 'finalizing' } );
 
 			}
 
-			if ( f % 10 === 0 ) {
+			await output.finalize();
 
-				await new Promise( r => setTimeout( r, 0 ) );
+		} finally {
 
-			}
-
-		}
-
-		if ( onProgress ) {
-
-			onProgress( { current: totalFrames, total: totalFrames, phase: 'finalizing' } );
+			view.dispose();
+			this._engine.setSize( prevResolution );
 
 		}
-
-		await output.finalize();
-
-		this._engine.setSize( prevResolution );
 
 		if ( onProgress ) {
 

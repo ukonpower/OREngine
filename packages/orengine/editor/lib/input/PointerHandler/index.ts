@@ -20,6 +20,22 @@ const HELPER_ASSIST_RADIUS_PX = 12;
 // カメラの枠線（錐台のワイヤ・ビューポートの縁）のクリックをカメラ選択として拾う許容距離（px）
 const FRAME_SELECT_RADIUS_PX = 12;
 
+export type PointerHandlerParam = {
+	engine: Engine;
+	// ポインタを受ける表示 canvas。NDC 変換もこの要素の矩形で行う
+	canvas: HTMLCanvasElement;
+	editorCamera: EditorCamera;
+	gizmoManager: GizmoManager;
+	helperManager: HelperManager;
+	api: EditorAPI;
+	getSelectedEntityId: () => string | null;
+	isEntitySelectable: ( entity: MXP.Entity ) => boolean;
+	getGizmoMode: () => GizmoMode;
+	onSelectEntity: ( entity: MXP.Entity | null ) => void;
+	isModalActive: () => boolean;
+	onEscapeToEditorCamera: () => void;
+};
+
 export class PointerHandler {
 
 	private _raycaster: MXP.Raycaster;
@@ -32,19 +48,21 @@ export class PointerHandler {
 	private _lastClickCycleIndex: number;
 	private _disposeListeners: () => void;
 
-	constructor(
-		engine: Engine,
-		editorCamera: EditorCamera,
-		gizmoManager: GizmoManager,
-		helperManager: HelperManager,
-		api: EditorAPI,
-		getSelectedEntityId: () => string | null,
-		isEntitySelectable: ( entity: MXP.Entity ) => boolean,
-		getGizmoMode: () => GizmoMode,
-		onSelectEntity: ( entity: MXP.Entity | null ) => void,
-		isModalActive: () => boolean,
-		onEscapeToEditorCamera: () => void,
-	) {
+	constructor( param: PointerHandlerParam ) {
+
+		const {
+			engine,
+			editorCamera,
+			gizmoManager,
+			helperManager,
+			api,
+			getSelectedEntityId,
+			isEntitySelectable,
+			getGizmoMode,
+			onSelectEntity,
+			isModalActive,
+			onEscapeToEditorCamera,
+		} = param;
 
 		this._raycaster = new MXP.Raycaster();
 		this._pointerDownPos = null;
@@ -55,7 +73,7 @@ export class PointerHandler {
 		this._lastClickCandidateUUIDs = [];
 		this._lastClickCycleIndex = - 1;
 
-		const canvasElm = engine.canvas as HTMLCanvasElement;
+		const canvasElm = param.canvas;
 
 		const getCameraEntity = (): MXP.Entity | null => {
 

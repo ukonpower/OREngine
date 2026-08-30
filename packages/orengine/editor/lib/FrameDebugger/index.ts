@@ -65,7 +65,7 @@ export class FrameDebugger extends EventEmitter {
 
 		// パス出力の取り込み
 
-		draw.onDrawPass( ( frame, label ) => this._push( frame, label ) );
+		const offDrawPass = draw.onDrawPass( ( frame, label ) => this._push( frame, label ) );
 
 		// click
 
@@ -136,6 +136,7 @@ export class FrameDebugger extends EventEmitter {
 
 		this.once( "dispose", () => {
 
+			offDrawPass();
 			this._elm.removeEventListener( "pointerdown", onPointerDown );
 			this._elm.removeEventListener( "pointerup", onPointerUp );
 			window.removeEventListener( "keydown", onKeydown );

@@ -12,7 +12,7 @@
 	"selectedAsset": null,
 	"navigateAsset": null,
 	"propertyTarget": "entity",
-	"cameraView": "editor",
+	"viewports/main/cameraView": "editor",
 	"preview": false,
 	"gizmoMode": "translate",
 	"transformOrientation": "global",
@@ -24,12 +24,12 @@
 	"helpers/wireframe": false,
 	"helpers/gizmo": true,
 	"helpers/outline": true,
-	"camera/position": [
+	"viewports/main/camera/position": [
 		-6.036112537975983,
 		1.0161452790609298,
 		14.099501022566667
 	],
-	"camera/target": [
+	"viewports/main/camera/target": [
 		-0.005950683445575047,
 		0.9394885335807147,
 		-1.3476009279825334
