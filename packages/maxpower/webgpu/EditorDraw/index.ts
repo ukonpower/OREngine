@@ -15,7 +15,9 @@ import outlineWgsl from './shaders/outline.wgsl';
 import type { EditorDrawContract, EditorFrame, EditorRect, EditorRecipe, EditorRenderEntitiesParam, EditorTarget } from '../../core/Contracts/EditorDrawContract';
 import type { EngineContract } from '../../core/Contracts/EngineContract';
 import type { MaterialContract } from '../../core/Contracts/MaterialContract';
+import type { RenderViewContract } from '../../core/Contracts/RenderViewContract';
 import type { Renderer } from '../Renderer';
+import type { RenderView } from '../Renderer/RenderView';
 
 // HMRで差し替わるシェーダーソース。playerでは初期値のまま使われる
 let hotCopyWgsl = copyWgsl;
@@ -44,7 +46,7 @@ if ( import.meta.hot ) {
 /*-------------------------------
 	エディタ描画のWebGPU実装
 
-	重ね描きの流れは webgl 側と同じで、レンダラーが最後に画面へ出したテクスチャ（uiView）へ
+	重ね描きの流れは webgl 側と同じで、ビューの最終出力（outputView）へ
 	gizmo / wireframe / outline を描き足し、present で出し直す。
 
 	中間ターゲットはすべてシーンと同じ rgba16float に揃えている。
@@ -77,15 +79,13 @@ class GPUEditorTarget extends GPUEditorFrame implements EditorTarget {
 	public texture: GPUTexture | null;
 	// sizeを指定せず作られたターゲットは解像度に追従する
 	public readonly autoResize: boolean;
-	public readonly useSceneDepth: boolean;
 
-	constructor( texture: GPUTexture | null, autoResize: boolean, useSceneDepth: boolean ) {
+	constructor( texture: GPUTexture | null, autoResize: boolean ) {
 
 		super( texture ? texture.createView() : ( null as unknown as GPUTextureView ), texture ? texture.width : 0, texture ? texture.height : 0 );
 
 		this.texture = texture;
 		this.autoResize = autoResize;
-		this.useSceneDepth = useSceneDepth;
 
 	}
 
@@ -133,14 +133,18 @@ export class WebGPUEditorDraw implements EditorDrawContract {
 	private _copyPass: EditorPass | null;
 	private _outlinePass: EditorPass | null;
 
+	// 出力先 canvas ごとの configure 済みコンテキスト
+	private _canvasContexts: WeakMap<HTMLCanvasElement, GPUCanvasContext>;
+
 	constructor( renderer: Renderer ) {
 
 		this._renderer = renderer;
 		this._resolution = new MTP.Vector();
 		this._targets = [];
-		this._fullscreenTarget = new GPUEditorTarget( null, true, false );
+		this._fullscreenTarget = new GPUEditorTarget( null, true );
 		this._copyPass = null;
 		this._outlinePass = null;
+		this._canvasContexts = new WeakMap();
 
 		if ( import.meta.hot ) {
 
@@ -223,17 +227,19 @@ export class WebGPUEditorDraw implements EditorDrawContract {
 
 		if ( ! device ) return;
 
+		const view = opt.view as RenderView;
 		const target = opt.target as GPUEditorTarget | null;
-		const view = target ? target.view : this._renderer.uiView;
+		const colorView = target ? target.view : view.outputView;
 
-		if ( ! view ) return;
+		if ( ! colorView ) return;
 
 		this._renderer.renderEditorEntities( {
-			entities: opt.entities,
 			view,
+			entities: opt.entities,
+			colorView,
 			format: SCENE_FORMAT,
-			// uiへの重ね描きと、シーン深度を借りたターゲットだけ深度テストする
-			depthView: ( target === null || target.useSceneDepth ) ? this._renderer.sceneDepthView : null,
+			// uiへの重ね描きと、シーン深度を借りるターゲットだけ深度テストする
+			depthView: ( target === null || opt.useSceneDepth ) ? view.targets.depthView : null,
 			// uiバッファへはシーンの上に重ねるためクリアせず、自前ターゲットは毎回クリアする
 			clear: target !== null,
 			material: ( opt.materialOverride as Material | undefined ) || null,
@@ -242,7 +248,7 @@ export class WebGPUEditorDraw implements EditorDrawContract {
 
 	}
 
-	public renderFullscreen( recipe: EditorRecipe, target: EditorTarget | null ) {
+	public renderFullscreen( renderView: RenderViewContract, recipe: EditorRecipe, target: EditorTarget | null ) {
 
 		const device = this._ready();
 
@@ -250,7 +256,7 @@ export class WebGPUEditorDraw implements EditorDrawContract {
 
 		const r = recipe as GPUEditorRecipe;
 		const dst = target as GPUEditorTarget | null;
-		const view = dst ? dst.view : this._renderer.uiView;
+		const view = dst ? dst.view : ( renderView as RenderView ).outputView;
 
 		if ( ! view || ! r.mask.view || ! this._fullscreenTarget.view ) return;
 
@@ -265,7 +271,7 @@ export class WebGPUEditorDraw implements EditorDrawContract {
 
 	}
 
-	public blit( src: EditorFrame, dst: EditorTarget | null, dstRect?: EditorRect ) {
+	public blit( renderView: RenderViewContract, src: EditorFrame, dst: EditorTarget | null, dstRect?: EditorRect ) {
 
 		const device = this._ready();
 
@@ -273,7 +279,7 @@ export class WebGPUEditorDraw implements EditorDrawContract {
 
 		const s = src as GPUEditorFrame;
 		const target = dst as GPUEditorTarget | null;
-		const view = target ? target.view : this._renderer.uiView;
+		const view = target ? target.view : ( renderView as RenderView ).outputView;
 
 		if ( ! view || ! s.view ) return;
 
@@ -300,6 +306,33 @@ export class WebGPUEditorDraw implements EditorDrawContract {
 		// フレーム記録中（drawPass通知経由）はレンダラーのencoderへ差し込み、
 		// パス出力直後の内容を写す。フレーム外では自前でsubmitする
 		this._copyPass.render( view, [ s.view ], { rect, encoder: this._renderer.frameEncoder || undefined } );
+
+	}
+
+	public drawToCanvas( renderView: RenderViewContract, canvas: HTMLCanvasElement ) {
+
+		const renderer = this._renderer;
+		const device = renderer.device;
+		const view = renderView as RenderView;
+
+		if ( ! device || ! view.outputView ) return;
+
+		// device は canvas に縛られないので、canvas ごとに configure して present パスを直接打つ
+		let context = canvas === renderer.canvas ? renderer.context : this._canvasContexts.get( canvas );
+
+		if ( ! context ) {
+
+			context = canvas.getContext( 'webgpu' )!;
+			context.configure( { device, format: renderer.canvasFormat, alphaMode: 'opaque' } );
+			this._canvasContexts.set( canvas, context );
+
+		}
+
+		const encoder = device.createCommandEncoder();
+
+		renderer.renderPresent( device, encoder, context.getCurrentTexture().createView(), view );
+
+		device.queue.submit( [ encoder.finish() ] );
 
 	}
 
@@ -398,21 +431,15 @@ export class WebGPUEditorDraw implements EditorDrawContract {
 
 	}
 
-	public present() {
-
-		this._renderer.presentToCanvas();
-
-	}
-
 	/*-------------------------------
 		Resource
 	-------------------------------*/
 
-	public createTarget( opt?: { useSceneDepth?: boolean; size?: MTP.Vector } ) {
+	public createTarget( opt?: { size?: MTP.Vector } ) {
 
 		const device = this._ready();
 		const size = opt && opt.size || this._renderer.resolution;
-		const target = new GPUEditorTarget( null, ! ( opt && opt.size ), !! ( opt && opt.useSceneDepth ) );
+		const target = new GPUEditorTarget( null, ! ( opt && opt.size ) );
 
 		if ( device ) this._allocate( device, target, size );
 

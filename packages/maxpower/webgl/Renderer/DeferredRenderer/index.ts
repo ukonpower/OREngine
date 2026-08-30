@@ -1,4 +1,3 @@
-import * as BSP from 'basepower';
 import { EventEmitter } from 'basepower';
 import * as GLP from 'glpower';
 import * as MTP from 'mathpower';
@@ -37,7 +36,9 @@ const ssaoKernel = ( kernelSize: number ) => {
 type Params = {
 	backend: GLBackend;
 	envMap: GLP.GLPowerTexture;
-	envMapCube?: GLP.GLPowerTextureCube
+	envMapCube?: GLP.GLPowerTextureCube;
+	// 描画元の G-Buffer。ビュー固有なので生成時に一度だけ繋ぐ
+	renderTarget: MXP.RenderCameraTarget;
 }
 
 export type DeferredRendererPassConfig = {
@@ -69,7 +70,6 @@ export class DeferredRenderer extends EventEmitter {
 
 	public ssaoBlur: MXP.PostProcessPass;
 	public ssaoBlurV: MXP.PostProcessPass;
-	private ssaoBlurUni: BSP.Uniforms;
 
 	// shading
 
@@ -285,12 +285,41 @@ export class DeferredRenderer extends EventEmitter {
 
 		this.ssaoBlur = ssaoBlurH;
 		this.ssaoBlurV = ssaoBlurV;
-		this.ssaoBlurUni = ssaoBlurUni;
 
 		this.rtLightShaft1 = rtLightShaft1;
 		this.rtLightShaft2 = rtLightShaft2;
 
 		this.normalSelector_ = normalSelector;
+
+		const renderTarget = params.renderTarget;
+
+		for ( let i = 0; i < renderTarget.gBuffer.textures.length; i ++ ) {
+
+			let tex = renderTarget.gBuffer.textures[ i ];
+
+			if ( i === 1 ) {
+
+				tex = renderTarget.normalBuffer.textures[ 0 ];
+
+			}
+
+			shading.uniforms[ "sampler" + i ] = ssao.uniforms[ "sampler" + i ] = {
+				type: '1i',
+				value: tex
+			};
+
+		}
+
+		ssaoBlurH.uniforms.uDepthTexture.value = renderTarget.gBuffer.textures[ 0 ];
+		lightShaft.uniforms.uDepthTexture.value = renderTarget.gBuffer.depthTexture;
+		shading.renderTarget = renderTarget.shadingBuffer;
+
+		normalSelector.renderTarget = renderTarget.normalBuffer;
+		normalSelector.uniforms.uNormalTexture.value = renderTarget.gBuffer.textures[ 1 ];
+		normalSelector.uniforms.uPosTexture.value = renderTarget.gBuffer.textures[ 0 ];
+		normalSelector.uniforms.uSelectorTexture.value = renderTarget.gBuffer.textures[ 3 ];
+
+		ssaoBlurUni.uNormalTexture.value = renderTarget.normalBuffer.textures[ 0 ];
 
 		if ( import.meta.hot ) {
 
@@ -310,7 +339,8 @@ export class DeferredRenderer extends EventEmitter {
 
 	}
 
-	public update( _event: MXP.EntityUpdateEvent ): void {
+	// 描画後に呼び、LightShaft / SSAO の履歴を進める
+	public update(): void {
 
 		// light shaft swap
 
@@ -368,41 +398,19 @@ export class DeferredRenderer extends EventEmitter {
 
 	}
 
-	public setRenderCamera( _camera: MXP.Camera, renderTarget: MXP.RenderCameraTarget ) {
-
-		for ( let i = 0; i < renderTarget.gBuffer.textures.length; i ++ ) {
-
-			let tex = renderTarget.gBuffer.textures[ i ];
-
-			if ( i === 1 ) {
-
-				tex = renderTarget.normalBuffer.textures[ 0 ];
-
-			}
-
-			this.shading.uniforms[ "sampler" + i ] = this.ssao.uniforms[ "sampler" + i ] = {
-				type: '1i',
-				value: tex
-			};
-
-		}
-
-		this.ssaoBlur.uniforms.uDepthTexture.value = renderTarget.gBuffer.textures[ 0 ];
-		this.lightShaft.uniforms.uDepthTexture.value = renderTarget.gBuffer.depthTexture;
-		this.shading.renderTarget = renderTarget.shadingBuffer;
-
-		this.normalSelector_.renderTarget = renderTarget.normalBuffer;
-		this.normalSelector_.uniforms.uNormalTexture.value = renderTarget.gBuffer.textures[ 1 ];
-		this.normalSelector_.uniforms.uPosTexture.value = renderTarget.gBuffer.textures[ 0 ];
-		this.normalSelector_.uniforms.uSelectorTexture.value = renderTarget.gBuffer.textures[ 3 ];
-
-		this.ssaoBlurUni.uNormalTexture.value = renderTarget.normalBuffer.textures[ 0 ];
-
-	}
-
 	public resize( resolution: MTP.Vector ) {
 
 		this.postprocess.resize( resolution );
+
+	}
+
+	public dispose() {
+
+		this.postprocess.dispose();
+		this.rtLightShaft1.dispose();
+		this.rtLightShaft2.dispose();
+		this.rtSSAO1.dispose();
+		this.rtSSAO2.dispose();
 
 	}
 

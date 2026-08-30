@@ -8,6 +8,7 @@ import { Material } from '../Material';
 import { PostProcess } from '../PostProcess';
 import { PostProcessPass } from '../PostProcess/PostProcessPass';
 import { Renderer } from '../Renderer';
+import { RenderView } from '../Renderer/RenderView';
 
 import flatFrag from './shaders/flat.fs';
 import flatVert from './shaders/flat.vs';
@@ -119,9 +120,17 @@ export class GLEditorDraw implements EditorDrawContract {
 	public renderEntities( opt: EditorRenderEntitiesParam ) {
 
 		const renderer = this._renderer;
-		const target = opt.target ? ( opt.target as GLEditorTarget ).frameBuffer : renderer.renderTarget.uiBuffer;
+		const view = opt.view as RenderView;
+		const target = opt.target ? ( opt.target as GLEditorTarget ).frameBuffer : view.renderTarget.uiBuffer;
 		const override = opt.materialOverride as Material | undefined;
 		const restore: ( MaterialContract | null )[] = [];
+
+		// シーン深度はビューごとに違うので、描く直前にそのビューの G-Buffer から借りる
+		if ( opt.target && opt.useSceneDepth ) {
+
+			target.setDepthTexture( view.renderTarget.gBuffer.depthTexture );
+
+		}
 
 		if ( override ) {
 
@@ -172,7 +181,7 @@ export class GLEditorDraw implements EditorDrawContract {
 
 	}
 
-	public renderFullscreen( recipe: EditorRecipe, target: EditorTarget | null ) {
+	public renderFullscreen( view: RenderView, recipe: EditorRecipe, target: EditorTarget | null ) {
 
 		const r = recipe as GLEditorRecipe;
 		const renderer = this._renderer;
@@ -188,7 +197,7 @@ export class GLEditorDraw implements EditorDrawContract {
 
 		}
 
-		const ui = renderer.renderTarget.uiBuffer;
+		const ui = view.renderTarget.uiBuffer;
 		const res = renderer.resolution;
 
 		r.pass.renderTarget = this._fullscreenBuffer;
@@ -198,13 +207,13 @@ export class GLEditorDraw implements EditorDrawContract {
 
 	}
 
-	public blit( src: EditorFrame, dst: EditorTarget | null, dstRect?: EditorRect ) {
+	public blit( view: RenderView, src: EditorFrame, dst: EditorTarget | null, dstRect?: EditorRect ) {
 
 		const gl = this._gl;
 		const s = src as GLEditorFrame;
 
-		// dst省略時はuiバッファへ描く（presentで画面に出る。webgpu側と同じ契約）
-		const dstFrameBuffer = dst ? ( dst as GLEditorTarget ).frameBuffer : this._renderer.renderTarget.uiBuffer;
+		// dst省略時はuiバッファへ描く（drawToCanvas で画面に出る。webgpu側と同じ契約）
+		const dstFrameBuffer = dst ? ( dst as GLEditorTarget ).frameBuffer : view.renderTarget.uiBuffer;
 		const dstSize = dstFrameBuffer.size;
 
 		const rect = dstRect || { x: 0, y: 0, width: dstSize.x, height: dstSize.y };
@@ -226,6 +235,23 @@ export class GLEditorDraw implements EditorDrawContract {
 
 		gl.bindFramebuffer( gl.READ_FRAMEBUFFER, null );
 		gl.bindFramebuffer( gl.DRAW_FRAMEBUFFER, null );
+
+	}
+
+	public drawToCanvas( view: RenderView, canvas: HTMLCanvasElement ) {
+
+		const renderer = this._renderer;
+		const res = renderer.resolution;
+
+		// GL コンテキストは renderer の canvas に縛られていて他の canvas へ直接描けないので、
+		// いったん default framebuffer へ出してから 2D で写す（preserveDrawingBuffer 済みなので同期で読める）
+		renderer.backend.blit( view.renderTarget.uiBuffer, null, res.x, res.y );
+
+		if ( canvas !== renderer.canvas ) {
+
+			canvas.getContext( '2d' )!.drawImage( renderer.canvas, 0, 0 );
+
+		}
 
 	}
 
@@ -256,30 +282,14 @@ export class GLEditorDraw implements EditorDrawContract {
 
 	}
 
-	public present() {
-
-		const res = this._renderer.resolution;
-
-		if ( res.x === 0 || res.y === 0 ) return;
-
-		this._renderer.backend.blit( this._renderer.renderTarget.uiBuffer, null, res.x, res.y );
-
-	}
-
 	/*-------------------------------
 		Resource
 	-------------------------------*/
 
-	public createTarget( opt?: { useSceneDepth?: boolean; size?: MTP.Vector } ) {
+	public createTarget( opt?: { size?: MTP.Vector } ) {
 
 		const frameBuffer = new GLP.GLPowerFrameBuffer( this._gl, { disableDepthBuffer: true } )
 			.setTexture( [ new GLP.GLPowerTexture( this._gl ).setting( { magFilter: GL.LINEAR, minFilter: GL.LINEAR } ) ] );
-
-		if ( opt && opt.useSceneDepth ) {
-
-			frameBuffer.setDepthTexture( this._renderer.renderTarget.gBuffer.depthTexture as GLP.GLPowerTexture );
-
-		}
 
 		frameBuffer.setSize( opt && opt.size || this._renderer.resolution );
 

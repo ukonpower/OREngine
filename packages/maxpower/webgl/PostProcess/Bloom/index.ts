@@ -11,7 +11,7 @@ import bloomCompositeFrag from './shaders/bloomComposite.fs';
 
 export class Bloom extends PostProcess {
 
-	constructor( backend: GLBackend, srcTexture: GLP.GLPowerTexture ) {
+	constructor( backend: GLBackend ) {
 
 		const renderCount = 4;
 
@@ -45,10 +45,6 @@ export class Bloom extends PostProcess {
 			frag: bloomBrightFrag,
 			passThrough: true,
 			uniforms: {
-				uSrcTexture1: {
-					value: srcTexture,
-					type: '1i'
-				},
 				uThreshold: {
 					value: 1.8,
 					type: '1f'

@@ -17,26 +17,15 @@ import { MaterialRenderType, Material } from '../Material';
 import { PostProcess } from '../PostProcess';
 import { TexProcedural } from '../TexProcedural';
 
-import { DeferredRenderer } from './DeferredRenderer';
-import { PipelinePostProcess } from './PipelinePostProcess';
 import { PMREMRender } from './PMREMRender';
 import { ProgramManager } from './ProgramManager';
+import { RenderCameraTarget, RenderView } from './RenderView';
 import { Sky } from './Sky';
 
 import type { EngineContract } from '../../core/Contracts/EngineContract';
 import type { RendererContract } from '../../core/Contracts/RendererContract';
+import type { PipelineConfig, RenderViewContract, RenderViewOptions } from '../../core/Contracts/RenderViewContract';
 import type { TexProceduralParam } from '../../core/Contracts/TexProceduralContract';
-
-// render target
-
-export type RenderCameraTarget = {
-	gBuffer: GLP.GLPowerFrameBuffer,
-	shadingBuffer: GLP.GLPowerFrameBuffer,
-	forwardBuffer: GLP.GLPowerFrameBuffer,
-	refractionBuffer: GLP.GLPowerFrameBuffer,
-	uiBuffer: GLP.GLPowerFrameBuffer,
-	normalBuffer: GLP.GLPowerFrameBuffer,
-}
 
 // render stack
 
@@ -112,17 +101,6 @@ type GeometryBufferRecord = {
 	version: number,
 }
 
-// pipeline config
-
-export type PipelineConfig = {
-	motionBlur?: boolean;
-	motionBlurPower?: number;
-	ssr?: boolean;
-	ssao?: boolean;
-	lightShaft?: boolean;
-	dof?: boolean;
-};
-
 // default material
 
 // mesh.materialはバックエンド不透明型なので、webgl側でMaterialへ絞る（未設定時は既定マテリアル）
@@ -178,13 +156,13 @@ export class Renderer extends Serializable implements RendererContract {
 	public readonly canvas: HTMLCanvasElement;
 	public resolution: MTP.Vector;
 	public globalUniforms: BSP.Uniforms;
-	private _renderTarget: RenderCameraTarget;
 
-	// pipeline config
-	private _pipelineConfig: Required<PipelineConfig>;
+	// views
 
-	// エディタ等が一時的に被せる設定。_pipelineConfig（シーン本来の値・シリアライズ対象）を汚さないための層
-	private _pipelineOverride: PipelineConfig | null;
+	private _views: RenderView[];
+
+	// pipeline config（シーン本来の値・シリアライズ対象。ビューごとの上書きは RenderView が重ねる）
+	private _pipelineConfig: PipelineConfig;
 
 	// program
 
@@ -204,12 +182,13 @@ export class Renderer extends Serializable implements RendererContract {
 
 	private _envMapCameras: EnvMapCamera[];
 	private _envMapRenderTarget: GLP.GLPowerFrameBufferCube;
+	private _envMapCube: GLP.GLPowerTextureCube;
 	private _pmremRender: PMREMRender;
 
-	// postprocess
+	// frame（prepareScene で集め、同フレームの render が使う）
 
-	private _deferredRenderer: DeferredRenderer;
-	private _pipelinePostProcess: PipelinePostProcess;
+	private _stack: RenderStack;
+	private _sceneCamera: Entity | null;
 
 	// sky
 
@@ -236,6 +215,9 @@ export class Renderer extends Serializable implements RendererContract {
 	private _tmpResolutionUniform: BSP.Uniforms[string];
 	private _tmpUniformOverride: BSP.Uniforms;
 	private _tmpDrawParam: DrawParam;
+	// プロジェクト側のポストプロセスへ渡す、ビュー固有のテクスチャ
+	private _tmpShadingTexture: BSP.Uniforms[string];
+	private _tmpPostProcessUniforms: BSP.Uniforms;
 
 	constructor( backend: GLBackend, engine: EngineContract ) {
 
@@ -250,6 +232,9 @@ export class Renderer extends Serializable implements RendererContract {
 		this.programManager = new ProgramManager( backend );
 		this._geometryBuffers = new Map();
 		this.resolution = new MTP.Vector();
+		this._views = [];
+		this._stack = this._createRenderStack();
+		this._sceneCamera = null;
 
 		// lights
 
@@ -264,6 +249,7 @@ export class Renderer extends Serializable implements RendererContract {
 		// envmap
 
 		const envMap = backend.createCubeTexture();
+		this._envMapCube = envMap;
 		this._envMapRenderTarget = backend.createCubeFrameBuffer().setTexture( [ envMap ] );
 		this._envMapRenderTarget.setSize( 256, 256 );
 
@@ -303,16 +289,6 @@ export class Renderer extends Serializable implements RendererContract {
 			resolution: new MTP.Vector( 256 * 3, 256 * 4 ),
 		} );
 
-		// postprocess
-
-		this._deferredRenderer = new DeferredRenderer( {
-			backend,
-			envMap: this._pmremRender.renderTarget.textures[ 0 ],
-			envMapCube: envMap,
-		} );
-
-		this._pipelinePostProcess = new PipelinePostProcess( backend );
-
 		// quad
 
 		this._quad = new PlaneGeometry( { width: 2.0, height: 2.0 } );
@@ -329,10 +305,8 @@ export class Renderer extends Serializable implements RendererContract {
 		this._tmpResolutionUniform = { value: this._tmpResolution, type: '2fv' };
 		this._tmpUniformOverride = {};
 		this._tmpDrawParam = {};
-
-		// render target
-
-		this._renderTarget = Renderer.createRenderTarget( backend );
+		this._tmpShadingTexture = { value: null, type: '1i' };
+		this._tmpPostProcessUniforms = { uShadingTexture: this._tmpShadingTexture };
 
 		// sky
 
@@ -348,7 +322,6 @@ export class Renderer extends Serializable implements RendererContract {
 			lightShaft: true,
 			dof: true,
 		};
-		this._pipelineOverride = null;
 
 		// sky fields
 
@@ -398,19 +371,17 @@ export class Renderer extends Serializable implements RendererContract {
 
 			const dir = pipeline.dir( key );
 
-			dir.field( "enabled", () => this._pipelineConfig[ key ], ( v: boolean ) => {
+			dir.field( "enabled", () => this._pipelineConfig[ key ] ?? true, ( v: boolean ) => {
 
-				this._pipelineConfig[ key ] = v;
-				this.applyPipelineConfig( this._pipelineConfig );
+				this.applyPipelineConfig( { [ key ]: v } );
 
 			} );
 
 			if ( key === "motionBlur" ) {
 
-				dir.field( "power", () => this._pipelineConfig.motionBlurPower, ( v: number ) => {
+				dir.field( "power", () => this._pipelineConfig.motionBlurPower ?? 1, ( v: number ) => {
 
-					this._pipelineConfig.motionBlurPower = v;
-					this.applyPipelineConfig( this._pipelineConfig );
+					this.applyPipelineConfig( { motionBlurPower: v } );
 
 				}, { step: 0.1 } );
 
@@ -420,72 +391,39 @@ export class Renderer extends Serializable implements RendererContract {
 
 	}
 
-	public get renderTarget() {
+	/*-------------------------------
+		View
+	-------------------------------*/
 
-		return this._renderTarget;
+	public createView( opt?: RenderViewOptions ): RenderView {
 
-	}
+		const view = new RenderView( {
+			backend: this.backend,
+			envMap: this._pmremRender.renderTarget.textures[ 0 ],
+			envMapCube: this._envMapCube,
+			sceneConfig: this._pipelineConfig,
+			resolution: this.resolution,
+			offscreen: opt?.offscreen ?? false,
+			onDispose: ( v ) => {
 
-	public static createRenderTarget( backend: GLBackend ): RenderCameraTarget {
+				this._views.splice( this._views.indexOf( v ), 1 );
 
-		const gBuffer = backend.createFrameBuffer();
-		gBuffer.setTexture( [
-			backend.createTexture().setting( { type: GL.FLOAT, internalFormat: GL.RGBA32F, format: GL.RGBA, magFilter: GL.NEAREST, minFilter: GL.NEAREST } ),
-			backend.createTexture().setting( { type: GL.FLOAT, internalFormat: GL.RGBA32F, format: GL.RGBA } ),
-			backend.createTexture(),
-			backend.createTexture(),
-			backend.createTexture().setting( { type: GL.FLOAT, internalFormat: GL.RGBA32F, format: GL.RGBA } ),
-		] );
+			},
+		} );
 
-		const shadingBuffer = backend.createFrameBuffer( { disableDepthBuffer: true } );
-		shadingBuffer.setTexture( [
-			backend.createTexture().setting( { type: GL.FLOAT, internalFormat: GL.RGBA16F, format: GL.RGBA } ),
-			backend.createTexture().setting( { type: GL.FLOAT, internalFormat: GL.RGBA16F, format: GL.RGBA } ),
-		] );
+		this._views.push( view );
 
-		const forwardBuffer = backend.createFrameBuffer( { disableDepthBuffer: true } );
-		forwardBuffer.setDepthTexture( gBuffer.depthTexture );
-		forwardBuffer.setTexture( [
-			shadingBuffer.textures[ 0 ],
-			gBuffer.textures[ 0 ],
-			gBuffer.textures[ 4 ],
-		] );
-
-		const refractionBuffer = backend.createFrameBuffer( { disableDepthBuffer: true } );
-		refractionBuffer.setTexture( [
-			backend.createTexture().setting( {
-				type: GL.FLOAT, internalFormat: GL.RGBA16F, format: GL.RGBA,
-				magFilter: GL.LINEAR, minFilter: GL.LINEAR,
-			} ),
-		] );
-
-		const uiBuffer = backend.createFrameBuffer( { disableDepthBuffer: true } );
-		uiBuffer.setDepthTexture( gBuffer.depthTexture );
-		uiBuffer.setTexture( [ backend.createTexture() ] );
-
-		const normalBuffer = backend.createFrameBuffer();
-		normalBuffer.setTexture( [
-			backend.createTexture().setting( { type: GL.FLOAT, internalFormat: GL.RGBA32F, format: GL.RGBA, magFilter: GL.NEAREST, minFilter: GL.NEAREST } )
-		] );
-
-		return { gBuffer, shadingBuffer, forwardBuffer, refractionBuffer, uiBuffer, normalBuffer };
+		return view;
 
 	}
 
-	public static resizeRenderTarget( rt: RenderCameraTarget, resolution: MTP.Vector ) {
+	/*-------------------------------
+		RenderStack
+	-------------------------------*/
 
-		rt.gBuffer.setSize( resolution );
-		rt.shadingBuffer.setSize( resolution );
-		rt.forwardBuffer.setSize( resolution );
-		rt.refractionBuffer.setSize( resolution );
-		rt.uiBuffer.setSize( resolution );
-		rt.normalBuffer.setSize( resolution );
+	private _createRenderStack(): RenderStack {
 
-	}
-
-	public getRenderStack( entity: Entity ) {
-
-		const stack: RenderStack = {
+		return {
 			light: [],
 			deferred: [],
 			forward: [],
@@ -494,14 +432,9 @@ export class Renderer extends Serializable implements RendererContract {
 			envMap: [],
 		};
 
-		this._collectRenderStack( entity, true, stack );
-		this._collectRenderStack( this.sky.entity, true, stack );
-
-		return stack;
-
 	}
 
-	// entity以下を再帰的に走査してRenderStackへ振り分ける
+	// entity以下を再帰的に走査してRenderStackへ振り分ける。displayOut なカメラも同じ走査で拾う
 	private _collectRenderStack( entity: Entity, parentVisibility: boolean, stack: RenderStack ) {
 
 		const visibility = parentVisibility && entity.visible;
@@ -527,6 +460,18 @@ export class Renderer extends Serializable implements RendererContract {
 
 		}
 
+		if ( ! this._sceneCamera ) {
+
+			const cameras = entity.getComponentsByTag<Camera>( "camera" );
+
+			for ( let i = 0; i < cameras.length; i ++ ) {
+
+				if ( cameras[ i ].displayOut ) this._sceneCamera = entity;
+
+			}
+
+		}
+
 		for ( let i = 0; i < entity.children.length; i ++ ) {
 
 			this._collectRenderStack( entity.children[ i ], visibility, stack );
@@ -535,7 +480,12 @@ export class Renderer extends Serializable implements RendererContract {
 
 	}
 
-	public render( entity: Entity, cameraEntity: Entity, event: EntityUpdateEvent, renderTarget?: RenderCameraTarget ) {
+	/*-------------------------------
+		PrepareScene
+	-------------------------------*/
+
+	// フレーム1回。描画対象の収集と、視点に依らない資源（ライト・シャドウ・環境マップ）の更新
+	public prepareScene( root: Entity, _event: EntityUpdateEvent ) {
 
 		if ( this.resolution.x === 0 || this.resolution.y === 0 ) return;
 
@@ -555,7 +505,11 @@ export class Renderer extends Serializable implements RendererContract {
 			Get RenderStack
 		-------------------------------*/
 
-		const stack = this.getRenderStack( entity );
+		const stack = this._stack = this._createRenderStack();
+		this._sceneCamera = null;
+
+		this._collectRenderStack( root, true, stack );
+		this._collectRenderStack( this.sky.entity, true, stack );
 
 		/*-------------------------------
 			UpdateLight
@@ -640,177 +594,193 @@ export class Renderer extends Serializable implements RendererContract {
 
 		this._pmremRender.swap();
 
-		const rt = renderTarget || this._renderTarget;
+	}
+
+	/*-------------------------------
+		Render
+	-------------------------------*/
+
+	// view の視点でシーンを描く。最終出力は view の uiBuffer（offscreen）か canvas。prepareScene の後に呼ぶ
+	public render( viewContract: RenderViewContract, _event: EntityUpdateEvent ) {
+
+		if ( this.resolution.x === 0 || this.resolution.y === 0 ) return;
+
+		const view = viewContract as RenderView;
+		const cameraEntity = view.camera || this._sceneCamera;
+
+		if ( ! cameraEntity ) return;
+
 		const cameraComponent = cameraEntity.getComponentsByTag<Camera>( "camera" )[ 0 ];
 
-		if ( cameraComponent ) {
+		if ( ! cameraComponent ) return;
 
-			// deferred
+		const stack = this._stack;
+		const rt = view.renderTarget;
 
-			this.backend.setBlendEnabled( false );
+		// deferred
 
-			this.renderCamera( "deferred", cameraEntity, stack.deferred, rt.gBuffer, this.resolution );
+		this.backend.setBlendEnabled( false );
 
-			this._deferredRenderer.setRenderCamera( cameraComponent, rt );
+		this.renderCamera( "deferred", cameraEntity, stack.deferred, rt.gBuffer, this.resolution );
 
-			this.renderPostProcess( this._deferredRenderer.postprocess, undefined, this.resolution, { cameraOverride: {
-				viewMatrix: cameraComponent.viewMatrix,
-				viewMatrixPrev: cameraComponent.viewMatrixPrev,
-				projectionMatrix: cameraComponent.projectionMatrix,
-				projectionMatrixPrev: cameraComponent.projectionMatrixPrev,
-				cameraMatrixWorld: cameraEntity.matrixWorld
-			} } );
+		this.renderPostProcess( view.deferredRenderer.postprocess, undefined, this.resolution, { cameraOverride: {
+			viewMatrix: cameraComponent.viewMatrix,
+			viewMatrixPrev: cameraComponent.viewMatrixPrev,
+			projectionMatrix: cameraComponent.projectionMatrix,
+			projectionMatrixPrev: cameraComponent.projectionMatrixPrev,
+			cameraMatrixWorld: cameraEntity.matrixWorld
+		} } );
 
-			this._deferredRenderer.update( event );
+		view.deferredRenderer.update();
 
-			// forward
+		// forward
 
-			// refractionBuffer の初期状態を deferred 結果（shadingBuffer[0]）で満たす
-			this._copyToRefraction( rt );
+		// refractionBuffer の初期状態を deferred 結果（shadingBuffer[0]）で満たす
+		this._copyToRefraction( rt );
 
-			// renderOrder 昇順で sort し、同一 order ごとにグループ化
-			const sortedForward = stack.forward.slice().sort( ( a, b ) => {
+		// renderOrder 昇順で sort し、同一 order ごとにグループ化
+		const sortedForward = stack.forward.slice().sort( ( a, b ) => {
 
-				return getMaterial( a.getComponent( Mesh )! ).renderOrder - getMaterial( b.getComponent( Mesh )! ).renderOrder;
+			return getMaterial( a.getComponent( Mesh )! ).renderOrder - getMaterial( b.getComponent( Mesh )! ).renderOrder;
 
+		} );
+
+		const forwardGroups: Entity[][] = [];
+		let currentOrder: number | null = null;
+
+		for ( const ent of sortedForward ) {
+
+			const o = getMaterial( ent.getComponent( Mesh )! ).renderOrder;
+
+			if ( currentOrder === null || o !== currentOrder ) {
+
+				forwardGroups.push( [] );
+				currentOrder = o;
+
+			}
+
+			forwardGroups[ forwardGroups.length - 1 ].push( ent );
+
+		}
+
+		this.backend.setBlendEnabled( true );
+
+		for ( let gi = 0; gi < forwardGroups.length; gi ++ ) {
+
+			if ( gi > 0 ) {
+
+				// 前グループの描画結果を refractionBuffer に反映
+				this._copyToRefraction( rt );
+
+			}
+
+			this.renderCamera( "forward", cameraEntity, forwardGroups[ gi ], rt.forwardBuffer, this.resolution, {
+				uniformOverride: {
+					uDeferredTexture: {
+						value: rt.refractionBuffer.textures[ 0 ],
+						type: '1i'
+					},
+					uDeferredResolution: {
+						value: rt.shadingBuffer.size,
+						type: '2fv'
+					},
+					uEnvMap: {
+						value: this._pmremRender.renderTarget.textures[ 0 ],
+						type: '1i'
+					},
+					// gBufferのうちforwardBufferにアタッチされていない（フィードバックしない）テクスチャのみ公開する
+					uGbufferNormal: {
+						value: rt.normalBuffer.textures[ 0 ],
+						type: '1i'
+					},
+					uGbufferAlbedo: {
+						value: rt.gBuffer.textures[ 2 ],
+						type: '1i'
+					},
+					uGbufferMaterial: {
+						value: rt.gBuffer.textures[ 3 ],
+						type: '1i'
+					}
+				},
+				disableClear: true,
 			} );
 
-			const forwardGroups: Entity[][] = [];
-			let currentOrder: number | null = null;
+		}
 
-			for ( const ent of sortedForward ) {
+		this.backend.setBlendEnabled( false );
 
-				const o = getMaterial( ent.getComponent( Mesh )! ).renderOrder;
+		// scene
 
-				if ( currentOrder === null || o !== currentOrder ) {
+		this.renderPostProcess( view.pipelinePostProcess.postprocess, undefined, this.resolution, { cameraOverride: {
+			viewMatrix: cameraComponent.viewMatrix,
+			projectionMatrix: cameraComponent.projectionMatrix,
+			cameraMatrixWorld: cameraEntity.matrixWorld,
+			cameraNear: cameraComponent.near,
+			cameraFar: cameraComponent.far,
+		} } );
 
-					forwardGroups.push( [] );
-					currentOrder = o;
+		view.pipelinePostProcess.update( cameraComponent );
 
-				}
+		let backBuffer = view.pipelinePostProcess.postprocess.output ? view.pipelinePostProcess.postprocess.output : undefined;
 
-				forwardGroups[ forwardGroups.length - 1 ].push( ent );
+		// postprocess（プロジェクト側のパス。どの視点で見ていてもシーンカメラのものを掛ける）
 
-			}
+		const postProcessManager = ( this._sceneCamera || cameraEntity ).getComponent( PostProcessPipeline );
 
-			this.backend.setBlendEnabled( true );
+		if ( postProcessManager ) {
 
-			for ( let gi = 0; gi < forwardGroups.length; gi ++ ) {
+			postProcessManager.resize( this.resolution );
 
-				if ( gi > 0 ) {
+			// パスはシーンカメラに1組しか無くビューを跨いで使い回すので、ビュー固有の入力はここで差し替える
+			this._tmpShadingTexture.value = rt.shadingBuffer.textures[ 0 ];
 
-					// 前グループの描画結果を refractionBuffer に反映
-					this._copyToRefraction( rt );
+			for ( let i = 0; i < postProcessManager.postProcesses.length; i ++ ) {
 
-				}
+				const postProcess = postProcessManager.postProcesses[ i ];
 
-				this.renderCamera( "forward", cameraEntity, forwardGroups[ gi ], rt.forwardBuffer, this.resolution, {
-					uniformOverride: {
-						uDeferredTexture: {
-							value: rt.refractionBuffer.textures[ 0 ],
-							type: '1i'
-						},
-						uDeferredResolution: {
-							value: rt.shadingBuffer.size,
-							type: '2fv'
-						},
-						uEnvMap: {
-							value: this._pmremRender.renderTarget.textures[ 0 ],
-							type: '1i'
-						},
-						// gBufferのうちforwardBufferにアタッチされていない（フィードバックしない）テクスチャのみ公開する
-						uGbufferNormal: {
-							value: rt.normalBuffer.textures[ 0 ],
-							type: '1i'
-						},
-						uGbufferAlbedo: {
-							value: rt.gBuffer.textures[ 2 ],
-							type: '1i'
-						},
-						uGbufferMaterial: {
-							value: rt.gBuffer.textures[ 3 ],
-							type: '1i'
-						}
-					},
-					disableClear: true,
-				} );
+				if ( ! ( postProcess.enabled && postProcess.hasOutput ) ) continue;
 
-			}
-
-			this.backend.setBlendEnabled( false );
-
-			// scene
-
-			this._pipelinePostProcess.setRenderCamera( cameraComponent, rt );
-
-			this.renderPostProcess( this._pipelinePostProcess.postprocess, undefined, this.resolution, { cameraOverride: {
-				viewMatrix: cameraComponent.viewMatrix,
-				projectionMatrix: cameraComponent.projectionMatrix,
-				cameraMatrixWorld: cameraEntity.matrixWorld,
-				cameraNear: cameraComponent.near,
-				cameraFar: cameraComponent.far,
-			} } );
-
-			this._pipelinePostProcess.update( event );
-
-			let backBuffer = this._pipelinePostProcess.postprocess.output ? this._pipelinePostProcess.postprocess.output : undefined;
-
-			// postprocess
-
-			const postProcessManager = cameraEntity.getComponent( PostProcessPipeline );
-
-			if ( postProcessManager ) {
-
-				postProcessManager.resize( this.resolution );
-
-				for ( let i = 0; i < postProcessManager.postProcesses.length; i ++ ) {
-
-					const postProcess = postProcessManager.postProcesses[ i ];
-
-					if ( ! ( postProcess.enabled && postProcess.hasOutput ) ) continue;
-
-					this.renderPostProcess( postProcess, backBuffer, this.resolution, { cameraOverride: {
+				this.renderPostProcess( postProcess, backBuffer, this.resolution, {
+					cameraOverride: {
 						viewMatrix: cameraComponent.viewMatrix,
 						projectionMatrix: cameraComponent.projectionMatrix,
 						cameraMatrixWorld: cameraEntity.matrixWorld,
 						cameraNear: cameraComponent.near,
 						cameraFar: cameraComponent.far,
-					} } );
+					},
+					uniformOverride: this._tmpPostProcessUniforms,
+				} );
 
-					backBuffer = postProcess.output || undefined;
-
-				}
-
-			}
-
-			// ui
-
-			if ( backBuffer ) {
-
-				const size = backBuffer.size;
-
-				this.backend.blit( backBuffer, rt.uiBuffer, size.x, size.y );
+				backBuffer = postProcess.output || undefined;
 
 			}
-
-			this.backend.setBlendEnabled( true );
-
-			this.renderCamera( "forward", cameraEntity, stack.ui, rt.uiBuffer, this.resolution, {
-				uniformOverride: {
-					uDeferredTexture: {
-						value: rt.refractionBuffer.textures[ 0 ],
-						type: '1i'
-					} },
-				disableClear: true
-			} );
-
-			this.backend.setBlendEnabled( false );
-
-			// display out
-
-			this.backend.blit( rt.uiBuffer, null, this.resolution.x, this.resolution.y );
 
 		}
+
+		// ui（offscreen なら uiBuffer に留め、そうでなければ canvas へ）
+
+		const output = view.offscreen ? rt.uiBuffer : null;
+
+		if ( backBuffer ) {
+
+			const size = backBuffer.size;
+
+			this.backend.blit( backBuffer, output, size.x, size.y );
+
+		}
+
+		this.backend.setBlendEnabled( true );
+
+		this.renderCamera( "forward", cameraEntity, stack.ui, output, this.resolution, {
+			uniformOverride: {
+				uDeferredTexture: {
+					value: rt.refractionBuffer.textures[ 0 ],
+					type: '1i'
+				} },
+			disableClear: true
+		} );
+
+		this.backend.setBlendEnabled( false );
 
 	}
 
@@ -983,6 +953,7 @@ export class Renderer extends Serializable implements RendererContract {
 
 			opt.label = pass.name;
 			opt.renderTarget = renderTarget;
+			opt.uniformOverride = renderOption && renderOption.uniformOverride;
 
 			this.draw( pass.uuid, "postprocess", this._quad, pass, opt );
 
@@ -1269,41 +1240,17 @@ export class Renderer extends Serializable implements RendererContract {
 
 	public applyPipelineConfig( config: PipelineConfig ): void {
 
-		this._pipelineConfig = { ...this._pipelineConfig, ...config };
+		Object.assign( this._pipelineConfig, config );
 
-		this._applyEffectivePipelineConfig();
+		for ( let i = 0; i < this._views.length; i ++ ) {
 
-	}
+			this._views[ i ].applyPipelineConfig();
 
-	// シーン設定に触れずに一時的な上書きを重ねる（null で解除）
-	public setPipelineOverride( override: PipelineConfig | null ): void {
-
-		this._pipelineOverride = override;
-
-		this._applyEffectivePipelineConfig();
+		}
 
 	}
 
-	// シーン本来の値にオーバーライドを重ねた実効値をパスへ流す
-	private _applyEffectivePipelineConfig(): void {
-
-		const config = { ...this._pipelineConfig, ...this._pipelineOverride };
-
-		this._deferredRenderer.setPassEnabled( {
-			ssao: config.ssao,
-			lightShaft: config.lightShaft,
-		} );
-		this._pipelinePostProcess.setPassEnabled( {
-			motionBlur: config.motionBlur,
-			ssr: config.ssr,
-			dof: config.dof,
-		} );
-
-		this._pipelinePostProcess.setMotionBlurPower( config.motionBlurPower );
-
-	}
-
-	public get pipelineConfig(): Required<PipelineConfig> {
+	public get pipelineConfig(): PipelineConfig {
 
 		return this._pipelineConfig;
 
@@ -1312,13 +1259,16 @@ export class Renderer extends Serializable implements RendererContract {
 	public resize( resolution: MTP.Vector ) {
 
 		this.resolution.copy( resolution );
-		Renderer.resizeRenderTarget( this._renderTarget, resolution );
-		this._deferredRenderer.resize( this.resolution );
-		this._pipelinePostProcess.resize( this.resolution );
+
+		for ( let i = 0; i < this._views.length; i ++ ) {
+
+			this._views[ i ].resize( resolution );
+
+		}
 
 	}
 
-	public async compileShaders( entity: Entity, cameraEntity: Entity, event: EntityUpdateEvent, cb?: ( label: string, loaded: number, total: number ) => void ) {
+	public async compileShaders( root: Entity, view: RenderViewContract, event: EntityUpdateEvent, cb?: ( label: string, loaded: number, total: number ) => void ) {
 
 		/*-------------------------------
 			Correct Compiles
@@ -1327,7 +1277,8 @@ export class Renderer extends Serializable implements RendererContract {
 
 		this.compileDrawParams = [];
 
-		this.render( entity, cameraEntity, event );
+		this.prepareScene( root, event );
+		this.render( view, event );
 
 		this._isCorrentCompiles = false;
 

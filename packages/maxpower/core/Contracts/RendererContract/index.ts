@@ -1,5 +1,6 @@
 import type { Entity, EntityUpdateEvent } from '../../Entity';
 import type { Serializable } from '../../Serializable';
+import type { RenderViewContract, RenderViewOptions } from '../RenderViewContract';
 import type { TexProceduralContract, TexProceduralParam } from '../TexProceduralContract';
 import type * as BSP from 'basepower';
 import type * as MTP from 'mathpower';
@@ -12,11 +13,18 @@ export interface RendererContract extends Serializable {
 	readonly canvas: HTMLCanvasElement;
 
 	// 画面中心にあるシーンのビュー空間深度（オートフォーカス用）。
-	// 非同期リードバックのため数フレーム遅れる。未対応バックエンドは undefined、
-	// 中心に何も描かれていないフレームは null
+	// シーンカメラで描いたビューの直近値で、非同期リードバックのため数フレーム遅れる。
+	// 未対応バックエンドは undefined、中心に何も描かれていないフレームは null
 	readonly centerDepth?: number | null;
 
-	render( root: Entity, camera: Entity, event: EntityUpdateEvent ): void;
+	createView( opt?: RenderViewOptions ): RenderViewContract;
+
+	// フレーム1回。シーン全体で共有する資源（ライト・シャドウ・環境マップ）を更新する
+	prepareScene( root: Entity, event: EntityUpdateEvent ): void;
+
+	// view の視点でシーンを描く。出力先は view の作り方で決まる（canvas か view 自身のバッファ）
+	render( view: RenderViewContract, event: EntityUpdateEvent ): void;
+
 	resize( resolution: MTP.Vector ): void;
 
 	// .tex（プロシージャルテクスチャ）をバックエンド固有の実装で組み立てる

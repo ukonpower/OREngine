@@ -11,6 +11,7 @@ export * from './Components/GPUComputePass';
 export * from './Components/PostProcessPipeline';
 export * from './Renderer/DeferredRenderer';
 export * from './Renderer/ProgramManager';
+export * from './Renderer/RenderView';
 export * from './EditorDraw';
 export * from './Loaders/GLTFLoader';
 export * from './PostProcess';

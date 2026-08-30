@@ -13,7 +13,7 @@ export class SelectionOutline {
 	constructor( draw: MXP.EditorDrawContract ) {
 
 		this._draw = draw;
-		this._maskTarget = draw.createTarget( { useSceneDepth: true } );
+		this._maskTarget = draw.createTarget();
 		this._maskMaterial = draw.materials.mask();
 		this._outline = draw.recipes.outline( this._maskTarget, OUTLINE_COLOR );
 		this._showOutline = true;
@@ -32,7 +32,7 @@ export class SelectionOutline {
 
 	}
 
-	public render( selectedEntity: MXP.Entity | null, cameraEntity: MXP.Entity | null ) {
+	public render( view: MXP.RenderViewContract, selectedEntity: MXP.Entity | null, cameraEntity: MXP.Entity | null ) {
 
 		if ( ! this._showOutline ) return;
 
@@ -41,14 +41,16 @@ export class SelectionOutline {
 		if ( ! selectedEntity.getComponent( MXP.Mesh ) ) return;
 
 		this._draw.renderEntities( {
+			view,
 			camera: cameraEntity,
 			entities: [ selectedEntity ],
 			target: this._maskTarget,
+			useSceneDepth: true,
 			materialOverride: this._maskMaterial,
 			depthCompare: 'lequal',
 		} );
 
-		this._draw.renderFullscreen( this._outline, null );
+		this._draw.renderFullscreen( view, this._outline, null );
 
 	}
 

@@ -5,7 +5,26 @@ import { TexProcedural } from '../TexProcedural';
 
 import type { EngineContract } from '../../core/Contracts/EngineContract';
 import type { RendererContract } from '../../core/Contracts/RendererContract';
+import type { PipelineConfig, RenderViewContract } from '../../core/Contracts/RenderViewContract';
+import type { Entity } from '../../core/Entity';
 import type * as BSP from 'basepower';
+
+// 描画資源を持たないビュー。設定だけ受け取って捨てる
+export class RenderView implements RenderViewContract {
+
+	public camera: Entity | null;
+	public pipelineOverride: PipelineConfig | null;
+
+	constructor() {
+
+		this.camera = null;
+		this.pipelineOverride = null;
+
+	}
+
+	public dispose() {}
+
+}
 
 // グラフィックスコンテキストを一切作らないレンダラー。
 // Storybook等でEngineとエディタを本物のまま積み、描画だけを落とすための口
@@ -26,6 +45,14 @@ export class Renderer extends Serializable implements RendererContract {
 
 	}
 
+	public createView(): RenderView {
+
+		return new RenderView();
+
+	}
+
+	public prepareScene() {}
+
 	public render() {}
 
 	public resize( resolution: MTP.Vector ) {
@@ -40,9 +67,6 @@ export class Renderer extends Serializable implements RendererContract {
 		return Promise.resolve();
 
 	}
-
-	// エディタカメラがパイプライン設定を被せてくる口。パスを持たないので受け流す
-	public setPipelineOverride(): void {}
 
 	public createTexProcedural(): TexProcedural {
 

@@ -13,10 +13,9 @@ import type { GLEngine } from '../../Renderer';
 export const setupCameraPostProcess = ( engine: GLEngine, entity: Entity ) => {
 
 	const pipeline = entity.addComponent( PostProcessPipeline );
-	const renderer = engine.renderer;
-	const backend = renderer.backend;
+	const backend = engine.renderer.backend;
 
-	const bloom = new Bloom( backend, renderer.renderTarget.shadingBuffer.textures[ 0 ] );
+	const bloom = new Bloom( backend );
 	bloom.threshold = 1.0;
 	bloom.brightness = 1;
 

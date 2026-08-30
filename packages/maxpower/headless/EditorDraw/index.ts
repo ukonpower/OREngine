@@ -42,6 +42,8 @@ export class HeadlessEditorDraw implements EditorDrawContract {
 
 	public blit() {}
 
+	public drawToCanvas() {}
+
 	public drawTexture() {}
 
 	// AssetPreviewManager がピクセル配列を走査するので、透明黒で正しいサイズを返す
@@ -53,13 +55,11 @@ export class HeadlessEditorDraw implements EditorDrawContract {
 
 	}
 
-	public createTarget( opt?: { useSceneDepth?: boolean; size?: MTP.Vector } ): EditorTarget {
+	public createTarget( opt?: { size?: MTP.Vector } ): EditorTarget {
 
 		return new HeadlessTarget( opt && opt.size );
 
 	}
-
-	public present() {}
 
 	public resize( resolution: MTP.Vector ) {
 

@@ -82,7 +82,7 @@ export class GizmoManager {
 
 	}
 
-	public render( selectedEntity: MXP.Entity | null, cameraEntity: MXP.Entity | null, engine: Engine ) {
+	public render( view: MXP.RenderViewContract, selectedEntity: MXP.Entity | null, cameraEntity: MXP.Entity | null, engine: Engine ) {
 
 		this._translateGizmo.entity.visible = false;
 		this._rotateGizmo.entity.visible = false;
@@ -122,6 +122,7 @@ export class GizmoManager {
 		if ( gizmoEntities.length > 0 ) {
 
 			this._draw.renderEntities( {
+				view,
 				camera: cameraEntity,
 				entities: gizmoEntities,
 				target: null,

@@ -36,9 +36,9 @@ export class PipelinePostProcess {
 	private _motionBlur: MXP.PostProcessPass;
 	private _motionBlurTile: MXP.PostProcessPass;
 	private _motionBlurNeighbor: MXP.PostProcessPass;
-	private _camera: MXP.Camera | null;
 
-	constructor( backend: GLBackend ) {
+	// 描画元の G-Buffer はビュー固有なので、生成時に一度だけ繋ぐ
+	constructor( backend: GLBackend, renderTarget: MXP.RenderCameraTarget ) {
 
 		const colorCollection = new MXP.PostProcessPass( backend, {
 			name: 'collection',
@@ -285,24 +285,48 @@ export class PipelinePostProcess {
 		this._dofParams = dofParams;
 		this.rtSSR1 = rtSSR1;
 		this.rtSSR2 = rtSSR2;
-		this._camera = null;
+
+		colorCollection.backBufferOverride = renderTarget.shadingBuffer.textures;
+
+		// ssr
+
+		ssr.uniforms.uGbufferPos.value = renderTarget.gBuffer.textures[ 0 ];
+		ssr.uniforms.uGbufferNormal.value = renderTarget.normalBuffer.textures[ 0 ];
+		ssr.uniforms.uSceneTex.value = renderTarget.forwardBuffer.textures[ 0 ];
+
+		// ssComposite
+
+		ssComposite.uniforms.uGbufferPos.value = renderTarget.gBuffer.textures[ 0 ];
+		ssComposite.uniforms.uGbufferNormal.value = renderTarget.gBuffer.textures[ 1 ];
+
+		// dofCoc
+
+		dofCoc.uniforms.uGbufferPos.value = renderTarget.gBuffer.textures[ 0 ];
+
+		// motionBlurTile
+
+		motionBlurTile.uniforms.uVelTex.value = renderTarget.gBuffer.textures[ 4 ];
+
+		// motionBlur
+
+		motionBlur.uniforms.uVelTex.value = renderTarget.gBuffer.textures[ 4 ];
+		motionBlur.uniforms.uDepthTexture.value = renderTarget.gBuffer.depthTexture;
 
 	}
 
-	public update( _event: MXP.EntityUpdateEvent ): void {
-
-		if ( ! this._camera ) return;
+	// 描画後に呼び、次フレーム用の DOF パラメータと SSR の履歴を進める
+	public update( camera: MXP.Camera ): void {
 
 		// dof params
 
-		const fov = this._camera.fov;
-		const focusDistance = this._camera.dofParams.focusDistance;
-		const kFilmHeight = this._camera.dofParams.kFilmHeight;
+		const fov = camera.fov;
+		const focusDistance = camera.dofParams.focusDistance;
+		const kFilmHeight = camera.dofParams.kFilmHeight;
 		const flocalLength = kFilmHeight / Math.tan( 0.5 * ( fov / 180 * Math.PI ) );
 
 		const maxCoc = ( 1 / this.dofBokeh.renderTarget!.size.y ) * ( 5 );
 		const rcpMaxCoC = 1.0 / maxCoc;
-		const coeff = flocalLength * flocalLength / ( this._camera.dofParams.fNumber * ( focusDistance - flocalLength ) * kFilmHeight * 2.0 );
+		const coeff = flocalLength * flocalLength / ( camera.dofParams.fNumber * ( focusDistance - flocalLength ) * kFilmHeight * 2.0 );
 
 		this._dofParams.set( focusDistance, maxCoc, rcpMaxCoC, coeff );
 
@@ -378,40 +402,11 @@ export class PipelinePostProcess {
 
 	}
 
-	public setRenderCamera( camera: MXP.Camera, renderTarget: MXP.RenderCameraTarget ) {
+	public dispose() {
 
-		this._camera = camera;
-
-		if ( this.postprocess.passes[ 0 ] ) {
-
-			this.postprocess.passes[ 0 ].backBufferOverride = renderTarget.shadingBuffer.textures;
-
-		}
-
-		// ssr
-
-		this._ssr.uniforms.uGbufferPos.value = renderTarget.gBuffer.textures[ 0 ];
-		this._ssr.uniforms.uGbufferNormal.value = renderTarget.normalBuffer.textures[ 0 ];
-		this._ssr.uniforms.uSceneTex.value = renderTarget.forwardBuffer.textures[ 0 ];
-
-		// ssComposite
-
-		this._ssComposite.uniforms.uGbufferPos.value = renderTarget.gBuffer.textures[ 0 ];
-		this._ssComposite.uniforms.uGbufferNormal.value = renderTarget.gBuffer.textures[ 1 ];
-
-		// dofCoc
-
-		this.dofCoc.uniforms.uGbufferPos.value = renderTarget.gBuffer.textures[ 0 ];
-
-		// motionBlurTile
-
-		this._motionBlurTile.uniforms.uVelTex.value = renderTarget.gBuffer.textures[ 4 ];
-
-		// motionBlur
-
-		this._motionBlur.uniforms.uVelTex.value = renderTarget.gBuffer.textures[ 4 ];
-		this._motionBlur.uniforms.uDepthTexture.value = renderTarget.gBuffer.depthTexture;
-
+		this.postprocess.dispose();
+		this.rtSSR1.dispose();
+		this.rtSSR2.dispose();
 
 	}
 

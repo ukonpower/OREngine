@@ -33,20 +33,18 @@ import { TexProcedural } from '../TexProcedural';
 import { EnvMap } from './EnvMap';
 import { Lights } from './Lights';
 import { PipelinePostProcess } from './PipelinePostProcess';
-import { RenderTargets } from './RenderTargets';
+import { RenderView } from './RenderView';
 import presentWgsl from './shaders/present.wgsl';
 import { ENVMAP_BINDING, ENVMAP_SAMPLER_BINDING, LIGHTSHAFT_BINDING, SSAO_BINDING, buildShadingSource } from './shaders/shading';
 import { Sky } from './Sky';
 
 import type { EngineContract } from '../../core/Contracts/EngineContract';
 import type { RendererContract } from '../../core/Contracts/RendererContract';
+import type { PipelineConfig, RenderViewContract, RenderViewOptions } from '../../core/Contracts/RenderViewContract';
 import type { TexProceduralParam } from '../../core/Contracts/TexProceduralContract';
 import type { Entity, EntityUpdateEvent } from '../../core/Entity';
 import type { Geometry } from '../../core/Geometry';
 import type { MaterialPhase } from '../Material';
-import type { PipelineConfig } from './PipelinePostProcess';
-
-export type { PipelineConfig };
 
 // HMRで差し替わるシェーダー資源の供給元。playerでは初期値のまま使われる
 let hotPipelinePostProcess = PipelinePostProcess;
@@ -135,10 +133,8 @@ export class Renderer extends Serializable implements RendererContract {
 	public readonly canvas: HTMLCanvasElement;
 	public globalUniforms: BSP.Uniforms;
 	public resolution: MTP.Vector;
+	// シーン本来のパイプライン設定（シリアライズ対象）。ビューごとの上書きは RenderView が重ねる
 	public pipelineConfig: PipelineConfig;
-
-	// エディタ等が一時的に被せる設定。pipelineConfig（シーン本来の値・シリアライズ対象）を汚さないための層
-	private _pipelineOverride: PipelineConfig | null;
 
 	// device
 	private _context: GPUCanvasContext | null;
@@ -154,25 +150,22 @@ export class Renderer extends Serializable implements RendererContract {
 	private _emptyMaterialLayout: GPUBindGroupLayout | null;
 
 	// bindings
+	// シーン共通のフレーム uniform（compute / .tex が使う。カメラはシーンカメラ）。ビューの描画は各 RenderView の frame を使う
 	private _frameUniforms: BSP.Uniforms;
 	private _objectUniforms: BSP.Uniforms;
 	private _frameBinder: UniformBinder | null;
 	private _frameBindGroup: GPUBindGroup | null;
 
+	// views
+	private _views: RenderView[];
+
 	// pass
 	public sky: Sky;
-	private _targets: RenderTargets;
 	private _lights: Lights | null;
 	private _envMap: EnvMap | null;
-	private _pipeline: PipelinePostProcess | null;
 	private _shadingPipeline: GPURenderPipeline | null;
 	private _presentPipeline: GPURenderPipeline | null;
-	private _gBufferBindGroup: GPUBindGroup | null;
-	private _gBufferLightShaftView: GPUTextureView | null;
-	private _sceneBindGroup: GPUBindGroup | null;
-	private _sceneView: GPUTextureView | null;
 	private _refractionSampler: GPUSampler | null;
-	private _refractionBindGroup: GPUBindGroup | null;
 	private _emptyMaterialBindGroup: GPUBindGroup | null;
 
 	// フレームのコマンド記録中だけ有効。drawPass通知を受けたエディタのblitが
@@ -191,20 +184,14 @@ export class Renderer extends Serializable implements RendererContract {
 	// プロシージャルテクスチャ。deviceの準備前から予約できるようフレーム先頭で消化する
 	private _texQueue: Set<TexRenderTask>;
 
-	// オートフォーカス用の中心深度リードバック
-	private _focusReadbackBuffer: GPUBuffer | null;
-	private _focusReadbackBusy: boolean;
-	private _focusReadbackEncoded: boolean;
-	private _focusViewMatrix: MTP.Matrix;
-	private _focusPosition: MTP.Vector;
+	// シーンカメラで描いたビューの中心深度（オートフォーカスが読む）
 	private _centerDepth: number | null;
 
-	// tmp
+	// frame（prepareScene で集め、同フレームの render が使う）
 	private _stack: RenderStack;
-	private _cameraPosition: MTP.Vector;
-	private _projectionMatrix: MTP.Matrix;
-	private _projectionMatrixInverse: MTP.Matrix;
-	private _projectionMatrixPrev: MTP.Matrix;
+	private _sceneCamera: Entity | null;
+
+	// tmp
 	private _normalMatrix: MTP.Matrix;
 	private _passResolution: MTP.Vector;
 	private _passPixelSize: MTP.Vector;
@@ -228,7 +215,6 @@ export class Renderer extends Serializable implements RendererContract {
 			lightShaftTemporalBlend: 0.3,
 			dof: true,
 		};
-		this._pipelineOverride = null;
 
 		this._context = canvas.getContext( 'webgpu' );
 		this._device = null;
@@ -263,18 +249,12 @@ export class Renderer extends Serializable implements RendererContract {
 		this._frameBinder = null;
 		this._frameBindGroup = null;
 
-		this._targets = new RenderTargets();
+		this._views = [];
 		this._lights = null;
 		this._envMap = null;
-		this._pipeline = null;
 		this._shadingPipeline = null;
 		this._presentPipeline = null;
-		this._gBufferBindGroup = null;
-		this._gBufferLightShaftView = null;
-		this._sceneBindGroup = null;
-		this._sceneView = null;
 		this._refractionSampler = null;
-		this._refractionBindGroup = null;
 		this._emptyMaterialBindGroup = null;
 
 		this._materialResources = new Map();
@@ -285,18 +265,10 @@ export class Renderer extends Serializable implements RendererContract {
 		this._computeQueue = new Set();
 		this._texQueue = new Set();
 
-		this._focusReadbackBuffer = null;
-		this._focusReadbackBusy = false;
-		this._focusReadbackEncoded = false;
-		this._focusViewMatrix = new MTP.Matrix();
-		this._focusPosition = new MTP.Vector();
 		this._centerDepth = null;
 
 		this._stack = { light: [], shadowMap: [], deferred: [], forward: [], envMap: [] };
-		this._cameraPosition = this._frameUniforms.uCameraPosition.value;
-		this._projectionMatrix = this._frameUniforms.uProjectionMatrix.value;
-		this._projectionMatrixInverse = this._frameUniforms.uProjectionMatrixInverse.value;
-		this._projectionMatrixPrev = this._frameUniforms.uProjectionMatrixPrev.value;
+		this._sceneCamera = null;
 		this._normalMatrix = this._objectUniforms.uNormalMatrix.value;
 		this._passResolution = new MTP.Vector();
 		this._passPixelSize = new MTP.Vector();
@@ -323,11 +295,17 @@ export class Renderer extends Serializable implements RendererContract {
 				this._envMap!.dispose();
 				this._envMap = new hotEnvMap( device, this._uniformLayout! );
 
-				this._pipeline!.dispose();
-				this._createPostProcess( device );
 				this._createScreenPipelines( device );
 
-				if ( this._targets.width > 0 ) this._connectTargets( device );
+				for ( let i = 0; i < this._views.length; i ++ ) {
+
+					const view = this._views[ i ];
+
+					view.pipeline?.dispose();
+					view.pipeline = null;
+					this._ensureView( device, view );
+
+				}
 
 			} );
 
@@ -574,18 +552,36 @@ export class Renderer extends Serializable implements RendererContract {
 
 		this._lights = new Lights( device, this._uniformLayout );
 		this._envMap = new hotEnvMap( device, this._uniformLayout );
-		this._createPostProcess( device );
 		this._createScreenPipelines( device );
 
 		this._device = device;
 
 	}
 
-	// レンダラー自身が持つポストプロセス一式を作る
-	private _createPostProcess( device: GPUDevice ) {
+	// ビューの GPU 資源を device が揃ってから組み立てる（フレーム uniform・ポストプロセス・中間バッファ）
+	private _ensureView( device: GPUDevice, view: RenderView ) {
 
-		this._pipeline = new hotPipelinePostProcess( device, this._uniformLayout!, this._lights!.bindGroupLayout, this._passResolution, this._passPixelSize );
-		this._applyEffectivePipelineConfig();
+		if ( ! view.frameBinder ) {
+
+			view.frameBinder = new UniformBinder( device, FRAME_FIELDS, 'frame' );
+			view.frameBindGroup = device.createBindGroup( {
+				label: 'frame',
+				layout: this._uniformLayout!,
+				entries: [ { binding: 0, resource: { buffer: view.frameBinder.buffer } } ],
+			} );
+
+		}
+
+		if ( ! view.pipeline ) {
+
+			view.pipeline = new hotPipelinePostProcess( device, this._uniformLayout!, this._lights!.bindGroupLayout, this._passResolution, this._passPixelSize );
+			view.applyPipelineConfig();
+
+			if ( view.targets.width > 0 ) this._connectTargets( device, view );
+
+		}
+
+		this._setTargetSize( device, view, Math.floor( this.resolution.x ), Math.floor( this.resolution.y ) );
 
 	}
 
@@ -620,32 +616,37 @@ export class Renderer extends Serializable implements RendererContract {
 		Render
 	-------------------------------*/
 
-	public render( root: Entity, cameraEntity: Entity, _event: EntityUpdateEvent ) {
+	public createView( opt?: RenderViewOptions ): RenderView {
+
+		const view = new RenderView( {
+			sceneConfig: this.pipelineConfig,
+			offscreen: opt?.offscreen ?? false,
+			onDispose: ( v ) => {
+
+				this._views.splice( this._views.indexOf( v ), 1 );
+
+			},
+		} );
+
+		this._views.push( view );
+
+		return view;
+
+	}
+
+	// フレーム1回。描画対象の収集と、視点に依らない資源（compute / .tex / シャドウ / 環境マップ）の更新
+	public prepareScene( root: Entity, _event: EntityUpdateEvent ) {
 
 		const device = this._device;
-		const context = this._context;
 		const lights = this._lights;
 
-		if ( ! device || ! context || ! lights || ! this._frameBinder || ! this._frameBindGroup ) return;
+		if ( ! device || ! lights || ! this._frameBinder ) return;
 
-		const camera = cameraEntity.getComponentsByTag<Camera>( 'camera' )[ 0 ];
-
-		if ( ! camera ) return;
-
-		if ( this.canvas.width === 0 || this.canvas.height === 0 ) return;
-
-		const colorTexture = context.getCurrentTexture();
-
-		this._setTargetSize( device, colorTexture.width, colorTexture.height );
+		if ( this.resolution.x < 1 || this.resolution.y < 1 ) return;
 
 		// stack
 
-		this._stack.light.length = 0;
-		this._stack.shadowMap.length = 0;
-		this._stack.deferred.length = 0;
-		this._stack.forward.length = 0;
-		this._stack.envMap.length = 0;
-
+		this._resetStack();
 		this._collectRenderStack( root, true );
 		this._collectRenderStack( this.sky.entity, true );
 
@@ -654,19 +655,20 @@ export class Renderer extends Serializable implements RendererContract {
 
 		lights.update( this._stack.light );
 
-		// frame
+		// ビューの資源はここで揃える（envMap の描画が最初のビューの refraction を読むため）
 
-		const cameraMatrix = cameraEntity.matrixWorld.elm;
+		for ( let i = 0; i < this._views.length; i ++ ) {
 
-		this._cameraPosition.set( cameraMatrix[ 12 ], cameraMatrix[ 13 ], cameraMatrix[ 14 ] );
-		this._projectionMatrix.copy( CLIP_CORRECTION ).multiply( camera.projectionMatrix );
-		this._projectionMatrixInverse.copy( this._projectionMatrix ).inverse();
-		this._projectionMatrixPrev.copy( CLIP_CORRECTION ).multiply( camera.projectionMatrixPrev );
-		this._frameUniforms.uCameraMatrix.value = cameraEntity.matrixWorld;
-		this._frameUniforms.uViewMatrixPrev.value = camera.viewMatrixPrev;
-		this._frameUniforms.uViewMatrix.value = camera.viewMatrix;
-		this._frameUniforms.uCameraNear.value = camera.near;
-		this._frameUniforms.uCameraFar.value = camera.far;
+			this._ensureView( device, this._views[ i ] );
+
+		}
+
+		// frame（シーン共通。カメラはシーンカメラ）
+
+		const sceneCamera = this._sceneCamera;
+		const camera = sceneCamera ? sceneCamera.getComponentsByTag<Camera>( 'camera' )[ 0 ] : undefined;
+
+		if ( sceneCamera && camera ) this._writeCameraUniforms( this._frameUniforms, sceneCamera, camera );
 
 		this._frameBinder.update( this.globalUniforms, this._frameUniforms );
 
@@ -680,48 +682,111 @@ export class Renderer extends Serializable implements RendererContract {
 		this._renderCompute( device, encoder );
 		this._renderShadowMaps( device, encoder );
 		this._renderEnvMap( device, encoder );
-		this._renderGBuffer( device, encoder );
+
+		this._frameEncoder = null;
+
+		device.queue.submit( [ encoder.finish() ] );
+
+	}
+
+	// view の視点でシーンを view の出力テクスチャまで描く。prepareScene の後に呼ぶ
+	public render( viewContract: RenderViewContract, _event: EntityUpdateEvent ) {
+
+		const device = this._device;
+		const lights = this._lights;
+		const view = viewContract as RenderView;
+		const pipeline = view.pipeline;
+		const frameBindGroup = view.frameBindGroup;
+
+		if ( ! device || ! lights || ! pipeline || ! view.frameBinder || ! frameBindGroup ) return;
+
+		if ( view.targets.width === 0 || view.targets.height === 0 ) return;
+
+		const cameraEntity = view.camera || this._sceneCamera;
+
+		if ( ! cameraEntity ) return;
+
+		const camera = cameraEntity.getComponentsByTag<Camera>( 'camera' )[ 0 ];
+
+		if ( ! camera ) return;
+
+		// frame
+
+		this._writeCameraUniforms( view.frameUniforms, cameraEntity, camera );
+		view.frameBinder.update( this.globalUniforms, view.frameUniforms );
+
+		// pass
+
+		const encoder = device.createCommandEncoder();
+
+		this._frameEncoder = encoder;
 
 		const onPass = import.meta.env.DEV
 			? ( p: { name: string, targetView: GPUTextureView | null, width: number, height: number } ) =>
 				this._emitPass( p.targetView, p.width, p.height, p.name )
 			: undefined;
 
-		this._pipeline!.update( camera );
-		this._pipeline!.renderDeferred( device, encoder, this._frameBindGroup, this._targets.gBufferViews[ 0 ], lights.bindGroup, onPass );
+		this._renderGBuffer( device, encoder, view );
 
-		if ( this._gBufferLightShaftView !== this._pipeline!.lightShaftView ) {
+		pipeline.update( camera );
+		pipeline.renderDeferred( device, encoder, frameBindGroup, view.targets.gBufferViews[ 0 ], lights.bindGroup, onPass );
 
-			this._createGBufferBindGroup( device );
+		if ( view.gBufferLightShaftView !== pipeline.lightShaftView ) {
+
+			this._createGBufferBindGroup( device, view );
 
 		}
 
-		this._renderShading( encoder );
-		this._renderForward( device, encoder );
+		this._renderShading( encoder, view );
+		this._renderForward( device, encoder, view );
 
 		// forwardもgBufferのpositionへ書くので、読み戻しはforwardの後に置く
-		this._encodeFocusReadback( device, encoder, camera );
+		this._encodeFocusReadback( device, encoder, view, camera );
 
-		let output = this._pipeline!.renderPost( device, encoder, this._frameBindGroup, this._targets.sceneView!, onPass );
+		let output = pipeline.renderPost( device, encoder, frameBindGroup, view.targets.sceneView!, onPass );
 
-		// プロジェクト側が差し込んだポストプロセス
-		const userPipeline = cameraEntity.getComponent( PostProcessPipeline );
+		// プロジェクト側が差し込んだポストプロセス（どの視点で見ていてもシーンカメラのものを掛ける）
+		const userPipeline = ( this._sceneCamera || cameraEntity ).getComponent( PostProcessPipeline );
 
 		if ( userPipeline ) {
 
-			userPipeline.setSize( device, this._uniformLayout!, colorTexture.width, colorTexture.height );
+			userPipeline.setSize( device, this._uniformLayout!, view.targets.width, view.targets.height );
 
-			output = userPipeline.render( device, encoder, this._frameBindGroup, output );
+			output = userPipeline.render( device, encoder, frameBindGroup, output );
 
 		}
 
-		this._renderPresent( device, encoder, colorTexture.createView(), output );
+		view.outputView = output;
+
+		if ( ! view.offscreen && this._context ) {
+
+			this.renderPresent( device, encoder, this._context.getCurrentTexture().createView(), view );
+
+		}
 
 		this._frameEncoder = null;
 
 		device.queue.submit( [ encoder.finish() ] );
 
-		this._resolveFocusReadback();
+		this._resolveFocusReadback( view );
+
+	}
+
+	// カメラの姿勢と投影をフレーム uniform へ写す
+	private _writeCameraUniforms( uniforms: BSP.Uniforms, cameraEntity: Entity, camera: Camera ) {
+
+		const cameraMatrix = cameraEntity.matrixWorld.elm;
+		const projectionMatrix = uniforms.uProjectionMatrix.value as MTP.Matrix;
+
+		( uniforms.uCameraPosition.value as MTP.Vector ).set( cameraMatrix[ 12 ], cameraMatrix[ 13 ], cameraMatrix[ 14 ] );
+		projectionMatrix.copy( CLIP_CORRECTION ).multiply( camera.projectionMatrix );
+		( uniforms.uProjectionMatrixInverse.value as MTP.Matrix ).copy( projectionMatrix ).inverse();
+		( uniforms.uProjectionMatrixPrev.value as MTP.Matrix ).copy( CLIP_CORRECTION ).multiply( camera.projectionMatrixPrev );
+		uniforms.uCameraMatrix.value = cameraEntity.matrixWorld;
+		uniforms.uViewMatrixPrev.value = camera.viewMatrixPrev;
+		uniforms.uViewMatrix.value = camera.viewMatrix;
+		uniforms.uCameraNear.value = camera.near;
+		uniforms.uCameraFar.value = camera.far;
 
 	}
 
@@ -733,14 +798,14 @@ export class Renderer extends Serializable implements RendererContract {
 	}
 
 	// gBufferのposition中心1pxをステージングバッファへ写す（結果はsubmit後に非同期で受け取る）
-	private _encodeFocusReadback( device: GPUDevice, encoder: GPUCommandEncoder, camera: Camera ) {
+	private _encodeFocusReadback( device: GPUDevice, encoder: GPUCommandEncoder, view: RenderView, camera: Camera ) {
 
 		// バッファがmap中（前回の読み出しがまだ返っていない）フレームはスキップする
-		if ( this._focusReadbackBusy ) return;
+		if ( view.focusReadbackBusy ) return;
 
-		if ( ! this._focusReadbackBuffer ) {
+		if ( ! view.focusReadbackBuffer ) {
 
-			this._focusReadbackBuffer = device.createBuffer( {
+			view.focusReadbackBuffer = device.createBuffer( {
 				label: 'focusReadback',
 				size: 16,
 				usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
@@ -749,26 +814,26 @@ export class Renderer extends Serializable implements RendererContract {
 		}
 
 		encoder.copyTextureToBuffer(
-			{ texture: this._targets.gBuffer[ 0 ], origin: [ this._targets.width >> 1, this._targets.height >> 1 ] },
-			{ buffer: this._focusReadbackBuffer },
+			{ texture: view.targets.gBuffer[ 0 ], origin: [ view.targets.width >> 1, view.targets.height >> 1 ] },
+			{ buffer: view.focusReadbackBuffer },
 			[ 1, 1 ]
 		);
 
 		// 深度化はエンコード時点のビュー行列で行う（解決時にはカメラが動いている）
-		this._focusViewMatrix.copy( camera.viewMatrix );
-		this._focusReadbackEncoded = true;
+		view.focusViewMatrix.copy( camera.viewMatrix );
+		view.focusReadbackEncoded = true;
 
 	}
 
 	// submit済みのリードバックをmapして中心深度を更新する
-	private _resolveFocusReadback() {
+	private _resolveFocusReadback( view: RenderView ) {
 
-		if ( ! this._focusReadbackEncoded || ! this._focusReadbackBuffer ) return;
+		if ( ! view.focusReadbackEncoded || ! view.focusReadbackBuffer ) return;
 
-		this._focusReadbackEncoded = false;
-		this._focusReadbackBusy = true;
+		view.focusReadbackEncoded = false;
+		view.focusReadbackBusy = true;
 
-		const buffer = this._focusReadbackBuffer;
+		const buffer = view.focusReadbackBuffer;
 
 		buffer.mapAsync( GPUMapMode.READ ).then( () => {
 
@@ -777,23 +842,26 @@ export class Renderer extends Serializable implements RendererContract {
 			// gBufferのクリア値（原点）は「何も描かれていない」とみなす
 			if ( data[ 0 ] === 0 && data[ 1 ] === 0 && data[ 2 ] === 0 ) {
 
-				this._centerDepth = null;
+				view.centerDepth = null;
 
 			} else {
 
-				this._focusPosition.set( data[ 0 ], data[ 1 ], data[ 2 ], 1 );
-				this._focusPosition.applyMatrix4( this._focusViewMatrix );
-				this._centerDepth = - this._focusPosition.z;
+				view.focusPosition.set( data[ 0 ], data[ 1 ], data[ 2 ], 1 );
+				view.focusPosition.applyMatrix4( view.focusViewMatrix );
+				view.centerDepth = - view.focusPosition.z;
 
 			}
 
+			// オートフォーカスはシーンカメラの属性なので、シーンカメラで描いたビューの値だけを公開する
+			if ( ! view.camera ) this._centerDepth = view.centerDepth;
+
 			buffer.unmap();
 
-			this._focusReadbackBusy = false;
+			view.focusReadbackBusy = false;
 
 		} ).catch( () => {
 
-			this._focusReadbackBusy = false;
+			view.focusReadbackBusy = false;
 
 		} );
 
@@ -915,6 +983,11 @@ export class Renderer extends Serializable implements RendererContract {
 
 		const envMap = this._envMap!;
 
+		// forward系マテリアルは group3 を要求する。envMap 自体は視点に依らないので最初のビューのものを貸す
+		const refractionBindGroup = this._views.length > 0 ? this._views[ 0 ].refractionBindGroup : null;
+
+		if ( ! refractionBindGroup ) return;
+
 		envMap.update( this.globalUniforms );
 
 		for ( let i = 0; i < envMap.faceRenders.length; i ++ ) {
@@ -940,7 +1013,7 @@ export class Renderer extends Serializable implements RendererContract {
 			pass.setBindGroup( GROUP_FRAME, face.frameBindGroup );
 
 			// envMapはシーン描画前に撮るため、refractionには前フレームのシーンが入っている
-			pass.setBindGroup( GROUP_REFRACTION, this._refractionBindGroup! );
+			pass.setBindGroup( GROUP_REFRACTION, refractionBindGroup );
 
 			for ( let j = 0; j < this._stack.envMap.length; j ++ ) {
 
@@ -976,25 +1049,27 @@ export class Renderer extends Serializable implements RendererContract {
 
 	}
 
-	private _renderGBuffer( device: GPUDevice, encoder: GPUCommandEncoder ) {
+	private _renderGBuffer( device: GPUDevice, encoder: GPUCommandEncoder, view: RenderView ) {
+
+		const targets = view.targets;
 
 		const pass = encoder.beginRenderPass( {
 			label: 'gBuffer',
-			colorAttachments: this._targets.gBufferViews.map( ( view ) => ( {
-				view,
+			colorAttachments: targets.gBufferViews.map( ( attachment ) => ( {
+				view: attachment,
 				clearValue: { r: 0, g: 0, b: 0, a: 0 },
 				loadOp: 'clear' as const,
 				storeOp: 'store' as const,
 			} ) ),
 			depthStencilAttachment: {
-				view: this._targets.depthView!,
+				view: targets.depthView!,
 				depthClearValue: 1.0,
 				depthLoadOp: 'clear',
 				depthStoreOp: 'store',
 			},
 		} );
 
-		pass.setBindGroup( GROUP_FRAME, this._frameBindGroup! );
+		pass.setBindGroup( GROUP_FRAME, view.frameBindGroup! );
 
 		for ( let i = 0; i < this._stack.deferred.length; i ++ ) {
 
@@ -1004,21 +1079,23 @@ export class Renderer extends Serializable implements RendererContract {
 
 		pass.end();
 
-		for ( let i = 0; i < this._targets.gBufferViews.length; i ++ ) {
+		for ( let i = 0; i < targets.gBufferViews.length; i ++ ) {
 
-			this._emitPass( this._targets.gBufferViews[ i ], this._targets.width, this._targets.height, `gBuffer_${i}` );
+			this._emitPass( targets.gBufferViews[ i ], targets.width, targets.height, `gBuffer_${i}` );
 
 		}
 
 	}
 
 	// gBufferを1画素ずつ読んでライティングし、シーンバッファへ書く
-	private _renderShading( encoder: GPUCommandEncoder ) {
+	private _renderShading( encoder: GPUCommandEncoder, view: RenderView ) {
+
+		const targets = view.targets;
 
 		const pass = encoder.beginRenderPass( {
 			label: 'shading',
 			colorAttachments: [ {
-				view: this._targets.sceneView!,
+				view: targets.sceneView!,
 				clearValue: { r: 0, g: 0, b: 0, a: 1 },
 				loadOp: 'clear',
 				storeOp: 'store',
@@ -1026,27 +1103,29 @@ export class Renderer extends Serializable implements RendererContract {
 		} );
 
 		pass.setPipeline( this._shadingPipeline! );
-		pass.setBindGroup( GROUP_FRAME, this._frameBindGroup! );
-		pass.setBindGroup( 1, this._gBufferBindGroup! );
+		pass.setBindGroup( GROUP_FRAME, view.frameBindGroup! );
+		pass.setBindGroup( 1, view.gBufferBindGroup! );
 		pass.setBindGroup( 2, this._lights!.bindGroup );
 		pass.draw( 3 );
 
 		pass.end();
 
-		this._emitPass( this._targets.sceneView, this._targets.width, this._targets.height, 'shading' );
+		this._emitPass( targets.sceneView, targets.width, targets.height, 'shading' );
 
 	}
 
 	// シェーディング結果の上へ、gBufferの深度を引き継いで重ねる
-	private _renderForward( device: GPUDevice, encoder: GPUCommandEncoder ) {
+	private _renderForward( device: GPUDevice, encoder: GPUCommandEncoder, view: RenderView ) {
+
+		const targets = view.targets;
 
 		if ( this._stack.forward.length === 0 ) return;
 
 		// 描画直前のシーンをrefractionへ写す。forwardマテリアルはこれを背景として読む
 		encoder.copyTextureToTexture(
-			{ texture: this._targets.scene! },
-			{ texture: this._targets.refraction! },
-			[ this._targets.width, this._targets.height ]
+			{ texture: targets.scene! },
+			{ texture: targets.refraction! },
+			[ targets.width, targets.height ]
 		);
 
 		// パイプライン側の targets（シーン色 / gBuffer position / velocity）と並びを合わせる
@@ -1054,30 +1133,30 @@ export class Renderer extends Serializable implements RendererContract {
 			label: 'forward',
 			colorAttachments: [
 				{
-					view: this._targets.sceneView!,
+					view: targets.sceneView!,
 					loadOp: 'load',
 					storeOp: 'store',
 				},
 				{
-					view: this._targets.gBufferViews[ 0 ],
+					view: targets.gBufferViews[ 0 ],
 					loadOp: 'load',
 					storeOp: 'store',
 				},
 				{
-					view: this._targets.gBufferViews[ 4 ],
+					view: targets.gBufferViews[ 4 ],
 					loadOp: 'load',
 					storeOp: 'store',
 				},
 			],
 			depthStencilAttachment: {
-				view: this._targets.depthView!,
+				view: targets.depthView!,
 				depthLoadOp: 'load',
 				depthStoreOp: 'store',
 			},
 		} );
 
-		pass.setBindGroup( GROUP_FRAME, this._frameBindGroup! );
-		pass.setBindGroup( GROUP_REFRACTION, this._refractionBindGroup! );
+		pass.setBindGroup( GROUP_FRAME, view.frameBindGroup! );
+		pass.setBindGroup( GROUP_REFRACTION, view.refractionBindGroup! );
 
 		for ( let i = 0; i < this._stack.forward.length; i ++ ) {
 
@@ -1087,17 +1166,20 @@ export class Renderer extends Serializable implements RendererContract {
 
 		pass.end();
 
-		this._emitPass( this._targets.sceneView, this._targets.width, this._targets.height, 'forward' );
+		this._emitPass( targets.sceneView, targets.width, targets.height, 'forward' );
 
 	}
 
-	// 最終出力をキャンバスへ出す。参照先が変わったときだけbind groupを作り直す
-	private _renderPresent( device: GPUDevice, encoder: GPUCommandEncoder, view: GPUTextureView, source: GPUTextureView ) {
+	// view の最終出力をキャンバスへ出す。参照先が変わったときだけbind groupを作り直す。
+	// offscreen ビューを任意の canvas へ出す EditorDraw からも呼ばれる
+	public renderPresent( device: GPUDevice, encoder: GPUCommandEncoder, canvasView: GPUTextureView, view: RenderView ) {
 
-		if ( this._sceneView !== source ) {
+		const source = view.outputView!;
 
-			this._sceneView = source;
-			this._sceneBindGroup = device.createBindGroup( {
+		if ( view.outputBindGroupSource !== source ) {
+
+			view.outputBindGroupSource = source;
+			view.outputBindGroup = device.createBindGroup( {
 				label: 'scene',
 				layout: this._sceneLayout!,
 				entries: [ { binding: 0, resource: source } ],
@@ -1108,7 +1190,7 @@ export class Renderer extends Serializable implements RendererContract {
 		const pass = encoder.beginRenderPass( {
 			label: 'present',
 			colorAttachments: [ {
-				view,
+				view: canvasView,
 				clearValue: { r: 0, g: 0, b: 0, a: 1 },
 				loadOp: 'clear',
 				storeOp: 'store',
@@ -1116,14 +1198,25 @@ export class Renderer extends Serializable implements RendererContract {
 		} );
 
 		pass.setPipeline( this._presentPipeline! );
-		pass.setBindGroup( 0, this._sceneBindGroup! );
+		pass.setBindGroup( 0, view.outputBindGroup! );
 		pass.draw( 3 );
 
 		pass.end();
 
 	}
 
-	// entity以下を再帰的に走査してフェーズごとの描画対象へ振り分ける
+	private _resetStack() {
+
+		this._stack.light.length = 0;
+		this._stack.shadowMap.length = 0;
+		this._stack.deferred.length = 0;
+		this._stack.forward.length = 0;
+		this._stack.envMap.length = 0;
+		this._sceneCamera = null;
+
+	}
+
+	// entity以下を再帰的に走査してフェーズごとの描画対象へ振り分ける。displayOut なカメラも同じ走査で拾う
 	private _collectRenderStack( entity: Entity, parentVisibility: boolean ) {
 
 		const visibility = parentVisibility && entity.visible;
@@ -1145,6 +1238,18 @@ export class Renderer extends Serializable implements RendererContract {
 		if ( light && light.enabled && visibility ) {
 
 			this._stack.light.push( entity );
+
+		}
+
+		if ( ! this._sceneCamera ) {
+
+			const cameras = entity.getComponentsByTag<Camera>( 'camera' );
+
+			for ( let i = 0; i < cameras.length; i ++ ) {
+
+				if ( cameras[ i ].displayOut ) this._sceneCamera = entity;
+
+			}
 
 		}
 
@@ -1234,40 +1339,43 @@ export class Renderer extends Serializable implements RendererContract {
 		Resource
 	-------------------------------*/
 
-	// キャンバスの実サイズに中間バッファを合わせ、参照するbind groupを作り直す
-	private _setTargetSize( device: GPUDevice, width: number, height: number ) {
+	// 解像度にビューの中間バッファを合わせ、参照するbind groupを作り直す
+	private _setTargetSize( device: GPUDevice, view: RenderView, width: number, height: number ) {
 
-		if ( this._targets.width === width && this._targets.height === height ) return;
+		if ( width < 1 || height < 1 ) return;
 
-		this._targets.setSize( device, width, height );
+		if ( view.targets.width === width && view.targets.height === height ) return;
 
-		this._connectTargets( device );
+		view.targets.setSize( device, width, height );
+
+		this._connectTargets( device, view );
 
 	}
 
-	// 中間バッファを参照するパイプラインを繋ぎ、bind groupを作り直す
-	private _connectTargets( device: GPUDevice ) {
+	// ビューの中間バッファを参照するパイプラインを繋ぎ、bind groupを作り直す
+	private _connectTargets( device: GPUDevice, view: RenderView ) {
 
-		const pipeline = this._pipeline!;
+		const pipeline = view.pipeline!;
+		const targets = view.targets;
 
-		pipeline.setSize( device, this._targets.width, this._targets.height );
+		pipeline.setSize( device, targets.width, targets.height );
 		pipeline.setGBuffer(
-			this._targets.gBufferViews[ 0 ],
-			this._targets.gBufferViews[ 1 ],
-			this._targets.gBufferViews[ 3 ],
-			this._targets.gBufferViews[ 4 ]
+			targets.gBufferViews[ 0 ],
+			targets.gBufferViews[ 1 ],
+			targets.gBufferViews[ 3 ],
+			targets.gBufferViews[ 4 ]
 		);
-		pipeline.setScene( this._targets.sceneView! );
+		pipeline.setScene( targets.sceneView! );
 
-		this._createGBufferBindGroup( device );
+		this._createGBufferBindGroup( device, view );
 
 		// envMap面パスもこのbind groupを共有するが、そこで描画するのはソースキューブで
 		// 読むのは事前フィルタ済み本体なので、読み書きの衝突は起きない
-		this._refractionBindGroup = device.createBindGroup( {
+		view.refractionBindGroup = device.createBindGroup( {
 			label: 'refraction',
 			layout: this._refractionLayout!,
 			entries: [
-				{ binding: 0, resource: this._targets.refractionView! },
+				{ binding: 0, resource: targets.refractionView! },
 				{ binding: 1, resource: this._refractionSampler! },
 				{ binding: 2, resource: this._envMap!.view },
 				{ binding: 3, resource: this._envMap!.sampler },
@@ -1275,29 +1383,29 @@ export class Renderer extends Serializable implements RendererContract {
 		} );
 
 		// 画面へ出す元は毎フレーム決まるので、ここでは無効化だけしておく
-		this._sceneView = null;
+		view.outputView = null;
 
 	}
 
 	// シェーディングが読む入力をまとめたbind group。
 	// lightShaft はぼかしを切るとピンポンの描画先が露出し、参照先がフレームごとに変わる
-	private _createGBufferBindGroup( device: GPUDevice ) {
+	private _createGBufferBindGroup( device: GPUDevice, view: RenderView ) {
 
-		const pipeline = this._pipeline!;
+		const pipeline = view.pipeline!;
 
-		this._gBufferLightShaftView = pipeline.lightShaftView;
+		view.gBufferLightShaftView = pipeline.lightShaftView;
 
-		this._gBufferBindGroup = device.createBindGroup( {
+		view.gBufferBindGroup = device.createBindGroup( {
 			label: 'gBuffer',
 			layout: this._gBufferLayout!,
 			entries: [
 				// 法線は normalSelector の結果に差し替える（webgl側の normalBuffer と同じ）
-				...this._targets.gBufferViews.map( ( resource, binding ) => (
+				...view.targets.gBufferViews.map( ( resource, binding ) => (
 					{ binding, resource: binding === 1 ? pipeline.normalView! : resource } ) ),
 				{ binding: ENVMAP_BINDING, resource: this._envMap!.view },
 				{ binding: ENVMAP_SAMPLER_BINDING, resource: this._envMap!.sampler },
 				{ binding: SSAO_BINDING, resource: pipeline.ssaoView! },
-				{ binding: LIGHTSHAFT_BINDING, resource: this._gBufferLightShaftView! },
+				{ binding: LIGHTSHAFT_BINDING, resource: view.gBufferLightShaftView! },
 			],
 		} );
 
@@ -1569,13 +1677,25 @@ export class Renderer extends Serializable implements RendererContract {
 	/*-------------------------------
 		Editor API
 
-		EditorDraw が使う口。エディタの重ね描きは、レンダラーが最後に画面へ出したのと
-		同じテクスチャ（uiView）へ描き、present で出し直す形にしている。
+		EditorDraw が使う口。エディタの重ね描きは、ビューの最終出力（outputView）へ描き、
+		drawToCanvas（renderPresent）で出し直す形にしている。
 	-------------------------------*/
 
 	public get device() {
 
 		return this._device;
+
+	}
+
+	public get context() {
+
+		return this._context;
+
+	}
+
+	public get canvasFormat() {
+
+		return this._canvasFormat;
 
 	}
 
@@ -1585,52 +1705,12 @@ export class Renderer extends Serializable implements RendererContract {
 
 	}
 
-	public get frameBindGroup() {
-
-		return this._frameBindGroup;
-
-	}
-
-	// シーンの深度。ギズモをシーンと深度比較させるために共有する
-	public get sceneDepthView() {
-
-		return this._targets.depthView;
-
-	}
-
-	// エディタが重ね描きする先（＝画面へ出しているテクスチャ）
-	public get uiView() {
-
-		return this._sceneView;
-
-	}
-
-	public get uiSize() {
-
-		return this._targets;
-
-	}
-
-	// uiView をキャンバスへ出し直す。エディタの重ね描きのあとに呼ばれる
-	public presentToCanvas() {
-
-		const device = this._device;
-		const context = this._context;
-
-		if ( ! device || ! context || ! this._sceneView ) return;
-
-		const encoder = device.createCommandEncoder();
-
-		this._renderPresent( device, encoder, context.getCurrentTexture().createView(), this._sceneView );
-
-		device.queue.submit( [ encoder.finish() ] );
-
-	}
-
 	// エディタ用にエンティティ列を任意ターゲットへ描く
 	public renderEditorEntities( param: {
+		// カメラ行列と refraction はこのビューのものを使う
+		view: RenderView;
 		entities: Entity[];
-		view: GPUTextureView;
+		colorView: GPUTextureView;
 		format: GPUTextureFormat;
 		depthView: GPUTextureView | null;
 		clear: boolean;
@@ -1640,15 +1720,17 @@ export class Renderer extends Serializable implements RendererContract {
 	} ) {
 
 		const device = this._device;
+		const frameBindGroup = param.view.frameBindGroup;
+		const refractionBindGroup = param.view.refractionBindGroup;
 
-		if ( ! device || ! this._frameBindGroup || ! this._refractionBindGroup ) return;
+		if ( ! device || ! frameBindGroup || ! refractionBindGroup ) return;
 
 		const encoder = device.createCommandEncoder();
 
 		const pass = encoder.beginRenderPass( {
 			label: 'editor',
 			colorAttachments: [ {
-				view: param.view,
+				view: param.colorView,
 				clearValue: { r: 0, g: 0, b: 0, a: 0 },
 				loadOp: param.clear ? 'clear' : 'load',
 				storeOp: 'store',
@@ -1660,8 +1742,8 @@ export class Renderer extends Serializable implements RendererContract {
 			} : undefined,
 		} );
 
-		pass.setBindGroup( GROUP_FRAME, this._frameBindGroup );
-		pass.setBindGroup( GROUP_REFRACTION, this._refractionBindGroup );
+		pass.setBindGroup( GROUP_FRAME, frameBindGroup );
+		pass.setBindGroup( GROUP_REFRACTION, refractionBindGroup );
 
 		for ( let i = 0; i < param.entities.length; i ++ ) {
 
@@ -1806,25 +1888,13 @@ export class Renderer extends Serializable implements RendererContract {
 
 	public applyPipelineConfig( config: PipelineConfig ) {
 
-		this.pipelineConfig = { ...this.pipelineConfig, ...config };
+		Object.assign( this.pipelineConfig, config );
 
-		this._applyEffectivePipelineConfig();
+		for ( let i = 0; i < this._views.length; i ++ ) {
 
-	}
+			this._views[ i ].applyPipelineConfig();
 
-	// シーン設定に触れずに一時的な上書きを重ねる（null で解除）
-	public setPipelineOverride( override: PipelineConfig | null ) {
-
-		this._pipelineOverride = override;
-
-		this._applyEffectivePipelineConfig();
-
-	}
-
-	// シーン本来の値にオーバーライドを重ねた実効値をパスへ流す
-	private _applyEffectivePipelineConfig() {
-
-		this._pipeline?.applyPipelineConfig( { ...this.pipelineConfig, ...this._pipelineOverride } );
+		}
 
 	}
 

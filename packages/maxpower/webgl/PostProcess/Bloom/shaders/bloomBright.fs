@@ -1,4 +1,4 @@
-uniform sampler2D uSrcTexture1;
+uniform sampler2D uShadingTexture;
 uniform float uThreshold;
 uniform float uBrightness;
 
@@ -8,7 +8,7 @@ layout (location = 0) out vec4 outColor;
 
 void main( void ) {
 
-	vec4 c = texture( uSrcTexture1, vUv );
+	vec4 c = texture( uShadingTexture, vUv );
   
 	vec3 f;
 	f = max( c.xyz - uThreshold, vec3( 0.0 ) ) / 10.0 * uBrightness;

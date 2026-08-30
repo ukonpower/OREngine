@@ -14,6 +14,34 @@ const FOCUS_EMPTY_RADIUS = 1.0;
 // 平面や点のように潰れた境界でカメラがめり込まないようにする下限
 const FOCUS_MIN_RADIUS = 0.1;
 
+// シーン内の displayOut なカメラを探す
+export const findSceneCameraEntity = ( root: MXP.Entity ): MXP.Entity | null => {
+
+	let found: MXP.Entity | null = null;
+
+	root.traverse( ( entity ) => {
+
+		if ( found ) return;
+
+		const cameras = entity.getComponentsByTag<MXP.Camera>( "camera" );
+
+		for ( let i = 0; i < cameras.length; i ++ ) {
+
+			if ( cameras[ i ].displayOut ) {
+
+				found = entity;
+				return;
+
+			}
+
+		}
+
+	} );
+
+	return found;
+
+};
+
 // 「どのカメラで見るか（view）」と「プレビュー（完成見た目の確認）」は独立した軸。
 // プレビュー中はシーンカメラ固定・本番同等パイプラインになる
 export class EditorCamera {
@@ -21,15 +49,17 @@ export class EditorCamera {
 	private _entity: MXP.Entity;
 	private _camera: MXP.Camera;
 	private _orbitControls: OrbitControls;
+	private _renderView: MXP.RenderViewContract;
 	private _view: "editor" | "camera";
 	private _preview: boolean;
 
-	constructor( engine: Engine ) {
+	constructor( engine: Engine, renderView: MXP.RenderViewContract ) {
 
 		this._entity = engine.createEntity( { name: "__editorCamera" } );
 		this._camera = this._entity.addComponent( MXP.Camera );
 		this._orbitControls = this._entity.addComponent( OrbitControls );
 		this._orbitControls.setElm( engine.canvas as HTMLCanvasElement );
+		this._renderView = renderView;
 		this._view = "editor";
 		this._preview = false;
 		this._apply( engine );
@@ -87,36 +117,31 @@ export class EditorCamera {
 
 	}
 
-	// view / preview の現在値をエンジンへ反映する
+	// view / preview の現在値を描画ビューへ反映する
 	private _apply( engine: Engine ) {
+
+		const renderView = this._renderView;
 
 		if ( this.usingEditorCamera ) {
 
 			// シーンカメラの見た目から切り替わる瞬間だけ姿勢を引き継ぎ、視点が飛ばないようにする
-			if ( engine.cameraEntity !== this._entity ) {
+			if ( renderView.camera !== this._entity ) {
 
 				this.syncFromSceneCamera( engine );
 
 			}
 
-			engine.cameraEntity = this._entity;
+			renderView.camera = this._entity;
 			this._orbitControls.enabled = true;
 
 		} else {
 
-			engine.cameraEntity = null;
+			renderView.camera = null;
 			this._orbitControls.enabled = false;
 
 		}
 
-		this.syncPipelineOverride( engine );
-
-	}
-
-	// 現在の状態に応じたパイプラインの上書きをレンダラーへ反映する
-	public syncPipelineOverride( engine: Engine ) {
-
-		engine.renderer.setPipelineOverride( this.usingEditorCamera ? EDITOR_PIPELINE_OVERRIDE : null );
+		renderView.pipelineOverride = this.usingEditorCamera ? EDITOR_PIPELINE_OVERRIDE : null;
 
 	}
 
@@ -198,9 +223,10 @@ export class EditorCamera {
 
 	}
 
+	// ビューが実際に描いているカメラ（エディタカメラか、シーンの displayOut カメラ）
 	public getCameraEntity( engine: Engine ): MXP.Entity | null {
 
-		return engine.resolveCameraEntity();
+		return this._renderView.camera || findSceneCameraEntity( engine.root );
 
 	}
 
@@ -209,6 +235,7 @@ export class EditorCamera {
 		if ( ! this.usingEditorCamera ) return;
 
 		const event = engine.createEntityUpdateEvent();
+		this._entity.commitFrame( event );
 		this._entity.updateMatrix();
 
 		this._camera.aspect = engine.renderer.resolution.x / engine.renderer.resolution.y;
@@ -218,15 +245,6 @@ export class EditorCamera {
 		this._entity.postUpdate( event );
 		this._entity.updateMatrixRecursive();
 		this._entity.prepareRender( event );
-
-	}
-
-	public updateAfterRender( engine: Engine ) {
-
-		if ( ! this.usingEditorCamera ) return;
-
-		const event = engine.createEntityUpdateEvent();
-		this._entity.commitFrame( event );
 
 	}
 
@@ -246,7 +264,7 @@ export class EditorCamera {
 	// シーンのアクティブカメラの姿勢と投影パラメータをエディタカメラへ写す
 	public syncFromSceneCamera( engine: Engine ) {
 
-		const sceneCameraEntity = engine.findSceneCameraEntity();
+		const sceneCameraEntity = findSceneCameraEntity( engine.root );
 
 		if ( ! sceneCameraEntity ) return;
 

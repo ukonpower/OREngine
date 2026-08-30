@@ -60,6 +60,7 @@ export const startPlayer = ( opts: StartPlayerOptions ): Engine => {
 	const exitElm = document.getElementById( 'e' )!;
 
 	const engine = new Engine( createRenderer );
+	const view = engine.createView();
 	opts.initResourceInstances( engine );
 
 	const size = opts.size ?? { width: 1920, height: 1080 };
@@ -93,6 +94,7 @@ export const startPlayer = ( opts: StartPlayerOptions ): Engine => {
 		function animate() {
 
 			engine.update();
+			engine.render( view );
 
 			if ( engine.frame.current > engine.frameSetting.duration ) {
 
@@ -116,7 +118,7 @@ export const startPlayer = ( opts: StartPlayerOptions ): Engine => {
 
 	const compile = () => {
 
-		engine.compileShaders( ( label: string, loaded: number, total: number ) => {
+		engine.compileShaders( view, ( label: string, loaded: number, total: number ) => {
 
 			const progress = loaded / total;
 

@@ -27,6 +27,7 @@ import ssCompositeWgsl from './shaders/ssComposite.wgsl';
 import ssrWgsl from './shaders/ssr.wgsl';
 
 import type { Camera } from '../../../core/Components/Camera';
+import type { PipelineConfig } from '../../../core/Contracts/RenderViewContract';
 import type { PostProcessPassParam } from '../../PostProcess';
 
 type PassCallback = ( pass: PostProcessPass ) => void;
@@ -61,19 +62,6 @@ const LIGHT_SHAFT_JITTER_CYCLE = 64;
 // rgba32float のgBufferはfilteringサンプラーで引けない
 const NEAREST = ( name: string ) => ( { name, filterable: false } );
 
-// エディタから触るポストプロセスの有効フラグ
-export type PipelineConfig = {
-	motionBlur?: boolean;
-	motionBlurPower?: number;
-	ssr?: boolean;
-	ssao?: boolean;
-	lightShaft?: boolean;
-	lightShaftIntensity?: number;
-	lightShaftBlur?: boolean;
-	lightShaftTemporal?: boolean;
-	lightShaftTemporalBlend?: number;
-	dof?: boolean;
-}
 
 export class PipelinePostProcess {
 
