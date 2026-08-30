@@ -1272,7 +1272,7 @@ export class Renderer extends Serializable implements RendererContract {
 
 	}
 
-	public async compileShaders( root: Entity, views: RenderViewContract[], event: EntityUpdateEvent, cb?: ( label: string, loaded: number, total: number ) => void ) {
+	public async compileShaders( root: Entity, view: RenderViewContract, event: EntityUpdateEvent, cb?: ( label: string, loaded: number, total: number ) => void ) {
 
 		/*-------------------------------
 			Correct Compiles
@@ -1282,12 +1282,7 @@ export class Renderer extends Serializable implements RendererContract {
 		this.compileDrawParams = [];
 
 		this.prepareScene( root, event );
-
-		for ( let i = 0; i < views.length; i ++ ) {
-
-			this.render( views[ i ], event );
-
-		}
+		this.render( view, event );
 
 		this._isCorrentCompiles = false;
 

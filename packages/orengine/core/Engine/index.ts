@@ -21,7 +21,6 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 
 	public static resources: Resources;
 	public name: string;
-	public enableRender: boolean;
 
 	private _renderer: MXP.Renderer;
 	private _root: MXP.Entity;
@@ -30,7 +29,7 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 	private _frame: FramePlay;
 	private _frameSetting: OREngineProjectFrame;
 	private _disposed: boolean;
-	private _views: MXP.RenderViewContract[];
+	private _frameEvent: MXP.EntityUpdateEvent | null;
 
 	constructor( createRenderer: ( engine: MXP.EngineContract ) => MXP.Renderer ) {
 
@@ -88,8 +87,7 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 		};
 
 		this.seek( 0 );
-		this.enableRender = true;
-		this._views = [];
+		this._frameEvent = null;
 
 		// root
 
@@ -181,32 +179,15 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 
 	}
 
-	public get views() {
-
-		return this._views;
-
-	}
-
 	/*-------------------------------
 		View
 	-------------------------------*/
 
-	// 描画する視点を増やす。update は登録された全ビューを描く（player は1つ）
+	// 描画する視点を作る。どの view をいつ描くかは呼び出し側が render( view ) で決め、
+	// 使い終わった view の dispose も作った側の責任
 	public createView() {
 
-		const view = this._renderer.createView();
-
-		this._views.push( view );
-
-		return view;
-
-	}
-
-	public removeView( view: MXP.RenderViewContract ) {
-
-		this._views.splice( this._views.indexOf( view ), 1 );
-
-		view.dispose();
+		return this._renderer.createView();
 
 	}
 
@@ -292,18 +273,7 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 
 		}
 
-		this._root.update( event );
-		this._root.postUpdate( event );
-		this._root.updateMatrixRecursive();
-		this._root.prepareRender( event );
-
-		if ( this.enableRender ) {
-
-			this._render( event );
-
-		}
-
-		this._root.commitFrame( event );
+		this._step( event );
 
 		if ( this._frame.playing ) {
 
@@ -315,16 +285,35 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 
 	}
 
-	// 全ビューを描く。シーン共通の資源はフレーム1回だけ更新する
-	private _render( event: MXP.EntityUpdateEvent ) {
+	// シーンを1フレーム進めて描ける状態にする。
+	// 前フレームの行列確定（commitFrame）は render の後でなければならないので、
+	// 描画の後始末としてではなく次フレームの冒頭で行う。これで呼び出し側は
+	// update → render( view ) の2手順で済む
+	private _step( event: MXP.EntityUpdateEvent ) {
+
+		this._root.commitFrame( event );
+
+		this._root.update( event );
+		this._root.postUpdate( event );
+		this._root.updateMatrixRecursive();
+		this._root.prepareRender( event );
 
 		this._renderer.prepareScene( this._root, event );
 
-		for ( let i = 0; i < this._views.length; i ++ ) {
+		this._frameEvent = event;
 
-			this._renderer.render( this._views[ i ], event );
+	}
 
-		}
+	/*-------------------------------
+		Render
+	-------------------------------*/
+
+	// view の視点で直近の update の状態を view の出力バッファへ描く（canvas には出さない）
+	public render( view: MXP.RenderViewContract ) {
+
+		if ( ! this._frameEvent ) return;
+
+		this._renderer.render( view, this._frameEvent );
 
 	}
 
@@ -429,18 +418,7 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 
 		}
 
-		this._root.update( event );
-		this._root.postUpdate( event );
-		this._root.updateMatrixRecursive();
-		this._root.prepareRender( event );
-
-		if ( this.enableRender ) {
-
-			this._render( event );
-
-		}
-
-		this._root.commitFrame( event );
+		this._step( event );
 
 	}
 
@@ -448,11 +426,11 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 		CompileShaders
 	-------------------------------*/
 
-	public compileShaders( onProgress?: ( label: string, loaded: number, total: number ) => void ) {
+	public compileShaders( view: MXP.RenderViewContract, onProgress?: ( label: string, loaded: number, total: number ) => void ) {
 
 		const event = this.createEntityUpdateEvent( { forceDraw: true } );
 
-		return this.renderer.compileShaders( this._root, this._views, event, onProgress );
+		return this.renderer.compileShaders( this._root, view, event, onProgress );
 
 	}
 

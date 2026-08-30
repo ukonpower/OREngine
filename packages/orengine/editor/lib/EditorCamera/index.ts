@@ -235,6 +235,7 @@ export class EditorCamera {
 		if ( ! this.usingEditorCamera ) return;
 
 		const event = engine.createEntityUpdateEvent();
+		this._entity.commitFrame( event );
 		this._entity.updateMatrix();
 
 		this._camera.aspect = engine.renderer.resolution.x / engine.renderer.resolution.y;
@@ -244,15 +245,6 @@ export class EditorCamera {
 		this._entity.postUpdate( event );
 		this._entity.updateMatrixRecursive();
 		this._entity.prepareRender( event );
-
-	}
-
-	public updateAfterRender( engine: Engine ) {
-
-		if ( ! this.usingEditorCamera ) return;
-
-		const event = engine.createEntityUpdateEvent();
-		this._entity.commitFrame( event );
 
 	}
 

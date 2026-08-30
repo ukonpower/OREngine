@@ -52,6 +52,7 @@ export class Editor extends MXP.Serializable {
 	private _audioBuffer: AudioBuffer | null;
 	private _frameLoop: EditorTimelineLoop;
 	private _resolutionScale: number;
+	private _enableRender: boolean;
 	private _baseResolution: MTP.Vector;
 	private _viewType: "render" | "debug";
 	private _frameDebugger: FrameDebugger;
@@ -93,6 +94,7 @@ export class Editor extends MXP.Serializable {
 		this._navigateAsset = null;
 		this._propertyTarget = "entity";
 		this._resolutionScale = 1.0;
+		this._enableRender = true;
 		this._baseResolution = new MTP.Vector( 1920, 1080 );
 		this._externalWindow = null;
 		this._externalCanvasBitmapContext = null;
@@ -256,7 +258,7 @@ export class Editor extends MXP.Serializable {
 			Fields
 		-------------------------------*/
 
-		this.field( "enableRender", () => this._engine.enableRender, v => this._engine.enableRender = v );
+		this.field( "enableRender", () => this._enableRender, v => this._enableRender = v );
 
 		this.field( "resolutionScale", () => this._resolutionScale, v => {
 
@@ -493,6 +495,12 @@ export class Editor extends MXP.Serializable {
 
 			this._engine.update();
 
+			if ( this._enableRender ) {
+
+				this._engine.render( this._view );
+
+			}
+
 			const cameraEntity = this._editorCamera.getCameraEntity( this._engine );
 			const selectedEntity = this._selectedEntityId
 				? this._engine.root.findEntityByUUID( this._selectedEntityId ) ?? null
@@ -537,8 +545,6 @@ export class Editor extends MXP.Serializable {
 			}
 
 			this._engine.renderer.present( view );
-
-			this._editorCamera.updateAfterRender( this._engine );
 
 			if ( this._externalCanvasBitmapContext ) {
 
@@ -822,7 +828,7 @@ export class Editor extends MXP.Serializable {
 		this._modalTransformHandler.dispose();
 		this._frameDebugger.dispose();
 		this._assetPreviewManager.dispose();
-		this._engine.removeView( this._view );
+		this._view.dispose();
 
 	}
 

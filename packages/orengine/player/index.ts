@@ -94,6 +94,7 @@ export const startPlayer = ( opts: StartPlayerOptions ): Engine => {
 		function animate() {
 
 			engine.update();
+			engine.render( view );
 			engine.renderer.present( view );
 
 			if ( engine.frame.current > engine.frameSetting.duration ) {
@@ -118,7 +119,7 @@ export const startPlayer = ( opts: StartPlayerOptions ): Engine => {
 
 	const compile = () => {
 
-		engine.compileShaders( ( label: string, loaded: number, total: number ) => {
+		engine.compileShaders( view, ( label: string, loaded: number, total: number ) => {
 
 			const progress = loaded / total;
 

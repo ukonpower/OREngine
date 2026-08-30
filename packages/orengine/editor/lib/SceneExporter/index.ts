@@ -61,6 +61,7 @@ export class SceneExporter {
 		for ( let f = 0; f < totalFrames; f ++ ) {
 
 			this._engine.updateOffline( f, fps );
+			this._engine.render( this._view );
 			this._engine.renderer.present( this._view );
 
 			await videoSource.add( f / fps, 1 / fps );
