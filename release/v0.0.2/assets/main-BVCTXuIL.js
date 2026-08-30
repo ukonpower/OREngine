@@ -1,0 +1,12546 @@
+var e=Object.create,t=Object.defineProperty,n=Object.getOwnPropertyDescriptor,r=Object.getOwnPropertyNames,i=Object.getPrototypeOf,a=Object.prototype.hasOwnProperty,o=(e,t)=>()=>(t||(e((t={exports:{}}).exports,t),e=null),t.exports),s=(e,n)=>{let r={};for(var i in e)t(r,i,{get:e[i],enumerable:!0});return n||t(r,Symbol.toStringTag,{value:`Module`}),r},c=(e,i,o,s)=>{if(i&&typeof i==`object`||typeof i==`function`)for(var c=r(i),l=0,u=c.length,d;l<u;l++)d=c[l],!a.call(e,d)&&d!==o&&t(e,d,{get:(e=>i[e]).bind(null,d),enumerable:!(s=n(i,d))||s.enumerable});return e},l=(n,r,o)=>(o=n==null?{}:e(i(n)),c(r||!n||!n.__esModule||!a.call(n,`default`)?t(o,`default`,{value:n,enumerable:!0}):o,n));(function(){let e=document.createElement(`link`).relList;if(e&&e.supports&&e.supports(`modulepreload`))return;for(let e of document.querySelectorAll(`link[rel="modulepreload"]`))n(e);new MutationObserver(e=>{for(let t of e)if(t.type===`childList`)for(let e of t.addedNodes)e.tagName===`LINK`&&e.rel===`modulepreload`&&n(e)}).observe(document,{childList:!0,subtree:!0});function t(e){let t={};return e.integrity&&(t.integrity=e.integrity),e.referrerPolicy&&(t.referrerPolicy=e.referrerPolicy),t.credentials=e.crossOrigin===`use-credentials`?`include`:e.crossOrigin===`anonymous`?`omit`:`same-origin`,t}function n(e){if(e.ep)return;e.ep=!0;let n=t(e);fetch(e.href,n)}})();var u=o((e=>{function t(e,t){var n=e.length;e.push(t);a:for(;0<n;){var r=n-1>>>1,a=e[r];if(0<i(a,t))e[r]=t,e[n]=a,n=r;else break a}}function n(e){return e.length===0?null:e[0]}function r(e){if(e.length===0)return null;var t=e[0],n=e.pop();if(n!==t){e[0]=n;a:for(var r=0,a=e.length,o=a>>>1;r<o;){var s=2*(r+1)-1,c=e[s],l=s+1,u=e[l];if(0>i(c,n))l<a&&0>i(u,c)?(e[r]=u,e[l]=n,r=l):(e[r]=c,e[s]=n,r=s);else if(l<a&&0>i(u,n))e[r]=u,e[l]=n,r=l;else break a}}return t}function i(e,t){var n=e.sortIndex-t.sortIndex;return n===0?e.id-t.id:n}if(e.unstable_now=void 0,typeof performance==`object`&&typeof performance.now==`function`){var a=performance;e.unstable_now=function(){return a.now()}}else{var o=Date,s=o.now();e.unstable_now=function(){return o.now()-s}}var c=[],l=[],u=1,d=null,f=3,p=!1,m=!1,h=!1,g=!1,_=typeof setTimeout==`function`?setTimeout:null,v=typeof clearTimeout==`function`?clearTimeout:null,y=typeof setImmediate<`u`?setImmediate:null;function b(e){for(var i=n(l);i!==null;){if(i.callback===null)r(l);else if(i.startTime<=e)r(l),i.sortIndex=i.expirationTime,t(c,i);else break;i=n(l)}}function x(e){if(h=!1,b(e),!m){if(n(c)!==null)m=!0,S||(S=!0,ne());else{var t=n(l);t!==null&&ae(x,t.startTime-e)}}}var S=!1,C=-1,w=5,ee=-1;function te(){return g?!0:!(e.unstable_now()-ee<w)}function T(){if(g=!1,S){var t=e.unstable_now();ee=t;var i=!0;try{a:{m=!1,h&&(h=!1,v(C),C=-1),p=!0;var a=f;try{b:{for(b(t),d=n(c);d!==null&&!(d.expirationTime>t&&te());){var o=d.callback;if(typeof o==`function`){d.callback=null,f=d.priorityLevel;var s=o(d.expirationTime<=t);if(t=e.unstable_now(),typeof s==`function`){d.callback=s,b(t),i=!0;break b}d===n(c)&&r(c),b(t)}else r(c);d=n(c)}if(d!==null)i=!0;else{var u=n(l);u!==null&&ae(x,u.startTime-t),i=!1}}break a}finally{d=null,f=a,p=!1}}}finally{i?ne():S=!1}}}var ne;if(typeof y==`function`)ne=function(){y(T)};else if(typeof MessageChannel<`u`){var re=new MessageChannel,ie=re.port2;re.port1.onmessage=T,ne=function(){ie.postMessage(null)}}else ne=function(){_(T,0)};function ae(t,n){C=_(function(){t(e.unstable_now())},n)}e.unstable_IdlePriority=5,e.unstable_ImmediatePriority=1,e.unstable_LowPriority=4,e.unstable_NormalPriority=3,e.unstable_Profiling=null,e.unstable_UserBlockingPriority=2,e.unstable_cancelCallback=function(e){e.callback=null},e.unstable_forceFrameRate=function(e){0>e||125<e?console.error(`forceFrameRate takes a positive int between 0 and 125, forcing frame rates higher than 125 fps is not supported`):w=0<e?Math.floor(1e3/e):5},e.unstable_getCurrentPriorityLevel=function(){return f},e.unstable_next=function(e){switch(f){case 1:case 2:case 3:var t=3;break;default:t=f}var n=f;f=t;try{return e()}finally{f=n}},e.unstable_requestPaint=function(){g=!0},e.unstable_runWithPriority=function(e,t){switch(e){case 1:case 2:case 3:case 4:case 5:break;default:e=3}var n=f;f=e;try{return t()}finally{f=n}},e.unstable_scheduleCallback=function(r,i,a){var o=e.unstable_now();switch(typeof a==`object`&&a?(a=a.delay,a=typeof a==`number`&&0<a?o+a:o):a=o,r){case 1:var s=-1;break;case 2:s=250;break;case 5:s=1073741823;break;case 4:s=1e4;break;default:s=5e3}return s=a+s,r={id:u++,callback:i,priorityLevel:r,startTime:a,expirationTime:s,sortIndex:-1},a>o?(r.sortIndex=a,t(l,r),n(c)===null&&r===n(l)&&(h?(v(C),C=-1):h=!0,ae(x,a-o))):(r.sortIndex=s,t(c,r),m||p||(m=!0,S||(S=!0,ne()))),r},e.unstable_shouldYield=te,e.unstable_wrapCallback=function(e){var t=f;return function(){var n=f;f=t;try{return e.apply(this,arguments)}finally{f=n}}}})),d=o(((e,t)=>{t.exports=u()})),f=o((e=>{var t=Symbol.for(`react.transitional.element`),n=Symbol.for(`react.portal`),r=Symbol.for(`react.fragment`),i=Symbol.for(`react.strict_mode`),a=Symbol.for(`react.profiler`),o=Symbol.for(`react.consumer`),s=Symbol.for(`react.context`),c=Symbol.for(`react.forward_ref`),l=Symbol.for(`react.suspense`),u=Symbol.for(`react.memo`),d=Symbol.for(`react.lazy`),f=Symbol.for(`react.activity`),p=Symbol.iterator;function m(e){return typeof e!=`object`||!e?null:(e=p&&e[p]||e[`@@iterator`],typeof e==`function`?e:null)}var h={isMounted:function(){return!1},enqueueForceUpdate:function(){},enqueueReplaceState:function(){},enqueueSetState:function(){}},g=Object.assign,_={};function v(e,t,n){this.props=e,this.context=t,this.refs=_,this.updater=n||h}v.prototype.isReactComponent={},v.prototype.setState=function(e,t){if(typeof e!=`object`&&typeof e!=`function`&&e!=null)throw Error(`takes an object of state variables to update or a function which returns an object of state variables.`);this.updater.enqueueSetState(this,e,t,`setState`)},v.prototype.forceUpdate=function(e){this.updater.enqueueForceUpdate(this,e,`forceUpdate`)};function y(){}y.prototype=v.prototype;function b(e,t,n){this.props=e,this.context=t,this.refs=_,this.updater=n||h}var x=b.prototype=new y;x.constructor=b,g(x,v.prototype),x.isPureReactComponent=!0;var S=Array.isArray;function C(){}var w={H:null,A:null,T:null,S:null},ee=Object.prototype.hasOwnProperty;function te(e,n,r){var i=r.ref;return{$$typeof:t,type:e,key:n,ref:i===void 0?null:i,props:r}}function T(e,t){return te(e.type,t,e.props)}function ne(e){return typeof e==`object`&&!!e&&e.$$typeof===t}function re(e){var t={"=":`=0`,":":`=2`};return`$`+e.replace(/[=:]/g,function(e){return t[e]})}var ie=/\/+/g;function ae(e,t){return typeof e==`object`&&e&&e.key!=null?re(``+e.key):t.toString(36)}function oe(e){switch(e.status){case`fulfilled`:return e.value;case`rejected`:throw e.reason;default:switch(typeof e.status==`string`?e.then(C,C):(e.status=`pending`,e.then(function(t){e.status===`pending`&&(e.status=`fulfilled`,e.value=t)},function(t){e.status===`pending`&&(e.status=`rejected`,e.reason=t)})),e.status){case`fulfilled`:return e.value;case`rejected`:throw e.reason}}throw e}function se(e,r,i,a,o){var s=typeof e;(s===`undefined`||s===`boolean`)&&(e=null);var c=!1;if(e===null)c=!0;else switch(s){case`bigint`:case`string`:case`number`:c=!0;break;case`object`:switch(e.$$typeof){case t:case n:c=!0;break;case d:return c=e._init,se(c(e._payload),r,i,a,o)}}if(c)return o=o(e),c=a===``?`.`+ae(e,0):a,S(o)?(i=``,c!=null&&(i=c.replace(ie,`$&/`)+`/`),se(o,r,i,``,function(e){return e})):o!=null&&(ne(o)&&(o=T(o,i+(o.key==null||e&&e.key===o.key?``:(``+o.key).replace(ie,`$&/`)+`/`)+c)),r.push(o)),1;c=0;var l=a===``?`.`:a+`:`;if(S(e))for(var u=0;u<e.length;u++)a=e[u],s=l+ae(a,u),c+=se(a,r,i,s,o);else if(u=m(e),typeof u==`function`)for(e=u.call(e),u=0;!(a=e.next()).done;)a=a.value,s=l+ae(a,u++),c+=se(a,r,i,s,o);else if(s===`object`){if(typeof e.then==`function`)return se(oe(e),r,i,a,o);throw r=String(e),Error(`Objects are not valid as a React child (found: `+(r===`[object Object]`?`object with keys {`+Object.keys(e).join(`, `)+`}`:r)+`). If you meant to render a collection of children, use an array instead.`)}return c}function ce(e,t,n){if(e==null)return e;var r=[],i=0;return se(e,r,``,``,function(e){return t.call(n,e,i++)}),r}function le(e){if(e._status===-1){var t=e._result;t=t(),t.then(function(t){(e._status===0||e._status===-1)&&(e._status=1,e._result=t)},function(t){(e._status===0||e._status===-1)&&(e._status=2,e._result=t)}),e._status===-1&&(e._status=0,e._result=t)}if(e._status===1)return e._result.default;throw e._result}var E=typeof reportError==`function`?reportError:function(e){if(typeof window==`object`&&typeof window.ErrorEvent==`function`){var t=new window.ErrorEvent(`error`,{bubbles:!0,cancelable:!0,message:typeof e==`object`&&e&&typeof e.message==`string`?String(e.message):String(e),error:e});if(!window.dispatchEvent(t))return}else if(typeof process==`object`&&typeof process.emit==`function`){process.emit(`uncaughtException`,e);return}console.error(e)},D={map:ce,forEach:function(e,t,n){ce(e,function(){t.apply(this,arguments)},n)},count:function(e){var t=0;return ce(e,function(){t++}),t},toArray:function(e){return ce(e,function(e){return e})||[]},only:function(e){if(!ne(e))throw Error(`React.Children.only expected to receive a single React element child.`);return e}};e.Activity=f,e.Children=D,e.Component=v,e.Fragment=r,e.Profiler=a,e.PureComponent=b,e.StrictMode=i,e.Suspense=l,e.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE=w,e.__COMPILER_RUNTIME={__proto__:null,c:function(e){return w.H.useMemoCache(e)}},e.cache=function(e){return function(){return e.apply(null,arguments)}},e.cacheSignal=function(){return null},e.cloneElement=function(e,t,n){if(e==null)throw Error(`The argument must be a React element, but you passed `+e+`.`);var r=g({},e.props),i=e.key;if(t!=null)for(a in t.key!==void 0&&(i=``+t.key),t)!ee.call(t,a)||a===`key`||a===`__self`||a===`__source`||a===`ref`&&t.ref===void 0||(r[a]=t[a]);var a=arguments.length-2;if(a===1)r.children=n;else if(1<a){for(var o=Array(a),s=0;s<a;s++)o[s]=arguments[s+2];r.children=o}return te(e.type,i,r)},e.createContext=function(e){return e={$$typeof:s,_currentValue:e,_currentValue2:e,_threadCount:0,Provider:null,Consumer:null},e.Provider=e,e.Consumer={$$typeof:o,_context:e},e},e.createElement=function(e,t,n){var r,i={},a=null;if(t!=null)for(r in t.key!==void 0&&(a=``+t.key),t)ee.call(t,r)&&r!==`key`&&r!==`__self`&&r!==`__source`&&(i[r]=t[r]);var o=arguments.length-2;if(o===1)i.children=n;else if(1<o){for(var s=Array(o),c=0;c<o;c++)s[c]=arguments[c+2];i.children=s}if(e&&e.defaultProps)for(r in o=e.defaultProps,o)i[r]===void 0&&(i[r]=o[r]);return te(e,a,i)},e.createRef=function(){return{current:null}},e.forwardRef=function(e){return{$$typeof:c,render:e}},e.isValidElement=ne,e.lazy=function(e){return{$$typeof:d,_payload:{_status:-1,_result:e},_init:le}},e.memo=function(e,t){return{$$typeof:u,type:e,compare:t===void 0?null:t}},e.startTransition=function(e){var t=w.T,n={};w.T=n;try{var r=e(),i=w.S;i!==null&&i(n,r),typeof r==`object`&&r&&typeof r.then==`function`&&r.then(C,E)}catch(e){E(e)}finally{t!==null&&n.types!==null&&(t.types=n.types),w.T=t}},e.unstable_useCacheRefresh=function(){return w.H.useCacheRefresh()},e.use=function(e){return w.H.use(e)},e.useActionState=function(e,t,n){return w.H.useActionState(e,t,n)},e.useCallback=function(e,t){return w.H.useCallback(e,t)},e.useContext=function(e){return w.H.useContext(e)},e.useDebugValue=function(){},e.useDeferredValue=function(e,t){return w.H.useDeferredValue(e,t)},e.useEffect=function(e,t){return w.H.useEffect(e,t)},e.useEffectEvent=function(e){return w.H.useEffectEvent(e)},e.useId=function(){return w.H.useId()},e.useImperativeHandle=function(e,t,n){return w.H.useImperativeHandle(e,t,n)},e.useInsertionEffect=function(e,t){return w.H.useInsertionEffect(e,t)},e.useLayoutEffect=function(e,t){return w.H.useLayoutEffect(e,t)},e.useMemo=function(e,t){return w.H.useMemo(e,t)},e.useOptimistic=function(e,t){return w.H.useOptimistic(e,t)},e.useReducer=function(e,t,n){return w.H.useReducer(e,t,n)},e.useRef=function(e){return w.H.useRef(e)},e.useState=function(e){return w.H.useState(e)},e.useSyncExternalStore=function(e,t,n){return w.H.useSyncExternalStore(e,t,n)},e.useTransition=function(){return w.H.useTransition()},e.version=`19.2.8`})),p=o(((e,t)=>{t.exports=f()})),m=o((e=>{var t=p();function n(e){var t=`https://react.dev/errors/`+e;if(1<arguments.length){t+=`?args[]=`+encodeURIComponent(arguments[1]);for(var n=2;n<arguments.length;n++)t+=`&args[]=`+encodeURIComponent(arguments[n])}return`Minified React error #`+e+`; visit `+t+` for the full message or use the non-minified dev environment for full errors and additional helpful warnings.`}function r(){}var i={d:{f:r,r:function(){throw Error(n(522))},D:r,C:r,L:r,m:r,X:r,S:r,M:r},p:0,findDOMNode:null},a=Symbol.for(`react.portal`);function o(e,t,n){var r=3<arguments.length&&arguments[3]!==void 0?arguments[3]:null;return{$$typeof:a,key:r==null?null:``+r,children:e,containerInfo:t,implementation:n}}var s=t.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE;function c(e,t){if(e===`font`)return``;if(typeof t==`string`)return t===`use-credentials`?t:``}e.__DOM_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE=i,e.createPortal=function(e,t){var r=2<arguments.length&&arguments[2]!==void 0?arguments[2]:null;if(!t||t.nodeType!==1&&t.nodeType!==9&&t.nodeType!==11)throw Error(n(299));return o(e,t,null,r)},e.flushSync=function(e){var t=s.T,n=i.p;try{if(s.T=null,i.p=2,e)return e()}finally{s.T=t,i.p=n,i.d.f()}},e.preconnect=function(e,t){typeof e==`string`&&(t?(t=t.crossOrigin,t=typeof t==`string`?t===`use-credentials`?t:``:void 0):t=null,i.d.C(e,t))},e.prefetchDNS=function(e){typeof e==`string`&&i.d.D(e)},e.preinit=function(e,t){if(typeof e==`string`&&t&&typeof t.as==`string`){var n=t.as,r=c(n,t.crossOrigin),a=typeof t.integrity==`string`?t.integrity:void 0,o=typeof t.fetchPriority==`string`?t.fetchPriority:void 0;n===`style`?i.d.S(e,typeof t.precedence==`string`?t.precedence:void 0,{crossOrigin:r,integrity:a,fetchPriority:o}):n===`script`&&i.d.X(e,{crossOrigin:r,integrity:a,fetchPriority:o,nonce:typeof t.nonce==`string`?t.nonce:void 0})}},e.preinitModule=function(e,t){if(typeof e==`string`){if(typeof t==`object`&&t){if(t.as==null||t.as===`script`){var n=c(t.as,t.crossOrigin);i.d.M(e,{crossOrigin:n,integrity:typeof t.integrity==`string`?t.integrity:void 0,nonce:typeof t.nonce==`string`?t.nonce:void 0})}}else t??i.d.M(e)}},e.preload=function(e,t){if(typeof e==`string`&&typeof t==`object`&&t&&typeof t.as==`string`){var n=t.as,r=c(n,t.crossOrigin);i.d.L(e,n,{crossOrigin:r,integrity:typeof t.integrity==`string`?t.integrity:void 0,nonce:typeof t.nonce==`string`?t.nonce:void 0,type:typeof t.type==`string`?t.type:void 0,fetchPriority:typeof t.fetchPriority==`string`?t.fetchPriority:void 0,referrerPolicy:typeof t.referrerPolicy==`string`?t.referrerPolicy:void 0,imageSrcSet:typeof t.imageSrcSet==`string`?t.imageSrcSet:void 0,imageSizes:typeof t.imageSizes==`string`?t.imageSizes:void 0,media:typeof t.media==`string`?t.media:void 0})}},e.preloadModule=function(e,t){if(typeof e==`string`){if(t){var n=c(t.as,t.crossOrigin);i.d.m(e,{as:typeof t.as==`string`&&t.as!==`script`?t.as:void 0,crossOrigin:n,integrity:typeof t.integrity==`string`?t.integrity:void 0})}else i.d.m(e)}},e.requestFormReset=function(e){i.d.r(e)},e.unstable_batchedUpdates=function(e,t){return e(t)},e.useFormState=function(e,t,n){return s.H.useFormState(e,t,n)},e.useFormStatus=function(){return s.H.useHostTransitionStatus()},e.version=`19.2.8`})),h=o(((e,t)=>{function n(){if(!(typeof __REACT_DEVTOOLS_GLOBAL_HOOK__>`u`||typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.checkDCE!=`function`))try{__REACT_DEVTOOLS_GLOBAL_HOOK__.checkDCE(n)}catch(e){console.error(e)}}n(),t.exports=m()})),g=o((e=>{var t=d(),n=p(),r=h();function i(e){var t=`https://react.dev/errors/`+e;if(1<arguments.length){t+=`?args[]=`+encodeURIComponent(arguments[1]);for(var n=2;n<arguments.length;n++)t+=`&args[]=`+encodeURIComponent(arguments[n])}return`Minified React error #`+e+`; visit `+t+` for the full message or use the non-minified dev environment for full errors and additional helpful warnings.`}function a(e){return!(!e||e.nodeType!==1&&e.nodeType!==9&&e.nodeType!==11)}function o(e){var t=e,n=e;if(e.alternate)for(;t.return;)t=t.return;else{e=t;do t=e,t.flags&4098&&(n=t.return),e=t.return;while(e)}return t.tag===3?n:null}function s(e){if(e.tag===13){var t=e.memoizedState;if(t===null&&(e=e.alternate,e!==null&&(t=e.memoizedState)),t!==null)return t.dehydrated}return null}function c(e){if(e.tag===31){var t=e.memoizedState;if(t===null&&(e=e.alternate,e!==null&&(t=e.memoizedState)),t!==null)return t.dehydrated}return null}function l(e){if(o(e)!==e)throw Error(i(188))}function u(e){var t=e.alternate;if(!t){if(t=o(e),t===null)throw Error(i(188));return t===e?e:null}for(var n=e,r=t;;){var a=n.return;if(a===null)break;var s=a.alternate;if(s===null){if(r=a.return,r!==null){n=r;continue}break}if(a.child===s.child){for(s=a.child;s;){if(s===n)return l(a),e;if(s===r)return l(a),t;s=s.sibling}throw Error(i(188))}if(n.return!==r.return)n=a,r=s;else{for(var c=!1,u=a.child;u;){if(u===n){c=!0,n=a,r=s;break}if(u===r){c=!0,r=a,n=s;break}u=u.sibling}if(!c){for(u=s.child;u;){if(u===n){c=!0,n=s,r=a;break}if(u===r){c=!0,r=s,n=a;break}u=u.sibling}if(!c)throw Error(i(189))}}if(n.alternate!==r)throw Error(i(190))}if(n.tag!==3)throw Error(i(188));return n.stateNode.current===n?e:t}function f(e){var t=e.tag;if(t===5||t===26||t===27||t===6)return e;for(e=e.child;e!==null;){if(t=f(e),t!==null)return t;e=e.sibling}return null}var m=Object.assign,g=Symbol.for(`react.element`),_=Symbol.for(`react.transitional.element`),v=Symbol.for(`react.portal`),y=Symbol.for(`react.fragment`),b=Symbol.for(`react.strict_mode`),x=Symbol.for(`react.profiler`),S=Symbol.for(`react.consumer`),C=Symbol.for(`react.context`),w=Symbol.for(`react.forward_ref`),ee=Symbol.for(`react.suspense`),te=Symbol.for(`react.suspense_list`),T=Symbol.for(`react.memo`),ne=Symbol.for(`react.lazy`),re=Symbol.for(`react.activity`),ie=Symbol.for(`react.memo_cache_sentinel`),ae=Symbol.iterator;function oe(e){return typeof e!=`object`||!e?null:(e=ae&&e[ae]||e[`@@iterator`],typeof e==`function`?e:null)}var se=Symbol.for(`react.client.reference`);function ce(e){if(e==null)return null;if(typeof e==`function`)return e.$$typeof===se?null:e.displayName||e.name||null;if(typeof e==`string`)return e;switch(e){case y:return`Fragment`;case x:return`Profiler`;case b:return`StrictMode`;case ee:return`Suspense`;case te:return`SuspenseList`;case re:return`Activity`}if(typeof e==`object`)switch(e.$$typeof){case v:return`Portal`;case C:return e.displayName||`Context`;case S:return(e._context.displayName||`Context`)+`.Consumer`;case w:var t=e.render;return e=e.displayName,e||=(e=t.displayName||t.name||``,e===``?`ForwardRef`:`ForwardRef(`+e+`)`),e;case T:return t=e.displayName||null,t===null?ce(e.type)||`Memo`:t;case ne:t=e._payload,e=e._init;try{return ce(e(t))}catch{}}return null}var le=Array.isArray,E=n.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE,D=r.__DOM_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE,ue={pending:!1,data:null,method:null,action:null},de=[],fe=-1;function pe(e){return{current:e}}function me(e){0>fe||(e.current=de[fe],de[fe]=null,fe--)}function he(e,t){fe++,de[fe]=e.current,e.current=t}var ge=pe(null),_e=pe(null),ve=pe(null),ye=pe(null);function be(e,t){switch(he(ve,t),he(_e,e),he(ge,null),t.nodeType){case 9:case 11:e=(e=t.documentElement)&&(e=e.namespaceURI)?Vd(e):0;break;default:if(e=t.tagName,t=t.namespaceURI)t=Vd(t),e=Hd(t,e);else switch(e){case`svg`:e=1;break;case`math`:e=2;break;default:e=0}}me(ge),he(ge,e)}function xe(){me(ge),me(_e),me(ve)}function Se(e){e.memoizedState!==null&&he(ye,e);var t=ge.current,n=Hd(t,e.type);t!==n&&(he(_e,e),he(ge,n))}function Ce(e){_e.current===e&&(me(ge),me(_e)),ye.current===e&&(me(ye),Qf._currentValue=ue)}var we,Te;function Ee(e){if(we===void 0)try{throw Error()}catch(e){var t=e.stack.trim().match(/\n( *(at )?)/);we=t&&t[1]||``,Te=-1<e.stack.indexOf(`
+    at`)?` (<anonymous>)`:-1<e.stack.indexOf(`@`)?`@unknown:0:0`:``}return`
+`+we+e+Te}var De=!1;function Oe(e,t){if(!e||De)return``;De=!0;var n=Error.prepareStackTrace;Error.prepareStackTrace=void 0;try{var r={DetermineComponentFrameRoot:function(){try{if(t){var n=function(){throw Error()};if(Object.defineProperty(n.prototype,"props",{set:function(){throw Error()}}),typeof Reflect==`object`&&Reflect.construct){try{Reflect.construct(n,[])}catch(e){var r=e}Reflect.construct(e,[],n)}else{try{n.call()}catch(e){r=e}e.call(n.prototype)}}else{try{throw Error()}catch(e){r=e}(n=e())&&typeof n.catch==`function`&&n.catch(function(){})}}catch(e){if(e&&r&&typeof e.stack==`string`)return[e.stack,r.stack]}return[null,null]}};r.DetermineComponentFrameRoot.displayName=`DetermineComponentFrameRoot`;var i=Object.getOwnPropertyDescriptor(r.DetermineComponentFrameRoot,`name`);i&&i.configurable&&Object.defineProperty(r.DetermineComponentFrameRoot,"name",{value:`DetermineComponentFrameRoot`});var a=r.DetermineComponentFrameRoot(),o=a[0],s=a[1];if(o&&s){var c=o.split(`
+`),l=s.split(`
+`);for(i=r=0;r<c.length&&!c[r].includes(`DetermineComponentFrameRoot`);)r++;for(;i<l.length&&!l[i].includes(`DetermineComponentFrameRoot`);)i++;if(r===c.length||i===l.length)for(r=c.length-1,i=l.length-1;1<=r&&0<=i&&c[r]!==l[i];)i--;for(;1<=r&&0<=i;r--,i--)if(c[r]!==l[i]){if(r!==1||i!==1)do if(r--,i--,0>i||c[r]!==l[i]){var u=`
+`+c[r].replace(` at new `,` at `);return e.displayName&&u.includes(`<anonymous>`)&&(u=u.replace(`<anonymous>`,e.displayName)),u}while(1<=r&&0<=i);break}}}finally{De=!1,Error.prepareStackTrace=n}return(n=e?e.displayName||e.name:``)?Ee(n):``}function ke(e,t){switch(e.tag){case 26:case 27:case 5:return Ee(e.type);case 16:return Ee(`Lazy`);case 13:return e.child!==t&&t!==null?Ee(`Suspense Fallback`):Ee(`Suspense`);case 19:return Ee(`SuspenseList`);case 0:case 15:return Oe(e.type,!1);case 11:return Oe(e.type.render,!1);case 1:return Oe(e.type,!0);case 31:return Ee(`Activity`);default:return``}}function Ae(e){try{var t=``,n=null;do t+=ke(e,n),n=e,e=e.return;while(e);return t}catch(e){return`
+Error generating stack: `+e.message+`
+`+e.stack}}var je=Object.prototype.hasOwnProperty,Me=t.unstable_scheduleCallback,Ne=t.unstable_cancelCallback,Pe=t.unstable_shouldYield,Fe=t.unstable_requestPaint,Ie=t.unstable_now,Le=t.unstable_getCurrentPriorityLevel,Re=t.unstable_ImmediatePriority,ze=t.unstable_UserBlockingPriority,Be=t.unstable_NormalPriority,Ve=t.unstable_LowPriority,He=t.unstable_IdlePriority,Ue=t.log,We=t.unstable_setDisableYieldValue,Ge=null,O=null;function Ke(e){if(typeof Ue==`function`&&We(e),O&&typeof O.setStrictMode==`function`)try{O.setStrictMode(Ge,e)}catch{}}var qe=Math.clz32?Math.clz32:Xe,Je=Math.log,Ye=Math.LN2;function Xe(e){return e>>>=0,e===0?32:31-(Je(e)/Ye|0)|0}var Ze=256,Qe=262144,$e=4194304;function et(e){var t=e&42;if(t!==0)return t;switch(e&-e){case 1:return 1;case 2:return 2;case 4:return 4;case 8:return 8;case 16:return 16;case 32:return 32;case 64:return 64;case 128:return 128;case 256:case 512:case 1024:case 2048:case 4096:case 8192:case 16384:case 32768:case 65536:case 131072:return e&261888;case 262144:case 524288:case 1048576:case 2097152:return e&3932160;case 4194304:case 8388608:case 16777216:case 33554432:return e&62914560;case 67108864:return 67108864;case 134217728:return 134217728;case 268435456:return 268435456;case 536870912:return 536870912;case 1073741824:return 0;default:return e}}function tt(e,t,n){var r=e.pendingLanes;if(r===0)return 0;var i=0,a=e.suspendedLanes,o=e.pingedLanes;e=e.warmLanes;var s=r&134217727;return s===0?(s=r&~a,s===0?o===0?n||(n=r&~e,n!==0&&(i=et(n))):i=et(o):i=et(s)):(r=s&~a,r===0?(o&=s,o===0?n||(n=s&~e,n!==0&&(i=et(n))):i=et(o)):i=et(r)),i===0?0:t!==0&&t!==i&&(t&a)===0&&(a=i&-i,n=t&-t,a>=n||a===32&&n&4194048)?t:i}function nt(e,t){return(e.pendingLanes&~(e.suspendedLanes&~e.pingedLanes)&t)===0}function rt(e,t){switch(e){case 1:case 2:case 4:case 8:case 64:return t+250;case 16:case 32:case 128:case 256:case 512:case 1024:case 2048:case 4096:case 8192:case 16384:case 32768:case 65536:case 131072:case 262144:case 524288:case 1048576:case 2097152:return t+5e3;case 4194304:case 8388608:case 16777216:case 33554432:return-1;case 67108864:case 134217728:case 268435456:case 536870912:case 1073741824:return-1;default:return-1}}function it(){var e=$e;return $e<<=1,!($e&62914560)&&($e=4194304),e}function at(e){for(var t=[],n=0;31>n;n++)t.push(e);return t}function ot(e,t){e.pendingLanes|=t,t!==268435456&&(e.suspendedLanes=0,e.pingedLanes=0,e.warmLanes=0)}function st(e,t,n,r,i,a){var o=e.pendingLanes;e.pendingLanes=n,e.suspendedLanes=0,e.pingedLanes=0,e.warmLanes=0,e.expiredLanes&=n,e.entangledLanes&=n,e.errorRecoveryDisabledLanes&=n,e.shellSuspendCounter=0;var s=e.entanglements,c=e.expirationTimes,l=e.hiddenUpdates;for(n=o&~n;0<n;){var u=31-qe(n),d=1<<u;s[u]=0,c[u]=-1;var f=l[u];if(f!==null)for(l[u]=null,u=0;u<f.length;u++){var p=f[u];p!==null&&(p.lane&=-536870913)}n&=~d}r!==0&&ct(e,r,0),a!==0&&i===0&&e.tag!==0&&(e.suspendedLanes|=a&~(o&~t))}function ct(e,t,n){e.pendingLanes|=t,e.suspendedLanes&=~t;var r=31-qe(t);e.entangledLanes|=t,e.entanglements[r]=e.entanglements[r]|1073741824|n&261930}function lt(e,t){var n=e.entangledLanes|=t;for(e=e.entanglements;n;){var r=31-qe(n),i=1<<r;i&t|e[r]&t&&(e[r]|=t),n&=~i}}function k(e,t){var n=t&-t;return n=n&42?1:A(n),(n&(e.suspendedLanes|t))===0?n:0}function A(e){switch(e){case 2:e=1;break;case 8:e=4;break;case 32:e=16;break;case 256:case 512:case 1024:case 2048:case 4096:case 8192:case 16384:case 32768:case 65536:case 131072:case 262144:case 524288:case 1048576:case 2097152:case 4194304:case 8388608:case 16777216:case 33554432:e=128;break;case 268435456:e=134217728;break;default:e=0}return e}function j(e){return e&=-e,2<e?8<e?e&134217727?32:268435456:8:2}function ut(){var e=D.p;return e===0?(e=window.event,e===void 0?32:mp(e.type)):e}function dt(e,t){var n=D.p;try{return D.p=e,t()}finally{D.p=n}}var ft=Math.random().toString(36).slice(2),pt=`__reactFiber$`+ft,mt=`__reactProps$`+ft,ht=`__reactContainer$`+ft,gt=`__reactEvents$`+ft,_t=`__reactListeners$`+ft,vt=`__reactHandles$`+ft,yt=`__reactResources$`+ft,bt=`__reactMarker$`+ft;function M(e){delete e[pt],delete e[mt],delete e[gt],delete e[_t],delete e[vt]}function xt(e){var t=e[pt];if(t)return t;for(var n=e.parentNode;n;){if(t=n[ht]||n[pt]){if(n=t.alternate,t.child!==null||n!==null&&n.child!==null)for(e=df(e);e!==null;){if(n=e[pt])return n;e=df(e)}return t}e=n,n=e.parentNode}return null}function St(e){if(e=e[pt]||e[ht]){var t=e.tag;if(t===5||t===6||t===13||t===31||t===26||t===27||t===3)return e}return null}function Ct(e){var t=e.tag;if(t===5||t===26||t===27||t===6)return e.stateNode;throw Error(i(33))}function wt(e){var t=e[yt];return t||=e[yt]={hoistableStyles:new Map,hoistableScripts:new Map},t}function Tt(e){e[bt]=!0}var Et=new Set,Dt={};function Ot(e,t){kt(e,t),kt(e+`Capture`,t)}function kt(e,t){for(Dt[e]=t,e=0;e<t.length;e++)Et.add(t[e])}var At=RegExp(`^[:A-Z_a-z\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02FF\\u0370-\\u037D\\u037F-\\u1FFF\\u200C-\\u200D\\u2070-\\u218F\\u2C00-\\u2FEF\\u3001-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFFD][:A-Z_a-z\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02FF\\u0370-\\u037D\\u037F-\\u1FFF\\u200C-\\u200D\\u2070-\\u218F\\u2C00-\\u2FEF\\u3001-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFFD\\-.0-9\\u00B7\\u0300-\\u036F\\u203F-\\u2040]*$`),jt={},Mt={};function Nt(e){return je.call(Mt,e)?!0:je.call(jt,e)?!1:At.test(e)?Mt[e]=!0:(jt[e]=!0,!1)}function Pt(e,t,n){if(Nt(t)){if(n===null)e.removeAttribute(t);else{switch(typeof n){case`undefined`:case`function`:case`symbol`:e.removeAttribute(t);return;case`boolean`:var r=t.toLowerCase().slice(0,5);if(r!==`data-`&&r!==`aria-`){e.removeAttribute(t);return}}e.setAttribute(t,``+n)}}}function Ft(e,t,n){if(n===null)e.removeAttribute(t);else{switch(typeof n){case`undefined`:case`function`:case`symbol`:case`boolean`:e.removeAttribute(t);return}e.setAttribute(t,``+n)}}function It(e,t,n,r){if(r===null)e.removeAttribute(n);else{switch(typeof r){case`undefined`:case`function`:case`symbol`:case`boolean`:e.removeAttribute(n);return}e.setAttributeNS(t,n,``+r)}}function N(e){switch(typeof e){case`bigint`:case`boolean`:case`number`:case`string`:case`undefined`:return e;case`object`:return e;default:return``}}function Lt(e){var t=e.type;return(e=e.nodeName)&&e.toLowerCase()===`input`&&(t===`checkbox`||t===`radio`)}function Rt(e,t,n){var r=Object.getOwnPropertyDescriptor(e.constructor.prototype,t);if(!e.hasOwnProperty(t)&&r!==void 0&&typeof r.get==`function`&&typeof r.set==`function`){var i=r.get,a=r.set;return Object.defineProperty(e,t,{configurable:!0,get:function(){return i.call(this)},set:function(e){n=``+e,a.call(this,e)}}),Object.defineProperty(e,t,{enumerable:r.enumerable}),{getValue:function(){return n},setValue:function(e){n=``+e},stopTracking:function(){e._valueTracker=null,delete e[t]}}}}function zt(e){if(!e._valueTracker){var t=Lt(e)?`checked`:`value`;e._valueTracker=Rt(e,t,``+e[t])}}function Bt(e){if(!e)return!1;var t=e._valueTracker;if(!t)return!0;var n=t.getValue(),r=``;return e&&(r=Lt(e)?e.checked?`true`:`false`:e.value),e=r,e!==n&&(t.setValue(e),!0)}function Vt(e){if(e||=typeof document<`u`?document:void 0,e===void 0)return null;try{return e.activeElement||e.body}catch{return e.body}}var Ht=/[\n"\\]/g;function Ut(e){return e.replace(Ht,function(e){return`\\`+e.charCodeAt(0).toString(16)+` `})}function Wt(e,t,n,r,i,a,o,s){e.name=``,o!=null&&typeof o!=`function`&&typeof o!=`symbol`&&typeof o!=`boolean`?e.type=o:e.removeAttribute(`type`),t==null?o!==`submit`&&o!==`reset`||e.removeAttribute(`value`):o===`number`?(t===0&&e.value===``||e.value!=t)&&(e.value=``+N(t)):e.value!==``+N(t)&&(e.value=``+N(t)),t==null?n==null?r!=null&&e.removeAttribute(`value`):Gt(e,o,N(n)):Gt(e,o,N(t)),i==null&&a!=null&&(e.defaultChecked=!!a),i!=null&&(e.checked=i&&typeof i!=`function`&&typeof i!=`symbol`),s!=null&&typeof s!=`function`&&typeof s!=`symbol`&&typeof s!=`boolean`?e.name=``+N(s):e.removeAttribute(`name`)}function P(e,t,n,r,i,a,o,s){if(a!=null&&typeof a!=`function`&&typeof a!=`symbol`&&typeof a!=`boolean`&&(e.type=a),t!=null||n!=null){if(!(a!==`submit`&&a!==`reset`||t!=null)){zt(e);return}n=n==null?``:``+N(n),t=t==null?n:``+N(t),s||t===e.value||(e.value=t),e.defaultValue=t}r??=i,r=typeof r!=`function`&&typeof r!=`symbol`&&!!r,e.checked=s?e.checked:!!r,e.defaultChecked=!!r,o!=null&&typeof o!=`function`&&typeof o!=`symbol`&&typeof o!=`boolean`&&(e.name=o),zt(e)}function Gt(e,t,n){t===`number`&&Vt(e.ownerDocument)===e||e.defaultValue===``+n||(e.defaultValue=``+n)}function Kt(e,t,n,r){if(e=e.options,t){t={};for(var i=0;i<n.length;i++)t[`$`+n[i]]=!0;for(n=0;n<e.length;n++)i=t.hasOwnProperty(`$`+e[n].value),e[n].selected!==i&&(e[n].selected=i),i&&r&&(e[n].defaultSelected=!0)}else{for(n=``+N(n),t=null,i=0;i<e.length;i++){if(e[i].value===n){e[i].selected=!0,r&&(e[i].defaultSelected=!0);return}t!==null||e[i].disabled||(t=e[i])}t!==null&&(t.selected=!0)}}function qt(e,t,n){if(t!=null&&(t=``+N(t),t!==e.value&&(e.value=t),n==null)){e.defaultValue!==t&&(e.defaultValue=t);return}e.defaultValue=n==null?``:``+N(n)}function Jt(e,t,n,r){if(t==null){if(r!=null){if(n!=null)throw Error(i(92));if(le(r)){if(1<r.length)throw Error(i(93));r=r[0]}n=r}n??=``,t=n}n=N(t),e.defaultValue=n,r=e.textContent,r===n&&r!==``&&r!==null&&(e.value=r),zt(e)}function Yt(e,t){if(t){var n=e.firstChild;if(n&&n===e.lastChild&&n.nodeType===3){n.nodeValue=t;return}}e.textContent=t}var Xt=new Set(`animationIterationCount aspectRatio borderImageOutset borderImageSlice borderImageWidth boxFlex boxFlexGroup boxOrdinalGroup columnCount columns flex flexGrow flexPositive flexShrink flexNegative flexOrder gridArea gridRow gridRowEnd gridRowSpan gridRowStart gridColumn gridColumnEnd gridColumnSpan gridColumnStart fontWeight lineClamp lineHeight opacity order orphans scale tabSize widows zIndex zoom fillOpacity floodOpacity stopOpacity strokeDasharray strokeDashoffset strokeMiterlimit strokeOpacity strokeWidth MozAnimationIterationCount MozBoxFlex MozBoxFlexGroup MozLineClamp msAnimationIterationCount msFlex msZoom msFlexGrow msFlexNegative msFlexOrder msFlexPositive msFlexShrink msGridColumn msGridColumnSpan msGridRow msGridRowSpan WebkitAnimationIterationCount WebkitBoxFlex WebKitBoxFlexGroup WebkitBoxOrdinalGroup WebkitColumnCount WebkitColumns WebkitFlex WebkitFlexGrow WebkitFlexPositive WebkitFlexShrink WebkitLineClamp`.split(` `));function Zt(e,t,n){var r=t.indexOf(`--`)===0;n==null||typeof n==`boolean`||n===``?r?e.setProperty(t,``):t===`float`?e.cssFloat=``:e[t]=``:r?e.setProperty(t,n):typeof n!=`number`||n===0||Xt.has(t)?t===`float`?e.cssFloat=n:e[t]=(``+n).trim():e[t]=n+`px`}function Qt(e,t,n){if(t!=null&&typeof t!=`object`)throw Error(i(62));if(e=e.style,n!=null){for(var r in n)!n.hasOwnProperty(r)||t!=null&&t.hasOwnProperty(r)||(r.indexOf(`--`)===0?e.setProperty(r,``):r===`float`?e.cssFloat=``:e[r]=``);for(var a in t)r=t[a],t.hasOwnProperty(a)&&n[a]!==r&&Zt(e,a,r)}else for(var o in t)t.hasOwnProperty(o)&&Zt(e,o,t[o])}function $t(e){if(e.indexOf(`-`)===-1)return!1;switch(e){case`annotation-xml`:case`color-profile`:case`font-face`:case`font-face-src`:case`font-face-uri`:case`font-face-format`:case`font-face-name`:case`missing-glyph`:return!1;default:return!0}}var en=new Map([[`acceptCharset`,`accept-charset`],[`htmlFor`,`for`],[`httpEquiv`,`http-equiv`],[`crossOrigin`,`crossorigin`],[`accentHeight`,`accent-height`],[`alignmentBaseline`,`alignment-baseline`],[`arabicForm`,`arabic-form`],[`baselineShift`,`baseline-shift`],[`capHeight`,`cap-height`],[`clipPath`,`clip-path`],[`clipRule`,`clip-rule`],[`colorInterpolation`,`color-interpolation`],[`colorInterpolationFilters`,`color-interpolation-filters`],[`colorProfile`,`color-profile`],[`colorRendering`,`color-rendering`],[`dominantBaseline`,`dominant-baseline`],[`enableBackground`,`enable-background`],[`fillOpacity`,`fill-opacity`],[`fillRule`,`fill-rule`],[`floodColor`,`flood-color`],[`floodOpacity`,`flood-opacity`],[`fontFamily`,`font-family`],[`fontSize`,`font-size`],[`fontSizeAdjust`,`font-size-adjust`],[`fontStretch`,`font-stretch`],[`fontStyle`,`font-style`],[`fontVariant`,`font-variant`],[`fontWeight`,`font-weight`],[`glyphName`,`glyph-name`],[`glyphOrientationHorizontal`,`glyph-orientation-horizontal`],[`glyphOrientationVertical`,`glyph-orientation-vertical`],[`horizAdvX`,`horiz-adv-x`],[`horizOriginX`,`horiz-origin-x`],[`imageRendering`,`image-rendering`],[`letterSpacing`,`letter-spacing`],[`lightingColor`,`lighting-color`],[`markerEnd`,`marker-end`],[`markerMid`,`marker-mid`],[`markerStart`,`marker-start`],[`overlinePosition`,`overline-position`],[`overlineThickness`,`overline-thickness`],[`paintOrder`,`paint-order`],[`panose-1`,`panose-1`],[`pointerEvents`,`pointer-events`],[`renderingIntent`,`rendering-intent`],[`shapeRendering`,`shape-rendering`],[`stopColor`,`stop-color`],[`stopOpacity`,`stop-opacity`],[`strikethroughPosition`,`strikethrough-position`],[`strikethroughThickness`,`strikethrough-thickness`],[`strokeDasharray`,`stroke-dasharray`],[`strokeDashoffset`,`stroke-dashoffset`],[`strokeLinecap`,`stroke-linecap`],[`strokeLinejoin`,`stroke-linejoin`],[`strokeMiterlimit`,`stroke-miterlimit`],[`strokeOpacity`,`stroke-opacity`],[`strokeWidth`,`stroke-width`],[`textAnchor`,`text-anchor`],[`textDecoration`,`text-decoration`],[`textRendering`,`text-rendering`],[`transformOrigin`,`transform-origin`],[`underlinePosition`,`underline-position`],[`underlineThickness`,`underline-thickness`],[`unicodeBidi`,`unicode-bidi`],[`unicodeRange`,`unicode-range`],[`unitsPerEm`,`units-per-em`],[`vAlphabetic`,`v-alphabetic`],[`vHanging`,`v-hanging`],[`vIdeographic`,`v-ideographic`],[`vMathematical`,`v-mathematical`],[`vectorEffect`,`vector-effect`],[`vertAdvY`,`vert-adv-y`],[`vertOriginX`,`vert-origin-x`],[`vertOriginY`,`vert-origin-y`],[`wordSpacing`,`word-spacing`],[`writingMode`,`writing-mode`],[`xmlnsXlink`,`xmlns:xlink`],[`xHeight`,`x-height`]]),tn=/^[\u0000-\u001F ]*j[\r\n\t]*a[\r\n\t]*v[\r\n\t]*a[\r\n\t]*s[\r\n\t]*c[\r\n\t]*r[\r\n\t]*i[\r\n\t]*p[\r\n\t]*t[\r\n\t]*:/i;function F(e){return tn.test(``+e)?`javascript:throw new Error('React has blocked a javascript: URL as a security precaution.')`:e}function nn(){}var rn=null;function an(e){return e=e.target||e.srcElement||window,e.correspondingUseElement&&(e=e.correspondingUseElement),e.nodeType===3?e.parentNode:e}var on=null,sn=null;function cn(e){var t=St(e);if(t&&(e=t.stateNode)){var n=e[mt]||null;a:switch(e=t.stateNode,t.type){case`input`:if(Wt(e,n.value,n.defaultValue,n.defaultValue,n.checked,n.defaultChecked,n.type,n.name),t=n.name,n.type===`radio`&&t!=null){for(n=e;n.parentNode;)n=n.parentNode;for(n=n.querySelectorAll(`input[name="`+Ut(``+t)+`"][type="radio"]`),t=0;t<n.length;t++){var r=n[t];if(r!==e&&r.form===e.form){var a=r[mt]||null;if(!a)throw Error(i(90));Wt(r,a.value,a.defaultValue,a.defaultValue,a.checked,a.defaultChecked,a.type,a.name)}}for(t=0;t<n.length;t++)r=n[t],r.form===e.form&&Bt(r)}break a;case`textarea`:qt(e,n.value,n.defaultValue);break a;case`select`:t=n.value,t!=null&&Kt(e,!!n.multiple,t,!1)}}}var ln=!1;function un(e,t,n){if(ln)return e(t,n);ln=!0;try{return e(t)}finally{if(ln=!1,(on!==null||sn!==null)&&(bu(),on&&(t=on,e=sn,sn=on=null,cn(t),e)))for(t=0;t<e.length;t++)cn(e[t])}}function dn(e,t){var n=e.stateNode;if(n===null)return null;var r=n[mt]||null;if(r===null)return null;n=r[t];a:switch(t){case`onClick`:case`onClickCapture`:case`onDoubleClick`:case`onDoubleClickCapture`:case`onMouseDown`:case`onMouseDownCapture`:case`onMouseMove`:case`onMouseMoveCapture`:case`onMouseUp`:case`onMouseUpCapture`:case`onMouseEnter`:(r=!r.disabled)||(e=e.type,r=e!==`button`&&e!==`input`&&e!==`select`&&e!==`textarea`),e=!r;break a;default:e=!1}if(e)return null;if(n&&typeof n!=`function`)throw Error(i(231,t,typeof n));return n}var fn=!(typeof window>`u`||window.document===void 0||window.document.createElement===void 0),pn=!1;if(fn)try{var mn={};Object.defineProperty(mn,"passive",{get:function(){pn=!0}}),window.addEventListener(`test`,mn,mn),window.removeEventListener(`test`,mn,mn)}catch{pn=!1}var hn=null,gn=null,_n=null;function vn(){if(_n)return _n;var e,t=gn,n=t.length,r,i=`value`in hn?hn.value:hn.textContent,a=i.length;for(e=0;e<n&&t[e]===i[e];e++);var o=n-e;for(r=1;r<=o&&t[n-r]===i[a-r];r++);return _n=i.slice(e,1<r?1-r:void 0)}function yn(e){var t=e.keyCode;return`charCode`in e?(e=e.charCode,e===0&&t===13&&(e=13)):e=t,e===10&&(e=13),32<=e||e===13?e:0}function bn(){return!0}function xn(){return!1}function Sn(e){function t(t,n,r,i,a){for(var o in this._reactName=t,this._targetInst=r,this.type=n,this.nativeEvent=i,this.target=a,this.currentTarget=null,e)e.hasOwnProperty(o)&&(t=e[o],this[o]=t?t(i):i[o]);return this.isDefaultPrevented=(i.defaultPrevented==null?!1===i.returnValue:i.defaultPrevented)?bn:xn,this.isPropagationStopped=xn,this}return m(t.prototype,{preventDefault:function(){this.defaultPrevented=!0;var e=this.nativeEvent;e&&(e.preventDefault?e.preventDefault():typeof e.returnValue!=`unknown`&&(e.returnValue=!1),this.isDefaultPrevented=bn)},stopPropagation:function(){var e=this.nativeEvent;e&&(e.stopPropagation?e.stopPropagation():typeof e.cancelBubble!=`unknown`&&(e.cancelBubble=!0),this.isPropagationStopped=bn)},persist:function(){},isPersistent:bn}),t}var Cn={eventPhase:0,bubbles:0,cancelable:0,timeStamp:function(e){return e.timeStamp||Date.now()},defaultPrevented:0,isTrusted:0},wn=Sn(Cn),Tn=m({},Cn,{view:0,detail:0}),En=Sn(Tn),Dn,On,kn,An=m({},Tn,{screenX:0,screenY:0,clientX:0,clientY:0,pageX:0,pageY:0,ctrlKey:0,shiftKey:0,altKey:0,metaKey:0,getModifierState:Vn,button:0,buttons:0,relatedTarget:function(e){return e.relatedTarget===void 0?e.fromElement===e.srcElement?e.toElement:e.fromElement:e.relatedTarget},movementX:function(e){return`movementX`in e?e.movementX:(e!==kn&&(kn&&e.type===`mousemove`?(Dn=e.screenX-kn.screenX,On=e.screenY-kn.screenY):On=Dn=0,kn=e),Dn)},movementY:function(e){return`movementY`in e?e.movementY:On}}),jn=Sn(An),Mn=Sn(m({},An,{dataTransfer:0})),Nn=Sn(m({},Tn,{relatedTarget:0})),Pn=Sn(m({},Cn,{animationName:0,elapsedTime:0,pseudoElement:0})),Fn=Sn(m({},Cn,{clipboardData:function(e){return`clipboardData`in e?e.clipboardData:window.clipboardData}})),In=Sn(m({},Cn,{data:0})),Ln={Esc:`Escape`,Spacebar:` `,Left:`ArrowLeft`,Up:`ArrowUp`,Right:`ArrowRight`,Down:`ArrowDown`,Del:`Delete`,Win:`OS`,Menu:`ContextMenu`,Apps:`ContextMenu`,Scroll:`ScrollLock`,MozPrintableKey:`Unidentified`},Rn={8:`Backspace`,9:`Tab`,12:`Clear`,13:`Enter`,16:`Shift`,17:`Control`,18:`Alt`,19:`Pause`,20:`CapsLock`,27:`Escape`,32:` `,33:`PageUp`,34:`PageDown`,35:`End`,36:`Home`,37:`ArrowLeft`,38:`ArrowUp`,39:`ArrowRight`,40:`ArrowDown`,45:`Insert`,46:`Delete`,112:`F1`,113:`F2`,114:`F3`,115:`F4`,116:`F5`,117:`F6`,118:`F7`,119:`F8`,120:`F9`,121:`F10`,122:`F11`,123:`F12`,144:`NumLock`,145:`ScrollLock`,224:`Meta`},zn={Alt:`altKey`,Control:`ctrlKey`,Meta:`metaKey`,Shift:`shiftKey`};function Bn(e){var t=this.nativeEvent;return t.getModifierState?t.getModifierState(e):(e=zn[e])?!!t[e]:!1}function Vn(){return Bn}var Hn=Sn(m({},Tn,{key:function(e){if(e.key){var t=Ln[e.key]||e.key;if(t!==`Unidentified`)return t}return e.type===`keypress`?(e=yn(e),e===13?`Enter`:String.fromCharCode(e)):e.type===`keydown`||e.type===`keyup`?Rn[e.keyCode]||`Unidentified`:``},code:0,location:0,ctrlKey:0,shiftKey:0,altKey:0,metaKey:0,repeat:0,locale:0,getModifierState:Vn,charCode:function(e){return e.type===`keypress`?yn(e):0},keyCode:function(e){return e.type===`keydown`||e.type===`keyup`?e.keyCode:0},which:function(e){return e.type===`keypress`?yn(e):e.type===`keydown`||e.type===`keyup`?e.keyCode:0}})),Un=Sn(m({},An,{pointerId:0,width:0,height:0,pressure:0,tangentialPressure:0,tiltX:0,tiltY:0,twist:0,pointerType:0,isPrimary:0})),Wn=Sn(m({},Tn,{touches:0,targetTouches:0,changedTouches:0,altKey:0,metaKey:0,ctrlKey:0,shiftKey:0,getModifierState:Vn})),Gn=Sn(m({},Cn,{propertyName:0,elapsedTime:0,pseudoElement:0})),Kn=Sn(m({},An,{deltaX:function(e){return`deltaX`in e?e.deltaX:`wheelDeltaX`in e?-e.wheelDeltaX:0},deltaY:function(e){return`deltaY`in e?e.deltaY:`wheelDeltaY`in e?-e.wheelDeltaY:`wheelDelta`in e?-e.wheelDelta:0},deltaZ:0,deltaMode:0})),qn=Sn(m({},Cn,{newState:0,oldState:0})),Jn=[9,13,27,32],Yn=fn&&`CompositionEvent`in window,Xn=null;fn&&`documentMode`in document&&(Xn=document.documentMode);var Zn=fn&&`TextEvent`in window&&!Xn,Qn=fn&&(!Yn||Xn&&8<Xn&&11>=Xn),$n=` `,er=!1;function tr(e,t){switch(e){case`keyup`:return Jn.indexOf(t.keyCode)!==-1;case`keydown`:return t.keyCode!==229;case`keypress`:case`mousedown`:case`focusout`:return!0;default:return!1}}function nr(e){return e=e.detail,typeof e==`object`&&`data`in e?e.data:null}var rr=!1;function ir(e,t){switch(e){case`compositionend`:return nr(t);case`keypress`:return t.which===32?(er=!0,$n):null;case`textInput`:return e=t.data,e===$n&&er?null:e;default:return null}}function ar(e,t){if(rr)return e===`compositionend`||!Yn&&tr(e,t)?(e=vn(),_n=gn=hn=null,rr=!1,e):null;switch(e){case`paste`:return null;case`keypress`:if(!(t.ctrlKey||t.altKey||t.metaKey)||t.ctrlKey&&t.altKey){if(t.char&&1<t.char.length)return t.char;if(t.which)return String.fromCharCode(t.which)}return null;case`compositionend`:return Qn&&t.locale!==`ko`?null:t.data;default:return null}}var or={color:!0,date:!0,datetime:!0,"datetime-local":!0,email:!0,month:!0,number:!0,password:!0,range:!0,search:!0,tel:!0,text:!0,time:!0,url:!0,week:!0};function sr(e){var t=e&&e.nodeName&&e.nodeName.toLowerCase();return t===`input`?!!or[e.type]:t===`textarea`}function cr(e,t,n,r){on?sn?sn.push(r):sn=[r]:on=r,t=Ed(t,`onChange`),0<t.length&&(n=new wn(`onChange`,`change`,null,n,r),e.push({event:n,listeners:t}))}var lr=null,ur=null;function dr(e){yd(e,0)}function fr(e){if(Bt(Ct(e)))return e}function pr(e,t){if(e===`change`)return t}var mr=!1;if(fn){var hr;if(fn){var gr=`oninput`in document;if(!gr){var _r=document.createElement(`div`);_r.setAttribute(`oninput`,`return;`),gr=typeof _r.oninput==`function`}hr=gr}else hr=!1;mr=hr&&(!document.documentMode||9<document.documentMode)}function vr(){lr&&(lr.detachEvent(`onpropertychange`,yr),ur=lr=null)}function yr(e){if(e.propertyName===`value`&&fr(ur)){var t=[];cr(t,ur,e,an(e)),un(dr,t)}}function br(e,t,n){e===`focusin`?(vr(),lr=t,ur=n,lr.attachEvent(`onpropertychange`,yr)):e===`focusout`&&vr()}function xr(e){if(e===`selectionchange`||e===`keyup`||e===`keydown`)return fr(ur)}function Sr(e,t){if(e===`click`)return fr(t)}function Cr(e,t){if(e===`input`||e===`change`)return fr(t)}function wr(e,t){return e===t&&(e!==0||1/e==1/t)||e!==e&&t!==t}var Tr=typeof Object.is==`function`?Object.is:wr;function Er(e,t){if(Tr(e,t))return!0;if(typeof e!=`object`||!e||typeof t!=`object`||!t)return!1;var n=Object.keys(e),r=Object.keys(t);if(n.length!==r.length)return!1;for(r=0;r<n.length;r++){var i=n[r];if(!je.call(t,i)||!Tr(e[i],t[i]))return!1}return!0}function Dr(e){for(;e&&e.firstChild;)e=e.firstChild;return e}function Or(e,t){var n=Dr(e);e=0;for(var r;n;){if(n.nodeType===3){if(r=e+n.textContent.length,e<=t&&r>=t)return{node:n,offset:t-e};e=r}a:{for(;n;){if(n.nextSibling){n=n.nextSibling;break a}n=n.parentNode}n=void 0}n=Dr(n)}}function kr(e,t){return e&&t?e===t?!0:e&&e.nodeType===3?!1:t&&t.nodeType===3?kr(e,t.parentNode):`contains`in e?e.contains(t):e.compareDocumentPosition?!!(e.compareDocumentPosition(t)&16):!1:!1}function Ar(e){e=e!=null&&e.ownerDocument!=null&&e.ownerDocument.defaultView!=null?e.ownerDocument.defaultView:window;for(var t=Vt(e.document);t instanceof e.HTMLIFrameElement;){try{var n=typeof t.contentWindow.location.href==`string`}catch{n=!1}if(n)e=t.contentWindow;else break;t=Vt(e.document)}return t}function jr(e){var t=e&&e.nodeName&&e.nodeName.toLowerCase();return t&&(t===`input`&&(e.type===`text`||e.type===`search`||e.type===`tel`||e.type===`url`||e.type===`password`)||t===`textarea`||e.contentEditable===`true`)}var Mr=fn&&`documentMode`in document&&11>=document.documentMode,Nr=null,Pr=null,Fr=null,Ir=!1;function Lr(e,t,n){var r=n.window===n?n.document:n.nodeType===9?n:n.ownerDocument;Ir||Nr==null||Nr!==Vt(r)||(r=Nr,`selectionStart`in r&&jr(r)?r={start:r.selectionStart,end:r.selectionEnd}:(r=(r.ownerDocument&&r.ownerDocument.defaultView||window).getSelection(),r={anchorNode:r.anchorNode,anchorOffset:r.anchorOffset,focusNode:r.focusNode,focusOffset:r.focusOffset}),Fr&&Er(Fr,r)||(Fr=r,r=Ed(Pr,`onSelect`),0<r.length&&(t=new wn(`onSelect`,`select`,null,t,n),e.push({event:t,listeners:r}),t.target=Nr)))}function Rr(e,t){var n={};return n[e.toLowerCase()]=t.toLowerCase(),n[`Webkit`+e]=`webkit`+t,n[`Moz`+e]=`moz`+t,n}var zr={animationend:Rr(`Animation`,`AnimationEnd`),animationiteration:Rr(`Animation`,`AnimationIteration`),animationstart:Rr(`Animation`,`AnimationStart`),transitionrun:Rr(`Transition`,`TransitionRun`),transitionstart:Rr(`Transition`,`TransitionStart`),transitioncancel:Rr(`Transition`,`TransitionCancel`),transitionend:Rr(`Transition`,`TransitionEnd`)},Br={},Vr={};fn&&(Vr=document.createElement(`div`).style,`AnimationEvent`in window||(delete zr.animationend.animation,delete zr.animationiteration.animation,delete zr.animationstart.animation),`TransitionEvent`in window||delete zr.transitionend.transition);function Hr(e){if(Br[e])return Br[e];if(!zr[e])return e;var t=zr[e],n;for(n in t)if(t.hasOwnProperty(n)&&n in Vr)return Br[e]=t[n];return e}var Ur=Hr(`animationend`),Wr=Hr(`animationiteration`),Gr=Hr(`animationstart`),Kr=Hr(`transitionrun`),qr=Hr(`transitionstart`),Jr=Hr(`transitioncancel`),Yr=Hr(`transitionend`),Xr=new Map,Zr=`abort auxClick beforeToggle cancel canPlay canPlayThrough click close contextMenu copy cut drag dragEnd dragEnter dragExit dragLeave dragOver dragStart drop durationChange emptied encrypted ended error gotPointerCapture input invalid keyDown keyPress keyUp load loadedData loadedMetadata loadStart lostPointerCapture mouseDown mouseMove mouseOut mouseOver mouseUp paste pause play playing pointerCancel pointerDown pointerMove pointerOut pointerOver pointerUp progress rateChange reset resize seeked seeking stalled submit suspend timeUpdate touchCancel touchEnd touchStart volumeChange scroll toggle touchMove waiting wheel`.split(` `);Zr.push(`scrollEnd`);function Qr(e,t){Xr.set(e,t),Ot(t,[e])}var $r=typeof reportError==`function`?reportError:function(e){if(typeof window==`object`&&typeof window.ErrorEvent==`function`){var t=new window.ErrorEvent(`error`,{bubbles:!0,cancelable:!0,message:typeof e==`object`&&e&&typeof e.message==`string`?String(e.message):String(e),error:e});if(!window.dispatchEvent(t))return}else if(typeof process==`object`&&typeof process.emit==`function`){process.emit(`uncaughtException`,e);return}console.error(e)},ei=[],ti=0,ni=0;function ri(){for(var e=ti,t=ni=ti=0;t<e;){var n=ei[t];ei[t++]=null;var r=ei[t];ei[t++]=null;var i=ei[t];ei[t++]=null;var a=ei[t];if(ei[t++]=null,r!==null&&i!==null){var o=r.pending;o===null?i.next=i:(i.next=o.next,o.next=i),r.pending=i}a!==0&&si(n,i,a)}}function ii(e,t,n,r){ei[ti++]=e,ei[ti++]=t,ei[ti++]=n,ei[ti++]=r,ni|=r,e.lanes|=r,e=e.alternate,e!==null&&(e.lanes|=r)}function ai(e,t,n,r){return ii(e,t,n,r),ci(e)}function oi(e,t){return ii(e,null,null,t),ci(e)}function si(e,t,n){e.lanes|=n;var r=e.alternate;r!==null&&(r.lanes|=n);for(var i=!1,a=e.return;a!==null;)a.childLanes|=n,r=a.alternate,r!==null&&(r.childLanes|=n),a.tag===22&&(e=a.stateNode,e===null||e._visibility&1||(i=!0)),e=a,a=a.return;return e.tag===3?(a=e.stateNode,i&&t!==null&&(i=31-qe(n),e=a.hiddenUpdates,r=e[i],r===null?e[i]=[t]:r.push(t),t.lane=n|536870912),a):null}function ci(e){if(50<du)throw du=0,fu=null,Error(i(185));for(var t=e.return;t!==null;)e=t,t=e.return;return e.tag===3?e.stateNode:null}var li={};function ui(e,t,n,r){this.tag=e,this.key=n,this.sibling=this.child=this.return=this.stateNode=this.type=this.elementType=null,this.index=0,this.refCleanup=this.ref=null,this.pendingProps=t,this.dependencies=this.memoizedState=this.updateQueue=this.memoizedProps=null,this.mode=r,this.subtreeFlags=this.flags=0,this.deletions=null,this.childLanes=this.lanes=0,this.alternate=null}function di(e,t,n,r){return new ui(e,t,n,r)}function fi(e){return e=e.prototype,!(!e||!e.isReactComponent)}function pi(e,t){var n=e.alternate;return n===null?(n=di(e.tag,t,e.key,e.mode),n.elementType=e.elementType,n.type=e.type,n.stateNode=e.stateNode,n.alternate=e,e.alternate=n):(n.pendingProps=t,n.type=e.type,n.flags=0,n.subtreeFlags=0,n.deletions=null),n.flags=e.flags&65011712,n.childLanes=e.childLanes,n.lanes=e.lanes,n.child=e.child,n.memoizedProps=e.memoizedProps,n.memoizedState=e.memoizedState,n.updateQueue=e.updateQueue,t=e.dependencies,n.dependencies=t===null?null:{lanes:t.lanes,firstContext:t.firstContext},n.sibling=e.sibling,n.index=e.index,n.ref=e.ref,n.refCleanup=e.refCleanup,n}function mi(e,t){e.flags&=65011714;var n=e.alternate;return n===null?(e.childLanes=0,e.lanes=t,e.child=null,e.subtreeFlags=0,e.memoizedProps=null,e.memoizedState=null,e.updateQueue=null,e.dependencies=null,e.stateNode=null):(e.childLanes=n.childLanes,e.lanes=n.lanes,e.child=n.child,e.subtreeFlags=0,e.deletions=null,e.memoizedProps=n.memoizedProps,e.memoizedState=n.memoizedState,e.updateQueue=n.updateQueue,e.type=n.type,t=n.dependencies,e.dependencies=t===null?null:{lanes:t.lanes,firstContext:t.firstContext}),e}function hi(e,t,n,r,a,o){var s=0;if(r=e,typeof e==`function`)fi(e)&&(s=1);else if(typeof e==`string`)s=Uf(e,n,ge.current)?26:e===`html`||e===`head`||e===`body`?27:5;else a:switch(e){case re:return e=di(31,n,t,a),e.elementType=re,e.lanes=o,e;case y:return gi(n.children,a,o,t);case b:s=8,a|=24;break;case x:return e=di(12,n,t,a|2),e.elementType=x,e.lanes=o,e;case ee:return e=di(13,n,t,a),e.elementType=ee,e.lanes=o,e;case te:return e=di(19,n,t,a),e.elementType=te,e.lanes=o,e;default:if(typeof e==`object`&&e)switch(e.$$typeof){case C:s=10;break a;case S:s=9;break a;case w:s=11;break a;case T:s=14;break a;case ne:s=16,r=null;break a}s=29,n=Error(i(130,e===null?`null`:typeof e,``)),r=null}return t=di(s,n,t,a),t.elementType=e,t.type=r,t.lanes=o,t}function gi(e,t,n,r){return e=di(7,e,r,t),e.lanes=n,e}function _i(e,t,n){return e=di(6,e,null,t),e.lanes=n,e}function vi(e){var t=di(18,null,null,0);return t.stateNode=e,t}function yi(e,t,n){return t=di(4,e.children===null?[]:e.children,e.key,t),t.lanes=n,t.stateNode={containerInfo:e.containerInfo,pendingChildren:null,implementation:e.implementation},t}var bi=new WeakMap;function xi(e,t){if(typeof e==`object`&&e){var n=bi.get(e);return n===void 0?(t={value:e,source:t,stack:Ae(t)},bi.set(e,t),t):n}return{value:e,source:t,stack:Ae(t)}}var Si=[],Ci=0,wi=null,Ti=0,Ei=[],Di=0,Oi=null,ki=1,Ai=``;function ji(e,t){Si[Ci++]=Ti,Si[Ci++]=wi,wi=e,Ti=t}function Mi(e,t,n){Ei[Di++]=ki,Ei[Di++]=Ai,Ei[Di++]=Oi,Oi=e;var r=ki;e=Ai;var i=32-qe(r)-1;r&=~(1<<i),n+=1;var a=32-qe(t)+i;if(30<a){var o=i-i%5;a=(r&(1<<o)-1).toString(32),r>>=o,i-=o,ki=1<<32-qe(t)+i|n<<i|r,Ai=a+e}else ki=1<<a|n<<i|r,Ai=e}function Ni(e){e.return!==null&&(ji(e,1),Mi(e,1,0))}function Pi(e){for(;e===wi;)wi=Si[--Ci],Si[Ci]=null,Ti=Si[--Ci],Si[Ci]=null;for(;e===Oi;)Oi=Ei[--Di],Ei[Di]=null,Ai=Ei[--Di],Ei[Di]=null,ki=Ei[--Di],Ei[Di]=null}function Fi(e,t){Ei[Di++]=ki,Ei[Di++]=Ai,Ei[Di++]=Oi,ki=t.id,Ai=t.overflow,Oi=e}var Ii=null,Li=null,I=!1,Ri=null,zi=!1,Bi=Error(i(519));function Vi(e){throw qi(xi(Error(i(418,1<arguments.length&&arguments[1]!==void 0&&arguments[1]?`text`:`HTML`,``)),e)),Bi}function Hi(e){var t=e.stateNode,n=e.type,r=e.memoizedProps;switch(t[pt]=e,t[mt]=r,n){case`dialog`:Q(`cancel`,t),Q(`close`,t);break;case`iframe`:case`object`:case`embed`:Q(`load`,t);break;case`video`:case`audio`:for(n=0;n<_d.length;n++)Q(_d[n],t);break;case`source`:Q(`error`,t);break;case`img`:case`image`:case`link`:Q(`error`,t),Q(`load`,t);break;case`details`:Q(`toggle`,t);break;case`input`:Q(`invalid`,t),P(t,r.value,r.defaultValue,r.checked,r.defaultChecked,r.type,r.name,!0);break;case`select`:Q(`invalid`,t);break;case`textarea`:Q(`invalid`,t),Jt(t,r.value,r.defaultValue,r.children)}n=r.children,typeof n!=`string`&&typeof n!=`number`&&typeof n!=`bigint`||t.textContent===``+n||!0===r.suppressHydrationWarning||Md(t.textContent,n)?(r.popover!=null&&(Q(`beforetoggle`,t),Q(`toggle`,t)),r.onScroll!=null&&Q(`scroll`,t),r.onScrollEnd!=null&&Q(`scrollend`,t),r.onClick!=null&&(t.onclick=nn),t=!0):t=!1,t||Vi(e,!0)}function Ui(e){for(Ii=e.return;Ii;)switch(Ii.tag){case 5:case 31:case 13:zi=!1;return;case 27:case 3:zi=!0;return;default:Ii=Ii.return}}function Wi(e){if(e!==Ii)return!1;if(!I)return Ui(e),I=!0,!1;var t=e.tag,n;if((n=t!==3&&t!==27)&&((n=t===5)&&(n=e.type,n=n===`form`||n===`button`||Ud(e.type,e.memoizedProps)),n=!n),n&&Li&&Vi(e),Ui(e),t===13){if(e=e.memoizedState,e=e===null?null:e.dehydrated,!e)throw Error(i(317));Li=uf(e)}else if(t===31){if(e=e.memoizedState,e=e===null?null:e.dehydrated,!e)throw Error(i(317));Li=uf(e)}else t===27?(t=Li,Zd(e.type)?(e=lf,lf=null,Li=e):Li=t):Li=Ii?cf(e.stateNode.nextSibling):null;return!0}function Gi(){Li=Ii=null,I=!1}function Ki(){var e=Ri;return e!==null&&(eu===null?eu=e:eu.push.apply(eu,e),Ri=null),e}function qi(e){Ri===null?Ri=[e]:Ri.push(e)}var Ji=pe(null),Yi=null,Xi=null;function Zi(e,t,n){he(Ji,t._currentValue),t._currentValue=n}function Qi(e){e._currentValue=Ji.current,me(Ji)}function $i(e,t,n){for(;e!==null;){var r=e.alternate;if((e.childLanes&t)===t?r!==null&&(r.childLanes&t)!==t&&(r.childLanes|=t):(e.childLanes|=t,r!==null&&(r.childLanes|=t)),e===n)break;e=e.return}}function ea(e,t,n,r){var a=e.child;for(a!==null&&(a.return=e);a!==null;){var o=a.dependencies;if(o!==null){var s=a.child;o=o.firstContext;a:for(;o!==null;){var c=o;o=a;for(var l=0;l<t.length;l++)if(c.context===t[l]){o.lanes|=n,c=o.alternate,c!==null&&(c.lanes|=n),$i(o.return,n,e),r||(s=null);break a}o=c.next}}else if(a.tag===18){if(s=a.return,s===null)throw Error(i(341));s.lanes|=n,o=s.alternate,o!==null&&(o.lanes|=n),$i(s,n,e),s=null}else s=a.child;if(s!==null)s.return=a;else for(s=a;s!==null;){if(s===e){s=null;break}if(a=s.sibling,a!==null){a.return=s.return,s=a;break}s=s.return}a=s}}function ta(e,t,n,r){e=null;for(var a=t,o=!1;a!==null;){if(!o){if(a.flags&524288)o=!0;else if(a.flags&262144)break}if(a.tag===10){var s=a.alternate;if(s===null)throw Error(i(387));if(s=s.memoizedProps,s!==null){var c=a.type;Tr(a.pendingProps.value,s.value)||(e===null?e=[c]:e.push(c))}}else if(a===ye.current){if(s=a.alternate,s===null)throw Error(i(387));s.memoizedState.memoizedState!==a.memoizedState.memoizedState&&(e===null?e=[Qf]:e.push(Qf))}a=a.return}e!==null&&ea(t,e,n,r),t.flags|=262144}function na(e){for(e=e.firstContext;e!==null;){if(!Tr(e.context._currentValue,e.memoizedValue))return!0;e=e.next}return!1}function ra(e){Yi=e,Xi=null,e=e.dependencies,e!==null&&(e.firstContext=null)}function ia(e){return oa(Yi,e)}function aa(e,t){return Yi===null&&ra(e),oa(e,t)}function oa(e,t){var n=t._currentValue;if(t={context:t,memoizedValue:n,next:null},Xi===null){if(e===null)throw Error(i(308));Xi=t,e.dependencies={lanes:0,firstContext:t},e.flags|=524288}else Xi=Xi.next=t;return n}var L=typeof AbortController<`u`?AbortController:function(){var e=[],t=this.signal={aborted:!1,addEventListener:function(t,n){e.push(n)}};this.abort=function(){t.aborted=!0,e.forEach(function(e){return e()})}},sa=t.unstable_scheduleCallback,ca=t.unstable_NormalPriority,la={$$typeof:C,Consumer:null,Provider:null,_currentValue:null,_currentValue2:null,_threadCount:0};function ua(){return{controller:new L,data:new Map,refCount:0}}function da(e){e.refCount--,e.refCount===0&&sa(ca,function(){e.controller.abort()})}var fa=null,pa=0,ma=0,ha=null;function ga(e,t){if(fa===null){var n=fa=[];pa=0,ma=dd(),ha={status:`pending`,value:void 0,then:function(e){n.push(e)}}}return pa++,t.then(_a,_a),t}function _a(){if(--pa===0&&fa!==null){ha!==null&&(ha.status=`fulfilled`);var e=fa;fa=null,ma=0,ha=null;for(var t=0;t<e.length;t++)(0,e[t])()}}function va(e,t){var n=[],r={status:`pending`,value:null,reason:null,then:function(e){n.push(e)}};return e.then(function(){r.status=`fulfilled`,r.value=t;for(var e=0;e<n.length;e++)(0,n[e])(t)},function(e){for(r.status=`rejected`,r.reason=e,e=0;e<n.length;e++)(0,n[e])(void 0)}),r}var ya=E.S;E.S=function(e,t){ru=Ie(),typeof t==`object`&&t&&typeof t.then==`function`&&ga(e,t),ya!==null&&ya(e,t)};var ba=pe(null);function xa(){var e=ba.current;return e===null?Wl.pooledCache:e}function Sa(e,t){t===null?he(ba,ba.current):he(ba,t.pool)}function Ca(){var e=xa();return e===null?null:{parent:la._currentValue,pool:e}}var wa=Error(i(460)),Ta=Error(i(474)),Ea=Error(i(542)),Da={then:function(){}};function Oa(e){return e=e.status,e===`fulfilled`||e===`rejected`}function ka(e,t,n){switch(n=e[n],n===void 0?e.push(t):n!==t&&(t.then(nn,nn),t=n),t.status){case`fulfilled`:return t.value;case`rejected`:throw e=t.reason,Na(e),e;default:if(typeof t.status==`string`)t.then(nn,nn);else{if(e=Wl,e!==null&&100<e.shellSuspendCounter)throw Error(i(482));e=t,e.status=`pending`,e.then(function(e){if(t.status===`pending`){var n=t;n.status=`fulfilled`,n.value=e}},function(e){if(t.status===`pending`){var n=t;n.status=`rejected`,n.reason=e}})}switch(t.status){case`fulfilled`:return t.value;case`rejected`:throw e=t.reason,Na(e),e}throw ja=t,wa}}function Aa(e){try{var t=e._init;return t(e._payload)}catch(e){throw typeof e==`object`&&e&&typeof e.then==`function`?(ja=e,wa):e}}var ja=null;function Ma(){if(ja===null)throw Error(i(459));var e=ja;return ja=null,e}function Na(e){if(e===wa||e===Ea)throw Error(i(483))}var Pa=null,Fa=0;function Ia(e){var t=Fa;return Fa+=1,Pa===null&&(Pa=[]),ka(Pa,e,t)}function La(e,t){t=t.props.ref,e.ref=t===void 0?null:t}function Ra(e,t){throw t.$$typeof===g?Error(i(525)):(e=Object.prototype.toString.call(t),Error(i(31,e===`[object Object]`?`object with keys {`+Object.keys(t).join(`, `)+`}`:e)))}function za(e){function t(t,n){if(e){var r=t.deletions;r===null?(t.deletions=[n],t.flags|=16):r.push(n)}}function n(n,r){if(!e)return null;for(;r!==null;)t(n,r),r=r.sibling;return null}function r(e){for(var t=new Map;e!==null;)e.key===null?t.set(e.index,e):t.set(e.key,e),e=e.sibling;return t}function a(e,t){return e=pi(e,t),e.index=0,e.sibling=null,e}function o(t,n,r){return t.index=r,e?(r=t.alternate,r===null?(t.flags|=67108866,n):(r=r.index,r<n?(t.flags|=67108866,n):r)):(t.flags|=1048576,n)}function s(t){return e&&t.alternate===null&&(t.flags|=67108866),t}function c(e,t,n,r){return t===null||t.tag!==6?(t=_i(n,e.mode,r),t.return=e,t):(t=a(t,n),t.return=e,t)}function l(e,t,n,r){var i=n.type;return i===y?d(e,t,n.props.children,r,n.key):t!==null&&(t.elementType===i||typeof i==`object`&&i&&i.$$typeof===ne&&Aa(i)===t.type)?(t=a(t,n.props),La(t,n),t.return=e,t):(t=hi(n.type,n.key,n.props,null,e.mode,r),La(t,n),t.return=e,t)}function u(e,t,n,r){return t===null||t.tag!==4||t.stateNode.containerInfo!==n.containerInfo||t.stateNode.implementation!==n.implementation?(t=yi(n,e.mode,r),t.return=e,t):(t=a(t,n.children||[]),t.return=e,t)}function d(e,t,n,r,i){return t===null||t.tag!==7?(t=gi(n,e.mode,r,i),t.return=e,t):(t=a(t,n),t.return=e,t)}function f(e,t,n){if(typeof t==`string`&&t!==``||typeof t==`number`||typeof t==`bigint`)return t=_i(``+t,e.mode,n),t.return=e,t;if(typeof t==`object`&&t){switch(t.$$typeof){case _:return n=hi(t.type,t.key,t.props,null,e.mode,n),La(n,t),n.return=e,n;case v:return t=yi(t,e.mode,n),t.return=e,t;case ne:return t=Aa(t),f(e,t,n)}if(le(t)||oe(t))return t=gi(t,e.mode,n,null),t.return=e,t;if(typeof t.then==`function`)return f(e,Ia(t),n);if(t.$$typeof===C)return f(e,aa(e,t),n);Ra(e,t)}return null}function p(e,t,n,r){var i=t===null?null:t.key;if(typeof n==`string`&&n!==``||typeof n==`number`||typeof n==`bigint`)return i===null?c(e,t,``+n,r):null;if(typeof n==`object`&&n){switch(n.$$typeof){case _:return n.key===i?l(e,t,n,r):null;case v:return n.key===i?u(e,t,n,r):null;case ne:return n=Aa(n),p(e,t,n,r)}if(le(n)||oe(n))return i===null?d(e,t,n,r,null):null;if(typeof n.then==`function`)return p(e,t,Ia(n),r);if(n.$$typeof===C)return p(e,t,aa(e,n),r);Ra(e,n)}return null}function m(e,t,n,r,i){if(typeof r==`string`&&r!==``||typeof r==`number`||typeof r==`bigint`)return e=e.get(n)||null,c(t,e,``+r,i);if(typeof r==`object`&&r){switch(r.$$typeof){case _:return e=e.get(r.key===null?n:r.key)||null,l(t,e,r,i);case v:return e=e.get(r.key===null?n:r.key)||null,u(t,e,r,i);case ne:return r=Aa(r),m(e,t,n,r,i)}if(le(r)||oe(r))return e=e.get(n)||null,d(t,e,r,i,null);if(typeof r.then==`function`)return m(e,t,n,Ia(r),i);if(r.$$typeof===C)return m(e,t,n,aa(t,r),i);Ra(t,r)}return null}function h(i,a,s,c){for(var l=null,u=null,d=a,h=a=0,g=null;d!==null&&h<s.length;h++){d.index>h?(g=d,d=null):g=d.sibling;var _=p(i,d,s[h],c);if(_===null){d===null&&(d=g);break}e&&d&&_.alternate===null&&t(i,d),a=o(_,a,h),u===null?l=_:u.sibling=_,u=_,d=g}if(h===s.length)return n(i,d),I&&ji(i,h),l;if(d===null){for(;h<s.length;h++)d=f(i,s[h],c),d!==null&&(a=o(d,a,h),u===null?l=d:u.sibling=d,u=d);return I&&ji(i,h),l}for(d=r(d);h<s.length;h++)g=m(d,i,h,s[h],c),g!==null&&(e&&g.alternate!==null&&d.delete(g.key===null?h:g.key),a=o(g,a,h),u===null?l=g:u.sibling=g,u=g);return e&&d.forEach(function(e){return t(i,e)}),I&&ji(i,h),l}function g(a,s,c,l){if(c==null)throw Error(i(151));for(var u=null,d=null,h=s,g=s=0,_=null,v=c.next();h!==null&&!v.done;g++,v=c.next()){h.index>g?(_=h,h=null):_=h.sibling;var y=p(a,h,v.value,l);if(y===null){h===null&&(h=_);break}e&&h&&y.alternate===null&&t(a,h),s=o(y,s,g),d===null?u=y:d.sibling=y,d=y,h=_}if(v.done)return n(a,h),I&&ji(a,g),u;if(h===null){for(;!v.done;g++,v=c.next())v=f(a,v.value,l),v!==null&&(s=o(v,s,g),d===null?u=v:d.sibling=v,d=v);return I&&ji(a,g),u}for(h=r(h);!v.done;g++,v=c.next())v=m(h,a,g,v.value,l),v!==null&&(e&&v.alternate!==null&&h.delete(v.key===null?g:v.key),s=o(v,s,g),d===null?u=v:d.sibling=v,d=v);return e&&h.forEach(function(e){return t(a,e)}),I&&ji(a,g),u}function b(e,r,o,c){if(typeof o==`object`&&o&&o.type===y&&o.key===null&&(o=o.props.children),typeof o==`object`&&o){switch(o.$$typeof){case _:a:{for(var l=o.key;r!==null;){if(r.key===l){if(l=o.type,l===y){if(r.tag===7){n(e,r.sibling),c=a(r,o.props.children),c.return=e,e=c;break a}}else if(r.elementType===l||typeof l==`object`&&l&&l.$$typeof===ne&&Aa(l)===r.type){n(e,r.sibling),c=a(r,o.props),La(c,o),c.return=e,e=c;break a}n(e,r);break}t(e,r),r=r.sibling}o.type===y?(c=gi(o.props.children,e.mode,c,o.key),c.return=e,e=c):(c=hi(o.type,o.key,o.props,null,e.mode,c),La(c,o),c.return=e,e=c)}return s(e);case v:a:{for(l=o.key;r!==null;){if(r.key===l){if(r.tag===4&&r.stateNode.containerInfo===o.containerInfo&&r.stateNode.implementation===o.implementation){n(e,r.sibling),c=a(r,o.children||[]),c.return=e,e=c;break a}n(e,r);break}t(e,r),r=r.sibling}c=yi(o,e.mode,c),c.return=e,e=c}return s(e);case ne:return o=Aa(o),b(e,r,o,c)}if(le(o))return h(e,r,o,c);if(oe(o)){if(l=oe(o),typeof l!=`function`)throw Error(i(150));return o=l.call(o),g(e,r,o,c)}if(typeof o.then==`function`)return b(e,r,Ia(o),c);if(o.$$typeof===C)return b(e,r,aa(e,o),c);Ra(e,o)}return typeof o==`string`&&o!==``||typeof o==`number`||typeof o==`bigint`?(o=``+o,r!==null&&r.tag===6?(n(e,r.sibling),c=a(r,o),c.return=e,e=c):(n(e,r),c=_i(o,e.mode,c),c.return=e,e=c),s(e)):n(e,r)}return function(e,t,n,r){try{Fa=0;var i=b(e,t,n,r);return Pa=null,i}catch(t){if(t===wa||t===Ea)throw t;var a=di(29,t,null,e.mode);return a.lanes=r,a.return=e,a}}}var Ba=za(!0),Va=za(!1),Ha=!1;function Ua(e){e.updateQueue={baseState:e.memoizedState,firstBaseUpdate:null,lastBaseUpdate:null,shared:{pending:null,lanes:0,hiddenCallbacks:null},callbacks:null}}function Wa(e,t){e=e.updateQueue,t.updateQueue===e&&(t.updateQueue={baseState:e.baseState,firstBaseUpdate:e.firstBaseUpdate,lastBaseUpdate:e.lastBaseUpdate,shared:e.shared,callbacks:null})}function Ga(e){return{lane:e,tag:0,payload:null,callback:null,next:null}}function Ka(e,t,n){var r=e.updateQueue;if(r===null)return null;if(r=r.shared,V&2){var i=r.pending;return i===null?t.next=t:(t.next=i.next,i.next=t),r.pending=t,t=ci(e),si(e,null,n),t}return ii(e,r,t,n),ci(e)}function qa(e,t,n){if(t=t.updateQueue,t!==null&&(t=t.shared,n&4194048)){var r=t.lanes;r&=e.pendingLanes,n|=r,t.lanes=n,lt(e,n)}}function Ja(e,t){var n=e.updateQueue,r=e.alternate;if(r!==null&&(r=r.updateQueue,n===r)){var i=null,a=null;if(n=n.firstBaseUpdate,n!==null){do{var o={lane:n.lane,tag:n.tag,payload:n.payload,callback:null,next:null};a===null?i=a=o:a=a.next=o,n=n.next}while(n!==null);a===null?i=a=t:a=a.next=t}else i=a=t;n={baseState:r.baseState,firstBaseUpdate:i,lastBaseUpdate:a,shared:r.shared,callbacks:r.callbacks},e.updateQueue=n;return}e=n.lastBaseUpdate,e===null?n.firstBaseUpdate=t:e.next=t,n.lastBaseUpdate=t}var Ya=!1;function Xa(){if(Ya){var e=ha;if(e!==null)throw e}}function Za(e,t,n,r){Ya=!1;var i=e.updateQueue;Ha=!1;var a=i.firstBaseUpdate,o=i.lastBaseUpdate,s=i.shared.pending;if(s!==null){i.shared.pending=null;var c=s,l=c.next;c.next=null,o===null?a=l:o.next=l,o=c;var u=e.alternate;u!==null&&(u=u.updateQueue,s=u.lastBaseUpdate,s!==o&&(s===null?u.firstBaseUpdate=l:s.next=l,u.lastBaseUpdate=c))}if(a!==null){var d=i.baseState;o=0,u=l=c=null,s=a;do{var f=s.lane&-536870913,p=f!==s.lane;if(p?(U&f)===f:(r&f)===f){f!==0&&f===ma&&(Ya=!0),u!==null&&(u=u.next={lane:0,tag:s.tag,payload:s.payload,callback:null,next:null});a:{var h=e,g=s;f=t;var _=n;switch(g.tag){case 1:if(h=g.payload,typeof h==`function`){d=h.call(_,d,f);break a}d=h;break a;case 3:h.flags=h.flags&-65537|128;case 0:if(h=g.payload,f=typeof h==`function`?h.call(_,d,f):h,f==null)break a;d=m({},d,f);break a;case 2:Ha=!0}}f=s.callback,f!==null&&(e.flags|=64,p&&(e.flags|=8192),p=i.callbacks,p===null?i.callbacks=[f]:p.push(f))}else p={lane:f,tag:s.tag,payload:s.payload,callback:s.callback,next:null},u===null?(l=u=p,c=d):u=u.next=p,o|=f;if(s=s.next,s===null){if(s=i.shared.pending,s===null)break;p=s,s=p.next,p.next=null,i.lastBaseUpdate=p,i.shared.pending=null}}while(1);u===null&&(c=d),i.baseState=c,i.firstBaseUpdate=l,i.lastBaseUpdate=u,a===null&&(i.shared.lanes=0),K|=o,e.lanes=o,e.memoizedState=d}}function Qa(e,t){if(typeof e!=`function`)throw Error(i(191,e));e.call(t)}function $a(e,t){var n=e.callbacks;if(n!==null)for(e.callbacks=null,e=0;e<n.length;e++)Qa(n[e],t)}var eo=pe(null),to=pe(0);function no(e,t){e=Yl,he(to,e),he(eo,t),Yl=e|t.baseLanes}function ro(){he(to,Yl),he(eo,eo.current)}function io(){Yl=to.current,me(eo),me(to)}var ao=pe(null),oo=null;function so(e){var t=e.alternate;he(po,po.current&1),he(ao,e),oo===null&&(t===null||eo.current!==null||t.memoizedState!==null)&&(oo=e)}function co(e){he(po,po.current),he(ao,e),oo===null&&(oo=e)}function lo(e){e.tag===22?(he(po,po.current),he(ao,e),oo===null&&(oo=e)):uo(e)}function uo(){he(po,po.current),he(ao,ao.current)}function fo(e){me(ao),oo===e&&(oo=null),me(po)}var po=pe(0);function mo(e){for(var t=e;t!==null;){if(t.tag===13){var n=t.memoizedState;if(n!==null&&(n=n.dehydrated,n===null||af(n)||of(n)))return t}else if(t.tag===19&&(t.memoizedProps.revealOrder===`forwards`||t.memoizedProps.revealOrder===`backwards`||t.memoizedProps.revealOrder===`unstable_legacy-backwards`||t.memoizedProps.revealOrder===`together`)){if(t.flags&128)return t}else if(t.child!==null){t.child.return=t,t=t.child;continue}if(t===e)break;for(;t.sibling===null;){if(t.return===null||t.return===e)return null;t=t.return}t.sibling.return=t.return,t=t.sibling}return null}var ho=0,R=null,go=null,_o=null,vo=!1,yo=!1,bo=!1,xo=0,So=0,Co=null,wo=0;function To(){throw Error(i(321))}function Eo(e,t){if(t===null)return!1;for(var n=0;n<t.length&&n<e.length;n++)if(!Tr(e[n],t[n]))return!1;return!0}function Do(e,t,n,r,i,a){return ho=a,R=t,t.memoizedState=null,t.updateQueue=null,t.lanes=0,E.H=e===null||e.memoizedState===null?Hs:Us,bo=!1,a=n(r,i),bo=!1,yo&&(a=ko(t,n,r,i)),Oo(e),a}function Oo(e){E.H=Vs;var t=go!==null&&go.next!==null;if(ho=0,_o=go=R=null,vo=!1,So=0,Co=null,t)throw Error(i(300));e===null||oc||(e=e.dependencies,e!==null&&na(e)&&(oc=!0))}function ko(e,t,n,r){R=e;var a=0;do{if(yo&&(Co=null),So=0,yo=!1,25<=a)throw Error(i(301));if(a+=1,_o=go=null,e.updateQueue!=null){var o=e.updateQueue;o.lastEffect=null,o.events=null,o.stores=null,o.memoCache!=null&&(o.memoCache.index=0)}E.H=Ws,o=t(n,r)}while(yo);return o}function Ao(){var e=E.H,t=e.useState()[0];return t=typeof t.then==`function`?Lo(t):t,e=e.useState()[0],(go===null?null:go.memoizedState)!==e&&(R.flags|=1024),t}function jo(){var e=xo!==0;return xo=0,e}function Mo(e,t,n){t.updateQueue=e.updateQueue,t.flags&=-2053,e.lanes&=~n}function No(e){if(vo){for(e=e.memoizedState;e!==null;){var t=e.queue;t!==null&&(t.pending=null),e=e.next}vo=!1}ho=0,_o=go=R=null,yo=!1,So=xo=0,Co=null}function Po(){var e={memoizedState:null,baseState:null,baseQueue:null,queue:null,next:null};return _o===null?R.memoizedState=_o=e:_o=_o.next=e,_o}function Fo(){if(go===null){var e=R.alternate;e=e===null?null:e.memoizedState}else e=go.next;var t=_o===null?R.memoizedState:_o.next;if(t!==null)_o=t,go=e;else{if(e===null)throw R.alternate===null?Error(i(467)):Error(i(310));go=e,e={memoizedState:go.memoizedState,baseState:go.baseState,baseQueue:go.baseQueue,queue:go.queue,next:null},_o===null?R.memoizedState=_o=e:_o=_o.next=e}return _o}function Io(){return{lastEffect:null,events:null,stores:null,memoCache:null}}function Lo(e){var t=So;return So+=1,Co===null&&(Co=[]),e=ka(Co,e,t),t=R,(_o===null?t.memoizedState:_o.next)===null&&(t=t.alternate,E.H=t===null||t.memoizedState===null?Hs:Us),e}function Ro(e){if(typeof e==`object`&&e){if(typeof e.then==`function`)return Lo(e);if(e.$$typeof===C)return ia(e)}throw Error(i(438,String(e)))}function zo(e){var t=null,n=R.updateQueue;if(n!==null&&(t=n.memoCache),t==null){var r=R.alternate;r!==null&&(r=r.updateQueue,r!==null&&(r=r.memoCache,r!=null&&(t={data:r.data.map(function(e){return e.slice()}),index:0})))}if(t??={data:[],index:0},n===null&&(n=Io(),R.updateQueue=n),n.memoCache=t,n=t.data[t.index],n===void 0)for(n=t.data[t.index]=Array(e),r=0;r<e;r++)n[r]=ie;return t.index++,n}function Bo(e,t){return typeof t==`function`?t(e):t}function Vo(e){return Ho(Fo(),go,e)}function Ho(e,t,n){var r=e.queue;if(r===null)throw Error(i(311));r.lastRenderedReducer=n;var a=e.baseQueue,o=r.pending;if(o!==null){if(a!==null){var s=a.next;a.next=o.next,o.next=s}t.baseQueue=a=o,r.pending=null}if(o=e.baseState,a===null)e.memoizedState=o;else{t=a.next;var c=s=null,l=null,u=t,d=!1;do{var f=u.lane&-536870913;if(f===u.lane?(ho&f)===f:(U&f)===f){var p=u.revertLane;if(p===0)l!==null&&(l=l.next={lane:0,revertLane:0,gesture:null,action:u.action,hasEagerState:u.hasEagerState,eagerState:u.eagerState,next:null}),f===ma&&(d=!0);else if((ho&p)===p){u=u.next,p===ma&&(d=!0);continue}else f={lane:0,revertLane:u.revertLane,gesture:null,action:u.action,hasEagerState:u.hasEagerState,eagerState:u.eagerState,next:null},l===null?(c=l=f,s=o):l=l.next=f,R.lanes|=p,K|=p;f=u.action,bo&&n(o,f),o=u.hasEagerState?u.eagerState:n(o,f)}else p={lane:f,revertLane:u.revertLane,gesture:u.gesture,action:u.action,hasEagerState:u.hasEagerState,eagerState:u.eagerState,next:null},l===null?(c=l=p,s=o):l=l.next=p,R.lanes|=f,K|=f;u=u.next}while(u!==null&&u!==t);if(l===null?s=o:l.next=c,!Tr(o,e.memoizedState)&&(oc=!0,d&&(n=ha,n!==null)))throw n;e.memoizedState=o,e.baseState=s,e.baseQueue=l,r.lastRenderedState=o}return a===null&&(r.lanes=0),[e.memoizedState,r.dispatch]}function Uo(e){var t=Fo(),n=t.queue;if(n===null)throw Error(i(311));n.lastRenderedReducer=e;var r=n.dispatch,a=n.pending,o=t.memoizedState;if(a!==null){n.pending=null;var s=a=a.next;do o=e(o,s.action),s=s.next;while(s!==a);Tr(o,t.memoizedState)||(oc=!0),t.memoizedState=o,t.baseQueue===null&&(t.baseState=o),n.lastRenderedState=o}return[o,r]}function Wo(e,t,n){var r=R,a=Fo(),o=I;if(o){if(n===void 0)throw Error(i(407));n=n()}else n=t();var s=!Tr((go||a).memoizedState,n);if(s&&(a.memoizedState=n,oc=!0),a=a.queue,ps(qo.bind(null,r,a,e),[e]),a.getSnapshot!==t||s||_o!==null&&_o.memoizedState.tag&1){if(r.flags|=2048,cs(9,{destroy:void 0},Ko.bind(null,r,a,n,t),null),Wl===null)throw Error(i(349));o||ho&127||Go(r,t,n)}return n}function Go(e,t,n){e.flags|=16384,e={getSnapshot:t,value:n},t=R.updateQueue,t===null?(t=Io(),R.updateQueue=t,t.stores=[e]):(n=t.stores,n===null?t.stores=[e]:n.push(e))}function Ko(e,t,n,r){t.value=n,t.getSnapshot=r,Jo(t)&&Yo(e)}function qo(e,t,n){return n(function(){Jo(t)&&Yo(e)})}function Jo(e){var t=e.getSnapshot;e=e.value;try{var n=t();return!Tr(e,n)}catch{return!0}}function Yo(e){var t=oi(e,2);t!==null&&hu(t,e,2)}function Xo(e){var t=Po();if(typeof e==`function`){var n=e;if(e=n(),bo){Ke(!0);try{n()}finally{Ke(!1)}}}return t.memoizedState=t.baseState=e,t.queue={pending:null,lanes:0,dispatch:null,lastRenderedReducer:Bo,lastRenderedState:e},t}function Zo(e,t,n,r){return e.baseState=n,Ho(e,go,typeof r==`function`?r:Bo)}function Qo(e,t,n,r,a){if(Rs(e))throw Error(i(485));if(e=t.action,e!==null){var o={payload:a,action:e,next:null,isTransition:!0,status:`pending`,value:null,reason:null,listeners:[],then:function(e){o.listeners.push(e)}};E.T===null?o.isTransition=!1:n(!0),r(o),n=t.pending,n===null?(o.next=t.pending=o,z(t,o)):(o.next=n.next,t.pending=n.next=o)}}function z(e,t){var n=t.action,r=t.payload,i=e.state;if(t.isTransition){var a=E.T,o={};E.T=o;try{var s=n(i,r),c=E.S;c!==null&&c(o,s),$o(e,t,s)}catch(n){ts(e,t,n)}finally{a!==null&&o.types!==null&&(a.types=o.types),E.T=a}}else try{a=n(i,r),$o(e,t,a)}catch(n){ts(e,t,n)}}function $o(e,t,n){typeof n==`object`&&n&&typeof n.then==`function`?n.then(function(n){es(e,t,n)},function(n){return ts(e,t,n)}):es(e,t,n)}function es(e,t,n){t.status=`fulfilled`,t.value=n,B(t),e.state=n,t=e.pending,t!==null&&(n=t.next,n===t?e.pending=null:(n=n.next,t.next=n,z(e,n)))}function ts(e,t,n){var r=e.pending;if(e.pending=null,r!==null){r=r.next;do t.status=`rejected`,t.reason=n,B(t),t=t.next;while(t!==r)}e.action=null}function B(e){e=e.listeners;for(var t=0;t<e.length;t++)(0,e[t])()}function ns(e,t){return t}function rs(e,t){if(I){var n=Wl.formState;if(n!==null){a:{var r=R;if(I){if(Li){b:{for(var i=Li,a=zi;i.nodeType!==8;){if(!a){i=null;break b}if(i=cf(i.nextSibling),i===null){i=null;break b}}a=i.data,i=a===`F!`||a===`F`?i:null}if(i){Li=cf(i.nextSibling),r=i.data===`F!`;break a}}Vi(r)}r=!1}r&&(t=n[0])}}return n=Po(),n.memoizedState=n.baseState=t,r={pending:null,lanes:0,dispatch:null,lastRenderedReducer:ns,lastRenderedState:t},n.queue=r,n=Fs.bind(null,R,r),r.dispatch=n,r=Xo(!1),a=Ls.bind(null,R,!1,r.queue),r=Po(),i={state:t,dispatch:null,action:e,pending:null},r.queue=i,n=Qo.bind(null,R,i,a,n),i.dispatch=n,r.memoizedState=e,[t,n,!1]}function is(e){return as(Fo(),go,e)}function as(e,t,n){if(t=Ho(e,t,ns)[0],e=Vo(Bo)[0],typeof t==`object`&&t&&typeof t.then==`function`)try{var r=Lo(t)}catch(e){throw e===wa?Ea:e}else r=t;t=Fo();var i=t.queue,a=i.dispatch;return n!==t.memoizedState&&(R.flags|=2048,cs(9,{destroy:void 0},os.bind(null,i,n),null)),[r,a,e]}function os(e,t){e.action=t}function ss(e){var t=Fo(),n=go;if(n!==null)return as(t,n,e);Fo(),t=t.memoizedState,n=Fo();var r=n.queue.dispatch;return n.memoizedState=e,[t,r,!1]}function cs(e,t,n,r){return e={tag:e,create:n,deps:r,inst:t,next:null},t=R.updateQueue,t===null&&(t=Io(),R.updateQueue=t),n=t.lastEffect,n===null?t.lastEffect=e.next=e:(r=n.next,n.next=e,e.next=r,t.lastEffect=e),e}function ls(){return Fo().memoizedState}function us(e,t,n,r){var i=Po();R.flags|=e,i.memoizedState=cs(1|t,{destroy:void 0},n,r===void 0?null:r)}function ds(e,t,n,r){var i=Fo();r=r===void 0?null:r;var a=i.memoizedState.inst;go!==null&&r!==null&&Eo(r,go.memoizedState.deps)?i.memoizedState=cs(t,a,n,r):(R.flags|=e,i.memoizedState=cs(1|t,a,n,r))}function fs(e,t){us(8390656,8,e,t)}function ps(e,t){ds(2048,8,e,t)}function ms(e){R.flags|=4;var t=R.updateQueue;if(t===null)t=Io(),R.updateQueue=t,t.events=[e];else{var n=t.events;n===null?t.events=[e]:n.push(e)}}function hs(e){var t=Fo().memoizedState;return ms({ref:t,nextImpl:e}),function(){if(V&2)throw Error(i(440));return t.impl.apply(void 0,arguments)}}function gs(e,t){return ds(4,2,e,t)}function _s(e,t){return ds(4,4,e,t)}function vs(e,t){if(typeof t==`function`){e=e();var n=t(e);return function(){typeof n==`function`?n():t(null)}}if(t!=null)return e=e(),t.current=e,function(){t.current=null}}function ys(e,t,n){n=n==null?null:n.concat([e]),ds(4,4,vs.bind(null,t,e),n)}function bs(){}function xs(e,t){var n=Fo();t=t===void 0?null:t;var r=n.memoizedState;return t!==null&&Eo(t,r[1])?r[0]:(n.memoizedState=[e,t],e)}function Ss(e,t){var n=Fo();t=t===void 0?null:t;var r=n.memoizedState;if(t!==null&&Eo(t,r[1]))return r[0];if(r=e(),bo){Ke(!0);try{e()}finally{Ke(!1)}}return n.memoizedState=[r,t],r}function Cs(e,t,n){return n===void 0||ho&1073741824&&!(U&261930)?e.memoizedState=t:(e.memoizedState=n,e=mu(),R.lanes|=e,K|=e,n)}function ws(e,t,n,r){return Tr(n,t)?n:eo.current===null?!(ho&42)||ho&1073741824&&!(U&261930)?(oc=!0,e.memoizedState=n):(e=mu(),R.lanes|=e,K|=e,t):(e=Cs(e,n,r),Tr(e,t)||(oc=!0),e)}function Ts(e,t,n,r,i){var a=D.p;D.p=a!==0&&8>a?a:8;var o=E.T,s={};E.T=s,Ls(e,!1,t,n);try{var c=i(),l=E.S;l!==null&&l(s,c),typeof c==`object`&&c&&typeof c.then==`function`?Is(e,t,va(c,r),pu(e)):Is(e,t,r,pu(e))}catch(n){Is(e,t,{then:function(){},status:`rejected`,reason:n},pu())}finally{D.p=a,o!==null&&s.types!==null&&(o.types=s.types),E.T=o}}function Es(){}function Ds(e,t,n,r){if(e.tag!==5)throw Error(i(476));var a=Os(e).queue;Ts(e,a,t,ue,n===null?Es:function(){return ks(e),n(r)})}function Os(e){var t=e.memoizedState;if(t!==null)return t;t={memoizedState:ue,baseState:ue,baseQueue:null,queue:{pending:null,lanes:0,dispatch:null,lastRenderedReducer:Bo,lastRenderedState:ue},next:null};var n={};return t.next={memoizedState:n,baseState:n,baseQueue:null,queue:{pending:null,lanes:0,dispatch:null,lastRenderedReducer:Bo,lastRenderedState:n},next:null},e.memoizedState=t,e=e.alternate,e!==null&&(e.memoizedState=t),t}function ks(e){var t=Os(e);t.next===null&&(t=e.alternate.memoizedState),Is(e,t.next.queue,{},pu())}function As(){return ia(Qf)}function js(){return Fo().memoizedState}function Ms(){return Fo().memoizedState}function Ns(e){for(var t=e.return;t!==null;){switch(t.tag){case 24:case 3:var n=pu();e=Ga(n);var r=Ka(t,e,n);r!==null&&(hu(r,t,n),qa(r,t,n)),t={cache:ua()},e.payload=t;return}t=t.return}}function Ps(e,t,n){var r=pu();n={lane:r,revertLane:0,gesture:null,action:n,hasEagerState:!1,eagerState:null,next:null},Rs(e)?zs(t,n):(n=ai(e,t,n,r),n!==null&&(hu(n,e,r),Bs(n,t,r)))}function Fs(e,t,n){Is(e,t,n,pu())}function Is(e,t,n,r){var i={lane:r,revertLane:0,gesture:null,action:n,hasEagerState:!1,eagerState:null,next:null};if(Rs(e))zs(t,i);else{var a=e.alternate;if(e.lanes===0&&(a===null||a.lanes===0)&&(a=t.lastRenderedReducer,a!==null))try{var o=t.lastRenderedState,s=a(o,n);if(i.hasEagerState=!0,i.eagerState=s,Tr(s,o))return ii(e,t,i,0),Wl===null&&ri(),!1}catch{}if(n=ai(e,t,i,r),n!==null)return hu(n,e,r),Bs(n,t,r),!0}return!1}function Ls(e,t,n,r){if(r={lane:2,revertLane:dd(),gesture:null,action:r,hasEagerState:!1,eagerState:null,next:null},Rs(e)){if(t)throw Error(i(479))}else t=ai(e,n,r,2),t!==null&&hu(t,e,2)}function Rs(e){var t=e.alternate;return e===R||t!==null&&t===R}function zs(e,t){yo=vo=!0;var n=e.pending;n===null?t.next=t:(t.next=n.next,n.next=t),e.pending=t}function Bs(e,t,n){if(n&4194048){var r=t.lanes;r&=e.pendingLanes,n|=r,t.lanes=n,lt(e,n)}}var Vs={readContext:ia,use:Ro,useCallback:To,useContext:To,useEffect:To,useImperativeHandle:To,useLayoutEffect:To,useInsertionEffect:To,useMemo:To,useReducer:To,useRef:To,useState:To,useDebugValue:To,useDeferredValue:To,useTransition:To,useSyncExternalStore:To,useId:To,useHostTransitionStatus:To,useFormState:To,useActionState:To,useOptimistic:To,useMemoCache:To,useCacheRefresh:To};Vs.useEffectEvent=To;var Hs={readContext:ia,use:Ro,useCallback:function(e,t){return Po().memoizedState=[e,t===void 0?null:t],e},useContext:ia,useEffect:fs,useImperativeHandle:function(e,t,n){n=n==null?null:n.concat([e]),us(4194308,4,vs.bind(null,t,e),n)},useLayoutEffect:function(e,t){return us(4194308,4,e,t)},useInsertionEffect:function(e,t){us(4,2,e,t)},useMemo:function(e,t){var n=Po();t=t===void 0?null:t;var r=e();if(bo){Ke(!0);try{e()}finally{Ke(!1)}}return n.memoizedState=[r,t],r},useReducer:function(e,t,n){var r=Po();if(n!==void 0){var i=n(t);if(bo){Ke(!0);try{n(t)}finally{Ke(!1)}}}else i=t;return r.memoizedState=r.baseState=i,e={pending:null,lanes:0,dispatch:null,lastRenderedReducer:e,lastRenderedState:i},r.queue=e,e=e.dispatch=Ps.bind(null,R,e),[r.memoizedState,e]},useRef:function(e){var t=Po();return e={current:e},t.memoizedState=e},useState:function(e){e=Xo(e);var t=e.queue,n=Fs.bind(null,R,t);return t.dispatch=n,[e.memoizedState,n]},useDebugValue:bs,useDeferredValue:function(e,t){return Cs(Po(),e,t)},useTransition:function(){var e=Xo(!1);return e=Ts.bind(null,R,e.queue,!0,!1),Po().memoizedState=e,[!1,e]},useSyncExternalStore:function(e,t,n){var r=R,a=Po();if(I){if(n===void 0)throw Error(i(407));n=n()}else{if(n=t(),Wl===null)throw Error(i(349));U&127||Go(r,t,n)}a.memoizedState=n;var o={value:n,getSnapshot:t};return a.queue=o,fs(qo.bind(null,r,o,e),[e]),r.flags|=2048,cs(9,{destroy:void 0},Ko.bind(null,r,o,n,t),null),n},useId:function(){var e=Po(),t=Wl.identifierPrefix;if(I){var n=Ai,r=ki;n=(r&~(1<<32-qe(r)-1)).toString(32)+n,t=`_`+t+`R_`+n,n=xo++,0<n&&(t+=`H`+n.toString(32)),t+=`_`}else n=wo++,t=`_`+t+`r_`+n.toString(32)+`_`;return e.memoizedState=t},useHostTransitionStatus:As,useFormState:rs,useActionState:rs,useOptimistic:function(e){var t=Po();t.memoizedState=t.baseState=e;var n={pending:null,lanes:0,dispatch:null,lastRenderedReducer:null,lastRenderedState:null};return t.queue=n,t=Ls.bind(null,R,!0,n),n.dispatch=t,[e,t]},useMemoCache:zo,useCacheRefresh:function(){return Po().memoizedState=Ns.bind(null,R)},useEffectEvent:function(e){var t=Po(),n={impl:e};return t.memoizedState=n,function(){if(V&2)throw Error(i(440));return n.impl.apply(void 0,arguments)}}},Us={readContext:ia,use:Ro,useCallback:xs,useContext:ia,useEffect:ps,useImperativeHandle:ys,useInsertionEffect:gs,useLayoutEffect:_s,useMemo:Ss,useReducer:Vo,useRef:ls,useState:function(){return Vo(Bo)},useDebugValue:bs,useDeferredValue:function(e,t){return ws(Fo(),go.memoizedState,e,t)},useTransition:function(){var e=Vo(Bo)[0],t=Fo().memoizedState;return[typeof e==`boolean`?e:Lo(e),t]},useSyncExternalStore:Wo,useId:js,useHostTransitionStatus:As,useFormState:is,useActionState:is,useOptimistic:function(e,t){return Zo(Fo(),go,e,t)},useMemoCache:zo,useCacheRefresh:Ms};Us.useEffectEvent=hs;var Ws={readContext:ia,use:Ro,useCallback:xs,useContext:ia,useEffect:ps,useImperativeHandle:ys,useInsertionEffect:gs,useLayoutEffect:_s,useMemo:Ss,useReducer:Uo,useRef:ls,useState:function(){return Uo(Bo)},useDebugValue:bs,useDeferredValue:function(e,t){var n=Fo();return go===null?Cs(n,e,t):ws(n,go.memoizedState,e,t)},useTransition:function(){var e=Uo(Bo)[0],t=Fo().memoizedState;return[typeof e==`boolean`?e:Lo(e),t]},useSyncExternalStore:Wo,useId:js,useHostTransitionStatus:As,useFormState:ss,useActionState:ss,useOptimistic:function(e,t){var n=Fo();return go===null?(n.baseState=e,[e,n.queue.dispatch]):Zo(n,go,e,t)},useMemoCache:zo,useCacheRefresh:Ms};Ws.useEffectEvent=hs;function Gs(e,t,n,r){t=e.memoizedState,n=n(r,t),n=n==null?t:m({},t,n),e.memoizedState=n,e.lanes===0&&(e.updateQueue.baseState=n)}var Ks={enqueueSetState:function(e,t,n){e=e._reactInternals;var r=pu(),i=Ga(r);i.payload=t,n!=null&&(i.callback=n),t=Ka(e,i,r),t!==null&&(hu(t,e,r),qa(t,e,r))},enqueueReplaceState:function(e,t,n){e=e._reactInternals;var r=pu(),i=Ga(r);i.tag=1,i.payload=t,n!=null&&(i.callback=n),t=Ka(e,i,r),t!==null&&(hu(t,e,r),qa(t,e,r))},enqueueForceUpdate:function(e,t){e=e._reactInternals;var n=pu(),r=Ga(n);r.tag=2,t!=null&&(r.callback=t),t=Ka(e,r,n),t!==null&&(hu(t,e,n),qa(t,e,n))}};function qs(e,t,n,r,i,a,o){return e=e.stateNode,typeof e.shouldComponentUpdate==`function`?e.shouldComponentUpdate(r,a,o):t.prototype&&t.prototype.isPureReactComponent?!Er(n,r)||!Er(i,a):!0}function Js(e,t,n,r){e=t.state,typeof t.componentWillReceiveProps==`function`&&t.componentWillReceiveProps(n,r),typeof t.UNSAFE_componentWillReceiveProps==`function`&&t.UNSAFE_componentWillReceiveProps(n,r),t.state!==e&&Ks.enqueueReplaceState(t,t.state,null)}function Ys(e,t){var n=t;if(`ref`in t)for(var r in n={},t)r!==`ref`&&(n[r]=t[r]);if(e=e.defaultProps)for(var i in n===t&&(n=m({},n)),e)n[i]===void 0&&(n[i]=e[i]);return n}function Xs(e){$r(e)}function Zs(e){console.error(e)}function Qs(e){$r(e)}function $s(e,t){try{var n=e.onUncaughtError;n(t.value,{componentStack:t.stack})}catch(e){setTimeout(function(){throw e})}}function ec(e,t,n){try{var r=e.onCaughtError;r(n.value,{componentStack:n.stack,errorBoundary:t.tag===1?t.stateNode:null})}catch(e){setTimeout(function(){throw e})}}function tc(e,t,n){return n=Ga(n),n.tag=3,n.payload={element:null},n.callback=function(){$s(e,t)},n}function nc(e){return e=Ga(e),e.tag=3,e}function rc(e,t,n,r){var i=n.type.getDerivedStateFromError;if(typeof i==`function`){var a=r.value;e.payload=function(){return i(a)},e.callback=function(){ec(t,n,r)}}var o=n.stateNode;o!==null&&typeof o.componentDidCatch==`function`&&(e.callback=function(){ec(t,n,r),typeof i!=`function`&&(au===null?au=new Set([this]):au.add(this));var e=r.stack;this.componentDidCatch(r.value,{componentStack:e===null?``:e})})}function ic(e,t,n,r,a){if(n.flags|=32768,typeof r==`object`&&r&&typeof r.then==`function`){if(t=n.alternate,t!==null&&ta(t,n,a,!0),n=ao.current,n!==null){switch(n.tag){case 31:case 13:return oo===null?Du():n.alternate===null&&G===0&&(G=3),n.flags&=-257,n.flags|=65536,n.lanes=a,r===Da?n.flags|=16384:(t=n.updateQueue,t===null?n.updateQueue=new Set([r]):t.add(r),Gu(e,r,a)),!1;case 22:return n.flags|=65536,r===Da?n.flags|=16384:(t=n.updateQueue,t===null?(t={transitions:null,markerInstances:null,retryQueue:new Set([r])},n.updateQueue=t):(n=t.retryQueue,n===null?t.retryQueue=new Set([r]):n.add(r)),Gu(e,r,a)),!1}throw Error(i(435,n.tag))}return Gu(e,r,a),Du(),!1}if(I)return t=ao.current,t===null?(r!==Bi&&(t=Error(i(423),{cause:r}),qi(xi(t,n))),e=e.current.alternate,e.flags|=65536,a&=-a,e.lanes|=a,r=xi(r,n),a=tc(e.stateNode,r,a),Ja(e,a),G!==4&&(G=2)):(!(t.flags&65536)&&(t.flags|=256),t.flags|=65536,t.lanes=a,r!==Bi&&(e=Error(i(422),{cause:r}),qi(xi(e,n)))),!1;var o=Error(i(520),{cause:r});if(o=xi(o,n),$l===null?$l=[o]:$l.push(o),G!==4&&(G=2),t===null)return!0;r=xi(r,n),n=t;do{switch(n.tag){case 3:return n.flags|=65536,e=a&-a,n.lanes|=e,e=tc(n.stateNode,r,e),Ja(n,e),!1;case 1:if(t=n.type,o=n.stateNode,!(n.flags&128)&&(typeof t.getDerivedStateFromError==`function`||o!==null&&typeof o.componentDidCatch==`function`&&(au===null||!au.has(o))))return n.flags|=65536,a&=-a,n.lanes|=a,a=nc(a),rc(a,e,n,r),Ja(n,a),!1}n=n.return}while(n!==null);return!1}var ac=Error(i(461)),oc=!1;function sc(e,t,n,r){t.child=e===null?Va(t,null,n,r):Ba(t,e.child,n,r)}function cc(e,t,n,r,i){n=n.render;var a=t.ref;if(`ref`in r){var o={};for(var s in r)s!==`ref`&&(o[s]=r[s])}else o=r;return ra(t),r=Do(e,t,n,o,a,i),s=jo(),e!==null&&!oc?(Mo(e,t,i),Mc(e,t,i)):(I&&s&&Ni(t),t.flags|=1,sc(e,t,r,i),t.child)}function lc(e,t,n,r,i){if(e===null){var a=n.type;return typeof a==`function`&&!fi(a)&&a.defaultProps===void 0&&n.compare===null?(t.tag=15,t.type=a,uc(e,t,a,r,i)):(e=hi(n.type,null,r,t,t.mode,i),e.ref=t.ref,e.return=t,t.child=e)}if(a=e.child,!Nc(e,i)){var o=a.memoizedProps;if(n=n.compare,n=n===null?Er:n,n(o,r)&&e.ref===t.ref)return Mc(e,t,i)}return t.flags|=1,e=pi(a,r),e.ref=t.ref,e.return=t,t.child=e}function uc(e,t,n,r,i){if(e!==null){var a=e.memoizedProps;if(Er(a,r)&&e.ref===t.ref){if(oc=!1,t.pendingProps=r=a,Nc(e,i))e.flags&131072&&(oc=!0);else return t.lanes=e.lanes,Mc(e,t,i)}}return vc(e,t,n,r,i)}function dc(e,t,n,r){var i=r.children,a=e===null?null:e.memoizedState;if(e===null&&t.stateNode===null&&(t.stateNode={_visibility:1,_pendingMarkers:null,_retryCache:null,_transitions:null}),r.mode===`hidden`){if(t.flags&128){if(a=a===null?n:a.baseLanes|n,e!==null){for(r=t.child=e.child,i=0;r!==null;)i=i|r.lanes|r.childLanes,r=r.sibling;r=i&~a}else r=0,t.child=null;return pc(e,t,a,n,r)}if(n&536870912)t.memoizedState={baseLanes:0,cachePool:null},e!==null&&Sa(t,a===null?null:a.cachePool),a===null?ro():no(t,a),lo(t);else return r=t.lanes=536870912,pc(e,t,a===null?n:a.baseLanes|n,n,r)}else a===null?(e!==null&&Sa(t,null),ro(),uo(t)):(Sa(t,a.cachePool),no(t,a),uo(t),t.memoizedState=null);return sc(e,t,i,n),t.child}function fc(e,t){return e!==null&&e.tag===22||t.stateNode!==null||(t.stateNode={_visibility:1,_pendingMarkers:null,_retryCache:null,_transitions:null}),t.sibling}function pc(e,t,n,r,i){var a=xa();return a=a===null?null:{parent:la._currentValue,pool:a},t.memoizedState={baseLanes:n,cachePool:a},e!==null&&Sa(t,null),ro(),lo(t),e!==null&&ta(e,t,r,!0),t.childLanes=i,null}function mc(e,t){return t=Dc({mode:t.mode,children:t.children},e.mode),t.ref=e.ref,e.child=t,t.return=e,t}function hc(e,t,n){return Ba(t,e.child,null,n),e=mc(t,t.pendingProps),e.flags|=2,fo(t),t.memoizedState=null,e}function gc(e,t,n){var r=t.pendingProps,a=!!(t.flags&128);if(t.flags&=-129,e===null){if(I){if(r.mode===`hidden`)return e=mc(t,r),t.lanes=536870912,fc(null,e);if(co(t),(e=Li)?(e=rf(e,zi),e=e!==null&&e.data===`&`?e:null,e!==null&&(t.memoizedState={dehydrated:e,treeContext:Oi===null?null:{id:ki,overflow:Ai},retryLane:536870912,hydrationErrors:null},n=vi(e),n.return=t,t.child=n,Ii=t,Li=null)):e=null,e===null)throw Vi(t);return t.lanes=536870912,null}return mc(t,r)}var o=e.memoizedState;if(o!==null){var s=o.dehydrated;if(co(t),a){if(t.flags&256)t.flags&=-257,t=hc(e,t,n);else if(t.memoizedState!==null)t.child=e.child,t.flags|=128,t=null;else throw Error(i(558))}else if(oc||ta(e,t,n,!1),a=(n&e.childLanes)!==0,oc||a){if(r=Wl,r!==null&&(s=k(r,n),s!==0&&s!==o.retryLane))throw o.retryLane=s,oi(e,s),hu(r,e,s),ac;Du(),t=hc(e,t,n)}else e=o.treeContext,Li=cf(s.nextSibling),Ii=t,I=!0,Ri=null,zi=!1,e!==null&&Fi(t,e),t=mc(t,r),t.flags|=4096;return t}return e=pi(e.child,{mode:r.mode,children:r.children}),e.ref=t.ref,t.child=e,e.return=t,e}function _c(e,t){var n=t.ref;if(n===null)e!==null&&e.ref!==null&&(t.flags|=4194816);else{if(typeof n!=`function`&&typeof n!=`object`)throw Error(i(284));(e===null||e.ref!==n)&&(t.flags|=4194816)}}function vc(e,t,n,r,i){return ra(t),n=Do(e,t,n,r,void 0,i),r=jo(),e!==null&&!oc?(Mo(e,t,i),Mc(e,t,i)):(I&&r&&Ni(t),t.flags|=1,sc(e,t,n,i),t.child)}function yc(e,t,n,r,i,a){return ra(t),t.updateQueue=null,n=ko(t,r,n,i),Oo(e),r=jo(),e!==null&&!oc?(Mo(e,t,a),Mc(e,t,a)):(I&&r&&Ni(t),t.flags|=1,sc(e,t,n,a),t.child)}function bc(e,t,n,r,i){if(ra(t),t.stateNode===null){var a=li,o=n.contextType;typeof o==`object`&&o&&(a=ia(o)),a=new n(r,a),t.memoizedState=a.state!==null&&a.state!==void 0?a.state:null,a.updater=Ks,t.stateNode=a,a._reactInternals=t,a=t.stateNode,a.props=r,a.state=t.memoizedState,a.refs={},Ua(t),o=n.contextType,a.context=typeof o==`object`&&o?ia(o):li,a.state=t.memoizedState,o=n.getDerivedStateFromProps,typeof o==`function`&&(Gs(t,n,o,r),a.state=t.memoizedState),typeof n.getDerivedStateFromProps==`function`||typeof a.getSnapshotBeforeUpdate==`function`||typeof a.UNSAFE_componentWillMount!=`function`&&typeof a.componentWillMount!=`function`||(o=a.state,typeof a.componentWillMount==`function`&&a.componentWillMount(),typeof a.UNSAFE_componentWillMount==`function`&&a.UNSAFE_componentWillMount(),o!==a.state&&Ks.enqueueReplaceState(a,a.state,null),Za(t,r,a,i),Xa(),a.state=t.memoizedState),typeof a.componentDidMount==`function`&&(t.flags|=4194308),r=!0}else if(e===null){a=t.stateNode;var s=t.memoizedProps,c=Ys(n,s);a.props=c;var l=a.context,u=n.contextType;o=li,typeof u==`object`&&u&&(o=ia(u));var d=n.getDerivedStateFromProps;u=typeof d==`function`||typeof a.getSnapshotBeforeUpdate==`function`,s=t.pendingProps!==s,u||typeof a.UNSAFE_componentWillReceiveProps!=`function`&&typeof a.componentWillReceiveProps!=`function`||(s||l!==o)&&Js(t,a,r,o),Ha=!1;var f=t.memoizedState;a.state=f,Za(t,r,a,i),Xa(),l=t.memoizedState,s||f!==l||Ha?(typeof d==`function`&&(Gs(t,n,d,r),l=t.memoizedState),(c=Ha||qs(t,n,c,r,f,l,o))?(u||typeof a.UNSAFE_componentWillMount!=`function`&&typeof a.componentWillMount!=`function`||(typeof a.componentWillMount==`function`&&a.componentWillMount(),typeof a.UNSAFE_componentWillMount==`function`&&a.UNSAFE_componentWillMount()),typeof a.componentDidMount==`function`&&(t.flags|=4194308)):(typeof a.componentDidMount==`function`&&(t.flags|=4194308),t.memoizedProps=r,t.memoizedState=l),a.props=r,a.state=l,a.context=o,r=c):(typeof a.componentDidMount==`function`&&(t.flags|=4194308),r=!1)}else{a=t.stateNode,Wa(e,t),o=t.memoizedProps,u=Ys(n,o),a.props=u,d=t.pendingProps,f=a.context,l=n.contextType,c=li,typeof l==`object`&&l&&(c=ia(l)),s=n.getDerivedStateFromProps,(l=typeof s==`function`||typeof a.getSnapshotBeforeUpdate==`function`)||typeof a.UNSAFE_componentWillReceiveProps!=`function`&&typeof a.componentWillReceiveProps!=`function`||(o!==d||f!==c)&&Js(t,a,r,c),Ha=!1,f=t.memoizedState,a.state=f,Za(t,r,a,i),Xa();var p=t.memoizedState;o!==d||f!==p||Ha||e!==null&&e.dependencies!==null&&na(e.dependencies)?(typeof s==`function`&&(Gs(t,n,s,r),p=t.memoizedState),(u=Ha||qs(t,n,u,r,f,p,c)||e!==null&&e.dependencies!==null&&na(e.dependencies))?(l||typeof a.UNSAFE_componentWillUpdate!=`function`&&typeof a.componentWillUpdate!=`function`||(typeof a.componentWillUpdate==`function`&&a.componentWillUpdate(r,p,c),typeof a.UNSAFE_componentWillUpdate==`function`&&a.UNSAFE_componentWillUpdate(r,p,c)),typeof a.componentDidUpdate==`function`&&(t.flags|=4),typeof a.getSnapshotBeforeUpdate==`function`&&(t.flags|=1024)):(typeof a.componentDidUpdate!=`function`||o===e.memoizedProps&&f===e.memoizedState||(t.flags|=4),typeof a.getSnapshotBeforeUpdate!=`function`||o===e.memoizedProps&&f===e.memoizedState||(t.flags|=1024),t.memoizedProps=r,t.memoizedState=p),a.props=r,a.state=p,a.context=c,r=u):(typeof a.componentDidUpdate!=`function`||o===e.memoizedProps&&f===e.memoizedState||(t.flags|=4),typeof a.getSnapshotBeforeUpdate!=`function`||o===e.memoizedProps&&f===e.memoizedState||(t.flags|=1024),r=!1)}return a=r,_c(e,t),r=!!(t.flags&128),a||r?(a=t.stateNode,n=r&&typeof n.getDerivedStateFromError!=`function`?null:a.render(),t.flags|=1,e!==null&&r?(t.child=Ba(t,e.child,null,i),t.child=Ba(t,null,n,i)):sc(e,t,n,i),t.memoizedState=a.state,e=t.child):e=Mc(e,t,i),e}function xc(e,t,n,r){return Gi(),t.flags|=256,sc(e,t,n,r),t.child}var Sc={dehydrated:null,treeContext:null,retryLane:0,hydrationErrors:null};function Cc(e){return{baseLanes:e,cachePool:Ca()}}function wc(e,t,n){return e=e===null?0:e.childLanes&~n,t&&(e|=q),e}function Tc(e,t,n){var r=t.pendingProps,a=!1,o=!!(t.flags&128),s;if((s=o)||(s=e!==null&&e.memoizedState===null?!1:!!(po.current&2)),s&&(a=!0,t.flags&=-129),s=!!(t.flags&32),t.flags&=-33,e===null){if(I){if(a?so(t):uo(t),(e=Li)?(e=rf(e,zi),e=e!==null&&e.data!==`&`?e:null,e!==null&&(t.memoizedState={dehydrated:e,treeContext:Oi===null?null:{id:ki,overflow:Ai},retryLane:536870912,hydrationErrors:null},n=vi(e),n.return=t,t.child=n,Ii=t,Li=null)):e=null,e===null)throw Vi(t);return of(e)?t.lanes=32:t.lanes=536870912,null}var c=r.children;return r=r.fallback,a?(uo(t),a=t.mode,c=Dc({mode:`hidden`,children:c},a),r=gi(r,a,n,null),c.return=t,r.return=t,c.sibling=r,t.child=c,r=t.child,r.memoizedState=Cc(n),r.childLanes=wc(e,s,n),t.memoizedState=Sc,fc(null,r)):(so(t),Ec(t,c))}var l=e.memoizedState;if(l!==null&&(c=l.dehydrated,c!==null)){if(o)t.flags&256?(so(t),t.flags&=-257,t=Oc(e,t,n)):t.memoizedState===null?(uo(t),c=r.fallback,a=t.mode,r=Dc({mode:`visible`,children:r.children},a),c=gi(c,a,n,null),c.flags|=2,r.return=t,c.return=t,r.sibling=c,t.child=r,Ba(t,e.child,null,n),r=t.child,r.memoizedState=Cc(n),r.childLanes=wc(e,s,n),t.memoizedState=Sc,t=fc(null,r)):(uo(t),t.child=e.child,t.flags|=128,t=null);else if(so(t),of(c)){if(s=c.nextSibling&&c.nextSibling.dataset,s)var u=s.dgst;s=u,r=Error(i(419)),r.stack=``,r.digest=s,qi({value:r,source:null,stack:null}),t=Oc(e,t,n)}else if(oc||ta(e,t,n,!1),s=(n&e.childLanes)!==0,oc||s){if(s=Wl,s!==null&&(r=k(s,n),r!==0&&r!==l.retryLane))throw l.retryLane=r,oi(e,r),hu(s,e,r),ac;af(c)||Du(),t=Oc(e,t,n)}else af(c)?(t.flags|=192,t.child=e.child,t=null):(e=l.treeContext,Li=cf(c.nextSibling),Ii=t,I=!0,Ri=null,zi=!1,e!==null&&Fi(t,e),t=Ec(t,r.children),t.flags|=4096);return t}return a?(uo(t),c=r.fallback,a=t.mode,l=e.child,u=l.sibling,r=pi(l,{mode:`hidden`,children:r.children}),r.subtreeFlags=l.subtreeFlags&65011712,u===null?(c=gi(c,a,n,null),c.flags|=2):c=pi(u,c),c.return=t,r.return=t,r.sibling=c,t.child=r,fc(null,r),r=t.child,c=e.child.memoizedState,c===null?c=Cc(n):(a=c.cachePool,a===null?a=Ca():(l=la._currentValue,a=a.parent===l?a:{parent:l,pool:l}),c={baseLanes:c.baseLanes|n,cachePool:a}),r.memoizedState=c,r.childLanes=wc(e,s,n),t.memoizedState=Sc,fc(e.child,r)):(so(t),n=e.child,e=n.sibling,n=pi(n,{mode:`visible`,children:r.children}),n.return=t,n.sibling=null,e!==null&&(s=t.deletions,s===null?(t.deletions=[e],t.flags|=16):s.push(e)),t.child=n,t.memoizedState=null,n)}function Ec(e,t){return t=Dc({mode:`visible`,children:t},e.mode),t.return=e,e.child=t}function Dc(e,t){return e=di(22,e,null,t),e.lanes=0,e}function Oc(e,t,n){return Ba(t,e.child,null,n),e=Ec(t,t.pendingProps.children),e.flags|=2,t.memoizedState=null,e}function kc(e,t,n){e.lanes|=t;var r=e.alternate;r!==null&&(r.lanes|=t),$i(e.return,t,n)}function Ac(e,t,n,r,i,a){var o=e.memoizedState;o===null?e.memoizedState={isBackwards:t,rendering:null,renderingStartTime:0,last:r,tail:n,tailMode:i,treeForkCount:a}:(o.isBackwards=t,o.rendering=null,o.renderingStartTime=0,o.last=r,o.tail=n,o.tailMode=i,o.treeForkCount=a)}function jc(e,t,n){var r=t.pendingProps,i=r.revealOrder,a=r.tail;r=r.children;var o=po.current,s=!!(o&2);if(s?(o=o&1|2,t.flags|=128):o&=1,he(po,o),sc(e,t,r,n),r=I?Ti:0,!s&&e!==null&&e.flags&128)a:for(e=t.child;e!==null;){if(e.tag===13)e.memoizedState!==null&&kc(e,n,t);else if(e.tag===19)kc(e,n,t);else if(e.child!==null){e.child.return=e,e=e.child;continue}if(e===t)break a;for(;e.sibling===null;){if(e.return===null||e.return===t)break a;e=e.return}e.sibling.return=e.return,e=e.sibling}switch(i){case`forwards`:for(n=t.child,i=null;n!==null;)e=n.alternate,e!==null&&mo(e)===null&&(i=n),n=n.sibling;n=i,n===null?(i=t.child,t.child=null):(i=n.sibling,n.sibling=null),Ac(t,!1,i,n,a,r);break;case`backwards`:case`unstable_legacy-backwards`:for(n=null,i=t.child,t.child=null;i!==null;){if(e=i.alternate,e!==null&&mo(e)===null){t.child=i;break}e=i.sibling,i.sibling=n,n=i,i=e}Ac(t,!0,n,null,a,r);break;case`together`:Ac(t,!1,null,null,void 0,r);break;default:t.memoizedState=null}return t.child}function Mc(e,t,n){if(e!==null&&(t.dependencies=e.dependencies),K|=t.lanes,(n&t.childLanes)===0){if(e!==null){if(ta(e,t,n,!1),(n&t.childLanes)===0)return null}else return null}if(e!==null&&t.child!==e.child)throw Error(i(153));if(t.child!==null){for(e=t.child,n=pi(e,e.pendingProps),t.child=n,n.return=t;e.sibling!==null;)e=e.sibling,n=n.sibling=pi(e,e.pendingProps),n.return=t;n.sibling=null}return t.child}function Nc(e,t){return(e.lanes&t)!==0||(e=e.dependencies,!!(e!==null&&na(e)))}function Pc(e,t,n){switch(t.tag){case 3:be(t,t.stateNode.containerInfo),Zi(t,la,e.memoizedState.cache),Gi();break;case 27:case 5:Se(t);break;case 4:be(t,t.stateNode.containerInfo);break;case 10:Zi(t,t.type,t.memoizedProps.value);break;case 31:if(t.memoizedState!==null)return t.flags|=128,co(t),null;break;case 13:var r=t.memoizedState;if(r!==null)return r.dehydrated===null?(n&t.child.childLanes)===0?(so(t),e=Mc(e,t,n),e===null?null:e.sibling):Tc(e,t,n):(so(t),t.flags|=128,null);so(t);break;case 19:var i=!!(e.flags&128);if(r=(n&t.childLanes)!==0,r||=(ta(e,t,n,!1),(n&t.childLanes)!==0),i){if(r)return jc(e,t,n);t.flags|=128}if(i=t.memoizedState,i!==null&&(i.rendering=null,i.tail=null,i.lastEffect=null),he(po,po.current),r)break;return null;case 22:return t.lanes=0,dc(e,t,n,t.pendingProps);case 24:Zi(t,la,e.memoizedState.cache)}return Mc(e,t,n)}function Fc(e,t,n){if(e!==null){if(e.memoizedProps!==t.pendingProps)oc=!0;else{if(!Nc(e,n)&&!(t.flags&128))return oc=!1,Pc(e,t,n);oc=!!(e.flags&131072)}}else oc=!1,I&&t.flags&1048576&&Mi(t,Ti,t.index);switch(t.lanes=0,t.tag){case 16:a:{var r=t.pendingProps;if(e=Aa(t.elementType),t.type=e,typeof e==`function`)fi(e)?(r=Ys(e,r),t.tag=1,t=bc(null,t,e,r,n)):(t.tag=0,t=vc(null,t,e,r,n));else{if(e!=null){var a=e.$$typeof;if(a===w){t.tag=11,t=cc(null,t,e,r,n);break a}if(a===T){t.tag=14,t=lc(null,t,e,r,n);break a}}throw t=ce(e)||e,Error(i(306,t,``))}}return t;case 0:return vc(e,t,t.type,t.pendingProps,n);case 1:return r=t.type,a=Ys(r,t.pendingProps),bc(e,t,r,a,n);case 3:a:{if(be(t,t.stateNode.containerInfo),e===null)throw Error(i(387));r=t.pendingProps;var o=t.memoizedState;a=o.element,Wa(e,t),Za(t,r,null,n);var s=t.memoizedState;if(r=s.cache,Zi(t,la,r),r!==o.cache&&ea(t,[la],n,!0),Xa(),r=s.element,o.isDehydrated){if(o={element:r,isDehydrated:!1,cache:s.cache},t.updateQueue.baseState=o,t.memoizedState=o,t.flags&256){t=xc(e,t,r,n);break a}if(r!==a){a=xi(Error(i(424)),t),qi(a),t=xc(e,t,r,n);break a}switch(e=t.stateNode.containerInfo,e.nodeType){case 9:e=e.body;break;default:e=e.nodeName===`HTML`?e.ownerDocument.body:e}for(Li=cf(e.firstChild),Ii=t,I=!0,Ri=null,zi=!0,n=Va(t,null,r,n),t.child=n;n;)n.flags=n.flags&-3|4096,n=n.sibling}else{if(Gi(),r===a){t=Mc(e,t,n);break a}sc(e,t,r,n)}t=t.child}return t;case 26:return _c(e,t),e===null?(n=kf(t.type,null,t.pendingProps,null))?t.memoizedState=n:I||(n=t.type,e=t.pendingProps,r=Bd(ve.current).createElement(n),r[pt]=t,r[mt]=e,Pd(r,n,e),Tt(r),t.stateNode=r):t.memoizedState=kf(t.type,e.memoizedProps,t.pendingProps,e.memoizedState),null;case 27:return Se(t),e===null&&I&&(r=t.stateNode=ff(t.type,t.pendingProps,ve.current),Ii=t,zi=!0,a=Li,Zd(t.type)?(lf=a,Li=cf(r.firstChild)):Li=a),sc(e,t,t.pendingProps.children,n),_c(e,t),e===null&&(t.flags|=4194304),t.child;case 5:return e===null&&I&&((a=r=Li)&&(r=tf(r,t.type,t.pendingProps,zi),r===null?a=!1:(t.stateNode=r,Ii=t,Li=cf(r.firstChild),zi=!1,a=!0)),a||Vi(t)),Se(t),a=t.type,o=t.pendingProps,s=e===null?null:e.memoizedProps,r=o.children,Ud(a,o)?r=null:s!==null&&Ud(a,s)&&(t.flags|=32),t.memoizedState!==null&&(a=Do(e,t,Ao,null,null,n),Qf._currentValue=a),_c(e,t),sc(e,t,r,n),t.child;case 6:return e===null&&I&&((e=n=Li)&&(n=nf(n,t.pendingProps,zi),n===null?e=!1:(t.stateNode=n,Ii=t,Li=null,e=!0)),e||Vi(t)),null;case 13:return Tc(e,t,n);case 4:return be(t,t.stateNode.containerInfo),r=t.pendingProps,e===null?t.child=Ba(t,null,r,n):sc(e,t,r,n),t.child;case 11:return cc(e,t,t.type,t.pendingProps,n);case 7:return sc(e,t,t.pendingProps,n),t.child;case 8:return sc(e,t,t.pendingProps.children,n),t.child;case 12:return sc(e,t,t.pendingProps.children,n),t.child;case 10:return r=t.pendingProps,Zi(t,t.type,r.value),sc(e,t,r.children,n),t.child;case 9:return a=t.type._context,r=t.pendingProps.children,ra(t),a=ia(a),r=r(a),t.flags|=1,sc(e,t,r,n),t.child;case 14:return lc(e,t,t.type,t.pendingProps,n);case 15:return uc(e,t,t.type,t.pendingProps,n);case 19:return jc(e,t,n);case 31:return gc(e,t,n);case 22:return dc(e,t,n,t.pendingProps);case 24:return ra(t),r=ia(la),e===null?(a=xa(),a===null&&(a=Wl,o=ua(),a.pooledCache=o,o.refCount++,o!==null&&(a.pooledCacheLanes|=n),a=o),t.memoizedState={parent:r,cache:a},Ua(t),Zi(t,la,a)):((e.lanes&n)!==0&&(Wa(e,t),Za(t,null,null,n),Xa()),a=e.memoizedState,o=t.memoizedState,a.parent===r?(r=o.cache,Zi(t,la,r),r!==a.cache&&ea(t,[la],n,!0)):(a={parent:r,cache:r},t.memoizedState=a,t.lanes===0&&(t.memoizedState=t.updateQueue.baseState=a),Zi(t,la,r))),sc(e,t,t.pendingProps.children,n),t.child;case 29:throw t.pendingProps}throw Error(i(156,t.tag))}function Ic(e){e.flags|=4}function Lc(e,t,n,r,i){if((t=!!(e.mode&32))&&(t=!1),t){if(e.flags|=16777216,(i&335544128)===i){if(e.stateNode.complete)e.flags|=8192;else if(wu())e.flags|=8192;else throw ja=Da,Ta}}else e.flags&=-16777217}function Rc(e,t){if(t.type!==`stylesheet`||t.state.loading&4)e.flags&=-16777217;else if(e.flags|=16777216,!Wf(t)){if(wu())e.flags|=8192;else throw ja=Da,Ta}}function zc(e,t){t!==null&&(e.flags|=4),e.flags&16384&&(t=e.tag===22?536870912:it(),e.lanes|=t,Ql|=t)}function Bc(e,t){if(!I)switch(e.tailMode){case`hidden`:t=e.tail;for(var n=null;t!==null;)t.alternate!==null&&(n=t),t=t.sibling;n===null?e.tail=null:n.sibling=null;break;case`collapsed`:n=e.tail;for(var r=null;n!==null;)n.alternate!==null&&(r=n),n=n.sibling;r===null?t||e.tail===null?e.tail=null:e.tail.sibling=null:r.sibling=null}}function Vc(e){var t=e.alternate!==null&&e.alternate.child===e.child,n=0,r=0;if(t)for(var i=e.child;i!==null;)n|=i.lanes|i.childLanes,r|=i.subtreeFlags&65011712,r|=i.flags&65011712,i.return=e,i=i.sibling;else for(i=e.child;i!==null;)n|=i.lanes|i.childLanes,r|=i.subtreeFlags,r|=i.flags,i.return=e,i=i.sibling;return e.subtreeFlags|=r,e.childLanes=n,t}function Hc(e,t,n){var r=t.pendingProps;switch(Pi(t),t.tag){case 16:case 15:case 0:case 11:case 7:case 8:case 12:case 9:case 14:return Vc(t),null;case 1:return Vc(t),null;case 3:return n=t.stateNode,r=null,e!==null&&(r=e.memoizedState.cache),t.memoizedState.cache!==r&&(t.flags|=2048),Qi(la),xe(),n.pendingContext&&(n.context=n.pendingContext,n.pendingContext=null),(e===null||e.child===null)&&(Wi(t)?Ic(t):e===null||e.memoizedState.isDehydrated&&!(t.flags&256)||(t.flags|=1024,Ki())),Vc(t),null;case 26:var a=t.type,o=t.memoizedState;return e===null?(Ic(t),o===null?(Vc(t),Lc(t,a,null,r,n)):(Vc(t),Rc(t,o))):o?o===e.memoizedState?(Vc(t),t.flags&=-16777217):(Ic(t),Vc(t),Rc(t,o)):(e=e.memoizedProps,e!==r&&Ic(t),Vc(t),Lc(t,a,e,r,n)),null;case 27:if(Ce(t),n=ve.current,a=t.type,e!==null&&t.stateNode!=null)e.memoizedProps!==r&&Ic(t);else{if(!r){if(t.stateNode===null)throw Error(i(166));return Vc(t),null}e=ge.current,Wi(t)?Hi(t,e):(e=ff(a,r,n),t.stateNode=e,Ic(t))}return Vc(t),null;case 5:if(Ce(t),a=t.type,e!==null&&t.stateNode!=null)e.memoizedProps!==r&&Ic(t);else{if(!r){if(t.stateNode===null)throw Error(i(166));return Vc(t),null}if(o=ge.current,Wi(t))Hi(t,o);else{var s=Bd(ve.current);switch(o){case 1:o=s.createElementNS(`http://www.w3.org/2000/svg`,a);break;case 2:o=s.createElementNS(`http://www.w3.org/1998/Math/MathML`,a);break;default:switch(a){case`svg`:o=s.createElementNS(`http://www.w3.org/2000/svg`,a);break;case`math`:o=s.createElementNS(`http://www.w3.org/1998/Math/MathML`,a);break;case`script`:o=s.createElement(`div`),o.innerHTML=`<script><\/script>`,o=o.removeChild(o.firstChild);break;case`select`:o=typeof r.is==`string`?s.createElement(`select`,{is:r.is}):s.createElement(`select`),r.multiple?o.multiple=!0:r.size&&(o.size=r.size);break;default:o=typeof r.is==`string`?s.createElement(a,{is:r.is}):s.createElement(a)}}o[pt]=t,o[mt]=r;a:for(s=t.child;s!==null;){if(s.tag===5||s.tag===6)o.appendChild(s.stateNode);else if(s.tag!==4&&s.tag!==27&&s.child!==null){s.child.return=s,s=s.child;continue}if(s===t)break a;for(;s.sibling===null;){if(s.return===null||s.return===t)break a;s=s.return}s.sibling.return=s.return,s=s.sibling}t.stateNode=o;a:switch(Pd(o,a,r),a){case`button`:case`input`:case`select`:case`textarea`:r=!!r.autoFocus;break a;case`img`:r=!0;break a;default:r=!1}r&&Ic(t)}}return Vc(t),Lc(t,t.type,e===null?null:e.memoizedProps,t.pendingProps,n),null;case 6:if(e&&t.stateNode!=null)e.memoizedProps!==r&&Ic(t);else{if(typeof r!=`string`&&t.stateNode===null)throw Error(i(166));if(e=ve.current,Wi(t)){if(e=t.stateNode,n=t.memoizedProps,r=null,a=Ii,a!==null)switch(a.tag){case 27:case 5:r=a.memoizedProps}e[pt]=t,e=!!(e.nodeValue===n||r!==null&&!0===r.suppressHydrationWarning||Md(e.nodeValue,n)),e||Vi(t,!0)}else e=Bd(e).createTextNode(r),e[pt]=t,t.stateNode=e}return Vc(t),null;case 31:if(n=t.memoizedState,e===null||e.memoizedState!==null){if(r=Wi(t),n!==null){if(e===null){if(!r)throw Error(i(318));if(e=t.memoizedState,e=e===null?null:e.dehydrated,!e)throw Error(i(557));e[pt]=t}else Gi(),!(t.flags&128)&&(t.memoizedState=null),t.flags|=4;Vc(t),e=!1}else n=Ki(),e!==null&&e.memoizedState!==null&&(e.memoizedState.hydrationErrors=n),e=!0;if(!e)return t.flags&256?(fo(t),t):(fo(t),null);if(t.flags&128)throw Error(i(558))}return Vc(t),null;case 13:if(r=t.memoizedState,e===null||e.memoizedState!==null&&e.memoizedState.dehydrated!==null){if(a=Wi(t),r!==null&&r.dehydrated!==null){if(e===null){if(!a)throw Error(i(318));if(a=t.memoizedState,a=a===null?null:a.dehydrated,!a)throw Error(i(317));a[pt]=t}else Gi(),!(t.flags&128)&&(t.memoizedState=null),t.flags|=4;Vc(t),a=!1}else a=Ki(),e!==null&&e.memoizedState!==null&&(e.memoizedState.hydrationErrors=a),a=!0;if(!a)return t.flags&256?(fo(t),t):(fo(t),null)}return fo(t),t.flags&128?(t.lanes=n,t):(n=r!==null,e=e!==null&&e.memoizedState!==null,n&&(r=t.child,a=null,r.alternate!==null&&r.alternate.memoizedState!==null&&r.alternate.memoizedState.cachePool!==null&&(a=r.alternate.memoizedState.cachePool.pool),o=null,r.memoizedState!==null&&r.memoizedState.cachePool!==null&&(o=r.memoizedState.cachePool.pool),o!==a&&(r.flags|=2048)),n!==e&&n&&(t.child.flags|=8192),zc(t,t.updateQueue),Vc(t),null);case 4:return xe(),e===null&&Sd(t.stateNode.containerInfo),Vc(t),null;case 10:return Qi(t.type),Vc(t),null;case 19:if(me(po),r=t.memoizedState,r===null)return Vc(t),null;if(a=!!(t.flags&128),o=r.rendering,o===null){if(a)Bc(r,!1);else{if(G!==0||e!==null&&e.flags&128)for(e=t.child;e!==null;){if(o=mo(e),o!==null){for(t.flags|=128,Bc(r,!1),e=o.updateQueue,t.updateQueue=e,zc(t,e),t.subtreeFlags=0,e=n,n=t.child;n!==null;)mi(n,e),n=n.sibling;return he(po,po.current&1|2),I&&ji(t,r.treeForkCount),t.child}e=e.sibling}r.tail!==null&&Ie()>iu&&(t.flags|=128,a=!0,Bc(r,!1),t.lanes=4194304)}}else{if(!a){if(e=mo(o),e!==null){if(t.flags|=128,a=!0,e=e.updateQueue,t.updateQueue=e,zc(t,e),Bc(r,!0),r.tail===null&&r.tailMode===`hidden`&&!o.alternate&&!I)return Vc(t),null}else 2*Ie()-r.renderingStartTime>iu&&n!==536870912&&(t.flags|=128,a=!0,Bc(r,!1),t.lanes=4194304)}r.isBackwards?(o.sibling=t.child,t.child=o):(e=r.last,e===null?t.child=o:e.sibling=o,r.last=o)}return r.tail===null?(Vc(t),null):(e=r.tail,r.rendering=e,r.tail=e.sibling,r.renderingStartTime=Ie(),e.sibling=null,n=po.current,he(po,a?n&1|2:n&1),I&&ji(t,r.treeForkCount),e);case 22:case 23:return fo(t),io(),r=t.memoizedState!==null,e===null?r&&(t.flags|=8192):e.memoizedState!==null!==r&&(t.flags|=8192),r?n&536870912&&!(t.flags&128)&&(Vc(t),t.subtreeFlags&6&&(t.flags|=8192)):Vc(t),n=t.updateQueue,n!==null&&zc(t,n.retryQueue),n=null,e!==null&&e.memoizedState!==null&&e.memoizedState.cachePool!==null&&(n=e.memoizedState.cachePool.pool),r=null,t.memoizedState!==null&&t.memoizedState.cachePool!==null&&(r=t.memoizedState.cachePool.pool),r!==n&&(t.flags|=2048),e!==null&&me(ba),null;case 24:return n=null,e!==null&&(n=e.memoizedState.cache),t.memoizedState.cache!==n&&(t.flags|=2048),Qi(la),Vc(t),null;case 25:return null;case 30:return null}throw Error(i(156,t.tag))}function Uc(e,t){switch(Pi(t),t.tag){case 1:return e=t.flags,e&65536?(t.flags=e&-65537|128,t):null;case 3:return Qi(la),xe(),e=t.flags,e&65536&&!(e&128)?(t.flags=e&-65537|128,t):null;case 26:case 27:case 5:return Ce(t),null;case 31:if(t.memoizedState!==null){if(fo(t),t.alternate===null)throw Error(i(340));Gi()}return e=t.flags,e&65536?(t.flags=e&-65537|128,t):null;case 13:if(fo(t),e=t.memoizedState,e!==null&&e.dehydrated!==null){if(t.alternate===null)throw Error(i(340));Gi()}return e=t.flags,e&65536?(t.flags=e&-65537|128,t):null;case 19:return me(po),null;case 4:return xe(),null;case 10:return Qi(t.type),null;case 22:case 23:return fo(t),io(),e!==null&&me(ba),e=t.flags,e&65536?(t.flags=e&-65537|128,t):null;case 24:return Qi(la),null;case 25:return null;default:return null}}function Wc(e,t){switch(Pi(t),t.tag){case 3:Qi(la),xe();break;case 26:case 27:case 5:Ce(t);break;case 4:xe();break;case 31:t.memoizedState!==null&&fo(t);break;case 13:fo(t);break;case 19:me(po);break;case 10:Qi(t.type);break;case 22:case 23:fo(t),io(),e!==null&&me(ba);break;case 24:Qi(la)}}function Gc(e,t){try{var n=t.updateQueue,r=n===null?null:n.lastEffect;if(r!==null){var i=r.next;n=i;do{if((n.tag&e)===e){r=void 0;var a=n.create,o=n.inst;r=a(),o.destroy=r}n=n.next}while(n!==i)}}catch(e){Z(t,t.return,e)}}function Kc(e,t,n){try{var r=t.updateQueue,i=r===null?null:r.lastEffect;if(i!==null){var a=i.next;r=a;do{if((r.tag&e)===e){var o=r.inst,s=o.destroy;if(s!==void 0){o.destroy=void 0,i=t;var c=n,l=s;try{l()}catch(e){Z(i,c,e)}}}r=r.next}while(r!==a)}}catch(e){Z(t,t.return,e)}}function qc(e){var t=e.updateQueue;if(t!==null){var n=e.stateNode;try{$a(t,n)}catch(t){Z(e,e.return,t)}}}function Jc(e,t,n){n.props=Ys(e.type,e.memoizedProps),n.state=e.memoizedState;try{n.componentWillUnmount()}catch(n){Z(e,t,n)}}function Yc(e,t){try{var n=e.ref;if(n!==null){switch(e.tag){case 26:case 27:case 5:var r=e.stateNode;break;case 30:r=e.stateNode;break;default:r=e.stateNode}typeof n==`function`?e.refCleanup=n(r):n.current=r}}catch(n){Z(e,t,n)}}function Xc(e,t){var n=e.ref,r=e.refCleanup;if(n!==null){if(typeof r==`function`)try{r()}catch(n){Z(e,t,n)}finally{e.refCleanup=null,e=e.alternate,e!=null&&(e.refCleanup=null)}else if(typeof n==`function`)try{n(null)}catch(n){Z(e,t,n)}else n.current=null}}function Zc(e){var t=e.type,n=e.memoizedProps,r=e.stateNode;try{a:switch(t){case`button`:case`input`:case`select`:case`textarea`:n.autoFocus&&r.focus();break a;case`img`:n.src?r.src=n.src:n.srcSet&&(r.srcset=n.srcSet)}}catch(t){Z(e,e.return,t)}}function Qc(e,t,n){try{var r=e.stateNode;Fd(r,e.type,n,t),r[mt]=t}catch(t){Z(e,e.return,t)}}function $c(e){return e.tag===5||e.tag===3||e.tag===26||e.tag===27&&Zd(e.type)||e.tag===4}function el(e){a:for(;;){for(;e.sibling===null;){if(e.return===null||$c(e.return))return null;e=e.return}for(e.sibling.return=e.return,e=e.sibling;e.tag!==5&&e.tag!==6&&e.tag!==18;){if(e.tag===27&&Zd(e.type)||e.flags&2||e.child===null||e.tag===4)continue a;e.child.return=e,e=e.child}if(!(e.flags&2))return e.stateNode}}function tl(e,t,n){var r=e.tag;if(r===5||r===6)e=e.stateNode,t?(n.nodeType===9?n.body:n.nodeName===`HTML`?n.ownerDocument.body:n).insertBefore(e,t):(t=n.nodeType===9?n.body:n.nodeName===`HTML`?n.ownerDocument.body:n,t.appendChild(e),n=n._reactRootContainer,n!=null||t.onclick!==null||(t.onclick=nn));else if(r!==4&&(r===27&&Zd(e.type)&&(n=e.stateNode,t=null),e=e.child,e!==null))for(tl(e,t,n),e=e.sibling;e!==null;)tl(e,t,n),e=e.sibling}function nl(e,t,n){var r=e.tag;if(r===5||r===6)e=e.stateNode,t?n.insertBefore(e,t):n.appendChild(e);else if(r!==4&&(r===27&&Zd(e.type)&&(n=e.stateNode),e=e.child,e!==null))for(nl(e,t,n),e=e.sibling;e!==null;)nl(e,t,n),e=e.sibling}function rl(e){var t=e.stateNode,n=e.memoizedProps;try{for(var r=e.type,i=t.attributes;i.length;)t.removeAttributeNode(i[0]);Pd(t,r,n),t[pt]=e,t[mt]=n}catch(t){Z(e,e.return,t)}}var il=!1,al=!1,ol=!1,sl=typeof WeakSet==`function`?WeakSet:Set,cl=null;function ll(e,t){if(e=e.containerInfo,Rd=sp,e=Ar(e),jr(e)){if(`selectionStart`in e)var n={start:e.selectionStart,end:e.selectionEnd};else a:{n=(n=e.ownerDocument)&&n.defaultView||window;var r=n.getSelection&&n.getSelection();if(r&&r.rangeCount!==0){n=r.anchorNode;var a=r.anchorOffset,o=r.focusNode;r=r.focusOffset;try{n.nodeType,o.nodeType}catch{n=null;break a}var s=0,c=-1,l=-1,u=0,d=0,f=e,p=null;b:for(;;){for(var m;f!==n||a!==0&&f.nodeType!==3||(c=s+a),f!==o||r!==0&&f.nodeType!==3||(l=s+r),f.nodeType===3&&(s+=f.nodeValue.length),(m=f.firstChild)!==null;)p=f,f=m;for(;;){if(f===e)break b;if(p===n&&++u===a&&(c=s),p===o&&++d===r&&(l=s),(m=f.nextSibling)!==null)break;f=p,p=f.parentNode}f=m}n=c===-1||l===-1?null:{start:c,end:l}}else n=null}n||={start:0,end:0}}else n=null;for(zd={focusedElem:e,selectionRange:n},sp=!1,cl=t;cl!==null;)if(t=cl,e=t.child,t.subtreeFlags&1028&&e!==null)e.return=t,cl=e;else for(;cl!==null;){switch(t=cl,o=t.alternate,e=t.flags,t.tag){case 0:if(e&4&&(e=t.updateQueue,e=e===null?null:e.events,e!==null))for(n=0;n<e.length;n++)a=e[n],a.ref.impl=a.nextImpl;break;case 11:case 15:break;case 1:if(e&1024&&o!==null){e=void 0,n=t,a=o.memoizedProps,o=o.memoizedState,r=n.stateNode;try{var h=Ys(n.type,a);e=r.getSnapshotBeforeUpdate(h,o),r.__reactInternalSnapshotBeforeUpdate=e}catch(e){Z(n,n.return,e)}}break;case 3:if(e&1024){if(e=t.stateNode.containerInfo,n=e.nodeType,n===9)ef(e);else if(n===1)switch(e.nodeName){case`HEAD`:case`HTML`:case`BODY`:ef(e);break;default:e.textContent=``}}break;case 5:case 26:case 27:case 6:case 4:case 17:break;default:if(e&1024)throw Error(i(163))}if(e=t.sibling,e!==null){e.return=t.return,cl=e;break}cl=t.return}}function ul(e,t,n){var r=n.flags;switch(n.tag){case 0:case 11:case 15:Tl(e,n),r&4&&Gc(5,n);break;case 1:if(Tl(e,n),r&4){if(e=n.stateNode,t===null)try{e.componentDidMount()}catch(e){Z(n,n.return,e)}else{var i=Ys(n.type,t.memoizedProps);t=t.memoizedState;try{e.componentDidUpdate(i,t,e.__reactInternalSnapshotBeforeUpdate)}catch(e){Z(n,n.return,e)}}}r&64&&qc(n),r&512&&Yc(n,n.return);break;case 3:if(Tl(e,n),r&64&&(e=n.updateQueue,e!==null)){if(t=null,n.child!==null)switch(n.child.tag){case 27:case 5:t=n.child.stateNode;break;case 1:t=n.child.stateNode}try{$a(e,t)}catch(e){Z(n,n.return,e)}}break;case 27:t===null&&r&4&&rl(n);case 26:case 5:Tl(e,n),t===null&&r&4&&Zc(n),r&512&&Yc(n,n.return);break;case 12:Tl(e,n);break;case 31:Tl(e,n),r&4&&gl(e,n);break;case 13:Tl(e,n),r&4&&_l(e,n),r&64&&(e=n.memoizedState,e!==null&&(e=e.dehydrated,e!==null&&(n=Ju.bind(null,n),sf(e,n))));break;case 22:if(r=n.memoizedState!==null||il,!r){t=t!==null&&t.memoizedState!==null||al,i=il;var a=al;il=r,(al=t)&&!a?Dl(e,n,!!(n.subtreeFlags&8772)):Tl(e,n),il=i,al=a}break;case 30:break;default:Tl(e,n)}}function dl(e){var t=e.alternate;t!==null&&(e.alternate=null,dl(t)),e.child=null,e.deletions=null,e.sibling=null,e.tag===5&&(t=e.stateNode,t!==null&&M(t)),e.stateNode=null,e.return=null,e.dependencies=null,e.memoizedProps=null,e.memoizedState=null,e.pendingProps=null,e.stateNode=null,e.updateQueue=null}var fl=null,pl=!1;function ml(e,t,n){for(n=n.child;n!==null;)hl(e,t,n),n=n.sibling}function hl(e,t,n){if(O&&typeof O.onCommitFiberUnmount==`function`)try{O.onCommitFiberUnmount(Ge,n)}catch{}switch(n.tag){case 26:al||Xc(n,t),ml(e,t,n),n.memoizedState?n.memoizedState.count--:n.stateNode&&(n=n.stateNode,n.parentNode.removeChild(n));break;case 27:al||Xc(n,t);var r=fl,i=pl;Zd(n.type)&&(fl=n.stateNode,pl=!1),ml(e,t,n),pf(n.stateNode),fl=r,pl=i;break;case 5:al||Xc(n,t);case 6:if(r=fl,i=pl,fl=null,ml(e,t,n),fl=r,pl=i,fl!==null){if(pl)try{(fl.nodeType===9?fl.body:fl.nodeName===`HTML`?fl.ownerDocument.body:fl).removeChild(n.stateNode)}catch(e){Z(n,t,e)}else try{fl.removeChild(n.stateNode)}catch(e){Z(n,t,e)}}break;case 18:fl!==null&&(pl?(e=fl,Qd(e.nodeType===9?e.body:e.nodeName===`HTML`?e.ownerDocument.body:e,n.stateNode),Np(e)):Qd(fl,n.stateNode));break;case 4:r=fl,i=pl,fl=n.stateNode.containerInfo,pl=!0,ml(e,t,n),fl=r,pl=i;break;case 0:case 11:case 14:case 15:Kc(2,n,t),al||Kc(4,n,t),ml(e,t,n);break;case 1:al||(Xc(n,t),r=n.stateNode,typeof r.componentWillUnmount==`function`&&Jc(n,t,r)),ml(e,t,n);break;case 21:ml(e,t,n);break;case 22:al=(r=al)||n.memoizedState!==null,ml(e,t,n),al=r;break;default:ml(e,t,n)}}function gl(e,t){if(t.memoizedState===null&&(e=t.alternate,e!==null&&(e=e.memoizedState,e!==null))){e=e.dehydrated;try{Np(e)}catch(e){Z(t,t.return,e)}}}function _l(e,t){if(t.memoizedState===null&&(e=t.alternate,e!==null&&(e=e.memoizedState,e!==null&&(e=e.dehydrated,e!==null))))try{Np(e)}catch(e){Z(t,t.return,e)}}function vl(e){switch(e.tag){case 31:case 13:case 19:var t=e.stateNode;return t===null&&(t=e.stateNode=new sl),t;case 22:return e=e.stateNode,t=e._retryCache,t===null&&(t=e._retryCache=new sl),t;default:throw Error(i(435,e.tag))}}function yl(e,t){var n=vl(e);t.forEach(function(t){if(!n.has(t)){n.add(t);var r=Yu.bind(null,e,t);t.then(r,r)}})}function bl(e,t){var n=t.deletions;if(n!==null)for(var r=0;r<n.length;r++){var a=n[r],o=e,s=t,c=s;a:for(;c!==null;){switch(c.tag){case 27:if(Zd(c.type)){fl=c.stateNode,pl=!1;break a}break;case 5:fl=c.stateNode,pl=!1;break a;case 3:case 4:fl=c.stateNode.containerInfo,pl=!0;break a}c=c.return}if(fl===null)throw Error(i(160));hl(o,s,a),fl=null,pl=!1,o=a.alternate,o!==null&&(o.return=null),a.return=null}if(t.subtreeFlags&13886)for(t=t.child;t!==null;)Sl(t,e),t=t.sibling}var xl=null;function Sl(e,t){var n=e.alternate,r=e.flags;switch(e.tag){case 0:case 11:case 14:case 15:bl(t,e),Cl(e),r&4&&(Kc(3,e,e.return),Gc(3,e),Kc(5,e,e.return));break;case 1:bl(t,e),Cl(e),r&512&&(al||n===null||Xc(n,n.return)),r&64&&il&&(e=e.updateQueue,e!==null&&(r=e.callbacks,r!==null&&(n=e.shared.hiddenCallbacks,e.shared.hiddenCallbacks=n===null?r:n.concat(r))));break;case 26:var a=xl;if(bl(t,e),Cl(e),r&512&&(al||n===null||Xc(n,n.return)),r&4){var o=n===null?null:n.memoizedState;if(r=e.memoizedState,n===null){if(r===null){if(e.stateNode===null){a:{r=e.type,n=e.memoizedProps,a=a.ownerDocument||a;b:switch(r){case`title`:o=a.getElementsByTagName(`title`)[0],(!o||o[bt]||o[pt]||o.namespaceURI===`http://www.w3.org/2000/svg`||o.hasAttribute(`itemprop`))&&(o=a.createElement(r),a.head.insertBefore(o,a.querySelector(`head > title`))),Pd(o,r,n),o[pt]=e,Tt(o),r=o;break a;case`link`:var s=Vf(`link`,`href`,a).get(r+(n.href||``));if(s){for(var c=0;c<s.length;c++)if(o=s[c],o.getAttribute(`href`)===(n.href==null||n.href===``?null:n.href)&&o.getAttribute(`rel`)===(n.rel==null?null:n.rel)&&o.getAttribute(`title`)===(n.title==null?null:n.title)&&o.getAttribute(`crossorigin`)===(n.crossOrigin==null?null:n.crossOrigin)){s.splice(c,1);break b}}o=a.createElement(r),Pd(o,r,n),a.head.appendChild(o);break;case`meta`:if(s=Vf(`meta`,`content`,a).get(r+(n.content||``))){for(c=0;c<s.length;c++)if(o=s[c],o.getAttribute(`content`)===(n.content==null?null:``+n.content)&&o.getAttribute(`name`)===(n.name==null?null:n.name)&&o.getAttribute(`property`)===(n.property==null?null:n.property)&&o.getAttribute(`http-equiv`)===(n.httpEquiv==null?null:n.httpEquiv)&&o.getAttribute(`charset`)===(n.charSet==null?null:n.charSet)){s.splice(c,1);break b}}o=a.createElement(r),Pd(o,r,n),a.head.appendChild(o);break;default:throw Error(i(468,r))}o[pt]=e,Tt(o),r=o}e.stateNode=r}else Hf(a,e.type,e.stateNode)}else e.stateNode=If(a,r,e.memoizedProps)}else o===r?r===null&&e.stateNode!==null&&Qc(e,e.memoizedProps,n.memoizedProps):(o===null?n.stateNode!==null&&(n=n.stateNode,n.parentNode.removeChild(n)):o.count--,r===null?Hf(a,e.type,e.stateNode):If(a,r,e.memoizedProps))}break;case 27:bl(t,e),Cl(e),r&512&&(al||n===null||Xc(n,n.return)),n!==null&&r&4&&Qc(e,e.memoizedProps,n.memoizedProps);break;case 5:if(bl(t,e),Cl(e),r&512&&(al||n===null||Xc(n,n.return)),e.flags&32){a=e.stateNode;try{Yt(a,``)}catch(t){Z(e,e.return,t)}}r&4&&e.stateNode!=null&&(a=e.memoizedProps,Qc(e,a,n===null?a:n.memoizedProps)),r&1024&&(ol=!0);break;case 6:if(bl(t,e),Cl(e),r&4){if(e.stateNode===null)throw Error(i(162));r=e.memoizedProps,n=e.stateNode;try{n.nodeValue=r}catch(t){Z(e,e.return,t)}}break;case 3:if(Bf=null,a=xl,xl=gf(t.containerInfo),bl(t,e),xl=a,Cl(e),r&4&&n!==null&&n.memoizedState.isDehydrated)try{Np(t.containerInfo)}catch(t){Z(e,e.return,t)}ol&&(ol=!1,wl(e));break;case 4:r=xl,xl=gf(e.stateNode.containerInfo),bl(t,e),Cl(e),xl=r;break;case 12:bl(t,e),Cl(e);break;case 31:bl(t,e),Cl(e),r&4&&(r=e.updateQueue,r!==null&&(e.updateQueue=null,yl(e,r)));break;case 13:bl(t,e),Cl(e),e.child.flags&8192&&e.memoizedState!==null!=(n!==null&&n.memoizedState!==null)&&(nu=Ie()),r&4&&(r=e.updateQueue,r!==null&&(e.updateQueue=null,yl(e,r)));break;case 22:a=e.memoizedState!==null;var l=n!==null&&n.memoizedState!==null,u=il,d=al;if(il=u||a,al=d||l,bl(t,e),al=d,il=u,Cl(e),r&8192)a:for(t=e.stateNode,t._visibility=a?t._visibility&-2:t._visibility|1,a&&(n===null||l||il||al||El(e)),n=null,t=e;;){if(t.tag===5||t.tag===26){if(n===null){l=n=t;try{if(o=l.stateNode,a)s=o.style,typeof s.setProperty==`function`?s.setProperty(`display`,`none`,`important`):s.display=`none`;else{c=l.stateNode;var f=l.memoizedProps.style,p=f!=null&&f.hasOwnProperty(`display`)?f.display:null;c.style.display=p==null||typeof p==`boolean`?``:(``+p).trim()}}catch(e){Z(l,l.return,e)}}}else if(t.tag===6){if(n===null){l=t;try{l.stateNode.nodeValue=a?``:l.memoizedProps}catch(e){Z(l,l.return,e)}}}else if(t.tag===18){if(n===null){l=t;try{var m=l.stateNode;a?$d(m,!0):$d(l.stateNode,!1)}catch(e){Z(l,l.return,e)}}}else if((t.tag!==22&&t.tag!==23||t.memoizedState===null||t===e)&&t.child!==null){t.child.return=t,t=t.child;continue}if(t===e)break a;for(;t.sibling===null;){if(t.return===null||t.return===e)break a;n===t&&(n=null),t=t.return}n===t&&(n=null),t.sibling.return=t.return,t=t.sibling}r&4&&(r=e.updateQueue,r!==null&&(n=r.retryQueue,n!==null&&(r.retryQueue=null,yl(e,n))));break;case 19:bl(t,e),Cl(e),r&4&&(r=e.updateQueue,r!==null&&(e.updateQueue=null,yl(e,r)));break;case 30:break;case 21:break;default:bl(t,e),Cl(e)}}function Cl(e){var t=e.flags;if(t&2){try{for(var n,r=e.return;r!==null;){if($c(r)){n=r;break}r=r.return}if(n==null)throw Error(i(160));switch(n.tag){case 27:var a=n.stateNode;nl(e,el(e),a);break;case 5:var o=n.stateNode;n.flags&32&&(Yt(o,``),n.flags&=-33),nl(e,el(e),o);break;case 3:case 4:var s=n.stateNode.containerInfo;tl(e,el(e),s);break;default:throw Error(i(161))}}catch(t){Z(e,e.return,t)}e.flags&=-3}t&4096&&(e.flags&=-4097)}function wl(e){if(e.subtreeFlags&1024)for(e=e.child;e!==null;){var t=e;wl(t),t.tag===5&&t.flags&1024&&t.stateNode.reset(),e=e.sibling}}function Tl(e,t){if(t.subtreeFlags&8772)for(t=t.child;t!==null;)ul(e,t.alternate,t),t=t.sibling}function El(e){for(e=e.child;e!==null;){var t=e;switch(t.tag){case 0:case 11:case 14:case 15:Kc(4,t,t.return),El(t);break;case 1:Xc(t,t.return);var n=t.stateNode;typeof n.componentWillUnmount==`function`&&Jc(t,t.return,n),El(t);break;case 27:pf(t.stateNode);case 26:case 5:Xc(t,t.return),El(t);break;case 22:t.memoizedState===null&&El(t);break;case 30:El(t);break;default:El(t)}e=e.sibling}}function Dl(e,t,n){for(n&&=!!(t.subtreeFlags&8772),t=t.child;t!==null;){var r=t.alternate,i=e,a=t,o=a.flags;switch(a.tag){case 0:case 11:case 15:Dl(i,a,n),Gc(4,a);break;case 1:if(Dl(i,a,n),r=a,i=r.stateNode,typeof i.componentDidMount==`function`)try{i.componentDidMount()}catch(e){Z(r,r.return,e)}if(r=a,i=r.updateQueue,i!==null){var s=r.stateNode;try{var c=i.shared.hiddenCallbacks;if(c!==null)for(i.shared.hiddenCallbacks=null,i=0;i<c.length;i++)Qa(c[i],s)}catch(e){Z(r,r.return,e)}}n&&o&64&&qc(a),Yc(a,a.return);break;case 27:rl(a);case 26:case 5:Dl(i,a,n),n&&r===null&&o&4&&Zc(a),Yc(a,a.return);break;case 12:Dl(i,a,n);break;case 31:Dl(i,a,n),n&&o&4&&gl(i,a);break;case 13:Dl(i,a,n),n&&o&4&&_l(i,a);break;case 22:a.memoizedState===null&&Dl(i,a,n),Yc(a,a.return);break;case 30:break;default:Dl(i,a,n)}t=t.sibling}}function Ol(e,t){var n=null;e!==null&&e.memoizedState!==null&&e.memoizedState.cachePool!==null&&(n=e.memoizedState.cachePool.pool),e=null,t.memoizedState!==null&&t.memoizedState.cachePool!==null&&(e=t.memoizedState.cachePool.pool),e!==n&&(e!=null&&e.refCount++,n!=null&&da(n))}function kl(e,t){e=null,t.alternate!==null&&(e=t.alternate.memoizedState.cache),t=t.memoizedState.cache,t!==e&&(t.refCount++,e!=null&&da(e))}function Al(e,t,n,r){if(t.subtreeFlags&10256)for(t=t.child;t!==null;)jl(e,t,n,r),t=t.sibling}function jl(e,t,n,r){var i=t.flags;switch(t.tag){case 0:case 11:case 15:Al(e,t,n,r),i&2048&&Gc(9,t);break;case 1:Al(e,t,n,r);break;case 3:Al(e,t,n,r),i&2048&&(e=null,t.alternate!==null&&(e=t.alternate.memoizedState.cache),t=t.memoizedState.cache,t!==e&&(t.refCount++,e!=null&&da(e)));break;case 12:if(i&2048){Al(e,t,n,r),e=t.stateNode;try{var a=t.memoizedProps,o=a.id,s=a.onPostCommit;typeof s==`function`&&s(o,t.alternate===null?`mount`:`update`,e.passiveEffectDuration,-0)}catch(e){Z(t,t.return,e)}}else Al(e,t,n,r);break;case 31:Al(e,t,n,r);break;case 13:Al(e,t,n,r);break;case 23:break;case 22:a=t.stateNode,o=t.alternate,t.memoizedState===null?a._visibility&2?Al(e,t,n,r):(a._visibility|=2,Ml(e,t,n,r,!!(t.subtreeFlags&10256)||!1)):a._visibility&2?Al(e,t,n,r):Nl(e,t),i&2048&&Ol(o,t);break;case 24:Al(e,t,n,r),i&2048&&kl(t.alternate,t);break;default:Al(e,t,n,r)}}function Ml(e,t,n,r,i){for(i&&=!!(t.subtreeFlags&10256)||!1,t=t.child;t!==null;){var a=e,o=t,s=n,c=r,l=o.flags;switch(o.tag){case 0:case 11:case 15:Ml(a,o,s,c,i),Gc(8,o);break;case 23:break;case 22:var u=o.stateNode;o.memoizedState===null?(u._visibility|=2,Ml(a,o,s,c,i)):u._visibility&2?Ml(a,o,s,c,i):Nl(a,o),i&&l&2048&&Ol(o.alternate,o);break;case 24:Ml(a,o,s,c,i),i&&l&2048&&kl(o.alternate,o);break;default:Ml(a,o,s,c,i)}t=t.sibling}}function Nl(e,t){if(t.subtreeFlags&10256)for(t=t.child;t!==null;){var n=e,r=t,i=r.flags;switch(r.tag){case 22:Nl(n,r),i&2048&&Ol(r.alternate,r);break;case 24:Nl(n,r),i&2048&&kl(r.alternate,r);break;default:Nl(n,r)}t=t.sibling}}var Pl=8192;function Fl(e,t,n){if(e.subtreeFlags&Pl)for(e=e.child;e!==null;)Il(e,t,n),e=e.sibling}function Il(e,t,n){switch(e.tag){case 26:Fl(e,t,n),e.flags&Pl&&e.memoizedState!==null&&Gf(n,xl,e.memoizedState,e.memoizedProps);break;case 5:Fl(e,t,n);break;case 3:case 4:var r=xl;xl=gf(e.stateNode.containerInfo),Fl(e,t,n),xl=r;break;case 22:e.memoizedState===null&&(r=e.alternate,r!==null&&r.memoizedState!==null?(r=Pl,Pl=16777216,Fl(e,t,n),Pl=r):Fl(e,t,n));break;default:Fl(e,t,n)}}function Ll(e){var t=e.alternate;if(t!==null&&(e=t.child,e!==null)){t.child=null;do t=e.sibling,e.sibling=null,e=t;while(e!==null)}}function Rl(e){var t=e.deletions;if(e.flags&16){if(t!==null)for(var n=0;n<t.length;n++){var r=t[n];cl=r,Vl(r,e)}Ll(e)}if(e.subtreeFlags&10256)for(e=e.child;e!==null;)zl(e),e=e.sibling}function zl(e){switch(e.tag){case 0:case 11:case 15:Rl(e),e.flags&2048&&Kc(9,e,e.return);break;case 3:Rl(e);break;case 12:Rl(e);break;case 22:var t=e.stateNode;e.memoizedState!==null&&t._visibility&2&&(e.return===null||e.return.tag!==13)?(t._visibility&=-3,Bl(e)):Rl(e);break;default:Rl(e)}}function Bl(e){var t=e.deletions;if(e.flags&16){if(t!==null)for(var n=0;n<t.length;n++){var r=t[n];cl=r,Vl(r,e)}Ll(e)}for(e=e.child;e!==null;){switch(t=e,t.tag){case 0:case 11:case 15:Kc(8,t,t.return),Bl(t);break;case 22:n=t.stateNode,n._visibility&2&&(n._visibility&=-3,Bl(t));break;default:Bl(t)}e=e.sibling}}function Vl(e,t){for(;cl!==null;){var n=cl;switch(n.tag){case 0:case 11:case 15:Kc(8,n,t);break;case 23:case 22:if(n.memoizedState!==null&&n.memoizedState.cachePool!==null){var r=n.memoizedState.cachePool.pool;r!=null&&r.refCount++}break;case 24:da(n.memoizedState.cache)}if(r=n.child,r!==null)r.return=n,cl=r;else a:for(n=e;cl!==null;){r=cl;var i=r.sibling,a=r.return;if(dl(r),r===n){cl=null;break a}if(i!==null){i.return=a,cl=i;break a}cl=a}}}var Hl={getCacheForType:function(e){var t=ia(la),n=t.data.get(e);return n===void 0&&(n=e(),t.data.set(e,n)),n},cacheSignal:function(){return ia(la).controller.signal}},Ul=typeof WeakMap==`function`?WeakMap:Map,V=0,Wl=null,H=null,U=0,Gl=0,Kl=null,ql=!1,Jl=!1,W=!1,Yl=0,G=0,K=0,Xl=0,Zl=0,q=0,Ql=0,$l=null,eu=null,tu=!1,nu=0,ru=0,iu=1/0,J=null,au=null,ou=0,su=null,Y=null,X=0,cu=0,lu=null,uu=null,du=0,fu=null;function pu(){return V&2&&U!==0?U&-U:E.T===null?ut():dd()}function mu(){if(q===0){if(!(U&536870912)||I){var e=Qe;Qe<<=1,!(Qe&3932160)&&(Qe=262144),q=e}else q=536870912}return e=ao.current,e!==null&&(e.flags|=32),q}function hu(e,t,n){(e===Wl&&(Gl===2||Gl===9)||e.cancelPendingCommit!==null)&&(Su(e,0),yu(e,U,q,!1)),ot(e,n),(!(V&2)||e!==Wl)&&(e===Wl&&(!(V&2)&&(Xl|=n),G===4&&yu(e,U,q,!1)),rd(e))}function gu(e,t,n){if(V&6)throw Error(i(327));var r=!n&&!(t&127)&&(t&e.expiredLanes)===0||nt(e,t),a=r?Au(e,t):Ou(e,t,!0),o=r;do{if(a===0){Jl&&!r&&yu(e,t,0,!1);break}if(n=e.current.alternate,o&&!vu(n)){a=Ou(e,t,!1),o=!1;continue}if(a===2){if(o=t,e.errorRecoveryDisabledLanes&o)var s=0;else s=e.pendingLanes&-536870913,s=s===0?s&536870912?536870912:0:s;if(s!==0){t=s;a:{var c=e;a=$l;var l=c.current.memoizedState.isDehydrated;if(l&&(Su(c,s).flags|=256),s=Ou(c,s,!1),s!==2){if(W&&!l){c.errorRecoveryDisabledLanes|=o,Xl|=o,a=4;break a}o=eu,eu=a,o!==null&&(eu===null?eu=o:eu.push.apply(eu,o))}a=s}if(o=!1,a!==2)continue}}if(a===1){Su(e,0),yu(e,t,0,!0);break}a:{switch(r=e,o=a,o){case 0:case 1:throw Error(i(345));case 4:if((t&4194048)!==t)break;case 6:yu(r,t,q,!ql);break a;case 2:eu=null;break;case 3:case 5:break;default:throw Error(i(329))}if((t&62914560)===t&&(a=nu+300-Ie(),10<a)){if(yu(r,t,q,!ql),tt(r,0,!0)!==0)break a;X=t,r.timeoutHandle=Kd(_u.bind(null,r,n,eu,J,tu,t,q,Xl,Ql,ql,o,`Throttled`,-0,0),a);break a}_u(r,n,eu,J,tu,t,q,Xl,Ql,ql,o,null,-0,0)}break}while(1);rd(e)}function _u(e,t,n,r,i,a,o,s,c,l,u,d,f,p){if(e.timeoutHandle=-1,d=t.subtreeFlags,d&8192||(d&16785408)==16785408){d={stylesheets:null,count:0,imgCount:0,imgBytes:0,suspenseyImages:[],waitingForImages:!0,waitingForViewTransition:!1,unsuspend:nn},Il(t,a,d);var m=(a&62914560)===a?nu-Ie():(a&4194048)===a?ru-Ie():0;if(m=qf(d,m),m!==null){X=a,e.cancelPendingCommit=m(Lu.bind(null,e,t,a,n,r,i,o,s,c,u,d,null,f,p)),yu(e,a,o,!l);return}}Lu(e,t,a,n,r,i,o,s,c)}function vu(e){for(var t=e;;){var n=t.tag;if((n===0||n===11||n===15)&&t.flags&16384&&(n=t.updateQueue,n!==null&&(n=n.stores,n!==null)))for(var r=0;r<n.length;r++){var i=n[r],a=i.getSnapshot;i=i.value;try{if(!Tr(a(),i))return!1}catch{return!1}}if(n=t.child,t.subtreeFlags&16384&&n!==null)n.return=t,t=n;else{if(t===e)break;for(;t.sibling===null;){if(t.return===null||t.return===e)return!0;t=t.return}t.sibling.return=t.return,t=t.sibling}}return!0}function yu(e,t,n,r){t&=~Zl,t&=~Xl,e.suspendedLanes|=t,e.pingedLanes&=~t,r&&(e.warmLanes|=t),r=e.expirationTimes;for(var i=t;0<i;){var a=31-qe(i),o=1<<a;r[a]=-1,i&=~o}n!==0&&ct(e,n,t)}function bu(){return V&6?!0:(id(0,!1),!1)}function xu(){if(H!==null){if(Gl===0)var e=H.return;else e=H,Xi=Yi=null,No(e),Pa=null,Fa=0,e=H;for(;e!==null;)Wc(e.alternate,e),e=e.return;H=null}}function Su(e,t){var n=e.timeoutHandle;n!==-1&&(e.timeoutHandle=-1,qd(n)),n=e.cancelPendingCommit,n!==null&&(e.cancelPendingCommit=null,n()),X=0,xu(),Wl=e,H=n=pi(e.current,null),U=t,Gl=0,Kl=null,ql=!1,Jl=nt(e,t),W=!1,Ql=q=Zl=Xl=K=G=0,eu=$l=null,tu=!1,t&8&&(t|=t&32);var r=e.entangledLanes;if(r!==0)for(e=e.entanglements,r&=t;0<r;){var i=31-qe(r),a=1<<i;t|=e[i],r&=~a}return Yl=t,ri(),n}function Cu(e,t){R=null,E.H=Vs,t===wa||t===Ea?(t=Ma(),Gl=3):t===Ta?(t=Ma(),Gl=4):Gl=t===ac?8:typeof t==`object`&&t&&typeof t.then==`function`?6:1,Kl=t,H===null&&(G=1,$s(e,xi(t,e.current)))}function wu(){var e=ao.current;return e===null?!0:(U&4194048)===U?oo===null:(U&62914560)===U||U&536870912?e===oo:!1}function Tu(){var e=E.H;return E.H=Vs,e===null?Vs:e}function Eu(){var e=E.A;return E.A=Hl,e}function Du(){G=4,ql||(U&4194048)!==U&&ao.current!==null||(Jl=!0),!(K&134217727)&&!(Xl&134217727)||Wl===null||yu(Wl,U,q,!1)}function Ou(e,t,n){var r=V;V|=2;var i=Tu(),a=Eu();(Wl!==e||U!==t)&&(J=null,Su(e,t)),t=!1;var o=G;a:do try{if(Gl!==0&&H!==null){var s=H,c=Kl;switch(Gl){case 8:xu(),o=6;break a;case 3:case 2:case 9:case 6:ao.current===null&&(t=!0);var l=Gl;if(Gl=0,Kl=null,Pu(e,s,c,l),n&&Jl){o=0;break a}break;default:l=Gl,Gl=0,Kl=null,Pu(e,s,c,l)}}ku(),o=G;break}catch(t){Cu(e,t)}while(1);return t&&e.shellSuspendCounter++,Xi=Yi=null,V=r,E.H=i,E.A=a,H===null&&(Wl=null,U=0,ri()),o}function ku(){for(;H!==null;)Mu(H)}function Au(e,t){var n=V;V|=2;var r=Tu(),a=Eu();Wl!==e||U!==t?(J=null,iu=Ie()+500,Su(e,t)):Jl=nt(e,t);a:do try{if(Gl!==0&&H!==null){t=H;var o=Kl;b:switch(Gl){case 1:Gl=0,Kl=null,Pu(e,t,o,1);break;case 2:case 9:if(Oa(o)){Gl=0,Kl=null,Nu(t);break}t=function(){Gl!==2&&Gl!==9||Wl!==e||(Gl=7),rd(e)},o.then(t,t);break a;case 3:Gl=7;break a;case 4:Gl=5;break a;case 7:Oa(o)?(Gl=0,Kl=null,Nu(t)):(Gl=0,Kl=null,Pu(e,t,o,7));break;case 5:var s=null;switch(H.tag){case 26:s=H.memoizedState;case 5:case 27:var c=H;if(s?Wf(s):c.stateNode.complete){Gl=0,Kl=null;var l=c.sibling;if(l!==null)H=l;else{var u=c.return;u===null?H=null:(H=u,Fu(u))}break b}}Gl=0,Kl=null,Pu(e,t,o,5);break;case 6:Gl=0,Kl=null,Pu(e,t,o,6);break;case 8:xu(),G=6;break a;default:throw Error(i(462))}}ju();break}catch(t){Cu(e,t)}while(1);return Xi=Yi=null,E.H=r,E.A=a,V=n,H===null?(Wl=null,U=0,ri(),G):0}function ju(){for(;H!==null&&!Pe();)Mu(H)}function Mu(e){var t=Fc(e.alternate,e,Yl);e.memoizedProps=e.pendingProps,t===null?Fu(e):H=t}function Nu(e){var t=e,n=t.alternate;switch(t.tag){case 15:case 0:t=yc(n,t,t.pendingProps,t.type,void 0,U);break;case 11:t=yc(n,t,t.pendingProps,t.type.render,t.ref,U);break;case 5:No(t);default:Wc(n,t),t=H=mi(t,Yl),t=Fc(n,t,Yl)}e.memoizedProps=e.pendingProps,t===null?Fu(e):H=t}function Pu(e,t,n,r){Xi=Yi=null,No(t),Pa=null,Fa=0;var i=t.return;try{if(ic(e,i,t,n,U)){G=1,$s(e,xi(n,e.current)),H=null;return}}catch(t){if(i!==null)throw H=i,t;G=1,$s(e,xi(n,e.current)),H=null;return}t.flags&32768?(I||r===1?e=!0:Jl||U&536870912?e=!1:(ql=e=!0,(r===2||r===9||r===3||r===6)&&(r=ao.current,r!==null&&r.tag===13&&(r.flags|=16384))),Iu(t,e)):Fu(t)}function Fu(e){var t=e;do{if(t.flags&32768){Iu(t,ql);return}e=t.return;var n=Hc(t.alternate,t,Yl);if(n!==null){H=n;return}if(t=t.sibling,t!==null){H=t;return}H=t=e}while(t!==null);G===0&&(G=5)}function Iu(e,t){do{var n=Uc(e.alternate,e);if(n!==null){n.flags&=32767,H=n;return}if(n=e.return,n!==null&&(n.flags|=32768,n.subtreeFlags=0,n.deletions=null),!t&&(e=e.sibling,e!==null)){H=e;return}H=e=n}while(e!==null);G=6,H=null}function Lu(e,t,n,r,a,o,s,c,l){e.cancelPendingCommit=null;do Hu();while(ou!==0);if(V&6)throw Error(i(327));if(t!==null){if(t===e.current)throw Error(i(177));if(o=t.lanes|t.childLanes,o|=ni,st(e,n,o,s,c,l),e===Wl&&(H=Wl=null,U=0),Y=t,su=e,X=n,cu=o,lu=a,uu=r,t.subtreeFlags&10256||t.flags&10256?(e.callbackNode=null,e.callbackPriority=0,Xu(Be,function(){return Uu(),null})):(e.callbackNode=null,e.callbackPriority=0),r=!!(t.flags&13878),t.subtreeFlags&13878||r){r=E.T,E.T=null,a=D.p,D.p=2,s=V,V|=4;try{ll(e,t,n)}finally{V=s,D.p=a,E.T=r}}ou=1,Ru(),zu(),Bu()}}function Ru(){if(ou===1){ou=0;var e=su,t=Y,n=!!(t.flags&13878);if(t.subtreeFlags&13878||n){n=E.T,E.T=null;var r=D.p;D.p=2;var i=V;V|=4;try{Sl(t,e);var a=zd,o=Ar(e.containerInfo),s=a.focusedElem,c=a.selectionRange;if(o!==s&&s&&s.ownerDocument&&kr(s.ownerDocument.documentElement,s)){if(c!==null&&jr(s)){var l=c.start,u=c.end;if(u===void 0&&(u=l),`selectionStart`in s)s.selectionStart=l,s.selectionEnd=Math.min(u,s.value.length);else{var d=s.ownerDocument||document,f=d&&d.defaultView||window;if(f.getSelection){var p=f.getSelection(),m=s.textContent.length,h=Math.min(c.start,m),g=c.end===void 0?h:Math.min(c.end,m);!p.extend&&h>g&&(o=g,g=h,h=o);var _=Or(s,h),v=Or(s,g);if(_&&v&&(p.rangeCount!==1||p.anchorNode!==_.node||p.anchorOffset!==_.offset||p.focusNode!==v.node||p.focusOffset!==v.offset)){var y=d.createRange();y.setStart(_.node,_.offset),p.removeAllRanges(),h>g?(p.addRange(y),p.extend(v.node,v.offset)):(y.setEnd(v.node,v.offset),p.addRange(y))}}}}for(d=[],p=s;p=p.parentNode;)p.nodeType===1&&d.push({element:p,left:p.scrollLeft,top:p.scrollTop});for(typeof s.focus==`function`&&s.focus(),s=0;s<d.length;s++){var b=d[s];b.element.scrollLeft=b.left,b.element.scrollTop=b.top}}sp=!!Rd,zd=Rd=null}finally{V=i,D.p=r,E.T=n}}e.current=t,ou=2}}function zu(){if(ou===2){ou=0;var e=su,t=Y,n=!!(t.flags&8772);if(t.subtreeFlags&8772||n){n=E.T,E.T=null;var r=D.p;D.p=2;var i=V;V|=4;try{ul(e,t.alternate,t)}finally{V=i,D.p=r,E.T=n}}ou=3}}function Bu(){if(ou===4||ou===3){ou=0,Fe();var e=su,t=Y,n=X,r=uu;t.subtreeFlags&10256||t.flags&10256?ou=5:(ou=0,Y=su=null,Vu(e,e.pendingLanes));var i=e.pendingLanes;if(i===0&&(au=null),j(n),t=t.stateNode,O&&typeof O.onCommitFiberRoot==`function`)try{O.onCommitFiberRoot(Ge,t,void 0,(t.current.flags&128)==128)}catch{}if(r!==null){t=E.T,i=D.p,D.p=2,E.T=null;try{for(var a=e.onRecoverableError,o=0;o<r.length;o++){var s=r[o];a(s.value,{componentStack:s.stack})}}finally{E.T=t,D.p=i}}X&3&&Hu(),rd(e),i=e.pendingLanes,n&261930&&i&42?e===fu?du++:(du=0,fu=e):du=0,id(0,!1)}}function Vu(e,t){(e.pooledCacheLanes&=t)===0&&(t=e.pooledCache,t!=null&&(e.pooledCache=null,da(t)))}function Hu(){return Ru(),zu(),Bu(),Uu()}function Uu(){if(ou!==5)return!1;var e=su,t=cu;cu=0;var n=j(X),r=E.T,a=D.p;try{D.p=32>n?32:n,E.T=null,n=lu,lu=null;var o=su,s=X;if(ou=0,Y=su=null,X=0,V&6)throw Error(i(331));var c=V;if(V|=4,zl(o.current),jl(o,o.current,s,n),V=c,id(0,!1),O&&typeof O.onPostCommitFiberRoot==`function`)try{O.onPostCommitFiberRoot(Ge,o)}catch{}return!0}finally{D.p=a,E.T=r,Vu(e,t)}}function Wu(e,t,n){t=xi(n,t),t=tc(e.stateNode,t,2),e=Ka(e,t,2),e!==null&&(ot(e,2),rd(e))}function Z(e,t,n){if(e.tag===3)Wu(e,e,n);else for(;t!==null;){if(t.tag===3){Wu(t,e,n);break}if(t.tag===1){var r=t.stateNode;if(typeof t.type.getDerivedStateFromError==`function`||typeof r.componentDidCatch==`function`&&(au===null||!au.has(r))){e=xi(n,e),n=nc(2),r=Ka(t,n,2),r!==null&&(rc(n,r,t,e),ot(r,2),rd(r));break}}t=t.return}}function Gu(e,t,n){var r=e.pingCache;if(r===null){r=e.pingCache=new Ul;var i=new Set;r.set(t,i)}else i=r.get(t),i===void 0&&(i=new Set,r.set(t,i));i.has(n)||(W=!0,i.add(n),e=Ku.bind(null,e,t,n),t.then(e,e))}function Ku(e,t,n){var r=e.pingCache;r!==null&&r.delete(t),e.pingedLanes|=e.suspendedLanes&n,e.warmLanes&=~n,Wl===e&&(U&n)===n&&(G===4||G===3&&(U&62914560)===U&&300>Ie()-nu?!(V&2)&&Su(e,0):Zl|=n,Ql===U&&(Ql=0)),rd(e)}function qu(e,t){t===0&&(t=it()),e=oi(e,t),e!==null&&(ot(e,t),rd(e))}function Ju(e){var t=e.memoizedState,n=0;t!==null&&(n=t.retryLane),qu(e,n)}function Yu(e,t){var n=0;switch(e.tag){case 31:case 13:var r=e.stateNode,a=e.memoizedState;a!==null&&(n=a.retryLane);break;case 19:r=e.stateNode;break;case 22:r=e.stateNode._retryCache;break;default:throw Error(i(314))}r!==null&&r.delete(t),qu(e,n)}function Xu(e,t){return Me(e,t)}var Zu=null,Qu=null,$u=!1,ed=!1,td=!1,nd=0;function rd(e){e!==Qu&&e.next===null&&(Qu===null?Zu=Qu=e:Qu=Qu.next=e),ed=!0,$u||($u=!0,ud())}function id(e,t){if(!td&&ed){td=!0;do for(var n=!1,r=Zu;r!==null;){if(!t){if(e!==0){var i=r.pendingLanes;if(i===0)var a=0;else{var o=r.suspendedLanes,s=r.pingedLanes;a=(1<<31-qe(42|e)+1)-1,a&=i&~(o&~s),a=a&201326741?a&201326741|1:a?a|2:0}a!==0&&(n=!0,ld(r,a))}else a=U,a=tt(r,r===Wl?a:0,r.cancelPendingCommit!==null||r.timeoutHandle!==-1),!(a&3)||nt(r,a)||(n=!0,ld(r,a))}r=r.next}while(n);td=!1}}function ad(){od()}function od(){ed=$u=!1;var e=0;nd!==0&&Gd()&&(e=nd);for(var t=Ie(),n=null,r=Zu;r!==null;){var i=r.next,a=sd(r,t);a===0?(r.next=null,n===null?Zu=i:n.next=i,i===null&&(Qu=n)):(n=r,(e!==0||a&3)&&(ed=!0)),r=i}ou!==0&&ou!==5||id(e,!1),nd!==0&&(nd=0)}function sd(e,t){for(var n=e.suspendedLanes,r=e.pingedLanes,i=e.expirationTimes,a=e.pendingLanes&-62914561;0<a;){var o=31-qe(a),s=1<<o,c=i[o];c===-1?((s&n)===0||(s&r)!==0)&&(i[o]=rt(s,t)):c<=t&&(e.expiredLanes|=s),a&=~s}if(t=Wl,n=U,n=tt(e,e===t?n:0,e.cancelPendingCommit!==null||e.timeoutHandle!==-1),r=e.callbackNode,n===0||e===t&&(Gl===2||Gl===9)||e.cancelPendingCommit!==null)return r!==null&&r!==null&&Ne(r),e.callbackNode=null,e.callbackPriority=0;if(!(n&3)||nt(e,n)){if(t=n&-n,t===e.callbackPriority)return t;switch(r!==null&&Ne(r),j(n)){case 2:case 8:n=ze;break;case 32:n=Be;break;case 268435456:n=He;break;default:n=Be}return r=cd.bind(null,e),n=Me(n,r),e.callbackPriority=t,e.callbackNode=n,t}return r!==null&&r!==null&&Ne(r),e.callbackPriority=2,e.callbackNode=null,2}function cd(e,t){if(ou!==0&&ou!==5)return e.callbackNode=null,e.callbackPriority=0,null;var n=e.callbackNode;if(Hu()&&e.callbackNode!==n)return null;var r=U;return r=tt(e,e===Wl?r:0,e.cancelPendingCommit!==null||e.timeoutHandle!==-1),r===0?null:(gu(e,r,t),sd(e,Ie()),e.callbackNode!=null&&e.callbackNode===n?cd.bind(null,e):null)}function ld(e,t){if(Hu())return null;gu(e,t,!0)}function ud(){Yd(function(){V&6?Me(Re,ad):od()})}function dd(){if(nd===0){var e=ma;e===0&&(e=Ze,Ze<<=1,!(Ze&261888)&&(Ze=256)),nd=e}return nd}function fd(e){return e==null||typeof e==`symbol`||typeof e==`boolean`?null:typeof e==`function`?e:F(``+e)}function pd(e,t){var n=t.ownerDocument.createElement(`input`);return n.name=t.name,n.value=t.value,e.id&&n.setAttribute(`form`,e.id),t.parentNode.insertBefore(n,t),e=new FormData(e),n.parentNode.removeChild(n),e}function md(e,t,n,r,i){if(t===`submit`&&n&&n.stateNode===i){var a=fd((i[mt]||null).action),o=r.submitter;o&&(t=(t=o[mt]||null)?fd(t.formAction):o.getAttribute(`formAction`),t!==null&&(a=t,o=null));var s=new wn(`action`,`action`,null,r,i);e.push({event:s,listeners:[{instance:null,listener:function(){if(r.defaultPrevented){if(nd!==0){var e=o?pd(i,o):new FormData(i);Ds(n,{pending:!0,data:e,method:i.method,action:a},null,e)}}else typeof a==`function`&&(s.preventDefault(),e=o?pd(i,o):new FormData(i),Ds(n,{pending:!0,data:e,method:i.method,action:a},a,e))},currentTarget:i}]})}}for(var hd=0;hd<Zr.length;hd++){var gd=Zr[hd];Qr(gd.toLowerCase(),`on`+(gd[0].toUpperCase()+gd.slice(1)))}Qr(Ur,`onAnimationEnd`),Qr(Wr,`onAnimationIteration`),Qr(Gr,`onAnimationStart`),Qr(`dblclick`,`onDoubleClick`),Qr(`focusin`,`onFocus`),Qr(`focusout`,`onBlur`),Qr(Kr,`onTransitionRun`),Qr(qr,`onTransitionStart`),Qr(Jr,`onTransitionCancel`),Qr(Yr,`onTransitionEnd`),kt(`onMouseEnter`,[`mouseout`,`mouseover`]),kt(`onMouseLeave`,[`mouseout`,`mouseover`]),kt(`onPointerEnter`,[`pointerout`,`pointerover`]),kt(`onPointerLeave`,[`pointerout`,`pointerover`]),Ot(`onChange`,`change click focusin focusout input keydown keyup selectionchange`.split(` `)),Ot(`onSelect`,`focusout contextmenu dragend focusin keydown keyup mousedown mouseup selectionchange`.split(` `)),Ot(`onBeforeInput`,[`compositionend`,`keypress`,`textInput`,`paste`]),Ot(`onCompositionEnd`,`compositionend focusout keydown keypress keyup mousedown`.split(` `)),Ot(`onCompositionStart`,`compositionstart focusout keydown keypress keyup mousedown`.split(` `)),Ot(`onCompositionUpdate`,`compositionupdate focusout keydown keypress keyup mousedown`.split(` `));var _d=`abort canplay canplaythrough durationchange emptied encrypted ended error loadeddata loadedmetadata loadstart pause play playing progress ratechange resize seeked seeking stalled suspend timeupdate volumechange waiting`.split(` `),vd=new Set(`beforetoggle cancel close invalid load scroll scrollend toggle`.split(` `).concat(_d));function yd(e,t){t=!!(t&4);for(var n=0;n<e.length;n++){var r=e[n],i=r.event;r=r.listeners;a:{var a=void 0;if(t)for(var o=r.length-1;0<=o;o--){var s=r[o],c=s.instance,l=s.currentTarget;if(s=s.listener,c!==a&&i.isPropagationStopped())break a;a=s,i.currentTarget=l;try{a(i)}catch(e){$r(e)}i.currentTarget=null,a=c}else for(o=0;o<r.length;o++){if(s=r[o],c=s.instance,l=s.currentTarget,s=s.listener,c!==a&&i.isPropagationStopped())break a;a=s,i.currentTarget=l;try{a(i)}catch(e){$r(e)}i.currentTarget=null,a=c}}}}function Q(e,t){var n=t[gt];n===void 0&&(n=t[gt]=new Set);var r=e+`__bubble`;n.has(r)||(Cd(t,e,2,!1),n.add(r))}function bd(e,t,n){var r=0;t&&(r|=4),Cd(n,e,r,t)}var xd=`_reactListening`+Math.random().toString(36).slice(2);function Sd(e){if(!e[xd]){e[xd]=!0,Et.forEach(function(t){t!==`selectionchange`&&(vd.has(t)||bd(t,!1,e),bd(t,!0,e))});var t=e.nodeType===9?e:e.ownerDocument;t===null||t[xd]||(t[xd]=!0,bd(`selectionchange`,!1,t))}}function Cd(e,t,n,r){switch(mp(t)){case 2:var i=cp;break;case 8:i=lp;break;default:i=up}n=i.bind(null,t,n,e),i=void 0,!pn||t!==`touchstart`&&t!==`touchmove`&&t!==`wheel`||(i=!0),r?i===void 0?e.addEventListener(t,n,!0):e.addEventListener(t,n,{capture:!0,passive:i}):i===void 0?e.addEventListener(t,n,!1):e.addEventListener(t,n,{passive:i})}function wd(e,t,n,r,i){var a=r;if(!(t&1)&&!(t&2)&&r!==null)a:for(;;){if(r===null)return;var s=r.tag;if(s===3||s===4){var c=r.stateNode.containerInfo;if(c===i)break;if(s===4)for(s=r.return;s!==null;){var l=s.tag;if((l===3||l===4)&&s.stateNode.containerInfo===i)return;s=s.return}for(;c!==null;){if(s=xt(c),s===null)return;if(l=s.tag,l===5||l===6||l===26||l===27){r=a=s;continue a}c=c.parentNode}}r=r.return}un(function(){var r=a,i=an(n),s=[];a:{var c=Xr.get(e);if(c!==void 0){var l=wn,u=e;switch(e){case`keypress`:if(yn(n)===0)break a;case`keydown`:case`keyup`:l=Hn;break;case`focusin`:u=`focus`,l=Nn;break;case`focusout`:u=`blur`,l=Nn;break;case`beforeblur`:case`afterblur`:l=Nn;break;case`click`:if(n.button===2)break a;case`auxclick`:case`dblclick`:case`mousedown`:case`mousemove`:case`mouseup`:case`mouseout`:case`mouseover`:case`contextmenu`:l=jn;break;case`drag`:case`dragend`:case`dragenter`:case`dragexit`:case`dragleave`:case`dragover`:case`dragstart`:case`drop`:l=Mn;break;case`touchcancel`:case`touchend`:case`touchmove`:case`touchstart`:l=Wn;break;case Ur:case Wr:case Gr:l=Pn;break;case Yr:l=Gn;break;case`scroll`:case`scrollend`:l=En;break;case`wheel`:l=Kn;break;case`copy`:case`cut`:case`paste`:l=Fn;break;case`gotpointercapture`:case`lostpointercapture`:case`pointercancel`:case`pointerdown`:case`pointermove`:case`pointerout`:case`pointerover`:case`pointerup`:l=Un;break;case`toggle`:case`beforetoggle`:l=qn}var d=!!(t&4),f=!d&&(e===`scroll`||e===`scrollend`),p=d?c===null?null:c+`Capture`:c;d=[];for(var m=r,h;m!==null;){var g=m;if(h=g.stateNode,g=g.tag,g!==5&&g!==26&&g!==27||h===null||p===null||(g=dn(m,p),g!=null&&d.push(Td(m,g,h))),f)break;m=m.return}0<d.length&&(c=new l(c,u,null,n,i),s.push({event:c,listeners:d}))}}if(!(t&7)){a:{if(c=e===`mouseover`||e===`pointerover`,l=e===`mouseout`||e===`pointerout`,c&&n!==rn&&(u=n.relatedTarget||n.fromElement)&&(xt(u)||u[ht]))break a;if((l||c)&&(c=i.window===i?i:(c=i.ownerDocument)?c.defaultView||c.parentWindow:window,l?(u=n.relatedTarget||n.toElement,l=r,u=u?xt(u):null,u!==null&&(f=o(u),d=u.tag,u!==f||d!==5&&d!==27&&d!==6)&&(u=null)):(l=null,u=r),l!==u)){if(d=jn,g=`onMouseLeave`,p=`onMouseEnter`,m=`mouse`,(e===`pointerout`||e===`pointerover`)&&(d=Un,g=`onPointerLeave`,p=`onPointerEnter`,m=`pointer`),f=l==null?c:Ct(l),h=u==null?c:Ct(u),c=new d(g,m+`leave`,l,n,i),c.target=f,c.relatedTarget=h,g=null,xt(i)===r&&(d=new d(p,m+`enter`,u,n,i),d.target=h,d.relatedTarget=f,g=d),f=g,l&&u)b:{for(d=Dd,p=l,m=u,h=0,g=p;g;g=d(g))h++;g=0;for(var _=m;_;_=d(_))g++;for(;0<h-g;)p=d(p),h--;for(;0<g-h;)m=d(m),g--;for(;h--;){if(p===m||m!==null&&p===m.alternate){d=p;break b}p=d(p),m=d(m)}d=null}else d=null;l!==null&&Od(s,c,l,d,!1),u!==null&&f!==null&&Od(s,f,u,d,!0)}}a:{if(c=r?Ct(r):window,l=c.nodeName&&c.nodeName.toLowerCase(),l===`select`||l===`input`&&c.type===`file`)var v=pr;else if(sr(c)){if(mr)v=Cr;else{v=xr;var y=br}}else l=c.nodeName,!l||l.toLowerCase()!==`input`||c.type!==`checkbox`&&c.type!==`radio`?r&&$t(r.elementType)&&(v=pr):v=Sr;if(v&&=v(e,r)){cr(s,v,n,i);break a}y&&y(e,c,r),e===`focusout`&&r&&c.type===`number`&&r.memoizedProps.value!=null&&Gt(c,`number`,c.value)}switch(y=r?Ct(r):window,e){case`focusin`:(sr(y)||y.contentEditable===`true`)&&(Nr=y,Pr=r,Fr=null);break;case`focusout`:Fr=Pr=Nr=null;break;case`mousedown`:Ir=!0;break;case`contextmenu`:case`mouseup`:case`dragend`:Ir=!1,Lr(s,n,i);break;case`selectionchange`:if(Mr)break;case`keydown`:case`keyup`:Lr(s,n,i)}var b;if(Yn)b:{switch(e){case`compositionstart`:var x=`onCompositionStart`;break b;case`compositionend`:x=`onCompositionEnd`;break b;case`compositionupdate`:x=`onCompositionUpdate`;break b}x=void 0}else rr?tr(e,n)&&(x=`onCompositionEnd`):e===`keydown`&&n.keyCode===229&&(x=`onCompositionStart`);x&&(Qn&&n.locale!==`ko`&&(rr||x!==`onCompositionStart`?x===`onCompositionEnd`&&rr&&(b=vn()):(hn=i,gn=`value`in hn?hn.value:hn.textContent,rr=!0)),y=Ed(r,x),0<y.length&&(x=new In(x,e,null,n,i),s.push({event:x,listeners:y}),b?x.data=b:(b=nr(n),b!==null&&(x.data=b)))),(b=Zn?ir(e,n):ar(e,n))&&(x=Ed(r,`onBeforeInput`),0<x.length&&(y=new In(`onBeforeInput`,`beforeinput`,null,n,i),s.push({event:y,listeners:x}),y.data=b)),md(s,e,r,n,i)}yd(s,t)})}function Td(e,t,n){return{instance:e,listener:t,currentTarget:n}}function Ed(e,t){for(var n=t+`Capture`,r=[];e!==null;){var i=e,a=i.stateNode;if(i=i.tag,i!==5&&i!==26&&i!==27||a===null||(i=dn(e,n),i!=null&&r.unshift(Td(e,i,a)),i=dn(e,t),i!=null&&r.push(Td(e,i,a))),e.tag===3)return r;e=e.return}return[]}function Dd(e){if(e===null)return null;do e=e.return;while(e&&e.tag!==5&&e.tag!==27);return e||null}function Od(e,t,n,r,i){for(var a=t._reactName,o=[];n!==null&&n!==r;){var s=n,c=s.alternate,l=s.stateNode;if(s=s.tag,c!==null&&c===r)break;s!==5&&s!==26&&s!==27||l===null||(c=l,i?(l=dn(n,a),l!=null&&o.unshift(Td(n,l,c))):i||(l=dn(n,a),l!=null&&o.push(Td(n,l,c)))),n=n.return}o.length!==0&&e.push({event:t,listeners:o})}var kd=/\r\n?/g,Ad=/\u0000|\uFFFD/g;function jd(e){return(typeof e==`string`?e:``+e).replace(kd,`
+`).replace(Ad,``)}function Md(e,t){return t=jd(t),jd(e)===t}function $(e,t,n,r,a,o){switch(n){case`children`:typeof r==`string`?t===`body`||t===`textarea`&&r===``||Yt(e,r):(typeof r==`number`||typeof r==`bigint`)&&t!==`body`&&Yt(e,``+r);break;case`className`:Ft(e,`class`,r);break;case`tabIndex`:Ft(e,`tabindex`,r);break;case`dir`:case`role`:case`viewBox`:case`width`:case`height`:Ft(e,n,r);break;case`style`:Qt(e,r,o);break;case`data`:if(t!==`object`){Ft(e,`data`,r);break}case`src`:case`href`:if(r===``&&(t!==`a`||n!==`href`)){e.removeAttribute(n);break}if(r==null||typeof r==`function`||typeof r==`symbol`||typeof r==`boolean`){e.removeAttribute(n);break}r=F(``+r),e.setAttribute(n,r);break;case`action`:case`formAction`:if(typeof r==`function`){e.setAttribute(n,`javascript:throw new Error('A React form was unexpectedly submitted. If you called form.submit() manually, consider using form.requestSubmit() instead. If you\\'re trying to use event.stopPropagation() in a submit event handler, consider also calling event.preventDefault().')`);break}if(typeof o==`function`&&(n===`formAction`?(t!==`input`&&$(e,t,`name`,a.name,a,null),$(e,t,`formEncType`,a.formEncType,a,null),$(e,t,`formMethod`,a.formMethod,a,null),$(e,t,`formTarget`,a.formTarget,a,null)):($(e,t,`encType`,a.encType,a,null),$(e,t,`method`,a.method,a,null),$(e,t,`target`,a.target,a,null))),r==null||typeof r==`symbol`||typeof r==`boolean`){e.removeAttribute(n);break}r=F(``+r),e.setAttribute(n,r);break;case`onClick`:r!=null&&(e.onclick=nn);break;case`onScroll`:r!=null&&Q(`scroll`,e);break;case`onScrollEnd`:r!=null&&Q(`scrollend`,e);break;case`dangerouslySetInnerHTML`:if(r!=null){if(typeof r!=`object`||!(`__html`in r))throw Error(i(61));if(n=r.__html,n!=null){if(a.children!=null)throw Error(i(60));e.innerHTML=n}}break;case`multiple`:e.multiple=r&&typeof r!=`function`&&typeof r!=`symbol`;break;case`muted`:e.muted=r&&typeof r!=`function`&&typeof r!=`symbol`;break;case`suppressContentEditableWarning`:case`suppressHydrationWarning`:case`defaultValue`:case`defaultChecked`:case`innerHTML`:case`ref`:break;case`autoFocus`:break;case`xlinkHref`:if(r==null||typeof r==`function`||typeof r==`boolean`||typeof r==`symbol`){e.removeAttribute(`xlink:href`);break}n=F(``+r),e.setAttributeNS(`http://www.w3.org/1999/xlink`,`xlink:href`,n);break;case`contentEditable`:case`spellCheck`:case`draggable`:case`value`:case`autoReverse`:case`externalResourcesRequired`:case`focusable`:case`preserveAlpha`:r!=null&&typeof r!=`function`&&typeof r!=`symbol`?e.setAttribute(n,``+r):e.removeAttribute(n);break;case`inert`:case`allowFullScreen`:case`async`:case`autoPlay`:case`controls`:case`default`:case`defer`:case`disabled`:case`disablePictureInPicture`:case`disableRemotePlayback`:case`formNoValidate`:case`hidden`:case`loop`:case`noModule`:case`noValidate`:case`open`:case`playsInline`:case`readOnly`:case`required`:case`reversed`:case`scoped`:case`seamless`:case`itemScope`:r&&typeof r!=`function`&&typeof r!=`symbol`?e.setAttribute(n,``):e.removeAttribute(n);break;case`capture`:case`download`:!0===r?e.setAttribute(n,``):!1!==r&&r!=null&&typeof r!=`function`&&typeof r!=`symbol`?e.setAttribute(n,r):e.removeAttribute(n);break;case`cols`:case`rows`:case`size`:case`span`:r!=null&&typeof r!=`function`&&typeof r!=`symbol`&&!isNaN(r)&&1<=r?e.setAttribute(n,r):e.removeAttribute(n);break;case`rowSpan`:case`start`:r==null||typeof r==`function`||typeof r==`symbol`||isNaN(r)?e.removeAttribute(n):e.setAttribute(n,r);break;case`popover`:Q(`beforetoggle`,e),Q(`toggle`,e),Pt(e,`popover`,r);break;case`xlinkActuate`:It(e,`http://www.w3.org/1999/xlink`,`xlink:actuate`,r);break;case`xlinkArcrole`:It(e,`http://www.w3.org/1999/xlink`,`xlink:arcrole`,r);break;case`xlinkRole`:It(e,`http://www.w3.org/1999/xlink`,`xlink:role`,r);break;case`xlinkShow`:It(e,`http://www.w3.org/1999/xlink`,`xlink:show`,r);break;case`xlinkTitle`:It(e,`http://www.w3.org/1999/xlink`,`xlink:title`,r);break;case`xlinkType`:It(e,`http://www.w3.org/1999/xlink`,`xlink:type`,r);break;case`xmlBase`:It(e,`http://www.w3.org/XML/1998/namespace`,`xml:base`,r);break;case`xmlLang`:It(e,`http://www.w3.org/XML/1998/namespace`,`xml:lang`,r);break;case`xmlSpace`:It(e,`http://www.w3.org/XML/1998/namespace`,`xml:space`,r);break;case`is`:Pt(e,`is`,r);break;case`innerText`:case`textContent`:break;default:(!(2<n.length)||n[0]!==`o`&&n[0]!==`O`||n[1]!==`n`&&n[1]!==`N`)&&(n=en.get(n)||n,Pt(e,n,r))}}function Nd(e,t,n,r,a,o){switch(n){case`style`:Qt(e,r,o);break;case`dangerouslySetInnerHTML`:if(r!=null){if(typeof r!=`object`||!(`__html`in r))throw Error(i(61));if(n=r.__html,n!=null){if(a.children!=null)throw Error(i(60));e.innerHTML=n}}break;case`children`:typeof r==`string`?Yt(e,r):(typeof r==`number`||typeof r==`bigint`)&&Yt(e,``+r);break;case`onScroll`:r!=null&&Q(`scroll`,e);break;case`onScrollEnd`:r!=null&&Q(`scrollend`,e);break;case`onClick`:r!=null&&(e.onclick=nn);break;case`suppressContentEditableWarning`:case`suppressHydrationWarning`:case`innerHTML`:case`ref`:break;case`innerText`:case`textContent`:break;default:if(!Dt.hasOwnProperty(n))a:{if(n[0]===`o`&&n[1]===`n`&&(a=n.endsWith(`Capture`),t=n.slice(2,a?n.length-7:void 0),o=e[mt]||null,o=o==null?null:o[n],typeof o==`function`&&e.removeEventListener(t,o,a),typeof r==`function`)){typeof o!=`function`&&o!==null&&(n in e?e[n]=null:e.hasAttribute(n)&&e.removeAttribute(n)),e.addEventListener(t,r,a);break a}n in e?e[n]=r:!0===r?e.setAttribute(n,``):Pt(e,n,r)}}}function Pd(e,t,n){switch(t){case`div`:case`span`:case`svg`:case`path`:case`a`:case`g`:case`p`:case`li`:break;case`img`:Q(`error`,e),Q(`load`,e);var r=!1,a=!1,o;for(o in n)if(n.hasOwnProperty(o)){var s=n[o];if(s!=null)switch(o){case`src`:r=!0;break;case`srcSet`:a=!0;break;case`children`:case`dangerouslySetInnerHTML`:throw Error(i(137,t));default:$(e,t,o,s,n,null)}}a&&$(e,t,`srcSet`,n.srcSet,n,null),r&&$(e,t,`src`,n.src,n,null);return;case`input`:Q(`invalid`,e);var c=o=s=a=null,l=null,u=null;for(r in n)if(n.hasOwnProperty(r)){var d=n[r];if(d!=null)switch(r){case`name`:a=d;break;case`type`:s=d;break;case`checked`:l=d;break;case`defaultChecked`:u=d;break;case`value`:o=d;break;case`defaultValue`:c=d;break;case`children`:case`dangerouslySetInnerHTML`:if(d!=null)throw Error(i(137,t));break;default:$(e,t,r,d,n,null)}}P(e,o,c,l,u,s,a,!1);return;case`select`:for(a in Q(`invalid`,e),r=s=o=null,n)if(n.hasOwnProperty(a)&&(c=n[a],c!=null))switch(a){case`value`:o=c;break;case`defaultValue`:s=c;break;case`multiple`:r=c;default:$(e,t,a,c,n,null)}t=o,n=s,e.multiple=!!r,t==null?n!=null&&Kt(e,!!r,n,!0):Kt(e,!!r,t,!1);return;case`textarea`:for(s in Q(`invalid`,e),o=a=r=null,n)if(n.hasOwnProperty(s)&&(c=n[s],c!=null))switch(s){case`value`:r=c;break;case`defaultValue`:a=c;break;case`children`:o=c;break;case`dangerouslySetInnerHTML`:if(c!=null)throw Error(i(91));break;default:$(e,t,s,c,n,null)}Jt(e,r,a,o);return;case`option`:for(l in n)if(n.hasOwnProperty(l)&&(r=n[l],r!=null))switch(l){case`selected`:e.selected=r&&typeof r!=`function`&&typeof r!=`symbol`;break;default:$(e,t,l,r,n,null)}return;case`dialog`:Q(`beforetoggle`,e),Q(`toggle`,e),Q(`cancel`,e),Q(`close`,e);break;case`iframe`:case`object`:Q(`load`,e);break;case`video`:case`audio`:for(r=0;r<_d.length;r++)Q(_d[r],e);break;case`image`:Q(`error`,e),Q(`load`,e);break;case`details`:Q(`toggle`,e);break;case`embed`:case`source`:case`link`:Q(`error`,e),Q(`load`,e);case`area`:case`base`:case`br`:case`col`:case`hr`:case`keygen`:case`meta`:case`param`:case`track`:case`wbr`:case`menuitem`:for(u in n)if(n.hasOwnProperty(u)&&(r=n[u],r!=null))switch(u){case`children`:case`dangerouslySetInnerHTML`:throw Error(i(137,t));default:$(e,t,u,r,n,null)}return;default:if($t(t)){for(d in n)n.hasOwnProperty(d)&&(r=n[d],r!==void 0&&Nd(e,t,d,r,n,void 0));return}}for(c in n)n.hasOwnProperty(c)&&(r=n[c],r!=null&&$(e,t,c,r,n,null))}function Fd(e,t,n,r){switch(t){case`div`:case`span`:case`svg`:case`path`:case`a`:case`g`:case`p`:case`li`:break;case`input`:var a=null,o=null,s=null,c=null,l=null,u=null,d=null;for(m in n){var f=n[m];if(n.hasOwnProperty(m)&&f!=null)switch(m){case`checked`:break;case`value`:break;case`defaultValue`:l=f;default:r.hasOwnProperty(m)||$(e,t,m,null,r,f)}}for(var p in r){var m=r[p];if(f=n[p],r.hasOwnProperty(p)&&(m!=null||f!=null))switch(p){case`type`:o=m;break;case`name`:a=m;break;case`checked`:u=m;break;case`defaultChecked`:d=m;break;case`value`:s=m;break;case`defaultValue`:c=m;break;case`children`:case`dangerouslySetInnerHTML`:if(m!=null)throw Error(i(137,t));break;default:m!==f&&$(e,t,p,m,r,f)}}Wt(e,s,c,l,u,d,o,a);return;case`select`:for(o in m=s=c=p=null,n)if(l=n[o],n.hasOwnProperty(o)&&l!=null)switch(o){case`value`:break;case`multiple`:m=l;default:r.hasOwnProperty(o)||$(e,t,o,null,r,l)}for(a in r)if(o=r[a],l=n[a],r.hasOwnProperty(a)&&(o!=null||l!=null))switch(a){case`value`:p=o;break;case`defaultValue`:c=o;break;case`multiple`:s=o;default:o!==l&&$(e,t,a,o,r,l)}t=c,n=s,r=m,p==null?!!r!=!!n&&(t==null?Kt(e,!!n,n?[]:``,!1):Kt(e,!!n,t,!0)):Kt(e,!!n,p,!1);return;case`textarea`:for(c in m=p=null,n)if(a=n[c],n.hasOwnProperty(c)&&a!=null&&!r.hasOwnProperty(c))switch(c){case`value`:break;case`children`:break;default:$(e,t,c,null,r,a)}for(s in r)if(a=r[s],o=n[s],r.hasOwnProperty(s)&&(a!=null||o!=null))switch(s){case`value`:p=a;break;case`defaultValue`:m=a;break;case`children`:break;case`dangerouslySetInnerHTML`:if(a!=null)throw Error(i(91));break;default:a!==o&&$(e,t,s,a,r,o)}qt(e,p,m);return;case`option`:for(var h in n)if(p=n[h],n.hasOwnProperty(h)&&p!=null&&!r.hasOwnProperty(h))switch(h){case`selected`:e.selected=!1;break;default:$(e,t,h,null,r,p)}for(l in r)if(p=r[l],m=n[l],r.hasOwnProperty(l)&&p!==m&&(p!=null||m!=null))switch(l){case`selected`:e.selected=p&&typeof p!=`function`&&typeof p!=`symbol`;break;default:$(e,t,l,p,r,m)}return;case`img`:case`link`:case`area`:case`base`:case`br`:case`col`:case`embed`:case`hr`:case`keygen`:case`meta`:case`param`:case`source`:case`track`:case`wbr`:case`menuitem`:for(var g in n)p=n[g],n.hasOwnProperty(g)&&p!=null&&!r.hasOwnProperty(g)&&$(e,t,g,null,r,p);for(u in r)if(p=r[u],m=n[u],r.hasOwnProperty(u)&&p!==m&&(p!=null||m!=null))switch(u){case`children`:case`dangerouslySetInnerHTML`:if(p!=null)throw Error(i(137,t));break;default:$(e,t,u,p,r,m)}return;default:if($t(t)){for(var _ in n)p=n[_],n.hasOwnProperty(_)&&p!==void 0&&!r.hasOwnProperty(_)&&Nd(e,t,_,void 0,r,p);for(d in r)p=r[d],m=n[d],!r.hasOwnProperty(d)||p===m||p===void 0&&m===void 0||Nd(e,t,d,p,r,m);return}}for(var v in n)p=n[v],n.hasOwnProperty(v)&&p!=null&&!r.hasOwnProperty(v)&&$(e,t,v,null,r,p);for(f in r)p=r[f],m=n[f],!r.hasOwnProperty(f)||p===m||p==null&&m==null||$(e,t,f,p,r,m)}function Id(e){switch(e){case`css`:case`script`:case`font`:case`img`:case`image`:case`input`:case`link`:return!0;default:return!1}}function Ld(){if(typeof performance.getEntriesByType==`function`){for(var e=0,t=0,n=performance.getEntriesByType(`resource`),r=0;r<n.length;r++){var i=n[r],a=i.transferSize,o=i.initiatorType,s=i.duration;if(a&&s&&Id(o)){for(o=0,s=i.responseEnd,r+=1;r<n.length;r++){var c=n[r],l=c.startTime;if(l>s)break;var u=c.transferSize,d=c.initiatorType;u&&Id(d)&&(c=c.responseEnd,o+=u*(c<s?1:(s-l)/(c-l)))}if(--r,t+=8*(a+o)/(i.duration/1e3),e++,10<e)break}}if(0<e)return t/e/1e6}return navigator.connection&&(e=navigator.connection.downlink,typeof e==`number`)?e:5}var Rd=null,zd=null;function Bd(e){return e.nodeType===9?e:e.ownerDocument}function Vd(e){switch(e){case`http://www.w3.org/2000/svg`:return 1;case`http://www.w3.org/1998/Math/MathML`:return 2;default:return 0}}function Hd(e,t){if(e===0)switch(t){case`svg`:return 1;case`math`:return 2;default:return 0}return e===1&&t===`foreignObject`?0:e}function Ud(e,t){return e===`textarea`||e===`noscript`||typeof t.children==`string`||typeof t.children==`number`||typeof t.children==`bigint`||typeof t.dangerouslySetInnerHTML==`object`&&t.dangerouslySetInnerHTML!==null&&t.dangerouslySetInnerHTML.__html!=null}var Wd=null;function Gd(){var e=window.event;return e&&e.type===`popstate`?e!==Wd&&(Wd=e,!0):(Wd=null,!1)}var Kd=typeof setTimeout==`function`?setTimeout:void 0,qd=typeof clearTimeout==`function`?clearTimeout:void 0,Jd=typeof Promise==`function`?Promise:void 0,Yd=typeof queueMicrotask==`function`?queueMicrotask:Jd===void 0?Kd:function(e){return Jd.resolve(null).then(e).catch(Xd)};function Xd(e){setTimeout(function(){throw e})}function Zd(e){return e===`head`}function Qd(e,t){var n=t,r=0;do{var i=n.nextSibling;if(e.removeChild(n),i&&i.nodeType===8){if(n=i.data,n===`/$`||n===`/&`){if(r===0){e.removeChild(i),Np(t);return}r--}else if(n===`$`||n===`$?`||n===`$~`||n===`$!`||n===`&`)r++;else if(n===`html`)pf(e.ownerDocument.documentElement);else if(n===`head`){n=e.ownerDocument.head,pf(n);for(var a=n.firstChild;a;){var o=a.nextSibling,s=a.nodeName;a[bt]||s===`SCRIPT`||s===`STYLE`||s===`LINK`&&a.rel.toLowerCase()===`stylesheet`||n.removeChild(a),a=o}}else n===`body`&&pf(e.ownerDocument.body)}n=i}while(n);Np(t)}function $d(e,t){var n=e;e=0;do{var r=n.nextSibling;if(n.nodeType===1?t?(n._stashedDisplay=n.style.display,n.style.display=`none`):(n.style.display=n._stashedDisplay||``,n.getAttribute(`style`)===``&&n.removeAttribute(`style`)):n.nodeType===3&&(t?(n._stashedText=n.nodeValue,n.nodeValue=``):n.nodeValue=n._stashedText||``),r&&r.nodeType===8){if(n=r.data,n===`/$`){if(e===0)break;e--}else n!==`$`&&n!==`$?`&&n!==`$~`&&n!==`$!`||e++}n=r}while(n)}function ef(e){var t=e.firstChild;for(t&&t.nodeType===10&&(t=t.nextSibling);t;){var n=t;switch(t=t.nextSibling,n.nodeName){case`HTML`:case`HEAD`:case`BODY`:ef(n),M(n);continue;case`SCRIPT`:case`STYLE`:continue;case`LINK`:if(n.rel.toLowerCase()===`stylesheet`)continue}e.removeChild(n)}}function tf(e,t,n,r){for(;e.nodeType===1;){var i=n;if(e.nodeName.toLowerCase()!==t.toLowerCase()){if(!r&&(e.nodeName!==`INPUT`||e.type!==`hidden`))break}else if(!r){if(t===`input`&&e.type===`hidden`){var a=i.name==null?null:``+i.name;if(i.type===`hidden`&&e.getAttribute(`name`)===a)return e}else return e}else if(!e[bt])switch(t){case`meta`:if(!e.hasAttribute(`itemprop`))break;return e;case`link`:if(a=e.getAttribute(`rel`),a===`stylesheet`&&e.hasAttribute(`data-precedence`)||a!==i.rel||e.getAttribute(`href`)!==(i.href==null||i.href===``?null:i.href)||e.getAttribute(`crossorigin`)!==(i.crossOrigin==null?null:i.crossOrigin)||e.getAttribute(`title`)!==(i.title==null?null:i.title))break;return e;case`style`:if(e.hasAttribute(`data-precedence`))break;return e;case`script`:if(a=e.getAttribute(`src`),(a!==(i.src==null?null:i.src)||e.getAttribute(`type`)!==(i.type==null?null:i.type)||e.getAttribute(`crossorigin`)!==(i.crossOrigin==null?null:i.crossOrigin))&&a&&e.hasAttribute(`async`)&&!e.hasAttribute(`itemprop`))break;return e;default:return e}if(e=cf(e.nextSibling),e===null)break}return null}function nf(e,t,n){if(t===``)return null;for(;e.nodeType!==3;)if((e.nodeType!==1||e.nodeName!==`INPUT`||e.type!==`hidden`)&&!n||(e=cf(e.nextSibling),e===null))return null;return e}function rf(e,t){for(;e.nodeType!==8;)if((e.nodeType!==1||e.nodeName!==`INPUT`||e.type!==`hidden`)&&!t||(e=cf(e.nextSibling),e===null))return null;return e}function af(e){return e.data===`$?`||e.data===`$~`}function of(e){return e.data===`$!`||e.data===`$?`&&e.ownerDocument.readyState!==`loading`}function sf(e,t){var n=e.ownerDocument;if(e.data===`$~`)e._reactRetry=t;else if(e.data!==`$?`||n.readyState!==`loading`)t();else{var r=function(){t(),n.removeEventListener(`DOMContentLoaded`,r)};n.addEventListener(`DOMContentLoaded`,r),e._reactRetry=r}}function cf(e){for(;e!=null;e=e.nextSibling){var t=e.nodeType;if(t===1||t===3)break;if(t===8){if(t=e.data,t===`$`||t===`$!`||t===`$?`||t===`$~`||t===`&`||t===`F!`||t===`F`)break;if(t===`/$`||t===`/&`)return null}}return e}var lf=null;function uf(e){e=e.nextSibling;for(var t=0;e;){if(e.nodeType===8){var n=e.data;if(n===`/$`||n===`/&`){if(t===0)return cf(e.nextSibling);t--}else n!==`$`&&n!==`$!`&&n!==`$?`&&n!==`$~`&&n!==`&`||t++}e=e.nextSibling}return null}function df(e){e=e.previousSibling;for(var t=0;e;){if(e.nodeType===8){var n=e.data;if(n===`$`||n===`$!`||n===`$?`||n===`$~`||n===`&`){if(t===0)return e;t--}else n!==`/$`&&n!==`/&`||t++}e=e.previousSibling}return null}function ff(e,t,n){switch(t=Bd(n),e){case`html`:if(e=t.documentElement,!e)throw Error(i(452));return e;case`head`:if(e=t.head,!e)throw Error(i(453));return e;case`body`:if(e=t.body,!e)throw Error(i(454));return e;default:throw Error(i(451))}}function pf(e){for(var t=e.attributes;t.length;)e.removeAttributeNode(t[0]);M(e)}var mf=new Map,hf=new Set;function gf(e){return typeof e.getRootNode==`function`?e.getRootNode():e.nodeType===9?e:e.ownerDocument}var _f=D.d;D.d={f:vf,r:yf,D:Sf,C:Cf,L:wf,m:Tf,X:Df,S:Ef,M:Of};function vf(){var e=_f.f(),t=bu();return e||t}function yf(e){var t=St(e);t!==null&&t.tag===5&&t.type===`form`?ks(t):_f.r(e)}var bf=typeof document>`u`?null:document;function xf(e,t,n){var r=bf;if(r&&typeof t==`string`&&t){var i=Ut(t);i=`link[rel="`+e+`"][href="`+i+`"]`,typeof n==`string`&&(i+=`[crossorigin="`+n+`"]`),hf.has(i)||(hf.add(i),e={rel:e,crossOrigin:n,href:t},r.querySelector(i)===null&&(t=r.createElement(`link`),Pd(t,`link`,e),Tt(t),r.head.appendChild(t)))}}function Sf(e){_f.D(e),xf(`dns-prefetch`,e,null)}function Cf(e,t){_f.C(e,t),xf(`preconnect`,e,t)}function wf(e,t,n){_f.L(e,t,n);var r=bf;if(r&&e&&t){var i=`link[rel="preload"][as="`+Ut(t)+`"]`;t===`image`&&n&&n.imageSrcSet?(i+=`[imagesrcset="`+Ut(n.imageSrcSet)+`"]`,typeof n.imageSizes==`string`&&(i+=`[imagesizes="`+Ut(n.imageSizes)+`"]`)):i+=`[href="`+Ut(e)+`"]`;var a=i;switch(t){case`style`:a=Af(e);break;case`script`:a=Pf(e)}mf.has(a)||(e=m({rel:`preload`,href:t===`image`&&n&&n.imageSrcSet?void 0:e,as:t},n),mf.set(a,e),r.querySelector(i)!==null||t===`style`&&r.querySelector(jf(a))||t===`script`&&r.querySelector(Ff(a))||(t=r.createElement(`link`),Pd(t,`link`,e),Tt(t),r.head.appendChild(t)))}}function Tf(e,t){_f.m(e,t);var n=bf;if(n&&e){var r=t&&typeof t.as==`string`?t.as:`script`,i=`link[rel="modulepreload"][as="`+Ut(r)+`"][href="`+Ut(e)+`"]`,a=i;switch(r){case`audioworklet`:case`paintworklet`:case`serviceworker`:case`sharedworker`:case`worker`:case`script`:a=Pf(e)}if(!mf.has(a)&&(e=m({rel:`modulepreload`,href:e},t),mf.set(a,e),n.querySelector(i)===null)){switch(r){case`audioworklet`:case`paintworklet`:case`serviceworker`:case`sharedworker`:case`worker`:case`script`:if(n.querySelector(Ff(a)))return}r=n.createElement(`link`),Pd(r,`link`,e),Tt(r),n.head.appendChild(r)}}}function Ef(e,t,n){_f.S(e,t,n);var r=bf;if(r&&e){var i=wt(r).hoistableStyles,a=Af(e);t||=`default`;var o=i.get(a);if(!o){var s={loading:0,preload:null};if(o=r.querySelector(jf(a)))s.loading=5;else{e=m({rel:`stylesheet`,href:e,"data-precedence":t},n),(n=mf.get(a))&&Rf(e,n);var c=o=r.createElement(`link`);Tt(c),Pd(c,`link`,e),c._p=new Promise(function(e,t){c.onload=e,c.onerror=t}),c.addEventListener(`load`,function(){s.loading|=1}),c.addEventListener(`error`,function(){s.loading|=2}),s.loading|=4,Lf(o,t,r)}o={type:`stylesheet`,instance:o,count:1,state:s},i.set(a,o)}}}function Df(e,t){_f.X(e,t);var n=bf;if(n&&e){var r=wt(n).hoistableScripts,i=Pf(e),a=r.get(i);a||(a=n.querySelector(Ff(i)),a||(e=m({src:e,async:!0},t),(t=mf.get(i))&&zf(e,t),a=n.createElement(`script`),Tt(a),Pd(a,`link`,e),n.head.appendChild(a)),a={type:`script`,instance:a,count:1,state:null},r.set(i,a))}}function Of(e,t){_f.M(e,t);var n=bf;if(n&&e){var r=wt(n).hoistableScripts,i=Pf(e),a=r.get(i);a||(a=n.querySelector(Ff(i)),a||(e=m({src:e,async:!0,type:`module`},t),(t=mf.get(i))&&zf(e,t),a=n.createElement(`script`),Tt(a),Pd(a,`link`,e),n.head.appendChild(a)),a={type:`script`,instance:a,count:1,state:null},r.set(i,a))}}function kf(e,t,n,r){var a=(a=ve.current)?gf(a):null;if(!a)throw Error(i(446));switch(e){case`meta`:case`title`:return null;case`style`:return typeof n.precedence==`string`&&typeof n.href==`string`?(t=Af(n.href),n=wt(a).hoistableStyles,r=n.get(t),r||(r={type:`style`,instance:null,count:0,state:null},n.set(t,r)),r):{type:`void`,instance:null,count:0,state:null};case`link`:if(n.rel===`stylesheet`&&typeof n.href==`string`&&typeof n.precedence==`string`){e=Af(n.href);var o=wt(a).hoistableStyles,s=o.get(e);if(s||(a=a.ownerDocument||a,s={type:`stylesheet`,instance:null,count:0,state:{loading:0,preload:null}},o.set(e,s),(o=a.querySelector(jf(e)))&&!o._p&&(s.instance=o,s.state.loading=5),mf.has(e)||(n={rel:`preload`,as:`style`,href:n.href,crossOrigin:n.crossOrigin,integrity:n.integrity,media:n.media,hrefLang:n.hrefLang,referrerPolicy:n.referrerPolicy},mf.set(e,n),o||Nf(a,e,n,s.state))),t&&r===null)throw Error(i(528,``));return s}if(t&&r!==null)throw Error(i(529,``));return null;case`script`:return t=n.async,n=n.src,typeof n==`string`&&t&&typeof t!=`function`&&typeof t!=`symbol`?(t=Pf(n),n=wt(a).hoistableScripts,r=n.get(t),r||(r={type:`script`,instance:null,count:0,state:null},n.set(t,r)),r):{type:`void`,instance:null,count:0,state:null};default:throw Error(i(444,e))}}function Af(e){return`href="`+Ut(e)+`"`}function jf(e){return`link[rel="stylesheet"][`+e+`]`}function Mf(e){return m({},e,{"data-precedence":e.precedence,precedence:null})}function Nf(e,t,n,r){e.querySelector(`link[rel="preload"][as="style"][`+t+`]`)?r.loading=1:(t=e.createElement(`link`),r.preload=t,t.addEventListener(`load`,function(){return r.loading|=1}),t.addEventListener(`error`,function(){return r.loading|=2}),Pd(t,`link`,n),Tt(t),e.head.appendChild(t))}function Pf(e){return`[src="`+Ut(e)+`"]`}function Ff(e){return`script[async]`+e}function If(e,t,n){if(t.count++,t.instance===null)switch(t.type){case`style`:var r=e.querySelector(`style[data-href~="`+Ut(n.href)+`"]`);if(r)return t.instance=r,Tt(r),r;var a=m({},n,{"data-href":n.href,"data-precedence":n.precedence,href:null,precedence:null});return r=(e.ownerDocument||e).createElement(`style`),Tt(r),Pd(r,`style`,a),Lf(r,n.precedence,e),t.instance=r;case`stylesheet`:a=Af(n.href);var o=e.querySelector(jf(a));if(o)return t.state.loading|=4,t.instance=o,Tt(o),o;r=Mf(n),(a=mf.get(a))&&Rf(r,a),o=(e.ownerDocument||e).createElement(`link`),Tt(o);var s=o;return s._p=new Promise(function(e,t){s.onload=e,s.onerror=t}),Pd(o,`link`,r),t.state.loading|=4,Lf(o,n.precedence,e),t.instance=o;case`script`:return o=Pf(n.src),(a=e.querySelector(Ff(o)))?(t.instance=a,Tt(a),a):(r=n,(a=mf.get(o))&&(r=m({},n),zf(r,a)),e=e.ownerDocument||e,a=e.createElement(`script`),Tt(a),Pd(a,`link`,r),e.head.appendChild(a),t.instance=a);case`void`:return null;default:throw Error(i(443,t.type))}else t.type===`stylesheet`&&!(t.state.loading&4)&&(r=t.instance,t.state.loading|=4,Lf(r,n.precedence,e));return t.instance}function Lf(e,t,n){for(var r=n.querySelectorAll(`link[rel="stylesheet"][data-precedence],style[data-precedence]`),i=r.length?r[r.length-1]:null,a=i,o=0;o<r.length;o++){var s=r[o];if(s.dataset.precedence===t)a=s;else if(a!==i)break}a?a.parentNode.insertBefore(e,a.nextSibling):(t=n.nodeType===9?n.head:n,t.insertBefore(e,t.firstChild))}function Rf(e,t){e.crossOrigin??=t.crossOrigin,e.referrerPolicy??=t.referrerPolicy,e.title??=t.title}function zf(e,t){e.crossOrigin??=t.crossOrigin,e.referrerPolicy??=t.referrerPolicy,e.integrity??=t.integrity}var Bf=null;function Vf(e,t,n){if(Bf===null){var r=new Map,i=Bf=new Map;i.set(n,r)}else i=Bf,r=i.get(n),r||(r=new Map,i.set(n,r));if(r.has(e))return r;for(r.set(e,null),n=n.getElementsByTagName(e),i=0;i<n.length;i++){var a=n[i];if(!(a[bt]||a[pt]||e===`link`&&a.getAttribute(`rel`)===`stylesheet`)&&a.namespaceURI!==`http://www.w3.org/2000/svg`){var o=a.getAttribute(t)||``;o=e+o;var s=r.get(o);s?s.push(a):r.set(o,[a])}}return r}function Hf(e,t,n){e=e.ownerDocument||e,e.head.insertBefore(n,t===`title`?e.querySelector(`head > title`):null)}function Uf(e,t,n){if(n===1||t.itemProp!=null)return!1;switch(e){case`meta`:case`title`:return!0;case`style`:if(typeof t.precedence!=`string`||typeof t.href!=`string`||t.href===``)break;return!0;case`link`:if(typeof t.rel!=`string`||typeof t.href!=`string`||t.href===``||t.onLoad||t.onError)break;switch(t.rel){case`stylesheet`:return e=t.disabled,typeof t.precedence==`string`&&e==null;default:return!0}case`script`:if(t.async&&typeof t.async!=`function`&&typeof t.async!=`symbol`&&!t.onLoad&&!t.onError&&t.src&&typeof t.src==`string`)return!0}return!1}function Wf(e){return!(e.type===`stylesheet`&&!(e.state.loading&3))}function Gf(e,t,n,r){if(n.type===`stylesheet`&&(typeof r.media!=`string`||!1!==matchMedia(r.media).matches)&&!(n.state.loading&4)){if(n.instance===null){var i=Af(r.href),a=t.querySelector(jf(i));if(a){t=a._p,typeof t==`object`&&t&&typeof t.then==`function`&&(e.count++,e=Jf.bind(e),t.then(e,e)),n.state.loading|=4,n.instance=a,Tt(a);return}a=t.ownerDocument||t,r=Mf(r),(i=mf.get(i))&&Rf(r,i),a=a.createElement(`link`),Tt(a);var o=a;o._p=new Promise(function(e,t){o.onload=e,o.onerror=t}),Pd(a,`link`,r),n.instance=a}e.stylesheets===null&&(e.stylesheets=new Map),e.stylesheets.set(n,t),(t=n.state.preload)&&!(n.state.loading&3)&&(e.count++,n=Jf.bind(e),t.addEventListener(`load`,n),t.addEventListener(`error`,n))}}var Kf=0;function qf(e,t){return e.stylesheets&&e.count===0&&Xf(e,e.stylesheets),0<e.count||0<e.imgCount?function(n){var r=setTimeout(function(){if(e.stylesheets&&Xf(e,e.stylesheets),e.unsuspend){var t=e.unsuspend;e.unsuspend=null,t()}},6e4+t);0<e.imgBytes&&Kf===0&&(Kf=62500*Ld());var i=setTimeout(function(){if(e.waitingForImages=!1,e.count===0&&(e.stylesheets&&Xf(e,e.stylesheets),e.unsuspend)){var t=e.unsuspend;e.unsuspend=null,t()}},(e.imgBytes>Kf?50:800)+t);return e.unsuspend=n,function(){e.unsuspend=null,clearTimeout(r),clearTimeout(i)}}:null}function Jf(){if(this.count--,this.count===0&&(this.imgCount===0||!this.waitingForImages)){if(this.stylesheets)Xf(this,this.stylesheets);else if(this.unsuspend){var e=this.unsuspend;this.unsuspend=null,e()}}}var Yf=null;function Xf(e,t){e.stylesheets=null,e.unsuspend!==null&&(e.count++,Yf=new Map,t.forEach(Zf,e),Yf=null,Jf.call(e))}function Zf(e,t){if(!(t.state.loading&4)){var n=Yf.get(e);if(n)var r=n.get(null);else{n=new Map,Yf.set(e,n);for(var i=e.querySelectorAll(`link[data-precedence],style[data-precedence]`),a=0;a<i.length;a++){var o=i[a];(o.nodeName===`LINK`||o.getAttribute(`media`)!==`not all`)&&(n.set(o.dataset.precedence,o),r=o)}r&&n.set(null,r)}i=t.instance,o=i.getAttribute(`data-precedence`),a=n.get(o)||r,a===r&&n.set(null,i),n.set(o,i),this.count++,r=Jf.bind(this),i.addEventListener(`load`,r),i.addEventListener(`error`,r),a?a.parentNode.insertBefore(i,a.nextSibling):(e=e.nodeType===9?e.head:e,e.insertBefore(i,e.firstChild)),t.state.loading|=4}}var Qf={$$typeof:C,Provider:null,Consumer:null,_currentValue:ue,_currentValue2:ue,_threadCount:0};function $f(e,t,n,r,i,a,o,s,c){this.tag=1,this.containerInfo=e,this.pingCache=this.current=this.pendingChildren=null,this.timeoutHandle=-1,this.callbackNode=this.next=this.pendingContext=this.context=this.cancelPendingCommit=null,this.callbackPriority=0,this.expirationTimes=at(-1),this.entangledLanes=this.shellSuspendCounter=this.errorRecoveryDisabledLanes=this.expiredLanes=this.warmLanes=this.pingedLanes=this.suspendedLanes=this.pendingLanes=0,this.entanglements=at(0),this.hiddenUpdates=at(null),this.identifierPrefix=r,this.onUncaughtError=i,this.onCaughtError=a,this.onRecoverableError=o,this.pooledCache=null,this.pooledCacheLanes=0,this.formState=c,this.incompleteTransitions=new Map}function ep(e,t,n,r,i,a,o,s,c,l,u,d){return e=new $f(e,t,n,o,c,l,u,d,s),t=1,!0===a&&(t|=24),a=di(3,null,null,t),e.current=a,a.stateNode=e,t=ua(),t.refCount++,e.pooledCache=t,t.refCount++,a.memoizedState={element:r,isDehydrated:n,cache:t},Ua(a),e}function tp(e){return e?(e=li,e):li}function np(e,t,n,r,i,a){i=tp(i),r.context===null?r.context=i:r.pendingContext=i,r=Ga(t),r.payload={element:n},a=a===void 0?null:a,a!==null&&(r.callback=a),n=Ka(e,r,t),n!==null&&(hu(n,e,t),qa(n,e,t))}function rp(e,t){if(e=e.memoizedState,e!==null&&e.dehydrated!==null){var n=e.retryLane;e.retryLane=n!==0&&n<t?n:t}}function ip(e,t){rp(e,t),(e=e.alternate)&&rp(e,t)}function ap(e){if(e.tag===13||e.tag===31){var t=oi(e,67108864);t!==null&&hu(t,e,67108864),ip(e,67108864)}}function op(e){if(e.tag===13||e.tag===31){var t=pu();t=A(t);var n=oi(e,t);n!==null&&hu(n,e,t),ip(e,t)}}var sp=!0;function cp(e,t,n,r){var i=E.T;E.T=null;var a=D.p;try{D.p=2,up(e,t,n,r)}finally{D.p=a,E.T=i}}function lp(e,t,n,r){var i=E.T;E.T=null;var a=D.p;try{D.p=8,up(e,t,n,r)}finally{D.p=a,E.T=i}}function up(e,t,n,r){if(sp){var i=dp(r);if(i===null)wd(e,t,r,fp,n),Cp(e,r);else if(Tp(i,e,t,n,r))r.stopPropagation();else if(Cp(e,r),t&4&&-1<Sp.indexOf(e)){for(;i!==null;){var a=St(i);if(a!==null)switch(a.tag){case 3:if(a=a.stateNode,a.current.memoizedState.isDehydrated){var o=et(a.pendingLanes);if(o!==0){var s=a;for(s.pendingLanes|=2,s.entangledLanes|=2;o;){var c=1<<31-qe(o);s.entanglements[1]|=c,o&=~c}rd(a),!(V&6)&&(iu=Ie()+500,id(0,!1))}}break;case 31:case 13:s=oi(a,2),s!==null&&hu(s,a,2),bu(),ip(a,2)}if(a=dp(r),a===null&&wd(e,t,r,fp,n),a===i)break;i=a}i!==null&&r.stopPropagation()}else wd(e,t,r,null,n)}}function dp(e){return e=an(e),pp(e)}var fp=null;function pp(e){if(fp=null,e=xt(e),e!==null){var t=o(e);if(t===null)e=null;else{var n=t.tag;if(n===13){if(e=s(t),e!==null)return e;e=null}else if(n===31){if(e=c(t),e!==null)return e;e=null}else if(n===3){if(t.stateNode.current.memoizedState.isDehydrated)return t.tag===3?t.stateNode.containerInfo:null;e=null}else t!==e&&(e=null)}}return fp=e,null}function mp(e){switch(e){case`beforetoggle`:case`cancel`:case`click`:case`close`:case`contextmenu`:case`copy`:case`cut`:case`auxclick`:case`dblclick`:case`dragend`:case`dragstart`:case`drop`:case`focusin`:case`focusout`:case`input`:case`invalid`:case`keydown`:case`keypress`:case`keyup`:case`mousedown`:case`mouseup`:case`paste`:case`pause`:case`play`:case`pointercancel`:case`pointerdown`:case`pointerup`:case`ratechange`:case`reset`:case`resize`:case`seeked`:case`submit`:case`toggle`:case`touchcancel`:case`touchend`:case`touchstart`:case`volumechange`:case`change`:case`selectionchange`:case`textInput`:case`compositionstart`:case`compositionend`:case`compositionupdate`:case`beforeblur`:case`afterblur`:case`beforeinput`:case`blur`:case`fullscreenchange`:case`focus`:case`hashchange`:case`popstate`:case`select`:case`selectstart`:return 2;case`drag`:case`dragenter`:case`dragexit`:case`dragleave`:case`dragover`:case`mousemove`:case`mouseout`:case`mouseover`:case`pointermove`:case`pointerout`:case`pointerover`:case`scroll`:case`touchmove`:case`wheel`:case`mouseenter`:case`mouseleave`:case`pointerenter`:case`pointerleave`:return 8;case`message`:switch(Le()){case Re:return 2;case ze:return 8;case Be:case Ve:return 32;case He:return 268435456;default:return 32}default:return 32}}var hp=!1,gp=null,_p=null,vp=null,yp=new Map,bp=new Map,xp=[],Sp=`mousedown mouseup touchcancel touchend touchstart auxclick dblclick pointercancel pointerdown pointerup dragend dragstart drop compositionend compositionstart keydown keypress keyup input textInput copy cut paste click change contextmenu reset`.split(` `);function Cp(e,t){switch(e){case`focusin`:case`focusout`:gp=null;break;case`dragenter`:case`dragleave`:_p=null;break;case`mouseover`:case`mouseout`:vp=null;break;case`pointerover`:case`pointerout`:yp.delete(t.pointerId);break;case`gotpointercapture`:case`lostpointercapture`:bp.delete(t.pointerId)}}function wp(e,t,n,r,i,a){return e===null||e.nativeEvent!==a?(e={blockedOn:t,domEventName:n,eventSystemFlags:r,nativeEvent:a,targetContainers:[i]},t!==null&&(t=St(t),t!==null&&ap(t)),e):(e.eventSystemFlags|=r,t=e.targetContainers,i!==null&&t.indexOf(i)===-1&&t.push(i),e)}function Tp(e,t,n,r,i){switch(t){case`focusin`:return gp=wp(gp,e,t,n,r,i),!0;case`dragenter`:return _p=wp(_p,e,t,n,r,i),!0;case`mouseover`:return vp=wp(vp,e,t,n,r,i),!0;case`pointerover`:var a=i.pointerId;return yp.set(a,wp(yp.get(a)||null,e,t,n,r,i)),!0;case`gotpointercapture`:return a=i.pointerId,bp.set(a,wp(bp.get(a)||null,e,t,n,r,i)),!0}return!1}function Ep(e){var t=xt(e.target);if(t!==null){var n=o(t);if(n!==null){if(t=n.tag,t===13){if(t=s(n),t!==null){e.blockedOn=t,dt(e.priority,function(){op(n)});return}}else if(t===31){if(t=c(n),t!==null){e.blockedOn=t,dt(e.priority,function(){op(n)});return}}else if(t===3&&n.stateNode.current.memoizedState.isDehydrated){e.blockedOn=n.tag===3?n.stateNode.containerInfo:null;return}}}e.blockedOn=null}function Dp(e){if(e.blockedOn!==null)return!1;for(var t=e.targetContainers;0<t.length;){var n=dp(e.nativeEvent);if(n===null){n=e.nativeEvent;var r=new n.constructor(n.type,n);rn=r,n.target.dispatchEvent(r),rn=null}else return t=St(n),t!==null&&ap(t),e.blockedOn=n,!1;t.shift()}return!0}function Op(e,t,n){Dp(e)&&n.delete(t)}function kp(){hp=!1,gp!==null&&Dp(gp)&&(gp=null),_p!==null&&Dp(_p)&&(_p=null),vp!==null&&Dp(vp)&&(vp=null),yp.forEach(Op),bp.forEach(Op)}function Ap(e,n){e.blockedOn===n&&(e.blockedOn=null,hp||(hp=!0,t.unstable_scheduleCallback(t.unstable_NormalPriority,kp)))}var jp=null;function Mp(e){jp!==e&&(jp=e,t.unstable_scheduleCallback(t.unstable_NormalPriority,function(){jp===e&&(jp=null);for(var t=0;t<e.length;t+=3){var n=e[t],r=e[t+1],i=e[t+2];if(typeof r!=`function`){if(pp(r||n)===null)continue;break}var a=St(n);a!==null&&(e.splice(t,3),t-=3,Ds(a,{pending:!0,data:i,method:n.method,action:r},r,i))}}))}function Np(e){function t(t){return Ap(t,e)}gp!==null&&Ap(gp,e),_p!==null&&Ap(_p,e),vp!==null&&Ap(vp,e),yp.forEach(t),bp.forEach(t);for(var n=0;n<xp.length;n++){var r=xp[n];r.blockedOn===e&&(r.blockedOn=null)}for(;0<xp.length&&(n=xp[0],n.blockedOn===null);)Ep(n),n.blockedOn===null&&xp.shift();if(n=(e.ownerDocument||e).$$reactFormReplay,n!=null)for(r=0;r<n.length;r+=3){var i=n[r],a=n[r+1],o=i[mt]||null;if(typeof a==`function`)o||Mp(n);else if(o){var s=null;if(a&&a.hasAttribute(`formAction`)){if(i=a,o=a[mt]||null)s=o.formAction;else if(pp(i)!==null)continue}else s=o.action;typeof s==`function`?n[r+1]=s:(n.splice(r,3),r-=3),Mp(n)}}}function Pp(){function e(e){e.canIntercept&&e.info===`react-transition`&&e.intercept({handler:function(){return new Promise(function(e){return i=e})},focusReset:`manual`,scroll:`manual`})}function t(){i!==null&&(i(),i=null),r||setTimeout(n,20)}function n(){if(!r&&!navigation.transition){var e=navigation.currentEntry;e&&e.url!=null&&navigation.navigate(e.url,{state:e.getState(),info:`react-transition`,history:`replace`})}}if(typeof navigation==`object`){var r=!1,i=null;return navigation.addEventListener(`navigate`,e),navigation.addEventListener(`navigatesuccess`,t),navigation.addEventListener(`navigateerror`,t),setTimeout(n,100),function(){r=!0,navigation.removeEventListener(`navigate`,e),navigation.removeEventListener(`navigatesuccess`,t),navigation.removeEventListener(`navigateerror`,t),i!==null&&(i(),i=null)}}}function Fp(e){this._internalRoot=e}Ip.prototype.render=Fp.prototype.render=function(e){var t=this._internalRoot;if(t===null)throw Error(i(409));var n=t.current;np(n,pu(),e,t,null,null)},Ip.prototype.unmount=Fp.prototype.unmount=function(){var e=this._internalRoot;if(e!==null){this._internalRoot=null;var t=e.containerInfo;np(e.current,2,null,e,null,null),bu(),t[ht]=null}};function Ip(e){this._internalRoot=e}Ip.prototype.unstable_scheduleHydration=function(e){if(e){var t=ut();e={blockedOn:null,target:e,priority:t};for(var n=0;n<xp.length&&t!==0&&t<xp[n].priority;n++);xp.splice(n,0,e),n===0&&Ep(e)}};var Lp=n.version;if(Lp!==`19.2.8`)throw Error(i(527,Lp,`19.2.8`));D.findDOMNode=function(e){var t=e._reactInternals;if(t===void 0)throw typeof e.render==`function`?Error(i(188)):(e=Object.keys(e).join(`,`),Error(i(268,e)));return e=u(t),e=e===null?null:f(e),e=e===null?null:e.stateNode,e};var Rp={bundleType:0,version:`19.2.8`,rendererPackageName:`react-dom`,currentDispatcherRef:E,reconcilerVersion:`19.2.8`};if(typeof __REACT_DEVTOOLS_GLOBAL_HOOK__<`u`){var zp=__REACT_DEVTOOLS_GLOBAL_HOOK__;if(!zp.isDisabled&&zp.supportsFiber)try{Ge=zp.inject(Rp),O=zp}catch{}}e.createRoot=function(e,t){if(!a(e))throw Error(i(299));var n=!1,r=``,o=Xs,s=Zs,c=Qs;return t!=null&&(!0===t.unstable_strictMode&&(n=!0),t.identifierPrefix!==void 0&&(r=t.identifierPrefix),t.onUncaughtError!==void 0&&(o=t.onUncaughtError),t.onCaughtError!==void 0&&(s=t.onCaughtError),t.onRecoverableError!==void 0&&(c=t.onRecoverableError)),t=ep(e,1,!1,null,null,n,r,null,o,s,c,Pp),e[ht]=t.current,Sd(e),new Fp(t)}})),_=l(o(((e,t)=>{function n(){if(!(typeof __REACT_DEVTOOLS_GLOBAL_HOOK__>`u`||typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.checkDCE!=`function`))try{__REACT_DEVTOOLS_GLOBAL_HOOK__.checkDCE(n)}catch(e){console.error(e)}}n(),t.exports=g()}))(),1),v={enableRender:!0,resolutionScale:.5,"resolution/width":1920,"resolution/height":1080,viewType:`render`,"frameLoop/enabled":!1,"frameLoop/start":0,"frameLoop/end":0,selectedEntityId:`34e12786-4d92-4f7c-8d33-32730687bdb6`,selectedAsset:{name:`OREngineCube`,assetType:`material`},navigateAsset:null,propertyTarget:`entity`,cameraMode:`preview`,gizmoMode:`translate`,"helpers/show":!0,"helpers/empty":!0,"helpers/camera":!0,"helpers/light":!0,"helpers/wireframe":!1,"viewports/main/camera/position":[.05483466718929176,2.1441760888120505,12.417943092713458],"viewports/main/camera/target":[0,0,0]},y={name:`demo-webgl`,scene:{name:`root`,uuid:`0`,components:[{name:`BLidgeClient`,uuid:`1`,props:{mode:`json`,gltf:!0,gltfPath:`/scene.glb`,"websocket/url":`ws://localhost:3100`,attachments:[{name:`Camera`,components:[{name:`Camera`,uuid:`4ec0479f-f58f-4644-a7f4-0204813c5c99`},{name:`CameraController`,uuid:`3d0e3c4f-7110-43bc-917a-00850232c7b1`}]},{name:`OREngine`,components:[{name:`OREngineLogo`,uuid:`2999221c-8614-47c8-91a4-129c6585343f`}]},{name:`OREngineCube`,components:[{name:`OREngineCube`,uuid:`056176b4-e208-42ce-bd17-5ea264f09d86`}]},{name:`SkyBox`,components:[{name:`SkyBox`,uuid:`38b46f5d-36cb-49af-b6b2-57643941c4d5`}]}]}}]},renderer:{"sky/skyColor":[1,1,1],"sky/groundColor":[.3,.3,.3],"sky/intensity":1,"pipeline/motionBlur/enabled":!0,"pipeline/motionBlur/power":1,"pipeline/ssr/enabled":!0,"pipeline/ssao/enabled":!0,"pipeline/dof/enabled":!0,"pipeline/lightShaft/enabled":!0},"timeline/duration":600,"timeline/fps":60},b=l(p(),1),x=(0,b.createContext)(null),S={didCatch:!1,error:null},C=class extends b.Component{constructor(e){super(e),this.resetErrorBoundary=this.resetErrorBoundary.bind(this),this.state=S}static getDerivedStateFromError(e){return{didCatch:!0,error:e}}resetErrorBoundary(...e){let{error:t}=this.state;t!==null&&(this.props.onReset?.({args:e,reason:`imperative-api`}),this.setState(S))}componentDidCatch(e,t){this.props.onError?.(e,t)}componentDidUpdate(e,t){let{didCatch:n}=this.state,{resetKeys:r}=this.props;n&&t.error!==null&&w(e.resetKeys,r)&&(this.props.onReset?.({next:r,prev:e.resetKeys,reason:`keys`}),this.setState(S))}render(){let{children:e,fallbackRender:t,FallbackComponent:n,fallback:r}=this.props,{didCatch:i,error:a}=this.state,o=e;if(i){let e={error:a,resetErrorBoundary:this.resetErrorBoundary};if(typeof t==`function`)o=t(e);else if(n)o=(0,b.createElement)(n,e);else if(r!==void 0)o=r;else throw a}return(0,b.createElement)(x.Provider,{value:{didCatch:i,error:a,resetErrorBoundary:this.resetErrorBoundary}},o)}};function w(e=[],t=[]){return e.length!==t.length||e.some((e,n)=>!Object.is(e,t[n]))}var ee={layout:`LayoutSplit__layout___Lmxhe`,item:`LayoutSplit__item___Lmxhe`,item_inner:`LayoutSplit__item_inner___Lmxhe`,splitter:`LayoutSplit__splitter___Lmxhe`,dragging:`LayoutSplit__dragging___Lmxhe`,horizontal:`LayoutSplit__horizontal___Lmxhe`,vertical:`LayoutSplit__vertical___Lmxhe`},te=o((e=>{var t=Symbol.for(`react.transitional.element`),n=Symbol.for(`react.fragment`);function r(e,n,r){var i=null;if(r!==void 0&&(i=``+r),n.key!==void 0&&(i=``+n.key),`key`in n)for(var a in r={},n)a!==`key`&&(r[a]=n[a]);else r=n;return n=r.ref,{$$typeof:t,type:e,key:i,ref:n===void 0?null:n,props:r}}e.Fragment=n,e.jsx=r,e.jsxs=r})),T=o(((e,t)=>{t.exports=te()}))(),ne=e=>{let t={...e.style},n=e._ratio;if(typeof n==`number`){let r=e._totalSplitterSize??0;t.flex=`0 0 calc( ${n*100}% - ${r*n}px )`}else e.size===void 0?t.flex=e.flex??1:(t.flexShrink=0,t.flexGrow=0,t.flexBasis=typeof e.size==`number`?`${e.size}px`:e.size);e.overflow&&(t.overflow=`auto`);let r=e.padding?(0,T.jsx)(`div`,{className:ee.item_inner,children:e.children}):e.children;return(0,T.jsx)(`div`,{className:ee.item,style:t,children:r})},re=2,ie=(e,t)=>{if(!e)return null;try{let n=localStorage.getItem(e);if(!n)return null;let r=JSON.parse(n);return r&&typeof r==`object`&&r.v===re&&Array.isArray(r.sizes)&&r.sizes.length===t?r.sizes.map(e=>typeof e==`number`?e:null):null}catch{return null}},ae=e=>{let t=e.direction||`horizontal`,n=e.splitterSize??4,r=e.enableTouch!==!1,i=e.storageKey,a=e.ratios!==void 0,o=e.onRatiosChange,s=b.Children.toArray(e.children).filter(e=>b.isValidElement(e)),[c,l]=(0,b.useState)(()=>(a?null:ie(i,s.length))??Array(s.length).fill(null)),u=(0,b.useRef)(c);u.current=c;let[d,f]=(0,b.useState)(null),p=(0,b.useRef)(null);(0,b.useEffect)(()=>{if(!a&&u.current.length!==s.length){let e=ie(i,s.length)??Array(s.length).fill(null);u.current=e,l(e)}},[s.length,i,a]);let m=(0,b.useCallback)((e,n)=>{e.preventDefault(),f(n);let c=p.current;if(!c)return;let d=c.getBoundingClientRect(),m=t===`horizontal`?c.clientWidth:c.clientHeight,h=t===`horizontal`?d.width:d.height,g=m>0?h/m:1,_=`touches`in e?t===`horizontal`?e.touches[0].clientX:e.touches[0].clientY:t===`horizontal`?e.clientX:e.clientY,v=Array.from(c.children).filter(e=>e instanceof HTMLElement&&e.classList.contains(ee.item)),y=v.map(e=>t===`horizontal`?e.clientWidth:e.clientHeight),b=v[n],x=v[n+1];if(!b||!x)return;let S=s[n].props.minSize??50,C=s[n+1].props.minSize??50,w=y[n]+y[n+1],te=null,T=y[n],ne=y[n+1],ie=e=>{let r=((`touches`in e?t===`horizontal`?e.touches[0].clientX:e.touches[0].clientY:t===`horizontal`?e.clientX:e.clientY)-_)/g,i=y[n]+r,a=y[n+1]-r;i<S&&(i=S,a=w-S),a<C&&(a=C,i=w-C),T=i,ne=a,te===null&&(te=requestAnimationFrame(()=>{te=null,b.style.flex=`0 0 ${T}px`,x.style.flex=`0 0 ${ne}px`}))},ae=()=>{te!==null&&(cancelAnimationFrame(te),te=null),window.removeEventListener(`mousemove`,ie),window.removeEventListener(`mouseup`,ae),window.removeEventListener(`touchmove`,ie),window.removeEventListener(`touchend`,ae),f(null);let e=[...y];e[n]=T,e[n+1]=ne;let t=e.reduce((e,t)=>e+t,0);if(a){t>0&&o?.(e.map(e=>e/t));return}let r=u.current.map((n,r)=>t>0?e[r]/t:null);if(u.current=r,l(r),i)try{localStorage.setItem(i,JSON.stringify({v:re,sizes:r}))}catch{}};window.addEventListener(`mousemove`,ie),window.addEventListener(`mouseup`,ae),r&&(window.addEventListener(`touchmove`,ie,{passive:!1}),window.addEventListener(`touchend`,ae))},[t,s,i,r,a,o]);return(0,T.jsx)(`div`,{ref:p,className:ee.layout,"data-direction":t,children:s.map((i,o)=>{let l=o===s.length-1,u=(a?e.ratios[o]:c[o])??null,f=[ee.splitter,ee[t],d===o?ee.dragging:``].filter(Boolean).join(` `),p=t===`horizontal`?{width:`${n}px`}:{height:`${n}px`};return(0,T.jsxs)(b.Fragment,{children:[(0,T.jsx)(ne,{...i.props,_ratio:u,_totalSplitterSize:(s.length-1)*n}),!l&&(0,T.jsx)(`div`,{className:f,style:p,onMouseDown:e=>m(e,o),onTouchStart:r?e=>m(e,o):void 0})]},o)})})};ae.Item=ne;var oe={panel:`Panel__panel___LnBhb`,content:`Panel__content___LnBhb`},se=e=>(0,T.jsx)(`div`,{className:oe.panel,children:(0,T.jsx)(`div`,{className:oe.content,style:{padding:e.noPadding?`0 0`:void 0},children:e.children})}),ce={panelContainer:`PanelContainer__panelContainer___LnBhb`,header:`PanelContainer__header___LnBhb`,header_item:`PanelContainer__header_item___LnBhb`,header_add:`PanelContainer__header_add___LnBhb`,content:`PanelContainer__content___LnBhb`},le=e=>(0,T.jsx)(T.Fragment,{children:e.children}),E=e=>{let t=e.children||[],n=(Array.isArray(t)?t.flat():[t]).filter(e=>b.isValidElement(e)),[r,i]=(0,b.useState)(()=>{if(e.storageKey)try{let t=localStorage.getItem(e.storageKey);if(t!==null){let e=parseInt(t,10);if(!isNaN(e)&&e>=0)return e}}catch{}if(e.defaultTabTitle){let t=n.findIndex(t=>t.props.title===e.defaultTabTitle);if(t>=0)return t}return 0}),a=n.length>0&&r>=n.length?0:r;if(e.tabs){let t=e.tabs.find(t=>t.id===e.active)??e.tabs[0];return(0,T.jsxs)(`div`,{className:ce.panelContainer,children:[(0,T.jsxs)(`div`,{className:ce.header,"data-panel-tab-header":``,children:[e.tabs.map(n=>(0,T.jsx)(`div`,{className:ce.header_item,onClick:()=>e.onSelect?.(n.id),onContextMenu:t=>e.onTabContextMenu?.(n.id,t),onPointerDown:t=>e.onTabPointerDown?.(n.id,t),"data-active":n.id===t?.id,"data-panel-tab-id":n.id,children:(0,T.jsx)(`p`,{children:n.title})},n.id)),e.onAddClick&&(0,T.jsx)(`div`,{className:ce.header_add,onClick:e.onAddClick,children:`+`})]}),(0,T.jsx)(`div`,{className:ce.content,"data-panel-content":``,children:t?.content})]})}let o=t=>{if(i(t),e.storageKey)try{localStorage.setItem(e.storageKey,String(t))}catch{}};return(0,T.jsxs)(`div`,{className:ce.panelContainer,children:[(0,T.jsx)(`div`,{className:ce.header,children:n.map((e,t)=>(0,T.jsx)(`div`,{className:ce.header_item,onClick:()=>o(t),"data-active":t==a,children:(0,T.jsx)(`p`,{children:e.props.title})},t))}),(0,T.jsx)(`div`,{className:ce.content,children:n[a]})]})};E.Tab=le;var D=900,ue=()=>{let[e,t]=(0,b.useState)(!1);return(0,b.useEffect)(()=>{let e=null,n=()=>{let n=window.innerWidth;(e===null||(n-D)*(e-D)<=0)&&t(n<=D),e=n};return n(),window.addEventListener(`resize`,n),()=>{window.removeEventListener(`resize`,n)}},[]),{isPC:!e,isSP:e}},de={arrow:`ArrowIcon__arrow___LmFyc`},fe=({open:e})=>(0,T.jsx)(`div`,{className:de.arrow,"data-open":e,children:(0,T.jsxs)(`svg`,{width:`10`,height:`10`,viewBox:`0 0 20 20`,fill:`none`,xmlns:`http://www.w3.org/2000/svg`,children:[(0,T.jsx)(`g`,{clipPath:`url(#clip0_57_2)`,children:(0,T.jsx)(`path`,{d:`M18 10L3 18.6603L3 1.33974L18 10Z`,fill:`#D9D9D9`})}),(0,T.jsx)(`defs`,{children:(0,T.jsx)(`clipPath`,{id:`clip0_57_2`,children:(0,T.jsx)(`rect`,{width:`20`,height:`20`,fill:`white`})})})]})}),pe={block:`Block__block___LmJsb`,head:`Block__head___LmJsb`,head_icon:`Block__head_icon___LmJsb`,head_text:`Block__head_text___LmJsb`,content:`Block__content___LmJsb`},me=e=>{let[t,n]=b.useState(!e.defaultClose),r=(0,b.useCallback)(()=>{e.accordion===!0&&n(!t)},[t,e.accordion]),i=e.bg&&typeof e.bg==`string`&&e.bg||void 0;return(0,T.jsxs)(`div`,{className:pe.block,"data-bg":e.bg!==void 0,"data-nomargin":e.noMargin,"data-no_indent":e.noIndent,style:{backgroundColor:i},children:[(0,T.jsxs)(`div`,{className:pe.head,"data-accordion":e.accordion,"data-open":t,children:[e.accordion&&(0,T.jsx)(`div`,{className:pe.head_icon,onClick:r,children:(0,T.jsx)(fe,{open:t})}),e.label&&(0,T.jsx)(`span`,{className:pe.head_text,children:e.label})]}),t&&(0,T.jsx)(`div`,{className:pe.content,"data-open":t,"data-no_indent":e.noIndent,children:e.children})]})},he={container:`Label__container___LmNvb`,label:`Label__label___LmNvb`,item:`Label__item___LmNvb`},ge=e=>(0,T.jsxs)(`div`,{className:he.container,"data-vertical":e.vertical,children:[(0,T.jsx)(`div`,{className:he.label,style:{textAlign:e.labelAlign||`left`},"data-vertical":e.vertical,children:e.title}),(0,T.jsx)(`div`,{className:he.item,"data-vertical":e.vertical,children:e.children})]}),_e={button:`Button__button___LmJ1d`},ve=e=>(0,T.jsx)(`button`,{className:_e.button,onClick:t=>{e.onClick&&e.onClick(t),t.preventDefault()},type:e.type||`button`,children:e.children}),ye=()=>(0,T.jsxs)(`svg`,{width:`20`,height:`20`,viewBox:`0 0 20 20`,fill:`none`,xmlns:`http://www.w3.org/2000/svg`,children:[(0,T.jsx)(`rect`,{x:`2`,y:`10.8486`,width:`2.61726`,height:`7.84447`,transform:`rotate(-44.9331 2 10.8486)`,fill:`#D9D9D9`}),(0,T.jsx)(`rect`,{x:`9.38757`,y:`14.5518`,width:`2.57272`,height:`12.3494`,transform:`rotate(-135 9.38757 14.5518)`,fill:`#D9D9D9`})]}),be={inputBoolean:`InputCheckBox__inputBoolean___Lmluc`,input:`InputCheckBox__input___Lmluc`,check:`InputCheckBox__check___Lmluc`},xe=({onChange:e,...t})=>(0,T.jsx)(`div`,{className:be.inputBoolean,onClick:e=>{e.stopPropagation()},children:(0,T.jsxs)(`label`,{children:[(0,T.jsx)(`input`,{className:be.input,type:`checkbox`,checked:t.checked,disabled:t.disabled,readOnly:t.readOnly,onChange:n=>{t.readOnly||e&&e(n.target.checked)}}),(0,T.jsx)(`div`,{className:be.check,"data-read_only":t.readOnly,children:t.checked&&(0,T.jsx)(ye,{})})]})}),Se={input:`InputColor__input___Lmluc`},Ce=e=>`#`+e.slice(0,3).map(e=>Math.round(Math.min(Math.max(e,0),1)*255).toString(16).padStart(2,`0`)).join(``),we=e=>[1,3,5].map(t=>parseInt(e.slice(t,t+2),16)/255),Te=e=>{let t=e.value||[1,1,1];return(0,T.jsx)(`div`,{className:Se.inputColor,children:(0,T.jsx)(`input`,{className:Se.input,type:`color`,value:Ce(t),disabled:e.disabled||e.readOnly,onChange:t=>{e.onChange&&e.onChange(we(t.target.value))}})})},Ee=(0,b.createContext)(null),De=()=>{let e=(0,b.useContext)(Ee);if(e===null)throw Error(`useInputWindow must be used within InputWindowContext`);return e},Oe=()=>typeof navigator>`u`?!1:/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),ke=()=>(0,b.useMemo)(()=>Oe(),[]),Ae={input:`InputNumber__input___Lmluc`},je=3,Me=e=>{let{open:t}=De(),n=ke(),r=(0,b.useRef)(null),[i,a]=(0,b.useState)(!1),[o,s]=(0,b.useState)(``),c=(0,b.useRef)(!1),l=(0,b.useRef)(null),u=(0,b.useRef)(!1),d=(0,b.useRef)(void 0);d.current=e.onChange;let f=(0,b.useRef)(void 0);f.current=e.value;let p=(0,b.useCallback)(t=>{let n=f.current;if(c.current===!1)return;let r=l.current;if(r){let e=t.clientX-r.x,n=t.clientY-r.y;Math.sqrt(e*e+n*n)>=je&&(u.current=!0)}if(!u.current)return;let i=t.movementX;if(typeof n==`number`){let r=i*.05*(e.step||1);d.current&&d.current(n+r),t.stopPropagation()}t.preventDefault()},[e.step]),m=(0,b.useCallback)(()=>{e.readOnly||e.disabled||t({type:`number`,value:f.current??0,step:e.step,min:e.min,max:e.max,precision:e.precision,onChange:e=>{d.current&&d.current(e)}})},[t,e.step,e.min,e.max,e.precision,e.readOnly,e.disabled]),h=(0,b.useCallback)(t=>{t.preventDefault(),c.current=!0,l.current={x:t.clientX,y:t.clientY},u.current=!1;let i=()=>{u.current||(n?m():(a(!0),s(String(Number((f.current??0).toFixed(e.precision??3)))),requestAnimationFrame(()=>{r.current?.focus(),r.current?.select()}))),c.current=!1,l.current=null,u.current=!1,window.removeEventListener(`pointerup`,i),n||window.removeEventListener(`pointermove`,p)};window.addEventListener(`pointerup`,i),n||window.addEventListener(`pointermove`,p)},[p,n,m,e.precision]),g=i?o:String(Number((e.value??0).toFixed(e.precision??3)));return(0,T.jsx)(`div`,{className:Ae.inputNumber,children:(0,T.jsx)(`input`,{ref:r,className:Ae.input,type:i?`text`:`number`,inputMode:i?`decimal`:void 0,value:g,disabled:e.disabled,readOnly:n||e.readOnly,"data-lo":e.readOnly,step:e.step||1,min:e.min,max:e.max,onBlur:()=>{if(i&&(a(!1),e.onChange)){let t=Number(o);e.onChange(isNaN(t)?0:t)}},onChange:e=>{s(e.target.value)},onKeyDown:e=>{e.key===`Enter`&&r.current?.blur()},onPointerDown:h})})},Ne={inputSelect:`InputSelect__inputSelect___Lmluc`,input:`InputSelect__input___Lmluc`},Pe=({onChange:e,value:t,...n})=>{if(n.readOnly)return(0,T.jsx)(`div`,{className:Ne.inputSelect,children:(0,T.jsx)(`input`,{className:Ne.input,value:t,readOnly:!0})});let r=n.selectList;return typeof r==`function`&&(r=r()),(0,T.jsx)(`div`,{className:Ne.inputSelect,children:(0,T.jsx)(`select`,{className:Ne.input,onChange:t=>{e&&e(t.target.value)},value:t,children:r.map((e,t)=>{let n=``,r=``;return typeof e==`string`?(n=e,r=e):(n=e.label,r=e.value),(0,T.jsx)(`option`,{value:r,children:n},t)})})})},Fe={input:`InputText__input___Lmluc`},Ie=({onChange:e,value:t,...n})=>{let{open:r}=De(),i=ke(),[a,o]=(0,b.useState)(t),s=(0,b.useCallback)(()=>{e&&e(a)},[a,e]);(0,b.useEffect)(()=>{o(t)},[t]);let c=(0,b.useCallback)(()=>{!i||n.readOnly||n.disabled||r({type:`text`,value:a,onChange:t=>{e&&e(t)}})},[i,a,e,r,n.readOnly,n.disabled]);return(0,T.jsx)(`div`,{className:Fe.container,children:(0,T.jsx)(`input`,{className:Fe.input,type:`text`,value:a,placeholder:n.readOnly?`-`:``,disabled:n.disabled,readOnly:i||n.readOnly,"data-lo":n.readOnly,onChange:e=>{o(e.target.value)},onBlur:()=>{s()},onClick:c,onKeyDown:e=>{e.key===`Enter`&&e.currentTarget.blur()}})})},Le={},Re=[`x`,`y`,`z`,`w`],ze=({onChange:e,disabled:t,...n})=>{let r=(0,b.useRef)(void 0);r.current=n.value;let i=(0,b.useCallback)((t,n)=>{if(e&&r.current){let i={};for(let e=0;e<r.current.length;e++)i[e]=r.current[e];i[t]=n,e(i)}},[e]),a=[];for(let e=0;e<n.value.length;e++)a.push((0,T.jsx)(ge,{title:Re[e],labelAlign:`right`,children:(0,T.jsx)(Me,{disabled:t,value:n.value[e],step:n.step,onChange:t=>{i(e,t)}})},e));return(0,T.jsx)(`div`,{className:Le.vector,children:a.map(e=>e)})},Be=(0,b.createContext)(null),Ve=()=>{let e=(0,b.useContext)(Be);if(e===null)throw Error(`useEditor must be used within a EditorProvider`);return e},He=e=>{let{engine:t}=Ve(),n=(0,b.useCallback)(()=>{let e=[{label:`(None)`,value:``}];return t.root.traverse(n=>{n.components.forEach(r=>{e.push({label:`${n.getScenePath(t.root)} > ${r.constructor.name}`,value:r.uuid})})}),e},[t]),[r,i]=(0,b.useState)(n);return(0,b.useEffect)(()=>{let e=()=>i(n());return t.on(`update/graph`,e),()=>{t.off(`update/graph`,e)}},[t,n]),(0,T.jsx)(`div`,{className:Ne.inputSelect,children:(0,T.jsx)(`select`,{className:Ne.input,onChange:t=>{e.onChange&&e.onChange(t.target.value||null)},value:e.value||``,children:r.map((e,t)=>{let n=typeof e==`string`?e:e.label,r=typeof e==`string`?e:e.value;return(0,T.jsx)(`option`,{value:r,children:n},t)})})})},Ue=e=>{let{engine:t}=Ve(),n=(0,b.useCallback)(()=>{let e=[{label:`(None)`,value:``}];return t.root.traverse(n=>{e.push({label:n.getScenePath(t.root),value:n.uuid})}),e},[t]),[r,i]=(0,b.useState)(n);return(0,b.useEffect)(()=>{let e=()=>i(n());return t.on(`update/graph`,e),()=>{t.off(`update/graph`,e)}},[t,n]),(0,T.jsx)(`div`,{className:Ne.inputSelect,children:(0,T.jsx)(`select`,{className:Ne.input,onChange:t=>{e.onChange&&e.onChange(t.target.value||null)},value:e.value||``,children:r.map((e,t)=>{let n=typeof e==`string`?e:e.label,r=typeof e==`string`?e:e.value;return(0,T.jsx)(`option`,{value:r,children:n},t)})})})},We={inputResourceSelect:`InputResourceSelect__inputResourceSelect___Lmluc`,select:`InputResourceSelect__select___Lmluc`,editButton:`InputResourceSelect__editButton___Lmluc`},Ge=e=>{let{editor:t}=Ve(),n=(0,b.useCallback)(()=>{e.value&&(t.setField(`navigateAsset`,{assetType:e.resourceType,name:String(e.value)}),t.setField(`selectedAsset`,{name:String(e.value),assetType:e.resourceType}))},[t,e.value,e.resourceType]);return(0,T.jsxs)(`div`,{className:We.inputResourceSelect,children:[(0,T.jsx)(`div`,{className:We.select,children:(0,T.jsx)(Pe,{value:e.value,selectList:e.selectList,onChange:e.onChange})}),e.value&&(0,T.jsx)(`button`,{className:We.editButton,onClick:n,title:`Edit resource`,children:`✎`})]})},O=e=>{let t=null,n=e.onChange,r=e.value,i=e.format,a=e=>{n&&n(e)};if(i&&(i.type==`entity`?t=(0,T.jsx)(Ue,{value:r,onChange:a}):i.type==`component`?t=(0,T.jsx)(He,{value:r,onChange:a}):i.type==`vector`&&Array.isArray(r)?t=(0,T.jsx)(ze,{value:r,onChange:a}):i.type==`color`&&Array.isArray(r)?t=(0,T.jsx)(Te,{value:r,onChange:a}):i.type==`select`?t=(0,T.jsx)(Pe,{value:r,onChange:a,selectList:i.list}):i.type==`resource`&&(t=(0,T.jsx)(Ge,{value:r,onChange:a,selectList:i.list,resourceType:i.resourceType}))),r==null)return t;if(!t){if(typeof r==`number`)t=(0,T.jsx)(Me,{...e,value:r,onChange:a});else if(typeof r==`string`)t=(0,T.jsx)(Ie,{...e,value:r,onChange:a});else if(typeof r==`boolean`)t=(0,T.jsx)(xe,{...e,checked:r,onChange:a});else if(typeof r==`function`){let n=e.label||`Run`;t=(0,T.jsx)(ve,{onClick:()=>{r()},children:n})}else t=(0,T.jsx)(Ie,{...e,value:JSON.stringify(r),onChange:()=>{}})}return t},Ke={showAudioView:!0},qe=`orengine-editor-ui-settings`,Je=(()=>{try{let e=localStorage.getItem(qe);if(e)return{...Ke,...JSON.parse(e)}}catch{}return{...Ke}})(),Ye=new Set,Xe=e=>(Ye.add(e),()=>{Ye.delete(e)}),Ze=e=>[(0,b.useSyncExternalStore)(Xe,()=>Je[e]),(0,b.useCallback)(t=>{Je={...Je,[e]:t};try{localStorage.setItem(qe,JSON.stringify(Je))}catch{}Ye.forEach(e=>e())},[e])],Qe={editorSettings:`EditorSettings__editorSettings___LmVka`,editorSettings_inner:`EditorSettings__editorSettings_inner___LmVka`},$e=()=>{let[e,t]=Ze(`showAudioView`);return(0,T.jsx)(`div`,{className:Qe.editorSettings,children:(0,T.jsx)(`div`,{className:Qe.editorSettings_inner,children:(0,T.jsx)(me,{label:`View`,accordion:!0,children:(0,T.jsx)(ge,{title:`AudioView`,children:(0,T.jsx)(O,{value:e,onChange:e=>t(e)})})})})})},et=(0,b.createContext)(void 0),tt=(e,t)=>{let[n,r]=(0,b.useState)(()=>e?e.serialize():{}),i=t?[...t]:[],a=(0,b.useMemo)(()=>i,i);return(0,b.useEffect)(()=>{if(e===void 0)return;r(e.serialize());let t=t=>{let n=a.length==0;for(let e=0;e<a.length;e++)if(t.find(t=>t==a[e])){n=!0;break}n&&r(e.serialize())};return e.on(`fields/update`,t),()=>{e.off(`fields/update`,t)}},[e,a]),{fields:n}},nt=e=>(tt(e.target),{target:e.target}),rt=()=>{let e=(0,b.useContext)(et);if(!e)throw Error(`SerializeFieldViewContext is not defined`);return e},it={container:`ValueArray__container___LmNvb`},at=e=>{let t=[],n=e.value,r=e.format,i=r?.type==`array`?r.labels:void 0;if(n===void 0)return null;for(let r=0;r<n.length;r++){let a=n[r],o=r.toString();i&&(o+=`/ `+i(a,r)),t.push((0,T.jsx)(ge,{title:o,children:(0,T.jsx)(O,{...e,value:a,onChange:t=>{let i=n.concat();i[r]=t,e.onChange&&e.onChange(i)}})},r))}return(0,T.jsx)(`div`,{className:it.container,children:t})},ot=e=>{let{editor:t}=Ve(),{target:n}=rt(),r=e.field.value,i=typeof r,a=e.field.opt,o=a?.format,s=a?.label||e.path.split(`/`).pop(),c=o&&o.type==`vector`,l=null;if(Array.isArray(r))l=o?.type==`vector`?(0,T.jsx)(ze,{value:r,...a,onChange:r=>{t.api.setField(n,e.path,r)}}):o?.type==`color`?(0,T.jsx)(Te,{value:r,...a,onChange:r=>{t.api.setField(n,e.path,r)}}):(0,T.jsx)(at,{value:r,...a,onChange:r=>{t.api.setField(n,e.path,r)}});else if(l=(0,T.jsx)(O,{value:r,...a,onChange:r=>{t.api.setField(n,e.path,r)}}),i===`function`)return l;return(0,T.jsx)(ge,{title:s,vertical:c,children:l})},st={container:`SerializeFieldViewDir__container___LmNvb`,field:`SerializeFieldViewDir__field___LmNvb`,block:`SerializeFieldViewDir__block___LmNvb`},ct=e=>{let t=[],n=Object.keys(e.fields.childs);for(let r=0;r<n.length;r++){let i=n[r],a=e.fields.childs[i],{opt:o}=a,s=!1;if(o&&(s=typeof o.hidden==`function`?o.hidden(a.type==`value`?a.value:null):o.hidden||!1),s)continue;let c=`field`+i,l=(e.basePath?e.basePath+`/`:``)+i,u=null;u=a.type===`value`?(0,T.jsx)(ot,{path:l,field:a},c):(0,T.jsx)(`div`,{className:st.block,children:(0,T.jsx)(me,{accordion:!0,label:i,children:(0,T.jsx)(ct,{fields:a,basePath:l})},c)},c),u&&t.push(u)}return(0,T.jsx)(`div`,{className:st.container,children:t})},lt=e=>{let t=nt(e),n=t.target.serializeToDirectory();if(e.filter){let t=n.childs[e.filter];t&&t.type===`folder`&&(n=t)}return(0,T.jsx)(et.Provider,{value:t,children:(0,T.jsx)(ct,{fields:n,basePath:e.filter})})},k=(e,t)=>{let n=n=>{e?.setField(t,n)},{fields:r}=tt(e,[t]);return[r&&r[t],n]},A=class e{x;y;z;w;constructor(e,t,n,r){this.x=0,this.y=0,this.z=0,this.w=0,this.set(e,t,n,r)}get isVector(){return!0}set(e,t,n,r){return this.x=e??0,this.y=t??0,this.z=n??0,this.w=r??0,this}setScalar(e){return this.x=e,this.y=e,this.z=e,this.w=e,this}setFromArray(e){return this.x=e[0]||0,this.y=e[1]||0,this.z=e[2]||0,this.w=e[3]||0,this}add(e){return typeof e==`number`?(this.x+=e,this.y+=e,this.z+=e,this.w+=e):(this.x+=e.x??0,this.y+=e.y??0,this.z+=e.z??0,this.w+=e.w??0),this}sub(e){return typeof e==`number`?(this.x-=e,this.y-=e,this.z-=e):(this.x-=e.x??0,this.y-=e.y??0,this.z-=e.z??0,this.w-=e.w??0),this}multiply(e){return typeof e==`number`?(this.x*=e,this.y*=e,this.z*=e,this.w*=e):(this.x*=e.x,this.y*=e.y,this.z*=e.z,this.w*=e.w),this}divide(e){return typeof e==`number`?(this.x/=e,this.y/=e,this.z/=e,this.w/=e):(this.x/=e.x,this.y/=e.y,this.z/=e.z,this.w/=e.w),this}length(){return Math.sqrt(this.x*this.x+this.y*this.y+this.z*this.z)}distanceTo(e){let t=this.x-e.x,n=this.y-e.y,r=this.z-e.z;return Math.sqrt(t*t+n*n+r*r)}normalize(){let e=this.length()||1;return this.x/=e,this.y/=e,this.z/=e,this}cross(e){let t=this.x,n=this.y,r=this.z,i=e.x,a=e.y,o=e.z;return this.x=n*o-r*a,this.y=r*i-t*o,this.z=t*a-n*i,this}dot(e){return this.x*e.x+this.y*e.y+this.z*e.z}applyMatrix3(e){let t=e.elm,n=t[0],r=t[1],i=t[2],a=t[4],o=t[5],s=t[6],c=t[8],l=t[9],u=t[10],d=this.x*n+this.y*a+this.z*c,f=this.x*r+this.y*o+this.z*l,p=this.x*i+this.y*s+this.z*u;return this.x=d,this.y=f,this.z=p,this.w=0,this}applyMatrix4(e){let t=e.elm,n=t[0],r=t[1],i=t[2],a=t[3],o=t[4],s=t[5],c=t[6],l=t[7],u=t[8],d=t[9],f=t[10],p=t[11],m=t[12],h=t[13],g=t[14],_=t[15],v=this.x*n+this.y*o+this.z*u+this.w*m,y=this.x*r+this.y*s+this.z*d+this.w*h,b=this.x*i+this.y*c+this.z*f+this.w*g,x=this.x*a+this.y*l+this.z*p+this.w*_;return this.x=v,this.y=y,this.z=b,this.w=x,this}applyMatrix4AsPosition(e){let t=this.w;return this.w=1,this.applyMatrix4(e),this.w=t,this}applyMatrix4AsDirection(e){let t=this.w;return this.w=0,this.applyMatrix4(e),this.w=t,this}floor(){this.x=Math.floor(this.x),this.y=Math.floor(this.y),this.z=Math.floor(this.z),this.w=Math.floor(this.w)}lerp(e,t){return this.x+=(e.x-this.x)*t,this.y+=(e.y-this.y)*t,this.z+=(e.z-this.z)*t,this.w+=(e.w-this.w)*t,this}copy(e){return this.x=e.x??0,this.y=e.y??0,this.z=e.z??0,this.w=e.w??0,this}clone(){return new e(this.x,this.y,this.z,this.w)}getElm(e){return e==`vec2`?[this.x,this.y]:e==`vec3`?[this.x,this.y,this.z]:[this.x,this.y,this.z,this.w]}},j=class e{elm;constructor(e){this.elm=[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],e&&this.set(e)}identity(){return this.elm=[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],this}clone(){return new e().copy(this)}copy(e){return this.set(e.elm),this}perspective(e,t,n,r){let i=1/Math.tan(e*Math.PI/360),a=r-n;return this.elm=[i/t,0,0,0,0,i,0,0,0,0,-(r+n)/a,-1,0,0,-(r*n*2)/a,0],this}orthographic(e,t,n,r){return this.elm=[2/e,0,0,0,0,2/t,0,0,0,0,-2/(r-n),0,0,0,-(r+n)/(r-n),1],this}lookAt(e,t,n){let r=e.clone().sub(t).normalize(),i=n.clone().cross(r).normalize(),a=r.clone().cross(i).normalize();return this.elm=[i.x,i.y,i.z,0,a.x,a.y,a.z,0,r.x,r.y,r.z,0,e.x,e.y,e.z,1],this}inverse(){let e=this.elm[0],t=this.elm[1],n=this.elm[2],r=this.elm[3],i=this.elm[4],a=this.elm[5],o=this.elm[6],s=this.elm[7],c=this.elm[8],l=this.elm[9],u=this.elm[10],d=this.elm[11],f=this.elm[12],p=this.elm[13],m=this.elm[14],h=this.elm[15],g=e*a-t*i,_=e*o-n*i,v=e*s-r*i,y=t*o-n*a,b=t*s-r*a,x=n*s-r*o,S=c*p-l*f,C=c*m-u*f,w=c*h-d*f,ee=l*m-u*p,te=l*h-d*p,T=u*h-d*m,ne=g*T-_*te+v*ee+y*w-b*C+x*S,re=1/ne;return ne==0?this.identity():(this.elm[0]=(a*T-o*te+s*ee)*re,this.elm[1]=(-t*T+n*te-r*ee)*re,this.elm[2]=(p*x-m*b+h*y)*re,this.elm[3]=(-l*x+u*b-d*y)*re,this.elm[4]=(-i*T+o*w-s*C)*re,this.elm[5]=(e*T-n*w+r*C)*re,this.elm[6]=(-f*x+m*v-h*_)*re,this.elm[7]=(c*x-u*v+d*_)*re,this.elm[8]=(i*te-a*w+s*S)*re,this.elm[9]=(-e*te+t*w-r*S)*re,this.elm[10]=(f*b-p*v+h*g)*re,this.elm[11]=(-c*b+l*v-d*g)*re,this.elm[12]=(-i*ee+a*C-o*S)*re,this.elm[13]=(e*ee-t*C+n*S)*re,this.elm[14]=(-f*y+p*_-m*g)*re,this.elm[15]=(c*y-l*_+u*g)*re,this)}transpose(){let e=this.elm[0],t=this.elm[1],n=this.elm[2],r=this.elm[3],i=this.elm[4],a=this.elm[5],o=this.elm[6],s=this.elm[7],c=this.elm[8],l=this.elm[9],u=this.elm[10],d=this.elm[11],f=this.elm[12],p=this.elm[13],m=this.elm[14],h=this.elm[15];return this.elm[0]=e,this.elm[1]=i,this.elm[2]=c,this.elm[3]=f,this.elm[4]=t,this.elm[5]=a,this.elm[6]=l,this.elm[7]=p,this.elm[8]=n,this.elm[9]=o,this.elm[10]=u,this.elm[11]=m,this.elm[12]=r,this.elm[13]=s,this.elm[14]=d,this.elm[15]=h,this}set(e){for(let t=0;t<this.elm.length;t++)this.elm[t]=e[t]??0;return this}setFromTransform(e,t,n){return this.identity(),e&&this.applyPosition(e),t&&this.applyQuaternion(t),n&&this.applyScale(n),this}applyPosition(e){return this.matmul([1,0,0,0,0,1,0,0,0,0,1,0,e.x,e.y,e.z,1]),this}applyQuaternion(e){let t=e.x,n=e.y,r=e.z,i=e.w,a=t*t,o=n*n,s=r*r,c=i*i,l=t*n,u=t*r,d=t*i,f=n*r,p=n*i,m=r*i;return this.matmul([a-o-s+c,2*(l+m),2*(u-p),0,2*(l-m),-a+o-s+c,2*(f+d),0,2*(u+p),2*(f-d),-a-o+s+c,0,0,0,0,1]),this}applyScale(e){return this.matmul([e.x,0,0,0,0,e.y,0,0,0,0,e.z,0,0,0,0,1]),this}matmul(e){let t=Array(16);for(let n=0;n<4;n++)for(let r=0;r<4;r++){let i=0;for(let t=0;t<4;t++)i+=this.elm[t*4+r]*e[t+n*4];t[r+n*4]=i}this.elm=t}setRotationFromDirection(e,t){t||={x:0,y:1,z:0};let n=new A().copy(e).normalize(),r=new A().copy(t).cross(n).normalize();r.length()==0&&(n.x+=.001,r.copy(t).cross(n).normalize());let i=n.clone().cross(r).normalize();return this.set([r.x,r.y,r.z,0,i.x,i.y,i.z,0,n.x,n.y,n.z,0,0,0,0,1]),this}makeRotationAxis(e,t){let n=Math.cos(t),r=Math.sin(t),i=1-n,a=e.x,o=e.y,s=e.z,c=i*a,l=i*o;return this.set([c*a+n,c*o-r*s,c*s+r*o,0,c*o+r*s,l*o+n,l*s-r*a,0,c*s-r*o,l*s+r*a,i*s*s+n,0,0,0,0,1]),this}multiply(e){return this.matmul(e.elm),this}preMultiply(e){let t=this.copyToArray([]);return this.set(e.elm),this.matmul(t),this}decompose(e,t,n){e&&(e.x=this.elm[12],e.y=this.elm[13],e.z=this.elm[14]),t&&t.setFromMatrix(this)}copyToArray(e){e.length=this.elm.length;for(let t=0;t<this.elm.length;t++)e[t]=this.elm[t];return e}},ut=class extends A{order;constructor(e,t,n,r){super(e,t,n,0),this.order=r||`XYZ`}copy(e){return`order`in e&&(this.order=e.order),super.copy(e)}setFromQuaternion(e){let t=new j().applyQuaternion(e);return this.setFromRotationMatrix(t),this}setFromRotationMatrix(e){let t=e.elm,n=t[0],r=t[4],i=t[8],a=t[5],o=t[9],s=t[6],c=t[10];return this.order=`XYZ`,this.y=Math.asin(Math.min(1,Math.max(-1,i))),Math.abs(i)<.9999999?(this.x=Math.atan2(-o,c),this.z=Math.atan2(-r,n)):(this.x=Math.atan2(s,a),this.z=0),this}},dt=class e{x;y;z;w;updated=!1;constructor(e,t,n,r){this.x=e||0,this.y=t||0,this.z=n||0,this.w=r||1}set(e,t,n,r){this.x=e??this.x,this.y=t??this.y,this.z=n??this.z,this.w=r??this.w,this.updated=!0}setFromEuler(e,t){let n=t||(`order`in e?e.order:`XYZ`),r=Math.sin(e.x/2),i=Math.sin(e.y/2),a=Math.sin(e.z/2),o=Math.cos(e.x/2),s=Math.cos(e.y/2),c=Math.cos(e.z/2);return n==`XYZ`?(this.x=o*i*a+r*s*c,this.y=-r*s*a+o*i*c,this.z=o*s*a+r*i*c,this.w=-r*i*a+o*s*c):n==`XZY`?(this.x=-o*i*a+r*s*c,this.y=o*i*c-r*s*a,this.z=r*i*c+o*s*a,this.w=r*i*a+o*s*c):n==`YZX`?(this.x=r*s*c+o*i*a,this.y=r*s*a+o*i*c,this.z=-r*i*c+o*s*a,this.w=-r*i*a+o*s*c):n==`ZYX`&&(this.x=r*s*c-o*i*a,this.y=r*s*a+o*i*c,this.z=-r*i*c+o*s*a,this.w=r*i*a+o*s*c),this.updated=!0,this}setFromMatrix(e){let t=e.elm,n=t[0]+t[5]+t[10],r,i,a,o;if(n>0){let e=Math.sqrt(n+1)*2;o=.25*e,r=(t[6]-t[9])/e,i=(t[8]-t[2])/e,a=(t[1]-t[4])/e}else if(t[0]>t[5]&&t[0]>t[10]){let e=Math.sqrt(1+t[0]-t[5]-t[10])*2;o=(t[6]-t[9])/e,r=.25*e,i=(t[1]+t[4])/e,a=(t[2]+t[8])/e}else if(t[5]>t[10]){let e=Math.sqrt(1+t[5]-t[0]-t[10])*2;o=(t[8]-t[2])/e,r=(t[1]+t[4])/e,i=.25*e,a=(t[6]+t[9])/e}else{let e=Math.sqrt(1+t[10]-t[0]-t[5])*2;o=(t[1]-t[4])/e,r=(t[2]+t[8])/e,i=(t[6]+t[9])/e,a=.25*e}let s=Math.sqrt(r*r+i*i+a*a+o*o);return r/=s,i/=s,a/=s,o/=s,this.x=r,this.y=i,this.z=a,this.w=o,this.updated=!0,this}multiply(e){let t=this.w*e.w-this.x*e.x-this.y*e.y-this.z*e.z,n=this.w*e.x+this.x*e.w+this.y*e.z-this.z*e.y,r=this.w*e.y-this.x*e.z+this.y*e.w+this.z*e.x,i=this.w*e.z+this.x*e.y-this.y*e.x+this.z*e.w;return this.set(n,r,i,t),this.updated=!0,this}preMultiply(e){let t=e.clone().multiply(this);this.set(t.x,t.y,t.z,t.w)}inverse(){return this.set(-this.x,-this.y,-this.z,this.w),this.updated=!0,this}copy(e){return this.x=e.x??0,this.y=e.y??0,this.z=e.z??0,this.w=e.w??0,this.updated=!0,this}clone(){return new e(this.x,this.y,this.z,this.w)}},ft;(function(e){let t=e.gauss=(e,t,n)=>{let r=e-t,i=-(r*r)/(2*n*n);return 1/Math.sqrt(2*Math.PI*n)*Math.exp(i)};e.gaussWeights=e=>{let n=0,r=[];if(e<=1)return[.5];for(let i=0;i<e;i++){let a=i/(e-1),o=t(a,0,1);n+=o*(i>0?2:1),r.push(o)}for(let t=0;t<e;t++)r[t]/=n;return r},e.randomSeed=e=>{e^=e<<13,e^=0,e^=e<<5;let t=123456789^e;e^=e<<13,e^=0,e^=e<<5;let n=362436069^e;e^=e<<13,e^=0,e^=e<<5;let r=521288629^e;e^=e<<13,e^=0,e^=e<<5;let i=88675123^e,a;return()=>(a=t^t<<11,t=n,n=r,r=i,i=(i^i>>>19^(a^a>>>8))>>>0,i/4294967296)};let n=e.randomRange=(e=-1,t=1)=>e+Math.random()*(t-e);e.randomVector=(e=new A(-1,-1,-1,-1),t=new A(1,1,1,1))=>new A(n(e.x,t.x),n(e.y,t.y),n(e.z,t.z),n(e.w,t.w)),e.randomInSphere=(e=1,t=Math.random)=>{let n=t(),r=t(),i=t(),a=2*Math.PI*n,o=Math.acos(2*r-1),s=Math.cbrt(i)*e,c=Math.sin(o);return{x:s*c*Math.cos(a),y:s*c*Math.sin(a),z:s*Math.cos(o)}},e.smoothstep=(e,t,n)=>n<=e?0:n>=t?1:(n=(n-e)/(t-e),n*n*(3-2*n))})(ft||={});var pt=class{gl;vao;program;indexBuffer;attributes;vertCount;indexCount;instanceCount;attribPointerDiect;attribTypeDict;constructor(e,t){this.gl=e,this.program=t,this.vao=this.gl.createVertexArray(),this.attributes=new Map,this.indexBuffer=null,this.vertCount=0,this.indexCount=0,this.instanceCount=0,this.attribPointerDiect=new Map([[`Float32Array`,this.gl.vertexAttribPointer.bind(this.gl)],[`Int32Array`,this.gl.vertexAttribIPointer.bind(this.gl)],[`Int16Array`,this.gl.vertexAttribIPointer.bind(this.gl)],[`Int8Array`,this.gl.vertexAttribIPointer.bind(this.gl)],[`UInt32Array`,this.gl.vertexAttribIPointer.bind(this.gl)],[`UInt16Array`,this.gl.vertexAttribIPointer.bind(this.gl)],[`UInt8Array`,this.gl.vertexAttribIPointer.bind(this.gl)]]),this.attribTypeDict=new Map([[`Float32Array`,this.gl.FLOAT],[`Int32Array`,this.gl.INT],[`Int16Array`,this.gl.SHORT],[`Int8Array`,this.gl.BYTE],[`UInt32Array`,this.gl.UNSIGNED_INT],[`UInt16Array`,this.gl.UNSIGNED_SHORT],[`UInt8Array`,this.gl.UNSIGNED_BYTE]])}calcVertCount(){this.vertCount=0,this.instanceCount=0,this.attributes.forEach((e,t)=>{e.instanceDivisor==null&&t!=`index`&&(this.vertCount=Math.max(this.vertCount,e.count)),e.instanceDivisor!==void 0&&e.instanceDivisor>0&&(this.instanceCount=this.instanceCount==0?e.count:Math.min(this.instanceCount,e.count))})}setAttribute(e,t,n,r){if(t.array===null)return;let i={buffer:t,size:n,count:t.array?t.array.length/n:0,location:void 0,...r};this.attributes.set(e,i),this.gl.bindVertexArray(this.vao),i.location=this.gl.getAttribLocation(this.program,e);let a=this.attribPointerDiect.get(t.array.constructor.name),o=this.attribTypeDict.get(t.array.constructor.name);if(i.location>-1){if(this.gl.bindBuffer(this.gl.ARRAY_BUFFER,i.buffer.buffer),i.size==16){for(let e=0;e<4;e++)this.gl.enableVertexAttribArray(i.location+e);for(let e=0;e<4;e++)this.gl.vertexAttribPointer(i.location+e,4,o,!1,64,16*e);if(i.instanceDivisor!==void 0)for(let e=0;e<4;e++)this.gl.vertexAttribDivisor(i.location+e,i.instanceDivisor)}else this.gl.enableVertexAttribArray(i.location),a(i.location,i.size,o,!1,0,0),i.instanceDivisor!==void 0&&this.gl.vertexAttribDivisor(i.location,i.instanceDivisor)}return this.gl.bindVertexArray(null),this.calcVertCount(),this}removeAttribute(e){return this.attributes.delete(e),this.calcVertCount(),this}setIndex(e){this.indexBuffer=e,this.vao&&(this.gl.bindVertexArray(this.vao),this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER,this.indexBuffer?this.indexBuffer.buffer:null),this.gl.bindVertexArray(null),this.indexBuffer&&this.indexBuffer.array&&(this.indexCount=this.indexBuffer.array.length))}use(e){this.gl.bindVertexArray(this.vao),e&&e(this),this.gl.bindVertexArray(null)}getVAO(){return this.vao}dispose(){this.attributes.forEach(e=>{e.buffer.dispose()})}},mt=new Map,ht=class{gl;program;name=``;vao;uniforms;constructor(e){this.gl=e,this.program=this.gl.createProgram(),this.vao=new Map,this.uniforms=new Map}setShader(e,t,n){if(this.program===null){console.warn(`program is null.`);return}let r=this.createShader(e,this.gl.VERTEX_SHADER),i=this.createShader(t,this.gl.FRAGMENT_SHADER);if(this.name){let e=[];r.error&&e.push(`[VERTEX]
+`+r.error),i.error&&e.push(`[FRAGMENT]
+`+i.error),e.length>0?mt.set(this.name,e.join(`
+
+`)):mt.delete(this.name)}if(!(!r.shader||!i.shader)){if(this.gl.attachShader(this.program,r.shader),this.gl.attachShader(this.program,i.shader),n&&n.transformFeedbackVaryings&&this.gl.transformFeedbackVaryings(this.program,n.transformFeedbackVaryings,this.gl.SEPARATE_ATTRIBS),this.gl.linkProgram(this.program),!this.gl.getProgramParameter(this.program,this.gl.LINK_STATUS)){let e=this.gl.getProgramInfoLog(this.program);if(console.error(`program link error:`,e),this.name&&e){let t=mt.get(this.name);mt.set(this.name,(t?t+`
+
+`:``)+`[LINK]
+`+e)}}return this}}createShader(e,t){let n=this.gl.createShader(t);return n?(this.gl.shaderSource(n,e),this.gl.compileShader(n),this.gl.getShaderParameter(n,this.gl.COMPILE_STATUS)?{shader:n,error:null}:{shader:null,error:this.gl.getShaderInfoLog(n)||`Unknown shader error`}):{shader:null,error:null}}setUniform(e,t,n){let r=this.uniforms.get(e);if(r){r.type=t;let e=r.value;e.length=n.length;for(let t=0;t<n.length;t++)e[t]=n[t];if(r.cache){if(r.cache.length!==e.length)r.needsUpdate=!0;else for(let t=0;t<e.length;t++)if(r.cache[t]!==e[t]){r.needsUpdate=!0;break}}else r.needsUpdate=!0}else this.uniforms.set(e,{value:n.concat(),type:t,location:null,needsUpdate:!0}),this.updateUniformLocations()}updateUniformLocations(e){this.program&&this.uniforms.forEach((t,n)=>{(t.location===null||e)&&(t.location=this.gl.getUniformLocation(this.program,n))})}uploadUniforms(){this.uniforms.forEach(e=>{e.needsUpdate&&e.location!==null&&(/Matrix[2|3|4]fv/.test(e.type)?this.gl[`uniform`+e.type](e.location,!1,e.value):/[1|2|3|4][f|i]$/.test(e.type)?this.gl[`uniform`+e.type](e.location,...e.value):this.gl[`uniform`+e.type](e.location,e.value),e.cache=e.value.concat(),e.needsUpdate=!1)})}getVAO(e=`_`){if(!this.program)return null;let t=this.vao.get(e);return t||(t=new pt(this.gl,this.program),this.vao.set(e,t),t)}use(e){this.program&&(this.gl.useProgram(this.program),e&&e(this),this.gl.useProgram(null))}getProgram(){return this.program}dispose(){this.vao.forEach(e=>{e.dispose()}),this.vao.clear(),this.gl.deleteProgram(this.program)}},gt=class{gl;buffer;array;constructor(e){this.gl=e,this.buffer=this.gl.createBuffer(),this.array=null}setData(e,t=`vbo`,n){let r=t==`vbo`?this.gl.ARRAY_BUFFER:this.gl.ELEMENT_ARRAY_BUFFER;return this.gl.bindBuffer(r,this.buffer),this.gl.bufferData(r,e,n||this.gl.STATIC_DRAW),this.gl.bindBuffer(r,null),this.array=e,this}read(e){return this.gl.bindBuffer(this.gl.ARRAY_BUFFER,this.buffer),this.gl.getBufferSubData(this.gl.ARRAY_BUFFER,0,e),this.gl.bindBuffer(this.gl.ARRAY_BUFFER,null),this}dispose(){this.gl.deleteBuffer(this.buffer)}},_t=class{unit;image;size;gl;glTex;textureType;_setting;constructor(e){this.gl=e,this.image=null,this.unit=0,this.size=new A,this.glTex=this.gl.createTexture(),this._setting={type:this.gl.UNSIGNED_BYTE,internalFormat:this.gl.RGBA,format:this.gl.RGBA,magFilter:this.gl.NEAREST,minFilter:this.gl.NEAREST,generateMipmap:!1,wrapS:this.gl.CLAMP_TO_EDGE,wrapT:this.gl.CLAMP_TO_EDGE},this.textureType=e.TEXTURE_2D}get isTexture(){return!0}setting(e){return this._setting={...this._setting,...e},this.attach(this.image),this}attach(e,t){if(this.image=e,this.gl.bindTexture(this.textureType,this.glTex),t&&this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL,!0),this.image){let e=Array.isArray(this.image)?this.image[0]:this.image;this.size.set(e.width,e.height),e instanceof HTMLImageElement||e instanceof HTMLCanvasElement?this.gl.texImage2D(this.textureType,0,this._setting.internalFormat,this._setting.format,this._setting.type,e):this.gl.texImage2D(this.textureType,0,this._setting.internalFormat,e.width,e.height,0,this._setting.format,this._setting.type,e.data||null)}else this.size.set(1,1),this.gl.texImage2D(this.textureType,0,this._setting.internalFormat,this.size.x,this.size.y,0,this._setting.format,this._setting.type,null);return t&&this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL,!1),this._setting.generateMipmap&&this.gl.generateMipmap(this.textureType),this.gl.texParameteri(this.textureType,this.gl.TEXTURE_MAG_FILTER,this._setting.magFilter),this.gl.texParameteri(this.textureType,this.gl.TEXTURE_MIN_FILTER,this._setting.minFilter),this.gl.texParameterf(this.textureType,this.gl.TEXTURE_WRAP_S,this._setting.wrapS),this.gl.texParameterf(this.textureType,this.gl.TEXTURE_WRAP_T,this._setting.wrapT),this.gl.bindTexture(this.textureType,null),this}subImage(e,t,n){return this.gl.bindTexture(this.textureType,this.glTex),this.gl.texSubImage2D(this.textureType,0,0,0,t,n,this._setting.format,this._setting.type,e),this.gl.bindTexture(this.textureType,null),this}activate(e){return this.gl.activeTexture(this.gl.TEXTURE0+e),this.gl.bindTexture(this.textureType,this.glTex),this.unit=e,this}load(e,t){let n=new Image;return n.onload=()=>{this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL,!0),this.attach(n),this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL,!1),t&&t()},n.src=e,this}getTexture(){return this.glTex}get type(){return this.textureType}dispose(){this.gl.deleteTexture(this.glTex)}},vt=class{size;gl;glFrameBuffer;textures;depthTexture;textureAttachmentList;constructor(e,t){this.gl=e,this.size=new A(1,1),this.glFrameBuffer=this.gl.createFramebuffer(),this.depthTexture=null,this.textures=[],this.textureAttachmentList=[],(!t||!t.disableDepthBuffer)&&this.setDepthTexture(new _t(this.gl).setting({internalFormat:this.gl.DEPTH_COMPONENT32F,format:this.gl.DEPTH_COMPONENT,type:this.gl.FLOAT,magFilter:this.gl.NEAREST,minFilter:this.gl.NEAREST}))}setDepthTexture(e){this.depthTexture=e,this.depthTexture&&(this.gl.bindFramebuffer(this.gl.FRAMEBUFFER,this.glFrameBuffer),this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER,this.gl.DEPTH_ATTACHMENT,this.gl.TEXTURE_2D,this.depthTexture.getTexture(),0),this.gl.bindFramebuffer(this.gl.FRAMEBUFFER,null))}setTexture(e){return this.textures=e,this.textureAttachmentList=[],this.gl.bindFramebuffer(this.gl.FRAMEBUFFER,this.glFrameBuffer),this.textures.forEach((e,t)=>{e.attach({width:this.size.x,height:this.size.y});let n=this.gl.COLOR_ATTACHMENT0+t;this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER,n,this.gl.TEXTURE_2D,e.getTexture(),0),this.textureAttachmentList.push(n)}),this.gl.bindFramebuffer(this.gl.FRAMEBUFFER,null),this}setSize(e,t){return typeof e==`number`?(this.size.x=e,t!==void 0&&(this.size.y=t)):this.size.copy(e),this.size.floor(),this.setTexture(this.textures),this.textures.forEach(e=>{e.attach({width:this.size.x,height:this.size.y})}),this.depthTexture&&this.depthTexture.attach({width:this.size.x,height:this.size.y}),this}getFrameBuffer(){return this.glFrameBuffer}clear(){let e=this.gl;e.bindFramebuffer(e.FRAMEBUFFER,this.glFrameBuffer),e.drawBuffers(this.textureAttachmentList),e.clearColor(0,0,0,0),e.clear(e.COLOR_BUFFER_BIT),e.bindFramebuffer(e.FRAMEBUFFER,null)}dispose(){this.gl.deleteFramebuffer(this.glFrameBuffer)}},yt=class extends vt{cubeTarget;textures;currentFace;constructor(e,t){super(e,t),this.textures=[],this.cubeTarget=[this.gl.TEXTURE_CUBE_MAP_POSITIVE_X,this.gl.TEXTURE_CUBE_MAP_POSITIVE_Y,this.gl.TEXTURE_CUBE_MAP_POSITIVE_Z,this.gl.TEXTURE_CUBE_MAP_NEGATIVE_X,this.gl.TEXTURE_CUBE_MAP_NEGATIVE_Y,this.gl.TEXTURE_CUBE_MAP_NEGATIVE_Z],this.currentFace=this.cubeTarget[0]}setTexture(e){return this.textures=e,this.textureAttachmentList=[],this.textures.forEach(e=>{e.attach({width:this.size.x,height:this.size.y})}),this}face(e){this.gl.bindFramebuffer(this.gl.FRAMEBUFFER,this.glFrameBuffer),this.textureAttachmentList=[],this.textures.forEach((t,n)=>{let r=this.gl.COLOR_ATTACHMENT0+n;this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER,r,this.cubeTarget[e],t.getTexture(),0),this.textureAttachmentList.push(r)}),this.currentFace=this.cubeTarget[e],this.gl.bindFramebuffer(this.gl.FRAMEBUFFER,null)}},bt=class extends _t{cubeTarget;constructor(e){super(e),this.textureType=e.TEXTURE_CUBE_MAP,this.cubeTarget=[this.gl.TEXTURE_CUBE_MAP_POSITIVE_X,this.gl.TEXTURE_CUBE_MAP_POSITIVE_Y,this.gl.TEXTURE_CUBE_MAP_POSITIVE_Z,this.gl.TEXTURE_CUBE_MAP_NEGATIVE_X,this.gl.TEXTURE_CUBE_MAP_NEGATIVE_Y,this.gl.TEXTURE_CUBE_MAP_NEGATIVE_Z]}attach(e){if(this.image=e,this.gl.bindTexture(this.textureType,this.glTex),this.image)for(let e=0;e<6;e++){let t=Array.isArray(this.image)?this.image[e]:this.image;this.size.set(t.width,t.height),t instanceof HTMLImageElement||t instanceof HTMLCanvasElement?this.gl.texImage2D(this.cubeTarget[e],0,this.gl.RGBA,this.gl.RGBA,this.gl.UNSIGNED_BYTE,t):this.gl.texImage2D(this.cubeTarget[e],0,this._setting.internalFormat,t.width,t.height,0,this._setting.format,this._setting.type,t.data||null)}return this._setting.generateMipmap&&this.gl.generateMipmap(this.textureType),this.gl.texParameteri(this.textureType,this.gl.TEXTURE_MAG_FILTER,this._setting.magFilter),this.gl.texParameteri(this.textureType,this.gl.TEXTURE_MIN_FILTER,this._setting.minFilter),this.gl.texParameterf(this.textureType,this.gl.TEXTURE_WRAP_S,this._setting.wrapS),this.gl.texParameterf(this.textureType,this.gl.TEXTURE_WRAP_T,this._setting.wrapT),this.gl.bindTexture(this.textureType,null),this}},M=WebGL2RenderingContext,xt=class{gl;canvas;_stateCache;_extDisJointTimerQuery;_queryList;_queryListQueued;constructor(e){this.gl=e,this.canvas=e.canvas,this._stateCache={},this._queryList=[],this._queryListQueued=[],e.getExtension(`EXT_color_buffer_float`),e.getExtension(`EXT_color_buffer_half_float`),e.getExtension(`OES_texture_float_linear`),this._extDisJointTimerQuery=e.getExtension(`EXT_disjoint_timer_query_webgl2`),this._extDisJointTimerQuery||console.warn(`[Renderer] EXT_disjoint_timer_query_webgl2 extension is not supported. GPU timing features will be disabled.`),e.blendFunc(e.SRC_ALPHA,e.ONE_MINUS_SRC_ALPHA)}createTexture(){return new _t(this.gl)}createCubeTexture(){return new bt(this.gl)}createFrameBuffer(e){return new vt(this.gl,e)}createCubeFrameBuffer(){return new yt(this.gl)}createProgram(){return new ht(this.gl)}_setState(e,t){this._stateCache[e]!==t&&(t?this.gl.enable(e):this.gl.disable(e),this._stateCache[e]=t)}setMaterialState(e,t,n){this._setState(this.gl.CULL_FACE,e),this._setState(this.gl.DEPTH_TEST,t),this.gl.depthMask(n)}setBlendEnabled(e){e?this.gl.enable(this.gl.BLEND):this.gl.disable(this.gl.BLEND)}bindRenderTarget(e,t,n){t?this.gl.viewport(t.x,t.y,t.z,t.w):e?this.gl.viewport(0,0,e.size.x,e.size.y):n&&this.gl.viewport(0,0,n.x,n.y),e?(this.gl.bindFramebuffer(this.gl.FRAMEBUFFER,e.getFrameBuffer()),this.gl.drawBuffers(e.textureAttachmentList)):this.gl.bindFramebuffer(this.gl.FRAMEBUFFER,null)}clear(e,t){let n=0;e&&(this.gl.clearColor(e.x,e.y,e.z,e.w),n|=this.gl.COLOR_BUFFER_BIT),t!==null&&(this.gl.clearDepth(t),n|=this.gl.DEPTH_BUFFER_BIT),n!==0&&this.gl.clear(n)}blit(e,t,n,r,i,a){let o=this.gl;o.bindFramebuffer(o.READ_FRAMEBUFFER,e?e.getFrameBuffer():null),a&&o.readBuffer(o.COLOR_ATTACHMENT0),o.bindFramebuffer(o.DRAW_FRAMEBUFFER,t?t.getFrameBuffer():null),a&&t&&o.drawBuffers([o.COLOR_ATTACHMENT0]),o.blitFramebuffer(0,0,n,r,0,0,n,r,o.COLOR_BUFFER_BIT,i?o.LINEAR:o.NEAREST)}draw(e,t,n,r,i){e.use(e=>{e.uploadUniforms(),this.gl.bindVertexArray(t.getVAO());let i=t.indexBuffer,a=this.gl.UNSIGNED_SHORT;i&&i.array&&i.array.BYTES_PER_ELEMENT==4&&(a=this.gl.UNSIGNED_INT),r==`NORMAL`?this.gl.blendFunc(this.gl.SRC_ALPHA,this.gl.ONE_MINUS_SRC_ALPHA):r==`ADD`?this.gl.blendFunc(this.gl.SRC_ALPHA,this.gl.ONE):r==`DIFF`&&this.gl.blendFunc(this.gl.ONE_MINUS_DST_COLOR,this.gl.ONE_MINUS_DST_COLOR);let o=this.gl[n];t.instanceCount>0?i?this.gl.drawElementsInstanced(o,t.indexCount,a,0,t.instanceCount):this.gl.drawArraysInstanced(o,0,t.vertCount,t.instanceCount):i?this.gl.drawElements(o,t.indexCount,a,0):this.gl.drawArrays(o,0,t.vertCount),this.gl.bindVertexArray(null)})}collectTimerQueries(){if(!this._extDisJointTimerQuery)return null;if(this.gl.getParameter(this._extDisJointTimerQuery.GPU_DISJOINT_EXT))return this._queryList.forEach(e=>this.gl.deleteQuery(e)),this._queryList.length=0,null;let e=[];if(this._queryListQueued.length>0){let t=this._queryListQueued.length;for(let n=t-1;n>=0;n--){let t=this._queryListQueued[n];if(this.gl.getQueryParameter(t.query,this.gl.QUERY_RESULT_AVAILABLE)){let r=this.gl.getQueryParameter(t.query,this.gl.QUERY_RESULT);e.push({name:t.name,duration:r/1e3/1e3}),this._queryList.push(t.query),this._queryListQueued.splice(n,1)}}}return e}},St=(e,t)=>{if(!t)return e;let n=Object.keys(t),r=``;for(let e=0;e<n.length;e++)r+=`#define `+n[e]+` `+t[n[e]]+`
+`;return r+=e,r},Ct=(e,t)=>(e=e.replaceAll(`NUM_LIGHT_DIR`,t?t.directional.length.toString():`0`),e=e.replaceAll(`NUM_SHADOWMAP_DIR`,t?Math.min(2,t.directional.filter(e=>e.component.castShadow).length).toString():`0`),e=e.replaceAll(`NUM_LIGHT_SPOT`,t?t.spot.length.toString():`0`),e=e.replaceAll(`NUM_SHADOWMAP_SPOT`,t?Math.min(2,t.spot.filter(e=>e.component.castShadow).length).toString():`0`),e),wt=e=>(e=e.replace(/#pragma\sloop_start\s(\d+)*([\s\S]+?)#pragma\sloop_end/g,(e,t,n)=>{let r=``;for(let e=0;e<Number(t);e++)r+=n.replaceAll(`LOOP_INDEX`,e.toString());return r}),e),Tt=(e,t,n)=>(e=St(e,t),e=`#version 300 es
+precision highp float;
+`+e,e=Ct(e,n),e=wt(e),e),Et=class{listeners;constructor(){this.listeners=[]}on(e,t){this.listeners.push({event:e,cb:t})}once(e,t){this.listeners.push({event:e,cb:t,once:!0})}off(e,t){this.listeners=this.listeners.filter(n=>t==null?n.event!=e:n.event!=e||n.cb!=t)}emit(e,t){let n=this.listeners.concat();for(let r=0;r<n.length;r++){let i=n[r];i.event==e&&(i.cb.apply(this,t||[]),i.once&&this.off(e,i.cb))}}hasEvent(e){return this.listeners.some(t=>t.event==e)}},Dt;(function(e){function t(){let e=crypto.getRandomValues(new Uint8Array(16));e[6]=e[6]&15|64,e[8]=e[8]&63|128;let t=Array.from(e,e=>e.toString(16).padStart(2,`0`)).join(``);return`${t.slice(0,8)}-${t.slice(8,12)}-${t.slice(12,16)}-${t.slice(16,20)}-${t.slice(20)}`}e.genUUID=t})(Dt||={});var Ot;(function(e){let t=e.NEWTON_ITERATIONS=4;e.NEWTON_MIN_SLOPE=.001,e.SUBDIVISION_PRECISION=1e-7;let n=e.SUBDIVISION_MAX_ITERATIONS=10,r=e.BEZIER_EASING_CACHE_SIZE=11,i=e.BEZIER_EASING_SAMPLE_STEP_SIZE=1/r;function a(e){return-e.p0+3*e.p1-3*e.p2+e.p3}function o(e){return 3*e.p0-6*e.p1+3*e.p2}function s(e){return-3*e.p0+3*e.p1}function c(e,t){return 3*a(e)*t*t+2*o(e)*t+s(e)}e.calcBezierSlope=c;function l(e,t){return((a(e)*t+o(e))*t+s(e))*t+e.p0}e.calcBezier=l;function u(e,t,r,i){let a=0,o=0;for(let s=0;s<n;s++)o=t+(r-t)/2,a=l(i,o),a>e?r=o:t=o;return o}function d(e,n,r){for(let i=0;i<t;i++){let t=c(n,r);if(t==0)return r;let i=l(n,r)-e;r-=i/t}return r}function f(e,t,n){e.p1=Math.max(e.p0,Math.min(e.p3,e.p1)),e.p2=Math.max(e.p0,Math.min(e.p3,e.p2));let a=0;for(let e=1;e<n.length&&(a=e-1,!(t<n[e]));e++);let o=a/(r-1),s=c(e,o)/(e.p3-e.p0);return s==0?o:s>.01?d(t,e,o):u(t,o,o+i,e)}e.getBezierTfromX=f})(Ot||={});function kt(e,t,n,r){let i=Array(Ot.BEZIER_EASING_CACHE_SIZE);for(let a=0;a<Ot.BEZIER_EASING_CACHE_SIZE;++a)i[a]=Ot.calcBezier({p0:e.x,p1:t.x,p2:n.x,p3:r.x},a/(Ot.BEZIER_EASING_CACHE_SIZE-1));return a=>a<=e.x?e.y:r.x<=a?r.y:Ot.calcBezier({p0:e.y,p1:t.y,p2:n.y,p3:r.y},Ot.getBezierTfromX({p0:e.x,p1:t.x,p2:n.x,p3:r.x},a,i))}var At;(function(e){e.number=(e,t,n)=>e+(t-e)*n,e.vector=(e,t,n)=>e.lerp(t,n)})(At||={});var jt=class extends Et{keyframes=[];cache={frame:NaN,value:NaN};frameStart;frameEnd;frameDuration;constructor(e){super(),this.frameStart=0,this.frameEnd=0,this.frameDuration=0,this.set(e)}set(e){e&&(this.keyframes=[],e.forEach(e=>{this.addKeyFrame(e)}))}addKeyFrame(e){let t=0;for(let n=0;n<this.keyframes.length&&this.keyframes[n].coordinate.x<e.coordinate.x;n++)t++;this.keyframes.splice(t,0,e),this.frameStart=this.keyframes[0].coordinate.x,this.frameEnd=this.keyframes[this.keyframes.length-1].coordinate.x}getValue(e){if(e==this.cache.frame)return this.cache.value;let t=null;for(let n=0;n<this.keyframes.length;n++){let r=this.keyframes[n];if(e<r.coordinate.x){let i=this.keyframes[n-1];t=i?i.to(r,e):r.coordinate.y;break}}return t===null&&this.keyframes.length>0&&(t=this.keyframes[this.keyframes.length-1].coordinate.y),t===null?0:(this.cache={frame:e,value:t},t)}},Mt=class extends Et{name;curves;frameStart;frameEnd;frameDuration;updatedFrame=-1;value;constructor(e,t,n,r,i){super(),this.name=e||``,this.frameStart=0,this.frameEnd=0,this.frameDuration=0,this.curves=new Map,this.value=new A,t&&this.setFCurve(t,`x`),n&&this.setFCurve(n,`y`),r&&this.setFCurve(r,`z`),i&&this.setFCurve(i,`w`)}setFCurve(e,t){this.curves.set(t,e);let n=1/0,r=-1/0;this.curves.forEach(e=>{e.frameStart<n&&(n=e.frameStart),e.frameEnd>r&&(r=e.frameEnd)}),(n==-1/0||r==1/0)&&(n=0,r=1),this.frameStart=n,this.frameEnd=r,this.frameDuration=this.frameEnd-this.frameStart}getFCurve(e){return this.curves.get(e)||null}setFrame(e){if(e==this.updatedFrame)return this;let t=this.curves.get(`x`),n=this.curves.get(`y`),r=this.curves.get(`z`),i=this.curves.get(`w`);return t&&(this.value.x=t.getValue(e)),n&&(this.value.y=n.getValue(e)),r&&(this.value.z=r.getValue(e)),i&&(this.value.w=i.getValue(e)),this.updatedFrame=e,this}},Nt=class extends Et{coordinate={x:0,y:0};handleLeft={x:0,y:0};handleRight={x:0,y:0};interpolation=`BEZIER`;easing=null;nextFrame=null;constructor(e,t,n,r){super(),this.set(e,t,n,r)}set(e,t,n,r){this.coordinate=e,this.handleLeft=t||e,this.handleRight=n||e,this.interpolation=r||`BEZIER`}getEasing(e,t){return e==`BEZIER`?kt(this.coordinate,this.handleRight,t.handleLeft,t.coordinate):e==`CONSTANT`?()=>this.coordinate.y:e=>{let n=t.coordinate.y-this.coordinate.y;return e=(e-this.coordinate.x)/(t.coordinate.x-this.coordinate.x),this.coordinate.y+e*n}}to(e,t){return(this.nextFrame==null||this.nextFrame.coordinate.x!=e.coordinate.x||this.nextFrame.coordinate.y!=e.coordinate.y)&&(this.easing=this.getEasing(this.interpolation,e),this.nextFrame=e),this.easing?this.easing(t):0}},Pt=class e extends Et{static gltfLoaderFactory=null;_engine;connection;frame;nodes;curveGroups;root;gltf;currentScene;constructor(e,t){super(),this._engine=e,this.root=null,this.nodes=[],this.curveGroups=[],this.currentScene=null,this.frame={start:0,end:100,current:0,fps:30,playing:!1},t&&this.connect(t)}connect(e,t){}disconnect(){}binaryStringToArrayBuffer(e){let t=new Uint8Array(e.length);for(let n=0;n<e.length;n++){let r=e.charCodeAt(n);t[n]=r}return t.buffer}async loadScene(t,n){this.currentScene=t,n&&(e.gltfLoaderFactory?await e.gltfLoaderFactory(this._engine).load(n).then(e=>{this.gltf=e,this.emit(`gltfLoaded`,[e])}):console.warn(`BLidge: gltfLoaderFactory not wired`)),await new Promise(e=>{setTimeout(()=>{e(null)},100)}),this.frame.start=t.frame.start,this.frame.end=t.frame.end,this.frame.fps=t.frame.fps,this.curveGroups=[],this.nodes=[];let r=Object.keys(t.animations);for(let e=0;e<r.length;e++){let n=r[e],i=new Mt(n);t.animations[e].forEach(e=>{let t=new jt;t.set(e.k.map(e=>{let t={B:`BEZIER`,C:`CONSTANT`,L:`LINEAR`}[e[0]],n=e[1];return new Nt({x:n[0],y:n[1]},n[2]!==void 0&&{x:n[2],y:n[3]}||void 0,n[4]!==void 0&&{x:n[4],y:n[5]}||void 0,t)})),i.setFCurve(t,e.axis)}),this.curveGroups.push(i)}this.nodes=[];let i=e=>{let t={name:``,uniforms:{}};e.material&&(t.name=e.material.name||``,t.uniforms=e.material.uniforms||{});let n={name:e.name,class:e.class,parent:e.parent,children:[],animations:e.animation||{},position:e.position||[0,0,0],rotation:e.rotation||[0,0,0],scale:e.scale||[1,1,1],material:t,type:e.type,visible:e.visible},r=e.param;return n.param=r&&`position`in r?{position:new Float32Array(this.binaryStringToArrayBuffer(atob(r.position))),normal:new Float32Array(this.binaryStringToArrayBuffer(atob(r.normal))),uv:new Float32Array(this.binaryStringToArrayBuffer(atob(r.uv))),index:new Uint16Array(this.binaryStringToArrayBuffer(atob(r.index)))}:r,e.children&&e.children.forEach(e=>{n.children.push(i(e))}),this.nodes.push(n),n};this.root=i(t.root),this.emit(`sync/scene`,[this]),this.onSyncTimeline(this.frame)}onSyncTimeline(e){this.frame=e,this.emit(`sync/timeline`,[this.frame])}onOpen(e){}onMessage(e){}onClose(e){this.disconnect()}getCurveGroup(e){return this.curveGroups[e]}setFrame(e){this.onSyncTimeline({...this.frame,playing:!0,current:e})}get gltfPrm(){return this.gltf?Promise.resolve(this.gltf):new Promise(e=>{this.on(`gltfLoaded`,t=>{e(t)})})}dispose(){this.disconnect()}},Ft=class extends Et{uuid;initiator;fields_;constructor(){super(),this.uuid=Dt.genUUID(),this.fields_=new Map,this.initiator=`script`}restoreUUID(e){this.uuid=e}serialize(e){e||={mode:`view`};let t={};return this.fields_.forEach((n,r)=>{let i=this.getFieldOpt(r);e.mode==`export`&&i&&i&&i.noExport||(t[r]=n.get(e))}),t}serializeToDirectory(){return(e=>{let t={type:`folder`,childs:{},opt:{}},n=Object.keys(e);for(let r=0;r<n.length;r++){let i=n[r],a=this.getFieldOpt(i);if(!i)continue;let o=t,s=i.split(`/`);for(let e=0;e<s.length;e++){let t=s[e];t&&o.type!=`value`&&(o.childs[t]||(e==s.length-1?o.childs[t]={type:`value`,value:null,opt:a}:o.childs[t]={type:`folder`,childs:{},opt:a}),o=o.childs[t])}o.type==`value`&&(o.value=e[i])}return t})(this.serialize())}deserialize(e){let t=Object.keys(e);for(let n=0;n<t.length;n++){let r=t[n],i=this.fields_.get(r);i&&i.set(e[r])}}exportEditor(){this.serialize({mode:`export`})}field(e,t,n,r){let i=typeof n==`function`?n:void 0,a=typeof n==`object`&&n||r||{};i||(a.readOnly=!0,a.noExport=!0);let o=e.startsWith(`/`)?e.slice(1):e;this.fields_.set(o,{get:t,set:(t=>{i&&i(t),this.noticeField(e)}),opt:a})}fieldDir(e,t){let n=e;return this.field(n+`/`,()=>null,void 0,{...t,isFolder:!0}),{dir:e=>this.fieldDir(`${n}/${e}`),field:(e,t,r,i)=>{this.field(`${n}/${e}`,t,r,i)}}}removeField(e){let t=e.startsWith(`/`)?e.slice(1):e;this.fields_.delete(t)}setField(e,t){let n=this.fields_.get(e);if(!n)throw Error(`Unknown field path: ${e}`);n.set(t)}getField(e,t){let n=this.fields_.get(e);if(n)return t||={mode:`view`},n.get(t)}getFieldOpt(e){let t=this.fields_.get(e);if(t)return t.opt}noticeField(e){this.emit(`fields/update/`+e),this.emit(`fields/update`,[[e]])}},It=class extends Ft{disableEdit;order;_entity;_engine;_enabled;_tag;_disposed;constructor(e){super(),this.disableEdit=!1,this._entity=e.entity,this._engine=e.engine,this._enabled=!0,this._disposed=!1,this._tag=``,this.order=0,this.field(`enabled`,()=>this.enabled,e=>this.enabled=e,{hidden:!0,noExport:!0}),this.field(`tag`,()=>this.tag,e=>this._tag=e,{readOnly:!0,noExport:!0,hidden:e=>e==``})}get tag(){return this._tag}get entity(){return this._entity}get engine(){return this._engine}set enabled(e){this._enabled=e}get enabled(){return this._enabled}update(e){this.enabled&&this.updateImpl(e)}updateImpl(e){}postUpdate(e){this.enabled&&this.postUpdateImpl(e)}postUpdateImpl(e){}prepareRender(e){this.enabled&&this.prepareRenderImpl(e)}prepareRenderImpl(e){}commitFrame(e){this.enabled&&this.commitFrameImpl(e)}commitFrameImpl(e){}dispose(){this._disposed=!0,this.emit(`dispose`)}},N=class extends Ft{vertCount;attributes;boundingBox;updateVersion;constructor(){super(),this.vertCount=0,this.attributes=new Map,this.boundingBox=null,this.updateVersion=0}setAttribute(e,t,n,r){return this.attributes.set(e,{array:t,size:n,opt:r}),this.updateVersion++,this.updateVertCount(),e===`position`&&this.computeBoundingBox(),this}getAttribute(e){return this.attributes.get(e)}updateVertCount(){this.vertCount=this.attributes.size>0?1/0:0,this.attributes.forEach((e,t)=>{t==`index`||e.opt&&e.opt.instanceDivisor||(this.vertCount=Math.min(e.array.length/e.size,this.vertCount))})}computeBoundingBox(){let e=this.attributes.get(`position`);if(!e){this.boundingBox=null;return}let t=e.array,n=new A(1/0,1/0,1/0),r=new A(-1/0,-1/0,-1/0);for(let e=0;e<t.length;e+=3){let i=t[e],a=t[e+1],o=t[e+2];i<n.x&&(n.x=i),a<n.y&&(n.y=a),o<n.z&&(n.z=o),i>r.x&&(r.x=i),a>r.y&&(r.y=a),o>r.z&&(r.z=o)}this.boundingBox={min:n,max:r}}requestUpdate(){this.updateVersion++}},Lt=class extends N{constructor(e){super();let t=[],n=[],r=[],i=[],a=[],{width:o,height:s,depth:c,segmentsWidth:l,segmentsHeight:u,segmentsDepth:d}={width:1,height:1,depth:1,segmentsWidth:1,segmentsHeight:1,segmentsDepth:1,...e},f=[{normal:[0,0,1],dir:[1,0,0],up:[0,1,0],w:o,h:s,d:c,segW:l,segH:u},{normal:[0,0,-1],dir:[-1,0,0],up:[0,1,0],w:o,h:s,d:c,segW:l,segH:u},{normal:[1,0,0],dir:[0,0,-1],up:[0,1,0],w:c,h:s,d:o,segW:d,segH:u},{normal:[-1,0,0],dir:[0,0,1],up:[0,1,0],w:c,h:s,d:o,segW:d,segH:u},{normal:[0,1,0],dir:[-1,0,0],up:[0,0,1],w:o,h:c,d:s,segW:l,segH:d},{normal:[0,-1,0],dir:[-1,0,0],up:[0,0,-1],w:o,h:c,d:s,segW:l,segH:d}],p=0;for(let e of f){let o=e.normal,s=e.dir,c=e.up,l=e.segW,u=e.segH,d=e.w/2,f=e.h/2,m=e.d/2,h=e.w/l,g=e.h/u;for(let e=0;e<=u;e++)for(let _=0;_<=l;_++){let v=-d+_*h,y=-f+e*g,b=-m,x=_/l,S=e/u,C=v*-s[0]+y*c[0]+b*-o[0],w=v*-s[1]+y*c[1]+b*-o[1],ee=v*-s[2]+y*c[2]+b*-o[2];if(t.push(C,w,ee),n.push(...o),r.push(x,S),a.push(e/u*c[1]+Math.max(0,c[2])),e<u&&_<l){let t=p+e*(l+1)+_,n=p+(e+1)*(l+1)+_,r=p+(e+1)*(l+1)+(_+1),a=p+e*(l+1)+(_+1);i.push(t,n,a),i.push(n,r,a)}}p+=(l+1)*(u+1)}this.setAttribute(`position`,new Float32Array(t),3),this.setAttribute(`normal`,new Float32Array(n),3),this.setAttribute(`uv`,new Float32Array(r),2),this.setAttribute(`posY`,new Float32Array(a),1),this.setAttribute(`index`,new Uint16Array(i),1)}},Rt=class extends N{constructor(e){super();let t=[],n=[],r=[],i=[],{height:a,radiusTop:o,radiusBottom:s,radSegments:c,heightSegments:l,caps:u}={height:1,radiusTop:1,radiusBottom:1,radSegments:8,heightSegments:1,caps:!0,...e};for(let e=0;e<=l+2;e++)for(let d=0;d<=c;d++){let f=Math.PI*2/c*d;if(e<=l){let u=1-e/l,p=(1-u)*o+u*s,m=Math.cos(f)*p,h=-(a/2)+a/l*e,g=Math.sin(f)*p;t.push(m,h,g),r.push(d/c,e/l);let _=new A(Math.cos(f),0,Math.sin(f)).normalize();if(n.push(_.x,_.y,_.z),e<l){let t=c+1;i.push(e*t+d,(e+1)*t+(d+1)%t,e*t+(d+1)%t,e*t+d,(e+1)*t+d,(e+1)*t+(d+1)%t)}}else{if(!u)continue;let p=e-l-1,m=p?o:s,h=Math.cos(f)*m,g=-(a/2)+a*p,_=Math.sin(f)*m;t.push(h,g,_),r.push((h+m)*.5/m,(_+m)*.5/m),n.push(0,-1+p*2,0);let v=(c+1)*(l+(p+1));d<=c-2&&(p==0?i.push(v,v+d,v+d+1):i.push(v,v+d+1,v+d))}}this.setAttribute(`position`,new Float32Array(t),3),this.setAttribute(`normal`,new Float32Array(n),3),this.setAttribute(`uv`,new Float32Array(r),2),this.setAttribute(`index`,new Uint16Array(i),1)}},zt=class extends N{constructor(e){super();let{width:t,height:n,widthSegments:r,heightSegments:i,floor:a}={width:1,height:1,widthSegments:1,heightSegments:1,...e},o=t/2,s=n/2,c=[],l=[],u=[],d=[];for(let e=0;e<=i;e++)for(let f=0;f<=r;f++){let p=f/r,m=e/i;if(a?(c.push(-o+t*p,0,s-n*m),l.push(0,1,0)):(c.push(-o+t*p,-s+n*m,0),l.push(0,0,1)),u.push(p,m),e>0&&f>0){let t=r+1,n=t*e+f,i=t*(e-1)+f-1;d.push(n,t*e+f-1,i,n,i,t*(e-1)+f)}}this.setAttribute(`position`,new Float32Array(c),3),this.setAttribute(`normal`,new Float32Array(l),3),this.setAttribute(`uv`,new Float32Array(u),2),this.setAttribute(`index`,new Uint16Array(d),1)}},Bt=class extends N{constructor(e){super();let t=[],n=[],r=[],i=[],{radius:a,widthSegments:o,heightSegments:s}={radius:.5,widthSegments:8,heightSegments:8,...e};for(let e=0;e<=s;e++){let c=e/s*Math.PI;for(let l=0;l<=o;l++){let u=l/o*Math.PI*2,d=Math.sin(c)*a,f=Math.cos(u)*d,p=-Math.cos(c)*a,m=-Math.sin(u)*d;t.push(f,p,m),r.push(l/o,e/s);let h=new A(f,p,m).normalize();if(n.push(h.x,h.y,h.z),l<o&&e<s){let t=o+1;i.push(e*t+l,e*t+(l+1)%t,(e+1)*t+(l+1)%t,e*t+l,(e+1)*t+(l+1)%t,(e+1)*t+l)}}}for(let e=0;e<i.length;e++)i[e]=Math.min(t.length/3-1,i[e]);this.setAttribute(`position`,new Float32Array(t),3),this.setAttribute(`normal`,new Float32Array(n),3),this.setAttribute(`uv`,new Float32Array(r),2),this.setAttribute(`index`,new Uint16Array(i),1)}},Vt=class extends It{cameraType;fov;aspect;near;far;orthWidth;orthHeight;projectionMatrix;viewMatrix;projectionMatrixPrev;viewMatrixPrev;_historyInitialized;needsUpdateProjectionMatrix;displayOut;viewPort;dofParams;constructor(e){super(e),this.cameraType=`perspective`,this.viewMatrix=new j,this.projectionMatrix=new j,this.viewMatrixPrev=new j,this.projectionMatrixPrev=new j,this._historyInitialized=!1,this.viewPort=null,this.fov=50,this.near=.1,this.far=1e3,this.aspect=1,this.orthWidth=1,this.orthHeight=1,this.needsUpdateProjectionMatrix=!0,this.displayOut=!0,this.dofParams={focusDistance:.5,kFilmHeight:.008,fNumber:.3};let t=()=>{this.needsUpdateProjectionMatrix=!0};this.field(`fov`,()=>this.fov,e=>{this.fov=e,t()}),this.field(`near`,()=>this.near,e=>{this.near=e,t()}),this.field(`far`,()=>this.far,e=>{this.far=e,t()}),this.field(`orthWidth`,()=>this.orthWidth,e=>{this.orthWidth=e,t()}),this.field(`orthHeight`,()=>this.orthHeight,e=>{this.orthHeight=e,t()}),this.field(`fNumber`,()=>this.dofParams.fNumber,e=>{this.dofParams.fNumber=e},{step:.05}),this._tag=`camera`}updateProjectionMatrix(){this.cameraType==`perspective`?this.projectionMatrix.perspective(this.fov,this.aspect,this.near,this.far):this.projectionMatrix.orthographic(this.orthWidth,this.orthHeight,this.near,this.far),this.needsUpdateProjectionMatrix=!1}updateViewMatrix(){this.viewMatrix.copy(this.entity.matrixWorld).inverse()}updateImpl(e){if(this.displayOut){let t=e.resolution.x/e.resolution.y;this.aspect!==t&&(this.aspect=t,this.needsUpdateProjectionMatrix=!0)}}prepareRenderImpl(e){this.updateViewMatrix(),this.needsUpdateProjectionMatrix&&this.updateProjectionMatrix(),this._historyInitialized||=(this.viewMatrixPrev.copy(this.viewMatrix),this.projectionMatrixPrev.copy(this.projectionMatrix),!0)}commitFrameImpl(e){this.viewMatrixPrev.copy(this.viewMatrix),this.projectionMatrixPrev.copy(this.projectionMatrix)}},Ht=class extends Vt{viewMatrixOffset;constructor(e){super(e),this.viewMatrixOffset=new dt().setFromEuler({x:-Math.PI/2,y:0,z:0}),this.near=.1,this.far=100,this.displayOut=!1}prepareRenderImpl(e){super.prepareRenderImpl(e),this.viewMatrix.copy(this.entity.matrixWorld).applyQuaternion(this.viewMatrixOffset).inverse()}},Ut=class extends Ht{lightType;color;intensity;castShadow;shadowMapSize;angle;blend;distance;decay;constructor(e){super(e),this.lightType=`spot`,this.cameraType=`perspective`,this.color=new A(1,1,1,0),this.intensity=1,this.castShadow=!0,this.shadowMapSize=new A(1024,1024),this.orthWidth=4,this.orthHeight=4,this.angle=Math.PI*.5,this.blend=1,this.distance=30,this.decay=2,this.field(`intensity`,()=>this.intensity,e=>this.intensity=e),this.updateProjectionMatrix()}updateProjectionMatrix(){this.fov=this.angle/Math.PI*180,super.updateProjectionMatrix()}lookAt(e){this.entity.lookAt(e),this.entity.quaternion.multiply(new dt().setFromEuler(new ut(Math.PI/2)))}},Wt=new N,P=class extends It{geometry;material;instanceCount;constructor(e){super(e);let t=e.args||{};this.geometry=t.geometry||Wt,this.material=t.material||null,this.instanceCount=t.instanceCount||1}},Gt=class extends It{node;rotationOffsetX;animations;uniforms;uniformCurves;transformAutoUpdate;_blidge;_lightComponent;constructor(e){super(e),this.rotationOffsetX=0,this.animations=new Map,this.uniforms={},this.uniformCurves=new Map,this.transformAutoUpdate=!0,this._blidge=e.args.blidge,this.node=e.args.node,this.node.type==`camera`&&(this.rotationOffsetX=-Math.PI/2);let t=Object.keys(this.node.animations);for(let e=0;e<t.length;e++){let n=t[e];this.animations.set(n,this._blidge.getCurveGroup(this.node.animations[n]))}let n=Object.keys(this.node.material.uniforms);for(let e=0;e<n.length;e++){let t=n[e],r=this.node.material.uniforms[t],i=this._blidge.curveGroups[r];i&&(this.uniformCurves.set(t,i),this.uniforms[t]={type:`4fv`,value:i.value})}let r=this.entity;if(r.name=this.node.name,r.position.set(this.node.position[0],this.node.position[1],this.node.position[2]),r.quaternion.setFromEuler({x:this.node.rotation[0]+this.rotationOffsetX,y:this.node.rotation[1],z:this.node.rotation[2]},`YZX`),r.quaternion.updated=!1,r.euler.setFromQuaternion(r.quaternion),r.scale.set(this.node.scale[0],this.node.scale[1],this.node.scale[2]),this.node.type==`cube`){let e=r.addComponent(P),t=this.node.param;e.geometry=new Lt({width:t.x,height:t.y,depth:t.z,segmentsWidth:10,segmentsHeight:10,segmentsDepth:10})}else if(this.node.type==`sphere`){let e=r.addComponent(P),t=this.node.param;e.geometry=new Bt({radius:t.r,widthSegments:32,heightSegments:16})}else if(this.node.type==`cylinder`){let e=r.addComponent(P);e.geometry=new Rt}else if(this.node.type==`plane`){let e=r.addComponent(P),t=this.node.param;e.geometry=new zt({width:t.x,height:t.y})}else if(this.node.type==`mesh`){let e=r.addComponent(P),t=this.node.param,n=new N;n.setAttribute(`position`,t.position,3),n.setAttribute(`uv`,t.uv,2),n.setAttribute(`normal`,t.normal,3),n.setAttribute(`index`,t.index,3),e.geometry=n}else if(this.node.type==`gltf`){let e=r.addComponent(P);this._blidge.gltfPrm.then(t=>{let n=t.scene.findEntityByName(this.node.name);if(n){let t=n.getComponent(P);t&&(e.geometry=t.geometry,e.material||=t.material)}r.noticeEventParent(`update/blidge/scene`,[r])})}if(this.node.type==`camera`){let e=e=>{e.fov=this.node.param.fov,e.needsUpdateProjectionMatrix=!0},t=r.getComponentsByTag(`camera`)[0];t&&e(t);let n=t=>{t instanceof Vt&&e(t)};r.on(`componentAdded`,n),this.once(`dispose`,()=>{r.off(`componentAdded`,n)})}if(this.node.type==`light`){let e=this.node.param;this._lightComponent=r.addComponent(Ut),this._lightComponent.deserialize({...e,lightType:e.type,color:new A().copy(e.color),castShadow:e.shadowMap})}r.visible=this.node.visible}updateImpl(e){if(!this._blidge||!this.node)return;let t=e.timeCode*this._blidge.frame.fps;if(this.animations.forEach(e=>{e.setFrame(t)}),this.transformAutoUpdate){let e=this.animations.get(`position`);if(e){let t=e.value;e.getFCurve(`x`)&&(this.entity.position.x=t.x),e.getFCurve(`y`)&&(this.entity.position.y=t.y),e.getFCurve(`z`)&&(this.entity.position.z=t.z)}let n=this.animations.get(`rotation`);if(n){let e={x:this.node.rotation[0],y:this.node.rotation[1],z:this.node.rotation[2]},t=n.value;n.getFCurve(`x`)&&(e.x=t.x),n.getFCurve(`y`)&&(e.y=t.y),n.getFCurve(`z`)&&(e.z=t.z),this.entity.quaternion.setFromEuler({x:e.x+this.rotationOffsetX,y:e.y,z:e.z},`YZX`)}let r=this.animations.get(`scale`);if(r){let e=r.setFrame(t).value;r.getFCurve(`x`)&&(this.entity.scale.x=e.x),r.getFCurve(`y`)&&(this.entity.scale.y=e.y),r.getFCurve(`z`)&&(this.entity.scale.z=e.z)}}let n=this.animations.get(`hide`);if(n&&(this.entity.visible=n.value.x<.5),this._lightComponent){let e=this.animations.get(`color`);e&&this._lightComponent.color.copy(e.setFrame(t).value)}this.uniformCurves.forEach((e,n)=>{this.uniforms[n].value=e.setFrame(t).value})}},Kt=class extends Ft{name;position;euler;quaternion;scale;matrix;matrixWorld;matrixWorldPrev;_matrixWorldHistoryInitialized;autoMatrixUpdate;parent;children;components;componentsSorted;visible;userData;unresolvedComponents;_engine;constructor(e){super(),this._engine=e.engine,this.name=e.name??``,this.position=new A(0,0,0,1),this.euler=new ut,this.quaternion=new dt(0,0,0,1),this.scale=new A(1,1,1),this.matrix=new j,this.matrixWorld=new j,this.matrixWorldPrev=new j,this._matrixWorldHistoryInitialized=!1,this.autoMatrixUpdate=!0,this.parent=null,this.children=[],this.components=new Map,this.componentsSorted=[],this.visible=!0,this.userData={},this.unresolvedComponents=[],this.field(`name`,()=>this.name,e=>this.name=e),this.field(`position`,()=>this.position.getElm(`vec3`),e=>this.position.setFromArray(e),{format:{type:`vector`}}),this.field(`euler`,()=>this.euler.getElm(`vec3`),e=>this.euler.setFromArray(e),{format:{type:`vector`}}),this.field(`scale`,()=>this.scale.getElm(`vec3`),e=>this.scale.setFromArray(e),{format:{type:`vector`}}),this.field(`visible`,()=>this.visible,e=>this.visible=e,{hidden:!0}),this.field(`children`,()=>this.children.map(e=>e.uuid),{hidden:!0}),this.field(`components`,()=>{let e=[];return this.components.forEach(t=>e.push(t.uuid)),e},{hidden:!0})}get engine(){return this._engine}update(e){let t={...e};t.matrix=this.matrixWorld,this.updateImpl(e);for(let e=0;e<this.componentsSorted.length;e++)this.componentsSorted[e].update(t);this.autoMatrixUpdate&&this.updateMatrix();for(let e=0;e<this.children.length;e++)this.children[e].update(t)}updateImpl(e){}postUpdate(e){let t={...e,matrix:this.matrixWorld};for(let e=0;e<this.componentsSorted.length;e++)this.componentsSorted[e].postUpdate(t);for(let e=0;e<this.children.length;e++)this.children[e].postUpdate(t)}prepareRender(e){let t={...e,matrix:this.matrixWorld};this._matrixWorldHistoryInitialized||=(this.matrixWorldPrev.copy(this.matrixWorld),!0);for(let e=0;e<this.componentsSorted.length;e++)this.componentsSorted[e].prepareRender(t);for(let e=0;e<this.children.length;e++)this.children[e].prepareRender(t)}commitFrame(e){let t={...e,matrix:this.matrixWorld};this.matrixWorldPrev.copy(this.matrixWorld);for(let e=0;e<this.componentsSorted.length;e++)this.componentsSorted[e].commitFrame(t);for(let e=0;e<this.children.length;e++)this.children[e].commitFrame(t)}add(e){e.parent&&e.parent.remove(e),e.parent=this,this.children.push(e),this.noticeField(`children`)}remove(e){this.children=this.children.filter(t=>t.uuid!=e.uuid),this.noticeField(`children`)}updateMatrix(e){this.parent&&e&&this.parent.updateMatrix(!0);let t=this.parent?this.parent.matrixWorld:new j;this.quaternion.updated?this.euler.setFromQuaternion(this.quaternion):this.quaternion.setFromEuler(this.euler),this.quaternion.updated=!1,this.matrix.setFromTransform(this.position,this.quaternion,this.scale),this.matrixWorld.copy(this.matrix).preMultiply(t)}updateMatrixRecursive(e){this.autoMatrixUpdate&&this.updateMatrix(e);for(let e=0;e<this.children.length;e++)this.children[e].updateMatrixRecursive()}decomposeMatrix(e){e.decompose(this.position,this.quaternion,this.scale),this.updateMatrix()}applyMatrix(e){this.decomposeMatrix(this.matrix.clone().multiply(e))}lookAt(e){let t=e.clone(),n=new A(0,1,0,0);if(this.parent){let e=this.parent.matrixWorld.clone().inverse();t.applyMatrix4AsPosition(e),n.applyMatrix4AsDirection(e).normalize()}let r=new j().lookAt(this.position,t,n);this.quaternion.setFromMatrix(r),this.updateMatrix()}addComponent(e,...t){this.removeComponent(e);let[n]=t,r=new e({entity:this,engine:this._engine,args:n||{}});return this.components.set(e,r),this.componentsSorted.push(r),this.componentsSorted.sort((e,t)=>e.order-t.order),this.noticeField(`components`),this.emit(`componentAdded`,[r]),r}removeComponent(e){let t=this.components.get(e);t&&t.dispose(),this.components.delete(e),this.componentsSorted=this.componentsSorted.filter(e=>e!==t),this.noticeField(`components`),t&&this.emit(`componentRemoved`,[t])}removeComponentByUUID(e){for(let t of this.components){let n=t[0],r=t[1];if(r.uuid===e)return r.dispose(),this.components.delete(n),this.componentsSorted=this.componentsSorted.filter(e=>e!==r),this.noticeField(`components`),this.emit(`componentRemoved`,[r]),r}}getComponent(e){return this.components.get(e)}getComponentByUUID(e){for(let t of this.components.values())if(t.uuid===e)return t;return null}getComponentByTag(e){for(let t of this.components.values())if(t.tag===e)return t;return null}getComponentsByTag(e){let t=[];return this.components.forEach(n=>{n.tag==e&&t.push(n)}),t}findEntityByName(e){if(this.name==e)return this;for(let t=0;t<this.children.length;t++){let n=this.children[t].findEntityByName(e);if(n)return n}}findEntityByUUID(e){if(this.uuid==e)return this;for(let t=0;t<this.children.length;t++){let n=this.children[t].findEntityByUUID(e);if(n)return n}}getRootEntity(){return this.parent?this.parent.getRootEntity():this}getScenePath(e){let t=`/`+this.name;return e&&e.uuid==this.uuid||this.parent&&(t=this.parent.getScenePath(e)+t),t}noticeEventChilds(e,t){this.emit(e,t);for(let n=0;n<this.children.length;n++)this.children[n].noticeEventChilds(e,t)}noticeEventParent(e,t){this.emit(e,t),this.parent&&this.parent.noticeEventParent(e,t)}traverse(e){e(this),this.children.forEach(t=>t.traverse(e))}isVisibleTraverse(){return this.visible?!this.parent||this.parent.isVisibleTraverse():!1}dispose(){this.emit(`dispose`),this.parent&&this.parent.remove(this),this.components.forEach(e=>{e.dispose()}),this.components.clear(),this.componentsSorted=[]}disposeRecursive(){this.dispose(),this.children.concat().forEach(e=>{e.disposeRecursive()}),this.children=[]}},qt=class extends N{constructor(e){super();let{innerRadius:t,outerRadius:n,thetaSegments:r,phiSegments:i,extrude:a}={innerRadius:.4,outerRadius:.5,thetaSegments:12,phiSegments:1,extrude:0,...e},o=r+1,s=[],c=[],l=[],u=[],d=(r+1)*(i+1);for(let e=0;e<(a==0?1:2);e++){let f=e==0?-1:1,p=a==0?0:a/2*f;for(let a=0;a<i+1;a++){let m=t+(n-t)*(a/i);for(let t=0;t<=r;t++){let n=t/r*Math.PI*2,h=Math.cos(n)*m,g=Math.sin(n)*m;if(s.push(h,g,p),l.push(t/r,a/i),c.push(0,0,1*f),a>0&&t<r){let n=d*e+a*o+t;e==0?u.push(n,n-o,n+1,n+1,n-o,n+1-o):u.push(n,n+1,n-o,n+1,n+1-o,n-o)}}}}if(a!=0){for(let e=0;e<2;e++){let o=e==0?t:n;for(let t=0;t<2;t++)for(let n=0;n<r;n++){let u=n/r*Math.PI*2,d=Math.cos(u)*o,f=Math.sin(u)*o;s.push(d,f,(-.5+t)*a),l.push(n/r,t/i),e==0?c.push(-Math.cos(u),-Math.sin(u),0):c.push(Math.cos(u),Math.sin(u),0)}}let e=d*2;for(let t=0;t<2;t++)for(let n=0;n<r;n++){let i=e+n+r*2*t,a=n==r-1?-r:0;t==0?u.push(i,i+r,i+r+1+a,i,i+r+1+a,i+1+a):u.push(i,i+r+1+a,i+r,i,i+1+a,i+r+1+a)}}this.setAttribute(`position`,new Float32Array(s),3),this.setAttribute(`normal`,new Float32Array(c),3),this.setAttribute(`uv`,new Float32Array(l),2),this.setAttribute(`index`,new Uint16Array(u),1)}},Jt=new Map,Yt=(e,t)=>Jt.get(e)||(Jt.set(e,t),t),Xt=class{origin;direction;constructor(e,t){this.origin=e||new A,this.direction=t||new A(0,0,-1)}setFromCamera(e,t,n){let r=new A(e.x,e.y,-1,1).applyMatrix4(t).applyMatrix4(n);r.x/=r.w,r.y/=r.w,r.z/=r.w;let i=new A(e.x,e.y,1,1).applyMatrix4(t).applyMatrix4(n);return i.x/=i.w,i.y/=i.w,i.z/=i.w,this.origin.set(r.x,r.y,r.z),this.direction.set(i.x-r.x,i.y-r.y,i.z-r.z).normalize(),this}intersectAABB(e,t){let n=1/this.direction.x,r=1/this.direction.y,i=1/this.direction.z,a=(e.x-this.origin.x)*n,o=(t.x-this.origin.x)*n,s=Math.min(a,o),c=Math.max(a,o);if(a=(e.y-this.origin.y)*r,o=(t.y-this.origin.y)*r,s=Math.max(s,Math.min(a,o)),c=Math.min(c,Math.max(a,o)),a=(e.z-this.origin.z)*i,o=(t.z-this.origin.z)*i,s=Math.max(s,Math.min(a,o)),c=Math.min(c,Math.max(a,o)),c<0||s>c)return null;let l=s>=0?s:c;return{distance:l,point:new A(this.origin.x+this.direction.x*l,this.origin.y+this.direction.y*l,this.origin.z+this.direction.z*l)}}intersectTriangle(e,t,n){let r=1e-8,i=t.x-e.x,a=t.y-e.y,o=t.z-e.z,s=n.x-e.x,c=n.y-e.y,l=n.z-e.z,u=this.direction.y*l-this.direction.z*c,d=this.direction.z*s-this.direction.x*l,f=this.direction.x*c-this.direction.y*s,p=i*u+a*d+o*f;if(p>-1e-8&&p<r)return null;let m=1/p,h=this.origin.x-e.x,g=this.origin.y-e.y,_=this.origin.z-e.z,v=m*(h*u+g*d+_*f);if(v<0||v>1)return null;let y=g*o-_*a,b=_*i-h*o,x=h*a-g*i,S=m*(this.direction.x*y+this.direction.y*b+this.direction.z*x);if(S<0||v+S>1)return null;let C=m*(s*y+c*b+l*x);return C>r?{distance:C,point:new A(this.origin.x+this.direction.x*C,this.origin.y+this.direction.y*C,this.origin.z+this.direction.z*C)}:null}},Zt=class{ray;_v0;_v1;_v2;constructor(){this.ray=new Xt,this._v0=new A,this._v1=new A,this._v2=new A}setFromCamera(e,t){let n=t.getComponentsByTag(`camera`)[0];if(!n)return;let r=n.projectionMatrix.clone().inverse(),i=n.viewMatrix.clone().inverse();this.ray.setFromCamera(e,r,i)}intersectEntities(e){let t=[];return e.traverse(e=>{if(!e.visible)return;let n=e.getComponent(P);if(!n)return;let r=this.intersectMesh(e,n);r&&t.push(...r)}),t.sort((e,t)=>e.distance-t.distance),t}intersectMesh(e,t){let n=t.geometry,r=n.boundingBox;if(!r)return null;let i=e.matrixWorld.clone().inverse(),a=new Xt;a.origin.copy(this.ray.origin),a.origin.w=1,a.origin.applyMatrix4(i),a.origin.x/=a.origin.w,a.origin.y/=a.origin.w,a.origin.z/=a.origin.w;let o=this.ray.origin.clone().add(this.ray.direction);if(o.w=1,o.applyMatrix4(i),o.x/=o.w,o.y/=o.w,o.z/=o.w,a.direction.set(o.x-a.origin.x,o.y-a.origin.y,o.z-a.origin.z).normalize(),!a.intersectAABB(r.min,r.max))return null;let s=this.intersectTriangles(a,n);if(!s)return null;let c=s.point.clone();c.w=1,c.applyMatrix4(e.matrixWorld),c.x/=c.w,c.y/=c.w,c.z/=c.w;let l=c.x-this.ray.origin.x,u=c.y-this.ray.origin.y,d=c.z-this.ray.origin.z;return[{entity:e,distance:Math.sqrt(l*l+u*u+d*d),point:c}]}intersectTriangles(e,t){let n=t.getAttribute(`position`);if(!n)return null;let r=n.array,i=t.getAttribute(`index`),a=i?i.array:null,o=Math.floor((a?a.length:t.vertCount)/3),s=null;for(let t=0;t<o;t++){let n=(a?a[t*3+0]:t*3+0)*3,i=(a?a[t*3+1]:t*3+1)*3,o=(a?a[t*3+2]:t*3+2)*3;this._v0.set(r[n],r[n+1],r[n+2]),this._v1.set(r[i],r[i+1],r[i+2]),this._v2.set(r[o],r[o+1],r[o+2]);let c=e.intersectTriangle(this._v0,this._v1,this._v2);c&&(!s||c.distance<s.distance)&&(s=c)}return s}},Qt;(function(e){let t=e.assign=(e,...t)=>{for(let n=0;n<t.length;n++)t[n]!=null&&Object.assign(e,t[n]);return e};e.merge=(...e)=>t({},...e)})(Qt||={});var $t=class extends It{_resolution;_postProcesses;constructor(e){super(e),this._postProcesses=[],this._resolution=new A}get postProcesses(){return this._postProcesses}add(e){return this.postProcesses.push(e),e.resize(this._resolution),e}remove(e){let t=this._postProcesses.indexOf(e);t>-1&&this._postProcesses.splice(t,1)}resize(e){(this._resolution.x!=e.x||this._resolution.y!=e.y)&&(this._resolution.copy(e),this.resizePostProcesses())}resizePostProcesses(){this.postProcesses.forEach(e=>{e.resize(this._resolution)})}},en=class extends Ft{name;vert;frag;defines;uniforms;useLight;depthTest;depthWrite;cullFace;drawType;blending;renderOrder;visibilityFlag;programCache;constructor(e){super(),e||={},this.name=e.name||``,this.visibilityFlag={},this.setVisibility(e.phase||[`shadowMap`,`deferred`]),this.useLight=e.useLight===void 0||e.useLight,this.depthTest=e.depthTest===void 0||e.depthTest,this.cullFace=e.cullFace!==void 0&&e.cullFace,this.depthWrite=e.depthWrite===void 0||e.depthWrite,this.drawType=e.drawType||`TRIANGLES`,this.blending=e.blending||`NORMAL`,this.renderOrder=e.renderOrder??0,this.vert=e.vert||`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}\r
+uniform mat4 uModelMatrix;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform mat4 uNormalMatrix;\r
+\r
+uniform mat4 uModelMatrixPrev;\r
+uniform mat4 uModelViewMatrix;\r
+uniform mat4 uViewMatrixPrev;\r
+uniform mat4 uProjectionMatrixPrev;\r
+\r
+out vec2 vUv;\r
+out vec3 vViewNormal;\r
+out vec3 vNormal;\r
+out vec3 vMVPosition;\r
+out vec3 vMVPPosition;\r
+out vec3 vPos;\r
+\r
+out vec2 vVelocity;\r
+\r
+layout ( location = 0 ) in vec3 position;\r
+layout ( location = 1 ) in vec2 uv;\r
+layout ( location = 2 ) in vec3 normal;\r
+\r
+#ifdef TF_MODELER\r
+	out vec3 o_position;\r
+	out vec3 o_normal;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;\r
+\r
+void main( void ) {\r
+\r
+	vec3 outPos = position;\r
+vec3 outNormal = normal;\r
+vec2 outUv = uv;\r
+	#ifdef TF_MODELER\r
+		o_position = outPos;\r
+		o_normal = outNormal;\r
+		return;\r
+#endif\r
+\r
+vec4 modelPosition = uModelMatrix * vec4(outPos, 1.0);\r
+vec4 mvPosition = uViewMatrix * modelPosition;\r
+gl_Position = uProjectionMatrix * mvPosition;\r
+\r
+vec4 modelPositionPrev = uModelMatrixPrev * vec4(outPos, 1.0);\r
+vec4 mvPositionPrev = uViewMatrixPrev * modelPositionPrev;\r
+vec4 positionPrev = uProjectionMatrixPrev * mvPositionPrev;\r
+\r
+vUv = outUv;\r
+vViewNormal = normalize( (uNormalMatrix * vec4(outNormal, 0.0)).xyz );\r
+vNormal = (uModelMatrix * vec4(outNormal, 0.0)).xyz;\r
+vPos = modelPosition.xyz;\r
+vMVPosition = mvPosition.xyz;\r
+vMVPPosition = gl_Position.xyz / gl_Position.w;\r
+\r
+vVelocity = vMVPPosition.xy - positionPrev.xy / positionPrev.w;\r
+vVelocity *= 0.2;\r
+	\r
+}`,this.frag=e.frag||`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}\r
+// 宣言順はvert_h.part.glslのoutと一致させる（WGSL変換時にロケーションが宣言順で振られるため）\r
+in vec2 vUv;\r
+in vec3 vViewNormal;\r
+in vec3 vNormal;\r
+in vec3 vMVPosition;\r
+in vec3 vMVPPosition;\r
+in vec3 vPos;\r
+in vec2 vVelocity;\r
+\r
+uniform mat4 uModelMatrix;\r
+uniform mat4 uModelMatrixInverse;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform vec3 uCameraPosition;\r
+uniform vec2 uResolution;\r
+\r
+#ifdef IS_DEPTH\r
+	uniform float uCameraNear;\r
+	uniform float uCameraFar;\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+	layout (location = 3) out vec4 outColor3;\r
+	layout (location = 4) out vec4 outColor4;\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	uniform sampler2D uDeferredTexture;\r
+	uniform vec2 uDeferredResolution;\r
+	uniform sampler2D uGbufferNormal;\r
+	uniform sampler2D uGbufferAlbedo;\r
+	uniform sampler2D uGbufferMaterial;\r
+#endif\r
+\r
+#if defined(IS_FORWARD) || defined(IS_DEPTH)\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;\r
+\r
+void main( void ) {\r
+\r
+	vec4 outColor = vec4(1.0);\r
+vec3 outNormal = normalize(vNormal);\r
+vec3 outNormalMap = vec3( 0.0 );\r
+float outSSN = 0.0;\r
+vec3 outEmission = vec3(0.0);\r
+float outRoughness = 0.5;\r
+float outMetallic = 0.0;\r
+vec3 outPos = vPos;\r
+float outEnv = 1.0;\r
+	#if defined(IS_DEPTH) || defined(IS_DEFERRED)\r
+	vec4 mv = uViewMatrix * vec4(outPos, 1.0);\r
+#endif\r
+\r
+#ifdef IS_DEPTH\r
+	float depth_z = (-mv.z - uCameraNear) / (uCameraFar - uCameraNear);\r
+	outColor0 = vec4(floatToRGBA( depth_z ));\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+\r
+	#ifdef USE_NORMAL_MAP \r
+\r
+		vec3 tangent;\r
+		vec3 bitangent;\r
+\r
+		#ifdef USE_TANGENT\r
+\r
+			tangent = normalize( vTangent );\r
+			bitangent = normalize( vBitangent );\r
+\r
+		#else\r
+\r
+			tangent = cross(outNormal, vec3( 0.0, 1.0, 0.0 ));\r
+			bitangent = cross(tangent, outNormal);\r
+\r
+		#endif\r
+\r
+		#ifdef DOUBLE_SIDED\r
+\r
+			tangent *= faceDirection;\r
+			bitangent *= faceDirection;\r
+			\r
+		#endif\r
+\r
+		mat3 vTBN = mat3( tangent, bitangent, outNormal );\r
+		outNormal = normalize( vTBN * outNormalMap );\r
+\r
+	#endif\r
+\r
+	vec4 mvp = uProjectionMatrix * mv;\r
+	gl_FragDepth = ( mvp.z / mvp.w ) * 0.5 + 0.5;\r
+	outColor0 = vec4( outPos, outEmission.x );\r
+	outColor1 = vec4( normalize( outNormal * ( gl_FrontFacing ? 1.0 : -1.0 ) ), outEmission.y );\r
+	outColor2 = vec4( outColor.xyz, 0.0 );\r
+	outColor3 = vec4( outRoughness, outMetallic, outSSN, outEnv );\r
+	outColor4 = vec4( vVelocity, 0.0, outEmission.z );\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	outColor0 = outColor;\r
+	outColor1 = vec4(outPos, 1.0);\r
+	outColor2 = vec4(vVelocity, 0.0, 1.0);\r
+#endif\r
+\r
+}`,this.defines=e.defines||{},this.uniforms=e.uniforms||{},this.programCache={}}setVisibility(e){this.visibilityFlag={shadowMap:e.indexOf(`shadowMap`)>-1,deferred:e.indexOf(`deferred`)>-1,forward:e.indexOf(`forward`)>-1,ui:e.indexOf(`ui`)>-1,envMap:e.indexOf(`envMap`)>-1,postprocess:e.indexOf(`postprocess`)>-1}}requestUpdate(){this.programCache={}}},tn=class extends Ft{name;enabled;_passes;constructor(e){super();let t=e||{};this.name=t.name||``,this.enabled=!0,this._passes=e&&e.passes||[]}get passes(){return this._passes}get hasOutput(){return this._passes.length>0&&this._passes.some(e=>e.enabled)}get output(){for(let e=this._passes.length-1;e>=0;e--){let t=this._passes[e];if(!t.passThrough&&t.enabled)return t.renderTarget}return null}resize(e){if(this._passes)for(let t=0;t<this._passes.length;t++)this._passes[t].resize(e)}dispose(){this.emit(`dispose`)}},F=class extends en{enabled;renderTarget;backBufferOverride;clearColor;clearDepth;resolutionRatio;passThrough;resolution;resolutionInv;viewPort;_fixedResolution;constructor(e,t){super({...t,frag:t.frag||`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}\r
+\r
+uniform sampler2D uBackBuffer0;\r
+\r
+layout (location = 0) out vec4 outColor;\r
+\r
+in vec2 vUv;\r
+\r
+void main( void ) {\r
+\r
+	outColor = texture( uBackBuffer0, vUv );\r
+	outColor.w = 1.0;\r
+\r
+}`,vert:t.vert||`layout ( location = 0 ) in vec3 position;\r
+layout ( location = 1 ) in vec2 uv;\r
+\r
+out vec2 vUv;\r
+\r
+void main( void ) {\r
+\r
+	vec3 pos = position;\r
+	gl_Position = vec4( pos.xy, 0.0, 1.0 );\r
+	vUv = uv;\r
+\r
+}`}),this.enabled=!0,this._fixedResolution=t.fixedResotluion?t.fixedResotluion.clone():null,this.resolution=new A,this.resolutionInv=new A,this.viewPort=null,this.uniforms.uPPResolution={value:this.resolution,type:`2fv`},this.uniforms.uPPPixelSize={value:this.resolutionInv,type:`2fv`},this.renderTarget=t.renderTarget===void 0?e.createFrameBuffer().setTexture([e.createTexture().setting({magFilter:M.LINEAR,minFilter:M.LINEAR})]):t.renderTarget,this.clearColor=t.clearColor??null,this.clearDepth=t.clearDepth??null,this.depthTest=t.depthTest!==void 0&&t.depthTest,this.resolutionRatio=t.resolutionRatio||1,this.passThrough=t.passThrough??!1,this.viewPort=t.viewPort||null,this.backBufferOverride=t.backBufferOverride||null}get fixedResolution(){return this._fixedResolution}set fixedResolution(e){this._fixedResolution=e,this.resize(e||new A)}onAfterRender(){}resize(e){this._fixedResolution?this.resolution.copy(this._fixedResolution):this.resolution.copy(e).multiply(this.resolutionRatio),this.resolutionInv.set(1/this.resolution.x,1/this.resolution.y),this.renderTarget&&this.renderTarget.setSize(this.resolution)}setRendertarget(e){this.renderTarget=e,this.renderTarget&&(this.renderTarget.size.x!=this.resolution.x||this.renderTarget.size.y!=this.resolution.y)&&this.renderTarget.setSize(this.resolution)}},nn=class extends _t{material;_renderer;_resolution;_postProcess;_frameBuffer;constructor(e,t){let n=e.backend,r=n.gl;super(r),this._renderer=e,this._resolution=t.resolution||new A(1024,1024),this.setting({wrapS:r.REPEAT,wrapT:r.REPEAT,magFilter:r.LINEAR,minFilter:r.LINEAR}),this._frameBuffer=new vt(r).setTexture([this]).setSize(this._resolution),this.material=new F(n,{...t,renderTarget:this._frameBuffer}),this._postProcess=new tn({passes:[this.material]}),this.render()}render(){this._renderer.renderPostProcess(this._postProcess,void 0,this._resolution)}},rn=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+
+uniform sampler2D uBackBuffer0;
+uniform sampler2D uPMREMBackBuffer;
+uniform samplerCube uEnvMap;
+uniform float uRoughness;
+uniform float uTimeEF;
+layout (location = 0) out vec4 outColor;
+
+in vec2 vUv;
+
+// https://stackoverflow.com/questions/4200224/random-noise-functions-for-glsl\r
+\r
+float random(vec2 p){\r
+	return fract(sin(dot(p.xy ,vec2(12.9898,78.233))) * 43758.5453);\r
+}\r
+\r
+// https://www.shadertoy.com/view/4djSRW\r
+\r
+vec3 hash(vec3 p3)\r
+{\r
+	p3 = fract(p3 * vec3(.1031, .1030, .0973));\r
+  p3 += dot(p3, p3.yxz+33.33);\r
+  return fract((p3.xxy + p3.yxx)*p3.zyx);\r
+\r
+}
+// https://github.com/mrdoob/three.js/blob/c2593ed3db121b17590068c638d5dc115e7496f9/src/renderers/shaders/ShaderChunk/cube_uv_reflection_fragment.glsl.js#L11C8-L11C15\r
+\r
+float getPmremFace( vec3 direction ) {\r
+\r
+	vec3 absDirection = abs( direction );\r
+\r
+	float face = - 1.0;\r
+\r
+	if ( absDirection.x > absDirection.z ) {\r
+\r
+		if ( absDirection.x > absDirection.y )\r
+\r
+			face = direction.x > 0.0 ? 0.0 : 3.0;\r
+\r
+		else\r
+\r
+			face = direction.y > 0.0 ? 1.0 : 4.0;\r
+\r
+	} else {\r
+\r
+		if ( absDirection.z > absDirection.y )\r
+\r
+			face = direction.z > 0.0 ? 2.0 : 5.0;\r
+\r
+		else\r
+\r
+			face = direction.y > 0.0 ? 1.0 : 4.0;\r
+\r
+	}\r
+\r
+	return face;\r
+\r
+}\r
+\r
+// https://github.com/mrdoob/three.js/blob/c2593ed3db121b17590068c638d5dc115e7496f9/src/renderers/shaders/ShaderChunk/cube_uv_reflection_fragment.glsl.js#L44\r
+\r
+vec2 getPmremUV( vec3 direction, float face ) {\r
+\r
+	vec2 uv;\r
+\r
+	if ( face == 0.0 ) {\r
+\r
+		uv = vec2( direction.z, direction.y ) / abs( direction.x ); // pos x\r
+\r
+	} else if ( face == 1.0 ) {\r
+\r
+		uv = vec2( - direction.x, - direction.z ) / abs( direction.y ); // pos y\r
+\r
+	} else if ( face == 2.0 ) {\r
+\r
+		uv = vec2( - direction.x, direction.y ) / abs( direction.z ); // pos z\r
+\r
+	} else if ( face == 3.0 ) {\r
+\r
+		uv = vec2( - direction.z, direction.y ) / abs( direction.x ); // neg x\r
+\r
+	} else if ( face == 4.0 ) {\r
+\r
+		uv = vec2( - direction.x, direction.z ) / abs( direction.y ); // neg y\r
+\r
+	} else {\r
+\r
+		uv = vec2( direction.x, direction.y ) / abs( direction.z ); // neg z\r
+\r
+	}\r
+\r
+	return 0.5 * ( uv + 1.0 );\r
+\r
+}\r
+\r
+vec3 getPmremDir( vec2 uv, float face ) {\r
+\r
+	vec3 dir = vec3( 0.0 );\r
+\r
+	if ( face == 0.0 ) {\r
+\r
+		vec2 yz = ( vec2( uv.y, uv.x ) - 0.5 ) * 2.0;\r
+		\r
+		dir = vec3( 1.0, yz );\r
+\r
+	} else if( face == 1.0 ) {\r
+\r
+		vec2 xz = ( vec2( - uv.x, -uv.y ) + 0.5 ) * 2.0;\r
+		\r
+		dir = vec3( xz.x, 1.0, xz.y );\r
+		\r
+	} else if( face == 2.0 ) {\r
+\r
+		vec2 xy = ( vec2( - uv.x + 0.5, uv.y - 0.5 ) ) * 2.0;\r
+		\r
+		dir = vec3( xy, 1.0 );\r
+		\r
+	} else if( face == 3.0 ) {\r
+\r
+		vec2 zy = ( vec2( - uv.x + 0.5, uv.y - 0.5 ) ) * 2.0;\r
+		\r
+		dir = vec3( -1.0, zy.y, zy.x );\r
+		\r
+	} else if( face == 4.0 ) {\r
+\r
+		vec2 xz = ( vec2( - uv.x + 0.5 , uv.y - 0.5 ) ) * 2.0;\r
+		\r
+		dir = vec3( xz.x, -1.0, xz.y );\r
+		\r
+	} else if( face == 5.0 ) {\r
+\r
+		vec2 xy = ( vec2( uv.x, uv.y ) - 0.5 ) * 2.0;\r
+		\r
+		dir = vec3( xy, -1.0 );\r
+		\r
+	}\r
+\r
+	return normalize( dir );\r
+\r
+}\r
+\r
+\r
+//https://github.com/mrdoob/three.js/blob/c2593ed3db121b17590068c638d5dc115e7496f9/src/renderers/shaders/ShaderChunk/cube_uv_reflection_fragment.glsl.js#L132\r
+\r
+#define MAXMIP 5.0\r
+\r
+float roughnessToMip( float roughness ) {\r
+\r
+	float mip = 0.0;\r
+\r
+	mip = roughness * ( MAXMIP - 1.0 );\r
+\r
+	return mip;\r
+\r
+}\r
+\r
+vec3 getPmremMip( sampler2D envMap, vec3 direction, float mip ) {\r
+\r
+	float face = getPmremFace( direction );\r
+	vec2 uv = getPmremUV( direction, face );\r
+\r
+	vec2 faceRes = vec2(textureSize( envMap, 0 )) * pow( 0.5, floor( mip ) );\r
+	float s = 2.0;\r
+	uv *= faceRes - 2.0 * s;\r
+	uv += 1.0 * s;\r
+	uv /= faceRes;\r
+\r
+	uv.x += mod( face, 3.0 );\r
+	uv.y += floor( face / 3.0) ;\r
+	\r
+	uv.y *= 0.5;\r
+	uv.y *= 0.5;\r
+	uv.x /= 3.0;\r
+\r
+	float scale = 1.0 - pow( 2.0, -floor(mip) );\r
+	uv.y *= 1.0 - scale;\r
+	uv.x *= 1.0 - scale;\r
+	uv.y += scale;\r
+\r
+	vec4 col = textureGrad( envMap, uv, vec2( 0.0 ), vec2( 0.0 )  );\r
+\r
+	return col.xyz / col.w;\r
+\r
+}\r
+\r
+vec3 getPmrem( sampler2D envMap, vec3 direction, float roughness ) {\r
+\r
+	float mip = roughnessToMip( roughness );\r
+	float mipF = fract( mip );\r
+	float mipInt = floor( mip );\r
+\r
+	vec3 color0 = getPmremMip( envMap, direction, mipInt );\r
+\r
+	if ( mipF == 0.0 ) {\r
+\r
+		return color0;\r
+\r
+	} else {\r
+\r
+		vec3 color1 = getPmremMip( envMap, direction, mipInt + 1.0 );\r
+\r
+		return mix( color0, color1, mipF );\r
+\r
+	}\r
+\r
+}
+
+// https://www.shadertoy.com/view/4lscWj
+
+vec2 Hammersley(float i, float numSamples)
+{   
+    uint b = uint(i);
+    
+    b = (b << 16u) | (b >> 16u);
+    b = ((b & 0x55555555u) << 1u) | ((b & 0xAAAAAAAAu) >> 1u);
+    b = ((b & 0x33333333u) << 2u) | ((b & 0xCCCCCCCCu) >> 2u);
+    b = ((b & 0x0F0F0F0Fu) << 4u) | ((b & 0xF0F0F0F0u) >> 4u);
+    b = ((b & 0x00FF00FFu) << 8u) | ((b & 0xFF00FF00u) >> 8u);
+    
+    float radicalInverseVDC = float(b) * 2.3283064365386963e-10;
+    
+    return vec2((i / numSamples), radicalInverseVDC);
+} 
+
+vec3 SampleHemisphere_Cosinus(float i, float numSamples)
+{
+    vec2 xi = Hammersley(i, numSamples);
+    
+    float phi      = xi.y * 2.0 * PI;
+    float cosTheta = sqrt(1.0 - xi.x);
+    float sinTheta = sqrt(1.0 - cosTheta * cosTheta);
+     
+    return vec3(cos(phi) * sinTheta, cosTheta, sin(phi) * sinTheta);
+}
+
+// https://qiita.com/emadurandal/items/b2ae09c5cc1b3da821c8
+
+vec3 ImportanceSampleCosineWeighted(vec2 Xi, vec3 N)
+{
+    float r = sqrt(Xi.x);
+	// r = 1.0;
+    float phi = 2.0 * PI * Xi.y;
+
+    vec3 H;
+    H.x = r * cos(phi);
+    H.y = r * sin(phi);
+    H.z = sqrt(1.0-Xi.x);
+
+    vec3 UpVector = abs(N.z) < 0.999 ? vec3(0,0,1) : vec3(1,0,0);
+    vec3 TangentX = normalize( cross(UpVector, N) );
+    vec3 TangentY = cross ( N, TangentX );
+    // Tangent to world space
+    return TangentX * H.x + TangentY * H.y + N * H.z;
+}
+
+// https://cdn2.unrealengine.com/Resources/files/2013SiggraphPresentationsNotes-26915738.pdf
+
+vec3 ImportanceSampleGGX( vec2 Xi, float Roughness, vec3 N ) {
+	float a = Roughness * Roughness;
+	float Phi = 2.0 * PI * Xi.x;
+	float CosTheta = sqrt( (1.0 - Xi.y) / ( 1.0 + (a*a - 1.0) * Xi.y ) );
+	float SinTheta = sqrt( 1.0 - CosTheta * CosTheta );
+	vec3 H;
+	H.x = SinTheta * cos( Phi );
+	H.y = SinTheta * sin( Phi );
+	H.z = CosTheta;
+
+	vec3 UpVector = abs(N.z) < 0.999 ? vec3(0,0,1) : vec3(1,0,0);
+	vec3 TangentX = normalize( cross( UpVector, N ) );
+	vec3 TangentY = cross( N, TangentX );
+	// Tangent to world space
+	return TangentX * H.x + TangentY * H.y + N * H.z;
+}
+
+vec3 PrefilterEnvMap( float Roughness, vec3 R )
+{
+	vec3 N = R;
+	vec3 V = R;
+	vec3 PrefilteredColor = vec3( 0.0 );
+	float TotalWeight = 0.0;
+
+	for( int i = 0; i < NUM_SAMPLES; i++ ) {
+		
+		vec2 Xi = Hammersley( float(i), float( NUM_SAMPLES ) );
+
+		Xi.x += random( vec2( vUv + uTimeEF * 0.1 ) );
+		Xi.y += random( vec2( vUv + uTimeEF * 0.1 + 1.0 ) );
+		Xi = fract( Xi );
+		
+		vec3 H = ImportanceSampleGGX( Xi, Roughness, N );
+		// vec3 H = ImportanceSampleCosineWeighted(Xi, N);
+		vec3 L = 2.0 * dot( V, H ) * H - V;
+		float NoL = saturate( dot( N, L ) );
+
+		if( NoL > 0.0 ) {
+			PrefilteredColor += texture(uEnvMap , L).rgb * NoL;
+			TotalWeight += NoL;
+		}
+
+	}
+	
+	return PrefilteredColor / max( TotalWeight, 1.0 );
+}
+
+void main( void ) {
+
+	vec4 sum = vec4( 0.0 );
+	vec2 res = vec2( textureSize( uPMREMBackBuffer, 0 ) );
+
+	float face = floor( vUv.x * 3.0 ) + floor( vUv.y * 2.0 ) * 3.0;
+	vec2 fuv = fract( vUv * vec2( 3.0, 2.0 ) );
+
+
+	vec2 uv = fuv;
+	uv -= 0.5;
+	uv *= 1.0 + 1.0 / res * 2.0;
+	uv += 0.5;
+
+	sum.xyz += PrefilterEnvMap(uRoughness, getPmremDir(uv, face));
+
+	outColor = vec4( mix( texture( uPMREMBackBuffer, vUv ).xyz, sum.xyz, 0.04  ), 1.0 );
+
+}`,an=class extends Et{postprocess;resolution;renderTarget;pmremPasses;swapBuffers;timeUniforms;constructor(e,t){super();let n=t.resolution,r={uTimeEF:{value:0,type:`1f`}},i=e.createFrameBuffer().setTexture([e.createTexture().setting({type:M.FLOAT,internalFormat:M.RGBA16F,format:M.RGBA,magFilter:M.LINEAR,minFilter:M.LINEAR,wrapS:M.CLAMP_TO_EDGE,wrapT:M.CLAMP_TO_EDGE})]),a=[],o=[],s=[],c=0;for(let l=0;l<5;l++){let u=1/2**l,d=n.x*u,f=n.y*u*.5,p=new A(0,c,d,f);c+=f,s.push({rt1:e.createFrameBuffer().setTexture([e.createTexture().setting({type:M.FLOAT,internalFormat:M.RGBA16F,format:M.RGBA})]),rt2:e.createFrameBuffer().setTexture([e.createTexture().setting({type:M.FLOAT,internalFormat:M.RGBA16F,format:M.RGBA})])});let m=1/4*l,h=new F(e,{renderTarget:s[l].rt1,frag:rn,uniforms:Qt.merge(r,{uRoughness:{value:m,type:`1f`},uEnvMap:{value:t.input,type:`1i`},uPMREMBackBuffer:{value:s[l].rt2.textures,type:`1i`},uRenderCount:{value:1,type:`1f`}}),defines:{NUM_SAMPLES:Math.floor(2**(l+1))}});h.resize(new A(d,f));let g=new F(e,{renderTarget:i,viewPort:p,passThrough:!0});g.resize(n),a.push(h,g),o.push(h)}this.postprocess=new tn({passes:a}),this.postprocess.passes[0].backBufferOverride=i.textures,this.resolution=n,this.renderTarget=i,this.pmremPasses=o,this.swapBuffers=s,this.timeUniforms=r}swap(){this.timeUniforms.uTimeEF.value=(this.timeUniforms.uTimeEF.value+.016)%1;for(let e=0;e<this.pmremPasses.length;e++){let t=this.pmremPasses[e],n=this.swapBuffers[e],r=n.rt1;n.rt1=n.rt2,n.rt2=r,t.setRendertarget(n.rt1),t.uniforms.uPMREMBackBuffer.value=n.rt2.textures}}resize(e){}},on=class{backend;pool;constructor(e){this.backend=e,this.pool=new Map}get(e,t,n){let r=e+t,i=this.pool.get(r);if(i!==void 0&&i.program)return i;let a=this.backend.createProgram();return n&&(a.name=n),a.setShader(e,t),this.pool.set(r,a),a}},sn=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}\r
+struct DirectionalLight {\r
+	vec3 direction;\r
+	vec3 color;\r
+};\r
+\r
+struct SpotLight {\r
+	vec3 position;\r
+	vec3 direction;\r
+	vec3 color;\r
+	float angle;\r
+	float blend;\r
+	float distance;\r
+	float decay;\r
+};\r
+\r
+struct LightCamera {\r
+	float near;\r
+	float far;\r
+	mat4 uViewMatrix;\r
+	mat4 uProjectionMatrix;\r
+	vec2 resolution;\r
+};\r
+\r
+struct Light {\r
+	vec3 direction;\r
+	vec3 color;\r
+};\r
+\r
+#if NUM_LIGHT_DIR > 0 \r
+\r
+	uniform DirectionalLight directionalLight[NUM_LIGHT_DIR];\r
+	uniform LightCamera uDirectionalLightCamera[NUM_LIGHT_DIR];\r
+	uniform sampler2D directionalLightShadowMap[NUM_SHADOWMAP_DIR];\r
+	\r
+#endif\r
+\r
+#if NUM_LIGHT_SPOT > 0 \r
+\r
+	uniform SpotLight uSpotLight[NUM_LIGHT_SPOT];\r
+	uniform LightCamera uSpotLightCamera[NUM_LIGHT_SPOT];\r
+	uniform sampler2D uSpotLightShadowMap[NUM_SHADOWMAP_SPOT];\r
+	\r
+#endif\r
+\r
+// shadowmap\r
+\r
+float compareShadowDepth( float lightDepth, sampler2D shadowMap, vec2 shadowCoord, float depthOffset ) {\r
+\r
+	float shadowMapDepth = rgbaToFloat( texture( shadowMap, shadowCoord ) );\r
+\r
+	if( shadowCoord.x >= 0.0 && shadowCoord.x <= 1.0 && shadowCoord.y >= 0.0 && shadowCoord.y <= 1.0 ) {\r
+\r
+		return step( lightDepth, shadowMapDepth + depthOffset );\r
+\r
+	}\r
+\r
+	return 1.0;\r
+\r
+}\r
+\r
+// shadow\r
+\r
+void setShadowCoord( vec3 pos, LightCamera camera, inout vec2 shadowCoord, inout float lightDepth ) {\r
+	\r
+	vec4 mvPosition = camera.uViewMatrix * vec4( pos, 1.0 );\r
+	vec4 mvpPosition = camera.uProjectionMatrix * mvPosition;\r
+	shadowCoord = ( mvpPosition.xy / mvpPosition.w ) * 0.5 + 0.5;\r
+	\r
+	float lightNear = camera.near;\r
+	float lightFar = camera.far;\r
+	lightDepth = ( -mvPosition.z - lightNear ) / ( lightFar - lightNear );\r
+\r
+}\r
+\r
+float getShadow( vec3 pos, LightCamera camera, sampler2D shadowMap, float depthOffset ) {\r
+\r
+	vec2 shadowCoord;\r
+	float lightDepth;\r
+\r
+	setShadowCoord( pos, camera, shadowCoord, lightDepth );\r
+\r
+	return compareShadowDepth( lightDepth, shadowMap, shadowCoord, depthOffset );\r
+\r
+}\r
+\r
+#define SHADOW_SAMPLE_COUNT 2\r
+\r
+float getShadowSmooth( vec3 pos, LightCamera camera, sampler2D shadowMap, float depthOffset ) {\r
+\r
+	vec2 shadowCoord;\r
+	float lightDepth;\r
+\r
+	setShadowCoord( pos, camera, shadowCoord, lightDepth );\r
+	\r
+	float shadowSum = compareShadowDepth( lightDepth, shadowMap, shadowCoord, depthOffset );\r
+\r
+	for( int i = 0; i < SHADOW_SAMPLE_COUNT; i++ ) {\r
+\r
+		vec2 offset = 1.0 / camera.resolution * ( float( i + 1 ) / float(SHADOW_SAMPLE_COUNT) );\r
+\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, -offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( 0.0, -offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, -offset.y ), depthOffset );\r
+		\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, 0.0 ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, 0.0 ), depthOffset );\r
+\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( 0.0, offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, offset.y ), depthOffset );\r
+\r
+	}\r
+\r
+	return shadowSum / ( float( SHADOW_SAMPLE_COUNT ) * 8.0 );\r
+\r
+}\r
+\r
+float ggx( float dNH, float roughness ) {\r
+	\r
+	float a2 = roughness * roughness;\r
+	a2 = a2 * a2;\r
+	float dNH2 = dNH * dNH;\r
+\r
+	if( dNH2 <= 0.0 ) return 0.0;\r
+\r
+	return a2 / ( PI * pow( dNH2 * ( a2 - 1.0 ) + 1.0, 2.0) );\r
+\r
+}\r
+\r
+vec3 lambert( vec3 diffuseColor ) {\r
+\r
+	return diffuseColor / PI;\r
+\r
+}\r
+\r
+float gSchlick( float d, float k ) {\r
+\r
+	if( d == 0.0 ) return 0.0;\r
+\r
+	return d / ( d * ( 1.0 - k ) + k );\r
+	\r
+}\r
+\r
+float gSmith( float dNV, float dNL, float roughness ) {\r
+\r
+	float k = clamp( roughness * sqrt( 2.0 / PI ), 0.0, 1.0 );\r
+\r
+	return gSchlick( dNV, k ) * gSchlick( dNL, k );\r
+	\r
+}\r
+\r
+float fresnel( float d ) {\r
+	\r
+	float f0 = 0.04;\r
+\r
+	return f0 + ( 1.0 - f0 ) * pow( 1.0 - d, 5.0 );\r
+\r
+}\r
+\r
+vec3 RE( Geometry geo, Material mat, Light light) {\r
+\r
+	vec3 lightDir = normalize( light.direction );\r
+	vec3 halfVec = normalize( geo.viewDir + lightDir );\r
+\r
+	float dLH = clamp( dot( lightDir, halfVec ), 0.0, 1.0 );\r
+	float dNH = clamp( dot( geo.normal, halfVec ), 0.0, 1.0 );\r
+	float dNV = clamp( dot( geo.normal, geo.viewDir ), 0.0, 1.0 );\r
+	float dNL = clamp( dot( geo.normal, lightDir), 0.0, 1.0 );\r
+\r
+	vec3 irradiance = light.color * dNL;\r
+\r
+	// diffuse\r
+	vec3 diffuse = lambert( mat.diffuseColor ) * irradiance;\r
+\r
+	// specular\r
+	float D = ggx( dNH, mat.roughness );\r
+	float G = gSmith( dNV, dNL, mat.roughness );\r
+	float F = fresnel( dLH );\r
+	\r
+	vec3 specular = (( D * G * F ) / ( 4.0 * dNL * dNV + 0.0001 ) * mat.specularColor ) * irradiance; \r
+\r
+	vec3 c = vec3( 0.0 );\r
+	c += diffuse * ( 1.0 - F ) + specular;\r
+\r
+	return c;\r
+\r
+}\r
+// https://github.com/mrdoob/three.js/blob/c2593ed3db121b17590068c638d5dc115e7496f9/src/renderers/shaders/ShaderChunk/cube_uv_reflection_fragment.glsl.js#L11C8-L11C15\r
+\r
+float getPmremFace( vec3 direction ) {\r
+\r
+	vec3 absDirection = abs( direction );\r
+\r
+	float face = - 1.0;\r
+\r
+	if ( absDirection.x > absDirection.z ) {\r
+\r
+		if ( absDirection.x > absDirection.y )\r
+\r
+			face = direction.x > 0.0 ? 0.0 : 3.0;\r
+\r
+		else\r
+\r
+			face = direction.y > 0.0 ? 1.0 : 4.0;\r
+\r
+	} else {\r
+\r
+		if ( absDirection.z > absDirection.y )\r
+\r
+			face = direction.z > 0.0 ? 2.0 : 5.0;\r
+\r
+		else\r
+\r
+			face = direction.y > 0.0 ? 1.0 : 4.0;\r
+\r
+	}\r
+\r
+	return face;\r
+\r
+}\r
+\r
+// https://github.com/mrdoob/three.js/blob/c2593ed3db121b17590068c638d5dc115e7496f9/src/renderers/shaders/ShaderChunk/cube_uv_reflection_fragment.glsl.js#L44\r
+\r
+vec2 getPmremUV( vec3 direction, float face ) {\r
+\r
+	vec2 uv;\r
+\r
+	if ( face == 0.0 ) {\r
+\r
+		uv = vec2( direction.z, direction.y ) / abs( direction.x ); // pos x\r
+\r
+	} else if ( face == 1.0 ) {\r
+\r
+		uv = vec2( - direction.x, - direction.z ) / abs( direction.y ); // pos y\r
+\r
+	} else if ( face == 2.0 ) {\r
+\r
+		uv = vec2( - direction.x, direction.y ) / abs( direction.z ); // pos z\r
+\r
+	} else if ( face == 3.0 ) {\r
+\r
+		uv = vec2( - direction.z, direction.y ) / abs( direction.x ); // neg x\r
+\r
+	} else if ( face == 4.0 ) {\r
+\r
+		uv = vec2( - direction.x, direction.z ) / abs( direction.y ); // neg y\r
+\r
+	} else {\r
+\r
+		uv = vec2( direction.x, direction.y ) / abs( direction.z ); // neg z\r
+\r
+	}\r
+\r
+	return 0.5 * ( uv + 1.0 );\r
+\r
+}\r
+\r
+vec3 getPmremDir( vec2 uv, float face ) {\r
+\r
+	vec3 dir = vec3( 0.0 );\r
+\r
+	if ( face == 0.0 ) {\r
+\r
+		vec2 yz = ( vec2( uv.y, uv.x ) - 0.5 ) * 2.0;\r
+		\r
+		dir = vec3( 1.0, yz );\r
+\r
+	} else if( face == 1.0 ) {\r
+\r
+		vec2 xz = ( vec2( - uv.x, -uv.y ) + 0.5 ) * 2.0;\r
+		\r
+		dir = vec3( xz.x, 1.0, xz.y );\r
+		\r
+	} else if( face == 2.0 ) {\r
+\r
+		vec2 xy = ( vec2( - uv.x + 0.5, uv.y - 0.5 ) ) * 2.0;\r
+		\r
+		dir = vec3( xy, 1.0 );\r
+		\r
+	} else if( face == 3.0 ) {\r
+\r
+		vec2 zy = ( vec2( - uv.x + 0.5, uv.y - 0.5 ) ) * 2.0;\r
+		\r
+		dir = vec3( -1.0, zy.y, zy.x );\r
+		\r
+	} else if( face == 4.0 ) {\r
+\r
+		vec2 xz = ( vec2( - uv.x + 0.5 , uv.y - 0.5 ) ) * 2.0;\r
+		\r
+		dir = vec3( xz.x, -1.0, xz.y );\r
+		\r
+	} else if( face == 5.0 ) {\r
+\r
+		vec2 xy = ( vec2( uv.x, uv.y ) - 0.5 ) * 2.0;\r
+		\r
+		dir = vec3( xy, -1.0 );\r
+		\r
+	}\r
+\r
+	return normalize( dir );\r
+\r
+}\r
+\r
+\r
+//https://github.com/mrdoob/three.js/blob/c2593ed3db121b17590068c638d5dc115e7496f9/src/renderers/shaders/ShaderChunk/cube_uv_reflection_fragment.glsl.js#L132\r
+\r
+#define MAXMIP 5.0\r
+\r
+float roughnessToMip( float roughness ) {\r
+\r
+	float mip = 0.0;\r
+\r
+	mip = roughness * ( MAXMIP - 1.0 );\r
+\r
+	return mip;\r
+\r
+}\r
+\r
+vec3 getPmremMip( sampler2D envMap, vec3 direction, float mip ) {\r
+\r
+	float face = getPmremFace( direction );\r
+	vec2 uv = getPmremUV( direction, face );\r
+\r
+	vec2 faceRes = vec2(textureSize( envMap, 0 )) * pow( 0.5, floor( mip ) );\r
+	float s = 2.0;\r
+	uv *= faceRes - 2.0 * s;\r
+	uv += 1.0 * s;\r
+	uv /= faceRes;\r
+\r
+	uv.x += mod( face, 3.0 );\r
+	uv.y += floor( face / 3.0) ;\r
+	\r
+	uv.y *= 0.5;\r
+	uv.y *= 0.5;\r
+	uv.x /= 3.0;\r
+\r
+	float scale = 1.0 - pow( 2.0, -floor(mip) );\r
+	uv.y *= 1.0 - scale;\r
+	uv.x *= 1.0 - scale;\r
+	uv.y += scale;\r
+\r
+	vec4 col = textureGrad( envMap, uv, vec2( 0.0 ), vec2( 0.0 )  );\r
+\r
+	return col.xyz / col.w;\r
+\r
+}\r
+\r
+vec3 getPmrem( sampler2D envMap, vec3 direction, float roughness ) {\r
+\r
+	float mip = roughnessToMip( roughness );\r
+	float mipF = fract( mip );\r
+	float mipInt = floor( mip );\r
+\r
+	vec3 color0 = getPmremMip( envMap, direction, mipInt );\r
+\r
+	if ( mipF == 0.0 ) {\r
+\r
+		return color0;\r
+\r
+	} else {\r
+\r
+		vec3 color1 = getPmremMip( envMap, direction, mipInt + 1.0 );\r
+\r
+		return mix( color0, color1, mipF );\r
+\r
+	}\r
+\r
+}\r
+\r
+// uniforms\r
+\r
+uniform sampler2D sampler0; // position.xyz, emission.x\r
+uniform sampler2D sampler1; // normal.xyz, emission.y\r
+uniform sampler2D sampler2; // albedo, \r
+uniform sampler2D sampler3; // roughness, metallic, normalSelect, envSelect, \r
+uniform sampler2D sampler4; // velocity.xy, 0.0, emission.z\r
+\r
+uniform sampler2D uSSAOTexture;\r
+uniform sampler2D uLightShaftTexture;\r
+uniform sampler2D uEnvMap;\r
+\r
+uniform vec3 uColor;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uCameraMatrix;\r
+uniform vec3 uCameraPosition;\r
+\r
+// -------------------------\r
+\r
+// varyings\r
+\r
+in vec2 vUv;\r
+\r
+// out\r
+\r
+layout (location = 0) out vec4 glFragOut0;\r
+layout (location = 1) out vec4 glFragOut1;\r
+\r
+void main( void ) {\r
+\r
+	float occlusion = texture( uSSAOTexture, vUv ).x;\r
+\r
+	vec4 tex0 = texture( sampler0, vUv );\r
+	vec4 tex1 = texture( sampler1, vUv );\r
+	vec4 tex2 = texture( sampler2, vUv );\r
+	vec4 tex3 = texture( sampler3, vUv );\r
+	vec4 tex4 = texture( sampler4, vUv );\r
+\r
+	vec3 normal = tex1.xyz;\r
+	vec3 color = tex2.xyz;\r
+	float roughness = tex3.x;\r
+	float metallic = tex3.y;\r
+	vec3 emission = vec3( tex0.w, tex1.w, tex4.w );\r
+	float envMapIntensity= tex3.w;\r
+\r
+	Geometry geo = Geometry(\r
+		tex0.xyz,\r
+		normal,\r
+		0.0,\r
+		normalize( uCameraPosition - tex0.xyz ),\r
+		vec3( 0.0 ),\r
+		occlusion\r
+	);\r
+	\r
+	Material mat = Material(\r
+		color,\r
+		roughness,\r
+		metallic,\r
+		emission,\r
+		mix( color, vec3( 0.0, 0.0, 0.0 ), metallic ),\r
+		mix( vec3( 1.0, 1.0, 1.0 ), color, metallic ),\r
+		envMapIntensity\r
+	);\r
+	vec3 outColor = vec3( 0.0 );\r
+\r
+	// lighting\r
+\r
+	// required common, light,\r
+\r
+float shadow;\r
+\r
+// direcitonalLight\r
+\r
+Light light;\r
+LightCamera lightCamera;\r
+\r
+#if NUM_LIGHT_DIR > 0 \r
+\r
+	DirectionalLight dLight;\r
+\r
+	#pragma loop_start NUM_LIGHT_DIR\r
+\r
+		dLight = directionalLight[ LOOP_INDEX ];\r
+		light.direction = dLight.direction;\r
+		light.color = dLight.color;\r
+\r
+		// shadow\r
+\r
+		#if LOOP_INDEX < NUM_SHADOWMAP_DIR\r
+\r
+			shadow = getShadowSmooth( tex0.xyz, uDirectionalLightCamera[ LOOP_INDEX ], directionalLightShadowMap[ LOOP_INDEX ], 0.0001 );\r
+\r
+		#else\r
+\r
+			shadow = 1.0;\r
+\r
+		#endif\r
+		\r
+		// lighting\r
+\r
+		outColor.xyz += RE( geo, mat, light ) * shadow;\r
+\r
+	#pragma loop_end\r
+\r
+#endif\r
+\r
+#if NUM_LIGHT_SPOT > 0\r
+\r
+	SpotLight sLight;\r
+	\r
+	vec3 spotDirection;\r
+	float spotDistance;\r
+	float spotAngleCos;\r
+	float spotAttenuation;\r
+	vec3 radiance;\r
+\r
+	#pragma loop_start NUM_LIGHT_SPOT\r
+\r
+		// shadow\r
+\r
+		#if LOOP_INDEX < NUM_SHADOWMAP_SPOT\r
+\r
+			shadow = getShadowSmooth( geo.position, uSpotLightCamera[ LOOP_INDEX ], uSpotLightShadowMap[ LOOP_INDEX ], 0.001 );\r
+\r
+		#else\r
+\r
+			shadow = 1.0;\r
+\r
+		#endif\r
+\r
+		// lighting\r
+\r
+		sLight = uSpotLight[ LOOP_INDEX ];\r
+\r
+		spotDirection = normalize(sLight.position - geo.position);\r
+		spotDistance = length( sLight.position - geo.position );\r
+		spotAngleCos = dot( sLight.direction, spotDirection );\r
+		spotAttenuation = 0.0;\r
+\r
+		if( spotAngleCos > sLight.angle ) {\r
+\r
+			spotAttenuation = smoothstep( sLight.angle, sLight.angle + ( 1.0 - sLight.angle ) * sLight.blend, spotAngleCos );\r
+\r
+		}\r
+\r
+		light.direction = spotDirection;\r
+		light.color = sLight.color * spotAttenuation * pow( clamp( 1.0 - spotDistance / sLight.distance, 0.0, 1.0 ),  sLight.decay );\r
+\r
+		radiance = RE( geo, mat, light );\r
+		outColor.xyz += shadow * radiance;\r
+\r
+	#pragma loop_end\r
+\r
+#endif\r
+\r
+	// env\r
+\r
+	vec3 refDir = reflect( -geo.viewDir, geo.normal );\r
+float dNV = clamp( dot( geo.normal, geo.viewDir ), 0.0, 1.0 );\r
+float EF = mix( fresnel( dNV ), 1.0, mat.metallic );\r
+outColor.xyz += getPmrem( uEnvMap, geo.normal, 1.0) * mat.diffuseColor * mat.envMapIntensity;\r
+outColor.xyz = mix( outColor.xyz, getPmrem( uEnvMap, refDir, mat.roughness ), EF * mat.specularColor * mat.envMapIntensity );\r
+	\r
+	// occlusion\r
+\r
+	outColor.xyz *= max( 0.0, 1.0 - geo.occulusion * 1.5 );\r
+	\r
+	// emission\r
+\r
+	outColor.xyz += mat.emission;\r
+\r
+	\r
+	// light shaft\r
+	\r
+	outColor.xyz += texture( uLightShaftTexture, vUv ).xyz;\r
+\r
+	glFragOut0 = glFragOut1 = vec4( max( vec3( 0.0 ), outColor.xyz ), 1.0 );\r
+\r
+}`,cn=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+struct DirectionalLight {\r
+	vec3 direction;\r
+	vec3 color;\r
+};\r
+\r
+struct SpotLight {\r
+	vec3 position;\r
+	vec3 direction;\r
+	vec3 color;\r
+	float angle;\r
+	float blend;\r
+	float distance;\r
+	float decay;\r
+};\r
+\r
+struct LightCamera {\r
+	float near;\r
+	float far;\r
+	mat4 uViewMatrix;\r
+	mat4 uProjectionMatrix;\r
+	vec2 resolution;\r
+};\r
+\r
+struct Light {\r
+	vec3 direction;\r
+	vec3 color;\r
+};\r
+\r
+#if NUM_LIGHT_DIR > 0 \r
+\r
+	uniform DirectionalLight directionalLight[NUM_LIGHT_DIR];\r
+	uniform LightCamera uDirectionalLightCamera[NUM_LIGHT_DIR];\r
+	uniform sampler2D directionalLightShadowMap[NUM_SHADOWMAP_DIR];\r
+	\r
+#endif\r
+\r
+#if NUM_LIGHT_SPOT > 0 \r
+\r
+	uniform SpotLight uSpotLight[NUM_LIGHT_SPOT];\r
+	uniform LightCamera uSpotLightCamera[NUM_LIGHT_SPOT];\r
+	uniform sampler2D uSpotLightShadowMap[NUM_SHADOWMAP_SPOT];\r
+	\r
+#endif\r
+\r
+// shadowmap\r
+\r
+float compareShadowDepth( float lightDepth, sampler2D shadowMap, vec2 shadowCoord, float depthOffset ) {\r
+\r
+	float shadowMapDepth = rgbaToFloat( texture( shadowMap, shadowCoord ) );\r
+\r
+	if( shadowCoord.x >= 0.0 && shadowCoord.x <= 1.0 && shadowCoord.y >= 0.0 && shadowCoord.y <= 1.0 ) {\r
+\r
+		return step( lightDepth, shadowMapDepth + depthOffset );\r
+\r
+	}\r
+\r
+	return 1.0;\r
+\r
+}\r
+\r
+// shadow\r
+\r
+void setShadowCoord( vec3 pos, LightCamera camera, inout vec2 shadowCoord, inout float lightDepth ) {\r
+	\r
+	vec4 mvPosition = camera.uViewMatrix * vec4( pos, 1.0 );\r
+	vec4 mvpPosition = camera.uProjectionMatrix * mvPosition;\r
+	shadowCoord = ( mvpPosition.xy / mvpPosition.w ) * 0.5 + 0.5;\r
+	\r
+	float lightNear = camera.near;\r
+	float lightFar = camera.far;\r
+	lightDepth = ( -mvPosition.z - lightNear ) / ( lightFar - lightNear );\r
+\r
+}\r
+\r
+float getShadow( vec3 pos, LightCamera camera, sampler2D shadowMap, float depthOffset ) {\r
+\r
+	vec2 shadowCoord;\r
+	float lightDepth;\r
+\r
+	setShadowCoord( pos, camera, shadowCoord, lightDepth );\r
+\r
+	return compareShadowDepth( lightDepth, shadowMap, shadowCoord, depthOffset );\r
+\r
+}\r
+\r
+#define SHADOW_SAMPLE_COUNT 2\r
+\r
+float getShadowSmooth( vec3 pos, LightCamera camera, sampler2D shadowMap, float depthOffset ) {\r
+\r
+	vec2 shadowCoord;\r
+	float lightDepth;\r
+\r
+	setShadowCoord( pos, camera, shadowCoord, lightDepth );\r
+	\r
+	float shadowSum = compareShadowDepth( lightDepth, shadowMap, shadowCoord, depthOffset );\r
+\r
+	for( int i = 0; i < SHADOW_SAMPLE_COUNT; i++ ) {\r
+\r
+		vec2 offset = 1.0 / camera.resolution * ( float( i + 1 ) / float(SHADOW_SAMPLE_COUNT) );\r
+\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, -offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( 0.0, -offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, -offset.y ), depthOffset );\r
+		\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, 0.0 ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, 0.0 ), depthOffset );\r
+\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( 0.0, offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, offset.y ), depthOffset );\r
+\r
+	}\r
+\r
+	return shadowSum / ( float( SHADOW_SAMPLE_COUNT ) * 8.0 );\r
+\r
+}\r
+\r
+float ggx( float dNH, float roughness ) {\r
+	\r
+	float a2 = roughness * roughness;\r
+	a2 = a2 * a2;\r
+	float dNH2 = dNH * dNH;\r
+\r
+	if( dNH2 <= 0.0 ) return 0.0;\r
+\r
+	return a2 / ( PI * pow( dNH2 * ( a2 - 1.0 ) + 1.0, 2.0) );\r
+\r
+}\r
+\r
+vec3 lambert( vec3 diffuseColor ) {\r
+\r
+	return diffuseColor / PI;\r
+\r
+}\r
+\r
+float gSchlick( float d, float k ) {\r
+\r
+	if( d == 0.0 ) return 0.0;\r
+\r
+	return d / ( d * ( 1.0 - k ) + k );\r
+	\r
+}\r
+\r
+float gSmith( float dNV, float dNL, float roughness ) {\r
+\r
+	float k = clamp( roughness * sqrt( 2.0 / PI ), 0.0, 1.0 );\r
+\r
+	return gSchlick( dNV, k ) * gSchlick( dNL, k );\r
+	\r
+}\r
+\r
+float fresnel( float d ) {\r
+	\r
+	float f0 = 0.04;\r
+\r
+	return f0 + ( 1.0 - f0 ) * pow( 1.0 - d, 5.0 );\r
+\r
+}\r
+\r
+vec3 RE( Geometry geo, Material mat, Light light) {\r
+\r
+	vec3 lightDir = normalize( light.direction );\r
+	vec3 halfVec = normalize( geo.viewDir + lightDir );\r
+\r
+	float dLH = clamp( dot( lightDir, halfVec ), 0.0, 1.0 );\r
+	float dNH = clamp( dot( geo.normal, halfVec ), 0.0, 1.0 );\r
+	float dNV = clamp( dot( geo.normal, geo.viewDir ), 0.0, 1.0 );\r
+	float dNL = clamp( dot( geo.normal, lightDir), 0.0, 1.0 );\r
+\r
+	vec3 irradiance = light.color * dNL;\r
+\r
+	// diffuse\r
+	vec3 diffuse = lambert( mat.diffuseColor ) * irradiance;\r
+\r
+	// specular\r
+	float D = ggx( dNH, mat.roughness );\r
+	float G = gSmith( dNV, dNL, mat.roughness );\r
+	float F = fresnel( dLH );\r
+	\r
+	vec3 specular = (( D * G * F ) / ( 4.0 * dNL * dNV + 0.0001 ) * mat.specularColor ) * irradiance; \r
+\r
+	vec3 c = vec3( 0.0 );\r
+	c += diffuse * ( 1.0 - F ) + specular;\r
+\r
+	return c;\r
+\r
+}
+
+// uniforms
+
+uniform sampler2D uLightShaftBackBuffer;
+uniform sampler2D uDepthTexture;
+
+uniform float uTimeEF;
+uniform mat4 uCameraMatrix;
+uniform mat4 uProjectionMatrixInverse;
+uniform vec3 uCameraPosition;
+
+// varying
+
+in vec2 vUv;
+
+layout (location = 0) out vec4 outColor;
+
+const float MARCH_LENGTH = 60.0;
+const float MARCH = 16.0;
+
+// https://stackoverflow.com/questions/4200224/random-noise-functions-for-glsl\r
+\r
+float random(vec2 p){\r
+	return fract(sin(dot(p.xy ,vec2(12.9898,78.233))) * 43758.5453);\r
+}\r
+\r
+// https://www.shadertoy.com/view/4djSRW\r
+\r
+vec3 hash(vec3 p3)\r
+{\r
+	p3 = fract(p3 * vec3(.1031, .1030, .0973));\r
+  p3 += dot(p3, p3.yxz+33.33);\r
+  return fract((p3.xxy + p3.yxx)*p3.zyx);\r
+\r
+}
+
+void main( void ) {
+
+	vec3 lightShaftSum = vec3( 0.0 );
+
+	vec2 screen = vUv * 2.0 - 1.0;
+	mat4 cp = uCameraMatrix * uProjectionMatrixInverse;
+	
+	float depth = texture( uDepthTexture, vUv ).x;
+	vec4 rp = cp * vec4( screen, depth * 2.0 - 1.0, 1.0 );
+
+	vec3 rayPos = uCameraPosition;
+	vec3 rayDir = normalize( ( cp * vec4( screen, 1.0, 1.0 ) ).xyz );
+	vec3 rayEndPos = rp.xyz / rp.w;
+
+	if( rayEndPos.x + rayEndPos.y + rayEndPos.z == 0.0 ) {
+		
+		rayEndPos = rayPos + rayDir * 100.0;
+
+	}
+	
+	vec3 diff = rayEndPos - rayPos;
+	float rayLength = length( diff );
+
+	float rayStepLength = MARCH_LENGTH / MARCH;;
+	vec3 rayStep = rayDir * rayStepLength;;
+
+	float totalRayLength = random(vUv + fract(uTimeEF)) * 1.0 * rayStepLength;
+	rayPos += rayDir * totalRayLength;
+
+	for( int i = 0; i < int( MARCH ); i ++ ) {
+
+		rayPos += rayStep;
+		totalRayLength += rayStepLength;
+
+		if( totalRayLength >= rayLength ) break;
+
+		float shadow;
+
+		#if NUM_LIGHT_DIR > 0 
+
+			DirectionalLight dLight;
+
+			#pragma loop_start NUM_LIGHT_DIR
+
+				dLight = directionalLight[ LOOP_INDEX ];
+
+				#if LOOP_INDEX < NUM_SHADOWMAP_DIR
+
+					shadow = getShadow( rayPos, uDirectionalLightCamera[ LOOP_INDEX ], directionalLightShadowMap[ LOOP_INDEX ], 0.0 );
+
+				#else
+
+					shadow = 1.0;
+
+				#endif
+
+				lightShaftSum += dLight.color * shadow * rayStepLength * 0.0025;
+
+			#pragma loop_end
+		
+		#endif
+
+		// spotlight
+
+		#if NUM_LIGHT_SPOT > 0
+
+			SpotLight sLight;
+			
+			vec3 spotDirection;
+			float spotDistance;
+			float spotAngleCos;
+			float spotAttenuation;
+
+			#pragma loop_start NUM_LIGHT_SPOT
+
+				sLight = uSpotLight[ LOOP_INDEX ];
+
+				spotDirection = normalize(sLight.position - rayPos);
+				spotDistance = length( sLight.position - rayPos );
+				spotAngleCos = dot( sLight.direction, spotDirection );
+				spotAttenuation = 0.0;
+
+				if( spotAngleCos > sLight.angle * -1.0 ) {
+
+					spotAttenuation = smoothstep( sLight.angle, sLight.angle + ( 1.0 - sLight.angle ) * sLight.blend, spotAngleCos );
+
+				}
+
+				#if LOOP_INDEX < NUM_SHADOWMAP_SPOT
+
+					shadow = getShadow( rayPos, uSpotLightCamera[ LOOP_INDEX ], uSpotLightShadowMap[ LOOP_INDEX ], 0.0 );
+
+				#else
+
+					shadow = 1.0;
+
+				#endif
+
+				lightShaftSum += sLight.color * 
+					shadow * 
+					spotAttenuation * pow( clamp( 1.0 - spotDistance / sLight.distance, 0.0, 1.0 ),  sLight.decay * 1.9 ) *
+					rayStepLength * 0.02;
+
+			#pragma loop_end
+				
+		#endif
+
+	}
+
+	lightShaftSum *= 0.4;
+
+	outColor = vec4( mix( texture( uLightShaftBackBuffer, vUv ).xyz, lightShaftSum, 0.6), 1.0 );
+
+}`,ln=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+
+// uniforms
+
+uniform vec2 uPPPixelSize;
+uniform sampler2D uNormalTexture;
+uniform sampler2D uPosTexture;
+uniform sampler2D uSelectorTexture;
+
+// varying
+
+in vec2 vUv;
+
+// out
+
+layout (location = 0) out vec4 outColor;
+
+void main( void ) {
+
+	vec4 normalTex = texture( uNormalTexture, vUv );
+	vec4 positionTex = texture( uPosTexture, vUv );
+
+	vec3 center = texture( uPosTexture, vUv ).xyz;
+	vec3 right = texture( uPosTexture, vUv + vec2( uPPPixelSize.x, 0.0 ) ).xyz;
+	vec3 top = texture( uPosTexture, vUv + vec2( 0.0, uPPPixelSize.y ) ).xyz;
+	vec3 left = texture( uPosTexture, vUv + vec2( -uPPPixelSize.x, 0.0 ) ).xyz;
+	vec3 bottom = texture( uPosTexture, vUv + vec2( 0.0, -uPPPixelSize.y ) ).xyz;
+	vec3 dx1 = right - center;
+    vec3 dy1 = top - center;
+	vec3 dx2 = -(left - center);
+    vec3 dy2 = -(bottom - center);
+
+	vec3 calcNormal = normalize(cross(
+		length(dx1) < length(dx2) ? dx1 : dx2,
+		length(dy1) < length(dy2) ? dy1 : dy2
+	));
+
+	vec4 tex3 = texture( uSelectorTexture, vUv );
+
+	vec3 normal = mix( normalTex.xyz, calcNormal, tex3.z);
+
+	outColor = vec4( normal, normalTex.w );
+
+}`,un=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+struct DirectionalLight {\r
+	vec3 direction;\r
+	vec3 color;\r
+};\r
+\r
+struct SpotLight {\r
+	vec3 position;\r
+	vec3 direction;\r
+	vec3 color;\r
+	float angle;\r
+	float blend;\r
+	float distance;\r
+	float decay;\r
+};\r
+\r
+struct LightCamera {\r
+	float near;\r
+	float far;\r
+	mat4 uViewMatrix;\r
+	mat4 uProjectionMatrix;\r
+	vec2 resolution;\r
+};\r
+\r
+struct Light {\r
+	vec3 direction;\r
+	vec3 color;\r
+};\r
+\r
+#if NUM_LIGHT_DIR > 0 \r
+\r
+	uniform DirectionalLight directionalLight[NUM_LIGHT_DIR];\r
+	uniform LightCamera uDirectionalLightCamera[NUM_LIGHT_DIR];\r
+	uniform sampler2D directionalLightShadowMap[NUM_SHADOWMAP_DIR];\r
+	\r
+#endif\r
+\r
+#if NUM_LIGHT_SPOT > 0 \r
+\r
+	uniform SpotLight uSpotLight[NUM_LIGHT_SPOT];\r
+	uniform LightCamera uSpotLightCamera[NUM_LIGHT_SPOT];\r
+	uniform sampler2D uSpotLightShadowMap[NUM_SHADOWMAP_SPOT];\r
+	\r
+#endif\r
+\r
+// shadowmap\r
+\r
+float compareShadowDepth( float lightDepth, sampler2D shadowMap, vec2 shadowCoord, float depthOffset ) {\r
+\r
+	float shadowMapDepth = rgbaToFloat( texture( shadowMap, shadowCoord ) );\r
+\r
+	if( shadowCoord.x >= 0.0 && shadowCoord.x <= 1.0 && shadowCoord.y >= 0.0 && shadowCoord.y <= 1.0 ) {\r
+\r
+		return step( lightDepth, shadowMapDepth + depthOffset );\r
+\r
+	}\r
+\r
+	return 1.0;\r
+\r
+}\r
+\r
+// shadow\r
+\r
+void setShadowCoord( vec3 pos, LightCamera camera, inout vec2 shadowCoord, inout float lightDepth ) {\r
+	\r
+	vec4 mvPosition = camera.uViewMatrix * vec4( pos, 1.0 );\r
+	vec4 mvpPosition = camera.uProjectionMatrix * mvPosition;\r
+	shadowCoord = ( mvpPosition.xy / mvpPosition.w ) * 0.5 + 0.5;\r
+	\r
+	float lightNear = camera.near;\r
+	float lightFar = camera.far;\r
+	lightDepth = ( -mvPosition.z - lightNear ) / ( lightFar - lightNear );\r
+\r
+}\r
+\r
+float getShadow( vec3 pos, LightCamera camera, sampler2D shadowMap, float depthOffset ) {\r
+\r
+	vec2 shadowCoord;\r
+	float lightDepth;\r
+\r
+	setShadowCoord( pos, camera, shadowCoord, lightDepth );\r
+\r
+	return compareShadowDepth( lightDepth, shadowMap, shadowCoord, depthOffset );\r
+\r
+}\r
+\r
+#define SHADOW_SAMPLE_COUNT 2\r
+\r
+float getShadowSmooth( vec3 pos, LightCamera camera, sampler2D shadowMap, float depthOffset ) {\r
+\r
+	vec2 shadowCoord;\r
+	float lightDepth;\r
+\r
+	setShadowCoord( pos, camera, shadowCoord, lightDepth );\r
+	\r
+	float shadowSum = compareShadowDepth( lightDepth, shadowMap, shadowCoord, depthOffset );\r
+\r
+	for( int i = 0; i < SHADOW_SAMPLE_COUNT; i++ ) {\r
+\r
+		vec2 offset = 1.0 / camera.resolution * ( float( i + 1 ) / float(SHADOW_SAMPLE_COUNT) );\r
+\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, -offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( 0.0, -offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, -offset.y ), depthOffset );\r
+		\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, 0.0 ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, 0.0 ), depthOffset );\r
+\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( 0.0, offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, offset.y ), depthOffset );\r
+\r
+	}\r
+\r
+	return shadowSum / ( float( SHADOW_SAMPLE_COUNT ) * 8.0 );\r
+\r
+}\r
+\r
+float ggx( float dNH, float roughness ) {\r
+	\r
+	float a2 = roughness * roughness;\r
+	a2 = a2 * a2;\r
+	float dNH2 = dNH * dNH;\r
+\r
+	if( dNH2 <= 0.0 ) return 0.0;\r
+\r
+	return a2 / ( PI * pow( dNH2 * ( a2 - 1.0 ) + 1.0, 2.0) );\r
+\r
+}\r
+\r
+vec3 lambert( vec3 diffuseColor ) {\r
+\r
+	return diffuseColor / PI;\r
+\r
+}\r
+\r
+float gSchlick( float d, float k ) {\r
+\r
+	if( d == 0.0 ) return 0.0;\r
+\r
+	return d / ( d * ( 1.0 - k ) + k );\r
+	\r
+}\r
+\r
+float gSmith( float dNV, float dNL, float roughness ) {\r
+\r
+	float k = clamp( roughness * sqrt( 2.0 / PI ), 0.0, 1.0 );\r
+\r
+	return gSchlick( dNV, k ) * gSchlick( dNL, k );\r
+	\r
+}\r
+\r
+float fresnel( float d ) {\r
+	\r
+	float f0 = 0.04;\r
+\r
+	return f0 + ( 1.0 - f0 ) * pow( 1.0 - d, 5.0 );\r
+\r
+}\r
+\r
+vec3 RE( Geometry geo, Material mat, Light light) {\r
+\r
+	vec3 lightDir = normalize( light.direction );\r
+	vec3 halfVec = normalize( geo.viewDir + lightDir );\r
+\r
+	float dLH = clamp( dot( lightDir, halfVec ), 0.0, 1.0 );\r
+	float dNH = clamp( dot( geo.normal, halfVec ), 0.0, 1.0 );\r
+	float dNV = clamp( dot( geo.normal, geo.viewDir ), 0.0, 1.0 );\r
+	float dNL = clamp( dot( geo.normal, lightDir), 0.0, 1.0 );\r
+\r
+	vec3 irradiance = light.color * dNL;\r
+\r
+	// diffuse\r
+	vec3 diffuse = lambert( mat.diffuseColor ) * irradiance;\r
+\r
+	// specular\r
+	float D = ggx( dNH, mat.roughness );\r
+	float G = gSmith( dNV, dNL, mat.roughness );\r
+	float F = fresnel( dLH );\r
+	\r
+	vec3 specular = (( D * G * F ) / ( 4.0 * dNL * dNV + 0.0001 ) * mat.specularColor ) * irradiance; \r
+\r
+	vec3 c = vec3( 0.0 );\r
+	c += diffuse * ( 1.0 - F ) + specular;\r
+\r
+	return c;\r
+\r
+}
+// https://stackoverflow.com/questions/4200224/random-noise-functions-for-glsl\r
+\r
+float random(vec2 p){\r
+	return fract(sin(dot(p.xy ,vec2(12.9898,78.233))) * 43758.5453);\r
+}\r
+\r
+// https://www.shadertoy.com/view/4djSRW\r
+\r
+vec3 hash(vec3 p3)\r
+{\r
+	p3 = fract(p3 * vec3(.1031, .1030, .0973));\r
+  p3 += dot(p3, p3.yxz+33.33);\r
+  return fract((p3.xxy + p3.yxx)*p3.zyx);\r
+\r
+}
+
+// uniforms
+
+uniform sampler2D uSSAOBackBuffer;
+uniform sampler2D uDepthTexture;
+
+uniform sampler2D sampler0; // position, depth
+uniform sampler2D sampler1; // normal, emissionIntensity
+
+uniform float uTimeEF;
+uniform mat4 uCameraMatrix;
+uniform mat4 uViewMatrix;
+uniform mat4 uProjectionMatrix;
+uniform mat4 uProjectionMatrixInverse;
+uniform vec3 uCameraPosition;
+
+#define SAMPLE 16
+uniform vec3 uSSAOKernel[16];
+
+// varying
+
+in vec2 vUv;
+
+layout (location = 0) out vec4 outColor;
+
+void main( void ) {
+
+	vec3 lightShaftSum = vec3( 0.0 );
+
+	vec3 rayPos = texture( sampler0, vUv ).xyz;
+	vec4 rayViewPos = uViewMatrix * vec4(rayPos, 1.0);
+	vec4 depthRayPos = uViewMatrix * vec4(rayPos, 1.0);
+
+	if( rayPos.x + rayPos.y + rayPos.z == 0.0 || length(rayPos - uCameraPosition) > 100.0 ) return;
+
+	vec3 normal = texture( sampler1, vUv ).xyz;
+	float occlusion = 0.0;
+
+	float dist = 0.5;
+	float objectDepth = 0.2;
+
+	vec2 seed = vUv + uTimeEF;
+	vec3 random = vec3( random( vec2( seed ) ), random( vec2( seed + 0.25 ) ), random( vec2( seed + 0.5 ) ) ) * 2.0 - 1.0;
+
+	vec3 tangent = normalize(random - normal * dot(random,normal));
+	vec3 bitangent = cross( tangent, normal );
+	mat3 kernelMatrix = mat3(tangent, bitangent, normal);
+
+	for( int i = 0; i < SAMPLE; i ++ ) {
+
+		float seed = uTimeEF * 1.0 + float( i );
+		
+		vec3 sampleOffset = kernelMatrix * uSSAOKernel[i];
+		vec3 samplePos = rayPos + sampleOffset * dist;
+
+		vec4 depthCoord = (uProjectionMatrix * uViewMatrix * vec4( samplePos, 1.0 ) );
+		depthCoord.xy /= depthCoord.w;
+		depthCoord.xy = depthCoord.xy * 0.5 + 0.5;
+
+		vec4 samplerPos = (uViewMatrix * vec4(texture( sampler0, depthCoord.xy ).xyz, 1.0));
+		vec4 sampleViewPos = uViewMatrix * vec4( samplePos, 1.0 );
+
+		if( sampleViewPos.z < samplerPos.z && sampleViewPos.z >= samplerPos.z - objectDepth ) {
+
+			occlusion += 1.0 - pow( length( sampleOffset ), 2.0);
+
+		}
+		
+	}
+
+	occlusion /= float( SAMPLE );
+
+	outColor = vec4( mix( texture( uSSAOBackBuffer, vUv ).xyz, vec3( occlusion ), 0.5 ), 1.0 );
+
+}`,dn=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+struct DirectionalLight {\r
+	vec3 direction;\r
+	vec3 color;\r
+};\r
+\r
+struct SpotLight {\r
+	vec3 position;\r
+	vec3 direction;\r
+	vec3 color;\r
+	float angle;\r
+	float blend;\r
+	float distance;\r
+	float decay;\r
+};\r
+\r
+struct LightCamera {\r
+	float near;\r
+	float far;\r
+	mat4 uViewMatrix;\r
+	mat4 uProjectionMatrix;\r
+	vec2 resolution;\r
+};\r
+\r
+struct Light {\r
+	vec3 direction;\r
+	vec3 color;\r
+};\r
+\r
+#if NUM_LIGHT_DIR > 0 \r
+\r
+	uniform DirectionalLight directionalLight[NUM_LIGHT_DIR];\r
+	uniform LightCamera uDirectionalLightCamera[NUM_LIGHT_DIR];\r
+	uniform sampler2D directionalLightShadowMap[NUM_SHADOWMAP_DIR];\r
+	\r
+#endif\r
+\r
+#if NUM_LIGHT_SPOT > 0 \r
+\r
+	uniform SpotLight uSpotLight[NUM_LIGHT_SPOT];\r
+	uniform LightCamera uSpotLightCamera[NUM_LIGHT_SPOT];\r
+	uniform sampler2D uSpotLightShadowMap[NUM_SHADOWMAP_SPOT];\r
+	\r
+#endif\r
+\r
+// shadowmap\r
+\r
+float compareShadowDepth( float lightDepth, sampler2D shadowMap, vec2 shadowCoord, float depthOffset ) {\r
+\r
+	float shadowMapDepth = rgbaToFloat( texture( shadowMap, shadowCoord ) );\r
+\r
+	if( shadowCoord.x >= 0.0 && shadowCoord.x <= 1.0 && shadowCoord.y >= 0.0 && shadowCoord.y <= 1.0 ) {\r
+\r
+		return step( lightDepth, shadowMapDepth + depthOffset );\r
+\r
+	}\r
+\r
+	return 1.0;\r
+\r
+}\r
+\r
+// shadow\r
+\r
+void setShadowCoord( vec3 pos, LightCamera camera, inout vec2 shadowCoord, inout float lightDepth ) {\r
+	\r
+	vec4 mvPosition = camera.uViewMatrix * vec4( pos, 1.0 );\r
+	vec4 mvpPosition = camera.uProjectionMatrix * mvPosition;\r
+	shadowCoord = ( mvpPosition.xy / mvpPosition.w ) * 0.5 + 0.5;\r
+	\r
+	float lightNear = camera.near;\r
+	float lightFar = camera.far;\r
+	lightDepth = ( -mvPosition.z - lightNear ) / ( lightFar - lightNear );\r
+\r
+}\r
+\r
+float getShadow( vec3 pos, LightCamera camera, sampler2D shadowMap, float depthOffset ) {\r
+\r
+	vec2 shadowCoord;\r
+	float lightDepth;\r
+\r
+	setShadowCoord( pos, camera, shadowCoord, lightDepth );\r
+\r
+	return compareShadowDepth( lightDepth, shadowMap, shadowCoord, depthOffset );\r
+\r
+}\r
+\r
+#define SHADOW_SAMPLE_COUNT 2\r
+\r
+float getShadowSmooth( vec3 pos, LightCamera camera, sampler2D shadowMap, float depthOffset ) {\r
+\r
+	vec2 shadowCoord;\r
+	float lightDepth;\r
+\r
+	setShadowCoord( pos, camera, shadowCoord, lightDepth );\r
+	\r
+	float shadowSum = compareShadowDepth( lightDepth, shadowMap, shadowCoord, depthOffset );\r
+\r
+	for( int i = 0; i < SHADOW_SAMPLE_COUNT; i++ ) {\r
+\r
+		vec2 offset = 1.0 / camera.resolution * ( float( i + 1 ) / float(SHADOW_SAMPLE_COUNT) );\r
+\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, -offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( 0.0, -offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, -offset.y ), depthOffset );\r
+		\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, 0.0 ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, 0.0 ), depthOffset );\r
+\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( 0.0, offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, offset.y ), depthOffset );\r
+\r
+	}\r
+\r
+	return shadowSum / ( float( SHADOW_SAMPLE_COUNT ) * 8.0 );\r
+\r
+}\r
+\r
+float ggx( float dNH, float roughness ) {\r
+	\r
+	float a2 = roughness * roughness;\r
+	a2 = a2 * a2;\r
+	float dNH2 = dNH * dNH;\r
+\r
+	if( dNH2 <= 0.0 ) return 0.0;\r
+\r
+	return a2 / ( PI * pow( dNH2 * ( a2 - 1.0 ) + 1.0, 2.0) );\r
+\r
+}\r
+\r
+vec3 lambert( vec3 diffuseColor ) {\r
+\r
+	return diffuseColor / PI;\r
+\r
+}\r
+\r
+float gSchlick( float d, float k ) {\r
+\r
+	if( d == 0.0 ) return 0.0;\r
+\r
+	return d / ( d * ( 1.0 - k ) + k );\r
+	\r
+}\r
+\r
+float gSmith( float dNV, float dNL, float roughness ) {\r
+\r
+	float k = clamp( roughness * sqrt( 2.0 / PI ), 0.0, 1.0 );\r
+\r
+	return gSchlick( dNV, k ) * gSchlick( dNL, k );\r
+	\r
+}\r
+\r
+float fresnel( float d ) {\r
+	\r
+	float f0 = 0.04;\r
+\r
+	return f0 + ( 1.0 - f0 ) * pow( 1.0 - d, 5.0 );\r
+\r
+}\r
+\r
+vec3 RE( Geometry geo, Material mat, Light light) {\r
+\r
+	vec3 lightDir = normalize( light.direction );\r
+	vec3 halfVec = normalize( geo.viewDir + lightDir );\r
+\r
+	float dLH = clamp( dot( lightDir, halfVec ), 0.0, 1.0 );\r
+	float dNH = clamp( dot( geo.normal, halfVec ), 0.0, 1.0 );\r
+	float dNV = clamp( dot( geo.normal, geo.viewDir ), 0.0, 1.0 );\r
+	float dNL = clamp( dot( geo.normal, lightDir), 0.0, 1.0 );\r
+\r
+	vec3 irradiance = light.color * dNL;\r
+\r
+	// diffuse\r
+	vec3 diffuse = lambert( mat.diffuseColor ) * irradiance;\r
+\r
+	// specular\r
+	float D = ggx( dNH, mat.roughness );\r
+	float G = gSmith( dNV, dNL, mat.roughness );\r
+	float F = fresnel( dLH );\r
+	\r
+	vec3 specular = (( D * G * F ) / ( 4.0 * dNL * dNV + 0.0001 ) * mat.specularColor ) * irradiance; \r
+\r
+	vec3 c = vec3( 0.0 );\r
+	c += diffuse * ( 1.0 - F ) + specular;\r
+\r
+	return c;\r
+\r
+}
+// https://stackoverflow.com/questions/4200224/random-noise-functions-for-glsl\r
+\r
+float random(vec2 p){\r
+	return fract(sin(dot(p.xy ,vec2(12.9898,78.233))) * 43758.5453);\r
+}\r
+\r
+// https://www.shadertoy.com/view/4djSRW\r
+\r
+vec3 hash(vec3 p3)\r
+{\r
+	p3 = fract(p3 * vec3(.1031, .1030, .0973));\r
+  p3 += dot(p3, p3.yxz+33.33);\r
+  return fract((p3.xxy + p3.yxx)*p3.zyx);\r
+\r
+}
+
+// uniforms
+
+uniform sampler2D uSSAOTexture;
+uniform vec2 uPPPixelSize;
+
+uniform sampler2D uNormalTexture;
+uniform sampler2D uDepthTexture;
+
+uniform float uWeights[SSAOSAMPLE];
+
+// varying
+
+in vec2 vUv;
+
+// out
+
+layout (location = 0) out vec4 outColor;
+
+const float alpha = 32.0;
+const float beta = 0.25;
+
+float getWeight( vec2 uv, vec3 normalBasis, float depthBasis ) {
+
+	vec3 normalOffset = texture( uNormalTexture, uv ).xyz;
+	float depthOffset = texture( uDepthTexture, uv ).w;
+	float bilateralWeight = pow( ( dot( normalBasis, normalOffset ) + 1.0 ) / 2.0, alpha ) * pow( 1.0 / ( abs( depthBasis - depthOffset ) + 0.001 ), beta );
+
+	return bilateralWeight;
+
+}
+
+void main( void ) {
+
+	float occlusion = 0.0;
+
+	vec3 normalBasis = texture( uNormalTexture, vUv ).xyz;
+	float depthBasis = texture( uDepthTexture, vUv ).w;
+
+	vec2 direction;
+
+	#ifdef IS_VIRT
+
+		direction = vec2( 0.0, 1.0 );
+	
+	#else
+
+		direction = vec2( 1.0, 0.0 );
+
+	#endif
+
+	float weight = 0.0;
+
+	occlusion += texture( uSSAOTexture, vUv ).x * uWeights[0];
+	weight += uWeights[0];
+	
+	for(int i = 1; i < SSAOSAMPLE; i++){
+
+		vec2 offset = float( i ) * direction;
+		offset *= uPPPixelSize * 1.0;
+
+		vec2 uvOffsetP = vUv + offset;
+		vec2 uvOffsetN = vUv - offset;
+
+		float wP = getWeight( uvOffsetP, normalBasis, depthBasis ) * uWeights[i];
+		float wN = getWeight( uvOffsetN, normalBasis, depthBasis ) * uWeights[i];
+		
+		occlusion += texture( uSSAOTexture, uvOffsetP ).x * wP;
+		occlusion += texture( uSSAOTexture, uvOffsetN ).x * wN;
+
+		weight += wP + wN;
+
+	}
+
+	occlusion /= weight;
+	outColor = vec4( vec3( occlusion ), 1.0 );
+
+}`,fn=e=>{let t=[];for(let n=0;n<e;n++){let r=new A;r.x=Math.random()*2-1,r.y=Math.random()*2-1,r.z=n/e*.95+.05,r.normalize(),r.multiply(n/e*.95+.05),t.push(...r.getElm(`vec3`))}return t},pn=class extends Et{postprocess;normalSelector_;lightShaft;rtLightShaft1;rtLightShaft2;ssao;rtSSAO1;rtSSAO2;ssaoBlur;ssaoBlurV;shading;constructor(e){super();let t=e.backend,n=new F(t,{name:`normalSelector`,frag:ln,renderTarget:null,uniforms:Qt.merge({uNormalTexture:{value:null,type:`1i`},uPosTexture:{value:null,type:`1i`},uSelectorTexture:{value:null,type:`1i`}}),passThrough:!0}),r=t.createFrameBuffer().setTexture([t.createTexture().setting({magFilter:M.LINEAR,minFilter:M.LINEAR})]),i=t.createFrameBuffer().setTexture([t.createTexture().setting({magFilter:M.LINEAR,minFilter:M.LINEAR})]),a=new F(t,{name:`lightShaft`,frag:cn,renderTarget:r,uniforms:Qt.merge({uLightShaftBackBuffer:{value:i.textures[0],type:`1i`},uDepthTexture:{value:null,type:`1i`}}),resolutionRatio:.5,passThrough:!0}),o=t.createFrameBuffer().setTexture([t.createTexture().setting({magFilter:M.LINEAR,minFilter:M.LINEAR})]),s=t.createFrameBuffer().setTexture([t.createTexture().setting({magFilter:M.LINEAR,minFilter:M.LINEAR})]),c=new F(t,{name:`ssao`,frag:un,renderTarget:Yt(`ssao`,o),uniforms:Qt.merge({uSSAOBackBuffer:{value:s.textures[0],type:`1i`},uSSAOKernel:{value:fn(16),type:`3fv`}}),resolutionRatio:.5,passThrough:!0}),l=Qt.merge({uSSAOTexture:{value:s.textures[0],type:`1i`},uDepthTexture:{value:null,type:`1i`},uNormalTexture:{value:null,type:`1i`},uWeights:{type:`1fv`,value:ft.gaussWeights(8)}}),u=new F(t,{name:`ssaoBlur/h`,frag:Yt(`ssaoBlur`,dn),uniforms:l,resolutionRatio:1,passThrough:!0,defines:{SSAOSAMPLE:8}}),d=new F(t,{name:`ssaoBlur/v`,frag:Yt(`ssaoBlur`,dn),uniforms:Qt.merge(l,{uSSAOTexture:{value:u.renderTarget.textures[0],type:`1i`}}),defines:{SSAOSAMPLE:8,IS_VIRT:``},resolutionRatio:1,passThrough:!0}),f=new F(t,{name:`deferredShading`,frag:Yt(`deferredShading`,sn),uniforms:Qt.merge({uLightShaftTexture:{value:null,type:`1i`},uSSAOTexture:{value:d.renderTarget.textures[0],type:`1i`},uSSAOResolutionInv:{value:c.resolutionInv,type:`2fv`},uEnvMap:{value:e.envMap,type:`1i`}})});this.postprocess=new tn({passes:[n,a,c,u,d,f]}),this.shading=f,this.lightShaft=a,this.ssao=c,this.rtSSAO1=o,this.rtSSAO2=s,this.ssaoBlur=u,this.ssaoBlurV=d,this.rtLightShaft1=r,this.rtLightShaft2=i,this.normalSelector_=n;let p=e.renderTarget;for(let e=0;e<p.gBuffer.textures.length;e++){let t=p.gBuffer.textures[e];e===1&&(t=p.normalBuffer.textures[0]),f.uniforms[`sampler`+e]=c.uniforms[`sampler`+e]={type:`1i`,value:t}}u.uniforms.uDepthTexture.value=p.gBuffer.textures[0],a.uniforms.uDepthTexture.value=p.gBuffer.depthTexture,f.renderTarget=p.shadingBuffer,n.renderTarget=p.normalBuffer,n.uniforms.uNormalTexture.value=p.gBuffer.textures[1],n.uniforms.uPosTexture.value=p.gBuffer.textures[0],n.uniforms.uSelectorTexture.value=p.gBuffer.textures[3],l.uNormalTexture.value=p.normalBuffer.textures[0]}update(){let e=this.rtLightShaft1;this.rtLightShaft1=this.rtLightShaft2,this.rtLightShaft2=e,this.lightShaft.setRendertarget(this.rtLightShaft1),this.shading.uniforms.uLightShaftTexture.value=this.rtLightShaft1.textures[0],this.lightShaft.uniforms.uLightShaftBackBuffer.value=this.rtLightShaft2.textures[0],e=this.rtSSAO1,this.rtSSAO1=this.rtSSAO2,this.rtSSAO2=e,this.ssao.setRendertarget(this.rtSSAO1),this.ssaoBlur.uniforms.uSSAOTexture.value=this.rtSSAO1.textures[0],this.ssao.uniforms.uSSAOBackBuffer.value=this.rtSSAO2.textures[0]}setPassEnabled(e){e.ssao!==void 0&&(this.ssao.enabled=e.ssao,this.ssaoBlur.enabled=e.ssao,this.ssaoBlurV.enabled=e.ssao,e.ssao||(this.rtSSAO1.clear(),this.rtSSAO2.clear(),this.ssaoBlur.renderTarget&&this.ssaoBlur.renderTarget.clear(),this.ssaoBlurV.renderTarget&&this.ssaoBlurV.renderTarget.clear())),e.lightShaft!==void 0&&(this.lightShaft.enabled=e.lightShaft,e.lightShaft||(this.rtLightShaft1.clear(),this.rtLightShaft2.clear()))}resize(e){this.postprocess.resize(e)}dispose(){this.postprocess.dispose(),this.rtLightShaft1.dispose(),this.rtLightShaft2.dispose(),this.rtSSAO1.dispose(),this.rtSSAO2.dispose()}},mn=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}\r
+\r
+uniform sampler2D uBackBuffer0;\r
+uniform sampler2D uBloomTexture[4];\r
+\r
+uniform vec3 uCameraPosition;\r
+uniform float uCameraNear;\r
+uniform float uCameraFar;\r
+\r
+in vec2 vUv;\r
+\r
+layout (location = 0) out vec4 outColor;\r
+\r
+//=================================================================================================\r
+//\r
+//  Baking Lab\r
+//  by MJP and David Neubelt\r
+//  http://mynameismjp.wordpress.com/\r
+//\r
+//  All code licensed under the MIT license\r
+//\r
+//=================================================================================================\r
+\r
+// The code in this file was originally written by Stephen Hill (@self_shadow), who deserves all\r
+// credit for coming up with this fit and implementing it. Buy him a beer next time you see him. :)\r
+\r
+// sRGB => XYZ => D65_2_D60 => AP1 => RRT_SAT\r
+\r
+const mat3 ACESInputMat = mat3(\r
+	0.59719, 0.07600, 0.02840,\r
+	0.35458,  0.90834, 0.13383,\r
+	0.04823, 0.01566, 0.83777\r
+);\r
+\r
+// ODT_SAT => XYZ => D60_2_D65 => sRGB\r
+const mat3 ACESOutputMat = mat3( \r
+	1.60475,  -0.10208,  -0.00327,\r
+	-0.53108, 1.10813, -0.07276,\r
+	-0.07367,  -0.00605, 1.07602\r
+);\r
+\r
+vec3 RRTAndODTFit(vec3 v)\r
+{\r
+    vec3 a = v * (v + 0.0245786f) - 0.000090537f;\r
+    vec3 b = v * (0.983729f * v + 0.4329510f) + 0.238081f;\r
+    return a / b;\r
+}\r
+\r
+vec3 ACESFitted(vec3 color)\r
+{\r
+    color = ACESInputMat * color;\r
+\r
+    // Apply RRT and ODT\r
+    color = RRTAndODTFit(color);\r
+\r
+    color = ACESOutputMat * color;\r
+\r
+    // Clamp to [0, 1]\r
+    color = clamp(color, 0.0, 1.0 );\r
+\r
+    return color;\r
+}\r
+\r
+void main( void ) {\r
+\r
+    vec3 col = texture( uBackBuffer0, vUv ).xyz;\r
+\r
+    col = ACESFitted( col );\r
+\r
+	outColor = vec4( col, 1.0 );\r
+\r
+}`,hn=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}\r
+\r
+uniform sampler2D uCocTex;\r
+uniform vec4 uParams;\r
+\r
+in vec2 vUv;\r
+\r
+layout (location = 0) out vec4 outColor;\r
+\r
+// const int BOKEH_SAMPLE = 16;\r
+// const vec2 kDiskKernel[BOKEH_SAMPLE] = vec2[](\r
+//     vec2(0,0),\r
+//     vec2(0.54545456,0),\r
+//     vec2(0.16855472,0.5187581),\r
+//     vec2(-0.44128203,0.3206101),\r
+//     vec2(-0.44128197,-0.3206102),\r
+//     vec2(0.1685548,-0.5187581),\r
+//     vec2(1,0),\r
+//     vec2(0.809017,0.58778524),\r
+//     vec2(0.30901697,0.95105654),\r
+//     vec2(-0.30901703,0.9510565),\r
+//     vec2(-0.80901706,0.5877852),\r
+//     vec2(-1,0),\r
+//     vec2(-0.80901694,-0.58778536),\r
+//     vec2(-0.30901664,-0.9510566),\r
+//     vec2(0.30901712,-0.9510565),\r
+//     vec2(0.80901694,-0.5877853)\r
+// );\r
+\r
+#define BOKEH_SAMPLE 43\r
+vec2 kDiskKernel[ BOKEH_SAMPLE ] = vec2[](\r
+    vec2(0,0),\r
+    vec2(0.36363637,0),\r
+    vec2(0.22672357,0.28430238),\r
+    vec2(-0.08091671,0.35451925),\r
+    vec2(-0.32762504,0.15777594),\r
+    vec2(-0.32762504,-0.15777591),\r
+    vec2(-0.08091656,-0.35451928),\r
+    vec2(0.22672352,-0.2843024),\r
+    vec2(0.6818182,0),\r
+    vec2(0.614297,0.29582983),\r
+    vec2(0.42510667,0.5330669),\r
+    vec2(0.15171885,0.6647236),\r
+    vec2(-0.15171883,0.6647236),\r
+    vec2(-0.4251068,0.53306687),\r
+    vec2(-0.614297,0.29582986),\r
+    vec2(-0.6818182,0),\r
+    vec2(-0.614297,-0.29582983),\r
+    vec2(-0.42510656,-0.53306705),\r
+    vec2(-0.15171856,-0.66472363),\r
+    vec2(0.1517192,-0.6647235),\r
+    vec2(0.4251066,-0.53306705),\r
+    vec2(0.614297,-0.29582983),\r
+    vec2(1,0),\r
+    vec2(0.9555728,0.2947552),\r
+    vec2(0.82623875,0.5633201),\r
+    vec2(0.6234898,0.7818315),\r
+    vec2(0.36534098,0.93087375),\r
+    vec2(0.07473,0.9972038),\r
+    vec2(-0.22252095,0.9749279),\r
+    vec2(-0.50000006,0.8660254),\r
+    vec2(-0.73305196,0.6801727),\r
+    vec2(-0.90096885,0.43388382),\r
+    vec2(-0.98883086,0.14904208),\r
+    vec2(-0.9888308,-0.14904249),\r
+    vec2(-0.90096885,-0.43388376),\r
+    vec2(-0.73305184,-0.6801728),\r
+    vec2(-0.4999999,-0.86602545),\r
+    vec2(-0.222521,-0.9749279),\r
+    vec2(0.07473029,-0.99720377),\r
+    vec2(0.36534148,-0.9308736),\r
+    vec2(0.6234897,-0.7818316),\r
+    vec2(0.8262388,-0.56332),\r
+    vec2(0.9555729,-0.29475483)\r
+);\r
+\r
+// Fragment shader: Bokeh filter with disk-shaped kernels\r
+void main( void ) {\r
+\r
+	float _MaxCoC = uParams.y;\r
+	float _RcpMaxCoC = uParams.z;\r
+	vec2 _MainTex_TexelSize = vec2( 1.0 ) / vec2( textureSize( uCocTex, 0 ) );\r
+	float _RcpAspect = _MainTex_TexelSize.x / _MainTex_TexelSize.y;\r
+	// sampler2D _MainTex = uCocTex;\r
+\r
+    vec4 samp0 = texture(uCocTex, vUv);\r
+\r
+    vec4 bgAcc = vec4(0.0); // Background: far field bokeh\r
+    vec4 fgAcc = vec4(0.0); // Foreground: near field bokeh\r
+\r
+    for (int si = 0; si < BOKEH_SAMPLE; si++)\r
+    {\r
+        vec2 disp = kDiskKernel[si] * _MaxCoC;\r
+        float dist = length(disp);\r
+\r
+        vec2 duv = vec2(disp.x * _RcpAspect, disp.y);\r
+        vec4 samp = texture(uCocTex, vUv + duv);\r
+\r
+        // BG: Compare CoC of the current sample and the center sample\r
+        // and select smaller one.\r
+        float bgCoC = max(min(samp0.a, samp.a), 0.0);\r
+\r
+        // Compare the CoC to the sample distance.\r
+        // Add a small margin to smooth out.\r
+        float margin = _MainTex_TexelSize.y * 2.0;\r
+        float bgWeight = clamp((bgCoC   - dist + margin ) / margin, 0.0, 1.0);\r
+        float fgWeight = clamp((-samp.a - dist + margin ) / margin, 0.0, 1.0);\r
+\r
+        // Cut influence from focused areas because they're darkened by CoC\r
+        // premultiplying. This is only needed for near field.\r
+        fgWeight *= step(_MainTex_TexelSize.y, -samp.a);\r
+\r
+        // Accumulation\r
+        bgAcc += vec4(samp.rgb, 1.0) * bgWeight;\r
+        fgAcc += vec4(samp.rgb, 1.0) * fgWeight;\r
+    }\r
+\r
+    // Get the weighted average.\r
+    bgAcc.rgb /= bgAcc.a + (bgAcc.a == 0.0 ? 1.0 : 0.0 ); // zero-div guard\r
+    fgAcc.rgb /= fgAcc.a + (fgAcc.a == 0.0 ? 1.0 : 0.0 );\r
+\r
+    // BG: Calculate the alpha value only based on the center CoC.\r
+    // This is a rather aggressive approximation but provides stable results.\r
+    bgAcc.a = smoothstep(_MainTex_TexelSize.y, _MainTex_TexelSize.y * 2.0, samp0.a);\r
+\r
+    // FG: Normalize the total of the weights.\r
+    fgAcc.a *= PI / float(BOKEH_SAMPLE);\r
+\r
+    // Alpha premultiplying\r
+    vec3 rgb = vec3( 0.0 );\r
+    rgb = mix(rgb, bgAcc.rgb, clamp(bgAcc.a, 0.0, 1.0));\r
+    rgb = mix(rgb, fgAcc.rgb, clamp(fgAcc.a, 0.0, 1.0));\r
+\r
+    // Combined alpha value\r
+    float alpha = (1.0 - clamp(bgAcc.a, 0.0, 1.0)) * (1.0 - clamp(fgAcc.a, 0.0, 1.0));\r
+\r
+    outColor = vec4(rgb, alpha);\r
+}`,gn=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}\r
+\r
+uniform sampler2D uBackBuffer0;\r
+uniform sampler2D uGbufferPos;\r
+uniform vec4 uParams;\r
+uniform mat4 uProjectionMatrixInverse;\r
+uniform mat4 uViewMatrix;\r
+\r
+in vec2 vUv;\r
+\r
+layout (location = 0) out vec4 outColor;\r
+\r
+float sampleDepth( sampler2D posTex, vec2 uv ) {\r
+\r
+	vec4 depth = uViewMatrix * vec4( texture( posTex, uv ).xyz, 1.0 );\r
+	\r
+	return depth.z * -1.0;\r
+	\r
+}\r
+\r
+//  https://github.com/keijiro/KinoBokeh/blob/master/Assets/Kino/Bokeh/Shader/Prefilter.cginc\r
+\r
+// Max between three components\r
+float max3(vec3 xyz) { return max(xyz.x, max(xyz.y, xyz.z)); }\r
+\r
+// Fragment shader: Downsampling, prefiltering and CoC calculation\r
+void main( void ) {\r
+\r
+	float _Distance = uParams.x;\r
+	float _MaxCoC = uParams.y;\r
+	float _RcpMaxCoC = uParams.z;\r
+	float _LensCoeff = uParams.w;\r
+\r
+	// Sample source colors.\r
+	vec2 mainTexSize = vec2( 1.0 ) / vec2( textureSize( uBackBuffer0, 0 ) );\r
+	vec3 duv = mainTexSize.xyx * vec3(0.5, 0.5, -0.5);\r
+	vec3 c0 = texture(uBackBuffer0, vUv - duv.xy).rgb;\r
+	vec3 c1 = texture(uBackBuffer0, vUv - duv.zy).rgb;\r
+	vec3 c2 = texture(uBackBuffer0, vUv + duv.zy).rgb;\r
+	vec3 c3 = texture(uBackBuffer0, vUv + duv.xy).rgb;\r
+\r
+	// Sample linear depths.\r
+	float d0 = sampleDepth(uGbufferPos, vUv - duv.xy);\r
+	float d1 = sampleDepth(uGbufferPos, vUv - duv.zy);\r
+	float d2 = sampleDepth(uGbufferPos, vUv + duv.zy);\r
+	float d3 = sampleDepth(uGbufferPos, vUv + duv.xy);\r
+	float d4 = sampleDepth(uGbufferPos, vUv);\r
+	vec4 depths = vec4(d4, d4, d4, d4);\r
+\r
+	// Calculate the radiuses of CoCs at these sample points.\r
+	vec4 cocs = (depths - _Distance) * _LensCoeff / depths;\r
+	cocs = clamp(cocs, -_MaxCoC, _MaxCoC);\r
+\r
+	// Premultiply CoC to reduce background bleeding.\r
+	vec4 weights = clamp(abs(cocs) * _RcpMaxCoC, 0.0, 1.0 );\r
+\r
+	// #if defined(PREFILTER_LUMA_WEIGHT)\r
+	// 	// Apply luma weights to reduce flickering.\r
+	// 	// Inspired by goo.gl/j1fhLe goo.gl/mfuZ4h\r
+	// 	weights.x *= 1 / (max3(c0) + 1);\r
+	// 	weights.y *= 1 / (max3(c1) + 1);\r
+	// 	weights.z *= 1 / (max3(c2) + 1);\r
+	// 	weights.w *= 1 / (max3(c3) + 1);\r
+	// #endif\r
+\r
+	// Weighted average of the color samples\r
+	vec3 avg = c0 * weights.x + c1 * weights.y + c2 * weights.z + c3 * weights.w;\r
+	avg /= dot(weights, vec4(1.0)) + 0.0001;\r
+\r
+	// Output CoC = average of CoCs\r
+	float coc = dot(cocs, vec4(0.25));\r
+\r
+	// Premultiply CoC again.\r
+	avg *= smoothstep(0.0, mainTexSize.y * 2.0, abs(coc));\r
+\r
+	// #if defined(UNITY_COLORSPACE_GAMMA)\r
+	// 	avg = GammaToLinearSpace(avg);\r
+	// #endif\r
+\r
+    outColor = vec4(avg, coc);\r
+	// outColor = vec4( vec3( abs(coc) ), 1.0 );\r
+\r
+}\r
+`,_n=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+
+uniform sampler2D uBackBuffer0;
+uniform sampler2D uBokeTex;
+
+in vec2 vUv;
+
+layout (location = 0) out vec4 outColor;
+
+// https://github.com/keijiro/KinoBokeh/blob/master/Assets/Kino/Bokeh/Shader/Composition.cginc
+
+// Fragment shader: Additional blur
+vec4 frag_Blur2(vec2 uv) {
+	vec2 _MainTex_TexelSize = vec2( 1.0 ) / vec2( textureSize( uBackBuffer0, 0 ) );
+	
+    // 9-tap tent filter
+    vec4 duv = _MainTex_TexelSize.xyxy * vec4(1, 1, -1, 0);
+    vec4 acc;
+
+    acc  = texture(uBackBuffer0, uv - duv.xy);
+    acc += texture(uBackBuffer0, uv - duv.wy) * 2.0;
+    acc += texture(uBackBuffer0, uv - duv.zy);
+
+    acc += texture(uBackBuffer0, uv + duv.zw) * 2.0;
+    acc += texture(uBackBuffer0, uv         ) * 4.0;
+    acc += texture(uBackBuffer0, uv + duv.xw) * 2.0;
+
+    acc += texture(uBackBuffer0, uv + duv.zy);
+    acc += texture(uBackBuffer0, uv + duv.wy) * 2.0;
+    acc += texture(uBackBuffer0, uv + duv.xy);
+
+    return acc / 16.0;
+}
+
+void main( void ) {
+
+	vec4 cs = texture(uBackBuffer0, vUv);
+    vec4 cb = texture(uBokeTex, vUv);
+	#if defined(UNITY_COLORSPACE_GAMMA)
+		cs.rgb = GammaToLinearSpace(cs.rgb);
+	#endif
+		vec3 rgb = cs.rgb * cb.a + cb.rgb;
+	#if defined(UNITY_COLORSPACE_GAMMA)
+		rgb = LinearToGammaSpace(rgb);
+	#endif
+
+    outColor = vec4(rgb, cs.a);
+
+}`,vn=`in vec2 vUv;
+
+uniform sampler2D uBackBuffer0;
+uniform sampler2D uVelTex;
+uniform sampler2D uVelNeighborTex;
+uniform sampler2D uDepthTexture;
+uniform mat4 uProjectionMatrixInverse;
+uniform vec2 uPPPixelSize;
+uniform float uPower;
+
+layout (location = 0) out vec4 outColor;
+
+#define EPSILON 0.0001
+#define SOFT_Z_EXTENT 0.1
+#define SAMPLE 16
+
+// https://stackoverflow.com/questions/4200224/random-noise-functions-for-glsl\r
+\r
+float random(vec2 p){\r
+	return fract(sin(dot(p.xy ,vec2(12.9898,78.233))) * 43758.5453);\r
+}\r
+\r
+// https://www.shadertoy.com/view/4djSRW\r
+\r
+vec3 hash(vec3 p3)\r
+{\r
+	p3 = fract(p3 * vec3(.1031, .1030, .0973));\r
+  p3 += dot(p3, p3.yxz+33.33);\r
+  return fract((p3.xxy + p3.yxx)*p3.zyx);\r
+\r
+}
+
+float cone( vec2 x, vec2 y, vec2 v ) {
+
+	return clamp( 1.0 - length( x - y ) / length( v ), 0.0, 1.0 ); 
+	
+}
+
+float cylinder( vec2 x, vec2 y, vec2 v ) {
+	
+	return 1.0 - smoothstep( 0.95 * length( v ), 1.05 * length( v ), length( x - y ) );
+
+}
+
+float softDepthCompare( float a, float b ) {
+
+	return clamp( 1.0 - (a - b) / SOFT_Z_EXTENT, 0.0, 1.0 );
+
+}
+
+float getLinearDepth( vec2 uv ) {
+	vec4 depthRayPos = uProjectionMatrixInverse * vec4( uv * 2.0 - 1.0, texture( uDepthTexture, vUv ).x * 2.0 - 1.0, 1.0 );
+	depthRayPos.xyz /= depthRayPos.w;	
+	return depthRayPos.z;
+}
+
+vec2 getVelocity(sampler2D velTex, vec2 uv) 
+{
+    vec2 velocity = texture(velTex, uv).xy;
+    velocity = normalize( velocity ) * clamp( length( velocity ), 0.5 * uPPPixelSize.y, float(TILE) * uPPPixelSize.y );
+
+	velocity *= uPower;
+	
+    return velocity;
+}
+
+
+void main(void) {
+	
+	vec2 X = vUv;
+	
+	vec2 coord = vec2( gl_FragCoord.xy );
+
+	vec2 velNeighbor = getVelocity( uVelNeighborTex, X ).xy;
+
+	vec3 sum = vec3( 0.0 );
+	float weight = 0.0;
+
+	vec2 harfPixelSize = uPPPixelSize / 2.0;
+
+	if( length( velNeighbor ) <= uPPPixelSize.y  ) {
+
+		outColor = texture( uBackBuffer0, vUv );
+		return;
+
+	}
+
+	weight = 1.0;
+	weight = min( 1.0 / length( getVelocity( uVelTex, X ) ), 3.0 );
+	sum = texture(uBackBuffer0, X ).xyz * weight;
+
+	for( int i = 0; i < SAMPLE; i++ ) {
+
+		if( i == SAMPLE - 1 / 2 ) continue;
+
+		float j = random(X + float( i ) * 0.1);
+
+		float t = mix( -1.0, 1.0, ( float( i ) + j + 1.0 ) / ( float(SAMPLE) + 1.0 ) );
+
+		vec2 Y = X + velNeighbor * t + harfPixelSize;
+
+		float depthX = getLinearDepth( X );
+		float depthY = getLinearDepth( Y );
+
+		float f = softDepthCompare( depthX, depthY );
+		float b = softDepthCompare( depthY, depthX );
+
+		float alphaY = f * cone( Y, X, getVelocity( uVelTex, Y ).xy ) +
+			b * cone( X, Y, getVelocity( uVelTex, X ).xy ) +
+			cylinder( Y, X, getVelocity( uVelTex, Y ).xy ) * cylinder( X, Y, getVelocity( uVelTex, X ).xy ) * 2.0;
+
+
+		weight += alphaY;
+		sum += alphaY * texture( uBackBuffer0, Y ).xyz;
+
+	}
+
+	sum /= weight;
+	outColor = vec4(sum.x, sum.y, sum.z, 1.0);
+
+}`,yn=`in vec2 vUv;
+uniform sampler2D uBackBuffer0;
+uniform sampler2D uVelTex;
+uniform vec2 uPPPixelSize;
+
+layout (location = 0) out vec4 outColor;
+
+#define NUM 3
+
+void main(void) {
+	vec2 coord = vec2( gl_FragCoord.xy );
+	vec2 vel = vec2( 0.0 );
+
+	vec3 sum = vec3( 0.0 );
+
+	for( int i = 0; i < NUM; i++ ) {
+
+		for( int j = 0; j < NUM; j++ ) {
+
+			vec2 offset = vec2( 
+				( float(j) / float(NUM - 1) - 0.5 ) * 2.0 * uPPPixelSize.x,
+				( float(i) / float(NUM - 1) - 0.5 ) * 2.0 * uPPPixelSize.y
+			);
+
+			vec2 currentVel = texture( uVelTex, vUv + offset ).xy;
+
+			if( length(currentVel) > length( vel ) ) {
+
+				vel = currentVel;
+				
+			}
+
+		}
+
+	}
+
+	outColor = vec4( vel, 0.0, 1.0 );
+
+}`,bn=`in vec2 vUv;
+uniform sampler2D uBackBuffer0;
+uniform sampler2D uVelTex;
+uniform vec2 uPPPixelSize;
+
+layout (location = 0) out vec4 outColor;
+
+void main(void) {
+	vec2 coord = vec2( gl_FragCoord.xy );
+	vec2 vel = vec2( 0.0 );
+
+	vec3 sum = vec3( 0.0 );
+
+	for( int i = 0; i < TILE; i++ ) {
+
+		for( int j = 0; j < TILE; j++ ) {
+
+			vec2 offset = vec2( 
+				( float(j) / float(TILE - 1) - 0.5 ) * uPPPixelSize.x / float( TILE ),
+				( float(i) / float(TILE - 1) - 0.5 ) * uPPPixelSize.y / float( TILE )
+			);
+
+			vec2 currentVel = texture( uVelTex, vUv + offset ).xy;
+
+			if( length(currentVel) > length( vel ) ) {
+
+				vel = currentVel;
+				
+			}
+
+		}
+
+	}
+
+	outColor = vec4( vel + 0.0001, 0.0, 1.0 );
+
+}`,xn=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}\r
+struct DirectionalLight {\r
+	vec3 direction;\r
+	vec3 color;\r
+};\r
+\r
+struct SpotLight {\r
+	vec3 position;\r
+	vec3 direction;\r
+	vec3 color;\r
+	float angle;\r
+	float blend;\r
+	float distance;\r
+	float decay;\r
+};\r
+\r
+struct LightCamera {\r
+	float near;\r
+	float far;\r
+	mat4 uViewMatrix;\r
+	mat4 uProjectionMatrix;\r
+	vec2 resolution;\r
+};\r
+\r
+struct Light {\r
+	vec3 direction;\r
+	vec3 color;\r
+};\r
+\r
+#if NUM_LIGHT_DIR > 0 \r
+\r
+	uniform DirectionalLight directionalLight[NUM_LIGHT_DIR];\r
+	uniform LightCamera uDirectionalLightCamera[NUM_LIGHT_DIR];\r
+	uniform sampler2D directionalLightShadowMap[NUM_SHADOWMAP_DIR];\r
+	\r
+#endif\r
+\r
+#if NUM_LIGHT_SPOT > 0 \r
+\r
+	uniform SpotLight uSpotLight[NUM_LIGHT_SPOT];\r
+	uniform LightCamera uSpotLightCamera[NUM_LIGHT_SPOT];\r
+	uniform sampler2D uSpotLightShadowMap[NUM_SHADOWMAP_SPOT];\r
+	\r
+#endif\r
+\r
+// shadowmap\r
+\r
+float compareShadowDepth( float lightDepth, sampler2D shadowMap, vec2 shadowCoord, float depthOffset ) {\r
+\r
+	float shadowMapDepth = rgbaToFloat( texture( shadowMap, shadowCoord ) );\r
+\r
+	if( shadowCoord.x >= 0.0 && shadowCoord.x <= 1.0 && shadowCoord.y >= 0.0 && shadowCoord.y <= 1.0 ) {\r
+\r
+		return step( lightDepth, shadowMapDepth + depthOffset );\r
+\r
+	}\r
+\r
+	return 1.0;\r
+\r
+}\r
+\r
+// shadow\r
+\r
+void setShadowCoord( vec3 pos, LightCamera camera, inout vec2 shadowCoord, inout float lightDepth ) {\r
+	\r
+	vec4 mvPosition = camera.uViewMatrix * vec4( pos, 1.0 );\r
+	vec4 mvpPosition = camera.uProjectionMatrix * mvPosition;\r
+	shadowCoord = ( mvpPosition.xy / mvpPosition.w ) * 0.5 + 0.5;\r
+	\r
+	float lightNear = camera.near;\r
+	float lightFar = camera.far;\r
+	lightDepth = ( -mvPosition.z - lightNear ) / ( lightFar - lightNear );\r
+\r
+}\r
+\r
+float getShadow( vec3 pos, LightCamera camera, sampler2D shadowMap, float depthOffset ) {\r
+\r
+	vec2 shadowCoord;\r
+	float lightDepth;\r
+\r
+	setShadowCoord( pos, camera, shadowCoord, lightDepth );\r
+\r
+	return compareShadowDepth( lightDepth, shadowMap, shadowCoord, depthOffset );\r
+\r
+}\r
+\r
+#define SHADOW_SAMPLE_COUNT 2\r
+\r
+float getShadowSmooth( vec3 pos, LightCamera camera, sampler2D shadowMap, float depthOffset ) {\r
+\r
+	vec2 shadowCoord;\r
+	float lightDepth;\r
+\r
+	setShadowCoord( pos, camera, shadowCoord, lightDepth );\r
+	\r
+	float shadowSum = compareShadowDepth( lightDepth, shadowMap, shadowCoord, depthOffset );\r
+\r
+	for( int i = 0; i < SHADOW_SAMPLE_COUNT; i++ ) {\r
+\r
+		vec2 offset = 1.0 / camera.resolution * ( float( i + 1 ) / float(SHADOW_SAMPLE_COUNT) );\r
+\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, -offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( 0.0, -offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, -offset.y ), depthOffset );\r
+		\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, 0.0 ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, 0.0 ), depthOffset );\r
+\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( 0.0, offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, offset.y ), depthOffset );\r
+\r
+	}\r
+\r
+	return shadowSum / ( float( SHADOW_SAMPLE_COUNT ) * 8.0 );\r
+\r
+}\r
+\r
+float ggx( float dNH, float roughness ) {\r
+	\r
+	float a2 = roughness * roughness;\r
+	a2 = a2 * a2;\r
+	float dNH2 = dNH * dNH;\r
+\r
+	if( dNH2 <= 0.0 ) return 0.0;\r
+\r
+	return a2 / ( PI * pow( dNH2 * ( a2 - 1.0 ) + 1.0, 2.0) );\r
+\r
+}\r
+\r
+vec3 lambert( vec3 diffuseColor ) {\r
+\r
+	return diffuseColor / PI;\r
+\r
+}\r
+\r
+float gSchlick( float d, float k ) {\r
+\r
+	if( d == 0.0 ) return 0.0;\r
+\r
+	return d / ( d * ( 1.0 - k ) + k );\r
+	\r
+}\r
+\r
+float gSmith( float dNV, float dNL, float roughness ) {\r
+\r
+	float k = clamp( roughness * sqrt( 2.0 / PI ), 0.0, 1.0 );\r
+\r
+	return gSchlick( dNV, k ) * gSchlick( dNL, k );\r
+	\r
+}\r
+\r
+float fresnel( float d ) {\r
+	\r
+	float f0 = 0.04;\r
+\r
+	return f0 + ( 1.0 - f0 ) * pow( 1.0 - d, 5.0 );\r
+\r
+}\r
+\r
+vec3 RE( Geometry geo, Material mat, Light light) {\r
+\r
+	vec3 lightDir = normalize( light.direction );\r
+	vec3 halfVec = normalize( geo.viewDir + lightDir );\r
+\r
+	float dLH = clamp( dot( lightDir, halfVec ), 0.0, 1.0 );\r
+	float dNH = clamp( dot( geo.normal, halfVec ), 0.0, 1.0 );\r
+	float dNV = clamp( dot( geo.normal, geo.viewDir ), 0.0, 1.0 );\r
+	float dNL = clamp( dot( geo.normal, lightDir), 0.0, 1.0 );\r
+\r
+	vec3 irradiance = light.color * dNL;\r
+\r
+	// diffuse\r
+	vec3 diffuse = lambert( mat.diffuseColor ) * irradiance;\r
+\r
+	// specular\r
+	float D = ggx( dNH, mat.roughness );\r
+	float G = gSmith( dNV, dNL, mat.roughness );\r
+	float F = fresnel( dLH );\r
+	\r
+	vec3 specular = (( D * G * F ) / ( 4.0 * dNL * dNV + 0.0001 ) * mat.specularColor ) * irradiance; \r
+\r
+	vec3 c = vec3( 0.0 );\r
+	c += diffuse * ( 1.0 - F ) + specular;\r
+\r
+	return c;\r
+\r
+}\r
+\r
+uniform sampler2D uBackBuffer0;\r
+\r
+uniform sampler2D uGbufferPos;\r
+uniform sampler2D uGbufferNormal;\r
+uniform sampler2D uSSRTexture;\r
+\r
+uniform vec3 uCameraPosition;\r
+uniform float uCameraNear;\r
+uniform float uCameraFar;\r
+\r
+in vec2 vUv;\r
+\r
+layout (location = 0) out vec4 outColor;\r
+\r
+void main( void ) {\r
+\r
+	vec4 gCol0 = texture( uGbufferPos, vUv );\r
+	vec4 gCol1 = texture( uGbufferNormal, vUv );\r
+	\r
+	outColor += vec4( texture( uBackBuffer0, vUv ).xyz, 1.0 );\r
+	\r
+	vec3 dir = normalize( uCameraPosition - gCol0.xyz );\r
+	float f = fresnel( clamp( dot( dir, gCol1.xyz ), 0.0, 1.0 ) );\r
+\r
+	vec4 ssrCol = texture( uSSRTexture, vUv );\r
+\r
+	outColor.xyz += f * ssrCol.xyz * 0.15;\r
+\r
+}`,Sn=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+struct DirectionalLight {\r
+	vec3 direction;\r
+	vec3 color;\r
+};\r
+\r
+struct SpotLight {\r
+	vec3 position;\r
+	vec3 direction;\r
+	vec3 color;\r
+	float angle;\r
+	float blend;\r
+	float distance;\r
+	float decay;\r
+};\r
+\r
+struct LightCamera {\r
+	float near;\r
+	float far;\r
+	mat4 uViewMatrix;\r
+	mat4 uProjectionMatrix;\r
+	vec2 resolution;\r
+};\r
+\r
+struct Light {\r
+	vec3 direction;\r
+	vec3 color;\r
+};\r
+\r
+#if NUM_LIGHT_DIR > 0 \r
+\r
+	uniform DirectionalLight directionalLight[NUM_LIGHT_DIR];\r
+	uniform LightCamera uDirectionalLightCamera[NUM_LIGHT_DIR];\r
+	uniform sampler2D directionalLightShadowMap[NUM_SHADOWMAP_DIR];\r
+	\r
+#endif\r
+\r
+#if NUM_LIGHT_SPOT > 0 \r
+\r
+	uniform SpotLight uSpotLight[NUM_LIGHT_SPOT];\r
+	uniform LightCamera uSpotLightCamera[NUM_LIGHT_SPOT];\r
+	uniform sampler2D uSpotLightShadowMap[NUM_SHADOWMAP_SPOT];\r
+	\r
+#endif\r
+\r
+// shadowmap\r
+\r
+float compareShadowDepth( float lightDepth, sampler2D shadowMap, vec2 shadowCoord, float depthOffset ) {\r
+\r
+	float shadowMapDepth = rgbaToFloat( texture( shadowMap, shadowCoord ) );\r
+\r
+	if( shadowCoord.x >= 0.0 && shadowCoord.x <= 1.0 && shadowCoord.y >= 0.0 && shadowCoord.y <= 1.0 ) {\r
+\r
+		return step( lightDepth, shadowMapDepth + depthOffset );\r
+\r
+	}\r
+\r
+	return 1.0;\r
+\r
+}\r
+\r
+// shadow\r
+\r
+void setShadowCoord( vec3 pos, LightCamera camera, inout vec2 shadowCoord, inout float lightDepth ) {\r
+	\r
+	vec4 mvPosition = camera.uViewMatrix * vec4( pos, 1.0 );\r
+	vec4 mvpPosition = camera.uProjectionMatrix * mvPosition;\r
+	shadowCoord = ( mvpPosition.xy / mvpPosition.w ) * 0.5 + 0.5;\r
+	\r
+	float lightNear = camera.near;\r
+	float lightFar = camera.far;\r
+	lightDepth = ( -mvPosition.z - lightNear ) / ( lightFar - lightNear );\r
+\r
+}\r
+\r
+float getShadow( vec3 pos, LightCamera camera, sampler2D shadowMap, float depthOffset ) {\r
+\r
+	vec2 shadowCoord;\r
+	float lightDepth;\r
+\r
+	setShadowCoord( pos, camera, shadowCoord, lightDepth );\r
+\r
+	return compareShadowDepth( lightDepth, shadowMap, shadowCoord, depthOffset );\r
+\r
+}\r
+\r
+#define SHADOW_SAMPLE_COUNT 2\r
+\r
+float getShadowSmooth( vec3 pos, LightCamera camera, sampler2D shadowMap, float depthOffset ) {\r
+\r
+	vec2 shadowCoord;\r
+	float lightDepth;\r
+\r
+	setShadowCoord( pos, camera, shadowCoord, lightDepth );\r
+	\r
+	float shadowSum = compareShadowDepth( lightDepth, shadowMap, shadowCoord, depthOffset );\r
+\r
+	for( int i = 0; i < SHADOW_SAMPLE_COUNT; i++ ) {\r
+\r
+		vec2 offset = 1.0 / camera.resolution * ( float( i + 1 ) / float(SHADOW_SAMPLE_COUNT) );\r
+\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, -offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( 0.0, -offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, -offset.y ), depthOffset );\r
+		\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, 0.0 ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, 0.0 ), depthOffset );\r
+\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( 0.0, offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, offset.y ), depthOffset );\r
+\r
+	}\r
+\r
+	return shadowSum / ( float( SHADOW_SAMPLE_COUNT ) * 8.0 );\r
+\r
+}\r
+\r
+float ggx( float dNH, float roughness ) {\r
+	\r
+	float a2 = roughness * roughness;\r
+	a2 = a2 * a2;\r
+	float dNH2 = dNH * dNH;\r
+\r
+	if( dNH2 <= 0.0 ) return 0.0;\r
+\r
+	return a2 / ( PI * pow( dNH2 * ( a2 - 1.0 ) + 1.0, 2.0) );\r
+\r
+}\r
+\r
+vec3 lambert( vec3 diffuseColor ) {\r
+\r
+	return diffuseColor / PI;\r
+\r
+}\r
+\r
+float gSchlick( float d, float k ) {\r
+\r
+	if( d == 0.0 ) return 0.0;\r
+\r
+	return d / ( d * ( 1.0 - k ) + k );\r
+	\r
+}\r
+\r
+float gSmith( float dNV, float dNL, float roughness ) {\r
+\r
+	float k = clamp( roughness * sqrt( 2.0 / PI ), 0.0, 1.0 );\r
+\r
+	return gSchlick( dNV, k ) * gSchlick( dNL, k );\r
+	\r
+}\r
+\r
+float fresnel( float d ) {\r
+	\r
+	float f0 = 0.04;\r
+\r
+	return f0 + ( 1.0 - f0 ) * pow( 1.0 - d, 5.0 );\r
+\r
+}\r
+\r
+vec3 RE( Geometry geo, Material mat, Light light) {\r
+\r
+	vec3 lightDir = normalize( light.direction );\r
+	vec3 halfVec = normalize( geo.viewDir + lightDir );\r
+\r
+	float dLH = clamp( dot( lightDir, halfVec ), 0.0, 1.0 );\r
+	float dNH = clamp( dot( geo.normal, halfVec ), 0.0, 1.0 );\r
+	float dNV = clamp( dot( geo.normal, geo.viewDir ), 0.0, 1.0 );\r
+	float dNL = clamp( dot( geo.normal, lightDir), 0.0, 1.0 );\r
+\r
+	vec3 irradiance = light.color * dNL;\r
+\r
+	// diffuse\r
+	vec3 diffuse = lambert( mat.diffuseColor ) * irradiance;\r
+\r
+	// specular\r
+	float D = ggx( dNH, mat.roughness );\r
+	float G = gSmith( dNV, dNL, mat.roughness );\r
+	float F = fresnel( dLH );\r
+	\r
+	vec3 specular = (( D * G * F ) / ( 4.0 * dNL * dNV + 0.0001 ) * mat.specularColor ) * irradiance; \r
+\r
+	vec3 c = vec3( 0.0 );\r
+	c += diffuse * ( 1.0 - F ) + specular;\r
+\r
+	return c;\r
+\r
+}
+// https://stackoverflow.com/questions/4200224/random-noise-functions-for-glsl\r
+\r
+float random(vec2 p){\r
+	return fract(sin(dot(p.xy ,vec2(12.9898,78.233))) * 43758.5453);\r
+}\r
+\r
+// https://www.shadertoy.com/view/4djSRW\r
+\r
+vec3 hash(vec3 p3)\r
+{\r
+	p3 = fract(p3 * vec3(.1031, .1030, .0973));\r
+  p3 += dot(p3, p3.yxz+33.33);\r
+  return fract((p3.xxy + p3.yxx)*p3.zyx);\r
+\r
+}
+
+// uniforms
+
+uniform sampler2D uBackBuffer0;
+uniform sampler2D uGbufferPos;
+uniform sampler2D uGbufferNormal;
+uniform sampler2D uSSRBackBuffer;
+uniform sampler2D uDepthTexture;
+
+uniform float uTimeEF;
+uniform mat4 uCameraMatrix;
+uniform mat4 uViewMatrix;
+uniform mat4 uProjectionMatrix;
+uniform mat4 uProjectionMatrixInverse;
+uniform vec3 uCameraPosition;
+
+// varying
+
+in vec2 vUv;
+
+layout (location = 0) out vec4 outColor;
+#define MARCH 16.0
+#define LENGTH 5.0
+#define OBJDEPTH 0.5
+
+void main( void ) {
+
+	vec3 lightShaftSum = vec3( 0.0 );
+
+	vec3 rayPos = texture( uGbufferPos, vUv ).xyz;
+	vec4 rayViewPos = uViewMatrix * vec4(rayPos, 1.0);
+	vec4 depthRayPos = uViewMatrix * vec4(rayPos, 1.0);
+
+	if( abs(rayViewPos.z - depthRayPos.z) > 0.1 || length(rayPos - uCameraPosition) > 100.0 ) {
+
+		outColor = vec4( 0.0, 0.0, 0.0, 0.0 );
+		return;
+		
+	}
+
+	if( rayPos.x + rayPos.y + rayPos.z == 0.0 ) return;
+
+	vec3 rayDir = reflect( normalize( ( uCameraMatrix * uProjectionMatrixInverse * vec4( vUv * 2.0 - 1.0, 1.0, 1.0 ) ).xyz ), texture( uGbufferNormal, vUv ).xyz ) ;
+
+	float rayStepLength = LENGTH / MARCH;
+	vec3 rayStep = rayDir * rayStepLength;
+
+	float totalRayLength = random(vUv + uTimeEF) * rayStepLength + 0.1;
+	rayPos += rayDir * totalRayLength;
+
+	vec4 col = vec4( 0.0 );
+
+	for( int i = 0; i < int( MARCH ); i ++ ) {
+
+		vec4 depthCoord = (uProjectionMatrix * uViewMatrix * vec4(rayPos, 1.0 ) );
+		depthCoord.xy /= depthCoord.w;
+
+		if( abs( depthCoord.x ) > 1.0 || abs( depthCoord.y ) > 1.0 ) break;
+
+		depthCoord.xy = depthCoord.xy * 0.5 + 0.5;
+
+		vec3 gBufferPos = texture( uGbufferPos, depthCoord.xy ).xyz;
+
+		if( length( gBufferPos ) == 0.0 ) break;
+
+		vec4 samplerPos = (uViewMatrix * vec4( gBufferPos, 1.0) );
+		vec4 sampleViewPos = uViewMatrix * vec4( rayPos, 1.0 );
+
+		if( sampleViewPos.z < samplerPos.z && sampleViewPos.z >= samplerPos.z - OBJDEPTH ) {
+
+			col.xyz = texture( uBackBuffer0, depthCoord.xy ).xyz;
+			col.w = 1.0;
+			break;
+
+		}
+		
+		rayPos += rayStep;
+		totalRayLength += rayStepLength;
+
+	}
+
+
+	outColor = mix( texture( uSSRBackBuffer, vUv ), col, 0.2 );
+
+}`,Cn=class{dofCoc;dofBokeh;dofComposite;rtSSR1;rtSSR2;postprocess;_ssr;_ssComposite;_dofParams;_motionBlur;_motionBlurTile;_motionBlurNeighbor;constructor(e,t){let n=new F(e,{name:`collection`,frag:mn}),r=e.createFrameBuffer().setTexture([e.createTexture().setting({magFilter:M.LINEAR,minFilter:M.LINEAR})]),i=e.createFrameBuffer().setTexture([e.createTexture().setting({magFilter:M.LINEAR,minFilter:M.LINEAR})]),a=new F(e,{name:`ssr`,frag:Yt(`ssr`,Sn),renderTarget:r,uniforms:Qt.merge({uGbufferPos:{value:null,type:`1i`},uGbufferNormal:{value:null,type:`1i`},uSceneTex:{value:null,type:`1i`},uSSRBackBuffer:{value:i.textures[0],type:`1i`}}),resolutionRatio:.5,passThrough:!0}),o=new F(e,{name:`ssComposite`,frag:Yt(`ssComposite`,xn),uniforms:Qt.merge({uGbufferPos:{value:null,type:`1i`},uGbufferNormal:{value:null,type:`1i`},uSSRTexture:{value:i.textures[0],type:`1i`}})}),s=new A(10,.05,20,.05),c=new F(e,{name:`dof/coc`,frag:gn,uniforms:Qt.merge({uGbufferPos:{value:null,type:`1i`},uParams:{value:s,type:`4f`}}),renderTarget:e.createFrameBuffer().setTexture([e.createTexture().setting({magFilter:M.LINEAR,minFilter:M.LINEAR,internalFormat:M.RGBA16F,type:M.HALF_FLOAT,format:M.RGBA})]),passThrough:!0,resolutionRatio:.5}),l=new F(e,{name:`dof/bokeh`,frag:hn,uniforms:Qt.merge({uCocTex:{value:c.renderTarget.textures[0],type:`1i`},uParams:{value:s,type:`4f`}}),renderTarget:e.createFrameBuffer().setTexture([e.createTexture().setting({magFilter:M.LINEAR,minFilter:M.LINEAR})]),passThrough:!0,resolutionRatio:.5}),u=new F(e,{name:`dof/composite`,frag:_n,uniforms:Qt.merge({uBokeTex:{value:l.renderTarget.textures[0],type:`1i`}}),renderTarget:e.createFrameBuffer().setTexture([e.createTexture().setting({magFilter:M.LINEAR,minFilter:M.LINEAR,internalFormat:M.RGBA16F,type:M.HALF_FLOAT,format:M.RGBA})])}),d=new F(e,{name:`motionBlurTile`,frag:bn,uniforms:Qt.merge({uVelTex:{value:null,type:`1i`}}),renderTarget:e.createFrameBuffer().setTexture([e.createTexture().setting({type:M.FLOAT,internalFormat:M.RGBA32F,format:M.RGBA})]),defines:{TILE:16},resolutionRatio:1/16,passThrough:!0}),f=new F(e,{name:`motionBlurNeighbor`,frag:yn,uniforms:Qt.merge({uVelTex:{value:d.renderTarget.textures[0],type:`1i`}}),defines:{TILE:16},renderTarget:e.createFrameBuffer().setTexture([e.createTexture().setting({type:M.FLOAT,internalFormat:M.RGBA32F,format:M.RGBA})]),resolutionRatio:1/16,passThrough:!0}),p=new F(e,{name:`motionBlur`,frag:vn,uniforms:Qt.merge({uVelNeighborTex:{value:f.renderTarget.textures[0],type:`1i`},uVelTex:{value:null,type:`1i`},uDepthTexture:{value:null,type:`1i`},uPower:{value:1,type:`1f`}}),defines:{TILE:16}});this.postprocess=new tn({passes:[n,a,o,c,l,u,d,f,p]}),this._ssr=a,this._ssComposite=o,this.dofCoc=c,this.dofBokeh=l,this.dofComposite=u,this._motionBlur=p,this._motionBlurTile=d,this._motionBlurNeighbor=f,this._dofParams=s,this.rtSSR1=r,this.rtSSR2=i,n.backBufferOverride=t.shadingBuffer.textures,a.uniforms.uGbufferPos.value=t.gBuffer.textures[0],a.uniforms.uGbufferNormal.value=t.normalBuffer.textures[0],a.uniforms.uSceneTex.value=t.forwardBuffer.textures[0],o.uniforms.uGbufferPos.value=t.gBuffer.textures[0],o.uniforms.uGbufferNormal.value=t.gBuffer.textures[1],c.uniforms.uGbufferPos.value=t.gBuffer.textures[0],d.uniforms.uVelTex.value=t.gBuffer.textures[4],p.uniforms.uVelTex.value=t.gBuffer.textures[4],p.uniforms.uDepthTexture.value=t.gBuffer.depthTexture}update(e){let t=e.fov,n=e.dofParams.focusDistance,r=e.dofParams.kFilmHeight,i=r/Math.tan(.5*(t/180*Math.PI)),a=1/this.dofBokeh.renderTarget.size.y*5,o=1/a,s=i*i/(e.dofParams.fNumber*(n-i)*r*2);this._dofParams.set(n,a,o,s);let c=this.rtSSR1;this.rtSSR1=this.rtSSR2,this.rtSSR2=c,this._ssr.setRendertarget(this.rtSSR1),this._ssComposite.uniforms.uSSRTexture.value=this.rtSSR1.textures[0],this._ssr.uniforms.uSSRBackBuffer.value=this.rtSSR2.textures[0]}resize(e){this.postprocess.resize(e)}setPassEnabled(e){e.motionBlur!==void 0&&(this._motionBlurTile.enabled=e.motionBlur,this._motionBlurNeighbor.enabled=e.motionBlur,this._motionBlur.enabled=e.motionBlur,e.motionBlur||(this._motionBlurTile.renderTarget&&this._motionBlurTile.renderTarget.clear(),this._motionBlurNeighbor.renderTarget&&this._motionBlurNeighbor.renderTarget.clear())),e.ssr!==void 0&&(this._ssr.enabled=e.ssr,this._ssComposite.enabled=e.ssr,e.ssr||(this.rtSSR1.clear(),this.rtSSR2.clear())),e.dof!==void 0&&(this.dofCoc.enabled=e.dof,this.dofBokeh.enabled=e.dof,this.dofComposite.enabled=e.dof,e.dof||(this.dofBokeh.renderTarget&&this.dofBokeh.renderTarget.clear(),this.dofComposite.renderTarget&&this.dofComposite.renderTarget.clear()))}setMotionBlurPower(e){this._motionBlur.uniforms.uPower.value=e}dispose(){this.postprocess.dispose(),this.rtSSR1.dispose(),this.rtSSR2.dispose()}},wn=e=>{let t=e.createFrameBuffer();t.setTexture([e.createTexture().setting({type:M.FLOAT,internalFormat:M.RGBA32F,format:M.RGBA,magFilter:M.NEAREST,minFilter:M.NEAREST}),e.createTexture().setting({type:M.FLOAT,internalFormat:M.RGBA32F,format:M.RGBA}),e.createTexture(),e.createTexture(),e.createTexture().setting({type:M.FLOAT,internalFormat:M.RGBA32F,format:M.RGBA})]);let n=e.createFrameBuffer({disableDepthBuffer:!0});n.setTexture([e.createTexture().setting({type:M.FLOAT,internalFormat:M.RGBA16F,format:M.RGBA}),e.createTexture().setting({type:M.FLOAT,internalFormat:M.RGBA16F,format:M.RGBA})]);let r=e.createFrameBuffer({disableDepthBuffer:!0});r.setDepthTexture(t.depthTexture),r.setTexture([n.textures[0],t.textures[0],t.textures[4]]);let i=e.createFrameBuffer({disableDepthBuffer:!0});i.setTexture([e.createTexture().setting({type:M.FLOAT,internalFormat:M.RGBA16F,format:M.RGBA,magFilter:M.LINEAR,minFilter:M.LINEAR})]);let a=e.createFrameBuffer({disableDepthBuffer:!0});a.setDepthTexture(t.depthTexture),a.setTexture([e.createTexture()]);let o=e.createFrameBuffer();return o.setTexture([e.createTexture().setting({type:M.FLOAT,internalFormat:M.RGBA32F,format:M.RGBA,magFilter:M.NEAREST,minFilter:M.NEAREST})]),{gBuffer:t,shadingBuffer:n,forwardBuffer:r,refractionBuffer:i,uiBuffer:a,normalBuffer:o}},Tn=class{camera;offscreen;renderTarget;deferredRenderer;pipelinePostProcess;_pipelineOverride;_sceneConfig;_onDispose;constructor(e){this.camera=null,this.offscreen=e.offscreen,this._pipelineOverride=null,this._sceneConfig=e.sceneConfig,this._onDispose=e.onDispose,this.renderTarget=wn(e.backend),this.deferredRenderer=new pn({backend:e.backend,envMap:e.envMap,envMapCube:e.envMapCube,renderTarget:this.renderTarget}),this.pipelinePostProcess=new Cn(e.backend,this.renderTarget),e.resolution.x>0&&e.resolution.y>0&&this.resize(e.resolution),this.applyPipelineConfig()}get pipelineOverride(){return this._pipelineOverride}set pipelineOverride(e){this._pipelineOverride=e,this.applyPipelineConfig()}applyPipelineConfig(){let e={...this._sceneConfig,...this._pipelineOverride};this.deferredRenderer.setPassEnabled({ssao:e.ssao,lightShaft:e.lightShaft}),this.pipelinePostProcess.setPassEnabled({motionBlur:e.motionBlur,ssr:e.ssr,dof:e.dof}),this.pipelinePostProcess.setMotionBlurPower(e.motionBlurPower??1)}resize(e){let t=this.renderTarget;t.gBuffer.setSize(e),t.shadingBuffer.setSize(e),t.forwardBuffer.setSize(e),t.refractionBuffer.setSize(e),t.uiBuffer.setSize(e),t.normalBuffer.setSize(e),this.deferredRenderer.resize(e),this.pipelinePostProcess.resize(e)}dispose(){this._onDispose(this);let e=this.renderTarget;e.forwardBuffer.dispose();let t=[e.gBuffer,e.shadingBuffer,e.refractionBuffer,e.uiBuffer,e.normalBuffer];for(let e=0;e<t.length;e++){let n=t[e];for(let e=0;e<n.textures.length;e++)n.textures[e].dispose();n.dispose()}e.gBuffer.depthTexture&&e.gBuffer.depthTexture.dispose(),this.deferredRenderer.dispose(),this.pipelinePostProcess.dispose()}},En=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+// 宣言順はvert_h.part.glslのoutと一致させる（WGSL変換時にロケーションが宣言順で振られるため）\r
+in vec2 vUv;\r
+in vec3 vViewNormal;\r
+in vec3 vNormal;\r
+in vec3 vMVPosition;\r
+in vec3 vMVPPosition;\r
+in vec3 vPos;\r
+in vec2 vVelocity;\r
+\r
+uniform mat4 uModelMatrix;\r
+uniform mat4 uModelMatrixInverse;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform vec3 uCameraPosition;\r
+uniform vec2 uResolution;\r
+\r
+#ifdef IS_DEPTH\r
+	uniform float uCameraNear;\r
+	uniform float uCameraFar;\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+	layout (location = 3) out vec4 outColor3;\r
+	layout (location = 4) out vec4 outColor4;\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	uniform sampler2D uDeferredTexture;\r
+	uniform vec2 uDeferredResolution;\r
+	uniform sampler2D uGbufferNormal;\r
+	uniform sampler2D uGbufferAlbedo;\r
+	uniform sampler2D uGbufferMaterial;\r
+#endif\r
+\r
+#if defined(IS_FORWARD) || defined(IS_DEPTH)\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;
+
+uniform vec3 uSkyColor;
+uniform vec3 uGroundColor;
+uniform float uSkyIntensity;
+
+void main( void ) {
+
+	vec4 outColor = vec4(1.0);\r
+vec3 outNormal = normalize(vNormal);\r
+vec3 outNormalMap = vec3( 0.0 );\r
+float outSSN = 0.0;\r
+vec3 outEmission = vec3(0.0);\r
+float outRoughness = 0.5;\r
+float outMetallic = 0.0;\r
+vec3 outPos = vPos;\r
+float outEnv = 1.0;
+
+	float t = clamp( dot( normalize( vNormal ), vec3( 0.0, 1.0, 0.0 ) ) * 0.5 + 0.5, 0.0, 1.0 );
+	vec3 color = mix( uGroundColor, uSkyColor * 2.0, t );
+
+	outColor = vec4( 0.0 );
+	outEmission = color * uSkyIntensity;
+	outRoughness = 1.0;
+	outEnv = 0.0;
+
+	#if defined(IS_DEPTH) || defined(IS_DEFERRED)\r
+	vec4 mv = uViewMatrix * vec4(outPos, 1.0);\r
+#endif\r
+\r
+#ifdef IS_DEPTH\r
+	float depth_z = (-mv.z - uCameraNear) / (uCameraFar - uCameraNear);\r
+	outColor0 = vec4(floatToRGBA( depth_z ));\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+\r
+	#ifdef USE_NORMAL_MAP \r
+\r
+		vec3 tangent;\r
+		vec3 bitangent;\r
+\r
+		#ifdef USE_TANGENT\r
+\r
+			tangent = normalize( vTangent );\r
+			bitangent = normalize( vBitangent );\r
+\r
+		#else\r
+\r
+			tangent = cross(outNormal, vec3( 0.0, 1.0, 0.0 ));\r
+			bitangent = cross(tangent, outNormal);\r
+\r
+		#endif\r
+\r
+		#ifdef DOUBLE_SIDED\r
+\r
+			tangent *= faceDirection;\r
+			bitangent *= faceDirection;\r
+			\r
+		#endif\r
+\r
+		mat3 vTBN = mat3( tangent, bitangent, outNormal );\r
+		outNormal = normalize( vTBN * outNormalMap );\r
+\r
+	#endif\r
+\r
+	vec4 mvp = uProjectionMatrix * mv;\r
+	gl_FragDepth = ( mvp.z / mvp.w ) * 0.5 + 0.5;\r
+	outColor0 = vec4( outPos, outEmission.x );\r
+	outColor1 = vec4( normalize( outNormal * ( gl_FrontFacing ? 1.0 : -1.0 ) ), outEmission.y );\r
+	outColor2 = vec4( outColor.xyz, 0.0 );\r
+	outColor3 = vec4( outRoughness, outMetallic, outSSN, outEnv );\r
+	outColor4 = vec4( vVelocity, 0.0, outEmission.z );\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	outColor0 = outColor;\r
+	outColor1 = vec4(outPos, 1.0);\r
+	outColor2 = vec4(vVelocity, 0.0, 1.0);\r
+#endif
+
+}
+`,Dn=class{entity;mesh;material;color;groundColor;_intensity;constructor(e){this.color=new A(1,1,1),this.groundColor=new A(.3,.3,.3),this._intensity=1,this.material=new en({phase:[`deferred`,`envMap`],frag:En,cullFace:!1,uniforms:{uSkyColor:{value:this.color,type:`3fv`},uGroundColor:{value:this.groundColor,type:`3fv`},uSkyIntensity:{value:this._intensity,type:`1f`}}}),this.entity=e.createEntity({name:`sky`}),this.mesh=this.entity.addComponent(P),this.mesh.geometry=new Bt({radius:500,widthSegments:32,heightSegments:32}),this.mesh.material=this.material}get intensity(){return this._intensity}set intensity(e){this._intensity=e,this.material.uniforms.uSkyIntensity.value=e}},On=new en,kn=e=>e.material||On,An=0,jn=new A(1,1,1,1),Mn=new A(0,0,0,1),Nn=[],Pn=[],Fn=e=>Nn[e]||(Nn[e]={direction:`directionalLight[${e}].direction`,color:`directionalLight[${e}].color`,camNear:`uDirectionalLightCamera[${e}].near`,camFar:`uDirectionalLightCamera[${e}].far`,camViewMatrix:`uDirectionalLightCamera[${e}].viewMatrix`,camProjectionMatrix:`uDirectionalLightCamera[${e}].projectionMatrix`,camResolution:`uDirectionalLightCamera[${e}].resolution`,shadowMap:`directionalLightShadowMap[${e}]`}),In=e=>Pn[e]||(Pn[e]={position:`uSpotLight[${e}].position`,direction:`uSpotLight[${e}].direction`,color:`uSpotLight[${e}].color`,angle:`uSpotLight[${e}].angle`,blend:`uSpotLight[${e}].blend`,distance:`uSpotLight[${e}].distance`,decay:`uSpotLight[${e}].decay`,camNear:`uSpotLightCamera[${e}].near`,camFar:`uSpotLightCamera[${e}].far`,camViewMatrix:`uSpotLightCamera[${e}].viewMatrix`,camProjectionMatrix:`uSpotLightCamera[${e}].projectionMatrix`,camResolution:`uSpotLightCamera[${e}].resolution`,shadowMap:`spotLightShadowMap[${e}]`}),Ln=class extends Ft{backend;canvas;resolution;globalUniforms;_views;_pipelineConfig;programManager;_geometryBuffers;_lights;_lightsUpdated;_lightInfoCache;_envMapCameras;_envMapRenderTarget;_envMapCube;_pmremRender;_stack;_sceneCamera;sky;_quad;_isCorrentCompiles;compileDrawParams;_tmpNormalMatrix;_tmpModelViewMatrix;_tmpViewMatrixInverseMatrix;_tmpLightDirection;_tmpModelMatrixInverse;_tmpProjectionMatrixInverse;_tmpResolution;_tmpResolutionUniform;_tmpUniformOverride;_tmpDrawParam;_tmpShadingTexture;_tmpPostProcessUniforms;constructor(e,t){super(),this.backend=e,this.canvas=e.canvas,this.globalUniforms={},this._isCorrentCompiles=!1,this.compileDrawParams=[],this.programManager=new on(e),this._geometryBuffers=new Map,this.resolution=new A,this._views=[],this._stack=this._createRenderStack(),this._sceneCamera=null,this._lights={directional:[],spot:[]},this._lightsUpdated=!1,this._lightInfoCache=new Map;let n=e.createCubeTexture();this._envMapCube=n,this._envMapRenderTarget=e.createCubeFrameBuffer().setTexture([n]),this._envMapRenderTarget.setSize(256,256);let r=new A(0,0,0),i=new A(0,-1,0),a=[new j().lookAt(r,new A(1,0,0),i),new j().lookAt(r,new A(0,1,0),new A(0,0,1)),new j().lookAt(r,new A(0,0,1),i),new j().lookAt(r,new A(-1,0,0),i),new j().lookAt(r,new A(0,-1,0),new A(0,0,-1)),new j().lookAt(r,new A(0,0,-1),i)];this._envMapCameras=[];for(let e=0;e<6;e++){let n=t.createEntity({name:`envMapCamera/`+e}),r=n.addComponent(Vt);r.fov=90,r.near=.1,r.far=1e3,r.aspect=1,n.applyMatrix(a[e].clone()),r.updateViewMatrix(),r.updateProjectionMatrix(),this._envMapCameras.push({entity:n,camera:r})}this._pmremRender=new an(e,{input:[n],resolution:new A(768,1024)}),this._quad=new zt({width:2,height:2}),this._tmpLightDirection=new A,this._tmpModelMatrixInverse=new j,this._tmpViewMatrixInverseMatrix=new j,this._tmpProjectionMatrixInverse=new j,this._tmpModelViewMatrix=new j,this._tmpNormalMatrix=new j,this._tmpResolution=new A,this._tmpResolutionUniform={value:this._tmpResolution,type:`2fv`},this._tmpUniformOverride={},this._tmpDrawParam={},this._tmpShadingTexture={value:null,type:`1i`},this._tmpPostProcessUniforms={uShadingTexture:this._tmpShadingTexture},this.sky=new Dn(t),this._pipelineConfig={motionBlur:!0,motionBlurPower:1,ssr:!0,ssao:!0,lightShaft:!0,dof:!0};let o=this.fieldDir(`sky`);o.field(`skyColor`,()=>this.sky.color.getElm(`vec3`),e=>{this.sky.color.set(e[0],e[1],e[2])},{format:{type:`vector`}}),o.field(`groundColor`,()=>this.sky.groundColor.getElm(`vec3`),e=>{this.sky.groundColor.set(e[0],e[1],e[2])},{format:{type:`vector`}}),o.field(`intensity`,()=>this.sky.intensity,e=>{this.sky.intensity=e},{step:.1}),o.field(`reset`,()=>()=>{this.setField(`sky/skyColor`,[1,1,1]),this.setField(`sky/groundColor`,[.3,.3,.3]),this.setField(`sky/intensity`,1)},void 0,{label:`Reset to Default`});let s=this.fieldDir(`pipeline`);[`motionBlur`,`ssr`,`ssao`,`dof`,`lightShaft`].forEach(e=>{let t=s.dir(e);t.field(`enabled`,()=>this._pipelineConfig[e]??!0,t=>{this.applyPipelineConfig({[e]:t})}),e===`motionBlur`&&t.field(`power`,()=>this._pipelineConfig.motionBlurPower??1,e=>{this.applyPipelineConfig({motionBlurPower:e})},{step:.1})})}createView(e){let t=new Tn({backend:this.backend,envMap:this._pmremRender.renderTarget.textures[0],envMapCube:this._envMapCube,sceneConfig:this._pipelineConfig,resolution:this.resolution,offscreen:e?.offscreen??!1,onDispose:e=>{this._views.splice(this._views.indexOf(e),1)}});return this._views.push(t),t}_createRenderStack(){return{light:[],deferred:[],forward:[],ui:[],shadowMap:[],envMap:[]}}_collectRenderStack(e,t,n){let r=t&&e.visible,i=e.getComponent(P);if(i&&r){let t=kn(i);t.visibilityFlag.deferred&&n.deferred.push(e),t.visibilityFlag.shadowMap&&n.shadowMap.push(e),t.visibilityFlag.forward&&n.forward.push(e),t.visibilityFlag.ui&&n.ui.push(e),t.visibilityFlag.envMap&&n.envMap.push(e)}let a=e.getComponent(Ut);if(a&&a.enabled&&r&&n.light.push(e),!this._sceneCamera){let t=e.getComponentsByTag(`camera`);for(let n=0;n<t.length;n++)t[n].displayOut&&(this._sceneCamera=e)}for(let t=0;t<e.children.length;t++)this._collectRenderStack(e.children[t],r,n)}prepareScene(e,t){if(this.resolution.x===0||this.resolution.y===0)return;let n=this._stack=this._createRenderStack();this._sceneCamera=null,this._collectRenderStack(e,!0,n),this._collectRenderStack(this.sky.entity,!0,n);let r=[],i={},a=Object.keys(this._lights);for(let e=0;e<a.length;e++){let t=a[e];i[t]=this._lights[t].length,this._lights[t]=[]}for(let e=0;e<n.light.length;e++){let t=n.light[e],i=t.getComponent(Ut);if(i){let e=this.collectLight(t,i);i.castShadow&&e.renderTarget&&r.push(e)}}this._lights.directional.sort((e,t)=>!e.component.castShadow-+!t.component.castShadow),this._lights.spot.sort((e,t)=>!e.component.castShadow-+!t.component.castShadow),this._lightsUpdated=!1;for(let e=0;e<a.length;e++){let t=a[e];if(i[t]!=this._lights[t].length){this._lightsUpdated=!0;break}}for(let e=0;e<r.length;e++){let t=r[e];this.renderCamera(`shadowMap`,t.component.entity,n.shadowMap,t.renderTarget,this.resolution)}for(let e=0;e<this._envMapCameras.length;e++){let{entity:t}=this._envMapCameras[e];this._envMapRenderTarget.face(e),this.renderCamera(`envMap`,t,n.envMap,this._envMapRenderTarget,this.resolution)}this.renderPostProcess(this._pmremRender.postprocess,void 0,this._pmremRender.resolution),this._pmremRender.swap()}render(e,t){if(this.resolution.x===0||this.resolution.y===0)return;let n=e,r=n.camera||this._sceneCamera;if(!r)return;let i=r.getComponentsByTag(`camera`)[0];if(!i)return;let a=this._stack,o=n.renderTarget;this.backend.setBlendEnabled(!1),this.renderCamera(`deferred`,r,a.deferred,o.gBuffer,this.resolution),this.renderPostProcess(n.deferredRenderer.postprocess,void 0,this.resolution,{cameraOverride:{viewMatrix:i.viewMatrix,viewMatrixPrev:i.viewMatrixPrev,projectionMatrix:i.projectionMatrix,projectionMatrixPrev:i.projectionMatrixPrev,cameraMatrixWorld:r.matrixWorld}}),n.deferredRenderer.update(),this._copyToRefraction(o);let s=a.forward.slice().sort((e,t)=>kn(e.getComponent(P)).renderOrder-kn(t.getComponent(P)).renderOrder),c=[],l=null;for(let e of s){let t=kn(e.getComponent(P)).renderOrder;(l===null||t!==l)&&(c.push([]),l=t),c[c.length-1].push(e)}this.backend.setBlendEnabled(!0);for(let e=0;e<c.length;e++)e>0&&this._copyToRefraction(o),this.renderCamera(`forward`,r,c[e],o.forwardBuffer,this.resolution,{uniformOverride:{uDeferredTexture:{value:o.refractionBuffer.textures[0],type:`1i`},uDeferredResolution:{value:o.shadingBuffer.size,type:`2fv`},uEnvMap:{value:this._pmremRender.renderTarget.textures[0],type:`1i`},uGbufferNormal:{value:o.normalBuffer.textures[0],type:`1i`},uGbufferAlbedo:{value:o.gBuffer.textures[2],type:`1i`},uGbufferMaterial:{value:o.gBuffer.textures[3],type:`1i`}},disableClear:!0});this.backend.setBlendEnabled(!1),this.renderPostProcess(n.pipelinePostProcess.postprocess,void 0,this.resolution,{cameraOverride:{viewMatrix:i.viewMatrix,projectionMatrix:i.projectionMatrix,cameraMatrixWorld:r.matrixWorld,cameraNear:i.near,cameraFar:i.far}}),n.pipelinePostProcess.update(i);let u=n.pipelinePostProcess.postprocess.output?n.pipelinePostProcess.postprocess.output:void 0,d=(this._sceneCamera||r).getComponent($t);if(d){d.resize(this.resolution),this._tmpShadingTexture.value=o.shadingBuffer.textures[0];for(let e=0;e<d.postProcesses.length;e++){let t=d.postProcesses[e];t.enabled&&t.hasOutput&&(this.renderPostProcess(t,u,this.resolution,{cameraOverride:{viewMatrix:i.viewMatrix,projectionMatrix:i.projectionMatrix,cameraMatrixWorld:r.matrixWorld,cameraNear:i.near,cameraFar:i.far},uniformOverride:this._tmpPostProcessUniforms}),u=t.output||void 0)}}let f=n.offscreen?o.uiBuffer:null;if(u){let e=u.size;this.backend.blit(u,f,e.x,e.y)}this.backend.setBlendEnabled(!0),this.renderCamera(`forward`,r,a.ui,f,this.resolution,{uniformOverride:{uDeferredTexture:{value:o.refractionBuffer.textures[0],type:`1i`}},disableClear:!0}),this.backend.setBlendEnabled(!1)}renderCamera(e,t,n,r,i,a){let o=t.getComponentsByTag(`camera`)[0]||t.getComponent(Ut);a||={};let s=this._tmpDrawParam;s.viewMatrix=o.viewMatrix,s.viewMatrixPrev=o.viewMatrixPrev,s.projectionMatrix=o.projectionMatrix,s.projectionMatrixPrev=o.projectionMatrixPrev,s.cameraMatrixWorld=t.matrixWorld,s.cameraNear=o.near,s.cameraFar=o.far,s.renderTarget=r,s.uniformOverride=a.uniformOverride||this._tmpUniformOverride,a.cameraOverride&&Object.assign(s,a.cameraOverride),this.backend.bindRenderTarget(r,o.viewPort,i),r?this._tmpResolution.set(r.size.x,r.size.y):this._tmpResolution.set(i.x,i.y),s.uniformOverride.uResolution=this._tmpResolutionUniform,a.disableClear||this.backend.clear(e==`shadowMap`?jn:Mn,1);for(let t=0;t<n.length;t++){let r=n[t],i=r.getComponentsByTag(`materialOverride`)[0],a=r.getComponent(P),c=i&&i.material||kn(a),l=a.geometry;s.modelMatrixWorld=r.matrixWorld,s.modelMatrixWorldPrev=r.matrixWorldPrev,s.label=`cam[${o.uuid}]/${r.name||c.name||`-`}`,this.draw(r.uuid,e,l,c,s)}}_copyToRefraction(e){let t=e.shadingBuffer.size;this.backend.blit(e.shadingBuffer,e.refractionBuffer,t.x,t.y,!0,!0)}collectLight(e,t){let n=t.lightType,r=this._lightInfoCache.get(t);return r||(r={position:new A,direction:new A,color:new A,renderTarget:null,component:t},this._lightInfoCache.set(t,r)),r.position.set(0,0,0,1).applyMatrix4(e.matrixWorld),r.direction.set(0,1,0,0).applyMatrix4(e.matrixWorld).normalize(),r.color.set(t.color.x,t.color.y,t.color.z).multiply(t.intensity*Math.PI),n==`directional`?this._lights.directional.push(r):n==`spot`&&this._lights.spot.push(r),t.castShadow&&r.renderTarget==null&&(r.renderTarget=this.backend.createFrameBuffer().setTexture([this.backend.createTexture().setting({magFilter:M.LINEAR,minFilter:M.LINEAR})]),r.renderTarget.setSize(t.shadowMapSize)),r}renderPostProcess(e,t,n,r){let i=t?t.textures:void 0;if(e.passes)for(let t=0;t<e.passes.length;t++){let a=e.passes[t];if(a.enabled===!1)continue;let o=a.renderTarget;this.backend.bindRenderTarget(o,a.viewPort,n),this.backend.clear(a.clearColor,a.clearDepth);let s=a.backBufferOverride||i||null;if(s)for(let e=0;e<s.length;e++)a.uniforms[`uBackBuffer`+e]={type:`1i`,value:s[e]};let c=r&&r.cameraOverride||{};c.label=a.name,c.renderTarget=o,c.uniformOverride=r&&r.uniformOverride,this.draw(a.uuid,`postprocess`,this._quad,a,c),a.onAfterRender(),!a.passThrough&&a.renderTarget&&(i=a.renderTarget.textures)}}draw(e,t,n,r,i){if(this._isCorrentCompiles){this.compileDrawParams.push({drawId:e,renderType:t,geometry:n,material:r,param:{...i}});return}An=0,this.backend.setMaterialState(r.cullFace,r.depthTest,r.depthWrite);let a=r.programCache[t];if(!a||this._lightsUpdated){let e={...r.defines};t==`deferred`?e.IS_DEFERRED=``:t==`forward`||t==`envMap`?e.IS_FORWARD=``:t==`shadowMap`&&(e.IS_DEPTH=``);let n=Tt(r.vert,e,this._lights),i=Tt(r.frag,e,this._lights);a=this.programManager.get(n,i,r.name),r.programCache[t]=a}if(i&&(i.modelMatrixWorld&&(a.setUniform(`uModelMatrix`,`Matrix4fv`,i.modelMatrixWorld.elm),a.setUniform(`uModelMatrixInverse`,`Matrix4fv`,this._tmpModelMatrixInverse.copy(i.modelMatrixWorld).inverse().elm),i.modelMatrixWorldPrev&&a.setUniform(`uModelMatrixPrev`,`Matrix4fv`,i.modelMatrixWorldPrev.elm),i.viewMatrix&&(this._tmpModelViewMatrix.copy(i.modelMatrixWorld).preMultiply(i.viewMatrix),this._tmpNormalMatrix.copy(this._tmpModelViewMatrix),this._tmpNormalMatrix.inverse(),this._tmpNormalMatrix.transpose(),a.setUniform(`uModelViewMatrix`,`Matrix4fv`,this._tmpModelViewMatrix.elm),a.setUniform(`uNormalMatrix`,`Matrix4fv`,this._tmpNormalMatrix.elm),a.setUniform(`uViewMatrixInverse`,`Matrix4fv`,this._tmpViewMatrixInverseMatrix.copy(i.viewMatrix).inverse().elm))),i.viewMatrix&&(a.setUniform(`uViewMatrix`,`Matrix4fv`,i.viewMatrix.elm),i.viewMatrixPrev&&a.setUniform(`uViewMatrixPrev`,`Matrix4fv`,i.viewMatrixPrev.elm)),i.projectionMatrix&&(a.setUniform(`uProjectionMatrix`,`Matrix4fv`,i.projectionMatrix.elm),a.setUniform(`uProjectionMatrixInverse`,`Matrix4fv`,this._tmpProjectionMatrixInverse.copy(i.projectionMatrix).inverse().elm),i.projectionMatrixPrev&&a.setUniform(`uProjectionMatrixPrev`,`Matrix4fv`,i.projectionMatrixPrev.elm)),i.cameraMatrixWorld&&(a.setUniform(`uCameraMatrix`,`Matrix4fv`,i.cameraMatrixWorld.elm),a.setUniform(`uCameraPosition`,`3f`,[i.cameraMatrixWorld.elm[12],i.cameraMatrixWorld.elm[13],i.cameraMatrixWorld.elm[14]])),t!=`deferred`&&(i.cameraNear&&a.setUniform(`uCameraNear`,`1f`,[i.cameraNear]),i.cameraFar&&a.setUniform(`uCameraFar`,`1f`,[i.cameraFar]))),r.useLight&&t!==`deferred`&&t!==`shadowMap`){for(let e=0;e<this._lights.directional.length;e++){let t=this._lights.directional[e],n=Fn(e);if(a.setUniform(n.direction,`3fv`,t.direction.getElm(`vec3`)),a.setUniform(n.color,`3fv`,t.color.getElm(`vec3`)),t.renderTarget){let e=t.renderTarget.textures[0].activate(An++);a.setUniform(n.camNear,`1fv`,[t.component.near]),a.setUniform(n.camFar,`1fv`,[t.component.far]),a.setUniform(n.camViewMatrix,`Matrix4fv`,t.component.viewMatrix.elm),a.setUniform(n.camProjectionMatrix,`Matrix4fv`,t.component.projectionMatrix.elm),a.setUniform(n.camResolution,`2fv`,e.size.getElm(`vec2`)),a.setUniform(n.shadowMap,`1i`,[e.unit])}}for(let e=0;e<this._lights.spot.length;e++){let t=this._lights.spot[e],n=In(e);if(i&&i.viewMatrix&&this._tmpLightDirection.copy(t.direction).applyMatrix3(i.viewMatrix),a.setUniform(n.position,`3fv`,t.position.getElm(`vec3`)),a.setUniform(n.direction,`3fv`,t.direction.getElm(`vec3`)),a.setUniform(n.color,`3fv`,t.color.getElm(`vec3`)),a.setUniform(n.angle,`1fv`,[Math.cos(t.component.angle/2)]),a.setUniform(n.blend,`1fv`,[t.component.blend]),a.setUniform(n.distance,`1fv`,[t.component.distance]),a.setUniform(n.decay,`1fv`,[t.component.decay]),t.renderTarget){let e=t.renderTarget.textures[0].activate(An++);a.setUniform(n.camNear,`1fv`,[t.component.near]),a.setUniform(n.camFar,`1fv`,[t.component.far]),a.setUniform(n.camViewMatrix,`Matrix4fv`,t.component.viewMatrix.elm),a.setUniform(n.camProjectionMatrix,`Matrix4fv`,t.component.projectionMatrix.elm),a.setUniform(n.camResolution,`2fv`,e.size.getElm(`vec2`)),a.setUniform(n.shadowMap,`1i`,[e.unit])}}}Vn(a,this.globalUniforms,r.uniforms,i&&i.uniformOverride);let o=a.getVAO(e.toString());if(o){let e=this._getGeometryBuffer(n);e.vaoVersions.get(o)!==n.updateVersion&&(n.attributes.forEach((t,n)=>{let r=e.buffers.get(n);r!==void 0&&(n==`index`?o.setIndex(r):o.setAttribute(n,r,t.size,t.opt))}),e.vaoVersions.set(o,n.updateVersion)),this.backend.draw(a,o,r.drawType,r.blending,void 0)}}_getGeometryBuffer(e){let t=this._geometryBuffers.get(e);if(t||(t={buffers:new Map,vaoVersions:new Map,version:-1},this._geometryBuffers.set(e,t)),t.version!==e.updateVersion){let n=t.buffers;n.forEach(e=>e.dispose()),n.clear(),t.vaoVersions.clear(),e.attributes.forEach((e,t)=>{n.set(t,new gt(this.backend.gl).setData(e.array,t==`index`?`ibo`:`vbo`,e.opt&&e.opt.usage))}),t.version=e.updateVersion}return t}applyPipelineConfig(e){Object.assign(this._pipelineConfig,e);for(let e=0;e<this._views.length;e++)this._views[e].applyPipelineConfig()}get pipelineConfig(){return this._pipelineConfig}resize(e){this.resolution.copy(e);for(let t=0;t<this._views.length;t++)this._views[t].resize(e)}async compileShaders(e,t,n,r){this._isCorrentCompiles=!0,this.compileDrawParams=[],this.prepareScene(e,n),this.render(t,n),this._isCorrentCompiles=!1;let i=this.compileDrawParams.length,a=0;for(let e=0;e<this.compileDrawParams.length;e++){let t=this.compileDrawParams[e];if(this.backend.bindRenderTarget(t.param.renderTarget||null),this.draw(t.drawId,t.renderType,t.geometry,t.material,t.param),await new Promise(e=>{setTimeout(()=>{e(null)},10)}),r){a++;let e=t.param&&t.param.label||`-`;r(`${t.renderType}/${e}/[${t.drawId}]`,a,i)}}}createTexProcedural(e){let t={...e.uniforms},n=e.textures||{},r=Object.keys(n);for(let e=0;e<r.length;e++)t[r[e]]={value:n[r[e]],type:`1i`};let i=new nn(this,{frag:e.frag,resolution:e.resolution,uniforms:t});return e.filter===`nearest`&&(i.setting({magFilter:M.NEAREST,minFilter:M.NEAREST}),i.render()),i}},Rn=e=>new Ln(new xt(document.createElement(`canvas`).getContext(`webgl2`,{antialias:!1,preserveDrawingBuffer:!0})),e),zn=[],Bn=(e,t)=>{e!=null&&(typeof e==`number`||typeof e==`boolean`?zn.push(e):`isVector`in e?zn.push(...e.getElm(`vec`+t.charAt(0))):`isTexture`in e?(e.activate(An++),zn.push(e.unit)):zn.push(...e.elm))},Vn=(e,...t)=>{for(let n=0;n<t.length;n++){let r=t[n];if(!r)continue;let i=Object.keys(r);for(let t=0;t<i.length;t++){let n=i[t],a=r[n];if(!a)continue;let o=a.type,s=a.value;if(zn.length=0,Array.isArray(s))for(let e=0;e<s.length;e++)Bn(s[e],o);else Bn(s,o);zn.length>0&&e.setUniform(n,o,zn)}}},Hn=class extends tn{_passes;date;constructor(e){super({...e}),this._passes=e.passes,this.date=new Date}get passes(){return this._passes}compute(e){let t=Math.min(1/60,(new Date().getTime()-this.date.getTime())/1e3);this.date=new Date,this.passes.forEach(e=>{e.uniforms.uDeltaTime.value=t}),e.renderPostProcess(this)}},Un=class extends F{size;layerCnt;clearColor;rt1;rt2;outputUniforms;constructor(e,t){let n=Object.assign({type:M.FLOAT,internalFormat:M.RGBA32F,format:M.RGBA,magFilter:M.NEAREST,minFilter:M.NEAREST},t.textureParam),r=e.createFrameBuffer().setTexture(Array(t.dataLayerCount).fill(0).map(()=>e.createTexture().setting(n))).setSize(t.size),i=e.createFrameBuffer().setTexture(Array(t.dataLayerCount).fill(0).map(()=>e.createTexture().setting(n))).setSize(t.size),a={uGPUResolution:{value:t.size,type:`2fv`}};for(let e=0;e<t.dataLayerCount;e++)a[`uGPUSampler`+e]={value:i.textures[e],type:`1i`};super(e,{...t,vert:t.vert||`layout ( location = 0 ) in vec3 position;\r
+layout ( location = 1 ) in vec2 uv;\r
+\r
+out vec2 vUv;\r
+\r
+\r
+void main( void ) {\r
+\r
+	vec3 pos = position;\r
+	gl_Position = vec4( pos.xy, 0.0, 1.0 );\r
+	vUv = uv;\r
+\r
+}`,renderTarget:r,uniforms:Qt.merge(t.uniforms,a,{uDeltaTime:{value:0,type:`1f`}})}),this.size=t.size,this.layerCnt=t.dataLayerCount,this.rt1=r,this.rt2=i,this.renderTarget=this.rt1,this.clearColor=t.clearColor??null,this.outputUniforms=a}onAfterRender(){super.onAfterRender();for(let e=0;e<this.layerCnt;e++)this.outputUniforms[`uGPUSampler`+e].value=this.renderTarget.textures[e];let e=this.rt1;this.rt1=this.rt2,this.rt2=e,this.renderTarget=this.rt1}initTexture(e){for(let t=0;t<this.layerCnt;t++){let n=[];for(let r=0;r<this.size.y;r++)for(let i=0;i<this.size.x;i++){let a=i,o=r;n.push(...e(t,a,o))}this.rt2.textures[t].subImage(new Float32Array(n),this.size.x,this.size.y)}}},Wn=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+// 宣言順はvert_h.part.glslのoutと一致させる（WGSL変換時にロケーションが宣言順で振られるため）\r
+in vec2 vUv;\r
+in vec3 vViewNormal;\r
+in vec3 vNormal;\r
+in vec3 vMVPosition;\r
+in vec3 vMVPPosition;\r
+in vec3 vPos;\r
+in vec2 vVelocity;\r
+\r
+uniform mat4 uModelMatrix;\r
+uniform mat4 uModelMatrixInverse;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform vec3 uCameraPosition;\r
+uniform vec2 uResolution;\r
+\r
+#ifdef IS_DEPTH\r
+	uniform float uCameraNear;\r
+	uniform float uCameraFar;\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+	layout (location = 3) out vec4 outColor3;\r
+	layout (location = 4) out vec4 outColor4;\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	uniform sampler2D uDeferredTexture;\r
+	uniform vec2 uDeferredResolution;\r
+	uniform sampler2D uGbufferNormal;\r
+	uniform sampler2D uGbufferAlbedo;\r
+	uniform sampler2D uGbufferMaterial;\r
+#endif\r
+\r
+#if defined(IS_FORWARD) || defined(IS_DEPTH)\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;
+
+uniform vec3 uColor;
+
+void main( void ) {
+
+	outColor0 = vec4( uColor, 1.0 );
+
+}
+`,Gn=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+uniform mat4 uModelMatrix;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform mat4 uNormalMatrix;\r
+\r
+uniform mat4 uModelMatrixPrev;\r
+uniform mat4 uModelViewMatrix;\r
+uniform mat4 uViewMatrixPrev;\r
+uniform mat4 uProjectionMatrixPrev;\r
+\r
+out vec2 vUv;\r
+out vec3 vViewNormal;\r
+out vec3 vNormal;\r
+out vec3 vMVPosition;\r
+out vec3 vMVPPosition;\r
+out vec3 vPos;\r
+\r
+out vec2 vVelocity;\r
+\r
+layout ( location = 0 ) in vec3 position;\r
+layout ( location = 1 ) in vec2 uv;\r
+layout ( location = 2 ) in vec3 normal;\r
+\r
+#ifdef TF_MODELER\r
+	out vec3 o_position;\r
+	out vec3 o_normal;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;
+
+void main( void ) {
+
+	vec3 outPos = position;\r
+vec3 outNormal = normal;\r
+vec2 outUv = uv;
+	#ifdef TF_MODELER\r
+		o_position = outPos;\r
+		o_normal = outNormal;\r
+		return;\r
+#endif\r
+\r
+vec4 modelPosition = uModelMatrix * vec4(outPos, 1.0);\r
+vec4 mvPosition = uViewMatrix * modelPosition;\r
+gl_Position = uProjectionMatrix * mvPosition;\r
+\r
+vec4 modelPositionPrev = uModelMatrixPrev * vec4(outPos, 1.0);\r
+vec4 mvPositionPrev = uViewMatrixPrev * modelPositionPrev;\r
+vec4 positionPrev = uProjectionMatrixPrev * mvPositionPrev;\r
+\r
+vUv = outUv;\r
+vViewNormal = normalize( (uNormalMatrix * vec4(outNormal, 0.0)).xyz );\r
+vNormal = (uModelMatrix * vec4(outNormal, 0.0)).xyz;\r
+vPos = modelPosition.xyz;\r
+vMVPosition = mvPosition.xyz;\r
+vMVPPosition = gl_Position.xyz / gl_Position.w;\r
+\r
+vVelocity = vMVPPosition.xy - positionPrev.xy / positionPrev.w;\r
+vVelocity *= 0.2;
+
+}
+`,Kn=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+// 宣言順はvert_h.part.glslのoutと一致させる（WGSL変換時にロケーションが宣言順で振られるため）\r
+in vec2 vUv;\r
+in vec3 vViewNormal;\r
+in vec3 vNormal;\r
+in vec3 vMVPosition;\r
+in vec3 vMVPPosition;\r
+in vec3 vPos;\r
+in vec2 vVelocity;\r
+\r
+uniform mat4 uModelMatrix;\r
+uniform mat4 uModelMatrixInverse;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform vec3 uCameraPosition;\r
+uniform vec2 uResolution;\r
+\r
+#ifdef IS_DEPTH\r
+	uniform float uCameraNear;\r
+	uniform float uCameraFar;\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+	layout (location = 3) out vec4 outColor3;\r
+	layout (location = 4) out vec4 outColor4;\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	uniform sampler2D uDeferredTexture;\r
+	uniform vec2 uDeferredResolution;\r
+	uniform sampler2D uGbufferNormal;\r
+	uniform sampler2D uGbufferAlbedo;\r
+	uniform sampler2D uGbufferMaterial;\r
+#endif\r
+\r
+#if defined(IS_FORWARD) || defined(IS_DEPTH)\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;
+
+uniform vec3 uColor;
+// x = セルサイズ / y = 細かい格子の濃さ / z = フェード距離
+uniform vec3 uParams;
+
+// 軸線の色は TranslateGizmo と揃える
+const vec3 AXIS_COLOR_X = vec3( 1.0, 0.2, 0.2 );
+const vec3 AXIS_COLOR_Z = vec3( 0.4, 0.4, 1.0 );
+
+const float MINOR_ALPHA = 0.25;
+const float MAJOR_ALPHA = 0.5;
+
+// 格子線の被覆率。線幅が画面上で1px前後に収まるよう、画素あたりの座標変化量で割る
+float gridCoverage( vec2 p, float cell ) {
+
+	vec2 coord = p / cell;
+	vec2 g = abs( fract( coord + 0.5 ) - 0.5 ) / fwidth( coord );
+
+	return 1.0 - min( min( g.x, g.y ), 1.0 );
+
+}
+
+void main( void ) {
+
+	vec2 p = vPos.xz;
+	float cell = uParams.x;
+
+	// 視点が離れるほど細かい格子は薄れ、10倍の格子へ主役が移る
+	float minorLine = gridCoverage( p, cell ) * uParams.y * MINOR_ALPHA;
+	float majorLine = gridCoverage( p, cell * 10.0 ) * MAJOR_ALPHA;
+
+	float alpha = max( minorLine, majorLine );
+	vec3 color = uColor;
+
+	// 原点を通る2本だけ軸色にする
+	vec2 axis = vec2( 1.0 ) - min( abs( p ) / fwidth( p ), vec2( 1.0 ) );
+
+	if ( axis.y > 0.0 ) {
+
+		color = AXIS_COLOR_X;
+		alpha = max( alpha, axis.y );
+
+	} else if ( axis.x > 0.0 ) {
+
+		color = AXIS_COLOR_Z;
+		alpha = max( alpha, axis.x );
+
+	}
+
+	// 板の縁が直線で見えないよう、フェード距離までに消し切る
+	float dist = length( p - uCameraPosition.xz );
+	alpha *= 1.0 - smoothstep( uParams.z * 0.5, uParams.z, dist );
+
+	if ( alpha <= 0.0 ) discard;
+
+	outColor0 = vec4( color, alpha );
+
+}
+`,qn=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+// 宣言順はvert_h.part.glslのoutと一致させる（WGSL変換時にロケーションが宣言順で振られるため）\r
+in vec2 vUv;\r
+in vec3 vViewNormal;\r
+in vec3 vNormal;\r
+in vec3 vMVPosition;\r
+in vec3 vMVPPosition;\r
+in vec3 vPos;\r
+in vec2 vVelocity;\r
+\r
+uniform mat4 uModelMatrix;\r
+uniform mat4 uModelMatrixInverse;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform vec3 uCameraPosition;\r
+uniform vec2 uResolution;\r
+\r
+#ifdef IS_DEPTH\r
+	uniform float uCameraNear;\r
+	uniform float uCameraFar;\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+	layout (location = 3) out vec4 outColor3;\r
+	layout (location = 4) out vec4 outColor4;\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	uniform sampler2D uDeferredTexture;\r
+	uniform vec2 uDeferredResolution;\r
+	uniform sampler2D uGbufferNormal;\r
+	uniform sampler2D uGbufferAlbedo;\r
+	uniform sampler2D uGbufferMaterial;\r
+#endif\r
+\r
+#if defined(IS_FORWARD) || defined(IS_DEPTH)\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;
+
+void main( void ) {
+
+	outColor0 = vec4( 1.0, 1.0, 1.0, 1.0 );
+
+}
+`,Jn=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+uniform mat4 uModelMatrix;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform mat4 uNormalMatrix;\r
+\r
+uniform mat4 uModelMatrixPrev;\r
+uniform mat4 uModelViewMatrix;\r
+uniform mat4 uViewMatrixPrev;\r
+uniform mat4 uProjectionMatrixPrev;\r
+\r
+out vec2 vUv;\r
+out vec3 vViewNormal;\r
+out vec3 vNormal;\r
+out vec3 vMVPosition;\r
+out vec3 vMVPPosition;\r
+out vec3 vPos;\r
+\r
+out vec2 vVelocity;\r
+\r
+layout ( location = 0 ) in vec3 position;\r
+layout ( location = 1 ) in vec2 uv;\r
+layout ( location = 2 ) in vec3 normal;\r
+\r
+#ifdef TF_MODELER\r
+	out vec3 o_position;\r
+	out vec3 o_normal;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;
+
+void main( void ) {
+
+	vec3 outPos = position;\r
+vec3 outNormal = normal;\r
+vec2 outUv = uv;
+	#ifdef TF_MODELER\r
+		o_position = outPos;\r
+		o_normal = outNormal;\r
+		return;\r
+#endif\r
+\r
+vec4 modelPosition = uModelMatrix * vec4(outPos, 1.0);\r
+vec4 mvPosition = uViewMatrix * modelPosition;\r
+gl_Position = uProjectionMatrix * mvPosition;\r
+\r
+vec4 modelPositionPrev = uModelMatrixPrev * vec4(outPos, 1.0);\r
+vec4 mvPositionPrev = uViewMatrixPrev * modelPositionPrev;\r
+vec4 positionPrev = uProjectionMatrixPrev * mvPositionPrev;\r
+\r
+vUv = outUv;\r
+vViewNormal = normalize( (uNormalMatrix * vec4(outNormal, 0.0)).xyz );\r
+vNormal = (uModelMatrix * vec4(outNormal, 0.0)).xyz;\r
+vPos = modelPosition.xyz;\r
+vMVPosition = mvPosition.xyz;\r
+vMVPPosition = gl_Position.xyz / gl_Position.w;\r
+\r
+vVelocity = vMVPPosition.xy - positionPrev.xy / positionPrev.w;\r
+vVelocity *= 0.2;
+
+}
+`,Yn=`uniform sampler2D uBackBuffer0;
+uniform sampler2D uMaskTexture;
+uniform vec3 uOutlineColor;
+uniform vec2 uPPResolution;
+
+in vec2 vUv;
+
+layout( location = 0 ) out vec4 outColor;
+
+void main( void ) {
+
+	vec4 scene = texture( uBackBuffer0, vUv );
+
+	float texelX = 1.0 / uPPResolution.x;
+	float texelY = 1.0 / uPPResolution.y;
+
+	float c = texture( uMaskTexture, vUv ).r;
+	float l = texture( uMaskTexture, vUv + vec2( -texelX, 0.0 ) ).r;
+	float r = texture( uMaskTexture, vUv + vec2(  texelX, 0.0 ) ).r;
+	float t = texture( uMaskTexture, vUv + vec2( 0.0,  texelY ) ).r;
+	float b = texture( uMaskTexture, vUv + vec2( 0.0, -texelY ) ).r;
+	float tl = texture( uMaskTexture, vUv + vec2( -texelX,  texelY ) ).r;
+	float tr = texture( uMaskTexture, vUv + vec2(  texelX,  texelY ) ).r;
+	float bl = texture( uMaskTexture, vUv + vec2( -texelX, -texelY ) ).r;
+	float br = texture( uMaskTexture, vUv + vec2(  texelX, -texelY ) ).r;
+
+	float edge = abs( c - l ) + abs( c - r ) + abs( c - t ) + abs( c - b )
+		+ abs( c - tl ) * 0.7 + abs( c - tr ) * 0.7 + abs( c - bl ) * 0.7 + abs( c - br ) * 0.7;
+
+	edge = smoothstep( 0.05, 0.2, edge );
+
+	outColor = mix( scene, vec4( uOutlineColor, 1.0 ), edge );
+
+}
+`,Xn=`//[
+precision highp float;
+//]
+
+in vec2 vUv;
+uniform sampler2D uSrcTexture;
+out vec4 fragColor;
+
+void main() {
+	fragColor = vec4( texture( uSrcTexture, vUv ).rgb, 1.0 );
+}
+`,Zn=class{isEditorFrame=!0;texture;textarget;constructor(e,t){this.texture=e,this.textarget=t}},Qn=class extends Zn{isEditorTarget=!0;frameBuffer;autoResize;constructor(e,t){super(e.textures[0],M.TEXTURE_2D),this.frameBuffer=e,this.autoResize=t}},$n=class{isEditorRecipe=!0;postprocess;pass;constructor(e,t){this.pass=t,this.postprocess=new tn({name:e,passes:[t]})}},er=class{_renderer;_gl;_targets;_recipes;_readFrameBuffer;_fullscreenBuffer;_texturePass;_texturePostProcess;constructor(e){this._renderer=e,this._gl=e.backend.gl,this._targets=[],this._recipes=[],this._readFrameBuffer=new vt(this._gl,{disableDepthBuffer:!0}),this._fullscreenBuffer=new vt(this._gl,{disableDepthBuffer:!0}).setTexture([new _t(this._gl).setting({magFilter:M.LINEAR,minFilter:M.LINEAR})]),this._fullscreenBuffer.setSize(e.resolution),this._texturePass=new F(e.backend,{frag:Xn,renderTarget:null}),this._texturePostProcess=new tn({name:`editorTexture`,passes:[this._texturePass]})}renderEntities(e){let t=this._renderer,n=e.view,r=e.target?e.target.frameBuffer:n.renderTarget.uiBuffer,i=e.materialOverride,a=[];if(e.target&&e.useSceneDepth&&r.setDepthTexture(n.renderTarget.gBuffer.depthTexture),i)for(let t=0;t<e.entities.length;t++){let n=e.entities[t].getComponent(P);a.push(n?n.material:null),n&&(n.material=i)}if(e.depthCompare===`lequal`&&this._gl.depthFunc(M.LEQUAL),t.renderCamera(`forward`,e.camera,e.entities,r,t.resolution,{disableClear:e.target===null}),e.depthCompare===`lequal`&&this._gl.depthFunc(M.LESS),i)for(let t=0;t<e.entities.length;t++){let n=e.entities[t].getComponent(P);n&&(n.material=a[t])}}renderFullscreen(e,t,n){let r=t,i=this._renderer;if(n){let e=n.frameBuffer;r.pass.renderTarget=e,i.renderPostProcess(r.postprocess,void 0,e.size);return}let a=e.renderTarget.uiBuffer,o=i.resolution;r.pass.renderTarget=this._fullscreenBuffer,i.renderPostProcess(r.postprocess,a,o),i.backend.blit(this._fullscreenBuffer,a,o.x,o.y)}blit(e,t,n,r){let i=this._gl,a=t,o=n?n.frameBuffer:e.renderTarget.uiBuffer,s=o.size,c=r||{x:0,y:0,width:s.x,height:s.y};this._readFrameBuffer.setSize(a.texture.size),i.bindFramebuffer(i.FRAMEBUFFER,this._readFrameBuffer.getFrameBuffer()),i.framebufferTexture2D(i.FRAMEBUFFER,i.COLOR_ATTACHMENT0,a.textarget,a.texture.getTexture(),0),i.bindFramebuffer(i.READ_FRAMEBUFFER,this._readFrameBuffer.getFrameBuffer()),i.bindFramebuffer(i.DRAW_FRAMEBUFFER,o.getFrameBuffer()),i.blitFramebuffer(0,0,a.texture.size.x,a.texture.size.y,c.x,s.y-c.y-c.height,c.x+c.width,s.y-c.y,i.COLOR_BUFFER_BIT,i.NEAREST),i.bindFramebuffer(i.READ_FRAMEBUFFER,null),i.bindFramebuffer(i.DRAW_FRAMEBUFFER,null)}drawToCanvas(e,t){let n=this._renderer,r=n.resolution;n.backend.blit(e.renderTarget.uiBuffer,null,r.x,r.y),t!==n.canvas&&t.getContext(`2d`).drawImage(n.canvas,0,0)}drawTexture(e,t){let n=t.frameBuffer;this._texturePass.uniforms.uSrcTexture={value:e,type:`1i`},this._texturePass.renderTarget=n,this._renderer.renderPostProcess(this._texturePostProcess,void 0,n.size)}async readPixels(e){let t=this._gl,n=e.frameBuffer,r=n.size,i=new Uint8Array(r.x*r.y*4);return t.bindFramebuffer(t.FRAMEBUFFER,n.getFrameBuffer()),t.readPixels(0,0,r.x,r.y,t.RGBA,t.UNSIGNED_BYTE,i),t.bindFramebuffer(t.FRAMEBUFFER,null),i}createTarget(e){let t=new vt(this._gl,{disableDepthBuffer:!0}).setTexture([new _t(this._gl).setting({magFilter:M.LINEAR,minFilter:M.LINEAR})]);t.setSize(e&&e.size||this._renderer.resolution);let n=new Qn(t,!(e&&e.size));return this._targets.push(n),n}resize(e){this._fullscreenBuffer.setSize(e);for(let t=0;t<this._targets.length;t++){let n=this._targets[t];n.autoResize&&n.frameBuffer.setSize(e)}for(let t=0;t<this._recipes.length;t++)this._recipes[t].postprocess.resize(e)}onDrawPass(e){let t=(t,n)=>{if(!t)return;let r=t.textures,i=`currentFace`in t?t.currentFace:M.TEXTURE_2D;for(let t=0;t<r.length;t++){let a=n?n+(r.length>1?`_`+t:``):``;e(new Zn(r[t],i),a)}};return this._renderer.on(`drawPass`,t),()=>this._renderer.off(`drawPass`,t)}materials={flat:e=>new en({vert:Gn,frag:Wn,phase:[`forward`],drawType:e.lines?`LINES`:`TRIANGLES`,depthTest:e.depthTest??!0,depthWrite:e.depthWrite??!0,uniforms:{uColor:{value:e.color,type:`3fv`}}}),mask:()=>new en({vert:Jn,frag:qn,phase:[`forward`],depthTest:!1}),grid:e=>new en({vert:Gn,frag:Kn,phase:[`forward`],depthWrite:!1,uniforms:{uColor:{value:e.color,type:`3fv`},uParams:{value:e.params,type:`3fv`}}})};recipes={outline:(e,t)=>{let n=new $n(`editorOutline`,new F(this._renderer.backend,{frag:Yn,renderTarget:null,uniforms:{uMaskTexture:{value:e.texture,type:`1i`},uOutlineColor:{value:new A(t[0],t[1],t[2]),type:`3fv`}}}));return this._recipes.push(n),n}}},tr=e=>new er(e.renderer),nr=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}\r
+\r
+// 宣言順はvert_h.part.glslのoutと一致させる（WGSL変換時にロケーションが宣言順で振られるため）\r
+in vec2 vUv;\r
+in vec3 vViewNormal;\r
+in vec3 vNormal;\r
+in vec3 vMVPosition;\r
+in vec3 vMVPPosition;\r
+in vec3 vPos;\r
+in vec2 vVelocity;\r
+\r
+uniform mat4 uModelMatrix;\r
+uniform mat4 uModelMatrixInverse;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform vec3 uCameraPosition;\r
+uniform vec2 uResolution;\r
+\r
+#ifdef IS_DEPTH\r
+	uniform float uCameraNear;\r
+	uniform float uCameraFar;\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+	layout (location = 3) out vec4 outColor3;\r
+	layout (location = 4) out vec4 outColor4;\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	uniform sampler2D uDeferredTexture;\r
+	uniform vec2 uDeferredResolution;\r
+	uniform sampler2D uGbufferNormal;\r
+	uniform sampler2D uGbufferAlbedo;\r
+	uniform sampler2D uGbufferMaterial;\r
+#endif\r
+\r
+#if defined(IS_FORWARD) || defined(IS_DEPTH)\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;\r
+\r
+#ifdef USE_COLOR\r
+\r
+	uniform vec4 uBaseColor;\r
+\r
+#endif\r
+\r
+#ifdef USE_COLOR_MAP\r
+\r
+	uniform sampler2D uBaseColorMap;\r
+\r
+#endif\r
+\r
+#ifdef USE_ROUGHNESS\r
+\r
+	uniform float uRoughness;\r
+\r
+#endif\r
+\r
+#ifdef USE_METALNESS\r
+\r
+	uniform float uMetalness;\r
+\r
+#endif\r
+\r
+#ifdef USE_NORMAL_MAP\r
+\r
+	uniform sampler2D uNormalMap;\r
+\r
+#endif\r
+\r
+#ifdef USE_TANGENT\r
+\r
+	in vec3 vTangent;\r
+	in vec3 vBitangent;\r
+\r
+#endif\r
+\r
+#ifdef USE_MR_MAP\r
+\r
+	uniform sampler2D uMRMap;\r
+\r
+#endif\r
+\r
+#ifdef USE_EMISSION\r
+\r
+	uniform vec3 uEmission;\r
+\r
+#endif\r
+\r
+\r
+#ifdef USE_EMISSION_MAP\r
+\r
+	uniform sampler2D uEmissionMap;\r
+\r
+#endif\r
+\r
+#ifdef USE_EMISSION_STRENGTH\r
+\r
+	uniform float uEmissionStrength;\r
+\r
+#endif\r
+\r
+void main( void ) {\r
+\r
+	vec4 outColor = vec4(1.0);\r
+vec3 outNormal = normalize(vNormal);\r
+vec3 outNormalMap = vec3( 0.0 );\r
+float outSSN = 0.0;\r
+vec3 outEmission = vec3(0.0);\r
+float outRoughness = 0.5;\r
+float outMetallic = 0.0;\r
+vec3 outPos = vPos;\r
+float outEnv = 1.0;\r
+\r
+	vec2 mapUv = vUv;\r
+	mapUv.y = 1.0 - mapUv.y;\r
+\r
+	#ifdef USE_COLOR\r
+\r
+		outColor = uBaseColor;\r
+\r
+	#endif\r
+\r
+	#ifdef USE_COLOR_MAP\r
+\r
+		outColor = texture( uBaseColorMap, mapUv );\r
+\r
+	#endif\r
+\r
+	if( outColor.w < 0.5 ) discard;\r
+\r
+	outMetallic = 1.0;\r
+\r
+	#ifdef USE_MR_MAP\r
+\r
+		vec4 mr = texture( uMRMap, mapUv );\r
+		outRoughness = mr.y;\r
+		outMetallic = mr.z;\r
+\r
+	#endif\r
+	\r
+	#ifdef USE_ROUGHNESS\r
+\r
+		outRoughness = uRoughness;\r
+\r
+	#endif\r
+\r
+	#ifdef USE_NORMAL_MAP \r
+\r
+		vec3 outNormalMap = texture( uNormalMap, mapUv ).xyz;\r
+		outNormalMap = outNormalMap * 2.0 - 1.0;\r
+		\r
+	#endif\r
+\r
+	#ifdef USE_METALNESS\r
+\r
+		outMetallic = uMetalness;\r
+\r
+	#endif\r
+\r
+	#ifdef USE_EMISSION\r
+\r
+		outEmission = uEmission;\r
+\r
+	#endif\r
+\r
+	#ifdef USE_EMISSION_MAP\r
+\r
+		vec4 emission = texture( uEmissionMap, mapUv );\r
+		outEmission = emission.xyz;\r
+\r
+	#endif\r
+\r
+	#ifdef USE_EMISSION_STRENGTH\r
+\r
+		outEmission *= uEmissionStrength;\r
+\r
+	#endif\r
+\r
+	#if defined(IS_DEPTH) || defined(IS_DEFERRED)\r
+	vec4 mv = uViewMatrix * vec4(outPos, 1.0);\r
+#endif\r
+\r
+#ifdef IS_DEPTH\r
+	float depth_z = (-mv.z - uCameraNear) / (uCameraFar - uCameraNear);\r
+	outColor0 = vec4(floatToRGBA( depth_z ));\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+\r
+	#ifdef USE_NORMAL_MAP \r
+\r
+		vec3 tangent;\r
+		vec3 bitangent;\r
+\r
+		#ifdef USE_TANGENT\r
+\r
+			tangent = normalize( vTangent );\r
+			bitangent = normalize( vBitangent );\r
+\r
+		#else\r
+\r
+			tangent = cross(outNormal, vec3( 0.0, 1.0, 0.0 ));\r
+			bitangent = cross(tangent, outNormal);\r
+\r
+		#endif\r
+\r
+		#ifdef DOUBLE_SIDED\r
+\r
+			tangent *= faceDirection;\r
+			bitangent *= faceDirection;\r
+			\r
+		#endif\r
+\r
+		mat3 vTBN = mat3( tangent, bitangent, outNormal );\r
+		outNormal = normalize( vTBN * outNormalMap );\r
+\r
+	#endif\r
+\r
+	vec4 mvp = uProjectionMatrix * mv;\r
+	gl_FragDepth = ( mvp.z / mvp.w ) * 0.5 + 0.5;\r
+	outColor0 = vec4( outPos, outEmission.x );\r
+	outColor1 = vec4( normalize( outNormal * ( gl_FrontFacing ? 1.0 : -1.0 ) ), outEmission.y );\r
+	outColor2 = vec4( outColor.xyz, 0.0 );\r
+	outColor3 = vec4( outRoughness, outMetallic, outSSN, outEnv );\r
+	outColor4 = vec4( vVelocity, 0.0, outEmission.z );\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	outColor0 = outColor;\r
+	outColor1 = vec4(outPos, 1.0);\r
+	outColor2 = vec4(vVelocity, 0.0, 1.0);\r
+#endif\r
+\r
+} `,rr=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}\r
+uniform mat4 uModelMatrix;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform mat4 uNormalMatrix;\r
+\r
+uniform mat4 uModelMatrixPrev;\r
+uniform mat4 uModelViewMatrix;\r
+uniform mat4 uViewMatrixPrev;\r
+uniform mat4 uProjectionMatrixPrev;\r
+\r
+out vec2 vUv;\r
+out vec3 vViewNormal;\r
+out vec3 vNormal;\r
+out vec3 vMVPosition;\r
+out vec3 vMVPPosition;\r
+out vec3 vPos;\r
+\r
+out vec2 vVelocity;\r
+\r
+layout ( location = 0 ) in vec3 position;\r
+layout ( location = 1 ) in vec2 uv;\r
+layout ( location = 2 ) in vec3 normal;\r
+\r
+#ifdef TF_MODELER\r
+	out vec3 o_position;\r
+	out vec3 o_normal;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;\r
+\r
+#ifdef USE_TANGENT\r
+\r
+	layout ( location = 3 ) in vec4 tangent;\r
+	out vec3 vTangent;\r
+	out vec3 vBitangent;\r
+\r
+#endif\r
+\r
+void main( void ) {\r
+\r
+	vec3 outPos = position;\r
+vec3 outNormal = normal;\r
+vec2 outUv = uv;\r
+	#ifdef TF_MODELER\r
+		o_position = outPos;\r
+		o_normal = outNormal;\r
+		return;\r
+#endif\r
+\r
+vec4 modelPosition = uModelMatrix * vec4(outPos, 1.0);\r
+vec4 mvPosition = uViewMatrix * modelPosition;\r
+gl_Position = uProjectionMatrix * mvPosition;\r
+\r
+vec4 modelPositionPrev = uModelMatrixPrev * vec4(outPos, 1.0);\r
+vec4 mvPositionPrev = uViewMatrixPrev * modelPositionPrev;\r
+vec4 positionPrev = uProjectionMatrixPrev * mvPositionPrev;\r
+\r
+vUv = outUv;\r
+vViewNormal = normalize( (uNormalMatrix * vec4(outNormal, 0.0)).xyz );\r
+vNormal = (uModelMatrix * vec4(outNormal, 0.0)).xyz;\r
+vPos = modelPosition.xyz;\r
+vMVPosition = mvPosition.xyz;\r
+vMVPPosition = gl_Position.xyz / gl_Position.w;\r
+\r
+vVelocity = vMVPPosition.xy - positionPrev.xy / positionPrev.w;\r
+vVelocity *= 0.2;\r
+\r
+	#ifdef USE_TANGENT\r
+\r
+		vTangent = (uModelMatrix * vec4(tangent.xyz, 0.0)).xyz;\r
+		vBitangent = normalize( cross( vNormal, vTangent.xyz ) * tangent.w );\r
+\r
+	#endif\r
+\r
+}`,ir=12,ar=8,or=e=>{switch(e){case`VEC2`:return 2;case`VEC3`:return 3;case`VEC4`:return 4;case`SCALAR`:return 1;default:return 1}},sr=e=>{switch(e){case`TEXCOORD_0`:return`uv`;default:return e.toLowerCase()}},cr=class extends Et{_engine;constructor(e){super(),this._engine=e}get backend(){return this._engine.renderer.backend}async load(e){let t=await(await fetch(e)).arrayBuffer(),n=new TextDecoder,r=n.decode(new Uint8Array(t,0,4)),i=new Map,a=null;if(r==`glTF`){let e=new DataView(t),r=ir,o={length:e.getUint32(r,!0),type:e.getUint32(16,!0)};if(o.type==1313821514&&(a=JSON.parse(n.decode(new Uint8Array(t,20,o.length)))),t.byteLength>ar+o.length+ir){let n=20+o.length,r={length:e.getUint32(n,!0),type:e.getUint32(n+4,!0)};if(r.type==5130562){let e=n+ar,a=t.slice(e,e+r.length);i.set(0,a)}}}else a=JSON.parse(n.decode(new Uint8Array(t)));if(!a)throw Error(``);let o=a,s=e=>{let t=i.get(e.buffer);return t?t.slice(e.byteOffset,e.byteOffset+e.byteLength):null},c=new Map;a.accessors&&a.accessors.forEach((e,t)=>{let{type:n}=e;if(!o.bufferViews)return;let r=o.bufferViews[e.bufferView],i=s(r);i&&c.set(t,{type:n,buffer:i})});let l=new Map,u=(o.images||[]).map((e,t)=>new Promise(n=>{if(e.bufferView!==void 0){if(!o.bufferViews)return;let r=o.bufferViews[e.bufferView],i=s(r);if(i){let r=new Blob([new Uint8Array(i)],{type:e.mimeType}),a=new Image;a.onload=()=>{n(e)},a.src=URL.createObjectURL(r),l.set(t,a)}}}));await Promise.all(u);let d=new Map,f=e=>{if(!o.textures)return null;let t=o.textures[e];if(t){let e=this.backend.createTexture(),n=l.get(t.source);if(n)return e.attach(n,!0),e}return null};o.materials&&o.materials.forEach((e,t)=>{let n=new en({frag:nr,vert:rr});if(e.normalTexture){let t=f(e.normalTexture.index);t&&(n.uniforms.uNormalMap={value:t,type:`1i`},n.defines.USE_NORMAL_MAP=``)}if(e.pbrMetallicRoughness){let t=e.pbrMetallicRoughness;if(t.baseColorFactor&&(n.uniforms.uBaseColor={value:t.baseColorFactor,type:`4fv`},n.defines.USE_COLOR=``),t.baseColorTexture){let e=f(t.baseColorTexture.index);e&&(n.uniforms.uBaseColorMap={value:e,type:`1i`},n.defines.USE_COLOR_MAP=``)}if(t.roughnessFactor!==void 0&&(n.uniforms.uRoughness={value:t.roughnessFactor,type:`1f`},n.defines.USE_ROUGHNESS=``),t.metallicFactor!==void 0&&(n.uniforms.uMetalness={value:t.metallicFactor,type:`1f`},n.defines.USE_METALNESS=``),t.metallicRoughnessTexture){let e=f(t.metallicRoughnessTexture.index);e&&(n.uniforms.uMRMap={value:e,type:`1i`},n.defines.USE_MR_MAP=``)}}if(e.emissiveFactor&&(n.uniforms.uEmission={value:e.emissiveFactor,type:`3fv`},n.defines.USE_EMISSION=``),e.emissiveTexture){let t=f(e.emissiveTexture.index);t&&(n.uniforms.uEmissionMap={value:t,type:`1i`},n.defines.USE_EMISSION_MAP=``)}e.extensions&&e.extensions.KHR_materials_emissive_strength&&(n.uniforms.uEmissionStrength={value:e.extensions.KHR_materials_emissive_strength.emissiveStrength,type:`1fv`},n.defines.USE_EMISSION_STRENGTH=``),d.set(t,n)});let p=new Map;o.meshes&&o.meshes.forEach((e,t)=>{let{primitives:n}=e;p.set(t,n.map(e=>{let t=new N;if(Object.keys(e.attributes).forEach(n=>{let r=e.attributes[n],i=c.get(r);i&&t.setAttribute(sr(n),new Float32Array(i.buffer),or(i.type))}),e.indices!==void 0){let n=c.get(e.indices);n&&t.setAttribute(`index`,new Uint16Array(n.buffer),1)}let n=null;if(e.material!==void 0){let t=d.get(e.material);t&&(n=t)}return n||=new en,t.attributes.has(`tangent`)&&(n.defines.USE_TANGENT=``),{geometry:t,material:n}}))});let m=new Map,h=((e,t)=>{let n=this._engine.createEntity();t.translation&&n.position.set(t.translation[0],t.translation[1],t.translation[2]),t.rotation&&n.quaternion.set(t.rotation[0],t.rotation[1],t.rotation[2],t.rotation[3]),t.scale&&n.scale.set(t.scale[0],t.scale[1],t.scale[2]);let r=p.get(t.mesh);if(n.name=t.name,r){if(r.length==1){let e=r[0],t=n.addComponent(P);t.geometry=e.geometry,t.material=e.material}else r.forEach((e,r)=>{let i=this._engine.createEntity();i.name=t.name+`_`+r;let a=i.addComponent(P);a.geometry=e.geometry,a.material=e.material,n.add(i)})}return t.children&&t.children.forEach(e=>{let t=m.get(e);t?n.add(t):o.nodes&&n.add(h(e,o.nodes[e]))}),m.set(e,n),n});o.nodes&&o.nodes.forEach((e,t)=>{h(t,e)});let g=this._engine.createEntity(),_=o.scenes&&o.scenes[0];return _&&_.nodes&&_.nodes.forEach(e=>{let t=m.get(e);t&&g.add(t)}),{scene:g}}},lr=`// https://qiita.com/aa_debdeb/items/26ab808de6745611df53
+
+in vec2 vUv;
+
+uniform sampler2D uBackBuffer0;
+uniform vec2 uPPResolution;
+uniform bool uIsVertical;
+uniform float uBlurRange;
+
+#ifdef USE_BACKBLURTEX
+  uniform sampler2D uBackBlurTex;
+#endif
+
+layout (location = 0) out vec4 outColor;
+
+// Gaussianブラーの重み
+uniform float uWeights[GAUSS_WEIGHTS];
+
+vec3 blur( sampler2D tex ) {
+  
+  vec2 coord = vec2(gl_FragCoord.xy);
+  vec3 sum = uWeights[0] * texture(tex, vUv).rgb;
+  
+  for (int i = 1; i < GAUSS_WEIGHTS; i++) {
+    vec2 offset = (uIsVertical ? vec2(0, i) : vec2(i, 0)) * uBlurRange;
+    sum += uWeights[i] * texture(tex, vUv + offset / uPPResolution).rgb;
+    sum += uWeights[i] * texture(tex, vUv - offset / uPPResolution).rgb;
+  }
+
+  return sum;
+  
+}
+
+void main(void) {
+  
+  vec3 sum = vec3( 0.0 );
+
+  #ifdef USE_BACKBLURTEX
+    sum = blur(uBackBlurTex);
+  #else
+    sum = blur(uBackBuffer0);
+  #endif
+  
+  outColor = vec4(sum, 1.0);
+  
+}`,ur=`uniform sampler2D uShadingTexture;
+uniform float uThreshold;
+uniform float uBrightness;
+
+in vec2 vUv;
+
+layout (location = 0) out vec4 outColor;
+
+void main( void ) {
+
+	vec4 c = texture( uShadingTexture, vUv );
+  
+	vec3 f;
+	f = max( c.xyz - uThreshold, vec3( 0.0 ) ) / 10.0 * uBrightness;
+	outColor = vec4( f, 1.0 );
+	
+}`,dr=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+
+uniform sampler2D uBackBuffer0;
+uniform sampler2D uBloomTexture[4];
+
+in vec2 vUv;
+
+layout (location = 0) out vec4 outColor;
+
+void main( void ) {
+
+	vec3 col = texture( uBackBuffer0, vUv ).xyz;
+
+	#pragma loop_start 4
+		col += texture( uBloomTexture[ LOOP_INDEX ], vUv ).xyz * pow( (float(LOOP_INDEX) + 1.0) / 4.0, 1.0 ) * 1.0;
+	#pragma loop_end
+	
+	outColor = vec4( col, 1.0 );
+
+}`,fr=class extends tn{constructor(e){let t=[],n=[];for(let r=0;r<4;r++)t.push(e.createFrameBuffer().setTexture([e.createTexture().setting({magFilter:M.LINEAR,minFilter:M.LINEAR})])),n.push(e.createFrameBuffer().setTexture([e.createTexture().setting({magFilter:M.LINEAR,minFilter:M.LINEAR})]));let r=2,i=new F(e,{name:`bloom/bright/`,frag:ur,passThrough:!0,uniforms:{uThreshold:{value:1.8,type:`1f`},uBrightness:{value:1,type:`1f`}},resolutionRatio:1/r}),a=[],o=i.renderTarget.textures;for(let i=0;i<4;i++){let s=t[i],c=n[i],l={name:`bloom/blur/`+i+`/v`,renderTarget:s,frag:lr,uniforms:{uBackBlurTex:{value:o,type:`1i`},uIsVertical:{type:`1i`,value:!0},uWeights:{type:`1fv`,value:ft.gaussWeights(8)},uBlurRange:{value:2,type:`1f`}},defines:{GAUSS_WEIGHTS:`8`,USE_BACKBLURTEX:``},passThrough:!0,resolutionRatio:1/r};a.push(new F(e,l)),a.push(new F(e,{...l,name:`bloom/blur/`+i+`/h`,renderTarget:c,uniforms:{...l.uniforms,uBackBlurTex:{value:s.textures[0],type:`1i`},uIsVertical:{type:`1i`,value:!1}}})),o=c.textures,r*=2}let s=new F(e,{name:`bloom/composite/`,frag:dr,uniforms:{uBloomTexture:{value:n.map(e=>e.textures[0]),type:`1iv`}}});super({name:`Bloom`,passes:[i,...a,s]})}get threshold(){return this.passes[0].uniforms.uThreshold.value}set threshold(e){this.passes[0].uniforms.uThreshold.value=e}get brightness(){return this.passes[0].uniforms.uBrightness.value}set brightness(e){this.passes[0].uniforms.uBrightness.value=e}},pr=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}\r
+\r
+uniform sampler2D uBackBuffer0;\r
+\r
+in vec2 vUv;\r
+\r
+layout (location = 0) out vec4 outColor;\r
+\r
+float grayScale( vec3 color ) {\r
+	float gray = dot( color, vec3( 0.299, 0.587, 0.114 ) );\r
+	return gray;\r
+}\r
+\r
+vec3 contrast( vec3 color, float contrast ) {\r
+	return ( color - 0.5 ) * contrast + 0.5;\r
+}\r
+\r
+void main( void ) {\r
+\r
+	vec3 col = texture( uBackBuffer0, vUv ).xyz;\r
+\r
+	// float gs = grayScale( col.xyz );\r
+	// col.xyz = mix( col.xyz, vec3( gs ), 0.8 );\r
+	// col.xyz = contrast( col.xyz + 0.1, 1.4 );\r
+	\r
+	outColor = vec4( col, 1.0 );\r
+\r
+}`,mr=class extends tn{constructor(e){super({name:`ColorGrading`,passes:[new F(e,{frag:pr})]})}},hr=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}\r
+// https://stackoverflow.com/questions/4200224/random-noise-functions-for-glsl\r
+\r
+float random(vec2 p){\r
+	return fract(sin(dot(p.xy ,vec2(12.9898,78.233))) * 43758.5453);\r
+}\r
+\r
+// https://www.shadertoy.com/view/4djSRW\r
+\r
+vec3 hash(vec3 p3)\r
+{\r
+	p3 = fract(p3 * vec3(.1031, .1030, .0973));\r
+  p3 += dot(p3, p3.yxz+33.33);\r
+  return fract((p3.xxy + p3.yxx)*p3.zyx);\r
+\r
+}\r
+\r
+// https://github.com/ashima/webgl-noise/blob/master/src/noise4D.glsl\r
+\r
+//\r
+// Description : Array and textureless GLSL 2D/3D/4D simplex \r
+//               noise functions.\r
+//      Author : Ian McEwan, Ashima Arts.\r
+//  Maintainer : stegu\r
+//     Lastmod : 20110822 (ijm)\r
+//     License : Copyright (C) 2011 Ashima Arts. All rights reserved.\r
+//               Distributed under the MIT License. See LICENSE file.\r
+//               https://github.com/ashima/webgl-noise\r
+//               https://github.com/stegu/webgl-noise\r
+// \r
+\r
+vec4 mod289(vec4 x) {\r
+  return x - floor(x * (1.0 / 289.0)) * 289.0; }\r
+\r
+vec3 mod289(vec3 x) {\r
+  return x - floor(x * (1.0 / 289.0)) * 289.0;\r
+}\r
+\r
+float mod289(float x) {\r
+  return x - floor(x * (1.0 / 289.0)) * 289.0; }\r
+\r
+vec4 permute(vec4 x) {\r
+     return mod289(((x*34.0)+10.0)*x);\r
+}\r
+\r
+float permute(float x) {\r
+     return mod289(((x*34.0)+10.0)*x);\r
+}\r
+\r
+vec4 taylorInvSqrt(vec4 r)\r
+{\r
+  return 1.79284291400159 - 0.85373472095314 * r;\r
+}\r
+\r
+float taylorInvSqrt(float r)\r
+{\r
+  return 1.79284291400159 - 0.85373472095314 * r;\r
+}\r
+\r
+vec4 grad4(float j, vec4 ip)\r
+  {\r
+  const vec4 ones = vec4(1.0, 1.0, 1.0, -1.0);\r
+  vec4 p,s;\r
+\r
+  p.xyz = floor( fract (vec3(j) * ip.xyz) * 7.0) * ip.z - 1.0;\r
+  p.w = 1.5 - dot(abs(p.xyz), ones.xyz);\r
+  s = vec4(lessThan(p, vec4(0.0)));\r
+  p.xyz = p.xyz + (s.xyz*2.0 - 1.0) * s.www; \r
+\r
+  return p;\r
+  }\r
+						\r
+// (sqrt(5) - 1)/4 = F4, used once below\r
+#define F4 0.309016994374947451\r
+\r
+float noiseSimplex(vec4 v)\r
+  {\r
+  const vec4  C = vec4( 0.138196601125011,  // (5 - sqrt(5))/20  G4\r
+                        0.276393202250021,  // 2 * G4\r
+                        0.414589803375032,  // 3 * G4\r
+                       -0.447213595499958); // -1 + 4 * G4\r
+\r
+// First corner\r
+  vec4 i  = floor(v + dot(v, vec4(F4)) );\r
+  vec4 x0 = v -   i + dot(i, C.xxxx);\r
+\r
+// Other corners\r
+\r
+// Rank sorting originally contributed by Bill Licea-Kane, AMD (formerly ATI)\r
+  vec4 i0;\r
+  vec3 isX = step( x0.yzw, x0.xxx );\r
+  vec3 isYZ = step( x0.zww, x0.yyz );\r
+//  i0.x = dot( isX, vec3( 1.0 ) );\r
+  i0.x = isX.x + isX.y + isX.z;\r
+  i0.yzw = 1.0 - isX;\r
+//  i0.y += dot( isYZ.xy, vec2( 1.0 ) );\r
+  i0.y += isYZ.x + isYZ.y;\r
+  i0.zw += 1.0 - isYZ.xy;\r
+  i0.z += isYZ.z;\r
+  i0.w += 1.0 - isYZ.z;\r
+\r
+  // i0 now contains the unique values 0,1,2,3 in each channel\r
+  vec4 i3 = clamp( i0, 0.0, 1.0 );\r
+  vec4 i2 = clamp( i0-1.0, 0.0, 1.0 );\r
+  vec4 i1 = clamp( i0-2.0, 0.0, 1.0 );\r
+\r
+  //  x0 = x0 - 0.0 + 0.0 * C.xxxx\r
+  //  x1 = x0 - i1  + 1.0 * C.xxxx\r
+  //  x2 = x0 - i2  + 2.0 * C.xxxx\r
+  //  x3 = x0 - i3  + 3.0 * C.xxxx\r
+  //  x4 = x0 - 1.0 + 4.0 * C.xxxx\r
+  vec4 x1 = x0 - i1 + C.xxxx;\r
+  vec4 x2 = x0 - i2 + C.yyyy;\r
+  vec4 x3 = x0 - i3 + C.zzzz;\r
+  vec4 x4 = x0 + C.wwww;\r
+\r
+// Permutations\r
+  i = mod289(i); \r
+  float j0 = permute( permute( permute( permute(i.w) + i.z) + i.y) + i.x);\r
+  vec4 j1 = permute( permute( permute( permute (\r
+             i.w + vec4(i1.w, i2.w, i3.w, 1.0 ))\r
+           + i.z + vec4(i1.z, i2.z, i3.z, 1.0 ))\r
+           + i.y + vec4(i1.y, i2.y, i3.y, 1.0 ))\r
+           + i.x + vec4(i1.x, i2.x, i3.x, 1.0 ));\r
+\r
+// Gradients: 7x7x6 points over a cube, mapped onto a 4-cross polytope\r
+// 7*7*6 = 294, which is close to the ring size 17*17 = 289.\r
+  vec4 ip = vec4(1.0/294.0, 1.0/49.0, 1.0/7.0, 0.0) ;\r
+\r
+  vec4 p0 = grad4(j0,   ip);\r
+  vec4 p1 = grad4(j1.x, ip);\r
+  vec4 p2 = grad4(j1.y, ip);\r
+  vec4 p3 = grad4(j1.z, ip);\r
+  vec4 p4 = grad4(j1.w, ip);\r
+\r
+// Normalise gradients\r
+  vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));\r
+  p0 *= norm.x;\r
+  p1 *= norm.y;\r
+  p2 *= norm.z;\r
+  p3 *= norm.w;\r
+  p4 *= taylorInvSqrt(dot(p4,p4));\r
+\r
+// Mix contributions from the five corners\r
+  vec3 m0 = max(0.6 - vec3(dot(x0,x0), dot(x1,x1), dot(x2,x2)), 0.0);\r
+  vec2 m1 = max(0.6 - vec2(dot(x3,x3), dot(x4,x4)            ), 0.0);\r
+  m0 = m0 * m0;\r
+  m1 = m1 * m1;\r
+  return 49.0 * ( dot(m0*m0, vec3( dot( p0, x0 ), dot( p1, x1 ), dot( p2, x2 )))\r
+               + dot(m1*m1, vec2( dot( p3, x3 ), dot( p4, x4 ) ) ) ) ;\r
+\r
+  }\r
+\r
+//\r
+// Description : Array and textureless GLSL 2D/3D/4D simplex \r
+//               noise functions.\r
+//      Author : Ian McEwan, Ashima Arts.\r
+//  Maintainer : stegu\r
+//     Lastmod : 20201014 (stegu)\r
+//     License : Copyright (C) 2011 Ashima Arts. All rights reserved.\r
+//               Distributed under the MIT License. See LICENSE file.\r
+//               https://github.com/ashima/webgl-noise\r
+//               https://github.com/stegu/webgl-noise\r
+// \r
+\r
+\r
+float noiseSimplex(vec3 v)\r
+  { \r
+  const vec2  C = vec2(1.0/6.0, 1.0/3.0) ;\r
+  const vec4  D = vec4(0.0, 0.5, 1.0, 2.0);\r
+\r
+// First corner\r
+  vec3 i  = floor(v + dot(v, C.yyy) );\r
+  vec3 x0 =   v - i + dot(i, C.xxx) ;\r
+\r
+// Other corners\r
+  vec3 g = step(x0.yzx, x0.xyz);\r
+  vec3 l = 1.0 - g;\r
+  vec3 i1 = min( g.xyz, l.zxy );\r
+  vec3 i2 = max( g.xyz, l.zxy );\r
+\r
+  //   x0 = x0 - 0.0 + 0.0 * C.xxx;\r
+  //   x1 = x0 - i1  + 1.0 * C.xxx;\r
+  //   x2 = x0 - i2  + 2.0 * C.xxx;\r
+  //   x3 = x0 - 1.0 + 3.0 * C.xxx;\r
+  vec3 x1 = x0 - i1 + C.xxx;\r
+  vec3 x2 = x0 - i2 + C.yyy; // 2.0*C.x = 1/3 = C.y\r
+  vec3 x3 = x0 - D.yyy;      // -1.0+3.0*C.x = -0.5 = -D.y\r
+\r
+// Permutations\r
+  i = mod289(i); \r
+  vec4 p = permute( permute( permute( \r
+             i.z + vec4(0.0, i1.z, i2.z, 1.0 ))\r
+           + i.y + vec4(0.0, i1.y, i2.y, 1.0 )) \r
+           + i.x + vec4(0.0, i1.x, i2.x, 1.0 ));\r
+\r
+// Gradients: 7x7 points over a square, mapped onto an octahedron.\r
+// The ring size 17*17 = 289 is close to a multiple of 49 (49*6 = 294)\r
+  float n_ = 0.142857142857; // 1.0/7.0\r
+  vec3  ns = n_ * D.wyz - D.xzx;\r
+\r
+  vec4 j = p - 49.0 * floor(p * ns.z * ns.z);  //  mod(p,7*7)\r
+\r
+  vec4 x_ = floor(j * ns.z);\r
+  vec4 y_ = floor(j - 7.0 * x_ );    // mod(j,N)\r
+\r
+  vec4 x = x_ *ns.x + ns.yyyy;\r
+  vec4 y = y_ *ns.x + ns.yyyy;\r
+  vec4 h = 1.0 - abs(x) - abs(y);\r
+\r
+  vec4 b0 = vec4( x.xy, y.xy );\r
+  vec4 b1 = vec4( x.zw, y.zw );\r
+\r
+  //vec4 s0 = vec4(lessThan(b0,0.0))*2.0 - 1.0;\r
+  //vec4 s1 = vec4(lessThan(b1,0.0))*2.0 - 1.0;\r
+  vec4 s0 = floor(b0)*2.0 + 1.0;\r
+  vec4 s1 = floor(b1)*2.0 + 1.0;\r
+  vec4 sh = -step(h, vec4(0.0));\r
+\r
+  vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;\r
+  vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww ;\r
+\r
+  vec3 p0 = vec3(a0.xy,h.x);\r
+  vec3 p1 = vec3(a0.zw,h.y);\r
+  vec3 p2 = vec3(a1.xy,h.z);\r
+  vec3 p3 = vec3(a1.zw,h.w);\r
+\r
+//Normalise gradients\r
+  vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));\r
+  p0 *= norm.x;\r
+  p1 *= norm.y;\r
+  p2 *= norm.z;\r
+  p3 *= norm.w;\r
+\r
+// Mix final noise value\r
+  vec4 m = max(0.5 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);\r
+  m = m * m;\r
+  return 105.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1), \r
+                                dot(p2,x2), dot(p3,x3) ) );\r
+  }\r
+\r
+uniform sampler2D uBackBuffer0;\r
+\r
+in vec2 vUv;\r
+\r
+layout (location = 0) out vec4 outColor;\r
+\r
+vec2 lens_distortion(vec2 r, float alpha) {\r
+    return r * (1.0 - alpha * dot(r, r));\r
+}\r
+\r
+void main( void ) {\r
+	vec3 col = vec3( 0.0, 0.0, 0.0 );\r
+	vec2 uv = vUv;\r
+	vec2 cuv = uv - 0.5;\r
+	float w = 0.05;\r
+\r
+	float d;\r
+	float s = 0.98; \r
+\r
+	#pragma loop_start 8\r
+		d = -float( LOOP_INDEX ) / 8.0 * w;\r
+        col.x += texture( uBackBuffer0, lens_distortion( cuv * s, d * 0.0 ) + 0.5 + vec2( (float( LOOP_INDEX ) / 8.0 - 0.5 ) * 0.002, 0.0 ) ).x;\r
+        col.y += texture( uBackBuffer0, lens_distortion( cuv * s, d * 3.0 ) + 0.5 ).y;\r
+        col.z += texture( uBackBuffer0, lens_distortion( cuv * s, d * 6.0 ) + 0.5 ).z;\r
+	#pragma loop_end\r
+	col.xyz /= 8.0;\r
+\r
+	float len = length(cuv);\r
+	col *= smoothstep( 1.2, 0.3, len );\r
+	\r
+	outColor = vec4( col, 1.0 );\r
+\r
+}`,gr=class extends tn{constructor(e){super({name:`Finalize`,passes:[new F(e,{frag:hr})]})}},_r=`uniform sampler2D uBackBuffer0;\r
+uniform vec2 uPPPixelSize;\r
+\r
+in vec2 vUv;\r
+\r
+layout ( location = 0 ) out vec4 outColor;\r
+\r
+// source: https://github.com/unity3d-jp/NVIDIAHairWorksIntegration/blob/master/HairWorksIntegration/Assets/Standard%20Assets/Effects/ImageEffects/Shaders/_Antialiasing/FXAA2.shader\r
+\r
+vec4 texOffset( sampler2D tex, vec2 uv, vec2 offsetPixel, vec2 resolutionInv ) {\r
+\r
+	return texture( tex, uv + offsetPixel * resolutionInv );\r
+\r
+}\r
+\r
+#define FXAA_REDUCE_MIN   ( 1.0 / 128.0 )\r
+#define FXAA_REDUCE_MUL   ( 1.0 / 16.0 )\r
+#define FXAA_SPAN_MAX    8.0\r
+\r
+void main( void ) {\r
+\r
+	/*--------------------------------------------------------------------------*/\r
+\r
+    vec3 rgbNW = texOffset( uBackBuffer0, vUv, vec2( -1.0, 1.0 ), uPPPixelSize ).xyz;\r
+    vec3 rgbNE = texOffset( uBackBuffer0, vUv, vec2( 1.0, 1.0 ), uPPPixelSize ).xyz;\r
+    vec3 rgbSW = texOffset( uBackBuffer0, vUv, vec2( -1.0, -1.0 ), uPPPixelSize ).xyz;\r
+    vec3 rgbSE = texOffset( uBackBuffer0, vUv, vec2( 1.0, -1.0 ), uPPPixelSize ).xyz;\r
+    vec3 rgbM  = texture( uBackBuffer0, vUv ).xyz;\r
+	\r
+	/*--------------------------------------------------------------------------*/\r
+\r
+    vec3 luma = vec3( 0.299, 0.587, 0.114 );\r
+\r
+    float lumaNW = dot( rgbNW, luma );\r
+    float lumaNE = dot( rgbNE, luma );\r
+    float lumaSW = dot( rgbSW, luma );\r
+    float lumaSE = dot( rgbSE, luma );\r
+    float lumaM  = dot( rgbM,  luma );\r
+\r
+	/*--------------------------------------------------------------------------*/\r
+\r
+    float lumaMin = min( lumaM, min( min( lumaNW, lumaNE ), min( lumaSW, lumaSE ) ) );\r
+    float lumaMax = max( lumaM, max( max( lumaNW, lumaNE ), max( lumaSW, lumaSE ) ) );\r
+\r
+	/*--------------------------------------------------------------------------*/\r
+\r
+    vec2 dir; \r
+    dir.x = -( ( lumaNW + lumaNE ) - ( lumaSW + lumaSE ) );\r
+    dir.y =  ( ( lumaNW + lumaSW ) - ( lumaNE + lumaSE ) );\r
+\r
+	/*--------------------------------------------------------------------------*/\r
+\r
+    float dirReduce = max( ( lumaNW + lumaNE + lumaSW + lumaSE ) * ( 0.25 * FXAA_REDUCE_MUL ), FXAA_REDUCE_MIN );\r
+    float rcpDirMin = 1.0 / ( min( abs( dir.x ), abs( dir.y ) ) + dirReduce );\r
+    dir = min( vec2( FXAA_SPAN_MAX,  FXAA_SPAN_MAX ), max( vec2( -FXAA_SPAN_MAX, -FXAA_SPAN_MAX ), dir * rcpDirMin ) ) * uPPPixelSize.xy;\r
+\r
+	/*--------------------------------------------------------------------------*/\r
+	\r
+    vec3 rgbA = ( 1.0 / 2.0 ) * ( \r
+        texture( uBackBuffer0, vUv + dir * ( 1.0 / 3.0 - 0.5 ) ).xyz +\r
+        texture( uBackBuffer0, vUv + dir * ( 2.0 / 3.0 - 0.5 ) ).xyz\r
+    );\r
+\r
+    vec3 rgbB = rgbA * 0.5  + 0.25  * ( \r
+        texture( uBackBuffer0, vUv + dir * -0.5 ).xyz +\r
+        texture( uBackBuffer0, vUv + dir *  0.5 ).xyz \r
+    );\r
+		\r
+    float lumaB = dot( rgbB, luma );\r
+\r
+    if( ( lumaB < lumaMin ) || ( lumaB > lumaMax ) ) {\r
+\r
+		outColor = vec4( rgbA, 1.0 );\r
+\r
+	} else {\r
+\r
+		outColor = vec4( rgbB, 1.0 );\r
+\r
+	};\r
+\r
+    // outColor = vec4( 0.0 );\r
+\r
+}`,vr=class extends tn{constructor(e){super({name:`FXAA`,passes:[new F(e,{name:`fxaa`,frag:_r})]})}},yr=(e,t)=>{let n=t.addComponent($t),r=e.renderer.backend,i=new fr(r);return i.threshold=1,i.brightness=1,n.add(new vr(r)),n.add(i),n.add(new mr(r)),n.add(new gr(r)),()=>{t.removeComponent($t)}},br=class{static serializeEntity(e,t){let n=e=>{let r=[];e.children.forEach(e=>{e.initiator!=`script`&&r.push(n(e))});let i=[];e.components.forEach(e=>{let n=e.serialize({mode:`export`}),r=Object.keys(n).length>0;if(e.initiator!==`user`)return;let a={name:t.getName(e),uuid:e.uuid};r&&(a.props=n),i.push(a)});for(let t of e.unresolvedComponents)i.push({name:t.name,uuid:t.uuid,props:t.props});return{name:e.name,uuid:e.uuid,pos:e.position.x==0&&e.position.y==0&&e.position.z==0?void 0:e.position.getElm(`vec3`),rot:e.euler.x==0&&e.euler.y==0&&e.euler.z==0?void 0:e.euler.getElm(`vec3`),scale:e.scale.x==1&&e.scale.y==1&&e.scale.z==1?void 0:e.scale.getElm(`vec3`),components:i.length>0?i:void 0,childs:r.length>0?r:void 0}};return n(e)}static deserializeEntity(e,t,n,r){let i=(e,t)=>{let a=t||r.createEntity();a.initiator=`user`,a.name=e.name,a.restoreUUID(e.uuid);let o=e.pos||[0,0,0];a.position.x=o[0],a.position.y=o[1],a.position.z=o[2];let s=e.rot||[0,0,0];a.euler.x=s[0],a.euler.y=s[1],a.euler.z=s[2];let c=e.scale||[1,1,1];return a.scale.x=c[0],a.scale.y=c[1],a.scale.z=c[2],a.unresolvedComponents=[],e.components&&e.components.forEach(e=>{let t=n.resolve(e.name);if(t){let n=a.getComponent(t.component);n||(n=a.addComponent(t.component),n.initiator=`user`),n.restoreUUID(e.uuid),e.props&&n.deserialize(e.props)}else console.warn(`[ProjectSerializer] Component "${e.name}" not found in resolver. Preserving data for round-trip.`),a.unresolvedComponents.push({name:e.name,uuid:e.uuid,props:e.props})}),e.childs&&([...a.children].forEach(e=>{e.initiator!==`script`&&a.remove(e)}),e.childs.forEach(e=>{a.add(i(e))})),a};e&&i(e,t),t.initiator=`god`}},xr=class extends Ft{name;_frag;_resolution;_filter;_updateEveryFrame;_textures;constructor(e,t){super(),this.name=e;let n=t.data;this._frag=n?.frag||``,this._resolution=n?.resolution||[1024,1024],this._filter=n?.filter||`linear`,this._updateEveryFrame=n?.updateEveryFrame??!1,this._textures=n?.textures||{}}get frag(){return this._frag}get resolution(){return this._resolution}get filter(){return this._filter}get updateEveryFrame(){return this._updateEveryFrame}get textures(){return this._textures}},Sr=(e,t)=>{let n={},r=`/${t}/`;for(let[t,i]of Object.entries(e)){let e=t.slice(t.lastIndexOf(r)+r.length).split(`/`).slice(0,-2),a=Object.entries(i).find(([e,t])=>typeof t==`function`&&/^[A-Z]/.test(e));if(!a)continue;let o=n;for(let t of e)o=o[t]=o[t]||{};o[a[0]]=a[1]}return n},Cr=class extends Et{_componentList;_componentGroups;_geometryList;_geometryGroups;_textureResources;_textures;_updateEveryFrameTextures;constructor(){super(),this._componentList=[],this._textures=new Map,this._componentGroups=[],this._geometryList=[],this._geometryGroups=[],this._textureResources=new Map,this._updateEveryFrameTextures=[]}get componentList(){return this._componentList}get componentGroups(){return this._componentGroups}get geometryList(){return this._geometryList}get geometryGroups(){return this._geometryGroups}get textureList(){return Array.from(this._textureResources.values())}get textures(){return this._textures}get updateEveryFrameTextures(){return this._updateEveryFrameTextures}clear(){this._componentList=[],this._componentGroups=[],this._geometryList=[],this._geometryGroups=[],this._textureResources.clear(),this._textures.clear(),this._updateEveryFrameTextures=[],this.emit(`update`)}getComponent(e){return this._componentList.find(t=>t.name==e)}addComponentGroup(e){let t=this._componentGroups.find(t=>t.name==e);if(t)return t;let n=e=>{let t=[];return{child:t,name:e,addComponent:(e,n)=>{let r={name:e,component:n};t.push(r),this._componentList.push(r)},createGroup:e=>{let r=n(e);return t.push(r),r}}};return t=n(e),this._componentGroups.push(t),this.emit(`update`),t}getGeometry(e){return this._geometryList.find(t=>t.name===e)}addGeometryGroup(e){let t=this._geometryGroups.find(t=>t.name===e);if(t)return t;let n=e=>{let t=[];return{child:t,name:e,addGeometry:(e,n)=>{let r={name:e,geometryClass:n};t.push(r),this._geometryList.push(r)},createGroup:e=>{let r=n(e);return t.push(r),r}}};return t=n(e),this._geometryGroups.push(t),this.emit(`update`),t}addTextureResource(e,t){let n=new xr(e,{data:t});this._textureResources.set(e,n),this.emit(`update`)}getTextureResource(e){return this._textureResources.get(e)}removeTextureResource(e){this._textureResources.delete(e);let t=this._textures.get(e);t&&(t.dispose(),this._textures.delete(e)),this.emit(`update`)}addTexture(e,t){return this._textures.set(e,t),t}getTexture(e){return this._textures.get(e)}_buildTexture(e,t,n,r){let i=e.frag;return i?t.createTexProcedural({name:e.name,frag:i,resolution:new A(e.resolution[0]||1024,e.resolution[1]||1024),filter:e.filter,textures:n,uniforms:e.updateEveryFrame?r:void 0}):null}_ensureTexture(e,t,n,r){let i=this._textures.get(e.name);if(i)return i;if(r.has(e.name))return null;r.add(e.name);let a={},o=e.textures,s=Object.keys(o);for(let e=0;e<s.length;e++){let i=s[e],c=o[i],l=this._textureResources.get(c),u=l?this._ensureTexture(l,t,n,r):this._textures.get(c);u&&(a[i]=u)}let c=this._buildTexture(e,t,a,n);return c?(this._textures.set(e.name,c),e.updateEveryFrame&&this._updateEveryFrameTextures.push(c),c):null}buildTextureInstances(e,t){this._updateEveryFrameTextures=[];let n=new Set;this._textureResources.forEach(r=>{this._ensureTexture(r,e,t,n)}),this.emit(`update`)}},wr=class e extends Ft{static resources;name;_renderer;_root;_uniforms;_time;_frame;_frameSetting;_disposed;_frameEvent;constructor(e){super(),this.name=`OREngine`,this._disposed=!1,this._uniforms={uEnvMapIntensity:{value:1,type:`1f`}},this._renderer=e(this),this._renderer.globalUniforms={uTime:{value:0,type:`1f`},uTimeF:{value:0,type:`1f`},uTimeE:{value:0,type:`1f`},uTimeEF:{value:0,type:`1f`},uDeltaTime:{value:0,type:`1f`},uResolution:{value:new A,type:`2fv`},uAspectRatio:{value:1,type:`1f`}},this._time={current:new Date().getTime(),engine:0,delta:0,code:0},this._frameSetting={duration:600,fps:30},this._frame={current:0,playing:!1},this.seek(0),this._frameEvent=null,this._root=this.createEntity({name:`root`}),this._root.initiator=`god`,this.field(`name`,()=>this.name,e=>this.name=e),this.field(`scene`,()=>br.serializeEntity(this._root,this._createComponentResolver()),e=>{br.deserializeEntity(e,this._root,this._createComponentResolver(),this)}),this.field(`renderer`,()=>this._renderer.serialize({mode:`export`}),e=>this._renderer.deserialize(e));let t=this.fieldDir(`timeline`);t.field(`duration`,()=>this._frameSetting.duration,e=>this._frameSetting.duration=e),t.field(`fps`,()=>this._frameSetting.fps,e=>this._frameSetting.fps=e)}createEntity(e){return new Kt({engine:this,...e})}get canvas(){return this._renderer.canvas}get renderer(){return this._renderer}get root(){return this._root}get frame(){return this._frame}get time(){return this._time}get frameSetting(){return this._frameSetting}get uniforms(){return this._uniforms}get disposed(){return this._disposed}createView(e){return this._renderer.createView(e)}_createComponentResolver(){return{resolve:t=>e.resources.getComponent(t),getName:t=>{let n=e.resources.componentList.find(e=>t instanceof e.component);return n?n.name:t.constructor.name}}}init(){this._root.disposeRecursive(),this._root.position.set(0,0,0),this._root.euler.set(0,0,0),this._root.scale.set(1,1,1),this.name=`New Project`}async load(e){this.init(),this.deserialize(e),this.emit(`update/graph`),this.emit(`loaded`)}update(t){let n=new Date().getTime();this._time.delta=(n-this._time.current)/1e3,this._time.current=n,this._time.engine+=this._time.delta,this._time.code+=this._time.delta*+!!this._frame.playing,this._frame.current=this._time.code*60;let r=this.createEntityUpdateEvent({forceDraw:t?.forceDraw});this._renderer.globalUniforms.uTime.value=this._time.code,this._renderer.globalUniforms.uTimeF.value=this._time.code%1,this._renderer.globalUniforms.uTimeE.value=this._time.engine,this._renderer.globalUniforms.uTimeEF.value=this._time.engine%1,this._renderer.globalUniforms.uDeltaTime.value=Math.min(this._time.delta,1/60);let i=e.resources.updateEveryFrameTextures;for(let e=0;e<i.length;e++)i[e].render();return this._step(r),this._frame.playing&&this.emit(`update/frame/play`,[this._frame]),this._time.delta}_step(e){this._root.commitFrame(e),this._root.update(e),this._root.postUpdate(e),this._root.updateMatrixRecursive(),this._root.prepareRender(e),this._renderer.prepareScene(this._root,e),this._frameEvent=e}render(e){this._frameEvent&&this._renderer.render(e,this._frameEvent)}createEntityUpdateEvent(e){let t={playing:this._frame.playing,timeElapsed:this._time.engine,timeDelta:this._time.delta,timeCode:this._time.code,timeCodeFrame:this._frame.current,resolution:this.renderer.resolution,renderer:this.renderer,forceDraw:!1};return e?{...t,...e}:t}setSize(e){this._renderer.resize(e),this._renderer.canvas.width=e.x,this._renderer.canvas.height=e.y,this._renderer.globalUniforms.uResolution.value.copy(e),this._renderer.globalUniforms.uAspectRatio.value=e.x/Math.max(e.y,1)}play(){this._frame.playing=!0,this._time.current=new Date().getTime()}stop(){this._frame.playing=!1}seek(e){this._time.code=e/60,this._frame.current=e,this.emit(`update/frame/play`,[this._frame])}updateOffline(t,n){let r=t/n,i=1/n;this._time.delta=i,this._time.current=new Date().getTime(),this._time.engine+=i,this._time.code=r,this._frame.current=r*60,this._frame.playing=!0;let a=this.createEntityUpdateEvent({forceDraw:!0});this._renderer.globalUniforms.uTime.value=this._time.code,this._renderer.globalUniforms.uTimeF.value=this._time.code%1,this._renderer.globalUniforms.uTimeE.value=this._time.engine,this._renderer.globalUniforms.uTimeEF.value=this._time.engine%1;let o=e.resources.updateEveryFrameTextures;for(let e=0;e<o.length;e++)o[e].render();this._step(a)}compileShaders(e,t){let n=this.createEntityUpdateEvent({forceDraw:!0});return this.renderer.compileShaders(this._root,e,n,t)}dispose(){this._disposed=!0,this._root.disposeRecursive()}};wr.resources=new Cr;var Tr=class extends Et{_pressedKeys;constructor(){super(),this._pressedKeys={};let e=this._onKeyDown.bind(this),t=this._onKeyUp.bind(this);window.addEventListener(`keydown`,e),window.addEventListener(`keyup`,t),this.once(`dispose`,()=>{window.removeEventListener(`keydown`,e),window.removeEventListener(`keyup`,t)})}get pressedKeys(){return this._pressedKeys}_onKeyDown(e){this._pressedKeys[e.key]=!0,this.emit(`keydown`,[e,this._pressedKeys])}_onKeyUp(e){if(this._pressedKeys[e.key]=!1,e.key==`Meta`||e.key==`Control`){let e=Object.keys(this._pressedKeys);for(let t=0;t<e.length;t++)this._pressedKeys[e[t]]=!1}this.emit(`keyup`,[e,this._pressedKeys])}dispose(){this.emit(`dispose`)}},Er=class extends Et{_isTouching;element=null;position;delta;constructor(){super(),this.position=new A(NaN,NaN),this.delta=new A(NaN,NaN),this._isTouching=!1;let e=this._onPointer.bind(this,`move`),t=this._onPointer.bind(this,`end`);window.addEventListener(`pointermove`,e),window.addEventListener(`pointerup`,t),window.addEventListener(`dragend`,t);let n=()=>{this.element&&this.removeElement(this.element),window.removeEventListener(`pointermove`,e),window.removeEventListener(`pointerup`,t),window.removeEventListener(`dragend`,t),this.off(`dispose`,n)};this.on(`dispose`,n)}setElement(e){this.element&&this.removeElement(this.element),this.element=e;let t=this._onPointer.bind(this,`start`);e.addEventListener(`pointerdown`,t);let n=r=>{e.isEqualNode(r.elm)&&(e.removeEventListener(`pointerdown`,t),this.off(`unregister`,n))};this.on(`unregister`,n)}removeElement(e){this.emit(`unregister`,[e])}getScreenPosition(e){if(this.position.x!=this.position.x)return new A(NaN,NaN);let t=this.position.clone().divide(e).multiply(2).sub(1);return t.y*=-1,t}getRelativePosition(e,t){let n=e.getClientRects()[0],r=this.position.x-n.left,i=this.position.y-n.top;return t&&(r/=n.width,i/=n.height),new A(r,i)}_setPos(e,t){this.position.x!==this.position.x||this.position.y!==this.position.y?this.delta.set(0,0):this.delta.set(e-this.position.x,t-this.position.y),this.position.set(e,t)}_onPointer(e,t){let n=t.pointerType;(n==null||n==`mouse`&&(t.button==-1||t.button==0)||n==`touch`)&&this._touchEventHandler(t.pageX,t.pageY,e,t)}_touchEventHandler(e,t,n,r){let i=!1,a=e-window.pageXOffset,o=t-window.pageYOffset;n==`start`?(this._isTouching=!0,this._setPos(a,o),this.delta.set(0,0),i=!0):n==`move`?(this._setPos(a,o),this._isTouching&&(i=!0)):n==`end`&&(`targetTouches`in r?r.targetTouches.length==0&&(this._isTouching=!1):this._isTouching=!1,i=!0),i&&this.emit(n,[{pointerEvent:r,position:this.position.clone(),delta:this.delta.clone()}])}dispose(){this.emit(`dispose`)}},Dr=(0,b.createContext)(null),Or=()=>{let e=(0,b.useContext)(Dr);if(e===null)throw Error(`useMouseMenu must be used within a MouseMenuProvider`);return e},kr=(0,b.createContext)(void 0),Ar=()=>(0,b.useContext)(kr),jr={compoAdd:`ComponentAdd__compoAdd___LmNvb`,directory:`ComponentAdd__directory___LmNvb`,subDirectory:`ComponentAdd__subDirectory___LmNvb`,picker:`ComponentAdd__picker___LmNvb`},Mr=({group:e,onClickAdd:t})=>{let n=Ar(),[r,i]=(0,b.useState)(!1),a=null,o,s=`dir`,c=e.name.startsWith(`_`)?e.name.slice(1):e.name;`child`in e?a=(0,T.jsx)(T.Fragment,{children:e.child.map((e,n)=>(0,T.jsx)(Mr,{group:e,onClickAdd:t},n))}):(o=()=>t(e),s=`item`);let l=window.matchMedia(`(hover: hover)`).matches;return(0,T.jsxs)(`div`,{className:jr.directory,onPointerEnter:l?()=>i(!0):void 0,onPointerLeave:l?()=>i(!1):void 0,onClick:e=>{o?o():(e.stopPropagation(),i(!r))},"data-type":s,"data-direction":n?.direction,children:[c,r&&(0,T.jsx)(`div`,{className:jr.subDirectory,children:a})]})},Nr=e=>{let{editor:t}=Ve(),{pushContent:n,closeAll:r}=Or(),i=wr.resources,a=(0,b.useCallback)(a=>{if(!i||!n||!r)return;let o=[],s=n=>{t.api.addComponent(e.entity,n.component),r()};i.componentGroups.forEach((e,t)=>{o.push((0,T.jsx)(Mr,{group:e,onClickAdd:s},t))}),n((0,T.jsx)(`div`,{className:jr.picker,children:o}))},[n,i,e.entity,r,t]);return(0,T.jsx)(`div`,{className:jr.compAdd,children:(0,T.jsx)(ve,{onClick:a,children:`Add Component`})})},Pr={cross:`CrossIcon__cross___LmNyb`},Fr=()=>(0,T.jsx)(`div`,{className:Pr.cross,children:(0,T.jsxs)(`svg`,{viewBox:`0 0 20 20`,fill:`none`,xmlns:`http://www.w3.org/2000/svg`,children:[(0,T.jsx)(`rect`,{x:`5.12`,y:`16.832`,width:`2.57272`,height:`17.6514`,transform:`rotate(-135 5.12 16.832)`,fill:`#D9D9D9`}),(0,T.jsx)(`rect`,{x:`3.30078`,y:`4.35059`,width:`2.57272`,height:`17.6514`,transform:`rotate(-45 3.30078 4.35059)`,fill:`#D9D9D9`})]})}),Ir={compoView:`ComponentView__compoView___LmNvb`,head:`ComponentView__head___LmNvb`,name:`ComponentView__name___LmNvb`,check:`ComponentView__check___LmNvb`,delete:`ComponentView__delete___LmNvb`,propertyBlock:`ComponentView__propertyBlock___LmNvb`},Lr=e=>{let t=Object.keys(e.childs);for(let n=0;n<t.length;n++){let r=e.childs[t[n]],{opt:i}=r,a=!1;if(i&&(a=typeof i.hidden==`function`?i.hidden(r.type===`value`?r.value:null):i.hidden||!1),!a&&(r.type===`value`||Lr(r)))return!0}return!1},Rr=({component:e})=>{let{editor:t}=Ve(),[n,r]=k(e,`enabled`),i=e.initiator!==`user`,a=Lr(e.serializeToDirectory()),o=(0,b.useCallback)(n=>{n.stopPropagation();let r=e.entity;if(r){for(let[n,i]of r.components)if(i.uuid===e.uuid){t.api.removeComponent(r,n,e);break}}},[e,t]),s=(0,T.jsxs)(`div`,{className:Ir.head,children:[(0,T.jsx)(`div`,{className:Ir.name,children:e.constructor.name}),(0,T.jsx)(`div`,{className:Ir.delete,children:(0,T.jsx)(`button`,{onClick:o,children:(0,T.jsx)(Fr,{})})})]});return(0,T.jsx)(`div`,{className:Ir.compoView,"data-disable_component":i,children:(0,T.jsx)(`div`,{className:Ir.content,children:(0,T.jsx)(me,{label:s,accordion:a,bg:!0,defaultClose:!1,children:a&&(0,T.jsx)(lt,{target:e})})})})},zr={container:`ComponentList__container___LmNvb`},Br=({entity:e})=>{let[t]=k(e,`components`),n=(0,b.useMemo)(()=>{let n=[];return t?(t.forEach(t=>{let r=e.getComponentByUUID(t);r&&n.push((0,T.jsx)(Rr,{component:r},r.uuid))}),n):null},[t,e]);return(0,T.jsx)(`div`,{className:zr.container,children:n})},Vr=()=>{let{editor:e,engine:t}=Ve(),[n]=k(e,`selectedEntityId`),r=(0,b.useMemo)(()=>{if(n)return t.root.findEntityByUUID(n)},[t,n]);return r?(0,T.jsxs)(T.Fragment,{children:[(0,T.jsx)(me,{label:`Fields`,accordion:!0,children:(0,T.jsx)(lt,{target:r})}),(0,T.jsxs)(me,{label:`Components`,accordion:!0,children:[(0,T.jsx)(Br,{entity:r}),(0,T.jsx)(Nr,{entity:r})]})]}):null},Hr=(0,b.createContext)(null),Ur=()=>{let e=(0,b.useContext)(Hr);if(e===null)throw Error(`useOREngine must be used within a OREngineProvider`);return e},Wr={container:`GPUTimer__container___LmNvb`,headerRow:`GPUTimer__headerRow___LmNvb`,totalTime:`GPUTimer__totalTime___LmNvb`,toggleButton:`GPUTimer__toggleButton___LmNvb`,controls:`GPUTimer__controls___LmNvb`,control:`GPUTimer__control___LmNvb`,controlLabel:`GPUTimer__controlLabel___LmNvb`,select:`GPUTimer__select___LmNvb`,input:`GPUTimer__input___LmNvb`,group:`GPUTimer__group___LmNvb`,item:`GPUTimer__item___LmNvb`,clickable:`GPUTimer__clickable___LmNvb`,itemRow:`GPUTimer__itemRow___LmNvb`,itemName:`GPUTimer__itemName___LmNvb`,itemTime:`GPUTimer__itemTime___LmNvb`,itemStats:`GPUTimer__itemStats___LmNvb`,progressBar:`GPUTimer__progressBar___LmNvb`,progressFill:`GPUTimer__progressFill___LmNvb`},Gr=class{buffer;index;size;filled;constructor(e){this.size=e,this.buffer=Array(e),this.index=0,this.filled=!1}push(e){this.buffer[this.index]=e,this.index=(this.index+1)%this.size,!this.filled&&this.index===0&&(this.filled=!0)}getAverage(){let e=this.filled?this.size:this.index;if(e===0)return 0;let t=0;for(let n=0;n<e;n++)t+=this.buffer[n];return t/e}getMax(){let e=this.filled?this.size:this.index;if(e===0)return 0;let t=this.buffer[0];for(let n=1;n<e;n++)this.buffer[n]>t&&(t=this.buffer[n]);return t}getMin(){let e=this.filled?this.size:this.index;if(e===0)return 0;let t=this.buffer[0];for(let n=1;n<e;n++)this.buffer[n]<t&&(t=this.buffer[n]);return t}getCount(){return this.filled?this.size:this.index}},Kr=class{buffers;windowSize;currentData;constructor(e=30){this.windowSize=e,this.buffers=new Map,this.currentData=new Map}update(e){let t=performance.now();for(let n=0;n<e.length;n++){let r=e[n],i=r.name.split(`/`),a=i[0]||`unknown`,o,s=i[i.length-1],c=s&&s.match(/\[([^\]]+)\]/);c&&(o=c[1]);let l={name:r.name,duration:r.duration,timestamp:t,renderType:a},u=this.buffers.get(r.name);u||(u=new Gr(this.windowSize),this.buffers.set(r.name,u)),u.push(r.duration),this.currentData.set(r.name,{...l,entityId:o})}}getStatistics(){let e=[],t=0,n=performance.now(),r=[];return this.currentData.forEach((e,t)=>{n-e.timestamp>1e3&&r.push(t)}),r.forEach(e=>{this.currentData.delete(e)}),this.currentData.forEach(e=>{t+=e.duration}),this.currentData.forEach(n=>{let r=this.buffers.get(n.name);r&&e.push({name:n.name,renderType:n.renderType,entityId:n.entityId,current:n.duration,avg:r.getAverage(),max:r.getMax(),min:r.getMin(),samples:r.getCount(),percentage:t>0?n.duration/t*100:0})}),e}getTotalTime(){let e=0;return this.currentData.forEach(t=>{e+=t.duration}),e}},qr=e=>{if(e<2){let t=e/2;return`rgb(${Math.floor(100+t*100)}, 200, 100)`}if(e<5){let t=(e-2)/3;return`rgb(200, ${Math.floor(200-t*50)}, 100)`}if(e<10){let t=(e-5)/5;return`rgb(200, ${Math.floor(150-t*80)}, ${Math.floor(100-t*50)})`}return`rgb(200, 70, 50)`},Jr=e=>e>=10?e.toFixed(1):e>=1?e.toFixed(2):e.toFixed(3),Yr=e=>e.replace(/\[([^\]]{4,})\]/g,(e,t)=>`[${t.slice(0,3)}]`),Xr=()=>{let{editor:e}=Ve(),{engine:t}=Ur(),[n,r]=(0,b.useState)([]),[i,a]=(0,b.useState)(0),[o,s]=(0,b.useState)(`all`),[c,l]=(0,b.useState)(0),[u,d]=(0,b.useState)(`time`),[f,p]=(0,b.useState)(!1),m=(0,b.useRef)(new Kr(30)),h=(0,b.useRef)(0),g=(0,b.useRef)(!1),_=(0,b.useRef)(0),v=(0,b.useCallback)(n=>{if(!n)return;let r=t.root.findEntityByUUID(n);r&&e.selectEntity(r)},[t,e]);(0,b.useEffect)(()=>{let e=t.renderer,n=m.current,i=e=>{f&&(n.update(e),g.current=!0)},o=e=>{g.current&&e-_.current>=300&&(r(n.getStatistics()),a(n.getTotalTime()),g.current=!1,_.current=e),h.current=requestAnimationFrame(o)};return e.on(`timer`,i),h.current=requestAnimationFrame(o),()=>{e.off(`timer`,i),cancelAnimationFrame(h.current)}},[t,f]);let y=n.filter(e=>!(o!==`all`&&e.renderType!==o||e.avg<c)),x=Array.from(new Set(n.map(e=>e.renderType))),S=[...y].sort((e,t)=>u===`time`?t.avg-e.avg:e.name.localeCompare(t.name)),C=i>0?Math.floor(1e3/i):0;return(0,T.jsxs)(`div`,{className:Wr.container,children:[(0,T.jsxs)(`div`,{className:Wr.headerRow,children:[(0,T.jsxs)(`span`,{className:Wr.totalTime,children:[Jr(i),`ms (`,C,`fps)`]}),(0,T.jsx)(`button`,{className:Wr.toggleButton,onClick:()=>p(!f),title:f?`Stop timer`:`Start timer`,children:f?`⏸`:`▶`})]}),(0,T.jsxs)(`div`,{className:Wr.controls,children:[(0,T.jsxs)(`div`,{className:Wr.control,children:[(0,T.jsx)(`span`,{className:Wr.controlLabel,children:`Type`}),(0,T.jsxs)(`select`,{className:Wr.select,value:o,onChange:e=>s(e.target.value),children:[(0,T.jsx)(`option`,{value:`all`,children:`All`}),x.map(e=>(0,T.jsx)(`option`,{value:e,children:e},e))]})]}),(0,T.jsxs)(`div`,{className:Wr.control,children:[(0,T.jsx)(`span`,{className:Wr.controlLabel,children:`Min`}),(0,T.jsx)(`input`,{className:Wr.input,type:`number`,min:`0`,step:`0.1`,value:c,onChange:e=>l(parseFloat(e.target.value)||0)})]}),(0,T.jsxs)(`div`,{className:Wr.control,children:[(0,T.jsx)(`span`,{className:Wr.controlLabel,children:`Sort`}),(0,T.jsxs)(`select`,{className:Wr.select,value:u,onChange:e=>d(e.target.value),children:[(0,T.jsx)(`option`,{value:`time`,children:`Time`}),(0,T.jsx)(`option`,{value:`name`,children:`Name`})]})]})]}),(0,T.jsx)(`div`,{className:Wr.group,children:S.map((e,t)=>{let n=qr(e.avg),r=i>0?e.avg/i*100:0,a=!!e.entityId;return(0,T.jsxs)(`div`,{className:`${Wr.item} ${a?Wr.clickable:``}`,onClick:()=>v(e.entityId),children:[(0,T.jsxs)(`div`,{className:Wr.itemRow,children:[(0,T.jsx)(`span`,{className:Wr.itemName,title:e.name,children:Yr(e.name)}),(0,T.jsx)(`span`,{className:Wr.itemTime,style:{color:n},children:Jr(e.avg)}),(0,T.jsx)(`span`,{className:Wr.itemStats,children:Jr(e.max)})]}),(0,T.jsx)(`div`,{className:Wr.progressBar,children:(0,T.jsx)(`div`,{className:Wr.progressFill,style:{width:`${r}%`,backgroundColor:n}})})]},e.name+t)})})]})},Zr=({size:e=24})=>(0,T.jsxs)(`svg`,{width:e,height:e,viewBox:`0 0 24 24`,fill:`none`,xmlns:`http://www.w3.org/2000/svg`,children:[(0,T.jsx)(`rect`,{x:`2`,y:`6`,width:`14`,height:`12`,rx:`2`,fill:`#D9D9D9`}),(0,T.jsx)(`path`,{d:`M16 10L22 7V17L16 14V10Z`,fill:`#D9D9D9`})]}),Qr=({size:e=24,selectable:t=!0})=>t?(0,T.jsx)(`svg`,{width:e,height:e,viewBox:`0 0 24 24`,fill:`none`,xmlns:`http://www.w3.org/2000/svg`,children:(0,T.jsx)(`path`,{d:`M5 3L19 12L12.5 13.5L9.5 20L5 3Z`,stroke:`currentColor`,strokeWidth:`1.5`,strokeLinejoin:`round`})}):(0,T.jsxs)(`svg`,{width:e,height:e,viewBox:`0 0 24 24`,fill:`none`,xmlns:`http://www.w3.org/2000/svg`,children:[(0,T.jsx)(`path`,{d:`M5 3L19 12L12.5 13.5L9.5 20L5 3Z`,stroke:`currentColor`,strokeWidth:`1.5`,strokeLinejoin:`round`}),(0,T.jsx)(`line`,{x1:`1`,y1:`1`,x2:`23`,y2:`23`,stroke:`currentColor`,strokeWidth:`1.5`,strokeLinecap:`round`})]}),$r=({size:e=24,visible:t=!0})=>t?(0,T.jsxs)(`svg`,{width:e,height:e,viewBox:`0 0 24 24`,fill:`none`,xmlns:`http://www.w3.org/2000/svg`,children:[(0,T.jsx)(`path`,{d:`M12 5C7 5 2.73 8.11 1 12.5C2.73 16.89 7 20 12 20C17 20 21.27 16.89 23 12.5C21.27 8.11 17 5 12 5Z`,stroke:`currentColor`,strokeWidth:`1.5`,strokeLinecap:`round`,strokeLinejoin:`round`}),(0,T.jsx)(`circle`,{cx:`12`,cy:`12.5`,r:`3`,stroke:`currentColor`,strokeWidth:`1.5`})]}):(0,T.jsxs)(`svg`,{width:e,height:e,viewBox:`0 0 24 24`,fill:`none`,xmlns:`http://www.w3.org/2000/svg`,children:[(0,T.jsx)(`path`,{d:`M17.94 17.94A10.07 10.07 0 0 1 12 20C7 20 2.73 16.89 1 12.5A17.89 17.89 0 0 1 5.06 7.06`,stroke:`currentColor`,strokeWidth:`1.5`,strokeLinecap:`round`,strokeLinejoin:`round`}),(0,T.jsx)(`path`,{d:`M9.9 4.24A9.12 9.12 0 0 1 12 4C17 4 21.27 7.11 23 11.5A17.89 17.89 0 0 1 19.74 15.74`,stroke:`currentColor`,strokeWidth:`1.5`,strokeLinecap:`round`,strokeLinejoin:`round`}),(0,T.jsx)(`line`,{x1:`1`,y1:`1`,x2:`23`,y2:`23`,stroke:`currentColor`,strokeWidth:`1.5`,strokeLinecap:`round`})]}),ei=({size:e=24})=>(0,T.jsxs)(`svg`,{width:e,height:e,viewBox:`0 0 24 24`,fill:`none`,xmlns:`http://www.w3.org/2000/svg`,children:[(0,T.jsx)(`circle`,{cx:`12`,cy:`12`,r:`4`,fill:`#D9D9D9`}),(0,T.jsx)(`path`,{d:`M12 2V5M12 19V22M2 12H5M19 12H22M4.93 4.93L7.05 7.05M16.95 16.95L19.07 19.07M19.07 4.93L16.95 7.05M7.05 16.95L4.93 19.07`,stroke:`#D9D9D9`,strokeWidth:`1.5`,strokeLinecap:`round`})]}),ti=({size:e=24})=>(0,T.jsxs)(`svg`,{width:e,height:e,viewBox:`0 0 24 24`,fill:`none`,xmlns:`http://www.w3.org/2000/svg`,children:[(0,T.jsx)(`path`,{d:`M12 3L21 8V16L12 21L3 16V8L12 3Z`,stroke:`#D9D9D9`,strokeWidth:`1.5`,strokeLinejoin:`round`}),(0,T.jsx)(`path`,{d:`M12 3V21M3 8L21 16M21 8L3 16`,stroke:`#D9D9D9`,strokeWidth:`1`,strokeLinejoin:`round`,opacity:`0.5`})]}),ni={picker:`Picker__picker___LnBpY`,picker_label:`Picker__picker_label___LnBpY`,picker_list:`Picker__picker_list___LnBpY`,picker_list_inner:`Picker__picker_list_inner___LnBpY`,item:`Picker__item___LnBpY`},ri=e=>(0,T.jsxs)(`div`,{className:ni.picker,"data-no_bg":e.noBg,children:[e.label&&(0,T.jsx)(`div`,{className:ni.picker_label,children:e.label}),(0,T.jsx)(`div`,{className:ni.picker_list,children:(0,T.jsx)(`div`,{className:ni.picker_list_inner,children:e.list.map((e,t)=>(0,T.jsx)(`div`,{className:ni.item,onClick:e.onClick,children:e.label},t))})})]}),ii={group:`InputGroup__group___Lmdyb`,submit:`InputGroup__submit___Lmdyb`},ai=e=>{let t=e.initialValues,n=[],[r,i]=(0,b.useState)(t);(0,b.useEffect)(()=>{i(t)},[t]);let a=Object.keys(r);for(let e=0;e<a.length;e++){let t=a[e],o=r[t];n.push((0,T.jsx)(O,{label:t,value:o,onChange:e=>{i({...r,[t]:e})}},e))}let o=(0,b.useRef)(null);return(0,b.useEffect)(()=>{setTimeout(()=>{o.current&&o.current.querySelector(`input`)?.focus()},0)},[]),(0,T.jsx)(`div`,{className:ii.group,ref:o,children:(0,T.jsxs)(`form`,{onSubmit:e=>{e.preventDefault()},children:[(0,T.jsx)(me,{label:e.title,noMargin:!0,children:n}),(0,T.jsx)(`div`,{className:ii.submit,children:(0,T.jsx)(ve,{type:`submit`,onClick:()=>{e.onSubmit&&e.onSubmit(r)},children:`OK`})})]})})},oi={node:`HierarchyNode__node___Lm5vZ`,self:`HierarchyNode__self___Lm5vZ`,self_name:`HierarchyNode__self_name___Lm5vZ`,icon:`HierarchyNode__icon___Lm5vZ`,selectable:`HierarchyNode__selectable___Lm5vZ`,visibility:`HierarchyNode__visibility___Lm5vZ`,menu:`HierarchyNode__menu___Lm5vZ`,fold:`HierarchyNode__fold___Lm5vZ`,fold_button:`HierarchyNode__fold_button___Lm5vZ`,child:`HierarchyNode__child___Lm5vZ`,child_line:`HierarchyNode__child_line___Lm5vZ`},si=e=>{let{editor:t,engine:n}=Ve(),[r]=k(t,`selectedEntityId`),i=r!==void 0&&n.root.findEntityByUUID(r),[a,o]=k(e.entity,`visible`),[s,c]=k(t,`unselectableEntityIds`),[l]=k(e.entity,`children`),u=!(s||[]).includes(e.entity.uuid),d=(l||[]).map(e=>n.root.findEntityByUUID(e)).filter(e=>e!==void 0),f=e.depth||0,p=d&&d.concat().sort((e,t)=>e.name.localeCompare(t.name))||[],m=p.length>0,h=f*20,g=e.entity.initiator==`script`,_=(0,b.useMemo)(()=>e.entity.getComponent(Ut)?(0,T.jsx)(ei,{size:14}):e.entity.getComponent(Vt)?(0,T.jsx)(Zr,{size:14}):e.entity.getComponent(P)?(0,T.jsx)(ti,{size:14}):null,[e.entity]),v=e.openNodes.has(e.entity.uuid),y=(0,b.useCallback)(t=>{e.setNodeOpen(e.entity.uuid,!v),t.stopPropagation()},[v,e]),x=(0,b.useCallback)(()=>{t&&t.selectEntity(e.entity)},[t,e.entity]),S=(0,b.useCallback)(e=>{e.stopPropagation(),o&&o(!a)},[a,o]),C=(0,b.useCallback)(t=>{t.stopPropagation();let n=new Set(s||[]);u?n.add(e.entity.uuid):n.delete(e.entity.uuid),c(Array.from(n))},[u,s,c,e.entity.uuid]),{pushContent:w,closeAll:ee}=Or(),te=(0,b.useCallback)(n=>{n.preventDefault(),!(!t||!w||!ee||g)&&(t.selectEntity(e.entity),w((0,T.jsx)(ri,{label:e.entity.name,list:[{label:`Add Entity`,onClick:()=>{w((0,T.jsx)(ai,{initialValues:{name:``},onSubmit:n=>{let r=t.api.createEntity(e.entity,n.name);t.api.selectEntity(r),ee()}}))}},{label:`Delete Entity`,onClick:()=>{t.api.deleteEntity(e.entity),ee()}}]})))},[t,e.entity,w,ee,g]);return(0,T.jsxs)(`div`,{className:oi.node,"data-no_export":g,children:[(0,T.jsxs)(`div`,{className:oi.self,style:{paddingLeft:h},onClick:x,onContextMenu:te,"data-selected":i&&i.uuid==e.entity.uuid,children:[(0,T.jsx)(`div`,{className:oi.fold,"data-hnode_open":v,children:m&&(0,T.jsx)(`button`,{className:oi.fold_button,onClick:y,children:(0,T.jsx)(fe,{open:v})})}),_&&(0,T.jsx)(`div`,{className:oi.icon,children:_}),(0,T.jsx)(`div`,{className:oi.self_name,children:(0,T.jsx)(`p`,{children:e.entity.name||`-`})}),(0,T.jsx)(`button`,{className:oi.selectable,onClick:C,"data-selectable":u,children:(0,T.jsx)(Qr,{size:14,selectable:u})}),(0,T.jsx)(`button`,{className:oi.visibility,onClick:S,"data-visible":a!==!1,children:(0,T.jsx)($r,{size:14,visible:a!==!1})}),!g&&(0,T.jsx)(`button`,{className:oi.menu,onClick:te,children:`⋯`})]}),m&&(0,T.jsxs)(`div`,{className:oi.child,"data-open":v,children:[p.map(t=>(0,T.jsx)(si,{entity:t,depth:f+1,openNodes:e.openNodes,setNodeOpen:e.setNodeOpen},t.uuid)),(0,T.jsx)(`div`,{className:oi.child_line,style:{marginLeft:h+4}})]})]})},ci={},li=`hierarchyOpenNodes`,ui=()=>{try{let e=localStorage.getItem(li);if(e)return new Set(JSON.parse(e))}catch{}return new Set},di=e=>{localStorage.setItem(li,JSON.stringify(Array.from(e)))},fi=()=>{let{editor:e,engine:t}=Ve(),[n]=k(e,`selectedEntityId`),r=t.root,[i,a]=(0,b.useState)(ui),o=(0,b.useCallback)((e,t)=>{a(n=>{let r=new Set(n);return t?r.add(e):r.delete(e),di(r),r})},[]);return(0,b.useEffect)(()=>{if(!n)return;let e=r.findEntityByUUID(n);if(!e)return;let t=[],i=e.parent;for(;i;)t.push(i.uuid),i=i.parent;a(e=>{if(t.every(t=>e.has(t)))return e;let n=new Set(e);return t.forEach(e=>n.add(e)),di(n),n})},[n,r]),(0,T.jsx)(`div`,{className:ci.hierarchy,children:r&&(0,T.jsx)(si,{entity:r,openNodes:i,setNodeOpen:o})})},pi={inputWindow:`InputWindow__inputWindow___Lmluc`,overlay:`InputWindow__overlay___Lmluc`,window:`InputWindow__window___Lmluc`,label:`InputWindow__label___Lmluc`,input:`InputWindow__input___Lmluc`,buttons:`InputWindow__buttons___Lmluc`,cancelBtn:`InputWindow__cancelBtn___Lmluc`,okBtn:`InputWindow__okBtn___Lmluc`},mi=()=>{let{config:e,close:t}=De(),n=(0,b.useRef)(null),[r,i]=(0,b.useState)(``),a=(0,b.useRef)(!1);(0,b.useEffect)(()=>{e&&(i(String(e.value)),a.current=!0)},[e]),(0,b.useEffect)(()=>{a.current&&(a.current=!1,n.current?.focus(),n.current?.select())},[r]);let o=(0,b.useCallback)(()=>{e&&(e.type===`number`?e.onChange(Number(r)):e.onChange(r),t())},[e,r,t]),s=(0,b.useCallback)(()=>{t()},[t]);return e?(0,T.jsxs)(`div`,{className:pi.inputWindow,children:[(0,T.jsx)(`div`,{className:pi.overlay,onClick:s}),(0,T.jsxs)(`div`,{className:pi.window,children:[e.label&&(0,T.jsx)(`div`,{className:pi.label,children:e.label}),(0,T.jsxs)(`form`,{onSubmit:e=>{e.preventDefault(),o()},children:[(0,T.jsx)(`input`,{ref:n,className:pi.input,type:`text`,inputMode:e.type===`number`?`decimal`:`text`,value:r,step:e.step,min:e.min,max:e.max,onChange:e=>i(e.target.value),onKeyDown:e=>{e.key===`Escape`&&s()}}),(0,T.jsxs)(`div`,{className:pi.buttons,children:[(0,T.jsx)(`button`,{type:`button`,className:pi.cancelBtn,onClick:s,children:`Cancel`}),(0,T.jsx)(`button`,{type:`submit`,className:pi.okBtn,children:`OK`})]})]})]})]}):null},hi=()=>{let[e,t]=(0,b.useState)(null);return{config:e,open:(0,b.useCallback)(e=>{t(e)},[]),close:(0,b.useCallback)(()=>{t(null)},[])}},gi=e=>{let t=hi();return(0,T.jsx)(Ee.Provider,{value:t,children:e.children})},_i={mouseMenu:`MouseMenu__mouseMenu___Lm1vd`,hide:`MouseMenu__hide___Lm1vd`,menuItem:`MouseMenu__menuItem___Lm1vd`,menuItem_inner:`MouseMenu__menuItem_inner___Lm1vd`,menuItem_inner_inner:`MouseMenu__menuItem_inner_inner___Lm1vd`},vi=()=>{let{itemList:e,containerRef:t,closeAll:n}=Or();return(0,T.jsxs)(`div`,{className:_i.mouseMenu,ref:t,children:[e&&e.length>0&&(0,T.jsx)(`div`,{className:_i.hide,onClick:()=>{n&&n()}}),e&&e.map(e=>{let t=e.pos;return(0,T.jsx)(kr.Provider,{value:e,children:(0,T.jsx)(`div`,{className:_i.menuItem,style:{left:0,top:0,transform:`translate(${t.x}px, ${t.y}px)`},children:(0,T.jsx)(`div`,{className:_i.menuItem_inner,children:(0,T.jsx)(`div`,{className:_i.menuItem_inner_inner,"data-direction":e.direction,children:e.elm})})})},e.id)})]})},yi=0,bi=()=>{let e=(0,b.useRef)(null),t=(0,b.useRef)({x:0,y:0}),n=(0,b.useCallback)(e=>{t.current.x=e.clientX,t.current.y=e.clientY},[]);(0,b.useEffect)(()=>(window.addEventListener(`pointermove`,n),()=>{window.removeEventListener(`pointermove`,n)}),[n]);let[r,i]=(0,b.useState)([]),a=(0,b.useRef)(r);a.current=r;let o=(0,b.useCallback)(e=>{a.current=a.current.filter(t=>t.id!==e),i(a.current)},[]),s=(0,b.useCallback)(()=>{i([])},[]);return{itemList:r,pushContent:(0,b.useCallback)(e=>{let n=yi++,r={x:t.current.x,y:t.current.y},s={id:n,elm:e,pos:r,direction:(r.x<window.innerWidth/2?`right`:`left`)+`-`+(r.y<window.innerHeight/2?`bottom`:`top`),close:()=>o(n)};return i([...a.current,s]),s},[o]),closeAll:s,containerRef:e}},xi=e=>{let t=bi();return(0,T.jsx)(Dr.Provider,{value:t,children:e.children})},Si={overlay:`DragOverlay__overlay___Lm92Z`,zone:`DragOverlay__zone___Lm92Z`,insert:`DragOverlay__insert___Lm92Z`,ghost:`DragOverlay__ghost___Lm92Z`},Ci=12,wi=e=>{let t=(0,b.useRef)(null),n=e.drag.startX,r=e.drag.startY;(0,b.useEffect)(()=>{let e=(e,n)=>{let r=t.current;r&&(r.style.transform=`translate(${e+Ci}px, ${n+Ci}px)`)};e(n,r);let i=t=>e(t.clientX,t.clientY);window.addEventListener(`pointermove`,i);let a=document.body.style.userSelect;return document.body.style.userSelect=`none`,()=>{window.removeEventListener(`pointermove`,i),document.body.style.userSelect=a}},[n,r]);let i=e.drag.target;return(0,T.jsxs)(`div`,{className:Si.overlay,children:[i&&(0,T.jsx)(`div`,{className:i.kind===`tabs`?Si.insert:Si.zone,style:{left:`${i.rect.left}px`,top:`${i.rect.top}px`,width:`${i.rect.width}px`,height:`${i.rect.height}px`}}),(0,T.jsx)(`div`,{className:Si.ghost,ref:t,children:e.drag.title})]})},Ti=(e,t)=>({type:`split`,id:crypto.randomUUID(),direction:e,children:t}),Ei=(e,t)=>({type:`pane`,id:crypto.randomUUID(),tabs:e,active:t??e[0]}),Di=(e,t)=>Ei([...e,...t?.tabs??[]],t?.active);function Oi(e={}){let t=Ei([`screen`]),n=e.mainBottom,r=n?Ti(`vertical`,[{ratio:712/912,node:t},{ratio:200/912,node:Ei(n.tabs,n.active)}]):t;return Ti(`vertical`,[{ratio:916/1076,node:Ti(`horizontal`,[{ratio:300/1912,node:Ti(`vertical`,[{ratio:696/912,node:Di([`scene`],e.leftTop)},{ratio:216/912,node:Di([`timer`],e.leftBottom)}])},{ratio:1312/1912,node:r},{ratio:300/1912,node:Di([`property`,`textures`,`project`,`renderer`,`editor-settings`],e.rightTop)}])},{ratio:160/1076,node:Di([`timeline`],e.footer)}])}function ki(e){return e.type===`pane`?[e]:e.children.flatMap(e=>ki(e.node))}var Ai=e=>{if(e.type===`pane`)return e.tabs.length>0?e:null;let t=[];if(e.children.forEach(n=>{let r=Ai(n.node);r&&(r.type===`split`&&r.direction===e.direction?r.children.forEach(e=>t.push({ratio:n.ratio*e.ratio,node:e.node})):t.push(r===n.node?n:{...n,node:r}))}),t.length===0)return null;if(t.length===1)return t[0].node;let n=t.reduce((e,t)=>e+t.ratio,0);return Math.abs(n-1)>1e-6?{...e,children:t.map(e=>({...e,ratio:e.ratio/n}))}:t.length!==e.children.length||t.some((t,n)=>t!==e.children[n])?{...e,children:t}:e};function ji(e,t,n=new Set){let r=new Set,i=new Set,a=e=>{let t=typeof e==`string`&&e!==``&&!r.has(e)?e:crypto.randomUUID();return r.add(t),t},o=e=>{if(typeof e!=`object`||!e)return null;let r=e;if(r.type===`pane`){if(!Array.isArray(r.tabs))return null;let e=[...new Set(r.tabs.filter(e=>typeof e==`string`&&t.has(e)))].filter(e=>!n.has(e)||!i.has(e)&&(i.add(e),!0));if(e.length===0)return null;let o=typeof r.active==`string`&&e.includes(r.active)?r.active:e[0];return{type:`pane`,id:a(r.id),tabs:e,active:o}}if(r.type===`split`){if(r.direction!==`horizontal`&&r.direction!==`vertical`||!Array.isArray(r.children))return null;let e=[];return r.children.forEach(t=>{if(typeof t!=`object`||!t)return;let n=t,r=o(n.node);if(!r)return;let i=typeof n.ratio==`number`&&isFinite(n.ratio)&&n.ratio>0?n.ratio:1;e.push({ratio:i,node:r})}),e.length===0?null:e.length===1?e[0].node:{type:`split`,id:a(r.id),direction:r.direction,children:e}}return null},s=o(e);return s?Ai(s):null}var Mi=(e,t,n)=>{if(e.id===t)return n(e);if(e.type===`split`){let r=!1,i=e.children.map(e=>{let i=Mi(e.node,t,n);return i===e.node?e:(r=!0,{...e,node:i})});if(r)return{...e,children:i}}return e};function Ni(e,t,n){return Mi(e,t,e=>e.type!==`pane`||!e.tabs.includes(n)?e:{...e,active:n})}function Pi(e,t,n,r){return Mi(e,t,e=>{if(e.type!==`pane`||e.tabs.includes(n))return e;let t=[...e.tabs];return t.splice(Math.max(0,Math.min(r??t.length,t.length)),0,n),{...e,tabs:t,active:n}})}function Fi(e,t,n,r,i){if(t===r)return Mi(e,t,e=>{if(e.type!==`pane`)return e;let t=e.tabs.indexOf(n);if(t===-1)return e;let r=e.tabs.filter(e=>e!==n),a=i??e.tabs.length,o=Math.max(0,Math.min(t<a?a-1:a,r.length));return o===t?e:(r.splice(o,0,n),{...e,tabs:r,active:n})});let a=ki(e),o=a.find(e=>e.id===t),s=a.find(e=>e.id===r);return!o||!s||!o.tabs.includes(n)||s.tabs.includes(n)?e:Pi(Li(e,t,n),r,n,i)}function Ii(e,t,n,r,i){let a=ki(e),o=a.find(e=>e.id===r);if(!o||!o.tabs.includes(i)||!a.some(e=>e.id===t)||r===t&&o.tabs.length===1)return e;let s=Li(e,r,i),c={type:`pane`,id:crypto.randomUUID(),tabs:[i],active:i},l=Mi(s,t,e=>{let t=[{ratio:.5,node:c},{ratio:.5,node:e}];return(n===`right`||n===`bottom`)&&t.reverse(),{type:`split`,id:crypto.randomUUID(),direction:n===`left`||n===`right`?`horizontal`:`vertical`,children:t}});return l===s?e:Ai(l)??e}function Li(e,t,n){let r=Mi(e,t,e=>{if(e.type!==`pane`||!e.tabs.includes(n))return e;let t=e.tabs.indexOf(n),r=e.tabs.filter(e=>e!==n),i=e.active!==n||r.length===0?e.active:r[Math.min(t,r.length-1)];return{...e,tabs:r,active:i}});return r===e?e:Ai(r)??e}function I(e,t,n){return Mi(e,t,e=>e.type!==`split`||e.children.length!==n.length?e:{...e,children:e.children.map((e,t)=>({...e,ratio:n[t]}))})}var Ri=4,zi=.25,Bi=(e,t)=>{let n={left:e.left,top:e.top,width:e.width,height:e.height};return(t===`left`||t===`right`)&&(n.width/=2),t===`right`&&(n.left+=n.width),(t===`top`||t===`bottom`)&&(n.height/=2),t===`bottom`&&(n.top+=n.height),n},Vi=(e,t,n,r,i)=>{if(n.id!==r&&n.tabs.includes(i))return null;let a=[...t.querySelectorAll(`[data-panel-tab-id]`)].filter(e=>e instanceof HTMLElement),o=a.length;for(let t=0;t<a.length;t++){let n=a[t].getBoundingClientRect();if(e<n.left+n.width/2){o=t;break}}let s=t.getBoundingClientRect(),c=o<a.length?a[o].getBoundingClientRect().left:a.length>0?a[a.length-1].getBoundingClientRect().right:s.left;return{kind:`tabs`,paneId:n.id,index:o,rect:{left:c-1,top:s.top,width:2,height:s.height}}},Hi=(e,t,n,r,i)=>{let a=document.elementFromPoint(e,t);if(!a)return null;let o=a.closest(`[data-pane-id]`);if(!(o instanceof HTMLElement))return null;let s=ki(n).find(e=>e.id===o.dataset.paneId);if(!s)return null;let c=a.closest(`[data-panel-tab-header]`);if(c instanceof HTMLElement)return Vi(e,c,s,r,i);let l=o.querySelector(`[data-panel-content]`);if(!(l instanceof HTMLElement))return null;let u=l.getBoundingClientRect();if(u.width<=0||u.height<=0)return null;let d=(e-u.left)/u.width,f=(t-u.top)/u.height;if(d<0||d>1||f<0||f>1)return null;if(Math.min(d,1-d)>zi&&Math.min(f,1-f)>zi)return s.id===r||s.tabs.includes(i)?null:{kind:`zone`,paneId:s.id,zone:`center`,rect:Bi(u,`center`)};if(s.id===r&&s.tabs.length===1)return null;let p=d-.5,m=f-.5,h=Math.abs(p)>=Math.abs(m)?p<0?`left`:`right`:m<0?`top`:`bottom`;return{kind:`zone`,paneId:s.id,zone:h,rect:Bi(u,h)}},Ui=(e,t)=>e===null||t===null?e===t:e.paneId===t.paneId?e.kind===`tabs`&&t.kind===`tabs`?e.index===t.index:e.kind===`zone`&&t.kind===`zone`&&e.zone===t.zone:!1;function Wi(e,t,n){let[r,i]=(0,b.useState)(null),a=(0,b.useRef)(e);a.current=e;let o=(0,b.useRef)(t);o.current=t;let s=(0,b.useRef)(null);return(0,b.useEffect)(()=>()=>s.current?.(),[]),{dragState:r,onTabPointerDown:(e,t,r)=>{if(r.button!==0||s.current)return;let c=r.clientX,l=r.clientY,u=!1,d=null,f=r=>{if(r.buttons===0){p(!1);return}if(!u){if(Math.hypot(r.clientX-c,r.clientY-l)<Ri)return;u=!0,i({panelId:t,title:n.get(t)?.title??t,startX:r.clientX,startY:r.clientY,target:null})}let o=Hi(r.clientX,r.clientY,a.current,e,t);Ui(o,d)||(d=o,i(e=>e&&{...e,target:o}))},p=n=>{if(g(),n&&u&&d){let n=a.current;d.kind===`tabs`?o.current(Fi(n,e,t,d.paneId,d.index)):d.zone===`center`?o.current(Fi(n,e,t,d.paneId)):o.current(Ii(n,d.paneId,d.zone,e,t))}u&&i(null)},m=()=>p(!0),h=()=>p(!1),g=()=>{window.removeEventListener(`pointermove`,f),window.removeEventListener(`pointerup`,m),window.removeEventListener(`pointercancel`,h),s.current=null};s.current=g,window.addEventListener(`pointermove`,f),window.addEventListener(`pointerup`,m),window.addEventListener(`pointercancel`,h)}}}var Gi={pane:`PanelLayout__pane___LnBhb`},Ki=e=>{let t=[],n={};if(!e)return{definitions:t,slots:n};let r=new Set;return Object.keys(e).forEach(i=>{let a=e[i];if(!a||a.length===0)return;let o=[],s;a.forEach(e=>{let n=`custom/${i}/${e.title}`;for(let t=2;r.has(n);t++)n=`custom/${i}/${e.title}-${t}`;r.add(n),o.push(n),t.push({id:n,title:e.title,content:(0,T.jsx)(se,{children:e.content})}),e.default&&s===void 0&&(s=n)}),n[i]={tabs:o,active:s}}),{definitions:t,slots:n}},qi=e=>{let t=e.node;if(t.type===`split`)return(0,T.jsx)(ae,{direction:t.direction,ratios:t.children.map(e=>e.ratio),onRatiosChange:n=>e.onRatiosChange(t.id,n),children:t.children.map(t=>(0,T.jsx)(ae.Item,{children:(0,T.jsx)(qi,{...e,node:t.node})},t.node.id))});let n=t.tabs.map(t=>e.panels.get(t)).filter(e=>e!==void 0);if(n.length===0)return null;let r=e.hasAddable(t);return(0,T.jsx)(`div`,{className:Gi.pane,"data-pane-id":t.id,children:(0,T.jsx)(E,{tabs:n.map(e=>({id:e.id,title:e.title,content:e.content})),active:t.active,onSelect:n=>e.onSelectTab(t.id,n),onTabContextMenu:(n,r)=>e.onTabContextMenu(t.id,n,r),onTabPointerDown:(n,r)=>e.onTabPointerDown(t.id,n,r),onAddClick:r?()=>e.onAddTab(t.id):void 0})})},Ji=e=>{let{editor:t}=Ve(),{pushContent:n,closeAll:r}=Or(),i=(0,b.useMemo)(()=>Ki(e.customTabs),[e.customTabs]),a=(0,b.useMemo)(()=>{let t=new Map;return[...e.panels,...i.definitions].forEach(e=>t.set(e.id,e)),t},[e.panels,i]),[o,s]=k(t,`panelLayout`),c=(0,b.useMemo)(()=>{let e=new Set([...a.values()].filter(e=>e.unique).map(e=>e.id));return ji(o,new Set(a.keys()),e)??Oi(i.slots)},[o,a,i]),l=e=>{e!==c&&s(e)},u=(e,t)=>l(Ni(c,e,t)),d=(e,t)=>l(I(c,e,t)),{dragState:f,onTabPointerDown:p}=Wi(c,l,a),m=e=>[...a.values()].filter(t=>!e.tabs.includes(t.id));return(0,T.jsxs)(T.Fragment,{children:[(0,T.jsx)(qi,{node:c,panels:a,onSelectTab:u,onRatiosChange:d,onTabContextMenu:(e,t,i)=>{i.preventDefault(),ki(c).reduce((e,t)=>e+t.tabs.length,0)>1&&n((0,T.jsx)(ri,{label:a.get(t)?.title,list:[{label:`Close Tab`,onClick:()=>{l(Li(c,e,t)),r()}}]}))},onTabPointerDown:p,onAddTab:e=>{let t=ki(c).find(t=>t.id===e);if(!t)return;let i=m(t);i.length!==0&&n((0,T.jsx)(ri,{list:i.map(t=>({label:t.title,onClick:()=>{let n=t.unique?ki(c).find(e=>e.tabs.includes(t.id)):void 0;l(Pi(n?Li(c,n.id,t.id):c,e,t.id)),r()}}))}))},hasAddable:e=>m(e).length>0}),f&&(0,T.jsx)(wi,{drag:f})]})},Yi={project:`ProjectControl__project___LnByb`,project_inner:`ProjectControl__project_inner___LnByb`,projectSelector:`ProjectControl__projectSelector___LnByb`,row:`ProjectControl__row___LnByb`,rowItem:`ProjectControl__rowItem___LnByb`,export:`ProjectControl__export___LnByb`},Xi=new URLSearchParams(location.search).get(`project`)||`default`,Zi=()=>{let{editor:e}=Ve(),[t,n]=(0,b.useState)(null);if((0,b.useEffect)(()=>{if(!e)return;let t=()=>{n(e.exportProgress?{...e.exportProgress}:null)};return e.on(`update/export`,t),()=>{e.off(`update/export`,t)}},[e]),!e)return null;let r=e.isExporting;return(0,T.jsx)(`div`,{className:Yi.project,children:(0,T.jsx)(`div`,{className:Yi.project_inner,children:(0,T.jsxs)(me,{label:Xi,accordion:!0,children:[(0,T.jsx)(ve,{onClick:()=>{e&&e.save()},children:`Save`}),(0,T.jsx)(ve,{onClick:()=>{window.location.href=`/`},children:`Projects`}),(0,T.jsxs)(`div`,{className:Yi.export,children:[(0,T.jsxs)(ve,{onClick:()=>{e&&(e.save(),window.open(`/player`,`_blank`))},children:[`Play `,(0,T.jsx)(fe,{})]}),(0,T.jsx)(ve,{onClick:()=>{e&&!r&&e.exportMP4()},children:t?`Exporting... ${Math.floor(t.current/t.total*100)}%`:`Export MP4`})]})]})})})},Qi={renderer:`RendererSettings__renderer___LnJlb`,renderer_inner:`RendererSettings__renderer_inner___LnJlb`},$i=()=>{let{editor:e}=Ve(),t=e.engine.renderer;return(0,T.jsx)(`div`,{className:Qi.renderer,children:(0,T.jsxs)(`div`,{className:Qi.renderer_inner,children:[(0,T.jsx)(me,{label:`Resolution`,accordion:!0,children:(0,T.jsx)(lt,{target:e,filter:`resolution`})}),(0,T.jsx)(me,{label:`Pipeline`,accordion:!0,children:(0,T.jsx)(lt,{target:t,filter:`pipeline`})}),(0,T.jsx)(me,{label:`Sky`,accordion:!0,children:(0,T.jsx)(lt,{target:t,filter:`sky`})})]})})},ea={container:`Canvas__container___LmNvb`},ta=({viewportId:e})=>{let{engine:t,editor:n}=Ve(),r=(0,b.useRef)(null);return(0,b.useEffect)(()=>{let i=r.current;if(!t||!i)return;let a=t.canvas;if(!a){console.error(`Canvas element not found in engine`);return}i.appendChild(a);let o=n.createViewport(e,a);return()=>{o.dispose(),i.contains(a)&&i.removeChild(a)}},[t,n,e]),(0,T.jsx)(`div`,{className:ea.container,ref:r,role:`presentation`,"aria-label":`3D Canvas`})},na={audioView:`AudioView__audioView___LmF1Z`},ra=class extends Et{wrapperElm;canvas;canvasCtx;viewRangeFrame;viewPort;viewPortRange;musicBuffer;resizeObserver;frameSetting;framePlay;constructor(){super(),this.wrapperElm=null,this.canvas=document.createElement(`canvas`),this.canvasCtx=this.canvas.getContext(`2d`),this.viewPort=[0,0,0,0],this.viewPortRange=[0,0];let e=window.localStorage.getItem(`audioViweRange`);this.viewRangeFrame=e?Number(e):2,this.frameSetting={duration:0,fps:60},this.framePlay={current:0,playing:!1},this.musicBuffer=null,this.resizeObserver=new ResizeObserver(this.onResize.bind(this))}onResize(){if(this.wrapperElm){let e=new A(this.wrapperElm.clientWidth,this.wrapperElm.clientHeight);this.canvas.width=e.x,this.canvas.height=e.y}this.render()}render(){if(this.canvasCtx.fillStyle=`#000`,this.canvasCtx.fillRect(0,0,this.canvas.width,this.canvas.height),this.musicBuffer){this.canvasCtx.strokeStyle=`#888`,this.canvasCtx.fillStyle=`#888`;let e=this.musicBuffer.getChannelData(0),t=this.viewPortRange[0]/this.frameSetting.fps,n=this.musicBuffer.sampleRate*t,r=n/this.canvas.width,i=this.frameToPx(0);this.canvasCtx.beginPath();for(let t=0;t<n;t+=r){let a=Math.floor(t-i*r),o=e[Math.round(a)]*1,s=t/n*this.canvas.width,c=(o+1)*(this.canvas.height/2),l=c,u=c;for(let t=0;t<16;t++){let n=(e[Math.round(a+t/16*r)]*1+1)*(this.canvas.height/2);l>n&&(l=n),u<n&&(u=n)}let d=u-l;d>3&&this.canvasCtx.fillRect(s,l,1,d),t==0?this.canvasCtx.moveTo(s,c):this.canvasCtx.lineTo(s,c)}this.canvasCtx.stroke()}this.canvasCtx.fillStyle=`#555`,this.canvasCtx.fillRect(this.canvas.width/2,0,1,this.canvas.height)}setWrapperElm(e){this.wrapperElm&&this.resizeObserver.observe(this.wrapperElm),this.wrapperElm=e,this.resizeObserver.observe(e),this.wrapperElm.appendChild(this.canvas),this.onResize()}setFramePlaying(e){this.framePlay=e,this.viewPort=[this.framePlay.current-this.viewRangeFrame,0,this.framePlay.current+this.viewRangeFrame,0],this.viewPortRange=[this.viewPort[2]-this.viewPort[0],this.viewPort[3]-this.viewPort[1]],this.render()}setViewRangeFrame(e){this.viewRangeFrame=e,this.setFramePlaying(this.framePlay),localStorage.setItem(`audioViweRange`,String(this.viewRangeFrame))}setFrameSetting(e){this.frameSetting=e,this.render()}setMusicBuffer(e){this.musicBuffer=e,this.render()}frameToPx(e){return(e-this.viewPort[0])/this.viewPortRange[0]*this.canvas.width}dispose(){this.wrapperElm&&this.wrapperElm.removeChild(this.canvas),this.resizeObserver.disconnect()}},ia=()=>{let{editor:e}=Ve(),t=(0,b.useRef)(null),[n,r]=(0,b.useState)();(0,b.useEffect)(()=>{let e=new ra;if(r(e),t.current)return e.setWrapperElm(t.current),()=>{e.dispose()}},[]);let i=e&&e.audioBuffer,[a,o]=(0,b.useState)(),[s,c]=(0,b.useState)({duration:0,fps:0}),[l,u]=(0,b.useState)({current:0,playing:!1});(0,b.useEffect)(()=>{if(!e)return;let t=e.engine,n=e=>{c({duration:e[`timeline/duration`],fps:e[`timeline/fps`]})},r=0,i=()=>{o(r++)},a=e=>{u({...e})};return n(t.serialize()),a(t.frame),t.on(`fields/update`,n),t.on(`update/music`,i),t.on(`update/frame/play`,a),()=>{t.off(`update/frame/setting`,n),t.off(`update/music`,i),t.off(`update/frame/play`,a)}},[e]),(0,b.useEffect)(()=>{n&&i&&n.setMusicBuffer(i)},[n,i,a]),(0,b.useEffect)(()=>{n&&l&&n.setFramePlaying(l)},[n,l]),(0,b.useEffect)(()=>{n&&s&&n.setFrameSetting(s)},[n,s]);let d=(0,b.useCallback)(e=>{if(n){let t=e.deltaY>0?1.1:.9;n.setViewRangeFrame(n.viewRangeFrame*t)}e.preventDefault()},[n]);return(0,b.useEffect)(()=>{let e=t.current;return e&&e.addEventListener(`wheel`,d,{passive:!1}),()=>{e&&e.removeEventListener(`wheel`,d)}},[d]),(0,T.jsx)(`div`,{className:na.audioView,ref:t})},aa={cameraPad:`CameraPad__cameraPad___LmNhb`,btn:`CameraPad__btn___LmNhb`},oa=()=>{let{editor:e}=Ve(),[t]=k(e,`selectedEntityId`);return(0,T.jsxs)(`div`,{className:aa.cameraPad,children:[(0,T.jsx)(`div`,{className:aa.btn,"data-disabled":!t,onClick:()=>{t&&e.focusSelected()},title:`Focus selected ( . )`,children:`Focus`}),(0,T.jsx)(`div`,{className:aa.btn,onClick:()=>{e.syncToSceneCamera()},title:`Move to scene camera ( Esc )`,children:`Scene Cam`})]})},L={screen:`Screen__screen___LnNjc`,header:`Screen__header___LnNjc`,header_tabs:`Screen__header_tabs___LnNjc`,header_tab:`Screen__header_tab___LnNjc`,header_right:`Screen__header_right___LnNjc`,header_item:`Screen__header_item___LnNjc`,content:`Screen__content___LnNjc`,gizmoMode:`Screen__gizmoMode___LnNjc`,gizmoMode_btn:`Screen__gizmoMode_btn___LnNjc`,gizmoMode_separator:`Screen__gizmoMode_separator___LnNjc`,modalStatus:`Screen__modalStatus___LnNjc`,canvas:`Screen__canvas___LnNjc`,audioViewHandle:`Screen__audioViewHandle___LnNjc`,audioView:`Screen__audioView___LnNjc`,displayOptions:`Screen__displayOptions___LnNjc`,displayOptions_btn:`Screen__displayOptions_btn___LnNjc`,overlay:`Screen__overlay___LnNjc`,overlay_field:`Screen__overlay_field___LnNjc`,overlay_label:`Screen__overlay_label___LnNjc`,overlay_separator:`Screen__overlay_separator___LnNjc`,externalBtn:`Screen__externalBtn___LnNjc`},sa=`main`,ca=()=>{let{editor:e}=Ve(),t=ue(),[n,r]=k(e,`enableRender`),[i,a]=k(e,`viewports/${sa}/preview`),[o,s]=k(e,`viewType`),[c,l]=k(e,`resolutionScale`),[u,d]=k(e,`gizmoMode`),[f,p]=k(e,`transformOrientation`),[m]=k(e,`modalStatus`),[h,g]=k(e,`helpers/show`),[_,v]=k(e,`helpers/empty`),[y,x]=k(e,`helpers/camera`),[S,C]=k(e,`helpers/light`),[w,ee]=k(e,`helpers/grid`),[te,ne]=k(e,`helpers/wireframe`),[re,ie]=k(e,`helpers/gizmo`),[ae,oe]=k(e,`helpers/outline`),[se]=Ze(`showAudioView`),[ce,le]=(0,b.useState)(50),E=(0,b.useRef)(null),[D,de]=(0,b.useState)(!1),fe=(0,b.useRef)(null),pe=(0,b.useCallback)(e=>{fe.current&&!fe.current.contains(e.target)&&de(!1)},[]);return(0,b.useEffect)(()=>(D&&document.addEventListener(`pointerdown`,pe),()=>{document.removeEventListener(`pointerdown`,pe)}),[D,pe]),(0,T.jsxs)(`div`,{className:L.screen,children:[(0,T.jsxs)(`div`,{className:L.header,children:[(0,T.jsx)(`div`,{className:L.header_tabs,children:(0,T.jsx)(`div`,{className:L.header_tab,"data-active":!!i,onClick:()=>a&&a(!i),title:`Camera Render`,children:(0,T.jsx)(`svg`,{width:`14`,height:`14`,viewBox:`0 0 512 512`,fill:`currentColor`,xmlns:`http://www.w3.org/2000/svg`,children:(0,T.jsx)(`path`,{d:`M32 144 H336 V368 H32 Z M368 224 L480 152 V360 L368 288 Z`})})})}),(0,T.jsxs)(`div`,{className:L.header_right,children:[(0,T.jsx)(`div`,{className:L.header_item,children:(0,T.jsx)(ge,{title:`View`,children:(0,T.jsx)(O,{value:o,format:{type:`select`,list:[`render`,`debug`]},onChange:e=>s&&s(e)})})}),(0,T.jsx)(`div`,{className:L.header_item,children:(0,T.jsx)(ge,{title:`Res`,children:(0,T.jsx)(O,{value:c,format:{type:`select`,list:[,,,,,,].fill(0).map((e,t)=>{let n=2**t,r=1/n;return{value:r,label:r==1?`1`:`1/`+n}})},onChange:e=>l&&l(e)})})}),t.isPC&&(0,T.jsx)(`div`,{className:L.externalBtn,children:(0,T.jsx)(ve,{onClick:()=>{e.openInExternalWindow()},children:(0,T.jsxs)(`svg`,{width:`32`,height:`12`,viewBox:`0 0 512 512`,fill:`none`,xmlns:`http://www.w3.org/2000/svg`,children:[(0,T.jsxs)(`g`,{clipPath:`url(#clip0_224_2)`,children:[(0,T.jsx)(`path`,{d:`M96 0V416H512V0H96ZM472 376H136V40H472V376Z`,fill:`#aaa`}),(0,T.jsx)(`path`,{d:`M40 472V296V136V96H0V512H416V472H376H40Z`,fill:`#aaa`}),(0,T.jsx)(`path`,{d:`M232.812 312.829L350.671 194.969V279.766H390.671V126.688H237.594V166.688H322.39L204.531 284.547L232.812 312.829Z`,fill:`#aaa`})]}),(0,T.jsx)(`defs`,{children:(0,T.jsx)(`clipPath`,{id:`clip0_224_2`,children:(0,T.jsx)(`rect`,{width:`512`,height:`512`,fill:`white`})})})]})})})]})]}),(0,T.jsxs)(`div`,{className:L.content,children:[(0,T.jsxs)(`div`,{className:L.displayOptions,ref:fe,children:[(0,T.jsx)(`div`,{className:L.displayOptions_btn,"data-active":D,onClick:()=>de(!D),title:`Display Options`,children:`⚙`}),D&&(0,T.jsxs)(`div`,{className:L.overlay,children:[(0,T.jsx)(`div`,{className:L.overlay_label,children:`Rendering`}),(0,T.jsx)(`div`,{className:L.overlay_field,children:(0,T.jsx)(ge,{title:`Render`,children:(0,T.jsx)(O,{value:n,onChange:e=>r&&r(e)})})}),(0,T.jsx)(`div`,{className:L.overlay_separator}),(0,T.jsx)(`div`,{className:L.overlay_label,children:`Helpers`}),(0,T.jsx)(`div`,{className:L.overlay_field,children:(0,T.jsx)(ge,{title:`Show`,children:(0,T.jsx)(O,{value:h,onChange:e=>g&&g(e)})})}),(0,T.jsx)(`div`,{className:L.overlay_field,"data-indent":`true`,children:(0,T.jsx)(ge,{title:`Empty`,children:(0,T.jsx)(O,{value:_,onChange:e=>v&&v(e)})})}),(0,T.jsx)(`div`,{className:L.overlay_field,"data-indent":`true`,children:(0,T.jsx)(ge,{title:`Camera`,children:(0,T.jsx)(O,{value:y,onChange:e=>x&&x(e)})})}),(0,T.jsx)(`div`,{className:L.overlay_field,"data-indent":`true`,children:(0,T.jsx)(ge,{title:`Light`,children:(0,T.jsx)(O,{value:S,onChange:e=>C&&C(e)})})}),(0,T.jsx)(`div`,{className:L.overlay_separator}),(0,T.jsx)(`div`,{className:L.overlay_field,children:(0,T.jsx)(ge,{title:`Grid`,children:(0,T.jsx)(O,{value:w,onChange:e=>ee&&ee(e)})})}),(0,T.jsx)(`div`,{className:L.overlay_field,children:(0,T.jsx)(ge,{title:`Wireframe`,children:(0,T.jsx)(O,{value:te,onChange:e=>ne&&ne(e)})})}),(0,T.jsx)(`div`,{className:L.overlay_field,children:(0,T.jsx)(ge,{title:`Gizmo`,children:(0,T.jsx)(O,{value:re,onChange:e=>ie&&ie(e)})})}),(0,T.jsx)(`div`,{className:L.overlay_field,children:(0,T.jsx)(ge,{title:`Outline`,children:(0,T.jsx)(O,{value:ae,onChange:e=>oe&&oe(e)})})})]})]}),(0,T.jsxs)(`div`,{className:L.gizmoMode,children:[[`select`,`translate`,`rotate`,`scale`].map(e=>(0,T.jsx)(`div`,{className:L.gizmoMode_btn,"data-active":u===e,onClick:()=>d&&d(e),title:e.charAt(0).toUpperCase()+e.slice(1),children:e===`select`?`↖`:e===`translate`?`T`:e===`rotate`?`R`:`S`},e)),(0,T.jsx)(`div`,{className:L.gizmoMode_separator}),[`global`,`local`].map(e=>(0,T.jsx)(`div`,{className:L.gizmoMode_btn,"data-active":f===e,onClick:()=>p&&p(e),title:e.charAt(0).toUpperCase()+e.slice(1),children:e===`global`?`G`:`L`},e))]}),m&&(0,T.jsx)(`div`,{className:L.modalStatus,children:m}),(0,T.jsx)(`div`,{className:L.canvas,children:(0,T.jsx)(ta,{viewportId:sa})}),t.isSP&&(0,T.jsx)(oa,{}),t.isPC&&se&&(0,T.jsxs)(T.Fragment,{children:[(0,T.jsx)(`div`,{className:L.audioViewHandle,onPointerDown:e=>{e.preventDefault(),e.currentTarget.setPointerCapture(e.pointerId),E.current={startY:e.clientY,startHeight:ce}},onPointerMove:e=>{if(!E.current)return;let t=E.current.startY-e.clientY,n=Math.max(20,Math.min(400,E.current.startHeight+t));le(n)},onPointerUp:()=>{E.current=null}}),(0,T.jsx)(`div`,{className:L.audioView,style:{height:ce},children:(0,T.jsx)(ia,{})})]})]})]})},la={textures:`Textures__textures___LnRle`,item:`Textures__item___LnRle`,preview:`Textures__preview___LnRle`,img:`Textures__img___LnRle`,placeholder:`Textures__placeholder___LnRle`,name:`Textures__name___LnRle`},ua=()=>{let{engine:e,editor:t}=Ve(),[,n]=(0,b.useState)(0);(0,b.useEffect)(()=>{let e=()=>{t.assetPreviewManager?.invalidateAll(),n(e=>e+1)},r=()=>n(e=>e+1);return wr.resources.on(`update`,e),t.assetPreviewManager?.on(`update`,r),()=>{wr.resources.off(`update`,e),t.assetPreviewManager?.off(`update`,r)}},[e,t]);let r=wr.resources.textureList;return(0,T.jsx)(`div`,{className:la.textures,children:r.map(e=>{let n=t.assetPreviewManager?.getTexturePreview(e.name);return(0,T.jsxs)(`div`,{className:la.item,children:[(0,T.jsx)(`div`,{className:la.preview,children:n?(0,T.jsx)(`img`,{src:n,className:la.img}):(0,T.jsx)(`div`,{className:la.placeholder})}),(0,T.jsx)(`div`,{className:la.name,children:e.name})]},e.name)})})},da=(0,b.createContext)(null),fa=()=>{let e=(0,b.useContext)(da);if(e===null)throw Error(`useTimeline must be used within a TimelineProvider`);return e},pa=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+
+uniform sampler2D uCanvasTex;
+uniform sampler2D uMusicTex;
+
+in vec2 vUv;
+
+layout (location = 0) out vec4 outColor;
+
+void main( void ) {
+
+	vec4 canvas = texture( uCanvasTex, vUv );
+
+	vec3 col = canvas.xyz;
+
+	float audio = texture( uMusicTex, vUv ).x;
+	float audioWave = step( vUv.y, audio );
+	col += audioWave * 0.2;
+
+	outColor = vec4( col, 1.0 );
+
+}`,ma=class extends Et{wrapperElm;glCanvas;backend;gl;canvasTexture;canvas;canvasCtx;glRenderer;postProcess;viewPort;viewPortRange;viewPortScale;frameSetting;loopSetting;musicBuffer;musicTexture;resizeObserver;canvasSize;constructor(){super(),this.wrapperElm=null,this.canvas=document.createElement(`canvas`),this.canvasCtx=this.canvas.getContext(`2d`),this.glCanvas=document.createElement(`canvas`),this.backend=new xt(this.glCanvas.getContext(`webgl2`)),this.gl=this.backend.gl,this.canvasSize=new A(this.glCanvas.width,this.glCanvas.height),this.viewPort=[0,0,0,0],this.viewPortRange=[0,0],this.viewPortScale=50,this.frameSetting=null,this.loopSetting={enabled:!1,start:0,end:0},this.resizeObserver=new ResizeObserver(this.onResize.bind(this));let e={renderer:null,createEntity:t=>new Kt({...t,engine:e})};this.glRenderer=new Ln(this.backend,e),e.renderer=this.glRenderer,this.canvasTexture=new _t(this.gl),this.musicBuffer=null,this.musicTexture=new _t(this.gl),this.musicTexture.setting({type:this.gl.UNSIGNED_BYTE,internalFormat:this.gl.LUMINANCE,format:this.gl.LUMINANCE,magFilter:this.gl.LINEAR,minFilter:this.gl.LINEAR,wrapS:this.gl.MIRRORED_REPEAT}),this.postProcess=new tn({passes:[new F(this.backend,{frag:pa,uniforms:{uCanvasTex:{type:`1i`,value:null},uMusicTex:{type:`1i`,value:this.musicTexture}},renderTarget:null})]})}onResize(){if(this.wrapperElm){let e=new A(this.wrapperElm.clientWidth,this.wrapperElm.clientHeight);if(e.x===0||e.y===0)return;this.glCanvas.width=this.canvas.width=e.x,this.glCanvas.height=this.canvas.height=e.y,this.canvasSize.set(this.glCanvas.width,this.glCanvas.height),this.postProcess.resize(e),this.render()}}render(){if(this.canvasCtx.fillStyle=`#000`,this.canvasCtx.fillRect(0,0,this.canvas.width,this.canvas.height),this.frameSetting){this.canvasCtx.fillStyle=`#181818`;let e=this.frameToPx(0),t=this.frameToPx(this.frameSetting.duration);this.canvasCtx.fillRect(e,0,t-e,this.canvas.height)}let e=(e,t,n)=>{let r=Math.ceil(this.viewPort[0]/e)*e;this.canvasCtx.beginPath();let i=0;for(;r<this.viewPort[2]&&i<100;){let n=this.frameToPx(r+t);this.canvasCtx.moveTo(n,0),this.canvasCtx.lineTo(n,this.canvas.height),r+=e,i++}this.canvasCtx.strokeStyle=n,this.canvasCtx.lineWidth=1,this.canvasCtx.stroke()};if(e(this.viewPortScale,0,`#555`),e(this.viewPortScale,this.viewPortScale/2,`#333`),this.musicBuffer&&this.frameSetting){this.canvasCtx.strokeStyle=`#888`,this.canvasCtx.fillStyle=`#888`;let e=this.musicBuffer.getChannelData(0),t=this.viewPortRange[0]/this.frameSetting.fps,n=this.musicBuffer.sampleRate*t,r=n/this.canvas.width,i=this.frameToPx(0);this.canvasCtx.beginPath();for(let t=0;t<n;t+=r){let a=Math.floor(t-i*r),o=e[Math.round(a)],s=t/n*this.canvas.width,c=(o+1)*(this.canvas.height/2),l=c,u=c;for(let t=0;t<16;t++){let n=(e[Math.round(a+t/16*r)]+1)*(this.canvas.height/2);l>n&&(l=n),u<n&&(u=n)}let d=u-l;d>3&&this.canvasCtx.fillRect(s,l,1,d),t==0?this.canvasCtx.moveTo(s,c):this.canvasCtx.lineTo(s,c)}this.canvasCtx.stroke()}if(this.loopSetting.enabled){this.canvasCtx.fillStyle=`#0009`;let e=this.frameToPx(this.loopSetting.start),t=this.frameToPx(this.loopSetting.end);this.canvasCtx.fillRect(0,0,e,this.canvas.height),this.canvasCtx.fillRect(t,0,this.canvas.width-t,this.canvas.height)}this.canvasTexture.attach(this.canvas),this.postProcess.passes&&(this.postProcess.passes[0].uniforms.uCanvasTex.value=this.canvasTexture),this.glRenderer.renderPostProcess(this.postProcess,void 0,this.canvasSize)}setWrapperElm(e){this.wrapperElm&&this.resizeObserver.observe(this.wrapperElm),this.wrapperElm=e,this.resizeObserver.observe(e),this.wrapperElm.appendChild(this.glCanvas),this.onResize()}setViewPort(e,t){this.viewPort=e,this.viewPortRange=[e[2]-e[0],e[3]-e[1]],this.viewPortScale=t,this.render()}setFrameSetting(e){this.frameSetting={duration:Math.round(e.duration),fps:Math.round(e.fps)},this.render()}setMusicBuffer(e){this.musicBuffer=e,setTimeout(()=>{this.render()},100)}setLoopSetting(e,t,n){this.loopSetting={enabled:e,start:t,end:n},this.render()}frameToPx(e){return(e-this.viewPort[0])/this.viewPortRange[0]*this.canvas.width}dispose(){this.wrapperElm&&this.wrapperElm.removeChild(this.glCanvas),this.resizeObserver.disconnect()}},ha={timelineCanvas:`TimelineCanvas__timelineCanvas___LnRpb`},ga=()=>{let{viewPort:e,viewPortScale:t,musicBuffer:n,musicBufferVersion:r,glEditor:i}=fa(),[a,o]=(0,b.useState)(),s=(0,b.useRef)(null);(0,b.useEffect)(()=>{let e=new ma;return o(e),s.current&&e.setWrapperElm(s.current),()=>{e.dispose()}},[]),(0,b.useEffect)(()=>{a&&e&&t&&a.setViewPort(e,t)},[a,e,t]);let[c]=k(i?.engine,`timeline/duration`),[l]=k(i?.engine,`timeline/fps`);(0,b.useEffect)(()=>{a&&c&&l&&a.setFrameSetting({duration:c||0,fps:l||0})},[a,c,l]);let[u]=k(i,`frameLoop/enabled`),[d]=k(i,`frameLoop/start`),[f]=k(i,`frameLoop/end`);return(0,b.useEffect)(()=>{a&&a.setLoopSetting(u||!1,d||0,f||0)},[a,u,d,f]),(0,b.useEffect)(()=>{a&&n&&a.setMusicBuffer(n)},[a,n,r]),(0,T.jsx)(`div`,{className:ha.timelineCanvas,ref:s})},_a={controls:`TimelineControls__controls___LmNvb`},va=e=>{let{viewPort:t,setCurrentFrame:n,getFrameViewPort:r,zoom:i,scroll:a,setViewPortCenter:o}=fa(),s=(0,b.useRef)([0,0,0,0]),c=(0,b.useRef)([0,0]);t&&(s.current=t,c.current=[t[2]-t[0],t[3]-t[1]]);let l=(0,b.useRef)(null),u=(0,b.useRef)(null),d=(0,b.useRef)(null),f=(0,b.useRef)(null),p=(0,b.useRef)(null),m=(0,b.useCallback)(e=>{let t=l.current&&l.current.clientWidth||1;if(d.current==0){if(n&&r&&u.current){let i=(e.clientX-u.current.left)/t;n(r(i))}}else if(d.current==1){let n=[e.clientX,e.clientY];if(f.current&&p.current){let e=-(n[0]-f.current[0])/t*c.current[0];o&&o(p.current+e)}}},[n,r,o]),h=(0,b.useCallback)(e=>{d.current=e.button,p.current=(s.current[2]+s.current[0])/2,f.current=[e.clientX,e.clientY],u.current=e.currentTarget.getBoundingClientRect();let t=(e.clientX-u.current.left)/e.currentTarget.clientWidth;d.current==0&&n&&r&&n(r(t)),window.addEventListener(`pointermove`,m);let i=()=>{f.current=null,d.current=null,p.current=null,window.removeEventListener(`pointermove`,m)};return window.addEventListener(`pointerup`,i),()=>{window.removeEventListener(`pointerup`,i),window.removeEventListener(`pointermove`,m)}},[r,n,m]),g=(0,b.useCallback)(e=>{if(d.current!==null||!i||!a)return;e.preventDefault();let t=e.target&&e.target.clientWidth||1,n=Math.abs(e.deltaY);Math.abs(e.deltaX)<n?i(n>50?e.deltaY<0?.9:1.1:1+e.deltaY*.005):a(e.deltaX/t*.5)},[i,a]);return(0,b.useEffect)(()=>{let e=l.current;return e&&e.addEventListener(`wheel`,g,{passive:!1}),()=>{e&&e.removeEventListener(`wheel`,g)}},[g]),t?(0,T.jsx)(`div`,{className:_a.controls,onPointerDown:h,ref:l,children:e.children}):null},ya={cursor:`TimelineCursor__cursor___LmN1c`,frame:`TimelineCursor__frame___LmN1c`},ba=()=>{let{viewPort:e,framePlay:t}=fa();if(!e||!t)return null;let n=e[2]-e[0],r=(t.current-e[0])/n;return(0,T.jsx)(`div`,{className:ya.cursor,style:{left:r*100+`%`},children:(0,T.jsx)(`div`,{className:ya.frame})})},xa={timelineLoop:`TimelineLoop__timelineLoop___LnRpb`,start:`TimelineLoop__start___LnRpb`,end:`TimelineLoop__end___LnRpb`},Sa={cursor:`TimelineLoopCursor__cursor___LmN1c`},Ca=({onMove:e})=>{let t=(0,b.useRef)(!1);return(0,T.jsx)(`div`,{className:Sa.cursor,onPointerDown:e=>{e.buttons==1&&(t.current=!0,e.stopPropagation())},onPointerMove:n=>{let r=n.target;t.current!==!1&&n.buttons==1&&(r.setPointerCapture(n.pointerId),n.buttons==1&&e&&e(n.clientX),n.nativeEvent.preventDefault(),n.nativeEvent.stopPropagation())},onPointerUp:()=>{t.current=!1}})},wa=()=>{let{viewPort:e,framePlay:t,glEditor:n}=fa(),r=(0,b.useRef)(null);tt(n,[`frameLoop/enabled`,`frameLoop/start`,`frameLoop/end`]);let[i]=k(n,`frameLoop/enabled`),[a,o]=k(n,`frameLoop/start`),[s,c]=k(n,`frameLoop/end`);if(i!==!0||!e||!t||a===void 0||s===void 0)return null;let l=e[2]-e[0],u=(a-e[0])/l,d=(s-e[0])/l,f=(t,n)=>{let r=t.getBoundingClientRect();return(n-r.x)/r.width*(e[2]-e[0])+e[0]};return(0,T.jsx)(`div`,{className:xa.timelineLoop,ref:r,children:(0,T.jsxs)(`div`,{className:xa.timelineLoop_inner,children:[(0,T.jsx)(`div`,{className:xa.start,style:{left:u*100+`%`},children:(0,T.jsx)(Ca,{onMove:e=>{r.current&&o&&o(f(r.current,e))}})}),(0,T.jsx)(`div`,{className:xa.end,style:{left:d*100+`%`},children:(0,T.jsx)(Ca,{onMove:e=>{r.current&&c&&c(f(r.current,e))}})})]})})},Ta={scale:`TimelineScale__scale___LnNjY`,scale_inner:`TimelineScale__scale_inner___LnNjY`,scale_item:`TimelineScale__scale_item___LnNjY`,scale_item_frame:`TimelineScale__scale_item_frame___LnNjY`,scale_item_time:`TimelineScale__scale_item_time___LnNjY`},Ea=e=>`${(`00`+Math.floor(e%3600/60)).slice(-2)}:${(`00`+Math.floor(e%60)).slice(-2)}`,Da=()=>{let{glEditor:e,viewPort:t,viewPortScale:n}=fa(),[r,i]=k(e?.engine,`timeline/fps`);if(!t||!n||r===void 0)return null;let a=[],o=Math.ceil(t[0]/n)*n,s=0;for(;o<t[2]&&s<100;){let e=(o-t[0])/(t[2]-t[0]),i=o/(r||0);a.push((0,T.jsxs)(`div`,{className:Ta.scale_item,style:{left:e*100+`%`},children:[(0,T.jsx)(`div`,{className:Ta.scale_item_frame,children:o}),(0,T.jsx)(`div`,{className:Ta.scale_item_time,children:Ea(i)})]},o)),o+=n,s++}return(0,T.jsx)(`div`,{className:Ta.scale,children:(0,T.jsx)(`div`,{className:Ta.scale_inner,children:a})})},Oa={timelineSetting:`TimelineSetting__timelineSetting___LnRpb`},ka=()=>{let{framePlay:e,glEditor:t}=fa(),n=(0,b.useCallback)((e,t)=>{t&&t(e)},[]),[r,i]=k(t,`frameLoop/enabled`),[a,o]=k(t?.engine,`timeline/duration`),[s,c]=k(t?.engine,`timeline/fps`);return(0,T.jsx)(`div`,{className:Oa.timelineSetting,children:(0,T.jsxs)(se,{children:[(0,T.jsx)(ge,{title:`current`,children:(0,T.jsx)(O,{value:Math.floor(e?.current||0),readOnly:!0})}),(0,T.jsx)(ge,{title:`duration`,children:(0,T.jsx)(O,{value:a,onChange:e=>n(e,o)})}),(0,T.jsx)(ge,{title:`fps`,children:(0,T.jsx)(O,{value:s,onChange:e=>n(e,c)})}),(0,T.jsx)(ge,{title:`loop`,children:(0,T.jsx)(O,{value:r||!1,onChange:e=>n(e,i)})})]})})},Aa={timeline:`Timeline__timeline___LnRpb`,inner:`Timeline__inner___LnRpb`,content:`Timeline__content___LnRpb`,setting:`Timeline__setting___LnRpb`},ja=()=>{let{editor:e}=Ve(),[t,n]=(0,b.useState)({current:0,playing:!1}),[r,i]=(0,b.useState)([0,0,100,0]),a=(0,b.useRef)([0,0,0,0]);a.current=r;let o=r[2]-r[0],s=10*2**(0+Math.floor(Math.log2(o/100)));s=Math.max(1,Math.floor(s));let c=e?.audioBuffer,[l,u]=(0,b.useState)();(0,b.useEffect)(()=>{if(e){let t=e.engine,r=e=>{n({...e})};r(t.frame);let a=0,o=()=>{u(a++)},s=()=>{i([0,0,t.frameSetting.duration,0])};return s(),t.on(`update/frame/play`,r),t.on(`update/music`,o),t.on(`loaded`,s),()=>{t.off(`update/frame/play`,r),t.off(`update/music`,o),t.off(`loaded`,s)}}},[e]);let d=(0,b.useCallback)(t=>{e&&e.engine.seek(t)},[e]),f=(0,b.useCallback)(e=>{let t=r[2]-r[0];return Math.floor(r[0]+t*e)},[r]),p=(0,b.useCallback)(e=>{let t=a.current,n=(t[2]+t[0])/2,r=(t[0]-n)*e+n,o=(t[2]-n)*e+n;i([r,t[1],o,t[3]])},[]),m=(0,b.useCallback)(e=>{let t=a.current,n=e*(t[2]-t[0]);i([t[0]+n,t[1],t[2]+n,t[3]])},[]),h=(0,b.useCallback)(e=>{let t=a.current,n=t[2]-t[0];i([e-n/2,t[1],e+n/2,t[3]])},[]);return{glEditor:e,framePlay:t,viewPort:r,viewPortScale:s,musicBuffer:c,musicBufferVersion:l,setCurrentFrame:d,getFrameViewPort:f,zoom:p,scroll:m,setViewPortCenter:h}},Ma=e=>{let t=ja();return(0,T.jsx)(da.Provider,{value:t,children:e.children})},Na=()=>(0,T.jsx)(Ma,{children:(0,T.jsx)(`div`,{className:Aa.timeline,children:(0,T.jsxs)(`div`,{className:Aa.inner,children:[(0,T.jsx)(`div`,{className:Aa.setting,children:(0,T.jsx)(ka,{})}),(0,T.jsxs)(`div`,{className:Aa.content,children:[(0,T.jsx)(ga,{}),(0,T.jsx)(ba,{}),(0,T.jsx)(va,{children:(0,T.jsx)(wa,{})}),(0,T.jsx)(Da,{})]})]})})}),Pa={editor:`OREditor__editor___LmVka`},Fa=128,Ia=class extends Et{_draw;_target;_cache;_pending;_canvas2d;_ctx2d;constructor(e){super(),this._draw=e,this._cache=new Map,this._pending=new Set,this._canvas2d=document.createElement(`canvas`),this._canvas2d.width=Fa,this._canvas2d.height=Fa,this._ctx2d=this._canvas2d.getContext(`2d`),this._target=e.createTarget({size:new A(Fa,Fa)})}getTexturePreview(e){let t=`tex:`+e,n=this._cache.get(t);if(n)return n;if(this._pending.has(t))return null;let r=wr.resources.getTexture(e);return r?(this._pending.add(t),this._draw.drawTexture(r,this._target),this._draw.readPixels(this._target).then(e=>{this._pending.delete(t),this._cache.set(t,this._toDataURL(e)),this.emit(`update`)}),null):null}invalidate(e){this._cache.delete(e)}invalidateAll(){this._cache.clear(),this._pending.clear()}_toDataURL(e){let t=this._ctx2d.createImageData(Fa,Fa);for(let n=0;n<Fa;n++){let r=(127-n)*Fa*4,i=n*Fa*4;for(let n=0;n<512;n++)t.data[i+n]=e[r+n]}return this._ctx2d.putImageData(t,0,0),this._canvas2d.toDataURL()}dispose(){this._cache.clear(),this._pending.clear(),this.off(`update`)}},La=class extends Et{_undoStack=[];_redoStack=[];_mergeWindow=500;_lastExecuteTime=0;execute(e){let t=Date.now();if(this._undoStack.length>0&&t-this._lastExecuteTime<this._mergeWindow){let n=this._undoStack[this._undoStack.length-1];if(n.mergeWith){let r=n.mergeWith(e);if(r){this._undoStack[this._undoStack.length-1]=r,e.execute(),this._lastExecuteTime=t,this.emit(`change`);return}}}e.execute(),this._undoStack.push(e),this._redoStack=[],this._lastExecuteTime=t,this.emit(`change`)}undo(){let e=this._undoStack.pop();e&&(e.undo(),this._redoStack.push(e),this.emit(`change`))}redo(){let e=this._redoStack.pop();e&&(e.execute(),this._undoStack.push(e),this.emit(`change`))}get canUndo(){return this._undoStack.length>0}get canRedo(){return this._redoStack.length>0}clear(){this._undoStack=[],this._redoStack=[],this.emit(`change`)}},Ra=class{entity;componentClass;name=`AddComponent`;instance=null;constructor(e,t){this.entity=e,this.componentClass=t}execute(){this.instance=this.entity.addComponent(this.componentClass),this.instance.initiator=`user`}undo(){this.entity.removeComponent(this.componentClass),this.instance=null}},za=class{_textureName;_config;name=`AddTexture`;constructor(e,t){this._textureName=e,this._config=t}execute(){wr.resources.addTextureResource(this._textureName,this._config)}undo(){wr.resources.removeTextureResource(this._textureName)}},Ba=class{engine;parent;entityName;name=`CreateEntity`;entity=null;constructor(e,t,n){this.engine=e,this.parent=t,this.entityName=n}execute(){this.entity?this.parent.add(this.entity):(this.entity=this.engine.createEntity({name:this.entityName}),this.entity.initiator=`user`,this.parent.add(this.entity))}undo(){this.entity&&this.entity.parent&&this.entity.parent.remove(this.entity)}get createdEntity(){return this.entity}},Va=class{entity;name=`DeleteEntity`;parent=null;constructor(e){this.entity=e}execute(){this.parent=this.entity.parent,this.parent&&this.parent.remove(this.entity)}undo(){this.parent&&this.parent.add(this.entity)}},Ha=class{entity;componentClass;component;name=`RemoveComponent`;snapshot=null;constructor(e,t,n){this.entity=e,this.componentClass=t,this.component=n}execute(){this.snapshot=this.component.serialize(),this.entity.removeComponent(this.componentClass)}undo(){let e=this.entity.addComponent(this.componentClass);e.initiator=`user`,this.snapshot&&e.deserialize(this.snapshot),this.component=e}},Ua=class{_textureName;name=`RemoveTexture`;_snapshot=null;constructor(e){this._textureName=e}execute(){let e=wr.resources.getTextureResource(this._textureName);e&&(this._snapshot=e.serialize({mode:`export`})),wr.resources.removeTextureResource(this._textureName)}undo(){this._snapshot&&wr.resources.addTextureResource(this._textureName,this._snapshot)}},Wa=class e{target;path;oldValue;newValue;name=`SetField`;constructor(e,t,n,r){this.target=e,this.path=t,this.oldValue=n,this.newValue=r}execute(){this.target.setField(this.path,this.newValue)}undo(){this.target.setField(this.path,this.oldValue)}mergeWith(t){return t instanceof e&&t.target===this.target&&t.path===this.path?new e(this.target,this.path,this.oldValue,t.newValue):null}},Ga=class{_commandManager;_editor;constructor(e){this._editor=e,this._commandManager=new La}setField(e,t,n){let r=e.getField(t);this._commandManager.execute(new Wa(e,t,r,n))}createEntity(e,t){let n=new Ba(this._editor.engine,e,t);return this._commandManager.execute(n),n.createdEntity}deleteEntity(e){this._commandManager.execute(new Va(e))}selectEntity(e){this._editor.selectEntity(e)}addComponent(e,t){let n=new Ra(e,t);return this._commandManager.execute(n),n.instance}removeComponent(e,t,n){this._commandManager.execute(new Ha(e,t,n))}addTexture(e,t){this._commandManager.execute(new za(e,t))}removeTexture(e){this._commandManager.execute(new Ua(e))}updateTexture(e,t){let n=wr.resources.getTextureResource(e);if(!n)throw Error(`Texture not found: ${e}`);let r=Object.keys(t);for(let e of r){let r=n.getField(e);this._commandManager.execute(new Wa(n,e,r,t[e]))}}undo(){this._commandManager.undo()}redo(){this._commandManager.redo()}get canUndo(){return this._commandManager.canUndo}get canRedo(){return this._commandManager.canRedo}get commandManager(){return this._commandManager}dispose(){this._commandManager.clear()}};function Ka(e,t){let n=e.clone().normalize(),r=Math.sin(t/2),i=new dt;return i.set(n.x*r,n.y*r,n.z*r,Math.cos(t/2)),i}function qa(e,t){let n=e.clone().normalize(),r=t.clone().normalize(),i=n.dot(r);if(i>.99999)return new dt;if(i<-.99999){let e=Math.abs(n.x)>.9?new A(0,1,0):new A(1,0,0);return Ka(n.clone().cross(e),Math.PI)}return Ka(n.clone().cross(r),Math.acos(Math.min(1,Math.max(-1,i))))}function Ja(e){let t=new dt;return e.matrixWorld.decompose(void 0,t),t}function Ya(e,t){return e.clone().applyMatrix4AsDirection(new j().applyQuaternion(t))}function Xa(e,t,n){let r=new A(+(t===`x`),+(t===`y`),+(t===`z`));return n===`global`?r:Ya(r,Ja(e)).normalize()}function Za(e,t,n){return e.clone().multiply(t.clone().multiply(n))}function Qa(e,t,n){let r=e.origin.clone().sub(t),i=e.direction.dot(n),a=r.dot(n),o=r.dot(e.direction),s=1-i*i+1e-4;return a+(a*i-o)/s*i}function $a(e,t,n){let r=e.direction.dot(n);if(Math.abs(r)<1e-4)return null;let i=t.clone().sub(e.origin).dot(n)/r;return e.origin.clone().add(e.direction.clone().multiply(i))}var eo={x:[1,.2,.2],y:[.2,1,.2],z:[.4,.4,1]},to={xy:`z`,yz:`x`,xz:`y`},no={xy:[`x`,`y`],yz:[`y`,`z`],xz:[`x`,`z`]},ro=[.75,.75,.75],io=[1,.95,.4],ao=.45,oo=.18,so=class e{static VIEW_SCALE_FACTOR=.15;entity;_engine;_draw;_orientation;_camWorldPos;_records;_hoverHandle;_activeHandle;_dragging;constructor(e,t,n){this._engine=e,this._draw=t,this.entity=e.createEntity({name:n}),this.entity.initiator=`god`,this.entity.visible=!1,this._orientation=`global`,this._camWorldPos=new A,this._records=[],this._hoverHandle=null,this._activeHandle=null,this._dragging=!1}_createEntity(e){let t=this._engine.createEntity({name:e});return t.initiator=`god`,t}_registerHandle(e,t,n){let r=[...n];return this._records.push({handle:e,root:t,color:r,baseColor:[...n]}),this.entity.add(t),r}_addVisual(e,t,n){let r=this._createEntity(`__gizmo_visual`);return r.addComponent(P,{geometry:t,material:this._draw.materials.flat({color:n,depthTest:!1,depthWrite:!1})}),e.add(r),r}_addHit(e,t){let n=this._createEntity(`__gizmo_hit`);return n.addComponent(P,{geometry:t}),e.add(n),n}_addPlaneHandle(e){let t=this._createEntity(`__gizmo_plane_`+e),n=this._registerHandle(e,t,eo[to[e]]);return this._addVisual(t,new zt({width:oo,height:oo}),n),this._addHit(t,new zt({width:oo*1.6,height:oo*1.6})),e===`yz`?(t.euler.set(0,Math.PI/2,0),t.position.set(0,ao,ao)):e===`xz`?(t.euler.set(Math.PI/2,0,0),t.position.set(ao,0,ao)):t.position.set(ao,ao,0),t}_addCenterHandle(){let e=this._createEntity(`__gizmo_center`),t=this._registerHandle(`center`,e,ro);return this._addVisual(e,new qt({innerRadius:.1,outerRadius:.14,thetaSegments:24}),t),this._addHit(e,new Bt({radius:.16,widthSegments:8,heightSegments:6})),e}setHover(e){this._hoverHandle!==e&&(this._hoverHandle=e,this._updateColors())}_updateColors(){let e=this._dragging?this._activeHandle:this._hoverHandle;for(let t of this._records){let n=t.handle===e?io:t.baseColor;t.color[0]=n[0],t.color[1]=n[1],t.color[2]=n[2]}}getHandleEntities(){let e=[];for(let t of this._records)t.root.traverse(n=>{let r=n.getComponent(P);r&&!r.material&&e.push({handle:t.handle,entity:n})});return e}setTarget(t,n,r){if(this._orientation=r,!t){this.entity.visible=!1;return}if(this.entity.visible=!0,this.entity.quaternion.copy(this._rootQuaternion(t,r)),this.entity.position.set(t.matrixWorld.elm[12],t.matrixWorld.elm[13],t.matrixWorld.elm[14]),n){let t=n.matrixWorld.elm;this._camWorldPos.set(t[12],t[13],t[14]);let r=this._camWorldPos.distanceTo(this.entity.position),i=Math.max(.01,r*e.VIEW_SCALE_FACTOR);this.entity.scale.set(i,i,i)}this._onTargetUpdated()}_rootQuaternion(e,t){return t===`local`?Ja(e):new dt}_onTargetUpdated(){}_camDirLocal(){return Ya(this._camWorldPos.clone().sub(this.entity.position).normalize(),this.entity.quaternion.clone().inverse()).normalize()}_billboardQuat(){return qa(new A(0,0,1),this._camDirLocal())}get activeHandle(){return this._activeHandle}get dragging(){return this._dragging}startDrag(e,t,n){this._activeHandle=e,this._dragging=!0,this._updateColors(),this._onStartDrag(e,t,n)}endDrag(){this._activeHandle=null,this._dragging=!1,this._updateColors()}},co=[`x`,`y`,`z`];function lo(e,t,n){let r=[],i=[],a=[],o=[];for(let s=0;s<=n;s++){let c=-Math.PI/2+s/n*Math.PI,l=Math.cos(c),u=Math.sin(c);if(r.push(l*e,u*e,0),r.push(l*t,u*t,0),i.push(0,0,1,0,0,1),a.push(s/n,0,s/n,1),s<n){let e=s*2;o.push(e,e+1,e+2,e+1,e+3,e+2)}}let s=new N;return s.setAttribute(`position`,new Float32Array(r),3),s.setAttribute(`normal`,new Float32Array(i),3),s.setAttribute(`uv`,new Float32Array(a),2),s.setAttribute(`index`,new Uint16Array(o),1),s}var uo=class extends so{_rings;_viewRoot;_dragCenter;_dragViewNormal;_dragU;_dragV;_dragAxisN;_dragSign;_dragLastAngle;_dragAccumAngle;_dragStartWorldQuat;_parentWorldQuatInv;constructor(e,t){super(e,t,`__gizmo_rotate`),this._dragCenter=new A,this._dragViewNormal=new A(0,0,1),this._dragU=new A(1,0,0),this._dragV=new A(0,1,0),this._dragAxisN=new A(0,0,1),this._dragSign=1,this._dragLastAngle=0,this._dragAccumAngle=0,this._dragStartWorldQuat=new dt,this._parentWorldQuatInv=new dt;let n={x:Ka(new A(0,1,0),Math.PI/2),y:Ka(new A(1,0,0),-Math.PI/2),z:new dt};this._rings={};for(let e of co){let t=this._createEntity(`__gizmo_ring_`+e),r=this._registerHandle(e,t,eo[e]);this._addVisual(t,lo(.75,.8,48),r),this._addHit(t,lo(.6,.95,24)),this._rings[e]={wrapper:t,base:n[e],baseInv:n[e].clone().inverse()}}this._viewRoot=this._createEntity(`__gizmo_ring_view`);let r=this._registerHandle(`view`,this._viewRoot,ro);this._addVisual(this._viewRoot,new qt({innerRadius:1,outerRadius:1.05,thetaSegments:64}),r),this._addHit(this._viewRoot,new qt({innerRadius:.92,outerRadius:1.13,thetaSegments:32}))}_onTargetUpdated(){let e=this._camDirLocal();for(let t of co){let n=this._rings[t],r=Ya(e,n.baseInv),i=Math.atan2(r.y,r.x);n.wrapper.quaternion.copy(n.base.clone().multiply(Ka(new A(0,0,1),i)))}this._viewRoot.quaternion.copy(this._billboardQuat())}_onStartDrag(e,t,n){this._dragCenter.copy(this.entity.position);let r=t.origin.clone().sub(this._dragCenter).normalize(),i=Math.abs(r.y)>.99?new A(1,0,0):new A(0,1,0);this._dragViewNormal=r,this._dragU=i.cross(r).normalize(),this._dragV=r.clone().cross(this._dragU).normalize(),e===`view`?(this._dragAxisN=r.clone(),this._dragSign=1):(this._dragAxisN=Xa(n,e,this._orientation),this._dragSign=this._dragAxisN.dot(r)<0?-1:1),this._dragLastAngle=this._angleFromRay(t)??0,this._dragAccumAngle=0,this._dragStartWorldQuat=Ja(n),this._parentWorldQuatInv=n.parent?Ja(n.parent).inverse():new dt}updateDrag(e,t){if(!this.dragging||!this.activeHandle)return null;let n=this._angleFromRay(e);if(n===null)return null;let r=n-this._dragLastAngle;r>Math.PI?r-=Math.PI*2:r<-Math.PI&&(r+=Math.PI*2),this._dragAccumAngle+=r,this._dragLastAngle=n;let i=Ka(this._dragAxisN,this._dragAccumAngle*this._dragSign),a=Za(this._parentWorldQuatInv,i,this._dragStartWorldQuat);return{euler:new ut().setFromQuaternion(a)}}_angleFromRay(e){let t=$a(e,this._dragCenter,this._dragViewNormal);if(!t)return null;let n=t.sub(this._dragCenter);return Math.atan2(n.dot(this._dragV),n.dot(this._dragU))}},fo=.02,po=.1,mo=.001,ho=1e-4,R=[`x`,`y`,`z`],go=[`xy`,`yz`,`xz`],_o=class extends so{_centerRoot;_dragStartPos;_dragAxisDir;_dragStartAmount;_dragPlaneNormal;_dragStartScale;constructor(e,t){super(e,t,`__gizmo_scale`),this._dragStartPos=new A,this._dragAxisDir=new A(1,0,0),this._dragStartAmount=1,this._dragPlaneNormal=new A(0,0,1),this._dragStartScale=new A(1,1,1);for(let e of R)this._addAxisHandle(e);for(let e of go)this._addPlaneHandle(e);this._centerRoot=this._addCenterHandle()}_addAxisHandle(e){let t=this._createEntity(`__gizmo_axis_`+e),n=this._registerHandle(e,t,eo[e]),r=.6,i=this._addVisual(t,new Rt({radiusTop:fo,radiusBottom:fo,height:r,radSegments:8,heightSegments:1,caps:!1}),n);i.position.set(0,.55,0);let a=this._addVisual(t,new Lt({width:po,height:po,depth:po}),n);a.position.set(0,.9,0),this._addHit(t,new Rt({radiusTop:.07,radiusBottom:.07,height:r,radSegments:6,heightSegments:1,caps:!0})).position.copy(i.position),this._addHit(t,new Lt({width:po*2,height:po*2,depth:po*2})).position.copy(a.position),e===`x`?t.euler.set(0,0,-Math.PI/2):e===`z`&&t.euler.set(Math.PI/2,0,0)}_rootQuaternion(e,t){return Ja(e)}_onTargetUpdated(){this._centerRoot.quaternion.copy(this._billboardQuat())}_onStartDrag(e,t,n){if(this._dragStartPos.copy(this.entity.position),this._dragStartScale.set(n.scale.x,n.scale.y,n.scale.z),e===`x`||e===`y`||e===`z`){this._dragAxisDir=Xa(n,e,`local`);let r=Qa(t,this._dragStartPos,this._dragAxisDir);this._dragStartAmount=Math.abs(r)<ho?ho:r;return}this._dragPlaneNormal=e===`center`?t.origin.clone().sub(this._dragStartPos).normalize():Xa(n,to[e],`local`);let r=$a(t,this._dragStartPos,this._dragPlaneNormal),i=r?r.sub(this._dragStartPos).length():0;this._dragStartAmount=Math.max(ho,i)}updateDrag(e,t){if(!this.dragging||!this.activeHandle)return null;let n=this.activeHandle,r;if(n===`x`||n===`y`||n===`z`)r=Qa(e,this._dragStartPos,this._dragAxisDir)/this._dragStartAmount;else{let t=$a(e,this._dragStartPos,this._dragPlaneNormal);if(!t)return null;r=t.sub(this._dragStartPos).length()/this._dragStartAmount}Math.abs(r)<mo&&(r=r<0?-.001:mo);let i={x:!1,y:!1,z:!1};if(n===`center`)i.x=i.y=i.z=!0;else if(n===`x`||n===`y`||n===`z`)i[n]=!0;else for(let e of no[n])i[e]=!0;return{scale:new A(this._dragStartScale.x*(i.x?r:1),this._dragStartScale.y*(i.y?r:1),this._dragStartScale.z*(i.z?r:1))}}},vo=.02,yo=.22,bo=.06,xo=[`x`,`y`,`z`],So=[`xy`,`yz`,`xz`],Co=class extends so{_centerRoot;_dragStartPos;_dragAxisDir;_dragStartProjection;_dragPlaneNormal;_dragPlaneStart;constructor(e,t){super(e,t,`__gizmo_translate`),this._dragStartPos=new A,this._dragAxisDir=new A(1,0,0),this._dragStartProjection=0,this._dragPlaneNormal=new A(0,0,1),this._dragPlaneStart=null;for(let e of xo)this._addArrowHandle(e);for(let e of So)this._addPlaneHandle(e);this._centerRoot=this._addCenterHandle()}_addArrowHandle(e){let t=this._createEntity(`__gizmo_axis_`+e),n=this._registerHandle(e,t,eo[e]),r=.6,i=this._addVisual(t,new Rt({radiusTop:vo,radiusBottom:vo,height:r,radSegments:8,heightSegments:1,caps:!1}),n);i.position.set(0,.55,0);let a=this._addVisual(t,new Rt({radiusTop:.001,radiusBottom:bo,height:yo,radSegments:8,heightSegments:1,caps:!0}),n);a.position.set(0,.96,0),this._addHit(t,new Rt({radiusTop:.07,radiusBottom:.07,height:r,radSegments:6,heightSegments:1,caps:!0})).position.copy(i.position),this._addHit(t,new Rt({radiusTop:.001,radiusBottom:.11,height:yo*1.5,radSegments:6,heightSegments:1,caps:!0})).position.copy(a.position),e===`x`?t.euler.set(0,0,-Math.PI/2):e===`z`&&t.euler.set(Math.PI/2,0,0)}_onTargetUpdated(){this._centerRoot.quaternion.copy(this._billboardQuat())}_onStartDrag(e,t,n){if(this._dragStartPos.copy(this.entity.position),this._dragPlaneStart=null,e===`x`||e===`y`||e===`z`){this._dragAxisDir=Xa(n,e,this._orientation),this._dragStartProjection=Qa(t,this._dragStartPos,this._dragAxisDir);return}this._dragPlaneNormal=e===`center`?t.origin.clone().sub(this._dragStartPos).normalize():Xa(n,to[e],this._orientation),this._dragPlaneStart=$a(t,this._dragStartPos,this._dragPlaneNormal)}updateDrag(e,t){if(!this.dragging||!this.activeHandle)return null;let n=this.activeHandle;if(n===`x`||n===`y`||n===`z`){let t=Qa(e,this._dragStartPos,this._dragAxisDir)-this._dragStartProjection;return{position:this._dragStartPos.clone().add(this._dragAxisDir.clone().multiply(t))}}if(!this._dragPlaneStart)return null;let r=$a(e,this._dragStartPos,this._dragPlaneNormal);return r?{position:this._dragStartPos.clone().add(r.sub(this._dragPlaneStart))}:null}},wo=class{_draw;_translateGizmo;_rotateGizmo;_scaleGizmo;_activeGizmo;_mode;_orientation;_showGizmo;constructor(e,t){this._draw=t,this._translateGizmo=new Co(e,t),this._rotateGizmo=new uo(e,t),this._scaleGizmo=new _o(e,t),this._mode=`select`,this._orientation=`global`,this._activeGizmo=null,this._showGizmo=!0}get showGizmo(){return this._showGizmo}set showGizmo(e){this._showGizmo=e}get activeGizmo(){return this._activeGizmo}get mode(){return this._mode}setMode(e){this._mode=e,this._activeGizmo&&this._activeGizmo.setHover(null),this._activeGizmo=e===`translate`?this._translateGizmo:e===`rotate`?this._rotateGizmo:e===`scale`?this._scaleGizmo:null}get orientation(){return this._orientation}setOrientation(e){this._orientation=e}render(e,t,n,r){if(this._translateGizmo.entity.visible=!1,this._rotateGizmo.entity.visible=!1,this._scaleGizmo.entity.visible=!1,!this._showGizmo||!this._activeGizmo||(this._activeGizmo.setTarget(t||null,n,this._orientation),!this._activeGizmo.entity.visible))return;this._activeGizmo.entity.updateMatrix(!0);let i=r.createEntityUpdateEvent();if(this._activeGizmo.entity.update(i),!n)return;let a=[];this._activeGizmo.entity.traverse(e=>{let t=e.getComponent(P);t&&t.material&&a.push(e)}),a.length>0&&this._draw.renderEntities({view:e,camera:n,entities:a,target:null})}},To=class extends N{constructor(){super(),this.update(50,1,.1,10)}update(e,t,n,r){let i=e*Math.PI/180,a=Math.tan(i/2)*n,o=a*t,s=Math.tan(i/2)*r,c=s*t,l=new Float32Array([-o,a,-n,o,a,-n,o,a,-n,o,-a,-n,o,-a,-n,-o,-a,-n,-o,-a,-n,-o,a,-n,-c,s,-r,c,s,-r,c,s,-r,c,-s,-r,c,-s,-r,-c,-s,-r,-c,-s,-r,-c,s,-r,-o,a,-n,-c,s,-r,o,a,-n,c,s,-r,o,-a,-n,c,-s,-r,-o,-a,-n,-c,-s,-r]);this.setAttribute(`position`,l,3),this.setAttribute(`normal`,new Float32Array(l.length).fill(0),3),this.requestUpdate()}},Eo=class extends N{constructor(){super(),this.update(50,1,.1,2)}update(e,t,n,r){let i=e*Math.PI/180,a=Math.tan(i/2)*n,o=a*t,s=Math.tan(i/2)*r,c=s*t,l=new Float32Array([-o,a,-n,o,a,-n,o,-a,-n,-o,-a,-n,-c,s,-r,c,s,-r,c,-s,-r,-c,-s,-r]),u=new Uint16Array([0,2,1,0,3,2,4,5,6,4,6,7,0,1,5,0,5,4,3,6,2,3,7,6,0,4,7,0,7,3,1,2,6,1,6,5]);this.setAttribute(`position`,l,3),this.setAttribute(`normal`,new Float32Array(l.length).fill(0),3),this.setAttribute(`index`,u,1),this.requestUpdate()}},Do=class extends N{constructor(e=.5){super();let t=[];for(let n=0;n<16;n++){let r=n/16*Math.PI*2,i=(n+1)/16*Math.PI*2;t.push(Math.cos(r)*e,Math.sin(r)*e,0,Math.cos(i)*e,Math.sin(i)*e,0)}let n=e*2;for(let r=0;r<4;r++){let i=r/4*Math.PI*2,a=Math.cos(i)*e*.5,o=Math.sin(i)*e*.5;t.push(a,o,0,a,o,-n)}let r=new Float32Array(t);this.setAttribute(`position`,r,3),this.setAttribute(`normal`,new Float32Array(r.length).fill(0),3)}},Oo=class extends N{constructor(e=.5){super();let t=e*2,n=[],r=[];n.push(0,0,0);for(let t=0;t<12;t++){let r=t/12*Math.PI*2;n.push(Math.cos(r)*e,Math.sin(r)*e,0)}for(let e=0;e<12;e++){let t=(e+1)%12;r.push(0,e+1,t+1)}n.push(0,0,-t);for(let r=0;r<12;r++){let i=r/12*Math.PI*2;n.push(Math.cos(i)*e,Math.sin(i)*e,-t)}for(let e=0;e<12;e++){let t=(e+1)%12;r.push(13,13+t+1,13+e+1)}for(let e=0;e<12;e++){let t=(e+1)%12,n=e+1,i=t+1,a=13+e+1,o=13+t+1;r.push(n,a,o),r.push(n,o,i)}this.setAttribute(`position`,new Float32Array(n),3),this.setAttribute(`normal`,new Float32Array(n.length).fill(0),3),this.setAttribute(`index`,new Uint16Array(r),1)}},ko=class extends N{constructor(e=.3){super();let t=e/2,n=new Float32Array([-t,0,0,t,0,0,0,-t,0,0,t,0,0,0,-t,0,0,t]);this.setAttribute(`position`,n,3),this.setAttribute(`normal`,new Float32Array(n.length).fill(0),3)}},Ao=class extends N{constructor(){super(),this.update(Math.PI/4,5)}update(e,t){let n=Math.tan(e/2)*t,r=[];for(let e=0;e<16;e++){let i=e/16*Math.PI*2,a=(e+1)/16*Math.PI*2;r.push(Math.cos(i)*n,Math.sin(i)*n,-t,Math.cos(a)*n,Math.sin(a)*n,-t)}for(let e=0;e<4;e++){let i=e/4*Math.PI*2;r.push(0,0,0,Math.cos(i)*n,Math.sin(i)*n,-t)}let i=new Float32Array(r);this.setAttribute(`position`,i,3),this.setAttribute(`normal`,new Float32Array(i.length).fill(0),3),this.requestUpdate()}},jo=class extends N{constructor(){super(),this.update(Math.PI/4,5)}update(e,t){let n=Math.tan(e/2)*t,r=[0,0,0];for(let e=0;e<12;e++){let i=e/12*Math.PI*2;r.push(Math.cos(i)*n,Math.sin(i)*n,-t)}let i=[];for(let e=0;e<12;e++){let t=(e+1)%12;i.push(0,e+1,t+1)}for(let e=1;e<11;e++)i.push(1,e+2,e+1);this.setAttribute(`position`,new Float32Array(r),3),this.setAttribute(`normal`,new Float32Array(r.length).fill(0),3),this.setAttribute(`index`,new Uint16Array(i),1),this.requestUpdate()}},Mo=class{entity;hitAreaEntity;type;targetEntityUUID;_geometry;_hitAreaGeometry;_matrixOffset;_baseColor;_colorUniform;constructor(e,t,n,r){this.type=n,this.targetEntityUUID=r,this.entity=e.createEntity({name:`__helper`}),this.entity.initiator=`god`;let i=this._getColor();this._baseColor=i,this._colorUniform=[...i];let a=t.materials.flat({color:this._colorUniform,lines:!0});this._geometry=this._createGeometry(),this.entity.addComponent(P,{geometry:this._geometry,material:a}),this._hitAreaGeometry=this._createHitAreaGeometry(),this.hitAreaEntity=e.createEntity({name:`__helper_hit`}),this.hitAreaEntity.initiator=`god`,this._hitAreaGeometry&&this.hitAreaEntity.addComponent(P,{geometry:this._hitAreaGeometry}),this._matrixOffset=n===`spotLight`||n===`directionalLight`?new dt().setFromEuler({x:-Math.PI/2,y:0,z:0}):null}_getColor(){switch(this.type){case`empty`:return[.8,.5,.2];case`camera`:return[.6,.8,1];case`spotLight`:return[1,.9,.4];case`directionalLight`:return[1,.9,.4]}}_createGeometry(){switch(this.type){case`empty`:return new ko;case`camera`:return new To;case`spotLight`:return new Ao;case`directionalLight`:return new Do}}_createHitAreaGeometry(){switch(this.type){case`empty`:return null;case`camera`:return new Eo;case`spotLight`:return new jo;case`directionalLight`:return new Oo}}getWorldSegments(){let e=this._geometry.getAttribute(`position`);if(!e)return[];let t=e.array,n=[];for(let e=0;e+5<t.length;e+=6)n.push({a:new A(t[e+0],t[e+1],t[e+2]).applyMatrix4AsPosition(this.entity.matrixWorld),b:new A(t[e+3],t[e+4],t[e+5]).applyMatrix4AsPosition(this.entity.matrixWorld)});return n}setSelected(e){let t=e?[1,.6,0]:this._baseColor;this._colorUniform[0]=t[0],this._colorUniform[1]=t[1],this._colorUniform[2]=t[2]}syncTransform(e){if(this.entity.matrixWorld.copy(e.matrixWorld),this.hitAreaEntity.matrixWorld.copy(e.matrixWorld),this._matrixOffset&&(this.entity.matrixWorld.applyQuaternion(this._matrixOffset),this.hitAreaEntity.matrixWorld.applyQuaternion(this._matrixOffset)),this.type===`camera`){let t=e.getComponentsByTag(`camera`)[0];t&&(this._geometry instanceof To&&this._geometry.update(t.fov,t.aspect,.1,2),this._hitAreaGeometry instanceof Eo&&this._hitAreaGeometry.update(t.fov,t.aspect,.1,2))}else if(this.type===`spotLight`){let t=e.getComponent(Ut);if(t){let e=Math.min(t.distance,10);this._geometry instanceof Ao&&this._geometry.update(t.angle,e),this._hitAreaGeometry instanceof jo&&this._hitAreaGeometry.update(t.angle,e)}}}},No=class{_engine;_draw;_showHelpers;_showEmptyHelpers;_showCameraHelpers;_showLightHelpers;_helpers;constructor(e,t){this._engine=e,this._draw=t,this._showHelpers=!0,this._showEmptyHelpers=!0,this._showCameraHelpers=!0,this._showLightHelpers=!0,this._helpers=new Map}get showHelpers(){return this._showHelpers}set showHelpers(e){this._showHelpers=e}get showEmptyHelpers(){return this._showEmptyHelpers}set showEmptyHelpers(e){this._showEmptyHelpers=e}get showCameraHelpers(){return this._showCameraHelpers}set showCameraHelpers(e){this._showCameraHelpers=e}get showLightHelpers(){return this._showLightHelpers}set showLightHelpers(e){this._showLightHelpers=e}render(e,t,n,r){if(!this._showHelpers||!t)return;let i=new Set,a=[];n.root.traverse(e=>{if(e.initiator===`god`||!e.visible||e===t)return;let o=this._getHelperType(e);if(!o||!this._isHelperTypeEnabled(o))return;i.add(e.uuid);let s=this._helpers.get(e.uuid);s||(s=new Mo(this._engine,this._draw,o,e.uuid),this._helpers.set(e.uuid,s));let c=n.createEntityUpdateEvent();s.entity.update(c),s.hitAreaEntity.update(c),s.setSelected(e.uuid===r),s.syncTransform(e),s.entity.traverse(e=>{e.getComponent(P)&&a.push(e)})}),this._helpers.forEach((e,t)=>{i.has(t)||this._helpers.delete(t)}),a.length>0&&this._draw.renderEntities({view:e,camera:t,entities:a,target:null})}getHelpers(){return Array.from(this._helpers.values())}_getHelperType(e){let t=e.getComponent(Ut);return t?t.lightType===`spot`?`spotLight`:`directionalLight`:e.getComponentsByTag(`camera`)[0]?`camera`:e.getComponent(P)?null:`empty`}_isHelperTypeEnabled(e){switch(e){case`empty`:return this._showEmptyHelpers;case`camera`:return this._showCameraHelpers;case`spotLight`:case`directionalLight`:return this._showLightHelpers}}},Po=()=>{let e=document.activeElement;return e?e.tagName===`INPUT`||e.tagName===`TEXTAREA`||e.isContentEditable:!1},Fo=class{_keyboard;constructor(e){this._keyboard=new Tr,this._keyboard.on(`keydown`,(t,n)=>{if(t.isComposing)return;let r=n.Meta||n.Control;r&&n.s&&(t.preventDefault(),e.onSave()),!Po()&&(e.onTransformKey(t)||(r&&n.z&&(t.preventDefault(),n.Shift?e.onRedo():e.onUndo()),t.key==` `&&!r&&e.onPlayToggle(),(t.code===`Numpad0`||t.key===`0`)&&!r&&e.onCameraViewToggle(),t.key===`9`&&!r&&e.onPreviewToggle(),t.key===`Escape`&&!r&&e.onSyncToSceneCamera(),(t.code===`NumpadDecimal`||t.key===`.`)&&!r&&e.onFocusSelected()))})}dispose(){this._keyboard.dispose()}},Io=e=>{let t=e.getBoundingClientRect(),n=e.width/e.height,r=t.width/t.height,i=t.width,a=t.height,o=0,s=0;return r>n?(i=t.height*n,o=(t.width-i)/2):(a=t.width/n,s=(t.height-a)/2),{left:t.left+o,top:t.top+s,width:i,height:a}},Lo=(e,t,n)=>{let r=Io(e);return new A((t-r.left)/r.width*2-1,-((n-r.top)/r.height)*2+1)},Ro=(e,t,n)=>{let r=Io(e);return new A((t+1)/2*r.width+r.left,(1-n)/2*r.height+r.top)},zo=1,Bo=.001,Vo=.007,Ho=.1,Uo={translate:`position`,rotate:`euler`,scale:`scale`},Wo=[`x`,`y`,`z`],Go=class{_engine;_getViewport;_api;_getSelectedEntity;_isPointerBusy;_onStatusChange;_pointerClient;_session;_disposeListeners;constructor(e){this._engine=e.engine,this._getViewport=e.getViewport,this._api=e.api,this._getSelectedEntity=e.getSelectedEntity,this._isPointerBusy=e.isPointerBusy,this._onStatusChange=e.onStatusChange,this._pointerClient=new A,this._session=null;let t=e=>{this._pointerClient.set(e.clientX,e.clientY)};window.addEventListener(`pointermove`,t),this._disposeListeners=()=>{window.removeEventListener(`pointermove`,t)}}get active(){return this._session!==null}get constraintDisplay(){let e=this._session;if(!e||e.trackball||!e.constraint)return null;let t=e.constraint,n=e.mode===`scale`||t.orientation===`local`;return{origin:e.anchorWorldPos,quat:n?e.startWorldQuat:new dt,axes:t.plane?Wo.filter(e=>e!==t.axis):[t.axis]}}handleKeyDown(e){let t=this._session;if(!t){if(e.metaKey||e.ctrlKey||e.altKey||e.shiftKey)return!1;let t=e.key.toLowerCase(),n=t===`g`?`translate`:t===`r`?`rotate`:t===`s`?`scale`:null;return n?this._start(n):!1}let n=e.key.toLowerCase();return e.key===`Enter`?this._confirm():e.key===`Escape`?this._cancel():n===`r`&&t.mode===`rotate`?this._toggleTrackball():t.trackball||(n===`x`||n===`y`||n===`z`?this._toggleConstraint(n,e.shiftKey):this._inputNumber(e.key)),!0}_inputNumber(e){let t=this._session;if(t){if(e.length===1&&e>=`0`&&e<=`9`)t.numberBuffer+=e;else if(e===`.`){if(t.numberBuffer.includes(`.`))return;t.numberBuffer+=`.`}else if(e===`-`)t.numberBuffer=t.numberBuffer.startsWith(`-`)?t.numberBuffer.slice(1):`-`+t.numberBuffer;else if(e===`Backspace`){if(t.numberBuffer===``)return;t.numberBuffer=t.numberBuffer.slice(0,-1)}else return;this._update()}}_start(e){if(this._isPointerBusy())return!1;let t=this._getViewport();if(!t)return!1;let n=t.editorCamera,r=n.getCameraEntity(this._engine);if(!r)return!1;let i=this._getSelectedEntity(),a=n.view===`camera`&&(!i||i===r);if(a&&e===`scale`)return!1;let o=a?r:i;if(!o)return!1;let s=r.getComponentsByTag(`camera`)[0];if(!s)return!1;let c=r.matrixWorld.elm,l=new A(c[12],c[13],c[14]),u=new A(-c[8],-c[9],-c[10]).normalize(),d=new A(c[0],c[1],c[2]).normalize(),f=new A(c[4],c[5],c[6]).normalize(),p=o.matrixWorld.elm,m=new A(p[12],p[13],p[14]),h=a?m.clone().add(u.clone().multiply(Math.max(s.dofParams.focusDistance,Ho))):m.clone(),g=e=>{e.stopPropagation(),this._session&&(this._session.lastPointer.set(e.clientX,e.clientY),this._update())},_=e=>{e.preventDefault(),e.stopPropagation(),e.button===2?this._cancel():e.button===0&&this._confirm()};window.addEventListener(`pointermove`,g,{capture:!0}),window.addEventListener(`pointerdown`,_,{capture:!0});let v=n.orbitControls,y=v.enabled;return v.enabled=!1,this._session={mode:e,entity:o,canvas:t.canvas,selfView:a,constraint:null,numberBuffer:``,trackball:!1,trackballQuat:new dt,trackballPointer:this._pointerClient.clone(),startValue:{position:o.position.getElm(`vec3`),euler:o.euler.getElm(`vec3`),scale:o.scale.getElm(`vec3`)},startWorldPos:m,startWorldQuat:Ja(o),parentWorldInv:o.parent?o.parent.matrixWorld.clone().inverse():new j,parentWorldQuatInv:o.parent?Ja(o.parent).inverse():new dt,camForward:u,camRight:d,camUp:f,camWorldPos:l,anchorWorldPos:h,projInv:s.projectionMatrix.clone().inverse(),viewInv:s.viewMatrix.clone().inverse(),centerClient:this._projectToClient(m,s,t.canvas),startPointer:this._pointerClient.clone(),lastPointer:this._pointerClient.clone(),disposeSession:()=>{window.removeEventListener(`pointermove`,g,{capture:!0}),window.removeEventListener(`pointerdown`,_,{capture:!0}),v.enabled=y,this._session&&this._pointerClient.copy(this._session.lastPointer),this._session=null,this._onStatusChange(null)}},this._update(),!0}_confirm(){let e=this._session;if(!e)return;let t=Uo[e.mode],n=e.entity[t].getElm(`vec3`);this._api.commandManager.execute(new Wa(e.entity,t,e.startValue[t],n)),e.disposeSession()}_cancel(){let e=this._session;e&&(this._restoreStart(e),e.entity.updateMatrix(!0),e.disposeSession())}_restoreStart(e){e.entity.position.setFromArray(e.startValue.position),e.entity.euler.setFromArray(e.startValue.euler),e.entity.scale.setFromArray(e.startValue.scale)}_toggleConstraint(e,t){let n=this._session;if(!n||t&&n.mode===`rotate`)return;let r=n.constraint;n.constraint=!r||r.axis!==e||r.plane!==t?{axis:e,orientation:`global`,plane:t}:r.orientation===`global`?{axis:e,orientation:`local`,plane:t}:null,this._update()}_axisWorldDir(e,t,n){let r=new A(+(t===`x`),+(t===`y`),+(t===`z`));return n===`global`?r:Ya(r,e.startWorldQuat).normalize()}_toggleTrackball(){let e=this._session;e&&(e.trackball=!e.trackball,e.constraint=null,e.numberBuffer=``,e.trackballQuat=new dt,e.trackballPointer.copy(e.lastPointer),this._update())}_accumulateTrackball(e){let t=e.lastPointer.x-e.trackballPointer.x,n=e.lastPointer.y-e.trackballPointer.y;if(e.trackballPointer.copy(e.lastPointer),t===0&&n===0)return;let r=Ka(e.camUp,t*Vo).multiply(Ka(e.camRight,n*Vo));e.trackballQuat.preMultiply(r)}_update(){let e=this._session;if(!e)return;let t=e.numberBuffer===``?null:parseFloat(e.numberBuffer),n=0;t!==null&&Number.isNaN(t)?this._restoreStart(e):n=e.mode===`translate`?this._applyTranslate(e,t):e.mode===`rotate`?this._applyRotate(e,t):this._applyScale(e,t),e.entity.updateMatrix(!0),this._onStatusChange(this._statusText(e,n))}_applyTranslate(e,t){let n=e.constraint;if(t!==null){let n=this._numericTranslateDir(e);return this._setWorldPosition(e,e.startWorldPos.clone().add(n.multiply(t))),t}let r=this._rayFromClient(e.startPointer,e),i=this._rayFromClient(e.lastPointer,e);if(n&&!n.plane){let t=this._axisWorldDir(e,n.axis,n.orientation),a=Qa(i,e.anchorWorldPos,t)-Qa(r,e.anchorWorldPos,t);return this._setWorldPosition(e,e.startWorldPos.clone().add(t.clone().multiply(a))),a}let a=n?this._axisWorldDir(e,n.axis,n.orientation):e.camForward,o=$a(r,e.anchorWorldPos,a),s=$a(i,e.anchorWorldPos,a);if(!o||!s)return 0;let c=s.sub(o);return this._setWorldPosition(e,e.startWorldPos.clone().add(c)),c.length()}_numericTranslateDir(e){let t=e.constraint;if(!t)return new A(1,0,0);let n=t.plane?t.axis===`x`?`y`:`x`:t.axis;return this._axisWorldDir(e,n,t.orientation)}_applyRotate(e,t){if(e.trackball)return this._accumulateTrackball(e),this._setWorldRotation(e,e.trackballQuat.clone()),0;let n=e.constraint?this._axisWorldDir(e,e.constraint.axis,e.constraint.orientation):e.camForward,r=e.selfView?e.camForward.clone().multiply(-1):e.camWorldPos.clone().sub(e.startWorldPos),i=t!==null&&e.constraint?1:n.dot(r)<0?-1:1,a=t===null?this._screenAngle(e.lastPointer,e.centerClient)-this._screenAngle(e.startPointer,e.centerClient):t*Math.PI/180;return this._setWorldRotation(e,Ka(n,a*i)),a*180/Math.PI}_applyScale(e,t){let n;if(t!==null)n=t;else{let t=Math.max(zo,e.startPointer.distanceTo(e.centerClient));n=Math.max(Bo,e.lastPointer.distanceTo(e.centerClient)/t)}let r=e.startValue.scale,i=e.constraint,a=Wo.map(e=>i?(i.plane?e!==i.axis:e===i.axis)?n:1:n);return e.entity.scale.set(r[0]*a[0],r[1]*a[1],r[2]*a[2]),n}_setWorldPosition(e,t){let n=t.applyMatrix4AsPosition(e.parentWorldInv);e.entity.position.set(n.x,n.y,n.z)}_setWorldRotation(e,t){e.entity.quaternion.copy(Za(e.parentWorldQuatInv,t,e.startWorldQuat))}_statusText(e,t){if(e.trackball)return`Rot: trackball`;let n=e.mode===`translate`?`Move D`:e.mode===`rotate`?`Rot`:`Scale`,r=e.mode===`rotate`?`°`:``;return`${n}: ${e.numberBuffer===``?t.toFixed(e.mode===`rotate`?1:3):`[${e.numberBuffer}]`}${r} (${this._constraintText(e)})`}_constraintText(e){let t=e.constraint;if(!t)return e.mode===`translate`?`view plane`:e.mode===`rotate`?`view axis`:`uniform`;let n=Wo.filter(e=>t.plane?e!==t.axis:e===t.axis).join(``).toUpperCase();return`${e.mode===`scale`?`local`:t.orientation} ${n}`}_rayFromClient(e,t){let n=Lo(t.canvas,e.x,e.y);return new Xt().setFromCamera(n,t.projInv,t.viewInv)}_projectToClient(e,t,n){let r=new A(e.x,e.y,e.z,1).applyMatrix4(t.viewMatrix).applyMatrix4(t.projectionMatrix);return Math.abs(r.w)<1e-4?Ro(n,0,0):Ro(n,r.x/r.w,r.y/r.w)}_screenAngle(e,t){return Math.atan2(-(e.y-t.y),e.x-t.x)}dispose(){this._cancel(),this._disposeListeners()}},Ko={x:[1,.2,.2],y:[.2,1,.2],z:[.4,.4,1]},qo=1e3,Jo=class{_draw;_root;_axisEntities;constructor(e,t){this._draw=t,this._root=e.createEntity({name:`__constraint_axis`}),this._root.initiator=`god`,this._axisEntities={x:this._createAxisLine(e,`x`),y:this._createAxisLine(e,`y`),z:this._createAxisLine(e,`z`)},this._root.add(this._axisEntities.x),this._root.add(this._axisEntities.y),this._root.add(this._axisEntities.z)}_createAxisLine(e,t){let n=e.createEntity({name:`__constraint_axis_line`});n.initiator=`god`;let r=t===`x`?[-1,0,0,1,0,0]:t===`y`?[0,-1,0,0,1,0]:[0,0,-1,0,0,1],i=new N;return i.setAttribute(`position`,new Float32Array(r),3),i.setAttribute(`normal`,new Float32Array(r.length).fill(0),3),n.addComponent(P,{geometry:i,material:this._draw.materials.flat({color:Ko[t],lines:!0,depthTest:!1,depthWrite:!1})}),n}render(e,t,n,r){if(!t||!n)return;let i=n.matrixWorld.elm,a=t.origin.x-i[12],o=t.origin.y-i[13],s=t.origin.z-i[14],c=Math.max(1,Math.sqrt(a*a+o*o+s*s))*qo;this._root.position.copy(t.origin),this._root.quaternion.copy(t.quat),this._root.scale.set(c,c,c),this._root.updateMatrix(!0),this._root.update(r.createEntityUpdateEvent()),this._draw.renderEntities({view:e,camera:n,entities:t.axes.map(e=>this._axisEntities[e]),target:null})}},Yo=class{_draw;_entity;_color;_params;_showGrid;constructor(e,t){this._draw=t,this._showGrid=!0,this._color=[.35,.35,.35],this._params=[1,1,100],this._entity=e.createEntity({name:`__grid`}),this._entity.initiator=`god`,this._entity.addComponent(P,{geometry:new zt({floor:!0}),material:t.materials.grid({color:this._color,params:this._params})})}get showGrid(){return this._showGrid}set showGrid(e){this._showGrid=e}render(e,t,n){if(!this._showGrid||!t)return;let r=t.matrixWorld.elm,i=Math.max(Math.abs(r[13]),.5),a=Math.max(0,Math.floor(Math.log10(i)));this._params[0]=10**a,this._params[1]=1-Math.max(0,Math.log10(i)-a),this._params[2]=Math.max(50,i*30),this._entity.position.set(r[12],0,r[14]),this._entity.scale.set(this._params[2]*2,1,this._params[2]*2),this._entity.update(n.createEntityUpdateEvent()),this._draw.renderEntities({view:e,camera:t,entities:[this._entity],target:null})}},Xo=[1,.6,0],Zo=class{_draw;_maskTarget;_maskMaterial;_outline;_showOutline;constructor(e){this._draw=e,this._maskTarget=e.createTarget(),this._maskMaterial=e.materials.mask(),this._outline=e.recipes.outline(this._maskTarget,Xo),this._showOutline=!0}get showOutline(){return this._showOutline}set showOutline(e){this._showOutline=e}render(e,t,n){this._showOutline&&(!t||!n||t.getComponent(P)&&(this._draw.renderEntities({view:e,camera:n,entities:[t],target:this._maskTarget,useSceneDepth:!0,materialOverride:this._maskMaterial,depthCompare:`lequal`}),this._draw.renderFullscreen(e,this._outline,null)))}},Qo=class{_draw;_showWireframe;_wireframeMaterial;_wireframeGeometryCache;constructor(e){this._draw=e,this._showWireframe=!1,this._wireframeGeometryCache=new Map,this._wireframeMaterial=e.materials.flat({color:[.3,.8,.3],lines:!0,depthWrite:!1})}get showWireframe(){return this._showWireframe}set showWireframe(e){this._showWireframe=e}render(e,t,n){if(!this._showWireframe||!t)return;let r=this._collectMeshEntities(n.root),i=new Map;for(let e of r){let t=e.getComponent(P);if(!t)continue;i.set(e,t.geometry);let n=this._wireframeGeometryCache.get(t.geometry);n||(n=this._createWireframeGeometry(t.geometry),this._wireframeGeometryCache.set(t.geometry,n)),t.geometry=n}this._draw.renderEntities({view:e,camera:t,entities:r,target:null,materialOverride:this._wireframeMaterial});for(let e of r){let t=e.getComponent(P);if(!t)continue;let n=i.get(e);n&&(t.geometry=n)}}_collectMeshEntities(e){let t=[],n=(e,r)=>{let i=r&&e.visible;i&&e.getComponent(P)&&t.push(e);for(let t=0;t<e.children.length;t++)n(e.children[t],i)};return n(e,!0),t}_createWireframeGeometry(e){let t=new N,n=e.getAttribute(`position`),r=e.getAttribute(`index`);if(!n)return t;t.setAttribute(`position`,n.array,3);let i=e.getAttribute(`normal`);if(i&&t.setAttribute(`normal`,i.array,3),r){let e=r.array,n=new Set,i=[];for(let t=0;t<e.length;t+=3){let r=e[t],a=e[t+1],o=e[t+2],s=[[Math.min(r,a),Math.max(r,a)],[Math.min(a,o),Math.max(a,o)],[Math.min(o,r),Math.max(o,r)]];for(let[e,t]of s){let r=`${e}_${t}`;n.has(r)||(n.add(r),i.push(e,t))}}t.setAttribute(`index`,new Uint16Array(i),1)}return t}};function z(e){if(!e)throw Error(`Assertion failed.`)}var $o=e=>{let t=(e%360+360)%360;if(t===0||t===90||t===180||t===270)return t;throw Error(`Invalid rotation ${e}.`)},es=e=>e&&e[e.length-1],ts=e=>e>=0&&e<2**32,B=e=>{let t=0;for(;e.readBits(1)===0&&t<32;)t++;if(t>=32)throw Error(`Invalid exponential-Golomb code.`);return(1<<t)-1+e.readBits(t)},ns=e=>{let t=B(e);return t&1?t+1>>1:-(t>>1)},rs=e=>e.constructor===Uint8Array?e:ArrayBuffer.isView(e)?new Uint8Array(e.buffer,e.byteOffset,e.byteLength):new Uint8Array(e),is=e=>e.constructor===DataView?e:ArrayBuffer.isView(e)?new DataView(e.buffer,e.byteOffset,e.byteLength):new DataView(e),as=new TextEncoder,os={bt709:1,bt470bg:5,smpte170m:6,bt2020:9,smpte432:12},ss={bt709:1,smpte170m:6,linear:8,"iec61966-2-1":13,pq:16,hlg:18},cs={rgb:0,bt709:1,bt470bg:5,smpte170m:6,"bt2020-ncl":9},ls=e=>!!e&&!!e.primaries&&!!e.transfer&&!!e.matrix&&e.fullRange!==void 0,us=e=>e instanceof ArrayBuffer||typeof SharedArrayBuffer<`u`&&e instanceof SharedArrayBuffer||ArrayBuffer.isView(e),ds=class{constructor(){this.currentPromise=Promise.resolve(),this.pending=0}async acquire(){let e,t=new Promise(t=>{let n=!1;e=()=>{n||=(t(),this.pending--,!0)}}),n=this.currentPromise;return this.currentPromise=t,this.pending++,await n,e}},fs=(e,t,n)=>{let r=0,i=e.length-1,a=-1;for(;r<=i;){let o=r+(i-r+1)/2|0;n(e[o])<=t?(a=o,r=o+1):i=o-1}return a},ps=()=>{let e,t;return{promise:new Promise((n,r)=>{e=n,t=r}),resolve:e,reject:t}},ms=e=>{throw Error(`Unexpected value: ${e}`)},hs=(e,t,n)=>{let r=e.getUint8(t),i=e.getUint8(t+1),a=e.getUint8(t+2);return n?r|i<<8|a<<16:r<<16|i<<8|a},gs=(e,t,n,r)=>{n>>>=0,n&=16777215,r?(e.setUint8(t,n&255),e.setUint8(t+1,n>>>8&255),e.setUint8(t+2,n>>>16&255)):(e.setUint8(t,n>>>16&255),e.setUint8(t+1,n>>>8&255),e.setUint8(t+2,n&255))},_s=(e,t,n)=>Math.max(t,Math.min(n,e)),vs=(e,t,n)=>e+(t-e)*n,ys=(e,t)=>Math.round(e/t)*t,bs=(e,t)=>Math.floor(e*t)/t,xs=/^[a-z]{3}$/,Ss=e=>xs.test(e),Cs=1e6*(1+2**-52),ws=(e,t)=>{let n=e<0?-1:1;e=Math.abs(e);let r=0,i=1,a=1,o=0,s=e;for(;;){let e=Math.floor(s),c=e*a+r,l=e*o+i;if(l>t)return{num:n*a,den:o};if(r=a,i=o,a=c,o=l,s=1/(s-e),!isFinite(s))break}return{num:n*a,den:o}},Ts=class{constructor(){this.currentPromise=Promise.resolve()}call(e){return this.currentPromise=this.currentPromise.then(e)}},Es=null,Ds=()=>Es===null?Es=typeof navigator<`u`&&navigator.userAgent?.includes(`Firefox`):Es,Os=null,ks=()=>Os===null?Os=!!(typeof navigator<`u`&&(navigator.vendor?.includes(`Google Inc`)||/Chrome/.test(navigator.userAgent))):Os,As=null,js=()=>{if(As!==null)return As;if(typeof navigator>`u`)return null;let e=/\bChrome\/(\d+)/.exec(navigator.userAgent);return e?As=Number(e[1]):null},Ms=function*(e){for(let t in e){let n=e[t];n!==void 0&&(yield{key:t,value:n})}},Ns=()=>{Symbol.dispose??=Symbol(`Symbol.dispose`)},Ps=(e,t)=>{let n=-1,r=1/0;for(let i=0;i<e.length;i++){let a=t(e[i]);a<r&&(r=a,n=i)}return n},Fs=e=>{z(Number.isInteger(e.num)),z(Number.isInteger(e.den)),z(e.den!==0);let t=Math.abs(e.num),n=Math.abs(e.den);for(;n!==0;){let e=t%n;t=n,n=e}let r=t||1;return{num:e.num/r,den:e.den/r}},Is=(e,t)=>{if(typeof e!=`object`||!e)throw TypeError(`${t} must be an object.`);if(!Number.isInteger(e.left)||e.left<0)throw TypeError(`${t}.left must be a non-negative integer.`);if(!Number.isInteger(e.top)||e.top<0)throw TypeError(`${t}.top must be a non-negative integer.`);if(!Number.isInteger(e.width)||e.width<0)throw TypeError(`${t}.width must be a non-negative integer.`);if(!Number.isInteger(e.height)||e.height<0)throw TypeError(`${t}.height must be a non-negative integer.`)},Ls=e=>new Promise(t=>setTimeout(t,e)),Rs=e=>Array.isArray(e)?e:[e],zs=class{constructor(){this._listeners=new Map}on(e,t,n){this._listeners.has(e)||this._listeners.set(e,new Set);let r={fn:t,once:n?.once??!1};return this._listeners.get(e).add(r),()=>{this._listeners.get(e)?.delete(r)}}_emit(...e){let[t,n]=e,r=this._listeners.get(t);if(r)for(let e of r){try{e.fn(n)}catch(e){console.error(e)}e.once&&r.delete(e)}}},Bs=e=>typeof e==`object`&&!!e&&Object.getPrototypeOf(e)===Object.prototype&&Object.values(e).every(e=>typeof e==`string`),Vs;(function(e){e[e.Silent=0]=`Silent`,e[e.Errors=1]=`Errors`,e[e.Warnings=2]=`Warnings`,e[e.Info=3]=`Info`})(Vs||={});var Hs=class e{constructor(){}static get level(){return e._level}static set level(t){if(t!==Vs.Silent&&t!==Vs.Errors&&t!==Vs.Warnings&&t!==Vs.Info)throw TypeError(`Invalid log level. Use one of the values of the LogLevel enum.`);e._level=t}static get _emitter(){return e._emitterInstance??=new zs}static on(t,n,r){return e._emitter.on(t,n,r)}static _error(...t){e._emitter._emit(`error`,t),e._level>=Vs.Errors&&console.error(...t)}static _warn(...t){e._emitter._emit(`warn`,t),e._level>=Vs.Warnings&&console.warn(...t)}static _info(...t){e._emitter._emit(`info`,t),e._level>=Vs.Info&&console.info(...t)}};Hs._level=Vs.Info,Hs._emitterInstance=null;var Us=class{constructor(e,t){if(this.data=e,this.mimeType=t,!(e instanceof Uint8Array))throw TypeError(`data must be a Uint8Array.`);if(typeof t!=`string`)throw TypeError(`mimeType must be a string.`)}},Ws=class{constructor(e,t,n,r){if(this.data=e,this.mimeType=t,this.name=n,this.description=r,!(e instanceof Uint8Array))throw TypeError(`data must be a Uint8Array.`);if(t!==void 0&&typeof t!=`string`)throw TypeError(`mimeType, when provided, must be a string.`);if(n!==void 0&&typeof n!=`string`)throw TypeError(`name, when provided, must be a string.`);if(r!==void 0&&typeof r!=`string`)throw TypeError(`description, when provided, must be a string.`)}},Gs=e=>{if(!e||typeof e!=`object`)throw TypeError(`tags must be an object.`);if(e.title!==void 0&&typeof e.title!=`string`)throw TypeError(`tags.title, when provided, must be a string.`);if(e.description!==void 0&&typeof e.description!=`string`)throw TypeError(`tags.description, when provided, must be a string.`);if(e.artist!==void 0&&typeof e.artist!=`string`)throw TypeError(`tags.artist, when provided, must be a string.`);if(e.album!==void 0&&typeof e.album!=`string`)throw TypeError(`tags.album, when provided, must be a string.`);if(e.albumArtist!==void 0&&typeof e.albumArtist!=`string`)throw TypeError(`tags.albumArtist, when provided, must be a string.`);if(e.trackNumber!==void 0&&(!Number.isInteger(e.trackNumber)||e.trackNumber<=0))throw TypeError(`tags.trackNumber, when provided, must be a positive integer.`);if(e.tracksTotal!==void 0&&(!Number.isInteger(e.tracksTotal)||e.tracksTotal<=0))throw TypeError(`tags.tracksTotal, when provided, must be a positive integer.`);if(e.discNumber!==void 0&&(!Number.isInteger(e.discNumber)||e.discNumber<=0))throw TypeError(`tags.discNumber, when provided, must be a positive integer.`);if(e.discsTotal!==void 0&&(!Number.isInteger(e.discsTotal)||e.discsTotal<=0))throw TypeError(`tags.discsTotal, when provided, must be a positive integer.`);if(e.genre!==void 0&&typeof e.genre!=`string`)throw TypeError(`tags.genre, when provided, must be a string.`);if(e.date!==void 0&&(!(e.date instanceof Date)||Number.isNaN(e.date.getTime())))throw TypeError(`tags.date, when provided, must be a valid Date.`);if(e.lyrics!==void 0&&typeof e.lyrics!=`string`)throw TypeError(`tags.lyrics, when provided, must be a string.`);if(e.images!==void 0){if(!Array.isArray(e.images))throw TypeError(`tags.images, when provided, must be an array.`);for(let t of e.images){if(!t||typeof t!=`object`)throw TypeError(`Each image in tags.images must be an object.`);if(!(t.data instanceof Uint8Array))throw TypeError(`Each image.data must be a Uint8Array.`);if(typeof t.mimeType!=`string`)throw TypeError(`Each image.mimeType must be a string.`);if(![`coverFront`,`coverBack`,`unknown`].includes(t.kind))throw TypeError(`Each image.kind must be 'coverFront', 'coverBack', or 'unknown'.`)}}if(e.comment!==void 0&&typeof e.comment!=`string`)throw TypeError(`tags.comment, when provided, must be a string.`);if(e.raw!==void 0){if(!e.raw||typeof e.raw!=`object`)throw TypeError(`tags.raw, when provided, must be an object.`);for(let t of Object.values(e.raw))if(t!==null&&typeof t!=`string`&&!(t instanceof Uint8Array)&&!(t instanceof Us)&&!(t instanceof Ws)&&!Bs(t))throw TypeError(`Each value in tags.raw must be a string, Uint8Array, RichImageData, AttachedFile, Record<string, string>, or null.`)}},Ks=e=>{if(!e||typeof e!=`object`)throw TypeError(`disposition must be an object.`);if(e.default!==void 0&&typeof e.default!=`boolean`)throw TypeError(`disposition.default must be a boolean.`);if(e.primary!==void 0&&typeof e.primary!=`boolean`)throw TypeError(`disposition.primary must be a boolean.`);if(e.forced!==void 0&&typeof e.forced!=`boolean`)throw TypeError(`disposition.forced must be a boolean.`);if(e.original!==void 0&&typeof e.original!=`boolean`)throw TypeError(`disposition.original must be a boolean.`);if(e.commentary!==void 0&&typeof e.commentary!=`boolean`)throw TypeError(`disposition.commentary must be a boolean.`);if(e.hearingImpaired!==void 0&&typeof e.hearingImpaired!=`boolean`)throw TypeError(`disposition.hearingImpaired must be a boolean.`);if(e.visuallyImpaired!==void 0&&typeof e.visuallyImpaired!=`boolean`)throw TypeError(`disposition.visuallyImpaired must be a boolean.`)},qs=class e{constructor(e){this.bytes=e,this.pos=0}seekToByte(e){this.pos=8*e}readBit(){let e=Math.floor(this.pos/8),t=this.bytes[e]??0,n=7-(this.pos&7),r=(t&1<<n)>>n;return this.pos++,r}readBits(e){if(e===1)return this.readBit();let t=0;for(let n=0;n<e;n++)t<<=1,t|=this.readBit();return t}writeBits(e,t){let n=this.pos+e;for(let e=this.pos;e<n;e++){let r=Math.floor(e/8),i=this.bytes[r],a=7-(e&7);i&=~(1<<a),i|=(t&1<<n-e-1)>>n-e-1<<a,this.bytes[r]=i}this.pos=n}readAlignedByte(){if(this.pos%8!=0)throw Error(`Bitstream is not byte-aligned.`);let e=this.pos/8,t=this.bytes[e]??0;return this.pos+=8,t}skipBits(e){this.pos+=e}getBitsLeft(){return this.bytes.length*8-this.pos}clone(){let t=new e(this.bytes);return t.pos=this.pos,t}},Js=[96e3,88200,64e3,48e3,44100,32e3,24e3,22050,16e3,12e3,11025,8e3,7350],Ys=[-1,1,2,3,4,5,6,8],Xs=e=>{let t=Js.indexOf(e.sampleRate),n=null;t===-1&&(t=15,n=e.sampleRate);let r=Ys.indexOf(e.numberOfChannels);if(r===-1)throw TypeError(`Unsupported number of channels: ${e.numberOfChannels}`);let i=13;e.objectType>=32&&(i+=6),t===15&&(i+=24);let a=Math.ceil(i/8),o=new Uint8Array(a),s=new qs(o);return e.objectType<32?s.writeBits(5,e.objectType):(s.writeBits(5,31),s.writeBits(6,e.objectType-32)),s.writeBits(4,t),t===15&&s.writeBits(24,n),s.writeBits(4,r),o},Zs=[`avc`,`hevc`,`vp9`,`av1`,`vp8`,`prores`],Qs=[`pcm-s16`,`pcm-s16be`,`pcm-s24`,`pcm-s24be`,`pcm-s32`,`pcm-s32be`,`pcm-f32`,`pcm-f32be`,`pcm-f64`,`pcm-f64be`,`pcm-u8`,`pcm-s8`,`ulaw`,`alaw`],$s=[`aac`,`opus`,`mp3`,`vorbis`,`flac`,`ac3`,`eac3`],ec=[...$s,...Qs],tc=[`webvtt`],nc=[{maxMacroblocks:99,maxBitrate:64e3,maxDpbMbs:396,level:10},{maxMacroblocks:396,maxBitrate:192e3,maxDpbMbs:900,level:11},{maxMacroblocks:396,maxBitrate:384e3,maxDpbMbs:2376,level:12},{maxMacroblocks:396,maxBitrate:768e3,maxDpbMbs:2376,level:13},{maxMacroblocks:396,maxBitrate:2e6,maxDpbMbs:2376,level:20},{maxMacroblocks:792,maxBitrate:4e6,maxDpbMbs:4752,level:21},{maxMacroblocks:1620,maxBitrate:4e6,maxDpbMbs:8100,level:22},{maxMacroblocks:1620,maxBitrate:1e7,maxDpbMbs:8100,level:30},{maxMacroblocks:3600,maxBitrate:14e6,maxDpbMbs:18e3,level:31},{maxMacroblocks:5120,maxBitrate:2e7,maxDpbMbs:20480,level:32},{maxMacroblocks:8192,maxBitrate:2e7,maxDpbMbs:32768,level:40},{maxMacroblocks:8192,maxBitrate:5e7,maxDpbMbs:32768,level:41},{maxMacroblocks:8704,maxBitrate:5e7,maxDpbMbs:34816,level:42},{maxMacroblocks:22080,maxBitrate:135e6,maxDpbMbs:110400,level:50},{maxMacroblocks:36864,maxBitrate:24e7,maxDpbMbs:184320,level:51},{maxMacroblocks:36864,maxBitrate:24e7,maxDpbMbs:184320,level:52},{maxMacroblocks:139264,maxBitrate:24e7,maxDpbMbs:696320,level:60},{maxMacroblocks:139264,maxBitrate:48e7,maxDpbMbs:696320,level:61},{maxMacroblocks:139264,maxBitrate:8e8,maxDpbMbs:696320,level:62}],rc=[{maxPictureSize:36864,maxBitrate:128e3,tier:`L`,level:30},{maxPictureSize:122880,maxBitrate:15e5,tier:`L`,level:60},{maxPictureSize:245760,maxBitrate:3e6,tier:`L`,level:63},{maxPictureSize:552960,maxBitrate:6e6,tier:`L`,level:90},{maxPictureSize:983040,maxBitrate:1e7,tier:`L`,level:93},{maxPictureSize:2228224,maxBitrate:12e6,tier:`L`,level:120},{maxPictureSize:2228224,maxBitrate:3e7,tier:`H`,level:120},{maxPictureSize:2228224,maxBitrate:2e7,tier:`L`,level:123},{maxPictureSize:2228224,maxBitrate:5e7,tier:`H`,level:123},{maxPictureSize:8912896,maxBitrate:25e6,tier:`L`,level:150},{maxPictureSize:8912896,maxBitrate:1e8,tier:`H`,level:150},{maxPictureSize:8912896,maxBitrate:4e7,tier:`L`,level:153},{maxPictureSize:8912896,maxBitrate:16e7,tier:`H`,level:153},{maxPictureSize:8912896,maxBitrate:6e7,tier:`L`,level:156},{maxPictureSize:8912896,maxBitrate:24e7,tier:`H`,level:156},{maxPictureSize:35651584,maxBitrate:6e7,tier:`L`,level:180},{maxPictureSize:35651584,maxBitrate:24e7,tier:`H`,level:180},{maxPictureSize:35651584,maxBitrate:12e7,tier:`L`,level:183},{maxPictureSize:35651584,maxBitrate:48e7,tier:`H`,level:183},{maxPictureSize:35651584,maxBitrate:24e7,tier:`L`,level:186},{maxPictureSize:35651584,maxBitrate:8e8,tier:`H`,level:186}],ic=[{maxPictureSize:36864,maxBitrate:2e5,level:10},{maxPictureSize:73728,maxBitrate:8e5,level:11},{maxPictureSize:122880,maxBitrate:18e5,level:20},{maxPictureSize:245760,maxBitrate:36e5,level:21},{maxPictureSize:552960,maxBitrate:72e5,level:30},{maxPictureSize:983040,maxBitrate:12e6,level:31},{maxPictureSize:2228224,maxBitrate:18e6,level:40},{maxPictureSize:2228224,maxBitrate:3e7,level:41},{maxPictureSize:8912896,maxBitrate:6e7,level:50},{maxPictureSize:8912896,maxBitrate:12e7,level:51},{maxPictureSize:8912896,maxBitrate:18e7,level:52},{maxPictureSize:35651584,maxBitrate:18e7,level:60},{maxPictureSize:35651584,maxBitrate:24e7,level:61},{maxPictureSize:35651584,maxBitrate:48e7,level:62}],ac=[{maxPictureSize:147456,maxBitrate:15e5,tier:`M`,level:0},{maxPictureSize:278784,maxBitrate:3e6,tier:`M`,level:1},{maxPictureSize:665856,maxBitrate:6e6,tier:`M`,level:4},{maxPictureSize:1065024,maxBitrate:1e7,tier:`M`,level:5},{maxPictureSize:2359296,maxBitrate:12e6,tier:`M`,level:8},{maxPictureSize:2359296,maxBitrate:3e7,tier:`H`,level:8},{maxPictureSize:2359296,maxBitrate:2e7,tier:`M`,level:9},{maxPictureSize:2359296,maxBitrate:5e7,tier:`H`,level:9},{maxPictureSize:8912896,maxBitrate:3e7,tier:`M`,level:12},{maxPictureSize:8912896,maxBitrate:1e8,tier:`H`,level:12},{maxPictureSize:8912896,maxBitrate:4e7,tier:`M`,level:13},{maxPictureSize:8912896,maxBitrate:16e7,tier:`H`,level:13},{maxPictureSize:8912896,maxBitrate:6e7,tier:`M`,level:14},{maxPictureSize:8912896,maxBitrate:24e7,tier:`H`,level:14},{maxPictureSize:35651584,maxBitrate:6e7,tier:`M`,level:15},{maxPictureSize:35651584,maxBitrate:24e7,tier:`H`,level:15},{maxPictureSize:35651584,maxBitrate:6e7,tier:`M`,level:16},{maxPictureSize:35651584,maxBitrate:24e7,tier:`H`,level:16},{maxPictureSize:35651584,maxBitrate:1e8,tier:`M`,level:17},{maxPictureSize:35651584,maxBitrate:48e7,tier:`H`,level:17},{maxPictureSize:35651584,maxBitrate:16e7,tier:`M`,level:18},{maxPictureSize:35651584,maxBitrate:8e8,tier:`H`,level:18},{maxPictureSize:35651584,maxBitrate:16e7,tier:`M`,level:19},{maxPictureSize:35651584,maxBitrate:8e8,tier:`H`,level:19}],oc=[`ap4x`,`ap4h`,`apch`,`apcn`,`apcs`,`apco`],sc=[{fourCc:`apco`,bitrate:45e6,alpha:!1},{fourCc:`apcs`,bitrate:102e6,alpha:!1},{fourCc:`apcn`,bitrate:147e6,alpha:!1},{fourCc:`apch`,bitrate:22e7,alpha:!1},{fourCc:`ap4h`,bitrate:33e7,alpha:!0},{fourCc:`ap4x`,bitrate:5e8,alpha:!0}],cc=(e,t,n,r,i)=>{if(e===`avc`){let e=Math.ceil(t/16)*Math.ceil(n/16),i=nc.find(t=>e<=t.maxMacroblocks&&r<=t.maxBitrate)??es(nc),a=i?i.level:0;return`avc1.${`64`.padStart(2,`0`)}00${a.toString(16).padStart(2,`0`)}`}if(e===`hevc`){let e=t*n,i=rc.find(t=>e<=t.maxPictureSize&&r<=t.maxBitrate)??es(rc);return`hev1.1.6.${i.tier}${i.level}.B0`}if(e===`vp8`)return`vp8`;if(e===`vp9`){let e=t*n;return`vp09.00.${(ic.find(t=>e<=t.maxPictureSize&&r<=t.maxBitrate)??es(ic)).level.toString().padStart(2,`0`)}.08`}if(e===`av1`){let e=t*n,i=ac.find(t=>e<=t.maxPictureSize&&r<=t.maxBitrate)??es(ac);return`av01.0.${i.level.toString().padStart(2,`0`)}${i.tier}.08`}if(e===`prores`){let e=(t*n/2073600)**.95,a=sc.filter(e=>e.alpha===i),o=a[0].fourCc,s=1/0;for(let{fourCc:t,bitrate:n}of a){let i=Math.abs(n*e-r);i<s&&(s=i,o=t)}return o}throw ms(e),TypeError(`Unhandled codec '${String(e)}'.`)},lc=e=>{let t=e.split(`.`),n=Number(t[1]),r=t[2],i=Number(r.slice(0,-1)),a=(n<<5)+i,o=+(r.slice(-1)===`H`),s=Number(t[3])===8?0:1,c=t[4]?Number(t[4]):0,l=t[5]?Number(t[5][0]):1,u=t[5]?Number(t[5][1]):1,d=t[5]?Number(t[5][2]):0;return[129,a,(o<<7)+(s<<6)+0+(c<<4)+(l<<3)+(u<<2)+d,0]},uc=/^pcm-([usf])(\d+)(be)?$/,dc=e=>{if(z(Qs.includes(e)),e===`ulaw`)return{dataType:`ulaw`,sampleSize:1,littleEndian:!0,silentValue:255};if(e===`alaw`)return{dataType:`alaw`,sampleSize:1,littleEndian:!0,silentValue:213};let t=uc.exec(e);z(t);let n;n=t[1]===`u`?`unsigned`:t[1]===`s`?`signed`:`float`;let r=Number(t[2])/8,i=t[3]!==`be`;return{dataType:n,sampleSize:r,littleEndian:i,silentValue:e===`pcm-u8`?128:0}},fc=e=>e.startsWith(`avc1`)||e.startsWith(`avc3`)?`avc`:e.startsWith(`hev1`)||e.startsWith(`hvc1`)?`hevc`:e===`vp8`?`vp8`:e.startsWith(`vp09`)?`vp9`:e.startsWith(`av01`)?`av1`:oc.includes(e)?`prores`:e===`mp3`||e===`mp4a.69`||e===`mp4a.6B`||e===`mp4a.6b`||e===`mp4a.40.34`?`mp3`:e.startsWith(`mp4a.40.`)||e===`mp4a.67`?`aac`:e===`opus`?`opus`:e===`vorbis`?`vorbis`:e===`flac`?`flac`:e===`ac-3`||e===`ac3`?`ac3`:e===`ec-3`||e===`eac3`?`eac3`:e===`ulaw`?`ulaw`:e===`alaw`?`alaw`:uc.test(e)?e:e===`webvtt`?`webvtt`:null,pc=e=>e===`avc`?{avc:{format:`avc`}}:e===`hevc`?{hevc:{format:`hevc`}}:{},mc=[`avc1`,`avc3`,`hev1`,`hvc1`,`vp8`,`vp09`,`av01`,...oc],hc=/^(avc1|avc3)\.[0-9a-fA-F]{6}$/,gc=/^(hev1|hvc1)\.(?:[ABC]?\d+)\.[0-9a-fA-F]{1,8}\.[LH]\d+(?:\.[0-9a-fA-F]{1,2}){0,6}$/,_c=/^vp09(?:\.\d{2}){3}(?:(?:\.\d{2}){5})?$/,vc=/^av01\.\d\.\d{2}[MH]\.\d{2}(?:\.\d\.\d{3}\.\d{2}\.\d{2}\.\d{2}\.\d)?$/,yc=(e,t)=>{if(!e)throw TypeError(`Video chunk metadata must be provided.`);if(typeof e!=`object`)throw TypeError(`Video chunk metadata must be an object.`);if(!e.decoderConfig)throw TypeError(`Video chunk metadata must include a decoder configuration.`);if(typeof e.decoderConfig!=`object`)throw TypeError(`Video chunk metadata decoder configuration must be an object.`);if(typeof e.decoderConfig.codec!=`string`)throw TypeError(`Video chunk metadata decoder configuration must specify a codec string.`);if(!mc.some(t=>e.decoderConfig.codec.startsWith(t)))throw TypeError(`Video chunk metadata decoder configuration codec string must be a valid video codec string as specified in the Mediabunny Codec Registry.`);if(!Number.isInteger(e.decoderConfig.codedWidth)||e.decoderConfig.codedWidth<=0)throw TypeError(`Video chunk metadata decoder configuration must specify a valid codedWidth (positive integer).`);if(!Number.isInteger(e.decoderConfig.codedHeight)||e.decoderConfig.codedHeight<=0)throw TypeError(`Video chunk metadata decoder configuration must specify a valid codedHeight (positive integer).`);if(e.decoderConfig.displayAspectWidth!==void 0&&(!Number.isInteger(e.decoderConfig.displayAspectWidth)||e.decoderConfig.displayAspectWidth<=0))throw TypeError(`Video chunk metadata decoder configuration displayAspectWidth, when defined, must be a positive integer.`);if(e.decoderConfig.displayAspectHeight!==void 0&&(!Number.isInteger(e.decoderConfig.displayAspectHeight)||e.decoderConfig.displayAspectHeight<=0))throw TypeError(`Video chunk metadata decoder configuration displayAspectHeight, when defined, must be a positive integer.`);if(e.decoderConfig.displayAspectWidth!==void 0!=(e.decoderConfig.displayAspectHeight!==void 0))throw TypeError(`Video chunk metadata decoder configuration must specify both displayAspectWidth and displayAspectHeight, or neither.`);if(e.decoderConfig.description!==void 0&&!us(e.decoderConfig.description))throw TypeError(`Video chunk metadata decoder configuration description, when defined, must be an ArrayBuffer or an ArrayBuffer view.`);if(e.decoderConfig.colorSpace!==void 0){let{colorSpace:t}=e.decoderConfig;if(typeof t!=`object`)throw TypeError(`Video chunk metadata decoder configuration colorSpace, when provided, must be an object.`);let n=Object.keys(os);if(t.primaries!=null&&!n.includes(t.primaries))throw TypeError(`Video chunk metadata decoder configuration colorSpace primaries, when defined, must be one of ${n.join(`, `)}.`);let r=Object.keys(ss);if(t.transfer!=null&&!r.includes(t.transfer))throw TypeError(`Video chunk metadata decoder configuration colorSpace transfer, when defined, must be one of ${r.join(`, `)}.`);let i=Object.keys(cs);if(t.matrix!=null&&!i.includes(t.matrix))throw TypeError(`Video chunk metadata decoder configuration colorSpace matrix, when defined, must be one of ${i.join(`, `)}.`);if(t.fullRange!=null&&typeof t.fullRange!=`boolean`)throw TypeError(`Video chunk metadata decoder configuration colorSpace fullRange, when defined, must be a boolean.`)}if(e.decoderConfig.codec.startsWith(`avc1`)||e.decoderConfig.codec.startsWith(`avc3`)){if(!hc.test(e.decoderConfig.codec))throw TypeError(`Video chunk metadata decoder configuration codec string for AVC must be a valid AVC codec string as specified in Section 3.4 of RFC 6381.`)}else if(e.decoderConfig.codec.startsWith(`hev1`)||e.decoderConfig.codec.startsWith(`hvc1`)){if(!gc.test(e.decoderConfig.codec))throw TypeError(`Video chunk metadata decoder configuration codec string for HEVC must be a valid HEVC codec string as specified in Section E.3 of ISO 14496-15.`)}else if(e.decoderConfig.codec.startsWith(`vp8`)){if(e.decoderConfig.codec!==`vp8`)throw TypeError(`Video chunk metadata decoder configuration codec string for VP8 must be "vp8".`)}else if(e.decoderConfig.codec.startsWith(`vp09`)){if(!_c.test(e.decoderConfig.codec))throw TypeError(`Video chunk metadata decoder configuration codec string for VP9 must be a valid VP9 codec string as specified in Section "Codecs Parameter String" of https://www.webmproject.org/vp9/mp4/.`)}else if(e.decoderConfig.codec.startsWith(`av01`)){if(!vc.test(e.decoderConfig.codec))throw TypeError(`Video chunk metadata decoder configuration codec string for AV1 must be a valid AV1 codec string as specified in Section "Codecs Parameter String" of https://aomediacodec.github.io/av1-isobmff/.`)}else if(oc.some(t=>e.decoderConfig.codec.startsWith(t))&&!oc.some(t=>e.decoderConfig.codec===t))throw TypeError(`Video chunk metadata decoder configuration codec string for ProRes must be one of the valid ProRes four-character codes: ${oc.join(`, `)}.`);if(t!==null&&fc(e.decoderConfig.codec)!==t)throw TypeError(`Video chunk metadata decoder configuration codec string '${e.decoderConfig.codec}' does not fit to the track codec '${t}'.`)},bc=[`mp4a`,`mp3`,`opus`,`vorbis`,`flac`,`ulaw`,`alaw`,`pcm`,`ac-3`,`ec-3`],xc=(e,t)=>{if(!e)throw TypeError(`Audio chunk metadata must be provided.`);if(typeof e!=`object`)throw TypeError(`Audio chunk metadata must be an object.`);if(!e.decoderConfig)throw TypeError(`Audio chunk metadata must include a decoder configuration.`);if(typeof e.decoderConfig!=`object`)throw TypeError(`Audio chunk metadata decoder configuration must be an object.`);if(typeof e.decoderConfig.codec!=`string`)throw TypeError(`Audio chunk metadata decoder configuration must specify a codec string.`);if(!bc.some(t=>e.decoderConfig.codec.startsWith(t)))throw TypeError(`Audio chunk metadata decoder configuration codec string must be a valid audio codec string as specified in the Mediabunny Codec Registry.`);if(!Number.isInteger(e.decoderConfig.sampleRate)||e.decoderConfig.sampleRate<=0)throw TypeError(`Audio chunk metadata decoder configuration must specify a valid sampleRate (positive integer).`);if(!Number.isInteger(e.decoderConfig.numberOfChannels)||e.decoderConfig.numberOfChannels<=0)throw TypeError(`Audio chunk metadata decoder configuration must specify a valid numberOfChannels (positive integer).`);if(e.decoderConfig.description!==void 0&&!us(e.decoderConfig.description))throw TypeError(`Audio chunk metadata decoder configuration description, when defined, must be an ArrayBuffer or an ArrayBuffer view.`);if(e.decoderConfig.codec.startsWith(`mp4a`)&&e.decoderConfig.codec!==`mp4a.69`&&e.decoderConfig.codec!==`mp4a.6B`&&e.decoderConfig.codec!==`mp4a.6b`){if(![`mp4a.40.2`,`mp4a.40.02`,`mp4a.40.5`,`mp4a.40.05`,`mp4a.40.29`,`mp4a.67`].includes(e.decoderConfig.codec))throw TypeError(`Audio chunk metadata decoder configuration codec string for AAC must be a valid AAC codec string as specified in https://www.w3.org/TR/webcodecs-aac-codec-registration/.`)}else if(e.decoderConfig.codec.startsWith(`mp3`)||e.decoderConfig.codec.startsWith(`mp4a`)){if(e.decoderConfig.codec!==`mp3`&&e.decoderConfig.codec!==`mp4a.69`&&e.decoderConfig.codec!==`mp4a.6B`&&e.decoderConfig.codec!==`mp4a.6b`)throw TypeError(`Audio chunk metadata decoder configuration codec string for MP3 must be "mp3", "mp4a.69" or "mp4a.6B".`)}else if(e.decoderConfig.codec.startsWith(`opus`)){if(e.decoderConfig.codec!==`opus`)throw TypeError(`Audio chunk metadata decoder configuration codec string for Opus must be "opus".`);if(e.decoderConfig.description&&e.decoderConfig.description.byteLength<18)throw TypeError(`Audio chunk metadata decoder configuration description, when specified, is expected to be an Identification Header as specified in Section 5.1 of RFC 7845.`)}else if(e.decoderConfig.codec.startsWith(`vorbis`)){if(e.decoderConfig.codec!==`vorbis`)throw TypeError(`Audio chunk metadata decoder configuration codec string for Vorbis must be "vorbis".`);if(!e.decoderConfig.description)throw TypeError(`Audio chunk metadata decoder configuration for Vorbis must include a description, which is expected to adhere to the format described in https://www.w3.org/TR/webcodecs-vorbis-codec-registration/.`)}else if(e.decoderConfig.codec.startsWith(`flac`)){if(e.decoderConfig.codec!==`flac`)throw TypeError(`Audio chunk metadata decoder configuration codec string for FLAC must be "flac".`);if(!e.decoderConfig.description||e.decoderConfig.description.byteLength<42)throw TypeError(`Audio chunk metadata decoder configuration for FLAC must include a description, which is expected to adhere to the format described in https://www.w3.org/TR/webcodecs-flac-codec-registration/.`)}else if(e.decoderConfig.codec.startsWith(`ac-3`)||e.decoderConfig.codec.startsWith(`ac3`)){if(e.decoderConfig.codec!==`ac-3`)throw TypeError(`Audio chunk metadata decoder configuration codec string for AC-3 must be "ac-3".`)}else if(e.decoderConfig.codec.startsWith(`ec-3`)||e.decoderConfig.codec.startsWith(`eac3`)){if(e.decoderConfig.codec!==`ec-3`)throw TypeError(`Audio chunk metadata decoder configuration codec string for EC-3 must be "ec-3".`)}else if((e.decoderConfig.codec.startsWith(`pcm`)||e.decoderConfig.codec.startsWith(`ulaw`)||e.decoderConfig.codec.startsWith(`alaw`))&&!Qs.includes(e.decoderConfig.codec))throw TypeError(`Audio chunk metadata decoder configuration codec string for PCM must be one of the supported PCM codecs (${Qs.join(`, `)}).`);if(t!==null&&fc(e.decoderConfig.codec)!==t)throw TypeError(`Audio chunk metadata decoder configuration codec string '${e.decoderConfig.codec}' does not fit to the track codec '${t}'.`)},Sc=e=>{if(!e)throw TypeError(`Subtitle metadata must be provided.`);if(typeof e!=`object`)throw TypeError(`Subtitle metadata must be an object.`);if(!e.config)throw TypeError(`Subtitle metadata must include a config object.`);if(typeof e.config!=`object`)throw TypeError(`Subtitle metadata config must be an object.`);if(typeof e.config.description!=`string`)throw TypeError(`Subtitle metadata config description must be a string.`)},Cc=[48e3,44100,32e3],wc=[24e3,22050,16e3],Tc;(function(e){e[e.NON_IDR_SLICE=1]=`NON_IDR_SLICE`,e[e.SLICE_DPA=2]=`SLICE_DPA`,e[e.SLICE_DPB=3]=`SLICE_DPB`,e[e.SLICE_DPC=4]=`SLICE_DPC`,e[e.IDR=5]=`IDR`,e[e.SEI=6]=`SEI`,e[e.SPS=7]=`SPS`,e[e.PPS=8]=`PPS`,e[e.AUD=9]=`AUD`,e[e.SPS_EXT=13]=`SPS_EXT`})(Tc||={});var Ec;(function(e){e[e.RASL_N=8]=`RASL_N`,e[e.RASL_R=9]=`RASL_R`,e[e.BLA_W_LP=16]=`BLA_W_LP`,e[e.RSV_IRAP_VCL23=23]=`RSV_IRAP_VCL23`,e[e.VPS_NUT=32]=`VPS_NUT`,e[e.SPS_NUT=33]=`SPS_NUT`,e[e.PPS_NUT=34]=`PPS_NUT`,e[e.AUD_NUT=35]=`AUD_NUT`,e[e.PREFIX_SEI_NUT=39]=`PREFIX_SEI_NUT`,e[e.SUFFIX_SEI_NUT=40]=`SUFFIX_SEI_NUT`})(Ec||={});var Dc=function*(e){let t=0,n=-1;for(;t<e.length-2;){let r=e.indexOf(0,t);if(r===-1||r>=e.length-2)break;t=r;let i=0;if(t+3<e.length&&e[t+1]===0&&e[t+2]===0&&e[t+3]===1?i=4:e[t+1]===0&&e[t+2]===1&&(i=3),i===0){t++;continue}n!==-1&&t>n&&(yield{offset:n,length:t-n}),n=t+i,t=n}n!==-1&&n<e.length&&(yield{offset:n,length:e.length-n})},Oc=function*(e,t){let n=0,r=new DataView(e.buffer,e.byteOffset,e.byteLength);for(;n+t<=e.length;){let e;t===1?e=r.getUint8(n):t===2?e=r.getUint16(n,!1):t===3?e=hs(r,n,!1):(z(t===4),e=r.getUint32(n,!1)),n+=t,yield{offset:n,length:e},n+=e}},kc=(e,t)=>t.description?Oc(e,(rs(t.description)[4]&3)+1):Dc(e),Ac=e=>e&31,jc=e=>{let t=[],n=e.length;for(let r=0;r<n;r++)r+2<n&&e[r]===0&&e[r+1]===0&&e[r+2]===3?(t.push(0,0),r+=2):t.push(e[r]);return new Uint8Array(t)};new Uint8Array([0,0,0,1]);var Mc=(e,t)=>{let n=e.reduce((e,n)=>e+t+n.byteLength,0),r=new Uint8Array(n),i=0;for(let n of e){let e=new DataView(r.buffer,r.byteOffset,r.byteLength);switch(t){case 1:e.setUint8(i,n.byteLength);break;case 2:e.setUint16(i,n.byteLength,!1);break;case 3:gs(e,i,n.byteLength,!1);break;case 4:e.setUint32(i,n.byteLength,!1)}i+=t,r.set(n,i),i+=n.byteLength}return r},Nc=e=>{try{let t=[],n=[],r=[];for(let i of Dc(e)){let a=e.subarray(i.offset,i.offset+i.length),o=Ac(a[0]);o===Tc.SPS?t.push(a):o===Tc.PPS?n.push(a):o===Tc.SPS_EXT&&r.push(a)}if(t.length===0||n.length===0)return null;let i=t[0],a=Ic(i);z(a!==null);let o=a.profileIdc===100||a.profileIdc===110||a.profileIdc===122||a.profileIdc===144;return{configurationVersion:1,avcProfileIndication:a.profileIdc,profileCompatibility:a.constraintFlags,avcLevelIndication:a.levelIdc,lengthSizeMinusOne:3,sequenceParameterSets:t,pictureParameterSets:n,chromaFormat:o?a.chromaFormatIdc:null,bitDepthLumaMinus8:o?a.bitDepthLumaMinus8:null,bitDepthChromaMinus8:o?a.bitDepthChromaMinus8:null,sequenceParameterSetExt:o?r:null}}catch(e){return Hs._error(`Error building AVC Decoder Configuration Record:`,e),null}},Pc=e=>{let t=[];t.push(e.configurationVersion),t.push(e.avcProfileIndication),t.push(e.profileCompatibility),t.push(e.avcLevelIndication),t.push(252|e.lengthSizeMinusOne&3),t.push(224|e.sequenceParameterSets.length&31);for(let n of e.sequenceParameterSets){let e=n.byteLength;t.push(e>>8),t.push(e&255);for(let r=0;r<e;r++)t.push(n[r])}t.push(e.pictureParameterSets.length);for(let n of e.pictureParameterSets){let e=n.byteLength;t.push(e>>8),t.push(e&255);for(let r=0;r<e;r++)t.push(n[r])}if(e.avcProfileIndication===100||e.avcProfileIndication===110||e.avcProfileIndication===122||e.avcProfileIndication===144){z(e.chromaFormat!==null),z(e.bitDepthLumaMinus8!==null),z(e.bitDepthChromaMinus8!==null),z(e.sequenceParameterSetExt!==null),t.push(252|e.chromaFormat&3),t.push(248|e.bitDepthLumaMinus8&7),t.push(248|e.bitDepthChromaMinus8&7),t.push(e.sequenceParameterSetExt.length);for(let n of e.sequenceParameterSetExt){let e=n.byteLength;t.push(e>>8),t.push(e&255);for(let r=0;r<e;r++)t.push(n[r])}}return new Uint8Array(t)},Fc={1:{num:1,den:1},2:{num:12,den:11},3:{num:10,den:11},4:{num:16,den:11},5:{num:40,den:33},6:{num:24,den:11},7:{num:20,den:11},8:{num:32,den:11},9:{num:80,den:33},10:{num:18,den:11},11:{num:15,den:11},12:{num:64,den:33},13:{num:160,den:99},14:{num:4,den:3},15:{num:3,den:2},16:{num:2,den:1}},Ic=e=>{try{let t=new qs(jc(e));if(t.skipBits(1),t.skipBits(2),t.readBits(5)!==7)return null;let n=t.readAlignedByte(),r=t.readAlignedByte(),i=t.readAlignedByte();B(t);let a=1,o=0,s=0,c=0;if((n===100||n===110||n===122||n===244||n===44||n===83||n===86||n===118||n===128)&&(a=B(t),a===3&&(c=t.readBits(1)),o=B(t),s=B(t),t.skipBits(1),t.readBits(1))){for(let e=0;e<(a===3?12:8);e++)if(t.readBits(1)){let n=e<6?16:64,r=8,i=8;for(let e=0;e<n;e++){if(i!==0){let e=ns(t);i=(r+e+256)%256}r=i===0?r:i}}}B(t);let l=B(t);if(l===0)B(t);else if(l===1){t.skipBits(1),ns(t),ns(t);let e=B(t);for(let n=0;n<e;n++)ns(t)}B(t),t.skipBits(1);let u=B(t),d=B(t),f=16*(u+1),p=16*(d+1),m=f,h=p,g=t.readBits(1);if(g||t.skipBits(1),t.skipBits(1),t.readBits(1)){let e=B(t),n=B(t),r=B(t),i=B(t),o,s;if((c===0?a:0)===0)o=1,s=2-g;else{let e=a===3?1:2,t=a===1?2:1;o=e,s=t*(2-g)}m-=o*(e+n),h-=s*(r+i)}let _=2,v=2,y=2,b=0,x={num:1,den:1},S=null,C=null;if(t.readBits(1)){if(t.readBits(1)){let e=t.readBits(8);if(e===255)x={num:t.readBits(16),den:t.readBits(16)};else{let t=Fc[e];t&&(x=t)}}t.readBits(1)&&t.skipBits(1),t.readBits(1)&&(t.skipBits(3),b=t.readBits(1),t.readBits(1)&&(_=t.readBits(8),v=t.readBits(8),y=t.readBits(8))),t.readBits(1)&&(B(t),B(t)),t.readBits(1)&&(t.skipBits(32),t.skipBits(32),t.skipBits(1));let e=t.readBits(1);e&&Lc(t);let n=t.readBits(1);n&&Lc(t),(e||n)&&t.skipBits(1),t.skipBits(1),t.readBits(1)&&(t.skipBits(1),B(t),B(t),B(t),B(t),S=B(t),C=B(t))}if(S===null){z(C===null);let e=r&16;if((n===44||n===86||n===100||n===110||n===122||n===244)&&e)S=0,C=0;else{let e=u+1,t=d+1,n=(2-g)*t,r=nc.find(e=>e.level>=i)??es(nc),a=Math.min(Math.floor(r.maxDpbMbs/(e*n)),16);S=a,C=a}}return z(C!==null),{profileIdc:n,constraintFlags:r,levelIdc:i,frameMbsOnlyFlag:g,chromaFormatIdc:a,bitDepthLumaMinus8:o,bitDepthChromaMinus8:s,codedWidth:f,codedHeight:p,displayWidth:m,displayHeight:h,pixelAspectRatio:x,colourPrimaries:_,matrixCoefficients:y,transferCharacteristics:v,fullRangeFlag:b,numReorderFrames:S,maxDecFrameBuffering:C}}catch(e){return Hs._error(`Error parsing AVC SPS:`,e),null}},Lc=e=>{let t=B(e);e.skipBits(4),e.skipBits(4);for(let n=0;n<=t;n++)B(e),B(e),e.skipBits(1);e.skipBits(5),e.skipBits(5),e.skipBits(5),e.skipBits(5)},Rc=(e,t)=>t.description?Oc(e,(rs(t.description)[21]&3)+1):Dc(e),zc=e=>e>>1&63,Bc=e=>{try{let t=new qs(jc(e));t.skipBits(16),t.readBits(4);let n=t.readBits(3),r=t.readBits(1),{general_profile_space:i,general_tier_flag:a,general_profile_idc:o,general_profile_compatibility_flags:s,general_constraint_indicator_flags:c,general_level_idc:l}=Hc(t,n);B(t);let u=B(t),d=0;u===3&&(d=t.readBits(1));let f=B(t),p=B(t),m=f,h=p;if(t.readBits(1)){let e=B(t),n=B(t),r=B(t),i=B(t),a=1,o=1,s=d===0?u:0;s===1?(a=2,o=2):s===2&&(a=2,o=1),m-=(e+n)*a,h-=(r+i)*o}let g=B(t),_=B(t);B(t);let v=t.readBits(1)?0:n,y=0;for(let e=v;e<=n;e++)B(t),y=B(t),B(t);if(B(t),B(t),B(t),B(t),B(t),B(t),t.readBits(1)&&t.readBits(1)&&Uc(t),t.skipBits(1),t.skipBits(1),t.readBits(1)&&(t.skipBits(4),t.skipBits(4),B(t),B(t),t.skipBits(1)),Wc(t,B(t)),t.readBits(1)){let e=B(t);for(let n=0;n<e;n++)B(t),t.skipBits(1)}t.skipBits(1),t.skipBits(1);let b=2,x=2,S=2,C=0,w=0,ee={num:1,den:1};if(t.readBits(1)){let e=Kc(t,n);ee=e.pixelAspectRatio,b=e.colourPrimaries,x=e.transferCharacteristics,S=e.matrixCoefficients,C=e.fullRangeFlag,w=e.minSpatialSegmentationIdc}return{displayWidth:m,displayHeight:h,pixelAspectRatio:ee,colourPrimaries:b,transferCharacteristics:x,matrixCoefficients:S,fullRangeFlag:C,maxDecFrameBuffering:y+1,spsMaxSubLayersMinus1:n,spsTemporalIdNestingFlag:r,generalProfileSpace:i,generalTierFlag:a,generalProfileIdc:o,generalProfileCompatibilityFlags:s,generalConstraintIndicatorFlags:c,generalLevelIdc:l,chromaFormatIdc:u,bitDepthLumaMinus8:g,bitDepthChromaMinus8:_,minSpatialSegmentationIdc:w}}catch(e){return Hs._error(`Error parsing HEVC SPS:`,e),null}},Vc=e=>{try{let t=[],n=[],r=[],i=[];for(let a of Dc(e)){let o=e.subarray(a.offset,a.offset+a.length),s=zc(o[0]);s===Ec.VPS_NUT?t.push(o):s===Ec.SPS_NUT?n.push(o):s===Ec.PPS_NUT?r.push(o):(s===Ec.PREFIX_SEI_NUT||s===Ec.SUFFIX_SEI_NUT)&&i.push(o)}if(n.length===0||r.length===0)return null;let a=Bc(n[0]);if(!a)return null;let o=0;if(r.length>0){let e=r[0],t=new qs(jc(e));t.skipBits(16),B(t),B(t),t.skipBits(1),t.skipBits(1),t.skipBits(3),t.skipBits(1),t.skipBits(1),B(t),B(t),ns(t),t.skipBits(1),t.skipBits(1),t.readBits(1)&&B(t),ns(t),ns(t),t.skipBits(1),t.skipBits(1),t.skipBits(1),t.skipBits(1);let n=t.readBits(1),i=t.readBits(1);o=!n&&!i?0:n&&!i?2:!n&&i?3:0}let s=[...t.length?[{arrayCompleteness:1,nalUnitType:Ec.VPS_NUT,nalUnits:t}]:[],...n.length?[{arrayCompleteness:1,nalUnitType:Ec.SPS_NUT,nalUnits:n}]:[],...r.length?[{arrayCompleteness:1,nalUnitType:Ec.PPS_NUT,nalUnits:r}]:[],...i.length?[{arrayCompleteness:1,nalUnitType:zc(i[0][0]),nalUnits:i}]:[]];return{configurationVersion:1,generalProfileSpace:a.generalProfileSpace,generalTierFlag:a.generalTierFlag,generalProfileIdc:a.generalProfileIdc,generalProfileCompatibilityFlags:a.generalProfileCompatibilityFlags,generalConstraintIndicatorFlags:a.generalConstraintIndicatorFlags,generalLevelIdc:a.generalLevelIdc,minSpatialSegmentationIdc:a.minSpatialSegmentationIdc,parallelismType:o,chromaFormatIdc:a.chromaFormatIdc,bitDepthLumaMinus8:a.bitDepthLumaMinus8,bitDepthChromaMinus8:a.bitDepthChromaMinus8,avgFrameRate:0,constantFrameRate:0,numTemporalLayers:a.spsMaxSubLayersMinus1+1,temporalIdNested:a.spsTemporalIdNestingFlag,lengthSizeMinusOne:3,arrays:s}}catch(e){return Hs._error(`Error building HEVC Decoder Configuration Record:`,e),null}},Hc=(e,t)=>{let n=e.readBits(2),r=e.readBits(1),i=e.readBits(5),a=0;for(let t=0;t<32;t++)a=a<<1|e.readBits(1);let o=new Uint8Array(6);for(let t=0;t<6;t++)o[t]=e.readBits(8);let s=e.readBits(8),c=[],l=[];for(let n=0;n<t;n++)c.push(e.readBits(1)),l.push(e.readBits(1));if(t>0)for(let n=t;n<8;n++)e.skipBits(2);for(let n=0;n<t;n++)c[n]&&e.skipBits(88),l[n]&&e.skipBits(8);return{general_profile_space:n,general_tier_flag:r,general_profile_idc:i,general_profile_compatibility_flags:a,general_constraint_indicator_flags:o,general_level_idc:s}},Uc=e=>{for(let t=0;t<4;t++)for(let n=0;n<(t===3?2:6);n++)if(!e.readBits(1))B(e);else{let n=Math.min(64,1<<4+(t<<1));t>1&&ns(e);for(let t=0;t<n;t++)ns(e)}},Wc=(e,t)=>{let n=[];for(let r=0;r<t;r++)n[r]=Gc(e,r,t,n)},Gc=(e,t,n,r)=>{let i=0,a=0,o=0;if(t!==0&&(a=e.readBits(1)),a){o=t===n?t-(B(e)+1):t-1,e.readBits(1),B(e);let a=r[o]??0;for(let t=0;t<=a;t++)e.readBits(1)||e.readBits(1);i=r[o]}else{let t=B(e),n=B(e);for(let n=0;n<t;n++)B(e),e.readBits(1);for(let t=0;t<n;t++)B(e),e.readBits(1);i=t+n}return i},Kc=(e,t)=>{let n=2,r=2,i=2,a=0,o=0,s={num:1,den:1};if(e.readBits(1)){let t=e.readBits(8);if(t===255)s={num:e.readBits(16),den:e.readBits(16)};else{let e=Fc[t];e&&(s=e)}}return e.readBits(1)&&e.readBits(1),e.readBits(1)&&(e.readBits(3),a=e.readBits(1),e.readBits(1)&&(n=e.readBits(8),r=e.readBits(8),i=e.readBits(8))),e.readBits(1)&&(B(e),B(e)),e.readBits(1),e.readBits(1),e.readBits(1),e.readBits(1)&&(B(e),B(e),B(e),B(e)),e.readBits(1)&&(e.readBits(32),e.readBits(32),e.readBits(1)&&B(e),e.readBits(1)&&qc(e,!0,t)),e.readBits(1)&&(e.readBits(1),e.readBits(1),e.readBits(1),o=B(e),B(e),B(e),B(e),B(e)),{pixelAspectRatio:s,colourPrimaries:n,transferCharacteristics:r,matrixCoefficients:i,fullRangeFlag:a,minSpatialSegmentationIdc:o}},qc=(e,t,n)=>{let r=!1,i=!1,a=!1;t&&(r=e.readBits(1)===1,i=e.readBits(1)===1,(r||i)&&(a=e.readBits(1)===1,a&&(e.readBits(8),e.readBits(5),e.readBits(1),e.readBits(5)),e.readBits(4),e.readBits(4),a&&e.readBits(4),e.readBits(5),e.readBits(5),e.readBits(5)));for(let t=0;t<=n;t++){let t=e.readBits(1)===1,n=!0;t||(n=e.readBits(1)===1);let o=!1;n?B(e):o=e.readBits(1)===1;let s=1;o||(s=B(e)+1),r&&Jc(e,s,a),i&&Jc(e,s,a)}},Jc=(e,t,n)=>{for(let r=0;r<t;r++)B(e),B(e),n&&(B(e),B(e)),e.readBits(1)},Yc=e=>{let t=[];t.push(e.configurationVersion),t.push((e.generalProfileSpace&3)<<6|(e.generalTierFlag&1)<<5|e.generalProfileIdc&31),t.push(e.generalProfileCompatibilityFlags>>>24&255),t.push(e.generalProfileCompatibilityFlags>>>16&255),t.push(e.generalProfileCompatibilityFlags>>>8&255),t.push(e.generalProfileCompatibilityFlags&255),t.push(...e.generalConstraintIndicatorFlags),t.push(e.generalLevelIdc&255),t.push(240|e.minSpatialSegmentationIdc>>8&15),t.push(e.minSpatialSegmentationIdc&255),t.push(252|e.parallelismType&3),t.push(252|e.chromaFormatIdc&3),t.push(248|e.bitDepthLumaMinus8&7),t.push(248|e.bitDepthChromaMinus8&7),t.push(e.avgFrameRate>>8&255),t.push(e.avgFrameRate&255),t.push((e.constantFrameRate&3)<<6|(e.numTemporalLayers&7)<<3|(e.temporalIdNested&1)<<2|e.lengthSizeMinusOne&3),t.push(e.arrays.length&255);for(let n of e.arrays){t.push((n.arrayCompleteness&1)<<7|0|n.nalUnitType&63),t.push(n.nalUnits.length>>8&255),t.push(n.nalUnits.length&255);for(let e of n.nalUnits){t.push(e.length>>8&255),t.push(e.length&255);for(let n=0;n<e.length;n++)t.push(e[n])}}return new Uint8Array(t)},Xc;(function(e){e[e.audAllowed=0]=`audAllowed`,e[e.beforeFirstVcl=1]=`beforeFirstVcl`,e[e.afterFirstVcl=2]=`afterFirstVcl`,e[e.eoBitstreamAllowed=3]=`eoBitstreamAllowed`,e[e.noMoreDataAllowed=4]=`noMoreDataAllowed`})(Xc||={});var Zc=function*(e){let t=new qs(e),n=()=>{let e=0;for(let n=0;n<8;n++){let r=t.readAlignedByte();if(e|=(r&127)<<n*7,!(r&128))break;if(n===7&&r&128)return null}return e>=2**32-1?null:e};for(;t.getBitsLeft()>=8;){t.skipBits(1);let r=t.readBits(4),i=t.readBits(1),a=t.readBits(1);t.skipBits(1),i&&t.skipBits(8);let o;if(a){let e=n();if(e===null)return;o=e}else o=Math.floor(t.getBitsLeft()/8);z(t.pos%8==0),yield{type:r,data:e.subarray(t.pos/8,t.pos/8+o)},t.skipBits(o*8)}},Qc=e=>{let t=is(e),n=t.getUint8(9),r=t.getUint16(10,!0),i=t.getUint32(12,!0),a=t.getInt16(16,!0),o=t.getUint8(18),s=null;return o&&(s=e.subarray(19,21+n)),{outputChannelCount:n,preSkip:r,inputSampleRate:i,outputGain:a,channelMappingFamily:o,channelMappingTable:s}},$c=(e,t,n)=>{switch(e){case`avc`:for(let e of kc(n,t)){let t=n[e.offset],r=Ac(t);if(r>=Tc.NON_IDR_SLICE&&r<=Tc.SLICE_DPC)return`delta`;if(r===Tc.IDR)return`key`;if(r===Tc.SEI&&(!ks()||js()>=144)){let t=jc(n.subarray(e.offset,e.offset+e.length)),r=1;do{let e=0;for(;;){let n=t[r++];if(n===void 0||(e+=n,n<255))break}let n=0;for(;;){let e=t[r++];if(e===void 0||(n+=e,e<255))break}if(e===6){let e=new qs(t);e.pos=8*r;let n=B(e),i=e.readBits(1);if(n===0&&i===1)return`key`}r+=n}while(r<t.length-1)}}return`delta`;case`hevc`:for(let e of Rc(n,t)){let t=zc(n[e.offset]);if(t<Ec.BLA_W_LP)return`delta`;if(t<=Ec.RSV_IRAP_VCL23)return`key`}return`delta`;case`vp8`:return n[0]&1?`delta`:`key`;case`vp9`:{let e=new qs(n);if(e.readBits(2)!==2)return null;let t=e.readBits(1);return(e.readBits(1)<<1)+t===3&&e.skipBits(1),e.readBits(1)?null:e.readBits(1)===0?`key`:`delta`}case`av1`:{let e=!1;for(let{type:t,data:r}of Zc(n))if(t===1){let t=new qs(r);t.skipBits(4),e=!!t.readBits(1)}else if(t===3||t===6||t===7){if(e)return`key`;let t=new qs(r);return t.readBits(1)?null:t.readBits(2)===0?`key`:`delta`}return null}case`prores`:return`key`;default:ms(e),z(!1)}},el;(function(e){e[e.STREAMINFO=0]=`STREAMINFO`,e[e.VORBIS_COMMENT=4]=`VORBIS_COMMENT`,e[e.PICTURE=6]=`PICTURE`})(el||={});var tl=e=>{if(e.length<7||e[0]!==11||e[1]!==119)return null;let t=new qs(e);t.skipBits(16),t.skipBits(16);let n=t.readBits(2);if(n===3)return null;let r=t.readBits(6),i=t.readBits(5);if(i>8)return null;let a=t.readBits(3),o=t.readBits(3);return o&1&&o!==1&&t.skipBits(2),o&4&&t.skipBits(2),o===2&&t.skipBits(2),{fscod:n,bsid:i,bsmod:a,acmod:o,lfeon:t.readBits(1),bitRateCode:Math.floor(r/2)}};new Uint8Array([5,4,65,67,45,51]),new Uint8Array([5,4,69,65,67,51]);var nl=[1,2,3,6],rl=e=>{if(e.length<6||e[0]!==11||e[1]!==119)return null;let t=new qs(e);t.skipBits(16);let n=t.readBits(2);if(t.skipBits(3),n!==0&&n!==2)return null;let r=t.readBits(11),i=t.readBits(2),a=0,o;i===3?(a=t.readBits(2),o=3):o=t.readBits(2);let s=t.readBits(3),c=t.readBits(1),l=t.readBits(5);if(l<11||l>16)return null;let u=nl[o],d;return d=i<3?Cc[i]/1e3:wc[a]/1e3,{dataRate:Math.round((r+1)*d/(u*16)),substreams:[{fscod:i,fscod2:a,bsid:l,bsmod:0,acmod:s,lfeon:c,numDepSub:0,chanLoc:0}]}},il=new Uint8Array,al=class e{constructor(e,t,n,r,i=-1,a,o){if(this.data=e,this.type=t,this.timestamp=n,this.duration=r,this.sequenceNumber=i,e===il&&a===void 0)throw Error(`Internal error: byteLength must be explicitly provided when constructing metadata-only packets.`);if(a===void 0&&(a=e.byteLength),!(e instanceof Uint8Array))throw TypeError(`data must be a Uint8Array.`);if(t!==`key`&&t!==`delta`)throw TypeError(`type must be either "key" or "delta".`);if(!Number.isFinite(n))throw TypeError(`timestamp must be a number.`);if(!Number.isFinite(r)||r<0)throw TypeError(`duration must be a non-negative number.`);if(!Number.isFinite(i))throw TypeError(`sequenceNumber must be a number.`);if(!Number.isInteger(a)||a<0)throw TypeError(`byteLength must be a non-negative integer.`);if(o!==void 0&&(typeof o!=`object`||!o))throw TypeError(`sideData, when provided, must be an object.`);if(o?.alpha!==void 0&&!(o.alpha instanceof Uint8Array))throw TypeError(`sideData.alpha, when provided, must be a Uint8Array.`);if(o?.alphaByteLength!==void 0&&(!Number.isInteger(o.alphaByteLength)||o.alphaByteLength<0))throw TypeError(`sideData.alphaByteLength, when provided, must be a non-negative integer.`);this.byteLength=a,this.sideData=o??{},this.sideData.alpha&&this.sideData.alphaByteLength===void 0&&(this.sideData.alphaByteLength=this.sideData.alpha.byteLength)}get isMetadataOnly(){return this.data===il}get microsecondTimestamp(){return Math.trunc(Cs*this.timestamp)}get microsecondDuration(){return Math.trunc(Cs*this.duration)}toEncodedVideoChunk(){if(this.isMetadataOnly)throw TypeError(`Metadata-only packets cannot be converted to a video chunk.`);if(typeof EncodedVideoChunk>`u`)throw Error(`Your browser does not support EncodedVideoChunk.`);return new EncodedVideoChunk({data:this.data,type:this.type,timestamp:this.microsecondTimestamp,duration:this.microsecondDuration})}alphaToEncodedVideoChunk(e=this.type){if(!this.sideData.alpha)throw TypeError(`This packet does not contain alpha side data.`);if(this.isMetadataOnly)throw TypeError(`Metadata-only packets cannot be converted to a video chunk.`);if(typeof EncodedVideoChunk>`u`)throw Error(`Your browser does not support EncodedVideoChunk.`);return new EncodedVideoChunk({data:this.sideData.alpha,type:e,timestamp:this.microsecondTimestamp,duration:this.microsecondDuration})}toEncodedAudioChunk(){if(this.isMetadataOnly)throw TypeError(`Metadata-only packets cannot be converted to an audio chunk.`);if(typeof EncodedAudioChunk>`u`)throw Error(`Your browser does not support EncodedAudioChunk.`);return new EncodedAudioChunk({data:this.data,type:this.type,timestamp:this.microsecondTimestamp,duration:this.microsecondDuration})}static fromEncodedChunk(t,n){if(!(t instanceof EncodedVideoChunk||t instanceof EncodedAudioChunk))throw TypeError(`chunk must be an EncodedVideoChunk or EncodedAudioChunk.`);let r=new Uint8Array(t.byteLength);return t.copyTo(r),new e(r,t.type,t.timestamp/1e6,(t.duration??0)/1e6,void 0,void 0,n)}clone(t){if(t!==void 0&&(typeof t!=`object`||!t))throw TypeError(`options, when provided, must be an object.`);if(t?.data!==void 0&&!(t.data instanceof Uint8Array))throw TypeError(`options.data, when provided, must be a Uint8Array.`);if(t?.type!==void 0&&t.type!==`key`&&t.type!==`delta`)throw TypeError(`options.type, when provided, must be either "key" or "delta".`);if(t?.timestamp!==void 0&&!Number.isFinite(t.timestamp))throw TypeError(`options.timestamp, when provided, must be a number.`);if(t?.duration!==void 0&&!Number.isFinite(t.duration))throw TypeError(`options.duration, when provided, must be a number.`);if(t?.sequenceNumber!==void 0&&!Number.isFinite(t.sequenceNumber))throw TypeError(`options.sequenceNumber, when provided, must be a number.`);if(t?.sideData!==void 0&&(typeof t.sideData!=`object`||t.sideData===null))throw TypeError(`options.sideData, when provided, must be an object.`);return new e(t?.data??this.data,t?.type??this.type,t?.timestamp??this.timestamp,t?.duration??this.duration,t?.sequenceNumber??this.sequenceNumber,this.byteLength,t?.sideData??this.sideData)}},ol=e=>{let t=(e.hasVideo?`video/`:e.hasAudio?`audio/`:`application/`)+(e.isQuickTime?`quicktime`:`mp4`);if(e.codecStrings.length>0){let n=[...new Set(e.codecStrings)];t+=`; codecs="${n.join(`, `)}"`}return t},sl=e=>{let t=e.filePos,n=new qs(U(e,9));if(n.readBits(12)!==4095||(n.skipBits(1),n.readBits(2)!==0))return null;let r=n.readBits(1),i=n.readBits(2)+1,a=n.readBits(4);if(a===15)return null;n.skipBits(1);let o=n.readBits(3);if(o===0)throw Error(`ADTS frames with channel configuration 0 are not supported.`);n.skipBits(1),n.skipBits(1),n.skipBits(1),n.skipBits(1);let s=n.readBits(13);n.skipBits(11);let c=n.readBits(2)+1;if(c!==1)throw Error(`ADTS frames with more than one AAC frame are not supported.`);let l=null;return r===1?e.filePos-=2:l=n.readBits(16),{objectType:i,samplingFrequencyIndex:a,channelConfiguration:o,frameLength:s,numberOfAacFrames:c,crcCheck:l,startPos:t}},cl=o(((e,t)=>{t.exports={}})),ll=function(e,t,n){if(t!=null){if(typeof t!=`object`&&typeof t!=`function`)throw TypeError(`Object expected.`);var r,i;if(n){if(!Symbol.asyncDispose)throw TypeError(`Symbol.asyncDispose is not defined.`);r=t[Symbol.asyncDispose]}if(r===void 0){if(!Symbol.dispose)throw TypeError(`Symbol.dispose is not defined.`);r=t[Symbol.dispose],n&&(i=r)}if(typeof r!=`function`)throw TypeError(`Object not disposable.`);i&&(r=function(){try{i.call(this)}catch(e){return Promise.reject(e)}}),e.stack.push({value:t,dispose:r,async:n})}else n&&e.stack.push({async:!0});return t},ul=(function(e){return function(t){function n(n){t.error=t.hasError?new e(n,t.error,`An error was suppressed during disposal.`):n,t.hasError=!0}var r,i=0;function a(){for(;r=t.stack.pop();)try{if(!r.async&&i===1)return i=0,t.stack.push(r),Promise.resolve().then(a);if(r.dispose){var e=r.dispose.call(r.value);if(r.async)return i|=2,Promise.resolve(e).then(a,function(e){return n(e),a()})}else i|=1}catch(e){n(e)}if(i===1)return t.hasError?Promise.reject(t.error):Promise.resolve();if(t.hasError)throw t.error}return a()}})(typeof SuppressedError==`function`?SuppressedError:function(e,t,n){var r=Error(n);return r.name=`SuppressedError`,r.error=e,r.suppressed=t,r});Ns();var dl=-1/0,fl=-1/0,pl=null;typeof FinalizationRegistry<`u`&&(pl=new FinalizationRegistry(e=>{let t=performance.now();e.type===`video`?(t-dl>=1e3&&(Hs._error(`A VideoSample was garbage collected without first being closed. For proper resource management, make sure to call close() on all your VideoSamples as soon as you're done using them.`),dl=t),typeof VideoFrame<`u`&&e.data instanceof VideoFrame&&e.data.close()):(t-fl>=1e3&&(Hs._error(`An AudioSample was garbage collected without first being closed. For proper resource management, make sure to call close() on all your AudioSamples as soon as you're done using them.`),fl=t),typeof AudioData<`u`&&e.data instanceof AudioData&&e.data.close())}));var ml=class{constructor(){this._referenceCount=0,this._lastAllocationBuffer=null}},hl=[`I420`,`I420P10`,`I420P12`,`I420A`,`I420AP10`,`I420AP12`,`I422`,`I422P10`,`I422P12`,`I422A`,`I422AP10`,`I422AP12`,`I444`,`I444P10`,`I444P12`,`I444A`,`I444AP10`,`I444AP12`,`NV12`,`RGBA`,`RGBX`,`BGRA`,`BGRX`],gl=new Set(hl),_l=class e{get codedWidth(){return this.visibleRect.width}get codedHeight(){return this.visibleRect.height}get displayWidth(){return this.rotation%180==0?this.squarePixelWidth:this.squarePixelHeight}get displayHeight(){return this.rotation%180==0?this.squarePixelHeight:this.squarePixelWidth}get microsecondTimestamp(){return Math.trunc(Cs*this.timestamp)}get microsecondDuration(){return Math.trunc(Cs*this.duration)}get hasAlpha(){return this.format&&this.format.includes(`A`)}constructor(t,n){if(this._closed=!1,t instanceof ArrayBuffer||typeof SharedArrayBuffer<`u`&&t instanceof SharedArrayBuffer||ArrayBuffer.isView(t)){if(!n||typeof n!=`object`)throw TypeError(`init must be an object.`);if(n.format===void 0||!gl.has(n.format))throw TypeError(`init.format must be one of: `+hl.join(`, `));if(!Number.isInteger(n.codedWidth)||n.codedWidth<=0)throw TypeError(`init.codedWidth must be a positive integer.`);if(!Number.isInteger(n.codedHeight)||n.codedHeight<=0)throw TypeError(`init.codedHeight must be a positive integer.`);if(n.rotation!==void 0&&![0,90,180,270].includes(n.rotation))throw TypeError(`init.rotation, when provided, must be 0, 90, 180, or 270.`);if(!Number.isFinite(n.timestamp))throw TypeError(`init.timestamp must be a number.`);if(n.duration!==void 0&&(!Number.isFinite(n.duration)||n.duration<0))throw TypeError(`init.duration, when provided, must be a non-negative number.`);if(n.layout!==void 0){if(!Array.isArray(n.layout))throw TypeError(`init.layout, when provided, must be an array.`);for(let e of n.layout){if(!e||typeof e!=`object`||Array.isArray(e))throw TypeError(`Each entry in init.layout must be an object.`);if(!Number.isInteger(e.offset)||e.offset<0)throw TypeError(`plane.offset must be a non-negative integer.`);if(!Number.isInteger(e.stride)||e.stride<0)throw TypeError(`plane.stride must be a non-negative integer.`)}}if(n.visibleRect!==void 0&&Is(n.visibleRect,`init.visibleRect`),n.displayWidth!==void 0&&(!Number.isInteger(n.displayWidth)||n.displayWidth<=0))throw TypeError(`init.displayWidth, when provided, must be a positive integer.`);if(n.displayHeight!==void 0&&(!Number.isInteger(n.displayHeight)||n.displayHeight<=0))throw TypeError(`init.displayHeight, when provided, must be a positive integer.`);if(n.displayWidth!==void 0!=(n.displayHeight!==void 0))throw TypeError(`init.displayWidth and init.displayHeight must be either both provided or both omitted.`);this.format=n.format,this.rotation=n.rotation??0,this.timestamp=n.timestamp,this.duration=n.duration??0;let e=n.layout??Ol(n.format,n.codedWidth,n.codedHeight),r=n.colorSpace??null;r===null&&(r=this.format===`RGBA`||this.format===`RGBX`||this.format===`BGRA`||this.format===`BGRX`?{primaries:`bt709`,transfer:`iec61966-2-1`,matrix:`rgb`,fullRange:!0}:{primaries:`bt709`,transfer:`bt709`,matrix:`bt709`,fullRange:!1}),this.visibleRect={left:n.visibleRect?.left??0,top:n.visibleRect?.top??0,width:n.visibleRect?.width??n.codedWidth,height:n.visibleRect?.height??n.codedHeight},n.displayWidth===void 0?(this.squarePixelWidth=this.visibleRect.width,this.squarePixelHeight=this.visibleRect.height):(this.squarePixelWidth=this.rotation%180==0?n.displayWidth:n.displayHeight,this.squarePixelHeight=this.rotation%180==0?n.displayHeight:n.displayWidth),this._data=n._doNotCopy?rs(t):rs(t).slice(),this._layout=e,this.colorSpace=new Cl(r)}else if(typeof VideoFrame<`u`&&t instanceof VideoFrame){if(n?.rotation!==void 0&&![0,90,180,270].includes(n.rotation))throw TypeError(`init.rotation, when provided, must be 0, 90, 180, or 270.`);if(n?.timestamp!==void 0&&!Number.isFinite(n?.timestamp))throw TypeError(`init.timestamp, when provided, must be a number.`);if(n?.duration!==void 0&&(!Number.isFinite(n.duration)||n.duration<0))throw TypeError(`init.duration, when provided, must be a non-negative number.`);n?.visibleRect!==void 0&&Is(n.visibleRect,`init.visibleRect`),this._data=t,this._layout=null,this.format=t.format,this.visibleRect={left:t.visibleRect?.x??0,top:t.visibleRect?.y??0,width:t.visibleRect?.width??t.codedWidth,height:t.visibleRect?.height??t.codedHeight},this.rotation=n?.rotation??0,this.squarePixelWidth=t.displayWidth,this.squarePixelHeight=t.displayHeight,this.timestamp=n?.timestamp??t.timestamp/1e6,this.duration=n?.duration??(t.duration??0)/1e6,this.colorSpace=new Cl(t.colorSpace)}else if(typeof HTMLImageElement<`u`&&t instanceof HTMLImageElement||typeof SVGImageElement<`u`&&t instanceof SVGImageElement||typeof ImageBitmap<`u`&&t instanceof ImageBitmap||typeof HTMLVideoElement<`u`&&t instanceof HTMLVideoElement||typeof HTMLCanvasElement<`u`&&t instanceof HTMLCanvasElement||typeof OffscreenCanvas<`u`&&t instanceof OffscreenCanvas){if(!n||typeof n!=`object`)throw TypeError(`init must be an object.`);if(n.rotation!==void 0&&![0,90,180,270].includes(n.rotation))throw TypeError(`init.rotation, when provided, must be 0, 90, 180, or 270.`);if(!Number.isFinite(n.timestamp))throw TypeError(`init.timestamp must be a number.`);if(n.duration!==void 0&&(!Number.isFinite(n.duration)||n.duration<0))throw TypeError(`init.duration, when provided, must be a non-negative number.`);if(n.visibleRect!==void 0&&Is(n.visibleRect,`init.visibleRect`),typeof VideoFrame<`u`)return new e(new VideoFrame(t,{timestamp:Math.trunc(n.timestamp*Cs),duration:Math.trunc((n.duration??0)*Cs)||void 0,visibleRect:n.visibleRect&&{x:n.visibleRect.left,y:n.visibleRect.top,width:n.visibleRect.width,height:n.visibleRect.height}}),n);let r=0,i=0;if(`naturalWidth`in t?(r=t.naturalWidth,i=t.naturalHeight):`videoWidth`in t?(r=t.videoWidth,i=t.videoHeight):`width`in t&&(r=Number(t.width),i=Number(t.height)),!r||!i)throw TypeError(`Could not determine dimensions.`);let a=n.visibleRect??{left:0,top:0,width:r,height:i},o=new OffscreenCanvas(a.width,a.height),s=o.getContext(`2d`,{alpha:Ds(),willReadFrequently:!0});if(!s)throw Error(`OffscreenCanvas must have support for the '2d' context in order to create a VideoSample from this data.`);s.drawImage(t,-a.left,-a.top),this._data=o,this._layout=null,this.format=`RGBX`,this.visibleRect={left:0,top:0,width:a.width,height:a.height},this.squarePixelWidth=a.width,this.squarePixelHeight=a.height,this.rotation=n.rotation??0,this.timestamp=n.timestamp,this.duration=n.duration??0,this.colorSpace=new Cl({matrix:`rgb`,primaries:`bt709`,transfer:`iec61966-2-1`,fullRange:!0})}else if(t instanceof ml){if(!n||typeof n!=`object`)throw TypeError(`init must be an object.`);if(n.rotation!==void 0&&![0,90,180,270].includes(n.rotation))throw TypeError(`init.rotation, when provided, must be 0, 90, 180, or 270.`);if(!Number.isFinite(n.timestamp))throw TypeError(`init.timestamp must be a number.`);if(n.duration!==void 0&&(!Number.isFinite(n.duration)||n.duration<0))throw TypeError(`init.duration, when provided, must be a non-negative number.`);if(this._data=t,t._referenceCount++,this.format=t.getFormat(),this.format!==null&&!hl.includes(this.format))throw TypeError(`getFormat() must return a VideoSamplePixelFormat or null.`);if(this.visibleRect={left:0,top:0,width:t.getCodedWidth(),height:t.getCodedHeight()},!Number.isInteger(this.visibleRect.width)||this.visibleRect.width<=0)throw TypeError(`getCodedWidth() must return a positive integer.`);if(!Number.isInteger(this.visibleRect.height)||this.visibleRect.height<=0)throw TypeError(`getCodedHeight() must return a positive integer.`);if(this.squarePixelWidth=t.getSquarePixelWidth(),!Number.isInteger(this.squarePixelWidth)||this.squarePixelWidth<=0)throw TypeError(`getSquarePixelWidth() must return a positive integer.`);if(this.squarePixelHeight=t.getSquarePixelHeight(),!Number.isInteger(this.squarePixelHeight)||this.squarePixelHeight<=0)throw TypeError(`getSquarePixelHeight() must return a positive integer.`);this.rotation=n.rotation??0,this.timestamp=n.timestamp,this.duration=n.duration??0,this.colorSpace=t.getColorSpace()}else throw TypeError(`Invalid data type: Must be a BufferSource, CanvasImageSource, or VideoSampleResource.`);this.encodeOptions=n?.encodeOptions??{},this.pixelAspectRatio=Fs({num:this.squarePixelWidth*this.codedHeight,den:this.squarePixelHeight*this.codedWidth}),pl?.register(this,{type:`video`,data:this._data},this)}clone(){if(this._closed)throw Error(`VideoSample is closed.`);return z(this._data!==null),this._data instanceof ml?new e(this._data,{timestamp:this.timestamp,duration:this.duration,rotation:this.rotation,encodeOptions:this.encodeOptions}):wl(this._data)?new e(this._data.clone(),{timestamp:this.timestamp,duration:this.duration,rotation:this.rotation,encodeOptions:this.encodeOptions}):this._data instanceof Uint8Array?(z(this._layout),new e(this._data,{format:this.format,layout:this._layout,codedWidth:this.codedWidth,codedHeight:this.codedHeight,timestamp:this.timestamp,duration:this.duration,colorSpace:this.colorSpace,rotation:this.rotation,visibleRect:this.visibleRect,displayWidth:this.displayWidth,displayHeight:this.displayHeight,encodeOptions:this.encodeOptions,_doNotCopy:!0})):new e(this._data,{format:this.format,codedWidth:this.codedWidth,codedHeight:this.codedHeight,timestamp:this.timestamp,duration:this.duration,colorSpace:this.colorSpace,rotation:this.rotation,visibleRect:this.visibleRect,displayWidth:this.displayWidth,displayHeight:this.displayHeight,encodeOptions:this.encodeOptions})}close(){this._closed||=(pl?.unregister(this),this._data instanceof ml?(this._data._referenceCount--,this._data._referenceCount===0&&this._data.close()):wl(this._data)?this._data.close():this._data=null,!0)}allocationSize(e={}){if(Dl(e),this._closed)throw Error(`VideoSample is closed.`);if((e.format??this.format)==null)throw Error(`Cannot get allocation size when format is null.`);return wl(this._data)?this._data.allocationSize(e):Al(this,e).allocationSize}async copyTo(t,n={}){if(!us(t))throw TypeError(`destination must be an ArrayBuffer or an ArrayBuffer view.`);if(Dl(n),this._closed)throw Error(`VideoSample is closed.`);if((n.format??this.format)==null)throw Error(`Cannot copy video sample data when format is null.`);if(z(this._data!==null),wl(this._data))return this._data.copyTo(t,n);if(n.format&&![`RGBA`,`RGBX`,`BGRA`,`BGRX`].includes(this.format)&&[`RGBA`,`RGBX`,`BGRA`,`BGRX`].includes(n.format)){if(this._data instanceof ml){let r={stack:[],error:void 0,hasError:!1};try{let i=ll(r,await this._data.toRgbSample({timestamp:this.timestamp,duration:this.duration,rotation:this.rotation},n.colorSpace??`srgb`),!1);if(!(i instanceof e))throw TypeError(`toRgbSample() must return a VideoSample.`);if(![`RGBA`,`RGBX`,`BGRA`,`BGRX`].includes(i.format))throw Error(`Sample returned by toRgbSample was expected to have an RGB format, got '${i.format}' instead.`);return await i.copyTo(t,n)}catch(e){r.error=e,r.hasError=!0}finally{ul(r)}}else{if(typeof VideoFrame>`u`)throw Error(`For this sample, converting from a non-RGB to an RGB format requires VideoFrame to be defined.`);let e=this.toVideoFrame(),r=await e.copyTo(t,n);return e.close(),r}}let r=Al(this,n);z(this.format);let i=rs(t);if(i.byteLength<r.allocationSize)throw TypeError(`Destination buffer too small. Required: ${r.allocationSize}, Available: ${i.byteLength}`);let a=kl(this.format),o;if(this._data instanceof ml){let e=this._data.getDataPlanes();if(e instanceof Promise&&(e=await e),!Array.isArray(e)||e.some(e=>!(e.data instanceof Uint8Array)||!Number.isInteger(e.stride)||e.stride<0))throw TypeError(`getDataPlanes() must return an array of objects with a Uint8Array "data" property and a non-negative integer "stride" property.`);o=e}else if(this._data instanceof Uint8Array)z(this._layout),z(this._layout.length===a.length),o=this._layout.map((e,t)=>{let n=Math.ceil(this.codedHeight/a[t].heightDivisor);return{data:this._data.subarray(e.offset,e.offset+e.stride*n),stride:e.stride}});else{let e=this._data.getContext(`2d`);z(e),o=[{data:rs(e.getImageData(0,0,this.codedWidth,this.codedHeight).data),stride:4*this.codedWidth}]}let s=[],c=a.length;for(let e=0;e<c;e++){let t=r.computedLayouts[e],n=o[e].stride,a=o[e].data,c=t.sourceTop*n;c+=t.sourceLeftBytes;let l=t.destinationOffset,u=t.sourceWidthBytes,d={offset:l,stride:t.destinationStride};for(let e=0;e<t.sourceHeight;e++){if(c+u>a.byteLength)throw Error(`Source buffer OOB read.`);if(l+u>i.byteLength)throw Error(`Destination buffer OOB write.`);let e=a.subarray(c,c+u);i.set(e,l),c+=n,l+=t.destinationStride}s.push(d)}if(n.format!==void 0){let e=this.format.startsWith(`RGB`)!==n.format.startsWith(`RGB`),t=this.format.includes(`X`)&&n.format.includes(`A`);if(e||t)for(let n=0;n<r.allocationSize;n+=4){if(e){let e=i[n],t=i[n+2];i[n]=t,i[n+2]=e}t&&(i[n+3]=255)}}return s}toVideoFrame(){if(this._closed)throw Error(`VideoSample is closed.`);if(z(this._data!==null),this._data instanceof ml){if(this.format===null)throw Error(`Cannot convert a VideoSampleResource-backed VideoSample to VideoFrame if format is null.`);let e=this._data.getDataPlanes();if(e instanceof Promise)throw Error(`Cannot convert a VideoSampleResource-backed VideoSample to VideoFrame if getDataPlanes() returns a promise.`);let t=e.reduce((e,t)=>e+t.data.byteLength,0),n=new Uint8Array(t),r=0,i=[];for(let t of e)n.set(t.data,r),i.push(r),r+=t.data.byteLength;return new VideoFrame(n,{format:this.format,layout:e.map((e,t)=>({offset:i[t],stride:e.stride})),codedWidth:this.codedWidth,codedHeight:this.codedHeight,timestamp:this.microsecondTimestamp,duration:this.microsecondDuration,colorSpace:this.colorSpace,visibleRect:this.visibleRect,displayWidth:this.squarePixelWidth,displayHeight:this.squarePixelHeight})}return wl(this._data)?new VideoFrame(this._data,{timestamp:this.microsecondTimestamp,duration:this.microsecondDuration||void 0}):this._data instanceof Uint8Array?(z(this._layout),new VideoFrame(this._data,{format:this.format,codedWidth:this.codedWidth,codedHeight:this.codedHeight,layout:this._layout,timestamp:this.microsecondTimestamp,duration:this.microsecondDuration||void 0,colorSpace:this.colorSpace,visibleRect:this.visibleRect,displayWidth:this.squarePixelWidth,displayHeight:this.squarePixelHeight})):new VideoFrame(this._data,{timestamp:this.microsecondTimestamp,duration:this.microsecondDuration||void 0})}draw(e,t,n,r,i,a,o,s,c){let l=0,u=0,d=this.displayWidth,f=this.displayHeight,p=0,m=0,h=this.displayWidth,g=this.displayHeight;if(a===void 0?(p=t,m=n,r!==void 0&&(h=r,g=i)):(l=t,u=n,d=r,f=i,p=a,m=o,s===void 0?(h=d,g=f):(h=s,g=c)),!(typeof CanvasRenderingContext2D<`u`&&e instanceof CanvasRenderingContext2D||typeof OffscreenCanvasRenderingContext2D<`u`&&e instanceof OffscreenCanvasRenderingContext2D))throw TypeError(`context must be a CanvasRenderingContext2D or OffscreenCanvasRenderingContext2D.`);if(!Number.isFinite(l))throw TypeError(`sx must be a number.`);if(!Number.isFinite(u))throw TypeError(`sy must be a number.`);if(!Number.isFinite(d)||d<0)throw TypeError(`sWidth must be a non-negative number.`);if(!Number.isFinite(f)||f<0)throw TypeError(`sHeight must be a non-negative number.`);if(!Number.isFinite(p))throw TypeError(`dx must be a number.`);if(!Number.isFinite(m))throw TypeError(`dy must be a number.`);if(!Number.isFinite(h)||h<0)throw TypeError(`dWidth must be a non-negative number.`);if(!Number.isFinite(g)||g<0)throw TypeError(`dHeight must be a non-negative number.`);if(this._closed)throw Error(`VideoSample is closed.`);({sx:l,sy:u,sWidth:d,sHeight:f}=this._rotateSourceRegion(l,u,d,f,this.rotation));let _=this.toCanvasImageSource();e.save();let v=p+h/2,y=m+g/2;e.translate(v,y),e.rotate(this.rotation*Math.PI/180);let b=this.rotation%180==0?1:h/g;e.scale(1/b,b),e.drawImage(_,l,u,d,f,-h/2,-g/2,h,g),e.restore()}drawWithFit(e,t){if(!(typeof CanvasRenderingContext2D<`u`&&e instanceof CanvasRenderingContext2D||typeof OffscreenCanvasRenderingContext2D<`u`&&e instanceof OffscreenCanvasRenderingContext2D))throw TypeError(`context must be a CanvasRenderingContext2D or OffscreenCanvasRenderingContext2D.`);if(!t||typeof t!=`object`)throw TypeError(`options must be an object.`);if(![`fill`,`contain`,`cover`].includes(t.fit))throw TypeError(`options.fit must be 'fill', 'contain', or 'cover'.`);if(t.rotation!==void 0&&![0,90,180,270].includes(t.rotation))throw TypeError(`options.rotation, when provided, must be 0, 90, 180, or 270.`);t.crop!==void 0&&El(t.crop,`options.`);let n=e.canvas.width,r=e.canvas.height,i=t.rotation??this.rotation,[a,o]=i%180==0?[this.squarePixelWidth,this.squarePixelHeight]:[this.squarePixelHeight,this.squarePixelWidth],s=t.crop;s&&=Tl(s,a,o);let c,l,u,d,{sx:f,sy:p,sWidth:m,sHeight:h}=this._rotateSourceRegion(t.crop?.left??0,t.crop?.top??0,t.crop?.width??a,t.crop?.height??o,i);if(t.fit===`fill`)c=0,l=0,u=n,d=r;else{let[e,i]=t.crop?[t.crop.width,t.crop.height]:[a,o],s=t.fit===`contain`?Math.min(n/e,r/i):Math.max(n/e,r/i);u=e*s,d=i*s,c=(n-u)/2,l=(r-d)/2}e.save();let g=i%180==0?1:u/d;e.translate(n/2,r/2),e.rotate(i*Math.PI/180),e.scale(1/g,g),e.translate(-n/2,-r/2),e.drawImage(this.toCanvasImageSource(),f,p,m,h,c,l,u,d),e.restore()}_rotateSourceRegion(e,t,n,r,i){return i===90?[e,t,n,r]=[t,this.squarePixelHeight-e-n,r,n]:i===180?[e,t]=[this.squarePixelWidth-e-n,this.squarePixelHeight-t-r]:i===270&&([e,t,n,r]=[this.squarePixelWidth-t-r,e,r,n]),{sx:e,sy:t,sWidth:n,sHeight:r}}_drawWithFitAndMipmapping(e,t,n){let r=e.width,i=e.height,[a,o]=n.rotation%180==0?[this.squarePixelWidth,this.squarePixelHeight]:[this.squarePixelHeight,this.squarePixelWidth],s=n.crop?n.crop.width:a,c=n.crop?n.crop.height:o,l=0;2*r<s&&2*i<c&&(l=Math.floor(Math.log2(Math.min(s/r,c/i))));let u=r*2**l,d=i*2**l,{canvas:f,context:p,isNew:m}=l>0?Sl(u,d):{canvas:e,context:t,isNew:n.targetIsFresh};p.imageSmoothingQuality=`high`,n.fillBlack?(p.fillStyle=`black`,p.fillRect(0,0,u,d)):m||p.clearRect(0,0,u,d),this.drawWithFit(p,{fit:n.fit,rotation:n.rotation,crop:n.crop}),p.globalCompositeOperation=`copy`;for(let e=l;e>1;e--){let t=r*2**e,n=i*2**e;p.drawImage(f,0,0,t,n,0,0,t/2,n/2)}p.globalCompositeOperation=`source-over`,l>0&&(t.imageSmoothingQuality=`high`,t.globalCompositeOperation=`copy`,t.drawImage(f,0,0,2*r,2*i,0,0,r,i),t.globalCompositeOperation=`source-over`)}toCanvasImageSource(){if(this._closed)throw Error(`VideoSample is closed.`);if(z(this._data!==null),this._data instanceof ml||this._data instanceof Uint8Array){let e=this.toVideoFrame();return queueMicrotask(()=>e.close()),e}return this._data}async transform(t){if(!t||typeof t!=`object`)throw TypeError(`options must be an object.`);if(t.width!==void 0&&(!Number.isInteger(t.width)||t.width<=0))throw TypeError(`options.width, when provided, must be a positive integer.`);if(t.height!==void 0&&(!Number.isInteger(t.height)||t.height<=0))throw TypeError(`options.height, when provided, must be a positive integer.`);if(t.roundDimensionsTo!==void 0&&(!Number.isInteger(t.roundDimensionsTo)||t.roundDimensionsTo<=0))throw TypeError(`options.roundDimensionsTo, when provided, must be a positive integer.`);if(t.fit!==void 0&&![`fill`,`contain`,`cover`].includes(t.fit))throw TypeError(`options.fit, when provided, must be one of "fill", "contain", or "cover".`);if(t.width!==void 0&&t.height!==void 0&&t.fit===void 0)throw TypeError(`When both options.width and options.height are provided, options.fit must also be provided.`);if(t.rotate!==void 0&&![0,90,180,270].includes(t.rotate))throw TypeError(`options.rotate, when provided, must be 0, 90, 180 or 270.`);if(t.crop!==void 0&&El(t.crop,`options.`),t.alpha!==void 0&&![`keep`,`discard`].includes(t.alpha))throw TypeError(`options.alpha, when provided, must be 'keep' or 'discard'.`);let n=$o(this.rotation+(t.rotate??0)),[r,i]=n%180==0?[this.squarePixelWidth,this.squarePixelHeight]:[this.squarePixelHeight,this.squarePixelWidth],a=t.crop;a&&=Tl(a,r,i);let o=a?a.width:r,s=a?a.height:i,c=o/s,l,u;t.width!==void 0&&t.height===void 0?(l=t.width,u=l/c):t.width===void 0&&t.height!==void 0?(u=t.height,l=u*c):t.width!==void 0&&t.height!==void 0?(l=t.width,u=t.height):(l=o,u=s),l=ys(l,t.roundDimensionsTo??1),u=ys(u,t.roundDimensionsTo??1);let d={width:l,height:u,fit:t.fit??`fill`,rotation:n,crop:a??{left:0,top:0,width:r,height:i},alpha:t.alpha??`keep`};for(let e of vl){let t=e(this,d);if(t instanceof Promise&&(t=await t),t!==null)return t}let{canvas:f,context:p,isNew:m}=Sl(d.width,d.height);return this._drawWithFitAndMipmapping(f,p,{fit:d.fit,rotation:d.rotation,crop:d.crop,targetIsFresh:m,fillBlack:d.alpha===`discard`}),new e(f,{timestamp:this.timestamp,duration:this.duration,rotation:0})}setRotation(e){if(![0,90,180,270].includes(e))throw TypeError(`newRotation must be 0, 90, 180, or 270.`);this.rotation=e}setTimestamp(e){if(!Number.isFinite(e))throw TypeError(`newTimestamp must be a number.`);this.timestamp=e}setDuration(e){if(!Number.isFinite(e)||e<0)throw TypeError(`newDuration must be a non-negative number.`);this.duration=e}setEncodeOptions(e){if(!e||typeof e!=`object`)throw TypeError(`newEncodeOptions must be an object.`);this.encodeOptions=e}[Symbol.dispose](){this.close()}},vl=[],yl=3,bl=[],xl=0,Sl=(e,t)=>{for(let n of bl)if(n.canvas.width===e&&n.canvas.height===t)return n.age=xl++,{canvas:n.canvas,context:n.context,isNew:!1};let n;if(typeof OffscreenCanvas<`u`)n=new OffscreenCanvas(e,t);else{if(typeof window>`u`||typeof document>`u`)throw Error(`Cannot transform VideoSamples in this environment. Either run in an environment with OffscreenCanvas or HTMLCanvasElement, or supply a custom VideoSample transformer using registerVideoSampleTransformer().`);n=document.createElement(`canvas`),n.width=e,n.height=t}let r=n.getContext(`2d`,{alpha:!0,willReadFrequently:!1});if(!r)throw Error(`The '2d' canvas context is required to transform VideoSamples. Register a custom transformer using registerVideoSampleTransformer to work around this limitation.`);return bl.length>=yl&&bl.splice(Ps(bl,e=>e.age),1),bl.push({canvas:n,context:r,age:xl++}),{canvas:n,context:r,isNew:!0}},Cl=class{constructor(e){if(e!==void 0){if(!e||typeof e!=`object`)throw TypeError(`init.colorSpace, when provided, must be an object.`);let t=Object.keys(os);if(e.primaries!=null&&!t.includes(e.primaries))throw TypeError(`init.colorSpace.primaries, when provided, must be one of ${t.join(`, `)}.`);let n=Object.keys(ss);if(e.transfer!=null&&!n.includes(e.transfer))throw TypeError(`init.colorSpace.transfer, when provided, must be one of ${n.join(`, `)}.`);let r=Object.keys(cs);if(e.matrix!=null&&!r.includes(e.matrix))throw TypeError(`init.colorSpace.matrix, when provided, must be one of ${r.join(`, `)}.`);if(e.fullRange!=null&&typeof e.fullRange!=`boolean`)throw TypeError(`init.colorSpace.fullRange, when provided, must be a boolean.`)}this.primaries=e?.primaries??null,this.transfer=e?.transfer??null,this.matrix=e?.matrix??null,this.fullRange=e?.fullRange??null}toJSON(){return{primaries:this.primaries,transfer:this.transfer,matrix:this.matrix,fullRange:this.fullRange}}},wl=e=>typeof VideoFrame<`u`&&e instanceof VideoFrame,Tl=(e,t,n)=>{let r=Math.min(e.left,t),i=Math.min(e.top,n),a=Math.min(e.width,t-r),o=Math.min(e.height,n-i);return z(a>=0),z(o>=0),{left:r,top:i,width:a,height:o}},El=(e,t)=>{if(!e||typeof e!=`object`)throw TypeError(t+`crop, when provided, must be an object.`);if(!Number.isInteger(e.left)||e.left<0)throw TypeError(t+`crop.left must be a non-negative integer.`);if(!Number.isInteger(e.top)||e.top<0)throw TypeError(t+`crop.top must be a non-negative integer.`);if(!Number.isInteger(e.width)||e.width<0)throw TypeError(t+`crop.width must be a non-negative integer.`);if(!Number.isInteger(e.height)||e.height<0)throw TypeError(t+`crop.height must be a non-negative integer.`)},Dl=e=>{if(!e||typeof e!=`object`)throw TypeError(`options must be an object.`);if(e.colorSpace!==void 0&&![`display-p3`,`srgb`].includes(e.colorSpace))throw TypeError(`options.colorSpace, when provided, must be 'display-p3' or 'srgb'.`);if(e.format!==void 0&&typeof e.format!=`string`)throw TypeError(`options.format, when provided, must be a string.`);if(e.layout!==void 0){if(!Array.isArray(e.layout))throw TypeError(`options.layout, when provided, must be an array.`);for(let t of e.layout){if(!t||typeof t!=`object`)throw TypeError(`Each entry in options.layout must be an object.`);if(!Number.isInteger(t.offset)||t.offset<0)throw TypeError(`plane.offset must be a non-negative integer.`);if(!Number.isInteger(t.stride)||t.stride<0)throw TypeError(`plane.stride must be a non-negative integer.`)}}if(e.rect!==void 0){if(!e.rect||typeof e.rect!=`object`)throw TypeError(`options.rect, when provided, must be an object.`);if(e.rect.x!==void 0&&(!Number.isInteger(e.rect.x)||e.rect.x<0))throw TypeError(`options.rect.x, when provided, must be a non-negative integer.`);if(e.rect.y!==void 0&&(!Number.isInteger(e.rect.y)||e.rect.y<0))throw TypeError(`options.rect.y, when provided, must be a non-negative integer.`);if(e.rect.width!==void 0&&(!Number.isInteger(e.rect.width)||e.rect.width<0))throw TypeError(`options.rect.width, when provided, must be a non-negative integer.`);if(e.rect.height!==void 0&&(!Number.isInteger(e.rect.height)||e.rect.height<0))throw TypeError(`options.rect.height, when provided, must be a non-negative integer.`)}},Ol=(e,t,n)=>{let r=kl(e),i=[],a=0;for(let e of r){let r=Math.ceil(t/e.widthDivisor),o=Math.ceil(n/e.heightDivisor),s=r*e.sampleBytes,c=s*o;i.push({offset:a,stride:s}),a+=c}return i},kl=e=>{let t=(e,t,n,r,i)=>{let a=[{sampleBytes:e,widthDivisor:1,heightDivisor:1},{sampleBytes:t,widthDivisor:n,heightDivisor:r},{sampleBytes:t,widthDivisor:n,heightDivisor:r}];return i&&a.push({sampleBytes:e,widthDivisor:1,heightDivisor:1}),a};switch(e){case`I420`:return t(1,1,2,2,!1);case`I420P10`:case`I420P12`:return t(2,2,2,2,!1);case`I420A`:return t(1,1,2,2,!0);case`I420AP10`:case`I420AP12`:return t(2,2,2,2,!0);case`I422`:return t(1,1,2,1,!1);case`I422P10`:case`I422P12`:return t(2,2,2,1,!1);case`I422A`:return t(1,1,2,1,!0);case`I422AP10`:case`I422AP12`:return t(2,2,2,1,!0);case`I444`:return t(1,1,1,1,!1);case`I444P10`:case`I444P12`:return t(2,2,1,1,!1);case`I444A`:return t(1,1,1,1,!0);case`I444AP10`:case`I444AP12`:return t(2,2,1,1,!0);case`NV12`:return[{sampleBytes:1,widthDivisor:1,heightDivisor:1},{sampleBytes:2,widthDivisor:2,heightDivisor:2}];case`RGBA`:case`RGBX`:case`BGRA`:case`BGRX`:return[{sampleBytes:4,widthDivisor:1,heightDivisor:1}];default:ms(e),z(!1)}},Al=(e,t)=>{let n={left:0,top:0,width:e.codedWidth,height:e.codedHeight},r=t.rect,i=jl(n,r,e.codedWidth,e.codedHeight,e.format),a=t.layout,o;if(!t.format||t.format===e.format)o=e.format;else if([`RGBA`,`RGBX`,`BGRA`,`BGRX`].includes(t.format))o=t.format;else throw Error(`NotSupportedError: Invalid destination format.`);return Nl(i,o,a)},jl=(e,t,n,r,i)=>{let a={...e};if(t!==void 0){if(t.width===0||t.height===0)throw TypeError(`visibleRect dimensions cannot be zero.`);if((t.x||0)+(t.width||0)>n)throw TypeError(`visibleRect exceeds codedWidth.`);if((t.y||0)+(t.height||0)>r)throw TypeError(`visibleRect exceeds codedHeight.`);a.x=t.x||0,a.y=t.y||0,a.width=t.width||0,a.height=t.height||0}if(!Ml(i,a))throw TypeError(`visibleRect alignment is invalid for the format.`);return a},Ml=(e,t)=>{if(e===null)return!0;let n=kl(e);for(let e=0;e<n.length;e++){let r=n[e],i=r.widthDivisor,a=r.heightDivisor;if((t.x||0)%i!==0||(t.y||0)%a!==0)return!1}return!0},Nl=(e,t,n)=>{let r=kl(t),i=r.length;if(n!==void 0&&n.length!==i)throw TypeError(`Layout must have ${i} planes.`);let a=0,o=[],s=[];for(let t=0;t<i;t++){let i=r[t],c=i.sampleBytes,l=i.widthDivisor,u=i.heightDivisor,d={destinationOffset:0,destinationStride:0,sourceTop:0,sourceHeight:0,sourceLeftBytes:0,sourceWidthBytes:0};if(d.sourceTop=Math.ceil(Math.trunc(e.y||0)/u),d.sourceHeight=Math.ceil(Math.trunc(e.height||0)/u),d.sourceLeftBytes=Math.floor(Math.trunc(e.x||0)/l)*c,d.sourceWidthBytes=Math.floor(Math.trunc(e.width||0)/l)*c,n!==void 0){let e=n[t];if(e.stride<d.sourceWidthBytes)throw TypeError(`Stride for plane ${t} is too small.`);d.destinationOffset=e.offset,d.destinationStride=e.stride}else d.destinationOffset=a,d.destinationStride=d.sourceWidthBytes;let f=d.destinationStride*d.sourceHeight+d.destinationOffset;if(f>4294967295)throw TypeError(`Allocation size exceeds limit.`);s.push(f),a=Math.max(a,f);for(let e=0;e<t;e++){let n=o[e];if(!(s[t]<=n.destinationOffset||s[e]<=d.destinationOffset))throw TypeError(`Planes overlap.`)}o.push(d)}return{allocationSize:a,computedLayouts:o}},Pl=e=>{if(!e||typeof e!=`object`)throw TypeError(`Encoding config must be an object.`);if(!Zs.includes(e.codec))throw TypeError(`Invalid video codec '${e.codec}'. Must be one of: ${Zs.join(`, `)}.`);let t=e.bitrate;if(e.quality===void 0&&t===void 0)throw TypeError(`config.quality must be provided.`);if(e.quality!==void 0&&t!==void 0)throw TypeError(`config.quality and config.bitrate cannot both be provided.`);if(e.quality!==void 0&&!(e.quality instanceof Ll))throw TypeError(`config.quality, when provided, must be a Quality.`);if(t!==void 0&&!(t instanceof Ll)&&(!Number.isInteger(t)||t<=0))throw TypeError(`config.bitrate, when provided, must be a positive integer or a quality.`);if(e.keyFrameInterval!==void 0&&(!Number.isFinite(e.keyFrameInterval)||e.keyFrameInterval<0))throw TypeError(`config.keyFrameInterval, when provided, must be a non-negative number.`);if(e.sizeChangeBehavior!==void 0&&![`deny`,`passThrough`,`fill`,`contain`,`cover`].includes(e.sizeChangeBehavior))throw TypeError(`config.sizeChangeBehavior, when provided, must be 'deny', 'passThrough', 'fill', 'contain' or 'cover'.`);if(e.transform!==void 0){if(typeof e.transform!=`object`||!e.transform)throw TypeError(`config.transform, when provided, must be an object.`);if(e.transform.width!==void 0&&(!Number.isInteger(e.transform.width)||e.transform.width<=0))throw TypeError(`config.transform.width, when provided, must be a positive integer.`);if(e.transform.height!==void 0&&(!Number.isInteger(e.transform.height)||e.transform.height<=0))throw TypeError(`config.transform.height, when provided, must be a positive integer.`);if(e.transform.fit!==void 0&&![`fill`,`contain`,`cover`].includes(e.transform.fit))throw TypeError(`config.transform.fit, when provided, must be one of "fill", "contain", or "cover".`);if(e.transform.width!==void 0&&e.transform.height!==void 0&&e.transform.fit===void 0&&![`fill`,`contain`,`cover`].includes(e.sizeChangeBehavior))throw TypeError(`When both config.transform.width and config.transform.height are provided, config.transform.fit must also be provided.`);if(e.transform.fit!==void 0&&[`fill`,`contain`,`cover`].includes(e.sizeChangeBehavior)&&e.transform.fit!==e.sizeChangeBehavior)throw TypeError(`config.transform.fit, when provided, cannot differ from config.sizeChangeBehavior when config.sizeChangeBehavior is 'fill', 'contain' or 'cover', as sizeChangeBehavior already determines the fitting algorithm.`);if(e.transform.rotate!==void 0&&![0,90,180,270].includes(e.transform.rotate))throw TypeError(`config.transform.rotate, when provided, must be 0, 90, 180 or 270.`);if(e.transform.crop!==void 0&&El(e.transform.crop,`config.transform.`),e.transform.process!==void 0&&typeof e.transform.process!=`function`)throw TypeError(`config.transform.process, when provided, must be a function.`);if(e.transform.frameRate!==void 0&&(!Number.isFinite(e.transform.frameRate)||e.transform.frameRate<=0))throw TypeError(`config.transform.frameRate, when provided, must be a finite positive number.`);if(e.transform.force!==void 0&&typeof e.transform.force!=`boolean`)throw TypeError(`config.transform.force, when provided, must be a boolean.`)}if(e.onEncodedPacket!==void 0&&typeof e.onEncodedPacket!=`function`)throw TypeError(`config.onEncodedPacket, when provided, must be a function.`);if(e.onEncoderConfig!==void 0&&typeof e.onEncoderConfig!=`function`)throw TypeError(`config.onEncoderConfig, when provided, must be a function.`);if(e.onEncodedSample!==void 0&&typeof e.onEncodedSample!=`function`)throw TypeError(`config.onEncodedSample, when provided, must be a function.`);Fl(e.codec,e)},Fl=(e,t)=>{if(!t||typeof t!=`object`)throw TypeError(`Encoding options must be an object.`);if(t.alpha!==void 0&&![`discard`,`keep`].includes(t.alpha))throw TypeError(`options.alpha, when provided, must be 'discard' or 'keep'.`);let n=t.bitrateMode;if(n!==void 0&&![`constant`,`variable`].includes(n))throw TypeError(`bitrateMode, when provided, must be 'constant' or 'variable'.`);if(t.latencyMode!==void 0&&![`quality`,`realtime`].includes(t.latencyMode))throw TypeError(`latencyMode, when provided, must be 'quality' or 'realtime'.`);if(t.fullCodecString!==void 0&&typeof t.fullCodecString!=`string`)throw TypeError(`fullCodecString, when provided, must be a string.`);if(t.fullCodecString!==void 0&&fc(t.fullCodecString)!==e)throw TypeError(`fullCodecString, when provided, must be a string that matches the specified codec (${e}).`);if(t.hardwareAcceleration!==void 0&&![`no-preference`,`prefer-hardware`,`prefer-software`].includes(t.hardwareAcceleration))throw TypeError(`hardwareAcceleration, when provided, must be 'no-preference', 'prefer-hardware' or 'prefer-software'.`);if(t.scalabilityMode!==void 0&&typeof t.scalabilityMode!=`string`)throw TypeError(`scalabilityMode, when provided, must be a string.`);if(t.contentHint!==void 0&&typeof t.contentHint!=`string`)throw TypeError(`contentHint, when provided, must be a string.`)},Il=e=>{let t=e.bitrateMode,n=e.quality._toVideoRateControl(e.codec,e.width,e.height,t),r=(t,n,r)=>({codec:e.fullCodecString??cc(e.codec,e.width,e.height,r,e.alpha===`keep`),width:e.width,height:e.height,displayWidth:e.squarePixelWidth,displayHeight:e.squarePixelHeight,bitrate:t,bitrateMode:n,alpha:e.alpha??`discard`,framerate:e.framerate,latencyMode:e.latencyMode,hardwareAcceleration:e.hardwareAcceleration,scalabilityMode:e.scalabilityMode,contentHint:e.contentHint,...pc(e.codec)}),i=[];return n.quantizer!==null&&i.push({config:r(void 0,`quantizer`,n.bitrate),quantizer:n.quantizer}),n.bitrateMode!==`quantizer`&&i.push({config:r(n.bitrate,n.bitrateMode,n.bitrate),quantizer:null}),z(i.length>0),i},Ll=class{constructor(e){if((typeof e==`number`||typeof e==`string`)&&(e={quality:e}),!e||typeof e!=`object`)throw TypeError(`options must be an object.`);if(e.bitrateMode!==void 0&&![`constant`,`variable`].includes(e.bitrateMode))throw TypeError(`options.bitrateMode, when provided, must be 'constant' or 'variable'.`);if(`quality`in e){if(typeof e.quality==`string`?!(e.quality in Rl):typeof e.quality!=`number`||Number.isNaN(e.quality))throw TypeError(`options.quality must be a number, or one of 'very-low', 'low', 'medium', 'high' or 'very-high'.`);if(e.preferBitrate!==void 0&&typeof e.preferBitrate!=`boolean`)throw TypeError(`options.preferBitrate, when provided, must be a boolean.`);if(`bitrate`in e||`quantizer`in e)throw TypeError(`options.quality cannot be combined with options.bitrate or options.quantizer.`);this._quality=typeof e.quality==`string`?Rl[e.quality]:e.quality,this._preferBitrate=e.preferBitrate??!1,this._bitrate=void 0,this._quantizer=void 0}else{if(e.bitrate!==void 0&&(!Number.isInteger(e.bitrate)||e.bitrate<=0))throw TypeError(`options.bitrate, when provided, must be a positive integer.`);if(e.quantizer!==void 0&&(!Number.isInteger(e.quantizer)||e.quantizer<0))throw TypeError(`options.quantizer, when provided, must be a non-negative integer.`);if(e.bitrate===void 0&&e.quantizer===void 0)throw TypeError(`At least one of options.bitrate or options.quantizer must be set.`);if(`preferBitrate`in e)throw TypeError(`options.preferBitrate can only be combined with options.quality.`);this._quality=void 0,this._preferBitrate=!1,this._bitrate=e.bitrate,this._quantizer=e.quantizer}this._bitrateMode=e.bitrateMode}_toVideoRateControl(e,t,n,r){let i=zl[e],a=null,o=this._bitrateMode??r??`variable`;if(this._quantizer!==void 0){if(!i){if(this._bitrate===void 0)throw Error(`Codec '${e}' does not support quantizer-based encoding. Provide a bitrate in the Quality to define a fallback.`)}else if(this._quantizer<i.min||this._quantizer>i.max){if(this._bitrate===void 0)throw Error(`Quantizer ${this._quantizer} is out of range for codec '${e}'; must be between ${i.min} and ${i.max}.`)}else a=this._quantizer,this._bitrate===void 0&&(o=`quantizer`)}else this._bitrate===void 0&&i&&!this._preferBitrate&&(z(this._quality!==void 0),a=_s(Math.round(vs(i.worst,i.best,this._quality)),i.min,i.max));let s;if(this._bitrate!==void 0)s=this._bitrate;else{let r=this._quality;r===void 0&&(z(a!==null&&i),r=_s((a-i.worst)/(i.best-i.worst),0,1)),s=Vl(e,t,n,Bl(r))}return{quantizer:a,bitrate:s,bitrateMode:o}}_toVideoBitrate(e,t,n){return this._bitrate===void 0?(z(this._quality!==void 0),Vl(e,t,n,Bl(this._quality))):this._bitrate}_toAudioBitrate(e){if(Qs.includes(e)||e===`flac`)return;if(this._bitrate!==void 0)return this._bitrate;if(this._quality===void 0)throw Error(`This Quality defines neither a quality level nor a bitrate and therefore cannot be used for audio encoding.`);let t=Bl(this._quality),n={aac:128e3,opus:64e3,mp3:16e4,vorbis:64e3,ac3:384e3,eac3:192e3}[e];if(!n)throw Error(`Unhandled codec: ${e}`);let r=n*t;return e===`aac`?r=[96e3,128e3,16e4,192e3].reduce((e,t)=>Math.abs(t-r)<Math.abs(e-r)?t:e):e===`opus`||e===`vorbis`?r=Math.max(6e3,r):e===`mp3`&&(r=[8e3,16e3,24e3,32e3,4e4,48e3,64e3,8e4,96e3,112e3,128e3,16e4,192e3,224e3,256e3,32e4].reduce((e,t)=>Math.abs(t-r)<Math.abs(e-r)?t:e)),Math.round(r/1e3)*1e3}},Rl={"very-low":0,low:.25,medium:.5,high:.75,"very-high":1},zl={avc:{min:0,max:51,worst:41,best:16},hevc:{min:0,max:51,worst:41,best:16},vp9:{min:0,max:63,worst:52,best:20},av1:{min:0,max:255,worst:208,best:80}},Bl=e=>.3*Math.exp(2.5538*e),Vl=(e,t,n,r)=>{let i=t*n,a=3e6,o=a*(i/2073600)**.95*{avc:1,hevc:.6,vp9:.6,av1:.4,vp8:1.2,prores:22e7/a}[e]*r;return Math.ceil(o/1e3)*1e3},Hl=(e,t)=>{if(e===`avc`)return{avc:{quantizer:t}};if(e===`hevc`)return{hevc:{quantizer:t}};if(e===`vp9`)return{vp9:{quantizer:t}};if(e===`av1`)return{av1:{quantizer:t}};z(!1)},Ul=(e,t)=>{if(e!==void 0)return e;if(t!==void 0)return t instanceof Ll?t:new Ll({bitrate:t})},V=[],Wl=class e{constructor(e,t,n,r,i){this.bytes=e,this.view=t,this.offset=n,this.start=r,this.end=i,this.bufferPos=r-n}static tempFromBytes(t){return new e(t,is(t),0,0,t.length)}get length(){return this.end-this.start}get filePos(){return this.offset+this.bufferPos}set filePos(e){this.bufferPos=e-this.offset}get remainingLength(){return Math.max(this.end-this.filePos,0)}skip(e){this.bufferPos+=e}slice(t,n=this.end-t){if(t<this.start||t+n>this.end)throw RangeError(`Slicing outside of original slice.`);return new e(this.bytes,this.view,this.offset,t,t+n)}},H=(e,t)=>{if(e.filePos<e.start||e.filePos+t>e.end)throw RangeError(`Tried reading [${e.filePos}, ${e.filePos+t}), but slice is [${e.start}, ${e.end}). This is likely an internal error, please report it alongside the file that caused it.`)},U=(e,t)=>{H(e,t);let n=e.bytes.subarray(e.bufferPos,e.bufferPos+t);return e.bufferPos+=t,n},Gl=class{constructor(e){this.mutex=new ds,this.trackTimestampInfo=new WeakMap,this.output=e}onTrackClose(e){}validateTimestamp(e,t,n){if(t<0)throw Error(`Timestamps must be non-negative (got ${t}s).`);let r=this.trackTimestampInfo.get(e);if(r){if(n&&(r.maxTimestampBeforeLastKeyPacket=r.maxTimestamp),r.maxTimestampBeforeLastKeyPacket!==null&&t<r.maxTimestampBeforeLastKeyPacket)throw Error(`Timestamps cannot be smaller than the largest timestamp of the previous GOP (a GOP begins with a key packet and ends right before the next key packet). Got ${t}s, but largest timestamp is ${r.maxTimestampBeforeLastKeyPacket}s.`);r.maxTimestamp=Math.max(r.maxTimestamp,t)}else{if(!n)throw Error(`First packet must be a key packet.`);r={maxTimestamp:t,maxTimestampBeforeLastKeyPacket:null},this.trackTimestampInfo.set(e,r)}}},Kl=/<(?:(\d{2}):)?(\d{2}):(\d{2}).(\d{3})>/g,ql=e=>{let t=Math.floor(e/36e5),n=Math.floor(e%36e5/6e4),r=Math.floor(e%6e4/1e3),i=e%1e3;return t.toString().padStart(2,`0`)+`:`+n.toString().padStart(2,`0`)+`:`+r.toString().padStart(2,`0`)+`.`+i.toString().padStart(3,`0`)},Jl=class{constructor(e){this.writer=e,this.helper=new Uint8Array(8),this.helperView=new DataView(this.helper.buffer),this.offsets=new WeakMap}writeU32(e){this.helperView.setUint32(0,e,!1),this.writer.write(this.helper.subarray(0,4))}writeU64(e){this.helperView.setUint32(0,Math.floor(e/2**32),!1),this.helperView.setUint32(4,e,!1),this.writer.write(this.helper.subarray(0,8))}writeAscii(e){for(let t=0;t<e.length;t++)this.helperView.setUint8(t%8,e.charCodeAt(t)),t%8==7&&this.writer.write(this.helper);e.length%8!=0&&this.writer.write(this.helper.subarray(0,e.length%8))}writeBox(e){if(this.offsets.set(e,this.writer.getPos()),e.contents&&!e.children)this.writeBoxHeader(e,e.size??e.contents.byteLength+8),this.writer.write(e.contents);else{let t=this.writer.getPos();if(this.writeBoxHeader(e,0),e.contents&&this.writer.write(e.contents),e.children)for(let t of e.children)t&&this.writeBox(t);let n=this.writer.getPos(),r=e.size??n-t;this.writer.seek(t),this.writeBoxHeader(e,r),this.writer.seek(n)}}writeBoxHeader(e,t){this.writeU32(e.largeSize?1:t),this.writeAscii(e.type),e.largeSize&&this.writeU64(t)}measureBoxHeader(e){return 8+(e.largeSize?8:0)}patchBox(e){let t=this.offsets.get(e);z(t!==void 0);let n=this.writer.getPos();this.writer.seek(t),this.writeBox(e),this.writer.seek(n)}measureBox(e){if(e.contents&&!e.children)return this.measureBoxHeader(e)+e.contents.byteLength;{let t=this.measureBoxHeader(e);if(e.contents&&(t+=e.contents.byteLength),e.children)for(let n of e.children)n&&(t+=this.measureBox(n));return t}}},W=new Uint8Array(8),Yl=new DataView(W.buffer),G=e=>[(e%256+256)%256],K=e=>(Yl.setUint16(0,e,!1),[W[0],W[1]]),Xl=e=>(Yl.setInt16(0,e,!1),[W[0],W[1]]),Zl=e=>(Yl.setUint32(0,e,!1),[W[1],W[2],W[3]]),q=e=>(Yl.setUint32(0,e,!1),[W[0],W[1],W[2],W[3]]),Ql=e=>(Yl.setInt32(0,e,!1),[W[0],W[1],W[2],W[3]]),$l=e=>(Yl.setUint32(0,Math.floor(e/2**32),!1),Yl.setUint32(4,e,!1),[W[0],W[1],W[2],W[3],W[4],W[5],W[6],W[7]]),eu=e=>(Yl.setInt32(0,Math.floor(e/2**32),!1),Yl.setUint32(4,e,!1),[W[0],W[1],W[2],W[3],W[4],W[5],W[6],W[7]]),tu=e=>(Yl.setInt16(0,256*e,!1),[W[0],W[1]]),nu=e=>(Yl.setInt32(0,2**16*e,!1),[W[0],W[1],W[2],W[3]]),ru=e=>(Yl.setInt32(0,2**30*e,!1),[W[0],W[1],W[2],W[3]]),iu=(e,t)=>{let n=[],r=e;do{let e=r&127;r>>=7,n.length>0&&(e|=128),n.push(e),t!==void 0&&t--}while(r>0||t);return n.reverse()},J=(e,t=!1)=>{let n=Array(e.length).fill(null).map((t,n)=>e.charCodeAt(n));return t&&n.push(0),n},au=e=>{let t=Math.PI/180*e,n=Math.round(Math.cos(t)),r=Math.round(Math.sin(t));return[n,r,0,-r,n,0,0,0,1]},ou=au(0),su=e=>[nu(e[0]),nu(e[1]),ru(e[2]),nu(e[3]),nu(e[4]),ru(e[5]),nu(e[6]),nu(e[7]),ru(e[8])],Y=(e,t,n)=>({type:e,contents:t&&new Uint8Array(t.flat(10)),children:n}),X=(e,t,n,r,i)=>Y(e,[G(t),Zl(n),r??[]],i),cu=e=>e.isQuickTime?Y(`ftyp`,[J(`qt  `),q(512),J(`qt  `)]):e.fragmented?e.cmaf?Y(`ftyp`,[J(`iso5`),q(512),J(`iso5`),J(`iso6`),J(`mp41`),J(`cmfc`),J(`dash`)]):Y(`ftyp`,[J(`iso5`),q(512),J(`iso5`),J(`iso6`),J(`mp41`)]):Y(`ftyp`,[J(`isom`),q(512),J(`isom`),e.holdsAvc?J(`avc1`):[],J(`mp41`)]),lu=()=>Y(`styp`,[J(`iso5`),q(0),J(`iso5`),J(`iso6`),J(`mp41`),J(`cmfc`),J(`dash`)]),uu=(e,t)=>{let n=e.maxWrittenEndTimestamp-e.minWrittenTimestamp;return Number.isFinite(n)||(n=0),X(`sidx`,1,0,[q(1),q(Ld),$l(Bd(e.minWrittenTimestamp,Ld)),$l(0),K(0),K(1),q(t&2147483647),q(Bd(n,Ld)),q(0)])},du=e=>({type:`mdat`,largeSize:e}),fu=e=>({type:`free`,size:e}),pu=e=>Y(`moov`,void 0,[mu(e.creationTime,e.trackDatas),...e.trackDatas.map(t=>gu(t,e.creationTime)),e.isFragmented?nd(e.trackDatas):null,_d(e)]),mu=(e,t)=>{let n=Math.max(0,...t.map(e=>Bd(hu(e),Ld)+Bd(e.startTimestampOffset??0,Ld))),r=Math.max(0,...t.map(e=>e.track.id))+1,i=!ts(e)||!ts(n),a=i?$l:q;return X(`mvhd`,+i,0,[a(e),a(e),q(Ld),a(n),nu(1),tu(1),Array(10).fill(0),su(ou),Array(24).fill(0),q(r)])},hu=e=>{if(e.samples.length===0)return 0;let t=1/0,n=-1/0;for(let r=0;r<e.samples.length;r++){let i=e.samples[r];i.timestamp<t&&(t=i.timestamp),i.timestamp+i.duration>n&&(n=i.timestamp+i.duration)}return t===1/0?0:n-t},gu=(e,t)=>{let n=zd(e),r=e.startTimestampOffset!==null&&e.startTimestampOffset>0;return Y(`trak`,void 0,[_u(e,t),r?vu(e,e.startTimestampOffset):null,yu(e,t),n.name===void 0?null:Y(`udta`,void 0,[Y(`name`,[...as.encode(n.name)])])])},_u=(e,t)=>{let n=Bd(hu(e),Ld)+Bd(e.startTimestampOffset??0,Ld),r=!ts(t)||!ts(n),i=r?$l:q,a;if(e.type===`video`){let t=e.track.metadata.rotation;a=au(t??0)}else a=ou;let o=2;e.track.metadata.disposition?.default!==!1&&(o|=1);let s=e.type===`video`?0:e.type===`audio`?1:e.type===`subtitle`?2:ms(e);return X(`tkhd`,+r,o,[i(t),i(t),q(e.track.id),q(0),i(n),Array(8).fill(0),K(0),K(s),tu(+(e.type===`audio`)),K(0),su(a),nu(e.type===`video`?e.info.width:0),nu(e.type===`video`?e.info.height:0)])},vu=(e,t)=>{let n=Bd(t,Ld),r=Bd(hu(e),Ld),i=!ts(n)||!ts(r),a=i?$l:q,o=i?eu:Ql;return Y(`edts`,void 0,[X(`elst`,+!!i,0,[q(2),a(n),o(-1),nu(1),a(r),o(0),nu(1)])])},yu=(e,t)=>Y(`mdia`,void 0,[bu(e,t),Cu(!0,xu[e.type],Su[e.type]),wu(e)]),bu=(e,t)=>{let n=Bd(hu(e),e.timescale),r=!ts(t)||!ts(n),i=r?$l:q;return X(`mdhd`,+r,0,[i(t),i(t),q(e.timescale),i(n),K(Ad(e.track.metadata.languageCode??`und`)),K(0)])},xu={video:`vide`,audio:`soun`,subtitle:`text`},Su={video:`MediabunnyVideoHandler`,audio:`MediabunnySoundHandler`,subtitle:`MediabunnyTextHandler`},Cu=(e,t,n,r=`\0\0\0\0`)=>X(`hdlr`,0,0,[e?J(`mhlr`):q(0),J(t),J(r),q(0),q(0),J(n,!0)]),wu=e=>Y(`minf`,void 0,[Tu[e.type](),Eu(),ku(e)]),Tu={video:()=>X(`vmhd`,0,1,[K(0),K(0),K(0),K(0)]),audio:()=>X(`smhd`,0,0,[K(0),K(0)]),subtitle:()=>X(`nmhd`,0,0)},Eu=()=>Y(`dinf`,void 0,[Du()]),Du=()=>X(`dref`,0,0,[q(1)],[Ou()]),Ou=()=>X(`url `,0,1),ku=e=>{let t=e.compositionTimeOffsetTable.length>1||e.compositionTimeOffsetTable.some(e=>e.sampleCompositionTimeOffset!==0);return Y(`stbl`,void 0,[Au(e),Yu(e),t?ed(e):null,t?td(e):null,Zu(e),Qu(e),$u(e),Xu(e)])},Au=e=>{let t;if(e.type===`video`)t=ju(wd(e.track.source._codec,e.info.decoderConfig.codec),e);else if(e.type===`audio`){let n=Ed(e.track.source._codec,e.muxer.isQuickTime);z(n),t=Ru(n,e)}else e.type===`subtitle`&&(t=qu(Od[e.track.source._codec],e));return z(t),X(`stsd`,0,0,[q(1)],[t])},ju=(e,t)=>Y(e,[[,,,,,,].fill(0),K(1),K(0),K(0),Array(12).fill(0),K(t.info.width),K(t.info.height),q(4718592),q(4718592),q(0),K(1),G(10),J(`Mediabunny`),Array(21).fill(0),K(t.info.hasAlphaChannel?32:24),Xl(65535)],[Td[t.track.source._codec]?.(t)??null,Mu(t),ls(t.info.decoderConfig.colorSpace)?Nu(t):null]),Mu=e=>e.info.pixelAspectRatio.num===e.info.pixelAspectRatio.den?null:Y(`pasp`,[q(e.info.pixelAspectRatio.num),q(e.info.pixelAspectRatio.den)]),Nu=e=>Y(`colr`,[J(e.muxer.isQuickTime?`nclc`:`nclx`),K(os[e.info.decoderConfig.colorSpace.primaries]),K(ss[e.info.decoderConfig.colorSpace.transfer]),K(cs[e.info.decoderConfig.colorSpace.matrix]),e.muxer.isQuickTime?[]:G(!!e.info.decoderConfig.colorSpace.fullRange<<7)]),Pu=e=>e.info.decoderConfig&&Y(`avcC`,[...rs(e.info.decoderConfig.description)]),Fu=e=>e.info.decoderConfig&&Y(`hvcC`,[...rs(e.info.decoderConfig.description)]),Iu=e=>{if(!e.info.decoderConfig)return null;let t=e.info.decoderConfig,n=t.codec.split(`.`),r=Number(n[1]),i=Number(n[2]),a=Number(n[3]),o=n[4]?Number(n[4]):1,s=n[8]?Number(n[8]):Number(t.colorSpace?.fullRange??0),c=(a<<4)+(o<<1)+s,l=n[5]?Number(n[5]):t.colorSpace?.primaries?os[t.colorSpace.primaries]:2,u=n[6]?Number(n[6]):t.colorSpace?.transfer?ss[t.colorSpace.transfer]:2,d=n[7]?Number(n[7]):t.colorSpace?.matrix?cs[t.colorSpace.matrix]:2;return X(`vpcC`,1,0,[G(r),G(i),G(c),G(l),G(u),G(d),K(0)])},Lu=e=>Y(`av1C`,lc(e.info.decoderConfig.codec)),Ru=(e,t)=>{let n=0,r,i=16,a=Qs.includes(t.track.source._codec);if(a){let e=t.track.source._codec,{sampleSize:r}=dc(e);i=8*r,i>16&&(n=1)}if(t.muxer.isQuickTime&&(n=1),n===0)r=[[,,,,,,].fill(0),K(1),K(n),K(0),q(0),K(t.info.numberOfChannels),K(i),K(0),K(0),K(t.info.sampleRate<2**16?t.info.sampleRate:0),K(0)];else{let e=a?0:-2;r=[[,,,,,,].fill(0),K(1),K(n),K(0),q(0),K(t.info.numberOfChannels),K(Math.min(i,16)),Xl(e),K(0),K(t.info.sampleRate<2**16?t.info.sampleRate:0),K(0),a?[q(1),q(i/8),q(t.info.numberOfChannels*i/8)]:[q(0),q(0),q(0)],q(2)]}return Y(e,r,[Dd(t.track.source._codec,t.muxer.isQuickTime)?.(t)??null])},zu=e=>{let t;switch(e.track.source._codec){case`aac`:t=64;break;case`mp3`:t=107;break;case`vorbis`:t=221;break;default:throw Error(`Unhandled audio codec: ${e.track.source._codec}`)}let n=[...G(t),...G(21),...Zl(0),...q(0),...q(0)];if(e.info.decoderConfig.description){let t=rs(e.info.decoderConfig.description);n=[...n,...G(5),...iu(t.byteLength),...t]}return n=[...K(1),...G(0),...G(4),...iu(n.length),...n,...G(6),...G(1),...G(2)],n=[...G(3),...iu(n.length),...n],X(`esds`,0,0,n)},Bu=e=>Y(`wave`,void 0,[Vu(e),Hu(e),Y(`\0\0\0\0`)]),Vu=e=>Y(`frma`,[J(Ed(e.track.source._codec,e.muxer.isQuickTime))]),Hu=e=>{let{littleEndian:t}=dc(e.track.source._codec);return Y(`enda`,[K(+t)])},Uu=e=>{let t=e.info.numberOfChannels,n=3840,r=e.info.sampleRate,i=0,a=0,o=new Uint8Array,s=e.info.decoderConfig?.description;if(s){z(s.byteLength>=18);let e=Qc(rs(s));t=e.outputChannelCount,n=e.preSkip,r=e.inputSampleRate,i=e.outputGain,a=e.channelMappingFamily,e.channelMappingTable&&(o=e.channelMappingTable)}return Y(`dOps`,[G(0),G(t),K(n),q(r),Xl(i),G(a),...o])},Wu=e=>{let t=e.info.decoderConfig?.description;return z(t),X(`dfLa`,0,0,[...rs(t).subarray(4)])},Z=e=>{let{littleEndian:t,sampleSize:n}=dc(e.track.source._codec);return X(`pcmC`,0,0,[G(+t),G(8*n)])},Gu=e=>{z(e.info.primingPacket);let t=tl(e.info.primingPacket.data);if(!t)throw Error(`Couldn't extract AC-3 frame info from the audio packet. Ensure the packets contain valid AC-3 sync frames (as specified in ETSI TS 102 366).`);let n=new Uint8Array(3),r=new qs(n);return r.writeBits(2,t.fscod),r.writeBits(5,t.bsid),r.writeBits(3,t.bsmod),r.writeBits(3,t.acmod),r.writeBits(1,t.lfeon),r.writeBits(5,t.bitRateCode),r.writeBits(5,0),Y(`dac3`,[...n])},Ku=e=>{z(e.info.primingPacket);let t=rl(e.info.primingPacket.data);if(!t)throw Error(`Couldn't extract E-AC-3 frame info from the audio packet. Ensure the packets contain valid E-AC-3 sync frames (as specified in ETSI TS 102 366).`);let n=16;for(let e of t.substreams)n+=23,e.numDepSub>0?n+=9:n+=1;let r=Math.ceil(n/8),i=new Uint8Array(r),a=new qs(i);a.writeBits(13,t.dataRate),a.writeBits(3,t.substreams.length-1);for(let e of t.substreams)a.writeBits(2,e.fscod),a.writeBits(5,e.bsid),a.writeBits(1,0),a.writeBits(1,0),a.writeBits(3,e.bsmod),a.writeBits(3,e.acmod),a.writeBits(1,e.lfeon),a.writeBits(3,0),a.writeBits(4,e.numDepSub),e.numDepSub>0?a.writeBits(9,e.chanLoc):a.writeBits(1,0);return Y(`dec3`,[...i])},qu=(e,t)=>Y(e,[[,,,,,,].fill(0),K(1)],[kd[t.track.source._codec](t)]),Ju=e=>Y(`vttC`,[...as.encode(e.info.config.description)]),Yu=e=>X(`stts`,0,0,[q(e.timeToSampleTable.length),e.timeToSampleTable.map(e=>[q(e.sampleCount),q(e.sampleDelta)])]),Xu=e=>{if(e.samples.every(e=>e.type===`key`))return null;let t=[...e.samples.entries()].filter(([,e])=>e.type===`key`);return X(`stss`,0,0,[q(t.length),t.map(([e])=>q(e+1))])},Zu=e=>X(`stsc`,0,0,[q(e.compactlyCodedChunkTable.length),e.compactlyCodedChunkTable.map(e=>[q(e.firstChunk),q(e.samplesPerChunk),q(1)])]),Qu=e=>{if(e.type===`audio`&&e.info.requiresPcmTransformation){let{sampleSize:t}=dc(e.track.source._codec);return X(`stsz`,0,0,[q(t*e.info.numberOfChannels),q(e.samples.reduce((t,n)=>t+Bd(n.duration,e.timescale),0))])}return X(`stsz`,0,0,[q(0),q(e.samples.length),e.samples.map(e=>q(e.size))])},$u=e=>e.finalizedChunks.length>0&&es(e.finalizedChunks).offset>=2**32?X(`co64`,0,0,[q(e.finalizedChunks.length),e.finalizedChunks.map(e=>$l(e.offset))]):X(`stco`,0,0,[q(e.finalizedChunks.length),e.finalizedChunks.map(e=>q(e.offset))]),ed=e=>X(`ctts`,1,0,[q(e.compositionTimeOffsetTable.length),e.compositionTimeOffsetTable.map(e=>[q(e.sampleCount),Ql(e.sampleCompositionTimeOffset)])]),td=e=>{let t=1/0,n=-1/0,r=1/0,i=-1/0;z(e.compositionTimeOffsetTable.length>0),z(e.samples.length>0);for(let r=0;r<e.compositionTimeOffsetTable.length;r++){let i=e.compositionTimeOffsetTable[r];t=Math.min(t,i.sampleCompositionTimeOffset),n=Math.max(n,i.sampleCompositionTimeOffset)}for(let t=0;t<e.samples.length;t++){let n=e.samples[t];r=Math.min(r,Bd(n.timestamp,e.timescale)),i=Math.max(i,Bd(n.timestamp+n.duration,e.timescale))}let a=Math.max(-t,0);return i>=2**31?null:X(`cslg`,0,0,[Ql(a),Ql(t),Ql(n),Ql(r),Ql(i)])},nd=e=>Y(`mvex`,void 0,e.map(rd)),rd=e=>X(`trex`,0,0,[q(e.track.id),q(1),q(0),q(0),q(0)]),id=(e,t)=>Y(`moof`,void 0,[ad(e),...t.map(sd)]),ad=e=>X(`mfhd`,0,0,[q(e)]),od=e=>{let t=0,n=0,r=e.type===`delta`;return n|=+r,t|=r?1:2,t<<24|n<<16|0},sd=e=>Y(`traf`,void 0,[cd(e),ld(e),ud(e)]),cd=e=>{z(e.currentChunk);let t=0;t|=8,t|=16,t|=32,t|=131072;let n=e.currentChunk.samples[1]??e.currentChunk.samples[0],r={duration:n.timescaleUnitsToNextSample,size:n.size,flags:od(n)};return X(`tfhd`,0,t,[q(e.track.id),q(r.duration),q(r.size),q(r.flags)])},ld=e=>(z(e.currentChunk),X(`tfdt`,1,0,[$l(Bd(e.currentChunk.startTimestamp,e.timescale))])),ud=e=>{z(e.currentChunk);let t=e.currentChunk.samples.map(e=>e.timescaleUnitsToNextSample),n=e.currentChunk.samples.map(e=>e.size),r=e.currentChunk.samples.map(od),i=e.currentChunk.samples.map(t=>Bd(t.timestamp-t.decodeTimestamp,e.timescale)),a=new Set(t),o=new Set(n),s=new Set(r),c=new Set(i),l=s.size===2&&r[0]!==r[1],u=a.size>1,d=o.size>1,f=!l&&s.size>1,p=c.size>1||[...c].some(e=>e!==0),m=0;return m|=1,m|=4*l,m|=256*u,m|=512*d,m|=1024*f,m|=2048*p,X(`trun`,1,m,[q(e.currentChunk.samples.length),q(e.currentChunk.offset-e.currentChunk.moofOffset||0),l?q(r[0]):[],e.currentChunk.samples.map((e,a)=>[u?q(t[a]):[],d?q(n[a]):[],f?q(r[a]):[],p?Ql(i[a]):[]])])},dd=e=>Y(`mfra`,void 0,[...e.map(fd),pd()]),fd=e=>X(`tfra`,1,0,[q(e.track.id),q(63),q(e.finalizedChunks.length),e.finalizedChunks.map(t=>[$l(Bd(t.samples[0].timestamp,e.timescale)),$l(t.moofOffset),q(t.trafIndex+1),q(1),q(1)])]),pd=()=>X(`mfro`,0,0,[q(0)]),md=()=>Y(`vtte`),hd=(e,t,n,r,i)=>Y(`vttc`,void 0,[i===null?null:Y(`vsid`,[Ql(i)]),n===null?null:Y(`iden`,[...as.encode(n)]),t===null?null:Y(`ctim`,[...as.encode(ql(t))]),r===null?null:Y(`sttg`,[...as.encode(r)]),Y(`payl`,[...as.encode(e)])]),gd=e=>Y(`vtta`,[...as.encode(e)]),_d=e=>{let t=[],n=e.format._options.metadataFormat??`auto`,r=e.output._metadataTags;if(n===`mdir`||n===`auto`&&!e.isQuickTime){let e=xd(r);e&&t.push(e)}else if(n===`mdta`){let e=Sd(r);e&&t.push(e)}else(n===`udta`||n===`auto`&&e.isQuickTime)&&vd(t,e.output._metadataTags);return t.length===0?null:Y(`udta`,void 0,t)},vd=(e,t)=>{for(let{key:n,value:r}of Ms(t))switch(n){case`title`:e.push(yd(`©nam`,r));break;case`description`:e.push(yd(`©des`,r));break;case`artist`:e.push(yd(`©ART`,r));break;case`album`:e.push(yd(`©alb`,r));break;case`albumArtist`:e.push(yd(`albr`,r));break;case`genre`:e.push(yd(`©gen`,r));break;case`date`:e.push(yd(`©day`,r.toISOString().slice(0,10)));break;case`comment`:e.push(yd(`©cmt`,r));break;case`lyrics`:e.push(yd(`©lyr`,r));break;case`raw`:break;case`discNumber`:case`discsTotal`:case`trackNumber`:case`tracksTotal`:case`images`:break;default:ms(n)}if(t.raw)for(let n in t.raw){let r=t.raw[n];r==null||n.length!==4||e.some(e=>e.type===n)||(typeof r==`string`?e.push(yd(n,r)):r instanceof Uint8Array&&e.push(Y(n,Array.from(r))))}},yd=(e,t)=>{let n=as.encode(t);return Y(e,[K(n.length),K(Ad(`und`)),Array.from(n)])},Q={"image/jpeg":13,"image/png":14,"image/bmp":27},bd=(e,t)=>{let n=[];for(let{key:r,value:i}of Ms(e))switch(r){case`title`:n.push({key:t?`title`:`©nam`,value:Cd(i)});break;case`description`:n.push({key:t?`description`:`©des`,value:Cd(i)});break;case`artist`:n.push({key:t?`artist`:`©ART`,value:Cd(i)});break;case`album`:n.push({key:t?`album`:`©alb`,value:Cd(i)});break;case`albumArtist`:n.push({key:t?`album_artist`:`aART`,value:Cd(i)});break;case`comment`:n.push({key:t?`comment`:`©cmt`,value:Cd(i)});break;case`genre`:n.push({key:t?`genre`:`©gen`,value:Cd(i)});break;case`lyrics`:n.push({key:t?`lyrics`:`©lyr`,value:Cd(i)});break;case`date`:n.push({key:t?`date`:`©day`,value:Cd(i.toISOString().slice(0,10))});break;case`images`:for(let e of i)e.kind===`coverFront`&&n.push({key:`covr`,value:Y(`data`,[q(Q[e.mimeType]??0),q(0),Array.from(e.data)])});break;case`trackNumber`:if(t){let t=e.tracksTotal===void 0?i.toString():`${i}/${e.tracksTotal}`;n.push({key:`track`,value:Cd(t)})}else n.push({key:`trkn`,value:Y(`data`,[q(0),q(0),K(0),K(i),K(e.tracksTotal??0),K(0)])});break;case`discNumber`:t||n.push({key:`disc`,value:Y(`data`,[q(0),q(0),K(0),K(i),K(e.discsTotal??0),K(0)])});break;case`tracksTotal`:case`discsTotal`:break;case`raw`:break;default:ms(r)}if(e.raw)for(let r in e.raw){let i=e.raw[r];i==null||!t&&r.length!==4||n.some(e=>e.key===r)||(typeof i==`string`?n.push({key:r,value:Cd(i)}):i instanceof Uint8Array?n.push({key:r,value:Y(`data`,[q(0),q(0),Array.from(i)])}):i instanceof Us&&n.push({key:r,value:Y(`data`,[q(Q[i.mimeType]??0),q(0),Array.from(i.data)])}))}return n},xd=e=>{let t=bd(e,!1);return t.length===0?null:X(`meta`,0,0,void 0,[Cu(!1,`mdir`,``,`appl`),Y(`ilst`,void 0,t.map(e=>Y(e.key,void 0,[e.value])))])},Sd=e=>{let t=bd(e,!0);return t.length===0?null:Y(`meta`,void 0,[Cu(!1,`mdta`,``),X(`keys`,0,0,[q(t.length)],t.map(e=>Y(`mdta`,[...as.encode(e.key)]))),Y(`ilst`,void 0,t.map((e,t)=>Y(String.fromCharCode(...q(t+1)),void 0,[e.value])))])},Cd=e=>Y(`data`,[q(1),q(0),...as.encode(e)]),wd=(e,t)=>{switch(e){case`avc`:return t.startsWith(`avc3`)?`avc3`:`avc1`;case`hevc`:return`hvc1`;case`vp8`:return`vp08`;case`vp9`:return`vp09`;case`av1`:return`av01`;case`prores`:return t}},Td={avc:Pu,hevc:Fu,vp8:Iu,vp9:Iu,av1:Lu,prores:null},Ed=(e,t)=>{switch(e){case`aac`:return`mp4a`;case`mp3`:return`mp4a`;case`opus`:return`Opus`;case`vorbis`:return`mp4a`;case`flac`:return`fLaC`;case`ulaw`:return`ulaw`;case`alaw`:return`alaw`;case`pcm-u8`:return`raw `;case`pcm-s8`:return`sowt`;case`ac3`:return`ac-3`;case`eac3`:return`ec-3`}if(t)switch(e){case`pcm-s16`:return`sowt`;case`pcm-s16be`:return`twos`;case`pcm-s24`:return`in24`;case`pcm-s24be`:return`in24`;case`pcm-s32`:return`in32`;case`pcm-s32be`:return`in32`;case`pcm-f32`:return`fl32`;case`pcm-f32be`:return`fl32`;case`pcm-f64`:return`fl64`;case`pcm-f64be`:return`fl64`}else switch(e){case`pcm-s16`:return`ipcm`;case`pcm-s16be`:return`ipcm`;case`pcm-s24`:return`ipcm`;case`pcm-s24be`:return`ipcm`;case`pcm-s32`:return`ipcm`;case`pcm-s32be`:return`ipcm`;case`pcm-f32`:return`fpcm`;case`pcm-f32be`:return`fpcm`;case`pcm-f64`:return`fpcm`;case`pcm-f64be`:return`fpcm`}},Dd=(e,t)=>{switch(e){case`aac`:return zu;case`mp3`:return zu;case`opus`:return Uu;case`vorbis`:return zu;case`flac`:return Wu;case`ac3`:return Gu;case`eac3`:return Ku}if(t)switch(e){case`pcm-s24`:return Bu;case`pcm-s24be`:return Bu;case`pcm-s32`:return Bu;case`pcm-s32be`:return Bu;case`pcm-f32`:return Bu;case`pcm-f32be`:return Bu;case`pcm-f64`:return Bu;case`pcm-f64be`:return Bu}else switch(e){case`pcm-s16`:return Z;case`pcm-s16be`:return Z;case`pcm-s24`:return Z;case`pcm-s24be`:return Z;case`pcm-s32`:return Z;case`pcm-s32be`:return Z;case`pcm-f32`:return Z;case`pcm-f32be`:return Z;case`pcm-f64`:return Z;case`pcm-f64be`:return Z}return null},Od={webvtt:`wvtt`},kd={webvtt:Ju},Ad=e=>{z(e.length===3);let t=0;for(let n=0;n<3;n++)t<<=5,t+=e.charCodeAt(n)-96;return t},jd=class{constructor(e,t){if(this.finalized=!1,this.started=!1,this.pos=0,this.trackedWrites=null,this.trackedStart=-1,this.trackedEnd=-1,e._writerAcquired)throw Error(`Can't have multiple Writers for the same Target.`);this.target=e,e._setMonotonicity(t),e._writerAcquired=!0}start(){z(!this.started),this.target._start(),this.started=!0}write(e){z(this.started&&!this.finalized),this.maybeTrackWrites(e),this.target._write(e,this.pos),this.pos+=e.byteLength}seek(e){this.pos=e}getPos(){return this.pos}async flush(){return z(this.started&&!this.finalized),this.target._flush()}async finalize(){z(this.started&&!this.finalized),await this.target._finalize(),this.finalized=!0}maybeTrackWrites(e){if(!this.trackedWrites)return;let t=this.getPos();if(t<this.trackedStart){if(t+e.byteLength<=this.trackedStart)return;e=e.subarray(this.trackedStart-t),t=0}let n=t+e.byteLength-this.trackedStart,r=this.trackedWrites.byteLength;for(;r<n;)r*=2;if(r!==this.trackedWrites.byteLength){let e=new Uint8Array(r);e.set(this.trackedWrites,0),this.trackedWrites=e}this.trackedWrites.set(e,t-this.trackedStart),this.trackedEnd=Math.max(this.trackedEnd,t+e.byteLength)}startTrackingWrites(){this.trackedWrites=new Uint8Array(1024),this.trackedStart=this.getPos(),this.trackedEnd=this.trackedStart}stopTrackingWrites(){if(!this.trackedWrites)throw Error(`Internal error: Can't get tracked writes since nothing was tracked.`);let e={data:this.trackedWrites.subarray(0,this.trackedEnd-this.trackedStart),start:this.trackedStart,end:this.trackedEnd};return this.trackedWrites=null,e}};cl();var Md=class extends zs{constructor(){super(...arguments),this._writerAcquired=!1,this._monotonicity=null,this.onwrite=null}_setMonotonicity(e){this._monotonicity!==!1&&(this._monotonicity=e)}_dispatchWrite(e,t){this.onwrite?.(e,t),this._emit(`write`,{start:e,end:t})}slice(e){if(!Number.isInteger(e)||e<0)throw TypeError(`offset must be a non-negative integer.`);return new Fd(this,e)}},$=2**16,Nd=2**32,Pd=class extends Md{constructor(e={}){if(super(),this.buffer=null,this._maxPos=0,!e||typeof e!=`object`)throw TypeError(`BufferTarget options, when provided, must be an object.`);if(e.onFinalize!==void 0&&typeof e.onFinalize!=`function`)throw TypeError(`options.onFinalize, when provided, must be a function.`);if(this._options=e,this._supportsResize=`resize`in new ArrayBuffer(0),this._supportsResize)try{this._buffer=new ArrayBuffer($,{maxByteLength:Nd})}catch{this._buffer=new ArrayBuffer($),this._supportsResize=!1}else this._buffer=new ArrayBuffer($);this._bytes=new Uint8Array(this._buffer)}_ensureSize(e){let t=this._buffer.byteLength;for(;t<e;)t*=2;if(t!==this._buffer.byteLength){if(t>Nd)throw Error(`ArrayBuffer exceeded maximum size of ${Nd} bytes. Please consider using another target.`);if(this._supportsResize)this._buffer.resize(t);else{let e=new ArrayBuffer(t),n=new Uint8Array(e);n.set(this._bytes,0),this._buffer=e,this._bytes=n}}}_start(){}_write(e,t){this._ensureSize(t+e.byteLength),this._bytes.set(e,t),this._maxPos=Math.max(this._maxPos,t+e.byteLength),this._dispatchWrite(t,t+e.byteLength)}async _flush(){}async _finalize(){this.buffer=this._buffer.slice(0,this._maxPos),this._options.onFinalize&&await this._options.onFinalize(this.buffer),this._emit(`finalized`)}async _close(){}_getSlice(e,t){return this._bytes.slice(e,t)}},Fd=class extends Md{constructor(e,t){super(),this._baseTarget=e,this._offset=t}_start(){}_write(e,t){this._baseTarget._write(e,this._offset+t),this._dispatchWrite(t,t+e.byteLength)}_flush(){return this._baseTarget._flush()}async _finalize(){this._emit(`finalized`)}async _close(){}_setMonotonicity(e){super._setMonotonicity(e),this._baseTarget._setMonotonicity(e)}},Id=class{constructor(e,t){if(this.rootPath=e,this.getTarget=t,typeof e!=`string`)throw TypeError(`rootPath must be a string.`);if(typeof t!=`function`)throw TypeError(`getTarget must be a function.`)}},Ld=57600,Rd=2082844800,zd=e=>{let t={},n=e.track;return n.metadata.name!==void 0&&(t.name=n.metadata.name),t},Bd=(e,t,n=!0)=>{let r=e*t;return n?Math.round(r):r},Vd=class extends Gl{constructor(e,t){super(e),this.writer=null,this.boxWriter=null,this.initWriter=null,this.initBoxWriter=null,this.auxTarget=new Pd,this.auxWriter=new jd(this.auxTarget,!1),this.auxBoxWriter=new Jl(this.auxWriter),this.mdat=null,this.ftypSize=null,this.trackDatas=[],this.allTracksKnown=ps(),this.creationTime=Math.floor(Date.now()/1e3)+Rd,this.finalizedChunks=[],this.wroteFragmentedHeader=!1,this.nextFragmentNumber=1,this.maxWrittenTimestamp=-1/0,this.minWrittenTimestamp=1/0,this.maxWrittenEndTimestamp=-1/0,this.segmentHeaderSize=null,this.format=t,this.formatOptions={...t._options},this.isQuickTime=t instanceof af,this.isCmaf=t instanceof rf,this.minimumFragmentDuration=this.formatOptions.minimumFragmentDuration??(t instanceof rf?1/0:1),this.auxWriter.start()}async start(){let e=await this.mutex.acquire();if(this.isCmaf?(this.fastStart=`fragmented`,this.isFragmented=!0):(this.writer=await this.output._getRootWriter(e=>this.formatOptions.fastStart===void 0?e instanceof Pd:this.formatOptions.fastStart===`fragmented`),this.boxWriter=new Jl(this.writer),this.fastStart=this.formatOptions.fastStart??(this.writer.target instanceof Pd&&`in-memory`),this.isFragmented=this.fastStart===`fragmented`),this.isCmaf){if(!this.output._hasInitTarget())throw Error(`CMAF outputs require the initTarget field in OutputOptions to be set; the init segment will be written to it.`);let e=new jd(await this.output._getInitTarget(),!0);e.start(),this.initWriter=e,this.initBoxWriter=new Jl(e)}let t=this.output.tracks.some(e=>e.isVideoTrack()&&e.source._codec===`avc`);{let e=this.initBoxWriter??this.boxWriter;if(z(e),this.formatOptions.onFtyp&&e.writer.startTrackingWrites(),e.writeBox(cu({isQuickTime:this.isQuickTime,holdsAvc:t,fragmented:this.isFragmented,cmaf:this.isCmaf})),this.formatOptions.onFtyp){let{data:t,start:n}=e.writer.stopTrackingWrites();this.formatOptions.onFtyp(t,n)}this.ftypSize=e.writer.getPos(),this.isCmaf&&await this.initWriter.flush()}if(this.fastStart!==`in-memory`){if(this.fastStart===`reserve`){for(let e of this.output.tracks)if(e.metadata.maximumPacketCount===void 0)throw Error(`All tracks must specify maximumPacketCount in their metadata when using fastStart: 'reserve'.`)}else this.isFragmented||(z(this.writer),z(this.boxWriter),this.formatOptions.onMdat&&this.writer.startTrackingWrites(),this.mdat=du(!0),this.boxWriter.writeBox(this.mdat))}await this.writer?.flush();for(let e of this.output.tracks)e.isVideoTrack()&&e.metadata.decoderConfig?this.getVideoTrackData(e,e.metadata.primingPacket??null,{decoderConfig:e.metadata.decoderConfig}):e.isAudioTrack()&&e.metadata.decoderConfig&&this.getAudioTrackData(e,e.metadata.primingPacket??null,{decoderConfig:e.metadata.decoderConfig});e()}allTracksAreKnown(){for(let e of this.output.tracks)if(!e.source._closed&&!this.trackDatas.some(t=>t.track===e))return!1;return!0}async getMimeType(){await this.allTracksKnown.promise;let e=this.trackDatas.map(e=>e.type===`video`||e.type===`audio`?e.info.decoderConfig.codec:{webvtt:`wvtt`}[e.track.source._codec]);return ol({isQuickTime:this.isQuickTime,hasVideo:this.trackDatas.some(e=>e.type===`video`),hasAudio:this.trackDatas.some(e=>e.type===`audio`),codecStrings:e})}getVideoTrackData(e,t,n){let r=this.trackDatas.find(t=>t.track===e);if(r)return r;yc(n,e.source._codec),z(n),z(n.decoderConfig);let i={...n.decoderConfig};z(i.codedWidth!==void 0),z(i.codedHeight!==void 0);let a=!1;if(e.source._codec===`avc`&&!i.description){if(!t)throw Error(`No AVC description provided; you must therefore provide a priming packet.`);let e=Nc(t.data);if(!e)throw Error(`Couldn't extract an AVCDecoderConfigurationRecord from the AVC packet. Make sure the packets are in Annex B format (as specified in ITU-T-REC-H.264) when not providing a description, or provide a description (must be an AVCDecoderConfigurationRecord as specified in ISO 14496-15) and ensure the packets are in AVCC format.`);i.description=Pc(e),a=!0}else if(e.source._codec===`hevc`&&!i.description){if(!t)throw Error(`No HEVC description provided; you must therefore provide a priming packet.`);let e=Vc(t.data);if(!e)throw Error(`Couldn't extract an HEVCDecoderConfigurationRecord from the HEVC packet. Make sure the packets are in Annex B format (as specified in ITU-T-REC-H.265) when not providing a description, or provide a description (must be an HEVCDecoderConfigurationRecord as specified in ISO 14496-15) and ensure the packets are in HEVC format.`);i.description=Yc(e),a=!0}let o=ws(1/(e.metadata.frameRate??57600),1e6).den,s=i.displayAspectWidth,c=i.displayAspectHeight,l=s===void 0||c===void 0?{num:1,den:1}:Fs({num:s*i.codedHeight,den:c*i.codedWidth}),u=i.codec===`ap4h`||i.codec===`ap4x`,d={muxer:this,track:e,type:`video`,info:{width:i.codedWidth,height:i.codedHeight,pixelAspectRatio:l,decoderConfig:i,requiresAnnexBTransformation:a,hasAlphaChannel:u},timescale:o,samples:[],sampleQueue:[],timestampProcessingQueue:[],timeToSampleTable:[],compositionTimeOffsetTable:[],lastTimescaleUnits:null,lastSample:null,startTimestampOffset:null,finalizedChunks:[],currentChunk:null,compactlyCodedChunkTable:[],closed:!1};return this.trackDatas.push(d),this.trackDatas.sort((e,t)=>e.track.id-t.track.id),this.allTracksAreKnown()&&this.allTracksKnown.resolve(),d}getAudioTrackData(e,t,n){let r=this.trackDatas.find(t=>t.track===e);if(r)return r;xc(n,e.source._codec),z(n),z(n.decoderConfig);let i={...n.decoderConfig},a=!1;if(e.source._codec===`aac`&&!i.description){if(!t)throw Error(`No AAC description provided; you must therefore provide a priming packet.`);let e=sl(Wl.tempFromBytes(t.data));if(!e)throw Error(`Couldn't parse ADTS header from the AAC packet. Make sure the packets are in ADTS format (as specified in ISO 13818-7) when not providing a description, or provide a description (must be an AudioSpecificConfig as specified in ISO 14496-3) and ensure the packets are raw AAC data.`);let n=Js[e.samplingFrequencyIndex],r=Ys[e.channelConfiguration];if(n===void 0||r===void 0)throw Error(`Invalid ADTS frame header.`);i.description=Xs({objectType:e.objectType,sampleRate:n,numberOfChannels:r}),a=!0}if((e.source._codec===`ac3`||e.source._codec===`eac3`)&&!t)throw Error(`AC-3/E-AC-3 require a priming packet.`);let o={muxer:this,track:e,type:`audio`,info:{numberOfChannels:n.decoderConfig.numberOfChannels,sampleRate:n.decoderConfig.sampleRate,decoderConfig:i,requiresPcmTransformation:!this.isFragmented&&Qs.includes(e.source._codec),expectedNextPcmPacketTimestamp:null,requiresAdtsStripping:a,primingPacket:t},timescale:i.sampleRate,samples:[],sampleQueue:[],timestampProcessingQueue:[],timeToSampleTable:[],compositionTimeOffsetTable:[],lastTimescaleUnits:null,lastSample:null,startTimestampOffset:null,finalizedChunks:[],currentChunk:null,compactlyCodedChunkTable:[],closed:!1};return this.trackDatas.push(o),this.trackDatas.sort((e,t)=>e.track.id-t.track.id),this.allTracksAreKnown()&&this.allTracksKnown.resolve(),o}getSubtitleTrackData(e,t){let n=this.trackDatas.find(t=>t.track===e);if(n)return n;Sc(t),z(t),z(t.config);let r={muxer:this,track:e,type:`subtitle`,info:{config:t.config},timescale:1e3,samples:[],sampleQueue:[],timestampProcessingQueue:[],timeToSampleTable:[],compositionTimeOffsetTable:[],lastTimescaleUnits:null,lastSample:null,startTimestampOffset:null,finalizedChunks:[],currentChunk:null,compactlyCodedChunkTable:[],closed:!1,lastCueEndTimestamp:0,cueQueue:[],nextSourceId:0,cueToSourceId:new WeakMap};return this.trackDatas.push(r),this.trackDatas.sort((e,t)=>e.track.id-t.track.id),this.allTracksAreKnown()&&this.allTracksKnown.resolve(),r}async addEncodedVideoPacket(e,t,n){let r=await this.mutex.acquire();try{let r=this.getVideoTrackData(e,t,n),i=t.data;if(r.info.requiresAnnexBTransformation){let e=[...Dc(i)].map(e=>i.subarray(e.offset,e.offset+e.length));if(e.length===0)throw Error(`Failed to transform packet data. Make sure all packets are provided in Annex B format, as specified in ITU-T-REC-H.264 and ITU-T-REC-H.265.`);i=Mc(e,4)}this.validateTimestamp(r.track,t.timestamp,t.type===`key`);let a=this.createSampleForTrack(r,i,t.timestamp,t.duration,t.type);await this.registerSample(r,a)}finally{r()}}async addEncodedAudioPacket(e,t,n){let r=await this.mutex.acquire();try{let r=this.getAudioTrackData(e,t,n),i=t.data;if(r.info.requiresAdtsStripping){let e=sl(Wl.tempFromBytes(i));if(!e)throw Error(`Expected ADTS frame, didn't get one.`);let t=e.crcCheck===null?7:9;i=i.subarray(t)}this.validateTimestamp(r.track,t.timestamp,t.type===`key`);let a=t.timestamp,o=t.duration;if(r.info.requiresPcmTransformation){let e=dc(r.info.decoderConfig.codec).sampleSize*r.info.numberOfChannels;if(o=i.byteLength/e/r.info.sampleRate,r.info.expectedNextPcmPacketTimestamp!==null){let e=a-r.info.expectedNextPcmPacketTimestamp;if(e<.01)a=r.info.expectedNextPcmPacketTimestamp;else{let t=await this.padWithSilence(r,r.info.expectedNextPcmPacketTimestamp,e);a=r.info.expectedNextPcmPacketTimestamp+t}}r.info.expectedNextPcmPacketTimestamp=a+o}let s=this.createSampleForTrack(r,i,a,o,t.type);await this.registerSample(r,s)}finally{r()}}async padWithSilence(e,t,n){let r=Bd(n,e.timescale);if(n=r/e.timescale,r>0){let{sampleSize:i,silentValue:a}=dc(e.info.decoderConfig.codec),o=r*e.info.numberOfChannels,s=new Uint8Array(i*o).fill(a),c=this.createSampleForTrack(e,new Uint8Array(s.buffer),t,n,`key`);await this.registerSample(e,c)}return n}async addSubtitleCue(e,t,n){let r=await this.mutex.acquire();try{let r=this.getSubtitleTrackData(e,n);this.validateTimestamp(r.track,t.timestamp,!0),e.source._codec===`webvtt`&&(r.cueQueue.push(t),await this.processWebVTTCues(r,t.timestamp))}finally{r()}}async processWebVTTCues(e,t){for(;e.cueQueue.length>0;){let n=new Set([]);for(let r of e.cueQueue)z(r.timestamp<=t),z(e.lastCueEndTimestamp<=r.timestamp+r.duration),n.add(Math.max(r.timestamp,e.lastCueEndTimestamp)),n.add(r.timestamp+r.duration);let r=[...n].sort((e,t)=>e-t),i=r[0],a=r[1]??i;if(t<a)break;if(e.lastCueEndTimestamp<i){this.auxWriter.seek(0);let t=md();this.auxBoxWriter.writeBox(t);let n=this.auxTarget._getSlice(0,this.auxWriter.getPos()),r=this.createSampleForTrack(e,n,e.lastCueEndTimestamp,i-e.lastCueEndTimestamp,`key`);await this.registerSample(e,r),e.lastCueEndTimestamp=i}this.auxWriter.seek(0);for(let t=0;t<e.cueQueue.length;t++){let n=e.cueQueue[t];if(n.timestamp>=a)break;Kl.lastIndex=0;let r=Kl.test(n.text),o=n.timestamp+n.duration,s=e.cueToSourceId.get(n);if(s===void 0&&a<o&&(s=e.nextSourceId++,e.cueToSourceId.set(n,s)),n.notes){let e=gd(n.notes);this.auxBoxWriter.writeBox(e)}let c=hd(n.text,r?i:null,n.identifier??null,n.settings??null,s??null);this.auxBoxWriter.writeBox(c),o===a&&e.cueQueue.splice(t--,1)}let o=this.auxTarget._getSlice(0,this.auxWriter.getPos()),s=this.createSampleForTrack(e,o,i,a-i,`key`);await this.registerSample(e,s),e.lastCueEndTimestamp=a}}createSampleForTrack(e,t,n,r,i){return{timestamp:n,decodeTimestamp:n,duration:r,data:t,size:t.byteLength,type:i,timescaleUnitsToNextSample:Bd(r,e.timescale)}}processTimestamps(e,t){if(e.timestampProcessingQueue.length===0)return;if(e.type===`audio`&&e.info.requiresPcmTransformation){this.isFragmented||(e.startTimestampOffset??=e.timestampProcessingQueue[0].timestamp);let t=0;for(let n=0;n<e.timestampProcessingQueue.length;n++){let r=e.timestampProcessingQueue[n],i=Bd(r.duration,e.timescale);t+=i}if(e.timeToSampleTable.length===0)e.timeToSampleTable.push({sampleCount:t,sampleDelta:1});else{let n=es(e.timeToSampleTable);n.sampleCount+=t}e.timestampProcessingQueue.length=0;return}let n=e.timestampProcessingQueue.map(e=>e.timestamp).sort((e,t)=>e-t);this.isFragmented||(e.startTimestampOffset??=n[0]);for(let t=0;t<e.timestampProcessingQueue.length;t++){let r=e.timestampProcessingQueue[t];r.decodeTimestamp=n[t];let i=Bd(r.timestamp-r.decodeTimestamp,e.timescale),a=Bd(r.duration,e.timescale);if(e.lastTimescaleUnits!==null){z(e.lastSample);let t=Bd(r.decodeTimestamp,e.timescale,!1),n=Math.round(t-e.lastTimescaleUnits);if(z(n>=0),e.lastTimescaleUnits+=n,e.lastSample.timescaleUnitsToNextSample=n,!this.isFragmented){let t=es(e.timeToSampleTable);if(z(t),t.sampleCount===1){t.sampleDelta=n;let r=e.timeToSampleTable[e.timeToSampleTable.length-2];r&&r.sampleDelta===n&&(r.sampleCount++,e.timeToSampleTable.pop(),t=r)}else t.sampleDelta!==n&&(t.sampleCount--,e.timeToSampleTable.push(t={sampleCount:1,sampleDelta:n}));t.sampleDelta===a?t.sampleCount++:e.timeToSampleTable.push({sampleCount:1,sampleDelta:a});let r=es(e.compositionTimeOffsetTable);z(r),r.sampleCompositionTimeOffset===i?r.sampleCount++:e.compositionTimeOffsetTable.push({sampleCount:1,sampleCompositionTimeOffset:i})}}else e.lastTimescaleUnits=Bd(r.decodeTimestamp,e.timescale,!1),this.isFragmented||(e.timeToSampleTable.push({sampleCount:1,sampleDelta:a}),e.compositionTimeOffsetTable.push({sampleCount:1,sampleCompositionTimeOffset:i}));e.lastSample=r}if(e.timestampProcessingQueue.length=0,z(e.lastSample),z(e.lastTimescaleUnits!==null),t!==void 0&&e.lastSample.timescaleUnitsToNextSample===0){z(t.type===`key`);let n=Bd(t.timestamp,e.timescale,!1),r=Math.round(n-e.lastTimescaleUnits);e.lastSample.timescaleUnitsToNextSample=r}}async registerSample(e,t){t.type===`key`&&this.processTimestamps(e,t),e.timestampProcessingQueue.push(t),this.isFragmented?(e.sampleQueue.push(t),await this.interleaveSamples()):this.fastStart===`reserve`?await this.registerSampleFastStartReserve(e,t):await this.addSampleToTrack(e,t)}async addSampleToTrack(e,t){if(!this.isFragmented&&(e.samples.push(t),this.fastStart===`reserve`)){let t=e.track.metadata.maximumPacketCount;if(z(t!==void 0),e.samples.length>t)throw Error(`Track #${e.track.id} has already reached the maximum packet count (${t}). Either add less packets or increase the maximum packet count.`)}let n=!1;if(!e.currentChunk)n=!0;else{e.currentChunk.startTimestamp=Math.min(e.currentChunk.startTimestamp,t.timestamp);let r=t.timestamp-e.currentChunk.startTimestamp;if(this.isFragmented){let i=this.trackDatas.every(n=>{if(e===n)return t.type===`key`;let r=n.sampleQueue[0];return r?r.type===`key`:n.closed});r>=this.minimumFragmentDuration&&i&&t.timestamp>this.maxWrittenTimestamp&&(n=!0,await this.finalizeFragment())}else n=r>=.5}n&&(e.currentChunk&&await this.finalizeCurrentChunk(e),e.currentChunk={startTimestamp:t.timestamp,samples:[],offset:null,moofOffset:null,trafIndex:null}),z(e.currentChunk),e.currentChunk.samples.push(t),this.isFragmented&&(this.maxWrittenTimestamp=Math.max(this.maxWrittenTimestamp,t.timestamp),this.maxWrittenEndTimestamp=Math.max(this.maxWrittenEndTimestamp,t.timestamp+t.duration),this.minWrittenTimestamp=Math.min(this.minWrittenTimestamp,t.timestamp))}async finalizeCurrentChunk(e){if(z(!this.isFragmented),z(this.writer),!e.currentChunk)return;e.finalizedChunks.push(e.currentChunk),this.finalizedChunks.push(e.currentChunk);let t=e.currentChunk.samples.length;if(e.type===`audio`&&e.info.requiresPcmTransformation&&(t=e.currentChunk.samples.reduce((t,n)=>t+Bd(n.duration,e.timescale),0)),(e.compactlyCodedChunkTable.length===0||es(e.compactlyCodedChunkTable).samplesPerChunk!==t)&&e.compactlyCodedChunkTable.push({firstChunk:e.finalizedChunks.length,samplesPerChunk:t}),this.fastStart===`in-memory`){e.currentChunk.offset=0;return}e.currentChunk.offset=this.writer.getPos();for(let t of e.currentChunk.samples)z(t.data),this.writer.write(t.data),t.data=null;await this.writer.flush()}async interleaveSamples(e=!1){if(z(this.isFragmented),!(!e&&!this.allTracksAreKnown()))outer:for(;;){let t=null,n=1/0;for(let r of this.trackDatas){if(!e&&r.sampleQueue.length===0&&!r.closed)break outer;r.sampleQueue.length>0&&r.sampleQueue[0].timestamp<n&&(t=r,n=r.sampleQueue[0].timestamp)}if(!t)break;let r=t.sampleQueue.shift();await this.addSampleToTrack(t,r)}}async finalizeFragment(e=!this.isCmaf){if(z(this.isFragmented),!this.wroteFragmentedHeader){this.wroteFragmentedHeader=!0;let e=this.initBoxWriter??this.boxWriter;z(e),this.formatOptions.onMoov&&e.writer.startTrackingWrites(),this.ensureOneEnabledTrack();let t=pu(this);if(e.writeBox(t),this.formatOptions.onMoov){let{data:t,start:n}=e.writer.stopTrackingWrites();this.formatOptions.onMoov(t,n)}if(this.isCmaf){z(this.initWriter),await this.initWriter.flush(),await this.initWriter.finalize(),this.writer=await this.output._getRootWriter(!0),this.boxWriter=new Jl(this.writer);let e=this.boxWriter.measureBox(lu()),t=this.boxWriter.measureBox(uu(this,0));this.segmentHeaderSize=e+t,this.writer.seek(this.segmentHeaderSize)}}z(this.writer),z(this.boxWriter);let t=this.trackDatas.filter(e=>e.currentChunk);if(t.length===0){e&&await this.writer.flush();return}let n=this.nextFragmentNumber++,r=id(n,t),i=this.writer.getPos(),a=i+this.boxWriter.measureBox(r),o=a+8,s=1/0;for(let e=0;e<t.length;e++){let n=t[e];n.currentChunk.offset=o,n.currentChunk.moofOffset=i,n.currentChunk.trafIndex=e;for(let e of n.currentChunk.samples)o+=e.size;s=Math.min(s,n.currentChunk.startTimestamp)}let c=o-a,l=c>=2**32;if(l)for(let e of t)e.currentChunk.offset+=8;this.formatOptions.onMoof&&this.writer.startTrackingWrites();let u=id(n,t);if(this.boxWriter.writeBox(u),this.formatOptions.onMoof){let{data:e,start:t}=this.writer.stopTrackingWrites();this.formatOptions.onMoof(e,t,s)}z(this.writer.getPos()===a),this.formatOptions.onMdat&&this.writer.startTrackingWrites();let d=du(l);d.size=c,this.boxWriter.writeBox(d),this.writer.seek(a+(l?16:8));for(let e of t)for(let t of e.currentChunk.samples)this.writer.write(t.data),t.data=null;if(this.formatOptions.onMdat){let{data:e,start:t}=this.writer.stopTrackingWrites();this.formatOptions.onMdat(e,t)}for(let e of t)e.finalizedChunks.push(e.currentChunk),this.finalizedChunks.push(e.currentChunk),e.currentChunk=null;e&&await this.writer.flush()}async registerSampleFastStartReserve(e,t){this.allTracksAreKnown()?(this.mdat||await this.createFastStartReserveMdat(),await this.addSampleToTrack(e,t)):e.sampleQueue.push(t)}async createFastStartReserveMdat(){z(this.writer),z(this.boxWriter),this.ensureOneEnabledTrack();let e=pu(this),t=this.boxWriter.measureBox(e)+this.computeSampleTableSizeUpperBound()+4096;z(this.ftypSize!==null),this.writer.seek(this.ftypSize+t),this.formatOptions.onMdat&&this.writer.startTrackingWrites(),this.mdat=du(!0),this.boxWriter.writeBox(this.mdat);for(let e of this.trackDatas){for(let t of e.sampleQueue)await this.addSampleToTrack(e,t);e.sampleQueue.length=0}}computeSampleTableSizeUpperBound(){z(this.fastStart===`reserve`);let e=0;for(let t of this.trackDatas){let n=t.track.metadata.maximumPacketCount;z(n!==void 0),e+=8*Math.ceil(2/3*n),e+=4*n,e+=8*Math.ceil(2/3*n),e+=12*Math.ceil(2/3*n),e+=4*n,e+=8*n}return e}async onTrackClose(e){let t=await this.mutex.acquire(),n=this.trackDatas.find(t=>t.track===e);n&&(n.closed=!0,n.type===`subtitle`&&e.source._codec===`webvtt`&&await this.processWebVTTCues(n,1/0),this.processTimestamps(n)),this.allTracksAreKnown()&&this.allTracksKnown.resolve(),this.isFragmented&&await this.interleaveSamples(),t()}ensureOneEnabledTrack(){for(let e of[`video`,`audio`,`subtitle`]){let t=this.trackDatas.filter(t=>t.type===e);if(t.length!==0&&!t.some(e=>e.track.metadata.disposition?.default!==!1)){let e=t[0];e.track.metadata.disposition={...e.track.metadata.disposition,default:!0}}}}async forceFragmentFinalization(){z(this.isFragmented);let e=await this.mutex.acquire();try{for(let e of this.trackDatas)e.type===`subtitle`&&e.track.source._codec===`webvtt`&&await this.processWebVTTCues(e,1/0),this.processTimestamps(e);await this.interleaveSamples(!0),await this.finalizeFragment()}finally{e()}}async finalize(){let e=await this.mutex.acquire();this.allTracksKnown.resolve(),this.ensureOneEnabledTrack(),!this.mdat&&this.fastStart===`reserve`&&await this.createFastStartReserveMdat();for(let e of this.trackDatas)e.closed=!0,e.type===`subtitle`&&e.track.source._codec===`webvtt`&&await this.processWebVTTCues(e,1/0),this.processTimestamps(e);if(this.isFragmented)await this.interleaveSamples(!0),await this.finalizeFragment(!1);else for(let e of this.trackDatas)if(await this.finalizeCurrentChunk(e),e.startTimestampOffset!==null)for(let t=0;t<e.samples.length;t++){let n=e.samples[t];n.timestamp-=e.startTimestampOffset,n.decodeTimestamp-=e.startTimestampOffset}if(z(this.writer),z(this.boxWriter),this.fastStart===`in-memory`){this.mdat=du(!1);let e;for(let t=0;t<2;t++){let t=pu(this),n=this.boxWriter.measureBox(t);e=this.boxWriter.measureBox(this.mdat);let r=this.writer.getPos()+n+e;for(let t of this.finalizedChunks){t.offset=r;for(let{data:n}of t.samples)z(n),r+=n.byteLength,e+=n.byteLength}if(r<2**32)break;e>=2**32&&(this.mdat.largeSize=!0)}this.formatOptions.onMoov&&this.writer.startTrackingWrites();let t=pu(this);if(this.boxWriter.writeBox(t),this.formatOptions.onMoov){let{data:e,start:t}=this.writer.stopTrackingWrites();this.formatOptions.onMoov(e,t)}this.formatOptions.onMdat&&this.writer.startTrackingWrites(),this.mdat.size=e,this.boxWriter.writeBox(this.mdat);for(let e of this.finalizedChunks)for(let t of e.samples)z(t.data),this.writer.write(t.data),t.data=null;if(this.formatOptions.onMdat){let{data:e,start:t}=this.writer.stopTrackingWrites();this.formatOptions.onMdat(e,t)}}else if(this.isFragmented){if(this.isCmaf){let e=this.segmentHeaderSize===null?0:this.writer.getPos()-this.segmentHeaderSize;this.writer.seek(0),this.boxWriter.writeBox(lu()),this.boxWriter.writeBox(uu(this,e))}else{let e=this.writer.getPos(),t=dd(this.trackDatas);this.boxWriter.writeBox(t);let n=this.writer.getPos()-e;this.writer.seek(this.writer.getPos()-4),this.boxWriter.writeU32(n)}}else{z(this.mdat);let e=this.boxWriter.offsets.get(this.mdat);z(e!==void 0);let t=this.writer.getPos()-e;if(this.mdat.size=t,this.mdat.largeSize=t>=2**32,this.boxWriter.patchBox(this.mdat),this.formatOptions.onMdat){let{data:e,start:t}=this.writer.stopTrackingWrites();this.formatOptions.onMdat(e,t)}let n=pu(this);if(this.fastStart===`reserve`){z(this.ftypSize!==null),this.writer.seek(this.ftypSize),this.formatOptions.onMoov&&this.writer.startTrackingWrites(),this.boxWriter.writeBox(n);let e=this.boxWriter.offsets.get(this.mdat)-this.writer.getPos();this.boxWriter.writeBox(fu(e))}else this.formatOptions.onMoov&&this.writer.startTrackingWrites(),this.boxWriter.writeBox(n);if(this.formatOptions.onMoov){let{data:e,start:t}=this.writer.stopTrackingWrites();this.formatOptions.onMoov(e,t)}}e()}},Hd=function(e,t,n){if(t!=null){if(typeof t!=`object`&&typeof t!=`function`)throw TypeError(`Object expected.`);var r,i;if(n){if(!Symbol.asyncDispose)throw TypeError(`Symbol.asyncDispose is not defined.`);r=t[Symbol.asyncDispose]}if(r===void 0){if(!Symbol.dispose)throw TypeError(`Symbol.dispose is not defined.`);r=t[Symbol.dispose],n&&(i=r)}if(typeof r!=`function`)throw TypeError(`Object not disposable.`);i&&(r=function(){try{i.call(this)}catch(e){return Promise.reject(e)}}),e.stack.push({value:t,dispose:r,async:n})}else n&&e.stack.push({async:!0});return t},Ud=(function(e){return function(t){function n(n){t.error=t.hasError?new e(n,t.error,`An error was suppressed during disposal.`):n,t.hasError=!0}var r,i=0;function a(){for(;r=t.stack.pop();)try{if(!r.async&&i===1)return i=0,t.stack.push(r),Promise.resolve().then(a);if(r.dispose){var e=r.dispose.call(r.value);if(r.async)return i|=2,Promise.resolve(e).then(a,function(e){return n(e),a()})}else i|=1}catch(e){n(e)}if(i===1)return t.hasError?Promise.reject(t.error):Promise.resolve();if(t.hasError)throw t.error}return a()}})(typeof SuppressedError==`function`?SuppressedError:function(e,t,n){var r=Error(n);return r.name=`SuppressedError`,r.error=e,r.suppressed=t,r}),Wd=class{constructor(){this._connectedTrack=null,this._closingPromise=null,this._closed=!1}_ensureValidAdd(){if(!this._connectedTrack)throw Error(`Source is not connected to an output track.`);if(this._connectedTrack.output.state===`canceled`)throw Error(`Output has been canceled.`);if(this._connectedTrack.output.state===`finalizing`||this._connectedTrack.output.state===`finalized`)throw Error(`Output has been finalized.`);if(this._connectedTrack.output.state===`pending`)throw Error(`Output has not started.`);if(this._closed)throw Error(`Source is closed.`)}async _start(){}async _flushAndClose(e){}close(){if(this._closingPromise)return;let e=this._connectedTrack;if(!e)throw Error(`Cannot call close without connecting the source to an output track.`);if(e.output.state===`pending`)throw Error(`Cannot call close before output has been started.`);this._closingPromise=(async()=>{await this._flushAndClose(!1),this._closed=!0,e.output.state!==`finalizing`&&e.output.state!==`finalized`&&e.output._muxer.onTrackClose(e)})()}async _flushOrWaitForOngoingClose(e){return this._closingPromise??=(async()=>{await this._flushAndClose(e),this._closed=!0})()}},Gd=class extends Wd{constructor(e){if(super(),this._connectedTrack=null,!Zs.includes(e))throw TypeError(`Invalid video codec '${e}'. Must be one of: ${Zs.join(`, `)}.`);this._codec=e}},Kd=(e,t)=>{if(e.metadata.hasOnlyKeyPackets&&t.type!==`key`)throw Error(`Cannot add non-key packets to a hasOnlyKeyPackets video track.`)},qd=class{setError(e){this.errorSet||=(this.error=e,!0)}constructor(e,t){this.source=e,this.encodingConfig=t,this.ensureEncoderPromise=null,this.encoderInitialized=!1,this.encoder=null,this.muxer=null,this.lastMultipleOfKeyFrameInterval=-1,this.emittedEncoderPackets=0,this.codedWidth=null,this.codedHeight=null,this.outputWidth=null,this.outputHeight=null,this.frameRateLastSample=null,this.frameRateLastTimestamp=null,this.frameRateLastEndTimestamp=null,this.preciseTimings=[],this.customEncoder=null,this.customEncoderCallSerializer=new Ts,this.customEncoderQueueSize=0,this.defaultEncodeOptions={},this.alphaEncoder=null,this.splitter=null,this.splitterCreationFailed=!1,this.alphaFrameQueue=[],this.error=null,this.errorSet=!1,this.lastMuxerPromise=Promise.resolve(),this.closed=!1}async add(e,t,n){let r=e;try{this.checkForEncoderError(),this.source._ensureValidAdd();let i=this.encodingConfig,a=i.sizeChangeBehavior??`deny`,o=!1;if(this.codedWidth!==null&&this.codedHeight!==null){if((e.codedWidth!==this.codedWidth||e.codedHeight!==this.codedHeight)&&(o=!0,a===`deny`))throw Error(`Video sample size must remain constant. Expected ${this.codedWidth}x${this.codedHeight}, got ${e.codedWidth}x${e.codedHeight}. To allow the sample size to change over time, set \`sizeChangeBehavior\` to a value other than 'deny' in the encoding options.`)}else this.codedWidth=e.codedWidth,this.codedHeight=e.codedHeight;if(i.transform?.width!==void 0||i.transform?.height!==void 0||i.transform?.rotate!==void 0||i.transform?.crop!==void 0||i.transform?.force===!0||o&&a!==`passThrough`){let n=i.transform?.width,r=i.transform?.height,s=i.transform?.fit??`fill`;o&&a!==`passThrough`&&(z(this.outputWidth),z(this.outputHeight),z(a!==`deny`),n=this.outputWidth,r=this.outputHeight,s=a);let c=await e.transform({width:n,height:r,roundDimensionsTo:2,crop:i.transform?.crop,rotate:i.transform?.rotate,fit:s,alpha:i.alpha});(this.outputWidth===null||this.outputHeight===null)&&(this.outputWidth=c.displayWidth,this.outputHeight=c.displayHeight),t&&e.close(),e=c,t=!0}else(this.outputWidth===null||this.outputHeight===null)&&(this.outputWidth=e.codedWidth,this.outputHeight=e.codedHeight);let s=i.transform?.frameRate;if(s!==void 0){let i=e.timestamp+e.duration,a=bs(e.timestamp,s);if(this.frameRateLastSample!==null){if(a<=this.frameRateLastTimestamp){this.frameRateLastSample.close(),this.frameRateLastSample=e.clone(),this.frameRateLastEndTimestamp=i;return}await this.padFrameRate(a,n)}e===r&&(e=e.clone(),t=!0),e.setTimestamp(a),e.setDuration(1/s),this.frameRateLastSample?.close(),this.frameRateLastSample=e.clone(),this.frameRateLastTimestamp=a,this.frameRateLastEndTimestamp=i}await this.processAndEncode(e,n)}finally{t&&e.close()}}async processAndEncode(e,t){let n=this.encodingConfig,r;if(n.transform?.process){let t=n.transform.process(e);if(t instanceof Promise&&(t=await t),t===null)return;Array.isArray(t)||(t=[t]);let i=[];try{for(let n of t)n instanceof _l?i.push(n):typeof VideoFrame<`u`&&n instanceof VideoFrame?i.push(new _l(n)):i.push(new _l(n,{timestamp:e.timestamp,duration:e.duration}))}catch(n){for(let t of i)t!==e&&t.close();for(let n of t)(n instanceof _l&&n!==e||typeof VideoFrame<`u`&&n instanceof VideoFrame)&&n.close();throw n}r=i}else r=[e];try{for(let e of r){if(this.encoderInitialized||(this.ensureEncoderPromise||this.ensureEncoder(e),this.encoderInitialized||await this.ensureEncoderPromise),z(this.encoderInitialized),this.closed)break;let n=this.encodingConfig.keyFrameInterval??2,r=Math.floor(e.timestamp/n),i={...this.defaultEncodeOptions,...e.encodeOptions,...t},a={...i,keyFrame:i.keyFrame===void 0?n===0||r!==this.lastMultipleOfKeyFrameInterval:i.keyFrame};if(this.lastMultipleOfKeyFrameInterval=r,this.encodingConfig.onEncodedSample?.(e),this.customEncoder){this.customEncoderQueueSize++;let t=e.clone(),n=this.customEncoderCallSerializer.call(()=>this.customEncoder.encode(t,a)).catch(e=>this.setError(e)).finally(()=>{this.customEncoderQueueSize--,t.close()});this.customEncoderQueueSize>=4&&await n}else{z(this.encoder);let t=e.toVideoFrame(),n=fs(this.preciseTimings,t.timestamp,e=>e.microsecondTimestamp),r=n===-1?null:this.preciseTimings[n];if(r&&r.microsecondTimestamp===t.timestamp?(r.timestamp!==e.timestamp&&(r.timestampIsValid=!1),r.duration!==e.duration&&(r.durationIsValid=!1)):(this.preciseTimings.splice(n+1,0,{microsecondTimestamp:t.timestamp,timestamp:e.timestamp,duration:e.duration,timestampIsValid:!0,durationIsValid:!0}),this.preciseTimings.length>128&&this.preciseTimings.shift()),!this.alphaEncoder)try{this.encoder.encode(t,a)}finally{t.close()}else if(t.format&&!t.format.includes(`A`)||this.splitterCreationFailed){this.alphaFrameQueue.push(null);try{this.encoder.encode(t,a)}finally{t.close()}}else{this.splitter||=new Yd;let{colorFrame:e,alphaFrame:n}=await this.splitter.split(t);this.alphaFrameQueue.push(n);try{this.encoder.encode(e,a)}finally{e.close()}}this.encoder.encodeQueueSize>=4&&await new Promise(e=>this.encoder.addEventListener(`dequeue`,e,{once:!0}))}await this.lastMuxerPromise}}finally{for(let t of r)t!==e&&t.close()}}async padFrameRate(e,t){let n=this.encodingConfig.transform.frameRate;z(this.frameRateLastSample);let r=Math.round((e-this.frameRateLastTimestamp)*n);for(let e=1;e<r;e++){let r={stack:[],error:void 0,hasError:!1};try{let i=Hd(r,this.frameRateLastSample.clone(),!1);i.setTimestamp(this.frameRateLastTimestamp+e/n),i.setDuration(1/n),await this.processAndEncode(i,t)}catch(e){r.error=e,r.hasError=!0}finally{Ud(r)}}}ensureEncoder(e){this.ensureEncoderPromise=(async()=>{let t=Ul(this.encodingConfig.quality,this.encodingConfig.bitrate);z(t!==void 0);let n=Il({...this.encodingConfig,quality:t,width:e.codedWidth,height:e.codedHeight,squarePixelWidth:e.squarePixelWidth,squarePixelHeight:e.squarePixelHeight,framerate:this.source._connectedTrack?.metadata.frameRate}),r=null,i;for(let e of n){let t=e.config;if(this.encodingConfig.onEncoderConfig?.(t),i=V.find(e=>e.supports(this.encodingConfig.codec,t)),i){r=e;break}if(!(typeof VideoEncoder>`u`)){if(t.alpha=`discard`,this.encodingConfig.alpha===`keep`&&(t.latencyMode=`quality`),(t.width%2==1||t.height%2==1)&&(this.encodingConfig.codec===`avc`||this.encodingConfig.codec===`hevc`))throw Error(`The dimensions ${t.width}x${t.height} are not supported for codec '${this.encodingConfig.codec}'; both width and height must be even numbers. Make sure to round your dimensions to the nearest even number.`);try{if((await VideoEncoder.isConfigSupported(t)).supported){r=e;break}}catch{}}}if(!r){if(typeof VideoEncoder>`u`)throw Error(`VideoEncoder is not supported by this browser.`);let e=n[0].config,t=n.map(({config:e,quantizer:t})=>t===null?`${e.bitrate} bps`:`quantizer ${t}`);throw Error(`This specific encoder configuration (${e.codec}, ${t.join(` / `)}, ${e.width}x${e.height}, hardware acceleration: ${e.hardwareAcceleration??`no-preference`}) is not supported by this browser. Consider using another codec or changing your video parameters.`)}let a=r.config;if(r.quantizer!==null&&(this.defaultEncodeOptions=Hl(this.encodingConfig.codec,r.quantizer)),i)this.customEncoder=new i,this.customEncoder.codec=this.encodingConfig.codec,this.customEncoder.config=a,this.customEncoder.onPacket=(e,t)=>{if(!(e instanceof al))throw TypeError(`The first argument passed to onPacket must be an EncodedPacket.`);if(t!==void 0&&(!t||typeof t!=`object`))throw TypeError(`The second argument passed to onPacket must be an object or undefined.`);Kd(this.source._connectedTrack,e),this.encodingConfig.onEncodedPacket?.(e,t),this.lastMuxerPromise=this.muxer.addEncodedVideoPacket(this.source._connectedTrack,e,t).catch(e=>{this.setError(e)})},this.customEncoder.onError=e=>{this.setError(e)},await this.customEncoder.init();else{let e=[],t=[],n=0,r=0,i=(e,t,n)=>{let r={};if(t){let e=new Uint8Array(t.byteLength);t.copyTo(e),r.alpha=e}let i=al.fromEncodedChunk(e,r),a=fs(this.preciseTimings,e.timestamp,e=>e.microsecondTimestamp),o=a===-1?null:this.preciseTimings[a],s=null;this.emittedEncoderPackets===0&&i.type===`delta`&&n?.decoderConfig&&(s=$c(this.encodingConfig.codec,n.decoderConfig,i.data)),(o&&o.microsecondTimestamp===e.timestamp||s!==null)&&(i=i.clone({timestamp:o?.timestampIsValid?o.timestamp:void 0,duration:o?.durationIsValid?o.duration:void 0,type:s??void 0})),Kd(this.source._connectedTrack,i),this.encodingConfig.onEncodedPacket?.(i,n),this.lastMuxerPromise=this.muxer.addEncodedVideoPacket(this.source._connectedTrack,i,n).catch(e=>{this.setError(e)}),this.emittedEncoderPackets++},o=Error(`Encoding error`).stack;if(this.encoder=new VideoEncoder({output:(a,o)=>{if(!this.alphaEncoder){i(a,null,o);return}let s=this.alphaFrameQueue.shift();z(s!==void 0),s?(this.alphaEncoder.encode(s,{...this.defaultEncodeOptions,keyFrame:a.type===`key`}),r++,s.close(),e.push({chunk:a,meta:o})):r===0?i(a,null,o):(t.push(n+r),e.push({chunk:a,meta:o}))},error:e=>{e.stack=o,this.setError(e)}}),this.encoder.configure(a),this.encodingConfig.alpha===`keep`){let o=Error(`Encoding error`).stack;this.alphaEncoder=new VideoEncoder({output:(a,o)=>{r--;let s=e.shift();for(z(s!==void 0),i(s.chunk,a,s.meta),n++;t.length>0&&t[0]===n;){t.shift();let n=e.shift();z(n!==void 0),i(n.chunk,null,n.meta)}},error:e=>{e.stack=o,this.setError(e)}}),this.alphaEncoder.configure(a)}}z(this.source._connectedTrack),this.muxer=this.source._connectedTrack.output._muxer,this.encoderInitialized=!0})()}async flushAndClose(e){try{if(!e&&(this.checkForEncoderError(),this.frameRateLastSample)){let e=this.encodingConfig.transform.frameRate,t=bs(this.frameRateLastEndTimestamp,e);await this.padFrameRate(t)}this.closed=!0,e||(this.customEncoder?this.customEncoderCallSerializer.call(()=>this.customEncoder.flush()):this.encoder&&(await this.encoder.flush(),await this.alphaEncoder?.flush(),await Ls(25)))}finally{this.closed=!0,this.frameRateLastSample?.close(),this.frameRateLastSample=null,this.customEncoder?await this.customEncoderCallSerializer.call(()=>this.customEncoder.close()).catch(e=>this.setError(e)):this.encoder&&(this.encoder.state!==`closed`&&this.encoder.close(),this.alphaEncoder&&this.alphaEncoder.state!==`closed`&&this.alphaEncoder.close(),this.alphaFrameQueue.forEach(e=>e?.close()),this.alphaFrameQueue.length=0,this.splitter?.close())}e||this.checkForEncoderError()}getQueueSize(){return this.customEncoder?this.customEncoderQueueSize:this.encoder?.encodeQueueSize??0}checkForEncoderError(){if(this.errorSet)throw this.error}},Jd=null,Yd=class{constructor(){this.worker=null,this.pendingRequests=new Map,this.nextRequestId=0}split(e){if(!this.worker){if(!Jd){let e=new Blob([`(${Xd.toString()})()`],{type:`application/javascript`});Jd=URL.createObjectURL(e)}this.worker=new Worker(Jd),this.worker.addEventListener(`message`,e=>{let t=e.data,n=this.pendingRequests.get(t.id);n&&(this.pendingRequests.delete(t.id),`error`in t?n.reject(Error(t.error)):n.resolve({colorFrame:t.colorFrame,alphaFrame:t.alphaFrame}))}),this.worker.addEventListener(`error`,e=>{let t=Error(e.message||`Color/alpha splitter worker error.`);for(let e of this.pendingRequests.values())e.reject(t);this.pendingRequests.clear()})}let t=this.nextRequestId++,n=ps();return this.pendingRequests.set(t,n),this.worker.postMessage({id:t,sourceFrame:e},{transfer:[e]}),n.promise}close(){this.worker?.terminate(),this.worker=null;let e=Error(`Color/alpha splitter closed.`);for(let t of this.pendingRequests.values())t.reject(e);this.pendingRequests.clear()}},Xd=()=>{let e=null,t=Promise.resolve();self.addEventListener(`message`,e=>{let{id:r,sourceFrame:i}=e.data;t=t.then(async()=>{try{let{colorFrame:e,alphaFrame:t}=await n(i);self.postMessage({id:r,colorFrame:e,alphaFrame:t},{transfer:[e,t]})}catch(e){self.postMessage({id:r,error:e.message})}finally{i.close()}})});let n=async t=>{let n=t.format;if(!n)throw Error(`CPU color/alpha splitting requires a known VideoFrame format.`);let a=t.allocationSize();if((!e||e.byteLength!==a)&&(e=new Uint8Array(a)),await t.copyTo(e),n===`RGBA`||n===`BGRA`)return r(e,n,t);if(n===`I420A`||n===`I420AP10`||n===`I420AP12`||n===`I422A`||n===`I422AP10`||n===`I422AP12`||n===`I444A`||n===`I444AP10`||n===`I444AP12`)return i(e,n,t);throw Error(`CPU color/alpha splitting does not support format '${n}'.`)},r=(e,t,n)=>{let r=n.visibleRect?.width??n.codedWidth,i=n.visibleRect?.height??n.codedHeight,a=r*i,o=a+Math.ceil(r/2)*Math.ceil(i/2)*2,s=new Uint8Array(o);for(let t=0,n=3;t<a;t++,n+=4)s[t]=e[n];s.fill(128,a);let c=new VideoFrame(e,{format:t===`RGBA`?`RGBX`:`BGRX`,codedWidth:r,codedHeight:i,timestamp:n.timestamp,duration:n.duration??void 0}),l={format:`I420`,codedWidth:r,codedHeight:i,timestamp:n.timestamp,duration:n.duration??void 0,transfer:[s.buffer]};return{colorFrame:c,alphaFrame:new VideoFrame(s,l)}},i=(e,t,n)=>{let r=n.visibleRect?.width??n.codedWidth,i=n.visibleRect?.height??n.codedHeight,a=t.includes(`P10`),o=t.includes(`P12`),s=a||o?2:1,c,l;t.startsWith(`I420`)?(c=Math.ceil(r/2),l=Math.ceil(i/2)):t.startsWith(`I422`)?(c=Math.ceil(r/2),l=i):(c=r,l=i);let u=r*i,d=c*l,f=u*s,p=d*s,m=u*s,h=f+p*2,g=t.replace(`A`,``),_=Math.ceil(r/2)*Math.ceil(i/2),v=m+_*s*2,y=new Uint8Array(v),b=h;y.set(e.subarray(b,b+m),0);let x=m,S=a?512:o?2048:128;s===1?y.fill(S,x):new Uint16Array(y.buffer,x,2*_).fill(S);let C=a?`I420P10`:o?`I420P12`:`I420`,w=new VideoFrame(e.subarray(0,h),{format:g,codedWidth:r,codedHeight:i,timestamp:n.timestamp,duration:n.duration??void 0}),ee={format:C,codedWidth:r,codedHeight:i,timestamp:n.timestamp,duration:n.duration??void 0,transfer:[y.buffer]};return{colorFrame:w,alphaFrame:new VideoFrame(y,ee)}}},Zd=class extends Gd{constructor(e,t){if(!(typeof HTMLCanvasElement<`u`&&e instanceof HTMLCanvasElement)&&!(typeof OffscreenCanvas<`u`&&e instanceof OffscreenCanvas))throw TypeError(`canvas must be an HTMLCanvasElement or OffscreenCanvas.`);Pl(t),super(t.codec),this._encoder=new qd(this,t),this._canvas=e}add(e,t=0,n){if(!Number.isFinite(e)||e<0)throw TypeError(`timestamp must be a non-negative number.`);if(!Number.isFinite(t)||t<0)throw TypeError(`duration must be a non-negative number.`);let r=new _l(this._canvas,{timestamp:e,duration:t});return this._encoder.add(r,!0,n)}_flushAndClose(e){return this._encoder.flushAndClose(e)}},Qd=class extends Wd{constructor(e){if(super(),this._connectedTrack=null,!ec.includes(e))throw TypeError(`Invalid audio codec '${e}'. Must be one of: ${ec.join(`, `)}.`);this._codec=e}},$d=class extends Wd{constructor(e){if(super(),this._connectedTrack=null,!tc.includes(e))throw TypeError(`Invalid subtitle codec '${e}'. Must be one of: ${tc.join(`, `)}.`);this._codec=e}},ef=class{getSupportedVideoCodecs(){return this.getSupportedCodecs().filter(e=>Zs.includes(e))}getSupportedAudioCodecs(){return this.getSupportedCodecs().filter(e=>ec.includes(e))}getSupportedSubtitleCodecs(){return this.getSupportedCodecs().filter(e=>tc.includes(e))}_codecUnsupportedHint(e){return``}_isFragmentedIsobmff(){return!1}},tf=class extends ef{constructor(e={}){if(!e||typeof e!=`object`)throw TypeError(`options must be an object.`);if(e.fastStart!==void 0&&![!1,`in-memory`,`reserve`,`fragmented`].includes(e.fastStart))throw TypeError(`options.fastStart, when provided, must be false, 'in-memory', 'reserve', or 'fragmented'.`);if(e.minimumFragmentDuration!==void 0&&(!Number.isFinite(e.minimumFragmentDuration)||e.minimumFragmentDuration<0))throw TypeError(`options.minimumFragmentDuration, when provided, must be a non-negative number.`);if(e.onFtyp!==void 0&&typeof e.onFtyp!=`function`)throw TypeError(`options.onFtyp, when provided, must be a function.`);if(e.onMoov!==void 0&&typeof e.onMoov!=`function`)throw TypeError(`options.onMoov, when provided, must be a function.`);if(e.onMdat!==void 0&&typeof e.onMdat!=`function`)throw TypeError(`options.onMdat, when provided, must be a function.`);if(e.onMoof!==void 0&&typeof e.onMoof!=`function`)throw TypeError(`options.onMoof, when provided, must be a function.`);if(e.metadataFormat!==void 0&&![`mdir`,`mdta`,`udta`,`auto`].includes(e.metadataFormat))throw TypeError(`options.metadataFormat, when provided, must be either 'auto', 'mdir', 'mdta', or 'udta'.`);super(),this._options=e}getSupportedTrackCounts(){let e=2**32-1;return{video:{min:0,max:e},audio:{min:0,max:e},subtitle:{min:0,max:e},total:{min:0,max:e}}}get supportsVideoRotationMetadata(){return!0}get supportsTimestampedMediaData(){return!0}_createMuxer(e){return new Vd(e,this)}_isFragmentedIsobmff(){return this._options.fastStart===`fragmented`}},nf=class extends tf{constructor(e){super(e)}get _name(){return`MP4`}get fileExtension(){return`.mp4`}get mimeType(){return`video/mp4`}getSupportedCodecs(){return[...Zs,...$s,`pcm-s16`,`pcm-s16be`,`pcm-s24`,`pcm-s24be`,`pcm-s32`,`pcm-s32be`,`pcm-f32`,`pcm-f32be`,`pcm-f64`,`pcm-f64be`,...tc]}_codecUnsupportedHint(e){return new af().getSupportedCodecs().includes(e)?` Switching to MOV will grant support for this codec.`:``}},rf=class extends tf{constructor(e){super(e)}get _name(){return`CMAF`}get fileExtension(){return`.m4s`}get mimeType(){return`video/mp4`}getSupportedCodecs(){return[...Zs,...$s,`pcm-s16`,`pcm-s16be`,`pcm-s24`,`pcm-s24be`,`pcm-s32`,`pcm-s32be`,`pcm-f32`,`pcm-f32be`,`pcm-f64`,`pcm-f64be`,...tc]}},af=class extends tf{constructor(e){super(e)}get _name(){return`MOV`}get fileExtension(){return`.mov`}get mimeType(){return`video/quicktime`}getSupportedCodecs(){return[...Zs,...ec]}_codecUnsupportedHint(e){return new nf().getSupportedCodecs().includes(e)?` Switching to MP4 will grant support for this codec.`:``}},of=[`video`,`audio`,`subtitle`],sf=class e{constructor(e,t,n,r,i){this.id=e,this.output=t,this.type=n,this.source=r,this.metadata=i}isVideoTrack(){return this.type===`video`}isAudioTrack(){return this.type===`audio`}isSubtitleTrack(){return this.type===`subtitle`}canBePairedWith(t){if(!(t instanceof e))throw TypeError(`other must be an OutputTrack.`);if(this===t)return!1;let n=Rs(this.metadata.group),r=Rs(t.metadata.group);for(let e of n)if(this.type!==t.type&&r.some(t=>e===t)||r.some(t=>e._pairedGroups.has(t)))return!0;return!1}},cf=class extends sf{constructor(e,t,n,r){super(e,t,`video`,n,r)}},lf=class extends sf{constructor(e,t,n,r){super(e,t,`audio`,n,r)}},uf=class extends sf{constructor(e,t,n,r){super(e,t,`subtitle`,n,r)}},df=class e{constructor(){this._pairedGroups=new Set}pairWith(t){if(!(t instanceof e))throw TypeError(`other must be an OutputTrackGroup.`);if(this===t)throw TypeError(`Cannot pair a group with itself.`);this._pairedGroups.add(t),t._pairedGroups.add(this)}},ff=e=>{if(!e||typeof e!=`object`)throw TypeError(`metadata must be an object.`);if(e.languageCode!==void 0&&!Ss(e.languageCode))throw TypeError(`metadata.languageCode, when provided, must be a three-letter, ISO 639-2/T language code.`);if(e.name!==void 0&&typeof e.name!=`string`)throw TypeError(`metadata.name, when provided, must be a string.`);if(e.disposition!==void 0&&Ks(e.disposition),e.maximumPacketCount!==void 0&&(!Number.isInteger(e.maximumPacketCount)||e.maximumPacketCount<0))throw TypeError(`metadata.maximumPacketCount, when provided, must be a non-negative integer.`);if(e.group!==void 0&&!(e.group instanceof df)&&(!Array.isArray(e.group)||e.group.some(e=>!(e instanceof df))))throw TypeError(`metadata.group, when provided, must be an OutputTrackGroup instance or an array of OutputTrackGroup instances.`)},pf=class extends zs{get target(){let e=`Output.target cannot be used when using PathedTarget with an async callback. Use the 'target' event instead.`;if(this._rootTargetPromise)throw TypeError(e);let t=this._getRootTarget();if(t instanceof Promise)throw TypeError(e);return t}constructor(e){if(super(),this.state=`pending`,this.defaultTrackGroup=new df,this.tracks=[],this._onFinalize=null,this._unfinalizedTargets=new Set,this._rootWriterPromise=null,this._startPromise=null,this._cancelPromise=null,this._finalizePromise=null,this._mutex=new ds,this._metadataTags={},this._rootTarget=null,this._rootTargetPromise=null,this._firstMediaStreamTimestamp=null,!e||typeof e!=`object`)throw TypeError(`options must be an object.`);if(!(e.format instanceof ef))throw TypeError(`options.format must be an OutputFormat.`);if(!(e.target instanceof Md||e.target instanceof Id))throw TypeError(`options.target must be a Target or a PathedTarget.`);if(e.target instanceof Md&&this._rememberTarget(e.target),e.initTarget!==void 0&&!(e.initTarget instanceof Md)&&typeof e.initTarget!=`function`)throw Error(`options.initTarget, when provided, must be a Target or a function that returns or resolves to a Target.`);if(e.onFinalize!==void 0&&typeof e.onFinalize!=`function`)throw TypeError(`options.onFinalize, when provided, must be a function.`);this.format=e.format,this._target=e.target,this._onFinalize=e.onFinalize??null,this._initTarget=e.initTarget??null,this._initTarget instanceof Md&&this._rememberTarget(this._initTarget),this._muxer=e.format._createMuxer(this)}_getTargetValidated(e){z(this._target instanceof Id);let t=this._target.getTarget(e),n=e=>{if(!(e instanceof Md))throw TypeError(`getTarget must return a Target.`);return e};return t instanceof Promise?t.then(n):n(t)}async _getTarget(e){z(this._target instanceof Id);let t=await this._getTargetValidated(e);return this._emit(`target`,{target:t,request:e,isRoot:e.isRoot}),this.state===`canceled`?await t._close():this._rememberTarget(t),t}_rememberTarget(e){this._unfinalizedTargets.add(e),e.on(`finalized`,()=>this._unfinalizedTargets.delete(e),{once:!0})}async _getInitTarget(){if(z(this._initTarget!==null),this._initTarget instanceof Md)return this._initTarget;let e=await this._initTarget();return this.state===`canceled`?await e._close():this._rememberTarget(e),e}_hasInitTarget(){return this._initTarget!==null}_getRootTarget(){if(this._rootTarget)return this._rootTarget;if(this._rootTargetPromise)return this._rootTargetPromise;if(this._target instanceof Md)return this._emit(`target`,{target:this._target,request:null,isRoot:!0}),this._rootTarget=this._target,this._target;let e={path:this._target.rootPath,isRoot:!0,mimeType:this.format.mimeType},t=this._getTargetValidated(e),n=t=>(this.state===`canceled`?t._close():this._rememberTarget(t),this._emit(`target`,{target:t,request:e,isRoot:!0}),this._rootTarget=t,t);return t instanceof Promise?this._rootTargetPromise=t.then(n):n(t)}_getRootWriter(e){return this._rootWriterPromise??=(async()=>{let t=await this._getRootTarget(),n=new jd(t,typeof e==`boolean`?e:e(t));return n.start(),n})()}addVideoTrack(e,t={}){if(!(e instanceof Gd))throw TypeError(`source must be a VideoSource.`);if(ff(t),t.rotation!==void 0&&![0,90,180,270].includes(t.rotation))throw TypeError(`Invalid video rotation: ${t.rotation}. Has to be 0, 90, 180 or 270.`);if(!this.format.supportsVideoRotationMetadata&&t.rotation)throw Error(`${this.format._name} does not support video rotation metadata.`);if(t.frameRate!==void 0&&(!Number.isFinite(t.frameRate)||t.frameRate<=0))throw TypeError(`Invalid video frame rate: ${t.frameRate}. Must be a positive number.`);if(t.decoderConfig!==void 0&&yc({decoderConfig:t.decoderConfig},e._codec),t.primingPacket!==void 0){if(!(t.primingPacket instanceof al))throw TypeError(`metadata.primingPacket, when provided, must be an EncodedPacket.`);if(t.decoderConfig===void 0)throw TypeError(`metadata.primingPacket can only be provided alongside metadata.decoderConfig.`)}let n={...t};return n.group??=this.defaultTrackGroup,this._addTrack(new cf(this.tracks.length+1,this,e,n))}addAudioTrack(e,t={}){if(!(e instanceof Qd))throw TypeError(`source must be an AudioSource.`);if(ff(t),t.decoderConfig!==void 0&&xc({decoderConfig:t.decoderConfig},e._codec),t.primingPacket!==void 0){if(!(t.primingPacket instanceof al))throw TypeError(`metadata.primingPacket, when provided, must be an EncodedPacket.`);if(t.decoderConfig===void 0)throw TypeError(`metadata.primingPacket can only be provided alongside metadata.decoderConfig.`)}let n={...t};return n.group??=this.defaultTrackGroup,this._addTrack(new lf(this.tracks.length+1,this,e,n))}addSubtitleTrack(e,t={}){if(!(e instanceof $d))throw TypeError(`source must be a SubtitleSource.`);ff(t);let n={...t};return n.group??=this.defaultTrackGroup,this._addTrack(new uf(this.tracks.length+1,this,e,n))}setMetadataTags(e){if(Gs(e),this.state!==`pending`)throw Error(`Cannot set metadata tags after output has been started or canceled.`);this._metadataTags=e}_addTrack(e){if(this.state!==`pending`)throw Error(`Cannot add track after output has been started or canceled.`);if(e.source._connectedTrack)throw Error(`Source is already used for a track.`);let t=this.format.getSupportedTrackCounts(),n=this.tracks.reduce((t,n)=>t+ +(n.type===e.type),0),r=t[e.type].max;if(n===r)throw Error(r===0?`${this.format._name} does not support ${e.type} tracks.`:`${this.format._name} does not support more than ${r} ${e.type} track${r===1?``:`s`}.`);let i=t.total.max;if(this.tracks.length===i)throw Error(`${this.format._name} does not support more than ${i} tracks${i===1?``:`s`} in total.`);if(e.isVideoTrack()){let t=this.format.getSupportedVideoCodecs();if(t.length===0)throw Error(`${this.format._name} does not support video tracks.`+this.format._codecUnsupportedHint(e.source._codec));if(!t.includes(e.source._codec))throw Error(`Codec '${e.source._codec}' cannot be contained within ${this.format._name}. Supported video codecs are: ${t.map(e=>`'${e}'`).join(`, `)}.`+this.format._codecUnsupportedHint(e.source._codec))}else if(e.isAudioTrack()){let t=this.format.getSupportedAudioCodecs();if(t.length===0)throw Error(`${this.format._name} does not support audio tracks.`+this.format._codecUnsupportedHint(e.source._codec));if(!t.includes(e.source._codec))throw Error(`Codec '${e.source._codec}' cannot be contained within ${this.format._name}. Supported audio codecs are: ${t.map(e=>`'${e}'`).join(`, `)}.`+this.format._codecUnsupportedHint(e.source._codec))}else if(e.isSubtitleTrack()){let t=this.format.getSupportedSubtitleCodecs();if(t.length===0)throw Error(`${this.format._name} does not support subtitle tracks.`+this.format._codecUnsupportedHint(e.source._codec));if(!t.includes(e.source._codec))throw Error(`Codec '${e.source._codec}' cannot be contained within ${this.format._name}. Supported subtitle codecs are: ${t.map(e=>`'${e}'`).join(`, `)}.`+this.format._codecUnsupportedHint(e.source._codec))}return this.tracks.push(e),e.source._connectedTrack=e,e}hasEnoughTracks(){let e=this.format.getSupportedTrackCounts();for(let t of of)if(this.tracks.reduce((e,n)=>e+ +(n.type===t),0)<e[t].min)return!1;let t=e.total.min;return!(this.tracks.length<t)}async start(){let e=this.format.getSupportedTrackCounts();for(let t of of){let n=this.tracks.reduce((e,n)=>e+ +(n.type===t),0),r=e[t].min;if(n<r)throw Error(r===e[t].max?`${this.format._name} requires exactly ${r} ${t} track${r===1?``:`s`}.`:`${this.format._name} requires at least ${r} ${t} track${r===1?``:`s`}.`)}let t=e.total.min;if(this.tracks.length<t)throw Error(t===e.total.max?`${this.format._name} requires exactly ${t} track${t===1?``:`s`}.`:`${this.format._name} requires at least ${t} track${t===1?``:`s`}.`);if(this.state===`canceled`)throw Error(`Output has been canceled.`);return this._startPromise?(Hs._warn(`Output has already been started.`),this._startPromise):this._startPromise=(async()=>{this.state=`started`;let e=this._mutex.acquire();try{await this._muxer.start();let e=this.tracks.map(e=>e.source._start());await Promise.all(e)}finally{(await e)()}})()}getMimeType(){return this._muxer.getMimeType()}async cancel(){if(this._cancelPromise)return Hs._warn(`Output has already been canceled.`),this._cancelPromise;if(this.state===`finalizing`||this.state===`finalized`){this.state===`finalized`&&Hs._warn(`Output has already been finalized.`);return}return this._cancelPromise=(async()=>{this.state=`canceled`;let e=await this._mutex.acquire();try{let e=this.tracks.map(e=>e.source._flushOrWaitForOngoingClose(!0));await Promise.all(e),await Promise.all([...this._unfinalizedTargets].map(e=>e._close())),this._unfinalizedTargets.clear()}finally{e()}})()}async finalize(){if(this.state===`pending`)throw Error(`Cannot finalize before starting.`);if(this.state===`canceled`)throw Error(`Cannot finalize after canceling.`);return this._finalizePromise?(Hs._warn(`Output has already been finalized.`),this._finalizePromise):this._finalizePromise=(async()=>{this.state=`finalizing`;let e=await this._mutex.acquire();try{let e=this.tracks.map(e=>e.source._flushOrWaitForOngoingClose(!1));if(await Promise.all(e),await this._muxer.finalize(),this._rootWriterPromise){let e=await this._rootWriterPromise;e.finalized||(await e.flush(),await e.finalize())}this._onFinalize&&await this._onFinalize(),this.state=`finalized`}finally{await Promise.all([...this._unfinalizedTargets].map(e=>e._close().catch(()=>{}))),this._unfinalizedTargets.clear(),e()}})()}},mf=class{_engine;constructor(e){this._engine=e}async export(e,t){let{fps:n,duration:r,resolution:i,bitrate:a=8e6}=e,o=Math.ceil(r/60*n),s=this._engine.canvas,c=this._engine.renderer.resolution.clone();this._engine.setSize(i);let l=this._engine.createView(),u=new Pd,d=new pf({format:new nf,target:u}),f=new Zd(s,{codec:`avc`,bitrate:a,keyFrameInterval:2});d.addVideoTrack(f);try{await d.start();for(let e=0;e<o;e++)this._engine.updateOffline(e,n),this._engine.render(l),await f.add(e/n,1/n),t&&t({current:e+1,total:o,phase:`encoding`}),e%10==0&&await new Promise(e=>setTimeout(e,0));t&&t({current:o,total:o,phase:`finalizing`}),await d.finalize()}finally{l.dispose(),this._engine.setSize(c)}return t&&t({current:o,total:o,phase:`done`}),new Blob([u.buffer],{type:`video/mp4`})}static download(e,t=`scene.mp4`){let n=URL.createObjectURL(e),r=document.createElement(`a`);r.href=n,r.download=t,document.body.appendChild(r),r.click(),document.body.removeChild(r),URL.revokeObjectURL(n)}},hf=s({LookAt:()=>gf}),gf=class extends It{target;up;targetWorldPos;targetLocalPos;localUp;lookAtMatrix;parentInverse;constructor(e){super(e),this.target=null,this.targetWorldPos=new A,this.targetLocalPos=new A,this.localUp=new A,this.up=new A(0,1,0),this.lookAtMatrix=new j,this.parentInverse=new j,this.order=100}setTarget(e){this.target=e}postUpdateImpl(e){this.target&&this._enabled&&(this.target.matrixWorld.decompose(this.targetWorldPos),this.targetLocalPos.copy(this.targetWorldPos),this.localUp.copy(this.up),this.entity.parent&&(this.parentInverse.copy(this.entity.parent.matrixWorld).inverse(),this.targetLocalPos.applyMatrix4AsPosition(this.parentInverse),this.localUp.applyMatrix4AsDirection(this.parentInverse).normalize()),this.lookAtMatrix.lookAt(this.entity.position,this.targetLocalPos,this.localUp),this.entity.quaternion.setFromMatrix(this.lookAtMatrix))}},_f=s({OrbitControls:()=>vf}),vf=class extends It{keyborad_;_pointer;orbit_;mouseVelOrbit_;mouseVelMove_;eye_;target_;up_;lookatMatrix_;distance_;distanceVel_;_memPos;_memTarget;_multiTouching;elmDisposer;constructor(e){super(e),this._pointer=new Er,this.keyborad_=new Tr,this.orbit_=new A,this.mouseVelOrbit_=new A,this.mouseVelMove_=new A,this.target_=new A,this.eye_=new A,this.up_=new A(0,1,0),this.distance_=5,this.distanceVel_=0,this.lookatMatrix_=new j,this._memPos=new A,this._memTarget=new A,this._multiTouching=!1,this.order=999;let t=!1,n=e=>{t||=!0},r=e=>{if(!this._enabled||!t||this._multiTouching)return;let n={x:e.delta.x*1,y:e.delta.y*1};this.keyborad_.pressedKeys.Shift?this.mouseVelMove_.add(n):this.mouseVelOrbit_.add(n),e.pointerEvent.preventDefault(),e.pointerEvent.stopPropagation()},i=e=>{t&&=!1};this._pointer.on(`move`,r),this._pointer.on(`start`,n),this._pointer.on(`end`,i),this.once(`dispose`,()=>{this._pointer.off(`move`,r),this._pointer.off(`start`,n),this._pointer.off(`end`,i)}),this.setPosition(this.entity.position,this.target_)}set enabled(e){if(this._enabled=e,e){this._memTarget.copy(this.target_),this._memPos.copy(this.entity.position);let e=this.entity.getComponent(gf);e&&e.target&&this.setPosition(this.entity.position,e.target.position),this.calc(this.entity)}}get enabled(){return this._enabled}get eye(){return this.eye_}get target(){return this.target_}setElm(e){this.elmDisposer&&this.elmDisposer(),this._pointer.setElement(e);let t=new Map,n=()=>{let e=Array.from(t.values());if(e.length<2)return 0;let n=e[1].x-e[0].x,r=e[1].y-e[0].y;return Math.sqrt(n*n+r*r)},r=()=>{let e=Array.from(t.values());return e.length<2?{x:0,y:0}:{x:(e[0].x+e[1].x)/2,y:(e[0].y+e[1].y)/2}},i=0,a={x:0,y:0},o=e=>{e.pointerType===`touch`&&(t.set(e.pointerId,{x:e.clientX,y:e.clientY}),t.size===2&&(this._multiTouching=!0,i=n(),a=r()))},s=e=>{if(e.pointerType===`touch`&&t.has(e.pointerId)&&(t.set(e.pointerId,{x:e.clientX,y:e.clientY}),this._enabled&&t.size>=2)){let e=n(),t=e-i;this.distanceVel_+=-t*5,i=e;let o=r(),s=o.x-a.x,c=o.y-a.y;this.mouseVelMove_.add({x:s,y:c}),a=o}},c=e=>{e.pointerType===`touch`&&(t.delete(e.pointerId),t.size<2&&(this._multiTouching=!1,i=0))};e.addEventListener(`pointerdown`,o),e.addEventListener(`pointermove`,s),e.addEventListener(`pointerup`,c),e.addEventListener(`pointercancel`,c);let l=e=>{e.preventDefault(),this._enabled&&(this.distanceVel_+=e.deltaY)};e.addEventListener(`wheel`,l),this.elmDisposer=()=>{e.removeEventListener(`pointerdown`,o),e.removeEventListener(`pointermove`,s),e.removeEventListener(`pointerup`,c),e.removeEventListener(`pointercancel`,c),e.removeEventListener(`wheel`,l)}}calc(e){let t=Math.PI/2-.001;this.eye_.set(0,0,0),this.eye_.z+=this.distance_,this.eye_.applyMatrix3(new j().makeRotationAxis({x:1,y:0,z:0},Math.min(t,Math.max(-t,this.orbit_.x)))),this.eye_.applyMatrix3(new j().makeRotationAxis({x:0,y:1,z:0},this.orbit_.y)),this.eye_.add(this.target_),this.lookatMatrix_.lookAt(this.eye_,this.target_,this.up_),this.lookatMatrix_.decompose(e.position,e.quaternion,e.scale)}updateImpl(e){let t=new A(-this.mouseVelMove_.x*this.distance_*25e-5,this.mouseVelMove_.y*this.distance_*25e-5,0,0);t.applyMatrix3(this.entity.matrix),this.target_.add(t),this.orbit_.x+=this.mouseVelOrbit_.y*.001,this.orbit_.x=Math.min(Math.PI/2,Math.max(-Math.PI/2,this.orbit_.x)),this.orbit_.y+=this.mouseVelOrbit_.x*.001,this.distance_+=this.distanceVel_*.01*this.distance_*.025,this.distance_=Math.max(.1,this.distance_);let n=Math.max(0,1-e.timeDelta*10);this.mouseVelOrbit_.multiply(n),this.mouseVelMove_.multiply(n),this.distanceVel_*=n,this.calc(this.entity)}addOrbitVelocity(e,t){this._enabled&&this.mouseVelOrbit_.add({x:e,y:t})}addMoveVelocity(e,t){this._enabled&&this.mouseVelMove_.add({x:e,y:t})}addDistanceVelocity(e){this._enabled&&(this.distanceVel_+=e)}setPosition(e,t){if(this.eye_.copy(e),this.target_.copy(t),this.entity){let e=this.entity.parent;e&&(e.updateMatrix(!0),this.target_.applyMatrix4(e.matrixWorld.clone().inverse()))}let n=this.eye_.x-this.target_.x,r=this.eye_.y-this.target_.y,i=this.eye_.z-this.target_.z;this.orbit_.x=Math.atan2(r,Math.sqrt(n*n+i*i)),this.orbit_.y=-Math.atan2(n,i),this.distance_=this.eye_.clone().sub(this.target_).length(),this.mouseVelOrbit_.set(0,0,0),this.mouseVelMove_.set(0,0,0),this.distanceVel_=0}dispose(){super.dispose(),this._pointer.dispose(),this.elmDisposer&&this.elmDisposer()}},yf={motionBlur:!1,dof:!1},bf=1.3,xf=1,Sf=.1,Cf=e=>{let t=null;return e.traverse(e=>{if(t)return;let n=e.getComponentsByTag(`camera`);for(let r=0;r<n.length;r++)if(n[r].displayOut){t=e;return}}),t},wf=class{_entity;_camera;_orbitControls;_renderView;_view;_preview;constructor(e,t,n){this._entity=e.createEntity({name:`__editorCamera`}),this._camera=this._entity.addComponent(Vt),this._orbitControls=this._entity.addComponent(vf),this._orbitControls.setElm(n),this._renderView=t,this._view=`editor`,this._preview=!1,this._apply(e)}get entity(){return this._entity}get camera(){return this._camera}get orbitControls(){return this._orbitControls}get view(){return this._view}get preview(){return this._preview}get usingEditorCamera(){return!this._preview&&this._view===`editor`}setView(e,t){this._view=e,this._apply(t)}setPreview(e,t){this._preview=e,this._apply(t)}_apply(e){let t=this._renderView;this.usingEditorCamera?(t.camera!==this._entity&&this.syncFromSceneCamera(e),t.camera=this._entity,this._orbitControls.enabled=!0):(t.camera=null,this._orbitControls.enabled=!1),t.pipelineOverride=this.usingEditorCamera?yf:null}focus(e){e.updateMatrixRecursive(!0);let t=this._getWorldBounds(e),n=new A,r=xf;t?(n.copy(t.min).add(t.max).multiply(.5),r=Math.max(t.max.clone().sub(t.min).length()*.5,Sf)):e.matrixWorld.decompose(n);let i=r/Math.tan(this._camera.fov*Math.PI/360)*bf,a=this._orbitControls.eye.clone().sub(this._orbitControls.target);a.length()<1e-6&&a.set(0,0,1),a.normalize().multiply(i),this._orbitControls.setPosition(n.clone().add(a),n)}_getWorldBounds(e){let t=new A(1/0,1/0,1/0),n=new A(-1/0,-1/0,-1/0),r=!1;return e.traverse(e=>{if(!e.visible)return;let i=e.getComponent(P);if(!i)return;let a=i.geometry.boundingBox;if(a){for(let r=0;r<8;r++){let i=new A(r&1?a.max.x:a.min.x,r&2?a.max.y:a.min.y,r&4?a.max.z:a.min.z).applyMatrix4AsPosition(e.matrixWorld);t.x=Math.min(t.x,i.x),t.y=Math.min(t.y,i.y),t.z=Math.min(t.z,i.z),n.x=Math.max(n.x,i.x),n.y=Math.max(n.y,i.y),n.z=Math.max(n.z,i.z)}r=!0}}),r?{min:t,max:n}:null}getCameraEntity(e){return this._renderView.camera||Cf(e.root)}updateBeforeRender(e){if(!this.usingEditorCamera)return;let t=e.createEntityUpdateEvent();this._entity.commitFrame(t),this._entity.updateMatrix(),this._camera.aspect=e.renderer.resolution.x/e.renderer.resolution.y,this._camera.needsUpdateProjectionMatrix=!0,this._entity.update(t),this._entity.postUpdate(t),this._entity.updateMatrixRecursive(),this._entity.prepareRender(t)}resize(e){this._camera.aspect=e.x/e.y,this._camera.needsUpdateProjectionMatrix=!0}dispose(){this._entity.dispose()}syncFromSceneCamera(e){let t=Cf(e.root);if(!t)return;let n=new A;t.matrixWorld.decompose(n);let r=t.getComponentsByTag(`camera`)[0];this._orbitControls.setPosition(n,this._resolveOrbitTarget(t,r,n)),r&&(this._camera.fov=r.fov,this._camera.near=r.near,this._camera.far=r.far,this._camera.needsUpdateProjectionMatrix=!0)}_resolveOrbitTarget(e,t,n){let r=Math.max(t?t.dofParams.focusDistance:5,.1),i=new A(0,0,-1,0).applyMatrix3(e.matrixWorld).normalize();return n.clone().add(i.multiply(r))}},Tf=class extends Et{_draw;_view;_elm;_outTarget;_frameLabels;_enable;_resolution;_count;_total;_tile;_tilePixelSize;_tileInv;_focus;_prevFrameLabels;_labelCount;_overlay;constructor(e,t,n){super(),this._draw=t,this._view=n,this._elm=e,this._outTarget=t.createTarget(),this._enable=!1,this._count=0,this._total=1,this._tile=new A(1,1),this._tilePixelSize=new A(1,1),this._tileInv=new A(1,1),this._focus=null,this._frameLabels=[],this._prevFrameLabels=[],this._labelCount=new Map,this._resolution=new A,this._overlay=document.createElement(`div`),this._overlay.style.cssText=`position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;color:#fff;font-family:'Courier New',monospace;font-weight:500;mix-blend-mode:difference;`;let r=t.onDrawPass((e,t)=>this._push(e,t)),i=new A(0,0),a=this._onClick.bind(this),o=e=>{i.set(e.clientX,e.clientY)},s=e=>{let t=new A(e.clientX,e.clientY);i.clone().sub(t).length()<10&&a(e)};this._elm.addEventListener(`pointerdown`,o),this._elm.addEventListener(`pointerup`,s);let c=e=>{if(e.key===`Escape`&&(this._focus=null,this._clear()),e.key==`ArrowRight`&&this._focus!==null){let e=this._prevFrameLabels.indexOf(this._focus),t=Math.min(e+1,this._prevFrameLabels.length-1);this._focus=this._prevFrameLabels[t]??this._focus}if(e.key==`ArrowLeft`&&this._focus!==null){let e=this._prevFrameLabels.indexOf(this._focus),t=Math.max(e-1,0);this._focus=this._prevFrameLabels[t]??this._focus}};window.addEventListener(`keydown`,c),this.once(`dispose`,()=>{r(),this._elm.removeEventListener(`pointerdown`,o),this._elm.removeEventListener(`pointerup`,s),window.removeEventListener(`keydown`,c),this._overlay.remove()})}_calcTilePos(e){return{x:e%this._tile.x*this._tileInv.x*this._resolution.x,y:Math.floor(e/this._tile.x)*this._tileInv.y*this._resolution.y}}_push(e,t){if(!this._enable)return;let n=t||String(this._count),r=this._labelCount.get(n)||0;this._labelCount.set(n,r+1);let i=r>0?n+`#`+r:n;if(this._focus==null||this._focus==i){let{x:t,y:n}=this._calcTilePos(this._count);this._focus!==null&&(t=0,n=0),this._draw.blit(this._view,e,this._outTarget,{x:t,y:n,width:this._tilePixelSize.x,height:this._tilePixelSize.y}),this._frameLabels.push(i)}this._count++}draw(){this._draw.blit(this._view,this._outTarget,null),this._drawLabels(),this._clear()}_drawLabels(){let e=this._elm.parentElement;e&&(this._overlay.parentElement!==e&&e.appendChild(this._overlay),this._overlay.style.fontSize=Math.max(10,this._elm.clientHeight/1080*28)+`px`,this._overlay.replaceChildren(...this._frameLabels.map((e,t)=>{let n=document.createElement(`div`);return n.textContent=e,n.style.cssText=`position:absolute;transform:translateY(-100%);white-space:nowrap;`,n.style.left=t%this._tile.x*this._tileInv.x*100+`%`,n.style.top=(Math.floor(t/this._tile.x)+1)*this._tileInv.y*100+`%`,n.style.paddingLeft=`5px`,n})))}_clear(){this._total=this._count,this._prevFrameLabels=this._frameLabels;let e=Math.sqrt(this._focus===null?Math.max(this._total,1):1);this._tile.set(Math.round(e),Math.ceil(e)),this._tileInv.set(1,1).divide(this._tile),this._tilePixelSize.copy(this._tileInv).multiply(this._resolution),this._frameLabels=[],this._count=0,this._labelCount.clear()}reflesh(){this.resize(this._resolution)}resize(e){this._resolution.copy(e)}_onClick(e){if(this._enable){if(this.reflesh(),this._focus===null){let t=new A(this._elm.clientWidth/this._tile.x,this._elm.clientHeight/this._tile.y),n=Math.floor(e.offsetX/t.x)+Math.floor(e.offsetY/t.y)*this._tile.x;n>=0&&n<this._prevFrameLabels.length&&(this._focus=this._prevFrameLabels[n])}this._clear()}}set enable(e){this._enable=e,e?this.reflesh():this._overlay.remove()}get enable(){return this._enable}dispose(){this.emit(`dispose`)}},Ef=12,Df=12,Of=class{_raycaster;_pointerDownPos;_gizmoDragging;_gizmoDragStartValue;_hoveredTarget;_lastClickNDC;_lastClickCandidateUUIDs;_lastClickCycleIndex;_disposeListeners;constructor(e){let{engine:t,editorCamera:n,gizmoManager:r,helperManager:i,api:a,getSelectedEntityId:o,isEntitySelectable:s,getGizmoMode:c,onSelectEntity:l,isModalActive:u,onEscapeToEditorCamera:d}=e;this._raycaster=new Zt,this._pointerDownPos=null,this._gizmoDragging=!1,this._gizmoDragStartValue=null,this._hoveredTarget=null,this._lastClickNDC=null,this._lastClickCandidateUUIDs=[],this._lastClickCycleIndex=-1;let f=e.canvas,p=()=>n.getCameraEntity(t),m=(e,t)=>{let n=t.getComponentsByTag(`camera`)[0];if(!n)return null;let r=new A(e.x,e.y,e.z,1);return r.applyMatrix4(n.viewMatrix).applyMatrix4(n.projectionMatrix),r.w<=0?null:new A(r.x/r.w,r.y/r.w)},h=new Zt,g=e=>{let n=this._raycaster.ray.origin,r=e.x-n.x,i=e.y-n.y,a=e.z-n.z,o=Math.sqrt(r*r+i*i+a*a);if(o<1e-4)return!1;h.ray.origin.copy(n),h.ray.direction.set(r/o,i/o,a/o);let s=h.intersectEntities(t.root);for(let e of s)if(e.entity.initiator!==`god`)return e.distance<o-.001;return!1},_=new Zt,v=new A,y=(e,t)=>{for(let[n,r]of[[-.8,-.8],[.8,-.8],[-.8,.8],[.8,.8]])if(v.set(n,r),_.setFromCamera(v,t),_.intersectEntities(e).length===0)return!1;return!0},b=(e,t,n,r)=>{for(let i of e.getWorldSegments()){let e=m(i.a,n),a=m(i.b,n);if(!e||!a)continue;let o=(e.x-t.x)*r.width*.5,s=(e.y-t.y)*r.height*.5,c=(a.x-t.x)*r.width*.5,l=(a.y-t.y)*r.height*.5,u=c-o,d=l-s,f=u*u+d*d,p=f>0?Math.max(0,Math.min(1,-(o*u+s*d)/f)):0,h=o+u*p,g=s+d*p;if(Math.sqrt(h*h+g*g)<=Df)return!0}return!1},x=e=>{let r=p();if(!r)return[];this._raycaster.setFromCamera(e,r);let a=[];for(let e of this._raycaster.intersectEntities(t.root))e.entity.initiator!==`god`&&s(e.entity)&&a.push({entity:e.entity,distance:e.distance,type:`mesh`});let o=a.length>0?a[0].distance:1/0,c=[],l=[],u=new Set,d=i.getHelpers(),h=Io(f);for(let n of d){let i=t.root.findEntityByUUID(n.targetEntityUUID);if(!i||!s(i))continue;if(n.type===`empty`){if(!b(n,e,r,h))continue;u.add(n.targetEntityUUID);let t=n.entity.matrixWorld.elm,a=t[12]-this._raycaster.ray.origin.x,s=t[13]-this._raycaster.ray.origin.y,d=t[14]-this._raycaster.ray.origin.z,f=Math.sqrt(a*a+s*s+d*d),p={entity:i,distance:f,type:`helper`};f<=o?c.push(p):l.push(p);continue}let a=this._raycaster.intersectEntities(n.hitAreaEntity);if(a.length===0)continue;u.add(n.targetEntityUUID);let d={entity:i,distance:a[0].distance,type:`helper`};if(y(n.hitAreaEntity,r)){b(n,e,r,h)&&c.push(d);continue}a[0].distance<=o?c.push(d):l.push(d)}n.view===`camera`&&Math.min((1-Math.abs(e.x))*h.width*.5,(1-Math.abs(e.y))*h.height*.5)<=Df&&s(r)&&c.push({entity:r,distance:0,type:`helper`}),c.sort((e,t)=>e.distance-t.distance),l.sort((e,t)=>e.distance-t.distance);let _=[];for(let{targetEntityUUID:n}of d){if(u.has(n))continue;let i=t.root.findEntityByUUID(n);if(!i||!s(i))continue;let a=i.matrixWorld.elm,o=new A(a[12],a[13],a[14]),c=m(o,r);if(!c)continue;let l=(c.x-e.x)*h.width*.5,d=(c.y-e.y)*h.height*.5,f=Math.sqrt(l*l+d*d);if(f>Ef||g(o))continue;let p=o.x-this._raycaster.ray.origin.x,v=o.y-this._raycaster.ray.origin.y,y=o.z-this._raycaster.ray.origin.z;_.push({candidate:{entity:i,distance:Math.sqrt(p*p+v*v+y*y),type:`helper`},screenDistance:f})}return _.sort((e,t)=>e.screenDistance-t.screenDistance),[...c,..._.map(e=>e.candidate),...a,...l]},S=()=>{let e=r.activeGizmo;if(!e||!e.entity.visible)return null;let t=null;for(let{handle:n,entity:r}of e.getHandleEntities()){let e=this._raycaster.intersectEntities(r);e.length>0&&(!t||e[0].distance<t.distance)&&(t={handle:n,distance:e[0].distance})}return t},C=e=>{if(!u()&&(e.pointerType!==`mouse`||e.button===0)){if(n.preview){e.target.setPointerCapture(e.pointerId),this._pointerDownPos=new A(e.clientX,e.clientY);return}if(!(e.pointerType===`touch`&&this._gizmoDragging)&&(e.target.setPointerCapture(e.pointerId),this._pointerDownPos=new A(e.clientX,e.clientY),r.activeGizmo&&r.activeGizmo.entity.visible)){let i=Lo(f,e.clientX,e.clientY),a=p();if(a){this._raycaster.setFromCamera(i,a);let e=S();if(e){let i=o(),a=i?t.root.findEntityByUUID(i):null;a&&(this._gizmoDragging=!0,n.orbitControls.enabled=!1,f.style.cursor=`grabbing`,this._gizmoDragStartValue={position:a.position.getElm(`vec3`),euler:a.euler.getElm(`vec3`),scale:a.scale.getElm(`vec3`)},r.activeGizmo.startDrag(e.handle,this._raycaster.ray,a))}}}}},w=e=>{if(u())return;if((n.preview||n.view===`camera`)&&this._pointerDownPos&&!this._gizmoDragging){let t=e.clientX-this._pointerDownPos.x,n=e.clientY-this._pointerDownPos.y;Math.sqrt(t*t+n*n)>5&&d()}if(n.preview){f.style.cursor=``;return}let i=Lo(f,e.clientX,e.clientY),a=p();if(!a)return;if(this._raycaster.setFromCamera(i,a),this._gizmoDragging){let e=o(),n=e?t.root.findEntityByUUID(e):null;if(!n)return;let i=r.activeGizmo.updateDrag(this._raycaster.ray,n);if(i){if(i.position){let e=i.position.clone();n.parent&&e.applyMatrix4AsPosition(n.parent.matrixWorld.clone().inverse()),n.position.copy(e)}i.euler&&n.euler.set(i.euler.x,i.euler.y,i.euler.z),i.scale&&n.scale.set(i.scale.x,i.scale.y,i.scale.z),n.updateMatrix(!0)}return}let s=null;if(r.activeGizmo&&r.activeGizmo.entity.visible){let e=S();e&&(s=`gizmo`),r.activeGizmo.setHover(e?e.handle:null)}if(!s){let e=x(i);e.length>0&&(s=e[0].type)}s!==this._hoveredTarget&&(this._hoveredTarget=s,s===`gizmo`?f.style.cursor=`grab`:s===`helper`||s===`mesh`?f.style.cursor=`pointer`:f.style.cursor=``)},ee=e=>{if(u())return;if(n.preview){this._pointerDownPos=null;return}if(this._gizmoDragging){r.activeGizmo.endDrag(),this._gizmoDragging=!1,n.orbitControls.enabled=n.usingEditorCamera,f.style.cursor=this._hoveredTarget===`gizmo`?`grab`:``;let e=o(),i=e?t.root.findEntityByUUID(e):null;if(i&&this._gizmoDragStartValue){let e=c(),t=e===`translate`?`position`:e===`rotate`?`euler`:`scale`,n=this._gizmoDragStartValue[t],r=i[t].getElm(`vec3`);a.commandManager.execute(new Wa(i,t,n,r))}this._gizmoDragStartValue=null,this._pointerDownPos=null;return}if(!this._pointerDownPos)return;let i=e.clientX-this._pointerDownPos.x,s=e.clientY-this._pointerDownPos.y,d=Math.sqrt(i*i+s*s);if(this._pointerDownPos=null,d>5)return;let m=Lo(f,e.clientX,e.clientY);if(!p())return;let h=x(m);if(h.length===0){this._lastClickNDC=null,this._lastClickCandidateUUIDs=[],this._lastClickCycleIndex=-1,l(null);return}let g=.02,_=this._lastClickNDC&&Math.abs(m.x-this._lastClickNDC.x)<g&&Math.abs(m.y-this._lastClickNDC.y)<g,v=h.map(e=>e.entity.uuid),y=_&&v.length===this._lastClickCandidateUUIDs.length&&v.every((e,t)=>e===this._lastClickCandidateUUIDs[t]),b=0;y&&h.length>1&&(b=(this._lastClickCycleIndex+1)%h.length),this._lastClickNDC=new A(m.x,m.y),this._lastClickCandidateUUIDs=v,this._lastClickCycleIndex=b,l(h[b].entity)},te=e=>{e.preventDefault()};f.addEventListener(`pointerdown`,C),f.addEventListener(`pointermove`,w),f.addEventListener(`pointerup`,ee),f.addEventListener(`contextmenu`,te),this._disposeListeners=()=>{f.removeEventListener(`pointerdown`,C),f.removeEventListener(`pointermove`,w),f.removeEventListener(`pointerup`,ee),f.removeEventListener(`contextmenu`,te)}}get gizmoDragging(){return this._gizmoDragging}dispose(){this._disposeListeners()}},kf=class{id;canvas;view;editorCamera;frameDebugger;_pointerHandler;_onDispose;_disposeListeners;_disposed;constructor(e){let{engine:t,canvas:n}=e;this.id=e.id,this.canvas=n,this.view=t.createView({offscreen:!0}),this.editorCamera=new wf(t,this.view,n),this.frameDebugger=new Tf(n,e.draw,this.view),this._pointerHandler=new Of({engine:t,canvas:n,editorCamera:this.editorCamera,gizmoManager:e.gizmoManager,helperManager:e.helperManager,api:e.api,getSelectedEntityId:e.getSelectedEntityId,isEntitySelectable:e.isEntitySelectable,getGizmoMode:()=>e.gizmoManager.mode,onSelectEntity:e.onSelectEntity,isModalActive:e.isModalActive,onEscapeToEditorCamera:e.onEscapeToEditorCamera});let r=()=>e.onActivate();n.addEventListener(`pointerenter`,r),this._onDispose=e.onDispose,this._disposeListeners=()=>n.removeEventListener(`pointerenter`,r),this._disposed=!1}get gizmoDragging(){return this._pointerHandler.gizmoDragging}resize(e){this.editorCamera.resize(e),this.frameDebugger.resize(e)}dispose(){this._disposed||(this._disposed=!0,this._onDispose(),this._disposeListeners(),this._pointerHandler.dispose(),this.frameDebugger.dispose(),this.editorCamera.dispose(),this.view.dispose())}},Af=class extends Ft{_engine;_selectedEntityId;_unselectableEntityIds;_selectedAsset;_navigateAsset;_propertyTarget;_audioBuffer;_frameLoop;_resolutionScale;_enableRender;_baseResolution;_viewType;_assetPreviewManager;_externalWindow;_externalCanvasBitmapContext;_modalStatus;_panelLayout;_disposed;_api;_draw;_viewports;_activeViewport;_viewportSettings;_gizmoManager;_helperManager;_gridRenderer;_constraintAxisRenderer;_wireframeRenderer;_selectionOutline;_keyboardHandler;_modalTransformHandler;_sceneExporter;_isExporting;_exportProgress;constructor(e){super(),this._engine=e,this._viewType=`render`,this._selectedEntityId=null,this._unselectableEntityIds=new Set,this._selectedAsset=null,this._navigateAsset=null,this._propertyTarget=`entity`,this._resolutionScale=1,this._enableRender=!0,this._baseResolution=new A(1920,1080),this._externalWindow=null,this._externalCanvasBitmapContext=null,this._modalStatus=null,this._panelLayout=null,this._disposed=!1,this._api=new Ga(this),this._draw=tr(e),this._viewports=[],this._activeViewport=null,this._viewportSettings=new Map,this._assetPreviewManager=new Ia(this._draw),this._sceneExporter=new mf(e),this._isExporting=!1,this._exportProgress=null,this._gizmoManager=new wo(e,this._draw),this._helperManager=new No(e,this._draw),this._gridRenderer=new Yo(e,this._draw),this._constraintAxisRenderer=new Jo(e,this._draw),this._wireframeRenderer=new Qo(this._draw),this._selectionOutline=new Zo(this._draw),this._modalTransformHandler=new Go({engine:e,getViewport:()=>this._activeViewport,api:this._api,getSelectedEntity:()=>this._selectedEntityId?e.root.findEntityByUUID(this._selectedEntityId)??null:null,isPointerBusy:()=>this._viewports.some(e=>e.gizmoDragging),onStatusChange:e=>{this._modalStatus!==e&&(this._modalStatus=e,this.noticeField(`modalStatus`))}}),this._keyboardHandler=new Fo({onSave:()=>this.save(),onUndo:()=>this._api.undo(),onRedo:()=>this._api.redo(),onPlayToggle:()=>{this._engine.frame.playing?this._engine.stop():this._engine.play()},onCameraViewToggle:()=>{let e=this._activeViewport;e&&(e.editorCamera.preview?this._escapeToEditorCamera(e):this.setField(`viewports/${e.id}/cameraView`,e.editorCamera.view===`editor`?`camera`:`editor`))},onPreviewToggle:()=>{let e=this._activeViewport;e&&this.setField(`viewports/${e.id}/preview`,!e.editorCamera.preview)},onSyncToSceneCamera:()=>this.syncToSceneCamera(),onFocusSelected:()=>this.focusSelected(),onTransformKey:e=>!this._activeViewport?.editorCamera.preview&&this._modalTransformHandler.handleKeyDown(e)}),this._audioBuffer=null,this._engine.on(`update/music`,e=>{this._audioBuffer=e}),this._frameLoop={enabled:!1,start:0,end:0},this._engine.on(`update/blidge/frame`,e=>{this._engine.seek(e.current),e.playing&&!this._engine.frame.playing?this._engine.play():!e.playing&&this._engine.frame.playing&&this._engine.stop()}),this.field(`enableRender`,()=>this._enableRender,e=>this._enableRender=e),this.field(`resolutionScale`,()=>this._resolutionScale,e=>{this._resolutionScale=Number(e),this._resize()});let t=this.fieldDir(`resolution`);t.field(`width`,()=>this._baseResolution.x,e=>{this._baseResolution.x=e,this._resize()},{step:1}),t.field(`height`,()=>this._baseResolution.y,e=>{this._baseResolution.y=e,this._resize()},{step:1}),this.field(`viewType`,()=>this._viewType,e=>{this._viewType=e;for(let e of this._viewports)e.frameDebugger.enable=this._viewType===`debug`});let n=this.fieldDir(`frameLoop`);n.field(`enabled`,()=>this._frameLoop.enabled,e=>this._frameLoop.enabled=e),n.field(`start`,()=>this._frameLoop.start,e=>this._frameLoop.start=e),n.field(`end`,()=>this._frameLoop.end,e=>this._frameLoop.end=e),this.field(`selectedEntityId`,()=>this._selectedEntityId,e=>{this._selectedEntityId=e,e&&(this._propertyTarget=`entity`,this.noticeField(`propertyTarget`))}),this.field(`unselectableEntityIds`,()=>Array.from(this._unselectableEntityIds),e=>{this._unselectableEntityIds=new Set(e)},{hidden:!0}),this.field(`selectedAsset`,()=>this._selectedAsset,e=>{this._selectedAsset=e,e&&(this._propertyTarget=`asset`,this.noticeField(`propertyTarget`))}),this.field(`navigateAsset`,()=>this._navigateAsset,e=>{this._navigateAsset=e}),this.field(`propertyTarget`,()=>this._propertyTarget,e=>{this._propertyTarget=e}),this.field(`gizmoMode`,()=>this._gizmoManager.mode,e=>{this._gizmoManager.setMode(e)}),this.field(`transformOrientation`,()=>this._gizmoManager.orientation,e=>{this._gizmoManager.setOrientation(e)}),this.field(`modalStatus`,()=>this._modalStatus,{noExport:!0}),this.field(`panelLayout`,()=>this._panelLayout,e=>this._panelLayout=e,{hidden:!0});let r=this.fieldDir(`helpers`);r.field(`show`,()=>this._helperManager.showHelpers,e=>this._helperManager.showHelpers=e),r.field(`grid`,()=>this._gridRenderer.showGrid,e=>this._gridRenderer.showGrid=e),r.field(`empty`,()=>this._helperManager.showEmptyHelpers,e=>this._helperManager.showEmptyHelpers=e),r.field(`camera`,()=>this._helperManager.showCameraHelpers,e=>this._helperManager.showCameraHelpers=e),r.field(`light`,()=>this._helperManager.showLightHelpers,e=>this._helperManager.showLightHelpers=e),r.field(`wireframe`,()=>this._wireframeRenderer.showWireframe,e=>this._wireframeRenderer.showWireframe=e),r.field(`gizmo`,()=>this._gizmoManager.showGizmo,e=>this._gizmoManager.showGizmo=e),r.field(`outline`,()=>this._selectionOutline.showOutline,e=>this._selectionOutline.showOutline=e),this._animate()}bootstrap(e){e&&this.deserialize(e),this._resize()}deserialize(e){for(let t of Object.keys(e)){let e=t.match(/^viewports\/([^/]+)\//);e&&this._registerViewportFields(e[1])}super.deserialize(e)}get engine(){return this._engine}get api(){return this._api}get audioBuffer(){return this._audioBuffer}get disposed(){return this._disposed}get viewports(){return this._viewports}get activeViewport(){return this._activeViewport}get assetPreviewManager(){return this._assetPreviewManager}createViewport(e,t){this._registerViewportFields(e);let n=this._viewportSettings.get(e),r=this._engine,i=new kf({id:e,engine:r,draw:this._draw,canvas:t,gizmoManager:this._gizmoManager,helperManager:this._helperManager,api:this._api,getSelectedEntityId:()=>this._selectedEntityId,isEntitySelectable:e=>!this._unselectableEntityIds.has(e.uuid),onSelectEntity:e=>this.selectEntity(e),isModalActive:()=>this._modalTransformHandler.active,onEscapeToEditorCamera:()=>this._escapeToEditorCamera(i),onActivate:()=>{this._activeViewport=i},onDispose:()=>{let e=i.editorCamera,t=e.orbitControls;n.cameraView=e.view,n.preview=e.preview,n.cameraPosition=[t.eye.x,t.eye.y,t.eye.z],n.cameraTarget=[t.target.x,t.target.y,t.target.z],this._viewports.splice(this._viewports.indexOf(i),1),this._activeViewport===i&&(this._activeViewport=this._viewports[0]??null)}});i.editorCamera.setView(n.cameraView,r),i.editorCamera.setPreview(n.preview,r),(n.cameraPosition||n.cameraTarget)&&this._setOrbit(i,n.cameraPosition,n.cameraTarget),i.frameDebugger.enable=this._viewType===`debug`,i.resize(r.renderer.resolution),this._viewports.push(i),this._activeViewport||=i;for(let t of[`cameraView`,`preview`,`camera/position`,`camera/target`])this.noticeField(`viewports/${e}/${t}`);return i}_registerViewportFields(e){if(this._viewportSettings.has(e))return;let t={cameraView:`editor`,preview:!1,cameraPosition:null,cameraTarget:null};this._viewportSettings.set(e,t);let n=()=>this._viewports.find(t=>t.id===e)??null,r=this._engine,i=this.fieldDir(`viewports/${e}`);i.field(`cameraView`,()=>n()?.editorCamera.view??t.cameraView,e=>{let i=n();i?i.editorCamera.setView(e,r):t.cameraView=e}),i.field(`preview`,()=>n()?.editorCamera.preview??t.preview,e=>{let i=n();i?i.editorCamera.setPreview(e,r):t.preview=e});let a=i.dir(`camera`);a.field(`position`,()=>{let e=n();if(!e)return t.cameraPosition;let r=e.editorCamera.orbitControls.eye;return[r.x,r.y,r.z]},e=>{let r=n();r?this._setOrbit(r,e,null):t.cameraPosition=e}),a.field(`target`,()=>{let e=n();if(!e)return t.cameraTarget;let r=e.editorCamera.orbitControls.target;return[r.x,r.y,r.z]},e=>{let r=n();r?this._setOrbit(r,null,e):t.cameraTarget=e})}_setOrbit(e,t,n){let r=e.editorCamera.orbitControls;r.setPosition(t?new A(t[0],t[1],t[2]):r.eye.clone(),n?new A(n[0],n[1],n[2]):r.target.clone())}_escapeToEditorCamera(e){e.editorCamera.preview&&this.setField(`viewports/${e.id}/preview`,!1),this.setField(`viewports/${e.id}/cameraView`,`editor`)}_animate(){if(!this._disposed){if(!this._isExporting){for(let e of this._viewports)e.editorCamera.updateBeforeRender(this._engine);this._engine.update();let e=this._selectedEntityId?this._engine.root.findEntityByUUID(this._selectedEntityId)??null:null;for(let t of this._viewports)this._enableRender&&this._engine.render(t.view),this._renderOverlay(t,e),this._draw.drawToCanvas(t.view,t.canvas);if(this._externalCanvasBitmapContext){let e=this._externalCanvasBitmapContext;createImageBitmap(this.engine.canvas).then(t=>{e.transferFromImageBitmap(t)})}this._engine.frame.playing&&((this._engine.frame.current<0||this._engine.frame.current>this._engine.frameSetting.duration)&&this._engine.seek(0),this._frameLoop.enabled&&(this._engine.frame.current<this._frameLoop.start||this._engine.frame.current>this._frameLoop.end)&&this._engine.seek(this._frameLoop.start))}window.requestAnimationFrame(this._animate.bind(this))}}_renderOverlay(e,t){let n=e.editorCamera.getCameraEntity(this._engine),r=e.editorCamera.preview,i=e.view;r||(this._gridRenderer.render(i,n,this._engine),this._helperManager.render(i,n,this._engine,this._selectedEntityId),this._wireframeRenderer.render(i,n,this._engine)),this._gizmoManager.render(i,r||this._modalTransformHandler.active?null:t,n,this._engine),r||(this._constraintAxisRenderer.render(i,this._modalTransformHandler.constraintDisplay,n,this._engine),this._selectionOutline.render(i,t,n)),e.frameDebugger.enable&&e.frameDebugger.draw()}get isExporting(){return this._isExporting}get exportProgress(){return this._exportProgress}async exportMP4(){if(this._isExporting)return;this._isExporting=!0,this._exportProgress=null,this.emit(`update/export`);let e=this._engine.frame.playing;this._engine.stop();try{let e=await this._sceneExporter.export({fps:this._engine.frameSetting.fps,duration:this._engine.frameSetting.duration,resolution:this._baseResolution.clone()},e=>{this._exportProgress=e,this.emit(`update/export`)});mf.download(e)}catch(e){console.error(`Export failed:`,e)}this._isExporting=!1,this._exportProgress=null,this.emit(`update/export`),e&&this._engine.play()}selectEntity(e){this.setField(`selectedEntityId`,e?e.uuid:null)}syncToSceneCamera(){let e=this._activeViewport;e&&(this._escapeToEditorCamera(e),e.editorCamera.syncFromSceneCamera(this._engine))}focusSelected(){let e=this._activeViewport;if(!e||e.editorCamera.preview)return;let t=this._selectedEntityId?this._engine.root.findEntityByUUID(this._selectedEntityId)??null:null;t&&(this.setField(`viewports/${e.id}/cameraView`,`editor`),e.editorCamera.focus(t))}createEntity(e,t){let n=this._engine.createEntity({name:t});return n.initiator=`user`,e.add(n),n}deleteEntity(e){e.disposeRecursive();let t=e.parent;t&&t.remove(e)}save(){this.emit(`save`,[this.exportEngine(),this.exportEditor()])}exportEditor(){return this.serialize({mode:`export`})}exportEngine(){return this._engine.serialize({mode:`export`})}openInExternalWindow(){if(this._externalWindow=window.open(``,`_blank`),!this._externalWindow)return;let e=this._externalWindow.document.createElement(`canvas`);e.style.width=`100%`,e.style.height=`100%`,e.style.objectFit=`contain`,e.style.cursor=`none`,this._externalWindow.document.body.style.margin=`0`,this._externalWindow.document.body.style.background=`#000`,this._externalWindow.document.body.appendChild(e),this._externalCanvasBitmapContext=e.getContext(`bitmaprenderer`),this._externalWindow.addEventListener(`unload`,()=>{this.closeExternalWindow()}),this._resize()}closeExternalWindow(){this._externalWindow&&(this._externalWindow.close(),this._externalWindow=null,this._externalCanvasBitmapContext=null)}_resize(){let e=this._baseResolution.clone().multiply(this._resolutionScale);this.engine.setSize(e),this._draw.resize(e);for(let t of this._viewports)t.resize(e);this._externalCanvasBitmapContext&&(this._externalCanvasBitmapContext.canvas.width=e.x,this._externalCanvasBitmapContext.canvas.height=e.y)}dispose(){this._disposed=!0,this._api.dispose(),this._keyboardHandler.dispose(),this._modalTransformHandler.dispose(),this._assetPreviewManager.dispose();for(let e of[...this._viewports])e.dispose()}},jf=e=>{let{engine:t}=Ur(),[n,r]=(0,b.useState)(()=>new Af(t)),i=b.useRef(n);return i.current=n,(0,b.useEffect)(()=>{if(!i.current.disposed&&i.current.engine.uuid==t.uuid)return;let e=new Af(t);r(e)},[t]),(0,b.useEffect)(()=>()=>{n.dispose()},[n]),{engine:t,editor:n,projectName:e}},Mf=e=>{let t=jf(e.projectName);return(0,b.useEffect)(()=>{if(!(!t.editor||!e.onSave))return t.editor.on(`save`,e.onSave),()=>{t.editor.off(`save`,e.onSave)}},[t.editor,e.onSave]),(0,b.useEffect)(()=>{t.editor&&t.editor.bootstrap(e.editorData)},[e.editorData,t.editor]),(0,T.jsx)(Be.Provider,{value:t,children:e.children})},Nf=e=>e?e.map(e=>(0,T.jsx)(E.Tab,{title:e.title,children:(0,T.jsx)(se,{children:e.content})},e.title)):null,Pf=e=>e?.find(e=>e.default)?.title,Ff=[{id:`scene`,title:`Scene`,content:(0,T.jsx)(se,{children:(0,T.jsx)(fi,{})})},{id:`timer`,title:`Timer`,content:(0,T.jsx)(se,{noPadding:!0,children:(0,T.jsx)(Xr,{})})},{id:`screen`,title:`Screen`,content:(0,T.jsx)(ca,{}),unique:!0},{id:`property`,title:`Property`,content:(0,T.jsx)(se,{children:(0,T.jsx)(Vr,{})})},{id:`textures`,title:`Textures`,content:(0,T.jsx)(se,{noPadding:!0,children:(0,T.jsx)(ua,{})})},{id:`project`,title:`Project`,content:(0,T.jsx)(se,{children:(0,T.jsx)(Zi,{})})},{id:`renderer`,title:`Renderer`,content:(0,T.jsx)(se,{children:(0,T.jsx)($i,{})})},{id:`editor-settings`,title:`Editor`,content:(0,T.jsx)(se,{children:(0,T.jsx)($e,{})})},{id:`timeline`,title:`Timeline`,content:(0,T.jsx)(se,{noPadding:!0,children:(0,T.jsx)(Na,{})})}],If=e=>{let t=ue(),n=null;return n=t.isPC?(0,T.jsxs)(T.Fragment,{children:[(0,T.jsx)(Ji,{panels:Ff,customTabs:e.customTabs}),(0,T.jsx)(vi,{})]}):(0,T.jsxs)(T.Fragment,{children:[(0,T.jsxs)(ae,{direction:`vertical`,storageKey:`orengine-editor-sp-main`,children:[(0,T.jsx)(ae.Item,{size:`calc( min( 56.25vw, 55vh ) + 77px )`,minSize:200,style:{minHeight:`200px`},children:(0,T.jsx)(ca,{})}),(0,T.jsx)(ae.Item,{flex:1,minSize:200,children:(0,T.jsxs)(E,{storageKey:`orengine-panel-sp-main`,defaultTabTitle:Pf(e.customTabs?.mainBottom)??Pf(e.customTabs?.leftTop)??Pf(e.customTabs?.leftBottom)??Pf(e.customTabs?.rightTop)??Pf(e.customTabs?.footer),children:[(0,T.jsx)(E.Tab,{title:`Scene / Property`,children:(0,T.jsxs)(ae,{direction:`horizontal`,storageKey:`orengine-editor-sp-sceneProp`,children:[(0,T.jsx)(ae.Item,{flex:1,minSize:120,overflow:!0,padding:!0,children:(0,T.jsx)(fi,{})}),(0,T.jsx)(ae.Item,{flex:1,minSize:120,overflow:!0,padding:!0,children:(0,T.jsx)(Vr,{})})]})}),(0,T.jsx)(E.Tab,{title:`Textures`,children:(0,T.jsx)(se,{noPadding:!0,children:(0,T.jsx)(ua,{})})}),(0,T.jsx)(E.Tab,{title:`Project`,children:(0,T.jsx)(se,{children:(0,T.jsx)(Zi,{})})}),(0,T.jsx)(E.Tab,{title:`Renderer`,children:(0,T.jsx)(se,{children:(0,T.jsx)($i,{})})}),(0,T.jsx)(E.Tab,{title:`Editor`,children:(0,T.jsx)(se,{children:(0,T.jsx)($e,{})})}),Nf(e.customTabs?.leftTop),Nf(e.customTabs?.leftBottom),Nf(e.customTabs?.mainBottom),Nf(e.customTabs?.rightTop),Nf(e.customTabs?.footer)]})}),(0,T.jsx)(ae.Item,{size:`120px`,minSize:80,children:(0,T.jsx)(E,{storageKey:`orengine-panel-sp-timeline`,children:(0,T.jsx)(E.Tab,{title:`Timeline`,children:(0,T.jsx)(se,{noPadding:!0,children:(0,T.jsx)(C,{fallback:(0,T.jsx)(`div`,{children:`エラーだよ`}),children:(0,T.jsx)(Na,{})})})})})})]}),(0,T.jsx)(vi,{})]}),(0,T.jsx)(Mf,{projectName:e.projectName,onSave:e.onSave,editorData:e.editorData,children:(0,T.jsx)(xi,{children:(0,T.jsxs)(gi,{children:[(0,T.jsx)(`div`,{className:Pa.editor,children:n}),(0,T.jsx)(mi,{})]})})})},Lf=()=>{let[e,t]=b.useState(()=>new wr(Rn)),n=b.useRef(e);return n.current=e,(0,b.useEffect)(()=>{n.current.disposed&&t(new wr(Rn))},[]),(0,b.useEffect)(()=>()=>{e.dispose()},[e]),{engine:e,load:(0,b.useCallback)(t=>{t&&e.load(t)},[e])}},Rf=e=>{let t=Lf(),{engine:n}=t,r=(0,b.useRef)(e.onEngineInit);return r.current=e.onEngineInit,(0,b.useEffect)(()=>{r.current?.(n)},[n]),(0,b.useEffect)(()=>{e.project?n.load(e.project):n.init()},[n,e.project]),(0,T.jsx)(Hr.Provider,{value:t,children:e.children})},zf=e=>(0,T.jsx)(Rf,{project:e.sceneData,onEngineInit:t=>{e.initResourceInstances(t)},children:(0,T.jsx)(If,{editorData:e.editorData,projectName:e.projectName??`Static`,customTabs:e.customTabs,onSave:()=>{}})}),Bf=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+// 宣言順はvert_h.part.glslのoutと一致させる（WGSL変換時にロケーションが宣言順で振られるため）\r
+in vec2 vUv;\r
+in vec3 vViewNormal;\r
+in vec3 vNormal;\r
+in vec3 vMVPosition;\r
+in vec3 vMVPPosition;\r
+in vec3 vPos;\r
+in vec2 vVelocity;\r
+\r
+uniform mat4 uModelMatrix;\r
+uniform mat4 uModelMatrixInverse;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform vec3 uCameraPosition;\r
+uniform vec2 uResolution;\r
+\r
+#ifdef IS_DEPTH\r
+	uniform float uCameraNear;\r
+	uniform float uCameraFar;\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+	layout (location = 3) out vec4 outColor3;\r
+	layout (location = 4) out vec4 outColor4;\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	uniform sampler2D uDeferredTexture;\r
+	uniform vec2 uDeferredResolution;\r
+	uniform sampler2D uGbufferNormal;\r
+	uniform sampler2D uGbufferAlbedo;\r
+	uniform sampler2D uGbufferMaterial;\r
+#endif\r
+\r
+#if defined(IS_FORWARD) || defined(IS_DEPTH)\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;
+
+in vec3 vInstance;
+
+void main( void ) {
+
+	vec4 outColor = vec4(1.0);\r
+vec3 outNormal = normalize(vNormal);\r
+vec3 outNormalMap = vec3( 0.0 );\r
+float outSSN = 0.0;\r
+vec3 outEmission = vec3(0.0);\r
+float outRoughness = 0.5;\r
+float outMetallic = 0.0;\r
+vec3 outPos = vPos;\r
+float outEnv = 1.0;
+
+	float emit = 10.0 - vInstance.z * 5.0;
+	outColor.xyz = vec3( emit );
+	outEmission += emit;
+	outSSN = 1.0;
+	
+	#if defined(IS_DEPTH) || defined(IS_DEFERRED)\r
+	vec4 mv = uViewMatrix * vec4(outPos, 1.0);\r
+#endif\r
+\r
+#ifdef IS_DEPTH\r
+	float depth_z = (-mv.z - uCameraNear) / (uCameraFar - uCameraNear);\r
+	outColor0 = vec4(floatToRGBA( depth_z ));\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+\r
+	#ifdef USE_NORMAL_MAP \r
+\r
+		vec3 tangent;\r
+		vec3 bitangent;\r
+\r
+		#ifdef USE_TANGENT\r
+\r
+			tangent = normalize( vTangent );\r
+			bitangent = normalize( vBitangent );\r
+\r
+		#else\r
+\r
+			tangent = cross(outNormal, vec3( 0.0, 1.0, 0.0 ));\r
+			bitangent = cross(tangent, outNormal);\r
+\r
+		#endif\r
+\r
+		#ifdef DOUBLE_SIDED\r
+\r
+			tangent *= faceDirection;\r
+			bitangent *= faceDirection;\r
+			\r
+		#endif\r
+\r
+		mat3 vTBN = mat3( tangent, bitangent, outNormal );\r
+		outNormal = normalize( vTBN * outNormalMap );\r
+\r
+	#endif\r
+\r
+	vec4 mvp = uProjectionMatrix * mv;\r
+	gl_FragDepth = ( mvp.z / mvp.w ) * 0.5 + 0.5;\r
+	outColor0 = vec4( outPos, outEmission.x );\r
+	outColor1 = vec4( normalize( outNormal * ( gl_FrontFacing ? 1.0 : -1.0 ) ), outEmission.y );\r
+	outColor2 = vec4( outColor.xyz, 0.0 );\r
+	outColor3 = vec4( outRoughness, outMetallic, outSSN, outEnv );\r
+	outColor4 = vec4( vVelocity, 0.0, outEmission.z );\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	outColor0 = outColor;\r
+	outColor1 = vec4(outPos, 1.0);\r
+	outColor2 = vec4(vVelocity, 0.0, 1.0);\r
+#endif
+
+}`,Vf=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+uniform mat4 uModelMatrix;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform mat4 uNormalMatrix;\r
+\r
+uniform mat4 uModelMatrixPrev;\r
+uniform mat4 uModelViewMatrix;\r
+uniform mat4 uViewMatrixPrev;\r
+uniform mat4 uProjectionMatrixPrev;\r
+\r
+out vec2 vUv;\r
+out vec3 vViewNormal;\r
+out vec3 vNormal;\r
+out vec3 vMVPosition;\r
+out vec3 vMVPPosition;\r
+out vec3 vPos;\r
+\r
+out vec2 vVelocity;\r
+\r
+layout ( location = 0 ) in vec3 position;\r
+layout ( location = 1 ) in vec2 uv;\r
+layout ( location = 2 ) in vec3 normal;\r
+\r
+#ifdef TF_MODELER\r
+	out vec3 o_position;\r
+	out vec3 o_normal;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;
+mat2 rotate(float rad) {\r
+  return mat2(cos(rad), sin(rad), -sin(rad), cos(rad));\r
+}\r
+\r
+void rotate( float rad, inout vec2 pos, inout vec2 normal ) {\r
+	\r
+	mat2 rot = rotate( rad );\r
+	\r
+	pos *= rot;\r
+	normal *= rot;\r
+\r
+}\r
+\r
+mat3 makeRotationDir( vec3 direction, vec3 up ) {\r
+\r
+	vec3 xaxis = normalize( cross( up, direction ) );\r
+	vec3 yaxis = normalize( cross( direction, xaxis ) );\r
+\r
+	return mat3(\r
+		xaxis.x, yaxis.x, direction.x,\r
+		xaxis.y, yaxis.y, direction.y,\r
+		xaxis.z, yaxis.z, direction.z\r
+	);\r
+\r
+}
+
+out vec3 vInstance;
+
+layout(location = 3) in vec3 instance;
+
+void main( void ) {
+
+	vec3 outPos = position;\r
+vec3 outNormal = normal;\r
+vec2 outUv = uv;
+
+	outPos.xy *= 1.0 + (1.0 - instance.z) * 0.2;
+	outPos.yz *= rotate( (-HPI + sin( uTimeE * 0.3 + instance.z * 0.3 ) * HPI )  );
+	
+	outPos.y += instance.x * 2.2;
+
+	vInstance = instance;
+
+	
+	#ifdef TF_MODELER\r
+		o_position = outPos;\r
+		o_normal = outNormal;\r
+		return;\r
+#endif\r
+\r
+vec4 modelPosition = uModelMatrix * vec4(outPos, 1.0);\r
+vec4 mvPosition = uViewMatrix * modelPosition;\r
+gl_Position = uProjectionMatrix * mvPosition;\r
+\r
+vec4 modelPositionPrev = uModelMatrixPrev * vec4(outPos, 1.0);\r
+vec4 mvPositionPrev = uViewMatrixPrev * modelPositionPrev;\r
+vec4 positionPrev = uProjectionMatrixPrev * mvPositionPrev;\r
+\r
+vUv = outUv;\r
+vViewNormal = normalize( (uNormalMatrix * vec4(outNormal, 0.0)).xyz );\r
+vNormal = (uModelMatrix * vec4(outNormal, 0.0)).xyz;\r
+vPos = modelPosition.xyz;\r
+vMVPosition = mvPosition.xyz;\r
+vMVPPosition = gl_Position.xyz / gl_Position.w;\r
+\r
+vVelocity = vMVPPosition.xy - positionPrev.xy / positionPrev.w;\r
+vVelocity *= 0.2;
+
+}`,Hf=s({EyeRings:()=>Uf}),Uf=class extends It{constructor(e){super(e);let t=this.engine,n=new qt({thetaSegments:64,innerRadius:4,outerRadius:4.01,extrude:.01}),r=[];for(let e=0;e<8;e++)r.push(-1,e,e/7),r.push(1,e,e/7);n.setAttribute(`instance`,new Float32Array(r),3,{instanceDivisor:1});let i=new en({phase:[`deferred`,`shadowMap`],frag:Bf,vert:Vf,uniforms:t.uniforms});this.entity.addComponent(P,{geometry:n,material:i})}dispose(){super.dispose(),this.entity.removeComponent(P)}},Wf=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+// 宣言順はvert_h.part.glslのoutと一致させる（WGSL変換時にロケーションが宣言順で振られるため）\r
+in vec2 vUv;\r
+in vec3 vViewNormal;\r
+in vec3 vNormal;\r
+in vec3 vMVPosition;\r
+in vec3 vMVPPosition;\r
+in vec3 vPos;\r
+in vec2 vVelocity;\r
+\r
+uniform mat4 uModelMatrix;\r
+uniform mat4 uModelMatrixInverse;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform vec3 uCameraPosition;\r
+uniform vec2 uResolution;\r
+\r
+#ifdef IS_DEPTH\r
+	uniform float uCameraNear;\r
+	uniform float uCameraFar;\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+	layout (location = 3) out vec4 outColor3;\r
+	layout (location = 4) out vec4 outColor4;\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	uniform sampler2D uDeferredTexture;\r
+	uniform vec2 uDeferredResolution;\r
+	uniform sampler2D uGbufferNormal;\r
+	uniform sampler2D uGbufferAlbedo;\r
+	uniform sampler2D uGbufferMaterial;\r
+#endif\r
+\r
+#if defined(IS_FORWARD) || defined(IS_DEPTH)\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;
+
+in vec4 vOPos;
+in float vT;
+
+void main( void ) {
+
+	vec4 outColor = vec4(1.0);\r
+vec3 outNormal = normalize(vNormal);\r
+vec3 outNormalMap = vec3( 0.0 );\r
+float outSSN = 0.0;\r
+vec3 outEmission = vec3(0.0);\r
+float outRoughness = 0.5;\r
+float outMetallic = 0.0;\r
+vec3 outPos = vPos;\r
+float outEnv = 1.0;
+
+	float emit = exp( vT * -8.0);
+
+	outColor = vec4( vec3( emit * 50.0 ), emit );
+
+	if( emit < 0.03 ) {
+
+		discard;
+
+	}
+	
+	#if defined(IS_DEPTH) || defined(IS_DEFERRED)\r
+	vec4 mv = uViewMatrix * vec4(outPos, 1.0);\r
+#endif\r
+\r
+#ifdef IS_DEPTH\r
+	float depth_z = (-mv.z - uCameraNear) / (uCameraFar - uCameraNear);\r
+	outColor0 = vec4(floatToRGBA( depth_z ));\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+\r
+	#ifdef USE_NORMAL_MAP \r
+\r
+		vec3 tangent;\r
+		vec3 bitangent;\r
+\r
+		#ifdef USE_TANGENT\r
+\r
+			tangent = normalize( vTangent );\r
+			bitangent = normalize( vBitangent );\r
+\r
+		#else\r
+\r
+			tangent = cross(outNormal, vec3( 0.0, 1.0, 0.0 ));\r
+			bitangent = cross(tangent, outNormal);\r
+\r
+		#endif\r
+\r
+		#ifdef DOUBLE_SIDED\r
+\r
+			tangent *= faceDirection;\r
+			bitangent *= faceDirection;\r
+			\r
+		#endif\r
+\r
+		mat3 vTBN = mat3( tangent, bitangent, outNormal );\r
+		outNormal = normalize( vTBN * outNormalMap );\r
+\r
+	#endif\r
+\r
+	vec4 mvp = uProjectionMatrix * mv;\r
+	gl_FragDepth = ( mvp.z / mvp.w ) * 0.5 + 0.5;\r
+	outColor0 = vec4( outPos, outEmission.x );\r
+	outColor1 = vec4( normalize( outNormal * ( gl_FrontFacing ? 1.0 : -1.0 ) ), outEmission.y );\r
+	outColor2 = vec4( outColor.xyz, 0.0 );\r
+	outColor3 = vec4( outRoughness, outMetallic, outSSN, outEnv );\r
+	outColor4 = vec4( vVelocity, 0.0, outEmission.z );\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	outColor0 = outColor;\r
+	outColor1 = vec4(outPos, 1.0);\r
+	outColor2 = vec4(vVelocity, 0.0, 1.0);\r
+#endif
+
+}`,Gf=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+uniform mat4 uModelMatrix;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform mat4 uNormalMatrix;\r
+\r
+uniform mat4 uModelMatrixPrev;\r
+uniform mat4 uModelViewMatrix;\r
+uniform mat4 uViewMatrixPrev;\r
+uniform mat4 uProjectionMatrixPrev;\r
+\r
+out vec2 vUv;\r
+out vec3 vViewNormal;\r
+out vec3 vNormal;\r
+out vec3 vMVPosition;\r
+out vec3 vMVPPosition;\r
+out vec3 vPos;\r
+\r
+out vec2 vVelocity;\r
+\r
+layout ( location = 0 ) in vec3 position;\r
+layout ( location = 1 ) in vec2 uv;\r
+layout ( location = 2 ) in vec3 normal;\r
+\r
+#ifdef TF_MODELER\r
+	out vec3 o_position;\r
+	out vec3 o_normal;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;
+
+in vec4 oPos;
+out vec4 vOPos;
+out float vT;
+
+void main( void ) {
+
+	vec3 outPos = position;\r
+vec3 outNormal = normal;\r
+vec2 outUv = uv;
+
+	vT = fract( uTimeE * 0.5 + oPos.w );
+
+	outPos.xz *= 1.0 + exp( vT * -8.0 ) * 20.0;
+	outPos.xyz += oPos.xyz;
+
+	#ifdef TF_MODELER\r
+		o_position = outPos;\r
+		o_normal = outNormal;\r
+		return;\r
+#endif\r
+\r
+vec4 modelPosition = uModelMatrix * vec4(outPos, 1.0);\r
+vec4 mvPosition = uViewMatrix * modelPosition;\r
+gl_Position = uProjectionMatrix * mvPosition;\r
+\r
+vec4 modelPositionPrev = uModelMatrixPrev * vec4(outPos, 1.0);\r
+vec4 mvPositionPrev = uViewMatrixPrev * modelPositionPrev;\r
+vec4 positionPrev = uProjectionMatrixPrev * mvPositionPrev;\r
+\r
+vUv = outUv;\r
+vViewNormal = normalize( (uNormalMatrix * vec4(outNormal, 0.0)).xyz );\r
+vNormal = (uModelMatrix * vec4(outNormal, 0.0)).xyz;\r
+vPos = modelPosition.xyz;\r
+vMVPosition = mvPosition.xyz;\r
+vMVPPosition = gl_Position.xyz / gl_Position.w;\r
+\r
+vVelocity = vMVPPosition.xy - positionPrev.xy / positionPrev.w;\r
+vVelocity *= 0.2;
+	
+	vOPos = oPos;
+
+}`,Kf=s({FlashLine:()=>qf}),qf=class extends It{geometry;material;constructor(e){super(e);let t=this.engine;this.geometry=new Rt({radiusBottom:.02,radiusTop:.02,radSegments:8,height:50});let n=[];for(let e=0;e<32;e++){let e=ft.randomVector().multiply(new A(20,1,20));n.push(e.x,e.y,e.z,Math.random())}this.geometry.setAttribute(`oPos`,new Float32Array(n),4,{instanceDivisor:1}),this.material=new en({phase:[`forward`,`envMap`],frag:Yt(`flFrag`,Wf),vert:Yt(`flVert`,Gf),uniforms:Qt.merge(t.uniforms)}),this.entity.addComponent(P,{material:this.material,geometry:this.geometry})}},Jf=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+// 宣言順はvert_h.part.glslのoutと一致させる（WGSL変換時にロケーションが宣言順で振られるため）\r
+in vec2 vUv;\r
+in vec3 vViewNormal;\r
+in vec3 vNormal;\r
+in vec3 vMVPosition;\r
+in vec3 vMVPPosition;\r
+in vec3 vPos;\r
+in vec2 vVelocity;\r
+\r
+uniform mat4 uModelMatrix;\r
+uniform mat4 uModelMatrixInverse;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform vec3 uCameraPosition;\r
+uniform vec2 uResolution;\r
+\r
+#ifdef IS_DEPTH\r
+	uniform float uCameraNear;\r
+	uniform float uCameraFar;\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+	layout (location = 3) out vec4 outColor3;\r
+	layout (location = 4) out vec4 outColor4;\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	uniform sampler2D uDeferredTexture;\r
+	uniform vec2 uDeferredResolution;\r
+	uniform sampler2D uGbufferNormal;\r
+	uniform sampler2D uGbufferAlbedo;\r
+	uniform sampler2D uGbufferMaterial;\r
+#endif\r
+\r
+#if defined(IS_FORWARD) || defined(IS_DEPTH)\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;
+\r
+// https://www.shadertoy.com/view/4dS3Wd\r
+\r
+float hashv(float p) { p = fract(p * 0.011); p *= p + 7.5; p *= p + p; return fract(p); }\r
+float hashv(vec2 p) {vec3 p3 = fract(vec3(p.xyx) * 0.13); p3 += dot(p3, p3.yzx + 3.333); return fract((p3.x + p3.y) * p3.z); }\r
+\r
+#define NUM_NOISE_OCTAVES 5\r
+\r
+float noiseValue(vec3 x) {\r
+    const vec3 step = vec3(110, 241, 171);\r
+\r
+    vec3 i = floor(x);\r
+    vec3 f = fract(x);\r
+ \r
+    // For performance, compute the base input to a 1D hash from the integer part of the argument and the \r
+    // incremental change to the 1D based on the 3D -> 1D wrapping\r
+    float n = dot(i, step);\r
+\r
+    vec3 u = f * f * (3.0 - 2.0 * f);\r
+    return mix(mix(mix( hashv(n + dot(step, vec3(0, 0, 0))), hashv(n + dot(step, vec3(1, 0, 0))), u.x),\r
+                   mix( hashv(n + dot(step, vec3(0, 1, 0))), hashv(n + dot(step, vec3(1, 1, 0))), u.x), u.y),\r
+               mix(mix( hashv(n + dot(step, vec3(0, 0, 1))), hashv(n + dot(step, vec3(1, 0, 1))), u.x),\r
+                   mix( hashv(n + dot(step, vec3(0, 1, 1))), hashv(n + dot(step, vec3(1, 1, 1))), u.x), u.y), u.z);\r
+}\r
+\r
+float fbm(vec3 x) {\r
+	float v = 0.0;\r
+	float a = 0.5;\r
+	vec3 shift = vec3(100);\r
+	for (int i = 0; i < NUM_NOISE_OCTAVES; ++i) {\r
+		v += a * noiseValue(x);\r
+		x = x * 2.0 + shift;\r
+		a *= 0.5;\r
+    if( i == -1 ) break;\r
+	}\r
+	return v;\r
+}\r
+\r
+float fbm(float x) {\r
+  return fbm(vec3(x));\r
+}
+mat2 rotate(float rad) {\r
+  return mat2(cos(rad), sin(rad), -sin(rad), cos(rad));\r
+}\r
+\r
+void rotate( float rad, inout vec2 pos, inout vec2 normal ) {\r
+	\r
+	mat2 rot = rotate( rad );\r
+	\r
+	pos *= rot;\r
+	normal *= rot;\r
+\r
+}\r
+\r
+mat3 makeRotationDir( vec3 direction, vec3 up ) {\r
+\r
+	vec3 xaxis = normalize( cross( up, direction ) );\r
+	vec3 yaxis = normalize( cross( direction, xaxis ) );\r
+\r
+	return mat3(\r
+		xaxis.x, yaxis.x, direction.x,\r
+		xaxis.y, yaxis.y, direction.y,\r
+		xaxis.z, yaxis.z, direction.z\r
+	);\r
+\r
+}
+
+uniform float uAspectRatio;
+
+void main( void ) {
+
+	vec4 outColor = vec4(1.0);\r
+vec3 outNormal = normalize(vNormal);\r
+vec3 outNormalMap = vec3( 0.0 );\r
+float outSSN = 0.0;\r
+vec3 outEmission = vec3(0.0);\r
+float outRoughness = 0.5;\r
+float outMetallic = 0.0;\r
+vec3 outPos = vPos;\r
+float outEnv = 1.0;
+
+	vec3 normal = normalize( - vNormal );
+	outRoughness = 1.0;
+	outColor *= 0.0;
+	outColor.xyz = vec3( 0.0, 0.05, 0.1);
+
+	vec3 sPos = outPos * 0.1;
+
+	float n = noiseValue( sPos * 0.05 + uTimeE * 0.1 );
+
+	vec3 n2Pos = sPos;
+	n2Pos.xz *= rotate( n2Pos.y * 0.02 );
+	float n2 = noiseValue( n2Pos * 0.01 + vec3( 0.0, 0.0, uTimeE * 0.5 + n ) );
+
+	float phase = 4.5;
+
+	float line = smoothstep( 0.88, 0.9, fract( n2 * phase ) );
+	float pattern = smoothstep( 0.2, 0.1, length( fract( ( vUv + vec2( floor(vUv.y * 150.0) / 150.0 * 0.25, 0.0 ) ) * vec2( 2.0, 1.0 ) * 150.0 ) - 0.5 )) * step( n2 * phase, 2.0 ) * 0.8;
+
+	float emit = min( line + pattern, 1.0 );
+
+	outEmission = vec3( emit * 20.0 * smoothstep( 0.4, 1.0, n) );
+
+	#ifdef IS_FORWARD
+
+		outColor = vec4( outEmission, 1.0 );
+
+	#endif
+
+	outEnv = 0.0;
+
+	#if defined(IS_DEPTH) || defined(IS_DEFERRED)\r
+	vec4 mv = uViewMatrix * vec4(outPos, 1.0);\r
+#endif\r
+\r
+#ifdef IS_DEPTH\r
+	float depth_z = (-mv.z - uCameraNear) / (uCameraFar - uCameraNear);\r
+	outColor0 = vec4(floatToRGBA( depth_z ));\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+\r
+	#ifdef USE_NORMAL_MAP \r
+\r
+		vec3 tangent;\r
+		vec3 bitangent;\r
+\r
+		#ifdef USE_TANGENT\r
+\r
+			tangent = normalize( vTangent );\r
+			bitangent = normalize( vBitangent );\r
+\r
+		#else\r
+\r
+			tangent = cross(outNormal, vec3( 0.0, 1.0, 0.0 ));\r
+			bitangent = cross(tangent, outNormal);\r
+\r
+		#endif\r
+\r
+		#ifdef DOUBLE_SIDED\r
+\r
+			tangent *= faceDirection;\r
+			bitangent *= faceDirection;\r
+			\r
+		#endif\r
+\r
+		mat3 vTBN = mat3( tangent, bitangent, outNormal );\r
+		outNormal = normalize( vTBN * outNormalMap );\r
+\r
+	#endif\r
+\r
+	vec4 mvp = uProjectionMatrix * mv;\r
+	gl_FragDepth = ( mvp.z / mvp.w ) * 0.5 + 0.5;\r
+	outColor0 = vec4( outPos, outEmission.x );\r
+	outColor1 = vec4( normalize( outNormal * ( gl_FrontFacing ? 1.0 : -1.0 ) ), outEmission.y );\r
+	outColor2 = vec4( outColor.xyz, 0.0 );\r
+	outColor3 = vec4( outRoughness, outMetallic, outSSN, outEnv );\r
+	outColor4 = vec4( vVelocity, 0.0, outEmission.z );\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	outColor0 = outColor;\r
+	outColor1 = vec4(outPos, 1.0);\r
+	outColor2 = vec4(vVelocity, 0.0, 1.0);\r
+#endif
+
+}`,Yf=s({SkyBox:()=>Xf}),Xf=class extends It{material;constructor(e){super(e);let t=this.engine;this.material=new en({name:`SkyBox`,phase:[`deferred`,`envMap`],frag:Yt(`SkyBoxFrag`,Jf),uniforms:Qt.merge(t.uniforms,{uAspectRatio:{value:0,type:`1f`}})}),t.renderer.sky.mesh.material=this.material}},Zf=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+// 宣言順はvert_h.part.glslのoutと一致させる（WGSL変換時にロケーションが宣言順で振られるため）\r
+in vec2 vUv;\r
+in vec3 vViewNormal;\r
+in vec3 vNormal;\r
+in vec3 vMVPosition;\r
+in vec3 vMVPPosition;\r
+in vec3 vPos;\r
+in vec2 vVelocity;\r
+\r
+uniform mat4 uModelMatrix;\r
+uniform mat4 uModelMatrixInverse;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform vec3 uCameraPosition;\r
+uniform vec2 uResolution;\r
+\r
+#ifdef IS_DEPTH\r
+	uniform float uCameraNear;\r
+	uniform float uCameraFar;\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+	layout (location = 3) out vec4 outColor3;\r
+	layout (location = 4) out vec4 outColor4;\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	uniform sampler2D uDeferredTexture;\r
+	uniform vec2 uDeferredResolution;\r
+	uniform sampler2D uGbufferNormal;\r
+	uniform sampler2D uGbufferAlbedo;\r
+	uniform sampler2D uGbufferMaterial;\r
+#endif\r
+\r
+#if defined(IS_FORWARD) || defined(IS_DEPTH)\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;
+
+void main( void ) {
+
+	vec4 outColor = vec4(1.0);\r
+vec3 outNormal = normalize(vNormal);\r
+vec3 outNormalMap = vec3( 0.0 );\r
+float outSSN = 0.0;\r
+vec3 outEmission = vec3(0.0);\r
+float outRoughness = 0.5;\r
+float outMetallic = 0.0;\r
+vec3 outPos = vPos;\r
+float outEnv = 1.0;
+
+	outEmission += 0.35;
+	outColor.w *= 0.2;
+	
+	#if defined(IS_DEPTH) || defined(IS_DEFERRED)\r
+	vec4 mv = uViewMatrix * vec4(outPos, 1.0);\r
+#endif\r
+\r
+#ifdef IS_DEPTH\r
+	float depth_z = (-mv.z - uCameraNear) / (uCameraFar - uCameraNear);\r
+	outColor0 = vec4(floatToRGBA( depth_z ));\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+\r
+	#ifdef USE_NORMAL_MAP \r
+\r
+		vec3 tangent;\r
+		vec3 bitangent;\r
+\r
+		#ifdef USE_TANGENT\r
+\r
+			tangent = normalize( vTangent );\r
+			bitangent = normalize( vBitangent );\r
+\r
+		#else\r
+\r
+			tangent = cross(outNormal, vec3( 0.0, 1.0, 0.0 ));\r
+			bitangent = cross(tangent, outNormal);\r
+\r
+		#endif\r
+\r
+		#ifdef DOUBLE_SIDED\r
+\r
+			tangent *= faceDirection;\r
+			bitangent *= faceDirection;\r
+			\r
+		#endif\r
+\r
+		mat3 vTBN = mat3( tangent, bitangent, outNormal );\r
+		outNormal = normalize( vTBN * outNormalMap );\r
+\r
+	#endif\r
+\r
+	vec4 mvp = uProjectionMatrix * mv;\r
+	gl_FragDepth = ( mvp.z / mvp.w ) * 0.5 + 0.5;\r
+	outColor0 = vec4( outPos, outEmission.x );\r
+	outColor1 = vec4( normalize( outNormal * ( gl_FrontFacing ? 1.0 : -1.0 ) ), outEmission.y );\r
+	outColor2 = vec4( outColor.xyz, 0.0 );\r
+	outColor3 = vec4( outRoughness, outMetallic, outSSN, outEnv );\r
+	outColor4 = vec4( vVelocity, 0.0, outEmission.z );\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	outColor0 = outColor;\r
+	outColor1 = vec4(outPos, 1.0);\r
+	outColor2 = vec4(vVelocity, 0.0, 1.0);\r
+#endif
+
+}`,Qf=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+mat2 rotate(float rad) {\r
+  return mat2(cos(rad), sin(rad), -sin(rad), cos(rad));\r
+}\r
+\r
+void rotate( float rad, inout vec2 pos, inout vec2 normal ) {\r
+	\r
+	mat2 rot = rotate( rad );\r
+	\r
+	pos *= rot;\r
+	normal *= rot;\r
+\r
+}\r
+\r
+mat3 makeRotationDir( vec3 direction, vec3 up ) {\r
+\r
+	vec3 xaxis = normalize( cross( up, direction ) );\r
+	vec3 yaxis = normalize( cross( direction, xaxis ) );\r
+\r
+	return mat3(\r
+		xaxis.x, yaxis.x, direction.x,\r
+		xaxis.y, yaxis.y, direction.y,\r
+		xaxis.z, yaxis.z, direction.z\r
+	);\r
+\r
+}
+uniform mat4 uModelMatrix;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform mat4 uNormalMatrix;\r
+\r
+uniform mat4 uModelMatrixPrev;\r
+uniform mat4 uModelViewMatrix;\r
+uniform mat4 uViewMatrixPrev;\r
+uniform mat4 uProjectionMatrixPrev;\r
+\r
+out vec2 vUv;\r
+out vec3 vViewNormal;\r
+out vec3 vNormal;\r
+out vec3 vMVPosition;\r
+out vec3 vMVPPosition;\r
+out vec3 vPos;\r
+\r
+out vec2 vVelocity;\r
+\r
+layout ( location = 0 ) in vec3 position;\r
+layout ( location = 1 ) in vec2 uv;\r
+layout ( location = 2 ) in vec3 normal;\r
+\r
+#ifdef TF_MODELER\r
+	out vec3 o_position;\r
+	out vec3 o_normal;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;
+
+layout (location=3) in vec3 instancePos;
+layout (location=4) in vec3 instanceRot;
+
+void main( void ) {
+
+	vec3 outPos = position;\r
+vec3 outNormal = normal;\r
+vec2 outUv = uv;
+
+	outPos.xz *= 0.25;
+	outPos.yz *= rotate( instanceRot.x );
+	outPos.xy *= rotate( instanceRot.z );
+
+	outPos += instancePos * vec3(15.0, 10.0, 15.0 );
+
+
+	#ifdef TF_MODELER\r
+		o_position = outPos;\r
+		o_normal = outNormal;\r
+		return;\r
+#endif\r
+\r
+vec4 modelPosition = uModelMatrix * vec4(outPos, 1.0);\r
+vec4 mvPosition = uViewMatrix * modelPosition;\r
+gl_Position = uProjectionMatrix * mvPosition;\r
+\r
+vec4 modelPositionPrev = uModelMatrixPrev * vec4(outPos, 1.0);\r
+vec4 mvPositionPrev = uViewMatrixPrev * modelPositionPrev;\r
+vec4 positionPrev = uProjectionMatrixPrev * mvPositionPrev;\r
+\r
+vUv = outUv;\r
+vViewNormal = normalize( (uNormalMatrix * vec4(outNormal, 0.0)).xyz );\r
+vNormal = (uModelMatrix * vec4(outNormal, 0.0)).xyz;\r
+vPos = modelPosition.xyz;\r
+vMVPosition = mvPosition.xyz;\r
+vMVPPosition = gl_Position.xyz / gl_Position.w;\r
+\r
+vVelocity = vMVPPosition.xy - positionPrev.xy / positionPrev.w;\r
+vVelocity *= 0.2;
+
+}`,$f=s({GridCross:()=>ep}),ep=class extends It{constructor(e){super(e);let t=new Lt({width:.05,height:.5,depth:.05}),n=[],r=[],i=new A(16,2,16);for(let e=0;e<i.x;e++)for(let t=0;t<i.y;t++)for(let a=0;a<i.z;a++){let o=(e/(i.x-1)-.5)*1,s=(t/(i.y-1)-.5)*1,c=(a/(i.z-1)-.5)*1;n.push(o,s,c),r.push(Math.PI/2,0,0),n.push(o,s,c),r.push(0,0,Math.PI/2)}t.setAttribute(`instanceRot`,new Float32Array(r),3,{instanceDivisor:1}),t.setAttribute(`instancePos`,new Float32Array(n),3,{instanceDivisor:1});let a=new en({frag:Yt(`gridCrossFrag`,Zf),vert:Yt(`gridCrossVert`,Qf),phase:[`forward`]});this.entity.addComponent(P,{geometry:t,material:a})}},tp=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+// 宣言順はvert_h.part.glslのoutと一致させる（WGSL変換時にロケーションが宣言順で振られるため）\r
+in vec2 vUv;\r
+in vec3 vViewNormal;\r
+in vec3 vNormal;\r
+in vec3 vMVPosition;\r
+in vec3 vMVPPosition;\r
+in vec3 vPos;\r
+in vec2 vVelocity;\r
+\r
+uniform mat4 uModelMatrix;\r
+uniform mat4 uModelMatrixInverse;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform vec3 uCameraPosition;\r
+uniform vec2 uResolution;\r
+\r
+#ifdef IS_DEPTH\r
+	uniform float uCameraNear;\r
+	uniform float uCameraFar;\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+	layout (location = 3) out vec4 outColor3;\r
+	layout (location = 4) out vec4 outColor4;\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	uniform sampler2D uDeferredTexture;\r
+	uniform vec2 uDeferredResolution;\r
+	uniform sampler2D uGbufferNormal;\r
+	uniform sampler2D uGbufferAlbedo;\r
+	uniform sampler2D uGbufferMaterial;\r
+#endif\r
+\r
+#if defined(IS_FORWARD) || defined(IS_DEPTH)\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;
+
+void main( void ) {
+
+	vec4 outColor = vec4(1.0);\r
+vec3 outNormal = normalize(vNormal);\r
+vec3 outNormalMap = vec3( 0.0 );\r
+float outSSN = 0.0;\r
+vec3 outEmission = vec3(0.0);\r
+float outRoughness = 0.5;\r
+float outMetallic = 0.0;\r
+vec3 outPos = vPos;\r
+float outEnv = 1.0;
+
+	outEmission += 0.35;
+
+	outColor.w = 0.2;
+	
+	#if defined(IS_DEPTH) || defined(IS_DEFERRED)\r
+	vec4 mv = uViewMatrix * vec4(outPos, 1.0);\r
+#endif\r
+\r
+#ifdef IS_DEPTH\r
+	float depth_z = (-mv.z - uCameraNear) / (uCameraFar - uCameraNear);\r
+	outColor0 = vec4(floatToRGBA( depth_z ));\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+\r
+	#ifdef USE_NORMAL_MAP \r
+\r
+		vec3 tangent;\r
+		vec3 bitangent;\r
+\r
+		#ifdef USE_TANGENT\r
+\r
+			tangent = normalize( vTangent );\r
+			bitangent = normalize( vBitangent );\r
+\r
+		#else\r
+\r
+			tangent = cross(outNormal, vec3( 0.0, 1.0, 0.0 ));\r
+			bitangent = cross(tangent, outNormal);\r
+\r
+		#endif\r
+\r
+		#ifdef DOUBLE_SIDED\r
+\r
+			tangent *= faceDirection;\r
+			bitangent *= faceDirection;\r
+			\r
+		#endif\r
+\r
+		mat3 vTBN = mat3( tangent, bitangent, outNormal );\r
+		outNormal = normalize( vTBN * outNormalMap );\r
+\r
+	#endif\r
+\r
+	vec4 mvp = uProjectionMatrix * mv;\r
+	gl_FragDepth = ( mvp.z / mvp.w ) * 0.5 + 0.5;\r
+	outColor0 = vec4( outPos, outEmission.x );\r
+	outColor1 = vec4( normalize( outNormal * ( gl_FrontFacing ? 1.0 : -1.0 ) ), outEmission.y );\r
+	outColor2 = vec4( outColor.xyz, 0.0 );\r
+	outColor3 = vec4( outRoughness, outMetallic, outSSN, outEnv );\r
+	outColor4 = vec4( vVelocity, 0.0, outEmission.z );\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	outColor0 = outColor;\r
+	outColor1 = vec4(outPos, 1.0);\r
+	outColor2 = vec4(vVelocity, 0.0, 1.0);\r
+#endif
+
+}`,np=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+mat2 rotate(float rad) {\r
+  return mat2(cos(rad), sin(rad), -sin(rad), cos(rad));\r
+}\r
+\r
+void rotate( float rad, inout vec2 pos, inout vec2 normal ) {\r
+	\r
+	mat2 rot = rotate( rad );\r
+	\r
+	pos *= rot;\r
+	normal *= rot;\r
+\r
+}\r
+\r
+mat3 makeRotationDir( vec3 direction, vec3 up ) {\r
+\r
+	vec3 xaxis = normalize( cross( up, direction ) );\r
+	vec3 yaxis = normalize( cross( direction, xaxis ) );\r
+\r
+	return mat3(\r
+		xaxis.x, yaxis.x, direction.x,\r
+		xaxis.y, yaxis.y, direction.y,\r
+		xaxis.z, yaxis.z, direction.z\r
+	);\r
+\r
+}
+uniform mat4 uModelMatrix;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform mat4 uNormalMatrix;\r
+\r
+uniform mat4 uModelMatrixPrev;\r
+uniform mat4 uModelViewMatrix;\r
+uniform mat4 uViewMatrixPrev;\r
+uniform mat4 uProjectionMatrixPrev;\r
+\r
+out vec2 vUv;\r
+out vec3 vViewNormal;\r
+out vec3 vNormal;\r
+out vec3 vMVPosition;\r
+out vec3 vMVPPosition;\r
+out vec3 vPos;\r
+\r
+out vec2 vVelocity;\r
+\r
+layout ( location = 0 ) in vec3 position;\r
+layout ( location = 1 ) in vec2 uv;\r
+layout ( location = 2 ) in vec3 normal;\r
+\r
+#ifdef TF_MODELER\r
+	out vec3 o_position;\r
+	out vec3 o_normal;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;
+
+layout (location=3) in vec3 instancePos;
+layout (location=4) in vec3 instanceRot;
+
+void main( void ) {
+
+	vec3 outPos = position;\r
+vec3 outNormal = normal;\r
+vec2 outUv = uv;
+
+	outPos *= 0.25;
+	outPos.yz *= rotate( instanceRot.x );
+	outPos.xy *= rotate( instanceRot.z );
+	
+	outPos += instancePos * vec3(15.0, 5.0, 15.0 );
+
+
+	#ifdef TF_MODELER\r
+		o_position = outPos;\r
+		o_normal = outNormal;\r
+		return;\r
+#endif\r
+\r
+vec4 modelPosition = uModelMatrix * vec4(outPos, 1.0);\r
+vec4 mvPosition = uViewMatrix * modelPosition;\r
+gl_Position = uProjectionMatrix * mvPosition;\r
+\r
+vec4 modelPositionPrev = uModelMatrixPrev * vec4(outPos, 1.0);\r
+vec4 mvPositionPrev = uViewMatrixPrev * modelPositionPrev;\r
+vec4 positionPrev = uProjectionMatrixPrev * mvPositionPrev;\r
+\r
+vUv = outUv;\r
+vViewNormal = normalize( (uNormalMatrix * vec4(outNormal, 0.0)).xyz );\r
+vNormal = (uModelMatrix * vec4(outNormal, 0.0)).xyz;\r
+vPos = modelPosition.xyz;\r
+vMVPosition = mvPosition.xyz;\r
+vMVPPosition = gl_Position.xyz / gl_Position.w;\r
+\r
+vVelocity = vMVPPosition.xy - positionPrev.xy / positionPrev.w;\r
+vVelocity *= 0.2;
+
+}`,rp=s({GridDots:()=>ip}),ip=class extends It{constructor(e){super(e);let t=new Bt({radius:.1}),n=[],r=[],i=new A(32,2,32);for(let e=0;e<i.x;e++)for(let t=0;t<i.y;t++)for(let a=0;a<i.z;a++){let o=(e/(i.x-1)-.5)*1,s=(t/(i.y-1)-.5)*1,c=(a/(i.z-1)-.5)*1;n.push(o,s,c),r.push(0,0,0)}t.setAttribute(`instanceRot`,new Float32Array(r),3,{instanceDivisor:1}),t.setAttribute(`instancePos`,new Float32Array(n),3,{instanceDivisor:1});let a=new en({frag:Yt(`gridDotsFrag`,tp),vert:Yt(`gridDotsVert`,np),phase:[`forward`]});this.entity.addComponent(P,{geometry:t,material:a})}},ap=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}\r
+// 宣言順はvert_h.part.glslのoutと一致させる（WGSL変換時にロケーションが宣言順で振られるため）\r
+in vec2 vUv;\r
+in vec3 vViewNormal;\r
+in vec3 vNormal;\r
+in vec3 vMVPosition;\r
+in vec3 vMVPPosition;\r
+in vec3 vPos;\r
+in vec2 vVelocity;\r
+\r
+uniform mat4 uModelMatrix;\r
+uniform mat4 uModelMatrixInverse;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform vec3 uCameraPosition;\r
+uniform vec2 uResolution;\r
+\r
+#ifdef IS_DEPTH\r
+	uniform float uCameraNear;\r
+	uniform float uCameraFar;\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+	layout (location = 3) out vec4 outColor3;\r
+	layout (location = 4) out vec4 outColor4;\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	uniform sampler2D uDeferredTexture;\r
+	uniform vec2 uDeferredResolution;\r
+	uniform sampler2D uGbufferNormal;\r
+	uniform sampler2D uGbufferAlbedo;\r
+	uniform sampler2D uGbufferMaterial;\r
+#endif\r
+\r
+#if defined(IS_FORWARD) || defined(IS_DEPTH)\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;\r
+\r
+void main( void ) {\r
+\r
+	vec4 outColor = vec4(1.0);\r
+vec3 outNormal = normalize(vNormal);\r
+vec3 outNormalMap = vec3( 0.0 );\r
+float outSSN = 0.0;\r
+vec3 outEmission = vec3(0.0);\r
+float outRoughness = 0.5;\r
+float outMetallic = 0.0;\r
+vec3 outPos = vPos;\r
+float outEnv = 1.0;\r
+\r
+	if( sin( vUv.y * 120.0 + uTimeE * 5.0 ) > 0.0 ) discard;\r
+	\r
+	outColor = vec4( 1.0 );\r
+	outEmission += vec3( 10.0 );\r
+	\r
+	#if defined(IS_DEPTH) || defined(IS_DEFERRED)\r
+	vec4 mv = uViewMatrix * vec4(outPos, 1.0);\r
+#endif\r
+\r
+#ifdef IS_DEPTH\r
+	float depth_z = (-mv.z - uCameraNear) / (uCameraFar - uCameraNear);\r
+	outColor0 = vec4(floatToRGBA( depth_z ));\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+\r
+	#ifdef USE_NORMAL_MAP \r
+\r
+		vec3 tangent;\r
+		vec3 bitangent;\r
+\r
+		#ifdef USE_TANGENT\r
+\r
+			tangent = normalize( vTangent );\r
+			bitangent = normalize( vBitangent );\r
+\r
+		#else\r
+\r
+			tangent = cross(outNormal, vec3( 0.0, 1.0, 0.0 ));\r
+			bitangent = cross(tangent, outNormal);\r
+\r
+		#endif\r
+\r
+		#ifdef DOUBLE_SIDED\r
+\r
+			tangent *= faceDirection;\r
+			bitangent *= faceDirection;\r
+			\r
+		#endif\r
+\r
+		mat3 vTBN = mat3( tangent, bitangent, outNormal );\r
+		outNormal = normalize( vTBN * outNormalMap );\r
+\r
+	#endif\r
+\r
+	vec4 mvp = uProjectionMatrix * mv;\r
+	gl_FragDepth = ( mvp.z / mvp.w ) * 0.5 + 0.5;\r
+	outColor0 = vec4( outPos, outEmission.x );\r
+	outColor1 = vec4( normalize( outNormal * ( gl_FrontFacing ? 1.0 : -1.0 ) ), outEmission.y );\r
+	outColor2 = vec4( outColor.xyz, 0.0 );\r
+	outColor3 = vec4( outRoughness, outMetallic, outSSN, outEnv );\r
+	outColor4 = vec4( vVelocity, 0.0, outEmission.z );\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	outColor0 = outColor;\r
+	outColor1 = vec4(outPos, 1.0);\r
+	outColor2 = vec4(vVelocity, 0.0, 1.0);\r
+#endif\r
+\r
+}`,op=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}\r
+uniform mat4 uModelMatrix;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform mat4 uNormalMatrix;\r
+\r
+uniform mat4 uModelMatrixPrev;\r
+uniform mat4 uModelViewMatrix;\r
+uniform mat4 uViewMatrixPrev;\r
+uniform mat4 uProjectionMatrixPrev;\r
+\r
+out vec2 vUv;\r
+out vec3 vViewNormal;\r
+out vec3 vNormal;\r
+out vec3 vMVPosition;\r
+out vec3 vMVPPosition;\r
+out vec3 vPos;\r
+\r
+out vec2 vVelocity;\r
+\r
+layout ( location = 0 ) in vec3 position;\r
+layout ( location = 1 ) in vec2 uv;\r
+layout ( location = 2 ) in vec3 normal;\r
+\r
+#ifdef TF_MODELER\r
+	out vec3 o_position;\r
+	out vec3 o_normal;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;\r
+\r
+layout (location=3) in vec3 instancePos;\r
+layout (location=4) in vec3 instanceRot;\r
+\r
+mat2 rotate(float rad) {\r
+  return mat2(cos(rad), sin(rad), -sin(rad), cos(rad));\r
+}\r
+\r
+void rotate( float rad, inout vec2 pos, inout vec2 normal ) {\r
+	\r
+	mat2 rot = rotate( rad );\r
+	\r
+	pos *= rot;\r
+	normal *= rot;\r
+\r
+}\r
+\r
+mat3 makeRotationDir( vec3 direction, vec3 up ) {\r
+\r
+	vec3 xaxis = normalize( cross( up, direction ) );\r
+	vec3 yaxis = normalize( cross( direction, xaxis ) );\r
+\r
+	return mat3(\r
+		xaxis.x, yaxis.x, direction.x,\r
+		xaxis.y, yaxis.y, direction.y,\r
+		xaxis.z, yaxis.z, direction.z\r
+	);\r
+\r
+}\r
+\r
+void main( void ) {\r
+\r
+	vec3 outPos = position;\r
+vec3 outNormal = normal;\r
+vec2 outUv = uv;\r
+\r
+	outPos += instancePos;\r
+	outPos.yz *= rotate( instanceRot.x );\r
+	outPos.xy *= rotate( instanceRot.z );\r
+\r
+	#ifdef TF_MODELER\r
+		o_position = outPos;\r
+		o_normal = outNormal;\r
+		return;\r
+#endif\r
+\r
+vec4 modelPosition = uModelMatrix * vec4(outPos, 1.0);\r
+vec4 mvPosition = uViewMatrix * modelPosition;\r
+gl_Position = uProjectionMatrix * mvPosition;\r
+\r
+vec4 modelPositionPrev = uModelMatrixPrev * vec4(outPos, 1.0);\r
+vec4 mvPositionPrev = uViewMatrixPrev * modelPositionPrev;\r
+vec4 positionPrev = uProjectionMatrixPrev * mvPositionPrev;\r
+\r
+vUv = outUv;\r
+vViewNormal = normalize( (uNormalMatrix * vec4(outNormal, 0.0)).xyz );\r
+vNormal = (uModelMatrix * vec4(outNormal, 0.0)).xyz;\r
+vPos = modelPosition.xyz;\r
+vMVPosition = mvPosition.xyz;\r
+vMVPPosition = gl_Position.xyz / gl_Position.w;\r
+\r
+vVelocity = vMVPPosition.xy - positionPrev.xy / positionPrev.w;\r
+vVelocity *= 0.2;\r
+\r
+}`,sp=s({WireCube:()=>cp}),cp=class extends It{constructor(e){super(e);let t=this.engine,n=3.3,r=n/2,i=new Lt({width:.01,height:n,depth:.01,segmentsHeight:16}),a=[],o=[];for(let e=0;e<3;e++)for(let t=0;t<4;t++)[[r,0,r],[r,0,-1.65],[-1.65,0,r],[-1.65,0,-1.65]][t].forEach(e=>{a.push(e)}),[[0,0,0],[Math.PI/2,0,0],[0,0,Math.PI/2]][e].forEach(e=>{o.push(e)});i.setAttribute(`instancePos`,new Float32Array(a),3,{instanceDivisor:1}),i.setAttribute(`instanceRot`,new Float32Array(o),3,{instanceDivisor:1});let s=new en({phase:[`deferred`],frag:ap,vert:op,uniforms:Qt.merge(t.uniforms)});this.entity.addComponent(P,{geometry:i,material:s})}},lp=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+// 宣言順はvert_h.part.glslのoutと一致させる（WGSL変換時にロケーションが宣言順で振られるため）\r
+in vec2 vUv;\r
+in vec3 vViewNormal;\r
+in vec3 vNormal;\r
+in vec3 vMVPosition;\r
+in vec3 vMVPPosition;\r
+in vec3 vPos;\r
+in vec2 vVelocity;\r
+\r
+uniform mat4 uModelMatrix;\r
+uniform mat4 uModelMatrixInverse;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform vec3 uCameraPosition;\r
+uniform vec2 uResolution;\r
+\r
+#ifdef IS_DEPTH\r
+	uniform float uCameraNear;\r
+	uniform float uCameraFar;\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+	layout (location = 3) out vec4 outColor3;\r
+	layout (location = 4) out vec4 outColor4;\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	uniform sampler2D uDeferredTexture;\r
+	uniform vec2 uDeferredResolution;\r
+	uniform sampler2D uGbufferNormal;\r
+	uniform sampler2D uGbufferAlbedo;\r
+	uniform sampler2D uGbufferMaterial;\r
+#endif\r
+\r
+#if defined(IS_FORWARD) || defined(IS_DEPTH)\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;
+
+uniform sampler2D uNoiseTex;
+
+in float vNoise;
+in vec3 vPosBase;
+
+void main( void ) {
+
+	vec4 outColor = vec4(1.0);\r
+vec3 outNormal = normalize(vNormal);\r
+vec3 outNormalMap = vec3( 0.0 );\r
+float outSSN = 0.0;\r
+vec3 outEmission = vec3(0.0);\r
+float outRoughness = 0.5;\r
+float outMetallic = 0.0;\r
+vec3 outPos = vPos;\r
+float outEnv = 1.0;
+
+	vec4 noise = texture( uNoiseTex, vUv * 0.1 + 0.1 * texture( uNoiseTex, vUv * 0.5 ).xy );
+
+	outRoughness = smoothstep( 0.2, 0.9, noise.x );
+	outColor = vec4( 1.0 - ( outRoughness * 0.3 ) );
+
+	outNormal.xz += noise.yz * 0.03;
+	outNormal = normalize( outNormal );
+
+	#if defined(IS_DEPTH) || defined(IS_DEFERRED)\r
+	vec4 mv = uViewMatrix * vec4(outPos, 1.0);\r
+#endif\r
+\r
+#ifdef IS_DEPTH\r
+	float depth_z = (-mv.z - uCameraNear) / (uCameraFar - uCameraNear);\r
+	outColor0 = vec4(floatToRGBA( depth_z ));\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+\r
+	#ifdef USE_NORMAL_MAP \r
+\r
+		vec3 tangent;\r
+		vec3 bitangent;\r
+\r
+		#ifdef USE_TANGENT\r
+\r
+			tangent = normalize( vTangent );\r
+			bitangent = normalize( vBitangent );\r
+\r
+		#else\r
+\r
+			tangent = cross(outNormal, vec3( 0.0, 1.0, 0.0 ));\r
+			bitangent = cross(tangent, outNormal);\r
+\r
+		#endif\r
+\r
+		#ifdef DOUBLE_SIDED\r
+\r
+			tangent *= faceDirection;\r
+			bitangent *= faceDirection;\r
+			\r
+		#endif\r
+\r
+		mat3 vTBN = mat3( tangent, bitangent, outNormal );\r
+		outNormal = normalize( vTBN * outNormalMap );\r
+\r
+	#endif\r
+\r
+	vec4 mvp = uProjectionMatrix * mv;\r
+	gl_FragDepth = ( mvp.z / mvp.w ) * 0.5 + 0.5;\r
+	outColor0 = vec4( outPos, outEmission.x );\r
+	outColor1 = vec4( normalize( outNormal * ( gl_FrontFacing ? 1.0 : -1.0 ) ), outEmission.y );\r
+	outColor2 = vec4( outColor.xyz, 0.0 );\r
+	outColor3 = vec4( outRoughness, outMetallic, outSSN, outEnv );\r
+	outColor4 = vec4( vVelocity, 0.0, outEmission.z );\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	outColor0 = outColor;\r
+	outColor1 = vec4(outPos, 1.0);\r
+	outColor2 = vec4(vVelocity, 0.0, 1.0);\r
+#endif
+
+}`,up=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+uniform mat4 uModelMatrix;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform mat4 uNormalMatrix;\r
+\r
+uniform mat4 uModelMatrixPrev;\r
+uniform mat4 uModelViewMatrix;\r
+uniform mat4 uViewMatrixPrev;\r
+uniform mat4 uProjectionMatrixPrev;\r
+\r
+out vec2 vUv;\r
+out vec3 vViewNormal;\r
+out vec3 vNormal;\r
+out vec3 vMVPosition;\r
+out vec3 vMVPPosition;\r
+out vec3 vPos;\r
+\r
+out vec2 vVelocity;\r
+\r
+layout ( location = 0 ) in vec3 position;\r
+layout ( location = 1 ) in vec2 uv;\r
+layout ( location = 2 ) in vec3 normal;\r
+\r
+#ifdef TF_MODELER\r
+	out vec3 o_position;\r
+	out vec3 o_normal;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;
+\r
+// https://www.shadertoy.com/view/4dS3Wd\r
+\r
+float hashv(float p) { p = fract(p * 0.011); p *= p + 7.5; p *= p + p; return fract(p); }\r
+float hashv(vec2 p) {vec3 p3 = fract(vec3(p.xyx) * 0.13); p3 += dot(p3, p3.yzx + 3.333); return fract((p3.x + p3.y) * p3.z); }\r
+\r
+#define NUM_NOISE_OCTAVES 5\r
+\r
+float noiseValue(vec3 x) {\r
+    const vec3 step = vec3(110, 241, 171);\r
+\r
+    vec3 i = floor(x);\r
+    vec3 f = fract(x);\r
+ \r
+    // For performance, compute the base input to a 1D hash from the integer part of the argument and the \r
+    // incremental change to the 1D based on the 3D -> 1D wrapping\r
+    float n = dot(i, step);\r
+\r
+    vec3 u = f * f * (3.0 - 2.0 * f);\r
+    return mix(mix(mix( hashv(n + dot(step, vec3(0, 0, 0))), hashv(n + dot(step, vec3(1, 0, 0))), u.x),\r
+                   mix( hashv(n + dot(step, vec3(0, 1, 0))), hashv(n + dot(step, vec3(1, 1, 0))), u.x), u.y),\r
+               mix(mix( hashv(n + dot(step, vec3(0, 0, 1))), hashv(n + dot(step, vec3(1, 0, 1))), u.x),\r
+                   mix( hashv(n + dot(step, vec3(0, 1, 1))), hashv(n + dot(step, vec3(1, 1, 1))), u.x), u.y), u.z);\r
+}\r
+\r
+float fbm(vec3 x) {\r
+	float v = 0.0;\r
+	float a = 0.5;\r
+	vec3 shift = vec3(100);\r
+	for (int i = 0; i < NUM_NOISE_OCTAVES; ++i) {\r
+		v += a * noiseValue(x);\r
+		x = x * 2.0 + shift;\r
+		a *= 0.5;\r
+    if( i == -1 ) break;\r
+	}\r
+	return v;\r
+}\r
+\r
+float fbm(float x) {\r
+  return fbm(vec3(x));\r
+}
+
+out float vNoise;
+out vec3 vPosBase;
+
+void main( void ) {
+
+	vec3 outPos = position;\r
+vec3 outNormal = normal;\r
+vec2 outUv = uv;
+
+	// outPos.x += sin( outPos.z  * 10.0 + uTime * 10.0) * 0.1;
+
+	float n = 1.0;
+	n *= step( noiseValue( floor( outPos * 100.0 * 10.0 ) / 10.0 + uTime * 10.0 ), 0.5 );
+	n *= step( noiseValue( floor( outPos * 1.0 * 10.0 ) / 10.0 + vec3( 0.0, 0.0, uTime * 3.0 ) ), 0.2 ) * 2.0;
+
+	// outPos *= 1.0 + n;
+	vPosBase = outPos;
+	vNoise = n;
+
+	#ifdef TF_MODELER\r
+		o_position = outPos;\r
+		o_normal = outNormal;\r
+		return;\r
+#endif\r
+\r
+vec4 modelPosition = uModelMatrix * vec4(outPos, 1.0);\r
+vec4 mvPosition = uViewMatrix * modelPosition;\r
+gl_Position = uProjectionMatrix * mvPosition;\r
+\r
+vec4 modelPositionPrev = uModelMatrixPrev * vec4(outPos, 1.0);\r
+vec4 mvPositionPrev = uViewMatrixPrev * modelPositionPrev;\r
+vec4 positionPrev = uProjectionMatrixPrev * mvPositionPrev;\r
+\r
+vUv = outUv;\r
+vViewNormal = normalize( (uNormalMatrix * vec4(outNormal, 0.0)).xyz );\r
+vNormal = (uModelMatrix * vec4(outNormal, 0.0)).xyz;\r
+vPos = modelPosition.xyz;\r
+vMVPosition = mvPosition.xyz;\r
+vMVPPosition = gl_Position.xyz / gl_Position.w;\r
+\r
+vVelocity = vMVPPosition.xy - positionPrev.xy / positionPrev.w;\r
+vVelocity *= 0.2;
+
+}`,dp=s({OREngineCube:()=>fp}),fp=class extends It{material;constructor(e){super(e);let t=this.engine;this.material=new en({name:`OREngineCube`,phase:[`shadowMap`,`deferred`],vert:Yt(`OREngineCubeVert`,up),frag:Yt(`OREngineCubeFrag`,lp),uniforms:Qt.merge(t.uniforms,{uNoiseTex:{value:wr.resources.getTexture(`noise`),type:`1i`}})});let n=this.entity.getComponent(P);n&&(n.material=this.material)}},pp=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+// 宣言順はvert_h.part.glslのoutと一致させる（WGSL変換時にロケーションが宣言順で振られるため）\r
+in vec2 vUv;\r
+in vec3 vViewNormal;\r
+in vec3 vNormal;\r
+in vec3 vMVPosition;\r
+in vec3 vMVPPosition;\r
+in vec3 vPos;\r
+in vec2 vVelocity;\r
+\r
+uniform mat4 uModelMatrix;\r
+uniform mat4 uModelMatrixInverse;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform vec3 uCameraPosition;\r
+uniform vec2 uResolution;\r
+\r
+#ifdef IS_DEPTH\r
+	uniform float uCameraNear;\r
+	uniform float uCameraFar;\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+	layout (location = 3) out vec4 outColor3;\r
+	layout (location = 4) out vec4 outColor4;\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	uniform sampler2D uDeferredTexture;\r
+	uniform vec2 uDeferredResolution;\r
+	uniform sampler2D uGbufferNormal;\r
+	uniform sampler2D uGbufferAlbedo;\r
+	uniform sampler2D uGbufferMaterial;\r
+#endif\r
+\r
+#if defined(IS_FORWARD) || defined(IS_DEPTH)\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;
+
+in float vNoise;
+in vec3 vPosBase;
+
+void main( void ) {
+
+	vec4 outColor = vec4(1.0);\r
+vec3 outNormal = normalize(vNormal);\r
+vec3 outNormalMap = vec3( 0.0 );\r
+float outSSN = 0.0;\r
+vec3 outEmission = vec3(0.0);\r
+float outRoughness = 0.5;\r
+float outMetallic = 0.0;\r
+vec3 outPos = vPos;\r
+float outEnv = 1.0;
+
+	float or = step( vPosBase.x, -0.2 );
+	float flash = smoothstep(0.3, 0.0,  vNoise) * or;
+
+	outEmission = vec3( (1.0 - flash * 0.7) * 3.0 );
+	outRoughness = 0.3;
+
+	#if defined(IS_DEPTH) || defined(IS_DEFERRED)\r
+	vec4 mv = uViewMatrix * vec4(outPos, 1.0);\r
+#endif\r
+\r
+#ifdef IS_DEPTH\r
+	float depth_z = (-mv.z - uCameraNear) / (uCameraFar - uCameraNear);\r
+	outColor0 = vec4(floatToRGBA( depth_z ));\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+\r
+	#ifdef USE_NORMAL_MAP \r
+\r
+		vec3 tangent;\r
+		vec3 bitangent;\r
+\r
+		#ifdef USE_TANGENT\r
+\r
+			tangent = normalize( vTangent );\r
+			bitangent = normalize( vBitangent );\r
+\r
+		#else\r
+\r
+			tangent = cross(outNormal, vec3( 0.0, 1.0, 0.0 ));\r
+			bitangent = cross(tangent, outNormal);\r
+\r
+		#endif\r
+\r
+		#ifdef DOUBLE_SIDED\r
+\r
+			tangent *= faceDirection;\r
+			bitangent *= faceDirection;\r
+			\r
+		#endif\r
+\r
+		mat3 vTBN = mat3( tangent, bitangent, outNormal );\r
+		outNormal = normalize( vTBN * outNormalMap );\r
+\r
+	#endif\r
+\r
+	vec4 mvp = uProjectionMatrix * mv;\r
+	gl_FragDepth = ( mvp.z / mvp.w ) * 0.5 + 0.5;\r
+	outColor0 = vec4( outPos, outEmission.x );\r
+	outColor1 = vec4( normalize( outNormal * ( gl_FrontFacing ? 1.0 : -1.0 ) ), outEmission.y );\r
+	outColor2 = vec4( outColor.xyz, 0.0 );\r
+	outColor3 = vec4( outRoughness, outMetallic, outSSN, outEnv );\r
+	outColor4 = vec4( vVelocity, 0.0, outEmission.z );\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	outColor0 = outColor;\r
+	outColor1 = vec4(outPos, 1.0);\r
+	outColor2 = vec4(vVelocity, 0.0, 1.0);\r
+#endif
+
+}`,mp=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+uniform mat4 uModelMatrix;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform mat4 uNormalMatrix;\r
+\r
+uniform mat4 uModelMatrixPrev;\r
+uniform mat4 uModelViewMatrix;\r
+uniform mat4 uViewMatrixPrev;\r
+uniform mat4 uProjectionMatrixPrev;\r
+\r
+out vec2 vUv;\r
+out vec3 vViewNormal;\r
+out vec3 vNormal;\r
+out vec3 vMVPosition;\r
+out vec3 vMVPPosition;\r
+out vec3 vPos;\r
+\r
+out vec2 vVelocity;\r
+\r
+layout ( location = 0 ) in vec3 position;\r
+layout ( location = 1 ) in vec2 uv;\r
+layout ( location = 2 ) in vec3 normal;\r
+\r
+#ifdef TF_MODELER\r
+	out vec3 o_position;\r
+	out vec3 o_normal;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;
+\r
+// https://www.shadertoy.com/view/4dS3Wd\r
+\r
+float hashv(float p) { p = fract(p * 0.011); p *= p + 7.5; p *= p + p; return fract(p); }\r
+float hashv(vec2 p) {vec3 p3 = fract(vec3(p.xyx) * 0.13); p3 += dot(p3, p3.yzx + 3.333); return fract((p3.x + p3.y) * p3.z); }\r
+\r
+#define NUM_NOISE_OCTAVES 5\r
+\r
+float noiseValue(vec3 x) {\r
+    const vec3 step = vec3(110, 241, 171);\r
+\r
+    vec3 i = floor(x);\r
+    vec3 f = fract(x);\r
+ \r
+    // For performance, compute the base input to a 1D hash from the integer part of the argument and the \r
+    // incremental change to the 1D based on the 3D -> 1D wrapping\r
+    float n = dot(i, step);\r
+\r
+    vec3 u = f * f * (3.0 - 2.0 * f);\r
+    return mix(mix(mix( hashv(n + dot(step, vec3(0, 0, 0))), hashv(n + dot(step, vec3(1, 0, 0))), u.x),\r
+                   mix( hashv(n + dot(step, vec3(0, 1, 0))), hashv(n + dot(step, vec3(1, 1, 0))), u.x), u.y),\r
+               mix(mix( hashv(n + dot(step, vec3(0, 0, 1))), hashv(n + dot(step, vec3(1, 0, 1))), u.x),\r
+                   mix( hashv(n + dot(step, vec3(0, 1, 1))), hashv(n + dot(step, vec3(1, 1, 1))), u.x), u.y), u.z);\r
+}\r
+\r
+float fbm(vec3 x) {\r
+	float v = 0.0;\r
+	float a = 0.5;\r
+	vec3 shift = vec3(100);\r
+	for (int i = 0; i < NUM_NOISE_OCTAVES; ++i) {\r
+		v += a * noiseValue(x);\r
+		x = x * 2.0 + shift;\r
+		a *= 0.5;\r
+    if( i == -1 ) break;\r
+	}\r
+	return v;\r
+}\r
+\r
+float fbm(float x) {\r
+  return fbm(vec3(x));\r
+}
+
+out float vNoise;
+out vec3 vPosBase;
+
+void main( void ) {
+
+	vec3 outPos = position;\r
+vec3 outNormal = normal;\r
+vec2 outUv = uv;
+
+	vPosBase = outPos;
+	vNoise = noiseValue( vec3( uTimeE * 8.0 ) );
+
+	#ifdef TF_MODELER\r
+		o_position = outPos;\r
+		o_normal = outNormal;\r
+		return;\r
+#endif\r
+\r
+vec4 modelPosition = uModelMatrix * vec4(outPos, 1.0);\r
+vec4 mvPosition = uViewMatrix * modelPosition;\r
+gl_Position = uProjectionMatrix * mvPosition;\r
+\r
+vec4 modelPositionPrev = uModelMatrixPrev * vec4(outPos, 1.0);\r
+vec4 mvPositionPrev = uViewMatrixPrev * modelPositionPrev;\r
+vec4 positionPrev = uProjectionMatrixPrev * mvPositionPrev;\r
+\r
+vUv = outUv;\r
+vViewNormal = normalize( (uNormalMatrix * vec4(outNormal, 0.0)).xyz );\r
+vNormal = (uModelMatrix * vec4(outNormal, 0.0)).xyz;\r
+vPos = modelPosition.xyz;\r
+vMVPosition = mvPosition.xyz;\r
+vMVPPosition = gl_Position.xyz / gl_Position.w;\r
+\r
+vVelocity = vMVPPosition.xy - positionPrev.xy / positionPrev.w;\r
+vVelocity *= 0.2;
+
+}`,hp=s({OREngineLogo:()=>gp}),gp=class extends It{material;constructor(e){super(e);let t=this.engine;this.material=new en({name:`OREngineLogo`,phase:[`deferred`,`shadowMap`],vert:Yt(`OREngineLogoVert`,mp),frag:Yt(`OREngineLogoFrag`,pp),uniforms:Qt.merge(t.uniforms)});let n=this.entity.getComponent(P);n&&(n.material=this.material)}},_p=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+// 宣言順はvert_h.part.glslのoutと一致させる（WGSL変換時にロケーションが宣言順で振られるため）\r
+in vec2 vUv;\r
+in vec3 vViewNormal;\r
+in vec3 vNormal;\r
+in vec3 vMVPosition;\r
+in vec3 vMVPPosition;\r
+in vec3 vPos;\r
+in vec2 vVelocity;\r
+\r
+uniform mat4 uModelMatrix;\r
+uniform mat4 uModelMatrixInverse;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform vec3 uCameraPosition;\r
+uniform vec2 uResolution;\r
+\r
+#ifdef IS_DEPTH\r
+	uniform float uCameraNear;\r
+	uniform float uCameraFar;\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+	layout (location = 3) out vec4 outColor3;\r
+	layout (location = 4) out vec4 outColor4;\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	uniform sampler2D uDeferredTexture;\r
+	uniform vec2 uDeferredResolution;\r
+	uniform sampler2D uGbufferNormal;\r
+	uniform sampler2D uGbufferAlbedo;\r
+	uniform sampler2D uGbufferMaterial;\r
+#endif\r
+\r
+#if defined(IS_FORWARD) || defined(IS_DEPTH)\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;
+struct DirectionalLight {\r
+	vec3 direction;\r
+	vec3 color;\r
+};\r
+\r
+struct SpotLight {\r
+	vec3 position;\r
+	vec3 direction;\r
+	vec3 color;\r
+	float angle;\r
+	float blend;\r
+	float distance;\r
+	float decay;\r
+};\r
+\r
+struct LightCamera {\r
+	float near;\r
+	float far;\r
+	mat4 uViewMatrix;\r
+	mat4 uProjectionMatrix;\r
+	vec2 resolution;\r
+};\r
+\r
+struct Light {\r
+	vec3 direction;\r
+	vec3 color;\r
+};\r
+\r
+#if NUM_LIGHT_DIR > 0 \r
+\r
+	uniform DirectionalLight directionalLight[NUM_LIGHT_DIR];\r
+	uniform LightCamera uDirectionalLightCamera[NUM_LIGHT_DIR];\r
+	uniform sampler2D directionalLightShadowMap[NUM_SHADOWMAP_DIR];\r
+	\r
+#endif\r
+\r
+#if NUM_LIGHT_SPOT > 0 \r
+\r
+	uniform SpotLight uSpotLight[NUM_LIGHT_SPOT];\r
+	uniform LightCamera uSpotLightCamera[NUM_LIGHT_SPOT];\r
+	uniform sampler2D uSpotLightShadowMap[NUM_SHADOWMAP_SPOT];\r
+	\r
+#endif\r
+\r
+// shadowmap\r
+\r
+float compareShadowDepth( float lightDepth, sampler2D shadowMap, vec2 shadowCoord, float depthOffset ) {\r
+\r
+	float shadowMapDepth = rgbaToFloat( texture( shadowMap, shadowCoord ) );\r
+\r
+	if( shadowCoord.x >= 0.0 && shadowCoord.x <= 1.0 && shadowCoord.y >= 0.0 && shadowCoord.y <= 1.0 ) {\r
+\r
+		return step( lightDepth, shadowMapDepth + depthOffset );\r
+\r
+	}\r
+\r
+	return 1.0;\r
+\r
+}\r
+\r
+// shadow\r
+\r
+void setShadowCoord( vec3 pos, LightCamera camera, inout vec2 shadowCoord, inout float lightDepth ) {\r
+	\r
+	vec4 mvPosition = camera.uViewMatrix * vec4( pos, 1.0 );\r
+	vec4 mvpPosition = camera.uProjectionMatrix * mvPosition;\r
+	shadowCoord = ( mvpPosition.xy / mvpPosition.w ) * 0.5 + 0.5;\r
+	\r
+	float lightNear = camera.near;\r
+	float lightFar = camera.far;\r
+	lightDepth = ( -mvPosition.z - lightNear ) / ( lightFar - lightNear );\r
+\r
+}\r
+\r
+float getShadow( vec3 pos, LightCamera camera, sampler2D shadowMap, float depthOffset ) {\r
+\r
+	vec2 shadowCoord;\r
+	float lightDepth;\r
+\r
+	setShadowCoord( pos, camera, shadowCoord, lightDepth );\r
+\r
+	return compareShadowDepth( lightDepth, shadowMap, shadowCoord, depthOffset );\r
+\r
+}\r
+\r
+#define SHADOW_SAMPLE_COUNT 2\r
+\r
+float getShadowSmooth( vec3 pos, LightCamera camera, sampler2D shadowMap, float depthOffset ) {\r
+\r
+	vec2 shadowCoord;\r
+	float lightDepth;\r
+\r
+	setShadowCoord( pos, camera, shadowCoord, lightDepth );\r
+	\r
+	float shadowSum = compareShadowDepth( lightDepth, shadowMap, shadowCoord, depthOffset );\r
+\r
+	for( int i = 0; i < SHADOW_SAMPLE_COUNT; i++ ) {\r
+\r
+		vec2 offset = 1.0 / camera.resolution * ( float( i + 1 ) / float(SHADOW_SAMPLE_COUNT) );\r
+\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, -offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( 0.0, -offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, -offset.y ), depthOffset );\r
+		\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, 0.0 ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, 0.0 ), depthOffset );\r
+\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( 0.0, offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, offset.y ), depthOffset );\r
+\r
+	}\r
+\r
+	return shadowSum / ( float( SHADOW_SAMPLE_COUNT ) * 8.0 );\r
+\r
+}\r
+\r
+float ggx( float dNH, float roughness ) {\r
+	\r
+	float a2 = roughness * roughness;\r
+	a2 = a2 * a2;\r
+	float dNH2 = dNH * dNH;\r
+\r
+	if( dNH2 <= 0.0 ) return 0.0;\r
+\r
+	return a2 / ( PI * pow( dNH2 * ( a2 - 1.0 ) + 1.0, 2.0) );\r
+\r
+}\r
+\r
+vec3 lambert( vec3 diffuseColor ) {\r
+\r
+	return diffuseColor / PI;\r
+\r
+}\r
+\r
+float gSchlick( float d, float k ) {\r
+\r
+	if( d == 0.0 ) return 0.0;\r
+\r
+	return d / ( d * ( 1.0 - k ) + k );\r
+	\r
+}\r
+\r
+float gSmith( float dNV, float dNL, float roughness ) {\r
+\r
+	float k = clamp( roughness * sqrt( 2.0 / PI ), 0.0, 1.0 );\r
+\r
+	return gSchlick( dNV, k ) * gSchlick( dNL, k );\r
+	\r
+}\r
+\r
+float fresnel( float d ) {\r
+	\r
+	float f0 = 0.04;\r
+\r
+	return f0 + ( 1.0 - f0 ) * pow( 1.0 - d, 5.0 );\r
+\r
+}\r
+\r
+vec3 RE( Geometry geo, Material mat, Light light) {\r
+\r
+	vec3 lightDir = normalize( light.direction );\r
+	vec3 halfVec = normalize( geo.viewDir + lightDir );\r
+\r
+	float dLH = clamp( dot( lightDir, halfVec ), 0.0, 1.0 );\r
+	float dNH = clamp( dot( geo.normal, halfVec ), 0.0, 1.0 );\r
+	float dNV = clamp( dot( geo.normal, geo.viewDir ), 0.0, 1.0 );\r
+	float dNL = clamp( dot( geo.normal, lightDir), 0.0, 1.0 );\r
+\r
+	vec3 irradiance = light.color * dNL;\r
+\r
+	// diffuse\r
+	vec3 diffuse = lambert( mat.diffuseColor ) * irradiance;\r
+\r
+	// specular\r
+	float D = ggx( dNH, mat.roughness );\r
+	float G = gSmith( dNV, dNL, mat.roughness );\r
+	float F = fresnel( dLH );\r
+	\r
+	vec3 specular = (( D * G * F ) / ( 4.0 * dNL * dNV + 0.0001 ) * mat.specularColor ) * irradiance; \r
+\r
+	vec3 c = vec3( 0.0 );\r
+	c += diffuse * ( 1.0 - F ) + specular;\r
+\r
+	return c;\r
+\r
+}
+
+in float vAlpha;
+
+void main( void ) {
+
+	vec4 outColor = vec4(1.0);\r
+vec3 outNormal = normalize(vNormal);\r
+vec3 outNormalMap = vec3( 0.0 );\r
+float outSSN = 0.0;\r
+vec3 outEmission = vec3(0.0);\r
+float outRoughness = 0.5;\r
+float outMetallic = 0.0;\r
+vec3 outPos = vPos;\r
+float outEnv = 1.0;
+
+	float circle = smoothstep( 0.5, 0.4, length( gl_PointCoord.xy - 0.5 ) );
+	
+	if( circle == 0.0 ) discard;
+
+	Geometry geo = Geometry(
+		vPos,
+		vec3( 0.0, 0.0, 0.0 ),
+		0.0,
+		normalize( uCameraPosition - vPos ),
+		vec3( 0.0 ),
+		0.0
+	);
+
+	vec3 color = vec3( 0.0 );
+	float s = 0.0;
+
+	outColor = vec4( vec3( 1.0 ), circle * 0.2 * ( vAlpha ) );
+
+	#if defined(IS_DEPTH) || defined(IS_DEFERRED)\r
+	vec4 mv = uViewMatrix * vec4(outPos, 1.0);\r
+#endif\r
+\r
+#ifdef IS_DEPTH\r
+	float depth_z = (-mv.z - uCameraNear) / (uCameraFar - uCameraNear);\r
+	outColor0 = vec4(floatToRGBA( depth_z ));\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+\r
+	#ifdef USE_NORMAL_MAP \r
+\r
+		vec3 tangent;\r
+		vec3 bitangent;\r
+\r
+		#ifdef USE_TANGENT\r
+\r
+			tangent = normalize( vTangent );\r
+			bitangent = normalize( vBitangent );\r
+\r
+		#else\r
+\r
+			tangent = cross(outNormal, vec3( 0.0, 1.0, 0.0 ));\r
+			bitangent = cross(tangent, outNormal);\r
+\r
+		#endif\r
+\r
+		#ifdef DOUBLE_SIDED\r
+\r
+			tangent *= faceDirection;\r
+			bitangent *= faceDirection;\r
+			\r
+		#endif\r
+\r
+		mat3 vTBN = mat3( tangent, bitangent, outNormal );\r
+		outNormal = normalize( vTBN * outNormalMap );\r
+\r
+	#endif\r
+\r
+	vec4 mvp = uProjectionMatrix * mv;\r
+	gl_FragDepth = ( mvp.z / mvp.w ) * 0.5 + 0.5;\r
+	outColor0 = vec4( outPos, outEmission.x );\r
+	outColor1 = vec4( normalize( outNormal * ( gl_FrontFacing ? 1.0 : -1.0 ) ), outEmission.y );\r
+	outColor2 = vec4( outColor.xyz, 0.0 );\r
+	outColor3 = vec4( outRoughness, outMetallic, outSSN, outEnv );\r
+	outColor4 = vec4( vVelocity, 0.0, outEmission.z );\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	outColor0 = outColor;\r
+	outColor1 = vec4(outPos, 1.0);\r
+	outColor2 = vec4(vVelocity, 0.0, 1.0);\r
+#endif
+
+}`,vp=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+uniform mat4 uModelMatrix;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform mat4 uNormalMatrix;\r
+\r
+uniform mat4 uModelMatrixPrev;\r
+uniform mat4 uModelViewMatrix;\r
+uniform mat4 uViewMatrixPrev;\r
+uniform mat4 uProjectionMatrixPrev;\r
+\r
+out vec2 vUv;\r
+out vec3 vViewNormal;\r
+out vec3 vNormal;\r
+out vec3 vMVPosition;\r
+out vec3 vMVPPosition;\r
+out vec3 vPos;\r
+\r
+out vec2 vVelocity;\r
+\r
+layout ( location = 0 ) in vec3 position;\r
+layout ( location = 1 ) in vec2 uv;\r
+layout ( location = 2 ) in vec3 normal;\r
+\r
+#ifdef TF_MODELER\r
+	out vec3 o_position;\r
+	out vec3 o_normal;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;
+
+out float vAlpha;
+
+uniform vec2 uDeferredResolution;
+
+void main( void ) {
+
+	vec3 outPos = position;\r
+vec3 outNormal = normal;\r
+vec2 outUv = uv;
+
+	float t = uTimeE * 0.1;
+	outPos.x += sin( position.y * 2.3 + t * 2.0 ) * 0.4;
+	outPos.y += sin( position.x * 1.0 + t * 1.0 ) * 0.3;
+	
+	#ifdef TF_MODELER\r
+		o_position = outPos;\r
+		o_normal = outNormal;\r
+		return;\r
+#endif\r
+\r
+vec4 modelPosition = uModelMatrix * vec4(outPos, 1.0);\r
+vec4 mvPosition = uViewMatrix * modelPosition;\r
+gl_Position = uProjectionMatrix * mvPosition;\r
+\r
+vec4 modelPositionPrev = uModelMatrixPrev * vec4(outPos, 1.0);\r
+vec4 mvPositionPrev = uViewMatrixPrev * modelPositionPrev;\r
+vec4 positionPrev = uProjectionMatrixPrev * mvPositionPrev;\r
+\r
+vUv = outUv;\r
+vViewNormal = normalize( (uNormalMatrix * vec4(outNormal, 0.0)).xyz );\r
+vNormal = (uModelMatrix * vec4(outNormal, 0.0)).xyz;\r
+vPos = modelPosition.xyz;\r
+vMVPosition = mvPosition.xyz;\r
+vMVPPosition = gl_Position.xyz / gl_Position.w;\r
+\r
+vVelocity = vMVPPosition.xy - positionPrev.xy / positionPrev.w;\r
+vVelocity *= 0.2;
+
+	vAlpha = smoothstep( -20.0, -1.0, mvPosition.z);
+	gl_PointSize = uDeferredResolution.y * 0.007 + uDeferredResolution.y * 0.02 * vAlpha;
+	gl_PointSize *= 0.5;
+
+}`,yp=s({Dust:()=>bp}),bp=class extends It{constructor(e){super(e);let t=this.engine,n=new N,r=e.args?.num||2048,i=new A(20,5,20),a=[],o=[];for(let e=0;e<r;e++)a.push((Math.random()-.5)*i.x),a.push((Math.random()-.5)*i.y),a.push((Math.random()-.5)*i.z),o.push(Math.random());n.setAttribute(`position`,new Float32Array(a),3);let s=new en({phase:[`forward`],drawType:`POINTS`,frag:_p,vert:vp,uniforms:Qt.merge(t.uniforms)});this.entity.addComponent(P,{geometry:n,material:s})}dispose(){super.dispose(),this.entity.removeComponent(P)}},xp=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+// 宣言順はvert_h.part.glslのoutと一致させる（WGSL変換時にロケーションが宣言順で振られるため）\r
+in vec2 vUv;\r
+in vec3 vViewNormal;\r
+in vec3 vNormal;\r
+in vec3 vMVPosition;\r
+in vec3 vMVPPosition;\r
+in vec3 vPos;\r
+in vec2 vVelocity;\r
+\r
+uniform mat4 uModelMatrix;\r
+uniform mat4 uModelMatrixInverse;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform vec3 uCameraPosition;\r
+uniform vec2 uResolution;\r
+\r
+#ifdef IS_DEPTH\r
+	uniform float uCameraNear;\r
+	uniform float uCameraFar;\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+	layout (location = 3) out vec4 outColor3;\r
+	layout (location = 4) out vec4 outColor4;\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	uniform sampler2D uDeferredTexture;\r
+	uniform vec2 uDeferredResolution;\r
+	uniform sampler2D uGbufferNormal;\r
+	uniform sampler2D uGbufferAlbedo;\r
+	uniform sampler2D uGbufferMaterial;\r
+#endif\r
+\r
+#if defined(IS_FORWARD) || defined(IS_DEPTH)\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;
+
+void main( void ) {
+
+	vec4 outColor = vec4(1.0);\r
+vec3 outNormal = normalize(vNormal);\r
+vec3 outNormalMap = vec3( 0.0 );\r
+float outSSN = 0.0;\r
+vec3 outEmission = vec3(0.0);\r
+float outRoughness = 0.5;\r
+float outMetallic = 0.0;\r
+vec3 outPos = vPos;\r
+float outEnv = 1.0;
+
+	outColor.xyz = vec3( 1.0 );
+
+	#ifdef IS_FORWARD
+
+		outColor = vec4( 0.5 );
+	
+	#endif
+
+	outSSN = 1.0;
+
+	
+	#if defined(IS_DEPTH) || defined(IS_DEFERRED)\r
+	vec4 mv = uViewMatrix * vec4(outPos, 1.0);\r
+#endif\r
+\r
+#ifdef IS_DEPTH\r
+	float depth_z = (-mv.z - uCameraNear) / (uCameraFar - uCameraNear);\r
+	outColor0 = vec4(floatToRGBA( depth_z ));\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+\r
+	#ifdef USE_NORMAL_MAP \r
+\r
+		vec3 tangent;\r
+		vec3 bitangent;\r
+\r
+		#ifdef USE_TANGENT\r
+\r
+			tangent = normalize( vTangent );\r
+			bitangent = normalize( vBitangent );\r
+\r
+		#else\r
+\r
+			tangent = cross(outNormal, vec3( 0.0, 1.0, 0.0 ));\r
+			bitangent = cross(tangent, outNormal);\r
+\r
+		#endif\r
+\r
+		#ifdef DOUBLE_SIDED\r
+\r
+			tangent *= faceDirection;\r
+			bitangent *= faceDirection;\r
+			\r
+		#endif\r
+\r
+		mat3 vTBN = mat3( tangent, bitangent, outNormal );\r
+		outNormal = normalize( vTBN * outNormalMap );\r
+\r
+	#endif\r
+\r
+	vec4 mvp = uProjectionMatrix * mv;\r
+	gl_FragDepth = ( mvp.z / mvp.w ) * 0.5 + 0.5;\r
+	outColor0 = vec4( outPos, outEmission.x );\r
+	outColor1 = vec4( normalize( outNormal * ( gl_FrontFacing ? 1.0 : -1.0 ) ), outEmission.y );\r
+	outColor2 = vec4( outColor.xyz, 0.0 );\r
+	outColor3 = vec4( outRoughness, outMetallic, outSSN, outEnv );\r
+	outColor4 = vec4( vVelocity, 0.0, outEmission.z );\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	outColor0 = outColor;\r
+	outColor1 = vec4(outPos, 1.0);\r
+	outColor2 = vec4(vVelocity, 0.0, 1.0);\r
+#endif
+
+}`,Sp=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+uniform mat4 uModelMatrix;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform mat4 uNormalMatrix;\r
+\r
+uniform mat4 uModelMatrixPrev;\r
+uniform mat4 uModelViewMatrix;\r
+uniform mat4 uViewMatrixPrev;\r
+uniform mat4 uProjectionMatrixPrev;\r
+\r
+out vec2 vUv;\r
+out vec3 vViewNormal;\r
+out vec3 vNormal;\r
+out vec3 vMVPosition;\r
+out vec3 vMVPPosition;\r
+out vec3 vPos;\r
+\r
+out vec2 vVelocity;\r
+\r
+layout ( location = 0 ) in vec3 position;\r
+layout ( location = 1 ) in vec2 uv;\r
+layout ( location = 2 ) in vec3 normal;\r
+\r
+#ifdef TF_MODELER\r
+	out vec3 o_position;\r
+	out vec3 o_normal;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;
+
+layout (location = 3) in vec2 trailId;
+layout (location = 4) in vec3 id;
+layout (location = 5) in float posY;
+
+uniform sampler2D uGPUSampler0;
+uniform sampler2D uGPUSampler1;
+uniform vec2 uGPUResolution;
+
+mat2 rotate(float rad) {\r
+  return mat2(cos(rad), sin(rad), -sin(rad), cos(rad));\r
+}\r
+\r
+void rotate( float rad, inout vec2 pos, inout vec2 normal ) {\r
+	\r
+	mat2 rot = rotate( rad );\r
+	\r
+	pos *= rot;\r
+	normal *= rot;\r
+\r
+}\r
+\r
+mat3 makeRotationDir( vec3 direction, vec3 up ) {\r
+\r
+	vec3 xaxis = normalize( cross( up, direction ) );\r
+	vec3 yaxis = normalize( cross( direction, xaxis ) );\r
+\r
+	return mat3(\r
+		xaxis.x, yaxis.x, direction.x,\r
+		xaxis.y, yaxis.y, direction.y,\r
+		xaxis.z, yaxis.z, direction.z\r
+	);\r
+\r
+}
+
+void main( void ) {
+
+	vec3 outPos = position;\r
+vec3 outNormal = normal;\r
+vec2 outUv = uv;
+
+	float uid = id.x + id.y * 128.0;
+
+	vec4 comPosBuffer = texture( uGPUSampler0, vec2( posY * 1.0, trailId ) );
+	vec4 comVelBuffer = texture( uGPUSampler1, vec2( posY * 1.0, trailId ) );
+    vec4 nextPosBuffer = texture( uGPUSampler0, vec2( posY - 1.0 / uGPUResolution.x, trailId ) );
+
+	vec3 offsetPosition = comPosBuffer.xyz;
+
+	// outPos.xz *= sin( trailId * TPI ) * 0.5 + 0.5;
+	// outPos.xz *= sin( posY * PI ) * 1.0;
+	
+    vec3 delta = ( comPosBuffer.xyz - nextPosBuffer.xyz );
+	vec3 vec = normalize( delta );
+
+	mat2 offsetRot = rotate( PI / 2.0 );
+	outPos.yz *= offsetRot;
+	outNormal.yz *= offsetRot;
+
+	mat3 rot = makeRotationDir(-vec, vec3( 0.0, -1.0, 0.0 ) );
+	outPos *= rot;
+	outNormal *= rot;
+
+	outPos += offsetPosition;
+
+	#ifdef TF_MODELER\r
+		o_position = outPos;\r
+		o_normal = outNormal;\r
+		return;\r
+#endif\r
+\r
+vec4 modelPosition = uModelMatrix * vec4(outPos, 1.0);\r
+vec4 mvPosition = uViewMatrix * modelPosition;\r
+gl_Position = uProjectionMatrix * mvPosition;\r
+\r
+vec4 modelPositionPrev = uModelMatrixPrev * vec4(outPos, 1.0);\r
+vec4 mvPositionPrev = uViewMatrixPrev * modelPositionPrev;\r
+vec4 positionPrev = uProjectionMatrixPrev * mvPositionPrev;\r
+\r
+vUv = outUv;\r
+vViewNormal = normalize( (uNormalMatrix * vec4(outNormal, 0.0)).xyz );\r
+vNormal = (uModelMatrix * vec4(outNormal, 0.0)).xyz;\r
+vPos = modelPosition.xyz;\r
+vMVPosition = mvPosition.xyz;\r
+vMVPPosition = gl_Position.xyz / gl_Position.w;\r
+\r
+vVelocity = vMVPPosition.xy - positionPrev.xy / positionPrev.w;\r
+vVelocity *= 0.2;
+	
+}`,Cp=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+\r
+// https://github.com/ashima/webgl-noise/blob/master/src/noise4D.glsl\r
+\r
+//\r
+// Description : Array and textureless GLSL 2D/3D/4D simplex \r
+//               noise functions.\r
+//      Author : Ian McEwan, Ashima Arts.\r
+//  Maintainer : stegu\r
+//     Lastmod : 20110822 (ijm)\r
+//     License : Copyright (C) 2011 Ashima Arts. All rights reserved.\r
+//               Distributed under the MIT License. See LICENSE file.\r
+//               https://github.com/ashima/webgl-noise\r
+//               https://github.com/stegu/webgl-noise\r
+// \r
+\r
+vec4 mod289(vec4 x) {\r
+  return x - floor(x * (1.0 / 289.0)) * 289.0; }\r
+\r
+vec3 mod289(vec3 x) {\r
+  return x - floor(x * (1.0 / 289.0)) * 289.0;\r
+}\r
+\r
+float mod289(float x) {\r
+  return x - floor(x * (1.0 / 289.0)) * 289.0; }\r
+\r
+vec4 permute(vec4 x) {\r
+     return mod289(((x*34.0)+10.0)*x);\r
+}\r
+\r
+float permute(float x) {\r
+     return mod289(((x*34.0)+10.0)*x);\r
+}\r
+\r
+vec4 taylorInvSqrt(vec4 r)\r
+{\r
+  return 1.79284291400159 - 0.85373472095314 * r;\r
+}\r
+\r
+float taylorInvSqrt(float r)\r
+{\r
+  return 1.79284291400159 - 0.85373472095314 * r;\r
+}\r
+\r
+vec4 grad4(float j, vec4 ip)\r
+  {\r
+  const vec4 ones = vec4(1.0, 1.0, 1.0, -1.0);\r
+  vec4 p,s;\r
+\r
+  p.xyz = floor( fract (vec3(j) * ip.xyz) * 7.0) * ip.z - 1.0;\r
+  p.w = 1.5 - dot(abs(p.xyz), ones.xyz);\r
+  s = vec4(lessThan(p, vec4(0.0)));\r
+  p.xyz = p.xyz + (s.xyz*2.0 - 1.0) * s.www; \r
+\r
+  return p;\r
+  }\r
+						\r
+// (sqrt(5) - 1)/4 = F4, used once below\r
+#define F4 0.309016994374947451\r
+\r
+float noiseSimplex(vec4 v)\r
+  {\r
+  const vec4  C = vec4( 0.138196601125011,  // (5 - sqrt(5))/20  G4\r
+                        0.276393202250021,  // 2 * G4\r
+                        0.414589803375032,  // 3 * G4\r
+                       -0.447213595499958); // -1 + 4 * G4\r
+\r
+// First corner\r
+  vec4 i  = floor(v + dot(v, vec4(F4)) );\r
+  vec4 x0 = v -   i + dot(i, C.xxxx);\r
+\r
+// Other corners\r
+\r
+// Rank sorting originally contributed by Bill Licea-Kane, AMD (formerly ATI)\r
+  vec4 i0;\r
+  vec3 isX = step( x0.yzw, x0.xxx );\r
+  vec3 isYZ = step( x0.zww, x0.yyz );\r
+//  i0.x = dot( isX, vec3( 1.0 ) );\r
+  i0.x = isX.x + isX.y + isX.z;\r
+  i0.yzw = 1.0 - isX;\r
+//  i0.y += dot( isYZ.xy, vec2( 1.0 ) );\r
+  i0.y += isYZ.x + isYZ.y;\r
+  i0.zw += 1.0 - isYZ.xy;\r
+  i0.z += isYZ.z;\r
+  i0.w += 1.0 - isYZ.z;\r
+\r
+  // i0 now contains the unique values 0,1,2,3 in each channel\r
+  vec4 i3 = clamp( i0, 0.0, 1.0 );\r
+  vec4 i2 = clamp( i0-1.0, 0.0, 1.0 );\r
+  vec4 i1 = clamp( i0-2.0, 0.0, 1.0 );\r
+\r
+  //  x0 = x0 - 0.0 + 0.0 * C.xxxx\r
+  //  x1 = x0 - i1  + 1.0 * C.xxxx\r
+  //  x2 = x0 - i2  + 2.0 * C.xxxx\r
+  //  x3 = x0 - i3  + 3.0 * C.xxxx\r
+  //  x4 = x0 - 1.0 + 4.0 * C.xxxx\r
+  vec4 x1 = x0 - i1 + C.xxxx;\r
+  vec4 x2 = x0 - i2 + C.yyyy;\r
+  vec4 x3 = x0 - i3 + C.zzzz;\r
+  vec4 x4 = x0 + C.wwww;\r
+\r
+// Permutations\r
+  i = mod289(i); \r
+  float j0 = permute( permute( permute( permute(i.w) + i.z) + i.y) + i.x);\r
+  vec4 j1 = permute( permute( permute( permute (\r
+             i.w + vec4(i1.w, i2.w, i3.w, 1.0 ))\r
+           + i.z + vec4(i1.z, i2.z, i3.z, 1.0 ))\r
+           + i.y + vec4(i1.y, i2.y, i3.y, 1.0 ))\r
+           + i.x + vec4(i1.x, i2.x, i3.x, 1.0 ));\r
+\r
+// Gradients: 7x7x6 points over a cube, mapped onto a 4-cross polytope\r
+// 7*7*6 = 294, which is close to the ring size 17*17 = 289.\r
+  vec4 ip = vec4(1.0/294.0, 1.0/49.0, 1.0/7.0, 0.0) ;\r
+\r
+  vec4 p0 = grad4(j0,   ip);\r
+  vec4 p1 = grad4(j1.x, ip);\r
+  vec4 p2 = grad4(j1.y, ip);\r
+  vec4 p3 = grad4(j1.z, ip);\r
+  vec4 p4 = grad4(j1.w, ip);\r
+\r
+// Normalise gradients\r
+  vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));\r
+  p0 *= norm.x;\r
+  p1 *= norm.y;\r
+  p2 *= norm.z;\r
+  p3 *= norm.w;\r
+  p4 *= taylorInvSqrt(dot(p4,p4));\r
+\r
+// Mix contributions from the five corners\r
+  vec3 m0 = max(0.6 - vec3(dot(x0,x0), dot(x1,x1), dot(x2,x2)), 0.0);\r
+  vec2 m1 = max(0.6 - vec2(dot(x3,x3), dot(x4,x4)            ), 0.0);\r
+  m0 = m0 * m0;\r
+  m1 = m1 * m1;\r
+  return 49.0 * ( dot(m0*m0, vec3( dot( p0, x0 ), dot( p1, x1 ), dot( p2, x2 )))\r
+               + dot(m1*m1, vec2( dot( p3, x3 ), dot( p4, x4 ) ) ) ) ;\r
+\r
+  }\r
+\r
+//\r
+// Description : Array and textureless GLSL 2D/3D/4D simplex \r
+//               noise functions.\r
+//      Author : Ian McEwan, Ashima Arts.\r
+//  Maintainer : stegu\r
+//     Lastmod : 20201014 (stegu)\r
+//     License : Copyright (C) 2011 Ashima Arts. All rights reserved.\r
+//               Distributed under the MIT License. See LICENSE file.\r
+//               https://github.com/ashima/webgl-noise\r
+//               https://github.com/stegu/webgl-noise\r
+// \r
+\r
+\r
+float noiseSimplex(vec3 v)\r
+  { \r
+  const vec2  C = vec2(1.0/6.0, 1.0/3.0) ;\r
+  const vec4  D = vec4(0.0, 0.5, 1.0, 2.0);\r
+\r
+// First corner\r
+  vec3 i  = floor(v + dot(v, C.yyy) );\r
+  vec3 x0 =   v - i + dot(i, C.xxx) ;\r
+\r
+// Other corners\r
+  vec3 g = step(x0.yzx, x0.xyz);\r
+  vec3 l = 1.0 - g;\r
+  vec3 i1 = min( g.xyz, l.zxy );\r
+  vec3 i2 = max( g.xyz, l.zxy );\r
+\r
+  //   x0 = x0 - 0.0 + 0.0 * C.xxx;\r
+  //   x1 = x0 - i1  + 1.0 * C.xxx;\r
+  //   x2 = x0 - i2  + 2.0 * C.xxx;\r
+  //   x3 = x0 - 1.0 + 3.0 * C.xxx;\r
+  vec3 x1 = x0 - i1 + C.xxx;\r
+  vec3 x2 = x0 - i2 + C.yyy; // 2.0*C.x = 1/3 = C.y\r
+  vec3 x3 = x0 - D.yyy;      // -1.0+3.0*C.x = -0.5 = -D.y\r
+\r
+// Permutations\r
+  i = mod289(i); \r
+  vec4 p = permute( permute( permute( \r
+             i.z + vec4(0.0, i1.z, i2.z, 1.0 ))\r
+           + i.y + vec4(0.0, i1.y, i2.y, 1.0 )) \r
+           + i.x + vec4(0.0, i1.x, i2.x, 1.0 ));\r
+\r
+// Gradients: 7x7 points over a square, mapped onto an octahedron.\r
+// The ring size 17*17 = 289 is close to a multiple of 49 (49*6 = 294)\r
+  float n_ = 0.142857142857; // 1.0/7.0\r
+  vec3  ns = n_ * D.wyz - D.xzx;\r
+\r
+  vec4 j = p - 49.0 * floor(p * ns.z * ns.z);  //  mod(p,7*7)\r
+\r
+  vec4 x_ = floor(j * ns.z);\r
+  vec4 y_ = floor(j - 7.0 * x_ );    // mod(j,N)\r
+\r
+  vec4 x = x_ *ns.x + ns.yyyy;\r
+  vec4 y = y_ *ns.x + ns.yyyy;\r
+  vec4 h = 1.0 - abs(x) - abs(y);\r
+\r
+  vec4 b0 = vec4( x.xy, y.xy );\r
+  vec4 b1 = vec4( x.zw, y.zw );\r
+\r
+  //vec4 s0 = vec4(lessThan(b0,0.0))*2.0 - 1.0;\r
+  //vec4 s1 = vec4(lessThan(b1,0.0))*2.0 - 1.0;\r
+  vec4 s0 = floor(b0)*2.0 + 1.0;\r
+  vec4 s1 = floor(b1)*2.0 + 1.0;\r
+  vec4 sh = -step(h, vec4(0.0));\r
+\r
+  vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;\r
+  vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww ;\r
+\r
+  vec3 p0 = vec3(a0.xy,h.x);\r
+  vec3 p1 = vec3(a0.zw,h.y);\r
+  vec3 p2 = vec3(a1.xy,h.z);\r
+  vec3 p3 = vec3(a1.zw,h.w);\r
+\r
+//Normalise gradients\r
+  vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));\r
+  p0 *= norm.x;\r
+  p1 *= norm.y;\r
+  p2 *= norm.z;\r
+  p3 *= norm.w;\r
+\r
+// Mix final noise value\r
+  vec4 m = max(0.5 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);\r
+  m = m * m;\r
+  return 105.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1), \r
+                                dot(p2,x2), dot(p3,x3) ) );\r
+  }
+
+layout (location = 0) out vec4 outColor0;
+layout (location = 1) out vec4 outColor1;
+
+uniform sampler2D uGPUSampler0;
+uniform sampler2D uGPUSampler1;
+uniform float uTimeE;
+uniform vec2 uGPUResolution;
+
+in vec2 vUv;
+
+mat2 rotate(float rad) {\r
+  return mat2(cos(rad), sin(rad), -sin(rad), cos(rad));\r
+}\r
+\r
+void rotate( float rad, inout vec2 pos, inout vec2 normal ) {\r
+	\r
+	mat2 rot = rotate( rad );\r
+	\r
+	pos *= rot;\r
+	normal *= rot;\r
+\r
+}\r
+\r
+mat3 makeRotationDir( vec3 direction, vec3 up ) {\r
+\r
+	vec3 xaxis = normalize( cross( up, direction ) );\r
+	vec3 yaxis = normalize( cross( direction, xaxis ) );\r
+\r
+	return mat3(\r
+		xaxis.x, yaxis.x, direction.x,\r
+		xaxis.y, yaxis.y, direction.y,\r
+		xaxis.z, yaxis.z, direction.z\r
+	);\r
+\r
+}
+
+void main( void ) {
+
+	float t = uTimeE * 0.4;
+	float id = vUv.y;
+
+	vec4 position = texture( uGPUSampler0, vUv );
+	vec4 velocity = texture( uGPUSampler1, vUv );
+
+	float pixelX = 1.0 / uGPUResolution.x;
+
+
+	float posOffset = id * 0.5;
+	float tOffset = t + id * 0.8;
+
+	vec3 pos = position.xyz;
+	vec3 np = pos * 0.23;
+
+	vec3 noise = vec3(
+		noiseSimplex( vec4( np, tOffset) ),
+		noiseSimplex( vec4( np + 123.4, tOffset) ),
+		noiseSimplex( vec4( np + 567.8, tOffset) )
+	);
+	noise = normalize( noise ) * ( 0.002 + id * 0.001 );
+
+	// velocity
+
+	if( vUv.x < pixelX ) {
+
+		vec3 gPos = pos * vec3( 1.0, 1.0, 5.0 ) - vec3( 0.0, 0.0, 3.0 );
+
+		velocity.xyz += noise;
+		velocity.xyz += smoothstep( 0.0, 6.0, length( gPos ) ) * - gPos * 0.002;
+		velocity.xyz += smoothstep( 1.5, 0.5, length( gPos.xyz ) ) * gPos.xyz * 0.02;
+		velocity.xyz *= 0.98;
+
+	}
+	
+	//  position
+
+	if( vUv.x < pixelX ) {
+
+		position.xyz += velocity.xyz;
+		
+	} else {
+
+		vec3 t1 = texture( uGPUSampler0, vUv - vec2( pixelX * 1.5, 0.0 ) ).xyz;
+		vec3 t2 =  texture( uGPUSampler0, vUv - vec2( pixelX * 1.5 - 0.05, 0.0 ) ).xyz;
+
+		position.xyz = mix( t1, t2, 0.1 );
+		position.xyz += noise * 5.0;
+		
+	}
+
+	// lifetime
+
+	if( position.w > 1.0 ) {
+	
+		// position = vec4( 5.0, 0.0, 0.0, 0.0 );
+		// position.xz *= rotate( vUv.x * TPI * 20.0 - uTimeE * 0.02 );
+		// velocity = vec4( 0.0 );
+
+	}
+
+	position.w += 0.016 / 10.0;
+
+	// out
+
+	outColor0 = position;
+	outColor1 = velocity;
+
+} `,wp=s({YakiSoba:()=>Tp}),Tp=class extends It{_gpu;constructor(e){super(e);let t=this.engine,n=new A(64,512);this._gpu=new Hn({passes:[new Un(t.renderer.backend,{name:`yakisoba`,size:n,dataLayerCount:2,frag:Yt(`yakiSobaCompute`,Cp),uniforms:Qt.merge({},t.uniforms,t.renderer.globalUniforms)})]}),this._gpu.passes[0].initTexture((e,t,n)=>[0,0,0,0]);let r=new Lt({width:.05,height:.05,depth:.05,segmentsHeight:n.x}),i=[],a=[];for(let e=0;e<n.y;e++)i.push(e/n.y),a.push(Math.random(),Math.random(),Math.random());r.setAttribute(`trailId`,new Float32Array(i),1,{instanceDivisor:1}),r.setAttribute(`id`,new Float32Array(a),3,{instanceDivisor:1});let o=new en({frag:Yt(`chainFrag`,xp),vert:Yt(`chainVert`,Sp),phase:[`deferred`,`shadowMap`],uniforms:Qt.merge({},this._gpu.passes[0].outputUniforms)});this.entity.addComponent(P,{geometry:r,material:o})}updateImpl(e){this.entity.isVisibleTraverse()&&this._gpu.compute(e.renderer)}dispose(){super.dispose(),this.entity.removeComponent(P),this._gpu.dispose()}},Ep=s({CameraController:()=>Dp}),Dp=class extends It{_lookAt;_lookAtTargetUUID;_dofTarget;_dofTargetUUID;_tmpVector1;_tmpVector2;_focusMode;_focusDistance;_focusSpeed;_focusCurrent;constructor(e){super(e),this._lookAt=this.entity.addComponent(gf),this._lookAtTargetUUID=null,this.fieldDir(`lookAt`).field(`target`,()=>this._lookAtTargetUUID,e=>{this._lookAtTargetUUID=e||null,this._lookAt.setTarget(null)},{format:{type:`entity`}}),this._dofTarget=null,this._dofTargetUUID=null,this._tmpVector1=new A,this._tmpVector2=new A,this._focusMode=`auto`,this._focusDistance=5,this._focusSpeed=8,this._focusCurrent=null;let t=this.fieldDir(`focus`);t.field(`mode`,()=>this._focusMode,e=>{this._focusMode=e},{format:{type:`select`,list:[`auto`,`target`,`manual`]}}),t.field(`target`,()=>this._dofTargetUUID,e=>{this._dofTargetUUID=e||null,this._dofTarget=null},{format:{type:`entity`}}),t.field(`distance`,()=>this._focusDistance,e=>{this._focusDistance=e},{step:.1}),t.field(`speed`,()=>this._focusSpeed,e=>{this._focusSpeed=e},{step:.5});let n=yr(this.engine,this.entity);this.once(`dispose`,()=>{n()})}_resolveTargets(){if(!this._lookAtTargetUUID&&!this._dofTargetUUID)return;let e=this.entity.getRootEntity();this._lookAtTargetUUID&&!this._lookAt.target&&this._lookAt.setTarget(e.findEntityByUUID(this._lookAtTargetUUID)||null),this._dofTargetUUID&&!this._dofTarget&&(this._dofTarget=e.findEntityByUUID(this._dofTargetUUID)||null)}updateImpl(){this._resolveTargets()}get focusMode(){return this._focusMode}set focusMode(e){this._focusMode=e}get focusDistance(){return this._focusDistance}set focusDistance(e){this._focusDistance=e}get focusSpeed(){return this._focusSpeed}set focusSpeed(e){this._focusSpeed=e}prepareRenderImpl(e){let t=this.entity.getComponentsByTag(`camera`)[0];if(!t)return;let n=this._resolveFocusTarget(e);n!==null&&(this._focusCurrent===null||this._focusSpeed<=0?this._focusCurrent=n:this._focusCurrent+=(n-this._focusCurrent)*(1-Math.exp(-this._focusSpeed*e.timeDelta)),t.dofParams.focusDistance=this._focusCurrent)}_resolveFocusTarget(e){if(this._focusMode===`manual`)return this._focusDistance;if(this._focusMode===`auto`){let t=e.renderer.centerDepth;if(typeof t==`number`)return t}if(!this._dofTarget)return null;this.entity.matrixWorld.decompose(this._tmpVector1),this._dofTarget.matrixWorld.decompose(this._tmpVector2),this._tmpVector2.sub(this._tmpVector1);let t=this.entity.matrixWorld.elm;return this._tmpVector1.set(t[8],t[9],t[10]).normalize(),-this._tmpVector2.dot(this._tmpVector1)}dispose(){super.dispose(),this.entity.removeComponent(gf)}},Op=s({CameraOrbitAnim:()=>kp}),kp=class extends It{time;radius;heightAmp;speed;baseHeight;constructor(e){super(e),this.time=0,this.radius=6,this.heightAmp=2,this.speed=.3,this.baseHeight=1.5,this.field(`radius`,()=>this.radius,e=>this.radius=e),this.field(`heightAmp`,()=>this.heightAmp,e=>this.heightAmp=e),this.field(`speed`,()=>this.speed,e=>this.speed=e),this.field(`baseHeight`,()=>this.baseHeight,e=>this.baseHeight=e)}updateImpl(e){this.time+=e.timeDelta;let t=this.time*this.speed,n=Math.cos(t)*this.radius,r=Math.sin(t)*this.radius,i=this.baseHeight+Math.sin(t*1.7)*this.heightAmp;this.entity.position.set(n,i,r),this.entity.lookAt(new A(0,0,0))}},Ap=s({ShakeViewer:()=>jp}),jp=class extends It{shakePower;shakeSpeed;shakeMatrix;cameraMatrixWorld;shakeQua;constructor(e){super(e),this.shakePower=.15,this.shakeSpeed=1,this.shakeMatrix=new j,this.cameraMatrixWorld=new j,this.shakeQua=new dt,this.order=1e3,this.field(`power`,()=>this.shakePower,e=>this.shakePower=e),this.field(`speed`,()=>this.shakeSpeed,e=>this.shakeSpeed=e)}prepareRenderImpl(e){let t=this.entity.getComponentsByTag(`camera`)[0];if(!t)return;let n=.008*this.shakePower;n*=t.fov/50;let r=e.timeElapsed*this.shakeSpeed;this.shakeQua.setFromEuler({x:Math.sin(r*2)*n,y:Math.sin(r*2.5)*n,z:0}),this.shakeMatrix.identity().applyQuaternion(this.shakeQua),this.cameraMatrixWorld.copy(this.entity.matrixWorld).multiply(this.shakeMatrix),t.viewMatrix.copy(this.cameraMatrixWorld).inverse()}},Mp=s({ObjectRotate:()=>Np}),Np=class extends It{speed;rotQuaternion;constructor(e){super(e),this.speed=1,this.rotQuaternion=new dt}updateImpl(e){this.rotQuaternion.setFromEuler(new ut(0,-.4*e.timeDelta*this.speed,0)),this.entity.quaternion.multiply(this.rotQuaternion)}},Pp=s({BLidgeClient:()=>Fp}),Fp=class e extends It{blidge;type;blidgeRoot;entities;attachments;_attachmentsApplied;_unresolvedByEntity;static sceneData=null;connection;useGLTF;gltfPath;constructor(t){super(t),this.entities=new Map,this.attachments=[],this._attachmentsApplied=!1,this._unresolvedByEntity=new Map,this.type=`websocket`,this.connection={enabled:!0,url:`ws://localhost:3100`},this.useGLTF=!1,this.gltfPath=`/OREngine/release/v0.0.2/scene.glb`,this.blidgeRoot=null,this.blidge=new Pt(this.engine);let n=this.onSyncScene.bind(this),r=e=>{this.entity&&this.entity.noticeEventParent(`update/blidge/frame`,[e])};this.blidge.on(`sync/scene`,n),this.blidge.on(`sync/timeline`,r),this.once(`dispose`,()=>{this.blidge.off(`sync/scene`,n),this.blidge.off(`sync/timeline`,r)});let i=async()=>{if(this.type==`json`){let t=e.sceneData;if(!t){let e=await fetch(`/OREngine/release/v0.0.2/blidge-scene.json`);if(!e.ok){console.warn(`BLidgeClient: failed to load /blidge-scene.json (${e.status})`);return}t=await e.json()}await this.blidge.loadScene(t,this.useGLTF?this.gltfPath:void 0),this.emit(`loaded`)}else this.blidge.connect(this.connection.url,this.useGLTF?this.gltfPath:void 0)};this.field(`mode`,()=>this.type,e=>{this.type=e,i()},{format:{type:`select`,list:[`websocket`,`json`]}}),this.field(`gltf`,()=>this.useGLTF,e=>{this.useGLTF=e,i()}),this.field(`gltfPath`,()=>this.gltfPath,e=>{this.gltfPath=e,i()});let a=this.fieldDir(`websocket`,{hidden:()=>this.type!=`websocket`});a.field(`reconnect`,()=>()=>i(),void 0,{label:`Reconnect`}),a.field(`url`,()=>this.connection.url,e=>this.connection.url=e),this.field(`attachments`,()=>!this.blidgeRoot||!this._attachmentsApplied?this.attachments:this.serializeAttachments(),e=>{this.attachments=e||[],this._attachmentsApplied=!1,this._unresolvedByEntity.clear()},{hidden:!0})}serializeAttachments(){if(!this.blidgeRoot)return[];let e={getName:e=>{let t=wr.resources.componentList.find(t=>e instanceof t.component);return t?t.name:e.constructor.name}},t=[];return this.blidgeRoot.traverse(n=>{let r=[];n.components.forEach(t=>{if(t.initiator!==`user`)return;let n=t.serialize({mode:`export`}),i=Object.keys(n).length>0,a={name:e.getName(t),uuid:t.uuid};i&&(a.props=n),r.push(a)});let i=this._unresolvedByEntity.get(n.name);i&&r.push(...i),r.length>0&&t.push({name:n.name,components:r})}),t}applyAttachments(e){if(this._unresolvedByEntity.clear(),!this.attachments.length)return;let t=new Map;this.attachments.forEach(e=>t.set(e.name,e)),e.traverse(e=>{let n=t.get(e.name);n&&n.components.forEach(t=>{let n=wr.resources.getComponent(t.name);if(n){e.removeComponent(n.component);let r=e.addComponent(n.component);r.initiator=`user`,r.restoreUUID(t.uuid),t.props&&r.deserialize(t.props)}else{console.warn(`[BLidgeClient] unresolved attachment component "${t.name}" on entity "${e.name}". Preserving data for round-trip.`);let n=this._unresolvedByEntity.get(e.name)||[];n.push({name:t.name,uuid:t.uuid,props:t.props}),this._unresolvedByEntity.set(e.name,n)}})})}async onSyncScene(e){this._attachmentsApplied=!1;let t=new Date().getTime(),n=r=>{let i=this.entities.get(r.name)||this.engine.createEntity();if(r.type==`camera`){let e=r.param;i.userData.cameraParam=e}return i.removeComponent(Gt),i.addComponent(Gt,{blidge:e,node:r}),r.children.forEach(e=>{let t=n(e);i.add(t)}),this.entities.set(i.name,i),i.userData.updateTime=t,i},r=e.root&&n(e.root);r&&(r.name=`blidgeRoot`,this.blidgeRoot&&this.entity&&this.entity.remove(this.blidgeRoot),this.blidgeRoot=r,this.entity&&this.entity.add(this.blidgeRoot)),this.entities.forEach(e=>{if(e.userData.updateTime!=t){let t=e.parent;t&&t.remove(e),e.dispose(),this.entities.delete(e.name)}}),e.gltf&&await e.gltfPrm,this.blidgeRoot&&(this.applyAttachments(this.blidgeRoot),this._attachmentsApplied=!0),this.entity&&(this.entity.noticeEventChilds(`sceneCreated`,[this.blidgeRoot]),this.entity.noticeEventParent(`update/blidge/scene`,[this.blidgeRoot]))}dispose(){super.dispose(),this.blidgeRoot&&=(this.blidgeRoot.disposeRecursive(),this.entity.remove(this.blidgeRoot),null),this._attachmentsApplied=!1,this._unresolvedByEntity.clear()}},Ip=s({Cube:()=>Lp}),Lp=class extends Lt{},Rp=s({Cylinder:()=>zp}),zp=class extends Rt{},Bp=s({Plane:()=>Vp}),Vp=class extends zt{},Hp=s({Sphere:()=>Up}),Up=class extends Bt{},Wp=Sr(Object.assign({"./Components/Camera/CameraController/index.ts":Ep,"./Components/Camera/CameraOrbitAnim/index.ts":Op,"./Components/Camera/CameraShake/index.ts":Ap,"./Components/Camera/LookAt/index.ts":hf,"./Components/Camera/OrbitControls/index.ts":_f,"./Components/Object/ObjectRotate/index.ts":Mp,"./Components/Utility/BLidgeClient/index.ts":Pp}),`Components`),Gp=Sr(Object.assign({"./Geometries/Cube/index.ts":Ip,"./Geometries/Cylinder/index.ts":Rp,"./Geometries/Plane/index.ts":Bp,"./Geometries/Sphere/index.ts":Hp}),`Geometries`),Kp={name:`hash`,resolution:[512,512],filter:`nearest`,updateEveryFrame:!1,frag:`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}\r
+// 宣言順はvert_h.part.glslのoutと一致させる（WGSL変換時にロケーションが宣言順で振られるため）\r
+in vec2 vUv;\r
+in vec3 vViewNormal;\r
+in vec3 vNormal;\r
+in vec3 vMVPosition;\r
+in vec3 vMVPPosition;\r
+in vec3 vPos;\r
+in vec2 vVelocity;\r
+\r
+uniform mat4 uModelMatrix;\r
+uniform mat4 uModelMatrixInverse;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform vec3 uCameraPosition;\r
+uniform vec2 uResolution;\r
+\r
+#ifdef IS_DEPTH\r
+	uniform float uCameraNear;\r
+	uniform float uCameraFar;\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+	layout (location = 3) out vec4 outColor3;\r
+	layout (location = 4) out vec4 outColor4;\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	uniform sampler2D uDeferredTexture;\r
+	uniform vec2 uDeferredResolution;\r
+	uniform sampler2D uGbufferNormal;\r
+	uniform sampler2D uGbufferAlbedo;\r
+	uniform sampler2D uGbufferMaterial;\r
+#endif\r
+\r
+#if defined(IS_FORWARD) || defined(IS_DEPTH)\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;\r
+\r
+// https://www.shadertoy.com/view/4dS3Wd\r
+\r
+float hashv(float p) { p = fract(p * 0.011); p *= p + 7.5; p *= p + p; return fract(p); }\r
+float hashv(vec2 p) {vec3 p3 = fract(vec3(p.xyx) * 0.13); p3 += dot(p3, p3.yzx + 3.333); return fract((p3.x + p3.y) * p3.z); }\r
+\r
+#define NUM_NOISE_OCTAVES 5\r
+\r
+float noiseValue(vec3 x) {\r
+    const vec3 step = vec3(110, 241, 171);\r
+\r
+    vec3 i = floor(x);\r
+    vec3 f = fract(x);\r
+ \r
+    // For performance, compute the base input to a 1D hash from the integer part of the argument and the \r
+    // incremental change to the 1D based on the 3D -> 1D wrapping\r
+    float n = dot(i, step);\r
+\r
+    vec3 u = f * f * (3.0 - 2.0 * f);\r
+    return mix(mix(mix( hashv(n + dot(step, vec3(0, 0, 0))), hashv(n + dot(step, vec3(1, 0, 0))), u.x),\r
+                   mix( hashv(n + dot(step, vec3(0, 1, 0))), hashv(n + dot(step, vec3(1, 1, 0))), u.x), u.y),\r
+               mix(mix( hashv(n + dot(step, vec3(0, 0, 1))), hashv(n + dot(step, vec3(1, 0, 1))), u.x),\r
+                   mix( hashv(n + dot(step, vec3(0, 1, 1))), hashv(n + dot(step, vec3(1, 1, 1))), u.x), u.y), u.z);\r
+}\r
+\r
+float fbm(vec3 x) {\r
+	float v = 0.0;\r
+	float a = 0.5;\r
+	vec3 shift = vec3(100);\r
+	for (int i = 0; i < NUM_NOISE_OCTAVES; ++i) {\r
+		v += a * noiseValue(x);\r
+		x = x * 2.0 + shift;\r
+		a *= 0.5;\r
+    if( i == -1 ) break;\r
+	}\r
+	return v;\r
+}\r
+\r
+float fbm(float x) {\r
+  return fbm(vec3(x));\r
+}\r
+\r
+layout (location = 0) out vec4 outColor;\r
+\r
+void main( void ) {\r
+\r
+	vec2 uv = vUv * 400.0;\r
+\r
+	outColor.x = hashv( uv );\r
+	outColor.y = hashv( uv  + 1.0);\r
+	outColor.z = hashv( uv + 2.0 );\r
+	outColor.w = hashv( uv + 3.0 );\r
+\r
+} `},qp={name:`noise`,resolution:[1024,1024],filter:`linear`,updateEveryFrame:!0,frag:`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}\r
+// 宣言順はvert_h.part.glslのoutと一致させる（WGSL変換時にロケーションが宣言順で振られるため）\r
+in vec2 vUv;\r
+in vec3 vViewNormal;\r
+in vec3 vNormal;\r
+in vec3 vMVPosition;\r
+in vec3 vMVPPosition;\r
+in vec3 vPos;\r
+in vec2 vVelocity;\r
+\r
+uniform mat4 uModelMatrix;\r
+uniform mat4 uModelMatrixInverse;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform vec3 uCameraPosition;\r
+uniform vec2 uResolution;\r
+\r
+#ifdef IS_DEPTH\r
+	uniform float uCameraNear;\r
+	uniform float uCameraFar;\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+	layout (location = 3) out vec4 outColor3;\r
+	layout (location = 4) out vec4 outColor4;\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	uniform sampler2D uDeferredTexture;\r
+	uniform vec2 uDeferredResolution;\r
+	uniform sampler2D uGbufferNormal;\r
+	uniform sampler2D uGbufferAlbedo;\r
+	uniform sampler2D uGbufferMaterial;\r
+#endif\r
+\r
+#if defined(IS_FORWARD) || defined(IS_DEPTH)\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;\r
+\r
+// https://www.shadertoy.com/view/4dS3Wd\r
+\r
+float hashv(float p) { p = fract(p * 0.011); p *= p + 7.5; p *= p + p; return fract(p); }\r
+float hashv(vec2 p) {vec3 p3 = fract(vec3(p.xyx) * 0.13); p3 += dot(p3, p3.yzx + 3.333); return fract((p3.x + p3.y) * p3.z); }\r
+\r
+#define NUM_NOISE_OCTAVES 5\r
+\r
+float noiseValue(vec3 x) {\r
+    const vec3 step = vec3(110, 241, 171);\r
+\r
+    vec3 i = floor(x);\r
+    vec3 f = fract(x);\r
+ \r
+    // For performance, compute the base input to a 1D hash from the integer part of the argument and the \r
+    // incremental change to the 1D based on the 3D -> 1D wrapping\r
+    float n = dot(i, step);\r
+\r
+    vec3 u = f * f * (3.0 - 2.0 * f);\r
+    return mix(mix(mix( hashv(n + dot(step, vec3(0, 0, 0))), hashv(n + dot(step, vec3(1, 0, 0))), u.x),\r
+                   mix( hashv(n + dot(step, vec3(0, 1, 0))), hashv(n + dot(step, vec3(1, 1, 0))), u.x), u.y),\r
+               mix(mix( hashv(n + dot(step, vec3(0, 0, 1))), hashv(n + dot(step, vec3(1, 0, 1))), u.x),\r
+                   mix( hashv(n + dot(step, vec3(0, 1, 1))), hashv(n + dot(step, vec3(1, 1, 1))), u.x), u.y), u.z);\r
+}\r
+\r
+float fbm(vec3 x) {\r
+	float v = 0.0;\r
+	float a = 0.5;\r
+	vec3 shift = vec3(100);\r
+	for (int i = 0; i < NUM_NOISE_OCTAVES; ++i) {\r
+		v += a * noiseValue(x);\r
+		x = x * 2.0 + shift;\r
+		a *= 0.5;\r
+    if( i == -1 ) break;\r
+	}\r
+	return v;\r
+}\r
+\r
+float fbm(float x) {\r
+  return fbm(vec3(x));\r
+}\r
+\r
+layout (location = 0) out vec4 outColor;\r
+\r
+void main( void ) {\r
+\r
+	vec2 v = vUv * 15.0;\r
+	vec2 lv = abs( vUv - 0.5 ) * 15.0;\r
+	float lw = sin( vUv.x * PI ) * sin( vUv.y * PI );\r
+\r
+	outColor.x += mix( fbm( vec3( lv, 0.0 ) ), fbm( vec3( v, 0.0 ) ), lw );\r
+	outColor.y += mix( fbm( vec3( lv, 100.0 ) ), fbm( vec3( v, 100.0 ) ), lw );\r
+	outColor.z += mix( fbm( vec3( lv, 200.0 ) ), fbm( vec3( v, 200.0 ) ), lw );\r
+	outColor.w += mix( fbm( vec3( lv, 300.0 ) ), fbm( vec3( v, 300.0 ) ), lw );\r
+\r
+} `},Jp=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}\r
+\r
+// https://www.shadertoy.com/view/3tcyD7\r
+\r
+vec3 noiseCyc( vec3 p ){\r
+\r
+  vec4 n = vec4(0);\r
+  float a=1.0;\r
+\r
+  for( int i = 0; i < 8; i++ ){\r
+    p += sin( p.zxy );\r
+    n += vec4(cross(sin(p.xyz), cos(p.yzx)), 1.0) * a;\r
+    a *= 0.6;\r
+    p *= 1.5;\r
+  }\r
+\r
+  n.xyz /= n.w;\r
+\r
+  return n.xyz;\r
+\r
+}\r
+\r
+layout (location = 0) out vec4 outColor;\r
+in vec2 vUv;\r
+uniform float uTimeE;\r
+\r
+void main( void ) {\r
+\r
+	vec3 n = noiseCyc( vec3( vUv * 3.0, uTimeE * 0.5 ) );\r
+	outColor.xyz = n;\r
+\r
+} `,Yp=Object.assign({"../../demo-webgl/Resources/Textures/hash.tex":Kp,"../../demo-webgl/Resources/Textures/noise.tex":qp,"../../demo-webgl/Resources/Textures/noiseCyclic.tex":{name:`noiseCyclic`,resolution:[1024,1024],filter:`linear`,updateEveryFrame:!1,frag:Jp},"../../demo-webgl/Resources/Textures/noiseCyclicAnime.tex":{name:`noiseCyclicAnime`,resolution:[512,512],filter:`linear`,updateEveryFrame:!0,frag:Jp}}),Xp=()=>{for(let e of Object.values(Yp))e&&wr.resources.addTextureResource(e.name,{frag:e.frag,resolution:e.resolution||[1024,1024],filter:e.filter,updateEveryFrame:e.updateEveryFrame,textures:e.textures})},Zp=e=>{wr.resources.buildTextureInstances(e.renderer,e.uniforms)},Qp=Object.assign({"../../demo-webgl/Resources/Components/Samples/Effects/EyeRings/index.ts":Hf,"../../demo-webgl/Resources/Components/Samples/Effects/FlashLine/index.ts":Kf,"../../demo-webgl/Resources/Components/Samples/Environment/SkyBox/index.ts":Yf,"../../demo-webgl/Resources/Components/Samples/Geometry/GridCross/index.ts":$f,"../../demo-webgl/Resources/Components/Samples/Geometry/GridDots/index.ts":rp,"../../demo-webgl/Resources/Components/Samples/Geometry/WireCube/index.ts":sp,"../../demo-webgl/Resources/Components/Samples/Objects/OREngineCube/index.ts":dp,"../../demo-webgl/Resources/Components/Samples/Objects/OREngineLogo/index.ts":hp,"../../demo-webgl/Resources/Components/Samples/Particles/Dust/index.ts":yp,"../../demo-webgl/Resources/Components/Samples/Particles/YakiSoba/index.ts":wp}),$p=Object.assign({}),em=(e,t)=>{let n=Object.keys(e);for(let r=0;r<n.length;r++){let i=n[r],a=e[i];typeof a==`function`?t.addComponent(i,a):em(a,t.createGroup(i))}},tm=(e,t)=>{let n=Object.keys(e);for(let r=0;r<n.length;r++){let i=n[r],a=e[i];typeof a==`function`?t.addGeometry(i,a):tm(a,t.createGroup(i))}};document.title=`demo-webgl`,(()=>{Pt.gltfLoaderFactory=e=>new cr(e),wr.resources.clear();let e=wr.resources.addComponentGroup(`_Built-in`);e.addComponent(`Light`,Ut),e.addComponent(`Camera`,Vt),e.addComponent(`Mesh`,P);let t=Object.keys(Wp);for(let e=0;e<t.length;e++){let n=t[e],r=Wp[n];em(r,wr.resources.addComponentGroup(n))}let n=Object.keys(Gp);for(let e=0;e<n.length;e++){let t=n[e],r=Gp[t];tm(r,wr.resources.addGeometryGroup(t))}let r=Sr(Qp,`Components`),i=Object.keys(r);for(let e=0;e<i.length;e++){let t=i[e],n=r[t];em(n,wr.resources.addComponentGroup(t))}let a=Sr($p,`Geometries`),o=Object.keys(a);for(let e=0;e<o.length;e++){let t=o[e],n=a[t];tm(n,wr.resources.addGeometryGroup(t))}Xp()})(),_.createRoot(document.getElementById(`root`)).render((0,T.jsx)(zf,{projectName:`demo-webgl`,sceneData:y,editorData:v,initResourceInstances:Zp}));
