@@ -50,6 +50,13 @@ type ViewportSettings = {
 	cameraTarget: number[] | null;
 };
 
+// 別ウィンドウに出す本番見た目のビュー。シーンカメラ固定で重ね描きもポインタ入力も無いので Viewport にはしない
+type ExternalWindow = {
+	window: Window;
+	canvas: HTMLCanvasElement;
+	view: MXP.RenderViewContract;
+};
+
 export class Editor extends MXP.Serializable {
 
 	private _engine: Engine;
@@ -65,8 +72,7 @@ export class Editor extends MXP.Serializable {
 	private _baseResolution: MTP.Vector;
 	private _viewType: "render" | "debug";
 	private _assetPreviewManager: AssetPreviewManager;
-	private _externalWindow: Window | null;
-	private _externalCanvasBitmapContext: ImageBitmapRenderingContext | null;
+	private _externalWindow: ExternalWindow | null;
 	private _modalStatus: string | null;
 	private _panelLayout: MXP.SerializeFieldValue;
 
@@ -107,7 +113,6 @@ export class Editor extends MXP.Serializable {
 		this._enableRender = true;
 		this._baseResolution = new MTP.Vector( 1920, 1080 );
 		this._externalWindow = null;
-		this._externalCanvasBitmapContext = null;
 		this._modalStatus = null;
 		this._panelLayout = null;
 		this._disposed = false;
@@ -704,15 +709,17 @@ export class Editor extends MXP.Serializable {
 
 			}
 
-			if ( this._externalCanvasBitmapContext ) {
+			const external = this._externalWindow;
 
-				const context = this._externalCanvasBitmapContext;
+			if ( external ) {
 
-				createImageBitmap( this.engine.canvas ).then( bitmap => {
+				if ( this._enableRender ) {
 
-					context.transferFromImageBitmap( bitmap );
+					this._engine.render( external.view );
 
-				} );
+				}
+
+				this._draw.drawToCanvas( external.view, external.canvas );
 
 			}
 
@@ -942,24 +949,37 @@ export class Editor extends MXP.Serializable {
 		External Window
 	-------------------------------*/
 
+	// シーンカメラの本番見た目を別ウィンドウに出す。すでに開いていればそのウィンドウを前に出すだけ
 	public openInExternalWindow() {
 
-		this._externalWindow = window.open( "", "_blank" );
+		if ( this._externalWindow ) {
 
-		if ( ! this._externalWindow ) return;
+			this._externalWindow.window.focus();
 
-		const mirrorCanvas = this._externalWindow.document.createElement( "canvas" );
-		mirrorCanvas.style.width = "100%";
-		mirrorCanvas.style.height = "100%";
-		mirrorCanvas.style.objectFit = "contain";
-		mirrorCanvas.style.cursor = "none";
+			return;
 
-		this._externalWindow.document.body.style.margin = "0";
-		this._externalWindow.document.body.style.background = "#000";
-		this._externalWindow.document.body.appendChild( mirrorCanvas );
-		this._externalCanvasBitmapContext = mirrorCanvas.getContext( "bitmaprenderer" );
+		}
 
-		this._externalWindow.addEventListener( "unload", () => {
+		const win = window.open( "", "_blank" );
+
+		if ( ! win ) return;
+
+		const canvas = win.document.createElement( "canvas" );
+		canvas.style.width = "100%";
+		canvas.style.height = "100%";
+		canvas.style.objectFit = "contain";
+		canvas.style.cursor = "none";
+
+		win.document.body.style.margin = "0";
+		win.document.body.style.background = "#000";
+		win.document.body.appendChild( canvas );
+
+		// camera 未指定＝シーンカメラ、override 無し＝本番パイプライン
+		const view = this._engine.createView( { offscreen: true } );
+
+		this._externalWindow = { window: win, canvas, view };
+
+		win.addEventListener( "unload", () => {
 
 			this.closeExternalWindow();
 
@@ -971,13 +991,14 @@ export class Editor extends MXP.Serializable {
 
 	public closeExternalWindow() {
 
-		if ( this._externalWindow ) {
+		const external = this._externalWindow;
 
-			this._externalWindow.close();
-			this._externalWindow = null;
-			this._externalCanvasBitmapContext = null;
+		if ( ! external ) return;
 
-		}
+		this._externalWindow = null;
+
+		external.view.dispose();
+		external.window.close();
 
 	}
 
@@ -999,10 +1020,11 @@ export class Editor extends MXP.Serializable {
 
 		}
 
-		if ( this._externalCanvasBitmapContext ) {
+		if ( this._externalWindow ) {
 
-			this._externalCanvasBitmapContext.canvas.width = resolution.x;
-			this._externalCanvasBitmapContext.canvas.height = resolution.y;
+			// drawToCanvas は等倍で写すので、表示 canvas の画素数は描画解像度と一致させる
+			this._externalWindow.canvas.width = resolution.x;
+			this._externalWindow.canvas.height = resolution.y;
 
 		}
 
@@ -1019,6 +1041,7 @@ export class Editor extends MXP.Serializable {
 		this._keyboardHandler.dispose();
 		this._modalTransformHandler.dispose();
 		this._assetPreviewManager.dispose();
+		this.closeExternalWindow();
 
 		// dispose で配列から抜けるので複製を回す
 		for ( const viewport of [ ...this._viewports ] ) {
