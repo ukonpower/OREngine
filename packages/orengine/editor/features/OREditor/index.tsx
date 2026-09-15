@@ -24,9 +24,11 @@ import { Screen, VIEWPORT_PANEL_ID } from './features/Screen';
 import { Textures } from './features/Textures';
 import { Timeline } from './features/Timeline';
 import style from './index.module.scss';
-import { OREditorProvider, OREditorSaveCallback } from './providers/OREditorProvider';
+import { OREditorProvider, OREditorSaveCallback, SceneSelection } from './providers/OREditorProvider';
 
 import type { PanelDefinition } from './features/PanelLayout';
+
+export type { SceneSelection } from './providers/OREditorProvider';
 
 export type PanelSlot = "leftTop" | "leftBottom" | "mainBottom" | "rightTop" | "footer";
 
@@ -66,7 +68,7 @@ const builtinPanels: PanelDefinition[] = [
 	{ id: "timeline", title: "Timeline", content: <Panel noPadding><Timeline /></Panel> },
 ];
 
-export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP.SerializeField, projectName?: string, customTabs?: EditorCustomTabs }> = ( props ) => {
+export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP.SerializeField, projectName?: string, customTabs?: EditorCustomTabs, scenes?: SceneSelection }> = ( props ) => {
 
 	const layout = useLayout();
 
@@ -151,7 +153,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 
 	}
 
-	return <OREditorProvider projectName={props.projectName} onSave={props.onSave} editorData={props.editorData}>
+	return <OREditorProvider projectName={props.projectName} onSave={props.onSave} editorData={props.editorData} scenes={props.scenes}>
 		<MouseMenuProvider>
 			<InputWindowProvider>
 				<div className={style.editor}>

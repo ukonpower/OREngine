@@ -7,8 +7,15 @@
 	}
 }
 
-.projectSelector {
+.scene {
+	display: flex;
+	align-items: center;
+	margin-bottom: 4px;
+}
+
+.sceneSelect {
 	flex: 1;
+	margin-right: 4px;
 }
 
 .row {
