@@ -38,6 +38,13 @@ const resolveProject = () => {
 
 };
 
+// ORENGINE_SCENE から @or-scene が指すシーンを決める（未指定なら host 側の既定 main）
+const resolveScene = () => {
+
+	return process.env.ORENGINE_SCENE || undefined;
+
+};
+
 // ORENGINE_RENDERER からレンダラーバックエンドを決める
 const resolveRenderer = () => {
 
@@ -67,28 +74,35 @@ if ( ! cmd ) {
 
 const { projectName, projectDir } = resolveProject();
 const renderer = resolveRenderer();
+const scene = resolveScene();
 ensureProjectExists( projectDir, projectName );
 
 const { runDev, runBuildPlayer, runBuildStatic } = await import( '../host/index.ts' );
 
 console.log( `[orengine] project = ${projectName}` );
 
+if ( scene ) {
+
+	console.log( `[orengine] scene = ${scene}` );
+
+}
+
 if ( cmd === 'dev' ) {
 
 	console.log( `[orengine] renderer = ${renderer}` );
 
-	await runDev( { projectDir, renderer } );
+	await runDev( { projectDir, renderer, scene } );
 
 } else if ( cmd === 'player:build' ) {
 
 	console.log( `[orengine] renderer = ${renderer}` );
 
-	await runBuildPlayer( { projectDir, renderer } );
+	await runBuildPlayer( { projectDir, renderer, scene } );
 
 } else if ( cmd === 'editor:build' ) {
 
 	// CI等でサブパス配下（例: GitHub Pages の /OREngine/）へ配置するときは BASE_PATH で指定する
-	await runBuildStatic( { projectDir, basePath: process.env.BASE_PATH } );
+	await runBuildStatic( { projectDir, scene, basePath: process.env.BASE_PATH } );
 
 } else {
 
