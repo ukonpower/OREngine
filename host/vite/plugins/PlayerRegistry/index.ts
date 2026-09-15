@@ -75,7 +75,7 @@ const buildComponentMap = ( dirs: string[] ): Map<string, string> => {
 
 };
 
-// scene.json の使用状況(usage)から、使用コンポーネントだけを静的importするレジストリモジュールのソースを組み立てる
+// シーンファイルの使用状況(usage)から、使用コンポーネントだけを静的importするレジストリモジュールのソースを組み立てる
 const generateRegistryCode = ( opts: PlayerRegistryOptions ): string => {
 
 	const { usage, projectDir } = opts;
@@ -92,7 +92,7 @@ const generateRegistryCode = ( opts: PlayerRegistryOptions ): string => {
 
 	if ( unresolved.length > 0 ) {
 
-		throw new Error( `[PlayerRegistry] component "${unresolved[ 0 ]}" (scene.json) not found in builtin/project Components` );
+		throw new Error( `[PlayerRegistry] component "${unresolved[ 0 ]}" (scene) not found in builtin/project Components` );
 
 	}
 
@@ -145,7 +145,7 @@ export { initResourceInstances };
 
 };
 
-// playerビルド時、registry.ts の解決結果を横取りして「scene.json の使用コンポーネントだけを静的importする」生成モジュールに差し替える
+// playerビルド時、registry.ts の解決結果を横取りして「シーンファイルの使用コンポーネントだけを静的importする」生成モジュールに差し替える
 // dev/static は resolveId 対象外のまま registry.ts を素通しするため、editor 用の全量登録は変更されない
 export const PlayerRegistry = ( opts: PlayerRegistryOptions ): Plugin => ( {
 

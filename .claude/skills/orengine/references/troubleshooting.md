@@ -13,20 +13,20 @@
 2. 起動完了まで待つ（通常数秒）
 3. `curl -sf http://localhost:3001/api/projects/_/scene` で疎通確認（プロジェクト名部分は無視されるので任意の文字列でよい）
 
-## scene.json / editor.json を編集しても反映されない
+## scenes/<name>.json / editor.json を編集しても反映されない
 
 **症状**: ファイルを保存したのにブラウザ側の表示が変わらない。
 
 **原因候補**:
 1. devサーバーが起動していない、または対象プロジェクトを開いていない
-2. `host/vite/plugins/ProjectWatchReload/index.ts` の watch 対象は `<projectDir>/scene.json` と `<projectDir>/editor.json` のみ。パスが対象プロジェクトのものと一致しているか確認
+2. `host/vite/plugins/ProjectWatchReload/index.ts` の watch 対象は `<projectDir>/scenes/` 配下の `.json` と `<projectDir>/editor.json` のみ。パスが対象プロジェクトのものと一致しているか確認
 3. 直近の API 書き込み（`recentWrites`）と判定されて抑制されている場合があるが、これは同一プロセス内のエディタ自身の保存（Ctrl+S）にのみ適用される。ファイル編集ツールでの書き込みは対象外なので通常は full-reload される
 
 **対処**: vite のログに `full-reload` 相当の出力が出ているか確認する。出ていなければサーバーの再起動（`npm run dev` を再実行）を検討する。
 
 ## JSON構文エラー
 
-**症状**: scene.json / editor.json / `.tex` を編集後、シーンが一切読み込まれなくなった。
+**症状**: scenes/<name>.json / editor.json / `.tex` を編集後、シーンが一切読み込まれなくなった。
 
 **原因**: JSON構文が壊れている（末尾カンマ、閉じ括弧不足等）。
 
@@ -34,7 +34,7 @@
 
 ## コンポーネント名が見つからない / 反映されない
 
-**症状**: scene.json に `components` を追加したのにシーンに反映されない。
+**症状**: scenes/<name>.json に `components` を追加したのにシーンに反映されない。
 
 **対処**:
 1. `export class` 名で実在確認: `grep -r "export class" packages/orengine/builtin/Components/`（ビルトイン）/ `grep -r "export class" <projectDir>/Resources/Components/`（プロジェクト固有）
@@ -46,7 +46,7 @@
 
 ## props（field）が反映されない
 
-**症状**: scene.json のコンポーネント `props` に値を書いたのに実際の値が変わらない。
+**症状**: scenes/<name>.json のコンポーネント `props` に値を書いたのに実際の値が変わらない。
 
 **原因**: `Serializable.deserialize()` は `fields_` Map に存在しない path を silent skip する。
 
@@ -81,6 +81,6 @@
 
 以下の状況では、現在のアプローチを見直す:
 
-- **同じ修正を3回連続で試して改善しない**: scene.json / コンポーネント実装のどちらが原因か切り分ける（コンポーネント単体の field 登録を先に確認）
+- **同じ修正を3回連続で試して改善しない**: scenes/<name>.json / コンポーネント実装のどちらが原因か切り分ける（コンポーネント単体の field 登録を先に確認）
 - **コンポーネント名 / UUID が見つからない**: 自動生成ファイルとシーン木構造を再確認。別のエンティティ/コンポーネントを操作対象にしていないか確認
 - **TypeScript型エラーが解消しない**: 既存コンポーネントのコードを参照して正しいパターンを確認

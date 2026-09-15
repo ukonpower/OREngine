@@ -2,7 +2,7 @@
 name: orengine
 description: >
   OREngineの3Dシーン構築・コンポーネント開発・シェーダー作成を行うワークフロースキル。
-  シーンは scene.json をファイルとして直接編集し、devサーバー起動中は保存と同時に
+  シーンは scenes/<name>.json をファイルとして直接編集し、devサーバー起動中は保存と同時に
   ブラウザが自動リロードされる。見た目のあるオブジェクトはカスタムコンポーネント内で
   Geometry + Material + Mesh を組み立てる。
   Use when user asks to "シーンを作って", "エンティティを追加", "オブジェクトを配置",
@@ -22,7 +22,7 @@ metadata:
 
 OREngineのシーン構築・コンポーネント開発を行うスキル。
 
-- **シーン編集は `<projectDir>/scene.json` の直接編集**（REST APIは存在しない）
+- **シーン編集は `<projectDir>/scenes/<name>.json` の直接編集**（REST APIは存在しない）
 - **見た目を持つオブジェクトはコンポーネントで作る**（Geometry / Material / Mesh をコンポーネントのコンストラクタで生成）
 - **マテリアル / シェーダーを作る独立 API は存在しない**（`.mat` ファイルは廃止）
 - **見た目の確認は agent-browser スキル**で行う（専用の観測APIは存在しない）
@@ -31,14 +31,14 @@ OREngineのシーン構築・コンポーネント開発を行うスキル。
 
 | やりたいこと | フロー |
 |---|---|
-| シーンに何かを置く / 並べる / 動かす | Flow 1: scene.json 直接編集 |
+| シーンに何かを置く / 並べる / 動かす | Flow 1: scenes/<name>.json 直接編集 |
 | 見た目のあるオブジェクト（カスタム形状 / シェーダー付き） | Flow 2: コンポーネント開発 |
 | GLSL シェーダーを書く | Flow 3: シェーダー編集 |
 | 結果を目で確認する | Flow 4: agent-browser でスクリーンショット |
 | 動かない・表示されない | `references/troubleshooting.md` |
 
 参考リファレンス:
-- scene.json スキーマ: `references/scene-schema.md`
+- scenes/<name>.json スキーマ: `references/scene-schema.md`
 - テクスチャ（`.tex`）スキーマ: `references/texture-schema.md`
 - ビルトインコンポーネント一覧: `references/components-catalog.md`
 - コンポーネント開発ガイド: `references/component-development.md`
@@ -49,7 +49,7 @@ OREngineのシーン構築・コンポーネント開発を行うスキル。
 
 ```bash
 # シーン現状の確認
-cat <projectDir>/scene.json
+cat <projectDir>/scenes/<name>.json
 
 # 実在するコンポーネント名の確認（ビルトイン / プロジェクト固有）
 # 登録名は各 index.ts の export クラス名（通常はディレクトリ名と一致）
@@ -57,13 +57,13 @@ grep -r "export class" packages/orengine/builtin/Components/
 grep -r "export class" <projectDir>/Resources/Components/
 ```
 
-エンティティの UUID・既存コンポーネント・**実在するコンポーネント名**を把握してから編集する。実在しないコンポーネント名を `scene.json` に書いてもエラーにはならず、静かに無視される（`references/troubleshooting.md` 参照）。
+エンティティの UUID・既存コンポーネント・**実在するコンポーネント名**を把握してから編集する。実在しないコンポーネント名を `scenes/<name>.json` に書いてもエラーにはならず、静かに無視される（`references/troubleshooting.md` 参照）。
 
-## Flow 1: シーン編集（scene.json 直接編集）
+## Flow 1: シーン編集（scenes/<name>.json 直接編集）
 
-エンティティ・コンポーネント・トランスフォームの操作はすべて `<projectDir>/scene.json` を Read → Edit/Write で行う。スキーマは `references/scene-schema.md` を参照。
+エンティティ・コンポーネント・トランスフォームの操作はすべて `<projectDir>/scenes/<name>.json` を Read → Edit/Write で行う。スキーマは `references/scene-schema.md` を参照。
 
-1. `Read <projectDir>/scene.json` で現状を把握
+1. `Read <projectDir>/scenes/<name>.json` で現状を把握
 2. 追加・変更したいエンティティ/コンポーネントを JSON として組み立てる（UUIDは v4 で新規生成。ルートエンティティのみ `"0"` 固定）
 3. `Edit` または `Write` で保存
 4. devサーバー起動中ならブラウザが自動で full-reload される（API呼び出し不要）
@@ -72,7 +72,7 @@ grep -r "export class" <projectDir>/Resources/Components/
 
 ## Flow 2: コンポーネント開発（見た目のあるオブジェクト）
 
-**見た目のあるオブジェクトは、対応するカスタムコンポーネントを 1 つ作るのが基本。** Mesh / Geometry / Material は scene.json の `props` では作れず、コンポーネントのコンストラクタ内で生成して `addComponent(MXP.Mesh, { geometry, material })` で組み込む。
+**見た目のあるオブジェクトは、対応するカスタムコンポーネントを 1 つ作るのが基本。** Mesh / Geometry / Material は scenes/<name>.json の `props` では作れず、コンポーネントのコンストラクタ内で生成して `addComponent(MXP.Mesh, { geometry, material })` で組み込む。
 
 ### ファイル配置
 
@@ -131,7 +131,7 @@ export class MyBox extends MXP.Component {
 1. `index.ts` を作成（必要なら `index.vs` / `index.fs` も）
 2. `npm run typecheck` でエラーがないか確認
 3. devサーバー起動中なら Vite がファイル追加を検知して自動で登録・リロードする
-4. scene.json にエンティティ・`{ "name": "MyBox", "uuid": "..." }` を追加
+4. scenes/<name>.json にエンティティ・`{ "name": "MyBox", "uuid": "..." }` を追加
 
 詳細パターン（制御コンポーネント・データコンポーネント・ライフサイクル・HMR）は `references/component-development.md`。
 
@@ -156,7 +156,7 @@ GLSL は通常コンポーネントと同じディレクトリに `.vs` / `.fs` 
 
 1. devサーバーが起動していることを確認（`http://localhost:<vite-port>` にエディタページがある）
 2. agent-browser スキルでページを開く
-3. カメラ位置を確認したい場合はエディタ UI 上でマウス操作するか、scene.json 内のカメラエンティティの `pos`/`rot` を調整する
+3. カメラ位置を確認したい場合はエディタ UI 上でマウス操作するか、scenes/<name>.json 内のカメラエンティティの `pos`/`rot` を調整する
 4. スクリーンショットを撮って確認する
 
 アニメーションがある場合はタイムラインUIを操作して複数時点を撮る（専用APIは無い）。
@@ -204,7 +204,7 @@ export class CubeMesh extends MXP.Component {
 
 2. `npm run typecheck` でエラーがないことを確認（登録は Vite の glob が自動で行う）
 
-3. `<projectDir>/scene.json` に Cube + Light + Camera を追加（Read → Edit）:
+3. `<projectDir>/scenes/<name>.json` に Cube + Light + Camera を追加（Read → Edit）:
 
 ```json
 {
@@ -235,7 +235,7 @@ export class CubeMesh extends MXP.Component {
 
 ### Example 1: ライトとカメラだけのシーン
 
-1. `Read <projectDir>/scene.json` で現状確認
+1. `Read <projectDir>/scenes/<name>.json` で現状確認
 2. Camera エンティティと Light エンティティを追記
 3. Edit/Write で保存 → 自動 full-reload
 4. agent-browser でスクリーンショット
@@ -245,7 +245,7 @@ export class CubeMesh extends MXP.Component {
 1. `<projectDir>/Resources/Components/Object/RedSphere/index.ts` を作成
    - `new MXP.SphereGeometry()` + `new MXP.Material({ ... })` を内部で生成して `addComponent(MXP.Mesh, ...)`
 2. `npm run typecheck`
-3. scene.json にエンティティ + `RedSphere` コンポーネントを追加
+3. scenes/<name>.json にエンティティ + `RedSphere` コンポーネントを追加
 4. agent-browser でスクリーンショット確認
 
 ### Example 3: カスタムシェーダーで動くオブジェクト
@@ -258,7 +258,7 @@ export class CubeMesh extends MXP.Component {
 
 ## Guardrails
 
-- **REST APIは存在しない**。すべてファイル（scene.json / editor.json / コンポーネントファイル / `.tex`）の直接編集で完結する
+- **REST APIは存在しない**。すべてファイル（scenes/<name>.json / editor.json / コンポーネントファイル / `.tex`）の直接編集で完結する
 - **マテリアル / シェーダーを作る独立 API はない**。`.mat` ファイルも存在しない。Material はコンポーネント内で `new MXP.Material(...)` する
 - **見た目のあるオブジェクト = カスタムコンポーネント**を基本とする
 - **未知のコンポーネント名は silent fail**（エラーにならず描画もされない）。`Resources/Components/` / `builtin/Components/` の `export class` 名で実在確認すること
@@ -273,9 +273,9 @@ export class CubeMesh extends MXP.Component {
 | 症状 | 対処 |
 |---|---|
 | `ECONNREFUSED` (devサーバー疎通確認時) | ユーザーに `npm run dev` の起動を依頼、または明示的な指示があれば起動する |
-| scene.json 編集がブラウザに反映されない | vite ログの full-reload 出力を確認。`references/troubleshooting.md` |
+| scenes/<name>.json 編集がブラウザに反映されない | vite ログの full-reload 出力を確認。`references/troubleshooting.md` |
 | コンポーネントが一覧に出ない | TypeScript/Viteのtransformエラーが無いか確認（importが壊れたコンポーネントは登録されない） |
 | props を設定したのに反映されない | コンポーネント実装の `field()` 登録パスを確認。**未知の path は silent skip** |
-| scene.json の JSON構文エラー | `python3 -m json.tool <file>` で検証。壊れたら `git checkout -- <file>` |
+| scenes/<name>.json の JSON構文エラー | `python3 -m json.tool <file>` で検証。壊れたら `git checkout -- <file>` |
 
 詳細は `references/troubleshooting.md`。

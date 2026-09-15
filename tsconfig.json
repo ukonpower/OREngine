@@ -71,7 +71,7 @@
         "./.storybook/*"
       ],
       "@or-scene": [
-        "./demo-webgl/scene.json"
+        "./demo-webgl/scenes/main.json"
       ],
       "@or-editor": [
         "./demo-webgl/editor.json"
