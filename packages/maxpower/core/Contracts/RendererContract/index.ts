@@ -27,6 +27,11 @@ export interface RendererContract extends Serializable {
 
 	resize( resolution: MTP.Vector ): void;
 
+	// シーンを捨てて別のシーンを読む前に、生成直後の状態へ戻す。
+	// シーン側から差し替えられた所有物（空のマテリアル等）と scene.json 由来の設定を既定値へ戻し、
+	// 捨てたシーンのオブジェクトに紐づく GPU 資源のキャッシュを解放する
+	reset(): void;
+
 	// .tex（プロシージャルテクスチャ）をバックエンド固有の実装で組み立てる
 	createTexProcedural( param: TexProceduralParam ): TexProceduralContract;
 

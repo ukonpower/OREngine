@@ -101,6 +101,16 @@ type GeometryBufferRecord = {
 	version: number,
 }
 
+// scene.json に renderer/pipeline が無いときの値。reset でもここへ戻る
+const createDefaultPipelineConfig = (): PipelineConfig => ( {
+	motionBlur: true,
+	motionBlurPower: 1.0,
+	ssr: true,
+	ssao: true,
+	lightShaft: true,
+	dof: true,
+} );
+
 // default material
 
 // mesh.materialはバックエンド不透明型なので、webgl側でMaterialへ絞る（未設定時は既定マテリアル）
@@ -190,9 +200,10 @@ export class Renderer extends Serializable implements RendererContract {
 	private _stack: RenderStack;
 	private _sceneCamera: Entity | null;
 
-	// sky
+	// sky（reset で作り直すため engine を保持する）
 
 	public sky: Sky;
+	private _engine: EngineContract;
 
 	// quad
 
@@ -310,18 +321,12 @@ export class Renderer extends Serializable implements RendererContract {
 
 		// sky
 
+		this._engine = engine;
 		this.sky = new Sky( engine );
 
 		// pipeline config
 
-		this._pipelineConfig = {
-			motionBlur: true,
-			motionBlurPower: 1.0,
-			ssr: true,
-			ssao: true,
-			lightShaft: true,
-			dof: true,
-		};
+		this._pipelineConfig = createDefaultPipelineConfig();
 
 		// sky fields
 
@@ -359,9 +364,11 @@ export class Renderer extends Serializable implements RendererContract {
 
 		skyDir.field( "reset", () => () => {
 
-			this.setField( "sky/skyColor", [ 1.0, 1.0, 1.0 ] );
-			this.setField( "sky/groundColor", [ 0.3, 0.3, 0.3 ] );
-			this.setField( "sky/intensity", 1.0 );
+			this._resetSky();
+
+			this.noticeField( "sky/skyColor" );
+			this.noticeField( "sky/groundColor" );
+			this.noticeField( "sky/intensity" );
 
 		}, undefined, { label: "Reset to Default" } );
 
@@ -1265,6 +1272,43 @@ export class Renderer extends Serializable implements RendererContract {
 			this._views[ i ].resize( resolution );
 
 		}
+
+	}
+
+	// 空は値を書き戻すのではなく作り直す。既定値が Sky のコンストラクタ一箇所に集まり、
+	// シーン側のコンポーネントが差し替えたマテリアルも一緒に外れる
+	private _resetSky() {
+
+		this.sky.entity.disposeRecursive();
+		this.sky = new Sky( this._engine );
+
+	}
+
+	// シーンを丸ごと捨てる前提なので、生き残るジオメトリ（空・ギズモ等）の分も含めて
+	// キャッシュを全部解放する。version 不一致で次の描画時に作り直される
+	public reset() {
+
+		this._resetSky();
+		this.applyPipelineConfig( createDefaultPipelineConfig() );
+
+		this._geometryBuffers.forEach( ( record ) => {
+
+			record.buffers.forEach( ( buffer ) => buffer.dispose() );
+
+		} );
+
+		this._geometryBuffers.clear();
+
+		this._lightInfoCache.forEach( ( info ) => {
+
+			if ( ! info.renderTarget ) return;
+
+			info.renderTarget.textures.forEach( ( texture ) => texture.dispose() );
+			info.renderTarget.dispose();
+
+		} );
+
+		this._lightInfoCache.clear();
 
 	}
 

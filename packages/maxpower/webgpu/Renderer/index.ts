@@ -120,6 +120,20 @@ type ObjectResource = {
 	bindGroup: GPUBindGroup;
 }
 
+// scene.json に renderer/pipeline が無いときの値。reset でもここへ戻る
+const createDefaultPipelineConfig = (): PipelineConfig => ( {
+	motionBlur: true,
+	motionBlurPower: 1.0,
+	ssr: true,
+	ssao: true,
+	lightShaft: true,
+	lightShaftIntensity: 1.0,
+	lightShaftBlur: true,
+	lightShaftTemporal: true,
+	lightShaftTemporalBlend: 0.3,
+	dof: true,
+} );
+
 type RenderStack = {
 	light: Entity[];
 	shadowMap: Entity[];
@@ -161,6 +175,8 @@ export class Renderer extends Serializable implements RendererContract {
 
 	// pass
 	public sky: Sky;
+	// reset で空を作り直すために保持する
+	private _engine: EngineContract;
 	private _lights: Lights | null;
 	private _envMap: EnvMap | null;
 	private _shadingPipeline: GPURenderPipeline | null;
@@ -203,18 +219,7 @@ export class Renderer extends Serializable implements RendererContract {
 		this.canvas = canvas;
 		this.globalUniforms = {};
 		this.resolution = new MTP.Vector();
-		this.pipelineConfig = {
-			motionBlur: true,
-			motionBlurPower: 1.0,
-			ssr: true,
-			ssao: true,
-			lightShaft: true,
-			lightShaftIntensity: 1.0,
-			lightShaftBlur: true,
-			lightShaftTemporal: true,
-			lightShaftTemporalBlend: 0.3,
-			dof: true,
-		};
+		this.pipelineConfig = createDefaultPipelineConfig();
 
 		this._context = canvas.getContext( 'webgpu' );
 		this._device = null;
@@ -273,6 +278,7 @@ export class Renderer extends Serializable implements RendererContract {
 		this._passResolution = new MTP.Vector();
 		this._passPixelSize = new MTP.Vector();
 
+		this._engine = engine;
 		this.sky = new Sky( engine );
 
 		this._registerFields();
@@ -1895,6 +1901,27 @@ export class Renderer extends Serializable implements RendererContract {
 			this._views[ i ].applyPipelineConfig();
 
 		}
+
+	}
+
+	// シーンを丸ごと捨てる前提なので、生き残るオブジェクト（空・ギズモ等）の分も含めて
+	// キャッシュを全部解放する。次の描画時に _get〜Resource で作り直される。
+	// 空は値を書き戻すのではなく作り直す。既定値が Sky のコンストラクタ一箇所に集まり、
+	// シーン側のコンポーネントが差し替えたマテリアルも一緒に外れる
+	public reset() {
+
+		this.sky.entity.disposeRecursive();
+		this.sky = new Sky( this._engine );
+		this.applyPipelineConfig( createDefaultPipelineConfig() );
+
+		this._materialResources.forEach( ( resource ) => resource.binder?.dispose() );
+		this._materialResources.clear();
+
+		this._objectResources.forEach( ( resource ) => resource.binder.dispose() );
+		this._objectResources.clear();
+
+		this._geometryBuffers.forEach( ( buffer ) => buffer.dispose() );
+		this._geometryBuffers.clear();
 
 	}
 
