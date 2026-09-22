@@ -1,5 +1,3 @@
-@use 'styles' as *;
-
 .cursor {
 	position: relative;
 	width: 100%;
@@ -14,6 +12,6 @@
 		left: 50%;
 		width: 1px;
 		height: 100%;
-		background-color: $borderCol1;
+		background-color: var(--or-accent-danger);
 	}
 }

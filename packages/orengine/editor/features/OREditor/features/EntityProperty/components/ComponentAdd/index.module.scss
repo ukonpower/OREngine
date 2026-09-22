@@ -1,5 +1,3 @@
-@use 'styles' as *;
-
 .compoAdd {
 	padding-top: 5px;
 }
@@ -10,12 +8,12 @@ $arrowPadding: 20px;
 	position: relative;
 	display: block;
 
-	padding: $padding;
+	padding: var(--or-space);
 
 	@media (hover: hover) {
 
 		&:hover {
-			background-color: $bgColWindow0_active;
+			background-color: var(--or-bg-hover);
 		}
 
 	}
@@ -28,7 +26,7 @@ $arrowPadding: 20px;
 		&::before {
 			position: absolute;
 			top: 50%;
-			font-size: 12px;
+			font-size: var(--or-font-sm);
 			padding: 0 5px;
 			transform: translateY(-50%);
 		}
@@ -98,5 +96,5 @@ $arrowPadding: 20px;
 
 .picker,
 .subDirectory {
-	background-color: $bgColWindow0;
+	background-color: var(--or-bg-base);
 }

@@ -1,8 +1,44 @@
-@use './variables' as *;
+@use './mixin' as *;
 
+// エディタのデザイントークン。色・文字サイズ・余白・角丸・寸法はすべてここで定義し、
+// 各コンポーネントは var(--or-*) で参照する
 :root {
+	// 背景（奥から手前へ）
+	--or-bg-base: #050505;
+	--or-bg-panel: #181818;
+	--or-bg-surface: #2a2a2a;
+	--or-bg-active: #333;
+	--or-bg-hover: #555;
+
+	// 文字
+	--or-text: #ccc;
+	--or-text-muted: #aaa;
+	--or-text-dim: #777;
+	--or-text-disabled: #333;
+
+	// アクセント
+	--or-accent-danger: rgb(194, 74, 0);
+	--or-focus: #999;
+
+	// 下地を透かす面。不透明トークンから作って色の出どころを1つに保つ
+	--or-bg-overlay: rgba(0, 0, 0, 0.5);
+	--or-bg-float: color-mix(in srgb, var(--or-bg-base) 60%, transparent);
+	--or-bg-float-active: color-mix(in srgb, var(--or-bg-surface) 80%, transparent);
+	--or-drop-zone: color-mix(in srgb, var(--or-focus) 15%, transparent);
+	--or-drop-zone-border: color-mix(in srgb, var(--or-focus) 60%, transparent);
+
+	// 文字サイズ
+	--or-font-xs: 10px;
+	--or-font-sm: 12px;
+	--or-font-md: 16px;
+
+	// 余白・角丸
+	--or-space: 5px;
+	--or-radius: 3px;
+
+	// 寸法（SP では指で触れる大きさへ切り替える）
 	--or-tab-height: 20px;
-	--or-tab-font-size: #{$fontSize2};
+	--or-tab-font-size: var(--or-font-sm);
 	--or-tab-padding: 0 8px;
 	--or-screen-header-height: 30px;
 	--or-list-row-height: 22px;
@@ -11,13 +47,11 @@
 	--or-checkbox-size: 14px;
 	--or-btn-padding: 4px 0;
 
-	@media only screen and (max-width: $sp-width) {
+	@include sp {
 		--or-tab-height: 32px;
-		--or-tab-font-size: #{$fontSize2};
 		--or-tab-padding: 0 12px;
 		--or-screen-header-height: 36px;
 		--or-list-row-height: 28px;
-		--or-input-font-size: inherit;
 		--or-input-padding: 4px 5px;
 		--or-checkbox-size: 20px;
 		--or-btn-padding: 6px 0;
@@ -35,11 +69,11 @@
 	}
 
 	&::-webkit-scrollbar-track {
-		background-color: $bgCol1;
+		background-color: var(--or-bg-panel);
 	}
 
 	&::-webkit-scrollbar-thumb {
-		background-color: $bgCol3;
+		background-color: var(--or-bg-active);
 	}
 
 	&::-webkit-scrollbar-corner {
@@ -49,24 +83,24 @@
 
 html,
 body {
-	background-color: #000;
-	color: $fontCol1;
-	font-size: $fontSize2;
+	background-color: var(--or-bg-base);
+	color: var(--or-text);
+	font-size: var(--or-font-sm);
 	width: 100%;
 	font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
 }
 
 select:focus {
-	outline: $focusCol 1px solid;
+	outline: var(--or-focus) 1px solid;
 }
 
 input:focus {
-	outline: $focusCol 1px solid;
+	outline: var(--or-focus) 1px solid;
 }
 
 button {
 	background-color: transparent;
-	color: $fontCol1;
+	color: var(--or-text);
 	border: none;
 	padding: 0;
 	cursor: pointer;
