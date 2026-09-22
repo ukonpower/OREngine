@@ -9,6 +9,7 @@ export type KeyboardHandlerCallbacks = {
 	onPreviewToggle: () => void;
 	onSyncToSceneCamera: () => void;
 	onFocusSelected: () => void;
+	onAddEntity: () => void;
 	onTransformKey: ( e: KeyboardEvent ) => boolean;
 };
 
@@ -92,6 +93,13 @@ export class KeyboardHandler {
 			if ( e.key === 'Escape' && ! cmd ) {
 
 				callbacks.onSyncToSceneCamera();
+
+			}
+
+			// Blender の Shift+A 相当。エンティティ追加メニューを開く
+			if ( e.code === 'KeyA' && pressedKeys[ "Shift" ] && ! cmd ) {
+
+				callbacks.onAddEntity();
 
 			}
 

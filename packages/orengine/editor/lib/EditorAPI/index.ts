@@ -11,6 +11,7 @@ import { RemoveTextureCommand } from '../Commands/RemoveTextureCommand';
 import { SetFieldCommand } from '../Commands/SetFieldCommand';
 
 import type { Editor } from '../Editor';
+import type { EntityPreset } from '../EntityPresets';
 
 export class EditorAPI {
 
@@ -41,9 +42,9 @@ export class EditorAPI {
 		Entity
 	-------------------------------*/
 
-	public createEntity( parent: MXP.Entity, name: string ): MXP.Entity {
+	public createEntity( parent: MXP.Entity, preset: EntityPreset ): MXP.Entity {
 
-		const cmd = new CreateEntityCommand( this._editor.engine, parent, name );
+		const cmd = new CreateEntityCommand( this._editor.engine, parent, preset );
 		this._commandManager.execute( cmd );
 
 		return cmd.createdEntity!;

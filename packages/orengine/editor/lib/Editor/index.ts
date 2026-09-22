@@ -198,6 +198,8 @@ export class Editor extends MXP.Serializable {
 			},
 			onSyncToSceneCamera: () => this.syncToSceneCamera(),
 			onFocusSelected: () => this.focusSelected(),
+			// メニューは React 側の Popover に出すので、ここでは要求を投げるだけにする
+			onAddEntity: () => this.emit( "request/addEntity" ),
 			onTransformKey: ( e ) => this._activeViewport?.editorCamera.preview ? false : this._modalTransformHandler.handleKeyDown( e ),
 		} );
 

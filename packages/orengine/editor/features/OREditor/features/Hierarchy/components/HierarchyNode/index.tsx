@@ -1,10 +1,10 @@
-import { MouseEvent, useCallback, useMemo } from 'react';
+import { KeyboardEvent, MouseEvent, useCallback, useMemo, useRef, useState } from 'react';
 
 import * as MXP from 'maxpower';
 import { ArrowIcon, CameraIcon, CursorIcon, EyeIcon, LightIcon, ListItem, MeshIcon, Menu, pointAnchor, usePopover } from 'uipower';
 
+import { useEntityAddMenuItems } from '../../../../hooks/useEntityAddMenuItems';
 import { useOREditor } from '../../../../hooks/useOREditor';
-import { InputGroup } from '../../../SerializableField/components/InputGroup';
 import { useSerializableField } from '../../../SerializableField/hooks/useSerializableProps';
 
 import style from './index.module.scss';
@@ -23,6 +23,7 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 	const selectedEntity = selectedEntityId !== undefined && engine.root.findEntityByUUID( selectedEntityId );
 	const isSelected = Boolean( selectedEntity && selectedEntity.uuid == props.entity.uuid );
 
+	const [ entityName ] = useSerializableField<string>( props.entity, "name" );
 	const [ entityVisible, setEntityVisible ] = useSerializableField<boolean>( props.entity, "visible" );
 	const [ unselectableIds, setUnselectableIds ] = useSerializableField<string[]>( editor, "unselectableEntityIds" );
 	const [ childrenIdList ] = useSerializableField<string[]>( props.entity, "children" );
@@ -110,9 +111,63 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 
 	}, [ entitySelectable, unselectableIds, setUnselectableIds, props.entity.uuid ] );
 
+	// rename (編集中だけ input になる。null = 非編集)
+
+	const [ editingName, setEditingName ] = useState<string | null>( null );
+
+	// Escape で抜けたことを onBlur へ伝える目印。state だと blur が同じイベント処理内で
+	// 走るぶん更新前の値しか見えないので ref で持つ
+	const renameCancelled = useRef( false );
+
+	const onDoubleClickName = useCallback( () => {
+
+		if ( noEditable ) return;
+
+		setEditingName( props.entity.name );
+
+	}, [ noEditable, props.entity ] );
+
+	// Enter / Escape はどちらも blur させて、確定処理を onBlur の1経路にまとめる
+	const onKeyDownName = useCallback( ( e: KeyboardEvent<HTMLInputElement> ) => {
+
+		if ( e.key === "Enter" ) {
+
+			e.currentTarget.blur();
+
+		}
+
+		if ( e.key === "Escape" ) {
+
+			renameCancelled.current = true;
+
+			e.currentTarget.blur();
+
+		}
+
+	}, [] );
+
+	const onBlurName = useCallback( () => {
+
+		const cancelled = renameCancelled.current;
+
+		renameCancelled.current = false;
+
+		setEditingName( null );
+
+		if ( cancelled || editingName === null ) return;
+
+		const newName = editingName.trim();
+
+		if ( newName === "" || newName === props.entity.name ) return;
+
+		editor.api.setField( props.entity, "name", newName );
+
+	}, [ editingName, editor, props.entity ] );
+
 	// right click node
 
 	const { open: openPopover, closeAll } = usePopover();
+	const buildAddMenuItems = useEntityAddMenuItems();
 
 	const onRightClickNode = useCallback( ( e: MouseEvent ) => {
 
@@ -125,23 +180,7 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 		openPopover( <Menu title={props.entity.name} items={[
 			{
 				label: "Add Entity",
-				onClick: ( e ) => {
-
-					openPopover(
-						<InputGroup initialValues={{ name: '' }} onSubmit={( e ) => {
-
-							const newEntity = editor.api.createEntity( props.entity, e.name as string );
-
-							editor.api.selectEntity( newEntity );
-
-							closeAll();
-
-						}}>
-						</InputGroup>,
-						pointAnchor( e.clientX, e.clientY )
-					);
-
-				},
+				children: buildAddMenuItems( props.entity ),
 			},
 			{
 				label: "Delete Entity",
@@ -155,7 +194,24 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 			}
 		]} />, pointAnchor( e.clientX, e.clientY ) );
 
-	}, [ editor, props.entity, openPopover, closeAll, noEditable ] );
+	}, [ editor, props.entity, openPopover, closeAll, noEditable, buildAddMenuItems ] );
+
+	let nameElm = <p>{entityName || "-"}</p>;
+
+	if ( editingName !== null ) {
+
+		nameElm = <input
+			className={style.self_name_input}
+			value={editingName}
+			autoFocus
+			onChange={( e ) => setEditingName( e.target.value )}
+			onFocus={( e ) => e.currentTarget.select()}
+			onKeyDown={onKeyDownName}
+			onBlur={onBlurName}
+			onClick={( e ) => e.stopPropagation()}
+		/>;
+
+	}
 
 	return <div className={style.node} data-no_export={noEditable}>
 		<ListItem className={style.self} style={{ paddingLeft: offsetPx }} onClick={onClickNode} onContextMenu={onRightClickNode} selected={isSelected}>
@@ -163,8 +219,8 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 				{hasChild && <button className={style.fold_button} onClick={onClickFoldControls} ><ArrowIcon open={open}/></button> }
 			</div>
 			{icon && <div className={style.icon}>{icon}</div>}
-			<div className={style.self_name}>
-				<p>{props.entity.name || "-"}</p>
+			<div className={style.self_name} onDoubleClick={onDoubleClickName}>
+				{nameElm}
 			</div>
 			<button className={style.selectable} onClick={onClickSelectable} data-selectable={entitySelectable}><CursorIcon size={14} selectable={entitySelectable} /></button>
 			<button className={style.visibility} onClick={onClickVisibility} data-visible={entityVisible !== false}><EyeIcon size={14} visible={entityVisible !== false} /></button>

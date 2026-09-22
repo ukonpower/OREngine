@@ -7,6 +7,7 @@ import { InputWindow, InputWindowProvider, LayoutSplit, Panel, PanelContainer, P
 import { useLayout } from '../../hooks/useLayout';
 
 import { EditorSettings } from './features/EditorSettings';
+import { EntityAdd } from './features/EntityAdd';
 import { EntityProperty } from './features/EntityProperty';
 import { ExportControl } from './features/ExportControl';
 import { Timer } from './features/GPUTimer';
@@ -135,6 +136,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 				<div className={style.editor}>
 					{editorElm}
 				</div>
+				<EntityAdd />
 				<InputWindow />
 				<Popover />
 			</InputWindowProvider>
