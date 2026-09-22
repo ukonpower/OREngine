@@ -53,6 +53,7 @@ OREngine 自体の開発エントリは `host/` に集約されている:
 プロジェクト側からエディタにパネルと API route を足すためのディレクトリ。任意（無くてもよい）。player ビルドのエントリ（`host/app/src/player.ts`）からは辿られないので、ここに何を置いても packed サイズには影響しない（eslint-plugin-boundaries でも player.ts からの import を禁止している）。
 
 - `editor/Panels/<名前>/index.tsx` に `export const panel: PanelDefinition` を置くと、パネルのタブ「+」の一覧に出る。自動認識は `host/app/src/editorPanels.ts` の `import.meta.glob`。先頭が `_` のディレクトリは対象外
+- `PanelDefinition` の `category`（`"Tools/Debug"` のような `/` 区切り）を書くと、タブ追加メニューでその階層のサブメニューに入る。省略時はメニューのルート直下。タブ名は `title` のまま
 - `editor/server.ts` の default export（`EditorServerExtension`）に express の `Router` が渡され、足した route が `/api/ext/*` に生える。組み込み route の後にマウントされる。node 側は tsx 経由で動くので `.ts` のまま読み込まれる。変更の反映には dev サーバーの再起動が必要
 - パネルからは `useOREditor()` で `editor` / `engine` に触れる（選択中エンティティの参照、フィールドの更新など）
 - サンプルは `demo-webgl/editor/`（選択中エンティティ名の表示と `/api/ext/hello` の呼び出し）
@@ -80,7 +81,7 @@ const Sample = () => {
 
 };
 
-export const panel: PanelDefinition = { id: 'sample', title: 'Sample', content: <Sample /> };
+export const panel: PanelDefinition = { id: 'sample', title: 'Sample', category: 'Tools', content: <Sample /> };
 ```
 
 ```ts

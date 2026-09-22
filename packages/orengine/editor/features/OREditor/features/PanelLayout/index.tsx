@@ -4,6 +4,7 @@ import { LayoutSplit, PanelContainer } from 'uipower';
 
 import { useOREditor } from '../../hooks/useOREditor';
 import { Picker } from '../MouseMenu/components/Picker';
+import { TreeMenu } from '../MouseMenu/components/TreeMenu';
 import { useMouseMenu } from '../MouseMenu/hooks/useMouseMenu';
 import { VIEWPORT_PANEL_ID } from '../Screen';
 import { useSerializableField } from '../SerializableField/hooks/useSerializableProps';
@@ -11,6 +12,7 @@ import { useSerializableField } from '../SerializableField/hooks/useSerializable
 import { DragOverlay } from './components/DragOverlay';
 import { useTabDrag } from './hooks/useTabDrag';
 import style from './index.module.scss';
+import { buildAddTabMenu } from './lib/addTabMenu';
 import { addTab, closeTab, collectPanes, defaultLayout, findPanel, newTabId, panelContent, parseLayout, selectTab, setRatios, tabInstance } from './lib/layoutTree';
 
 import type { PanelResolver } from './lib/layoutTree';
@@ -146,15 +148,14 @@ export const PanelLayout = ( props: PanelLayoutProps ) => {
 
 		if ( addable.length === 0 ) return;
 
-		pushContent( <Picker list={addable.map( ( def ) => ( {
-			label: def.title,
-			onClick: () => {
+		const items = buildAddTabMenu( addable, ( def ) => {
 
-				apply( addTab( layout, paneId, newTabId( def ) ) );
-				closeAll();
+			apply( addTab( layout, paneId, newTabId( def ) ) );
+			closeAll();
 
-			},
-		} ) )} /> );
+		} );
+
+		pushContent( <TreeMenu items={items} /> );
 
 	};
 
