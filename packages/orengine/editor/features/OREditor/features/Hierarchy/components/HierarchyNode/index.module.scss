@@ -15,6 +15,17 @@
 		padding-left: 2px;
 		overflow: hidden;
 
+		// インラインリネーム中の入力欄。行の高さは ListItem が決めるので、はみ出さない範囲に収める
+		&_input {
+			width: 100%;
+			height: calc(100% - 4px);
+			padding: 0 4px;
+			border: none;
+			border-radius: var(--or-radius);
+			background-color: var(--or-bg-base);
+			color: var(--or-text);
+			font-size: inherit;
+		}
 	}
 }
 
