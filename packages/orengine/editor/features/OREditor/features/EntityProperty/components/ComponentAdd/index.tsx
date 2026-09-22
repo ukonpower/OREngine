@@ -2,23 +2,21 @@ import { MouseEvent, useCallback } from 'react';
 
 import * as MXP from 'maxpower';
 import { ComponentGroup, Engine, ResouceComponentItem } from 'orengine';
-import { Button } from 'uipower';
+import { Button, Menu, pointAnchor, usePopover } from 'uipower';
 
 import { useOREditor } from '../../../../hooks/useOREditor';
-import { TreeMenu } from '../../../MouseMenu/components/TreeMenu';
-import { useMouseMenu } from '../../../MouseMenu/hooks/useMouseMenu';
 
 import style from './index.module.scss';
 
-import type { TreeMenuItem } from '../../../MouseMenu/components/TreeMenu';
+import type { MenuItem } from 'uipower';
 
 
 type ComponentAddProps= {
 	entity: MXP.Entity
 }
 
-// Resources のコンポーネント木を TreeMenu の項目に詰め替える
-const toMenuItem = ( group: ComponentGroup | ResouceComponentItem, onSelect: ( compItem: ResouceComponentItem ) => void ): TreeMenuItem => {
+// Resources のコンポーネント木を Menu の項目に詰め替える
+const toMenuItem = ( group: ComponentGroup | ResouceComponentItem, onSelect: ( compItem: ResouceComponentItem ) => void ): MenuItem => {
 
 	// "_Built-in" のような内部都合の接頭辞 "_" はメニューには出さない
 	let label = group.name;
@@ -27,7 +25,7 @@ const toMenuItem = ( group: ComponentGroup | ResouceComponentItem, onSelect: ( c
 
 	if ( "child" in group ) {
 
-		const children: TreeMenuItem[] = [];
+		const children: MenuItem[] = [];
 
 		for ( const child of group.child ) {
 
@@ -46,10 +44,10 @@ const toMenuItem = ( group: ComponentGroup | ResouceComponentItem, onSelect: ( c
 export const ComponentAdd = ( props: ComponentAddProps ) => {
 
 	const { editor } = useOREditor();
-	const { pushContent, closeAll } = useMouseMenu();
+	const { open, closeAll } = usePopover();
 	const resources = Engine.resources;
 
-	const onClickAdd = useCallback( ( _e: MouseEvent ) => {
+	const onClickAdd = useCallback( ( e: MouseEvent ) => {
 
 		if ( ! resources ) return;
 
@@ -61,7 +59,7 @@ export const ComponentAdd = ( props: ComponentAddProps ) => {
 
 		};
 
-		const items: TreeMenuItem[] = [];
+		const items: MenuItem[] = [];
 
 		for ( const group of resources.componentGroups ) {
 
@@ -69,9 +67,9 @@ export const ComponentAdd = ( props: ComponentAddProps ) => {
 
 		}
 
-		pushContent( <TreeMenu items={items} /> );
+		open( <Menu items={items} />, pointAnchor( e.clientX, e.clientY ) );
 
-	}, [ pushContent, resources, props.entity, closeAll, editor ] );
+	}, [ open, resources, props.entity, closeAll, editor ] );
 
 	return <div className={style.compAdd}>
 		<Button onClick={onClickAdd}>Add Component</Button>

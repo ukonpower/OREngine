@@ -1,0 +1,16 @@
+.popover {
+	position: fixed;
+	inset: 0;
+	z-index: var(--or-z-menu);
+}
+
+// 外側クリックを拾う透明な面。窓は DOM 順で後ろなのでこの上に乗る
+.backdrop {
+	position: absolute;
+	inset: 0;
+}
+
+// 座標は useAnchoredPosition が inline で当てる
+.window {
+	position: fixed;
+}

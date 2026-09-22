@@ -1,4 +1,5 @@
 import { Button } from '../Button';
+import { pointAnchor } from '../hooks/useAnchoredPosition';
 
 import { Modal } from '.';
 
@@ -54,6 +55,30 @@ export const LongNote: Story = {
 	args: {
 		title: 'Scenes',
 		note: 'very-long-project-name-that-does-not-fit-in-the-head-row',
+		width: 360,
+		onClose,
+		children: list,
+		footer: <Button>Open</Button>,
+	},
+};
+
+// anchor を渡すと中央ではなくその右下に出る
+export const Anchored: Story = {
+	args: {
+		title: 'Scenes',
+		width: 360,
+		onClose,
+		anchor: pointAnchor( 200, 120 ),
+		children: list,
+		footer: <Button>Open</Button>,
+	},
+};
+
+// 画面の右下寄りで開くと、はみ出す軸だけ反転して anchor の左上に出る
+export const AnchoredNearEdge: Story = {
+	render: ( args ) => <Modal {...args} anchor={pointAnchor( window.innerWidth - 100, window.innerHeight - 60 )} />,
+	args: {
+		title: 'Scenes',
 		width: 360,
 		onClose,
 		children: list,

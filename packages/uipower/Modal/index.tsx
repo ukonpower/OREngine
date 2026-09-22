@@ -1,4 +1,8 @@
+import { useAnchoredPosition } from '../hooks/useAnchoredPosition';
+
 import style from './index.module.scss';
+
+import type { AnchorRect } from '../hooks/useAnchoredPosition';
 
 export type ModalProps = {
 	// 見出し行のタイトル。省略すると見出し行ごと出ない
@@ -7,17 +11,21 @@ export type ModalProps = {
 	note?: string;
 	// 窓の幅(px)。省略すると中身なりの幅になる
 	width?: number;
+	// 窓を寄せる先（クリック位置など）。省略すると画面中央に出る
+	anchor?: AnchorRect;
 	footer?: React.ReactNode;
 	children?: React.ReactNode;
 	onClose: () => void;
 }
 
-// 画面中央に浮かせる窓。背面のクリックで閉じる
+// 背面を塞いで浮かせる窓。背面のクリックで閉じる
 export const Modal = ( props: ModalProps ) => {
+
+	const anchored = useAnchoredPosition( props.anchor );
 
 	return <div className={style.modal}>
 		<div className={style.overlay} onClick={props.onClose} />
-		<div className={style.window} style={{ width: props.width }}>
+		<div ref={anchored.ref} className={style.window} style={{ ...anchored.style, width: props.width }}>
 			{props.title && <div className={style.head}>
 				<span className={style.head_title}>{props.title}</span>
 				{props.note && <span className={style.head_note}>{props.note}</span>}

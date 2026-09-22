@@ -1,11 +1,8 @@
 import { useEffect, useMemo } from 'react';
 
-import { LayoutSplit, PanelContainer } from 'uipower';
+import { LayoutSplit, Menu, PanelContainer, pointAnchor, usePopover } from 'uipower';
 
 import { useOREditor } from '../../hooks/useOREditor';
-import { Picker } from '../MouseMenu/components/Picker';
-import { TreeMenu } from '../MouseMenu/components/TreeMenu';
-import { useMouseMenu } from '../MouseMenu/hooks/useMouseMenu';
 import { VIEWPORT_PANEL_ID } from '../Screen';
 import { useSerializableField } from '../SerializableField/hooks/useSerializableProps';
 
@@ -28,7 +25,7 @@ type LayoutNodeViewProps = {
 	onRatiosChange: ( splitId: string, ratios: number[] ) => void;
 	onTabContextMenu: ( paneId: string, panelId: PanelId, event: React.MouseEvent ) => void;
 	onTabPointerDown: ( paneId: string, panelId: PanelId, event: React.PointerEvent ) => void;
-	onAddTab: ( paneId: string ) => void;
+	onAddTab: ( paneId: string, event: React.MouseEvent ) => void;
 	hasAddable: ( pane: PaneNode ) => boolean;
 };
 
@@ -72,7 +69,7 @@ const LayoutNodeView = ( props: LayoutNodeViewProps ) => {
 			onSelect={( id ) => props.onSelectTab( node.id, id )}
 			onTabContextMenu={( id, e ) => props.onTabContextMenu( node.id, id, e )}
 			onTabPointerDown={( id, e ) => props.onTabPointerDown( node.id, id, e )}
-			onAddClick={canAdd ? () => props.onAddTab( node.id ) : undefined}
+			onAddClick={canAdd ? ( e ) => props.onAddTab( node.id, e ) : undefined}
 		/>
 	</div>;
 
@@ -89,7 +86,7 @@ export type PanelLayoutProps = {
 export const PanelLayout = ( props: PanelLayoutProps ) => {
 
 	const { editor } = useOREditor();
-	const { pushContent, closeAll } = useMouseMenu();
+	const { open, closeAll } = usePopover();
 
 	const panels = useMemo( () => {
 
@@ -138,7 +135,7 @@ export const PanelLayout = ( props: PanelLayoutProps ) => {
 		[ ...panels.values() ].filter( ( def ) => def.multiple || ! pane.tabs.includes( def.id ) );
 
 	// ヘッダーの「+」から開くタブ追加メニュー
-	const openAddTabMenu = ( paneId: string ) => {
+	const openAddTabMenu = ( paneId: string, e: React.MouseEvent ) => {
 
 		const pane = collectPanes( layout ).find( ( p ) => p.id === paneId );
 
@@ -155,7 +152,7 @@ export const PanelLayout = ( props: PanelLayoutProps ) => {
 
 		} );
 
-		pushContent( <TreeMenu items={items} /> );
+		open( <Menu items={items} />, pointAnchor( e.clientX, e.clientY ) );
 
 	};
 
@@ -169,7 +166,7 @@ export const PanelLayout = ( props: PanelLayoutProps ) => {
 
 		if ( ! canClose ) return;
 
-		pushContent( <Picker label={resolve( panelId )?.title} list={[
+		open( <Menu title={resolve( panelId )?.title} items={[
 			{
 				label: "Close Tab",
 				onClick: () => {
@@ -179,7 +176,7 @@ export const PanelLayout = ( props: PanelLayoutProps ) => {
 
 				},
 			},
-		]} /> );
+		]} />, pointAnchor( e.clientX, e.clientY ) );
 
 	};
 

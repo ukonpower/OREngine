@@ -17,7 +17,8 @@
 	background: var(--or-bg-overlay);
 }
 
-// 見出し・本体・フッターを縦に積む。段どうしの間隔と窓の内側の余白はここだけで決める
+// 見出し・本体・フッターを縦に積む。段どうしの間隔と窓の内側の余白はここだけで決める。
+// anchor 付きのときは useAnchoredPosition が position: fixed と座標を inline で当てる
 .window {
 	position: relative;
 	display: flex;
