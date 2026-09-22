@@ -1,95 +1,19 @@
-.sceneWindow {
-	position: fixed;
-	left: 0;
-	top: 0;
-	width: 100%;
-	height: 100%;
-	z-index: 1000;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-.overlay {
-	position: absolute;
-	width: 100%;
-	height: 100%;
-	background: var(--or-bg-overlay);
-}
-
-.window {
-	position: relative;
-	width: 360px;
-	max-width: 90vw;
-	background: var(--or-bg-panel);
-	border-radius: var(--or-radius);
-	color: var(--or-text-muted);
-	font-size: var(--or-font-sm);
-}
-
-.head {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	padding: 8px 8px 8px 12px;
-
-	&_title {
-		flex-shrink: 0;
-		color: var(--or-text);
-	}
-
-	// プロジェクト名は見出しの添え物なので、長いときはタイトル側を優先して省略する
-	&_project {
-		flex: 1;
-		min-width: 0;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-		color: var(--or-text-dim);
-		font-size: var(--or-font-xs);
-	}
-
-	&_close {
-		flex-shrink: 0;
-		width: 20px;
-		height: 20px;
-		border: none;
-		border-radius: var(--or-radius);
-		background: transparent;
-		color: var(--or-text-dim);
-		cursor: pointer;
-
-		&:hover {
-			background: var(--or-bg-hover);
-			color: var(--or-text);
-		}
-	}
-}
+@use 'styles' as *;
 
 .list {
 	max-height: 40vh;
 	overflow-y: auto;
-	margin: 0 8px;
 	padding: 2px;
 	border-radius: var(--or-radius);
 	background: var(--or-bg-base);
 }
 
 .item {
-	display: flex;
-	align-items: center;
 	gap: 8px;
-	padding: 5px 8px;
+	padding: 0 8px;
 	border-radius: var(--or-radius);
-	cursor: pointer;
-	user-select: none;
-
-	&:hover {
-		background: var(--or-bg-hover);
-	}
 
 	&[data-selected="true"] {
-		background: var(--or-bg-active);
 		color: var(--or-text);
 	}
 
@@ -112,12 +36,9 @@
 	padding: 2px;
 
 	&_input {
+		@include input-frame;
+
 		width: 100%;
-		padding: var(--or-input-padding);
-		border: none;
-		border-radius: var(--or-radius);
-		background: var(--or-bg-surface);
-		color: var(--or-text);
 		font-size: var(--or-input-font-size);
 	}
 
@@ -128,12 +49,8 @@
 	}
 }
 
+// Modal のフッターに渡す要素
 .footer {
-	display: flex;
-	align-items: center;
-	gap: 4px;
-	padding: 8px;
-
 	&_message {
 		flex: 1;
 		min-width: 0;
@@ -145,11 +62,5 @@
 
 	&_spacer {
 		flex: 1;
-	}
-
-	// Button は width:100% なので、幅を決めた枠に入れないと横並びが崩れる
-	&_button {
-		flex-shrink: 0;
-		width: 72px;
 	}
 }

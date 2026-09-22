@@ -35,11 +35,13 @@ export const SceneControl = () => {
 		<div className={style.sceneControl_inner}>
 			<Block label={projectName} accordion >
 				{sceneElm}
-				<Button onClick={() => {
+				<div className={style.save}>
+					<Button onClick={() => {
 
-					editor.save();
+						editor.save();
 
-				}}>Save</Button>
+					}}>Save</Button>
+				</div>
 			</Block>
 		</div>
 		{windowOpen && scenes && <SceneWindow scenes={scenes} projectName={projectName} onClose={() => {

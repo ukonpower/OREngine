@@ -1,3 +1,5 @@
+import { ListItem } from 'uipower';
+
 import style from './index.module.scss';
 
 type SelectListItem = {
@@ -22,7 +24,7 @@ export const Picker = ( props: SelectListProps ) => {
 				{
 					props.list.map( ( item, index ) => {
 
-						return <div className={style.item} key={index} onClick={item.onClick}>{item.label}</div>;
+						return <ListItem className={style.item} key={index} onClick={item.onClick}>{item.label}</ListItem>;
 
 					} )
 				}

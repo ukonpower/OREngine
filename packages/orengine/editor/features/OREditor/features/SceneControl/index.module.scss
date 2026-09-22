@@ -33,3 +33,8 @@
 		text-align: center;
 	}
 }
+
+// Button は内容幅なので、パネルの横幅いっぱいに伸ばすのはここで決める
+.save {
+	display: grid;
+}

@@ -12,3 +12,12 @@ $sp-width: 900px;
 		@content;
 	}
 }
+
+// 値を打ち込む枠の面。文字サイズ・寄せ・幅は使う側の都合なのでここには含めない
+@mixin input-frame {
+	padding: var(--or-input-padding);
+	border: none;
+	border-radius: var(--or-radius);
+	background-color: var(--or-bg-surface);
+	color: var(--or-text-muted);
+}

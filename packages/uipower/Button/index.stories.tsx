@@ -5,7 +5,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 const meta = {
 	title: 'ui/Button',
 	component: Button,
-	// ボタンは親の幅いっぱいに広がるので、パネル内に置いたときの幅を与える
+	// ボタンは内容幅なので、パネル内に置いたときの周りの余白が分かる枠を与える
 	decorators: [ ( Story ) => <div style={{ width: '200px', padding: '10px' }}><Story /></div> ],
 } satisfies Meta<typeof Button>;
 
@@ -23,4 +23,10 @@ export const LongLabel: Story = {
 
 export const Submit: Story = {
 	args: { children: 'Submit', type: 'submit' },
+};
+
+// 全幅にしたいときは親を grid / flex にして伸ばす
+export const FullWidth: Story = {
+	args: { children: 'Save' },
+	decorators: [ ( Story ) => <div style={{ display: 'grid' }}><Story /></div> ],
 };

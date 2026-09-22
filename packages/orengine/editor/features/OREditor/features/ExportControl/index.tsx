@@ -34,17 +34,19 @@ export const ExportControl = () => {
 	return <div className={style.exportControl}>
 		<div className={style.exportControl_inner}>
 			<Block label="MP4" accordion>
-				<Button onClick={() => {
+				<div className={style.export}>
+					<Button onClick={() => {
 
-					if ( ! editor.isExporting ) {
+						if ( ! editor.isExporting ) {
 
-						editor.exportMP4();
+							editor.exportMP4();
 
-					}
+						}
 
-				}}>{ exportProgress
-						? `Exporting... ${ Math.floor( exportProgress.current / exportProgress.total * 100 ) }%`
-						: 'Export MP4' }</Button>
+					}}>{ exportProgress
+							? `Exporting... ${ Math.floor( exportProgress.current / exportProgress.total * 100 ) }%`
+							: 'Export MP4' }</Button>
+				</div>
 			</Block>
 		</div>
 	</div>;

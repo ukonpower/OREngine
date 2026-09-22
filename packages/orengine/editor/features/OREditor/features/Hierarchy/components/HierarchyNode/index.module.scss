@@ -8,18 +8,6 @@
 }
 
 .self {
-	display: flex;
-	height: var(--or-list-row-height);
-	cursor: pointer;
-
-	&:hover {
-		background-color: var(--or-bg-hover);
-	}
-
-	&[data-selected="true"] {
-		background-color: var(--or-bg-active);
-	}
-
 	&_name {
 		flex: 1;
 		display: flex;

@@ -1,7 +1,9 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { Button } from "../Button";
 import { useInputWindow } from "../hooks/useInputWindow";
+import { Modal } from "../Modal";
 
 import style from './index.module.scss';
 
@@ -61,38 +63,35 @@ export const InputWindow = () => {
 
 	if ( ! config ) return null;
 
-	return <div className={style.inputWindow}>
-		<div className={style.overlay} onClick={cancel} />
-		<div className={style.window}>
-			{config.label && <div className={style.label}>{config.label}</div>}
-			<form onSubmit={( e ) => {
+	const footerElm = <>
+		<Button onClick={cancel}>Cancel</Button>
+		<Button onClick={submit}>OK</Button>
+	</>;
 
-				e.preventDefault();
-				submit();
+	return <Modal title={config.label} onClose={cancel} footer={footerElm}>
+		<form onSubmit={( e ) => {
 
-			}}>
-				<input
-					ref={inputRef}
-					className={style.input}
-					type="text"
-					inputMode={config.type === "number" ? "decimal" : "text"}
-					value={tempValue}
-					step={config.step}
-					min={config.min}
-					max={config.max}
-					onChange={( e ) => setTempValue( e.target.value )}
-					onKeyDown={( e ) => {
+			e.preventDefault();
+			submit();
 
-						if ( e.key === "Escape" ) cancel();
+		}}>
+			<input
+				ref={inputRef}
+				className={style.input}
+				type="text"
+				inputMode={config.type === "number" ? "decimal" : "text"}
+				value={tempValue}
+				step={config.step}
+				min={config.min}
+				max={config.max}
+				onChange={( e ) => setTempValue( e.target.value )}
+				onKeyDown={( e ) => {
 
-					}}
-				/>
-				<div className={style.buttons}>
-					<button type="button" className={style.cancelBtn} onClick={cancel}>Cancel</button>
-					<button type="submit" className={style.okBtn}>OK</button>
-				</div>
-			</form>
-		</div>
-	</div>;
+					if ( e.key === "Escape" ) cancel();
+
+				}}
+			/>
+		</form>
+	</Modal>;
 
 };
