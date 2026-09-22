@@ -1,82 +1,45 @@
-
-import React, { MouseEvent, ReactNode, useCallback, useState } from 'react';
+import { MouseEvent, useCallback } from 'react';
 
 import * as MXP from 'maxpower';
 import { ComponentGroup, Engine, ResouceComponentItem } from 'orengine';
 import { Button } from 'uipower';
 
 import { useOREditor } from '../../../../hooks/useOREditor';
+import { TreeMenu } from '../../../MouseMenu/components/TreeMenu';
 import { useMouseMenu } from '../../../MouseMenu/hooks/useMouseMenu';
-import { useMouseMenuItem } from '../../../MouseMenu/hooks/useMouseMenuItem';
 
 import style from './index.module.scss';
+
+import type { TreeMenuItem } from '../../../MouseMenu/components/TreeMenu';
 
 
 type ComponentAddProps= {
 	entity: MXP.Entity
 }
 
-const ComponentDirectory: React.FC<{
-	group: ComponentGroup | ResouceComponentItem;
-	onClickAdd: ( compItem: ResouceComponentItem ) => void;
-}> = ( { group, onClickAdd } ) => {
+// Resources のコンポーネント木を TreeMenu の項目に詰め替える
+const toMenuItem = ( group: ComponentGroup | ResouceComponentItem, onSelect: ( compItem: ResouceComponentItem ) => void ): TreeMenuItem => {
 
-	const menuContext = useMouseMenuItem();
+	// "_Built-in" のような内部都合の接頭辞 "_" はメニューには出さない
+	let label = group.name;
 
-	const [ v, setV ] = useState( false );
-
-	let childItem = null;
-	let onClick = undefined;
-	let type = "dir";
-
-	const displayName = group.name.startsWith( "_" ) ? group.name.slice( 1 ) : group.name;
+	if ( label.startsWith( "_" ) ) label = label.slice( 1 );
 
 	if ( "child" in group ) {
 
-		childItem = <>
-			{group.child.map( ( item, index ) => {
+		const children: TreeMenuItem[] = [];
 
-				return <ComponentDirectory key={index} group={item} onClickAdd={onClickAdd} />;
+		for ( const child of group.child ) {
 
-			} )}
-		</>;
+			children.push( toMenuItem( child, onSelect ) );
 
-	} else {
+		}
 
-	       onClick = () => onClickAdd( group );
-	       type = "item";
+		return { label, children };
 
 	}
 
-	const canHover = window.matchMedia( "(hover: hover)" ).matches;
-
-	return <div className={style.directory}
-		onPointerEnter={canHover ? () => setV( true ) : undefined}
-		onPointerLeave={canHover ? () => setV( false ) : undefined}
-		onClick={( e ) => {
-
-			if ( onClick ) {
-
-				onClick();
-
-			} else {
-
-				e.stopPropagation();
-				setV( ! v );
-
-			}
-
-		}}
-		data-type={type}
-		data-direction={menuContext?.direction}
-	>
-
-		{displayName}
-		{v && <div className={style.subDirectory}>
-			{childItem}
-		</div>}
-	</div>;
-
+	return { label, onClick: () => onSelect( group ) };
 
 };
 
@@ -88,11 +51,9 @@ export const ComponentAdd = ( props: ComponentAddProps ) => {
 
 	const onClickAdd = useCallback( ( _e: MouseEvent ) => {
 
-		if ( ! resources || ! pushContent || ! closeAll ) return;
+		if ( ! resources ) return;
 
-		const cagegoryGroupList: ReactNode[] = [];
-
-		const onClickComponentItem = ( compItem: ResouceComponentItem ) => {
+		const onSelect = ( compItem: ResouceComponentItem ) => {
 
 			editor.api.addComponent( props.entity, compItem.component );
 
@@ -100,21 +61,15 @@ export const ComponentAdd = ( props: ComponentAddProps ) => {
 
 		};
 
-		resources.componentGroups.forEach( ( group, index ) => {
+		const items: TreeMenuItem[] = [];
 
-			cagegoryGroupList.push(
-				<ComponentDirectory key={index} group={group} onClickAdd={onClickComponentItem} />
-			);
+		for ( const group of resources.componentGroups ) {
 
-		} );
+			items.push( toMenuItem( group, onSelect ) );
 
-		pushContent(
+		}
 
-			<div className={style.picker}>
-				{cagegoryGroupList}
-			</div>
-
-		);
+		pushContent( <TreeMenu items={items} /> );
 
 	}, [ pushContent, resources, props.entity, closeAll, editor ] );
 
