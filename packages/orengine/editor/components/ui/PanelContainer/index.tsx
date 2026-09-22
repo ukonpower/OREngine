@@ -23,7 +23,6 @@ export type PanelContainerTab = {
 
 type PanelContainerProps = {
 	storageKey?: string;
-	defaultTabTitle?: string;
 	children?: React.ReactNode;
 	// データ駆動モード。指定時はタブ状態の持ち主が親（レイアウトツリー）になり、children は使わない
 	tabs?: PanelContainerTab[];
@@ -58,13 +57,6 @@ export const PanelContainer = ( props: PanelContainerProps ) => {
 				}
 
 			} catch ( _e ) { /* */ }
-
-		}
-
-		if ( props.defaultTabTitle ) {
-
-			const idx = childs.findIndex( ( c ) => c.props.title === props.defaultTabTitle );
-			if ( idx >= 0 ) return idx;
 
 		}
 
