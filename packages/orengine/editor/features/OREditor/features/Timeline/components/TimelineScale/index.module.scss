@@ -1,5 +1,3 @@
-@use 'styles' as *;
-
 .scale {
 	pointer-events: none;
 	position: absolute;
@@ -19,7 +17,7 @@
 	top: 0;
 	left: 3px;
 	display: inline-block;
-	color: $fontCol3;
+	color: var(--or-text-dim);
 	height: 100%;
 
 	&_frame {

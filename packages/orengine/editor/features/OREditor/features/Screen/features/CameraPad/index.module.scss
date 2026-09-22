@@ -1,5 +1,3 @@
-@use 'styles' as *;
-
 // 高さを変えたら OREditor SP レイアウトのプレビュー枠 calc の定数も合わせて更新する
 .cameraPad {
 	flex-shrink: 0;
@@ -7,8 +5,8 @@
 	display: flex;
 	gap: 4px;
 	padding: 4px;
-	background-color: $bgCol0;
-	border-top: 1px solid $bgCol1;
+	background-color: var(--or-bg-base);
+	border-top: 1px solid var(--or-bg-panel);
 }
 
 .btn {
@@ -20,12 +18,12 @@
 	white-space: nowrap;
 	user-select: none;
 	cursor: pointer;
-	color: $fontCol1;
-	background-color: $bgCol1;
-	border-radius: $radius1;
+	color: var(--or-text);
+	background-color: var(--or-bg-panel);
+	border-radius: var(--or-radius);
 
 	&:active {
-		background-color: $bgCol2;
+		background-color: var(--or-bg-surface);
 	}
 
 	&[data-disabled='true'] {

@@ -1,9 +1,7 @@
-@use 'styles' as *;
-
 .panelContainer {
 	width: 100%;
 	height: 100%;
-	background-color: $bgCol1;
+	background-color: var(--or-bg-panel);
 	display: flex;
 	align-items: center;
 	flex-direction: column;
@@ -12,7 +10,7 @@
 .header {
 	width: 100%;
 	height: var(--or-tab-height);
-	background-color: $bgCol2;
+	background-color: var(--or-bg-surface);
 	font-size: var(--or-tab-font-size);
 	display: flex;
 	overflow-x: auto;
@@ -31,11 +29,11 @@
 		flex-shrink: 0;
 
 		&[data-active='true'] {
-			background-color: $bgCol3;
+			background-color: var(--or-bg-active);
 		}
 
 		&:hover {
-			background-color: $bgCol4;
+			background-color: var(--or-bg-hover);
 		}
 	}
 
@@ -50,10 +48,10 @@
 		flex-shrink: 0;
 		// タブと誤認しないよう右端へ寄せる
 		margin-left: auto;
-		color: $fontCol3;
+		color: var(--or-text-dim);
 
 		&:hover {
-			background-color: $bgCol4;
+			background-color: var(--or-bg-hover);
 		}
 	}
 }

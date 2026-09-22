@@ -1,16 +1,14 @@
-@use 'styles' as *;
-
 .inputNumber {}
 
 .input {
 	padding: var(--or-input-padding);
 	text-align: center;
 	width: 100%;
-	border-radius: $radius1;
-	background-color: $bgCol2;
+	border-radius: var(--or-radius);
+	background-color: var(--or-bg-surface);
 	border: none;
 	cursor: ew-resize;
-	color: $fontCol2;
+	color: var(--or-text-muted);
 	font-size: var(--or-input-font-size);
 
 	&:disabled {
@@ -18,7 +16,7 @@
 	}
 
 	&:read-only {
-		color: $fontCol2;
+		color: var(--or-text-muted);
 		border: none;
 		outline: none;
 		cursor: default;

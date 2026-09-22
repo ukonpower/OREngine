@@ -1,5 +1,3 @@
-@use 'styles' as *;
-
 .container {
 	display: flex;
 	margin-bottom: 3px;
@@ -14,10 +12,10 @@
 
 .label {
 	min-width: 20%;
-	color: $fontCol3;
+	color: var(--or-text-dim);
 	word-break: break-all;
 	margin-right: 5px;
-	font-size: $fontSize1;
+	font-size: var(--or-font-xs);
 
 
 	&[data-vertical="true"] {

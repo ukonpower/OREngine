@@ -1,5 +1,3 @@
-@use 'styles' as *;
-
 .block {
 	width: 100%;
 	margin-bottom: 5px;
@@ -9,9 +7,9 @@
 	}
 
 	&[data-bg="true"] {
-		background-color: $bgCol0;
-		border-radius: $radius1;
-		padding: $padding;
+		background-color: var(--or-bg-base);
+		border-radius: var(--or-radius);
+		padding: var(--or-space);
 	}
 }
 
@@ -19,7 +17,7 @@
 	display: flex;
 	align-items: center;
 
-	padding: $padding;
+	padding: var(--or-space);
 
 
 	&_icon {
@@ -36,7 +34,7 @@
 	&_text {
 		display: inline-block;
 		user-select: none;
-		color: $fontCol2;
+		color: var(--or-text-muted);
 		flex: 1;
 	}
 

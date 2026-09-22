@@ -1,5 +1,3 @@
-@use 'styles' as *;
-
 .inputBoolean {
 	display: block;
 	width: var(--or-checkbox-size);
@@ -13,14 +11,14 @@
 
 .input {
 	display: none;
-	color: $fontCol2;
+	color: var(--or-text-muted);
 }
 
 .check {
 	cursor: pointer;
 	width: 100%;
 	height: 100%;
-	background-color: $bgCol3;
+	background-color: var(--or-bg-surface);
 	cursor: pointer;
 
 	&[data-read_only="true"] {
@@ -29,7 +27,7 @@
 
 		svg {
 			rect {
-				fill: $fontCol3;
+				fill: var(--or-text-dim);
 			}
 		}
 	}
