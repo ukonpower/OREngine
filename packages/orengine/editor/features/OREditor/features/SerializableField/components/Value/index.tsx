@@ -1,14 +1,8 @@
 import React from 'react';
 
 import { SerializableFieldFormat, SerializeFieldObjective } from 'maxpower';
+import { Button, InputBoolean, InputColor, InputNumber, InputSelect, InputText, Vector } from 'uipower';
 
-import { Button } from '../../../../../../components/ui/Button';
-import { InputBoolean } from '../../../../../../components/ui/Input/InputCheckBox';
-import { InputColor } from '../../../../../../components/ui/Input/InputColor';
-import { InputNumber } from '../../../../../../components/ui/Input/InputNumber';
-import { InputSelect } from '../../../../../../components/ui/Input/InputSelect';
-import { InputText } from '../../../../../../components/ui/Input/InputText';
-import { Vector } from '../../../../../../components/ui/Vector';
 import { InputComponentRef } from '../InputComponentRef';
 import { InputEntityRef } from '../InputEntityRef';
 import { InputResourceSelect } from '../InputResourceSelect';

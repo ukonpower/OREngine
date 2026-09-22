@@ -11,7 +11,7 @@ export type InputWindowConfig = {
 	precision?: number;
 };
 
-// 入力ウィンドウの開閉契約。Provider 実装は features/OREditor/features/InputWindow が担う
+// 入力ウィンドウの開閉契約。Provider 実装は InputWindow が担う
 export type InputWindowContextValue = {
 	config: InputWindowConfig | null;
 	open: ( config: InputWindowConfig ) => void;

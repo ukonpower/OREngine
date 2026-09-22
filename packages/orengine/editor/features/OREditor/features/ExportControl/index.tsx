@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 
 import { SceneExporterProgress } from 'orengine/editor';
+import { Block, Button } from 'uipower';
 
-import { Block } from '../../../../components/ui/Block';
-import { Button } from '../../../../components/ui/Button';
 import { useOREditor } from '../../hooks/useOREditor';
 
 import style from './index.module.scss';

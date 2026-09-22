@@ -72,11 +72,14 @@ export const sharedResolve = ( projectDir: string, renderer: RendererName, scene
 		{ find: /^orengine\/glpower$/, replacement: path.join( orengineRoot, 'packages/glpower/index.ts' ) },
 		{ find: /^orengine\/mathpower$/, replacement: path.join( orengineRoot, 'packages/mathpower/index.ts' ) },
 		{ find: /^orengine\/basepower$/, replacement: path.join( orengineRoot, 'packages/basepower/index.ts' ) },
+		{ find: /^orengine\/uipower$/, replacement: path.join( orengineRoot, 'packages/uipower/index.ts' ) },
 		{ find: /^orengine\/(.*)$/, replacement: path.join( orengineRoot, 'packages/orengine/$1' ) },
 		{ find: /^orengine$/, replacement: path.join( orengineRoot, 'packages/orengine/index.ts' ) },
 		{ find: /^glpower$/, replacement: path.join( orengineRoot, 'packages/glpower' ) },
 		{ find: /^mathpower$/, replacement: path.join( orengineRoot, 'packages/mathpower' ) },
 		{ find: /^basepower$/, replacement: path.join( orengineRoot, 'packages/basepower' ) },
+		{ find: /^uipower\/(.*)$/, replacement: path.join( orengineRoot, 'packages/uipower/$1' ) },
+		{ find: /^uipower$/, replacement: path.join( orengineRoot, 'packages/uipower' ) },
 		// WebGPUプロジェクトのコンポーネントが自分のバックエンドAPIを直接importするための口
 		{ find: /^maxpower\/webgpu$/, replacement: path.join( orengineRoot, 'packages/maxpower/webgpu' ) },
 		{ find: /^maxpower$/, replacement: path.join( orengineRoot, 'packages/maxpower/webgl' ) },
@@ -94,9 +97,9 @@ export const sharedCss = () => ( {
 		},
 	},
 	preprocessorOptions: {
-		// loadPaths: editor 配下の scss から `@use 'styles' as *` で共有 partial を参照するため
+		// loadPaths: scss から `@use 'styles' as *` で uipower の共有 partial を参照するため
 		// （相対パスは階層移動に弱い。package.json の typecheck の --load-path と一致させること）
-		scss: { api: 'modern', loadPaths: [ path.join( orengineRoot, 'packages/orengine/editor' ) ] },
+		scss: { api: 'modern', loadPaths: [ path.join( orengineRoot, 'packages/uipower' ) ] },
 	},
 } );
 

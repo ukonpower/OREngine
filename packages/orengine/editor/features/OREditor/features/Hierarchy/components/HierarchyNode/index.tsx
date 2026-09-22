@@ -1,13 +1,8 @@
 import { MouseEvent, useCallback, useMemo } from 'react';
 
 import * as MXP from 'maxpower';
+import { ArrowIcon, CameraIcon, CursorIcon, EyeIcon, LightIcon, MeshIcon } from 'uipower';
 
-import { ArrowIcon } from '../../../../../../components/ui/Icons/ArrowIcon';
-import { CameraIcon } from '../../../../../../components/ui/Icons/CameraIcon';
-import { CursorIcon } from '../../../../../../components/ui/Icons/CursorIcon';
-import { EyeIcon } from '../../../../../../components/ui/Icons/EyeIcon';
-import { LightIcon } from '../../../../../../components/ui/Icons/LightIcon';
-import { MeshIcon } from '../../../../../../components/ui/Icons/MeshIcon';
 import { useOREditor } from '../../../../hooks/useOREditor';
 import { Picker } from '../../../MouseMenu/components/Picker';
 import { useMouseMenu } from '../../../MouseMenu/hooks/useMouseMenu';

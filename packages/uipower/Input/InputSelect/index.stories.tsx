@@ -2,8 +2,8 @@ import { useState } from 'react';
 
 import { InputSelect } from '.';
 
+import type { SelectOption } from '.';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import type { SelectList } from 'maxpower';
 import type { ComponentProps } from 'react';
 
 // value は呼び出し側が持つ制御コンポーネントなので、story 側で状態を持たせて操作できるようにする
@@ -15,9 +15,9 @@ const SelectSample = ( props: ComponentProps<typeof InputSelect> ) => {
 
 };
 
-const stringList: SelectList = [ 'nearest', 'linear', 'mipmap' ];
+const stringList: SelectOption[] = [ 'nearest', 'linear', 'mipmap' ];
 
-const labeledList: SelectList = [
+const labeledList: SelectOption[] = [
 	{ label: '不透明', value: 'opaque' },
 	{ label: '半透明', value: 'transparent' },
 	{ label: '加算', value: 'additive' },

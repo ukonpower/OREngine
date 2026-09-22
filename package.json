@@ -15,6 +15,7 @@
     "./glpower": "./packages/glpower/index.ts",
     "./mathpower": "./packages/mathpower/index.ts",
     "./basepower": "./packages/basepower/index.ts",
+    "./uipower": "./packages/uipower/index.ts",
     "./player": "./packages/orengine/player/index.ts",
     "./package.json": "./package.json"
   },
@@ -30,7 +31,7 @@
     "vrt": "npm run storybook:build && playwright test -c tests/vrt/playwright.config.ts",
     "vrt:update": "npm run storybook:build && playwright test -c tests/vrt/playwright.config.ts --update-snapshots",
     "lint": "eslint \"**/*.{ts,tsx}\" --report-unused-disable-directives --max-warnings 0",
-    "typecheck": "tsc --noEmit && find packages -name '*.scss' | xargs -I{} sass --load-path=packages/orengine/editor --no-source-map --quiet {} /dev/null"
+    "typecheck": "tsc --noEmit && find packages -name '*.scss' | xargs -I{} sass --load-path=packages/uipower --no-source-map --quiet {} /dev/null"
   },
   "dependencies": {
     "@rollup/plugin-terser": "^1.0.0",

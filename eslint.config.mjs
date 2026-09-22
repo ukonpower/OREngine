@@ -85,6 +85,7 @@ export default [ {
 			{ type: "base-util", pattern: [ "packages/basepower/**" ] },
 			{ type: "base-math", pattern: [ "packages/mathpower/**" ] },
 			{ type: "base-webgl", pattern: [ "packages/glpower/**" ] },
+			{ type: "ui", pattern: [ "packages/uipower/**" ] },
 			// runtime より先に定義する（分類は先勝ちのため、packages/maxpower/** に飲まれないように）
 			{ type: "backend-webgl", pattern: [ "packages/maxpower/webgl/**" ] },
 			{ type: "backend-webgpu", pattern: [ "packages/maxpower/webgpu/**" ] },
@@ -127,15 +128,23 @@ export default [ {
 						{ file: { categories: "runtime" } },
 					],
 					disallow: [
-						{ to: { element: { types: "editor" } } },
+						{ to: { element: { types: [ "editor", "ui" ] } } },
 						{ to: { file: { categories: "editor" } } },
 					],
 					message: "ランタイム領域からエディタ領域への import は禁止です",
 				},
 				{
 					from: { element: { types: [ "base-util", "base-math", "base-webgl" ] } },
-					disallow: { to: { element: { types: [ "runtime", "backend-webgl", "backend-webgpu", "backend-headless", "editor" ] } } },
+					disallow: { to: { element: { types: [ "runtime", "backend-webgl", "backend-webgpu", "backend-headless", "editor", "ui" ] } } },
 					message: "第1層パッケージ（basepower/mathpower/glpower）から上位層への import は禁止です",
+				},
+				{
+					from: { element: { types: "ui" } },
+					disallow: [
+						{ to: { element: { types: [ "base-util", "base-math", "base-webgl", "runtime", "backend-webgl", "backend-webgpu", "backend-headless", "editor" ] } } },
+						{ to: { file: { categories: [ "runtime", "editor" ] } } },
+					],
+					message: "uipower は react 以外のパッケージに依存できません",
 				},
 				{
 					from: { element: { types: "base-util" } },
@@ -167,7 +176,7 @@ export default [ {
 	},
 }, {
 
-	// editor React 層のレイヤー依存ルール（pages → features → components/ui の一方向）。
+	// editor React 層のレイヤー依存ルール（pages → features → uipower の一方向）。
 	// flat config の settings マージにより、editor 配下のファイルだけ elements 定義を差し替える
 	files: [ "packages/orengine/editor/**/*.{ts,tsx}" ],
 
@@ -175,13 +184,11 @@ export default [ {
 		"boundaries/elements": [
 			{ type: "storybook-support", pattern: ".storybook/**" },
 			{ type: "editor-page", pattern: "packages/orengine/editor/components/pages/*", capture: [ "pageName" ] },
-			{ type: "editor-ui", pattern: "packages/orengine/editor/components/ui/*", capture: [ "componentName" ] },
 			{ type: "editor-feature", pattern: "packages/orengine/editor/features/*", capture: [ "featureName" ] },
 			{ type: "editor-shared-hooks", pattern: "packages/orengine/editor/hooks" },
 			{ type: "editor-shared-contexts", pattern: "packages/orengine/editor/contexts" },
 			{ type: "editor-core", pattern: "packages/orengine/editor/lib" },
-			{ type: "editor-styles", pattern: "packages/orengine/editor/styles" },
-			// editor 外のローカルファイル（ランタイムパッケージ等）は一括で分類し、依存可否は既存のパッケージ間ルールに委ねる
+			// editor 外のローカルファイル（uipower・ランタイムパッケージ等）は一括で分類し、依存可否は既存のパッケージ間ルールに委ねる
 			{ type: "outside-editor", pattern: [ "packages/**", "host/**" ] },
 		],
 
@@ -201,13 +208,13 @@ export default [ {
 					// ストーリーは feature を単体で立てるためのもので、対象は自分が同居する
 					// 子feature自身になる。公開APIの制限をかけると成立しないため feature 全体を許す
 					from: { file: { categories: "editor-story" } },
-					allow: { to: { element: { type: [ "editor-feature", "storybook-support", "editor-ui", "editor-shared-hooks", "editor-shared-contexts", "editor-core", "editor-styles", "outside-editor" ] } } },
+					allow: { to: { element: { type: [ "editor-feature", "storybook-support", "editor-shared-hooks", "editor-shared-contexts", "editor-core", "outside-editor" ] } } },
 				},
 				{
 					from: { element: { type: "editor-page" } },
 					allow: { to: { element: [
 						EDITOR_FEATURE_PUBLIC_API,
-						{ type: [ "editor-ui", "editor-shared-hooks", "editor-shared-contexts", "editor-core", "editor-styles", "outside-editor" ] },
+						{ type: [ "editor-shared-hooks", "editor-shared-contexts", "editor-core", "outside-editor" ] },
 					] } },
 				},
 				{
@@ -217,12 +224,8 @@ export default [ {
 					allow: { to: { element: [
 						{ type: "editor-feature", captured: { featureName: "{{from.featureName}}" } },
 						{ ...EDITOR_FEATURE_PUBLIC_API, captured: { featureName: "OREngine" } },
-						{ type: [ "editor-ui", "editor-shared-hooks", "editor-shared-contexts", "editor-core", "editor-styles", "outside-editor" ] },
+						{ type: [ "editor-shared-hooks", "editor-shared-contexts", "editor-core", "outside-editor" ] },
 					] } },
-				},
-				{
-					from: { element: { type: "editor-ui" } },
-					allow: { to: { element: { type: [ "editor-ui", "editor-shared-hooks", "editor-shared-contexts", "editor-styles", "outside-editor" ] } } },
 				},
 				{
 					from: { element: { type: "editor-shared-hooks" } },

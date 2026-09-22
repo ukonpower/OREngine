@@ -1,9 +1,7 @@
 import { useState } from 'react';
 
-import { Block } from '../../../../components/ui/Block';
-import { Button } from '../../../../components/ui/Button';
-import { ArrowIcon } from '../../../../components/ui/Icons/ArrowIcon';
-import { Label } from '../../../../components/ui/Label';
+import { ArrowIcon, Block, Button, Label } from 'uipower';
+
 import { useOREditor } from '../../hooks/useOREditor';
 
 import { SceneWindow } from './components/SceneWindow';

@@ -1,7 +1,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { useInputWindow } from "../../../../hooks/useInputWindow";
+import { useInputWindow } from "../hooks/useInputWindow";
 
 import style from './index.module.scss';
 

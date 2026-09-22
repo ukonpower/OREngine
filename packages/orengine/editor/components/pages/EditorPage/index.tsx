@@ -7,7 +7,7 @@ import { Engine } from "orengine";
 import { OREditor, type PanelDefinition, type SceneSelection } from "../../../features/OREditor";
 import { OREngineProvider } from "../../../features/OREngine/providers/OREngineProvider";
 
-import "../../../styles/style.scss";
+import "uipower/styles/style.scss";
 
 export interface EditorPageProps {
 	projectName?: string;

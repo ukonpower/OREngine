@@ -1,5 +1,5 @@
-import { Block } from '../../../../components/ui/Block';
-import { Label } from '../../../../components/ui/Label';
+import { Block, Label } from 'uipower';
+
 import { Value } from '../SerializableField/components/Value';
 
 import { useUISetting } from './hooks/useUISetting';

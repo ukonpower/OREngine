@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { Button } from '../../../../../../components/ui/Button';
+import { Button } from 'uipower';
 
 import style from './index.module.scss';
 

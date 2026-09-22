@@ -1,17 +1,16 @@
 import { useEffect } from 'react';
 
-import { withOREditor } from '@or-storybook/decorators/withOREditor';
-import { storyFixture } from '@or-storybook/fixtures/scene';
+import { withInputWindow } from '@or-storybook/decorators/withInputWindow';
 
-import { useInputWindow } from '../../../../hooks/useInputWindow';
+import { useInputWindow } from '../hooks/useInputWindow';
 
 import { InputWindow } from '.';
 
-import type { InputWindowConfig } from '../../../../contexts/InputWindowContext';
+import type { InputWindowConfig } from '../contexts/InputWindowContext';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta = {
-	title: 'OREditor/InputWindow',
+	title: 'ui/InputWindow',
 	component: InputWindow,
 } satisfies Meta<typeof InputWindow>;
 
@@ -22,8 +21,7 @@ type Story = StoryObj<typeof meta>;
 // 値の反映先が無いので受け取るだけにする
 const onChange = () => undefined;
 
-// 本体はデコレータが末尾にマウント済みなので、ストーリーは開く操作だけを持つ。
-// 画面中央への配置は CSS が決めるので座標は要らない
+// 開く操作だけを持つ。画面中央への配置は CSS が決めるので座標は要らない
 const Opener = ( { config }: { config: InputWindowConfig } ) => {
 
 	const { open } = useInputWindow();
@@ -39,8 +37,8 @@ const Opener = ( { config }: { config: InputWindowConfig } ) => {
 };
 
 const pattern = ( config: InputWindowConfig ): Story => ( {
-	render: () => <Opener config={config} />,
-	decorators: [ withOREditor( storyFixture ) ],
+	render: () => <><Opener config={config} /><InputWindow /></>,
+	decorators: [ withInputWindow ],
 } );
 
 export const NumberValue = pattern( {

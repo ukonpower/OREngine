@@ -2,10 +2,8 @@ import React, { useMemo } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 
 import * as MXP from 'maxpower';
+import { InputWindow, InputWindowProvider, LayoutSplit, Panel, PanelContainer } from 'uipower';
 
-import { LayoutSplit } from '../../components/ui/LayoutSplit';
-import { Panel } from '../../components/ui/Panel';
-import { PanelContainer } from '../../components/ui/PanelContainer';
 import { useLayout } from '../../hooks/useLayout';
 
 import { EditorSettings } from './features/EditorSettings';
@@ -13,8 +11,6 @@ import { EntityProperty } from './features/EntityProperty';
 import { ExportControl } from './features/ExportControl';
 import { Timer } from './features/GPUTimer';
 import { Hierarchy } from './features/Hierarchy';
-import { InputWindow } from './features/InputWindow';
-import { InputWindowProvider } from './features/InputWindow/providers/InputWindowProvider';
 import { MouseMenu } from './features/MouseMenu';
 import { MouseMenuProvider } from './features/MouseMenu/providers/MouseMenuProvider';
 import { PanelLayout } from './features/PanelLayout';

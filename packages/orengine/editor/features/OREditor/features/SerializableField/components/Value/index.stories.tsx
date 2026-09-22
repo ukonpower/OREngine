@@ -3,8 +3,7 @@ import { ReactElement, useState } from 'react';
 import { OREditorFixtureHost, withOREditor } from '@or-storybook/decorators/withOREditor';
 import { storyFixture } from '@or-storybook/fixtures/scene';
 import { Engine } from 'orengine';
-
-import { Label } from '../../../../../../components/ui/Label';
+import { Label } from 'uipower';
 
 import { Value } from '.';
 

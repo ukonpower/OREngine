@@ -1,9 +1,6 @@
 import { withOREngine } from '@or-storybook/decorators/withOREditor';
 import { storyEditorData, storyScene } from '@or-storybook/fixtures/scene';
-
-import { Block } from '../../components/ui/Block';
-import { Button } from '../../components/ui/Button';
-import { Panel } from '../../components/ui/Panel';
+import { Block, Button, Panel } from 'uipower';
 
 import { OREditor } from '.';
 

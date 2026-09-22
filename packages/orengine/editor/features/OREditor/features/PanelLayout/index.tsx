@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react';
 
-import { LayoutSplit } from '../../../../components/ui/LayoutSplit';
-import { PanelContainer } from '../../../../components/ui/PanelContainer';
+import { LayoutSplit, PanelContainer } from 'uipower';
+
 import { useOREditor } from '../../hooks/useOREditor';
 import { Picker } from '../MouseMenu/components/Picker';
 import { useMouseMenu } from '../MouseMenu/hooks/useMouseMenu';

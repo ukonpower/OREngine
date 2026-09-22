@@ -1,7 +1,7 @@
 import { ReactElement, useEffect, useRef, useState } from "react";
 
-import { Block } from "../../../../../../components/ui/Block";
-import { Button } from "../../../../../../components/ui/Button";
+import { Block, Button } from 'uipower';
+
 import { ValueType, Value } from "../Value";
 
 import style from './index.module.scss';

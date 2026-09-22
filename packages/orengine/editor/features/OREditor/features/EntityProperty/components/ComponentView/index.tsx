@@ -2,9 +2,8 @@
 import { MouseEvent, useCallback } from 'react';
 
 import * as MXP from 'maxpower';
+import { Block, CrossIcon } from 'uipower';
 
-import { Block } from '../../../../../../components/ui/Block';
-import { CrossIcon } from '../../../../../../components/ui/Icons/CrossIcon';
 import { useOREditor } from '../../../../hooks/useOREditor';
 import { SerializeFieldView } from '../../../SerializableField/components/SerializeFieldView';
 import { useSerializableField } from '../../../SerializableField/hooks/useSerializableProps';

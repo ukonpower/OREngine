@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
 
 import { SelectList } from 'maxpower';
+import { InputSelect } from 'uipower';
 
-import { InputSelect } from '../../../../../../components/ui/Input/InputSelect';
 import { useOREditor } from '../../../../hooks/useOREditor';
 
 import style from './index.module.scss';

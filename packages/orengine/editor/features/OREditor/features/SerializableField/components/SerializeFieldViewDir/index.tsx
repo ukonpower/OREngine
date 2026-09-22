@@ -1,8 +1,8 @@
 import React from "react";
 
 import * as MXP from 'maxpower';
+import { Block } from 'uipower';
 
-import { Block } from '../../../../../../components/ui/Block';
 import { SerializeFieldViewValue } from '../SerializeFieldViewValue';
 
 import style from './index.module.scss';

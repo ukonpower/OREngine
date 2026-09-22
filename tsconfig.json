@@ -46,6 +46,12 @@
       "mathpower": [
         "./packages/mathpower"
       ],
+      "uipower": [
+        "./packages/uipower"
+      ],
+      "uipower/*": [
+        "./packages/uipower/*"
+      ],
       "maxpower": [
         "./packages/maxpower/webgl"
       ],

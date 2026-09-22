@@ -1,8 +1,8 @@
 
 import { useRef, useCallback, useState, MouseEvent } from 'react';
 
-import { useInputWindow } from '../../../../hooks/useInputWindow';
-import { useMobileDevice } from '../../../../hooks/useMobileDevice';
+import { useInputWindow } from '../../hooks/useInputWindow';
+import { useMobileDevice } from '../../hooks/useMobileDevice';
 
 import style from './index.module.scss';
 

@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { Button } from '../../../../components/ui/Button';
-import { Label } from '../../../../components/ui/Label';
+import { Button, Label } from 'uipower';
+
 import { useLayout } from '../../../../hooks/useLayout';
 import { useOREditor } from '../../hooks/useOREditor';
 import { useUISetting } from '../EditorSettings/hooks/useUISetting';
