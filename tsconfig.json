@@ -84,6 +84,9 @@
       ],
       "@or-resources/*": [
         "./demo-webgl/Resources/*"
+      ],
+      "@or-project-editor/*": [
+        "./demo-webgl/editor/*"
       ]
     }
   },

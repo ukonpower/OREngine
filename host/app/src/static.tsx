@@ -6,6 +6,8 @@ import { EditorPageStatic } from 'orengine/react';
 
 import { initResouces, initResourceInstances } from '../Resources/registry';
 
+import { projectPanels } from './editorPanels';
+
 
 document.title = __OR_PROJECT_NAME__;
 
@@ -17,5 +19,6 @@ ReactDOM.createRoot( document.getElementById( 'root' )! ).render(
 		sceneData={SceneData as any}
 		editorData={EditorData as any}
 		initResourceInstances={initResourceInstances}
+		panels={projectPanels}
 	/>
 );

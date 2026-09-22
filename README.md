@@ -26,7 +26,7 @@ npm install
 
 `init.ts` が利用側リポジトリに以下を生成します（既存のファイルは上書きしません）。
 
-- `project/` — プロジェクトデータ（`scenes/<name>.json` / `editor.json` / `Resources/` / `public/`）
+- `project/` — プロジェクトデータ（`scenes/<name>.json` / `editor.json` / `Resources/` / `public/`。エディタ拡張の `editor/` は必要になったら自分で作ります）
 - `tsconfig.json` — パスエイリアスを submodule に向けた TypeScript 設定
 - `package.json` — `dev` / `player:build` / `editor:build` の scripts と、実行に必要な `tsx`（依存パッケージはすべて OREngine 側が持ちます）
 
@@ -44,6 +44,56 @@ npm run dev
 
 ```bash
 ORENGINE_RENDERER=webgpu npm run dev
+```
+
+#### エディタ拡張（`project/editor/`）
+
+作品ごとの制作補助ツール（値づくりの補助、外部 API や外部プロセスの呼び出しなど）を、エディタのパネルとサーバーの API route として足せます。`project/editor/` は任意のディレクトリで、player ビルドには一切入りません。
+
+`project/editor/Panels/<名前>/index.tsx` で `panel` を export すると、パネルのタブ「+」の一覧に出ます。
+
+```tsx
+import { useState } from 'react';
+
+import { type PanelDefinition } from 'orengine/react';
+import { Button, Panel } from 'uipower';
+
+const Sample = () => {
+
+	const [ message, setMessage ] = useState( '' );
+
+	const run = async () => {
+
+		const res = await fetch( '/api/ext/hello' );
+		const data = await res.json();
+		setMessage( data.message );
+
+	};
+
+	return <Panel><Button onClick={run}>Run</Button>{message}</Panel>;
+
+};
+
+export const panel: PanelDefinition = { id: 'sample', title: 'Sample', content: <Sample /> };
+```
+
+`project/editor/server.ts` を置くと、default export に express の `Router` が渡され、足した route が `/api/ext/*` に生えます（サーバーは tsx 上で動くので `.ts` のまま読み込まれます。変更の反映には開発サーバーの再起動が必要です）。
+
+```ts
+import type { EditorServerExtension } from 'orengine/server';
+
+const extension: EditorServerExtension = ( router, ctx ) => {
+
+	router.get( '/hello', ( _req, res ) => {
+
+		// ctx.projectDir 配下でファイルを読む・子プロセスを起動する等
+		res.json( { message: ctx.projectDir } );
+
+	} );
+
+};
+
+export default extension;
 ```
 
 ### 3. ビルド

@@ -14,7 +14,12 @@ const registryModules = [
 	path.join( appRoot, 'Resources/registryCommon.ts' ),
 ];
 
-// scenes/ 配下と editor.json の外部編集と、Resources のファイル増減を検知してフルリロードする
+// editor/Panels 配下を import.meta.glob で集めているモジュール（理由は registryModules と同じ）
+const editorPanelModules = [
+	path.join( appRoot, 'src/editorPanels.ts' ),
+];
+
+// scenes/ 配下と editor.json の外部編集と、Resources / editor のファイル増減を検知してフルリロードする
 // （scenes/*.json / editor.json はAPIによる直近書き込みを除外）
 export const ProjectWatchReload = ( projectDir: string ): Plugin => ( {
 	name: 'orengine-project-watch-reload',
@@ -25,10 +30,13 @@ export const ProjectWatchReload = ( projectDir: string ): Plugin => ( {
 		const scenesDir = path.resolve( path.join( projectDir, 'scenes' ) );
 		const editorJson = path.resolve( path.join( projectDir, 'editor.json' ) );
 		const resourcesDir = path.resolve( path.join( projectDir, 'Resources' ) );
+		// 末尾の区切りまで含めて比較する。付けないと editor.json が editor/ 配下と誤判定される
+		const editorDir = path.resolve( path.join( projectDir, 'editor' ) ) + path.sep;
 
 		server.watcher.add( scenesDir );
 		server.watcher.add( editorJson );
 		server.watcher.add( resourcesDir );
+		server.watcher.add( editorDir );
 
 		const isProjectDataFile = ( file: string ) => {
 
@@ -50,7 +58,8 @@ export const ProjectWatchReload = ( projectDir: string ): Plugin => ( {
 
 		} );
 
-		// コンポーネント・ジオメトリ・テクスチャの増減を、レジストリを作り直して反映する。
+		// コンポーネント・ジオメトリ・テクスチャ・エディタ拡張パネルの増減を、
+		// glob を持つモジュールを作り直して反映する。
 		// シーンファイルの増減はエディタのシーン一覧に出すためリロードだけ行う
 		const onAddOrUnlink = ( file: string ) => {
 
@@ -68,11 +77,23 @@ export const ProjectWatchReload = ( projectDir: string ): Plugin => ( {
 
 			}
 
-			if ( ! resolved.startsWith( resourcesDir ) ) return;
+			let globModules: string[] | null = null;
+
+			if ( resolved.startsWith( resourcesDir ) ) {
+
+				globModules = registryModules;
+
+			} else if ( resolved.startsWith( editorDir ) ) {
+
+				globModules = editorPanelModules;
+
+			}
+
+			if ( ! globModules ) return;
 
 			const moduleGraph = server.environments.client.moduleGraph;
 
-			for ( const id of registryModules ) {
+			for ( const id of globModules ) {
 
 				const mod = moduleGraph.getModuleById( id );
 

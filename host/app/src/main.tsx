@@ -4,6 +4,8 @@ import { EditorPage } from 'orengine/react';
 
 import { initResouces, initResourceInstances } from '../Resources/registry';
 
+import { projectPanels } from './editorPanels';
+
 
 document.title = __OR_PROJECT_NAME__;
 
@@ -13,5 +15,6 @@ ReactDOM.createRoot( document.getElementById( 'root' )! ).render(
 	<EditorPage
 		projectName={__OR_PROJECT_NAME__}
 		initResourceInstances={initResourceInstances}
+		panels={projectPanels}
 	/>
 );
