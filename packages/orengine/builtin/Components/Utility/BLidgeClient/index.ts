@@ -333,7 +333,17 @@ export class BLidgeClient extends MXP.Component {
 		const _ = ( node: MXP.BLidgeNode ): MXP.Entity => {
 
 			// 既存のエンティティがあれば取得、なければ新規作成
-			const entity: MXP.Entity = ( this.entities.get( node.name ) || this.engine.createEntity() );
+			let entity = this.entities.get( node.name );
+
+			if ( ! entity ) {
+
+				entity = this.engine.createEntity();
+
+				// BLidge の同一性はノード名なので、uuid も名前から決める。
+				// ランダム uuid だとリロードのたびに変わり、エディタから保存したエンティティ参照（lookAt/target 等）が外れる
+				entity.restoreUUID( "blidge:" + node.name );
+
+			}
 
 			// カメラノードの場合、カメラパラメータを設定
 			if ( node.type == 'camera' ) {

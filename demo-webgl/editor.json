@@ -7,28 +7,36 @@
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,
 	"frameLoop/end": 0,
-	"selectedEntityId": "34e12786-4d92-4f7c-8d33-32730687bdb6",
+	"selectedEntityId": "blidge:Camera",
+	"unselectableEntityIds": [],
 	"selectedAsset": {
 		"name": "OREngineCube",
 		"assetType": "material"
 	},
 	"navigateAsset": null,
 	"propertyTarget": "entity",
-	"cameraMode": "preview",
 	"gizmoMode": "translate",
+	"transformOrientation": "global",
+	"panelLayout": null,
 	"helpers/show": true,
+	"helpers/grid": true,
 	"helpers/empty": true,
 	"helpers/camera": true,
 	"helpers/light": true,
 	"helpers/wireframe": false,
+	"helpers/gizmo": true,
+	"helpers/outline": true,
+	"viewports/main/cameraView": "camera",
+	"viewports/main/preview": false,
 	"viewports/main/camera/position": [
-		0.05483466718929176,
-		2.1441760888120505,
-		12.417943092713458
+		0.2518505313801864,
+		1.5548253156231446,
+		8.780406604281206
 	],
 	"viewports/main/camera/target": [
-		0,
-		0,
-		0
-	]
+		0.03679578414965699,
+		1.496288675590404,
+		8.332829887430016
+	],
+	"scene": "main"
 }

@@ -18,11 +18,26 @@
 							"components": [
 								{
 									"name": "Camera",
-									"uuid": "4ec0479f-f58f-4644-a7f4-0204813c5c99"
+									"uuid": "4ec0479f-f58f-4644-a7f4-0204813c5c99",
+									"props": {
+										"fov": 21.908,
+										"near": 0.1,
+										"far": 1000,
+										"orthWidth": 1,
+										"orthHeight": 1,
+										"fNumber": 0.3
+									}
 								},
 								{
 									"name": "CameraController",
-									"uuid": "3d0e3c4f-7110-43bc-917a-00850232c7b1"
+									"uuid": "3d0e3c4f-7110-43bc-917a-00850232c7b1",
+									"props": {
+										"lookAt/target": "blidge:CamLook",
+										"focus/mode": "target",
+										"focus/target": "blidge:CamDof",
+										"focus/distance": 4.949999999999992,
+										"focus/speed": 4.675000000000007
+									}
 								}
 							]
 						},
