@@ -71,6 +71,20 @@ export class ProjectData {
 
 	}
 
+	deleteScene( sceneName: string ): void {
+
+		const filePath = this.sceneFilePath( sceneName );
+
+		if ( ! fs.existsSync( filePath ) ) {
+
+			throw new Error( `scene "${sceneName}" not found in project: ${this._name}` );
+
+		}
+
+		fs.unlinkSync( filePath );
+
+	}
+
 	getSceneFileData( sceneName: string ): SceneFileData {
 
 		const data = this._readSceneFile( sceneName );

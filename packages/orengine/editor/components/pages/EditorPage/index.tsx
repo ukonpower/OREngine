@@ -133,11 +133,30 @@ export const EditorPage = ( props: EditorPageProps ) => {
 
 	}, [ apiBase, openScene ] );
 
+	const deleteScene = useCallback( async ( name: string ) => {
+
+		const res = await fetch( `${apiBase}/scenes/${name}`, { method: "DELETE" } );
+
+		if ( ! res.ok ) return;
+
+		const names = await fetchJson<string[]>( `${apiBase}/scenes` ) ?? [];
+		setSceneNames( names );
+
+		// 開いているシーンを消したときは、残っているシーンへ移る
+		if ( name === sceneName && names.length > 0 ) {
+
+			await openScene( names[ 0 ] );
+
+		}
+
+	}, [ apiBase, sceneName, openScene ] );
+
 	const scenes: SceneSelection = {
 		names: sceneNames,
 		current: sceneName,
 		onSelect: openScene,
 		onCreate: createScene,
+		onDelete: deleteScene,
 	};
 
 	return (

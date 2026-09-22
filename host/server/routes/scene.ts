@@ -112,6 +112,36 @@ export const createSceneRouter = ( pm: ProjectManager ) => {
 
 	} );
 
+	router.delete( '/projects/:name/scenes/:scene', ( req, res ) => {
+
+		const sceneName = req.params.scene;
+
+		if ( ! isValidSceneName( sceneName ) ) {
+
+			res.status( 400 ).json( { error: 'Invalid scene name' } );
+			return;
+
+		}
+
+		const project = pm.getProject();
+		const filePath = project.sceneFilePath( sceneName );
+
+		try {
+
+			project.deleteScene( sceneName );
+
+			// 削除もエディタ発の操作なので、watch のフルリロードで編集中の状態を飛ばさない
+			markWritten( filePath );
+			res.json( { success: true } );
+
+		} catch ( err: any ) {
+
+			res.status( 404 ).json( { error: err.message || 'Failed to delete scene' } );
+
+		}
+
+	} );
+
 	// Editor
 	router.get( '/projects/:name/editor', ( _req, res ) => {
 

@@ -36,7 +36,7 @@ npm install
 npm run dev
 ```
 
-エディタ付き開発サーバーが起動します。`project/scenes/*.json` やコンポーネントのファイルを直接編集すると、変更検知でブラウザが自動リロードされます。シーンはエディタの Project パネルから切り替え・新規作成できます。
+エディタ付き開発サーバーが起動します。`project/scenes/*.json` やコンポーネントのファイルを直接編集すると、変更検知でブラウザが自動リロードされます。シーンはエディタの Scene パネルから切り替え・新規作成できます。
 
 `project/Resources/Components/<グループ>/<名前>/index.ts` に `MXP.Component` を継承したクラスを export すると、コンポーネントとして自動で認識されます。
 

@@ -3,14 +3,14 @@ import { storyFixture } from '@or-storybook/fixtures/scene';
 
 import { Panel } from '../../../../components/ui/Panel';
 
-import { ProjectControl } from '.';
+import { ExportControl } from '.';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta = {
-	title: 'OREditor/ProjectControl',
-	component: ProjectControl,
-} satisfies Meta<typeof ProjectControl>;
+	title: 'OREditor/ExportControl',
+	component: ExportControl,
+} satisfies Meta<typeof ExportControl>;
 
 export default meta;
 
@@ -22,6 +22,5 @@ const decorators: Story['decorators'] = [
 	withOREditor( storyFixture ),
 ];
 
-// Save / Play / Export はサーバーAPIとプレイヤーのページに繋がるので storybook では動かない。
-// 見た目の確認だけの1パターンとして置く
+// 書き出しは実行するとエンコードが走るので、storybook では待機状態だけを撮る
 export const Default: Story = { decorators };

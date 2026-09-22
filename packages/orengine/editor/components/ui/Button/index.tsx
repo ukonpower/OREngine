@@ -4,6 +4,7 @@ export type ButtonProps = {
 	onClick?: ( event: React.MouseEvent<HTMLButtonElement, MouseEvent> ) => void;
 	children?: React.ReactNode;
 	type?: "button" | "submit";
+	disabled?: boolean;
 }
 
 export const Button = ( props: ButtonProps ) => {
@@ -18,7 +19,7 @@ export const Button = ( props: ButtonProps ) => {
 
 		event.preventDefault();
 
-	}} type={props.type || "button"} >{
+	}} type={props.type || "button"} disabled={props.disabled} >{
 			props.children
 		}</button>;
 

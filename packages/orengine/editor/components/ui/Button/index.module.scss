@@ -9,7 +9,12 @@
 	margin-bottom: 1px;
 	font-size: inherit;
 
-	&:hover {
+	&:hover:not(:disabled) {
 		background-color: $bgCol3;
+	}
+
+	&:disabled {
+		color: $fontCol4;
+		cursor: default;
 	}
 }

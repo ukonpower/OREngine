@@ -8,12 +8,15 @@ import type { Decorator } from '@storybook/react-vite';
 import type * as MXP from 'maxpower';
 import type { OREngineProjectData } from 'orengine';
 import type { Editor } from 'orengine/editor';
+import type { SceneSelection } from 'orengine/react';
 
 export type OREditorFixture = {
 	scene: OREngineProjectData;
 	editorData?: MXP.SerializeField;
 	// シーン読み込み後に一度だけ走る初期操作（seek・play・音源の投入など）
 	setup?: ( editor: Editor ) => void;
+	// シーン一覧のUIを撮るためのダミー窓口。実体はページ側が持つのでここでは値だけ与える
+	scenes?: SceneSelection;
 };
 
 // コンポーネント・ジオメトリ・テクスチャの登録はプロセスに1回で足りる
@@ -51,7 +54,7 @@ const FixtureSetup = ( { setup }: { setup: ( editor: Editor ) => void } ) => {
 // 単体で立てるにも同じ積み方をなぞる（数値入力の InputWindow・右クリックの MouseMenu を含む）
 export const OREditorFixtureHost: React.FC<{ fixture: OREditorFixture, children?: React.ReactNode }> = ( props ) => (
 	<OREngineProvider project={props.fixture.scene} onEngineInit={initResourceInstances}>
-		<OREditorProvider projectName="storybook" editorData={props.fixture.editorData}>
+		<OREditorProvider projectName="storybook" editorData={props.fixture.editorData} scenes={props.fixture.scenes}>
 			<MouseMenuProvider>
 				<InputWindowProvider>
 					{props.children}
