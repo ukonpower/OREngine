@@ -21,7 +21,6 @@
 	--or-focus: #999;
 
 	// 下地を透かす面。不透明トークンから作って色の出どころを1つに保つ
-	--or-bg-overlay: rgba(0, 0, 0, 0.5);
 	--or-bg-float: color-mix(in srgb, var(--or-bg-base) 60%, transparent);
 	--or-bg-float-active: color-mix(in srgb, var(--or-bg-surface) 80%, transparent);
 	--or-drop-zone: color-mix(in srgb, var(--or-focus) 15%, transparent);
@@ -56,7 +55,7 @@
 	--or-z-drag: 500;
 	// モーダル・入力窓。下の操作を塞ぐもの
 	--or-z-modal: 1000;
-	// 右クリックメニュー・タブ追加メニュー。モーダルの上からでも開くので常に最前面
+	// Popover（右クリックメニュー・タブ追加メニュー等）。モーダルの上からでも開くので常に最前面
 	--or-z-menu: 10000;
 
 	@include sp {

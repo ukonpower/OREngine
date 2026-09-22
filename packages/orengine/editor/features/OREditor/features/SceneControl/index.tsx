@@ -1,26 +1,30 @@
 import { useState } from 'react';
 
-import { ArrowIcon, Block, Button, Label } from 'uipower';
+import { ArrowIcon, Block, Button, Label, pointAnchor } from 'uipower';
 
 import { useOREditor } from '../../hooks/useOREditor';
 
 import { SceneWindow } from './components/SceneWindow';
 import style from './index.module.scss';
 
+import type { AnchorRect } from 'uipower';
+
 // 開いているシーンの表示と保存。選択・追加・削除は Scenes ウィンドウに集約する
 export const SceneControl = () => {
 
 	const { editor, projectName, scenes } = useOREditor();
-	const [ windowOpen, setWindowOpen ] = useState( false );
+
+	// ウィンドウを開いたクリックの位置。null なら閉じている
+	const [ windowAnchor, setWindowAnchor ] = useState<AnchorRect | null>( null );
 
 	let sceneElm = null;
 
 	if ( scenes ) {
 
 		sceneElm = <Label title='scene'>
-			<button className={style.select} onClick={() => {
+			<button className={style.select} onClick={( event ) => {
 
-				setWindowOpen( true );
+				setWindowAnchor( pointAnchor( event.clientX, event.clientY ) );
 
 			}}>
 				<span className={style.select_name}>{scenes.current ?? '-'}</span>
@@ -44,9 +48,9 @@ export const SceneControl = () => {
 				</div>
 			</Block>
 		</div>
-		{windowOpen && scenes && <SceneWindow scenes={scenes} projectName={projectName} onClose={() => {
+		{windowAnchor && scenes && <SceneWindow scenes={scenes} projectName={projectName} anchor={windowAnchor} onClose={() => {
 
-			setWindowOpen( false );
+			setWindowAnchor( null );
 
 		}} />}
 	</div>;

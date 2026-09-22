@@ -5,6 +5,7 @@ import { Button, ListItem, Modal } from 'uipower';
 import style from './index.module.scss';
 
 import type { SceneSelection } from '../../../../providers/OREditorProvider';
+import type { AnchorRect } from 'uipower';
 
 // シーン名はそのままファイル名になるので、サーバー側の制限と同じ文字だけを通す
 const SCENE_NAME_PATTERN = /^[A-Za-z0-9_-]+$/;
@@ -12,6 +13,8 @@ const SCENE_NAME_PATTERN = /^[A-Za-z0-9_-]+$/;
 type SceneWindowProps = {
 	scenes: SceneSelection;
 	projectName?: string;
+	// 開いたクリックの位置。省略すると画面中央に出る
+	anchor?: AnchorRect;
 	onClose: () => void;
 };
 
@@ -210,7 +213,7 @@ export const SceneWindow = ( props: SceneWindowProps ) => {
 
 	}
 
-	return <Modal title="Scenes" note={props.projectName} width={360} onClose={onClose} footer={footerElm}>
+	return <Modal title="Scenes" note={props.projectName} width={360} anchor={props.anchor} onClose={onClose} footer={footerElm}>
 		<div className={style.list}>
 			{itemElms}
 			{newItemElm}

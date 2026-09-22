@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
-import { MouseMenu, MouseMenuProvider, OREditorProvider, OREngineProvider, useOREditor } from 'orengine/react';
-import { InputWindow, InputWindowProvider } from 'uipower';
+import { OREditorProvider, OREngineProvider, useOREditor } from 'orengine/react';
+import { InputWindow, InputWindowProvider, Popover, PopoverProvider } from 'uipower';
 
 import { initResouces, initResourceInstances } from '../../host/app/Resources/registry';
 
@@ -52,18 +52,18 @@ const FixtureSetup = ( { setup }: { setup: ( editor: Editor ) => void } ) => {
 
 // 本物の Engine と Editor をひとつ立てて配下へ供給する。
 // エディタのパネルはどれも OREditor と同じ Provider 階層を前提にしているので、
-// 単体で立てるにも同じ積み方をなぞる（数値入力の InputWindow・右クリックの MouseMenu を含む）
+// 単体で立てるにも同じ積み方をなぞる（数値入力の InputWindow・右クリックメニューの Popover を含む）
 export const OREditorFixtureHost: React.FC<{ fixture: OREditorFixture, children?: React.ReactNode }> = ( props ) => (
 	<OREngineProvider project={props.fixture.scene} onEngineInit={initResourceInstances}>
 		<OREditorProvider projectName="storybook" editorData={props.fixture.editorData} scenes={props.fixture.scenes}>
-			<MouseMenuProvider>
+			<PopoverProvider>
 				<InputWindowProvider>
 					{props.children}
 					{props.fixture.setup && <FixtureSetup setup={props.fixture.setup} />}
 					<InputWindow />
-					<MouseMenu />
+					<Popover />
 				</InputWindowProvider>
-			</MouseMenuProvider>
+			</PopoverProvider>
 		</OREditorProvider>
 	</OREngineProvider>
 );

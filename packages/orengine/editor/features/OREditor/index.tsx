@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 
 import * as MXP from 'maxpower';
-import { InputWindow, InputWindowProvider, LayoutSplit, Panel, PanelContainer } from 'uipower';
+import { InputWindow, InputWindowProvider, LayoutSplit, Panel, PanelContainer, Popover, PopoverProvider } from 'uipower';
 
 import { useLayout } from '../../hooks/useLayout';
 
@@ -11,8 +11,6 @@ import { EntityProperty } from './features/EntityProperty';
 import { ExportControl } from './features/ExportControl';
 import { Timer } from './features/GPUTimer';
 import { Hierarchy } from './features/Hierarchy';
-import { MouseMenu } from './features/MouseMenu';
-import { MouseMenuProvider } from './features/MouseMenu/providers/MouseMenuProvider';
 import { PanelLayout } from './features/PanelLayout';
 import { RendererSettings } from './features/RendererSettings';
 import { SceneControl } from './features/SceneControl';
@@ -80,12 +78,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 
 	if ( layout.isPC ) {
 
-		editorElm = (
-			<>
-				<PanelLayout panels={panels} />
-				<MouseMenu />
-			</>
-		);
+		editorElm = <PanelLayout panels={panels} />;
 
 	} else {
 
@@ -131,21 +124,21 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 						</PanelContainer>
 					</LayoutSplit.Item>
 				</LayoutSplit>
-				<MouseMenu />
 			</>
 		);
 
 	}
 
 	return <OREditorProvider projectName={props.projectName} onSave={props.onSave} editorData={props.editorData} scenes={props.scenes}>
-		<MouseMenuProvider>
+		<PopoverProvider>
 			<InputWindowProvider>
 				<div className={style.editor}>
 					{editorElm}
 				</div>
 				<InputWindow />
+				<Popover />
 			</InputWindowProvider>
-		</MouseMenuProvider>
+		</PopoverProvider>
 	</OREditorProvider>;
 
 };

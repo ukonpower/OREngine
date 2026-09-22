@@ -41,11 +41,6 @@ export * from './editor/features/OREditor/features/SerializableField/components/
 export * from './editor/features/OREditor/features/SerializableField/hooks/useSerializableProps';
 export * from './editor/features/OREditor/features/SerializableField/hooks/useWatchSerializable';
 export * from './editor/features/OREditor/features/SerializableField/hooks/useSerializeFieldView';
-export * from './editor/features/OREditor/features/MouseMenu';
-export * from './editor/features/OREditor/features/MouseMenu/providers/MouseMenuProvider';
-export * from './editor/features/OREditor/features/MouseMenu/components/Picker';
-export * from './editor/features/OREditor/features/MouseMenu/hooks/useMouseMenu';
-export * from './editor/features/OREditor/features/MouseMenu/hooks/useMouseMenuItem';
 
 /*-------------------------------
 	Shared hooks

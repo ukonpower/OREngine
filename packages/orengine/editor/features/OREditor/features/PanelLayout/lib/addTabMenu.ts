@@ -1,11 +1,11 @@
 import type { PanelDefinition } from './types';
-import type { TreeMenuBranch, TreeMenuItem } from '../../MouseMenu/components/TreeMenu';
+import type { MenuBranch, MenuItem } from 'uipower';
 
 // 追加できるパネル定義から「+」メニューの木を組む。category が "/" 区切りのメニューパスで、
 // 省略した定義はルート直下に出る。並びは定義の宣言順で、同じ category は最初に現れた位置にまとめる
-export function buildAddTabMenu( panels: PanelDefinition[], onSelect: ( def: PanelDefinition ) => void ): TreeMenuItem[] {
+export function buildAddTabMenu( panels: PanelDefinition[], onSelect: ( def: PanelDefinition ) => void ): MenuItem[] {
 
-	const root: TreeMenuItem[] = [];
+	const root: MenuItem[] = [];
 
 	for ( const def of panels ) {
 
@@ -17,7 +17,7 @@ export function buildAddTabMenu( panels: PanelDefinition[], onSelect: ( def: Pan
 
 				if ( name === "" ) continue;
 
-				let branch: TreeMenuBranch | undefined = undefined;
+				let branch: MenuBranch | undefined = undefined;
 
 				for ( const item of items ) {
 

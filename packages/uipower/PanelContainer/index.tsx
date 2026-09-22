@@ -32,7 +32,7 @@ type PanelContainerProps = {
 	// タブのドラッグ開始検知用（D&D 自体の判定・描画は親が持つ）
 	onTabPointerDown?: ( id: string, event: React.PointerEvent ) => void;
 	// タブ追加ボタン（ヘッダー右端の「+」）。指定時のみ表示する
-	onAddClick?: () => void;
+	onAddClick?: ( event: React.MouseEvent ) => void;
 };
 
 export const PanelContainer = ( props: PanelContainerProps ) => {

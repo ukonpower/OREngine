@@ -13,9 +13,12 @@ export * from './InputWindow/providers/InputWindowProvider';
 export * from './Label';
 export * from './LayoutSplit';
 export * from './ListItem';
+export * from './Menu';
 export * from './Modal';
 export * from './Panel';
 export * from './PanelContainer';
+export * from './Popover';
+export * from './Popover/providers/PopoverProvider';
 export * from './Vector';
 
 /*-------------------------------
@@ -23,5 +26,8 @@ export * from './Vector';
 -------------------------------*/
 
 export * from './contexts/InputWindowContext';
+export * from './contexts/PopoverContext';
+export * from './hooks/useAnchoredPosition';
 export * from './hooks/useInputWindow';
 export * from './hooks/useMobileDevice';
+export * from './hooks/usePopover';

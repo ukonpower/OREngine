@@ -1,11 +1,9 @@
 import { MouseEvent, useCallback, useMemo } from 'react';
 
 import * as MXP from 'maxpower';
-import { ArrowIcon, CameraIcon, CursorIcon, EyeIcon, LightIcon, ListItem, MeshIcon } from 'uipower';
+import { ArrowIcon, CameraIcon, CursorIcon, EyeIcon, LightIcon, ListItem, MeshIcon, Menu, pointAnchor, usePopover } from 'uipower';
 
 import { useOREditor } from '../../../../hooks/useOREditor';
-import { Picker } from '../../../MouseMenu/components/Picker';
-import { useMouseMenu } from '../../../MouseMenu/hooks/useMouseMenu';
 import { InputGroup } from '../../../SerializableField/components/InputGroup';
 import { useSerializableField } from '../../../SerializableField/hooks/useSerializableProps';
 
@@ -114,22 +112,22 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 
 	// right click node
 
-	const { pushContent, closeAll } = useMouseMenu();
+	const { open: openPopover, closeAll } = usePopover();
 
 	const onRightClickNode = useCallback( ( e: MouseEvent ) => {
 
 		e.preventDefault();
 
-		if ( ! editor || ! pushContent || ! closeAll || noEditable ) return;
+		if ( ! editor || noEditable ) return;
 
 		editor.selectEntity( props.entity );
 
-		pushContent( <Picker label={props.entity.name} list={[
+		openPopover( <Menu title={props.entity.name} items={[
 			{
 				label: "Add Entity",
-				onClick: () => {
+				onClick: ( e ) => {
 
-					pushContent(
+					openPopover(
 						<InputGroup initialValues={{ name: '' }} onSubmit={( e ) => {
 
 							const newEntity = editor.api.createEntity( props.entity, e.name as string );
@@ -139,7 +137,8 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 							closeAll();
 
 						}}>
-						</InputGroup>
+						</InputGroup>,
+						pointAnchor( e.clientX, e.clientY )
 					);
 
 				},
@@ -154,9 +153,9 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 
 				},
 			}
-		]}></Picker> );
+		]} />, pointAnchor( e.clientX, e.clientY ) );
 
-	}, [ editor, props.entity, pushContent, closeAll, noEditable ] );
+	}, [ editor, props.entity, openPopover, closeAll, noEditable ] );
 
 	return <div className={style.node} data-no_export={noEditable}>
 		<ListItem className={style.self} style={{ paddingLeft: offsetPx }} onClick={onClickNode} onContextMenu={onRightClickNode} selected={isSelected}>
