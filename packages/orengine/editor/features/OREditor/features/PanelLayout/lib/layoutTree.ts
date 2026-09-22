@@ -1,3 +1,5 @@
+import { ID } from 'basepower';
+
 import type { LayoutNode, PaneNode, PanelDefinition, PanelId, SplitDirection, SplitItem, SplitNode } from './types';
 
 export type PanelResolver = ( tabId: PanelId ) => PanelDefinition | undefined;
@@ -29,7 +31,7 @@ export function tabInstance( tabId: PanelId ) {
 // 定義から新しく置くタブの id を作る。multiple なら毎回別 instance になる
 export function newTabId( def: PanelDefinition ): PanelId {
 
-	return def.multiple ? `${ def.id }:${ crypto.randomUUID() }` : def.id;
+	return def.multiple ? `${ def.id }:${ ID.genUUID() }` : def.id;
 
 }
 
@@ -42,14 +44,14 @@ export function panelContent( def: PanelDefinition, tabId: PanelId ) {
 
 const split = ( direction: SplitDirection, children: SplitItem[] ): SplitNode => ( {
 	type: "split",
-	id: crypto.randomUUID(),
+	id: ID.genUUID(),
 	direction,
 	children,
 } );
 
 const pane = ( tabs: PanelId[] ): PaneNode => ( {
 	type: "pane",
-	id: crypto.randomUUID(),
+	id: ID.genUUID(),
 	tabs,
 	active: tabs[ 0 ],
 } );
@@ -136,7 +138,7 @@ export function parseLayout( value: unknown, resolve: PanelResolver ): LayoutNod
 
 	const takeId = ( raw: unknown ) => {
 
-		const id = typeof raw === "string" && raw !== "" && ! seenIds.has( raw ) ? raw : crypto.randomUUID();
+		const id = typeof raw === "string" && raw !== "" && ! seenIds.has( raw ) ? raw : ID.genUUID();
 		seenIds.add( id );
 
 		return id;
@@ -331,7 +333,7 @@ export function splitPane( root: LayoutNode, targetPaneId: string, edge: SplitEd
 
 	const removed = closeTab( root, fromPaneId, panelId );
 
-	const newPane: PaneNode = { type: "pane", id: crypto.randomUUID(), tabs: [ panelId ], active: panelId };
+	const newPane: PaneNode = { type: "pane", id: ID.genUUID(), tabs: [ panelId ], active: panelId };
 
 	const replaced = replaceNode( removed, targetPaneId, ( node ) => {
 
@@ -341,7 +343,7 @@ export function splitPane( root: LayoutNode, targetPaneId: string, edge: SplitEd
 
 		return {
 			type: "split",
-			id: crypto.randomUUID(),
+			id: ID.genUUID(),
 			direction: edge === "left" || edge === "right" ? "horizontal" : "vertical",
 			children,
 		};
