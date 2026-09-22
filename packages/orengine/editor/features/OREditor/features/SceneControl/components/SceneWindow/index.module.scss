@@ -1,5 +1,3 @@
-@use 'styles' as *;
-
 .sceneWindow {
 	position: fixed;
 	left: 0;
@@ -16,17 +14,17 @@
 	position: absolute;
 	width: 100%;
 	height: 100%;
-	background: rgba(0, 0, 0, 0.5);
+	background: var(--or-bg-overlay);
 }
 
 .window {
 	position: relative;
 	width: 360px;
 	max-width: 90vw;
-	background: $bgCol1;
-	border-radius: $radius1;
-	color: $fontCol2;
-	font-size: $fontSize2;
+	background: var(--or-bg-panel);
+	border-radius: var(--or-radius);
+	color: var(--or-text-muted);
+	font-size: var(--or-font-sm);
 }
 
 .head {
@@ -37,7 +35,7 @@
 
 	&_title {
 		flex-shrink: 0;
-		color: $fontCol1;
+		color: var(--or-text);
 	}
 
 	// プロジェクト名は見出しの添え物なので、長いときはタイトル側を優先して省略する
@@ -47,8 +45,8 @@
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
-		color: $fontCol3;
-		font-size: $fontSize1;
+		color: var(--or-text-dim);
+		font-size: var(--or-font-xs);
 	}
 
 	&_close {
@@ -56,14 +54,14 @@
 		width: 20px;
 		height: 20px;
 		border: none;
-		border-radius: $radius1;
+		border-radius: var(--or-radius);
 		background: transparent;
-		color: $fontCol3;
+		color: var(--or-text-dim);
 		cursor: pointer;
 
 		&:hover {
-			background: $bgCol2;
-			color: $fontCol1;
+			background: var(--or-bg-hover);
+			color: var(--or-text);
 		}
 	}
 }
@@ -73,8 +71,8 @@
 	overflow-y: auto;
 	margin: 0 8px;
 	padding: 2px;
-	border-radius: $radius1;
-	background: $bgCol0;
+	border-radius: var(--or-radius);
+	background: var(--or-bg-base);
 }
 
 .item {
@@ -82,17 +80,17 @@
 	align-items: center;
 	gap: 8px;
 	padding: 5px 8px;
-	border-radius: $radius1;
+	border-radius: var(--or-radius);
 	cursor: pointer;
 	user-select: none;
 
 	&:hover {
-		background: $bgCol2;
+		background: var(--or-bg-hover);
 	}
 
 	&[data-selected="true"] {
-		background: $bgCol3;
-		color: $fontCol1;
+		background: var(--or-bg-active);
+		color: var(--or-text);
 	}
 
 	&_name {
@@ -105,8 +103,8 @@
 
 	&_badge {
 		flex-shrink: 0;
-		color: $fontCol3;
-		font-size: $fontSize1;
+		color: var(--or-text-dim);
+		font-size: var(--or-font-xs);
 	}
 }
 
@@ -117,16 +115,16 @@
 		width: 100%;
 		padding: var(--or-input-padding);
 		border: none;
-		border-radius: $radius1;
-		background: $bgCol2;
-		color: $fontCol1;
+		border-radius: var(--or-radius);
+		background: var(--or-bg-surface);
+		color: var(--or-text);
 		font-size: var(--or-input-font-size);
 	}
 
 	&_error {
 		padding: 4px 4px 2px;
-		color: $borderCol1;
-		font-size: $fontSize1;
+		color: var(--or-accent-danger);
+		font-size: var(--or-font-xs);
 	}
 }
 

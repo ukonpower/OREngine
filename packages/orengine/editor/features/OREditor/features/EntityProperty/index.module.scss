@@ -1,5 +1,3 @@
-@use 'styles' as *;
-
 .property {
 	width: 100%;
 	height: 100%;
@@ -10,7 +8,7 @@
 }
 
 .name {
-	font-size: $fontSize2;
+	font-size: var(--or-font-sm);
 	padding: 5px 0px;
 	margin-bottom: 5px;
 

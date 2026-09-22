@@ -1,5 +1,3 @@
-@use 'styles' as *;
-
 .inputSelect {
 	width: 100%;
 }
@@ -8,9 +6,9 @@
 	padding: var(--or-input-padding);
 	text-align: center;
 	width: 100%;
-	border-radius: $radius1;
-	background-color: $bgCol2;
+	border-radius: var(--or-radius);
+	background-color: var(--or-bg-surface);
 	border: none;
-	color: $fontCol2;
+	color: var(--or-text-muted);
 	font-size: var(--or-input-font-size);
 }

@@ -1,5 +1,3 @@
-@use 'styles' as *;
-
 .layout {
 	display: flex;
 	width: 100%;
@@ -21,22 +19,23 @@
 	overflow: hidden;
 
 	&_inner {
-		padding: $padding;
+		padding: var(--or-space);
 	}
 }
 
 .splitter {
 	flex-shrink: 0;
-	background: $bgCol0;
+	background: var(--or-bg-base);
 	user-select: none;
 	transition: background-color 0.1s ease;
 
 	&:hover {
-		background-color: $bgCol3;
+		background-color: var(--or-bg-hover);
 	}
 
+	// 掴んでいる間は操作対象であることをホバーより強く示す
 	&.dragging {
-		background-color: $bgCol4;
+		background-color: var(--or-focus);
 	}
 
 	&.horizontal {

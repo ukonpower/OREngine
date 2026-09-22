@@ -1,13 +1,10 @@
-@use 'styles' as *;
-
 .picker {
 	position: relative;
 	width: 100%;
 	height: 100%;
-	border-radius: $radius1;
-	padding: $padding;
-	background-color: $bgColWindow0;
-	border-radius: $radius1;
+	border-radius: var(--or-radius);
+	padding: var(--or-space);
+	background-color: var(--or-bg-base);
 	min-width: 100px;
 
 	&[data-no_bg] {
@@ -15,9 +12,9 @@
 	}
 
 	&_label {
-		font-size: $fontSize1;
-		color: $fontCol3;
-		padding: $padding 0;
+		font-size: var(--or-font-xs);
+		color: var(--or-text-dim);
+		padding: var(--or-space) 0;
 	}
 
 	&_list {
@@ -36,10 +33,10 @@
 }
 
 .item {
-	padding: $padding $padding * 0.5;
+	padding: var(--or-space) calc(var(--or-space) * 0.5);
 	cursor: pointer;
 
 	&:hover {
-		background-color: $bgCol2;
+		background-color: var(--or-bg-hover);
 	}
 }

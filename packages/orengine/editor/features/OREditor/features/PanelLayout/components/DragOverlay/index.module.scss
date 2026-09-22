@@ -1,5 +1,3 @@
-@use 'styles' as *;
-
 .overlay {
 	position: fixed;
 	inset: 0;
@@ -10,13 +8,13 @@
 
 .zone {
 	position: fixed;
-	background-color: rgba($focusCol, 0.15);
-	border: 1px solid rgba($focusCol, 0.6);
+	background-color: var(--or-drop-zone);
+	border: 1px solid var(--or-drop-zone-border);
 }
 
 .insert {
 	position: fixed;
-	background-color: $focusCol;
+	background-color: var(--or-focus);
 }
 
 .ghost {
@@ -24,10 +22,10 @@
 	left: 0;
 	top: 0;
 	padding: 2px 8px;
-	background-color: $bgCol3;
-	border: 1px solid $bgCol4;
-	border-radius: $radius1;
-	color: $fontCol1;
+	background-color: var(--or-bg-active);
+	border: 1px solid var(--or-bg-hover);
+	border-radius: var(--or-radius);
+	color: var(--or-text);
 	font-size: var(--or-tab-font-size);
 	white-space: nowrap;
 }

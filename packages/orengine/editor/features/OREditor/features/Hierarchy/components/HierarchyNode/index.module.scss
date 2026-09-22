@@ -1,12 +1,9 @@
-@use 'styles' as *;
-
 .node {
-	color: "#fff";
-	font-size: $fontSize2;
-	color: $fontCol2;
+	font-size: var(--or-font-sm);
+	color: var(--or-text-muted);
 
 	&[data-no_export="true"] {
-		color: $fontCol3;
+		color: var(--or-text-dim);
 	}
 }
 
@@ -16,11 +13,11 @@
 	cursor: pointer;
 
 	&:hover {
-		background-color: $bgCol2;
+		background-color: var(--or-bg-hover);
 	}
 
 	&[data-selected="true"] {
-		background-color: $bgCol3;
+		background-color: var(--or-bg-active);
 	}
 
 	&_name {
@@ -48,7 +45,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	color: $fontCol3;
+	color: var(--or-text-dim);
 	opacity: 0;
 	flex-shrink: 0;
 
@@ -62,11 +59,11 @@
 
 	&[data-selectable="false"] {
 		opacity: 1;
-		color: $fontCol3;
+		color: var(--or-text-dim);
 	}
 
 	&:hover {
-		color: $fontCol1;
+		color: var(--or-text);
 	}
 }
 
@@ -76,7 +73,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	color: $fontCol3;
+	color: var(--or-text-dim);
 	opacity: 0;
 	flex-shrink: 0;
 
@@ -90,11 +87,11 @@
 
 	&[data-visible="false"] {
 		opacity: 1;
-		color: $fontCol3;
+		color: var(--or-text-dim);
 	}
 
 	&:hover {
-		color: $fontCol1;
+		color: var(--or-text);
 	}
 }
 
@@ -104,8 +101,8 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	font-size: $fontSize2;
-	color: $fontCol3;
+	font-size: var(--or-font-sm);
+	color: var(--or-text-dim);
 	opacity: 0;
 	flex-shrink: 0;
 
@@ -118,7 +115,7 @@
 	}
 
 	&:hover {
-		color: $fontCol1;
+		color: var(--or-text);
 	}
 }
 
@@ -153,7 +150,7 @@
 		width: 1px;
 		position: absolute;
 		left: 5px;
-		background-color: $fontCol2;
+		background-color: var(--or-text-muted);
 	}
 
 	&[data-open="false"] {

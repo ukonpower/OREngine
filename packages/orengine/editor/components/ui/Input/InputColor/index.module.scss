@@ -1,5 +1,3 @@
-@use 'styles' as *;
-
 .inputColor {}
 
 .input {
@@ -8,8 +6,8 @@
 	height: 20px;
 	padding: 0;
 	border: none;
-	border-radius: $radius1;
-	background-color: $bgCol2;
+	border-radius: var(--or-radius);
+	background-color: var(--or-bg-surface);
 	cursor: pointer;
 
 	&::-webkit-color-swatch-wrapper {
@@ -18,7 +16,7 @@
 
 	&::-webkit-color-swatch {
 		border: none;
-		border-radius: $radius1;
+		border-radius: var(--or-radius);
 	}
 
 	&:disabled {
