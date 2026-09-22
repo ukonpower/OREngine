@@ -1,8 +1,7 @@
 .overlay {
 	position: fixed;
 	inset: 0;
-	// InputWindow(1000) より下・パネル内コンテンツより上
-	z-index: 500;
+	z-index: var(--or-z-drag);
 	pointer-events: none;
 }
 

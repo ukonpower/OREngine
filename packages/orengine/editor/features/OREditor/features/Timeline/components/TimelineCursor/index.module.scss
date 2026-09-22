@@ -7,7 +7,7 @@
 	top: 0;
 	background-color: var(--or-focus);
 	pointer-events: none;
-	z-index: 1;
+	z-index: var(--or-z-content);
 }
 
 .frame {
