@@ -113,7 +113,7 @@ npm run typecheck    # TypeScript型チェック + 全scssのコンパイル検�
 ```
 
 ### Storybook / VRT
-- stories はコンポーネントと同居させる（`packages/orengine/editor/**/*.stories.tsx`）。設定は `.storybook/`（main.ts / vite.config.ts / decorators / fixtures）
+- stories はコンポーネントと同居させる（`packages/uipower/**/*.stories.tsx` と `packages/orengine/editor/**/*.stories.tsx`）。設定は `.storybook/`（main.ts / vite.config.ts / decorators / fixtures）
 - VRT（見た目のスクリーンショット比較テスト）は `tests/vrt/`（Playwright）。見た目に影響する変更をしたら `npm run vrt` で確認し、意図した変更なら `npm run vrt:update` で基準画像を更新する
 
 ### CI / GitHub Pages
