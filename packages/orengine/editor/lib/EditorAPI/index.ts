@@ -1,16 +1,16 @@
 import * as MXP from 'maxpower';
 
 import { Engine } from '../../../core/Engine';
-import { CommandManager } from '../command/CommandManager';
-import { AddComponentCommand } from '../command/Commands/AddComponentCommand';
-import { AddTextureCommand } from '../command/Commands/AddTextureCommand';
-import { CreateEntityCommand } from '../command/Commands/CreateEntityCommand';
-import { DeleteEntityCommand } from '../command/Commands/DeleteEntityCommand';
-import { RemoveComponentCommand } from '../command/Commands/RemoveComponentCommand';
-import { RemoveTextureCommand } from '../command/Commands/RemoveTextureCommand';
-import { SetFieldCommand } from '../command/Commands/SetFieldCommand';
+import { CommandManager } from '../CommandManager';
+import { AddComponentCommand } from '../Commands/AddComponentCommand';
+import { AddTextureCommand } from '../Commands/AddTextureCommand';
+import { CreateEntityCommand } from '../Commands/CreateEntityCommand';
+import { DeleteEntityCommand } from '../Commands/DeleteEntityCommand';
+import { RemoveComponentCommand } from '../Commands/RemoveComponentCommand';
+import { RemoveTextureCommand } from '../Commands/RemoveTextureCommand';
+import { SetFieldCommand } from '../Commands/SetFieldCommand';
 
-import type { Editor } from '..';
+import type { Editor } from '../Editor';
 
 export class EditorAPI {
 
