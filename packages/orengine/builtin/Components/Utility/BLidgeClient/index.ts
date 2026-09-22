@@ -214,15 +214,7 @@ export class BLidgeClient extends MXP.Component {
 		if ( ! this.blidgeRoot ) return [];
 
 		const resolver = {
-			getName: ( c: MXP.Component ): string => {
-
-				const item = Engine.resources.componentList.find(
-					( ci ) => c instanceof ci.component
-				);
-
-				return item ? item.name : c.constructor.name;
-
-			}
+			getName: ( c: MXP.Component ): string => Engine.resources.getComponentName( c )
 		};
 
 		const result: BLidgeAttachment[] = [];

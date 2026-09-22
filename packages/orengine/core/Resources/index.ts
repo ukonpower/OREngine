@@ -128,6 +128,16 @@ export class Resources extends EventEmitter {
 
 	}
 
+	// コンポーネントの表示・シリアライズ用の名前を登録名から引く。
+	// minify でクラス名が潰れるビルドでも安定させるため constructor.name は最後の手段
+	public getComponentName( component: MXP.Component ) {
+
+		const item = this._componentList.find( item => component instanceof item.component );
+
+		return item ? item.name : component.constructor.name;
+
+	}
+
 	public addComponentGroup( groupName: string ) {
 
 		let group = this._componentGroups.find( g => g.name == groupName );

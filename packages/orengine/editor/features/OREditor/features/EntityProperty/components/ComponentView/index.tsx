@@ -2,6 +2,7 @@
 import { MouseEvent, useCallback } from 'react';
 
 import * as MXP from 'maxpower';
+import { Engine } from 'orengine';
 import { Block, CrossIcon } from 'uipower';
 
 import { useOREditor } from '../../../../hooks/useOREditor';
@@ -88,7 +89,7 @@ export const ComponentView = ( { component }: ComponentViewProps ) => {
 			<InputBoolean checked={enabled || false} onChange={setEnabled} readOnly={disableEdit} />
 		</div> */}
 		<div className={style.name}>
-			{component.constructor.name}
+			{Engine.resources.getComponentName( component )}
 		</div>
 		<div className={style.delete}>
 			<button onClick={onClickDelete}><CrossIcon /></button>

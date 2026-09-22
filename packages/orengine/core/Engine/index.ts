@@ -202,15 +202,7 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 
 		return {
 			resolve: ( name ) => Engine.resources.getComponent( name ),
-			getName: ( c ) => {
-
-				const item = Engine.resources.componentList.find(
-					item => c instanceof item.component
-				);
-
-				return item ? item.name : c.constructor.name;
-
-			}
+			getName: ( c ) => Engine.resources.getComponentName( c )
 		};
 
 	}
