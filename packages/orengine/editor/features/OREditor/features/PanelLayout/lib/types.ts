@@ -7,6 +7,8 @@ export type PanelId = string;
 export type PanelDefinition = {
 	id: PanelId;
 	title: string;
+	// タブ追加メニュー上の階層。"/" 区切りで、省略時はルート直下に出る。タブ名は title のまま
+	category?: string;
 } & (
 	// レイアウト内に同時1つまで。Panel ラッパー込みの完成形を持つ
 	| { multiple?: false; content: React.ReactNode }

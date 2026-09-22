@@ -30,16 +30,16 @@ export type { PanelDefinition, PanelId } from './features/PanelLayout';
 // レイアウトツリー上の配置は PanelLayout 側の defaultLayout がこの id を参照して決める。
 // レンダーごとに identity が変わると PanelLayout の派生計算が空回りするのでモジュールスコープに置く
 const builtinPanels: PanelDefinition[] = [
-	{ id: "hierarchy", title: "Hierarchy", content: <Panel><Hierarchy /></Panel> },
-	{ id: "timer", title: "Timer", content: <Panel noPadding><Timer /></Panel> },
-	{ id: VIEWPORT_PANEL_ID, title: "Screen", multiple: true, content: ( viewportId ) => <Screen viewportId={viewportId} /> },
-	{ id: "property", title: "Property", content: <Panel><EntityProperty /></Panel> },
-	{ id: "textures", title: "Textures", content: <Panel noPadding><Textures /></Panel> },
-	{ id: "scene", title: "Scene", content: <Panel><SceneControl /></Panel> },
-	{ id: "export", title: "Export", content: <Panel><ExportControl /></Panel> },
-	{ id: "renderer", title: "Renderer", content: <Panel><RendererSettings /></Panel> },
-	{ id: "editor-settings", title: "Editor", content: <Panel><EditorSettings /></Panel> },
-	{ id: "timeline", title: "Timeline", content: <Panel noPadding><Timeline /></Panel> },
+	{ id: "hierarchy", title: "Hierarchy", category: "General", content: <Panel><Hierarchy /></Panel> },
+	{ id: "timer", title: "Timer", category: "Rendering", content: <Panel noPadding><Timer /></Panel> },
+	{ id: VIEWPORT_PANEL_ID, title: "Screen", category: "General", multiple: true, content: ( viewportId ) => <Screen viewportId={viewportId} /> },
+	{ id: "property", title: "Property", category: "General", content: <Panel><EntityProperty /></Panel> },
+	{ id: "textures", title: "Textures", category: "Rendering", content: <Panel noPadding><Textures /></Panel> },
+	{ id: "scene", title: "Scene", category: "General", content: <Panel><SceneControl /></Panel> },
+	{ id: "export", title: "Export", category: "Project", content: <Panel><ExportControl /></Panel> },
+	{ id: "renderer", title: "Renderer", category: "Rendering", content: <Panel><RendererSettings /></Panel> },
+	{ id: "editor-settings", title: "Editor", category: "Project", content: <Panel><EditorSettings /></Panel> },
+	{ id: "timeline", title: "Timeline", category: "Animation", content: <Panel noPadding><Timeline /></Panel> },
 ];
 
 // SP のタブ一覧に並べるパネル。Screen（上段）と Timeline（下段）は専用領域を持ち、

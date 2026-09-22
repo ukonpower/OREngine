@@ -39,4 +39,4 @@ const Sample = () => {
 
 };
 
-export const panel: PanelDefinition = { id: 'sample', title: 'Sample', content: <Sample /> };
+export const panel: PanelDefinition = { id: 'sample', title: 'Sample', category: 'Tools', content: <Sample /> };

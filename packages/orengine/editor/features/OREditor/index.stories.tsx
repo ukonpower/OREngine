@@ -45,11 +45,13 @@ export const SavedLayout = fullscreen( undefined, {
 	},
 } );
 
-// 利用者が足すパネル。content は Panel ラッパー込みで渡す（ビルトインと同じ扱い）
+// 利用者が足すパネル。content は Panel ラッパー込みで渡す（ビルトインと同じ扱い）。
+// category はタブ追加メニュー上の階層で、"/" を掘るとサブメニューになる
 const userPanels: PanelDefinition[] = [
 	{
 		id: "my-tool",
 		title: "My Tool",
+		category: "Tools/Debug",
 		content: <Panel><Block label="My Tool"><Button>Run</Button></Block></Panel>,
 	},
 ];
