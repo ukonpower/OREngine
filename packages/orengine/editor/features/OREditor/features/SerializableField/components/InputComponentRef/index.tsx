@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import { Engine } from 'orengine';
 import { InputSelect } from 'uipower';
 
 import { useOREditor } from '../../../../hooks/useOREditor';
@@ -24,7 +25,7 @@ export const InputComponentRef = ( props: InputComponentRefProps ) => {
 			entity.components.forEach( ( component ) => {
 
 				list.push( {
-					label: `${entity.getScenePath( engine.root )} > ${component.constructor.name}`,
+					label: `${entity.getScenePath( engine.root )} > ${Engine.resources.getComponentName( component )}`,
 					value: component.uuid,
 				} );
 
