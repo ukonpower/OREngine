@@ -1,7 +1,7 @@
 import { MouseEvent, useCallback, useMemo } from 'react';
 
 import * as MXP from 'maxpower';
-import { ArrowIcon, CameraIcon, CursorIcon, EyeIcon, LightIcon, MeshIcon } from 'uipower';
+import { ArrowIcon, CameraIcon, CursorIcon, EyeIcon, LightIcon, ListItem, MeshIcon } from 'uipower';
 
 import { useOREditor } from '../../../../hooks/useOREditor';
 import { Picker } from '../../../MouseMenu/components/Picker';
@@ -23,6 +23,7 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 	const { editor, engine } = useOREditor();
 	const [ selectedEntityId ] = useSerializableField<string>( editor, "selectedEntityId" );
 	const selectedEntity = selectedEntityId !== undefined && engine.root.findEntityByUUID( selectedEntityId );
+	const isSelected = Boolean( selectedEntity && selectedEntity.uuid == props.entity.uuid );
 
 	const [ entityVisible, setEntityVisible ] = useSerializableField<boolean>( props.entity, "visible" );
 	const [ unselectableIds, setUnselectableIds ] = useSerializableField<string[]>( editor, "unselectableEntityIds" );
@@ -158,7 +159,7 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 	}, [ editor, props.entity, pushContent, closeAll, noEditable ] );
 
 	return <div className={style.node} data-no_export={noEditable}>
-		<div className={style.self} style={{ paddingLeft: offsetPx }} onClick={onClickNode} onContextMenu={onRightClickNode} data-selected={selectedEntity && selectedEntity.uuid == props.entity.uuid}>
+		<ListItem className={style.self} style={{ paddingLeft: offsetPx }} onClick={onClickNode} onContextMenu={onRightClickNode} selected={isSelected}>
 			<div className={style.fold} data-hnode_open={open}>
 				{hasChild && <button className={style.fold_button} onClick={onClickFoldControls} ><ArrowIcon open={open}/></button> }
 			</div>
@@ -169,7 +170,7 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 			<button className={style.selectable} onClick={onClickSelectable} data-selectable={entitySelectable}><CursorIcon size={14} selectable={entitySelectable} /></button>
 			<button className={style.visibility} onClick={onClickVisibility} data-visible={entityVisible !== false}><EyeIcon size={14} visible={entityVisible !== false} /></button>
 			{! noEditable && <button className={style.menu} onClick={onRightClickNode}>⋯</button>}
-		</div>
+		</ListItem>
 		{hasChild && <div className={style.child} data-open={open} >
 			{
 				sortedChildren.map( item => {

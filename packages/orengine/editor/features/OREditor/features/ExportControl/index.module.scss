@@ -6,3 +6,8 @@
 		max-width: 500px;
 	}
 }
+
+// Button は内容幅なので、パネルの横幅いっぱいに伸ばすのはここで決める
+.export {
+	display: grid;
+}

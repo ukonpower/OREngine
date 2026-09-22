@@ -1,68 +1,10 @@
-.inputWindow {
-	position: fixed;
-	left: 0;
-	top: 0;
-	width: 100%;
-	height: 100%;
-	z-index: 1000;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-.overlay {
-	position: absolute;
-	width: 100%;
-	height: 100%;
-	background: var(--or-bg-overlay);
-}
-
-.window {
-	position: relative;
-	background: var(--or-bg-panel);
-	border-radius: var(--or-radius);
-	padding: 16px;
-	min-width: 250px;
-	max-width: 90vw;
-}
-
-.label {
-	color: var(--or-text-muted);
-	font-size: var(--or-font-sm);
-	margin-bottom: 8px;
-}
+@use 'styles' as *;
 
 .input {
+	@include input-frame;
+
 	width: 100%;
-	padding: 8px;
-	border-radius: var(--or-radius);
-	background-color: var(--or-bg-surface);
-	border: none;
-	color: var(--or-text-muted);
-	font-size: var(--or-font-md);
 	text-align: center;
-}
-
-.buttons {
-	display: flex;
-	gap: 8px;
-	margin-top: 12px;
-	justify-content: flex-end;
-}
-
-.cancelBtn, .okBtn {
-	padding: 6px 16px;
-	border-radius: var(--or-radius);
-	border: none;
-	cursor: pointer;
-}
-
-.cancelBtn {
-	background: var(--or-bg-surface);
-	color: var(--or-text-muted);
-}
-
-.okBtn {
-	background: var(--or-text-muted);
-	color: var(--or-bg-panel);
+	// ソフトキーボードから打つための窓なので文字は大きめにする（16px 未満だと iOS が入力時に画面を拡大する）
+	font-size: var(--or-font-md);
 }

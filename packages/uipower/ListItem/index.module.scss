@@ -1,0 +1,14 @@
+.listItem {
+	display: flex;
+	align-items: center;
+	height: var(--or-list-row-height);
+	cursor: pointer;
+
+	&:hover {
+		background-color: var(--or-bg-surface);
+	}
+
+	&[data-selected="true"] {
+		background-color: var(--or-bg-active);
+	}
+}

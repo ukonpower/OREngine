@@ -45,7 +45,7 @@
 	--or-input-font-size: inherit;
 	--or-input-padding: 3px 5px;
 	--or-checkbox-size: 14px;
-	--or-btn-padding: 4px 0;
+	--or-btn-padding: 4px 8px;
 
 	@include sp {
 		--or-tab-height: 32px;
@@ -54,7 +54,7 @@
 		--or-list-row-height: 28px;
 		--or-input-padding: 4px 5px;
 		--or-checkbox-size: 20px;
-		--or-btn-padding: 6px 0;
+		--or-btn-padding: 6px 10px;
 	}
 }
 

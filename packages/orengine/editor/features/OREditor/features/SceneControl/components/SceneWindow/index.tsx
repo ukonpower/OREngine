@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { Button } from 'uipower';
+import { Button, ListItem, Modal } from 'uipower';
 
 import style from './index.module.scss';
 
@@ -115,10 +115,10 @@ export const SceneWindow = ( props: SceneWindowProps ) => {
 		const isCurrent = name === scenes.current;
 
 		itemElms.push(
-			<div
+			<ListItem
 				key={name}
 				className={style.item}
-				data-selected={name === selected}
+				selected={name === selected}
 				onClick={() => {
 
 					setSelected( name );
@@ -133,7 +133,7 @@ export const SceneWindow = ( props: SceneWindowProps ) => {
 			>
 				<span className={style.item_name}>{name}</span>
 				{isCurrent && <span className={style.item_badge}>opened</span>}
-			</div>
+			</ListItem>
 		);
 
 	}
@@ -171,19 +171,15 @@ export const SceneWindow = ( props: SceneWindowProps ) => {
 
 	if ( confirmDelete && selected ) {
 
-		footerElm = <div className={style.footer}>
+		footerElm = <>
 			<span className={style.footer_message}>Delete &quot;{selected}&quot; ?</span>
-			<div className={style.footer_button}>
-				<Button onClick={() => {
+			<Button onClick={() => {
 
-					setConfirmDelete( false );
+				setConfirmDelete( false );
 
-				}}>Cancel</Button>
-			</div>
-			<div className={style.footer_button}>
-				<Button onClick={submitDelete}>Delete</Button>
-			</div>
-		</div>;
+			}}>Cancel</Button>
+			<Button onClick={submitDelete}>Delete</Button>
+		</>;
 
 	} else {
 
@@ -191,49 +187,34 @@ export const SceneWindow = ( props: SceneWindowProps ) => {
 		const canDelete = selected !== null && scenes.names.length > 1;
 		const canOpen = selected !== null && selected !== scenes.current;
 
-		footerElm = <div className={style.footer}>
-			<div className={style.footer_button}>
-				<Button onClick={() => {
+		footerElm = <>
+			<Button onClick={() => {
 
-					setNewName( "" );
-					setNewError( null );
-					setConfirmDelete( false );
+				setNewName( "" );
+				setNewError( null );
+				setConfirmDelete( false );
 
-				}}>+ New</Button>
-			</div>
+			}}>+ New</Button>
 			<div className={style.footer_spacer} />
-			<div className={style.footer_button}>
-				<Button disabled={! canDelete} onClick={() => {
+			<Button disabled={! canDelete} onClick={() => {
 
-					setConfirmDelete( true );
+				setConfirmDelete( true );
 
-				}}>Delete</Button>
-			</div>
-			<div className={style.footer_button}>
-				<Button disabled={! canOpen} onClick={() => {
+			}}>Delete</Button>
+			<Button disabled={! canOpen} onClick={() => {
 
-					if ( selected ) openScene( selected );
+				if ( selected ) openScene( selected );
 
-				}}>Open</Button>
-			</div>
-		</div>;
+			}}>Open</Button>
+		</>;
 
 	}
 
-	return <div className={style.sceneWindow}>
-		<div className={style.overlay} onClick={onClose} />
-		<div className={style.window}>
-			<div className={style.head}>
-				<span className={style.head_title}>Scenes</span>
-				{props.projectName && <span className={style.head_project}>{props.projectName}</span>}
-				<button type="button" className={style.head_close} onClick={onClose}>×</button>
-			</div>
-			<div className={style.list}>
-				{itemElms}
-				{newItemElm}
-			</div>
-			{footerElm}
+	return <Modal title="Scenes" note={props.projectName} width={360} onClose={onClose} footer={footerElm}>
+		<div className={style.list}>
+			{itemElms}
+			{newItemElm}
 		</div>
-	</div>;
+	</Modal>;
 
 };

@@ -1,14 +1,13 @@
+@use 'styles' as *;
+
 .inputSelect {
 	width: 100%;
 }
 
 .input {
-	padding: var(--or-input-padding);
-	text-align: center;
+	@include input-frame;
+
 	width: 100%;
-	border-radius: var(--or-radius);
-	background-color: var(--or-bg-surface);
-	border: none;
-	color: var(--or-text-muted);
+	text-align: center;
 	font-size: var(--or-input-font-size);
 }

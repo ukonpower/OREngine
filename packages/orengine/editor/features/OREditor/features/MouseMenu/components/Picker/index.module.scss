@@ -33,10 +33,5 @@
 }
 
 .item {
-	padding: var(--or-space) calc(var(--or-space) * 0.5);
-	cursor: pointer;
-
-	&:hover {
-		background-color: var(--or-bg-hover);
-	}
+	padding: 0 calc(var(--or-space) * 0.5);
 }

@@ -8,6 +8,8 @@ import { useSerializeFieldView } from '../../hooks/useSerializeFieldView';
 import { Value } from '../Value';
 import { ValueArray } from '../ValueArray';
 
+import style from './index.module.scss';
+
 export const SerializeFieldViewValue: React.FC<{ path:string, field: SerializeFieldDirectoryValue }> = ( props ) => {
 
 	const { editor } = useOREditor();
@@ -58,9 +60,10 @@ export const SerializeFieldViewValue: React.FC<{ path:string, field: SerializeFi
 
 		}}/>;
 
+		// 関数フィールドは Button ひとつなので、ラベル行に入れず行いっぱいに伸ばす
 		if ( valueType === "function" ) {
 
-			return valueElm;
+			return <div className={style.action}>{valueElm}</div>;
 
 		}
 
