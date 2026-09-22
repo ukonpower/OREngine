@@ -151,6 +151,10 @@ export class GLEditorDraw implements EditorDrawContract {
 
 		}
 
+		// renderCamera はブレンド状態を触らないので、ランタイムの ui パスと同じくここで有効にする。
+		// グリッドのような半透明マテリアルが α を無視して上書きされるのを防ぐ
+		renderer.backend.setBlendEnabled( true );
+
 		renderer.renderCamera(
 			"forward",
 			opt.camera,
@@ -160,6 +164,8 @@ export class GLEditorDraw implements EditorDrawContract {
 			// uiバッファへはシーンの上に重ねるためクリアせず、自前ターゲットは毎回クリアする
 			{ disableClear: opt.target === null }
 		);
+
+		renderer.backend.setBlendEnabled( false );
 
 		if ( opt.depthCompare === 'lequal' ) {
 
