@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { SelectList } from 'maxpower';
+import { InputSelect } from 'uipower';
 
-import style from '../../../../../../components/ui/Input/InputSelect/index.module.scss';
 import { useOREditor } from '../../../../hooks/useOREditor';
+
+import type { SelectOption } from 'uipower';
 
 interface InputEntityRefProps {
 	value: string | null;
@@ -16,7 +17,7 @@ export const InputEntityRef = ( props: InputEntityRefProps ) => {
 
 	const buildList = useCallback( () => {
 
-		const list: SelectList = [ { label: "(None)", value: "" } ];
+		const list: SelectOption[] = [ { label: "(None)", value: "" } ];
 
 		engine.root.traverse( ( entity ) => {
 
@@ -31,7 +32,7 @@ export const InputEntityRef = ( props: InputEntityRefProps ) => {
 
 	}, [ engine ] );
 
-	const [ selectList, setSelectList ] = useState<SelectList>( buildList );
+	const [ selectList, setSelectList ] = useState<SelectOption[]>( buildList );
 
 	useEffect( () => {
 
@@ -47,25 +48,14 @@ export const InputEntityRef = ( props: InputEntityRefProps ) => {
 
 	}, [ engine, buildList ] );
 
-	return <div className={style.inputSelect}>
-		<select className={style.input} onChange={( e ) => {
+	return <InputSelect value={props.value || ""} selectList={selectList} onChange={( value ) => {
 
-			if ( props.onChange ) {
+		if ( props.onChange ) {
 
-				props.onChange( e.target.value || null );
+			props.onChange( value || null );
 
-			}
+		}
 
-		}} value={props.value || ""}>
-			{selectList.map( ( v, i ) => {
-
-				const label = typeof v === "string" ? v : v.label;
-				const value = typeof v === "string" ? v : v.value;
-
-				return <option key={i} value={value}>{label}</option>;
-
-			} )}
-		</select>
-	</div>;
+	}} />;
 
 };

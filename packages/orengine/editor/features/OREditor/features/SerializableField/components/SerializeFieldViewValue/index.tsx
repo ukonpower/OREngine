@@ -1,10 +1,8 @@
 import React from 'react';
 
 import { SerializeFieldDirectoryValue } from 'maxpower';
+import { InputColor, Label, Vector } from 'uipower';
 
-import { InputColor } from '../../../../../../components/ui/Input/InputColor';
-import { Label } from '../../../../../../components/ui/Label';
-import { Vector } from '../../../../../../components/ui/Vector';
 import { useOREditor } from '../../../../hooks/useOREditor';
 import { useSerializeFieldView } from '../../hooks/useSerializeFieldView';
 import { Value } from '../Value';

@@ -1,16 +1,20 @@
-import { SelectList } from 'maxpower';
-
 import style from './index.module.scss';
 
-interface InputTextProps<T> {
+// 選択肢。ラベルと値を分けたいときだけオブジェクトで渡す
+export type SelectOption = string | {
+	label: string;
+	value: string | number;
+}
+
+interface InputSelectProps<T> {
 	value: T;
-	selectList: SelectList | ( () => SelectList ),
+	selectList: SelectOption[] | ( () => SelectOption[] ),
 	onChange?: ( value: T ) => void;
 	disabled?: boolean;
 	readOnly?: boolean;
 }
 
-export const InputSelect = <T extends string | number, >( { onChange, value, ...props }: InputTextProps<T> ) => {
+export const InputSelect = <T extends string | number, >( { onChange, value, ...props }: InputSelectProps<T> ) => {
 
 	if ( props.readOnly ) {
 

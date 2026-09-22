@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 
-import { InputWindowConfig, InputWindowContextValue } from "../../../../../contexts/InputWindowContext";
+import { InputWindowConfig, InputWindowContextValue } from "../../contexts/InputWindowContext";
 
 // InputWindowContext へ渡す開閉状態を生成する
 export const useInputWindowContext = (): InputWindowContextValue => {

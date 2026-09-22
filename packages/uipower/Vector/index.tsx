@@ -1,7 +1,5 @@
 import { useCallback, useRef } from 'react';
 
-import * as MTP from 'mathpower';
-
 import { InputNumber } from '../Input/InputNumber';
 import { Label } from '../Label';
 
@@ -11,7 +9,7 @@ type VectorProps = {
 	value: number[],
 	step?: number,
 	disabled?: boolean,
-	onChange?: ( value: MTP.IVector4 ) => void
+	onChange?: ( value: number[] ) => void
 }
 
 const axisDict = [ "x", "y", "z", "w" ];
@@ -25,15 +23,8 @@ export const Vector = ( { onChange, disabled, ...props }: VectorProps ) => {
 
 		if ( onChange && valueRef.current ) {
 
-			const newValue: any = {};
-
-			for ( let i = 0; i < valueRef.current.length; i ++ ) {
-
-				newValue[ i ] = valueRef.current[ i ];
-
-			}
-
-			newValue[ axisIndex ] = newAxisValue as number;
+			const newValue = valueRef.current.slice();
+			newValue[ axisIndex ] = newAxisValue;
 
 			onChange( newValue );
 

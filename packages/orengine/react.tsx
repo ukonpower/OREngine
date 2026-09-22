@@ -46,28 +46,9 @@ export * from './editor/features/OREditor/features/MouseMenu/providers/MouseMenu
 export * from './editor/features/OREditor/features/MouseMenu/components/Picker';
 export * from './editor/features/OREditor/features/MouseMenu/hooks/useMouseMenu';
 export * from './editor/features/OREditor/features/MouseMenu/hooks/useMouseMenuItem';
-export * from './editor/features/OREditor/features/InputWindow';
-export * from './editor/features/OREditor/features/InputWindow/providers/InputWindowProvider';
 
 /*-------------------------------
-	Shared hooks / contexts
+	Shared hooks
 -------------------------------*/
 
-export * from './editor/hooks/useInputWindow';
 export * from './editor/hooks/useLayout';
-export * from './editor/hooks/useMobileDevice';
-export * from './editor/contexts/InputWindowContext';
-
-/*-------------------------------
-	UI
--------------------------------*/
-
-export * from './editor/components/ui/Block';
-export * from './editor/components/ui/Button';
-export * from './editor/components/ui/Icons';
-export * from './editor/components/ui/Input';
-export * from './editor/components/ui/Label';
-export * from './editor/components/ui/LayoutSplit';
-export * from './editor/components/ui/Panel';
-export * from './editor/components/ui/PanelContainer';
-export * from './editor/components/ui/Vector';

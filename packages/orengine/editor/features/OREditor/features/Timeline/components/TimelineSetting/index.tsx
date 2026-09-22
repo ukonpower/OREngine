@@ -1,9 +1,8 @@
 import { useCallback } from 'react';
 
 import * as MXP from 'maxpower';
+import { Label, Panel } from 'uipower';
 
-import { Label } from '../../../../../../components/ui/Label';
-import { Panel } from '../../../../../../components/ui/Panel';
 import { Value } from '../../../SerializableField/components/Value';
 import { useSerializableField } from '../../../SerializableField/hooks/useSerializableProps';
 import { useTimeline } from '../../hooks/useTimeline';

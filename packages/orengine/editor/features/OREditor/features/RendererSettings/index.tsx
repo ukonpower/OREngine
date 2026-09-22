@@ -1,5 +1,6 @@
 
-import { Block } from '../../../../components/ui/Block';
+import { Block } from 'uipower';
+
 import { useOREditor } from '../../hooks/useOREditor';
 import { SerializeFieldView } from '../SerializableField/components/SerializeFieldView';
 

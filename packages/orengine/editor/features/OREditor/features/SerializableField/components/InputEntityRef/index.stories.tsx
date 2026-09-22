@@ -2,8 +2,7 @@ import { ReactElement, useState } from 'react';
 
 import { withOREditor } from '@or-storybook/decorators/withOREditor';
 import { storyEditorData, storyEmptyScene, storyFixture } from '@or-storybook/fixtures/scene';
-
-import { Label } from '../../../../../../components/ui/Label';
+import { Label } from 'uipower';
 
 import { InputEntityRef } from '.';
 

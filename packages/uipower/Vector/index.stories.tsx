@@ -5,24 +5,14 @@ import { withInputWindow } from '@or-storybook/decorators/withInputWindow';
 import { Vector } from '.';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import type * as MTP from 'mathpower';
 import type { ComponentProps } from 'react';
-
-// onChange が返すのは軸インデックスをキーにしたオブジェクトなので、状態の配列へ戻す
-const toArray = ( value: MTP.IVector4, length: number ) => {
-
-	const indexed = value as unknown as Record<number, number>;
-
-	return Array.from( { length }, ( _, i ) => indexed[ i ] );
-
-};
 
 // value は呼び出し側が持つ制御コンポーネントなので、story 側で状態を持たせて操作できるようにする
 const VectorSample = ( props: ComponentProps<typeof Vector> ) => {
 
 	const [ value, setValue ] = useState( props.value );
 
-	return <Vector {...props} value={value} onChange={( v ) => setValue( toArray( v, value.length ) )} />;
+	return <Vector {...props} value={value} onChange={setValue} />;
 
 };
 

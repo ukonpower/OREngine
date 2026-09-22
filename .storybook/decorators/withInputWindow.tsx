@@ -1,4 +1,4 @@
-import { InputWindowProvider } from 'orengine/react';
+import { InputWindowProvider } from 'uipower';
 
 import type { Decorator } from '@storybook/react-vite';
 

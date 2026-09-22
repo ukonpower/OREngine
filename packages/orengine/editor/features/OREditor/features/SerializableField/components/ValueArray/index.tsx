@@ -1,8 +1,8 @@
 import React from "react";
 
 import { SerializeFieldObjective } from "maxpower";
+import { Label } from 'uipower';
 
-import { Label } from "../../../../../../components/ui/Label";
 import { Value, ValueProps } from "../Value";
 
 import style from './index.module.scss';

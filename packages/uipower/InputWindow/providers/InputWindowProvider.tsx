@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 
-import { InputWindowContext } from "../../../../../contexts/InputWindowContext";
+import { InputWindowContext } from "../../contexts/InputWindowContext";
 import { useInputWindowContext } from "../hooks/useInputWindowContext";
 
 // 入力ウィンドウの開閉状態を配下ツリーへ提供する

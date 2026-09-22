@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 
-import { InputWindow, InputWindowProvider, MouseMenu, MouseMenuProvider, OREditorProvider, OREngineProvider, useOREditor } from 'orengine/react';
+import { MouseMenu, MouseMenuProvider, OREditorProvider, OREngineProvider, useOREditor } from 'orengine/react';
+import { InputWindow, InputWindowProvider } from 'uipower';
 
 import { initResouces, initResourceInstances } from '../../host/app/Resources/registry';
 
