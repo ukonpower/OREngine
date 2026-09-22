@@ -7,7 +7,7 @@
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,
 	"frameLoop/end": 0,
-	"selectedEntityId": "33a8f582-a6ad-4da0-b6f4-ac20eba08e1d",
+	"selectedEntityId": "blidge:OREngineCube",
 	"unselectableEntityIds": [],
 	"selectedAsset": null,
 	"navigateAsset": null,
@@ -27,7 +27,7 @@
 					"direction": "horizontal",
 					"children": [
 						{
-							"ratio": 0.15690376569037656,
+							"ratio": 0.15684931506849314,
 							"node": {
 								"type": "split",
 								"id": "5a15d7be-f43c-40a1-97bf-5dd789f4881d",
@@ -42,7 +42,7 @@
 												"hierarchy",
 												"scene"
 											],
-											"active": "scene"
+											"active": "hierarchy"
 										}
 									},
 									{
@@ -60,7 +60,7 @@
 							}
 						},
 						{
-							"ratio": 0.6861924686192469,
+							"ratio": 0.6431506849315068,
 							"node": {
 								"type": "pane",
 								"id": "5866cf45-965d-4859-8e43-7f5419c6db39",
@@ -71,7 +71,7 @@
 							}
 						},
 						{
-							"ratio": 0.15690376569037656,
+							"ratio": 0.2,
 							"node": {
 								"type": "pane",
 								"id": "473a2991-74f9-461c-ac30-98a498893f5f",
@@ -109,7 +109,7 @@
 	"helpers/wireframe": false,
 	"helpers/gizmo": true,
 	"helpers/outline": true,
-	"viewports/main/cameraView": "editor",
+	"viewports/main/cameraView": "camera",
 	"viewports/main/preview": false,
 	"viewports/main/camera/position": [
 		-6.036112537975983,
@@ -121,5 +121,5 @@
 		0.9394885335807147,
 		-1.3476009279825334
 	],
-	"scene": "testScene"
+	"scene": "main"
 }
