@@ -34,8 +34,9 @@ type HandleRecord = {
 // 3種のギズモに共通する土台。ハンドルの登録・ホバー/ドラッグ中の色強調・ターゲット追従（位置/向き/画面上サイズ）を持つ
 export abstract class GizmoBase implements Gizmo {
 
-	// ターゲットとの距離に掛けて画面上の見かけサイズを一定に保つ係数
-	private static readonly VIEW_SCALE_FACTOR = 0.15;
+	// ギズモの単位長（原点から軸ハンドル先端まで ≒ 1）が画面の高さに占める割合。
+	// カメラの fov から距離ごとの画面高さを求めて掛けるので、fov や解像度が変わっても見かけの大きさは変わらない
+	private static readonly VIEW_HEIGHT_RATIO = 1 / 6;
 
 	public entity: MXP.Entity;
 	protected _engine: MXP.EngineContract;
@@ -245,10 +246,18 @@ export abstract class GizmoBase implements Gizmo {
 
 			this._camWorldPos.set( camElm[ 12 ], camElm[ 13 ], camElm[ 14 ] );
 
-			const dist = this._camWorldPos.distanceTo( this.entity.position );
-			const s = Math.max( 0.01, dist * GizmoBase.VIEW_SCALE_FACTOR );
+			const camera = cameraEntity.getComponentsByTag<MXP.Camera>( 'camera' )[ 0 ];
 
-			this.entity.scale.set( s, s, s );
+			if ( camera ) {
+
+				// ギズモ位置での画面全高（ワールド単位）。fov は度・垂直画角
+				const dist = this._camWorldPos.distanceTo( this.entity.position );
+				const viewHeight = 2 * dist * Math.tan( camera.fov * Math.PI / 360 );
+				const s = Math.max( 0.01, viewHeight * GizmoBase.VIEW_HEIGHT_RATIO );
+
+				this.entity.scale.set( s, s, s );
+
+			}
 
 		}
 
