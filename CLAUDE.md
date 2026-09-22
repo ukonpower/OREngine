@@ -25,7 +25,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `orengine/react` → `packages/orengine/react.tsx`（Reactエントリ: editor/components + editor/features）
 - `orengine/core` → `packages/orengine/core/index.ts`
 - `orengine/player` → `packages/orengine/player/index.ts`
-- `orengine/server` → `host/server/factory.ts`（express ベースのファイルI/O API）
+- `orengine/server` → `host/server/factory.ts`（express ベースのファイルI/O API。プロジェクト側サーバー拡張の型 `EditorServerExtension` もここから）
 - `orengine/host` → `host/index.ts`
 - `orengine/configs` → `host/vite/configs.ts`
 - `orengine/*` → `packages/orengine/*`（その他のサブパス）
@@ -41,12 +41,65 @@ OREngine 自体の開発エントリは `host/` に集約されている:
 `runDev` は express（`host/server/factory.ts`）と vite devサーバーを同一プロセスで起動する。express は `scenes/<name>.json` / `editor.json` の読み書き（シーン一覧の取得を含む）を行うファイルI/O層のみで、シーン編集用の操作APIは持たない。コンポーネントファイルや `.tex` の編集は直接ファイル編集で行う。シーンの編集は `scenes/<name>.json` の直接編集で行い、vite のプロジェクトwatch（`host/vite/plugins/ProjectWatchReload`）が外部からの変更・シーンファイルの増減を検知してブラウザを自動リロードする。
 
 ### プロジェクトディレクトリ（demo-webgl・demo-webgpu / 外部プロジェクト共通）
-プロジェクトディレクトリの中身は `Resources/` / `scenes/` / `editor.json` / `public/` のみ。HTML / src / vite config 等のボイラープレートはすべて `host/app/` に集約されている。
+プロジェクトディレクトリの中身は `Resources/` / `scenes/` / `editor.json` / `public/` / `editor/` のみ。HTML / src / vite config 等のボイラープレートはすべて `host/app/` に集約されている。
 
 プロジェクト固有のデータは Vite の `resolve.alias` 経由で参照する:
 - `@or-scene` → `<projectDir>/scenes/<scene>.json`（`scene` は `OrengineConfigOptions.scene` / `HostRunOptions.scene`。省略時 `main`）
 - `@or-editor` → `<projectDir>/editor.json`
 - `@or-resources/*` → `<projectDir>/Resources/*`
+- `@or-project-editor/*` → `<projectDir>/editor/*`
+
+### エディタ拡張（`<projectDir>/editor/`）
+プロジェクト側からエディタにパネルと API route を足すためのディレクトリ。任意（無くてもよい）。player ビルドのエントリ（`host/app/src/player.ts`）からは辿られないので、ここに何を置いても packed サイズには影響しない（eslint-plugin-boundaries でも player.ts からの import を禁止している）。
+
+- `editor/Panels/<名前>/index.tsx` に `export const panel: PanelDefinition` を置くと、パネルのタブ「+」の一覧に出る。自動認識は `host/app/src/editorPanels.ts` の `import.meta.glob`。先頭が `_` のディレクトリは対象外
+- `editor/server.ts` の default export（`EditorServerExtension`）に express の `Router` が渡され、足した route が `/api/ext/*` に生える。組み込み route の後にマウントされる。node 側は tsx 経由で動くので `.ts` のまま読み込まれる。変更の反映には dev サーバーの再起動が必要
+- パネルからは `useOREditor()` で `editor` / `engine` に触れる（選択中エンティティの参照、フィールドの更新など）
+- サンプルは `demo-webgl/editor/`（選択中エンティティ名の表示と `/api/ext/hello` の呼び出し）
+
+```tsx
+// <projectDir>/editor/Panels/Sample/index.tsx
+import { useState } from 'react';
+
+import { type PanelDefinition } from 'orengine/react';
+import { Button, Panel } from 'uipower';
+
+const Sample = () => {
+
+	const [ message, setMessage ] = useState( '' );
+
+	const run = async () => {
+
+		const res = await fetch( '/api/ext/hello' );
+		const data = await res.json();
+		setMessage( data.message );
+
+	};
+
+	return <Panel><Button onClick={run}>Run</Button>{message}</Panel>;
+
+};
+
+export const panel: PanelDefinition = { id: 'sample', title: 'Sample', content: <Sample /> };
+```
+
+```ts
+// <projectDir>/editor/server.ts
+import type { EditorServerExtension } from 'orengine/server';
+
+const extension: EditorServerExtension = ( router, ctx ) => {
+
+	router.get( '/hello', ( _req, res ) => {
+
+		// ctx.projectDir 配下でファイルを読む・子プロセスを起動する等
+		res.json( { message: ctx.projectDir } );
+
+	} );
+
+};
+
+export default extension;
+```
 
 ### アクティブプロジェクト・レンダラー切替
 - 環境変数 `ORENGINE_PROJECT=<name>` / `ORENGINE_RENDERER=<webgl|webgpu|headless>` で切替（デフォルトは demo-webgl / webgl。`npm run wgpu` は webgpu + demo-webgpu のショートカット）。設定ファイルは無い（個人の作業状態を tracked ファイルに持たせない）

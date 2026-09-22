@@ -114,6 +114,7 @@ export default [ {
 				"packages/orengine/react.tsx",
 				"host/app/src/main.tsx",
 				"host/app/src/static.tsx",
+				"host/app/src/editorPanels.ts",
 			] },
 		],
 	},

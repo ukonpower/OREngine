@@ -50,6 +50,8 @@ const projectAliases = ( projectDir: string, scene?: string ) => [
 	{ find: /^@or-scene$/, replacement: sceneFilePath( projectDir, scene ) },
 	{ find: /^@or-editor$/, replacement: path.join( projectDir, 'editor.json' ) },
 	{ find: /^@or-resources\/(.*)$/, replacement: path.join( projectDir, 'Resources/$1' ) },
+	// プロジェクトのエディタ拡張（パネル）。player ビルドのエントリからは辿られないので焼き込まれない
+	{ find: /^@or-project-editor\/(.*)$/, replacement: path.join( projectDir, 'editor/$1' ) },
 ];
 
 // maxpowerのエントリ。各バックエンドの index.ts が core + 自バックエンドを束ねる
