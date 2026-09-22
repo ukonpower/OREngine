@@ -17,6 +17,12 @@ export interface FramePlay {
 	playing: boolean,
 }
 
+// scene.json に timeline が無いときの値。init でもここへ戻る
+const DEFAULT_FRAME_SETTING: OREngineProjectFrame = {
+	duration: 600,
+	fps: 30,
+};
+
 export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.Renderer> {
 
 	public static resources: Resources;
@@ -76,10 +82,7 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 
 		// frame
 
-		this._frameSetting = {
-			duration: 600,
-			fps: 30,
-		};
+		this._frameSetting = { ...DEFAULT_FRAME_SETTING };
 
 		this._frame = {
 			current: 0,
@@ -216,6 +219,8 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 		Init Engine
 	-------------------------------*/
 
+	// 生成直後の状態へ戻す。load はこの上に scene.json を重ねるので、
+	// JSON に無い項目はここで決まる既定値になる
 	public init() {
 
 		this._root.disposeRecursive();
@@ -225,6 +230,13 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 		this._root.scale.set( 1, 1, 1 );
 
 		this.name = "New Project";
+
+		this._renderer.reset();
+
+		Object.assign( this._frameSetting, DEFAULT_FRAME_SETTING );
+
+		this.stop();
+		this.seek( 0 );
 
 	}
 

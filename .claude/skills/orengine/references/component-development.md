@@ -17,7 +17,7 @@ projects/{PROJECT}/Resources/Components/{Group}/{Name}/
 
 `import.meta.glob`（`host/app/Resources/registry.ts`）が `export class` を自動検出して登録する。**手動登録不要**。登録名は export されたクラス名。先頭が `_` のディレクトリはスキャン対象外。
 
-新規コンポーネントファイルを Write すると Vite が glob の依存変化を検知してリロードを発行する。コンポーネント追加 → リロード完了 → scene.json 編集の順で進めるとよい。
+新規コンポーネントファイルを Write すると Vite が glob の依存変化を検知してリロードを発行する。コンポーネント追加 → リロード完了 → scenes/<name>.json 編集の順で進めるとよい。
 
 ## コンポーネントの3カテゴリ
 
@@ -146,7 +146,7 @@ uniforms: MXP.UniformsUtils.merge(
 
 ## エディタ UI 連携（field）
 
-エディタから操作したいパラメータだけを公開する。**`field()` で登録した path だけが scene.json の `props` 経由で設定できる**（未登録の public プロパティを `props` に書いても silent skip される）。
+エディタから操作したいパラメータだけを公開する。**`field()` で登録した path だけが scenes/<name>.json の `props` 経由で設定できる**（未登録の public プロパティを `props` に書いても silent skip される）。
 
 ```ts
 this.field( "radius", () => this._radius, v => this._radius = v as number );

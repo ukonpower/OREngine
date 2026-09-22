@@ -4,6 +4,7 @@ import * as path from 'path';
 import express from 'express';
 
 import { ProjectManager } from '../Project';
+import { isValidSceneName } from '../Project/ProjectData';
 import { markWritten } from '../recentWrites';
 
 
@@ -61,24 +62,83 @@ export const createSceneRouter = ( pm: ProjectManager ) => {
 
 	const router = express.Router();
 
-	// Scene
-	router.get( '/projects/:name/scene', ( _req, res ) => {
+	// Scenes
+	router.get( '/projects/:name/scenes', ( _req, res ) => {
+
+		res.json( pm.getProject().listSceneNames() );
+
+	} );
+
+	router.get( '/projects/:name/scenes/:scene', ( req, res ) => {
+
+		const sceneName = req.params.scene;
+
+		if ( ! isValidSceneName( sceneName ) ) {
+
+			res.status( 400 ).json( { error: 'Invalid scene name' } );
+			return;
+
+		}
 
 		try {
 
-			res.json( pm.getProject().getSceneFileData() );
+			res.json( pm.getProject().getSceneFileData( sceneName ) );
 
 		} catch ( err: any ) {
 
-			res.status( 500 ).json( { error: err.message || 'Failed to get scene' } );
+			res.status( 404 ).json( { error: err.message || 'Failed to get scene' } );
 
 		}
 
 	} );
 
-	router.post( '/projects/:name/scene', ( req, res ) => {
+	router.post( '/projects/:name/scenes/:scene', ( req, res ) => {
 
-		writeJsonFile( path.join( pm.projectDir, 'scene.json' ), req.body, res );
+		const sceneName = req.params.scene;
+
+		if ( ! isValidSceneName( sceneName ) ) {
+
+			res.status( 400 ).json( { error: 'Invalid scene name' } );
+			return;
+
+		}
+
+		const project = pm.getProject();
+
+		// 新規シーンの作成にも同じ経路を使うので、初回は scenes/ 自体が無いことがある
+		fs.mkdirSync( project.scenesDir, { recursive: true } );
+
+		writeJsonFile( project.sceneFilePath( sceneName ), req.body, res );
+
+	} );
+
+	router.delete( '/projects/:name/scenes/:scene', ( req, res ) => {
+
+		const sceneName = req.params.scene;
+
+		if ( ! isValidSceneName( sceneName ) ) {
+
+			res.status( 400 ).json( { error: 'Invalid scene name' } );
+			return;
+
+		}
+
+		const project = pm.getProject();
+		const filePath = project.sceneFilePath( sceneName );
+
+		try {
+
+			project.deleteScene( sceneName );
+
+			// 削除もエディタ発の操作なので、watch のフルリロードで編集中の状態を飛ばさない
+			markWritten( filePath );
+			res.json( { success: true } );
+
+		} catch ( err: any ) {
+
+			res.status( 404 ).json( { error: err.message || 'Failed to delete scene' } );
+
+		}
 
 	} );
 

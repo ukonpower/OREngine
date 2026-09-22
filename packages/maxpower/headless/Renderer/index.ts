@@ -61,6 +61,8 @@ export class Renderer extends Serializable implements RendererContract {
 
 	}
 
+	public reset() {}
+
 	// Engine.compileShaders から呼ばれる。コンパイルするシェーダーが無いので即解決する
 	public compileShaders(): Promise<void> {
 

@@ -1,9 +1,9 @@
-# scene.json スキーマリファレンス
+# scenes/<name>.json スキーマリファレンス
 
 > 正はコードの型定義（`packages/orengine/core/ProjectSerializer/index.ts`）である。迷ったらそちらを読む。
 > サーバー側の型（`host/server/Project/types.ts`）も同一構造のミラー。
 
-`<projectDir>/scene.json` は Read/Write/Edit ツールで直接編集する。編集後の反映は devサーバー起動中なら vite watch が検知して自動 full-reload する（API呼び出し不要）。
+`<projectDir>/scenes/<name>.json` は Read/Write/Edit ツールで直接編集する。編集後の反映は devサーバー起動中なら vite watch が検知して自動 full-reload する（API呼び出し不要）。
 
 ## トップレベル構造（`OREngineProjectData`）
 
@@ -60,7 +60,7 @@ interface OREngineDataEntityComponent {
 - それ以外の全エンティティ・コンポーネント: UUID v4（`glpower` の `GLP.ID.genUUID()` と同形式）。生成は `python3 -c "import uuid; print(uuid.uuid4())"` 等で行う
 - 既存の UUID と重複しないようにする（シーン内でユニークであればよい。フォーマットは標準 UUID v4 なら何でもよい）
 
-## 実例（`demo/scene.json` 抜粋）
+## 実例（`demo-webgl/scenes/main.json` 抜粋）
 
 ```json
 {
@@ -93,16 +93,16 @@ interface OREngineDataEntityComponent {
 編集を戻したい場合は git を使う。
 
 ```bash
-git diff demo/scene.json         # 変更差分の確認
-git checkout -- demo/scene.json  # 変更を破棄して復元
+git diff demo-webgl/scenes/main.json         # 変更差分の確認
+git checkout -- demo-webgl/scenes/main.json  # 変更を破棄して復元
 ```
 
 ## 反映確認
 
-devサーバー起動中（`npm run dev`）に scene.json を保存すると、`host/vite/plugins/ProjectWatchReload/index.ts` がファイル変更を検知してブラウザへ `full-reload` を送る。ログに以下が出れば発火している:
+devサーバー起動中（`npm run dev`）に scenes/<name>.json を保存すると、`host/vite/plugins/ProjectWatchReload/index.ts` がファイル変更を検知してブラウザへ `full-reload` を送る。ログに以下が出れば発火している:
 
 ```
-[vite] page reload demo/scene.json
+[vite] page reload demo-webgl/scenes/main.json
 ```
 
 見た目の確認は agent-browser スキルでエディタページ（`http://localhost:<vite-port>`）を開いてスクリーンショットを撮る。専用の観測 API は存在しない。

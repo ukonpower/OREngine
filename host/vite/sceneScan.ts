@@ -4,7 +4,7 @@ export interface SceneUsage {
 	useGLTF: boolean;
 }
 
-// scene.json のパース結果から使用コンポーネント名・propsキー・GLTF使用有無を収集する
+// シーンファイルのパース結果から使用コンポーネント名・propsキー・GLTF使用有無を収集する
 // 構造を仮定した早期returnをせず、任意のネスト（BLidgeClient の props.attachments 配下等）を一律に辿る
 export const collectSceneUsage = ( sceneJson: unknown ): SceneUsage => {
 

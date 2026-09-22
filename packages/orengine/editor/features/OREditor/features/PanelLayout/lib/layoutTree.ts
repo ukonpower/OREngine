@@ -86,13 +86,13 @@ export function defaultLayout( customSlots: CustomSlotTabs = {} ): LayoutNode {
 	return split( "vertical", [
 		{ ratio: 916 / 1076, node: split( "horizontal", [
 			{ ratio: 300 / 1912, node: split( "vertical", [
-				{ ratio: 696 / 912, node: slotPane( [ "scene" ], customSlots.leftTop ) },
+				{ ratio: 696 / 912, node: slotPane( [ "hierarchy", "scene" ], customSlots.leftTop ) },
 				{ ratio: 216 / 912, node: slotPane( [ "timer" ], customSlots.leftBottom ) },
 			] ) },
 			{ ratio: 1312 / 1912, node: center },
-			{ ratio: 300 / 1912, node: slotPane( [ "property", "textures", "project", "renderer", "editor-settings" ], customSlots.rightTop ) },
+			{ ratio: 300 / 1912, node: slotPane( [ "property", "textures", "renderer", "editor-settings" ], customSlots.rightTop ) },
 		] ) },
-		{ ratio: 160 / 1076, node: slotPane( [ "timeline" ], customSlots.footer ) },
+		{ ratio: 160 / 1076, node: slotPane( [ "timeline", "export" ], customSlots.footer ) },
 	] );
 
 }

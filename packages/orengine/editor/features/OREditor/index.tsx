@@ -11,6 +11,7 @@ import { useLayout } from '../../hooks/useLayout';
 
 import { EditorSettings } from './features/EditorSettings';
 import { EntityProperty } from './features/EntityProperty';
+import { ExportControl } from './features/ExportControl';
 import { Timer } from './features/GPUTimer';
 import { Hierarchy } from './features/Hierarchy';
 import { InputWindow } from './features/InputWindow';
@@ -18,15 +19,17 @@ import { InputWindowProvider } from './features/InputWindow/providers/InputWindo
 import { MouseMenu } from './features/MouseMenu';
 import { MouseMenuProvider } from './features/MouseMenu/providers/MouseMenuProvider';
 import { PanelLayout } from './features/PanelLayout';
-import { ProjectControl } from './features/ProjectControl';
 import { RendererSettings } from './features/RendererSettings';
+import { SceneControl } from './features/SceneControl';
 import { Screen, VIEWPORT_PANEL_ID } from './features/Screen';
 import { Textures } from './features/Textures';
 import { Timeline } from './features/Timeline';
 import style from './index.module.scss';
-import { OREditorProvider, OREditorSaveCallback } from './providers/OREditorProvider';
+import { OREditorProvider, OREditorSaveCallback, SceneSelection } from './providers/OREditorProvider';
 
 import type { PanelDefinition } from './features/PanelLayout';
+
+export type { SceneSelection } from './providers/OREditorProvider';
 
 export type PanelSlot = "leftTop" | "leftBottom" | "mainBottom" | "rightTop" | "footer";
 
@@ -55,18 +58,19 @@ const defaultTabTitle = ( tabs: CustomTab[] | undefined ) => tabs?.find( ( t ) =
 // レイアウトツリー上の配置は PanelLayout 側の defaultLayout がこの id を参照して決める。
 // レンダーごとに identity が変わると PanelLayout の派生計算が空回りするのでモジュールスコープに置く
 const builtinPanels: PanelDefinition[] = [
-	{ id: "scene", title: "Scene", content: <Panel><Hierarchy /></Panel> },
+	{ id: "hierarchy", title: "Hierarchy", content: <Panel><Hierarchy /></Panel> },
 	{ id: "timer", title: "Timer", content: <Panel noPadding><Timer /></Panel> },
 	{ id: VIEWPORT_PANEL_ID, title: "Screen", multiple: true, content: ( viewportId ) => <Screen viewportId={viewportId} /> },
 	{ id: "property", title: "Property", content: <Panel><EntityProperty /></Panel> },
 	{ id: "textures", title: "Textures", content: <Panel noPadding><Textures /></Panel> },
-	{ id: "project", title: "Project", content: <Panel><ProjectControl /></Panel> },
+	{ id: "scene", title: "Scene", content: <Panel><SceneControl /></Panel> },
+	{ id: "export", title: "Export", content: <Panel><ExportControl /></Panel> },
 	{ id: "renderer", title: "Renderer", content: <Panel><RendererSettings /></Panel> },
 	{ id: "editor-settings", title: "Editor", content: <Panel><EditorSettings /></Panel> },
 	{ id: "timeline", title: "Timeline", content: <Panel noPadding><Timeline /></Panel> },
 ];
 
-export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP.SerializeField, projectName?: string, customTabs?: EditorCustomTabs }> = ( props ) => {
+export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP.SerializeField, projectName?: string, customTabs?: EditorCustomTabs, scenes?: SceneSelection }> = ( props ) => {
 
 	const layout = useLayout();
 
@@ -96,8 +100,8 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 					</LayoutSplit.Item>
 					<LayoutSplit.Item flex={1} minSize={200}>
 						<PanelContainer storageKey="orengine-panel-sp-main" defaultTabTitle={defaultTabTitle( props.customTabs?.mainBottom ) ?? defaultTabTitle( props.customTabs?.leftTop ) ?? defaultTabTitle( props.customTabs?.leftBottom ) ?? defaultTabTitle( props.customTabs?.rightTop ) ?? defaultTabTitle( props.customTabs?.footer )}>
-							<PanelContainer.Tab title='Scene / Property'>
-								<LayoutSplit direction="horizontal" storageKey="orengine-editor-sp-sceneProp">
+							<PanelContainer.Tab title='Hierarchy / Property'>
+								<LayoutSplit direction="horizontal" storageKey="orengine-editor-sp-hierarchyProp">
 									<LayoutSplit.Item flex={1} minSize={120} overflow padding>
 										<Hierarchy />
 									</LayoutSplit.Item>
@@ -111,9 +115,14 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 									<Textures />
 								</Panel>
 							</PanelContainer.Tab>
-							<PanelContainer.Tab title='Project'>
+							<PanelContainer.Tab title='Scene'>
 								<Panel>
-									<ProjectControl />
+									<SceneControl />
+								</Panel>
+							</PanelContainer.Tab>
+							<PanelContainer.Tab title='Export'>
+								<Panel>
+									<ExportControl />
 								</Panel>
 							</PanelContainer.Tab>
 							<PanelContainer.Tab title='Renderer'>
@@ -151,7 +160,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 
 	}
 
-	return <OREditorProvider projectName={props.projectName} onSave={props.onSave} editorData={props.editorData}>
+	return <OREditorProvider projectName={props.projectName} onSave={props.onSave} editorData={props.editorData} scenes={props.scenes}>
 		<MouseMenuProvider>
 			<InputWindowProvider>
 				<div className={style.editor}>

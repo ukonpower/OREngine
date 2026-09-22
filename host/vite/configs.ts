@@ -23,6 +23,8 @@ export type RendererName = 'webgl' | 'webgpu' | 'headless';
 
 export interface OrengineConfigOptions {
 	projectDir: string;
+	// @or-scene が指すシーン名（<projectDir>/scenes/<scene>.json）。player / static のバンドルに焼き込まれる
+	scene?: string;
 	basePath?: string;
 	https?: { cert: Buffer | string; key: Buffer | string };
 	port?: number;
@@ -34,8 +36,18 @@ export interface OrengineConfigOptions {
 // （viteの base はスラッシュ終わりを要求するので、そちらは basePath をそのまま使う）
 const defineBasePath = ( basePath?: string ) => JSON.stringify( ( basePath ?? '' ).replace( /\/+$/, '' ) );
 
-const projectAliases = ( projectDir: string ) => [
-	{ find: /^@or-scene$/, replacement: path.join( projectDir, 'scene.json' ) },
+export const DEFAULT_SCENE_NAME = 'main';
+
+export const sceneFilePath = ( projectDir: string, scene?: string ) => {
+
+	const name = scene ?? DEFAULT_SCENE_NAME;
+
+	return path.join( projectDir, 'scenes', name + '.json' );
+
+};
+
+const projectAliases = ( projectDir: string, scene?: string ) => [
+	{ find: /^@or-scene$/, replacement: sceneFilePath( projectDir, scene ) },
 	{ find: /^@or-editor$/, replacement: path.join( projectDir, 'editor.json' ) },
 	{ find: /^@or-resources\/(.*)$/, replacement: path.join( projectDir, 'Resources/$1' ) },
 ];
@@ -48,9 +60,9 @@ const rendererPath: { [key in RendererName]: string } = {
 };
 
 // playerビルドへWebGPUコードが混入しないよう、レンダラーはビルド時のaliasで固定する
-export const sharedResolve = ( projectDir: string, renderer: RendererName ) => ( {
+export const sharedResolve = ( projectDir: string, renderer: RendererName, scene?: string ) => ( {
 	alias: [
-		...projectAliases( projectDir ),
+		...projectAliases( projectDir, scene ),
 		{ find: /^@or-renderer$/, replacement: path.join( orengineRoot, rendererPath[ renderer ] ) },
 		{ find: /^orengine\/player$/, replacement: path.join( orengineRoot, 'packages/orengine/player/index.ts' ) },
 		{ find: /^orengine\/react$/, replacement: path.join( orengineRoot, 'packages/orengine/react.tsx' ) },
@@ -112,7 +124,7 @@ export const createDevConfig = ( opts: OrengineConfigOptions ): UserConfig => de
 			path.join( appRoot, 'static.html' ),
 		],
 	},
-	resolve: sharedResolve( opts.projectDir, opts.renderer ?? 'webgl' ),
+	resolve: sharedResolve( opts.projectDir, opts.renderer ?? 'webgl', opts.scene ),
 	css: sharedCss(),
 	plugins: [
 		// WebGPUはsecure context必須のため、webgpu起動時はHTTPS（証明書は自動生成・キャッシュ）で立てる
@@ -136,8 +148,7 @@ export interface PlayerConfigOptions extends OrengineConfigOptions {
 
 export const createPlayerConfig = ( opts: PlayerConfigOptions ): UserConfig => {
 
-	const sceneJsonPath = path.join( opts.projectDir, 'scene.json' );
-	const sceneJson = JSON.parse( fs.readFileSync( sceneJsonPath, 'utf-8' ) );
+	const sceneJson = JSON.parse( fs.readFileSync( sceneFilePath( opts.projectDir, opts.scene ), 'utf-8' ) );
 
 	const usage = collectSceneUsage( sceneJson );
 
@@ -199,7 +210,7 @@ export const createPlayerConfig = ( opts: PlayerConfigOptions ): UserConfig => {
 				],
 			},
 		},
-		resolve: sharedResolve( opts.projectDir, opts.renderer ?? 'webgl' ),
+		resolve: sharedResolve( opts.projectDir, opts.renderer ?? 'webgl', opts.scene ),
 		css: {
 			preprocessorOptions: {
 				scss: { api: 'modern' },
@@ -241,7 +252,7 @@ export const createStaticConfig = ( opts: StaticConfigOptions ): UserConfig => {
 				input: { main: input },
 			},
 		},
-		resolve: sharedResolve( opts.projectDir, 'webgl' ),
+		resolve: sharedResolve( opts.projectDir, 'webgl', opts.scene ),
 		css: sharedCss(),
 		plugins: [
 			react(),

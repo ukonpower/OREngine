@@ -228,6 +228,26 @@ export class Editor extends MXP.Serializable {
 		};
 
 		/*-------------------------------
+			Scene
+		-------------------------------*/
+
+		// 別シーンへ切り替わったら選択を外す。起動時は editor.json の選択を復元したいので、
+		// 新しいシーンに同じ uuid が居る間は残す
+		this._engine.on( "loaded", () => {
+
+			if ( ! this._selectedEntityId ) return;
+
+			const entity = this._engine.root.findEntityByUUID( this._selectedEntityId );
+
+			if ( ! entity ) {
+
+				this.selectEntity( null );
+
+			}
+
+		} );
+
+		/*-------------------------------
 			BLidge
 		-------------------------------*/
 

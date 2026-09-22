@@ -26,7 +26,7 @@ npm install
 
 `init.ts` が利用側リポジトリに以下を生成します（既存のファイルは上書きしません）。
 
-- `project/` — プロジェクトデータ（`scene.json` / `editor.json` / `Resources/` / `public/`）
+- `project/` — プロジェクトデータ（`scenes/<name>.json` / `editor.json` / `Resources/` / `public/`）
 - `tsconfig.json` — パスエイリアスを submodule に向けた TypeScript 設定
 - `package.json` — `dev` / `player:build` / `editor:build` の scripts と、実行に必要な `tsx`（依存パッケージはすべて OREngine 側が持ちます）
 
@@ -36,7 +36,7 @@ npm install
 npm run dev
 ```
 
-エディタ付き開発サーバーが起動します。`project/scene.json` やコンポーネントのファイルを直接編集すると、変更検知でブラウザが自動リロードされます。
+エディタ付き開発サーバーが起動します。`project/scenes/*.json` やコンポーネントのファイルを直接編集すると、変更検知でブラウザが自動リロードされます。シーンはエディタの Scene パネルから切り替え・新規作成できます。
 
 `project/Resources/Components/<グループ>/<名前>/index.ts` に `MXP.Component` を継承したクラスを export すると、コンポーネントとして自動で認識されます。
 

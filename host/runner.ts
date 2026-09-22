@@ -15,6 +15,8 @@ const orengineRoot = path.resolve( fileURLToPath( import.meta.url ), '../..' );
 
 export interface HostRunOptions {
 	projectDir: string;
+	// dev / player / static で @or-scene が指すシーン名。省略時は main
+	scene?: string;
 	port?: number;
 	apiPort?: number;
 	basePath?: string;
