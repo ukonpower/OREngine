@@ -25,15 +25,6 @@ export const TwoTabs: Story = {
 	),
 };
 
-export const DefaultTabSelected: Story = {
-	render: () => (
-		<PanelContainer defaultTabTitle="Hierarchy">
-			<PanelContainer.Tab title="Property">{body( 'Property' )}</PanelContainer.Tab>
-			<PanelContainer.Tab title="Hierarchy">{body( 'Hierarchy' )}</PanelContainer.Tab>
-		</PanelContainer>
-	),
-};
-
 export const ManyTabs: Story = {
 	render: () => (
 		<PanelContainer>

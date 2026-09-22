@@ -2,7 +2,7 @@ import * as MXP from 'maxpower';
 import { OREngineProjectData } from "orengine";
 import { Engine } from "orengine";
 
-import { OREditor, type EditorCustomTabs } from "../../../features/OREditor";
+import { OREditor, type PanelDefinition } from "../../../features/OREditor";
 import { OREngineProvider } from "../../../features/OREngine/providers/OREngineProvider";
 
 import "../../../styles/style.scss";
@@ -13,7 +13,7 @@ export interface EditorPageStaticProps {
 	sceneData: OREngineProjectData;
 	editorData?: MXP.SerializeField;
 	initResourceInstances: ( engine: Engine ) => void;
-	customTabs?: EditorCustomTabs;
+	panels?: PanelDefinition[];
 }
 
 export const EditorPageStatic = ( props: EditorPageStaticProps ) => (
@@ -22,6 +22,6 @@ export const EditorPageStatic = ( props: EditorPageStaticProps ) => (
 		props.initResourceInstances( engine );
 
 	}} >
-		<OREditor editorData={props.editorData} projectName={props.projectName ?? 'Static'} customTabs={props.customTabs} onSave={() => { /* 静的版は保存無効 */ }} />
+		<OREditor editorData={props.editorData} projectName={props.projectName ?? 'Static'} panels={props.panels} onSave={() => { /* 静的版は保存無効 */ }} />
 	</OREngineProvider>
 );

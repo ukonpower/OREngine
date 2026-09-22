@@ -4,7 +4,7 @@ import * as MXP from 'maxpower';
 import { OREngineProjectData } from "orengine";
 import { Engine } from "orengine";
 
-import { OREditor, type EditorCustomTabs, type SceneSelection } from "../../../features/OREditor";
+import { OREditor, type PanelDefinition, type SceneSelection } from "../../../features/OREditor";
 import { OREngineProvider } from "../../../features/OREngine/providers/OREngineProvider";
 
 import "../../../styles/style.scss";
@@ -14,7 +14,7 @@ export interface EditorPageProps {
 	sceneData?: OREngineProjectData;
 	editorData?: MXP.SerializeField;
 	initResourceInstances: ( engine: Engine ) => void;
-	customTabs?: EditorCustomTabs;
+	panels?: PanelDefinition[];
 	onBeforeSave?: () => void;
 }
 
@@ -165,7 +165,7 @@ export const EditorPage = ( props: EditorPageProps ) => {
 			props.initResourceInstances( engine );
 
 		}} >
-			<OREditor editorData={editorData} projectName={projectName} customTabs={props.customTabs} scenes={scenes} onSave={( savedScene, savedEditor ) => {
+			<OREditor editorData={editorData} projectName={projectName} panels={props.panels} scenes={scenes} onSave={( savedScene, savedEditor ) => {
 
 				props.onBeforeSave?.();
 

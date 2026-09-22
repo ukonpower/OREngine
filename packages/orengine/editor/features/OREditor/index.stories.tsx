@@ -1,9 +1,13 @@
 import { withOREngine } from '@or-storybook/decorators/withOREditor';
 import { storyEditorData, storyScene } from '@or-storybook/fixtures/scene';
 
+import { Block } from '../../components/ui/Block';
+import { Button } from '../../components/ui/Button';
+import { Panel } from '../../components/ui/Panel';
+
 import { OREditor } from '.';
 
-import type { EditorCustomTabs } from '.';
+import type { PanelDefinition } from '.';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta = {
@@ -16,8 +20,8 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 // エディタ全体のパネルレイアウトを検証するストーリー。ビューポートいっぱいに広げて撮る
-const fullscreen = ( customTabs?: EditorCustomTabs, editorData = storyEditorData ): Story => ( {
-	args: { editorData, customTabs },
+const fullscreen = ( panels?: PanelDefinition[], editorData = storyEditorData ): Story => ( {
+	args: { editorData, panels },
 	decorators: [
 		( Story ) => <div style={{ width: '100vw', height: '100vh' }}><Story /></div>,
 		withOREngine( storyScene ),
@@ -44,13 +48,26 @@ export const SavedLayout = fullscreen( undefined, {
 	},
 } );
 
-// customTabs の5スロット注入と default タブ指定の見え方を固定する
-export const CustomTabs = fullscreen( {
-	leftTop: [ { title: 'Assets', content: <div>custom leftTop</div> } ],
-	mainBottom: [
-		{ title: 'Console', content: <div>custom mainBottom 1</div>, default: true },
-		{ title: 'Log', content: <div>custom mainBottom 2</div> },
-	],
-	rightTop: [ { title: 'Custom', content: <div>custom rightTop</div>, default: true } ],
-	footer: [ { title: 'Notes', content: <div>custom footer</div> } ],
+// 利用者が足すパネル。content は Panel ラッパー込みで渡す（ビルトインと同じ扱い）
+const userPanels: PanelDefinition[] = [
+	{
+		id: "my-tool",
+		title: "My Tool",
+		content: <Panel><Block label="My Tool"><Button>Run</Button></Block></Panel>,
+	},
+];
+
+// panels で渡した定義がビルトインと同列に扱われることを固定する。
+// 撮影されるのは右カラムに載せた My Tool タブだが、同じ定義から
+// PC のタブ追加メニュー（各 pane ヘッダーの「+」）にも、SP のタブ一覧にも出る
+export const UserPanel = fullscreen( userPanels, {
+	...storyEditorData,
+	panelLayout: {
+		type: "split", id: "root", direction: "horizontal",
+		children: [
+			{ ratio: 0.2, node: { type: "pane", id: "left", tabs: [ "hierarchy", "scene" ], active: "hierarchy" } },
+			{ ratio: 0.55, node: { type: "pane", id: "center", tabs: [ "viewport:main" ], active: "viewport:main" } },
+			{ ratio: 0.25, node: { type: "pane", id: "right", tabs: [ "property", "my-tool" ], active: "my-tool" } },
+		],
+	},
 } );

@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 
 import * as MXP from 'maxpower';
@@ -27,33 +26,10 @@ import { Timeline } from './features/Timeline';
 import style from './index.module.scss';
 import { OREditorProvider, OREditorSaveCallback, SceneSelection } from './providers/OREditorProvider';
 
-import type { PanelDefinition } from './features/PanelLayout';
+import type { PanelDefinition, PanelId } from './features/PanelLayout';
 
 export type { SceneSelection } from './providers/OREditorProvider';
-
-export type PanelSlot = "leftTop" | "leftBottom" | "mainBottom" | "rightTop" | "footer";
-
-export type CustomTab = {
-	title: string;
-	content: React.ReactNode;
-	default?: boolean;
-};
-
-export type EditorCustomTabs = Partial<Record<PanelSlot, CustomTab[]>>;
-
-const renderCustomTabs = ( tabs: CustomTab[] | undefined ) => {
-
-	if ( ! tabs ) return null;
-
-	return tabs.map( ( tab ) => (
-		<PanelContainer.Tab key={tab.title} title={tab.title}>
-			<Panel>{tab.content}</Panel>
-		</PanelContainer.Tab>
-	) );
-
-};
-
-const defaultTabTitle = ( tabs: CustomTab[] | undefined ) => tabs?.find( ( t ) => t.default )?.title;
+export type { PanelDefinition, PanelId } from './features/PanelLayout';
 
 // レイアウトツリー上の配置は PanelLayout 側の defaultLayout がこの id を参照して決める。
 // レンダーごとに identity が変わると PanelLayout の派生計算が空回りするのでモジュールスコープに置く
@@ -70,9 +46,39 @@ const builtinPanels: PanelDefinition[] = [
 	{ id: "timeline", title: "Timeline", content: <Panel noPadding><Timeline /></Panel> },
 ];
 
-export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP.SerializeField, projectName?: string, customTabs?: EditorCustomTabs, scenes?: SceneSelection }> = ( props ) => {
+// SP のタブ一覧に並べるパネル。Screen（上段）と Timeline（下段）は専用領域を持ち、
+// Hierarchy と Property は横並びの複合タブにまとめるので、ここからは外す。
+// multiple なパネルはタブを増やす操作が SP に無いので置けない
+const spPanelTabs = ( panels: PanelDefinition[] ) => {
+
+	const tabs: { id: PanelId, title: string, content: React.ReactNode }[] = [];
+
+	for ( const def of panels ) {
+
+		if ( def.multiple ) continue;
+		if ( def.id === "hierarchy" || def.id === "property" || def.id === "timeline" ) continue;
+
+		tabs.push( { id: def.id, title: def.title, content: def.content } );
+
+	}
+
+	return tabs;
+
+};
+
+export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP.SerializeField, projectName?: string, panels?: PanelDefinition[], scenes?: SceneSelection }> = ( props ) => {
 
 	const layout = useLayout();
+
+	// 利用者のパネルはビルトインの後ろに並べる。identity が毎レンダー変わると
+	// PanelLayout の派生計算が空回りするので、渡されないときは定数配列をそのまま使う
+	const panels = useMemo( () => {
+
+		if ( ! props.panels ) return builtinPanels;
+
+		return [ ...builtinPanels, ...props.panels ];
+
+	}, [ props.panels ] );
 
 	let editorElm = null;
 
@@ -80,7 +86,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 
 		editorElm = (
 			<>
-				<PanelLayout panels={builtinPanels} customTabs={props.customTabs} />
+				<PanelLayout panels={panels} />
 				<MouseMenu />
 			</>
 		);
@@ -99,7 +105,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 						<Screen viewportId="main" />
 					</LayoutSplit.Item>
 					<LayoutSplit.Item flex={1} minSize={200}>
-						<PanelContainer storageKey="orengine-panel-sp-main" defaultTabTitle={defaultTabTitle( props.customTabs?.mainBottom ) ?? defaultTabTitle( props.customTabs?.leftTop ) ?? defaultTabTitle( props.customTabs?.leftBottom ) ?? defaultTabTitle( props.customTabs?.rightTop ) ?? defaultTabTitle( props.customTabs?.footer )}>
+						<PanelContainer storageKey="orengine-panel-sp-main">
 							<PanelContainer.Tab title='Hierarchy / Property'>
 								<LayoutSplit direction="horizontal" storageKey="orengine-editor-sp-hierarchyProp">
 									<LayoutSplit.Item flex={1} minSize={120} overflow padding>
@@ -110,36 +116,11 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 									</LayoutSplit.Item>
 								</LayoutSplit>
 							</PanelContainer.Tab>
-							<PanelContainer.Tab title='Textures'>
-								<Panel noPadding>
-									<Textures />
-								</Panel>
-							</PanelContainer.Tab>
-							<PanelContainer.Tab title='Scene'>
-								<Panel>
-									<SceneControl />
-								</Panel>
-							</PanelContainer.Tab>
-							<PanelContainer.Tab title='Export'>
-								<Panel>
-									<ExportControl />
-								</Panel>
-							</PanelContainer.Tab>
-							<PanelContainer.Tab title='Renderer'>
-								<Panel>
-									<RendererSettings />
-								</Panel>
-							</PanelContainer.Tab>
-							<PanelContainer.Tab title='Editor'>
-								<Panel>
-									<EditorSettings />
-								</Panel>
-							</PanelContainer.Tab>
-							{renderCustomTabs( props.customTabs?.leftTop )}
-							{renderCustomTabs( props.customTabs?.leftBottom )}
-							{renderCustomTabs( props.customTabs?.mainBottom )}
-							{renderCustomTabs( props.customTabs?.rightTop )}
-							{renderCustomTabs( props.customTabs?.footer )}
+							{spPanelTabs( panels ).map( ( tab ) => (
+								<PanelContainer.Tab key={tab.id} title={tab.title}>
+									{tab.content}
+								</PanelContainer.Tab>
+							) )}
 						</PanelContainer>
 					</LayoutSplit.Item>
 					<LayoutSplit.Item size="120px" minSize={80}>

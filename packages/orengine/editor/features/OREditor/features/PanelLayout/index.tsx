@@ -1,7 +1,6 @@
 import { useEffect, useMemo } from 'react';
 
 import { LayoutSplit } from '../../../../components/ui/LayoutSplit';
-import { Panel } from '../../../../components/ui/Panel';
 import { PanelContainer } from '../../../../components/ui/PanelContainer';
 import { useOREditor } from '../../hooks/useOREditor';
 import { Picker } from '../MouseMenu/components/Picker';
@@ -14,55 +13,11 @@ import { useTabDrag } from './hooks/useTabDrag';
 import style from './index.module.scss';
 import { addTab, closeTab, collectPanes, defaultLayout, findPanel, newTabId, panelContent, parseLayout, selectTab, setRatios, tabInstance } from './lib/layoutTree';
 
-import type { EditorCustomTabs, PanelSlot } from '../..';
-import type { CustomSlotTabs, PanelResolver } from './lib/layoutTree';
+import type { PanelResolver } from './lib/layoutTree';
 import type { LayoutNode, PaneNode, PanelDefinition, PanelId } from './lib/types';
 import type * as MXP from 'maxpower';
 
 export type { LayoutNode, PanelDefinition, PanelId } from './lib/types';
-
-// customTabs（スロット注入の公開API）をパネル定義とスロット配置へ読み替える
-const convertCustomTabs = ( customTabs?: EditorCustomTabs ) => {
-
-	const definitions: PanelDefinition[] = [];
-	const slots: CustomSlotTabs = {};
-
-	if ( ! customTabs ) return { definitions, slots };
-
-	const usedIds = new Set<PanelId>();
-
-	( Object.keys( customTabs ) as PanelSlot[] ).forEach( ( slot ) => {
-
-		const tabs = customTabs[ slot ];
-
-		if ( ! tabs || tabs.length === 0 ) return;
-
-		const ids: PanelId[] = [];
-		let active: PanelId | undefined;
-
-		tabs.forEach( ( tab ) => {
-
-			// id は表示に使わないので、タイトル重複時は連番で一意化するだけでよい
-			let id = `custom/${ slot }/${ tab.title }`;
-
-			for ( let n = 2; usedIds.has( id ); n ++ ) id = `custom/${ slot }/${ tab.title }-${ n }`;
-
-			usedIds.add( id );
-			ids.push( id );
-
-			definitions.push( { id, title: tab.title, content: <Panel>{tab.content}</Panel> } );
-
-			if ( tab.default && active === undefined ) active = id;
-
-		} );
-
-		slots[ slot ] = { tabs: ids, active };
-
-	} );
-
-	return { definitions, slots };
-
-};
 
 type LayoutNodeViewProps = {
 	node: LayoutNode;
@@ -122,9 +77,9 @@ const LayoutNodeView = ( props: LayoutNodeViewProps ) => {
 };
 
 export type PanelLayoutProps = {
-	// ビルトインパネルの定義。デフォルトレイアウト上の配置は defaultLayout が id で決める
+	// 配置できるパネルの定義（ビルトイン + 利用者が渡したもの）。
+	// デフォルトレイアウト上の配置は defaultLayout が id で決める
 	panels: PanelDefinition[];
-	customTabs?: EditorCustomTabs;
 };
 
 // パネルレイアウトのデータ駆動レンダラー。ツリー（配置・比率・アクティブタブ）は
@@ -134,24 +89,22 @@ export const PanelLayout = ( props: PanelLayoutProps ) => {
 	const { editor } = useOREditor();
 	const { pushContent, closeAll } = useMouseMenu();
 
-	const custom = useMemo( () => convertCustomTabs( props.customTabs ), [ props.customTabs ] );
-
 	const panels = useMemo( () => {
 
 		const map = new Map<PanelId, PanelDefinition>();
 
-		[ ...props.panels, ...custom.definitions ].forEach( ( def ) => map.set( def.id, def ) );
+		props.panels.forEach( ( def ) => map.set( def.id, def ) );
 
 		return map;
 
-	}, [ props.panels, custom ] );
+	}, [ props.panels ] );
 
 	const resolve = useMemo( (): PanelResolver => ( tabId ) => findPanel( panels, tabId ), [ panels ] );
 
 	const [ savedLayout, setSavedLayout ] = useSerializableField<MXP.SerializeFieldValue>( editor, "panelLayout" );
 
 	// 保存値を検証して木にする。壊れている場合はデフォルトへ
-	const layout = useMemo( () => parseLayout( savedLayout, resolve ) ?? defaultLayout( custom.slots ), [ savedLayout, resolve, custom ] );
+	const layout = useMemo( () => parseLayout( savedLayout, resolve ) ?? defaultLayout(), [ savedLayout, resolve ] );
 
 	// 閉じた Screen タブのビューポートは戻ってこないので、その設定を保存データに残さない。
 	// Canvas のアンマウント（設定の書き戻し）より後に走るよう effect で行う

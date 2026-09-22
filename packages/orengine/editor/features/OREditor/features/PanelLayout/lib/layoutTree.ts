@@ -1,13 +1,4 @@
 import type { LayoutNode, PaneNode, PanelDefinition, PanelId, SplitDirection, SplitItem, SplitNode } from './types';
-import type { PanelSlot } from '../../..';
-
-// スロットへ差し込むカスタムパネル群。active は default 指定されたタブ
-export interface SlotTabs {
-	tabs: PanelId[];
-	active?: PanelId;
-}
-
-export type CustomSlotTabs = Partial<Record<PanelSlot, SlotTabs>>;
 
 export type PanelResolver = ( tabId: PanelId ) => PanelDefinition | undefined;
 
@@ -56,43 +47,28 @@ const split = ( direction: SplitDirection, children: SplitItem[] ): SplitNode =>
 	children,
 } );
 
-const pane = ( tabs: PanelId[], active?: PanelId ): PaneNode => ( {
+const pane = ( tabs: PanelId[] ): PaneNode => ( {
 	type: "pane",
 	id: crypto.randomUUID(),
 	tabs,
-	active: active ?? tabs[ 0 ],
+	active: tabs[ 0 ],
 } );
-
-// ビルトインのタブ列の後ろへスロットのカスタムタブを足した pane を作る
-const slotPane = ( builtin: PanelId[], slot?: SlotTabs ): PaneNode =>
-	pane( [ ...builtin, ...( slot?.tabs ?? [] ) ], slot?.active );
 
 // データ駆動化前の PC レイアウトと同じ構成・同じ初期サイズのデフォルト木を作る。
 // 比率は基準解像度 1920x1080 で旧実装の px / vh 指定（左右カラム300px・フッター160px・
-// 左下20vh=216px・mainBottom 200px）と一致する値。分母はスプリッタ4pxを除いた実効サイズ
-export function defaultLayout( customSlots: CustomSlotTabs = {} ): LayoutNode {
-
-	const screenPane = pane( [ "viewport:main" ] );
-	const mainBottom = customSlots.mainBottom;
-
-	// mainBottom のカスタムタブがあるときだけ、Screen の下に pane を挟む
-	const center: LayoutNode = mainBottom
-		? split( "vertical", [
-			{ ratio: 712 / 912, node: screenPane },
-			{ ratio: 200 / 912, node: pane( mainBottom.tabs, mainBottom.active ) },
-		] )
-		: screenPane;
+// 左下20vh=216px）と一致する値。分母はスプリッタ4pxを除いた実効サイズ
+export function defaultLayout(): LayoutNode {
 
 	return split( "vertical", [
 		{ ratio: 916 / 1076, node: split( "horizontal", [
 			{ ratio: 300 / 1912, node: split( "vertical", [
-				{ ratio: 696 / 912, node: slotPane( [ "hierarchy", "scene" ], customSlots.leftTop ) },
-				{ ratio: 216 / 912, node: slotPane( [ "timer" ], customSlots.leftBottom ) },
+				{ ratio: 696 / 912, node: pane( [ "hierarchy", "scene" ] ) },
+				{ ratio: 216 / 912, node: pane( [ "timer" ] ) },
 			] ) },
-			{ ratio: 1312 / 1912, node: center },
-			{ ratio: 300 / 1912, node: slotPane( [ "property", "textures", "renderer", "editor-settings" ], customSlots.rightTop ) },
+			{ ratio: 1312 / 1912, node: pane( [ "viewport:main" ] ) },
+			{ ratio: 300 / 1912, node: pane( [ "property", "textures", "renderer", "editor-settings" ] ) },
 		] ) },
-		{ ratio: 160 / 1076, node: slotPane( [ "timeline", "export" ], customSlots.footer ) },
+		{ ratio: 160 / 1076, node: pane( [ "timeline", "export" ] ) },
 	] );
 
 }
