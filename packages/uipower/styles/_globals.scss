@@ -21,7 +21,6 @@
 	--or-focus: #999;
 
 	// 下地を透かす面。不透明トークンから作って色の出どころを1つに保つ
-	--or-bg-overlay: rgba(0, 0, 0, 0.5);
 	--or-bg-float: color-mix(in srgb, var(--or-bg-base) 60%, transparent);
 	--or-bg-float-active: color-mix(in srgb, var(--or-bg-surface) 80%, transparent);
 	--or-drop-zone: color-mix(in srgb, var(--or-focus) 15%, transparent);

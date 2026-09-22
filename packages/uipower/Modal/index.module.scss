@@ -10,11 +10,11 @@
 	justify-content: center;
 }
 
+// 背面クリックを拾う透明な面。暗転はさせない
 .overlay {
 	position: absolute;
 	width: 100%;
 	height: 100%;
-	background: var(--or-bg-overlay);
 }
 
 // 見出し・本体・フッターを縦に積む。段どうしの間隔と窓の内側の余白はここだけで決める。
