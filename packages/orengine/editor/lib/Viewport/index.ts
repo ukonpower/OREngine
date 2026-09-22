@@ -4,9 +4,9 @@ import * as MXP from 'maxpower';
 import { Engine } from '../../../core/Engine';
 import { EditorCamera } from '../EditorCamera';
 import { FrameDebugger } from '../FrameDebugger';
-import { GizmoManager } from '../gizmo/GizmoManager';
-import { HelperManager } from '../helper/HelperManager';
-import { PointerHandler } from '../input/PointerHandler';
+import { GizmoManager } from '../GizmoManager';
+import { HelperManager } from '../HelperManager';
+import { PointerHandler } from '../PointerHandler';
 
 import type { EditorAPI } from '../EditorAPI';
 
