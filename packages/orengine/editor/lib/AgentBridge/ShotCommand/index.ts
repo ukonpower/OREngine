@@ -17,6 +17,9 @@ const SHOT_USAGE = 'shot <out.png> [--camera <entity> | --from x,y,z --to x,y,z]
 // 仮の値: 何回で見た目が落ち着くかは実測していない。実走で確かめたら置き換える
 const SHOT_RENDER_COUNT = 4;
 
+// --time 指定時の1ステップぶんの時間。2回の step の時刻の差と、各 step の timeDelta をこれで揃える
+const SHOT_STEP_DELTA = 1 / 60;
+
 // --view <パス名> の転写先。EditorDraw ごとに1つ作って使い回す（契約にターゲットを破棄する口が無いため）
 const passTargets = new WeakMap<MXP.EditorDrawContract, MXP.EditorTarget>();
 
@@ -109,6 +112,22 @@ type ShotCamera = {
 	description: unknown;
 	// --from / --to で作った一時カメラだけ持つ
 	temporary: MXP.Camera | null;
+	// shot の間だけ aspect を描画解像度に合わせるカメラ（--camera の、displayOut でない perspective カメラだけ）
+	fitAspect: MXP.Camera | null;
+};
+
+// displayOut のカメラは updateImpl が自分で解像度に合わせるので対象外。
+// orthographic と viewPort を持つカメラは、aspect で比率が決まらないので今の挙動のままにする
+const findFitAspectCamera = ( entity: MXP.Entity ) => {
+
+	const component = entity.getComponentsByTag<MXP.Camera>( 'camera' )[ 0 ];
+
+	if ( component.displayOut ) return null;
+	if ( component.cameraType !== 'perspective' ) return null;
+	if ( component.viewPort ) return null;
+
+	return component;
+
 };
 
 const resolveCamera = ( ctx: AgentCommandContext, options: AgentOptions ): ShotCamera => {
@@ -137,7 +156,7 @@ const resolveCamera = ( ctx: AgentCommandContext, options: AgentOptions ): ShotC
 
 		}
 
-		return { entity, description: entityPath( entity ), temporary: null };
+		return { entity, description: entityPath( entity ), temporary: null, fitAspect: findFitAspectCamera( entity ) };
 
 	}
 
@@ -166,6 +185,7 @@ const resolveCamera = ( ctx: AgentCommandContext, options: AgentOptions ): ShotC
 			entity,
 			description: { from: [ from.x, from.y, from.z ], to: [ to.x, to.y, to.z ] },
 			temporary: camera,
+			fitAspect: null,
 		};
 
 	}
@@ -178,7 +198,7 @@ const resolveCamera = ( ctx: AgentCommandContext, options: AgentOptions ): ShotC
 
 	}
 
-	return { entity: null, description: entityPath( sceneCamera ), temporary: null };
+	return { entity: null, description: entityPath( sceneCamera ), temporary: null, fitAspect: null };
 
 };
 
@@ -194,6 +214,41 @@ const updateTemporaryCamera = ( camera: MXP.Camera, engine: Engine, event: MXP.E
 	entity.postUpdate( event );
 	entity.updateMatrixRecursive();
 	entity.prepareRender( event );
+
+};
+
+/*-------------------------------
+	Step
+-------------------------------*/
+
+// 時刻 time の event で step する。Engine.update と同じく、時刻の uniform と毎フレーム更新のテクスチャを揃えてから進める。
+// シャドウ・envMap などのパスは prepareScene（step の中）で出るので、capture があれば step の間も拾う
+const stepAt = ( engine: Engine, time: number, params: Partial<MXP.EntityUpdateEvent>, capture: PassCapture | null ) => {
+
+	const event = engine.createEntityUpdateEvent( { ...params, timeCode: time, timeCodeFrame: time * 60, playing: false, forceDraw: true } );
+
+	engine.renderer.globalUniforms.uTime.value = time;
+	engine.renderer.globalUniforms.uTimeF.value = time % 1;
+
+	const updateTextures = Engine.resources.updateEveryFrameTextures;
+
+	for ( let i = 0; i < updateTextures.length; i ++ ) {
+
+		updateTextures[ i ].render();
+
+	}
+
+	if ( capture ) {
+
+		capture.during( () => engine.step( event ) );
+
+	} else {
+
+		engine.step( event );
+
+	}
+
+	return event;
 
 };
 
@@ -341,6 +396,7 @@ const shot = async ( ctx: AgentCommandContext, input: AgentCommandInput ) => {
 	const engine = ctx.engine;
 	const draw = ctx.editor.draw;
 
+	const timeSpecified = options.time !== undefined;
 	const time = parseTime( ctx, options );
 	const viewName = parseViewName( options );
 	const camera = resolveCamera( ctx, options );
@@ -353,9 +409,26 @@ const shot = async ( ctx: AgentCommandContext, input: AgentCommandInput ) => {
 
 	let readback: Promise<Uint8Array>;
 
+	const fitCamera = camera.fitAspect;
+	let originalAspect = 1;
+
+	if ( fitCamera ) {
+
+		originalAspect = fitCamera.aspect;
+
+	}
+
 	FrameDebugger.paused = true;
 
 	try {
+
+		// 射影行列は step の中の prepareRender で作り直される
+		if ( fitCamera ) {
+
+			fitCamera.aspect = engine.renderer.resolution.x / engine.renderer.resolution.y;
+			fitCamera.needsUpdateProjectionMatrix = true;
+
+		}
 
 		let capture: PassCapture | null = null;
 
@@ -374,30 +447,19 @@ const shot = async ( ctx: AgentCommandContext, input: AgentCommandInput ) => {
 
 		}
 
-		const event = engine.createEntityUpdateEvent( { timeCode: time, timeCodeFrame: time * 60, playing: false, forceDraw: true } );
+		let event: MXP.EntityUpdateEvent;
 
-		// Engine.update と同じく、時刻の uniform と毎フレーム更新のテクスチャを揃えてから step する
-		engine.renderer.globalUniforms.uTime.value = time;
-		engine.renderer.globalUniforms.uTimeF.value = time % 1;
+		if ( timeSpecified ) {
 
-		const updateTextures = Engine.resources.updateEveryFrameTextures;
-
-		for ( let i = 0; i < updateTextures.length; i ++ ) {
-
-			updateTextures[ i ].render();
-
-		}
-
-		// シャドウ・envMap などのパスは prepareScene（step の中）で出るので、step の間も拾う
-		const step = () => engine.step( event );
-
-		if ( capture ) {
-
-			capture.during( step );
+			// step 冒頭の commitFrame で前フレームの行列が確定する。1回だけだとタブの今の時刻の姿勢と T の姿勢の差が
+			// 速度（モーションブラー）になるので、先に T の直前で1回進めて、前フレームを T の直前の姿勢にしておく
+			stepAt( engine, time - SHOT_STEP_DELTA, { timeDelta: SHOT_STEP_DELTA }, null );
+			event = stepAt( engine, time, { timeDelta: SHOT_STEP_DELTA }, capture );
 
 		} else {
 
-			step();
+			// 直前のフレームがタブの今の時刻なので、1回で速度は正しい
+			event = stepAt( engine, time, {}, capture );
 
 		}
 
@@ -442,6 +504,14 @@ const shot = async ( ctx: AgentCommandContext, input: AgentCommandInput ) => {
 	} finally {
 
 		FrameDebugger.paused = false;
+
+		// 次のフレームで射影行列が元の aspect で作り直され、ユーザーのシーンに影響が残らない
+		if ( fitCamera ) {
+
+			fitCamera.aspect = originalAspect;
+			fitCamera.needsUpdateProjectionMatrix = true;
+
+		}
 
 		if ( camera.temporary ) {
 
