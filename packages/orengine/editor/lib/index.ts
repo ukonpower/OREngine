@@ -1,5 +1,6 @@
 // エディタ中核の公開エントリ（orengine/editor エイリアス・package.json の ./editor export の参照先）
 
+export { attachAgentBridge } from './AgentBridge';
 export { Editor } from './Editor';
 export { ENTITY_PRESETS } from './EntityPresets';
 
