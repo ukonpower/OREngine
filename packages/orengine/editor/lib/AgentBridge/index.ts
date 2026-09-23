@@ -3,7 +3,7 @@ import * as BSP from 'basepower';
 import { AgentCommandError, errorMessage } from './Command';
 import { installErrorCollector } from './ErrorCollector';
 import { observeCommands } from './ObserveCommands';
-import { AGENT_EVENT, RESPONSE_CHUNK_SIZE } from './Protocol';
+import { AGENT_EVENT, AGENT_HEADLESS_PARAM, RESPONSE_CHUNK_SIZE } from './Protocol';
 import { writeCommands } from './WriteCommands';
 
 import type { AgentCommandContext, AgentCommandTable } from './Command';
@@ -30,7 +30,44 @@ type Attached = {
 // ページ（タブ）ごとに1つ。エディタが作り直されても同じタブとして扱う
 const tabId = BSP.ID.genUUID();
 
+// CLI が headless Chromium で開いたページか。CLI が URL にクエリを付けて開く
+const headless = new URLSearchParams( location.search ).has( AGENT_HEADLESS_PARAM );
+
+// シーンの読み込み後、コマンドを受け付ける前に待つフレーム数。
+// シェーダーは最初の描画でコンパイルされるので、1フレーム描き終えるまで待たないと errors にシェーダーエラーが出ない。
+// 読み込み直後の rAF はエディタの描画より先に呼ばれうるので、2フレーム待って1回ぶんの描画を確実に挟む
+const HEADLESS_WARMUP_FRAMES = 2;
+
 let attached: Attached | null = null;
+
+// headless のページは CLI が開いた直後にコマンドを受けるので、シーンの読み込みと最初の描画が済むまで実行を待たせる
+let resolveHeadlessReady: () => void = () => {};
+
+const headlessReady = new Promise<void>( ( resolve ) => {
+
+	resolveHeadlessReady = resolve;
+
+} );
+
+// count フレームぶん rAF を待つ
+const waitFrames = ( count: number ) => new Promise<void>( ( resolve ) => {
+
+	const step = ( left: number ) => {
+
+		if ( left <= 0 ) {
+
+			resolve();
+			return;
+
+		}
+
+		requestAnimationFrame( () => step( left - 1 ) );
+
+	};
+
+	step( count );
+
+} );
 
 /*-------------------------------
 	Request
@@ -46,6 +83,12 @@ const runCommand = async ( request: AgentRequest ): Promise<AgentResult> => {
 
 	}
 
+	if ( headless ) {
+
+		await headlessReady;
+
+	}
+
 	if ( ! attached ) {
 
 		return { ok: false, error: 'エディタの初期化が終わっていません。少し待ってから再実行してください' };
@@ -56,6 +99,7 @@ const runCommand = async ( request: AgentRequest ): Promise<AgentResult> => {
 		editor: attached.editor,
 		engine: attached.editor.engine,
 		tabId,
+		headless,
 		sceneName: attached.getSceneName(),
 		unsaved: attached.unsaved,
 	};
@@ -63,6 +107,16 @@ const runCommand = async ( request: AgentRequest ): Promise<AgentResult> => {
 	try {
 
 		const result = await command( ctx, { args: request.args, options: request.options } );
+
+		// headless のページはコマンドごとに CLI が閉じるので、書き込みはその場でファイルへ確定する。
+		// ユーザーのタブでは保存しない（確定はユーザーの Ctrl+S）
+		if ( headless && writeCommands[ request.command ] !== undefined ) {
+
+			ctx.editor.save();
+
+			return { ok: true, result, saved: true };
+
+		}
 
 		return { ok: true, result };
 
@@ -142,7 +196,7 @@ const connect = ( hot: ViteHotContext ) => {
 	window.addEventListener( 'focus', notifyFocus );
 	window.addEventListener( 'pointerdown', notifyFocus );
 
-	hot.send( AGENT_EVENT.hello, { tabId, url: location.href, focused: document.hasFocus() } );
+	hot.send( AGENT_EVENT.hello, { tabId, url: location.href, focused: document.hasFocus(), headless } );
 
 };
 
@@ -173,9 +227,21 @@ export const attachAgentBridge = ( opts: AgentBridgeOptions ) => {
 
 	};
 
+	const onLoaded = () => {
+
+		current.unsaved = false;
+
+		if ( headless ) {
+
+			waitFrames( HEADLESS_WARMUP_FRAMES ).then( resolveHeadlessReady );
+
+		}
+
+	};
+
 	opts.editor.api.commandManager.on( 'change', onChange );
 	opts.editor.on( 'save', onSaved );
-	opts.editor.engine.on( 'loaded', onSaved );
+	opts.editor.engine.on( 'loaded', onLoaded );
 
 	attached = current;
 
@@ -183,7 +249,7 @@ export const attachAgentBridge = ( opts: AgentBridgeOptions ) => {
 
 		opts.editor.api.commandManager.off( 'change', onChange );
 		opts.editor.off( 'save', onSaved );
-		opts.editor.engine.off( 'loaded', onSaved );
+		opts.editor.engine.off( 'loaded', onLoaded );
 
 		if ( attached === current ) {
 

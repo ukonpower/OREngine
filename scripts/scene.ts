@@ -4,13 +4,18 @@ import https from 'node:https';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { AGENT_ENDPOINT } from '../packages/orengine/editor/lib/AgentBridge/Protocol/index.ts';
+import { AGENT_ENDPOINT, AGENT_NO_TAB_STATUS } from '../packages/orengine/editor/lib/AgentBridge/Protocol/index.ts';
+
+import { openHeadlessEditor } from './headlessEditor.ts';
+
+import type { HeadlessEditor } from './headlessEditor.ts';
 
 import type { AgentHttpRequest, AgentOptions, AgentResult } from '../packages/orengine/editor/lib/AgentBridge/Protocol/index.ts';
 
 // dev サーバー（host/vite/plugins/AgentBridge）経由で、開いているエディタタブにコマンドを実行させる CLI
 //   npx tsx <orengine>/scripts/scene.ts <command> [args...] [--timeout <ms>] [--url <devServerUrl>]
 // 外部プロジェクト（submodule で OREngine を取り込む構成）からも同じ形で呼べるよう、npm scripts ではなく直接実行を正式な呼び方にしている
+// 接続中のタブが無ければ headless Chromium でエディタを開いて代わりに使い（scripts/headlessEditor.ts）、コマンドが終わったら閉じる
 
 const repoRoot = path.resolve( fileURLToPath( import.meta.url ), '../..' );
 
@@ -19,6 +24,13 @@ const INFO_FILE = path.join( repoRoot, 'tmp/dev-server.json' );
 
 // サーバーのタイムアウトに対し、HTTP の応答が返ってくるまで余分に待つ時間
 const CLIENT_TIMEOUT_MARGIN_MS = 5000;
+
+// headless のページが開いてからタブとして登録され、シーンを読み込み終えるまでに待つ上限。
+// コマンド自体のタイムアウトにも足す（ページはシーンの読み込みが終わるまでコマンドの実行を待たせるため）
+const HEADLESS_LOAD_TIMEOUT_MS = 30000;
+
+// headless のページがタブとして登録されたかを確かめ直す間隔
+const HEADLESS_POLL_INTERVAL_MS = 200;
 
 type CommandSpec = {
 	usage: string;
@@ -163,6 +175,109 @@ const post = ( url: URL, body: string, timeoutMs: number ) => new Promise<HttpRe
 
 } );
 
+type CommandResponse = { status: number; result: AgentResult };
+
+// コマンドを dev サーバーへ送り、応答の JSON を読む
+const sendCommand = async ( baseUrl: string, command: string, request: AgentHttpRequest ): Promise<CommandResponse> => {
+
+	const url = new URL( `${AGENT_ENDPOINT}/${command}`, baseUrl );
+
+	let response: HttpResponse;
+
+	try {
+
+		response = await post( url, JSON.stringify( request ), ( request.timeoutMs ?? 0 ) + CLIENT_TIMEOUT_MARGIN_MS );
+
+	} catch ( e ) {
+
+		if ( e instanceof CliError ) throw e;
+
+		const code = ( e as NodeJS.ErrnoException ).code;
+
+		if ( code === 'ECONNREFUSED' || code === 'ECONNRESET' ) {
+
+			throw new CliError( `dev サーバーに接続できません（${baseUrl}）。起動していないか、前回の停止時の情報が残っています（npm run dev / npm run wgpu で起動してください）` );
+
+		}
+
+		throw e;
+
+	}
+
+	try {
+
+		return { status: response.status, result: JSON.parse( response.body ) as AgentResult };
+
+	} catch {
+
+		throw new CliError( `dev サーバーの応答を JSON として読めません（HTTP ${response.status}）。AgentBridge を含まない古い dev サーバーかもしれません。再起動してください\n${response.body.slice( 0, 500 )}` );
+
+	}
+
+};
+
+const sleep = ( ms: number ) => new Promise<void>( ( resolve ) => setTimeout( resolve, ms ) );
+
+// headless Chromium でエディタを開き、タブとして登録されるのを待ってからコマンドを送る。書き込みならファイルへの保存まで待って閉じる
+const sendCommandHeadless = async ( baseUrl: string, command: string, request: AgentHttpRequest ): Promise<AgentResult> => {
+
+	let editor: HeadlessEditor;
+
+	try {
+
+		editor = await openHeadlessEditor( baseUrl );
+
+	} catch ( e ) {
+
+		throw new CliError( `エディタのタブが無いので headless Chromium で開こうとしましたが、失敗しました（Playwright の Chromium が無ければ npx playwright install chromium）\n${( e as Error ).message}` );
+
+	}
+
+	try {
+
+		const headlessRequest: AgentHttpRequest = { ...request, timeoutMs: ( request.timeoutMs ?? 0 ) + HEADLESS_LOAD_TIMEOUT_MS };
+		const deadline = Date.now() + HEADLESS_LOAD_TIMEOUT_MS;
+
+		for ( ;; ) {
+
+			const response = await sendCommand( baseUrl, command, headlessRequest );
+
+			if ( response.status !== AGENT_NO_TAB_STATUS ) {
+
+				if ( response.result.ok && response.result.saved ) {
+
+					await editor.waitForSave();
+
+				}
+
+				return response.result;
+
+			}
+
+			if ( Date.now() > deadline ) {
+
+				throw new CliError( `headless Chromium で開いたエディタが ${HEADLESS_LOAD_TIMEOUT_MS}ms 以内にタブとして登録されませんでした` );
+
+			}
+
+			await sleep( HEADLESS_POLL_INTERVAL_MS );
+
+		}
+
+	} catch ( e ) {
+
+		if ( e instanceof CliError ) throw e;
+
+		throw new CliError( `headless Chromium でのコマンドの実行に失敗しました: ${( e as Error ).message}` );
+
+	} finally {
+
+		await editor.close();
+
+	}
+
+};
+
 /*-------------------------------
 	Main
 -------------------------------*/
@@ -208,39 +323,13 @@ const main = async () => {
 	delete options.url;
 
 	const request: AgentHttpRequest = { args, options, timeoutMs };
-	const url = new URL( `${AGENT_ENDPOINT}/${command}`, baseUrl );
 
-	let response: HttpResponse;
+	const response = await sendCommand( baseUrl, command, request );
+	let result = response.result;
 
-	try {
+	if ( response.status === AGENT_NO_TAB_STATUS ) {
 
-		response = await post( url, JSON.stringify( request ), timeoutMs + CLIENT_TIMEOUT_MARGIN_MS );
-
-	} catch ( e ) {
-
-		if ( e instanceof CliError ) throw e;
-
-		const code = ( e as NodeJS.ErrnoException ).code;
-
-		if ( code === 'ECONNREFUSED' || code === 'ECONNRESET' ) {
-
-			throw new CliError( `dev サーバーに接続できません（${baseUrl}）。起動していないか、前回の停止時の情報が残っています（npm run dev / npm run wgpu で起動してください）` );
-
-		}
-
-		throw e;
-
-	}
-
-	let result: AgentResult;
-
-	try {
-
-		result = JSON.parse( response.body ) as AgentResult;
-
-	} catch {
-
-		throw new CliError( `dev サーバーの応答を JSON として読めません（HTTP ${response.status}）。AgentBridge を含まない古い dev サーバーかもしれません。再起動してください\n${response.body.slice( 0, 500 )}` );
+		result = await sendCommandHeadless( baseUrl, command, request );
 
 	}
 
