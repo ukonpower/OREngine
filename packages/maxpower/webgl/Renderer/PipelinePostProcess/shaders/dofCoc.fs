@@ -44,8 +44,7 @@ void main( void ) {
 	float d1 = sampleDepth(uGbufferPos, vUv - duv.zy);
 	float d2 = sampleDepth(uGbufferPos, vUv + duv.zy);
 	float d3 = sampleDepth(uGbufferPos, vUv + duv.xy);
-	float d4 = sampleDepth(uGbufferPos, vUv);
-	vec4 depths = vec4(d4, d4, d4, d4);
+	vec4 depths = vec4(d0, d1, d2, d3);
 
 	// Calculate the radiuses of CoCs at these sample points.
 	vec4 cocs = (depths - _Distance) * _LensCoeff / depths;
@@ -54,14 +53,12 @@ void main( void ) {
 	// Premultiply CoC to reduce background bleeding.
 	vec4 weights = clamp(abs(cocs) * _RcpMaxCoC, 0.0, 1.0 );
 
-	// #if defined(PREFILTER_LUMA_WEIGHT)
-	// 	// Apply luma weights to reduce flickering.
-	// 	// Inspired by goo.gl/j1fhLe goo.gl/mfuZ4h
-	// 	weights.x *= 1 / (max3(c0) + 1);
-	// 	weights.y *= 1 / (max3(c1) + 1);
-	// 	weights.z *= 1 / (max3(c2) + 1);
-	// 	weights.w *= 1 / (max3(c3) + 1);
-	// #endif
+	// Apply luma weights to reduce flickering.
+	// Inspired by goo.gl/j1fhLe goo.gl/mfuZ4h
+	weights.x *= 1.0 / (max3(c0) + 1.0);
+	weights.y *= 1.0 / (max3(c1) + 1.0);
+	weights.z *= 1.0 / (max3(c2) + 1.0);
+	weights.w *= 1.0 / (max3(c3) + 1.0);
 
 	// Weighted average of the color samples
 	vec3 avg = c0 * weights.x + c1 * weights.y + c2 * weights.z + c3 * weights.w;
@@ -73,11 +70,6 @@ void main( void ) {
 	// Premultiply CoC again.
 	avg *= smoothstep(0.0, mainTexSize.y * 2.0, abs(coc));
 
-	// #if defined(UNITY_COLORSPACE_GAMMA)
-	// 	avg = GammaToLinearSpace(avg);
-	// #endif
-
-    outColor = vec4(avg, coc);
-	// outColor = vec4( vec3( abs(coc) ), 1.0 );
+	outColor = vec4(avg, coc);
 
 }

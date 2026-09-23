@@ -14,6 +14,7 @@ import {
 } from './shaders';
 import bloomBrightWgsl from './shaders/bloomBright.wgsl';
 import colorCollectionWgsl from './shaders/colorCollection.wgsl';
+import dofBlurWgsl from './shaders/dofBlur.wgsl';
 import dofBokehWgsl from './shaders/dofBokeh.wgsl';
 import dofCocWgsl from './shaders/dofCoc.wgsl';
 import dofCompositeWgsl from './shaders/dofComposite.wgsl';
@@ -48,6 +49,12 @@ const BLOOM_BLUR_SAMPLES = 8;
 const SSAO_BLUR_SAMPLES = 8;
 const LIGHT_SHAFT_BLUR_SAMPLES = 6;
 const MOTION_BLUR_TILE = 16;
+
+// DoF の最大 CoC（KinoBokeh の CalculateMaxCoCRadius）。webgl 側の PipelinePostProcess と一致させる。
+// 半径のピクセル数は KinoBokeh の経験式 kernelSize * 4 + 6 に、dofBokeh.wgsl の 43 サンプル（KERNEL_LARGE = 2）を入れた値。
+// 画面高さに対する上限 5% も KinoBokeh と同じ
+const DOF_MAX_COC_PIXELS = 14;
+const DOF_MAX_COC_RATIO = 0.05;
 
 // 時間方向の蓄積で新しい結果に与える重み。ノイズと影の追従の速さの折り合いで、
 // エディタから触れるよう uniform にも同じ値を入れている
@@ -99,6 +106,7 @@ export class PipelinePostProcess {
 	private _ssComposite: PostProcessPass;
 	private _dofCoc: PostProcessPass;
 	private _dofBokeh: PostProcessPass;
+	private _dofBlur: PostProcessPass;
 	private _dofComposite: PostProcessPass;
 	private _motionBlurTile: PostProcessPass;
 	private _motionBlurNeighbor: PostProcessPass;
@@ -262,6 +270,14 @@ export class PipelinePostProcess {
 			passThrough: true,
 		} );
 
+		this._dofBlur = pass( {
+			name: 'dof/blur',
+			wgsl: dofBlurWgsl,
+			inputs: [ 'uBokeTex' ],
+			resolutionRatio: 0.5,
+			passThrough: true,
+		} );
+
 		this._dofComposite = pass( {
 			name: 'dof/composite',
 			wgsl: dofCompositeWgsl,
@@ -296,6 +312,7 @@ export class PipelinePostProcess {
 			this._ssComposite,
 			this._dofCoc,
 			this._dofBokeh,
+			this._dofBlur,
 			this._dofComposite,
 			this._motionBlurTile,
 			this._motionBlurNeighbor,
@@ -387,7 +404,8 @@ export class PipelinePostProcess {
 		}
 
 		this._dofBokeh.setInput( 'uCocTex', this._dofCoc.targetView! );
-		this._dofComposite.setInput( 'uBokeTex', this._dofBokeh.targetView! );
+		this._dofBlur.setInput( 'uBokeTex', this._dofBokeh.targetView! );
+		this._dofComposite.setInput( 'uBokeTex', this._dofBlur.targetView! );
 		this._motionBlur.setInput( 'uVelNeighborTex', this._motionBlurNeighbor.targetView! );
 
 		// 法線を参照するパスは normalSelector の結果を見る（webgl側の normalBuffer と同じ）
@@ -433,11 +451,13 @@ export class PipelinePostProcess {
 		jitter.value = ( jitter.value + 1 ) % LIGHT_SHAFT_JITTER_CYCLE;
 		this._ssao.uniforms.uFrame.value = jitter.value;
 
-		const focusDistance = camera.dofParams.focusDistance;
 		const kFilmHeight = camera.dofParams.kFilmHeight;
-		const focalLength = kFilmHeight / Math.tan( 0.5 * ( camera.fov / 180 * Math.PI ) );
+		const focalLength = 0.5 * kFilmHeight / Math.tan( 0.5 * ( camera.fov / 180 * Math.PI ) );
 
-		const maxCoc = ( 1 / Math.max( this._height * 0.5, 1 ) ) * 5;
+		// ピントの距離が焦点距離を下回ると係数の分母（focusDistance - focalLength）が 0 以下になる
+		const focusDistance = Math.max( camera.dofParams.focusDistance, focalLength );
+
+		const maxCoc = Math.min( DOF_MAX_COC_RATIO, DOF_MAX_COC_PIXELS / Math.max( this._height, 1 ) );
 		const coeff = focalLength * focalLength / ( camera.dofParams.fNumber * ( focusDistance - focalLength ) * kFilmHeight * 2.0 );
 
 		this._dofParams.set( focusDistance, maxCoc, 1.0 / maxCoc, coeff );
@@ -564,6 +584,7 @@ export class PipelinePostProcess {
 
 			this._dofCoc.enabled = config.dof;
 			this._dofBokeh.enabled = config.dof;
+			this._dofBlur.enabled = config.dof;
 			this._dofComposite.enabled = config.dof;
 
 		}

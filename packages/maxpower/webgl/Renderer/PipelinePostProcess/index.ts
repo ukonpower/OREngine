@@ -7,6 +7,7 @@ import { GL, GLBackend } from '../../backend/GLBackend';
 import bloomBrightFrag from './shaders/bloomBright.fs';
 import bloomCompositeFrag from './shaders/bloomComposite.fs';
 import colorCollectionFrag from './shaders/colorCollection.fs';
+import dofBlurFrag from './shaders/dofBlur.fs';
 import dofBokehFrag from './shaders/dofBokeh.fs';
 import dofCocFrag from './shaders/dofCoc.fs';
 import dofCompositeFrag from './shaders/dofComposite.fs';
@@ -31,10 +32,17 @@ export type PipelinePostProcessPassConfig = {
 const BLOOM_LEVELS = 4;
 const BLOOM_BLUR_SAMPLES = 8;
 
+// DoF の最大 CoC（KinoBokeh の CalculateMaxCoCRadius）。webgpu 側の PipelinePostProcess と一致させる。
+// 半径のピクセル数は KinoBokeh の経験式 kernelSize * 4 + 6 に、dofBokeh.fs の 43 サンプル（KERNEL_LARGE = 2）を入れた値。
+// 画面高さに対する上限 5% も KinoBokeh と同じ
+const DOF_MAX_COC_PIXELS = 14;
+const DOF_MAX_COC_RATIO = 0.05;
+
 export class PipelinePostProcess {
 
 	public dofCoc: MXP.PostProcessPass;
 	public dofBokeh: MXP.PostProcessPass;
+	public dofBlur: MXP.PostProcessPass;
 	public dofComposite: MXP.PostProcessPass;
 	public rtSSR1: GLP.GLPowerFrameBuffer;
 	public rtSSR2: GLP.GLPowerFrameBuffer;
@@ -191,12 +199,28 @@ export class PipelinePostProcess {
 			resolutionRatio: 0.5,
 		} );
 
+		const dofBlur = new MXP.PostProcessPass( backend, {
+			name: 'dof/blur',
+			frag: dofBlurFrag,
+			uniforms: MXP.UniformsUtils.merge( {
+				uBokeTex: {
+					value: dofBokeh.renderTarget!.textures[ 0 ],
+					type: '1i'
+				}
+			} ),
+			renderTarget: backend.createFrameBuffer().setTexture( [
+				backend.createTexture().setting( { magFilter: GL.LINEAR, minFilter: GL.LINEAR } ),
+			] ),
+			passThrough: true,
+			resolutionRatio: 0.5,
+		} );
+
 		const dofComposite = new MXP.PostProcessPass( backend, {
 			name: 'dof/composite',
 			frag: dofCompositeFrag,
 			uniforms: MXP.UniformsUtils.merge( {
 				uBokeTex: {
-					value: dofBokeh.renderTarget!.textures[ 0 ],
+					value: dofBlur.renderTarget!.textures[ 0 ],
 					type: '1i'
 				}
 			} ),
@@ -397,6 +421,7 @@ export class PipelinePostProcess {
 			ssComposite,
 			dofCoc,
 			dofBokeh,
+			dofBlur,
 			dofComposite,
 			motionBlurTile,
 			motionBlurNeighbor,
@@ -409,6 +434,7 @@ export class PipelinePostProcess {
 		this._ssComposite = ssComposite;
 		this.dofCoc = dofCoc;
 		this.dofBokeh = dofBokeh;
+		this.dofBlur = dofBlur;
 		this.dofComposite = dofComposite;
 		this._motionBlur = motionBlur;
 		this._motionBlurTile = motionBlurTile;
@@ -451,14 +477,15 @@ export class PipelinePostProcess {
 
 		// dof params
 
-		const fov = camera.fov;
-		const focusDistance = camera.dofParams.focusDistance;
 		const kFilmHeight = camera.dofParams.kFilmHeight;
-		const flocalLength = kFilmHeight / Math.tan( 0.5 * ( fov / 180 * Math.PI ) );
+		const focalLength = 0.5 * kFilmHeight / Math.tan( 0.5 * ( camera.fov / 180 * Math.PI ) );
 
-		const maxCoc = ( 1 / this.dofBokeh.renderTarget!.size.y ) * ( 5 );
+		// ピントの距離が焦点距離を下回ると係数の分母（focusDistance - focalLength）が 0 以下になる
+		const focusDistance = Math.max( camera.dofParams.focusDistance, focalLength );
+
+		const maxCoc = Math.min( DOF_MAX_COC_RATIO, DOF_MAX_COC_PIXELS / this.dofComposite.renderTarget!.size.y );
 		const rcpMaxCoC = 1.0 / maxCoc;
-		const coeff = flocalLength * flocalLength / ( camera.dofParams.fNumber * ( focusDistance - flocalLength ) * kFilmHeight * 2.0 );
+		const coeff = focalLength * focalLength / ( camera.dofParams.fNumber * ( focusDistance - focalLength ) * kFilmHeight * 2.0 );
 
 		this._dofParams.set( focusDistance, maxCoc, rcpMaxCoC, coeff );
 
@@ -531,11 +558,13 @@ export class PipelinePostProcess {
 
 			this.dofCoc.enabled = config.dof;
 			this.dofBokeh.enabled = config.dof;
+			this.dofBlur.enabled = config.dof;
 			this.dofComposite.enabled = config.dof;
 
 			if ( ! config.dof ) {
 
 				if ( this.dofBokeh.renderTarget ) this.dofBokeh.renderTarget.clear();
+				if ( this.dofBlur.renderTarget ) this.dofBlur.renderTarget.clear();
 				if ( this.dofComposite.renderTarget ) this.dofComposite.renderTarget.clear();
 
 			}
