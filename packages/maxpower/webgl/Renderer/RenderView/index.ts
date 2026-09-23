@@ -143,12 +143,15 @@ export class RenderView implements RenderViewContract {
 			lightShaft: config.lightShaft,
 		} );
 		this.pipelinePostProcess.setPassEnabled( {
+			toneMap: config.toneMap,
 			motionBlur: config.motionBlur,
 			ssr: config.ssr,
 			dof: config.dof,
+			bloom: config.bloom,
 		} );
 
 		this.pipelinePostProcess.setMotionBlurPower( config.motionBlurPower ?? 1 );
+		this.pipelinePostProcess.setBloomParams( config.bloomThreshold ?? 1, config.bloomBrightness ?? 1 );
 
 	}
 

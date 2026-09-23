@@ -37,6 +37,10 @@
 										"focus/distance": 4.949999999999992,
 										"focus/speed": 4.675000000000007
 									}
+								},
+								{
+									"name": "Finalize",
+									"uuid": "baf45d45-4681-4e62-b34f-ed0e994525cb"
 								}
 							]
 						},

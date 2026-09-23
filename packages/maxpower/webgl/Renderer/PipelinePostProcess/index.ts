@@ -4,10 +4,14 @@ import * as MXP from 'maxpower';
 
 import { GL, GLBackend } from '../../backend/GLBackend';
 
+import bloomBrightFrag from './shaders/bloomBright.fs';
+import bloomCompositeFrag from './shaders/bloomComposite.fs';
 import colorCollectionFrag from './shaders/colorCollection.fs';
 import dofBokehFrag from './shaders/dofBokeh.fs';
 import dofCocFrag from './shaders/dofCoc.fs';
 import dofCompositeFrag from './shaders/dofComposite.fs';
+import fxaaFrag from './shaders/fxaa.fs';
+import gaussBlurFrag from './shaders/gaussBlur.fs';
 import motionBlurFrag from './shaders/motionBlur.fs';
 import motionBlurNeighborFrag from './shaders/motionBlurNeighbor.fs';
 import motionBlurTileFrag from './shaders/motionBlurTile.fs';
@@ -16,10 +20,16 @@ import ssrFrag from './shaders/ssr.fs';
 
 
 export type PipelinePostProcessPassConfig = {
+	toneMap?: boolean;
 	motionBlur?: boolean;
 	ssr?: boolean;
 	dof?: boolean;
+	bloom?: boolean;
 };
+
+// ブルームのぼかしの段数。bloomComposite.fs の uBloomTexture[4] と一致させる
+const BLOOM_LEVELS = 4;
+const BLOOM_BLUR_SAMPLES = 8;
 
 export class PipelinePostProcess {
 
@@ -36,6 +46,9 @@ export class PipelinePostProcess {
 	private _motionBlur: MXP.PostProcessPass;
 	private _motionBlurTile: MXP.PostProcessPass;
 	private _motionBlurNeighbor: MXP.PostProcessPass;
+	private _colorCollection: MXP.PostProcessPass;
+	private _bloomBright: MXP.PostProcessPass;
+	private _bloomPasses: MXP.PostProcessPass[];
 
 	// 描画元の G-Buffer はビュー固有なので、生成時に一度だけ繋ぐ
 	constructor( backend: GLBackend, renderTarget: MXP.RenderCameraTarget ) {
@@ -260,8 +273,124 @@ export class PipelinePostProcess {
 			},
 		} );
 
+		// fxaa
+
+		const fxaa = new MXP.PostProcessPass( backend, {
+			name: 'fxaa',
+			frag: fxaaFrag,
+		} );
+
+		// bloom
+
+		// 輝度の抽出元はトーンマップ前のシェーディングバッファ。トーンマップ後だとしきい値を超えなくなる
+		const bloomBright = new MXP.PostProcessPass( backend, {
+			name: 'bloom/bright',
+			frag: bloomBrightFrag,
+			uniforms: {
+				uShadingTexture: {
+					value: renderTarget.shadingBuffer.textures[ 0 ],
+					type: '1i'
+				},
+				uThreshold: {
+					value: 1.0,
+					type: '1f'
+				},
+				uBrightness: {
+					value: 1.0,
+					type: '1f'
+				},
+			},
+			resolutionRatio: 0.5,
+			passThrough: true,
+		} );
+
+		const bloomPasses: MXP.PostProcessPass[] = [ bloomBright ];
+		const bloomTextures: GLP.GLPowerTexture[] = [];
+
+		let bloomInput = bloomBright.renderTarget!.textures[ 0 ];
+		let bloomInvScale = 2.0;
+
+		for ( let i = 0; i < BLOOM_LEVELS; i ++ ) {
+
+			const rtVertical = backend.createFrameBuffer().setTexture( [
+				backend.createTexture().setting( { magFilter: GL.LINEAR, minFilter: GL.LINEAR } ),
+			] );
+
+			const rtHorizontal = backend.createFrameBuffer().setTexture( [
+				backend.createTexture().setting( { magFilter: GL.LINEAR, minFilter: GL.LINEAR } ),
+			] );
+
+			const blurParam: MXP.PostProcessPassParam = {
+				name: 'bloom/blur/' + i + '/v',
+				renderTarget: rtVertical,
+				frag: gaussBlurFrag,
+				uniforms: {
+					uBackBlurTex: {
+						value: bloomInput,
+						type: '1i'
+					},
+					uIsVertical: {
+						type: '1i',
+						value: true
+					},
+					uWeights: {
+						type: '1fv',
+						value: MTP.MathUtils.gaussWeights( BLOOM_BLUR_SAMPLES )
+					},
+					uBlurRange: {
+						value: 2.0,
+						type: '1f'
+					}
+				},
+				defines: {
+					GAUSS_WEIGHTS: BLOOM_BLUR_SAMPLES.toString(),
+					USE_BACKBLURTEX: "",
+				},
+				passThrough: true,
+				resolutionRatio: 1.0 / bloomInvScale
+			};
+
+			bloomPasses.push( new MXP.PostProcessPass( backend, blurParam ) );
+
+			bloomPasses.push( new MXP.PostProcessPass( backend, {
+				...blurParam,
+				name: 'bloom/blur/' + i + '/h',
+				renderTarget: rtHorizontal,
+				uniforms: {
+					...blurParam.uniforms,
+					uBackBlurTex: {
+						value: rtVertical.textures[ 0 ],
+						type: '1i'
+					},
+					uIsVertical: {
+						type: '1i',
+						value: false
+					},
+				},
+			} ) );
+
+			// 合成で足すのは各段の横ぼかし結果
+			bloomTextures.push( rtHorizontal.textures[ 0 ] );
+
+			bloomInput = rtHorizontal.textures[ 0 ];
+			bloomInvScale *= 2.0;
+
+		}
+
+		bloomPasses.push( new MXP.PostProcessPass( backend, {
+			name: 'bloom/composite',
+			frag: bloomCompositeFrag,
+			uniforms: {
+				uBloomTexture: {
+					value: bloomTextures,
+					type: '1iv'
+				},
+			},
+		} ) );
+
 		// Postprocess
 
+		// 並びは webgpu 側と同じ（トーンマップ → SSR / DoF / モーションブラー → FXAA → ブルーム加算）
 		this.postprocess = new MXP.PostProcess( { passes: [
 			colorCollection,
 			ssr,
@@ -272,6 +401,8 @@ export class PipelinePostProcess {
 			motionBlurTile,
 			motionBlurNeighbor,
 			motionBlur,
+			fxaa,
+			...bloomPasses,
 		] } );
 
 		this._ssr = ssr;
@@ -282,11 +413,12 @@ export class PipelinePostProcess {
 		this._motionBlur = motionBlur;
 		this._motionBlurTile = motionBlurTile;
 		this._motionBlurNeighbor = motionBlurNeighbor;
+		this._colorCollection = colorCollection;
+		this._bloomBright = bloomBright;
+		this._bloomPasses = bloomPasses;
 		this._dofParams = dofParams;
 		this.rtSSR1 = rtSSR1;
 		this.rtSSR2 = rtSSR2;
-
-		colorCollection.backBufferOverride = renderTarget.shadingBuffer.textures;
 
 		// ssr
 
@@ -350,6 +482,22 @@ export class PipelinePostProcess {
 
 	public setPassEnabled( config: PipelinePostProcessPassConfig ): void {
 
+		if ( config.toneMap !== undefined ) {
+
+			this._colorCollection.enabled = config.toneMap;
+
+		}
+
+		if ( config.bloom !== undefined ) {
+
+			for ( const pass of this._bloomPasses ) {
+
+				pass.enabled = config.bloom;
+
+			}
+
+		}
+
 		if ( config.motionBlur !== undefined ) {
 
 			this._motionBlurTile.enabled = config.motionBlur;
@@ -399,6 +547,13 @@ export class PipelinePostProcess {
 	public setMotionBlurPower( power: number ): void {
 
 		this._motionBlur.uniforms.uPower.value = power;
+
+	}
+
+	public setBloomParams( threshold: number, brightness: number ): void {
+
+		this._bloomBright.uniforms.uThreshold.value = threshold;
+		this._bloomBright.uniforms.uBrightness.value = brightness;
 
 	}
 

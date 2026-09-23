@@ -37,6 +37,10 @@
 										"focus/distance": 5,
 										"focus/speed": 8
 									}
+								},
+								{
+									"name": "Finalize",
+									"uuid": "6640844a-0102-4393-9326-2c422893a8b3"
 								}
 							]
 						},
