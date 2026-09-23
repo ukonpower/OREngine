@@ -132,7 +132,6 @@ WebGL:
 
 ```ts
 import * as MXP from 'maxpower';
-import { Engine } from 'orengine';
 
 export class CubeMesh extends MXP.Component {
 
@@ -140,14 +139,11 @@ export class CubeMesh extends MXP.Component {
 
 		super( params );
 
-		const engine = this.engine as Engine;
-
 		const geometry = new MXP.CubeGeometry( { width: 1, height: 1, depth: 1 } );
 
 		const material = new MXP.Material( {
 			name: 'CubeMesh',
 			phase: [ 'shadowMap', 'deferred' ],
-			uniforms: MXP.UniformsUtils.merge( engine.uniforms ),
 		} );
 
 		this.entity.addComponent( MXP.Mesh, { geometry, material } );

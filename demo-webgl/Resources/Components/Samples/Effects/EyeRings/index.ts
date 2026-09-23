@@ -1,5 +1,4 @@
 import * as MXP from 'maxpower';
-import { Engine } from 'orengine';
 
 import eyeRingsFrag from './shaders/eyeRings.fs';
 import eyeRingsVert from './shaders/eyeRings.vs';
@@ -9,8 +8,6 @@ export class EyeRings extends MXP.Component {
 	constructor( params: MXP.ComponentParams ) {
 
 		super( params );
-
-		const engine = this.engine as Engine;
 
 		const geometry = new MXP.RingGeometry( {
 			thetaSegments: 64,
@@ -38,7 +35,6 @@ export class EyeRings extends MXP.Component {
 			phase: [ 'deferred', 'shadowMap' ],
 			frag: eyeRingsFrag,
 			vert: eyeRingsVert,
-			uniforms: engine.uniforms,
 		} );
 
 		const mesh = this.entity.addComponent( MXP.Mesh, {

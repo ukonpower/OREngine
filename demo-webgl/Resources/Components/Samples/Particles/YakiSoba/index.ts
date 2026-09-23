@@ -27,7 +27,7 @@ export class YakiSoba extends MXP.Component {
 					size: num,
 					dataLayerCount: 2,
 					frag: MXP.hotGet( "yakiSobaCompute", yakiSobaCompute ),
-					uniforms: MXP.UniformsUtils.merge( {}, engine.uniforms, engine.renderer.globalUniforms ),
+					uniforms: MXP.UniformsUtils.merge( {}, engine.renderer.globalUniforms ),
 				} )
 			]
 		} );
