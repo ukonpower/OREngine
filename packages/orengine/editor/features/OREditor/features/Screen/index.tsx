@@ -229,7 +229,7 @@ export const Screen: React.FC<{ viewportId: string }> = ( { viewportId } ) => {
 			<div className={style.canvas}>
 				<Canvas viewportId={viewportId} />
 			</div>
-			{layout.isSP && <CameraPad />}
+			{layout.isSP && <CameraPad viewportId={viewportId} />}
 			{layout.isPC && showAudioView && <>
 				<div
 					className={style.audioViewHandle}

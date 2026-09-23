@@ -26,6 +26,10 @@
 		background-color: var(--or-bg-surface);
 	}
 
+	&[data-active='true'] {
+		background-color: var(--or-bg-active);
+	}
+
 	&[data-disabled='true'] {
 		opacity: 0.4;
 		cursor: default;
