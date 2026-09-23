@@ -136,6 +136,9 @@ export class WebGPUEditorDraw implements EditorDrawContract {
 	// 出力先 canvas ごとの configure 済みコンテキスト
 	private _canvasContexts: WeakMap<HTMLCanvasElement, GPUCanvasContext>;
 
+	// readView の転写先。使われるまで作らない
+	private _viewTarget: GPUEditorTarget | null;
+
 	constructor( renderer: Renderer ) {
 
 		this._renderer = renderer;
@@ -145,6 +148,7 @@ export class WebGPUEditorDraw implements EditorDrawContract {
 		this._copyPass = null;
 		this._outlinePass = null;
 		this._canvasContexts = new WeakMap();
+		this._viewTarget = null;
 
 		if ( import.meta.hot ) {
 
@@ -428,6 +432,26 @@ export class WebGPUEditorDraw implements EditorDrawContract {
 		buffer.destroy();
 
 		return out;
+
+	}
+
+	// outputView をターゲットへ写してから readPixels で読む。
+	// outputView はパイプライン構成しだいで別のテクスチャを指すので、書式とサイズが決まっているターゲットを経由する
+	public readView( renderView: RenderViewContract ) {
+
+		const view = renderView as RenderView;
+
+		if ( ! view.outputView ) {
+
+			return Promise.reject( new Error( 'ビューがまだ描かれていません（render の後に呼んでください）' ) );
+
+		}
+
+		if ( ! this._viewTarget ) this._viewTarget = this.createTarget();
+
+		this.blit( view, new GPUEditorFrame( view.outputView, view.targets.width, view.targets.height ), this._viewTarget );
+
+		return this.readPixels( this._viewTarget );
 
 	}
 

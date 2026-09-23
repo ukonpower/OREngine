@@ -4,6 +4,10 @@ import * as MXP from 'maxpower';
 
 export class FrameDebugger extends EventEmitter {
 
+	// true の間は全インスタンスがパスを取り込まない。AgentBridge の shot が自前のビューを描く間、
+	// そのパスがユーザーのデバッグ表示に混ざらないようにするため（drawPass はどのビューのパスかを区別しない）
+	public static paused = false;
+
 	private _draw: MXP.EditorDrawContract;
 	private _view: MXP.RenderViewContract;
 	private _elm: HTMLCanvasElement;
@@ -158,7 +162,7 @@ export class FrameDebugger extends EventEmitter {
 	// 1パス分の出力をタイル位置へ取り込む
 	private _push( frame: MXP.EditorFrame, label: string ) {
 
-		if ( ! this._enable ) return;
+		if ( ! this._enable || FrameDebugger.paused ) return;
 
 		const baseLabel = label || String( this._count );
 		const occurrence = this._labelCount.get( baseLabel ) || 0;

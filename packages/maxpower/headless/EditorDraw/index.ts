@@ -55,6 +55,12 @@ export class HeadlessEditorDraw implements EditorDrawContract {
 
 	}
 
+	public readView(): Promise<Uint8Array> {
+
+		return Promise.resolve( new Uint8Array( this._resolution.x * this._resolution.y * 4 ) );
+
+	}
+
 	public createTarget( opt?: { size?: MTP.Vector } ): EditorTarget {
 
 		return new HeadlessTarget( opt && opt.size );

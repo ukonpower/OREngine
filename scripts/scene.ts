@@ -6,6 +6,8 @@ import { fileURLToPath } from 'node:url';
 
 import { AGENT_ENDPOINT } from '../packages/orengine/editor/lib/AgentBridge/Protocol/index.ts';
 
+import { writeShotPng } from './sceneShot.ts';
+
 import type { AgentHttpRequest, AgentOptions, AgentResult } from '../packages/orengine/editor/lib/AgentBridge/Protocol/index.ts';
 
 // dev サーバー（host/vite/plugins/AgentBridge）経由で、開いているエディタタブにコマンドを実行させる CLI
@@ -41,6 +43,8 @@ const COMMANDS: { [ name: string ]: CommandSpec } = {
 	set: { usage: 'set <entity> [<component>] <path> <value>', description: 'フィールドを書き換える。値はフィールドの型で解釈する（数値 / 1,2,3 / true|false / 文字列 / 選択肢）', timeoutMs: 10000 },
 	undo: { usage: 'undo', description: '直前の操作を取り消す（GUI の操作と履歴を共有）', timeoutMs: 5000 },
 	redo: { usage: 'redo', description: '取り消した操作をやり直す', timeoutMs: 5000 },
+	// 描画・GPU からの読み戻し・PNG エンコードを待つ（webgpu の初回はパイプライン生成も入る）
+	shot: { usage: 'shot <out.png> [--camera <entity> | --from x,y,z --to x,y,z] [--time <秒>] [--view <final|パス名>]', description: '指定したカメラ・時刻の描画を PNG に書き出す（--view はパスのラベル。省略時は final）', timeoutMs: 60000 },
 };
 
 class CliError extends Error {}
@@ -258,8 +262,13 @@ const main = async () => {
 
 	}
 
+	let output = result.result;
+
+	// shot の PNG は base64 で返ってくるのでファイルへ書き出し、stdout には残りの情報だけ出す
+	if ( command === 'shot' ) output = writeShotPng( args[ 0 ], result.result );
+
 	// process.exit を呼ばずに終わらせる（大きな出力がパイプに書き切られる前に切れないように）
-	process.stdout.write( JSON.stringify( result.result, null, 2 ) + '\n' );
+	process.stdout.write( JSON.stringify( output, null, 2 ) + '\n' );
 
 };
 

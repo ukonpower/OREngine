@@ -57,13 +57,17 @@ npx tsx scripts/scene.ts add-component root/Box MyBox                     # 名�
 npx tsx scripts/scene.ts remove-component root/Box MyBox
 npx tsx scripts/scene.ts remove-entity root/Box
 npx tsx scripts/scene.ts undo
+
+npx tsx scripts/scene.ts shot tmp/shot/a.png                              # シーンカメラ・今の時刻の見た目を PNG へ
+npx tsx scripts/scene.ts shot tmp/shot/b.png --from 0,3,5 --to 0,0,0 --time 2 --view gBuffer_1   # 一時カメラ・時刻2秒・パス出力（webgpu のラベル）
 ```
 
-- 観測: `status` / `tree` / `get <entity>` / `components` / `errors`。書き込み: `add-entity` / `remove-entity` / `add-component` / `remove-component` / `set` / `undo` / `redo`
+- 観測: `status` / `tree` / `get <entity>` / `components` / `errors` / `shot`。書き込み: `add-entity` / `remove-entity` / `add-component` / `remove-component` / `set` / `undo` / `redo`
 - `<entity>` は uuid か `root/...` の名前パス。存在しないエンティティ・コンポーネント名・フィールド path はエラーになり、候補が返る
 - 書き込みはすべて `EditorAPI` を通るので、GUI の Ctrl+Z / `undo` で戻せる（undo 履歴は GUI と共有）。**保存はしない**。確定はユーザーの Ctrl+S で、未保存の変更の有無は `status` の `unsaved` で分かる
 - `set` の値はフィールドの型で解釈する: 数値 / ベクトル・色は `1,2,3` か `[1,2,3]` / `true`・`false` / 文字列 / select は選択肢の値 / entity 参照は uuid（`null` で外す）。CLI の `set` は1コマンドが undo 1回ぶん
-- タブの選択状態・エディタのカメラ・再生時刻は変えない。編集できる範囲は GUI と同じ（script 由来のエンティティへの子の追加・削除、user 以外が付けたコンポーネントの削除・編集はできない）
+- タブの選択状態・エディタのカメラ・再生時刻は変えない（`shot` も同じ）。編集できる範囲は GUI と同じ（script 由来のエンティティへの子の追加・削除、user 以外が付けたコンポーネントの削除・編集はできない）
+- `shot <out.png>` は shot 専用の RenderView で描いて PNG を CLI が書き出す。カメラは `--camera <entity>` / `--from x,y,z --to x,y,z`（一時カメラ）/ 省略でシーンカメラ。サイズはエディタの今の描画解像度で、指定はできない。`--time T` は「時刻 T を当てて1回描いた状態」で、T まで再生した状態ではない。`--view` はパスのラベル（webgl は `camera/deferred_1`、webgpu は `gBuffer_1` のようなバックエンドごとの生の名前）で、一致しなければ候補が返る。実装は `packages/orengine/editor/lib/AgentBridge/ShotCommand`
 - npm scripts には載せていない（外部プロジェクトから同じ形で呼べるように、直接実行を唯一の呼び方にしている）
 - コマンド一覧は `npx tsx scripts/scene.ts help`
 - dev サーバーの URL は `<OREngine>/tmp/dev-server.json` から読む。同じ OREngine チェックアウトで dev サーバーを2つ立てると後から起動した方で上書きされるので、その場合は `--url` で指定する

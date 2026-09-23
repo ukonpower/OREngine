@@ -107,4 +107,4 @@ devサーバー起動中（`npm run dev`）に scenes/<name>.json を保存す�
 [vite] page reload demo-webgl/scenes/main.json
 ```
 
-見た目の確認は agent-browser スキルでエディタページ（`http://localhost:<vite-port>`）を開いてスクリーンショットを撮る。読み込まれた後の状態（BLidge / glb 由来を含む）は CLI の `tree` / `get` で確認できる。
+見た目の確認は CLI の `shot` で PNG に書き出して行う。読み込まれた後の状態（BLidge / glb 由来を含む）は CLI の `tree` / `get` で確認できる。

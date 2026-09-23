@@ -71,6 +71,9 @@ export interface EditorDrawContract {
 	// WebGPUの読み戻しはバッファのマッピングを待つ必要があるため、両バックエンドとも非同期で揃える
 	readPixels( target: EditorTarget ): Promise<Uint8Array>;
 
+	// ビューの最終出力（render 済みの見た目）を読む。形式は readPixels と同じ（下原点・RGBA8・描画解像度）
+	readView( view: RenderViewContract ): Promise<Uint8Array>;
+
 	// sizeを省くと解像度に追従する
 	createTarget( opt?: { size?: MTP.Vector } ): EditorTarget;
 

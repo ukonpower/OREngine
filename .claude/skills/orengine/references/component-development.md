@@ -239,4 +239,4 @@ constructor( params: MXP.ComponentParams<{ num?: number } | void> ) {
 - クラス名は **PascalCase**、ディレクトリ名と一致
 - `protected` フィールドは `_` プレフィックス
 - 編集後は `npm run typecheck` を必ず実行
-- シェーダーを書いた / 編集した場合は agent-browser スキルでエディタページを開き、ブラウザコンソールと見た目を確認する（専用の観測 API は存在しない）
+- シェーダーを書いた / 編集した場合は `npx tsx scripts/scene.ts errors` でコンパイルエラーを、`shot` で見た目を確認する

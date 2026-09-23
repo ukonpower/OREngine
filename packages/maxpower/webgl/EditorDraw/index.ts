@@ -94,6 +94,9 @@ export class GLEditorDraw implements EditorDrawContract {
 	private _texturePass: PostProcessPass;
 	private _texturePostProcess: PostProcess;
 
+	// readView の転写先。使われるまで作らない
+	private _viewTarget: GLEditorTarget | null;
+
 	constructor( renderer: Renderer ) {
 
 		this._renderer = renderer;
@@ -110,6 +113,8 @@ export class GLEditorDraw implements EditorDrawContract {
 
 		this._texturePass = new PostProcessPass( renderer.backend, { frag: textureFrag, renderTarget: null } );
 		this._texturePostProcess = new PostProcess( { name: "editorTexture", passes: [ this._texturePass ] } );
+
+		this._viewTarget = null;
 
 	}
 
@@ -285,6 +290,17 @@ export class GLEditorDraw implements EditorDrawContract {
 		gl.bindFramebuffer( gl.FRAMEBUFFER, null );
 
 		return buffer;
+
+	}
+
+	// uiBuffer をターゲットへ写してから readPixels で読む（読み戻しの経路を webgpu 側と揃えるため）
+	public readView( view: RenderView ) {
+
+		if ( ! this._viewTarget ) this._viewTarget = this.createTarget();
+
+		this.blit( view, new GLEditorFrame( view.renderTarget.uiBuffer.textures[ 0 ], GL.TEXTURE_2D ), this._viewTarget );
+
+		return this.readPixels( this._viewTarget );
 
 	}
 
