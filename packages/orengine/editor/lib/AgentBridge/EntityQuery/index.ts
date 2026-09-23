@@ -149,7 +149,7 @@ export type FieldDescription = {
 };
 
 // select / resource の選択肢は関数で遅延評価されることがあるので、ここで値に落とす
-const resolveList = ( list: MXP.SelectList | ( () => MXP.SelectList ) ) => {
+export const resolveList = ( list: MXP.SelectList | ( () => MXP.SelectList ) ) => {
 
 	let items = list;
 
