@@ -98,6 +98,8 @@ npx tsx scripts/scene.ts undo                                             # / re
 - `"tab"`（ユーザーのタブ）: **CLI は保存しない**。タブにライブで反映され、GUI の Ctrl+Z / `undo` で戻せる（undo 履歴は GUI と共有なので、`undo` はユーザーの操作も戻しうる）。ファイルに確定するのはユーザーの Ctrl+S。作業の区切りで保存を頼む。未保存の変更は `status` の `unsaved: true` で分かる
 - `"headless"`（タブが無く CLI が Chromium で開いた）: 書き込み系コマンドのたびに `scenes/<name>.json` へ保存される。1コマンドごとにブラウザを閉じるので `undo` / `redo` は効かない。取り消すには逆の操作（`remove-entity` 等）をする
 
+接続先はコマンドごとに決まり、作業の途中でユーザーがタブを開くと headless から tab へ黙って切り替わる。**保存されたかは最初の `status` ではなく、各書き込みの出力の `connection` / `saved` で判断する**（`{ "connection": "tab", "saved": false, "uuid": ..., ... }` のように先頭に付く）。`saved: false` の変更はユーザーの Ctrl+S まで未保存。
+
 ### 書き込みの注意
 
 - `set` の値はフィールドの型で解釈される: 数値 / ベクトル・色は `1,2,3` か `[1,2,3]`（要素数は現在値と同じ）/ `true`・`false` / 文字列 / select は選択肢の値 / entity 参照は対象の uuid（`tree` で調べる。`null` で外す）
