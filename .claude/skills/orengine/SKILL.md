@@ -3,8 +3,8 @@ name: orengine
 description: >
   OREngine でコンポーネントを開発し、シーンを組むためのワークフロースキル（WebGL / GLSL と WebGPU / WGSL の両バックエンド対応）。
   シーンは dev サーバー経由でエディタタブを操作するシーン CLI（npx tsx scripts/scene.ts）で
-  観測・編集する（EditorAPI を通るので undo が効き、保存はユーザーの Ctrl+S）。
-  タブが無ければ CLI が headless Chromium で代わりに開き、書き込みはその場で保存する。
+  観測・編集する（EditorAPI を通るので undo が効き、書き込みはその場でファイルへ保存される）。
+  タブが無ければ CLI が headless Chromium で代わりに開く。
   見た目のあるオブジェクトはカスタムコンポーネント内で Geometry + Material + Mesh を組み立てるか、
   BLidge が作った Mesh にマテリアルを差し込む。
   Use when user asks to "シーンを作って", "エンティティを追加", "オブジェクトを配置",
@@ -94,14 +94,20 @@ npx tsx scripts/scene.ts undo                                             # / re
 
 書き込みはすべてエディタの `EditorAPI` を通るので、GUI の操作と同じ扱いになる。
 
-### 接続先で保存の扱いが変わる
+### 保存と接続先
 
-`status` の `connection` で分かる。
+書き込み系コマンド（`undo` / `redo` を含む）は、接続先によらず**その場で `scenes/<name>.json` へ保存される**。応答は保存が終わってから返るので、直後にファイルを読んでも反映済み。ユーザーに Ctrl+S を頼む必要は無い。
 
-- `"tab"`（ユーザーのタブ）: **CLI は保存しない**。タブにライブで反映され、GUI の Ctrl+Z / `undo` で戻せる（undo 履歴は GUI と共有なので、`undo` はユーザーの操作も戻しうる）。ファイルに確定するのはユーザーの Ctrl+S。作業の区切りで保存を頼む。未保存の変更は `status` の `unsaved: true` で分かる
-- `"headless"`（タブが無く CLI が Chromium で開いた）: 書き込み系コマンドのたびに `scenes/<name>.json` へ保存される。1コマンドごとにブラウザを閉じるので `undo` / `redo` は効かない。取り消すには逆の操作（`remove-entity` 等）をする
+- 書き込んだタブに CLI 以前の未保存の変更（ユーザーの GUI 操作）があれば、それも一緒に保存される
+- 保存のあと、書き込んだタブ以外のエディタタブはリロードされる（そのタブの未保存の変更は消える）
+- 保存に失敗すると `タブには反映しましたが、ファイルへの保存に失敗しました` のエラーになる
 
-接続先はコマンドごとに決まり、作業の途中でユーザーがタブを開くと headless から tab へ黙って切り替わる。**保存されたかは最初の `status` ではなく、各書き込みの出力の `connection` / `saved` で判断する**（`{ "connection": "tab", "saved": false, "uuid": ..., ... }` のように先頭に付く）。`saved: false` の変更はユーザーの Ctrl+S まで未保存。
+接続先は `status` の `connection` と、各書き込みの出力の先頭の `connection`（`{ "connection": "tab", "uuid": ..., ... }`）で分かる。違いは undo だけ。
+
+- `"tab"`（ユーザーのタブ）: GUI の Ctrl+Z / `undo` で戻せる（undo 履歴は GUI と共有なので、`undo` はユーザーの操作も戻しうる）
+- `"headless"`（タブが無く CLI が Chromium で開いた）: 1コマンドごとにブラウザを閉じるので `undo` / `redo` は効かない。取り消すには逆の操作（`remove-entity` 等）をする
+
+接続先はコマンドごとに決まり、作業の途中でユーザーがタブを開くと headless から tab へ黙って切り替わる。
 
 ### 書き込みの注意
 
@@ -110,7 +116,7 @@ npx tsx scripts/scene.ts undo                                             # / re
 - 存在しないエンティティ・コンポーネント名・path はエラーになり、`candidates` に候補が出るので選び直す
 - 同名の兄弟がいると名前パスが複数に一致してエラーになる。uuid で指定する。`add-entity` の名前が兄弟と衝突すると `Name.001` のように採番されるので、戻り値の `path` を使う
 - 編集できる範囲は GUI と同じ。BLidge / glb が作ったエンティティ（`initiator: "script"`）には子を足せず、削除もできない。コンポーネントを付けることはでき、BLidgeClient の `attachments` にエンティティ名で紐づいて保存される（`references/component-development.md` の「BLidge の Mesh に差し込む」）
-- **CLI 操作のあとに full-reload を起こす作業をしない**。`scenes/<name>.json` / `editor.json` の書き換えや、コンポーネントファイルの追加・編集はタブをリロードし、未保存の CLI 操作が消える。コンポーネントを作る作業（Flow 2）を先に済ませ、リロード後に CLI で配置する
+- コンポーネントファイルの追加・編集や `scenes/<name>.json` / `editor.json` の書き換えはタブをリロードする。CLI の書き込みは保存済みなので消えないが、リロード中のコマンドはタイムアウトしうる。コンポーネントを作る作業（Flow 2）を先に済ませ、リロード後に CLI で配置する
 - `scenes/<name>.json` の直接編集は人間の手段。Claude は CLI を使う
 
 ### シーンの一覧・作成・切り替え
@@ -128,7 +134,7 @@ npx tsx scripts/scene.ts scene-delete short1             # 開いているシー
 - `scenes` / `scene-get` はファイルを読むだけで、タブも headless も使わない
 - `scene-create` / `scene-delete` はその場でファイルに反映される（Ctrl+S 不要）。シーン操作は undo に載らない
 - `scene-open`（と `scene-create --open`）はタブに未保存の変更があるとエラーで止まる。ユーザーに Ctrl+S を頼んでから切り替える
-- headless では `scene-open` のあとに保存して editor.json の `scene` も更新するので、次のコマンドの headless は切り替え先のシーンを開く。タブ接続時は editor.json の更新もユーザーの Ctrl+S で行われる
+- `scene-open` のあとも保存して editor.json の `scene` を更新する。次のコマンドの headless は切り替え先のシーンを開き、他のタブもリロードで切り替え先を開く
 
 ### 設定（renderer / timeline / editor）
 
@@ -276,7 +282,7 @@ npx tsx scripts/scene.ts set root/MainCamera CameraController lookAt/target <Cub
 ```
 
 3. ライトの向きは `euler` を `set` し、`tree` の `up` が光源側（ライト位置 − 照らしたい点の向き）を向いたかで確かめる
-4. `errors` と `shot` で確認し、`connection: "tab"` ならユーザーに Ctrl+S を頼む
+4. `errors` と `shot` で確認する
 
 ### 時間で動くシェーダー
 
@@ -287,7 +293,7 @@ npx tsx scripts/scene.ts set root/MainCamera CameraController lookAt/target <Cub
 ## Guardrails
 
 - シーンの編集はシーン CLI。コンポーネント・シェーダー・`.tex` はファイルを直接編集する
-- ユーザーのタブでは CLI は保存しない。作業の区切りで Ctrl+S を頼む
+- CLI の書き込みはその場で保存され、ユーザーのタブの未保存の変更も一緒に保存される。書き込んだタブ以外のエディタタブはリロードされる
 - 名前・path・フィールドは CLI（`components` / `get`）で確かめる。推測で `set` しない
 - コンポーネント・シェーダーを編集したら `npm run typecheck`、シーンを変えたら `errors` と `shot`
 - `npm run dev` を勝手に起動しない
@@ -299,7 +305,7 @@ npx tsx scripts/scene.ts set root/MainCamera CameraController lookAt/target <Cub
 |---|---|
 | CLI が `dev サーバーが起動していません` / `接続できません` | ユーザーに dev サーバーの起動を頼む |
 | CLI が `headless Chromium で開こうとしましたが、失敗しました` | ユーザーに `npx playwright install chromium` を頼む（GPU の無い環境では headless は動かない） |
-| CLI の書き込みが消えた | 保存前に full-reload が走った。`status` の `unsaved` を見て、やり直してから Ctrl+S を頼む |
+| CLI の書き込みが消えた | 書き込みは保存済みのはず。`git diff <projectDir>/scenes/` で確かめ、無ければ保存が失敗している（`references/troubleshooting.md`） |
 | コンポーネントが一覧に出ない | import やシェーダーの読み込みで失敗している。`npm run typecheck` と `errors` を見る |
 | `set` が path のエラーになる | `candidates` か `get` の `fields[].path` から選ぶ。`field()` で登録していないプロパティは CLI でも JSON でも変えられない |
 

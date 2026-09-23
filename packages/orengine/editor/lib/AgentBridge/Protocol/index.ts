@@ -10,6 +10,7 @@ export const AGENT_EVENT = {
 	focus: 'orengine:agent:focus',
 	request: 'orengine:agent:request',
 	response: 'orengine:agent:response',
+	saved: 'orengine:agent:saved',
 } as const;
 
 // 接続中のタブが無いときにサーバーが返す HTTP ステータス。CLI はこれを見て headless で開き直す
@@ -45,6 +46,11 @@ export type AgentFocus = {
 	tabId: string;
 };
 
+// 書き込み系コマンドでシーンをファイルへ保存し終えたタブ。サーバーはこのタブ以外のエディタタブをリロードさせる
+export type AgentSaved = {
+	tabId: string;
+};
+
 export type AgentRequest = {
 	id: string;
 	tabId: string;
@@ -61,11 +67,10 @@ export type AgentResponseChunk = {
 	chunk: string;
 };
 
-// 書き込み系コマンドの書き込み先と保存の有無。
-// saved: タブが書き込みの後に editor.save() を呼んだ（headless のときだけ true）。CLI はファイルへの書き込みが終わるまでブラウザを閉じずに待つ
+// 書き込み系コマンドの書き込み先。保存は接続先によらず応答の前に済んでいる。
+// headless は1コマンドごとに閉じるので undo / redo が効かない。その区別のために返す
 export type AgentWriteInfo = {
 	connection: 'tab' | 'headless';
-	saved: boolean;
 };
 
 // write: 書き込み系コマンドのときだけ付く。接続先はコマンドごとに変わりうるので、書き込みのたびに返す

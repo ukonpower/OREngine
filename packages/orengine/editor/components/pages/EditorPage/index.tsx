@@ -194,17 +194,28 @@ export const EditorPage = ( props: EditorPageProps ) => {
 			props.initResourceInstances( engine );
 
 		}} >
-			<OREditor editorData={editorData} projectName={projectName} panels={props.panels} scenes={scenes} onSave={( savedScene, savedEditor ) => {
+			<OREditor editorData={editorData} projectName={projectName} panels={props.panels} scenes={scenes} onSave={async ( savedScene, savedEditor ) => {
 
 				props.onBeforeSave?.();
 
+				const posts = [ postJson( `${apiBase}/editor`, { ...savedEditor, [ EDITOR_SCENE_KEY ]: sceneName } ) ];
+
 				if ( sceneName ) {
 
-					postJson( `${apiBase}/scenes/${sceneName}`, savedScene );
+					posts.push( postJson( `${apiBase}/scenes/${sceneName}`, savedScene ) );
 
 				}
 
-				postJson( `${apiBase}/editor`, { ...savedEditor, [ EDITOR_SCENE_KEY ]: sceneName } );
+				// シーン CLI（AgentBridge）がファイルへの書き込みの完了を待つので、失敗は例外にして伝える
+				for ( const res of await Promise.all( posts ) ) {
+
+					if ( ! res.ok ) {
+
+						throw new Error( `保存に失敗しました（POST ${new URL( res.url ).pathname}: HTTP ${res.status}）` );
+
+					}
+
+				}
 
 			}} />
 		</OREngineProvider>

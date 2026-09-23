@@ -1,6 +1,6 @@
 import { AGENT_HEADLESS_PARAM } from '../packages/orengine/editor/lib/AgentBridge/Protocol/index.ts';
 
-import type { Browser, Request } from '@playwright/test';
+import type { Browser } from '@playwright/test';
 
 // エディタのタブが無いときに、scripts/scene.ts が代わりの接続先として開く headless Chromium
 
@@ -14,17 +14,7 @@ const LAUNCH_ARGS = [ '--enable-unsafe-webgpu', '--use-angle=metal' ];
 const VIEWPORT = { width: 1920, height: 1080 };
 const DEVICE_SCALE_FACTOR = 1;
 
-// editor.save() の後、ファイルへの書き込み（POST）が終わるまで待つ上限
-const SAVE_TIMEOUT_MS = 10000;
-
-// エディタページの保存先 API（packages/orengine/editor/components/pages/EditorPage の onSave と一致させる）。
-// onSave は scenes/<name> → editor の順に POST するので、editor の POST が出た時点で保存の POST は出揃っている
-const SAVE_API_PREFIX = '/api/projects/';
-const SAVE_EDITOR_SUFFIX = '/editor';
-
 export type HeadlessEditor = {
-	// ページが editor.save() で出した POST がすべて応答を返すまで待つ
-	waitForSave: () => Promise<void>;
 	close: () => Promise<void>;
 };
 
@@ -47,82 +37,12 @@ export const openHeadlessEditor = async ( devServerUrl: string ): Promise<Headle
 
 		const page = await context.newPage();
 
-		const saveRequests: Request[] = [];
-
-		let resolveEditorPosted: () => void = () => {};
-		const editorPosted = new Promise<void>( ( resolve ) => {
-
-			resolveEditorPosted = resolve;
-
-		} );
-
-		page.on( 'request', ( request ) => {
-
-			if ( request.method() !== 'POST' ) return;
-
-			const pathname = new URL( request.url() ).pathname;
-
-			if ( ! pathname.startsWith( SAVE_API_PREFIX ) ) return;
-
-			saveRequests.push( request );
-
-			if ( pathname.endsWith( SAVE_EDITOR_SUFFIX ) ) {
-
-				resolveEditorPosted();
-
-			}
-
-		} );
-
 		const url = new URL( '/', devServerUrl );
 		url.searchParams.set( AGENT_HEADLESS_PARAM, '' );
 
 		await page.goto( url.toString() );
 
-		const waitForSave = async () => {
-
-			let timer: NodeJS.Timeout | undefined;
-
-			const timeout = new Promise<never>( ( _resolve, reject ) => {
-
-				timer = setTimeout( () => reject( new Error( `保存が ${SAVE_TIMEOUT_MS}ms 以内に終わりませんでした` ) ), SAVE_TIMEOUT_MS );
-
-			} );
-
-			try {
-
-				await Promise.race( [ editorPosted, timeout ] );
-
-				for ( const request of saveRequests ) {
-
-					const response = await Promise.race( [ request.response(), timeout ] );
-
-					if ( ! response || ! response.ok() ) {
-
-						let status = '応答なし';
-
-						if ( response ) {
-
-							status = `HTTP ${response.status()}`;
-
-						}
-
-						throw new Error( `保存に失敗しました（POST ${new URL( request.url() ).pathname}: ${status}）` );
-
-					}
-
-				}
-
-			} finally {
-
-				clearTimeout( timer );
-
-			}
-
-		};
-
 		return {
-			waitForSave,
 			close: () => browser.close(),
 		};
 

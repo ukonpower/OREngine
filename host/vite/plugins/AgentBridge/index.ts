@@ -4,7 +4,7 @@ import path from 'path';
 
 import { AGENT_ENDPOINT, AGENT_EVENT, AGENT_NO_TAB_STATUS, DEFAULT_TIMEOUT_MS } from '../../../../packages/orengine/editor/lib/AgentBridge/Protocol';
 
-import type { AgentFocus, AgentHello, AgentHttpRequest, AgentRequest, AgentResponseChunk } from '../../../../packages/orengine/editor/lib/AgentBridge/Protocol';
+import type { AgentFocus, AgentHello, AgentHttpRequest, AgentRequest, AgentResponseChunk, AgentSaved } from '../../../../packages/orengine/editor/lib/AgentBridge/Protocol';
 import type { ServerResponse } from 'http';
 import type { Plugin, WebSocketClient } from 'vite';
 
@@ -162,6 +162,21 @@ export const AgentBridge = ( opts: AgentBridgeOptions ): Plugin => ( {
 			const tab = tabs.get( data.tabId );
 
 			if ( tab ) tab.focusedAt = Date.now();
+
+		} );
+
+		// 保存したタブ以外のエディタタブ（ユーザーのタブ・headless とも）をフルリロードさせる。
+		// API 経由の保存は ProjectWatchReload のリロードを recentWrites でタブを区別せず抑制するので、ここで個別に送る。
+		// 外部からファイルを編集したときのリロードと同じく、リロードされたタブの未保存の変更は消える
+		server.ws.on( AGENT_EVENT.saved, ( data: AgentSaved ) => {
+
+			for ( const tab of tabs.values() ) {
+
+				if ( tab.id === data.tabId ) continue;
+
+				tab.client.send( { type: 'full-reload' } );
+
+			}
 
 		} );
 
