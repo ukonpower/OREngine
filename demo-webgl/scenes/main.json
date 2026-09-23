@@ -24,7 +24,7 @@
 										"near": 0.1,
 										"far": 1000,
 										"orthHeight": 1,
-										"fNumber": 0.3,
+										"focus/fNumber": 0.3,
 										"focus/mode": "target",
 										"focus/target": "blidge:CamDof",
 										"focus/distance": 4.949999999999992,
