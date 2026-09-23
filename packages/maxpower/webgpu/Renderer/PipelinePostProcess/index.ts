@@ -14,11 +14,9 @@ import {
 } from './shaders';
 import bloomBrightWgsl from './shaders/bloomBright.wgsl';
 import colorCollectionWgsl from './shaders/colorCollection.wgsl';
-import colorGradingWgsl from './shaders/colorGrading.wgsl';
 import dofBokehWgsl from './shaders/dofBokeh.wgsl';
 import dofCocWgsl from './shaders/dofCoc.wgsl';
 import dofCompositeWgsl from './shaders/dofComposite.wgsl';
-import finalizeWgsl from './shaders/finalize.wgsl';
 import fxaaWgsl from './shaders/fxaa.wgsl';
 import lightShaftWgsl from './shaders/lightShaft.wgsl';
 import motionBlurNeighborWgsl from './shaders/motionBlurNeighbor.wgsl';
@@ -35,12 +33,11 @@ type PassCallback = ( pass: PostProcessPass ) => void;
 /*-------------------------------
 	レンダラーが持つポストプロセス
 
-	webgl側の DeferredRenderer（シェーディング以外）と PipelinePostProcess、
-	それに CameraController が組んでいた仕上げ（FXAA / Bloom / ColorGrading /
-	Finalize）をまとめたもの。
+	webgl側の DeferredRenderer（シェーディング以外）と PipelinePostProcess をまとめたもの。
 
 	シェーディングの前に走る系統（法線選択・lightShaft・SSAO）と、
-	forwardのあとに走る系統（トーンマップ・SSR・DoF・モーションブラー・仕上げ）に分かれる。
+	forwardのあとに走る系統（トーンマップ・SSR・DoF・モーションブラー・FXAA・ブルーム）に分かれる。
+	作風の処理（レンズ歪み・色収差など）は持たず、プロジェクトがカメラの PostProcessPipeline で足す。
 
 	SSAO / lightShaft / SSR は前フレームの結果と混ぜて均す設計なので、
 	webgl と同じく描画先を2枚持つピンポン方式で移植している。
@@ -85,13 +82,6 @@ export class PipelinePostProcess {
 
 	}
 
-	// 画面へ出す最終出力
-	public get outputView() {
-
-		return this._finishChain.passes[ this._finishChain.passes.length - 1 ].targetView;
-
-	}
-
 	private _normalSelector: PostProcessPass;
 	private _lightShaft: PostProcessPass;
 	private _lightShaftBlurH: PostProcessPass;
@@ -108,6 +98,7 @@ export class PipelinePostProcess {
 	private _motionBlurNeighbor: PostProcessPass;
 	private _motionBlur: PostProcessPass;
 
+	private _colorCollection: PostProcessPass;
 	private _bright: PostProcessPass;
 	private _bloomLevels: PostProcessPass[];
 	private _composite: PostProcessPass;
@@ -210,10 +201,12 @@ export class PipelinePostProcess {
 			トーンマップ
 		-------------------------------*/
 
-		this._colorChain = new PostProcessChain( device, frameLayout, [ pass( {
+		this._colorCollection = pass( {
 			name: 'colorCollection',
 			wgsl: colorCollectionWgsl,
-		} ) ] );
+		} );
+
+		this._colorChain = new PostProcessChain( device, frameLayout, [ this._colorCollection ] );
 
 		/*-------------------------------
 			スクリーンスペース（SSR / DoF / モーションブラー）
@@ -298,8 +291,8 @@ export class PipelinePostProcess {
 			ブルーム
 		-------------------------------*/
 
-		// 輝度の抽出元はトーンマップ前のHDRシーン（webgl側もCameraControllerが
-		// shadingBuffer を渡している）。トーンマップ後だと閾値を超えなくなる
+		// 輝度の抽出元はトーンマップ前のHDRシーン（webgl側も shadingBuffer から抽出している）。
+		// トーンマップ後だと閾値を超えなくなる
 		this._bright = pass( {
 			name: 'bloom/bright',
 			wgsl: bloomBrightWgsl,
@@ -353,12 +346,10 @@ export class PipelinePostProcess {
 			inputs: [ 'uBackBuffer0', ...this._bloomLevels.map( ( _, i ) => `uBloom${i}` ) ],
 		} );
 
-		// webgl側 CameraController と同じ並び
+		// webgl側 PipelinePostProcess の末尾と同じ並び
 		this._finishChain = new PostProcessChain( device, frameLayout, [
 			pass( { name: 'fxaa', wgsl: fxaaWgsl } ),
 			this._composite,
-			pass( { name: 'colorGrading', wgsl: colorGradingWgsl } ),
-			pass( { name: 'finalize', wgsl: finalizeWgsl } ),
 		] );
 
 	}
@@ -462,6 +453,37 @@ export class PipelinePostProcess {
 	// SSAO / lightShaft はシェーディングが読む先に結果が残るため、無効時も走らせて出力を0にする。
 	// SSR / DoF / モーションブラーはチェーンを素通りさせるだけでよい
 	public applyPipelineConfig( config: PipelineConfig ) {
+
+		if ( config.toneMap !== undefined ) {
+
+			this._colorCollection.enabled = config.toneMap;
+
+		}
+
+		// 輝度抽出・ぼかしを止めても合成が古い結果を足さないよう、合成も一緒に止める
+		if ( config.bloom !== undefined ) {
+
+			for ( const bloomPass of this._bloomChain.passes ) {
+
+				bloomPass.enabled = config.bloom;
+
+			}
+
+			this._composite.enabled = config.bloom;
+
+		}
+
+		if ( config.bloomThreshold !== undefined ) {
+
+			this._bright.uniforms.uThreshold.value = config.bloomThreshold;
+
+		}
+
+		if ( config.bloomBrightness !== undefined ) {
+
+			this._bright.uniforms.uBrightness.value = config.bloomBrightness;
+
+		}
 
 		if ( config.ssao !== undefined ) {
 

@@ -8,6 +8,12 @@ export type PipelineConfig = {
 	ssao?: boolean;
 	lightShaft?: boolean;
 	dof?: boolean;
+	// ACES トーンマップ。オフだとシェーダーで書いた色がそのまま画面へ出る
+	toneMap?: boolean;
+	// ブルームの輝度抽出はトーンマップ前の HDR から行うので、しきい値は HDR の値で指定する
+	bloom?: boolean;
+	bloomThreshold?: number;
+	bloomBrightness?: number;
 	// lightShaft の細かい調整（WebGPU バックエンドのみ。WebGL は無視する）
 	lightShaftIntensity?: number;
 	lightShaftBlur?: boolean;

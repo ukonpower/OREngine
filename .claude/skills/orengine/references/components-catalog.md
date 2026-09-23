@@ -26,8 +26,8 @@
 - `CameraController` は付けると内部で `LookAt` を足す。field は `lookAt/target`（注視先）と `focus/mode` / `focus/target` / `focus/distance` / `focus/speed`（ピント）
   - `lookAt/target` / `focus/target` は entity 参照で、値は対象の uuid（`tree` で調べる）。BLidge のエンティティの uuid は `blidge:<Blender での名前>`（`demo-webgl/scenes/main.json` では `"blidge:CamLook"` / `"blidge:CamDof"`）
   - `focus/mode`: `auto` = 画面中心の深度（WebGPU のみ。WebGL では `target` と同じ動きになる）/ `target` = `focus/target` のエンティティまでの距離 / `manual` = `focus/distance`
-- ポストプロセス（FXAA / Bloom / ColorGrading / Finalize）は `CameraController` が `setupCameraPostProcess`（`@or-renderer` が解決するバックエンドの実装）で用意する。WebGL ではカメラのエンティティに `PostProcessPipeline` を足し、WebGPU では何もしない（レンダラーに組み込み済み）。これらを単独で付けるコンポーネントは無い
-- レンダラー全体の効果（モーションブラー・SSR・SSAO・DoF・ライトシャフト等の on/off、空の色）はシーン JSON の `renderer`（`scene-schema.md`）で、CLI では変えられない
+- エンジンのポストプロセスはレンダラーに組み込まれていて、HDR → トーンマップ → SSR / DoF / モーションブラー → FXAA → ブルーム加算 の順に走る。作風のパス（レンズ歪み・色収差など）はエンジンに無く、プロジェクトがシーンカメラの `PostProcessPipeline` にパスを足すコンポーネントで持つ（エンジンの仕上げの後に足した順で走る）。見本は `demo-webgl` / `demo-webgpu` の `Resources/Components/Samples/PostProcess/Finalize`（main シーンのカメラに付いている）。`add` の形はバックエンドで違い、WebGL は `PostProcess` の実体、WebGPU はパスの宣言（`{ name, wgsl }`）を渡す
+- レンダラー全体の効果（モーションブラー・SSR・SSAO・DoF・ライトシャフト・トーンマップ・ブルーム等の on/off、空の色）はシーン JSON の `renderer`（`scene-schema.md`）で、CLI では変えられない
 - `Camera` の field は `cameraType`（`perspective` / `orthographic`）/ `fov` / `near` / `far` / `orthHeight`（並行投影で見える縦の全幅。横は画面の aspect から決まる）/ `fNumber`（DoF の絞り。小さいほどボケる）
 
 ## ライト

@@ -132,6 +132,10 @@ const createDefaultPipelineConfig = (): PipelineConfig => ( {
 	lightShaftTemporal: true,
 	lightShaftTemporalBlend: 0.3,
 	dof: true,
+	toneMap: true,
+	bloom: true,
+	bloomThreshold: 1.0,
+	bloomBrightness: 1.0,
 } );
 
 type RenderStack = {
@@ -356,7 +360,7 @@ export class Renderer extends Serializable implements RendererContract {
 
 		const pipeline = this.fieldDir( 'pipeline' );
 
-		( [ 'motionBlur', 'ssr', 'ssao', 'dof', 'lightShaft' ] as const ).forEach( ( key ) => {
+		( [ 'motionBlur', 'ssr', 'ssao', 'dof', 'lightShaft', 'toneMap', 'bloom' ] as const ).forEach( ( key ) => {
 
 			const dir = pipeline.dir( key );
 
@@ -404,6 +408,22 @@ export class Renderer extends Serializable implements RendererContract {
 					this.applyPipelineConfig( { lightShaftTemporalBlend: v } );
 
 				}, { step: 0.05 } );
+
+			}
+
+			if ( key === 'bloom' ) {
+
+				dir.field( 'threshold', () => this.pipelineConfig.bloomThreshold ?? 1.0, ( v: number ) => {
+
+					this.applyPipelineConfig( { bloomThreshold: v } );
+
+				}, { step: 0.1 } );
+
+				dir.field( 'brightness', () => this.pipelineConfig.bloomBrightness ?? 1.0, ( v: number ) => {
+
+					this.applyPipelineConfig( { bloomBrightness: v } );
+
+				}, { step: 0.1 } );
 
 			}
 

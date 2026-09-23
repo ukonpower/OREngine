@@ -1,4 +1,3 @@
-import { setupCameraPostProcess } from '@or-renderer';
 import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
@@ -79,16 +78,6 @@ export class CameraController extends MXP.Component {
 			this._focusSpeed = v;
 
 		}, { step: 0.5 } );
-
-		// カメラ標準ポストプロセス（実体はバックエンドごとの実装に委ねる）
-
-		const removeCameraPostProcess = setupCameraPostProcess( this.engine as any, this.entity );
-
-		this.once( "dispose", () => {
-
-			removeCameraPostProcess();
-
-		} );
 
 	}
 

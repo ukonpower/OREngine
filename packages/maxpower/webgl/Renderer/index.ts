@@ -109,6 +109,10 @@ const createDefaultPipelineConfig = (): PipelineConfig => ( {
 	ssao: true,
 	lightShaft: true,
 	dof: true,
+	toneMap: true,
+	bloom: true,
+	bloomThreshold: 1.0,
+	bloomBrightness: 1.0,
 } );
 
 // default material
@@ -226,9 +230,6 @@ export class Renderer extends Serializable implements RendererContract {
 	private _tmpResolutionUniform: BSP.Uniforms[string];
 	private _tmpUniformOverride: BSP.Uniforms;
 	private _tmpDrawParam: DrawParam;
-	// プロジェクト側のポストプロセスへ渡す、ビュー固有のテクスチャ
-	private _tmpShadingTexture: BSP.Uniforms[string];
-	private _tmpPostProcessUniforms: BSP.Uniforms;
 
 	constructor( backend: GLBackend, engine: EngineContract ) {
 
@@ -316,8 +317,6 @@ export class Renderer extends Serializable implements RendererContract {
 		this._tmpResolutionUniform = { value: this._tmpResolution, type: '2fv' };
 		this._tmpUniformOverride = {};
 		this._tmpDrawParam = {};
-		this._tmpShadingTexture = { value: null, type: '1i' };
-		this._tmpPostProcessUniforms = { uShadingTexture: this._tmpShadingTexture };
 
 		// sky
 
@@ -374,7 +373,7 @@ export class Renderer extends Serializable implements RendererContract {
 
 		const pipeline = this.fieldDir( "pipeline" );
 
-		( [ "motionBlur", "ssr", "ssao", "dof", "lightShaft" ] as const ).forEach( ( key ) => {
+		( [ "motionBlur", "ssr", "ssao", "dof", "lightShaft", "toneMap", "bloom" ] as const ).forEach( ( key ) => {
 
 			const dir = pipeline.dir( key );
 
@@ -389,6 +388,22 @@ export class Renderer extends Serializable implements RendererContract {
 				dir.field( "power", () => this._pipelineConfig.motionBlurPower ?? 1, ( v: number ) => {
 
 					this.applyPipelineConfig( { motionBlurPower: v } );
+
+				}, { step: 0.1 } );
+
+			}
+
+			if ( key === "bloom" ) {
+
+				dir.field( "threshold", () => this._pipelineConfig.bloomThreshold ?? 1, ( v: number ) => {
+
+					this.applyPipelineConfig( { bloomThreshold: v } );
+
+				}, { step: 0.1 } );
+
+				dir.field( "brightness", () => this._pipelineConfig.bloomBrightness ?? 1, ( v: number ) => {
+
+					this.applyPipelineConfig( { bloomBrightness: v } );
 
 				}, { step: 0.1 } );
 
@@ -716,9 +731,9 @@ export class Renderer extends Serializable implements RendererContract {
 
 		this.backend.setBlendEnabled( false );
 
-		// scene
+		// scene（トーンマップを切っていても後続のパスが HDR を受け取れるよう、入力にシェーディングバッファを渡す）
 
-		this.renderPostProcess( view.pipelinePostProcess.postprocess, undefined, this.resolution, { cameraOverride: {
+		this.renderPostProcess( view.pipelinePostProcess.postprocess, rt.shadingBuffer, this.resolution, { cameraOverride: {
 			viewMatrix: cameraComponent.viewMatrix,
 			projectionMatrix: cameraComponent.projectionMatrix,
 			cameraMatrixWorld: cameraEntity.matrixWorld,
@@ -738,9 +753,6 @@ export class Renderer extends Serializable implements RendererContract {
 
 			postProcessManager.resize( this.resolution );
 
-			// パスはシーンカメラに1組しか無くビューを跨いで使い回すので、ビュー固有の入力はここで差し替える
-			this._tmpShadingTexture.value = rt.shadingBuffer.textures[ 0 ];
-
 			for ( let i = 0; i < postProcessManager.postProcesses.length; i ++ ) {
 
 				const postProcess = postProcessManager.postProcesses[ i ];
@@ -755,7 +767,6 @@ export class Renderer extends Serializable implements RendererContract {
 						cameraNear: cameraComponent.near,
 						cameraFar: cameraComponent.far,
 					},
-					uniformOverride: this._tmpPostProcessUniforms,
 				} );
 
 				backBuffer = postProcess.output || undefined;

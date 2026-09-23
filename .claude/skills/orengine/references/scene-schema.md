@@ -25,7 +25,11 @@
 		"pipeline/ssr/enabled": true,
 		"pipeline/ssao/enabled": true,
 		"pipeline/dof/enabled": true,
-		"pipeline/lightShaft/enabled": true
+		"pipeline/lightShaft/enabled": true,
+		"pipeline/toneMap/enabled": true,
+		"pipeline/bloom/enabled": true,
+		"pipeline/bloom/threshold": 1,
+		"pipeline/bloom/brightness": 1
 	},
 	"timeline/duration": 600,
 	"timeline/fps": 60
