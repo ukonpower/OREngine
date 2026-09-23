@@ -72,6 +72,8 @@ npx tsx scripts/scene.ts get root/Camera
 
 エンティティの名前パス / uuid、実在するコンポーネント名、フィールドの path と現在値を CLI で確かめてから編集する。コンポーネントのフィールドはこのスキルに書き写していないので、`components` / `get` で見る。
 
+- 名前パスはルートエンティティの名前から始まり、大文字小文字を区別する
+- ルートの名前はシーンごとに違う（demo の `main.json` は `root`、テンプレート・エディタで新規作成したシーンは `Root`）。このスキルの例は `root/...` で書いているので、`tree` の先頭の `path` を見て読み替える
 - `tree` には BLidge / glb が作ったエンティティ（`initiator: "script"`）も出る。これらはシーン JSON に載らない
 - CLI が `dev サーバーが起動していません` で止まったら、ユーザーに dev サーバーの起動を頼む（`npm run dev` を勝手に起動しない。JSON の直接編集に切り替えない）。タブが無いだけなら CLI が headless で代わりに繋ぐので、エディタを開いてもらう必要はない
 - dev サーバーの URL は `<OREngine>/tmp/dev-server.json` から読まれる。同じ OREngine で dev サーバーを2つ立てていると後から起動したほうになるので、そのときは `--url` で指定する

@@ -43,7 +43,7 @@ type CommandSpec = {
 const COMMANDS: { [ name: string ]: CommandSpec } = {
 	status: { usage: 'status', description: '接続先のタブ・シーン名・未保存の変更の有無', timeoutMs: 5000 },
 	tree: { usage: 'tree', description: '展開後の全エンティティ（ワールド座標・前方ベクトル・境界ボックス・コンポーネント）', timeoutMs: 10000 },
-	get: { usage: 'get <entity>', description: '1エンティティのフィールドと全コンポーネントのフィールド値（<entity> は uuid か root/... の名前パス）', timeoutMs: 10000 },
+	get: { usage: 'get <entity>', description: '1エンティティのフィールドと全コンポーネントのフィールド値（<entity> は uuid かルートの名前から始まる名前パス）', timeoutMs: 10000 },
 	// 全コンポーネントを一度ずつ生成してフィールド定義を読むので他より長く待つ
 	components: { usage: 'components', description: '登録済みコンポーネントの一覧とフィールド定義', timeoutMs: 30000 },
 	errors: { usage: 'errors', description: 'シェーダーエラー・GPU エラー・コンソールのエラー・解決できなかったコンポーネント', timeoutMs: 5000 },
