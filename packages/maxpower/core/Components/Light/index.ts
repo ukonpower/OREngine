@@ -41,11 +41,6 @@ export class Light extends ShadowMapCamera {
 		this.castShadow = true;
 		this.shadowMapSize = new MTP.Vector( 1024, 1024 );
 
-		// directional
-
-		this.orthWidth = 4;
-		this.orthHeight = 4;
-
 		// spot
 
 		this.angle = Math.PI * 0.5;

@@ -1,6 +1,7 @@
 // 反射方向へレイマーチしてシーンを引く
 
 #include "./random.wgsl"
+#include "../../shaders/view.wgsl"
 
 const MARCH = 16;
 const LENGTH = 5.0;
@@ -19,12 +20,8 @@ fn fsMain( input: FullscreenOutput ) -> @location(0) vec4f {
 
 	}
 
-	let ndc = uvToNdc( input.uv );
-	let farPoint = frame.uCameraMatrix * frame.uProjectionMatrixInverse * vec4f( ndc, 1.0, 1.0 );
-	let viewDir = normalize( farPoint.xyz / farPoint.w - frame.uCameraPosition );
-
 	let normal = textureSampleLevel( uGbufferNormal, ppSamplerNearest, input.uv, 0.0 ).xyz;
-	let rayDir = reflect( viewDir, normal );
+	let rayDir = reflect( - viewDirection( rayPos ), normal );
 
 	let rayStepLength = LENGTH / f32( MARCH );
 	let rayStep = rayDir * rayStepLength;

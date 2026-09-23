@@ -1,5 +1,7 @@
 // フレネルで重み付けして反射色を足す
 
+#include "../../shaders/view.wgsl"
+
 fn ssFresnel( d: f32 ) -> f32 {
 
 	let f0 = 0.04;
@@ -16,7 +18,7 @@ fn fsMain( input: FullscreenOutput ) -> @location(0) vec4f {
 
 	var color = textureSampleLevel( uBackBuffer0, ppSampler, input.uv, 0.0 ).xyz;
 
-	let dir = normalize( frame.uCameraPosition - position.xyz );
+	let dir = viewDirection( position.xyz );
 	let f = ssFresnel( clamp( dot( dir, normal.xyz ), 0.0, 1.0 ) );
 
 	color += f * textureSampleLevel( uSSRTexture, ppSampler, input.uv, 0.0 ).xyz * 0.15;

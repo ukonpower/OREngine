@@ -32,6 +32,14 @@ float atan2(in float y, in float x){
 	
 }
 
+// 表面からカメラへ向かう単位ベクトル。
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {
+
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );
+
+}
+
 #define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)
 
 // easing

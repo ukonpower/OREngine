@@ -35,7 +35,7 @@ type HandleRecord = {
 export abstract class GizmoBase implements Gizmo {
 
 	// ギズモの単位長（原点から軸ハンドル先端まで ≒ 1）が画面の高さに占める割合。
-	// カメラの fov から距離ごとの画面高さを求めて掛けるので、fov や解像度が変わっても見かけの大きさは変わらない
+	// カメラの fov から距離ごとの画面高さ（並行投影なら orthHeight）を求めて掛けるので、fov や解像度が変わっても見かけの大きさは変わらない
 	private static readonly VIEW_HEIGHT_RATIO = 1 / 6;
 
 	public entity: MXP.Entity;
@@ -250,9 +250,16 @@ export abstract class GizmoBase implements Gizmo {
 
 			if ( camera ) {
 
-				// ギズモ位置での画面全高（ワールド単位）。fov は度・垂直画角
-				const dist = this._camWorldPos.distanceTo( this.entity.position );
-				const viewHeight = 2 * dist * Math.tan( camera.fov * Math.PI / 360 );
+				// ギズモ位置での画面全高（ワールド単位）。fov は度・垂直画角。並行投影は距離によらない
+				let viewHeight = camera.orthHeight;
+
+				if ( camera.cameraType === 'perspective' ) {
+
+					const dist = this._camWorldPos.distanceTo( this.entity.position );
+					viewHeight = 2 * dist * Math.tan( camera.fov * Math.PI / 360 );
+
+				}
+
 				const s = Math.max( 0.01, viewHeight * GizmoBase.VIEW_HEIGHT_RATIO );
 
 				this.entity.scale.set( s, s, s );

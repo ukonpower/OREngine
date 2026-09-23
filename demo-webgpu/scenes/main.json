@@ -23,7 +23,6 @@
 										"fov": 21.908,
 										"near": 0.1,
 										"far": 1000,
-										"orthWidth": 1,
 										"orthHeight": 1,
 										"fNumber": 0.3
 									}

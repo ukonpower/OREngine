@@ -32,9 +32,11 @@ fn fsMain( input: FullscreenOutput ) -> @location(0) vec4f {
 
 	let ndc = uvToNdc( input.uv );
 
-	var rayPos = frame.uCameraPosition;
+	// 始点は near 面（WebGPU のクリップ空間では z=0）上の点。並行投影ではカメラ位置から出ないので、画素ごとに near/far 面の点から求める
+	let nearPoint = frame.uCameraMatrix * frame.uProjectionMatrixInverse * vec4f( ndc, 0.0, 1.0 );
 	let farPoint = frame.uCameraMatrix * frame.uProjectionMatrixInverse * vec4f( ndc, 1.0, 1.0 );
-	let rayDir = normalize( farPoint.xyz / farPoint.w - frame.uCameraPosition );
+	var rayPos = nearPoint.xyz / nearPoint.w;
+	let rayDir = normalize( farPoint.xyz / farPoint.w - rayPos );
 
 	// レイの終端はgBufferのワールド座標。書かれていなければ十分遠くまで進める
 	let gPos = textureSampleLevel( uGbufferPos, ppSamplerNearest, input.uv, 0.0 ).xyz;

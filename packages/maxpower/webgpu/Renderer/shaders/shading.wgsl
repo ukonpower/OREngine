@@ -4,6 +4,7 @@
 // gBuffer / ライト / envMap の宣言は buildShadingSource が前置する
 
 #include "./lighting.wgsl"
+#include "./view.wgsl"
 
 @vertex
 fn vsMain( @builtin(vertex_index) index: u32 ) -> @builtin(position) vec4f {
@@ -44,7 +45,7 @@ fn fsMain( @builtin(position) coord: vec4f ) -> @location(0) vec4f {
 	let envIntensity = tex3.w;
 	let emission = vec3f( tex0.w, tex1.w, tex4.w );
 
-	let viewDir = normalize( frame.uCameraPosition - worldPosition );
+	let viewDir = viewDirection( worldPosition );
 
 	var surface: SurfaceInfo;
 	surface.diffuseColor = mix( albedo, vec3f( 0.0 ), metallic );
