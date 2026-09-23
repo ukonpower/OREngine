@@ -130,12 +130,6 @@ export class Camera extends Component {
 
 		} );
 
-		this.field( "fNumber", () => this.dofParams.fNumber, ( v ) => {
-
-			this.dofParams.fNumber = v;
-
-		}, { step: 0.05 } );
-
 		// focus
 
 		this.focusEnabled = true;
@@ -174,6 +168,13 @@ export class Camera extends Component {
 			this.focusSpeed = v;
 
 		}, { step: 0.5 } );
+
+		// 絞り。小さいほどボケる
+		focusDir.field( 'fNumber', () => this.dofParams.fNumber, ( v: number ) => {
+
+			this.dofParams.fNumber = v;
+
+		}, { step: 0.05 } );
 
 		this._tag = "camera";
 
