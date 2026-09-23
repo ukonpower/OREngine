@@ -1,5 +1,4 @@
 import * as BSP from 'basepower';
-import * as MTP from 'mathpower';
 
 import { FCurveGroup } from '../../Animation/FCurveGroup';
 import { BLidge, BLidgeNode, BLidgeLightParam, BLidgeCameraParam } from "../../BLidge";
@@ -9,7 +8,6 @@ import { CylinderGeometry } from '../../Geometries/CylinderGeometry';
 import { PlaneGeometry } from '../../Geometries/PlaneGeometry';
 import { SphereGeometry } from '../../Geometries/SphereGeometry';
 import { Geometry } from '../../Geometry';
-import { SerializeFieldValue } from '../../Serializable';
 import { Camera } from '../Camera';
 import { Light } from '../Light';
 import { Mesh } from '../Mesh';
@@ -230,7 +228,7 @@ export class BLidger extends Component {
 			this._lightComponent.deserialize( {
 				...lightParam,
 				lightType: lightParam.type,
-				color: new MTP.Vector().copy( lightParam.color ) as unknown as SerializeFieldValue,
+				color: [ lightParam.color.x, lightParam.color.y, lightParam.color.z ],
 				castShadow: lightParam.shadowMap,
 			} );
 
