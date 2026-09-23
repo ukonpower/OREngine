@@ -156,19 +156,7 @@ export class Editor extends MXP.Serializable {
 			onSave: () => this.save(),
 			onUndo: () => this._api.undo(),
 			onRedo: () => this._api.redo(),
-			onPlayToggle: () => {
-
-				if ( this._engine.frame.playing ) {
-
-					this._engine.stop();
-
-				} else {
-
-					this._engine.play();
-
-				}
-
-			},
+			onPlayToggle: () => this.togglePlay(),
 			onCameraViewToggle: () => {
 
 				const viewport = this._activeViewport;
@@ -887,6 +875,25 @@ export class Editor extends MXP.Serializable {
 	public selectEntity( entity: MXP.Entity | null ) {
 
 		this.setField( "selectedEntityId", entity ? entity.uuid : null );
+
+	}
+
+	// 再生 / 停止を切り替える
+	public togglePlay() {
+
+		if ( this._engine.frame.playing ) {
+
+			this._engine.stop();
+
+		} else {
+
+			this._engine.play();
+
+		}
+
+		// Engine は再生中の毎フレームしか update/frame/play を出さず、停止した瞬間は通知されない。
+		// 64k ランタイムに通知を足さずに済むよう、再生状態を表示する UI のためにエディタ側で通知する
+		this._engine.emit( "update/frame/play", [ this._engine.frame ] );
 
 	}
 

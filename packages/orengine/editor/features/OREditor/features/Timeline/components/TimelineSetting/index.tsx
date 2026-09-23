@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 
 import * as MXP from 'maxpower';
-import { Label, Panel } from 'uipower';
+import { Button, Label, Panel, PauseIcon, PlayIcon } from 'uipower';
 
 import { Value } from '../../../SerializableField/components/Value';
 import { useSerializableField } from '../../../SerializableField/hooks/useSerializableProps';
@@ -29,8 +29,23 @@ export const TimelineSetting = () => {
 	const [ duration, setDuration ] = useSerializableField<number>( glEditor?.engine, "timeline/duration" );
 	const [ fps, setFps ] = useSerializableField<number>( glEditor?.engine, "timeline/fps" );
 
+	const onClickPlay = useCallback( () => {
+
+		if ( glEditor ) {
+
+			glEditor.togglePlay();
+
+		}
+
+	}, [ glEditor ] );
+
 	return <div className={style.timelineSetting}>
 		<Panel>
+			<div className={style.play}>
+				<Button onClick={onClickPlay}>
+					{framePlay.playing ? <PauseIcon size={14} /> : <PlayIcon size={14} />}
+				</Button>
+			</div>
 			<Label title='current'>
 				 <Value value={Math.floor( framePlay?.current || 0 )} readOnly />
 				 </Label>
