@@ -332,6 +332,29 @@ dir.field( "mode", () => this._focusMode, v => this._focusMode = v, {
 ```
 
 - `format` の種類は `packages/maxpower/core/Serializable/index.ts`（`vector` / `color` / `select` / `entity` など）
+
+### 数値フィールドの step / min / max / int
+
+数値（と `vector` など数値の配列）の field には、値の意味に合わせて `step` / `min` / `max` / `int` を必ず付ける。付けないとエディタでドラッグしたとき、個数が 2.35 になる・半径が負になる・0〜1 の値が 1 を超える、といった壊れた値が入る。
+
+| opt | 効き方 |
+|---|---|
+| `step` | エディタでドラッグしたときの刻みの目安。1px あたり `step * 0.05` 動く（省略時 1）。値そのものは丸めない |
+| `min` / `max` | 値域。エディタ・CLI の `set`・シーン JSON のどこから入った値も `Serializable` がここへ丸めてから setter に渡す。数値配列は要素ごと |
+| `int` | 整数に丸める（丸める場所は `min` / `max` と同じ）。ドラッグも整数ずつ動く |
+
+```ts
+this.field( "count", () => this._count, v => this._count = v, { int: true, min: 1, max: 4096, step: 1 } );
+this.field( "radius", () => this._radius, v => this._radius = v, { min: 0, step: 0.01 } );
+this.field( "opacity", () => this._opacity, v => this._opacity = v, { min: 0, max: 1, step: 0.01 } );
+this.field( "position", () => this._pos.getElm( "vec3" ), v => this._pos.setFromArray( v ), { format: { type: "vector" }, step: 0.1 } );
+```
+
+決め方:
+
+- **`int`**: 個数・分割数・反復回数・インデックス・シード・ループ回数など、小数が意味を持たない値。GPU バッファの長さやループ回数に使う値は特に。`int` を付けていれば setter 側で `Math.round` は不要
+- **`min` / `max`**: 値が物理的・数学的に取れない範囲を塞ぐ。長さ・半径・個数・時間・強度は `min: 0`（0 で壊れるなら 0 より大きい値や 1）、割合・不透明度・ミックス量は `min: 0, max: 1`、角度は必要な範囲だけ。シェーダーの `pow` / `log` / 割り算に渡す値は 0 や負を入れて NaN にならないか考える。上限は「これ以上は重すぎる・意味が無い」値で決め、表現の幅を狭めすぎない
+- **`step`**: その値を調整するときの 1 刻みの手応えで決める。目安は「よく使う範囲の幅の 1/100〜1/10」。0〜1 の値なら `0.01`、シーン単位（m）の長さ・位置なら `0.01`〜`0.1`、周波数・スケールなど桁で効く値なら小さめ、`int` なら `1`（大きい個数なら `10` なども可）
 - 全コンポーネント共通で `enabled` / `tag` が登録済み（`tag` は読み取り専用）
 - **entity 参照（`format: { type: 'entity' }`）は uuid で持ち、コンストラクタで解決しない**。シーンを読み込む時点ではまだ自分がツリーに繋がっていないので、`updateImpl` で `this.entity.getRootEntity().findEntityByUUID( uuid )` する（`packages/orengine/builtin/Components/Camera/LookAt` の `updateImpl`）
 

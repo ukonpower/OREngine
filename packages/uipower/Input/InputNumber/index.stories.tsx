@@ -38,6 +38,10 @@ export const WithRange: Story = {
 	args: { value: 0.5, step: 0.1, min: 0, max: 1 },
 };
 
+export const Int: Story = {
+	args: { value: 8, step: 1, min: 1, max: 64, int: true },
+};
+
 export const Precision: Story = {
 	args: { value: 3.14159265, precision: 5 },
 };

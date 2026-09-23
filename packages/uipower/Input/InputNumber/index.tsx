@@ -13,12 +13,26 @@ type Props = {
 	step?: number;
 	min?: number;
 	max?: number;
+	// 整数に丸める。ドラッグ中も整数ずつ動く
+	int?: boolean;
 	precision?: number;
 	disabled?: boolean;
 	readOnly?: boolean;
 };
 
 const DRAG_THRESHOLD = 3;
+
+// min / max の範囲に収める。指定の無い側は制限しない
+const clamp = ( value: number, min: number | undefined, max: number | undefined ) => {
+
+	let result = value;
+
+	if ( min !== undefined ) result = Math.max( min, result );
+	if ( max !== undefined ) result = Math.min( max, result );
+
+	return result;
+
+};
 
 export const InputNumber = ( props: Props ) => {
 
@@ -32,6 +46,9 @@ export const InputNumber = ( props: Props ) => {
 	const pointerDownRef = useRef( false );
 	const pointerStartRef = useRef<{ x: number, y: number } | null>( null );
 	const draggedRef = useRef( false );
+
+	// ドラッグで積み上げている丸める前の値。表示中の値に毎回足すと、int のとき 1px ぶんの小さな変化が丸めで消えて動かなくなる
+	const dragValueRef = useRef( 0 );
 
 	const onChangeRef = useRef<( ( value: number ) => void ) | undefined>( undefined );
 	onChangeRef.current = props.onChange;
@@ -68,9 +85,15 @@ export const InputNumber = ( props: Props ) => {
 
 			const deltaValue = delta * 0.05 * ( props.step || 1 );
 
-			if ( onChangeRef.current ) {
+			dragValueRef.current = clamp( dragValueRef.current + deltaValue, props.min, props.max );
 
-				onChangeRef.current( ( value + deltaValue ) );
+			let nextValue = dragValueRef.current;
+
+			if ( props.int ) nextValue = Math.round( nextValue );
+
+			if ( onChangeRef.current && nextValue !== value ) {
+
+				onChangeRef.current( nextValue );
 
 			}
 
@@ -81,7 +104,7 @@ export const InputNumber = ( props: Props ) => {
 		e.preventDefault();
 
 
-	}, [ props.step ] );
+	}, [ props.step, props.min, props.max, props.int ] );
 
 	const openInputWindow = useCallback( () => {
 
@@ -110,6 +133,7 @@ export const InputNumber = ( props: Props ) => {
 		pointerDownRef.current = true;
 		pointerStartRef.current = { x: e.clientX, y: e.clientY };
 		draggedRef.current = false;
+		dragValueRef.current = valueRef.current ?? 0;
 
 		const onPointerUp = () => {
 

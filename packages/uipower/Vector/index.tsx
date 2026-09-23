@@ -8,6 +8,9 @@ import style from './index.module.scss';
 type VectorProps = {
 	value: number[],
 	step?: number,
+	min?: number,
+	max?: number,
+	int?: boolean,
 	disabled?: boolean,
 	onChange?: ( value: number[] ) => void
 }
@@ -38,7 +41,7 @@ export const Vector = ( { onChange, disabled, ...props }: VectorProps ) => {
 
 		array.push(
 			<Label key={i} title={axisDict[ i ]} labelAlign='right'>
-				<InputNumber disabled={disabled} value={props.value[ i ]} step={props.step} onChange={( value ) => {
+				<InputNumber disabled={disabled} value={props.value[ i ]} step={props.step} min={props.min} max={props.max} int={props.int} onChange={( value ) => {
 
 					onChangeValue( i, value );
 
