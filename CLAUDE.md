@@ -64,7 +64,12 @@ npx tsx scripts/scene.ts shot tmp/shot/b.png --from 0,3,5 --to 0,0,0 --time 2 --
 
 - 観測: `status` / `tree` / `get <entity>` / `components` / `errors` / `shot`。書き込み: `add-entity` / `remove-entity` / `add-component` / `remove-component` / `set` / `undo` / `redo`
 - `<entity>` は uuid か `root/...` の名前パス。存在しないエンティティ・コンポーネント名・フィールド path はエラーになり、候補が返る
-- 書き込みはすべて `EditorAPI` を通るので、GUI の Ctrl+Z / `undo` で戻せる（undo 履歴は GUI と共有）。**保存はしない**。確定はユーザーの Ctrl+S で、未保存の変更の有無は `status` の `unsaved` で分かる
+- 書き込みはすべて `EditorAPI` を通るので、GUI の Ctrl+Z / `undo` で戻せる（undo 履歴は GUI と共有）。ユーザーのタブでは**保存はしない**。確定はユーザーの Ctrl+S で、未保存の変更の有無は `status` の `unsaved` で分かる
+- **タブが1つも接続されていなければ headless Chromium で代わりに接続する**（`scripts/headlessEditor.ts`）。Playwright で `--enable-unsafe-webgpu --use-angle=metal` を付けて起動し（無いと WebGPU の canvas が真っ黒になる。#80 の実測）、同じエディタ URL に `?agent-headless` を付けて開く。シーンの読み込みと最初の描画を待ってからコマンドを実行し、1コマンドごとに閉じる。ローカルの Mac 専用（GPU の無い Linux CI では動かない）。Chromium が無ければ `npx playwright install chromium`
+  - headless では**書き込み系コマンドのたびに `editor.save()` でファイルへ保存する**（ブラウザを閉じると変更が消えるため）。CLI は保存の POST が終わるまで待ってから閉じる。undo 履歴はコマンドごとに消えるので、`undo` / `redo` は headless では意味を持たない
+  - `status` の `connection` が `"headless"` になる（ユーザーのタブなら `"tab"`）
+  - ウィンドウサイズは 1920x1080・deviceScaleFactor 1 に固定している。エディタの描画解像度（Screen パネルの大きさ）がこれで決まり、`shot`（#83）の出力サイズになるため。1920x1080 は一般的なデスクトップの画面サイズで、editor.json のパネル配置がそのまま収まる
+  - ユーザーのタブが開いていれば headless は起動しない。dev サーバーが起動していなければ headless も起動せずエラーで止まる
 - `set` の値はフィールドの型で解釈する: 数値 / ベクトル・色は `1,2,3` か `[1,2,3]` / `true`・`false` / 文字列 / select は選択肢の値 / entity 参照は uuid（`null` で外す）。CLI の `set` は1コマンドが undo 1回ぶん
 - タブの選択状態・エディタのカメラ・再生時刻は変えない（`shot` も同じ）。編集できる範囲は GUI と同じ（script 由来のエンティティへの子の追加・削除、user 以外が付けたコンポーネントの削除・編集はできない）
 - `shot <out.png>` は shot 専用の RenderView で描いて PNG を CLI が書き出す。カメラは `--camera <entity>` / `--from x,y,z --to x,y,z`（一時カメラ）/ 省略でシーンカメラ。サイズはエディタの今の描画解像度で、指定はできない。`--time T` は「時刻 T を当てて1回描いた状態」で、T まで再生した状態ではない。`--view` はパスのラベル（webgl は `camera/deferred_1`、webgpu は `gBuffer_1` のようなバックエンドごとの生の名前）で、一致しなければ候補が返る。実装は `packages/orengine/editor/lib/AgentBridge/ShotCommand`

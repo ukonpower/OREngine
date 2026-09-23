@@ -7,6 +7,8 @@ export type AgentCommandContext = {
 	editor: Editor;
 	engine: Engine;
 	tabId: string;
+	// CLI が headless Chromium で開いたページか（ユーザーのタブなら false）
+	headless: boolean;
 	// 開いているシーンのファイル名（scenes/<name>.json の name）。ページがシーンを持たないときは null
 	sceneName: string | null;
 	// 最後の保存（または読み込み）以降に EditorAPI 経由の変更があったか

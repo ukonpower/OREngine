@@ -12,6 +12,12 @@ export const AGENT_EVENT = {
 	response: 'orengine:agent:response',
 } as const;
 
+// 接続中のタブが無いときにサーバーが返す HTTP ステータス。CLI はこれを見て headless で開き直す
+export const AGENT_NO_TAB_STATUS = 503;
+
+// CLI が headless で開くエディタ URL に付けるクエリ。ページはこれで自分が headless だと知る
+export const AGENT_HEADLESS_PARAM = 'agent-headless';
+
 // timeoutMs を省いたときにサーバーが待つ時間
 export const DEFAULT_TIMEOUT_MS = 10000;
 
@@ -32,6 +38,7 @@ export type AgentHello = {
 	tabId: string;
 	url: string;
 	focused: boolean;
+	headless: boolean;
 };
 
 export type AgentFocus = {
@@ -54,6 +61,7 @@ export type AgentResponseChunk = {
 	chunk: string;
 };
 
+// saved: headless のタブが書き込みの後に editor.save() を呼んだ。CLI はファイルへの書き込みが終わるまでブラウザを閉じずに待つ
 export type AgentResult =
-	| { ok: true; result: unknown }
+	| { ok: true; result: unknown; saved?: boolean }
 	| { ok: false; error: string; candidates?: unknown };

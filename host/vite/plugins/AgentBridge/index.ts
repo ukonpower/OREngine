@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 
-import { AGENT_ENDPOINT, AGENT_EVENT, DEFAULT_TIMEOUT_MS } from '../../../../packages/orengine/editor/lib/AgentBridge/Protocol';
+import { AGENT_ENDPOINT, AGENT_EVENT, AGENT_NO_TAB_STATUS, DEFAULT_TIMEOUT_MS } from '../../../../packages/orengine/editor/lib/AgentBridge/Protocol';
 
 import type { AgentFocus, AgentHello, AgentHttpRequest, AgentRequest, AgentResponseChunk } from '../../../../packages/orengine/editor/lib/AgentBridge/Protocol';
 import type { ServerResponse } from 'http';
@@ -12,6 +12,8 @@ type Tab = {
 	id: string;
 	url: string;
 	client: WebSocketClient;
+	// CLI が headless Chromium で開いたページ
+	headless: boolean;
 	registeredAt: number;
 	// 0 = 登録後にフォーカスされていない
 	focusedAt: number;
@@ -49,7 +51,8 @@ const readBody = ( req: NodeJS.ReadableStream ) => new Promise<string>( ( resolv
 
 } );
 
-// 最後にフォーカスされたタブ。一度もフォーカスされていなければ最後に登録されたタブ
+// ユーザーのタブのうち最後にフォーカスされたもの。一度もフォーカスされていなければ最後に登録されたもの。
+// headless のページはユーザーのタブが1つも無いときだけ選ぶ（別の CLI が開いたまま閉じる途中のこともあるため）
 const pickTab = ( tabs: Map<string, Tab> ) => {
 
 	let picked: Tab | null = null;
@@ -59,6 +62,19 @@ const pickTab = ( tabs: Map<string, Tab> ) => {
 		if ( ! picked ) {
 
 			picked = tab;
+			continue;
+
+		}
+
+		if ( picked.headless && ! tab.headless ) {
+
+			picked = tab;
+			continue;
+
+		}
+
+		if ( ! picked.headless && tab.headless ) {
+
 			continue;
 
 		}
@@ -132,6 +148,7 @@ export const AgentBridge = ( opts: AgentBridgeOptions ): Plugin => ( {
 				id: data.tabId,
 				url: data.url,
 				client,
+				headless: data.headless,
 				registeredAt: now,
 				focusedAt: data.focused ? now : 0,
 			} );
@@ -213,7 +230,7 @@ export const AgentBridge = ( opts: AgentBridgeOptions ): Plugin => ( {
 
 			if ( ! tab ) {
 
-				sendJson( res, 503, { ok: false, error: 'エディタのタブが接続されていません。dev サーバーのエディタをブラウザで開いてください' } );
+				sendJson( res, AGENT_NO_TAB_STATUS, { ok: false, error: 'エディタのタブが接続されていません' } );
 				return;
 
 			}
