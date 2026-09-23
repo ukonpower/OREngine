@@ -10,6 +10,8 @@ uniform sampler2D uSSRTexture;
 uniform vec3 uCameraPosition;
 uniform float uCameraNear;
 uniform float uCameraFar;
+uniform mat4 uViewMatrix;
+uniform mat4 uProjectionMatrix;
 
 in vec2 vUv;
 
@@ -22,7 +24,7 @@ void main( void ) {
 	
 	outColor += vec4( texture( uBackBuffer0, vUv ).xyz, 1.0 );
 	
-	vec3 dir = normalize( uCameraPosition - gCol0.xyz );
+	vec3 dir = viewDirection( gCol0.xyz, uCameraPosition, uViewMatrix, uProjectionMatrix );
 	float f = fresnel( clamp( dot( dir, gCol1.xyz ), 0.0, 1.0 ) );
 
 	vec4 ssrCol = texture( uSSRTexture, vUv );

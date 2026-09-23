@@ -16,6 +16,7 @@ uniform sampler2D uEnvMap;
 
 uniform vec3 uColor;
 uniform mat4 uViewMatrix;
+uniform mat4 uProjectionMatrix;
 uniform mat4 uCameraMatrix;
 uniform vec3 uCameraPosition;
 
@@ -51,7 +52,7 @@ void main( void ) {
 		tex0.xyz,
 		normal,
 		0.0,
-		normalize( uCameraPosition - tex0.xyz ),
+		viewDirection( tex0.xyz, uCameraPosition, uViewMatrix, uProjectionMatrix ),
 		vec3( 0.0 ),
 		occlusion
 	);

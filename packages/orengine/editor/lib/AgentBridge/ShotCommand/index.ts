@@ -112,18 +112,17 @@ type ShotCamera = {
 	description: unknown;
 	// --from / --to で作った一時カメラだけ持つ
 	temporary: MXP.Camera | null;
-	// shot の間だけ aspect を描画解像度に合わせるカメラ（--camera の、displayOut でない perspective カメラだけ）
+	// shot の間だけ aspect を描画解像度に合わせるカメラ（--camera の、displayOut でも viewPort 付きでもないカメラだけ）
 	fitAspect: MXP.Camera | null;
 };
 
 // displayOut のカメラは updateImpl が自分で解像度に合わせるので対象外。
-// orthographic と viewPort を持つカメラは、aspect で比率が決まらないので今の挙動のままにする
+// viewPort を持つカメラは、aspect で比率が決まらないので今の挙動のままにする
 const findFitAspectCamera = ( entity: MXP.Entity ) => {
 
 	const component = entity.getComponentsByTag<MXP.Camera>( 'camera' )[ 0 ];
 
 	if ( component.displayOut ) return null;
-	if ( component.cameraType !== 'perspective' ) return null;
 	if ( component.viewPort ) return null;
 
 	return component;

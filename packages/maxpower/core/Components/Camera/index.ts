@@ -20,7 +20,7 @@ export class Camera extends Component {
 	public near: number;
 	public far: number;
 
-	public orthWidth: number;
+	// 並行投影で見える縦方向の全幅（ワールド単位）。横幅は aspect から決まる
 	public orthHeight: number;
 
 	public projectionMatrix: MTP.Matrix;
@@ -58,7 +58,6 @@ export class Camera extends Component {
 		this.far = 1000;
 		this.aspect = 1.0;
 
-		this.orthWidth = 1;
 		this.orthHeight = 1;
 
 		this.needsUpdateProjectionMatrix = true;
@@ -75,6 +74,13 @@ export class Camera extends Component {
 			this.needsUpdateProjectionMatrix = true;
 
 		};
+
+		this.field( "cameraType", () => this.cameraType, ( v ) => {
+
+			this.cameraType = v;
+			markDirty();
+
+		}, { format: { type: "select", list: [ "perspective", "orthographic" ] } } );
 
 		this.field( "fov", () => this.fov, ( v ) => {
 
@@ -93,13 +99,6 @@ export class Camera extends Component {
 		this.field( "far", () => this.far, ( v ) => {
 
 			this.far = v;
-			markDirty();
-
-		} );
-
-		this.field( "orthWidth", () => this.orthWidth, ( v ) => {
-
-			this.orthWidth = v;
 			markDirty();
 
 		} );
@@ -123,14 +122,13 @@ export class Camera extends Component {
 
 	public updateProjectionMatrix() {
 
-
 		if ( this.cameraType == 'perspective' ) {
 
 			this.projectionMatrix.perspective( this.fov, this.aspect, this.near, this.far );
 
 		} else {
 
-			this.projectionMatrix.orthographic( this.orthWidth, this.orthHeight, this.near, this.far );
+			this.projectionMatrix.orthographic( this.orthHeight * this.aspect, this.orthHeight, this.near, this.far );
 
 		}
 

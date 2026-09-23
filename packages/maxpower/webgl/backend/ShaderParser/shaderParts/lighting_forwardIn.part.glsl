@@ -2,7 +2,7 @@ Geometry geo = Geometry(
 	outPos,
 	outNormal,
 	0.0,
-	normalize( uCameraPosition - outPos ),
+	viewDirection( outPos, uCameraPosition, uViewMatrix, uProjectionMatrix ),
 	vec3( 0.0 ),
 	0.0
 );
