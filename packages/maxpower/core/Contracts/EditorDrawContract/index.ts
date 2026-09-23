@@ -74,9 +74,10 @@ export interface EditorDrawContract {
 	// ビューの最終出力（render 済みの見た目）を読む。形式は readPixels と同じ（下原点・RGBA8・描画解像度）
 	readView( view: RenderViewContract ): Promise<Uint8Array>;
 
-	// sizeを省くと解像度に追従する
+	// sizeを省くと、描画に使うビューの解像度に追従する（ビューごとに大きさが違ってもよい）
 	createTarget( opt?: { size?: MTP.Vector } ): EditorTarget;
 
+	// 解像度の設定が変わったときに呼ぶ。解像度追従のターゲットがビューの大きさ別に作り置きした実体を捨てる
 	resize( resolution: MTP.Vector ): void;
 
 	// 各パス完了ごとに不透明ハンドルを通知（FrameDebuggerの観測はこのイベントが正）。戻り値で購読を解除する

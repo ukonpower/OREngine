@@ -22,6 +22,7 @@ type RenderViewParams = {
 export class RenderView implements RenderViewContract {
 
 	public camera: Entity | null;
+	public size: MTP.Vector | null;
 
 	// true なら最終出力を outputView に留め canvas へ出さない（エディタが重ね描きしてから出す）
 	public readonly offscreen: boolean;
@@ -60,6 +61,7 @@ export class RenderView implements RenderViewContract {
 	constructor( params: RenderViewParams ) {
 
 		this.camera = null;
+		this.size = null;
 		this.offscreen = params.offscreen;
 		this._pipelineOverride = null;
 		this._sceneConfig = params.sceneConfig;
@@ -68,7 +70,11 @@ export class RenderView implements RenderViewContract {
 		this.targets = new RenderTargets();
 		this.pipeline = null;
 
+		// uResolution / uAspectRatio は globalUniforms にもあるが、あちらは renderer の解像度なので、
+		// ビューの中間バッファの大きさで上書きする（UniformBinder.update は後に渡した値が勝つ）
 		this.frameUniforms = {
+			uResolution: { value: new MTP.Vector(), type: '2fv' },
+			uAspectRatio: { value: 1, type: '1f' },
 			uCameraNear: { value: 0.1, type: '1f' },
 			uCameraFar: { value: 1000, type: '1f' },
 			uCameraPosition: { value: new MTP.Vector(), type: '3fv' },

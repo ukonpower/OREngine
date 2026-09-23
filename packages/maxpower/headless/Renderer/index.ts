@@ -14,11 +14,13 @@ export class RenderView implements RenderViewContract {
 
 	public camera: Entity | null;
 	public pipelineOverride: PipelineConfig | null;
+	public size: MTP.Vector | null;
 
 	constructor() {
 
 		this.camera = null;
 		this.pipelineOverride = null;
+		this.size = null;
 
 	}
 

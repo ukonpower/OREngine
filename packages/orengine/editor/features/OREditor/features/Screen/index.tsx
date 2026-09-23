@@ -27,7 +27,7 @@ export const Screen: React.FC<{ viewportId: string }> = ( { viewportId } ) => {
 	const [ render, setRender ] = useSerializableField<boolean>( editor, "enableRender" );
 	const [ preview, setPreview ] = useSerializableField<boolean>( editor, `viewports/${viewportId}/preview` );
 	const [ viewType, setViewType ] = useSerializableField<string>( editor, "viewType" );
-	const [ resolutionScale, setResolutionScale ] = useSerializableField<number>( editor, "resolutionScale" );
+	const [ resolutionScale, setResolutionScale ] = useSerializableField<number>( editor, `viewports/${viewportId}/resolutionScale` );
 	const [ gizmoMode, setGizmoMode ] = useSerializableField<string>( editor, "gizmoMode" );
 	const [ transformOrientation, setTransformOrientation ] = useSerializableField<string>( editor, "transformOrientation" );
 	const [ modalStatus ] = useSerializableField<string>( editor, "modalStatus" );

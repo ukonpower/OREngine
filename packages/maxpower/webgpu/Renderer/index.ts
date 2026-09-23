@@ -641,7 +641,9 @@ export class Renderer extends Serializable implements RendererContract {
 
 		}
 
-		this._setTargetSize( device, view, Math.floor( this.resolution.x ), Math.floor( this.resolution.y ) );
+		const size = view.size || this.resolution;
+
+		this._setTargetSize( device, view, Math.floor( size.x ), Math.floor( size.y ) );
 
 	}
 
@@ -773,6 +775,10 @@ export class Renderer extends Serializable implements RendererContract {
 		// frame
 
 		this._writeCameraUniforms( view.frameUniforms, cameraEntity, camera );
+
+		( view.frameUniforms.uResolution.value as MTP.Vector ).set( view.targets.width, view.targets.height );
+		view.frameUniforms.uAspectRatio.value = view.targets.width / view.targets.height;
+
 		view.frameBinder.update( this.globalUniforms, view.frameUniforms );
 
 		// pass

@@ -41,6 +41,8 @@ export type EditorTimelineLoop = {
 type ViewportSettings = {
 	cameraView: "editor" | "camera";
 	preview: boolean;
+	// 基準解像度（resolution/*）に掛ける倍率。Screen パネルごとに負荷と画質を選べるようにビューポート単位で持つ
+	resolutionScale: number;
 	// null = 未設定（OrbitControls の初期姿勢のまま）
 	cameraPosition: number[] | null;
 	cameraTarget: number[] | null;
@@ -63,7 +65,6 @@ export class Editor extends MXP.Serializable {
 	private _propertyTarget: "entity" | "asset";
 	private _audioBuffer: AudioBuffer | null;
 	private _frameLoop: EditorTimelineLoop;
-	private _resolutionScale: number;
 	private _enableRender: boolean;
 	private _baseResolution: MTP.Vector;
 	private _viewType: "render" | "debug";
@@ -105,7 +106,6 @@ export class Editor extends MXP.Serializable {
 		this._selectedAsset = null;
 		this._navigateAsset = null;
 		this._propertyTarget = "entity";
-		this._resolutionScale = 1.0;
 		this._enableRender = true;
 		this._baseResolution = new MTP.Vector( 1920, 1080 );
 		this._externalWindow = null;
@@ -241,14 +241,6 @@ export class Editor extends MXP.Serializable {
 		-------------------------------*/
 
 		this.field( "enableRender", () => this._enableRender, v => this._enableRender = v );
-
-		this.field( "resolutionScale", () => this._resolutionScale, v => {
-
-			this._resolutionScale = Number( v );
-
-			this._resize();
-
-		} );
 
 		const resolutionDir = this.fieldDir( "resolution" );
 		resolutionDir.field( "width", () => this._baseResolution.x, ( v: number ) => {
@@ -507,7 +499,7 @@ export class Editor extends MXP.Serializable {
 		}
 
 		viewport.frameDebugger.enable = this._viewType === "debug";
-		viewport.resize( engine.renderer.resolution );
+		viewport.resize( this._viewportResolution( settings ) );
 
 		this._viewports.push( viewport );
 
@@ -533,7 +525,7 @@ export class Editor extends MXP.Serializable {
 
 			this._viewportSettings.delete( id );
 
-			for ( const name of [ "", "cameraView", "preview", "camera/", "camera/position", "camera/target" ] ) {
+			for ( const name of [ "", "cameraView", "preview", "resolutionScale", "camera/", "camera/position", "camera/target" ] ) {
 
 				this.removeField( `viewports/${id}/${name}` );
 
@@ -548,7 +540,7 @@ export class Editor extends MXP.Serializable {
 
 		if ( this._viewportSettings.has( id ) ) return;
 
-		const settings: ViewportSettings = { cameraView: "editor", preview: false, cameraPosition: null, cameraTarget: null };
+		const settings: ViewportSettings = { cameraView: "editor", preview: false, resolutionScale: 1.0, cameraPosition: null, cameraTarget: null };
 		this._viewportSettings.set( id, settings );
 
 		const live = () => this._viewports.find( ( v ) => v.id === id ) ?? null;
@@ -584,6 +576,16 @@ export class Editor extends MXP.Serializable {
 				settings.preview = v;
 
 			}
+
+		} );
+
+		// ビューポートが無い間も同じ値を使うので、生死に関わらず退避値を正とする
+		dir.field( "resolutionScale", () => settings.resolutionScale, ( v: number ) => {
+
+			settings.resolutionScale = Number( v );
+
+			// 他のサイズで作り置きしたエディタ描画のバッファも捨てたいので、ビューポート単体でなく全体を合わせ直す
+			this._resize();
 
 		} );
 
@@ -1040,9 +1042,10 @@ export class Editor extends MXP.Serializable {
 		Resize
 	-------------------------------*/
 
+	// renderer・別ウィンドウは基準解像度のまま描き、各ビューポートだけ自分の倍率で縮める
 	private _resize() {
 
-		const resolution = this._baseResolution.clone().multiply( this._resolutionScale );
+		const resolution = this._baseResolution;
 
 		this.engine.setSize( resolution );
 
@@ -1050,7 +1053,7 @@ export class Editor extends MXP.Serializable {
 
 		for ( const viewport of this._viewports ) {
 
-			viewport.resize( resolution );
+			viewport.resize( this._viewportResolution( this._viewportSettings.get( viewport.id )! ) );
 
 		}
 
@@ -1061,6 +1064,12 @@ export class Editor extends MXP.Serializable {
 			this._externalWindow.canvas.height = resolution.y;
 
 		}
+
+	}
+
+	private _viewportResolution( settings: ViewportSettings ) {
+
+		return this._baseResolution.clone().multiply( settings.resolutionScale );
 
 	}
 

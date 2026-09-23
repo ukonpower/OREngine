@@ -145,7 +145,7 @@ npx tsx scripts/scene.ts set-setting renderer pipeline/ssao/enabled false
 npx tsx scripts/scene.ts set-setting editor resolution/width 1080       # editor.json（全シーン共通）
 ```
 
-- `renderer`（空の色・ポストエフェクト等）と `timeline`（`timeline/duration` / `timeline/fps`）は開いているシーンのファイルに、`editor`（`resolution/*` / `resolutionScale` / `frameLoop/*`）は `editor.json` に入る。出力の `file` が保存先
+- `renderer`（空の色・ポストエフェクト等）と `timeline`（`timeline/duration` / `timeline/fps`）は開いているシーンのファイルに、`editor`（`resolution/*` / `viewports/<id>/resolutionScale` / `frameLoop/*`）は `editor.json` に入る。出力の `file` が保存先
 - path は `settings` の `fields` で確かめる。renderer の path はバックエンドで違う。値の解釈・undo・保存の扱いは `set` と同じ
 - 解像度は editor.json にあり全シーン共通。縦長・横長のシーンを行き来するときは切り替えのたびに書き換える
 
