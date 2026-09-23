@@ -1,7 +1,7 @@
 import * as MXP from 'maxpower';
 
 import { Engine } from '../../../core/Engine';
-import { CommandManager } from '../CommandManager';
+import { CommandManager, CommandExecuteOptions } from '../CommandManager';
 import { AddComponentCommand } from '../Commands/AddComponentCommand';
 import { AddTextureCommand } from '../Commands/AddTextureCommand';
 import { CreateEntityCommand } from '../Commands/CreateEntityCommand';
@@ -29,11 +29,13 @@ export class EditorAPI {
 		Field
 	-------------------------------*/
 
-	public setField( target: MXP.Serializable, path: string, value: MXP.SerializeFieldValue ): void {
+	// フィールドを書き換える。既定では GUI のドラッグ等の連続した変更を直前の変更とまとめる
+	public setField( target: MXP.Serializable, path: string, value: MXP.SerializeFieldValue, options?: CommandExecuteOptions ): void {
 
 		const oldValue = target.getField( path );
 		this._commandManager.execute(
-			new SetFieldCommand( target, path, oldValue as MXP.SerializeFieldValue, value )
+			new SetFieldCommand( target, path, oldValue as MXP.SerializeFieldValue, value ),
+			options
 		);
 
 	}

@@ -38,18 +38,32 @@ OREngine 自体の開発エントリは `host/` に集約されている:
 
 `scripts/run.ts` がこれらを呼び出して `demo-webgl/` / `demo-webgpu/` を駆動する。projectDir 引数を変えれば任意のプロジェクトディレクトリで動作するため、外部リポ（ORShorts 等）からも `orengine/host` を import して利用できる（`exports."./host"` で公開）。
 
-`runDev` は express（`host/server/factory.ts`）と vite devサーバーを同一プロセスで起動する。express は `scenes/<name>.json` / `editor.json` の読み書き（シーン一覧の取得を含む）を行うファイルI/O層のみで、シーン編集用の操作APIは持たない。コンポーネントファイルや `.tex` の編集は直接ファイル編集で行う。シーンの編集は `scenes/<name>.json` の直接編集で行い、vite のプロジェクトwatch（`host/vite/plugins/ProjectWatchReload`）が外部からの変更・シーンファイルの増減を検知してブラウザを自動リロードする。
+`runDev` は express（`host/server/factory.ts`）と vite devサーバーを同一プロセスで起動する。express は `scenes/<name>.json` / `editor.json` の読み書き（シーン一覧の取得を含む）を行うファイルI/O層のみで、シーンを編集する処理は持たない。シーンの編集はエディタ内の `EditorAPI`（`packages/orengine/editor/lib/EditorAPI`）が唯一の実装で、GUI と下記のシーン CLI（AgentBridge）はどちらもここを通る。人間は `scenes/<name>.json` を直接編集してもよく、vite のプロジェクトwatch（`host/vite/plugins/ProjectWatchReload`）が外部からの変更・シーンファイルの増減を検知してブラウザを自動リロードする（リロードでタブ上の未保存の変更は消える）。コンポーネントファイルや `.tex` の編集は直接ファイル編集で行う。
 
-### シーン観測 CLI（AgentBridge）
-dev サーバー起動中、開いているエディタタブ（最後にフォーカスされたもの）の状態を JSON で取れる。経路は CLI → dev サーバーの `POST /__agent/<command>`（`host/vite/plugins/AgentBridge`）→ HMR WebSocket → タブ。
+### シーン CLI（AgentBridge）
+dev サーバー起動中、開いているエディタタブ（最後にフォーカスされたもの）でシーンを観測・編集できる。応答は JSON。経路は CLI → dev サーバーの `POST /__agent/<command>`（`host/vite/plugins/AgentBridge`）→ HMR WebSocket → タブ（`packages/orengine/editor/lib/AgentBridge`）。
 
 ```bash
 npx tsx scripts/scene.ts status              # OREngine 内から
 npx tsx orengine/scripts/scene.ts tree       # 外部プロジェクト（submodule 構成）から
 npx tsx scripts/scene.ts get root/Camera
 npx tsx scripts/scene.ts tree --timeout 30000
+
+npx tsx scripts/scene.ts add-entity root --preset Light --name KeyLight   # 作ったエンティティの uuid を返す
+npx tsx scripts/scene.ts set root/KeyLight position 3,3,3                 # エンティティのフィールド
+npx tsx scripts/scene.ts set root/KeyLight Light intensity 2              # コンポーネントのフィールド
+npx tsx scripts/scene.ts add-entity root --name Box                       # プリセット省略時は Empty
+npx tsx scripts/scene.ts add-component root/Box MyBox                     # 名前は components の name
+npx tsx scripts/scene.ts remove-component root/Box MyBox
+npx tsx scripts/scene.ts remove-entity root/Box
+npx tsx scripts/scene.ts undo
 ```
 
+- 観測: `status` / `tree` / `get <entity>` / `components` / `errors`。書き込み: `add-entity` / `remove-entity` / `add-component` / `remove-component` / `set` / `undo` / `redo`
+- `<entity>` は uuid か `root/...` の名前パス。存在しないエンティティ・コンポーネント名・フィールド path はエラーになり、候補が返る
+- 書き込みはすべて `EditorAPI` を通るので、GUI の Ctrl+Z / `undo` で戻せる（undo 履歴は GUI と共有）。**保存はしない**。確定はユーザーの Ctrl+S で、未保存の変更の有無は `status` の `unsaved` で分かる
+- `set` の値はフィールドの型で解釈する: 数値 / ベクトル・色は `1,2,3` か `[1,2,3]` / `true`・`false` / 文字列 / select は選択肢の値 / entity 参照は uuid（`null` で外す）。CLI の `set` は1コマンドが undo 1回ぶん
+- タブの選択状態・エディタのカメラ・再生時刻は変えない。編集できる範囲は GUI と同じ（script 由来のエンティティへの子の追加・削除、user 以外が付けたコンポーネントの削除・編集はできない）
 - npm scripts には載せていない（外部プロジェクトから同じ形で呼べるように、直接実行を唯一の呼び方にしている）
 - コマンド一覧は `npx tsx scripts/scene.ts help`
 - dev サーバーの URL は `<OREngine>/tmp/dev-server.json` から読む。同じ OREngine チェックアウトで dev サーバーを2つ立てると後から起動した方で上書きされるので、その場合は `--url` で指定する

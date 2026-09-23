@@ -33,6 +33,14 @@ const COMMANDS: { [ name: string ]: CommandSpec } = {
 	// 全コンポーネントを一度ずつ生成してフィールド定義を読むので他より長く待つ
 	components: { usage: 'components', description: '登録済みコンポーネントの一覧とフィールド定義', timeoutMs: 30000 },
 	errors: { usage: 'errors', description: 'シェーダーエラー・GPU エラー・コンソールのエラー・解決できなかったコンポーネント', timeoutMs: 5000 },
+	// 書き込みは EditorAPI 経由でタブに反映するだけで保存しない（確定はユーザーの Ctrl+S）
+	'add-entity': { usage: 'add-entity <parent> [--preset Empty|Light|Camera] [--name <name>]', description: 'エンティティを追加して uuid を返す（プリセット省略時は Empty）', timeoutMs: 10000 },
+	'remove-entity': { usage: 'remove-entity <entity>', description: 'エンティティを子ごと削除する', timeoutMs: 10000 },
+	'add-component': { usage: 'add-component <entity> <Name>', description: 'コンポーネントを付ける（Name は components の name）', timeoutMs: 10000 },
+	'remove-component': { usage: 'remove-component <entity> <Name>', description: 'コンポーネントを外す（Name は登録名か uuid）', timeoutMs: 10000 },
+	set: { usage: 'set <entity> [<component>] <path> <value>', description: 'フィールドを書き換える。値はフィールドの型で解釈する（数値 / 1,2,3 / true|false / 文字列 / 選択肢）', timeoutMs: 10000 },
+	undo: { usage: 'undo', description: '直前の操作を取り消す（GUI の操作と履歴を共有）', timeoutMs: 5000 },
+	redo: { usage: 'redo', description: '取り消した操作をやり直す', timeoutMs: 5000 },
 };
 
 class CliError extends Error {}
@@ -84,7 +92,8 @@ const usageText = () => {
 
 	for ( const spec of Object.values( COMMANDS ) ) {
 
-		lines.push( `  ${spec.usage.padEnd( 16 )} ${spec.description}` );
+		// 書き込み系は usage が長く桁が揃わないので、説明は次の行に下げる
+		lines.push( `  ${spec.usage}`, `      ${spec.description}` );
 
 	}
 

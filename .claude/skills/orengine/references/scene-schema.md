@@ -3,7 +3,9 @@
 > 正はコードの型定義（`packages/orengine/core/ProjectSerializer/index.ts`）である。迷ったらそちらを読む。
 > サーバー側の型（`host/server/Project/types.ts`）も同一構造のミラー。
 
-`<projectDir>/scenes/<name>.json` は Read/Write/Edit ツールで直接編集する。編集後の反映は devサーバー起動中なら vite watch が検知して自動 full-reload する（API呼び出し不要）。
+`<projectDir>/scenes/<name>.json` の直接編集は人間の手段。Claude はシーンの編集にシーン CLI（`npx tsx scripts/scene.ts`。SKILL.md の Flow 1）を使い、このファイルは保存結果を読んで確かめる・差分を見るために参照する。
+
+直接編集した場合、devサーバー起動中なら vite watch が検知して自動 full-reload する。このときエディタタブ上の未保存の変更（GUI・CLI の操作）は消える。
 
 ## トップレベル構造（`OREngineProjectData`）
 
@@ -57,7 +59,7 @@ interface OREngineDataEntityComponent {
 ## UUID の生成規則
 
 - ルートエンティティ: 常に `"0"`
-- それ以外の全エンティティ・コンポーネント: UUID v4（`glpower` の `GLP.ID.genUUID()` と同形式）。生成は `python3 -c "import uuid; print(uuid.uuid4())"` 等で行う
+- それ以外の全エンティティ・コンポーネント: UUID v4（`basepower` の `BSP.ID.genUUID()` と同形式）。CLI の `add-entity` / `add-component` はエディタが生成した uuid を返すので、手で作る必要があるのは JSON を直接編集するときだけ（`python3 -c "import uuid; print(uuid.uuid4())"` 等）
 - 既存の UUID と重複しないようにする（シーン内でユニークであればよい。フォーマットは標準 UUID v4 なら何でもよい）
 
 ## 実例（`demo-webgl/scenes/main.json` 抜粋）
@@ -90,7 +92,7 @@ interface OREngineDataEntityComponent {
 
 ## 取り消し
 
-編集を戻したい場合は git を使う。
+CLI の操作はタブ上で `npx tsx scripts/scene.ts undo`（または GUI の Ctrl+Z）で戻す。保存後のファイルを戻したい場合は git を使う。
 
 ```bash
 git diff demo-webgl/scenes/main.json         # 変更差分の確認
@@ -105,4 +107,4 @@ devサーバー起動中（`npm run dev`）に scenes/<name>.json を保存す�
 [vite] page reload demo-webgl/scenes/main.json
 ```
 
-見た目の確認は agent-browser スキルでエディタページ（`http://localhost:<vite-port>`）を開いてスクリーンショットを撮る。専用の観測 API は存在しない。
+見た目の確認は agent-browser スキルでエディタページ（`http://localhost:<vite-port>`）を開いてスクリーンショットを撮る。読み込まれた後の状態（BLidge / glb 由来を含む）は CLI の `tree` / `get` で確認できる。
