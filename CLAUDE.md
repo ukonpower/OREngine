@@ -40,6 +40,20 @@ OREngine 自体の開発エントリは `host/` に集約されている:
 
 `runDev` は express（`host/server/factory.ts`）と vite devサーバーを同一プロセスで起動する。express は `scenes/<name>.json` / `editor.json` の読み書き（シーン一覧の取得を含む）を行うファイルI/O層のみで、シーン編集用の操作APIは持たない。コンポーネントファイルや `.tex` の編集は直接ファイル編集で行う。シーンの編集は `scenes/<name>.json` の直接編集で行い、vite のプロジェクトwatch（`host/vite/plugins/ProjectWatchReload`）が外部からの変更・シーンファイルの増減を検知してブラウザを自動リロードする。
 
+### シーン観測 CLI（AgentBridge）
+dev サーバー起動中、開いているエディタタブ（最後にフォーカスされたもの）の状態を JSON で取れる。経路は CLI → dev サーバーの `POST /__agent/<command>`（`host/vite/plugins/AgentBridge`）→ HMR WebSocket → タブ。
+
+```bash
+npx tsx scripts/scene.ts status              # OREngine 内から
+npx tsx orengine/scripts/scene.ts tree       # 外部プロジェクト（submodule 構成）から
+npx tsx scripts/scene.ts get root/Camera
+npx tsx scripts/scene.ts tree --timeout 30000
+```
+
+- npm scripts には載せていない（外部プロジェクトから同じ形で呼べるように、直接実行を唯一の呼び方にしている）
+- コマンド一覧は `npx tsx scripts/scene.ts help`
+- dev サーバーの URL は `<OREngine>/tmp/dev-server.json` から読む。同じ OREngine チェックアウトで dev サーバーを2つ立てると後から起動した方で上書きされるので、その場合は `--url` で指定する
+
 ### プロジェクトディレクトリ（demo-webgl・demo-webgpu / 外部プロジェクト共通）
 プロジェクトディレクトリの中身は `Resources/` / `scenes/` / `editor.json` / `public/` / `editor/` のみ。HTML / src / vite config 等のボイラープレートはすべて `host/app/` に集約されている。
 

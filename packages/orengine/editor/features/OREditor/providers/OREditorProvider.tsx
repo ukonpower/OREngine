@@ -1,8 +1,9 @@
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useRef } from "react";
 
 import * as MXP from "maxpower";
 import { OREngineProjectData } from "orengine";
 
+import { attachAgentBridge } from "../../../lib";
 import { OREditorContext } from "../contexts/OREditorContext";
 import { useOREditorContext } from "../hooks/useOREditorContext";
 
@@ -36,6 +37,22 @@ export const OREditorProvider: React.FC<{ children?: ReactNode, projectName?: st
 		};
 
 	}, [ editorContext.editor, props.onSave ] );
+
+	// AgentBridge はシーンのファイル名を知らないので、コマンド実行時に最新の選択を読ませる
+	const sceneNameRef = useRef<string | null>( null );
+	const sceneName = props.scenes?.current ?? null;
+
+	useEffect( () => {
+
+		sceneNameRef.current = sceneName;
+
+	}, [ sceneName ] );
+
+	useEffect( () => {
+
+		return attachAgentBridge( { editor: editorContext.editor, getSceneName: () => sceneNameRef.current } );
+
+	}, [ editorContext.editor ] );
 
 	useEffect( () => {
 

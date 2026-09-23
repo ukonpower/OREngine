@@ -8,6 +8,7 @@ import react from '@vitejs/plugin-react';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig, UserConfig } from 'vite';
 
+import { AgentBridge } from './plugins/AgentBridge';
 import { PlayerRegistry } from './plugins/PlayerRegistry';
 import { ProjectWatchReload } from './plugins/ProjectWatchReload';
 import { ShaderBuilder } from './plugins/ShaderBuilder';
@@ -139,6 +140,8 @@ export const createDevConfig = ( opts: OrengineConfigOptions ): UserConfig => de
 		TexLoader(),
 		WgslLoader( { moduleDirs: [ path.join( opts.projectDir, 'Resources/shaders' ) ] } ),
 		ProjectWatchReload( opts.projectDir ),
+		// scripts/scene.ts がこのファイルから dev サーバーの URL を読む（パスは scene.ts 側と一致させる）
+		AgentBridge( { infoFile: path.join( orengineRoot, 'tmp/dev-server.json' ) } ),
 	],
 	define: {
 		BASE_PATH: defineBasePath( opts.basePath ),
