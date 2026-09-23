@@ -94,8 +94,9 @@ const _defaultMaterial = new Material( { name: 'default' } );
 const getMaterial = ( mesh: Mesh ) => ( mesh.material || _defaultMaterial ) as Material;
 
 type MaterialResource = {
-	// フェーズごとのパイプライン。マテリアルが参加しないフェーズは null
-	pipelines: { [K in MaterialPhase]: GPURenderPipeline | null };
+	// フェーズごとのパイプライン。マテリアルが参加しないフェーズは null。
+	// フェーズ名の文字列で引くので、player ビルドの property mangle で改名されない Map で持つ
+	pipelines: Map<MaterialPhase, GPURenderPipeline | null>;
 	// uniform / storage / テクスチャのいずれも持たないマテリアルは group2 ごと存在しない
 	binder: UniformBinder | null;
 	materialLayout: GPUBindGroupLayout | null;
@@ -1333,7 +1334,7 @@ export class Renderer extends Serializable implements RendererContract {
 		const material = getMaterial( mesh );
 
 		const materialResource = this._getMaterialResource( device, material );
-		const pipeline = materialResource.pipelines[ phase ];
+		const pipeline = materialResource.pipelines.get( phase );
 
 		if ( ! pipeline ) return;
 
@@ -1551,10 +1552,10 @@ export class Renderer extends Serializable implements RendererContract {
 		const flag = material.visibilityFlag;
 
 		resource = {
-			pipelines: {
+			pipelines: new Map<MaterialPhase, GPURenderPipeline | null>( [
 				// シャドウは深度だけを書くのでfragment stageを持たない。
 				// fsShadow を定義したマテリアルだけ、色を持たないfragment stageで深度を書き直す
-				shadowMap: flag.shadowMap ? device.createRenderPipeline( {
+				[ 'shadowMap', flag.shadowMap ? device.createRenderPipeline( {
 					label: `${material.name}/shadowMap`,
 					layout: device.createPipelineLayout( { bindGroupLayouts: shadowLayouts } ),
 					vertex,
@@ -1569,8 +1570,8 @@ export class Renderer extends Serializable implements RendererContract {
 						// shadow.wgsl の定数バイアスだけが自己遮蔽よけになる
 						depthBiasSlopeScale: 2.0,
 					},
-				} ) : null,
-				deferred: flag.deferred ? device.createRenderPipeline( {
+				} ) : null ],
+				[ 'deferred', flag.deferred ? device.createRenderPipeline( {
 					label: `${material.name}/deferred`,
 					layout: device.createPipelineLayout( { bindGroupLayouts: objectLayouts } ),
 					vertex,
@@ -1581,9 +1582,9 @@ export class Renderer extends Serializable implements RendererContract {
 						depthWriteEnabled: material.depthWrite,
 						depthCompare: material.depthTest ? 'less' : 'always',
 					},
-				} ) : null,
+				} ) : null ],
 				// キューブ面はY反転投影で描くためワインディングが裏返る。カリングは無効にする
-				envMap: flag.envMap ? device.createRenderPipeline( {
+				[ 'envMap', flag.envMap ? device.createRenderPipeline( {
 					label: `${material.name}/envMap`,
 					layout: device.createPipelineLayout( { bindGroupLayouts: forwardLayouts } ),
 					vertex,
@@ -1594,8 +1595,8 @@ export class Renderer extends Serializable implements RendererContract {
 						depthWriteEnabled: material.depthWrite,
 						depthCompare: material.depthTest ? 'less' : 'always',
 					},
-				} ) : null,
-				forward: flag.forward ? device.createRenderPipeline( {
+				} ) : null ],
+				[ 'forward', flag.forward ? device.createRenderPipeline( {
 					label: `${material.name}/forward`,
 					layout: device.createPipelineLayout( { bindGroupLayouts: forwardLayouts } ),
 					vertex,
@@ -1623,8 +1624,8 @@ export class Renderer extends Serializable implements RendererContract {
 						depthWriteEnabled: material.depthWrite,
 						depthCompare: material.depthTest ? 'less' : 'always',
 					},
-				} ) : null,
-			},
+				} ) : null ],
+			] ),
 			binder,
 			materialLayout,
 			bindGroups: new Map(),

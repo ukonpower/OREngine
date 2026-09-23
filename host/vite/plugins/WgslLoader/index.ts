@@ -78,8 +78,23 @@ const inlineIncludes = async ( file: string, code: string, moduleDirs: string[],
 
 };
 
+// WGSL ソース中の識別子を集める（コメントは除く）。player ビルドで terser の property mangle から外す名前に使う
+export const collectWgslIdentifiers = ( source: string, out: Set<string> ) => {
+
+	const code = source.replace( /\/\*[\s\S]*?\*\//g, '' ).replace( /\/\/.*$/gm, '' );
+
+	for ( const match of code.matchAll( /[A-Za-z_]\w*/g ) ) {
+
+		out.add( match[ 0 ] );
+
+	}
+
+};
+
 export interface WgslLoaderOptions {
 	moduleDirs: string[];
+	// include 展開後のソースを受け取る
+	onSource?: ( source: string ) => void;
 }
 
 export const WgslLoader = ( options: WgslLoaderOptions ): Plugin => {
@@ -151,6 +166,8 @@ export const WgslLoader = ( options: WgslLoaderOptions ): Plugin => {
 				parents.add( filePath );
 
 			} );
+
+			options.onSource?.( source );
 
 			return {
 				code: `export default ${JSON.stringify( source )};`,

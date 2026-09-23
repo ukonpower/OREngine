@@ -26,32 +26,37 @@ export type UniformField = {
 	count?: number;
 }
 
+type TypeLayout = { size: number, align: number, count: number, int?: boolean, columns?: number, rows?: number, columnStride?: number };
+
+// 以下の2つの表は型名の文字列で引く。オブジェクトのキーだと player ビルドの terser（property mangle）に
+// キーごと改名されて引けなくなるため、Map の文字列キーで持つ
+
 // WGSL の uniform アドレス空間におけるサイズ・アラインメント
-const TYPES: { [K in WgslType]: { size: number, align: number, count: number, int?: boolean, columns?: number, rows?: number, columnStride?: number } } = {
-	f32: { size: 4, align: 4, count: 1 },
-	i32: { size: 4, align: 4, count: 1, int: true },
-	vec2f: { size: 8, align: 8, count: 2 },
-	vec3f: { size: 12, align: 16, count: 3 },
-	vec4f: { size: 16, align: 16, count: 4 },
-	mat3x3f: { size: 48, align: 16, count: 9, columns: 3, rows: 3, columnStride: 16 },
-	mat4x4f: { size: 64, align: 16, count: 16, columns: 4, rows: 4, columnStride: 16 },
-};
+const TYPES = new Map<WgslType, TypeLayout>( [
+	[ 'f32', { size: 4, align: 4, count: 1 } ],
+	[ 'i32', { size: 4, align: 4, count: 1, int: true } ],
+	[ 'vec2f', { size: 8, align: 8, count: 2 } ],
+	[ 'vec3f', { size: 12, align: 16, count: 3 } ],
+	[ 'vec4f', { size: 16, align: 16, count: 4 } ],
+	[ 'mat3x3f', { size: 48, align: 16, count: 9, columns: 3, rows: 3, columnStride: 16 } ],
+	[ 'mat4x4f', { size: 64, align: 16, count: 16, columns: 4, rows: 4, columnStride: 16 } ],
+] );
 
 // BSP.Uniforms の型指定を WGSL の型へ写す
-const TYPE_TO_WGSL: { [key: string]: WgslType } = {
-	'1f': 'f32',
-	'1fv': 'f32',
-	'2f': 'vec2f',
-	'2fv': 'vec2f',
-	'3f': 'vec3f',
-	'3fv': 'vec3f',
-	'4f': 'vec4f',
-	'4fv': 'vec4f',
-	'1i': 'i32',
-	'1iv': 'i32',
-	'Matrix3fv': 'mat3x3f',
-	'Matrix4fv': 'mat4x4f',
-};
+const TYPE_TO_WGSL = new Map<string, WgslType>( [
+	[ '1f', 'f32' ],
+	[ '1fv', 'f32' ],
+	[ '2f', 'vec2f' ],
+	[ '2fv', 'vec2f' ],
+	[ '3f', 'vec3f' ],
+	[ '3fv', 'vec3f' ],
+	[ '4f', 'vec4f' ],
+	[ '4fv', 'vec4f' ],
+	[ '1i', 'i32' ],
+	[ '1iv', 'i32' ],
+	[ 'Matrix3fv', 'mat3x3f' ],
+	[ 'Matrix4fv', 'mat4x4f' ],
+] );
 
 type Entry = {
 	offset: number;
@@ -105,7 +110,7 @@ const measureStruct = ( fields: UniformField[] ): Measured => {
 
 		} else {
 
-			const t = TYPES[ field.type ];
+			const t = TYPES.get( field.type )!;
 
 			mAlign = t.align;
 			mSize = t.size;
@@ -186,7 +191,7 @@ export const fieldsFromUniforms = ( uniforms: BSP.Uniforms ): UniformField[] => 
 
 	for ( let i = 0; i < keys.length; i ++ ) {
 
-		const type = TYPE_TO_WGSL[ uniforms[ keys[ i ] ].type ];
+		const type = TYPE_TO_WGSL.get( uniforms[ keys[ i ] ].type );
 
 		if ( ! type ) {
 
@@ -326,7 +331,7 @@ export class UniformBinder {
 
 		if ( value == null ) return;
 
-		const t = TYPES[ entry.type ];
+		const t = TYPES.get( entry.type )!;
 
 		if ( t.columns ) {
 

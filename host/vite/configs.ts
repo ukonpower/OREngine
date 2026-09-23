@@ -6,14 +6,14 @@ import terser from '@rollup/plugin-terser';
 import basicSsl from '@vitejs/plugin-basic-ssl';
 import react from '@vitejs/plugin-react';
 import { visualizer } from 'rollup-plugin-visualizer';
-import { defineConfig, UserConfig } from 'vite';
+import { defineConfig, Plugin, UserConfig } from 'vite';
 
 import { AgentBridge } from './plugins/AgentBridge';
 import { PlayerRegistry } from './plugins/PlayerRegistry';
 import { ProjectWatchReload } from './plugins/ProjectWatchReload';
 import { ShaderBuilder } from './plugins/ShaderBuilder';
 import { TexLoader } from './plugins/TexLoader';
-import { WgslLoader } from './plugins/WgslLoader';
+import { collectWgslIdentifiers, WgslLoader } from './plugins/WgslLoader';
 import { collectJsonKeys, collectSceneUsage } from './sceneScan';
 
 
@@ -149,6 +149,62 @@ export const createDevConfig = ( opts: OrengineConfigOptions ): UserConfig => de
 	},
 } );
 
+// glTF スキーマの型定義（GLTFLoader が読む JSON の形）から、プロパティ名を集める。
+// glb の JSON は実行時に JSON.parse されるので元のキー名のままだが、ローダー側の json.nodes 等のアクセスは改名されて食い違う
+const collectGltfJsonKeys = () => {
+
+	const source = fs.readFileSync( path.join( orengineRoot, 'packages/maxpower/webgl/Loaders/GLTFLoader/gltf.d.ts' ), 'utf-8' );
+	const keys = new Set<string>();
+
+	for ( const match of source.matchAll( /^\s*'?(\w+)'?\??:/gm ) ) {
+
+		keys.add( match[ 1 ] );
+
+	}
+
+	return keys;
+
+};
+
+// player バンドルの terser。WGSL は minify されず名前がそのまま残るため、uniform / varying / storage のように
+// JS のプロパティ名をそのまま WGSL の名前として使う箇所が改名で食い違わないよう、WGSL に出てくる識別子は property mangle から外す。
+// 識別子は WgslLoader の transform で集まるので、terser は全モジュールの変換が終わった renderChunk の時点で組み立てる
+const playerTerser = ( reserved: string[], wgslIdentifiers: Set<string> ): Plugin => ( {
+	name: 'player-terser',
+	renderChunk( code, chunk, outputOptions ) {
+
+		const plugin = terser( {
+			keep_classnames: true,
+			mangle: {
+				properties: {
+					regex: /^(?!(u[A-Z]|[A-Z_]+$|_)).*$/,
+					reserved: [ ...reserved, ...wgslIdentifiers ],
+				},
+			},
+			compress: {
+				passes: 16,
+				arguments: true,
+				booleans_as_integers: true,
+				drop_console: false,
+				keep_fargs: false,
+				module: true,
+				pure_getters: true,
+				unsafe: true,
+				unsafe_math: true,
+				unsafe_methods: true,
+				unsafe_proto: true,
+				unsafe_undefined: true,
+			},
+		} );
+
+		// @rollup/plugin-terser の renderChunk はオブジェクト形式ではなく素の関数で定義されている
+		const renderChunk = plugin.renderChunk as ( this: unknown, code: string, chunk: unknown, outputOptions: unknown ) => Promise<string>;
+
+		return renderChunk.call( this, code, chunk, outputOptions );
+
+	},
+} );
+
 export interface PlayerConfigOptions extends OrengineConfigOptions {
 	entry?: string;
 	outSubDir?: string;
@@ -165,6 +221,19 @@ export const createPlayerConfig = ( opts: PlayerConfigOptions ): UserConfig => {
 	const blidgeSceneKeys = fs.existsSync( blidgeScenePath )
 		? collectJsonKeys( JSON.parse( fs.readFileSync( blidgeScenePath, 'utf-8' ) ) )
 		: new Set<string>();
+
+	const reserved = [
+		'overrides',
+		'side',
+		'scene',
+		...usage.componentNames,
+		...usage.propKeys,
+		...blidgeSceneKeys,
+	];
+
+	if ( usage.useGLTF ) reserved.push( ...collectGltfJsonKeys() );
+
+	const wgslIdentifiers = new Set<string>();
 
 	const entry = opts.entry ?? path.join( appRoot, 'src/player.ts' );
 	const outDir = path.join( opts.projectDir, 'dist', opts.outSubDir ?? 'player' );
@@ -184,38 +253,7 @@ export const createPlayerConfig = ( opts: PlayerConfigOptions ): UserConfig => {
 			rollupOptions: {
 				input: { main: entry },
 				output: { entryFileNames: 'index.js' },
-				plugins: [
-					terser( {
-						keep_classnames: true,
-						mangle: {
-							properties: {
-								regex: /^(?!(u[A-Z]|[A-Z_]+$|_)).*$/,
-								reserved: [
-									'overrides',
-									'side',
-									'scene',
-									...usage.componentNames,
-									...usage.propKeys,
-									...blidgeSceneKeys,
-								],
-							},
-						},
-						compress: {
-							passes: 16,
-							arguments: true,
-							booleans_as_integers: true,
-							drop_console: false,
-							keep_fargs: false,
-							module: true,
-							pure_getters: true,
-							unsafe: true,
-							unsafe_math: true,
-							unsafe_methods: true,
-							unsafe_proto: true,
-							unsafe_undefined: true,
-						},
-					} ),
-				],
+				plugins: [ playerTerser( reserved, wgslIdentifiers ) ],
 			},
 		},
 		resolve: sharedResolve( opts.projectDir, opts.renderer ?? 'webgl', opts.scene ),
@@ -227,7 +265,10 @@ export const createPlayerConfig = ( opts: PlayerConfigOptions ): UserConfig => {
 		plugins: [
 			ShaderBuilder( { scanDirs: [ orengineRoot, opts.projectDir ] } ),
 			TexLoader(),
-			WgslLoader( { moduleDirs: [ path.join( opts.projectDir, 'Resources/shaders' ) ] } ),
+			WgslLoader( {
+				moduleDirs: [ path.join( opts.projectDir, 'Resources/shaders' ) ],
+				onSource: ( source ) => collectWgslIdentifiers( source, wgslIdentifiers ),
+			} ),
 			PlayerRegistry( { projectDir: opts.projectDir, usage } ),
 			visualizer( { template: 'treemap', gzipSize: true } ),
 		],
