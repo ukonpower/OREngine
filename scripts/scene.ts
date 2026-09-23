@@ -9,7 +9,8 @@ import { AGENT_ENDPOINT } from '../packages/orengine/editor/lib/AgentBridge/Prot
 import type { AgentHttpRequest, AgentOptions, AgentResult } from '../packages/orengine/editor/lib/AgentBridge/Protocol/index.ts';
 
 // dev サーバー（host/vite/plugins/AgentBridge）経由で、開いているエディタタブにコマンドを実行させる CLI
-//   npm run scene -- <command> [args...] [--timeout <ms>] [--url <devServerUrl>]
+//   npx tsx <orengine>/scripts/scene.ts <command> [args...] [--timeout <ms>] [--url <devServerUrl>]
+// 外部プロジェクト（submodule で OREngine を取り込む構成）からも同じ形で呼べるよう、npm scripts ではなく直接実行を正式な呼び方にしている
 
 const repoRoot = path.resolve( fileURLToPath( import.meta.url ), '../..' );
 
@@ -79,7 +80,7 @@ const parseArgs = ( argv: string[] ) => {
 
 const usageText = () => {
 
-	const lines = [ 'Usage: npm run scene -- <command> [args...] [--timeout <ms>] [--url <devServerUrl>]', '', 'Commands:' ];
+	const lines = [ 'Usage: npx tsx <orengine>/scripts/scene.ts <command> [args...] [--timeout <ms>] [--url <devServerUrl>]', '', 'Commands:' ];
 
 	for ( const spec of Object.values( COMMANDS ) ) {
 

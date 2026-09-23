@@ -25,7 +25,6 @@
     "wgpu": "ORENGINE_RENDERER=webgpu ORENGINE_PROJECT=${ORENGINE_PROJECT:-demo-webgpu} npm run dev",
     "player:build": "tsx scripts/run.ts player:build",
     "editor:build": "tsx scripts/run.ts editor:build",
-    "scene": "tsx scripts/scene.ts",
     "shader-minifier:setup": "bash scripts/setup-shader-minifier.sh",
     "storybook:dev": "storybook dev -p 6006",
     "storybook:build": "storybook build",
