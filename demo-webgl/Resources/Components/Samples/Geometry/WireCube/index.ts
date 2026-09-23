@@ -1,5 +1,4 @@
 import * as MXP from 'maxpower';
-import { Engine } from 'orengine';
 
 import cubeWireFrag from './shaders/cubeWire.fs';
 import cubeWireVert from './shaders/cubeWire.vs';
@@ -9,8 +8,6 @@ export class WireCube extends MXP.Component {
 	constructor( params: MXP.ComponentParams ) {
 
 		super( params );
-
-		const engine = this.engine as Engine;
 
 		const w = 3.3;
 		const hw = w / 2.0;
@@ -67,9 +64,6 @@ export class WireCube extends MXP.Component {
 			phase: [ "deferred" ],
 			frag: cubeWireFrag,
 			vert: cubeWireVert,
-			uniforms: MXP.UniformsUtils.merge(
-				engine.uniforms
-			)
 		} );
 
 		this.entity.addComponent( MXP.Mesh, {

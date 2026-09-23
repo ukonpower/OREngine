@@ -91,7 +91,6 @@ export class TexProcedural implements TexProceduralContract, TextureSource {
 			name: `tex/${this._param.name || 'procedural'}`,
 			wgsl: this._param.frag,
 			inputs: Object.keys( this._param.textures || {} ),
-			uniforms: this._param.uniforms,
 			format: 'rgba8unorm',
 		}, new MTP.Vector(), new MTP.Vector() );
 

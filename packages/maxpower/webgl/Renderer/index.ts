@@ -1380,7 +1380,7 @@ export class Renderer extends Serializable implements RendererContract {
 	// .tex の実体を組み立てる。依存テクスチャはサンプラー（'1i' uniform）としてぶら下げる
 	public createTexProcedural( param: TexProceduralParam ): TexProcedural {
 
-		const uniforms: BSP.Uniforms = { ...param.uniforms };
+		const uniforms: BSP.Uniforms = {};
 		const textures = param.textures || {};
 		const keys = Object.keys( textures );
 

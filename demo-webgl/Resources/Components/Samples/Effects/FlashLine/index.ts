@@ -1,6 +1,5 @@
 import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
-import { Engine } from 'orengine';
 
 import flFrag from './shaders/flashLine.fs';
 import flVert from './shaders/flashLine.vs';
@@ -13,8 +12,6 @@ export class FlashLine extends MXP.Component {
 	constructor( params: MXP.ComponentParams ) {
 
 		super( params );
-
-		const engine = this.engine as Engine;
 
 		// geometry
 
@@ -44,7 +41,6 @@ export class FlashLine extends MXP.Component {
 			phase: [ "forward", "envMap" ],
 			frag: MXP.hotGet( "flFrag", flFrag ),
 			vert: MXP.hotGet( "flVert", flVert ),
-			uniforms: MXP.UniformsUtils.merge( engine.uniforms )
 		} );
 
 		this.entity.addComponent( MXP.Mesh, {
