@@ -1,4 +1,3 @@
-import * as BSP from 'basepower';
 import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
@@ -30,7 +29,6 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 
 	private _renderer: MXP.Renderer;
 	private _root: MXP.Entity;
-	private _uniforms: BSP.Uniforms;
 	private _time: SceneTime;
 	private _frame: FramePlay;
 	private _frameSetting: OREngineProjectFrame;
@@ -43,13 +41,6 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 
 		this.name = "OREngine";
 		this._disposed = false;
-
-		this._uniforms = {
-			uEnvMapIntensity: {
-				value: 1,
-				type: '1f'
-			}
-		};
 
 		/*-------------------------------
 			Renderer
@@ -167,12 +158,6 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 	public get frameSetting() {
 
 		return this._frameSetting;
-
-	}
-
-	public get uniforms() {
-
-		return this._uniforms;
 
 	}
 

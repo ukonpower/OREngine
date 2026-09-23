@@ -65,7 +65,8 @@ export class Camera extends Component {
 
 		this.dofParams = {
 			focusDistance: 0.5,
-			kFilmHeight: 0.008,
+			// 35mm フルサイズ（36mm x 24mm）の高さ。KinoBokeh の kFilmHeight と同じ
+			kFilmHeight: 0.024,
 			fNumber: 0.3,
 		};
 

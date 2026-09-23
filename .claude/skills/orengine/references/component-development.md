@@ -38,7 +38,6 @@ WebGL（`demo-webgl/Resources/Components/Samples/Particles/Dust` と同じ形）
 
 ```ts
 import * as MXP from 'maxpower';
-import { Engine } from 'orengine';
 
 import frag from './shaders/myVisual.fs';
 import vert from './shaders/myVisual.vs';
@@ -49,8 +48,6 @@ export class MyVisual extends MXP.Component {
 
 		super( params );
 
-		const engine = this.engine as Engine;
-
 		const geometry = new MXP.SphereGeometry( { radius: 0.5 } );
 
 		const material = new MXP.Material( {
@@ -58,7 +55,6 @@ export class MyVisual extends MXP.Component {
 			phase: [ 'shadowMap', 'deferred' ],
 			vert: MXP.hotGet( 'MyVisualVert', vert ),
 			frag: MXP.hotGet( 'MyVisualFrag', frag ),
-			uniforms: MXP.UniformsUtils.merge( engine.uniforms ),
 		} );
 
 		this.entity.addComponent( MXP.Mesh, { geometry, material } );
@@ -153,16 +149,14 @@ export class OREngineCube extends MXP.Component {
 
 		super( params );
 
-		const engine = this.engine as Engine;
-
 		this.material = new MXP.Material( {
 			name: "OREngineCube",
 			phase: [ "shadowMap", "deferred" ],
 			vert: MXP.hotGet( "OREngineCubeVert", vertSrc ),
 			frag: MXP.hotGet( "OREngineCubeFrag", fragSrc ),
-			uniforms: MXP.UniformsUtils.merge( engine.uniforms, {
+			uniforms: {
 				uNoiseTex: { value: Engine.resources.getTexture( "noise" ), type: "1i" }
-			} )
+			}
 		} );
 
 		const mesh = this.entity.getComponent( MXP.Mesh );
@@ -254,13 +248,13 @@ export class OREngineCube extends MXP.Component {
 WebGL: GLSL の `uniform` 名と同じキーで渡す。値は `uniforms.uXxx.value` を書き換えれば毎フレーム反映される。
 
 ```ts
-uniforms: MXP.UniformsUtils.merge( engine.uniforms, {
+uniforms: {
 	uColor: { value: new MTP.Vector( 1, 0, 0 ), type: '3fv' },
 	uNoiseTex: { value: Engine.resources.getTexture( 'noise' ), type: '1i' },
-} ),
+},
 ```
 
-- `engine.uniforms`（`packages/orengine/core/Engine`）の中身は今 `uEnvMapIntensity` だけで、エンジンのシェーダーはどれも読んでいない。demo-webgl は慣習で merge しているので合わせてよいが、無くても描画は変わらない
+- 独自の uniform が無ければ `uniforms` は省略してよい（Material が空で持つ）。エンジン共通の uniform を merge する必要は無い
 - 時間（`uTime` 等）・行列・解像度はレンダラーが渡すので uniforms に入れなくてよい。シェーダー側の宣言は `<part:vert_h>` / `<part:frag_h>` に入っている
 - プレイヤービルドではプロパティ名が短く書き換えられる（terser の mangle）。`u` + 大文字で始まる名前だけが保護されるので、uniform 名は必ず `uXxx` にする
 

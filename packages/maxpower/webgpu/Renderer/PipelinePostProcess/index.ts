@@ -14,6 +14,7 @@ import {
 } from './shaders';
 import bloomBrightWgsl from './shaders/bloomBright.wgsl';
 import colorCollectionWgsl from './shaders/colorCollection.wgsl';
+import dofBlurWgsl from './shaders/dofBlur.wgsl';
 import dofBokehWgsl from './shaders/dofBokeh.wgsl';
 import dofCocWgsl from './shaders/dofCoc.wgsl';
 import dofCompositeWgsl from './shaders/dofComposite.wgsl';
@@ -49,12 +50,22 @@ const SSAO_BLUR_SAMPLES = 8;
 const LIGHT_SHAFT_BLUR_SAMPLES = 6;
 const MOTION_BLUR_TILE = 16;
 
+// DoF の最大 CoC（KinoBokeh の CalculateMaxCoCRadius）。webgl 側の PipelinePostProcess と一致させる。
+// 半径のピクセル数は KinoBokeh の経験式 kernelSize * 4 + 6 に、dofBokeh.wgsl の 43 サンプル（KERNEL_LARGE = 2）を入れた値。
+// 画面高さに対する上限 5% も KinoBokeh と同じ
+const DOF_MAX_COC_PIXELS = 14;
+const DOF_MAX_COC_RATIO = 0.05;
+
 // 時間方向の蓄積で新しい結果に与える重み。ノイズと影の追従の速さの折り合いで、
 // エディタから触れるよう uniform にも同じ値を入れている
 const LIGHT_SHAFT_TEMPORAL_BLEND = 0.3;
 
 // ジッタの巡回周期。蓄積されるフレーム数（1/LIGHT_SHAFT_TEMPORAL_BLEND）より十分長ければよい
 const LIGHT_SHAFT_JITTER_CYCLE = 64;
+
+// SSAO の時間方向の蓄積で新しい結果に与える重み。lightShaft より1フレームのばらつきが大きいので低めにしている。
+// Renderer の既定値（createDefaultPipelineConfig の ssaoTemporalBlend）と揃える
+const SSAO_TEMPORAL_BLEND = 0.2;
 
 // rgba32float のgBufferはfilteringサンプラーで引けない
 const NEAREST = ( name: string ) => ( { name, filterable: false } );
@@ -69,9 +80,10 @@ export class PipelinePostProcess {
 
 	}
 
+	// ぼかしを切ると参照先がピンポンの描画先になり、フレームごとに入れ替わる
 	public get ssaoView() {
 
-		return this._ssaoBlurV.targetView;
+		return this._ssaoBlurV.enabled ? this._ssaoBlurV.targetView : this._ssao.targetView;
 
 	}
 
@@ -87,12 +99,14 @@ export class PipelinePostProcess {
 	private _lightShaftBlurH: PostProcessPass;
 	private _lightShaftBlurV: PostProcessPass;
 	private _ssao: PostProcessPass;
+	private _ssaoBlurH: PostProcessPass;
 	private _ssaoBlurV: PostProcessPass;
 
 	private _ssr: PostProcessPass;
 	private _ssComposite: PostProcessPass;
 	private _dofCoc: PostProcessPass;
 	private _dofBokeh: PostProcessPass;
+	private _dofBlur: PostProcessPass;
 	private _dofComposite: PostProcessPass;
 	private _motionBlurTile: PostProcessPass;
 	private _motionBlurNeighbor: PostProcessPass;
@@ -164,20 +178,28 @@ export class PipelinePostProcess {
 			passThrough: true,
 		} );
 
+		// 履歴にはビュー空間Zも残して再投影の突き合わせに使うので、8bit ではなく既定の浮動小数点フォーマットにする。
+		// ぼかしは本体と同じ解像度で掛ける（等倍で掛けると tap 間隔が半解像度の半分になり、ブロックが残る）
 		this._ssao = pass( {
 			name: 'ssao',
 			wgsl: buildSsaoWgsl(),
 			inputs: [ NEAREST( 'uGbufferPos' ), NEAREST( 'uGbufferNormal' ) ],
-			uniforms: { uIntensity: { value: 1, type: '1f' } },
-			format: 'rgba8unorm',
+			uniforms: {
+				uIntensity: { value: 1, type: '1f' },
+				uFrame: { value: 0, type: '1f' },
+				uTemporal: { value: 1, type: '1f' },
+				uTemporalBlend: { value: SSAO_TEMPORAL_BLEND, type: '1f' },
+			},
+			pingPong: 'uSsaoBackBuffer',
 			resolutionRatio: 0.5,
 		} );
 
-		const ssaoBlurH = pass( {
+		this._ssaoBlurH = pass( {
 			name: 'ssao/blur/h',
 			wgsl: buildSsaoBlurWgsl( SSAO_BLUR_SAMPLES, false ),
 			inputs: [ 'uBackBuffer0', NEAREST( 'uGbufferPos' ), NEAREST( 'uGbufferNormal' ) ],
 			format: 'rgba8unorm',
+			resolutionRatio: 0.5,
 		} );
 
 		this._ssaoBlurV = pass( {
@@ -185,6 +207,7 @@ export class PipelinePostProcess {
 			wgsl: buildSsaoBlurWgsl( SSAO_BLUR_SAMPLES, true ),
 			inputs: [ 'uBackBuffer0', NEAREST( 'uGbufferPos' ), NEAREST( 'uGbufferNormal' ) ],
 			format: 'rgba8unorm',
+			resolutionRatio: 0.5,
 		} );
 
 		this._deferredChain = new PostProcessChain( device, frameLayout, [
@@ -193,7 +216,7 @@ export class PipelinePostProcess {
 			this._lightShaftBlurH,
 			this._lightShaftBlurV,
 			this._ssao,
-			ssaoBlurH,
+			this._ssaoBlurH,
 			this._ssaoBlurV,
 		] );
 
@@ -247,6 +270,14 @@ export class PipelinePostProcess {
 			passThrough: true,
 		} );
 
+		this._dofBlur = pass( {
+			name: 'dof/blur',
+			wgsl: dofBlurWgsl,
+			inputs: [ 'uBokeTex' ],
+			resolutionRatio: 0.5,
+			passThrough: true,
+		} );
+
 		this._dofComposite = pass( {
 			name: 'dof/composite',
 			wgsl: dofCompositeWgsl,
@@ -281,6 +312,7 @@ export class PipelinePostProcess {
 			this._ssComposite,
 			this._dofCoc,
 			this._dofBokeh,
+			this._dofBlur,
 			this._dofComposite,
 			this._motionBlurTile,
 			this._motionBlurNeighbor,
@@ -372,7 +404,8 @@ export class PipelinePostProcess {
 		}
 
 		this._dofBokeh.setInput( 'uCocTex', this._dofCoc.targetView! );
-		this._dofComposite.setInput( 'uBokeTex', this._dofBokeh.targetView! );
+		this._dofBlur.setInput( 'uBokeTex', this._dofBokeh.targetView! );
+		this._dofComposite.setInput( 'uBokeTex', this._dofBlur.targetView! );
 		this._motionBlur.setInput( 'uVelNeighborTex', this._motionBlurNeighbor.targetView! );
 
 		// 法線を参照するパスは normalSelector の結果を見る（webgl側の normalBuffer と同じ）
@@ -410,18 +443,21 @@ export class PipelinePostProcess {
 	}
 
 	// カメラのDoF設定からCoCの係数を作る（webgl側 PipelinePostProcess.update と同じ式）。
-	// あわせて lightShaft のジッタを次のフレームへ進める
+	// あわせて lightShaft と SSAO のジッタを次のフレームへ進める
 	public update( camera: Camera ) {
 
 		const jitter = this._lightShaft.uniforms.uFrame;
 
 		jitter.value = ( jitter.value + 1 ) % LIGHT_SHAFT_JITTER_CYCLE;
+		this._ssao.uniforms.uFrame.value = jitter.value;
 
-		const focusDistance = camera.dofParams.focusDistance;
 		const kFilmHeight = camera.dofParams.kFilmHeight;
-		const focalLength = kFilmHeight / Math.tan( 0.5 * ( camera.fov / 180 * Math.PI ) );
+		const focalLength = 0.5 * kFilmHeight / Math.tan( 0.5 * ( camera.fov / 180 * Math.PI ) );
 
-		const maxCoc = ( 1 / Math.max( this._height * 0.5, 1 ) ) * 5;
+		// ピントの距離が焦点距離を下回ると係数の分母（focusDistance - focalLength）が 0 以下になる
+		const focusDistance = Math.max( camera.dofParams.focusDistance, focalLength );
+
+		const maxCoc = Math.min( DOF_MAX_COC_RATIO, DOF_MAX_COC_PIXELS / Math.max( this._height, 1 ) );
 		const coeff = focalLength * focalLength / ( camera.dofParams.fNumber * ( focusDistance - focalLength ) * kFilmHeight * 2.0 );
 
 		this._dofParams.set( focusDistance, maxCoc, 1.0 / maxCoc, coeff );
@@ -485,9 +521,29 @@ export class PipelinePostProcess {
 
 		}
 
-		if ( config.ssao !== undefined ) {
+		// 有効フラグと強さは1つのuniformへまとめる（無効時は0で寄与が消える）
+		if ( config.ssao !== undefined || config.ssaoIntensity !== undefined ) {
 
-			this._ssao.uniforms.uIntensity.value = config.ssao ? 1 : 0;
+			this._ssao.uniforms.uIntensity.value = ( config.ssao ?? true ) ? ( config.ssaoIntensity ?? 1 ) : 0;
+
+		}
+
+		if ( config.ssaoBlur !== undefined ) {
+
+			this._ssaoBlurH.enabled = config.ssaoBlur;
+			this._ssaoBlurV.enabled = config.ssaoBlur;
+
+		}
+
+		if ( config.ssaoTemporal !== undefined ) {
+
+			this._ssao.uniforms.uTemporal.value = config.ssaoTemporal ? 1 : 0;
+
+		}
+
+		if ( config.ssaoTemporalBlend !== undefined ) {
+
+			this._ssao.uniforms.uTemporalBlend.value = config.ssaoTemporalBlend;
 
 		}
 
@@ -528,6 +584,7 @@ export class PipelinePostProcess {
 
 			this._dofCoc.enabled = config.dof;
 			this._dofBokeh.enabled = config.dof;
+			this._dofBlur.enabled = config.dof;
 			this._dofComposite.enabled = config.dof;
 
 		}

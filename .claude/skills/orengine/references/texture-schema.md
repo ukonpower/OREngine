@@ -46,9 +46,9 @@
 WebGL（`demo-webgl` の `OREngineCube`）:
 
 ```ts
-uniforms: MXP.UniformsUtils.merge( engine.uniforms, {
+uniforms: {
 	uNoiseTex: { value: Engine.resources.getTexture( "noise" ), type: "1i" }
-} )
+}
 ```
 
 WebGPU: Material の `textures` に渡すと、WGSL に `<名前>: texture_2d<f32>` と `<名前>Sampler: sampler` が生える（`packages/maxpower/webgpu/Material/index.ts` の `MaterialParam.textures`）。テクスチャの実体ができるまでそのマテリアルは描かれない。

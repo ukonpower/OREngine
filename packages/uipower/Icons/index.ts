@@ -9,5 +9,7 @@ export * from './FolderIcon';
 export * from './LightIcon';
 export * from './MaterialIcon';
 export * from './MeshIcon';
+export * from './PauseIcon';
+export * from './PlayIcon';
 export * from './ShaderIcon';
 export * from './TextureIcon';
