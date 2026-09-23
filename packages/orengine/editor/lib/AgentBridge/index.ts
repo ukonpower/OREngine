@@ -4,28 +4,39 @@ import { AgentCommandError, errorMessage } from './Command';
 import { installErrorCollector } from './ErrorCollector';
 import { observeCommands } from './ObserveCommands';
 import { AGENT_EVENT, AGENT_HEADLESS_PARAM, RESPONSE_CHUNK_SIZE } from './Protocol';
+import { sceneCommands } from './SceneCommands';
+import { settingObserveCommands, settingWriteCommands } from './SettingCommands';
 import { shotCommands } from './ShotCommand';
 import { writeCommands } from './WriteCommands';
 
-import type { AgentCommandContext, AgentCommandTable } from './Command';
+import type { AgentCommandContext, AgentCommandTable, AgentSceneControl } from './Command';
 import type { AgentRequest, AgentResult } from './Protocol';
 import type { Editor } from '../Editor';
 import type { ViteHotContext } from 'vite/types/hot.js';
 
+// 書き込み系。headless では実行後に保存し、応答に書き込み先（write）を付ける
+const mutatingCommands: AgentCommandTable = {
+	...writeCommands,
+	...settingWriteCommands,
+	...sceneCommands,
+};
+
 const commands: AgentCommandTable = {
 	...observeCommands,
-	...writeCommands,
+	...settingObserveCommands,
+	...mutatingCommands,
 	...shotCommands,
 };
 
 export type AgentBridgeOptions = {
 	editor: Editor;
-	getSceneName: () => string | null;
+	// コマンド実行時に最新のシーン一覧・操作を読む。シーンを持たないページは null
+	getScenes: () => AgentSceneControl | null;
 };
 
 type Attached = {
 	editor: Editor;
-	getSceneName: () => string | null;
+	getScenes: () => AgentSceneControl | null;
 	unsaved: boolean;
 };
 
@@ -97,12 +108,15 @@ const runCommand = async ( request: AgentRequest ): Promise<AgentResult> => {
 
 	}
 
+	const scenes = attached.getScenes();
+
 	const ctx: AgentCommandContext = {
 		editor: attached.editor,
 		engine: attached.editor.engine,
 		tabId,
 		headless,
-		sceneName: attached.getSceneName(),
+		sceneName: scenes?.current ?? null,
+		scenes,
 		unsaved: attached.unsaved,
 	};
 
@@ -110,13 +124,14 @@ const runCommand = async ( request: AgentRequest ): Promise<AgentResult> => {
 
 		const result = await command( ctx, { args: request.args, options: request.options } );
 
-		if ( writeCommands[ request.command ] === undefined ) {
+		if ( mutatingCommands[ request.command ] === undefined ) {
 
 			return { ok: true, result };
 
 		}
 
 		// headless のページはコマンドごとに CLI が閉じるので、書き込みはその場でファイルへ確定する。
+		// scene-open のあとも保存して editor.json の scene を更新し、次に開く headless が同じシーンを開くようにする。
 		// ユーザーのタブでは保存しない（確定はユーザーの Ctrl+S）
 		if ( headless ) {
 
@@ -221,7 +236,7 @@ if ( import.meta.hot ) {
 // コマンドの操作対象にするエディタを繋ぐ。戻り値で外す
 export const attachAgentBridge = ( opts: AgentBridgeOptions ) => {
 
-	const current: Attached = { editor: opts.editor, getSceneName: opts.getSceneName, unsaved: false };
+	const current: Attached = { editor: opts.editor, getScenes: opts.getScenes, unsaved: false };
 
 	const onChange = () => {
 

@@ -64,8 +64,8 @@ const assertEditableComponent = ( component: MXP.Component, action: string ) => 
 	Value
 -------------------------------*/
 
-// set で書き換えられるフィールドの path（フォルダの見出し行・読み取り専用・ボタンを除く）
-const writablePaths = ( target: MXP.Serializable ) => {
+// set / set-setting で書き換えられるフィールドの path（フォルダの見出し行・読み取り専用・ボタンを除く）
+export const writablePaths = ( target: MXP.Serializable ) => {
 
 	const paths: string[] = [];
 	const serialized = target.serialize( { mode: 'view' } );
@@ -166,7 +166,7 @@ const parseArray = ( raw: string, current: MXP.SerializeFieldValue[], path: stri
 };
 
 // CLI から来た文字列を、フィールドの書式と現在値の型に合わせた値にする
-const parseFieldValue = ( engine: Engine, target: MXP.Serializable, path: string, raw: string ): MXP.SerializeFieldValue => {
+export const parseFieldValue = ( engine: Engine, target: MXP.Serializable, path: string, raw: string ): MXP.SerializeFieldValue => {
 
 	const opt = target.getFieldOpt( path ) ?? {};
 	const current = target.getField( path );

@@ -2,6 +2,18 @@ import type { Engine } from '../../../../core/Engine';
 import type { Editor } from '../../Editor';
 import type { AgentOptions } from '../Protocol';
 
+// プロジェクト内のシーン一覧と、開いているシーンの切替・作成・削除。実体はページ（EditorPage）が持つ。
+// エディタ UI の Scene パネルも同じ窓口を使う（OREditorProvider の SceneSelection）
+export type AgentSceneControl = {
+	names: string[];
+	current: string | null;
+	// 読み込みの開始まで。エンジンの読み込み完了は engine の loaded で分かる
+	onSelect: ( name: string ) => Promise<void>;
+	// ファイルを作るだけで開かない。from を渡すとそのシーンの中身を複製する
+	onCreate: ( name: string, from?: string ) => Promise<void>;
+	onDelete: ( name: string ) => Promise<void>;
+};
+
 // コマンドから見えるエディタの状態
 export type AgentCommandContext = {
 	editor: Editor;
@@ -11,6 +23,8 @@ export type AgentCommandContext = {
 	headless: boolean;
 	// 開いているシーンのファイル名（scenes/<name>.json の name）。ページがシーンを持たないときは null
 	sceneName: string | null;
+	// シーンを切り替えられないページ（シーンを焼き込んだビルド等）では null
+	scenes: AgentSceneControl | null;
 	// 最後の保存（または読み込み）以降に EditorAPI 経由の変更があったか
 	unsaved: boolean;
 };
