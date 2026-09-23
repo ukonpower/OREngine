@@ -277,8 +277,8 @@ npx tsx scripts/scene.ts add-entity root --preset Light
 npx tsx scripts/scene.ts set root/Light position 3,3,3
 npx tsx scripts/scene.ts add-entity root --preset Camera --name MainCamera
 npx tsx scripts/scene.ts set root/MainCamera position 5,3,5
-npx tsx scripts/scene.ts add-component root/MainCamera CameraController
-npx tsx scripts/scene.ts set root/MainCamera CameraController lookAt/target <Cube の uuid>
+npx tsx scripts/scene.ts add-component root/MainCamera LookAt
+npx tsx scripts/scene.ts set root/MainCamera LookAt target <Cube の uuid>
 ```
 
 3. ライトの向きは `euler` を `set` し、`tree` の `up` が光源側（ライト位置 − 照らしたい点の向き）を向いたかで確かめる

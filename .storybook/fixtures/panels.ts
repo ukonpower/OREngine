@@ -35,7 +35,7 @@ export const panelCubeSelected: OREditorFixture = {
 	setup: selectEntity( 'sb-cube' ),
 };
 
-// Camera / CameraController を持つのでコンポーネント構成が Cube と変わる
+// Camera / LookAt を持つのでコンポーネント構成が Cube と変わる
 export const panelCameraSelected: OREditorFixture = {
 	scene: storyScene,
 	editorData: storyEditorData,

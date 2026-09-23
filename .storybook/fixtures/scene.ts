@@ -9,7 +9,7 @@ const cameraEntity: OREngineDataEntity = {
 	pos: [ 0, 2, 12 ],
 	components: [
 		{ name: 'Camera', uuid: 'sb-camera-lens' },
-		{ name: 'CameraController', uuid: 'sb-camera-controller' },
+		{ name: 'LookAt', uuid: 'sb-camera-lookat' },
 	],
 };
 

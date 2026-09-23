@@ -108,11 +108,8 @@ export const EngineTimeline = pattern( () => <EngineFields filter="timeline" /> 
 // エンティティ: 名前 + position / euler / scale のベクトル入力
 export const Entity = pattern( () => <EntityFields uuid="sb-cube" /> );
 
-// Camera: 数値フィールドだけを持つコンポーネント
+// Camera: フォルダ・エンティティ参照・select・数値が混ざる
 export const CameraComponent = pattern( () => <ComponentFields entityUUID="sb-camera" componentUUID="sb-camera-lens" /> );
-
-// CameraController: フォルダ・エンティティ参照・select・数値が混ざる
-export const CameraControllerComponent = pattern( () => <ComponentFields entityUUID="sb-camera" componentUUID="sb-camera-controller" /> );
 
 const gridPatterns: { label: string, content: ReactElement }[] = [
 	{ label: 'Editor（filter なし）', content: <EditorFields /> },
@@ -120,7 +117,7 @@ const gridPatterns: { label: string, content: ReactElement }[] = [
 	{ label: 'Editor / helpers', content: <EditorFields filter="helpers" /> },
 	{ label: 'Engine / timeline', content: <EngineFields filter="timeline" /> },
 	{ label: 'Entity（sb-cube）', content: <EntityFields uuid="sb-cube" /> },
-	{ label: 'Component（CameraController）', content: <ComponentFields entityUUID="sb-camera" componentUUID="sb-camera-controller" /> },
+	{ label: 'Component（Camera）', content: <ComponentFields entityUUID="sb-camera" componentUUID="sb-camera-lens" /> },
 ];
 
 // 対象はすべて同じ Editor / Engine から引くので host は1つで足りる
