@@ -1,4 +1,5 @@
 import type { Entity } from '../../Entity';
+import type * as MTP from 'mathpower';
 
 // ポストエフェクトの有効/無効。シーン設定（Renderer）と、ビューが一時的に被せる上書き（RenderView）で同じ型を使う
 export type PipelineConfig = {
@@ -41,6 +42,10 @@ export interface RenderViewContract {
 
 	// シーン設定に触れずに一時的に被せるパイプライン設定（null で解除）
 	pipelineOverride: PipelineConfig | null;
+
+	// このビューの描画解像度。null = renderer の解像度に追従する。
+	// エディタの Screen パネルごとに解像度スケールを変えるため、ビュー単位で持てるようにしている
+	size: MTP.Vector | null;
 
 	dispose(): void;
 

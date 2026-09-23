@@ -73,6 +73,7 @@ class GPUEditorFrame implements EditorFrame {
 
 }
 
+// 描画先ターゲット。解像度追従のものは、使うビューの大きさに合わせて実体を切り替える
 class GPUEditorTarget extends GPUEditorFrame implements EditorTarget {
 
 	public readonly isEditorTarget = true;
@@ -80,23 +81,60 @@ class GPUEditorTarget extends GPUEditorFrame implements EditorTarget {
 	// sizeを指定せず作られたターゲットは解像度に追従する
 	public readonly autoResize: boolean;
 
-	constructor( texture: GPUTexture | null, autoResize: boolean ) {
+	// サイズ別の実体（キーは "幅x高さ"）。Screen パネルごとに解像度が違うと同じターゲットを
+	// パネル間で交互に使うので、毎回作り直さずに済むよう作り置きして切り替える
+	private _entries: Map<string, { texture: GPUTexture, view: GPUTextureView }>;
 
-		super( texture ? texture.createView() : ( null as unknown as GPUTextureView ), texture ? texture.width : 0, texture ? texture.height : 0 );
+	constructor( autoResize: boolean ) {
 
-		this.texture = texture;
+		super( null as unknown as GPUTextureView, 0, 0 );
+
+		this.texture = null;
 		this.autoResize = autoResize;
+		this._entries = new Map();
 
 	}
 
-	public setTexture( texture: GPUTexture ) {
+	// 指定サイズの実体を使う。無ければ作る
+	public setSize( device: GPUDevice, width: number, height: number ) {
 
-		this.texture?.destroy();
+		const w = Math.max( Math.floor( width ), 1 );
+		const h = Math.max( Math.floor( height ), 1 );
 
-		this.texture = texture;
-		this.view = texture.createView();
-		this.width = texture.width;
-		this.height = texture.height;
+		if ( this.texture && this.width === w && this.height === h ) return;
+
+		const key = `${w}x${h}`;
+		let entry = this._entries.get( key );
+
+		if ( ! entry ) {
+
+			const texture = device.createTexture( {
+				label: 'editorTarget',
+				size: [ w, h ],
+				format: SCENE_FORMAT,
+				usage: TARGET_USAGE,
+			} );
+
+			entry = { texture, view: texture.createView() };
+			this._entries.set( key, entry );
+
+		}
+
+		this.texture = entry.texture;
+		this.view = entry.view;
+		this.width = w;
+		this.height = h;
+
+	}
+
+	// 作り置きを捨てて、指定サイズの実体だけにする（解像度の設定が変わって古いサイズが要らなくなったとき）
+	public reset( device: GPUDevice, width: number, height: number ) {
+
+		this._entries.forEach( ( entry ) => entry.texture.destroy() );
+		this._entries.clear();
+		this.texture = null;
+
+		this.setSize( device, width, height );
 
 	}
 
@@ -123,7 +161,6 @@ class GPUEditorRecipe implements EditorRecipe {
 export class WebGPUEditorDraw implements EditorDrawContract {
 
 	private _renderer: Renderer;
-	private _resolution: MTP.Vector;
 
 	private _targets: GPUEditorTarget[];
 
@@ -142,9 +179,8 @@ export class WebGPUEditorDraw implements EditorDrawContract {
 	constructor( renderer: Renderer ) {
 
 		this._renderer = renderer;
-		this._resolution = new MTP.Vector();
 		this._targets = [];
-		this._fullscreenTarget = new GPUEditorTarget( null, true );
+		this._fullscreenTarget = new GPUEditorTarget( true );
 		this._copyPass = null;
 		this._outlinePass = null;
 		this._canvasContexts = new WeakMap();
@@ -194,13 +230,15 @@ export class WebGPUEditorDraw implements EditorDrawContract {
 			} );
 
 			// device待ちの間に作られたターゲットにここで実体を持たせる
-			this._allocate( device, this._fullscreenTarget, this._renderer.resolution );
+			const resolution = this._renderer.resolution;
+
+			this._fullscreenTarget.reset( device, resolution.x, resolution.y );
 
 			for ( let i = 0; i < this._targets.length; i ++ ) {
 
 				const target = this._targets[ i ];
 
-				if ( ! target.texture ) this._allocate( device, target, this._renderer.resolution );
+				if ( ! target.texture ) target.reset( device, resolution.x, resolution.y );
 
 			}
 
@@ -210,14 +248,12 @@ export class WebGPUEditorDraw implements EditorDrawContract {
 
 	}
 
-	private _allocate( device: GPUDevice, target: GPUEditorTarget, size: MTP.Vector ) {
+	// 解像度追従のターゲットを、描画先ビューの大きさに合わせる
+	private _fitToView( device: GPUDevice, target: GPUEditorTarget, view: RenderView ) {
 
-		target.setTexture( device.createTexture( {
-			label: 'editorTarget',
-			size: [ Math.max( Math.floor( size.x ), 1 ), Math.max( Math.floor( size.y ), 1 ) ],
-			format: SCENE_FORMAT,
-			usage: TARGET_USAGE,
-		} ) );
+		if ( ! target.autoResize ) return;
+
+		target.setSize( device, view.targets.width, view.targets.height );
 
 	}
 
@@ -233,6 +269,9 @@ export class WebGPUEditorDraw implements EditorDrawContract {
 
 		const view = opt.view as RenderView;
 		const target = opt.target as GPUEditorTarget | null;
+
+		if ( target ) this._fitToView( device, target, view );
+
 		const colorView = target ? target.view : view.outputView;
 
 		if ( ! colorView ) return;
@@ -260,14 +299,22 @@ export class WebGPUEditorDraw implements EditorDrawContract {
 
 		const r = recipe as GPUEditorRecipe;
 		const dst = target as GPUEditorTarget | null;
-		const view = dst ? dst.view : ( renderView as RenderView ).outputView;
+		const renderViewGPU = renderView as RenderView;
+
+		if ( dst ) this._fitToView( device, dst, renderViewGPU );
+
+		this._fitToView( device, r.mask, renderViewGPU );
+
+		const view = dst ? dst.view : renderViewGPU.outputView;
+		const width = dst ? dst.width : renderViewGPU.targets.width;
+		const height = dst ? dst.height : renderViewGPU.targets.height;
+
+		// 経由バッファは描画先と同じ大きさにする（copy パスは全面に引き伸ばして戻すため）
+		this._fullscreenTarget.setSize( device, width, height );
 
 		if ( ! view || ! r.mask.view || ! this._fullscreenTarget.view ) return;
 
-		( r.uniforms.uResolution.value as MTP.Vector ).set(
-			dst ? dst.width : this._resolution.x,
-			dst ? dst.height : this._resolution.y
-		);
+		( r.uniforms.uResolution.value as MTP.Vector ).set( width, height );
 
 		// 読み書きが同じテクスチャにならないよう、経由バッファへ描いてから戻す
 		this._outlinePass.render( this._fullscreenTarget.view, [ view, r.mask.view ], { uniforms: r.uniforms, clear: true } );
@@ -283,7 +330,11 @@ export class WebGPUEditorDraw implements EditorDrawContract {
 
 		const s = src as GPUEditorFrame;
 		const target = dst as GPUEditorTarget | null;
-		const view = target ? target.view : ( renderView as RenderView ).outputView;
+		const renderViewGPU = renderView as RenderView;
+
+		if ( target ) this._fitToView( device, target, renderViewGPU );
+
+		const view = target ? target.view : renderViewGPU.outputView;
 
 		if ( ! view || ! s.view ) return;
 
@@ -293,8 +344,8 @@ export class WebGPUEditorDraw implements EditorDrawContract {
 		// ターゲット内へ収め、空になった転写はスキップする
 		if ( rect ) {
 
-			const w = target ? target.width : this._renderer.resolution.x;
-			const h = target ? target.height : this._renderer.resolution.y;
+			const w = target ? target.width : renderViewGPU.targets.width;
+			const h = target ? target.height : renderViewGPU.targets.height;
 			const x = Math.min( Math.max( rect.x, 0 ), w );
 			const y = Math.min( Math.max( rect.y, 0 ), h );
 			const width = Math.min( rect.width, w - x );
@@ -463,9 +514,9 @@ export class WebGPUEditorDraw implements EditorDrawContract {
 
 		const device = this._ready();
 		const size = opt && opt.size || this._renderer.resolution;
-		const target = new GPUEditorTarget( null, ! ( opt && opt.size ) );
+		const target = new GPUEditorTarget( ! ( opt && opt.size ) );
 
-		if ( device ) this._allocate( device, target, size );
+		if ( device ) target.reset( device, size.x, size.y );
 
 		this._targets.push( target );
 
@@ -473,21 +524,20 @@ export class WebGPUEditorDraw implements EditorDrawContract {
 
 	}
 
+	// 解像度追従のターゲットは使うビューの大きさへ都度合わせるので、ここでは作り置きを捨てるだけにする
 	public resize( resolution: MTP.Vector ) {
-
-		this._resolution.copy( resolution );
 
 		const device = this._ready();
 
 		if ( ! device ) return;
 
-		this._allocate( device, this._fullscreenTarget, resolution );
+		this._fullscreenTarget.reset( device, resolution.x, resolution.y );
 
 		for ( let i = 0; i < this._targets.length; i ++ ) {
 
 			const target = this._targets[ i ];
 
-			if ( target.autoResize ) this._allocate( device, target, resolution );
+			if ( target.autoResize ) target.reset( device, resolution.x, resolution.y );
 
 		}
 

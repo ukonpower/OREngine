@@ -625,9 +625,14 @@ export class Renderer extends Serializable implements RendererContract {
 	// view の視点でシーンを描く。最終出力は view の uiBuffer（offscreen）か canvas。prepareScene の後に呼ぶ
 	public render( viewContract: RenderViewContract, _event: EntityUpdateEvent ) {
 
-		if ( this.resolution.x === 0 || this.resolution.y === 0 ) return;
-
 		const view = viewContract as RenderView;
+
+		view.fit( view.size || this.resolution );
+
+		const resolution = view.resolution;
+
+		if ( resolution.x === 0 || resolution.y === 0 ) return;
+
 		const cameraEntity = view.camera || this._sceneCamera;
 
 		if ( ! cameraEntity ) return;
@@ -643,9 +648,9 @@ export class Renderer extends Serializable implements RendererContract {
 
 		this.backend.setBlendEnabled( false );
 
-		this.renderCamera( "deferred", cameraEntity, stack.deferred, rt.gBuffer, this.resolution );
+		this.renderCamera( "deferred", cameraEntity, stack.deferred, rt.gBuffer, resolution );
 
-		this.renderPostProcess( view.deferredRenderer.postprocess, undefined, this.resolution, { cameraOverride: {
+		this.renderPostProcess( view.deferredRenderer.postprocess, undefined, resolution, { cameraOverride: {
 			viewMatrix: cameraComponent.viewMatrix,
 			viewMatrixPrev: cameraComponent.viewMatrixPrev,
 			projectionMatrix: cameraComponent.projectionMatrix,
@@ -696,7 +701,7 @@ export class Renderer extends Serializable implements RendererContract {
 
 			}
 
-			this.renderCamera( "forward", cameraEntity, forwardGroups[ gi ], rt.forwardBuffer, this.resolution, {
+			this.renderCamera( "forward", cameraEntity, forwardGroups[ gi ], rt.forwardBuffer, resolution, {
 				uniformOverride: {
 					uDeferredTexture: {
 						value: rt.refractionBuffer.textures[ 0 ],
@@ -733,7 +738,7 @@ export class Renderer extends Serializable implements RendererContract {
 
 		// scene（トーンマップを切っていても後続のパスが HDR を受け取れるよう、入力にシェーディングバッファを渡す）
 
-		this.renderPostProcess( view.pipelinePostProcess.postprocess, rt.shadingBuffer, this.resolution, { cameraOverride: {
+		this.renderPostProcess( view.pipelinePostProcess.postprocess, rt.shadingBuffer, resolution, { cameraOverride: {
 			viewMatrix: cameraComponent.viewMatrix,
 			projectionMatrix: cameraComponent.projectionMatrix,
 			cameraMatrixWorld: cameraEntity.matrixWorld,
@@ -751,7 +756,7 @@ export class Renderer extends Serializable implements RendererContract {
 
 		if ( postProcessManager ) {
 
-			postProcessManager.resize( this.resolution );
+			postProcessManager.resize( resolution );
 
 			for ( let i = 0; i < postProcessManager.postProcesses.length; i ++ ) {
 
@@ -759,7 +764,7 @@ export class Renderer extends Serializable implements RendererContract {
 
 				if ( ! ( postProcess.enabled && postProcess.hasOutput ) ) continue;
 
-				this.renderPostProcess( postProcess, backBuffer, this.resolution, {
+				this.renderPostProcess( postProcess, backBuffer, resolution, {
 					cameraOverride: {
 						viewMatrix: cameraComponent.viewMatrix,
 						projectionMatrix: cameraComponent.projectionMatrix,
@@ -789,7 +794,7 @@ export class Renderer extends Serializable implements RendererContract {
 
 		this.backend.setBlendEnabled( true );
 
-		this.renderCamera( "forward", cameraEntity, stack.ui, output, this.resolution, {
+		this.renderCamera( "forward", cameraEntity, stack.ui, output, resolution, {
 			uniformOverride: {
 				uDeferredTexture: {
 					value: rt.refractionBuffer.textures[ 0 ],
@@ -1280,7 +1285,9 @@ export class Renderer extends Serializable implements RendererContract {
 
 		for ( let i = 0; i < this._views.length; i ++ ) {
 
-			this._views[ i ].resize( resolution );
+			const view = this._views[ i ];
+
+			view.fit( view.size || resolution );
 
 		}
 

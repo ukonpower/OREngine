@@ -57,7 +57,7 @@ export const storyEmptyScene: OREngineProjectData = {
 // エディタ側の初期状態。保存先が無いので永続化に関わる値は持たせない
 export const storyEditorData: MXP.SerializeField = {
 	enableRender: true,
-	resolutionScale: 0.5,
+	'viewports/main/resolutionScale': 0.5,
 	'resolution/width': 1920,
 	'resolution/height': 1080,
 	viewType: 'render',

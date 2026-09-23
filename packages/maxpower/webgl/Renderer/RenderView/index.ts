@@ -79,6 +79,10 @@ const createRenderTarget = ( backend: GLBackend ): RenderCameraTarget => {
 export class RenderView implements RenderViewContract {
 
 	public camera: Entity | null;
+	public size: MTP.Vector | null;
+
+	// 中間バッファの今の大きさ
+	public readonly resolution: MTP.Vector;
 
 	// true なら最終出力を uiBuffer に留め canvas へ出さない（エディタが重ね描きしてから出す）
 	public readonly offscreen: boolean;
@@ -94,6 +98,8 @@ export class RenderView implements RenderViewContract {
 	constructor( params: RenderViewParams ) {
 
 		this.camera = null;
+		this.size = null;
+		this.resolution = new MTP.Vector();
 		this.offscreen = params.offscreen;
 		this._pipelineOverride = null;
 		this._sceneConfig = params.sceneConfig;
@@ -110,11 +116,7 @@ export class RenderView implements RenderViewContract {
 
 		this.pipelinePostProcess = new PipelinePostProcess( params.backend, this.renderTarget );
 
-		if ( params.resolution.x > 0 && params.resolution.y > 0 ) {
-
-			this.resize( params.resolution );
-
-		}
+		this.fit( params.resolution );
 
 		this.applyPipelineConfig();
 
@@ -155,7 +157,20 @@ export class RenderView implements RenderViewContract {
 
 	}
 
+	// 中間バッファを指定の大きさにする。GLPowerFrameBuffer.setSize は同じ大きさでも作り直すので、変わったときだけ呼ぶ
+	public fit( resolution: MTP.Vector ) {
+
+		if ( resolution.x <= 0 || resolution.y <= 0 ) return;
+
+		if ( this.resolution.x === resolution.x && this.resolution.y === resolution.y ) return;
+
+		this.resize( resolution );
+
+	}
+
 	public resize( resolution: MTP.Vector ) {
+
+		this.resolution.copy( resolution );
 
 		const rt = this.renderTarget;
 

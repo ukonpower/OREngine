@@ -21,7 +21,10 @@ const SETTING_NAMES = [ 'renderer', 'timeline', 'editor' ];
 
 // editor（editor.json）のうち設定として扱う path。選択状態・エディタのカメラ・パネル配置などは
 // タブの UI 状態なので、CLI からは触らせない（set 等と同じく選択・カメラを変えない方針）
-const EDITOR_SETTING_PREFIXES = [ 'resolution/', 'resolutionScale', 'frameLoop/' ];
+const EDITOR_SETTING_PREFIXES = [ 'resolution/', 'frameLoop/' ];
+
+// ビューポートの設定のうち、描画負荷に関わる解像度スケールだけは設定として触らせる
+const VIEWPORT_SETTING_PATTERN = /^viewports\/[^/]+\/resolutionScale$/;
 
 const sceneFile = ( ctx: AgentCommandContext ) => {
 
@@ -57,7 +60,7 @@ const resolveSettingTarget = ( ctx: AgentCommandContext, name: string ): Setting
 
 			}
 
-			return false;
+			return VIEWPORT_SETTING_PATTERN.test( path );
 
 		};
 
