@@ -55,6 +55,15 @@ const COMMANDS: { [ name: string ]: CommandSpec } = {
 	set: { usage: 'set <entity> [<component>] <path> <value>', description: 'フィールドを書き換える。値はフィールドの型で解釈する（数値 / 1,2,3 / true|false / 文字列 / 選択肢）', timeoutMs: 10000 },
 	undo: { usage: 'undo', description: '直前の操作を取り消す（GUI の操作と履歴を共有）', timeoutMs: 5000 },
 	redo: { usage: 'redo', description: '取り消した操作をやり直す', timeoutMs: 5000 },
+	settings: { usage: 'settings [renderer|timeline|editor]', description: 'シーン以外の設定（renderer / timeline は開いているシーン、editor は editor.json）の現在値と書き換えられる path', timeoutMs: 10000 },
+	'set-setting': { usage: 'set-setting <renderer|timeline|editor> <path> <value>', description: '設定を書き換える（undo が効く）。値の解釈は set と同じ', timeoutMs: 10000 },
+	// 一覧・中身はファイルを読むだけなので、タブを通さず dev サーバーの REST から読む（headless も起動しない）
+	scenes: { usage: 'scenes', description: 'シーン名の一覧・タブが開いているシーン・editor.json に残っている最後に開いたシーン', timeoutMs: 5000 },
+	'scene-get': { usage: 'scene-get <name>', description: 'シーンファイルの中身（renderer / timeline 込み）', timeoutMs: 5000 },
+	// 作成・削除はその場でファイルに反映される。scene-open はタブのシーンを差し替える（未保存の変更があればエラー）
+	'scene-create': { usage: 'scene-create <name> [--from <scene>] [--open]', description: '空のシーンを作る（--from でそのシーンを複製、--open で作ったシーンを開く）', timeoutMs: 15000 },
+	'scene-delete': { usage: 'scene-delete <name>', description: 'シーンを削除する（開いているシーンは不可）', timeoutMs: 10000 },
+	'scene-open': { usage: 'scene-open <name>', description: 'タブが開くシーンを切り替える（未保存の変更があるときはエラー）', timeoutMs: 15000 },
 	// 描画・GPU からの読み戻し・PNG エンコードを待つ（webgpu の初回はパイプライン生成も入る）
 	shot: { usage: 'shot <out.png> [--camera <entity> | --from x,y,z --to x,y,z] [--time <秒>] [--view <final|パス名>]', description: '指定したカメラ・時刻の描画を PNG に書き出す（--view はパスのラベル。省略時は final）', timeoutMs: 60000 },
 };
@@ -143,7 +152,7 @@ const resolveDevServerUrl = ( options: AgentOptions ) => {
 type HttpResponse = { status: number; body: string };
 
 // webgpu の dev サーバーは自己署名証明書の HTTPS なので、証明書の検証をしない
-const post = ( url: URL, body: string, timeoutMs: number ) => new Promise<HttpResponse>( ( resolve, reject ) => {
+const httpRequest = ( method: 'GET' | 'POST', url: URL, body: string, timeoutMs: number ) => new Promise<HttpResponse>( ( resolve, reject ) => {
 
 	let client: typeof http | typeof https = http;
 
@@ -154,7 +163,7 @@ const post = ( url: URL, body: string, timeoutMs: number ) => new Promise<HttpRe
 	}
 
 	const req = client.request( url, {
-		method: 'POST',
+		method,
 		headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength( body ) },
 		rejectUnauthorized: false,
 		timeout: timeoutMs,
@@ -179,6 +188,23 @@ const post = ( url: URL, body: string, timeoutMs: number ) => new Promise<HttpRe
 
 } );
 
+// 接続できないときの ECONNREFUSED 等を、起動を促すメッセージに置き換える
+const toConnectionError = ( e: unknown, baseUrl: string ) => {
+
+	if ( e instanceof CliError ) return e;
+
+	const code = ( e as NodeJS.ErrnoException ).code;
+
+	if ( code === 'ECONNREFUSED' || code === 'ECONNRESET' ) {
+
+		return new CliError( `dev サーバーに接続できません（${baseUrl}）。起動していないか、前回の停止時の情報が残っています（npm run dev / npm run wgpu で起動してください）` );
+
+	}
+
+	return e;
+
+};
+
 type CommandResponse = { status: number; result: AgentResult };
 
 // コマンドを dev サーバーへ送り、応答の JSON を読む
@@ -190,21 +216,11 @@ const sendCommand = async ( baseUrl: string, command: string, request: AgentHttp
 
 	try {
 
-		response = await post( url, JSON.stringify( request ), ( request.timeoutMs ?? 0 ) + CLIENT_TIMEOUT_MARGIN_MS );
+		response = await httpRequest( 'POST', url, JSON.stringify( request ), ( request.timeoutMs ?? 0 ) + CLIENT_TIMEOUT_MARGIN_MS );
 
 	} catch ( e ) {
 
-		if ( e instanceof CliError ) throw e;
-
-		const code = ( e as NodeJS.ErrnoException ).code;
-
-		if ( code === 'ECONNREFUSED' || code === 'ECONNRESET' ) {
-
-			throw new CliError( `dev サーバーに接続できません（${baseUrl}）。起動していないか、前回の停止時の情報が残っています（npm run dev / npm run wgpu で起動してください）` );
-
-		}
-
-		throw e;
+		throw toConnectionError( e, baseUrl );
 
 	}
 
@@ -277,6 +293,110 @@ const sendCommandHeadless = async ( baseUrl: string, command: string, request: A
 };
 
 /*-------------------------------
+	REST
+-------------------------------*/
+
+// シーンファイルの REST（host/server/routes/scene.ts）。dev サーバーは1プロジェクトだけを配信していて
+// URL の :name を見ない（ProjectManager.getProject）ので、プロジェクト名は固定値で埋める
+const SCENE_API_BASE = '/api/projects/current';
+
+// dev サーバーの REST から JSON を読む。見つからない（404）ときは null
+const getJson = async ( baseUrl: string, pathname: string, timeoutMs: number ): Promise<unknown> => {
+
+	let response: HttpResponse;
+
+	try {
+
+		response = await httpRequest( 'GET', new URL( pathname, baseUrl ), '', timeoutMs );
+
+	} catch ( e ) {
+
+		throw toConnectionError( e, baseUrl );
+
+	}
+
+	if ( response.status === 404 ) return null;
+
+	if ( response.status !== 200 ) {
+
+		throw new CliError( `${pathname} が HTTP ${response.status} を返しました: ${response.body.slice( 0, 500 )}` );
+
+	}
+
+	return JSON.parse( response.body );
+
+};
+
+const fetchSceneNames = async ( baseUrl: string, timeoutMs: number ) => {
+
+	return await getJson( baseUrl, `${SCENE_API_BASE}/scenes`, timeoutMs ) as string[];
+
+};
+
+// opened: タブが今開いているシーン（タブが無ければ null。headless は起動しない）
+// lastOpened: editor.json の scene。タブを開いたとき・headless が開くシーン
+const listScenes = async ( baseUrl: string, _args: string[], timeoutMs: number ) => {
+
+	const names = await fetchSceneNames( baseUrl, timeoutMs );
+	const editor = await getJson( baseUrl, `${SCENE_API_BASE}/editor`, timeoutMs ) as { scene?: unknown } | null;
+
+	let lastOpened: string | null = null;
+
+	if ( editor && typeof editor.scene === 'string' ) {
+
+		lastOpened = editor.scene;
+
+	}
+
+	let opened: string | null = null;
+	let connection: string | null = null;
+
+	const response = await sendCommand( baseUrl, 'status', { args: [], options: {}, timeoutMs } );
+
+	if ( response.status !== AGENT_NO_TAB_STATUS && response.result.ok ) {
+
+		const status = response.result.result as { connection: string; scene: string | null };
+
+		opened = status.scene;
+		connection = status.connection;
+
+	}
+
+	return { scenes: names, opened, connection, lastOpened };
+
+};
+
+const getScene = async ( baseUrl: string, args: string[], timeoutMs: number ) => {
+
+	const name = args[ 0 ];
+
+	if ( name === undefined ) {
+
+		throw new CliError( `引数が足りません。使い方: ${COMMANDS[ 'scene-get' ].usage}` );
+
+	}
+
+	const data = await getJson( baseUrl, `${SCENE_API_BASE}/scenes/${encodeURIComponent( name )}`, timeoutMs );
+
+	if ( data === null ) {
+
+		const names = await fetchSceneNames( baseUrl, timeoutMs );
+
+		throw new CliError( `シーンがありません: ${name}\ncandidates:\n${JSON.stringify( names, null, 2 )}` );
+
+	}
+
+	return data;
+
+};
+
+// タブを通さずに CLI が処理するコマンド
+const REST_COMMANDS: { [ name: string ]: ( baseUrl: string, args: string[], timeoutMs: number ) => Promise<unknown> } = {
+	scenes: listScenes,
+	'scene-get': getScene,
+};
+
+/*-------------------------------
 	Main
 -------------------------------*/
 
@@ -319,6 +439,17 @@ const main = async () => {
 	delete options.timeout;
 	const baseUrl = resolveDevServerUrl( options );
 	delete options.url;
+
+	const restCommand = REST_COMMANDS[ command ];
+
+	if ( restCommand ) {
+
+		const output = await restCommand( baseUrl, args, timeoutMs );
+
+		process.stdout.write( JSON.stringify( output, null, 2 ) + '\n' );
+		return;
+
+	}
 
 	const request: AgentHttpRequest = { args, options, timeoutMs };
 

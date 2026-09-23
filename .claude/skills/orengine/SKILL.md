@@ -53,6 +53,7 @@ OREngine でコンポーネントを作り、シーンを組むためのスキ�
 | やりたいこと | 読むところ |
 |---|---|
 | シーンに何かを置く / 並べる / 動かす | Flow 1（シーン CLI） |
+| シーンを作る・切り替える / renderer・timeline・解像度を変える | Flow 1 の「シーンの一覧・作成・切り替え」「設定」 |
 | 見た目のあるオブジェクトを作る | Flow 2 → `references/component-development.md` |
 | シェーダーを書く | `references/shader-glsl.md` / `references/shader-wgsl.md` |
 | 結果を確認する | Flow 3（`tree` / `errors` / `shot`） |
@@ -117,7 +118,36 @@ npx tsx scripts/scene.ts undo                                             # / re
 - 編集できる範囲は GUI と同じ。BLidge / glb が作ったエンティティ（`initiator: "script"`）には子を足せず、削除もできない。コンポーネントを付けることはでき、BLidgeClient の `attachments` にエンティティ名で紐づいて保存される（`references/component-development.md` の「BLidge の Mesh に差し込む」）
 - コンポーネントファイルの追加・編集や `scenes/<name>.json` / `editor.json` の書き換えはタブをリロードする。CLI の書き込みは保存済みなので消えないが、リロード中のコマンドはタイムアウトしうる。コンポーネントを作る作業（Flow 2）を先に済ませ、リロード後に CLI で配置する
 - `scenes/<name>.json` の直接編集は人間の手段。Claude は CLI を使う
-- レンダラー設定（空の色・ポストエフェクトの有無など。シーン JSON の `renderer`）は CLI では変えられない。ユーザーにエディタで変えてもらう
+
+### シーンの一覧・作成・切り替え
+
+1プロジェクトは `scenes/<name>.json` を複数持てる。CLI の編集対象は常に「タブ（か headless）が今開いているシーン」なので、別のシーンを編集するときは先に `scene-open` する。
+
+```bash
+npx tsx scripts/scene.ts scenes                          # 一覧・タブが開いているシーン（opened）・editor.json の最後に開いたシーン（lastOpened）
+npx tsx scripts/scene.ts scene-get main                  # シーンファイルの中身
+npx tsx scripts/scene.ts scene-create short1 --open      # 空のシーンを作って開く（--from main で main を複製）
+npx tsx scripts/scene.ts scene-open main                 # タブが開くシーンを切り替える
+npx tsx scripts/scene.ts scene-delete short1             # 開いているシーンは削除できない
+```
+
+- `scenes` / `scene-get` はファイルを読むだけで、タブも headless も使わない
+- `scene-create` / `scene-delete` はその場でファイルに反映される（Ctrl+S 不要）。シーン操作は undo に載らない
+- `scene-open`（と `scene-create --open`）はタブに未保存の変更があるとエラーで止まる。ユーザーに Ctrl+S を頼んでから切り替える
+- `scene-open` のあとも保存して editor.json の `scene` を更新する。次のコマンドの headless は切り替え先のシーンを開き、他のタブもリロードで切り替え先を開く
+
+### 設定（renderer / timeline / editor）
+
+```bash
+npx tsx scripts/scene.ts settings                                       # 全部。settings renderer のように絞れる
+npx tsx scripts/scene.ts set-setting timeline timeline/duration 300     # フレーム数
+npx tsx scripts/scene.ts set-setting renderer pipeline/ssao/enabled false
+npx tsx scripts/scene.ts set-setting editor resolution/width 1080       # editor.json（全シーン共通）
+```
+
+- `renderer`（空の色・ポストエフェクト等）と `timeline`（`timeline/duration` / `timeline/fps`）は開いているシーンのファイルに、`editor`（`resolution/*` / `resolutionScale` / `frameLoop/*`）は `editor.json` に入る。出力の `file` が保存先
+- path は `settings` の `fields` で確かめる。renderer の path はバックエンドで違う。値の解釈・undo・保存の扱いは `set` と同じ
+- 解像度は editor.json にあり全シーン共通。縦長・横長のシーンを行き来するときは切り替えのたびに書き換える
 
 ## Flow 2: コンポーネント開発
 

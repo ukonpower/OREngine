@@ -4,23 +4,34 @@ import { AgentCommandError, errorMessage } from './Command';
 import { installErrorCollector } from './ErrorCollector';
 import { observeCommands } from './ObserveCommands';
 import { AGENT_EVENT, AGENT_HEADLESS_PARAM, RESPONSE_CHUNK_SIZE } from './Protocol';
+import { sceneCommands } from './SceneCommands';
+import { settingObserveCommands, settingWriteCommands } from './SettingCommands';
 import { shotCommands } from './ShotCommand';
 import { writeCommands } from './WriteCommands';
 
-import type { AgentCommandContext, AgentCommandTable } from './Command';
+import type { AgentCommandContext, AgentCommandTable, AgentSceneControl } from './Command';
 import type { AgentRequest, AgentResult } from './Protocol';
 import type { Editor } from '../Editor';
 import type { ViteHotContext } from 'vite/types/hot.js';
 
+// 書き込み系。実行後にファイルへ保存し、応答に書き込み先（write）を付ける
+const mutatingCommands: AgentCommandTable = {
+	...writeCommands,
+	...settingWriteCommands,
+	...sceneCommands,
+};
+
 const commands: AgentCommandTable = {
 	...observeCommands,
-	...writeCommands,
+	...settingObserveCommands,
+	...mutatingCommands,
 	...shotCommands,
 };
 
 export type AgentBridgeOptions = {
 	editor: Editor;
-	getSceneName: () => string | null;
+	// コマンド実行時に最新のシーン一覧・操作を読む。シーンを持たないページは null
+	getScenes: () => AgentSceneControl | null;
 	// 直前の editor.save() によるファイルへの書き込みの完了を待つ。失敗したら reject する
 	waitForSave: () => Promise<void>;
 };
@@ -97,12 +108,15 @@ const runCommand = async ( hot: ViteHotContext, request: AgentRequest ): Promise
 
 	}
 
+	const scenes = attached.getScenes();
+
 	const ctx: AgentCommandContext = {
 		editor: attached.editor,
 		engine: attached.editor.engine,
 		tabId,
 		headless,
-		sceneName: attached.getSceneName(),
+		sceneName: scenes?.current ?? null,
+		scenes,
 		unsaved: attached.unsaved,
 	};
 
@@ -113,14 +127,15 @@ const runCommand = async ( hot: ViteHotContext, request: AgentRequest ): Promise
 
 		const result = await command( ctx, { args: request.args, options: request.options } );
 
-		if ( writeCommands[ request.command ] === undefined ) {
+		if ( mutatingCommands[ request.command ] === undefined ) {
 
 			return { ok: true, result };
 
 		}
 
 		// 書き込みは接続先によらずその場でファイルへ保存する。タブのままだと Ctrl+S せずに閉じたとき黙って消え、
-		// headless はコマンドごとに CLI が閉じるため。タブに CLI 以前の未保存の変更があれば一緒に保存される
+		// headless はコマンドごとに CLI が閉じるため。タブに CLI 以前の未保存の変更があれば一緒に保存される。
+		// scene-open のあとも保存して editor.json の scene を更新し、次に開く headless が同じシーンを開くようにする
 		ctx.editor.save();
 
 		try {

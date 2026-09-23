@@ -96,7 +96,14 @@ export const SceneWindow = ( props: SceneWindowProps ) => {
 
 		}
 
-		scenes.onCreate( name );
+		const create = async () => {
+
+			await scenes.onCreate( name );
+			await scenes.onSelect( name );
+
+		};
+
+		create();
 		onClose();
 
 	};

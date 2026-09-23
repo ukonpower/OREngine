@@ -38,8 +38,8 @@
 
 - 1ファイル = 1シーンで自己完結している。シーン名はファイル名（`name` はエンジンの表示名で、シーン名とは別）
 - `scene`: ルートエンティティ。uuid は常に `"0"`
-- `renderer`: レンダラーの field（空の色・ポストエフェクトの on/off 等）。キーはバックエンドで違う（`demo-webgpu/scenes/main.json` には `pipeline/lightShaft/intensity` 等が増えている）。**CLI では変えられない**ので、変えたいときはユーザーにエディタで変えてもらう
-- `timeline/duration` / `timeline/fps`: タイムラインの長さ（フレーム数）と fps
+- `renderer`: レンダラーの field（空の色・ポストエフェクトの on/off 等）。キーはバックエンドで違う（`demo-webgpu/scenes/main.json` には `pipeline/lightShaft/intensity` 等が増えている）。CLI の `settings renderer` / `set-setting renderer <path> <value>` で読み書きする
+- `timeline/duration` / `timeline/fps`: タイムラインの長さ（フレーム数）と fps。`set-setting timeline timeline/duration <値>` で変える
 
 ## エンティティ
 
