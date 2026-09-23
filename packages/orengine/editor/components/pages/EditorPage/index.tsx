@@ -66,11 +66,16 @@ export const EditorPage = ( props: EditorPageProps ) => {
 	const [ sceneNames, setSceneNames ] = useState<string[]>( [] );
 	const [ sceneName, setSceneName ] = useState<string | null>( null );
 
+	// シーンの操作は失敗したら投げる（シーン CLI が理由をそのまま返すため）
 	const openScene = useCallback( async ( name: string ) => {
 
 		const data = await fetchJson<OREngineProjectData>( `${apiBase}/scenes/${name}` );
 
-		if ( ! data ) return;
+		if ( ! data ) {
+
+			throw new Error( `シーンを読み込めません: ${name}` );
+
+		}
 
 		setSceneName( name );
 		setProjectData( data );
@@ -115,11 +120,33 @@ export const EditorPage = ( props: EditorPageProps ) => {
 
 	}, [ props.sceneData, apiBase, openScene ] );
 
-	const createScene = useCallback( async ( name: string ) => {
+	// ファイルを作るだけで開かない（開くのは呼び出し側）。from を渡すとそのシーンのファイルを複製する
+	const createScene = useCallback( async ( name: string, from?: string ) => {
 
-		const res = await postJson( `${apiBase}/scenes/${name}`, emptySceneData( name ) );
+		let data = emptySceneData( name );
 
-		if ( ! res.ok ) return;
+		if ( from !== undefined ) {
+
+			const source = await fetchJson<OREngineProjectData>( `${apiBase}/scenes/${from}` );
+
+			if ( ! source ) {
+
+				throw new Error( `複製元のシーンを読み込めません: ${from}` );
+
+			}
+
+			// uuid は振り直さない。シーンは1つずつ読み込まれ、uuid で他のシーンを引く仕組みも無いので重複しても衝突しない
+			data = { ...source, name };
+
+		}
+
+		const res = await postJson( `${apiBase}/scenes/${name}`, data );
+
+		if ( ! res.ok ) {
+
+			throw new Error( `シーンを作成できません: ${name}（HTTP ${res.status}）` );
+
+		}
 
 		const names = await fetchJson<string[]>( `${apiBase}/scenes` );
 
@@ -129,15 +156,17 @@ export const EditorPage = ( props: EditorPageProps ) => {
 
 		}
 
-		await openScene( name );
-
-	}, [ apiBase, openScene ] );
+	}, [ apiBase ] );
 
 	const deleteScene = useCallback( async ( name: string ) => {
 
 		const res = await fetch( `${apiBase}/scenes/${name}`, { method: "DELETE" } );
 
-		if ( ! res.ok ) return;
+		if ( ! res.ok ) {
+
+			throw new Error( `シーンを削除できません: ${name}（HTTP ${res.status}）` );
+
+		}
 
 		const names = await fetchJson<string[]>( `${apiBase}/scenes` ) ?? [];
 		setSceneNames( names );

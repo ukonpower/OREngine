@@ -24,9 +24,9 @@ const decorators = ( fixture: Parameters<typeof withOREditor>[0] ): Story['decor
 const scenes = {
 	names: [ 'main', 'test' ],
 	current: 'main',
-	onSelect: () => { /* storybook では切り替えない */ },
-	onCreate: () => { /* storybook では作らない */ },
-	onDelete: () => { /* storybook では消さない */ },
+	onSelect: async () => { /* storybook では切り替えない */ },
+	onCreate: async () => { /* storybook では作らない */ },
+	onDelete: async () => { /* storybook では消さない */ },
 };
 
 export const Default: Story = { decorators: decorators( { ...storyFixture, scenes } ) };
