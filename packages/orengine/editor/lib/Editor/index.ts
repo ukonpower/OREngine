@@ -157,24 +157,7 @@ export class Editor extends MXP.Serializable {
 			onUndo: () => this._api.undo(),
 			onRedo: () => this._api.redo(),
 			onPlayToggle: () => this.togglePlay(),
-			onCameraViewToggle: () => {
-
-				const viewport = this._activeViewport;
-
-				if ( ! viewport ) return;
-
-				// プレビュー中はプレビューを抜けてエディタカメラへ戻る
-				if ( viewport.editorCamera.preview ) {
-
-					this._escapeToEditorCamera( viewport );
-
-				} else {
-
-					this.setField( `viewports/${viewport.id}/cameraView`, viewport.editorCamera.view === "editor" ? "camera" : "editor" );
-
-				}
-
-			},
+			onCameraViewToggle: () => this.toggleCameraView(),
 			onPreviewToggle: () => {
 
 				const viewport = this._activeViewport;
@@ -907,6 +890,26 @@ export class Editor extends MXP.Serializable {
 		this._escapeToEditorCamera( viewport );
 
 		viewport.editorCamera.syncFromSceneCamera( this._engine );
+
+	}
+
+	// アクティブなビューポートの視点をエディタカメラとシーンカメラで切り替える
+	public toggleCameraView() {
+
+		const viewport = this._activeViewport;
+
+		if ( ! viewport ) return;
+
+		// プレビュー中はプレビューを抜けてエディタカメラへ戻る
+		if ( viewport.editorCamera.preview ) {
+
+			this._escapeToEditorCamera( viewport );
+
+		} else {
+
+			this.setField( `viewports/${viewport.id}/cameraView`, viewport.editorCamera.view === "editor" ? "camera" : "editor" );
+
+		}
 
 	}
 

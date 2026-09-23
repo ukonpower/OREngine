@@ -5,11 +5,12 @@ import style from './index.module.scss';
 
 // タッチ環境向けのカメラ操作ボタン。回転・パン・ズームはキャンバス直接タッチで行えるため、
 // タッチだけでは行えない Focus / Scene Cam だけを置く
-export const CameraPad = () => {
+export const CameraPad: React.FC<{ viewportId: string }> = ( { viewportId } ) => {
 
 	const { editor } = useOREditor();
 
 	const [ selectedEntityId ] = useSerializableField<string | null>( editor, "selectedEntityId" );
+	const [ cameraView ] = useSerializableField<"editor" | "camera">( editor, `viewports/${viewportId}/cameraView` );
 
 	return <div className={style.cameraPad}>
 		<div
@@ -28,12 +29,13 @@ export const CameraPad = () => {
 		</div>
 		<div
 			className={style.btn}
+			data-active={cameraView === "camera"}
 			onClick={() => {
 
-				editor.syncToSceneCamera();
+				editor.toggleCameraView();
 
 			}}
-			title="Move to scene camera ( Esc )"
+			title="Toggle scene camera view ( 0 )"
 		>
 			Scene Cam
 		</div>
