@@ -95,7 +95,7 @@ JSON を直接編集した場合、未知のコンポーネント名は **エラ
 
 - ランタイムのエラーは `npx tsx scripts/scene.ts errors`（シェーダーエラー・WebGPU のエラー・`console.error` と未捕捉例外の直近200件・解決できなかったコンポーネント）
 - 位置・向きは `npx tsx scripts/scene.ts tree` / `get`
-- 見た目はスクリーンショットを撮るコマンドがまだ無いので、agent-browser スキルでエディタページ（`http://localhost:<vite-port>`）を開いて撮る
+- 見た目は `npx tsx scripts/scene.ts shot tmp/shot/<名前>.png`（`--camera` / `--from --to` / `--time` / `--view`。使い方は SKILL.md の Flow 4）
 
 ## Stop Conditions
 

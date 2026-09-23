@@ -16,7 +16,7 @@ description: >
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash(npx tsx scripts/scene.ts:*), Bash(npx tsx orengine/scripts/scene.ts:*), Bash(npm run typecheck:*), Bash(git diff:*), Bash(git checkout:*), Bash(python3:*)
 metadata:
   author: ukonpower
-  version: 4.0.0
+  version: 4.1.0
 ---
 
 # OREngine スキル
@@ -30,7 +30,7 @@ OREngineのシーン構築・コンポーネント開発を行うスキル。
 - `scenes/<name>.json` の直接編集は人間の手段。Claude は CLI を使う（JSON を書き換えるとタブが full-reload され、未保存の変更が消える）
 - **見た目を持つオブジェクトはコンポーネントで作る**（Geometry / Material / Mesh をコンポーネントのコンストラクタで生成）
 - **マテリアル / シェーダーを作る独立 API は存在しない**（`.mat` ファイルは廃止）
-- **見た目の確認は agent-browser スキル**で行う（スクリーンショットを撮るコマンドはまだ無い。状態の数値的な確認は CLI の `tree` / `get` / `errors`）
+- **見た目の確認は CLI の `shot`**（指定したカメラ・時刻の描画を PNG に書き出し、Read で見る）。状態の数値的な確認は `tree` / `get` / `errors`
 
 ## Decision Map
 
@@ -39,7 +39,7 @@ OREngineのシーン構築・コンポーネント開発を行うスキル。
 | シーンに何かを置く / 並べる / 動かす | Flow 1: シーン CLI |
 | 見た目のあるオブジェクト（カスタム形状 / シェーダー付き） | Flow 2: コンポーネント開発 |
 | GLSL シェーダーを書く | Flow 3: シェーダー編集 |
-| 結果を確認する | Flow 4: CLI の `tree` / `errors` ＋ agent-browser でスクリーンショット |
+| 結果を確認する | Flow 4: CLI の `tree` / `errors` / `shot` |
 | 動かない・表示されない | `references/troubleshooting.md` |
 
 参考リファレンス:
@@ -168,15 +168,27 @@ GLSL は通常コンポーネントと同じディレクトリに `.vs` / `.fs` 
 
 書き方・インクルード（`<vert_h>`, `<frag_out>` 等）は `references/shader-guide.md`。
 
-シェーダー編集後は agent-browser スキルでエディタページを開き、ブラウザコンソールと見た目を確認する（`references/shader-guide.md` / `references/troubleshooting.md`）。
+シェーダー編集後は `errors` でコンパイルエラーを、`shot` で見た目を確認する（`references/shader-guide.md` / `references/troubleshooting.md`）。
 
 ## Flow 4: 結果の確認
 
 1. `npx tsx scripts/scene.ts tree` で位置・向き（`forward` はローカル -Z、ライトは `up` が光源へ向かう向き）・境界ボックスを確認する
 2. `npx tsx scripts/scene.ts errors` でシェーダーエラー・コンソールのエラー・解決できなかったコンポーネントを確認する
-3. 見た目は agent-browser スキルでエディタページ（`http://localhost:<vite-port>`）を開いてスクリーンショットを撮る。カメラの位置はカメラエンティティに `set` で調整する
+3. 見た目は `shot` で PNG に書き出し、Read で画像を見る。出力先は `tmp/shot/` の下にする（gitignore 済み）
 
-アニメーションがある場合はタイムラインUIを操作して複数時点を撮る（時刻を指定して撮るコマンドはまだ無い）。
+```bash
+npx tsx scripts/scene.ts shot tmp/shot/scene.png                                   # シーンカメラ・今の時刻
+npx tsx scripts/scene.ts shot tmp/shot/cam.png --camera root/MainCamera            # シーン内の別のカメラ
+npx tsx scripts/scene.ts shot tmp/shot/top.png --from 0,10,0.01 --to 0,0,0         # 観測用の一時カメラ（シーンには残らない）
+npx tsx scripts/scene.ts shot tmp/shot/t2.png --time 2                             # 時刻 2 秒
+npx tsx scripts/scene.ts shot tmp/shot/gbuf.png --view gBuffer_1                   # パス出力（ラベルはバックエンドごとに違う）
+```
+
+- `shot` はユーザーのタブの再生時刻・再生状態・選択・エディタカメラを変えない。観測のためにカメラエンティティを `set` で動かさず、`--from` / `--to` を使う
+- 画像サイズはユーザーの Screen パネルの描画解像度で決まる（サイズ指定は無い）。縦横比もそれに従う
+- `--time T` は「時刻 T を当てて1回描いた状態」で、「T まで再生した状態」ではない。時刻で決まるもの（BLidge アニメーション・uTime を使うシェーダー）は正確に出るが、GPUCompute・シミュレーションのように経過を積み上げるものは正しく出ない
+- `--view` は `final`（省略時。本番と同じパイプライン）かパスのラベル。ラベルは webgl なら `camera/deferred_1`、webgpu なら `gBuffer_1` のような生の名前で、存在しない名前を渡すとエラーの `candidates` に一覧が返る
+- 応答（stdout）は `path` / `width` / `height` / `view` / `time` / `camera`。PNG 本体は出力先のファイルにだけ書かれる
 
 ## Examples
 
@@ -235,13 +247,13 @@ npx tsx scripts/scene.ts add-component root/MainCamera CameraController
 
 4. Light を原点に向ける場合は `euler` を計算して `set` する（`references/components-catalog.md` の補正ルール参照）。`tree` の `up` で向きを確かめる
 
-5. `errors` と agent-browser のスクリーンショットで確認し、ユーザーに Ctrl+S での保存を依頼する
+5. `errors` と `shot` で確認し、ユーザーに Ctrl+S での保存を依頼する
 
 ### Example 1: ライトとカメラだけのシーン
 
 1. `tree` で現状確認
 2. `add-entity root --preset Camera` / `add-entity root --preset Light` → `set` で位置・向きを決める
-3. `tree` / agent-browser で確認
+3. `tree` / `shot` で確認
 4. ユーザーに Ctrl+S での保存を依頼する
 
 ### Example 2: 赤い球体を置く
@@ -250,7 +262,7 @@ npx tsx scripts/scene.ts add-component root/MainCamera CameraController
    - `new MXP.SphereGeometry()` + `new MXP.Material({ ... })` を内部で生成して `addComponent(MXP.Mesh, ...)`
 2. `npm run typecheck`
 3. リロード後、`add-entity` → `add-component <entity> RedSphere`
-4. agent-browser でスクリーンショット確認
+4. `shot` で確認
 
 ### Example 3: カスタムシェーダーで動くオブジェクト
 
@@ -258,7 +270,7 @@ npx tsx scripts/scene.ts add-component root/MainCamera CameraController
 2. `index.ts` で `import frag from './index.fs'` して Material に渡す
 3. `updateImpl` で uniform を更新
 4. `errors` でシェーダーコンパイルエラーを確認する
-5. `add-entity` / `add-component` でシーンへ追加 + スクリーンショット
+5. `add-entity` / `add-component` でシーンへ追加し、`shot` で確認（動きは `--time` を変えて複数枚撮る）
 
 ## Guardrails
 
@@ -268,7 +280,7 @@ npx tsx scripts/scene.ts add-component root/MainCamera CameraController
 - **見た目のあるオブジェクト = カスタムコンポーネント**を基本とする
 - **名前・path は CLI で確かめる**。CLI は未知のコンポーネント名・path をエラーにして候補を返す（JSON の直接編集では silent skip になる）
 - **コンポーネント・シェーダー編集後は `npm run typecheck` を実行する**
-- **シーン変更後は `errors` と agent-browser のスクリーンショット**で確認する
+- **シーン変更後は `errors` と `shot`** で確認する
 - **`npm run dev` を勝手に起動しない**（ユーザーの明示的な指示がある場合のみ）
 - 同じ問題が3回連続で解消しない場合は `references/troubleshooting.md` を参照する
 

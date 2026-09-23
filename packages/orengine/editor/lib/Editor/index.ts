@@ -469,6 +469,12 @@ export class Editor extends MXP.Serializable {
 
 	}
 
+	public get draw() {
+
+		return this._draw;
+
+	}
+
 	/*-------------------------------
 		Viewport
 	-------------------------------*/

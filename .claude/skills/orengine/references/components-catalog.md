@@ -48,7 +48,7 @@ Entity (Light)
 └─ Light  # 向きは rot（euler）で直接指定する
 ```
 
-`MXP.Light.lookAt()`（`packages/maxpower/Component/Light/index.ts`）はエンティティを対象に向けた後 X 軸に `+π/2` の補正クォータニオンを掛けている。これは Light の内部的な forward 軸が一般的なエンティティと 90° ずれているためで、**向き（シーン JSON の `rot`、CLI の `set <entity> euler` はどちらもラジアンのオイラー角）を手で計算する場合もこの補正を加味する**必要がある。正確な向きが必要な場合は、通常の lookAt euler（entity 位置 → target 方向を向く回転）を計算したうえで X に `+90°`（`Math.PI/2`）を加えるか、エディタで実際に回転させてスクリーンショットで確認しながら調整する。
+`MXP.Light.lookAt()`（`packages/maxpower/Component/Light/index.ts`）はエンティティを対象に向けた後 X 軸に `+π/2` の補正クォータニオンを掛けている。これは Light の内部的な forward 軸が一般的なエンティティと 90° ずれているためで、**向き（シーン JSON の `rot`、CLI の `set <entity> euler` はどちらもラジアンのオイラー角）を手で計算する場合もこの補正を加味する**必要がある。正確な向きが必要な場合は、通常の lookAt euler（entity 位置 → target 方向を向く回転）を計算したうえで X に `+90°`（`Math.PI/2`）を加えるか、`set` で回転させて `tree` の向きや `shot` の画像で確認しながら調整する。
 
 ## Mesh コンポーネント単体での使用について
 

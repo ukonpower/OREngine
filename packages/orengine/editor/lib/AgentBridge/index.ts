@@ -4,6 +4,7 @@ import { AgentCommandError, errorMessage } from './Command';
 import { installErrorCollector } from './ErrorCollector';
 import { observeCommands } from './ObserveCommands';
 import { AGENT_EVENT, AGENT_HEADLESS_PARAM, RESPONSE_CHUNK_SIZE } from './Protocol';
+import { shotCommands } from './ShotCommand';
 import { writeCommands } from './WriteCommands';
 
 import type { AgentCommandContext, AgentCommandTable } from './Command';
@@ -14,6 +15,7 @@ import type { ViteHotContext } from 'vite/types/hot.js';
 const commands: AgentCommandTable = {
 	...observeCommands,
 	...writeCommands,
+	...shotCommands,
 };
 
 export type AgentBridgeOptions = {

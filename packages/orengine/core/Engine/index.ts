@@ -277,7 +277,7 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 
 		}
 
-		this._step( event );
+		this.step( event );
 
 		if ( this._frame.playing ) {
 
@@ -292,8 +292,9 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 	// シーンを1フレーム進めて描ける状態にする。
 	// 前フレームの行列確定（commitFrame）は render の後でなければならないので、
 	// 描画の後始末としてではなく次フレームの冒頭で行う。これで呼び出し側は
-	// update → render( view ) の2手順で済む
-	private _step( event: MXP.EntityUpdateEvent ) {
+	// update → render( view ) の2手順で済む。
+	// _time / _frame には触れないので、再生状態を変えずに任意の時刻の event で呼べる（エディタの shot が使う）
+	public step( event: MXP.EntityUpdateEvent ) {
 
 		this._root.commitFrame( event );
 
@@ -422,7 +423,7 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 
 		}
 
-		this._step( event );
+		this.step( event );
 
 	}
 
