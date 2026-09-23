@@ -19,6 +19,11 @@ export type PipelineConfig = {
 	lightShaftBlur?: boolean;
 	lightShaftTemporal?: boolean;
 	lightShaftTemporalBlend?: number;
+	// SSAO の細かい調整（WebGPU バックエンドのみ。WebGL は無視する）
+	ssaoIntensity?: number;
+	ssaoBlur?: boolean;
+	ssaoTemporal?: boolean;
+	ssaoTemporalBlend?: number;
 };
 
 // createView の指定。offscreen のビューは最終出力を自分のバッファに留め、canvas へは出さない
