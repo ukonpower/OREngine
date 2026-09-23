@@ -6,7 +6,7 @@ import { fieldsFromUniforms } from '../backend/UniformBinder';
 import basicWgsl from './shaders/basic.wgsl';
 
 import type { MaterialContract } from '../../core/Contracts/MaterialContract';
-import type { MaterialStorage, MaterialTexture, StorageSource, TextureSource } from '../backend/Bindings';
+import type { MaterialStorage, MaterialTexture, MaterialVaryings, StorageSource, TextureSource } from '../backend/Bindings';
 import type { UniformField } from '../backend/UniformBinder';
 import type * as BSP from 'basepower';
 
@@ -44,6 +44,9 @@ export interface MaterialParam {
 	storages?: { [name: string]: StorageSource };
 	// テクスチャ。キーがWGSL上の変数名になり、storage の後ろへ texture + <名前>Sampler のペアで生える
 	textures?: { [name: string]: TextureSource };
+	// 頂点からフラグメントへ渡す独自の値。キーが VertexOutput のフィールド名になり、
+	// 固定フィールドの後ろへ宣言順に @location(4).. で生える
+	varyings?: MaterialVaryings;
 	depthTest?: boolean;
 	depthWrite?: boolean;
 	cullFace?: boolean;
@@ -67,6 +70,7 @@ export class Material implements MaterialContract {
 	public readonly fields: UniformField[];
 	public readonly storages: MaterialStorage[];
 	public readonly textures: MaterialTexture[];
+	public readonly varyings: MaterialVaryings;
 
 	private _wgsl: string | null;
 
@@ -79,6 +83,7 @@ export class Material implements MaterialContract {
 		this.uniforms = params.uniforms || {};
 		this.storages = Object.entries( params.storages || {} ).map( ( [ name, source ] ) => ( { name, source } ) );
 		this.textures = Object.entries( params.textures || {} ).map( ( [ name, source ] ) => ( { name, source } ) );
+		this.varyings = params.varyings || {};
 
 		this.depthTest = params.depthTest !== undefined ? params.depthTest : true;
 		this.depthWrite = params.depthWrite !== undefined ? params.depthWrite : true;
@@ -128,7 +133,7 @@ export class Material implements MaterialContract {
 	// 宣言部を差し込んだWGSLの完成形
 	public get shaderSource() {
 
-		return buildShaderSource( this.wgsl, this.fields, this.storages, this.textures );
+		return buildShaderSource( this.wgsl, this.fields, this.storages, this.textures, this.varyings );
 
 	}
 
