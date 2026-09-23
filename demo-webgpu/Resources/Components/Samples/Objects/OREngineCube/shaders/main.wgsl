@@ -1,6 +1,6 @@
 // demo-webgl の OREngineCube/shaders/main.fs のWGSL移植。
-// webgl側はノイズテクスチャ(.tex)を参照するが、webgpuは.tex未対応のため
-// 値ノイズで同等の模様を手続き的に作る
+// webgl側はノイズテクスチャ(.tex)を参照するが、こちらはテクスチャを使わず
+// 値ノイズ（module:noise）で同等の模様をフラグメントごとに手続き的に作る
 
 #include <module:noise>
 
