@@ -110,17 +110,23 @@ const runCommand = async ( request: AgentRequest ): Promise<AgentResult> => {
 
 		const result = await command( ctx, { args: request.args, options: request.options } );
 
-		// headless のページはコマンドごとに CLI が閉じるので、書き込みはその場でファイルへ確定する。
-		// ユーザーのタブでは保存しない（確定はユーザーの Ctrl+S）
-		if ( headless && writeCommands[ request.command ] !== undefined ) {
+		if ( writeCommands[ request.command ] === undefined ) {
 
-			ctx.editor.save();
-
-			return { ok: true, result, saved: true };
+			return { ok: true, result };
 
 		}
 
-		return { ok: true, result };
+		// headless のページはコマンドごとに CLI が閉じるので、書き込みはその場でファイルへ確定する。
+		// ユーザーのタブでは保存しない（確定はユーザーの Ctrl+S）
+		if ( headless ) {
+
+			ctx.editor.save();
+
+			return { ok: true, result, write: { connection: 'headless', saved: true } };
+
+		}
+
+		return { ok: true, result, write: { connection: 'tab', saved: false } };
 
 	} catch ( e ) {
 

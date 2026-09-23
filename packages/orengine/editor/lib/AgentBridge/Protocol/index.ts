@@ -61,7 +61,14 @@ export type AgentResponseChunk = {
 	chunk: string;
 };
 
-// saved: headless のタブが書き込みの後に editor.save() を呼んだ。CLI はファイルへの書き込みが終わるまでブラウザを閉じずに待つ
+// 書き込み系コマンドの書き込み先と保存の有無。
+// saved: タブが書き込みの後に editor.save() を呼んだ（headless のときだけ true）。CLI はファイルへの書き込みが終わるまでブラウザを閉じずに待つ
+export type AgentWriteInfo = {
+	connection: 'tab' | 'headless';
+	saved: boolean;
+};
+
+// write: 書き込み系コマンドのときだけ付く。接続先はコマンドごとに変わりうるので、書き込みのたびに返す
 export type AgentResult =
-	| { ok: true; result: unknown; saved?: boolean }
+	| { ok: true; result: unknown; write?: AgentWriteInfo }
 	| { ok: false; error: string; candidates?: unknown };

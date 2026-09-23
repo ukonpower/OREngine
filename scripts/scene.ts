@@ -248,7 +248,7 @@ const sendCommandHeadless = async ( baseUrl: string, command: string, request: A
 
 			if ( response.status !== AGENT_NO_TAB_STATUS ) {
 
-				if ( response.result.ok && response.result.saved ) {
+				if ( response.result.ok && response.result.write?.saved ) {
 
 					await editor.waitForSave();
 
@@ -352,6 +352,9 @@ const main = async () => {
 	}
 
 	let output = result.result;
+
+	// 書き込み系は接続先と保存の有無を先頭に出す。接続先はコマンドごとに変わりうるので、最初の status だけでは保存の有無を判断できない
+	if ( result.write !== undefined ) output = { ...result.write, ...( result.result as object ) };
 
 	// shot の PNG は base64 で返ってくるのでファイルへ書き出し、stdout には残りの情報だけ出す
 	if ( command === 'shot' ) output = writeShotPng( args[ 0 ], result.result );
