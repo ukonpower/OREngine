@@ -62,7 +62,7 @@ npx tsx scripts/scene.ts undo
 - 観測: `status` / `tree` / `get <entity>` / `components` / `errors`。書き込み: `add-entity` / `remove-entity` / `add-component` / `remove-component` / `set` / `undo` / `redo`
 - `<entity>` は uuid か `root/...` の名前パス。存在しないエンティティ・コンポーネント名・フィールド path はエラーになり、候補が返る
 - 書き込みはすべて `EditorAPI` を通るので、GUI の Ctrl+Z / `undo` で戻せる（undo 履歴は GUI と共有）。**保存はしない**。確定はユーザーの Ctrl+S で、未保存の変更の有無は `status` の `unsaved` で分かる
-- `set` の値はフィールドの型で解釈する: 数値 / ベクトル・色は `1,2,3` か `[1,2,3]` / `true`・`false` / 文字列 / select は選択肢の値
+- `set` の値はフィールドの型で解釈する: 数値 / ベクトル・色は `1,2,3` か `[1,2,3]` / `true`・`false` / 文字列 / select は選択肢の値 / entity 参照は uuid（`null` で外す）。CLI の `set` は1コマンドが undo 1回ぶん
 - タブの選択状態・エディタのカメラ・再生時刻は変えない。編集できる範囲は GUI と同じ（script 由来のエンティティへの子の追加・削除、user 以外が付けたコンポーネントの削除・編集はできない）
 - npm scripts には載せていない（外部プロジェクトから同じ形で呼べるように、直接実行を唯一の呼び方にしている）
 - コマンド一覧は `npx tsx scripts/scene.ts help`

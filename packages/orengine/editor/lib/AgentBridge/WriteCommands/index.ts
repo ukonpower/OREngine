@@ -166,10 +166,25 @@ const parseArray = ( raw: string, current: MXP.SerializeFieldValue[], path: stri
 };
 
 // CLI から来た文字列を、フィールドの書式と現在値の型に合わせた値にする
-const parseFieldValue = ( target: MXP.Serializable, path: string, raw: string ): MXP.SerializeFieldValue => {
+const parseFieldValue = ( engine: Engine, target: MXP.Serializable, path: string, raw: string ): MXP.SerializeFieldValue => {
 
 	const opt = target.getFieldOpt( path ) ?? {};
 	const current = target.getField( path );
+
+	// entity 参照は uuid だけを受け付ける。名前パスは同名で曖昧になり得るうえ、get が返す値も uuid なので読み書きの形を揃える
+	if ( opt.format && opt.format.type === 'entity' ) {
+
+		if ( raw === 'null' ) return null;
+
+		if ( ! engine.root.findEntityByUUID( raw ) ) {
+
+			throw new AgentCommandError( `${path} はエンティティの uuid で指定します（外すときは null）。uuid は tree で確認できます: ${raw}` );
+
+		}
+
+		return raw;
+
+	}
 
 	// select / resource は選択肢のどれかに限る。選択肢の値が数値でも文字列で突き合わせる
 	if ( opt.format && ( opt.format.type === 'select' || opt.format.type === 'resource' ) ) {
@@ -214,7 +229,7 @@ const parseFieldValue = ( target: MXP.Serializable, path: string, raw: string ):
 
 	}
 
-	// entity / component の参照など、未設定だと null になるフィールド。null で外し、それ以外は JSON として読めれば JSON、読めなければ文字列
+	// 未設定だと null になるフィールド。null で外し、それ以外は JSON として読めれば JSON、読めなければ文字列
 	if ( current === null || current === undefined ) {
 
 		if ( raw === 'null' ) return null;
@@ -442,7 +457,8 @@ const set = ( ctx: AgentCommandContext, input: AgentCommandInput ) => {
 
 	}
 
-	ctx.editor.api.setField( target, path, parseFieldValue( target, path, raw ) );
+	// CLI の1コマンドは1操作なので、直前の変更とまとめず undo 1回ぶんにする
+	ctx.editor.api.setField( target, path, parseFieldValue( ctx.engine, target, path, raw ), { merge: false } );
 
 	return { target: targetLabel, path, value: target.getField( path ) };
 

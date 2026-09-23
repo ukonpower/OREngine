@@ -79,7 +79,7 @@ npx tsx scripts/scene.ts undo                                             # / re
 3. `get` / `tree` で結果を確認する（`position` は親からの相対、`tree` の `position` / `forward` はワールド）
 4. 作業が終わったら、**タブで Ctrl+S して保存するようユーザーに伝える**（CLI は保存しない。`status` の `unsaved: true` が未保存の印）
 
-- `set` の値はフィールドの型で解釈される: 数値 / ベクトル・色は `1,2,3` か `[1,2,3]`（要素数は現在値と同じ）/ `true`・`false` / 文字列 / select・resource は選択肢の値。path は `get` の `fields[].path` と同じ
+- `set` の値はフィールドの型で解釈される: 数値 / ベクトル・色は `1,2,3` か `[1,2,3]`（要素数は現在値と同じ）/ `true`・`false` / 文字列 / select・resource は選択肢の値 / entity 参照（`format: entity`）は対象の uuid（`tree` で調べる。`null` で外す）。path は `get` の `fields[].path` と同じ
 - `euler` はラジアン
 - 同名の兄弟がいると名前パスが複数に一致してエラーになる。`add-entity` の戻り値の uuid か、`tree` の uuid で指定する
 - `add-entity` の名前が兄弟と衝突すると `Name.001` のように採番される。戻り値の `path` を使う
