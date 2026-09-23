@@ -120,6 +120,17 @@ export const EditorPage = ( props: EditorPageProps ) => {
 
 	}, [ props.sceneData, apiBase, openScene ] );
 
+	// どのシーンを開いているかブラウザのタブで分かるようにする
+	useEffect( () => {
+
+		if ( sceneName ) {
+
+			document.title = `${sceneName} | OREngine`;
+
+		}
+
+	}, [ sceneName ] );
+
 	// ファイルを作るだけで開かない（開くのは呼び出し側）。from を渡すとそのシーンのファイルを複製する
 	const createScene = useCallback( async ( name: string, from?: string ) => {
 
