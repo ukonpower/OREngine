@@ -61,11 +61,12 @@
 
 ```jsonc
 {
-	"name": "CameraController",  // 登録名（クラス名）
+	"name": "Camera",            // 登録名（クラス名）
 	"uuid": "…",
 	"props": {                   // field() で登録した path と値
-		"lookAt/target": "blidge:CamLook",
-		"focus/mode": "target"
+		"fov": 30,
+		"focus/mode": "target",
+		"focus/target": "blidge:CamDof"
 	}
 }
 ```

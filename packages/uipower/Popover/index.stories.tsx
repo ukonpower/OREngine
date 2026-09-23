@@ -62,7 +62,7 @@ export const Default = pattern( [ { elm: entityMenu, x: 0.25, y: 0.25 } ] );
 // 一覧が max-height を超えてスクロールする状態
 export const LongList = pattern( [ {
 	elm: <Menu title="Components" items={
-		[ 'Camera', 'CameraController', 'Light', 'PostProcess', 'Bloom', 'FXAA', 'SSR', 'Fog', 'Mesh', 'Skybox', 'YakiSoba', 'RotateAnimation' ]
+		[ 'Camera', 'LookAt', 'Light', 'PostProcess', 'Bloom', 'FXAA', 'SSR', 'Fog', 'Mesh', 'Skybox', 'YakiSoba', 'RotateAnimation' ]
 			.map( ( label ) => ( { label } ) )
 	} />,
 	x: 0.25,

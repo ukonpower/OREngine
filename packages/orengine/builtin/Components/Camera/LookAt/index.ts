@@ -4,6 +4,7 @@ import * as MXP from 'maxpower';
 export class LookAt extends MXP.Component {
 
 	public target: MXP.Entity | null;
+	private _targetUUID: string | null;
 
 	private up: MTP.Vector;
 	private targetWorldPos: MTP.Vector;
@@ -17,6 +18,7 @@ export class LookAt extends MXP.Component {
 		super( params );
 
 		this.target = null;
+		this._targetUUID = null;
 		this.targetWorldPos = new MTP.Vector();
 		this.targetLocalPos = new MTP.Vector();
 		this.localUp = new MTP.Vector();
@@ -26,11 +28,41 @@ export class LookAt extends MXP.Component {
 
 		this.order = 100;
 
+		this.field( 'target', () => this._targetUUID, ( v: string | null ) => {
+
+			this._targetUUID = v || null;
+			this.target = null;
+
+		}, { format: { type: 'entity' } } );
+
 	}
 
 	public setTarget( target: MXP.Entity | null ) {
 
 		this.target = target;
+
+		if ( target ) {
+
+			this._targetUUID = target.uuid;
+
+		} else {
+
+			this._targetUUID = null;
+
+		}
+
+	}
+
+	// UUID から target のエンティティを引く。
+	// デシリアライズはコンポーネントを作り終えてから親へ add するため、
+	// コンストラクタの時点では自分がまだシーンツリーに繋がっておらず解決できない
+	protected updateImpl(): void {
+
+		if ( ! this._targetUUID || this.target ) return;
+
+		const root = this.entity.getRootEntity();
+
+		this.target = root.findEntityByUUID( this._targetUUID ) || null;
 
 	}
 

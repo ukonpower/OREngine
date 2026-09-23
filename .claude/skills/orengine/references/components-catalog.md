@@ -6,11 +6,10 @@
 
 | 名前 | 実装 | 用途 |
 |---|---|---|
-| `Camera` | `packages/maxpower/core/Components/Camera` | 描画するカメラ。tag は `camera` |
+| `Camera` | `packages/maxpower/core/Components/Camera` | 描画するカメラ。ピント（DoF）の制御も持つ。tag は `camera` |
 | `Light` | `packages/maxpower/core/Components/Light` | ライト（影付き） |
 | `Mesh` | `packages/maxpower/core/Components/Mesh` | 描画する形。CLI や JSON から付けても形は入らない（下記） |
-| `CameraController` | `builtin/Components/Camera/CameraController` | 標準のカメラ制御。注視先とピント（DoF）を決める |
-| `LookAt` | `builtin/Components/Camera/LookAt` | 注視先へ向ける。field が無く、注視先はコードの `setTarget()` でしか決められない。シーンからは `CameraController` を使う |
+| `LookAt` | `builtin/Components/Camera/LookAt` | 注視先へ向ける。field は `target`（entity 参照）。コードからは `setTarget()` |
 | `CameraOrbitAnim` | `builtin/Components/Camera/CameraOrbitAnim` | 原点の周りを回るカメラの動き |
 | `ShakeViewer` | `builtin/Components/Camera/CameraShake` | カメラの手ぶれ。**ディレクトリ名は `CameraShake` だが登録名は `ShakeViewer`** |
 | `OrbitControls` | `builtin/Components/Camera/OrbitControls` | マウス・キーボードでカメラを動かす |
@@ -21,10 +20,10 @@
 
 ## カメラ
 
-標準の組み合わせは `Camera` + `CameraController`（`add-entity --preset Camera` は `Camera` だけを付けるので、`CameraController` は `add-component` で足す）。
+ピントは `Camera` だけで決まる（`add-entity --preset Camera` で付く）。注視先へ向けたいときだけ `LookAt` を `add-component` で足す。
 
-- `CameraController` は付けると内部で `LookAt` を足す。field は `lookAt/target`（注視先）と `focus/mode` / `focus/target` / `focus/distance` / `focus/speed`（ピント）
-  - `lookAt/target` / `focus/target` は entity 参照で、値は対象の uuid（`tree` で調べる）。BLidge のエンティティの uuid は `blidge:<Blender での名前>`（`demo-webgl/scenes/main.json` では `"blidge:CamLook"` / `"blidge:CamDof"`）
+- `Camera` のピントの field は `focus/mode` / `focus/target` / `focus/distance` / `focus/speed`
+  - `LookAt` の `target` / `Camera` の `focus/target` は entity 参照で、値は対象の uuid（`tree` で調べる）。BLidge のエンティティの uuid は `blidge:<Blender での名前>`（`demo-webgl/scenes/main.json` では `"blidge:CamLook"` / `"blidge:CamDof"`）
   - `focus/mode`: `auto` = 画面中心の深度（WebGPU のみ。WebGL では `target` と同じ動きになる）/ `target` = `focus/target` のエンティティまでの距離 / `manual` = `focus/distance`
 - エンジンのポストプロセスはレンダラーに組み込まれていて、HDR → トーンマップ → SSR / DoF / モーションブラー → FXAA → ブルーム加算 の順に走る。作風のパス（レンズ歪み・色収差など）はエンジンに無く、プロジェクトがシーンカメラの `PostProcessPipeline` にパスを足すコンポーネントで持つ（エンジンの仕上げの後に足した順で走る）。見本は `demo-webgl` / `demo-webgpu` の `Resources/Components/Samples/PostProcess/Finalize`（main シーンのカメラに付いている）。`add` の形はバックエンドで違い、WebGL は `PostProcess` の実体、WebGPU はパスの宣言（`{ name, wgsl }`）を渡す
 - レンダラー全体の効果（モーションブラー・SSR・SSAO・DoF・ライトシャフト・トーンマップ・ブルーム等の on/off、空の色）はシーン JSON の `renderer`（`scene-schema.md`）で、CLI では変えられない

@@ -24,18 +24,18 @@
 										"near": 0.1,
 										"far": 1000,
 										"orthHeight": 1,
-										"fNumber": 0.3
-									}
-								},
-								{
-									"name": "CameraController",
-									"uuid": "3d0e3c4f-7110-43bc-917a-00850232c7b1",
-									"props": {
-										"lookAt/target": "blidge:CamLook",
+										"fNumber": 0.3,
 										"focus/mode": "auto",
 										"focus/target": "blidge:CamDof",
 										"focus/distance": 5,
 										"focus/speed": 8
+									}
+								},
+								{
+									"name": "LookAt",
+									"uuid": "3d0e3c4f-7110-43bc-917a-00850232c7b1",
+									"props": {
+										"target": "blidge:CamLook"
 									}
 								},
 								{

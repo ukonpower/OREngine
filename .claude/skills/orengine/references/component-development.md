@@ -333,7 +333,7 @@ dir.field( "mode", () => this._focusMode, v => this._focusMode = v, {
 
 - `format` の種類は `packages/maxpower/core/Serializable/index.ts`（`vector` / `color` / `select` / `entity` など）
 - 全コンポーネント共通で `enabled` / `tag` が登録済み（`tag` は読み取り専用）
-- **entity 参照（`format: { type: 'entity' }`）は uuid で持ち、コンストラクタで解決しない**。シーンを読み込む時点ではまだ自分がツリーに繋がっていないので、`updateImpl` で `this.entity.getRootEntity().findEntityByUUID( uuid )` する（`packages/orengine/builtin/Components/Camera/CameraController` の `_resolveTargets`）
+- **entity 参照（`format: { type: 'entity' }`）は uuid で持ち、コンストラクタで解決しない**。シーンを読み込む時点ではまだ自分がツリーに繋がっていないので、`updateImpl` で `this.entity.getRootEntity().findEntityByUUID( uuid )` する（`packages/orengine/builtin/Components/Camera/LookAt` の `updateImpl`）
 
 ## コンストラクタ引数
 
