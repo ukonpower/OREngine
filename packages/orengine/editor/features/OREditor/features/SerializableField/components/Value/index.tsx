@@ -13,6 +13,9 @@ export type ValueOpt = {
 	label?: string | React.ReactNode,
 	readOnly?: boolean,
 	step?: number,
+	min?: number,
+	max?: number,
+	int?: boolean,
 	disabled?: boolean,
 }
 

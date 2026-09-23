@@ -237,7 +237,7 @@ export class CubeMesh extends MXP.Component {
 
 ### 手順
 
-1. `index.ts`（と必要ならシェーダー）を作る
+1. `index.ts`（と必要ならシェーダー）を作る。数値の `field()` には `step` / `min` / `max`（整数なら `int`）を必ず付ける（`references/component-development.md` の「数値フィールドの step / min / max / int」）
 2. `npm run typecheck`（外部プロジェクトで script が無ければ、型チェックの方法をユーザーに確認する）
 3. dev サーバー起動中ならファイルの追加を検知してタブがリロードされる（タブ上の未保存の変更は消える）
 4. `components` に名前が出るのを確かめ、`add-entity` → `add-component <entity> <名前>` で置く
