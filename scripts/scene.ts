@@ -47,7 +47,7 @@ const COMMANDS: { [ name: string ]: CommandSpec } = {
 	// 全コンポーネントを一度ずつ生成してフィールド定義を読むので他より長く待つ
 	components: { usage: 'components', description: '登録済みコンポーネントの一覧とフィールド定義', timeoutMs: 30000 },
 	errors: { usage: 'errors', description: 'シェーダーエラー・GPU エラー・コンソールのエラー・解決できなかったコンポーネント', timeoutMs: 5000 },
-	// 書き込みは EditorAPI 経由でタブに反映するだけで保存しない（確定はユーザーの Ctrl+S）
+	// 書き込みは EditorAPI 経由でタブに反映し、応答の前にファイルへ保存する
 	'add-entity': { usage: 'add-entity <parent> [--preset Empty|Light|Camera] [--name <name>]', description: 'エンティティを追加して uuid を返す（プリセット省略時は Empty）', timeoutMs: 10000 },
 	'remove-entity': { usage: 'remove-entity <entity>', description: 'エンティティを子ごと削除する', timeoutMs: 10000 },
 	'add-component': { usage: 'add-component <entity> <Name>', description: 'コンポーネントを付ける（Name は components の name）', timeoutMs: 10000 },
@@ -222,7 +222,7 @@ const sendCommand = async ( baseUrl: string, command: string, request: AgentHttp
 
 const sleep = ( ms: number ) => new Promise<void>( ( resolve ) => setTimeout( resolve, ms ) );
 
-// headless Chromium でエディタを開き、タブとして登録されるのを待ってからコマンドを送る。書き込みならファイルへの保存まで待って閉じる
+// headless Chromium でエディタを開き、タブとして登録されるのを待ってからコマンドを送る。書き込みの保存はページが応答の前に済ませている
 const sendCommandHeadless = async ( baseUrl: string, command: string, request: AgentHttpRequest ): Promise<AgentResult> => {
 
 	let editor: HeadlessEditor;
@@ -247,12 +247,6 @@ const sendCommandHeadless = async ( baseUrl: string, command: string, request: A
 			const response = await sendCommand( baseUrl, command, headlessRequest );
 
 			if ( response.status !== AGENT_NO_TAB_STATUS ) {
-
-				if ( response.result.ok && response.result.write?.saved ) {
-
-					await editor.waitForSave();
-
-				}
 
 				return response.result;
 
@@ -353,7 +347,7 @@ const main = async () => {
 
 	let output = result.result;
 
-	// 書き込み系は接続先と保存の有無を先頭に出す。接続先はコマンドごとに変わりうるので、最初の status だけでは保存の有無を判断できない
+	// 書き込み系は接続先を先頭に出す。接続先はコマンドごとに変わりうるので、最初の status だけでは undo が効くかを判断できない
 	if ( result.write !== undefined ) output = { ...result.write, ...( result.result as object ) };
 
 	// shot の PNG は base64 で返ってくるのでファイルへ書き出し、stdout には残りの情報だけ出す

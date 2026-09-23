@@ -64,9 +64,11 @@ npx tsx scripts/scene.ts shot tmp/shot/b.png --from 0,3,5 --to 0,0,0 --time 2 --
 
 - 観測: `status` / `tree` / `get <entity>` / `components` / `errors` / `shot`。書き込み: `add-entity` / `remove-entity` / `add-component` / `remove-component` / `set` / `undo` / `redo`
 - `<entity>` は uuid か `root/...` の名前パス。存在しないエンティティ・コンポーネント名・フィールド path はエラーになり、候補が返る
-- 書き込みはすべて `EditorAPI` を通るので、GUI の Ctrl+Z / `undo` で戻せる（undo 履歴は GUI と共有）。ユーザーのタブでは**保存はしない**。確定はユーザーの Ctrl+S で、未保存の変更の有無は `status` の `unsaved` で分かる
+- 書き込みはすべて `EditorAPI` を通るので、GUI の Ctrl+Z / `undo` で戻せる（undo 履歴は GUI と共有）
+- **書き込み系コマンドは接続先（ユーザーのタブ / headless）によらず、そのたびに `editor.save()` でファイルへ保存する**。タブのままだと Ctrl+S せずに閉じたとき黙って消えるため。タブに CLI 以前の未保存の変更があれば一緒に保存される。応答は保存の POST が終わってから返る（完了は `EditorPage` の `onSave` が返す Promise で待つ）。保存に失敗したらエラーを返す
+  - 保存し終えたタブは HMR 経路で `orengine:agent:saved` を送り、dev サーバーは**それ以外のエディタタブ（ユーザーのタブ・headless とも）へ `full-reload` を送る**。API 経由の保存は `ProjectWatchReload` のリロードを `recentWrites` でタブを区別せず抑制するので、保存元以外への通知は AgentBridge が個別に行う。リロードされたタブの未保存の変更は消える（外部からファイルを編集したときと同じ）
 - **タブが1つも接続されていなければ headless Chromium で代わりに接続する**（`scripts/headlessEditor.ts`）。Playwright で `--enable-unsafe-webgpu --use-angle=metal` を付けて起動し（無いと WebGPU の canvas が真っ黒になる。#80 の実測）、同じエディタ URL に `?agent-headless` を付けて開く。シーンの読み込みと最初の描画を待ってからコマンドを実行し、1コマンドごとに閉じる。ローカルの Mac 専用（GPU の無い Linux CI では動かない）。Chromium が無ければ `npx playwright install chromium`
-  - headless では**書き込み系コマンドのたびに `editor.save()` でファイルへ保存する**（ブラウザを閉じると変更が消えるため）。CLI は保存の POST が終わるまで待ってから閉じる。undo 履歴はコマンドごとに消えるので、`undo` / `redo` は headless では意味を持たない
+  - headless では1コマンドごとにブラウザを閉じる。保存は応答の前に済んでいるので、CLI は応答を受けたらすぐ閉じる。undo 履歴はコマンドごとに消えるので、`undo` / `redo` は headless では意味を持たない
   - `status` の `connection` が `"headless"` になる（ユーザーのタブなら `"tab"`）
   - ウィンドウサイズは 1920x1080・deviceScaleFactor 1 に固定している。エディタの描画解像度（Screen パネルの大きさ）がこれで決まり、`shot`（#83）の出力サイズになるため。1920x1080 は一般的なデスクトップの画面サイズで、editor.json のパネル配置がそのまま収まる
   - ユーザーのタブが開いていれば headless は起動しない。dev サーバーが起動していなければ headless も起動せずエラーで止まる

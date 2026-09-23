@@ -21,11 +21,11 @@ const commands: AgentCommandTable = {
 export type AgentBridgeOptions = {
 	editor: Editor;
 	getSceneName: () => string | null;
+	// 直前の editor.save() によるファイルへの書き込みの完了を待つ。失敗したら reject する
+	waitForSave: () => Promise<void>;
 };
 
-type Attached = {
-	editor: Editor;
-	getSceneName: () => string | null;
+type Attached = AgentBridgeOptions & {
 	unsaved: boolean;
 };
 
@@ -75,7 +75,7 @@ const waitFrames = ( count: number ) => new Promise<void>( ( resolve ) => {
 	Request
 -------------------------------*/
 
-const runCommand = async ( request: AgentRequest ): Promise<AgentResult> => {
+const runCommand = async ( hot: ViteHotContext, request: AgentRequest ): Promise<AgentResult> => {
 
 	const command = commands[ request.command ];
 
@@ -106,6 +106,9 @@ const runCommand = async ( request: AgentRequest ): Promise<AgentResult> => {
 		unsaved: attached.unsaved,
 	};
 
+	// コマンドの await 中にエディタが作り直されると attached が差し替わるので、保存を待つ相手は実行開始時のものに固定する
+	const current = attached;
+
 	try {
 
 		const result = await command( ctx, { args: request.args, options: request.options } );
@@ -116,17 +119,25 @@ const runCommand = async ( request: AgentRequest ): Promise<AgentResult> => {
 
 		}
 
-		// headless のページはコマンドごとに CLI が閉じるので、書き込みはその場でファイルへ確定する。
-		// ユーザーのタブでは保存しない（確定はユーザーの Ctrl+S）
-		if ( headless ) {
+		// 書き込みは接続先によらずその場でファイルへ保存する。タブのままだと Ctrl+S せずに閉じたとき黙って消え、
+		// headless はコマンドごとに CLI が閉じるため。タブに CLI 以前の未保存の変更があれば一緒に保存される
+		ctx.editor.save();
 
-			ctx.editor.save();
+		try {
 
-			return { ok: true, result, write: { connection: 'headless', saved: true } };
+			// エージェントが応答の直後にファイルを読んでも反映済みであるよう、書き込みの完了まで応答を待たせる
+			await current.waitForSave();
+
+		} catch ( e ) {
+
+			return { ok: false, error: `タブには反映しましたが、ファイルへの保存に失敗しました: ${errorMessage( e )}` };
 
 		}
 
-		return { ok: true, result, write: { connection: 'tab', saved: false } };
+		// 他のエディタタブは古いシーンのままなので、サーバーにリロードさせる
+		hot.send( AGENT_EVENT.saved, { tabId } );
+
+		return { ok: true, result, write: { connection: headless ? 'headless' : 'tab' } };
 
 	} catch ( e ) {
 
@@ -189,7 +200,7 @@ const connect = ( hot: ViteHotContext ) => {
 
 		queue = queue.then( async () => {
 
-			respond( hot, request.id, await runCommand( request ) );
+			respond( hot, request.id, await runCommand( hot, request ) );
 
 		} );
 
@@ -221,7 +232,7 @@ if ( import.meta.hot ) {
 // コマンドの操作対象にするエディタを繋ぐ。戻り値で外す
 export const attachAgentBridge = ( opts: AgentBridgeOptions ) => {
 
-	const current: Attached = { editor: opts.editor, getSceneName: opts.getSceneName, unsaved: false };
+	const current: Attached = { ...opts, unsaved: false };
 
 	const onChange = () => {
 
