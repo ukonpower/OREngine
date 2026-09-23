@@ -4,6 +4,7 @@ description: >
   OREngineの3Dシーン構築・コンポーネント開発・シェーダー作成を行うワークフロースキル。
   シーンは devサーバー経由でエディタタブを操作するシーン CLI（npx tsx scripts/scene.ts）で
   観測・編集する（EditorAPI を通るので undo が効き、保存はユーザーの Ctrl+S）。
+  タブが無ければ CLI が headless Chromium で代わりに開き、書き込みはその場で保存する。
   見た目のあるオブジェクトはカスタムコンポーネント内で Geometry + Material + Mesh を組み立てる。
   Use when user asks to "シーンを作って", "エンティティを追加", "オブジェクトを配置",
   "ライトを追加", "カメラを配置", "シーンを修正", "コンポーネントを追加",
@@ -22,8 +23,10 @@ metadata:
 
 OREngineのシーン構築・コンポーネント開発を行うスキル。
 
-- **シーンの観測・編集はシーン CLI**（`npx tsx scripts/scene.ts <command>`。外部プロジェクトからは `npx tsx orengine/scripts/scene.ts`）。dev サーバー＋開いているエディタタブが必要
-- **CLI の書き込みは保存しない**。タブにライブで反映され undo も効くが、ファイルに確定するのはユーザーの Ctrl+S
+- **シーンの観測・編集はシーン CLI**（`npx tsx scripts/scene.ts <command>`。外部プロジェクトからは `npx tsx orengine/scripts/scene.ts`）。dev サーバーが必要。エディタタブが開いていればそこで実行し、1つも無ければ CLI が headless Chromium でエディタを開いて代わりに使う（1コマンドごとに起動・終了する。ローカルの Mac 専用）
+- **接続先で保存の扱いが変わる**。`status` の `connection` で分かる
+  - `"tab"`（ユーザーのタブ）: 書き込みは保存しない。タブにライブで反映され undo も効くが、ファイルに確定するのはユーザーの Ctrl+S
+  - `"headless"`: 書き込み系コマンドのたびに `scenes/<name>.json` / `editor.json` へ保存される。コマンドごとにブラウザを閉じるので undo 履歴は残らず、`undo` / `redo` は効かない。取り消すには逆の操作（`remove-entity` 等）をする
 - `scenes/<name>.json` の直接編集は人間の手段。Claude は CLI を使う（JSON を書き換えるとタブが full-reload され、未保存の変更が消える）
 - **見た目を持つオブジェクトはコンポーネントで作る**（Geometry / Material / Mesh をコンポーネントのコンストラクタで生成）
 - **マテリアル / シェーダーを作る独立 API は存在しない**（`.mat` ファイルは廃止）
@@ -58,7 +61,7 @@ npx tsx scripts/scene.ts get root/Camera
 
 エンティティの名前パス / uuid、実在するコンポーネント名、フィールドの path と現在値を CLI で把握してから編集する。`tree` には BLidge / glb 由来のエンティティ（`initiator: "script"`。シーン JSON に載らない）も出る。
 
-CLI が `dev サーバーが起動していません` / `エディタのタブが接続されていません` で止まったら、ユーザーに dev サーバーの起動とエディタを開くことを依頼する（`npm run dev` を勝手に起動しない。JSON の直接編集に切り替えない）。
+CLI が `dev サーバーが起動していません` で止まったら、ユーザーに dev サーバーの起動を依頼する（`npm run dev` を勝手に起動しない。JSON の直接編集に切り替えない）。タブが無いだけなら CLI が headless で代わりに繋ぐので、エディタを開いてもらう必要はない。
 
 ## Flow 1: シーン編集（シーン CLI）
 
@@ -77,7 +80,7 @@ npx tsx scripts/scene.ts undo                                             # / re
 1. `tree` / `get` / `components` で現状と名前を確認する
 2. 書き込みコマンドで操作する。存在しないエンティティ・コンポーネント名・path はエラーになり、`candidates` に候補が出るので選び直す
 3. `get` / `tree` で結果を確認する（`position` は親からの相対、`tree` の `position` / `forward` はワールド）
-4. 作業が終わったら、**タブで Ctrl+S して保存するようユーザーに伝える**（CLI は保存しない。`status` の `unsaved: true` が未保存の印）
+4. 作業が終わったら、**タブで Ctrl+S して保存するようユーザーに伝える**（ユーザーのタブでは CLI は保存しない。`status` の `unsaved: true` が未保存の印）。headless で操作した場合は保存済みなので不要。`git diff scenes/` で変更を伝える
 
 - `set` の値はフィールドの型で解釈される: 数値 / ベクトル・色は `1,2,3` か `[1,2,3]`（要素数は現在値と同じ）/ `true`・`false` / 文字列 / select・resource は選択肢の値 / entity 参照（`format: entity`）は対象の uuid（`tree` で調べる。`null` で外す）。path は `get` の `fields[].path` と同じ
 - `euler` はラジアン
@@ -260,7 +263,7 @@ npx tsx scripts/scene.ts add-component root/MainCamera CameraController
 ## Guardrails
 
 - **シーンの編集はシーン CLI で行う**。コンポーネントファイル・`.tex` はファイルの直接編集。`scenes/<name>.json` の直接編集は人間の手段（Claude が書き換えるとタブが full-reload され、ユーザーの未保存の変更も消える）
-- **CLI は保存しない**。作業の区切りでユーザーに Ctrl+S を依頼する
+- **ユーザーのタブでは CLI は保存しない**。作業の区切りでユーザーに Ctrl+S を依頼する。headless（`status` の `connection: "headless"`）では書き込みのたびに保存される
 - **マテリアル / シェーダーを作る独立 API はない**。`.mat` ファイルも存在しない。Material はコンポーネント内で `new MXP.Material(...)` する
 - **見た目のあるオブジェクト = カスタムコンポーネント**を基本とする
 - **名前・path は CLI で確かめる**。CLI は未知のコンポーネント名・path をエラーにして候補を返す（JSON の直接編集では silent skip になる）
@@ -274,7 +277,7 @@ npx tsx scripts/scene.ts add-component root/MainCamera CameraController
 | 症状 | 対処 |
 |---|---|
 | CLI が `dev サーバーが起動していません` / `接続できません` | ユーザーに `npm run dev` の起動を依頼、または明示的な指示があれば起動する |
-| CLI が `エディタのタブが接続されていません` | ユーザーにエディタページを開くよう依頼する |
+| CLI が `headless Chromium で開こうとしましたが、失敗しました` | Playwright の Chromium が無い。ユーザーに `npx playwright install chromium` を依頼する（Linux CI 等 GPU の無い環境では動かない） |
 | CLI の書き込みが消えた | 保存前に full-reload（JSON の書き換え・コンポーネントファイルの追加・編集）が走った。`status` の `unsaved` で確認し、やり直してから Ctrl+S を依頼 |
 | コンポーネントが一覧に出ない | TypeScript/Viteのtransformエラーが無いか確認（importが壊れたコンポーネントは登録されない） |
 | `set` が path のエラーになる | `candidates` か `get` の `fields[].path` から選ぶ。`field()` 未登録のプロパティはコンポーネント実装を変えるしかない |
