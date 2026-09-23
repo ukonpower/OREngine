@@ -1,56 +1,54 @@
-# テクスチャ（`.tex`）スキーマリファレンス
+# 生成テクスチャ（`.tex`）
 
-> マテリアル / シェーダーを作る独立 API は存在しない。Material はカスタムコンポーネント内で `new MXP.Material({...})` で生成する（`references/component-development.md` 参照）。`.mat` ファイルも廃止された。
+シェーダーで描いて作るテクスチャ（ノイズ等）を JSON で定義する。ファイルを直接編集して作る。パスの書き方は SKILL.md の「最初に」を参照。
 
-生成系テクスチャ（シェーダーでレンダリングするテクスチャ）は `<projectDir>/Resources/Textures/<Name>.tex` という JSON ファイルで定義する。Read/Write/Edit ツールで直接編集する。
+実物: `demo-webgl/Resources/Textures/`（`noise.tex` / `hash.tex` 等）。WebGPU の demo には `.tex` の実例が無い。
 
-## スキーマ
+## 配置
+
+```
+<projectDir>/Resources/Textures/
+├── noise.tex
+└── shaders/
+    └── noise.fs
+```
+
+- テクスチャ名はファイル名（`noise.tex` → `noise`）
+- 先頭が `_` のファイル・ディレクトリは対象外
+- 読み込みは `host/vite/plugins/TexLoader`（`frag` をビルド時に import へ変換する）と `host/app/Resources/registryCommon.ts`
+
+## 書式
 
 ```jsonc
 {
-	"frag": "./shaders/hash.fs",   // フラグメントシェーダーへの相対パス
-	"resolution": [512, 512],       // [width, height]
-	"filter": "nearest",            // "nearest" | "linear"
-	"updateEveryFrame": false,      // true なら毎フレーム再レンダリング
-	"textures": {                   // 他のテクスチャを uniform として参照（省略可）
-		"uSrc": "noise"             // uniform名（uXxx 形式必須） : 参照先テクスチャ名
+	"frag": "./shaders/noise.fs",   // .tex からの相対パス
+	"resolution": [ 1024, 1024 ],   // 省略時 [1024, 1024]
+	"filter": "linear",             // "linear"（省略時）| "nearest"
+	"updateEveryFrame": true,       // true なら毎フレーム描き直す
+	"textures": {                   // 他の .tex を読む（省略可）
+		"uSrc": "noise"             // シェーダー上の名前 : テクスチャ名
 	}
 }
 ```
 
-## 他のテクスチャを参照する（textures フィールド）
+- `textures` の参照先は先に作られる。循環していると作られずに飛ばされる
+- シェーダー上の名前は `uXxx`（プレイヤービルドの mangle から守られるのはこの形だけ）
 
-`textures` に `{ uniform名: テクスチャ名 }` を書くと、参照先テクスチャが先にビルドされ、`uniform sampler2D uXxx;` としてシェーダーから読める。依存順は自動解決される（循環参照はビルドされずスキップ）。`updateEveryFrame` 同士の依存でも参照先が先に描画される。
+## シェーダー
 
-uniform名は必ず `u` + 大文字始まり（`uSrc`, `uNoise` 等）にする。この命名だけが terser のプロパティマングリングから保護されている。
+- WebGL: GLSL。雛形は `shader-glsl.md` の「生成テクスチャ用の雛形」。`textures` で渡したものは `uniform sampler2D uSrc;` で読む
+- WebGPU: `frag` は WGSL を指す。全画面パスとして `@fragment fn fsMain( input: FullscreenOutput ) -> @location(0) vec4f` を書く（`input.uv` が使える）。`frame` と、`textures` で渡した名前の `texture_2d<f32>`・サンプラー `ppSampler` が前置される（`packages/maxpower/webgpu/PostProcess/index.ts` の `shaderSource`、頂点側は `PostProcess/shaders/fullscreen.wgsl`）。demo に実例が無いので、書くときはこの2ファイルと `Renderer/PipelinePostProcess/shaders/*.wgsl` を読んでから書く
 
-## ファイル配置
+## コンポーネントから使う
 
-```
-<projectDir>/Resources/Textures/
-├── MyTexture.tex
-└── shaders/
-    └── myTexture.fs
-```
+`Engine.resources.getTexture( '<名前>' )` で取る（`import { Engine } from 'orengine'`）。
 
-先頭が `_` のディレクトリ・ファイルは自動スキャン対象外。
-
-## コンポーネント側での参照
+WebGL（`demo-webgl` の `OREngineCube`）:
 
 ```ts
-import { Engine } from 'orengine';
-
-// コンポーネントのコンストラクタ内（engine は注入済み参照）
-const engine = this.engine as Engine;
-const tex = Engine.resources.getTexture( 'MyTexture' );
-
-const material = new MXP.Material( {
-	frag, vert,
-	uniforms: MXP.UniformsUtils.merge(
-		engine.uniforms,
-		{ uTex: { value: tex, type: '1i' } },
-	),
-} );
+uniforms: MXP.UniformsUtils.merge( engine.uniforms, {
+	uNoiseTex: { value: Engine.resources.getTexture( "noise" ), type: "1i" }
+} )
 ```
 
-シェーダー側で `uniform sampler2D uTex;` を宣言すれば自動でエディタ UI から値を変更できる（`references/shader-guide.md` 参照）。
+WebGPU: Material の `textures` に渡すと、WGSL に `<名前>: texture_2d<f32>` と `<名前>Sampler: sampler` が生える（`packages/maxpower/webgpu/Material/index.ts` の `MaterialParam.textures`）。テクスチャの実体ができるまでそのマテリアルは描かれない。

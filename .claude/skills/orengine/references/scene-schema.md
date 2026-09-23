@@ -1,110 +1,95 @@
-# scenes/<name>.json スキーマリファレンス
+# シーン JSON（`scenes/<name>.json`）
 
-> 正はコードの型定義（`packages/orengine/core/ProjectSerializer/index.ts`）である。迷ったらそちらを読む。
-> サーバー側の型（`host/server/Project/types.ts`）も同一構造のミラー。
+`<projectDir>/scenes/<name>.json` を読んで確かめる・差分を見るための資料。Claude はシーンの編集にシーン CLI を使い、このファイルは直接書き換えない（書き換えるとタブが full-reload され、未保存の変更が消える）。
 
-`<projectDir>/scenes/<name>.json` の直接編集は人間の手段。Claude はシーンの編集にシーン CLI（`npx tsx scripts/scene.ts`。SKILL.md の Flow 1）を使い、このファイルは保存結果を読んで確かめる・差分を見るために参照する。
+型の定義は `packages/orengine/core/ProjectSerializer/index.ts`（`OREngineProjectData` / `OREngineDataEntity` / `OREngineDataEntityComponent`）。
 
-直接編集した場合、devサーバー起動中なら vite watch が検知して自動 full-reload する。このときエディタタブ上の未保存の変更（GUI・CLI の操作）は消える。
+## 全体
 
-## トップレベル構造（`OREngineProjectData`）
+`demo-webgl/scenes/main.json` の形（`scene` の中身は省略）:
 
-```jsonc
+```json
 {
-	"name": "New Project",
-	"scene": { /* OREngineDataEntity（ルートエンティティ） */ },
-	"renderer": { /* Renderer の field。sky/skyColor, pipeline/xxx/enabled 等 */ },
+	"name": "demo-webgl",
+	"scene": {
+		"name": "root",
+		"uuid": "0",
+		"components": [ ... ]
+	},
+	"renderer": {
+		"sky/skyColor": [ 1, 1, 1 ],
+		"sky/groundColor": [ 0.3, 0.3, 0.3 ],
+		"sky/intensity": 1,
+		"pipeline/motionBlur/enabled": true,
+		"pipeline/motionBlur/power": 1,
+		"pipeline/ssr/enabled": true,
+		"pipeline/ssao/enabled": true,
+		"pipeline/dof/enabled": true,
+		"pipeline/lightShaft/enabled": true
+	},
 	"timeline/duration": 600,
 	"timeline/fps": 60
 }
 ```
 
-- `name`: プロジェクト表示名
-- `scene`: ルートエンティティ（`OREngineDataEntity`）。省略不可
-- `renderer`: `MXP.Renderer` の `field()` / `fieldDir()` 登録パスをまとめたオブジェクト（例: `sky/skyColor`, `pipeline/motionBlur/enabled`）。既存プロジェクトの値をコピーして調整するのが安全
-- `"timeline/duration"` / `"timeline/fps"`: タイムラインの尺とfps。`Engine` の `fieldDir("timeline")` に対応
-- それ以外のトップレベルキーも `Engine` の `field()` 登録パス次第で許容される（`[key: string]: unknown`）
+- 1ファイル = 1シーンで自己完結している。シーン名はファイル名（`name` はエンジンの表示名で、シーン名とは別）
+- `scene`: ルートエンティティ。uuid は常に `"0"`
+- `renderer`: レンダラーの field（空の色・ポストエフェクトの on/off 等）。キーはバックエンドで違う（`demo-webgpu/scenes/main.json` には `pipeline/lightShaft/intensity` 等が増えている）。**CLI では変えられない**ので、変えたいときはユーザーにエディタで変えてもらう
+- `timeline/duration` / `timeline/fps`: タイムラインの長さ（フレーム数）と fps
 
-## エンティティ（`OREngineDataEntity`）
+## エンティティ
 
-```ts
-interface OREngineDataEntity {
-	name: string;
-	uuid: string;
-	pos?: number[];      // [x, y, z]。省略時は [0, 0, 0]
-	rot?: number[];      // [x, y, z]（euler）。省略時は [0, 0, 0]
-	scale?: number[];    // [x, y, z]。省略時は [1, 1, 1]
-	components?: OREngineDataEntityComponent[];
-	childs?: OREngineDataEntity[];
+```jsonc
+{
+	"name": "Cube",
+	"uuid": "…",                 // UUID v4。CLI の add-entity が作る
+	"pos": [ 0, 1, 0 ],          // 省略時 [0, 0, 0]。親からの相対
+	"rot": [ 0, 0, 0 ],          // euler（ラジアン）。省略時 [0, 0, 0]。CLI では euler
+	"scale": [ 1, 1, 1 ],        // 省略時 [1, 1, 1]
+	"components": [ … ],
+	"childs": [ … ]              // 子エンティティ
 }
 ```
 
-- `pos` / `rot` / `scale` はデフォルト値と一致する場合は省略してよい（シリアライズ時も省略される）
-- `childs` は子エンティティの配列。ネストして木構造を作る
-- **ルートエンティティの `uuid` は常に `"0"`**（`host/server/Project/ProjectData/index.ts` が省略時に補完する。新規プロジェクトでも明示しておくこと）
+初期値と同じ `pos` / `rot` / `scale` は保存時に省かれる。
 
-## コンポーネント（`OREngineDataEntityComponent`）
+## コンポーネント
 
-```ts
-interface OREngineDataEntityComponent {
-	name: string;                    // コンポーネントのクラス名（ビルトイン or プロジェクト固有）
-	uuid: string;
-	props?: { [key: string]: any };  // component.field() / fieldDir() で公開されたパスの値
+```jsonc
+{
+	"name": "CameraController",  // 登録名（クラス名）
+	"uuid": "…",
+	"props": {                   // field() で登録した path と値
+		"lookAt/target": "blidge:CamLook",
+		"focus/mode": "target"
+	}
 }
 ```
 
-- `name` に指定できるのは実在するコンポーネント名のみ。実在確認は `packages/orengine/builtin/Components/`（ビルトイン）と `<projectDir>/Resources/Components/`（プロジェクト固有）の `export class` 名で行う（登録名 = クラス名）。**未知の名前でもエラーにはならず**、`ProjectSerializer.deserializeEntity` が `unresolvedComponents` として保持するだけで反映されない（コンソールに warning が出る）
-- `props` のキーはコンポーネント実装側の `this.field(path, ...)` / `this.fieldDir(dir)` で登録されたパスと一致している必要がある。未登録パスは silent skip（`Serializable.deserialize` が `fields_` Map にないキーを無視する）。実装（コンポーネントの `index.ts`）を読んで実在パスを確認すること
+- `props` のキーは CLI の `get` の `fields[].path` と同じ。field に登録されていないキーは読み込み時に無視される
+- 実在しない `name` はエラーにならず `unresolvedComponents` として保持される（`errors` に出る）
 
-## UUID の生成規則
+## BLidge のエンティティに付けたコンポーネント
 
-- ルートエンティティ: 常に `"0"`
-- それ以外の全エンティティ・コンポーネント: UUID v4（`basepower` の `BSP.ID.genUUID()` と同形式）。CLI の `add-entity` / `add-component` はエディタが生成した uuid を返すので、手で作る必要があるのは JSON を直接編集するときだけ（`python3 -c "import uuid; print(uuid.uuid4())"` 等）
-- 既存の UUID と重複しないようにする（シーン内でユニークであればよい。フォーマットは標準 UUID v4 なら何でもよい）
-
-## 実例（`demo-webgl/scenes/main.json` 抜粋）
+BLidge / glb が作ったエンティティ（`tree` で `initiator: "script"`）は `scene` のツリーに載らない。そこに付けたコンポーネントは root の `BLidgeClient` の `props.attachments` に、**エンティティ名**をキーにして保存される。
 
 ```json
-{
-	"name": "root",
-	"uuid": "0",
-	"components": [
-		{
-			"name": "BLidgeClient",
-			"uuid": "1",
-			"props": {
-				"mode": "json"
-			}
-		}
-	],
-	"childs": [
-		{
-			"name": "Camera",
-			"uuid": "4ec0479f-f58f-4644-a7f4-0204813c5c99",
-			"components": [
-				{ "name": "Camera", "uuid": "3d0e3c4f-7110-43bc-917a-00850232c7b1" },
-				{ "name": "CameraController", "uuid": "056176b4-e208-42ce-bd17-5ea264f09d86" }
-			]
-		}
-	]
-}
+"attachments": [
+	{
+		"name": "OREngineCube",
+		"components": [
+			{ "name": "OREngineCube", "uuid": "056176b4-e208-42ce-bd17-5ea264f09d86" }
+		]
+	}
+]
 ```
 
-## 取り消し
+BLidge のエンティティの uuid は `blidge:<Blender での名前>` で、entity 参照の field（`lookAt/target` 等）にはこの形で入る。
 
-CLI の操作はタブ上で `npx tsx scripts/scene.ts undo`（または GUI の Ctrl+Z）で戻す。保存後のファイルを戻したい場合は git を使う。
+## 差分を見る・戻す
 
 ```bash
-git diff demo-webgl/scenes/main.json         # 変更差分の確認
-git checkout -- demo-webgl/scenes/main.json  # 変更を破棄して復元
+git diff <projectDir>/scenes/
 ```
 
-## 反映確認
-
-devサーバー起動中（`npm run dev`）に scenes/<name>.json を保存すると、`host/vite/plugins/ProjectWatchReload/index.ts` がファイル変更を検知してブラウザへ `full-reload` を送る。ログに以下が出れば発火している:
-
-```
-[vite] page reload demo-webgl/scenes/main.json
-```
-
-見た目の確認は CLI の `shot` で PNG に書き出して行う。読み込まれた後の状態（BLidge / glb 由来を含む）は CLI の `tree` / `get` で確認できる。
+タブ上の未保存の操作は `undo`（タブ接続時）で戻す。保存済みのファイルを戻すのはユーザーに確認してから行う。
