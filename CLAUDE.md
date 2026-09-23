@@ -72,7 +72,7 @@ npx tsx scripts/scene.ts shot tmp/shot/b.png --from 0,3,5 --to 0,0,0 --time 2 --
   - ユーザーのタブが開いていれば headless は起動しない。dev サーバーが起動していなければ headless も起動せずエラーで止まる
 - `set` の値はフィールドの型で解釈する: 数値 / ベクトル・色は `1,2,3` か `[1,2,3]` / `true`・`false` / 文字列 / select は選択肢の値 / entity 参照は uuid（`null` で外す）。CLI の `set` は1コマンドが undo 1回ぶん
 - タブの選択状態・エディタのカメラ・再生時刻は変えない（`shot` も同じ）。編集できる範囲は GUI と同じ（script 由来のエンティティへの子の追加・削除、user 以外が付けたコンポーネントの削除・編集はできない）
-- `shot <out.png>` は shot 専用の RenderView で描いて PNG を CLI が書き出す。カメラは `--camera <entity>` / `--from x,y,z --to x,y,z`（一時カメラ）/ 省略でシーンカメラ。サイズはエディタの今の描画解像度で、指定はできない。`--time T` は「時刻 T を当てて1回描いた状態」で、T まで再生した状態ではない。`--view` はパスのラベル（webgl は `camera/deferred_1`、webgpu は `gBuffer_1` のようなバックエンドごとの生の名前）で、一致しなければ候補が返る。実装は `packages/orengine/editor/lib/AgentBridge/ShotCommand`
+- `shot <out.png>` は shot 専用の RenderView で描いて PNG を CLI が書き出す。カメラは `--camera <entity>` / `--from x,y,z --to x,y,z`（一時カメラ）/ 省略でシーンカメラ。サイズはエディタの今の描画解像度で、指定はできない。`--time T` は「時刻 T-1/60 → T の2ステップだけ進めて描いた状態」（前フレームを T の直前にしてモーションブラーの速度を合わせるため）で、T まで再生した状態ではない。省略時はタブの今の時刻で1ステップ。`--view` はパスのラベル（webgl は `camera/deferred_1`、webgpu は `gBuffer_1` のようなバックエンドごとの生の名前）で、一致しなければ候補が返る。実装は `packages/orengine/editor/lib/AgentBridge/ShotCommand`
 - npm scripts には載せていない（外部プロジェクトから同じ形で呼べるように、直接実行を唯一の呼び方にしている）
 - コマンド一覧は `npx tsx scripts/scene.ts help`
 - dev サーバーの URL は `<OREngine>/tmp/dev-server.json` から読む。同じ OREngine チェックアウトで dev サーバーを2つ立てると後から起動した方で上書きされるので、その場合は `--url` で指定する
