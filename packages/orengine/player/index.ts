@@ -8,6 +8,10 @@ export interface StartPlayerOptions {
 	initResourceInstances: ( engine: Engine ) => void;
 	title?: string;
 	size?: { width: number; height: number };
+	// スタート画面を出さず、コンパイルが終わったら再生を始める（ギャラリー等の埋め込み用）
+	autoPlay?: boolean;
+	// 終端まで行ったら先頭へ戻って再生を続ける
+	loop?: boolean;
 }
 
 export const startPlayer = ( opts: StartPlayerOptions ): Engine => {
@@ -83,7 +87,7 @@ export const startPlayer = ( opts: StartPlayerOptions ): Engine => {
 	const playButton = document.getElementById( 'pl' ) as HTMLButtonElement;
 	playButton.disabled = true;
 
-	playButton.onclick = () => {
+	const play = () => {
 
 		menuElm.style.opacity = "0";
 		menuElm.style.pointerEvents = "none";
@@ -98,8 +102,16 @@ export const startPlayer = ( opts: StartPlayerOptions ): Engine => {
 
 			if ( engine.frame.current > engine.frameSetting.duration ) {
 
-				exitElm.style.opacity = '1';
-				return;
+				if ( opts.loop ) {
+
+					engine.seek( 0 );
+
+				} else {
+
+					exitElm.style.opacity = '1';
+					return;
+
+				}
 
 			}
 
@@ -110,6 +122,8 @@ export const startPlayer = ( opts: StartPlayerOptions ): Engine => {
 		animate();
 
 	};
+
+	playButton.onclick = play;
 
 	engine.load( opts.sceneData );
 
@@ -128,6 +142,14 @@ export const startPlayer = ( opts: StartPlayerOptions ): Engine => {
 		} ).then( () => {
 
 			loadingElm.style.opacity = "0";
+
+			if ( opts.autoPlay ) {
+
+				play();
+				return;
+
+			}
+
 			menuElm.style.opacity = "1";
 			menuElm.style.pointerEvents = "auto";
 			playButton.disabled = false;
