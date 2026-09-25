@@ -1,33 +1,9 @@
 import * as MXP from 'maxpower';
 
 import { Command } from '../../CommandManager';
+import { uniqueEntityName } from '../../EntityName';
 
 import type { EntityPreset } from '../../EntityPresets';
-
-// 兄弟の中で衝突しない名前を返す。Blender と同じく "Light" → "Light.001" → "Light.002" の採番
-const uniqueName = ( parent: MXP.Entity, baseName: string ): string => {
-
-	const used = new Set<string>();
-
-	for ( const child of parent.children ) {
-
-		used.add( child.name );
-
-	}
-
-	if ( ! used.has( baseName ) ) return baseName;
-
-	let index = 1;
-
-	while ( used.has( `${baseName}.${String( index ).padStart( 3, "0" )}` ) ) {
-
-		index ++;
-
-	}
-
-	return `${baseName}.${String( index ).padStart( 3, "0" )}`;
-
-};
 
 // プリセット1つぶんのエンティティを生成する。コンポーネントの追加までを1コマンドに含めて、
 // undo 1回でエンティティごと丸ごと戻るようにしている
@@ -46,7 +22,7 @@ export class CreateEntityCommand implements Command {
 
 		if ( ! this.entity ) {
 
-			this.entity = this.engine.createEntity( { name: uniqueName( this.parent, this.preset.name ) } );
+			this.entity = this.engine.createEntity( { name: uniqueEntityName( this.parent, this.preset.name ) } );
 			this.entity.initiator = "user";
 
 			for ( const componentClass of this.preset.components ) {
