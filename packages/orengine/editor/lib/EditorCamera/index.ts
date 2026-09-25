@@ -14,6 +14,16 @@ const FOCUS_EMPTY_RADIUS = 1.0;
 // 平面や点のように潰れた境界でカメラがめり込まないようにする下限
 const FOCUS_MIN_RADIUS = 0.1;
 
+// Blender のテンキー視点（1: Front / 3: Right / 7: Top）に対応する向き
+export type ViewAxis = 'front' | 'right' | 'top';
+
+// 注視点から見たカメラの置き場所の向き。Blender（Z-up）の Front は OREngine（Y-up）では -Z を見る向きになる
+const VIEW_AXIS_DIRECTIONS: Record<ViewAxis, [ number, number, number ]> = {
+	front: [ 0, 0, 1 ],
+	right: [ 1, 0, 0 ],
+	top: [ 0, 1, 0 ],
+};
+
 // シーン内の displayOut なカメラを探す
 export const findSceneCameraEntity = ( root: MXP.Entity ): MXP.Entity | null => {
 
@@ -145,6 +155,41 @@ export class EditorCamera {
 
 	}
 
+	// 注視点と距離を保ったまま、軸に沿った視点へ向きだけ変える。opposite で反対側（Back / Left / Bottom）から見る
+	public alignView( axis: ViewAxis, opposite: boolean ) {
+
+		const target = this._orbitControls.target.clone();
+		const distance = this._orbitControls.eye.clone().sub( target ).length();
+
+		const d = VIEW_AXIS_DIRECTIONS[ axis ];
+		const dir = new MTP.Vector( d[ 0 ], d[ 1 ], d[ 2 ] );
+
+		if ( opposite ) dir.multiply( - 1 );
+
+		// 真上・真下は OrbitControls 側で極をわずかに外して解くので、画面の上は Blender と同じく奥（Top）/ 手前（Bottom）になる
+		const eye = target.clone().add( dir.multiply( distance ) );
+
+		this._orbitControls.setPosition( eye, target );
+
+	}
+
+	// 透視投影と平行投影を切り替える。平行投影の幅は updateBeforeRender で注視点距離から決める
+	public toggleProjection() {
+
+		if ( this._camera.cameraType === 'perspective' ) {
+
+			this._camera.cameraType = 'orthographic';
+
+		} else {
+
+			this._camera.cameraType = 'perspective';
+
+		}
+
+		this._camera.needsUpdateProjectionMatrix = true;
+
+	}
+
 	// エンティティの境界球が画面に収まる位置へ、今の視線方向を保ったまま寄る
 	public focus( entity: MXP.Entity ) {
 
@@ -242,6 +287,16 @@ export class EditorCamera {
 		this._camera.needsUpdateProjectionMatrix = true;
 
 		this._entity.update( event );
+
+		// 注視点距離での透視の画面高さに合わせる。update で OrbitControls が距離を更新した後に取るので、ホイールの寄り引きもそのまま拡大縮小になる
+		if ( this._camera.cameraType === 'orthographic' ) {
+
+			const distance = this._orbitControls.eye.clone().sub( this._orbitControls.target ).length();
+
+			this._camera.orthHeight = 2 * distance * Math.tan( this._camera.fov * Math.PI / 360 );
+
+		}
+
 		this._entity.postUpdate( event );
 		this._entity.updateMatrixRecursive();
 		this._entity.prepareRender( event );

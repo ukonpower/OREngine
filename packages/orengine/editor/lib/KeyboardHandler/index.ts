@@ -1,5 +1,7 @@
 import { Keyboard, PressedKeys } from '../../../core/Keyboard';
 
+import type { ViewAxis } from '../EditorCamera';
+
 export type KeyboardHandlerCallbacks = {
 	onSave: () => void;
 	onUndo: () => void;
@@ -17,7 +19,16 @@ export type KeyboardHandlerCallbacks = {
 	onStepFrame: ( step: number ) => void;
 	onSeekToStart: () => void;
 	onTransformKey: ( e: KeyboardEvent ) => boolean;
+	onAlignView: ( axis: ViewAxis, opposite: boolean ) => void;
+	onProjectionToggle: () => void;
 };
+
+// Blender のテンキー視点。テンキーの無いキーボード向けに数字キーも受ける（9 はプレビュー切替で使用中なので視点には割り当てない）
+const VIEW_AXIS_KEYS: { code: string, key: string, axis: ViewAxis }[] = [
+	{ code: 'Numpad1', key: '1', axis: 'front' },
+	{ code: 'Numpad3', key: '3', axis: 'right' },
+	{ code: 'Numpad7', key: '7', axis: 'top' },
+];
 
 // テキスト入力中かどうか（エディタのショートカットを奪わないための判定）
 const isTextInputFocused = (): boolean => {
@@ -106,6 +117,25 @@ export class KeyboardHandler {
 			if ( e.code === 'KeyA' && pressedKeys[ "Shift" ] && ! cmd ) {
 
 				callbacks.onAddEntity();
+
+			}
+
+			// Blender と同じく Ctrl で反対側から見る。Meta（Cmd+数字）はブラウザのタブ切替に譲る
+			for ( const viewKey of VIEW_AXIS_KEYS ) {
+
+				if ( e.code !== viewKey.code && e.key !== viewKey.key ) continue;
+				if ( pressedKeys[ "Meta" ] ) continue;
+
+				e.preventDefault();
+
+				callbacks.onAlignView( viewKey.axis, !! pressedKeys[ "Control" ] );
+
+			}
+
+			// Blender の Numpad 5 相当。テンキーの無いキーボード向けに数字の 5 も受ける
+			if ( ( e.code === 'Numpad5' || e.key === '5' ) && ! cmd ) {
+
+				callbacks.onProjectionToggle();
 
 			}
 

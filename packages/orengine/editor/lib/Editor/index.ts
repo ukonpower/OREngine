@@ -17,6 +17,7 @@ import { SelectionOutline } from '../SelectionOutline';
 import { Viewport } from '../Viewport';
 import { WireframeRenderer } from '../WireframeRenderer';
 
+import type { ViewAxis } from '../EditorCamera';
 import type { TransformOrientation } from '../TransformUtils';
 
 export type SelectedAssetInfo = {
@@ -200,6 +201,8 @@ export class Editor extends MXP.Serializable {
 			},
 			onSyncToSceneCamera: () => this.syncToSceneCamera(),
 			onFocusSelected: () => this.focusSelected(),
+			onAlignView: ( axis, opposite ) => this.alignEditorView( axis, opposite ),
+			onProjectionToggle: () => this.toggleEditorProjection(),
 			// メニューは React 側の Popover に出すので、ここでは要求を投げるだけにする
 			onAddEntity: () => this.emit( "request/addEntity" ),
 			onDeleteSelected: () => this.deleteSelected(),
@@ -998,6 +1001,33 @@ export class Editor extends MXP.Serializable {
 		this.setField( `viewports/${viewport.id}/cameraView`, "editor" );
 
 		viewport.editorCamera.focus( entity );
+
+	}
+
+	// アクティブなビューポートのエディタカメラを軸に沿った視点へ向ける（Blender のテンキー 1 / 3 / 7）
+	public alignEditorView( axis: ViewAxis, opposite: boolean ) {
+
+		const viewport = this._activeViewport;
+
+		if ( ! viewport || viewport.editorCamera.preview ) return;
+
+		// シーンカメラ視点のまま向きを変えても見えないので、エディタカメラへ戻してから適用する
+		this.setField( `viewports/${viewport.id}/cameraView`, "editor" );
+
+		viewport.editorCamera.alignView( axis, opposite );
+
+	}
+
+	// アクティブなビューポートのエディタカメラの透視 / 平行投影を切り替える（Blender のテンキー 5）
+	public toggleEditorProjection() {
+
+		const viewport = this._activeViewport;
+
+		if ( ! viewport || viewport.editorCamera.preview ) return;
+
+		this.setField( `viewports/${viewport.id}/cameraView`, "editor" );
+
+		viewport.editorCamera.toggleProjection();
 
 	}
 
