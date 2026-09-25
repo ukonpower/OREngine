@@ -100,14 +100,6 @@
 			}
 		]
 	},
-	"helpers/show": true,
-	"helpers/grid": true,
-	"helpers/empty": true,
-	"helpers/camera": true,
-	"helpers/light": true,
-	"helpers/wireframe": false,
-	"helpers/gizmo": true,
-	"helpers/outline": true,
 	"viewports/main/resolutionScale": 0.5,
 	"viewports/main/cameraView": "camera",
 	"viewports/main/preview": false,

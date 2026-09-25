@@ -9,7 +9,7 @@ import { EditorAPI } from '../EditorAPI';
 import { GizmoMode } from '../Gizmo';
 import { GizmoManager } from '../GizmoManager';
 import { GridRenderer } from '../GridRenderer';
-import { HelperManager } from '../HelperManager';
+import { HelperManager, HelperVisibility } from '../HelperManager';
 import { KeyboardHandler } from '../KeyboardHandler';
 import { ModalTransformHandler } from '../ModalTransformHandler';
 import { SceneExporter, SceneExporterProgress } from '../SceneExporter';
@@ -36,6 +36,14 @@ export type EditorTimelineLoop = {
 	end: number,
 }
 
+// ビューポートごとに切り替える編集用オーバーレイの表示フラグ
+type ViewportHelpers = HelperVisibility & {
+	grid: boolean;
+	wireframe: boolean;
+	gizmo: boolean;
+	outline: boolean;
+};
+
 // ビューポートごとに保存する設定。ビューポートはパネルの表示中しか存在しないので、
 // 未生成・破棄済みの間はここに退避しておき、生成時に適用する
 type ViewportSettings = {
@@ -43,10 +51,33 @@ type ViewportSettings = {
 	preview: boolean;
 	// 基準解像度（resolution/*）に掛ける倍率。Screen パネルごとに負荷と画質を選べるようにビューポート単位で持つ
 	resolutionScale: number;
+	helpers: ViewportHelpers;
 	// null = 未設定（OrbitControls の初期姿勢のまま）
 	cameraPosition: number[] | null;
 	cameraTarget: number[] | null;
 };
+
+// 新しく開いた Screen の表示フラグ。ワイヤはシーン本来の見た目を覆うので既定では出さない
+const DEFAULT_VIEWPORT_HELPERS: ViewportHelpers = {
+	show: true,
+	empty: true,
+	camera: true,
+	light: true,
+	grid: true,
+	wireframe: false,
+	gizmo: true,
+	outline: true,
+};
+
+// viewports/<id>/ 以下の値フィールド。破棄と React への再読込通知で同じ一覧を使う
+const VIEWPORT_FIELD_NAMES = [
+	"cameraView",
+	"preview",
+	"resolutionScale",
+	...Object.keys( DEFAULT_VIEWPORT_HELPERS ).map( ( key ) => `helpers/${key}` ),
+	"camera/position",
+	"camera/target",
+];
 
 // 別ウィンドウに出す本番見た目のビュー。シーンカメラ固定で重ね描きもポインタ入力も無いので Viewport にはしない
 type ExternalWindow = {
@@ -342,16 +373,6 @@ export class Editor extends MXP.Serializable {
 		// null はデフォルトレイアウトを意味する
 		this.field( "panelLayout", () => this._panelLayout, v => this._panelLayout = v, { hidden: true } );
 
-		const helperDir = this.fieldDir( "helpers" );
-		helperDir.field( "show", () => this._helperManager.showHelpers, v => this._helperManager.showHelpers = v );
-		helperDir.field( "grid", () => this._gridRenderer.showGrid, v => this._gridRenderer.showGrid = v );
-		helperDir.field( "empty", () => this._helperManager.showEmptyHelpers, v => this._helperManager.showEmptyHelpers = v );
-		helperDir.field( "camera", () => this._helperManager.showCameraHelpers, v => this._helperManager.showCameraHelpers = v );
-		helperDir.field( "light", () => this._helperManager.showLightHelpers, v => this._helperManager.showLightHelpers = v );
-		helperDir.field( "wireframe", () => this._wireframeRenderer.showWireframe, v => this._wireframeRenderer.showWireframe = v );
-		helperDir.field( "gizmo", () => this._gizmoManager.showGizmo, v => this._gizmoManager.showGizmo = v );
-		helperDir.field( "outline", () => this._selectionOutline.showOutline, v => this._selectionOutline.showOutline = v );
-
 		/*-------------------------------
 			Animate
 		-------------------------------*/
@@ -465,6 +486,8 @@ export class Editor extends MXP.Serializable {
 			api: this._api,
 			getSelectedEntityId: () => this._selectedEntityId,
 			isEntitySelectable: ( entity ) => ! this._unselectableEntityIds.has( entity.uuid ),
+			isGizmoVisible: () => settings.helpers.gizmo,
+			getHelperVisibility: () => settings.helpers,
 			onSelectEntity: ( entity ) => this.selectEntity( entity ),
 			isModalActive: () => this._modalTransformHandler.active,
 			onEscapeToEditorCamera: () => this._escapeToEditorCamera( viewport ),
@@ -510,8 +533,9 @@ export class Editor extends MXP.Serializable {
 
 		if ( ! this._activeViewport ) this._activeViewport = viewport;
 
-		// 退避値からビューポートの実値へ読み先が変わるので React に取り直させる
-		for ( const name of [ "cameraView", "preview", "camera/position", "camera/target" ] ) {
+		// 退避値からビューポートの実値へ読み先が変わるので React に取り直させる。
+		// 新しい id はここで初めてフィールドができ、先に描画された Screen は値を持っていないのでそれも含めて通知する
+		for ( const name of VIEWPORT_FIELD_NAMES ) {
 
 			this.noticeField( `viewports/${id}/${name}` );
 
@@ -530,7 +554,7 @@ export class Editor extends MXP.Serializable {
 
 			this._viewportSettings.delete( id );
 
-			for ( const name of [ "", "cameraView", "preview", "resolutionScale", "camera/", "camera/position", "camera/target" ] ) {
+			for ( const name of [ "", "helpers/", "camera/", ...VIEWPORT_FIELD_NAMES ] ) {
 
 				this.removeField( `viewports/${id}/${name}` );
 
@@ -545,7 +569,14 @@ export class Editor extends MXP.Serializable {
 
 		if ( this._viewportSettings.has( id ) ) return;
 
-		const settings: ViewportSettings = { cameraView: "editor", preview: false, resolutionScale: 1.0, cameraPosition: null, cameraTarget: null };
+		const settings: ViewportSettings = {
+			cameraView: "editor",
+			preview: false,
+			resolutionScale: 1.0,
+			helpers: { ...DEFAULT_VIEWPORT_HELPERS },
+			cameraPosition: null,
+			cameraTarget: null,
+		};
 		this._viewportSettings.set( id, settings );
 
 		const live = () => this._viewports.find( ( v ) => v.id === id ) ?? null;
@@ -593,6 +624,19 @@ export class Editor extends MXP.Serializable {
 			this._resize();
 
 		} );
+
+		// 描画のたびに退避値を読むので、resolutionScale と同じく生死に関わらず退避値を正とする
+		const helpersDir = dir.dir( "helpers" );
+
+		for ( const key of Object.keys( DEFAULT_VIEWPORT_HELPERS ) as ( keyof ViewportHelpers )[] ) {
+
+			helpersDir.field( key, () => settings.helpers[ key ], ( v: boolean ) => {
+
+				settings.helpers[ key ] = v;
+
+			} );
+
+		}
 
 		const cameraDir = dir.dir( "camera" );
 
@@ -693,6 +737,8 @@ export class Editor extends MXP.Serializable {
 
 			this._engine.update();
 
+			this._helperManager.sync( this._engine, this._selectedEntityId );
+
 			const selectedEntity = this._selectedEntityId
 				? this._engine.root.findEntityByUUID( this._selectedEntityId ) ?? null
 				: null;
@@ -757,23 +803,34 @@ export class Editor extends MXP.Serializable {
 		const cameraEntity = viewport.editorCamera.getCameraEntity( this._engine );
 		const preview = viewport.editorCamera.preview;
 		const view = viewport.view;
+		const helpers = this._viewportSettings.get( viewport.id )!.helpers;
 
 		if ( ! preview ) {
 
 			// ヘルパーやワイヤより先に敷いて、上に載る線を隠さないようにする
-			this._gridRenderer.render( view, cameraEntity, this._engine );
+			if ( helpers.grid ) {
 
-			this._helperManager.render( view, cameraEntity, this._engine, this._selectedEntityId );
+				this._gridRenderer.render( view, cameraEntity, this._engine );
 
-			this._wireframeRenderer.render( view, cameraEntity, this._engine );
+			}
+
+			this._helperManager.render( view, cameraEntity, helpers );
+
+			if ( helpers.wireframe ) {
+
+				this._wireframeRenderer.render( view, cameraEntity, this._engine );
+
+			}
 
 		}
 
-		// プレビュー中はターゲット無しで呼び、ギズモの visible とヒット判定も落とす。
+		// 非表示のときもターゲット無しで呼び、ギズモの visible とヒット判定を落とす。
 		// モーダル変形中はギズモが変形結果に追従してちらつくので出さない
+		const hideGizmo = preview || ! helpers.gizmo || this._modalTransformHandler.active;
+
 		this._gizmoManager.render(
 			view,
-			preview || this._modalTransformHandler.active ? null : selectedEntity,
+			hideGizmo ? null : selectedEntity,
 			cameraEntity,
 			this._engine
 		);
@@ -782,7 +839,11 @@ export class Editor extends MXP.Serializable {
 
 			this._constraintAxisRenderer.render( view, this._modalTransformHandler.constraintDisplay, cameraEntity, this._engine );
 
-			this._selectionOutline.render( view, selectedEntity, cameraEntity );
+			if ( helpers.outline ) {
+
+				this._selectionOutline.render( view, selectedEntity, cameraEntity );
+
+			}
 
 		}
 

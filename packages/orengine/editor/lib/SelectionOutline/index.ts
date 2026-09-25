@@ -8,7 +8,6 @@ export class SelectionOutline {
 	private _maskTarget: MXP.EditorTarget;
 	private _maskMaterial: MXP.MaterialContract;
 	private _outline: MXP.EditorRecipe;
-	private _showOutline: boolean;
 
 	constructor( draw: MXP.EditorDrawContract ) {
 
@@ -16,25 +15,10 @@ export class SelectionOutline {
 		this._maskTarget = draw.createTarget();
 		this._maskMaterial = draw.materials.mask();
 		this._outline = draw.recipes.outline( this._maskTarget, OUTLINE_COLOR );
-		this._showOutline = true;
-
-	}
-
-	public get showOutline() {
-
-		return this._showOutline;
-
-	}
-
-	public set showOutline( v: boolean ) {
-
-		this._showOutline = v;
 
 	}
 
 	public render( view: MXP.RenderViewContract, selectedEntity: MXP.Entity | null, cameraEntity: MXP.Entity | null ) {
-
-		if ( ! this._showOutline ) return;
 
 		if ( ! selectedEntity || ! cameraEntity ) return;
 

@@ -5,7 +5,7 @@ import { Engine } from '../../../core/Engine';
 import { EditorCamera } from '../EditorCamera';
 import { FrameDebugger } from '../FrameDebugger';
 import { GizmoManager } from '../GizmoManager';
-import { HelperManager } from '../HelperManager';
+import { HelperManager, HelperVisibility } from '../HelperManager';
 import { PointerHandler } from '../PointerHandler';
 
 import type { EditorAPI } from '../EditorAPI';
@@ -21,6 +21,8 @@ export type ViewportParam = {
 	api: EditorAPI;
 	getSelectedEntityId: () => string | null;
 	isEntitySelectable: ( entity: MXP.Entity ) => boolean;
+	isGizmoVisible: () => boolean;
+	getHelperVisibility: () => HelperVisibility;
 	onSelectEntity: ( entity: MXP.Entity | null ) => void;
 	isModalActive: () => boolean;
 	onEscapeToEditorCamera: () => void;
@@ -63,6 +65,8 @@ export class Viewport {
 			api: param.api,
 			getSelectedEntityId: param.getSelectedEntityId,
 			isEntitySelectable: param.isEntitySelectable,
+			isGizmoVisible: param.isGizmoVisible,
+			getHelperVisibility: param.getHelperVisibility,
 			getGizmoMode: () => param.gizmoManager.mode,
 			onSelectEntity: param.onSelectEntity,
 			isModalActive: param.isModalActive,

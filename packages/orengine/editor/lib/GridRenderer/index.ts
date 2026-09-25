@@ -10,12 +10,10 @@ export class GridRenderer {
 	private _color: number[];
 	// [ セルサイズ, 細かい格子の濃さ, フェード距離 ]。マテリアルと参照を共有し、書き換えが描画に反映される
 	private _params: number[];
-	private _showGrid: boolean;
 
 	constructor( engine: MXP.EngineContract, draw: MXP.EditorDrawContract ) {
 
 		this._draw = draw;
-		this._showGrid = true;
 		this._color = [ 0.35, 0.35, 0.35 ];
 		this._params = [ 1, 1, 100 ];
 
@@ -28,21 +26,7 @@ export class GridRenderer {
 
 	}
 
-	public get showGrid() {
-
-		return this._showGrid;
-
-	}
-
-	public set showGrid( v: boolean ) {
-
-		this._showGrid = v;
-
-	}
-
 	public render( view: MXP.RenderViewContract, cameraEntity: MXP.Entity | null, engine: Engine ) {
-
-		if ( ! this._showGrid ) return;
 
 		if ( ! cameraEntity ) return;
 
