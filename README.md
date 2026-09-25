@@ -138,6 +138,12 @@ ORENGINE_PROJECT=<name> npm run dev                        # デフォルトは 
 ORENGINE_RENDERER=<webgl|webgpu|headless> npm run dev      # デフォルトは webgl
 ```
 
+WebGPU の dev サーバーは HTTPS で立ち、証明書は自己署名のものが自動生成されます。mkcert 等で作った証明書を使う場合はパスを環境変数で渡します。
+
+```bash
+ORENGINE_HTTPS_CERT=/path/to/server.crt ORENGINE_HTTPS_KEY=/path/to/server.key npm run dev
+```
+
 ### ビルド
 
 ```bash

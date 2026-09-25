@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -60,6 +61,23 @@ const resolveRenderer = () => {
 
 };
 
+// ORENGINE_HTTPS_CERT / ORENGINE_HTTPS_KEY から dev サーバーの証明書を決める（未指定なら undefined で、webgpu 時は自己署名証明書を自動生成する）。
+// mkcert 等の信頼済みルート CA で署名した証明書を渡せば、別ホストからでも証明書の警告が出ない
+const resolveHttps = () => {
+
+	const certPath = process.env.ORENGINE_HTTPS_CERT;
+	const keyPath = process.env.ORENGINE_HTTPS_KEY;
+
+	if ( ! certPath || ! keyPath ) {
+
+		return undefined;
+
+	}
+
+	return { cert: fs.readFileSync( certPath ), key: fs.readFileSync( keyPath ) };
+
+};
+
 /*-------------------------------
 	実行
 -------------------------------*/
@@ -91,7 +109,7 @@ if ( cmd === 'dev' ) {
 
 	console.log( `[orengine] renderer = ${renderer}` );
 
-	await runDev( { projectDir, renderer, scene } );
+	await runDev( { projectDir, renderer, scene, https: resolveHttps() } );
 
 } else if ( cmd === 'player:build' ) {
 
