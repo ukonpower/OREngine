@@ -133,8 +133,9 @@ export const createDevConfig = ( opts: OrengineConfigOptions ): UserConfig => de
 	resolve: sharedResolve( opts.projectDir, opts.renderer ?? 'webgl', opts.scene ),
 	css: sharedCss(),
 	plugins: [
-		// WebGPUはsecure context必須のため、webgpu起動時はHTTPS（証明書は自動生成・キャッシュ）で立てる
-		...( opts.renderer === 'webgpu' ? [ basicSsl() ] : [] ),
+		// WebGPUはsecure context必須のため、webgpu起動時はHTTPS（証明書は自動生成・キャッシュ）で立てる。
+		// basic-ssl は server.https の cert/key を自己署名証明書で上書きするため、証明書が渡されたときは入れない
+		...( opts.renderer === 'webgpu' && ! opts.https ? [ basicSsl() ] : [] ),
 		react(),
 		ShaderBuilder( { scanDirs: [ orengineRoot, opts.projectDir ] } ),
 		TexLoader(),

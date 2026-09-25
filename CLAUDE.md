@@ -153,6 +153,7 @@ export default extension;
 
 ### アクティブプロジェクト・レンダラー切替
 - 環境変数 `ORENGINE_PROJECT=<name>` / `ORENGINE_RENDERER=<webgl|webgpu|headless>` で切替（デフォルトは demo-webgl / webgl。`npm run wgpu` は webgpu + demo-webgpu のショートカット）。設定ファイルは無い（個人の作業状態を tracked ファイルに持たせない）
+- dev サーバーの HTTPS 証明書は `ORENGINE_HTTPS_CERT` / `ORENGINE_HTTPS_KEY`（ファイルパス）で指定できる。両方あればその証明書で、無ければ webgpu 時のみ `@vitejs/plugin-basic-ssl` の自己署名証明書で立つ。mkcert 等で作った信頼済みの証明書を渡すと別ホストでも警告が出ない
 - 指定したプロジェクトディレクトリが存在しなければ `host/template/project` から雛形が生成される
 
 ### シーン（プロジェクト内の複数シーン）
