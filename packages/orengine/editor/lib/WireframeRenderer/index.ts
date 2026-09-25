@@ -5,14 +5,12 @@ import { Engine } from '../../../core/Engine';
 export class WireframeRenderer {
 
 	private _draw: MXP.EditorDrawContract;
-	private _showWireframe: boolean;
 	private _wireframeMaterial: MXP.MaterialContract;
 	private _wireframeGeometryCache: Map<MXP.Geometry, MXP.Geometry>;
 
 	constructor( draw: MXP.EditorDrawContract ) {
 
 		this._draw = draw;
-		this._showWireframe = false;
 		this._wireframeGeometryCache = new Map();
 
 		this._wireframeMaterial = draw.materials.flat( {
@@ -23,21 +21,7 @@ export class WireframeRenderer {
 
 	}
 
-	public get showWireframe() {
-
-		return this._showWireframe;
-
-	}
-
-	public set showWireframe( v: boolean ) {
-
-		this._showWireframe = v;
-
-	}
-
 	public render( view: MXP.RenderViewContract, cameraEntity: MXP.Entity | null, engine: Engine ) {
-
-		if ( ! this._showWireframe ) return;
 
 		if ( ! cameraEntity ) return;
 

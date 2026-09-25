@@ -6,6 +6,7 @@ import { AddComponentCommand } from '../Commands/AddComponentCommand';
 import { AddTextureCommand } from '../Commands/AddTextureCommand';
 import { CreateEntityCommand } from '../Commands/CreateEntityCommand';
 import { DeleteEntityCommand } from '../Commands/DeleteEntityCommand';
+import { DuplicateEntityCommand } from '../Commands/DuplicateEntityCommand';
 import { RemoveComponentCommand } from '../Commands/RemoveComponentCommand';
 import { RemoveTextureCommand } from '../Commands/RemoveTextureCommand';
 import { SetFieldCommand } from '../Commands/SetFieldCommand';
@@ -56,6 +57,20 @@ export class EditorAPI {
 	public deleteEntity( entity: MXP.Entity ): void {
 
 		this._commandManager.execute( new DeleteEntityCommand( entity ) );
+
+	}
+
+	// 子ごと複製して同じ親の下に置き、複製したエンティティを返す
+	public duplicateEntity( entity: MXP.Entity ): MXP.Entity {
+
+		const parent = entity.parent;
+
+		if ( ! parent ) throw new Error( `Entity has no parent: ${entity.name}` );
+
+		const cmd = new DuplicateEntityCommand( this._editor.engine, parent, entity );
+		this._commandManager.execute( cmd );
+
+		return cmd.duplicatedEntity!;
 
 	}
 

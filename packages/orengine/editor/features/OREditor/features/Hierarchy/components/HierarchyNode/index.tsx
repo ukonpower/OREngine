@@ -1,4 +1,4 @@
-import { KeyboardEvent, MouseEvent, useCallback, useMemo, useRef, useState } from 'react';
+import { KeyboardEvent, MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import * as MXP from 'maxpower';
 import { ArrowIcon, CameraIcon, CursorIcon, EyeIcon, LightIcon, ListItem, MeshIcon, Menu, pointAnchor, usePopover } from 'uipower';
@@ -119,13 +119,34 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 	// 走るぶん更新前の値しか見えないので ref で持つ
 	const renameCancelled = useRef( false );
 
-	const onDoubleClickName = useCallback( () => {
+	const startRename = useCallback( () => {
 
 		if ( noEditable ) return;
 
 		setEditingName( props.entity.name );
 
 	}, [ noEditable, props.entity ] );
+
+	// F2（editor 側の "request/renameEntity"）はダブルクリックと同じ名前入力を開く。対象が自分のノードのときだけ応じる
+	useEffect( () => {
+
+		const onRequest = ( entity: MXP.Entity ) => {
+
+			if ( entity !== props.entity ) return;
+
+			startRename();
+
+		};
+
+		editor.on( "request/renameEntity", onRequest );
+
+		return () => {
+
+			editor.off( "request/renameEntity", onRequest );
+
+		};
+
+	}, [ editor, props.entity, startRename ] );
 
 	// Enter / Escape はどちらも blur させて、確定処理を onBlur の1経路にまとめる
 	const onKeyDownName = useCallback( ( e: KeyboardEvent<HTMLInputElement> ) => {
@@ -219,7 +240,7 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 				{hasChild && <button className={style.fold_button} onClick={onClickFoldControls} ><ArrowIcon open={open}/></button> }
 			</div>
 			{icon && <div className={style.icon}>{icon}</div>}
-			<div className={style.self_name} onDoubleClick={onDoubleClickName}>
+			<div className={style.self_name} onDoubleClick={startRename}>
 				{nameElm}
 			</div>
 			<button className={style.selectable} onClick={onClickSelectable} data-selectable={entitySelectable}><CursorIcon size={14} selectable={entitySelectable} /></button>

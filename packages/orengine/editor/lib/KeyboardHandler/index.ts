@@ -12,6 +12,12 @@ export type KeyboardHandlerCallbacks = {
 	onSyncToSceneCamera: () => void;
 	onFocusSelected: () => void;
 	onAddEntity: () => void;
+	onDeleteSelected: () => void;
+	onDuplicateSelected: () => void;
+	onRenameSelected: () => void;
+	// step はコマ数（負で戻る）
+	onStepFrame: ( step: number ) => void;
+	onSeekToStart: () => void;
 	onTransformKey: ( e: KeyboardEvent ) => boolean;
 	onAlignView: ( axis: ViewAxis, opposite: boolean ) => void;
 	onProjectionToggle: () => void;
@@ -137,6 +143,51 @@ export class KeyboardHandler {
 			if ( ( e.code === 'NumpadDecimal' || e.key === '.' ) && ! cmd ) {
 
 				callbacks.onFocusSelected();
+
+			}
+
+			// Blender の X / Delete。モーダル変形中の X は軸拘束として上の onTransformKey が先に消費するのでここには来ない
+			if ( ( e.code === 'KeyX' || e.key === 'Delete' ) && ! cmd ) {
+
+				callbacks.onDeleteSelected();
+
+			}
+
+			// Blender の Shift+D。複製してそのまま移動のモーダル変形に入る
+			if ( e.code === 'KeyD' && pressedKeys[ "Shift" ] && ! cmd ) {
+
+				callbacks.onDuplicateSelected();
+
+			}
+
+			if ( e.key === 'F2' && ! cmd ) {
+
+				callbacks.onRenameSelected();
+
+			}
+
+			// 矢印キーはスクロール可能なパネルにフォーカスがあると一覧をスクロールさせてしまうので既定動作を止める
+			if ( e.key === 'ArrowLeft' && ! cmd ) {
+
+				e.preventDefault();
+
+				if ( pressedKeys[ "Shift" ] ) {
+
+					callbacks.onSeekToStart();
+
+				} else {
+
+					callbacks.onStepFrame( - 1 );
+
+				}
+
+			}
+
+			if ( e.key === 'ArrowRight' && ! cmd ) {
+
+				e.preventDefault();
+
+				callbacks.onStepFrame( 1 );
 
 			}
 
