@@ -171,6 +171,11 @@ export class Editor extends MXP.Serializable {
 			onFocusSelected: () => this.focusSelected(),
 			// メニューは React 側の Popover に出すので、ここでは要求を投げるだけにする
 			onAddEntity: () => this.emit( "request/addEntity" ),
+			onDeleteSelected: () => this.deleteSelected(),
+			onDuplicateSelected: () => this.duplicateSelected(),
+			onRenameSelected: () => this.requestRenameSelected(),
+			onStepFrame: ( step ) => this.stepFrame( step ),
+			onSeekToStart: () => this.seekToStart(),
 			onTransformKey: ( e ) => this._activeViewport?.editorCamera.preview ? false : this._modalTransformHandler.handleKeyDown( e ),
 		} );
 
@@ -932,6 +937,85 @@ export class Editor extends MXP.Serializable {
 		this.setField( `viewports/${viewport.id}/cameraView`, "editor" );
 
 		viewport.editorCamera.focus( entity );
+
+	}
+
+	// 選択中のエンティティのうち、GUI で削除・複製・改名してよいものを返す。
+	// Hierarchy が編集を塞いでいる script 由来と、ルート等のエディタ管理（god）は対象外
+	private _getEditableSelectedEntity(): MXP.Entity | null {
+
+		if ( ! this._selectedEntityId ) return null;
+
+		const entity = this._engine.root.findEntityByUUID( this._selectedEntityId );
+
+		if ( ! entity || entity.initiator !== "user" || ! entity.parent ) return null;
+
+		return entity;
+
+	}
+
+	// 選択中のエンティティを確認なしで削除する（Blender の X / Delete）。undo で戻せるので確認は挟まない
+	public deleteSelected() {
+
+		const entity = this._getEditableSelectedEntity();
+
+		if ( ! entity ) return;
+
+		this._api.deleteEntity( entity );
+
+		// 消えたエンティティを選択したままだと Property パネルやギズモが宙に浮いた対象を指し続ける
+		this.selectEntity( null );
+
+	}
+
+	// 選択中のエンティティを子ごと複製して選択し、そのまま移動のモーダル変形に入る（Blender の Shift+D）
+	public duplicateSelected() {
+
+		const entity = this._getEditableSelectedEntity();
+
+		if ( ! entity ) return;
+
+		const duplicated = this._api.duplicateEntity( entity );
+
+		this.selectEntity( duplicated );
+
+		// プレビュー中は G と同じくモーダル変形を受け付けないので、複製だけで止める
+		if ( this._activeViewport?.editorCamera.preview ) return;
+
+		this._modalTransformHandler.start( "translate" );
+
+	}
+
+	// 選択中のエンティティの名前入力を Hierarchy に開かせる（Blender の F2）。入力 UI は React 側にあるので要求を投げるだけにする
+	public requestRenameSelected() {
+
+		const entity = this._getEditableSelectedEntity();
+
+		if ( ! entity ) return;
+
+		this.emit( "request/renameEntity", [ entity ] );
+
+	}
+
+	// タイムラインの時刻をフレームレート1コマぶん進める / 戻す。再生中の半端な時刻からでもコマの境界に揃える
+	public stepFrame( step: number ) {
+
+		const fps = this._engine.frameSetting.fps;
+
+		if ( fps <= 0 ) return;
+
+		// frame.current は fps によらず秒×60 の単位なので、コマ番号へ直してから動かす
+		const currentIndex = Math.round( this._engine.time.code * fps );
+		const nextIndex = Math.max( 0, currentIndex + step );
+
+		this._engine.seek( nextIndex / fps * 60 );
+
+	}
+
+	// タイムラインの時刻を先頭へ戻す
+	public seekToStart() {
+
+		this._engine.seek( 0 );
 
 	}
 

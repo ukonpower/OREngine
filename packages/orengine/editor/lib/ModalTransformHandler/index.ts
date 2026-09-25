@@ -179,7 +179,7 @@ export class ModalTransformHandler {
 
 			if ( ! mode ) return false;
 
-			return this._start( mode );
+			return this.start( mode );
 
 		}
 
@@ -261,7 +261,7 @@ export class ModalTransformHandler {
 	-------------------------------*/
 
 	// モーダル変形を開始する。選択が無い・ギズモ操作中・カメラが取れない場合は開始しない
-	private _start( mode: ModalTransformMode ): boolean {
+	public start( mode: ModalTransformMode ): boolean {
 
 		if ( this._isPointerBusy() ) return false;
 
