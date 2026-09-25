@@ -3,96 +3,42 @@ import * as MXP from 'maxpower';
 import { Engine } from '../../../core/Engine';
 import { EntityHelper, HelperType } from '../Helpers/EntityHelper';
 
+// ヘルパーの表示フラグ。ビューポートごとに持つ（Editor の ViewportSettings.helpers の一部）
+export type HelperVisibility = {
+	show: boolean;
+	empty: boolean;
+	camera: boolean;
+	light: boolean;
+};
+
+// シーン中のエンティティに対応するヘルパーを保持し、ビューごとの表示フラグで絞って描く
 export class HelperManager {
 
 	private _engine: Engine;
 	private _draw: MXP.EditorDrawContract;
-	private _showHelpers: boolean;
-	private _showEmptyHelpers: boolean;
-	private _showCameraHelpers: boolean;
-	private _showLightHelpers: boolean;
 	private _helpers: Map<string, EntityHelper>;
 
 	constructor( engine: Engine, draw: MXP.EditorDrawContract ) {
 
 		this._engine = engine;
 		this._draw = draw;
-		this._showHelpers = true;
-		this._showEmptyHelpers = true;
-		this._showCameraHelpers = true;
-		this._showLightHelpers = true;
 		this._helpers = new Map();
 
 	}
 
-	public get showHelpers() {
-
-		return this._showHelpers;
-
-	}
-
-	public set showHelpers( v: boolean ) {
-
-		this._showHelpers = v;
-
-	}
-
-	public get showEmptyHelpers() {
-
-		return this._showEmptyHelpers;
-
-	}
-
-	public set showEmptyHelpers( v: boolean ) {
-
-		this._showEmptyHelpers = v;
-
-	}
-
-	public get showCameraHelpers() {
-
-		return this._showCameraHelpers;
-
-	}
-
-	public set showCameraHelpers( v: boolean ) {
-
-		this._showCameraHelpers = v;
-
-	}
-
-	public get showLightHelpers() {
-
-		return this._showLightHelpers;
-
-	}
-
-	public set showLightHelpers( v: boolean ) {
-
-		this._showLightHelpers = v;
-
-	}
-
-	public render( view: MXP.RenderViewContract, cameraEntity: MXP.Entity | null, engine: Engine, selectedEntityId: string | null ) {
-
-		if ( ! this._showHelpers ) return;
-
-		if ( ! cameraEntity ) return;
+	// ヘルパーの生成・破棄と姿勢の同期を1フレームに1回行う。
+	// 表示フラグはビューごとに違うので、ここでは絞らず全種類を用意する（絞ると別ビューの描画のたびに作り直しになる）
+	public sync( engine: Engine, selectedEntityId: string | null ) {
 
 		const activeUUIDs = new Set<string>();
-		const helperEntities: MXP.Entity[] = [];
 
 		engine.root.traverse( ( entity ) => {
 
 			if ( entity.initiator === "god" ) return;
 			if ( ! entity.visible ) return;
 
-			// 視点にしているカメラ自身のヘルパーは画面を覆うだけなので出さない
-			if ( entity === cameraEntity ) return;
-
 			const helperType = this._getHelperType( entity );
 			if ( ! helperType ) return;
-			if ( ! this._isHelperTypeEnabled( helperType ) ) return;
 
 			activeUUIDs.add( entity.uuid );
 
@@ -112,16 +58,6 @@ export class HelperManager {
 			helper.setSelected( entity.uuid === selectedEntityId );
 			helper.syncTransform( entity );
 
-			helper.entity.traverse( ( child ) => {
-
-				if ( child.getComponent( MXP.Mesh ) ) {
-
-					helperEntities.push( child );
-
-				}
-
-			} );
-
 		} );
 
 		this._helpers.forEach( ( _, uuid ) => {
@@ -133,6 +69,33 @@ export class HelperManager {
 			}
 
 		} );
+
+	}
+
+	public render( view: MXP.RenderViewContract, cameraEntity: MXP.Entity | null, visibility: HelperVisibility ) {
+
+		if ( ! cameraEntity ) return;
+
+		const helperEntities: MXP.Entity[] = [];
+
+		for ( const helper of this._helpers.values() ) {
+
+			if ( ! this.isVisible( helper, visibility ) ) continue;
+
+			// 視点にしているカメラ自身のヘルパーは画面を覆うだけなので出さない
+			if ( helper.targetEntityUUID === cameraEntity.uuid ) continue;
+
+			helper.entity.traverse( ( child ) => {
+
+				if ( child.getComponent( MXP.Mesh ) ) {
+
+					helperEntities.push( child );
+
+				}
+
+			} );
+
+		}
 
 		if ( helperEntities.length > 0 ) {
 
@@ -150,6 +113,22 @@ export class HelperManager {
 	public getHelpers(): EntityHelper[] {
 
 		return Array.from( this._helpers.values() );
+
+	}
+
+	// ヘルパーがその表示フラグで描かれるか。ポインタのヒット判定も同じ基準で絞る
+	public isVisible( helper: EntityHelper, visibility: HelperVisibility ): boolean {
+
+		if ( ! visibility.show ) return false;
+
+		switch ( helper.type ) {
+
+		case 'empty': return visibility.empty;
+		case 'camera': return visibility.camera;
+		case 'spotLight':
+		case 'directionalLight': return visibility.light;
+
+		}
 
 	}
 
@@ -172,19 +151,6 @@ export class HelperManager {
 		if ( ! mesh ) return 'empty';
 
 		return null;
-
-	}
-
-	private _isHelperTypeEnabled( type: HelperType ): boolean {
-
-		switch ( type ) {
-
-		case 'empty': return this._showEmptyHelpers;
-		case 'camera': return this._showCameraHelpers;
-		case 'spotLight':
-		case 'directionalLight': return this._showLightHelpers;
-
-		}
 
 	}
 

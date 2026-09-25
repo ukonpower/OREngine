@@ -17,7 +17,6 @@ export class GizmoManager {
 	private _activeGizmo: Gizmo | null;
 	private _mode: GizmoMode;
 	private _orientation: TransformOrientation;
-	private _showGizmo: boolean;
 
 	constructor( engine: MXP.EngineContract, draw: MXP.EditorDrawContract ) {
 
@@ -28,19 +27,6 @@ export class GizmoManager {
 		this._mode = 'select';
 		this._orientation = 'global';
 		this._activeGizmo = null;
-		this._showGizmo = true;
-
-	}
-
-	public get showGizmo() {
-
-		return this._showGizmo;
-
-	}
-
-	public set showGizmo( v: boolean ) {
-
-		this._showGizmo = v;
 
 	}
 
@@ -87,9 +73,6 @@ export class GizmoManager {
 		this._translateGizmo.entity.visible = false;
 		this._rotateGizmo.entity.visible = false;
 		this._scaleGizmo.entity.visible = false;
-
-		// 非表示中は visible も立てないので、ポインタ側のヒット判定もここで一緒に死ぬ
-		if ( ! this._showGizmo ) return;
 
 		if ( ! this._activeGizmo ) return;
 

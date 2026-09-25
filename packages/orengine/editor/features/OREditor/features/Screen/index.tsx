@@ -32,14 +32,14 @@ export const Screen: React.FC<{ viewportId: string }> = ( { viewportId } ) => {
 	const [ transformOrientation, setTransformOrientation ] = useSerializableField<string>( editor, "transformOrientation" );
 	const [ modalStatus ] = useSerializableField<string>( editor, "modalStatus" );
 
-	const [ showHelpers, setShowHelpers ] = useSerializableField<boolean>( editor, "helpers/show" );
-	const [ showEmpty, setShowEmpty ] = useSerializableField<boolean>( editor, "helpers/empty" );
-	const [ showCamera, setShowCamera ] = useSerializableField<boolean>( editor, "helpers/camera" );
-	const [ showLight, setShowLight ] = useSerializableField<boolean>( editor, "helpers/light" );
-	const [ showGrid, setShowGrid ] = useSerializableField<boolean>( editor, "helpers/grid" );
-	const [ showWireframe, setShowWireframe ] = useSerializableField<boolean>( editor, "helpers/wireframe" );
-	const [ showGizmo, setShowGizmo ] = useSerializableField<boolean>( editor, "helpers/gizmo" );
-	const [ showOutline, setShowOutline ] = useSerializableField<boolean>( editor, "helpers/outline" );
+	const [ showHelpers, setShowHelpers ] = useSerializableField<boolean>( editor, `viewports/${viewportId}/helpers/show` );
+	const [ showEmpty, setShowEmpty ] = useSerializableField<boolean>( editor, `viewports/${viewportId}/helpers/empty` );
+	const [ showCamera, setShowCamera ] = useSerializableField<boolean>( editor, `viewports/${viewportId}/helpers/camera` );
+	const [ showLight, setShowLight ] = useSerializableField<boolean>( editor, `viewports/${viewportId}/helpers/light` );
+	const [ showGrid, setShowGrid ] = useSerializableField<boolean>( editor, `viewports/${viewportId}/helpers/grid` );
+	const [ showWireframe, setShowWireframe ] = useSerializableField<boolean>( editor, `viewports/${viewportId}/helpers/wireframe` );
+	const [ showGizmo, setShowGizmo ] = useSerializableField<boolean>( editor, `viewports/${viewportId}/helpers/gizmo` );
+	const [ showOutline, setShowOutline ] = useSerializableField<boolean>( editor, `viewports/${viewportId}/helpers/outline` );
 
 	const [ showAudioView ] = useUISetting( 'showAudioView' );
 	const [ audioViewHeight, setAudioViewHeight ] = useState( 50 );

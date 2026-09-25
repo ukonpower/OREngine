@@ -6,7 +6,7 @@ import { SetFieldCommand } from '../Commands/SetFieldCommand';
 import { EditorCamera } from '../EditorCamera';
 import { GizmoHandle, GizmoMode } from '../Gizmo';
 import { GizmoManager } from '../GizmoManager';
-import { HelperManager } from '../HelperManager';
+import { HelperManager, HelperVisibility } from '../HelperManager';
 import { EntityHelper } from '../Helpers/EntityHelper';
 import { clientToNDC, getContentRect } from '../PointerUtils';
 
@@ -30,6 +30,9 @@ export type PointerHandlerParam = {
 	api: EditorAPI;
 	getSelectedEntityId: () => string | null;
 	isEntitySelectable: ( entity: MXP.Entity ) => boolean;
+	// ギズモ・ヘルパーの実体は全ビューで共有なので、このビューで表示しているかは表示フラグで判定する
+	isGizmoVisible: () => boolean;
+	getHelperVisibility: () => HelperVisibility;
 	getGizmoMode: () => GizmoMode;
 	onSelectEntity: ( entity: MXP.Entity | null ) => void;
 	isModalActive: () => boolean;
@@ -58,6 +61,8 @@ export class PointerHandler {
 			api,
 			getSelectedEntityId,
 			isEntitySelectable,
+			isGizmoVisible,
+			getHelperVisibility,
 			getGizmoMode,
 			onSelectEntity,
 			isModalActive,
@@ -210,9 +215,12 @@ export class PointerHandler {
 			const hiddenHelpers: ClickCandidate[] = [];
 			const directHitUUIDs = new Set<string>();
 			const helpers = helperManager.getHelpers();
+			const helperVisibility = getHelperVisibility();
 			const content = getContentRect( canvasElm );
 
 			for ( const helper of helpers ) {
+
+				if ( ! helperManager.isVisible( helper, helperVisibility ) ) continue;
 
 				const targetEntity = engine.root.findEntityByUUID( helper.targetEntityUUID );
 
@@ -357,7 +365,7 @@ export class PointerHandler {
 
 			const gizmo = gizmoManager.activeGizmo;
 
-			if ( ! gizmo || ! gizmo.entity.visible ) return null;
+			if ( ! gizmo || ! gizmo.entity.visible || ! isGizmoVisible() ) return null;
 
 			let closest: { handle: GizmoHandle, distance: number } | null = null;
 
@@ -399,7 +407,7 @@ export class PointerHandler {
 			( e.target as HTMLElement ).setPointerCapture( e.pointerId );
 			this._pointerDownPos = new MTP.Vector( e.clientX, e.clientY );
 
-			if ( gizmoManager.activeGizmo && gizmoManager.activeGizmo.entity.visible ) {
+			if ( gizmoManager.activeGizmo && gizmoManager.activeGizmo.entity.visible && isGizmoVisible() ) {
 
 				const ndc = clientToNDC( canvasElm, e.clientX, e.clientY );
 				const cameraEntity = getCameraEntity();
@@ -525,7 +533,7 @@ export class PointerHandler {
 			// hover detection
 			let newHover: 'gizmo' | 'helper' | 'mesh' | null = null;
 
-			if ( gizmoManager.activeGizmo && gizmoManager.activeGizmo.entity.visible ) {
+			if ( gizmoManager.activeGizmo && gizmoManager.activeGizmo.entity.visible && isGizmoVisible() ) {
 
 				const gizmoHit = pickGizmoHandle();
 
