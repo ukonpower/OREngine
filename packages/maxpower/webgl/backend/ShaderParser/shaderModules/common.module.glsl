@@ -40,6 +40,15 @@ vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 project
 
 }
 
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。
+// webgpu 側 view.wgsl の isBackground と同じ判定
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {
+
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;
+
+}
+
 #define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)
 
 // easing
