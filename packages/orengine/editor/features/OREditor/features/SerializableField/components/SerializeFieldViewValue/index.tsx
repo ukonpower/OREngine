@@ -6,6 +6,7 @@ import { InputColor, Label, Vector } from 'uipower';
 import { useOREditor } from '../../../../hooks/useOREditor';
 import { findFieldUI } from '../../../../lib/fieldUI';
 import { KeyFrameIndicator } from '../../../KeyFrame/components/KeyFrameIndicator';
+import { SharedCurveLabel } from '../../../KeyFrame/components/SharedCurveLabel';
 import { useKeyFrameField } from '../../../KeyFrame/hooks/useKeyFrameField';
 import { useFieldDragEdit } from '../../hooks/useFieldDragEdit';
 import { useSerializeFieldView } from '../../hooks/useSerializeFieldView';
@@ -36,7 +37,16 @@ export const SerializeFieldViewValue: React.FC<{ path:string, field: SerializeFi
 
 	}
 
-	const title = <>{label}{indicator}</>;
+	// 共有しているカーブは、名前と使用数を印の後ろに出す
+	let sharedLabel = null;
+
+	if ( keyFrame.shared.length > 0 ) {
+
+		sharedLabel = <SharedCurveLabel curves={keyFrame.shared} />;
+
+	}
+
+	const title = <>{label}{indicator}{sharedLabel}</>;
 
 	// editor.tsx で差し替えられたフィールドは、既定の入力の代わりにその UI を出す。並べ方は定義の layout に従う
 	const fieldUIEntry = findFieldUI( fieldUIs, target, props.path );
@@ -92,7 +102,7 @@ export const SerializeFieldViewValue: React.FC<{ path:string, field: SerializeFi
 		// 関数フィールドは Button ひとつなので、ラベル行に入れず行いっぱいに伸ばす。キーの状態はボタンの右に出す
 		if ( valueType === "function" ) {
 
-			return <div className={style.action} {...keyFrame.rowProps}>{valueElm}{indicator}</div>;
+			return <div className={style.action} {...keyFrame.rowProps}>{valueElm}<span>{indicator}{sharedLabel}</span></div>;
 
 		}
 

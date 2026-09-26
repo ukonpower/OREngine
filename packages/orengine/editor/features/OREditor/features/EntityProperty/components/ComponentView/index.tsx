@@ -7,6 +7,7 @@ import { Block, CrossIcon, InputBoolean } from 'uipower';
 
 import { useOREditor } from '../../../../hooks/useOREditor';
 import { KeyFrameIndicator } from '../../../KeyFrame/components/KeyFrameIndicator';
+import { SharedCurveLabel } from '../../../KeyFrame/components/SharedCurveLabel';
 import { useKeyFrameField } from '../../../KeyFrame/hooks/useKeyFrameField';
 import { SerializeFieldView } from '../../../SerializableField/components/SerializeFieldView';
 import { useSerializableField } from '../../../SerializableField/hooks/useSerializableProps';
@@ -103,11 +104,20 @@ export const ComponentView = ( { component }: ComponentViewProps ) => {
 
 	}
 
+	let enabledShared = null;
+
+	if ( enabledKeyFrame.shared.length > 0 ) {
+
+		enabledShared = <SharedCurveLabel curves={enabledKeyFrame.shared} />;
+
+	}
+
 	const labelElm = <div className={style.head}>
 		<div className={style.check} {...enabledKeyFrame.rowProps}>
 			<InputBoolean checked={enabled || false} onChange={onChangeEnabled} readOnly={disableEdit} />
 		</div>
 		{enabledIndicator}
+		{enabledShared}
 		<div className={style.name}>
 			{Engine.resources.getComponentName( component )}
 		</div>
