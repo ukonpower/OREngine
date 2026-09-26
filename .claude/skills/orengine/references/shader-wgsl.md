@@ -85,7 +85,7 @@ fn fsDeferred( input: VertexOutput ) -> GBufferOutput {
 | `object.<名前>` | `uModelMatrix` / `uNormalMatrix` / `uModelMatrixPrev` |
 | `material.<名前>` | Material の `uniforms` に渡したもの（`component-development.md` の「uniform」） |
 | `defaultSurface` / `packGBuffer` / `GBufferOutput` | deferred 用 |
-| `sampleEnvMap( dir, roughness )` / `refractionTexture` | forward 系（`fsForward`）専用。`fsDeferred` から参照するとパイプライン作成に失敗する |
+| `sampleEnvMap( dir, roughness )` / `refractionTexture` | forward 系（`fsForward`）専用。`fsDeferred` から参照するとパイプライン作成に失敗する。`refractionTexture` は forward パス開始時のシーンの写しで、先に描かれた forward も背後に含めたいときは Material の `readsScene: true` で描く直前に写し直す |
 
 `frame` / `object` / `material` は GLSL と違い構造体のメンバーなので、`uTime` ではなく `frame.uTime` と書く。
 
