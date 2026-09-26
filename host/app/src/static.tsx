@@ -6,6 +6,7 @@ import { EditorPageStatic } from 'orengine/react';
 
 import { initResouces, initResourceInstances } from '../Resources/registry';
 
+import { projectFieldUIs } from './editorFieldUIs';
 import { projectPanels } from './editorPanels';
 
 
@@ -20,5 +21,6 @@ ReactDOM.createRoot( document.getElementById( 'root' )! ).render(
 		editorData={EditorData as any}
 		initResourceInstances={initResourceInstances}
 		panels={projectPanels}
+		fieldUIs={projectFieldUIs}
 	/>
 );

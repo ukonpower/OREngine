@@ -108,6 +108,16 @@ npx tsx scripts/scene.ts shot tmp/shot/b.png --from 0,3,5 --to 0,0,0 --time 2 --
 - パネルからは `useOREditor()` で `editor` / `engine` に触れる（選択中エンティティの参照、フィールドの更新など）
 - サンプルは `demo-webgl/editor/`（選択中エンティティ名の表示と `/api/ext/hello` の呼び出し）
 
+### フィールド UI（`Resources/Components/**/editor.tsx`）
+コンポーネントのフィールドごとに、プロパティパネルの表示を自作の React UI（canvas 含む）に差し替える仕組み。将来のビューポート上のギズモ（コンポーネント側からの3D操作）も同じ `editor.tsx` に足す想定（#157）。
+
+- コンポーネントの `index.ts` の隣に `editor.tsx` を置き、`export const fieldUIs = defineFieldUIs( クラス, { フィールドパス: UI部品 } )` を書く。自動認識は `host/app/src/editorFieldUIs.ts` の `import.meta.glob`（エディタのエントリからだけ辿るので player には入らない）。`index.ts` から `editor.tsx` を import すると eslint-plugin-boundaries でエラーになる（demo-webgl / demo-webgpu の `Resources/**/*.ts` を runtime に分類している）
+- 受け渡し: `EditorPage` / `EditorPageStatic` の `fieldUIs` → `OREditor` → `OREditorProvider` の context → `SerializeFieldViewValue` が `findFieldUI`（クラスの完全一致 + パス）で引いて、既定の入力の代わりに描く。型と `defineFieldUIs` は `packages/orengine/editor/features/OREditor/lib/fieldUI.ts`
+- UI 部品は `FieldUIProps<T>`（`value` / `setValue` / `beginEdit` / `target` / `path` / `opt` / `engine` / `editor`）を受け取るただの React 部品。import でコンポーネント間で再利用する（名前の登録表は無い）
+- `useEditorFrame( cb )`: `Editor._animate` の最後に出す `frame` イベントを購読する hook。canvas の描画をエディタのフレームに揃える
+- `editor.api.beginEdit( target, path )` → `set` / `commit` / `cancel`: `set` は値を反映するだけで、`commit` で開始時からの変化を SetFieldCommand 1つ（`merge: false`）として積む。`setField` の自動まとめは時間基準（500ms）なので、ドラッグの途中で手を止めると undo が分かれる。それを避けるための窓口
+- `CommandManager` は `merge: false` で積んだコマンドに、後続のコマンドをまとめない（確定済みの編集・CLI の `set` に直後の GUI 操作が混ざらないように）
+
 ```tsx
 // <projectDir>/editor/Panels/Sample/index.tsx
 import { useState } from 'react';

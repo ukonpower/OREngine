@@ -4,7 +4,7 @@ import * as MXP from 'maxpower';
 import { OREngineProjectData } from "orengine";
 import { Engine } from "orengine";
 
-import { OREditor, type PanelDefinition, type SceneSelection } from "../../../features/OREditor";
+import { OREditor, type FieldUIDefinition, type PanelDefinition, type SceneSelection } from "../../../features/OREditor";
 import { OREngineProvider } from "../../../features/OREngine/providers/OREngineProvider";
 
 import "uipower/styles/style.scss";
@@ -15,6 +15,7 @@ export interface EditorPageProps {
 	editorData?: MXP.SerializeField;
 	initResourceInstances: ( engine: Engine ) => void;
 	panels?: PanelDefinition[];
+	fieldUIs?: FieldUIDefinition[];
 	onBeforeSave?: () => void;
 }
 
@@ -205,7 +206,7 @@ export const EditorPage = ( props: EditorPageProps ) => {
 			props.initResourceInstances( engine );
 
 		}} >
-			<OREditor editorData={editorData} projectName={projectName} panels={props.panels} scenes={scenes} onSave={async ( savedScene, savedEditor ) => {
+			<OREditor editorData={editorData} projectName={projectName} panels={props.panels} fieldUIs={props.fieldUIs} scenes={scenes} onSave={async ( savedScene, savedEditor ) => {
 
 				props.onBeforeSave?.();
 

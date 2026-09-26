@@ -14,6 +14,8 @@ export * from './editor/components/pages/EditorPageStatic';
 export * from './editor/features/OREditor';
 export * from './editor/features/OREditor/providers/OREditorProvider';
 export * from './editor/features/OREditor/hooks/useOREditor';
+export * from './editor/features/OREditor/hooks/useEditorFrame';
+export * from './editor/features/OREditor/lib/fieldUI';
 export * from './editor/features/OREngine/providers/OREngineProvider';
 export * from './editor/features/OREngine/hooks/useOREngine';
 export * from './editor/features/OREditor/features/Hierarchy';

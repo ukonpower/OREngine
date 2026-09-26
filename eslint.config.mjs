@@ -109,12 +109,17 @@ export default [ {
 				"packages/orengine/index.ts",
 				"host/app/src/player.ts",
 				"host/app/Resources/**",
+				// .tsx はフィールド UI（editor.tsx）なので runtime に含めない
+				"demo-webgl/Resources/**/*.ts",
+				"demo-webgpu/Resources/**/*.ts",
 			] },
 			{ category: "editor", pattern: [
 				"packages/orengine/react.tsx",
 				"host/app/src/main.tsx",
 				"host/app/src/static.tsx",
 				"host/app/src/editorPanels.ts",
+				"host/app/src/editorFieldUIs.ts",
+				"*/Resources/Components/**/editor.tsx",
 			] },
 		],
 	},

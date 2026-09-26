@@ -96,6 +96,44 @@ const extension: EditorServerExtension = ( router, ctx ) => {
 export default extension;
 ```
 
+#### フィールド UI（`Resources/Components/<…>/editor.tsx`）
+
+コンポーネントのフィールドごとに、プロパティパネルの表示を自作の React UI（canvas も可）に差し替えられます。コンポーネントの `index.ts` と同じディレクトリに `editor.tsx` を置き、`defineFieldUIs` の結果を `fieldUIs` として export します。`editor.tsx` はエディタのエントリからだけ読み込まれるので、player ビルドには入りません。
+
+```tsx
+// project/Resources/Components/Effect/Wave/editor.tsx
+import { NumberScope } from '@or-project-editor/FieldUIs/NumberScope';
+import { defineFieldUIs } from 'orengine/react';
+
+import { Wave } from '.';
+
+export const fieldUIs = defineFieldUIs( Wave, {
+	speed: NumberScope,       // フィールドパス → UI 部品
+	'color/ramp': Gradient,
+} );
+```
+
+UI 部品はただの React 部品で、`FieldUIProps<値の型>` を受け取ります。import すれば別のコンポーネントのフィールドにも使えます。
+
+```tsx
+// project/editor/FieldUIs/NumberScope/index.tsx
+import { useEditorFrame, type FieldUIProps } from 'orengine/react';
+
+export const NumberScope = ( { value, setValue, beginEdit, target, path, opt, engine, editor }: FieldUIProps<number> ) => {
+
+	// エディタの毎フレームの処理の後に呼ばれる。canvas はここで描く（自前の requestAnimationFrame は回さない）
+	useEditorFrame( () => { /* target.getField( path ) や engine を読んで描く */ } );
+
+	// ドラッグ等の連続した変更は beginEdit() → set( v ) → commit() で undo 1回ぶん。1回で終わる変更は setValue( v )
+	// ...
+
+};
+```
+
+- props: `value`（今の値）/ `setValue` / `beginEdit`（`set` / `commit` / `cancel` を持つ編集の窓口）/ `target`（コンポーネント）/ `path` / `opt`（フィールドの opt）/ `engine` / `editor`
+- 対応はクラスの完全一致で引きます（継承したクラスには引き継がれません）
+- サンプルは `demo-webgl/Resources/Components/Samples/Objects/FieldUISample/`（UI 部品は `demo-webgl/editor/FieldUIs/NumberScope/`）
+
 ### 3. ビルド
 
 ```bash
