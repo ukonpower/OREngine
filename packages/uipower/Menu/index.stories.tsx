@@ -31,3 +31,21 @@ export const Branches: Story = {
 		],
 	},
 };
+
+// 検索欄に入力すると、階層を無視して名前が一致する葉だけをグループ名つきで並べる。Enter で先頭を確定する
+export const Search: Story = {
+	args: {
+		title: 'Add Entity',
+		items: [
+			{ label: 'Empty' },
+			{ label: 'Built-in', children: [ { label: 'Light' }, { label: 'Camera' } ] },
+			{ label: 'Camera', children: [ { label: 'LookAt' }, { label: 'OrbitControls' } ] },
+			{ label: 'Samples', children: [ { label: 'Lines', children: [ { label: 'SpiralLine' } ] } ] },
+		],
+	},
+	play: async ( { canvas, userEvent } ) => {
+
+		await userEvent.type( canvas.getByPlaceholderText( 'Search' ), 'li' );
+
+	},
+};

@@ -3,9 +3,13 @@ import * as MXP from 'maxpower';
 import { Command } from '../../CommandManager';
 import { uniqueEntityName } from '../../EntityName';
 
-import type { EntityPreset } from '../../EntityPresets';
+// 生成するエンティティの既定名と、最初から付けておくコンポーネント
+export type CreateEntityOptions = {
+	name: string;
+	components: ( typeof MXP.Component )[];
+};
 
-// プリセット1つぶんのエンティティを生成する。コンポーネントの追加までを1コマンドに含めて、
+// コンポーネント付きのエンティティを1つ生成する。コンポーネントの追加までを1コマンドに含めて、
 // undo 1回でエンティティごと丸ごと戻るようにしている
 export class CreateEntityCommand implements Command {
 
@@ -15,17 +19,17 @@ export class CreateEntityCommand implements Command {
 	constructor(
 		private engine: MXP.EngineContract,
 		private parent: MXP.Entity,
-		private preset: EntityPreset,
+		private options: CreateEntityOptions,
 	) {}
 
 	public execute() {
 
 		if ( ! this.entity ) {
 
-			this.entity = this.engine.createEntity( { name: uniqueEntityName( this.parent, this.preset.name ) } );
+			this.entity = this.engine.createEntity( { name: uniqueEntityName( this.parent, this.options.name ) } );
 			this.entity.initiator = "user";
 
-			for ( const componentClass of this.preset.components ) {
+			for ( const componentClass of this.options.components ) {
 
 				const component = this.entity.addComponent( componentClass );
 				component.initiator = "user";

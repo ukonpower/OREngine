@@ -31,7 +31,7 @@ import { Material } from '../Material';
 import { TexProcedural } from '../TexProcedural';
 
 import { ENVMAP_FAR, ENVMAP_ORIGIN, EnvMap } from './EnvMap';
-import { Lights } from './Lights';
+import { Lights, ShadowRender } from './Lights';
 import { PipelinePostProcess } from './PipelinePostProcess';
 import { RenderView } from './RenderView';
 import presentWgsl from './shaders/present.wgsl';
@@ -340,7 +340,7 @@ export class Renderer extends Serializable implements RendererContract {
 				this.sky.color.set( v[ 0 ], v[ 1 ], v[ 2 ] );
 
 			},
-			{ format: { type: 'vector' } }
+			{ format: { type: 'color' } }
 		);
 
 		skyDir.field( 'groundColor',
@@ -350,7 +350,7 @@ export class Renderer extends Serializable implements RendererContract {
 				this.sky.groundColor.set( v[ 0 ], v[ 1 ], v[ 2 ] );
 
 			},
-			{ format: { type: 'vector' } }
+			{ format: { type: 'color' } }
 		);
 
 		skyDir.field( 'intensity',
@@ -697,7 +697,7 @@ export class Renderer extends Serializable implements RendererContract {
 
 	}
 
-	// フレーム1回。描画対象の収集と、視点に依らない資源（compute / .tex / シャドウ / 環境マップ）の更新
+	// フレーム1回。描画対象の収集と、視点に依らない資源（compute / .tex / spot のシャドウ / 環境マップ）の更新
 	public prepareScene( root: Entity, _event: EntityUpdateEvent ) {
 
 		const device = this._device;
@@ -743,7 +743,7 @@ export class Renderer extends Serializable implements RendererContract {
 
 		this._renderTexProcedurals( device, encoder );
 		this._renderCompute( device, encoder );
-		this._renderShadowMaps( device, encoder );
+		this._renderShadowMaps( device, encoder, lights.shadowRenders );
 
 		this.sky.place( ENVMAP_ORIGIN, ENVMAP_ORIGIN, ENVMAP_FAR );
 		this._renderEnvMap( device, encoder );
@@ -794,6 +794,11 @@ export class Renderer extends Serializable implements RendererContract {
 			? ( p: { name: string, targetView: GPUTextureView | null, width: number, height: number } ) =>
 				this._emitPass( p.targetView, p.width, p.height, p.name )
 			: undefined;
+
+		// directional のシャドウマップは描くビューのカメラ基準で範囲が変わるので、ビューごとに描き直す。
+		// 描画先はビュー間で共有するが、ビューごとに submit するのでキュー順で前のビューの参照と混ざらない
+		lights.fitDirectionalShadows( camera );
+		this._renderShadowMaps( device, encoder, lights.directionalShadowRenders );
 
 		// 空の行列はビューごとに書き分ける。writeBuffer と submit はキューの順に実行されるので、ビュー間で混ざらない
 		this.sky.followCamera( cameraEntity, camera );
@@ -1016,9 +1021,7 @@ export class Renderer extends Serializable implements RendererContract {
 	}
 
 	// ライトごとに深度だけを描く。多くのマテリアルは fragment stage を持たないパイプラインで足りる
-	private _renderShadowMaps( device: GPUDevice, encoder: GPUCommandEncoder ) {
-
-		const shadowRenders = this._lights!.shadowRenders;
+	private _renderShadowMaps( device: GPUDevice, encoder: GPUCommandEncoder, shadowRenders: ShadowRender[] ) {
 
 		for ( let i = 0; i < shadowRenders.length; i ++ ) {
 

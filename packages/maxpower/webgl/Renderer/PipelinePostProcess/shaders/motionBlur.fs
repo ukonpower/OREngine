@@ -35,7 +35,7 @@ float softDepthCompare( float a, float b ) {
 }
 
 float getLinearDepth( vec2 uv ) {
-	vec4 depthRayPos = uProjectionMatrixInverse * vec4( uv * 2.0 - 1.0, texture( uDepthTexture, vUv ).x * 2.0 - 1.0, 1.0 );
+	vec4 depthRayPos = uProjectionMatrixInverse * vec4( uv * 2.0 - 1.0, texture( uDepthTexture, uv ).x * 2.0 - 1.0, 1.0 );
 	depthRayPos.xyz /= depthRayPos.w;	
 	return depthRayPos.z;
 }

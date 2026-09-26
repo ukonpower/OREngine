@@ -49,11 +49,12 @@ npx tsx orengine/scripts/scene.ts tree       # 外部プロジェクト（submod
 npx tsx scripts/scene.ts get root/Camera
 npx tsx scripts/scene.ts tree --timeout 30000
 
-npx tsx scripts/scene.ts add-entity root --preset Light --name KeyLight   # 作ったエンティティの uuid を返す
+npx tsx scripts/scene.ts add-entity root --name KeyLight                  # コンポーネントの無いエンティティを作り uuid を返す（--name 省略時は Empty）
+npx tsx scripts/scene.ts add-component root/KeyLight Light                # 名前は components の name
 npx tsx scripts/scene.ts set root/KeyLight position 3,3,3                 # エンティティのフィールド
 npx tsx scripts/scene.ts set root/KeyLight Light intensity 2              # コンポーネントのフィールド
-npx tsx scripts/scene.ts add-entity root --name Box                       # プリセット省略時は Empty
-npx tsx scripts/scene.ts add-component root/Box MyBox                     # 名前は components の name
+npx tsx scripts/scene.ts add-entity root --name Box
+npx tsx scripts/scene.ts add-component root/Box MyBox
 npx tsx scripts/scene.ts remove-component root/Box MyBox
 npx tsx scripts/scene.ts remove-entity root/Box
 npx tsx scripts/scene.ts undo

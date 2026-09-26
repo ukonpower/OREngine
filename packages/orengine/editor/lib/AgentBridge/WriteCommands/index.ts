@@ -1,7 +1,6 @@
 import * as MXP from 'maxpower';
 
 import { Engine } from '../../../../core/Engine';
-import { ENTITY_PRESETS } from '../../EntityPresets';
 import { AgentCommandError, AgentCommandInput, requireArg } from '../Command';
 import { componentName, entityPath, resolveEntity, resolveList } from '../EntityQuery';
 
@@ -262,7 +261,7 @@ export const parseFieldValue = ( engine: Engine, target: MXP.Serializable, path:
 	Entity
 -------------------------------*/
 
-const ADD_ENTITY_USAGE = 'add-entity <parent> [--preset Empty|Light|Camera] [--name <name>]';
+const ADD_ENTITY_USAGE = 'add-entity <parent> [--name <name>]';
 
 const addEntity = ( ctx: AgentCommandContext, input: AgentCommandInput ) => {
 
@@ -270,37 +269,7 @@ const addEntity = ( ctx: AgentCommandContext, input: AgentCommandInput ) => {
 
 	assertEditableEntity( parent, '子を追加' );
 
-	let presetName = 'Empty';
-
-	if ( input.options.preset !== undefined ) {
-
-		if ( typeof input.options.preset !== 'string' ) {
-
-			throw new AgentCommandError( `--preset に名前がありません。使い方: ${ADD_ENTITY_USAGE}` );
-
-		}
-
-		presetName = input.options.preset;
-
-	}
-
-	const preset = ENTITY_PRESETS.find( ( item ) => item.name === presetName );
-
-	if ( ! preset ) {
-
-		const names: string[] = [];
-
-		for ( const item of ENTITY_PRESETS ) {
-
-			names.push( item.name );
-
-		}
-
-		throw new AgentCommandError( `プリセットがありません: ${presetName}`, names );
-
-	}
-
-	let name = preset.name;
+	let name = 'Empty';
 
 	if ( input.options.name !== undefined ) {
 
@@ -321,18 +290,11 @@ const addEntity = ( ctx: AgentCommandContext, input: AgentCommandInput ) => {
 
 	}
 
-	// 名前もプリセットに含めて渡し、生成と命名を undo 1回ぶんにする。兄弟と衝突すれば Name.001 のように採番される
-	const entity = ctx.editor.api.createEntity( parent, { name, components: preset.components } );
+	// コンポーネントは付けない（CLI では add-component で足す）。名前も生成時に渡して生成と命名を undo 1回ぶんにする。
+	// 兄弟と衝突すれば Name.001 のように採番される
+	const entity = ctx.editor.api.createEntity( parent, { name, components: [] } );
 
-	const components: string[] = [];
-
-	entity.components.forEach( ( component ) => {
-
-		components.push( componentName( component ) );
-
-	} );
-
-	return { uuid: entity.uuid, name: entity.name, path: entityPath( entity ), components };
+	return { uuid: entity.uuid, name: entity.name, path: entityPath( entity ) };
 
 };
 

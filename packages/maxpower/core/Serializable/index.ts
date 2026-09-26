@@ -12,7 +12,7 @@ interface SerializeFieldFormatVector {
 }
 
 
-// 値は 0..1 の RGB 配列。エディタではカラーピッカーで編集する
+// 値はリニアの 0..1 の RGB 配列。エディタではカラーピッカーで編集する（ピッカーの表示だけ sRGB）
 interface SerializeFieldFormatColor {
 	type: "color",
 }
