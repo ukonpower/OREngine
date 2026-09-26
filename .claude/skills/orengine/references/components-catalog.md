@@ -31,7 +31,9 @@
 
 ## ライト
 
-- `Light` の field は `intensity` と、`Camera` から継いだ `fov` 等だけ。**種類（spot / directional）・色・角度・距離・影の有無は field に無く、CLI・シーン JSON では変えられない**。`add-component <entity> Light` で付けたライトはスポットライト（`packages/maxpower/core/Components/Light` の初期値）。変えたいときは同じエンティティに付けるコンポーネントのコードから `getComponent( MXP.Light )` のプロパティを書き換える
+- `Light` の field は `lightType`（`directional` / `spot`）/ `color` / `intensity` / `castShadow` / `angle` / `blend` / `distance` / `shadowDistance` と、`Camera` から継いだ `fov` / `near` 等。`add-component <entity> Light` で付けたライトはスポットライト（`packages/maxpower/core/Components/Light` の初期値）
+- `intensity` は Blender と同じ放射量の単位。directional は照度 W/m²（Sun の Strength）、spot は放射束 W（Spot の Power）で、spot は逆二乗で減衰する。明るさの全体調整は renderer の `pipeline/toneMap/exposure`（EV）で行う
+- `distance` は spot のシャドウカメラの far。光はこの距離で切れない
 - 向き: ライトは**ローカル +Y が光源へ向かう向き**（光は -Y へ進む）。`tree` の `up` で確かめる。コードで向けるなら `light.lookAt( targetWorldPos )`（中で +Y を合わせる補正をしている）。CLI の `set <entity> euler` で向けるときは、`up` が「ライトの位置 − 照らしたい点」の向きになるよう調整する
 
 ## Mesh について

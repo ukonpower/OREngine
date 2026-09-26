@@ -11,6 +11,8 @@ export type PipelineConfig = {
 	dof?: boolean;
 	// ACES トーンマップ。オフだとシェーダーで書いた色がそのまま画面へ出る
 	toneMap?: boolean;
+	// 露出（EV）。トーンマップの直前で色に 2^exposure を掛ける（Blender の Color Management > Exposure と同じ意味）。toneMap がオフだと掛からない
+	exposure?: number;
 	// ブルームの輝度抽出はトーンマップ前の HDR から行うので、しきい値は HDR の値で指定する
 	bloom?: boolean;
 	bloomThreshold?: number;

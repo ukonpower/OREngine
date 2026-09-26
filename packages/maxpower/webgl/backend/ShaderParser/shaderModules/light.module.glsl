@@ -9,8 +9,6 @@ struct SpotLight {
 	vec3 color;
 	float angle;
 	float blend;
-	float distance;
-	float decay;
 };
 
 struct LightCamera {
