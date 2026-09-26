@@ -1,6 +1,6 @@
 .action {
 	display: grid;
-	// 2列目はキーの状態の印。印が無いときは幅 0 になり、ボタンは行いっぱいのまま
+	// 2列目はキーの状態の印と共有中のカーブ。どちらも無いときは幅 0 になり、ボタンは行いっぱいのまま
 	grid-template-columns: 1fr auto;
 	align-items: center;
 }

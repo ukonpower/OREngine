@@ -8,6 +8,7 @@ export * from './EyeIcon';
 export * from './FolderIcon';
 export * from './KeyframeIcon';
 export * from './LightIcon';
+export * from './LinkIcon';
 export * from './MaterialIcon';
 export * from './MeshIcon';
 export * from './PauseIcon';

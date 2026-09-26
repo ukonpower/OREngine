@@ -10,7 +10,7 @@ import { DuplicateEntityCommand } from '../Commands/DuplicateEntityCommand';
 import { RemoveComponentCommand } from '../Commands/RemoveComponentCommand';
 import { RemoveTextureCommand } from '../Commands/RemoveTextureCommand';
 import { SetFieldCommand } from '../Commands/SetFieldCommand';
-import { buildDeleteKeys, buildInsertKeys, KeyFrameFieldRef, keyFrameTime } from '../KeyFrameField';
+import { buildCurveLinkSettings, buildDeleteKeys, buildInsertKeys, buildPasteCurve, buildUnlinkCurve, CurveLinkSettings, CurvePasteMode, KeyFrameElementRef, KeyFrameFieldRef, keyFrameTime } from '../KeyFrameField';
 
 import type { Editor } from '../Editor';
 
@@ -159,6 +159,40 @@ export class EditorAPI {
 
 		const engine = this._editor.engine;
 		const command = buildDeleteKeys( engine, fields, keyFrameTime( engine ) );
+
+		if ( command ) {
+
+			this._commandManager.execute( command, { merge: false } );
+
+		}
+
+	}
+
+	// コピーしたカーブ（curveId）を要素に貼り付ける。link は同じカーブを共有し、duplicate は複製して独立させる。
+	// 初めてリンクを持つフィールドでは Animation の追加までを undo 1回にまとめる。貼り付けられなければ Error を投げる
+	public pasteCurve( ref: KeyFrameElementRef, curveId: string, mode: CurvePasteMode ): void {
+
+		const command = buildPasteCurve( this._editor.engine, ref, curveId, mode );
+
+		if ( command ) {
+
+			this._commandManager.execute( command, { merge: false } );
+
+		}
+
+	}
+
+	// 要素が共有しているカーブを複製して指し直し、ほかのリンクから切り離す
+	public unlinkCurve( ref: KeyFrameElementRef ): void {
+
+		this._commandManager.execute( buildUnlinkCurve( this._editor.engine, ref ), { merge: false } );
+
+	}
+
+	// 要素のリンクの倍率・足し算と、リンク先のカーブの名前をまとめて書き換える（undo 1回）
+	public setCurveLinkSettings( ref: KeyFrameElementRef, settings: CurveLinkSettings ): void {
+
+		const command = buildCurveLinkSettings( this._editor.engine, ref, settings );
 
 		if ( command ) {
 

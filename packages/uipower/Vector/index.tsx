@@ -35,7 +35,8 @@ const clamp = ( value: number, min: number | undefined, max: number | undefined 
 
 };
 
-// 軸ごとの数値入力を並べる。選択した複数軸へは、ドラッグで同じ変化量・数値入力で同じ値をまとめて入れる
+// 軸ごとの数値入力を並べる。選択した複数軸へは、ドラッグで同じ変化量・数値入力で同じ値をまとめて入れる。
+// 軸の行には data-element（軸の番号）を付け、右クリック等で使う側がどの軸の上かを引けるようにする
 export const Vector = ( { onChange, onDragStart, onDragEnd, onDragCancel, disabled, ...props }: VectorProps ) => {
 
 	const isSP = useMobileDevice();
@@ -232,7 +233,7 @@ export const Vector = ( { onChange, onDragStart, onDragEnd, onDragCancel, disabl
 		const title = <span className={style.axisLabel} data-selected={isSelected} data-sp={isSP} onClick={() => onTapLabel( i )}>{axisDict[ i ]}</span>;
 
 		rows.push(
-			<div key={i} ref={( elm ) => {
+			<div key={i} data-element={i} ref={( elm ) => {
 
 				rowRefs.current[ i ] = elm;
 
