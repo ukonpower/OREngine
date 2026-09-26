@@ -467,9 +467,10 @@ const alignHandle = ( key: EditKey, side: KeyFrameHandleSide ) => {
 	// 向きが決まらない（長さ 0）ときは揃えない
 	if ( movedLength == 0 ) return;
 
+	// 計算で決まる側は、自動ハンドルと同じく桁を丸めて書く
 	const aligned = {
-		x: center.x - ( moved.x - center.x ) / movedLength * otherLength,
-		y: center.y - ( moved.y - center.y ) / movedLength * otherLength,
+		x: roundHandle( center.x - ( moved.x - center.x ) / movedLength * otherLength, center.x ),
+		y: roundHandle( center.y - ( moved.y - center.y ) / movedLength * otherLength, center.y ),
 	};
 
 	if ( side == "left" ) {
@@ -677,8 +678,8 @@ const limitHandle = ( key: MTP.IVector2, handle: MTP.IVector2, maxLength: number
 	const scale = maxLength / length;
 
 	return {
-		x: key.x + ( handle.x - key.x ) * scale,
-		y: key.y + ( handle.y - key.y ) * scale,
+		x: roundHandle( key.x + ( handle.x - key.x ) * scale, key.x ),
+		y: roundHandle( key.y + ( handle.y - key.y ) * scale, key.y ),
 	};
 
 };
