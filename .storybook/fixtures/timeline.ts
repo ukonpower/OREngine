@@ -1,6 +1,7 @@
 import { storyEditorData, storyEmptyScene, storyScene } from './scene';
 
 import type { OREditorFixture } from '../decorators/withOREditor';
+import type { OREngineDataEntity, OREngineProjectData } from 'orengine';
 
 // Timeline のビューポートは読み込み時に [ 0, duration ] へ合わされるので、
 // duration と fps を変えるとグリッド間隔と目盛りのラベルがまとめて変わる
@@ -81,4 +82,53 @@ export const timelinePlaying: OREditorFixture = {
 	scene: storyScene,
 	editorData: storyEditorData,
 	setup: ( editor ) => editor.engine.play(),
+};
+
+// キーを打った Cube を選んだ状態。position は要素ごとのカーブ、scale は3要素で1本のカーブを共有する（共有の印と使用数が出る）
+const keyFrameChilds: OREngineDataEntity[] = [];
+
+for ( const child of storyScene.scene?.childs || [] ) {
+
+	if ( child.uuid != 'sb-cube' ) {
+
+		keyFrameChilds.push( child );
+
+		continue;
+
+	}
+
+	keyFrameChilds.push( {
+		...child,
+		components: [
+			...( child.components || [] ),
+			{
+				name: 'Animation',
+				uuid: 'sb-cube-animation',
+				props: {
+					links: {
+						position: [[ 'c1', 1, 0 ], [ 'c2', 1, 0 ], [ 'c3', 1, 0 ]],
+						scale: [[ 'c4', 1, 0 ], [ 'c4', 1, 0 ], [ 'c4', 1, 0 ]],
+					},
+				},
+			},
+		],
+	} );
+
+}
+
+const keyFrameScene: OREngineProjectData = {
+	...storyScene,
+	curves: {
+		c1: { k: [[ 2, [ 0, 0, - 40, 0, 40, 0 ]], [ 2, [ 120, 2, 80, 2, 160, 2 ]], [ 2, [ 180, 0, 260, 0, 340, 0 ]]] },
+		c2: { k: [[ 0, [ 60, 0 ]], [ 0, [ 240, 3 ]]] },
+		c3: { k: [[ 1, [ 120, 0 ]], [ 1, [ 180, 1 ]]] },
+		c4: { name: 'pulse', k: [[ 2, [ 0, 1, - 50, 1, 50, 1 ]], [ 2, [ 150, 1.5, 100, 1.5, 200, 1.5 ]], [ 2, [ 150, 1, 250, 1, 350, 1 ]]] },
+	},
+	scene: { name: 'root', uuid: '0', childs: keyFrameChilds },
+};
+
+export const timelineKeyFrames: OREditorFixture = {
+	scene: keyFrameScene,
+	editorData: { ...storyEditorData, selectedEntityId: 'sb-cube' },
+	setup: ( editor ) => editor.engine.seek( 120 ),
 };

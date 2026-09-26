@@ -1,0 +1,43 @@
+.dopeSheet {
+	position: absolute;
+	inset: 0;
+	overflow: hidden;
+}
+
+// 左のチャンネル一覧の行と同じ高さにそろえる（KeyChannelList の .row）
+.row {
+	position: relative;
+	height: var(--or-list-row-height);
+	border-bottom: 1px solid var(--or-bg-float-active);
+
+	&[data-depth="0"] {
+		background-color: var(--or-bg-float-active);
+	}
+}
+
+.key {
+	position: absolute;
+	top: 50%;
+	display: flex;
+	transform: translate(-50%, -50%);
+	color: var(--or-text-muted);
+	cursor: pointer;
+
+	&[data-selected="true"] {
+		color: var(--or-key-selected);
+	}
+
+	// イベントは値を持たない時刻だけのキーなので、菱形ではなく縦の棒で示す
+	&[data-event="true"] {
+		width: calc(var(--or-space) / 2);
+		height: calc(var(--or-list-row-height) - var(--or-space));
+		background-color: currentColor;
+	}
+}
+
+.box {
+	position: absolute;
+	border: 1px solid var(--or-focus);
+	background-color: var(--or-drop-zone);
+	pointer-events: none;
+}

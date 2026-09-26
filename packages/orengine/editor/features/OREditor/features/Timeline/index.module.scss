@@ -21,6 +21,16 @@
 	flex: 1;
 }
 
+.channels {
+	flex-shrink: 0;
+	width: calc(var(--or-space) * 36);
+	height: 100%;
+
+	@include sp {
+		width: calc(var(--or-space) * 24);
+	}
+}
+
 .setting {
 	width: 150px;
 
