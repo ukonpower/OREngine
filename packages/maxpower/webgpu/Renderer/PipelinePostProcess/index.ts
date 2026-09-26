@@ -25,6 +25,7 @@ import motionBlurNeighborWgsl from './shaders/motionBlurNeighbor.wgsl';
 import normalSelectorWgsl from './shaders/normalSelector.wgsl';
 import ssCompositeWgsl from './shaders/ssComposite.wgsl';
 import ssrWgsl from './shaders/ssr.wgsl';
+import ssrTemporalWgsl from './shaders/ssrTemporal.wgsl';
 
 import type { Camera } from '../../../core/Components/Camera';
 import type { PipelineConfig } from '../../../core/Contracts/RenderViewContract';
@@ -111,6 +112,7 @@ export class PipelinePostProcess {
 	private _sssV: PostProcessPass;
 
 	private _ssr: PostProcessPass;
+	private _ssrTemporal: PostProcessPass;
 	private _ssComposite: PostProcessPass;
 	private _dofCoc: PostProcessPass;
 	private _dofBokeh: PostProcessPass;
@@ -262,10 +264,19 @@ export class PipelinePostProcess {
 			スクリーンスペース（SSR / DoF / モーションブラー）
 		-------------------------------*/
 
+		// レイマーチ（今フレームだけ）と時間方向の蓄積を分け、蓄積側が今フレームの近傍で履歴をクランプする
 		this._ssr = pass( {
 			name: 'ssr',
 			wgsl: ssrWgsl,
-			inputs: [ 'uBackBuffer0', NEAREST( 'uGbufferPos' ), NEAREST( 'uGbufferNormal' ), NEAREST( 'uVelTex' ) ],
+			inputs: [ 'uBackBuffer0', NEAREST( 'uGbufferPos' ), NEAREST( 'uGbufferNormal' ) ],
+			resolutionRatio: 0.5,
+			passThrough: true,
+		} );
+
+		this._ssrTemporal = pass( {
+			name: 'ssr/temporal',
+			wgsl: ssrTemporalWgsl,
+			inputs: [ 'uSSRCurrent', NEAREST( 'uGbufferPos' ), NEAREST( 'uVelTex' ) ],
 			pingPong: 'uSSRBackBuffer',
 			resolutionRatio: 0.5,
 			passThrough: true,
@@ -274,7 +285,7 @@ export class PipelinePostProcess {
 		this._ssComposite = pass( {
 			name: 'ssComposite',
 			wgsl: ssCompositeWgsl,
-			inputs: [ 'uBackBuffer0', NEAREST( 'uGbufferPos' ), NEAREST( 'uGbufferNormal' ), 'uSSRTexture' ],
+			inputs: [ 'uBackBuffer0', NEAREST( 'uGbufferPos' ), NEAREST( 'uGbufferNormal' ), 'uGbufferMaterial', 'uSSRTexture' ],
 		} );
 
 		const dofUniforms: BSP.Uniforms = { uParams: { value: this._dofParams, type: '4fv' } };
@@ -336,6 +347,7 @@ export class PipelinePostProcess {
 
 		this._screenChain = new PostProcessChain( device, frameLayout, [
 			this._ssr,
+			this._ssrTemporal,
 			this._ssComposite,
 			this._dofCoc,
 			this._dofBokeh,
@@ -437,6 +449,11 @@ export class PipelinePostProcess {
 
 		}
 
+		this._ssrTemporal.setInput( 'uSSRCurrent', this._ssr.targetView! );
+
+		// 毎フレームの繋ぎ直しは renderPost が行う。ここでは未接続のまま合成が飛ばされないよう仮に繋ぐ
+		this._ssComposite.setInput( 'uSSRTexture', this._ssrTemporal.targetView! );
+
 		this._dofBokeh.setInput( 'uCocTex', this._dofCoc.targetView! );
 		this._dofBlur.setInput( 'uBokeTex', this._dofBokeh.targetView! );
 		this._dofComposite.setInput( 'uBokeTex', this._dofBlur.targetView! );
@@ -461,6 +478,7 @@ export class PipelinePostProcess {
 			pass.setInput( 'uNormalTexture', normal );
 			pass.setInput( 'uGbufferAlbedo', albedo );
 			pass.setInput( 'uSelectorTexture', material );
+			pass.setInput( 'uGbufferMaterial', material );
 			pass.setInput( 'uVelTex', velocity );
 
 		}
@@ -528,10 +546,18 @@ export class PipelinePostProcess {
 	// シーンの仕上げ（forwardのあと）。画面へ出すビューを返す
 	public renderPost( device: GPUDevice, encoder: GPUCommandEncoder, frameBindGroup: GPUBindGroup, scene: GPUTextureView, onPass?: PassCallback ) {
 
-		// ピンポンで描画先が入れ替わるので参照を毎フレーム張り直す
-		this._ssComposite.setInput( 'uSSRTexture', this._ssr.targetView! );
+		// ピンポンの描画先は render の中で入れ替わるので、書き終えてから合成へ繋ぐ（先に繋ぐと1フレーム前の結果を読む）
+		const screen = this._screenChain.render( device, encoder, frameBindGroup, scene, undefined, ( pass ) => {
 
-		const screen = this._screenChain.render( device, encoder, frameBindGroup, scene, undefined, onPass );
+			if ( pass === this._ssrTemporal ) {
+
+				this._ssComposite.setInput( 'uSSRTexture', this._ssrTemporal.targetView! );
+
+			}
+
+			if ( onPass ) onPass( pass );
+
+		} );
 
 		this._bloomChain.render( device, encoder, frameBindGroup, screen, undefined, onPass );
 
@@ -649,6 +675,7 @@ export class PipelinePostProcess {
 		if ( config.ssr !== undefined ) {
 
 			this._ssr.enabled = config.ssr;
+			this._ssrTemporal.enabled = config.ssr;
 			this._ssComposite.enabled = config.ssr;
 
 		}

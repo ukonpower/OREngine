@@ -18,6 +18,7 @@ import motionBlurNeighborFrag from './shaders/motionBlurNeighbor.fs';
 import motionBlurTileFrag from './shaders/motionBlurTile.fs';
 import ssCompositeFrag from './shaders/ssComposite.fs';
 import ssrFrag from './shaders/ssr.fs';
+import ssrTemporalFrag from './shaders/ssrTemporal.fs';
 
 
 export type PipelinePostProcessPassConfig = {
@@ -54,6 +55,7 @@ export class PipelinePostProcess {
 	public postprocess: MXP.PostProcess;
 
 	private _ssr: MXP.PostProcessPass;
+	private _ssrTemporal: MXP.PostProcessPass;
 	private _ssComposite: MXP.PostProcessPass;
 	private _dofParams: MTP.Vector;
 	private _motionBlur: MXP.PostProcessPass;
@@ -82,15 +84,12 @@ export class PipelinePostProcess {
 			},
 		} );
 
-		// ssr
-
-		const rtSSR1 = createHdrTarget( backend );
-		const rtSSR2 = createHdrTarget( backend );
+		// ssr（レイマーチは今フレームだけを出し、時間方向の蓄積は ssrTemporal が今フレームの近傍で履歴をクランプして行う）
 
 		const ssr = new MXP.PostProcessPass( backend, {
 			name: 'ssr',
 			frag: MXP.hotGet( "ssr", ssrFrag ),
-			renderTarget: rtSSR1,
+			renderTarget: createHdrTarget( backend ),
 			uniforms: MXP.UniformsUtils.merge( {
 				uGbufferPos: {
 					value: null,
@@ -101,14 +100,6 @@ export class PipelinePostProcess {
 					type: '1i'
 				},
 				uSceneTex: {
-					value: null,
-					type: '1i'
-				},
-				uSSRBackBuffer: {
-					value: rtSSR2.textures[ 0 ],
-					type: '1i'
-				},
-				uVelTex: {
 					value: null,
 					type: '1i'
 				},
@@ -133,6 +124,51 @@ export class PipelinePostProcess {
 
 		}
 
+		const rtSSR1 = createHdrTarget( backend );
+		const rtSSR2 = createHdrTarget( backend );
+
+		const ssrTemporal = new MXP.PostProcessPass( backend, {
+			name: 'ssrTemporal',
+			frag: MXP.hotGet( "ssrTemporal", ssrTemporalFrag ),
+			renderTarget: rtSSR1,
+			uniforms: MXP.UniformsUtils.merge( {
+				uSSRCurrent: {
+					value: ssr.renderTarget!.textures[ 0 ],
+					type: '1i'
+				},
+				uSSRBackBuffer: {
+					value: rtSSR2.textures[ 0 ],
+					type: '1i'
+				},
+				uGbufferPos: {
+					value: null,
+					type: '1i'
+				},
+				uVelTex: {
+					value: null,
+					type: '1i'
+				},
+			} ),
+			resolutionRatio: 0.5,
+			passThrough: true,
+		} );
+
+		if ( import.meta.hot ) {
+
+			import.meta.hot.accept( "./shaders/ssrTemporal.fs", ( module ) => {
+
+				if ( module ) {
+
+					this._ssrTemporal.frag = MXP.hotUpdate( 'ssrTemporal', module.default );
+
+				}
+
+				this._ssrTemporal.requestUpdate();
+
+			} );
+
+		}
+
 		// ss-composite
 
 		const ssComposite = new MXP.PostProcessPass( backend, {
@@ -147,8 +183,12 @@ export class PipelinePostProcess {
 					value: null,
 					type: '1i'
 				},
+				uGbufferMaterial: {
+					value: null,
+					type: '1i'
+				},
 				uSSRTexture: {
-					value: rtSSR2.textures[ 0 ],
+					value: rtSSR1.textures[ 0 ],
 					type: '1i'
 				},
 			} ),
@@ -428,6 +468,7 @@ export class PipelinePostProcess {
 		// トーンマップより前は HDR のまま処理し、FXAA は sRGB の LDR に掛ける
 		this.postprocess = new MXP.PostProcess( { passes: [
 			ssr,
+			ssrTemporal,
 			ssComposite,
 			dofCoc,
 			dofBokeh,
@@ -442,6 +483,7 @@ export class PipelinePostProcess {
 		] } );
 
 		this._ssr = ssr;
+		this._ssrTemporal = ssrTemporal;
 		this._ssComposite = ssComposite;
 		this.dofCoc = dofCoc;
 		this.dofBokeh = dofBokeh;
@@ -462,12 +504,17 @@ export class PipelinePostProcess {
 		ssr.uniforms.uGbufferPos.value = renderTarget.gBuffer.textures[ 0 ];
 		ssr.uniforms.uGbufferNormal.value = renderTarget.normalBuffer.textures[ 0 ];
 		ssr.uniforms.uSceneTex.value = renderTarget.forwardBuffer.textures[ 0 ];
-		ssr.uniforms.uVelTex.value = renderTarget.gBuffer.textures[ 4 ];
+
+		// ssrTemporal
+
+		ssrTemporal.uniforms.uGbufferPos.value = renderTarget.gBuffer.textures[ 0 ];
+		ssrTemporal.uniforms.uVelTex.value = renderTarget.gBuffer.textures[ 4 ];
 
 		// ssComposite
 
 		ssComposite.uniforms.uGbufferPos.value = renderTarget.gBuffer.textures[ 0 ];
 		ssComposite.uniforms.uGbufferNormal.value = renderTarget.gBuffer.textures[ 1 ];
+		ssComposite.uniforms.uGbufferMaterial.value = renderTarget.gBuffer.textures[ 3 ];
 
 		// dofCoc
 
@@ -507,9 +554,9 @@ export class PipelinePostProcess {
 		this.rtSSR1 = this.rtSSR2;
 		this.rtSSR2 = tmp;
 
-		this._ssr.setRendertarget( this.rtSSR1 );
+		this._ssrTemporal.setRendertarget( this.rtSSR1 );
 		this._ssComposite.uniforms.uSSRTexture.value = this.rtSSR1.textures[ 0 ];
-		this._ssr.uniforms.uSSRBackBuffer.value = this.rtSSR2.textures[ 0 ];
+		this._ssrTemporal.uniforms.uSSRBackBuffer.value = this.rtSSR2.textures[ 0 ];
 
 	}
 
@@ -555,6 +602,7 @@ export class PipelinePostProcess {
 		if ( config.ssr !== undefined ) {
 
 			this._ssr.enabled = config.ssr;
+			this._ssrTemporal.enabled = config.ssr;
 			this._ssComposite.enabled = config.ssr;
 
 			if ( ! config.ssr ) {
