@@ -1,7 +1,7 @@
 import { KeyboardEvent, MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import * as MXP from 'maxpower';
-import { ArrowIcon, CameraIcon, CursorIcon, EyeIcon, LightIcon, ListItem, MeshIcon, Menu, pointAnchor, usePopover } from 'uipower';
+import { ArrowIcon, CameraIcon, CursorIcon, EyeIcon, LightIcon, ListItem, MeshIcon, Menu, MenuItem, pointAnchor, usePopover } from 'uipower';
 
 import { useEntityAddMenuItems } from '../../../../hooks/useEntityAddMenuItems';
 import { useOREditor } from '../../../../hooks/useOREditor';
@@ -198,10 +198,44 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 
 		editor.selectEntity( props.entity );
 
-		openPopover( <Menu title={props.entity.name} items={[
+		const items: MenuItem[] = [
 			{
 				label: "Add Entity",
 				children: addMenuItems,
+			},
+		];
+
+		// 複製先は同じ親の下に置くので、親の無いルートは複製できない
+		if ( props.entity.parent ) {
+
+			items.push( {
+				label: "Duplicate",
+				onClick: () => {
+
+					// Shift+D と違い、マウスが Hierarchy 上にあるのでモーダル変形には入らず選択だけで止める
+					const duplicated = editor.api.duplicateEntity( props.entity );
+
+					editor.selectEntity( duplicated );
+
+					closeAll();
+
+				},
+			} );
+
+		}
+
+		items.push(
+			{
+				label: "Rename",
+				onClick: () => {
+
+					// F2 と同じ経路。メニューを閉じる更新と同じ commit で名前入力が autoFocus されるので、
+					// 検索欄の除去より後にフォーカスが入る
+					editor.emit( "request/renameEntity", [ props.entity ] );
+
+					closeAll();
+
+				},
 			},
 			{
 				label: "Delete Entity",
@@ -212,8 +246,10 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 					closeAll();
 
 				},
-			}
-		]} />, pointAnchor( e.clientX, e.clientY ) );
+			},
+		);
+
+		openPopover( <Menu title={props.entity.name} items={items} />, pointAnchor( e.clientX, e.clientY ) );
 
 	}, [ editor, props.entity, openPopover, closeAll, noEditable, addMenuItems ] );
 
