@@ -2,11 +2,6 @@
   "version": 2,
   "animations": [
     [
-      0,
-      1,
-      2
-    ],
-    [
       3,
       4,
       5
@@ -248,6 +243,7 @@
     "children": [
       {
         "name": "CamDof",
+        "uuid": "73370102",
         "position": [
           0.0,
           1.0,
@@ -257,6 +253,7 @@
       },
       {
         "name": "Camera",
+        "uuid": "40a7941b",
         "position": [
           0.039,
           1.525,
@@ -268,15 +265,14 @@
           0.0
         ],
         "type": "camera",
-        "animation": {
-          "position": 0
-        },
+        "animation": {},
         "param": {
           "fov": 21.908
         }
       },
       {
         "name": "CamLook",
+        "uuid": "9d3f6c68",
         "position": [
           0.0,
           1.017,
@@ -286,10 +282,11 @@
       },
       {
         "name": "Cube.001",
+        "uuid": "4d805647",
         "position": [
-          -1.299,
-          1.669,
-          -1.024
+          -0.086,
+          0.057,
+          -0.93
         ],
         "scale": [
           0.238,
@@ -298,7 +295,7 @@
         ],
         "type": "mesh",
         "animation": {
-          "position": 1
+          "position": 0
         },
         "param": {
           "position": "AACAvwAAgL8AAIA/AACAvwAAgD8AAIA/AACAvwAAgD8AAIC/AACAvwAAgL8AAIC/AACAvwAAgL8AAIC/AACAvwAAgD8AAIC/AACAPwAAgD8AAIC/AACAPwAAgL8AAIC/AACAPwAAgL8AAIC/AACAPwAAgD8AAIC/AACAPwAAgD8AAIA/AACAPwAAgL8AAIA/AACAPwAAgL8AAIA/AACAPwAAgD8AAIA/AACAvwAAgD8AAIA/AACAvwAAgL8AAIA/AACAvwAAgL8AAIC/AACAPwAAgL8AAIC/AACAPwAAgL8AAIA/AACAvwAAgL8AAIA/AACAPwAAgD8AAIC/AACAvwAAgD8AAIC/AACAvwAAgD8AAIA/AACAPwAAgD8AAIA/",
@@ -309,6 +306,7 @@
       },
       {
         "name": "OREngine",
+        "uuid": "9dd37953",
         "position": [
           0.0,
           1.063,
@@ -318,6 +316,7 @@
       },
       {
         "name": "OREngineCube",
+        "uuid": "af9a4d0f",
         "position": [
           0.0,
           0.96,
@@ -342,6 +341,7 @@
       },
       {
         "name": "SkyBox",
+        "uuid": "943a3c64",
         "position": [
           0.0,
           0.0,
@@ -350,10 +350,11 @@
       },
       {
         "name": "Spot.001",
+        "uuid": "8ea8454d",
         "position": [
-          7.6,
-          7.343,
-          4.754
+          7.589,
+          7.324,
+          4.395
         ],
         "rotation": [
           0.814,
@@ -367,13 +368,13 @@
         ],
         "type": "light",
         "param": {
-          "shadow_map": true,
+          "shadow_map": false,
           "color": {
             "x": 1.0,
             "y": 1.0,
             "z": 1.0
           },
-          "intensity": 1500.0,
+          "intensity": 2000.0,
           "type": "spot",
           "angle": 0.611,
           "blend": 1.0
@@ -381,6 +382,7 @@
       },
       {
         "name": "Spot.002",
+        "uuid": "d47e3ffc",
         "position": [
           -13.676,
           -15.599,
@@ -398,7 +400,7 @@
         ],
         "type": "light",
         "param": {
-          "shadow_map": true,
+          "shadow_map": false,
           "color": {
             "x": 1.0,
             "y": 1.0,
