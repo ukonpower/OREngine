@@ -1,4 +1,5 @@
 // required common, light,
+// diffuse / specular（vec3）へ足し込む。SSS が diffuse だけをぼかすため分けて持つ
 
 float shadow;
 
@@ -14,8 +15,6 @@ LightCamera lightCamera;
 	#pragma loop_start NUM_LIGHT_DIR
 
 		dLight = directionalLight[ LOOP_INDEX ];
-		light.direction = dLight.direction;
-		light.color = dLight.color;
 
 		// shadow
 
@@ -31,7 +30,10 @@ LightCamera lightCamera;
 		
 		// lighting
 
-		outColor.xyz += RE( geo, mat, light ) * shadow;
+		light.direction = dLight.direction;
+		light.color = dLight.color * shadow;
+
+		RE( geo, mat, light, diffuse, specular );
 
 	#pragma loop_end
 
@@ -45,7 +47,6 @@ LightCamera lightCamera;
 	float spotDistance;
 	float spotAngleCos;
 	float spotAttenuation;
-	vec3 radiance;
 
 	#pragma loop_start NUM_LIGHT_SPOT
 
@@ -77,10 +78,10 @@ LightCamera lightCamera;
 		}
 
 		light.direction = spotDirection;
-		light.color = sLight.color * spotAttenuation * pow( clamp( 1.0 - spotDistance / sLight.distance, 0.0, 1.0 ),  sLight.decay );
+		// 逆二乗の減衰。光源の位置で 0 除算しないよう下限を置く
+		light.color = sLight.color * spotAttenuation / max( spotDistance * spotDistance, 0.0001 ) * shadow;
 
-		radiance = RE( geo, mat, light );
-		outColor.xyz += shadow * radiance;
+		RE( geo, mat, light, diffuse, specular );
 
 	#pragma loop_end
 

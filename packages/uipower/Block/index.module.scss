@@ -1,0 +1,49 @@
+.block {
+	width: 100%;
+	margin-bottom: 5px;
+
+	&[data-nomargin="true"] {
+		margin: 0;
+	}
+
+	&[data-bg="true"] {
+		background-color: var(--or-bg-base);
+		border-radius: var(--or-radius);
+		padding: var(--or-space);
+	}
+}
+
+.head {
+	display: flex;
+	align-items: center;
+
+	padding: var(--or-space);
+
+
+	&_icon {
+		padding-right: 5px;
+		display: inline-block;
+		cursor: pointer;
+
+		svg {
+			height: 100%;
+			vertical-align: middle;
+		}
+	}
+
+	&_text {
+		display: inline-block;
+		user-select: none;
+		color: var(--or-text-muted);
+		flex: 1;
+	}
+
+}
+
+.content {
+
+	&[data-no_indent="true"] {
+		padding-left: 0px;
+		padding-right: 0px;
+	}
+}

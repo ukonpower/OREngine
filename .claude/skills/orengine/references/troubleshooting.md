@@ -1,86 +1,68 @@
 # トラブルシューティング
 
-## サーバーログの確認方法
+パスとコマンドの書き方は SKILL.md の「最初に」を参照（外部プロジェクトでは `npx tsx orengine/scripts/scene.ts`）。
 
-`npm run dev` は express（ファイルI/O API）と vite devサーバーを同一プロセスで起動する。ターミナル出力を直接確認するか、バックグラウンド起動している場合はそのログファイル（起動コマンドで指定したリダイレクト先）を `Read` で確認する。
+## まず見るもの
 
-## サーバー未起動
+| 知りたいこと | コマンド |
+|---|---|
+| つながっているか・保存されていない変更があるか | `status` |
+| エラー | `errors`（`shader` = GLSL のコンパイルエラー、`gpu` = WebGPU / WGSL のエラー、`console` = コンソールのエラーと未捕捉例外、`unresolvedComponents` = 読み込めなかったコンポーネント） |
+| 位置・向き・大きさ | `tree` / `get <entity>` |
+| 見た目 | `shot tmp/shot/<名前>.png` |
 
-**症状**: `curl: (7) Failed to connect to localhost port 3001` や、ブラウザで開発ページが表示されない。
+## シーン CLI のエラー
 
-**対処**:
-1. `npm run dev` で開発サーバーを起動（ユーザーの明示的な指示がある場合のみ。CLAUDE.md 参照）
-2. 起動完了まで待つ（通常数秒）
-3. `curl -sf http://localhost:3001/api/projects/_/scene` で疎通確認（プロジェクト名部分は無視されるので任意の文字列でよい）
+| メッセージ | 原因と対処 |
+|---|---|
+| `dev サーバーが起動していません` / `dev サーバーに接続できません` | ユーザーに dev サーバーの起動を頼む（`npm run dev` を勝手に起動しない）。起動後に `status` で確かめる |
+| `エディタのタブが無いので headless Chromium で開こうとしましたが、失敗しました` | Playwright の Chromium が無い（ユーザーに `npx playwright install chromium` を頼む）。GPU の無い環境（Linux CI 等）では headless は使えないので、ユーザーにエディタを開いてもらう |
+| `headless Chromium で開いたエディタが …ms 以内にタブとして登録されませんでした` | エディタが読み込めていない（ビルドエラー等）。ユーザーにエディタを開いてもらい、エラーを見てもらう |
+| `タブには反映しましたが、ファイルへの保存に失敗しました` | 書き込みはタブに入ったが、ファイルへの保存（API の POST）が失敗した。dev サーバーのログを見てもらい、`git diff <projectDir>/scenes/` で反映されたか確かめる |
+| `エディタのタブが …ms 以内に応答しませんでした` | タブが固まっているかリロード中。少し待って再実行するか `--timeout` を延ばす |
+| `不明なコマンドです` | タブや dev サーバーが古い。タブのリロード、だめなら dev サーバーの再起動をユーザーに頼む |
+| `エンティティが見つかりません` / `名前パスが N 件に一致しました` | `tree` で名前パス・uuid を確かめる。同名の兄弟がいるときは uuid で指定する |
+| `登録されていないコンポーネントです` | `candidates` か `components` の name から選ぶ。作ったばかりなら下の「コンポーネントが一覧に出ない」 |
+| `書き換えられるフィールドではありません` | `candidates` か `get` の `fields[].path` から選ぶ。コンポーネントのフィールドは `set <entity> <component> <path> <value>` |
+| `スクリプト（BLidge / glb 等）が生成したエンティティなので…` / `initiator が … のコンポーネントなので…` | シーン JSON に載らないものは GUI と同じく編集できない。BLidge のエンティティにはコンポーネントを付けることだけできる |
 
-## scene.json / editor.json を編集しても反映されない
+## CLI で入れた変更が消えた
 
-**症状**: ファイルを保存したのにブラウザ側の表示が変わらない。
+CLI の書き込みは応答の前にファイルへ保存されている。`git diff <projectDir>/scenes/` に無ければ、後から別の保存で上書きされた可能性がある（CLI が書き込んだタブ以外はリロードされるが、ユーザーがその後 GUI で古い状態に戻して Ctrl+S した等）。`get` で今の値を確かめてやり直す。
 
-**原因候補**:
-1. devサーバーが起動していない、または対象プロジェクトを開いていない
-2. `host/vite/plugins/ProjectWatchReload/index.ts` の watch 対象は `<projectDir>/scene.json` と `<projectDir>/editor.json` のみ。パスが対象プロジェクトのものと一致しているか確認
-3. 直近の API 書き込み（`recentWrites`）と判定されて抑制されている場合があるが、これは同一プロセス内のエディタ自身の保存（Ctrl+S）にのみ適用される。ファイル編集ツールでの書き込みは対象外なので通常は full-reload される
+## コンポーネントが一覧に出ない
 
-**対処**: vite のログに `full-reload` 相当の出力が出ているか確認する。出ていなければサーバーの再起動（`npm run dev` を再実行）を検討する。
+`components` に名前が出ない、`add-component` が `登録されていないコンポーネントです` になる。
 
-## JSON構文エラー
+1. 置き場所が `<projectDir>/Resources/Components/<グループ>/<名前>/index.ts` か、途中に `_` で始まるディレクトリが無いか
+2. `export class` しているか。登録名はクラス名（大文字小文字も一致させる）
+3. import の失敗（シェーダーファイルのパス違い・`.wgsl` の include 先が無い等）で読み込めていない。`npm run typecheck` と `errors` を見る
+4. 作ったばかりなら、タブのリロードが終わってから再確認する
 
-**症状**: scene.json / editor.json / `.tex` を編集後、シーンが一切読み込まれなくなった。
+## `set` が効かない・JSON の `props` が反映されない
 
-**原因**: JSON構文が壊れている（末尾カンマ、閉じ括弧不足等）。
+`field()` で登録していない path は CLI ではエラー、シーン JSON では無視される。`get <entity>` の `fields[].path` か、コンポーネントの `index.ts` の `this.field(...)` / `this.fieldDir(...)` で登録を確かめる。`Mesh` の geometry、`Light` の色・種類など public プロパティでも field に無いものは CLI・JSON では変えられない（コードで変える）。
 
-**対処**: `python3 -m json.tool <file>` で構文チェックしてから保存する。壊れた場合は `git diff` で差分確認 → `git checkout -- <file>` で復元。
+## 何も描かれない
 
-## コンポーネント名が見つからない / 反映されない
+- `tree` の `bounds` があるか・`visible` か・カメラの視野に入っているか（`shot --from --to` で外から撮る）
+- エンティティに `Mesh` があるか（`get` の components）。BLidge の Mesh に差し込む形は、Mesh の無いエンティティでは何も描かない
+- `errors` の `shader` / `gpu` にコンパイルエラーが無いか
+- WebGPU: `phase` に入れたパスの entry point（`fsDeferred` / `fsForward`）が WGSL にあるか（`shader-wgsl.md`）
+- 見た目だけ確かめたいなら、シェーダーを外して既定のマテリアルで描けるか試す
 
-**症状**: scene.json に `components` を追加したのにシーンに反映されない。
+## 型エラー
 
-**対処**:
-1. `export class` 名で実在確認: `grep -r "export class" packages/orengine/builtin/Components/`（ビルトイン）/ `grep -r "export class" <projectDir>/Resources/Components/`（プロジェクト固有）
-2. コンポーネント名の大文字小文字を確認（例: `"Mesh"` であって `"mesh"` ではない）
-3. `references/components-catalog.md` で正式名称を確認
-4. カスタムコンポーネント追加直後なら、Vite のリロード完了を待ってから再確認する
+- import は `maxpower`（WebGL）/ `maxpower/webgpu`（WebGPU）/ `mathpower` / `orengine` のエイリアスで書く。WebGPU のプロジェクトで `maxpower` を import していないか
+- コンストラクタの引数型は `MXP.ComponentParams`
+- 既存のコンポーネント（demo / プロジェクト内）の書き方と見比べる
 
-未知のコンポーネント名は **エラーにならず** `ProjectSerializer.deserializeEntity` が `unresolvedComponents` として保持するだけで描画されない（`[ProjectSerializer] Component "..." not found in resolver` の warning がブラウザコンソールに出る）。
+## JSON が壊れた
 
-## props（field）が反映されない
+`scenes/<name>.json` / `editor.json` / `.tex` の構文が壊れると読み込めなくなる。`python3 -m json.tool <file>` で確かめ、`git diff` で差分を見る。戻すときはユーザーに確認してから。
 
-**症状**: scene.json のコンポーネント `props` に値を書いたのに実際の値が変わらない。
+## 同じ修正を3回試して直らないとき
 
-**原因**: `Serializable.deserialize()` は `fields_` Map に存在しない path を silent skip する。
-
-**対処**:
-1. 対象コンポーネントの `index.ts` を Read し、`this.field(...)` / `this.fieldDir(...)` で実際に登録されているパスを確認する
-2. `Mesh.geometry` / `Camera.displayOut` / `Light.color` 等、public プロパティであっても `field()` 未登録なら **props 経由では設定不可**（コンポーネント実装を変更するしかない）
-
-## TypeScriptの型エラー（コンポーネント開発時）
-
-**症状**: `npm run typecheck` でエラー
-
-**対処**:
-1. importパスが正しいか確認（`glpower`, `maxpower`, `orengine` のエイリアスを使用）
-2. `ComponentParams` 型を使用しているか確認
-3. 登録は `import.meta.glob` による自動検出のため、手動の登録作業は不要
-
-## Viteプラグインエラー（transformエラー）
-
-**症状**: カスタムコンポーネントが登録されない。シーンに配置済みでも描画されない。
-
-**原因**: シェーダーファイル（`.vs`/`.fs`/`.glsl`）のimport/transformが失敗し、コンポーネントのimportチェーンが壊れている。importが壊れたコンポーネントはエンジンに登録されず、デシリアライズ時にスキップされる。
-
-**対処**:
-1. `npm run typecheck` でTypeScript側のエラーがないか確認
-2. agent-browser スキルでエディタページを開き、ブラウザコンソール（devtools）のエラーを確認する
-
-## 見た目の確認・ブラウザ側のランタイムエラー確認
-
-専用の観測 API（screenshot / console-errors 等）は存在しない。agent-browser スキルでエディタページ（`http://localhost:<vite-port>`）を開き、スクリーンショットとブラウザコンソールログで直接確認する。
-
-## Stop Conditions
-
-以下の状況では、現在のアプローチを見直す:
-
-- **同じ修正を3回連続で試して改善しない**: scene.json / コンポーネント実装のどちらが原因か切り分ける（コンポーネント単体の field 登録を先に確認）
-- **コンポーネント名 / UUID が見つからない**: 自動生成ファイルとシーン木構造を再確認。別のエンティティ/コンポーネントを操作対象にしていないか確認
-- **TypeScript型エラーが解消しない**: 既存コンポーネントのコードを参照して正しいパターンを確認
+- シーンの設定（`get`）とコンポーネントの実装のどちらが原因か切り分ける。field の登録を先に確かめる
+- 操作対象を取り違えていないか `tree` / `components` で見直す
+- 手本（`demo-webgl` / `demo-webgpu` の `Resources/Components/`）の書き方と比べる

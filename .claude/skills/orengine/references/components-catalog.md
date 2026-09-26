@@ -1,55 +1,47 @@
-# コンポーネントカタログ
+# ビルトインコンポーネント
 
-OREngine で利用可能なビルトインコンポーネント一覧。
-**見た目のあるオブジェクト（独自 Geometry / Material）は基本的にカスタムコンポーネントで作る**ため、ここに並ぶのは制御系・カメラ系・ユーティリティ系が中心。
+どのプロジェクトでも使えるコンポーネント。フィールド（path・型・現在値）はここに書き写していないので、`npx tsx scripts/scene.ts components`（全コンポーネントの定義）/ `get <entity>`（付いているものの現在値）で確かめる。パスの書き方は SKILL.md の「最初に」を参照。
 
-利用可能なコンポーネント名は `export class` 名で確認する（操作前に必ず確認。登録名 = クラス名）:
-- ビルトイン: `grep -r "export class" packages/orengine/builtin/Components/`
-- プロジェクト固有: `grep -r "export class" <projectDir>/Resources/Components/`
+登録の実体: `host/app/Resources/registry.ts`（Light / Camera / Mesh）と `packages/orengine/builtin/Components/`（それ以外）。
 
-## 登録済みビルトイン
+| 名前 | 実装 | 用途 |
+|---|---|---|
+| `Camera` | `packages/maxpower/core/Components/Camera` | 描画するカメラ。ピント（DoF）の制御も持つ。tag は `camera` |
+| `Light` | `packages/maxpower/core/Components/Light` | ライト（影付き） |
+| `Mesh` | `packages/maxpower/core/Components/Mesh` | 描画する形。CLI や JSON から付けても形は入らない（下記） |
+| `LookAt` | `builtin/Components/Camera/LookAt` | 注視先へ向ける。field は `target`（entity 参照）。コードからは `setTarget()` |
+| `CameraOrbitAnim` | `builtin/Components/Camera/CameraOrbitAnim` | 原点の周りを回るカメラの動き |
+| `ShakeViewer` | `builtin/Components/Camera/CameraShake` | カメラの手ぶれ。**ディレクトリ名は `CameraShake` だが登録名は `ShakeViewer`** |
+| `OrbitControls` | `builtin/Components/Camera/OrbitControls` | マウス・キーボードでカメラを動かす |
+| `ObjectRotate` | `builtin/Components/Object/ObjectRotate` | Y 軸まわりに回し続ける。field は無い（速さは固定） |
+| `BLidgeClient` | `builtin/Components/Utility/BLidgeClient` | Blender（BLidge）のシーンを読み込む。ふつうは root に1つ |
 
-| 名前 | グループ | 主要 field（コンポーネント実装の `field()`/`fieldDir()` 呼び出しで確認できる範囲） | 用途 |
-|---|---|---|---|
-| **Light** | _Built-in | `enabled`, `tag`, `intensity`（+ Camera 継承で DEV 時のみ `fov` / `near` / `far` / `orthWidth` / `orthHeight`） | 向きは `rot`（euler）で指定。`color` / `castShadow` / `angle` / `blend` / `distance` / `decay` は public プロパティだが **field 未登録 → scene.json の `props` では設定不可** |
-| **Camera** | _Built-in | `enabled`, `tag`, `fov`, `near`, `far`, `orthWidth`, `orthHeight`, `fNumber`（field 登録は `import.meta.env.DEV` ガード付き） | タグ `"camera"` で識別。`fNumber` は DoF の絞り（小さいほどボケる、既定 0.3）。`displayOut` は public プロパティだが **field 未登録 → props では制御不可** |
-| **Mesh** | _Built-in | `enabled`, `tag` のみ | **scene.json の `props` で geometry/material は差し込めない**。カスタムコンポーネント内で `addComponent(MXP.Mesh, { geometry, material })` する前提 |
-| **CameraController** | Camera | LookAt 関連 + `focus/mode`（`auto` / `target` / `manual`）, `focus/distance`, `focus/speed` | **アタッチするだけで `MXP.PostProcessPipeline` + Bloom / FXAA / ColorGrading / Finalize が自動構築**。標準カメラセットの実体。フォーカスは auto=画面中心の深度（WebGPUのみ、非対応時は target へフォールバック）/ target=`CamDof` エンティティ / manual=距離直指定。`focusMode` / `focusDistance` / `focusSpeed` はスクリプトからも設定可 |
-| **CameraOrbitAnim** | Camera | `radius`, `speed` 他 | 対象周回アニメ |
-| **ShakeViewer** | Camera | `power`, `speed` | カメラ揺れ演出（ディレクトリ名 `CameraShake`、コンポーネント名 `ShakeViewer`） |
-| **LookAt** | Camera | `targetName` | 指定エンティティを注視 |
-| **OrbitControls** | Camera | - | マウスでカメラ操作（エディタ用途） |
-| **ObjectRotate** | Object | 回転速度 | 自動回転 |
-| **BLidgeClient** | Utility | - | BLidge 接続 |
+`builtin/` は `packages/orengine/builtin/` の略。
 
-## 重要な注意
+## カメラ
 
-- **Bloom / FXAA / ColorGrading / Finalize は単独でアタッチできない**。`_PostProcess/` 配下にあり glob のスキャン対象外（先頭 `_` のディレクトリは除外）。`CameraController` を足すと内部で `MXP.PostProcessPipeline` 経由で自動構築される
-- **`CustomPostProcess` というコンポーネントは存在しない**（過去の名前）
-- **未知のコンポーネント名を scene.json に書いても反映されない**（エラーにもならず `unresolvedComponents` として保持されるだけ）。操作前に自動生成ファイル（`components-catalog.md` 冒頭参照）で実在確認する
-- **field 未登録のプロパティ（`Mesh.geometry`, `Camera.displayOut`, `Light.color` 等）は scene.json の `props` では設定できない**。コンポーネントの `index.ts` で `field()` していないパスは silent skip される
-- 全 Component 共通の field は `enabled`, `tag` のみ（`MXP.Component` 基底クラスで登録）
+ピントは `Camera` だけで決まる（`add-component <entity> Camera` で付ける）。注視先へ向けたいときだけ `LookAt` を `add-component` で足す。
 
-## カメラの定番セット
-
-```
-Entity (MainCamera)
-├─ Camera           # 描画用カメラ
-└─ CameraController # PostProcessPipeline (Bloom/FXAA/CG/Finalize) を自動構築
-   └─ (内部で LookAt も自動アタッチ)
-```
-
-ShakeViewer や CameraOrbitAnim は必要に応じて追加。
+- `Camera` のピントの field は `focus/mode` / `focus/target` / `focus/distance` / `focus/speed` / `focus/fNumber`（DoF の絞り。小さいほどボケる）
+  - `LookAt` の `target` / `Camera` の `focus/target` は entity 参照で、値は対象の uuid（`tree` で調べる）。BLidge のエンティティの uuid は `blidge:<Blender での名前>`（`demo-webgl/scenes/main.json` では `"blidge:CamLook"` / `"blidge:CamDof"`）
+  - `focus/mode`: `auto` = 画面中心の深度（WebGPU のみ。WebGL では `target` と同じ動きになる）/ `target` = `focus/target` のエンティティまでの距離 / `manual` = `focus/distance`
+- エンジンのポストプロセスはレンダラーに組み込まれていて、HDR のまま SSR / DoF / モーションブラー → ブルーム合成 → トーンマップ + linear→sRGB → FXAA の順に走る（色の値・シェーダーの出力はリニアで扱い、sRGB にするのはこの最後だけ）。作風のパス（レンズ歪み・色収差など）はエンジンに無く、プロジェクトがシーンカメラの `PostProcessPipeline` にパスを足すコンポーネントで持つ（エンジンの仕上げの後に足した順で走る）。見本は `demo-webgl` / `demo-webgpu` の `Resources/Components/Samples/PostProcess/Finalize`（main シーンのカメラに付いている）。`add` の形はバックエンドで違い、WebGL は `PostProcess` の実体、WebGPU はパスの宣言（`{ name, wgsl }`）を渡す
+- レンダラー全体の効果（モーションブラー・SSR・SSAO・DoF・ライトシャフト・トーンマップ・ブルーム等の on/off、空の色）はシーン JSON の `renderer`（`scene-schema.md`）で、CLI では変えられない
+- `Camera` の field は `cameraType`（`perspective` / `orthographic`）/ `fov` / `near` / `far` / `orthHeight`（並行投影で見える縦の全幅。横は画面の aspect から決まる）
 
 ## ライト
 
-```
-Entity (Light)
-└─ Light  # 向きは rot（euler）で直接指定する
-```
+- `Light` の field は `lightType`（`directional` / `spot`）/ `color` / `intensity` / `castShadow` / `angle` / `blend` / `distance` / `shadowDistance` と、`Camera` から継いだ `fov` / `near` 等。`add-component <entity> Light` で付けたライトはスポットライト（`packages/maxpower/core/Components/Light` の初期値）
+- `intensity` は Blender と同じ放射量の単位。directional は照度 W/m²（Sun の Strength）、spot は放射束 W（Spot の Power）で、spot は逆二乗で減衰する。明るさの全体調整は renderer の `pipeline/toneMap/exposure`（EV）で行う
+- `distance` は spot のシャドウカメラの far。光はこの距離で切れない
+- 向き: ライトは**ローカル +Y が光源へ向かう向き**（光は -Y へ進む）。`tree` の `up` で確かめる。コードで向けるなら `light.lookAt( targetWorldPos )`（中で +Y を合わせる補正をしている）。CLI の `set <entity> euler` で向けるときは、`up` が「ライトの位置 − 照らしたい点」の向きになるよう調整する
 
-`MXP.Light.lookAt()`（`packages/maxpower/Component/Light/index.ts`）はエンティティを対象に向けた後 X 軸に `+π/2` の補正クォータニオンを掛けている。これは Light の内部的な forward 軸が一般的なエンティティと 90° ずれているためで、**scene.json の `rot` を手で計算する場合もこの補正を加味する**必要がある。正確な向きが必要な場合は、通常の lookAt euler（entity 位置 → target 方向を向く回転）を計算したうえで X に `+90°`（`Math.PI/2`）を加えるか、エディタで実際に回転させてスクリーンショットで確認しながら調整する。
+## Mesh について
 
-## Mesh コンポーネント単体での使用について
+`Mesh` の geometry / material はシーン JSON に保存されない（`Mesh` の field は共通の `enabled` / `tag` だけ）。CLI や JSON で `Mesh` を付けても形の無いエンティティになる。見えるものはコンポーネントで作る（`component-development.md`）。
 
-`Mesh` コンポーネントを scene.json 経由でエンティティに追加することは可能だが、`field` 登録は `enabled` / `tag` のみ。**ジオメトリ/マテリアルを props で差し込む手段はない**ため、見える物体を置きたい場合は **必ずカスタムコンポーネント**を作って Geometry / Material / Mesh をその中で組み立てる（`references/component-development.md` 参照）。
+## 共通の注意
+
+- 全コンポーネント共通の field は `enabled` / `tag`
+- public プロパティでも `field()` で登録していなければ CLI の `set`・シーン JSON の `props` から変えられない（JSON に書いても無視される）
+- 実在しないコンポーネント名をシーン JSON に書くとエラーにはならず、読み込み時に `unresolvedComponents` として保持されるだけ（`errors` の `unresolvedComponents` に出る）

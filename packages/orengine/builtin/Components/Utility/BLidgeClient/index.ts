@@ -78,14 +78,13 @@ export class BLidgeClient extends MXP.Component {
 		// シーン同期イベントハンドラ
 		const onSyncScene = this.onSyncScene.bind( this );
 
+		// Engine はエンティティツリーの外にいて noticeEventParent では届かないので、Engine へ直接送る
+		const engine = this.engine as Engine;
+
 		// タイムライン同期イベントハンドラ
 		const onSyncTimeline = ( frame: MXP.BLidgeFrame ) => {
 
-			if ( this.entity ) {
-
-				this.entity.noticeEventParent( "update/blidge/frame", [ frame ] );
-
-			}
+			engine.emit( "update/blidge/frame", [ frame ] );
 
 		};
 
@@ -100,6 +99,25 @@ export class BLidgeClient extends MXP.Component {
 			this.blidge.off( 'sync/timeline', onSyncTimeline );
 
 		} );
+
+		// Blender の選択はエディタとの連動にしか使わず、WebSocket も開発時しか繋がないので player には入れない
+		if ( process.env.NODE_ENV === 'development' ) {
+
+			const onSyncSelection = ( selection: MXP.BLidgeSelection ) => {
+
+				engine.emit( "update/blidge/selection", [ selection ] );
+
+			};
+
+			this.blidge.on( 'sync/selection', onSyncSelection );
+
+			this.once( "dispose", () => {
+
+				this.blidge.off( 'sync/selection', onSyncSelection );
+
+			} );
+
+		}
 
 		/*-------------------------------
 			UIフィールド設定
@@ -214,15 +232,7 @@ export class BLidgeClient extends MXP.Component {
 		if ( ! this.blidgeRoot ) return [];
 
 		const resolver = {
-			getName: ( c: MXP.Component ): string => {
-
-				const item = Engine.resources.componentList.find(
-					( ci ) => c instanceof ci.component
-				);
-
-				return item ? item.name : c.constructor.name;
-
-			}
+			getName: ( c: MXP.Component ): string => Engine.resources.getComponentName( c )
 		};
 
 		const result: BLidgeAttachment[] = [];
@@ -341,7 +351,18 @@ export class BLidgeClient extends MXP.Component {
 		const _ = ( node: MXP.BLidgeNode ): MXP.Entity => {
 
 			// 既存のエンティティがあれば取得、なければ新規作成
-			const entity: MXP.Entity = ( this.entities.get( node.name ) || this.engine.createEntity() );
+			let entity = this.entities.get( node.name );
+
+			if ( ! entity ) {
+
+				entity = this.engine.createEntity();
+
+				// BLidge の同一性はノード名なので、uuid も名前から決める。
+				// ランダム uuid だとリロードのたびに変わり、エディタから保存したエンティティ参照（lookAt/target 等）が外れる
+				// Editor も Blender の選択をこの形の uuid で引いている
+				entity.restoreUUID( "blidge:" + node.name );
+
+			}
 
 			// カメラノードの場合、カメラパラメータを設定
 			if ( node.type == 'camera' ) {
@@ -439,8 +460,6 @@ export class BLidgeClient extends MXP.Component {
 
 			// シーン作成イベントを子に通知
 			this.entity.noticeEventChilds( "sceneCreated", [ this.blidgeRoot ] );
-			// シーン更新イベントを親に通知
-			this.entity.noticeEventParent( "update/blidge/scene", [ this.blidgeRoot ] );
 
 		}
 

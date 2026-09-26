@@ -12,7 +12,7 @@ interface SerializeFieldFormatVector {
 }
 
 
-// 値は 0..1 の RGB 配列。エディタではカラーピッカーで編集する
+// 値はリニアの 0..1 の RGB 配列。エディタではカラーピッカーで編集する（ピッカーの表示だけ sRGB）
 interface SerializeFieldFormatColor {
 	type: "color",
 }
@@ -50,9 +50,52 @@ export type SerializableFieldOpt = {
 	format?: SerializableFieldFormat,
 	label?: string,
 	readOnly?: boolean,
+	// エディタでドラッグしたときの刻みの目安。1px あたり step * 0.05 動く（uipower の InputNumber）
 	step?: number,
+	// 数値の値域。エディタ・CLI・シーン JSON のどこから入った値もここで丸める（数値配列は要素ごと）
+	min?: number,
+	max?: number,
+	// 整数に丸める。個数・分割数・インデックスなど、小数が意味を持たない値に付ける
+	int?: boolean,
 	disabled?: boolean,
 }
+
+// opt の min / max / int に従って数値を丸める。数値以外と、数値以外を含む配列はそのまま返す
+const normalizeNumberField = ( value: SerializeFieldValue, opt: SerializableFieldOpt ): SerializeFieldValue => {
+
+	if ( typeof value === "number" ) {
+
+		let result = value;
+
+		if ( opt.int ) result = Math.round( result );
+		if ( opt.min !== undefined ) result = Math.max( opt.min, result );
+		if ( opt.max !== undefined ) result = Math.min( opt.max, result );
+
+		return result;
+
+	}
+
+	if ( Array.isArray( value ) ) {
+
+		const isNumberArray = value.every( ( item ) => typeof item === "number" );
+
+		if ( ! isNumberArray ) return value;
+
+		const result: number[] = [];
+
+		for ( const item of value ) {
+
+			result.push( normalizeNumberField( item, opt ) as number );
+
+		}
+
+		return result;
+
+	}
+
+	return value;
+
+};
 
 export type SerializeFieldPrimitive = number | string | boolean | null | undefined | ( () => void );
 export type SerializeFieldObjective = SerializeFieldPrimitive | SerializeFieldObjective[] | { [key: string]: SerializeFieldObjective };
@@ -278,7 +321,7 @@ export class Serializable extends EventEmitter {
 			get: getter,
 			set: ( ( v: SerializeFieldValue ) => {
 
-				if ( setter ) setter( v as T );
+				if ( setter ) setter( normalizeNumberField( v, opt ) as T );
 
 				this.noticeField( path );
 

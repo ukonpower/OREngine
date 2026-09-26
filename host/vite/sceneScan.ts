@@ -4,7 +4,7 @@ export interface SceneUsage {
 	useGLTF: boolean;
 }
 
-// scene.json のパース結果から使用コンポーネント名・propsキー・GLTF使用有無を収集する
+// シーンファイルのパース結果から使用コンポーネント名・propsキー・GLTF使用有無を収集する
 // 構造を仮定した早期returnをせず、任意のネスト（BLidgeClient の props.attachments 配下等）を一律に辿る
 export const collectSceneUsage = ( sceneJson: unknown ): SceneUsage => {
 
@@ -54,8 +54,9 @@ export const collectSceneUsage = ( sceneJson: unknown ): SceneUsage => {
 
 				} );
 
-			} else if ( key === 'props' ) {
+			} else if ( key === 'props' || key === 'renderer' ) {
 
+				// props と renderer は Serializable がフィールド名の文字列で読むため、キーを改名させない
 				walk( value, true );
 
 			} else {
@@ -67,6 +68,17 @@ export const collectSceneUsage = ( sceneJson: unknown ): SceneUsage => {
 		}
 
 	};
+
+	// トップレベル（timeline/fps 等）も Engine の Serializable がフィールド名の文字列で読む
+	if ( sceneJson !== null && typeof sceneJson === 'object' ) {
+
+		for ( const key of Object.keys( sceneJson ) ) {
+
+			propKeys.add( key );
+
+		}
+
+	}
 
 	walk( sceneJson, false );
 

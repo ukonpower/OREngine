@@ -8,6 +8,7 @@ import { UniformBinder, buildStructWgsl } from '../../backend/UniformBinder';
 
 import shadowWgsl from './shaders/shadow.wgsl';
 
+import type { Camera } from '../../../core/Components/Camera';
 import type { Entity } from '../../../core/Entity';
 import type { UniformField } from '../../backend/UniformBinder';
 
@@ -58,8 +59,6 @@ const SPOT_LIGHT_STRUCT = {
 		{ name: 'color', type: 'vec3f' },
 		{ name: 'angle', type: 'f32' },
 		{ name: 'blend', type: 'f32' },
-		{ name: 'distance', type: 'f32' },
-		{ name: 'decay', type: 'f32' },
 		{ name: 'shadowMatrix', type: 'mat4x4f' },
 		{ name: 'useShadow', type: 'f32' },
 	] as UniformField[],
@@ -111,13 +110,17 @@ export class Lights {
 	public readonly bindGroupLayout: GPUBindGroupLayout;
 	public readonly bindGroup: GPUBindGroup;
 
-	// 今フレームで描き直すシャドウマップ
+	// prepareScene で描き直す spot のシャドウマップ
 	public readonly shadowRenders: ShadowRender[];
+
+	// ビューごとに描き直す directional のシャドウマップ
+	public readonly directionalShadowRenders: ShadowRender[];
 
 	private _binder: UniformBinder;
 	private _uniforms: BSP.Uniforms;
 	private _directional: LightSlot[];
 	private _spot: LightSlot[];
+	private _directionalShadows: { light: Light, slot: LightSlot }[];
 	private _shadowMaps: GPUTexture[];
 
 	// ライト視点のフレームuniformを書くための一時辞書
@@ -167,6 +170,8 @@ export class Lights {
 		} );
 
 		this.shadowRenders = [];
+		this.directionalShadowRenders = [];
+		this._directionalShadows = [];
 
 		this._lightProjectionMatrix = new MTP.Matrix();
 		this._lightPosition = new MTP.Vector();
@@ -202,8 +207,6 @@ export class Lights {
 			this._uniforms[ `${label}.position` ] = { value: position, type: '3fv' };
 			this._uniforms[ `${label}.angle` ] = { value: 0, type: '1f' };
 			this._uniforms[ `${label}.blend` ] = { value: 0, type: '1f' };
-			this._uniforms[ `${label}.distance` ] = { value: 0, type: '1f' };
-			this._uniforms[ `${label}.decay` ] = { value: 0, type: '1f' };
 
 		}
 
@@ -236,6 +239,8 @@ export class Lights {
 	public update( lightEntities: Entity[] ) {
 
 		this.shadowRenders.length = 0;
+		this.directionalShadowRenders.length = 0;
+		this._directionalShadows.length = 0;
 
 		let numDirectional = 0;
 		let numSpot = 0;
@@ -258,14 +263,16 @@ export class Lights {
 
 			slot.position.set( 0.0, 0.0, 0.0, 1.0 ).applyMatrix4( entity.matrixWorld );
 			slot.direction.set( 0.0, 1.0, 0.0, 0.0 ).applyMatrix4( entity.matrixWorld ).normalize();
-			slot.color.copy( light.color ).multiply( light.intensity * Math.PI );
+			// directional は照度 W/m² をそのまま、spot は放射束 W を全方向の放射強度 W/sr（W / 4π）にして渡す。
+			// spot の W がコーンに光を集めない（点光源と同じ明るさでコーンの外を切るだけ）のは Blender の約束に合わせている
+			slot.color.copy( light.color ).multiply( light.intensity );
+
+			if ( isSpot ) slot.color.multiply( 1 / ( 4 * Math.PI ) );
 
 			if ( isSpot ) {
 
 				this._uniforms[ `${label}.angle` ].value = Math.cos( light.angle / 2 );
 				this._uniforms[ `${label}.blend` ].value = light.blend;
-				this._uniforms[ `${label}.distance` ].value = light.distance;
-				this._uniforms[ `${label}.decay` ].value = light.decay;
 
 			}
 
@@ -273,16 +280,17 @@ export class Lights {
 
 			if ( ! light.castShadow ) continue;
 
-			// シャドウマップの描画とルックアップで同じ行列を使う
-			this._lightProjectionMatrix.copy( CLIP_CORRECTION ).multiply( light.projectionMatrix );
-			slot.shadowMatrix.copy( this._lightProjectionMatrix ).multiply( light.viewMatrix );
+			// directional は描くビューのカメラ基準で範囲が変わるので、fitDirectionalShadows でビューごとに書く
+			if ( ! isSpot ) {
 
-			this._lightPosition.copy( slot.position );
-			this._lightFrameUniforms.uViewMatrix.value = light.viewMatrix;
-			this._lightFrameUniforms.uCameraNear.value = light.near;
-			this._lightFrameUniforms.uCameraFar.value = light.far;
+				this._directionalShadows.push( { light, slot } );
+				this.directionalShadowRenders.push( slot.shadow );
 
-			slot.shadow.frameBinder.update( this._lightFrameUniforms );
+				continue;
+
+			}
+
+			this._writeShadow( light, slot );
 
 			this.shadowRenders.push( slot.shadow );
 
@@ -292,6 +300,38 @@ export class Lights {
 		this._uniforms.numLightSpot.value = numSpot;
 
 		this._binder.update( this._uniforms );
+
+	}
+
+	// 描画するビューのカメラに合わせて directional のシャドウ範囲を決め直し、uniform を書き直す
+	public fitDirectionalShadows( camera: Camera ) {
+
+		if ( this._directionalShadows.length === 0 ) return;
+
+		for ( const { light, slot } of this._directionalShadows ) {
+
+			light.fitShadowToCamera( camera, SHADOW_MAP_SIZE );
+
+			this._writeShadow( light, slot );
+
+		}
+
+		this._binder.update( this._uniforms );
+
+	}
+
+	// シャドウマップの描画とルックアップで同じ行列を使うよう、両方の uniform へライトの view / projection を写す
+	private _writeShadow( light: Light, slot: LightSlot ) {
+
+		this._lightProjectionMatrix.copy( CLIP_CORRECTION ).multiply( light.projectionMatrix );
+		slot.shadowMatrix.copy( this._lightProjectionMatrix ).multiply( light.viewMatrix );
+
+		this._lightPosition.copy( slot.position );
+		this._lightFrameUniforms.uViewMatrix.value = light.viewMatrix;
+		this._lightFrameUniforms.uCameraNear.value = light.near;
+		this._lightFrameUniforms.uCameraFar.value = light.far;
+
+		slot.shadow.frameBinder.update( this._lightFrameUniforms );
 
 	}
 

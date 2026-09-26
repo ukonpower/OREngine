@@ -1,0 +1,10 @@
+@use 'styles' as *;
+
+.input {
+	@include input-frame;
+
+	width: 100%;
+	text-align: center;
+	// ソフトキーボードから打つための窓なので文字は大きめにする（16px 未満だと iOS が入力時に画面を拡大する）
+	font-size: var(--or-font-md);
+}

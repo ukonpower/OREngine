@@ -1,0 +1,41 @@
+import * as MXP from 'maxpower';
+
+const OUTLINE_COLOR = [ 1.0, 0.6, 0.0 ];
+
+export class SelectionOutline {
+
+	private _draw: MXP.EditorDrawContract;
+	private _maskTarget: MXP.EditorTarget;
+	private _maskMaterial: MXP.MaterialContract;
+	private _outline: MXP.EditorRecipe;
+
+	constructor( draw: MXP.EditorDrawContract ) {
+
+		this._draw = draw;
+		this._maskTarget = draw.createTarget();
+		this._maskMaterial = draw.materials.mask();
+		this._outline = draw.recipes.outline( this._maskTarget, OUTLINE_COLOR );
+
+	}
+
+	public render( view: MXP.RenderViewContract, selectedEntity: MXP.Entity | null, cameraEntity: MXP.Entity | null ) {
+
+		if ( ! selectedEntity || ! cameraEntity ) return;
+
+		if ( ! selectedEntity.getComponent( MXP.Mesh ) ) return;
+
+		this._draw.renderEntities( {
+			view,
+			camera: cameraEntity,
+			entities: [ selectedEntity ],
+			target: this._maskTarget,
+			useSceneDepth: true,
+			materialOverride: this._maskMaterial,
+			depthCompare: 'lequal',
+		} );
+
+		this._draw.renderFullscreen( view, this._outline, null );
+
+	}
+
+}

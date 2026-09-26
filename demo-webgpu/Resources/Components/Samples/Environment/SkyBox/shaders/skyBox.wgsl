@@ -2,6 +2,7 @@
 // 前置される宣言: VertexOutput / GBufferOutput / frame / Surface系（Bindings）
 
 #include <module:noise>
+#include <module:sky>
 
 struct SkyResult {
 	albedo: vec3f,
@@ -14,7 +15,7 @@ fn skyBox( input: VertexOutput ) -> SkyResult {
 
 	result.albedo = vec3f( 0.0, 0.05, 0.1 );
 
-	let sPos = input.worldPosition * 0.1;
+	let sPos = skyPosition( input.normal ) * 0.1;
 
 	let n = noiseValue( sPos * 0.05 + frame.uTimeE * 0.1 );
 

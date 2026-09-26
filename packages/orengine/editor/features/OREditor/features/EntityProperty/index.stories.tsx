@@ -1,8 +1,7 @@
 import { withOREditor } from '@or-storybook/decorators/withOREditor';
 import { panelCameraSelected, panelCubeSelected } from '@or-storybook/fixtures/panels';
 import { storyFixture } from '@or-storybook/fixtures/scene';
-
-import { Panel } from '../../../../components/ui/Panel';
+import { Panel } from 'uipower';
 
 import { EntityProperty } from '.';
 

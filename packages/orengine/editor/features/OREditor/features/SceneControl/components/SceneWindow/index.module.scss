@@ -1,0 +1,66 @@
+@use 'styles' as *;
+
+.list {
+	max-height: 40vh;
+	overflow-y: auto;
+	padding: 2px;
+	border-radius: var(--or-radius);
+	background: var(--or-bg-base);
+}
+
+.item {
+	gap: 8px;
+	padding: 0 8px;
+	border-radius: var(--or-radius);
+
+	&[data-selected="true"] {
+		color: var(--or-text);
+	}
+
+	&_name {
+		flex: 1;
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	&_badge {
+		flex-shrink: 0;
+		color: var(--or-text-dim);
+		font-size: var(--or-font-xs);
+	}
+}
+
+.newItem {
+	padding: 2px;
+
+	&_input {
+		@include input-frame;
+
+		width: 100%;
+		font-size: var(--or-input-font-size);
+	}
+
+	&_error {
+		padding: 4px 4px 2px;
+		color: var(--or-accent-danger);
+		font-size: var(--or-font-xs);
+	}
+}
+
+// Modal のフッターに渡す要素
+.footer {
+	&_message {
+		flex: 1;
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		padding-left: 4px;
+	}
+
+	&_spacer {
+		flex: 1;
+	}
+}

@@ -1,5 +1,4 @@
 import * as BSP from 'basepower';
-import * as MTP from 'mathpower';
 
 import { FCurveGroup } from '../../Animation/FCurveGroup';
 import { BLidge, BLidgeNode, BLidgeLightParam, BLidgeCameraParam } from "../../BLidge";
@@ -9,10 +8,11 @@ import { CylinderGeometry } from '../../Geometries/CylinderGeometry';
 import { PlaneGeometry } from '../../Geometries/PlaneGeometry';
 import { SphereGeometry } from '../../Geometries/SphereGeometry';
 import { Geometry } from '../../Geometry';
-import { SerializeFieldValue } from '../../Serializable';
 import { Camera } from '../Camera';
 import { Light } from '../Light';
 import { Mesh } from '../Mesh';
+
+import type { SerializeField } from '../../Serializable';
 
 export class BLidger extends Component {
 
@@ -60,12 +60,12 @@ export class BLidger extends Component {
 
 		// uniforms
 
-		const uniformCurveKeys = Object.keys( this.node.material.uniforms );
+		const uniformCurveKeys = Object.keys( this.node.uniforms );
 
 		for ( let i = 0; i < uniformCurveKeys.length; i ++ ) {
 
 			const name = uniformCurveKeys[ i ];
-			const accessor = this.node.material.uniforms[ name ];
+			const accessor = this.node.uniforms[ name ];
 			const curve = this._blidge.curveGroups[ accessor ];
 
 			if ( curve ) {
@@ -181,8 +181,6 @@ export class BLidger extends Component {
 
 				}
 
-				entity.noticeEventParent( "update/blidge/scene", [ entity ] );
-
 			} );
 
 		}
@@ -227,12 +225,22 @@ export class BLidger extends Component {
 
 			this._lightComponent = entity.addComponent( Light );
 
-			this._lightComponent.deserialize( {
-				...lightParam,
+			// BLidge の distance（Blender のカスタム距離＝光を切る距離）は Light.distance（シャドウカメラの far）と意味が違うので渡さない
+			const lightProps: SerializeField = {
 				lightType: lightParam.type,
-				color: new MTP.Vector().copy( lightParam.color ) as unknown as SerializeFieldValue,
-				castShadow: lightParam.shadowMap,
-			} );
+				color: [ lightParam.color.x, lightParam.color.y, lightParam.color.z ],
+				intensity: lightParam.intensity,
+				castShadow: lightParam.shadow_map,
+			};
+
+			if ( lightParam.type == 'spot' ) {
+
+				lightProps.angle = lightParam.angle;
+				lightProps.blend = lightParam.blend;
+
+			}
+
+			this._lightComponent.deserialize( lightProps );
 
 		}
 
@@ -387,6 +395,14 @@ export class BLidger extends Component {
 			if ( curveColor ) {
 
 				this._lightComponent.color.copy( curveColor.setFrame( frame ).value );
+
+			}
+
+			const curvePower = this.animations.get( 'power' );
+
+			if ( curvePower ) {
+
+				this._lightComponent.intensity = curvePower.value.x;
 
 			}
 

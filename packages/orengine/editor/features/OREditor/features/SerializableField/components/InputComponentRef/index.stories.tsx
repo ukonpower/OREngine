@@ -2,8 +2,7 @@ import { ReactElement, useState } from 'react';
 
 import { withOREditor } from '@or-storybook/decorators/withOREditor';
 import { storyFixture } from '@or-storybook/fixtures/scene';
-
-import { Label } from '../../../../../../components/ui/Label';
+import { Label } from 'uipower';
 
 import { InputComponentRef } from '.';
 
@@ -45,4 +44,4 @@ export const Unselected = pattern( () => <ComponentRefCase initial={null} /> );
 export const Selected = pattern( () => <ComponentRefCase initial="sb-cube-body" /> );
 
 // エンティティ名 > クラス名の表記を、同じエンティティに複数コンポーネントが載る例で見る
-export const CameraControllerSelected = pattern( () => <ComponentRefCase initial="sb-camera-controller" /> );
+export const LookAtSelected = pattern( () => <ComponentRefCase initial="sb-camera-lookat" /> );

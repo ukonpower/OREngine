@@ -1,149 +1,87 @@
-
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 
 import * as MXP from 'maxpower';
+import { InputWindow, InputWindowProvider, LayoutSplit, Panel, PanelContainer, Popover, PopoverProvider } from 'uipower';
 
-import { LayoutSplit } from '../../components/ui/LayoutSplit';
-import { Panel } from '../../components/ui/Panel';
-import { PanelContainer } from '../../components/ui/PanelContainer';
 import { useLayout } from '../../hooks/useLayout';
 
 import { EditorSettings } from './features/EditorSettings';
+import { EntityAdd } from './features/EntityAdd';
 import { EntityProperty } from './features/EntityProperty';
+import { ExportControl } from './features/ExportControl';
 import { Timer } from './features/GPUTimer';
 import { Hierarchy } from './features/Hierarchy';
-import { InputWindow } from './features/InputWindow';
-import { InputWindowProvider } from './features/InputWindow/providers/InputWindowProvider';
-import { MouseMenu } from './features/MouseMenu';
-import { MouseMenuProvider } from './features/MouseMenu/providers/MouseMenuProvider';
-import { ProjectControl } from './features/ProjectControl';
+import { PanelLayout } from './features/PanelLayout';
 import { RendererSettings } from './features/RendererSettings';
-import { Screen } from './features/Screen';
+import { SceneControl } from './features/SceneControl';
+import { Screen, VIEWPORT_PANEL_ID } from './features/Screen';
 import { Textures } from './features/Textures';
 import { Timeline } from './features/Timeline';
 import style from './index.module.scss';
-import { OREditorProvider, OREditorSaveCallback } from './providers/OREditorProvider';
+import { OREditorProvider, OREditorSaveCallback, SceneSelection } from './providers/OREditorProvider';
 
-export type PanelSlot = "leftTop" | "leftBottom" | "mainBottom" | "rightTop" | "footer";
+import type { PanelDefinition, PanelId } from './features/PanelLayout';
+import type { FieldUIDefinition } from './lib/fieldUI';
 
-export type CustomTab = {
-	title: string;
-	content: React.ReactNode;
-	default?: boolean;
+export type { SceneSelection } from './providers/OREditorProvider';
+export type { PanelDefinition, PanelId } from './features/PanelLayout';
+export type { FieldUIDefinition } from './lib/fieldUI';
+
+// レイアウトツリー上の配置は PanelLayout 側の defaultLayout がこの id を参照して決める。
+// レンダーごとに identity が変わると PanelLayout の派生計算が空回りするのでモジュールスコープに置く
+const builtinPanels: PanelDefinition[] = [
+	{ id: "hierarchy", title: "Hierarchy", category: "General", content: <Panel><Hierarchy /></Panel> },
+	{ id: "timer", title: "Timer", category: "Rendering", content: <Panel noPadding><Timer /></Panel> },
+	{ id: VIEWPORT_PANEL_ID, title: "Screen", category: "General", multiple: true, content: ( viewportId ) => <Screen viewportId={viewportId} /> },
+	{ id: "property", title: "Property", category: "General", content: <Panel><EntityProperty /></Panel> },
+	{ id: "textures", title: "Textures", category: "Rendering", content: <Panel noPadding><Textures /></Panel> },
+	{ id: "scene", title: "Scene", category: "General", content: <Panel><SceneControl /></Panel> },
+	{ id: "export", title: "Export", category: "Project", content: <Panel><ExportControl /></Panel> },
+	{ id: "renderer", title: "Renderer", category: "Rendering", content: <Panel><RendererSettings /></Panel> },
+	{ id: "editor-settings", title: "Editor", category: "Project", content: <Panel><EditorSettings /></Panel> },
+	{ id: "timeline", title: "Timeline", category: "Animation", content: <Panel noPadding><Timeline /></Panel> },
+];
+
+// SP のタブ一覧に並べるパネル。Screen（上段）と Timeline（下段）は専用領域を持ち、
+// Hierarchy と Property は横並びの複合タブにまとめるので、ここからは外す。
+// multiple なパネルはタブを増やす操作が SP に無いので置けない
+const spPanelTabs = ( panels: PanelDefinition[] ) => {
+
+	const tabs: { id: PanelId, title: string, content: React.ReactNode }[] = [];
+
+	for ( const def of panels ) {
+
+		if ( def.multiple ) continue;
+		if ( def.id === "hierarchy" || def.id === "property" || def.id === "timeline" ) continue;
+
+		tabs.push( { id: def.id, title: def.title, content: def.content } );
+
+	}
+
+	return tabs;
+
 };
 
-export type EditorCustomTabs = Partial<Record<PanelSlot, CustomTab[]>>;
-
-const renderCustomTabs = ( tabs: CustomTab[] | undefined ) => {
-
-	if ( ! tabs ) return null;
-
-	return tabs.map( ( tab ) => (
-		<PanelContainer.Tab key={tab.title} title={tab.title}>
-			<Panel>{tab.content}</Panel>
-		</PanelContainer.Tab>
-	) );
-
-};
-
-const defaultTabTitle = ( tabs: CustomTab[] | undefined ) => tabs?.find( ( t ) => t.default )?.title;
-
-export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP.SerializeField, projectName?: string, customTabs?: EditorCustomTabs }> = ( props ) => {
+export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP.SerializeField, projectName?: string, panels?: PanelDefinition[], scenes?: SceneSelection, fieldUIs?: FieldUIDefinition[] }> = ( props ) => {
 
 	const layout = useLayout();
+
+	// 利用者のパネルはビルトインの後ろに並べる。identity が毎レンダー変わると
+	// PanelLayout の派生計算が空回りするので、渡されないときは定数配列をそのまま使う
+	const panels = useMemo( () => {
+
+		if ( ! props.panels ) return builtinPanels;
+
+		return [ ...builtinPanels, ...props.panels ];
+
+	}, [ props.panels ] );
 
 	let editorElm = null;
 
 	if ( layout.isPC ) {
 
-		editorElm = (
-			<>
-				<LayoutSplit direction="vertical" storageKey="orengine-editor-pc-main">
-					<LayoutSplit.Item flex={1} minSize={300}>
-						<LayoutSplit direction="horizontal" storageKey="orengine-editor-pc-horizontal">
-							<LayoutSplit.Item size="300px" minSize={200}>
-								<LayoutSplit direction="vertical" storageKey="orengine-editor-pc-left">
-									<LayoutSplit.Item flex={1} minSize={150}>
-										<PanelContainer storageKey="orengine-panel-scene" defaultTabTitle={defaultTabTitle( props.customTabs?.leftTop )}>
-											<PanelContainer.Tab title='Scene'>
-												<Panel>
-													<Hierarchy />
-												</Panel>
-											</PanelContainer.Tab>
-											{renderCustomTabs( props.customTabs?.leftTop )}
-										</PanelContainer>
-									</LayoutSplit.Item>
-									<LayoutSplit.Item size="20vh" minSize={100}>
-										<PanelContainer storageKey="orengine-panel-timer" defaultTabTitle={defaultTabTitle( props.customTabs?.leftBottom )}>
-											<PanelContainer.Tab title='Timer'>
-												<Panel noPadding>
-													<Timer />
-												</Panel>
-											</PanelContainer.Tab>
-											{renderCustomTabs( props.customTabs?.leftBottom )}
-										</PanelContainer>
-									</LayoutSplit.Item>
-								</LayoutSplit>
-							</LayoutSplit.Item>
-							<LayoutSplit.Item flex={1} minSize={300}>
-								<LayoutSplit direction="vertical" storageKey="orengine-editor-pc-center">
-									<LayoutSplit.Item flex={1} minSize={200}>
-										<Screen />
-									</LayoutSplit.Item>
-									{props.customTabs?.mainBottom && <LayoutSplit.Item size="200px" minSize={120}>
-										<PanelContainer storageKey="orengine-panel-assets" defaultTabTitle={defaultTabTitle( props.customTabs?.mainBottom )}>
-											{renderCustomTabs( props.customTabs?.mainBottom )}
-										</PanelContainer>
-									</LayoutSplit.Item>}
-								</LayoutSplit>
-							</LayoutSplit.Item>
-							<LayoutSplit.Item size="300px" minSize={200}>
-								<PanelContainer storageKey="orengine-panel-property" defaultTabTitle={defaultTabTitle( props.customTabs?.rightTop )}>
-									<PanelContainer.Tab title='Property'>
-										<Panel>
-											<EntityProperty />
-										</Panel>
-									</PanelContainer.Tab>
-									<PanelContainer.Tab title='Textures'>
-										<Panel noPadding>
-											<Textures />
-										</Panel>
-									</PanelContainer.Tab>
-									<PanelContainer.Tab title='Project'>
-										<Panel>
-											<ProjectControl />
-										</Panel>
-									</PanelContainer.Tab>
-									<PanelContainer.Tab title='Renderer'>
-										<Panel>
-											<RendererSettings />
-										</Panel>
-									</PanelContainer.Tab>
-									<PanelContainer.Tab title='Editor'>
-										<Panel>
-											<EditorSettings />
-										</Panel>
-									</PanelContainer.Tab>
-									{renderCustomTabs( props.customTabs?.rightTop )}
-								</PanelContainer>
-							</LayoutSplit.Item>
-						</LayoutSplit>
-					</LayoutSplit.Item>
-					<LayoutSplit.Item size="160px" minSize={80}>
-						<PanelContainer storageKey="orengine-panel-timeline" defaultTabTitle={defaultTabTitle( props.customTabs?.footer )}>
-							<PanelContainer.Tab title='Timeline'>
-								<Panel noPadding>
-									<Timeline />
-								</Panel>
-							</PanelContainer.Tab>
-							{renderCustomTabs( props.customTabs?.footer )}
-						</PanelContainer>
-					</LayoutSplit.Item>
-				</LayoutSplit>
-				<MouseMenu />
-			</>
-		);
+		editorElm = <PanelLayout panels={panels} />;
 
 	} else {
 
@@ -156,12 +94,12 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 						min(55vh) は横長ウィンドウでプレビューが下のパネルを潰さないための上限
 					*/}
 					<LayoutSplit.Item size="calc( min( 56.25vw, 55vh ) + 77px )" minSize={200} style={{ minHeight: '200px' }}>
-						<Screen />
+						<Screen viewportId="main" />
 					</LayoutSplit.Item>
 					<LayoutSplit.Item flex={1} minSize={200}>
-						<PanelContainer storageKey="orengine-panel-sp-main" defaultTabTitle={defaultTabTitle( props.customTabs?.mainBottom ) ?? defaultTabTitle( props.customTabs?.leftTop ) ?? defaultTabTitle( props.customTabs?.leftBottom ) ?? defaultTabTitle( props.customTabs?.rightTop ) ?? defaultTabTitle( props.customTabs?.footer )}>
-							<PanelContainer.Tab title='Scene / Property'>
-								<LayoutSplit direction="horizontal" storageKey="orengine-editor-sp-sceneProp">
+						<PanelContainer storageKey="orengine-panel-sp-main">
+							<PanelContainer.Tab title='Hierarchy / Property'>
+								<LayoutSplit direction="horizontal" storageKey="orengine-editor-sp-hierarchyProp">
 									<LayoutSplit.Item flex={1} minSize={120} overflow padding>
 										<Hierarchy />
 									</LayoutSplit.Item>
@@ -170,31 +108,11 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 									</LayoutSplit.Item>
 								</LayoutSplit>
 							</PanelContainer.Tab>
-							<PanelContainer.Tab title='Textures'>
-								<Panel noPadding>
-									<Textures />
-								</Panel>
-							</PanelContainer.Tab>
-							<PanelContainer.Tab title='Project'>
-								<Panel>
-									<ProjectControl />
-								</Panel>
-							</PanelContainer.Tab>
-							<PanelContainer.Tab title='Renderer'>
-								<Panel>
-									<RendererSettings />
-								</Panel>
-							</PanelContainer.Tab>
-							<PanelContainer.Tab title='Editor'>
-								<Panel>
-									<EditorSettings />
-								</Panel>
-							</PanelContainer.Tab>
-							{renderCustomTabs( props.customTabs?.leftTop )}
-							{renderCustomTabs( props.customTabs?.leftBottom )}
-							{renderCustomTabs( props.customTabs?.mainBottom )}
-							{renderCustomTabs( props.customTabs?.rightTop )}
-							{renderCustomTabs( props.customTabs?.footer )}
+							{spPanelTabs( panels ).map( ( tab ) => (
+								<PanelContainer.Tab key={tab.id} title={tab.title}>
+									{tab.content}
+								</PanelContainer.Tab>
+							) )}
 						</PanelContainer>
 					</LayoutSplit.Item>
 					<LayoutSplit.Item size="120px" minSize={80}>
@@ -209,21 +127,22 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 						</PanelContainer>
 					</LayoutSplit.Item>
 				</LayoutSplit>
-				<MouseMenu />
 			</>
 		);
 
 	}
 
-	return <OREditorProvider projectName={props.projectName} onSave={props.onSave} editorData={props.editorData}>
-		<MouseMenuProvider>
+	return <OREditorProvider projectName={props.projectName} onSave={props.onSave} editorData={props.editorData} scenes={props.scenes} fieldUIs={props.fieldUIs}>
+		<PopoverProvider>
 			<InputWindowProvider>
 				<div className={style.editor}>
 					{editorElm}
 				</div>
+				<EntityAdd />
 				<InputWindow />
+				<Popover />
 			</InputWindowProvider>
-		</MouseMenuProvider>
+		</PopoverProvider>
 	</OREditorProvider>;
 
 };

@@ -4,6 +4,7 @@
 // gBuffer / ライト / envMap の宣言は buildShadingSource が前置する
 
 #include "./lighting.wgsl"
+#include "./view.wgsl"
 
 @vertex
 fn vsMain( @builtin(vertex_index) index: u32 ) -> @builtin(position) vec4f {
@@ -15,8 +16,14 @@ fn vsMain( @builtin(vertex_index) index: u32 ) -> @builtin(position) vec4f {
 
 }
 
+// diffuse は SSS がぼかす入力。color の中の diffuse をぼかしたものへ置き換える
+struct ShadingOutput {
+	@location(0) color: vec4f,
+	@location(1) diffuse: vec4f,
+};
+
 @fragment
-fn fsMain( @builtin(position) coord: vec4f ) -> @location(0) vec4f {
+fn fsMain( @builtin(position) coord: vec4f ) -> ShadingOutput {
 
 	let pixel = vec2i( coord.xy );
 
@@ -32,7 +39,7 @@ fn fsMain( @builtin(position) coord: vec4f ) -> @location(0) vec4f {
 	// 法線が書かれていない画素は背景
 	if ( dot( tex1.xyz, tex1.xyz ) < 0.5 ) {
 
-		return vec4f( 0.0, 0.0, 0.0, 1.0 );
+		return ShadingOutput( vec4f( 0.0, 0.0, 0.0, 1.0 ), vec4f( 0.0, 0.0, 0.0, 1.0 ) );
 
 	}
 
@@ -44,14 +51,15 @@ fn fsMain( @builtin(position) coord: vec4f ) -> @location(0) vec4f {
 	let envIntensity = tex3.w;
 	let emission = vec3f( tex0.w, tex1.w, tex4.w );
 
-	let viewDir = normalize( frame.uCameraPosition - worldPosition );
+	let viewDir = viewDirection( worldPosition );
 
 	var surface: SurfaceInfo;
 	surface.diffuseColor = mix( albedo, vec3f( 0.0 ), metallic );
 	surface.specularColor = mix( vec3f( 1.0 ), albedo, metallic );
 	surface.roughness = roughness;
 
-	var outColor = vec3f( 0.0 );
+	var diffuse = vec3f( 0.0 );
+	var specular = vec3f( 0.0 );
 
 	for ( var i = 0; i < lights.numLightDir; i ++ ) {
 
@@ -65,7 +73,10 @@ fn fsMain( @builtin(position) coord: vec4f ) -> @location(0) vec4f {
 
 		}
 
-		outColor += reflectance( normal, viewDir, surface, light.direction, light.color ) * shadow;
+		let r = reflectance( normal, viewDir, surface, light.direction, light.color * shadow );
+
+		diffuse += r.diffuse;
+		specular += r.specular;
 
 	}
 
@@ -94,9 +105,13 @@ fn fsMain( @builtin(position) coord: vec4f ) -> @location(0) vec4f {
 
 		}
 
-		let color = light.color * spotAttenuation * pow( clamp( 1.0 - spotDistance / light.distance, 0.0, 1.0 ), light.decay );
+		// 逆二乗の減衰。光源の位置で 0 除算しないよう下限を置く
+		let color = light.color * spotAttenuation / max( spotDistance * spotDistance, 0.0001 );
 
-		outColor += reflectance( normal, viewDir, surface, spotDirection, color ) * shadow;
+		let r = reflectance( normal, viewDir, surface, spotDirection, color * shadow );
+
+		diffuse += r.diffuse;
+		specular += r.specular;
 
 	}
 
@@ -105,16 +120,22 @@ fn fsMain( @builtin(position) coord: vec4f ) -> @location(0) vec4f {
 	let dNV = clamp( dot( normal, viewDir ), 0.0, 1.0 );
 	let EF = mix( fresnel( dNV ), 1.0, metallic );
 
-	outColor += sampleEnvMap( normal, 1.0 ) * surface.diffuseColor * envIntensity;
-	outColor = mix( outColor, sampleEnvMap( refDir, roughness ), EF * surface.specularColor * envIntensity );
+	// 環境の鏡面反射に置き換わる割合。直接光も含め diffuse / specular を同じ割合で減らす
+	let envReflect = EF * surface.specularColor * envIntensity;
 
-	outColor *= max( 0.0, 1.0 - occlusion * 1.5 );
+	diffuse = ( diffuse + sampleEnvMap( normal, 1.0 ) * surface.diffuseColor * envIntensity ) * ( 1.0 - envReflect );
+	specular = mix( specular, sampleEnvMap( refDir, roughness ), envReflect );
 
-	outColor += emission;
+	let ao = max( 0.0, 1.0 - occlusion * 1.5 );
+
+	diffuse *= ao;
+	specular *= ao;
+
+	var outColor = diffuse + specular + emission;
 
 	// 光の筋（半解像度から拡大）
 	outColor += textureSampleLevel( lightShaftTexture, envMapSampler, coord.xy / frame.uResolution, 0.0 ).xyz;
 
-	return vec4f( max( vec3f( 0.0 ), outColor ), 1.0 );
+	return ShadingOutput( vec4f( max( vec3f( 0.0 ), outColor ), 1.0 ), vec4f( max( vec3f( 0.0 ), diffuse ), 1.0 ) );
 
 }

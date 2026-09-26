@@ -6,8 +6,11 @@ import { EditorPageStatic } from 'orengine/react';
 
 import { initResouces, initResourceInstances } from '../Resources/registry';
 
+import { projectFieldUIs } from './editorFieldUIs';
+import { projectPanels } from './editorPanels';
 
-document.title = __OR_PROJECT_NAME__;
+
+document.title = `${SceneData.name} | OREngine`;
 
 initResouces();
 
@@ -17,5 +20,7 @@ ReactDOM.createRoot( document.getElementById( 'root' )! ).render(
 		sceneData={SceneData as any}
 		editorData={EditorData as any}
 		initResourceInstances={initResourceInstances}
+		panels={projectPanels}
+		fieldUIs={projectFieldUIs}
 	/>
 );

@@ -1,0 +1,24 @@
+@use 'styles' as *;
+
+.input {
+	@include input-frame;
+
+	width: 100%;
+	text-align: center;
+	font-size: var(--or-input-font-size);
+
+	&:disabled {
+		opacity: 0.5;
+	}
+
+	&:read-only {
+		color: var(--or-text-muted);
+		cursor: default;
+		outline: none;
+
+		&[data-lo="true"] {
+			background-color: transparent;
+		}
+
+	}
+}

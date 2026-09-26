@@ -17,9 +17,9 @@ export class SkyBox extends MXP.Component {
 			name: "SkyBox",
 			phase: [ "deferred", "envMap" ],
 			frag: MXP.hotGet( "SkyBoxFrag", fragSrc ),
-			uniforms: MXP.UniformsUtils.merge( engine.uniforms, {
+			uniforms: {
 				uAspectRatio: { value: 0, type: "1f" }
-			} )
+			}
 		} );
 
 		engine.renderer.sky.mesh.material = this.material;

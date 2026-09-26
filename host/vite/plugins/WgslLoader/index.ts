@@ -13,6 +13,7 @@ import { Plugin } from 'vite';
 	include は2形式:
 	- `#include "./相対パス.wgsl"` … 近くのファイルへ分割する用
 	- `#include <module:名前>`     … moduleDirs に登録したディレクトリの `名前.wgsl`（共有モジュール用）
+	  （登録は configs.ts の wgslModuleDirs。プロジェクトの Resources/shaders → エンジンの maxpower/webgpu/shaderModules の順）
 -------------------------------*/
 
 const INCLUDE_PATTERN = /^[ \t]*#include[ \t]+(?:"([^"]+)"|<module:(\w+)>)[ \t]*$/gm;
@@ -78,8 +79,23 @@ const inlineIncludes = async ( file: string, code: string, moduleDirs: string[],
 
 };
 
+// WGSL ソース中の識別子を集める（コメントは除く）。player ビルドで terser の property mangle から外す名前に使う
+export const collectWgslIdentifiers = ( source: string, out: Set<string> ) => {
+
+	const code = source.replace( /\/\*[\s\S]*?\*\//g, '' ).replace( /\/\/.*$/gm, '' );
+
+	for ( const match of code.matchAll( /[A-Za-z_]\w*/g ) ) {
+
+		out.add( match[ 0 ] );
+
+	}
+
+};
+
 export interface WgslLoaderOptions {
 	moduleDirs: string[];
+	// include 展開後のソースを受け取る
+	onSource?: ( source: string ) => void;
 }
 
 export const WgslLoader = ( options: WgslLoaderOptions ): Plugin => {
@@ -151,6 +167,8 @@ export const WgslLoader = ( options: WgslLoaderOptions ): Plugin => {
 				parents.add( filePath );
 
 			} );
+
+			options.onSource?.( source );
 
 			return {
 				code: `export default ${JSON.stringify( source )};`,

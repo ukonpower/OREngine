@@ -1,0 +1,49 @@
+@use 'styles' as *;
+
+.menu {
+	// Popover の外に置かれても項目の幅に収まるようにする
+	width: max-content;
+	min-width: 100px;
+	padding: var(--or-space);
+	border-radius: var(--or-radius);
+	background-color: var(--or-bg-base);
+}
+
+.title {
+	padding: var(--or-space) 0;
+	color: var(--or-text-dim);
+	font-size: var(--or-font-xs);
+}
+
+// 幅は項目の並びに合わせ、検索欄の既定の横幅で箱が広がらないようにする（size=1 と対）
+.search {
+	@include input-frame;
+
+	display: block;
+	width: 100%;
+	margin-bottom: var(--or-space);
+	font-size: var(--or-input-font-size);
+	outline: none;
+}
+
+// 項目が多いときは箱の中でスクロールさせる。サブメニューは fixed なのでこの overflow に切られない
+.list {
+	max-height: 300px;
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+
+.item {
+	gap: var(--or-space);
+	padding: 0 calc(var(--or-space) * 0.5);
+
+	&_label {
+		flex: 1;
+		white-space: nowrap;
+	}
+
+	// 枝の印。サブメニューが左に折り返しても向きは変えない（OS のメニューと同じ）
+	&_arrow {
+		color: var(--or-text-dim);
+	}
+}

@@ -1,0 +1,34 @@
+.inputBoolean {
+	display: block;
+	width: var(--or-checkbox-size);
+	height: var(--or-checkbox-size);
+
+	svg {
+		width: 100%;
+		height: 100%;
+	}
+}
+
+.input {
+	display: none;
+	color: var(--or-text-muted);
+}
+
+.check {
+	cursor: pointer;
+	width: 100%;
+	height: 100%;
+	background-color: var(--or-bg-surface);
+	cursor: pointer;
+
+	&[data-read_only="true"] {
+		cursor: default;
+		background-color: transparent;
+
+		svg {
+			rect {
+				fill: var(--or-text-dim);
+			}
+		}
+	}
+}

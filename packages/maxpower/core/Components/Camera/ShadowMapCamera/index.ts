@@ -18,6 +18,14 @@ export class ShadowMapCamera extends Camera {
 
 		this.displayOut = false;
 
+		// 影を描くためのカメラで DoF は使わないので、ピント制御を止めて field も出さない
+		this.focusEnabled = false;
+		this.removeField( "focus/" );
+		this.removeField( "focus/mode" );
+		this.removeField( "focus/target" );
+		this.removeField( "focus/distance" );
+		this.removeField( "focus/speed" );
+
 	}
 
 	protected prepareRenderImpl( event: ComponentUpdateEvent ): void {

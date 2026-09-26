@@ -26,7 +26,7 @@ npm install
 
 `init.ts` が利用側リポジトリに以下を生成します（既存のファイルは上書きしません）。
 
-- `project/` — プロジェクトデータ（`scene.json` / `editor.json` / `Resources/` / `public/`）
+- `project/` — プロジェクトデータ（`scenes/<name>.json` / `editor.json` / `Resources/` / `public/`。エディタ拡張の `editor/` は必要になったら自分で作ります）
 - `tsconfig.json` — パスエイリアスを submodule に向けた TypeScript 設定
 - `package.json` — `dev` / `player:build` / `editor:build` の scripts と、実行に必要な `tsx`（依存パッケージはすべて OREngine 側が持ちます）
 
@@ -36,7 +36,7 @@ npm install
 npm run dev
 ```
 
-エディタ付き開発サーバーが起動します。`project/scene.json` やコンポーネントのファイルを直接編集すると、変更検知でブラウザが自動リロードされます。
+エディタ付き開発サーバーが起動します。`project/scenes/*.json` やコンポーネントのファイルを直接編集すると、変更検知でブラウザが自動リロードされます。シーンはエディタの Scene パネルから切り替え・新規作成できます。
 
 `project/Resources/Components/<グループ>/<名前>/index.ts` に `MXP.Component` を継承したクラスを export すると、コンポーネントとして自動で認識されます。
 
@@ -45,6 +45,94 @@ npm run dev
 ```bash
 ORENGINE_RENDERER=webgpu npm run dev
 ```
+
+#### エディタ拡張（`project/editor/`）
+
+作品ごとの制作補助ツール（値づくりの補助、外部 API や外部プロセスの呼び出しなど）を、エディタのパネルとサーバーの API route として足せます。`project/editor/` は任意のディレクトリで、player ビルドには一切入りません。
+
+`project/editor/Panels/<名前>/index.tsx` で `panel` を export すると、パネルのタブ「+」の一覧に出ます。
+
+```tsx
+import { useState } from 'react';
+
+import { type PanelDefinition } from 'orengine/react';
+import { Button, Panel } from 'uipower';
+
+const Sample = () => {
+
+	const [ message, setMessage ] = useState( '' );
+
+	const run = async () => {
+
+		const res = await fetch( '/api/ext/hello' );
+		const data = await res.json();
+		setMessage( data.message );
+
+	};
+
+	return <Panel><Button onClick={run}>Run</Button>{message}</Panel>;
+
+};
+
+export const panel: PanelDefinition = { id: 'sample', title: 'Sample', content: <Sample /> };
+```
+
+`project/editor/server.ts` を置くと、default export に express の `Router` が渡され、足した route が `/api/ext/*` に生えます（サーバーは tsx 上で動くので `.ts` のまま読み込まれます。変更の反映には開発サーバーの再起動が必要です）。
+
+```ts
+import type { EditorServerExtension } from 'orengine/server';
+
+const extension: EditorServerExtension = ( router, ctx ) => {
+
+	router.get( '/hello', ( _req, res ) => {
+
+		// ctx.projectDir 配下でファイルを読む・子プロセスを起動する等
+		res.json( { message: ctx.projectDir } );
+
+	} );
+
+};
+
+export default extension;
+```
+
+#### フィールド UI（`Resources/Components/<…>/editor.tsx`）
+
+コンポーネントのフィールドごとに、プロパティパネルの表示を自作の React UI（canvas も可）に差し替えられます。コンポーネントの `index.ts` と同じディレクトリに `editor.tsx` を置き、`defineFieldUIs` の結果を `fieldUIs` として export します。`editor.tsx` はエディタのエントリからだけ読み込まれるので、player ビルドには入りません。
+
+```tsx
+// project/Resources/Components/Effect/Wave/editor.tsx
+import { NumberScope } from '@or-project-editor/FieldUIs/NumberScope';
+import { defineFieldUIs } from 'orengine/react';
+
+import { Wave } from '.';
+
+export const fieldUIs = defineFieldUIs( Wave, {
+	speed: NumberScope,       // フィールドパス → UI 部品
+	'color/ramp': Gradient,
+} );
+```
+
+UI 部品はただの React 部品で、`FieldUIProps<値の型>` を受け取ります。import すれば別のコンポーネントのフィールドにも使えます。
+
+```tsx
+// project/editor/FieldUIs/NumberScope/index.tsx
+import { useEditorFrame, type FieldUIProps } from 'orengine/react';
+
+export const NumberScope = ( { value, setValue, beginEdit, target, path, opt, engine, editor }: FieldUIProps<number> ) => {
+
+	// エディタの毎フレームの処理の後に呼ばれる。canvas はここで描く（自前の requestAnimationFrame は回さない）
+	useEditorFrame( () => { /* target.getField( path ) や engine を読んで描く */ } );
+
+	// ドラッグ等の連続した変更は beginEdit() → set( v ) → commit() で undo 1回ぶん。1回で終わる変更は setValue( v )
+	// ...
+
+};
+```
+
+- props: `value`（今の値）/ `setValue` / `beginEdit`（`set` / `commit` / `cancel` を持つ編集の窓口）/ `target`（コンポーネント）/ `path` / `opt`（フィールドの opt）/ `engine` / `editor`
+- 対応はクラスの完全一致で引きます（継承したクラスには引き継がれません）
+- サンプルは `demo-webgl/Resources/Components/Samples/Objects/FieldUISample/`（UI 部品は `demo-webgl/editor/FieldUIs/NumberScope/`）
 
 ### 3. ビルド
 
@@ -86,6 +174,12 @@ npm run wgpu  # WebGPU レンダラー + demo-webgpu で開発サーバー起動
 ```bash
 ORENGINE_PROJECT=<name> npm run dev                        # デフォルトは demo-webgl
 ORENGINE_RENDERER=<webgl|webgpu|headless> npm run dev      # デフォルトは webgl
+```
+
+WebGPU の dev サーバーは HTTPS で立ち、証明書は自己署名のものが自動生成されます。mkcert 等で作った証明書を使う場合はパスを環境変数で渡します。
+
+```bash
+ORENGINE_HTTPS_CERT=/path/to/server.crt ORENGINE_HTTPS_KEY=/path/to/server.key npm run dev
 ```
 
 ### ビルド

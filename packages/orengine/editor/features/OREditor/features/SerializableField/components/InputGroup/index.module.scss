@@ -1,13 +1,13 @@
-@use 'styles' as *;
-
 .group {
-	background-color: $bgCol0;
-	padding: $padding;
+	background-color: var(--or-bg-base);
+	padding: var(--or-space);
 	min-width: 200px;
 }
 
+// Button は内容幅なので、入力欄の横幅いっぱいに伸ばすのはここで決める
 .submit {
+	display: grid;
 	margin-top: 5px;
 	padding: 0px 5px;
-	font-size: $fontSize2;
+	font-size: var(--or-font-sm);
 }

@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { Button } from '../../../../components/ui/Button';
-import { Label } from '../../../../components/ui/Label';
+import { Button, Label } from 'uipower';
+
 import { useLayout } from '../../../../hooks/useLayout';
 import { useOREditor } from '../../hooks/useOREditor';
 import { useUISetting } from '../EditorSettings/hooks/useUISetting';
@@ -15,27 +15,31 @@ import { AudioView } from './features/AudioView';
 import { CameraPad } from './features/CameraPad';
 import style from './index.module.scss';
 
-export const Screen = () => {
+// パネルレイアウト上の Screen の定義 id。タブ id は "viewport:<viewportId>" になる
+export const VIEWPORT_PANEL_ID = "viewport";
+
+// 1つのビューポートを表示する画面。viewportId ごとに独立した視点・設定（viewports/<id>/…）を持つ
+export const Screen: React.FC<{ viewportId: string }> = ( { viewportId } ) => {
 
 	const { editor } = useOREditor();
 	const layout = useLayout();
 
 	const [ render, setRender ] = useSerializableField<boolean>( editor, "enableRender" );
-	const [ preview, setPreview ] = useSerializableField<boolean>( editor, "preview" );
+	const [ preview, setPreview ] = useSerializableField<boolean>( editor, `viewports/${viewportId}/preview` );
 	const [ viewType, setViewType ] = useSerializableField<string>( editor, "viewType" );
-	const [ resolutionScale, setResolutionScale ] = useSerializableField<number>( editor, "resolutionScale" );
+	const [ resolutionScale, setResolutionScale ] = useSerializableField<number>( editor, `viewports/${viewportId}/resolutionScale` );
 	const [ gizmoMode, setGizmoMode ] = useSerializableField<string>( editor, "gizmoMode" );
 	const [ transformOrientation, setTransformOrientation ] = useSerializableField<string>( editor, "transformOrientation" );
 	const [ modalStatus ] = useSerializableField<string>( editor, "modalStatus" );
 
-	const [ showHelpers, setShowHelpers ] = useSerializableField<boolean>( editor, "helpers/show" );
-	const [ showEmpty, setShowEmpty ] = useSerializableField<boolean>( editor, "helpers/empty" );
-	const [ showCamera, setShowCamera ] = useSerializableField<boolean>( editor, "helpers/camera" );
-	const [ showLight, setShowLight ] = useSerializableField<boolean>( editor, "helpers/light" );
-	const [ showGrid, setShowGrid ] = useSerializableField<boolean>( editor, "helpers/grid" );
-	const [ showWireframe, setShowWireframe ] = useSerializableField<boolean>( editor, "helpers/wireframe" );
-	const [ showGizmo, setShowGizmo ] = useSerializableField<boolean>( editor, "helpers/gizmo" );
-	const [ showOutline, setShowOutline ] = useSerializableField<boolean>( editor, "helpers/outline" );
+	const [ showHelpers, setShowHelpers ] = useSerializableField<boolean>( editor, `viewports/${viewportId}/helpers/show` );
+	const [ showEmpty, setShowEmpty ] = useSerializableField<boolean>( editor, `viewports/${viewportId}/helpers/empty` );
+	const [ showCamera, setShowCamera ] = useSerializableField<boolean>( editor, `viewports/${viewportId}/helpers/camera` );
+	const [ showLight, setShowLight ] = useSerializableField<boolean>( editor, `viewports/${viewportId}/helpers/light` );
+	const [ showGrid, setShowGrid ] = useSerializableField<boolean>( editor, `viewports/${viewportId}/helpers/grid` );
+	const [ showWireframe, setShowWireframe ] = useSerializableField<boolean>( editor, `viewports/${viewportId}/helpers/wireframe` );
+	const [ showGizmo, setShowGizmo ] = useSerializableField<boolean>( editor, `viewports/${viewportId}/helpers/gizmo` );
+	const [ showOutline, setShowOutline ] = useSerializableField<boolean>( editor, `viewports/${viewportId}/helpers/outline` );
 
 	const [ showAudioView ] = useUISetting( 'showAudioView' );
 	const [ audioViewHeight, setAudioViewHeight ] = useState( 50 );
@@ -223,9 +227,9 @@ export const Screen = () => {
 			</div>
 			{modalStatus && <div className={style.modalStatus}>{modalStatus}</div>}
 			<div className={style.canvas}>
-				<Canvas />
+				<Canvas viewportId={viewportId} />
 			</div>
-			{layout.isSP && <CameraPad />}
+			{layout.isSP && <CameraPad viewportId={viewportId} />}
 			{layout.isPC && showAudioView && <>
 				<div
 					className={style.audioViewHandle}

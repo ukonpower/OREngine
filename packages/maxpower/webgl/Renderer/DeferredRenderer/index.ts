@@ -1,9 +1,9 @@
-import * as BSP from 'basepower';
 import { EventEmitter } from 'basepower';
 import * as GLP from 'glpower';
 import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
+import { sssKernel } from '../../../core/utils/SSSKernel';
 import { GL, GLBackend } from '../../backend/GLBackend';
 
 import deferredShadingFrag from './shaders/deferredShading.fs';
@@ -11,6 +11,7 @@ import lightShaftFrag from './shaders/lightShaft.fs';
 import normalSelectorFrag from './shaders/normalSelector.fs';
 import ssaoFrag from './shaders/ssao.fs';
 import ssaoBlurFrag from './shaders/ssaoBlur.fs';
+import sssFrag from './shaders/sss.fs';
 
 
 const ssaoKernel = ( kernelSize: number ) => {
@@ -37,13 +38,19 @@ const ssaoKernel = ( kernelSize: number ) => {
 type Params = {
 	backend: GLBackend;
 	envMap: GLP.GLPowerTexture;
-	envMapCube?: GLP.GLPowerTextureCube
+	envMapCube?: GLP.GLPowerTextureCube;
+	// 描画元の G-Buffer。ビュー固有なので生成時に一度だけ繋ぐ
+	renderTarget: MXP.RenderCameraTarget;
 }
 
 export type DeferredRendererPassConfig = {
 	ssao?: boolean;
 	lightShaft?: boolean;
+	sss?: boolean;
 };
+
+// SSS のカーネルの片側のサンプル数（中心を含む）。両側で 17 タップになり、SeparableSSS の既定と同じ
+const SSS_SAMPLES = 9;
 
 export class DeferredRenderer extends EventEmitter {
 
@@ -69,17 +76,23 @@ export class DeferredRenderer extends EventEmitter {
 
 	public ssaoBlur: MXP.PostProcessPass;
 	public ssaoBlurV: MXP.PostProcessPass;
-	private ssaoBlurUni: BSP.Uniforms;
 
 	// shading
 
 	public shading: MXP.PostProcessPass;
+
+	// sss
+
+	public sssH: MXP.PostProcessPass;
+	public sssV: MXP.PostProcessPass;
+	public sssCopy: MXP.PostProcessPass;
 
 	constructor( params: Params ) {
 
 		super();
 
 		const backend = params.backend;
+		const renderTarget = params.renderTarget;
 
 		// normal buffer
 
@@ -183,7 +196,7 @@ export class DeferredRenderer extends EventEmitter {
 				value: rtSSAO2.textures[ 0 ],
 				type: '1i'
 			},
-			uDepthTexture: {
+			uPosTexture: {
 				value: null,
 				type: '1i'
 			},
@@ -267,6 +280,100 @@ export class DeferredRenderer extends EventEmitter {
 			} ),
 		} );
 
+		// sss（shading が2枚目に出した diffuse だけをぼかし、1枚目の diffuse と置き換える）
+
+		const sssTarget = () => backend.createFrameBuffer( { disableDepthBuffer: true } ).setTexture( [
+			backend.createTexture().setting( { type: GL.FLOAT, internalFormat: GL.RGBA16F, format: GL.RGBA, magFilter: GL.LINEAR, minFilter: GL.LINEAR } ),
+		] );
+
+		const sssUni = MXP.UniformsUtils.merge( {
+			uDiffuseTexture: {
+				value: renderTarget.shadingBuffer.textures[ 1 ],
+				type: '1i'
+			},
+			uAlbedoTexture: {
+				value: renderTarget.gBuffer.textures[ 2 ],
+				type: '1i'
+			},
+			uPosTexture: {
+				value: renderTarget.gBuffer.textures[ 0 ],
+				type: '1i'
+			},
+			uNormalTexture: {
+				value: renderTarget.normalBuffer.textures[ 0 ],
+				type: '1i'
+			},
+			uSSSRadius: {
+				value: 0.05,
+				type: '1f'
+			},
+			uKernel: {
+				value: sssKernel( SSS_SAMPLES ),
+				type: '4fv'
+			},
+		} );
+
+		const sssH = new MXP.PostProcessPass( backend, {
+			name: 'sss/h',
+			frag: MXP.hotGet( "sss", sssFrag ),
+			uniforms: sssUni,
+			renderTarget: sssTarget(),
+			passThrough: true,
+			defines: {
+				SSS_SAMPLES
+			}
+		} );
+
+		// 入力と出力が同じ shadingBuffer[0] にならないよう、縦は別の描画先に出してから写し戻す
+		const sssV = new MXP.PostProcessPass( backend, {
+			name: 'sss/v',
+			frag: MXP.hotGet( "sss", sssFrag ),
+			uniforms: MXP.UniformsUtils.merge( sssUni, {
+				uDiffuseTexture: {
+					value: sssH.renderTarget!.textures[ 0 ],
+					type: '1i'
+				},
+				uShadingTexture: {
+					value: renderTarget.shadingBuffer.textures[ 0 ],
+					type: '1i'
+				},
+				uShadingDiffuseTexture: {
+					value: renderTarget.shadingBuffer.textures[ 1 ],
+					type: '1i'
+				},
+			} ),
+			renderTarget: sssTarget(),
+			defines: {
+				SSS_SAMPLES,
+				IS_VIRT: ''
+			},
+		} );
+
+		// forward がこの上に重ねるので、結果は shadingBuffer[0] に置く
+		const sssCopy = new MXP.PostProcessPass( backend, {
+			name: 'sss/copy',
+			renderTarget: backend.createFrameBuffer( { disableDepthBuffer: true } ).setTexture( [
+				renderTarget.shadingBuffer.textures[ 0 ],
+			] ),
+		} );
+
+		if ( import.meta.hot ) {
+
+			import.meta.hot.accept( "./shaders/sss.fs", ( module ) => {
+
+				if ( module ) {
+
+					sssH.frag = sssV.frag = MXP.hotUpdate( 'sss', module.default );
+
+				}
+
+				sssH.requestUpdate();
+				sssV.requestUpdate();
+
+			} );
+
+		}
+
 		this.postprocess = new MXP.PostProcess( { passes: [
 			normalSelector,
 			lightShaft,
@@ -274,6 +381,9 @@ export class DeferredRenderer extends EventEmitter {
 			ssaoBlurH,
 			ssaoBlurV,
 			shading,
+			sssH,
+			sssV,
+			sssCopy,
 		] } );
 
 		this.shading = shading;
@@ -285,12 +395,43 @@ export class DeferredRenderer extends EventEmitter {
 
 		this.ssaoBlur = ssaoBlurH;
 		this.ssaoBlurV = ssaoBlurV;
-		this.ssaoBlurUni = ssaoBlurUni;
+
+		this.sssH = sssH;
+		this.sssV = sssV;
+		this.sssCopy = sssCopy;
 
 		this.rtLightShaft1 = rtLightShaft1;
 		this.rtLightShaft2 = rtLightShaft2;
 
 		this.normalSelector_ = normalSelector;
+
+		for ( let i = 0; i < renderTarget.gBuffer.textures.length; i ++ ) {
+
+			let tex = renderTarget.gBuffer.textures[ i ];
+
+			if ( i === 1 ) {
+
+				tex = renderTarget.normalBuffer.textures[ 0 ];
+
+			}
+
+			shading.uniforms[ "sampler" + i ] = ssao.uniforms[ "sampler" + i ] = {
+				type: '1i',
+				value: tex
+			};
+
+		}
+
+		lightShaft.uniforms.uDepthTexture.value = renderTarget.gBuffer.depthTexture;
+		shading.renderTarget = renderTarget.shadingBuffer;
+
+		normalSelector.renderTarget = renderTarget.normalBuffer;
+		normalSelector.uniforms.uNormalTexture.value = renderTarget.gBuffer.textures[ 1 ];
+		normalSelector.uniforms.uPosTexture.value = renderTarget.gBuffer.textures[ 0 ];
+		normalSelector.uniforms.uSelectorTexture.value = renderTarget.gBuffer.textures[ 3 ];
+
+		ssaoBlurUni.uPosTexture.value = renderTarget.gBuffer.textures[ 0 ];
+		ssaoBlurUni.uNormalTexture.value = renderTarget.normalBuffer.textures[ 0 ];
 
 		if ( import.meta.hot ) {
 
@@ -310,7 +451,8 @@ export class DeferredRenderer extends EventEmitter {
 
 	}
 
-	public update( _event: MXP.EntityUpdateEvent ): void {
+	// 描画後に呼び、LightShaft / SSAO の履歴を進める
+	public update(): void {
 
 		// light shaft swap
 
@@ -353,6 +495,14 @@ export class DeferredRenderer extends EventEmitter {
 
 		}
 
+		if ( config.sss !== undefined ) {
+
+			this.sssH.enabled = config.sss;
+			this.sssV.enabled = config.sss;
+			this.sssCopy.enabled = config.sss;
+
+		}
+
 		if ( config.lightShaft !== undefined ) {
 
 			this.lightShaft.enabled = config.lightShaft;
@@ -368,41 +518,36 @@ export class DeferredRenderer extends EventEmitter {
 
 	}
 
-	public setRenderCamera( _camera: MXP.Camera, renderTarget: MXP.RenderCameraTarget ) {
+	// SSS の散乱半径（ワールド単位）を設定する。uniform は縦横のパスで共有している
+	public setSSSRadius( radius: number ): void {
 
-		for ( let i = 0; i < renderTarget.gBuffer.textures.length; i ++ ) {
-
-			let tex = renderTarget.gBuffer.textures[ i ];
-
-			if ( i === 1 ) {
-
-				tex = renderTarget.normalBuffer.textures[ 0 ];
-
-			}
-
-			this.shading.uniforms[ "sampler" + i ] = this.ssao.uniforms[ "sampler" + i ] = {
-				type: '1i',
-				value: tex
-			};
-
-		}
-
-		this.ssaoBlur.uniforms.uDepthTexture.value = renderTarget.gBuffer.textures[ 0 ];
-		this.lightShaft.uniforms.uDepthTexture.value = renderTarget.gBuffer.depthTexture;
-		this.shading.renderTarget = renderTarget.shadingBuffer;
-
-		this.normalSelector_.renderTarget = renderTarget.normalBuffer;
-		this.normalSelector_.uniforms.uNormalTexture.value = renderTarget.gBuffer.textures[ 1 ];
-		this.normalSelector_.uniforms.uPosTexture.value = renderTarget.gBuffer.textures[ 0 ];
-		this.normalSelector_.uniforms.uSelectorTexture.value = renderTarget.gBuffer.textures[ 3 ];
-
-		this.ssaoBlurUni.uNormalTexture.value = renderTarget.normalBuffer.textures[ 0 ];
+		this.sssH.uniforms.uSSSRadius.value = radius;
 
 	}
 
 	public resize( resolution: MTP.Vector ) {
 
 		this.postprocess.resize( resolution );
+
+	}
+
+	public dispose() {
+
+		this.postprocess.dispose();
+		this.rtLightShaft1.dispose();
+		this.rtLightShaft2.dispose();
+		this.rtSSAO1.dispose();
+		this.rtSSAO2.dispose();
+
+		for ( const pass of [ this.sssH, this.sssV ] ) {
+
+			pass.renderTarget!.textures[ 0 ].dispose();
+			pass.renderTarget!.dispose();
+
+		}
+
+		// sssCopy の描画先は shadingBuffer のテクスチャを借りているので、FBO だけ捨てる
+		this.sssCopy.renderTarget!.dispose();
 
 	}
 

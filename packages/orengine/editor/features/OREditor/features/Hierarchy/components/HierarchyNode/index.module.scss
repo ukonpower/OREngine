@@ -1,28 +1,13 @@
-@use 'styles' as *;
-
 .node {
-	color: "#fff";
-	font-size: $fontSize2;
-	color: $fontCol2;
+	font-size: var(--or-font-sm);
+	color: var(--or-text-muted);
 
 	&[data-no_export="true"] {
-		color: $fontCol3;
+		color: var(--or-text-dim);
 	}
 }
 
 .self {
-	display: flex;
-	height: var(--or-list-row-height);
-	cursor: pointer;
-
-	&:hover {
-		background-color: $bgCol2;
-	}
-
-	&[data-selected="true"] {
-		background-color: $bgCol3;
-	}
-
 	&_name {
 		flex: 1;
 		display: flex;
@@ -30,6 +15,17 @@
 		padding-left: 2px;
 		overflow: hidden;
 
+		// インラインリネーム中の入力欄。行の高さは ListItem が決めるので、はみ出さない範囲に収める
+		&_input {
+			width: 100%;
+			height: calc(100% - 4px);
+			padding: 0 4px;
+			border: none;
+			border-radius: var(--or-radius);
+			background-color: var(--or-bg-base);
+			color: var(--or-text);
+			font-size: inherit;
+		}
 	}
 }
 
@@ -48,7 +44,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	color: $fontCol3;
+	color: var(--or-text-dim);
 	opacity: 0;
 	flex-shrink: 0;
 
@@ -62,11 +58,11 @@
 
 	&[data-selectable="false"] {
 		opacity: 1;
-		color: $fontCol3;
+		color: var(--or-text-dim);
 	}
 
 	&:hover {
-		color: $fontCol1;
+		color: var(--or-text);
 	}
 }
 
@@ -76,7 +72,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	color: $fontCol3;
+	color: var(--or-text-dim);
 	opacity: 0;
 	flex-shrink: 0;
 
@@ -90,11 +86,11 @@
 
 	&[data-visible="false"] {
 		opacity: 1;
-		color: $fontCol3;
+		color: var(--or-text-dim);
 	}
 
 	&:hover {
-		color: $fontCol1;
+		color: var(--or-text);
 	}
 }
 
@@ -104,8 +100,8 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	font-size: $fontSize2;
-	color: $fontCol3;
+	font-size: var(--or-font-sm);
+	color: var(--or-text-dim);
 	opacity: 0;
 	flex-shrink: 0;
 
@@ -118,7 +114,7 @@
 	}
 
 	&:hover {
-		color: $fontCol1;
+		color: var(--or-text);
 	}
 }
 
@@ -153,7 +149,7 @@
 		width: 1px;
 		position: absolute;
 		left: 5px;
-		background-color: $fontCol2;
+		background-color: var(--or-text-muted);
 	}
 
 	&[data-open="false"] {

@@ -1,30 +1,33 @@
-// 反射方向へレイマーチしてシーンを引く
+// 反射方向へレイマーチしてシーンを引く。今フレームの結果だけを出し、時間方向の蓄積は ssrTemporal.wgsl が行う
 
 #include "./random.wgsl"
+#include "../../shaders/view.wgsl"
 
 const MARCH = 16;
 const LENGTH = 5.0;
 const OBJDEPTH = 0.5;
 
+// HDR のヒット色を輝度 1 未満へ圧縮する。一瞬だけ当たった高輝度の点が履歴に大きく残って尾を引かないように、
+// ssrTemporal.wgsl は圧縮した値どうしで近傍の範囲を取って混ぜる。ssComposite.wgsl の ssrDecompress と対
+fn ssrCompress( c: vec4f ) -> vec4f {
+
+	return vec4f( c.xyz / ( 1.0 + dot( c.xyz, vec3f( 0.2126, 0.7152, 0.0722 ) ) ), c.w );
+
+}
+
 @fragment
 fn fsMain( input: FullscreenOutput ) -> @location(0) vec4f {
 
-	let history = textureSampleLevel( uSSRBackBuffer, ppSampler, input.uv, 0.0 );
-
 	var rayPos = textureSampleLevel( uGbufferPos, ppSamplerNearest, input.uv, 0.0 ).xyz;
 
-	if ( dot( rayPos, rayPos ) == 0.0 || length( rayPos - frame.uCameraPosition ) > 100.0 ) {
+	if ( isBackground( rayPos ) || length( rayPos - frame.uCameraPosition ) > 100.0 ) {
 
-		return mix( history, vec4f( 0.0 ), 0.2 );
+		return vec4f( 0.0 );
 
 	}
 
-	let ndc = uvToNdc( input.uv );
-	let farPoint = frame.uCameraMatrix * frame.uProjectionMatrixInverse * vec4f( ndc, 1.0, 1.0 );
-	let viewDir = normalize( farPoint.xyz / farPoint.w - frame.uCameraPosition );
-
 	let normal = textureSampleLevel( uGbufferNormal, ppSamplerNearest, input.uv, 0.0 ).xyz;
-	let rayDir = reflect( viewDir, normal );
+	let rayDir = reflect( - viewDirection( rayPos ), normal );
 
 	let rayStepLength = LENGTH / f32( MARCH );
 	let rayStep = rayDir * rayStepLength;
@@ -68,6 +71,6 @@ fn fsMain( input: FullscreenOutput ) -> @location(0) vec4f {
 
 	}
 
-	return mix( history, col, 0.2 );
+	return ssrCompress( col );
 
 }

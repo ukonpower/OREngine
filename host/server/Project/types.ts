@@ -1,4 +1,4 @@
-// scene.json のエンティティ構造（ProjectSerializer と同一）
+// シーンファイル（scenes/<name>.json）のエンティティ構造（ProjectSerializer と同一）
 export interface SceneDataEntity {
 	name: string;
 	uuid: string;
@@ -15,7 +15,7 @@ export interface SceneDataComponent {
 	props?: Record<string, unknown>;
 }
 
-// scene.json のトップレベル構造
+// シーンファイルのトップレベル構造
 export interface SceneFileData {
 	name: string;
 	scene: SceneDataEntity;

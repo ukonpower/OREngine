@@ -1,0 +1,14 @@
+.vector {}
+
+.axisLabel {
+	&[data-selected="true"] {
+		color: var(--or-text);
+	}
+
+	// SP は軸ラベルのタップで一括入力の軸を選ぶので、指で押せる大きさにする
+	&[data-sp="true"] {
+		display: inline-block;
+		padding: 4px 8px;
+		cursor: pointer;
+	}
+}

@@ -45,6 +45,26 @@ export class PostProcessPipeline extends Component {
 
 	}
 
+	// add で渡した宣言を外す。チェーンは次の setSize で残りのパスから組み直す
+	public remove( param: PostProcessPassParam ) {
+
+		const index = this._params.indexOf( param );
+
+		if ( index < 0 ) return;
+
+		this._params.splice( index, 1 );
+
+		if ( this._chain ) {
+
+			this._chain.dispose();
+			this._chain = null;
+
+		}
+
+		this._resolution.set( 0, 0 );
+
+	}
+
 	// 実際に解像度が変わったときだけ作り直す（毎フレーム走らせるとテクスチャを作り続けてしまう）
 	public setSize( device: GPUDevice, frameLayout: GPUBindGroupLayout, width: number, height: number ) {
 

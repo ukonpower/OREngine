@@ -9,7 +9,6 @@ uniform sampler2D uDepthTexture;
 uniform float uTimeEF;
 uniform mat4 uCameraMatrix;
 uniform mat4 uProjectionMatrixInverse;
-uniform vec3 uCameraPosition;
 
 // varying
 
@@ -32,8 +31,11 @@ void main( void ) {
 	float depth = texture( uDepthTexture, vUv ).x;
 	vec4 rp = cp * vec4( screen, depth * 2.0 - 1.0, 1.0 );
 
-	vec3 rayPos = uCameraPosition;
-	vec3 rayDir = normalize( ( cp * vec4( screen, 1.0, 1.0 ) ).xyz );
+	// 始点は near 面上の点。並行投影ではカメラ位置から出ないので、画素ごとに near/far 面の点から求める
+	vec4 np = cp * vec4( screen, -1.0, 1.0 );
+	vec4 fp = cp * vec4( screen, 1.0, 1.0 );
+	vec3 rayPos = np.xyz / np.w;
+	vec3 rayDir = normalize( fp.xyz / fp.w - rayPos );
 	vec3 rayEndPos = rp.xyz / rp.w;
 
 	if( rayEndPos.x + rayEndPos.y + rayEndPos.z == 0.0 ) {
@@ -122,7 +124,7 @@ void main( void ) {
 
 				lightShaftSum += sLight.color * 
 					shadow * 
-					spotAttenuation * pow( clamp( 1.0 - spotDistance / sLight.distance, 0.0, 1.0 ),  sLight.decay * 1.9 ) *
+					spotAttenuation / max( spotDistance * spotDistance, 0.0001 ) *
 					rayStepLength * 0.02;
 
 			#pragma loop_end

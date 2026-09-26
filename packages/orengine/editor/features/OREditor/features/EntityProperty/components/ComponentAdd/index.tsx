@@ -1,13 +1,11 @@
-
-import React, { MouseEvent, ReactNode, useCallback, useState } from 'react';
+import { MouseEvent } from 'react';
 
 import * as MXP from 'maxpower';
-import { ComponentGroup, Engine, ResouceComponentItem } from 'orengine';
+import { ResouceComponentItem } from 'orengine';
+import { Button, Menu, pointAnchor, usePopover } from 'uipower';
 
-import { Button } from '../../../../../../components/ui/Button';
+import { useComponentMenuItems } from '../../../../hooks/useComponentMenuItems';
 import { useOREditor } from '../../../../hooks/useOREditor';
-import { useMouseMenu } from '../../../MouseMenu/hooks/useMouseMenu';
-import { useMouseMenuItem } from '../../../MouseMenu/hooks/useMouseMenuItem';
 
 import style from './index.module.scss';
 
@@ -16,107 +14,26 @@ type ComponentAddProps= {
 	entity: MXP.Entity
 }
 
-const ComponentDirectory: React.FC<{
-	group: ComponentGroup | ResouceComponentItem;
-	onClickAdd: ( compItem: ResouceComponentItem ) => void;
-}> = ( { group, onClickAdd } ) => {
-
-	const menuContext = useMouseMenuItem();
-
-	const [ v, setV ] = useState( false );
-
-	let childItem = null;
-	let onClick = undefined;
-	let type = "dir";
-
-	const displayName = group.name.startsWith( "_" ) ? group.name.slice( 1 ) : group.name;
-
-	if ( "child" in group ) {
-
-		childItem = <>
-			{group.child.map( ( item, index ) => {
-
-				return <ComponentDirectory key={index} group={item} onClickAdd={onClickAdd} />;
-
-			} )}
-		</>;
-
-	} else {
-
-	       onClick = () => onClickAdd( group );
-	       type = "item";
-
-	}
-
-	const canHover = window.matchMedia( "(hover: hover)" ).matches;
-
-	return <div className={style.directory}
-		onPointerEnter={canHover ? () => setV( true ) : undefined}
-		onPointerLeave={canHover ? () => setV( false ) : undefined}
-		onClick={( e ) => {
-
-			if ( onClick ) {
-
-				onClick();
-
-			} else {
-
-				e.stopPropagation();
-				setV( ! v );
-
-			}
-
-		}}
-		data-type={type}
-		data-direction={menuContext?.direction}
-	>
-
-		{displayName}
-		{v && <div className={style.subDirectory}>
-			{childItem}
-		</div>}
-	</div>;
-
-
-};
-
 export const ComponentAdd = ( props: ComponentAddProps ) => {
 
 	const { editor } = useOREditor();
-	const { pushContent, closeAll } = useMouseMenu();
-	const resources = Engine.resources;
+	const { open, closeAll } = usePopover();
 
-	const onClickAdd = useCallback( ( _e: MouseEvent ) => {
+	const onSelect = ( compItem: ResouceComponentItem ) => {
 
-		if ( ! resources || ! pushContent || ! closeAll ) return;
+		editor.api.addComponent( props.entity, compItem.component );
 
-		const cagegoryGroupList: ReactNode[] = [];
+		closeAll();
 
-		const onClickComponentItem = ( compItem: ResouceComponentItem ) => {
+	};
 
-			editor.api.addComponent( props.entity, compItem.component );
+	const items = useComponentMenuItems( onSelect );
 
-			closeAll();
+	const onClickAdd = ( e: MouseEvent ) => {
 
-		};
+		open( <Menu items={items} />, pointAnchor( e.clientX, e.clientY ) );
 
-		resources.componentGroups.forEach( ( group, index ) => {
-
-			cagegoryGroupList.push(
-				<ComponentDirectory key={index} group={group} onClickAdd={onClickComponentItem} />
-			);
-
-		} );
-
-		pushContent(
-
-			<div className={style.picker}>
-				{cagegoryGroupList}
-			</div>
-
-		);
-
-	}, [ pushContent, resources, props.entity, closeAll, editor ] );
+	};
 
 	return <div className={style.compAdd}>
 		<Button onClick={onClickAdd}>Add Component</Button>

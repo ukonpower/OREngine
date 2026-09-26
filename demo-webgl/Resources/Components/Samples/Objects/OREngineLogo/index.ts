@@ -1,5 +1,4 @@
 import * as MXP from 'maxpower';
-import { Engine } from 'orengine';
 
 import fragSrc from './shaders/main.fs';
 import vertSrc from './shaders/main.vs';
@@ -12,14 +11,11 @@ export class OREngineLogo extends MXP.Component {
 
 		super( params );
 
-		const engine = this.engine as Engine;
-
 		this.material = new MXP.Material( {
 			name: "OREngineLogo",
 			phase: [ "deferred", "shadowMap" ],
 			vert: MXP.hotGet( "OREngineLogoVert", vertSrc ),
 			frag: MXP.hotGet( "OREngineLogoFrag", fragSrc ),
-			uniforms: MXP.UniformsUtils.merge( engine.uniforms )
 		} );
 
 		const mesh = this.entity.getComponent( MXP.Mesh );

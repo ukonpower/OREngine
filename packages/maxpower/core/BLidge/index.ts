@@ -14,43 +14,38 @@ export type BLidgeNodeType = 'empty' | 'cube' | 'sphere' | 'cylinder' | 'mesh' |
 // scene
 
 export type BLidgeScene = {
-    animations: BLidgeCurveParam[][];
+	animations: number[][];
+	fcurves: BLidgeCurveParam[];
 	root: BLidgeNodeParam;
 	frame: BLidgeFrame;
 }
 
 // node
 
+// BLidge v2 は既定値（type / visible / position / rotation / scale）のキーを省略して出力する
 export type BLidgeNodeParam = {
 	name: string,
-	class: string,
-	type: BLidgeNodeType,
+	type?: BLidgeNodeType,
 	param?: BLidgeCameraParam | BLidgeMeshParamRaw | BLidgeLightParamCommon
-	parent: string,
 	children?: BLidgeNodeParam[],
 	animation?: BLidgeAnimationAccessor,
 	position?: number[],
 	rotation?: number[],
 	scale?: number[],
-	material?: {
-		name?: string,
-		uniforms?: BLidgeAnimationAccessor
-	},
-	visible: boolean,
+	uniforms?: BLidgeAnimationAccessor,
+	visible?: boolean,
 }
 
 export type BLidgeNode = {
 	name: string,
-	class: string,
 	type: BLidgeNodeType,
 	param?: BLidgeCameraParam | BLidgeMeshParam | BLidgeLightParamCommon
-	parent: string,
 	children: BLidgeNode[],
 	animations: BLidgeAnimationAccessor,
 	position: number[],
 	rotation: number[],
 	scale: number[],
-	material: BLidgeMaterialParam
+	uniforms: BLidgeAnimationAccessor,
 	visible: boolean,
 }
 
@@ -82,7 +77,7 @@ type BLidgeLightParamCommon = {
 	type: 'directional' | 'spot'
 	color: MTP.IVector3,
 	intensity: number,
-	shadowMap: boolean,
+	shadow_map: boolean,
 }
 
 export type BLidgeDirectionalLightParam = {
@@ -97,27 +92,25 @@ export type BLidgeSpotLightParam = {
 
 export type BLidgeLightParam = BLidgeDirectionalLightParam | BLidgeSpotLightParam;
 
-// material
-
-export type BLidgeMaterialParam = {
-	name: string,
-	uniforms: BLidgeAnimationAccessor
-}
-
 // animation
 
 export type BLidgeAnimationAccessor = { [key: string]: number }
 
 export type BLidgeCurveAxis = 'x' | 'y' | 'z' | 'w'
 
+// 補間は BLidge の INTERPOLATION_MAP（blidge/animation/parser.py）と対応する: 0=LINEAR / 1=CONSTANT / 2=BEZIER
+export type BLidgeInterpolationCode = 0 | 1 | 2;
+
+// キーフレームは [ 補間, [ dx, y, ...ハンドル ] ]。dx は先頭だけ絶対フレーム、以降は前のキーとの差分。
+// ハンドルは左（自分か前のキーが Bezier のとき）→ 右（自分が Bezier のとき）の順に、付くものだけが並ぶ
 export type BLidgeCurveParam = {
-    k: [string, [number, number, number, number, number, number]][];
+	k: [BLidgeInterpolationCode, number[]][];
 	axis: BLidgeCurveAxis
 }
 
 // message
 
-export type BLidgeMessage = BLidgeSyncSceneMessage | BLidgeSyncTimelineMessage | BLidgeEventMessage
+export type BLidgeMessage = BLidgeSyncSceneMessage | BLidgeSyncTimelineMessage | BLidgeSyncSelectionMessage | BLidgeEventMessage
 
 export type BLidgeSyncSceneMessage = {
 	type: "sync/scene",
@@ -127,6 +120,11 @@ export type BLidgeSyncSceneMessage = {
 export type BLidgeSyncTimelineMessage = {
 	type: "sync/timeline";
 	data: BLidgeFrame;
+}
+
+export type BLidgeSyncSelectionMessage = {
+	type: "sync/selection";
+	data: BLidgeSelection;
 }
 
 export type BLidgeEventMessage = {
@@ -146,11 +144,21 @@ export type BLidgeFrame = {
 	playing: boolean;
 }
 
+// selection
+
+export type BLidgeSelection = {
+	active: { uuid: string, name: string } | null;
+	selected: { uuid: string, name: string, type: string }[];
+}
+
 type BLidgeConnection = {
 	url: string,
 	ws: WebSocket,
 	gltfPath?: string,
 }
+
+// BLidgeInterpolationCode の番号で引く
+const INTERPOLATIONS: FCurveInterpolation[] = [ 'LINEAR', 'CONSTANT', 'BEZIER' ];
 
 export class BLidge extends EventEmitter {
 
@@ -276,6 +284,43 @@ export class BLidge extends EventEmitter {
 
 	}
 
+	// v2 のキーフレーム列（差分フレーム・数値の補間）を FCurveKeyFrame に戻す
+	private decodeKeyFrames( fcurveData: BLidgeCurveParam ) {
+
+		const keyframes: FCurveKeyFrame[] = [];
+
+		let frame = 0;
+
+		for ( const [ code, values ] of fcurveData.k ) {
+
+			frame += values[ 0 ];
+
+			// BLidge は「自分か前のキーが Bezier」なら左ハンドルを、「自分が Bezier」なら右ハンドルを付ける。
+			// 1フレーム以内に次のキーがあると補間を Constant に書き換えるが、ハンドルは元の補間のまま残るので、
+			// 補間の種類ではなく要素数で読む（右があれば左も必ずあるので、4要素なら左だけ・6要素なら左右）
+			let handleLeft: MTP.IVector2 | undefined = undefined;
+			let handleRight: MTP.IVector2 | undefined = undefined;
+
+			if ( values.length >= 4 ) {
+
+				handleLeft = { x: values[ 2 ], y: values[ 3 ] };
+
+			}
+
+			if ( values.length >= 6 ) {
+
+				handleRight = { x: values[ 4 ], y: values[ 5 ] };
+
+			}
+
+			keyframes.push( new FCurveKeyFrame( { x: frame, y: values[ 1 ] }, handleLeft, handleRight, INTERPOLATIONS[ code ] ) );
+
+		}
+
+		return keyframes;
+
+	}
+
 	public async loadScene( data: BLidgeScene, gltfPath?: string ) {
 
 		this.currentScene = data;
@@ -323,40 +368,27 @@ export class BLidge extends EventEmitter {
 		this.curveGroups = [];
 		this.nodes = [];
 
+		// fcurves: 複数のアニメーションから同じ番号で参照されるので、先に1回ずつ作っておく
+
+		const curves: FCurve[] = [];
+
+		for ( const fcurveData of data.fcurves ) {
+
+			curves.push( new FCurve( this.decodeKeyFrames( fcurveData ) ) );
+
+		}
+
 		// actions
 
-		const fcurveGroupNames = Object.keys( data.animations );
+		for ( let i = 0; i < data.animations.length; i ++ ) {
 
-		for ( let i = 0; i < fcurveGroupNames.length; i ++ ) {
+			const fcurveGroup = new FCurveGroup( String( i ) );
 
-			const fcurveGroupName = fcurveGroupNames[ i ];
-			const fcurveGroup = new FCurveGroup( fcurveGroupName );
+			for ( const fcurveIndex of data.animations[ i ] ) {
 
-			data.animations[ i ].forEach( fcurveData => {
+				fcurveGroup.setFCurve( curves[ fcurveIndex ], data.fcurves[ fcurveIndex ].axis );
 
-				const curve = new FCurve();
-
-				curve.set( fcurveData.k.map( keyframe => {
-
-					const interpolation = {
-						"B": "BEZIER",
-						"C": "CONSTANT",
-						"L": "LINEAR",
-					}[ keyframe[ 0 ] ];
-
-					const frames = keyframe[ 1 ];
-
-					return new FCurveKeyFrame(
-						{ x: frames[ 0 ], y: frames[ 1 ] },
-						frames[ 2 ] !== undefined && { x: frames[ 2 ], y: frames[ 3 ] } || undefined,
-						frames[ 4 ] !== undefined && { x: frames[ 4 ], y: frames[ 5 ] } || undefined,
-					interpolation as FCurveInterpolation );
-
-				} ) );
-
-				fcurveGroup.setFCurve( curve, fcurveData.axis );
-
-			} );
+			}
 
 			this.curveGroups.push( fcurveGroup );
 
@@ -368,27 +400,16 @@ export class BLidge extends EventEmitter {
 
 		const _ = ( nodeParam: BLidgeNodeParam ): BLidgeNode => {
 
-			const mat = { name: '', uniforms: {} };
-
-			if ( nodeParam.material ) {
-
-				mat.name = nodeParam.material.name || '';
-				mat.uniforms = nodeParam.material.uniforms || {};
-
-			}
-
 			const node: BLidgeNode = {
 				name: nodeParam.name,
-				class: nodeParam.class,
-				parent: nodeParam.parent,
 				children: [],
 				animations: nodeParam.animation || {},
 				position: nodeParam.position || [ 0, 0, 0 ],
 				rotation: nodeParam.rotation || [ 0, 0, 0 ],
 				scale: nodeParam.scale || [ 1, 1, 1 ],
-				material: mat,
-				type: nodeParam.type,
-				visible: nodeParam.visible,
+				uniforms: nodeParam.uniforms || {},
+				type: nodeParam.type || 'empty',
+				visible: nodeParam.visible !== false,
 			};
 
 			const param = nodeParam.param;
@@ -461,6 +482,10 @@ export class BLidge extends EventEmitter {
 			} else if ( msg.type == "sync/timeline" ) {
 
 				this.onSyncTimeline( msg.data );
+
+			} else if ( msg.type == "sync/selection" ) {
+
+				this.emit( 'sync/selection', [ msg.data ] );
 
 			} else if ( msg.type == "event" ) {
 

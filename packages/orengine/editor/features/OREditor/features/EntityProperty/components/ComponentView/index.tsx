@@ -2,9 +2,9 @@
 import { MouseEvent, useCallback } from 'react';
 
 import * as MXP from 'maxpower';
+import { Engine } from 'orengine';
+import { Block, CrossIcon } from 'uipower';
 
-import { Block } from '../../../../../../components/ui/Block';
-import { CrossIcon } from '../../../../../../components/ui/Icons/CrossIcon';
 import { useOREditor } from '../../../../hooks/useOREditor';
 import { SerializeFieldView } from '../../../SerializableField/components/SerializeFieldView';
 import { useSerializableField } from '../../../SerializableField/hooks/useSerializableProps';
@@ -89,7 +89,7 @@ export const ComponentView = ( { component }: ComponentViewProps ) => {
 			<InputBoolean checked={enabled || false} onChange={setEnabled} readOnly={disableEdit} />
 		</div> */}
 		<div className={style.name}>
-			{component.constructor.name}
+			{Engine.resources.getComponentName( component )}
 		</div>
 		<div className={style.delete}>
 			<button onClick={onClickDelete}><CrossIcon /></button>

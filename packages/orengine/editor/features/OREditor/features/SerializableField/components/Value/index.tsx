@@ -1,14 +1,8 @@
 import React from 'react';
 
 import { SerializableFieldFormat, SerializeFieldObjective } from 'maxpower';
+import { Button, InputBoolean, InputColor, InputNumber, InputSelect, InputText, Vector } from 'uipower';
 
-import { Button } from '../../../../../../components/ui/Button';
-import { InputBoolean } from '../../../../../../components/ui/Input/InputCheckBox';
-import { InputColor } from '../../../../../../components/ui/Input/InputColor';
-import { InputNumber } from '../../../../../../components/ui/Input/InputNumber';
-import { InputSelect } from '../../../../../../components/ui/Input/InputSelect';
-import { InputText } from '../../../../../../components/ui/Input/InputText';
-import { Vector } from '../../../../../../components/ui/Vector';
 import { InputComponentRef } from '../InputComponentRef';
 import { InputEntityRef } from '../InputEntityRef';
 import { InputResourceSelect } from '../InputResourceSelect';
@@ -19,12 +13,19 @@ export type ValueOpt = {
 	label?: string | React.ReactNode,
 	readOnly?: boolean,
 	step?: number,
+	min?: number,
+	max?: number,
+	int?: boolean,
 	disabled?: boolean,
 }
 
 export type ValueProps<T> = {
 	value: T | undefined,
 	onChange?: ( value: T ) => void
+	// 数値・Vector のドラッグの開始・確定・取り消し（右クリック / Esc）
+	onDragStart?: () => void,
+	onDragEnd?: () => void,
+	onDragCancel?: () => void,
 	format?: SerializableFieldFormat
 } & ValueOpt
 
@@ -58,7 +59,7 @@ export const Value = <T extends SerializeFieldObjective>( props : ValueProps<T> 
 
 		} else if ( format.type == "vector" && Array.isArray( value ) ) {
 
-			inputElm = <Vector value={value as number[]} onChange={onChangeValue} />;
+			inputElm = <Vector value={value as number[]} onChange={onChangeValue} onDragStart={props.onDragStart} onDragEnd={props.onDragEnd} onDragCancel={props.onDragCancel} />;
 
 		} else if ( format.type == "color" && Array.isArray( value ) ) {
 

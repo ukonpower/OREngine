@@ -1,0 +1,40 @@
+.sceneControl {
+	width: 100%;
+	height: 100%;
+
+	&_inner {
+		max-width: 500px;
+	}
+}
+
+// 開いているシーン名。入力欄と同じ面に置いて「選ぶもの」として見せる
+.select {
+	display: flex;
+	align-items: center;
+	width: 100%;
+	padding: var(--or-input-padding);
+	border: none;
+	border-radius: var(--or-radius);
+	background-color: var(--or-bg-surface);
+	color: var(--or-text-muted);
+	font-size: var(--or-input-font-size);
+	cursor: pointer;
+
+	&:hover {
+		background-color: var(--or-bg-hover);
+	}
+
+	&_name {
+		flex: 1;
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		text-align: center;
+	}
+}
+
+// Button は内容幅なので、パネルの横幅いっぱいに伸ばすのはここで決める
+.save {
+	display: grid;
+}

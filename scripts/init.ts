@@ -97,7 +97,7 @@ const setupTsconfig = ( orengine: string ) => {
 				'orengine': [ `./${orengine}/packages/orengine/index.ts` ],
 				'orengine/*': [ `./${orengine}/packages/orengine/*` ],
 				'@or-renderer': [ `./${orengine}/packages/maxpower/webgl/index.ts` ],
-				'@or-scene': [ './project/scene.json' ],
+				'@or-scene': [ './project/scenes/main.json' ],
 				'@or-editor': [ './project/editor.json' ],
 				'@or-resources/*': [ './project/Resources/*' ],
 			},

@@ -1,8 +1,7 @@
 import { withOREditor } from '@or-storybook/decorators/withOREditor';
 import { panelResolution720p } from '@or-storybook/fixtures/panels';
 import { storyFixture } from '@or-storybook/fixtures/scene';
-
-import { Panel } from '../../../../components/ui/Panel';
+import { Panel } from 'uipower';
 
 import { RendererSettings } from '.';
 

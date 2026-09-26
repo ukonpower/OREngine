@@ -2,7 +2,7 @@ import { FRAME_FIELDS, GROUP_FRAME } from '../../backend/Bindings';
 import { UniformBinder, buildStructWgsl, fieldsFromUniforms } from '../../backend/UniformBinder';
 
 
-import type { StorageSource } from '../../backend/Bindings';
+import type { MaterialStorage, StorageSource } from '../../backend/Bindings';
 import type { UniformField } from '../../backend/UniformBinder';
 import type { Renderer } from '../../Renderer';
 import type * as BSP from 'basepower';
@@ -18,13 +18,20 @@ import type * as BSP from 'basepower';
 	CPU側で再現せずとも「宣言順 × 16バイト」でWGSLと一致させるため。
 
 	bind group は group0=フレーム（Rendererと共有）/ group1=パス
-	（binding0=uniform（あれば）/ binding1=src / binding2=dst）。
+	（binding0=uniform（あれば）/ binding1=src / binding2=dst / binding3..=storages）。
+
+	storages には別の StorageSource（他の GPUCompute・MeshSdf 等）を名前付きで渡せ、
+	Material の storages と同じく read-only の array として読める。
+	どれかの buffers が null の間は dispatch しない。
 
 	updateImpl から compute() を呼ぶとレンダラーのキューへ登録され、
 	フレーム先頭（shadowMapの前）の compute pass でまとめて実行される。
 -------------------------------*/
 
 const WORKGROUP_SIZE = 64;
+
+// group1 の binding0〜2 は uniform / src / dst が使う
+const STORAGE_BINDING_START = 3;
 
 export interface GPUComputeParam {
 	name: string;
@@ -35,6 +42,8 @@ export interface GPUComputeParam {
 	// csMain を定義したWGSL本体。宣言部は前置される
 	wgsl: string;
 	uniforms?: BSP.Uniforms;
+	// 読み取り専用で参照する他の storage。WGSL側では名前がそのまま array<struct> の変数名になる
+	storages?: { [name: string]: StorageSource };
 }
 
 export class GPUCompute implements StorageSource {
@@ -44,6 +53,7 @@ export class GPUCompute implements StorageSource {
 	public readonly structName: string;
 	public readonly structWgsl: string;
 	public readonly uniforms: BSP.Uniforms;
+	public readonly storages: MaterialStorage[];
 
 	public buffers: [ GPUBuffer, GPUBuffer ] | null;
 	public readIndex: number;
@@ -55,7 +65,13 @@ export class GPUCompute implements StorageSource {
 	private _initData: Float32Array | null;
 	private _pipeline: GPUComputePipeline | null;
 	private _binder: UniformBinder | null;
-	private _bindGroups: [ GPUBindGroup, GPUBindGroup ] | null;
+	private _layout: GPUBindGroupLayout | null;
+
+	// 自分と storages の読み側の組（パリティ）ごとの bind group
+	private _bindGroups: Map<number, GPUBindGroup>;
+
+	// bind group を作ったときの storages の実体。差し替わったら作り直す
+	private _storageBuffers: ( [ GPUBuffer, GPUBuffer ] | null )[];
 	private _dirty: boolean;
 
 	constructor( renderer: Renderer, param: GPUComputeParam ) {
@@ -64,6 +80,7 @@ export class GPUCompute implements StorageSource {
 		this.count = param.count;
 		this.structName = param.struct.name;
 		this.uniforms = param.uniforms || {};
+		this.storages = Object.entries( param.storages || {} ).map( ( [ name, source ] ) => ( { name, source } ) );
 
 		this._fieldNames = param.struct.fields;
 		this.structWgsl = `struct ${this.structName} {\n${this._fieldNames.map( ( f ) => `\t${f}: vec4f,` ).join( '\n' )}\n};`;
@@ -74,7 +91,9 @@ export class GPUCompute implements StorageSource {
 		this._initData = null;
 		this._pipeline = null;
 		this._binder = null;
-		this._bindGroups = null;
+		this._layout = null;
+		this._bindGroups = new Map();
+		this._storageBuffers = this.storages.map( () => null );
 		this._dirty = false;
 
 		this.buffers = null;
@@ -112,6 +131,18 @@ export class GPUCompute implements StorageSource {
 
 			chunks.push( buildStructWgsl( 'ComputeUniforms', this._fields ) );
 			chunks.push( '@group(1) @binding(0) var<uniform> gpu: ComputeUniforms;' );
+
+		}
+
+		if ( this.storages.length > 0 ) {
+
+			// 自分の struct と同じ定義は二重に出さない
+			const structs = new Set( this.storages.map( ( s ) => s.source.structWgsl ) );
+			structs.delete( this.structWgsl );
+
+			chunks.push( Array.from( structs ).join( '\n\n' ) );
+			chunks.push( this.storages.map( ( s, i ) =>
+				`@group(1) @binding(${i + STORAGE_BINDING_START}) var<storage, read> ${s.name}: array<${s.source.structName}>;` ).join( '\n' ) );
 
 		}
 
@@ -177,11 +208,16 @@ export class GPUCompute implements StorageSource {
 
 		}
 
+		const bindGroup = this._getBindGroup( device );
+
+		// 参照先の storage がまだ無い間は計算しない（読み書きも入れ替えない）
+		if ( ! bindGroup ) return;
+
 		if ( this._binder ) this._binder.update( this.uniforms );
 
 		pass.setPipeline( this._pipeline! );
 		pass.setBindGroup( GROUP_FRAME, frameBindGroup );
-		pass.setBindGroup( 1, this._bindGroups![ this.readIndex ] );
+		pass.setBindGroup( 1, bindGroup );
 		pass.dispatchWorkgroups( Math.ceil( this.count / WORKGROUP_SIZE ) );
 
 		// 今書いた側を読み側へ回す
@@ -225,6 +261,11 @@ export class GPUCompute implements StorageSource {
 				...( hasUniforms ? [ { binding: 0, visibility: GPUShaderStage.COMPUTE, buffer: { type: 'uniform' as const } } ] : [] ),
 				{ binding: 1, visibility: GPUShaderStage.COMPUTE, buffer: { type: 'read-only-storage' as const } },
 				{ binding: 2, visibility: GPUShaderStage.COMPUTE, buffer: { type: 'storage' as const } },
+				...this.storages.map( ( _, i ) => ( {
+					binding: i + STORAGE_BINDING_START,
+					visibility: GPUShaderStage.COMPUTE,
+					buffer: { type: 'read-only-storage' as const },
+				} ) ),
 			],
 		} );
 
@@ -242,16 +283,58 @@ export class GPUCompute implements StorageSource {
 
 		}
 
-		// bindGroups[i] = buffers[i] を読み、もう片方へ書く組
-		this._bindGroups = [ 0, 1 ].map( ( i ) => device.createBindGroup( {
-			label: `${this.name}/${i}`,
-			layout,
-			entries: [
-				...( this._binder ? [ { binding: 0, resource: { buffer: this._binder.buffer } } ] : [] ),
-				{ binding: 1, resource: { buffer: this.buffers![ i ] } },
-				{ binding: 2, resource: { buffer: this.buffers![ 1 - i ] } },
-			],
-		} ) ) as [ GPUBindGroup, GPUBindGroup ];
+		this._layout = layout;
+		this._bindGroups.clear();
+
+	}
+
+	// 今フレームの bind group。自分の readIndex を読み、もう片方へ書く
+	private _getBindGroup( device: GPUDevice ): GPUBindGroup | null {
+
+		let key = this.readIndex;
+
+		for ( let i = 0; i < this.storages.length; i ++ ) {
+
+			const source = this.storages[ i ].source;
+
+			if ( ! source.buffers ) return null;
+
+			if ( this._storageBuffers[ i ] !== source.buffers ) {
+
+				this._storageBuffers[ i ] = source.buffers;
+				this._bindGroups.clear();
+
+			}
+
+			key |= source.readIndex << ( i + 1 );
+
+		}
+
+		let bindGroup = this._bindGroups.get( key );
+
+		if ( ! bindGroup ) {
+
+			const entries: GPUBindGroupEntry[] = [];
+
+			if ( this._binder ) entries.push( { binding: 0, resource: { buffer: this._binder.buffer } } );
+
+			entries.push( { binding: 1, resource: { buffer: this.buffers![ this.readIndex ] } } );
+			entries.push( { binding: 2, resource: { buffer: this.buffers![ 1 - this.readIndex ] } } );
+
+			for ( let i = 0; i < this.storages.length; i ++ ) {
+
+				const source = this.storages[ i ].source;
+				entries.push( { binding: i + STORAGE_BINDING_START, resource: { buffer: source.buffers![ source.readIndex ] } } );
+
+			}
+
+			bindGroup = device.createBindGroup( { label: `${this.name}/${key}`, layout: this._layout!, entries } );
+
+			this._bindGroups.set( key, bindGroup );
+
+		}
+
+		return bindGroup;
 
 	}
 
@@ -263,7 +346,8 @@ export class GPUCompute implements StorageSource {
 		this._binder?.dispose();
 		this._binder = null;
 		this._pipeline = null;
-		this._bindGroups = null;
+		this._layout = null;
+		this._bindGroups.clear();
 
 	}
 

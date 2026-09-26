@@ -1,0 +1,64 @@
+.panelContainer {
+	width: 100%;
+	height: 100%;
+	background-color: var(--or-bg-panel);
+	display: flex;
+	align-items: center;
+	flex-direction: column;
+}
+
+.header {
+	width: 100%;
+	height: var(--or-tab-height);
+	background-color: var(--or-bg-surface);
+	font-size: var(--or-tab-font-size);
+	display: flex;
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+
+	&_item {
+		height: 100%;
+		display: inline-flex;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		align-items: center;
+		justify-content: center;
+		padding: var(--or-tab-padding);
+		user-select: none;
+		flex-shrink: 0;
+
+		&[data-active='true'] {
+			background-color: var(--or-bg-active);
+		}
+
+		&:hover {
+			background-color: var(--or-bg-hover);
+		}
+	}
+
+	&_add {
+		height: 100%;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: var(--or-tab-padding);
+		user-select: none;
+		cursor: pointer;
+		flex-shrink: 0;
+		// タブと誤認しないよう右端へ寄せる
+		margin-left: auto;
+		color: var(--or-text-dim);
+
+		&:hover {
+			background-color: var(--or-bg-hover);
+		}
+	}
+}
+
+.content {
+	width: 100%;
+	flex: 1;
+	overflow: hidden;
+	min-height: 0;
+}

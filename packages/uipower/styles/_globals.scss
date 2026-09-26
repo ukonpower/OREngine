@@ -1,0 +1,118 @@
+@use './mixin' as *;
+
+// エディタのデザイントークン。色・文字サイズ・余白・角丸・寸法はすべてここで定義し、
+// 各コンポーネントは var(--or-*) で参照する
+:root {
+	// 背景（奥から手前へ）
+	--or-bg-base: #050505;
+	--or-bg-panel: #181818;
+	--or-bg-surface: #2a2a2a;
+	--or-bg-active: #333;
+	--or-bg-hover: #555;
+
+	// 文字
+	--or-text: #ccc;
+	--or-text-muted: #aaa;
+	--or-text-dim: #777;
+	--or-text-disabled: #333;
+
+	// アクセント
+	--or-accent-danger: rgb(194, 74, 0);
+	--or-focus: #999;
+
+	// 下地を透かす面。不透明トークンから作って色の出どころを1つに保つ
+	--or-bg-float: color-mix(in srgb, var(--or-bg-base) 60%, transparent);
+	--or-bg-float-active: color-mix(in srgb, var(--or-bg-surface) 80%, transparent);
+	--or-drop-zone: color-mix(in srgb, var(--or-focus) 15%, transparent);
+	--or-drop-zone-border: color-mix(in srgb, var(--or-focus) 60%, transparent);
+
+	// 文字サイズ
+	--or-font-xs: 10px;
+	--or-font-sm: 12px;
+	--or-font-md: 16px;
+
+	// 余白・角丸
+	--or-space: 5px;
+	--or-radius: 3px;
+
+	// 寸法（SP では指で触れる大きさへ切り替える）
+	--or-tab-height: 20px;
+	--or-tab-font-size: var(--or-font-sm);
+	--or-tab-padding: 0 8px;
+	--or-screen-header-height: 30px;
+	--or-list-row-height: 22px;
+	--or-input-font-size: inherit;
+	--or-input-padding: 3px 5px;
+	--or-checkbox-size: 14px;
+	--or-btn-padding: 4px 8px;
+
+	// 重なり順（奥から手前へ）。z-index はこのトークンだけで決め、各コンポーネントに生の数値を書かない。
+	// 同じ層の中の前後は DOM 順で決める
+	--or-z-content: 1;
+	// パネル内容の上に浮く小窓（ビューポートの表示設定など）
+	--or-z-popover: 100;
+	// ドラッグ中のプレビュー。掴んだ元のパネルより手前
+	--or-z-drag: 500;
+	// モーダル・入力窓。下の操作を塞ぐもの
+	--or-z-modal: 1000;
+	// Popover（右クリックメニュー・タブ追加メニュー等）。モーダルの上からでも開くので常に最前面
+	--or-z-menu: 10000;
+
+	@include sp {
+		--or-tab-height: 32px;
+		--or-tab-padding: 0 12px;
+		--or-screen-header-height: 36px;
+		--or-list-row-height: 28px;
+		--or-input-padding: 4px 5px;
+		--or-checkbox-size: 20px;
+		--or-btn-padding: 6px 10px;
+	}
+}
+
+* {
+	margin: 0;
+	box-sizing: border-box;
+	user-select: none;
+
+	&::-webkit-scrollbar {
+		width: 5px;
+		height: 5px;
+	}
+
+	&::-webkit-scrollbar-track {
+		background-color: var(--or-bg-panel);
+	}
+
+	&::-webkit-scrollbar-thumb {
+		background-color: var(--or-bg-active);
+	}
+
+	&::-webkit-scrollbar-corner {
+		background-color: transparent;
+	}
+}
+
+html,
+body {
+	background-color: var(--or-bg-base);
+	color: var(--or-text);
+	font-size: var(--or-font-sm);
+	width: 100%;
+	font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+}
+
+select:focus {
+	outline: var(--or-focus) 1px solid;
+}
+
+input:focus {
+	outline: var(--or-focus) 1px solid;
+}
+
+button {
+	background-color: transparent;
+	color: var(--or-text);
+	border: none;
+	padding: 0;
+	cursor: pointer;
+}

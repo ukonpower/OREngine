@@ -14,6 +14,44 @@ const FOCUS_EMPTY_RADIUS = 1.0;
 // 平面や点のように潰れた境界でカメラがめり込まないようにする下限
 const FOCUS_MIN_RADIUS = 0.1;
 
+// Blender のテンキー視点（1: Front / 3: Right / 7: Top）に対応する向き
+export type ViewAxis = 'front' | 'right' | 'top';
+
+// 注視点から見たカメラの置き場所の向き。Blender（Z-up）の Front は OREngine（Y-up）では -Z を見る向きになる
+const VIEW_AXIS_DIRECTIONS: Record<ViewAxis, [ number, number, number ]> = {
+	front: [ 0, 0, 1 ],
+	right: [ 1, 0, 0 ],
+	top: [ 0, 1, 0 ],
+};
+
+// シーン内の displayOut なカメラを探す
+export const findSceneCameraEntity = ( root: MXP.Entity ): MXP.Entity | null => {
+
+	let found: MXP.Entity | null = null;
+
+	root.traverse( ( entity ) => {
+
+		if ( found ) return;
+
+		const cameras = entity.getComponentsByTag<MXP.Camera>( "camera" );
+
+		for ( let i = 0; i < cameras.length; i ++ ) {
+
+			if ( cameras[ i ].displayOut ) {
+
+				found = entity;
+				return;
+
+			}
+
+		}
+
+	} );
+
+	return found;
+
+};
+
 // 「どのカメラで見るか（view）」と「プレビュー（完成見た目の確認）」は独立した軸。
 // プレビュー中はシーンカメラ固定・本番同等パイプラインになる
 export class EditorCamera {
@@ -21,15 +59,17 @@ export class EditorCamera {
 	private _entity: MXP.Entity;
 	private _camera: MXP.Camera;
 	private _orbitControls: OrbitControls;
+	private _renderView: MXP.RenderViewContract;
 	private _view: "editor" | "camera";
 	private _preview: boolean;
 
-	constructor( engine: Engine ) {
+	constructor( engine: Engine, renderView: MXP.RenderViewContract, canvas: HTMLCanvasElement ) {
 
 		this._entity = engine.createEntity( { name: "__editorCamera" } );
 		this._camera = this._entity.addComponent( MXP.Camera );
 		this._orbitControls = this._entity.addComponent( OrbitControls );
-		this._orbitControls.setElm( engine.canvas as HTMLCanvasElement );
+		this._orbitControls.setElm( canvas );
+		this._renderView = renderView;
 		this._view = "editor";
 		this._preview = false;
 		this._apply( engine );
@@ -87,36 +127,66 @@ export class EditorCamera {
 
 	}
 
-	// view / preview の現在値をエンジンへ反映する
+	// view / preview の現在値を描画ビューへ反映する
 	private _apply( engine: Engine ) {
+
+		const renderView = this._renderView;
 
 		if ( this.usingEditorCamera ) {
 
 			// シーンカメラの見た目から切り替わる瞬間だけ姿勢を引き継ぎ、視点が飛ばないようにする
-			if ( engine.cameraEntity !== this._entity ) {
+			if ( renderView.camera !== this._entity ) {
 
 				this.syncFromSceneCamera( engine );
 
 			}
 
-			engine.cameraEntity = this._entity;
+			renderView.camera = this._entity;
 			this._orbitControls.enabled = true;
 
 		} else {
 
-			engine.cameraEntity = null;
+			renderView.camera = null;
 			this._orbitControls.enabled = false;
 
 		}
 
-		this.syncPipelineOverride( engine );
+		renderView.pipelineOverride = this.usingEditorCamera ? EDITOR_PIPELINE_OVERRIDE : null;
 
 	}
 
-	// 現在の状態に応じたパイプラインの上書きをレンダラーへ反映する
-	public syncPipelineOverride( engine: Engine ) {
+	// 注視点と距離を保ったまま、軸に沿った視点へ向きだけ変える。opposite で反対側（Back / Left / Bottom）から見る
+	public alignView( axis: ViewAxis, opposite: boolean ) {
 
-		engine.renderer.setPipelineOverride( this.usingEditorCamera ? EDITOR_PIPELINE_OVERRIDE : null );
+		const target = this._orbitControls.target.clone();
+		const distance = this._orbitControls.eye.clone().sub( target ).length();
+
+		const d = VIEW_AXIS_DIRECTIONS[ axis ];
+		const dir = new MTP.Vector( d[ 0 ], d[ 1 ], d[ 2 ] );
+
+		if ( opposite ) dir.multiply( - 1 );
+
+		// 真上・真下は OrbitControls 側で極をわずかに外して解くので、画面の上は Blender と同じく奥（Top）/ 手前（Bottom）になる
+		const eye = target.clone().add( dir.multiply( distance ) );
+
+		this._orbitControls.setPosition( eye, target );
+
+	}
+
+	// 透視投影と平行投影を切り替える。平行投影の幅は updateBeforeRender で注視点距離から決める
+	public toggleProjection() {
+
+		if ( this._camera.cameraType === 'perspective' ) {
+
+			this._camera.cameraType = 'orthographic';
+
+		} else {
+
+			this._camera.cameraType = 'perspective';
+
+		}
+
+		this._camera.needsUpdateProjectionMatrix = true;
 
 	}
 
@@ -198,9 +268,10 @@ export class EditorCamera {
 
 	}
 
+	// ビューが実際に描いているカメラ（エディタカメラか、シーンの displayOut カメラ）
 	public getCameraEntity( engine: Engine ): MXP.Entity | null {
 
-		return engine.resolveCameraEntity();
+		return this._renderView.camera || findSceneCameraEntity( engine.root );
 
 	}
 
@@ -209,24 +280,26 @@ export class EditorCamera {
 		if ( ! this.usingEditorCamera ) return;
 
 		const event = engine.createEntityUpdateEvent();
+		this._entity.commitFrame( event );
 		this._entity.updateMatrix();
 
 		this._camera.aspect = engine.renderer.resolution.x / engine.renderer.resolution.y;
 		this._camera.needsUpdateProjectionMatrix = true;
 
 		this._entity.update( event );
+
+		// 注視点距離での透視の画面高さに合わせる。update で OrbitControls が距離を更新した後に取るので、ホイールの寄り引きもそのまま拡大縮小になる
+		if ( this._camera.cameraType === 'orthographic' ) {
+
+			const distance = this._orbitControls.eye.clone().sub( this._orbitControls.target ).length();
+
+			this._camera.orthHeight = 2 * distance * Math.tan( this._camera.fov * Math.PI / 360 );
+
+		}
+
 		this._entity.postUpdate( event );
 		this._entity.updateMatrixRecursive();
 		this._entity.prepareRender( event );
-
-	}
-
-	public updateAfterRender( engine: Engine ) {
-
-		if ( ! this.usingEditorCamera ) return;
-
-		const event = engine.createEntityUpdateEvent();
-		this._entity.commitFrame( event );
 
 	}
 
@@ -246,7 +319,7 @@ export class EditorCamera {
 	// シーンのアクティブカメラの姿勢と投影パラメータをエディタカメラへ写す
 	public syncFromSceneCamera( engine: Engine ) {
 
-		const sceneCameraEntity = engine.findSceneCameraEntity();
+		const sceneCameraEntity = findSceneCameraEntity( engine.root );
 
 		if ( ! sceneCameraEntity ) return;
 

@@ -109,11 +109,12 @@ export const OBJECT_FIELDS: UniformField[] = [
 // webgl側 frag_out.part.glsl の IS_DEFERRED 出力と同じ並び。
 // bytes は仕様の render target pixel byte cost（rgba8unorm はメモリ上4バイトだが仕様上8）。
 // bytes/sample = 16+16+8+8+16 = 64 で、既定上限32を超えるためdevice要求時に引き上げる
-// rgba32float は filtering サンプラーで引けないため sampleType は unfilterable-float になる
+// rgba32float は filtering サンプラーで引けないため sampleType は unfilterable-float になる。
+// albedo はリニアの値を 8bit で持つと暗部が潰れるので sRGB 形式にする（書き込みで encode・読み出しで decode される）
 export const GBUFFER_ATTACHMENTS = [
 	{ name: 'position', format: 'rgba32float', bytes: 16, sampleType: 'unfilterable-float' },
 	{ name: 'normal', format: 'rgba32float', bytes: 16, sampleType: 'unfilterable-float' },
-	{ name: 'albedo', format: 'rgba8unorm', bytes: 8, sampleType: 'float' },
+	{ name: 'albedo', format: 'rgba8unorm-srgb', bytes: 8, sampleType: 'float' },
 	{ name: 'material', format: 'rgba8unorm', bytes: 8, sampleType: 'float' },
 	{ name: 'velocity', format: 'rgba32float', bytes: 16, sampleType: 'unfilterable-float' },
 ] as const;
@@ -168,6 +169,20 @@ export type MaterialTexture = { name: string, source: TextureSource };
 
 // group2 上のテクスチャの開始binding。0=uniform、1..=storage の後ろに並ぶ
 export const materialTextureBinding = ( storageCount: number, index: number ) => 1 + storageCount + index * 2;
+
+/*-------------------------------
+	varying（頂点→フラグメントへ渡す独自の値）
+
+	マテリアルが名前と型を宣言し、VertexOutput の固定フィールドの後ろへ
+	宣言順に @location が振られる。補間は既定（perspective）のみなので浮動小数の型に限る。
+-------------------------------*/
+
+export type VaryingType = 'f32' | 'vec2f' | 'vec3f' | 'vec4f';
+
+export type MaterialVaryings = { [name: string]: VaryingType };
+
+// shaders/vertexOutput.wgsl の固定フィールドが location 0〜3 を使っているので、その次から振る
+const VARYING_LOCATION_START = 4;
 
 /*-------------------------------
 	WGSL 宣言
@@ -232,12 +247,40 @@ fn fsForwardMrt( input: VertexOutput ) -> ForwardOutput {
 
 }`;
 
+// 固定の VertexOutput の閉じ括弧の前へ、マテリアルが宣言した varying を追記する。
+// 固定部分は vertexOutput.wgsl が HMR で差し替わるため、ファイルの中身を書き写さずに文字列として差し込む
+const buildVertexOutputWgsl = ( varyings: MaterialVaryings ) => {
+
+	const lines: string[] = [];
+	let location = VARYING_LOCATION_START;
+
+	for ( const [ name, type ] of Object.entries( varyings ) ) {
+
+		lines.push( `\t@location(${location}) ${name}: ${type},` );
+		location ++;
+
+	}
+
+	if ( lines.length === 0 ) {
+
+		return hotVertexOutputWgsl;
+
+	}
+
+	const closeIndex = hotVertexOutputWgsl.lastIndexOf( '};' );
+	const head = hotVertexOutputWgsl.slice( 0, closeIndex );
+	const tail = hotVertexOutputWgsl.slice( closeIndex );
+
+	return head + lines.join( '\n' ) + '\n' + tail;
+
+};
+
 // マテリアルのWGSL本体の先頭へ、頂点入出力とuniformの宣言を差し込んで完成形を作る
-export const buildShaderSource = ( body: string, materialFields: UniformField[], storages: MaterialStorage[] = [], textures: MaterialTexture[] = [] ) => {
+export const buildShaderSource = ( body: string, materialFields: UniformField[], storages: MaterialStorage[] = [], textures: MaterialTexture[] = [], varyings: MaterialVaryings = {} ) => {
 
 	const chunks = [
 		VERTEX_INPUT_WGSL,
-		hotVertexOutputWgsl,
+		buildVertexOutputWgsl( varyings ),
 		buildStructWgsl( 'FrameUniforms', FRAME_FIELDS ),
 		`@group(${GROUP_FRAME}) @binding(0) var<uniform> frame: FrameUniforms;`,
 		buildStructWgsl( 'ObjectUniforms', OBJECT_FIELDS ),

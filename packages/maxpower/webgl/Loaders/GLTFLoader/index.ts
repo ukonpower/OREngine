@@ -3,6 +3,7 @@ import { EventEmitter } from 'basepower';
 import { Mesh } from '../../../core/Components/Mesh';
 import { Entity } from '../../../core/Entity';
 import { Geometry } from '../../../core/Geometry';
+import { GL, GLBackend } from '../../backend/GLBackend';
 import { Material } from '../../Material';
 
 
@@ -11,7 +12,6 @@ import gltfFrag from './shaders/gltf.fs';
 import gltfVert from './shaders/gltf.vs';
 
 import type { GLTF, GLTFLoaderContract } from '../../../core/Contracts/GLTFLoaderContract';
-import type { GLBackend } from '../../backend/GLBackend';
 import type { GLEngine } from '../../Renderer';
 
 const GLB_HEADER_LENGTH = 12;
@@ -224,7 +224,8 @@ export class GLTFLoader extends EventEmitter implements GLTFLoaderContract {
 
 		const parsedMaterials = new Map<number, Material>();
 
-		const getTexture = ( index: number ) => {
+		// 色を持つスロット（baseColor・emissive）は srgb を立てる。画像は sRGB で、サンプリング時にハードウェアが linear へ戻す
+		const getTexture = ( index: number, srgb?: boolean ) => {
 
 			if ( ! gltfJson.textures ) return null;
 
@@ -233,6 +234,12 @@ export class GLTFLoader extends EventEmitter implements GLTFLoaderContract {
 			if ( gltfTexture ) {
 
 				const texture = this.backend.createTexture();
+
+				if ( srgb ) {
+
+					texture.setting( { internalFormat: GL.SRGB8_ALPHA8 } );
+
+				}
 
 				const source = parsedImages.get( gltfTexture.source );
 
@@ -299,7 +306,7 @@ export class GLTFLoader extends EventEmitter implements GLTFLoaderContract {
 
 					if ( pbr.baseColorTexture ) {
 
-						const tex = getTexture( pbr.baseColorTexture.index );
+						const tex = getTexture( pbr.baseColorTexture.index, true );
 
 						if ( tex ) {
 
@@ -372,7 +379,7 @@ export class GLTFLoader extends EventEmitter implements GLTFLoaderContract {
 
 				if ( mat.emissiveTexture ) {
 
-					const tex = getTexture( mat.emissiveTexture.index );
+					const tex = getTexture( mat.emissiveTexture.index, true );
 
 					if ( tex ) {
 

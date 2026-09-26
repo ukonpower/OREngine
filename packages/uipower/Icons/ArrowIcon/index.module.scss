@@ -1,0 +1,18 @@
+.arrow {
+	display: inline-block;
+
+	svg {
+		transition: transform .3s;
+
+		path {
+			fill: var(--or-text-muted);
+		}
+	}
+
+	&[data-open="true"] {
+
+		svg {
+			transform: rotate(90deg);
+		}
+	}
+}

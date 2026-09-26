@@ -1,3 +1,5 @@
+// 反射方向へレイマーチしてシーンを引く。今フレームの結果だけを出し、時間方向の蓄積は ssrTemporal.fs が行う
+
 #include <module:common>
 #include <module:light>
 #include <module:random>
@@ -7,8 +9,6 @@
 uniform sampler2D uBackBuffer0;
 uniform sampler2D uGbufferPos;
 uniform sampler2D uGbufferNormal;
-uniform sampler2D uSSRBackBuffer;
-uniform sampler2D uDepthTexture;
 
 uniform float uTimeEF;
 uniform mat4 uCameraMatrix;
@@ -16,6 +16,7 @@ uniform mat4 uViewMatrix;
 uniform mat4 uProjectionMatrix;
 uniform mat4 uProjectionMatrixInverse;
 uniform vec3 uCameraPosition;
+uniform float uCameraFar;
 
 // varying
 
@@ -26,24 +27,26 @@ layout (location = 0) out vec4 outColor;
 #define LENGTH 5.0
 #define OBJDEPTH 0.5
 
+// HDR のヒット色を輝度 1 未満へ圧縮する。一瞬だけ当たった高輝度の点が履歴に大きく残って尾を引かないように、
+// ssrTemporal.fs は圧縮した値どうしで近傍の範囲を取って混ぜる。ssComposite.fs の ssrDecompress と対
+vec4 ssrCompress( vec4 c ) {
+
+	return vec4( c.xyz / ( 1.0 + dot( c.xyz, vec3( 0.2126, 0.7152, 0.0722 ) ) ), c.w );
+
+}
+
 void main( void ) {
 
-	vec3 lightShaftSum = vec3( 0.0 );
-
 	vec3 rayPos = texture( uGbufferPos, vUv ).xyz;
-	vec4 rayViewPos = uViewMatrix * vec4(rayPos, 1.0);
-	vec4 depthRayPos = uViewMatrix * vec4(rayPos, 1.0);
 
-	if( abs(rayViewPos.z - depthRayPos.z) > 0.1 || length(rayPos - uCameraPosition) > 100.0 ) {
+	if( isBackground( rayPos, uCameraPosition, uCameraFar ) || length( rayPos - uCameraPosition ) > 100.0 ) {
 
-		outColor = vec4( 0.0, 0.0, 0.0, 0.0 );
+		outColor = vec4( 0.0 );
 		return;
-		
+
 	}
 
-	if( rayPos.x + rayPos.y + rayPos.z == 0.0 ) return;
-
-	vec3 rayDir = reflect( normalize( ( uCameraMatrix * uProjectionMatrixInverse * vec4( vUv * 2.0 - 1.0, 1.0, 1.0 ) ).xyz ), texture( uGbufferNormal, vUv ).xyz ) ;
+	vec3 rayDir = reflect( - viewDirection( rayPos, uCameraPosition, uViewMatrix, uProjectionMatrix ), texture( uGbufferNormal, vUv ).xyz );
 
 	float rayStepLength = LENGTH / MARCH;
 	vec3 rayStep = rayDir * rayStepLength;
@@ -83,6 +86,6 @@ void main( void ) {
 	}
 
 
-	outColor = mix( texture( uSSRBackBuffer, vUv ), col, 0.2 );
+	outColor = ssrCompress( col );
 
 }

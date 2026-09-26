@@ -4,7 +4,12 @@ import * as MXP from 'maxpower';
 
 export class FrameDebugger extends EventEmitter {
 
+	// true の間は全インスタンスがパスを取り込まない。AgentBridge の shot が自前のビューを描く間、
+	// そのパスがユーザーのデバッグ表示に混ざらないようにするため（drawPass はどのビューのパスかを区別しない）
+	public static paused = false;
+
 	private _draw: MXP.EditorDrawContract;
+	private _view: MXP.RenderViewContract;
 	private _elm: HTMLCanvasElement;
 
 	// buffers
@@ -33,11 +38,12 @@ export class FrameDebugger extends EventEmitter {
 
 	private _overlay: HTMLDivElement;
 
-	constructor( canvas: HTMLCanvasElement, draw: MXP.EditorDrawContract ) {
+	constructor( canvas: HTMLCanvasElement, draw: MXP.EditorDrawContract, view: MXP.RenderViewContract ) {
 
 		super();
 
 		this._draw = draw;
+		this._view = view;
 		this._elm = canvas;
 
 		this._outTarget = draw.createTarget();
@@ -63,7 +69,7 @@ export class FrameDebugger extends EventEmitter {
 
 		// パス出力の取り込み
 
-		draw.onDrawPass( ( frame, label ) => this._push( frame, label ) );
+		const offDrawPass = draw.onDrawPass( ( frame, label ) => this._push( frame, label ) );
 
 		// click
 
@@ -134,6 +140,7 @@ export class FrameDebugger extends EventEmitter {
 
 		this.once( "dispose", () => {
 
+			offDrawPass();
 			this._elm.removeEventListener( "pointerdown", onPointerDown );
 			this._elm.removeEventListener( "pointerup", onPointerUp );
 			window.removeEventListener( "keydown", onKeydown );
@@ -155,7 +162,7 @@ export class FrameDebugger extends EventEmitter {
 	// 1パス分の出力をタイル位置へ取り込む
 	private _push( frame: MXP.EditorFrame, label: string ) {
 
-		if ( ! this._enable ) return;
+		if ( ! this._enable || FrameDebugger.paused ) return;
 
 		const baseLabel = label || String( this._count );
 		const occurrence = this._labelCount.get( baseLabel ) || 0;
@@ -173,7 +180,7 @@ export class FrameDebugger extends EventEmitter {
 
 			}
 
-			this._draw.blit( frame, this._outTarget, {
+			this._draw.blit( this._view, frame, this._outTarget, {
 				x, y,
 				width: this._tilePixelSize.x,
 				height: this._tilePixelSize.y,
@@ -189,7 +196,7 @@ export class FrameDebugger extends EventEmitter {
 
 	public draw() {
 
-		this._draw.blit( this._outTarget, null );
+		this._draw.blit( this._view, this._outTarget, null );
 
 		this._drawLabels();
 

@@ -14,6 +14,8 @@ export * from './editor/components/pages/EditorPageStatic';
 export * from './editor/features/OREditor';
 export * from './editor/features/OREditor/providers/OREditorProvider';
 export * from './editor/features/OREditor/hooks/useOREditor';
+export * from './editor/features/OREditor/hooks/useEditorFrame';
+export * from './editor/features/OREditor/lib/fieldUI';
 export * from './editor/features/OREngine/providers/OREngineProvider';
 export * from './editor/features/OREngine/hooks/useOREngine';
 export * from './editor/features/OREditor/features/Hierarchy';
@@ -23,7 +25,8 @@ export * from './editor/features/OREditor/features/Screen/features/AudioView';
 export * from './editor/features/OREditor/features/Screen/features/CameraPad';
 export * from './editor/features/OREditor/features/Timeline';
 export * from './editor/features/OREditor/features/Timeline/hooks/useTimeline';
-export * from './editor/features/OREditor/features/ProjectControl';
+export * from './editor/features/OREditor/features/SceneControl';
+export * from './editor/features/OREditor/features/ExportControl';
 export * from './editor/features/OREditor/features/GPUTimer';
 export * from './editor/features/OREditor/features/RendererSettings';
 export * from './editor/features/OREditor/features/EditorSettings';
@@ -40,33 +43,9 @@ export * from './editor/features/OREditor/features/SerializableField/components/
 export * from './editor/features/OREditor/features/SerializableField/hooks/useSerializableProps';
 export * from './editor/features/OREditor/features/SerializableField/hooks/useWatchSerializable';
 export * from './editor/features/OREditor/features/SerializableField/hooks/useSerializeFieldView';
-export * from './editor/features/OREditor/features/MouseMenu';
-export * from './editor/features/OREditor/features/MouseMenu/providers/MouseMenuProvider';
-export * from './editor/features/OREditor/features/MouseMenu/components/Picker';
-export * from './editor/features/OREditor/features/MouseMenu/hooks/useMouseMenu';
-export * from './editor/features/OREditor/features/MouseMenu/hooks/useMouseMenuItem';
-export * from './editor/features/OREditor/features/InputWindow';
-export * from './editor/features/OREditor/features/InputWindow/providers/InputWindowProvider';
 
 /*-------------------------------
-	Shared hooks / contexts
+	Shared hooks
 -------------------------------*/
 
-export * from './editor/hooks/useInputWindow';
 export * from './editor/hooks/useLayout';
-export * from './editor/hooks/useMobileDevice';
-export * from './editor/contexts/InputWindowContext';
-
-/*-------------------------------
-	UI
--------------------------------*/
-
-export * from './editor/components/ui/Block';
-export * from './editor/components/ui/Button';
-export * from './editor/components/ui/Icons';
-export * from './editor/components/ui/Input';
-export * from './editor/components/ui/Label';
-export * from './editor/components/ui/LayoutSplit';
-export * from './editor/components/ui/Panel';
-export * from './editor/components/ui/PanelContainer';
-export * from './editor/components/ui/Vector';

@@ -8,6 +8,7 @@ import { Material } from '../Material';
 import { PostProcess } from '../PostProcess';
 import { PostProcessPass } from '../PostProcess/PostProcessPass';
 import { Renderer } from '../Renderer';
+import { RenderView } from '../Renderer/RenderView';
 
 import flatFrag from './shaders/flat.fs';
 import flatVert from './shaders/flat.vs';
@@ -27,7 +28,7 @@ import type { MaterialContract } from '../../core/Contracts/MaterialContract';
 class GLEditorFrame implements EditorFrame {
 
 	public readonly isEditorFrame = true;
-	public readonly texture: GLP.GLPowerTexture;
+	public texture: GLP.GLPowerTexture;
 	// キューブマップのフェイス指定を含むアタッチ先
 	public readonly textarget: number;
 
@@ -40,33 +41,103 @@ class GLEditorFrame implements EditorFrame {
 
 }
 
+// 描画先ターゲット。解像度追従のものは、使うビューの大きさに合わせて実体を切り替える
 class GLEditorTarget extends GLEditorFrame implements EditorTarget {
 
 	public readonly isEditorTarget = true;
-	public readonly frameBuffer: GLP.GLPowerFrameBuffer;
+	public frameBuffer: GLP.GLPowerFrameBuffer;
 	// sizeを指定せず作られたターゲットは解像度に追従する
 	public readonly autoResize: boolean;
 
-	constructor( frameBuffer: GLP.GLPowerFrameBuffer, autoResize: boolean ) {
+	private _gl: WebGL2RenderingContext;
+
+	// サイズ別の実体（キーは "幅x高さ"）。Screen パネルごとに解像度が違うと同じターゲットを
+	// パネル間で交互に使うので、毎回作り直さずに済むよう作り置きして切り替える
+	private _entries: Map<string, GLP.GLPowerFrameBuffer>;
+
+	constructor( gl: WebGL2RenderingContext, size: MTP.Vector, autoResize: boolean ) {
+
+		const frameBuffer = createFrameBuffer( gl, size );
 
 		super( frameBuffer.textures[ 0 ], GL.TEXTURE_2D );
 
 		this.frameBuffer = frameBuffer;
 		this.autoResize = autoResize;
+		this._gl = gl;
+		this._entries = new Map( [[ sizeKey( frameBuffer.size ), frameBuffer ]] );
+
+	}
+
+	// 指定サイズの実体を使う。無ければ作る
+	public setSize( size: MTP.Vector ) {
+
+		const key = sizeKey( size );
+
+		if ( key === sizeKey( this.frameBuffer.size ) ) return;
+
+		let frameBuffer = this._entries.get( key );
+
+		if ( ! frameBuffer ) {
+
+			frameBuffer = createFrameBuffer( this._gl, size );
+			this._entries.set( key, frameBuffer );
+
+		}
+
+		this.frameBuffer = frameBuffer;
+		this.texture = frameBuffer.textures[ 0 ];
+
+	}
+
+	// 作り置きを捨てて、指定サイズの実体だけにする（解像度の設定が変わって古いサイズが要らなくなったとき）
+	public reset( size: MTP.Vector ) {
+
+		const key = sizeKey( size );
+		const keep = this._entries.get( key ) || createFrameBuffer( this._gl, size );
+
+		this._entries.forEach( ( frameBuffer, k ) => {
+
+			if ( k === key ) return;
+
+			// 深度はビューの G-Buffer から借りている（renderEntities の useSceneDepth）ので、色テクスチャと FBO だけ捨てる
+			frameBuffer.textures[ 0 ].dispose();
+			frameBuffer.dispose();
+
+		} );
+
+		this._entries = new Map( [[ key, keep ]] );
+		this.frameBuffer = keep;
+		this.texture = keep.textures[ 0 ];
 
 	}
 
 }
+
+const sizeKey = ( size: MTP.Vector ) => `${Math.max( Math.floor( size.x ), 1 )}x${Math.max( Math.floor( size.y ), 1 )}`;
+
+const createFrameBuffer = ( gl: WebGL2RenderingContext, size: MTP.Vector ) => {
+
+	const frameBuffer = new GLP.GLPowerFrameBuffer( gl, { disableDepthBuffer: true } )
+		.setTexture( [ new GLP.GLPowerTexture( gl ).setting( { magFilter: GL.LINEAR, minFilter: GL.LINEAR } ) ] );
+
+	frameBuffer.setSize( Math.max( Math.floor( size.x ), 1 ), Math.max( Math.floor( size.y ), 1 ) );
+
+	return frameBuffer;
+
+};
 
 class GLEditorRecipe implements EditorRecipe {
 
 	public readonly isEditorRecipe = true;
 	public readonly postprocess: PostProcess;
 	public readonly pass: PostProcessPass;
+	// マスクの実体は描くビューの大きさで切り替わるので、描く直前に uniform へ入れ直す
+	public readonly mask: GLEditorTarget;
 
-	constructor( name: string, pass: PostProcessPass ) {
+	constructor( name: string, pass: PostProcessPass, mask: GLEditorTarget ) {
 
 		this.pass = pass;
+		this.mask = mask;
 		this.postprocess = new PostProcess( { name, passes: [ pass ] } );
 
 	}
@@ -83,15 +154,17 @@ export class GLEditorDraw implements EditorDrawContract {
 	private _gl: WebGL2RenderingContext;
 
 	private _targets: GLEditorTarget[];
-	private _recipes: GLEditorRecipe[];
 
 	// blitのsrcを任意テクスチャに差し替えるための読み出し用FB
 	private _readFrameBuffer: GLP.GLPowerFrameBuffer;
 	// uiバッファは読み書きを同時にできないため、フルスクリーンパスはここを経由して戻す
-	private _fullscreenBuffer: GLP.GLPowerFrameBuffer;
+	private _fullscreenTarget: GLEditorTarget;
 
 	private _texturePass: PostProcessPass;
 	private _texturePostProcess: PostProcess;
+
+	// readView の転写先。使われるまで作らない
+	private _viewTarget: GLEditorTarget | null;
 
 	constructor( renderer: Renderer ) {
 
@@ -99,16 +172,15 @@ export class GLEditorDraw implements EditorDrawContract {
 		this._gl = renderer.backend.gl;
 
 		this._targets = [];
-		this._recipes = [];
 
 		this._readFrameBuffer = new GLP.GLPowerFrameBuffer( this._gl, { disableDepthBuffer: true } );
 
-		this._fullscreenBuffer = new GLP.GLPowerFrameBuffer( this._gl, { disableDepthBuffer: true } )
-			.setTexture( [ new GLP.GLPowerTexture( this._gl ).setting( { magFilter: GL.LINEAR, minFilter: GL.LINEAR } ) ] );
-		this._fullscreenBuffer.setSize( renderer.resolution );
+		this._fullscreenTarget = new GLEditorTarget( this._gl, renderer.resolution, true );
 
 		this._texturePass = new PostProcessPass( renderer.backend, { frag: textureFrag, renderTarget: null } );
 		this._texturePostProcess = new PostProcess( { name: "editorTexture", passes: [ this._texturePass ] } );
+
+		this._viewTarget = null;
 
 	}
 
@@ -119,9 +191,20 @@ export class GLEditorDraw implements EditorDrawContract {
 	public renderEntities( opt: EditorRenderEntitiesParam ) {
 
 		const renderer = this._renderer;
-		const target = opt.target ? ( opt.target as GLEditorTarget ).frameBuffer : renderer.renderTarget.uiBuffer;
+		const view = opt.view as RenderView;
+
+		if ( opt.target ) this._fitToView( opt.target as GLEditorTarget, view );
+
+		const target = opt.target ? ( opt.target as GLEditorTarget ).frameBuffer : view.renderTarget.uiBuffer;
 		const override = opt.materialOverride as Material | undefined;
 		const restore: ( MaterialContract | null )[] = [];
+
+		// シーン深度はビューごとに違うので、描く直前にそのビューの G-Buffer から借りる
+		if ( opt.target && opt.useSceneDepth ) {
+
+			target.setDepthTexture( view.renderTarget.gBuffer.depthTexture );
+
+		}
 
 		if ( override ) {
 
@@ -142,15 +225,21 @@ export class GLEditorDraw implements EditorDrawContract {
 
 		}
 
+		// renderCamera はブレンド状態を触らないので、ランタイムの ui パスと同じくここで有効にする。
+		// グリッドのような半透明マテリアルが α を無視して上書きされるのを防ぐ
+		renderer.backend.setBlendEnabled( true );
+
 		renderer.renderCamera(
 			"forward",
 			opt.camera,
 			opt.entities,
 			target,
-			renderer.resolution,
+			view.resolution,
 			// uiバッファへはシーンの上に重ねるためクリアせず、自前ターゲットは毎回クリアする
 			{ disableClear: opt.target === null }
 		);
+
+		renderer.backend.setBlendEnabled( false );
 
 		if ( opt.depthCompare === 'lequal' ) {
 
@@ -172,14 +261,24 @@ export class GLEditorDraw implements EditorDrawContract {
 
 	}
 
-	public renderFullscreen( recipe: EditorRecipe, target: EditorTarget | null ) {
+	public renderFullscreen( view: RenderView, recipe: EditorRecipe, target: EditorTarget | null ) {
 
 		const r = recipe as GLEditorRecipe;
 		const renderer = this._renderer;
 
+		this._fitToView( r.mask, view );
+
+		r.pass.uniforms.uMaskTexture.value = r.mask.texture;
+
 		if ( target ) {
 
-			const fb = ( target as GLEditorTarget ).frameBuffer;
+			const dst = target as GLEditorTarget;
+
+			this._fitToView( dst, view );
+
+			const fb = dst.frameBuffer;
+
+			this._setPassResolution( r.pass, fb.size );
 			r.pass.renderTarget = fb;
 
 			renderer.renderPostProcess( r.postprocess, undefined, fb.size );
@@ -188,23 +287,27 @@ export class GLEditorDraw implements EditorDrawContract {
 
 		}
 
-		const ui = renderer.renderTarget.uiBuffer;
-		const res = renderer.resolution;
+		const ui = view.renderTarget.uiBuffer;
+		const res = view.resolution;
 
-		r.pass.renderTarget = this._fullscreenBuffer;
+		this._fullscreenTarget.setSize( res );
+		this._setPassResolution( r.pass, res );
+		r.pass.renderTarget = this._fullscreenTarget.frameBuffer;
 
 		renderer.renderPostProcess( r.postprocess, ui, res );
-		renderer.backend.blit( this._fullscreenBuffer, ui, res.x, res.y );
+		renderer.backend.blit( this._fullscreenTarget.frameBuffer, ui, res.x, res.y );
 
 	}
 
-	public blit( src: EditorFrame, dst: EditorTarget | null, dstRect?: EditorRect ) {
+	public blit( view: RenderView, src: EditorFrame, dst: EditorTarget | null, dstRect?: EditorRect ) {
 
 		const gl = this._gl;
 		const s = src as GLEditorFrame;
 
-		// dst省略時はuiバッファへ描く（presentで画面に出る。webgpu側と同じ契約）
-		const dstFrameBuffer = dst ? ( dst as GLEditorTarget ).frameBuffer : this._renderer.renderTarget.uiBuffer;
+		if ( dst ) this._fitToView( dst as GLEditorTarget, view );
+
+		// dst省略時はuiバッファへ描く（drawToCanvas で画面に出る。webgpu側と同じ契約）
+		const dstFrameBuffer = dst ? ( dst as GLEditorTarget ).frameBuffer : view.renderTarget.uiBuffer;
 		const dstSize = dstFrameBuffer.size;
 
 		const rect = dstRect || { x: 0, y: 0, width: dstSize.x, height: dstSize.y };
@@ -226,6 +329,27 @@ export class GLEditorDraw implements EditorDrawContract {
 
 		gl.bindFramebuffer( gl.READ_FRAMEBUFFER, null );
 		gl.bindFramebuffer( gl.DRAW_FRAMEBUFFER, null );
+
+	}
+
+	public drawToCanvas( view: RenderView, canvas: HTMLCanvasElement ) {
+
+		const renderer = this._renderer;
+		const res = view.resolution;
+
+		// GL コンテキストは renderer の canvas に縛られていて他の canvas へ直接描けないので、
+		// いったん default framebuffer へ出してから 2D で写す（preserveDrawingBuffer 済みなので同期で読める）
+		renderer.backend.blit( view.renderTarget.uiBuffer, null, res.x, res.y );
+
+		if ( canvas !== renderer.canvas ) {
+
+			// ビューが renderer の canvas より小さいと、default framebuffer の左下（GLの原点）にだけ描かれる。
+			// drawImage は左上原点なので、その矩形を下端から切り出す
+			const sy = renderer.canvas.height - res.y;
+
+			canvas.getContext( '2d' )!.drawImage( renderer.canvas, 0, sy, res.x, res.y, 0, 0, res.x, res.y );
+
+		}
 
 	}
 
@@ -256,13 +380,14 @@ export class GLEditorDraw implements EditorDrawContract {
 
 	}
 
-	public present() {
+	// uiBuffer をターゲットへ写してから readPixels で読む（読み戻しの経路を webgpu 側と揃えるため）
+	public readView( view: RenderView ) {
 
-		const res = this._renderer.resolution;
+		if ( ! this._viewTarget ) this._viewTarget = this.createTarget();
 
-		if ( res.x === 0 || res.y === 0 ) return;
+		this.blit( view, new GLEditorFrame( view.renderTarget.uiBuffer.textures[ 0 ], GL.TEXTURE_2D ), this._viewTarget );
 
-		this._renderer.backend.blit( this._renderer.renderTarget.uiBuffer, null, res.x, res.y );
+		return this.readPixels( this._viewTarget );
 
 	}
 
@@ -270,20 +395,9 @@ export class GLEditorDraw implements EditorDrawContract {
 		Resource
 	-------------------------------*/
 
-	public createTarget( opt?: { useSceneDepth?: boolean; size?: MTP.Vector } ) {
+	public createTarget( opt?: { size?: MTP.Vector } ) {
 
-		const frameBuffer = new GLP.GLPowerFrameBuffer( this._gl, { disableDepthBuffer: true } )
-			.setTexture( [ new GLP.GLPowerTexture( this._gl ).setting( { magFilter: GL.LINEAR, minFilter: GL.LINEAR } ) ] );
-
-		if ( opt && opt.useSceneDepth ) {
-
-			frameBuffer.setDepthTexture( this._renderer.renderTarget.gBuffer.depthTexture as GLP.GLPowerTexture );
-
-		}
-
-		frameBuffer.setSize( opt && opt.size || this._renderer.resolution );
-
-		const target = new GLEditorTarget( frameBuffer, ! ( opt && opt.size ) );
+		const target = new GLEditorTarget( this._gl, opt && opt.size || this._renderer.resolution, ! ( opt && opt.size ) );
 
 		this._targets.push( target );
 
@@ -291,33 +405,41 @@ export class GLEditorDraw implements EditorDrawContract {
 
 	}
 
+	// 解像度追従のターゲットは使うビューの大きさへ都度合わせるので、ここでは作り置きを捨てるだけにする
 	public resize( resolution: MTP.Vector ) {
 
-		this._fullscreenBuffer.setSize( resolution );
+		this._fullscreenTarget.reset( resolution );
 
 		for ( let i = 0; i < this._targets.length; i ++ ) {
 
 			const target = this._targets[ i ];
 
-			if ( target.autoResize ) {
-
-				target.frameBuffer.setSize( resolution );
-
-			}
-
-		}
-
-		for ( let i = 0; i < this._recipes.length; i ++ ) {
-
-			this._recipes[ i ].postprocess.resize( resolution );
+			if ( target.autoResize ) target.reset( resolution );
 
 		}
 
 	}
 
+	// 解像度追従のターゲットを、描画先ビューの大きさに合わせる
+	private _fitToView( target: GLEditorTarget, view: RenderView ) {
+
+		if ( ! target.autoResize ) return;
+
+		target.setSize( view.resolution );
+
+	}
+
+	// PostProcessPass.resize は描画先の作り直しまで行うので、uPPResolution の値だけ書き換える
+	private _setPassResolution( pass: PostProcessPass, size: MTP.Vector ) {
+
+		pass.resolution.copy( size );
+		pass.resolutionInv.set( 1.0 / size.x, 1.0 / size.y );
+
+	}
+
 	public onDrawPass( cb: ( frame: EditorFrame, label: string ) => void ) {
 
-		this._renderer.on( "drawPass", ( frameBuffer?: GLP.GLPowerFrameBuffer | GLP.GLPowerFrameBufferCube, label?: string ) => {
+		const listener = ( frameBuffer?: GLP.GLPowerFrameBuffer | GLP.GLPowerFrameBufferCube, label?: string ) => {
 
 			if ( ! frameBuffer ) return;
 
@@ -332,7 +454,11 @@ export class GLEditorDraw implements EditorDrawContract {
 
 			}
 
-		} );
+		};
+
+		this._renderer.on( "drawPass", listener );
+
+		return () => this._renderer.off( "drawPass", listener );
 
 	}
 
@@ -387,11 +513,7 @@ export class GLEditorDraw implements EditorDrawContract {
 				},
 			} );
 
-			const recipe = new GLEditorRecipe( "editorOutline", pass );
-
-			this._recipes.push( recipe );
-
-			return recipe;
+			return new GLEditorRecipe( "editorOutline", pass, mask as GLEditorTarget );
 
 		},
 

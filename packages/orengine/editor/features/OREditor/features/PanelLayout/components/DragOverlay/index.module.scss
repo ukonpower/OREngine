@@ -1,0 +1,30 @@
+.overlay {
+	position: fixed;
+	inset: 0;
+	z-index: var(--or-z-drag);
+	pointer-events: none;
+}
+
+.zone {
+	position: fixed;
+	background-color: var(--or-drop-zone);
+	border: 1px solid var(--or-drop-zone-border);
+}
+
+.insert {
+	position: fixed;
+	background-color: var(--or-focus);
+}
+
+.ghost {
+	position: fixed;
+	left: 0;
+	top: 0;
+	padding: 2px 8px;
+	background-color: var(--or-bg-active);
+	border: 1px solid var(--or-bg-hover);
+	border-radius: var(--or-radius);
+	color: var(--or-text);
+	font-size: var(--or-tab-font-size);
+	white-space: nowrap;
+}

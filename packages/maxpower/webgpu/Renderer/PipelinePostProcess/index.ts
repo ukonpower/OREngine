@@ -11,22 +11,24 @@ import {
 	buildMotionBlurWgsl,
 	buildSsaoBlurWgsl,
 	buildSsaoWgsl,
+	buildSssWgsl,
 } from './shaders';
 import bloomBrightWgsl from './shaders/bloomBright.wgsl';
 import colorCollectionWgsl from './shaders/colorCollection.wgsl';
-import colorGradingWgsl from './shaders/colorGrading.wgsl';
+import dofBlurWgsl from './shaders/dofBlur.wgsl';
 import dofBokehWgsl from './shaders/dofBokeh.wgsl';
 import dofCocWgsl from './shaders/dofCoc.wgsl';
 import dofCompositeWgsl from './shaders/dofComposite.wgsl';
-import finalizeWgsl from './shaders/finalize.wgsl';
 import fxaaWgsl from './shaders/fxaa.wgsl';
 import lightShaftWgsl from './shaders/lightShaft.wgsl';
 import motionBlurNeighborWgsl from './shaders/motionBlurNeighbor.wgsl';
 import normalSelectorWgsl from './shaders/normalSelector.wgsl';
 import ssCompositeWgsl from './shaders/ssComposite.wgsl';
 import ssrWgsl from './shaders/ssr.wgsl';
+import ssrTemporalWgsl from './shaders/ssrTemporal.wgsl';
 
 import type { Camera } from '../../../core/Components/Camera';
+import type { PipelineConfig } from '../../../core/Contracts/RenderViewContract';
 import type { PostProcessPassParam } from '../../PostProcess';
 
 type PassCallback = ( pass: PostProcessPass ) => void;
@@ -34,12 +36,12 @@ type PassCallback = ( pass: PostProcessPass ) => void;
 /*-------------------------------
 	レンダラーが持つポストプロセス
 
-	webgl側の DeferredRenderer（シェーディング以外）と PipelinePostProcess、
-	それに CameraController が組んでいた仕上げ（FXAA / Bloom / ColorGrading /
-	Finalize）をまとめたもの。
+	webgl側の DeferredRenderer（シェーディング以外）と PipelinePostProcess をまとめたもの。
 
 	シェーディングの前に走る系統（法線選択・lightShaft・SSAO）と、
-	forwardのあとに走る系統（トーンマップ・SSR・DoF・モーションブラー・仕上げ）に分かれる。
+	シェーディングとforwardの間に走る SSS と、
+	forwardのあとに走る系統（SSR・DoF・モーションブラー・ブルーム・トーンマップ・FXAA）に分かれる。
+	作風の処理（レンズ歪み・色収差など）は持たず、プロジェクトがカメラの PostProcessPipeline で足す。
 
 	SSAO / lightShaft / SSR は前フレームの結果と混ぜて均す設計なので、
 	webgl と同じく描画先を2枚持つピンポン方式で移植している。
@@ -51,6 +53,15 @@ const SSAO_BLUR_SAMPLES = 8;
 const LIGHT_SHAFT_BLUR_SAMPLES = 6;
 const MOTION_BLUR_TILE = 16;
 
+// SSS のカーネルの片側のサンプル数（中心を含む）。webgl 側 DeferredRenderer の SSS_SAMPLES と一致させる
+const SSS_SAMPLES = 9;
+
+// DoF の最大 CoC（画面高さに対する比）。webgl 側の PipelinePostProcess と一致させる。
+// KinoBokeh の CalculateMaxCoCRadius は半径を 14px（経験式 kernelSize * 4 + 6 に dofBokeh.wgsl の 43 サンプル = KERNEL_LARGE を入れた値）÷ 画面高さで決めるが、
+// それだと描画解像度を下げるほどボケが画面に対して大きくなる。高さ 1080 のときの比で固定して解像度に依存させない。
+// 1080 より高い解像度ではサンプル同士のピクセル間隔が広がり、ボケに粒が出やすくなる
+const DOF_MAX_COC = 14 / 1080;
+
 // 時間方向の蓄積で新しい結果に与える重み。ノイズと影の追従の速さの折り合いで、
 // エディタから触れるよう uniform にも同じ値を入れている
 const LIGHT_SHAFT_TEMPORAL_BLEND = 0.3;
@@ -58,22 +69,13 @@ const LIGHT_SHAFT_TEMPORAL_BLEND = 0.3;
 // ジッタの巡回周期。蓄積されるフレーム数（1/LIGHT_SHAFT_TEMPORAL_BLEND）より十分長ければよい
 const LIGHT_SHAFT_JITTER_CYCLE = 64;
 
+// SSAO の時間方向の蓄積で新しい結果に与える重み。lightShaft より1フレームのばらつきが大きいので低めにしている。
+// Renderer の既定値（createDefaultPipelineConfig の ssaoTemporalBlend）と揃える
+const SSAO_TEMPORAL_BLEND = 0.2;
+
 // rgba32float のgBufferはfilteringサンプラーで引けない
 const NEAREST = ( name: string ) => ( { name, filterable: false } );
 
-// エディタから触るポストプロセスの有効フラグ
-export type PipelineConfig = {
-	motionBlur?: boolean;
-	motionBlurPower?: number;
-	ssr?: boolean;
-	ssao?: boolean;
-	lightShaft?: boolean;
-	lightShaftIntensity?: number;
-	lightShaftBlur?: boolean;
-	lightShaftTemporal?: boolean;
-	lightShaftTemporalBlend?: number;
-	dof?: boolean;
-}
 
 export class PipelinePostProcess {
 
@@ -84,9 +86,10 @@ export class PipelinePostProcess {
 
 	}
 
+	// ぼかしを切ると参照先がピンポンの描画先になり、フレームごとに入れ替わる
 	public get ssaoView() {
 
-		return this._ssaoBlurV.targetView;
+		return this._ssaoBlurV.enabled ? this._ssaoBlurV.targetView : this._ssao.targetView;
 
 	}
 
@@ -97,48 +100,46 @@ export class PipelinePostProcess {
 
 	}
 
-	// 画面へ出す最終出力
-	public get outputView() {
-
-		return this._finishChain.passes[ this._finishChain.passes.length - 1 ].targetView;
-
-	}
-
 	private _normalSelector: PostProcessPass;
 	private _lightShaft: PostProcessPass;
 	private _lightShaftBlurH: PostProcessPass;
 	private _lightShaftBlurV: PostProcessPass;
 	private _ssao: PostProcessPass;
+	private _ssaoBlurH: PostProcessPass;
 	private _ssaoBlurV: PostProcessPass;
 
+	private _sssH: PostProcessPass;
+	private _sssV: PostProcessPass;
+
 	private _ssr: PostProcessPass;
+	private _ssrTemporal: PostProcessPass;
 	private _ssComposite: PostProcessPass;
 	private _dofCoc: PostProcessPass;
 	private _dofBokeh: PostProcessPass;
+	private _dofBlur: PostProcessPass;
 	private _dofComposite: PostProcessPass;
 	private _motionBlurTile: PostProcessPass;
 	private _motionBlurNeighbor: PostProcessPass;
 	private _motionBlur: PostProcessPass;
 
+	private _colorCollection: PostProcessPass;
 	private _bright: PostProcessPass;
 	private _bloomLevels: PostProcessPass[];
 	private _composite: PostProcessPass;
 
 	private _deferredChain: PostProcessChain;
-	private _colorChain: PostProcessChain;
+	private _sssChain: PostProcessChain;
 	private _screenChain: PostProcessChain;
 	private _bloomChain: PostProcessChain;
 	private _finishChain: PostProcessChain;
 
 	private _dofParams: MTP.Vector;
-	private _height: number;
 
 	constructor( device: GPUDevice, frameLayout: GPUBindGroupLayout, lightLayout: GPUBindGroupLayout, resolution: MTP.Vector, pixelSize: MTP.Vector ) {
 
 		const pass = ( param: PostProcessPassParam ) => new PostProcessPass( param, resolution, pixelSize );
 
 		this._dofParams = new MTP.Vector( 10, 0.05, 20, 0.05 );
-		this._height = 1;
 
 		/*-------------------------------
 			シェーディングの前
@@ -185,20 +186,28 @@ export class PipelinePostProcess {
 			passThrough: true,
 		} );
 
+		// 履歴にはビュー空間Zも残して再投影の突き合わせに使うので、8bit ではなく既定の浮動小数点フォーマットにする。
+		// ぼかしは本体と同じ解像度で掛ける（等倍で掛けると tap 間隔が半解像度の半分になり、ブロックが残る）
 		this._ssao = pass( {
 			name: 'ssao',
 			wgsl: buildSsaoWgsl(),
 			inputs: [ NEAREST( 'uGbufferPos' ), NEAREST( 'uGbufferNormal' ) ],
-			uniforms: { uIntensity: { value: 1, type: '1f' } },
-			format: 'rgba8unorm',
+			uniforms: {
+				uIntensity: { value: 1, type: '1f' },
+				uFrame: { value: 0, type: '1f' },
+				uTemporal: { value: 1, type: '1f' },
+				uTemporalBlend: { value: SSAO_TEMPORAL_BLEND, type: '1f' },
+			},
+			pingPong: 'uSsaoBackBuffer',
 			resolutionRatio: 0.5,
 		} );
 
-		const ssaoBlurH = pass( {
+		this._ssaoBlurH = pass( {
 			name: 'ssao/blur/h',
 			wgsl: buildSsaoBlurWgsl( SSAO_BLUR_SAMPLES, false ),
 			inputs: [ 'uBackBuffer0', NEAREST( 'uGbufferPos' ), NEAREST( 'uGbufferNormal' ) ],
 			format: 'rgba8unorm',
+			resolutionRatio: 0.5,
 		} );
 
 		this._ssaoBlurV = pass( {
@@ -206,6 +215,7 @@ export class PipelinePostProcess {
 			wgsl: buildSsaoBlurWgsl( SSAO_BLUR_SAMPLES, true ),
 			inputs: [ 'uBackBuffer0', NEAREST( 'uGbufferPos' ), NEAREST( 'uGbufferNormal' ) ],
 			format: 'rgba8unorm',
+			resolutionRatio: 0.5,
 		} );
 
 		this._deferredChain = new PostProcessChain( device, frameLayout, [
@@ -214,27 +224,57 @@ export class PipelinePostProcess {
 			this._lightShaftBlurH,
 			this._lightShaftBlurV,
 			this._ssao,
-			ssaoBlurH,
+			this._ssaoBlurH,
 			this._ssaoBlurV,
 		] );
 
 		/*-------------------------------
-			トーンマップ
+			SSS（シェーディングとforwardの間）
 		-------------------------------*/
 
-		this._colorChain = new PostProcessChain( device, frameLayout, [ pass( {
-			name: 'colorCollection',
-			wgsl: colorCollectionWgsl,
-		} ) ] );
+		// 横はシェーディングが別に出した diffuse をぼかし、縦はシェーディング結果の diffuse をそれと置き換える。
+		// 使う作品だけが有効にするので既定は止めておく
+		const sssInputs = [ 'uBackBuffer0', NEAREST( 'uGbufferPos' ), NEAREST( 'uGbufferNormal' ), 'uGbufferAlbedo', 'uShading', 'uShadingDiffuse' ];
+		const sssUniforms: BSP.Uniforms = { uRadius: { value: 0.05, type: '1f' } };
+
+		this._sssH = pass( {
+			name: 'sss/h',
+			wgsl: buildSssWgsl( SSS_SAMPLES, false ),
+			inputs: sssInputs,
+			uniforms: sssUniforms,
+			enabled: false,
+		} );
+
+		this._sssV = pass( {
+			name: 'sss/v',
+			wgsl: buildSssWgsl( SSS_SAMPLES, true ),
+			inputs: sssInputs,
+			uniforms: sssUniforms,
+			enabled: false,
+		} );
+
+		this._sssChain = new PostProcessChain( device, frameLayout, [
+			this._sssH,
+			this._sssV,
+		] );
 
 		/*-------------------------------
 			スクリーンスペース（SSR / DoF / モーションブラー）
 		-------------------------------*/
 
+		// レイマーチ（今フレームだけ）と時間方向の蓄積を分け、蓄積側が今フレームの近傍で履歴をクランプする
 		this._ssr = pass( {
 			name: 'ssr',
 			wgsl: ssrWgsl,
 			inputs: [ 'uBackBuffer0', NEAREST( 'uGbufferPos' ), NEAREST( 'uGbufferNormal' ) ],
+			resolutionRatio: 0.5,
+			passThrough: true,
+		} );
+
+		this._ssrTemporal = pass( {
+			name: 'ssr/temporal',
+			wgsl: ssrTemporalWgsl,
+			inputs: [ 'uSSRCurrent', NEAREST( 'uGbufferPos' ), NEAREST( 'uVelTex' ) ],
 			pingPong: 'uSSRBackBuffer',
 			resolutionRatio: 0.5,
 			passThrough: true,
@@ -243,7 +283,7 @@ export class PipelinePostProcess {
 		this._ssComposite = pass( {
 			name: 'ssComposite',
 			wgsl: ssCompositeWgsl,
-			inputs: [ 'uBackBuffer0', NEAREST( 'uGbufferPos' ), NEAREST( 'uGbufferNormal' ), 'uSSRTexture' ],
+			inputs: [ 'uBackBuffer0', NEAREST( 'uGbufferPos' ), NEAREST( 'uGbufferNormal' ), 'uGbufferMaterial', 'uSSRTexture' ],
 		} );
 
 		const dofUniforms: BSP.Uniforms = { uParams: { value: this._dofParams, type: '4fv' } };
@@ -262,6 +302,14 @@ export class PipelinePostProcess {
 			wgsl: dofBokehWgsl,
 			inputs: [ 'uCocTex' ],
 			uniforms: dofUniforms,
+			resolutionRatio: 0.5,
+			passThrough: true,
+		} );
+
+		this._dofBlur = pass( {
+			name: 'dof/blur',
+			wgsl: dofBlurWgsl,
+			inputs: [ 'uBokeTex' ],
 			resolutionRatio: 0.5,
 			passThrough: true,
 		} );
@@ -297,9 +345,11 @@ export class PipelinePostProcess {
 
 		this._screenChain = new PostProcessChain( device, frameLayout, [
 			this._ssr,
+			this._ssrTemporal,
 			this._ssComposite,
 			this._dofCoc,
 			this._dofBokeh,
+			this._dofBlur,
 			this._dofComposite,
 			this._motionBlurTile,
 			this._motionBlurNeighbor,
@@ -310,8 +360,7 @@ export class PipelinePostProcess {
 			ブルーム
 		-------------------------------*/
 
-		// 輝度の抽出元はトーンマップ前のHDRシーン（webgl側もCameraControllerが
-		// shadingBuffer を渡している）。トーンマップ後だと閾値を超えなくなる
+		// 輝度の抽出元は SSR などを掛ける前のHDRシーン（webgl側も shadingBuffer から抽出している）
 		this._bright = pass( {
 			name: 'bloom/bright',
 			wgsl: bloomBrightWgsl,
@@ -365,22 +414,26 @@ export class PipelinePostProcess {
 			inputs: [ 'uBackBuffer0', ...this._bloomLevels.map( ( _, i ) => `uBloom${i}` ) ],
 		} );
 
-		// webgl側 CameraController と同じ並び
+		// トーンマップを切っても linear→sRGB は掛けるので、パスは常に走らせて uToneMap で切り替える
+		this._colorCollection = pass( {
+			name: 'colorCollection',
+			wgsl: colorCollectionWgsl,
+			uniforms: { uToneMap: { value: 1, type: '1f' }, uExposure: { value: 1, type: '1f' } },
+		} );
+
+		// webgl側 PipelinePostProcess の末尾と同じ並び。ブルーム合成までが HDR で、FXAA は sRGB の LDR に掛ける
 		this._finishChain = new PostProcessChain( device, frameLayout, [
-			pass( { name: 'fxaa', wgsl: fxaaWgsl } ),
 			this._composite,
-			pass( { name: 'colorGrading', wgsl: colorGradingWgsl } ),
-			pass( { name: 'finalize', wgsl: finalizeWgsl } ),
+			this._colorCollection,
+			pass( { name: 'fxaa', wgsl: fxaaWgsl } ),
 		] );
 
 	}
 
 	public setSize( device: GPUDevice, width: number, height: number ) {
 
-		this._height = height;
-
 		this._deferredChain.setSize( device, width, height );
-		this._colorChain.setSize( device, width, height );
+		this._sssChain.setSize( device, width, height );
 		this._screenChain.setSize( device, width, height );
 		this._bloomChain.setSize( device, width, height );
 		this._finishChain.setSize( device, width, height );
@@ -392,12 +445,18 @@ export class PipelinePostProcess {
 
 		}
 
+		this._ssrTemporal.setInput( 'uSSRCurrent', this._ssr.targetView! );
+
+		// 毎フレームの繋ぎ直しは renderPost が行う。ここでは未接続のまま合成が飛ばされないよう仮に繋ぐ
+		this._ssComposite.setInput( 'uSSRTexture', this._ssrTemporal.targetView! );
+
 		this._dofBokeh.setInput( 'uCocTex', this._dofCoc.targetView! );
-		this._dofComposite.setInput( 'uBokeTex', this._dofBokeh.targetView! );
+		this._dofBlur.setInput( 'uBokeTex', this._dofBokeh.targetView! );
+		this._dofComposite.setInput( 'uBokeTex', this._dofBlur.targetView! );
 		this._motionBlur.setInput( 'uVelNeighborTex', this._motionBlurNeighbor.targetView! );
 
 		// 法線を参照するパスは normalSelector の結果を見る（webgl側の normalBuffer と同じ）
-		for ( const pass of [ ...this._deferredChain.passes, ...this._screenChain.passes ] ) {
+		for ( const pass of [ ...this._deferredChain.passes, ...this._sssChain.passes, ...this._screenChain.passes ] ) {
 
 			pass.setInput( 'uGbufferNormal', this._normalSelector.targetView! );
 
@@ -406,14 +465,16 @@ export class PipelinePostProcess {
 	}
 
 	// gBufferのビューが作り直されたときに繋ぎ直す
-	public setGBuffer( position: GPUTextureView, normal: GPUTextureView, material: GPUTextureView, velocity: GPUTextureView ) {
+	public setGBuffer( position: GPUTextureView, normal: GPUTextureView, albedo: GPUTextureView, material: GPUTextureView, velocity: GPUTextureView ) {
 
-		for ( const pass of [ ...this._deferredChain.passes, ...this._screenChain.passes ] ) {
+		for ( const pass of [ ...this._deferredChain.passes, ...this._sssChain.passes, ...this._screenChain.passes ] ) {
 
 			pass.setInput( 'uGbufferPos', position );
 			pass.setInput( 'uPosTexture', position );
 			pass.setInput( 'uNormalTexture', normal );
+			pass.setInput( 'uGbufferAlbedo', albedo );
 			pass.setInput( 'uSelectorTexture', material );
+			pass.setInput( 'uGbufferMaterial', material );
 			pass.setInput( 'uVelTex', velocity );
 
 		}
@@ -423,26 +484,36 @@ export class PipelinePostProcess {
 
 	}
 
-	// トーンマップ前のシーンバッファを繋ぐ（ブルームの輝度抽出元）
-	public setScene( scene: GPUTextureView ) {
+	// トーンマップ前のシーンバッファ（ブルームの輝度抽出元・SSS の置き換え先）と、シェーディングの diffuse を繋ぐ
+	public setScene( scene: GPUTextureView, diffuse: GPUTextureView ) {
 
 		this._bright.setInput( 'uSceneHdr', scene );
+
+		for ( const pass of this._sssChain.passes ) {
+
+			pass.setInput( 'uShading', scene );
+			pass.setInput( 'uShadingDiffuse', diffuse );
+
+		}
 
 	}
 
 	// カメラのDoF設定からCoCの係数を作る（webgl側 PipelinePostProcess.update と同じ式）。
-	// あわせて lightShaft のジッタを次のフレームへ進める
+	// あわせて lightShaft と SSAO のジッタを次のフレームへ進める
 	public update( camera: Camera ) {
 
 		const jitter = this._lightShaft.uniforms.uFrame;
 
 		jitter.value = ( jitter.value + 1 ) % LIGHT_SHAFT_JITTER_CYCLE;
+		this._ssao.uniforms.uFrame.value = jitter.value;
 
-		const focusDistance = camera.dofParams.focusDistance;
 		const kFilmHeight = camera.dofParams.kFilmHeight;
-		const focalLength = kFilmHeight / Math.tan( 0.5 * ( camera.fov / 180 * Math.PI ) );
+		const focalLength = 0.5 * kFilmHeight / Math.tan( 0.5 * ( camera.fov / 180 * Math.PI ) );
 
-		const maxCoc = ( 1 / Math.max( this._height * 0.5, 1 ) ) * 5;
+		// ピントの距離が焦点距離を下回ると係数の分母（focusDistance - focalLength）が 0 以下になる
+		const focusDistance = Math.max( camera.dofParams.focusDistance, focalLength );
+
+		const maxCoc = DOF_MAX_COC;
 		const coeff = focalLength * focalLength / ( camera.dofParams.fNumber * ( focusDistance - focalLength ) * kFilmHeight * 2.0 );
 
 		this._dofParams.set( focusDistance, maxCoc, 1.0 / maxCoc, coeff );
@@ -456,14 +527,33 @@ export class PipelinePostProcess {
 
 	}
 
+	// シェーディングの diffuse に SSS をかける（シェーディングとforwardの間）。
+	// シーンバッファへ写し戻す結果を返し、無効なら null
+	public renderSSS( device: GPUDevice, encoder: GPUCommandEncoder, frameBindGroup: GPUBindGroup, diffuse: GPUTextureView, onPass?: PassCallback ) {
+
+		if ( ! this._sssV.enabled ) return null;
+
+		this._sssChain.render( device, encoder, frameBindGroup, diffuse, undefined, onPass );
+
+		return this._sssV.targetTexture;
+
+	}
+
 	// シーンの仕上げ（forwardのあと）。画面へ出すビューを返す
 	public renderPost( device: GPUDevice, encoder: GPUCommandEncoder, frameBindGroup: GPUBindGroup, scene: GPUTextureView, onPass?: PassCallback ) {
 
-		// ピンポンで描画先が入れ替わるので参照を毎フレーム張り直す
-		this._ssComposite.setInput( 'uSSRTexture', this._ssr.targetView! );
+		// ピンポンの描画先は render の中で入れ替わるので、書き終えてから合成へ繋ぐ（先に繋ぐと1フレーム前の結果を読む）
+		const screen = this._screenChain.render( device, encoder, frameBindGroup, scene, undefined, ( pass ) => {
 
-		const color = this._colorChain.render( device, encoder, frameBindGroup, scene, undefined, onPass );
-		const screen = this._screenChain.render( device, encoder, frameBindGroup, color, undefined, onPass );
+			if ( pass === this._ssrTemporal ) {
+
+				this._ssComposite.setInput( 'uSSRTexture', this._ssrTemporal.targetView! );
+
+			}
+
+			if ( onPass ) onPass( pass );
+
+		} );
 
 		this._bloomChain.render( device, encoder, frameBindGroup, screen, undefined, onPass );
 
@@ -475,9 +565,80 @@ export class PipelinePostProcess {
 	// SSR / DoF / モーションブラーはチェーンを素通りさせるだけでよい
 	public applyPipelineConfig( config: PipelineConfig ) {
 
-		if ( config.ssao !== undefined ) {
+		if ( config.toneMap !== undefined ) {
 
-			this._ssao.uniforms.uIntensity.value = config.ssao ? 1 : 0;
+			this._colorCollection.uniforms.uToneMap.value = config.toneMap ? 1 : 0;
+
+		}
+
+		// EV をトーンマップ前に掛ける倍率 2^exposure にする
+		if ( config.exposure !== undefined ) {
+
+			this._colorCollection.uniforms.uExposure.value = Math.pow( 2, config.exposure );
+
+		}
+
+		// 輝度抽出・ぼかしを止めても合成が古い結果を足さないよう、合成も一緒に止める
+		if ( config.bloom !== undefined ) {
+
+			for ( const bloomPass of this._bloomChain.passes ) {
+
+				bloomPass.enabled = config.bloom;
+
+			}
+
+			this._composite.enabled = config.bloom;
+
+		}
+
+		if ( config.bloomThreshold !== undefined ) {
+
+			this._bright.uniforms.uThreshold.value = config.bloomThreshold;
+
+		}
+
+		if ( config.bloomBrightness !== undefined ) {
+
+			this._bright.uniforms.uBrightness.value = config.bloomBrightness;
+
+		}
+
+		if ( config.sss !== undefined ) {
+
+			this._sssH.enabled = config.sss;
+			this._sssV.enabled = config.sss;
+
+		}
+
+		if ( config.sssRadius !== undefined ) {
+
+			this._sssH.uniforms.uRadius.value = config.sssRadius;
+
+		}
+
+		// 有効フラグと強さは1つのuniformへまとめる（無効時は0で寄与が消える）
+		if ( config.ssao !== undefined || config.ssaoIntensity !== undefined ) {
+
+			this._ssao.uniforms.uIntensity.value = ( config.ssao ?? true ) ? ( config.ssaoIntensity ?? 1 ) : 0;
+
+		}
+
+		if ( config.ssaoBlur !== undefined ) {
+
+			this._ssaoBlurH.enabled = config.ssaoBlur;
+			this._ssaoBlurV.enabled = config.ssaoBlur;
+
+		}
+
+		if ( config.ssaoTemporal !== undefined ) {
+
+			this._ssao.uniforms.uTemporal.value = config.ssaoTemporal ? 1 : 0;
+
+		}
+
+		if ( config.ssaoTemporalBlend !== undefined ) {
+
+			this._ssao.uniforms.uTemporalBlend.value = config.ssaoTemporalBlend;
 
 		}
 
@@ -510,6 +671,7 @@ export class PipelinePostProcess {
 		if ( config.ssr !== undefined ) {
 
 			this._ssr.enabled = config.ssr;
+			this._ssrTemporal.enabled = config.ssr;
 			this._ssComposite.enabled = config.ssr;
 
 		}
@@ -518,6 +680,7 @@ export class PipelinePostProcess {
 
 			this._dofCoc.enabled = config.dof;
 			this._dofBokeh.enabled = config.dof;
+			this._dofBlur.enabled = config.dof;
 			this._dofComposite.enabled = config.dof;
 
 		}
@@ -541,7 +704,7 @@ export class PipelinePostProcess {
 	public dispose() {
 
 		this._deferredChain.dispose();
-		this._colorChain.dispose();
+		this._sssChain.dispose();
 		this._screenChain.dispose();
 		this._bloomChain.dispose();
 		this._finishChain.dispose();

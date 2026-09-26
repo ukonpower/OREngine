@@ -1,7 +1,6 @@
 import { withOREditor } from '@or-storybook/decorators/withOREditor';
 import { storyFixture } from '@or-storybook/fixtures/scene';
-
-import { Panel } from '../../../../components/ui/Panel';
+import { Panel } from 'uipower';
 
 import { EditorSettings } from '.';
 

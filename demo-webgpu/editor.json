@@ -1,37 +1,125 @@
 {
 	"enableRender": true,
-	"resolutionScale": 0.5,
 	"resolution/width": 1920,
 	"resolution/height": 1080,
 	"viewType": "render",
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,
 	"frameLoop/end": 0,
-	"selectedEntityId": "33a8f582-a6ad-4da0-b6f4-ac20eba08e1d",
+	"selectedEntityId": "0",
 	"unselectableEntityIds": [],
 	"selectedAsset": null,
 	"navigateAsset": null,
 	"propertyTarget": "entity",
-	"cameraView": "editor",
-	"preview": false,
 	"gizmoMode": "translate",
 	"transformOrientation": "global",
-	"helpers/show": true,
-	"helpers/grid": true,
-	"helpers/empty": true,
-	"helpers/camera": true,
-	"helpers/light": true,
-	"helpers/wireframe": false,
-	"helpers/gizmo": true,
-	"helpers/outline": true,
-	"camera/position": [
-		-6.036112537975983,
-		1.0161452790609298,
-		14.099501022566667
+	"panelLayout": {
+		"type": "split",
+		"id": "a577dcea-aae4-4f46-b8b3-dc3b7ff14610",
+		"direction": "vertical",
+		"children": [
+			{
+				"ratio": 0.8513011152416357,
+				"node": {
+					"type": "split",
+					"id": "02c35ab9-9040-41e3-9783-5996a0cef48c",
+					"direction": "horizontal",
+					"children": [
+						{
+							"ratio": 0.15684931506849314,
+							"node": {
+								"type": "split",
+								"id": "5a15d7be-f43c-40a1-97bf-5dd789f4881d",
+								"direction": "vertical",
+								"children": [
+									{
+										"ratio": 0.7631578947368421,
+										"node": {
+											"type": "pane",
+											"id": "1031b6e4-e0d7-4f9b-a079-b997605a90e6",
+											"tabs": [
+												"hierarchy",
+												"scene"
+											],
+											"active": "hierarchy"
+										}
+									},
+									{
+										"ratio": 0.23684210526315788,
+										"node": {
+											"type": "pane",
+											"id": "f4e5b474-718c-4e7c-a1b3-b133012fc884",
+											"tabs": [
+												"timer"
+											],
+											"active": "timer"
+										}
+									}
+								]
+							}
+						},
+						{
+							"ratio": 0.6431506849315068,
+							"node": {
+								"type": "pane",
+								"id": "5866cf45-965d-4859-8e43-7f5419c6db39",
+								"tabs": [
+									"viewport:main"
+								],
+								"active": "viewport:main"
+							}
+						},
+						{
+							"ratio": 0.2,
+							"node": {
+								"type": "pane",
+								"id": "473a2991-74f9-461c-ac30-98a498893f5f",
+								"tabs": [
+									"property",
+									"textures",
+									"renderer",
+									"editor-settings"
+								],
+								"active": "property"
+							}
+						}
+					]
+				}
+			},
+			{
+				"ratio": 0.14869888475836432,
+				"node": {
+					"type": "pane",
+					"id": "310c189d-8996-47a4-a87a-faa6d57cc00e",
+					"tabs": [
+						"timeline",
+						"export"
+					],
+					"active": "timeline"
+				}
+			}
+		]
+	},
+	"viewports/main/cameraView": "camera",
+	"viewports/main/preview": false,
+	"viewports/main/resolutionScale": 1,
+	"viewports/main/helpers/show": true,
+	"viewports/main/helpers/empty": true,
+	"viewports/main/helpers/camera": true,
+	"viewports/main/helpers/light": true,
+	"viewports/main/helpers/grid": true,
+	"viewports/main/helpers/wireframe": false,
+	"viewports/main/helpers/gizmo": true,
+	"viewports/main/helpers/outline": true,
+	"viewports/main/camera/position": [
+		-25.203282694824235,
+		1.4190384248233532,
+		20.687542200894512
 	],
-	"camera/target": [
-		-0.005950683445575047,
-		0.9394885335807147,
-		-1.3476009279825334
-	]
+	"viewports/main/camera/target": [
+		-0.006941929754500566,
+		0.9265769149926592,
+		-1.5720800920961278
+	],
+	"scene": "main"
 }

@@ -1,0 +1,83 @@
+.modal {
+	position: fixed;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	z-index: var(--or-z-modal);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+// 背面クリックを拾う透明な面。暗転はさせない
+.overlay {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+}
+
+// 見出し・本体・フッターを縦に積む。段どうしの間隔と窓の内側の余白はここだけで決める。
+// anchor 付きのときは useAnchoredPosition が position: fixed と座標を inline で当てる
+.window {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding: 8px;
+	min-width: 250px;
+	max-width: 90vw;
+	background: var(--or-bg-panel);
+	border-radius: var(--or-radius);
+	color: var(--or-text-muted);
+	font-size: var(--or-font-sm);
+}
+
+.head {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+
+	&_title {
+		flex-shrink: 0;
+		color: var(--or-text);
+	}
+
+	// 補足は見出しの添え物なので、長いときはタイトル側を優先して省略する
+	&_note {
+		flex: 1;
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		color: var(--or-text-dim);
+		font-size: var(--or-font-xs);
+	}
+
+	// 補足の有無にかかわらず右端へ寄せる
+	&_close {
+		flex-shrink: 0;
+		margin-left: auto;
+		width: 20px;
+		height: 20px;
+		border-radius: var(--or-radius);
+		color: var(--or-text-dim);
+
+		&:hover {
+			background: var(--or-bg-hover);
+			color: var(--or-text);
+		}
+	}
+}
+
+// 中身が縦に伸びても窓が画面を超えないよう、縮める余地を残す
+.body {
+	min-height: 0;
+}
+
+.footer {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	justify-content: flex-end;
+}

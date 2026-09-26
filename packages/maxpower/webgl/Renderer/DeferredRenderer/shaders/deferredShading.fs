@@ -6,7 +6,7 @@
 
 uniform sampler2D sampler0; // position.xyz, emission.x
 uniform sampler2D sampler1; // normal.xyz, emission.y
-uniform sampler2D sampler2; // albedo, 
+uniform sampler2D sampler2; // albedo, sss
 uniform sampler2D sampler3; // roughness, metallic, normalSelect, envSelect, 
 uniform sampler2D sampler4; // velocity.xy, 0.0, emission.z
 
@@ -16,6 +16,7 @@ uniform sampler2D uEnvMap;
 
 uniform vec3 uColor;
 uniform mat4 uViewMatrix;
+uniform mat4 uProjectionMatrix;
 uniform mat4 uCameraMatrix;
 uniform vec3 uCameraPosition;
 
@@ -25,7 +26,7 @@ uniform vec3 uCameraPosition;
 
 in vec2 vUv;
 
-// out
+// out（1 は SSS がぼかす diffuse だけの結果）
 
 layout (location = 0) out vec4 glFragOut0;
 layout (location = 1) out vec4 glFragOut1;
@@ -51,7 +52,7 @@ void main( void ) {
 		tex0.xyz,
 		normal,
 		0.0,
-		normalize( uCameraPosition - tex0.xyz ),
+		viewDirection( tex0.xyz, uCameraPosition, uViewMatrix, uProjectionMatrix ),
 		vec3( 0.0 ),
 		occlusion
 	);
@@ -65,7 +66,8 @@ void main( void ) {
 		mix( vec3( 1.0, 1.0, 1.0 ), color, metallic ),
 		envMapIntensity
 	);
-	vec3 outColor = vec3( 0.0 );
+	vec3 diffuse = vec3( 0.0 );
+	vec3 specular = vec3( 0.0 );
 
 	// lighting
 
@@ -77,17 +79,22 @@ void main( void ) {
 	
 	// occlusion
 
-	outColor.xyz *= max( 0.0, 1.0 - geo.occulusion * 1.5 );
-	
+	float ao = max( 0.0, 1.0 - geo.occulusion * 1.5 );
+
+	diffuse *= ao;
+	specular *= ao;
+
+	vec3 outColor = diffuse + specular;
+
 	// emission
 
-	outColor.xyz += mat.emission;
+	outColor += mat.emission;
 
-	
 	// light shaft
 	
-	outColor.xyz += texture( uLightShaftTexture, vUv ).xyz;
+	outColor += texture( uLightShaftTexture, vUv ).xyz;
 
-	glFragOut0 = glFragOut1 = vec4( max( vec3( 0.0 ), outColor.xyz ), 1.0 );
+	glFragOut0 = vec4( max( vec3( 0.0 ), outColor ), 1.0 );
+	glFragOut1 = vec4( max( vec3( 0.0 ), diffuse ), 1.0 );
 
 }

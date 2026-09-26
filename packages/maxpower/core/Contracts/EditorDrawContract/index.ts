@@ -1,5 +1,6 @@
 import type { Entity } from '../../Entity';
 import type { MaterialContract } from '../MaterialContract';
+import type { RenderViewContract } from '../RenderViewContract';
 import type * as MTP from 'mathpower';
 
 /*-------------------------------
@@ -29,10 +30,14 @@ export type EditorRect = {
 }
 
 export interface EditorRenderEntitiesParam {
+	// 重ね描き先のビュー。uiバッファとシーン深度はここから取る
+	view: RenderViewContract;
 	camera: Entity;
 	entities: Entity[];
-	// null = 画面（uiバッファ）へ重ね描き。ターゲット指定時は毎回クリアして描く
+	// null = view の画面（uiバッファ）へ重ね描き。ターゲット指定時は毎回クリアして描く
 	target: EditorTarget | null;
+	// ターゲットへ描くときに view のシーン深度で深度テストする（outline のマスク用）
+	useSceneDepth?: boolean;
 	materialOverride?: MaterialContract;
 	depthCompare?: 'less' | 'lequal';
 }
@@ -49,11 +54,16 @@ export interface EditorDrawContract {
 	// シーンの一部を任意ターゲットへ描く（gizmo / helper / wireframe / selection mask）
 	renderEntities( opt: EditorRenderEntitiesParam ): void;
 
-	// フルスクリーンパス（outline合成など）
-	renderFullscreen( recipe: EditorRecipe, target: EditorTarget | null ): void;
+	// フルスクリーンパス（outline合成など）。target null は view のuiバッファ
+	renderFullscreen( view: RenderViewContract, recipe: EditorRecipe, target: EditorTarget | null ): void;
 
-	// 中間バッファを矩形指定で転写する（dstRectは左上原点）
-	blit( src: EditorFrame, dst: EditorTarget | null, dstRect?: EditorRect ): void;
+	// 中間バッファを矩形指定で転写する（dstRectは左上原点）。dst null は view のuiバッファ
+	blit( view: RenderViewContract, src: EditorFrame, dst: EditorTarget | null, dstRect?: EditorRect ): void;
+
+	// offscreen ビューの uiバッファ（重ね描き済み）を canvas へ出す。
+	// バックエンドで手段が違う（WebGL は renderer の canvas 経由、WebGPU は canvas ごとに configure）ので
+	// React 層はここだけ呼ぶ
+	drawToCanvas( view: RenderViewContract, canvas: HTMLCanvasElement ): void;
 
 	// バックエンドのテクスチャをそのままターゲットへ転写する（AssetPreview用）
 	drawTexture( texture: unknown, target: EditorTarget ): void;
@@ -61,16 +71,17 @@ export interface EditorDrawContract {
 	// WebGPUの読み戻しはバッファのマッピングを待つ必要があるため、両バックエンドとも非同期で揃える
 	readPixels( target: EditorTarget ): Promise<Uint8Array>;
 
-	// useSceneDepthはシーンdepth共有（outlineの深度テスト用）。sizeを省くと解像度に追従する
-	createTarget( opt?: { useSceneDepth?: boolean; size?: MTP.Vector } ): EditorTarget;
+	// ビューの最終出力（render 済みの見た目）を読む。形式は readPixels と同じ（下原点・RGBA8・描画解像度）
+	readView( view: RenderViewContract ): Promise<Uint8Array>;
 
-	// uiバッファを画面へ出す
-	present(): void;
+	// sizeを省くと、描画に使うビューの解像度に追従する（ビューごとに大きさが違ってもよい）
+	createTarget( opt?: { size?: MTP.Vector } ): EditorTarget;
 
+	// 解像度の設定が変わったときに呼ぶ。解像度追従のターゲットがビューの大きさ別に作り置きした実体を捨てる
 	resize( resolution: MTP.Vector ): void;
 
-	// 各パス完了ごとに不透明ハンドルを通知（FrameDebuggerの観測はこのイベントが正）
-	onDrawPass( cb: ( frame: EditorFrame, label: string ) => void ): void;
+	// 各パス完了ごとに不透明ハンドルを通知（FrameDebuggerの観測はこのイベントが正）。戻り値で購読を解除する
+	onDrawPass( cb: ( frame: EditorFrame, label: string ) => void ): () => void;
 
 	// バックエンド言語で実装された固定シェーダーレシピ
 	materials: {

@@ -123,7 +123,8 @@ export class ProjectSerializer {
 
 			const entity = target || engine.createEntity();
 			entity.initiator = "user";
-			entity.name = node.name;
+			// ルートは読み込み前から表示されている既存インスタンスなので、直接代入では Hierarchy 等の購読側へ変更が届かない
+			entity.setField( "name", node.name );
 			entity.restoreUUID( node.uuid );
 
 			const pos = node.pos || [ 0, 0, 0 ];

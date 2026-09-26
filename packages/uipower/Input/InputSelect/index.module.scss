@@ -1,0 +1,13 @@
+@use 'styles' as *;
+
+.inputSelect {
+	width: 100%;
+}
+
+.input {
+	@include input-frame;
+
+	width: 100%;
+	text-align: center;
+	font-size: var(--or-input-font-size);
+}

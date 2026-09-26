@@ -14,25 +14,43 @@ const registryModules = [
 	path.join( appRoot, 'Resources/registryCommon.ts' ),
 ];
 
-// scene.json / editor.json の外部編集と、Resources のファイル増減を検知してフルリロードする
-// （scene.json / editor.json はAPIによる直近書き込みを除外）
+// editor/Panels 配下を import.meta.glob で集めているモジュール（理由は registryModules と同じ）
+const editorPanelModules = [
+	path.join( appRoot, 'src/editorPanels.ts' ),
+];
+
+// scenes/ 配下と editor.json の外部編集と、Resources / editor のファイル増減を検知してフルリロードする
+// （scenes/*.json / editor.json はAPIによる直近書き込みを除外）
 export const ProjectWatchReload = ( projectDir: string ): Plugin => ( {
 	name: 'orengine-project-watch-reload',
 	configureServer( server ) {
 
-		const targets = [ 'scene.json', 'editor.json' ].map( ( f ) => path.resolve( path.join( projectDir, f ) ) );
-		targets.forEach( ( t ) => server.watcher.add( t ) );
-
 		// プロジェクトは vite の root 外にあり、変換したファイルしか watcher に載らない。
 		// 新規ファイルの作成を拾うにはディレクトリごと監視に足す必要がある
+		const scenesDir = path.resolve( path.join( projectDir, 'scenes' ) );
+		const editorJson = path.resolve( path.join( projectDir, 'editor.json' ) );
 		const resourcesDir = path.resolve( path.join( projectDir, 'Resources' ) );
+		// 末尾の区切りまで含めて比較する。付けないと editor.json が editor/ 配下と誤判定される
+		const editorDir = path.resolve( path.join( projectDir, 'editor' ) ) + path.sep;
+
+		server.watcher.add( scenesDir );
+		server.watcher.add( editorJson );
 		server.watcher.add( resourcesDir );
+		server.watcher.add( editorDir );
+
+		const isProjectDataFile = ( file: string ) => {
+
+			if ( file === editorJson ) return true;
+
+			return file.startsWith( scenesDir ) && path.extname( file ) === '.json';
+
+		};
 
 		server.watcher.on( 'change', ( file ) => {
 
 			const resolved = path.resolve( file );
 
-			if ( targets.includes( resolved ) && ! wasRecentlyWritten( resolved ) ) {
+			if ( isProjectDataFile( resolved ) && ! wasRecentlyWritten( resolved ) ) {
 
 				server.ws.send( { type: 'full-reload' } );
 
@@ -40,14 +58,42 @@ export const ProjectWatchReload = ( projectDir: string ): Plugin => ( {
 
 		} );
 
-		// コンポーネント・ジオメトリ・テクスチャの増減を、レジストリを作り直して反映する
-		const reloadRegistry = ( file: string ) => {
+		// コンポーネント・ジオメトリ・テクスチャ・エディタ拡張パネルの増減を、
+		// glob を持つモジュールを作り直して反映する。
+		// シーンファイルの増減はエディタのシーン一覧に出すためリロードだけ行う
+		const onAddOrUnlink = ( file: string ) => {
 
-			if ( ! path.resolve( file ).startsWith( resourcesDir ) ) return;
+			const resolved = path.resolve( file );
+
+			if ( isProjectDataFile( resolved ) ) {
+
+				if ( ! wasRecentlyWritten( resolved ) ) {
+
+					server.ws.send( { type: 'full-reload' } );
+
+				}
+
+				return;
+
+			}
+
+			let globModules: string[] | null = null;
+
+			if ( resolved.startsWith( resourcesDir ) ) {
+
+				globModules = registryModules;
+
+			} else if ( resolved.startsWith( editorDir ) ) {
+
+				globModules = editorPanelModules;
+
+			}
+
+			if ( ! globModules ) return;
 
 			const moduleGraph = server.environments.client.moduleGraph;
 
-			for ( const id of registryModules ) {
+			for ( const id of globModules ) {
 
 				const mod = moduleGraph.getModuleById( id );
 
@@ -59,8 +105,8 @@ export const ProjectWatchReload = ( projectDir: string ): Plugin => ( {
 
 		};
 
-		server.watcher.on( 'add', reloadRegistry );
-		server.watcher.on( 'unlink', reloadRegistry );
+		server.watcher.on( 'add', onAddOrUnlink );
+		server.watcher.on( 'unlink', onAddOrUnlink );
 
 	},
 } );

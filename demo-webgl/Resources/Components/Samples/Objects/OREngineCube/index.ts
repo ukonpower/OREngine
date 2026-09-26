@@ -12,16 +12,14 @@ export class OREngineCube extends MXP.Component {
 
 		super( params );
 
-		const engine = this.engine as Engine;
-
 		this.material = new MXP.Material( {
 			name: "OREngineCube",
 			phase: [ "shadowMap", "deferred" ],
 			vert: MXP.hotGet( "OREngineCubeVert", vertSrc ),
 			frag: MXP.hotGet( "OREngineCubeFrag", fragSrc ),
-			uniforms: MXP.UniformsUtils.merge( engine.uniforms, {
+			uniforms: {
 				uNoiseTex: { value: Engine.resources.getTexture( "noise" ), type: "1i" }
-			} )
+			}
 		} );
 
 		const mesh = this.entity.getComponent( MXP.Mesh );

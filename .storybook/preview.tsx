@@ -1,4 +1,4 @@
-import '../packages/orengine/editor/styles/style.scss';
+import 'uipower/styles/style.scss';
 
 import type { Preview } from '@storybook/react-vite';
 

@@ -1,7 +1,10 @@
 import type { StorybookConfig } from '@storybook/react-vite';
 
 const config: StorybookConfig = {
-	stories: [ '../packages/orengine/editor/**/*.stories.@(ts|tsx)' ],
+	stories: [
+		'../packages/uipower/**/*.stories.@(ts|tsx)',
+		'../packages/orengine/editor/**/*.stories.@(ts|tsx)',
+	],
 	addons: [],
 
 	framework: {

@@ -2,7 +2,7 @@ Geometry geo = Geometry(
 	outPos,
 	outNormal,
 	0.0,
-	normalize( uCameraPosition - outPos ),
+	viewDirection( outPos, uCameraPosition, uViewMatrix, uProjectionMatrix ),
 	vec3( 0.0 ),
 	0.0
 );
@@ -17,4 +17,5 @@ Material mat = Material(
 	outEnv
 );
 
-outColor.xyz *= 0.0;
+vec3 diffuse = vec3( 0.0 );
+vec3 specular = vec3( 0.0 );

@@ -1,0 +1,116 @@
+{
+	"name": "demo-webgpu",
+	"scene": {
+		"name": "root",
+		"uuid": "0",
+		"components": [
+			{
+				"name": "BLidgeClient",
+				"uuid": "1",
+				"props": {
+					"mode": "json",
+					"gltf": true,
+					"gltfPath": "/scene.glb",
+					"websocket/url": "ws://localhost:3100",
+					"attachments": [
+						{
+							"name": "Camera",
+							"components": [
+								{
+									"name": "Camera",
+									"uuid": "4ec0479f-f58f-4644-a7f4-0204813c5c99",
+									"props": {
+										"cameraType": "perspective",
+										"fov": 21.908,
+										"near": 0.1,
+										"far": 1000,
+										"orthHeight": 1,
+										"focus/mode": "auto",
+										"focus/target": "blidge:CamDof",
+										"focus/distance": 5,
+										"focus/speed": 8,
+										"focus/fNumber": 0.3
+									}
+								},
+								{
+									"name": "LookAt",
+									"uuid": "3d0e3c4f-7110-43bc-917a-00850232c7b1",
+									"props": {
+										"target": "blidge:CamLook"
+									}
+								},
+								{
+									"name": "Finalize",
+									"uuid": "6640844a-0102-4393-9326-2c422893a8b3"
+								}
+							]
+						},
+						{
+							"name": "OREngine",
+							"components": [
+								{
+									"name": "OREngineLogo",
+									"uuid": "2999221c-8614-47c8-91a4-129c6585343f"
+								}
+							]
+						},
+						{
+							"name": "OREngineCube",
+							"components": [
+								{
+									"name": "OREngineCube",
+									"uuid": "056176b4-e208-42ce-bd17-5ea264f09d86"
+								}
+							]
+						},
+						{
+							"name": "SkyBox",
+							"components": [
+								{
+									"name": "SkyBox",
+									"uuid": "d381616b-5b0f-4969-8ef7-d2341e8e6bfc"
+								}
+							]
+						}
+					]
+				}
+			}
+		]
+	},
+	"renderer": {
+		"sky/skyColor": [
+			1,
+			1,
+			1
+		],
+		"sky/groundColor": [
+			0.3,
+			0.3,
+			0.3
+		],
+		"sky/intensity": 1,
+		"pipeline/motionBlur/enabled": true,
+		"pipeline/motionBlur/power": 1,
+		"pipeline/ssr/enabled": true,
+		"pipeline/ssao/enabled": true,
+		"pipeline/ssao/intensity": 1,
+		"pipeline/ssao/blur": true,
+		"pipeline/ssao/temporal": true,
+		"pipeline/ssao/temporalBlend": 0.2,
+		"pipeline/dof/enabled": true,
+		"pipeline/lightShaft/enabled": true,
+		"pipeline/lightShaft/intensity": 1,
+		"pipeline/lightShaft/blur": true,
+		"pipeline/lightShaft/temporal": true,
+		"pipeline/lightShaft/temporalBlend": 0.3,
+		"pipeline/toneMap/enabled": true,
+		"pipeline/toneMap/exposure": 0,
+		"pipeline/bloom/enabled": true,
+		"pipeline/bloom/threshold": 1,
+		"pipeline/bloom/brightness": 1,
+		"pipeline/sss/enabled": false,
+		"pipeline/sss/radius": 0.05
+	},
+	"timeline/duration": 600,
+	"timeline/fps": 60
+}

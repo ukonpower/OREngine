@@ -1,4 +1,3 @@
-import * as BSP from 'basepower';
 import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
@@ -17,20 +16,24 @@ export interface FramePlay {
 	playing: boolean,
 }
 
+// scene.json に timeline が無いときの値。init でもここへ戻る
+const DEFAULT_FRAME_SETTING: OREngineProjectFrame = {
+	duration: 600,
+	fps: 30,
+};
+
 export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.Renderer> {
 
 	public static resources: Resources;
 	public name: string;
-	public enableRender: boolean;
 
 	private _renderer: MXP.Renderer;
 	private _root: MXP.Entity;
-	private _uniforms: BSP.Uniforms;
 	private _time: SceneTime;
 	private _frame: FramePlay;
 	private _frameSetting: OREngineProjectFrame;
 	private _disposed: boolean;
-	private _cameraEntity: MXP.Entity | null;
+	private _frameEvent: MXP.EntityUpdateEvent | null;
 
 	constructor( createRenderer: ( engine: MXP.EngineContract ) => MXP.Renderer ) {
 
@@ -38,13 +41,6 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 
 		this.name = "OREngine";
 		this._disposed = false;
-
-		this._uniforms = {
-			uEnvMapIntensity: {
-				value: 1,
-				type: '1f'
-			}
-		};
 
 		/*-------------------------------
 			Renderer
@@ -77,10 +73,7 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 
 		// frame
 
-		this._frameSetting = {
-			duration: 600,
-			fps: 30,
-		};
+		this._frameSetting = { ...DEFAULT_FRAME_SETTING };
 
 		this._frame = {
 			current: 0,
@@ -88,8 +81,7 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 		};
 
 		this.seek( 0 );
-		this.enableRender = true;
-		this._cameraEntity = null;
+		this._frameEvent = null;
 
 		// root
 
@@ -169,34 +161,21 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 
 	}
 
-	public get uniforms() {
-
-		return this._uniforms;
-
-	}
-
 	public get disposed() {
 
 		return this._disposed;
 
 	}
 
-	public set cameraEntity( entity: MXP.Entity | null ) {
+	/*-------------------------------
+		View
+	-------------------------------*/
 
-		this._cameraEntity = entity;
+	// 描画する視点を作る。どの view をいつ描くかは呼び出し側が render( view ) で決め、
+	// 使い終わった view の dispose も作った側の責任
+	public createView( opt?: MXP.RenderViewOptions ) {
 
-	}
-
-	public get cameraEntity(): MXP.Entity | null {
-
-		return this._cameraEntity;
-
-	}
-
-	// 描画に実際に使われるカメラ（明示指定が無ければシーンのアクティブカメラ）
-	public resolveCameraEntity(): MXP.Entity | null {
-
-		return this._cameraEntity || this.findSceneCameraEntity();
+		return this._renderer.createView( opt );
 
 	}
 
@@ -208,15 +187,7 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 
 		return {
 			resolve: ( name ) => Engine.resources.getComponent( name ),
-			getName: ( c ) => {
-
-				const item = Engine.resources.componentList.find(
-					item => c instanceof item.component
-				);
-
-				return item ? item.name : c.constructor.name;
-
-			}
+			getName: ( c ) => Engine.resources.getComponentName( c )
 		};
 
 	}
@@ -225,6 +196,8 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 		Init Engine
 	-------------------------------*/
 
+	// 生成直後の状態へ戻す。load はこの上に scene.json を重ねるので、
+	// JSON に無い項目はここで決まる既定値になる
 	public init() {
 
 		this._root.disposeRecursive();
@@ -234,6 +207,13 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 		this._root.scale.set( 1, 1, 1 );
 
 		this.name = "New Project";
+
+		this._renderer.reset();
+
+		Object.assign( this._frameSetting, DEFAULT_FRAME_SETTING );
+
+		this.stop();
+		this.seek( 0 );
 
 	}
 
@@ -282,24 +262,7 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 
 		}
 
-		this._root.update( event );
-		this._root.postUpdate( event );
-		this._root.updateMatrixRecursive();
-		this._root.prepareRender( event );
-
-		if ( this.enableRender ) {
-
-			const camera = this.resolveCameraEntity();
-
-			if ( camera ) {
-
-				this._renderer.render( this._root, camera, event );
-
-			}
-
-		}
-
-		this._root.commitFrame( event );
+		this.step( event );
 
 		if ( this._frame.playing ) {
 
@@ -308,6 +271,39 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 		}
 
 		return this._time.delta;
+
+	}
+
+	// シーンを1フレーム進めて描ける状態にする。
+	// 前フレームの行列確定（commitFrame）は render の後でなければならないので、
+	// 描画の後始末としてではなく次フレームの冒頭で行う。これで呼び出し側は
+	// update → render( view ) の2手順で済む。
+	// _time / _frame には触れないので、再生状態を変えずに任意の時刻の event で呼べる（エディタの shot が使う）
+	public step( event: MXP.EntityUpdateEvent ) {
+
+		this._root.commitFrame( event );
+
+		this._root.update( event );
+		this._root.postUpdate( event );
+		this._root.updateMatrixRecursive();
+		this._root.prepareRender( event );
+
+		this._renderer.prepareScene( this._root, event );
+
+		this._frameEvent = event;
+
+	}
+
+	/*-------------------------------
+		Render
+	-------------------------------*/
+
+	// view の視点で直近の update の状態を描く。出力先は view の作り方で決まる（省略時は canvas）
+	public render( view: MXP.RenderViewContract ) {
+
+		if ( ! this._frameEvent ) return;
+
+		this._renderer.render( view, this._frameEvent );
 
 	}
 
@@ -412,24 +408,7 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 
 		}
 
-		this._root.update( event );
-		this._root.postUpdate( event );
-		this._root.updateMatrixRecursive();
-		this._root.prepareRender( event );
-
-		if ( this.enableRender ) {
-
-			const camera = this.resolveCameraEntity();
-
-			if ( camera ) {
-
-				this._renderer.render( this._root, camera, event );
-
-			}
-
-		}
-
-		this._root.commitFrame( event );
+		this.step( event );
 
 	}
 
@@ -437,43 +416,11 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 		CompileShaders
 	-------------------------------*/
 
-	public compileShaders( onProgress?: ( label: string, loaded: number, total: number ) => void ) {
+	public compileShaders( view: MXP.RenderViewContract, onProgress?: ( label: string, loaded: number, total: number ) => void ) {
 
 		const event = this.createEntityUpdateEvent( { forceDraw: true } );
 
-		const camera = this.resolveCameraEntity();
-
-		if ( ! camera ) return Promise.resolve();
-
-		return this.renderer.compileShaders( this._root, camera, event, onProgress );
-
-	}
-
-	// シーン内の displayOut なカメラを探す
-	public findSceneCameraEntity(): MXP.Entity | null {
-
-		let found: MXP.Entity | null = null;
-
-		this._root.traverse( ( entity ) => {
-
-			if ( found ) return;
-
-			const cameras = entity.getComponentsByTag<MXP.Camera>( "camera" );
-
-			for ( let i = 0; i < cameras.length; i ++ ) {
-
-				if ( cameras[ i ].displayOut ) {
-
-					found = entity;
-					return;
-
-				}
-
-			}
-
-		} );
-
-		return found;
+		return this.renderer.compileShaders( this._root, view, event, onProgress );
 
 	}
 

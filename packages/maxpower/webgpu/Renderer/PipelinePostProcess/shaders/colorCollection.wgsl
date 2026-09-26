@@ -1,4 +1,5 @@
-// ACES フィルミックトーンマップ（Stephen Hill のフィット）
+// ACES フィルミックトーンマップ（Stephen Hill のフィット）のあと、非 sRGB のキャンバスへ出すため sRGB にする。
+// 外から与えられる名前: pp.uToneMap（0 でトーンマップを素通し）、pp.uExposure（トーンマップ前に掛ける 2^EV。素通し時は掛けない）
 
 const ACES_INPUT = mat3x3f(
 	0.59719, 0.07600, 0.02840,
@@ -32,11 +33,17 @@ fn acesFitted( color: vec3f ) -> vec3f {
 
 }
 
+fn linearToSrgb( c: vec3f ) -> vec3f {
+
+	return select( pow( c, vec3f( 1.0 / 2.4 ) ) * 1.055 - 0.055, c * 12.92, c < vec3f( 0.0031308 ) );
+
+}
+
 @fragment
 fn fsMain( input: FullscreenOutput ) -> @location(0) vec4f {
 
 	let color = textureSampleLevel( uBackBuffer0, ppSampler, input.uv, 0.0 ).xyz;
 
-	return vec4f( acesFitted( color ), 1.0 );
+	return vec4f( linearToSrgb( mix( color, acesFitted( color * pp.uExposure ), pp.uToneMap ) ), 1.0 );
 
 }

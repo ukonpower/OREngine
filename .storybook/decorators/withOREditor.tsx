@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 
-import { InputWindow, InputWindowProvider, MouseMenu, MouseMenuProvider, OREditorProvider, OREngineProvider, useOREditor } from 'orengine/react';
+import { OREditorProvider, OREngineProvider, useOREditor } from 'orengine/react';
+import { InputWindow, InputWindowProvider, Popover, PopoverProvider } from 'uipower';
 
 import { initResouces, initResourceInstances } from '../../host/app/Resources/registry';
 
@@ -8,12 +9,15 @@ import type { Decorator } from '@storybook/react-vite';
 import type * as MXP from 'maxpower';
 import type { OREngineProjectData } from 'orengine';
 import type { Editor } from 'orengine/editor';
+import type { SceneSelection } from 'orengine/react';
 
 export type OREditorFixture = {
 	scene: OREngineProjectData;
 	editorData?: MXP.SerializeField;
 	// シーン読み込み後に一度だけ走る初期操作（seek・play・音源の投入など）
 	setup?: ( editor: Editor ) => void;
+	// シーン一覧のUIを撮るためのダミー窓口。実体はページ側が持つのでここでは値だけ与える
+	scenes?: SceneSelection;
 };
 
 // コンポーネント・ジオメトリ・テクスチャの登録はプロセスに1回で足りる
@@ -48,18 +52,18 @@ const FixtureSetup = ( { setup }: { setup: ( editor: Editor ) => void } ) => {
 
 // 本物の Engine と Editor をひとつ立てて配下へ供給する。
 // エディタのパネルはどれも OREditor と同じ Provider 階層を前提にしているので、
-// 単体で立てるにも同じ積み方をなぞる（数値入力の InputWindow・右クリックの MouseMenu を含む）
+// 単体で立てるにも同じ積み方をなぞる（数値入力の InputWindow・右クリックメニューの Popover を含む）
 export const OREditorFixtureHost: React.FC<{ fixture: OREditorFixture, children?: React.ReactNode }> = ( props ) => (
 	<OREngineProvider project={props.fixture.scene} onEngineInit={initResourceInstances}>
-		<OREditorProvider projectName="storybook" editorData={props.fixture.editorData}>
-			<MouseMenuProvider>
+		<OREditorProvider projectName="storybook" editorData={props.fixture.editorData} scenes={props.fixture.scenes}>
+			<PopoverProvider>
 				<InputWindowProvider>
 					{props.children}
 					{props.fixture.setup && <FixtureSetup setup={props.fixture.setup} />}
 					<InputWindow />
-					<MouseMenu />
+					<Popover />
 				</InputWindowProvider>
-			</MouseMenuProvider>
+			</PopoverProvider>
 		</OREditorProvider>
 	</OREngineProvider>
 );
@@ -68,4 +72,11 @@ export const withOREditor = ( fixture: OREditorFixture ): Decorator => ( Story )
 	<OREditorFixtureHost fixture={fixture}>
 		<Story />
 	</OREditorFixtureHost>
+);
+
+// OREditor 本体（Provider 一式を内蔵する）のストーリー用。外側で必要なのはエンジン供給だけ
+export const withOREngine = ( scene: OREngineProjectData ): Decorator => ( Story ) => (
+	<OREngineProvider project={scene} onEngineInit={initResourceInstances}>
+		<Story />
+	</OREngineProvider>
 );

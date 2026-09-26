@@ -10,6 +10,5 @@ export * from './Loaders/GLTFLoader';
 export * from './Material';
 export * from './Material/shaders';
 export * from './PostProcess';
-export * from './PostProcess/CameraPostProcess';
 export * from './Renderer';
 export * from './TexProcedural';

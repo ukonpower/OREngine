@@ -8,7 +8,8 @@ uniform sampler2D uSSAOTexture;
 uniform vec2 uPPPixelSize;
 
 uniform sampler2D uNormalTexture;
-uniform sampler2D uDepthTexture;
+uniform sampler2D uPosTexture;
+uniform vec3 uCameraPosition;
 
 uniform float uWeights[SSAOSAMPLE];
 
@@ -23,10 +24,17 @@ layout (location = 0) out vec4 outColor;
 const float alpha = 32.0;
 const float beta = 0.25;
 
+// 深度はgBufferのワールド座標からカメラ距離として求める（gBuffer[0].w には emission が入っているので使えない）
+float viewDepth( vec2 uv ) {
+
+	return length( texture( uPosTexture, uv ).xyz - uCameraPosition );
+
+}
+
 float getWeight( vec2 uv, vec3 normalBasis, float depthBasis ) {
 
 	vec3 normalOffset = texture( uNormalTexture, uv ).xyz;
-	float depthOffset = texture( uDepthTexture, uv ).w;
+	float depthOffset = viewDepth( uv );
 	float bilateralWeight = pow( ( dot( normalBasis, normalOffset ) + 1.0 ) / 2.0, alpha ) * pow( 1.0 / ( abs( depthBasis - depthOffset ) + 0.001 ), beta );
 
 	return bilateralWeight;
@@ -38,7 +46,7 @@ void main( void ) {
 	float occlusion = 0.0;
 
 	vec3 normalBasis = texture( uNormalTexture, vUv ).xyz;
-	float depthBasis = texture( uDepthTexture, vUv ).w;
+	float depthBasis = viewDepth( vUv );
 
 	vec2 direction;
 

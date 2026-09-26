@@ -46,6 +46,12 @@
       "mathpower": [
         "./packages/mathpower"
       ],
+      "uipower": [
+        "./packages/uipower"
+      ],
+      "uipower/*": [
+        "./packages/uipower/*"
+      ],
       "maxpower": [
         "./packages/maxpower/webgl"
       ],
@@ -71,13 +77,16 @@
         "./.storybook/*"
       ],
       "@or-scene": [
-        "./demo-webgl/scene.json"
+        "./demo-webgl/scenes/main.json"
       ],
       "@or-editor": [
         "./demo-webgl/editor.json"
       ],
       "@or-resources/*": [
         "./demo-webgl/Resources/*"
+      ],
+      "@or-project-editor/*": [
+        "./demo-webgl/editor/*"
       ]
     }
   },
