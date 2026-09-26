@@ -107,7 +107,8 @@ export const TimelineControls: React.FC<{children?: React.ReactNode}> = ( props 
 
 		e.preventDefault();
 
-		const width = e.target && ( e.target as HTMLElement ).clientWidth || 1;
+		// キーの印の上でも同じ速さでスクロールするよう、イベントの来た要素ではなくタイムライン全体の幅で割る
+		const width = elmRef.current && elmRef.current.clientWidth || 1;
 
 		const absY = Math.abs( e.deltaY );
 

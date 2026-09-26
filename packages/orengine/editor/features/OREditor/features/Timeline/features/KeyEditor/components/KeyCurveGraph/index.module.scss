@@ -1,0 +1,71 @@
+.graph {
+	position: absolute;
+	inset: 0;
+	overflow: hidden;
+}
+
+.svg {
+	position: absolute;
+	left: 0;
+	top: 0;
+	pointer-events: none;
+}
+
+.tick {
+	stroke: var(--or-bg-surface);
+}
+
+.curve {
+	fill: none;
+}
+
+.handleLine {
+	stroke: var(--or-text-dim);
+}
+
+.tickLabel,
+.sharedLabel {
+	position: absolute;
+	color: var(--or-text-dim);
+	font-size: var(--or-font-xs);
+	white-space: nowrap;
+	pointer-events: none;
+}
+
+.tickLabel {
+	left: var(--or-space);
+	transform: translateY(-100%);
+}
+
+.sharedLabel {
+	transform: translate(var(--or-space), -100%);
+}
+
+.point,
+.handle {
+	position: absolute;
+	width: calc(var(--or-space) * 1.6);
+	height: calc(var(--or-space) * 1.6);
+	transform: translate(-50%, -50%);
+	cursor: pointer;
+}
+
+.point {
+	background-color: var(--or-text);
+
+	&[data-selected="true"] {
+		background-color: var(--or-key-selected);
+	}
+}
+
+.handle {
+	border-radius: 50%;
+	background-color: var(--or-text-muted);
+}
+
+.box {
+	position: absolute;
+	border: 1px solid var(--or-focus);
+	background-color: var(--or-drop-zone);
+	pointer-events: none;
+}

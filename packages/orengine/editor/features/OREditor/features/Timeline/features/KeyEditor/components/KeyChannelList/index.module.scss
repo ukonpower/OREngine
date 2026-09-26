@@ -1,0 +1,86 @@
+.channelList {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	height: 100%;
+	background-color: var(--or-bg-panel);
+}
+
+// 右のタイムラインの目盛りの段と同じ高さ。キーの行はこの下から始まる
+.header {
+	display: flex;
+	flex-shrink: 0;
+	gap: var(--or-space);
+	height: var(--or-list-row-height);
+	padding: 0 var(--or-space);
+	align-items: center;
+
+	button {
+		flex: 1;
+	}
+}
+
+.list {
+	flex: 1;
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+
+.empty {
+	padding: var(--or-space);
+	color: var(--or-text-dim);
+}
+
+// 右のキーの行と同じ高さにそろえる（KeyDopeSheet の .row）
+.row {
+	display: flex;
+	align-items: center;
+	gap: var(--or-space);
+	height: var(--or-list-row-height);
+	padding-right: var(--or-space);
+	white-space: nowrap;
+	overflow: hidden;
+	cursor: pointer;
+
+	&[data-depth="0"] {
+		background-color: var(--or-bg-surface);
+	}
+
+	&[data-depth="1"] {
+		padding-left: calc(var(--or-space) * 2);
+	}
+
+	&[data-depth="2"] {
+		padding-left: calc(var(--or-space) * 5);
+	}
+
+	&[data-active="true"] {
+		background-color: var(--or-bg-active);
+	}
+
+	&:hover {
+		background-color: var(--or-bg-hover);
+	}
+}
+
+.toggle {
+	display: inline-flex;
+	flex-shrink: 0;
+	width: var(--or-font-sm);
+	justify-content: center;
+}
+
+.component {
+	color: var(--or-text-dim);
+}
+
+.label {
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.shared {
+	margin-left: auto;
+	color: var(--or-text-dim);
+	font-size: var(--or-font-xs);
+}

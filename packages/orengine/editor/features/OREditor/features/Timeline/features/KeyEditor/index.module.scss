@@ -1,0 +1,8 @@
+// 目盛りの段（左のチャンネル一覧の上の段と同じ高さ）より下を覆う。目盛りの段では今までどおり時刻を合わせられる
+.keyEditor {
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: var(--or-list-row-height);
+	bottom: 0;
+}

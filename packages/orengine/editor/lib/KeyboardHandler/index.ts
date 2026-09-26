@@ -13,6 +13,9 @@ export type KeyboardHandlerCallbacks = {
 	onFocusSelected: () => void;
 	onAddEntity: () => void;
 	onDeleteSelected: () => void;
+	// Ctrl+C / Ctrl+V。今はタイムラインのキーのコピー・貼り付けだけが受ける
+	onCopy: () => void;
+	onPaste: () => void;
 	onDuplicateSelected: () => void;
 	onRenameSelected: () => void;
 	// step はコマ数（負で戻る）
@@ -85,6 +88,18 @@ export class KeyboardHandler {
 					callbacks.onUndo();
 
 				}
+
+			}
+
+			if ( cmd && e.code === 'KeyC' ) {
+
+				callbacks.onCopy();
+
+			}
+
+			if ( cmd && e.code === 'KeyV' ) {
+
+				callbacks.onPaste();
 
 			}
 

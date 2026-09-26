@@ -26,6 +26,15 @@
 	--or-state-animated: #53992e;
 	--or-state-changed: #cc7529;
 
+	// タイムラインで選んでいるキー（Blender のドープシートと同じく橙）
+	--or-key-selected: #f0a030;
+
+	// カーブ表示の線の色。数値配列の要素の番号ごと（Blender のグラフエディタと同じく x=赤・y=緑・z=青）
+	--or-axis-x: #d05555;
+	--or-axis-y: #75b045;
+	--or-axis-z: #5585d5;
+	--or-axis-w: #b075c5;
+
 	// 下地を透かす面。不透明トークンから作って色の出どころを1つに保つ
 	--or-bg-float: color-mix(in srgb, var(--or-bg-base) 60%, transparent);
 	--or-bg-float-active: color-mix(in srgb, var(--or-bg-surface) 80%, transparent);

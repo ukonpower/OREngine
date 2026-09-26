@@ -10,7 +10,7 @@ import { DuplicateEntityCommand } from '../Commands/DuplicateEntityCommand';
 import { RemoveComponentCommand } from '../Commands/RemoveComponentCommand';
 import { RemoveTextureCommand } from '../Commands/RemoveTextureCommand';
 import { SetFieldCommand } from '../Commands/SetFieldCommand';
-import { buildCurveLinkSettings, buildDeleteKeys, buildInsertKeys, buildPasteCurve, buildUnlinkCurve, CurveLinkSettings, CurvePasteMode, KeyFrameElementRef, KeyFrameFieldRef, keyFrameTime } from '../KeyFrameField';
+import { buildCurveLinkSettings, buildDeleteKeys, buildInsertKeys, buildPasteCurve, buildSetCurves, buildUnlinkCurve, CurveLinkSettings, CurvePasteMode, KeyFrameElementRef, KeyFrameFieldRef, keyFrameTime } from '../KeyFrameField';
 
 import type { Editor } from '../Editor';
 
@@ -165,6 +165,14 @@ export class EditorAPI {
 			this._commandManager.execute( command, { merge: false } );
 
 		}
+
+	}
+
+	// カーブの表を差し替える（タイムラインでのキーの削除・補間やハンドルの種類の変更・貼り付け）。
+	// キーが無くなったカーブを指すリンクも外し、undo 1回ぶんにまとめる。ドラッグで動かすときは beginEdit( engine, "curves" ) を使う
+	public setCurves( curves: MXP.CurveTable ): void {
+
+		this._commandManager.execute( buildSetCurves( this._editor.engine, curves ), { merge: false } );
 
 	}
 

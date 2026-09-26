@@ -2,10 +2,13 @@ import type { KeyFrameData } from '../../Animation/KeyFrameDecoder';
 import type { Entity, EntityParams } from '../../Entity';
 import type { RendererContract } from '../RendererContract';
 
-// シーンのカーブの1本。name は共有するカーブに付ける表示名で、実行時は読まない
+// シーンのカーブの1本。name は共有するカーブに付ける表示名で、実行時は読まない。
+// h はキーごとのハンドルの種類の番号（k と同じ並び。番号の意味は editor の KeyFrameCurve の KEYFRAME_HANDLE_TYPES）。
+// エディタがハンドルを置き直すときだけ読み、すべて既定（自動クランプ）なら書かない
 export type CurveData = {
 	name?: string;
 	k: KeyFrameData[];
+	h?: number[];
 };
 
 // シーンに1つのカーブの表。キーはカーブ ID で、Animation コンポーネントのリンクが ID で指す
