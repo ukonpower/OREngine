@@ -6,6 +6,7 @@ export * from './CrossIcon';
 export * from './CursorIcon';
 export * from './EyeIcon';
 export * from './FolderIcon';
+export * from './KeyframeIcon';
 export * from './LightIcon';
 export * from './MaterialIcon';
 export * from './MeshIcon';

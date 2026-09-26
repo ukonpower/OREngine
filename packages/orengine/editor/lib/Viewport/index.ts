@@ -45,6 +45,7 @@ export class Viewport {
 	private _onDispose: () => void;
 	private _disposeListeners: () => void;
 	private _disposed: boolean;
+	private _hovered: boolean;
 
 	constructor( param: ViewportParam ) {
 
@@ -73,12 +74,33 @@ export class Viewport {
 			onEscapeToEditorCamera: param.onEscapeToEditorCamera,
 		} );
 
-		const onPointerEnter = () => param.onActivate();
+		this._hovered = false;
+
+		const onPointerEnter = () => {
+
+			this._hovered = true;
+
+			param.onActivate();
+
+		};
+
+		const onPointerLeave = () => {
+
+			this._hovered = false;
+
+		};
 
 		canvas.addEventListener( 'pointerenter', onPointerEnter );
+		canvas.addEventListener( 'pointerleave', onPointerLeave );
 
 		this._onDispose = param.onDispose;
-		this._disposeListeners = () => canvas.removeEventListener( 'pointerenter', onPointerEnter );
+		this._disposeListeners = () => {
+
+			canvas.removeEventListener( 'pointerenter', onPointerEnter );
+			canvas.removeEventListener( 'pointerleave', onPointerLeave );
+
+		};
+
 		this._disposed = false;
 
 	}
@@ -86,6 +108,13 @@ export class Viewport {
 	public get gizmoDragging() {
 
 		return this._pointerHandler.gizmoDragging;
+
+	}
+
+	// ポインタがこのビューポートの上にあるか。I キーをビューポートで受けるか（プロパティパネル等では受けない）の判定に使う
+	public get hovered() {
+
+		return this._hovered;
 
 	}
 

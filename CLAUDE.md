@@ -164,6 +164,17 @@ const extension: EditorServerExtension = ( router, ctx ) => {
 export default extension;
 ```
 
+### キーフレームアニメーション
+Entity / Component の SerializeField にキーを打ち、player で再生する仕組み（#177）。
+
+- データは2か所に分けて持つ。カーブ本体はシーン JSON の最上位 `curves`（Engine のフィールド。カーブ ID → `{ name?, k }`）。リンクはエンティティごとの builtin `Animation` コンポーネントの隠しフィールド `links`（`{ "position": [ [ "c1", 倍率, 足し算 ], … ], "Light:intensity": [ "c2", 1, 0 ] }`。コンポーネントのフィールドは `<コンポーネント名>:<パス>`、数値配列は要素ごと）
+- キー列 `k` は BLidge v2 の形式で、時刻の単位は秒×60。デコーダ `decodeKeyFrames`（`packages/maxpower/core/Animation/KeyFrameDecoder`）を BLidge と共有している
+- 実行時: Animation（order -1）が `updateImpl` で、時刻が変わったときと `curves` / `links` が差し替わったときだけ `setField` で値を入れる。関数フィールドへのリンクはイベントで、再生中に通過したキーの時刻で呼ぶ（シーク・停止中・ループで先頭へ戻ったときは呼ばない）
+- `curves` と `links` は書き換えず、編集のたびに表・オブジェクトごと差し替える。Animation も行の状態表示も、差し替わりを見てカーブを作り直す
+- 編集: プロパティパネルの行（コンポーネントの `enabled` は見出しのチェックボックス）の上で `I` / `Alt+I`、行の右クリックメニュー、ビューポートの `I`（位置 / 回転 / スケール / 全部）。キーの時刻は `timeline/fps` のコマに揃える。実装は `editor/lib/KeyFrameField`（フィールドの解決・コマンドの組み立て・行の状態）と `editor/lib/KeyFrameCurve`（キー列の編集・自動クランプのハンドル）。初めて打つフィールドは、Animation の追加・カーブ・リンクを `GroupCommand` で undo 1回にまとめる
+- 保存（`Editor.exportEngine`）では、書き出した JSON 全体の `links` から参照されないカーブを外す（`pruneUnusedCurves`）。メモリ上の表には残す
+- player ビルドでは、`curves` 配下のキー（カーブ ID・`k`）を terser の改名から外している（`host/vite/sceneScan.ts`）。リンクがカーブ ID を文字列で引くため
+
 ### アクティブプロジェクト・レンダラー切替
 - 環境変数 `ORENGINE_PROJECT=<name>` / `ORENGINE_RENDERER=<webgl|webgpu|headless>` で切替（デフォルトは demo-webgl / webgl。`npm run wgpu` は webgpu + demo-webgpu のショートカット）。設定ファイルは無い（個人の作業状態を tracked ファイルに持たせない）
 - dev サーバーの HTTPS 証明書は `ORENGINE_HTTPS_CERT` / `ORENGINE_HTTPS_KEY`（ファイルパス）で指定できる。両方あればその証明書で、無ければ webgpu 時のみ `@vitejs/plugin-basic-ssl` の自己署名証明書で立つ。mkcert 等で作った信頼済みの証明書を渡すと別ホストでも警告が出ない

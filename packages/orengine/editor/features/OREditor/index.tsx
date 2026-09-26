@@ -12,6 +12,7 @@ import { EntityProperty } from './features/EntityProperty';
 import { ExportControl } from './features/ExportControl';
 import { Timer } from './features/GPUTimer';
 import { Hierarchy } from './features/Hierarchy';
+import { KeyFrame } from './features/KeyFrame';
 import { PanelLayout } from './features/PanelLayout';
 import { RendererSettings } from './features/RendererSettings';
 import { SceneControl } from './features/SceneControl';
@@ -142,6 +143,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 					{editorElm}
 				</div>
 				<EntityAdd />
+				<KeyFrame />
 				<InputWindow />
 				<Popover />
 			</InputWindowProvider>

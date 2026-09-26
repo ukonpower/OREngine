@@ -3,6 +3,7 @@ import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
 import { Engine } from '../../../core/Engine';
+import { OREngineProjectData, pruneUnusedCurves } from '../../../core/ProjectSerializer';
 import { AssetPreviewManager } from '../AssetPreviewManager';
 import { ConstraintAxisRenderer } from '../ConstraintAxisRenderer';
 import { EditorAPI } from '../EditorAPI';
@@ -11,6 +12,7 @@ import { GizmoManager } from '../GizmoManager';
 import { GridRenderer } from '../GridRenderer';
 import { HelperManager, HelperVisibility } from '../HelperManager';
 import { KeyboardHandler } from '../KeyboardHandler';
+import { KeyFrameFieldRef, keyFrameTime } from '../KeyFrameField';
 import { ModalTransformHandler } from '../ModalTransformHandler';
 import { SceneExporter, SceneExporterProgress } from '../SceneExporter';
 import { SelectionOutline } from '../SelectionOutline';
@@ -104,6 +106,8 @@ export class Editor extends MXP.Serializable {
 	private _externalWindow: ExternalWindow | null;
 	private _modalStatus: string | null;
 	private _panelLayout: MXP.SerializeFieldValue;
+	// I / Alt+I の対象。プロパティパネルの行がポインタの出入りで設定する
+	private _hoveredKeyField: KeyFrameFieldRef | null;
 
 	private _disposed: boolean;
 	private _api: EditorAPI;
@@ -143,6 +147,7 @@ export class Editor extends MXP.Serializable {
 		this._externalWindow = null;
 		this._modalStatus = null;
 		this._panelLayout = null;
+		this._hoveredKeyField = null;
 		this._disposed = false;
 		this._api = new EditorAPI( this );
 		this._draw = createEditorDraw( engine );
@@ -211,6 +216,7 @@ export class Editor extends MXP.Serializable {
 			onStepFrame: ( step ) => this.stepFrame( step ),
 			onSeekToStart: () => this.seekToStart(),
 			onTransformKey: ( e ) => this._modalTransformHandler.handleKeyDown( e ),
+			onInsertKey: ( remove ) => this._onKeyFrameShortcut( remove ),
 		} );
 
 		/*-------------------------------
@@ -1109,11 +1115,13 @@ export class Editor extends MXP.Serializable {
 
 		if ( fps <= 0 ) return;
 
-		// frame.current は fps によらず秒×60 の単位なので、コマ番号へ直してから動かす
+		// frame.current は fps によらず秒×60 の単位なので、コマ番号へ直してから動かす。
+		// 時刻はキーの時刻（KeyFrameField の keyFrameTime）と同じ式で求め、コマ送りで止まった時刻とキーの時刻を浮動小数まで揃える。
+		// ずれると、ちょうどキーの時刻に居るつもりで CONSTANT のカーブが1つ前のキーの値になる
 		const currentIndex = Math.round( this._engine.time.code * fps );
 		const nextIndex = Math.max( 0, currentIndex + step );
 
-		this._engine.seek( nextIndex / fps * 60 );
+		this._engine.seek( nextIndex * 60 / fps );
 
 	}
 
@@ -1121,6 +1129,99 @@ export class Editor extends MXP.Serializable {
 	public seekToStart() {
 
 		this._engine.seek( 0 );
+
+	}
+
+	/*-------------------------------
+		KeyFrame
+	-------------------------------*/
+
+	// ポインタがプロパティパネルの行に入ったとき、その行のフィールドを I / Alt+I の対象にする
+	public enterKeyField( field: KeyFrameFieldRef ) {
+
+		this._hoveredKeyField = field;
+
+	}
+
+	// 行から出たとき・行が消えたときに対象から外す。別の行に入った後で前の行の leave が届いても消さないよう、同じ行のときだけ外す
+	public leaveKeyField( field: KeyFrameFieldRef ) {
+
+		const current = this._hoveredKeyField;
+
+		if ( current && current.target === field.target && current.path === field.path ) {
+
+			this._hoveredKeyField = null;
+
+		}
+
+	}
+
+	// fields に今の時刻でキーを打つ（I キー・右クリックメニュー・ビューポートのメニュー共通）。打てないときは理由を message で知らせる。
+	// 停止中は時刻を打ったキーの時刻（コマ）へ合わせる。コマの間のまま打つと、打った値ではなく手前の補間値
+	// （CONSTANT のカーブなら前のキーの値）がすぐフィールドに入り直してしまうため
+	public insertKeys( fields: KeyFrameFieldRef[] ) {
+
+		try {
+
+			this._api.insertKeys( fields );
+
+		} catch ( e ) {
+
+			this.emit( "message", [ ( e as Error ).message ] );
+
+			return;
+
+		}
+
+		if ( ! this._engine.frame.playing ) {
+
+			this._engine.seek( keyFrameTime( this._engine ) );
+
+		}
+
+	}
+
+	// fields の今の時刻のキーを消す
+	public deleteKeys( fields: KeyFrameFieldRef[] ) {
+
+		this._api.deleteKeys( fields );
+
+	}
+
+	// I / Alt+I。プロパティパネルの行の上ならそのフィールドに、ビューポートの上なら選択中のエンティティの
+	// どのフィールドに打つかをメニューで選ばせる（Blender と同じ）。ビューポートの Alt+I は受けない
+	private _onKeyFrameShortcut( remove: boolean ) {
+
+		const field = this._hoveredKeyField;
+
+		if ( field ) {
+
+			if ( remove ) {
+
+				this.deleteKeys( [ field ] );
+
+			} else {
+
+				this.insertKeys( [ field ] );
+
+			}
+
+			return;
+
+		}
+
+		if ( remove ) return;
+
+		const viewport = this._activeViewport;
+
+		if ( ! viewport || ! viewport.hovered || ! this._selectedEntityId ) return;
+
+		const entity = this._engine.root.findEntityByUUID( this._selectedEntityId );
+
+		if ( ! entity ) return;
+
+		// メニューは React 側の Popover に出すので、ここでは要求を投げるだけにする
+		this.emit( "request/insertKeyMenu", [ entity ] );
 
 	}
 
@@ -1164,9 +1265,10 @@ export class Editor extends MXP.Serializable {
 
 	}
 
+	// 保存するシーン。どこからも参照されないカーブは書き出さない（メモリ上の表には残す）
 	public exportEngine() {
 
-		return this._engine.serialize( { mode: "export" } );
+		return pruneUnusedCurves( this._engine.serialize( { mode: "export" } ) as OREngineProjectData );
 
 	}
 

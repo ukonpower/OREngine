@@ -78,6 +78,7 @@ export class TimelineCanvasRenderer extends EventEmitter {
 		// Renderer生成にengineが必要なため、rendererは生成後に差し込む
 		const isolatedEngine = {
 			renderer: null as unknown as MXP.Renderer,
+			curves: {},
 			createEntity: ( params?: Omit<MXP.EntityParams, 'engine'> ) => new MXP.Entity( { ...params, engine: isolatedEngine } ),
 		};
 

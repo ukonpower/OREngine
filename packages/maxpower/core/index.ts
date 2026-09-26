@@ -5,6 +5,7 @@ export * from './Animation/Easings';
 export * from './Animation/FCurve';
 export * from './Animation/FCurveGroup';
 export * from './Animation/FCurveKeyFrame';
+export * from './Animation/KeyFrameDecoder';
 export * from './BLidge';
 export * from './Component';
 export * from './Components/BLidger';

@@ -21,6 +21,11 @@
 	--or-accent-danger: rgb(194, 74, 0);
 	--or-focus: #999;
 
+	// キーフレームの状態（Blender のプロパティの色と同じ意味）。今の時刻にキーがある / アニメーションしている / カーブの値から手で変えた
+	--or-state-keyed: #bfb034;
+	--or-state-animated: #53992e;
+	--or-state-changed: #cc7529;
+
 	// 下地を透かす面。不透明トークンから作って色の出どころを1つに保つ
 	--or-bg-float: color-mix(in srgb, var(--or-bg-base) 60%, transparent);
 	--or-bg-float-active: color-mix(in srgb, var(--or-bg-surface) 80%, transparent);
