@@ -43,6 +43,9 @@ const builtinPanels: PanelDefinition[] = [
 	{ id: "timeline", title: "Timeline", category: "Animation", content: <Panel noPadding><Timeline /></Panel> },
 ];
 
+// エンティティを選択したとき前面に出すパネル（選択の結果を見る場所）
+const activateOnSelect: PanelId[] = [ "hierarchy", "property" ];
+
 // SP のタブ一覧に並べるパネル。Screen（上段）と Timeline（下段）は専用領域を持ち、
 // Hierarchy と Property は横並びの複合タブにまとめるので、ここからは外す。
 // multiple なパネルはタブを増やす操作が SP に無いので置けない
@@ -81,7 +84,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 
 	if ( layout.isPC ) {
 
-		editorElm = <PanelLayout panels={panels} />;
+		editorElm = <PanelLayout panels={panels} activateOnSelect={activateOnSelect} />;
 
 	} else {
 
