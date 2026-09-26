@@ -1,4 +1,6 @@
 import * as fs from 'fs';
+import * as http from 'http';
+import * as net from 'net';
 import * as path from 'path';
 import { pathToFileURL } from 'url';
 
@@ -18,6 +20,8 @@ export interface OrengineServerOptions {
 
 export interface OrengineServerHandle {
 	server: Server;
+	// 実際に listen したポート。opts.port が使用中ならそれより後ろの空き番号になる
+	port: number;
 	projectManager: ProjectManager;
 	close: () => Promise<void>;
 }
@@ -56,6 +60,75 @@ const mountEditorExtension = async ( app: express.Express, projectDir: string ) 
 
 };
 
+// server を host:port で listen する。失敗したらそのエラーを返す
+const listen = ( server: net.Server, port: number, host?: string ) => new Promise<NodeJS.ErrnoException | undefined>( ( resolve ) => {
+
+	const onError = ( error: NodeJS.ErrnoException ) => {
+
+		server.off( 'listening', onListening );
+		resolve( error );
+
+	};
+
+	const onListening = () => {
+
+		server.off( 'error', onError );
+		resolve( undefined );
+
+	};
+
+	server.once( 'error', onError );
+	server.once( 'listening', onListening );
+	server.listen( port, host );
+
+} );
+
+// port から順に試し、IPv4 / IPv6 のどちらでも使われていない最初のポートで立てる。
+// 空きの確認と listen を分けると、同時に起動した別の dev サーバーとその間で同じ番号を取り合うため、listen の成否そのもので判定する
+const listenOnFreePort = async ( app: express.Express, port: number ) => {
+
+	for ( let candidate = port; candidate <= 65535; candidate ++ ) {
+
+		// macOS では 0.0.0.0 が使用中でも ::（listen の既定）には重ねて listen できてしまい、localhost への接続が相手に奪われる。
+		// vite は 0.0.0.0 で立つので、IPv4 側を先に押さえて使用中を検知し、本番の listen が終わるまで他に取らせない
+		const ipv4Guard = net.createServer();
+		const guardError = await listen( ipv4Guard, candidate, '0.0.0.0' );
+
+		if ( guardError && guardError.code !== 'EADDRINUSE' ) {
+
+			throw guardError;
+
+		}
+
+		if ( ! guardError ) {
+
+			const server = http.createServer( app );
+			const error = await listen( server, candidate );
+
+			await new Promise( ( done ) => ipv4Guard.close( done ) );
+
+			if ( ! error ) {
+
+				return { server, port: candidate };
+
+			}
+
+			if ( error.code !== 'EADDRINUSE' ) {
+
+				throw error;
+
+			}
+
+		}
+
+		console.log( `OREngine Server: port ${candidate} is in use, trying another one...` );
+
+	}
+
+	throw new Error( `OREngine Server: no available port from ${port}` );
+
+};
+
 export const startOrengineServer = async ( opts: OrengineServerOptions ): Promise<OrengineServerHandle> => {
 
 	const pm = new ProjectManager( opts.projectDir );
@@ -69,24 +142,19 @@ export const startOrengineServer = async ( opts: OrengineServerOptions ): Promis
 	// 組み込み route を先に載せ、プロジェクト側が既存のパスを奪えないようにする
 	await mountEditorExtension( app, opts.projectDir );
 
-	return new Promise( ( resolve ) => {
+	const { server, port: boundPort } = await listenOnFreePort( app, port );
 
-		const server = app.listen( port, () => {
+	console.log( `OREngine Server running on port ${boundPort} (project: ${pm.name})` );
 
-			console.log( `OREngine Server running on port ${port} (project: ${pm.name})` );
+	return {
+		server,
+		port: boundPort,
+		projectManager: pm,
+		close: () => new Promise( ( done ) => {
 
-			resolve( {
-				server,
-				projectManager: pm,
-				close: () => new Promise( ( done ) => {
+			server.close( () => done() );
 
-					server.close( () => done() );
-
-				} ),
-			} );
-
-		} );
-
-	} );
+		} ),
+	};
 
 };

@@ -20,7 +20,6 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "predev": "node -e \"try{require('child_process').execSync('lsof -ti:'+(process.env.ORENGINE_SERVER_PORT||3001)+' | xargs kill -9',{stdio:'ignore'})}catch(e){}\"",
     "dev": "tsx scripts/run.ts dev",
     "wgpu": "ORENGINE_RENDERER=webgpu ORENGINE_PROJECT=${ORENGINE_PROJECT:-demo-webgpu} npm run dev",
     "player:build": "tsx scripts/run.ts player:build",
