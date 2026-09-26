@@ -33,11 +33,11 @@ export type PipelinePostProcessPassConfig = {
 const BLOOM_LEVELS = 4;
 const BLOOM_BLUR_SAMPLES = 8;
 
-// DoF の最大 CoC（KinoBokeh の CalculateMaxCoCRadius）。webgpu 側の PipelinePostProcess と一致させる。
-// 半径のピクセル数は KinoBokeh の経験式 kernelSize * 4 + 6 に、dofBokeh.fs の 43 サンプル（KERNEL_LARGE = 2）を入れた値。
-// 画面高さに対する上限 5% も KinoBokeh と同じ
-const DOF_MAX_COC_PIXELS = 14;
-const DOF_MAX_COC_RATIO = 0.05;
+// DoF の最大 CoC（画面高さに対する比）。webgpu 側の PipelinePostProcess と一致させる。
+// KinoBokeh の CalculateMaxCoCRadius は半径を 14px（経験式 kernelSize * 4 + 6 に dofBokeh.fs の 43 サンプル = KERNEL_LARGE を入れた値）÷ 画面高さで決めるが、
+// それだと描画解像度を下げるほどボケが画面に対して大きくなる。高さ 1080 のときの比で固定して解像度に依存させない。
+// 1080 より高い解像度ではサンプル同士のピクセル間隔が広がり、ボケに粒が出やすくなる
+const DOF_MAX_COC = 14 / 1080;
 
 // トーンマップより前のパスの描画先。HDR の値を 1 で切らずに持つ
 const createHdrTarget = ( backend: GLBackend ) => backend.createFrameBuffer().setTexture( [
@@ -542,7 +542,7 @@ export class PipelinePostProcess {
 		// ピントの距離が焦点距離を下回ると係数の分母（focusDistance - focalLength）が 0 以下になる
 		const focusDistance = Math.max( camera.dofParams.focusDistance, focalLength );
 
-		const maxCoc = Math.min( DOF_MAX_COC_RATIO, DOF_MAX_COC_PIXELS / this.dofComposite.renderTarget!.size.y );
+		const maxCoc = DOF_MAX_COC;
 		const rcpMaxCoC = 1.0 / maxCoc;
 		const coeff = focalLength * focalLength / ( camera.dofParams.fNumber * ( focusDistance - focalLength ) * kFilmHeight * 2.0 );
 

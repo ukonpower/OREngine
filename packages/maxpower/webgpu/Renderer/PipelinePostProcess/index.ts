@@ -56,11 +56,11 @@ const MOTION_BLUR_TILE = 16;
 // SSS のカーネルの片側のサンプル数（中心を含む）。webgl 側 DeferredRenderer の SSS_SAMPLES と一致させる
 const SSS_SAMPLES = 9;
 
-// DoF の最大 CoC（KinoBokeh の CalculateMaxCoCRadius）。webgl 側の PipelinePostProcess と一致させる。
-// 半径のピクセル数は KinoBokeh の経験式 kernelSize * 4 + 6 に、dofBokeh.wgsl の 43 サンプル（KERNEL_LARGE = 2）を入れた値。
-// 画面高さに対する上限 5% も KinoBokeh と同じ
-const DOF_MAX_COC_PIXELS = 14;
-const DOF_MAX_COC_RATIO = 0.05;
+// DoF の最大 CoC（画面高さに対する比）。webgl 側の PipelinePostProcess と一致させる。
+// KinoBokeh の CalculateMaxCoCRadius は半径を 14px（経験式 kernelSize * 4 + 6 に dofBokeh.wgsl の 43 サンプル = KERNEL_LARGE を入れた値）÷ 画面高さで決めるが、
+// それだと描画解像度を下げるほどボケが画面に対して大きくなる。高さ 1080 のときの比で固定して解像度に依存させない。
+// 1080 より高い解像度ではサンプル同士のピクセル間隔が広がり、ボケに粒が出やすくなる
+const DOF_MAX_COC = 14 / 1080;
 
 // 時間方向の蓄積で新しい結果に与える重み。ノイズと影の追従の速さの折り合いで、
 // エディタから触れるよう uniform にも同じ値を入れている
@@ -134,14 +134,12 @@ export class PipelinePostProcess {
 	private _finishChain: PostProcessChain;
 
 	private _dofParams: MTP.Vector;
-	private _height: number;
 
 	constructor( device: GPUDevice, frameLayout: GPUBindGroupLayout, lightLayout: GPUBindGroupLayout, resolution: MTP.Vector, pixelSize: MTP.Vector ) {
 
 		const pass = ( param: PostProcessPassParam ) => new PostProcessPass( param, resolution, pixelSize );
 
 		this._dofParams = new MTP.Vector( 10, 0.05, 20, 0.05 );
-		this._height = 1;
 
 		/*-------------------------------
 			シェーディングの前
@@ -434,8 +432,6 @@ export class PipelinePostProcess {
 
 	public setSize( device: GPUDevice, width: number, height: number ) {
 
-		this._height = height;
-
 		this._deferredChain.setSize( device, width, height );
 		this._sssChain.setSize( device, width, height );
 		this._screenChain.setSize( device, width, height );
@@ -517,7 +513,7 @@ export class PipelinePostProcess {
 		// ピントの距離が焦点距離を下回ると係数の分母（focusDistance - focalLength）が 0 以下になる
 		const focusDistance = Math.max( camera.dofParams.focusDistance, focalLength );
 
-		const maxCoc = Math.min( DOF_MAX_COC_RATIO, DOF_MAX_COC_PIXELS / Math.max( this._height, 1 ) );
+		const maxCoc = DOF_MAX_COC;
 		const coeff = focalLength * focalLength / ( camera.dofParams.fNumber * ( focusDistance - focalLength ) * kFilmHeight * 2.0 );
 
 		this._dofParams.set( focusDistance, maxCoc, 1.0 / maxCoc, coeff );
