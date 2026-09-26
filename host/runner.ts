@@ -38,7 +38,8 @@ export const runDev = async ( opts: HostRunOptions ): Promise<DevHandle> => {
 		port: opts.apiPort,
 	} );
 
-	const vite = await createServer( createDevConfig( opts ) as InlineConfig );
+	// express は使用中なら別のポートへずれるので、vite の /api プロキシは実際に立ったポートへ向ける
+	const vite = await createServer( createDevConfig( { ...opts, apiPort: api.port } ) as InlineConfig );
 	await vite.listen();
 	vite.printUrls();
 
