@@ -14,6 +14,11 @@ type VectorProps = {
 	int?: boolean,
 	disabled?: boolean,
 	onChange?: ( value: number[] ) => void
+	// どの軸でも横ドラッグを始めたとき
+	onDragStart?: () => void
+	onDragEnd?: () => void
+	// ドラッグ中の右クリック / Esc での取り消し。呼ぶ前に onChange でドラッグ開始時の値へ戻す
+	onDragCancel?: () => void
 }
 
 const axisDict = [ "x", "y", "z", "w" ];
@@ -31,7 +36,7 @@ const clamp = ( value: number, min: number | undefined, max: number | undefined 
 };
 
 // 軸ごとの数値入力を並べる。選択した複数軸へは、ドラッグで同じ変化量・数値入力で同じ値をまとめて入れる
-export const Vector = ( { onChange, disabled, ...props }: VectorProps ) => {
+export const Vector = ( { onChange, onDragStart, onDragEnd, onDragCancel, disabled, ...props }: VectorProps ) => {
 
 	const isSP = useMobileDevice();
 
@@ -45,6 +50,9 @@ export const Vector = ( { onChange, disabled, ...props }: VectorProps ) => {
 
 	// ドラッグ中に積み上げている軸ごとの丸める前の値。int のとき 1px ぶんの小さな変化が丸めで消えないように持つ
 	const dragValuesRef = useRef<number[] | null>( null );
+
+	// ドラッグ開始時の値。取り消しで全軸をここへ戻す
+	const dragStartValueRef = useRef<number[] | null>( null );
 
 	// 操作した軸が選択に含まれていれば選択中の全軸、含まれていなければその軸だけを対象にする
 	const getTargets = ( axisIndex: number ) => {
@@ -122,11 +130,40 @@ export const Vector = ( { onChange, disabled, ...props }: VectorProps ) => {
 
 	};
 
-	const onDragEnd = () => {
+	const onDragStartAxis = () => {
+
+		const value = valueRef.current;
+
+		if ( value ) dragStartValueRef.current = value.slice();
+
+		if ( onDragStart ) onDragStart();
+
+	};
+
+	const onDragEndAxis = () => {
 
 		dragValuesRef.current = null;
+		dragStartValueRef.current = null;
 
 		clearSelectionOnPC();
+
+		if ( onDragEnd ) onDragEnd();
+
+	};
+
+	// 範囲選択中の取り消しは選択を外すだけで、値のドラッグ中なら開始時の値へ戻す
+	const onDragCancelAxis = () => {
+
+		const startValue = dragStartValueRef.current;
+
+		if ( onChange && startValue ) onChange( startValue );
+
+		dragValuesRef.current = null;
+		dragStartValueRef.current = null;
+
+		clearSelectionOnPC();
+
+		if ( onDragCancel ) onDragCancel();
 
 	};
 
@@ -205,7 +242,9 @@ export const Vector = ( { onChange, disabled, ...props }: VectorProps ) => {
 						selected={isSelected}
 						onChange={( value ) => onCommitAxis( i, value )}
 						onDrag={( deltaValue ) => onDragAxis( i, deltaValue )}
-						onDragEnd={onDragEnd}
+						onDragStart={onDragStartAxis}
+						onDragEnd={onDragEndAxis}
+						onDragCancel={onDragCancelAxis}
 						onSelectDrag={onSelectDragAxis}
 					/>
 				</Label>
