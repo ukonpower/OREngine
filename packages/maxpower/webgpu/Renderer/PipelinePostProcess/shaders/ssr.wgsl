@@ -7,16 +7,37 @@ const MARCH = 16;
 const LENGTH = 5.0;
 const OBJDEPTH = 0.5;
 
+// HDR のヒット色を輝度 1 未満へ圧縮する。一瞬だけ当たった高輝度の点が履歴に大きく残って尾を引かないように、
+// 圧縮した値どうしで混ぜる。ssComposite.wgsl の ssrDecompress と対
+fn ssrCompress( c: vec4f ) -> vec4f {
+
+	return vec4f( c.xyz / ( 1.0 + dot( c.xyz, vec3f( 0.2126, 0.7152, 0.0722 ) ) ), c.w );
+
+}
+
 @fragment
 fn fsMain( input: FullscreenOutput ) -> @location(0) vec4f {
 
-	let history = textureSampleLevel( uSSRBackBuffer, ppSampler, input.uv, 0.0 );
+	// 速度は「NDC の移動量 × 0.2」を uv の向きへ y 反転したもの（standardVertex.wgsl）。
+	// uv の移動量は NDC の半分なので 0.5 / 0.2 = 2.5 倍して戻す
+	let prevUv = input.uv - textureSampleLevel( uVelTex, ppSamplerNearest, input.uv, 0.0 ).xy * 2.5;
+
+	var blend = 0.2;
+
+	// 画面の外から来た画素には履歴が無いので、そのフレームの値だけを使う
+	if ( any( prevUv < vec2f( 0.0 ) ) || any( prevUv > vec2f( 1.0 ) ) ) {
+
+		blend = 1.0;
+
+	}
+
+	let history = textureSampleLevel( uSSRBackBuffer, ppSampler, prevUv, 0.0 );
 
 	var rayPos = textureSampleLevel( uGbufferPos, ppSamplerNearest, input.uv, 0.0 ).xyz;
 
 	if ( dot( rayPos, rayPos ) == 0.0 || length( rayPos - frame.uCameraPosition ) > 100.0 ) {
 
-		return mix( history, vec4f( 0.0 ), 0.2 );
+		return mix( history, vec4f( 0.0 ), blend );
 
 	}
 
@@ -65,6 +86,6 @@ fn fsMain( input: FullscreenOutput ) -> @location(0) vec4f {
 
 	}
 
-	return mix( history, col, 0.2 );
+	return mix( history, ssrCompress( col ), blend );
 
 }

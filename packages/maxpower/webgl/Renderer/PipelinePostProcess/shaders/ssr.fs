@@ -8,7 +8,7 @@ uniform sampler2D uBackBuffer0;
 uniform sampler2D uGbufferPos;
 uniform sampler2D uGbufferNormal;
 uniform sampler2D uSSRBackBuffer;
-uniform sampler2D uDepthTexture;
+uniform sampler2D uVelTex;
 
 uniform float uTimeEF;
 uniform mat4 uCameraMatrix;
@@ -26,22 +26,38 @@ layout (location = 0) out vec4 outColor;
 #define LENGTH 5.0
 #define OBJDEPTH 0.5
 
+// HDR のヒット色を輝度 1 未満へ圧縮する。一瞬だけ当たった高輝度の点が履歴に大きく残って尾を引かないように、
+// 圧縮した値どうしで混ぜる。ssComposite.fs の ssrDecompress と対
+vec4 ssrCompress( vec4 c ) {
+
+	return vec4( c.xyz / ( 1.0 + dot( c.xyz, vec3( 0.2126, 0.7152, 0.0722 ) ) ), c.w );
+
+}
+
 void main( void ) {
 
-	vec3 lightShaftSum = vec3( 0.0 );
+	// 速度は「NDC の移動量 × 0.2」（vert_out.part.glsl）。uv の移動量は NDC の半分なので 0.5 / 0.2 = 2.5 倍して戻す
+	vec2 prevUv = vUv - texture( uVelTex, vUv ).xy * 2.5;
 
-	vec3 rayPos = texture( uGbufferPos, vUv ).xyz;
-	vec4 rayViewPos = uViewMatrix * vec4(rayPos, 1.0);
-	vec4 depthRayPos = uViewMatrix * vec4(rayPos, 1.0);
+	float blend = 0.2;
 
-	if( abs(rayViewPos.z - depthRayPos.z) > 0.1 || length(rayPos - uCameraPosition) > 100.0 ) {
+	// 画面の外から来た画素には履歴が無いので、そのフレームの値だけを使う
+	if( any( lessThan( prevUv, vec2( 0.0 ) ) ) || any( greaterThan( prevUv, vec2( 1.0 ) ) ) ) {
 
-		outColor = vec4( 0.0, 0.0, 0.0, 0.0 );
-		return;
-		
+		blend = 1.0;
+
 	}
 
-	if( rayPos.x + rayPos.y + rayPos.z == 0.0 ) return;
+	vec4 history = texture( uSSRBackBuffer, prevUv );
+
+	vec3 rayPos = texture( uGbufferPos, vUv ).xyz;
+
+	if( dot( rayPos, rayPos ) == 0.0 || length( rayPos - uCameraPosition ) > 100.0 ) {
+
+		outColor = mix( history, vec4( 0.0 ), blend );
+		return;
+
+	}
 
 	vec3 rayDir = reflect( - viewDirection( rayPos, uCameraPosition, uViewMatrix, uProjectionMatrix ), texture( uGbufferNormal, vUv ).xyz );
 
@@ -83,6 +99,6 @@ void main( void ) {
 	}
 
 
-	outColor = mix( texture( uSSRBackBuffer, vUv ), col, 0.2 );
+	outColor = mix( history, ssrCompress( col ), blend );
 
 }
