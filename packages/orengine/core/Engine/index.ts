@@ -393,7 +393,7 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 		this._frame.current = timeCode * 60;
 		this._frame.playing = true;
 
-		const event = this.createEntityUpdateEvent( { forceDraw: true } );
+		const event = this.createEntityUpdateEvent( { forceDraw: true, offline: true } );
 
 		this._renderer.globalUniforms.uTime.value = this._time.code;
 		this._renderer.globalUniforms.uTimeF.value = this._time.code % 1;

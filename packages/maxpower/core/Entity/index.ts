@@ -17,6 +17,8 @@ export interface EntityUpdateEvent {
 	matrix?: MTP.Matrix;
 	visibility?: boolean;
 	forceDraw?: boolean
+	// 書き出し・shot のように実時間に縛られず1コマずつ描く経路。非同期の準備は addRenderWait で待たせられる
+	offline?: boolean
 }
 
 export interface EntityResizeEvent {
