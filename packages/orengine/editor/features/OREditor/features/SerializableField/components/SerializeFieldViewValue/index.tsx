@@ -5,6 +5,7 @@ import { InputColor, Label, Vector } from 'uipower';
 
 import { useOREditor } from '../../../../hooks/useOREditor';
 import { findFieldUI } from '../../../../lib/fieldUI';
+import { useFieldDragEdit } from '../../hooks/useFieldDragEdit';
 import { useSerializeFieldView } from '../../hooks/useSerializeFieldView';
 import { Value } from '../Value';
 import { ValueArray } from '../ValueArray';
@@ -15,6 +16,7 @@ export const SerializeFieldViewValue: React.FC<{ path:string, field: SerializeFi
 
 	const { editor, engine, fieldUIs } = useOREditor();
 	const { target } = useSerializeFieldView();
+	const fieldEdit = useFieldDragEdit( target, props.path );
 	const value = props.field.value;
 	const valueType = typeof value;
 	const opt = props.field.opt;
@@ -50,11 +52,7 @@ export const SerializeFieldViewValue: React.FC<{ path:string, field: SerializeFi
 
 		if ( format?.type == "vector" ) {
 
-			valueElm = <Vector value={value as number[]} {...opt} onChange={( v ) => {
-
-				editor.api.setField( target, props.path, v );
-
-			}} />;
+			valueElm = <Vector value={value as number[]} {...opt} {...fieldEdit} />;
 
 		} else if ( format?.type == "color" ) {
 
@@ -67,21 +65,13 @@ export const SerializeFieldViewValue: React.FC<{ path:string, field: SerializeFi
 		} else {
 
 
-			valueElm = <ValueArray value={value} {...opt} onChange={( v ) => {
-
-				editor.api.setField( target, props.path, v );
-
-			} }/>;
+			valueElm = <ValueArray value={value} {...opt} {...fieldEdit} />;
 
 		}
 
 	} else {
 
-		valueElm = <Value value={value} {...opt} onChange={( v ) => {
-
-			editor.api.setField( target, props.path, v );
-
-		}}/>;
+		valueElm = <Value value={value} {...opt} {...fieldEdit} />;
 
 		// 関数フィールドは Button ひとつなので、ラベル行に入れず行いっぱいに伸ばす
 		if ( valueType === "function" ) {

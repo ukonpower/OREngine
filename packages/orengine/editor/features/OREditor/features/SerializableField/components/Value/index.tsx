@@ -22,6 +22,10 @@ export type ValueOpt = {
 export type ValueProps<T> = {
 	value: T | undefined,
 	onChange?: ( value: T ) => void
+	// 数値・Vector のドラッグの開始・確定・取り消し（右クリック / Esc）
+	onDragStart?: () => void,
+	onDragEnd?: () => void,
+	onDragCancel?: () => void,
 	format?: SerializableFieldFormat
 } & ValueOpt
 
@@ -55,7 +59,7 @@ export const Value = <T extends SerializeFieldObjective>( props : ValueProps<T> 
 
 		} else if ( format.type == "vector" && Array.isArray( value ) ) {
 
-			inputElm = <Vector value={value as number[]} onChange={onChangeValue} />;
+			inputElm = <Vector value={value as number[]} onChange={onChangeValue} onDragStart={props.onDragStart} onDragEnd={props.onDragEnd} onDragCancel={props.onDragCancel} />;
 
 		} else if ( format.type == "color" && Array.isArray( value ) ) {
 

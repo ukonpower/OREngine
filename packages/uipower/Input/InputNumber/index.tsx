@@ -22,8 +22,13 @@ type Props = {
 	selected?: boolean;
 	// 渡すと、ドラッグで値を自分では反映せず丸める前の変化量を渡す。Vector が選択中の全軸へ同じ変化量を配るため
 	onDrag?: ( deltaValue: number ) => void;
+	// 横ドラッグで値を変え始めたとき（範囲選択から移ったときを含む）
+	onDragStart?: () => void;
 	// ドラッグの終わり（pointercancel での打ち切りを含む）。範囲選択から指を離してテキスト編集へ移るときは呼ばない
 	onDragEnd?: () => void;
+	// 押している間の右クリック / Esc での取り消し（Blender と同じ操作）。onDrag が無ければ、呼ぶ前に onChange で押した時点の値へ戻す。
+	// onDrag を渡した側は値を自分で持っているので、戻すのもそちらで行う
+	onDragCancel?: () => void;
 	// PC で渡すと、縦向きに動かし始めたドラッグを値の変更ではなく範囲選択として扱い、動かすたびにポインタの Y を渡す
 	onSelectDrag?: ( clientY: number ) => void;
 };
@@ -41,6 +46,40 @@ const SELECT_TO_DRAG_THRESHOLD = 10;
 
 // none: まだ DRAG_THRESHOLD を越えていない / drag: 横ドラッグで値を変えている / select: 縦ドラッグで範囲選択している
 type DragMode = "none" | "drag" | "select";
+
+// 取り消しに使った右クリックのコンテキストメニューを出さない。
+// メニューが出るのは macOS では右ボタンを押したとき、Windows では離したときなので、右ボタンを離すまで止める
+const suppressContextMenu = () => {
+
+	const onContextMenu = ( e: Event ) => {
+
+		e.preventDefault();
+
+	};
+
+	const onMouseUp = ( e: globalThis.MouseEvent ) => {
+
+		if ( e.button !== 2 ) return;
+
+		// Windows の contextmenu は mouseup の後に届くので、外すのは次のタスクまで待つ
+		setTimeout( dispose, 0 );
+
+	};
+
+	const dispose = () => {
+
+		window.removeEventListener( "contextmenu", onContextMenu, { capture: true } );
+		window.removeEventListener( "mouseup", onMouseUp );
+		window.removeEventListener( "pointerdown", dispose );
+
+	};
+
+	window.addEventListener( "contextmenu", onContextMenu, { capture: true } );
+	window.addEventListener( "mouseup", onMouseUp );
+	// 右ボタンの mouseup を取りこぼしても、次の操作で外れて以後のメニューを止め続けないようにする
+	window.addEventListener( "pointerdown", dispose );
+
+};
 
 // min / max の範囲に収める。指定の無い側は制限しない
 const clamp = ( value: number, min: number | undefined, max: number | undefined ) => {
@@ -83,8 +122,14 @@ export const InputNumber = ( props: Props ) => {
 	const onDragRef = useRef<( ( deltaValue: number ) => void ) | undefined>( undefined );
 	onDragRef.current = props.onDrag;
 
+	const onDragStartRef = useRef<( () => void ) | undefined>( undefined );
+	onDragStartRef.current = props.onDragStart;
+
 	const onDragEndRef = useRef<( () => void ) | undefined>( undefined );
 	onDragEndRef.current = props.onDragEnd;
+
+	const onDragCancelRef = useRef<( () => void ) | undefined>( undefined );
+	onDragCancelRef.current = props.onDragCancel;
 
 	const onSelectDragRef = useRef<( ( clientY: number ) => void ) | undefined>( undefined );
 	onSelectDragRef.current = props.onSelectDrag;
@@ -119,6 +164,8 @@ export const InputNumber = ( props: Props ) => {
 
 				modeRef.current = "drag";
 
+				if ( onDragStartRef.current ) onDragStartRef.current();
+
 			}
 
 			lastXRef.current = e.clientX;
@@ -141,6 +188,8 @@ export const InputNumber = ( props: Props ) => {
 
 			modeRef.current = "drag";
 			lastXRef.current = e.clientX;
+
+			if ( onDragStartRef.current ) onDragStartRef.current();
 
 		}
 
@@ -214,6 +263,8 @@ export const InputNumber = ( props: Props ) => {
 		lastXRef.current = e.clientX;
 		dragValueRef.current = valueRef.current ?? 0;
 
+		const startValue = valueRef.current;
+
 		const finish = () => {
 
 			pointerDownRef.current = false;
@@ -222,7 +273,58 @@ export const InputNumber = ( props: Props ) => {
 
 			window.removeEventListener( "pointerup", onPointerUp );
 			window.removeEventListener( "pointercancel", onPointerCancel );
-			window.removeEventListener( "pointermove", onPointerMoveNumber );
+			window.removeEventListener( "pointermove", onPointerMove );
+			window.removeEventListener( "keydown", onKeyDown, { capture: true } );
+
+		};
+
+		// 押している間の取り消し。値を押した時点へ戻し、テキスト編集にも移らない
+		const cancel = () => {
+
+			if ( modeRef.current === "drag" && ! onDragRef.current && onChangeRef.current && typeof startValue === "number" && valueRef.current !== startValue ) {
+
+				onChangeRef.current( startValue );
+
+			}
+
+			if ( modeRef.current !== "none" && onDragCancelRef.current ) {
+
+				onDragCancelRef.current();
+
+			}
+
+			finish();
+
+		};
+
+		// 左ボタンを押したままの右ボタンは pointerdown ではなく buttons の変わった pointermove として届く
+		const onPointerMove = ( e: PointerEvent ) => {
+
+			if ( ( e.buttons & 2 ) !== 0 ) {
+
+				e.preventDefault();
+				e.stopPropagation();
+
+				cancel();
+				suppressContextMenu();
+
+				return;
+
+			}
+
+			onPointerMoveNumber( e );
+
+		};
+
+		// capture で受けて止め、エディタの Escape ショートカット（シーンカメラへの同期）へ届かせない
+		const onKeyDown = ( e: KeyboardEvent ) => {
+
+			if ( e.key !== "Escape" ) return;
+
+			e.preventDefault();
+			e.stopPropagation();
+
+			cancel();
 
 		};
 
@@ -270,7 +372,8 @@ export const InputNumber = ( props: Props ) => {
 
 		window.addEventListener( "pointerup", onPointerUp );
 		window.addEventListener( "pointercancel", onPointerCancel );
-		window.addEventListener( "pointermove", onPointerMoveNumber );
+		window.addEventListener( "pointermove", onPointerMove );
+		window.addEventListener( "keydown", onKeyDown, { capture: true } );
 
 	}, [ onPointerMoveNumber, isSP, openInputWindow, props.precision ] );
 
