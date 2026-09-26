@@ -28,7 +28,7 @@ type Story = StoryObj<typeof meta>;
 
 export const White: Story = {};
 
-// 値は 0..1 の RGB 配列
+// 値はリニアの 0..1 の RGB 配列。ピッカーには sRGB へ変換して出る（この値は #e29300）
 export const Orange: Story = {
 	args: { value: [ 0.76, 0.29, 0 ] },
 };

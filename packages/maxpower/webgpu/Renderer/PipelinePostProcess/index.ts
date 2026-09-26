@@ -37,7 +37,7 @@ type PassCallback = ( pass: PostProcessPass ) => void;
 	webgl側の DeferredRenderer（シェーディング以外）と PipelinePostProcess をまとめたもの。
 
 	シェーディングの前に走る系統（法線選択・lightShaft・SSAO）と、
-	forwardのあとに走る系統（トーンマップ・SSR・DoF・モーションブラー・FXAA・ブルーム）に分かれる。
+	forwardのあとに走る系統（SSR・DoF・モーションブラー・ブルーム・トーンマップ・FXAA）に分かれる。
 	作風の処理（レンズ歪み・色収差など）は持たず、プロジェクトがカメラの PostProcessPipeline で足す。
 
 	SSAO / lightShaft / SSR は前フレームの結果と混ぜて均す設計なので、
@@ -118,7 +118,6 @@ export class PipelinePostProcess {
 	private _composite: PostProcessPass;
 
 	private _deferredChain: PostProcessChain;
-	private _colorChain: PostProcessChain;
 	private _screenChain: PostProcessChain;
 	private _bloomChain: PostProcessChain;
 	private _finishChain: PostProcessChain;
@@ -221,17 +220,6 @@ export class PipelinePostProcess {
 		] );
 
 		/*-------------------------------
-			トーンマップ
-		-------------------------------*/
-
-		this._colorCollection = pass( {
-			name: 'colorCollection',
-			wgsl: colorCollectionWgsl,
-		} );
-
-		this._colorChain = new PostProcessChain( device, frameLayout, [ this._colorCollection ] );
-
-		/*-------------------------------
 			スクリーンスペース（SSR / DoF / モーションブラー）
 		-------------------------------*/
 
@@ -323,8 +311,7 @@ export class PipelinePostProcess {
 			ブルーム
 		-------------------------------*/
 
-		// 輝度の抽出元はトーンマップ前のHDRシーン（webgl側も shadingBuffer から抽出している）。
-		// トーンマップ後だと閾値を超えなくなる
+		// 輝度の抽出元は SSR などを掛ける前のHDRシーン（webgl側も shadingBuffer から抽出している）
 		this._bright = pass( {
 			name: 'bloom/bright',
 			wgsl: bloomBrightWgsl,
@@ -378,10 +365,18 @@ export class PipelinePostProcess {
 			inputs: [ 'uBackBuffer0', ...this._bloomLevels.map( ( _, i ) => `uBloom${i}` ) ],
 		} );
 
-		// webgl側 PipelinePostProcess の末尾と同じ並び
+		// トーンマップを切っても linear→sRGB は掛けるので、パスは常に走らせて uToneMap で切り替える
+		this._colorCollection = pass( {
+			name: 'colorCollection',
+			wgsl: colorCollectionWgsl,
+			uniforms: { uToneMap: { value: 1, type: '1f' } },
+		} );
+
+		// webgl側 PipelinePostProcess の末尾と同じ並び。ブルーム合成までが HDR で、FXAA は sRGB の LDR に掛ける
 		this._finishChain = new PostProcessChain( device, frameLayout, [
-			pass( { name: 'fxaa', wgsl: fxaaWgsl } ),
 			this._composite,
+			this._colorCollection,
+			pass( { name: 'fxaa', wgsl: fxaaWgsl } ),
 		] );
 
 	}
@@ -391,7 +386,6 @@ export class PipelinePostProcess {
 		this._height = height;
 
 		this._deferredChain.setSize( device, width, height );
-		this._colorChain.setSize( device, width, height );
 		this._screenChain.setSize( device, width, height );
 		this._bloomChain.setSize( device, width, height );
 		this._finishChain.setSize( device, width, height );
@@ -477,8 +471,7 @@ export class PipelinePostProcess {
 		// ピンポンで描画先が入れ替わるので参照を毎フレーム張り直す
 		this._ssComposite.setInput( 'uSSRTexture', this._ssr.targetView! );
 
-		const color = this._colorChain.render( device, encoder, frameBindGroup, scene, undefined, onPass );
-		const screen = this._screenChain.render( device, encoder, frameBindGroup, color, undefined, onPass );
+		const screen = this._screenChain.render( device, encoder, frameBindGroup, scene, undefined, onPass );
 
 		this._bloomChain.render( device, encoder, frameBindGroup, screen, undefined, onPass );
 
@@ -492,7 +485,7 @@ export class PipelinePostProcess {
 
 		if ( config.toneMap !== undefined ) {
 
-			this._colorCollection.enabled = config.toneMap;
+			this._colorCollection.uniforms.uToneMap.value = config.toneMap ? 1 : 0;
 
 		}
 
@@ -608,7 +601,6 @@ export class PipelinePostProcess {
 	public dispose() {
 
 		this._deferredChain.dispose();
-		this._colorChain.dispose();
 		this._screenChain.dispose();
 		this._bloomChain.dispose();
 		this._finishChain.dispose();

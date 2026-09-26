@@ -338,7 +338,7 @@ export class Renderer extends Serializable implements RendererContract {
 				this.sky.color.set( v[ 0 ], v[ 1 ], v[ 2 ] );
 
 			},
-			{ format: { type: "vector" } }
+			{ format: { type: "color" } }
 		);
 
 		skyDir.field( "groundColor",
@@ -348,7 +348,7 @@ export class Renderer extends Serializable implements RendererContract {
 				this.sky.groundColor.set( v[ 0 ], v[ 1 ], v[ 2 ] );
 
 			},
-			{ format: { type: "vector" } }
+			{ format: { type: "color" } }
 		);
 
 		skyDir.field( "intensity",
