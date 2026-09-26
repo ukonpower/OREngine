@@ -2,11 +2,13 @@
 
 export { attachAgentBridge } from './AgentBridge';
 export { Editor } from './Editor';
-export { getKeyFrameState, isKeyFrameField, keyFrameTime } from './KeyFrameField';
+export { decodeCurve, deleteKeys, KEYFRAME_HANDLE_TYPES, moveHandle, moveKeys, pasteKeys, setHandleType, setInterpolation } from './KeyFrameCurve';
+export { countCurveUsers, getKeyFrameState, getLinks, isKeyFrameField, keyFrameKindOf, keyFrameTime, snapKeyFrameTime } from './KeyFrameField';
 
 export type { AgentSceneControl } from './AgentBridge/Command';
-export type { EditorTimelineLoop, NavigateAssetRequest, SelectedAssetInfo } from './Editor';
+export type { EditorTimelineLoop, NavigateAssetRequest, SelectedAssetInfo, TimelineKeyActions } from './Editor';
 export type { FieldEdit } from './EditorAPI';
-export type { KeyFrameFieldRef, KeyFrameState } from './KeyFrameField';
+export type { EditKey, KeyFrameHandleSide, KeyFrameHandleType } from './KeyFrameCurve';
+export type { KeyFrameFieldRef, KeyFrameKind, KeyFrameState } from './KeyFrameField';
 export type { SceneExporterOption, SceneExporterProgress } from './SceneExporter';
 export type { Viewport } from './Viewport';

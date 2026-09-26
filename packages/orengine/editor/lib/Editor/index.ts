@@ -39,6 +39,13 @@ export type EditorTimelineLoop = {
 	end: number,
 }
 
+// タイムラインで選んだキーへの操作。ポインタがタイムラインのキーの上にある間、Delete / X・Ctrl+C・Ctrl+V をこちらへ向ける
+export type TimelineKeyActions = {
+	deleteKeys: () => void;
+	copyKeys: () => void;
+	pasteKeys: () => void;
+};
+
 // ビューポートごとに切り替える編集用オーバーレイの表示フラグ
 type ViewportHelpers = HelperVisibility & {
 	grid: boolean;
@@ -108,6 +115,8 @@ export class Editor extends MXP.Serializable {
 	private _panelLayout: MXP.SerializeFieldValue;
 	// I / Alt+I の対象。プロパティパネルの行がポインタの出入りで設定する
 	private _hoveredKeyField: KeyFrameFieldRef | null;
+	// ポインタが乗っているタイムラインのキーの操作。タイムラインがポインタの出入りで設定する
+	private _hoveredTimeline: TimelineKeyActions | null;
 
 	private _disposed: boolean;
 	private _api: EditorAPI;
@@ -148,6 +157,7 @@ export class Editor extends MXP.Serializable {
 		this._modalStatus = null;
 		this._panelLayout = null;
 		this._hoveredKeyField = null;
+		this._hoveredTimeline = null;
 		this._disposed = false;
 		this._api = new EditorAPI( this );
 		this._draw = createEditorDraw( engine );
@@ -210,7 +220,30 @@ export class Editor extends MXP.Serializable {
 			onProjectionToggle: () => this.toggleEditorProjection(),
 			// メニューは React 側の Popover に出すので、ここでは要求を投げるだけにする
 			onAddEntity: () => this.emit( "request/addEntity" ),
-			onDeleteSelected: () => this.deleteSelected(),
+			onDeleteSelected: () => {
+
+				// タイムラインの上では、エンティティではなく選んだキーを消す
+				if ( this._hoveredTimeline ) {
+
+					this._hoveredTimeline.deleteKeys();
+
+					return;
+
+				}
+
+				this.deleteSelected();
+
+			},
+			onCopy: () => {
+
+				if ( this._hoveredTimeline ) this._hoveredTimeline.copyKeys();
+
+			},
+			onPaste: () => {
+
+				if ( this._hoveredTimeline ) this._hoveredTimeline.pasteKeys();
+
+			},
 			onDuplicateSelected: () => this.duplicateSelected(),
 			onRenameSelected: () => this.requestRenameSelected(),
 			onStepFrame: ( step ) => this.stepFrame( step ),
@@ -1185,6 +1218,24 @@ export class Editor extends MXP.Serializable {
 	public deleteKeys( fields: KeyFrameFieldRef[] ) {
 
 		this._api.deleteKeys( fields );
+
+	}
+
+	// ポインタがタイムラインのキーの上に入ったとき、キーボードの削除・コピー・貼り付けをその操作へ向ける
+	public enterTimeline( actions: TimelineKeyActions ) {
+
+		this._hoveredTimeline = actions;
+
+	}
+
+	// タイムラインから出たとき・消えたときに外す。別のタイムラインに入った後で前の leave が届いても消さないよう、同じものだけ外す
+	public leaveTimeline( actions: TimelineKeyActions ) {
+
+		if ( this._hoveredTimeline === actions ) {
+
+			this._hoveredTimeline = null;
+
+		}
 
 	}
 
