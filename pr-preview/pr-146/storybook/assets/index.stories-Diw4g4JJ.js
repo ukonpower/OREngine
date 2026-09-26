@@ -1,3 +1,0 @@
-import{n as e}from"./rolldown-runtime-DkW27tQK.js";import{A as t,c as n,i as r,j as i,s as a,t as o}from"./scene-Cc8LTZa2.js";import{t as s}from"./jsx-runtime-DeHZSEgm.js";import{t as c}from"./uipower-Bgx7q9aT.js";import{t as l}from"./Panel-h7tqFVYO.js";var u,d,f,p,m;function h(){return(h=e((()=>{a(),o(),c(),i(),u=s(),d={title:`OREditor/EditorSettings`,component:t},f=[e=>(0,u.jsx)(`div`,{style:{width:`300px`,height:`240px`},children:(0,u.jsx)(l,{children:(0,u.jsx)(e,{})})}),n(r)],p={decorators:f},p.parameters={...p.parameters,docs:{...p.parameters?.docs,source:{originalSource:`{
-  decorators
-}`,...p.parameters?.docs?.source}}},m=[`Default`]})))()}h();export{p as Default,m as __namedExportsOrder,d as default};
