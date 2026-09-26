@@ -259,6 +259,26 @@ export function selectTab( root: LayoutNode, paneId: string, panelId: PanelId ):
 
 }
 
+// 指定のパネルを含む pane すべてで、そのパネルをアクティブにする。どの pane にも無いパネルは無視し、
+// 何も変わらなければ root をそのまま返す（呼び出し側が変化の有無を参照比較で判定するため）
+export function activatePanels( root: LayoutNode, panelIds: PanelId[] ): LayoutNode {
+
+	let next = root;
+
+	for ( const pane of collectPanes( root ) ) {
+
+		for ( const panelId of panelIds ) {
+
+			if ( pane.tabs.includes( panelId ) && pane.active !== panelId ) next = selectTab( next, pane.id, panelId );
+
+		}
+
+	}
+
+	return next;
+
+}
+
 // pane の index 位置へタブを挿してアクティブにする（省略時は末尾）。既に同じタブがある pane へは何もしない
 export function addTab( root: LayoutNode, paneId: string, panelId: PanelId, index?: number ): LayoutNode {
 

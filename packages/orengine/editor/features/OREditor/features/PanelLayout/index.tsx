@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { LayoutSplit, Menu, PanelContainer, pointAnchor, usePopover } from 'uipower';
 
@@ -10,7 +10,7 @@ import { DragOverlay } from './components/DragOverlay';
 import { useTabDrag } from './hooks/useTabDrag';
 import style from './index.module.scss';
 import { buildAddTabMenu } from './lib/addTabMenu';
-import { addTab, closeTab, collectPanes, defaultLayout, findPanel, newTabId, panelContent, parseLayout, selectTab, setRatios, tabInstance } from './lib/layoutTree';
+import { activatePanels, addTab, closeTab, collectPanes, defaultLayout, findPanel, newTabId, panelContent, parseLayout, selectTab, setRatios, tabInstance } from './lib/layoutTree';
 
 import type { PanelResolver } from './lib/layoutTree';
 import type { LayoutNode, PaneNode, PanelDefinition, PanelId } from './lib/types';
@@ -79,6 +79,8 @@ export type PanelLayoutProps = {
 	// 配置できるパネルの定義（ビルトイン + 利用者が渡したもの）。
 	// デフォルトレイアウト上の配置は defaultLayout が id で決める
 	panels: PanelDefinition[];
+	// エンティティが選択されたとき、それを含む pane でアクティブにするパネル
+	activateOnSelect?: PanelId[];
 };
 
 // パネルレイアウトのデータ駆動レンダラー。ツリー（配置・比率・アクティブタブ）は
@@ -117,12 +119,53 @@ export const PanelLayout = ( props: PanelLayoutProps ) => {
 
 	}, [ layout, resolve, editor ] );
 
+	// 選択の経路（ビューポート・Hierarchy・シーン CLI・editor.json の読み込み）によらず拾うため、
+	// field の更新イベントを購読する。同じエンティティの再選択でもイベントは出る。
+	// 読み込み時は panelLayout より先に selectedEntityId が流し込まれることがあるので、
+	// ここでは要求を立てるだけにし、描画後の最新の木に対して下の effect で切り替える
+	const [ activateRequested, setActivateRequested ] = useState( () => !! editor.getField( "selectedEntityId" ) );
+
+	useEffect( () => {
+
+		const onSelect = () => {
+
+			if ( editor.getField( "selectedEntityId" ) ) setActivateRequested( true );
+
+		};
+
+		editor.on( "fields/update/selectedEntityId", onSelect );
+
+		return () => {
+
+			editor.off( "fields/update/selectedEntityId", onSelect );
+
+		};
+
+	}, [ editor ] );
+
 	// field は素通しの箱なので、木の型はこの feature 側で保証して受け渡す
 	const apply = ( next: LayoutNode ) => {
 
 		if ( next !== layout ) setSavedLayout( next as unknown as MXP.SerializeFieldValue );
 
 	};
+
+	const activateOnSelect = props.activateOnSelect;
+
+	useEffect( () => {
+
+		if ( ! activateRequested ) return;
+
+		setActivateRequested( false );
+
+		if ( ! activateOnSelect ) return;
+
+		const next = activatePanels( layout, activateOnSelect );
+
+		// apply は毎レンダー作り直されるので deps に載せず、同じ panelLayout field へ直接書く
+		if ( next !== layout ) editor.setField( "panelLayout", next as unknown as MXP.SerializeFieldValue );
+
+	}, [ activateRequested, activateOnSelect, layout, editor ] );
 
 	const onSelectTab = ( paneId: string, panelId: PanelId ) => apply( selectTab( layout, paneId, panelId ) );
 	const onRatiosChange = ( splitId: string, ratios: number[] ) => apply( setRatios( layout, splitId, ratios ) );
