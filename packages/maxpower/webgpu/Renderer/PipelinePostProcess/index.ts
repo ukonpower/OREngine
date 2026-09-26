@@ -226,7 +226,7 @@ export class PipelinePostProcess {
 		this._ssr = pass( {
 			name: 'ssr',
 			wgsl: ssrWgsl,
-			inputs: [ 'uBackBuffer0', NEAREST( 'uGbufferPos' ), NEAREST( 'uGbufferNormal' ) ],
+			inputs: [ 'uBackBuffer0', NEAREST( 'uGbufferPos' ), NEAREST( 'uGbufferNormal' ), NEAREST( 'uVelTex' ) ],
 			pingPong: 'uSSRBackBuffer',
 			resolutionRatio: 0.5,
 			passThrough: true,

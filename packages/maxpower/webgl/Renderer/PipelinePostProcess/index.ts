@@ -104,6 +104,10 @@ export class PipelinePostProcess {
 					value: rtSSR2.textures[ 0 ],
 					type: '1i'
 				},
+				uVelTex: {
+					value: null,
+					type: '1i'
+				},
 			} ),
 			resolutionRatio: 0.5,
 			passThrough: true,
@@ -454,6 +458,7 @@ export class PipelinePostProcess {
 		ssr.uniforms.uGbufferPos.value = renderTarget.gBuffer.textures[ 0 ];
 		ssr.uniforms.uGbufferNormal.value = renderTarget.normalBuffer.textures[ 0 ];
 		ssr.uniforms.uSceneTex.value = renderTarget.forwardBuffer.textures[ 0 ];
+		ssr.uniforms.uVelTex.value = renderTarget.gBuffer.textures[ 4 ];
 
 		// ssComposite
 
