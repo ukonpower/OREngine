@@ -70,7 +70,7 @@ export class Light extends ShadowMapCamera {
 		// field
 
 		this.field( "lightType", () => this.lightType, ( v ) => this.lightType = v, { format: { type: "select", list: [ "directional", "spot" ] } } );
-		this.field( "color", () => this.color.getElm( "vec3" ), ( v ) => this.color.setFromArray( v ), { format: { type: "vector" } } );
+		this.field( "color", () => this.color.getElm( "vec3" ), ( v ) => this.color.setFromArray( v ), { format: { type: "color" } } );
 		this.field( "castShadow", () => this.castShadow, ( v ) => this.castShadow = v );
 		this.field( "angle", () => this.angle, ( v ) => {
 

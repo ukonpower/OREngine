@@ -38,6 +38,11 @@ const BLOOM_BLUR_SAMPLES = 8;
 const DOF_MAX_COC_PIXELS = 14;
 const DOF_MAX_COC_RATIO = 0.05;
 
+// トーンマップより前のパスの描画先。HDR の値を 1 で切らずに持つ
+const createHdrTarget = ( backend: GLBackend ) => backend.createFrameBuffer().setTexture( [
+	backend.createTexture().setting( { type: GL.FLOAT, internalFormat: GL.RGBA16F, format: GL.RGBA, magFilter: GL.LINEAR, minFilter: GL.LINEAR } ),
+] );
+
 export class PipelinePostProcess {
 
 	public dofCoc: MXP.PostProcessPass;
@@ -61,20 +66,22 @@ export class PipelinePostProcess {
 	// 描画元の G-Buffer はビュー固有なので、生成時に一度だけ繋ぐ
 	constructor( backend: GLBackend, renderTarget: MXP.RenderCameraTarget ) {
 
+		// トーンマップを切っても linear→sRGB は掛けるので、パスは常に走らせて uToneMap で切り替える
 		const colorCollection = new MXP.PostProcessPass( backend, {
 			name: 'collection',
 			frag: colorCollectionFrag,
+			uniforms: {
+				uToneMap: {
+					value: 1,
+					type: '1f'
+				},
+			},
 		} );
 
 		// ssr
 
-		const rtSSR1 = backend.createFrameBuffer().setTexture( [
-			backend.createTexture().setting( { magFilter: GL.LINEAR, minFilter: GL.LINEAR } ),
-		] );
-
-		const rtSSR2 = backend.createFrameBuffer().setTexture( [
-			backend.createTexture().setting( { magFilter: GL.LINEAR, minFilter: GL.LINEAR } ),
-		] );
+		const rtSSR1 = createHdrTarget( backend );
+		const rtSSR2 = createHdrTarget( backend );
 
 		const ssr = new MXP.PostProcessPass( backend, {
 			name: 'ssr',
@@ -137,6 +144,7 @@ export class PipelinePostProcess {
 					type: '1i'
 				},
 			} ),
+			renderTarget: createHdrTarget( backend ),
 		} );
 
 		if ( import.meta.hot ) {
@@ -192,9 +200,7 @@ export class PipelinePostProcess {
 					type: '4f'
 				}
 			} ),
-			renderTarget: backend.createFrameBuffer().setTexture( [
-				backend.createTexture().setting( { magFilter: GL.LINEAR, minFilter: GL.LINEAR } ),
-			] ),
+			renderTarget: createHdrTarget( backend ),
 			passThrough: true,
 			resolutionRatio: 0.5,
 		} );
@@ -208,9 +214,7 @@ export class PipelinePostProcess {
 					type: '1i'
 				}
 			} ),
-			renderTarget: backend.createFrameBuffer().setTexture( [
-				backend.createTexture().setting( { magFilter: GL.LINEAR, minFilter: GL.LINEAR } ),
-			] ),
+			renderTarget: createHdrTarget( backend ),
 			passThrough: true,
 			resolutionRatio: 0.5,
 		} );
@@ -295,6 +299,7 @@ export class PipelinePostProcess {
 			defines: {
 				"TILE": motionBlurTileNum,
 			},
+			renderTarget: createHdrTarget( backend ),
 		} );
 
 		// fxaa
@@ -306,7 +311,7 @@ export class PipelinePostProcess {
 
 		// bloom
 
-		// 輝度の抽出元はトーンマップ前のシェーディングバッファ。トーンマップ後だとしきい値を超えなくなる
+		// 輝度の抽出元は SSR などを掛ける前のシェーディングバッファ
 		const bloomBright = new MXP.PostProcessPass( backend, {
 			name: 'bloom/bright',
 			frag: bloomBrightFrag,
@@ -324,6 +329,7 @@ export class PipelinePostProcess {
 					type: '1f'
 				},
 			},
+			renderTarget: createHdrTarget( backend ),
 			resolutionRatio: 0.5,
 			passThrough: true,
 		} );
@@ -336,13 +342,8 @@ export class PipelinePostProcess {
 
 		for ( let i = 0; i < BLOOM_LEVELS; i ++ ) {
 
-			const rtVertical = backend.createFrameBuffer().setTexture( [
-				backend.createTexture().setting( { magFilter: GL.LINEAR, minFilter: GL.LINEAR } ),
-			] );
-
-			const rtHorizontal = backend.createFrameBuffer().setTexture( [
-				backend.createTexture().setting( { magFilter: GL.LINEAR, minFilter: GL.LINEAR } ),
-			] );
+			const rtVertical = createHdrTarget( backend );
+			const rtHorizontal = createHdrTarget( backend );
 
 			const blurParam: MXP.PostProcessPassParam = {
 				name: 'bloom/blur/' + i + '/v',
@@ -410,13 +411,14 @@ export class PipelinePostProcess {
 					type: '1iv'
 				},
 			},
+			renderTarget: createHdrTarget( backend ),
 		} ) );
 
 		// Postprocess
 
-		// 並びは webgpu 側と同じ（トーンマップ → SSR / DoF / モーションブラー → FXAA → ブルーム加算）
+		// 並びは webgpu 側と同じ（SSR / DoF / モーションブラー → ブルーム合成 → トーンマップ + linear→sRGB → FXAA）。
+		// トーンマップより前は HDR のまま処理し、FXAA は sRGB の LDR に掛ける
 		this.postprocess = new MXP.PostProcess( { passes: [
-			colorCollection,
 			ssr,
 			ssComposite,
 			dofCoc,
@@ -426,8 +428,9 @@ export class PipelinePostProcess {
 			motionBlurTile,
 			motionBlurNeighbor,
 			motionBlur,
-			fxaa,
 			...bloomPasses,
+			colorCollection,
+			fxaa,
 		] } );
 
 		this._ssr = ssr;
@@ -511,7 +514,7 @@ export class PipelinePostProcess {
 
 		if ( config.toneMap !== undefined ) {
 
-			this._colorCollection.enabled = config.toneMap;
+			this._colorCollection.uniforms.uToneMap.value = config.toneMap ? 1 : 0;
 
 		}
 

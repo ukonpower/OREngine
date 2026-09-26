@@ -34,7 +34,8 @@ const createRenderTarget = ( backend: GLBackend ): RenderCameraTarget => {
 	gBuffer.setTexture( [
 		backend.createTexture().setting( { type: GL.FLOAT, internalFormat: GL.RGBA32F, format: GL.RGBA, magFilter: GL.NEAREST, minFilter: GL.NEAREST } ),
 		backend.createTexture().setting( { type: GL.FLOAT, internalFormat: GL.RGBA32F, format: GL.RGBA } ),
-		backend.createTexture(),
+		// albedo。リニアの値を 8bit で持つと暗部が潰れるので、書き込みで sRGB へ encode・読み出しで decode させる
+		backend.createTexture().setting( { internalFormat: GL.SRGB8_ALPHA8 } ),
 		backend.createTexture(),
 		backend.createTexture().setting( { type: GL.FLOAT, internalFormat: GL.RGBA32F, format: GL.RGBA } ),
 	] );

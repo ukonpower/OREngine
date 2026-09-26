@@ -1,11 +1,7 @@
 #include <module:common>
 
 uniform sampler2D uBackBuffer0;
-uniform sampler2D uBloomTexture[4];
-
-uniform vec3 uCameraPosition;
-uniform float uCameraNear;
-uniform float uCameraFar;
+uniform float uToneMap;
 
 in vec2 vUv;
 
@@ -65,8 +61,9 @@ void main( void ) {
 
     vec3 col = texture( uBackBuffer0, vUv ).xyz;
 
-    col = ACESFitted( col );
+    col = mix( col, ACESFitted( col ), uToneMap );
 
-	outColor = vec4( col, 1.0 );
+	// WebGL には sRGB の drawingBuffer が無いので、表示用の sRGB へはここで変換する
+	outColor = vec4( linearToSrgb( col ), 1.0 );
 
 }
