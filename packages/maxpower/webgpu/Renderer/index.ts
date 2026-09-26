@@ -142,6 +142,8 @@ const createDefaultPipelineConfig = (): PipelineConfig => ( {
 	bloom: true,
 	bloomThreshold: 1.0,
 	bloomBrightness: 1.0,
+	sss: false,
+	sssRadius: 0.05,
 } );
 
 type RenderStack = {
@@ -475,6 +477,21 @@ export class Renderer extends Serializable implements RendererContract {
 
 		} );
 
+		// sss は使う作品だけが有効にするので、他のパスと違い既定はオフ
+		const sss = pipeline.dir( 'sss' );
+
+		sss.field( 'enabled', () => this.pipelineConfig.sss ?? false, ( v: boolean ) => {
+
+			this.applyPipelineConfig( { sss: v } );
+
+		} );
+
+		sss.field( 'radius', () => this.pipelineConfig.sssRadius ?? 0.05, ( v: number ) => {
+
+			this.applyPipelineConfig( { sssRadius: v } );
+
+		}, { step: 0.01 } );
+
 	}
 
 	/*-------------------------------
@@ -670,7 +687,7 @@ export class Renderer extends Serializable implements RendererContract {
 				bindGroupLayouts: [ this._uniformLayout!, this._gBufferLayout!, this._lights!.bindGroupLayout ],
 			} ),
 			vertex: { module: shadingModule, entryPoint: 'vsMain' },
-			fragment: { module: shadingModule, entryPoint: 'fsMain', targets: [ { format: SCENE_FORMAT } ] },
+			fragment: { module: shadingModule, entryPoint: 'fsMain', targets: [ { format: SCENE_FORMAT }, { format: SCENE_FORMAT } ] },
 			primitive: { topology: 'triangle-list' },
 		} );
 
@@ -825,6 +842,16 @@ export class Renderer extends Serializable implements RendererContract {
 		}
 
 		this._renderShading( encoder, view );
+
+		// forward はシーンバッファへ重ねるので、SSS の結果はシーンバッファへ写し戻す
+		const sss = pipeline.renderSSS( device, encoder, frameBindGroup, view.targets.diffuseView!, onPass );
+
+		if ( sss ) {
+
+			encoder.copyTextureToTexture( { texture: sss }, { texture: view.targets.scene! }, [ view.targets.width, view.targets.height ] );
+
+		}
+
 		this._renderForward( device, encoder, view );
 
 		// forwardもgBufferのpositionへ書くので、読み戻しはforwardの後に置く
@@ -1179,12 +1206,20 @@ export class Renderer extends Serializable implements RendererContract {
 
 		const pass = encoder.beginRenderPass( {
 			label: 'shading',
-			colorAttachments: [ {
-				view: targets.sceneView!,
-				clearValue: { r: 0, g: 0, b: 0, a: 1 },
-				loadOp: 'clear',
-				storeOp: 'store',
-			} ],
+			colorAttachments: [
+				{
+					view: targets.sceneView!,
+					clearValue: { r: 0, g: 0, b: 0, a: 1 },
+					loadOp: 'clear',
+					storeOp: 'store',
+				},
+				{
+					view: targets.diffuseView!,
+					clearValue: { r: 0, g: 0, b: 0, a: 1 },
+					loadOp: 'clear',
+					storeOp: 'store',
+				},
+			],
 		} );
 
 		pass.setPipeline( this._shadingPipeline! );
@@ -1447,10 +1482,11 @@ export class Renderer extends Serializable implements RendererContract {
 		pipeline.setGBuffer(
 			targets.gBufferViews[ 0 ],
 			targets.gBufferViews[ 1 ],
+			targets.gBufferViews[ 2 ],
 			targets.gBufferViews[ 3 ],
 			targets.gBufferViews[ 4 ]
 		);
-		pipeline.setScene( targets.sceneView! );
+		pipeline.setScene( targets.sceneView!, targets.diffuseView! );
 
 		this._createGBufferBindGroup( device, view );
 

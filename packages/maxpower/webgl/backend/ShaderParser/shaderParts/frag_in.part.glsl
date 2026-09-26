@@ -7,3 +7,4 @@ float outRoughness = 0.5;
 float outMetallic = 0.0;
 vec3 outPos = vPos;
 float outEnv = 1.0;
+float outSSS = 0.0;

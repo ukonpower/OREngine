@@ -114,6 +114,8 @@ const createDefaultPipelineConfig = (): PipelineConfig => ( {
 	bloom: true,
 	bloomThreshold: 1.0,
 	bloomBrightness: 1.0,
+	sss: false,
+	sssRadius: 0.05,
 } );
 
 // default material
@@ -419,6 +421,21 @@ export class Renderer extends Serializable implements RendererContract {
 			}
 
 		} );
+
+		// sss は使う作品だけが有効にするので、他のパスと違い既定はオフ
+		const sss = pipeline.dir( "sss" );
+
+		sss.field( "enabled", () => this._pipelineConfig.sss ?? false, ( v: boolean ) => {
+
+			this.applyPipelineConfig( { sss: v } );
+
+		} );
+
+		sss.field( "radius", () => this._pipelineConfig.sssRadius ?? 0.05, ( v: number ) => {
+
+			this.applyPipelineConfig( { sssRadius: v } );
+
+		}, { step: 0.01 } );
 
 	}
 

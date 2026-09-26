@@ -155,7 +155,8 @@ float fresnel( float d ) {
 
 }
 
-vec3 RE( Geometry geo, Material mat, Light light) {
+// 1灯ぶんの反射を diffuse と specular に分けて足す（SSS が diffuse だけをぼかすため）
+void RE( Geometry geo, Material mat, Light light, inout vec3 diffuse, inout vec3 specular ) {
 
 	vec3 lightDir = normalize( light.direction );
 	vec3 halfVec = normalize( geo.viewDir + lightDir );
@@ -167,19 +168,11 @@ vec3 RE( Geometry geo, Material mat, Light light) {
 
 	vec3 irradiance = light.color * dNL;
 
-	// diffuse
-	vec3 diffuse = lambert( mat.diffuseColor ) * irradiance;
-
-	// specular
 	float D = ggx( dNH, mat.roughness );
 	float G = gSmith( dNV, dNL, mat.roughness );
 	float F = fresnel( dLH );
-	
-	vec3 specular = (( D * G * F ) / ( 4.0 * dNL * dNV + 0.0001 ) * mat.specularColor ) * irradiance; 
 
-	vec3 c = vec3( 0.0 );
-	c += diffuse * ( 1.0 - F ) + specular;
-
-	return c;
+	diffuse += lambert( mat.diffuseColor ) * irradiance * ( 1.0 - F );
+	specular += (( D * G * F ) / ( 4.0 * dNL * dNV + 0.0001 ) * mat.specularColor ) * irradiance;
 
 }

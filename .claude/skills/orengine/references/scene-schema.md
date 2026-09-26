@@ -29,7 +29,9 @@
 		"pipeline/toneMap/enabled": true,
 		"pipeline/bloom/enabled": true,
 		"pipeline/bloom/threshold": 1,
-		"pipeline/bloom/brightness": 1
+		"pipeline/bloom/brightness": 1,
+		"pipeline/sss/enabled": false,
+		"pipeline/sss/radius": 0.05
 	},
 	"timeline/duration": 600,
 	"timeline/fps": 60

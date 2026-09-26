@@ -144,7 +144,9 @@ export class RenderView implements RenderViewContract {
 		this.deferredRenderer.setPassEnabled( {
 			ssao: config.ssao,
 			lightShaft: config.lightShaft,
+			sss: config.sss,
 		} );
+		this.deferredRenderer.setSSSRadius( config.sssRadius ?? 0.05 );
 		this.pipelinePostProcess.setPassEnabled( {
 			toneMap: config.toneMap,
 			motionBlur: config.motionBlur,

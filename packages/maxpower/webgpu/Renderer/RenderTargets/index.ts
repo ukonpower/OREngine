@@ -3,7 +3,7 @@ import { DEPTH_FORMAT, GBUFFER_ATTACHMENTS, SCENE_FORMAT } from '../../backend/B
 /*-------------------------------
 	カメラ1台ぶんの中間バッファ
 
-	gBuffer（MRT5）・シーン深度・シェーディング結果を持つ。
+	gBuffer（MRT5）・シーン深度・シェーディング結果（と SSS 用にその diffuse だけ）を持つ。
 	キャンバスの実サイズに追従し、変わったときだけ作り直す。
 -------------------------------*/
 
@@ -18,6 +18,8 @@ export class RenderTargets {
 	public depthView: GPUTextureView | null;
 	public scene: GPUTexture | null;
 	public sceneView: GPUTextureView | null;
+	public diffuse: GPUTexture | null;
+	public diffuseView: GPUTextureView | null;
 	public refraction: GPUTexture | null;
 	public refractionView: GPUTextureView | null;
 
@@ -31,6 +33,8 @@ export class RenderTargets {
 		this.depthView = null;
 		this.scene = null;
 		this.sceneView = null;
+		this.diffuse = null;
+		this.diffuseView = null;
 		this.refraction = null;
 		this.refractionView = null;
 
@@ -67,14 +71,25 @@ export class RenderTargets {
 
 		this.depthView = this.depth.createView();
 
+		// SSS の結果を写し戻すので COPY_DST も持つ
 		this.scene = device.createTexture( {
 			label: 'scene',
 			size: [ width, height ],
 			format: SCENE_FORMAT,
-			usage: usage | GPUTextureUsage.COPY_SRC,
+			usage: usage | GPUTextureUsage.COPY_SRC | GPUTextureUsage.COPY_DST,
 		} );
 
 		this.sceneView = this.scene.createView();
+
+		// シェーディング結果のうち diffuse だけ。SSS がぼかす入力
+		this.diffuse = device.createTexture( {
+			label: 'diffuse',
+			size: [ width, height ],
+			format: SCENE_FORMAT,
+			usage,
+		} );
+
+		this.diffuseView = this.diffuse.createView();
 
 		// forward描画前のシーンのコピー。forwardマテリアルが背景として読む
 		this.refraction = device.createTexture( {
@@ -101,6 +116,10 @@ export class RenderTargets {
 		this.scene?.destroy();
 		this.scene = null;
 		this.sceneView = null;
+
+		this.diffuse?.destroy();
+		this.diffuse = null;
+		this.diffuseView = null;
 
 		this.refraction?.destroy();
 		this.refraction = null;

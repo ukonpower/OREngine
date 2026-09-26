@@ -8,12 +8,14 @@ struct Surface {
 	metallic: f32,
 	emission: vec3f,
 	envIntensity: f32,
+	// SSS の強さ（0〜1）。0 なら SSS なし。albedo.w に入る
+	sss: f32,
 };
 
 // マテリアルが値を上書きする土台
 fn defaultSurface( input: VertexOutput ) -> Surface {
 
-	return Surface( vec3f( 0.8 ), normalize( input.normal ), 0.5, 0.0, vec3f( 0.0 ), 1.0 );
+	return Surface( vec3f( 0.8 ), normalize( input.normal ), 0.5, 0.0, vec3f( 0.0 ), 1.0, 0.0 );
 
 }
 
@@ -24,7 +26,7 @@ fn packGBuffer( input: VertexOutput, surface: Surface ) -> GBufferOutput {
 
 	output.position = vec4f( input.worldPosition, surface.emission.x );
 	output.normal = vec4f( normalize( surface.normal ), surface.emission.y );
-	output.albedo = vec4f( surface.albedo, 0.0 );
+	output.albedo = vec4f( surface.albedo, surface.sss );
 	output.material = vec4f( surface.roughness, surface.metallic, 0.0, surface.envIntensity );
 	output.velocity = vec4f( input.velocity, 0.0, surface.emission.z );
 
