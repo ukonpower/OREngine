@@ -33,7 +33,9 @@ const FACES = [
 ];
 
 const NEAR = 0.1;
-const FAR = 1000;
+// 面カメラの位置と far。空を面カメラに合わせて置くため、レンダラーも読む
+export const ENVMAP_ORIGIN = new MTP.Vector( 0, 0, 0 );
+export const ENVMAP_FAR = 1000;
 
 // ミップ0〜4の1フレームあたりのサンプル数。時間累積が前提。
 // ミップが1段下がるとピクセル数が1/4になるため、4倍ずつ増やして
@@ -106,8 +108,7 @@ export class EnvMap {
 		this.depthView = this._depthTexture.createView();
 
 		// 面ごとのカメラ。原点から6方向を90度で見る
-		const projectionMatrix = new MTP.Matrix().perspective( 90, 1, NEAR, FAR ).preMultiply( ENVMAP_CLIP_CORRECTION );
-		const origin = new MTP.Vector( 0, 0, 0 );
+		const projectionMatrix = new MTP.Matrix().perspective( 90, 1, NEAR, ENVMAP_FAR ).preMultiply( ENVMAP_CLIP_CORRECTION );
 
 		this._binders = [];
 		this.faceRenders = FACES.map( ( face, i ) => {
@@ -116,10 +117,10 @@ export class EnvMap {
 
 			binder.update( {
 				uCameraNear: { value: NEAR, type: '1f' },
-				uCameraFar: { value: FAR, type: '1f' },
-				uCameraPosition: { value: origin, type: '3fv' },
+				uCameraFar: { value: ENVMAP_FAR, type: '1f' },
+				uCameraPosition: { value: ENVMAP_ORIGIN, type: '3fv' },
 				uResolution: { value: new MTP.Vector( ENVMAP_SIZE, ENVMAP_SIZE ), type: '2fv' },
-				uViewMatrix: { value: new MTP.Matrix().lookAt( origin, face.target, face.up ).inverse(), type: 'Matrix4fv' },
+				uViewMatrix: { value: new MTP.Matrix().lookAt( ENVMAP_ORIGIN, face.target, face.up ).inverse(), type: 'Matrix4fv' },
 				uProjectionMatrix: { value: projectionMatrix, type: 'Matrix4fv' },
 			} );
 

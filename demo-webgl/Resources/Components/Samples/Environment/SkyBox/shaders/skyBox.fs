@@ -2,6 +2,7 @@
 #include <part:frag_h>
 #include <module:noise_value>
 #include <module:rotate>
+#include <module:sky>
 
 uniform float uAspectRatio;
 
@@ -9,12 +10,11 @@ void main( void ) {
 
 	#include <part:frag_in>
 
-	vec3 normal = normalize( - vNormal );
 	outRoughness = 1.0;
 	outColor *= 0.0;
 	outColor.xyz = vec3( 0.0, 0.05, 0.1);
 
-	vec3 sPos = outPos * 0.1;
+	vec3 sPos = skyPosition( vNormal ) * 0.1;
 
 	float n = noiseValue( sPos * 0.05 + uTimeE * 0.1 );
 

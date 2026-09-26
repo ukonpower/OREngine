@@ -1,11 +1,12 @@
 // レンダラー既定の空。プロジェクト側が renderer.sky.mesh.material を差し替えると使われなくなる
 
 #include "../../../Material/shaders/standardVertex.wgsl"
+#include <module:sky>
 
 // 上向きほど空色、下向きほど地面色
 fn skyColor( normal: vec3f ) -> vec3f {
 
-	let t = clamp( dot( normalize( normal ), vec3f( 0.0, 1.0, 0.0 ) ) * 0.5 + 0.5, 0.0, 1.0 );
+	let t = clamp( normalize( skyPosition( normal ) ).y * 0.5 + 0.5, 0.0, 1.0 );
 
 	return mix( material.uGroundColor, material.uSkyColor * 2.0, t ) * material.uSkyIntensity;
 
