@@ -18,9 +18,29 @@ type Props = {
 	precision?: number;
 	disabled?: boolean;
 	readOnly?: boolean;
+	// 一括入力の対象として選ばれている見た目にする
+	selected?: boolean;
+	// 渡すと、ドラッグで値を自分では反映せず丸める前の変化量を渡す。Vector が選択中の全軸へ同じ変化量を配るため
+	onDrag?: ( deltaValue: number ) => void;
+	// ドラッグの終わり（pointercancel での打ち切りを含む）。範囲選択から指を離してテキスト編集へ移るときは呼ばない
+	onDragEnd?: () => void;
+	// PC で渡すと、縦向きに動かし始めたドラッグを値の変更ではなく範囲選択として扱い、動かすたびにポインタの Y を渡す
+	onSelectDrag?: ( clientY: number ) => void;
 };
 
+// 押してからこれだけ動いたらドラッグとみなす。動かさずに離したらテキスト編集（SP は入力ウィンドウ）
 const DRAG_THRESHOLD = 3;
+
+// ドラッグ 1px あたりの変化量（step に掛ける）。SP は指で動かす量が PC と違うので分けている。SP の値は仮置きで、実機で触って調整する
+const DRAG_SENSITIVITY_PC = 0.05;
+const DRAG_SENSITIVITY_SP = 0.1;
+
+// 範囲選択の途中で横にこれだけ動いたら、選択を確定して値のドラッグへ移る。
+// 縦に動かしている間の手ぶれで移らないよう DRAG_THRESHOLD より大きくしている
+const SELECT_TO_DRAG_THRESHOLD = 10;
+
+// none: まだ DRAG_THRESHOLD を越えていない / drag: 横ドラッグで値を変えている / select: 縦ドラッグで範囲選択している
+type DragMode = "none" | "drag" | "select";
 
 // min / max の範囲に収める。指定の無い側は制限しない
 const clamp = ( value: number, min: number | undefined, max: number | undefined ) => {
@@ -45,45 +65,104 @@ export const InputNumber = ( props: Props ) => {
 
 	const pointerDownRef = useRef( false );
 	const pointerStartRef = useRef<{ x: number, y: number } | null>( null );
-	const draggedRef = useRef( false );
+	const modeRef = useRef<DragMode>( "none" );
+
+	// 直前の pointermove の X。movementX は iOS Safari のタッチで 0 になるため、差分は clientX から自前で取る
+	const lastXRef = useRef( 0 );
+
+	// 範囲選択に入ったときの X。ここから横に SELECT_TO_DRAG_THRESHOLD 動いたら値のドラッグへ移る
+	const selectStartXRef = useRef( 0 );
 
 	// ドラッグで積み上げている丸める前の値。表示中の値に毎回足すと、int のとき 1px ぶんの小さな変化が丸めで消えて動かなくなる
 	const dragValueRef = useRef( 0 );
 
+	// pointermove / pointerup は押した時点で window に登録するので、呼び出し側の関数は ref で最新を引く
 	const onChangeRef = useRef<( ( value: number ) => void ) | undefined>( undefined );
 	onChangeRef.current = props.onChange;
+
+	const onDragRef = useRef<( ( deltaValue: number ) => void ) | undefined>( undefined );
+	onDragRef.current = props.onDrag;
+
+	const onDragEndRef = useRef<( () => void ) | undefined>( undefined );
+	onDragEndRef.current = props.onDragEnd;
+
+	const onSelectDragRef = useRef<( ( clientY: number ) => void ) | undefined>( undefined );
+	onSelectDragRef.current = props.onSelectDrag;
 
 	const valueRef = useRef<number | undefined>( undefined );
 	valueRef.current = props.value;
 
+	// 押している間のポインタ移動を、範囲選択か値のドラッグに振り分ける
 	const onPointerMoveNumber = useCallback( ( e: PointerEvent ) => {
-
-		const value = valueRef.current;
 
 		if ( pointerDownRef.current === false ) return;
 
 		const start = pointerStartRef.current;
 
-		if ( start ) {
+		if ( ! start ) return;
+
+		if ( modeRef.current === "none" ) {
 
 			const dx = e.clientX - start.x;
 			const dy = e.clientY - start.y;
 
-			if ( Math.sqrt( dx * dx + dy * dy ) >= DRAG_THRESHOLD ) {
+			if ( Math.sqrt( dx * dx + dy * dy ) < DRAG_THRESHOLD ) return;
 
-				draggedRef.current = true;
+			const selectable = ! isSP && onSelectDragRef.current !== undefined;
+
+			if ( selectable && Math.abs( dy ) > Math.abs( dx ) ) {
+
+				modeRef.current = "select";
+				selectStartXRef.current = e.clientX;
+
+			} else {
+
+				modeRef.current = "drag";
 
 			}
 
+			lastXRef.current = e.clientX;
+
 		}
 
-		if ( ! draggedRef.current ) return;
+		if ( modeRef.current === "select" ) {
 
-		const delta = e.movementX;
+			const onSelectDrag = onSelectDragRef.current;
 
-		if ( typeof value == "number" ) {
+			if ( Math.abs( e.clientX - selectStartXRef.current ) < SELECT_TO_DRAG_THRESHOLD ) {
 
-			const deltaValue = delta * 0.05 * ( props.step || 1 );
+				if ( onSelectDrag ) onSelectDrag( e.clientY );
+
+				e.preventDefault();
+
+				return;
+
+			}
+
+			modeRef.current = "drag";
+			lastXRef.current = e.clientX;
+
+		}
+
+		const deltaX = e.clientX - lastXRef.current;
+		lastXRef.current = e.clientX;
+
+		let sensitivity = DRAG_SENSITIVITY_PC;
+
+		if ( isSP ) sensitivity = DRAG_SENSITIVITY_SP;
+
+		const deltaValue = deltaX * sensitivity * ( props.step || 1 );
+
+		const onDrag = onDragRef.current;
+		const value = valueRef.current;
+
+		if ( onDrag ) {
+
+			onDrag( deltaValue );
+
+			e.stopPropagation();
+
+		} else if ( typeof value == "number" ) {
 
 			dragValueRef.current = clamp( dragValueRef.current + deltaValue, props.min, props.max );
 
@@ -103,8 +182,7 @@ export const InputNumber = ( props: Props ) => {
 
 		e.preventDefault();
 
-
-	}, [ props.step, props.min, props.max, props.int ] );
+	}, [ isSP, props.step, props.min, props.max, props.int ] );
 
 	const openInputWindow = useCallback( () => {
 
@@ -132,54 +210,67 @@ export const InputNumber = ( props: Props ) => {
 
 		pointerDownRef.current = true;
 		pointerStartRef.current = { x: e.clientX, y: e.clientY };
-		draggedRef.current = false;
+		modeRef.current = "none";
+		lastXRef.current = e.clientX;
 		dragValueRef.current = valueRef.current ?? 0;
 
-		const onPointerUp = () => {
-
-			if ( ! draggedRef.current ) {
-
-				if ( isSP ) {
-
-					openInputWindow();
-
-				} else {
-
-					setEditing( true );
-					setLocalValue( String( Number( ( valueRef.current ?? 0 ).toFixed( props.precision ?? 3 ) ) ) );
-
-					requestAnimationFrame( () => {
-
-						inputRef.current?.focus();
-						inputRef.current?.select();
-
-					} );
-
-				}
-
-			}
+		const finish = () => {
 
 			pointerDownRef.current = false;
 			pointerStartRef.current = null;
-			draggedRef.current = false;
+			modeRef.current = "none";
 
 			window.removeEventListener( "pointerup", onPointerUp );
+			window.removeEventListener( "pointercancel", onPointerCancel );
+			window.removeEventListener( "pointermove", onPointerMoveNumber );
 
-			if ( ! isSP ) {
+		};
 
-				window.removeEventListener( "pointermove", onPointerMoveNumber );
+		const onPointerUp = () => {
+
+			if ( modeRef.current === "drag" ) {
+
+				if ( onDragEndRef.current ) onDragEndRef.current();
+
+			} else if ( isSP ) {
+
+				openInputWindow();
+
+			} else {
+
+				setEditing( true );
+				setLocalValue( String( Number( ( valueRef.current ?? 0 ).toFixed( props.precision ?? 3 ) ) ) );
+
+				requestAnimationFrame( () => {
+
+					inputRef.current?.focus();
+					inputRef.current?.select();
+
+				} );
 
 			}
+
+			finish();
+
+		};
+
+		// SP で縦に動かすと touch-action: pan-y によりブラウザがスクロールを始めて pointercancel が届く。
+		// そこでドラッグを打ち切り、入力ウィンドウも開かない
+		const onPointerCancel = () => {
+
+			if ( modeRef.current !== "none" && onDragEndRef.current ) {
+
+				onDragEndRef.current();
+
+			}
+
+			finish();
 
 		};
 
 		window.addEventListener( "pointerup", onPointerUp );
-
-		if ( ! isSP ) {
-
-			window.addEventListener( "pointermove", onPointerMoveNumber );
-
-		}
+		window.addEventListener( "pointercancel", onPointerCancel );
+		window.addEventListener( "pointermove", onPointerMoveNumber );
 
 	}, [ onPointerMoveNumber, isSP, openInputWindow, props.precision ] );
 
@@ -188,7 +279,7 @@ export const InputNumber = ( props: Props ) => {
 		: String( Number( ( props.value ?? 0 ).toFixed( props.precision ?? 3 ) ) );
 
 	return <div className={style.inputNumber}>
-		<input ref={inputRef} className={style.input} type={editing ? "text" : "number"} inputMode={editing ? "decimal" : undefined} value={displayValue} disabled={props.disabled} readOnly={isSP || props.readOnly} data-lo={props.readOnly }
+		<input ref={inputRef} className={style.input} type={editing ? "text" : "number"} inputMode={editing ? "decimal" : undefined} value={displayValue} disabled={props.disabled} readOnly={isSP || props.readOnly} data-lo={props.readOnly} data-selected={props.selected}
 			step={props.step || 1}
 			min={props.min}
 			max={props.max}

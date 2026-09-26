@@ -46,6 +46,11 @@ export const Precision: Story = {
 	args: { value: 3.14159265, precision: 5 },
 };
 
+// Vector の一括入力で選ばれている軸の見た目
+export const Selected: Story = {
+	args: { value: 42, selected: true },
+};
+
 export const ReadOnly: Story = {
 	args: { value: 42, readOnly: true },
 };

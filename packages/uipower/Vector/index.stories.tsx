@@ -42,6 +42,11 @@ export const Vec2: Story = {
 	args: { value: [ 1920, 1080 ], step: 10 },
 };
 
+// 一括ドラッグで同じ変化量を足したとき、min / max が軸ごとに効くのを確かめる
+export const WithRange: Story = {
+	args: { value: [ 0, 0.5, 1 ], step: 0.1, min: 0, max: 1 },
+};
+
 export const Disabled: Story = {
 	args: { disabled: true },
 };

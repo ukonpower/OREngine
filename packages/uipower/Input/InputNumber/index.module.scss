@@ -8,6 +8,8 @@
 	background-color: var(--or-bg-surface);
 	border: none;
 	cursor: ew-resize;
+	// SP で縦のスクロールはブラウザに任せ、横の動きだけを pointermove で受け取る
+	touch-action: pan-y;
 	color: var(--or-text-muted);
 	font-size: var(--or-input-font-size);
 
@@ -24,5 +26,10 @@
 		&[data-lo="true"] {
 			background-color: transparent;
 		}
+	}
+
+	// SP の input は read-only で outline を消しているので、枠は box-shadow で描く
+	&[data-selected="true"] {
+		box-shadow: inset 0 0 0 1px var(--or-focus);
 	}
 }
