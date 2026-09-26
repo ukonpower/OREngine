@@ -506,7 +506,7 @@ export class Renderer extends Serializable implements RendererContract {
 		PrepareScene
 	-------------------------------*/
 
-	// フレーム1回。描画対象の収集と、視点に依らない資源（ライト・シャドウ・環境マップ）の更新
+	// フレーム1回。描画対象の収集と、視点に依らない資源（ライト・spot のシャドウ・環境マップ）の更新
 	public prepareScene( root: Entity, _event: EntityUpdateEvent ) {
 
 		if ( this.resolution.x === 0 || this.resolution.y === 0 ) return;
@@ -561,7 +561,8 @@ export class Renderer extends Serializable implements RendererContract {
 
 				const info = this.collectLight( lightEntity, lightComponent );
 
-				if ( lightComponent.castShadow && info.renderTarget ) {
+				// directional は描くビューのカメラ基準で範囲が変わるので、render でビューごとに描く
+				if ( lightComponent.castShadow && info.renderTarget && lightComponent.lightType !== 'directional' ) {
 
 					shadowMapLightList.push( info );
 
@@ -644,9 +645,23 @@ export class Renderer extends Serializable implements RendererContract {
 		const stack = this._stack;
 		const rt = view.renderTarget;
 
-		// deferred
-
 		this.backend.setBlendEnabled( false );
+
+		// shadowmap（directional。レンダーターゲットはビュー間で共有し、ビューごとに描き直す）
+
+		for ( let i = 0; i < this._lights.directional.length; i ++ ) {
+
+			const info = this._lights.directional[ i ];
+
+			if ( ! info.component.castShadow || ! info.renderTarget ) continue;
+
+			info.component.fitShadowToCamera( cameraComponent, info.component.shadowMapSize.x );
+
+			this.renderCamera( "shadowMap", info.component.entity, stack.shadowMap, info.renderTarget, this.resolution );
+
+		}
+
+		// deferred
 
 		this.renderCamera( "deferred", cameraEntity, stack.deferred, rt.gBuffer, resolution );
 
