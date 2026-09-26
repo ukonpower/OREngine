@@ -116,6 +116,9 @@ export class KeyboardHandler {
 			// Blender の Shift+A 相当。エンティティ追加メニューを開く
 			if ( e.code === 'KeyA' && pressedKeys[ "Shift" ] && ! cmd ) {
 
+				// 開いたメニューの検索欄へすぐフォーカスが移るので、この打鍵の "A" が入力されないよう止める
+				e.preventDefault();
+
 				callbacks.onAddEntity();
 
 			}

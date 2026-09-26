@@ -48,7 +48,7 @@ const COMMANDS: { [ name: string ]: CommandSpec } = {
 	components: { usage: 'components', description: '登録済みコンポーネントの一覧とフィールド定義', timeoutMs: 30000 },
 	errors: { usage: 'errors', description: 'シェーダーエラー・GPU エラー・コンソールのエラー・解決できなかったコンポーネント', timeoutMs: 5000 },
 	// 書き込みは EditorAPI 経由でタブに反映し、応答の前にファイルへ保存する
-	'add-entity': { usage: 'add-entity <parent> [--preset Empty|Light|Camera] [--name <name>]', description: 'エンティティを追加して uuid を返す（プリセット省略時は Empty）', timeoutMs: 10000 },
+	'add-entity': { usage: 'add-entity <parent> [--name <name>]', description: 'コンポーネントの無いエンティティを追加して uuid を返す（名前の省略時は Empty）', timeoutMs: 10000 },
 	'remove-entity': { usage: 'remove-entity <entity>', description: 'エンティティを子ごと削除する', timeoutMs: 10000 },
 	'add-component': { usage: 'add-component <entity> <Name>', description: 'コンポーネントを付ける（Name は components の name）', timeoutMs: 10000 },
 	'remove-component': { usage: 'remove-component <entity> <Name>', description: 'コンポーネントを外す（Name は登録名か uuid）', timeoutMs: 10000 },

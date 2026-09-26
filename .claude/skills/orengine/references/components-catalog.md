@@ -20,7 +20,7 @@
 
 ## カメラ
 
-ピントは `Camera` だけで決まる（`add-entity --preset Camera` で付く）。注視先へ向けたいときだけ `LookAt` を `add-component` で足す。
+ピントは `Camera` だけで決まる（`add-component <entity> Camera` で付ける）。注視先へ向けたいときだけ `LookAt` を `add-component` で足す。
 
 - `Camera` のピントの field は `focus/mode` / `focus/target` / `focus/distance` / `focus/speed` / `focus/fNumber`（DoF の絞り。小さいほどボケる）
   - `LookAt` の `target` / `Camera` の `focus/target` は entity 参照で、値は対象の uuid（`tree` で調べる）。BLidge のエンティティの uuid は `blidge:<Blender での名前>`（`demo-webgl/scenes/main.json` では `"blidge:CamLook"` / `"blidge:CamDof"`）
@@ -31,7 +31,7 @@
 
 ## ライト
 
-- `Light` の field は `intensity` と、`Camera` から継いだ `fov` 等だけ。**種類（spot / directional）・色・角度・距離・影の有無は field に無く、CLI・シーン JSON では変えられない**。`add-entity --preset Light` で作ったライトはスポットライト（`packages/maxpower/core/Components/Light` の初期値）。変えたいときは同じエンティティに付けるコンポーネントのコードから `getComponent( MXP.Light )` のプロパティを書き換える
+- `Light` の field は `intensity` と、`Camera` から継いだ `fov` 等だけ。**種類（spot / directional）・色・角度・距離・影の有無は field に無く、CLI・シーン JSON では変えられない**。`add-component <entity> Light` で付けたライトはスポットライト（`packages/maxpower/core/Components/Light` の初期値）。変えたいときは同じエンティティに付けるコンポーネントのコードから `getComponent( MXP.Light )` のプロパティを書き換える
 - 向き: ライトは**ローカル +Y が光源へ向かう向き**（光は -Y へ進む）。`tree` の `up` で確かめる。コードで向けるなら `light.lookAt( targetWorldPos )`（中で +Y を合わせる補正をしている）。CLI の `set <entity> euler` で向けるときは、`up` が「ライトの位置 − 照らしたい点」の向きになるよう調整する
 
 ## Mesh について

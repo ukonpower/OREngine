@@ -188,7 +188,7 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 	// right click node
 
 	const { open: openPopover, closeAll } = usePopover();
-	const buildAddMenuItems = useEntityAddMenuItems();
+	const addMenuItems = useEntityAddMenuItems( props.entity );
 
 	const onRightClickNode = useCallback( ( e: MouseEvent ) => {
 
@@ -201,7 +201,7 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 		openPopover( <Menu title={props.entity.name} items={[
 			{
 				label: "Add Entity",
-				children: buildAddMenuItems( props.entity ),
+				children: addMenuItems,
 			},
 			{
 				label: "Delete Entity",
@@ -215,7 +215,7 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 			}
 		]} />, pointAnchor( e.clientX, e.clientY ) );
 
-	}, [ editor, props.entity, openPopover, closeAll, noEditable, buildAddMenuItems ] );
+	}, [ editor, props.entity, openPopover, closeAll, noEditable, addMenuItems ] );
 
 	let nameElm = <p>{entityName || "-"}</p>;
 

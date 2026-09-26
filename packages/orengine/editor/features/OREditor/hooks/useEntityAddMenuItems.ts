@@ -1,43 +1,53 @@
-import { useCallback } from 'react';
-
-import { ENTITY_PRESETS } from 'orengine/editor';
+import * as MXP from 'maxpower';
 import { usePopover } from 'uipower';
 
+import { useComponentMenuItems } from './useComponentMenuItems';
 import { useOREditor } from './useOREditor';
 
-import type * as MXP from 'maxpower';
+import type { ResouceComponentItem } from 'orengine';
 import type { MenuItem } from 'uipower';
 
-// プリセットの追加項目を作る。Hierarchy の右クリックと Shift+A で同じ並びを出すために共有する。
+// Mesh は出さない。Mesh の geometry / material はシーン JSON に載らない
+// （ProjectSerializer はコンポーネントの SerializeField しか書き出さない）ため、
+// エディタで足しても読み込み直すと形の無いエンティティに戻ってしまう
+const EXCLUDE_COMPONENTS = [ MXP.Mesh ];
+
+// parent の子を追加するメニュー項目を作る。先頭に Empty、その下に Add Component と同じコンポーネントの階層を並べる。
+// Hierarchy の右クリックと Shift+A で同じ並びを出すために共有する。
 // 生成したエンティティはすぐリネームできるよう選択状態にする
-export const useEntityAddMenuItems = () => {
+export const useEntityAddMenuItems = ( parent: MXP.Entity ): MenuItem[] => {
 
 	const { editor } = useOREditor();
 	const { closeAll } = usePopover();
 
-	return useCallback( ( parent: MXP.Entity ): MenuItem[] => {
+	const create = ( name: string, components: ( typeof MXP.Component )[] ) => {
 
-		const items: MenuItem[] = [];
+		const entity = editor.api.createEntity( parent, { name, components } );
 
-		for ( const preset of ENTITY_PRESETS ) {
+		editor.api.selectEntity( entity );
 
-			items.push( {
-				label: preset.name,
-				onClick: () => {
+		closeAll();
 
-					const entity = editor.api.createEntity( parent, preset );
+	};
 
-					editor.api.selectEntity( entity );
+	const onSelectComponent = ( compItem: ResouceComponentItem ) => {
 
-					closeAll();
+		create( compItem.name, [ compItem.component ] );
 
-				},
-			} );
+	};
 
-		}
+	const componentItems = useComponentMenuItems( onSelectComponent, EXCLUDE_COMPONENTS );
 
-		return items;
+	const items: MenuItem[] = [
+		{ label: "Empty", onClick: () => create( "Empty", [] ) },
+	];
 
-	}, [ editor, closeAll ] );
+	for ( const item of componentItems ) {
+
+		items.push( item );
+
+	}
+
+	return items;
 
 };

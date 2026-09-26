@@ -1,3 +1,5 @@
+@use 'styles' as *;
+
 .menu {
 	// Popover の外に置かれても項目の幅に収まるようにする
 	width: max-content;
@@ -11,6 +13,17 @@
 	padding: var(--or-space) 0;
 	color: var(--or-text-dim);
 	font-size: var(--or-font-xs);
+}
+
+// 幅は項目の並びに合わせ、検索欄の既定の横幅で箱が広がらないようにする（size=1 と対）
+.search {
+	@include input-frame;
+
+	display: block;
+	width: 100%;
+	margin-bottom: var(--or-space);
+	font-size: var(--or-input-font-size);
+	outline: none;
 }
 
 // 項目が多いときは箱の中でスクロールさせる。サブメニューは fixed なのでこの overflow に切られない

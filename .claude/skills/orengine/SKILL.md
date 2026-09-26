@@ -83,7 +83,8 @@ npx tsx scripts/scene.ts get root/Camera
 ## Flow 1: シーン編集（シーン CLI）
 
 ```bash
-npx tsx scripts/scene.ts add-entity root --preset Light --name KeyLight   # --preset は Empty（省略時）/ Light / Camera。uuid と path を返す
+npx tsx scripts/scene.ts add-entity root --name KeyLight                  # コンポーネントの無いエンティティ（--name 省略時は Empty）。uuid と path を返す
+npx tsx scripts/scene.ts add-component root/KeyLight Light                # ライト・カメラも add-component で付ける（Light / Camera）
 npx tsx scripts/scene.ts set root/KeyLight position 3,3,3                 # エンティティのフィールド: name / position / euler / scale
 npx tsx scripts/scene.ts set root/KeyLight Light intensity 2              # コンポーネントのフィールドは <component> を挟む
 npx tsx scripts/scene.ts add-component root/Box MyBox                     # 名前は components の name
@@ -273,9 +274,11 @@ npx tsx scripts/scene.ts shot tmp/shot/gbuf.png --view gBuffer_1                
 ```bash
 npx tsx scripts/scene.ts add-entity root --name Cube
 npx tsx scripts/scene.ts add-component root/Cube CubeMesh
-npx tsx scripts/scene.ts add-entity root --preset Light
+npx tsx scripts/scene.ts add-entity root --name Light
+npx tsx scripts/scene.ts add-component root/Light Light
 npx tsx scripts/scene.ts set root/Light position 3,3,3
-npx tsx scripts/scene.ts add-entity root --preset Camera --name MainCamera
+npx tsx scripts/scene.ts add-entity root --name MainCamera
+npx tsx scripts/scene.ts add-component root/MainCamera Camera
 npx tsx scripts/scene.ts set root/MainCamera position 5,3,5
 npx tsx scripts/scene.ts add-component root/MainCamera LookAt
 npx tsx scripts/scene.ts set root/MainCamera LookAt target <Cube の uuid>

@@ -11,7 +11,7 @@ export const EntityAdd = () => {
 
 	const { editor, engine } = useOREditor();
 	const { open, closeAll } = usePopover();
-	const buildMenuItems = useEntityAddMenuItems();
+	const menuItems = useEntityAddMenuItems( engine.root );
 
 	// キーボードから開くときの表示位置。Blender と同じくポインタの居る場所に出す
 	const pointer = useRef( { x: 0, y: 0 } );
@@ -44,7 +44,7 @@ export const EntityAdd = () => {
 
 			// Blender と同じくシーン直下へ足す。選択中エンティティの子にしたいときは Hierarchy の右クリックから
 			open(
-				<Menu title="Add Entity" items={buildMenuItems( engine.root )} />,
+				<Menu title="Add Entity" items={menuItems} />,
 				pointAnchor( pointer.current.x, pointer.current.y )
 			);
 
@@ -58,7 +58,7 @@ export const EntityAdd = () => {
 
 		};
 
-	}, [ editor, engine, open, closeAll, buildMenuItems ] );
+	}, [ editor, engine, open, closeAll, menuItems ] );
 
 	return null;
 

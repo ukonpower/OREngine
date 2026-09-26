@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { useAnchoredPosition } from '../hooks/useAnchoredPosition';
 import { ListItem } from '../ListItem';
@@ -6,12 +6,12 @@ import { ListItem } from '../ListItem';
 import style from './index.module.scss';
 
 import type { AnchorRect } from '../hooks/useAnchoredPosition';
-import type { MouseEvent, ReactNode } from 'react';
+import type { KeyboardEvent, MouseEvent, ReactNode } from 'react';
 
-// クリックで確定する葉
+// クリックで確定する葉。検索欄の Enter でも確定するので、マウスのイベントは渡さない
 export type MenuLeaf = {
 	label: string;
-	onClick?: ( event: MouseEvent ) => void;
+	onClick?: () => void;
 };
 
 // サブメニューを開く枝
@@ -60,7 +60,7 @@ const MenuNode = ( props: { item: MenuItem } ) => {
 
 		if ( ! isBranch ) {
 
-			if ( item.onClick ) item.onClick( event );
+			if ( item.onClick ) item.onClick();
 
 			return;
 
@@ -111,8 +111,8 @@ const MenuNode = ( props: { item: MenuItem } ) => {
 
 };
 
-// 項目を縦に並べた箱。anchor を渡すとサブメニューとしてその右側に浮く
-const MenuBox = ( props: { title?: string, items: MenuItem[], anchor?: AnchorRect } ) => {
+// 項目を縦に並べた箱。anchor を渡すとサブメニューとしてその右側に浮く。header はタイトルと項目の間に置く
+const MenuBox = ( props: { title?: string, header?: ReactNode, items: MenuItem[], anchor?: AnchorRect } ) => {
 
 	const anchored = useAnchoredPosition( props.anchor );
 
@@ -126,14 +126,80 @@ const MenuBox = ( props: { title?: string, items: MenuItem[], anchor?: AnchorRec
 
 	return <div ref={anchored.ref} className={style.menu} style={anchored.style}>
 		{props.title && <div className={style.title}>{props.title}</div>}
+		{props.header}
 		<div className={style.list}>{nodeElms}</div>
 	</div>;
 
 };
 
-// 階層メニュー。Popover に open して使う
+// 検索語を名前に含む葉を階層を無視して集める。どこにある項目か分かるよう、表示名の前に親の枝の名前を付ける
+const searchLeaves = ( items: MenuItem[], query: string, parents: string[], hits: MenuLeaf[] ) => {
+
+	for ( const item of items ) {
+
+		if ( "children" in item ) {
+
+			searchLeaves( item.children, query, [ ...parents, item.label ], hits );
+
+		} else if ( item.label.toLowerCase().includes( query ) ) {
+
+			hits.push( { label: [ ...parents, item.label ].join( " ▸ " ), onClick: item.onClick } );
+
+		}
+
+	}
+
+	return hits;
+
+};
+
+// 階層メニュー。Popover に open して使う。
+// 先頭の検索欄は開いた時点でフォーカスするので、そのままタイプして絞り込み、Enter で先頭の項目を確定できる（Blender と同じ）
 export const Menu = ( props: MenuProps ) => {
 
-	return <MenuBox title={props.title} items={props.items} />;
+	const [ query, setQuery ] = useState( '' );
+	const inputRef = useRef<HTMLInputElement>( null );
+
+	useEffect( () => {
+
+		// Popover は開いた直後に位置を合わせるので、フォーカスでスクロールさせない
+		inputRef.current?.focus( { preventScroll: true } );
+
+	}, [] );
+
+	const normalizedQuery = query.trim().toLowerCase();
+
+	let items = props.items;
+
+	if ( normalizedQuery !== '' ) {
+
+		items = searchLeaves( props.items, normalizedQuery, [], [] );
+
+	}
+
+	const onKeyDown = ( e: KeyboardEvent<HTMLInputElement> ) => {
+
+		if ( e.key !== 'Enter' || e.nativeEvent.isComposing ) return;
+
+		if ( normalizedQuery === '' ) return;
+
+		const first = items[ 0 ];
+
+		if ( first && ! ( "children" in first ) && first.onClick ) first.onClick();
+
+	};
+
+	const search = <input
+		ref={inputRef}
+		className={style.search}
+		type="text"
+		placeholder="Search"
+		size={1}
+		value={query}
+		onChange={( e ) => setQuery( e.target.value )}
+		onKeyDown={onKeyDown}
+	/>;
+
+	return <MenuBox title={props.title} header={search} items={items} />;
 
 };
