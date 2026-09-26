@@ -54,9 +54,10 @@ export const collectSceneUsage = ( sceneJson: unknown ): SceneUsage => {
 
 				} );
 
-			} else if ( key === 'props' || key === 'renderer' ) {
+			} else if ( key === 'props' || key === 'renderer' || key === 'curves' ) {
 
-				// props と renderer は Serializable がフィールド名の文字列で読むため、キーを改名させない
+				// props と renderer は Serializable がフィールド名の文字列で読むため、キーを改名させない。
+				// curves（カーブの表）はリンクがカーブ ID の文字列で引くので、ID のキーも改名させない
 				walk( value, true );
 
 			} else {
