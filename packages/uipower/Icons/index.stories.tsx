@@ -16,6 +16,9 @@ const ICON_BOX = 24;
 const icons: { label: string, node: React.ReactNode }[] = [
 	{ label: 'ArrowIcon', node: <ArrowIcon /> },
 	{ label: 'ArrowIcon（open）', node: <ArrowIcon open={true} /> },
+	{ label: 'ArrowIcon（left）', node: <ArrowIcon direction="left" /> },
+	{ label: 'ArrowIcon（up）', node: <ArrowIcon direction="up" /> },
+	{ label: 'ArrowIcon（down）', node: <ArrowIcon direction="down" /> },
 	{ label: 'CameraIcon', node: <CameraIcon /> },
 	{ label: 'CheckIcon', node: <CheckIcon /> },
 	{ label: 'ComponentIcon', node: <ComponentIcon /> },

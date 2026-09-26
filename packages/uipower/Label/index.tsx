@@ -9,8 +9,8 @@ export const Label: React.FC<{
 
 	return (
 		<div className={style.container} data-vertical={props.vertical}>
-			<div className={style.label} style={{ textAlign: props.labelAlign || "left" }} data-vertical={props.vertical}>{props.title}</div>
-			<div className={style.item} data-vertical={props.vertical}>
+			<div className={style.label} style={{ textAlign: props.labelAlign || "left" }}>{props.title}</div>
+			<div className={style.item}>
 				{props.children}
 			</div>
 		</div>

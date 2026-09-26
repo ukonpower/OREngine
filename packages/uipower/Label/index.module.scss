@@ -1,11 +1,14 @@
+// ラベルと中身の間隔は container の gap だけで取る。子に向き依存の margin を持たせると、
+// 縦並び（vertical）にしたとき横向きの余白だけが残って上下が詰まるため
 .container {
 	display: flex;
+	gap: var(--or-space);
 	margin-bottom: 3px;
 	align-items: center;
 
 	&[data-vertical="true"] {
 		flex-direction: column;
-		align-items: start;
+		align-items: stretch;
 	}
 
 }
@@ -14,21 +17,9 @@
 	min-width: 20%;
 	color: var(--or-text-dim);
 	word-break: break-all;
-	margin-right: 5px;
 	font-size: var(--or-font-xs);
-
-
-	&[data-vertical="true"] {
-		// text-align: right;
-		// text-align: left;
-	}
-
 }
 
 .item {
 	flex: 1;
-
-	&[data-vertical="true"] {
-		width: 100%;
-	}
 }

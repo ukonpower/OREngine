@@ -14,7 +14,8 @@
 	--or-text: #ccc;
 	--or-text-muted: #aaa;
 	--or-text-dim: #777;
-	--or-text-disabled: #333;
+	// 無効なボタンの文字。--or-bg-surface（#2a2a2a）の上でも読め、--or-text-dim より暗い値にする
+	--or-text-disabled: #555;
 
 	// アクセント
 	--or-accent-danger: rgb(194, 74, 0);

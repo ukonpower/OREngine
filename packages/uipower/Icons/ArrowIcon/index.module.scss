@@ -9,6 +9,18 @@
 		}
 	}
 
+	&[data-direction="down"] svg {
+		transform: rotate(90deg);
+	}
+
+	&[data-direction="left"] svg {
+		transform: rotate(180deg);
+	}
+
+	&[data-direction="up"] svg {
+		transform: rotate(-90deg);
+	}
+
 	&[data-open="true"] {
 
 		svg {

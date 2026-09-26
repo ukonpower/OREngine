@@ -11,6 +11,21 @@
 		background-color: var(--or-bg-hover);
 	}
 
+	&[data-active="true"] {
+		background-color: var(--or-bg-hover);
+		color: var(--or-text);
+	}
+
+	// 中身（アイコン）を中央に置いた正方形。一辺はリストの行の高さに揃える
+	&[data-square="true"] {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: var(--or-list-row-height);
+		height: var(--or-list-row-height);
+		padding: 0;
+	}
+
 	&:disabled {
 		color: var(--or-text-disabled);
 		cursor: default;

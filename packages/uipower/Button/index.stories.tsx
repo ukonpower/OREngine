@@ -1,3 +1,5 @@
+import { ArrowIcon } from '../Icons';
+
 import { Button } from '.';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
@@ -29,4 +31,14 @@ export const Submit: Story = {
 export const FullWidth: Story = {
 	args: { children: 'Save' },
 	decorators: [ ( Story ) => <div style={{ display: 'grid' }}><Story /></div> ],
+};
+
+// トグルや選択肢で選ばれている状態
+export const Active: Story = {
+	args: { children: 'Order', active: true },
+};
+
+// アイコンだけの正方形ボタン
+export const Square: Story = {
+	args: { children: <ArrowIcon direction="left" />, square: true, title: 'Previous' },
 };
