@@ -393,7 +393,7 @@ export class PointerHandler {
 			// 右クリック・中クリックでギズモドラッグや選択が走らないようにする
 			if ( e.pointerType === 'mouse' && e.button !== 0 ) return;
 
-			// プレビュー中は編集操作を受けないが、ドラッグ離脱の判定に押下位置だけ追う
+			// プレビュー中はギズモを掴ませず、クリック選択とドラッグ離脱の判定に押下位置だけ追う
 			if ( editorCamera.preview ) {
 
 				( e.target as HTMLElement ).setPointerCapture( e.pointerId );
@@ -581,14 +581,6 @@ export class PointerHandler {
 		const onPointerUp = ( e: PointerEvent ) => {
 
 			if ( isModalActive() ) return;
-
-			// プレビュー中は編集操作を受けない
-			if ( editorCamera.preview ) {
-
-				this._pointerDownPos = null;
-				return;
-
-			}
 
 			if ( this._gizmoDragging ) {
 
