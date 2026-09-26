@@ -183,7 +183,7 @@ export class DeferredRenderer extends EventEmitter {
 				value: rtSSAO2.textures[ 0 ],
 				type: '1i'
 			},
-			uDepthTexture: {
+			uPosTexture: {
 				value: null,
 				type: '1i'
 			},
@@ -310,7 +310,6 @@ export class DeferredRenderer extends EventEmitter {
 
 		}
 
-		ssaoBlurH.uniforms.uDepthTexture.value = renderTarget.gBuffer.textures[ 0 ];
 		lightShaft.uniforms.uDepthTexture.value = renderTarget.gBuffer.depthTexture;
 		shading.renderTarget = renderTarget.shadingBuffer;
 
@@ -319,6 +318,7 @@ export class DeferredRenderer extends EventEmitter {
 		normalSelector.uniforms.uPosTexture.value = renderTarget.gBuffer.textures[ 0 ];
 		normalSelector.uniforms.uSelectorTexture.value = renderTarget.gBuffer.textures[ 3 ];
 
+		ssaoBlurUni.uPosTexture.value = renderTarget.gBuffer.textures[ 0 ];
 		ssaoBlurUni.uNormalTexture.value = renderTarget.normalBuffer.textures[ 0 ];
 
 		if ( import.meta.hot ) {
