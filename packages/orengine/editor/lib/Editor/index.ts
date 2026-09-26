@@ -983,21 +983,22 @@ export class Editor extends MXP.Serializable {
 
 	}
 
-	// アクティブなビューポートの視点をエディタカメラとシーンカメラで切り替える
+	// アクティブなビューポートを「エディタカメラ」と「シーンカメラ＋プレビュー」で切り替える
 	public toggleCameraView() {
 
 		const viewport = this._activeViewport;
 
 		if ( ! viewport ) return;
 
-		// プレビュー中はプレビューを抜けてエディタカメラへ戻る
-		if ( viewport.editorCamera.preview ) {
+		// シーンカメラで見るのは仕上がりの確認が目的なので、プレビューも一緒に入れる
+		if ( viewport.editorCamera.usingEditorCamera ) {
 
-			this._escapeToEditorCamera( viewport );
+			this.setField( `viewports/${viewport.id}/cameraView`, "camera" );
+			this.setField( `viewports/${viewport.id}/preview`, true );
 
 		} else {
 
-			this.setField( `viewports/${viewport.id}/cameraView`, viewport.editorCamera.view === "editor" ? "camera" : "editor" );
+			this._escapeToEditorCamera( viewport );
 
 		}
 
