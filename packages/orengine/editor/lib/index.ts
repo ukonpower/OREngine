@@ -2,9 +2,11 @@
 
 export { attachAgentBridge } from './AgentBridge';
 export { Editor } from './Editor';
+export { getKeyFrameState, isKeyFrameField, keyFrameTime } from './KeyFrameField';
 
 export type { AgentSceneControl } from './AgentBridge/Command';
 export type { EditorTimelineLoop, NavigateAssetRequest, SelectedAssetInfo } from './Editor';
 export type { FieldEdit } from './EditorAPI';
+export type { KeyFrameFieldRef, KeyFrameState } from './KeyFrameField';
 export type { SceneExporterOption, SceneExporterProgress } from './SceneExporter';
 export type { Viewport } from './Viewport';

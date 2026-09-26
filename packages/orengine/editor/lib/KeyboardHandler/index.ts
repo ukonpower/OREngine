@@ -19,6 +19,8 @@ export type KeyboardHandlerCallbacks = {
 	onStepFrame: ( step: number ) => void;
 	onSeekToStart: () => void;
 	onTransformKey: ( e: KeyboardEvent ) => boolean;
+	// remove は Alt+I（キーの削除）
+	onInsertKey: ( remove: boolean ) => void;
 	onAlignView: ( axis: ViewAxis, opposite: boolean ) => void;
 	onProjectionToggle: () => void;
 };
@@ -83,6 +85,16 @@ export class KeyboardHandler {
 					callbacks.onUndo();
 
 				}
+
+			}
+
+			// Blender の I / Alt+I。Mac の Alt+I は e.key が別の文字になるので物理キーで見る
+			if ( e.code === 'KeyI' && ! cmd && ! pressedKeys[ "Shift" ] ) {
+
+				// ビューポートでは開いたメニューの検索欄へすぐフォーカスが移るので、この打鍵の "i" が入力されないよう止める
+				e.preventDefault();
+
+				callbacks.onInsertKey( e.altKey );
 
 			}
 

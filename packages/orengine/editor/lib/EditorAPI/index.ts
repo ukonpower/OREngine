@@ -10,6 +10,7 @@ import { DuplicateEntityCommand } from '../Commands/DuplicateEntityCommand';
 import { RemoveComponentCommand } from '../Commands/RemoveComponentCommand';
 import { RemoveTextureCommand } from '../Commands/RemoveTextureCommand';
 import { SetFieldCommand } from '../Commands/SetFieldCommand';
+import { buildDeleteKeys, buildInsertKeys, KeyFrameFieldRef, keyFrameTime } from '../KeyFrameField';
 
 import type { Editor } from '../Editor';
 
@@ -136,6 +137,34 @@ export class EditorAPI {
 		this._commandManager.execute(
 			new RemoveComponentCommand( entity, componentClass, component )
 		);
+
+	}
+
+	/*-------------------------------
+		KeyFrame
+	-------------------------------*/
+
+	// fields に今の時刻（timeline/fps のコマに揃えた時刻）でキーを打つ。初めて打つフィールドでは、
+	// Animation の追加・カーブの追加・リンクの追加までを undo 1回にまとめる。打てないフィールドがあれば何もせず Error を投げる
+	public insertKeys( fields: KeyFrameFieldRef[] ): void {
+
+		const engine = this._editor.engine;
+
+		this._commandManager.execute( buildInsertKeys( engine, fields, keyFrameTime( engine ) ), { merge: false } );
+
+	}
+
+	// fields の今の時刻のキーを消す。消すキーが無ければ何もしない
+	public deleteKeys( fields: KeyFrameFieldRef[] ): void {
+
+		const engine = this._editor.engine;
+		const command = buildDeleteKeys( engine, fields, keyFrameTime( engine ) );
+
+		if ( command ) {
+
+			this._commandManager.execute( command, { merge: false } );
+
+		}
 
 	}
 

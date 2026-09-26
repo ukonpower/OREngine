@@ -34,6 +34,7 @@ export interface OREngineProjectData {
 	scene: OREngineDataEntity | null;
 	"timeline/duration"?: number;
 	"timeline/fps"?: number;
+	curves?: MXP.CurveTable;
 	[key: string]: unknown;
 }
 
@@ -222,3 +223,112 @@ export class ProjectSerializer {
 	}
 
 }
+
+/*-------------------------------
+	Curves
+-------------------------------*/
+
+// JSON のどこかにある links（Animation コンポーネントのリンク）から、指しているカーブ ID を集める。
+// BLidgeClient の attachments の中（適用前の生データを含む）にも載るので、構造を決め打ちせず全体を辿る
+const collectLinkedCurveIds = ( node: unknown, ids: Set<string> ) => {
+
+	if ( Array.isArray( node ) ) {
+
+		for ( const child of node ) {
+
+			collectLinkedCurveIds( child, ids );
+
+		}
+
+		return;
+
+	}
+
+	if ( node === null || typeof node !== "object" ) return;
+
+	const obj = node as Record<string, unknown>;
+
+	for ( const key of Object.keys( obj ) ) {
+
+		const value = obj[ key ];
+
+		if ( key === "links" && value !== null && typeof value === "object" ) {
+
+			for ( const link of Object.values( value ) ) {
+
+				collectLinkIds( link, ids );
+
+			}
+
+		}
+
+		collectLinkedCurveIds( value, ids );
+
+	}
+
+};
+
+// リンク1本 [ カーブ ID, 倍率, 足し算 ] か、数値配列の要素ごとのリンクの並び（null を含む）から ID を拾う
+const collectLinkIds = ( link: unknown, ids: Set<string> ) => {
+
+	if ( ! Array.isArray( link ) ) return;
+
+	if ( typeof link[ 0 ] === "string" ) {
+
+		ids.add( link[ 0 ] );
+		return;
+
+	}
+
+	for ( const item of link ) {
+
+		if ( Array.isArray( item ) && typeof item[ 0 ] === "string" ) {
+
+			ids.add( item[ 0 ] );
+
+		}
+
+	}
+
+};
+
+// 書き出したシーン JSON から、どこからも参照されないカーブを外す（エディタの保存で使う）。
+// メモリ上の表は触らない（保存した後に削除を undo してもカーブが戻るようにするため）ので、curves は作り直して差し替える。
+// カーブが1本も残らなければ curves ごと外し、キーの無いシーンの保存内容を変えないようにする
+export const pruneUnusedCurves = ( project: OREngineProjectData ) => {
+
+	const curves = project.curves;
+
+	if ( ! curves ) return project;
+
+	const ids = new Set<string>();
+
+	collectLinkedCurveIds( project, ids );
+
+	const used: MXP.CurveTable = {};
+	let count = 0;
+
+	for ( const id of Object.keys( curves ) ) {
+
+		if ( ! ids.has( id ) ) continue;
+
+		used[ id ] = curves[ id ];
+		count ++;
+
+	}
+
+	const result: OREngineProjectData = { ...project };
+
+	if ( count > 0 ) {
+
+		result.curves = used;
+
+	} else {
+
+		delete result.curves;
+
+	}
+
+	return result;
+
+};
