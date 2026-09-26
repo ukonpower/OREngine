@@ -408,7 +408,7 @@ export class PipelinePostProcess {
 		this._colorCollection = pass( {
 			name: 'colorCollection',
 			wgsl: colorCollectionWgsl,
-			uniforms: { uToneMap: { value: 1, type: '1f' } },
+			uniforms: { uToneMap: { value: 1, type: '1f' }, uExposure: { value: 1, type: '1f' } },
 		} );
 
 		// webgl側 PipelinePostProcess の末尾と同じ並び。ブルーム合成までが HDR で、FXAA は sRGB の LDR に掛ける
@@ -546,6 +546,13 @@ export class PipelinePostProcess {
 		if ( config.toneMap !== undefined ) {
 
 			this._colorCollection.uniforms.uToneMap.value = config.toneMap ? 1 : 0;
+
+		}
+
+		// EV をトーンマップ前に掛ける倍率 2^exposure にする
+		if ( config.exposure !== undefined ) {
+
+			this._colorCollection.uniforms.uExposure.value = Math.pow( 2, config.exposure );
 
 		}
 

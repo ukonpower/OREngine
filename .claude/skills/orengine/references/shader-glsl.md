@@ -93,6 +93,7 @@ void main( void ) {
 | `<module:noise_simplex>` / `<module:noise_cyclic>` | `noiseSimplex( vec3 / vec4 )` / `noiseCyc( vec3 )` |
 | `<module:random>` | `random( vec2 )` / `hash( vec3 )` |
 | `<module:rotate>` | `rotate( rad )`（mat2）/ `makeRotationDir` |
+| `<module:sky>` | `skyPosition( vNormal )` — 空の模様用の仮想ワールド座標（向き × 500）。空の球はカメラに追従するので `outPos` でなくこれで模様を作る |
 | `<module:sdf>` | `sdSphere` / `sdBox` 等の距離関数と `opAdd` 等 |
 | `<part:rm_h>` / `<module:rm_normal>` | レイマーチ用の `SDFResult` 構造体 / 法線 `N( pos, delta )`（`SDFResult D( vec3 p )` を先に定義しておく） |
 | `<part:rm_ray_obj>` / `<part:rm_ray_world>` | レイの始点・方向（`rayPos` / `rayDir`）。`rm_ray_obj` はメッシュ表面から、`rm_ray_world` はカメラ位置から。`rm_ray_world` は `uViewMatrixInverse` / `uProjectionMatrixInverse` を使うので自分で `uniform mat4` 宣言する（値はレンダラーが渡す） |

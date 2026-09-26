@@ -14,6 +14,8 @@ export class Light extends ShadowMapCamera {
 	// common
 
 	public color: MTP.Vector;
+
+	// 放射量で持つ（Blender と同じ単位）。directional は照度 W/m²（Sun の Strength）、spot は放射束 W（Spot の Power）
 	public intensity: number;
 
 	public castShadow: boolean;
@@ -32,8 +34,9 @@ export class Light extends ShadowMapCamera {
 
 	public angle: number;
 	public blend: number;
+
+	// シャドウカメラの far。光の減衰は逆二乗だけで、この距離で光は切らない
 	public distance: number;
-	public decay: number;
 
 	// animation
 
@@ -64,8 +67,7 @@ export class Light extends ShadowMapCamera {
 
 		this.angle = Math.PI * 0.5;
 		this.blend = 1;
-		this.distance = 30;
-		this.decay = 2;
+		this.distance = 100;
 
 		// field
 
@@ -79,6 +81,15 @@ export class Light extends ShadowMapCamera {
 
 		} );
 		this.field( "blend", () => this.blend, ( v ) => this.blend = v );
+		this.field( "distance", () => this.distance, ( v ) => {
+
+			this.distance = v;
+			this.needsUpdateProjectionMatrix = true;
+
+		} );
+
+		// spot の far は distance が決め、directional の far は fitShadowToCamera が決めるので、Camera の far は出さない
+		this.removeField( "far" );
 		this.field( "shadowDistance", () => this.shadowDistance, ( v ) => this.shadowDistance = v );
 
 		this.field(
@@ -94,6 +105,7 @@ export class Light extends ShadowMapCamera {
 	public updateProjectionMatrix(): void {
 
 		this.fov = this.angle / Math.PI * 180;
+		this.far = this.distance;
 
 		super.updateProjectionMatrix();
 

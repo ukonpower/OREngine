@@ -4,7 +4,7 @@ import { fileURLToPath } from 'url';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
-import { sharedCss, sharedResolve } from '../host/vite/configs';
+import { sharedCss, sharedResolve, wgslModuleDirs } from '../host/vite/configs';
 import { ShaderBuilder } from '../host/vite/plugins/ShaderBuilder';
 import { TexLoader } from '../host/vite/plugins/TexLoader';
 import { WgslLoader } from '../host/vite/plugins/WgslLoader';
@@ -32,7 +32,7 @@ export default defineConfig( {
 		react(),
 		ShaderBuilder( { scanDirs: [ orengineRoot, projectDir ] } ),
 		TexLoader(),
-		WgslLoader( { moduleDirs: [ path.join( projectDir, 'Resources/shaders' ) ] } ),
+		WgslLoader( { moduleDirs: wgslModuleDirs( projectDir ) } ),
 	],
 	define: {
 		BASE_PATH: JSON.stringify( '' ),

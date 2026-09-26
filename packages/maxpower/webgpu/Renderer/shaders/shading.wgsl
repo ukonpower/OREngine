@@ -105,7 +105,8 @@ fn fsMain( @builtin(position) coord: vec4f ) -> ShadingOutput {
 
 		}
 
-		let color = light.color * spotAttenuation * pow( clamp( 1.0 - spotDistance / light.distance, 0.0, 1.0 ), light.decay );
+		// 逆二乗の減衰。光源の位置で 0 除算しないよう下限を置く
+		let color = light.color * spotAttenuation / max( spotDistance * spotDistance, 0.0001 );
 
 		let r = reflectance( normal, viewDir, surface, spotDirection, color * shadow );
 

@@ -156,6 +156,7 @@ export class RenderView implements RenderViewContract {
 		} );
 
 		this.pipelinePostProcess.setMotionBlurPower( config.motionBlurPower ?? 1 );
+		this.pipelinePostProcess.setExposure( config.exposure ?? 0 );
 		this.pipelinePostProcess.setBloomParams( config.bloomThreshold ?? 1, config.bloomBrightness ?? 1 );
 
 	}

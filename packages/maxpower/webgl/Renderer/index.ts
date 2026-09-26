@@ -110,6 +110,7 @@ const createDefaultPipelineConfig = (): PipelineConfig => ( {
 	lightShaft: true,
 	dof: true,
 	toneMap: true,
+	exposure: 0,
 	bloom: true,
 	bloomThreshold: 1.0,
 	bloomBrightness: 1.0,
@@ -156,8 +157,6 @@ const getSpotLightNames = ( i: number ) => _spotLightNames[ i ] || ( _spotLightN
 	color: `uSpotLight[${i}].color`,
 	angle: `uSpotLight[${i}].angle`,
 	blend: `uSpotLight[${i}].blend`,
-	distance: `uSpotLight[${i}].distance`,
-	decay: `uSpotLight[${i}].decay`,
 	camNear: `uSpotLightCamera[${i}].near`,
 	camFar: `uSpotLightCamera[${i}].far`,
 	camViewMatrix: `uSpotLightCamera[${i}].viewMatrix`,
@@ -390,6 +389,16 @@ export class Renderer extends Serializable implements RendererContract {
 				dir.field( "power", () => this._pipelineConfig.motionBlurPower ?? 1, ( v: number ) => {
 
 					this.applyPipelineConfig( { motionBlurPower: v } );
+
+				}, { step: 0.1 } );
+
+			}
+
+			if ( key === "toneMap" ) {
+
+				dir.field( "exposure", () => this._pipelineConfig.exposure ?? 0, ( v: number ) => {
+
+					this.applyPipelineConfig( { exposure: v } );
 
 				}, { step: 0.1 } );
 
@@ -845,6 +854,12 @@ export class Renderer extends Serializable implements RendererContract {
 
 		renderOption = renderOption || {};
 
+		if ( renderType == "deferred" || renderType == "envMap" ) {
+
+			this.sky.followCamera( cameraEntity, camera );
+
+		}
+
 		const drawParam = this._tmpDrawParam;
 
 		drawParam.viewMatrix = camera.viewMatrix;
@@ -944,7 +959,11 @@ export class Renderer extends Serializable implements RendererContract {
 
 		info.position.set( 0.0, 0.0, 0.0, 1.0 ).applyMatrix4( lightEntity.matrixWorld );
 		info.direction.set( 0.0, 1.0, 0.0, 0.0 ).applyMatrix4( lightEntity.matrixWorld ).normalize();
-		info.color.set( lightComponent.color.x, lightComponent.color.y, lightComponent.color.z ).multiply( lightComponent.intensity * Math.PI );
+		// directional は照度 W/m² をそのまま、spot は放射束 W を全方向の放射強度 W/sr（W / 4π）にして渡す。
+		// spot の W がコーンに光を集めない（点光源と同じ明るさでコーンの外を切るだけ）のは Blender の約束に合わせている
+		info.color.set( lightComponent.color.x, lightComponent.color.y, lightComponent.color.z ).multiply( lightComponent.intensity );
+
+		if ( type == 'spot' ) info.color.multiply( 1 / ( 4 * Math.PI ) );
 
 		if ( type == 'directional' ) {
 
@@ -1192,8 +1211,6 @@ export class Renderer extends Serializable implements RendererContract {
 				program.setUniform( names.color, '3fv', sLight.color.getElm( 'vec3' ) );
 				program.setUniform( names.angle, '1fv', [ Math.cos( sLight.component.angle / 2 ) ] );
 				program.setUniform( names.blend, '1fv', [ sLight.component.blend ] );
-				program.setUniform( names.distance, '1fv', [ sLight.component.distance ] );
-				program.setUniform( names.decay, '1fv', [ sLight.component.decay ] );
 
 				if ( sLight.renderTarget ) {
 

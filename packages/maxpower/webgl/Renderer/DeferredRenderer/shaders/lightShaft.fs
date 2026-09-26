@@ -124,7 +124,7 @@ void main( void ) {
 
 				lightShaftSum += sLight.color * 
 					shadow * 
-					spotAttenuation * pow( clamp( 1.0 - spotDistance / sLight.distance, 0.0, 1.0 ),  sLight.decay * 1.9 ) *
+					spotAttenuation / max( spotDistance * spotDistance, 0.0001 ) *
 					rayStepLength * 0.02;
 
 			#pragma loop_end

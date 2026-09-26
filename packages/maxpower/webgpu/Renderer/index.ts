@@ -30,7 +30,7 @@ import { PostProcessPipeline } from '../Components/PostProcessPipeline';
 import { Material } from '../Material';
 import { TexProcedural } from '../TexProcedural';
 
-import { EnvMap } from './EnvMap';
+import { ENVMAP_FAR, ENVMAP_ORIGIN, EnvMap } from './EnvMap';
 import { Lights, ShadowRender } from './Lights';
 import { PipelinePostProcess } from './PipelinePostProcess';
 import { RenderView } from './RenderView';
@@ -138,6 +138,7 @@ const createDefaultPipelineConfig = (): PipelineConfig => ( {
 	lightShaftTemporalBlend: 0.3,
 	dof: true,
 	toneMap: true,
+	exposure: 0,
 	bloom: true,
 	bloomThreshold: 1.0,
 	bloomBrightness: 1.0,
@@ -376,6 +377,16 @@ export class Renderer extends Serializable implements RendererContract {
 				this.applyPipelineConfig( { [ key ]: v } );
 
 			} );
+
+			if ( key === 'toneMap' ) {
+
+				dir.field( 'exposure', () => this.pipelineConfig.exposure ?? 0, ( v: number ) => {
+
+					this.applyPipelineConfig( { exposure: v } );
+
+				}, { step: 0.1 } );
+
+			}
 
 			if ( key === 'motionBlur' ) {
 
@@ -761,6 +772,8 @@ export class Renderer extends Serializable implements RendererContract {
 		this._renderTexProcedurals( device, encoder );
 		this._renderCompute( device, encoder );
 		this._renderShadowMaps( device, encoder, lights.shadowRenders );
+
+		this.sky.place( ENVMAP_ORIGIN, ENVMAP_ORIGIN, ENVMAP_FAR );
 		this._renderEnvMap( device, encoder );
 
 		this._frameEncoder = null;
@@ -815,6 +828,8 @@ export class Renderer extends Serializable implements RendererContract {
 		lights.fitDirectionalShadows( camera );
 		this._renderShadowMaps( device, encoder, lights.directionalShadowRenders );
 
+		// 空の行列はビューごとに書き分ける。writeBuffer と submit はキューの順に実行されるので、ビュー間で混ざらない
+		this.sky.followCamera( cameraEntity, camera );
 		this._renderGBuffer( device, encoder, view );
 
 		pipeline.update( camera );

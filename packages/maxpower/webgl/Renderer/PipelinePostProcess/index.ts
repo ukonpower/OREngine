@@ -75,6 +75,10 @@ export class PipelinePostProcess {
 					value: 1,
 					type: '1f'
 				},
+				uExposure: {
+					value: 1,
+					type: '1f'
+				},
 			},
 		} );
 
@@ -579,6 +583,13 @@ export class PipelinePostProcess {
 	public setMotionBlurPower( power: number ): void {
 
 		this._motionBlur.uniforms.uPower.value = power;
+
+	}
+
+	// 露出を EV で受け、トーンマップ前に掛ける倍率 2^exposure にする
+	public setExposure( exposure: number ): void {
+
+		this._colorCollection.uniforms.uExposure.value = Math.pow( 2, exposure );
 
 	}
 

@@ -78,7 +78,8 @@ LightCamera lightCamera;
 		}
 
 		light.direction = spotDirection;
-		light.color = sLight.color * spotAttenuation * pow( clamp( 1.0 - spotDistance / sLight.distance, 0.0, 1.0 ),  sLight.decay ) * shadow;
+		// 逆二乗の減衰。光源の位置で 0 除算しないよう下限を置く
+		light.color = sLight.color * spotAttenuation / max( spotDistance * spotDistance, 0.0001 ) * shadow;
 
 		RE( geo, mat, light, diffuse, specular );
 
