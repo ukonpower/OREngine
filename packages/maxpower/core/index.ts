@@ -34,4 +34,5 @@ export * from './utils/Curve';
 export * from './utils/Hot';
 export * from './utils/Ray';
 export * from './utils/Raycaster';
+export * from './utils/RenderWait';
 export * from './utils/Uniforms';

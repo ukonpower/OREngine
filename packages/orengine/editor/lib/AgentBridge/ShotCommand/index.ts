@@ -224,7 +224,7 @@ const updateTemporaryCamera = ( camera: MXP.Camera, engine: Engine, event: MXP.E
 // シャドウ・envMap などのパスは prepareScene（step の中）で出るので、capture があれば step の間も拾う
 const stepAt = ( engine: Engine, time: number, params: Partial<MXP.EntityUpdateEvent>, capture: PassCapture | null ) => {
 
-	const event = engine.createEntityUpdateEvent( { ...params, timeCode: time, timeCodeFrame: time * 60, playing: false, forceDraw: true } );
+	const event = engine.createEntityUpdateEvent( { ...params, timeCode: time, timeCodeFrame: time * 60, playing: false, forceDraw: true, offline: true } );
 
 	engine.renderer.globalUniforms.uTime.value = time;
 	engine.renderer.globalUniforms.uTimeF.value = time % 1;
@@ -467,6 +467,9 @@ const shot = async ( ctx: AgentCommandContext, input: AgentCommandInput ) => {
 			updateTemporaryCamera( camera.temporary, engine, event );
 
 		}
+
+		// 動画の seek など、step 中に始まった準備が済んでから描く
+		await MXP.waitRenderReady();
 
 		for ( let i = 0; i < SHOT_RENDER_COUNT - 1; i ++ ) {
 
