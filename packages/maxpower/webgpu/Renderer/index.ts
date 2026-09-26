@@ -1242,45 +1242,76 @@ export class Renderer extends Serializable implements RendererContract {
 		if ( this._stack.forward.length === 0 ) return;
 
 		// 描画直前のシーンをrefractionへ写す。forwardマテリアルはこれを背景として読む
-		encoder.copyTextureToTexture(
-			{ texture: targets.scene! },
-			{ texture: targets.refraction! },
-			[ targets.width, targets.height ]
-		);
+		const copyScene = () => {
+
+			encoder.copyTextureToTexture(
+				{ texture: targets.scene! },
+				{ texture: targets.refraction! },
+				[ targets.width, targets.height ]
+			);
+
+		};
 
 		// パイプライン側の targets（シーン色 / gBuffer position / velocity）と並びを合わせる
-		const pass = encoder.beginRenderPass( {
-			label: 'forward',
-			colorAttachments: [
-				{
-					view: targets.sceneView!,
-					loadOp: 'load',
-					storeOp: 'store',
-				},
-				{
-					view: targets.gBufferViews[ 0 ],
-					loadOp: 'load',
-					storeOp: 'store',
-				},
-				{
-					view: targets.gBufferViews[ 4 ],
-					loadOp: 'load',
-					storeOp: 'store',
-				},
-			],
-			depthStencilAttachment: {
-				view: targets.depthView!,
-				depthLoadOp: 'load',
-				depthStoreOp: 'store',
-			},
-		} );
+		const beginPass = () => {
 
-		pass.setBindGroup( GROUP_FRAME, view.frameBindGroup! );
-		pass.setBindGroup( GROUP_REFRACTION, view.refractionBindGroup! );
+			const pass = encoder.beginRenderPass( {
+				label: 'forward',
+				colorAttachments: [
+					{
+						view: targets.sceneView!,
+						loadOp: 'load',
+						storeOp: 'store',
+					},
+					{
+						view: targets.gBufferViews[ 0 ],
+						loadOp: 'load',
+						storeOp: 'store',
+					},
+					{
+						view: targets.gBufferViews[ 4 ],
+						loadOp: 'load',
+						storeOp: 'store',
+					},
+				],
+				depthStencilAttachment: {
+					view: targets.depthView!,
+					depthLoadOp: 'load',
+					depthStoreOp: 'store',
+				},
+			} );
+
+			pass.setBindGroup( GROUP_FRAME, view.frameBindGroup! );
+			pass.setBindGroup( GROUP_REFRACTION, view.refractionBindGroup! );
+
+			return pass;
+
+		};
+
+		copyScene();
+
+		let pass = beginPass();
+
+		// 最後に写してから forward を描いたか。描いていなければ写し直す必要は無い
+		let drawnSinceCopy = false;
 
 		for ( let i = 0; i < this._stack.forward.length; i ++ ) {
 
-			this._drawEntity( device, pass, this._stack.forward[ i ], 'forward' );
+			const entity = this._stack.forward[ i ];
+			const material = getMaterial( entity.getComponent( Mesh )! );
+
+			// 描画中のテクスチャはコピー元にできないので、pass を閉じてから写し、開き直す
+			if ( material.readsScene && drawnSinceCopy ) {
+
+				pass.end();
+				copyScene();
+				pass = beginPass();
+				drawnSinceCopy = false;
+
+			}
+
+			this._drawEntity( device, pass, entity, 'forward' );
+			drawnSinceCopy = true;
 
 		}
 

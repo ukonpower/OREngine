@@ -39,6 +39,9 @@ export interface MaterialParam {
 	wgsl?: string;
 	phase?: MaterialPhase[];
 	renderOrder?: number;
+	// fsForward で refractionTexture を背後として読み、その上に先に描かれた forward も背後に含めたいとき true。
+	// 描く直前に forward パスを区切って写し直すので、そのぶん pass が増える
+	readsScene?: boolean;
 	uniforms?: BSP.Uniforms;
 	// GPGPU出力。キーがWGSL上の変数名になり、宣言順で group2 の binding1.. に生える
 	storages?: { [name: string]: StorageSource };
@@ -64,6 +67,7 @@ export class Material implements MaterialContract {
 	public cullFace: boolean;
 	public drawType: DrawType;
 	public renderOrder: number;
+	public readsScene: boolean;
 
 	public visibilityFlag: MaterialVisibility;
 
@@ -90,6 +94,7 @@ export class Material implements MaterialContract {
 		this.cullFace = params.cullFace !== undefined ? params.cullFace : false;
 		this.drawType = params.drawType || 'TRIANGLES';
 		this.renderOrder = params.renderOrder ?? 0;
+		this.readsScene = params.readsScene ?? false;
 
 		this.visibilityFlag = { shadowMap: false, deferred: false, forward: false, envMap: false };
 		this.setVisibility( params.phase || [ 'shadowMap', 'deferred' ] );
