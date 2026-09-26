@@ -210,7 +210,7 @@ export class Editor extends MXP.Serializable {
 			onRenameSelected: () => this.requestRenameSelected(),
 			onStepFrame: ( step ) => this.stepFrame( step ),
 			onSeekToStart: () => this.seekToStart(),
-			onTransformKey: ( e ) => this._activeViewport?.editorCamera.preview ? false : this._modalTransformHandler.handleKeyDown( e ),
+			onTransformKey: ( e ) => this._modalTransformHandler.handleKeyDown( e ),
 		} );
 
 		/*-------------------------------
@@ -857,15 +857,12 @@ export class Editor extends MXP.Serializable {
 			this._engine
 		);
 
-		if ( ! preview ) {
+		// 拘束軸はヘルパーではなくモーダル変形中の操作表示なので、プレビュー中も出す
+		this._constraintAxisRenderer.render( view, this._modalTransformHandler.constraintDisplay, cameraEntity, this._engine );
 
-			this._constraintAxisRenderer.render( view, this._modalTransformHandler.constraintDisplay, cameraEntity, this._engine );
+		if ( ! preview && helpers.outline ) {
 
-			if ( helpers.outline ) {
-
-				this._selectionOutline.render( view, selectedEntity, cameraEntity );
-
-			}
+			this._selectionOutline.render( view, selectedEntity, cameraEntity );
 
 		}
 
@@ -1089,9 +1086,6 @@ export class Editor extends MXP.Serializable {
 		const duplicated = this._api.duplicateEntity( entity );
 
 		this.selectEntity( duplicated );
-
-		// プレビュー中は G と同じくモーダル変形を受け付けないので、複製だけで止める
-		if ( this._activeViewport?.editorCamera.preview ) return;
 
 		this._modalTransformHandler.start( "translate" );
 
