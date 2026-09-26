@@ -4,7 +4,7 @@ import { Engine } from '../../../core/Engine';
 import { CommandManager, CommandExecuteOptions } from '../CommandManager';
 import { AddComponentCommand } from '../Commands/AddComponentCommand';
 import { AddTextureCommand } from '../Commands/AddTextureCommand';
-import { CreateEntityCommand } from '../Commands/CreateEntityCommand';
+import { CreateEntityCommand, CreateEntityOptions } from '../Commands/CreateEntityCommand';
 import { DeleteEntityCommand } from '../Commands/DeleteEntityCommand';
 import { DuplicateEntityCommand } from '../Commands/DuplicateEntityCommand';
 import { RemoveComponentCommand } from '../Commands/RemoveComponentCommand';
@@ -12,7 +12,6 @@ import { RemoveTextureCommand } from '../Commands/RemoveTextureCommand';
 import { SetFieldCommand } from '../Commands/SetFieldCommand';
 
 import type { Editor } from '../Editor';
-import type { EntityPreset } from '../EntityPresets';
 
 export class EditorAPI {
 
@@ -45,9 +44,9 @@ export class EditorAPI {
 		Entity
 	-------------------------------*/
 
-	public createEntity( parent: MXP.Entity, preset: EntityPreset ): MXP.Entity {
+	public createEntity( parent: MXP.Entity, options: CreateEntityOptions ): MXP.Entity {
 
-		const cmd = new CreateEntityCommand( this._editor.engine, parent, preset );
+		const cmd = new CreateEntityCommand( this._editor.engine, parent, options );
 		this._commandManager.execute( cmd );
 
 		return cmd.createdEntity!;
