@@ -275,6 +275,22 @@ export class Editor extends MXP.Serializable {
 
 		} );
 
+		// Blender のアクティブオブジェクトを選択する。BLidge 由来のエンティティの uuid はノード名から決まる（BLidgeClient）ので名前で引く。
+		// エディタは複数選択に対応していないので active だけを見る。見つからなければエディタの選択はそのままにする
+		this._engine.on( "update/blidge/selection", ( selection: MXP.BLidgeSelection ) => {
+
+			if ( ! selection.active ) return;
+
+			const entity = this._engine.root.findEntityByUUID( "blidge:" + selection.active.name );
+
+			if ( entity ) {
+
+				this.selectEntity( entity );
+
+			}
+
+		} );
+
 		/*-------------------------------
 			Fields
 		-------------------------------*/
