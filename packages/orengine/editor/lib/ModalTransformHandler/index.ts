@@ -32,7 +32,7 @@ type ModalSession = {
 	entity: MXP.Entity;
 	// 開始したビューポートの canvas。ポインタ座標の変換はモーダル中ずっとこの要素を基準にする
 	canvas: HTMLCanvasElement;
-	// 変形対象が視点カメラ自身か（カメラビュー中に無選択またはカメラ自身を選択しているとき）
+	// 変形対象が視点カメラ自身か（シーンカメラで見ているときに無選択またはカメラ自身を選択しているとき）
 	selfView: boolean;
 	constraint: Constraint | null;
 	numberBuffer: string;
@@ -276,8 +276,9 @@ export class ModalTransformHandler {
 
 		const selected = this._getSelectedEntity();
 
-		// カメラビュー中でも選択があればそれを動かし、無選択かカメラ自身を選択中のときだけ視点カメラを動かす
-		const selfView = editorCamera.view === 'camera' && ( ! selected || selected === cameraEntity );
+		// シーンカメラで見ているとき（カメラビュー・プレビュー）も選択があればそれを動かし、無選択かカメラ自身を選択中のときだけ視点カメラを動かす。
+		// view だけで判定すると、view が editor のままのプレビューでカメラ自身を選んだとき自位置基準の交差計算が退化する
+		const selfView = ! editorCamera.usingEditorCamera && ( ! selected || selected === cameraEntity );
 
 		// カメラ自身のスケールはビュー行列を歪ませるだけなので開始しない
 		if ( selfView && mode === 'scale' ) return false;
