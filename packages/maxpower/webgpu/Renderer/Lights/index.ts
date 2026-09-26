@@ -59,8 +59,6 @@ const SPOT_LIGHT_STRUCT = {
 		{ name: 'color', type: 'vec3f' },
 		{ name: 'angle', type: 'f32' },
 		{ name: 'blend', type: 'f32' },
-		{ name: 'distance', type: 'f32' },
-		{ name: 'decay', type: 'f32' },
 		{ name: 'shadowMatrix', type: 'mat4x4f' },
 		{ name: 'useShadow', type: 'f32' },
 	] as UniformField[],
@@ -209,8 +207,6 @@ export class Lights {
 			this._uniforms[ `${label}.position` ] = { value: position, type: '3fv' };
 			this._uniforms[ `${label}.angle` ] = { value: 0, type: '1f' };
 			this._uniforms[ `${label}.blend` ] = { value: 0, type: '1f' };
-			this._uniforms[ `${label}.distance` ] = { value: 0, type: '1f' };
-			this._uniforms[ `${label}.decay` ] = { value: 0, type: '1f' };
 
 		}
 
@@ -267,14 +263,16 @@ export class Lights {
 
 			slot.position.set( 0.0, 0.0, 0.0, 1.0 ).applyMatrix4( entity.matrixWorld );
 			slot.direction.set( 0.0, 1.0, 0.0, 0.0 ).applyMatrix4( entity.matrixWorld ).normalize();
-			slot.color.copy( light.color ).multiply( light.intensity * Math.PI );
+			// directional は照度 W/m² をそのまま、spot は放射束 W を全方向の放射強度 W/sr（W / 4π）にして渡す。
+			// spot の W がコーンに光を集めない（点光源と同じ明るさでコーンの外を切るだけ）のは Blender の約束に合わせている
+			slot.color.copy( light.color ).multiply( light.intensity );
+
+			if ( isSpot ) slot.color.multiply( 1 / ( 4 * Math.PI ) );
 
 			if ( isSpot ) {
 
 				this._uniforms[ `${label}.angle` ].value = Math.cos( light.angle / 2 );
 				this._uniforms[ `${label}.blend` ].value = light.blend;
-				this._uniforms[ `${label}.distance` ].value = light.distance;
-				this._uniforms[ `${label}.decay` ].value = light.decay;
 
 			}
 

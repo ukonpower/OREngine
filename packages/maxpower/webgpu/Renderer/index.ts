@@ -138,6 +138,7 @@ const createDefaultPipelineConfig = (): PipelineConfig => ( {
 	lightShaftTemporalBlend: 0.3,
 	dof: true,
 	toneMap: true,
+	exposure: 0,
 	bloom: true,
 	bloomThreshold: 1.0,
 	bloomBrightness: 1.0,
@@ -374,6 +375,16 @@ export class Renderer extends Serializable implements RendererContract {
 				this.applyPipelineConfig( { [ key ]: v } );
 
 			} );
+
+			if ( key === 'toneMap' ) {
+
+				dir.field( 'exposure', () => this.pipelineConfig.exposure ?? 0, ( v: number ) => {
+
+					this.applyPipelineConfig( { exposure: v } );
+
+				}, { step: 0.1 } );
+
+			}
 
 			if ( key === 'motionBlur' ) {
 

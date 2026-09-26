@@ -103,7 +103,7 @@ fn fsMain( input: FullscreenOutput ) -> @location(0) vec4f {
 			}
 
 			sum += light.color * shadow * spotAttenuation
-				* pow( clamp( 1.0 - spotDistance / light.distance, 0.0, 1.0 ), light.decay * 1.9 )
+				/ max( spotDistance * spotDistance, 0.0001 )
 				* rayStepLength * 0.02;
 
 		}
