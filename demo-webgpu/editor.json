@@ -6,7 +6,7 @@
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,
 	"frameLoop/end": 0,
-	"selectedEntityId": "blidge:OREngineCube",
+	"selectedEntityId": "0",
 	"unselectableEntityIds": [],
 	"selectedAsset": null,
 	"navigateAsset": null,
@@ -100,18 +100,26 @@
 			}
 		]
 	},
-	"viewports/main/resolutionScale": 0.5,
 	"viewports/main/cameraView": "camera",
 	"viewports/main/preview": false,
+	"viewports/main/resolutionScale": 1,
+	"viewports/main/helpers/show": true,
+	"viewports/main/helpers/empty": true,
+	"viewports/main/helpers/camera": true,
+	"viewports/main/helpers/light": true,
+	"viewports/main/helpers/grid": true,
+	"viewports/main/helpers/wireframe": false,
+	"viewports/main/helpers/gizmo": true,
+	"viewports/main/helpers/outline": true,
 	"viewports/main/camera/position": [
-		-6.036112537975983,
-		1.0161452790609298,
-		14.099501022566667
+		-25.203282694824235,
+		1.4190384248233532,
+		20.687542200894512
 	],
 	"viewports/main/camera/target": [
-		-0.005950683445575047,
-		0.9394885335807147,
-		-1.3476009279825334
+		-0.006941929754500566,
+		0.9265769149926592,
+		-1.5720800920961278
 	],
 	"scene": "main"
 }

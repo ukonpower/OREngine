@@ -20,15 +20,16 @@
 									"name": "Camera",
 									"uuid": "4ec0479f-f58f-4644-a7f4-0204813c5c99",
 									"props": {
+										"cameraType": "perspective",
 										"fov": 21.908,
 										"near": 0.1,
 										"far": 1000,
 										"orthHeight": 1,
-										"focus/fNumber": 0.3,
 										"focus/mode": "auto",
 										"focus/target": "blidge:CamDof",
 										"focus/distance": 5,
-										"focus/speed": 8
+										"focus/speed": 8,
+										"focus/fNumber": 0.3
 									}
 								},
 								{
@@ -92,12 +93,23 @@
 		"pipeline/motionBlur/power": 1,
 		"pipeline/ssr/enabled": true,
 		"pipeline/ssao/enabled": true,
+		"pipeline/ssao/intensity": 1,
+		"pipeline/ssao/blur": true,
+		"pipeline/ssao/temporal": true,
+		"pipeline/ssao/temporalBlend": 0.2,
 		"pipeline/dof/enabled": true,
 		"pipeline/lightShaft/enabled": true,
 		"pipeline/lightShaft/intensity": 1,
 		"pipeline/lightShaft/blur": true,
 		"pipeline/lightShaft/temporal": true,
-		"pipeline/lightShaft/temporalBlend": 0.3
+		"pipeline/lightShaft/temporalBlend": 0.3,
+		"pipeline/toneMap/enabled": true,
+		"pipeline/toneMap/exposure": 0,
+		"pipeline/bloom/enabled": true,
+		"pipeline/bloom/threshold": 1,
+		"pipeline/bloom/brightness": 1,
+		"pipeline/sss/enabled": false,
+		"pipeline/sss/radius": 0.05
 	},
 	"timeline/duration": 600,
 	"timeline/fps": 60
