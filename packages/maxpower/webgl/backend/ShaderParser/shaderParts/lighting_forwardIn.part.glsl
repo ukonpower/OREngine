@@ -17,4 +17,5 @@ Material mat = Material(
 	outEnv
 );
 
-outColor.xyz *= 0.0;
+vec3 diffuse = vec3( 0.0 );
+vec3 specular = vec3( 0.0 );

@@ -71,6 +71,7 @@ fn fsDeferred( input: VertexOutput ) -> GBufferOutput {
 | `metallic` | f32 | `0.0` |
 | `emission` | vec3f | `vec3f( 0.0 )` |
 | `envIntensity` | f32 | `1.0` |
+| `sss` | f32 | `0.0`（SSS の強さ 0〜1。albedo.w に入り、レンダラーの `pipeline/sss/enabled` が true のときだけ効く） |
 
 ## 前置される名前
 

@@ -139,6 +139,13 @@ export class PostProcessPass {
 
 	}
 
+	// 今の描画先。結果を別のテクスチャへ写すときに使う（SSS がシーンバッファへ写し戻す）
+	public get targetTexture() {
+
+		return this._targets[ this._current ];
+
+	}
+
 	// ライトを使うパスだけ group2 の宣言を足す
 	private get _lightWgsl() {
 
@@ -233,7 +240,7 @@ export class PostProcessPass {
 				label: `${this.name}/${i}`,
 				size: [ w, h ],
 				format: this._format,
-				usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING,
+				usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_SRC,
 			} );
 
 			this._targetViews[ i ] = this._targets[ i ]!.createView();

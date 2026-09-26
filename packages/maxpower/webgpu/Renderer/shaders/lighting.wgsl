@@ -54,8 +54,14 @@ fn fresnel( d: f32 ) -> f32 {
 
 }
 
+// diffuse と specular を分けて持つ（SSS が diffuse だけをぼかすため）
+struct Reflectance {
+	diffuse: vec3f,
+	specular: vec3f,
+};
+
 // 1灯ぶんの反射（GGX + Smith + Schlick fresnel）
-fn reflectance( normal: vec3f, viewDir: vec3f, surface: SurfaceInfo, direction: vec3f, color: vec3f ) -> vec3f {
+fn reflectance( normal: vec3f, viewDir: vec3f, surface: SurfaceInfo, direction: vec3f, color: vec3f ) -> Reflectance {
 
 	let lightDir = normalize( direction );
 	let halfVec = normalize( viewDir + lightDir );
@@ -75,7 +81,7 @@ fn reflectance( normal: vec3f, viewDir: vec3f, surface: SurfaceInfo, direction: 
 
 	let specular = ( ( D * G * F ) / ( 4.0 * dNL * dNV + 0.0001 ) * surface.specularColor ) * irradiance;
 
-	return diffuse * ( 1.0 - F ) + specular;
+	return Reflectance( diffuse * ( 1.0 - F ), specular );
 
 }
 

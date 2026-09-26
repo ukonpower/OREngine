@@ -15,6 +15,10 @@ export type PipelineConfig = {
 	bloom?: boolean;
 	bloomThreshold?: number;
 	bloomBrightness?: number;
+	// SSS（肌の表面下散乱）。albedo.w に強さを書いたディファードの物体の diffuse をぼかす。
+	// 半径はシーン全体で1つで、ワールド単位の散乱距離
+	sss?: boolean;
+	sssRadius?: number;
 	// lightShaft の細かい調整（WebGPU バックエンドのみ。WebGL は無視する）
 	lightShaftIntensity?: number;
 	lightShaftBlur?: boolean;

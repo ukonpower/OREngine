@@ -11,6 +11,7 @@ import {
 	buildMotionBlurWgsl,
 	buildSsaoBlurWgsl,
 	buildSsaoWgsl,
+	buildSssWgsl,
 } from './shaders';
 import bloomBrightWgsl from './shaders/bloomBright.wgsl';
 import colorCollectionWgsl from './shaders/colorCollection.wgsl';
@@ -37,6 +38,7 @@ type PassCallback = ( pass: PostProcessPass ) => void;
 	webgl側の DeferredRenderer（シェーディング以外）と PipelinePostProcess をまとめたもの。
 
 	シェーディングの前に走る系統（法線選択・lightShaft・SSAO）と、
+	シェーディングとforwardの間に走る SSS と、
 	forwardのあとに走る系統（SSR・DoF・モーションブラー・ブルーム・トーンマップ・FXAA）に分かれる。
 	作風の処理（レンズ歪み・色収差など）は持たず、プロジェクトがカメラの PostProcessPipeline で足す。
 
@@ -49,6 +51,9 @@ const BLOOM_BLUR_SAMPLES = 8;
 const SSAO_BLUR_SAMPLES = 8;
 const LIGHT_SHAFT_BLUR_SAMPLES = 6;
 const MOTION_BLUR_TILE = 16;
+
+// SSS のカーネルの片側のサンプル数（中心を含む）。webgl 側 DeferredRenderer の SSS_SAMPLES と一致させる
+const SSS_SAMPLES = 9;
 
 // DoF の最大 CoC（KinoBokeh の CalculateMaxCoCRadius）。webgl 側の PipelinePostProcess と一致させる。
 // 半径のピクセル数は KinoBokeh の経験式 kernelSize * 4 + 6 に、dofBokeh.wgsl の 43 サンプル（KERNEL_LARGE = 2）を入れた値。
@@ -102,6 +107,9 @@ export class PipelinePostProcess {
 	private _ssaoBlurH: PostProcessPass;
 	private _ssaoBlurV: PostProcessPass;
 
+	private _sssH: PostProcessPass;
+	private _sssV: PostProcessPass;
+
 	private _ssr: PostProcessPass;
 	private _ssComposite: PostProcessPass;
 	private _dofCoc: PostProcessPass;
@@ -118,6 +126,7 @@ export class PipelinePostProcess {
 	private _composite: PostProcessPass;
 
 	private _deferredChain: PostProcessChain;
+	private _sssChain: PostProcessChain;
 	private _screenChain: PostProcessChain;
 	private _bloomChain: PostProcessChain;
 	private _finishChain: PostProcessChain;
@@ -217,6 +226,36 @@ export class PipelinePostProcess {
 			this._ssao,
 			this._ssaoBlurH,
 			this._ssaoBlurV,
+		] );
+
+		/*-------------------------------
+			SSS（シェーディングとforwardの間）
+		-------------------------------*/
+
+		// 横はシェーディングが別に出した diffuse をぼかし、縦はシェーディング結果の diffuse をそれと置き換える。
+		// 使う作品だけが有効にするので既定は止めておく
+		const sssInputs = [ 'uBackBuffer0', NEAREST( 'uGbufferPos' ), NEAREST( 'uGbufferNormal' ), 'uGbufferAlbedo', 'uShading', 'uShadingDiffuse' ];
+		const sssUniforms: BSP.Uniforms = { uRadius: { value: 0.05, type: '1f' } };
+
+		this._sssH = pass( {
+			name: 'sss/h',
+			wgsl: buildSssWgsl( SSS_SAMPLES, false ),
+			inputs: sssInputs,
+			uniforms: sssUniforms,
+			enabled: false,
+		} );
+
+		this._sssV = pass( {
+			name: 'sss/v',
+			wgsl: buildSssWgsl( SSS_SAMPLES, true ),
+			inputs: sssInputs,
+			uniforms: sssUniforms,
+			enabled: false,
+		} );
+
+		this._sssChain = new PostProcessChain( device, frameLayout, [
+			this._sssH,
+			this._sssV,
 		] );
 
 		/*-------------------------------
@@ -386,6 +425,7 @@ export class PipelinePostProcess {
 		this._height = height;
 
 		this._deferredChain.setSize( device, width, height );
+		this._sssChain.setSize( device, width, height );
 		this._screenChain.setSize( device, width, height );
 		this._bloomChain.setSize( device, width, height );
 		this._finishChain.setSize( device, width, height );
@@ -403,7 +443,7 @@ export class PipelinePostProcess {
 		this._motionBlur.setInput( 'uVelNeighborTex', this._motionBlurNeighbor.targetView! );
 
 		// 法線を参照するパスは normalSelector の結果を見る（webgl側の normalBuffer と同じ）
-		for ( const pass of [ ...this._deferredChain.passes, ...this._screenChain.passes ] ) {
+		for ( const pass of [ ...this._deferredChain.passes, ...this._sssChain.passes, ...this._screenChain.passes ] ) {
 
 			pass.setInput( 'uGbufferNormal', this._normalSelector.targetView! );
 
@@ -412,13 +452,14 @@ export class PipelinePostProcess {
 	}
 
 	// gBufferのビューが作り直されたときに繋ぎ直す
-	public setGBuffer( position: GPUTextureView, normal: GPUTextureView, material: GPUTextureView, velocity: GPUTextureView ) {
+	public setGBuffer( position: GPUTextureView, normal: GPUTextureView, albedo: GPUTextureView, material: GPUTextureView, velocity: GPUTextureView ) {
 
-		for ( const pass of [ ...this._deferredChain.passes, ...this._screenChain.passes ] ) {
+		for ( const pass of [ ...this._deferredChain.passes, ...this._sssChain.passes, ...this._screenChain.passes ] ) {
 
 			pass.setInput( 'uGbufferPos', position );
 			pass.setInput( 'uPosTexture', position );
 			pass.setInput( 'uNormalTexture', normal );
+			pass.setInput( 'uGbufferAlbedo', albedo );
 			pass.setInput( 'uSelectorTexture', material );
 			pass.setInput( 'uVelTex', velocity );
 
@@ -429,10 +470,17 @@ export class PipelinePostProcess {
 
 	}
 
-	// トーンマップ前のシーンバッファを繋ぐ（ブルームの輝度抽出元）
-	public setScene( scene: GPUTextureView ) {
+	// トーンマップ前のシーンバッファ（ブルームの輝度抽出元・SSS の置き換え先）と、シェーディングの diffuse を繋ぐ
+	public setScene( scene: GPUTextureView, diffuse: GPUTextureView ) {
 
 		this._bright.setInput( 'uSceneHdr', scene );
+
+		for ( const pass of this._sssChain.passes ) {
+
+			pass.setInput( 'uShading', scene );
+			pass.setInput( 'uShadingDiffuse', diffuse );
+
+		}
 
 	}
 
@@ -462,6 +510,18 @@ export class PipelinePostProcess {
 	public renderDeferred( device: GPUDevice, encoder: GPUCommandEncoder, frameBindGroup: GPUBindGroup, input: GPUTextureView, lightBindGroup: GPUBindGroup, onPass?: PassCallback ) {
 
 		this._deferredChain.render( device, encoder, frameBindGroup, input, lightBindGroup, onPass );
+
+	}
+
+	// シェーディングの diffuse に SSS をかける（シェーディングとforwardの間）。
+	// シーンバッファへ写し戻す結果を返し、無効なら null
+	public renderSSS( device: GPUDevice, encoder: GPUCommandEncoder, frameBindGroup: GPUBindGroup, diffuse: GPUTextureView, onPass?: PassCallback ) {
+
+		if ( ! this._sssV.enabled ) return null;
+
+		this._sssChain.render( device, encoder, frameBindGroup, diffuse, undefined, onPass );
+
+		return this._sssV.targetTexture;
 
 	}
 
@@ -511,6 +571,19 @@ export class PipelinePostProcess {
 		if ( config.bloomBrightness !== undefined ) {
 
 			this._bright.uniforms.uBrightness.value = config.bloomBrightness;
+
+		}
+
+		if ( config.sss !== undefined ) {
+
+			this._sssH.enabled = config.sss;
+			this._sssV.enabled = config.sss;
+
+		}
+
+		if ( config.sssRadius !== undefined ) {
+
+			this._sssH.uniforms.uRadius.value = config.sssRadius;
 
 		}
 
@@ -601,6 +674,7 @@ export class PipelinePostProcess {
 	public dispose() {
 
 		this._deferredChain.dispose();
+		this._sssChain.dispose();
 		this._screenChain.dispose();
 		this._bloomChain.dispose();
 		this._finishChain.dispose();

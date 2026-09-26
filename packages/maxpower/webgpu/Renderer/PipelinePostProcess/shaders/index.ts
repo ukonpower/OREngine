@@ -1,5 +1,7 @@
 import * as MTP from 'mathpower';
 
+import { sssKernel } from '../../../../core/utils/SSSKernel';
+
 import bloomCompositeWgsl from './bloomComposite.wgsl';
 import gaussBlurWgsl from './gaussBlur.wgsl';
 import lightShaftBlurWgsl from './lightShaftBlur.wgsl';
@@ -7,6 +9,7 @@ import motionBlurWgsl from './motionBlur.wgsl';
 import motionBlurTileWgsl from './motionBlurTile.wgsl';
 import ssaoWgsl from './ssao.wgsl';
 import ssaoBlurWgsl from './ssaoBlur.wgsl';
+import sssWgsl from './sss.wgsl';
 
 /*-------------------------------
 	生成時に値が決まるポストプロセスのWGSL
@@ -93,6 +96,40 @@ export const buildGaussBlurWgsl = ( samples: number, vertical: boolean ) =>
 
 export const buildLightShaftBlurWgsl = ( samples: number, vertical: boolean ) =>
 	[ blurConstants( samples, vertical ), lightShaftBlurWgsl ].join( '\n\n' );
+
+/*-------------------------------
+	sss
+-------------------------------*/
+
+// vertical は縦ぼかしで、シェーディング結果の diffuse の置き換えまで行う
+export const buildSssWgsl = ( samples: number, vertical: boolean ) => {
+
+	const kernel = sssKernel( samples );
+	const elements = [];
+
+	let direction = '1.0, 0.0';
+
+	if ( vertical ) {
+
+		direction = '0.0, 1.0';
+
+	}
+
+	for ( let i = 0; i < samples; i ++ ) {
+
+		elements.push( `vec4f( ${wgslFloats( kernel.slice( i * 4, i * 4 + 4 ) )} )` );
+
+	}
+
+	return [
+		`const SSS_SAMPLES = ${samples};`,
+		`const SSS_KERNEL = array<vec4f, ${samples}>(\n\t${elements.join( ',\n\t' )}\n);`,
+		`const SSS_DIRECTION = vec2f( ${direction} );`,
+		`const SSS_COMPOSITE = ${vertical};`,
+		sssWgsl,
+	].join( '\n\n' );
+
+};
 
 /*-------------------------------
 	bloom

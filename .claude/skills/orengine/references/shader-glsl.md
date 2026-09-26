@@ -75,6 +75,7 @@ void main( void ) {
 | `outEmission` | vec3 | `vec3(0.0)` | 発光 |
 | `outSSN` | float | `0.0` | gBuffer の material.z に入る値 |
 | `outEnv` | float | `1.0` | 環境マップの効き |
+| `outSSS` | float | `0.0` | SSS（肌の表面下散乱）の強さ 0〜1。gBuffer の albedo.w に入る。レンダラーの `pipeline/sss/enabled` が true のときだけ効く（deferred のみ） |
 | `outPos` | vec3 | `vPos` | ワールド位置。深度もここから計算される |
 
 `<part:frag_out>` がこれらを gBuffer（deferred）・出力色（forward）・深度（shadowMap）へ書き出す。
