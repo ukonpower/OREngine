@@ -13,6 +13,11 @@
 	color: var(--or-text-muted);
 	font-size: var(--or-input-font-size);
 
+	// --ratio は index.tsx が min / max から計算して渡す
+	&[data-slider="true"] {
+		background-image: linear-gradient( to right, var(--or-bg-active) var(--ratio), transparent var(--ratio) );
+	}
+
 	&:disabled {
 		opacity: 0.3;
 	}
@@ -25,6 +30,7 @@
 
 		&[data-lo="true"] {
 			background-color: transparent;
+			background-image: none;
 		}
 	}
 

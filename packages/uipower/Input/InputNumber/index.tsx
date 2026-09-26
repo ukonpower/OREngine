@@ -1,5 +1,5 @@
 
-import { useRef, useCallback, useState, MouseEvent } from 'react';
+import { useRef, useCallback, useState, CSSProperties, MouseEvent } from 'react';
 
 import { useInputWindow } from '../../hooks/useInputWindow';
 import { useMobileDevice } from '../../hooks/useMobileDevice';
@@ -278,8 +278,21 @@ export const InputNumber = ( props: Props ) => {
 		? localValue
 		: String( Number( ( props.value ?? 0 ).toFixed( props.precision ?? 3 ) ) );
 
+	// min と max が両方あるときだけ、値の位置をスライダーのように背景の塗りで見せる。片側だけでは割合が出せない
+	let sliderStyle: CSSProperties | undefined = undefined;
+
+	if ( props.min !== undefined && props.max !== undefined && props.max > props.min ) {
+
+		const ratio = clamp( ( ( props.value ?? 0 ) - props.min ) / ( props.max - props.min ), 0, 1 );
+
+		sliderStyle = { "--ratio": `${ratio * 100}%` } as CSSProperties;
+
+	}
+
 	return <div className={style.inputNumber}>
 		<input ref={inputRef} className={style.input} type={editing ? "text" : "number"} inputMode={editing ? "decimal" : undefined} value={displayValue} disabled={props.disabled} readOnly={isSP || props.readOnly} data-lo={props.readOnly} data-selected={props.selected}
+			data-slider={sliderStyle !== undefined}
+			style={sliderStyle}
 			step={props.step || 1}
 			min={props.min}
 			max={props.max}
