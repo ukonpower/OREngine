@@ -520,6 +520,339 @@ export const getKeyFrameState = ( engine: Engine, field: KeyFrameFieldRef, keyFr
 };
 
 /*-------------------------------
+	Share
+-------------------------------*/
+
+// フィールドの要素1つ。カーブのコピー・貼り付け・リンクの設定はこの単位で行う。数値配列以外は element 0
+export type KeyFrameElementRef = KeyFrameFieldRef & {
+	element: number;
+};
+
+// 要素のリンクの今の状態。右クリックメニューとリンクの設定の小窓が読む
+export type CurveLinkInfo = {
+	curveId: string;
+	name: string | undefined;
+	scale: number;
+	offset: number;
+	// このカーブを指しているリンクの数（シーン全体）。2 以上なら共有している
+	uses: number;
+	// select とイベントは倍率・足し算を 1 / 0 に固定し、設定に出さない
+	fixedScale: boolean;
+};
+
+// リンクの設定の小窓で編集する値。name はリンク先のカーブの名前で、空文字なら名前を外す
+export type CurveLinkSettings = {
+	name: string;
+	scale: number;
+	offset: number;
+};
+
+// 共有中のカーブ1本の表示（行に出す名前と使用数）
+export type SharedCurve = {
+	curveId: string;
+	label: string;
+	uses: number;
+};
+
+// 貼り付けの種類。link はコピー元と同じカーブを指す、duplicate はカーブを複製して新しい ID を指す
+export type CurvePasteMode = "link" | "duplicate";
+
+const hasFixedScale = ( kind: KeyFrameKind ) => {
+
+	return kind == "select" || kind == "event";
+
+};
+
+// 名前を除いたカーブの中身（キー列とハンドルの種類）を写す。複製・解除したカーブは共有しないので名前は写さない
+const copyCurveBody = ( curve: MXP.CurveData ) => {
+
+	const copied: MXP.CurveData = { k: curve.k };
+
+	if ( curve.h ) copied.h = curve.h;
+
+	return copied;
+
+};
+
+// シーン全体で、カーブ ID ごとにそれを指しているリンクの数を数える。数値配列は要素ごとに1と数える
+export const countCurveUses = ( engine: Engine ) => {
+
+	const uses = new Map<string, number>();
+
+	engine.root.traverse( ( entity ) => {
+
+		const animation = entity.getComponent( Animation );
+
+		if ( ! animation ) return;
+
+		const links = animation.getField<AnimationLinks>( "links" ) || {};
+
+		for ( const target of Object.keys( links ) ) {
+
+			const link = links[ target ];
+			let elementLinks: ( AnimationLink | null )[] = [ link as AnimationLink ];
+
+			if ( typeof link[ 0 ] != "string" ) {
+
+				elementLinks = link as ( AnimationLink | null )[];
+
+			}
+
+			for ( const elementLink of elementLinks ) {
+
+				if ( ! elementLink ) continue;
+
+				const id = elementLink[ 0 ];
+
+				uses.set( id, ( uses.get( id ) || 0 ) + 1 );
+
+			}
+
+		}
+
+	} );
+
+	return uses;
+
+};
+
+// 要素のリンクを引く。キーを打てないフィールド・範囲外の要素・リンクの無い要素は null
+const getElementLink = ( resolved: ResolvedField, element: number ) => {
+
+	const elementLinks = toElementLinks( getLinks( resolved.entity )[ resolved.linkKey ], resolved.kind );
+
+	return elementLinks[ element ] || null;
+
+};
+
+// 要素のリンクの今の状態。リンクが無い・指しているカーブが表に無ければ null
+export const getCurveLinkInfo = ( engine: Engine, ref: KeyFrameElementRef ): CurveLinkInfo | null => {
+
+	const resolved = resolveField( ref );
+
+	if ( ! resolved ) return null;
+
+	const link = getElementLink( resolved, ref.element );
+
+	if ( ! link ) return null;
+
+	const curve = engine.curves[ link[ 0 ] ];
+
+	if ( ! curve ) return null;
+
+	return {
+		curveId: link[ 0 ],
+		name: curve.name,
+		scale: link[ 1 ],
+		offset: link[ 2 ],
+		uses: countCurveUses( engine ).get( link[ 0 ] ) || 0,
+		fixedScale: hasFixedScale( resolved.kind ),
+	};
+
+};
+
+// フィールドの要素数（数値配列以外は 1）。キーを打てないフィールドは 0
+export const getKeyFrameElementCount = ( field: KeyFrameFieldRef ) => {
+
+	const resolved = resolveField( field );
+
+	if ( ! resolved ) return 0;
+
+	return resolved.values.length;
+
+};
+
+// フィールドの要素が指しているカーブのうち、共有しているもの（同じカーブは1つにまとめる）。名前が無ければ ID を出す
+export const getSharedCurves = ( engine: Engine, field: KeyFrameFieldRef ): SharedCurve[] => {
+
+	const resolved = resolveField( field );
+
+	if ( ! resolved ) return [];
+
+	const elementLinks = toElementLinks( getLinks( resolved.entity )[ resolved.linkKey ], resolved.kind );
+	const shared: SharedCurve[] = [];
+
+	// 行ごとに毎フレーム呼ばれるので、リンクの無いフィールドではシーンを数えない
+	if ( elementLinks.length == 0 ) return shared;
+
+	const uses = countCurveUses( engine );
+
+	for ( const link of elementLinks ) {
+
+		if ( ! link ) continue;
+
+		const curve = engine.curves[ link[ 0 ] ];
+		const count = uses.get( link[ 0 ] ) || 0;
+
+		if ( ! curve || count < 2 ) continue;
+
+		let listed = false;
+
+		for ( const item of shared ) {
+
+			if ( item.curveId == link[ 0 ] ) listed = true;
+
+		}
+
+		if ( listed ) continue;
+
+		let label = link[ 0 ];
+
+		if ( curve.name ) label = curve.name;
+
+		shared.push( { curveId: link[ 0 ], label, uses: count } );
+
+	}
+
+	return shared;
+
+};
+
+// 要素のリンクを link に置き換えた LinkEdit を作る。要素数に足りない手前の要素は null（動かさない）で埋める
+const setElementLink = ( edits: Map<MXP.Entity, LinkEdit>, resolved: ResolvedField, element: number, link: AnimationLink ) => {
+
+	const edit = getLinkEdit( edits, resolved.entity );
+	const elementLinks = toElementLinks( edit.links[ resolved.linkKey ], resolved.kind );
+
+	while ( elementLinks.length < element ) {
+
+		elementLinks.push( null );
+
+	}
+
+	elementLinks[ element ] = link;
+
+	edit.links[ resolved.linkKey ] = fromElementLinks( elementLinks, resolved.kind )!;
+	edit.changed = true;
+
+};
+
+// 共有・操作できる要素か確かめて、フィールドの解決結果を返す。できなければ Error を投げる
+const resolveElement = ( ref: KeyFrameElementRef ) => {
+
+	const resolved = resolveField( ref );
+
+	if ( ! resolved ) throw new Error( `Cannot link a curve to "${ref.path}"` );
+
+	if ( ref.element < 0 || ref.element >= resolved.values.length ) {
+
+		throw new Error( `"${ref.path}" has no element ${ref.element}` );
+
+	}
+
+	return resolved;
+
+};
+
+// コピーしたカーブ（curveId）を要素に貼り付けるコマンドを作る。貼り付け先に既にリンクがあれば倍率と足し算は引き継ぐ。
+// リンクして貼り付けで、既に同じカーブを指していれば null。初めてリンクを持つエンティティには Animation も足す（undo 1回）
+export const buildPasteCurve = ( engine: Engine, ref: KeyFrameElementRef, curveId: string, mode: CurvePasteMode ): Command | null => {
+
+	const resolved = resolveElement( ref );
+	const source = engine.curves[ curveId ];
+
+	if ( ! source ) throw new Error( `The copied curve "${curveId}" no longer exists` );
+
+	const current = getElementLink( resolved, ref.element );
+	const curves: MXP.CurveTable = { ...engine.curves };
+
+	let id = curveId;
+
+	if ( mode == "duplicate" ) {
+
+		id = newCurveId( curves );
+		curves[ id ] = copyCurveBody( source );
+
+	} else if ( current && current[ 0 ] == curveId ) {
+
+		return null;
+
+	}
+
+	let scale = 1;
+	let offset = 0;
+
+	if ( current && ! hasFixedScale( resolved.kind ) ) {
+
+		scale = current[ 1 ];
+		offset = current[ 2 ];
+
+	}
+
+	const edits = new Map<MXP.Entity, LinkEdit>();
+
+	setElementLink( edits, resolved, ref.element, [ id, scale, offset ] );
+
+	return buildCommand( engine, curves, edits );
+
+};
+
+// 要素が指しているカーブを複製して新しい ID で表に足し、そちらを指し直すコマンドを作る。以後はほかのリンクと独立する。
+// 要素にリンクが無ければ Error を投げる
+export const buildUnlinkCurve = ( engine: Engine, ref: KeyFrameElementRef ): Command => {
+
+	const resolved = resolveElement( ref );
+	const current = getElementLink( resolved, ref.element );
+
+	if ( ! current || ! engine.curves[ current[ 0 ] ] ) throw new Error( `"${ref.path}" has no curve to unlink` );
+
+	const curves: MXP.CurveTable = { ...engine.curves };
+	const id = newCurveId( curves );
+
+	curves[ id ] = copyCurveBody( curves[ current[ 0 ] ] );
+
+	const edits = new Map<MXP.Entity, LinkEdit>();
+
+	setElementLink( edits, resolved, ref.element, [ id, current[ 1 ], current[ 2 ] ] );
+
+	return buildCommand( engine, curves, edits );
+
+};
+
+// リンクの倍率・足し算と、リンク先のカーブの名前を書き換えるコマンドを作る。select とイベントの倍率・足し算は変えない。
+// 何も変わらなければ null。要素にリンクが無ければ Error を投げる
+export const buildCurveLinkSettings = ( engine: Engine, ref: KeyFrameElementRef, settings: CurveLinkSettings ): Command | null => {
+
+	const resolved = resolveElement( ref );
+	const current = getElementLink( resolved, ref.element );
+
+	if ( ! current || ! engine.curves[ current[ 0 ] ] ) throw new Error( `"${ref.path}" has no curve link` );
+
+	const curve = engine.curves[ current[ 0 ] ];
+	const curves: MXP.CurveTable = { ...engine.curves };
+	const edits = new Map<MXP.Entity, LinkEdit>();
+
+	let changed = false;
+
+	const name = settings.name.trim();
+
+	if ( name != ( curve.name || "" ) ) {
+
+		const renamed = copyCurveBody( curve );
+
+		if ( name != "" ) renamed.name = name;
+
+		curves[ current[ 0 ] ] = renamed;
+		changed = true;
+
+	}
+
+	const scaleChanged = settings.scale != current[ 1 ] || settings.offset != current[ 2 ];
+
+	if ( scaleChanged && ! hasFixedScale( resolved.kind ) ) {
+
+		setElementLink( edits, resolved, ref.element, [ current[ 0 ], settings.scale, settings.offset ] );
+		changed = true;
+
+	}
+
+	if ( ! changed ) return null;
+
+	return buildCommand( engine, curves, edits );
+
+};
+
+/*-------------------------------
 	Timeline
 -------------------------------*/
 
@@ -540,54 +873,6 @@ export const keyFrameKindOf = ( field: KeyFrameFieldRef ) => {
 	if ( ! resolved ) return null;
 
 	return resolved.kind;
-
-};
-
-// シーン全体で、カーブ ID ごとにリンクされている数（共有の印に使う）
-export const countCurveUsers = ( engine: Engine ) => {
-
-	const users = new Map<string, number>();
-
-	engine.root.traverse( ( entity ) => {
-
-		const links = getLinks( entity );
-
-		for ( const target of Object.keys( links ) ) {
-
-			for ( const link of flattenLinks( links[ target ] ) ) {
-
-				users.set( link[ 0 ], ( users.get( link[ 0 ] ) || 0 ) + 1 );
-
-			}
-
-		}
-
-	} );
-
-	return users;
-
-};
-
-// 対象1つぶんのリンクを、数値配列の要素ごとのリンクも含めた平らな並びにする（null は除く）
-const flattenLinks = ( link: AnimationLinks[string] ) => {
-
-	const result: AnimationLink[] = [];
-
-	if ( typeof link[ 0 ] == "string" ) {
-
-		result.push( link as AnimationLink );
-
-		return result;
-
-	}
-
-	for ( const elementLink of link as ( AnimationLink | null )[] ) {
-
-		if ( elementLink ) result.push( elementLink );
-
-	}
-
-	return result;
 
 };
 

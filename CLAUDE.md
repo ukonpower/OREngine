@@ -174,6 +174,7 @@ Entity / Component の SerializeField にキーを打ち、player で再生す�
 - 編集: プロパティパネルの行（コンポーネントの `enabled` は見出しのチェックボックス）の上で `I` / `Alt+I`、行の右クリックメニュー、ビューポートの `I`（位置 / 回転 / スケール / 全部）。キーの時刻は `timeline/fps` のコマに揃える。実装は `editor/lib/KeyFrameField`（フィールドの解決・コマンドの組み立て・行の状態）と `editor/lib/KeyFrameCurve`（キー列の編集・自動クランプのハンドル）。初めて打つフィールドは、Animation の追加・カーブ・リンクを `GroupCommand` で undo 1回にまとめる
 - ハンドルの種類（自動クランプ / 自動 / ベクトル / 整列 / 自由）はカーブの `h`（キーごとの番号の配列。並びは `KeyFrameCurve` の `KEYFRAME_HANDLE_TYPES`）に持つ。すべて既定（自動クランプ）なら書かない。エディタだけが読み、キー列を編集するたびに種類に従ってハンドルを置き直す（`KeyFrameCurve` の関数は `CurveData` を受けて `CurveData` を返す純関数）
 - タイムライン: Timeline パネルの子 feature `Timeline/features/KeyEditor`（左のチャンネル一覧、キー表示 / カーブ表示）。選択中のエンティティの行だけを出し、選んだキーは `<カーブ ID>:<番号>` で持つ（共有カーブの行はそろって選ばれる）。編集の確定は `editor.api.setCurves`（最後のキーを消したカーブを指すリンクも外す）、ドラッグは `editor.api.beginEdit( engine, "curves" )`。ポインタがキーの上にある間の Delete / X・Ctrl+C・Ctrl+V は `Editor.enterTimeline` で受けた操作へ回す
+- 共有: 行の右クリックメニューで、要素1つ単位にカーブのコピー / リンクして貼り付け（同じカーブ ID を指す）/ 複製して貼り付け / リンクを解除（複製して指し直す）/ リンクの設定（倍率・足し算・カーブの名前の小窓）。どれも undo 1回。実装は `editor/lib/KeyFrameField` の Share 節（`buildPasteCurve` / `buildUnlinkCurve` / `buildCurveLinkSettings`）。数値配列の要素は、右クリックした場所の `data-element`（uipower の `Vector`・`ValueArray` の要素の行）で決まり、要素の外（ラベル・色の見本）では要素ごとのサブメニューになる。行には共有中のカーブの名前（無ければ ID）と使用数を出す
 - 保存（`Editor.exportEngine`）では、書き出した JSON 全体の `links` から参照されないカーブを外す（`pruneUnusedCurves`）。メモリ上の表には残す
 - player ビルドでは、`curves` 配下のキー（カーブ ID・`k`）を terser の改名から外している（`host/vite/sceneScan.ts`）。リンクがカーブ ID を文字列で引くため
 

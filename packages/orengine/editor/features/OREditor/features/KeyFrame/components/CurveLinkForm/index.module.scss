@@ -1,0 +1,22 @@
+// Popover の窓は枠を持たないので、Menu と同じ地の箱にする。幅は入力欄が潰れないよう行の高さの倍数で取る
+.form {
+	display: flex;
+	flex-direction: column;
+	gap: var(--or-space);
+	width: calc(var(--or-list-row-height) * 10);
+	padding: var(--or-space);
+	border-radius: var(--or-radius);
+	background-color: var(--or-bg-base);
+}
+
+.title {
+	padding: var(--or-space) 0;
+	color: var(--or-text-dim);
+	font-size: var(--or-font-xs);
+}
+
+.footer {
+	display: flex;
+	justify-content: flex-end;
+	gap: var(--or-space);
+}

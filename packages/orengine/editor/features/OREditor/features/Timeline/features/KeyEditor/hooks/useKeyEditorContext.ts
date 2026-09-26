@@ -3,7 +3,7 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 import {
-	countCurveUsers,
+	countCurveUses,
 	deleteKeys,
 	getLinks,
 	keyFrameTime,
@@ -99,7 +99,7 @@ const buildScene = ( editor: Editor ): SceneState => {
 
 	if ( ! entity ) return { ...EMPTY_SCENE, curves };
 
-	return { entity, curves, channels: buildChannels( entity, curves, countCurveUsers( editor.engine ) ) };
+	return { entity, curves, channels: buildChannels( entity, curves, countCurveUses( editor.engine ) ) };
 
 };
 

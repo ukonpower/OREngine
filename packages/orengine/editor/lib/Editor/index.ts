@@ -12,7 +12,7 @@ import { GizmoManager } from '../GizmoManager';
 import { GridRenderer } from '../GridRenderer';
 import { HelperManager, HelperVisibility } from '../HelperManager';
 import { KeyboardHandler } from '../KeyboardHandler';
-import { KeyFrameFieldRef, keyFrameTime } from '../KeyFrameField';
+import { CurveLinkSettings, CurvePasteMode, KeyFrameElementRef, KeyFrameFieldRef, keyFrameTime } from '../KeyFrameField';
 import { ModalTransformHandler } from '../ModalTransformHandler';
 import { SceneExporter, SceneExporterProgress } from '../SceneExporter';
 import { SelectionOutline } from '../SelectionOutline';
@@ -117,6 +117,8 @@ export class Editor extends MXP.Serializable {
 	private _hoveredKeyField: KeyFrameFieldRef | null;
 	// ポインタが乗っているタイムラインのキーの操作。タイムラインがポインタの出入りで設定する
 	private _hoveredTimeline: TimelineKeyActions | null;
+	// 「カーブをコピー」で覚えたカーブ ID。貼り付けるときに表から引くので、コピーの後の編集も貼り付けに乗る
+	private _copiedCurveId: string | null;
 
 	private _disposed: boolean;
 	private _api: EditorAPI;
@@ -158,6 +160,7 @@ export class Editor extends MXP.Serializable {
 		this._panelLayout = null;
 		this._hoveredKeyField = null;
 		this._hoveredTimeline = null;
+		this._copiedCurveId = null;
 		this._disposed = false;
 		this._api = new EditorAPI( this );
 		this._draw = createEditorDraw( engine );
@@ -1234,6 +1237,60 @@ export class Editor extends MXP.Serializable {
 		if ( this._hoveredTimeline === actions ) {
 
 			this._hoveredTimeline = null;
+
+		}
+
+	}
+
+	// 「カーブをコピー」でコピーしたカーブ ID。まだコピーしていなければ null
+	public get copiedCurveId() {
+
+		return this._copiedCurveId;
+
+	}
+
+	// 要素が指しているカーブを貼り付け元として覚える
+	public copyCurve( curveId: string ) {
+
+		this._copiedCurveId = curveId;
+
+	}
+
+	// コピーしたカーブを要素に貼り付ける。貼り付けられないときは理由を message で知らせる
+	public pasteCurve( ref: KeyFrameElementRef, mode: CurvePasteMode ) {
+
+		const curveId = this._copiedCurveId;
+
+		if ( ! curveId ) return;
+
+		this._runKeyFrameCommand( () => this._api.pasteCurve( ref, curveId, mode ) );
+
+	}
+
+	// 要素が共有しているカーブを切り離す
+	public unlinkCurve( ref: KeyFrameElementRef ) {
+
+		this._runKeyFrameCommand( () => this._api.unlinkCurve( ref ) );
+
+	}
+
+	// 要素のリンクの倍率・足し算とカーブの名前を書き換える
+	public setCurveLinkSettings( ref: KeyFrameElementRef, settings: CurveLinkSettings ) {
+
+		this._runKeyFrameCommand( () => this._api.setCurveLinkSettings( ref, settings ) );
+
+	}
+
+	// キーフレームの操作を実行し、EditorAPI が投げた Error はポインタの位置の小窓（message）で知らせる
+	private _runKeyFrameCommand( run: () => void ) {
+
+		try {
+
+			run();
+
+		} catch ( e ) {
+
+			this.emit( "message", [ ( e as Error ).message ] );
 
 		}
 

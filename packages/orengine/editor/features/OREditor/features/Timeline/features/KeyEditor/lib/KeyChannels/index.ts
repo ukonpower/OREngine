@@ -108,7 +108,7 @@ const addCurveId = ( channel: KeyChannel, id: string ) => {
 
 };
 
-// エンティティの Animation のリンクから行を作る。users はシーン全体でのカーブの使用数（countCurveUsers）
+// エンティティの Animation のリンクから行を作る。users はシーン全体でのカーブの使用数（countCurveUses）
 export const buildChannels = ( entity: MXP.Entity, curves: MXP.CurveTable, users: Map<string, number> ) => {
 
 	const links = getLinks( entity );
