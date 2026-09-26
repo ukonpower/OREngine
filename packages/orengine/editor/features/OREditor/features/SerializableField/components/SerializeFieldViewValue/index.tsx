@@ -22,14 +22,14 @@ export const SerializeFieldViewValue: React.FC<{ path:string, field: SerializeFi
 	const label = opt?.label || props.path.split( "/" ).pop();
 	const isWrap = ( format && format.type == "vector" );
 
-	// editor.tsx で差し替えられたフィールドは、既定の入力の代わりにその UI を行いっぱいに出す
-	const FieldUI = findFieldUI( fieldUIs, target, props.path );
+	// editor.tsx で差し替えられたフィールドは、既定の入力の代わりにその UI を出す。並べ方は定義の layout に従う
+	const fieldUIEntry = findFieldUI( fieldUIs, target, props.path );
 
-	if ( FieldUI ) {
+	if ( fieldUIEntry ) {
 
 		// FieldUI はモジュールスコープで定義された部品を引いてきたものだが、JSX で書くと
 		// react-hooks/static-components が「レンダー中に作った部品」と誤認するので createElement で描く
-		const fieldUIElm = createElement( FieldUI, {
+		const fieldUIElm = createElement( fieldUIEntry.ui, {
 			value,
 			setValue: ( v ) => editor.api.setField( target, props.path, v ),
 			beginEdit: () => editor.api.beginEdit( target, props.path ),
@@ -40,7 +40,7 @@ export const SerializeFieldViewValue: React.FC<{ path:string, field: SerializeFi
 			editor,
 		} );
 
-		return <Label title={label} vertical>{fieldUIElm}</Label>;
+		return <Label title={label} vertical={fieldUIEntry.layout === 'block'}>{fieldUIElm}</Label>;
 
 	}
 

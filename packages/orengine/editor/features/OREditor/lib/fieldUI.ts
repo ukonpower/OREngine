@@ -21,21 +21,48 @@ export type FieldUIProps<T extends MXP.SerializeFieldValue = MXP.SerializeFieldV
 
 export type FieldUI<T extends MXP.SerializeFieldValue = any, C extends MXP.Serializable = MXP.Serializable> = React.FC<FieldUIProps<T, C>>;
 
+// プロパティパネルでの並べ方。inline は既定の入力と同じくラベルの右、block はラベルの下に行いっぱい（canvas など幅の要る UI 向け）
+export type FieldUILayout = 'inline' | 'block';
+
+export type FieldUIEntry = {
+	ui: FieldUI;
+	layout: FieldUILayout;
+};
+
+// defineFieldUIs に書く形。部品だけ渡したときは inline になる
+export type FieldUIOption<C extends MXP.Serializable> = FieldUI<any, C> | { ui: FieldUI<any, C>, layout?: FieldUILayout };
+
 // あるコンポーネントクラスの、フィールドパス → フィールド UI の対応
 export type FieldUIDefinition = {
 	target: abstract new ( ...args: any[] ) => MXP.Serializable;
-	fields: { [ path: string ]: FieldUI };
+	fields: { [ path: string ]: FieldUIEntry };
 };
 
 // コンポーネントの editor.tsx で fieldUIs として export する対応表を作る
-export const defineFieldUIs = <C extends MXP.Serializable>( target: abstract new ( ...args: any[] ) => C, fields: { [ path: string ]: FieldUI<any, C> } ): FieldUIDefinition => {
+export const defineFieldUIs = <C extends MXP.Serializable>( target: abstract new ( ...args: any[] ) => C, fields: { [ path: string ]: FieldUIOption<C> } ): FieldUIDefinition => {
 
-	return { target, fields: fields as FieldUIDefinition[ 'fields' ] };
+	const entries: FieldUIDefinition[ 'fields' ] = {};
+
+	for ( const [ path, option ] of Object.entries( fields ) ) {
+
+		if ( typeof option === 'function' ) {
+
+			entries[ path ] = { ui: option as FieldUI, layout: 'inline' };
+
+		} else {
+
+			entries[ path ] = { ui: option.ui as FieldUI, layout: option.layout ?? 'inline' };
+
+		}
+
+	}
+
+	return { target, fields: entries };
 
 };
 
 // 対応はクラスの完全一致で引く（継承先には引き継がない。フィールド構成が変わりうるため）
-export const findFieldUI = ( definitions: FieldUIDefinition[] | undefined, target: MXP.Serializable, path: string ): FieldUI | null => {
+export const findFieldUI = ( definitions: FieldUIDefinition[] | undefined, target: MXP.Serializable, path: string ): FieldUIEntry | null => {
 
 	if ( ! definitions ) return null;
 
@@ -43,9 +70,9 @@ export const findFieldUI = ( definitions: FieldUIDefinition[] | undefined, targe
 
 		if ( target.constructor !== def.target ) continue;
 
-		const ui = def.fields[ path ];
+		const entry = def.fields[ path ];
 
-		if ( ui ) return ui;
+		if ( entry ) return entry;
 
 	}
 
