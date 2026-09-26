@@ -13,6 +13,13 @@ import { SetFieldCommand } from '../Commands/SetFieldCommand';
 
 import type { Editor } from '../Editor';
 
+// beginEdit が返す編集の窓口。set は値を反映するだけで、commit した時点で開始時からの変化を undo 1回ぶんとして積む
+export interface FieldEdit {
+	set( value: MXP.SerializeFieldValue ): void;
+	commit(): void;
+	cancel(): void;
+}
+
 export class EditorAPI {
 
 	private _commandManager: CommandManager;
@@ -37,6 +44,38 @@ export class EditorAPI {
 			new SetFieldCommand( target, path, oldValue as MXP.SerializeFieldValue, value ),
 			options
 		);
+
+	}
+
+	// ドラッグのような連続した変更を始める。setField の自動まとめは時間基準（500ms）なので、
+	// 途中で手を止めると undo が分かれてしまう。開始と確定を明示してそれを避ける
+	public beginEdit( target: MXP.Serializable, path: string ): FieldEdit {
+
+		const oldValue = target.getField( path ) as MXP.SerializeFieldValue;
+		let changed = false;
+
+		return {
+			set: ( value ) => {
+
+				target.setField( path, value );
+				changed = true;
+
+			},
+			commit: () => {
+
+				if ( ! changed ) return;
+
+				const newValue = target.getField( path ) as MXP.SerializeFieldValue;
+
+				this._commandManager.execute( new SetFieldCommand( target, path, oldValue, newValue ), { merge: false } );
+
+			},
+			cancel: () => {
+
+				if ( changed ) target.setField( path, oldValue );
+
+			},
+		};
 
 	}
 

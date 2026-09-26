@@ -7,6 +7,8 @@ import { attachAgentBridge, type AgentSceneControl } from "../../../lib";
 import { OREditorContext } from "../contexts/OREditorContext";
 import { useOREditorContext } from "../hooks/useOREditorContext";
 
+import type { FieldUIDefinition } from "../lib/fieldUI";
+
 // 戻り値の Promise はファイルへの書き込みの完了。シーン CLI（AgentBridge）が保存の完了を待つのに使う
 export type OREditorSaveCallback = ( projectData: OREngineProjectData, editorData: MXP.SerializeField ) => Promise<void> | void;
 
@@ -16,7 +18,7 @@ export type OREditorSaveCallback = ( projectData: OREngineProjectData, editorDat
 export type SceneSelection = AgentSceneControl;
 
 // Editor インスタンスを生成し、保存コールバックと初期化を紐付けて配下ツリーへ提供する
-export const OREditorProvider: React.FC<{ children?: ReactNode, projectName?: string, onSave?: OREditorSaveCallback, editorData?: MXP.SerializeField, scenes?: SceneSelection }> = ( props ) => {
+export const OREditorProvider: React.FC<{ children?: ReactNode, projectName?: string, onSave?: OREditorSaveCallback, editorData?: MXP.SerializeField, scenes?: SceneSelection, fieldUIs?: FieldUIDefinition[] }> = ( props ) => {
 
 	const editorContext = useOREditorContext( props.projectName );
 
@@ -73,6 +75,6 @@ export const OREditorProvider: React.FC<{ children?: ReactNode, projectName?: st
 
 	}, [ props.editorData, editorContext.editor ] );
 
-	return <OREditorContext.Provider value={{ ...editorContext, scenes: props.scenes }}>{props.children}</OREditorContext.Provider>;
+	return <OREditorContext.Provider value={{ ...editorContext, scenes: props.scenes, fieldUIs: props.fieldUIs }}>{props.children}</OREditorContext.Provider>;
 
 };

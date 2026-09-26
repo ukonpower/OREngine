@@ -22,9 +22,11 @@ import style from './index.module.scss';
 import { OREditorProvider, OREditorSaveCallback, SceneSelection } from './providers/OREditorProvider';
 
 import type { PanelDefinition, PanelId } from './features/PanelLayout';
+import type { FieldUIDefinition } from './lib/fieldUI';
 
 export type { SceneSelection } from './providers/OREditorProvider';
 export type { PanelDefinition, PanelId } from './features/PanelLayout';
+export type { FieldUIDefinition } from './lib/fieldUI';
 
 // レイアウトツリー上の配置は PanelLayout 側の defaultLayout がこの id を参照して決める。
 // レンダーごとに identity が変わると PanelLayout の派生計算が空回りするのでモジュールスコープに置く
@@ -61,7 +63,7 @@ const spPanelTabs = ( panels: PanelDefinition[] ) => {
 
 };
 
-export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP.SerializeField, projectName?: string, panels?: PanelDefinition[], scenes?: SceneSelection }> = ( props ) => {
+export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP.SerializeField, projectName?: string, panels?: PanelDefinition[], scenes?: SceneSelection, fieldUIs?: FieldUIDefinition[] }> = ( props ) => {
 
 	const layout = useLayout();
 
@@ -130,7 +132,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 
 	}
 
-	return <OREditorProvider projectName={props.projectName} onSave={props.onSave} editorData={props.editorData} scenes={props.scenes}>
+	return <OREditorProvider projectName={props.projectName} onSave={props.onSave} editorData={props.editorData} scenes={props.scenes} fieldUIs={props.fieldUIs}>
 		<PopoverProvider>
 			<InputWindowProvider>
 				<div className={style.editor}>

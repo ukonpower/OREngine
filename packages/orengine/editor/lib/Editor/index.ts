@@ -810,6 +810,9 @@ export class Editor extends MXP.Serializable {
 
 			}
 
+			// フィールド UI の canvas 等が、エンジンの update と各ビューの描画の後に描けるようにする（useEditorFrame）
+			this.emit( "frame" );
+
 		}
 
 		window.requestAnimationFrame( this._animate.bind( this ) );

@@ -8,7 +8,7 @@ export interface Command {
 }
 
 export interface CommandExecuteOptions {
-	// false で直前のコマンドとまとめない（ドラッグのような連続操作ではない、1回で完結する操作用）
+	// false で直前のコマンドとまとめず、後続のコマンドもこれにはまとめない（1回で完結する操作・確定済みの編集用）
 	merge?: boolean;
 }
 
@@ -18,6 +18,7 @@ export class CommandManager extends EventEmitter {
 	private _redoStack: Command[] = [];
 	private _mergeWindow: number = 500;
 	private _lastExecuteTime: number = 0;
+	private _lastMergeable: boolean = false;
 
 	// コマンドを実行して undo 履歴に積む。_mergeWindow 以内に続いた変更は、ドラッグ等の1操作とみなして直前のコマンドとまとめる
 	public execute( command: Command, options?: CommandExecuteOptions ): void {
@@ -25,7 +26,7 @@ export class CommandManager extends EventEmitter {
 		const now = Date.now();
 		const merge = options?.merge ?? true;
 
-		if ( merge && this._undoStack.length > 0 && ( now - this._lastExecuteTime ) < this._mergeWindow ) {
+		if ( merge && this._lastMergeable && this._undoStack.length > 0 && ( now - this._lastExecuteTime ) < this._mergeWindow ) {
 
 			const last = this._undoStack[ this._undoStack.length - 1 ];
 
@@ -52,6 +53,7 @@ export class CommandManager extends EventEmitter {
 		this._undoStack.push( command );
 		this._redoStack = [];
 		this._lastExecuteTime = now;
+		this._lastMergeable = merge;
 		this.emit( "change" );
 
 	}
