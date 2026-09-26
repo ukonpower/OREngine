@@ -225,6 +225,7 @@ export class OREngineCube extends MXP.Component {
 - Mesh は BLidge のものなので dispose で `removeComponent( MXP.Mesh )` しない
 - Blender 側のオブジェクトの種類（cube / sphere / plane / mesh / gltf 等）で Mesh が作られるかが決まる。Empty やカメラには Mesh が無い（`get <entity>` の components に `Mesh` があるかで分かる）
 - 背景の空はエンティティではなくレンダラーが持つ。`engine.renderer.sky.mesh.material` に同じ要領で差し込む（両 demo の `Samples/Environment/SkyBox`）
+  - 空の球は描画カメラに追従する（中心 = カメラ位置、半径 = far × 0.99）。`outPos` / `worldPosition` はカメラと一緒に動くので模様に使わず、`<module:sky>` の `skyPosition( 法線 )`（向き × 500 の仮想座標）から作る
 
 ## Material の主なオプション
 

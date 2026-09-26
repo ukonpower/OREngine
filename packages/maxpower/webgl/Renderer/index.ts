@@ -828,6 +828,12 @@ export class Renderer extends Serializable implements RendererContract {
 
 		renderOption = renderOption || {};
 
+		if ( renderType == "deferred" || renderType == "envMap" ) {
+
+			this.sky.followCamera( cameraEntity, camera );
+
+		}
+
 		const drawParam = this._tmpDrawParam;
 
 		drawParam.viewMatrix = camera.viewMatrix;

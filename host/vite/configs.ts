@@ -89,6 +89,12 @@ export const sharedResolve = ( projectDir: string, renderer: RendererName, scene
 	],
 } );
 
+// WGSL の <module:名前> の探し先。プロジェクト側を先に探すので、同名ならプロジェクトのモジュールが勝つ
+export const wgslModuleDirs = ( projectDir: string ) => [
+	path.join( projectDir, 'Resources/shaders' ),
+	path.join( orengineRoot, 'packages/maxpower/webgpu/shaderModules' ),
+];
+
 export const sharedCss = () => ( {
 	modules: {
 		generateScopedName( name: string, filename: string, css: string ) {
@@ -139,7 +145,7 @@ export const createDevConfig = ( opts: OrengineConfigOptions ): UserConfig => de
 		react(),
 		ShaderBuilder( { scanDirs: [ orengineRoot, opts.projectDir ] } ),
 		TexLoader(),
-		WgslLoader( { moduleDirs: [ path.join( opts.projectDir, 'Resources/shaders' ) ] } ),
+		WgslLoader( { moduleDirs: wgslModuleDirs( opts.projectDir ) } ),
 		ProjectWatchReload( opts.projectDir ),
 		// scripts/scene.ts がこのファイルから dev サーバーの URL を読む（パスは scene.ts 側と一致させる）
 		AgentBridge( { infoFile: path.join( orengineRoot, 'tmp/dev-server.json' ) } ),
@@ -267,7 +273,7 @@ export const createPlayerConfig = ( opts: PlayerConfigOptions ): UserConfig => {
 			ShaderBuilder( { scanDirs: [ orengineRoot, opts.projectDir ] } ),
 			TexLoader(),
 			WgslLoader( {
-				moduleDirs: [ path.join( opts.projectDir, 'Resources/shaders' ) ],
+				moduleDirs: wgslModuleDirs( opts.projectDir ),
 				onSource: ( source ) => collectWgslIdentifiers( source, wgslIdentifiers ),
 			} ),
 			PlayerRegistry( { projectDir: opts.projectDir, usage } ),
@@ -308,7 +314,7 @@ export const createStaticConfig = ( opts: StaticConfigOptions ): UserConfig => {
 			react(),
 			ShaderBuilder( { scanDirs: [ orengineRoot, opts.projectDir ] } ),
 			TexLoader(),
-			WgslLoader( { moduleDirs: [ path.join( opts.projectDir, 'Resources/shaders' ) ] } ),
+			WgslLoader( { moduleDirs: wgslModuleDirs( opts.projectDir ) } ),
 		],
 		define: {
 			BASE_PATH: defineBasePath( opts.basePath ),

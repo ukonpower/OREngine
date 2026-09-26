@@ -103,9 +103,9 @@ fn fsDeferred( input: VertexOutput ) -> GBufferOutput {
 同じファイルは1回だけ展開される。
 
 - `#include "./相対パス.wgsl"` — 近くのファイルへの分割
-- `#include <module:名前>` — `<projectDir>/Resources/shaders/名前.wgsl`。ファイルを置くだけで使える（登録は不要）。見つからなければビルドエラー
+- `#include <module:名前>` — `<projectDir>/Resources/shaders/名前.wgsl` → エンジンの `packages/maxpower/webgpu/shaderModules/名前.wgsl` の順に探す（同名ならプロジェクト側が勝つ）。ファイルを置くだけで使える（登録は不要）。見つからなければビルドエラー
 
-**エンジン側に WGSL のビルトインモジュールは無い**（GLSL の `<module:noise_value>` 等に当たるものは無い）。ノイズ等はプロジェクトの `Resources/shaders/` に自分で置く（`demo-webgpu/Resources/shaders/noise.wgsl` に `noiseValue` / `noiseFbm` / `rotate2d` がある）。
+エンジン側の WGSL モジュールは `<module:sky>`（`skyPosition( input.normal )` — 空の模様用の仮想ワールド座標）だけ。ノイズ等はプロジェクトの `Resources/shaders/` に自分で置く（`demo-webgpu/Resources/shaders/noise.wgsl` に `noiseValue` / `noiseFbm` / `rotate2d` がある）。
 
 ## HMR
 

@@ -13,6 +13,7 @@ import { Plugin } from 'vite';
 	include は2形式:
 	- `#include "./相対パス.wgsl"` … 近くのファイルへ分割する用
 	- `#include <module:名前>`     … moduleDirs に登録したディレクトリの `名前.wgsl`（共有モジュール用）
+	  （登録は configs.ts の wgslModuleDirs。プロジェクトの Resources/shaders → エンジンの maxpower/webgpu/shaderModules の順）
 -------------------------------*/
 
 const INCLUDE_PATTERN = /^[ \t]*#include[ \t]+(?:"([^"]+)"|<module:(\w+)>)[ \t]*$/gm;
