@@ -1,7 +1,7 @@
-import type { ClonerLayout } from 'orengine';
+import type { ClonerLayout } from 'orengine/builtin';
 
 // 球面上にフィボナッチ球でほぼ均等に並べる。番号は上から下へ進む
-export const layout: ClonerLayout = {
+const layout: ClonerLayout = {
 	params: { count: 64, radius: 1 },
 	count( params ) {
 
@@ -24,3 +24,5 @@ export const layout: ClonerLayout = {
 
 	},
 };
+
+export default layout;

@@ -2,10 +2,9 @@ import { EventEmitter } from 'basepower';
 import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
-import { ClonerLayout } from './ClonerLayout';
 import { TextureResource } from './TextureResource';
 
-export * from './ClonerLayout';
+export * from './Library';
 export { TextureResource } from './TextureResource';
 export { buildClassTree } from './classTree';
 
@@ -46,7 +45,8 @@ export class Resources extends EventEmitter {
 	private _textures: Map<string, MXP.TextureContract>;
 	private _updateEveryFrameTextures: MXP.TexProceduralContract[];
 
-	private _layouts: Map<string, ClonerLayout>;
+	// 種類 → 名前 → 中身
+	private _library: Map<string, Map<string, unknown>>;
 
 	constructor() {
 
@@ -58,7 +58,7 @@ export class Resources extends EventEmitter {
 		this._geometryGroups = [];
 		this._textureResources = new Map();
 		this._updateEveryFrameTextures = [];
-		this._layouts = new Map();
+		this._library = new Map();
 
 	}
 
@@ -113,7 +113,7 @@ export class Resources extends EventEmitter {
 		this._textureResources.clear();
 		this._textures.clear();
 		this._updateEveryFrameTextures = [];
-		this._layouts.clear();
+		this._library.clear();
 		this.emit( "update" );
 
 	}
@@ -234,27 +234,45 @@ export class Resources extends EventEmitter {
 	}
 
 	/*-------------------------------
-		Layout
+		Library
 	-------------------------------*/
 
-	// 同じ名前があれば上書きする（プロジェクトの並べ方が builtin を上書きできるように）
-	public addLayout( name: string, layout: ClonerLayout ) {
+	// 同じ種類・名前があれば上書きする（プロジェクトのライブラリが builtin を上書きできるように）
+	public addLibraryItem( kind: string, name: string, item: unknown ) {
 
-		this._layouts.set( name, layout );
+		let items = this._library.get( kind );
+
+		if ( ! items ) {
+
+			items = new Map();
+			this._library.set( kind, items );
+
+		}
+
+		items.set( name, item );
 		this.emit( "update" );
 
 	}
 
-	public getLayout( name: string ): ClonerLayout | undefined {
+	// 中身の型は登録した側と使う側の取り決めなので、呼び出し側が T で指定する
+	public getLibraryItem<T>( kind: string, name: string ): T | undefined {
 
-		return this._layouts.get( name );
+		const items = this._library.get( kind );
+
+		if ( ! items ) return undefined;
+
+		return items.get( name ) as T | undefined;
 
 	}
 
-	// 登録順の名前の一覧（Cloner の layout の選択肢）
-	public get layoutNames(): string[] {
+	// 種類ごとの、登録順の名前の一覧
+	public getLibraryItemNames( kind: string ): string[] {
 
-		return Array.from( this._layouts.keys() );
+		const items = this._library.get( kind );
+
+		if ( ! items ) return [];
+
+		return Array.from( items.keys() );
 
 	}
 

@@ -1,40 +1,28 @@
+// シーンに置かれたコンポーネント1つ分の名前と props（player ビルドでコンポーネントに使う部品を聞くため）
+export interface ComponentUsage {
+	name: string;
+	props: Record<string, unknown>;
+}
+
 export interface SceneUsage {
 	componentNames: Set<string>;
 	propKeys: Set<string>;
 	useGLTF: boolean;
-	// Cloner が使う並べ方の名前（player に焼き込む並べ方）
-	layoutNames: Set<string>;
+	components: ComponentUsage[];
 }
 
-// packages/orengine/builtin/Components/Utility/Cloner の既定の layout と一致させる
-const CLONER_DEFAULT_LAYOUT = 'Grid';
+// フィールド名 a/b の区切りごとの名前も、改名させないキーに足す。
+// コンポーネントがオブジェクトのキーからフィールド名を組み立てることがあり（Cloner の params/<キー> など）、
+// そのキーが terser の property mangle で改名されるとシーンの値が入らなくなる
+const addPropKey = ( key: string, propKeys: Set<string> ) => {
 
-const CLONER_PARAMS_PREFIX = 'params/';
+	propKeys.add( key );
 
-// Cloner の props から使う並べ方の名前を layoutNames に、並べ方の数値名を propKeys に足す。
-// Cloner は並べ方の params オブジェクトのキーからフィールド名 params/<キー> を作るので、
-// キー（spacing など）が terser の property mangle で改名されるとシーンの値が入らなくなる
-const collectClonerUsage = ( props: Record<string, unknown>, layoutNames: Set<string>, propKeys: Set<string> ) => {
+	if ( key.indexOf( '/' ) === - 1 ) return;
 
-	const layout = props.layout;
+	for ( const segment of key.split( '/' ) ) {
 
-	if ( typeof layout === 'string' ) {
-
-		layoutNames.add( layout );
-
-	} else if ( ! ( 'layout' in props ) ) {
-
-		layoutNames.add( CLONER_DEFAULT_LAYOUT );
-
-	}
-
-	for ( const key of Object.keys( props ) ) {
-
-		if ( key.startsWith( CLONER_PARAMS_PREFIX ) ) {
-
-			propKeys.add( key.slice( CLONER_PARAMS_PREFIX.length ) );
-
-		}
+		propKeys.add( segment );
 
 	}
 
@@ -46,7 +34,7 @@ export const collectSceneUsage = ( sceneJson: unknown ): SceneUsage => {
 
 	const componentNames = new Set<string>();
 	const propKeys = new Set<string>();
-	const layoutNames = new Set<string>();
+	const components: ComponentUsage[] = [];
 	let useGLTF = false;
 
 	const walk = ( node: unknown, insideProps: boolean ): void => {
@@ -66,7 +54,7 @@ export const collectSceneUsage = ( sceneJson: unknown ): SceneUsage => {
 
 			const value = obj[ key ];
 
-			if ( insideProps ) propKeys.add( key );
+			if ( insideProps ) addPropKey( key, propKeys );
 
 			if ( key === 'components' && Array.isArray( value ) ) {
 
@@ -85,18 +73,17 @@ export const collectSceneUsage = ( sceneJson: unknown ): SceneUsage => {
 
 						}
 
-						if ( c.name === 'Cloner' ) {
+						if ( typeof c.name === 'string' ) {
 
-							// props が無い Cloner も既定の並べ方を使うので、空の props として扱う
-							let clonerProps: Record<string, unknown> = {};
+							let componentProps: Record<string, unknown> = {};
 
 							if ( props !== null && typeof props === 'object' ) {
 
-								clonerProps = props as Record<string, unknown>;
+								componentProps = props as Record<string, unknown>;
 
 							}
 
-							collectClonerUsage( clonerProps, layoutNames, propKeys );
+							components.push( { name: c.name, props: componentProps } );
 
 						}
 
@@ -135,7 +122,7 @@ export const collectSceneUsage = ( sceneJson: unknown ): SceneUsage => {
 
 	walk( sceneJson, false );
 
-	return { componentNames, propKeys, useGLTF, layoutNames };
+	return { componentNames, propKeys, useGLTF, components };
 
 };
 

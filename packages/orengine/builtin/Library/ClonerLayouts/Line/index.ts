@@ -1,7 +1,7 @@
-import type { ClonerLayout } from 'orengine';
+import type { ClonerLayout } from 'orengine/builtin';
 
 // direction の向きに、長さ length の線分上へ等間隔に並べる。中心が原点
-export const layout: ClonerLayout = {
+const layout: ClonerLayout = {
 	params: { count: 10, length: 4, direction: [ 1, 0, 0 ] },
 	count( params ) {
 
@@ -41,3 +41,5 @@ export const layout: ClonerLayout = {
 
 	},
 };
+
+export default layout;

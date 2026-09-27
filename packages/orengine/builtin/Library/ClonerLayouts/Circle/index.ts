@@ -1,7 +1,7 @@
-import type { ClonerLayout } from 'orengine';
+import type { ClonerLayout } from 'orengine/builtin';
 
 // XZ 平面の円周（arc 度ぶんの弧）に並べる。各複製はローカル +X が外を向く
-export const layout: ClonerLayout = {
+const layout: ClonerLayout = {
 	params: { count: 12, radius: 1, arc: 360 },
 	count( params ) {
 
@@ -37,3 +37,5 @@ export const layout: ClonerLayout = {
 
 	},
 };
+
+export default layout;

@@ -1,6 +1,6 @@
 import * as MTP from 'mathpower';
 
-import type { ClonerLayout, ClonerLayoutParams } from 'orengine';
+import type { ClonerLayout, ClonerLayoutParams } from './layout';
 
 // 時間差の順番の決め方。Cloner の delay/order の選択肢と同じ並び
 export type ClonerOrder = 'layout' | 'index' | 'center' | 'x' | 'y' | 'z' | 'random';
