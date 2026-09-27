@@ -57,6 +57,15 @@ const COMMANDS: { [ name: string ]: CommandSpec } = {
 	redo: { usage: 'redo', description: '取り消した操作をやり直す', timeoutMs: 5000 },
 	settings: { usage: 'settings [renderer|timeline|editor]', description: 'シーン以外の設定（renderer / timeline は開いているシーン、editor は editor.json）の現在値と書き換えられる path', timeoutMs: 10000 },
 	'set-setting': { usage: 'set-setting <renderer|timeline|editor> <path> <value>', description: '設定を書き換える（undo が効く）。値の解釈は set と同じ', timeoutMs: 10000 },
+	// キーフレーム。<path> は set と同じフィールドの path で、数値配列の要素1つは <path>/<番号>（position/1 = y）。時刻は秒
+	curves: { usage: 'curves', description: 'カーブの一覧（ID・名前・キー数・使用数・使っているエンティティとフィールド）', timeoutMs: 10000 },
+	'curve-get': { usage: 'curve-get <curveId>', description: 'カーブの中身を JSON（{ name?, keys: [ { time, value, interpolation, handleType, left, right } ] }。時刻・ハンドルの x は秒）で返す', timeoutMs: 10000 },
+	'curve-set': { usage: 'curve-set <curveId> <json>', description: 'カーブの中身を curve-get と同じ形の JSON で差し替える（ハンドルは種類に従って置き直す。自動系の種類は left / right を省略できる。keys を空にするとリンクも外れる）', timeoutMs: 10000 },
+	'key-insert': { usage: 'key-insert <entity> [<component>] <path> --time <秒> [--value <値>]', description: 'キーを打つ（I と同じ。数値配列は要素を指定しなければ全要素）。--value が無ければフィールドの今の値。時刻は timeline/fps のコマに揃える', timeoutMs: 10000 },
+	'key-delete': { usage: 'key-delete <entity> [<component>] <path> --time <秒>', description: 'キーを消す（Alt+I と同じ。最後のキーを消すとリンクも外れる）', timeoutMs: 10000 },
+	'curve-paste': { usage: 'curve-paste <entity> [<component>] <path> <curveId> --link | --copy', description: 'カーブを要素1つに貼り付ける（--link は共有、--copy は複製）', timeoutMs: 10000 },
+	'curve-unlink': { usage: 'curve-unlink <entity> [<component>] <path>', description: '要素1つが共有しているカーブを複製して指し直す', timeoutMs: 10000 },
+	'curve-link-settings': { usage: 'curve-link-settings <entity> [<component>] <path> [--scale <倍率>] [--offset <足し算>] [--name <カーブ名>]', description: '要素1つのリンクの倍率・足し算と、リンク先のカーブの名前を変える（--name "" で名前を外す）', timeoutMs: 10000 },
 	// 一覧・中身はファイルを読むだけなので、タブを通さず dev サーバーの REST から読む（headless も起動しない）
 	scenes: { usage: 'scenes', description: 'シーン名の一覧・タブが開いているシーン・editor.json に残っている最後に開いたシーン', timeoutMs: 5000 },
 	'scene-get': { usage: 'scene-get <name>', description: 'シーンファイルの中身（renderer / timeline 込み）', timeoutMs: 5000 },

@@ -1,5 +1,6 @@
 import * as MXP from 'maxpower';
 
+import { Animation } from '../../../../builtin/Components/Utility/Animation';
 import { Engine } from '../../../../core/Engine';
 import { AgentCommandError, AgentCommandInput, requireArg } from '../Command';
 import { componentName, entityPath, resolveEntity, resolveList } from '../EntityQuery';
@@ -15,7 +16,7 @@ import type { AgentCommandContext, AgentCommandTable } from '../Command';
 -------------------------------*/
 
 // エンティティに付いているコンポーネントを、登録名か uuid で1つ引く
-const resolveAttachedComponent = ( entity: MXP.Entity, spec: string ) => {
+export const resolveAttachedComponent = ( entity: MXP.Entity, spec: string ) => {
 
 	const names: string[] = [];
 
@@ -49,7 +50,7 @@ const assertEditableEntity = ( entity: MXP.Entity, action: string ) => {
 };
 
 // user が付けたもの以外（コンポーネントが内部で足したもの等）はシーン JSON に載らない。GUI でも編集不可
-const assertEditableComponent = ( component: MXP.Component, action: string ) => {
+export const assertEditableComponent = ( component: MXP.Component, action: string ) => {
 
 	if ( component.initiator !== 'user' ) {
 
@@ -402,6 +403,13 @@ const set = ( ctx: AgentCommandContext, input: AgentCommandInput ) => {
 
 	const path = requireArg( input, pathIndex, SET_USAGE );
 	const raw = requireArg( input, pathIndex + 1, SET_USAGE );
+
+	// links は検証の無い2つ目の経路になる（存在しないカーブ ID・要素数の合わないリンクが通り、実行時に黙って無視される）ので書かせない
+	if ( target instanceof Animation && path === 'links' ) {
+
+		throw new AgentCommandError( 'Animation の links は set では書き換えられません。キーは key-insert / key-delete、カーブの共有は curve-paste / curve-unlink / curve-link-settings で編集します' );
+
+	}
 
 	const paths = writablePaths( target );
 
