@@ -3,9 +3,10 @@ import type { ClonerLayout } from 'orengine/builtin';
 // 球面上にフィボナッチ球でほぼ均等に並べる。番号は上から下へ進む
 const layout: ClonerLayout = {
 	params: { count: 64, radius: 1 },
+	paramOptions: { count: { int: true, min: 0, step: 1 } },
 	count( params ) {
 
-		return Math.max( 0, Math.round( params.count as number ) );
+		return params.count as number;
 
 	},
 	place( index, count, params ) {
