@@ -26,6 +26,10 @@
 	--or-state-animated: #53992e;
 	--or-state-changed: #cc7529;
 
+	// タイムラインの目盛りの段と、その左のチャンネル一覧の上の段を1本の帯として塗る色。
+	// パネルの地（本体の長さの範囲内の canvas も同じ #181818）とも、チャンネル一覧のエンティティの行（--or-bg-surface）とも分ける
+	--or-timeline-ruler: color-mix(in srgb, var(--or-bg-panel) 50%, var(--or-bg-surface));
+
 	// タイムラインで選んでいるキー（Blender のドープシートと同じく橙）
 	--or-key-selected: #f0a030;
 	// アクティブのキー（最後に選んだキー）。Blender のグラフエディタと同じく白寄りにし、選んでいないキー（--or-text）とは色味で分ける

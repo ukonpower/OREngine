@@ -16,10 +16,10 @@ export const Timeline = () => {
 	return <TimelineProvider>
 		<KeyEditorProvider>
 			<div className={style.timeline}>
+				<div className={style.header}>
+					<TimelineSetting />
+				</div>
 				<div className={style.inner}>
-					<div className={style.setting}>
-						<TimelineSetting />
-					</div>
 					<div className={style.channels}>
 						<KeyChannelList />
 					</div>
