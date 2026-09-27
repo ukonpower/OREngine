@@ -3,19 +3,24 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 import {
+	copyHandles,
 	countCurveUses,
 	deleteKeys,
+	distributeKeys,
 	getLinks,
 	keyFrameTime,
+	pasteHandles,
 	pasteKeys,
 	setHandleType,
 	setInterpolation,
 	snapKeyFrameTime,
+	straightenKeys,
 	transformKeys,
 	type Editor,
 	type EditKey,
 	type KeyFrameHandleRef,
 	type KeyFrameHandleType,
+	type KeyHandleOffsets,
 	type KeyTransform,
 	type ModalTransformMode,
 	type TimelineKeyActions,
@@ -182,6 +187,9 @@ export const useKeyEditorContext = () => {
 	// ドラッグの開始時に今の選択を読むので、state とは別に同期して持つ
 	const selectionRef = useRef( selection );
 	const clipboardRef = useRef<KeyClipboard | null>( null );
+
+	// Copy Handles で写し取ったハンドル。キーのコピー（clipboardRef）とは別に持ち、互いに上書きしない
+	const handleClipboardRef = useRef<KeyHandleOffsets | null>( null );
 
 	// キーの領域（キー表示・カーブ表示を重ねる要素）。G / R / S の座標の基準と、矩形選択の範囲
 	const areaRef = useRef<HTMLDivElement>( null );
@@ -590,6 +598,102 @@ export const useKeyEditorContext = () => {
 	const setSelectedHandleType = ( handleType: KeyFrameHandleType ) => {
 
 		editSelectedKeys( ( curve, indices ) => setHandleType( curve, indices, handleType ) );
+
+	};
+
+	// 選んだキーを、補間・ハンドルを持つカーブごとに align で並べ直し、並べ直したカーブの選択を新しい番号で選び直す（W の Align）。
+	// align が null を返したカーブ（選んだキーが2つ以下等）はそのまま
+	const alignSelectedKeys = ( align: ( curve: MXP.CurveData, indices: number[] ) => { curve: MXP.CurveData, indices: number[] } | null ) => {
+
+		const groups = groupSelection( selectionRef.current, engine.curves );
+		const next = { ...engine.curves };
+		const aligned = new Map<string, number[]>();
+
+		for ( const [ id, indices ] of groups ) {
+
+			if ( ! numericCurveIds.has( id ) ) continue;
+
+			const result = align( engine.curves[ id ], indices );
+
+			if ( ! result ) continue;
+
+			next[ id ] = result.curve;
+			aligned.set( id, result.indices );
+
+		}
+
+		if ( aligned.size == 0 ) return;
+
+		// 並べ直したカーブは、消えたキーの分だけ番号がずれることがあるので、そのカーブの ref は選び直したものだけにする
+		const nextSelection: KeySelection = new Set();
+
+		for ( const ref of selectionRef.current ) {
+
+			if ( ! aligned.has( parseRef( ref ).curveId ) ) nextSelection.add( ref );
+
+		}
+
+		for ( const [ id, indices ] of aligned ) {
+
+			for ( const index of indices ) {
+
+				nextSelection.add( keyRef( id, index ) );
+
+			}
+
+		}
+
+		applyCurves( next );
+		select( nextSelection );
+
+	};
+
+	const distributeSelectedKeys = () => {
+
+		alignSelectedKeys( ( curve, indices ) => distributeKeys( curve, indices, snapTime ) );
+
+	};
+
+	const straightenSelectedKeys = () => {
+
+		alignSelectedKeys( straightenKeys );
+
+	};
+
+	// 選んだキーがちょうど1つなら、そのハンドルを写し取る（W の Handles ▸ Copy Handles）。
+	// 共有カーブの行はそろって選ばれるが、カーブ ID と番号で数えるので1つになる
+	const copySelectedHandles = () => {
+
+		const groups = groupSelection( selectionRef.current, engine.curves );
+
+		let count = 0;
+		let curveId = "";
+		let index = - 1;
+
+		for ( const [ id, indices ] of groups ) {
+
+			count += indices.length;
+			curveId = id;
+			index = indices[ 0 ];
+
+		}
+
+		if ( count != 1 || ! numericCurveIds.has( curveId ) ) return;
+
+		const offsets = copyHandles( engine.curves[ curveId ], index );
+
+		if ( offsets ) handleClipboardRef.current = offsets;
+
+	};
+
+	// 写し取ったハンドルを、選んだすべてのキーに貼る（W の Handles ▸ Paste Handles）
+	const pasteSelectedHandles = () => {
+
+		const offsets = handleClipboardRef.current;
+
+		if ( ! offsets ) return;
+
+		editSelectedKeys( ( curve, indices ) => pasteHandles( curve, indices, offsets ) );
 
 	};
 
@@ -1066,6 +1170,10 @@ export const useKeyEditorContext = () => {
 		pasteCopiedKeys,
 		setSelectedInterpolation,
 		setSelectedHandleType,
+		distributeSelectedKeys,
+		straightenSelectedKeys,
+		copySelectedHandles,
+		pasteSelectedHandles,
 		beginDrag,
 		timelineActions,
 	};
