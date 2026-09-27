@@ -1,6 +1,8 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useRef } from 'react';
 
 import { useTimeline } from '../../hooks/useTimeline';
+import { useViewWheel } from '../../hooks/useViewWheel';
+import { dragZoomFactor } from '../../lib/ViewGesture';
 
 import style from './index.module.scss';
 
@@ -27,6 +29,9 @@ export const TimelineControls: React.FC<{children?: React.ReactNode}> = ( props 
 	const pointerDownPosRef = useRef<[number, number] | null>( null );
 	const pointerDownCenterFrameRef = useRef<number | null>( null );
 
+	// Ctrl+中ボタンのドラッグ（横の拡大縮小）の、拡大縮小しても動かない位置（幅に対する 0〜1）と、前回までに反映したずれ（px）
+	const zoomDragRef = useRef<{ anchor: number, lastDx: number } | null>( null );
+
 	const onPointerMove = useCallback( ( e: PointerEvent ) => {
 
 		const elmWidth = elmRef.current && elmRef.current.clientWidth || 1;
@@ -41,25 +46,27 @@ export const TimelineControls: React.FC<{children?: React.ReactNode}> = ( props 
 
 			}
 
-		} else if ( pointerDownButtonRef.current == 1 ) {
+		} else if ( pointerDownButtonRef.current == 1 && pointerDownPosRef.current ) {
 
-			const pos = [ e.clientX, e.clientY ];
+			const dx = e.clientX - pointerDownPosRef.current[ 0 ];
+			const zoomDrag = zoomDragRef.current;
 
-			if ( pointerDownPosRef.current && pointerDownCenterFrameRef.current ) {
+			if ( zoomDrag ) {
 
-				const movement = - ( pos[ 0 ] - pointerDownPosRef.current[ 0 ] ) / elmWidth * viewPortRangeRef.current[ 0 ];
+				zoom( dragZoomFactor( zoomDrag.lastDx - dx ), zoomDrag.anchor );
+				zoomDrag.lastDx = dx;
 
-				if ( setViewPortCenter ) {
+			} else if ( pointerDownCenterFrameRef.current !== null ) {
 
-					setViewPortCenter( pointerDownCenterFrameRef.current + movement );
+				const movement = - dx / elmWidth * viewPortRangeRef.current[ 0 ];
 
-				}
+				setViewPortCenter( pointerDownCenterFrameRef.current + movement );
 
 			}
 
 		}
 
-	}, [ setFrame, getFrameViewPort, setViewPortCenter ] );
+	}, [ setFrame, getFrameViewPort, setViewPortCenter, zoom ] );
 
 	const onPointerDown = useCallback( ( e: React.PointerEvent<HTMLElement> ) => {
 
@@ -77,6 +84,10 @@ export const TimelineControls: React.FC<{children?: React.ReactNode}> = ( props 
 
 		}
 
+		zoomDragRef.current = null;
+
+		if ( e.button == 1 && e.ctrlKey ) zoomDragRef.current = { anchor: pointerX, lastDx: 0 };
+
 		window.addEventListener( 'pointermove', onPointerMove );
 
 		const onPointerUp = () => {
@@ -84,6 +95,7 @@ export const TimelineControls: React.FC<{children?: React.ReactNode}> = ( props 
 			pointerDownPosRef.current = null;
 			pointerDownButtonRef.current = null;
 			pointerDownCenterFrameRef.current = null;
+			zoomDragRef.current = null;
 			window.removeEventListener( 'pointermove', onPointerMove );
 
 		};
@@ -99,60 +111,31 @@ export const TimelineControls: React.FC<{children?: React.ReactNode}> = ( props 
 
 	}, [ getFrameViewPort, setFrame, onPointerMove ] );
 
-	// wheel
+	// wheel。横（時刻）の軸だけを動かす。縦はカーブ表示・キー表示が同じ wheel を先に受けて動かす
 
-	const onWheel = useCallback( ( e: WheelEvent ) => {
-
-		if ( pointerDownButtonRef.current !== null || ! zoom || ! scroll ) return;
+	useViewWheel( elmRef, ( gesture, e ) => {
 
 		e.preventDefault();
 
-		// キーの印の上でも同じ速さでスクロールするよう、イベントの来た要素ではなくタイムライン全体の幅で割る
-		const width = elmRef.current && elmRef.current.clientWidth || 1;
-
-		const absY = Math.abs( e.deltaY );
-
-		if ( Math.abs( e.deltaX ) < absY ) {
-
-			if ( absY > 50 ) {
-
-					 zoom( e.deltaY < 0 ? 0.9 : 1.1 );
-
-			} else {
-
-				zoom( 1.0 + e.deltaY * 0.005 );
-
-			}
-
-		} else {
-
-			scroll( e.deltaX / width * 0.5 );
-
-		}
-
-	}, [ zoom, scroll ] );
-
-	useEffect( () => {
-
 		const elm = elmRef.current;
 
-		if ( elm ) {
+		if ( pointerDownButtonRef.current !== null || ! elm ) return;
 
-			elm.addEventListener( "wheel", onWheel, { passive: false } );
+		// キーの印の上でも同じ速さで動くよう、イベントの来た要素ではなくタイムライン全体の幅で割る
+		const rect = elm.getBoundingClientRect();
+		const width = Math.max( 1, rect.width );
+
+		if ( gesture.type == "pan" ) {
+
+			if ( gesture.x != 0 ) scroll( gesture.x / width );
+
+		} else if ( gesture.x != 1 ) {
+
+			zoom( gesture.x, ( e.clientX - rect.left ) / width );
 
 		}
 
-		return () => {
-
-			if ( elm ) {
-
-				elm.removeEventListener( "wheel", onWheel );
-
-			}
-
-		};
-
-	}, [ onWheel ] );
+	} );
 
 	if ( ! viewPort ) return null;
 

@@ -1,6 +1,8 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useMemo, useRef } from 'react';
 
 import { useTimeline } from '../../../../hooks/useTimeline';
+import { useViewWheel } from '../../../../hooks/useViewWheel';
+import { dragZoomFactor } from '../../../../lib/ViewGesture';
 import { useElementSize } from '../../hooks/useElementSize';
 import { useKeyEditor } from '../../hooks/useKeyEditor';
 import { activeHandleSides, curveColor, curvePath, graphScale, valueTicks, zoomValueRange } from '../../lib/CurveGraph';
@@ -19,12 +21,12 @@ type HandlePoint = {
 	keyY: number;
 };
 
-// 値の範囲の幅の下限。Alt+ホイールで縮めすぎて目盛り・座標の計算が崩れないようにする
+// 値の範囲の幅の下限。拡大しすぎて目盛り・座標の計算が崩れないようにする
 const MIN_VALUE_RANGE = 1e-6;
 
 // カーブ表示（グラフエディタ）。カーブの生の値（倍率・足し算をかける前）を、再生と同じ評価で線にする。
 // 選んだキーとハンドルを持つキーのハンドルを出し、キー・ハンドルを押して選ぶ・ドラッグで動かす。
-// 値の範囲は context が持ち、Alt+ホイールで拡大縮小、中ボタンのドラッグで縦にも動かす（横は親の TimelineControls）
+// 値の範囲は context が持ち、wheel と中ボタンのドラッグで縦を動かす（横は同じ操作を親の TimelineControls が動かす）
 export const KeyCurveGraph = () => {
 
 	const { viewPort } = useTimeline();
@@ -52,57 +54,51 @@ export const KeyCurveGraph = () => {
 
 	}, [ graphCurves, curves, viewPort, valueRange, width, height ] );
 
-	// Alt+ホイールで、ポインタの位置の値を動かさずに値の範囲を拡大縮小する。ピンチ（ctrlKey 付きの wheel）と
-	// Alt の無いホイールは、親の TimelineControls の横の拡大・スクロールのまま
-	useEffect( () => {
+	// 値の範囲を scale 倍にする。position は拡大縮小しても動かない位置（高さに対する 0〜1）
+	const zoomValue = ( scale: number, position: number ) => {
+
+		setValueRange( ( current ) => {
+
+			const center = current.max - position * ( current.max - current.min );
+			const next = zoomValueRange( current, center, scale );
+
+			if ( next.max - next.min < MIN_VALUE_RANGE ) return current;
+
+			return next;
+
+		} );
+
+	};
+
+	useViewWheel( rootRef, ( gesture, e ) => {
 
 		const root = rootRef.current;
 
 		if ( ! root ) return;
 
-		const onWheel = ( e: WheelEvent ) => {
+		const rect = root.getBoundingClientRect();
+		const graphHeight = Math.max( 1, rect.height );
 
-			if ( ! e.altKey ) return;
+		if ( gesture.type == "pan" ) {
 
-			e.preventDefault();
-			e.stopPropagation();
+			if ( gesture.y == 0 ) return;
 
-			// TimelineControls の横の拡大と同じ効き方にする（マウスのホイールは1段ずつ、トラックパッドは量に比例）
-			let factor = 1.0 + e.deltaY * 0.005;
-
-			if ( Math.abs( e.deltaY ) > 50 ) {
-
-				factor = 1.1;
-
-				if ( e.deltaY < 0 ) factor = 0.9;
-
-			}
-
-			const rect = root.getBoundingClientRect();
-			const position = ( e.clientY - rect.top ) / Math.max( 1, rect.height );
-
+			// 下へのスクロールで、表示を下（小さい値）へ動かす
 			setValueRange( ( current ) => {
 
-				const center = current.max - position * ( current.max - current.min );
-				const next = zoomValueRange( current, center, factor );
+				const delta = gesture.y * ( current.max - current.min ) / graphHeight;
 
-				if ( next.max - next.min < MIN_VALUE_RANGE ) return current;
-
-				return next;
+				return { min: current.min - delta, max: current.max - delta };
 
 			} );
 
-		};
+		} else if ( gesture.y != 1 ) {
 
-		root.addEventListener( "wheel", onWheel, { passive: false } );
+			zoomValue( gesture.y, ( e.clientY - rect.top ) / graphHeight );
 
-		return () => {
+		}
 
-			root.removeEventListener( "wheel", onWheel );
-
-		};
-
-	}, [ setValueRange ] );
+	} );
 
 	/*-------------------------------
 		Pointer
@@ -114,12 +110,25 @@ export const KeyCurveGraph = () => {
 
 		if ( e.button == 1 ) {
 
-			// 横は親の TimelineControls が動かすので、伝播は止めずにここでは縦だけを動かす
+			// 横は親の TimelineControls が動かすので、伝播は止めずにここでは縦だけを動かす。Ctrl なら拡大縮小
 			const startRange = valueRange;
 			const pressValuePerPx = scale.valuePerPx;
+			const rect = e.currentTarget.getBoundingClientRect();
+			const position = ( e.clientY - rect.top ) / Math.max( 1, rect.height );
+			const zoomDrag = e.ctrlKey;
+			let lastDy = 0;
 
 			trackPointerDrag( start, {
 				onMove: ( _dx, dy ) => {
+
+					if ( zoomDrag ) {
+
+						zoomValue( dragZoomFactor( dy - lastDy ), position );
+						lastDy = dy;
+
+						return;
+
+					}
 
 					setValueRange( { min: startRange.min + dy * pressValuePerPx, max: startRange.max + dy * pressValuePerPx } );
 

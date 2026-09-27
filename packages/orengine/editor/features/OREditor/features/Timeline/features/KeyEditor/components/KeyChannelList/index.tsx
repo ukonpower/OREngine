@@ -9,14 +9,14 @@ import style from './index.module.scss';
 // 行の高さと縦のスクロールは右のキーの表示とそろえる（スクロール量は context で共有する）
 export const KeyChannelList = () => {
 
-	const { entity, visibleChannels, mode, setMode, collapsed, toggleCollapsed, activeChannelId, setActiveChannelId, setScrollTop } = useKeyEditor();
+	const { entity, visibleChannels, mode, setMode, collapsed, toggleCollapsed, activeChannelId, setActiveChannelId, channelListRef, setScrollTop } = useKeyEditor();
 
 	return <div className={style.channelList}>
 		<div className={style.header}>
 			<Button active={mode == "keys"} onClick={() => setMode( "keys" )}>Keys</Button>
 			<Button active={mode == "curves"} onClick={() => setMode( "curves" )}>Curves</Button>
 		</div>
-		<div className={style.list} onScroll={( e ) => setScrollTop( e.currentTarget.scrollTop )}>
+		<div className={style.list} ref={channelListRef} onScroll={( e ) => setScrollTop( e.currentTarget.scrollTop )}>
 			{! entity && <div className={style.empty}>No entity selected</div>}
 			{visibleChannels.map( ( channel ) => {
 
