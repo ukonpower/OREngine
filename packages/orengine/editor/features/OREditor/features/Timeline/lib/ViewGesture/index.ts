@@ -10,11 +10,14 @@ const MOUSE_ZOOM_STEP = 1.1;
 // マウスのホイール1段でスクロールする量（px）。Blender の view2d.scroll_* と同じ
 const MOUSE_SCROLL_STEP = 40;
 
-// Windows 等のマウスのホイール1段の量（100 前後）と、トラックパッドの小さな量を分ける境目（px）
+// wheelDelta を持たないブラウザで、Windows 等のマウスのホイール1段の量（100 前後）と、トラックパッドの小さな量を分ける境目（px）
 const MOUSE_WHEEL_MIN_DELTA = 50;
 
-// macOS の Chrome はマウスのホイールをこの値の倍数で送ってくる（トラックパッドは整数の px）
-const MAC_MOUSE_WHEEL_STEP = 4.000244140625;
+// Chrome / Safari の wheelDelta の、ホイール1段あたりの量
+const WHEEL_DELTA_PER_STEP = 120;
+
+// Chrome / Safari はトラックパッドの wheelDelta を、delta（px）のこの倍数で送ってくる（向きは逆）
+const TRACKPAD_WHEEL_DELTA_SCALE = - 3;
 
 // トラックパッドの入力が来てからこの間（ms）は、大きな量が来てもトラックパッドとみなす（勢いよく払ったときと慣性の分）
 const TRACKPAD_HOLD_MS = 200;
@@ -87,16 +90,25 @@ const isMouseWheel = ( e: WheelEvent ) => {
 	if ( e.timeStamp - lastTrackpadTime < TRACKPAD_HOLD_MS ) return false;
 
 	// マウスのホイールは1段ごとに片方の軸だけが動く
-	const deltaX = Math.abs( e.deltaX );
-	const deltaY = Math.abs( e.deltaY );
+	if ( e.deltaX != 0 && e.deltaY != 0 ) return false;
 
-	if ( deltaX != 0 && deltaY != 0 ) return false;
+	const delta = e.deltaX + e.deltaY;
 
-	const delta = deltaX + deltaY;
+	// wheelDelta は標準外のため型に無い
+	const legacy = e as WheelEvent & { wheelDeltaX?: number, wheelDeltaY?: number };
 
-	if ( delta >= MOUSE_WHEEL_MIN_DELTA ) return true;
+	if ( legacy.wheelDeltaX === undefined || legacy.wheelDeltaY === undefined ) {
 
-	return delta > 0 && Number.isInteger( delta / MAC_MOUSE_WHEEL_STEP );
+		return Math.abs( delta ) >= MOUSE_WHEEL_MIN_DELTA;
+
+	}
+
+	// macOS のマウスはスクロールの加速で delta が端数の px になりトラックパッドと見分けられないが、wheelDelta は段数×120 のまま届く
+	const wheelDelta = legacy.wheelDeltaX + legacy.wheelDeltaY;
+
+	if ( wheelDelta == delta * TRACKPAD_WHEEL_DELTA_SCALE ) return false;
+
+	return wheelDelta != 0 && wheelDelta % WHEEL_DELTA_PER_STEP == 0;
 
 };
 
