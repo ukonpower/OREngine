@@ -2,7 +2,7 @@ import React, { useCallback, useRef } from 'react';
 
 import { useTimeline } from '../../hooks/useTimeline';
 import { useViewWheel } from '../../hooks/useViewWheel';
-import { dragZoomFactor } from '../../lib/ViewGesture';
+import { dragZoomFactor, hasZoomModifier } from '../../lib/ViewGesture';
 
 import style from './index.module.scss';
 
@@ -29,7 +29,7 @@ export const TimelineControls: React.FC<{children?: React.ReactNode}> = ( props 
 	const pointerDownPosRef = useRef<[number, number] | null>( null );
 	const pointerDownCenterFrameRef = useRef<number | null>( null );
 
-	// Ctrl+中ボタンのドラッグ（横の拡大縮小）の、拡大縮小しても動かない位置（幅に対する 0〜1）と、前回までに反映したずれ（px）
+	// Ctrl（Cmd）+中ボタンのドラッグ（横の拡大縮小）の、拡大縮小しても動かない位置（幅に対する 0〜1）と、前回までに反映したずれ（px）
 	const zoomDragRef = useRef<{ anchor: number, lastDx: number } | null>( null );
 
 	const onPointerMove = useCallback( ( e: PointerEvent ) => {
@@ -86,7 +86,7 @@ export const TimelineControls: React.FC<{children?: React.ReactNode}> = ( props 
 
 		zoomDragRef.current = null;
 
-		if ( e.button == 1 && e.ctrlKey ) zoomDragRef.current = { anchor: pointerX, lastDx: 0 };
+		if ( e.button == 1 && hasZoomModifier( e ) ) zoomDragRef.current = { anchor: pointerX, lastDx: 0 };
 
 		window.addEventListener( 'pointermove', onPointerMove );
 

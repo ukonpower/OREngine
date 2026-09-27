@@ -4,6 +4,7 @@ import { KeyframeIcon } from 'uipower';
 
 import { useTimeline } from '../../../../hooks/useTimeline';
 import { useViewWheel } from '../../../../hooks/useViewWheel';
+import { hasZoomModifier } from '../../../../lib/ViewGesture';
 import { useKeyEditor } from '../../hooks/useKeyEditor';
 import { buildMarks } from '../../lib/KeyChannels';
 import { isAllSelected, readRefs } from '../../lib/KeySelection';
@@ -16,20 +17,32 @@ const OUTSIDE_MARGIN = 0.05;
 
 // キー表示（ドープシート）。行ごとに、その行のカーブのキーを時刻の位置へ並べる。
 // キーを押して選ぶ・ドラッグで動かす。何もない所の左クリックはタイムラインの時刻合わせに任せる（矩形選択は B のときだけ KeyEditor が受ける）。
-// wheel と中ボタンのドラッグは、縦を左のチャンネル一覧のスクロールで動かす（横は同じ操作を親の TimelineControls が動かす。
-// Blender のドープシートと同じく縦の拡大縮小は無い）
+// wheel と中ボタンのドラッグは、縦を左のチャンネル一覧のスクロールで動かす（横は同じ操作を親の TimelineControls が動かす）。
+// 縦の拡大縮小は無いので、Ctrl+2本指の縦の量は時刻の拡大縮小に回す
 export const KeyDopeSheet = () => {
 
-	const { viewPort } = useTimeline();
+	const { viewPort, zoom } = useTimeline();
 	const { curves, visibleChannels, selection, scrollTop, channelListRef, pressKeys, select, beginDrag } = useKeyEditor();
 
 	const rootRef = useRef<HTMLDivElement>( null );
 
-	useViewWheel( rootRef, ( gesture ) => {
+	useViewWheel( rootRef, ( gesture, e ) => {
 
 		const list = channelListRef.current;
+		const root = rootRef.current;
 
-		if ( gesture.type == "pan" && list ) list.scrollTop += gesture.y;
+		if ( gesture.type == "pan" ) {
+
+			if ( list ) list.scrollTop += gesture.y;
+
+		} else if ( ! gesture.linked && gesture.y != 1 && root ) {
+
+			// 縦横そろえた拡大縮小（ホイール・ピンチ）の縦は、横と同じ倍率なので足すと二重になる
+			const rect = root.getBoundingClientRect();
+
+			zoom( gesture.y, ( e.clientX - rect.left ) / Math.max( 1, rect.width ) );
+
+		}
 
 	} );
 
@@ -39,8 +52,8 @@ export const KeyDopeSheet = () => {
 
 		const list = channelListRef.current;
 
-		// 中ボタンのドラッグで縦にスクロールする。Ctrl（横の拡大縮小）と横のパンは親の TimelineControls に任せるので伝播は止めない
-		if ( e.button == 1 && ! e.ctrlKey && list ) {
+		// 中ボタンのドラッグで縦にスクロールする。Ctrl・Cmd（横の拡大縮小）と横のパンは親の TimelineControls に任せるので伝播は止めない
+		if ( e.button == 1 && ! hasZoomModifier( e ) && list ) {
 
 			const startScrollTop = list.scrollTop;
 

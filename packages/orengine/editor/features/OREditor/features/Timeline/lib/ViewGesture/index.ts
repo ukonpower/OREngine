@@ -1,7 +1,8 @@
-// タイムラインの表示を動かす操作。pan は表示を動かす量（px。正で右・下へ）、zoom は表示の範囲にかける倍率（1 より大きいと広がる＝縮小）
+// タイムラインの表示を動かす操作。pan は表示を動かす量（px。正で右・下へ）、zoom は表示の範囲にかける倍率（1 より大きいと広がる＝縮小）。
+// linked は縦横そろえた拡大縮小（ホイール・ピンチ）か、軸ごとの拡大縮小（Ctrl+2本指）か
 export type ViewGesture =
 	| { type: "pan", x: number, y: number }
-	| { type: "zoom", x: number, y: number };
+	| { type: "zoom", x: number, y: number, linked: boolean };
 
 // マウスのホイール1段で拡大縮小する倍率
 const MOUSE_ZOOM_STEP = 1.1;
@@ -33,6 +34,14 @@ let lastTrackpadTime = - Infinity;
 
 // 同じ wheel を子（カーブ表示・キー表示）と親（TimelineControls）がそれぞれ読むので、読み替えた結果を使い回して食い違わないようにする
 const gestureCache = new WeakMap<WheelEvent, ViewGesture>();
+
+// 軸ごとの拡大縮小・横スクロールに切り替える修飾キー（Blender の Ctrl）。macOS では Cmd でもよい
+// （Ctrl+2本指は macOS のアクセシビリティのズームに取られることがあるため）
+export const hasZoomModifier = ( e: { ctrlKey: boolean, metaKey: boolean } ) => {
+
+	return e.ctrlKey || e.metaKey;
+
+};
 
 // Ctrl を押しているかを追い始める。返した関数で止める
 export const watchControlKey = () => {
@@ -91,7 +100,7 @@ const isMouseWheel = ( e: WheelEvent ) => {
 
 };
 
-// マウスのホイール: そのままで拡大縮小、Ctrl で横・Shift で縦にスクロール（Blender と同じ）。量は段数によらず1段ぶん
+// マウスのホイール: そのままで拡大縮小、Ctrl（Cmd）で横・Shift で縦にスクロール（Blender と同じ）。量は段数によらず1段ぶん
 const readMouseWheel = ( e: WheelEvent ): ViewGesture => {
 
 	// macOS は Shift+ホイールを横の量で送ってくるので、動いた方の量を使う
@@ -101,7 +110,7 @@ const readMouseWheel = ( e: WheelEvent ): ViewGesture => {
 
 	const scroll = Math.sign( delta ) * MOUSE_SCROLL_STEP;
 
-	if ( e.ctrlKey ) return { type: "pan", x: scroll, y: 0 };
+	if ( hasZoomModifier( e ) ) return { type: "pan", x: scroll, y: 0 };
 
 	if ( e.shiftKey ) return { type: "pan", x: 0, y: scroll };
 
@@ -112,11 +121,11 @@ const readMouseWheel = ( e: WheelEvent ): ViewGesture => {
 
 	if ( e.deltaY < 0 ) factor = 1 / MOUSE_ZOOM_STEP;
 
-	return { type: "zoom", x: factor, y: factor };
+	return { type: "zoom", x: factor, y: factor, linked: true };
 
 };
 
-// トラックパッド: 2本指で縦横にパン、ピンチで縦横そろえて拡大縮小、Ctrl+2本指で縦横それぞれを拡大縮小（Blender と同じ）
+// トラックパッド: 2本指で縦横にパン、ピンチで縦横そろえて拡大縮小、Ctrl（Cmd）+2本指で縦横それぞれを拡大縮小（Blender と同じ）
 const readTrackpad = ( e: WheelEvent ): ViewGesture => {
 
 	lastTrackpadTime = e.timeStamp;
@@ -125,18 +134,19 @@ const readTrackpad = ( e: WheelEvent ): ViewGesture => {
 
 		const factor = Math.exp( e.deltaY * PINCH_ZOOM_SPEED );
 
-		return { type: "zoom", x: factor, y: factor };
+		return { type: "zoom", x: factor, y: factor, linked: true };
 
 	}
 
-	// 指を右・上へ動かすと拡大する（範囲を狭める）。中ボタンのドラッグと同じ向き。
-	// ナチュラルスクロールでは指を右へ動かすと deltaX が負、上へ動かすと deltaY が正になる
-	if ( e.ctrlKey ) {
+	// 指を左・下へ動かすと拡大する（範囲を狭める）。向きは実機で触って決めたもので、中ボタンのドラッグ（Blender と同じ右・上で拡大）とは逆。
+	// ナチュラルスクロールでは指を左へ動かすと deltaX が正、下へ動かすと deltaY が負になる
+	if ( hasZoomModifier( e ) ) {
 
 		return {
 			type: "zoom",
-			x: Math.exp( e.deltaX * TRACKPAD_ZOOM_SPEED ),
-			y: Math.exp( - e.deltaY * TRACKPAD_ZOOM_SPEED ),
+			x: Math.exp( - e.deltaX * TRACKPAD_ZOOM_SPEED ),
+			y: Math.exp( e.deltaY * TRACKPAD_ZOOM_SPEED ),
+			linked: false,
 		};
 
 	}

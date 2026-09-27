@@ -2,7 +2,7 @@ import { useMemo, useRef } from 'react';
 
 import { useTimeline } from '../../../../hooks/useTimeline';
 import { useViewWheel } from '../../../../hooks/useViewWheel';
-import { dragZoomFactor } from '../../../../lib/ViewGesture';
+import { dragZoomFactor, hasZoomModifier } from '../../../../lib/ViewGesture';
 import { useElementSize } from '../../hooks/useElementSize';
 import { useKeyEditor } from '../../hooks/useKeyEditor';
 import { activeHandleSides, curveColor, curvePath, graphScale, valueTicks, zoomValueRange } from '../../lib/CurveGraph';
@@ -110,12 +110,12 @@ export const KeyCurveGraph = () => {
 
 		if ( e.button == 1 ) {
 
-			// 横は親の TimelineControls が動かすので、伝播は止めずにここでは縦だけを動かす。Ctrl なら拡大縮小
+			// 横は親の TimelineControls が動かすので、伝播は止めずにここでは縦だけを動かす。Ctrl（Cmd）なら拡大縮小
 			const startRange = valueRange;
 			const pressValuePerPx = scale.valuePerPx;
 			const rect = e.currentTarget.getBoundingClientRect();
 			const position = ( e.clientY - rect.top ) / Math.max( 1, rect.height );
-			const zoomDrag = e.ctrlKey;
+			const zoomDrag = hasZoomModifier( e );
 			let lastDy = 0;
 
 			trackPointerDrag( start, {
