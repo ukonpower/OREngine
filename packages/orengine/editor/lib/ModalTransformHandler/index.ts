@@ -287,6 +287,10 @@ export class ModalTransformHandler {
 
 		if ( ! entity ) return false;
 
+		// 以降は matrixWorld から開始位置・親の逆行列を読む。作った直後（Shift+D の複製など）でフレームの行列更新を
+		// まだ通っていないと単位行列のままなので、ローカル値から親ごと計算し直しておく
+		entity.updateMatrix( true );
+
 		const camera = cameraEntity.getComponentsByTag<MXP.Camera>( "camera" )[ 0 ];
 
 		if ( ! camera ) return false;
