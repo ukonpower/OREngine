@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 
 import * as MXP from 'maxpower';
-import { Button, Label, Panel, PauseIcon, PlayIcon } from 'uipower';
+import { Button, PauseIcon, PlayIcon } from 'uipower';
 
 import { Value } from '../../../SerializableField/components/Value';
 import { useSerializableField } from '../../../SerializableField/hooks/useSerializableProps';
@@ -10,6 +10,7 @@ import { useTimeline } from '../../hooks/useTimeline';
 import style from './index.module.scss';
 
 
+// タイムラインの上の1行。再生・停止と、今の時刻・長さ・fps・ループを横に並べる
 export const TimelineSetting = () => {
 
 	const { framePlay, glEditor } = useTimeline();
@@ -49,25 +50,31 @@ export const TimelineSetting = () => {
 	}, [ glEditor ] );
 
 	return <div className={style.timelineSetting}>
-		<Panel>
-			<div className={style.play}>
-				<Button onClick={onClickPlay}>
-					{framePlay.playing ? <PauseIcon size={14} /> : <PlayIcon size={14} />}
-				</Button>
+		<Button square onClick={onClickPlay}>
+			{framePlay.playing ? <PauseIcon size={14} /> : <PlayIcon size={14} />}
+		</Button>
+		<div className={style.field}>
+			<span className={style.name}>current</span>
+			<div className={style.input}>
+				<Value value={Math.floor( framePlay?.current || 0 )} readOnly />
 			</div>
-			<Label title='current'>
-				 <Value value={Math.floor( framePlay?.current || 0 )} readOnly />
-				 </Label>
-			<Label title='duration'>
-				 <Value value={duration} onChange={( v ) => onChangeTimeline( "timeline/duration", v )}/>
-			</Label>
-			<Label title='fps'>
-				 <Value value={fps} onChange={( v ) => onChangeTimeline( "timeline/fps", v )} />
-			</Label>
-			<Label title='loop'>
-				 <Value value={loop || false} onChange={( v ) => onChange( v, setLoop )}/>
-			</Label>
-		</Panel>
+		</div>
+		<div className={style.field}>
+			<span className={style.name}>duration</span>
+			<div className={style.input}>
+				<Value value={duration} onChange={( v ) => onChangeTimeline( "timeline/duration", v )}/>
+			</div>
+		</div>
+		<div className={style.field}>
+			<span className={style.name}>fps</span>
+			<div className={style.input}>
+				<Value value={fps} onChange={( v ) => onChangeTimeline( "timeline/fps", v )} />
+			</div>
+		</div>
+		<div className={style.field}>
+			<span className={style.name}>loop</span>
+			<Value value={loop || false} onChange={( v ) => onChange( v, setLoop )}/>
+		</div>
 	</div>;
 
 };
