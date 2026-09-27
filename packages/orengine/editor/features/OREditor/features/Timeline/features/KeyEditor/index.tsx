@@ -1,4 +1,4 @@
-import { useEffect, useState, type MouseEvent, type PointerEvent } from 'react';
+import { useEffect, useState, type PointerEvent } from 'react';
 
 import * as MXP from 'maxpower';
 import { type KeyFrameHandleType } from 'orengine/editor';
@@ -204,13 +204,6 @@ export const KeyEditor = () => {
 
 	};
 
-	// 右ボタンはキーの選択に使うので、ブラウザのメニューは出さない
-	const onContextMenu = ( e: MouseEvent ) => {
-
-		e.preventDefault();
-
-	};
-
 	const trackPointer = ( e: PointerEvent ) => {
 
 		pointerRef.current = { x: e.clientX, y: e.clientY };
@@ -235,7 +228,6 @@ export const KeyEditor = () => {
 		onPointerLeave={() => editor.leaveTimeline( timelineActions )}
 		onPointerDownCapture={onPointerDownCapture}
 		onPointerDown={onPointerDown}
-		onContextMenu={onContextMenu}
 	>
 		{view}
 		{box && <div className={style.box} style={box} />}

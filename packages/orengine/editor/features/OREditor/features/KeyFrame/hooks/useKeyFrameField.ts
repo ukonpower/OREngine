@@ -204,6 +204,7 @@ export const useKeyFrameField = ( target: MXP.Serializable, path: string ) => {
 
 	const onContextMenu = ( e: MouseEvent ) => {
 
+		// 行の中の入力欄の上でもこのメニューを出す。Editor の抑止は入力欄の標準メニューを残すので、ここで止める
 		e.preventDefault();
 
 		const items: MenuItem[] = [

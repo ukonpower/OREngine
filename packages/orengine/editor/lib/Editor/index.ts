@@ -5,6 +5,7 @@ import * as MXP from 'maxpower';
 import { Engine } from '../../../core/Engine';
 import { OREngineProjectData, pruneUnusedCurves } from '../../../core/ProjectSerializer';
 import { AssetPreviewManager } from '../AssetPreviewManager';
+import { preventBrowserContextMenu } from '../BrowserContextMenu';
 import { ConstraintAxisRenderer } from '../ConstraintAxisRenderer';
 import { EditorAPI } from '../EditorAPI';
 import { GizmoMode } from '../Gizmo';
@@ -153,6 +154,7 @@ export class Editor extends MXP.Serializable {
 	private _wireframeRenderer: WireframeRenderer;
 	private _selectionOutline: SelectionOutline;
 	private _keyboardHandler: KeyboardHandler;
+	private _disposeBrowserContextMenu: () => void;
 	private _modalTransformHandler: ModalTransformHandler;
 
 	private _sceneExporter: SceneExporter;
@@ -297,6 +299,9 @@ export class Editor extends MXP.Serializable {
 			onTransformKey: ( e ) => this._onModalKey( e ),
 			onInsertKey: ( remove ) => this._onKeyFrameShortcut( remove ),
 		} );
+
+		// ショートカットと同じくエディタ全体で受ける。Popover・InputWindow は .editor の外に並ぶので、ルート要素ではなく window に付ける
+		this._disposeBrowserContextMenu = preventBrowserContextMenu( window );
 
 		/*-------------------------------
 			Audio
@@ -1503,6 +1508,9 @@ export class Editor extends MXP.Serializable {
 		win.document.body.style.background = "#000";
 		win.document.body.appendChild( canvas );
 
+		// 別の document なので本体の抑止が届かない。ウィンドウごと閉じるので外さない
+		preventBrowserContextMenu( win );
+
 		// camera 未指定＝シーンカメラ、override 無し＝本番パイプライン
 		const view = this._engine.createView( { offscreen: true } );
 
@@ -1575,6 +1583,7 @@ export class Editor extends MXP.Serializable {
 		this._disposed = true;
 		this._api.dispose();
 		this._keyboardHandler.dispose();
+		this._disposeBrowserContextMenu();
 		this._modalTransformHandler.dispose();
 		this._assetPreviewManager.dispose();
 		this.closeExternalWindow();
