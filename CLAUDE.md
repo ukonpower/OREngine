@@ -237,6 +237,7 @@ Entity / Component の SerializeField にキーを打ち、player で再生す�
 - 親の付け替え: Hierarchy の行のドラッグ（選んでいる行ならその選択ごと、選んでいない行ならその行だけ。落とした行の子になる）、Ctrl+P（選んでいるものをアクティブの子に）、Alt+P（root の直下へ）、CLI の `reparent`。どれも `EditorAPI.reparentEntities` → `ReparentEntityCommand`（複数でも undo 1回）で、ワールド座標を保つ（新しい親の逆行列でローカルへ落とし、`TransformUtils` の `decomposeMatrix` で position / euler / scale に分ける。`MTP.Matrix.decompose` はスケールを求めないので使わない）。回転した子を非一様スケールの親から出し入れするとせん断が乗り、TRS では厳密に保てない（位置は保つ）。移した先の兄弟と名前がぶつかれば `uniqueEntityName` で採番する
   - 移せないもの（`EditorAPI.getReparentError`。Hierarchy のドラッグ中は落とせる行だけを枠で示す）: root / script 由来のエンティティ（生成したコンポーネントが持ち主で保存されない）/ Cloner の持ち場・複製（`editorHidden` の部分木）/ 自分自身か子孫の下 / script 由来のエンティティの下（`ProjectSerializer` が script の子を書き出さないので保存で消える）/ 複製の下。Cloner 本体の下へは入れられる（テンプレートになり描かれなくなる）
   - `position` / `euler` / `scale` にキーが打たれていると、ワールド座標を保つよう書き換えても時刻が変わると Animation がキーの値を入れ直す。GUI は message、CLI は `warning` で知らせる
+- 親子の点線（Blender の Relationship Lines）: ビューポートで、子の原点から親の原点まで灰色の点線を引く（root の直下・非表示・Cloner のテンプレートには引かない）。Screen のオーバーレイの Relationships（`viewports/<id>/helpers/relationships`）で切り替える。実装は `editor/lib/RelationshipLineRenderer`。点の数ごとの形状を作り置きし、線ごとに画面上の長さから数を選んで伸ばす（毎フレーム頂点を作り直すと GPU のバッファも作り直しになるため）
 
 ### アクティブプロジェクト・レンダラー切替
 - 環境変数 `ORENGINE_PROJECT=<name>` / `ORENGINE_RENDERER=<webgl|webgpu|headless>` で切替（デフォルトは demo-webgl / webgl。`npm run wgpu` は webgpu + demo-webgpu のショートカット）。設定ファイルは無い（個人の作業状態を tracked ファイルに持たせない）

@@ -15,6 +15,7 @@ import { HelperManager, HelperVisibility } from '../HelperManager';
 import { KeyboardHandler } from '../KeyboardHandler';
 import { CurveLinkSettings, CurvePasteMode, getAnimatedTransformFields, KeyFrameElementRef, KeyFrameFieldRef, keyFrameTime } from '../KeyFrameField';
 import { ModalTransformHandler, transformModeOfKey, type ModalTransformMode, type ModalTransformSelection } from '../ModalTransformHandler';
+import { RelationshipLineRenderer } from '../RelationshipLineRenderer';
 import { SceneExporter, SceneExporterProgress } from '../SceneExporter';
 import { SelectionOutline } from '../SelectionOutline';
 import { topmostEntities, transformBasis, transformPivot } from '../TransformTargets';
@@ -71,6 +72,8 @@ type ViewportHelpers = HelperVisibility & {
 	wireframe: boolean;
 	gizmo: boolean;
 	outline: boolean;
+	// 親子の点線（Blender の Relationship Lines）
+	relationships: boolean;
 };
 
 // ビューポートごとに保存する設定。ビューポートはパネルの表示中しか存在しないので、
@@ -96,6 +99,7 @@ const DEFAULT_VIEWPORT_HELPERS: ViewportHelpers = {
 	wireframe: false,
 	gizmo: true,
 	outline: true,
+	relationships: true,
 };
 
 // viewports/<id>/ 以下の値フィールド。破棄と React への再読込通知で同じ一覧を使う
@@ -157,6 +161,7 @@ export class Editor extends MXP.Serializable {
 	private _gridRenderer: GridRenderer;
 	private _constraintAxisRenderer: ConstraintAxisRenderer;
 	private _wireframeRenderer: WireframeRenderer;
+	private _relationshipLineRenderer: RelationshipLineRenderer;
 	private _selectionOutline: SelectionOutline;
 	private _keyboardHandler: KeyboardHandler;
 	private _disposeBrowserContextMenu: () => void;
@@ -207,6 +212,7 @@ export class Editor extends MXP.Serializable {
 		this._gridRenderer = new GridRenderer( engine, this._draw );
 		this._constraintAxisRenderer = new ConstraintAxisRenderer( engine, this._draw );
 		this._wireframeRenderer = new WireframeRenderer( this._draw );
+		this._relationshipLineRenderer = new RelationshipLineRenderer( engine, this._draw );
 		this._selectionOutline = new SelectionOutline( this._draw );
 
 		this._modalTransformHandler = new ModalTransformHandler( {
@@ -986,6 +992,12 @@ export class Editor extends MXP.Serializable {
 			}
 
 			this._helperManager.render( view, cameraEntity, helpers );
+
+			if ( helpers.relationships ) {
+
+				this._relationshipLineRenderer.render( view, cameraEntity, this._engine );
+
+			}
 
 			if ( helpers.wireframe ) {
 
