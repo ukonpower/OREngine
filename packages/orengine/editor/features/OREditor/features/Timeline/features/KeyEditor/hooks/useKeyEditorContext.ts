@@ -54,10 +54,12 @@ type KeyClipboard = {
 };
 
 // 動かすキー・ハンドル（カーブごと）と、回転・伸縮の中心（時刻, 値）。
-// individual なら、点ごとに属するキーを中心にする（ハンドルだけを選んでいるとき）。duplicate なら、キーを複製して複製を動かす（Shift+D）
+// individual なら、点ごとに属するキーを中心にする（ハンドルだけを選んでいるとき）。duplicate なら、キーを複製して複製を動かす（Shift+D）。
+// keptKeys は動かさないが選択に残すキー（カーブ ID → 番号）。キー1つの回転・伸縮でキーをハンドルに置き換えたときに使う
 type TransformTargets = {
 	keys: Map<string, number[]>;
 	handles: Map<string, KeyFrameHandleRef[]>;
+	keptKeys: Map<string, number>;
 	center: MTP.IVector2;
 	individual: boolean;
 	duplicate: boolean;
@@ -764,6 +766,8 @@ export const useKeyEditorContext = () => {
 
 		if ( individual ) points = handleKeyPoints;
 
+		const keptKeys = new Map<string, number>();
+
 		// カーブ表示の回転・伸縮でキーが1つなら、キーを動かさずに両側のハンドルとして回す・伸縮する（ハンドルの傾き・長さが変わる）
 		if ( mode == "curves" && transformMode != "translate" && points.length == 1 && ! individual ) {
 
@@ -778,6 +782,7 @@ export const useKeyEditorContext = () => {
 				}
 
 				handles.set( id, curveHandles );
+				keptKeys.set( id, indices[ 0 ] );
 
 			}
 
@@ -785,7 +790,7 @@ export const useKeyEditorContext = () => {
 
 		}
 
-		return { keys, handles, center: boundsCenter( points ), individual, duplicate };
+		return { keys, handles, keptKeys, center: boundsCenter( points ), individual, duplicate };
 
 	};
 
@@ -819,7 +824,8 @@ export const useKeyEditorContext = () => {
 				const next = { ...origin };
 				const nextSelection: KeySelection = new Set();
 
-				// 動かしたカーブの選択は、動かした後の番号で選び直す。複製では複製したキーだけを選ぶ（元のキーは選択から外す）
+				// 動かしたカーブの選択は、動かした後の番号で選び直す。複製では複製したキーだけを選ぶ（元のキーは選択から外す）。
+				// keptKeys のキーは動かないので番号はそのまま。キーを選べば両側のハンドルも選んだ扱いになるので、そのハンドルは入れない
 				for ( const ref of startSelection ) {
 
 					if ( ! targets.duplicate && ! ids.has( parseRef( ref ).curveId ) ) nextSelection.add( ref );
@@ -838,7 +844,13 @@ export const useKeyEditorContext = () => {
 
 					}
 
+					const keptIndex = targets.keptKeys.get( id );
+
+					if ( keptIndex !== undefined ) nextSelection.add( keyRef( id, keptIndex ) );
+
 					for ( const handle of result.handles ) {
+
+						if ( handle.index === keptIndex ) continue;
 
 						nextSelection.add( handleRef( id, handle.index, handle.side ) );
 
