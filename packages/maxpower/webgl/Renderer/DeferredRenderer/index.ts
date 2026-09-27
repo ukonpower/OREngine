@@ -8,6 +8,7 @@ import { GL, GLBackend } from '../../backend/GLBackend';
 
 import deferredShadingFrag from './shaders/deferredShading.fs';
 import lightShaftFrag from './shaders/lightShaft.fs';
+import lightShaftBlurFrag from './shaders/lightShaftBlur.fs';
 import normalSelectorFrag from './shaders/normalSelector.fs';
 import ssaoFrag from './shaders/ssao.fs';
 import ssaoBlurFrag from './shaders/ssaoBlur.fs';
@@ -52,6 +53,12 @@ export type DeferredRendererPassConfig = {
 // SSS のカーネルの片側のサンプル数（中心を含む）。両側で 17 タップになり、SeparableSSS の既定と同じ
 const SSS_SAMPLES = 9;
 
+// lightShaft のぼかしの片側のサンプル数（中心を含む）。webgpu 側 PipelinePostProcess の LIGHT_SHAFT_BLUR_SAMPLES と一致させる
+const LIGHT_SHAFT_BLUR_SAMPLES = 6;
+
+// lightShaft のジッタの巡回周期。蓄積されるフレーム数（lightShaft.fs の 1 / TEMPORAL_BLEND）より十分長ければよい
+const LIGHT_SHAFT_JITTER_CYCLE = 64;
+
 export class DeferredRenderer extends EventEmitter {
 
 	// renderer postprocess
@@ -67,6 +74,9 @@ export class DeferredRenderer extends EventEmitter {
 	public lightShaft: MXP.PostProcessPass;
 	public rtLightShaft1: GLP.GLPowerFrameBuffer;
 	public rtLightShaft2: GLP.GLPowerFrameBuffer;
+
+	public lightShaftBlurH: MXP.PostProcessPass;
+	public lightShaftBlurV: MXP.PostProcessPass;
 
 	// ssao
 
@@ -118,14 +128,14 @@ export class DeferredRenderer extends EventEmitter {
 		} );
 
 		// light shaft
+		// 前フレームの結果を少しずつ混ぜて蓄積するので、8bit だと小さな差が丸められて履歴が動かなくなる
 
-		const rtLightShaft1 = backend.createFrameBuffer().setTexture( [
-			backend.createTexture().setting( { magFilter: GL.LINEAR, minFilter: GL.LINEAR } ),
+		const lightShaftTarget = () => backend.createFrameBuffer( { disableDepthBuffer: true } ).setTexture( [
+			backend.createTexture().setting( { type: GL.FLOAT, internalFormat: GL.RGBA16F, format: GL.RGBA, magFilter: GL.LINEAR, minFilter: GL.LINEAR } ),
 		] );
 
-		const rtLightShaft2 = backend.createFrameBuffer().setTexture( [
-			backend.createTexture().setting( { magFilter: GL.LINEAR, minFilter: GL.LINEAR } ),
-		] );
+		const rtLightShaft1 = lightShaftTarget();
+		const rtLightShaft2 = lightShaftTarget();
 
 		const lightShaft = new MXP.PostProcessPass( backend, {
 			name: 'lightShaft',
@@ -136,13 +146,62 @@ export class DeferredRenderer extends EventEmitter {
 					value: rtLightShaft2.textures[ 0 ],
 					type: '1i'
 				},
-				uDepthTexture: {
-					value: null,
+				uPosTexture: {
+					value: renderTarget.gBuffer.textures[ 0 ],
 					type: '1i'
+				},
+				uFrame: {
+					value: 0,
+					type: '1f'
 				},
 			} ),
 			resolutionRatio: 0.5,
 			passThrough: true,
+		} );
+
+		const lightShaftBlurUni = MXP.UniformsUtils.merge( {
+			uLightShaftTexture: {
+				value: rtLightShaft1.textures[ 0 ],
+				type: '1i'
+			},
+			uPosTexture: {
+				value: renderTarget.gBuffer.textures[ 0 ],
+				type: '1i'
+			},
+			uWeights: {
+				type: '1fv',
+				value: MTP.MathUtils.gaussWeights( LIGHT_SHAFT_BLUR_SAMPLES )
+			},
+		} );
+
+		const lightShaftBlurH = new MXP.PostProcessPass( backend, {
+			name: 'lightShaft/blur/h',
+			frag: lightShaftBlurFrag,
+			uniforms: lightShaftBlurUni,
+			renderTarget: lightShaftTarget(),
+			resolutionRatio: 0.5,
+			passThrough: true,
+			defines: {
+				BLUR_SAMPLES: LIGHT_SHAFT_BLUR_SAMPLES
+			}
+		} );
+
+		const lightShaftBlurV = new MXP.PostProcessPass( backend, {
+			name: 'lightShaft/blur/v',
+			frag: lightShaftBlurFrag,
+			uniforms: MXP.UniformsUtils.merge( lightShaftBlurUni, {
+				uLightShaftTexture: {
+					value: lightShaftBlurH.renderTarget!.textures[ 0 ],
+					type: '1i'
+				},
+			} ),
+			renderTarget: lightShaftTarget(),
+			resolutionRatio: 0.5,
+			passThrough: true,
+			defines: {
+				BLUR_SAMPLES: LIGHT_SHAFT_BLUR_SAMPLES,
+				IS_VIRT: ''
+			}
 		} );
 
 		// ssao
@@ -262,7 +321,7 @@ export class DeferredRenderer extends EventEmitter {
 			frag: MXP.hotGet( "deferredShading", deferredShadingFrag ),
 			uniforms: MXP.UniformsUtils.merge( {
 				uLightShaftTexture: {
-					value: null,
+					value: lightShaftBlurV.renderTarget!.textures[ 0 ],
 					type: '1i'
 				},
 				uSSAOTexture: {
@@ -377,6 +436,8 @@ export class DeferredRenderer extends EventEmitter {
 		this.postprocess = new MXP.PostProcess( { passes: [
 			normalSelector,
 			lightShaft,
+			lightShaftBlurH,
+			lightShaftBlurV,
 			ssao,
 			ssaoBlurH,
 			ssaoBlurV,
@@ -403,6 +464,9 @@ export class DeferredRenderer extends EventEmitter {
 		this.rtLightShaft1 = rtLightShaft1;
 		this.rtLightShaft2 = rtLightShaft2;
 
+		this.lightShaftBlurH = lightShaftBlurH;
+		this.lightShaftBlurV = lightShaftBlurV;
+
 		this.normalSelector_ = normalSelector;
 
 		for ( let i = 0; i < renderTarget.gBuffer.textures.length; i ++ ) {
@@ -422,7 +486,6 @@ export class DeferredRenderer extends EventEmitter {
 
 		}
 
-		lightShaft.uniforms.uDepthTexture.value = renderTarget.gBuffer.depthTexture;
 		shading.renderTarget = renderTarget.shadingBuffer;
 
 		normalSelector.renderTarget = renderTarget.normalBuffer;
@@ -451,7 +514,7 @@ export class DeferredRenderer extends EventEmitter {
 
 	}
 
-	// 描画後に呼び、LightShaft / SSAO の履歴を進める
+	// 描画後に呼び、LightShaft / SSAO の履歴とジッタを進める
 	public update(): void {
 
 		// light shaft swap
@@ -461,8 +524,12 @@ export class DeferredRenderer extends EventEmitter {
 		this.rtLightShaft2 = tmp;
 
 		this.lightShaft.setRendertarget( this.rtLightShaft1 );
-		this.shading.uniforms.uLightShaftTexture.value = this.rtLightShaft1.textures[ 0 ];
+		this.lightShaftBlurH.uniforms.uLightShaftTexture.value = this.rtLightShaft1.textures[ 0 ];
 		this.lightShaft.uniforms.uLightShaftBackBuffer.value = this.rtLightShaft2.textures[ 0 ];
+
+		const jitter = this.lightShaft.uniforms.uFrame;
+
+		jitter.value = ( jitter.value + 1 ) % LIGHT_SHAFT_JITTER_CYCLE;
 
 		// ssao swap
 
@@ -503,14 +570,18 @@ export class DeferredRenderer extends EventEmitter {
 
 		}
 
+		// シェーディングはぼかしの結果を読むので、無効時はそれも消して寄与を0にする
 		if ( config.lightShaft !== undefined ) {
 
 			this.lightShaft.enabled = config.lightShaft;
+			this.lightShaftBlurH.enabled = config.lightShaft;
+			this.lightShaftBlurV.enabled = config.lightShaft;
 
 			if ( ! config.lightShaft ) {
 
 				this.rtLightShaft1.clear();
 				this.rtLightShaft2.clear();
+				this.lightShaftBlurV.renderTarget!.clear();
 
 			}
 
@@ -539,7 +610,10 @@ export class DeferredRenderer extends EventEmitter {
 		this.rtSSAO1.dispose();
 		this.rtSSAO2.dispose();
 
-		for ( const pass of [ this.sssH, this.sssV ] ) {
+		this.rtLightShaft1.textures[ 0 ].dispose();
+		this.rtLightShaft2.textures[ 0 ].dispose();
+
+		for ( const pass of [ this.lightShaftBlurH, this.lightShaftBlurV, this.sssH, this.sssV ] ) {
 
 			pass.renderTarget!.textures[ 0 ].dispose();
 			pass.renderTarget!.dispose();
