@@ -206,6 +206,7 @@ Entity / Component の SerializeField にキーを打ち、player で再生す�
 ### アクティブプロジェクト・レンダラー切替
 - 環境変数 `ORENGINE_PROJECT=<name>` / `ORENGINE_RENDERER=<webgl|webgpu|headless>` で切替（デフォルトは demo-webgl / webgl。`npm run wgpu` は webgpu + demo-webgpu のショートカット）。設定ファイルは無い（個人の作業状態を tracked ファイルに持たせない）
 - dev サーバーの HTTPS 証明書は `ORENGINE_HTTPS_CERT` / `ORENGINE_HTTPS_KEY`（ファイルパス）で指定できる。両方あればその証明書で、無ければ webgpu 時のみ `@vitejs/plugin-basic-ssl` の自己署名証明書で立つ。mkcert 等で作った信頼済みの証明書を渡すと別ホストでも警告が出ない
+- 個人の環境に依存する `ORENGINE_*`（証明書のパス等）は、リポジトリ直下の `.env.local`（`*.local` で gitignore 済み）に書けば `scripts/run.ts` が起動時に読む。シェルで指定した値が優先される
 - 指定したプロジェクトディレクトリが存在しなければ `host/template/project` から雛形が生成される
 
 ### シーン（プロジェクト内の複数シーン）
@@ -243,6 +244,7 @@ Entity / Component の SerializeField にキーを打ち、player で再生す�
 - `main` / リリースブランチへの直接コミットは禁止（branch protection でも強制）。作業はリリースブランチから対応ブランチ（`feature/xxx` 等）を切って行う
 - 作業開始時に現在のブランチが作業内容と乖離している場合（リリースブランチ上にいる場合も含む）は、最新のリリースブランチから新しく対応ブランチを切ってから作業する
 - 対応ブランチは PR 経由でリリースブランチへマージする
+- `main` / `release/*` / `gh-pages` 以外のブランチは、PR がマージされたら削除する。リモートは GitHub の「Automatically delete head branches」で自動削除され、`main` / `release/*` は ruleset `protect-main-release` の削除禁止で残る。ローカルのブランチは自動では消えないので、マージ後に `git fetch --prune` してから `git branch -d <branch>` で消す
 - 緊急修正のみ `hotfix/xxx` を `main` から切り、PR 経由で `main` へ直接マージする
 - リリースは、リリースブランチを PR 経由で `main` へマージして行う。リリース時は GitHub にリリースを作成する
 - リリース前に `package.json` の `version` をリリース番号に合わせて更新する（`npm version X.Y.Z --no-git-tag-version` で package-lock.json ごと更新し、PR 経由でリリースブランチへ入れる）

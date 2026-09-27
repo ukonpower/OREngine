@@ -6,6 +6,16 @@ import { ensureProjectExists } from './projectTemplate';
 
 const repoRoot = path.resolve( fileURLToPath( import.meta.url ), '../..' );
 
+// 証明書のパスなど個人の環境に依存する ORENGINE_* を、git に載らない .env.local（.gitignore の *.local）から読む。
+// シェルで指定した値が優先される（loadEnvFile は既存の環境変数を上書きしない）
+const envLocalPath = path.resolve( repoRoot, '.env.local' );
+
+if ( fs.existsSync( envLocalPath ) ) {
+
+	process.loadEnvFile( envLocalPath );
+
+}
+
 /*-------------------------------
 	設定解決
 -------------------------------*/
