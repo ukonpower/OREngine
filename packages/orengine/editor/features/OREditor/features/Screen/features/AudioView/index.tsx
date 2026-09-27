@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 
-import * as MXP from 'maxpower';
-import { FramePlay, OREngineProjectFrame } from 'orengine';
+import { FramePlay } from 'orengine';
 
 import { useOREditor } from '../../../../hooks/useOREditor';
 
@@ -44,11 +43,6 @@ export const AudioView = () => {
 	const musicBuffer = gui && gui.audioBuffer;
 	const [ musicBufferVersion, setMusicBufferVersion ] = useState<number>();
 
-	const [ frameSetting, setFrameSetting ] = useState<OREngineProjectFrame>( {
-		duration: 0,
-		fps: 0,
-	} );
-
 	const [ framePlay, setFramePlay ] = useState<FramePlay>( {
 		current: 0,
 		playing: false,
@@ -59,15 +53,6 @@ export const AudioView = () => {
 		if ( ! gui ) return;
 
 		const engine = gui.engine;
-
-		const onUpdateSceneProps = ( props: MXP.SerializeField ) => {
-
-			setFrameSetting( {
-				duration: props[ "timeline/duration" ] as number,
-				fps: props[ "timeline/fps" ] as number
-			} );
-
-		};
 
 		let bufferVersion = 0;
 
@@ -83,17 +68,14 @@ export const AudioView = () => {
 
 		};
 
-		onUpdateSceneProps( engine.serialize() );
 		onUpdateFramePlay( engine.frame );
 
-		engine.on( "fields/update", onUpdateSceneProps );
 		engine.on( "update/music", onUpdateMusic );
 		engine.on( "update/frame/play", onUpdateFramePlay );
 
 
 		return () => {
 
-			engine.off( "update/frame/setting", onUpdateSceneProps );
 			engine.off( "update/music", onUpdateMusic );
 			engine.off( "update/frame/play", onUpdateFramePlay );
 
@@ -121,16 +103,6 @@ export const AudioView = () => {
 		}
 
 	}, [ renderer, framePlay ] );
-
-	useEffect( ()=> {
-
-		if ( renderer && frameSetting ) {
-
-			renderer.setFrameSetting( frameSetting );
-
-		}
-
-	}, [ renderer, frameSetting ] );
 
 	const onWheel = useCallback( ( e: WheelEvent ) => {
 

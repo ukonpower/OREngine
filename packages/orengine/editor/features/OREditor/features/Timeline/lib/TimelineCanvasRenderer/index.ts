@@ -2,7 +2,6 @@ import { EventEmitter } from 'basepower';
 import * as GLP from 'glpower';
 import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
-import { OREngineProjectFrame } from 'orengine';
 
 import timelineFrag from './shaders/timeline.fs';
 
@@ -24,7 +23,7 @@ export class TimelineCanvasRenderer extends EventEmitter {
 	private viewPort: number[];
 	private viewPortRange: number[];
 	private viewPortScale: number;
-	private frameSetting: OREngineProjectFrame | null;
+	private duration: number | null;
 	private loopSetting: { enabled: boolean, start: number, end: number };
 
 	private musicBuffer: AudioBuffer | null;
@@ -59,7 +58,7 @@ export class TimelineCanvasRenderer extends EventEmitter {
 
 		// frame
 
-		this.frameSetting = null;
+		this.duration = null;
 
 		// loop
 
@@ -141,12 +140,12 @@ export class TimelineCanvasRenderer extends EventEmitter {
 
 		// playarea
 
-		if ( this.frameSetting ) {
+		if ( this.duration !== null ) {
 
 			this.canvasCtx.fillStyle = '#181818';
 
 			const s = this.frameToPx( 0 );
-			const e = this.frameToPx( this.frameSetting.duration );
+			const e = this.frameToPx( this.duration );
 
 			this.canvasCtx.fillRect( s, 0, e - s, this.canvas.height );
 
@@ -187,14 +186,15 @@ export class TimelineCanvasRenderer extends EventEmitter {
 
 		// audio wave
 
-		if ( this.musicBuffer && this.frameSetting ) {
+		if ( this.musicBuffer && this.duration !== null ) {
 
 			this.canvasCtx.strokeStyle = '#888';
 			this.canvasCtx.fillStyle = '#888';
 
 			const audioBufferL = this.musicBuffer.getChannelData( 0 );
 
-			const viewportDuration = this.viewPortRange[ 0 ] / this.frameSetting.fps;
+			// viewPort の単位は timeline/fps によらず秒×60（Engine の frame.current = time.code * 60）
+			const viewportDuration = this.viewPortRange[ 0 ] / 60;
 			const viewportAudioSamples = ( this.musicBuffer.sampleRate * viewportDuration );
 			const audioSamplePerPx = ( viewportAudioSamples / this.canvas.width );
 			const offset = this.frameToPx( 0 );
@@ -299,12 +299,9 @@ export class TimelineCanvasRenderer extends EventEmitter {
 
 	}
 
-	public setFrameSetting( frame: OREngineProjectFrame ) {
+	public setDuration( duration: number ) {
 
-		this.frameSetting = {
-			duration: Math.round( frame.duration ),
-			fps: Math.round( frame.fps ),
-		};
+		this.duration = Math.round( duration );
 
 		this.render();
 

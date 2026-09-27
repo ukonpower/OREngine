@@ -1,4 +1,3 @@
-import { useSerializableField } from '../../../SerializableField/hooks/useSerializableProps';
 import { useTimeline } from '../../hooks/useTimeline';
 
 
@@ -16,11 +15,9 @@ const formatTime = ( sec: number ) => {
 
 export const TimelineScale = () => {
 
-	const { glEditor, viewPort, viewPortScale } = useTimeline();
+	const { viewPort, viewPortScale } = useTimeline();
 
-	const [ fps, _setFps ] = useSerializableField<number>( glEditor?.engine, "timeline/fps" );
-
-	if ( ! viewPort || ! viewPortScale || fps === undefined ) return null;
+	if ( ! viewPort || ! viewPortScale ) return null;
 
 	const elms = [];
 
@@ -30,7 +27,8 @@ export const TimelineScale = () => {
 	while ( frame < viewPort[ 2 ] && cnt < 100 ) {
 
 		const x = ( frame - viewPort[ 0 ] ) / ( viewPort[ 2 ] - viewPort[ 0 ] );
-		const sec = frame / ( fps || 0 );
+		// 時間軸の単位は timeline/fps によらず秒×60（Engine の frame.current = time.code * 60）
+		const sec = frame / 60;
 
 		elms.push(
 			<div key={frame} className={style.scale_item} style={{ left: x * 100 + "%" }}>
