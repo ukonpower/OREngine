@@ -2,6 +2,7 @@ import * as BSP from 'basepower';
 
 import { AgentCommandError, errorMessage } from './Command';
 import { installErrorCollector } from './ErrorCollector';
+import { keyFrameObserveCommands, keyFrameWriteCommands } from './KeyFrameCommands';
 import { observeCommands } from './ObserveCommands';
 import { AGENT_EVENT, AGENT_HEADLESS_PARAM, RESPONSE_CHUNK_SIZE } from './Protocol';
 import { sceneCommands } from './SceneCommands';
@@ -18,12 +19,14 @@ import type { ViteHotContext } from 'vite/types/hot.js';
 const mutatingCommands: AgentCommandTable = {
 	...writeCommands,
 	...settingWriteCommands,
+	...keyFrameWriteCommands,
 	...sceneCommands,
 };
 
 const commands: AgentCommandTable = {
 	...observeCommands,
 	...settingObserveCommands,
+	...keyFrameObserveCommands,
 	...mutatingCommands,
 	...shotCommands,
 };

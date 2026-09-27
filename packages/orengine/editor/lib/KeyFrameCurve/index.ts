@@ -627,7 +627,7 @@ const alignHandle = ( key: EditKey, side: KeyFrameHandleSide ) => {
 
 // 全部のキーのハンドルを種類に従って置き直す。自動・ベクトルは前後のキーの座標だけで決まるので、
 // 置き直しても変わらないキーはそのままの値になる
-const recalcHandles = ( keys: EditKey[] ) => {
+export const recalcHandles = ( keys: EditKey[] ) => {
 
 	for ( let i = 0; i < keys.length; i ++ ) {
 

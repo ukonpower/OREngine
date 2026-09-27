@@ -15,6 +15,13 @@ export type KeyFrameFieldRef = {
 	path: string;
 };
 
+// キーの挿入・削除の対象。element を渡すと数値配列のその要素だけ（無ければ全要素）。
+// value は挿入でだけ使い、フィールドの今の値の代わりにその値（フィールドと同じ形）でキーを打つ
+export type KeyFrameKeyRef = KeyFrameFieldRef & {
+	element?: number;
+	value?: MXP.SerializeFieldValue;
+};
+
 // 行に示すキーの状態。keyed = 今の時刻にキーがある / changed = フィールドの値がカーブの値から手で変えられている
 export type KeyFrameState = {
 	keyed: boolean;
@@ -80,8 +87,9 @@ const selectValues = ( list: MXP.SelectList | ( () => MXP.SelectList ) ) => {
 
 };
 
-// キーを打てるフィールドなら、打ち方とカーブに打つ値を返す。打てないフィールド（文字列・参照・setter の無いもの等）は null
-const resolveField = ( field: KeyFrameFieldRef ): ResolvedField | null => {
+// キーを打てるフィールドなら、打ち方とカーブに打つ値を返す。打てないフィールド（文字列・参照・setter の無いもの等）は null。
+// value はカーブに打つ値の元にするフィールドの値（既定はフィールドの今の値）
+const resolveField = ( field: KeyFrameFieldRef, value: unknown = field.target.getField( field.path ) ): ResolvedField | null => {
 
 	const target = field.target;
 
@@ -103,7 +111,6 @@ const resolveField = ( field: KeyFrameFieldRef ): ResolvedField | null => {
 
 	}
 
-	const value = target.getField( field.path );
 	const opt = target.getFieldOpt( field.path ) || {};
 
 	if ( typeof value == "function" ) {
@@ -303,23 +310,58 @@ const buildCommand = ( engine: Engine, curves: MXP.CurveTable, edits: Map<MXP.En
 	Insert / Delete
 -------------------------------*/
 
-// fields に frame のキーを打つコマンドを作る（数値配列は全要素）。打つ値は、リンクの倍率と足し算から逆算したカーブ側の値。
+// field.element が要素の範囲に入っているか確かめる。入っていなければ Error を投げる
+const assertElement = ( field: KeyFrameKeyRef, resolved: ResolvedField ) => {
+
+	if ( field.element === undefined ) return;
+
+	if ( field.element < 0 || field.element >= resolved.values.length ) {
+
+		throw new Error( `"${field.path}" has no element ${field.element}` );
+
+	}
+
+};
+
+// 要素 i がキーの挿入・削除の対象か
+const targetsElement = ( field: KeyFrameKeyRef, i: number ) => {
+
+	return field.element === undefined || field.element == i;
+
+};
+
+// fields に frame のキーを打つコマンドを作る（数値配列は element を渡さなければ全要素）。打つ値は、リンクの倍率と足し算から逆算したカーブ側の値。
 // リンクの無いフィールドには、カーブとリンクを新しく足す。打てないフィールドがあれば何もせず Error を投げる
-export const buildInsertKeys = ( engine: Engine, fields: KeyFrameFieldRef[], frame: number ): Command => {
+export const buildInsertKeys = ( engine: Engine, fields: KeyFrameKeyRef[], frame: number ): Command => {
 
 	const curves: MXP.CurveTable = { ...engine.curves };
 	const edits = new Map<MXP.Entity, LinkEdit>();
 
 	for ( const field of fields ) {
 
-		const resolved = resolveField( field );
+		let value = field.target.getField( field.path );
+
+		if ( field.value !== undefined ) value = field.value;
+
+		const resolved = resolveField( field, value );
 
 		if ( ! resolved ) throw new Error( `Cannot insert a keyframe on "${field.path}"` );
+
+		assertElement( field, resolved );
 
 		const edit = getLinkEdit( edits, resolved.entity );
 		const elementLinks = toElementLinks( edit.links[ resolved.linkKey ], resolved.kind );
 
 		for ( let i = 0; i < resolved.values.length; i ++ ) {
+
+			if ( ! targetsElement( field, i ) ) continue;
+
+			// 手前の要素だけにリンクがあるとき、要素1つだけに打つと間が空くので null（動かさない）で埋める
+			while ( elementLinks.length < i ) {
+
+				elementLinks.push( null );
+
+			}
 
 			let link = elementLinks[ i ];
 
@@ -352,9 +394,9 @@ export const buildInsertKeys = ( engine: Engine, fields: KeyFrameFieldRef[], fra
 
 };
 
-// fields の frame のキーを消すコマンドを作る。最後のキーを消したフィールドは、リンクも外してアニメーションしていない状態に戻す。
-// 消すキーが1つも無ければ null
-export const buildDeleteKeys = ( engine: Engine, fields: KeyFrameFieldRef[], frame: number ): Command | null => {
+// fields の frame のキーを消すコマンドを作る（数値配列は element を渡さなければ全要素）。最後のキーを消したフィールドは、
+// リンクも外してアニメーションしていない状態に戻す。消すキーが1つも無ければ null
+export const buildDeleteKeys = ( engine: Engine, fields: KeyFrameKeyRef[], frame: number ): Command | null => {
 
 	const curves: MXP.CurveTable = { ...engine.curves };
 	const edits = new Map<MXP.Entity, LinkEdit>();
@@ -367,6 +409,8 @@ export const buildDeleteKeys = ( engine: Engine, fields: KeyFrameFieldRef[], fra
 
 		if ( ! resolved ) continue;
 
+		assertElement( field, resolved );
+
 		const edit = getLinkEdit( edits, resolved.entity );
 		const elementLinks = toElementLinks( edit.links[ resolved.linkKey ], resolved.kind );
 
@@ -374,7 +418,7 @@ export const buildDeleteKeys = ( engine: Engine, fields: KeyFrameFieldRef[], fra
 
 			const link = elementLinks[ i ];
 
-			if ( ! link ) continue;
+			if ( ! link || ! targetsElement( field, i ) ) continue;
 
 			const curve = curves[ link[ 0 ] ];
 
