@@ -1,29 +1,22 @@
-import { useRef, useState } from 'react';
-
 import { KeyframeIcon } from 'uipower';
 
 import { useTimeline } from '../../../../hooks/useTimeline';
 import { useKeyEditor } from '../../hooks/useKeyEditor';
 import { buildMarks } from '../../lib/KeyChannels';
-import { isAllSelected, readRefs, readRefsInRect } from '../../lib/KeySelection';
-import { dragRect, trackPointerDrag } from '../../lib/PointerDrag';
+import { isAllSelected, readRefs } from '../../lib/KeySelection';
+import { trackPointerDrag } from '../../lib/PointerDrag';
 
 import style from './index.module.scss';
-
-type Box = { left: number, top: number, width: number, height: number };
 
 // 表示の範囲の外でも、左右にこれだけ（範囲の幅に対する割合）はみ出した印までは置いておく（ドラッグ中に端で消えないように）
 const OUTSIDE_MARGIN = 0.05;
 
 // キー表示（ドープシート）。行ごとに、その行のカーブのキーを時刻の位置へ並べる。
-// キーを押して選ぶ・ドラッグで動かす、空いた所をドラッグで矩形選択、クリックで選択を外して時刻を合わせる
+// キーを押して選ぶ・ドラッグで動かす。何もない所の左クリックはタイムラインの時刻合わせに任せる（矩形選択は B のときだけ KeyEditor が受ける）
 export const KeyDopeSheet = () => {
 
-	const { viewPort, setCurrentFrame, getFrameViewPort } = useTimeline();
-	const { curves, visibleChannels, selection, scrollTop, pressKeys, selectRefs, select, beginMove } = useKeyEditor();
-
-	const rootRef = useRef<HTMLDivElement>( null );
-	const [ box, setBox ] = useState<Box | null>( null );
+	const { viewPort } = useTimeline();
+	const { curves, visibleChannels, selection, scrollTop, pressKeys, select, beginDrag } = useKeyEditor();
 
 	const range = viewPort[ 2 ] - viewPort[ 0 ];
 
@@ -32,82 +25,46 @@ export const KeyDopeSheet = () => {
 		// 中ボタン（パン）・右ボタン（メニュー）はタイムラインの操作に任せる
 		if ( e.button != 0 ) return;
 
+		const refs = readRefs( e.target );
+
+		// 何もない所は、親の TimelineControls が時刻を合わせる（選択は外さない）
+		if ( ! refs ) return;
+
 		// タイムラインの時刻合わせ（親の TimelineControls）へ伝えない
 		e.stopPropagation();
 
-		const root = rootRef.current;
-
-		if ( ! root ) return;
-
-		const rect = root.getBoundingClientRect();
-		const refs = readRefs( e.target );
 		const shift = e.shiftKey;
-		const start = { clientX: e.clientX, clientY: e.clientY };
+		const wasSelected = pressKeys( refs, shift );
 
-		if ( refs ) {
+		let drag: ReturnType<typeof beginDrag> = null;
+		let started = false;
 
-			const wasSelected = pressKeys( refs, shift );
+		trackPointerDrag( { clientX: e.clientX, clientY: e.clientY }, {
+			onMove: ( dx, dy ) => {
 
-			let move: ReturnType<typeof beginMove> | null = null;
+				if ( ! started ) {
 
-			trackPointerDrag( start, {
-				onMove: ( dx ) => {
-
-					if ( ! move ) move = beginMove( null );
-
-					move.move( { x: dx / rect.width * range, y: 0 } );
-
-				},
-				onEnd: () => {
-
-					if ( move ) {
-
-						move.end();
-
-					} else if ( ! shift && wasSelected ) {
-
-						// 複数選んだ中の1つをドラッグせずにクリックしたら、それだけを選び直す
-						select( new Set( refs ) );
-
-					}
-
-				},
-			} );
-
-			return;
-
-		}
-
-		trackPointerDrag( start, {
-			onMove: ( _dx, _dy, moveEvent ) => {
-
-				const area = dragRect( start, moveEvent );
-
-				setBox( { left: area.left - rect.left, top: area.top - rect.top, width: area.right - area.left, height: area.bottom - area.top } );
-
-			},
-			onEnd: ( dragged, upEvent ) => {
-
-				setBox( null );
-
-				if ( dragged ) {
-
-					selectRefs( readRefsInRect( root, dragRect( start, upEvent ) ), shift );
-
-					return;
+					started = true;
+					drag = beginDrag();
 
 				}
 
-				if ( ! shift ) select( new Set() );
+				if ( drag ) drag.move( dx, dy );
 
-				setCurrentFrame( getFrameViewPort( ( start.clientX - rect.left ) / rect.width ) );
+			},
+			onEnd: ( dragged ) => {
+
+				if ( drag ) drag.end();
+
+				// 複数選んだ中の1つをドラッグせずにクリックしたら、それだけを選び直す
+				if ( ! dragged && ! shift && wasSelected ) select( new Set( refs ) );
 
 			},
 		} );
 
 	};
 
-	return <div className={style.dopeSheet} ref={rootRef} onPointerDown={onPointerDown}>
+	return <div className={style.dopeSheet} onPointerDown={onPointerDown}>
 		<div className={style.rows} style={{ transform: `translateY(${- scrollTop}px)` }}>
 			{visibleChannels.map( ( channel ) => {
 
@@ -136,7 +93,6 @@ export const KeyDopeSheet = () => {
 
 			} )}
 		</div>
-		{box && <div className={style.box} style={box} />}
 	</div>;
 
 };

@@ -1,0 +1,467 @@
+import * as MTP from 'mathpower';
+import { type ModalTransformMode, type TimelineModal } from 'orengine/editor';
+
+import { suppressNextContextMenu } from '../PointerDrag';
+
+// キーの座標（時刻, 値）と画面座標（px）の対応。回転・伸縮は画面の px の上で計算する
+// （時間と値は単位も縮尺も違うので、値のまま回すと見た目の角度と合わない）
+export type KeyScreenMapping = {
+	toScreen: ( point: MTP.IVector2 ) => MTP.IVector2;
+	toPoint: ( screen: MTP.IVector2 ) => MTP.IVector2;
+};
+
+// 点（キー・ハンドル）の行き先。key は点の属するキーの座標（動かす前）
+export type KeyPointTransform = ( point: MTP.IVector2, key: MTP.IVector2 ) => MTP.IVector2;
+
+type KeyModalAxis = "x" | "y";
+
+type KeyTransformModalParams = {
+	mode: ModalTransformMode;
+	// 開始時の対応を使い続ける（途中で表示の範囲が変わっても、掴んだキーがポインタから逃げないように）
+	mapping: KeyScreenMapping;
+	// 開始時のポインタ（画面座標）
+	pointer: MTP.IVector2;
+	// 回転・伸縮の中心（時刻, 値）。ポインタの角度・距離もここから測る
+	center: MTP.IVector2;
+	// true なら、点ごとに属するキーを中心に回す・伸縮する（ハンドルだけを選んでいるとき）
+	individual: boolean;
+	// キー表示。時間方向にだけ動かし、X / Y の拘束は受けない
+	timeOnly: boolean;
+	onChange: ( transform: KeyPointTransform ) => void;
+	onStatus: ( status: string | null ) => void;
+	onConfirm: () => void;
+	onCancel: () => void;
+};
+
+// 伸縮の倍率の分母（開始時のポインタと中心の距離, px）の下限。ModalTransformHandler の MIN_CENTER_DISTANCE と同じ
+const MIN_CENTER_DISTANCE = 1.0;
+
+// ポインタでの伸縮の倍率の下限。ModalTransformHandler の MIN_SCALE_RATIO と同じ（数値入力にはかけない）
+const MIN_SCALE_RATIO = 0.001;
+
+// タイムラインのキーの G / R / S。ビューポートの ModalTransformHandler と同じ操作感で、ポインタに追従し、
+// 左クリック / Enter で確定、右クリック / Esc で取り消す。X / Y で時間 / 値に拘束し、数値入力を受ける
+export class KeyTransformModal implements TimelineModal {
+
+	private _params: KeyTransformModalParams;
+	private _pointer: MTP.IVector2;
+	private _constraint: KeyModalAxis | null;
+	private _numberBuffer: string;
+	private _disposeListeners: () => void;
+
+	constructor( params: KeyTransformModalParams ) {
+
+		this._params = params;
+		this._pointer = { ...params.pointer };
+		this._constraint = null;
+		this._numberBuffer = "";
+
+		const onMove = ( e: PointerEvent ) => {
+
+			e.stopPropagation();
+
+			this._pointer = { x: e.clientX, y: e.clientY };
+			this._update();
+
+		};
+
+		const onDown = ( e: PointerEvent ) => {
+
+			e.preventDefault();
+			e.stopPropagation();
+
+			if ( e.button === 2 ) {
+
+				// この右クリックでキーの領域の右クリックメニューが開かないようにする
+				suppressNextContextMenu();
+
+				this._end( false );
+
+			} else if ( e.button === 0 ) {
+
+				this._end( true );
+
+			}
+
+		};
+
+		// capture フェーズで奪って、タイムラインの時刻合わせ・キーの選択へ届かせない
+		window.addEventListener( "pointermove", onMove, { capture: true } );
+		window.addEventListener( "pointerdown", onDown, { capture: true } );
+
+		this._disposeListeners = () => {
+
+			window.removeEventListener( "pointermove", onMove, { capture: true } );
+			window.removeEventListener( "pointerdown", onDown, { capture: true } );
+
+		};
+
+		this._update();
+
+	}
+
+	/*-------------------------------
+		Key
+	-------------------------------*/
+
+	// モーダル中のキーはすべて消費する（ほかのショートカットへ渡さない）
+	public handleKeyDown( e: KeyboardEvent ) {
+
+		const key = e.key.toLowerCase();
+
+		if ( e.key === "Enter" ) {
+
+			this._end( true );
+
+		} else if ( e.key === "Escape" ) {
+
+			this._end( false );
+
+		} else if ( key === "x" || key === "y" ) {
+
+			this._toggleConstraint( key );
+
+		} else {
+
+			this._inputNumber( e.key );
+
+		}
+
+		return true;
+
+	}
+
+	// 同じ軸のキーをもう一度押すと解除する。キー表示（時間しかない）と回転では拘束しない
+	private _toggleConstraint( axis: KeyModalAxis ) {
+
+		if ( this._params.timeOnly || this._params.mode === "rotate" ) return;
+
+		if ( this._constraint === axis ) {
+
+			this._constraint = null;
+
+		} else {
+
+			this._constraint = axis;
+
+		}
+
+		this._update();
+
+	}
+
+	// 数値入力のバッファ操作。ModalTransformHandler の _inputNumber と同じ規則
+	private _inputNumber( key: string ) {
+
+		if ( key.length === 1 && key >= "0" && key <= "9" ) {
+
+			this._numberBuffer += key;
+
+		} else if ( key === "." ) {
+
+			if ( this._numberBuffer.includes( "." ) ) return;
+
+			this._numberBuffer += ".";
+
+		} else if ( key === "-" ) {
+
+			if ( this._numberBuffer.startsWith( "-" ) ) {
+
+				this._numberBuffer = this._numberBuffer.slice( 1 );
+
+			} else {
+
+				this._numberBuffer = "-" + this._numberBuffer;
+
+			}
+
+		} else if ( key === "Backspace" ) {
+
+			if ( this._numberBuffer === "" ) return;
+
+			this._numberBuffer = this._numberBuffer.slice( 0, - 1 );
+
+		} else {
+
+			return;
+
+		}
+
+		this._update();
+
+	}
+
+	/*-------------------------------
+		Transform
+	-------------------------------*/
+
+	// 今のポインタ（または数値入力）で行き先を作り直して渡し、状態の表示を更新する
+	private _update() {
+
+		const mode = this._params.mode;
+
+		let numeric: number | null = null;
+
+		if ( this._numberBuffer !== "" ) numeric = parseFloat( this._numberBuffer );
+
+		// "-" や "." だけの途中状態は、数値が揃うまで動かさない
+		if ( numeric !== null && Number.isNaN( numeric ) ) {
+
+			this._params.onChange( ( point ) => point );
+			this._params.onStatus( this._statusText( "" ) );
+
+			return;
+
+		}
+
+		if ( mode === "translate" ) {
+
+			this._translate( numeric );
+
+		} else if ( mode === "rotate" ) {
+
+			this._rotate( numeric );
+
+		} else {
+
+			this._scale( numeric );
+
+		}
+
+	}
+
+	private _translate( numeric: number | null ) {
+
+		const params = this._params;
+
+		let offset = { x: 0, y: 0 };
+
+		if ( numeric !== null ) {
+
+			// 数値は拘束の軸（拘束が無ければ時間）の量として扱う（Blender の第1成分と同じ）
+			if ( this._constraint === "y" ) {
+
+				offset = { x: 0, y: numeric };
+
+			} else {
+
+				offset = { x: numeric, y: 0 };
+
+			}
+
+		} else {
+
+			let dx = this._pointer.x - params.pointer.x;
+			let dy = this._pointer.y - params.pointer.y;
+
+			if ( this._constraint === "x" || params.timeOnly ) dy = 0;
+			if ( this._constraint === "y" ) dx = 0;
+
+			const from = params.mapping.toPoint( params.pointer );
+			const to = params.mapping.toPoint( { x: params.pointer.x + dx, y: params.pointer.y + dy } );
+
+			offset = { x: to.x - from.x, y: to.y - from.y };
+
+		}
+
+		params.onChange( ( point ) => ( { x: point.x + offset.x, y: point.y + offset.y } ) );
+
+		let amount = offset.x.toFixed( 1 );
+
+		if ( ! params.timeOnly ) amount += ", " + offset.y.toFixed( 3 );
+
+		this._params.onStatus( this._statusText( amount ) );
+
+	}
+
+	private _rotate( numeric: number | null ) {
+
+		const params = this._params;
+		const center = params.mapping.toScreen( params.center );
+
+		let angle = 0;
+
+		if ( numeric !== null ) {
+
+			angle = numeric * Math.PI / 180;
+
+		} else {
+
+			angle = screenAngle( this._pointer, center ) - screenAngle( params.pointer, center );
+
+		}
+
+		const cos = Math.cos( angle );
+		const sin = Math.sin( angle );
+
+		this._params.onStatus( this._statusText( ( angle * 180 / Math.PI ).toFixed( 1 ) ) );
+
+		// 回していないときは、画面座標との往復で出る誤差（とその丸め）で値が変わらないようにそのまま返す
+		if ( angle === 0 ) {
+
+			params.onChange( ( point ) => point );
+
+			return;
+
+		}
+
+		params.onChange( ( point, key ) => {
+
+			let pivotPoint = params.center;
+
+			if ( params.individual ) pivotPoint = key;
+
+			const pivot = params.mapping.toScreen( pivotPoint );
+			const screen = params.mapping.toScreen( point );
+			const dx = screen.x - pivot.x;
+			const dy = screen.y - pivot.y;
+
+			// 画面の y は下向きなので、見た目の反時計回りに回すように符号を合わせる
+			return params.mapping.toPoint( {
+				x: pivot.x + dx * cos + dy * sin,
+				y: pivot.y - dx * sin + dy * cos,
+			} );
+
+		} );
+
+	}
+
+	private _scale( numeric: number | null ) {
+
+		const params = this._params;
+		const center = params.mapping.toScreen( params.center );
+
+		let ratio = 1;
+
+		if ( numeric !== null ) {
+
+			// 数値入力は負の値（反転）を許すので下限をかけない
+			ratio = numeric;
+
+		} else {
+
+			let startDistance = Math.hypot( params.pointer.x - center.x, params.pointer.y - center.y );
+			let distance = Math.hypot( this._pointer.x - center.x, this._pointer.y - center.y );
+
+			// キー表示は時間しかないので、横の距離で測る
+			if ( params.timeOnly ) {
+
+				startDistance = Math.abs( params.pointer.x - center.x );
+				distance = Math.abs( this._pointer.x - center.x );
+
+			}
+
+			ratio = Math.max( MIN_SCALE_RATIO, distance / Math.max( MIN_CENTER_DISTANCE, startDistance ) );
+
+		}
+
+		let ratioX = ratio;
+		let ratioY = ratio;
+
+		if ( this._constraint === "x" || params.timeOnly ) ratioY = 1;
+		if ( this._constraint === "y" ) ratioX = 1;
+
+		params.onChange( ( point, key ) => {
+
+			let pivotPoint = params.center;
+
+			if ( params.individual ) pivotPoint = key;
+
+			const pivot = params.mapping.toScreen( pivotPoint );
+			const screen = params.mapping.toScreen( point );
+			const scaled = params.mapping.toPoint( {
+				x: pivot.x + ( screen.x - pivot.x ) * ratioX,
+				y: pivot.y + ( screen.y - pivot.y ) * ratioY,
+			} );
+
+			// 伸縮しない軸は、画面座標との往復で出る誤差（とその丸め）で値が変わらないようにそのまま残す
+			let x = scaled.x;
+			let y = scaled.y;
+
+			if ( ratioX === 1 ) x = point.x;
+			if ( ratioY === 1 ) y = point.y;
+
+			return { x, y };
+
+		} );
+
+		this._params.onStatus( this._statusText( ratio.toFixed( 3 ) ) );
+
+	}
+
+	/*-------------------------------
+		Status
+	-------------------------------*/
+
+	// ModalTransformHandler と同じ形の表示。数値入力中の値は [] で囲む
+	private _statusText( amount: string ) {
+
+		const mode = this._params.mode;
+
+		let label = "Scale";
+		let unit = "";
+
+		if ( mode === "translate" ) label = "Move";
+
+		if ( mode === "rotate" ) {
+
+			label = "Rot";
+			unit = "°";
+
+		}
+
+		let value = amount;
+
+		if ( this._numberBuffer !== "" ) value = `[${this._numberBuffer}]`;
+
+		return `${label}: ${value}${unit} (${this._constraintText()})`;
+
+	}
+
+	private _constraintText() {
+
+		if ( this._params.timeOnly || this._constraint === "x" ) return "time";
+		if ( this._constraint === "y" ) return "value";
+		if ( this._params.mode === "rotate" ) return "view";
+		if ( this._params.mode === "scale" ) return "uniform";
+
+		return "free";
+
+	}
+
+	/*-------------------------------
+		End
+	-------------------------------*/
+
+	private _end( confirm: boolean ) {
+
+		this._disposeListeners();
+		this._params.onStatus( null );
+
+		if ( confirm ) {
+
+			this._params.onConfirm();
+
+		} else {
+
+			this._params.onCancel();
+
+		}
+
+	}
+
+	// 外から終える（キーの領域が消えたとき）。取り消しとして扱う
+	public cancel() {
+
+		this._end( false );
+
+	}
+
+}
+
+// 中心から見たポインタの角度。y を反転して画面上の反時計回りを正にする（ModalTransformHandler の _screenAngle と同じ）
+const screenAngle = ( pointer: MTP.IVector2, center: MTP.IVector2 ) => {
+
+	return Math.atan2( - ( pointer.y - center.y ), pointer.x - center.x );
+
+};

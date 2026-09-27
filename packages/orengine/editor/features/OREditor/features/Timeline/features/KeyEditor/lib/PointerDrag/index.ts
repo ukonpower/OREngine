@@ -50,3 +50,29 @@ export const dragRect = ( start: { clientX: number, clientY: number }, current: 
 	};
 
 };
+
+// 右クリックで取り消した操作のあとに、同じ右クリックでメニューが開かないよう次の contextmenu を1回だけ止める。
+// contextmenu が来ないまま次のボタンが押されたら（OS によっては来ない）止めるのをやめ、そのクリックのメニューは通す
+export const suppressNextContextMenu = () => {
+
+	const onContextMenu = ( e: MouseEvent ) => {
+
+		e.preventDefault();
+		e.stopPropagation();
+
+		dispose();
+
+	};
+
+	const dispose = () => {
+
+		window.removeEventListener( "contextmenu", onContextMenu, { capture: true } );
+		window.removeEventListener( "pointerdown", dispose, { capture: true } );
+
+	};
+
+	// 押している最中のこの pointerdown の配信中に足したリスナーは、この配信では呼ばれない
+	window.addEventListener( "contextmenu", onContextMenu, { capture: true } );
+	window.addEventListener( "pointerdown", dispose, { capture: true } );
+
+};

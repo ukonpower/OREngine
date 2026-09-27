@@ -1,97 +1,108 @@
-import { useMemo, useRef, useState } from 'react';
-
-import { type KeyFrameHandleSide } from 'orengine/editor';
+import { useEffect, useMemo, useRef } from 'react';
 
 import { useTimeline } from '../../../../hooks/useTimeline';
 import { useElementSize } from '../../hooks/useElementSize';
 import { useKeyEditor } from '../../hooks/useKeyEditor';
-import { curveColor, curvePath, fitValueRange, roundToPixel, valueTicks, type ValueRange } from '../../lib/CurveGraph';
+import { activeHandleSides, curveColor, curvePath, graphScale, valueTicks, zoomValueRange } from '../../lib/CurveGraph';
 import { getCurveKeys } from '../../lib/KeyChannels';
-import { keyRef, readRefs, readRefsInRect } from '../../lib/KeySelection';
-import { dragRect, trackPointerDrag } from '../../lib/PointerDrag';
+import { handleRef, isHandleSelected, keyRef, readRefs } from '../../lib/KeySelection';
+import { trackPointerDrag } from '../../lib/PointerDrag';
 
 import style from './index.module.scss';
 
-type Box = { left: number, top: number, width: number, height: number };
-
 type HandlePoint = {
-	curveId: string;
-	index: number;
-	side: KeyFrameHandleSide;
+	ref: string;
+	selected: boolean;
 	x: number;
 	y: number;
 	keyX: number;
 	keyY: number;
 };
 
-// ハンドルの点から、どのカーブの何番のキーのどちら側かを読む
-const readHandle = ( target: EventTarget | null ) => {
-
-	if ( ! ( target instanceof Element ) ) return null;
-
-	const element = target.closest( "[data-side]" );
-
-	if ( ! element ) return null;
-
-	return {
-		curveId: element.getAttribute( "data-curve" ) || "",
-		index: Number( element.getAttribute( "data-index" ) ),
-		side: element.getAttribute( "data-side" ) as KeyFrameHandleSide,
-	};
-
-};
+// 値の範囲の幅の下限。Alt+ホイールで縮めすぎて目盛り・座標の計算が崩れないようにする
+const MIN_VALUE_RANGE = 1e-6;
 
 // カーブ表示（グラフエディタ）。カーブの生の値（倍率・足し算をかける前）を、再生と同じ評価で線にする。
-// 選んだキーのハンドルを出し、キー・ハンドルをドラッグで動かせる。値の範囲は表示するカーブに合わせる
+// 選んだキーとハンドルを持つキーのハンドルを出し、キー・ハンドルを押して選ぶ・ドラッグで動かす。
+// 値の範囲は context が持ち、Alt+ホイールで拡大縮小、中ボタンのドラッグで縦にも動かす（横は親の TimelineControls）
 export const KeyCurveGraph = () => {
 
-	const { viewPort, setCurrentFrame, getFrameViewPort } = useTimeline();
-	const { curves, graphCurves, selection, pressKeys, selectRefs, select, beginMove, beginHandleMove } = useKeyEditor();
+	const { viewPort } = useTimeline();
+	const { curves, graphCurves, selection, valueRange, setValueRange, pressKeys, select, beginDrag } = useKeyEditor();
 
 	const rootRef = useRef<HTMLDivElement>( null );
 	const { width, height } = useElementSize( rootRef );
-	const [ box, setBox ] = useState<Box | null>( null );
 
-	// ドラッグ中は値の範囲を止めておく。合わせ直すと、掴んだキーがポインタから逃げていく
-	const [ frozenRange, setFrozenRange ] = useState<ValueRange | null>( null );
-
-	const curveIds: string[] = [];
-
-	for ( const graphCurve of graphCurves ) {
-
-		curveIds.push( graphCurve.id );
-
-	}
-
-	let range = fitValueRange( curves, curveIds );
-
-	if ( frozenRange ) range = frozenRange;
-
-	const frameRange = viewPort[ 2 ] - viewPort[ 0 ];
-	const framePerPx = frameRange / Math.max( 1, width );
-	const valuePerPx = ( range.max - range.min ) / Math.max( 1, height );
-
-	const toX = ( frame: number ) => ( frame - viewPort[ 0 ] ) / framePerPx;
-	const toY = ( value: number ) => ( range.max - value ) / valuePerPx;
+	const scale = graphScale( viewPort, valueRange, width, height );
+	const { toX, toY } = scale;
 
 	// 再生中はタイムラインの時刻が毎フレーム変わって描き直されるので、線は表示の範囲とカーブが変わったときだけ取り直す
-	const rangeMax = range.max;
-
 	const paths = useMemo( () => {
 
 		const result: { id: string, element: number | null, d: string }[] = [];
-		const toPathFrame = ( x: number ) => viewPort[ 0 ] + x * framePerPx;
-		const toPathY = ( value: number ) => ( rangeMax - value ) / valuePerPx;
+		const pathScale = graphScale( viewPort, valueRange, width, height );
 
 		for ( const graphCurve of graphCurves ) {
 
-			result.push( { id: graphCurve.id, element: graphCurve.element, d: curvePath( curves[ graphCurve.id ], toPathFrame, toPathY, width ) } );
+			result.push( { id: graphCurve.id, element: graphCurve.element, d: curvePath( curves[ graphCurve.id ], pathScale.toFrame, pathScale.toY, width ) } );
 
 		}
 
 		return result;
 
-	}, [ graphCurves, curves, viewPort, framePerPx, valuePerPx, rangeMax, width ] );
+	}, [ graphCurves, curves, viewPort, valueRange, width, height ] );
+
+	// Alt+ホイールで、ポインタの位置の値を動かさずに値の範囲を拡大縮小する。ピンチ（ctrlKey 付きの wheel）と
+	// Alt の無いホイールは、親の TimelineControls の横の拡大・スクロールのまま
+	useEffect( () => {
+
+		const root = rootRef.current;
+
+		if ( ! root ) return;
+
+		const onWheel = ( e: WheelEvent ) => {
+
+			if ( ! e.altKey ) return;
+
+			e.preventDefault();
+			e.stopPropagation();
+
+			// TimelineControls の横の拡大と同じ効き方にする（マウスのホイールは1段ずつ、トラックパッドは量に比例）
+			let factor = 1.0 + e.deltaY * 0.005;
+
+			if ( Math.abs( e.deltaY ) > 50 ) {
+
+				factor = 1.1;
+
+				if ( e.deltaY < 0 ) factor = 0.9;
+
+			}
+
+			const rect = root.getBoundingClientRect();
+			const position = ( e.clientY - rect.top ) / Math.max( 1, rect.height );
+
+			setValueRange( ( current ) => {
+
+				const center = current.max - position * ( current.max - current.min );
+				const next = zoomValueRange( current, center, factor );
+
+				if ( next.max - next.min < MIN_VALUE_RANGE ) return current;
+
+				return next;
+
+			} );
+
+		};
+
+		root.addEventListener( "wheel", onWheel, { passive: false } );
+
+		return () => {
+
+			root.removeEventListener( "wheel", onWheel );
+
+		};
+
+	}, [ setValueRange ] );
 
 	/*-------------------------------
 		Pointer
@@ -99,120 +110,61 @@ export const KeyCurveGraph = () => {
 
 	const onPointerDown = ( e: React.PointerEvent<HTMLDivElement> ) => {
 
+		const start = { clientX: e.clientX, clientY: e.clientY };
+
+		if ( e.button == 1 ) {
+
+			// 横は親の TimelineControls が動かすので、伝播は止めずにここでは縦だけを動かす
+			const startRange = valueRange;
+			const pressValuePerPx = scale.valuePerPx;
+
+			trackPointerDrag( start, {
+				onMove: ( _dx, dy ) => {
+
+					setValueRange( { min: startRange.min + dy * pressValuePerPx, max: startRange.max + dy * pressValuePerPx } );
+
+				},
+				onEnd: () => {},
+			} );
+
+			return;
+
+		}
+
 		if ( e.button != 0 ) return;
+
+		const refs = readRefs( e.target );
+
+		// 何もない所は、親の TimelineControls が時刻を合わせる（選択は外さない）
+		if ( ! refs ) return;
 
 		e.stopPropagation();
 
-		const root = rootRef.current;
-
-		if ( ! root ) return;
-
-		const rect = root.getBoundingClientRect();
 		const shift = e.shiftKey;
-		const start = { clientX: e.clientX, clientY: e.clientY };
-		const handle = readHandle( e.target );
-		const refs = readRefs( e.target );
+		const wasSelected = pressKeys( refs, shift );
 
-		// 押した時点の目盛りでずれを値に直す
-		const pressFramePerPx = framePerPx;
-		const pressValuePerPx = valuePerPx;
-
-		if ( handle ) {
-
-			const key = getCurveKeys( curves[ handle.curveId ] )[ handle.index ];
-
-			let origin = key.handleRight;
-
-			if ( handle.side == "left" ) origin = key.handleLeft;
-
-			let move: ReturnType<typeof beginHandleMove> | null = null;
-
-			setFrozenRange( range );
-
-			trackPointerDrag( start, {
-				onMove: ( dx, dy ) => {
-
-					if ( ! move ) move = beginHandleMove( handle.curveId, handle.index, handle.side );
-
-					move.move( {
-						x: roundToPixel( origin.x + dx * pressFramePerPx, pressFramePerPx ),
-						y: roundToPixel( origin.y - dy * pressValuePerPx, pressValuePerPx ),
-					} );
-
-				},
-				onEnd: () => {
-
-					if ( move ) move.end();
-
-					setFrozenRange( null );
-
-				},
-			} );
-
-			return;
-
-		}
-
-		if ( refs ) {
-
-			const wasSelected = pressKeys( refs, shift );
-
-			let move: ReturnType<typeof beginMove> | null = null;
-
-			setFrozenRange( range );
-
-			trackPointerDrag( start, {
-				onMove: ( dx, dy ) => {
-
-					if ( ! move ) move = beginMove( new Set( curveIds ) );
-
-					move.move( { x: dx * pressFramePerPx, y: - dy * pressValuePerPx }, ( value ) => roundToPixel( value, pressValuePerPx ) );
-
-				},
-				onEnd: () => {
-
-					setFrozenRange( null );
-
-					if ( move ) {
-
-						move.end();
-
-					} else if ( ! shift && wasSelected ) {
-
-						select( new Set( refs ) );
-
-					}
-
-				},
-			} );
-
-			return;
-
-		}
+		let drag: ReturnType<typeof beginDrag> = null;
+		let started = false;
 
 		trackPointerDrag( start, {
-			onMove: ( _dx, _dy, moveEvent ) => {
+			onMove: ( dx, dy ) => {
 
-				const area = dragRect( start, moveEvent );
+				if ( ! started ) {
 
-				setBox( { left: area.left - rect.left, top: area.top - rect.top, width: area.right - area.left, height: area.bottom - area.top } );
-
-			},
-			onEnd: ( dragged, upEvent ) => {
-
-				setBox( null );
-
-				if ( dragged ) {
-
-					selectRefs( readRefsInRect( root, dragRect( start, upEvent ) ), shift );
-
-					return;
+					started = true;
+					drag = beginDrag();
 
 				}
 
-				if ( ! shift ) select( new Set() );
+				if ( drag ) drag.move( dx, dy );
 
-				setCurrentFrame( getFrameViewPort( ( start.clientX - rect.left ) / rect.width ) );
+			},
+			onEnd: ( dragged ) => {
+
+				if ( drag ) drag.end();
+
+				// 複数選んだ中の1つをドラッグせずにクリックしたら、それだけを選び直す
+				if ( ! dragged && ! shift && wasSelected ) select( new Set( refs ) );
 
 			},
 		} );
@@ -242,18 +194,33 @@ export const KeyCurveGraph = () => {
 
 			keyPoints.push( { ref, x, y } );
 
-			if ( ! selection.has( ref ) ) continue;
+			// ハンドルは Bezier の区間に効いている側だけを、キーかどちらかのハンドルを選んでいるときに出す
+			const sides = activeHandleSides( keys, i );
 
-			// ハンドルは Bezier の区間に効いている側だけを出す
-			if ( i > 0 && keys[ i - 1 ].interpolation == "BEZIER" ) {
+			let showHandles = selection.has( ref );
 
-				handlePoints.push( { curveId: graphCurve.id, index: i, side: "left", x: toX( key.handleLeft.x ), y: toY( key.handleLeft.y ), keyX: x, keyY: y } );
+			for ( const side of sides ) {
+
+				if ( selection.has( handleRef( graphCurve.id, i, side ) ) ) showHandles = true;
 
 			}
 
-			if ( key.interpolation == "BEZIER" && i < keys.length - 1 ) {
+			if ( ! showHandles ) continue;
 
-				handlePoints.push( { curveId: graphCurve.id, index: i, side: "right", x: toX( key.handleRight.x ), y: toY( key.handleRight.y ), keyX: x, keyY: y } );
+			for ( const side of sides ) {
+
+				let handle = key.handleRight;
+
+				if ( side == "left" ) handle = key.handleLeft;
+
+				handlePoints.push( {
+					ref: handleRef( graphCurve.id, i, side ),
+					selected: isHandleSelected( selection, graphCurve.id, i, side ),
+					x: toX( handle.x ),
+					y: toY( handle.y ),
+					keyX: x,
+					keyY: y,
+				} );
 
 			}
 
@@ -272,7 +239,7 @@ export const KeyCurveGraph = () => {
 
 	}
 
-	const ticks = valueTicks( range, height );
+	const ticks = valueTicks( valueRange, height );
 
 	return <div className={style.graph} ref={rootRef} onPointerDown={onPointerDown}>
 		{width > 0 && <svg className={style.svg} width={width} height={height}>
@@ -284,7 +251,7 @@ export const KeyCurveGraph = () => {
 				d={path.d}
 			/> )}
 			{handlePoints.map( ( point ) => <line
-				key={point.curveId + point.index + point.side}
+				key={point.ref}
 				className={style.handleLine}
 				x1={point.keyX}
 				y1={point.keyY}
@@ -302,14 +269,12 @@ export const KeyCurveGraph = () => {
 			style={{ left: point.x, top: point.y }}
 		/> )}
 		{handlePoints.map( ( point ) => <div
-			key={point.curveId + point.index + point.side}
+			key={point.ref}
 			className={style.handle}
-			data-curve={point.curveId}
-			data-index={point.index}
-			data-side={point.side}
+			data-refs={point.ref}
+			data-selected={point.selected}
 			style={{ left: point.x, top: point.y }}
 		/> )}
-		{box && <div className={style.box} style={box} />}
 	</div>;
 
 };

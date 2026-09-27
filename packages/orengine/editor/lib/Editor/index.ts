@@ -13,7 +13,7 @@ import { GridRenderer } from '../GridRenderer';
 import { HelperManager, HelperVisibility } from '../HelperManager';
 import { KeyboardHandler } from '../KeyboardHandler';
 import { CurveLinkSettings, CurvePasteMode, KeyFrameElementRef, KeyFrameFieldRef, keyFrameTime } from '../KeyFrameField';
-import { ModalTransformHandler } from '../ModalTransformHandler';
+import { ModalTransformHandler, transformModeOfKey, type ModalTransformMode } from '../ModalTransformHandler';
 import { SceneExporter, SceneExporterProgress } from '../SceneExporter';
 import { SelectionOutline } from '../SelectionOutline';
 import { Viewport } from '../Viewport';
@@ -39,11 +39,23 @@ export type EditorTimelineLoop = {
 	end: number,
 }
 
-// タイムラインで選んだキーへの操作。ポインタがタイムラインのキーの上にある間、Delete / X・Ctrl+C・Ctrl+V をこちらへ向ける
+// タイムラインで選んだキーへの操作。ポインタがタイムラインのキーの上にある間、
+// Delete / X・Ctrl+C・Ctrl+V・G / R / S・B・A / Alt+A・Home をビューポートではなくこちらへ向ける
 export type TimelineKeyActions = {
 	deleteKeys: () => void;
 	copyKeys: () => void;
 	pasteKeys: () => void;
+	transformKeys: ( mode: ModalTransformMode ) => void;
+	boxSelect: () => void;
+	// A は true（全選択）、Alt+A は false（全解除）
+	selectAllKeys: ( select: boolean ) => void;
+	frameAll: () => void;
+};
+
+// タイムラインのモーダル操作（G / R / S・B の矩形選択の待機）。続いている間は、ポインタがタイムラインの外にあってもキーボードをまずこちらへ向ける
+export type TimelineModal = {
+	// 消費したら true（ほかのショートカットへ渡さない）
+	handleKeyDown: ( e: KeyboardEvent ) => boolean;
 };
 
 // ビューポートごとに切り替える編集用オーバーレイの表示フラグ
@@ -117,6 +129,7 @@ export class Editor extends MXP.Serializable {
 	private _hoveredKeyField: KeyFrameFieldRef | null;
 	// ポインタが乗っているタイムラインのキーの操作。タイムラインがポインタの出入りで設定する
 	private _hoveredTimeline: TimelineKeyActions | null;
+	private _timelineModal: TimelineModal | null;
 	// 「カーブをコピー」で覚えたカーブ ID。貼り付けるときに表から引くので、コピーの後の編集も貼り付けに乗る
 	private _copiedCurveId: string | null;
 
@@ -160,6 +173,7 @@ export class Editor extends MXP.Serializable {
 		this._panelLayout = null;
 		this._hoveredKeyField = null;
 		this._hoveredTimeline = null;
+		this._timelineModal = null;
 		this._copiedCurveId = null;
 		this._disposed = false;
 		this._api = new EditorAPI( this );
@@ -191,15 +205,7 @@ export class Editor extends MXP.Serializable {
 				? engine.root.findEntityByUUID( this._selectedEntityId ) ?? null
 				: null,
 			isPointerBusy: () => this._viewports.some( ( v ) => v.gizmoDragging ),
-			onStatusChange: ( status ) => {
-
-				// モーダル中は毎 pointermove で呼ばれるので、文字列が変わったときだけ React へ通知する
-				if ( this._modalStatus === status ) return;
-
-				this._modalStatus = status;
-				this.noticeField( "modalStatus" );
-
-			},
+			onStatusChange: ( status ) => this.setModalStatus( status ),
 		} );
 
 		this._keyboardHandler = new KeyboardHandler( {
@@ -247,11 +253,26 @@ export class Editor extends MXP.Serializable {
 				if ( this._hoveredTimeline ) this._hoveredTimeline.pasteKeys();
 
 			},
+			onBoxSelect: () => {
+
+				if ( this._hoveredTimeline ) this._hoveredTimeline.boxSelect();
+
+			},
+			onSelectAll: ( select ) => {
+
+				if ( this._hoveredTimeline ) this._hoveredTimeline.selectAllKeys( select );
+
+			},
+			onFrameAll: () => {
+
+				if ( this._hoveredTimeline ) this._hoveredTimeline.frameAll();
+
+			},
 			onDuplicateSelected: () => this.duplicateSelected(),
 			onRenameSelected: () => this.requestRenameSelected(),
 			onStepFrame: ( step ) => this.stepFrame( step ),
 			onSeekToStart: () => this.seekToStart(),
-			onTransformKey: ( e ) => this._modalTransformHandler.handleKeyDown( e ),
+			onTransformKey: ( e ) => this._onModalKey( e ),
 			onInsertKey: ( remove ) => this._onKeyFrameShortcut( remove ),
 		} );
 
@@ -1224,7 +1245,30 @@ export class Editor extends MXP.Serializable {
 
 	}
 
-	// ポインタがタイムラインのキーの上に入ったとき、キーボードの削除・コピー・貼り付けをその操作へ向ける
+	// モーダル操作のキー。タイムラインのモーダル → タイムラインの上での G / R / S → ビューポートのモーダル変形 の順に渡す。消費したら true
+	private _onModalKey( e: KeyboardEvent ) {
+
+		if ( this._timelineModal && this._timelineModal.handleKeyDown( e ) ) return true;
+
+		if ( this._hoveredTimeline && ! this._modalTransformHandler.active ) {
+
+			const mode = transformModeOfKey( e );
+
+			if ( mode ) {
+
+				this._hoveredTimeline.transformKeys( mode );
+
+				return true;
+
+			}
+
+		}
+
+		return this._modalTransformHandler.handleKeyDown( e );
+
+	}
+
+	// ポインタがタイムラインのキーの上に入ったとき、キーボードのキーの操作をそちらへ向ける
 	public enterTimeline( actions: TimelineKeyActions ) {
 
 		this._hoveredTimeline = actions;
@@ -1239,6 +1283,34 @@ export class Editor extends MXP.Serializable {
 			this._hoveredTimeline = null;
 
 		}
+
+	}
+
+	// タイムラインのモーダル操作を始めたときに登録し、終えたときに外す（同じものだけ外す）
+	public beginTimelineModal( modal: TimelineModal ) {
+
+		this._timelineModal = modal;
+
+	}
+
+	public endTimelineModal( modal: TimelineModal ) {
+
+		if ( this._timelineModal === modal ) {
+
+			this._timelineModal = null;
+
+		}
+
+	}
+
+	// モーダル操作の状態の表示（Blender のヘッダ相当。Screen パネルに出る）。終えたら null
+	public setModalStatus( status: string | null ) {
+
+		// モーダル中は毎 pointermove で呼ばれるので、文字列が変わったときだけ React へ通知する
+		if ( this._modalStatus === status ) return;
+
+		this._modalStatus = status;
+		this.noticeField( "modalStatus" );
 
 	}
 

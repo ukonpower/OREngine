@@ -5,4 +5,20 @@
 	right: 0;
 	top: var(--or-list-row-height);
 	bottom: 0;
+
+	// B の後、次の左ドラッグが矩形選択になることを示す
+	&[data-box-selecting="true"] {
+		cursor: crosshair;
+
+		* {
+			cursor: crosshair;
+		}
+	}
+}
+
+.box {
+	position: absolute;
+	border: 1px solid var(--or-focus);
+	background-color: var(--or-drop-zone);
+	pointer-events: none;
 }

@@ -61,11 +61,8 @@
 .handle {
 	border-radius: 50%;
 	background-color: var(--or-text-muted);
-}
 
-.box {
-	position: absolute;
-	border: 1px solid var(--or-focus);
-	background-color: var(--or-drop-zone);
-	pointer-events: none;
+	&[data-selected="true"] {
+		background-color: var(--or-key-selected);
+	}
 }

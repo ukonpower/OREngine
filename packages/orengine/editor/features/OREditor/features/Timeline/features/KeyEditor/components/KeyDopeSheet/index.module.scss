@@ -34,10 +34,3 @@
 		background-color: currentColor;
 	}
 }
-
-.box {
-	position: absolute;
-	border: 1px solid var(--or-focus);
-	background-color: var(--or-drop-zone);
-	pointer-events: none;
-}
