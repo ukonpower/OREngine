@@ -29,6 +29,25 @@ export type EditKey = {
 
 export type KeyFrameHandleSide = "left" | "right";
 
+// キーの何番のどちら側のハンドルか
+export type KeyFrameHandleRef = {
+	index: number;
+	side: KeyFrameHandleSide;
+};
+
+// タイムラインのドラッグ・G / R / S でのキーとハンドルの動かし方
+export type KeyTransform = {
+	// 点（キー・ハンドルの座標）の行き先。key は点の属するキーの座標（動かす前。ハンドルをそれぞれのキーを中心に回すときに使う）
+	point: ( point: MTP.IVector2, key: MTP.IVector2 ) => MTP.IVector2;
+	// false なら、選んだキーのハンドルは point で動かさず、キーと同じだけずらす（平行移動・キー表示の時間方向の伸縮）
+	transformHandles: boolean;
+	// キーの時刻を揃える（timeline/fps のコマ）
+	snapTime: ( frame: number ) => number;
+	// 動かした値・ハンドルの座標を丸める（画面の 1px より細かい桁を落とす）。無ければ丸めない
+	roundTime?: ( frame: number ) => number;
+	roundValue?: ( value: number ) => number;
+};
+
 // frame にあるキーの番号。無ければ -1
 export const findKeyFrame = ( keyframes: { coordinate: MTP.IVector2 }[], frame: number ) => {
 
@@ -227,9 +246,11 @@ export const deleteKeys = ( curve: MXP.CurveData, indices: number[] ) => {
 
 };
 
-// indices 番のキーを offset だけ動かす。時刻は snapTime で揃え（timeline/fps のコマ）、値を動かすときは snapValue で丸める。
-// 動かした先に動かしていないキーがあれば消す（Blender の移動の確定と同じ）。動かしたキーの新しい番号も返す
-export const moveKeys = ( curve: MXP.CurveData, indices: number[], offset: MTP.IVector2, snapTime: ( frame: number ) => number, snapValue?: ( value: number ) => number ) => {
+// indices 番のキー（ハンドルごと）と handles のハンドルを transform で動かす（タイムラインのドラッグ・G / R / S）。
+// キーの時刻は snapTime で揃え（timeline/fps のコマ）、動かした先に動かしていないキーがあれば消す（Blender の移動の確定と同じ）。
+// ハンドルだけを動かしたキーは、ハンドルの種類を手で置ける種類に変える（自動 → 整列、ベクトル → 自由。Blender と同じ）。
+// 動かしたキー・ハンドルの新しい番号も返す（消えたものは入れない）
+export const transformKeys = ( curve: MXP.CurveData, indices: number[], handles: KeyFrameHandleRef[], transform: KeyTransform ) => {
 
 	const keys = decodeCurve( curve );
 	const selected = new Set( indices );
@@ -242,18 +263,7 @@ export const moveKeys = ( curve: MXP.CurveData, indices: number[], offset: MTP.I
 
 		if ( selected.has( i ) ) {
 
-			let value = key.coordinate.y;
-
-			// 値を動かさないときは丸めない（打った値をそのまま残す）
-			if ( offset.y != 0 ) {
-
-				value += offset.y;
-
-				if ( snapValue ) value = snapValue( value );
-
-			}
-
-			moveKey( key, snapTime( key.coordinate.x + offset.x ), value );
+			transformKey( key, transform );
 			moved.push( key );
 
 		} else {
@@ -264,7 +274,63 @@ export const moveKeys = ( curve: MXP.CurveData, indices: number[], offset: MTP.I
 
 	}
 
-	return placeKeys( curve, rest, moved );
+	// キーごとに、動かす側をまとめる。キーごと選んでいるハンドルはキーと一緒に動くので入れない
+	const handleSides = new Map<EditKey, KeyFrameHandleSide[]>();
+
+	for ( const handle of handles ) {
+
+		const key = keys[ handle.index ];
+
+		if ( ! key || selected.has( handle.index ) ) continue;
+
+		let sides = handleSides.get( key );
+
+		if ( ! sides ) {
+
+			sides = [];
+			handleSides.set( key, sides );
+
+		}
+
+		if ( sides.indexOf( handle.side ) < 0 ) sides.push( handle.side );
+
+	}
+
+	for ( const [ key, sides ] of handleSides ) {
+
+		transformHandles( key, sides, transform );
+
+	}
+
+	const placed = placeKeys( rest, moved );
+
+	const nextIndices: number[] = [];
+
+	for ( const key of moved ) {
+
+		const index = placed.indexOf( key );
+
+		if ( index >= 0 ) nextIndices.push( index );
+
+	}
+
+	const nextHandles: KeyFrameHandleRef[] = [];
+
+	for ( const [ key, sides ] of handleSides ) {
+
+		const index = placed.indexOf( key );
+
+		if ( index < 0 ) continue;
+
+		for ( const side of sides ) {
+
+			nextHandles.push( { index, side } );
+
+		}
+
+	}
+
+	return { curve: encodeCurve( placed, curve ), indices: nextIndices, handles: nextHandles };
 
 };
 
@@ -282,7 +348,18 @@ export const pasteKeys = ( curve: MXP.CurveData | undefined, keys: EditKey[], of
 
 	}
 
-	return placeKeys( curve, decodeCurve( curve ), pasted );
+	const placed = placeKeys( decodeCurve( curve ), pasted );
+	const indices: number[] = [];
+
+	for ( const key of pasted ) {
+
+		const index = placed.indexOf( key );
+
+		if ( index >= 0 ) indices.push( index );
+
+	}
+
+	return { curve: encodeCurve( placed, curve ), indices };
 
 };
 
@@ -326,14 +403,55 @@ export const setHandleType = ( curve: MXP.CurveData, indices: number[], handleTy
 
 };
 
-// index 番のキーの side のハンドルを point へ動かす。自動・ベクトルのハンドルを掴んだら、Blender と同じく
+// 選んだキーを transform で動かす。値を動かさないときは丸めない（打った値をそのまま残す）
+const transformKey = ( key: EditKey, transform: KeyTransform ) => {
+
+	const origin = key.coordinate;
+	const target = transform.point( origin, origin );
+
+	let y = origin.y;
+
+	if ( target.y != origin.y ) {
+
+		y = target.y;
+
+		if ( transform.roundValue ) y = transform.roundValue( y );
+
+	}
+
+	const x = transform.snapTime( target.x );
+
+	if ( ! transform.transformHandles ) {
+
+		moveKey( key, x, y );
+
+		return;
+
+	}
+
+	// 揃えた・丸めたぶんのずれは、ハンドルにも同じだけ足して形を保つ
+	const shift = { x: x - target.x, y: y - target.y };
+
+	const place = ( handle: MTP.IVector2 ) => {
+
+		const point = transform.point( handle, origin );
+
+		return roundPoint( { x: point.x + shift.x, y: point.y + shift.y }, transform );
+
+	};
+
+	const left = place( key.handleLeft );
+	const right = place( key.handleRight );
+
+	key.coordinate = { x, y };
+	key.handleLeft = { x: Math.min( left.x, x ), y: left.y };
+	key.handleRight = { x: Math.max( right.x, x ), y: right.y };
+
+};
+
+// キーは動かさず、sides の側のハンドルだけを transform で動かす。自動・ベクトルのハンドルは、Blender と同じく
 // 手で置ける種類に変える（自動 → 整列、ベクトル → 自由）。ハンドルはキーの反対側へは越えさせない
-export const moveHandle = ( curve: MXP.CurveData, index: number, side: KeyFrameHandleSide, point: MTP.IVector2 ) => {
-
-	const keys = decodeCurve( curve );
-	const key = keys[ index ];
-
-	if ( ! key ) return curve;
+const transformHandles = ( key: EditKey, sides: KeyFrameHandleSide[], transform: KeyTransform ) => {
 
 	if ( key.handleType == "AUTO_CLAMPED" || key.handleType == "AUTO" ) {
 
@@ -347,21 +465,38 @@ export const moveHandle = ( curve: MXP.CurveData, index: number, side: KeyFrameH
 
 	const center = key.coordinate;
 
-	if ( side == "left" ) {
+	for ( const side of sides ) {
 
-		key.handleLeft = { x: Math.min( point.x, center.x ), y: point.y };
+		if ( side == "left" ) {
 
-	} else {
+			const point = roundPoint( transform.point( key.handleLeft, center ), transform );
 
-		key.handleRight = { x: Math.max( point.x, center.x ), y: point.y };
+			key.handleLeft = { x: Math.min( point.x, center.x ), y: point.y };
+
+		} else {
+
+			const point = roundPoint( transform.point( key.handleRight, center ), transform );
+
+			key.handleRight = { x: Math.max( point.x, center.x ), y: point.y };
+
+		}
 
 	}
 
-	if ( key.handleType == "ALIGNED" ) alignHandle( key, side );
+	// 両側とも動かしたときは、どちらかに揃えると片方の動きが消えるので揃えない
+	if ( key.handleType == "ALIGNED" && sides.length == 1 ) alignHandle( key, sides[ 0 ] );
 
-	recalcHandles( keys );
+};
 
-	return encodeCurve( keys, curve );
+const roundPoint = ( point: MTP.IVector2, transform: KeyTransform ) => {
+
+	let x = point.x;
+	let y = point.y;
+
+	if ( transform.roundTime ) x = transform.roundTime( x );
+	if ( transform.roundValue ) y = transform.roundValue( y );
+
+	return { x, y };
 
 };
 
@@ -395,9 +530,9 @@ const sortKeys = ( keys: EditKey[] ) => {
 
 };
 
-// rest に placed を加えてカーブにする。placed と同じ時刻にある rest のキーは消し、placed どうしが重なったら後のものを残す。
-// placed の並び替え後の番号を返す
-const placeKeys = ( curve: MXP.CurveData | undefined, rest: EditKey[], placed: EditKey[] ) => {
+// rest に placed を加えて時刻順に並べ、ハンドルを置き直したキーの列を返す。
+// placed と同じ時刻にある rest のキーは消し、placed どうしが重なったら後のものを残す
+const placeKeys = ( rest: EditKey[], placed: EditKey[] ) => {
 
 	const placedKeys: EditKey[] = [];
 
@@ -434,15 +569,7 @@ const placeKeys = ( curve: MXP.CurveData | undefined, rest: EditKey[], placed: E
 	sortKeys( keys );
 	recalcHandles( keys );
 
-	const indices: number[] = [];
-
-	for ( const key of placedKeys ) {
-
-		indices.push( keys.indexOf( key ) );
-
-	}
-
-	return { curve: encodeCurve( keys, curve ), indices };
+	return keys;
 
 };
 

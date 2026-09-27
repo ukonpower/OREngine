@@ -1,4 +1,5 @@
 import * as MXP from 'maxpower';
+import { type EditKey, type KeyFrameHandleSide } from 'orengine/editor';
 
 import { getCurveKeys } from '../KeyChannels';
 
@@ -44,8 +45,19 @@ export const fitValueRange = ( curves: MXP.CurveTable, curveIds: string[] ): Val
 			const values = [ key.coordinate.y ];
 
 			// ハンドルは Bezier の区間に効いているものだけを入れる（CONSTANT・LINEAR のキーは使われないハンドルを持っている）
-			if ( key.interpolation == "BEZIER" ) values.push( key.handleRight.y );
-			if ( i > 0 && keys[ i - 1 ].interpolation == "BEZIER" ) values.push( key.handleLeft.y );
+			for ( const side of activeHandleSides( keys, i ) ) {
+
+				if ( side == "left" ) {
+
+					values.push( key.handleLeft.y );
+
+				} else {
+
+					values.push( key.handleRight.y );
+
+				}
+
+			}
 
 			for ( const value of values ) {
 
@@ -154,5 +166,44 @@ export const curvePath = ( curve: MXP.CurveData, toFrame: ( x: number ) => numbe
 	}
 
 	return "M" + points.join( "L" );
+
+};
+
+// 値の範囲を、値 center を画面上で動かさずに scale 倍へ広げる（1 より小さいと拡大）
+export const zoomValueRange = ( range: ValueRange, center: number, scale: number ): ValueRange => {
+
+	return {
+		min: center + ( range.min - center ) * scale,
+		max: center + ( range.max - center ) * scale,
+	};
+
+};
+
+// カーブ表示の座標の対応。時刻・値と、表示の要素の左上からの px を行き来する
+export const graphScale = ( viewPort: number[], range: ValueRange, width: number, height: number ) => {
+
+	const framePerPx = ( viewPort[ 2 ] - viewPort[ 0 ] ) / Math.max( 1, width );
+	const valuePerPx = ( range.max - range.min ) / Math.max( 1, height );
+
+	return {
+		framePerPx,
+		valuePerPx,
+		toX: ( frame: number ) => ( frame - viewPort[ 0 ] ) / framePerPx,
+		toY: ( value: number ) => ( range.max - value ) / valuePerPx,
+		toFrame: ( x: number ) => viewPort[ 0 ] + x * framePerPx,
+		toValue: ( y: number ) => range.max - y * valuePerPx,
+	};
+
+};
+
+// i 番のキーで、Bezier の区間に効いている（カーブ表示に出す）側のハンドル
+export const activeHandleSides = ( keys: EditKey[], i: number ) => {
+
+	const sides: KeyFrameHandleSide[] = [];
+
+	if ( i > 0 && keys[ i - 1 ].interpolation == "BEZIER" ) sides.push( "left" );
+	if ( keys[ i ].interpolation == "BEZIER" && i < keys.length - 1 ) sides.push( "right" );
+
+	return sides;
 
 };

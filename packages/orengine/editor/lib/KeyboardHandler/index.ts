@@ -16,6 +16,10 @@ export type KeyboardHandlerCallbacks = {
 	// Ctrl+C / Ctrl+V。今はタイムラインのキーのコピー・貼り付けだけが受ける
 	onCopy: () => void;
 	onPaste: () => void;
+	// B・A / Alt+A・Home。今はタイムラインのキーの矩形選択・全選択 / 全解除・値の範囲の合わせ直しだけが受ける
+	onBoxSelect: () => void;
+	onSelectAll: ( select: boolean ) => void;
+	onFrameAll: () => void;
 	onDuplicateSelected: () => void;
 	onRenameSelected: () => void;
 	// step はコマ数（負で戻る）
@@ -100,6 +104,26 @@ export class KeyboardHandler {
 			if ( cmd && e.code === 'KeyV' ) {
 
 				callbacks.onPaste();
+
+			}
+
+			if ( e.code === 'KeyB' && ! cmd && ! e.altKey && ! pressedKeys[ "Shift" ] ) {
+
+				callbacks.onBoxSelect();
+
+			}
+
+			// Blender の A / Alt+A。Mac の Alt+A は e.key が別の文字になるので物理キーで見る
+			if ( e.code === 'KeyA' && ! cmd && ! pressedKeys[ "Shift" ] ) {
+
+				callbacks.onSelectAll( ! e.altKey );
+
+			}
+
+			// Blender の View All
+			if ( e.key === 'Home' && ! cmd ) {
+
+				callbacks.onFrameAll();
 
 			}
 

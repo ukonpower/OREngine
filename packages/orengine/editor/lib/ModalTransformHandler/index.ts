@@ -80,6 +80,21 @@ const FIELD_NAME: Record<ModalTransformMode, 'position' | 'euler' | 'scale'> = {
 
 const AXES: readonly GizmoAxis[] = [ 'x', 'y', 'z' ];
 
+// G / R / S（修飾キー無し）の打鍵が表すモード。ほかのキーなら null。タイムラインのキーの G / R / S も同じ判定を使う
+export const transformModeOfKey = ( e: KeyboardEvent ): ModalTransformMode | null => {
+
+	if ( e.metaKey || e.ctrlKey || e.altKey || e.shiftKey ) return null;
+
+	const key = e.key.toLowerCase();
+
+	if ( key === 'g' ) return 'translate';
+	if ( key === 'r' ) return 'rotate';
+	if ( key === 's' ) return 'scale';
+
+	return null;
+
+};
+
 export class ModalTransformHandler {
 
 	private _engine: Engine;
@@ -169,13 +184,7 @@ export class ModalTransformHandler {
 
 		if ( ! session ) {
 
-			if ( e.metaKey || e.ctrlKey || e.altKey || e.shiftKey ) return false;
-
-			const key = e.key.toLowerCase();
-			const mode: ModalTransformMode | null = key === 'g' ? 'translate'
-				: key === 'r' ? 'rotate'
-					: key === 's' ? 'scale'
-						: null;
+			const mode = transformModeOfKey( e );
 
 			if ( ! mode ) return false;
 
