@@ -30,7 +30,7 @@ const MIN_VALUE_RANGE = 1e-6;
 export const KeyCurveGraph = () => {
 
 	const { viewPort } = useTimeline();
-	const { curves, graphCurves, selection, valueRange, setValueRange } = useKeyEditor();
+	const { curves, graphCurves, selection, active, valueRange, setValueRange } = useKeyEditor();
 
 	const rootRef = useRef<HTMLDivElement>( null );
 	const { width, height } = useElementSize( rootRef );
@@ -231,6 +231,7 @@ export const KeyCurveGraph = () => {
 			className={style.point}
 			data-refs={point.ref}
 			data-selected={selection.has( point.ref )}
+			data-active={point.ref == active}
 			style={{ left: point.x, top: point.y }}
 		/> )}
 		{handlePoints.map( ( point ) => <div

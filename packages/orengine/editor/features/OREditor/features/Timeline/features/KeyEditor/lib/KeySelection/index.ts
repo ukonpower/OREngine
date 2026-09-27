@@ -124,6 +124,35 @@ export const isHandleSelected = ( selection: KeySelection, curveId: string, inde
 
 };
 
+// キーか、そのキーのどちらかのハンドルが選ばれているか。key はキーの ref
+export const includesKey = ( selection: KeySelection, key: string ) => {
+
+	const { curveId, index } = parseRef( key );
+
+	return selection.has( key ) || selection.has( handleRef( curveId, index, "left" ) ) || selection.has( handleRef( curveId, index, "right" ) );
+
+};
+
+// refs（キー・ハンドル）が指すキーがちょうど1つなら、そのキーの ref。ハンドルはその持ち主のキーとして数える。
+// 共有カーブの行はそろって同じ ref になるので1つに数え、複数のカーブを束ねた行（配列の親の行）の印は null になる
+export const singleKey = ( refs: string[] ) => {
+
+	const keys = new Set<string>();
+
+	for ( const ref of refs ) {
+
+		const { curveId, index } = parseRef( ref );
+
+		keys.add( keyRef( curveId, index ) );
+
+	}
+
+	if ( keys.size != 1 ) return null;
+
+	return Array.from( keys )[ 0 ];
+
+};
+
 // refs がすべて選ばれているか
 export const isAllSelected = ( selection: KeySelection, refs: string[] ) => {
 

@@ -22,7 +22,7 @@ const OUTSIDE_MARGIN = 0.05;
 export const KeyDopeSheet = () => {
 
 	const { viewPort, zoom } = useTimeline();
-	const { curves, visibleChannels, selection, scrollTop, channelListRef } = useKeyEditor();
+	const { curves, visibleChannels, selection, active, scrollTop, channelListRef } = useKeyEditor();
 
 	const rootRef = useRef<HTMLDivElement>( null );
 
@@ -86,6 +86,7 @@ export const KeyDopeSheet = () => {
 							className={style.key}
 							data-refs={mark.refs.join( " " )}
 							data-selected={isAllSelected( selection, mark.refs )}
+							data-active={active != null && mark.refs.indexOf( active ) >= 0}
 							data-event={event}
 							style={{ left: position * 100 + "%" }}
 						>

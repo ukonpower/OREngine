@@ -3,14 +3,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 import {
-	copyHandles,
+	applyHandleOffsets,
 	countCurveUses,
 	deleteKeys,
 	distributeKeys,
 	getLinks,
 	keyFrameTime,
-	pasteHandles,
 	pasteKeys,
+	readHandleOffsets,
 	setHandleType,
 	setInterpolation,
 	snapKeyFrameTime,
@@ -20,7 +20,6 @@ import {
 	type EditKey,
 	type KeyFrameHandleRef,
 	type KeyFrameHandleType,
-	type KeyHandleOffsets,
 	type KeyTransform,
 	type ModalTransformMode,
 	type TimelineKeyActions,
@@ -32,7 +31,7 @@ import { useOREditor } from '../../../../../hooks/useOREditor';
 import { useTimeline } from '../../../hooks/useTimeline';
 import { activeHandleSides, fitValueRange, graphScale, roundToPixel, type ValueRange } from '../lib/CurveGraph';
 import { buildChannels, ENTITY_CHANNEL_ID, getCurveKeys, type KeyChannel } from '../lib/KeyChannels';
-import { groupSelection, groupTransformSelection, handleRef, isAllSelected, keyRef, parseRef, type KeySelection } from '../lib/KeySelection';
+import { groupSelection, groupTransformSelection, handleRef, includesKey, isAllSelected, keyRef, parseRef, singleKey, type KeySelection } from '../lib/KeySelection';
 import { KeyTransformModal, type KeyPointTransform, type KeyScreenMapping } from '../lib/KeyTransformModal';
 import { suppressNextContextMenu } from '../lib/PointerDrag';
 
@@ -182,16 +181,18 @@ export const useKeyEditorContext = () => {
 
 	const [ mode, setMode ] = useState<KeyEditorMode>( "keys" );
 	const [ selection, setSelection ] = useState<KeySelection>( () => new Set() );
+
+	// アクティブのキー（キーの ref）。最後に右クリックで選んだキーで、Apply Active Handles の写し元になる。
+	// 選択の中にある（キーかハンドルが選ばれている）間だけ持つ
+	const [ active, setActive ] = useState<string | null>( null );
 	const [ collapsed, setCollapsed ] = useState<Set<string>>( () => new Set() );
 	const [ activeChannelId, setActiveChannelId ] = useState( ENTITY_CHANNEL_ID );
 	const [ scrollTop, setScrollTop ] = useState( 0 );
 
 	// ドラッグの開始時に今の選択を読むので、state とは別に同期して持つ
 	const selectionRef = useRef( selection );
+	const activeRef = useRef( active );
 	const clipboardRef = useRef<KeyClipboard | null>( null );
-
-	// Copy Handles で写し取ったハンドル。キーのコピー（clipboardRef）とは別に持ち、互いに上書きしない
-	const handleClipboardRef = useRef<KeyHandleOffsets | null>( null );
 
 	// キーの領域（キー表示・カーブ表示を重ねる要素）。G / R / S の座標の基準と、矩形選択の範囲
 	const areaRef = useRef<HTMLDivElement>( null );
@@ -209,12 +210,39 @@ export const useKeyEditorContext = () => {
 	const boxSelectRef = useRef<BoxSelectWait | null>( null );
 	const [ boxSelecting, setBoxSelecting ] = useState( false );
 
-	const select = useCallback( ( next: KeySelection ) => {
+	// 選択とアクティブのキーを差し替える。nextActive を省くと今のアクティブのまま。
+	// キーの番号が変わる編集では、呼ぶ側が新しい番号のアクティブを渡す。選択に入っていないアクティブは外す
+	const select = useCallback( ( next: KeySelection, nextActive: string | null = activeRef.current ) => {
+
+		let resolved = nextActive;
+
+		if ( resolved && ! includesKey( next, resolved ) ) resolved = null;
 
 		selectionRef.current = next;
+		activeRef.current = resolved;
 		setSelection( next );
+		setActive( resolved );
 
 	}, [] );
+
+	// アクティブのキー current の番号を、カーブごとの元の番号 → 新しい番号の対応（indexMaps）で付け替える。
+	// 対応に無いカーブならそのまま、対応に無い番号（消えたキー）なら外す
+	const remapActive = ( current: string | null, indexMaps: Map<string, Map<number, number>> ) => {
+
+		if ( ! current ) return null;
+
+		const { curveId, index } = parseRef( current );
+		const indexMap = indexMaps.get( curveId );
+
+		if ( ! indexMap ) return current;
+
+		const next = indexMap.get( index );
+
+		if ( next === undefined ) return null;
+
+		return keyRef( curveId, next );
+
+	};
 
 	useEditorFrame( () => {
 
@@ -378,13 +406,24 @@ export const useKeyEditorContext = () => {
 	-------------------------------*/
 
 	// キーの印を押したときの選択。Shift は足し引きし、それ以外は押した印が選ばれていなければそれだけを選ぶ。
+	// 押した印がキー1つを指すなら、そのキーをアクティブにする。選ばれているがアクティブでないキーの Shift は、外さずにアクティブにする
+	// （Blender の3Dビューと同じ。選んだ中から Apply Active Handles の写し元を選び直せるように）。
 	// 押す前から選ばれていたかを返す（ドラッグせずに離したら、それだけを選び直すため）
 	const pressKeys = useCallback( ( refs: string[], shift: boolean ) => {
 
 		const current = selectionRef.current;
 		const wasSelected = isAllSelected( current, refs );
+		const key = singleKey( refs );
 
-		if ( shift ) {
+		let nextActive = activeRef.current;
+
+		if ( key ) nextActive = key;
+
+		if ( shift && wasSelected && key && key != activeRef.current ) {
+
+			select( current, key );
+
+		} else if ( shift ) {
 
 			const next = new Set( current );
 
@@ -402,11 +441,15 @@ export const useKeyEditorContext = () => {
 
 			}
 
-			select( next );
+			select( next, nextActive );
 
 		} else if ( ! wasSelected ) {
 
-			select( new Set( refs ) );
+			select( new Set( refs ), key );
+
+		} else {
+
+			select( current, nextActive );
 
 		}
 
@@ -605,11 +648,12 @@ export const useKeyEditorContext = () => {
 
 	// 選んだキーを、補間・ハンドルを持つカーブごとに align で並べ直し、並べ直したカーブの選択を新しい番号で選び直す（W の Align）。
 	// align が null を返したカーブ（選んだキーが2つ以下等）はそのまま
-	const alignSelectedKeys = ( align: ( curve: MXP.CurveData, indices: number[] ) => { curve: MXP.CurveData, indices: number[] } | null ) => {
+	const alignSelectedKeys = ( align: ( curve: MXP.CurveData, indices: number[] ) => { curve: MXP.CurveData, indices: number[], indexMap: Map<number, number> } | null ) => {
 
 		const groups = groupSelection( selectionRef.current, engine.curves );
 		const next = { ...engine.curves };
 		const aligned = new Map<string, number[]>();
+		const indexMaps = new Map<string, Map<number, number>>();
 
 		for ( const [ id, indices ] of groups ) {
 
@@ -621,6 +665,7 @@ export const useKeyEditorContext = () => {
 
 			next[ id ] = result.curve;
 			aligned.set( id, result.indices );
+			indexMaps.set( id, result.indexMap );
 
 		}
 
@@ -646,7 +691,7 @@ export const useKeyEditorContext = () => {
 		}
 
 		applyCurves( next );
-		select( nextSelection );
+		select( nextSelection, remapActive( activeRef.current, indexMaps ) );
 
 	};
 
@@ -662,40 +707,46 @@ export const useKeyEditorContext = () => {
 
 	};
 
-	// 選んだキーがちょうど1つなら、そのハンドルを写し取る（W の Handles ▸ Copy Handles）。
-	// 共有カーブの行はそろって選ばれるが、カーブ ID と番号で数えるので1つになる
-	const copySelectedHandles = () => {
+	// アクティブのキーのハンドルを、ほかの選んだキーへ写す（W の Apply Active Handles）。アクティブのキー自身は書き換えない
+	const applyActiveHandles = () => {
 
-		const groups = groupSelection( selectionRef.current, engine.curves );
+		const current = activeRef.current;
 
-		let count = 0;
-		let curveId = "";
-		let index = - 1;
+		if ( ! current ) return;
 
-		for ( const [ id, indices ] of groups ) {
+		const { curveId, index } = parseRef( current );
 
-			count += indices.length;
-			curveId = id;
-			index = indices[ 0 ];
+		if ( ! numericCurveIds.has( curveId ) ) return;
 
-		}
-
-		if ( count != 1 || ! numericCurveIds.has( curveId ) ) return;
-
-		const offsets = copyHandles( engine.curves[ curveId ], index );
-
-		if ( offsets ) handleClipboardRef.current = offsets;
-
-	};
-
-	// 写し取ったハンドルを、選んだすべてのキーに貼る（W の Handles ▸ Paste Handles）
-	const pasteSelectedHandles = () => {
-
-		const offsets = handleClipboardRef.current;
+		const offsets = readHandleOffsets( engine.curves[ curveId ], index );
 
 		if ( ! offsets ) return;
 
-		editSelectedKeys( ( curve, indices ) => pasteHandles( curve, indices, offsets ) );
+		const groups = groupSelection( selectionRef.current, engine.curves );
+		const next = { ...engine.curves };
+
+		let changed = false;
+
+		for ( const [ id, indices ] of groups ) {
+
+			if ( ! numericCurveIds.has( id ) ) continue;
+
+			const targets: number[] = [];
+
+			for ( const target of indices ) {
+
+				if ( id != curveId || target != index ) targets.push( target );
+
+			}
+
+			if ( targets.length == 0 ) continue;
+
+			next[ id ] = applyHandleOffsets( engine.curves[ id ], targets, offsets );
+			changed = true;
+
+		}
+
+		if ( changed ) applyCurves( next );
 
 	};
 
@@ -781,7 +832,7 @@ export const useKeyEditorContext = () => {
 		if ( ! pasted ) return;
 
 		applyCurves( next );
-		select( nextSelection );
+		select( nextSelection, null );
 
 	};
 
@@ -904,6 +955,7 @@ export const useKeyEditorContext = () => {
 
 		const origin = engine.curves;
 		const startSelection = selectionRef.current;
+		const startActive = activeRef.current;
 		const edit = editor.api.beginEdit( engine, "curves" );
 
 		const ids = new Set<string>();
@@ -927,6 +979,7 @@ export const useKeyEditorContext = () => {
 
 				const next = { ...origin };
 				const nextSelection: KeySelection = new Set();
+				const indexMaps = new Map<string, Map<number, number>>();
 
 				// 動かしたカーブの選択は、動かした後の番号で選び直す。複製では複製したキーだけを選ぶ（元のキーは選択から外す）。
 				// keptKeys のキーは動かないので番号はそのまま。キーを選べば両側のハンドルも選んだ扱いになるので、そのハンドルは入れない
@@ -941,6 +994,7 @@ export const useKeyEditorContext = () => {
 					const result = transformKeys( origin[ id ], targets.keys.get( id ) || [], targets.handles.get( id ) || [], transformOf( id ), targets.duplicate );
 
 					next[ id ] = result.curve;
+					indexMaps.set( id, result.indexMap );
 
 					for ( const index of result.indices ) {
 
@@ -964,7 +1018,7 @@ export const useKeyEditorContext = () => {
 
 				ownCurvesRef.current = next;
 				edit.set( next );
-				select( nextSelection );
+				select( nextSelection, remapActive( startActive, indexMaps ) );
 				changed = true;
 
 			},
@@ -977,7 +1031,7 @@ export const useKeyEditorContext = () => {
 
 				ownCurvesRef.current = origin;
 				edit.cancel();
-				select( startSelection );
+				select( startSelection, startActive );
 
 			},
 		};
@@ -1160,6 +1214,7 @@ export const useKeyEditorContext = () => {
 		mode,
 		setMode,
 		selection,
+		active,
 		areaRef,
 		channelListRef,
 		pointerRef,
@@ -1184,8 +1239,7 @@ export const useKeyEditorContext = () => {
 		setSelectedHandleType,
 		distributeSelectedKeys,
 		straightenSelectedKeys,
-		copySelectedHandles,
-		pasteSelectedHandles,
+		applyActiveHandles,
 		beginDrag,
 		timelineActions,
 	};
