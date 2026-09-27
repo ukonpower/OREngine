@@ -4,7 +4,8 @@ import type { OREditorFixture } from '../decorators/withOREditor';
 import type { OREngineDataEntity, OREngineProjectData } from 'orengine';
 
 // Timeline のビューポートは読み込み時に [ 0, duration ] へ合わされるので、
-// duration と fps を変えるとグリッド間隔と目盛りのラベルがまとめて変わる
+// duration を変えるとグリッド間隔と目盛りのラベルがまとめて変わる。
+// 目盛りの秒表示は fps によらず frame / 60 なので、fps を変えても変わらない
 const scene = ( duration: number, fps: number, empty = false ) => ( {
 	...( empty ? storyEmptyScene : storyScene ),
 	'timeline/duration': duration,
