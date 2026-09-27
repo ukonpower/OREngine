@@ -23,6 +23,18 @@
 	color: var(--or-text-muted);
 	cursor: pointer;
 
+	// 見た目より広くクリックを拾う。Blender のドープシートと同じく横は中心から ±7px ほど（--or-space の1.5倍）、縦は行の高さいっぱい。
+	// 擬似要素は getBoundingClientRect に入らないので、矩形選択の当たりは見た目のまま
+	&::before {
+		content: "";
+		position: absolute;
+		left: 50%;
+		top: 50%;
+		width: calc(var(--or-space) * 3);
+		height: var(--or-list-row-height);
+		transform: translate(-50%, -50%);
+	}
+
 	&[data-selected="true"] {
 		color: var(--or-key-selected);
 	}

@@ -20,6 +20,8 @@ export type KeyboardHandlerCallbacks = {
 	onBoxSelect: () => void;
 	onSelectAll: ( select: boolean ) => void;
 	onFrameAll: () => void;
+	// W。今はタイムラインのキーのメニューだけが受ける
+	onContextMenu: () => void;
 	onDuplicateSelected: () => void;
 	onRenameSelected: () => void;
 	// step はコマ数（負で戻る）
@@ -124,6 +126,13 @@ export class KeyboardHandler {
 			if ( e.key === 'Home' && ! cmd ) {
 
 				callbacks.onFrameAll();
+
+			}
+
+			// Blender の右クリック選択での W（コンテキストメニュー）
+			if ( e.code === 'KeyW' && ! cmd && ! e.altKey && ! pressedKeys[ "Shift" ] ) {
+
+				callbacks.onContextMenu();
 
 			}
 

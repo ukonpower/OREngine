@@ -72,7 +72,7 @@ export class KeyTransformModal implements TimelineModal {
 
 			if ( e.button === 2 ) {
 
-				// この右クリックでキーの領域の右クリックメニューが開かないようにする
+				// この右クリックで、ポインタの下のメニュー（ブラウザ・プロパティの行など）が開かないようにする
 				suppressNextContextMenu();
 
 				this._end( false );

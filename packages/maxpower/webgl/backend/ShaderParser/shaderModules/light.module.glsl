@@ -28,7 +28,10 @@ struct Light {
 
 	uniform DirectionalLight directionalLight[NUM_LIGHT_DIR];
 	uniform LightCamera uDirectionalLightCamera[NUM_LIGHT_DIR];
-	uniform sampler2D directionalLightShadowMap[NUM_SHADOWMAP_DIR];
+	// 影を落とすライトが無いと長さ0の配列になり、コンパイルエラーになる
+	#if NUM_SHADOWMAP_DIR > 0
+		uniform sampler2D directionalLightShadowMap[NUM_SHADOWMAP_DIR];
+	#endif
 	
 #endif
 
@@ -36,7 +39,9 @@ struct Light {
 
 	uniform SpotLight uSpotLight[NUM_LIGHT_SPOT];
 	uniform LightCamera uSpotLightCamera[NUM_LIGHT_SPOT];
-	uniform sampler2D uSpotLightShadowMap[NUM_SHADOWMAP_SPOT];
+	#if NUM_SHADOWMAP_SPOT > 0
+		uniform sampler2D uSpotLightShadowMap[NUM_SHADOWMAP_SPOT];
+	#endif
 	
 #endif
 

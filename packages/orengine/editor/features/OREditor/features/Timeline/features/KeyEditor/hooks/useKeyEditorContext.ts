@@ -186,8 +186,14 @@ export const useKeyEditorContext = () => {
 	// キーの領域（キー表示・カーブ表示を重ねる要素）。G / R / S の座標の基準と、矩形選択の範囲
 	const areaRef = useRef<HTMLDivElement>( null );
 
+	// 左のチャンネル一覧のスクロールする要素。縦のスクロールの正はこの要素の scrollTop で、キー表示の wheel・中ボタンもここを動かす
+	const channelListRef = useRef<HTMLDivElement>( null );
+
 	// キーの領域の上の最後のポインタ位置（画面座標）。G / R / S は押した瞬間の位置を基準にする
 	const pointerRef = useRef<MTP.IVector2>( { x: 0, y: 0 } );
+
+	// W で開くメニュー。メニューの中身と Popover は KeyEditor が持つので、KeyEditor がここへ入れる
+	const openMenuRef = useRef<( () => void ) | null>( null );
 
 	const modalRef = useRef<KeyTransformModal | null>( null );
 	const boxSelectRef = useRef<BoxSelectWait | null>( null );
@@ -1022,6 +1028,11 @@ export const useKeyEditorContext = () => {
 		boxSelect: () => latestRef.current.beginBoxSelect(),
 		selectAllKeys: ( all ) => latestRef.current.selectAllKeys( all ),
 		frameAll: () => latestRef.current.frameAll(),
+		openMenu: () => {
+
+			if ( openMenuRef.current ) openMenuRef.current();
+
+		},
 	} ), [] );
 
 	return {
@@ -1034,7 +1045,9 @@ export const useKeyEditorContext = () => {
 		setMode,
 		selection,
 		areaRef,
+		channelListRef,
 		pointerRef,
+		openMenuRef,
 		valueRange,
 		setValueRange,
 		boxSelecting,
