@@ -11,7 +11,22 @@ export const EntityAdd = () => {
 
 	const { editor, engine } = useOREditor();
 	const { open, closeAll } = usePopover();
-	const menuItems = useEntityAddMenuItems( engine.root );
+
+	// 今見ている場所に出す（Unity のメニューからの追加と同じく Scene ビューの注視点）。
+	// 追加先はシーン直下なので、注視点のワールド座標をそのまま position に使える
+	const getViewTarget = () => {
+
+		const viewport = editor.activeViewport;
+
+		if ( ! viewport ) return undefined;
+
+		const target = viewport.editorCamera.orbitControls.target;
+
+		return [ target.x, target.y, target.z ];
+
+	};
+
+	const menuItems = useEntityAddMenuItems( engine.root, getViewTarget );
 
 	// キーボードから開くときの表示位置。Blender と同じくポインタの居る場所に出す
 	const pointer = useRef( { x: 0, y: 0 } );

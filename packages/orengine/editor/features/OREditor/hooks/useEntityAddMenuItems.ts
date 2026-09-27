@@ -14,15 +14,24 @@ const EXCLUDE_COMPONENTS = [ MXP.Mesh ];
 
 // parent の子を追加するメニュー項目を作る。先頭に Empty、その下に Add Component と同じコンポーネントの階層を並べる。
 // Hierarchy の右クリックと Shift+A で同じ並びを出すために共有する。
-// 生成したエンティティはすぐリネームできるよう選択状態にする
-export const useEntityAddMenuItems = ( parent: MXP.Entity ): MenuItem[] => {
+// 生成したエンティティはすぐリネームできるよう選択状態にする。
+// getPosition を渡すと、生成の瞬間に呼んで返った位置（parent のローカル座標）に置く
+export const useEntityAddMenuItems = ( parent: MXP.Entity, getPosition?: () => number[] | undefined ): MenuItem[] => {
 
 	const { editor } = useOREditor();
 	const { closeAll } = usePopover();
 
 	const create = ( name: string, components: ( typeof MXP.Component )[] ) => {
 
-		const entity = editor.api.createEntity( parent, { name, components } );
+		let position: number[] | undefined;
+
+		if ( getPosition ) {
+
+			position = getPosition();
+
+		}
+
+		const entity = editor.api.createEntity( parent, { name, components, position } );
 
 		editor.api.selectEntity( entity );
 
