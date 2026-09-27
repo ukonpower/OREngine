@@ -212,8 +212,8 @@ Entity / Component の SerializeField にキーを打ち、player で再生す�
 - 時間差: `ClonerSlot` は子に渡す event の `timeCodeFrame` / `timeCode` を遅らせる（`delay/loop` が ON ならタイムラインの長さで折り返す）。Animation も時刻で動くコンポーネントも改修なしで遅れ、入れ子の Cloner では遅れが足される。シェーダーのグローバルの `uTime` は遅れない
 - フィールド: `layout`（並べ方）/ `params/<名前>`（並べ方の数値。並べ方を切り替えるとフィールドごと入れ替わる）/ `delay/order`（layout / index / center / x / y / z / random）/ `delay/spread`（最初と最後の複製の遅れの差、秒）/ `delay/loop` / `jitter/position` / `jitter/rotation` / `jitter/scale` / `jitter/seed`。計算は `Cloner/slots.ts` の `computeSlots`（純関数）
 - テンプレートの同期: テンプレート配下の user のエンティティ・コンポーネントの `fields/update` を、対応する複製へ `setField` で写す。テンプレートの Animation がリンクしているフィールドは写さない（複製の Animation が遅れた時刻で入れる）。子・コンポーネントの増減は複製を作り直す。ほかの Cloner のテンプレートの中にある Cloner は複製を作らない（コピーされた側が作る）
-- 並べ方: `ClonerLayout`（`packages/orengine/core/Resources/ClonerLayout`）= `{ params, count( params ), place( index, count, params ) → { position, rotation?, scale?, order? } }`。builtin は `packages/orengine/builtin/Layouts/<名前>/index.ts`（Grid / Line / Circle / Sphere / Random）、プロジェクトは `<projectDir>/Resources/Layouts/<名前>/index.ts` に `export const layout: ClonerLayout` を置くと、ディレクトリ名で `Engine.resources` に登録される（同名はプロジェクトが上書き）。`order` を返すと `delay/order: layout` でその順に動き出す（返さなければ番号順）
-- player ビルドは、シーンの Cloner が使う並べ方だけを焼き込む（`sceneScan` の `layoutNames` → `PlayerRegistry`）。`params` のキー名は property mangle から外している（フィールド名 `params/<キー>` をキーから作るため）
+- 並べ方: `ClonerLayout`（`Cloner/layout.ts`。型は `orengine/builtin` から import する）= `{ params, count( params ), place( index, count, params ) → { position, rotation?, scale?, order? } }`。ライブラリの種類 `ClonerLayouts` として、builtin は `packages/orengine/builtin/Library/ClonerLayouts/<名前>/index.ts`（Grid / Line / Circle / Sphere / Random）、プロジェクトは `<projectDir>/Resources/Library/ClonerLayouts/<名前>/index.ts` に `export default` で置く（同名はプロジェクトが上書き）。`order` を返すと `delay/order: layout` でその順に動き出す（返さなければ番号順）
+- player ビルドは、シーンの Cloner が使う並べ方だけを焼き込む（`Cloner/player.ts` がライブラリの参照を返す。下の「ライブラリ」）
 - エディタ: 複製はヒエラルキー・ルートからの走査（`Entity.traverseEditable`）・シーン CLI に出ない。ビューポートで複製をクリックすると `cloneSource` を選ぶ
 - 数の目安は数百まで（複製は普通のエンティティなので1個ずつ描画される）。それ以上はコンポーネント内のインスタンシングで作る
 
@@ -234,6 +234,12 @@ Entity / Component の SerializeField にキーを打ち、player で再生す�
 - `packages/orengine/builtin/Components/<グループ>/<名前>/index.ts` にビルトインコンポーネントを追加できる
 - 自動認識の実体は `import.meta.glob`（`host/app/Resources/registry.ts` と `packages/orengine/builtin/index.ts`）。登録名は export されたクラス名になる
 - 先頭が `_` のディレクトリはスキャン対象外
+
+### ライブラリ（コンポーネントが名前で引く部品）
+- コンポーネントが種類と名前で引く部品（Cloner の並べ方など）。`Engine.resources.addLibraryItem( kind, name, item )` / `getLibraryItem<T>( kind, name )` / `getLibraryItemNames( kind )`。中身の型は使うコンポーネントが決める
+- builtin は `packages/orengine/builtin/Library/<種類>/<名前>/index.ts`、プロジェクトは `<project>/Resources/Library/<種類>/<名前>/index.ts` に `export default` で置くと、ディレクトリ名で登録される（同じ種類・名前はプロジェクトが上書き）
+- player ビルドは、シーンで使われているものだけを焼き込む。コンポーネントの `index.ts` と同じディレクトリに `player.ts` を置き、`collectLibraryRefs( props ) → { kind, name }[]` を export すると、`PlayerRegistry` がシーンに置かれたそのコンポーネントの props ごとに呼ぶ。`player.ts` は Node（tsx）から直接読まれるので、ブラウザ向けのモジュールを import しない
+- player ビルドでは、フィールド名 `a/b` の区切りごとの名前も terser の改名から外している（`host/vite/sceneScan.ts`）。オブジェクトのキーからフィールド名を組み立てるコンポーネント（Cloner の `params/<キー>`）があるため
 
 ## 開発ワークフロー
 

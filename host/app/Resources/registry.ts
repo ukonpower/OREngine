@@ -1,13 +1,13 @@
 import * as MXP from '@or-renderer';
-import { ComponentGroup, GeometryGroup, Engine, buildClassTree, collectLayouts } from 'orengine';
-import { BUILTIN_COMPONENTLIST, BUILTIN_GEOMETRYLIST, BUILTIN_LAYOUTS } from 'orengine/builtin';
+import { ComponentGroup, GeometryGroup, Engine, buildClassTree, collectLibrary } from 'orengine';
+import { BUILTIN_COMPONENTLIST, BUILTIN_GEOMETRYLIST, BUILTIN_LIBRARY } from 'orengine/builtin';
 
 
 import { registerProjectTextures, initResourceInstances } from './registryCommon';
 
 const componentModules = import.meta.glob( [ '@or-resources/Components/**/index.ts', '!**/_*/**' ], { eager: true } );
 const geometryModules = import.meta.glob( [ '@or-resources/Geometries/**/index.ts', '!**/_*/**' ], { eager: true } );
-const layoutModules = import.meta.glob( [ '@or-resources/Layouts/*/index.ts', '!**/_*/**' ], { eager: true } );
+const libraryModules = import.meta.glob( [ '@or-resources/Library/*/*/index.ts', '!**/_*/**' ], { eager: true } );
 
 type ClassList = {
 	[key: string]: any
@@ -107,26 +107,27 @@ export const initResouces = () => {
 	}
 
 	/*-------------------------------
-		Layouts
+		Library
 	-------------------------------*/
 
-	for ( const [ name, layout ] of BUILTIN_LAYOUTS ) {
+	const builtinLibraryKeys = new Set<string>();
 
-		Engine.resources.addLayout( name, layout );
+	for ( const { kind, name, item } of BUILTIN_LIBRARY ) {
+
+		Engine.resources.addLibraryItem( kind, name, item );
+		builtinLibraryKeys.add( `${kind}/${name}` );
 
 	}
 
-	const projectLayouts = collectLayouts( layoutModules );
+	for ( const { kind, name, item } of collectLibrary( libraryModules ) ) {
 
-	for ( const [ name, layout ] of projectLayouts ) {
+		if ( builtinLibraryKeys.has( `${kind}/${name}` ) ) {
 
-		if ( BUILTIN_LAYOUTS.has( name ) ) {
-
-			console.warn( `[Resources] layout "${name}" overrides the built-in one` );
+			console.warn( `[Resources] library "${kind}/${name}" overrides the built-in one` );
 
 		}
 
-		Engine.resources.addLayout( name, layout );
+		Engine.resources.addLibraryItem( kind, name, item );
 
 	}
 

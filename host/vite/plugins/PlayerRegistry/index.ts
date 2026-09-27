@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 
 import { Plugin } from 'vite';
 
@@ -17,7 +17,7 @@ const pluginDir = path.dirname( fileURLToPath( import.meta.url ) );
 const registryPath = path.resolve( pluginDir, '../../../app/Resources/registry.ts' );
 const registryCommonPath = path.join( path.dirname( registryPath ), 'registryCommon.ts' );
 const builtinComponentsDir = path.resolve( pluginDir, '../../../../packages/orengine/builtin/Components' );
-const builtinLayoutsDir = path.resolve( pluginDir, '../../../../packages/orengine/builtin/Layouts' );
+const builtinLibraryDir = path.resolve( pluginDir, '../../../../packages/orengine/builtin/Library' );
 const gltfLoaderPath = path.resolve( pluginDir, '../../../../packages/maxpower/webgl/Loaders/GLTFLoader/index.ts' );
 
 // Engine.resources.getComponent(name) はフラット検索のため、player登録もフラットで足りる（グループ階層はエディタUI専用）
@@ -76,10 +76,10 @@ const buildComponentMap = ( dirs: string[] ): Map<string, string> => {
 
 };
 
-// builtin/project の Layouts ディレクトリ直下から、並べ方の名前（ディレクトリ名） -> index.ts の絶対パスのマップを作る。
-// 後に渡したディレクトリが同名を上書きする（プロジェクトの並べ方が builtin を上書きする。registry.ts と同じ）
+// builtin/project の Library ディレクトリから、'<種類>/<名前>' -> index.ts の絶対パスのマップを作る。
+// 後に渡したディレクトリが同名を上書きする（プロジェクトのライブラリが builtin を上書きする。registry.ts と同じ）
 // `_` prefix のディレクトリは除外（registry.ts の glob 除外条件と同じ）
-const buildLayoutMap = ( dirs: string[] ): Map<string, string> => {
+const buildLibraryMap = ( dirs: string[] ): Map<string, string> => {
 
 	const map = new Map<string, string>();
 
@@ -87,16 +87,23 @@ const buildLayoutMap = ( dirs: string[] ): Map<string, string> => {
 
 		if ( ! fs.existsSync( dir ) ) continue;
 
-		const entries = fs.readdirSync( dir, { withFileTypes: true } );
+		for ( const kindEntry of fs.readdirSync( dir, { withFileTypes: true } ) ) {
 
-		for ( const entry of entries ) {
+			if ( ! kindEntry.isDirectory() ) continue;
+			if ( kindEntry.name.startsWith( '_' ) ) continue;
 
-			if ( ! entry.isDirectory() ) continue;
-			if ( entry.name.startsWith( '_' ) ) continue;
+			const kindDir = path.join( dir, kindEntry.name );
 
-			const file = path.join( dir, entry.name, 'index.ts' );
+			for ( const nameEntry of fs.readdirSync( kindDir, { withFileTypes: true } ) ) {
 
-			if ( fs.existsSync( file ) ) map.set( entry.name, file );
+				if ( ! nameEntry.isDirectory() ) continue;
+				if ( nameEntry.name.startsWith( '_' ) ) continue;
+
+				const file = path.join( kindDir, nameEntry.name, 'index.ts' );
+
+				if ( fs.existsSync( file ) ) map.set( `${kindEntry.name}/${nameEntry.name}`, file );
+
+			}
 
 		}
 
@@ -106,8 +113,45 @@ const buildLayoutMap = ( dirs: string[] ): Map<string, string> => {
 
 };
 
+type LibraryRef = { kind: string; name: string };
+
+// コンポーネントの index.ts と同じディレクトリの player.ts が export する、props から使うライブラリを返す関数。
+// player.ts は Node（tsx）から直接読むので、ブラウザ向けのモジュールを import しない
+type CollectLibraryRefs = ( props: Record<string, unknown> ) => LibraryRef[];
+
+// シーンに置かれたコンポーネントそれぞれに player.ts で使うライブラリを聞き、'<種類>/<名前>' の集合にする
+const collectLibraryRefs = async ( usage: SceneUsage, componentMap: Map<string, string> ): Promise<Set<string>> => {
+
+	const refs = new Set<string>();
+
+	for ( const component of usage.components ) {
+
+		const componentFile = componentMap.get( component.name );
+
+		if ( ! componentFile ) continue;
+
+		const playerFile = path.join( path.dirname( componentFile ), 'player.ts' );
+
+		if ( ! fs.existsSync( playerFile ) ) continue;
+
+		const mod = await import( pathToFileURL( playerFile ).href ) as { collectLibraryRefs?: CollectLibraryRefs };
+
+		if ( ! mod.collectLibraryRefs ) continue;
+
+		for ( const ref of mod.collectLibraryRefs( component.props ) ) {
+
+			refs.add( `${ref.kind}/${ref.name}` );
+
+		}
+
+	}
+
+	return refs;
+
+};
+
 // シーンファイルの使用状況(usage)から、使用コンポーネントだけを静的importするレジストリモジュールのソースを組み立てる
-const generateRegistryCode = ( opts: PlayerRegistryOptions ): string => {
+const generateRegistryCode = async ( opts: PlayerRegistryOptions ): Promise<string> => {
 
 	const { usage, projectDir } = opts;
 
@@ -150,26 +194,26 @@ const generateRegistryCode = ( opts: PlayerRegistryOptions ): string => {
 
 	}
 
-	const layoutMap = buildLayoutMap( [
-		builtinLayoutsDir,
-		path.join( projectDir, 'Resources/Layouts' ),
+	const libraryMap = buildLibraryMap( [
+		builtinLibraryDir,
+		path.join( projectDir, 'Resources/Library' ),
 	] );
 
-	const layoutNames: string[] = [];
+	const libraryKeys: string[] = [];
 
-	for ( const name of usage.layoutNames ) {
+	for ( const key of await collectLibraryRefs( usage, componentMap ) ) {
 
-		const file = layoutMap.get( name );
+		const file = libraryMap.get( key );
 
 		if ( ! file ) {
 
-			throw new Error( `[PlayerRegistry] layout "${name}" (scene) not found in builtin/project Layouts` );
+			throw new Error( `[PlayerRegistry] library "${key}" (scene) not found in builtin/project Library` );
 
 		}
 
 		// 識別子は番号にする。ディレクトリ名には JS の識別子に使えない文字（`-` 等）が入りうるため
-		importLines.push( `import { layout as layout_${layoutNames.length} } from ${JSON.stringify( file )};` );
-		layoutNames.push( name );
+		importLines.push( `import library_${libraryKeys.length} from ${JSON.stringify( file )};` );
+		libraryKeys.push( key );
 
 	}
 
@@ -178,16 +222,18 @@ const generateRegistryCode = ( opts: PlayerRegistryOptions ): string => {
 	const bundledNames = manualBuiltins.concat( scannedNames );
 	const registerLines = bundledNames.map( name => `\tgroup.addComponent( '${name}', ${name} );` ).join( '\n' );
 
-	let layoutRegisterLines = '';
+	let libraryRegisterLines = '';
 
-	for ( let i = 0; i < layoutNames.length; i ++ ) {
+	for ( let i = 0; i < libraryKeys.length; i ++ ) {
 
-		layoutRegisterLines += `\tEngine.resources.addLayout( ${JSON.stringify( layoutNames[ i ] )}, layout_${i} );\n`;
+		const [ kind, name ] = libraryKeys[ i ].split( '/' );
+
+		libraryRegisterLines += `\tEngine.resources.addLibraryItem( ${JSON.stringify( kind )}, ${JSON.stringify( name )}, library_${i} );\n`;
 
 	}
 
 	console.log( `[PlayerRegistry] bundling components: ${bundledNames.join( ', ' )}` );
-	console.log( `[PlayerRegistry] bundling layouts: ${layoutNames.join( ', ' )}` );
+	console.log( `[PlayerRegistry] bundling library: ${libraryKeys.join( ', ' )}` );
 
 	const gltfWiring = usage.useGLTF ? `\tBLidge.gltfLoaderFactory = ( engine ) => new GLTFLoader( engine );\n\n` : '';
 	const sceneWiring = inlineBLidgeScene ? `\tBLidgeClient.sceneData = blidgeSceneData;\n\n` : '';
@@ -198,7 +244,7 @@ export const initResouces = () => {
 
 ${gltfWiring}${sceneWiring}\tconst group = Engine.resources.addComponentGroup( 'Player' );
 ${registerLines}
-${layoutRegisterLines}
+${libraryRegisterLines}
 \tregisterProjectTextures();
 
 };
@@ -229,7 +275,7 @@ export const PlayerRegistry = ( opts: PlayerRegistryOptions ): Plugin => ( {
 
 	},
 
-	load( id ) {
+	async load( id ) {
 
 		if ( id !== VIRTUAL_REGISTRY_ID ) return;
 

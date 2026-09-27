@@ -1,13 +1,11 @@
 import { cloneEntity, Component, ComponentParams, ComponentUpdateEvent, Entity, Serializable, SerializeFieldValue } from 'maxpower';
-import { ClonerLayoutParams, Engine } from 'orengine';
+import { Engine } from 'orengine';
 
 import { Animation, AnimationLinks } from '../Animation';
 
 import { ClonerSlot } from './ClonerSlot';
+import { CLONER_LAYOUT_KIND, ClonerLayout, ClonerLayoutParams, DEFAULT_CLONER_LAYOUT } from './layout';
 import { ClonerOrder, ClonerSettings, ClonerSlotSpec, computeSlots } from './slots';
-
-// layout を指定していない Cloner が使う並べ方。host/vite/sceneScan.ts の既定値と一致させる
-const DEFAULT_LAYOUT = 'Grid';
 
 // slots.ts の ClonerOrder と同じ並び
 const ORDER_LIST: ClonerOrder[] = [ 'layout', 'index', 'center', 'x', 'y', 'z', 'random' ];
@@ -117,7 +115,7 @@ export class Cloner extends Component {
 
 		super( params );
 
-		this.layoutName_ = DEFAULT_LAYOUT;
+		this.layoutName_ = DEFAULT_CLONER_LAYOUT;
 		this.paramValues_ = new Map();
 		this.paramKeys_ = [];
 		this.order_ = 'layout';
@@ -139,7 +137,7 @@ export class Cloner extends Component {
 		// deserialize は props のキー順に set し、未登録のフィールドは捨てる。
 		// layout を先に登録しておけば、読み込み時に layout が入った時点で params/* が登録済みになる
 		this.field( "layout", () => this.layoutName_, ( v: string ) => this.setLayout_( v ), {
-			format: { type: "select", list: () => Engine.resources.layoutNames }
+			format: { type: "select", list: () => Engine.resources.getLibraryItemNames( CLONER_LAYOUT_KIND ) }
 		} );
 
 		this.applyLayoutFields_();
@@ -251,7 +249,7 @@ export class Cloner extends Component {
 
 		}
 
-		const layout = Engine.resources.getLayout( this.layoutName_ );
+		const layout = Engine.resources.getLibraryItem<ClonerLayout>( CLONER_LAYOUT_KIND, this.layoutName_ );
 
 		if ( ! layout ) {
 
@@ -355,7 +353,7 @@ export class Cloner extends Component {
 	// 今の設定での持ち場。並べ方が見つからなければ null
 	private computeSpecs_(): ClonerSlotSpec[] | null {
 
-		const layout = Engine.resources.getLayout( this.layoutName_ );
+		const layout = Engine.resources.getLibraryItem<ClonerLayout>( CLONER_LAYOUT_KIND, this.layoutName_ );
 
 		if ( ! layout ) return null;
 
