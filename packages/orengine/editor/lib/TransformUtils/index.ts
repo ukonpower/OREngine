@@ -60,8 +60,8 @@ export function rotateVector( v: MTP.Vector, q: MTP.Quaternion ): MTP.Vector {
 
 }
 
-// orientation に応じた軸のワールド方向ベクトル（global=単位軸 / local=ターゲットのワールド回転を適用した軸）
-export function getAxisWorldDir( entity: MXP.Entity, axis: GizmoAxis, orientation: TransformOrientation ): MTP.Vector {
+// 軸のワールド方向。global は単位軸、local は basis（対象のワールド回転）で回した軸
+export function getAxisWorldDir( basis: MTP.Quaternion, axis: GizmoAxis, orientation: TransformOrientation ): MTP.Vector {
 
 	const unit = new MTP.Vector(
 		axis === 'x' ? 1 : 0,
@@ -71,7 +71,50 @@ export function getAxisWorldDir( entity: MXP.Entity, axis: GizmoAxis, orientatio
 
 	if ( orientation === 'global' ) return unit;
 
-	return rotateVector( unit, getWorldQuaternion( entity ) ).normalize();
+	return rotateVector( unit, basis ).normalize();
+
+}
+
+// 行列を位置・回転・スケールに分ける。MTP.Matrix.decompose はスケールを求めない（回転もスケール込みの列から作る）ので、
+// 列の長さをスケールとし、長さで割った純粋な回転から quaternion を作る。鏡映（行列式が負）は X のスケールの符号に寄せる
+export function decomposeMatrix( matrix: MTP.Matrix ): { position: MTP.Vector, quaternion: MTP.Quaternion, scale: MTP.Vector } {
+
+	const e = matrix.elm;
+
+	let sx = Math.hypot( e[ 0 ], e[ 1 ], e[ 2 ] );
+	const sy = Math.hypot( e[ 4 ], e[ 5 ], e[ 6 ] );
+	const sz = Math.hypot( e[ 8 ], e[ 9 ], e[ 10 ] );
+
+	// 列0 ・（列1 × 列2）
+	const det = e[ 0 ] * ( e[ 5 ] * e[ 10 ] - e[ 6 ] * e[ 9 ] )
+		+ e[ 1 ] * ( e[ 6 ] * e[ 8 ] - e[ 4 ] * e[ 10 ] )
+		+ e[ 2 ] * ( e[ 4 ] * e[ 9 ] - e[ 5 ] * e[ 8 ] );
+
+	if ( det < 0 ) sx = - sx;
+
+	const rotation = new MTP.Matrix();
+	const columnScales = [ sx, sy, sz ];
+
+	for ( let column = 0; column < 3; column ++ ) {
+
+		let s = columnScales[ column ];
+
+		// スケール 0 の列は向きが無いので、割らずにそのまま使う（回転はでたらめになるが、潰れていて見えない）
+		if ( s === 0 ) s = 1;
+
+		for ( let row = 0; row < 3; row ++ ) {
+
+			rotation.elm[ column * 4 + row ] = e[ column * 4 + row ] / s;
+
+		}
+
+	}
+
+	return {
+		position: new MTP.Vector( e[ 12 ], e[ 13 ], e[ 14 ] ),
+		quaternion: new MTP.Quaternion().setFromMatrix( rotation ),
+		scale: new MTP.Vector( sx, sy, sz ),
+	};
 
 }
 

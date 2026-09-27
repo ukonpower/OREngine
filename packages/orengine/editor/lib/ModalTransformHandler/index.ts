@@ -2,9 +2,9 @@ import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
 import { Engine } from '../../../core/Engine';
-import { SetFieldCommand } from '../Commands/SetFieldCommand';
 import { clientToNDC, ndcToClient } from '../PointerUtils';
-import { composeLocalQuat, getWorldQuaternion, intersectRayPlane, projectRayOnLine, quaternionFromAxisAngle, rotateVector } from '../TransformUtils';
+import { TransformTargets } from '../TransformTargets';
+import { getAxisWorldDir, intersectRayPlane, projectRayOnLine, quaternionFromAxisAngle } from '../TransformUtils';
 
 import type { EditorAPI } from '../EditorAPI';
 import type { GizmoAxis } from '../Gizmo';
@@ -27,9 +27,15 @@ type Constraint = {
 	plane: boolean;
 };
 
+// 変形する対象。entities は祖先が選ばれているものを除いた選択（Editor が渡す）、active はローカル軸の向きに使う
+export type ModalTransformSelection = {
+	entities: MXP.Entity[];
+	active: MXP.Entity | null;
+};
+
 type ModalSession = {
 	mode: ModalTransformMode;
-	entity: MXP.Entity;
+	targets: TransformTargets;
 	// 開始したビューポートの canvas。ポインタ座標の変換はモーダル中ずっとこの要素を基準にする
 	canvas: HTMLCanvasElement;
 	// 変形対象が視点カメラ自身か（シーンカメラで見ているときに無選択またはカメラ自身を選択しているとき）
@@ -39,11 +45,6 @@ type ModalSession = {
 	trackball: boolean;
 	trackballQuat: MTP.Quaternion;
 	trackballPointer: MTP.Vector;
-	startValue: { position: number[], euler: number[], scale: number[] };
-	startWorldPos: MTP.Vector;
-	startWorldQuat: MTP.Quaternion;
-	parentWorldInv: MTP.Matrix;
-	parentWorldQuatInv: MTP.Quaternion;
 	camForward: MTP.Vector;
 	camRight: MTP.Vector;
 	camUp: MTP.Vector;
@@ -71,13 +72,6 @@ const TRACKBALL_SPEED = 0.007;
 // カメラ自身を動かすときの基準距離の下限。ピント距離 0 での退化を防ぐ（EditorCamera の注視点解決と同じ値）
 const MIN_SELF_ANCHOR_DISTANCE = 0.1;
 
-// mode と Entity の Serializable field の対応（確定時に積む Command の path）
-const FIELD_NAME: Record<ModalTransformMode, 'position' | 'euler' | 'scale'> = {
-	translate: 'position',
-	rotate: 'euler',
-	scale: 'scale',
-};
-
 const AXES: readonly GizmoAxis[] = [ 'x', 'y', 'z' ];
 
 // G / R / S（修飾キー無し）の打鍵が表すモード。ほかのキーなら null。タイムラインのキーの G / R / S も同じ判定を使う
@@ -100,7 +94,7 @@ export class ModalTransformHandler {
 	private _engine: Engine;
 	private _getViewport: () => Viewport | null;
 	private _api: EditorAPI;
-	private _getSelectedEntity: () => MXP.Entity | null;
+	private _getSelection: () => ModalTransformSelection;
 	private _isPointerBusy: () => boolean;
 	private _onStatusChange: ( status: string | null ) => void;
 	private _pointerClient: MTP.Vector;
@@ -112,7 +106,7 @@ export class ModalTransformHandler {
 		// 変形を始めるビューポート（キーボード操作の対象）。無ければ開始しない
 		getViewport: () => Viewport | null,
 		api: EditorAPI,
-		getSelectedEntity: () => MXP.Entity | null,
+		getSelection: () => ModalTransformSelection,
 		isPointerBusy: () => boolean,
 		onStatusChange: ( status: string | null ) => void,
 	} ) {
@@ -120,7 +114,7 @@ export class ModalTransformHandler {
 		this._engine = param.engine;
 		this._getViewport = param.getViewport;
 		this._api = param.api;
-		this._getSelectedEntity = param.getSelectedEntity;
+		this._getSelection = param.getSelection;
 		this._isPointerBusy = param.isPointerBusy;
 		this._onStatusChange = param.onStatusChange;
 
@@ -165,7 +159,7 @@ export class ModalTransformHandler {
 		return {
 			// カメラ自身の変形では対象位置＝視点なので、前方に置いた基準点から軸を描く
 			origin: session.anchorWorldPos,
-			quat: local ? session.startWorldQuat : new MTP.Quaternion(),
+			quat: local ? session.targets.basis : new MTP.Quaternion(),
 			axes: constraint.plane
 				? AXES.filter( ( axis ) => axis !== constraint.axis )
 				: [ constraint.axis ],
@@ -283,22 +277,29 @@ export class ModalTransformHandler {
 
 		if ( ! cameraEntity ) return false;
 
-		const selected = this._getSelectedEntity();
+		const selection = this._getSelection();
+		const selectsCamera = selection.entities.length === 1 && selection.entities[ 0 ] === cameraEntity;
 
-		// シーンカメラで見ているとき（カメラビュー・プレビュー）も選択があればそれを動かし、無選択かカメラ自身を選択中のときだけ視点カメラを動かす。
+		// シーンカメラで見ているとき（カメラビュー・プレビュー）も選択があればそれを動かし、無選択かカメラ自身だけを選択中のときだけ視点カメラを動かす。
 		// view だけで判定すると、view が editor のままのプレビューでカメラ自身を選んだとき自位置基準の交差計算が退化する
-		const selfView = ! editorCamera.usingEditorCamera && ( ! selected || selected === cameraEntity );
+		const selfView = ! editorCamera.usingEditorCamera && ( selection.entities.length === 0 || selectsCamera );
 
 		// カメラ自身のスケールはビュー行列を歪ませるだけなので開始しない
 		if ( selfView && mode === 'scale' ) return false;
 
-		const entity = selfView ? cameraEntity : selected;
+		let targets: TransformTargets;
 
-		if ( ! entity ) return false;
+		if ( selfView ) {
 
-		// 以降は matrixWorld から開始位置・親の逆行列を読む。作った直後（Shift+D の複製など）でフレームの行列更新を
-		// まだ通っていないと単位行列のままなので、ローカル値から親ごと計算し直しておく
-		entity.updateMatrix( true );
+			targets = new TransformTargets( [ cameraEntity ], cameraEntity );
+
+		} else {
+
+			if ( selection.entities.length === 0 ) return false;
+
+			targets = new TransformTargets( selection.entities, selection.active );
+
+		}
 
 		const camera = cameraEntity.getComponentsByTag<MXP.Camera>( "camera" )[ 0 ];
 
@@ -312,14 +313,11 @@ export class ModalTransformHandler {
 		const camRight = new MTP.Vector( camElm[ 0 ], camElm[ 1 ], camElm[ 2 ] ).normalize();
 		const camUp = new MTP.Vector( camElm[ 4 ], camElm[ 5 ], camElm[ 6 ] ).normalize();
 
-		const worldElm = entity.matrixWorld.elm;
-		const startWorldPos = new MTP.Vector( worldElm[ 12 ], worldElm[ 13 ], worldElm[ 14 ] );
-
 		// カメラ自身の変形では自位置がレイの起点と一致して交差計算が退化するため、
 		// 基準点をピント距離ぶん前方へ置く（オービットの注視点と同じ規約。被写体がマウスに 1:1 で付いてくる）
 		const anchorWorldPos = selfView
-			? startWorldPos.clone().add( camForward.clone().multiply( Math.max( camera.dofParams.focusDistance, MIN_SELF_ANCHOR_DISTANCE ) ) )
-			: startWorldPos.clone();
+			? targets.pivot.clone().add( camForward.clone().multiply( Math.max( camera.dofParams.focusDistance, MIN_SELF_ANCHOR_DISTANCE ) ) )
+			: targets.pivot.clone();
 
 		const onMove = ( e: PointerEvent ) => {
 
@@ -362,7 +360,7 @@ export class ModalTransformHandler {
 
 		this._session = {
 			mode,
-			entity,
+			targets,
 			canvas: viewport.canvas,
 			selfView,
 			constraint: null,
@@ -370,15 +368,6 @@ export class ModalTransformHandler {
 			trackball: false,
 			trackballQuat: new MTP.Quaternion(),
 			trackballPointer: this._pointerClient.clone(),
-			startValue: {
-				position: entity.position.getElm( 'vec3' ) as number[],
-				euler: entity.euler.getElm( 'vec3' ) as number[],
-				scale: entity.scale.getElm( 'vec3' ) as number[],
-			},
-			startWorldPos,
-			startWorldQuat: getWorldQuaternion( entity ),
-			parentWorldInv: entity.parent ? entity.parent.matrixWorld.clone().inverse() : new MTP.Matrix(),
-			parentWorldQuatInv: entity.parent ? getWorldQuaternion( entity.parent ).inverse() : new MTP.Quaternion(),
 			camForward,
 			camRight,
 			camUp,
@@ -386,7 +375,7 @@ export class ModalTransformHandler {
 			anchorWorldPos,
 			projInv: camera.projectionMatrix.clone().inverse(),
 			viewInv: camera.viewMatrix.clone().inverse(),
-			centerClient: this._projectToClient( startWorldPos, camera, viewport.canvas ),
+			centerClient: this._projectToClient( targets.pivot, camera, viewport.canvas ),
 			startPointer: this._pointerClient.clone(),
 			lastPointer: this._pointerClient.clone(),
 			disposeSession: () => {
@@ -412,19 +401,20 @@ export class ModalTransformHandler {
 
 	}
 
-	// 変形を確定し、mode に対応する field だけ undo 可能なコマンドとして積む
+	// 変形を確定し、変わったフィールドを undo 1回ぶんのコマンドとして積む
 	private _confirm() {
 
 		const session = this._session;
 
 		if ( ! session ) return;
 
-		const fieldName = FIELD_NAME[ session.mode ];
-		const newValue = session.entity[ fieldName ].getElm( 'vec3' ) as number[];
+		const command = session.targets.buildCommand();
 
-		this._api.commandManager.execute(
-			new SetFieldCommand( session.entity, fieldName, session.startValue[ fieldName ], newValue )
-		);
+		if ( command ) {
+
+			this._api.commandManager.execute( command, { merge: false } );
+
+		}
 
 		session.disposeSession();
 
@@ -437,19 +427,9 @@ export class ModalTransformHandler {
 
 		if ( ! session ) return;
 
-		this._restoreStart( session );
-		session.entity.updateMatrix( true );
+		session.targets.restore();
 
 		session.disposeSession();
-
-	}
-
-	// 変形前の position / euler / scale に戻す（行列更新は呼び出し側で行う）
-	private _restoreStart( session: ModalSession ) {
-
-		session.entity.position.setFromArray( session.startValue.position );
-		session.entity.euler.setFromArray( session.startValue.euler );
-		session.entity.scale.setFromArray( session.startValue.scale );
 
 	}
 
@@ -491,15 +471,7 @@ export class ModalTransformHandler {
 	// 拘束軸のワールド方向。local は開始時のワールド回転を使う（回転中に軸が自分の結果で回るのを防ぐ）
 	private _axisWorldDir( session: ModalSession, axis: GizmoAxis, orientation: TransformOrientation ): MTP.Vector {
 
-		const unit = new MTP.Vector(
-			axis === 'x' ? 1 : 0,
-			axis === 'y' ? 1 : 0,
-			axis === 'z' ? 1 : 0,
-		);
-
-		if ( orientation === 'global' ) return unit;
-
-		return rotateVector( unit, session.startWorldQuat ).normalize();
+		return getAxisWorldDir( session.targets.basis, axis, orientation );
 
 	}
 
@@ -559,7 +531,7 @@ export class ModalTransformHandler {
 		if ( numeric !== null && Number.isNaN( numeric ) ) {
 
 			// "-" や "." だけの途中状態。数値が揃うまで開始値のまま待つ
-			this._restoreStart( session );
+			session.targets.restore();
 
 		} else if ( session.mode === 'translate' ) {
 
@@ -575,8 +547,6 @@ export class ModalTransformHandler {
 
 		}
 
-		session.entity.updateMatrix( true );
-
 		this._onStatusChange( this._statusText( session, amount ) );
 
 	}
@@ -589,7 +559,7 @@ export class ModalTransformHandler {
 
 			const dir = this._numericTranslateDir( session );
 
-			this._setWorldPosition( session, session.startWorldPos.clone().add( dir.multiply( numeric ) ) );
+			session.targets.translate( dir.multiply( numeric ) );
 
 			return numeric;
 
@@ -604,7 +574,7 @@ export class ModalTransformHandler {
 			const amount = projectRayOnLine( currentRay, session.anchorWorldPos, axisDir )
 				- projectRayOnLine( startRay, session.anchorWorldPos, axisDir );
 
-			this._setWorldPosition( session, session.startWorldPos.clone().add( axisDir.clone().multiply( amount ) ) );
+			session.targets.translate( axisDir.clone().multiply( amount ) );
 
 			return amount;
 
@@ -622,7 +592,7 @@ export class ModalTransformHandler {
 
 		const delta = hitCurrent.sub( hitStart );
 
-		this._setWorldPosition( session, session.startWorldPos.clone().add( delta ) );
+		session.targets.translate( delta );
 
 		return delta.length();
 
@@ -649,7 +619,7 @@ export class ModalTransformHandler {
 
 			this._accumulateTrackball( session );
 
-			this._setWorldRotation( session, session.trackballQuat.clone() );
+			session.targets.rotate( session.trackballQuat.clone() );
 
 			return 0;
 
@@ -664,14 +634,14 @@ export class ModalTransformHandler {
 		// カメラ自身の回転では位置差が 0 に潰れるため、視線の逆向きを「カメラへ向かう方向」として使う
 		const toCamera = session.selfView
 			? session.camForward.clone().multiply( - 1 )
-			: session.camWorldPos.clone().sub( session.startWorldPos );
+			: session.camWorldPos.clone().sub( session.targets.pivot );
 		const sign = numeric !== null && session.constraint ? 1 : ( axis.dot( toCamera ) < 0 ? - 1 : 1 );
 
 		const angle = numeric !== null
 			? numeric * Math.PI / 180
 			: this._screenAngle( session.lastPointer, session.centerClient ) - this._screenAngle( session.startPointer, session.centerClient );
 
-		this._setWorldRotation( session, quaternionFromAxisAngle( axis, angle * sign ) );
+		session.targets.rotate( quaternionFromAxisAngle( axis, angle * sign ) );
 
 		return angle * 180 / Math.PI;
 
@@ -693,7 +663,6 @@ export class ModalTransformHandler {
 
 		}
 
-		const start = session.startValue.scale;
 		const constraint = session.constraint;
 
 		// 回転済みオブジェクトのグローバル軸スケールはシアーになるので、軸拘束は常にローカル成分に掛ける
@@ -707,31 +676,9 @@ export class ModalTransformHandler {
 
 		} );
 
-		session.entity.scale.set(
-			start[ 0 ] * factor[ 0 ],
-			start[ 1 ] * factor[ 1 ],
-			start[ 2 ] * factor[ 2 ],
-		);
+		session.targets.scale( factor );
 
 		return ratio;
-
-	}
-
-	// ワールド位置を親ローカルへ落として position に書く
-	private _setWorldPosition( session: ModalSession, worldPos: MTP.Vector ) {
-
-		const local = worldPos.applyMatrix4AsPosition( session.parentWorldInv );
-
-		session.entity.position.set( local.x, local.y, local.z );
-
-	}
-
-	// ワールド空間の回転増分を親ローカルへ落として quaternion に書く（euler は Entity 側が再生成する）
-	private _setWorldRotation( session: ModalSession, deltaQ: MTP.Quaternion ) {
-
-		session.entity.quaternion.copy(
-			composeLocalQuat( session.parentWorldQuatInv, deltaQ, session.startWorldQuat )
-		);
 
 	}
 

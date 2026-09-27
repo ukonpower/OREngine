@@ -1,8 +1,8 @@
 import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
-import { Gizmo, GizmoAxis, GizmoDragResult, GizmoHandle, GizmoPlane } from '..';
-import { getWorldQuaternion, quaternionFromTo, rotateVector, TransformOrientation } from '../../TransformUtils';
+import { Gizmo, GizmoAxis, GizmoDragResult, GizmoHandle, GizmoPlane, GizmoTarget } from '..';
+import { getAxisWorldDir, quaternionFromTo, rotateVector, TransformOrientation } from '../../TransformUtils';
 
 export const AXIS_COLORS: Record<GizmoAxis, number[]> = {
 	x: [ 1.0, 0.2, 0.2 ],
@@ -42,6 +42,8 @@ export abstract class GizmoBase implements Gizmo {
 	protected _engine: MXP.EngineContract;
 	protected _draw: MXP.EditorDrawContract;
 	protected _orientation: TransformOrientation;
+	// ローカル軸の向き（setTarget の quaternion）
+	protected _targetQuat: MTP.Quaternion;
 	protected _camWorldPos: MTP.Vector;
 	private _records: HandleRecord[];
 	private _hoverHandle: GizmoHandle | null;
@@ -57,6 +59,7 @@ export abstract class GizmoBase implements Gizmo {
 		this.entity.visible = false;
 
 		this._orientation = 'global';
+		this._targetQuat = new MTP.Quaternion();
 		this._camWorldPos = new MTP.Vector();
 		this._records = [];
 		this._hoverHandle = null;
@@ -220,11 +223,11 @@ export abstract class GizmoBase implements Gizmo {
 		Target
 	-------------------------------*/
 
-	public setTarget( entity: MXP.Entity | null, cameraEntity: MXP.Entity | null, orientation: TransformOrientation ): void {
+	public setTarget( target: GizmoTarget | null, cameraEntity: MXP.Entity | null, orientation: TransformOrientation ): void {
 
 		this._orientation = orientation;
 
-		if ( ! entity ) {
+		if ( ! target ) {
 
 			this.entity.visible = false;
 
@@ -232,13 +235,11 @@ export abstract class GizmoBase implements Gizmo {
 
 		}
 
+		this._targetQuat.copy( target.quaternion );
+
 		this.entity.visible = true;
-		this.entity.quaternion.copy( this._rootQuaternion( entity, orientation ) );
-		this.entity.position.set(
-			entity.matrixWorld.elm[ 12 ],
-			entity.matrixWorld.elm[ 13 ],
-			entity.matrixWorld.elm[ 14 ]
-		);
+		this.entity.quaternion.copy( this._rootQuaternion( orientation ) );
+		this.entity.position.copy( target.position );
 
 		if ( cameraEntity ) {
 
@@ -273,11 +274,18 @@ export abstract class GizmoBase implements Gizmo {
 	}
 
 	// ルートの向き。global=無回転 / local=ターゲットのワールド回転（子のハンドルがまとめて向く）
-	protected _rootQuaternion( entity: MXP.Entity, orientation: TransformOrientation ): MTP.Quaternion {
+	protected _rootQuaternion( orientation: TransformOrientation ): MTP.Quaternion {
 
-		if ( orientation === 'local' ) return getWorldQuaternion( entity );
+		if ( orientation === 'local' ) return this._targetQuat.clone();
 
 		return new MTP.Quaternion();
+
+	}
+
+	// orientation に応じた軸のワールド方向（local はターゲットの向きで回した軸）
+	protected _axisWorldDir( axis: GizmoAxis, orientation: TransformOrientation ): MTP.Vector {
+
+		return getAxisWorldDir( this._targetQuat, axis, orientation );
 
 	}
 
@@ -316,14 +324,14 @@ export abstract class GizmoBase implements Gizmo {
 
 	}
 
-	public startDrag( handle: GizmoHandle, ray: MXP.Ray, targetEntity: MXP.Entity ): void {
+	public startDrag( handle: GizmoHandle, ray: MXP.Ray ): void {
 
 		this._activeHandle = handle;
 		this._dragging = true;
 
 		this._updateColors();
 
-		this._onStartDrag( handle, ray, targetEntity );
+		this._onStartDrag( handle, ray );
 
 	}
 
@@ -336,8 +344,8 @@ export abstract class GizmoBase implements Gizmo {
 
 	}
 
-	protected abstract _onStartDrag( handle: GizmoHandle, ray: MXP.Ray, targetEntity: MXP.Entity ): void;
+	protected abstract _onStartDrag( handle: GizmoHandle, ray: MXP.Ray ): void;
 
-	public abstract updateDrag( ray: MXP.Ray, targetEntity: MXP.Entity ): GizmoDragResult | null;
+	public abstract updateDrag( ray: MXP.Ray ): GizmoDragResult | null;
 
 }

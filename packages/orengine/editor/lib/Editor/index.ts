@@ -8,15 +8,17 @@ import { AssetPreviewManager } from '../AssetPreviewManager';
 import { preventBrowserContextMenu } from '../BrowserContextMenu';
 import { ConstraintAxisRenderer } from '../ConstraintAxisRenderer';
 import { EditorAPI } from '../EditorAPI';
-import { GizmoMode } from '../Gizmo';
+import { GizmoMode, GizmoTarget } from '../Gizmo';
 import { GizmoManager } from '../GizmoManager';
 import { GridRenderer } from '../GridRenderer';
 import { HelperManager, HelperVisibility } from '../HelperManager';
 import { KeyboardHandler } from '../KeyboardHandler';
-import { CurveLinkSettings, CurvePasteMode, KeyFrameElementRef, KeyFrameFieldRef, keyFrameTime } from '../KeyFrameField';
-import { ModalTransformHandler, transformModeOfKey, type ModalTransformMode } from '../ModalTransformHandler';
+import { CurveLinkSettings, CurvePasteMode, getAnimatedTransformFields, KeyFrameElementRef, KeyFrameFieldRef, keyFrameTime } from '../KeyFrameField';
+import { ModalTransformHandler, transformModeOfKey, type ModalTransformMode, type ModalTransformSelection } from '../ModalTransformHandler';
+import { RelationshipLineRenderer } from '../RelationshipLineRenderer';
 import { SceneExporter, SceneExporterProgress } from '../SceneExporter';
 import { SelectionOutline } from '../SelectionOutline';
+import { topmostEntities, transformBasis, transformPivot } from '../TransformTargets';
 import { Viewport } from '../Viewport';
 import { WireframeRenderer } from '../WireframeRenderer';
 
@@ -70,6 +72,8 @@ type ViewportHelpers = HelperVisibility & {
 	wireframe: boolean;
 	gizmo: boolean;
 	outline: boolean;
+	// 親子の点線（Blender の Relationship Lines）
+	relationships: boolean;
 };
 
 // ビューポートごとに保存する設定。ビューポートはパネルの表示中しか存在しないので、
@@ -95,6 +99,7 @@ const DEFAULT_VIEWPORT_HELPERS: ViewportHelpers = {
 	wireframe: false,
 	gizmo: true,
 	outline: true,
+	relationships: true,
 };
 
 // viewports/<id>/ 以下の値フィールド。破棄と React への再読込通知で同じ一覧を使う
@@ -117,7 +122,10 @@ type ExternalWindow = {
 export class Editor extends MXP.Serializable {
 
 	private _engine: Engine;
+	// アクティブ（最後に選んだもの）。Property パネル・キーの挿入・フォーカス等、1つだけを相手にする操作の対象。選んでいれば必ず _selectedEntityIds に入っている
 	private _selectedEntityId: string | null;
+	// 選んでいるものすべて（選んだ順）。削除・複製・変形・親の付け替えの対象
+	private _selectedEntityIds: string[];
 	private _unselectableEntityIds: Set<string>;
 	private _selectedAsset: SelectedAssetInfo;
 	private _navigateAsset: NavigateAssetRequest;
@@ -153,6 +161,7 @@ export class Editor extends MXP.Serializable {
 	private _gridRenderer: GridRenderer;
 	private _constraintAxisRenderer: ConstraintAxisRenderer;
 	private _wireframeRenderer: WireframeRenderer;
+	private _relationshipLineRenderer: RelationshipLineRenderer;
 	private _selectionOutline: SelectionOutline;
 	private _keyboardHandler: KeyboardHandler;
 	private _disposeBrowserContextMenu: () => void;
@@ -169,6 +178,7 @@ export class Editor extends MXP.Serializable {
 		this._engine = engine;
 		this._viewType = "render";
 		this._selectedEntityId = null;
+		this._selectedEntityIds = [];
 		this._unselectableEntityIds = new Set();
 		this._selectedAsset = null;
 		this._navigateAsset = null;
@@ -202,15 +212,14 @@ export class Editor extends MXP.Serializable {
 		this._gridRenderer = new GridRenderer( engine, this._draw );
 		this._constraintAxisRenderer = new ConstraintAxisRenderer( engine, this._draw );
 		this._wireframeRenderer = new WireframeRenderer( this._draw );
+		this._relationshipLineRenderer = new RelationshipLineRenderer( engine, this._draw );
 		this._selectionOutline = new SelectionOutline( this._draw );
 
 		this._modalTransformHandler = new ModalTransformHandler( {
 			engine,
 			getViewport: () => this._activeViewport,
 			api: this._api,
-			getSelectedEntity: () => this._selectedEntityId
-				? engine.root.findEntityByUUID( this._selectedEntityId ) ?? null
-				: null,
+			getSelection: () => this._getTransformSelection(),
 			isPointerBusy: () => this._viewports.some( ( v ) => v.gizmoDragging ),
 			onStatusChange: ( status ) => this.setModalStatus( status ),
 		} );
@@ -307,10 +316,16 @@ export class Editor extends MXP.Serializable {
 
 				}
 
-				this.duplicateSelected();
+				if ( this.duplicateSelected() ) {
+
+					this._modalTransformHandler.start( "translate" );
+
+				}
 
 			},
 			onRenameSelected: () => this.requestRenameSelected(),
+			onParentToActive: () => this.parentSelectedToActive(),
+			onClearParent: () => this.clearParentOfSelected(),
 			onStepFrame: ( step ) => this.stepFrame( step ),
 			onSeekToStart: () => this.seekToStart(),
 			onTransformKey: ( e ) => this._onModalKey( e ),
@@ -347,18 +362,14 @@ export class Editor extends MXP.Serializable {
 		-------------------------------*/
 
 		// 別シーンへ切り替わったら選択を外す。起動時は editor.json の選択を復元したいので、
-		// 新しいシーンに同じ uuid が居る間は残す
+		// 新しいシーンに同じ uuid が居るものは残す
 		this._engine.on( "loaded", () => {
 
-			if ( ! this._selectedEntityId ) return;
+			const entities = this.selectedEntities;
 
-			const entity = this._engine.root.findEntityByUUID( this._selectedEntityId );
+			if ( entities.length === this._selectedEntityIds.length ) return;
 
-			if ( ! entity ) {
-
-				this.selectEntity( null );
-
-			}
+			this.setSelection( entities, this.activeEntity );
 
 		} );
 
@@ -382,19 +393,33 @@ export class Editor extends MXP.Serializable {
 
 		} );
 
-		// Blender のアクティブオブジェクトを選択する。BLidge 由来のエンティティの uuid はノード名から決まる（BLidgeClient）ので名前で引く。
-		// エディタは複数選択に対応していないので active だけを見る。見つからなければエディタの選択はそのままにする
+		// Blender の選択とアクティブオブジェクトを写す。BLidge 由来のエンティティの uuid はノード名から決まる（BLidgeClient）ので名前で引く。
+		// アクティブが見つからなければエディタの選択はそのままにする
 		this._engine.on( "update/blidge/selection", ( selection: MXP.BLidgeSelection ) => {
 
 			if ( ! selection.active ) return;
 
-			const entity = this._engine.root.findEntityByUUID( "blidge:" + selection.active.name );
+			const active = this._engine.root.findEntityByUUID( "blidge:" + selection.active.name );
 
-			if ( entity ) {
+			if ( ! active ) return;
 
-				this.selectEntity( entity );
+			const entities: MXP.Entity[] = [];
+
+			for ( const item of selection.selected ) {
+
+				const entity = this._engine.root.findEntityByUUID( "blidge:" + item.name );
+
+				if ( entity && entity !== active ) {
+
+					entities.push( entity );
+
+				}
 
 			}
+
+			entities.push( active );
+
+			this.setSelection( entities, active );
 
 		} );
 
@@ -435,9 +460,17 @@ export class Editor extends MXP.Serializable {
 		frameLoop.field( "start", () => this._frameLoop.start, v => this._frameLoop.start = v );
 		frameLoop.field( "end", () => this._frameLoop.end, v => this._frameLoop.end = v );
 
-		this.field( "selectedEntityId", () => this._selectedEntityId, v => {
+		// アクティブ。選択に入っていないものを入れたら、選択もそれ1つにする（アクティブは必ず選択の中にある）
+		this.field( "selectedEntityId", () => this._selectedEntityId, ( v: string | null ) => {
 
 			this._selectedEntityId = v;
+
+			if ( v && ! this._selectedEntityIds.includes( v ) ) {
+
+				this._selectedEntityIds = [ v ];
+				this.noticeField( "selectedEntityIds" );
+
+			}
 
 			if ( v ) {
 
@@ -447,6 +480,20 @@ export class Editor extends MXP.Serializable {
 			}
 
 		} );
+
+		// 選択の集合。アクティブが入っていない集合を入れたら、アクティブを外す
+		this.field( "selectedEntityIds", () => this._selectedEntityIds, ( v: string[] ) => {
+
+			this._selectedEntityIds = v;
+
+			if ( this._selectedEntityId && ! v.includes( this._selectedEntityId ) ) {
+
+				this._selectedEntityId = null;
+				this.noticeField( "selectedEntityId" );
+
+			}
+
+		}, { hidden: true } );
 
 		// Blenderの選択無効トグルに相当。ここに入っているエンティティはビューポートのクリックで拾わない（Hierarchyからは選択できる）
 		this.field( "unselectableEntityIds", () => Array.from( this._unselectableEntityIds ), ( v: string[] ) => {
@@ -610,11 +657,12 @@ export class Editor extends MXP.Serializable {
 			gizmoManager: this._gizmoManager,
 			helperManager: this._helperManager,
 			api: this._api,
-			getSelectedEntityId: () => this._selectedEntityId,
+			getTransformSelection: () => this._getTransformSelection(),
 			isEntitySelectable: ( entity ) => ! this._unselectableEntityIds.has( entity.uuid ),
 			isGizmoVisible: () => settings.helpers.gizmo,
 			getHelperVisibility: () => settings.helpers,
 			onSelectEntity: ( entity ) => this.selectEntity( entity ),
+			onToggleEntity: ( entity ) => this.toggleEntitySelection( entity ),
 			isModalActive: () => this._modalTransformHandler.active,
 			onEscapeToEditorCamera: () => this._escapeToEditorCamera( viewport ),
 			onActivate: () => {
@@ -863,11 +911,11 @@ export class Editor extends MXP.Serializable {
 
 			this._engine.update();
 
-			this._helperManager.sync( this._engine, this._selectedEntityId );
+			this._helperManager.sync( this._engine, new Set( this._selectedEntityIds ), this._selectedEntityId );
 
-			const selectedEntity = this._selectedEntityId
-				? this._engine.root.findEntityByUUID( this._selectedEntityId ) ?? null
-				: null;
+			const selectedEntities = this.selectedEntities;
+			const activeEntity = this.activeEntity;
+			const gizmoTarget = this._getGizmoTarget();
 
 			for ( const viewport of this._viewports ) {
 
@@ -877,7 +925,7 @@ export class Editor extends MXP.Serializable {
 
 				}
 
-				this._renderOverlay( viewport, selectedEntity );
+				this._renderOverlay( viewport, selectedEntities, activeEntity, gizmoTarget );
 
 				this._draw.drawToCanvas( viewport.view, viewport.canvas );
 
@@ -927,7 +975,7 @@ export class Editor extends MXP.Serializable {
 	}
 
 	// シーン描画の上にビューポートの編集用オーバーレイ（グリッド・ヘルパー・ギズモ・アウトライン）を重ねる
-	private _renderOverlay( viewport: Viewport, selectedEntity: MXP.Entity | null ) {
+	private _renderOverlay( viewport: Viewport, selectedEntities: MXP.Entity[], activeEntity: MXP.Entity | null, gizmoTarget: GizmoTarget | null ) {
 
 		const cameraEntity = viewport.editorCamera.getCameraEntity( this._engine );
 		const preview = viewport.editorCamera.preview;
@@ -945,6 +993,12 @@ export class Editor extends MXP.Serializable {
 
 			this._helperManager.render( view, cameraEntity, helpers );
 
+			if ( helpers.relationships ) {
+
+				this._relationshipLineRenderer.render( view, cameraEntity, this._engine );
+
+			}
+
 			if ( helpers.wireframe ) {
 
 				this._wireframeRenderer.render( view, cameraEntity, this._engine );
@@ -959,7 +1013,7 @@ export class Editor extends MXP.Serializable {
 
 		this._gizmoManager.render(
 			view,
-			hideGizmo ? null : selectedEntity,
+			hideGizmo ? null : gizmoTarget,
 			cameraEntity,
 			this._engine
 		);
@@ -969,7 +1023,7 @@ export class Editor extends MXP.Serializable {
 
 		if ( ! preview && helpers.outline ) {
 
-			this._selectionOutline.render( view, selectedEntity, cameraEntity );
+			this._selectionOutline.render( view, selectedEntities, activeEntity, cameraEntity );
 
 		}
 
@@ -1049,9 +1103,138 @@ export class Editor extends MXP.Serializable {
 		Controls
 	-------------------------------*/
 
+	// 選択をそれ1つにしてアクティブにする。null で選択をすべて外す
 	public selectEntity( entity: MXP.Entity | null ) {
 
-		this.setField( "selectedEntityId", entity ? entity.uuid : null );
+		if ( entity ) {
+
+			this.setSelection( [ entity ], entity );
+
+		} else {
+
+			this.setSelection( [], null );
+
+		}
+
+	}
+
+	// 選択の集合とアクティブをまとめて差し替える。active は entities に入っているものか null
+	public setSelection( entities: MXP.Entity[], active: MXP.Entity | null ) {
+
+		const ids: string[] = [];
+
+		for ( const entity of entities ) {
+
+			if ( ! ids.includes( entity.uuid ) ) {
+
+				ids.push( entity.uuid );
+
+			}
+
+		}
+
+		let activeId: string | null = null;
+
+		if ( active ) {
+
+			activeId = active.uuid;
+
+		}
+
+		// 集合を先に入れる。アクティブを先に入れると、集合に無いアクティブで集合がそれ1つに作り直されてしまう
+		this.setField( "selectedEntityIds", ids );
+		this.setField( "selectedEntityId", activeId );
+
+	}
+
+	// Shift+クリック（Hierarchy は Ctrl+クリック）。選んでいなければ足してアクティブに、選んでいてアクティブでなければアクティブに、
+	// アクティブなら外す（Blender の 3D ビューと同じ。選んだ中からアクティブを選び直せるように、1回目では外さない）
+	public toggleEntitySelection( entity: MXP.Entity ) {
+
+		const entities = this.selectedEntities;
+
+		if ( ! entities.includes( entity ) ) {
+
+			entities.push( entity );
+
+			this.setSelection( entities, entity );
+
+			return;
+
+		}
+
+		if ( this._selectedEntityId !== entity.uuid ) {
+
+			this.setSelection( entities, entity );
+
+			return;
+
+		}
+
+		const rest: MXP.Entity[] = [];
+
+		for ( const selected of entities ) {
+
+			if ( selected !== entity ) {
+
+				rest.push( selected );
+
+			}
+
+		}
+
+		this.setSelection( rest, null );
+
+	}
+
+	// 選んでいるエンティティ（選んだ順）。シーンに居ないものは除く
+	public get selectedEntities(): MXP.Entity[] {
+
+		const entities: MXP.Entity[] = [];
+
+		for ( const id of this._selectedEntityIds ) {
+
+			const entity = this._engine.root.findEntityByUUID( id );
+
+			if ( entity ) {
+
+				entities.push( entity );
+
+			}
+
+		}
+
+		return entities;
+
+	}
+
+	// アクティブのエンティティ。無ければ null
+	public get activeEntity(): MXP.Entity | null {
+
+		if ( ! this._selectedEntityId ) return null;
+
+		return this._engine.root.findEntityByUUID( this._selectedEntityId ) ?? null;
+
+	}
+
+	// G / R / S・ギズモで動かす対象。祖先も選ばれているものは親と一緒に動くので外す
+	private _getTransformSelection(): ModalTransformSelection {
+
+		return { entities: topmostEntities( this.selectedEntities ), active: this.activeEntity };
+
+	}
+
+	// ギズモを置く場所。動かす対象の中心に、アクティブの向きで置く
+	private _getGizmoTarget(): GizmoTarget | null {
+
+		const selection = this._getTransformSelection();
+
+		if ( selection.entities.length === 0 ) return null;
+
+		return {
+			position: transformPivot( selection.entities ),
+			quaternion: transformBasis( selection.entities, selection.active ),
+		};
 
 	}
 
@@ -1108,16 +1291,14 @@ export class Editor extends MXP.Serializable {
 
 	}
 
-	// 選択中のエンティティが画面に収まる位置までアクティブなビューポートのエディタカメラを寄せる
+	// アクティブのエンティティが画面に収まる位置までアクティブなビューポートのエディタカメラを寄せる
 	public focusSelected() {
 
 		const viewport = this._activeViewport;
 
 		if ( ! viewport || viewport.editorCamera.preview ) return;
 
-		const entity = this._selectedEntityId
-			? this._engine.root.findEntityByUUID( this._selectedEntityId ) ?? null
-			: null;
+		const entity = this.activeEntity;
 
 		if ( ! entity ) return;
 
@@ -1155,57 +1336,180 @@ export class Editor extends MXP.Serializable {
 
 	}
 
-	// 選択中のエンティティのうち、GUI で削除・複製・改名してよいものを返す。
-	// Hierarchy が編集を塞いでいる script 由来と、ルート等のエディタ管理（god）は対象外
-	private _getEditableSelectedEntity(): MXP.Entity | null {
+	// GUI で削除・複製・改名してよいか。Hierarchy が編集を塞いでいる script 由来と、ルート等のエディタ管理（god）は対象外
+	private _isEditableEntity( entity: MXP.Entity ) {
 
-		if ( ! this._selectedEntityId ) return null;
-
-		const entity = this._engine.root.findEntityByUUID( this._selectedEntityId );
-
-		if ( ! entity || entity.initiator !== "user" || ! entity.parent ) return null;
-
-		return entity;
+		return entity.initiator === "user" && entity.parent !== null;
 
 	}
 
-	// 選択中のエンティティを確認なしで削除する（Blender の X / Delete）。undo で戻せるので確認は挟まない
+	// 選んでいるもののうち、削除・複製してよいもの。祖先も選ばれているものは親と一緒に扱われるので外す
+	private _getEditableSelectedEntities(): MXP.Entity[] {
+
+		const entities: MXP.Entity[] = [];
+
+		for ( const entity of topmostEntities( this.selectedEntities ) ) {
+
+			if ( this._isEditableEntity( entity ) ) {
+
+				entities.push( entity );
+
+			}
+
+		}
+
+		return entities;
+
+	}
+
+	// 選んでいるエンティティを確認なしで削除する（Blender の X / Delete）。undo で戻せるので確認は挟まない
 	public deleteSelected() {
 
-		const entity = this._getEditableSelectedEntity();
+		const entities = this._getEditableSelectedEntities();
 
-		if ( ! entity ) return;
+		if ( entities.length === 0 ) return;
 
-		this._api.deleteEntity( entity );
+		this._api.deleteEntities( entities );
 
 		// 消えたエンティティを選択したままだと Property パネルやギズモが宙に浮いた対象を指し続ける
 		this.selectEntity( null );
 
 	}
 
-	// 選択中のエンティティを子ごと複製して選択し、そのまま移動のモーダル変形に入る（Blender の Shift+D）
-	public duplicateSelected() {
+	// 選んでいるエンティティを子ごと複製し、複製を選ぶ（アクティブの複製をアクティブに）。複製したら true。
+	// Shift+D はこの後に移動のモーダル変形に入る
+	public duplicateSelected(): boolean {
 
-		const entity = this._getEditableSelectedEntity();
+		const entities = this._getEditableSelectedEntities();
 
-		if ( ! entity ) return;
+		if ( entities.length === 0 ) return false;
 
-		const duplicated = this._api.duplicateEntity( entity );
+		const active = this.activeEntity;
+		const duplicated = this._api.duplicateEntities( entities );
 
-		this.selectEntity( duplicated );
+		let duplicatedActive = duplicated[ duplicated.length - 1 ];
 
-		this._modalTransformHandler.start( "translate" );
+		if ( active && entities.includes( active ) ) {
+
+			duplicatedActive = duplicated[ entities.indexOf( active ) ];
+
+		}
+
+		this.setSelection( duplicated, duplicatedActive );
+
+		return true;
 
 	}
 
-	// 選択中のエンティティの名前入力を Hierarchy に開かせる（Blender の F2）。入力 UI は React 側にあるので要求を投げるだけにする
+	// アクティブのエンティティの名前入力を Hierarchy に開かせる（Blender の F2）。入力 UI は React 側にあるので要求を投げるだけにする
 	public requestRenameSelected() {
 
-		const entity = this._getEditableSelectedEntity();
+		const entity = this.activeEntity;
 
-		if ( ! entity ) return;
+		if ( ! entity || ! this._isEditableEntity( entity ) ) return;
 
 		this.emit( "request/renameEntity", [ entity ] );
+
+	}
+
+	/*-------------------------------
+		Parent
+	-------------------------------*/
+
+	// entities を parent の子へ移す（ワールド座標は保つ）。祖先も entities に入っているものは親と一緒に移るので外す。
+	// 移せなければ理由を、キーが打たれた位置・回転・スケールがあれば時刻が変わると戻ることを、ポインタの位置の小窓（message）で知らせる。移したら true
+	public reparentEntities( entities: MXP.Entity[], parent: MXP.Entity ): boolean {
+
+		const targets = topmostEntities( entities );
+
+		try {
+
+			this._api.reparentEntities( targets, parent );
+
+		} catch ( e ) {
+
+			this.emit( "message", [ ( e as Error ).message ] );
+
+			return false;
+
+		}
+
+		const animated: string[] = [];
+
+		for ( const entity of targets ) {
+
+			const fields = getAnimatedTransformFields( entity );
+
+			if ( fields.length > 0 ) {
+
+				animated.push( `${entity.name}（${fields.join( " / " )}）` );
+
+			}
+
+		}
+
+		if ( animated.length > 0 ) {
+
+			this.emit( "message", [ `キーが打たれているので、時刻が変わるとキーの値に戻ります: ${animated.join( "、" )}` ] );
+
+		}
+
+		return true;
+
+	}
+
+	// reparentEntities で移せないときの理由。移せるなら null（Hierarchy のドラッグ中に、落とせる行かを見るのに使う）
+	public getReparentError( entities: MXP.Entity[], parent: MXP.Entity ): string | null {
+
+		return this._api.getReparentError( topmostEntities( entities ), parent );
+
+	}
+
+	// 選んでいるものを、アクティブの子にする（Blender の Ctrl+P）
+	public parentSelectedToActive() {
+
+		const active = this.activeEntity;
+
+		if ( ! active ) {
+
+			this.emit( "message", [ "親にするエンティティを最後に選んでください（アクティブが親になります）" ] );
+
+			return;
+
+		}
+
+		const others: MXP.Entity[] = [];
+
+		for ( const entity of this.selectedEntities ) {
+
+			if ( entity !== active ) {
+
+				others.push( entity );
+
+			}
+
+		}
+
+		if ( others.length === 0 ) {
+
+			this.emit( "message", [ "子にするエンティティを選んでから、親にするエンティティを最後に選んでください" ] );
+
+			return;
+
+		}
+
+		this.reparentEntities( others, active );
+
+	}
+
+	// 選んでいるものを親から外して root の直下へ移す（Blender の Alt+P の Clear and Keep Transformation）
+	public clearParentOfSelected() {
+
+		const entities = this.selectedEntities;
+
+		if ( entities.length === 0 ) return;
+
+		this.reparentEntities( entities, this._engine.root );
 
 	}
 
@@ -1422,7 +1726,7 @@ export class Editor extends MXP.Serializable {
 
 	}
 
-	// I / Alt+I。プロパティパネルの行の上ならそのフィールドに、ビューポートの上なら選択中のエンティティの
+	// I / Alt+I。プロパティパネルの行の上ならそのフィールドに、ビューポートの上ならアクティブのエンティティの
 	// どのフィールドに打つかをメニューで選ばせる（Blender と同じ）。ビューポートの Alt+I は受けない
 	private _onKeyFrameShortcut( remove: boolean ) {
 
@@ -1448,9 +1752,9 @@ export class Editor extends MXP.Serializable {
 
 		const viewport = this._activeViewport;
 
-		if ( ! viewport || ! viewport.hovered || ! this._selectedEntityId ) return;
+		if ( ! viewport || ! viewport.hovered ) return;
 
-		const entity = this._engine.root.findEntityByUUID( this._selectedEntityId );
+		const entity = this.activeEntity;
 
 		if ( ! entity ) return;
 

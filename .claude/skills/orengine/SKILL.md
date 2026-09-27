@@ -91,6 +91,7 @@ npx tsx scripts/scene.ts set root/KeyLight position 3,3,3                 # エ�
 npx tsx scripts/scene.ts set root/KeyLight Light intensity 2              # コンポーネントのフィールドは <component> を挟む
 npx tsx scripts/scene.ts add-component root/Box MyBox                     # 名前は components の name
 npx tsx scripts/scene.ts remove-component root/Box MyBox
+npx tsx scripts/scene.ts reparent root/Box root/Group                    # 親を付け替える（ワールド座標を保つ。名前がぶつかれば Box.001）
 npx tsx scripts/scene.ts remove-entity root/Box
 npx tsx scripts/scene.ts undo                                             # / redo
 ```

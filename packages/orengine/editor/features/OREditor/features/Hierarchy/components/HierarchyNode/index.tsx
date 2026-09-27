@@ -1,4 +1,4 @@
-import { KeyboardEvent, MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { KeyboardEvent, MouseEvent, PointerEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import * as MXP from 'maxpower';
 import { ArrowIcon, CameraIcon, CursorIcon, EyeIcon, LightIcon, ListItem, MeshIcon, Menu, MenuItem, pointAnchor, usePopover } from 'uipower';
@@ -6,6 +6,7 @@ import { ArrowIcon, CameraIcon, CursorIcon, EyeIcon, LightIcon, ListItem, MeshIc
 import { useEntityAddMenuItems } from '../../../../hooks/useEntityAddMenuItems';
 import { useOREditor } from '../../../../hooks/useOREditor';
 import { useSerializableField } from '../../../SerializableField/hooks/useSerializableProps';
+import { getHierarchyChildren } from '../../lib/entityTree';
 
 import style from './index.module.scss';
 
@@ -14,37 +15,30 @@ type HierarchyNodeProps = {
 	entity: MXP.Entity
 	openNodes: Set<string>;
 	setNodeOpen: ( uuid: string, open: boolean ) => void;
+	// ドラッグ中に落とすと親になる行の uuid
+	dropTargetId: string | null;
+	// 行を押したとき。クリック（選択）とドラッグ（親の付け替え）の見分けは Hierarchy が行う
+	onNodePointerDown: ( e: PointerEvent, entity: MXP.Entity ) => void;
 }
 
 export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 
-	const { editor, engine } = useOREditor();
-	const [ selectedEntityId ] = useSerializableField<string>( editor, "selectedEntityId" );
-	const selectedEntity = selectedEntityId !== undefined && engine.root.findEntityByUUID( selectedEntityId );
-	const isSelected = Boolean( selectedEntity && selectedEntity.uuid == props.entity.uuid );
+	const { editor } = useOREditor();
+	const [ activeEntityId ] = useSerializableField<string | null>( editor, "selectedEntityId" );
+	const [ selectedEntityIds ] = useSerializableField<string[]>( editor, "selectedEntityIds" );
+	const isSelected = ( selectedEntityIds || [] ).includes( props.entity.uuid );
+	const isActive = activeEntityId === props.entity.uuid;
 
 	const [ entityName ] = useSerializableField<string>( props.entity, "name" );
 	const [ entityVisible, setEntityVisible ] = useSerializableField<boolean>( props.entity, "visible" );
 	const [ unselectableIds, setUnselectableIds ] = useSerializableField<string[]>( editor, "unselectableEntityIds" );
-	const [ childrenIdList ] = useSerializableField<string[]>( props.entity, "children" );
+	// 子の増減で描き直すために購読する（並べる子は entity.children から引く）
+	useSerializableField<string[]>( props.entity, "children" );
 
 	const entitySelectable = ! ( unselectableIds || [] ).includes( props.entity.uuid );
 
-	const childrens: MXP.Entity[] = [];
-
-	for ( const id of childrenIdList || [] ) {
-
-		const child = engine.root.findEntityByUUID( id );
-
-		if ( ! child ) continue;
-		if ( child.editorHidden ) continue;
-
-		childrens.push( child );
-
-	}
-
 	const depth = props.depth || 0;
-	const sortedChildren = childrens && childrens.concat().sort( ( a, b ) => a.name.localeCompare( b.name ) ) || [];
+	const sortedChildren = getHierarchyChildren( props.entity );
 	const hasChild = sortedChildren.length > 0;
 	const offsetPx = depth * 20;
 
@@ -76,15 +70,13 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 
 	}, [ open, props ] );
 
-	// click node
+	const { onNodePointerDown } = props;
 
-	const onClickNode = useCallback( () => {
+	const onPointerDownNode = useCallback( ( e: PointerEvent ) => {
 
-		if ( ! editor ) return;
+		onNodePointerDown( e, props.entity );
 
-		editor.selectEntity( props.entity );
-
-	}, [ editor, props.entity ] );
+	}, [ onNodePointerDown, props.entity ] );
 
 	// toggle visibility
 
@@ -208,7 +200,14 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 
 		if ( ! editor || noEditable ) return;
 
-		editor.selectEntity( props.entity );
+		// 選んでいる行ならその選択のまま、選んでいない行ならその行だけを選んでメニューを出す（複製・削除は選択が対象）
+		if ( ! editor.selectedEntities.includes( props.entity ) ) {
+
+			editor.selectEntity( props.entity );
+
+		}
+
+		const selectedCount = editor.selectedEntities.length;
 
 		const items: MenuItem[] = [
 			{
@@ -225,9 +224,7 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 				onClick: () => {
 
 					// Shift+D と違い、マウスが Hierarchy 上にあるのでモーダル変形には入らず選択だけで止める
-					const duplicated = editor.api.duplicateEntity( props.entity );
-
-					editor.selectEntity( duplicated );
+					editor.duplicateSelected();
 
 					closeAll();
 
@@ -253,7 +250,7 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 				label: "Delete Entity",
 				onClick: () => {
 
-					editor.api.deleteEntity( props.entity );
+					editor.deleteSelected();
 
 					closeAll();
 
@@ -261,7 +258,15 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 			},
 		);
 
-		openPopover( <Menu title={props.entity.name} items={items} />, pointAnchor( e.clientX, e.clientY ) );
+		let title = props.entity.name;
+
+		if ( selectedCount > 1 ) {
+
+			title = `${selectedCount} Entities`;
+
+		}
+
+		openPopover( <Menu title={title} items={items} />, pointAnchor( e.clientX, e.clientY ) );
 
 	}, [ editor, props.entity, openPopover, closeAll, noEditable, addMenuItems ] );
 
@@ -282,24 +287,42 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 
 	}
 
+	let selfClassName = style.self;
+
+	if ( props.dropTargetId === props.entity.uuid ) {
+
+		selfClassName = `${style.self} ${style.self_drop}`;
+
+	}
+
 	return <div className={style.node} data-no_export={noEditable}>
-		<ListItem className={style.self} style={{ paddingLeft: offsetPx }} onClick={onClickNode} onContextMenu={onRightClickNode} selected={isSelected}>
-			<div className={style.fold} data-hnode_open={open}>
-				{hasChild && <button className={style.fold_button} onClick={onClickFoldControls} ><ArrowIcon open={open}/></button> }
-			</div>
-			{icon && <div className={style.icon}>{icon}</div>}
-			<div className={style.self_name} onDoubleClick={startRename}>
-				{nameElm}
-			</div>
-			<button className={style.selectable} onClick={onClickSelectable} data-selectable={entitySelectable}><CursorIcon size={14} selectable={entitySelectable} /></button>
-			<button className={style.visibility} onClick={onClickVisibility} data-visible={entityVisible !== false}><EyeIcon size={14} visible={entityVisible !== false} /></button>
-			{! noEditable && <button className={style.menu} onClick={onRightClickNode}>⋯</button>}
-		</ListItem>
+		<div data-hnode_uuid={props.entity.uuid} onPointerDown={onPointerDownNode}>
+			<ListItem className={selfClassName} style={{ paddingLeft: offsetPx }} onContextMenu={onRightClickNode} selected={isSelected} active={isActive}>
+				<div className={style.fold} data-hnode_open={open}>
+					{hasChild && <button className={style.fold_button} onClick={onClickFoldControls} ><ArrowIcon open={open}/></button> }
+				</div>
+				{icon && <div className={style.icon}>{icon}</div>}
+				<div className={style.self_name} onDoubleClick={startRename}>
+					{nameElm}
+				</div>
+				<button className={style.selectable} onClick={onClickSelectable} data-selectable={entitySelectable}><CursorIcon size={14} selectable={entitySelectable} /></button>
+				<button className={style.visibility} onClick={onClickVisibility} data-visible={entityVisible !== false}><EyeIcon size={14} visible={entityVisible !== false} /></button>
+				{! noEditable && <button className={style.menu} onClick={onRightClickNode}>⋯</button>}
+			</ListItem>
+		</div>
 		{hasChild && <div className={style.child} data-open={open} >
 			{
 				sortedChildren.map( item => {
 
-					return <HierarchyNode key={item.uuid} entity={item} depth={depth + 1} openNodes={props.openNodes} setNodeOpen={props.setNodeOpen} />;
+					return <HierarchyNode
+						key={item.uuid}
+						entity={item}
+						depth={depth + 1}
+						openNodes={props.openNodes}
+						setNodeOpen={props.setNodeOpen}
+						dropTargetId={props.dropTargetId}
+						onNodePointerDown={props.onNodePointerDown}
+					/>;
 
 				} )
 			}

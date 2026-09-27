@@ -2,6 +2,7 @@ import * as MXP from 'maxpower';
 
 import { Animation } from '../../../../builtin/Components/Utility/Animation';
 import { Engine } from '../../../../core/Engine';
+import { getAnimatedTransformFields } from '../../KeyFrameField';
 import { AgentCommandError, AgentCommandInput, requireArg } from '../Command';
 import { componentName, entityPath, resolveEntity, resolveList } from '../EntityQuery';
 
@@ -313,9 +314,46 @@ const removeEntity = ( ctx: AgentCommandContext, input: AgentCommandInput ) => {
 
 	const path = entityPath( entity );
 
-	ctx.editor.api.deleteEntity( entity );
+	ctx.editor.api.deleteEntities( [ entity ] );
 
 	return { uuid: entity.uuid, path };
+
+};
+
+const REPARENT_USAGE = 'reparent <entity> <parent>';
+
+// 親を付け替える（GUI の Hierarchy のドラッグ・Ctrl+P と同じ）。見た目の位置は変えず、新しい親から見たローカルの値に置き直す。
+// 移した先の兄弟と名前がぶつかれば Name.001 のように採番されるので、新しいパスを返す
+const reparent = ( ctx: AgentCommandContext, input: AgentCommandInput ) => {
+
+	const entity = resolveEntity( ctx.engine, requireArg( input, 0, REPARENT_USAGE ) );
+	const parent = resolveEntity( ctx.engine, requireArg( input, 1, REPARENT_USAGE ) );
+
+	try {
+
+		ctx.editor.api.reparentEntities( [ entity ], parent );
+
+	} catch ( e ) {
+
+		throw new AgentCommandError( ( e as Error ).message );
+
+	}
+
+	const result: { uuid: string, path: string, parent: string, warning?: string } = {
+		uuid: entity.uuid,
+		path: entityPath( entity ),
+		parent: entityPath( parent ),
+	};
+
+	const animated = getAnimatedTransformFields( entity );
+
+	if ( animated.length > 0 ) {
+
+		result.warning = `${animated.join( ' / ' )} にキーが打たれているので、時刻が変わるとキーの値に戻ります（ワールド座標は保たれません）`;
+
+	}
+
+	return result;
 
 };
 
@@ -470,6 +508,7 @@ const redo = ( ctx: AgentCommandContext ) => {
 export const writeCommands: AgentCommandTable = {
 	'add-entity': addEntity,
 	'remove-entity': removeEntity,
+	reparent,
 	'add-component': addComponent,
 	'remove-component': removeComponent,
 	set,

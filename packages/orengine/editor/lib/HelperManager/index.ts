@@ -1,7 +1,7 @@
 import * as MXP from 'maxpower';
 
 import { Engine } from '../../../core/Engine';
-import { EntityHelper, HelperType } from '../Helpers/EntityHelper';
+import { EntityHelper, HelperSelection, HelperType } from '../Helpers/EntityHelper';
 
 // ヘルパーの表示フラグ。ビューポートごとに持つ（Editor の ViewportSettings.helpers の一部）
 export type HelperVisibility = {
@@ -28,7 +28,7 @@ export class HelperManager {
 
 	// ヘルパーの生成・破棄と姿勢の同期を1フレームに1回行う。
 	// 表示フラグはビューごとに違うので、ここでは絞らず全種類を用意する（絞ると別ビューの描画のたびに作り直しになる）
-	public sync( engine: Engine, selectedEntityId: string | null ) {
+	public sync( engine: Engine, selectedEntityIds: ReadonlySet<string>, activeEntityId: string | null ) {
 
 		const activeUUIDs = new Set<string>();
 
@@ -55,7 +55,19 @@ export class HelperManager {
 			helper.entity.update( event );
 			helper.hitAreaEntity.update( event );
 
-			helper.setSelected( entity.uuid === selectedEntityId );
+			let selection: HelperSelection = 'none';
+
+			if ( entity.uuid === activeEntityId ) {
+
+				selection = 'active';
+
+			} else if ( selectedEntityIds.has( entity.uuid ) ) {
+
+				selection = 'selected';
+
+			}
+
+			helper.setSelection( selection );
 			helper.syncTransform( entity );
 
 		} );

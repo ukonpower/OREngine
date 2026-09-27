@@ -50,6 +50,7 @@ const COMMANDS: { [ name: string ]: CommandSpec } = {
 	// 書き込みは EditorAPI 経由でタブに反映し、応答の前にファイルへ保存する
 	'add-entity': { usage: 'add-entity <parent> [--name <name>]', description: 'コンポーネントの無いエンティティを追加して uuid を返す（名前の省略時は Empty）', timeoutMs: 10000 },
 	'remove-entity': { usage: 'remove-entity <entity>', description: 'エンティティを子ごと削除する', timeoutMs: 10000 },
+	reparent: { usage: 'reparent <entity> <parent>', description: '親を付け替える（子ごと移す。ワールド座標は保ち、名前がぶつかれば Name.001 に採番する）。新しいパスを返す', timeoutMs: 10000 },
 	'add-component': { usage: 'add-component <entity> <Name>', description: 'コンポーネントを付ける（Name は components の name）', timeoutMs: 10000 },
 	'remove-component': { usage: 'remove-component <entity> <Name>', description: 'コンポーネントを外す（Name は登録名か uuid）', timeoutMs: 10000 },
 	set: { usage: 'set <entity> [<component>] <path> <value>', description: 'フィールドを書き換える。値はフィールドの型で解釈する（数値 / 1,2,3 / true|false / 文字列 / 選択肢）', timeoutMs: 10000 },
