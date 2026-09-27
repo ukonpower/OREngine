@@ -176,7 +176,8 @@ Entity / Component の SerializeField にキーを打ち、player で再生す�
 - タイムライン: Timeline パネルの子 feature `Timeline/features/KeyEditor`（左のチャンネル一覧、キー表示 / カーブ表示）。選択中のエンティティの行だけを出し、選んだキーは `<カーブ ID>:<番号>`、ハンドルは `<カーブ ID>:<番号>:<left|right>` で持つ（共有カーブの行はそろって選ばれる。キーを選ぶと両側のハンドルも選ばれた扱い）。編集の確定は `editor.api.setCurves`（最後のキーを消したカーブを指すリンクも外す）
   - 操作は Blender に合わせている（#189）: 何もない所の左クリックは時刻合わせ（選択は外さない）、B の後の左ドラッグ1回が矩形選択、A / Alt+A で全選択 / 全解除、Home で値の範囲を合わせ直す（値の範囲は状態として持ち、自動で合わせ直すのは選択中のエンティティが変わったときだけ）、カーブ表示の Alt+ホイールで縦の拡大縮小・中ボタンで縦横のパン
   - ドラッグと G / R / S はどちらも `KeyFrameCurve` の `transformKeys`（点の行き先を関数で渡す）を通し、`editor.api.beginEdit( engine, "curves" )` で undo 1回にする。G / R / S のモーダルは `KeyEditor/lib/KeyTransformModal`（ビューポートの `ModalTransformHandler` と同じ操作感。回転・伸縮は画面の px の上で計算する）
-  - キーボード: ポインタがキーの上にある間の Delete / X・Ctrl+C・Ctrl+V・G / R / S・B・A / Alt+A・Home は `Editor.enterTimeline` で受けた `TimelineKeyActions` へ回す。モーダル中（G / R / S・B の待機）は `Editor.beginTimelineModal` で登録したものへ、ポインタの位置によらず先に回す
+  - Shift+D は G と同じモーダルで、`transformKeys` の `duplicate`（選んだキーを元の位置に残して複製を動かす）を使う。複製もモーダルの開始時の表から毎回作り直すので、複製と移動が undo 1回になり、取り消すと複製ごと押す前の表に戻る。複製するのはキーだけ（ハンドルだけの選択は対象外）
+  - キーボード: ポインタがキーの上にある間の Delete / X・Ctrl+C・Ctrl+V・G / R / S・Shift+D・B・A / Alt+A・Home は `Editor.enterTimeline` で受けた `TimelineKeyActions` へ回す。モーダル中（G / R / S・B の待機）は `Editor.beginTimelineModal` で登録したものへ、ポインタの位置によらず先に回す
 - 共有: 行の右クリックメニューで、要素1つ単位にカーブのコピー / リンクして貼り付け（同じカーブ ID を指す）/ 複製して貼り付け / リンクを解除（複製して指し直す）/ リンクの設定（倍率・足し算・カーブの名前の小窓）。どれも undo 1回。実装は `editor/lib/KeyFrameField` の Share 節（`buildPasteCurve` / `buildUnlinkCurve` / `buildCurveLinkSettings`）。数値配列の要素は、右クリックした場所の `data-element`（uipower の `Vector`・`ValueArray` の要素の行）で決まり、要素の外（ラベル・色の見本）では要素ごとのサブメニューになる。行には共有中のカーブの名前（無ければ ID）と使用数を出す
 - 保存（`Editor.exportEngine`）では、書き出した JSON 全体の `links` から参照されないカーブを外す（`pruneUnusedCurves`）。メモリ上の表には残す
 - player ビルドでは、`curves` 配下のキー（カーブ ID・`k`）を terser の改名から外している（`host/vite/sceneScan.ts`）。リンクがカーブ ID を文字列で引くため

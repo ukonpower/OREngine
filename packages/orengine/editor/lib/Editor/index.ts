@@ -40,12 +40,14 @@ export type EditorTimelineLoop = {
 }
 
 // タイムラインで選んだキーへの操作。ポインタがタイムラインのキーの上にある間、
-// Delete / X・Ctrl+C・Ctrl+V・G / R / S・B・A / Alt+A・Home をビューポートではなくこちらへ向ける
+// Delete / X・Ctrl+C・Ctrl+V・G / R / S・Shift+D・B・A / Alt+A・Home をビューポートではなくこちらへ向ける
 export type TimelineKeyActions = {
 	deleteKeys: () => void;
 	copyKeys: () => void;
 	pasteKeys: () => void;
 	transformKeys: ( mode: ModalTransformMode ) => void;
+	// Shift+D。選んだキーを複製して移動のモーダル操作に入る
+	duplicateKeys: () => void;
 	boxSelect: () => void;
 	// A は true（全選択）、Alt+A は false（全解除）
 	selectAllKeys: ( select: boolean ) => void;
@@ -268,7 +270,20 @@ export class Editor extends MXP.Serializable {
 				if ( this._hoveredTimeline ) this._hoveredTimeline.frameAll();
 
 			},
-			onDuplicateSelected: () => this.duplicateSelected(),
+			onDuplicateSelected: () => {
+
+				// タイムラインの上では、エンティティではなく選んだキーを複製する
+				if ( this._hoveredTimeline ) {
+
+					this._hoveredTimeline.duplicateKeys();
+
+					return;
+
+				}
+
+				this.duplicateSelected();
+
+			},
 			onRenameSelected: () => this.requestRenameSelected(),
 			onStepFrame: ( step ) => this.stepFrame( step ),
 			onSeekToStart: () => this.seekToStart(),
