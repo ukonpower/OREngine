@@ -202,8 +202,6 @@ export const PanelLayout = ( props: PanelLayoutProps ) => {
 	// タブの右クリックメニュー（Unity の Close Tab 相当。追加はヘッダーの「+」から）
 	const onTabContextMenu = ( paneId: string, panelId: PanelId, e: React.MouseEvent ) => {
 
-		e.preventDefault();
-
 		// 最後の1タブを閉じるとタブヘッダーごと消えて操作の足場が無くなるので閉じさせない
 		const canClose = collectPanes( layout ).reduce( ( n, p ) => n + p.tabs.length, 0 ) > 1;
 
