@@ -10,7 +10,7 @@ import { KeyCurveGraph } from './components/KeyCurveGraph';
 import { KeyDopeSheet } from './components/KeyDopeSheet';
 import { useKeyEditor } from './hooks/useKeyEditor';
 import style from './index.module.scss';
-import { isAllSelected, readRefs, readRefsInRect } from './lib/KeySelection';
+import { readRefs, readRefsInRect } from './lib/KeySelection';
 import { dragRect, trackPointerDrag } from './lib/PointerDrag';
 
 const INTERPOLATION_ITEMS: { label: string, value: MXP.FCurveInterpolation }[] = [
@@ -29,15 +29,16 @@ const HANDLE_TYPE_ITEMS: { label: string, value: KeyFrameHandleType }[] = [
 
 type Box = { left: number, top: number, width: number, height: number };
 
-// タイムラインのキーの領域（目盛りの段より下）。キー表示とカーブ表示を切り替えて出し、右クリックメニューと、B の矩形選択と、
-// ポインタが乗っている間のキーボードの操作（Editor が受けて回してくる）を受け持つ
+// タイムラインのキーの領域（目盛りの段より下）。キー表示とカーブ表示を切り替えて出し、Blender の右クリック選択と同じ操作を受け持つ。
+// 右クリックでキーを選び、右ドラッグでキーを動かす（何もない所からなら矩形選択）。左クリックはキーの上でもタイムラインの時刻合わせに任せる。
+// ほかに B の矩形選択と、ポインタが乗っている間のキーボードの操作（W のメニュー等。Editor が受けて回してくる）を受け持つ
 export const KeyEditor = () => {
 
 	const { editor } = useOREditor();
 	const { open, closeAll } = usePopover();
 	const {
-		entity, channels, mode, selection, select, selectRefs, timelineActions, areaRef, pointerRef, boxSelecting, endBoxSelect,
-		deleteSelectedKeys, copySelectedKeys, pasteCopiedKeys, setSelectedInterpolation, setSelectedHandleType,
+		entity, channels, mode, select, selectRefs, pressKeys, beginDrag, timelineActions, areaRef, pointerRef, openMenuRef,
+		boxSelecting, endBoxSelect, deleteSelectedKeys, copySelectedKeys, pasteCopiedKeys, setSelectedInterpolation, setSelectedHandleType,
 	} = useKeyEditor();
 
 	const [ box, setBox ] = useState<Box | null>( null );
@@ -53,17 +54,8 @@ export const KeyEditor = () => {
 
 	}, [ editor, timelineActions ] );
 
-	// キーのある行が無ければ、タイムラインの時刻合わせを塞がないよう何も置かない
-	if ( ! entity || channels.length <= 1 ) return null;
-
-	const onContextMenu = ( e: MouseEvent ) => {
-
-		e.preventDefault();
-
-		const refs = readRefs( e.target );
-
-		// 選んでいないキーの上で開いたら、そのキーを対象にする
-		if ( refs && ! isAllSelected( selection, refs ) ) select( new Set( refs ) );
+	// W のメニュー。選んでいるキーを対象に、ポインタの位置へ開く
+	openMenuRef.current = () => {
 
 		const run = ( action: () => void ) => () => {
 
@@ -96,19 +88,19 @@ export const KeyEditor = () => {
 			{ label: "Delete", onClick: run( deleteSelectedKeys ) },
 		];
 
-		open( <Menu title="Keyframes" items={items} />, pointAnchor( e.clientX, e.clientY ) );
+		open( <Menu title="Keyframes" items={items} />, pointAnchor( pointerRef.current.x, pointerRef.current.y ) );
 
 	};
 
-	// B の後の左ドラッグ。キー・ハンドルの上から始めても矩形選択にするので、capture で子（キー表示・カーブ表示）より先に受ける
-	const onPointerDownCapture = ( e: PointerEvent ) => {
+	// キーのある行が無ければ、タイムラインの時刻合わせを塞がないよう何も置かない
+	if ( ! entity || channels.length <= 1 ) return null;
+
+	// 押した位置からの矩形選択。囲んだもので選択を置き換え、Shift なら足す。ドラッグせずに離したら何も囲んでいないので、選択を外す（Shift なら今のまま）
+	const trackBoxSelect = ( e: PointerEvent ) => {
 
 		const root = areaRef.current;
 
-		if ( e.button != 0 || ! boxSelecting || ! root ) return;
-
-		e.stopPropagation();
-		endBoxSelect();
+		if ( ! root ) return;
 
 		const rect = root.getBoundingClientRect();
 		const shift = e.shiftKey;
@@ -122,15 +114,92 @@ export const KeyEditor = () => {
 				setBox( { left: area.left - rect.left, top: area.top - rect.top, width: area.right - area.left, height: area.bottom - area.top } );
 
 			},
-			onEnd: ( _dragged, upEvent ) => {
+			onEnd: ( dragged, upEvent ) => {
 
 				setBox( null );
 
-				// 囲んだもので選択を置き換え、Shift なら足す
-				selectRefs( readRefsInRect( root, dragRect( start, upEvent ) ), shift );
+				let refs: string[] = [];
+
+				if ( dragged ) refs = readRefsInRect( root, dragRect( start, upEvent ) );
+
+				selectRefs( refs, shift );
 
 			},
 		} );
+
+	};
+
+	// キーの印を右ボタンで押したとき。押した時点で選び、そのままドラッグすれば選んだキーを動かす
+	const trackKeyPress = ( e: PointerEvent, refs: string[] ) => {
+
+		const shift = e.shiftKey;
+		const wasSelected = pressKeys( refs, shift );
+
+		let drag: ReturnType<typeof beginDrag> = null;
+		let started = false;
+
+		trackPointerDrag( { clientX: e.clientX, clientY: e.clientY }, {
+			onMove: ( dx, dy ) => {
+
+				if ( ! started ) {
+
+					started = true;
+					drag = beginDrag();
+
+				}
+
+				if ( drag ) drag.move( dx, dy );
+
+			},
+			onEnd: ( dragged ) => {
+
+				if ( drag ) drag.end();
+
+				// 複数選んだ中の1つをドラッグせずにクリックしたら、それだけを選び直す
+				if ( ! dragged && ! shift && wasSelected ) select( new Set( refs ) );
+
+			},
+		} );
+
+	};
+
+	// B の後の左ドラッグ。キー・ハンドルの上から始めても矩形選択にするので、capture で子（キー表示・カーブ表示）より先に受ける
+	const onPointerDownCapture = ( e: PointerEvent ) => {
+
+		if ( e.button != 0 || ! boxSelecting ) return;
+
+		e.stopPropagation();
+		endBoxSelect();
+		trackBoxSelect( e );
+
+	};
+
+	// 右ボタン。キー・ハンドルの上なら選択とドラッグ、何もない所なら矩形選択（クリックだけなら選択を外す）
+	const onPointerDown = ( e: PointerEvent ) => {
+
+		if ( e.button != 2 ) return;
+
+		// タイムラインの操作（親の TimelineControls）へ伝えない
+		e.stopPropagation();
+
+		const refs = readRefs( e.target );
+
+		if ( refs ) {
+
+			trackKeyPress( e, refs );
+
+		} else {
+
+			trackBoxSelect( e );
+
+		}
+
+	};
+
+	// 右ボタンはキーの選択に使うので、ブラウザのメニューは出さない
+	const onContextMenu = ( e: MouseEvent ) => {
+
+		e.preventDefault();
 
 	};
 
@@ -157,6 +226,7 @@ export const KeyEditor = () => {
 		onPointerMove={trackPointer}
 		onPointerLeave={() => editor.leaveTimeline( timelineActions )}
 		onPointerDownCapture={onPointerDownCapture}
+		onPointerDown={onPointerDown}
 		onContextMenu={onContextMenu}
 	>
 		{view}

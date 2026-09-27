@@ -192,6 +192,9 @@ export const useKeyEditorContext = () => {
 	// キーの領域の上の最後のポインタ位置（画面座標）。G / R / S は押した瞬間の位置を基準にする
 	const pointerRef = useRef<MTP.IVector2>( { x: 0, y: 0 } );
 
+	// W で開くメニュー。メニューの中身と Popover は KeyEditor が持つので、KeyEditor がここへ入れる
+	const openMenuRef = useRef<( () => void ) | null>( null );
+
 	const modalRef = useRef<KeyTransformModal | null>( null );
 	const boxSelectRef = useRef<BoxSelectWait | null>( null );
 	const [ boxSelecting, setBoxSelecting ] = useState( false );
@@ -1025,6 +1028,11 @@ export const useKeyEditorContext = () => {
 		boxSelect: () => latestRef.current.beginBoxSelect(),
 		selectAllKeys: ( all ) => latestRef.current.selectAllKeys( all ),
 		frameAll: () => latestRef.current.frameAll(),
+		openMenu: () => {
+
+			if ( openMenuRef.current ) openMenuRef.current();
+
+		},
 	} ), [] );
 
 	return {
@@ -1039,6 +1047,7 @@ export const useKeyEditorContext = () => {
 		areaRef,
 		channelListRef,
 		pointerRef,
+		openMenuRef,
 		valueRange,
 		setValueRange,
 		boxSelecting,

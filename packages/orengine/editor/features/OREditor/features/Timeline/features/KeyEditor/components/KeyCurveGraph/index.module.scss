@@ -48,6 +48,19 @@
 	height: calc(var(--or-space) * 1.6);
 	transform: translate(-50%, -50%);
 	cursor: pointer;
+
+	// 見た目より広くクリックを拾う。Blender のグラフエディタと同じく中心から半径 10px（--or-space の2倍）の円。
+	// 擬似要素は getBoundingClientRect に入らないので、矩形選択の当たりは見た目のまま
+	&::before {
+		content: "";
+		position: absolute;
+		left: 50%;
+		top: 50%;
+		width: calc(var(--or-space) * 4);
+		height: calc(var(--or-space) * 4);
+		border-radius: 50%;
+		transform: translate(-50%, -50%);
+	}
 }
 
 .point {

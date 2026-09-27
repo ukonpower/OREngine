@@ -7,7 +7,7 @@ import { useElementSize } from '../../hooks/useElementSize';
 import { useKeyEditor } from '../../hooks/useKeyEditor';
 import { activeHandleSides, curveColor, curvePath, graphScale, valueTicks, zoomValueRange } from '../../lib/CurveGraph';
 import { getCurveKeys } from '../../lib/KeyChannels';
-import { handleRef, isHandleSelected, keyRef, readRefs } from '../../lib/KeySelection';
+import { handleRef, isHandleSelected, keyRef } from '../../lib/KeySelection';
 import { trackPointerDrag } from '../../lib/PointerDrag';
 
 import style from './index.module.scss';
@@ -25,12 +25,12 @@ type HandlePoint = {
 const MIN_VALUE_RANGE = 1e-6;
 
 // カーブ表示（グラフエディタ）。カーブの生の値（倍率・足し算をかける前）を、再生と同じ評価で線にする。
-// 選んだキーとハンドルを持つキーのハンドルを出し、キー・ハンドルを押して選ぶ・ドラッグで動かす。
+// 選んだキーとハンドルを持つキーのハンドルを出す（選択・ドラッグは KeyEditor が右ボタンで受ける）。
 // 値の範囲は context が持ち、wheel と中ボタンのドラッグで縦を動かす（横は同じ操作を親の TimelineControls が動かす）
 export const KeyCurveGraph = () => {
 
 	const { viewPort } = useTimeline();
-	const { curves, graphCurves, selection, valueRange, setValueRange, pressKeys, select, beginDrag } = useKeyEditor();
+	const { curves, graphCurves, selection, valueRange, setValueRange } = useKeyEditor();
 
 	const rootRef = useRef<HTMLDivElement>( null );
 	const { width, height } = useElementSize( rootRef );
@@ -106,76 +106,32 @@ export const KeyCurveGraph = () => {
 
 	const onPointerDown = ( e: React.PointerEvent<HTMLDivElement> ) => {
 
-		const start = { clientX: e.clientX, clientY: e.clientY };
+		if ( e.button != 1 ) return;
 
-		if ( e.button == 1 ) {
+		// 横は親の TimelineControls が動かすので、伝播は止めずにここでは縦だけを動かす。Ctrl（Cmd）なら拡大縮小
+		const startRange = valueRange;
+		const pressValuePerPx = scale.valuePerPx;
+		const rect = e.currentTarget.getBoundingClientRect();
+		const position = ( e.clientY - rect.top ) / Math.max( 1, rect.height );
+		const zoomDrag = hasZoomModifier( e );
+		let lastDy = 0;
 
-			// 横は親の TimelineControls が動かすので、伝播は止めずにここでは縦だけを動かす。Ctrl（Cmd）なら拡大縮小
-			const startRange = valueRange;
-			const pressValuePerPx = scale.valuePerPx;
-			const rect = e.currentTarget.getBoundingClientRect();
-			const position = ( e.clientY - rect.top ) / Math.max( 1, rect.height );
-			const zoomDrag = hasZoomModifier( e );
-			let lastDy = 0;
+		trackPointerDrag( { clientX: e.clientX, clientY: e.clientY }, {
+			onMove: ( _dx, dy ) => {
 
-			trackPointerDrag( start, {
-				onMove: ( _dx, dy ) => {
+				if ( zoomDrag ) {
 
-					if ( zoomDrag ) {
+					zoomValue( dragZoomFactor( dy - lastDy ), position );
+					lastDy = dy;
 
-						zoomValue( dragZoomFactor( dy - lastDy ), position );
-						lastDy = dy;
-
-						return;
-
-					}
-
-					setValueRange( { min: startRange.min + dy * pressValuePerPx, max: startRange.max + dy * pressValuePerPx } );
-
-				},
-				onEnd: () => {},
-			} );
-
-			return;
-
-		}
-
-		if ( e.button != 0 ) return;
-
-		const refs = readRefs( e.target );
-
-		// 何もない所は、親の TimelineControls が時刻を合わせる（選択は外さない）
-		if ( ! refs ) return;
-
-		e.stopPropagation();
-
-		const shift = e.shiftKey;
-		const wasSelected = pressKeys( refs, shift );
-
-		let drag: ReturnType<typeof beginDrag> = null;
-		let started = false;
-
-		trackPointerDrag( start, {
-			onMove: ( dx, dy ) => {
-
-				if ( ! started ) {
-
-					started = true;
-					drag = beginDrag();
+					return;
 
 				}
 
-				if ( drag ) drag.move( dx, dy );
+				setValueRange( { min: startRange.min + dy * pressValuePerPx, max: startRange.max + dy * pressValuePerPx } );
 
 			},
-			onEnd: ( dragged ) => {
-
-				if ( drag ) drag.end();
-
-				// 複数選んだ中の1つをドラッグせずにクリックしたら、それだけを選び直す
-				if ( ! dragged && ! shift && wasSelected ) select( new Set( refs ) );
-
-			},
+			onEnd: () => {},
 		} );
 
 	};

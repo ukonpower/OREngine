@@ -40,7 +40,7 @@ export type EditorTimelineLoop = {
 }
 
 // タイムラインで選んだキーへの操作。ポインタがタイムラインのキーの上にある間、
-// Delete / X・Ctrl+C・Ctrl+V・G / R / S・Shift+D・B・A / Alt+A・Home をビューポートではなくこちらへ向ける
+// Delete / X・Ctrl+C・Ctrl+V・G / R / S・Shift+D・B・A / Alt+A・Home・W をビューポートではなくこちらへ向ける
 export type TimelineKeyActions = {
 	deleteKeys: () => void;
 	copyKeys: () => void;
@@ -52,6 +52,8 @@ export type TimelineKeyActions = {
 	// A は true（全選択）、Alt+A は false（全解除）
 	selectAllKeys: ( select: boolean ) => void;
 	frameAll: () => void;
+	// W。Blender の右クリック選択と同じく、右クリックはキーの選択に使うのでメニューは W で開く
+	openMenu: () => void;
 };
 
 // タイムラインのモーダル操作（G / R / S・B の矩形選択の待機）。続いている間は、ポインタがタイムラインの外にあってもキーボードをまずこちらへ向ける
@@ -268,6 +270,11 @@ export class Editor extends MXP.Serializable {
 			onFrameAll: () => {
 
 				if ( this._hoveredTimeline ) this._hoveredTimeline.frameAll();
+
+			},
+			onContextMenu: () => {
+
+				if ( this._hoveredTimeline ) this._hoveredTimeline.openMenu();
 
 			},
 			onDuplicateSelected: () => {
