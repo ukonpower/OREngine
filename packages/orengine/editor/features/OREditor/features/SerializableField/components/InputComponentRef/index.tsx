@@ -20,7 +20,7 @@ export const InputComponentRef = ( props: InputComponentRefProps ) => {
 
 		const list: SelectOption[] = [ { label: "(None)", value: "" } ];
 
-		engine.root.traverse( ( entity ) => {
+		engine.root.traverseEditable( ( entity ) => {
 
 			entity.components.forEach( ( component ) => {
 

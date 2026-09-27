@@ -30,7 +30,18 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 
 	const entitySelectable = ! ( unselectableIds || [] ).includes( props.entity.uuid );
 
-	const childrens = ( childrenIdList || [] ).map( id => engine.root.findEntityByUUID( id ) ).filter( e => e !== undefined ) as MXP.Entity[];
+	const childrens: MXP.Entity[] = [];
+
+	for ( const id of childrenIdList || [] ) {
+
+		const child = engine.root.findEntityByUUID( id );
+
+		if ( ! child ) continue;
+		if ( child.editorHidden ) continue;
+
+		childrens.push( child );
+
+	}
 
 	const depth = props.depth || 0;
 	const sortedChildren = childrens && childrens.concat().sort( ( a, b ) => a.name.localeCompare( b.name ) ) || [];

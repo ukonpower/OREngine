@@ -2,7 +2,43 @@ export interface SceneUsage {
 	componentNames: Set<string>;
 	propKeys: Set<string>;
 	useGLTF: boolean;
+	// Cloner が使う並べ方の名前（player に焼き込む並べ方）
+	layoutNames: Set<string>;
 }
+
+// packages/orengine/builtin/Components/Utility/Cloner の既定の layout と一致させる
+const CLONER_DEFAULT_LAYOUT = 'Grid';
+
+const CLONER_PARAMS_PREFIX = 'params/';
+
+// Cloner の props から使う並べ方の名前を layoutNames に、並べ方の数値名を propKeys に足す。
+// Cloner は並べ方の params オブジェクトのキーからフィールド名 params/<キー> を作るので、
+// キー（spacing など）が terser の property mangle で改名されるとシーンの値が入らなくなる
+const collectClonerUsage = ( props: Record<string, unknown>, layoutNames: Set<string>, propKeys: Set<string> ) => {
+
+	const layout = props.layout;
+
+	if ( typeof layout === 'string' ) {
+
+		layoutNames.add( layout );
+
+	} else if ( ! ( 'layout' in props ) ) {
+
+		layoutNames.add( CLONER_DEFAULT_LAYOUT );
+
+	}
+
+	for ( const key of Object.keys( props ) ) {
+
+		if ( key.startsWith( CLONER_PARAMS_PREFIX ) ) {
+
+			propKeys.add( key.slice( CLONER_PARAMS_PREFIX.length ) );
+
+		}
+
+	}
+
+};
 
 // シーンファイルのパース結果から使用コンポーネント名・propsキー・GLTF使用有無を収集する
 // 構造を仮定した早期returnをせず、任意のネスト（BLidgeClient の props.attachments 配下等）を一律に辿る
@@ -10,6 +46,7 @@ export const collectSceneUsage = ( sceneJson: unknown ): SceneUsage => {
 
 	const componentNames = new Set<string>();
 	const propKeys = new Set<string>();
+	const layoutNames = new Set<string>();
 	let useGLTF = false;
 
 	const walk = ( node: unknown, insideProps: boolean ): void => {
@@ -48,6 +85,21 @@ export const collectSceneUsage = ( sceneJson: unknown ): SceneUsage => {
 
 						}
 
+						if ( c.name === 'Cloner' ) {
+
+							// props が無い Cloner も既定の並べ方を使うので、空の props として扱う
+							let clonerProps: Record<string, unknown> = {};
+
+							if ( props !== null && typeof props === 'object' ) {
+
+								clonerProps = props as Record<string, unknown>;
+
+							}
+
+							collectClonerUsage( clonerProps, layoutNames, propKeys );
+
+						}
+
 					}
 
 					walk( comp, insideProps );
@@ -83,7 +135,7 @@ export const collectSceneUsage = ( sceneJson: unknown ): SceneUsage => {
 
 	walk( sceneJson, false );
 
-	return { componentNames, propKeys, useGLTF };
+	return { componentNames, propKeys, useGLTF, layoutNames };
 
 };
 

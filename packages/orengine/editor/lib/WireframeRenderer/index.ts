@@ -77,7 +77,7 @@ export class WireframeRenderer {
 
 		const collect = ( entity: MXP.Entity, parentVisible: boolean ) => {
 
-			const visible = parentVisible && entity.visible;
+			const visible = parentVisible && entity.visible && ! entity.renderHidden;
 
 			if ( visible && entity.getComponent( MXP.Mesh ) ) {
 

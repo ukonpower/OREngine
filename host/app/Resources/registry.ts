@@ -1,12 +1,13 @@
 import * as MXP from '@or-renderer';
-import { ComponentGroup, GeometryGroup, Engine, buildClassTree } from 'orengine';
-import { BUILTIN_COMPONENTLIST, BUILTIN_GEOMETRYLIST } from 'orengine/builtin';
+import { ComponentGroup, GeometryGroup, Engine, buildClassTree, collectLayouts } from 'orengine';
+import { BUILTIN_COMPONENTLIST, BUILTIN_GEOMETRYLIST, BUILTIN_LAYOUTS } from 'orengine/builtin';
 
 
 import { registerProjectTextures, initResourceInstances } from './registryCommon';
 
 const componentModules = import.meta.glob( [ '@or-resources/Components/**/index.ts', '!**/_*/**' ], { eager: true } );
 const geometryModules = import.meta.glob( [ '@or-resources/Geometries/**/index.ts', '!**/_*/**' ], { eager: true } );
+const layoutModules = import.meta.glob( [ '@or-resources/Layouts/*/index.ts', '!**/_*/**' ], { eager: true } );
 
 type ClassList = {
 	[key: string]: any
@@ -102,6 +103,30 @@ export const initResouces = () => {
 
 		const group = Engine.resources.addGeometryGroup( name );
 		registerGeometries( value, group );
+
+	}
+
+	/*-------------------------------
+		Layouts
+	-------------------------------*/
+
+	for ( const [ name, layout ] of BUILTIN_LAYOUTS ) {
+
+		Engine.resources.addLayout( name, layout );
+
+	}
+
+	const projectLayouts = collectLayouts( layoutModules );
+
+	for ( const [ name, layout ] of projectLayouts ) {
+
+		if ( BUILTIN_LAYOUTS.has( name ) ) {
+
+			console.warn( `[Resources] layout "${name}" overrides the built-in one` );
+
+		}
+
+		Engine.resources.addLayout( name, layout );
 
 	}
 

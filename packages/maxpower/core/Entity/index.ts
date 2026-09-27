@@ -52,6 +52,12 @@ export class Entity extends Serializable {
 	public components: Map<typeof Component, Component>;
 	private componentsSorted: Component[];
 	public visible: boolean;
+	// 描画と Raycaster の対象から、この部分木ごと外す。保存しない（Cloner がテンプレートを隠すのに使う）
+	public renderHidden: boolean;
+	// エディタ（ヒエラルキー・ルートからの走査・シーン CLI）から、この部分木ごと隠す。保存しない
+	public editorHidden: boolean;
+	// 実行時に複製されたエンティティの、複製元のエンティティ。複製でなければ null。保存しない
+	public cloneSource: Entity | null;
 	public userData: any;
 	public unresolvedComponents: { name: string; uuid: string; props?: Record<string, unknown> }[];
 	protected _engine: EngineContract;
@@ -81,6 +87,9 @@ export class Entity extends Serializable {
 		this.componentsSorted = [];
 
 		this.visible = true;
+		this.renderHidden = false;
+		this.editorHidden = false;
+		this.cloneSource = null;
 		this.userData = {};
 		this.unresolvedComponents = [];
 
@@ -634,6 +643,40 @@ export class Entity extends Serializable {
 		}
 
 		return true;
+
+	}
+
+	// 自分か祖先のどれかが renderHidden か
+	public isRenderHiddenTraverse(): boolean {
+
+		if ( this.renderHidden ) {
+
+			return true;
+
+		}
+
+		if ( this.parent ) {
+
+			return this.parent.isRenderHiddenTraverse();
+
+		}
+
+		return false;
+
+	}
+
+	// traverse と同じだが、editorHidden のエンティティとその子孫には入らない
+	public traverseEditable( cb: ( entity: Entity ) => void ) {
+
+		if ( this.editorHidden ) return;
+
+		cb( this );
+
+		for ( const child of this.children ) {
+
+			child.traverseEditable( cb );
+
+		}
 
 	}
 
