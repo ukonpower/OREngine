@@ -1,0 +1,12695 @@
+import{a as e,n as t,r as n,t as r}from"./rolldown-runtime-DkW27tQK.js";import{r as i}from"./iframe-CPE5k09_.js";import{t as a}from"./ArrowIcon-DTg42cjh.js";import{t as o}from"./jsx-runtime-DeHZSEgm.js";import{t as s}from"./Block-DHvIBxhS.js";import{t as c}from"./Button-C0LgJv2v.js";import{A as l,E as u,S as d,c as f,g as p,m,o as h,u as g,v as _,w as v}from"./Icons-BugE91nR.js";import{t as y}from"./InputCheckBox-c29KxitH.js";import{t as b}from"./InputColor-C6IuOFZz.js";import{f as x,g as S,i as C,l as w,m as ee,n as te,o as T,t as E,u as ne}from"./uipower-DWSq5sz-.js";import{t as re}from"./InputSelect-DnI9eZnn.js";import{n as ie}from"./useAnchoredPosition-DmnAzh-X.js";import{t as ae}from"./Modal-ByWjdS48.js";import{t as D}from"./Label-CQTuDIV0.js";import{t as oe}from"./LayoutSplit-BfQPGc44.js";import{t as se}from"./ListItem-BgW5r1XD.js";import{t as ce}from"./Menu-D8l9Anmi.js";import{t as le}from"./Panel-h7tqFVYO.js";import{t as ue}from"./PanelContainer-C0DC-osp.js";import{n as de,t as fe}from"./DragOverlay-Biy1X0bp.js";import{n as pe,t as me}from"./SceneWindow-CUNIxUrg.js";function he(e=[],t=[]){return e.length!==t.length||e.some((e,n)=>!Object.is(e,t[n]))}var ge,_e,ve,ye;function be(){return(be=t((()=>{ge=i(),_e=(0,ge.createContext)(null),ve={didCatch:!1,error:null},ye=class extends ge.Component{constructor(e){super(e),this.resetErrorBoundary=this.resetErrorBoundary.bind(this),this.state=ve}static getDerivedStateFromError(e){return{didCatch:!0,error:e}}resetErrorBoundary(...e){let{error:t}=this.state;t!==null&&(this.props.onReset?.({args:e,reason:`imperative-api`}),this.setState(ve))}componentDidCatch(e,t){this.props.onError?.(e,t)}componentDidUpdate(e,t){let{didCatch:n}=this.state,{resetKeys:r}=this.props;n&&t.error!==null&&he(e.resetKeys,r)&&(this.props.onReset?.({next:r,prev:e.resetKeys,reason:`keys`}),this.setState(ve))}render(){let{children:e,fallbackRender:t,FallbackComponent:n,fallback:r}=this.props,{didCatch:i,error:a}=this.state,o=e;if(i){let e={error:a,resetErrorBoundary:this.resetErrorBoundary};if(typeof t==`function`)o=t(e);else if(n)o=(0,ge.createElement)(n,e);else if(r!==void 0)o=r;else throw a}return(0,ge.createElement)(_e.Provider,{value:{didCatch:i,error:a,resetErrorBoundary:this.resetErrorBoundary}},o)}}})))()}var xe,Se,Ce;function we(){return(we=t((()=>{xe=i(),Se=900,Ce=()=>{let[e,t]=(0,xe.useState)(!1);return(0,xe.useEffect)(()=>{let e=null,n=()=>{let n=window.innerWidth;(e===null||(n-Se)*(e-Se)<=0)&&t(n<=Se),e=n};return n(),window.addEventListener(`resize`,n),()=>{window.removeEventListener(`resize`,n)}},[]),{isPC:!e,isSP:e}}})))()}var O;function Te(){return(Te=t((()=>{O=class e{x;y;z;w;constructor(e,t,n,r){this.x=0,this.y=0,this.z=0,this.w=0,this.set(e,t,n,r)}get isVector(){return!0}set(e,t,n,r){return this.x=e??0,this.y=t??0,this.z=n??0,this.w=r??0,this}setScalar(e){return this.x=e,this.y=e,this.z=e,this.w=e,this}setFromArray(e){return this.x=e[0]||0,this.y=e[1]||0,this.z=e[2]||0,this.w=e[3]||0,this}add(e){return typeof e==`number`?(this.x+=e,this.y+=e,this.z+=e,this.w+=e):(this.x+=e.x??0,this.y+=e.y??0,this.z+=e.z??0,this.w+=e.w??0),this}sub(e){return typeof e==`number`?(this.x-=e,this.y-=e,this.z-=e):(this.x-=e.x??0,this.y-=e.y??0,this.z-=e.z??0,this.w-=e.w??0),this}multiply(e){return typeof e==`number`?(this.x*=e,this.y*=e,this.z*=e,this.w*=e):(this.x*=e.x,this.y*=e.y,this.z*=e.z,this.w*=e.w),this}divide(e){return typeof e==`number`?(this.x/=e,this.y/=e,this.z/=e,this.w/=e):(this.x/=e.x,this.y/=e.y,this.z/=e.z,this.w/=e.w),this}length(){return Math.sqrt(this.x*this.x+this.y*this.y+this.z*this.z)}distanceTo(e){let t=this.x-e.x,n=this.y-e.y,r=this.z-e.z;return Math.sqrt(t*t+n*n+r*r)}normalize(){let e=this.length()||1;return this.x/=e,this.y/=e,this.z/=e,this}cross(e){let t=this.x,n=this.y,r=this.z,i=e.x,a=e.y,o=e.z;return this.x=n*o-r*a,this.y=r*i-t*o,this.z=t*a-n*i,this}dot(e){return this.x*e.x+this.y*e.y+this.z*e.z}applyMatrix3(e){let t=e.elm,n=t[0],r=t[1],i=t[2],a=t[4],o=t[5],s=t[6],c=t[8],l=t[9],u=t[10],d=this.x*n+this.y*a+this.z*c,f=this.x*r+this.y*o+this.z*l,p=this.x*i+this.y*s+this.z*u;return this.x=d,this.y=f,this.z=p,this.w=0,this}applyMatrix4(e){let t=e.elm,n=t[0],r=t[1],i=t[2],a=t[3],o=t[4],s=t[5],c=t[6],l=t[7],u=t[8],d=t[9],f=t[10],p=t[11],m=t[12],h=t[13],g=t[14],_=t[15],v=this.x*n+this.y*o+this.z*u+this.w*m,y=this.x*r+this.y*s+this.z*d+this.w*h,b=this.x*i+this.y*c+this.z*f+this.w*g,x=this.x*a+this.y*l+this.z*p+this.w*_;return this.x=v,this.y=y,this.z=b,this.w=x,this}applyMatrix4AsPosition(e){let t=this.w;return this.w=1,this.applyMatrix4(e),this.w=t,this}applyMatrix4AsDirection(e){let t=this.w;return this.w=0,this.applyMatrix4(e),this.w=t,this}floor(){this.x=Math.floor(this.x),this.y=Math.floor(this.y),this.z=Math.floor(this.z),this.w=Math.floor(this.w)}lerp(e,t){return this.x+=(e.x-this.x)*t,this.y+=(e.y-this.y)*t,this.z+=(e.z-this.z)*t,this.w+=(e.w-this.w)*t,this}copy(e){return this.x=e.x??0,this.y=e.y??0,this.z=e.z??0,this.w=e.w??0,this}clone(){return new e(this.x,this.y,this.z,this.w)}getElm(e){return e==`vec2`?[this.x,this.y]:e==`vec3`?[this.x,this.y,this.z]:[this.x,this.y,this.z,this.w]}}})))()}var k;function Ee(){return(Ee=t((()=>{Te(),k=class e{elm;constructor(e){this.elm=[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],e&&this.set(e)}identity(){return this.elm=[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],this}clone(){return new e().copy(this)}copy(e){return this.set(e.elm),this}perspective(e,t,n,r){let i=1/Math.tan(e*Math.PI/360),a=r-n;return this.elm=[i/t,0,0,0,0,i,0,0,0,0,-(r+n)/a,-1,0,0,-(r*n*2)/a,0],this}orthographic(e,t,n,r){return this.elm=[2/e,0,0,0,0,2/t,0,0,0,0,-2/(r-n),0,0,0,-(r+n)/(r-n),1],this}lookAt(e,t,n){let r=e.clone().sub(t).normalize(),i=n.clone().cross(r).normalize(),a=r.clone().cross(i).normalize();return this.elm=[i.x,i.y,i.z,0,a.x,a.y,a.z,0,r.x,r.y,r.z,0,e.x,e.y,e.z,1],this}inverse(){let e=this.elm[0],t=this.elm[1],n=this.elm[2],r=this.elm[3],i=this.elm[4],a=this.elm[5],o=this.elm[6],s=this.elm[7],c=this.elm[8],l=this.elm[9],u=this.elm[10],d=this.elm[11],f=this.elm[12],p=this.elm[13],m=this.elm[14],h=this.elm[15],g=e*a-t*i,_=e*o-n*i,v=e*s-r*i,y=t*o-n*a,b=t*s-r*a,x=n*s-r*o,S=c*p-l*f,C=c*m-u*f,w=c*h-d*f,ee=l*m-u*p,te=l*h-d*p,T=u*h-d*m,E=g*T-_*te+v*ee+y*w-b*C+x*S,ne=1/E;return E==0?this.identity():(this.elm[0]=(a*T-o*te+s*ee)*ne,this.elm[1]=(-t*T+n*te-r*ee)*ne,this.elm[2]=(p*x-m*b+h*y)*ne,this.elm[3]=(-l*x+u*b-d*y)*ne,this.elm[4]=(-i*T+o*w-s*C)*ne,this.elm[5]=(e*T-n*w+r*C)*ne,this.elm[6]=(-f*x+m*v-h*_)*ne,this.elm[7]=(c*x-u*v+d*_)*ne,this.elm[8]=(i*te-a*w+s*S)*ne,this.elm[9]=(-e*te+t*w-r*S)*ne,this.elm[10]=(f*b-p*v+h*g)*ne,this.elm[11]=(-c*b+l*v-d*g)*ne,this.elm[12]=(-i*ee+a*C-o*S)*ne,this.elm[13]=(e*ee-t*C+n*S)*ne,this.elm[14]=(-f*y+p*_-m*g)*ne,this.elm[15]=(c*y-l*_+u*g)*ne,this)}transpose(){let e=this.elm[0],t=this.elm[1],n=this.elm[2],r=this.elm[3],i=this.elm[4],a=this.elm[5],o=this.elm[6],s=this.elm[7],c=this.elm[8],l=this.elm[9],u=this.elm[10],d=this.elm[11],f=this.elm[12],p=this.elm[13],m=this.elm[14],h=this.elm[15];return this.elm[0]=e,this.elm[1]=i,this.elm[2]=c,this.elm[3]=f,this.elm[4]=t,this.elm[5]=a,this.elm[6]=l,this.elm[7]=p,this.elm[8]=n,this.elm[9]=o,this.elm[10]=u,this.elm[11]=m,this.elm[12]=r,this.elm[13]=s,this.elm[14]=d,this.elm[15]=h,this}set(e){for(let t=0;t<this.elm.length;t++)this.elm[t]=e[t]??0;return this}setFromTransform(e,t,n){return this.identity(),e&&this.applyPosition(e),t&&this.applyQuaternion(t),n&&this.applyScale(n),this}applyPosition(e){return this.matmul([1,0,0,0,0,1,0,0,0,0,1,0,e.x,e.y,e.z,1]),this}applyQuaternion(e){let t=e.x,n=e.y,r=e.z,i=e.w,a=t*t,o=n*n,s=r*r,c=i*i,l=t*n,u=t*r,d=t*i,f=n*r,p=n*i,m=r*i;return this.matmul([a-o-s+c,2*(l+m),2*(u-p),0,2*(l-m),-a+o-s+c,2*(f+d),0,2*(u+p),2*(f-d),-a-o+s+c,0,0,0,0,1]),this}applyScale(e){return this.matmul([e.x,0,0,0,0,e.y,0,0,0,0,e.z,0,0,0,0,1]),this}matmul(e){let t=Array(16);for(let n=0;n<4;n++)for(let r=0;r<4;r++){let i=0;for(let t=0;t<4;t++)i+=this.elm[t*4+r]*e[t+n*4];t[r+n*4]=i}this.elm=t}setRotationFromDirection(e,t){t||={x:0,y:1,z:0};let n=new O().copy(e).normalize(),r=new O().copy(t).cross(n).normalize();r.length()==0&&(n.x+=.001,r.copy(t).cross(n).normalize());let i=n.clone().cross(r).normalize();return this.set([r.x,r.y,r.z,0,i.x,i.y,i.z,0,n.x,n.y,n.z,0,0,0,0,1]),this}makeRotationAxis(e,t){let n=Math.cos(t),r=Math.sin(t),i=1-n,a=e.x,o=e.y,s=e.z,c=i*a,l=i*o;return this.set([c*a+n,c*o-r*s,c*s+r*o,0,c*o+r*s,l*o+n,l*s-r*a,0,c*s-r*o,l*s+r*a,i*s*s+n,0,0,0,0,1]),this}multiply(e){return this.matmul(e.elm),this}preMultiply(e){let t=this.copyToArray([]);return this.set(e.elm),this.matmul(t),this}decompose(e,t,n){e&&(e.x=this.elm[12],e.y=this.elm[13],e.z=this.elm[14]),t&&t.setFromMatrix(this)}copyToArray(e){e.length=this.elm.length;for(let t=0;t<this.elm.length;t++)e[t]=this.elm[t];return e}}})))()}var De;function Oe(){return(Oe=t((()=>{Ee(),Te(),De=class extends O{order;constructor(e,t,n,r){super(e,t,n,0),this.order=r||`XYZ`}copy(e){return`order`in e&&(this.order=e.order),super.copy(e)}setFromQuaternion(e){let t=new k().applyQuaternion(e);return this.setFromRotationMatrix(t),this}setFromRotationMatrix(e){let t=e.elm,n=t[0],r=t[4],i=t[8],a=t[5],o=t[9],s=t[6],c=t[10];return this.order=`XYZ`,this.y=Math.asin(Math.min(1,Math.max(-1,i))),Math.abs(i)<.9999999?(this.x=Math.atan2(-o,c),this.z=Math.atan2(-r,n)):(this.x=Math.atan2(s,a),this.z=0),this}}})))()}var A;function ke(){return(ke=t((()=>{A=class e{x;y;z;w;updated=!1;constructor(e,t,n,r){this.x=e||0,this.y=t||0,this.z=n||0,this.w=r||1}set(e,t,n,r){this.x=e??this.x,this.y=t??this.y,this.z=n??this.z,this.w=r??this.w,this.updated=!0}setFromEuler(e,t){let n=t||(`order`in e?e.order:`XYZ`),r=Math.sin(e.x/2),i=Math.sin(e.y/2),a=Math.sin(e.z/2),o=Math.cos(e.x/2),s=Math.cos(e.y/2),c=Math.cos(e.z/2);return n==`XYZ`?(this.x=o*i*a+r*s*c,this.y=-r*s*a+o*i*c,this.z=o*s*a+r*i*c,this.w=-r*i*a+o*s*c):n==`XZY`?(this.x=-o*i*a+r*s*c,this.y=o*i*c-r*s*a,this.z=r*i*c+o*s*a,this.w=r*i*a+o*s*c):n==`YZX`?(this.x=r*s*c+o*i*a,this.y=r*s*a+o*i*c,this.z=-r*i*c+o*s*a,this.w=-r*i*a+o*s*c):n==`ZYX`&&(this.x=r*s*c-o*i*a,this.y=r*s*a+o*i*c,this.z=-r*i*c+o*s*a,this.w=r*i*a+o*s*c),this.updated=!0,this}setFromMatrix(e){let t=e.elm,n=t[0]+t[5]+t[10],r,i,a,o;if(n>0){let e=Math.sqrt(n+1)*2;o=.25*e,r=(t[6]-t[9])/e,i=(t[8]-t[2])/e,a=(t[1]-t[4])/e}else if(t[0]>t[5]&&t[0]>t[10]){let e=Math.sqrt(1+t[0]-t[5]-t[10])*2;o=(t[6]-t[9])/e,r=.25*e,i=(t[1]+t[4])/e,a=(t[2]+t[8])/e}else if(t[5]>t[10]){let e=Math.sqrt(1+t[5]-t[0]-t[10])*2;o=(t[8]-t[2])/e,r=(t[1]+t[4])/e,i=.25*e,a=(t[6]+t[9])/e}else{let e=Math.sqrt(1+t[10]-t[0]-t[5])*2;o=(t[1]-t[4])/e,r=(t[2]+t[8])/e,i=(t[6]+t[9])/e,a=.25*e}let s=Math.sqrt(r*r+i*i+a*a+o*o);return r/=s,i/=s,a/=s,o/=s,this.x=r,this.y=i,this.z=a,this.w=o,this.updated=!0,this}multiply(e){let t=this.w*e.w-this.x*e.x-this.y*e.y-this.z*e.z,n=this.w*e.x+this.x*e.w+this.y*e.z-this.z*e.y,r=this.w*e.y-this.x*e.z+this.y*e.w+this.z*e.x,i=this.w*e.z+this.x*e.y-this.y*e.x+this.z*e.w;return this.set(n,r,i,t),this.updated=!0,this}preMultiply(e){let t=e.clone().multiply(this);this.set(t.x,t.y,t.z,t.w)}inverse(){return this.set(-this.x,-this.y,-this.z,this.w),this.updated=!0,this}copy(e){return this.x=e.x??0,this.y=e.y??0,this.z=e.z??0,this.w=e.w??0,this.updated=!0,this}clone(){return new e(this.x,this.y,this.z,this.w)}}})))()}var Ae;function je(){return(je=t((()=>{Te(),(function(e){let t=e.gauss=(e,t,n)=>{let r=e-t,i=-(r*r)/(2*n*n);return 1/Math.sqrt(2*Math.PI*n)*Math.exp(i)};e.gaussWeights=e=>{let n=0,r=[];if(e<=1)return[.5];for(let i=0;i<e;i++){let a=i/(e-1),o=t(a,0,1);n+=o*(i>0?2:1),r.push(o)}for(let t=0;t<e;t++)r[t]/=n;return r},e.randomSeed=e=>{e^=e<<13,e^=0,e^=e<<5;let t=123456789^e;e^=e<<13,e^=0,e^=e<<5;let n=362436069^e;e^=e<<13,e^=0,e^=e<<5;let r=521288629^e;e^=e<<13,e^=0,e^=e<<5;let i=88675123^e,a;return()=>(a=t^t<<11,t=n,n=r,r=i,i=(i^i>>>19^(a^a>>>8))>>>0,i/4294967296)};let n=e.randomRange=(e=-1,t=1)=>e+Math.random()*(t-e);e.randomVector=(e=new O(-1,-1,-1,-1),t=new O(1,1,1,1))=>new O(n(e.x,t.x),n(e.y,t.y),n(e.z,t.z),n(e.w,t.w)),e.randomInSphere=(e=1,t=Math.random)=>{let n=t(),r=t(),i=t(),a=2*Math.PI*n,o=Math.acos(2*r-1),s=Math.cbrt(i)*e,c=Math.sin(o);return{x:s*c*Math.cos(a),y:s*c*Math.sin(a),z:s*Math.cos(o)}},e.smoothstep=(e,t,n)=>n<=e?0:n>=t?1:(n=(n-e)/(t-e),n*n*(3-2*n))})(Ae||={})})))()}function j(){return(j=t((()=>{Te(),Oe(),ke(),Ee(),je()})))()}var Me;function Ne(){return(Ne=t((()=>{Me=class{gl;vao;program;indexBuffer;attributes;vertCount;indexCount;instanceCount;attribPointerDiect;attribTypeDict;constructor(e,t){this.gl=e,this.program=t,this.vao=this.gl.createVertexArray(),this.attributes=new Map,this.indexBuffer=null,this.vertCount=0,this.indexCount=0,this.instanceCount=0,this.attribPointerDiect=new Map([[`Float32Array`,this.gl.vertexAttribPointer.bind(this.gl)],[`Int32Array`,this.gl.vertexAttribIPointer.bind(this.gl)],[`Int16Array`,this.gl.vertexAttribIPointer.bind(this.gl)],[`Int8Array`,this.gl.vertexAttribIPointer.bind(this.gl)],[`UInt32Array`,this.gl.vertexAttribIPointer.bind(this.gl)],[`UInt16Array`,this.gl.vertexAttribIPointer.bind(this.gl)],[`UInt8Array`,this.gl.vertexAttribIPointer.bind(this.gl)]]),this.attribTypeDict=new Map([[`Float32Array`,this.gl.FLOAT],[`Int32Array`,this.gl.INT],[`Int16Array`,this.gl.SHORT],[`Int8Array`,this.gl.BYTE],[`UInt32Array`,this.gl.UNSIGNED_INT],[`UInt16Array`,this.gl.UNSIGNED_SHORT],[`UInt8Array`,this.gl.UNSIGNED_BYTE]])}calcVertCount(){this.vertCount=0,this.instanceCount=0,this.attributes.forEach((e,t)=>{e.instanceDivisor==null&&t!=`index`&&(this.vertCount=Math.max(this.vertCount,e.count)),e.instanceDivisor!==void 0&&e.instanceDivisor>0&&(this.instanceCount=this.instanceCount==0?e.count:Math.min(this.instanceCount,e.count))})}setAttribute(e,t,n,r){if(t.array===null)return;let i={buffer:t,size:n,count:t.array?t.array.length/n:0,location:void 0,...r};this.attributes.set(e,i),this.gl.bindVertexArray(this.vao),i.location=this.gl.getAttribLocation(this.program,e);let a=this.attribPointerDiect.get(t.array.constructor.name),o=this.attribTypeDict.get(t.array.constructor.name);if(i.location>-1){if(this.gl.bindBuffer(this.gl.ARRAY_BUFFER,i.buffer.buffer),i.size==16){for(let e=0;e<4;e++)this.gl.enableVertexAttribArray(i.location+e);for(let e=0;e<4;e++)this.gl.vertexAttribPointer(i.location+e,4,o,!1,64,16*e);if(i.instanceDivisor!==void 0)for(let e=0;e<4;e++)this.gl.vertexAttribDivisor(i.location+e,i.instanceDivisor)}else this.gl.enableVertexAttribArray(i.location),a(i.location,i.size,o,!1,0,0),i.instanceDivisor!==void 0&&this.gl.vertexAttribDivisor(i.location,i.instanceDivisor)}return this.gl.bindVertexArray(null),this.calcVertCount(),this}removeAttribute(e){return this.attributes.delete(e),this.calcVertCount(),this}setIndex(e){this.indexBuffer=e,this.vao&&(this.gl.bindVertexArray(this.vao),this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER,this.indexBuffer?this.indexBuffer.buffer:null),this.gl.bindVertexArray(null),this.indexBuffer&&this.indexBuffer.array&&(this.indexCount=this.indexBuffer.array.length))}use(e){this.gl.bindVertexArray(this.vao),e&&e(this),this.gl.bindVertexArray(null)}getVAO(){return this.vao}dispose(){this.attributes.forEach(e=>{e.buffer.dispose()})}}})))()}var Pe,Fe;function Ie(){return(Ie=t((()=>{Ne(),Pe=new Map,Fe=class{gl;program;name=``;vao;uniforms;constructor(e){this.gl=e,this.program=this.gl.createProgram(),this.vao=new Map,this.uniforms=new Map}setShader(e,t,n){if(this.program===null){console.warn(`program is null.`);return}let r=this.createShader(e,this.gl.VERTEX_SHADER),i=this.createShader(t,this.gl.FRAGMENT_SHADER);if(this.name){let e=[];r.error&&e.push(`[VERTEX]
+`+r.error),i.error&&e.push(`[FRAGMENT]
+`+i.error),e.length>0?Pe.set(this.name,e.join(`
+
+`)):Pe.delete(this.name)}if(!(!r.shader||!i.shader)){if(this.gl.attachShader(this.program,r.shader),this.gl.attachShader(this.program,i.shader),n&&n.transformFeedbackVaryings&&this.gl.transformFeedbackVaryings(this.program,n.transformFeedbackVaryings,this.gl.SEPARATE_ATTRIBS),this.gl.linkProgram(this.program),!this.gl.getProgramParameter(this.program,this.gl.LINK_STATUS)){let e=this.gl.getProgramInfoLog(this.program);if(console.error(`program link error:`,e),this.name&&e){let t=Pe.get(this.name);Pe.set(this.name,(t?t+`
+
+`:``)+`[LINK]
+`+e)}}return this}}createShader(e,t){let n=this.gl.createShader(t);return n?(this.gl.shaderSource(n,e),this.gl.compileShader(n),this.gl.getShaderParameter(n,this.gl.COMPILE_STATUS)?{shader:n,error:null}:{shader:null,error:this.gl.getShaderInfoLog(n)||`Unknown shader error`}):{shader:null,error:null}}setUniform(e,t,n){let r=this.uniforms.get(e);if(r){r.type=t;let e=r.value;e.length=n.length;for(let t=0;t<n.length;t++)e[t]=n[t];if(r.cache){if(r.cache.length!==e.length)r.needsUpdate=!0;else for(let t=0;t<e.length;t++)if(r.cache[t]!==e[t]){r.needsUpdate=!0;break}}else r.needsUpdate=!0}else this.uniforms.set(e,{value:n.concat(),type:t,location:null,needsUpdate:!0}),this.updateUniformLocations()}updateUniformLocations(e){this.program&&this.uniforms.forEach((t,n)=>{(t.location===null||e)&&(t.location=this.gl.getUniformLocation(this.program,n))})}uploadUniforms(){this.uniforms.forEach(e=>{e.needsUpdate&&e.location!==null&&(/Matrix[2|3|4]fv/.test(e.type)?this.gl[`uniform`+e.type](e.location,!1,e.value):/[1|2|3|4][f|i]$/.test(e.type)?this.gl[`uniform`+e.type](e.location,...e.value):this.gl[`uniform`+e.type](e.location,e.value),e.cache=e.value.concat(),e.needsUpdate=!1)})}getVAO(e=`_`){if(!this.program)return null;let t=this.vao.get(e);return t||(t=new Me(this.gl,this.program),this.vao.set(e,t),t)}use(e){this.program&&(this.gl.useProgram(this.program),e&&e(this),this.gl.useProgram(null))}getProgram(){return this.program}dispose(){this.vao.forEach(e=>{e.dispose()}),this.vao.clear(),this.gl.deleteProgram(this.program)}}})))()}var Le;function Re(){return(Re=t((()=>{Le=class{gl;buffer;array;constructor(e){this.gl=e,this.buffer=this.gl.createBuffer(),this.array=null}setData(e,t=`vbo`,n){let r=t==`vbo`?this.gl.ARRAY_BUFFER:this.gl.ELEMENT_ARRAY_BUFFER;return this.gl.bindBuffer(r,this.buffer),this.gl.bufferData(r,e,n||this.gl.STATIC_DRAW),this.gl.bindBuffer(r,null),this.array=e,this}read(e){return this.gl.bindBuffer(this.gl.ARRAY_BUFFER,this.buffer),this.gl.getBufferSubData(this.gl.ARRAY_BUFFER,0,e),this.gl.bindBuffer(this.gl.ARRAY_BUFFER,null),this}dispose(){this.gl.deleteBuffer(this.buffer)}}})))()}var ze;function Be(){return(Be=t((()=>{j(),ze=class{unit;image;size;gl;glTex;textureType;_setting;constructor(e){this.gl=e,this.image=null,this.unit=0,this.size=new O,this.glTex=this.gl.createTexture(),this._setting={type:this.gl.UNSIGNED_BYTE,internalFormat:this.gl.RGBA,format:this.gl.RGBA,magFilter:this.gl.NEAREST,minFilter:this.gl.NEAREST,generateMipmap:!1,wrapS:this.gl.CLAMP_TO_EDGE,wrapT:this.gl.CLAMP_TO_EDGE},this.textureType=e.TEXTURE_2D}get isTexture(){return!0}setting(e){return this._setting={...this._setting,...e},this.attach(this.image),this}attach(e,t){if(this.image=e,this.gl.bindTexture(this.textureType,this.glTex),t&&this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL,!0),this.image){let e=Array.isArray(this.image)?this.image[0]:this.image;this.size.set(e.width,e.height),e instanceof HTMLImageElement||e instanceof HTMLCanvasElement?this.gl.texImage2D(this.textureType,0,this._setting.internalFormat,this._setting.format,this._setting.type,e):this.gl.texImage2D(this.textureType,0,this._setting.internalFormat,e.width,e.height,0,this._setting.format,this._setting.type,e.data||null)}else this.size.set(1,1),this.gl.texImage2D(this.textureType,0,this._setting.internalFormat,this.size.x,this.size.y,0,this._setting.format,this._setting.type,null);return t&&this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL,!1),this._setting.generateMipmap&&this.gl.generateMipmap(this.textureType),this.gl.texParameteri(this.textureType,this.gl.TEXTURE_MAG_FILTER,this._setting.magFilter),this.gl.texParameteri(this.textureType,this.gl.TEXTURE_MIN_FILTER,this._setting.minFilter),this.gl.texParameterf(this.textureType,this.gl.TEXTURE_WRAP_S,this._setting.wrapS),this.gl.texParameterf(this.textureType,this.gl.TEXTURE_WRAP_T,this._setting.wrapT),this.gl.bindTexture(this.textureType,null),this}subImage(e,t,n){return this.gl.bindTexture(this.textureType,this.glTex),this.gl.texSubImage2D(this.textureType,0,0,0,t,n,this._setting.format,this._setting.type,e),this.gl.bindTexture(this.textureType,null),this}activate(e){return this.gl.activeTexture(this.gl.TEXTURE0+e),this.gl.bindTexture(this.textureType,this.glTex),this.unit=e,this}load(e,t){let n=new Image;return n.onload=()=>{this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL,!0),this.attach(n),this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL,!1),t&&t()},n.src=e,this}getTexture(){return this.glTex}get type(){return this.textureType}dispose(){this.gl.deleteTexture(this.glTex)}}})))()}var Ve;function He(){return(He=t((()=>{j(),Be(),Ve=class{size;gl;glFrameBuffer;textures;depthTexture;textureAttachmentList;constructor(e,t){this.gl=e,this.size=new O(1,1),this.glFrameBuffer=this.gl.createFramebuffer(),this.depthTexture=null,this.textures=[],this.textureAttachmentList=[],(!t||!t.disableDepthBuffer)&&this.setDepthTexture(new ze(this.gl).setting({internalFormat:this.gl.DEPTH_COMPONENT32F,format:this.gl.DEPTH_COMPONENT,type:this.gl.FLOAT,magFilter:this.gl.NEAREST,minFilter:this.gl.NEAREST}))}setDepthTexture(e){this.depthTexture=e,this.depthTexture&&(this.gl.bindFramebuffer(this.gl.FRAMEBUFFER,this.glFrameBuffer),this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER,this.gl.DEPTH_ATTACHMENT,this.gl.TEXTURE_2D,this.depthTexture.getTexture(),0),this.gl.bindFramebuffer(this.gl.FRAMEBUFFER,null))}setTexture(e){return this.textures=e,this.textureAttachmentList=[],this.gl.bindFramebuffer(this.gl.FRAMEBUFFER,this.glFrameBuffer),this.textures.forEach((e,t)=>{e.attach({width:this.size.x,height:this.size.y});let n=this.gl.COLOR_ATTACHMENT0+t;this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER,n,this.gl.TEXTURE_2D,e.getTexture(),0),this.textureAttachmentList.push(n)}),this.gl.bindFramebuffer(this.gl.FRAMEBUFFER,null),this}setSize(e,t){return typeof e==`number`?(this.size.x=e,t!==void 0&&(this.size.y=t)):this.size.copy(e),this.size.floor(),this.setTexture(this.textures),this.textures.forEach(e=>{e.attach({width:this.size.x,height:this.size.y})}),this.depthTexture&&this.depthTexture.attach({width:this.size.x,height:this.size.y}),this}getFrameBuffer(){return this.glFrameBuffer}clear(){let e=this.gl;e.bindFramebuffer(e.FRAMEBUFFER,this.glFrameBuffer),e.drawBuffers(this.textureAttachmentList),e.clearColor(0,0,0,0),e.clear(e.COLOR_BUFFER_BIT),e.bindFramebuffer(e.FRAMEBUFFER,null)}dispose(){this.gl.deleteFramebuffer(this.glFrameBuffer)}}})))()}var Ue;function We(){return(We=t((()=>{He(),Ue=class extends Ve{cubeTarget;textures;currentFace;constructor(e,t){super(e,t),this.textures=[],this.cubeTarget=[this.gl.TEXTURE_CUBE_MAP_POSITIVE_X,this.gl.TEXTURE_CUBE_MAP_POSITIVE_Y,this.gl.TEXTURE_CUBE_MAP_POSITIVE_Z,this.gl.TEXTURE_CUBE_MAP_NEGATIVE_X,this.gl.TEXTURE_CUBE_MAP_NEGATIVE_Y,this.gl.TEXTURE_CUBE_MAP_NEGATIVE_Z],this.currentFace=this.cubeTarget[0]}setTexture(e){return this.textures=e,this.textureAttachmentList=[],this.textures.forEach(e=>{e.attach({width:this.size.x,height:this.size.y})}),this}face(e){this.gl.bindFramebuffer(this.gl.FRAMEBUFFER,this.glFrameBuffer),this.textureAttachmentList=[],this.textures.forEach((t,n)=>{let r=this.gl.COLOR_ATTACHMENT0+n;this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER,r,this.cubeTarget[e],t.getTexture(),0),this.textureAttachmentList.push(r)}),this.currentFace=this.cubeTarget[e],this.gl.bindFramebuffer(this.gl.FRAMEBUFFER,null)}}})))()}var Ge;function Ke(){return(Ke=t((()=>{Be(),Ge=class extends ze{cubeTarget;constructor(e){super(e),this.textureType=e.TEXTURE_CUBE_MAP,this.cubeTarget=[this.gl.TEXTURE_CUBE_MAP_POSITIVE_X,this.gl.TEXTURE_CUBE_MAP_POSITIVE_Y,this.gl.TEXTURE_CUBE_MAP_POSITIVE_Z,this.gl.TEXTURE_CUBE_MAP_NEGATIVE_X,this.gl.TEXTURE_CUBE_MAP_NEGATIVE_Y,this.gl.TEXTURE_CUBE_MAP_NEGATIVE_Z]}attach(e){if(this.image=e,this.gl.bindTexture(this.textureType,this.glTex),this.image)for(let e=0;e<6;e++){let t=Array.isArray(this.image)?this.image[e]:this.image;this.size.set(t.width,t.height),t instanceof HTMLImageElement||t instanceof HTMLCanvasElement?this.gl.texImage2D(this.cubeTarget[e],0,this.gl.RGBA,this.gl.RGBA,this.gl.UNSIGNED_BYTE,t):this.gl.texImage2D(this.cubeTarget[e],0,this._setting.internalFormat,t.width,t.height,0,this._setting.format,this._setting.type,t.data||null)}return this._setting.generateMipmap&&this.gl.generateMipmap(this.textureType),this.gl.texParameteri(this.textureType,this.gl.TEXTURE_MAG_FILTER,this._setting.magFilter),this.gl.texParameteri(this.textureType,this.gl.TEXTURE_MIN_FILTER,this._setting.minFilter),this.gl.texParameterf(this.textureType,this.gl.TEXTURE_WRAP_S,this._setting.wrapS),this.gl.texParameterf(this.textureType,this.gl.TEXTURE_WRAP_T,this._setting.wrapT),this.gl.bindTexture(this.textureType,null),this}}})))()}function qe(){return(qe=t((()=>{Ie(),Re(),He(),We(),Be(),Ke()})))()}var M,Je;function Ye(){return(Ye=t((()=>{qe(),M=WebGL2RenderingContext,Je=class{gl;canvas;_stateCache;_extDisJointTimerQuery;_queryList;_queryListQueued;constructor(e){this.gl=e,this.canvas=e.canvas,this._stateCache={},this._queryList=[],this._queryListQueued=[],e.getExtension(`EXT_color_buffer_float`),e.getExtension(`EXT_color_buffer_half_float`),e.getExtension(`OES_texture_float_linear`),this._extDisJointTimerQuery=e.getExtension(`EXT_disjoint_timer_query_webgl2`),this._extDisJointTimerQuery||console.warn(`[Renderer] EXT_disjoint_timer_query_webgl2 extension is not supported. GPU timing features will be disabled.`),e.blendFunc(e.SRC_ALPHA,e.ONE_MINUS_SRC_ALPHA)}createTexture(){return new ze(this.gl)}createCubeTexture(){return new Ge(this.gl)}createFrameBuffer(e){return new Ve(this.gl,e)}createCubeFrameBuffer(){return new Ue(this.gl)}createProgram(){return new Fe(this.gl)}_setState(e,t){this._stateCache[e]!==t&&(t?this.gl.enable(e):this.gl.disable(e),this._stateCache[e]=t)}setMaterialState(e,t,n){this._setState(this.gl.CULL_FACE,e),this._setState(this.gl.DEPTH_TEST,t),this.gl.depthMask(n)}setBlendEnabled(e){e?this.gl.enable(this.gl.BLEND):this.gl.disable(this.gl.BLEND)}bindRenderTarget(e,t,n){t?this.gl.viewport(t.x,t.y,t.z,t.w):e?this.gl.viewport(0,0,e.size.x,e.size.y):n&&this.gl.viewport(0,0,n.x,n.y),e?(this.gl.bindFramebuffer(this.gl.FRAMEBUFFER,e.getFrameBuffer()),this.gl.drawBuffers(e.textureAttachmentList)):this.gl.bindFramebuffer(this.gl.FRAMEBUFFER,null)}clear(e,t){let n=0;e&&(this.gl.clearColor(e.x,e.y,e.z,e.w),n|=this.gl.COLOR_BUFFER_BIT),t!==null&&(this.gl.clearDepth(t),n|=this.gl.DEPTH_BUFFER_BIT),n!==0&&this.gl.clear(n)}blit(e,t,n,r,i,a){let o=this.gl;o.bindFramebuffer(o.READ_FRAMEBUFFER,e?e.getFrameBuffer():null),a&&o.readBuffer(o.COLOR_ATTACHMENT0),o.bindFramebuffer(o.DRAW_FRAMEBUFFER,t?t.getFrameBuffer():null),a&&t&&o.drawBuffers([o.COLOR_ATTACHMENT0]),o.blitFramebuffer(0,0,n,r,0,0,n,r,o.COLOR_BUFFER_BIT,i?o.LINEAR:o.NEAREST),o.bindFramebuffer(o.READ_FRAMEBUFFER,null),o.bindFramebuffer(o.DRAW_FRAMEBUFFER,null)}draw(e,t,n,r,i){e.use(e=>{e.uploadUniforms(),this.gl.bindVertexArray(t.getVAO());let i=t.indexBuffer,a=this.gl.UNSIGNED_SHORT;i&&i.array&&i.array.BYTES_PER_ELEMENT==4&&(a=this.gl.UNSIGNED_INT),r==`NORMAL`?this.gl.blendFunc(this.gl.SRC_ALPHA,this.gl.ONE_MINUS_SRC_ALPHA):r==`ADD`?this.gl.blendFunc(this.gl.SRC_ALPHA,this.gl.ONE):r==`DIFF`&&this.gl.blendFunc(this.gl.ONE_MINUS_DST_COLOR,this.gl.ONE_MINUS_DST_COLOR);let o=this.gl[n];t.instanceCount>0?i?this.gl.drawElementsInstanced(o,t.indexCount,a,0,t.instanceCount):this.gl.drawArraysInstanced(o,0,t.vertCount,t.instanceCount):i?this.gl.drawElements(o,t.indexCount,a,0):this.gl.drawArrays(o,0,t.vertCount),this.gl.bindVertexArray(null)})}collectTimerQueries(){if(!this._extDisJointTimerQuery)return null;if(this.gl.getParameter(this._extDisJointTimerQuery.GPU_DISJOINT_EXT))return this._queryList.forEach(e=>this.gl.deleteQuery(e)),this._queryList.length=0,null;let e=[];if(this._queryListQueued.length>0){let t=this._queryListQueued.length;for(let n=t-1;n>=0;n--){let t=this._queryListQueued[n];if(this.gl.getQueryParameter(t.query,this.gl.QUERY_RESULT_AVAILABLE)){let r=this.gl.getQueryParameter(t.query,this.gl.QUERY_RESULT);e.push({name:t.name,duration:r/1e3/1e3}),this._queryList.push(t.query),this._queryListQueued.splice(n,1)}}}return e}}})))()}var Xe,Ze,Qe,$e;function et(){return(et=t((()=>{Xe=(e,t)=>{if(!t)return e;let n=Object.keys(t),r=``;for(let e=0;e<n.length;e++)r+=`#define `+n[e]+` `+t[n[e]]+`
+`;return r+=e,r},Ze=(e,t)=>(e=e.replaceAll(`NUM_LIGHT_DIR`,t?t.directional.length.toString():`0`),e=e.replaceAll(`NUM_SHADOWMAP_DIR`,t?Math.min(2,t.directional.filter(e=>e.component.castShadow).length).toString():`0`),e=e.replaceAll(`NUM_LIGHT_SPOT`,t?t.spot.length.toString():`0`),e=e.replaceAll(`NUM_SHADOWMAP_SPOT`,t?Math.min(2,t.spot.filter(e=>e.component.castShadow).length).toString():`0`),e),Qe=e=>(e=e.replace(/#pragma\sloop_start\s(\d+)*([\s\S]+?)#pragma\sloop_end/g,(e,t,n)=>{let r=``;for(let e=0;e<Number(t);e++)r+=n.replaceAll(`LOOP_INDEX`,e.toString());return r}),e),$e=(e,t,n)=>(e=Xe(e,t),e=`#version 300 es
+precision highp float;
+`+e,e=Ze(e,n),e=Qe(e),e)})))()}var tt;function nt(){return(nt=t((()=>{tt=class{listeners;constructor(){this.listeners=[]}on(e,t){this.listeners.push({event:e,cb:t})}once(e,t){this.listeners.push({event:e,cb:t,once:!0})}off(e,t){this.listeners=this.listeners.filter(n=>t==null?n.event!=e:n.event!=e||n.cb!=t)}emit(e,t){let n=this.listeners.concat();for(let r=0;r<n.length;r++){let i=n[r];i.event==e&&(i.cb.apply(this,t||[]),i.once&&this.off(e,i.cb))}}hasEvent(e){return this.listeners.some(t=>t.event==e)}}})))()}var rt;function it(){return(it=t((()=>{(function(e){function t(){let e=crypto.getRandomValues(new Uint8Array(16));e[6]=e[6]&15|64,e[8]=e[8]&63|128;let t=Array.from(e,e=>e.toString(16).padStart(2,`0`)).join(``);return`${t.slice(0,8)}-${t.slice(8,12)}-${t.slice(12,16)}-${t.slice(16,20)}-${t.slice(20)}`}e.genUUID=t})(rt||={})})))()}function at(){return(at=t((()=>{nt(),it()})))()}var ot;function st(){return(st=t((()=>{(function(e){let t=e.NEWTON_ITERATIONS=4;e.NEWTON_MIN_SLOPE=.001,e.SUBDIVISION_PRECISION=1e-7;let n=e.SUBDIVISION_MAX_ITERATIONS=10,r=e.BEZIER_EASING_CACHE_SIZE=11,i=e.BEZIER_EASING_SAMPLE_STEP_SIZE=1/r;function a(e){return-e.p0+3*e.p1-3*e.p2+e.p3}function o(e){return 3*e.p0-6*e.p1+3*e.p2}function s(e){return-3*e.p0+3*e.p1}function c(e,t){return 3*a(e)*t*t+2*o(e)*t+s(e)}e.calcBezierSlope=c;function l(e,t){return((a(e)*t+o(e))*t+s(e))*t+e.p0}e.calcBezier=l;function u(e,t,r,i){let a=0,o=0;for(let s=0;s<n;s++)o=t+(r-t)/2,a=l(i,o),a>e?r=o:t=o;return o}function d(e,n,r){for(let i=0;i<t;i++){let t=c(n,r);if(t==0)return r;let i=l(n,r)-e;r-=i/t}return r}function f(e,t,n){e.p1=Math.max(e.p0,Math.min(e.p3,e.p1)),e.p2=Math.max(e.p0,Math.min(e.p3,e.p2));let a=0;for(let e=1;e<n.length&&(a=e-1,!(t<n[e]));e++);let o=a/(r-1),s=c(e,o)/(e.p3-e.p0);return s==0?o:s>.01?d(t,e,o):u(t,o,o+i,e)}e.getBezierTfromX=f})(ot||={})})))()}function ct(e,t,n,r){let i=Array(ot.BEZIER_EASING_CACHE_SIZE);for(let a=0;a<ot.BEZIER_EASING_CACHE_SIZE;++a)i[a]=ot.calcBezier({p0:e.x,p1:t.x,p2:n.x,p3:r.x},a/(ot.BEZIER_EASING_CACHE_SIZE-1));return a=>a<=e.x?e.y:r.x<=a?r.y:ot.calcBezier({p0:e.y,p1:t.y,p2:n.y,p3:r.y},ot.getBezierTfromX({p0:e.x,p1:t.x,p2:n.x,p3:r.x},a,i))}function lt(){return(lt=t((()=>{st()})))()}var ut;function dt(){return(dt=t((()=>{(function(e){e.number=(e,t,n)=>e+(t-e)*n,e.vector=(e,t,n)=>e.lerp(t,n)})(ut||={})})))()}function ft(){return(ft=t((()=>{at(),lt(),dt()})))()}var pt;function mt(){return(mt=t((()=>{at(),pt=class extends tt{keyframes=[];cache={frame:NaN,value:NaN};frameStart;frameEnd;frameDuration;constructor(e){super(),this.frameStart=0,this.frameEnd=0,this.frameDuration=0,this.set(e)}set(e){e&&(this.keyframes=[],e.forEach(e=>{this.addKeyFrame(e)}))}addKeyFrame(e){let t=0;for(let n=0;n<this.keyframes.length&&this.keyframes[n].coordinate.x<e.coordinate.x;n++)t++;this.keyframes.splice(t,0,e),this.frameStart=this.keyframes[0].coordinate.x,this.frameEnd=this.keyframes[this.keyframes.length-1].coordinate.x}getValue(e){if(e==this.cache.frame)return this.cache.value;let t=null;for(let n=0;n<this.keyframes.length;n++){let r=this.keyframes[n];if(e<r.coordinate.x){let i=this.keyframes[n-1];t=i?i.to(r,e):r.coordinate.y;break}}return t===null&&this.keyframes.length>0&&(t=this.keyframes[this.keyframes.length-1].coordinate.y),t===null?0:(this.cache={frame:e,value:t},t)}}})))()}var ht;function gt(){return(gt=t((()=>{at(),j(),ht=class extends tt{name;curves;frameStart;frameEnd;frameDuration;updatedFrame=-1;value;constructor(e,t,n,r,i){super(),this.name=e||``,this.frameStart=0,this.frameEnd=0,this.frameDuration=0,this.curves=new Map,this.value=new O,t&&this.setFCurve(t,`x`),n&&this.setFCurve(n,`y`),r&&this.setFCurve(r,`z`),i&&this.setFCurve(i,`w`)}setFCurve(e,t){this.curves.set(t,e);let n=1/0,r=-1/0;this.curves.forEach(e=>{e.frameStart<n&&(n=e.frameStart),e.frameEnd>r&&(r=e.frameEnd)}),(n==-1/0||r==1/0)&&(n=0,r=1),this.frameStart=n,this.frameEnd=r,this.frameDuration=this.frameEnd-this.frameStart}getFCurve(e){return this.curves.get(e)||null}setFrame(e){if(e==this.updatedFrame)return this;let t=this.curves.get(`x`),n=this.curves.get(`y`),r=this.curves.get(`z`),i=this.curves.get(`w`);return t&&(this.value.x=t.getValue(e)),n&&(this.value.y=n.getValue(e)),r&&(this.value.z=r.getValue(e)),i&&(this.value.w=i.getValue(e)),this.updatedFrame=e,this}}})))()}var _t;function vt(){return(vt=t((()=>{at(),lt(),_t=class extends tt{coordinate={x:0,y:0};handleLeft={x:0,y:0};handleRight={x:0,y:0};interpolation=`BEZIER`;easing=null;nextFrame=null;constructor(e,t,n,r){super(),this.set(e,t,n,r)}set(e,t,n,r){this.coordinate=e,this.handleLeft=t||e,this.handleRight=n||e,this.interpolation=r||`BEZIER`}getEasing(e,t){return e==`BEZIER`?ct(this.coordinate,this.handleRight,t.handleLeft,t.coordinate):e==`CONSTANT`?()=>this.coordinate.y:e=>{let n=t.coordinate.y-this.coordinate.y;return e=(e-this.coordinate.x)/(t.coordinate.x-this.coordinate.x),this.coordinate.y+e*n}}to(e,t){return(this.nextFrame==null||this.nextFrame.coordinate.x!=e.coordinate.x||this.nextFrame.coordinate.y!=e.coordinate.y)&&(this.easing=this.getEasing(this.interpolation,e),this.nextFrame=e),this.easing?this.easing(t):0}}})))()}function yt(e){let t=[],n=0;for(let[r,i]of e){n+=i[0];let e,a;i.length>=4&&(e={x:i[2],y:i[3]}),i.length>=6&&(a={x:i[4],y:i[5]}),t.push(new _t({x:n,y:i[1]},e,a,bt[r]))}return t}var bt;function xt(){return(xt=t((()=>{vt(),bt=[`LINEAR`,`CONSTANT`,`BEZIER`]})))()}var St;function Ct(){return(Ct=t((()=>{at(),mt(),gt(),xt(),St=class e extends tt{static gltfLoaderFactory=null;_engine;connection;frame;nodes;curveGroups;root;gltf;currentScene;constructor(e,t){super(),this._engine=e,this.root=null,this.nodes=[],this.curveGroups=[],this.currentScene=null,this.frame={start:0,end:100,current:0,fps:30,playing:!1},t&&this.connect(t)}connect(e,t){}disconnect(){}binaryStringToArrayBuffer(e){let t=new Uint8Array(e.length);for(let n=0;n<e.length;n++){let r=e.charCodeAt(n);t[n]=r}return t.buffer}async loadScene(t,n){this.currentScene=t,n&&(e.gltfLoaderFactory?await e.gltfLoaderFactory(this._engine).load(n).then(e=>{this.gltf=e,this.emit(`gltfLoaded`,[e])}):console.warn(`BLidge: gltfLoaderFactory not wired`)),await new Promise(e=>{setTimeout(()=>{e(null)},100)}),this.frame.start=t.frame.start,this.frame.end=t.frame.end,this.frame.fps=t.frame.fps,this.curveGroups=[],this.nodes=[];let r=[];for(let e of t.fcurves)r.push(new pt(yt(e.k)));for(let e=0;e<t.animations.length;e++){let n=new ht(String(e));for(let i of t.animations[e])n.setFCurve(r[i],t.fcurves[i].axis);this.curveGroups.push(n)}this.nodes=[];let i=e=>{let t={name:e.name,children:[],animations:e.animation||{},position:e.position||[0,0,0],rotation:e.rotation||[0,0,0],scale:e.scale||[1,1,1],uniforms:e.uniforms||{},type:e.type||`empty`,visible:e.visible!==!1},n=e.param;return t.param=n&&`position`in n?{position:new Float32Array(this.binaryStringToArrayBuffer(atob(n.position))),normal:new Float32Array(this.binaryStringToArrayBuffer(atob(n.normal))),uv:new Float32Array(this.binaryStringToArrayBuffer(atob(n.uv))),index:new Uint16Array(this.binaryStringToArrayBuffer(atob(n.index)))}:n,e.children&&e.children.forEach(e=>{t.children.push(i(e))}),this.nodes.push(t),t};this.root=i(t.root),this.emit(`sync/scene`,[this]),this.onSyncTimeline(this.frame)}onSyncTimeline(e){this.frame=e,this.emit(`sync/timeline`,[this.frame])}onOpen(e){}onMessage(e){}onClose(e){this.disconnect()}getCurveGroup(e){return this.curveGroups[e]}setFrame(e){this.onSyncTimeline({...this.frame,playing:!0,current:e})}get gltfPrm(){return this.gltf?Promise.resolve(this.gltf):new Promise(e=>{this.on(`gltfLoaded`,t=>{e(t)})})}dispose(){this.disconnect()}}})))()}var wt,Tt;function Et(){return(Et=t((()=>{at(),wt=(e,t)=>{if(typeof e==`number`){let n=e;return t.int&&(n=Math.round(n)),t.min!==void 0&&(n=Math.max(t.min,n)),t.max!==void 0&&(n=Math.min(t.max,n)),n}if(Array.isArray(e)){if(!e.every(e=>typeof e==`number`))return e;let n=[];for(let r of e)n.push(wt(r,t));return n}return e},Tt=class extends tt{uuid;initiator;fields_;constructor(){super(),this.uuid=rt.genUUID(),this.fields_=new Map,this.initiator=`script`}restoreUUID(e){this.uuid=e}serialize(e){e||={mode:`view`};let t={};return this.fields_.forEach((n,r)=>{let i=this.getFieldOpt(r);e.mode==`export`&&i&&i&&i.noExport||(t[r]=n.get(e))}),t}serializeToDirectory(){return(e=>{let t={type:`folder`,childs:{},opt:{}},n=Object.keys(e);for(let r=0;r<n.length;r++){let i=n[r],a=this.getFieldOpt(i);if(!i)continue;let o=t,s=i.split(`/`);for(let e=0;e<s.length;e++){let t=s[e];t&&o.type!=`value`&&(o.childs[t]||(e==s.length-1?o.childs[t]={type:`value`,value:null,opt:a}:o.childs[t]={type:`folder`,childs:{},opt:a}),o=o.childs[t])}o.type==`value`&&(o.value=e[i])}return t})(this.serialize())}deserialize(e){let t=Object.keys(e);for(let n=0;n<t.length;n++){let r=t[n],i=this.fields_.get(r);i&&i.set(e[r])}}exportEditor(){this.serialize({mode:`export`})}field(e,t,n,r){let i=typeof n==`function`?n:void 0,a=typeof n==`object`&&n||r||{};i||(a.readOnly=!0,a.noExport=!0);let o=e.startsWith(`/`)?e.slice(1):e;this.fields_.set(o,{get:t,set:(t=>{i&&i(wt(t,a)),this.noticeField(e)}),opt:a})}fieldDir(e,t){let n=e;return this.field(n+`/`,()=>null,void 0,{...t,isFolder:!0}),{dir:e=>this.fieldDir(`${n}/${e}`),field:(e,t,r,i)=>{this.field(`${n}/${e}`,t,r,i)}}}removeField(e){let t=e.startsWith(`/`)?e.slice(1):e;this.fields_.delete(t)}setField(e,t){let n=this.fields_.get(e);if(!n)throw Error(`Unknown field path: ${e}`);n.set(t)}getField(e,t){let n=this.fields_.get(e);if(n)return t||={mode:`view`},n.get(t)}getFieldOpt(e){let t=this.fields_.get(e);if(t)return t.opt}noticeField(e){this.emit(`fields/update/`+e),this.emit(`fields/update`,[[e]])}}})))()}var Dt;function Ot(){return(Ot=t((()=>{Et(),Dt=class extends Tt{disableEdit;order;_entity;_engine;_enabled;_tag;_disposed;constructor(e){super(),this.disableEdit=!1,this._entity=e.entity,this._engine=e.engine,this._enabled=!0,this._disposed=!1,this._tag=``,this.order=0,this.field(`enabled`,()=>this.enabled,e=>this.enabled=e,{hidden:!0,noExport:!0}),this.field(`tag`,()=>this.tag,e=>this._tag=e,{readOnly:!0,noExport:!0,hidden:e=>e==``})}get tag(){return this._tag}get entity(){return this._entity}get engine(){return this._engine}set enabled(e){this._enabled=e}get enabled(){return this._enabled}update(e){this.enabled&&this.updateImpl(e)}updateImpl(e){}postUpdate(e){this.enabled&&this.postUpdateImpl(e)}postUpdateImpl(e){}prepareRender(e){this.enabled&&this.prepareRenderImpl(e)}prepareRenderImpl(e){}commitFrame(e){this.enabled&&this.commitFrameImpl(e)}commitFrameImpl(e){}dispose(){this._disposed=!0,this.emit(`dispose`)}}})))()}var kt;function At(){return(At=t((()=>{j(),Et(),kt=class extends Tt{vertCount;attributes;boundingBox;updateVersion;constructor(){super(),this.vertCount=0,this.attributes=new Map,this.boundingBox=null,this.updateVersion=0}setAttribute(e,t,n,r){return this.attributes.set(e,{array:t,size:n,opt:r}),this.updateVersion++,this.updateVertCount(),e===`position`&&this.computeBoundingBox(),this}getAttribute(e){return this.attributes.get(e)}updateVertCount(){this.vertCount=this.attributes.size>0?1/0:0,this.attributes.forEach((e,t)=>{t==`index`||e.opt&&e.opt.instanceDivisor||(this.vertCount=Math.min(e.array.length/e.size,this.vertCount))})}computeBoundingBox(){let e=this.attributes.get(`position`);if(!e){this.boundingBox=null;return}let t=e.array,n=new O(1/0,1/0,1/0),r=new O(-1/0,-1/0,-1/0);for(let e=0;e<t.length;e+=3){let i=t[e],a=t[e+1],o=t[e+2];i<n.x&&(n.x=i),a<n.y&&(n.y=a),o<n.z&&(n.z=o),i>r.x&&(r.x=i),a>r.y&&(r.y=a),o>r.z&&(r.z=o)}this.boundingBox={min:n,max:r}}requestUpdate(){this.updateVersion++}}})))()}var jt;function Mt(){return(Mt=t((()=>{At(),jt=class extends kt{constructor(e){super();let t=[],n=[],r=[],i=[],a=[],{width:o,height:s,depth:c,segmentsWidth:l,segmentsHeight:u,segmentsDepth:d}={width:1,height:1,depth:1,segmentsWidth:1,segmentsHeight:1,segmentsDepth:1,...e},f=[{normal:[0,0,1],dir:[1,0,0],up:[0,1,0],w:o,h:s,d:c,segW:l,segH:u},{normal:[0,0,-1],dir:[-1,0,0],up:[0,1,0],w:o,h:s,d:c,segW:l,segH:u},{normal:[1,0,0],dir:[0,0,-1],up:[0,1,0],w:c,h:s,d:o,segW:d,segH:u},{normal:[-1,0,0],dir:[0,0,1],up:[0,1,0],w:c,h:s,d:o,segW:d,segH:u},{normal:[0,1,0],dir:[-1,0,0],up:[0,0,1],w:o,h:c,d:s,segW:l,segH:d},{normal:[0,-1,0],dir:[-1,0,0],up:[0,0,-1],w:o,h:c,d:s,segW:l,segH:d}],p=0;for(let e of f){let o=e.normal,s=e.dir,c=e.up,l=e.segW,u=e.segH,d=e.w/2,f=e.h/2,m=e.d/2,h=e.w/l,g=e.h/u;for(let e=0;e<=u;e++)for(let _=0;_<=l;_++){let v=-d+_*h,y=-f+e*g,b=-m,x=_/l,S=e/u,C=v*-s[0]+y*c[0]+b*-o[0],w=v*-s[1]+y*c[1]+b*-o[1],ee=v*-s[2]+y*c[2]+b*-o[2];if(t.push(C,w,ee),n.push(...o),r.push(x,S),a.push(e/u*c[1]+Math.max(0,c[2])),e<u&&_<l){let t=p+e*(l+1)+_,n=p+(e+1)*(l+1)+_,r=p+(e+1)*(l+1)+(_+1),a=p+e*(l+1)+(_+1);i.push(t,n,a),i.push(n,r,a)}}p+=(l+1)*(u+1)}this.setAttribute(`position`,new Float32Array(t),3),this.setAttribute(`normal`,new Float32Array(n),3),this.setAttribute(`uv`,new Float32Array(r),2),this.setAttribute(`posY`,new Float32Array(a),1),this.setAttribute(`index`,new Uint16Array(i),1)}}})))()}var Nt;function Pt(){return(Pt=t((()=>{j(),At(),Nt=class extends kt{constructor(e){super();let t=[],n=[],r=[],i=[],{height:a,radiusTop:o,radiusBottom:s,radSegments:c,heightSegments:l,caps:u}={height:1,radiusTop:1,radiusBottom:1,radSegments:8,heightSegments:1,caps:!0,...e};for(let e=0;e<=l+2;e++)for(let d=0;d<=c;d++){let f=Math.PI*2/c*d;if(e<=l){let u=1-e/l,p=(1-u)*o+u*s,m=Math.cos(f)*p,h=-(a/2)+a/l*e,g=Math.sin(f)*p;t.push(m,h,g),r.push(d/c,e/l);let _=new O(Math.cos(f),0,Math.sin(f)).normalize();if(n.push(_.x,_.y,_.z),e<l){let t=c+1;i.push(e*t+d,(e+1)*t+(d+1)%t,e*t+(d+1)%t,e*t+d,(e+1)*t+d,(e+1)*t+(d+1)%t)}}else{if(!u)continue;let p=e-l-1,m=p?o:s,h=Math.cos(f)*m,g=-(a/2)+a*p,_=Math.sin(f)*m;t.push(h,g,_),r.push((h+m)*.5/m,(_+m)*.5/m),n.push(0,-1+p*2,0);let v=(c+1)*(l+(p+1));d<=c-2&&(p==0?i.push(v,v+d,v+d+1):i.push(v,v+d+1,v+d))}}this.setAttribute(`position`,new Float32Array(t),3),this.setAttribute(`normal`,new Float32Array(n),3),this.setAttribute(`uv`,new Float32Array(r),2),this.setAttribute(`index`,new Uint16Array(i),1)}}})))()}var Ft;function It(){return(It=t((()=>{At(),Ft=class extends kt{constructor(e){super();let{width:t,height:n,widthSegments:r,heightSegments:i,floor:a}={width:1,height:1,widthSegments:1,heightSegments:1,...e},o=t/2,s=n/2,c=[],l=[],u=[],d=[];for(let e=0;e<=i;e++)for(let f=0;f<=r;f++){let p=f/r,m=e/i;if(a?(c.push(-o+t*p,0,s-n*m),l.push(0,1,0)):(c.push(-o+t*p,-s+n*m,0),l.push(0,0,1)),u.push(p,m),e>0&&f>0){let t=r+1,n=t*e+f,i=t*(e-1)+f-1;d.push(n,t*e+f-1,i,n,i,t*(e-1)+f)}}this.setAttribute(`position`,new Float32Array(c),3),this.setAttribute(`normal`,new Float32Array(l),3),this.setAttribute(`uv`,new Float32Array(u),2),this.setAttribute(`index`,new Uint16Array(d),1)}}})))()}var Lt;function Rt(){return(Rt=t((()=>{j(),At(),Lt=class extends kt{constructor(e){super();let t=[],n=[],r=[],i=[],{radius:a,widthSegments:o,heightSegments:s}={radius:.5,widthSegments:8,heightSegments:8,...e};for(let e=0;e<=s;e++){let c=e/s*Math.PI;for(let l=0;l<=o;l++){let u=l/o*Math.PI*2,d=Math.sin(c)*a,f=Math.cos(u)*d,p=-Math.cos(c)*a,m=-Math.sin(u)*d;t.push(f,p,m),r.push(l/o,e/s);let h=new O(f,p,m).normalize();if(n.push(h.x,h.y,h.z),l<o&&e<s){let t=o+1;i.push(e*t+l,e*t+(l+1)%t,(e+1)*t+(l+1)%t,e*t+l,(e+1)*t+(l+1)%t,(e+1)*t+l)}}}for(let e=0;e<i.length;e++)i[e]=Math.min(t.length/3-1,i[e]);this.setAttribute(`position`,new Float32Array(t),3),this.setAttribute(`normal`,new Float32Array(n),3),this.setAttribute(`uv`,new Float32Array(r),2),this.setAttribute(`index`,new Uint16Array(i),1)}}})))()}var zt;function Bt(){return(Bt=t((()=>{j(),Ot(),zt=class extends Dt{cameraType;fov;aspect;near;far;orthHeight;projectionMatrix;viewMatrix;projectionMatrixPrev;viewMatrixPrev;_historyInitialized;needsUpdateProjectionMatrix;displayOut;viewPort;dofParams;focusEnabled;focusMode;focusTarget;_focusTargetUUID;focusManualDistance;focusSpeed;_focusCurrent;_tmpVector1;_tmpVector2;constructor(e){super(e),this.cameraType=`perspective`,this.viewMatrix=new k,this.projectionMatrix=new k,this.viewMatrixPrev=new k,this.projectionMatrixPrev=new k,this._historyInitialized=!1,this.viewPort=null,this.fov=50,this.near=.1,this.far=1e3,this.aspect=1,this.orthHeight=1,this.needsUpdateProjectionMatrix=!0,this.displayOut=!0,this.dofParams={focusDistance:.5,kFilmHeight:.024,fNumber:.3};let t=()=>{this.needsUpdateProjectionMatrix=!0};this.field(`cameraType`,()=>this.cameraType,e=>{this.cameraType=e,t()},{format:{type:`select`,list:[`perspective`,`orthographic`]}}),this.field(`fov`,()=>this.fov,e=>{this.fov=e,t()}),this.field(`near`,()=>this.near,e=>{this.near=e,t()}),this.field(`far`,()=>this.far,e=>{this.far=e,t()}),this.field(`orthHeight`,()=>this.orthHeight,e=>{this.orthHeight=e,t()}),this.focusEnabled=!0,this.focusMode=`auto`,this.focusTarget=null,this._focusTargetUUID=null,this.focusManualDistance=5,this.focusSpeed=8,this._focusCurrent=null,this._tmpVector1=new O,this._tmpVector2=new O;let n=this.fieldDir(`focus`);n.field(`mode`,()=>this.focusMode,e=>{this.focusMode=e},{format:{type:`select`,list:[`auto`,`target`,`manual`]}}),n.field(`target`,()=>this._focusTargetUUID,e=>{this._focusTargetUUID=e||null,this.focusTarget=null},{format:{type:`entity`}}),n.field(`distance`,()=>this.focusManualDistance,e=>{this.focusManualDistance=e},{step:.1}),n.field(`speed`,()=>this.focusSpeed,e=>{this.focusSpeed=e},{step:.5}),n.field(`fNumber`,()=>this.dofParams.fNumber,e=>{this.dofParams.fNumber=e},{step:.05}),this._tag=`camera`}updateProjectionMatrix(){this.cameraType==`perspective`?this.projectionMatrix.perspective(this.fov,this.aspect,this.near,this.far):this.projectionMatrix.orthographic(this.orthHeight*this.aspect,this.orthHeight,this.near,this.far),this.needsUpdateProjectionMatrix=!1}updateViewMatrix(){this.viewMatrix.copy(this.entity.matrixWorld).inverse()}updateImpl(e){if(this._resolveFocusTarget(),this.displayOut){let t=e.resolution.x/e.resolution.y;this.aspect!==t&&(this.aspect=t,this.needsUpdateProjectionMatrix=!0)}}prepareRenderImpl(e){this.updateViewMatrix(),this.needsUpdateProjectionMatrix&&this.updateProjectionMatrix(),this.focusEnabled&&this._updateFocus(e),this._historyInitialized||=(this.viewMatrixPrev.copy(this.viewMatrix),this.projectionMatrixPrev.copy(this.projectionMatrix),!0)}_resolveFocusTarget(){if(!this._focusTargetUUID||this.focusTarget)return;let e=this.entity.getRootEntity();this.focusTarget=e.findEntityByUUID(this._focusTargetUUID)||null}_updateFocus(e){let t=this._calcFocusDistance(e);t!==null&&(this._focusCurrent===null||this.focusSpeed<=0?this._focusCurrent=t:this._focusCurrent+=(t-this._focusCurrent)*(1-Math.exp(-this.focusSpeed*e.timeDelta)),this.dofParams.focusDistance=this._focusCurrent)}_calcFocusDistance(e){if(this.focusMode===`manual`)return this.focusManualDistance;if(this.focusMode===`auto`){let t=e.renderer.centerDepth;if(typeof t==`number`)return t}if(!this.focusTarget)return null;this.entity.matrixWorld.decompose(this._tmpVector1),this.focusTarget.matrixWorld.decompose(this._tmpVector2),this._tmpVector2.sub(this._tmpVector1);let t=this.entity.matrixWorld.elm;return this._tmpVector1.set(t[8],t[9],t[10]).normalize(),-this._tmpVector2.dot(this._tmpVector1)}commitFrameImpl(e){this.viewMatrixPrev.copy(this.viewMatrix),this.projectionMatrixPrev.copy(this.projectionMatrix)}}})))()}var Vt;function Ht(){return(Ht=t((()=>{j(),Bt(),Vt=class extends zt{viewMatrixOffset;constructor(e){super(e),this.viewMatrixOffset=new A().setFromEuler({x:-Math.PI/2,y:0,z:0}),this.near=.1,this.far=100,this.displayOut=!1,this.focusEnabled=!1,this.removeField(`focus/`),this.removeField(`focus/mode`),this.removeField(`focus/target`),this.removeField(`focus/distance`),this.removeField(`focus/speed`)}prepareRenderImpl(e){super.prepareRenderImpl(e),this.viewMatrix.copy(this.entity.matrixWorld).applyQuaternion(this.viewMatrixOffset).inverse()}}})))()}var Ut;function Wt(){return(Wt=t((()=>{j(),Ht(),Ut=class extends Vt{lightType;color;intensity;castShadow;shadowMapSize;shadowDistance;_shadowCenter;_shadowDirection;_shadowUp;_origin;angle;blend;distance;constructor(e){super(e),this.lightType=`spot`,this.cameraType=`perspective`,this.color=new O(1,1,1,0),this.intensity=1,this.castShadow=!0,this.shadowMapSize=new O(1024,1024),this.shadowDistance=30,this._shadowCenter=new O,this._shadowDirection=new O,this._shadowUp=new O,this._origin=new O,this.angle=Math.PI*.5,this.blend=1,this.distance=100,this.field(`lightType`,()=>this.lightType,e=>this.lightType=e,{format:{type:`select`,list:[`directional`,`spot`]}}),this.field(`color`,()=>this.color.getElm(`vec3`),e=>this.color.setFromArray(e),{format:{type:`color`}}),this.field(`castShadow`,()=>this.castShadow,e=>this.castShadow=e),this.field(`angle`,()=>this.angle,e=>{this.angle=e,this.needsUpdateProjectionMatrix=!0}),this.field(`blend`,()=>this.blend,e=>this.blend=e),this.field(`distance`,()=>this.distance,e=>{this.distance=e,this.needsUpdateProjectionMatrix=!0}),this.removeField(`far`),this.field(`shadowDistance`,()=>this.shadowDistance,e=>this.shadowDistance=e),this.field(`intensity`,()=>this.intensity,e=>this.intensity=e),this.updateProjectionMatrix()}updateProjectionMatrix(){this.fov=this.angle/Math.PI*180,this.far=this.distance,super.updateProjectionMatrix()}prepareRenderImpl(e){this.lightType!==`directional`&&super.prepareRenderImpl(e)}fitShadowToCamera(e,t){let n=e.near,r=Math.max(Math.min(e.far,this.shadowDistance),n+.01),i,a;if(e.cameraType===`perspective`){let t=Math.tan(e.fov*Math.PI/360),o=t*t*(1+e.aspect*e.aspect);i=n*n*o,a=r*r*o}else{let t=e.orthHeight/2;i=t*t*(1+e.aspect*e.aspect),a=i}let o=(r*r-n*n+a-i)/(2*(r-n));o=Math.min(Math.max(o,n),r);let s=o-n,c=r-o,l=Math.sqrt(Math.max(s*s+i,c*c+a));this._shadowCenter.set(0,0,-o,1).applyMatrix4(e.entity.matrixWorld),this._shadowDirection.set(0,1,0,0).applyMatrix4(this.entity.matrixWorld).normalize().multiply(-1),this._shadowUp.set(0,0,-1,0).applyMatrix4(this.entity.matrixWorld).normalize(),this.viewMatrix.lookAt(this._origin,this._shadowDirection,this._shadowUp).inverse();let u=l*2/t;this._shadowCenter.applyMatrix4(this.viewMatrix);let d=l,f=this.viewMatrix.elm;f[12]=-Math.round(this._shadowCenter.x/u)*u,f[13]=-Math.round(this._shadowCenter.y/u)*u,f[14]=-(this._shadowCenter.z+l+d),this.near=0,this.far=l*2+d,this.projectionMatrix.orthographic(l*2,l*2,this.near,this.far)}lookAt(e){this.entity.lookAt(e),this.entity.quaternion.multiply(new A().setFromEuler(new De(Math.PI/2)))}}})))()}var Gt,N;function Kt(){return(Kt=t((()=>{Ot(),At(),Gt=new kt,N=class extends Dt{geometry;material;instanceCount;constructor(e){super(e);let t=e.args||{};this.geometry=t.geometry||Gt,this.material=t.material||null,this.instanceCount=t.instanceCount||1}}})))()}var qt;function Jt(){return(Jt=t((()=>{Ot(),Mt(),Pt(),It(),Rt(),At(),Bt(),Wt(),Kt(),qt=class extends Dt{node;rotationOffsetX;animations;uniforms;uniformCurves;transformAutoUpdate;_blidge;_lightComponent;constructor(e){super(e),this.rotationOffsetX=0,this.animations=new Map,this.uniforms={},this.uniformCurves=new Map,this.transformAutoUpdate=!0,this._blidge=e.args.blidge,this.node=e.args.node,this.node.type==`camera`&&(this.rotationOffsetX=-Math.PI/2);let t=Object.keys(this.node.animations);for(let e=0;e<t.length;e++){let n=t[e];this.animations.set(n,this._blidge.getCurveGroup(this.node.animations[n]))}let n=Object.keys(this.node.uniforms);for(let e=0;e<n.length;e++){let t=n[e],r=this.node.uniforms[t],i=this._blidge.curveGroups[r];i&&(this.uniformCurves.set(t,i),this.uniforms[t]={type:`4fv`,value:i.value})}let r=this.entity;if(r.name=this.node.name,r.position.set(this.node.position[0],this.node.position[1],this.node.position[2]),r.quaternion.setFromEuler({x:this.node.rotation[0]+this.rotationOffsetX,y:this.node.rotation[1],z:this.node.rotation[2]},`YZX`),r.quaternion.updated=!1,r.euler.setFromQuaternion(r.quaternion),r.scale.set(this.node.scale[0],this.node.scale[1],this.node.scale[2]),this.node.type==`cube`){let e=r.addComponent(N),t=this.node.param;e.geometry=new jt({width:t.x,height:t.y,depth:t.z,segmentsWidth:10,segmentsHeight:10,segmentsDepth:10})}else if(this.node.type==`sphere`){let e=r.addComponent(N),t=this.node.param;e.geometry=new Lt({radius:t.r,widthSegments:32,heightSegments:16})}else if(this.node.type==`cylinder`){let e=r.addComponent(N);e.geometry=new Nt}else if(this.node.type==`plane`){let e=r.addComponent(N),t=this.node.param;e.geometry=new Ft({width:t.x,height:t.y})}else if(this.node.type==`mesh`){let e=r.addComponent(N),t=this.node.param,n=new kt;n.setAttribute(`position`,t.position,3),n.setAttribute(`uv`,t.uv,2),n.setAttribute(`normal`,t.normal,3),n.setAttribute(`index`,t.index,3),e.geometry=n}else if(this.node.type==`gltf`){let e=r.addComponent(N);this._blidge.gltfPrm.then(t=>{let n=t.scene.findEntityByName(this.node.name);if(n){let t=n.getComponent(N);t&&(e.geometry=t.geometry,e.material||=t.material)}})}if(this.node.type==`camera`){let e=e=>{e.fov=this.node.param.fov,e.needsUpdateProjectionMatrix=!0},t=r.getComponentsByTag(`camera`)[0];t&&e(t);let n=t=>{t instanceof zt&&e(t)};r.on(`componentAdded`,n),this.once(`dispose`,()=>{r.off(`componentAdded`,n)})}if(this.node.type==`light`){let e=this.node.param;this._lightComponent=r.addComponent(Ut);let t={lightType:e.type,color:[e.color.x,e.color.y,e.color.z],intensity:e.intensity,castShadow:e.shadow_map};e.type==`spot`&&(t.angle=e.angle,t.blend=e.blend),this._lightComponent.deserialize(t)}r.visible=this.node.visible}updateImpl(e){if(!this._blidge||!this.node)return;let t=e.timeCode*this._blidge.frame.fps;if(this.animations.forEach(e=>{e.setFrame(t)}),this.transformAutoUpdate){let e=this.animations.get(`position`);if(e){let t=e.value;e.getFCurve(`x`)&&(this.entity.position.x=t.x),e.getFCurve(`y`)&&(this.entity.position.y=t.y),e.getFCurve(`z`)&&(this.entity.position.z=t.z)}let n=this.animations.get(`rotation`);if(n){let e={x:this.node.rotation[0],y:this.node.rotation[1],z:this.node.rotation[2]},t=n.value;n.getFCurve(`x`)&&(e.x=t.x),n.getFCurve(`y`)&&(e.y=t.y),n.getFCurve(`z`)&&(e.z=t.z),this.entity.quaternion.setFromEuler({x:e.x+this.rotationOffsetX,y:e.y,z:e.z},`YZX`)}let r=this.animations.get(`scale`);if(r){let e=r.setFrame(t).value;r.getFCurve(`x`)&&(this.entity.scale.x=e.x),r.getFCurve(`y`)&&(this.entity.scale.y=e.y),r.getFCurve(`z`)&&(this.entity.scale.z=e.z)}}let n=this.animations.get(`hide`);if(n&&(this.entity.visible=n.value.x<.5),this._lightComponent){let e=this.animations.get(`color`);e&&this._lightComponent.color.copy(e.setFrame(t).value);let n=this.animations.get(`power`);n&&(this._lightComponent.intensity=n.value.x)}this.uniformCurves.forEach((e,n)=>{this.uniforms[n].value=e.setFrame(t).value})}}})))()}function Yt(){return(Yt=t((()=>{Ot(),Jt()})))()}function Xt(){return(Xt=t((()=>{Ot()})))()}var Zt;function Qt(){return(Qt=t((()=>{j(),Et(),Zt=class extends Tt{name;position;euler;quaternion;scale;matrix;matrixWorld;matrixWorldPrev;_matrixWorldHistoryInitialized;autoMatrixUpdate;parent;children;components;componentsSorted;visible;userData;unresolvedComponents;_engine;constructor(e){super(),this._engine=e.engine,this.name=e.name??``,this.position=new O(0,0,0,1),this.euler=new De,this.quaternion=new A(0,0,0,1),this.scale=new O(1,1,1),this.matrix=new k,this.matrixWorld=new k,this.matrixWorldPrev=new k,this._matrixWorldHistoryInitialized=!1,this.autoMatrixUpdate=!0,this.parent=null,this.children=[],this.components=new Map,this.componentsSorted=[],this.visible=!0,this.userData={},this.unresolvedComponents=[],this.field(`name`,()=>this.name,e=>this.name=e),this.field(`position`,()=>this.position.getElm(`vec3`),e=>this.position.setFromArray(e),{format:{type:`vector`}}),this.field(`euler`,()=>this.euler.getElm(`vec3`),e=>this.euler.setFromArray(e),{format:{type:`vector`}}),this.field(`scale`,()=>this.scale.getElm(`vec3`),e=>this.scale.setFromArray(e),{format:{type:`vector`}}),this.field(`visible`,()=>this.visible,e=>this.visible=e),this.field(`children`,()=>this.children.map(e=>e.uuid),{hidden:!0}),this.field(`components`,()=>{let e=[];return this.components.forEach(t=>e.push(t.uuid)),e},{hidden:!0})}get engine(){return this._engine}update(e){let t={...e};t.matrix=this.matrixWorld,this.updateImpl(e);for(let e=0;e<this.componentsSorted.length;e++)this.componentsSorted[e].update(t);this.autoMatrixUpdate&&this.updateMatrix();for(let e=0;e<this.children.length;e++)this.children[e].update(t)}updateImpl(e){}postUpdate(e){let t={...e,matrix:this.matrixWorld};for(let e=0;e<this.componentsSorted.length;e++)this.componentsSorted[e].postUpdate(t);for(let e=0;e<this.children.length;e++)this.children[e].postUpdate(t)}prepareRender(e){let t={...e,matrix:this.matrixWorld};this._matrixWorldHistoryInitialized||=(this.matrixWorldPrev.copy(this.matrixWorld),!0);for(let e=0;e<this.componentsSorted.length;e++)this.componentsSorted[e].prepareRender(t);for(let e=0;e<this.children.length;e++)this.children[e].prepareRender(t)}commitFrame(e){let t={...e,matrix:this.matrixWorld};this.matrixWorldPrev.copy(this.matrixWorld);for(let e=0;e<this.componentsSorted.length;e++)this.componentsSorted[e].commitFrame(t);for(let e=0;e<this.children.length;e++)this.children[e].commitFrame(t)}add(e){e.parent&&e.parent.remove(e),e.parent=this,this.children.push(e),this.noticeField(`children`)}remove(e){this.children=this.children.filter(t=>t.uuid!=e.uuid),this.noticeField(`children`)}updateMatrix(e){this.parent&&e&&this.parent.updateMatrix(!0);let t=this.parent?this.parent.matrixWorld:new k;this.quaternion.updated?this.euler.setFromQuaternion(this.quaternion):this.quaternion.setFromEuler(this.euler),this.quaternion.updated=!1,this.matrix.setFromTransform(this.position,this.quaternion,this.scale),this.matrixWorld.copy(this.matrix).preMultiply(t)}updateMatrixRecursive(e){this.autoMatrixUpdate&&this.updateMatrix(e);for(let e=0;e<this.children.length;e++)this.children[e].updateMatrixRecursive()}decomposeMatrix(e){e.decompose(this.position,this.quaternion,this.scale),this.updateMatrix()}applyMatrix(e){this.decomposeMatrix(this.matrix.clone().multiply(e))}lookAt(e){let t=e.clone(),n=new O(0,1,0,0);if(this.parent){let e=this.parent.matrixWorld.clone().inverse();t.applyMatrix4AsPosition(e),n.applyMatrix4AsDirection(e).normalize()}let r=new k().lookAt(this.position,t,n);this.quaternion.setFromMatrix(r),this.updateMatrix()}addComponent(e,...t){this.removeComponent(e);let[n]=t,r=new e({entity:this,engine:this._engine,args:n||{}});return this.components.set(e,r),this.componentsSorted.push(r),this.componentsSorted.sort((e,t)=>e.order-t.order),this.noticeField(`components`),this.emit(`componentAdded`,[r]),r}removeComponent(e){let t=this.components.get(e);t&&t.dispose(),this.components.delete(e),this.componentsSorted=this.componentsSorted.filter(e=>e!==t),this.noticeField(`components`),t&&this.emit(`componentRemoved`,[t])}removeComponentByUUID(e){for(let t of this.components){let n=t[0],r=t[1];if(r.uuid===e)return r.dispose(),this.components.delete(n),this.componentsSorted=this.componentsSorted.filter(e=>e!==r),this.noticeField(`components`),this.emit(`componentRemoved`,[r]),r}}getComponent(e){return this.components.get(e)}getComponentByUUID(e){for(let t of this.components.values())if(t.uuid===e)return t;return null}getComponentByTag(e){for(let t of this.components.values())if(t.tag===e)return t;return null}getComponentsByTag(e){let t=[];return this.components.forEach(n=>{n.tag==e&&t.push(n)}),t}findEntityByName(e){if(this.name==e)return this;for(let t=0;t<this.children.length;t++){let n=this.children[t].findEntityByName(e);if(n)return n}}findEntityByUUID(e){if(this.uuid==e)return this;for(let t=0;t<this.children.length;t++){let n=this.children[t].findEntityByUUID(e);if(n)return n}}getRootEntity(){return this.parent?this.parent.getRootEntity():this}getScenePath(e){let t=`/`+this.name;return e&&e.uuid==this.uuid||this.parent&&(t=this.parent.getScenePath(e)+t),t}noticeEventChilds(e,t){this.emit(e,t);for(let n=0;n<this.children.length;n++)this.children[n].noticeEventChilds(e,t)}noticeEventParent(e,t){this.emit(e,t),this.parent&&this.parent.noticeEventParent(e,t)}traverse(e){e(this),this.children.forEach(t=>t.traverse(e))}isVisibleTraverse(){return this.visible?!this.parent||this.parent.isVisibleTraverse():!1}dispose(){this.emit(`dispose`),this.parent&&this.parent.remove(this),this.components.forEach(e=>{e.dispose()}),this.components.clear(),this.componentsSorted=[]}disposeRecursive(){this.dispose(),this.children.concat().forEach(e=>{e.disposeRecursive()}),this.children=[]}}})))()}function $t(){return($t=t((()=>{at(),j()})))()}function en(){return(en=t((()=>{j(),At(),$t()})))()}var tn;function nn(){return(nn=t((()=>{At(),tn=class extends kt{constructor(e){super();let{innerRadius:t,outerRadius:n,thetaSegments:r,phiSegments:i,extrude:a}={innerRadius:.4,outerRadius:.5,thetaSegments:12,phiSegments:1,extrude:0,...e},o=r+1,s=[],c=[],l=[],u=[],d=(r+1)*(i+1);for(let e=0;e<(a==0?1:2);e++){let f=e==0?-1:1,p=a==0?0:a/2*f;for(let a=0;a<i+1;a++){let m=t+(n-t)*(a/i);for(let t=0;t<=r;t++){let n=t/r*Math.PI*2,h=Math.cos(n)*m,g=Math.sin(n)*m;if(s.push(h,g,p),l.push(t/r,a/i),c.push(0,0,1*f),a>0&&t<r){let n=d*e+a*o+t;e==0?u.push(n,n-o,n+1,n+1,n-o,n+1-o):u.push(n,n+1,n-o,n+1,n+1-o,n-o)}}}}if(a!=0){for(let e=0;e<2;e++){let o=e==0?t:n;for(let t=0;t<2;t++)for(let n=0;n<r;n++){let u=n/r*Math.PI*2,d=Math.cos(u)*o,f=Math.sin(u)*o;s.push(d,f,(-.5+t)*a),l.push(n/r,t/i),e==0?c.push(-Math.cos(u),-Math.sin(u),0):c.push(Math.cos(u),Math.sin(u),0)}}let e=d*2;for(let t=0;t<2;t++)for(let n=0;n<r;n++){let i=e+n+r*2*t,a=n==r-1?-r:0;t==0?u.push(i,i+r,i+r+1+a,i,i+r+1+a,i+1+a):u.push(i,i+r+1+a,i+r,i,i+1+a,i+r+1+a)}}this.setAttribute(`position`,new Float32Array(s),3),this.setAttribute(`normal`,new Float32Array(c),3),this.setAttribute(`uv`,new Float32Array(l),2),this.setAttribute(`index`,new Uint16Array(u),1)}}})))()}var rn,an;function on(){return(on=t((()=>{rn=new Map,an=(e,t)=>rn.get(e)||(rn.set(e,t),t)})))()}var sn;function cn(){return(cn=t((()=>{j(),sn=class{origin;direction;constructor(e,t){this.origin=e||new O,this.direction=t||new O(0,0,-1)}setFromCamera(e,t,n){let r=new O(e.x,e.y,-1,1).applyMatrix4(t).applyMatrix4(n);r.x/=r.w,r.y/=r.w,r.z/=r.w;let i=new O(e.x,e.y,1,1).applyMatrix4(t).applyMatrix4(n);return i.x/=i.w,i.y/=i.w,i.z/=i.w,this.origin.set(r.x,r.y,r.z),this.direction.set(i.x-r.x,i.y-r.y,i.z-r.z).normalize(),this}intersectAABB(e,t){let n=1/this.direction.x,r=1/this.direction.y,i=1/this.direction.z,a=(e.x-this.origin.x)*n,o=(t.x-this.origin.x)*n,s=Math.min(a,o),c=Math.max(a,o);if(a=(e.y-this.origin.y)*r,o=(t.y-this.origin.y)*r,s=Math.max(s,Math.min(a,o)),c=Math.min(c,Math.max(a,o)),a=(e.z-this.origin.z)*i,o=(t.z-this.origin.z)*i,s=Math.max(s,Math.min(a,o)),c=Math.min(c,Math.max(a,o)),c<0||s>c)return null;let l=s>=0?s:c;return{distance:l,point:new O(this.origin.x+this.direction.x*l,this.origin.y+this.direction.y*l,this.origin.z+this.direction.z*l)}}intersectTriangle(e,t,n){let r=1e-8,i=t.x-e.x,a=t.y-e.y,o=t.z-e.z,s=n.x-e.x,c=n.y-e.y,l=n.z-e.z,u=this.direction.y*l-this.direction.z*c,d=this.direction.z*s-this.direction.x*l,f=this.direction.x*c-this.direction.y*s,p=i*u+a*d+o*f;if(p>-1e-8&&p<r)return null;let m=1/p,h=this.origin.x-e.x,g=this.origin.y-e.y,_=this.origin.z-e.z,v=m*(h*u+g*d+_*f);if(v<0||v>1)return null;let y=g*o-_*a,b=_*i-h*o,x=h*a-g*i,S=m*(this.direction.x*y+this.direction.y*b+this.direction.z*x);if(S<0||v+S>1)return null;let C=m*(s*y+c*b+l*x);return C>r?{distance:C,point:new O(this.origin.x+this.direction.x*C,this.origin.y+this.direction.y*C,this.origin.z+this.direction.z*C)}:null}}})))()}var ln;function un(){return(un=t((()=>{j(),Kt(),cn(),ln=class{ray;_v0;_v1;_v2;constructor(){this.ray=new sn,this._v0=new O,this._v1=new O,this._v2=new O}setFromCamera(e,t){let n=t.getComponentsByTag(`camera`)[0];if(!n)return;let r=n.projectionMatrix.clone().inverse(),i=n.viewMatrix.clone().inverse();this.ray.setFromCamera(e,r,i)}intersectEntities(e){let t=[];return e.traverse(e=>{if(!e.visible)return;let n=e.getComponent(N);if(!n)return;let r=this.intersectMesh(e,n);r&&t.push(...r)}),t.sort((e,t)=>e.distance-t.distance),t}intersectMesh(e,t){let n=t.geometry,r=n.boundingBox;if(!r)return null;let i=e.matrixWorld.clone().inverse(),a=new sn;a.origin.copy(this.ray.origin),a.origin.w=1,a.origin.applyMatrix4(i),a.origin.x/=a.origin.w,a.origin.y/=a.origin.w,a.origin.z/=a.origin.w;let o=this.ray.origin.clone().add(this.ray.direction);if(o.w=1,o.applyMatrix4(i),o.x/=o.w,o.y/=o.w,o.z/=o.w,a.direction.set(o.x-a.origin.x,o.y-a.origin.y,o.z-a.origin.z).normalize(),!a.intersectAABB(r.min,r.max))return null;let s=this.intersectTriangles(a,n);if(!s)return null;let c=s.point.clone();c.w=1,c.applyMatrix4(e.matrixWorld),c.x/=c.w,c.y/=c.w,c.z/=c.w;let l=c.x-this.ray.origin.x,u=c.y-this.ray.origin.y,d=c.z-this.ray.origin.z;return[{entity:e,distance:Math.sqrt(l*l+u*u+d*d),point:c}]}intersectTriangles(e,t){let n=t.getAttribute(`position`);if(!n)return null;let r=n.array,i=t.getAttribute(`index`),a=i?i.array:null,o=Math.floor((a?a.length:t.vertCount)/3),s=null;for(let t=0;t<o;t++){let n=(a?a[t*3+0]:t*3+0)*3,i=(a?a[t*3+1]:t*3+1)*3,o=(a?a[t*3+2]:t*3+2)*3;this._v0.set(r[n],r[n+1],r[n+2]),this._v1.set(r[i],r[i+1],r[i+2]),this._v2.set(r[o],r[o+1],r[o+2]);let c=e.intersectTriangle(this._v0,this._v1,this._v2);c&&(!s||c.distance<s.distance)&&(s=c)}return s}}})))()}var dn,fn;function pn(){return(pn=t((()=>{dn=[],fn=async()=>{for(;dn.length>0;){let e=dn.splice(0,dn.length);await Promise.all(e)}}})))()}var mn;function hn(){return(hn=t((()=>{(function(e){let t=e.assign=(e,...t)=>{for(let n=0;n<t.length;n++)t[n]!=null&&Object.assign(e,t[n]);return e};e.merge=(...e)=>t({},...e)})(mn||={})})))()}function gn(){return(gn=t((()=>{ft(),st(),lt(),mt(),gt(),vt(),xt(),Ct(),Ot(),Jt(),Yt(),Bt(),Ht(),Wt(),Xt(),Kt(),Qt(),At(),Mt(),en(),Pt(),It(),nn(),Rt(),Et(),$t(),on(),cn(),un(),pn(),hn()})))()}var _n;function vn(){return(vn=t((()=>{j(),Ot(),_n=class extends Dt{_resolution;_postProcesses;constructor(e){super(e),this._postProcesses=[],this._resolution=new O}get postProcesses(){return this._postProcesses}add(e){return this.postProcesses.push(e),e.resize(this._resolution),e}remove(e){let t=this._postProcesses.indexOf(e);t>-1&&this._postProcesses.splice(t,1)}resize(e){(this._resolution.x!=e.x||this._resolution.y!=e.y)&&(this._resolution.copy(e),this.resizePostProcesses())}resizePostProcesses(){this.postProcesses.forEach(e=>{e.resize(this._resolution)})}}})))()}function yn(){return(yn=t((()=>{})))()}function bn(){return(bn=t((()=>{})))()}var xn;function Sn(){return(Sn=t((()=>{Et(),yn(),bn(),xn=class extends Tt{name;vert;frag;defines;uniforms;useLight;depthTest;depthWrite;cullFace;drawType;blending;renderOrder;visibilityFlag;programCache;constructor(e){super(),e||={},this.name=e.name||``,this.visibilityFlag={},this.setVisibility(e.phase||[`shadowMap`,`deferred`]),this.useLight=e.useLight===void 0||e.useLight,this.depthTest=e.depthTest===void 0||e.depthTest,this.cullFace=e.cullFace!==void 0&&e.cullFace,this.depthWrite=e.depthWrite===void 0||e.depthWrite,this.drawType=e.drawType||`TRIANGLES`,this.blending=e.blending||`NORMAL`,this.renderOrder=e.renderOrder??0,this.vert=e.vert||`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}\r
+uniform mat4 uModelMatrix;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform mat4 uNormalMatrix;\r
+\r
+uniform mat4 uModelMatrixPrev;\r
+uniform mat4 uModelViewMatrix;\r
+uniform mat4 uViewMatrixPrev;\r
+uniform mat4 uProjectionMatrixPrev;\r
+\r
+out vec2 vUv;\r
+out vec3 vViewNormal;\r
+out vec3 vNormal;\r
+out vec3 vMVPosition;\r
+out vec3 vMVPPosition;\r
+out vec3 vPos;\r
+\r
+out vec2 vVelocity;\r
+\r
+layout ( location = 0 ) in vec3 position;\r
+layout ( location = 1 ) in vec2 uv;\r
+layout ( location = 2 ) in vec3 normal;\r
+\r
+#ifdef TF_MODELER\r
+	out vec3 o_position;\r
+	out vec3 o_normal;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;\r
+\r
+void main( void ) {\r
+\r
+	vec3 outPos = position;\r
+vec3 outNormal = normal;\r
+vec2 outUv = uv;\r
+	#ifdef TF_MODELER\r
+		o_position = outPos;\r
+		o_normal = outNormal;\r
+		return;\r
+#endif\r
+\r
+vec4 modelPosition = uModelMatrix * vec4(outPos, 1.0);\r
+vec4 mvPosition = uViewMatrix * modelPosition;\r
+gl_Position = uProjectionMatrix * mvPosition;\r
+\r
+vec4 modelPositionPrev = uModelMatrixPrev * vec4(outPos, 1.0);\r
+vec4 mvPositionPrev = uViewMatrixPrev * modelPositionPrev;\r
+vec4 positionPrev = uProjectionMatrixPrev * mvPositionPrev;\r
+\r
+vUv = outUv;\r
+vViewNormal = normalize( (uNormalMatrix * vec4(outNormal, 0.0)).xyz );\r
+vNormal = (uModelMatrix * vec4(outNormal, 0.0)).xyz;\r
+vPos = modelPosition.xyz;\r
+vMVPosition = mvPosition.xyz;\r
+vMVPPosition = gl_Position.xyz / gl_Position.w;\r
+\r
+vVelocity = vMVPPosition.xy - positionPrev.xy / positionPrev.w;\r
+vVelocity *= 0.2;\r
+	\r
+}`,this.frag=e.frag||`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}\r
+// 宣言順はvert_h.part.glslのoutと一致させる（WGSL変換時にロケーションが宣言順で振られるため）\r
+in vec2 vUv;\r
+in vec3 vViewNormal;\r
+in vec3 vNormal;\r
+in vec3 vMVPosition;\r
+in vec3 vMVPPosition;\r
+in vec3 vPos;\r
+in vec2 vVelocity;\r
+\r
+uniform mat4 uModelMatrix;\r
+uniform mat4 uModelMatrixInverse;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform vec3 uCameraPosition;\r
+uniform vec2 uResolution;\r
+\r
+#ifdef IS_DEPTH\r
+	uniform float uCameraNear;\r
+	uniform float uCameraFar;\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+	layout (location = 3) out vec4 outColor3;\r
+	layout (location = 4) out vec4 outColor4;\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	uniform sampler2D uDeferredTexture;\r
+	uniform vec2 uDeferredResolution;\r
+	uniform sampler2D uGbufferNormal;\r
+	uniform sampler2D uGbufferAlbedo;\r
+	uniform sampler2D uGbufferMaterial;\r
+#endif\r
+\r
+#if defined(IS_FORWARD) || defined(IS_DEPTH)\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;\r
+\r
+void main( void ) {\r
+\r
+	vec4 outColor = vec4(1.0);\r
+vec3 outNormal = normalize(vNormal);\r
+vec3 outNormalMap = vec3( 0.0 );\r
+float outSSN = 0.0;\r
+vec3 outEmission = vec3(0.0);\r
+float outRoughness = 0.5;\r
+float outMetallic = 0.0;\r
+vec3 outPos = vPos;\r
+float outEnv = 1.0;\r
+float outSSS = 0.0;\r
+	#if defined(IS_DEPTH) || defined(IS_DEFERRED)\r
+	vec4 mv = uViewMatrix * vec4(outPos, 1.0);\r
+#endif\r
+\r
+#ifdef IS_DEPTH\r
+	float depth_z = (-mv.z - uCameraNear) / (uCameraFar - uCameraNear);\r
+	outColor0 = vec4(floatToRGBA( depth_z ));\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+\r
+	#ifdef USE_NORMAL_MAP \r
+\r
+		vec3 tangent;\r
+		vec3 bitangent;\r
+\r
+		#ifdef USE_TANGENT\r
+\r
+			tangent = normalize( vTangent );\r
+			bitangent = normalize( vBitangent );\r
+\r
+		#else\r
+\r
+			tangent = cross(outNormal, vec3( 0.0, 1.0, 0.0 ));\r
+			bitangent = cross(tangent, outNormal);\r
+\r
+		#endif\r
+\r
+		#ifdef DOUBLE_SIDED\r
+\r
+			tangent *= faceDirection;\r
+			bitangent *= faceDirection;\r
+			\r
+		#endif\r
+\r
+		mat3 vTBN = mat3( tangent, bitangent, outNormal );\r
+		outNormal = normalize( vTBN * outNormalMap );\r
+\r
+	#endif\r
+\r
+	vec4 mvp = uProjectionMatrix * mv;\r
+	gl_FragDepth = ( mvp.z / mvp.w ) * 0.5 + 0.5;\r
+	outColor0 = vec4( outPos, outEmission.x );\r
+	outColor1 = vec4( normalize( outNormal * ( gl_FrontFacing ? 1.0 : -1.0 ) ), outEmission.y );\r
+	outColor2 = vec4( outColor.xyz, outSSS );\r
+	outColor3 = vec4( outRoughness, outMetallic, outSSN, outEnv );\r
+	outColor4 = vec4( vVelocity, 0.0, outEmission.z );\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	outColor0 = outColor;\r
+	outColor1 = vec4(outPos, 1.0);\r
+	outColor2 = vec4(vVelocity, 0.0, 1.0);\r
+#endif\r
+\r
+}`,this.defines=e.defines||{},this.uniforms=e.uniforms||{},this.programCache={}}setVisibility(e){this.visibilityFlag={shadowMap:e.indexOf(`shadowMap`)>-1,deferred:e.indexOf(`deferred`)>-1,forward:e.indexOf(`forward`)>-1,ui:e.indexOf(`ui`)>-1,envMap:e.indexOf(`envMap`)>-1,postprocess:e.indexOf(`postprocess`)>-1}}requestUpdate(){this.programCache={}}}})))()}var Cn;function wn(){return(wn=t((()=>{Et(),Cn=class extends Tt{name;enabled;_passes;constructor(e){super();let t=e||{};this.name=t.name||``,this.enabled=!0,this._passes=e&&e.passes||[]}get passes(){return this._passes}get hasOutput(){return this._passes.length>0&&this._passes.some(e=>e.enabled)}get output(){for(let e=this._passes.length-1;e>=0;e--){let t=this._passes[e];if(!t.passThrough&&t.enabled)return t.renderTarget}return null}resize(e){if(this._passes)for(let t=0;t<this._passes.length;t++)this._passes[t].resize(e)}dispose(){this.emit(`dispose`)}}})))()}function Tn(){return(Tn=t((()=>{})))()}function En(){return(En=t((()=>{})))()}var P;function Dn(){return(Dn=t((()=>{j(),Ye(),Sn(),Tn(),En(),P=class extends xn{enabled;renderTarget;backBufferOverride;clearColor;clearDepth;resolutionRatio;passThrough;resolution;resolutionInv;viewPort;_fixedResolution;constructor(e,t){super({...t,frag:t.frag||`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}\r
+\r
+uniform sampler2D uBackBuffer0;\r
+\r
+layout (location = 0) out vec4 outColor;\r
+\r
+in vec2 vUv;\r
+\r
+void main( void ) {\r
+\r
+	outColor = texture( uBackBuffer0, vUv );\r
+	outColor.w = 1.0;\r
+\r
+}`,vert:t.vert||`layout ( location = 0 ) in vec3 position;\r
+layout ( location = 1 ) in vec2 uv;\r
+\r
+out vec2 vUv;\r
+\r
+void main( void ) {\r
+\r
+	vec3 pos = position;\r
+	gl_Position = vec4( pos.xy, 0.0, 1.0 );\r
+	vUv = uv;\r
+\r
+}`}),this.enabled=!0,this._fixedResolution=t.fixedResotluion?t.fixedResotluion.clone():null,this.resolution=new O,this.resolutionInv=new O,this.viewPort=null,this.uniforms.uPPResolution={value:this.resolution,type:`2fv`},this.uniforms.uPPPixelSize={value:this.resolutionInv,type:`2fv`},this.renderTarget=t.renderTarget===void 0?e.createFrameBuffer().setTexture([e.createTexture().setting({magFilter:M.LINEAR,minFilter:M.LINEAR})]):t.renderTarget,this.clearColor=t.clearColor??null,this.clearDepth=t.clearDepth??null,this.depthTest=t.depthTest!==void 0&&t.depthTest,this.resolutionRatio=t.resolutionRatio||1,this.passThrough=t.passThrough??!1,this.viewPort=t.viewPort||null,this.backBufferOverride=t.backBufferOverride||null}get fixedResolution(){return this._fixedResolution}set fixedResolution(e){this._fixedResolution=e,this.resize(e||new O)}onAfterRender(){}resize(e){this._fixedResolution?this.resolution.copy(this._fixedResolution):this.resolution.copy(e).multiply(this.resolutionRatio),this.resolutionInv.set(1/this.resolution.x,1/this.resolution.y),this.renderTarget&&this.renderTarget.setSize(this.resolution)}setRendertarget(e){this.renderTarget=e,this.renderTarget&&(this.renderTarget.size.x!=this.resolution.x||this.renderTarget.size.y!=this.resolution.y)&&this.renderTarget.setSize(this.resolution)}}})))()}var On;function kn(){return(kn=t((()=>{qe(),j(),wn(),Dn(),On=class extends ze{material;_renderer;_resolution;_postProcess;_frameBuffer;constructor(e,t){let n=e.backend,r=n.gl;super(r),this._renderer=e,this._resolution=t.resolution||new O(1024,1024),this.setting({wrapS:r.REPEAT,wrapT:r.REPEAT,magFilter:r.LINEAR,minFilter:r.LINEAR}),this._frameBuffer=new Ve(r).setTexture([this]).setSize(this._resolution),this.material=new P(n,{...t,renderTarget:this._frameBuffer}),this._postProcess=new Cn({passes:[this.material]}),this.render()}render(){this._renderer.renderPostProcess(this._postProcess,void 0,this._resolution)}},On.__docgenInfo={description:``,methods:[],displayName:`TexProcedural`}})))()}var An;function jn(){return(jn=t((()=>{An=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+
+uniform sampler2D uBackBuffer0;
+uniform sampler2D uPMREMBackBuffer;
+uniform samplerCube uEnvMap;
+uniform float uRoughness;
+uniform float uTimeEF;
+layout (location = 0) out vec4 outColor;
+
+in vec2 vUv;
+
+// https://stackoverflow.com/questions/4200224/random-noise-functions-for-glsl\r
+\r
+float random(vec2 p){\r
+	return fract(sin(dot(p.xy ,vec2(12.9898,78.233))) * 43758.5453);\r
+}\r
+\r
+// https://www.shadertoy.com/view/4djSRW\r
+\r
+vec3 hash(vec3 p3)\r
+{\r
+	p3 = fract(p3 * vec3(.1031, .1030, .0973));\r
+  p3 += dot(p3, p3.yxz+33.33);\r
+  return fract((p3.xxy + p3.yxx)*p3.zyx);\r
+\r
+}
+
+// Interleaved Gradient Noise。隣り合うピクセルの値が斜めの縞として散るので、
+// 白色ノイズのように無相関な粒にならず、同じサンプル数でもざらつきが目立たない。
+// frameIndex にフレーム番号を渡すと、時間方向にも重ならないよう位相がずれる
+float interleavedGradientNoise( vec2 pixel, float frameIndex ) {
+
+	vec2 p = pixel + frameIndex * 5.588238;
+
+	return fract( 52.9829189 * fract( dot( p, vec2( 0.06711056, 0.00583715 ) ) ) );
+
+}
+
+// https://github.com/mrdoob/three.js/blob/c2593ed3db121b17590068c638d5dc115e7496f9/src/renderers/shaders/ShaderChunk/cube_uv_reflection_fragment.glsl.js#L11C8-L11C15\r
+\r
+float getPmremFace( vec3 direction ) {\r
+\r
+	vec3 absDirection = abs( direction );\r
+\r
+	float face = - 1.0;\r
+\r
+	if ( absDirection.x > absDirection.z ) {\r
+\r
+		if ( absDirection.x > absDirection.y )\r
+\r
+			face = direction.x > 0.0 ? 0.0 : 3.0;\r
+\r
+		else\r
+\r
+			face = direction.y > 0.0 ? 1.0 : 4.0;\r
+\r
+	} else {\r
+\r
+		if ( absDirection.z > absDirection.y )\r
+\r
+			face = direction.z > 0.0 ? 2.0 : 5.0;\r
+\r
+		else\r
+\r
+			face = direction.y > 0.0 ? 1.0 : 4.0;\r
+\r
+	}\r
+\r
+	return face;\r
+\r
+}\r
+\r
+// https://github.com/mrdoob/three.js/blob/c2593ed3db121b17590068c638d5dc115e7496f9/src/renderers/shaders/ShaderChunk/cube_uv_reflection_fragment.glsl.js#L44\r
+\r
+vec2 getPmremUV( vec3 direction, float face ) {\r
+\r
+	vec2 uv;\r
+\r
+	if ( face == 0.0 ) {\r
+\r
+		uv = vec2( direction.z, direction.y ) / abs( direction.x ); // pos x\r
+\r
+	} else if ( face == 1.0 ) {\r
+\r
+		uv = vec2( - direction.x, - direction.z ) / abs( direction.y ); // pos y\r
+\r
+	} else if ( face == 2.0 ) {\r
+\r
+		uv = vec2( - direction.x, direction.y ) / abs( direction.z ); // pos z\r
+\r
+	} else if ( face == 3.0 ) {\r
+\r
+		uv = vec2( - direction.z, direction.y ) / abs( direction.x ); // neg x\r
+\r
+	} else if ( face == 4.0 ) {\r
+\r
+		uv = vec2( - direction.x, direction.z ) / abs( direction.y ); // neg y\r
+\r
+	} else {\r
+\r
+		uv = vec2( direction.x, direction.y ) / abs( direction.z ); // neg z\r
+\r
+	}\r
+\r
+	return 0.5 * ( uv + 1.0 );\r
+\r
+}\r
+\r
+vec3 getPmremDir( vec2 uv, float face ) {\r
+\r
+	vec3 dir = vec3( 0.0 );\r
+\r
+	if ( face == 0.0 ) {\r
+\r
+		vec2 yz = ( vec2( uv.y, uv.x ) - 0.5 ) * 2.0;\r
+		\r
+		dir = vec3( 1.0, yz );\r
+\r
+	} else if( face == 1.0 ) {\r
+\r
+		vec2 xz = ( vec2( - uv.x, -uv.y ) + 0.5 ) * 2.0;\r
+		\r
+		dir = vec3( xz.x, 1.0, xz.y );\r
+		\r
+	} else if( face == 2.0 ) {\r
+\r
+		vec2 xy = ( vec2( - uv.x + 0.5, uv.y - 0.5 ) ) * 2.0;\r
+		\r
+		dir = vec3( xy, 1.0 );\r
+		\r
+	} else if( face == 3.0 ) {\r
+\r
+		vec2 zy = ( vec2( - uv.x + 0.5, uv.y - 0.5 ) ) * 2.0;\r
+		\r
+		dir = vec3( -1.0, zy.y, zy.x );\r
+		\r
+	} else if( face == 4.0 ) {\r
+\r
+		vec2 xz = ( vec2( - uv.x + 0.5 , uv.y - 0.5 ) ) * 2.0;\r
+		\r
+		dir = vec3( xz.x, -1.0, xz.y );\r
+		\r
+	} else if( face == 5.0 ) {\r
+\r
+		vec2 xy = ( vec2( uv.x, uv.y ) - 0.5 ) * 2.0;\r
+		\r
+		dir = vec3( xy, -1.0 );\r
+		\r
+	}\r
+\r
+	return normalize( dir );\r
+\r
+}\r
+\r
+\r
+//https://github.com/mrdoob/three.js/blob/c2593ed3db121b17590068c638d5dc115e7496f9/src/renderers/shaders/ShaderChunk/cube_uv_reflection_fragment.glsl.js#L132\r
+\r
+#define MAXMIP 5.0\r
+\r
+float roughnessToMip( float roughness ) {\r
+\r
+	float mip = 0.0;\r
+\r
+	mip = roughness * ( MAXMIP - 1.0 );\r
+\r
+	return mip;\r
+\r
+}\r
+\r
+vec3 getPmremMip( sampler2D envMap, vec3 direction, float mip ) {\r
+\r
+	float face = getPmremFace( direction );\r
+	vec2 uv = getPmremUV( direction, face );\r
+\r
+	vec2 faceRes = vec2(textureSize( envMap, 0 )) * pow( 0.5, floor( mip ) );\r
+	float s = 2.0;\r
+	uv *= faceRes - 2.0 * s;\r
+	uv += 1.0 * s;\r
+	uv /= faceRes;\r
+\r
+	uv.x += mod( face, 3.0 );\r
+	uv.y += floor( face / 3.0) ;\r
+	\r
+	uv.y *= 0.5;\r
+	uv.y *= 0.5;\r
+	uv.x /= 3.0;\r
+\r
+	float scale = 1.0 - pow( 2.0, -floor(mip) );\r
+	uv.y *= 1.0 - scale;\r
+	uv.x *= 1.0 - scale;\r
+	uv.y += scale;\r
+\r
+	vec4 col = textureGrad( envMap, uv, vec2( 0.0 ), vec2( 0.0 )  );\r
+\r
+	return col.xyz / col.w;\r
+\r
+}\r
+\r
+vec3 getPmrem( sampler2D envMap, vec3 direction, float roughness ) {\r
+\r
+	float mip = roughnessToMip( roughness );\r
+	float mipF = fract( mip );\r
+	float mipInt = floor( mip );\r
+\r
+	vec3 color0 = getPmremMip( envMap, direction, mipInt );\r
+\r
+	if ( mipF == 0.0 ) {\r
+\r
+		return color0;\r
+\r
+	} else {\r
+\r
+		vec3 color1 = getPmremMip( envMap, direction, mipInt + 1.0 );\r
+\r
+		return mix( color0, color1, mipF );\r
+\r
+	}\r
+\r
+}
+
+// https://www.shadertoy.com/view/4lscWj
+
+vec2 Hammersley(float i, float numSamples)
+{   
+    uint b = uint(i);
+    
+    b = (b << 16u) | (b >> 16u);
+    b = ((b & 0x55555555u) << 1u) | ((b & 0xAAAAAAAAu) >> 1u);
+    b = ((b & 0x33333333u) << 2u) | ((b & 0xCCCCCCCCu) >> 2u);
+    b = ((b & 0x0F0F0F0Fu) << 4u) | ((b & 0xF0F0F0F0u) >> 4u);
+    b = ((b & 0x00FF00FFu) << 8u) | ((b & 0xFF00FF00u) >> 8u);
+    
+    float radicalInverseVDC = float(b) * 2.3283064365386963e-10;
+    
+    return vec2((i / numSamples), radicalInverseVDC);
+} 
+
+vec3 SampleHemisphere_Cosinus(float i, float numSamples)
+{
+    vec2 xi = Hammersley(i, numSamples);
+    
+    float phi      = xi.y * 2.0 * PI;
+    float cosTheta = sqrt(1.0 - xi.x);
+    float sinTheta = sqrt(1.0 - cosTheta * cosTheta);
+     
+    return vec3(cos(phi) * sinTheta, cosTheta, sin(phi) * sinTheta);
+}
+
+// https://qiita.com/emadurandal/items/b2ae09c5cc1b3da821c8
+
+vec3 ImportanceSampleCosineWeighted(vec2 Xi, vec3 N)
+{
+    float r = sqrt(Xi.x);
+	// r = 1.0;
+    float phi = 2.0 * PI * Xi.y;
+
+    vec3 H;
+    H.x = r * cos(phi);
+    H.y = r * sin(phi);
+    H.z = sqrt(1.0-Xi.x);
+
+    vec3 UpVector = abs(N.z) < 0.999 ? vec3(0,0,1) : vec3(1,0,0);
+    vec3 TangentX = normalize( cross(UpVector, N) );
+    vec3 TangentY = cross ( N, TangentX );
+    // Tangent to world space
+    return TangentX * H.x + TangentY * H.y + N * H.z;
+}
+
+// https://cdn2.unrealengine.com/Resources/files/2013SiggraphPresentationsNotes-26915738.pdf
+
+vec3 ImportanceSampleGGX( vec2 Xi, float Roughness, vec3 N ) {
+	float a = Roughness * Roughness;
+	float Phi = 2.0 * PI * Xi.x;
+	float CosTheta = sqrt( (1.0 - Xi.y) / ( 1.0 + (a*a - 1.0) * Xi.y ) );
+	float SinTheta = sqrt( 1.0 - CosTheta * CosTheta );
+	vec3 H;
+	H.x = SinTheta * cos( Phi );
+	H.y = SinTheta * sin( Phi );
+	H.z = CosTheta;
+
+	vec3 UpVector = abs(N.z) < 0.999 ? vec3(0,0,1) : vec3(1,0,0);
+	vec3 TangentX = normalize( cross( UpVector, N ) );
+	vec3 TangentY = cross( N, TangentX );
+	// Tangent to world space
+	return TangentX * H.x + TangentY * H.y + N * H.z;
+}
+
+vec3 PrefilterEnvMap( float Roughness, vec3 R )
+{
+	vec3 N = R;
+	vec3 V = R;
+	vec3 PrefilteredColor = vec3( 0.0 );
+	float TotalWeight = 0.0;
+
+	for( int i = 0; i < NUM_SAMPLES; i++ ) {
+		
+		vec2 Xi = Hammersley( float(i), float( NUM_SAMPLES ) );
+
+		Xi.x += random( vec2( vUv + uTimeEF * 0.1 ) );
+		Xi.y += random( vec2( vUv + uTimeEF * 0.1 + 1.0 ) );
+		Xi = fract( Xi );
+		
+		vec3 H = ImportanceSampleGGX( Xi, Roughness, N );
+		// vec3 H = ImportanceSampleCosineWeighted(Xi, N);
+		vec3 L = 2.0 * dot( V, H ) * H - V;
+		float NoL = saturate( dot( N, L ) );
+
+		if( NoL > 0.0 ) {
+			PrefilteredColor += texture(uEnvMap , L).rgb * NoL;
+			TotalWeight += NoL;
+		}
+
+	}
+	
+	return PrefilteredColor / max( TotalWeight, 1.0 );
+}
+
+void main( void ) {
+
+	vec4 sum = vec4( 0.0 );
+	vec2 res = vec2( textureSize( uPMREMBackBuffer, 0 ) );
+
+	float face = floor( vUv.x * 3.0 ) + floor( vUv.y * 2.0 ) * 3.0;
+	vec2 fuv = fract( vUv * vec2( 3.0, 2.0 ) );
+
+
+	vec2 uv = fuv;
+	uv -= 0.5;
+	uv *= 1.0 + 1.0 / res * 2.0;
+	uv += 0.5;
+
+	sum.xyz += PrefilterEnvMap(uRoughness, getPmremDir(uv, face));
+
+	outColor = vec4( mix( texture( uPMREMBackBuffer, vUv ).xyz, sum.xyz, 0.04  ), 1.0 );
+
+}`})))()}var Mn;function Nn(){return(Nn=t((()=>{at(),j(),F(),Ye(),jn(),Mn=class extends tt{postprocess;resolution;renderTarget;pmremPasses;swapBuffers;timeUniforms;constructor(e,t){super();let n=t.resolution,r={uTimeEF:{value:0,type:`1f`}},i=e.createFrameBuffer().setTexture([e.createTexture().setting({type:M.FLOAT,internalFormat:M.RGBA16F,format:M.RGBA,magFilter:M.LINEAR,minFilter:M.LINEAR,wrapS:M.CLAMP_TO_EDGE,wrapT:M.CLAMP_TO_EDGE})]),a=[],o=[],s=[],c=0;for(let l=0;l<5;l++){let u=1/2**l,d=n.x*u,f=n.y*u*.5,p=new O(0,c,d,f);c+=f,s.push({rt1:e.createFrameBuffer().setTexture([e.createTexture().setting({type:M.FLOAT,internalFormat:M.RGBA16F,format:M.RGBA})]),rt2:e.createFrameBuffer().setTexture([e.createTexture().setting({type:M.FLOAT,internalFormat:M.RGBA16F,format:M.RGBA})])});let m=1/4*l,h=new P(e,{renderTarget:s[l].rt1,frag:An,uniforms:mn.merge(r,{uRoughness:{value:m,type:`1f`},uEnvMap:{value:t.input,type:`1i`},uPMREMBackBuffer:{value:s[l].rt2.textures,type:`1i`},uRenderCount:{value:1,type:`1f`}}),defines:{NUM_SAMPLES:Math.floor(2**(l+1))}});h.resize(new O(d,f));let g=new P(e,{renderTarget:i,viewPort:p,passThrough:!0});g.resize(n),a.push(h,g),o.push(h)}this.postprocess=new Cn({passes:a}),this.postprocess.passes[0].backBufferOverride=i.textures,this.resolution=n,this.renderTarget=i,this.pmremPasses=o,this.swapBuffers=s,this.timeUniforms=r}swap(){this.timeUniforms.uTimeEF.value=(this.timeUniforms.uTimeEF.value+.016)%1;for(let e=0;e<this.pmremPasses.length;e++){let t=this.pmremPasses[e],n=this.swapBuffers[e],r=n.rt1;n.rt1=n.rt2,n.rt2=r,t.setRendertarget(n.rt1),t.uniforms.uPMREMBackBuffer.value=n.rt2.textures}}resize(e){}}})))()}var Pn;function Fn(){return(Fn=t((()=>{Pn=class{backend;pool;constructor(e){this.backend=e,this.pool=new Map}get(e,t,n){let r=e+t,i=this.pool.get(r);if(i!==void 0&&i.program)return i;let a=this.backend.createProgram();return n&&(a.name=n),a.setShader(e,t),this.pool.set(r,a),a}}})))()}var In,Ln,Rn,zn,Bn,Vn;function Hn(){return(Hn=t((()=>{In=[[.1,.0484],[.118,.187],[.113,.567],[.358,1.99],[.078,7.41]],Ln=[1,.37,.3],Rn=[.48,.41,.28],zn=2,Bn=(e,t)=>{let n=e/(.001+Ln[t]),r=0;for(let[e,t]of In)r+=e*Math.exp(-(n*n)/(2*t))/(2*Math.PI*t);return r},Vn=e=>{let t=[];for(let n=0;n<e;n++){let r=zn*n/(e-1);t.push(r*r/zn)}let n=[];for(let r=0;r<e;r++){let i=0;i=r===0?t[1]:r===e-1?(t[r]-t[r-1])/2:(t[r+1]-t[r-1])/2,n.push(i)}let r=[];for(let i=0;i<3;i++){let a=[],o=0;for(let r=0;r<e;r++){let e=n[r]*Bn(t[r],i);a.push(e),o+=r===0?e:e*2}let s=Rn[i];for(let t=0;t<e;t++){let e=a[t]/o*s;t===0&&(e+=1-s),r[t*4+i]=e}}for(let n=0;n<e;n++)r[n*4+3]=t[n]/zn;return r}})))()}var Un;function Wn(){return(Wn=t((()=>{Un=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}\r
+struct DirectionalLight {\r
+	vec3 direction;\r
+	vec3 color;\r
+};\r
+\r
+struct SpotLight {\r
+	vec3 position;\r
+	vec3 direction;\r
+	vec3 color;\r
+	float angle;\r
+	float blend;\r
+};\r
+\r
+struct LightCamera {\r
+	float near;\r
+	float far;\r
+	mat4 uViewMatrix;\r
+	mat4 uProjectionMatrix;\r
+	vec2 resolution;\r
+};\r
+\r
+struct Light {\r
+	vec3 direction;\r
+	vec3 color;\r
+};\r
+\r
+#if NUM_LIGHT_DIR > 0 \r
+\r
+	uniform DirectionalLight directionalLight[NUM_LIGHT_DIR];\r
+	uniform LightCamera uDirectionalLightCamera[NUM_LIGHT_DIR];\r
+	// 影を落とすライトが無いと長さ0の配列になり、コンパイルエラーになる\r
+	#if NUM_SHADOWMAP_DIR > 0\r
+		uniform sampler2D directionalLightShadowMap[NUM_SHADOWMAP_DIR];\r
+	#endif\r
+	\r
+#endif\r
+\r
+#if NUM_LIGHT_SPOT > 0 \r
+\r
+	uniform SpotLight uSpotLight[NUM_LIGHT_SPOT];\r
+	uniform LightCamera uSpotLightCamera[NUM_LIGHT_SPOT];\r
+	#if NUM_SHADOWMAP_SPOT > 0\r
+		uniform sampler2D uSpotLightShadowMap[NUM_SHADOWMAP_SPOT];\r
+	#endif\r
+	\r
+#endif\r
+\r
+// shadowmap\r
+\r
+float compareShadowDepth( float lightDepth, sampler2D shadowMap, vec2 shadowCoord, float depthOffset ) {\r
+\r
+	float shadowMapDepth = rgbaToFloat( texture( shadowMap, shadowCoord ) );\r
+\r
+	if( shadowCoord.x >= 0.0 && shadowCoord.x <= 1.0 && shadowCoord.y >= 0.0 && shadowCoord.y <= 1.0 ) {\r
+\r
+		return step( lightDepth, shadowMapDepth + depthOffset );\r
+\r
+	}\r
+\r
+	return 1.0;\r
+\r
+}\r
+\r
+// shadow\r
+\r
+void setShadowCoord( vec3 pos, LightCamera camera, inout vec2 shadowCoord, inout float lightDepth ) {\r
+	\r
+	vec4 mvPosition = camera.uViewMatrix * vec4( pos, 1.0 );\r
+	vec4 mvpPosition = camera.uProjectionMatrix * mvPosition;\r
+	shadowCoord = ( mvpPosition.xy / mvpPosition.w ) * 0.5 + 0.5;\r
+	\r
+	float lightNear = camera.near;\r
+	float lightFar = camera.far;\r
+	lightDepth = ( -mvPosition.z - lightNear ) / ( lightFar - lightNear );\r
+\r
+}\r
+\r
+float getShadow( vec3 pos, LightCamera camera, sampler2D shadowMap, float depthOffset ) {\r
+\r
+	vec2 shadowCoord;\r
+	float lightDepth;\r
+\r
+	setShadowCoord( pos, camera, shadowCoord, lightDepth );\r
+\r
+	return compareShadowDepth( lightDepth, shadowMap, shadowCoord, depthOffset );\r
+\r
+}\r
+\r
+#define SHADOW_SAMPLE_COUNT 2\r
+\r
+float getShadowSmooth( vec3 pos, LightCamera camera, sampler2D shadowMap, float depthOffset ) {\r
+\r
+	vec2 shadowCoord;\r
+	float lightDepth;\r
+\r
+	setShadowCoord( pos, camera, shadowCoord, lightDepth );\r
+	\r
+	float shadowSum = compareShadowDepth( lightDepth, shadowMap, shadowCoord, depthOffset );\r
+\r
+	for( int i = 0; i < SHADOW_SAMPLE_COUNT; i++ ) {\r
+\r
+		vec2 offset = 1.0 / camera.resolution * ( float( i + 1 ) / float(SHADOW_SAMPLE_COUNT) );\r
+\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, -offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( 0.0, -offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, -offset.y ), depthOffset );\r
+		\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, 0.0 ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, 0.0 ), depthOffset );\r
+\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( 0.0, offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, offset.y ), depthOffset );\r
+\r
+	}\r
+\r
+	return shadowSum / ( float( SHADOW_SAMPLE_COUNT ) * 8.0 );\r
+\r
+}\r
+\r
+float ggx( float dNH, float roughness ) {\r
+	\r
+	float a2 = roughness * roughness;\r
+	a2 = a2 * a2;\r
+	float dNH2 = dNH * dNH;\r
+\r
+	if( dNH2 <= 0.0 ) return 0.0;\r
+\r
+	return a2 / ( PI * pow( dNH2 * ( a2 - 1.0 ) + 1.0, 2.0) );\r
+\r
+}\r
+\r
+vec3 lambert( vec3 diffuseColor ) {\r
+\r
+	return diffuseColor / PI;\r
+\r
+}\r
+\r
+float gSchlick( float d, float k ) {\r
+\r
+	if( d == 0.0 ) return 0.0;\r
+\r
+	return d / ( d * ( 1.0 - k ) + k );\r
+	\r
+}\r
+\r
+float gSmith( float dNV, float dNL, float roughness ) {\r
+\r
+	float k = clamp( roughness * sqrt( 2.0 / PI ), 0.0, 1.0 );\r
+\r
+	return gSchlick( dNV, k ) * gSchlick( dNL, k );\r
+	\r
+}\r
+\r
+float fresnel( float d ) {\r
+	\r
+	float f0 = 0.04;\r
+\r
+	return f0 + ( 1.0 - f0 ) * pow( 1.0 - d, 5.0 );\r
+\r
+}\r
+\r
+// 1灯ぶんの反射を diffuse と specular に分けて足す（SSS が diffuse だけをぼかすため）\r
+void RE( Geometry geo, Material mat, Light light, inout vec3 diffuse, inout vec3 specular ) {\r
+\r
+	vec3 lightDir = normalize( light.direction );\r
+	vec3 halfVec = normalize( geo.viewDir + lightDir );\r
+\r
+	float dLH = clamp( dot( lightDir, halfVec ), 0.0, 1.0 );\r
+	float dNH = clamp( dot( geo.normal, halfVec ), 0.0, 1.0 );\r
+	float dNV = clamp( dot( geo.normal, geo.viewDir ), 0.0, 1.0 );\r
+	float dNL = clamp( dot( geo.normal, lightDir), 0.0, 1.0 );\r
+\r
+	vec3 irradiance = light.color * dNL;\r
+\r
+	float D = ggx( dNH, mat.roughness );\r
+	float G = gSmith( dNV, dNL, mat.roughness );\r
+	float F = fresnel( dLH );\r
+\r
+	diffuse += lambert( mat.diffuseColor ) * irradiance * ( 1.0 - F );\r
+	specular += (( D * G * F ) / ( 4.0 * dNL * dNV + 0.0001 ) * mat.specularColor ) * irradiance;\r
+\r
+}\r
+// https://github.com/mrdoob/three.js/blob/c2593ed3db121b17590068c638d5dc115e7496f9/src/renderers/shaders/ShaderChunk/cube_uv_reflection_fragment.glsl.js#L11C8-L11C15\r
+\r
+float getPmremFace( vec3 direction ) {\r
+\r
+	vec3 absDirection = abs( direction );\r
+\r
+	float face = - 1.0;\r
+\r
+	if ( absDirection.x > absDirection.z ) {\r
+\r
+		if ( absDirection.x > absDirection.y )\r
+\r
+			face = direction.x > 0.0 ? 0.0 : 3.0;\r
+\r
+		else\r
+\r
+			face = direction.y > 0.0 ? 1.0 : 4.0;\r
+\r
+	} else {\r
+\r
+		if ( absDirection.z > absDirection.y )\r
+\r
+			face = direction.z > 0.0 ? 2.0 : 5.0;\r
+\r
+		else\r
+\r
+			face = direction.y > 0.0 ? 1.0 : 4.0;\r
+\r
+	}\r
+\r
+	return face;\r
+\r
+}\r
+\r
+// https://github.com/mrdoob/three.js/blob/c2593ed3db121b17590068c638d5dc115e7496f9/src/renderers/shaders/ShaderChunk/cube_uv_reflection_fragment.glsl.js#L44\r
+\r
+vec2 getPmremUV( vec3 direction, float face ) {\r
+\r
+	vec2 uv;\r
+\r
+	if ( face == 0.0 ) {\r
+\r
+		uv = vec2( direction.z, direction.y ) / abs( direction.x ); // pos x\r
+\r
+	} else if ( face == 1.0 ) {\r
+\r
+		uv = vec2( - direction.x, - direction.z ) / abs( direction.y ); // pos y\r
+\r
+	} else if ( face == 2.0 ) {\r
+\r
+		uv = vec2( - direction.x, direction.y ) / abs( direction.z ); // pos z\r
+\r
+	} else if ( face == 3.0 ) {\r
+\r
+		uv = vec2( - direction.z, direction.y ) / abs( direction.x ); // neg x\r
+\r
+	} else if ( face == 4.0 ) {\r
+\r
+		uv = vec2( - direction.x, direction.z ) / abs( direction.y ); // neg y\r
+\r
+	} else {\r
+\r
+		uv = vec2( direction.x, direction.y ) / abs( direction.z ); // neg z\r
+\r
+	}\r
+\r
+	return 0.5 * ( uv + 1.0 );\r
+\r
+}\r
+\r
+vec3 getPmremDir( vec2 uv, float face ) {\r
+\r
+	vec3 dir = vec3( 0.0 );\r
+\r
+	if ( face == 0.0 ) {\r
+\r
+		vec2 yz = ( vec2( uv.y, uv.x ) - 0.5 ) * 2.0;\r
+		\r
+		dir = vec3( 1.0, yz );\r
+\r
+	} else if( face == 1.0 ) {\r
+\r
+		vec2 xz = ( vec2( - uv.x, -uv.y ) + 0.5 ) * 2.0;\r
+		\r
+		dir = vec3( xz.x, 1.0, xz.y );\r
+		\r
+	} else if( face == 2.0 ) {\r
+\r
+		vec2 xy = ( vec2( - uv.x + 0.5, uv.y - 0.5 ) ) * 2.0;\r
+		\r
+		dir = vec3( xy, 1.0 );\r
+		\r
+	} else if( face == 3.0 ) {\r
+\r
+		vec2 zy = ( vec2( - uv.x + 0.5, uv.y - 0.5 ) ) * 2.0;\r
+		\r
+		dir = vec3( -1.0, zy.y, zy.x );\r
+		\r
+	} else if( face == 4.0 ) {\r
+\r
+		vec2 xz = ( vec2( - uv.x + 0.5 , uv.y - 0.5 ) ) * 2.0;\r
+		\r
+		dir = vec3( xz.x, -1.0, xz.y );\r
+		\r
+	} else if( face == 5.0 ) {\r
+\r
+		vec2 xy = ( vec2( uv.x, uv.y ) - 0.5 ) * 2.0;\r
+		\r
+		dir = vec3( xy, -1.0 );\r
+		\r
+	}\r
+\r
+	return normalize( dir );\r
+\r
+}\r
+\r
+\r
+//https://github.com/mrdoob/three.js/blob/c2593ed3db121b17590068c638d5dc115e7496f9/src/renderers/shaders/ShaderChunk/cube_uv_reflection_fragment.glsl.js#L132\r
+\r
+#define MAXMIP 5.0\r
+\r
+float roughnessToMip( float roughness ) {\r
+\r
+	float mip = 0.0;\r
+\r
+	mip = roughness * ( MAXMIP - 1.0 );\r
+\r
+	return mip;\r
+\r
+}\r
+\r
+vec3 getPmremMip( sampler2D envMap, vec3 direction, float mip ) {\r
+\r
+	float face = getPmremFace( direction );\r
+	vec2 uv = getPmremUV( direction, face );\r
+\r
+	vec2 faceRes = vec2(textureSize( envMap, 0 )) * pow( 0.5, floor( mip ) );\r
+	float s = 2.0;\r
+	uv *= faceRes - 2.0 * s;\r
+	uv += 1.0 * s;\r
+	uv /= faceRes;\r
+\r
+	uv.x += mod( face, 3.0 );\r
+	uv.y += floor( face / 3.0) ;\r
+	\r
+	uv.y *= 0.5;\r
+	uv.y *= 0.5;\r
+	uv.x /= 3.0;\r
+\r
+	float scale = 1.0 - pow( 2.0, -floor(mip) );\r
+	uv.y *= 1.0 - scale;\r
+	uv.x *= 1.0 - scale;\r
+	uv.y += scale;\r
+\r
+	vec4 col = textureGrad( envMap, uv, vec2( 0.0 ), vec2( 0.0 )  );\r
+\r
+	return col.xyz / col.w;\r
+\r
+}\r
+\r
+vec3 getPmrem( sampler2D envMap, vec3 direction, float roughness ) {\r
+\r
+	float mip = roughnessToMip( roughness );\r
+	float mipF = fract( mip );\r
+	float mipInt = floor( mip );\r
+\r
+	vec3 color0 = getPmremMip( envMap, direction, mipInt );\r
+\r
+	if ( mipF == 0.0 ) {\r
+\r
+		return color0;\r
+\r
+	} else {\r
+\r
+		vec3 color1 = getPmremMip( envMap, direction, mipInt + 1.0 );\r
+\r
+		return mix( color0, color1, mipF );\r
+\r
+	}\r
+\r
+}\r
+\r
+// uniforms\r
+\r
+uniform sampler2D sampler0; // position.xyz, emission.x\r
+uniform sampler2D sampler1; // normal.xyz, emission.y\r
+uniform sampler2D sampler2; // albedo, sss\r
+uniform sampler2D sampler3; // roughness, metallic, normalSelect, envSelect, \r
+uniform sampler2D sampler4; // velocity.xy, 0.0, emission.z\r
+\r
+uniform sampler2D uSSAOTexture;\r
+uniform sampler2D uLightShaftTexture;\r
+uniform sampler2D uEnvMap;\r
+\r
+uniform vec3 uColor;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform mat4 uCameraMatrix;\r
+uniform vec3 uCameraPosition;\r
+\r
+// -------------------------\r
+\r
+// varyings\r
+\r
+in vec2 vUv;\r
+\r
+// out（1 は SSS がぼかす diffuse だけの結果）\r
+\r
+layout (location = 0) out vec4 glFragOut0;\r
+layout (location = 1) out vec4 glFragOut1;\r
+\r
+void main( void ) {\r
+\r
+	float occlusion = texture( uSSAOTexture, vUv ).x;\r
+\r
+	vec4 tex0 = texture( sampler0, vUv );\r
+	vec4 tex1 = texture( sampler1, vUv );\r
+	vec4 tex2 = texture( sampler2, vUv );\r
+	vec4 tex3 = texture( sampler3, vUv );\r
+	vec4 tex4 = texture( sampler4, vUv );\r
+\r
+	vec3 normal = tex1.xyz;\r
+	vec3 color = tex2.xyz;\r
+	float roughness = tex3.x;\r
+	float metallic = tex3.y;\r
+	vec3 emission = vec3( tex0.w, tex1.w, tex4.w );\r
+	float envMapIntensity= tex3.w;\r
+\r
+	Geometry geo = Geometry(\r
+		tex0.xyz,\r
+		normal,\r
+		0.0,\r
+		viewDirection( tex0.xyz, uCameraPosition, uViewMatrix, uProjectionMatrix ),\r
+		vec3( 0.0 ),\r
+		occlusion\r
+	);\r
+	\r
+	Material mat = Material(\r
+		color,\r
+		roughness,\r
+		metallic,\r
+		emission,\r
+		mix( color, vec3( 0.0, 0.0, 0.0 ), metallic ),\r
+		mix( vec3( 1.0, 1.0, 1.0 ), color, metallic ),\r
+		envMapIntensity\r
+	);\r
+	vec3 diffuse = vec3( 0.0 );\r
+	vec3 specular = vec3( 0.0 );\r
+\r
+	// lighting\r
+\r
+	// required common, light,\r
+// diffuse / specular（vec3）へ足し込む。SSS が diffuse だけをぼかすため分けて持つ\r
+\r
+float shadow;\r
+\r
+// direcitonalLight\r
+\r
+Light light;\r
+LightCamera lightCamera;\r
+\r
+#if NUM_LIGHT_DIR > 0 \r
+\r
+	DirectionalLight dLight;\r
+\r
+	#pragma loop_start NUM_LIGHT_DIR\r
+\r
+		dLight = directionalLight[ LOOP_INDEX ];\r
+\r
+		// shadow\r
+\r
+		#if LOOP_INDEX < NUM_SHADOWMAP_DIR\r
+\r
+			shadow = getShadowSmooth( tex0.xyz, uDirectionalLightCamera[ LOOP_INDEX ], directionalLightShadowMap[ LOOP_INDEX ], 0.0001 );\r
+\r
+		#else\r
+\r
+			shadow = 1.0;\r
+\r
+		#endif\r
+		\r
+		// lighting\r
+\r
+		light.direction = dLight.direction;\r
+		light.color = dLight.color * shadow;\r
+\r
+		RE( geo, mat, light, diffuse, specular );\r
+\r
+	#pragma loop_end\r
+\r
+#endif\r
+\r
+#if NUM_LIGHT_SPOT > 0\r
+\r
+	SpotLight sLight;\r
+	\r
+	vec3 spotDirection;\r
+	float spotDistance;\r
+	float spotAngleCos;\r
+	float spotAttenuation;\r
+\r
+	#pragma loop_start NUM_LIGHT_SPOT\r
+\r
+		// shadow\r
+\r
+		#if LOOP_INDEX < NUM_SHADOWMAP_SPOT\r
+\r
+			shadow = getShadowSmooth( geo.position, uSpotLightCamera[ LOOP_INDEX ], uSpotLightShadowMap[ LOOP_INDEX ], 0.001 );\r
+\r
+		#else\r
+\r
+			shadow = 1.0;\r
+\r
+		#endif\r
+\r
+		// lighting\r
+\r
+		sLight = uSpotLight[ LOOP_INDEX ];\r
+\r
+		spotDirection = normalize(sLight.position - geo.position);\r
+		spotDistance = length( sLight.position - geo.position );\r
+		spotAngleCos = dot( sLight.direction, spotDirection );\r
+		spotAttenuation = 0.0;\r
+\r
+		if( spotAngleCos > sLight.angle ) {\r
+\r
+			spotAttenuation = smoothstep( sLight.angle, sLight.angle + ( 1.0 - sLight.angle ) * sLight.blend, spotAngleCos );\r
+\r
+		}\r
+\r
+		light.direction = spotDirection;\r
+		// 逆二乗の減衰。光源の位置で 0 除算しないよう下限を置く\r
+		light.color = sLight.color * spotAttenuation / max( spotDistance * spotDistance, 0.0001 ) * shadow;\r
+\r
+		RE( geo, mat, light, diffuse, specular );\r
+\r
+	#pragma loop_end\r
+\r
+#endif\r
+\r
+	// env\r
+\r
+	vec3 refDir = reflect( -geo.viewDir, geo.normal );\r
+float dNV = clamp( dot( geo.normal, geo.viewDir ), 0.0, 1.0 );\r
+float EF = mix( fresnel( dNV ), 1.0, mat.metallic );\r
+\r
+// 環境の鏡面反射に置き換わる割合。直接光も含め diffuse / specular を同じ割合で減らす\r
+vec3 envReflect = EF * mat.specularColor * mat.envMapIntensity;\r
+\r
+diffuse = ( diffuse + getPmrem( uEnvMap, geo.normal, 1.0 ) * mat.diffuseColor * mat.envMapIntensity ) * ( 1.0 - envReflect );\r
+specular = mix( specular, getPmrem( uEnvMap, refDir, mat.roughness ), envReflect );\r
+	\r
+	// occlusion\r
+\r
+	float ao = max( 0.0, 1.0 - geo.occulusion * 1.5 );\r
+\r
+	diffuse *= ao;\r
+	specular *= ao;\r
+\r
+	vec3 outColor = diffuse + specular;\r
+\r
+	// emission\r
+\r
+	outColor += mat.emission;\r
+\r
+	// light shaft\r
+	\r
+	outColor += texture( uLightShaftTexture, vUv ).xyz;\r
+\r
+	glFragOut0 = vec4( max( vec3( 0.0 ), outColor ), 1.0 );\r
+	glFragOut1 = vec4( max( vec3( 0.0 ), diffuse ), 1.0 );\r
+\r
+}`})))()}var Gn;function Kn(){return(Kn=t((()=>{Gn=`// カメラからの視線をレイマーチしてシャドウマップを引き、光の筋を積む。
+// 1フレームぶんのレイマーチはサンプルが足りないので、開始位置をピクセルごとにずらして
+// 前フレームの結果へ足し込む。空間方向のならしは lightShaftBlur が担当する。
+// webgpu 側の lightShaft.wgsl と同じ処理
+
+#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+struct DirectionalLight {\r
+	vec3 direction;\r
+	vec3 color;\r
+};\r
+\r
+struct SpotLight {\r
+	vec3 position;\r
+	vec3 direction;\r
+	vec3 color;\r
+	float angle;\r
+	float blend;\r
+};\r
+\r
+struct LightCamera {\r
+	float near;\r
+	float far;\r
+	mat4 uViewMatrix;\r
+	mat4 uProjectionMatrix;\r
+	vec2 resolution;\r
+};\r
+\r
+struct Light {\r
+	vec3 direction;\r
+	vec3 color;\r
+};\r
+\r
+#if NUM_LIGHT_DIR > 0 \r
+\r
+	uniform DirectionalLight directionalLight[NUM_LIGHT_DIR];\r
+	uniform LightCamera uDirectionalLightCamera[NUM_LIGHT_DIR];\r
+	// 影を落とすライトが無いと長さ0の配列になり、コンパイルエラーになる\r
+	#if NUM_SHADOWMAP_DIR > 0\r
+		uniform sampler2D directionalLightShadowMap[NUM_SHADOWMAP_DIR];\r
+	#endif\r
+	\r
+#endif\r
+\r
+#if NUM_LIGHT_SPOT > 0 \r
+\r
+	uniform SpotLight uSpotLight[NUM_LIGHT_SPOT];\r
+	uniform LightCamera uSpotLightCamera[NUM_LIGHT_SPOT];\r
+	#if NUM_SHADOWMAP_SPOT > 0\r
+		uniform sampler2D uSpotLightShadowMap[NUM_SHADOWMAP_SPOT];\r
+	#endif\r
+	\r
+#endif\r
+\r
+// shadowmap\r
+\r
+float compareShadowDepth( float lightDepth, sampler2D shadowMap, vec2 shadowCoord, float depthOffset ) {\r
+\r
+	float shadowMapDepth = rgbaToFloat( texture( shadowMap, shadowCoord ) );\r
+\r
+	if( shadowCoord.x >= 0.0 && shadowCoord.x <= 1.0 && shadowCoord.y >= 0.0 && shadowCoord.y <= 1.0 ) {\r
+\r
+		return step( lightDepth, shadowMapDepth + depthOffset );\r
+\r
+	}\r
+\r
+	return 1.0;\r
+\r
+}\r
+\r
+// shadow\r
+\r
+void setShadowCoord( vec3 pos, LightCamera camera, inout vec2 shadowCoord, inout float lightDepth ) {\r
+	\r
+	vec4 mvPosition = camera.uViewMatrix * vec4( pos, 1.0 );\r
+	vec4 mvpPosition = camera.uProjectionMatrix * mvPosition;\r
+	shadowCoord = ( mvpPosition.xy / mvpPosition.w ) * 0.5 + 0.5;\r
+	\r
+	float lightNear = camera.near;\r
+	float lightFar = camera.far;\r
+	lightDepth = ( -mvPosition.z - lightNear ) / ( lightFar - lightNear );\r
+\r
+}\r
+\r
+float getShadow( vec3 pos, LightCamera camera, sampler2D shadowMap, float depthOffset ) {\r
+\r
+	vec2 shadowCoord;\r
+	float lightDepth;\r
+\r
+	setShadowCoord( pos, camera, shadowCoord, lightDepth );\r
+\r
+	return compareShadowDepth( lightDepth, shadowMap, shadowCoord, depthOffset );\r
+\r
+}\r
+\r
+#define SHADOW_SAMPLE_COUNT 2\r
+\r
+float getShadowSmooth( vec3 pos, LightCamera camera, sampler2D shadowMap, float depthOffset ) {\r
+\r
+	vec2 shadowCoord;\r
+	float lightDepth;\r
+\r
+	setShadowCoord( pos, camera, shadowCoord, lightDepth );\r
+	\r
+	float shadowSum = compareShadowDepth( lightDepth, shadowMap, shadowCoord, depthOffset );\r
+\r
+	for( int i = 0; i < SHADOW_SAMPLE_COUNT; i++ ) {\r
+\r
+		vec2 offset = 1.0 / camera.resolution * ( float( i + 1 ) / float(SHADOW_SAMPLE_COUNT) );\r
+\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, -offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( 0.0, -offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, -offset.y ), depthOffset );\r
+		\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, 0.0 ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, 0.0 ), depthOffset );\r
+\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( 0.0, offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, offset.y ), depthOffset );\r
+\r
+	}\r
+\r
+	return shadowSum / ( float( SHADOW_SAMPLE_COUNT ) * 8.0 );\r
+\r
+}\r
+\r
+float ggx( float dNH, float roughness ) {\r
+	\r
+	float a2 = roughness * roughness;\r
+	a2 = a2 * a2;\r
+	float dNH2 = dNH * dNH;\r
+\r
+	if( dNH2 <= 0.0 ) return 0.0;\r
+\r
+	return a2 / ( PI * pow( dNH2 * ( a2 - 1.0 ) + 1.0, 2.0) );\r
+\r
+}\r
+\r
+vec3 lambert( vec3 diffuseColor ) {\r
+\r
+	return diffuseColor / PI;\r
+\r
+}\r
+\r
+float gSchlick( float d, float k ) {\r
+\r
+	if( d == 0.0 ) return 0.0;\r
+\r
+	return d / ( d * ( 1.0 - k ) + k );\r
+	\r
+}\r
+\r
+float gSmith( float dNV, float dNL, float roughness ) {\r
+\r
+	float k = clamp( roughness * sqrt( 2.0 / PI ), 0.0, 1.0 );\r
+\r
+	return gSchlick( dNV, k ) * gSchlick( dNL, k );\r
+	\r
+}\r
+\r
+float fresnel( float d ) {\r
+	\r
+	float f0 = 0.04;\r
+\r
+	return f0 + ( 1.0 - f0 ) * pow( 1.0 - d, 5.0 );\r
+\r
+}\r
+\r
+// 1灯ぶんの反射を diffuse と specular に分けて足す（SSS が diffuse だけをぼかすため）\r
+void RE( Geometry geo, Material mat, Light light, inout vec3 diffuse, inout vec3 specular ) {\r
+\r
+	vec3 lightDir = normalize( light.direction );\r
+	vec3 halfVec = normalize( geo.viewDir + lightDir );\r
+\r
+	float dLH = clamp( dot( lightDir, halfVec ), 0.0, 1.0 );\r
+	float dNH = clamp( dot( geo.normal, halfVec ), 0.0, 1.0 );\r
+	float dNV = clamp( dot( geo.normal, geo.viewDir ), 0.0, 1.0 );\r
+	float dNL = clamp( dot( geo.normal, lightDir), 0.0, 1.0 );\r
+\r
+	vec3 irradiance = light.color * dNL;\r
+\r
+	float D = ggx( dNH, mat.roughness );\r
+	float G = gSmith( dNV, dNL, mat.roughness );\r
+	float F = fresnel( dLH );\r
+\r
+	diffuse += lambert( mat.diffuseColor ) * irradiance * ( 1.0 - F );\r
+	specular += (( D * G * F ) / ( 4.0 * dNL * dNV + 0.0001 ) * mat.specularColor ) * irradiance;\r
+\r
+}
+
+// uniforms
+
+uniform sampler2D uLightShaftBackBuffer;
+uniform sampler2D uPosTexture;
+
+// ジッタを回すためのフレーム番号
+uniform float uFrame;
+uniform mat4 uCameraMatrix;
+uniform mat4 uProjectionMatrixInverse;
+uniform mat4 uViewMatrixPrev;
+uniform mat4 uProjectionMatrixPrev;
+
+// varying
+
+in vec2 vUv;
+
+layout (location = 0) out vec4 outColor;
+
+const float MARCH_LENGTH = 60.0;
+const int MARCH = 32;
+
+const vec3 LUMA = vec3( 0.299, 0.587, 0.114 );
+
+// 新しい結果の重み。小さいほどノイズは減るが、影の出入りが尾を引く（webgpu 側の既定値と同じ）
+const float TEMPORAL_BLEND = 0.3;
+
+// 再投影が画面上で動いた量に対して履歴を捨てる強さ。
+// 画面の5%ぶん動いたら履歴を使わなくなる（1.0 / 0.05）
+const float TEMPORAL_REJECT = 20.0;
+
+// 明るさの変わり方に対して履歴を捨てる境目（前フレームとの相対差）。
+// 遮蔽物が動いた画素は影が丸ごと入れ替わるので大きく振れる。
+// 下限はレイマーチのばらつきぶんで、ここを下げすぎると蓄積が効かなくなる
+const float CHANGE_LOW = 0.25;
+const float CHANGE_HIGH = 1.0;
+
+// https://stackoverflow.com/questions/4200224/random-noise-functions-for-glsl\r
+\r
+float random(vec2 p){\r
+	return fract(sin(dot(p.xy ,vec2(12.9898,78.233))) * 43758.5453);\r
+}\r
+\r
+// https://www.shadertoy.com/view/4djSRW\r
+\r
+vec3 hash(vec3 p3)\r
+{\r
+	p3 = fract(p3 * vec3(.1031, .1030, .0973));\r
+  p3 += dot(p3, p3.yxz+33.33);\r
+  return fract((p3.xxy + p3.yxx)*p3.zyx);\r
+\r
+}
+
+// Interleaved Gradient Noise。隣り合うピクセルの値が斜めの縞として散るので、
+// 白色ノイズのように無相関な粒にならず、同じサンプル数でもざらつきが目立たない。
+// frameIndex にフレーム番号を渡すと、時間方向にも重ならないよう位相がずれる
+float interleavedGradientNoise( vec2 pixel, float frameIndex ) {
+
+	vec2 p = pixel + frameIndex * 5.588238;
+
+	return fract( 52.9829189 * fract( dot( p, vec2( 0.06711056, 0.00583715 ) ) ) );
+
+}
+
+
+void main( void ) {
+
+	vec3 lightShaftSum = vec3( 0.0 );
+
+	vec2 screen = vUv * 2.0 - 1.0;
+	mat4 cp = uCameraMatrix * uProjectionMatrixInverse;
+
+	// 始点は near 面上の点。並行投影ではカメラ位置から出ないので、画素ごとに near/far 面の点から求める
+	vec4 np = cp * vec4( screen, -1.0, 1.0 );
+	vec4 fp = cp * vec4( screen, 1.0, 1.0 );
+	vec3 rayPos = np.xyz / np.w;
+	vec3 rayDir = normalize( fp.xyz / fp.w - rayPos );
+
+	// レイの終端はgBufferのワールド座標。書かれていなければ十分遠くまで進める
+	vec3 rayEndPos = texture( uPosTexture, vUv ).xyz;
+
+	if( dot( rayEndPos, rayEndPos ) == 0.0 ) {
+
+		rayEndPos = rayPos + rayDir * 100.0;
+
+	}
+
+	float rayLength = length( rayEndPos - rayPos );
+
+	float rayStepLength = MARCH_LENGTH / float( MARCH );
+	vec3 rayStep = rayDir * rayStepLength;
+
+	// 開始位置をステップ1つぶんの範囲で散らして等間隔の縞を崩す
+	float totalRayLength = interleavedGradientNoise( gl_FragCoord.xy, uFrame ) * rayStepLength;
+	rayPos += rayDir * totalRayLength;
+
+	for( int i = 0; i < MARCH; i ++ ) {
+
+		rayPos += rayStep;
+		totalRayLength += rayStepLength;
+
+		if( totalRayLength >= rayLength ) break;
+
+		float shadow;
+
+		#if NUM_LIGHT_DIR > 0
+
+			DirectionalLight dLight;
+
+			#pragma loop_start NUM_LIGHT_DIR
+
+				dLight = directionalLight[ LOOP_INDEX ];
+
+				#if LOOP_INDEX < NUM_SHADOWMAP_DIR
+
+					shadow = getShadow( rayPos, uDirectionalLightCamera[ LOOP_INDEX ], directionalLightShadowMap[ LOOP_INDEX ], 0.0 );
+
+				#else
+
+					shadow = 1.0;
+
+				#endif
+
+				lightShaftSum += dLight.color * shadow * rayStepLength * 0.0025;
+
+			#pragma loop_end
+
+		#endif
+
+		// spotlight
+
+		#if NUM_LIGHT_SPOT > 0
+
+			SpotLight sLight;
+
+			vec3 spotDirection;
+			float spotDistance;
+			float spotAngleCos;
+			float spotAttenuation;
+
+			#pragma loop_start NUM_LIGHT_SPOT
+
+				sLight = uSpotLight[ LOOP_INDEX ];
+
+				spotDirection = normalize(sLight.position - rayPos);
+				spotDistance = length( sLight.position - rayPos );
+				spotAngleCos = dot( sLight.direction, spotDirection );
+				spotAttenuation = 0.0;
+
+				if( spotAngleCos > sLight.angle * -1.0 ) {
+
+					spotAttenuation = smoothstep( sLight.angle, sLight.angle + ( 1.0 - sLight.angle ) * sLight.blend, spotAngleCos );
+
+				}
+
+				#if LOOP_INDEX < NUM_SHADOWMAP_SPOT
+
+					shadow = getShadow( rayPos, uSpotLightCamera[ LOOP_INDEX ], uSpotLightShadowMap[ LOOP_INDEX ], 0.0 );
+
+				#else
+
+					shadow = 1.0;
+
+				#endif
+
+				lightShaftSum += sLight.color *
+					shadow *
+					spotAttenuation / max( spotDistance * spotDistance, 0.0001 ) *
+					rayStepLength * 0.02;
+
+			#pragma loop_end
+
+		#endif
+
+	}
+
+	lightShaftSum *= 0.4;
+
+	// レイの終端を前フレームのカメラで見たときの画面位置。そこに前フレームの筋が残っている
+	vec4 prevClip = uProjectionMatrixPrev * uViewMatrixPrev * vec4( rayEndPos, 1.0 );
+	vec2 prevUv = prevClip.xy / prevClip.w * 0.5 + 0.5;
+
+	vec3 history = texture( uLightShaftBackBuffer, prevUv ).xyz;
+
+	// 画面上で大きく動いたピクセルは、遮蔽の入れ替わりで前の値が別物になっている
+	float motion = length( prevUv - vUv );
+
+	// 遮蔽物だけが動いた場合は再投影では捉えられないので、明るさの変化そのものからも判断する
+	float lumSum = dot( lightShaftSum, LUMA );
+	float lumHistory = dot( history, LUMA );
+	float change = abs( lumSum - lumHistory ) / max( max( lumSum, lumHistory ), 0.0001 );
+
+	float alpha = TEMPORAL_BLEND + motion * TEMPORAL_REJECT;
+	alpha = mix( alpha, 1.0, smoothstep( CHANGE_LOW, CHANGE_HIGH, change ) );
+
+	// 画面の外から来たピクセルには履歴が無い
+	if( prevClip.w <= 0.0 || prevUv.x < 0.0 || prevUv.y < 0.0 || prevUv.x > 1.0 || prevUv.y > 1.0 ) {
+
+		alpha = 1.0;
+
+	}
+
+	outColor = vec4( mix( history, lightShaftSum, clamp( alpha, 0.0, 1.0 ) ), 1.0 );
+
+}
+`})))()}var qn;function Jn(){return(Jn=t((()=>{qn=`// 光の筋のならし。レイマーチのジッタが残したざらつきを消す。縦横で2回かける（IS_VIRT で縦）。
+// 筋そのものは低周波なので、手前の面と奥の空間をまたいで滲まないぶんだけ重みを落とせば足りる。
+// webgpu 側の lightShaftBlur.wgsl と同じ処理
+
+// uniforms
+
+uniform sampler2D uLightShaftTexture;
+uniform sampler2D uPosTexture;
+uniform vec2 uPPPixelSize;
+uniform vec3 uCameraPosition;
+
+uniform float uWeights[BLUR_SAMPLES];
+
+// varying
+
+in vec2 vUv;
+
+// out
+
+layout (location = 0) out vec4 outColor;
+
+// カメラ距離がこれだけ離れると重みが半分になる
+const float DEPTH_FALLOFF = 1.0;
+
+// gBufferに何も書かれていない画素の扱い。カメラ位置に依らず一定にしたいので、
+// 原点までの距離ではなく決め打ちの遠方を返す（lightShaft がレイを伸ばす距離と同じ）
+const float BACKGROUND_DEPTH = 100.0;
+
+// gBufferのワールド座標からカメラ距離を求める
+float viewDepth( vec2 uv ) {
+
+	vec3 gPos = texture( uPosTexture, uv ).xyz;
+
+	if( dot( gPos, gPos ) == 0.0 ) {
+
+		return BACKGROUND_DEPTH;
+
+	}
+
+	return length( gPos - uCameraPosition );
+
+}
+
+// 基準の画素とカメラ距離が離れているほど小さくなる重み
+float depthWeight( vec2 uv, float depthBasis ) {
+
+	return 1.0 / ( 1.0 + abs( viewDepth( uv ) - depthBasis ) / DEPTH_FALLOFF );
+
+}
+
+void main( void ) {
+
+	vec2 direction;
+
+	#ifdef IS_VIRT
+
+		direction = vec2( 0.0, 1.0 );
+
+	#else
+
+		direction = vec2( 1.0, 0.0 );
+
+	#endif
+
+	float depthBasis = viewDepth( vUv );
+
+	vec3 sum = texture( uLightShaftTexture, vUv ).xyz * uWeights[ 0 ];
+	float weight = uWeights[ 0 ];
+
+	for( int i = 1; i < BLUR_SAMPLES; i ++ ) {
+
+		vec2 offset = float( i ) * direction * uPPPixelSize;
+
+		vec2 uvP = vUv + offset;
+		vec2 uvN = vUv - offset;
+
+		float wP = depthWeight( uvP, depthBasis ) * uWeights[ i ];
+		float wN = depthWeight( uvN, depthBasis ) * uWeights[ i ];
+
+		sum += texture( uLightShaftTexture, uvP ).xyz * wP;
+		sum += texture( uLightShaftTexture, uvN ).xyz * wN;
+
+		weight += wP + wN;
+
+	}
+
+	outColor = vec4( sum / weight, 1.0 );
+
+}
+`})))()}var Yn;function Xn(){return(Xn=t((()=>{Yn=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+
+// uniforms
+
+uniform vec2 uPPPixelSize;
+uniform sampler2D uNormalTexture;
+uniform sampler2D uPosTexture;
+uniform sampler2D uSelectorTexture;
+
+// varying
+
+in vec2 vUv;
+
+// out
+
+layout (location = 0) out vec4 outColor;
+
+void main( void ) {
+
+	vec4 normalTex = texture( uNormalTexture, vUv );
+	vec4 positionTex = texture( uPosTexture, vUv );
+
+	vec3 center = texture( uPosTexture, vUv ).xyz;
+	vec3 right = texture( uPosTexture, vUv + vec2( uPPPixelSize.x, 0.0 ) ).xyz;
+	vec3 top = texture( uPosTexture, vUv + vec2( 0.0, uPPPixelSize.y ) ).xyz;
+	vec3 left = texture( uPosTexture, vUv + vec2( -uPPPixelSize.x, 0.0 ) ).xyz;
+	vec3 bottom = texture( uPosTexture, vUv + vec2( 0.0, -uPPPixelSize.y ) ).xyz;
+	vec3 dx1 = right - center;
+    vec3 dy1 = top - center;
+	vec3 dx2 = -(left - center);
+    vec3 dy2 = -(bottom - center);
+
+	vec3 calcNormal = normalize(cross(
+		length(dx1) < length(dx2) ? dx1 : dx2,
+		length(dy1) < length(dy2) ? dy1 : dy2
+	));
+
+	vec4 tex3 = texture( uSelectorTexture, vUv );
+
+	vec3 normal = mix( normalTex.xyz, calcNormal, tex3.z);
+
+	outColor = vec4( normal, normalTex.w );
+
+}`})))()}var Zn;function Qn(){return(Qn=t((()=>{Zn=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+struct DirectionalLight {\r
+	vec3 direction;\r
+	vec3 color;\r
+};\r
+\r
+struct SpotLight {\r
+	vec3 position;\r
+	vec3 direction;\r
+	vec3 color;\r
+	float angle;\r
+	float blend;\r
+};\r
+\r
+struct LightCamera {\r
+	float near;\r
+	float far;\r
+	mat4 uViewMatrix;\r
+	mat4 uProjectionMatrix;\r
+	vec2 resolution;\r
+};\r
+\r
+struct Light {\r
+	vec3 direction;\r
+	vec3 color;\r
+};\r
+\r
+#if NUM_LIGHT_DIR > 0 \r
+\r
+	uniform DirectionalLight directionalLight[NUM_LIGHT_DIR];\r
+	uniform LightCamera uDirectionalLightCamera[NUM_LIGHT_DIR];\r
+	// 影を落とすライトが無いと長さ0の配列になり、コンパイルエラーになる\r
+	#if NUM_SHADOWMAP_DIR > 0\r
+		uniform sampler2D directionalLightShadowMap[NUM_SHADOWMAP_DIR];\r
+	#endif\r
+	\r
+#endif\r
+\r
+#if NUM_LIGHT_SPOT > 0 \r
+\r
+	uniform SpotLight uSpotLight[NUM_LIGHT_SPOT];\r
+	uniform LightCamera uSpotLightCamera[NUM_LIGHT_SPOT];\r
+	#if NUM_SHADOWMAP_SPOT > 0\r
+		uniform sampler2D uSpotLightShadowMap[NUM_SHADOWMAP_SPOT];\r
+	#endif\r
+	\r
+#endif\r
+\r
+// shadowmap\r
+\r
+float compareShadowDepth( float lightDepth, sampler2D shadowMap, vec2 shadowCoord, float depthOffset ) {\r
+\r
+	float shadowMapDepth = rgbaToFloat( texture( shadowMap, shadowCoord ) );\r
+\r
+	if( shadowCoord.x >= 0.0 && shadowCoord.x <= 1.0 && shadowCoord.y >= 0.0 && shadowCoord.y <= 1.0 ) {\r
+\r
+		return step( lightDepth, shadowMapDepth + depthOffset );\r
+\r
+	}\r
+\r
+	return 1.0;\r
+\r
+}\r
+\r
+// shadow\r
+\r
+void setShadowCoord( vec3 pos, LightCamera camera, inout vec2 shadowCoord, inout float lightDepth ) {\r
+	\r
+	vec4 mvPosition = camera.uViewMatrix * vec4( pos, 1.0 );\r
+	vec4 mvpPosition = camera.uProjectionMatrix * mvPosition;\r
+	shadowCoord = ( mvpPosition.xy / mvpPosition.w ) * 0.5 + 0.5;\r
+	\r
+	float lightNear = camera.near;\r
+	float lightFar = camera.far;\r
+	lightDepth = ( -mvPosition.z - lightNear ) / ( lightFar - lightNear );\r
+\r
+}\r
+\r
+float getShadow( vec3 pos, LightCamera camera, sampler2D shadowMap, float depthOffset ) {\r
+\r
+	vec2 shadowCoord;\r
+	float lightDepth;\r
+\r
+	setShadowCoord( pos, camera, shadowCoord, lightDepth );\r
+\r
+	return compareShadowDepth( lightDepth, shadowMap, shadowCoord, depthOffset );\r
+\r
+}\r
+\r
+#define SHADOW_SAMPLE_COUNT 2\r
+\r
+float getShadowSmooth( vec3 pos, LightCamera camera, sampler2D shadowMap, float depthOffset ) {\r
+\r
+	vec2 shadowCoord;\r
+	float lightDepth;\r
+\r
+	setShadowCoord( pos, camera, shadowCoord, lightDepth );\r
+	\r
+	float shadowSum = compareShadowDepth( lightDepth, shadowMap, shadowCoord, depthOffset );\r
+\r
+	for( int i = 0; i < SHADOW_SAMPLE_COUNT; i++ ) {\r
+\r
+		vec2 offset = 1.0 / camera.resolution * ( float( i + 1 ) / float(SHADOW_SAMPLE_COUNT) );\r
+\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, -offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( 0.0, -offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, -offset.y ), depthOffset );\r
+		\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, 0.0 ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, 0.0 ), depthOffset );\r
+\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( 0.0, offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, offset.y ), depthOffset );\r
+\r
+	}\r
+\r
+	return shadowSum / ( float( SHADOW_SAMPLE_COUNT ) * 8.0 );\r
+\r
+}\r
+\r
+float ggx( float dNH, float roughness ) {\r
+	\r
+	float a2 = roughness * roughness;\r
+	a2 = a2 * a2;\r
+	float dNH2 = dNH * dNH;\r
+\r
+	if( dNH2 <= 0.0 ) return 0.0;\r
+\r
+	return a2 / ( PI * pow( dNH2 * ( a2 - 1.0 ) + 1.0, 2.0) );\r
+\r
+}\r
+\r
+vec3 lambert( vec3 diffuseColor ) {\r
+\r
+	return diffuseColor / PI;\r
+\r
+}\r
+\r
+float gSchlick( float d, float k ) {\r
+\r
+	if( d == 0.0 ) return 0.0;\r
+\r
+	return d / ( d * ( 1.0 - k ) + k );\r
+	\r
+}\r
+\r
+float gSmith( float dNV, float dNL, float roughness ) {\r
+\r
+	float k = clamp( roughness * sqrt( 2.0 / PI ), 0.0, 1.0 );\r
+\r
+	return gSchlick( dNV, k ) * gSchlick( dNL, k );\r
+	\r
+}\r
+\r
+float fresnel( float d ) {\r
+	\r
+	float f0 = 0.04;\r
+\r
+	return f0 + ( 1.0 - f0 ) * pow( 1.0 - d, 5.0 );\r
+\r
+}\r
+\r
+// 1灯ぶんの反射を diffuse と specular に分けて足す（SSS が diffuse だけをぼかすため）\r
+void RE( Geometry geo, Material mat, Light light, inout vec3 diffuse, inout vec3 specular ) {\r
+\r
+	vec3 lightDir = normalize( light.direction );\r
+	vec3 halfVec = normalize( geo.viewDir + lightDir );\r
+\r
+	float dLH = clamp( dot( lightDir, halfVec ), 0.0, 1.0 );\r
+	float dNH = clamp( dot( geo.normal, halfVec ), 0.0, 1.0 );\r
+	float dNV = clamp( dot( geo.normal, geo.viewDir ), 0.0, 1.0 );\r
+	float dNL = clamp( dot( geo.normal, lightDir), 0.0, 1.0 );\r
+\r
+	vec3 irradiance = light.color * dNL;\r
+\r
+	float D = ggx( dNH, mat.roughness );\r
+	float G = gSmith( dNV, dNL, mat.roughness );\r
+	float F = fresnel( dLH );\r
+\r
+	diffuse += lambert( mat.diffuseColor ) * irradiance * ( 1.0 - F );\r
+	specular += (( D * G * F ) / ( 4.0 * dNL * dNV + 0.0001 ) * mat.specularColor ) * irradiance;\r
+\r
+}
+// https://stackoverflow.com/questions/4200224/random-noise-functions-for-glsl\r
+\r
+float random(vec2 p){\r
+	return fract(sin(dot(p.xy ,vec2(12.9898,78.233))) * 43758.5453);\r
+}\r
+\r
+// https://www.shadertoy.com/view/4djSRW\r
+\r
+vec3 hash(vec3 p3)\r
+{\r
+	p3 = fract(p3 * vec3(.1031, .1030, .0973));\r
+  p3 += dot(p3, p3.yxz+33.33);\r
+  return fract((p3.xxy + p3.yxx)*p3.zyx);\r
+\r
+}
+
+// Interleaved Gradient Noise。隣り合うピクセルの値が斜めの縞として散るので、
+// 白色ノイズのように無相関な粒にならず、同じサンプル数でもざらつきが目立たない。
+// frameIndex にフレーム番号を渡すと、時間方向にも重ならないよう位相がずれる
+float interleavedGradientNoise( vec2 pixel, float frameIndex ) {
+
+	vec2 p = pixel + frameIndex * 5.588238;
+
+	return fract( 52.9829189 * fract( dot( p, vec2( 0.06711056, 0.00583715 ) ) ) );
+
+}
+
+
+// uniforms
+
+uniform sampler2D uSSAOBackBuffer;
+uniform sampler2D uDepthTexture;
+
+uniform sampler2D sampler0; // position, depth
+uniform sampler2D sampler1; // normal, emissionIntensity
+
+uniform float uTimeEF;
+uniform mat4 uCameraMatrix;
+uniform mat4 uViewMatrix;
+uniform mat4 uProjectionMatrix;
+uniform mat4 uProjectionMatrixInverse;
+uniform vec3 uCameraPosition;
+
+#define SAMPLE 16
+uniform vec3 uSSAOKernel[16];
+
+// varying
+
+in vec2 vUv;
+
+layout (location = 0) out vec4 outColor;
+
+void main( void ) {
+
+	vec3 lightShaftSum = vec3( 0.0 );
+
+	vec3 rayPos = texture( sampler0, vUv ).xyz;
+	vec4 rayViewPos = uViewMatrix * vec4(rayPos, 1.0);
+	vec4 depthRayPos = uViewMatrix * vec4(rayPos, 1.0);
+
+	if( rayPos.x + rayPos.y + rayPos.z == 0.0 || length(rayPos - uCameraPosition) > 100.0 ) return;
+
+	vec3 normal = texture( sampler1, vUv ).xyz;
+	float occlusion = 0.0;
+
+	float dist = 0.5;
+	float objectDepth = 0.2;
+
+	vec2 seed = vUv + uTimeEF;
+	vec3 random = vec3( random( vec2( seed ) ), random( vec2( seed + 0.25 ) ), random( vec2( seed + 0.5 ) ) ) * 2.0 - 1.0;
+
+	vec3 tangent = normalize(random - normal * dot(random,normal));
+	vec3 bitangent = cross( tangent, normal );
+	mat3 kernelMatrix = mat3(tangent, bitangent, normal);
+
+	for( int i = 0; i < SAMPLE; i ++ ) {
+
+		float seed = uTimeEF * 1.0 + float( i );
+		
+		vec3 sampleOffset = kernelMatrix * uSSAOKernel[i];
+		vec3 samplePos = rayPos + sampleOffset * dist;
+
+		vec4 depthCoord = (uProjectionMatrix * uViewMatrix * vec4( samplePos, 1.0 ) );
+		depthCoord.xy /= depthCoord.w;
+		depthCoord.xy = depthCoord.xy * 0.5 + 0.5;
+
+		vec4 samplerPos = (uViewMatrix * vec4(texture( sampler0, depthCoord.xy ).xyz, 1.0));
+		vec4 sampleViewPos = uViewMatrix * vec4( samplePos, 1.0 );
+
+		if( sampleViewPos.z < samplerPos.z && sampleViewPos.z >= samplerPos.z - objectDepth ) {
+
+			occlusion += 1.0 - pow( length( sampleOffset ), 2.0);
+
+		}
+		
+	}
+
+	occlusion /= float( SAMPLE );
+
+	outColor = vec4( mix( texture( uSSAOBackBuffer, vUv ).xyz, vec3( occlusion ), 0.5 ), 1.0 );
+
+}`})))()}var $n;function er(){return(er=t((()=>{$n=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+struct DirectionalLight {\r
+	vec3 direction;\r
+	vec3 color;\r
+};\r
+\r
+struct SpotLight {\r
+	vec3 position;\r
+	vec3 direction;\r
+	vec3 color;\r
+	float angle;\r
+	float blend;\r
+};\r
+\r
+struct LightCamera {\r
+	float near;\r
+	float far;\r
+	mat4 uViewMatrix;\r
+	mat4 uProjectionMatrix;\r
+	vec2 resolution;\r
+};\r
+\r
+struct Light {\r
+	vec3 direction;\r
+	vec3 color;\r
+};\r
+\r
+#if NUM_LIGHT_DIR > 0 \r
+\r
+	uniform DirectionalLight directionalLight[NUM_LIGHT_DIR];\r
+	uniform LightCamera uDirectionalLightCamera[NUM_LIGHT_DIR];\r
+	// 影を落とすライトが無いと長さ0の配列になり、コンパイルエラーになる\r
+	#if NUM_SHADOWMAP_DIR > 0\r
+		uniform sampler2D directionalLightShadowMap[NUM_SHADOWMAP_DIR];\r
+	#endif\r
+	\r
+#endif\r
+\r
+#if NUM_LIGHT_SPOT > 0 \r
+\r
+	uniform SpotLight uSpotLight[NUM_LIGHT_SPOT];\r
+	uniform LightCamera uSpotLightCamera[NUM_LIGHT_SPOT];\r
+	#if NUM_SHADOWMAP_SPOT > 0\r
+		uniform sampler2D uSpotLightShadowMap[NUM_SHADOWMAP_SPOT];\r
+	#endif\r
+	\r
+#endif\r
+\r
+// shadowmap\r
+\r
+float compareShadowDepth( float lightDepth, sampler2D shadowMap, vec2 shadowCoord, float depthOffset ) {\r
+\r
+	float shadowMapDepth = rgbaToFloat( texture( shadowMap, shadowCoord ) );\r
+\r
+	if( shadowCoord.x >= 0.0 && shadowCoord.x <= 1.0 && shadowCoord.y >= 0.0 && shadowCoord.y <= 1.0 ) {\r
+\r
+		return step( lightDepth, shadowMapDepth + depthOffset );\r
+\r
+	}\r
+\r
+	return 1.0;\r
+\r
+}\r
+\r
+// shadow\r
+\r
+void setShadowCoord( vec3 pos, LightCamera camera, inout vec2 shadowCoord, inout float lightDepth ) {\r
+	\r
+	vec4 mvPosition = camera.uViewMatrix * vec4( pos, 1.0 );\r
+	vec4 mvpPosition = camera.uProjectionMatrix * mvPosition;\r
+	shadowCoord = ( mvpPosition.xy / mvpPosition.w ) * 0.5 + 0.5;\r
+	\r
+	float lightNear = camera.near;\r
+	float lightFar = camera.far;\r
+	lightDepth = ( -mvPosition.z - lightNear ) / ( lightFar - lightNear );\r
+\r
+}\r
+\r
+float getShadow( vec3 pos, LightCamera camera, sampler2D shadowMap, float depthOffset ) {\r
+\r
+	vec2 shadowCoord;\r
+	float lightDepth;\r
+\r
+	setShadowCoord( pos, camera, shadowCoord, lightDepth );\r
+\r
+	return compareShadowDepth( lightDepth, shadowMap, shadowCoord, depthOffset );\r
+\r
+}\r
+\r
+#define SHADOW_SAMPLE_COUNT 2\r
+\r
+float getShadowSmooth( vec3 pos, LightCamera camera, sampler2D shadowMap, float depthOffset ) {\r
+\r
+	vec2 shadowCoord;\r
+	float lightDepth;\r
+\r
+	setShadowCoord( pos, camera, shadowCoord, lightDepth );\r
+	\r
+	float shadowSum = compareShadowDepth( lightDepth, shadowMap, shadowCoord, depthOffset );\r
+\r
+	for( int i = 0; i < SHADOW_SAMPLE_COUNT; i++ ) {\r
+\r
+		vec2 offset = 1.0 / camera.resolution * ( float( i + 1 ) / float(SHADOW_SAMPLE_COUNT) );\r
+\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, -offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( 0.0, -offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, -offset.y ), depthOffset );\r
+		\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, 0.0 ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, 0.0 ), depthOffset );\r
+\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( 0.0, offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, offset.y ), depthOffset );\r
+\r
+	}\r
+\r
+	return shadowSum / ( float( SHADOW_SAMPLE_COUNT ) * 8.0 );\r
+\r
+}\r
+\r
+float ggx( float dNH, float roughness ) {\r
+	\r
+	float a2 = roughness * roughness;\r
+	a2 = a2 * a2;\r
+	float dNH2 = dNH * dNH;\r
+\r
+	if( dNH2 <= 0.0 ) return 0.0;\r
+\r
+	return a2 / ( PI * pow( dNH2 * ( a2 - 1.0 ) + 1.0, 2.0) );\r
+\r
+}\r
+\r
+vec3 lambert( vec3 diffuseColor ) {\r
+\r
+	return diffuseColor / PI;\r
+\r
+}\r
+\r
+float gSchlick( float d, float k ) {\r
+\r
+	if( d == 0.0 ) return 0.0;\r
+\r
+	return d / ( d * ( 1.0 - k ) + k );\r
+	\r
+}\r
+\r
+float gSmith( float dNV, float dNL, float roughness ) {\r
+\r
+	float k = clamp( roughness * sqrt( 2.0 / PI ), 0.0, 1.0 );\r
+\r
+	return gSchlick( dNV, k ) * gSchlick( dNL, k );\r
+	\r
+}\r
+\r
+float fresnel( float d ) {\r
+	\r
+	float f0 = 0.04;\r
+\r
+	return f0 + ( 1.0 - f0 ) * pow( 1.0 - d, 5.0 );\r
+\r
+}\r
+\r
+// 1灯ぶんの反射を diffuse と specular に分けて足す（SSS が diffuse だけをぼかすため）\r
+void RE( Geometry geo, Material mat, Light light, inout vec3 diffuse, inout vec3 specular ) {\r
+\r
+	vec3 lightDir = normalize( light.direction );\r
+	vec3 halfVec = normalize( geo.viewDir + lightDir );\r
+\r
+	float dLH = clamp( dot( lightDir, halfVec ), 0.0, 1.0 );\r
+	float dNH = clamp( dot( geo.normal, halfVec ), 0.0, 1.0 );\r
+	float dNV = clamp( dot( geo.normal, geo.viewDir ), 0.0, 1.0 );\r
+	float dNL = clamp( dot( geo.normal, lightDir), 0.0, 1.0 );\r
+\r
+	vec3 irradiance = light.color * dNL;\r
+\r
+	float D = ggx( dNH, mat.roughness );\r
+	float G = gSmith( dNV, dNL, mat.roughness );\r
+	float F = fresnel( dLH );\r
+\r
+	diffuse += lambert( mat.diffuseColor ) * irradiance * ( 1.0 - F );\r
+	specular += (( D * G * F ) / ( 4.0 * dNL * dNV + 0.0001 ) * mat.specularColor ) * irradiance;\r
+\r
+}
+// https://stackoverflow.com/questions/4200224/random-noise-functions-for-glsl\r
+\r
+float random(vec2 p){\r
+	return fract(sin(dot(p.xy ,vec2(12.9898,78.233))) * 43758.5453);\r
+}\r
+\r
+// https://www.shadertoy.com/view/4djSRW\r
+\r
+vec3 hash(vec3 p3)\r
+{\r
+	p3 = fract(p3 * vec3(.1031, .1030, .0973));\r
+  p3 += dot(p3, p3.yxz+33.33);\r
+  return fract((p3.xxy + p3.yxx)*p3.zyx);\r
+\r
+}
+
+// Interleaved Gradient Noise。隣り合うピクセルの値が斜めの縞として散るので、
+// 白色ノイズのように無相関な粒にならず、同じサンプル数でもざらつきが目立たない。
+// frameIndex にフレーム番号を渡すと、時間方向にも重ならないよう位相がずれる
+float interleavedGradientNoise( vec2 pixel, float frameIndex ) {
+
+	vec2 p = pixel + frameIndex * 5.588238;
+
+	return fract( 52.9829189 * fract( dot( p, vec2( 0.06711056, 0.00583715 ) ) ) );
+
+}
+
+
+// uniforms
+
+uniform sampler2D uSSAOTexture;
+uniform vec2 uPPPixelSize;
+
+uniform sampler2D uNormalTexture;
+uniform sampler2D uPosTexture;
+uniform vec3 uCameraPosition;
+
+uniform float uWeights[SSAOSAMPLE];
+
+// varying
+
+in vec2 vUv;
+
+// out
+
+layout (location = 0) out vec4 outColor;
+
+const float alpha = 32.0;
+const float beta = 0.25;
+
+// 深度はgBufferのワールド座標からカメラ距離として求める（gBuffer[0].w には emission が入っているので使えない）
+float viewDepth( vec2 uv ) {
+
+	return length( texture( uPosTexture, uv ).xyz - uCameraPosition );
+
+}
+
+float getWeight( vec2 uv, vec3 normalBasis, float depthBasis ) {
+
+	vec3 normalOffset = texture( uNormalTexture, uv ).xyz;
+	float depthOffset = viewDepth( uv );
+	float bilateralWeight = pow( ( dot( normalBasis, normalOffset ) + 1.0 ) / 2.0, alpha ) * pow( 1.0 / ( abs( depthBasis - depthOffset ) + 0.001 ), beta );
+
+	return bilateralWeight;
+
+}
+
+void main( void ) {
+
+	float occlusion = 0.0;
+
+	vec3 normalBasis = texture( uNormalTexture, vUv ).xyz;
+	float depthBasis = viewDepth( vUv );
+
+	vec2 direction;
+
+	#ifdef IS_VIRT
+
+		direction = vec2( 0.0, 1.0 );
+	
+	#else
+
+		direction = vec2( 1.0, 0.0 );
+
+	#endif
+
+	float weight = 0.0;
+
+	occlusion += texture( uSSAOTexture, vUv ).x * uWeights[0];
+	weight += uWeights[0];
+	
+	for(int i = 1; i < SSAOSAMPLE; i++){
+
+		vec2 offset = float( i ) * direction;
+		offset *= uPPPixelSize * 1.0;
+
+		vec2 uvOffsetP = vUv + offset;
+		vec2 uvOffsetN = vUv - offset;
+
+		float wP = getWeight( uvOffsetP, normalBasis, depthBasis ) * uWeights[i];
+		float wN = getWeight( uvOffsetN, normalBasis, depthBasis ) * uWeights[i];
+		
+		occlusion += texture( uSSAOTexture, uvOffsetP ).x * wP;
+		occlusion += texture( uSSAOTexture, uvOffsetN ).x * wN;
+
+		weight += wP + wN;
+
+	}
+
+	occlusion /= weight;
+	outColor = vec4( vec3( occlusion ), 1.0 );
+
+}`})))()}var tr;function nr(){return(nr=t((()=>{tr=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+
+// 肌の拡散プロファイルでの分離可能ブラー（Jimenez 式）。横 → 縦の2回かける。
+// 横は diffuse をぼかすだけ。縦はシェーディング結果の diffuse を、ぼかした diffuse へ置き換える。
+// 境界の扱いは ssaoBlur と同じ（法線と深度が離れたサンプルの重みを下げる）
+
+// uniforms
+
+uniform sampler2D uDiffuseTexture;
+uniform sampler2D uShadingTexture;
+uniform sampler2D uShadingDiffuseTexture;
+uniform sampler2D uAlbedoTexture;
+uniform sampler2D uNormalTexture;
+uniform sampler2D uPosTexture;
+
+uniform vec3 uCameraPosition;
+uniform mat4 uProjectionMatrix;
+
+uniform float uSSSRadius;
+
+// [ r, g, b, 中心からの距離（0〜1） ]。中心から片側ぶん（core/utils/SSSKernel）
+uniform vec4 uKernel[SSS_SAMPLES];
+
+// varying
+
+in vec2 vUv;
+
+// out
+
+layout (location = 0) out vec4 outColor;
+
+const float alpha = 32.0;
+const float beta = 0.25;
+
+// 深度はgBufferのワールド座標からカメラ距離として求める（gBuffer[0].w には emission が入っているので使えない）
+float viewDepth( vec2 uv ) {
+
+	return length( texture( uPosTexture, uv ).xyz - uCameraPosition );
+
+}
+
+// 法線・深度の近さと、サンプル先の SSS の強さで決まる重み（SSS の無い面から色を持ち込まない）
+float getWeight( vec2 uv, vec3 normalBasis, float depthBasis ) {
+
+	vec3 normalOffset = texture( uNormalTexture, uv ).xyz;
+	float depthOffset = viewDepth( uv );
+	float bilateralWeight = pow( ( dot( normalBasis, normalOffset ) + 1.0 ) / 2.0, alpha ) * pow( 1.0 / ( abs( depthBasis - depthOffset ) + 0.001 ), beta );
+
+	return bilateralWeight * texture( uAlbedoTexture, uv ).w;
+
+}
+
+void main( void ) {
+
+	vec3 diffuse = texture( uDiffuseTexture, vUv ).xyz;
+	float sss = texture( uAlbedoTexture, vUv ).w;
+
+	vec2 direction;
+
+	#ifdef IS_VIRT
+
+		direction = vec2( 0.0, 1.0 );
+
+	#else
+
+		direction = vec2( 1.0, 0.0 );
+
+	#endif
+
+	vec3 blurred = diffuse;
+
+	if( sss > 0.0 ) {
+
+		vec3 normalBasis = texture( uNormalTexture, vUv ).xyz;
+		float depthBasis = viewDepth( vUv );
+
+		// 散乱半径（ワールド単位）を画面の UV の長さへ直す。遠いほど短くなり、SSS の強さに比例して広がる
+		vec2 radiusUV = direction * uSSSRadius * sss * 0.5 * vec2( uProjectionMatrix[ 0 ][ 0 ], uProjectionMatrix[ 1 ][ 1 ] ) / depthBasis;
+
+		vec3 weight = uKernel[ 0 ].xyz * getWeight( vUv, normalBasis, depthBasis );
+		vec3 sum = diffuse * weight;
+
+		for( int i = 1; i < SSS_SAMPLES; i++ ) {
+
+			vec2 offset = radiusUV * uKernel[ i ].w;
+
+			vec2 uvOffsetP = vUv + offset;
+			vec2 uvOffsetN = vUv - offset;
+
+			vec3 wP = uKernel[ i ].xyz * getWeight( uvOffsetP, normalBasis, depthBasis );
+			vec3 wN = uKernel[ i ].xyz * getWeight( uvOffsetN, normalBasis, depthBasis );
+
+			sum += texture( uDiffuseTexture, uvOffsetP ).xyz * wP;
+			sum += texture( uDiffuseTexture, uvOffsetN ).xyz * wN;
+
+			weight += wP + wN;
+
+		}
+
+		blurred = sum / weight;
+
+	}
+
+	#ifdef IS_VIRT
+
+		outColor = vec4( texture( uShadingTexture, vUv ).xyz - texture( uShadingDiffuseTexture, vUv ).xyz + blurred, 1.0 );
+
+	#else
+
+		outColor = vec4( blurred, 1.0 );
+
+	#endif
+
+}
+`})))()}var rr,ir,ar,or,sr;function cr(){return(cr=t((()=>{at(),j(),F(),Hn(),Ye(),Wn(),Kn(),Jn(),Xn(),Qn(),er(),nr(),rr=e=>{let t=[];for(let n=0;n<e;n++){let r=new O;r.x=Math.random()*2-1,r.y=Math.random()*2-1,r.z=n/e*.95+.05,r.normalize(),r.multiply(n/e*.95+.05),t.push(...r.getElm(`vec3`))}return t},ir=9,ar=6,or=64,sr=class extends tt{postprocess;normalSelector_;lightShaft;rtLightShaft1;rtLightShaft2;lightShaftBlurH;lightShaftBlurV;ssao;rtSSAO1;rtSSAO2;ssaoBlur;ssaoBlurV;shading;sssH;sssV;sssCopy;constructor(e){super();let t=e.backend,n=e.renderTarget,r=new P(t,{name:`normalSelector`,frag:Yn,renderTarget:null,uniforms:mn.merge({uNormalTexture:{value:null,type:`1i`},uPosTexture:{value:null,type:`1i`},uSelectorTexture:{value:null,type:`1i`}}),passThrough:!0}),i=()=>t.createFrameBuffer({disableDepthBuffer:!0}).setTexture([t.createTexture().setting({type:M.FLOAT,internalFormat:M.RGBA16F,format:M.RGBA,magFilter:M.LINEAR,minFilter:M.LINEAR})]),a=i(),o=i(),s=new P(t,{name:`lightShaft`,frag:Gn,renderTarget:a,uniforms:mn.merge({uLightShaftBackBuffer:{value:o.textures[0],type:`1i`},uPosTexture:{value:n.gBuffer.textures[0],type:`1i`},uFrame:{value:0,type:`1f`}}),resolutionRatio:.5,passThrough:!0}),c=mn.merge({uLightShaftTexture:{value:a.textures[0],type:`1i`},uPosTexture:{value:n.gBuffer.textures[0],type:`1i`},uWeights:{type:`1fv`,value:Ae.gaussWeights(ar)}}),l=new P(t,{name:`lightShaft/blur/h`,frag:qn,uniforms:c,renderTarget:i(),resolutionRatio:.5,passThrough:!0,defines:{BLUR_SAMPLES:ar}}),u=new P(t,{name:`lightShaft/blur/v`,frag:qn,uniforms:mn.merge(c,{uLightShaftTexture:{value:l.renderTarget.textures[0],type:`1i`}}),renderTarget:i(),resolutionRatio:.5,passThrough:!0,defines:{BLUR_SAMPLES:ar,IS_VIRT:``}}),d=t.createFrameBuffer().setTexture([t.createTexture().setting({magFilter:M.LINEAR,minFilter:M.LINEAR})]),f=t.createFrameBuffer().setTexture([t.createTexture().setting({magFilter:M.LINEAR,minFilter:M.LINEAR})]),p=new P(t,{name:`ssao`,frag:Zn,renderTarget:an(`ssao`,d),uniforms:mn.merge({uSSAOBackBuffer:{value:f.textures[0],type:`1i`},uSSAOKernel:{value:rr(16),type:`3fv`}}),resolutionRatio:.5,passThrough:!0}),m=mn.merge({uSSAOTexture:{value:f.textures[0],type:`1i`},uPosTexture:{value:null,type:`1i`},uNormalTexture:{value:null,type:`1i`},uWeights:{type:`1fv`,value:Ae.gaussWeights(8)}}),h=new P(t,{name:`ssaoBlur/h`,frag:an(`ssaoBlur`,$n),uniforms:m,resolutionRatio:1,passThrough:!0,defines:{SSAOSAMPLE:8}}),g=new P(t,{name:`ssaoBlur/v`,frag:an(`ssaoBlur`,$n),uniforms:mn.merge(m,{uSSAOTexture:{value:h.renderTarget.textures[0],type:`1i`}}),defines:{SSAOSAMPLE:8,IS_VIRT:``},resolutionRatio:1,passThrough:!0}),_=new P(t,{name:`deferredShading`,frag:an(`deferredShading`,Un),uniforms:mn.merge({uLightShaftTexture:{value:u.renderTarget.textures[0],type:`1i`},uSSAOTexture:{value:g.renderTarget.textures[0],type:`1i`},uSSAOResolutionInv:{value:p.resolutionInv,type:`2fv`},uEnvMap:{value:e.envMap,type:`1i`}})}),v=()=>t.createFrameBuffer({disableDepthBuffer:!0}).setTexture([t.createTexture().setting({type:M.FLOAT,internalFormat:M.RGBA16F,format:M.RGBA,magFilter:M.LINEAR,minFilter:M.LINEAR})]),y=mn.merge({uDiffuseTexture:{value:n.shadingBuffer.textures[1],type:`1i`},uAlbedoTexture:{value:n.gBuffer.textures[2],type:`1i`},uPosTexture:{value:n.gBuffer.textures[0],type:`1i`},uNormalTexture:{value:n.normalBuffer.textures[0],type:`1i`},uSSSRadius:{value:.05,type:`1f`},uKernel:{value:Vn(ir),type:`4fv`}}),b=new P(t,{name:`sss/h`,frag:an(`sss`,tr),uniforms:y,renderTarget:v(),passThrough:!0,defines:{SSS_SAMPLES:ir}}),x=new P(t,{name:`sss/v`,frag:an(`sss`,tr),uniforms:mn.merge(y,{uDiffuseTexture:{value:b.renderTarget.textures[0],type:`1i`},uShadingTexture:{value:n.shadingBuffer.textures[0],type:`1i`},uShadingDiffuseTexture:{value:n.shadingBuffer.textures[1],type:`1i`}}),renderTarget:v(),defines:{SSS_SAMPLES:ir,IS_VIRT:``}}),S=new P(t,{name:`sss/copy`,renderTarget:t.createFrameBuffer({disableDepthBuffer:!0}).setTexture([n.shadingBuffer.textures[0]])});this.postprocess=new Cn({passes:[r,s,l,u,p,h,g,_,b,x,S]}),this.shading=_,this.lightShaft=s,this.ssao=p,this.rtSSAO1=d,this.rtSSAO2=f,this.ssaoBlur=h,this.ssaoBlurV=g,this.sssH=b,this.sssV=x,this.sssCopy=S,this.rtLightShaft1=a,this.rtLightShaft2=o,this.lightShaftBlurH=l,this.lightShaftBlurV=u,this.normalSelector_=r;for(let e=0;e<n.gBuffer.textures.length;e++){let t=n.gBuffer.textures[e];e===1&&(t=n.normalBuffer.textures[0]),_.uniforms[`sampler`+e]=p.uniforms[`sampler`+e]={type:`1i`,value:t}}_.renderTarget=n.shadingBuffer,r.renderTarget=n.normalBuffer,r.uniforms.uNormalTexture.value=n.gBuffer.textures[1],r.uniforms.uPosTexture.value=n.gBuffer.textures[0],r.uniforms.uSelectorTexture.value=n.gBuffer.textures[3],m.uPosTexture.value=n.gBuffer.textures[0],m.uNormalTexture.value=n.normalBuffer.textures[0]}update(){let e=this.rtLightShaft1;this.rtLightShaft1=this.rtLightShaft2,this.rtLightShaft2=e,this.lightShaft.setRendertarget(this.rtLightShaft1),this.lightShaftBlurH.uniforms.uLightShaftTexture.value=this.rtLightShaft1.textures[0],this.lightShaft.uniforms.uLightShaftBackBuffer.value=this.rtLightShaft2.textures[0];let t=this.lightShaft.uniforms.uFrame;t.value=(t.value+1)%or,e=this.rtSSAO1,this.rtSSAO1=this.rtSSAO2,this.rtSSAO2=e,this.ssao.setRendertarget(this.rtSSAO1),this.ssaoBlur.uniforms.uSSAOTexture.value=this.rtSSAO1.textures[0],this.ssao.uniforms.uSSAOBackBuffer.value=this.rtSSAO2.textures[0]}setPassEnabled(e){e.ssao!==void 0&&(this.ssao.enabled=e.ssao,this.ssaoBlur.enabled=e.ssao,this.ssaoBlurV.enabled=e.ssao,e.ssao||(this.rtSSAO1.clear(),this.rtSSAO2.clear(),this.ssaoBlur.renderTarget&&this.ssaoBlur.renderTarget.clear(),this.ssaoBlurV.renderTarget&&this.ssaoBlurV.renderTarget.clear())),e.sss!==void 0&&(this.sssH.enabled=e.sss,this.sssV.enabled=e.sss,this.sssCopy.enabled=e.sss),e.lightShaft!==void 0&&(this.lightShaft.enabled=e.lightShaft,this.lightShaftBlurH.enabled=e.lightShaft,this.lightShaftBlurV.enabled=e.lightShaft,e.lightShaft||(this.rtLightShaft1.clear(),this.rtLightShaft2.clear(),this.lightShaftBlurV.renderTarget.clear()))}setSSSRadius(e){this.sssH.uniforms.uSSSRadius.value=e}resize(e){this.postprocess.resize(e)}dispose(){this.postprocess.dispose(),this.rtLightShaft1.dispose(),this.rtLightShaft2.dispose(),this.rtSSAO1.dispose(),this.rtSSAO2.dispose(),this.rtLightShaft1.textures[0].dispose(),this.rtLightShaft2.textures[0].dispose();for(let e of[this.lightShaftBlurH,this.lightShaftBlurV,this.sssH,this.sssV])e.renderTarget.textures[0].dispose(),e.renderTarget.dispose();this.sssCopy.renderTarget.dispose()}}})))()}var lr;function ur(){return(ur=t((()=>{lr=`uniform sampler2D uShadingTexture;
+uniform float uThreshold;
+uniform float uBrightness;
+
+in vec2 vUv;
+
+layout (location = 0) out vec4 outColor;
+
+void main( void ) {
+
+	vec4 c = texture( uShadingTexture, vUv );
+  
+	vec3 f;
+	f = max( c.xyz - uThreshold, vec3( 0.0 ) ) / 10.0 * uBrightness;
+	outColor = vec4( f, 1.0 );
+	
+}`})))()}var dr;function fr(){return(fr=t((()=>{dr=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+
+uniform sampler2D uBackBuffer0;
+uniform sampler2D uBloomTexture[4];
+
+in vec2 vUv;
+
+layout (location = 0) out vec4 outColor;
+
+void main( void ) {
+
+	vec3 col = texture( uBackBuffer0, vUv ).xyz;
+
+	#pragma loop_start 4
+		col += texture( uBloomTexture[ LOOP_INDEX ], vUv ).xyz * pow( (float(LOOP_INDEX) + 1.0) / 4.0, 1.0 ) * 1.0;
+	#pragma loop_end
+	
+	outColor = vec4( col, 1.0 );
+
+}`})))()}var pr;function mr(){return(mr=t((()=>{pr=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}\r
+\r
+uniform sampler2D uBackBuffer0;\r
+uniform float uToneMap;\r
+uniform float uExposure;\r
+\r
+in vec2 vUv;\r
+\r
+layout (location = 0) out vec4 outColor;\r
+\r
+//=================================================================================================\r
+//\r
+//  Baking Lab\r
+//  by MJP and David Neubelt\r
+//  http://mynameismjp.wordpress.com/\r
+//\r
+//  All code licensed under the MIT license\r
+//\r
+//=================================================================================================\r
+\r
+// The code in this file was originally written by Stephen Hill (@self_shadow), who deserves all\r
+// credit for coming up with this fit and implementing it. Buy him a beer next time you see him. :)\r
+\r
+// sRGB => XYZ => D65_2_D60 => AP1 => RRT_SAT\r
+\r
+const mat3 ACESInputMat = mat3(\r
+	0.59719, 0.07600, 0.02840,\r
+	0.35458,  0.90834, 0.13383,\r
+	0.04823, 0.01566, 0.83777\r
+);\r
+\r
+// ODT_SAT => XYZ => D60_2_D65 => sRGB\r
+const mat3 ACESOutputMat = mat3( \r
+	1.60475,  -0.10208,  -0.00327,\r
+	-0.53108, 1.10813, -0.07276,\r
+	-0.07367,  -0.00605, 1.07602\r
+);\r
+\r
+vec3 RRTAndODTFit(vec3 v)\r
+{\r
+    vec3 a = v * (v + 0.0245786f) - 0.000090537f;\r
+    vec3 b = v * (0.983729f * v + 0.4329510f) + 0.238081f;\r
+    return a / b;\r
+}\r
+\r
+vec3 ACESFitted(vec3 color)\r
+{\r
+    color = ACESInputMat * color;\r
+\r
+    // Apply RRT and ODT\r
+    color = RRTAndODTFit(color);\r
+\r
+    color = ACESOutputMat * color;\r
+\r
+    // Clamp to [0, 1]\r
+    color = clamp(color, 0.0, 1.0 );\r
+\r
+    return color;\r
+}\r
+\r
+void main( void ) {\r
+\r
+    vec3 col = texture( uBackBuffer0, vUv ).xyz;\r
+\r
+    col = mix( col, ACESFitted( col * uExposure ), uToneMap );\r
+\r
+	// WebGL には sRGB の drawingBuffer が無いので、表示用の sRGB へはここで変換する\r
+	outColor = vec4( linearToSrgb( col ), 1.0 );\r
+\r
+}`})))()}var hr;function gr(){return(gr=t((()=>{hr=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+
+uniform sampler2D uBokeTex;
+uniform vec2 uPPPixelSize;
+
+in vec2 vUv;
+
+layout (location = 0) out vec4 outColor;
+
+// https://github.com/keijiro/KinoBokeh/blob/master/Assets/Kino/Bokeh/Shader/Composition.cginc
+
+// Fragment shader: Additional blur
+void main( void ) {
+
+	// 9-tap tent filter
+	vec4 duv = uPPPixelSize.xyxy * vec4(1, 1, -1, 0);
+	vec4 acc;
+
+	acc  = texture(uBokeTex, vUv - duv.xy);
+	acc += texture(uBokeTex, vUv - duv.wy) * 2.0;
+	acc += texture(uBokeTex, vUv - duv.zy);
+
+	acc += texture(uBokeTex, vUv + duv.zw) * 2.0;
+	acc += texture(uBokeTex, vUv         ) * 4.0;
+	acc += texture(uBokeTex, vUv + duv.xw) * 2.0;
+
+	acc += texture(uBokeTex, vUv + duv.zy);
+	acc += texture(uBokeTex, vUv + duv.wy) * 2.0;
+	acc += texture(uBokeTex, vUv + duv.xy);
+
+	outColor = acc / 16.0;
+
+}
+`})))()}var _r;function vr(){return(vr=t((()=>{_r=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}\r
+\r
+uniform sampler2D uCocTex;\r
+uniform vec4 uParams;\r
+\r
+in vec2 vUv;\r
+\r
+layout (location = 0) out vec4 outColor;\r
+\r
+// const int BOKEH_SAMPLE = 16;\r
+// const vec2 kDiskKernel[BOKEH_SAMPLE] = vec2[](\r
+//     vec2(0,0),\r
+//     vec2(0.54545456,0),\r
+//     vec2(0.16855472,0.5187581),\r
+//     vec2(-0.44128203,0.3206101),\r
+//     vec2(-0.44128197,-0.3206102),\r
+//     vec2(0.1685548,-0.5187581),\r
+//     vec2(1,0),\r
+//     vec2(0.809017,0.58778524),\r
+//     vec2(0.30901697,0.95105654),\r
+//     vec2(-0.30901703,0.9510565),\r
+//     vec2(-0.80901706,0.5877852),\r
+//     vec2(-1,0),\r
+//     vec2(-0.80901694,-0.58778536),\r
+//     vec2(-0.30901664,-0.9510566),\r
+//     vec2(0.30901712,-0.9510565),\r
+//     vec2(0.80901694,-0.5877853)\r
+// );\r
+\r
+#define BOKEH_SAMPLE 43\r
+vec2 kDiskKernel[ BOKEH_SAMPLE ] = vec2[](\r
+    vec2(0,0),\r
+    vec2(0.36363637,0),\r
+    vec2(0.22672357,0.28430238),\r
+    vec2(-0.08091671,0.35451925),\r
+    vec2(-0.32762504,0.15777594),\r
+    vec2(-0.32762504,-0.15777591),\r
+    vec2(-0.08091656,-0.35451928),\r
+    vec2(0.22672352,-0.2843024),\r
+    vec2(0.6818182,0),\r
+    vec2(0.614297,0.29582983),\r
+    vec2(0.42510667,0.5330669),\r
+    vec2(0.15171885,0.6647236),\r
+    vec2(-0.15171883,0.6647236),\r
+    vec2(-0.4251068,0.53306687),\r
+    vec2(-0.614297,0.29582986),\r
+    vec2(-0.6818182,0),\r
+    vec2(-0.614297,-0.29582983),\r
+    vec2(-0.42510656,-0.53306705),\r
+    vec2(-0.15171856,-0.66472363),\r
+    vec2(0.1517192,-0.6647235),\r
+    vec2(0.4251066,-0.53306705),\r
+    vec2(0.614297,-0.29582983),\r
+    vec2(1,0),\r
+    vec2(0.9555728,0.2947552),\r
+    vec2(0.82623875,0.5633201),\r
+    vec2(0.6234898,0.7818315),\r
+    vec2(0.36534098,0.93087375),\r
+    vec2(0.07473,0.9972038),\r
+    vec2(-0.22252095,0.9749279),\r
+    vec2(-0.50000006,0.8660254),\r
+    vec2(-0.73305196,0.6801727),\r
+    vec2(-0.90096885,0.43388382),\r
+    vec2(-0.98883086,0.14904208),\r
+    vec2(-0.9888308,-0.14904249),\r
+    vec2(-0.90096885,-0.43388376),\r
+    vec2(-0.73305184,-0.6801728),\r
+    vec2(-0.4999999,-0.86602545),\r
+    vec2(-0.222521,-0.9749279),\r
+    vec2(0.07473029,-0.99720377),\r
+    vec2(0.36534148,-0.9308736),\r
+    vec2(0.6234897,-0.7818316),\r
+    vec2(0.8262388,-0.56332),\r
+    vec2(0.9555729,-0.29475483)\r
+);\r
+\r
+// Fragment shader: Bokeh filter with disk-shaped kernels\r
+void main( void ) {\r
+\r
+	float _MaxCoC = uParams.y;\r
+	float _RcpMaxCoC = uParams.z;\r
+	vec2 _MainTex_TexelSize = vec2( 1.0 ) / vec2( textureSize( uCocTex, 0 ) );\r
+	float _RcpAspect = _MainTex_TexelSize.x / _MainTex_TexelSize.y;\r
+	// sampler2D _MainTex = uCocTex;\r
+\r
+    vec4 samp0 = texture(uCocTex, vUv);\r
+\r
+    vec4 bgAcc = vec4(0.0); // Background: far field bokeh\r
+    vec4 fgAcc = vec4(0.0); // Foreground: near field bokeh\r
+\r
+    for (int si = 0; si < BOKEH_SAMPLE; si++)\r
+    {\r
+        vec2 disp = kDiskKernel[si] * _MaxCoC;\r
+        float dist = length(disp);\r
+\r
+        vec2 duv = vec2(disp.x * _RcpAspect, disp.y);\r
+        vec4 samp = texture(uCocTex, vUv + duv);\r
+\r
+        // BG: Compare CoC of the current sample and the center sample\r
+        // and select smaller one.\r
+        float bgCoC = max(min(samp0.a, samp.a), 0.0);\r
+\r
+        // Compare the CoC to the sample distance.\r
+        // Add a small margin to smooth out.\r
+        float margin = _MainTex_TexelSize.y * 2.0;\r
+        float bgWeight = clamp((bgCoC   - dist + margin ) / margin, 0.0, 1.0);\r
+        float fgWeight = clamp((-samp.a - dist + margin ) / margin, 0.0, 1.0);\r
+\r
+        // Cut influence from focused areas because they're darkened by CoC\r
+        // premultiplying. This is only needed for near field.\r
+        fgWeight *= step(_MainTex_TexelSize.y, -samp.a);\r
+\r
+        // Accumulation\r
+        bgAcc += vec4(samp.rgb, 1.0) * bgWeight;\r
+        fgAcc += vec4(samp.rgb, 1.0) * fgWeight;\r
+    }\r
+\r
+    // Get the weighted average.\r
+    bgAcc.rgb /= bgAcc.a + (bgAcc.a == 0.0 ? 1.0 : 0.0 ); // zero-div guard\r
+    fgAcc.rgb /= fgAcc.a + (fgAcc.a == 0.0 ? 1.0 : 0.0 );\r
+\r
+    // BG: Calculate the alpha value only based on the center CoC.\r
+    // This is a rather aggressive approximation but provides stable results.\r
+    bgAcc.a = smoothstep(_MainTex_TexelSize.y, _MainTex_TexelSize.y * 2.0, samp0.a);\r
+\r
+    // FG: Normalize the total of the weights.\r
+    fgAcc.a *= PI / float(BOKEH_SAMPLE);\r
+\r
+    // Alpha premultiplying\r
+    vec3 rgb = vec3( 0.0 );\r
+    rgb = mix(rgb, bgAcc.rgb, clamp(bgAcc.a, 0.0, 1.0));\r
+    rgb = mix(rgb, fgAcc.rgb, clamp(fgAcc.a, 0.0, 1.0));\r
+\r
+    // Combined alpha value\r
+    float alpha = (1.0 - clamp(bgAcc.a, 0.0, 1.0)) * (1.0 - clamp(fgAcc.a, 0.0, 1.0));\r
+\r
+    outColor = vec4(rgb, alpha);\r
+}`})))()}var yr;function br(){return(br=t((()=>{yr=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}\r
+\r
+uniform sampler2D uBackBuffer0;\r
+uniform sampler2D uGbufferPos;\r
+uniform vec4 uParams;\r
+uniform mat4 uProjectionMatrixInverse;\r
+uniform mat4 uViewMatrix;\r
+\r
+in vec2 vUv;\r
+\r
+layout (location = 0) out vec4 outColor;\r
+\r
+float sampleDepth( sampler2D posTex, vec2 uv ) {\r
+\r
+	vec4 depth = uViewMatrix * vec4( texture( posTex, uv ).xyz, 1.0 );\r
+	\r
+	return depth.z * -1.0;\r
+	\r
+}\r
+\r
+//  https://github.com/keijiro/KinoBokeh/blob/master/Assets/Kino/Bokeh/Shader/Prefilter.cginc\r
+\r
+// Max between three components\r
+float max3(vec3 xyz) { return max(xyz.x, max(xyz.y, xyz.z)); }\r
+\r
+// Fragment shader: Downsampling, prefiltering and CoC calculation\r
+void main( void ) {\r
+\r
+	float _Distance = uParams.x;\r
+	float _MaxCoC = uParams.y;\r
+	float _RcpMaxCoC = uParams.z;\r
+	float _LensCoeff = uParams.w;\r
+\r
+	// Sample source colors.\r
+	vec2 mainTexSize = vec2( 1.0 ) / vec2( textureSize( uBackBuffer0, 0 ) );\r
+	vec3 duv = mainTexSize.xyx * vec3(0.5, 0.5, -0.5);\r
+	vec3 c0 = texture(uBackBuffer0, vUv - duv.xy).rgb;\r
+	vec3 c1 = texture(uBackBuffer0, vUv - duv.zy).rgb;\r
+	vec3 c2 = texture(uBackBuffer0, vUv + duv.zy).rgb;\r
+	vec3 c3 = texture(uBackBuffer0, vUv + duv.xy).rgb;\r
+\r
+	// Sample linear depths.\r
+	float d0 = sampleDepth(uGbufferPos, vUv - duv.xy);\r
+	float d1 = sampleDepth(uGbufferPos, vUv - duv.zy);\r
+	float d2 = sampleDepth(uGbufferPos, vUv + duv.zy);\r
+	float d3 = sampleDepth(uGbufferPos, vUv + duv.xy);\r
+	vec4 depths = vec4(d0, d1, d2, d3);\r
+\r
+	// Calculate the radiuses of CoCs at these sample points.\r
+	vec4 cocs = (depths - _Distance) * _LensCoeff / depths;\r
+	cocs = clamp(cocs, -_MaxCoC, _MaxCoC);\r
+\r
+	// Premultiply CoC to reduce background bleeding.\r
+	vec4 weights = clamp(abs(cocs) * _RcpMaxCoC, 0.0, 1.0 );\r
+\r
+	// Apply luma weights to reduce flickering.\r
+	// Inspired by goo.gl/j1fhLe goo.gl/mfuZ4h\r
+	weights.x *= 1.0 / (max3(c0) + 1.0);\r
+	weights.y *= 1.0 / (max3(c1) + 1.0);\r
+	weights.z *= 1.0 / (max3(c2) + 1.0);\r
+	weights.w *= 1.0 / (max3(c3) + 1.0);\r
+\r
+	// Weighted average of the color samples\r
+	vec3 avg = c0 * weights.x + c1 * weights.y + c2 * weights.z + c3 * weights.w;\r
+	avg /= dot(weights, vec4(1.0)) + 0.0001;\r
+\r
+	// Output CoC = average of CoCs\r
+	float coc = dot(cocs, vec4(0.25));\r
+\r
+	// Premultiply CoC again.\r
+	avg *= smoothstep(0.0, mainTexSize.y * 2.0, abs(coc));\r
+\r
+	outColor = vec4(avg, coc);\r
+\r
+}\r
+`})))()}var xr;function Sr(){return(Sr=t((()=>{xr=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+
+uniform sampler2D uBackBuffer0;
+uniform sampler2D uBokeTex;
+
+in vec2 vUv;
+
+layout (location = 0) out vec4 outColor;
+
+// https://github.com/keijiro/KinoBokeh/blob/master/Assets/Kino/Bokeh/Shader/Composition.cginc
+
+// Fragment shader: Upsampling and composition
+void main( void ) {
+
+	vec4 cs = texture(uBackBuffer0, vUv);
+	vec4 cb = texture(uBokeTex, vUv);
+
+	outColor = vec4(cs.rgb * cb.a + cb.rgb, cs.a);
+
+}
+`})))()}var Cr;function wr(){return(wr=t((()=>{Cr=`uniform sampler2D uBackBuffer0;\r
+uniform vec2 uPPPixelSize;\r
+\r
+in vec2 vUv;\r
+\r
+layout ( location = 0 ) out vec4 outColor;\r
+\r
+// source: https://github.com/unity3d-jp/NVIDIAHairWorksIntegration/blob/master/HairWorksIntegration/Assets/Standard%20Assets/Effects/ImageEffects/Shaders/_Antialiasing/FXAA2.shader\r
+\r
+vec4 texOffset( sampler2D tex, vec2 uv, vec2 offsetPixel, vec2 resolutionInv ) {\r
+\r
+	return texture( tex, uv + offsetPixel * resolutionInv );\r
+\r
+}\r
+\r
+#define FXAA_REDUCE_MIN   ( 1.0 / 128.0 )\r
+#define FXAA_REDUCE_MUL   ( 1.0 / 16.0 )\r
+#define FXAA_SPAN_MAX    8.0\r
+\r
+void main( void ) {\r
+\r
+	/*--------------------------------------------------------------------------*/\r
+\r
+    vec3 rgbNW = texOffset( uBackBuffer0, vUv, vec2( -1.0, 1.0 ), uPPPixelSize ).xyz;\r
+    vec3 rgbNE = texOffset( uBackBuffer0, vUv, vec2( 1.0, 1.0 ), uPPPixelSize ).xyz;\r
+    vec3 rgbSW = texOffset( uBackBuffer0, vUv, vec2( -1.0, -1.0 ), uPPPixelSize ).xyz;\r
+    vec3 rgbSE = texOffset( uBackBuffer0, vUv, vec2( 1.0, -1.0 ), uPPPixelSize ).xyz;\r
+    vec3 rgbM  = texture( uBackBuffer0, vUv ).xyz;\r
+	\r
+	/*--------------------------------------------------------------------------*/\r
+\r
+    vec3 luma = vec3( 0.299, 0.587, 0.114 );\r
+\r
+    float lumaNW = dot( rgbNW, luma );\r
+    float lumaNE = dot( rgbNE, luma );\r
+    float lumaSW = dot( rgbSW, luma );\r
+    float lumaSE = dot( rgbSE, luma );\r
+    float lumaM  = dot( rgbM,  luma );\r
+\r
+	/*--------------------------------------------------------------------------*/\r
+\r
+    float lumaMin = min( lumaM, min( min( lumaNW, lumaNE ), min( lumaSW, lumaSE ) ) );\r
+    float lumaMax = max( lumaM, max( max( lumaNW, lumaNE ), max( lumaSW, lumaSE ) ) );\r
+\r
+	/*--------------------------------------------------------------------------*/\r
+\r
+    vec2 dir; \r
+    dir.x = -( ( lumaNW + lumaNE ) - ( lumaSW + lumaSE ) );\r
+    dir.y =  ( ( lumaNW + lumaSW ) - ( lumaNE + lumaSE ) );\r
+\r
+	/*--------------------------------------------------------------------------*/\r
+\r
+    float dirReduce = max( ( lumaNW + lumaNE + lumaSW + lumaSE ) * ( 0.25 * FXAA_REDUCE_MUL ), FXAA_REDUCE_MIN );\r
+    float rcpDirMin = 1.0 / ( min( abs( dir.x ), abs( dir.y ) ) + dirReduce );\r
+    dir = min( vec2( FXAA_SPAN_MAX,  FXAA_SPAN_MAX ), max( vec2( -FXAA_SPAN_MAX, -FXAA_SPAN_MAX ), dir * rcpDirMin ) ) * uPPPixelSize.xy;\r
+\r
+	/*--------------------------------------------------------------------------*/\r
+	\r
+    vec3 rgbA = ( 1.0 / 2.0 ) * ( \r
+        texture( uBackBuffer0, vUv + dir * ( 1.0 / 3.0 - 0.5 ) ).xyz +\r
+        texture( uBackBuffer0, vUv + dir * ( 2.0 / 3.0 - 0.5 ) ).xyz\r
+    );\r
+\r
+    vec3 rgbB = rgbA * 0.5  + 0.25  * ( \r
+        texture( uBackBuffer0, vUv + dir * -0.5 ).xyz +\r
+        texture( uBackBuffer0, vUv + dir *  0.5 ).xyz \r
+    );\r
+		\r
+    float lumaB = dot( rgbB, luma );\r
+\r
+    if( ( lumaB < lumaMin ) || ( lumaB > lumaMax ) ) {\r
+\r
+		outColor = vec4( rgbA, 1.0 );\r
+\r
+	} else {\r
+\r
+		outColor = vec4( rgbB, 1.0 );\r
+\r
+	};\r
+\r
+    // outColor = vec4( 0.0 );\r
+\r
+}`})))()}var Tr;function Er(){return(Er=t((()=>{Tr=`// https://qiita.com/aa_debdeb/items/26ab808de6745611df53
+
+in vec2 vUv;
+
+uniform sampler2D uBackBuffer0;
+uniform vec2 uPPResolution;
+uniform bool uIsVertical;
+uniform float uBlurRange;
+
+#ifdef USE_BACKBLURTEX
+  uniform sampler2D uBackBlurTex;
+#endif
+
+layout (location = 0) out vec4 outColor;
+
+// Gaussianブラーの重み
+uniform float uWeights[GAUSS_WEIGHTS];
+
+vec3 blur( sampler2D tex ) {
+  
+  vec2 coord = vec2(gl_FragCoord.xy);
+  vec3 sum = uWeights[0] * texture(tex, vUv).rgb;
+  
+  for (int i = 1; i < GAUSS_WEIGHTS; i++) {
+    vec2 offset = (uIsVertical ? vec2(0, i) : vec2(i, 0)) * uBlurRange;
+    sum += uWeights[i] * texture(tex, vUv + offset / uPPResolution).rgb;
+    sum += uWeights[i] * texture(tex, vUv - offset / uPPResolution).rgb;
+  }
+
+  return sum;
+  
+}
+
+void main(void) {
+  
+  vec3 sum = vec3( 0.0 );
+
+  #ifdef USE_BACKBLURTEX
+    sum = blur(uBackBlurTex);
+  #else
+    sum = blur(uBackBuffer0);
+  #endif
+  
+  outColor = vec4(sum, 1.0);
+  
+}`})))()}var Dr;function Or(){return(Or=t((()=>{Dr=`in vec2 vUv;
+
+uniform sampler2D uBackBuffer0;
+uniform sampler2D uVelTex;
+uniform sampler2D uVelNeighborTex;
+uniform sampler2D uDepthTexture;
+uniform mat4 uProjectionMatrixInverse;
+uniform vec2 uPPPixelSize;
+uniform float uPower;
+
+layout (location = 0) out vec4 outColor;
+
+#define EPSILON 0.0001
+#define SOFT_Z_EXTENT 0.1
+#define SAMPLE 16
+
+// https://stackoverflow.com/questions/4200224/random-noise-functions-for-glsl\r
+\r
+float random(vec2 p){\r
+	return fract(sin(dot(p.xy ,vec2(12.9898,78.233))) * 43758.5453);\r
+}\r
+\r
+// https://www.shadertoy.com/view/4djSRW\r
+\r
+vec3 hash(vec3 p3)\r
+{\r
+	p3 = fract(p3 * vec3(.1031, .1030, .0973));\r
+  p3 += dot(p3, p3.yxz+33.33);\r
+  return fract((p3.xxy + p3.yxx)*p3.zyx);\r
+\r
+}
+
+// Interleaved Gradient Noise。隣り合うピクセルの値が斜めの縞として散るので、
+// 白色ノイズのように無相関な粒にならず、同じサンプル数でもざらつきが目立たない。
+// frameIndex にフレーム番号を渡すと、時間方向にも重ならないよう位相がずれる
+float interleavedGradientNoise( vec2 pixel, float frameIndex ) {
+
+	vec2 p = pixel + frameIndex * 5.588238;
+
+	return fract( 52.9829189 * fract( dot( p, vec2( 0.06711056, 0.00583715 ) ) ) );
+
+}
+
+
+float cone( vec2 x, vec2 y, vec2 v ) {
+
+	return clamp( 1.0 - length( x - y ) / length( v ), 0.0, 1.0 ); 
+	
+}
+
+float cylinder( vec2 x, vec2 y, vec2 v ) {
+	
+	return 1.0 - smoothstep( 0.95 * length( v ), 1.05 * length( v ), length( x - y ) );
+
+}
+
+float softDepthCompare( float a, float b ) {
+
+	return clamp( 1.0 - (a - b) / SOFT_Z_EXTENT, 0.0, 1.0 );
+
+}
+
+float getLinearDepth( vec2 uv ) {
+	vec4 depthRayPos = uProjectionMatrixInverse * vec4( uv * 2.0 - 1.0, texture( uDepthTexture, uv ).x * 2.0 - 1.0, 1.0 );
+	depthRayPos.xyz /= depthRayPos.w;	
+	return depthRayPos.z;
+}
+
+vec2 getVelocity(sampler2D velTex, vec2 uv) 
+{
+    vec2 velocity = texture(velTex, uv).xy;
+    velocity = normalize( velocity ) * clamp( length( velocity ), 0.5 * uPPPixelSize.y, float(TILE) * uPPPixelSize.y );
+
+	velocity *= uPower;
+	
+    return velocity;
+}
+
+
+void main(void) {
+	
+	vec2 X = vUv;
+	
+	vec2 coord = vec2( gl_FragCoord.xy );
+
+	vec2 velNeighbor = getVelocity( uVelNeighborTex, X ).xy;
+
+	vec3 sum = vec3( 0.0 );
+	float weight = 0.0;
+
+	vec2 harfPixelSize = uPPPixelSize / 2.0;
+
+	if( length( velNeighbor ) <= uPPPixelSize.y  ) {
+
+		outColor = texture( uBackBuffer0, vUv );
+		return;
+
+	}
+
+	weight = 1.0;
+	weight = min( 1.0 / length( getVelocity( uVelTex, X ) ), 3.0 );
+	sum = texture(uBackBuffer0, X ).xyz * weight;
+
+	for( int i = 0; i < SAMPLE; i++ ) {
+
+		if( i == SAMPLE - 1 / 2 ) continue;
+
+		float j = random(X + float( i ) * 0.1);
+
+		float t = mix( -1.0, 1.0, ( float( i ) + j + 1.0 ) / ( float(SAMPLE) + 1.0 ) );
+
+		vec2 Y = X + velNeighbor * t + harfPixelSize;
+
+		float depthX = getLinearDepth( X );
+		float depthY = getLinearDepth( Y );
+
+		float f = softDepthCompare( depthX, depthY );
+		float b = softDepthCompare( depthY, depthX );
+
+		float alphaY = f * cone( Y, X, getVelocity( uVelTex, Y ).xy ) +
+			b * cone( X, Y, getVelocity( uVelTex, X ).xy ) +
+			cylinder( Y, X, getVelocity( uVelTex, Y ).xy ) * cylinder( X, Y, getVelocity( uVelTex, X ).xy ) * 2.0;
+
+
+		weight += alphaY;
+		sum += alphaY * texture( uBackBuffer0, Y ).xyz;
+
+	}
+
+	sum /= weight;
+	outColor = vec4(sum.x, sum.y, sum.z, 1.0);
+
+}`})))()}var kr;function Ar(){return(Ar=t((()=>{kr=`in vec2 vUv;
+uniform sampler2D uBackBuffer0;
+uniform sampler2D uVelTex;
+uniform vec2 uPPPixelSize;
+
+layout (location = 0) out vec4 outColor;
+
+#define NUM 3
+
+void main(void) {
+	vec2 coord = vec2( gl_FragCoord.xy );
+	vec2 vel = vec2( 0.0 );
+
+	vec3 sum = vec3( 0.0 );
+
+	for( int i = 0; i < NUM; i++ ) {
+
+		for( int j = 0; j < NUM; j++ ) {
+
+			vec2 offset = vec2( 
+				( float(j) / float(NUM - 1) - 0.5 ) * 2.0 * uPPPixelSize.x,
+				( float(i) / float(NUM - 1) - 0.5 ) * 2.0 * uPPPixelSize.y
+			);
+
+			vec2 currentVel = texture( uVelTex, vUv + offset ).xy;
+
+			if( length(currentVel) > length( vel ) ) {
+
+				vel = currentVel;
+				
+			}
+
+		}
+
+	}
+
+	outColor = vec4( vel, 0.0, 1.0 );
+
+}`})))()}var jr;function Mr(){return(Mr=t((()=>{jr=`in vec2 vUv;
+uniform sampler2D uBackBuffer0;
+uniform sampler2D uVelTex;
+uniform vec2 uPPPixelSize;
+
+layout (location = 0) out vec4 outColor;
+
+void main(void) {
+	vec2 coord = vec2( gl_FragCoord.xy );
+	vec2 vel = vec2( 0.0 );
+
+	vec3 sum = vec3( 0.0 );
+
+	for( int i = 0; i < TILE; i++ ) {
+
+		for( int j = 0; j < TILE; j++ ) {
+
+			vec2 offset = vec2( 
+				( float(j) / float(TILE - 1) - 0.5 ) * uPPPixelSize.x / float( TILE ),
+				( float(i) / float(TILE - 1) - 0.5 ) * uPPPixelSize.y / float( TILE )
+			);
+
+			vec2 currentVel = texture( uVelTex, vUv + offset ).xy;
+
+			if( length(currentVel) > length( vel ) ) {
+
+				vel = currentVel;
+				
+			}
+
+		}
+
+	}
+
+	outColor = vec4( vel + 0.0001, 0.0, 1.0 );
+
+}`})))()}var Nr;function Pr(){return(Pr=t((()=>{Nr=`// フレネルと粗さで重み付けして反射色を足す
+
+#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+struct DirectionalLight {\r
+	vec3 direction;\r
+	vec3 color;\r
+};\r
+\r
+struct SpotLight {\r
+	vec3 position;\r
+	vec3 direction;\r
+	vec3 color;\r
+	float angle;\r
+	float blend;\r
+};\r
+\r
+struct LightCamera {\r
+	float near;\r
+	float far;\r
+	mat4 uViewMatrix;\r
+	mat4 uProjectionMatrix;\r
+	vec2 resolution;\r
+};\r
+\r
+struct Light {\r
+	vec3 direction;\r
+	vec3 color;\r
+};\r
+\r
+#if NUM_LIGHT_DIR > 0 \r
+\r
+	uniform DirectionalLight directionalLight[NUM_LIGHT_DIR];\r
+	uniform LightCamera uDirectionalLightCamera[NUM_LIGHT_DIR];\r
+	// 影を落とすライトが無いと長さ0の配列になり、コンパイルエラーになる\r
+	#if NUM_SHADOWMAP_DIR > 0\r
+		uniform sampler2D directionalLightShadowMap[NUM_SHADOWMAP_DIR];\r
+	#endif\r
+	\r
+#endif\r
+\r
+#if NUM_LIGHT_SPOT > 0 \r
+\r
+	uniform SpotLight uSpotLight[NUM_LIGHT_SPOT];\r
+	uniform LightCamera uSpotLightCamera[NUM_LIGHT_SPOT];\r
+	#if NUM_SHADOWMAP_SPOT > 0\r
+		uniform sampler2D uSpotLightShadowMap[NUM_SHADOWMAP_SPOT];\r
+	#endif\r
+	\r
+#endif\r
+\r
+// shadowmap\r
+\r
+float compareShadowDepth( float lightDepth, sampler2D shadowMap, vec2 shadowCoord, float depthOffset ) {\r
+\r
+	float shadowMapDepth = rgbaToFloat( texture( shadowMap, shadowCoord ) );\r
+\r
+	if( shadowCoord.x >= 0.0 && shadowCoord.x <= 1.0 && shadowCoord.y >= 0.0 && shadowCoord.y <= 1.0 ) {\r
+\r
+		return step( lightDepth, shadowMapDepth + depthOffset );\r
+\r
+	}\r
+\r
+	return 1.0;\r
+\r
+}\r
+\r
+// shadow\r
+\r
+void setShadowCoord( vec3 pos, LightCamera camera, inout vec2 shadowCoord, inout float lightDepth ) {\r
+	\r
+	vec4 mvPosition = camera.uViewMatrix * vec4( pos, 1.0 );\r
+	vec4 mvpPosition = camera.uProjectionMatrix * mvPosition;\r
+	shadowCoord = ( mvpPosition.xy / mvpPosition.w ) * 0.5 + 0.5;\r
+	\r
+	float lightNear = camera.near;\r
+	float lightFar = camera.far;\r
+	lightDepth = ( -mvPosition.z - lightNear ) / ( lightFar - lightNear );\r
+\r
+}\r
+\r
+float getShadow( vec3 pos, LightCamera camera, sampler2D shadowMap, float depthOffset ) {\r
+\r
+	vec2 shadowCoord;\r
+	float lightDepth;\r
+\r
+	setShadowCoord( pos, camera, shadowCoord, lightDepth );\r
+\r
+	return compareShadowDepth( lightDepth, shadowMap, shadowCoord, depthOffset );\r
+\r
+}\r
+\r
+#define SHADOW_SAMPLE_COUNT 2\r
+\r
+float getShadowSmooth( vec3 pos, LightCamera camera, sampler2D shadowMap, float depthOffset ) {\r
+\r
+	vec2 shadowCoord;\r
+	float lightDepth;\r
+\r
+	setShadowCoord( pos, camera, shadowCoord, lightDepth );\r
+	\r
+	float shadowSum = compareShadowDepth( lightDepth, shadowMap, shadowCoord, depthOffset );\r
+\r
+	for( int i = 0; i < SHADOW_SAMPLE_COUNT; i++ ) {\r
+\r
+		vec2 offset = 1.0 / camera.resolution * ( float( i + 1 ) / float(SHADOW_SAMPLE_COUNT) );\r
+\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, -offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( 0.0, -offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, -offset.y ), depthOffset );\r
+		\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, 0.0 ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, 0.0 ), depthOffset );\r
+\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( 0.0, offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, offset.y ), depthOffset );\r
+\r
+	}\r
+\r
+	return shadowSum / ( float( SHADOW_SAMPLE_COUNT ) * 8.0 );\r
+\r
+}\r
+\r
+float ggx( float dNH, float roughness ) {\r
+	\r
+	float a2 = roughness * roughness;\r
+	a2 = a2 * a2;\r
+	float dNH2 = dNH * dNH;\r
+\r
+	if( dNH2 <= 0.0 ) return 0.0;\r
+\r
+	return a2 / ( PI * pow( dNH2 * ( a2 - 1.0 ) + 1.0, 2.0) );\r
+\r
+}\r
+\r
+vec3 lambert( vec3 diffuseColor ) {\r
+\r
+	return diffuseColor / PI;\r
+\r
+}\r
+\r
+float gSchlick( float d, float k ) {\r
+\r
+	if( d == 0.0 ) return 0.0;\r
+\r
+	return d / ( d * ( 1.0 - k ) + k );\r
+	\r
+}\r
+\r
+float gSmith( float dNV, float dNL, float roughness ) {\r
+\r
+	float k = clamp( roughness * sqrt( 2.0 / PI ), 0.0, 1.0 );\r
+\r
+	return gSchlick( dNV, k ) * gSchlick( dNL, k );\r
+	\r
+}\r
+\r
+float fresnel( float d ) {\r
+	\r
+	float f0 = 0.04;\r
+\r
+	return f0 + ( 1.0 - f0 ) * pow( 1.0 - d, 5.0 );\r
+\r
+}\r
+\r
+// 1灯ぶんの反射を diffuse と specular に分けて足す（SSS が diffuse だけをぼかすため）\r
+void RE( Geometry geo, Material mat, Light light, inout vec3 diffuse, inout vec3 specular ) {\r
+\r
+	vec3 lightDir = normalize( light.direction );\r
+	vec3 halfVec = normalize( geo.viewDir + lightDir );\r
+\r
+	float dLH = clamp( dot( lightDir, halfVec ), 0.0, 1.0 );\r
+	float dNH = clamp( dot( geo.normal, halfVec ), 0.0, 1.0 );\r
+	float dNV = clamp( dot( geo.normal, geo.viewDir ), 0.0, 1.0 );\r
+	float dNL = clamp( dot( geo.normal, lightDir), 0.0, 1.0 );\r
+\r
+	vec3 irradiance = light.color * dNL;\r
+\r
+	float D = ggx( dNH, mat.roughness );\r
+	float G = gSmith( dNV, dNL, mat.roughness );\r
+	float F = fresnel( dLH );\r
+\r
+	diffuse += lambert( mat.diffuseColor ) * irradiance * ( 1.0 - F );\r
+	specular += (( D * G * F ) / ( 4.0 * dNL * dNV + 0.0001 ) * mat.specularColor ) * irradiance;\r
+\r
+}
+
+uniform sampler2D uBackBuffer0;
+
+uniform sampler2D uGbufferPos;
+uniform sampler2D uGbufferNormal;
+uniform sampler2D uGbufferMaterial;
+uniform sampler2D uSSRTexture;
+
+uniform vec3 uCameraPosition;
+uniform float uCameraNear;
+uniform float uCameraFar;
+uniform mat4 uViewMatrix;
+uniform mat4 uProjectionMatrix;
+
+in vec2 vUv;
+
+layout (location = 0) out vec4 outColor;
+
+// ssr.fs の ssrCompress で圧縮した反射色を元の明るさへ戻す。
+// 圧縮後の輝度は 1 未満だが、半精度の丸めで 1 に届くと 0 除算になるので上限を置く（0.99 は元の輝度で約 99）
+vec3 ssrDecompress( vec3 c ) {
+
+	return c / ( 1.0 - min( dot( c, vec3( 0.2126, 0.7152, 0.0722 ) ), 0.99 ) );
+
+}
+
+void main( void ) {
+
+	vec3 pos = texture( uGbufferPos, vUv ).xyz;
+
+	outColor = vec4( texture( uBackBuffer0, vUv ).xyz, 1.0 );
+
+	// 空・背景には反射を足さない。SSR は半分の解像度を線形補間で引くので、隣の面の反射がにじんでくる分もここで止まる
+	if( isBackground( pos, uCameraPosition, uCameraFar ) ) return;
+
+	vec3 dir = viewDirection( pos, uCameraPosition, uViewMatrix, uProjectionMatrix );
+	float f = fresnel( clamp( dot( dir, texture( uGbufferNormal, vUv ).xyz ), 0.0, 1.0 ) );
+
+	// SSR は鏡面の1本のレイしか引かないので、粗い面ほど弱めて roughness = 1 で消す
+	float smoothness = 1.0 - texture( uGbufferMaterial, vUv ).x;
+
+	outColor.xyz += f * smoothness * smoothness * ssrDecompress( texture( uSSRTexture, vUv ).xyz ) * 0.15;
+
+}
+`})))()}var Fr;function Ir(){return(Ir=t((()=>{Fr=`// 反射方向へレイマーチしてシーンを引く。今フレームの結果だけを出し、時間方向の蓄積は ssrTemporal.fs が行う
+
+#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+struct DirectionalLight {\r
+	vec3 direction;\r
+	vec3 color;\r
+};\r
+\r
+struct SpotLight {\r
+	vec3 position;\r
+	vec3 direction;\r
+	vec3 color;\r
+	float angle;\r
+	float blend;\r
+};\r
+\r
+struct LightCamera {\r
+	float near;\r
+	float far;\r
+	mat4 uViewMatrix;\r
+	mat4 uProjectionMatrix;\r
+	vec2 resolution;\r
+};\r
+\r
+struct Light {\r
+	vec3 direction;\r
+	vec3 color;\r
+};\r
+\r
+#if NUM_LIGHT_DIR > 0 \r
+\r
+	uniform DirectionalLight directionalLight[NUM_LIGHT_DIR];\r
+	uniform LightCamera uDirectionalLightCamera[NUM_LIGHT_DIR];\r
+	// 影を落とすライトが無いと長さ0の配列になり、コンパイルエラーになる\r
+	#if NUM_SHADOWMAP_DIR > 0\r
+		uniform sampler2D directionalLightShadowMap[NUM_SHADOWMAP_DIR];\r
+	#endif\r
+	\r
+#endif\r
+\r
+#if NUM_LIGHT_SPOT > 0 \r
+\r
+	uniform SpotLight uSpotLight[NUM_LIGHT_SPOT];\r
+	uniform LightCamera uSpotLightCamera[NUM_LIGHT_SPOT];\r
+	#if NUM_SHADOWMAP_SPOT > 0\r
+		uniform sampler2D uSpotLightShadowMap[NUM_SHADOWMAP_SPOT];\r
+	#endif\r
+	\r
+#endif\r
+\r
+// shadowmap\r
+\r
+float compareShadowDepth( float lightDepth, sampler2D shadowMap, vec2 shadowCoord, float depthOffset ) {\r
+\r
+	float shadowMapDepth = rgbaToFloat( texture( shadowMap, shadowCoord ) );\r
+\r
+	if( shadowCoord.x >= 0.0 && shadowCoord.x <= 1.0 && shadowCoord.y >= 0.0 && shadowCoord.y <= 1.0 ) {\r
+\r
+		return step( lightDepth, shadowMapDepth + depthOffset );\r
+\r
+	}\r
+\r
+	return 1.0;\r
+\r
+}\r
+\r
+// shadow\r
+\r
+void setShadowCoord( vec3 pos, LightCamera camera, inout vec2 shadowCoord, inout float lightDepth ) {\r
+	\r
+	vec4 mvPosition = camera.uViewMatrix * vec4( pos, 1.0 );\r
+	vec4 mvpPosition = camera.uProjectionMatrix * mvPosition;\r
+	shadowCoord = ( mvpPosition.xy / mvpPosition.w ) * 0.5 + 0.5;\r
+	\r
+	float lightNear = camera.near;\r
+	float lightFar = camera.far;\r
+	lightDepth = ( -mvPosition.z - lightNear ) / ( lightFar - lightNear );\r
+\r
+}\r
+\r
+float getShadow( vec3 pos, LightCamera camera, sampler2D shadowMap, float depthOffset ) {\r
+\r
+	vec2 shadowCoord;\r
+	float lightDepth;\r
+\r
+	setShadowCoord( pos, camera, shadowCoord, lightDepth );\r
+\r
+	return compareShadowDepth( lightDepth, shadowMap, shadowCoord, depthOffset );\r
+\r
+}\r
+\r
+#define SHADOW_SAMPLE_COUNT 2\r
+\r
+float getShadowSmooth( vec3 pos, LightCamera camera, sampler2D shadowMap, float depthOffset ) {\r
+\r
+	vec2 shadowCoord;\r
+	float lightDepth;\r
+\r
+	setShadowCoord( pos, camera, shadowCoord, lightDepth );\r
+	\r
+	float shadowSum = compareShadowDepth( lightDepth, shadowMap, shadowCoord, depthOffset );\r
+\r
+	for( int i = 0; i < SHADOW_SAMPLE_COUNT; i++ ) {\r
+\r
+		vec2 offset = 1.0 / camera.resolution * ( float( i + 1 ) / float(SHADOW_SAMPLE_COUNT) );\r
+\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, -offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( 0.0, -offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, -offset.y ), depthOffset );\r
+		\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, 0.0 ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, 0.0 ), depthOffset );\r
+\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( 0.0, offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, offset.y ), depthOffset );\r
+\r
+	}\r
+\r
+	return shadowSum / ( float( SHADOW_SAMPLE_COUNT ) * 8.0 );\r
+\r
+}\r
+\r
+float ggx( float dNH, float roughness ) {\r
+	\r
+	float a2 = roughness * roughness;\r
+	a2 = a2 * a2;\r
+	float dNH2 = dNH * dNH;\r
+\r
+	if( dNH2 <= 0.0 ) return 0.0;\r
+\r
+	return a2 / ( PI * pow( dNH2 * ( a2 - 1.0 ) + 1.0, 2.0) );\r
+\r
+}\r
+\r
+vec3 lambert( vec3 diffuseColor ) {\r
+\r
+	return diffuseColor / PI;\r
+\r
+}\r
+\r
+float gSchlick( float d, float k ) {\r
+\r
+	if( d == 0.0 ) return 0.0;\r
+\r
+	return d / ( d * ( 1.0 - k ) + k );\r
+	\r
+}\r
+\r
+float gSmith( float dNV, float dNL, float roughness ) {\r
+\r
+	float k = clamp( roughness * sqrt( 2.0 / PI ), 0.0, 1.0 );\r
+\r
+	return gSchlick( dNV, k ) * gSchlick( dNL, k );\r
+	\r
+}\r
+\r
+float fresnel( float d ) {\r
+	\r
+	float f0 = 0.04;\r
+\r
+	return f0 + ( 1.0 - f0 ) * pow( 1.0 - d, 5.0 );\r
+\r
+}\r
+\r
+// 1灯ぶんの反射を diffuse と specular に分けて足す（SSS が diffuse だけをぼかすため）\r
+void RE( Geometry geo, Material mat, Light light, inout vec3 diffuse, inout vec3 specular ) {\r
+\r
+	vec3 lightDir = normalize( light.direction );\r
+	vec3 halfVec = normalize( geo.viewDir + lightDir );\r
+\r
+	float dLH = clamp( dot( lightDir, halfVec ), 0.0, 1.0 );\r
+	float dNH = clamp( dot( geo.normal, halfVec ), 0.0, 1.0 );\r
+	float dNV = clamp( dot( geo.normal, geo.viewDir ), 0.0, 1.0 );\r
+	float dNL = clamp( dot( geo.normal, lightDir), 0.0, 1.0 );\r
+\r
+	vec3 irradiance = light.color * dNL;\r
+\r
+	float D = ggx( dNH, mat.roughness );\r
+	float G = gSmith( dNV, dNL, mat.roughness );\r
+	float F = fresnel( dLH );\r
+\r
+	diffuse += lambert( mat.diffuseColor ) * irradiance * ( 1.0 - F );\r
+	specular += (( D * G * F ) / ( 4.0 * dNL * dNV + 0.0001 ) * mat.specularColor ) * irradiance;\r
+\r
+}
+// https://stackoverflow.com/questions/4200224/random-noise-functions-for-glsl\r
+\r
+float random(vec2 p){\r
+	return fract(sin(dot(p.xy ,vec2(12.9898,78.233))) * 43758.5453);\r
+}\r
+\r
+// https://www.shadertoy.com/view/4djSRW\r
+\r
+vec3 hash(vec3 p3)\r
+{\r
+	p3 = fract(p3 * vec3(.1031, .1030, .0973));\r
+  p3 += dot(p3, p3.yxz+33.33);\r
+  return fract((p3.xxy + p3.yxx)*p3.zyx);\r
+\r
+}
+
+// Interleaved Gradient Noise。隣り合うピクセルの値が斜めの縞として散るので、
+// 白色ノイズのように無相関な粒にならず、同じサンプル数でもざらつきが目立たない。
+// frameIndex にフレーム番号を渡すと、時間方向にも重ならないよう位相がずれる
+float interleavedGradientNoise( vec2 pixel, float frameIndex ) {
+
+	vec2 p = pixel + frameIndex * 5.588238;
+
+	return fract( 52.9829189 * fract( dot( p, vec2( 0.06711056, 0.00583715 ) ) ) );
+
+}
+
+
+// uniforms
+
+uniform sampler2D uBackBuffer0;
+uniform sampler2D uGbufferPos;
+uniform sampler2D uGbufferNormal;
+
+uniform float uTimeEF;
+uniform mat4 uCameraMatrix;
+uniform mat4 uViewMatrix;
+uniform mat4 uProjectionMatrix;
+uniform mat4 uProjectionMatrixInverse;
+uniform vec3 uCameraPosition;
+uniform float uCameraFar;
+
+// varying
+
+in vec2 vUv;
+
+layout (location = 0) out vec4 outColor;
+#define MARCH 16.0
+#define LENGTH 5.0
+#define OBJDEPTH 0.5
+
+// HDR のヒット色を輝度 1 未満へ圧縮する。一瞬だけ当たった高輝度の点が履歴に大きく残って尾を引かないように、
+// ssrTemporal.fs は圧縮した値どうしで近傍の範囲を取って混ぜる。ssComposite.fs の ssrDecompress と対
+vec4 ssrCompress( vec4 c ) {
+
+	return vec4( c.xyz / ( 1.0 + dot( c.xyz, vec3( 0.2126, 0.7152, 0.0722 ) ) ), c.w );
+
+}
+
+void main( void ) {
+
+	vec3 rayPos = texture( uGbufferPos, vUv ).xyz;
+
+	if( isBackground( rayPos, uCameraPosition, uCameraFar ) || length( rayPos - uCameraPosition ) > 100.0 ) {
+
+		outColor = vec4( 0.0 );
+		return;
+
+	}
+
+	vec3 rayDir = reflect( - viewDirection( rayPos, uCameraPosition, uViewMatrix, uProjectionMatrix ), texture( uGbufferNormal, vUv ).xyz );
+
+	float rayStepLength = LENGTH / MARCH;
+	vec3 rayStep = rayDir * rayStepLength;
+
+	float totalRayLength = random(vUv + uTimeEF) * rayStepLength + 0.1;
+	rayPos += rayDir * totalRayLength;
+
+	vec4 col = vec4( 0.0 );
+
+	for( int i = 0; i < int( MARCH ); i ++ ) {
+
+		vec4 depthCoord = (uProjectionMatrix * uViewMatrix * vec4(rayPos, 1.0 ) );
+		depthCoord.xy /= depthCoord.w;
+
+		if( abs( depthCoord.x ) > 1.0 || abs( depthCoord.y ) > 1.0 ) break;
+
+		depthCoord.xy = depthCoord.xy * 0.5 + 0.5;
+
+		vec3 gBufferPos = texture( uGbufferPos, depthCoord.xy ).xyz;
+
+		if( length( gBufferPos ) == 0.0 ) break;
+
+		vec4 samplerPos = (uViewMatrix * vec4( gBufferPos, 1.0) );
+		vec4 sampleViewPos = uViewMatrix * vec4( rayPos, 1.0 );
+
+		if( sampleViewPos.z < samplerPos.z && sampleViewPos.z >= samplerPos.z - OBJDEPTH ) {
+
+			col.xyz = texture( uBackBuffer0, depthCoord.xy ).xyz;
+			col.w = 1.0;
+			break;
+
+		}
+		
+		rayPos += rayStep;
+		totalRayLength += rayStepLength;
+
+	}
+
+
+	outColor = ssrCompress( col );
+
+}`})))()}var Lr;function Rr(){return(Rr=t((()=>{Lr=`// ssr.fs の今フレームの結果を、前フレームの結果と混ぜて均す。
+// 履歴は今フレームの近傍 3x3 の範囲へクランプしてから混ぜる（TAA の近傍クランプ）。
+// 反射像は反射先の奥行きで動くので面の速度で再投影してもずれが残り、ディスオクルージョンでは別の物の反射を引き継ぐ。
+// どちらも今フレームの近傍に無い色として捨てられる。webgpu 側 ssrTemporal.wgsl と同じ処理
+
+#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+
+uniform sampler2D uSSRCurrent;
+uniform sampler2D uSSRBackBuffer;
+uniform sampler2D uGbufferPos;
+uniform sampler2D uVelTex;
+
+uniform vec2 uPPPixelSize;
+uniform vec3 uCameraPosition;
+uniform float uCameraFar;
+
+in vec2 vUv;
+
+layout (location = 0) out vec4 outColor;
+
+// 新しい結果に与える重み
+#define BLEND 0.2
+
+void main( void ) {
+
+	// isBackground の引数へ直接 texture() を渡すと、shader_minifier が uniform の引数を削って関数本体へ移し、
+	// uniform の宣言より前で参照する壊れたコードになる。いったんローカル変数に受ける
+	vec3 pos = texture( uGbufferPos, vUv ).xyz;
+
+	// 空・背景には反射を足さないので、履歴も持たない
+	if( isBackground( pos, uCameraPosition, uCameraFar ) ) {
+
+		outColor = vec4( 0.0 );
+		return;
+
+	}
+
+	// uSSRCurrent はこのパスと同じ解像度なので、画素中心を引けば線形補間でも隣と混ざらない
+	vec4 current = texture( uSSRCurrent, vUv );
+
+	vec4 minCol = current;
+	vec4 maxCol = current;
+
+	for( int y = -1; y <= 1; y ++ ) {
+
+		for( int x = -1; x <= 1; x ++ ) {
+
+			vec4 neighbor = texture( uSSRCurrent, vUv + vec2( x, y ) * uPPPixelSize );
+
+			minCol = min( minCol, neighbor );
+			maxCol = max( maxCol, neighbor );
+
+		}
+
+	}
+
+	// 速度は「NDC の移動量 × 0.2」（vert_out.part.glsl）。uv の移動量は NDC の半分なので 0.5 / 0.2 = 2.5 倍して戻す
+	vec2 prevUv = vUv - texture( uVelTex, vUv ).xy * 2.5;
+
+	// 画面の外から来た画素には履歴が無いので、そのフレームの値だけを使う
+	if( any( lessThan( prevUv, vec2( 0.0 ) ) ) || any( greaterThan( prevUv, vec2( 1.0 ) ) ) ) {
+
+		outColor = current;
+		return;
+
+	}
+
+	vec4 history = clamp( texture( uSSRBackBuffer, prevUv ), minCol, maxCol );
+
+	outColor = mix( history, current, BLEND );
+
+}
+`})))()}var zr,Br,Vr,Hr,Ur;function Wr(){return(Wr=t((()=>{j(),F(),Ye(),ur(),fr(),mr(),gr(),vr(),br(),Sr(),wr(),Er(),Or(),Ar(),Mr(),Pr(),Ir(),Rr(),zr=4,Br=8,Vr=14/1080,Hr=e=>e.createFrameBuffer().setTexture([e.createTexture().setting({type:M.FLOAT,internalFormat:M.RGBA16F,format:M.RGBA,magFilter:M.LINEAR,minFilter:M.LINEAR})]),Ur=class{dofCoc;dofBokeh;dofBlur;dofComposite;rtSSR1;rtSSR2;postprocess;_ssr;_ssrTemporal;_ssComposite;_dofParams;_motionBlur;_motionBlurTile;_motionBlurNeighbor;_colorCollection;_bloomBright;_bloomPasses;constructor(e,t){let n=new P(e,{name:`collection`,frag:pr,uniforms:{uToneMap:{value:1,type:`1f`},uExposure:{value:1,type:`1f`}}}),r=new P(e,{name:`ssr`,frag:an(`ssr`,Fr),renderTarget:Hr(e),uniforms:mn.merge({uGbufferPos:{value:null,type:`1i`},uGbufferNormal:{value:null,type:`1i`},uSceneTex:{value:null,type:`1i`}}),resolutionRatio:.5,passThrough:!0}),i=Hr(e),a=Hr(e),o=new P(e,{name:`ssrTemporal`,frag:an(`ssrTemporal`,Lr),renderTarget:i,uniforms:mn.merge({uSSRCurrent:{value:r.renderTarget.textures[0],type:`1i`},uSSRBackBuffer:{value:a.textures[0],type:`1i`},uGbufferPos:{value:null,type:`1i`},uVelTex:{value:null,type:`1i`}}),resolutionRatio:.5,passThrough:!0}),s=new P(e,{name:`ssComposite`,frag:an(`ssComposite`,Nr),uniforms:mn.merge({uGbufferPos:{value:null,type:`1i`},uGbufferNormal:{value:null,type:`1i`},uGbufferMaterial:{value:null,type:`1i`},uSSRTexture:{value:i.textures[0],type:`1i`}}),renderTarget:Hr(e)}),c=new O(10,.05,20,.05),l=new P(e,{name:`dof/coc`,frag:yr,uniforms:mn.merge({uGbufferPos:{value:null,type:`1i`},uParams:{value:c,type:`4f`}}),renderTarget:e.createFrameBuffer().setTexture([e.createTexture().setting({magFilter:M.LINEAR,minFilter:M.LINEAR,internalFormat:M.RGBA16F,type:M.HALF_FLOAT,format:M.RGBA})]),passThrough:!0,resolutionRatio:.5}),u=new P(e,{name:`dof/bokeh`,frag:_r,uniforms:mn.merge({uCocTex:{value:l.renderTarget.textures[0],type:`1i`},uParams:{value:c,type:`4f`}}),renderTarget:Hr(e),passThrough:!0,resolutionRatio:.5}),d=new P(e,{name:`dof/blur`,frag:hr,uniforms:mn.merge({uBokeTex:{value:u.renderTarget.textures[0],type:`1i`}}),renderTarget:Hr(e),passThrough:!0,resolutionRatio:.5}),f=new P(e,{name:`dof/composite`,frag:xr,uniforms:mn.merge({uBokeTex:{value:d.renderTarget.textures[0],type:`1i`}}),renderTarget:e.createFrameBuffer().setTexture([e.createTexture().setting({magFilter:M.LINEAR,minFilter:M.LINEAR,internalFormat:M.RGBA16F,type:M.HALF_FLOAT,format:M.RGBA})])}),p=new P(e,{name:`motionBlurTile`,frag:jr,uniforms:mn.merge({uVelTex:{value:null,type:`1i`}}),renderTarget:e.createFrameBuffer().setTexture([e.createTexture().setting({type:M.FLOAT,internalFormat:M.RGBA32F,format:M.RGBA})]),defines:{TILE:16},resolutionRatio:1/16,passThrough:!0}),m=new P(e,{name:`motionBlurNeighbor`,frag:kr,uniforms:mn.merge({uVelTex:{value:p.renderTarget.textures[0],type:`1i`}}),defines:{TILE:16},renderTarget:e.createFrameBuffer().setTexture([e.createTexture().setting({type:M.FLOAT,internalFormat:M.RGBA32F,format:M.RGBA})]),resolutionRatio:1/16,passThrough:!0}),h=new P(e,{name:`motionBlur`,frag:Dr,uniforms:mn.merge({uVelNeighborTex:{value:m.renderTarget.textures[0],type:`1i`},uVelTex:{value:null,type:`1i`},uDepthTexture:{value:null,type:`1i`},uPower:{value:1,type:`1f`}}),defines:{TILE:16},renderTarget:Hr(e)}),g=new P(e,{name:`fxaa`,frag:Cr}),_=new P(e,{name:`bloom/bright`,frag:lr,uniforms:{uShadingTexture:{value:t.shadingBuffer.textures[0],type:`1i`},uThreshold:{value:1,type:`1f`},uBrightness:{value:1,type:`1f`}},renderTarget:Hr(e),resolutionRatio:.5,passThrough:!0}),v=[_],y=[],b=_.renderTarget.textures[0],x=2;for(let t=0;t<zr;t++){let n=Hr(e),r=Hr(e),i={name:`bloom/blur/`+t+`/v`,renderTarget:n,frag:Tr,uniforms:{uBackBlurTex:{value:b,type:`1i`},uIsVertical:{type:`1i`,value:!0},uWeights:{type:`1fv`,value:Ae.gaussWeights(Br)},uBlurRange:{value:2,type:`1f`}},defines:{GAUSS_WEIGHTS:Br.toString(),USE_BACKBLURTEX:``},passThrough:!0,resolutionRatio:1/x};v.push(new P(e,i)),v.push(new P(e,{...i,name:`bloom/blur/`+t+`/h`,renderTarget:r,uniforms:{...i.uniforms,uBackBlurTex:{value:n.textures[0],type:`1i`},uIsVertical:{type:`1i`,value:!1}}})),y.push(r.textures[0]),b=r.textures[0],x*=2}v.push(new P(e,{name:`bloom/composite`,frag:dr,uniforms:{uBloomTexture:{value:y,type:`1iv`}},renderTarget:Hr(e)})),this.postprocess=new Cn({passes:[r,o,s,l,u,d,f,p,m,h,...v,n,g]}),this._ssr=r,this._ssrTemporal=o,this._ssComposite=s,this.dofCoc=l,this.dofBokeh=u,this.dofBlur=d,this.dofComposite=f,this._motionBlur=h,this._motionBlurTile=p,this._motionBlurNeighbor=m,this._colorCollection=n,this._bloomBright=_,this._bloomPasses=v,this._dofParams=c,this.rtSSR1=i,this.rtSSR2=a,r.uniforms.uGbufferPos.value=t.gBuffer.textures[0],r.uniforms.uGbufferNormal.value=t.normalBuffer.textures[0],r.uniforms.uSceneTex.value=t.forwardBuffer.textures[0],o.uniforms.uGbufferPos.value=t.gBuffer.textures[0],o.uniforms.uVelTex.value=t.gBuffer.textures[4],s.uniforms.uGbufferPos.value=t.gBuffer.textures[0],s.uniforms.uGbufferNormal.value=t.gBuffer.textures[1],s.uniforms.uGbufferMaterial.value=t.gBuffer.textures[3],l.uniforms.uGbufferPos.value=t.gBuffer.textures[0],p.uniforms.uVelTex.value=t.gBuffer.textures[4],h.uniforms.uVelTex.value=t.gBuffer.textures[4],h.uniforms.uDepthTexture.value=t.gBuffer.depthTexture}update(e){let t=e.dofParams.kFilmHeight,n=.5*t/Math.tan(.5*(e.fov/180*Math.PI)),r=Math.max(e.dofParams.focusDistance,n),i=Vr,a=1/i,o=n*n/(e.dofParams.fNumber*(r-n)*t*2);this._dofParams.set(r,i,a,o);let s=this.rtSSR1;this.rtSSR1=this.rtSSR2,this.rtSSR2=s,this._ssrTemporal.setRendertarget(this.rtSSR1),this._ssComposite.uniforms.uSSRTexture.value=this.rtSSR1.textures[0],this._ssrTemporal.uniforms.uSSRBackBuffer.value=this.rtSSR2.textures[0]}resize(e){this.postprocess.resize(e)}setPassEnabled(e){if(e.toneMap!==void 0&&(this._colorCollection.uniforms.uToneMap.value=+!!e.toneMap),e.bloom!==void 0)for(let t of this._bloomPasses)t.enabled=e.bloom;e.motionBlur!==void 0&&(this._motionBlurTile.enabled=e.motionBlur,this._motionBlurNeighbor.enabled=e.motionBlur,this._motionBlur.enabled=e.motionBlur,e.motionBlur||(this._motionBlurTile.renderTarget&&this._motionBlurTile.renderTarget.clear(),this._motionBlurNeighbor.renderTarget&&this._motionBlurNeighbor.renderTarget.clear())),e.ssr!==void 0&&(this._ssr.enabled=e.ssr,this._ssrTemporal.enabled=e.ssr,this._ssComposite.enabled=e.ssr,e.ssr||(this.rtSSR1.clear(),this.rtSSR2.clear())),e.dof!==void 0&&(this.dofCoc.enabled=e.dof,this.dofBokeh.enabled=e.dof,this.dofBlur.enabled=e.dof,this.dofComposite.enabled=e.dof,e.dof||(this.dofBokeh.renderTarget&&this.dofBokeh.renderTarget.clear(),this.dofBlur.renderTarget&&this.dofBlur.renderTarget.clear(),this.dofComposite.renderTarget&&this.dofComposite.renderTarget.clear()))}setMotionBlurPower(e){this._motionBlur.uniforms.uPower.value=e}setExposure(e){this._colorCollection.uniforms.uExposure.value=2**e}setBloomParams(e,t){this._bloomBright.uniforms.uThreshold.value=e,this._bloomBright.uniforms.uBrightness.value=t}dispose(){this.postprocess.dispose(),this.rtSSR1.dispose(),this.rtSSR2.dispose()}}})))()}var Gr,Kr;function qr(){return(qr=t((()=>{j(),Ye(),cr(),Wr(),Gr=e=>{let t=e.createFrameBuffer();t.setTexture([e.createTexture().setting({type:M.FLOAT,internalFormat:M.RGBA32F,format:M.RGBA,magFilter:M.NEAREST,minFilter:M.NEAREST}),e.createTexture().setting({type:M.FLOAT,internalFormat:M.RGBA32F,format:M.RGBA}),e.createTexture().setting({internalFormat:M.SRGB8_ALPHA8}),e.createTexture(),e.createTexture().setting({type:M.FLOAT,internalFormat:M.RGBA32F,format:M.RGBA})]);let n=e.createFrameBuffer({disableDepthBuffer:!0});n.setTexture([e.createTexture().setting({type:M.FLOAT,internalFormat:M.RGBA16F,format:M.RGBA}),e.createTexture().setting({type:M.FLOAT,internalFormat:M.RGBA16F,format:M.RGBA})]);let r=e.createFrameBuffer({disableDepthBuffer:!0});r.setDepthTexture(t.depthTexture),r.setTexture([n.textures[0],t.textures[0],t.textures[4]]);let i=e.createFrameBuffer({disableDepthBuffer:!0});i.setTexture([e.createTexture().setting({type:M.FLOAT,internalFormat:M.RGBA16F,format:M.RGBA,magFilter:M.LINEAR,minFilter:M.LINEAR})]);let a=e.createFrameBuffer({disableDepthBuffer:!0});a.setDepthTexture(t.depthTexture),a.setTexture([e.createTexture()]);let o=e.createFrameBuffer();return o.setTexture([e.createTexture().setting({type:M.FLOAT,internalFormat:M.RGBA32F,format:M.RGBA,magFilter:M.NEAREST,minFilter:M.NEAREST})]),{gBuffer:t,shadingBuffer:n,forwardBuffer:r,refractionBuffer:i,uiBuffer:a,normalBuffer:o}},Kr=class{camera;size;resolution;offscreen;renderTarget;deferredRenderer;pipelinePostProcess;_pipelineOverride;_sceneConfig;_onDispose;constructor(e){this.camera=null,this.size=null,this.resolution=new O,this.offscreen=e.offscreen,this._pipelineOverride=null,this._sceneConfig=e.sceneConfig,this._onDispose=e.onDispose,this.renderTarget=Gr(e.backend),this.deferredRenderer=new sr({backend:e.backend,envMap:e.envMap,envMapCube:e.envMapCube,renderTarget:this.renderTarget}),this.pipelinePostProcess=new Ur(e.backend,this.renderTarget),this.fit(e.resolution),this.applyPipelineConfig()}get pipelineOverride(){return this._pipelineOverride}set pipelineOverride(e){this._pipelineOverride=e,this.applyPipelineConfig()}applyPipelineConfig(){let e={...this._sceneConfig,...this._pipelineOverride};this.deferredRenderer.setPassEnabled({ssao:e.ssao,lightShaft:e.lightShaft,sss:e.sss}),this.deferredRenderer.setSSSRadius(e.sssRadius??.05),this.pipelinePostProcess.setPassEnabled({toneMap:e.toneMap,motionBlur:e.motionBlur,ssr:e.ssr,dof:e.dof,bloom:e.bloom}),this.pipelinePostProcess.setMotionBlurPower(e.motionBlurPower??1),this.pipelinePostProcess.setExposure(e.exposure??0),this.pipelinePostProcess.setBloomParams(e.bloomThreshold??1,e.bloomBrightness??1)}fit(e){e.x<=0||e.y<=0||(this.resolution.x!==e.x||this.resolution.y!==e.y)&&this.resize(e)}resize(e){this.resolution.copy(e);let t=this.renderTarget;t.gBuffer.setSize(e),t.shadingBuffer.setSize(e),t.forwardBuffer.setSize(e),t.refractionBuffer.setSize(e),t.uiBuffer.setSize(e),t.normalBuffer.setSize(e),this.deferredRenderer.resize(e),this.pipelinePostProcess.resize(e)}dispose(){this._onDispose(this);let e=this.renderTarget;e.forwardBuffer.dispose();let t=[e.gBuffer,e.shadingBuffer,e.refractionBuffer,e.uiBuffer,e.normalBuffer];for(let e=0;e<t.length;e++){let n=t[e];for(let e=0;e<n.textures.length;e++)n.textures[e].dispose();n.dispose()}e.gBuffer.depthTexture&&e.gBuffer.depthTexture.dispose(),this.deferredRenderer.dispose(),this.pipelinePostProcess.dispose()}}})))()}var Jr;function Yr(){return(Yr=t((()=>{Jr=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+// 空の模様を作るための仮想のワールド座標。空の球はカメラに追従するので実際の位置（outPos）は模様に使えない。
+// normal は半径1の球の外向き法線（= カメラから見た向き）。
+// 500 は追従前の「原点中心・半径500」の球と同じ座標にするための値で、既存の模様の細かさを保つ。
+// 模様の計算にだけ使い、outPos には書かない（深度とポストエフェクトは実際の位置を読むため）
+vec3 skyPosition( vec3 normal ) {
+
+	return normalize( normal ) * 500.0;
+
+}
+
+// 宣言順はvert_h.part.glslのoutと一致させる（WGSL変換時にロケーションが宣言順で振られるため）\r
+in vec2 vUv;\r
+in vec3 vViewNormal;\r
+in vec3 vNormal;\r
+in vec3 vMVPosition;\r
+in vec3 vMVPPosition;\r
+in vec3 vPos;\r
+in vec2 vVelocity;\r
+\r
+uniform mat4 uModelMatrix;\r
+uniform mat4 uModelMatrixInverse;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform vec3 uCameraPosition;\r
+uniform vec2 uResolution;\r
+\r
+#ifdef IS_DEPTH\r
+	uniform float uCameraNear;\r
+	uniform float uCameraFar;\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+	layout (location = 3) out vec4 outColor3;\r
+	layout (location = 4) out vec4 outColor4;\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	uniform sampler2D uDeferredTexture;\r
+	uniform vec2 uDeferredResolution;\r
+	uniform sampler2D uGbufferNormal;\r
+	uniform sampler2D uGbufferAlbedo;\r
+	uniform sampler2D uGbufferMaterial;\r
+#endif\r
+\r
+#if defined(IS_FORWARD) || defined(IS_DEPTH)\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;
+
+uniform vec3 uSkyColor;
+uniform vec3 uGroundColor;
+uniform float uSkyIntensity;
+
+void main( void ) {
+
+	vec4 outColor = vec4(1.0);\r
+vec3 outNormal = normalize(vNormal);\r
+vec3 outNormalMap = vec3( 0.0 );\r
+float outSSN = 0.0;\r
+vec3 outEmission = vec3(0.0);\r
+float outRoughness = 0.5;\r
+float outMetallic = 0.0;\r
+vec3 outPos = vPos;\r
+float outEnv = 1.0;\r
+float outSSS = 0.0;
+
+	float t = clamp( normalize( skyPosition( vNormal ) ).y * 0.5 + 0.5, 0.0, 1.0 );
+	vec3 color = mix( uGroundColor, uSkyColor * 2.0, t );
+
+	outColor = vec4( 0.0 );
+	outEmission = color * uSkyIntensity;
+	outRoughness = 1.0;
+	outEnv = 0.0;
+
+	#if defined(IS_DEPTH) || defined(IS_DEFERRED)\r
+	vec4 mv = uViewMatrix * vec4(outPos, 1.0);\r
+#endif\r
+\r
+#ifdef IS_DEPTH\r
+	float depth_z = (-mv.z - uCameraNear) / (uCameraFar - uCameraNear);\r
+	outColor0 = vec4(floatToRGBA( depth_z ));\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+\r
+	#ifdef USE_NORMAL_MAP \r
+\r
+		vec3 tangent;\r
+		vec3 bitangent;\r
+\r
+		#ifdef USE_TANGENT\r
+\r
+			tangent = normalize( vTangent );\r
+			bitangent = normalize( vBitangent );\r
+\r
+		#else\r
+\r
+			tangent = cross(outNormal, vec3( 0.0, 1.0, 0.0 ));\r
+			bitangent = cross(tangent, outNormal);\r
+\r
+		#endif\r
+\r
+		#ifdef DOUBLE_SIDED\r
+\r
+			tangent *= faceDirection;\r
+			bitangent *= faceDirection;\r
+			\r
+		#endif\r
+\r
+		mat3 vTBN = mat3( tangent, bitangent, outNormal );\r
+		outNormal = normalize( vTBN * outNormalMap );\r
+\r
+	#endif\r
+\r
+	vec4 mvp = uProjectionMatrix * mv;\r
+	gl_FragDepth = ( mvp.z / mvp.w ) * 0.5 + 0.5;\r
+	outColor0 = vec4( outPos, outEmission.x );\r
+	outColor1 = vec4( normalize( outNormal * ( gl_FrontFacing ? 1.0 : -1.0 ) ), outEmission.y );\r
+	outColor2 = vec4( outColor.xyz, outSSS );\r
+	outColor3 = vec4( outRoughness, outMetallic, outSSN, outEnv );\r
+	outColor4 = vec4( vVelocity, 0.0, outEmission.z );\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	outColor0 = outColor;\r
+	outColor1 = vec4(outPos, 1.0);\r
+	outColor2 = vec4(vVelocity, 0.0, 1.0);\r
+#endif
+
+}
+`})))()}var Xr;function Zr(){return(Zr=t((()=>{j(),Kt(),Rt(),Sn(),Yr(),Xr=class{entity;mesh;material;color;groundColor;_intensity;_position;_positionPrev;_scale;_viewMatrixPrevInverse;constructor(e){this.color=new O(1,1,1),this.groundColor=new O(.3,.3,.3),this._intensity=1,this._position=new O,this._positionPrev=new O,this._scale=new O,this._viewMatrixPrevInverse=new k,this.material=new xn({phase:[`deferred`,`envMap`],frag:Jr,cullFace:!1,uniforms:{uSkyColor:{value:this.color,type:`3fv`},uGroundColor:{value:this.groundColor,type:`3fv`},uSkyIntensity:{value:this._intensity,type:`1f`}}}),this.entity=e.createEntity({name:`sky`}),this.mesh=this.entity.addComponent(N),this.mesh.geometry=new Lt({radius:1,widthSegments:32,heightSegments:32}),this.mesh.material=this.material}followCamera(e,t){let n=t.far*.99,r=e.matrixWorld.elm,i=this._viewMatrixPrevInverse.copy(t.viewMatrixPrev).inverse().elm;this._position.set(r[12],r[13],r[14]),this._positionPrev.set(i[12],i[13],i[14]),this._scale.set(n,n,n),this.entity.matrixWorld.setFromTransform(this._position,void 0,this._scale),this.entity.matrixWorldPrev.setFromTransform(this._positionPrev,void 0,this._scale)}get intensity(){return this._intensity}set intensity(e){this._intensity=e,this.material.uniforms.uSkyIntensity.value=e}}})))()}var Qr,$r,ei,ti,ni,ri,ii,ai,oi,si,ci,li,ui,di;function fi(){return(fi=t((()=>{qe(),j(),Bt(),Wt(),Kt(),It(),Et(),Ye(),et(),vn(),Sn(),kn(),Nn(),Fn(),qr(),Zr(),Qr=()=>({motionBlur:!0,motionBlurPower:1,ssr:!0,ssao:!0,lightShaft:!0,dof:!0,toneMap:!0,exposure:0,bloom:!0,bloomThreshold:1,bloomBrightness:1,sss:!1,sssRadius:.05}),$r=new xn,ei=e=>e.material||$r,ti=0,ni=new O(1,1,1,1),ri=new O(0,0,0,1),ii=[],ai=[],oi=e=>ii[e]||(ii[e]={direction:`directionalLight[${e}].direction`,color:`directionalLight[${e}].color`,camNear:`uDirectionalLightCamera[${e}].near`,camFar:`uDirectionalLightCamera[${e}].far`,camViewMatrix:`uDirectionalLightCamera[${e}].viewMatrix`,camProjectionMatrix:`uDirectionalLightCamera[${e}].projectionMatrix`,camResolution:`uDirectionalLightCamera[${e}].resolution`,shadowMap:`directionalLightShadowMap[${e}]`}),si=e=>ai[e]||(ai[e]={position:`uSpotLight[${e}].position`,direction:`uSpotLight[${e}].direction`,color:`uSpotLight[${e}].color`,angle:`uSpotLight[${e}].angle`,blend:`uSpotLight[${e}].blend`,camNear:`uSpotLightCamera[${e}].near`,camFar:`uSpotLightCamera[${e}].far`,camViewMatrix:`uSpotLightCamera[${e}].viewMatrix`,camProjectionMatrix:`uSpotLightCamera[${e}].projectionMatrix`,camResolution:`uSpotLightCamera[${e}].resolution`,shadowMap:`spotLightShadowMap[${e}]`}),ci=class extends Tt{backend;canvas;resolution;globalUniforms;_views;_pipelineConfig;programManager;_geometryBuffers;_lights;_lightsUpdated;_lightInfoCache;_envMapCameras;_envMapRenderTarget;_envMapCube;_pmremRender;_stack;_sceneCamera;sky;_engine;_quad;_isCorrentCompiles;compileDrawParams;_tmpNormalMatrix;_tmpModelViewMatrix;_tmpViewMatrixInverseMatrix;_tmpLightDirection;_tmpModelMatrixInverse;_tmpProjectionMatrixInverse;_tmpResolution;_tmpResolutionUniform;_tmpUniformOverride;_tmpDrawParam;constructor(e,t){super(),this.backend=e,this.canvas=e.canvas,this.globalUniforms={},this._isCorrentCompiles=!1,this.compileDrawParams=[],this.programManager=new Pn(e),this._geometryBuffers=new Map,this.resolution=new O,this._views=[],this._stack=this._createRenderStack(),this._sceneCamera=null,this._lights={directional:[],spot:[]},this._lightsUpdated=!1,this._lightInfoCache=new Map;let n=e.createCubeTexture();this._envMapCube=n,this._envMapRenderTarget=e.createCubeFrameBuffer().setTexture([n]),this._envMapRenderTarget.setSize(256,256);let r=new O(0,0,0),i=new O(0,-1,0),a=[new k().lookAt(r,new O(1,0,0),i),new k().lookAt(r,new O(0,1,0),new O(0,0,1)),new k().lookAt(r,new O(0,0,1),i),new k().lookAt(r,new O(-1,0,0),i),new k().lookAt(r,new O(0,-1,0),new O(0,0,-1)),new k().lookAt(r,new O(0,0,-1),i)];this._envMapCameras=[];for(let e=0;e<6;e++){let n=t.createEntity({name:`envMapCamera/`+e}),r=n.addComponent(zt);r.fov=90,r.near=.1,r.far=1e3,r.aspect=1,n.applyMatrix(a[e].clone()),r.updateViewMatrix(),r.updateProjectionMatrix(),this._envMapCameras.push({entity:n,camera:r})}this._pmremRender=new Mn(e,{input:[n],resolution:new O(768,1024)}),this._quad=new Ft({width:2,height:2}),this._tmpLightDirection=new O,this._tmpModelMatrixInverse=new k,this._tmpViewMatrixInverseMatrix=new k,this._tmpProjectionMatrixInverse=new k,this._tmpModelViewMatrix=new k,this._tmpNormalMatrix=new k,this._tmpResolution=new O,this._tmpResolutionUniform={value:this._tmpResolution,type:`2fv`},this._tmpUniformOverride={},this._tmpDrawParam={},this._engine=t,this.sky=new Xr(t),this._pipelineConfig=Qr();let o=this.fieldDir(`sky`);o.field(`skyColor`,()=>this.sky.color.getElm(`vec3`),e=>{this.sky.color.set(e[0],e[1],e[2])},{format:{type:`color`}}),o.field(`groundColor`,()=>this.sky.groundColor.getElm(`vec3`),e=>{this.sky.groundColor.set(e[0],e[1],e[2])},{format:{type:`color`}}),o.field(`intensity`,()=>this.sky.intensity,e=>{this.sky.intensity=e},{step:.1}),o.field(`reset`,()=>()=>{this._resetSky(),this.noticeField(`sky/skyColor`),this.noticeField(`sky/groundColor`),this.noticeField(`sky/intensity`)},void 0,{label:`Reset to Default`});let s=this.fieldDir(`pipeline`);[`motionBlur`,`ssr`,`ssao`,`dof`,`lightShaft`,`toneMap`,`bloom`].forEach(e=>{let t=s.dir(e);t.field(`enabled`,()=>this._pipelineConfig[e]??!0,t=>{this.applyPipelineConfig({[e]:t})}),e===`motionBlur`&&t.field(`power`,()=>this._pipelineConfig.motionBlurPower??1,e=>{this.applyPipelineConfig({motionBlurPower:e})},{step:.1}),e===`toneMap`&&t.field(`exposure`,()=>this._pipelineConfig.exposure??0,e=>{this.applyPipelineConfig({exposure:e})},{step:.1}),e===`bloom`&&(t.field(`threshold`,()=>this._pipelineConfig.bloomThreshold??1,e=>{this.applyPipelineConfig({bloomThreshold:e})},{step:.1}),t.field(`brightness`,()=>this._pipelineConfig.bloomBrightness??1,e=>{this.applyPipelineConfig({bloomBrightness:e})},{step:.1}))});let c=s.dir(`sss`);c.field(`enabled`,()=>this._pipelineConfig.sss??!1,e=>{this.applyPipelineConfig({sss:e})}),c.field(`radius`,()=>this._pipelineConfig.sssRadius??.05,e=>{this.applyPipelineConfig({sssRadius:e})},{step:.01})}createView(e){let t=new Kr({backend:this.backend,envMap:this._pmremRender.renderTarget.textures[0],envMapCube:this._envMapCube,sceneConfig:this._pipelineConfig,resolution:this.resolution,offscreen:e?.offscreen??!1,onDispose:e=>{this._views.splice(this._views.indexOf(e),1)}});return this._views.push(t),t}_createRenderStack(){return{light:[],deferred:[],forward:[],ui:[],shadowMap:[],envMap:[]}}_collectRenderStack(e,t,n){let r=t&&e.visible,i=e.getComponent(N);if(i&&r){let t=ei(i);t.visibilityFlag.deferred&&n.deferred.push(e),t.visibilityFlag.shadowMap&&n.shadowMap.push(e),t.visibilityFlag.forward&&n.forward.push(e),t.visibilityFlag.ui&&n.ui.push(e),t.visibilityFlag.envMap&&n.envMap.push(e)}let a=e.getComponent(Ut);if(a&&a.enabled&&r&&n.light.push(e),!this._sceneCamera){let t=e.getComponentsByTag(`camera`);for(let n=0;n<t.length;n++)t[n].displayOut&&(this._sceneCamera=e)}for(let t=0;t<e.children.length;t++)this._collectRenderStack(e.children[t],r,n)}prepareScene(e,t){if(this.resolution.x===0||this.resolution.y===0)return;let n=this._stack=this._createRenderStack();this._sceneCamera=null,this._collectRenderStack(e,!0,n),this._collectRenderStack(this.sky.entity,!0,n);let r=[],i={},a=Object.keys(this._lights);for(let e=0;e<a.length;e++){let t=a[e];i[t]=this._lights[t].length,this._lights[t]=[]}for(let e=0;e<n.light.length;e++){let t=n.light[e],i=t.getComponent(Ut);if(i){let e=this.collectLight(t,i);i.castShadow&&e.renderTarget&&i.lightType!==`directional`&&r.push(e)}}this._lights.directional.sort((e,t)=>!e.component.castShadow-+!t.component.castShadow),this._lights.spot.sort((e,t)=>!e.component.castShadow-+!t.component.castShadow),this._lightsUpdated=!1;for(let e=0;e<a.length;e++){let t=a[e];if(i[t]!=this._lights[t].length){this._lightsUpdated=!0;break}}for(let e=0;e<r.length;e++){let t=r[e];this.renderCamera(`shadowMap`,t.component.entity,n.shadowMap,t.renderTarget,this.resolution)}for(let e=0;e<this._envMapCameras.length;e++){let{entity:t}=this._envMapCameras[e];this._envMapRenderTarget.face(e),this.renderCamera(`envMap`,t,n.envMap,this._envMapRenderTarget,this.resolution)}this.renderPostProcess(this._pmremRender.postprocess,void 0,this._pmremRender.resolution),this._pmremRender.swap()}render(e,t){let n=e;n.fit(n.size||this.resolution);let r=n.resolution;if(r.x===0||r.y===0)return;let i=n.camera||this._sceneCamera;if(!i)return;let a=i.getComponentsByTag(`camera`)[0];if(!a)return;let o=this._stack,s=n.renderTarget;this.backend.setBlendEnabled(!1);for(let e=0;e<this._lights.directional.length;e++){let t=this._lights.directional[e];!t.component.castShadow||!t.renderTarget||(t.component.fitShadowToCamera(a,t.component.shadowMapSize.x),this.renderCamera(`shadowMap`,t.component.entity,o.shadowMap,t.renderTarget,this.resolution))}this.renderCamera(`deferred`,i,o.deferred,s.gBuffer,r),this.renderPostProcess(n.deferredRenderer.postprocess,void 0,r,{cameraOverride:{viewMatrix:a.viewMatrix,viewMatrixPrev:a.viewMatrixPrev,projectionMatrix:a.projectionMatrix,projectionMatrixPrev:a.projectionMatrixPrev,cameraMatrixWorld:i.matrixWorld}}),n.deferredRenderer.update(),this._copyToRefraction(s);let c=o.forward.slice().sort((e,t)=>ei(e.getComponent(N)).renderOrder-ei(t.getComponent(N)).renderOrder),l=[],u=null;for(let e of c){let t=ei(e.getComponent(N)).renderOrder;(u===null||t!==u)&&(l.push([]),u=t),l[l.length-1].push(e)}this.backend.setBlendEnabled(!0);for(let e=0;e<l.length;e++)e>0&&this._copyToRefraction(s),this.renderCamera(`forward`,i,l[e],s.forwardBuffer,r,{uniformOverride:{uDeferredTexture:{value:s.refractionBuffer.textures[0],type:`1i`},uDeferredResolution:{value:s.shadingBuffer.size,type:`2fv`},uEnvMap:{value:this._pmremRender.renderTarget.textures[0],type:`1i`},uGbufferNormal:{value:s.normalBuffer.textures[0],type:`1i`},uGbufferAlbedo:{value:s.gBuffer.textures[2],type:`1i`},uGbufferMaterial:{value:s.gBuffer.textures[3],type:`1i`}},disableClear:!0});this.backend.setBlendEnabled(!1),this.renderPostProcess(n.pipelinePostProcess.postprocess,s.shadingBuffer,r,{cameraOverride:{viewMatrix:a.viewMatrix,projectionMatrix:a.projectionMatrix,cameraMatrixWorld:i.matrixWorld,cameraNear:a.near,cameraFar:a.far}}),n.pipelinePostProcess.update(a);let d=n.pipelinePostProcess.postprocess.output?n.pipelinePostProcess.postprocess.output:void 0,f=(this._sceneCamera||i).getComponent(_n);if(f){f.resize(r);for(let e=0;e<f.postProcesses.length;e++){let t=f.postProcesses[e];t.enabled&&t.hasOutput&&(this.renderPostProcess(t,d,r,{cameraOverride:{viewMatrix:a.viewMatrix,projectionMatrix:a.projectionMatrix,cameraMatrixWorld:i.matrixWorld,cameraNear:a.near,cameraFar:a.far}}),d=t.output||void 0)}}let p=n.offscreen?s.uiBuffer:null;if(d){let e=d.size;this.backend.blit(d,p,e.x,e.y)}this.backend.setBlendEnabled(!0),this.renderCamera(`forward`,i,o.ui,p,r,{uniformOverride:{uDeferredTexture:{value:s.refractionBuffer.textures[0],type:`1i`}},disableClear:!0}),this.backend.setBlendEnabled(!1)}renderCamera(e,t,n,r,i,a){let o=t.getComponentsByTag(`camera`)[0]||t.getComponent(Ut);a||={},(e==`deferred`||e==`envMap`)&&this.sky.followCamera(t,o);let s=this._tmpDrawParam;s.viewMatrix=o.viewMatrix,s.viewMatrixPrev=o.viewMatrixPrev,s.projectionMatrix=o.projectionMatrix,s.projectionMatrixPrev=o.projectionMatrixPrev,s.cameraMatrixWorld=t.matrixWorld,s.cameraNear=o.near,s.cameraFar=o.far,s.renderTarget=r,s.uniformOverride=a.uniformOverride||this._tmpUniformOverride,a.cameraOverride&&Object.assign(s,a.cameraOverride),this.backend.bindRenderTarget(r,o.viewPort,i),r?this._tmpResolution.set(r.size.x,r.size.y):this._tmpResolution.set(i.x,i.y),s.uniformOverride.uResolution=this._tmpResolutionUniform,a.disableClear||this.backend.clear(e==`shadowMap`?ni:ri,1);for(let t=0;t<n.length;t++){let r=n[t],i=r.getComponentsByTag(`materialOverride`)[0],a=r.getComponent(N),c=i&&i.material||ei(a),l=a.geometry;s.modelMatrixWorld=r.matrixWorld,s.modelMatrixWorldPrev=r.matrixWorldPrev,s.label=`cam[${o.uuid}]/${r.name||c.name||`-`}`,this.draw(r.uuid,e,l,c,s)}}_copyToRefraction(e){let t=e.shadingBuffer.size;this.backend.blit(e.shadingBuffer,e.refractionBuffer,t.x,t.y,!0,!0)}collectLight(e,t){let n=t.lightType,r=this._lightInfoCache.get(t);return r||(r={position:new O,direction:new O,color:new O,renderTarget:null,component:t},this._lightInfoCache.set(t,r)),r.position.set(0,0,0,1).applyMatrix4(e.matrixWorld),r.direction.set(0,1,0,0).applyMatrix4(e.matrixWorld).normalize(),r.color.set(t.color.x,t.color.y,t.color.z).multiply(t.intensity),n==`spot`&&r.color.multiply(1/(4*Math.PI)),n==`directional`?this._lights.directional.push(r):n==`spot`&&this._lights.spot.push(r),t.castShadow&&r.renderTarget==null&&(r.renderTarget=this.backend.createFrameBuffer().setTexture([this.backend.createTexture().setting({magFilter:M.LINEAR,minFilter:M.LINEAR})]),r.renderTarget.setSize(t.shadowMapSize)),r}renderPostProcess(e,t,n,r){let i=t?t.textures:void 0;if(e.passes)for(let t=0;t<e.passes.length;t++){let a=e.passes[t];if(a.enabled===!1)continue;let o=a.renderTarget;this.backend.bindRenderTarget(o,a.viewPort,n),this.backend.clear(a.clearColor,a.clearDepth);let s=a.backBufferOverride||i||null;if(s)for(let e=0;e<s.length;e++)a.uniforms[`uBackBuffer`+e]={type:`1i`,value:s[e]};let c=r&&r.cameraOverride||{};c.label=a.name,c.renderTarget=o,c.uniformOverride=r&&r.uniformOverride,this.draw(a.uuid,`postprocess`,this._quad,a,c),a.onAfterRender(),!a.passThrough&&a.renderTarget&&(i=a.renderTarget.textures)}}draw(e,t,n,r,i){if(this._isCorrentCompiles){this.compileDrawParams.push({drawId:e,renderType:t,geometry:n,material:r,param:{...i}});return}ti=0,this.backend.setMaterialState(r.cullFace,r.depthTest,r.depthWrite);let a=r.programCache[t];if(!a||this._lightsUpdated){let e={...r.defines};t==`deferred`?e.IS_DEFERRED=``:t==`forward`||t==`envMap`?e.IS_FORWARD=``:t==`shadowMap`&&(e.IS_DEPTH=``);let n=$e(r.vert,e,this._lights),i=$e(r.frag,e,this._lights);a=this.programManager.get(n,i,r.name),r.programCache[t]=a}if(i&&(i.modelMatrixWorld&&(a.setUniform(`uModelMatrix`,`Matrix4fv`,i.modelMatrixWorld.elm),a.setUniform(`uModelMatrixInverse`,`Matrix4fv`,this._tmpModelMatrixInverse.copy(i.modelMatrixWorld).inverse().elm),i.modelMatrixWorldPrev&&a.setUniform(`uModelMatrixPrev`,`Matrix4fv`,i.modelMatrixWorldPrev.elm),i.viewMatrix&&(this._tmpModelViewMatrix.copy(i.modelMatrixWorld).preMultiply(i.viewMatrix),this._tmpNormalMatrix.copy(this._tmpModelViewMatrix),this._tmpNormalMatrix.inverse(),this._tmpNormalMatrix.transpose(),a.setUniform(`uModelViewMatrix`,`Matrix4fv`,this._tmpModelViewMatrix.elm),a.setUniform(`uNormalMatrix`,`Matrix4fv`,this._tmpNormalMatrix.elm),a.setUniform(`uViewMatrixInverse`,`Matrix4fv`,this._tmpViewMatrixInverseMatrix.copy(i.viewMatrix).inverse().elm))),i.viewMatrix&&(a.setUniform(`uViewMatrix`,`Matrix4fv`,i.viewMatrix.elm),i.viewMatrixPrev&&a.setUniform(`uViewMatrixPrev`,`Matrix4fv`,i.viewMatrixPrev.elm)),i.projectionMatrix&&(a.setUniform(`uProjectionMatrix`,`Matrix4fv`,i.projectionMatrix.elm),a.setUniform(`uProjectionMatrixInverse`,`Matrix4fv`,this._tmpProjectionMatrixInverse.copy(i.projectionMatrix).inverse().elm),i.projectionMatrixPrev&&a.setUniform(`uProjectionMatrixPrev`,`Matrix4fv`,i.projectionMatrixPrev.elm)),i.cameraMatrixWorld&&(a.setUniform(`uCameraMatrix`,`Matrix4fv`,i.cameraMatrixWorld.elm),a.setUniform(`uCameraPosition`,`3f`,[i.cameraMatrixWorld.elm[12],i.cameraMatrixWorld.elm[13],i.cameraMatrixWorld.elm[14]])),t!=`deferred`&&(i.cameraNear&&a.setUniform(`uCameraNear`,`1f`,[i.cameraNear]),i.cameraFar&&a.setUniform(`uCameraFar`,`1f`,[i.cameraFar]))),r.useLight&&t!==`deferred`&&t!==`shadowMap`){for(let e=0;e<this._lights.directional.length;e++){let t=this._lights.directional[e],n=oi(e);if(a.setUniform(n.direction,`3fv`,t.direction.getElm(`vec3`)),a.setUniform(n.color,`3fv`,t.color.getElm(`vec3`)),t.renderTarget){let e=t.renderTarget.textures[0].activate(ti++);a.setUniform(n.camNear,`1fv`,[t.component.near]),a.setUniform(n.camFar,`1fv`,[t.component.far]),a.setUniform(n.camViewMatrix,`Matrix4fv`,t.component.viewMatrix.elm),a.setUniform(n.camProjectionMatrix,`Matrix4fv`,t.component.projectionMatrix.elm),a.setUniform(n.camResolution,`2fv`,e.size.getElm(`vec2`)),a.setUniform(n.shadowMap,`1i`,[e.unit])}}for(let e=0;e<this._lights.spot.length;e++){let t=this._lights.spot[e],n=si(e);if(i&&i.viewMatrix&&this._tmpLightDirection.copy(t.direction).applyMatrix3(i.viewMatrix),a.setUniform(n.position,`3fv`,t.position.getElm(`vec3`)),a.setUniform(n.direction,`3fv`,t.direction.getElm(`vec3`)),a.setUniform(n.color,`3fv`,t.color.getElm(`vec3`)),a.setUniform(n.angle,`1fv`,[Math.cos(t.component.angle/2)]),a.setUniform(n.blend,`1fv`,[t.component.blend]),t.renderTarget){let e=t.renderTarget.textures[0].activate(ti++);a.setUniform(n.camNear,`1fv`,[t.component.near]),a.setUniform(n.camFar,`1fv`,[t.component.far]),a.setUniform(n.camViewMatrix,`Matrix4fv`,t.component.viewMatrix.elm),a.setUniform(n.camProjectionMatrix,`Matrix4fv`,t.component.projectionMatrix.elm),a.setUniform(n.camResolution,`2fv`,e.size.getElm(`vec2`)),a.setUniform(n.shadowMap,`1i`,[e.unit])}}}di(a,this.globalUniforms,r.uniforms,i&&i.uniformOverride);let o=a.getVAO(e.toString());if(o){let e=this._getGeometryBuffer(n);e.vaoVersions.get(o)!==n.updateVersion&&(n.attributes.forEach((t,n)=>{let r=e.buffers.get(n);r!==void 0&&(n==`index`?o.setIndex(r):o.setAttribute(n,r,t.size,t.opt))}),e.vaoVersions.set(o,n.updateVersion)),this.backend.draw(a,o,r.drawType,r.blending,void 0)}}_getGeometryBuffer(e){let t=this._geometryBuffers.get(e);if(t||(t={buffers:new Map,vaoVersions:new Map,version:-1},this._geometryBuffers.set(e,t)),t.version!==e.updateVersion){let n=t.buffers;n.forEach(e=>e.dispose()),n.clear(),t.vaoVersions.clear(),e.attributes.forEach((e,t)=>{n.set(t,new Le(this.backend.gl).setData(e.array,t==`index`?`ibo`:`vbo`,e.opt&&e.opt.usage))}),t.version=e.updateVersion}return t}applyPipelineConfig(e){Object.assign(this._pipelineConfig,e);for(let e=0;e<this._views.length;e++)this._views[e].applyPipelineConfig()}get pipelineConfig(){return this._pipelineConfig}resize(e){this.resolution.copy(e);for(let t=0;t<this._views.length;t++){let n=this._views[t];n.fit(n.size||e)}}_resetSky(){this.sky.entity.disposeRecursive(),this.sky=new Xr(this._engine)}reset(){this._resetSky(),this.applyPipelineConfig(Qr()),this._geometryBuffers.forEach(e=>{e.buffers.forEach(e=>e.dispose())}),this._geometryBuffers.clear(),this._lightInfoCache.forEach(e=>{e.renderTarget&&(e.renderTarget.textures.forEach(e=>e.dispose()),e.renderTarget.dispose())}),this._lightInfoCache.clear()}async compileShaders(e,t,n,r){this._isCorrentCompiles=!0,this.compileDrawParams=[],this.prepareScene(e,n),this.render(t,n),this._isCorrentCompiles=!1;let i=this.compileDrawParams.length,a=0;for(let e=0;e<this.compileDrawParams.length;e++){let t=this.compileDrawParams[e];if(this.backend.bindRenderTarget(t.param.renderTarget||null),this.draw(t.drawId,t.renderType,t.geometry,t.material,t.param),await new Promise(e=>{setTimeout(()=>{e(null)},10)}),r){a++;let e=t.param&&t.param.label||`-`;r(`${t.renderType}/${e}/[${t.drawId}]`,a,i)}}}createTexProcedural(e){let t={},n=e.textures||{},r=Object.keys(n);for(let e=0;e<r.length;e++)t[r[e]]={value:n[r[e]],type:`1i`};let i=new On(this,{frag:e.frag,resolution:e.resolution,uniforms:t});return e.filter===`nearest`&&(i.setting({magFilter:M.NEAREST,minFilter:M.NEAREST}),i.render()),i}},li=[],ui=(e,t)=>{e!=null&&(typeof e==`number`||typeof e==`boolean`?li.push(e):`isVector`in e?li.push(...e.getElm(`vec`+t.charAt(0))):`isTexture`in e?(e.activate(ti++),li.push(e.unit)):li.push(...e.elm))},di=(e,...t)=>{for(let n=0;n<t.length;n++){let r=t[n];if(!r)continue;let i=Object.keys(r);for(let t=0;t<i.length;t++){let n=i[t],a=r[n];if(!a)continue;let o=a.type,s=a.value;if(li.length=0,Array.isArray(s))for(let e=0;e<s.length;e++)ui(s[e],o);else ui(s,o);li.length>0&&e.setUniform(n,o,li)}}},ci.__docgenInfo={description:``,methods:[{name:`createView`,docblock:null,modifiers:[],params:[{name:`opt`,optional:!0,type:{name:`signature`,type:`object`,raw:`{
+	offscreen?: boolean;
+}`,signature:{properties:[{key:`offscreen`,value:{name:`boolean`,required:!1}}]},alias:`RenderViewOptions`}}],returns:{type:{name:`RenderView`}}},{name:`prepareScene`,docblock:null,modifiers:[],params:[{name:`root`,optional:!1,type:{name:`Entity`,alias:`Entity`}},{name:`_event`,optional:!1,type:{name:`EntityUpdateEvent`,alias:`EntityUpdateEvent`}}],returns:null},{name:`renderCamera`,docblock:null,modifiers:[],params:[{name:`renderType`,optional:!1,type:{name:`union`,raw:`"shadowMap" | "deferred" | "forward" | "envMap" | 'ui' | "postprocess"`,elements:[{name:`literal`,value:`"shadowMap"`},{name:`literal`,value:`"deferred"`},{name:`literal`,value:`"forward"`},{name:`literal`,value:`"envMap"`},{name:`literal`,value:`'ui'`},{name:`literal`,value:`"postprocess"`}],alias:`MaterialRenderType`}},{name:`cameraEntity`,optional:!1,type:{name:`Entity`,alias:`Entity`}},{name:`entities`,optional:!1,type:{name:`Array`,elements:[{name:`Entity`}],raw:`Entity[]`}},{name:`renderTarget`,optional:!1,type:{name:`union`,raw:`GLP.GLPowerFrameBuffer | null`,elements:[{name:`GLP.GLPowerFrameBuffer`},{name:`null`}]}},{name:`canvasSize`,optional:!1,type:{name:`MTP.Vector`,alias:`MTP.Vector`}},{name:`renderOption`,optional:!0,type:{name:`RenderOption`,alias:`RenderOption`}}],returns:null},{name:`renderPostProcess`,docblock:null,modifiers:[],params:[{name:`postprocess`,optional:!1,type:{name:`PostProcess`,alias:`PostProcess`}},{name:`input`,optional:!0,type:{name:`GLP.GLPowerFrameBuffer`,alias:`GLP.GLPowerFrameBuffer`}},{name:`canvasSize`,optional:!0,type:{name:`MTP.Vector`,alias:`MTP.Vector`}},{name:`renderOption`,optional:!0,type:{name:`RenderOption`,alias:`RenderOption`}}],returns:null},{name:`draw`,docblock:null,modifiers:[],params:[{name:`drawId`,optional:!1,type:{name:`string`}},{name:`renderType`,optional:!1,type:{name:`union`,raw:`"shadowMap" | "deferred" | "forward" | "envMap" | 'ui' | "postprocess"`,elements:[{name:`literal`,value:`"shadowMap"`},{name:`literal`,value:`"deferred"`},{name:`literal`,value:`"forward"`},{name:`literal`,value:`"envMap"`},{name:`literal`,value:`'ui'`},{name:`literal`,value:`"postprocess"`}],alias:`MaterialRenderType`}},{name:`geometry`,optional:!1,type:{name:`Geometry`,alias:`Geometry`}},{name:`material`,optional:!1,type:{name:`Material`,alias:`Material`}},{name:`param`,optional:!0,type:{name:`DrawParam`,alias:`DrawParam`}}],returns:null},{name:`applyPipelineConfig`,docblock:null,modifiers:[],params:[{name:`config`,optional:!1,type:{name:`signature`,type:`object`,raw:`{
+	motionBlur?: boolean;
+	motionBlurPower?: number;
+	ssr?: boolean;
+	ssao?: boolean;
+	lightShaft?: boolean;
+	dof?: boolean;
+	// ACES トーンマップ。オフだとシェーダーで書いた色がそのまま画面へ出る
+	toneMap?: boolean;
+	// 露出（EV）。トーンマップの直前で色に 2^exposure を掛ける（Blender の Color Management > Exposure と同じ意味）。toneMap がオフだと掛からない
+	exposure?: number;
+	// ブルームの輝度抽出はトーンマップ前の HDR から行うので、しきい値は HDR の値で指定する
+	bloom?: boolean;
+	bloomThreshold?: number;
+	bloomBrightness?: number;
+	// SSS（肌の表面下散乱）。albedo.w に強さを書いたディファードの物体の diffuse をぼかす。
+	// 半径はシーン全体で1つで、ワールド単位の散乱距離
+	sss?: boolean;
+	sssRadius?: number;
+	// lightShaft の細かい調整（WebGPU バックエンドのみ。WebGL は無視する）
+	lightShaftIntensity?: number;
+	lightShaftBlur?: boolean;
+	lightShaftTemporal?: boolean;
+	lightShaftTemporalBlend?: number;
+	// SSAO の細かい調整（WebGPU バックエンドのみ。WebGL は無視する）
+	ssaoIntensity?: number;
+	ssaoBlur?: boolean;
+	ssaoTemporal?: boolean;
+	ssaoTemporalBlend?: number;
+}`,signature:{properties:[{key:`motionBlur`,value:{name:`boolean`,required:!1}},{key:`motionBlurPower`,value:{name:`number`,required:!1}},{key:`ssr`,value:{name:`boolean`,required:!1}},{key:`ssao`,value:{name:`boolean`,required:!1}},{key:`lightShaft`,value:{name:`boolean`,required:!1}},{key:`dof`,value:{name:`boolean`,required:!1}},{key:`toneMap`,value:{name:`boolean`,required:!1}},{key:`exposure`,value:{name:`number`,required:!1}},{key:`bloom`,value:{name:`boolean`,required:!1}},{key:`bloomThreshold`,value:{name:`number`,required:!1}},{key:`bloomBrightness`,value:{name:`number`,required:!1}},{key:`sss`,value:{name:`boolean`,required:!1}},{key:`sssRadius`,value:{name:`number`,required:!1}},{key:`lightShaftIntensity`,value:{name:`number`,required:!1}},{key:`lightShaftBlur`,value:{name:`boolean`,required:!1}},{key:`lightShaftTemporal`,value:{name:`boolean`,required:!1}},{key:`lightShaftTemporalBlend`,value:{name:`number`,required:!1}},{key:`ssaoIntensity`,value:{name:`number`,required:!1}},{key:`ssaoBlur`,value:{name:`boolean`,required:!1}},{key:`ssaoTemporal`,value:{name:`boolean`,required:!1}},{key:`ssaoTemporalBlend`,value:{name:`number`,required:!1}}]},alias:`PipelineConfig`}}],returns:{type:{name:`void`}}},{name:`pipelineConfig`,docblock:null,modifiers:[`get`],params:[],returns:{type:{name:`signature`,type:`object`,raw:`{
+	motionBlur?: boolean;
+	motionBlurPower?: number;
+	ssr?: boolean;
+	ssao?: boolean;
+	lightShaft?: boolean;
+	dof?: boolean;
+	// ACES トーンマップ。オフだとシェーダーで書いた色がそのまま画面へ出る
+	toneMap?: boolean;
+	// 露出（EV）。トーンマップの直前で色に 2^exposure を掛ける（Blender の Color Management > Exposure と同じ意味）。toneMap がオフだと掛からない
+	exposure?: number;
+	// ブルームの輝度抽出はトーンマップ前の HDR から行うので、しきい値は HDR の値で指定する
+	bloom?: boolean;
+	bloomThreshold?: number;
+	bloomBrightness?: number;
+	// SSS（肌の表面下散乱）。albedo.w に強さを書いたディファードの物体の diffuse をぼかす。
+	// 半径はシーン全体で1つで、ワールド単位の散乱距離
+	sss?: boolean;
+	sssRadius?: number;
+	// lightShaft の細かい調整（WebGPU バックエンドのみ。WebGL は無視する）
+	lightShaftIntensity?: number;
+	lightShaftBlur?: boolean;
+	lightShaftTemporal?: boolean;
+	lightShaftTemporalBlend?: number;
+	// SSAO の細かい調整（WebGPU バックエンドのみ。WebGL は無視する）
+	ssaoIntensity?: number;
+	ssaoBlur?: boolean;
+	ssaoTemporal?: boolean;
+	ssaoTemporalBlend?: number;
+}`,signature:{properties:[{key:`motionBlur`,value:{name:`boolean`,required:!1}},{key:`motionBlurPower`,value:{name:`number`,required:!1}},{key:`ssr`,value:{name:`boolean`,required:!1}},{key:`ssao`,value:{name:`boolean`,required:!1}},{key:`lightShaft`,value:{name:`boolean`,required:!1}},{key:`dof`,value:{name:`boolean`,required:!1}},{key:`toneMap`,value:{name:`boolean`,required:!1}},{key:`exposure`,value:{name:`number`,required:!1}},{key:`bloom`,value:{name:`boolean`,required:!1}},{key:`bloomThreshold`,value:{name:`number`,required:!1}},{key:`bloomBrightness`,value:{name:`number`,required:!1}},{key:`sss`,value:{name:`boolean`,required:!1}},{key:`sssRadius`,value:{name:`number`,required:!1}},{key:`lightShaftIntensity`,value:{name:`number`,required:!1}},{key:`lightShaftBlur`,value:{name:`boolean`,required:!1}},{key:`lightShaftTemporal`,value:{name:`boolean`,required:!1}},{key:`lightShaftTemporalBlend`,value:{name:`number`,required:!1}},{key:`ssaoIntensity`,value:{name:`number`,required:!1}},{key:`ssaoBlur`,value:{name:`boolean`,required:!1}},{key:`ssaoTemporal`,value:{name:`boolean`,required:!1}},{key:`ssaoTemporalBlend`,value:{name:`number`,required:!1}}]}}}},{name:`resize`,docblock:null,modifiers:[],params:[{name:`resolution`,optional:!1,type:{name:`MTP.Vector`,alias:`MTP.Vector`}}],returns:null},{name:`reset`,docblock:null,modifiers:[],params:[],returns:null},{name:`compileShaders`,docblock:null,modifiers:[`async`],params:[{name:`root`,optional:!1,type:{name:`Entity`,alias:`Entity`}},{name:`view`,optional:!1,type:{name:`RenderViewContract`,alias:`RenderViewContract`}},{name:`event`,optional:!1,type:{name:`EntityUpdateEvent`,alias:`EntityUpdateEvent`}},{name:`cb`,optional:!0,type:{name:`signature`,type:`function`,raw:`( label: string, loaded: number, total: number ) => void`,signature:{arguments:[{type:{name:`string`},name:`label`},{type:{name:`number`},name:`loaded`},{type:{name:`number`},name:`total`}],return:{name:`void`}}}}],returns:null},{name:`createTexProcedural`,docblock:null,modifiers:[],params:[{name:`param`,optional:!1,type:{name:`TexProceduralParam`,alias:`TexProceduralParam`}}],returns:{type:{name:`TexProcedural`}}}],displayName:`Renderer`}})))()}var pi;function mi(){return(mi=t((()=>{wn(),pi=class extends Cn{_passes;date;constructor(e){super({...e}),this._passes=e.passes,this.date=new Date}get passes(){return this._passes}compute(e){let t=Math.min(1/60,(new Date().getTime()-this.date.getTime())/1e3);this.date=new Date,this.passes.forEach(e=>{e.uniforms.uDeltaTime.value=t}),e.renderPostProcess(this)}}})))()}function hi(){return(hi=t((()=>{})))()}var gi;function _i(){return(_i=t((()=>{hn(),Ye(),Dn(),hi(),gi=class extends P{size;layerCnt;clearColor;rt1;rt2;outputUniforms;constructor(e,t){let n=Object.assign({type:M.FLOAT,internalFormat:M.RGBA32F,format:M.RGBA,magFilter:M.NEAREST,minFilter:M.NEAREST},t.textureParam),r=e.createFrameBuffer().setTexture(Array(t.dataLayerCount).fill(0).map(()=>e.createTexture().setting(n))).setSize(t.size),i=e.createFrameBuffer().setTexture(Array(t.dataLayerCount).fill(0).map(()=>e.createTexture().setting(n))).setSize(t.size),a={uGPUResolution:{value:t.size,type:`2fv`}};for(let e=0;e<t.dataLayerCount;e++)a[`uGPUSampler`+e]={value:i.textures[e],type:`1i`};super(e,{...t,vert:t.vert||`layout ( location = 0 ) in vec3 position;\r
+layout ( location = 1 ) in vec2 uv;\r
+\r
+out vec2 vUv;\r
+\r
+\r
+void main( void ) {\r
+\r
+	vec3 pos = position;\r
+	gl_Position = vec4( pos.xy, 0.0, 1.0 );\r
+	vUv = uv;\r
+\r
+}`,renderTarget:r,uniforms:mn.merge(t.uniforms,a,{uDeltaTime:{value:0,type:`1f`}})}),this.size=t.size,this.layerCnt=t.dataLayerCount,this.rt1=r,this.rt2=i,this.renderTarget=this.rt1,this.clearColor=t.clearColor??null,this.outputUniforms=a}onAfterRender(){super.onAfterRender();for(let e=0;e<this.layerCnt;e++)this.outputUniforms[`uGPUSampler`+e].value=this.renderTarget.textures[e];let e=this.rt1;this.rt1=this.rt2,this.rt2=e,this.renderTarget=this.rt1}initTexture(e){for(let t=0;t<this.layerCnt;t++){let n=[];for(let r=0;r<this.size.y;r++)for(let i=0;i<this.size.x;i++){let a=i,o=r;n.push(...e(t,a,o))}this.rt2.textures[t].subImage(new Float32Array(n),this.size.x,this.size.y)}}}})))()}function vi(){return(vi=t((()=>{qe(),j(),Kt(),Ye(),Sn(),wn(),Dn()})))()}function yi(){return(yi=t((()=>{at(),Kt(),At(),Ye(),Sn()})))()}function F(){return(F=t((()=>{Ye(),gn(),fi(),Sn(),mi(),_i(),vn(),cr(),qr(),vi(),yi(),wn(),Dn(),kn()})))()}var bi,xi,Si,Ci;function wi(){return(wi=t((()=>{bi=class{static serializeEntity(e,t){let n=e=>{let r=[];e.children.forEach(e=>{e.initiator!=`script`&&r.push(n(e))});let i=[];e.components.forEach(e=>{let n=e.serialize({mode:`export`}),r=Object.keys(n).length>0;if(e.initiator!==`user`)return;let a={name:t.getName(e),uuid:e.uuid};r&&(a.props=n),i.push(a)});for(let t of e.unresolvedComponents)i.push({name:t.name,uuid:t.uuid,props:t.props});return{name:e.name,uuid:e.uuid,pos:e.position.x==0&&e.position.y==0&&e.position.z==0?void 0:e.position.getElm(`vec3`),rot:e.euler.x==0&&e.euler.y==0&&e.euler.z==0?void 0:e.euler.getElm(`vec3`),scale:e.scale.x==1&&e.scale.y==1&&e.scale.z==1?void 0:e.scale.getElm(`vec3`),components:i.length>0?i:void 0,childs:r.length>0?r:void 0}};return n(e)}static deserializeEntity(e,t,n,r){let i=(e,t)=>{let a=t||r.createEntity();a.initiator=`user`,a.setField(`name`,e.name),a.restoreUUID(e.uuid);let o=e.pos||[0,0,0];a.position.x=o[0],a.position.y=o[1],a.position.z=o[2];let s=e.rot||[0,0,0];a.euler.x=s[0],a.euler.y=s[1],a.euler.z=s[2];let c=e.scale||[1,1,1];return a.scale.x=c[0],a.scale.y=c[1],a.scale.z=c[2],a.unresolvedComponents=[],e.components&&e.components.forEach(e=>{let t=n.resolve(e.name);if(t){let n=a.getComponent(t.component);n||(n=a.addComponent(t.component),n.initiator=`user`),n.restoreUUID(e.uuid),e.props&&n.deserialize(e.props)}else console.warn(`[ProjectSerializer] Component "${e.name}" not found in resolver. Preserving data for round-trip.`),a.unresolvedComponents.push({name:e.name,uuid:e.uuid,props:e.props})}),e.childs&&([...a.children].forEach(e=>{e.initiator!==`script`&&a.remove(e)}),e.childs.forEach(e=>{a.add(i(e))})),a};e&&i(e,t),t.initiator=`god`}},xi=(e,t)=>{if(Array.isArray(e)){for(let n of e)xi(n,t);return}if(typeof e!=`object`||!e)return;let n=e;for(let e of Object.keys(n)){let r=n[e];if(e===`links`&&typeof r==`object`&&r)for(let e of Object.values(r))Si(e,t);xi(r,t)}},Si=(e,t)=>{if(Array.isArray(e)){if(typeof e[0]==`string`){t.add(e[0]);return}for(let n of e)Array.isArray(n)&&typeof n[0]==`string`&&t.add(n[0])}},Ci=e=>{let t=e.curves;if(!t)return e;let n=new Set;xi(e,n);let r={},i=0;for(let e of Object.keys(t))n.has(e)&&(r[e]=t[e],i++);let a={...e};return i>0?a.curves=r:delete a.curves,a}})))()}var Ti;function Ei(){return(Ei=t((()=>{F(),Ti=class extends Tt{name;_frag;_resolution;_filter;_updateEveryFrame;_textures;constructor(e,t){super(),this.name=e;let n=t.data;this._frag=n?.frag||``,this._resolution=n?.resolution||[1024,1024],this._filter=n?.filter||`linear`,this._updateEveryFrame=n?.updateEveryFrame??!1,this._textures=n?.textures||{}}get frag(){return this._frag}get resolution(){return this._resolution}get filter(){return this._filter}get updateEveryFrame(){return this._updateEveryFrame}get textures(){return this._textures}}})))()}var Di;function Oi(){return(Oi=t((()=>{Di=(e,t)=>{let n={},r=`/${t}/`;for(let[t,i]of Object.entries(e)){let e=t.slice(t.lastIndexOf(r)+r.length).split(`/`).slice(0,-2),a=Object.entries(i).find(([e,t])=>typeof t==`function`&&/^[A-Z]/.test(e));if(!a)continue;let o=n;for(let t of e)o=o[t]=o[t]||{};o[a[0]]=a[1]}return n}})))()}var ki;function Ai(){return(Ai=t((()=>{at(),j(),Ei(),Oi(),ki=class extends tt{_componentList;_componentGroups;_geometryList;_geometryGroups;_textureResources;_textures;_updateEveryFrameTextures;constructor(){super(),this._componentList=[],this._textures=new Map,this._componentGroups=[],this._geometryList=[],this._geometryGroups=[],this._textureResources=new Map,this._updateEveryFrameTextures=[]}get componentList(){return this._componentList}get componentGroups(){return this._componentGroups}get geometryList(){return this._geometryList}get geometryGroups(){return this._geometryGroups}get textureList(){return Array.from(this._textureResources.values())}get textures(){return this._textures}get updateEveryFrameTextures(){return this._updateEveryFrameTextures}clear(){this._componentList=[],this._componentGroups=[],this._geometryList=[],this._geometryGroups=[],this._textureResources.clear(),this._textures.clear(),this._updateEveryFrameTextures=[],this.emit(`update`)}getComponent(e){return this._componentList.find(t=>t.name==e)}getComponentName(e){let t=this._componentList.find(t=>e instanceof t.component);return t?t.name:e.constructor.name}addComponentGroup(e){let t=this._componentGroups.find(t=>t.name==e);if(t)return t;let n=e=>{let t=[];return{child:t,name:e,addComponent:(e,n)=>{let r={name:e,component:n};t.push(r),this._componentList.push(r)},createGroup:e=>{let r=n(e);return t.push(r),r}}};return t=n(e),this._componentGroups.push(t),this.emit(`update`),t}getGeometry(e){return this._geometryList.find(t=>t.name===e)}addGeometryGroup(e){let t=this._geometryGroups.find(t=>t.name===e);if(t)return t;let n=e=>{let t=[];return{child:t,name:e,addGeometry:(e,n)=>{let r={name:e,geometryClass:n};t.push(r),this._geometryList.push(r)},createGroup:e=>{let r=n(e);return t.push(r),r}}};return t=n(e),this._geometryGroups.push(t),this.emit(`update`),t}addTextureResource(e,t){let n=new Ti(e,{data:t});this._textureResources.set(e,n),this.emit(`update`)}getTextureResource(e){return this._textureResources.get(e)}removeTextureResource(e){this._textureResources.delete(e);let t=this._textures.get(e);t&&(t.dispose(),this._textures.delete(e)),this.emit(`update`)}addTexture(e,t){return this._textures.set(e,t),t}getTexture(e){return this._textures.get(e)}_buildTexture(e,t,n){let r=e.frag;return r?t.createTexProcedural({name:e.name,frag:r,resolution:new O(e.resolution[0]||1024,e.resolution[1]||1024),filter:e.filter,textures:n}):null}_ensureTexture(e,t,n){let r=this._textures.get(e.name);if(r)return r;if(n.has(e.name))return null;n.add(e.name);let i={},a=e.textures,o=Object.keys(a);for(let e=0;e<o.length;e++){let r=o[e],s=a[r],c=this._textureResources.get(s),l=c?this._ensureTexture(c,t,n):this._textures.get(s);l&&(i[r]=l)}let s=this._buildTexture(e,t,i);return s?(this._textures.set(e.name,s),e.updateEveryFrame&&this._updateEveryFrameTextures.push(s),s):null}buildTextureInstances(e){this._updateEveryFrameTextures=[];let t=new Set;this._textureResources.forEach(n=>{this._ensureTexture(n,e,t)}),this.emit(`update`)}}})))()}var ji,I;function Mi(){return(Mi=t((()=>{j(),F(),wi(),Ai(),ji={duration:600,fps:30},I=class e extends Tt{static resources;name;curves;_renderer;_root;_time;_frame;_frameSetting;_disposed;_frameEvent;constructor(e){super(),this.name=`OREngine`,this._disposed=!1,this._renderer=e(this),this._renderer.globalUniforms={uTime:{value:0,type:`1f`},uTimeF:{value:0,type:`1f`},uTimeE:{value:0,type:`1f`},uTimeEF:{value:0,type:`1f`},uDeltaTime:{value:0,type:`1f`},uResolution:{value:new O,type:`2fv`},uAspectRatio:{value:1,type:`1f`}},this._time={current:new Date().getTime(),engine:0,delta:0,code:0},this._frameSetting={...ji},this._frame={current:0,playing:!1},this.seek(0),this._frameEvent=null,this.curves={},this._root=this.createEntity({name:`root`}),this._root.initiator=`god`,this.field(`name`,()=>this.name,e=>this.name=e),this.field(`scene`,()=>bi.serializeEntity(this._root,this._createComponentResolver()),e=>{bi.deserializeEntity(e,this._root,this._createComponentResolver(),this)}),this.field(`renderer`,()=>this._renderer.serialize({mode:`export`}),e=>this._renderer.deserialize(e));let t=this.fieldDir(`timeline`);t.field(`duration`,()=>this._frameSetting.duration,e=>this._frameSetting.duration=e),t.field(`fps`,()=>this._frameSetting.fps,e=>this._frameSetting.fps=e),this.field(`curves`,()=>this.curves,e=>this.curves=e)}createEntity(e){return new Zt({engine:this,...e})}get canvas(){return this._renderer.canvas}get renderer(){return this._renderer}get root(){return this._root}get frame(){return this._frame}get time(){return this._time}get frameSetting(){return this._frameSetting}get disposed(){return this._disposed}createView(e){return this._renderer.createView(e)}_createComponentResolver(){return{resolve:t=>e.resources.getComponent(t),getName:t=>e.resources.getComponentName(t)}}init(){this._root.disposeRecursive(),this._root.position.set(0,0,0),this._root.euler.set(0,0,0),this._root.scale.set(1,1,1),this.name=`New Project`,this._renderer.reset(),Object.assign(this._frameSetting,ji),this.curves={},this.stop(),this.seek(0)}async load(e){this.init(),this.deserialize(e),this.emit(`update/graph`),this.emit(`loaded`)}update(t){let n=new Date().getTime();this._time.delta=(n-this._time.current)/1e3,this._time.current=n,this._time.engine+=this._time.delta,this._time.code+=this._time.delta*+!!this._frame.playing,this._frame.current=this._time.code*60;let r=this.createEntityUpdateEvent({forceDraw:t?.forceDraw});this._renderer.globalUniforms.uTime.value=this._time.code,this._renderer.globalUniforms.uTimeF.value=this._time.code%1,this._renderer.globalUniforms.uTimeE.value=this._time.engine,this._renderer.globalUniforms.uTimeEF.value=this._time.engine%1,this._renderer.globalUniforms.uDeltaTime.value=Math.min(this._time.delta,1/60);let i=e.resources.updateEveryFrameTextures;for(let e=0;e<i.length;e++)i[e].render();return this.step(r),this._frame.playing&&this.emit(`update/frame/play`,[this._frame]),this._time.delta}step(e){this._root.commitFrame(e),this._root.update(e),this._root.postUpdate(e),this._root.updateMatrixRecursive(),this._root.prepareRender(e),this._renderer.prepareScene(this._root,e),this._frameEvent=e}render(e){this._frameEvent&&this._renderer.render(e,this._frameEvent)}createEntityUpdateEvent(e){let t={playing:this._frame.playing,timeElapsed:this._time.engine,timeDelta:this._time.delta,timeCode:this._time.code,timeCodeFrame:this._frame.current,resolution:this.renderer.resolution,renderer:this.renderer,forceDraw:!1};return e?{...t,...e}:t}setSize(e){this._renderer.resize(e),this._renderer.canvas.width=e.x,this._renderer.canvas.height=e.y,this._renderer.globalUniforms.uResolution.value.copy(e),this._renderer.globalUniforms.uAspectRatio.value=e.x/Math.max(e.y,1)}play(){this._frame.playing=!0,this._time.current=new Date().getTime()}stop(){this._frame.playing=!1}seek(e){this._time.code=e/60,this._frame.current=e,this.emit(`update/frame/play`,[this._frame])}updateOffline(t,n){let r=t/n,i=1/n;this._time.delta=i,this._time.current=new Date().getTime(),this._time.engine+=i,this._time.code=r,this._frame.current=r*60,this._frame.playing=!0;let a=this.createEntityUpdateEvent({forceDraw:!0,offline:!0});this._renderer.globalUniforms.uTime.value=this._time.code,this._renderer.globalUniforms.uTimeF.value=this._time.code%1,this._renderer.globalUniforms.uTimeE.value=this._time.engine,this._renderer.globalUniforms.uTimeEF.value=this._time.engine%1;let o=e.resources.updateEveryFrameTextures;for(let e=0;e<o.length;e++)o[e].render();this.step(a)}compileShaders(e,t){let n=this.createEntityUpdateEvent({forceDraw:!0});return this.renderer.compileShaders(this._root,e,n,t)}dispose(){this._disposed=!0,this._root.disposeRecursive()}},I.resources=new ki,I.__docgenInfo={description:``,methods:[{name:`createEntity`,docblock:null,modifiers:[],params:[{name:`params`,optional:!0,type:{name:`Omit`,elements:[{name:`MXP.EntityParams`},{name:`literal`,value:`'engine'`}],raw:`Omit<MXP.EntityParams, 'engine'>`,alias:`Omit`}}],returns:{type:{name:`MXP.Entity`}}},{name:`canvas`,docblock:null,modifiers:[`get`],params:[],returns:null},{name:`renderer`,docblock:null,modifiers:[`get`],params:[],returns:null},{name:`root`,docblock:null,modifiers:[`get`],params:[],returns:null},{name:`frame`,docblock:null,modifiers:[`get`],params:[],returns:null},{name:`time`,docblock:null,modifiers:[`get`],params:[],returns:null},{name:`frameSetting`,docblock:null,modifiers:[`get`],params:[],returns:null},{name:`disposed`,docblock:null,modifiers:[`get`],params:[],returns:null},{name:`createView`,docblock:null,modifiers:[],params:[{name:`opt`,optional:!0,type:{name:`MXP.RenderViewOptions`,alias:`MXP.RenderViewOptions`}}],returns:null},{name:`init`,docblock:null,modifiers:[],params:[],returns:null},{name:`load`,docblock:null,modifiers:[`async`],params:[{name:`project`,optional:!1,type:{name:`OREngineProjectData`,alias:`OREngineProjectData`}}],returns:null},{name:`update`,docblock:null,modifiers:[],params:[{name:`param`,optional:!0,type:{name:`Partial`,elements:[{name:`MXP.EntityUpdateEvent`}],raw:`Partial<MXP.EntityUpdateEvent>`,alias:`Partial`}}],returns:null},{name:`step`,docblock:null,modifiers:[],params:[{name:`event`,optional:!1,type:{name:`MXP.EntityUpdateEvent`,alias:`MXP.EntityUpdateEvent`}}],returns:null},{name:`createEntityUpdateEvent`,docblock:null,modifiers:[],params:[{name:`overrideParams`,optional:!0,type:{name:`Partial`,elements:[{name:`MXP.EntityUpdateEvent`}],raw:`Partial<MXP.EntityUpdateEvent>`,alias:`Partial`}}],returns:{type:{name:`MXP.EntityUpdateEvent`}}},{name:`setSize`,docblock:null,modifiers:[],params:[{name:`resolution`,optional:!1,type:{name:`MTP.Vector`,alias:`MTP.Vector`}}],returns:null},{name:`play`,docblock:null,modifiers:[],params:[],returns:null},{name:`stop`,docblock:null,modifiers:[],params:[],returns:null},{name:`seek`,docblock:null,modifiers:[],params:[{name:`frame`,optional:!1,type:{name:`number`}}],returns:null},{name:`updateOffline`,docblock:null,modifiers:[],params:[{name:`frame`,optional:!1,type:{name:`number`}},{name:`fps`,optional:!1,type:{name:`number`}}],returns:null},{name:`compileShaders`,docblock:null,modifiers:[],params:[{name:`view`,optional:!1,type:{name:`MXP.RenderViewContract`,alias:`MXP.RenderViewContract`}},{name:`onProgress`,optional:!0,type:{name:`signature`,type:`function`,raw:`( label: string, loaded: number, total: number ) => void`,signature:{arguments:[{type:{name:`string`},name:`label`},{type:{name:`number`},name:`loaded`},{type:{name:`number`},name:`total`}],return:{name:`void`}}}}],returns:null},{name:`dispose`,docblock:null,modifiers:[],params:[],returns:null}],displayName:`Engine`}})))()}var Ni;function Pi(){return(Pi=t((()=>{at(),Ni=class extends tt{_pressedKeys;constructor(){super(),this._pressedKeys={};let e=this._onKeyDown.bind(this),t=this._onKeyUp.bind(this);window.addEventListener(`keydown`,e),window.addEventListener(`keyup`,t),this.once(`dispose`,()=>{window.removeEventListener(`keydown`,e),window.removeEventListener(`keyup`,t)})}get pressedKeys(){return this._pressedKeys}_onKeyDown(e){this._pressedKeys[e.key]=!0,this.emit(`keydown`,[e,this._pressedKeys])}_onKeyUp(e){if(this._pressedKeys[e.key]=!1,e.key==`Meta`||e.key==`Control`){let e=Object.keys(this._pressedKeys);for(let t=0;t<e.length;t++)this._pressedKeys[e[t]]=!1}this.emit(`keyup`,[e,this._pressedKeys])}dispose(){this.emit(`dispose`)}}})))()}var Fi;function Ii(){return(Ii=t((()=>{at(),j(),Fi=class extends tt{_isTouching;element=null;position;delta;constructor(){super(),this.position=new O(NaN,NaN),this.delta=new O(NaN,NaN),this._isTouching=!1;let e=this._onPointer.bind(this,`move`),t=this._onPointer.bind(this,`end`);window.addEventListener(`pointermove`,e),window.addEventListener(`pointerup`,t),window.addEventListener(`dragend`,t);let n=()=>{this.element&&this.removeElement(this.element),window.removeEventListener(`pointermove`,e),window.removeEventListener(`pointerup`,t),window.removeEventListener(`dragend`,t),this.off(`dispose`,n)};this.on(`dispose`,n)}setElement(e){this.element&&this.removeElement(this.element),this.element=e;let t=this._onPointer.bind(this,`start`);e.addEventListener(`pointerdown`,t);let n=r=>{e.isEqualNode(r.elm)&&(e.removeEventListener(`pointerdown`,t),this.off(`unregister`,n))};this.on(`unregister`,n)}removeElement(e){this.emit(`unregister`,[e])}getScreenPosition(e){if(this.position.x!=this.position.x)return new O(NaN,NaN);let t=this.position.clone().divide(e).multiply(2).sub(1);return t.y*=-1,t}getRelativePosition(e,t){let n=e.getClientRects()[0],r=this.position.x-n.left,i=this.position.y-n.top;return t&&(r/=n.width,i/=n.height),new O(r,i)}_setPos(e,t){this.position.x!==this.position.x||this.position.y!==this.position.y?this.delta.set(0,0):this.delta.set(e-this.position.x,t-this.position.y),this.position.set(e,t)}_onPointer(e,t){let n=t.pointerType;(n==null||n==`mouse`&&(t.button==-1||t.button==0)||n==`touch`)&&this._touchEventHandler(t.pageX,t.pageY,e,t)}_touchEventHandler(e,t,n,r){let i=!1,a=e-window.pageXOffset,o=t-window.pageYOffset;n==`start`?(this._isTouching=!0,this._setPos(a,o),this.delta.set(0,0),i=!0):n==`move`?(this._setPos(a,o),this._isTouching&&(i=!0)):n==`end`&&(`targetTouches`in r?r.targetTouches.length==0&&(this._isTouching=!1):this._isTouching=!1,i=!0),i&&this.emit(n,[{pointerEvent:r,position:this.position.clone(),delta:this.delta.clone()}])}dispose(){this.emit(`dispose`)}}})))()}function Li(){return(Li=t((()=>{Mi(),Ai(),Pi(),Ii()})))()}function Ri(){return(Ri=t((()=>{Li()})))()}var zi,Bi;function Vi(){return(Vi=t((()=>{zi=i(),Bi=(0,zi.createContext)(null)})))()}var Hi,L;function R(){return(R=t((()=>{Hi=i(),Vi(),L=()=>{let e=(0,Hi.useContext)(Bi);if(e===null)throw Error(`useEditor must be used within a EditorProvider`);return e}})))()}var Ui,Wi,Gi;function Ki(){return(Ki=t((()=>{Ui=i(),Ri(),E(),R(),Wi=o(),Gi=e=>{let{engine:t}=L(),n=(0,Ui.useCallback)(()=>{let e=[{label:`(None)`,value:``}];return t.root.traverse(n=>{n.components.forEach(r=>{e.push({label:`${n.getScenePath(t.root)} > ${I.resources.getComponentName(r)}`,value:r.uuid})})}),e},[t]),[r,i]=(0,Ui.useState)(n);return(0,Ui.useEffect)(()=>{let e=()=>i(n());return t.on(`update/graph`,e),()=>{t.off(`update/graph`,e)}},[t,n]),(0,Wi.jsx)(re,{value:e.value||``,selectList:r,onChange:t=>{e.onChange&&e.onChange(t||null)}})},Gi.__docgenInfo={description:``,methods:[],displayName:`InputComponentRef`,props:{value:{required:!0,tsType:{name:`union`,raw:`string | null`,elements:[{name:`string`},{name:`null`}]},description:``},onChange:{required:!1,tsType:{name:`signature`,type:`function`,raw:`( value: string | null ) => void`,signature:{arguments:[{type:{name:`union`,raw:`string | null`,elements:[{name:`string`},{name:`null`}]},name:`value`}],return:{name:`void`}}},description:``}}}})))()}var qi,Ji,Yi;function Xi(){return(Xi=t((()=>{qi=i(),E(),R(),Ji=o(),Yi=e=>{let{engine:t}=L(),n=(0,qi.useCallback)(()=>{let e=[{label:`(None)`,value:``}];return t.root.traverse(n=>{e.push({label:n.getScenePath(t.root),value:n.uuid})}),e},[t]),[r,i]=(0,qi.useState)(n);return(0,qi.useEffect)(()=>{let e=()=>i(n());return t.on(`update/graph`,e),()=>{t.off(`update/graph`,e)}},[t,n]),(0,Ji.jsx)(re,{value:e.value||``,selectList:r,onChange:t=>{e.onChange&&e.onChange(t||null)}})},Yi.__docgenInfo={description:``,methods:[],displayName:`InputEntityRef`,props:{value:{required:!0,tsType:{name:`union`,raw:`string | null`,elements:[{name:`string`},{name:`null`}]},description:``},onChange:{required:!1,tsType:{name:`signature`,type:`function`,raw:`( value: string | null ) => void`,signature:{arguments:[{type:{name:`union`,raw:`string | null`,elements:[{name:`string`},{name:`null`}]},name:`value`}],return:{name:`void`}}},description:``}}}})))()}var Zi,Qi,$i,ea;function ta(){return(ta=t((()=>{Zi=`InputResourceSelect__inputResourceSelect___Lmluc`,Qi=`InputResourceSelect__select___Lmluc`,$i=`InputResourceSelect__editButton___Lmluc`,ea={inputResourceSelect:Zi,select:Qi,editButton:$i}})))()}var na,ra,ia;function aa(){return(aa=t((()=>{na=i(),E(),R(),ta(),ra=o(),ia=e=>{let{editor:t}=L(),n=(0,na.useCallback)(()=>{e.value&&(t.setField(`navigateAsset`,{assetType:e.resourceType,name:String(e.value)}),t.setField(`selectedAsset`,{name:String(e.value),assetType:e.resourceType}))},[t,e.value,e.resourceType]);return(0,ra.jsxs)(`div`,{className:ea.inputResourceSelect,children:[(0,ra.jsx)(`div`,{className:ea.select,children:(0,ra.jsx)(re,{value:e.value,selectList:e.selectList,onChange:e.onChange})}),e.value&&(0,ra.jsx)(`button`,{className:ea.editButton,onClick:n,title:`Edit resource`,children:`✎`})]})},ia.__docgenInfo={description:``,methods:[],displayName:`InputResourceSelect`,props:{value:{required:!0,tsType:{name:`T`},description:``},selectList:{required:!0,tsType:{name:`union`,raw:`SelectList | ( () => SelectList )`,elements:[{name:`SelectList`},{name:`unknown`}]},description:``},resourceType:{required:!0,tsType:{name:`union`,raw:`"material" | "texture" | "shader"`,elements:[{name:`literal`,value:`"material"`},{name:`literal`,value:`"texture"`},{name:`literal`,value:`"shader"`}]},description:``},onChange:{required:!1,tsType:{name:`signature`,type:`function`,raw:`( value: T ) => void`,signature:{arguments:[{type:{name:`T`},name:`value`}],return:{name:`void`}}},description:``}}}})))()}var oa,sa;function ca(){return(ca=t((()=>{i(),E(),Ki(),Xi(),aa(),oa=o(),sa=e=>{let t=null,n=e.onChange,r=e.value,i=e.format,a=e=>{n&&n(e)};if(i&&(i.type==`entity`?t=(0,oa.jsx)(Yi,{value:r,onChange:a}):i.type==`component`?t=(0,oa.jsx)(Gi,{value:r,onChange:a}):i.type==`vector`&&Array.isArray(r)?t=(0,oa.jsx)(te,{value:r,onChange:a,onDragStart:e.onDragStart,onDragEnd:e.onDragEnd,onDragCancel:e.onDragCancel}):i.type==`color`&&Array.isArray(r)?t=(0,oa.jsx)(b,{value:r,onChange:a}):i.type==`select`?t=(0,oa.jsx)(re,{value:r,onChange:a,selectList:i.list}):i.type==`resource`&&(t=(0,oa.jsx)(ia,{value:r,onChange:a,selectList:i.list,resourceType:i.resourceType}))),r==null)return t;if(!t){if(typeof r==`number`)t=(0,oa.jsx)(S,{...e,value:r,onChange:a});else if(typeof r==`string`)t=(0,oa.jsx)(ee,{...e,value:r,onChange:a});else if(typeof r==`boolean`)t=(0,oa.jsx)(y,{...e,checked:r,onChange:a});else if(typeof r==`function`){let n=e.label||`Run`;t=(0,oa.jsx)(c,{onClick:()=>{r()},children:n})}else t=(0,oa.jsx)(ee,{...e,value:JSON.stringify(r),onChange:()=>{}})}return t}})))()}var la,ua,da,fa,pa,ma,ha,ga;function _a(){return(_a=t((()=>{la=i(),ua={showAudioView:!0},da=`orengine-editor-ui-settings`,fa=()=>{try{let e=localStorage.getItem(da);if(e)return{...ua,...JSON.parse(e)}}catch{}return{...ua}},pa=fa(),ma=new Set,ha=e=>(ma.add(e),()=>{ma.delete(e)}),ga=e=>[(0,la.useSyncExternalStore)(ha,()=>pa[e]),(0,la.useCallback)(t=>{pa={...pa,[e]:t};try{localStorage.setItem(da,JSON.stringify(pa))}catch{}ma.forEach(e=>e())},[e])]})))()}var va,ya,ba;function xa(){return(xa=t((()=>{va=`EditorSettings__editorSettings___LmVka`,ya=`EditorSettings__editorSettings_inner___LmVka`,ba={editorSettings:va,editorSettings_inner:ya}})))()}var Sa,Ca;function wa(){return(wa=t((()=>{E(),ca(),_a(),xa(),Sa=o(),Ca=()=>{let[e,t]=ga(`showAudioView`);return(0,Sa.jsx)(`div`,{className:ba.editorSettings,children:(0,Sa.jsx)(`div`,{className:ba.editorSettings_inner,children:(0,Sa.jsx)(s,{label:`View`,accordion:!0,children:(0,Sa.jsx)(D,{title:`AudioView`,children:(0,Sa.jsx)(sa,{value:e,onChange:e=>t(e)})})})})})},Ca.__docgenInfo={description:``,methods:[],displayName:`EditorSettings`}})))()}var Ta,Ea;function Da(){return(Da=t((()=>{Ri(),Ta=(e,t,n)=>{let r=e.name;if(r.startsWith(`_`)&&(r=r.slice(1)),`child`in e){let i=[];for(let r of e.child){let e=Ta(r,t,n);e&&i.push(e)}return{label:r,children:i}}return n.includes(e.component)?null:{label:r,onClick:()=>t(e)}},Ea=(e,t=[])=>{let n=[];for(let r of I.resources.componentGroups){let i=Ta(r,e,t);i&&n.push(i)}return n}})))()}var Oa,ka;function Aa(){return(Aa=t((()=>{F(),E(),Da(),R(),Oa=[N],ka=(e,t)=>{let{editor:n}=L(),{closeAll:r}=w(),i=(i,a)=>{let o;t&&(o=t());let s=n.api.createEntity(e,{name:i,components:a,position:o});n.api.selectEntity(s),r()},a=Ea(e=>{i(e.name,[e.component])},Oa),o=[{label:`Empty`,onClick:()=>i(`Empty`,[])}];for(let e of a)o.push(e);return o}})))()}var ja,Ma,Na;function Pa(){return(Pa=t((()=>{ja=i(),E(),Aa(),R(),Ma=o(),Na=()=>{let{editor:e,engine:t}=L(),{open:n,closeAll:r}=w(),i=ka(t.root,()=>{let t=e.activeViewport;if(!t)return;let n=t.editorCamera.orbitControls.target;return[n.x,n.y,n.z]}),a=(0,ja.useRef)({x:0,y:0});return(0,ja.useEffect)(()=>{let e=e=>{a.current.x=e.clientX,a.current.y=e.clientY};return window.addEventListener(`pointermove`,e),()=>{window.removeEventListener(`pointermove`,e)}},[]),(0,ja.useEffect)(()=>{let t=()=>{r(),n((0,Ma.jsx)(ce,{title:`Add Entity`,items:i}),ie(a.current.x,a.current.y))};return e.on(`request/addEntity`,t),()=>{e.off(`request/addEntity`,t)}},[e,t,n,r,i]),null}})))()}var Fa,Ia;function La(){return(La=t((()=>{Fa=i(),Ia=(0,Fa.createContext)(void 0)})))()}var Ra,za;function Ba(){return(Ba=t((()=>{Ra=i(),za=(e,t)=>{let[n,r]=(0,Ra.useState)(()=>e?e.serialize():{}),i=t?[...t]:[],a=(0,Ra.useMemo)(()=>i,i);return(0,Ra.useEffect)(()=>{if(e===void 0)return;r(e.serialize());let t=t=>{let n=a.length==0;for(let e=0;e<a.length;e++)if(t.find(t=>t==a[e])){n=!0;break}n&&r(e.serialize())};return e.on(`fields/update`,t),()=>{e.off(`fields/update`,t)}},[e,a]),{fields:n}}})))()}var Va;function Ha(){return(Ha=t((()=>{Ba(),Va=e=>(za(e.target),{target:e.target})})))()}var Ua;function Wa(){return(Wa=t((()=>{Ua=(e,t,n)=>{if(!e)return null;for(let r of e){if(t.constructor!==r.target)continue;let e=r.fields[n];if(e)return e}return null}})))()}var Ga,Ka;function qa(){return(qa=t((()=>{Ga=`KeyFrameIndicator__indicator___LmluZ`,Ka={indicator:Ga}})))()}var Ja,Ya;function Xa(){return(Xa=t((()=>{E(),qa(),Ja=o(),Ya=e=>{let t=`animated`;return e.state.changed?t=`changed`:e.state.keyed&&(t=`keyed`),(0,Ja.jsx)(`span`,{className:Ka.indicator,"data-tone":t,children:(0,Ja.jsx)(_,{size:10,filled:e.state.keyed})})},Ya.__docgenInfo={description:``,methods:[],displayName:`KeyFrameIndicator`,props:{state:{required:!0,tsType:{name:`signature`,type:`object`,raw:`{
+	keyed: boolean;
+	changed: boolean;
+}`,signature:{properties:[{key:`keyed`,value:{name:`boolean`,required:!0}},{key:`changed`,value:{name:`boolean`,required:!0}}]}},description:``}}}})))()}var Za,Qa,$a;function eo(){return(eo=t((()=>{Za=`SharedCurveLabel__shared___LnNoY`,Qa=`SharedCurveLabel__curve___LnNoY`,$a={shared:Za,curve:Qa}})))()}var to,no;function ro(){return(ro=t((()=>{E(),eo(),to=o(),no=e=>{let t=[];for(let n of e.curves)t.push((0,to.jsxs)(`span`,{className:$a.curve,children:[(0,to.jsx)(m,{size:10}),n.label,` (`,n.uses,`)`]},n.curveId));return(0,to.jsx)(`span`,{className:$a.shared,children:t})},no.__docgenInfo={description:``,methods:[],displayName:`SharedCurveLabel`,props:{curves:{required:!0,tsType:{name:`Array`,elements:[{name:`signature`,type:`object`,raw:`{
+	curveId: string;
+	label: string;
+	uses: number;
+}`,signature:{properties:[{key:`curveId`,value:{name:`string`,required:!0}},{key:`label`,value:{name:`string`,required:!0}},{key:`uses`,value:{name:`number`,required:!0}}]}}],raw:`SharedCurve[]`},description:``}}}})))()}var z,io,ao;function oo(){return(oo=t((()=>{z=class extends Error{candidates;constructor(e,t){super(e),this.candidates=t}},io=(e,t,n)=>{let r=e.args[t];if(r===void 0)throw new z(`引数が足りません。使い方: ${n}`);return r},ao=e=>e instanceof Error?e.message:String(e)})))()}var so,co;function lo(){return(lo=t((()=>{so=[],co=()=>so})))()}var uo;function fo(){return(fo=t((()=>{uo=class{commands;name=`Group`;constructor(e){this.commands=e}execute(){for(let e of this.commands)e.execute()}undo(){for(let e=this.commands.length-1;e>=0;e--)this.commands[e].undo()}}})))()}var po;function mo(){return(mo=t((()=>{po=class e{target;path;oldValue;newValue;name=`SetField`;constructor(e,t,n,r){this.target=e,this.path=t,this.oldValue=n,this.newValue=r}execute(){this.target.setField(this.path,this.newValue)}undo(){this.target.setField(this.path,this.oldValue)}mergeWith(t){return t instanceof e&&t.target===this.target&&t.path===this.path?new e(this.target,this.path,this.oldValue,t.newValue):null}}})))()}var ho,go,_o,vo,yo,bo,xo,So,Co,wo,To,Eo,Do,Oo,ko,Ao,jo,Mo,No,Po,Fo,Io,Lo,Ro,zo,Bo,Vo,Ho,Uo,Wo,Go;function Ko(){return(Ko=t((()=>{F(),ho=1e-4,go=2.5614,_o=5,vo=[`AUTO_CLAMPED`,`AUTO`,`VECTOR`,`ALIGNED`,`FREE`],yo=(e,t)=>{for(let n=0;n<e.length;n++)if(Math.abs(e[n].coordinate.x-t)<ho)return n;return-1},bo=e=>{let t=[];if(!e)return t;let n=yt(e.k);for(let r=0;r<n.length;r++){let i=n[r],a=`AUTO_CLAMPED`;e.h&&vo[e.h[r]]&&(a=vo[e.h[r]]),t.push({coordinate:{...i.coordinate},handleLeft:{...i.handleLeft},handleRight:{...i.handleRight},interpolation:i.interpolation,handleType:a})}return Ro(t),t},xo=(e,t)=>{let n={...t,k:So(e)},r=[],i=!1;for(let t of e){let e=vo.indexOf(t.handleType);e!=0&&(i=!0),r.push(e)}return i?n.h=r:delete n.h,n},So=e=>{let t=[],n=0,r=!1;for(let i of e){let e=i.interpolation==`BEZIER`,a=[i.coordinate.x-n,i.coordinate.y];(e||r)&&a.push(i.handleLeft.x,i.handleLeft.y),e&&a.push(i.handleRight.x,i.handleRight.y);let o=bt.indexOf(i.interpolation);t.push([o,a]),n=i.coordinate.x,r=e}return t},Co=(e,t,n,r)=>{let i=bo(e),a=yo(i,t);if(a>=0)No(i[a],i[a].coordinate.x,n);else{let e={x:t,y:n};i.push({coordinate:e,handleLeft:{...e},handleRight:{...e},interpolation:r,handleType:`AUTO_CLAMPED`}),Fo(i)}return Ro(i),xo(i,e)},wo=(e,t)=>{let n=bo(e),r=yo(n,t);return r<0?null:(n.splice(r,1),Ro(n),xo(n,e))},To=(e,t)=>{let n=bo(e),r=new Set(t),i=[];for(let e=0;e<n.length;e++)r.has(e)||i.push(n[e]);return Ro(i),xo(i,e)},Eo=(e,t,n,r,i=!1)=>{let a=bo(e),o=new Set(t),s=[],c=[];for(let e=0;e<a.length;e++){let t=a[e];if(o.has(e)&&i){let e=Po(t);Ao(e,r),s.push(e),c.push(t)}else o.has(e)?(Ao(t,r),s.push(t)):c.push(t)}let l=new Map;for(let e of n){let t=a[e.index];if(!t||o.has(e.index))continue;let n=l.get(t);n||(n=[],l.set(t,n)),n.indexOf(e.side)<0&&n.push(e.side)}for(let[e,t]of l)jo(e,t,r);let u=Io(c,s),d=[];for(let e of s){let t=u.indexOf(e);t>=0&&d.push(t)}let f=[];for(let[e,t]of l){let n=u.indexOf(e);if(!(n<0))for(let e of t)f.push({index:n,side:e})}return{curve:xo(u,e),indices:d,handles:f}},Do=(e,t,n,r)=>{let i=[];for(let e of t){let t=Po(e);No(t,r(e.coordinate.x+n),e.coordinate.y),i.push(t)}let a=Io(bo(e),i),o=[];for(let e of i){let t=a.indexOf(e);t>=0&&o.push(t)}return{curve:xo(a,e),indices:o}},Oo=(e,t,n)=>{let r=bo(e);for(let e of t)r[e]&&(r[e].interpolation=n);return Ro(r),xo(r,e)},ko=(e,t,n)=>{let r=bo(e);for(let e of t){let t=r[e];t&&(t.handleType=n,n==`ALIGNED`&&Lo(t,`left`))}return Ro(r),xo(r,e)},Ao=(e,t)=>{let n=e.coordinate,r=t.point(n,n),i=n.y;r.y!=n.y&&(i=r.y,t.roundValue&&(i=t.roundValue(i)));let a=t.snapTime(r.x);if(!t.transformHandles){No(e,a,i);return}let o={x:a-r.x,y:i-r.y},s=e=>{let r=t.point(e,n);return Mo({x:r.x+o.x,y:r.y+o.y},t)},c=s(e.handleLeft),l=s(e.handleRight);e.coordinate={x:a,y:i},e.handleLeft={x:Math.min(c.x,a),y:c.y},e.handleRight={x:Math.max(l.x,a),y:l.y}},jo=(e,t,n)=>{e.handleType==`AUTO_CLAMPED`||e.handleType==`AUTO`?e.handleType=`ALIGNED`:e.handleType==`VECTOR`&&(e.handleType=`FREE`);let r=e.coordinate;for(let i of t)if(i==`left`){let t=Mo(n.point(e.handleLeft,r),n);e.handleLeft={x:Math.min(t.x,r.x),y:t.y}}else{let t=Mo(n.point(e.handleRight,r),n);e.handleRight={x:Math.max(t.x,r.x),y:t.y}}e.handleType==`ALIGNED`&&t.length==1&&Lo(e,t[0])},Mo=(e,t)=>{let n=e.x,r=e.y;return t.roundTime&&(n=t.roundTime(n)),t.roundValue&&(r=t.roundValue(r)),{x:n,y:r}},No=(e,t,n)=>{let r=t-e.coordinate.x,i=n-e.coordinate.y;e.coordinate={x:t,y:n},e.handleLeft={x:e.handleLeft.x+r,y:e.handleLeft.y+i},e.handleRight={x:e.handleRight.x+r,y:e.handleRight.y+i}},Po=e=>({coordinate:{...e.coordinate},handleLeft:{...e.handleLeft},handleRight:{...e.handleRight},interpolation:e.interpolation,handleType:e.handleType}),Fo=e=>{e.sort((e,t)=>e.coordinate.x-t.coordinate.x)},Io=(e,t)=>{let n=[];for(let e of t){let t=yo(n,e.coordinate.x);t>=0?n[t]=e:n.push(e)}let r=[];for(let t of e)yo(n,t.coordinate.x)<0&&r.push(t);for(let e of n)r.push(e);return Fo(r),Ro(r),r},Lo=(e,t)=>{let n=e.coordinate,r=e.handleRight,i=e.handleLeft;t==`left`&&(r=e.handleLeft,i=e.handleRight);let a=Math.hypot(r.x-n.x,r.y-n.y),o=Math.hypot(i.x-n.x,i.y-n.y);if(a==0)return;let s={x:Wo(n.x-(r.x-n.x)/a*o,n.x),y:Wo(n.y-(r.y-n.y)/a*o,n.y)};t==`left`?e.handleRight=s:e.handleLeft=s},Ro=e=>{for(let t=0;t<e.length;t++){let n=e[t].handleType;n==`AUTO_CLAMPED`?Bo(e,t,!0):n==`AUTO`?Bo(e,t,!1):n==`VECTOR`?Vo(e,t):Ho(e,t)}},zo=(e,t)=>{let n=e[t].coordinate,r=e[t-1],i=e[t+1];if(r&&i)return{prev:r.coordinate,next:i.coordinate};if(i){let e=i.coordinate;return{prev:{x:2*n.x-e.x,y:2*n.y-e.y},next:e}}if(r){let e=r.coordinate;return{prev:e,next:{x:2*n.x-e.x,y:2*n.y-e.y}}}return null},Bo=(e,t,n)=>{let r=e[t],i=r.coordinate,a=zo(e,t);if(!a){r.handleLeft={x:i.x,y:i.y},r.handleRight={x:i.x,y:i.y};return}let o=a.prev,s=a.next,c=i.x-o.x,l=s.x-i.x;c==0&&(c=1),l==0&&(l=1);let u=(s.x-i.x)/l+(i.x-o.x)/c,d=(s.y-i.y)/l+(i.y-o.y)/c,f=u*go;c>_o*l&&(c=_o*l),l>_o*c&&(l=_o*c);let p={x:i.x-u*c/f,y:i.y-d*c/f},m={x:i.x+u*l/f,y:i.y+d*l/f};e[t-1]&&e[t+1]?n&&Go(o,i,s,p,m):(p.y=i.y,m.y=i.y),r.handleLeft={x:Wo(p.x,i.x),y:Wo(p.y,i.y)},r.handleRight={x:Wo(m.x,i.x),y:Wo(m.y,i.y)}},Vo=(e,t)=>{let n=e[t],r=n.coordinate,i=zo(e,t);if(!i){n.handleLeft={x:r.x,y:r.y},n.handleRight={x:r.x,y:r.y};return}let a=i.prev,o=i.next;n.handleLeft={x:Wo(r.x+(a.x-r.x)/3,r.x),y:Wo(r.y+(a.y-r.y)/3,r.y)},n.handleRight={x:Wo(r.x+(o.x-r.x)/3,r.x),y:Wo(r.y+(o.y-r.y)/3,r.y)}},Ho=(e,t)=>{let n=e[t],r=e[t-1],i=e[t+1];r&&(n.handleLeft=Uo(n.coordinate,n.handleLeft,n.coordinate.x-r.coordinate.x)),i&&(n.handleRight=Uo(n.coordinate,n.handleRight,i.coordinate.x-n.coordinate.x))},Uo=(e,t,n)=>{let r=Math.abs(t.x-e.x);if(r<=n)return t;let i=n/r;return{x:Wo(e.x+(t.x-e.x)*i,e.x),y:Wo(e.y+(t.y-e.y)*i,e.y)}},Wo=(e,t)=>{let n=Math.abs(e-t);if(n==0)return e;let r=10**Math.max(0,3-Math.floor(Math.log10(n)));return Math.round(e*r)/r},Go=(e,t,n,r,i)=>{let a=e.y-t.y,o=n.y-t.y;if(a<=0&&o<=0||a>=0&&o>=0){r.y=t.y,i.y=t.y;return}let s=!1,c=!1;a<=0?(e.y>r.y&&(r.y=e.y,s=!0),n.y<i.y&&(i.y=n.y,c=!0)):(e.y<r.y&&(r.y=e.y,s=!0),n.y>i.y&&(i.y=n.y,c=!0)),s?i.y=t.y+(t.y-r.y)/(t.x-r.x)*(i.x-t.x):c&&(r.y=t.y-(i.y-t.y)/(i.x-t.x)*(t.x-r.x))}})))()}var qo=n({Animation:()=>Yo}),Jo,Yo;function Xo(){return(Xo=t((()=>{F(),Ri(),Jo=.001,Yo=class extends Dt{links_;linksChanged_;frame_;curves_;fcurves_;constructor(e){super(e),this.order=-1,this.links_={},this.linksChanged_=!1,this.frame_=0,this.curves_=null,this.fcurves_=new Map,this.field(`links`,()=>this.links_,e=>{this.links_=e,this.linksChanged_=!0},{hidden:!0})}updateImpl(e){let t=e.timeCodeFrame,n=this.frame_,r=this.engine.curves;if(t==n&&r==this.curves_&&!this.linksChanged_)return;r!=this.curves_&&this.fcurves_.clear(),this.frame_=t,this.curves_=r,this.linksChanged_=!1;let i=t-n,a=e.playing&&i>0&&Math.abs(i-e.timeDelta*60)<Jo,o=[];for(let e of Object.keys(this.links_)){let r=this.links_[e],i=e.indexOf(`:`),s=this.entity,c=e;if(i>=0){let t=I.resources.getComponent(e.slice(0,i));s=t&&this.entity.getComponent(t.component),c=e.slice(i+1)}if(!s)continue;let l=s.getField(c);if(l===void 0)continue;if(typeof l==`function`){a&&this.collectEvents(r,n,t,l,o);continue}if(Array.isArray(l)){let e=r,n=l.slice();for(let r=0;r<n.length;r++){let i=e[r];if(!i)continue;let a=this.linkValue(i,t);a!==void 0&&(n[r]=a)}s.setField(c,n);continue}let u=this.linkValue(r,t);if(u===void 0)continue;let d=u,f=s.getFieldOpt(c),p=f&&f.format;if(p&&p.type==`select`){let e=p.list;typeof e==`function`&&(e=e());let t=e[u];if(t===void 0)continue;d=t,typeof t==`object`&&(d=t.value)}else typeof l==`boolean`&&(d=u>.5);s.setField(c,d)}o.sort((e,t)=>e[0]-t[0]);for(let[,e]of o)e()}linkValue(e,t){let n=this.getCurve(e[0]);if(n)return n.getValue(t)*e[1]+e[2]}collectEvents(e,t,n,r,i){let a=this.getCurve(e[0]);if(a)for(let e of a.keyframes){let a=e.coordinate.x;a>=t&&a<n&&i.push([a,r])}}getCurve(e){let t=this.fcurves_.get(e);if(t)return t;let n=this.engine.curves[e];if(!(!n||n.k.length==0))return t=new pt(yt(n.k)),this.fcurves_.set(e,t),t}}})))()}var Zo;function Qo(){return(Qo=t((()=>{Zo=class{entity;componentClass;name=`AddComponent`;instance=null;constructor(e,t){this.entity=e,this.componentClass=t}execute(){this.instance=this.entity.addComponent(this.componentClass),this.instance.initiator=`user`}undo(){this.entity.removeComponent(this.componentClass),this.instance=null}}})))()}var $o;function es(){return(es=t((()=>{$o=class{entity;componentClass;path;oldValue;newValue;name=`SetComponentField`;constructor(e,t,n,r,i){this.entity=e,this.componentClass=t,this.path=n,this.oldValue=r,this.newValue=i}execute(){this.getComponent().setField(this.path,this.newValue)}undo(){this.getComponent().setField(this.path,this.oldValue)}getComponent(){let e=this.entity.getComponent(this.componentClass);if(!e)throw Error(`Component not found on entity: ${this.entity.name}`);return e}}})))()}var ts,ns,rs,is,as,os,ss,cs,ls,us,ds,fs,ps,ms,hs,gs,_s,vs,ys,bs,xs,Ss,Cs,ws,Ts,Es,Ds,Os,ks,As,js,Ms,Ns,Ps,Fs,Is,Ls;function Rs(){return(Rs=t((()=>{F(),Xo(),Mi(),Qo(),fo(),es(),mo(),Ko(),ts=1e-4,ns=e=>{let t=e.frameSetting.fps;return t<=0?e.frame.current:Math.round(e.time.code*t)*60/t},rs=e=>{let t=e;typeof t==`function`&&(t=t());let n=[];for(let e of t)typeof e==`object`?n.push(e.value):n.push(e);return n},is=(e,t=e.target.getField(e.path))=>{let n=e.target,r,i=e.path;if(n instanceof Zt)r=n;else if(n instanceof Dt)r=n.entity,i=I.resources.getComponentName(n)+`:`+e.path;else return null;let a=n.getFieldOpt(e.path)||{};if(typeof t==`function`)return{entity:r,linkKey:i,kind:`event`,values:[0],opt:a};if(a.readOnly)return null;let o=a.format;if(o&&o.type==`select`){let e=rs(o.list).indexOf(t);return e<0?null:{entity:r,linkKey:i,kind:`select`,values:[e],opt:a}}if(o&&o.type!=`vector`&&o.type!=`color`)return null;if(typeof t==`number`)return{entity:r,linkKey:i,kind:`number`,values:[t],opt:a};if(typeof t==`boolean`)return{entity:r,linkKey:i,kind:`boolean`,values:[+!!t],opt:a};if(Array.isArray(t)&&t.length>0){let e=[];for(let n of t){if(typeof n!=`number`)return null;e.push(n)}return{entity:r,linkKey:i,kind:`array`,values:e,opt:a}}return null},as=e=>is(e)!==null,os=e=>{let t=e.getComponent(Yo);return t&&t.getField(`links`)||{}},ss=(e,t)=>{if(!e)return[];let n=typeof e[0]==`string`;return t==`array`?n?[]:e.slice():n?[e]:[]},cs=(e,t)=>{let n=!1;for(let t of e)t&&(n=!0);if(n)return t==`array`?e:e[0]},ls=e=>{let t=1;for(;e[`c`+t];)t++;return`c`+t},us=e=>e==`number`||e==`array`?`BEZIER`:`CONSTANT`,ds=(e,t)=>{let n=e.get(t);return n||(n={links:{...os(t)},changed:!1},e.set(t,n)),n},fs=(e,t,n)=>{let r=[];for(let[e,t]of n)t.changed&&!e.getComponent(Yo)&&r.push(new Zo(e,Yo));r.push(new po(e,`curves`,e.curves,t));for(let[e,t]of n)t.changed&&r.push(new $o(e,Yo,`links`,os(e),t.links));return new uo(r)},ps=(e,t)=>{if(e.element!==void 0&&(e.element<0||e.element>=t.values.length))throw Error(`"${e.path}" has no element ${e.element}`)},ms=(e,t)=>e.element===void 0||e.element==t,hs=(e,t,n)=>{let r={...e.curves},i=new Map;for(let e of t){let t=e.target.getField(e.path);e.value!==void 0&&(t=e.value);let a=is(e,t);if(!a)throw Error(`Cannot insert a keyframe on "${e.path}"`);ps(e,a);let o=ds(i,a.entity),s=ss(o.links[a.linkKey],a.kind);for(let t=0;t<a.values.length;t++){if(!ms(e,t))continue;for(;s.length<t;)s.push(null);let i=s[t];if(i||(i=[ls(r),1,0],s[t]=i,o.changed=!0),i[1]==0)throw Error(`Cannot insert a keyframe on "${e.path}": the link scale is 0`);let c=(a.values[t]-i[2])/i[1];r[i[0]]=Co(r[i[0]],n,c,us(a.kind))}o.changed&&(o.links[a.linkKey]=cs(s,a.kind))}return fs(e,r,i)},gs=(e,t,n)=>{let r={...e.curves},i=new Map,a=!1;for(let e of t){let t=is(e);if(!t)continue;ps(e,t);let o=ds(i,t.entity),s=ss(o.links[t.linkKey],t.kind);for(let t=0;t<s.length;t++){let i=s[t];if(!i||!ms(e,t))continue;let c=r[i[0]];if(!c)continue;let l=wo(c,n);l&&(r[i[0]]=l,a=!0,l.k.length==0&&(s[t]=null,o.changed=!0))}if(o.changed){let e=cs(s,t.kind);e?o.links[t.linkKey]=e:delete o.links[t.linkKey]}}return a?fs(e,r,i):null},_s=new WeakMap,vs=e=>{let t=_s.get(e);return t||(t=new pt(yt(e)),_s.set(e,t)),t},ys=(e,t)=>{let n=e;return t.int&&(n=Math.round(n)),t.min!==void 0&&(n=Math.max(t.min,n)),t.max!==void 0&&(n=Math.min(t.max,n)),n},bs=(e,t,n,r)=>{let i=vs(t.k).getValue(n)*e[1]+e[2];return r.kind==`boolean`?+(i>.5):r.kind==`select`?i:ys(i,r.opt)},xs=(e,t,n,r)=>{let i=is(t);if(!i)return null;let a=ss(os(i.entity)[i.linkKey],i.kind),o=!1,s=!1,c=!1;for(let t=0;t<a.length;t++){let l=a[t];if(!l)continue;let u=e.curves[l[0]];!u||u.k.length==0||(o=!0,yo(vs(u.k).keyframes,n)>=0&&(s=!0),!(i.kind==`event`||t>=i.values.length)&&Math.abs(bs(l,u,r,i)-i.values[t])>ts&&(c=!0))}return o?{keyed:s,changed:c}:null},Ss=e=>e==`select`||e==`event`,Cs=e=>{let t={k:e.k};return e.h&&(t.h=e.h),t},ws=e=>{let t=new Map;return e.root.traverse(e=>{let n=e.getComponent(Yo);if(!n)return;let r=n.getField(`links`)||{};for(let e of Object.keys(r)){let n=r[e],i=[n];typeof n[0]!=`string`&&(i=n);for(let e of i){if(!e)continue;let n=e[0];t.set(n,(t.get(n)||0)+1)}}}),t},Ts=(e,t)=>ss(os(e.entity)[e.linkKey],e.kind)[t]||null,Es=(e,t)=>{let n=is(t);if(!n)return null;let r=Ts(n,t.element);if(!r)return null;let i=e.curves[r[0]];return i?{curveId:r[0],name:i.name,scale:r[1],offset:r[2],uses:ws(e).get(r[0])||0,fixedScale:Ss(n.kind)}:null},Ds=e=>{let t=is(e);return t?t.values.length:0},Os=(e,t)=>{let n=is(t);if(!n)return[];let r=ss(os(n.entity)[n.linkKey],n.kind),i=[];if(r.length==0)return i;let a=ws(e);for(let t of r){if(!t)continue;let n=e.curves[t[0]],r=a.get(t[0])||0;if(!n||r<2)continue;let o=!1;for(let e of i)e.curveId==t[0]&&(o=!0);if(o)continue;let s=t[0];n.name&&(s=n.name),i.push({curveId:t[0],label:s,uses:r})}return i},ks=(e,t,n,r)=>{let i=ds(e,t.entity),a=ss(i.links[t.linkKey],t.kind);for(;a.length<n;)a.push(null);a[n]=r,i.links[t.linkKey]=cs(a,t.kind),i.changed=!0},As=e=>{let t=is(e);if(!t)throw Error(`Cannot link a curve to "${e.path}"`);if(e.element<0||e.element>=t.values.length)throw Error(`"${e.path}" has no element ${e.element}`);return t},js=(e,t,n,r)=>{let i=As(t),a=e.curves[n];if(!a)throw Error(`The copied curve "${n}" no longer exists`);let o=Ts(i,t.element),s={...e.curves},c=n;if(r==`duplicate`)c=ls(s),s[c]=Cs(a);else if(o&&o[0]==n)return null;let l=1,u=0;o&&!Ss(i.kind)&&(l=o[1],u=o[2]);let d=new Map;return ks(d,i,t.element,[c,l,u]),fs(e,s,d)},Ms=(e,t)=>{let n=As(t),r=Ts(n,t.element);if(!r||!e.curves[r[0]])throw Error(`"${t.path}" has no curve to unlink`);let i={...e.curves},a=ls(i);i[a]=Cs(i[r[0]]);let o=new Map;return ks(o,n,t.element,[a,r[1],r[2]]),fs(e,i,o)},Ns=(e,t,n)=>{let r=As(t),i=Ts(r,t.element);if(!i||!e.curves[i[0]])throw Error(`"${t.path}" has no curve link`);let a=e.curves[i[0]],o={...e.curves},s=new Map,c=!1,l=n.name.trim();if(l!=(a.name||``)){let e=Cs(a);l!=``&&(e.name=l),o[i[0]]=e,c=!0}return(n.scale!=i[1]||n.offset!=i[2])&&!Ss(r.kind)&&(ks(s,r,t.element,[i[0],n.scale,n.offset]),c=!0),c?fs(e,o,s):null},Ps=(e,t)=>t<=0?e:Math.round(e*t/60)*60/t,Fs=e=>{let t=is(e);return t?t.kind:null},Is=(e,t)=>{let n=new Set;for(let r of Object.keys(t)){let i=e.curves[r];t[r].k.length==0&&i&&i.k.length>0&&n.add(r)}let r=new Map;return n.size>0&&e.root.traverse(e=>{let t=os(e);for(let i of Object.keys(t)){let a=Ls(t[i],n);if(a===t[i])continue;let o=ds(r,e);o.changed=!0,a?o.links[i]=a:delete o.links[i]}}),fs(e,t,r)},Ls=(e,t)=>{if(typeof e[0]==`string`)return t.has(e[0])?void 0:e;let n=e.slice(),r=!1;for(let e=0;e<n.length;e++){let i=n[e];i&&t.has(i[0])&&(n[e]=null,r=!0)}return r?cs(n,`array`):e}})))()}var zs,Bs,Vs,Hs,Us,Ws,Gs,Ks;function qs(){return(qs=t((()=>{j(),F(),Mi(),oo(),zs=e=>{let t=[],n=e;for(;n;)t.unshift(n.name),n=n.parent;return t.join(`/`)},Bs=(e,t)=>{let n=e.root.findEntityByUUID(t);if(n)return n;let r=t.split(`/`).filter(e=>e!==``).join(`/`),i=[];if(e.root.traverse(e=>{zs(e)===r&&i.push(e)}),i.length===0)throw new z(`エンティティが見つかりません: ${t}（uuid か root から始まる名前パスで指定します。一覧は tree で確認できます）`);if(i.length>1){let e=[];for(let t of i)e.push({uuid:t.uuid,path:zs(t)});throw new z(`名前パスが ${i.length} 件に一致しました。uuid で指定してください: ${t}`,e)}return i[0]},Vs=e=>[e.x,e.y,e.z],Hs=e=>{let t=e.getComponent(N);if(!t||!t.geometry.boundingBox)return null;let n=t.geometry.boundingBox,r=new O(1/0,1/0,1/0),i=new O(-1/0,-1/0,-1/0);for(let t=0;t<8;t++){let a=new O(t&1?n.max.x:n.min.x,t&2?n.max.y:n.min.y,t&4?n.max.z:n.min.z).applyMatrix4AsPosition(e.matrixWorld);r.x=Math.min(r.x,a.x),r.y=Math.min(r.y,a.y),r.z=Math.min(r.z,a.z),i.x=Math.max(i.x,a.x),i.y=Math.max(i.y,a.y),i.z=Math.max(i.z,a.z)}return{min:Vs(r),max:Vs(i)}},Us=e=>{let t=new O(0,0,0,1).applyMatrix4(e.matrixWorld),n=new O(0,0,-1,0).applyMatrix4(e.matrixWorld).normalize(),r=new O(0,1,0,0).applyMatrix4(e.matrixWorld).normalize();return{position:Vs(t),forward:Vs(n),up:Vs(r),bounds:Hs(e)}},Ws=e=>I.resources.getComponentName(e),Gs=e=>{let t=e;typeof t==`function`&&(t=t());let n=[];for(let e of t)typeof e==`string`?n.push(e):n.push(e.value);return n},Ks=e=>{let t=e.serialize({mode:`view`}),n=[];for(let r of Object.keys(t)){let i=e.getFieldOpt(r)??{};if(i.isFolder)continue;let a=t[r],o=a;typeof a==`function`&&(o=`(action)`);let s={path:r,value:o};i.format&&(s.format=i.format.type,(i.format.type===`select`||i.format.type===`resource`)&&(s.options=Gs(i.format.list))),i.readOnly&&(s.readOnly=!0),i.noExport&&(s.noExport=!0);let c=!1;typeof i.hidden==`function`?c=i.hidden(a):i.hidden&&(c=!0),c&&(s.hidden=!0),n.push(s)}return n}})))()}var Js,Ys,Xs,Zs,Qs,$s,ec,tc,nc,rc,ic,ac,oc,sc,cc,lc,uc;function dc(){return(dc=t((()=>{Xo(),Mi(),oo(),qs(),Js=(e,t)=>{let n=[];for(let[r,i]of e.components){let e=Ws(i);if(e===t||i.uuid===t)return{componentClass:r,component:i};n.push(e)}throw new z(`コンポーネントが付いていません: ${t}（${zs(e)}）`,n)},Ys=(e,t)=>{if(e.initiator===`script`)throw new z(`${zs(e)} はスクリプト（BLidge / glb 等）が生成したエンティティなので${t}できません`)},Xs=(e,t)=>{if(e.initiator!==`user`)throw new z(`${Ws(e)} は initiator が ${e.initiator} のコンポーネントなので${t}できません（シーン JSON に載るのは user が付けたものだけ）`)},Zs=e=>{let t=[],n=e.serialize({mode:`view`});for(let r of Object.keys(n)){let i=e.getFieldOpt(r)??{};i.isFolder||i.readOnly||typeof n[r]!=`function`&&t.push(r)}return t},Qs=(e,t)=>{let n=Number(e);if(e.trim()===``||!Number.isFinite(n))throw new z(`${t} は数値のフィールドです: ${e}`);return n},$s=(e,t,n,r)=>{let i;if(e.trim().startsWith(`[`)){try{i=JSON.parse(e)}catch{throw new z(`${n} の値を JSON の配列として読めません: ${e}`)}if(!Array.isArray(i))throw new z(`${n} は配列のフィールドです: ${e}`)}else{i=[];for(let t of e.split(`,`))i.push(t.trim())}if((r===`vector`||r===`color`)&&i.length!==t.length)throw new z(`${n} は要素数 ${t.length} の ${r} です（例: ${t.join(`,`)}）: ${e}`);let a=[];for(let e=0;e<i.length;e++){let r=i[e];typeof(t[e]??t[0])==`number`&&typeof r==`string`?a.push(Qs(r,`${n}[${e}]`)):a.push(r)}return a},ec=(e,t,n,r)=>{let i=t.getFieldOpt(n)??{},a=t.getField(n);if(i.format&&i.format.type===`entity`){if(r===`null`)return null;if(!e.root.findEntityByUUID(r))throw new z(`${n} はエンティティの uuid で指定します（外すときは null）。uuid は tree で確認できます: ${r}`);return r}if(i.format&&(i.format.type===`select`||i.format.type===`resource`)){let e=Gs(i.format.list);for(let t of e)if(String(t)===r)return t;throw new z(`${n} は選択肢から選ぶフィールドです: ${r}`,e)}if(Array.isArray(a))return $s(r,a,n,i.format?.type);if(typeof a==`number`)return Qs(r,n);if(typeof a==`boolean`){if(r===`true`)return!0;if(r===`false`)return!1;throw new z(`${n} は真偽値のフィールドです（true か false）: ${r}`)}if(typeof a==`string`)return r;if(a==null){if(r===`null`)return null;try{return JSON.parse(r)}catch{return r}}try{return JSON.parse(r)}catch{throw new z(`${n} はオブジェクトのフィールドなので JSON で指定してください: ${r}`)}},tc=`add-entity <parent> [--name <name>]`,nc=(e,t)=>{let n=Bs(e.engine,io(t,0,tc));Ys(n,`子を追加`);let r=`Empty`;if(t.options.name!==void 0){if(typeof t.options.name!=`string`)throw new z(`--name に名前がありません。使い方: ${tc}`);if(t.options.name.includes(`/`))throw new z(`名前に / は使えません: ${t.options.name}`);r=t.options.name}let i=e.editor.api.createEntity(n,{name:r,components:[]});return{uuid:i.uuid,name:i.name,path:zs(i)}},rc=(e,t)=>{let n=Bs(e.engine,io(t,0,`remove-entity <entity>`));if(n===e.engine.root)throw new z(`root は削除できません`);Ys(n,`削除`);let r=zs(n);return e.editor.api.deleteEntity(n),{uuid:n.uuid,path:r}},ic=(e,t)=>{let n=`add-component <entity> <Name>`,r=Bs(e.engine,io(t,0,n)),i=io(t,1,n),a=I.resources.getComponent(i);if(!a){let e=[];for(let t of I.resources.componentList)e.push(t.name);throw new z(`登録されていないコンポーネントです: ${i}（一覧は components で確認できます）`,e)}if(r.getComponent(a.component))throw new z(`${zs(r)} には ${i} がすでに付いています`);let o=e.editor.api.addComponent(r,a.component);return{entity:zs(r),name:i,uuid:o.uuid}},ac=(e,t)=>{let n=`remove-component <entity> <Name>`,r=Bs(e.engine,io(t,0,n)),{componentClass:i,component:a}=Js(r,io(t,1,n));Xs(a,`削除`);let o=Ws(a);return e.editor.api.removeComponent(r,i,a),{entity:zs(r),name:o,uuid:a.uuid}},oc=`set <entity> [<component>] <path> <value>`,sc=(e,t)=>{let n=Bs(e.engine,io(t,0,oc)),r=n,i=zs(n),a=1;if(t.args.length>=4){let{component:e}=Js(n,t.args[1]);Xs(e,`編集`),r=e,i=`${i} ${Ws(e)}`,a=2}let o=io(t,a,oc),s=io(t,a+1,oc);if(r instanceof Yo&&o===`links`)throw new z(`Animation の links は set では書き換えられません。キーは key-insert / key-delete、カーブの共有は curve-paste / curve-unlink / curve-link-settings で編集します`);let c=Zs(r);if(!c.includes(o)){let e=``;throw r===n&&(e=`（コンポーネントのフィールドは set <entity> <component> <path> <value>）`),new z(`書き換えられるフィールドではありません: ${o}（${i}）${e}`,c)}return e.editor.api.setField(r,o,ec(e.engine,r,o,s),{merge:!1}),{target:i,path:o,value:r.getField(o)}},cc=e=>{if(!e.editor.api.canUndo)throw new z(`取り消せる操作がありません`);return e.editor.api.undo(),{canUndo:e.editor.api.canUndo,canRedo:e.editor.api.canRedo}},lc=e=>{if(!e.editor.api.canRedo)throw new z(`やり直せる操作がありません`);return e.editor.api.redo(),{canUndo:e.editor.api.canUndo,canRedo:e.editor.api.canRedo}},uc={"add-entity":nc,"remove-entity":rc,"add-component":ic,"remove-component":ac,set:sc,undo:cc,redo:lc}})))()}var fc,pc,mc,hc,gc,_c,vc,yc,bc,xc,Sc,Cc,wc,Tc,Ec,Dc,Oc,kc,Ac,jc,Mc,Nc,Pc,Fc,Ic,Lc,Rc,zc,Bc,Vc,Hc,Uc,Wc,Gc,Kc,qc,Jc,Yc,Xc;function Zc(){return(Zc=t((()=>{F(),fo(),mo(),Ko(),Rs(),oo(),qs(),dc(),fc=60,pc=e=>e/fc,mc=e=>{let t=[];for(let n of Object.keys(e.serialize({mode:`view`})))(e.getFieldOpt(n)??{}).isFolder||as({target:e,path:n})&&t.push(n);return t},hc=(e,t,n)=>{let r=mc(e);if(r.includes(t))return{path:t,element:null};let i=t.lastIndexOf(`/`),a=t.slice(0,i),o=t.slice(i+1);if(i>0&&r.includes(a)&&/^\d+$/.test(o)){if(!Array.isArray(e.getField(a)))throw new z(`${a} は数値配列のフィールドではないので要素を指定できません（${n}）`);let r=Number(o),i=Ds({target:e,path:a});if(r>=i)throw new z(`${a} の要素は 0〜${i-1} です: ${t}（${n}）`);return{path:a,element:r}}throw new z(`キーを打てるフィールドではありません: ${t}（${n}）。数値配列の要素1つは <path>/<番号>（position/1 = y）で指します`,r)},gc=(e,t,n,r)=>{let i=t.args.length-r;if(i!==2&&i!==3)throw new z(`引数の数が合いません。使い方: ${n}`);let a=Bs(e.engine,t.args[0]),o=a,s=zs(a);if(i===3){let{component:e}=Js(a,t.args[1]);Xs(e,`キーフレームの編集`),o=e,s=`${s} ${Ws(e)}`}let{path:c,element:l}=hc(o,t.args[i-1],s);return{target:o,path:c,element:l,label:s}},_c=e=>{if(e.element!==null)return e.element;if(Array.isArray(e.target.getField(e.path)))throw new z(`${e.path} は数値配列なので、要素を <path>/<番号>（${e.path}/0 等）で指定してください（${e.label}）`);return 0},vc=e=>e.element===null?e.path:`${e.path}/${e.element}`,yc=e=>{try{return e()}catch(e){throw new z(ao(e))}},bc=e=>{let t=new Map,n=(e,n)=>{let r=t.get(e);r||(r=[],t.set(e,r)),r.push(n)};return e.root.traverse(e=>{let t=os(e);for(let r of Object.keys(t)){let i=r.indexOf(`:`),a,o=r;i>=0&&(a=r.slice(0,i),o=r.slice(i+1));let s=t[r];if(typeof s[0]==`string`){let t=s;n(t[0],{entity:zs(e),uuid:e.uuid,component:a,path:o,scale:t[1],offset:t[2]});continue}let c=s;for(let t=0;t<c.length;t++){let r=c[t];r&&n(r[0],{entity:zs(e),uuid:e.uuid,component:a,path:`${o}/${t}`,scale:r[1],offset:r[2]})}}}),t},xc=(e,t)=>{let n=[],r=Ds(t);for(let i=0;i<r;i++){if(t.element!==null&&t.element!==i)continue;let r=Es(e,{target:t.target,path:t.path,element:i});r&&n.push(r.curveId)}return n},Sc=(e,t)=>{let n=[];for(let r of xc(e,t))for(let t of yt(e.curves[r].k)){let e=pc(t.coordinate.x);n.includes(e)||n.push(e)}return n.sort((e,t)=>e-t),n},Cc=(e,t)=>{let n=e.curves[t];if(!n)throw new z(`カーブがありません: ${t}（一覧は curves で確認できます）`,Object.keys(e.curves));return n},wc=e=>{let t=[];for(let n of bo(e))t.push({time:pc(n.coordinate.x),value:n.coordinate.y,interpolation:n.interpolation,handleType:n.handleType,left:[pc(n.handleLeft.x),n.handleLeft.y],right:[pc(n.handleRight.x),n.handleRight.y]});return e.name===void 0?{keys:t}:{name:e.name,keys:t}},Tc=(e,t)=>{for(let n of t)if(pc(n)===e)return n;let n=e*fc;for(let t=1;t<=17;t++){let r=Number(n.toPrecision(t));if(pc(r)===e)return r}return n},Ec=[`AUTO_CLAMPED`,`AUTO`,`VECTOR`],Dc=e=>typeof e==`number`&&Number.isFinite(e),Oc=(e,t,n)=>{if(!Array.isArray(e)||e.length!==2||!Dc(e[0])||!Dc(e[1]))throw new z(`${t} は [ 秒, 値 ] で指定してください: ${JSON.stringify(e)}`);return{x:Tc(e[0],n),y:e[1]}},kc=(e,t,n)=>{let r=`keys[${t}]`;if(typeof e!=`object`||!e)throw new z(`${r} はオブジェクトで指定してください: ${JSON.stringify(e)}`);let i=e;if(!Dc(i.time))throw new z(`${r}.time は秒の数値で指定してください: ${JSON.stringify(i.time)}`);if(!Dc(i.value))throw new z(`${r}.value は数値で指定してください: ${JSON.stringify(i.value)}`);let a=bt.find(e=>e===i.interpolation);if(!a)throw new z(`${r}.interpolation が不正です: ${JSON.stringify(i.interpolation)}`,bt);let o=vo.find(e=>e===i.handleType);if(!o)throw new z(`${r}.handleType が不正です: ${JSON.stringify(i.handleType)}`,vo);let s={x:Tc(i.time,n),y:i.value};if(Ec.includes(o))return{coordinate:s,handleLeft:{...s},handleRight:{...s},interpolation:a,handleType:o};if(i.left===void 0||i.right===void 0)throw new z(`${r} は handleType が ${o} なので left / right（[ 秒, 値 ]）が必要です`);let c=Oc(i.left,`${r}.left`,n),l=Oc(i.right,`${r}.right`,n);return c.x=Math.min(c.x,s.x),l.x=Math.max(l.x,s.x),{coordinate:s,handleLeft:c,handleRight:l,interpolation:a,handleType:o}},Ac=(e,t)=>{let n;try{n=JSON.parse(e)}catch{throw new z(`カーブの JSON を読めません: ${e}`)}if(typeof n!=`object`||!n||!Array.isArray(n.keys))throw new z(`カーブは { "name"?: 名前, "keys": [ … ] } の形で指定してください（curve-get の出力と同じ形）: ${e}`);let r=n;if(r.name!==void 0&&typeof r.name!=`string`)throw new z(`name は文字列で指定してください: ${JSON.stringify(r.name)}`);let i=[];for(let e of bo(t))i.push(e.coordinate.x,e.handleLeft.x,e.handleRight.x);let a=[];for(let e=0;e<r.keys.length;e++)a.push(kc(r.keys[e],e,i));a.sort((e,t)=>e.coordinate.x-t.coordinate.x);for(let e=1;e<a.length;e++)if(yo([a[e-1]],a[e].coordinate.x)>=0)throw new z(`同じ時刻のキーが2つあります: ${pc(a[e].coordinate.x)} 秒（1本のカーブの1つの時刻に置けるキーは1つ）`);Ro(a);let o,s=(r.name??``).trim();return s!==``&&(o={name:s,k:[]}),xo(a,o)},jc=e=>{let t=bc(e.engine),n=[];for(let r of Object.keys(e.engine.curves)){let i=e.engine.curves[r],a=t.get(r)??[];n.push({id:r,name:i.name??null,keys:i.k.length,uses:a.length,users:a})}return{curves:n}},Mc=(e,t)=>{let n=io(t,0,`curve-get <curveId>`);return wc(Cc(e.engine,n))},Nc=`curve-set <curveId> <json>`,Pc=(e,t)=>{let n=io(t,0,Nc),r=io(t,1,Nc),i=Ac(r,Cc(e.engine,n));return e.editor.api.setCurves({...e.engine.curves,[n]:i}),{id:n,curve:wc(i)}},Fc=`key-insert <entity> [<component>] <path> --time <秒> [--value <値>]`,Ic=`key-delete <entity> [<component>] <path> --time <秒>`,Lc=(e,t,n)=>{let r=t.options.time,i=Number(r);if(typeof r!=`string`||r.trim()===``||!Number.isFinite(i))throw new z(`--time に秒の数値を指定してください。使い方: ${n}`);return Ps(i*fc,e.engine.frameSetting.fps)},Rc=(e,t,n)=>{if(Fs(t)===`event`)throw new z(`${t.path} は関数（イベント）のフィールドなので --value は指定できません（${t.label}）`);if(t.element===null)return ec(e.engine,t.target,t.path,n);let r=Number(n);if(n.trim()===``||!Number.isFinite(r))throw new z(`${vc(t)} は数値の要素です: ${n}`);let i=t.target.getField(t.path).slice();return i[t.element]=r,i},zc=(e,t)=>{let n=gc(e,t,Fc,0),r=Lc(e,t,Fc),i;n.element!==null&&(i=n.element);let a;if(t.options.value===void 0)a=yc(()=>hs(e.engine,[{target:n.target,path:n.path,element:i}],r));else{if(typeof t.options.value!=`string`)throw new z(`--value に値がありません。使い方: ${Fc}`);let o=Rc(e,n,t.options.value),s=yc(()=>hs(e.engine,[{target:n.target,path:n.path,element:i,value:o}],r)),c=new po(n.target,n.path,n.target.getField(n.path),o);a=new uo([c,s])}return e.editor.api.commandManager.execute(a,{merge:!1}),{target:n.label,path:vc(n),time:pc(r),curves:xc(e.engine,n)}},Bc=(e,t)=>{let n=gc(e,t,Ic,0),r=Lc(e,t,Ic),i;n.element!==null&&(i=n.element);let a=yc(()=>gs(e.engine,[{target:n.target,path:n.path,element:i}],r));if(!a)throw new z(`${pc(r)} 秒にキーがありません（${n.label} ${vc(n)}）。候補はキーのある時刻（秒）です`,Sc(e.engine,n));return e.editor.api.commandManager.execute(a,{merge:!1}),{target:n.label,path:vc(n),time:pc(r),curves:xc(e.engine,n)}},Vc=`curve-paste <entity> [<component>] <path> <curveId> --link | --copy`,Hc=`curve-unlink <entity> [<component>] <path>`,Uc=`curve-link-settings <entity> [<component>] <path> [--scale <倍率>] [--offset <足し算>] [--name <カーブ名>]`,Wc=(e,t,n)=>{let r=Es(e.engine,{target:t.target,path:t.path,element:n});return r?{curveId:r.curveId,name:r.name??null,scale:r.scale,offset:r.offset,uses:r.uses}:null},Gc=(e,t)=>{let n=gc(e,t,Vc,1),r=_c(n),i=t.args[t.args.length-1];Cc(e.engine,i);let a=t.options.link===!0,o=t.options.copy===!0;if(a===o)throw new z(`--link か --copy のどちらか一方を指定してください。使い方: ${Vc}`);let s=`link`;o&&(s=`duplicate`);let c=yc(()=>js(e.engine,{target:n.target,path:n.path,element:r},i,s));return c&&e.editor.api.commandManager.execute(c,{merge:!1}),{target:n.label,path:`${n.path}/${r}`,changed:c!==null,link:Wc(e,n,r)}},Kc=(e,t)=>{let n=gc(e,t,Hc,0),r=_c(n),i=Wc(e,n,r);if(!i)throw new z(`${n.label} ${n.path}/${r} にはカーブのリンクがありません`);if(i.uses<2)throw new z(`${n.label} ${n.path}/${r} のカーブ ${i.curveId} はほかと共有していないので、解除するリンクがありません`);return e.editor.api.commandManager.execute(yc(()=>Ms(e.engine,{target:n.target,path:n.path,element:r})),{merge:!1}),{target:n.label,path:`${n.path}/${r}`,from:i.curveId,link:Wc(e,n,r)}},qc=(e,t)=>{let n=e.options[t];if(n===void 0)return;let r=Number(n);if(typeof n!=`string`||n.trim()===``||!Number.isFinite(r))throw new z(`--${t} は数値で指定してください: ${n}`);return r},Jc=(e,t)=>{let n=gc(e,t,Uc,0),r=_c(n),i={target:n.target,path:n.path,element:r},a=Es(e.engine,i);if(!a)throw new z(`${n.label} ${n.path}/${r} にはカーブのリンクがありません`);let o=qc(t,`scale`),s=qc(t,`offset`),c=t.options.name;if(typeof c==`boolean`)throw new z(`--name に名前がありません（名前を外すときは --name ""）。使い方: ${Uc}`);if(o===void 0&&s===void 0&&c===void 0)throw new z(`--scale / --offset / --name のどれかを指定してください。使い方: ${Uc}`);if(a.fixedScale&&(o!==void 0||s!==void 0))throw new z(`${n.path} は選択肢か関数（イベント）のフィールドなので、倍率・足し算は変えられません（--name だけ指定できます）`);let l={name:a.name??``,scale:a.scale,offset:a.offset};c!==void 0&&(l.name=c),o!==void 0&&(l.scale=o),s!==void 0&&(l.offset=s);let u=yc(()=>Ns(e.engine,i,l));return u&&e.editor.api.commandManager.execute(u,{merge:!1}),{target:n.label,path:`${n.path}/${r}`,changed:u!==null,link:Wc(e,n,r)}},Yc={curves:jc,"curve-get":Mc},Xc={"curve-set":Pc,"key-insert":zc,"key-delete":Bc,"curve-paste":Gc,"curve-unlink":Kc,"curve-link-settings":Jc}})))()}var Qc,$c,el,tl,nl,rl,il,al;function ol(){return(ol=t((()=>{qe(),Mi(),oo(),qs(),lo(),Qc=e=>{let t=`tab`;return e.headless&&(t=`headless`),{connection:t,tabId:e.tabId,url:location.href,scene:e.sceneName,unsaved:e.unsaved,frame:{current:e.engine.frame.current,playing:e.engine.frame.playing,duration:e.engine.frameSetting.duration,fps:e.engine.frameSetting.fps}}},$c=e=>{let t=[];e.components.forEach(e=>{t.push(Ws(e))});for(let n of e.unresolvedComponents)t.push(`${n.name} (unresolved)`);return t},el=e=>{let t=[];return e.engine.root.traverse(e=>{t.push({path:zs(e),uuid:e.uuid,initiator:e.initiator,visible:e.visible,...Us(e),components:$c(e)})}),t},tl=(e,t)=>{let n=Bs(e.engine,io(t,0,`get <entity>`)),r=[];n.components.forEach(e=>{r.push({name:Ws(e),uuid:e.uuid,initiator:e.initiator,fields:Ks(e)})});let i=[];for(let e of n.children)i.push({uuid:e.uuid,name:e.name});return{path:zs(n),uuid:n.uuid,initiator:n.initiator,world:Us(n),fields:Ks(n),components:r,unresolvedComponents:n.unresolvedComponents,children:i}},nl=(e,t)=>{let n=e.createEntity({name:`__agent_probe__`});try{let e=n.addComponent(t.component);return{fields:Ks(e)}}catch(e){return{error:`フィールド定義を読めませんでした: ${ao(e)}`}}finally{n.disposeRecursive()}},rl=e=>{let t=[],n=(r,i)=>{for(let a of r.child)`component`in a?t.push({name:a.name,group:i,...nl(e.engine,a)}):n(a,`${i}/${a.name}`)};for(let e of I.resources.componentGroups)n(e,e.name);return t},il=e=>{let t=[];Pe.forEach((e,n)=>{t.push({name:n,message:e})});let n=[],r=[];for(let e of co())e.message.startsWith(`[webgpu]`)?n.push(e):r.push(e);let i=[];return e.engine.root.traverse(e=>{for(let t of e.unresolvedComponents)i.push({entity:zs(e),entityUuid:e.uuid,name:t.name,uuid:t.uuid})}),{shader:t,gpu:n,console:r,unresolvedComponents:i}},al={status:Qc,tree:el,get:tl,components:rl,errors:il}})))()}var sl;function cl(){return(cl=t((()=>{sl=`agent-headless`})))()}var ll,ul,dl,fl,pl,ml,hl,gl,_l,vl;function yl(){return(yl=t((()=>{oo(),ll=/^[A-Za-z0-9_-]+$/,ul=e=>{if(!e.scenes)throw new z(`このページはシーンを切り替えられません（シーンを焼き込んだページです）`);return e.scenes},dl=(e,t)=>{if(!e.names.includes(t))throw new z(`シーンがありません: ${t}`,e.names)},fl=e=>{if(e.unsaved)throw new z(`開いているシーン（${e.sceneName}）に未保存の変更があります。タブで保存（Ctrl+S）するか破棄してから切り替えてください`)},pl=async(e,t,n)=>{let r=()=>{},i=new Promise(e=>{r=e});e.engine.once(`loaded`,r);try{await t.onSelect(n)}catch(t){throw e.engine.off(`loaded`,r),t}await i},ml=`scene-create <name> [--from <scene>] [--open]`,hl=async(e,t)=>{let n=ul(e),r=io(t,0,ml);if(!ll.test(r))throw new z(`シーン名に使えるのは英数字・-・_ だけです: ${r}`);if(n.names.includes(r))throw new z(`シーンはすでにあります: ${r}`,n.names);let i;if(t.options.from!==void 0){if(typeof t.options.from!=`string`)throw new z(`--from にシーン名がありません。使い方: ${ml}`);dl(n,t.options.from),i=t.options.from}let a=t.options.open===!0;return a&&fl(e),await n.onCreate(r,i),a&&await pl(e,n,r),{scene:r,from:i??null,opened:a}},gl=async(e,t)=>{let n=ul(e),r=io(t,0,`scene-delete <name>`);if(dl(n,r),r===n.current)throw new z(`開いているシーンは削除できません: ${r}（scene-open で別のシーンを開いてから削除してください）`);return await n.onDelete(r),{scene:r}},_l=async(e,t)=>{let n=ul(e),r=io(t,0,`scene-open <name>`);dl(n,r);let i=n.current;return r===i?{scene:r,previous:i,opened:!1}:(fl(e),await pl(e,n,r),{scene:r,previous:i,opened:!0})},vl={"scene-create":hl,"scene-delete":gl,"scene-open":_l}})))()}var bl,xl,Sl,Cl,wl,Tl,El,Dl,Ol,kl,Al;function jl(){return(jl=t((()=>{oo(),qs(),dc(),bl=[`renderer`,`timeline`,`editor`],xl=[`resolution/`,`frameLoop/`],Sl=/^viewports\/[^/]+\/resolutionScale$/,Cl=e=>e.sceneName===null?null:`scenes/${e.sceneName}.json`,wl=(e,t)=>{if(t===`renderer`)return{serializable:e.engine.renderer,file:Cl(e),accepts:()=>!0};if(t===`timeline`)return{serializable:e.engine,file:Cl(e),accepts:e=>e.startsWith(`timeline/`)};if(t===`editor`)return{serializable:e.editor,file:`editor.json`,accepts:e=>{for(let t of xl)if(e.startsWith(t))return!0;return Sl.test(e)}};throw new z(`設定の名前が違います: ${t}`,bl)},Tl=e=>{let t=[];for(let n of Zs(e.serializable))e.accepts(n)&&t.push(n);return t},El=(e,t)=>{let n=bl;t.args[0]!==void 0&&(n=[t.args[0]]);let r={};for(let t of n){let n=wl(e,t),i=Tl(n),a=[];for(let e of Ks(n.serializable))i.includes(e.path)&&a.push(e);r[t]={file:n.file,fields:a}}return r},Dl=`set-setting <renderer|timeline|editor> <path> <value>`,Ol=(e,t)=>{let n=io(t,0,Dl),r=io(t,1,Dl),i=io(t,2,Dl),a=wl(e,n),o=Tl(a);if(!o.includes(r))throw new z(`書き換えられる設定ではありません: ${r}（${n}）`,o);let s=a.serializable;return e.editor.api.setField(s,r,ec(e.engine,s,r,i),{merge:!1}),{target:n,file:a.file,path:r,value:s.getField(r)}},kl={settings:El},Al={"set-setting":Ol}})))()}var Ml=n({LookAt:()=>Nl}),Nl;function Pl(){return(Pl=t((()=>{j(),F(),Nl=class extends Dt{target;_targetUUID;up;targetWorldPos;targetLocalPos;localUp;lookAtMatrix;parentInverse;constructor(e){super(e),this.target=null,this._targetUUID=null,this.targetWorldPos=new O,this.targetLocalPos=new O,this.localUp=new O,this.up=new O(0,1,0),this.lookAtMatrix=new k,this.parentInverse=new k,this.order=100,this.field(`target`,()=>this._targetUUID,e=>{this._targetUUID=e||null,this.target=null},{format:{type:`entity`}})}setTarget(e){this.target=e,this._targetUUID=e?e.uuid:null}updateImpl(){if(!this._targetUUID||this.target)return;let e=this.entity.getRootEntity();this.target=e.findEntityByUUID(this._targetUUID)||null}postUpdateImpl(e){this.target&&this._enabled&&(this.target.matrixWorld.decompose(this.targetWorldPos),this.targetLocalPos.copy(this.targetWorldPos),this.localUp.copy(this.up),this.entity.parent&&(this.parentInverse.copy(this.entity.parent.matrixWorld).inverse(),this.targetLocalPos.applyMatrix4AsPosition(this.parentInverse),this.localUp.applyMatrix4AsDirection(this.parentInverse).normalize()),this.lookAtMatrix.lookAt(this.entity.position,this.targetLocalPos,this.localUp),this.entity.quaternion.setFromMatrix(this.lookAtMatrix))}}})))()}var Fl=n({OrbitControls:()=>Il}),Il;function Ll(){return(Ll=t((()=>{j(),F(),Ri(),Pl(),Il=class extends Dt{keyborad_;_pointer;orbit_;mouseVelOrbit_;mouseVelMove_;eye_;target_;up_;lookatMatrix_;distance_;distanceVel_;_memPos;_memTarget;_multiTouching;elmDisposer;constructor(e){super(e),this._pointer=new Fi,this.keyborad_=new Ni,this.orbit_=new O,this.mouseVelOrbit_=new O,this.mouseVelMove_=new O,this.target_=new O,this.eye_=new O,this.up_=new O(0,1,0),this.distance_=5,this.distanceVel_=0,this.lookatMatrix_=new k,this._memPos=new O,this._memTarget=new O,this._multiTouching=!1,this.order=999;let t=!1,n=e=>{t||=!0},r=e=>{if(!this._enabled||!t||this._multiTouching)return;let n={x:e.delta.x*1,y:e.delta.y*1};this.keyborad_.pressedKeys.Shift?this.mouseVelMove_.add(n):this.mouseVelOrbit_.add(n),e.pointerEvent.preventDefault(),e.pointerEvent.stopPropagation()},i=e=>{t&&=!1};this._pointer.on(`move`,r),this._pointer.on(`start`,n),this._pointer.on(`end`,i),this.once(`dispose`,()=>{this._pointer.off(`move`,r),this._pointer.off(`start`,n),this._pointer.off(`end`,i)}),this.setPosition(this.entity.position,this.target_)}set enabled(e){if(this._enabled=e,e){this._memTarget.copy(this.target_),this._memPos.copy(this.entity.position);let e=this.entity.getComponent(Nl);e&&e.target&&this.setPosition(this.entity.position,e.target.position),this.calc(this.entity)}}get enabled(){return this._enabled}get eye(){return this.eye_}get target(){return this.target_}setElm(e){this.elmDisposer&&this.elmDisposer(),this._pointer.setElement(e);let t=new Map,n=()=>{let e=Array.from(t.values());if(e.length<2)return 0;let n=e[1].x-e[0].x,r=e[1].y-e[0].y;return Math.sqrt(n*n+r*r)},r=()=>{let e=Array.from(t.values());return e.length<2?{x:0,y:0}:{x:(e[0].x+e[1].x)/2,y:(e[0].y+e[1].y)/2}},i=0,a={x:0,y:0},o=e=>{e.pointerType===`touch`&&(t.set(e.pointerId,{x:e.clientX,y:e.clientY}),t.size===2&&(this._multiTouching=!0,i=n(),a=r()))},s=e=>{if(e.pointerType===`touch`&&t.has(e.pointerId)&&(t.set(e.pointerId,{x:e.clientX,y:e.clientY}),this._enabled&&t.size>=2)){let e=n(),t=e-i;this.distanceVel_+=-t*5,i=e;let o=r(),s=o.x-a.x,c=o.y-a.y;this.mouseVelMove_.add({x:s,y:c}),a=o}},c=e=>{e.pointerType===`touch`&&(t.delete(e.pointerId),t.size<2&&(this._multiTouching=!1,i=0))};e.addEventListener(`pointerdown`,o),e.addEventListener(`pointermove`,s),e.addEventListener(`pointerup`,c),e.addEventListener(`pointercancel`,c);let l=e=>{e.preventDefault(),this._enabled&&(this.distanceVel_+=e.deltaY)};e.addEventListener(`wheel`,l),this.elmDisposer=()=>{e.removeEventListener(`pointerdown`,o),e.removeEventListener(`pointermove`,s),e.removeEventListener(`pointerup`,c),e.removeEventListener(`pointercancel`,c),e.removeEventListener(`wheel`,l)}}calc(e){let t=Math.PI/2-.001;this.eye_.set(0,0,0),this.eye_.z+=this.distance_,this.eye_.applyMatrix3(new k().makeRotationAxis({x:1,y:0,z:0},Math.min(t,Math.max(-t,this.orbit_.x)))),this.eye_.applyMatrix3(new k().makeRotationAxis({x:0,y:1,z:0},this.orbit_.y)),this.eye_.add(this.target_),this.lookatMatrix_.lookAt(this.eye_,this.target_,this.up_),this.lookatMatrix_.decompose(e.position,e.quaternion,e.scale)}updateImpl(e){let t=new O(-this.mouseVelMove_.x*this.distance_*25e-5,this.mouseVelMove_.y*this.distance_*25e-5,0,0);t.applyMatrix3(this.entity.matrix),this.target_.add(t),this.orbit_.x+=this.mouseVelOrbit_.y*.001,this.orbit_.x=Math.min(Math.PI/2,Math.max(-Math.PI/2,this.orbit_.x)),this.orbit_.y+=this.mouseVelOrbit_.x*.001,this.distance_+=this.distanceVel_*.01*this.distance_*.025,this.distance_=Math.max(.1,this.distance_);let n=Math.max(0,1-e.timeDelta*10);this.mouseVelOrbit_.multiply(n),this.mouseVelMove_.multiply(n),this.distanceVel_*=n,this.calc(this.entity)}addOrbitVelocity(e,t){this._enabled&&this.mouseVelOrbit_.add({x:e,y:t})}addMoveVelocity(e,t){this._enabled&&this.mouseVelMove_.add({x:e,y:t})}addDistanceVelocity(e){this._enabled&&(this.distanceVel_+=e)}setPosition(e,t){if(this.eye_.copy(e),this.target_.copy(t),this.entity){let e=this.entity.parent;e&&(e.updateMatrix(!0),this.target_.applyMatrix4(e.matrixWorld.clone().inverse()))}let n=this.eye_.x-this.target_.x,r=this.eye_.y-this.target_.y,i=this.eye_.z-this.target_.z;this.orbit_.x=Math.atan2(r,Math.sqrt(n*n+i*i)),this.orbit_.y=-Math.atan2(n,i),this.distance_=this.eye_.clone().sub(this.target_).length(),this.mouseVelOrbit_.set(0,0,0),this.mouseVelMove_.set(0,0,0),this.distanceVel_=0}dispose(){super.dispose(),this._pointer.dispose(),this.elmDisposer&&this.elmDisposer()}}})))()}var Rl,zl,Bl,Vl,Hl,Ul,Wl;function Gl(){return(Gl=t((()=>{j(),F(),Ll(),Rl={motionBlur:!1,dof:!1},zl=1.3,Bl=1,Vl=.1,Hl={front:[0,0,1],right:[1,0,0],top:[0,1,0]},Ul=e=>{let t=null;return e.traverse(e=>{if(t)return;let n=e.getComponentsByTag(`camera`);for(let r=0;r<n.length;r++)if(n[r].displayOut){t=e;return}}),t},Wl=class{_entity;_camera;_orbitControls;_renderView;_view;_preview;constructor(e,t,n){this._entity=e.createEntity({name:`__editorCamera`}),this._camera=this._entity.addComponent(zt),this._orbitControls=this._entity.addComponent(Il),this._orbitControls.setElm(n),this._renderView=t,this._view=`editor`,this._preview=!1,this._apply(e)}get entity(){return this._entity}get camera(){return this._camera}get orbitControls(){return this._orbitControls}get view(){return this._view}get preview(){return this._preview}get usingEditorCamera(){return!this._preview&&this._view===`editor`}setView(e,t){this._view=e,this._apply(t)}setPreview(e,t){this._preview=e,this._apply(t)}_apply(e){let t=this._renderView;this.usingEditorCamera?(t.camera!==this._entity&&this.syncFromSceneCamera(e),t.camera=this._entity,this._orbitControls.enabled=!0):(t.camera=null,this._orbitControls.enabled=!1),t.pipelineOverride=this.usingEditorCamera?Rl:null}alignView(e,t){let n=this._orbitControls.target.clone(),r=this._orbitControls.eye.clone().sub(n).length(),i=Hl[e],a=new O(i[0],i[1],i[2]);t&&a.multiply(-1);let o=n.clone().add(a.multiply(r));this._orbitControls.setPosition(o,n)}toggleProjection(){this._camera.cameraType===`perspective`?this._camera.cameraType=`orthographic`:this._camera.cameraType=`perspective`,this._camera.needsUpdateProjectionMatrix=!0}focus(e){e.updateMatrixRecursive(!0);let t=this._getWorldBounds(e),n=new O,r=Bl;t?(n.copy(t.min).add(t.max).multiply(.5),r=Math.max(t.max.clone().sub(t.min).length()*.5,Vl)):e.matrixWorld.decompose(n);let i=r/Math.tan(this._camera.fov*Math.PI/360)*zl,a=this._orbitControls.eye.clone().sub(this._orbitControls.target);a.length()<1e-6&&a.set(0,0,1),a.normalize().multiply(i),this._orbitControls.setPosition(n.clone().add(a),n)}_getWorldBounds(e){let t=new O(1/0,1/0,1/0),n=new O(-1/0,-1/0,-1/0),r=!1;return e.traverse(e=>{if(!e.visible)return;let i=e.getComponent(N);if(!i)return;let a=i.geometry.boundingBox;if(a){for(let r=0;r<8;r++){let i=new O(r&1?a.max.x:a.min.x,r&2?a.max.y:a.min.y,r&4?a.max.z:a.min.z).applyMatrix4AsPosition(e.matrixWorld);t.x=Math.min(t.x,i.x),t.y=Math.min(t.y,i.y),t.z=Math.min(t.z,i.z),n.x=Math.max(n.x,i.x),n.y=Math.max(n.y,i.y),n.z=Math.max(n.z,i.z)}r=!0}}),r?{min:t,max:n}:null}getCameraEntity(e){return this._renderView.camera||Ul(e.root)}updateBeforeRender(e){if(!this.usingEditorCamera)return;let t=e.createEntityUpdateEvent();if(this._entity.commitFrame(t),this._entity.updateMatrix(),this._camera.aspect=e.renderer.resolution.x/e.renderer.resolution.y,this._camera.needsUpdateProjectionMatrix=!0,this._entity.update(t),this._camera.cameraType===`orthographic`){let e=this._orbitControls.eye.clone().sub(this._orbitControls.target).length();this._camera.orthHeight=2*e*Math.tan(this._camera.fov*Math.PI/360)}this._entity.postUpdate(t),this._entity.updateMatrixRecursive(),this._entity.prepareRender(t)}resize(e){this._camera.aspect=e.x/e.y,this._camera.needsUpdateProjectionMatrix=!0}dispose(){this._entity.dispose()}syncFromSceneCamera(e){let t=Ul(e.root);if(!t)return;let n=new O;t.matrixWorld.decompose(n);let r=t.getComponentsByTag(`camera`)[0];this._orbitControls.setPosition(n,this._resolveOrbitTarget(t,r,n)),r&&(this._camera.fov=r.fov,this._camera.near=r.near,this._camera.far=r.far,this._camera.needsUpdateProjectionMatrix=!0)}_resolveOrbitTarget(e,t,n){let r=Math.max(t?t.dofParams.focusDistance:5,.1),i=new O(0,0,-1,0).applyMatrix3(e.matrixWorld).normalize();return n.clone().add(i.multiply(r))}}})))()}var Kl;function ql(){return(ql=t((()=>{at(),j(),Kl=class e extends tt{static paused=!1;_draw;_view;_elm;_outTarget;_frameLabels;_enable;_resolution;_count;_total;_tile;_tilePixelSize;_tileInv;_focus;_prevFrameLabels;_labelCount;_overlay;constructor(e,t,n){super(),this._draw=t,this._view=n,this._elm=e,this._outTarget=t.createTarget(),this._enable=!1,this._count=0,this._total=1,this._tile=new O(1,1),this._tilePixelSize=new O(1,1),this._tileInv=new O(1,1),this._focus=null,this._frameLabels=[],this._prevFrameLabels=[],this._labelCount=new Map,this._resolution=new O,this._overlay=document.createElement(`div`),this._overlay.style.cssText=`position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;color:#fff;font-family:'Courier New',monospace;font-weight:500;mix-blend-mode:difference;`;let r=t.onDrawPass((e,t)=>this._push(e,t)),i=new O(0,0),a=this._onClick.bind(this),o=e=>{i.set(e.clientX,e.clientY)},s=e=>{let t=new O(e.clientX,e.clientY);i.clone().sub(t).length()<10&&a(e)};this._elm.addEventListener(`pointerdown`,o),this._elm.addEventListener(`pointerup`,s);let c=e=>{if(e.key===`Escape`&&(this._focus=null,this._clear()),e.key==`ArrowRight`&&this._focus!==null){let e=this._prevFrameLabels.indexOf(this._focus),t=Math.min(e+1,this._prevFrameLabels.length-1);this._focus=this._prevFrameLabels[t]??this._focus}if(e.key==`ArrowLeft`&&this._focus!==null){let e=this._prevFrameLabels.indexOf(this._focus),t=Math.max(e-1,0);this._focus=this._prevFrameLabels[t]??this._focus}};window.addEventListener(`keydown`,c),this.once(`dispose`,()=>{r(),this._elm.removeEventListener(`pointerdown`,o),this._elm.removeEventListener(`pointerup`,s),window.removeEventListener(`keydown`,c),this._overlay.remove()})}_calcTilePos(e){return{x:e%this._tile.x*this._tileInv.x*this._resolution.x,y:Math.floor(e/this._tile.x)*this._tileInv.y*this._resolution.y}}_push(t,n){if(!this._enable||e.paused)return;let r=n||String(this._count),i=this._labelCount.get(r)||0;this._labelCount.set(r,i+1);let a=i>0?r+`#`+i:r;if(this._focus==null||this._focus==a){let{x:e,y:n}=this._calcTilePos(this._count);this._focus!==null&&(e=0,n=0),this._draw.blit(this._view,t,this._outTarget,{x:e,y:n,width:this._tilePixelSize.x,height:this._tilePixelSize.y}),this._frameLabels.push(a)}this._count++}draw(){this._draw.blit(this._view,this._outTarget,null),this._drawLabels(),this._clear()}_drawLabels(){let e=this._elm.parentElement;e&&(this._overlay.parentElement!==e&&e.appendChild(this._overlay),this._overlay.style.fontSize=Math.max(10,this._elm.clientHeight/1080*28)+`px`,this._overlay.replaceChildren(...this._frameLabels.map((e,t)=>{let n=document.createElement(`div`);return n.textContent=e,n.style.cssText=`position:absolute;transform:translateY(-100%);white-space:nowrap;`,n.style.left=t%this._tile.x*this._tileInv.x*100+`%`,n.style.top=(Math.floor(t/this._tile.x)+1)*this._tileInv.y*100+`%`,n.style.paddingLeft=`5px`,n})))}_clear(){this._total=this._count,this._prevFrameLabels=this._frameLabels;let e=Math.sqrt(this._focus===null?Math.max(this._total,1):1);this._tile.set(Math.round(e),Math.ceil(e)),this._tileInv.set(1,1).divide(this._tile),this._tilePixelSize.copy(this._tileInv).multiply(this._resolution),this._frameLabels=[],this._count=0,this._labelCount.clear()}reflesh(){this.resize(this._resolution)}resize(e){this._resolution.copy(e)}_onClick(e){if(this._enable){if(this.reflesh(),this._focus===null){let t=new O(this._elm.clientWidth/this._tile.x,this._elm.clientHeight/this._tile.y),n=Math.floor(e.offsetX/t.x)+Math.floor(e.offsetY/t.y)*this._tile.x;n>=0&&n<this._prevFrameLabels.length&&(this._focus=this._prevFrameLabels[n])}this._clear()}}set enable(e){this._enable=e,e?this.reflesh():this._overlay.remove()}get enable(){return this._enable}dispose(){this.emit(`dispose`)}}})))()}var Jl,Yl,Xl,Zl,Ql,$l,eu,tu,nu,ru,iu,au,ou,su;function cu(){return(cu=t((()=>{j(),F(),Mi(),Gl(),ql(),oo(),qs(),Jl=`shot <out.png> [--camera <entity> | --from x,y,z --to x,y,z] [--time <秒>] [--view <final|パス名>]`,Yl=1/60,Xl=new WeakMap,Zl=(e,t)=>{let n=e[t];if(typeof n!=`string`)throw new z(`--${t} には x,y,z を指定してください。使い方: ${Jl}`);let r=n.replace(/^\[(.*)\]$/,`$1`).split(`,`),i=[];for(let e of r){let r=Number(e);if(e.trim()===``||!Number.isFinite(r))throw new z(`--${t} は数値3つで指定してください: ${n}`);i.push(r)}if(i.length!==3)throw new z(`--${t} は数値3つで指定してください: ${n}`);return new O(i[0],i[1],i[2])},Ql=(e,t)=>{let n=t.time;if(n===void 0)return e.engine.time.code;let r=Number(n);if(typeof n!=`string`||!Number.isFinite(r))throw new z(`--time は秒の数値で指定してください: ${n}`);return r},$l=e=>{let t=e.view;if(t===void 0)return`final`;if(typeof t!=`string`)throw new z(`--view には final かパス名を指定してください。使い方: ${Jl}`);return t},eu=e=>{let t=e.getComponentsByTag(`camera`)[0];return t.displayOut||t.viewPort?null:t},tu=(e,t)=>{let n=t.from!==void 0||t.to!==void 0;if(t.camera!==void 0&&n)throw new z(`--camera と --from / --to は同時に指定できません。使い方: ${Jl}`);if(t.camera!==void 0){if(typeof t.camera!=`string`)throw new z(`--camera にはエンティティを指定してください。使い方: ${Jl}`);let n=Bs(e.engine,t.camera);if(n.getComponentsByTag(`camera`).length===0)throw new z(`カメラのコンポーネントが付いていません: ${zs(n)}`);return{entity:n,description:zs(n),temporary:null,fitAspect:eu(n)}}if(n){let n=Zl(t,`from`),r=Zl(t,`to`),i=r.clone();if(i.sub(n),i.length()===0)throw new z(`--from と --to が同じ位置です`);let a=e.engine.createEntity({name:`__agentShotCamera`}),o=a.addComponent(zt);return a.position.copy(n),a.lookAt(r),{entity:a,description:{from:[n.x,n.y,n.z],to:[r.x,r.y,r.z]},temporary:o,fitAspect:null}}let r=Ul(e.engine.root);if(!r)throw new z(`シーンに displayOut のカメラがありません。--camera か --from / --to を指定してください`);return{entity:null,description:zs(r),temporary:null,fitAspect:null}},nu=(e,t,n)=>{let r=e.entity;e.aspect=t.renderer.resolution.x/t.renderer.resolution.y,e.needsUpdateProjectionMatrix=!0,r.update(n),r.postUpdate(n),r.updateMatrixRecursive(),r.prepareRender(n)},ru=(e,t,n,r)=>{let i=e.createEntityUpdateEvent({...n,timeCode:t,timeCodeFrame:t*60,playing:!1,forceDraw:!0,offline:!0});e.renderer.globalUniforms.uTime.value=t,e.renderer.globalUniforms.uTimeF.value=t%1;let a=I.resources.updateEveryFrameTextures;for(let e=0;e<a.length;e++)a[e].render();return r?r.during(()=>e.step(i)):e.step(i),i},iu=class{labels;found;_draw;_view;_target;_name;_counts;constructor(e,t,n,r){this.labels=[],this.found=!1,this._draw=e,this._view=t,this._target=n,this._name=r,this._counts=new Map}during(e){let t=this._draw.onDrawPass((e,t)=>this._push(e,t));try{e()}finally{t()}}_push(e,t){let n=t||String(this.labels.length),r=this._counts.get(n)||0;this._counts.set(n,r+1);let i=n;r>0&&(i=n+`#`+r),this.labels.push(i),!this.found&&i===this._name&&(this._draw.blit(this._view,e,this._target),this.found=!0)}},au=async(e,t,n)=>{let r=document.createElement(`canvas`);r.width=t,r.height=n;let i=r.getContext(`2d`),a=i.createImageData(t,n),o=t*4;for(let t=0;t<n;t++){let r=(n-1-t)*o;a.data.set(e.subarray(r,r+o),t*o)}for(let e=3;e<a.data.length;e+=4)a.data[e]=255;i.putImageData(a,0,0);let s=await new Promise(e=>r.toBlob(e,`image/png`));if(!s)throw Error(`PNG にエンコードできませんでした`);let c=await new Promise((e,t)=>{let n=new FileReader;n.onload=()=>e(n.result),n.onerror=()=>t(n.error),n.readAsDataURL(s)});return c.slice(c.indexOf(`,`)+1)},ou=async(e,t)=>{io(t,0,Jl);let n=t.options,r=e.engine,i=e.editor.draw,a=n.time!==void 0,o=Ql(e,n),s=$l(n),c=tu(e,n),l=r.createView({offscreen:!0});l.camera=c.entity;let u=Math.max(Math.floor(r.renderer.resolution.x),1),d=Math.max(Math.floor(r.renderer.resolution.y),1),f,p=c.fitAspect,m=1;p&&(m=p.aspect),Kl.paused=!0;try{p&&(p.aspect=r.renderer.resolution.x/r.renderer.resolution.y,p.needsUpdateProjectionMatrix=!0);let e=null;if(s!==`final`){let t=Xl.get(i);t||(t=i.createTarget(),Xl.set(i,t)),e=new iu(i,l,t,s)}let t;a?(ru(r,o-Yl,{timeDelta:Yl},null),t=ru(r,o,{timeDelta:Yl},e)):t=ru(r,o,{},e),c.temporary&&nu(c.temporary,r,t),await fn();for(let e=0;e<3;e++)r.render(l);if(e){if(e.during(()=>r.render(l)),!e.found)throw new z(`--view に一致するパスがありません: ${s}（final かパスのラベルを指定してください）`,[`final`,...e.labels]);f=i.readPixels(Xl.get(i))}else r.render(l),f=i.readView(l)}catch(e){throw l.dispose(),e}finally{Kl.paused=!1,p&&(p.aspect=m,p.needsUpdateProjectionMatrix=!0),c.temporary&&c.temporary.entity.dispose()}let h;try{h=await f}finally{l.dispose()}if(h.length!==u*d*4)throw new z(`読み戻したサイズが描画解像度と一致しません（${h.length} bytes, ${u}x${d}）。撮影中に Screen の大きさが変わった可能性があります。再実行してください`);return{png:await au(h,u,d),width:u,height:d,view:s,time:o,camera:c.description}},su={shot:ou}})))()}var lu,uu,du,fu,pu,mu,hu;function gu(){return(gu=t((()=>{at(),Zc(),ol(),cl(),yl(),jl(),cu(),dc(),lu={...uc,...Al,...Xc,...vl},{...al,...kl,...Yc,...lu,...su},rt.genUUID(),uu=new URLSearchParams(location.search).has(sl),du=2,fu=null,pu=()=>{},new Promise(e=>{pu=e}),mu=e=>new Promise(t=>{let n=e=>{if(e<=0){t();return}requestAnimationFrame(()=>n(e-1))};n(e)}),hu=e=>{let t={...e,unsaved:!1},n=()=>{t.unsaved=!0},r=()=>{t.unsaved=!1},i=()=>{t.unsaved=!1,uu&&mu(du).then(pu)};return e.editor.api.commandManager.on(`change`,n),e.editor.on(`save`,r),e.editor.engine.on(`loaded`,i),fu=t,()=>{e.editor.api.commandManager.off(`change`,n),e.editor.off(`save`,r),e.editor.engine.off(`loaded`,i),fu===t&&(fu=null)}}})))()}var _u,vu,yu,bu;function xu(){return(xu=t((()=>{_u=class{isEditorFrame=!0;isEditorTarget=!0;size;constructor(e){this.size=e||null}},vu=class{isEditorRecipe=!0},yu=class{_resolution;constructor(e){this._resolution=e.resolution.clone()}renderEntities(){}renderFullscreen(){}blit(){}drawToCanvas(){}drawTexture(){}readPixels(e){let t=e.size||this._resolution;return Promise.resolve(new Uint8Array(t.x*t.y*4))}readView(){return Promise.resolve(new Uint8Array(this._resolution.x*this._resolution.y*4))}createTarget(e){return new _u(e&&e.size)}resize(e){this._resolution.copy(e)}onDrawPass(){return()=>{}}materials={flat:()=>({name:`editorFlat`}),mask:()=>({name:`editorMask`}),grid:()=>({name:`editorGrid`})};recipes={outline:()=>new vu}},bu=e=>new yu(e.renderer)})))()}var Su;function Cu(){return(Cu=t((()=>{Su=class{_engine;constructor(e){this._engine=e}load(){return Promise.resolve({scene:this._engine.createEntity({name:`gltf`})})}}})))()}var wu;function Tu(){return(Tu=t((()=>{wu=class{render(){}dispose(){}}})))()}var Eu,Du,Ou;function ku(){return(ku=t((()=>{j(),Et(),Tu(),Eu=class{camera;pipelineOverride;size;constructor(){this.camera=null,this.pipelineOverride=null,this.size=null}dispose(){}},Du=class extends Tt{canvas;resolution;globalUniforms;constructor(){super(),this.canvas=document.createElement(`canvas`),this.resolution=new O,this.globalUniforms={}}createView(){return new Eu}prepareScene(){}render(){}resize(e){this.resolution.copy(e)}reset(){}compileShaders(){return Promise.resolve()}createTexProcedural(){return new wu}},Ou=e=>new Du,Du.__docgenInfo={description:``,methods:[{name:`createView`,docblock:null,modifiers:[],params:[],returns:{type:{name:`RenderView`}}},{name:`prepareScene`,docblock:null,modifiers:[],params:[],returns:null},{name:`resize`,docblock:null,modifiers:[],params:[{name:`resolution`,optional:!1,type:{name:`MTP.Vector`,alias:`MTP.Vector`}}],returns:null},{name:`reset`,docblock:null,modifiers:[],params:[],returns:null},{name:`compileShaders`,docblock:null,modifiers:[],params:[],returns:{type:{name:`Promise`,elements:[{name:`void`}],raw:`Promise<void>`}}},{name:`createTexProcedural`,docblock:null,modifiers:[],params:[],returns:{type:{name:`TexProcedural`}}}],displayName:`Renderer`}})))()}function Au(){return(Au=t((()=>{gn(),xu(),Cu(),ku()})))()}var ju,Mu;function Nu(){return(Nu=t((()=>{at(),j(),Mi(),ju=128,Mu=class extends tt{_draw;_target;_cache;_pending;_canvas2d;_ctx2d;constructor(e){super(),this._draw=e,this._cache=new Map,this._pending=new Set,this._canvas2d=document.createElement(`canvas`),this._canvas2d.width=ju,this._canvas2d.height=ju,this._ctx2d=this._canvas2d.getContext(`2d`),this._target=e.createTarget({size:new O(ju,ju)})}getTexturePreview(e){let t=`tex:`+e,n=this._cache.get(t);if(n)return n;if(this._pending.has(t))return null;let r=I.resources.getTexture(e);return r?(this._pending.add(t),this._draw.drawTexture(r,this._target),this._draw.readPixels(this._target).then(e=>{this._pending.delete(t),this._cache.set(t,this._toDataURL(e)),this.emit(`update`)}),null):null}invalidate(e){this._cache.delete(e)}invalidateAll(){this._cache.clear(),this._pending.clear()}_toDataURL(e){let t=this._ctx2d.createImageData(ju,ju);for(let n=0;n<ju;n++){let r=(127-n)*ju*4,i=n*ju*4;for(let n=0;n<512;n++)t.data[i+n]=e[r+n]}return this._ctx2d.putImageData(t,0,0),this._canvas2d.toDataURL()}dispose(){this._cache.clear(),this._pending.clear(),this.off(`update`)}}})))()}var Pu,Fu,Iu;function Lu(){return(Lu=t((()=>{F(),Pu={x:[1,.2,.2],y:[.2,1,.2],z:[.4,.4,1]},Fu=1e3,Iu=class{_draw;_root;_axisEntities;constructor(e,t){this._draw=t,this._root=e.createEntity({name:`__constraint_axis`}),this._root.initiator=`god`,this._axisEntities={x:this._createAxisLine(e,`x`),y:this._createAxisLine(e,`y`),z:this._createAxisLine(e,`z`)},this._root.add(this._axisEntities.x),this._root.add(this._axisEntities.y),this._root.add(this._axisEntities.z)}_createAxisLine(e,t){let n=e.createEntity({name:`__constraint_axis_line`});n.initiator=`god`;let r=t===`x`?[-1,0,0,1,0,0]:t===`y`?[0,-1,0,0,1,0]:[0,0,-1,0,0,1],i=new kt;return i.setAttribute(`position`,new Float32Array(r),3),i.setAttribute(`normal`,new Float32Array(r.length).fill(0),3),n.addComponent(N,{geometry:i,material:this._draw.materials.flat({color:Pu[t],lines:!0,depthTest:!1,depthWrite:!1})}),n}render(e,t,n,r){if(!t||!n)return;let i=n.matrixWorld.elm,a=t.origin.x-i[12],o=t.origin.y-i[13],s=t.origin.z-i[14],c=Math.max(1,Math.sqrt(a*a+o*o+s*s))*Fu;this._root.position.copy(t.origin),this._root.quaternion.copy(t.quat),this._root.scale.set(c,c,c),this._root.updateMatrix(!0),this._root.update(r.createEntityUpdateEvent()),this._draw.renderEntities({view:e,camera:n,entities:t.axes.map(e=>this._axisEntities[e]),target:null})}}})))()}var Ru;function zu(){return(zu=t((()=>{at(),Ru=class extends tt{_undoStack=[];_redoStack=[];_mergeWindow=500;_lastExecuteTime=0;_lastMergeable=!1;execute(e,t){let n=Date.now(),r=t?.merge??!0;if(r&&this._lastMergeable&&this._undoStack.length>0&&n-this._lastExecuteTime<this._mergeWindow){let t=this._undoStack[this._undoStack.length-1];if(t.mergeWith){let r=t.mergeWith(e);if(r){this._undoStack[this._undoStack.length-1]=r,e.execute(),this._lastExecuteTime=n,this.emit(`change`);return}}}e.execute(),this._undoStack.push(e),this._redoStack=[],this._lastExecuteTime=n,this._lastMergeable=r,this.emit(`change`)}undo(){let e=this._undoStack.pop();e&&(e.undo(),this._redoStack.push(e),this.emit(`change`))}redo(){let e=this._redoStack.pop();e&&(e.execute(),this._undoStack.push(e),this.emit(`change`))}get canUndo(){return this._undoStack.length>0}get canRedo(){return this._redoStack.length>0}clear(){this._undoStack=[],this._redoStack=[],this.emit(`change`)}}})))()}var Bu;function Vu(){return(Vu=t((()=>{Mi(),Bu=class{_textureName;_config;name=`AddTexture`;constructor(e,t){this._textureName=e,this._config=t}execute(){I.resources.addTextureResource(this._textureName,this._config)}undo(){I.resources.removeTextureResource(this._textureName)}}})))()}var Hu;function Uu(){return(Uu=t((()=>{Hu=(e,t)=>{let n=new Set;for(let t of e.children)n.add(t.name);if(!n.has(t))return t;let r=1;for(;n.has(`${t}.${String(r).padStart(3,`0`)}`);)r++;return`${t}.${String(r).padStart(3,`0`)}`}})))()}var Wu;function Gu(){return(Gu=t((()=>{Uu(),Wu=class{engine;parent;options;name=`CreateEntity`;entity=null;constructor(e,t,n){this.engine=e,this.parent=t,this.options=n}execute(){if(!this.entity){this.entity=this.engine.createEntity({name:Hu(this.parent,this.options.name)}),this.entity.initiator=`user`,this.options.position&&this.entity.position.setFromArray(this.options.position);for(let e of this.options.components){let t=this.entity.addComponent(e);t.initiator=`user`}}this.parent.add(this.entity)}undo(){this.entity&&this.entity.parent&&this.entity.parent.remove(this.entity)}get createdEntity(){return this.entity}}})))()}var Ku;function qu(){return(qu=t((()=>{Ku=class{entity;name=`DeleteEntity`;parent=null;constructor(e){this.entity=e}execute(){this.parent=this.entity.parent,this.parent&&this.parent.remove(this.entity)}undo(){this.parent&&this.parent.add(this.entity)}}})))()}var Ju,Yu,Xu;function Zu(){return(Zu=t((()=>{at(),Uu(),Ju=/\.\d{3}$/,Yu=(e,t)=>{let n=e.createEntity({name:t.name});n.initiator=`user`,n.position.setFromArray(t.position.getElm(`vec3`)),n.euler.setFromArray(t.euler.getElm(`vec3`)),n.scale.setFromArray(t.scale.getElm(`vec3`)),n.visible=t.visible;for(let e of t.components.values()){if(e.initiator!==`user`)continue;let t=e.constructor,r=n.addComponent(t);r.initiator=`user`,r.deserialize(e.serialize({mode:`export`}))}for(let e of t.unresolvedComponents)n.unresolvedComponents.push({name:e.name,uuid:rt.genUUID(),props:e.props});for(let r of t.children)r.initiator!==`script`&&n.add(Yu(e,r));return n},Xu=class{engine;parent;source;name=`DuplicateEntity`;entity=null;constructor(e,t,n){this.engine=e,this.parent=t,this.source=n}execute(){if(!this.entity){this.entity=Yu(this.engine,this.source);let e=this.source.name.replace(Ju,``);this.entity.name=Hu(this.parent,e)}this.parent.add(this.entity)}undo(){this.entity&&this.entity.parent&&this.entity.parent.remove(this.entity)}get duplicatedEntity(){return this.entity}}})))()}var Qu;function $u(){return($u=t((()=>{Qu=class{entity;componentClass;component;name=`RemoveComponent`;snapshot=null;constructor(e,t,n){this.entity=e,this.componentClass=t,this.component=n}execute(){this.snapshot=this.component.serialize(),this.entity.removeComponent(this.componentClass)}undo(){let e=this.entity.addComponent(this.componentClass);e.initiator=`user`,this.snapshot&&e.deserialize(this.snapshot),this.component=e}}})))()}var ed;function td(){return(td=t((()=>{Mi(),ed=class{_textureName;name=`RemoveTexture`;_snapshot=null;constructor(e){this._textureName=e}execute(){let e=I.resources.getTextureResource(this._textureName);e&&(this._snapshot=e.serialize({mode:`export`})),I.resources.removeTextureResource(this._textureName)}undo(){this._snapshot&&I.resources.addTextureResource(this._textureName,this._snapshot)}}})))()}var nd;function rd(){return(rd=t((()=>{Mi(),zu(),Qo(),Vu(),Gu(),qu(),Zu(),$u(),td(),mo(),Rs(),nd=class{_commandManager;_editor;constructor(e){this._editor=e,this._commandManager=new Ru}setField(e,t,n,r){let i=e.getField(t);this._commandManager.execute(new po(e,t,i,n),r)}beginEdit(e,t){let n=e.getField(t),r=!1;return{set:n=>{e.setField(t,n),r=!0},commit:()=>{if(!r)return;let i=e.getField(t);this._commandManager.execute(new po(e,t,n,i),{merge:!1})},cancel:()=>{r&&e.setField(t,n)}}}createEntity(e,t){let n=new Wu(this._editor.engine,e,t);return this._commandManager.execute(n),n.createdEntity}deleteEntity(e){this._commandManager.execute(new Ku(e))}duplicateEntity(e){let t=e.parent;if(!t)throw Error(`Entity has no parent: ${e.name}`);let n=new Xu(this._editor.engine,t,e);return this._commandManager.execute(n),n.duplicatedEntity}selectEntity(e){this._editor.selectEntity(e)}addComponent(e,t){let n=new Zo(e,t);return this._commandManager.execute(n),n.instance}removeComponent(e,t,n){this._commandManager.execute(new Qu(e,t,n))}insertKeys(e){let t=this._editor.engine;this._commandManager.execute(hs(t,e,ns(t)),{merge:!1})}deleteKeys(e){let t=this._editor.engine,n=gs(t,e,ns(t));n&&this._commandManager.execute(n,{merge:!1})}setCurves(e){this._commandManager.execute(Is(this._editor.engine,e),{merge:!1})}pasteCurve(e,t,n){let r=js(this._editor.engine,e,t,n);r&&this._commandManager.execute(r,{merge:!1})}unlinkCurve(e){this._commandManager.execute(Ms(this._editor.engine,e),{merge:!1})}setCurveLinkSettings(e,t){let n=Ns(this._editor.engine,e,t);n&&this._commandManager.execute(n,{merge:!1})}addTexture(e,t){this._commandManager.execute(new Bu(e,t))}removeTexture(e){this._commandManager.execute(new ed(e))}updateTexture(e,t){let n=I.resources.getTextureResource(e);if(!n)throw Error(`Texture not found: ${e}`);let r=Object.keys(t);for(let e of r){let r=n.getField(e);this._commandManager.execute(new po(n,e,r,t[e]))}}undo(){this._commandManager.undo()}redo(){this._commandManager.redo()}get canUndo(){return this._commandManager.canUndo}get canRedo(){return this._commandManager.canRedo}get commandManager(){return this._commandManager}dispose(){this._commandManager.clear()}}})))()}function id(e,t){let n=e.clone().normalize(),r=Math.sin(t/2),i=new A;return i.set(n.x*r,n.y*r,n.z*r,Math.cos(t/2)),i}function ad(e,t){let n=e.clone().normalize(),r=t.clone().normalize(),i=n.dot(r);if(i>.99999)return new A;if(i<-.99999){let e=Math.abs(n.x)>.9?new O(0,1,0):new O(1,0,0);return id(n.clone().cross(e),Math.PI)}return id(n.clone().cross(r),Math.acos(Math.min(1,Math.max(-1,i))))}function od(e){let t=new A;return e.matrixWorld.decompose(void 0,t),t}function sd(e,t){return e.clone().applyMatrix4AsDirection(new k().applyQuaternion(t))}function cd(e,t,n){let r=new O(+(t===`x`),+(t===`y`),+(t===`z`));return n===`global`?r:sd(r,od(e)).normalize()}function ld(e,t,n){return e.clone().multiply(t.clone().multiply(n))}function ud(e,t,n){let r=e.origin.clone().sub(t),i=e.direction.dot(n),a=r.dot(n),o=r.dot(e.direction),s=1-i*i+1e-4;return a+(a*i-o)/s*i}function dd(e,t,n){let r=e.direction.dot(n);if(Math.abs(r)<1e-4)return null;let i=t.clone().sub(e.origin).dot(n)/r;return e.origin.clone().add(e.direction.clone().multiply(i))}function fd(){return(fd=t((()=>{j()})))()}var pd,md,hd,gd,_d,vd,yd,bd;function xd(){return(xd=t((()=>{j(),F(),fd(),pd={x:[1,.2,.2],y:[.2,1,.2],z:[.4,.4,1]},md={xy:`z`,yz:`x`,xz:`y`},hd={xy:[`x`,`y`],yz:[`y`,`z`],xz:[`x`,`z`]},gd=[.75,.75,.75],_d=[1,.95,.4],vd=.45,yd=.18,bd=class e{static VIEW_HEIGHT_RATIO=1/6;entity;_engine;_draw;_orientation;_camWorldPos;_records;_hoverHandle;_activeHandle;_dragging;constructor(e,t,n){this._engine=e,this._draw=t,this.entity=e.createEntity({name:n}),this.entity.initiator=`god`,this.entity.visible=!1,this._orientation=`global`,this._camWorldPos=new O,this._records=[],this._hoverHandle=null,this._activeHandle=null,this._dragging=!1}_createEntity(e){let t=this._engine.createEntity({name:e});return t.initiator=`god`,t}_registerHandle(e,t,n){let r=[...n];return this._records.push({handle:e,root:t,color:r,baseColor:[...n]}),this.entity.add(t),r}_addVisual(e,t,n){let r=this._createEntity(`__gizmo_visual`);return r.addComponent(N,{geometry:t,material:this._draw.materials.flat({color:n,depthTest:!1,depthWrite:!1})}),e.add(r),r}_addHit(e,t){let n=this._createEntity(`__gizmo_hit`);return n.addComponent(N,{geometry:t}),e.add(n),n}_addPlaneHandle(e){let t=this._createEntity(`__gizmo_plane_`+e),n=this._registerHandle(e,t,pd[md[e]]);return this._addVisual(t,new Ft({width:yd,height:yd}),n),this._addHit(t,new Ft({width:yd*1.6,height:yd*1.6})),e===`yz`?(t.euler.set(0,Math.PI/2,0),t.position.set(0,vd,vd)):e===`xz`?(t.euler.set(Math.PI/2,0,0),t.position.set(vd,0,vd)):t.position.set(vd,vd,0),t}_addCenterHandle(){let e=this._createEntity(`__gizmo_center`),t=this._registerHandle(`center`,e,gd);return this._addVisual(e,new tn({innerRadius:.1,outerRadius:.14,thetaSegments:24}),t),this._addHit(e,new Lt({radius:.16,widthSegments:8,heightSegments:6})),e}setHover(e){this._hoverHandle!==e&&(this._hoverHandle=e,this._updateColors())}_updateColors(){let e=this._dragging?this._activeHandle:this._hoverHandle;for(let t of this._records){let n=t.handle===e?_d:t.baseColor;t.color[0]=n[0],t.color[1]=n[1],t.color[2]=n[2]}}getHandleEntities(){let e=[];for(let t of this._records)t.root.traverse(n=>{let r=n.getComponent(N);r&&!r.material&&e.push({handle:t.handle,entity:n})});return e}setTarget(t,n,r){if(this._orientation=r,!t){this.entity.visible=!1;return}if(this.entity.visible=!0,this.entity.quaternion.copy(this._rootQuaternion(t,r)),this.entity.position.set(t.matrixWorld.elm[12],t.matrixWorld.elm[13],t.matrixWorld.elm[14]),n){let t=n.matrixWorld.elm;this._camWorldPos.set(t[12],t[13],t[14]);let r=n.getComponentsByTag(`camera`)[0];if(r){let t=r.orthHeight;r.cameraType===`perspective`&&(t=2*this._camWorldPos.distanceTo(this.entity.position)*Math.tan(r.fov*Math.PI/360));let n=Math.max(.01,t*e.VIEW_HEIGHT_RATIO);this.entity.scale.set(n,n,n)}}this._onTargetUpdated()}_rootQuaternion(e,t){return t===`local`?od(e):new A}_onTargetUpdated(){}_camDirLocal(){return sd(this._camWorldPos.clone().sub(this.entity.position).normalize(),this.entity.quaternion.clone().inverse()).normalize()}_billboardQuat(){return ad(new O(0,0,1),this._camDirLocal())}get activeHandle(){return this._activeHandle}get dragging(){return this._dragging}startDrag(e,t,n){this._activeHandle=e,this._dragging=!0,this._updateColors(),this._onStartDrag(e,t,n)}endDrag(){this._activeHandle=null,this._dragging=!1,this._updateColors()}}})))()}function Sd(e,t,n){let r=[],i=[],a=[],o=[];for(let s=0;s<=n;s++){let c=-Math.PI/2+s/n*Math.PI,l=Math.cos(c),u=Math.sin(c);if(r.push(l*e,u*e,0),r.push(l*t,u*t,0),i.push(0,0,1,0,0,1),a.push(s/n,0,s/n,1),s<n){let e=s*2;o.push(e,e+1,e+2,e+1,e+3,e+2)}}let s=new kt;return s.setAttribute(`position`,new Float32Array(r),3),s.setAttribute(`normal`,new Float32Array(i),3),s.setAttribute(`uv`,new Float32Array(a),2),s.setAttribute(`index`,new Uint16Array(o),1),s}var Cd,wd;function Td(){return(Td=t((()=>{j(),F(),fd(),xd(),Cd=[`x`,`y`,`z`],wd=class extends bd{_rings;_viewRoot;_dragCenter;_dragViewNormal;_dragU;_dragV;_dragAxisN;_dragSign;_dragLastAngle;_dragAccumAngle;_dragStartWorldQuat;_parentWorldQuatInv;constructor(e,t){super(e,t,`__gizmo_rotate`),this._dragCenter=new O,this._dragViewNormal=new O(0,0,1),this._dragU=new O(1,0,0),this._dragV=new O(0,1,0),this._dragAxisN=new O(0,0,1),this._dragSign=1,this._dragLastAngle=0,this._dragAccumAngle=0,this._dragStartWorldQuat=new A,this._parentWorldQuatInv=new A;let n={x:id(new O(0,1,0),Math.PI/2),y:id(new O(1,0,0),-Math.PI/2),z:new A};this._rings={};for(let e of Cd){let t=this._createEntity(`__gizmo_ring_`+e),r=this._registerHandle(e,t,pd[e]);this._addVisual(t,Sd(.75,.8,48),r),this._addHit(t,Sd(.6,.95,24)),this._rings[e]={wrapper:t,base:n[e],baseInv:n[e].clone().inverse()}}this._viewRoot=this._createEntity(`__gizmo_ring_view`);let r=this._registerHandle(`view`,this._viewRoot,gd);this._addVisual(this._viewRoot,new tn({innerRadius:1,outerRadius:1.05,thetaSegments:64}),r),this._addHit(this._viewRoot,new tn({innerRadius:.92,outerRadius:1.13,thetaSegments:32}))}_onTargetUpdated(){let e=this._camDirLocal();for(let t of Cd){let n=this._rings[t],r=sd(e,n.baseInv),i=Math.atan2(r.y,r.x);n.wrapper.quaternion.copy(n.base.clone().multiply(id(new O(0,0,1),i)))}this._viewRoot.quaternion.copy(this._billboardQuat())}_onStartDrag(e,t,n){this._dragCenter.copy(this.entity.position);let r=t.origin.clone().sub(this._dragCenter).normalize(),i=Math.abs(r.y)>.99?new O(1,0,0):new O(0,1,0);this._dragViewNormal=r,this._dragU=i.cross(r).normalize(),this._dragV=r.clone().cross(this._dragU).normalize(),e===`view`?(this._dragAxisN=r.clone(),this._dragSign=1):(this._dragAxisN=cd(n,e,this._orientation),this._dragSign=this._dragAxisN.dot(r)<0?-1:1),this._dragLastAngle=this._angleFromRay(t)??0,this._dragAccumAngle=0,this._dragStartWorldQuat=od(n),this._parentWorldQuatInv=n.parent?od(n.parent).inverse():new A}updateDrag(e,t){if(!this.dragging||!this.activeHandle)return null;let n=this._angleFromRay(e);if(n===null)return null;let r=n-this._dragLastAngle;r>Math.PI?r-=Math.PI*2:r<-Math.PI&&(r+=Math.PI*2),this._dragAccumAngle+=r,this._dragLastAngle=n;let i=id(this._dragAxisN,this._dragAccumAngle*this._dragSign),a=ld(this._parentWorldQuatInv,i,this._dragStartWorldQuat);return{euler:new De().setFromQuaternion(a)}}_angleFromRay(e){let t=dd(e,this._dragCenter,this._dragViewNormal);if(!t)return null;let n=t.sub(this._dragCenter);return Math.atan2(n.dot(this._dragV),n.dot(this._dragU))}}})))()}var Ed,Dd,Od,kd,Ad,jd,Md;function Nd(){return(Nd=t((()=>{j(),F(),fd(),xd(),Ed=.02,Dd=.1,Od=.001,kd=1e-4,Ad=[`x`,`y`,`z`],jd=[`xy`,`yz`,`xz`],Md=class extends bd{_centerRoot;_dragStartPos;_dragAxisDir;_dragStartAmount;_dragPlaneNormal;_dragStartScale;constructor(e,t){super(e,t,`__gizmo_scale`),this._dragStartPos=new O,this._dragAxisDir=new O(1,0,0),this._dragStartAmount=1,this._dragPlaneNormal=new O(0,0,1),this._dragStartScale=new O(1,1,1);for(let e of Ad)this._addAxisHandle(e);for(let e of jd)this._addPlaneHandle(e);this._centerRoot=this._addCenterHandle()}_addAxisHandle(e){let t=this._createEntity(`__gizmo_axis_`+e),n=this._registerHandle(e,t,pd[e]),r=.6,i=this._addVisual(t,new Nt({radiusTop:Ed,radiusBottom:Ed,height:r,radSegments:8,heightSegments:1,caps:!1}),n);i.position.set(0,.55,0);let a=this._addVisual(t,new jt({width:Dd,height:Dd,depth:Dd}),n);a.position.set(0,.9,0),this._addHit(t,new Nt({radiusTop:.07,radiusBottom:.07,height:r,radSegments:6,heightSegments:1,caps:!0})).position.copy(i.position),this._addHit(t,new jt({width:Dd*2,height:Dd*2,depth:Dd*2})).position.copy(a.position),e===`x`?t.euler.set(0,0,-Math.PI/2):e===`z`&&t.euler.set(Math.PI/2,0,0)}_rootQuaternion(e,t){return od(e)}_onTargetUpdated(){this._centerRoot.quaternion.copy(this._billboardQuat())}_onStartDrag(e,t,n){if(this._dragStartPos.copy(this.entity.position),this._dragStartScale.set(n.scale.x,n.scale.y,n.scale.z),e===`x`||e===`y`||e===`z`){this._dragAxisDir=cd(n,e,`local`);let r=ud(t,this._dragStartPos,this._dragAxisDir);this._dragStartAmount=Math.abs(r)<kd?kd:r;return}this._dragPlaneNormal=e===`center`?t.origin.clone().sub(this._dragStartPos).normalize():cd(n,md[e],`local`);let r=dd(t,this._dragStartPos,this._dragPlaneNormal),i=r?r.sub(this._dragStartPos).length():0;this._dragStartAmount=Math.max(kd,i)}updateDrag(e,t){if(!this.dragging||!this.activeHandle)return null;let n=this.activeHandle,r;if(n===`x`||n===`y`||n===`z`)r=ud(e,this._dragStartPos,this._dragAxisDir)/this._dragStartAmount;else{let t=dd(e,this._dragStartPos,this._dragPlaneNormal);if(!t)return null;r=t.sub(this._dragStartPos).length()/this._dragStartAmount}Math.abs(r)<Od&&(r=r<0?-.001:Od);let i={x:!1,y:!1,z:!1};if(n===`center`)i.x=i.y=i.z=!0;else if(n===`x`||n===`y`||n===`z`)i[n]=!0;else for(let e of hd[n])i[e]=!0;return{scale:new O(this._dragStartScale.x*(i.x?r:1),this._dragStartScale.y*(i.y?r:1),this._dragStartScale.z*(i.z?r:1))}}}})))()}var Pd,Fd,Id,Ld,Rd,zd;function Bd(){return(Bd=t((()=>{j(),F(),fd(),xd(),Pd=.02,Fd=.22,Id=.06,Ld=[`x`,`y`,`z`],Rd=[`xy`,`yz`,`xz`],zd=class extends bd{_centerRoot;_dragStartPos;_dragAxisDir;_dragStartProjection;_dragPlaneNormal;_dragPlaneStart;constructor(e,t){super(e,t,`__gizmo_translate`),this._dragStartPos=new O,this._dragAxisDir=new O(1,0,0),this._dragStartProjection=0,this._dragPlaneNormal=new O(0,0,1),this._dragPlaneStart=null;for(let e of Ld)this._addArrowHandle(e);for(let e of Rd)this._addPlaneHandle(e);this._centerRoot=this._addCenterHandle()}_addArrowHandle(e){let t=this._createEntity(`__gizmo_axis_`+e),n=this._registerHandle(e,t,pd[e]),r=.6,i=this._addVisual(t,new Nt({radiusTop:Pd,radiusBottom:Pd,height:r,radSegments:8,heightSegments:1,caps:!1}),n);i.position.set(0,.55,0);let a=this._addVisual(t,new Nt({radiusTop:.001,radiusBottom:Id,height:Fd,radSegments:8,heightSegments:1,caps:!0}),n);a.position.set(0,.96,0),this._addHit(t,new Nt({radiusTop:.07,radiusBottom:.07,height:r,radSegments:6,heightSegments:1,caps:!0})).position.copy(i.position),this._addHit(t,new Nt({radiusTop:.001,radiusBottom:.11,height:Fd*1.5,radSegments:6,heightSegments:1,caps:!0})).position.copy(a.position),e===`x`?t.euler.set(0,0,-Math.PI/2):e===`z`&&t.euler.set(Math.PI/2,0,0)}_onTargetUpdated(){this._centerRoot.quaternion.copy(this._billboardQuat())}_onStartDrag(e,t,n){if(this._dragStartPos.copy(this.entity.position),this._dragPlaneStart=null,e===`x`||e===`y`||e===`z`){this._dragAxisDir=cd(n,e,this._orientation),this._dragStartProjection=ud(t,this._dragStartPos,this._dragAxisDir);return}this._dragPlaneNormal=e===`center`?t.origin.clone().sub(this._dragStartPos).normalize():cd(n,md[e],this._orientation),this._dragPlaneStart=dd(t,this._dragStartPos,this._dragPlaneNormal)}updateDrag(e,t){if(!this.dragging||!this.activeHandle)return null;let n=this.activeHandle;if(n===`x`||n===`y`||n===`z`){let t=ud(e,this._dragStartPos,this._dragAxisDir)-this._dragStartProjection;return{position:this._dragStartPos.clone().add(this._dragAxisDir.clone().multiply(t))}}if(!this._dragPlaneStart)return null;let r=dd(e,this._dragStartPos,this._dragPlaneNormal);return r?{position:this._dragStartPos.clone().add(r.sub(this._dragPlaneStart))}:null}}})))()}var Vd;function Hd(){return(Hd=t((()=>{F(),Td(),Nd(),Bd(),Vd=class{_draw;_translateGizmo;_rotateGizmo;_scaleGizmo;_activeGizmo;_mode;_orientation;constructor(e,t){this._draw=t,this._translateGizmo=new zd(e,t),this._rotateGizmo=new wd(e,t),this._scaleGizmo=new Md(e,t),this._mode=`select`,this._orientation=`global`,this._activeGizmo=null}get activeGizmo(){return this._activeGizmo}get mode(){return this._mode}setMode(e){this._mode=e,this._activeGizmo&&this._activeGizmo.setHover(null),this._activeGizmo=e===`translate`?this._translateGizmo:e===`rotate`?this._rotateGizmo:e===`scale`?this._scaleGizmo:null}get orientation(){return this._orientation}setOrientation(e){this._orientation=e}render(e,t,n,r){if(this._translateGizmo.entity.visible=!1,this._rotateGizmo.entity.visible=!1,this._scaleGizmo.entity.visible=!1,!this._activeGizmo||(this._activeGizmo.setTarget(t||null,n,this._orientation),!this._activeGizmo.entity.visible))return;this._activeGizmo.entity.updateMatrix(!0);let i=r.createEntityUpdateEvent();if(this._activeGizmo.entity.update(i),!n)return;let a=[];this._activeGizmo.entity.traverse(e=>{let t=e.getComponent(N);t&&t.material&&a.push(e)}),a.length>0&&this._draw.renderEntities({view:e,camera:n,entities:a,target:null})}}})))()}var Ud;function Wd(){return(Wd=t((()=>{F(),Ud=class{_draw;_entity;_color;_params;constructor(e,t){this._draw=t,this._color=[.35,.35,.35],this._params=[1,1,100],this._entity=e.createEntity({name:`__grid`}),this._entity.initiator=`god`,this._entity.addComponent(N,{geometry:new Ft({floor:!0}),material:t.materials.grid({color:this._color,params:this._params})})}render(e,t,n){if(!t)return;let r=t.matrixWorld.elm,i=Math.max(Math.abs(r[13]),.5),a=Math.max(0,Math.floor(Math.log10(i)));this._params[0]=10**a,this._params[1]=1-Math.max(0,Math.log10(i)-a),this._params[2]=Math.max(50,i*30),this._entity.position.set(r[12],0,r[14]),this._entity.scale.set(this._params[2]*2,1,this._params[2]*2),this._entity.update(n.createEntityUpdateEvent()),this._draw.renderEntities({view:e,camera:t,entities:[this._entity],target:null})}}})))()}var Gd;function Kd(){return(Kd=t((()=>{F(),Gd=class extends kt{constructor(){super(),this.update(50,1,.1,10)}update(e,t,n,r){let i=e*Math.PI/180,a=Math.tan(i/2)*n,o=a*t,s=Math.tan(i/2)*r,c=s*t,l=new Float32Array([-o,a,-n,o,a,-n,o,a,-n,o,-a,-n,o,-a,-n,-o,-a,-n,-o,-a,-n,-o,a,-n,-c,s,-r,c,s,-r,c,s,-r,c,-s,-r,c,-s,-r,-c,-s,-r,-c,-s,-r,-c,s,-r,-o,a,-n,-c,s,-r,o,a,-n,c,s,-r,o,-a,-n,c,-s,-r,-o,-a,-n,-c,-s,-r]);this.setAttribute(`position`,l,3),this.setAttribute(`normal`,new Float32Array(l.length).fill(0),3),this.requestUpdate()}}})))()}var qd;function Jd(){return(Jd=t((()=>{F(),qd=class extends kt{constructor(){super(),this.update(50,1,.1,2)}update(e,t,n,r){let i=e*Math.PI/180,a=Math.tan(i/2)*n,o=a*t,s=Math.tan(i/2)*r,c=s*t,l=new Float32Array([-o,a,-n,o,a,-n,o,-a,-n,-o,-a,-n,-c,s,-r,c,s,-r,c,-s,-r,-c,-s,-r]),u=new Uint16Array([0,2,1,0,3,2,4,5,6,4,6,7,0,1,5,0,5,4,3,6,2,3,7,6,0,4,7,0,7,3,1,2,6,1,6,5]);this.setAttribute(`position`,l,3),this.setAttribute(`normal`,new Float32Array(l.length).fill(0),3),this.setAttribute(`index`,u,1),this.requestUpdate()}}})))()}var Yd;function Xd(){return(Xd=t((()=>{F(),Yd=class extends kt{constructor(e=.5){super();let t=[];for(let n=0;n<16;n++){let r=n/16*Math.PI*2,i=(n+1)/16*Math.PI*2;t.push(Math.cos(r)*e,Math.sin(r)*e,0,Math.cos(i)*e,Math.sin(i)*e,0)}let n=e*2;for(let r=0;r<4;r++){let i=r/4*Math.PI*2,a=Math.cos(i)*e*.5,o=Math.sin(i)*e*.5;t.push(a,o,0,a,o,-n)}let r=new Float32Array(t);this.setAttribute(`position`,r,3),this.setAttribute(`normal`,new Float32Array(r.length).fill(0),3)}}})))()}var Zd;function Qd(){return(Qd=t((()=>{F(),Zd=class extends kt{constructor(e=.5){super();let t=e*2,n=[],r=[];n.push(0,0,0);for(let t=0;t<12;t++){let r=t/12*Math.PI*2;n.push(Math.cos(r)*e,Math.sin(r)*e,0)}for(let e=0;e<12;e++){let t=(e+1)%12;r.push(0,e+1,t+1)}n.push(0,0,-t);for(let r=0;r<12;r++){let i=r/12*Math.PI*2;n.push(Math.cos(i)*e,Math.sin(i)*e,-t)}for(let e=0;e<12;e++){let t=(e+1)%12;r.push(13,13+t+1,13+e+1)}for(let e=0;e<12;e++){let t=(e+1)%12,n=e+1,i=t+1,a=13+e+1,o=13+t+1;r.push(n,a,o),r.push(n,o,i)}this.setAttribute(`position`,new Float32Array(n),3),this.setAttribute(`normal`,new Float32Array(n.length).fill(0),3),this.setAttribute(`index`,new Uint16Array(r),1)}}})))()}var $d;function ef(){return(ef=t((()=>{F(),$d=class extends kt{constructor(e=.3){super();let t=e/2,n=new Float32Array([-t,0,0,t,0,0,0,-t,0,0,t,0,0,0,-t,0,0,t]);this.setAttribute(`position`,n,3),this.setAttribute(`normal`,new Float32Array(n.length).fill(0),3)}}})))()}var tf;function nf(){return(nf=t((()=>{F(),tf=class extends kt{constructor(){super(),this.update(Math.PI/4,5)}update(e,t){let n=Math.tan(e/2)*t,r=[];for(let e=0;e<16;e++){let i=e/16*Math.PI*2,a=(e+1)/16*Math.PI*2;r.push(Math.cos(i)*n,Math.sin(i)*n,-t,Math.cos(a)*n,Math.sin(a)*n,-t)}for(let e=0;e<4;e++){let i=e/4*Math.PI*2;r.push(0,0,0,Math.cos(i)*n,Math.sin(i)*n,-t)}let i=new Float32Array(r);this.setAttribute(`position`,i,3),this.setAttribute(`normal`,new Float32Array(i.length).fill(0),3),this.requestUpdate()}}})))()}var rf;function af(){return(af=t((()=>{F(),rf=class extends kt{constructor(){super(),this.update(Math.PI/4,5)}update(e,t){let n=Math.tan(e/2)*t,r=[0,0,0];for(let e=0;e<12;e++){let i=e/12*Math.PI*2;r.push(Math.cos(i)*n,Math.sin(i)*n,-t)}let i=[];for(let e=0;e<12;e++){let t=(e+1)%12;i.push(0,e+1,t+1)}for(let e=1;e<11;e++)i.push(1,e+2,e+1);this.setAttribute(`position`,new Float32Array(r),3),this.setAttribute(`normal`,new Float32Array(r.length).fill(0),3),this.setAttribute(`index`,new Uint16Array(i),1),this.requestUpdate()}}})))()}var of;function sf(){return(sf=t((()=>{j(),F(),Kd(),Jd(),Xd(),Qd(),ef(),nf(),af(),of=class{entity;hitAreaEntity;type;targetEntityUUID;_geometry;_hitAreaGeometry;_matrixOffset;_baseColor;_colorUniform;constructor(e,t,n,r){this.type=n,this.targetEntityUUID=r,this.entity=e.createEntity({name:`__helper`}),this.entity.initiator=`god`;let i=this._getColor();this._baseColor=i,this._colorUniform=[...i];let a=t.materials.flat({color:this._colorUniform,lines:!0});this._geometry=this._createGeometry(),this.entity.addComponent(N,{geometry:this._geometry,material:a}),this._hitAreaGeometry=this._createHitAreaGeometry(),this.hitAreaEntity=e.createEntity({name:`__helper_hit`}),this.hitAreaEntity.initiator=`god`,this._hitAreaGeometry&&this.hitAreaEntity.addComponent(N,{geometry:this._hitAreaGeometry}),this._matrixOffset=n===`spotLight`||n===`directionalLight`?new A().setFromEuler({x:-Math.PI/2,y:0,z:0}):null}_getColor(){switch(this.type){case`empty`:return[.8,.5,.2];case`camera`:return[.6,.8,1];case`spotLight`:return[1,.9,.4];case`directionalLight`:return[1,.9,.4]}}_createGeometry(){switch(this.type){case`empty`:return new $d;case`camera`:return new Gd;case`spotLight`:return new tf;case`directionalLight`:return new Yd}}_createHitAreaGeometry(){switch(this.type){case`empty`:return null;case`camera`:return new qd;case`spotLight`:return new rf;case`directionalLight`:return new Zd}}getWorldSegments(){let e=this._geometry.getAttribute(`position`);if(!e)return[];let t=e.array,n=[];for(let e=0;e+5<t.length;e+=6)n.push({a:new O(t[e+0],t[e+1],t[e+2]).applyMatrix4AsPosition(this.entity.matrixWorld),b:new O(t[e+3],t[e+4],t[e+5]).applyMatrix4AsPosition(this.entity.matrixWorld)});return n}setSelected(e){let t=e?[1,.6,0]:this._baseColor;this._colorUniform[0]=t[0],this._colorUniform[1]=t[1],this._colorUniform[2]=t[2]}syncTransform(e){if(this.entity.matrixWorld.copy(e.matrixWorld),this.hitAreaEntity.matrixWorld.copy(e.matrixWorld),this._matrixOffset&&(this.entity.matrixWorld.applyQuaternion(this._matrixOffset),this.hitAreaEntity.matrixWorld.applyQuaternion(this._matrixOffset)),this.type===`camera`){let t=e.getComponentsByTag(`camera`)[0];t&&(this._geometry instanceof Gd&&this._geometry.update(t.fov,t.aspect,.1,2),this._hitAreaGeometry instanceof qd&&this._hitAreaGeometry.update(t.fov,t.aspect,.1,2))}else if(this.type===`spotLight`){let t=e.getComponent(Ut);if(t){let e=Math.min(t.distance,10);this._geometry instanceof tf&&this._geometry.update(t.angle,e),this._hitAreaGeometry instanceof rf&&this._hitAreaGeometry.update(t.angle,e)}}}}})))()}var cf;function lf(){return(lf=t((()=>{F(),sf(),cf=class{_engine;_draw;_helpers;constructor(e,t){this._engine=e,this._draw=t,this._helpers=new Map}sync(e,t){let n=new Set;e.root.traverse(r=>{if(r.initiator===`god`||!r.visible)return;let i=this._getHelperType(r);if(!i)return;n.add(r.uuid);let a=this._helpers.get(r.uuid);a||(a=new of(this._engine,this._draw,i,r.uuid),this._helpers.set(r.uuid,a));let o=e.createEntityUpdateEvent();a.entity.update(o),a.hitAreaEntity.update(o),a.setSelected(r.uuid===t),a.syncTransform(r)}),this._helpers.forEach((e,t)=>{n.has(t)||this._helpers.delete(t)})}render(e,t,n){if(!t)return;let r=[];for(let e of this._helpers.values())this.isVisible(e,n)&&e.targetEntityUUID!==t.uuid&&e.entity.traverse(e=>{e.getComponent(N)&&r.push(e)});r.length>0&&this._draw.renderEntities({view:e,camera:t,entities:r,target:null})}getHelpers(){return Array.from(this._helpers.values())}isVisible(e,t){if(!t.show)return!1;switch(e.type){case`empty`:return t.empty;case`camera`:return t.camera;case`spotLight`:case`directionalLight`:return t.light}}_getHelperType(e){let t=e.getComponent(Ut);return t?t.lightType===`spot`?`spotLight`:`directionalLight`:e.getComponentsByTag(`camera`)[0]?`camera`:e.getComponent(N)?null:`empty`}}})))()}var uf,df,ff;function pf(){return(pf=t((()=>{Pi(),uf=[{code:`Numpad1`,key:`1`,axis:`front`},{code:`Numpad3`,key:`3`,axis:`right`},{code:`Numpad7`,key:`7`,axis:`top`}],df=()=>{let e=document.activeElement;return e?e.tagName===`INPUT`||e.tagName===`TEXTAREA`||e.isContentEditable:!1},ff=class{_keyboard;constructor(e){this._keyboard=new Ni,this._keyboard.on(`keydown`,(t,n)=>{if(t.isComposing)return;let r=n.Meta||n.Control;if(r&&n.s&&(t.preventDefault(),e.onSave()),!df()&&!e.onTransformKey(t)){r&&n.z&&(t.preventDefault(),n.Shift?e.onRedo():e.onUndo()),r&&t.code===`KeyC`&&e.onCopy(),r&&t.code===`KeyV`&&e.onPaste(),t.code===`KeyB`&&!r&&!t.altKey&&!n.Shift&&e.onBoxSelect(),t.code===`KeyA`&&!r&&!n.Shift&&e.onSelectAll(!t.altKey),t.key===`Home`&&!r&&e.onFrameAll(),t.code===`KeyW`&&!r&&!t.altKey&&!n.Shift&&e.onContextMenu(),t.code===`KeyI`&&!r&&!n.Shift&&(t.preventDefault(),e.onInsertKey(t.altKey)),t.key==` `&&!r&&e.onPlayToggle(),(t.code===`Numpad0`||t.key===`0`)&&!r&&e.onCameraViewToggle(),t.key===`9`&&!r&&e.onPreviewToggle(),t.key===`Escape`&&!r&&e.onSyncToSceneCamera(),t.code===`KeyA`&&n.Shift&&!r&&(t.preventDefault(),e.onAddEntity());for(let r of uf)(t.code===r.code||t.key===r.key)&&(n.Meta||(t.preventDefault(),e.onAlignView(r.axis,!!n.Control)));(t.code===`Numpad5`||t.key===`5`)&&!r&&e.onProjectionToggle(),(t.code===`NumpadDecimal`||t.key===`.`)&&!r&&e.onFocusSelected(),(t.code===`KeyX`||t.key===`Delete`)&&!r&&e.onDeleteSelected(),t.code===`KeyD`&&n.Shift&&!r&&e.onDuplicateSelected(),t.key===`F2`&&!r&&e.onRenameSelected(),t.key===`ArrowLeft`&&!r&&(t.preventDefault(),n.Shift?e.onSeekToStart():e.onStepFrame(-1)),t.key===`ArrowRight`&&!r&&(t.preventDefault(),e.onStepFrame(1))}})}dispose(){this._keyboard.dispose()}}})))()}var mf,hf,gf;function _f(){return(_f=t((()=>{j(),mf=e=>{let t=e.getBoundingClientRect(),n=e.width/e.height,r=t.width/t.height,i=t.width,a=t.height,o=0,s=0;return r>n?(i=t.height*n,o=(t.width-i)/2):(a=t.width/n,s=(t.height-a)/2),{left:t.left+o,top:t.top+s,width:i,height:a}},hf=(e,t,n)=>{let r=mf(e),i=(t-r.left)/r.width*2-1,a=-((n-r.top)/r.height)*2+1;return new O(i,a)},gf=(e,t,n)=>{let r=mf(e),i=(t+1)/2*r.width+r.left,a=(1-n)/2*r.height+r.top;return new O(i,a)}})))()}var vf,yf,bf,xf,Sf,Cf,wf,Tf;function Ef(){return(Ef=t((()=>{j(),F(),mo(),_f(),fd(),vf=1,yf=.001,bf=.007,xf=.1,Sf={translate:`position`,rotate:`euler`,scale:`scale`},Cf=[`x`,`y`,`z`],wf=e=>{if(e.metaKey||e.ctrlKey||e.altKey||e.shiftKey)return null;let t=e.key.toLowerCase();return t===`g`?`translate`:t===`r`?`rotate`:t===`s`?`scale`:null},Tf=class{_engine;_getViewport;_api;_getSelectedEntity;_isPointerBusy;_onStatusChange;_pointerClient;_session;_disposeListeners;constructor(e){this._engine=e.engine,this._getViewport=e.getViewport,this._api=e.api,this._getSelectedEntity=e.getSelectedEntity,this._isPointerBusy=e.isPointerBusy,this._onStatusChange=e.onStatusChange,this._pointerClient=new O,this._session=null;let t=e=>{this._pointerClient.set(e.clientX,e.clientY)};window.addEventListener(`pointermove`,t),this._disposeListeners=()=>{window.removeEventListener(`pointermove`,t)}}get active(){return this._session!==null}get constraintDisplay(){let e=this._session;if(!e||e.trackball||!e.constraint)return null;let t=e.constraint,n=e.mode===`scale`||t.orientation===`local`;return{origin:e.anchorWorldPos,quat:n?e.startWorldQuat:new A,axes:t.plane?Cf.filter(e=>e!==t.axis):[t.axis]}}handleKeyDown(e){let t=this._session;if(!t){let t=wf(e);return t?this.start(t):!1}let n=e.key.toLowerCase();return e.key===`Enter`?this._confirm():e.key===`Escape`?this._cancel():n===`r`&&t.mode===`rotate`?this._toggleTrackball():t.trackball||(n===`x`||n===`y`||n===`z`?this._toggleConstraint(n,e.shiftKey):this._inputNumber(e.key)),!0}_inputNumber(e){let t=this._session;if(t){if(e.length===1&&e>=`0`&&e<=`9`)t.numberBuffer+=e;else if(e===`.`){if(t.numberBuffer.includes(`.`))return;t.numberBuffer+=`.`}else if(e===`-`)t.numberBuffer=t.numberBuffer.startsWith(`-`)?t.numberBuffer.slice(1):`-`+t.numberBuffer;else if(e===`Backspace`){if(t.numberBuffer===``)return;t.numberBuffer=t.numberBuffer.slice(0,-1)}else return;this._update()}}start(e){if(this._isPointerBusy())return!1;let t=this._getViewport();if(!t)return!1;let n=t.editorCamera,r=n.getCameraEntity(this._engine);if(!r)return!1;let i=this._getSelectedEntity(),a=!n.usingEditorCamera&&(!i||i===r);if(a&&e===`scale`)return!1;let o=a?r:i;if(!o)return!1;o.updateMatrix(!0);let s=r.getComponentsByTag(`camera`)[0];if(!s)return!1;let c=r.matrixWorld.elm,l=new O(c[12],c[13],c[14]),u=new O(-c[8],-c[9],-c[10]).normalize(),d=new O(c[0],c[1],c[2]).normalize(),f=new O(c[4],c[5],c[6]).normalize(),p=o.matrixWorld.elm,m=new O(p[12],p[13],p[14]),h=a?m.clone().add(u.clone().multiply(Math.max(s.dofParams.focusDistance,xf))):m.clone(),g=e=>{e.stopPropagation(),this._session&&(this._session.lastPointer.set(e.clientX,e.clientY),this._update())},_=e=>{e.preventDefault(),e.stopPropagation(),e.button===2?this._cancel():e.button===0&&this._confirm()};window.addEventListener(`pointermove`,g,{capture:!0}),window.addEventListener(`pointerdown`,_,{capture:!0});let v=n.orbitControls,y=v.enabled;return v.enabled=!1,this._session={mode:e,entity:o,canvas:t.canvas,selfView:a,constraint:null,numberBuffer:``,trackball:!1,trackballQuat:new A,trackballPointer:this._pointerClient.clone(),startValue:{position:o.position.getElm(`vec3`),euler:o.euler.getElm(`vec3`),scale:o.scale.getElm(`vec3`)},startWorldPos:m,startWorldQuat:od(o),parentWorldInv:o.parent?o.parent.matrixWorld.clone().inverse():new k,parentWorldQuatInv:o.parent?od(o.parent).inverse():new A,camForward:u,camRight:d,camUp:f,camWorldPos:l,anchorWorldPos:h,projInv:s.projectionMatrix.clone().inverse(),viewInv:s.viewMatrix.clone().inverse(),centerClient:this._projectToClient(m,s,t.canvas),startPointer:this._pointerClient.clone(),lastPointer:this._pointerClient.clone(),disposeSession:()=>{window.removeEventListener(`pointermove`,g,{capture:!0}),window.removeEventListener(`pointerdown`,_,{capture:!0}),v.enabled=y,this._session&&this._pointerClient.copy(this._session.lastPointer),this._session=null,this._onStatusChange(null)}},this._update(),!0}_confirm(){let e=this._session;if(!e)return;let t=Sf[e.mode],n=e.entity[t].getElm(`vec3`);this._api.commandManager.execute(new po(e.entity,t,e.startValue[t],n)),e.disposeSession()}_cancel(){let e=this._session;e&&(this._restoreStart(e),e.entity.updateMatrix(!0),e.disposeSession())}_restoreStart(e){e.entity.position.setFromArray(e.startValue.position),e.entity.euler.setFromArray(e.startValue.euler),e.entity.scale.setFromArray(e.startValue.scale)}_toggleConstraint(e,t){let n=this._session;if(!n||t&&n.mode===`rotate`)return;let r=n.constraint;n.constraint=!r||r.axis!==e||r.plane!==t?{axis:e,orientation:`global`,plane:t}:r.orientation===`global`?{axis:e,orientation:`local`,plane:t}:null,this._update()}_axisWorldDir(e,t,n){let r=new O(+(t===`x`),+(t===`y`),+(t===`z`));return n===`global`?r:sd(r,e.startWorldQuat).normalize()}_toggleTrackball(){let e=this._session;e&&(e.trackball=!e.trackball,e.constraint=null,e.numberBuffer=``,e.trackballQuat=new A,e.trackballPointer.copy(e.lastPointer),this._update())}_accumulateTrackball(e){let t=e.lastPointer.x-e.trackballPointer.x,n=e.lastPointer.y-e.trackballPointer.y;if(e.trackballPointer.copy(e.lastPointer),t===0&&n===0)return;let r=id(e.camUp,t*bf).multiply(id(e.camRight,n*bf));e.trackballQuat.preMultiply(r)}_update(){let e=this._session;if(!e)return;let t=e.numberBuffer===``?null:parseFloat(e.numberBuffer),n=0;t!==null&&Number.isNaN(t)?this._restoreStart(e):n=e.mode===`translate`?this._applyTranslate(e,t):e.mode===`rotate`?this._applyRotate(e,t):this._applyScale(e,t),e.entity.updateMatrix(!0),this._onStatusChange(this._statusText(e,n))}_applyTranslate(e,t){let n=e.constraint;if(t!==null){let n=this._numericTranslateDir(e);return this._setWorldPosition(e,e.startWorldPos.clone().add(n.multiply(t))),t}let r=this._rayFromClient(e.startPointer,e),i=this._rayFromClient(e.lastPointer,e);if(n&&!n.plane){let t=this._axisWorldDir(e,n.axis,n.orientation),a=ud(i,e.anchorWorldPos,t)-ud(r,e.anchorWorldPos,t);return this._setWorldPosition(e,e.startWorldPos.clone().add(t.clone().multiply(a))),a}let a=n?this._axisWorldDir(e,n.axis,n.orientation):e.camForward,o=dd(r,e.anchorWorldPos,a),s=dd(i,e.anchorWorldPos,a);if(!o||!s)return 0;let c=s.sub(o);return this._setWorldPosition(e,e.startWorldPos.clone().add(c)),c.length()}_numericTranslateDir(e){let t=e.constraint;if(!t)return new O(1,0,0);let n=t.plane?t.axis===`x`?`y`:`x`:t.axis;return this._axisWorldDir(e,n,t.orientation)}_applyRotate(e,t){if(e.trackball)return this._accumulateTrackball(e),this._setWorldRotation(e,e.trackballQuat.clone()),0;let n=e.constraint?this._axisWorldDir(e,e.constraint.axis,e.constraint.orientation):e.camForward,r=e.selfView?e.camForward.clone().multiply(-1):e.camWorldPos.clone().sub(e.startWorldPos),i=t!==null&&e.constraint?1:n.dot(r)<0?-1:1,a=t===null?this._screenAngle(e.lastPointer,e.centerClient)-this._screenAngle(e.startPointer,e.centerClient):t*Math.PI/180;return this._setWorldRotation(e,id(n,a*i)),a*180/Math.PI}_applyScale(e,t){let n;if(t!==null)n=t;else{let t=Math.max(vf,e.startPointer.distanceTo(e.centerClient));n=Math.max(yf,e.lastPointer.distanceTo(e.centerClient)/t)}let r=e.startValue.scale,i=e.constraint,a=Cf.map(e=>i?(i.plane?e!==i.axis:e===i.axis)?n:1:n);return e.entity.scale.set(r[0]*a[0],r[1]*a[1],r[2]*a[2]),n}_setWorldPosition(e,t){let n=t.applyMatrix4AsPosition(e.parentWorldInv);e.entity.position.set(n.x,n.y,n.z)}_setWorldRotation(e,t){e.entity.quaternion.copy(ld(e.parentWorldQuatInv,t,e.startWorldQuat))}_statusText(e,t){if(e.trackball)return`Rot: trackball`;let n=e.mode===`translate`?`Move D`:e.mode===`rotate`?`Rot`:`Scale`,r=e.mode===`rotate`?`°`:``;return`${n}: ${e.numberBuffer===``?t.toFixed(e.mode===`rotate`?1:3):`[${e.numberBuffer}]`}${r} (${this._constraintText(e)})`}_constraintText(e){let t=e.constraint;if(!t)return e.mode===`translate`?`view plane`:e.mode===`rotate`?`view axis`:`uniform`;let n=Cf.filter(e=>t.plane?e!==t.axis:e===t.axis).join(``).toUpperCase();return`${e.mode===`scale`?`local`:t.orientation} ${n}`}_rayFromClient(e,t){let n=hf(t.canvas,e.x,e.y);return new sn().setFromCamera(n,t.projInv,t.viewInv)}_projectToClient(e,t,n){let r=new O(e.x,e.y,e.z,1).applyMatrix4(t.viewMatrix).applyMatrix4(t.projectionMatrix);return Math.abs(r.w)<1e-4?gf(n,0,0):gf(n,r.x/r.w,r.y/r.w)}_screenAngle(e,t){return Math.atan2(-(e.y-t.y),e.x-t.x)}dispose(){this._cancel(),this._disposeListeners()}}})))()}function B(e){if(!e)throw Error(`Assertion failed.`)}var Df,Of,kf,V,Af,jf,Mf,Nf,Pf,Ff,If,Lf,Rf,zf,Bf,Vf,Hf,Uf,Wf,Gf,Kf,qf,Jf,Yf,Xf,Zf,Qf,$f,ep,tp,np,rp,ip,ap,op,sp,cp,lp,up,dp,fp,pp,mp;function hp(){return(hp=t((()=>{Df=e=>{let t=(e%360+360)%360;if(t===0||t===90||t===180||t===270)return t;throw Error(`Invalid rotation ${e}.`)},Of=e=>e&&e[e.length-1],kf=e=>e>=0&&e<2**32,V=e=>{let t=0;for(;e.readBits(1)===0&&t<32;)t++;if(t>=32)throw Error(`Invalid exponential-Golomb code.`);return(1<<t)-1+e.readBits(t)},Af=e=>{let t=V(e);return t&1?t+1>>1:-(t>>1)},jf=e=>e.constructor===Uint8Array?e:ArrayBuffer.isView(e)?new Uint8Array(e.buffer,e.byteOffset,e.byteLength):new Uint8Array(e),Mf=e=>e.constructor===DataView?e:ArrayBuffer.isView(e)?new DataView(e.buffer,e.byteOffset,e.byteLength):new DataView(e),Nf=new TextEncoder,Pf={bt709:1,bt470bg:5,smpte170m:6,bt2020:9,smpte432:12},Ff={bt709:1,smpte170m:6,linear:8,"iec61966-2-1":13,pq:16,hlg:18},If={rgb:0,bt709:1,bt470bg:5,smpte170m:6,"bt2020-ncl":9},Lf=e=>!!e&&!!e.primaries&&!!e.transfer&&!!e.matrix&&e.fullRange!==void 0,Rf=e=>e instanceof ArrayBuffer||typeof SharedArrayBuffer<`u`&&e instanceof SharedArrayBuffer||ArrayBuffer.isView(e),zf=class{constructor(){this.currentPromise=Promise.resolve(),this.pending=0}async acquire(){let e,t=new Promise(t=>{let n=!1;e=()=>{n||=(t(),this.pending--,!0)}}),n=this.currentPromise;return this.currentPromise=t,this.pending++,await n,e}},Bf=(e,t,n)=>{let r=0,i=e.length-1,a=-1;for(;r<=i;){let o=r+(i-r+1)/2|0;n(e[o])<=t?(a=o,r=o+1):i=o-1}return a},Vf=()=>{let e,t;return{promise:new Promise((n,r)=>{e=n,t=r}),resolve:e,reject:t}},Hf=e=>{throw Error(`Unexpected value: ${e}`)},Uf=(e,t,n)=>{let r=e.getUint8(t),i=e.getUint8(t+1),a=e.getUint8(t+2);return n?r|i<<8|a<<16:r<<16|i<<8|a},Wf=(e,t,n,r)=>{n>>>=0,n&=16777215,r?(e.setUint8(t,n&255),e.setUint8(t+1,n>>>8&255),e.setUint8(t+2,n>>>16&255)):(e.setUint8(t,n>>>16&255),e.setUint8(t+1,n>>>8&255),e.setUint8(t+2,n&255))},Gf=(e,t,n)=>Math.max(t,Math.min(n,e)),Kf=(e,t,n)=>e+(t-e)*n,qf=(e,t)=>Math.round(e/t)*t,Jf=(e,t)=>Math.floor(e*t)/t,Yf=/^[a-z]{3}$/,Xf=e=>Yf.test(e),Zf=1e6*(1+2**-52),Qf=(e,t)=>{let n=e<0?-1:1;e=Math.abs(e);let r=0,i=1,a=1,o=0,s=e;for(;;){let e=Math.floor(s),c=e*a+r,l=e*o+i;if(l>t)return{num:n*a,den:o};if(r=a,i=o,a=c,o=l,s=1/(s-e),!isFinite(s))break}return{num:n*a,den:o}},$f=class{constructor(){this.currentPromise=Promise.resolve()}call(e){return this.currentPromise=this.currentPromise.then(e)}},ep=null,tp=()=>ep===null?ep=typeof navigator<`u`&&navigator.userAgent?.includes(`Firefox`):ep,np=null,rp=()=>np===null?np=!!(typeof navigator<`u`&&(navigator.vendor?.includes(`Google Inc`)||/Chrome/.test(navigator.userAgent))):np,ip=null,ap=()=>{if(ip!==null)return ip;if(typeof navigator>`u`)return null;let e=/\bChrome\/(\d+)/.exec(navigator.userAgent);return e?ip=Number(e[1]):null},op=function*(e){for(let t in e){let n=e[t];n!==void 0&&(yield{key:t,value:n})}},sp=()=>{Symbol.dispose??=Symbol(`Symbol.dispose`)},cp=(e,t)=>{let n=-1,r=1/0;for(let i=0;i<e.length;i++){let a=t(e[i]);a<r&&(r=a,n=i)}return n},lp=e=>{B(Number.isInteger(e.num)),B(Number.isInteger(e.den)),B(e.den!==0);let t=Math.abs(e.num),n=Math.abs(e.den);for(;n!==0;){let e=t%n;t=n,n=e}let r=t||1;return{num:e.num/r,den:e.den/r}},up=(e,t)=>{if(typeof e!=`object`||!e)throw TypeError(`${t} must be an object.`);if(!Number.isInteger(e.left)||e.left<0)throw TypeError(`${t}.left must be a non-negative integer.`);if(!Number.isInteger(e.top)||e.top<0)throw TypeError(`${t}.top must be a non-negative integer.`);if(!Number.isInteger(e.width)||e.width<0)throw TypeError(`${t}.width must be a non-negative integer.`);if(!Number.isInteger(e.height)||e.height<0)throw TypeError(`${t}.height must be a non-negative integer.`)},dp=e=>new Promise(t=>setTimeout(t,e)),fp=e=>Array.isArray(e)?e:[e],pp=class{constructor(){this._listeners=new Map}on(e,t,n){this._listeners.has(e)||this._listeners.set(e,new Set);let r={fn:t,once:n?.once??!1};return this._listeners.get(e).add(r),()=>{this._listeners.get(e)?.delete(r)}}_emit(...e){let[t,n]=e,r=this._listeners.get(t);if(r)for(let e of r){try{e.fn(n)}catch(e){console.error(e)}e.once&&r.delete(e)}}},mp=e=>typeof e==`object`&&!!e&&Object.getPrototypeOf(e)===Object.prototype&&Object.values(e).every(e=>typeof e==`string`)})))()}var gp,_p;function vp(){return(vp=t((()=>{hp(),(function(e){e[e.Silent=0]=`Silent`,e[e.Errors=1]=`Errors`,e[e.Warnings=2]=`Warnings`,e[e.Info=3]=`Info`})(gp||={}),_p=class e{constructor(){}static get level(){return e._level}static set level(t){if(t!==gp.Silent&&t!==gp.Errors&&t!==gp.Warnings&&t!==gp.Info)throw TypeError(`Invalid log level. Use one of the values of the LogLevel enum.`);e._level=t}static get _emitter(){return e._emitterInstance??=new pp}static on(t,n,r){return e._emitter.on(t,n,r)}static _error(...t){e._emitter._emit(`error`,t),e._level>=gp.Errors&&console.error(...t)}static _warn(...t){e._emitter._emit(`warn`,t),e._level>=gp.Warnings&&console.warn(...t)}static _info(...t){e._emitter._emit(`info`,t),e._level>=gp.Info&&console.info(...t)}},_p._level=gp.Info,_p._emitterInstance=null})))()}var yp,bp,xp,Sp;function Cp(){return(Cp=t((()=>{hp(),yp=class{constructor(e,t){if(this.data=e,this.mimeType=t,!(e instanceof Uint8Array))throw TypeError(`data must be a Uint8Array.`);if(typeof t!=`string`)throw TypeError(`mimeType must be a string.`)}},bp=class{constructor(e,t,n,r){if(this.data=e,this.mimeType=t,this.name=n,this.description=r,!(e instanceof Uint8Array))throw TypeError(`data must be a Uint8Array.`);if(t!==void 0&&typeof t!=`string`)throw TypeError(`mimeType, when provided, must be a string.`);if(n!==void 0&&typeof n!=`string`)throw TypeError(`name, when provided, must be a string.`);if(r!==void 0&&typeof r!=`string`)throw TypeError(`description, when provided, must be a string.`)}},xp=e=>{if(!e||typeof e!=`object`)throw TypeError(`tags must be an object.`);if(e.title!==void 0&&typeof e.title!=`string`)throw TypeError(`tags.title, when provided, must be a string.`);if(e.description!==void 0&&typeof e.description!=`string`)throw TypeError(`tags.description, when provided, must be a string.`);if(e.artist!==void 0&&typeof e.artist!=`string`)throw TypeError(`tags.artist, when provided, must be a string.`);if(e.album!==void 0&&typeof e.album!=`string`)throw TypeError(`tags.album, when provided, must be a string.`);if(e.albumArtist!==void 0&&typeof e.albumArtist!=`string`)throw TypeError(`tags.albumArtist, when provided, must be a string.`);if(e.trackNumber!==void 0&&(!Number.isInteger(e.trackNumber)||e.trackNumber<=0))throw TypeError(`tags.trackNumber, when provided, must be a positive integer.`);if(e.tracksTotal!==void 0&&(!Number.isInteger(e.tracksTotal)||e.tracksTotal<=0))throw TypeError(`tags.tracksTotal, when provided, must be a positive integer.`);if(e.discNumber!==void 0&&(!Number.isInteger(e.discNumber)||e.discNumber<=0))throw TypeError(`tags.discNumber, when provided, must be a positive integer.`);if(e.discsTotal!==void 0&&(!Number.isInteger(e.discsTotal)||e.discsTotal<=0))throw TypeError(`tags.discsTotal, when provided, must be a positive integer.`);if(e.genre!==void 0&&typeof e.genre!=`string`)throw TypeError(`tags.genre, when provided, must be a string.`);if(e.date!==void 0&&(!(e.date instanceof Date)||Number.isNaN(e.date.getTime())))throw TypeError(`tags.date, when provided, must be a valid Date.`);if(e.lyrics!==void 0&&typeof e.lyrics!=`string`)throw TypeError(`tags.lyrics, when provided, must be a string.`);if(e.images!==void 0){if(!Array.isArray(e.images))throw TypeError(`tags.images, when provided, must be an array.`);for(let t of e.images){if(!t||typeof t!=`object`)throw TypeError(`Each image in tags.images must be an object.`);if(!(t.data instanceof Uint8Array))throw TypeError(`Each image.data must be a Uint8Array.`);if(typeof t.mimeType!=`string`)throw TypeError(`Each image.mimeType must be a string.`);if(![`coverFront`,`coverBack`,`unknown`].includes(t.kind))throw TypeError(`Each image.kind must be 'coverFront', 'coverBack', or 'unknown'.`)}}if(e.comment!==void 0&&typeof e.comment!=`string`)throw TypeError(`tags.comment, when provided, must be a string.`);if(e.raw!==void 0){if(!e.raw||typeof e.raw!=`object`)throw TypeError(`tags.raw, when provided, must be an object.`);for(let t of Object.values(e.raw))if(t!==null&&typeof t!=`string`&&!(t instanceof Uint8Array)&&!(t instanceof yp)&&!(t instanceof bp)&&!mp(t))throw TypeError(`Each value in tags.raw must be a string, Uint8Array, RichImageData, AttachedFile, Record<string, string>, or null.`)}},Sp=e=>{if(!e||typeof e!=`object`)throw TypeError(`disposition must be an object.`);if(e.default!==void 0&&typeof e.default!=`boolean`)throw TypeError(`disposition.default must be a boolean.`);if(e.primary!==void 0&&typeof e.primary!=`boolean`)throw TypeError(`disposition.primary must be a boolean.`);if(e.forced!==void 0&&typeof e.forced!=`boolean`)throw TypeError(`disposition.forced must be a boolean.`);if(e.original!==void 0&&typeof e.original!=`boolean`)throw TypeError(`disposition.original must be a boolean.`);if(e.commentary!==void 0&&typeof e.commentary!=`boolean`)throw TypeError(`disposition.commentary must be a boolean.`);if(e.hearingImpaired!==void 0&&typeof e.hearingImpaired!=`boolean`)throw TypeError(`disposition.hearingImpaired must be a boolean.`);if(e.visuallyImpaired!==void 0&&typeof e.visuallyImpaired!=`boolean`)throw TypeError(`disposition.visuallyImpaired must be a boolean.`)}})))()}var wp;function Tp(){return(Tp=t((()=>{wp=class e{constructor(e){this.bytes=e,this.pos=0}seekToByte(e){this.pos=8*e}readBit(){let e=Math.floor(this.pos/8),t=this.bytes[e]??0,n=7-(this.pos&7),r=(t&1<<n)>>n;return this.pos++,r}readBits(e){if(e===1)return this.readBit();let t=0;for(let n=0;n<e;n++)t<<=1,t|=this.readBit();return t}writeBits(e,t){let n=this.pos+e;for(let e=this.pos;e<n;e++){let r=Math.floor(e/8),i=this.bytes[r],a=7-(e&7);i&=~(1<<a),i|=(t&1<<n-e-1)>>n-e-1<<a,this.bytes[r]=i}this.pos=n}readAlignedByte(){if(this.pos%8!=0)throw Error(`Bitstream is not byte-aligned.`);let e=this.pos/8,t=this.bytes[e]??0;return this.pos+=8,t}skipBits(e){this.pos+=e}getBitsLeft(){return this.bytes.length*8-this.pos}clone(){let t=new e(this.bytes);return t.pos=this.pos,t}}})))()}var Ep,Dp,Op;function kp(){return(kp=t((()=>{Tp(),Ep=[96e3,88200,64e3,48e3,44100,32e3,24e3,22050,16e3,12e3,11025,8e3,7350],Dp=[-1,1,2,3,4,5,6,8],Op=e=>{let t=Ep.indexOf(e.sampleRate),n=null;t===-1&&(t=15,n=e.sampleRate);let r=Dp.indexOf(e.numberOfChannels);if(r===-1)throw TypeError(`Unsupported number of channels: ${e.numberOfChannels}`);let i=13;e.objectType>=32&&(i+=6),t===15&&(i+=24);let a=Math.ceil(i/8),o=new Uint8Array(a),s=new wp(o);return e.objectType<32?s.writeBits(5,e.objectType):(s.writeBits(5,31),s.writeBits(6,e.objectType-32)),s.writeBits(4,t),t===15&&s.writeBits(24,n),s.writeBits(4,r),o}})))()}var Ap,jp,Mp,Np,Pp,Fp,Ip,Lp,Rp,zp,Bp,Vp,Hp,Up,Wp,Gp,Kp,qp,Jp,Yp,Xp,Zp,Qp,$p,em,tm;function nm(){return(nm=t((()=>{hp(),Ap=[`avc`,`hevc`,`vp9`,`av1`,`vp8`,`prores`],jp=[`pcm-s16`,`pcm-s16be`,`pcm-s24`,`pcm-s24be`,`pcm-s32`,`pcm-s32be`,`pcm-f32`,`pcm-f32be`,`pcm-f64`,`pcm-f64be`,`pcm-u8`,`pcm-s8`,`ulaw`,`alaw`],Mp=[`aac`,`opus`,`mp3`,`vorbis`,`flac`,`ac3`,`eac3`],Np=[...Mp,...jp],Pp=[`webvtt`],Fp=[{maxMacroblocks:99,maxBitrate:64e3,maxDpbMbs:396,level:10},{maxMacroblocks:396,maxBitrate:192e3,maxDpbMbs:900,level:11},{maxMacroblocks:396,maxBitrate:384e3,maxDpbMbs:2376,level:12},{maxMacroblocks:396,maxBitrate:768e3,maxDpbMbs:2376,level:13},{maxMacroblocks:396,maxBitrate:2e6,maxDpbMbs:2376,level:20},{maxMacroblocks:792,maxBitrate:4e6,maxDpbMbs:4752,level:21},{maxMacroblocks:1620,maxBitrate:4e6,maxDpbMbs:8100,level:22},{maxMacroblocks:1620,maxBitrate:1e7,maxDpbMbs:8100,level:30},{maxMacroblocks:3600,maxBitrate:14e6,maxDpbMbs:18e3,level:31},{maxMacroblocks:5120,maxBitrate:2e7,maxDpbMbs:20480,level:32},{maxMacroblocks:8192,maxBitrate:2e7,maxDpbMbs:32768,level:40},{maxMacroblocks:8192,maxBitrate:5e7,maxDpbMbs:32768,level:41},{maxMacroblocks:8704,maxBitrate:5e7,maxDpbMbs:34816,level:42},{maxMacroblocks:22080,maxBitrate:135e6,maxDpbMbs:110400,level:50},{maxMacroblocks:36864,maxBitrate:24e7,maxDpbMbs:184320,level:51},{maxMacroblocks:36864,maxBitrate:24e7,maxDpbMbs:184320,level:52},{maxMacroblocks:139264,maxBitrate:24e7,maxDpbMbs:696320,level:60},{maxMacroblocks:139264,maxBitrate:48e7,maxDpbMbs:696320,level:61},{maxMacroblocks:139264,maxBitrate:8e8,maxDpbMbs:696320,level:62}],Ip=[{maxPictureSize:36864,maxBitrate:128e3,tier:`L`,level:30},{maxPictureSize:122880,maxBitrate:15e5,tier:`L`,level:60},{maxPictureSize:245760,maxBitrate:3e6,tier:`L`,level:63},{maxPictureSize:552960,maxBitrate:6e6,tier:`L`,level:90},{maxPictureSize:983040,maxBitrate:1e7,tier:`L`,level:93},{maxPictureSize:2228224,maxBitrate:12e6,tier:`L`,level:120},{maxPictureSize:2228224,maxBitrate:3e7,tier:`H`,level:120},{maxPictureSize:2228224,maxBitrate:2e7,tier:`L`,level:123},{maxPictureSize:2228224,maxBitrate:5e7,tier:`H`,level:123},{maxPictureSize:8912896,maxBitrate:25e6,tier:`L`,level:150},{maxPictureSize:8912896,maxBitrate:1e8,tier:`H`,level:150},{maxPictureSize:8912896,maxBitrate:4e7,tier:`L`,level:153},{maxPictureSize:8912896,maxBitrate:16e7,tier:`H`,level:153},{maxPictureSize:8912896,maxBitrate:6e7,tier:`L`,level:156},{maxPictureSize:8912896,maxBitrate:24e7,tier:`H`,level:156},{maxPictureSize:35651584,maxBitrate:6e7,tier:`L`,level:180},{maxPictureSize:35651584,maxBitrate:24e7,tier:`H`,level:180},{maxPictureSize:35651584,maxBitrate:12e7,tier:`L`,level:183},{maxPictureSize:35651584,maxBitrate:48e7,tier:`H`,level:183},{maxPictureSize:35651584,maxBitrate:24e7,tier:`L`,level:186},{maxPictureSize:35651584,maxBitrate:8e8,tier:`H`,level:186}],Lp=[{maxPictureSize:36864,maxBitrate:2e5,level:10},{maxPictureSize:73728,maxBitrate:8e5,level:11},{maxPictureSize:122880,maxBitrate:18e5,level:20},{maxPictureSize:245760,maxBitrate:36e5,level:21},{maxPictureSize:552960,maxBitrate:72e5,level:30},{maxPictureSize:983040,maxBitrate:12e6,level:31},{maxPictureSize:2228224,maxBitrate:18e6,level:40},{maxPictureSize:2228224,maxBitrate:3e7,level:41},{maxPictureSize:8912896,maxBitrate:6e7,level:50},{maxPictureSize:8912896,maxBitrate:12e7,level:51},{maxPictureSize:8912896,maxBitrate:18e7,level:52},{maxPictureSize:35651584,maxBitrate:18e7,level:60},{maxPictureSize:35651584,maxBitrate:24e7,level:61},{maxPictureSize:35651584,maxBitrate:48e7,level:62}],Rp=[{maxPictureSize:147456,maxBitrate:15e5,tier:`M`,level:0},{maxPictureSize:278784,maxBitrate:3e6,tier:`M`,level:1},{maxPictureSize:665856,maxBitrate:6e6,tier:`M`,level:4},{maxPictureSize:1065024,maxBitrate:1e7,tier:`M`,level:5},{maxPictureSize:2359296,maxBitrate:12e6,tier:`M`,level:8},{maxPictureSize:2359296,maxBitrate:3e7,tier:`H`,level:8},{maxPictureSize:2359296,maxBitrate:2e7,tier:`M`,level:9},{maxPictureSize:2359296,maxBitrate:5e7,tier:`H`,level:9},{maxPictureSize:8912896,maxBitrate:3e7,tier:`M`,level:12},{maxPictureSize:8912896,maxBitrate:1e8,tier:`H`,level:12},{maxPictureSize:8912896,maxBitrate:4e7,tier:`M`,level:13},{maxPictureSize:8912896,maxBitrate:16e7,tier:`H`,level:13},{maxPictureSize:8912896,maxBitrate:6e7,tier:`M`,level:14},{maxPictureSize:8912896,maxBitrate:24e7,tier:`H`,level:14},{maxPictureSize:35651584,maxBitrate:6e7,tier:`M`,level:15},{maxPictureSize:35651584,maxBitrate:24e7,tier:`H`,level:15},{maxPictureSize:35651584,maxBitrate:6e7,tier:`M`,level:16},{maxPictureSize:35651584,maxBitrate:24e7,tier:`H`,level:16},{maxPictureSize:35651584,maxBitrate:1e8,tier:`M`,level:17},{maxPictureSize:35651584,maxBitrate:48e7,tier:`H`,level:17},{maxPictureSize:35651584,maxBitrate:16e7,tier:`M`,level:18},{maxPictureSize:35651584,maxBitrate:8e8,tier:`H`,level:18},{maxPictureSize:35651584,maxBitrate:16e7,tier:`M`,level:19},{maxPictureSize:35651584,maxBitrate:8e8,tier:`H`,level:19}],zp=[`ap4x`,`ap4h`,`apch`,`apcn`,`apcs`,`apco`],Bp=[{fourCc:`apco`,bitrate:45e6,alpha:!1},{fourCc:`apcs`,bitrate:102e6,alpha:!1},{fourCc:`apcn`,bitrate:147e6,alpha:!1},{fourCc:`apch`,bitrate:22e7,alpha:!1},{fourCc:`ap4h`,bitrate:33e7,alpha:!0},{fourCc:`ap4x`,bitrate:5e8,alpha:!0}],Vp=(e,t,n,r,i)=>{if(e===`avc`){let e=Math.ceil(t/16)*Math.ceil(n/16),i=Fp.find(t=>e<=t.maxMacroblocks&&r<=t.maxBitrate)??Of(Fp),a=i?i.level:0;return`avc1.${`64`.padStart(2,`0`)}00${a.toString(16).padStart(2,`0`)}`}if(e===`hevc`){let e=t*n,i=Ip.find(t=>e<=t.maxPictureSize&&r<=t.maxBitrate)??Of(Ip);return`hev1.1.6.${i.tier}${i.level}.B0`}if(e===`vp8`)return`vp8`;if(e===`vp9`){let e=t*n;return`vp09.00.${(Lp.find(t=>e<=t.maxPictureSize&&r<=t.maxBitrate)??Of(Lp)).level.toString().padStart(2,`0`)}.08`}if(e===`av1`){let e=t*n,i=Rp.find(t=>e<=t.maxPictureSize&&r<=t.maxBitrate)??Of(Rp);return`av01.0.${i.level.toString().padStart(2,`0`)}${i.tier}.08`}if(e===`prores`){let e=(t*n/2073600)**.95,a=Bp.filter(e=>e.alpha===i),o=a[0].fourCc,s=1/0;for(let{fourCc:t,bitrate:n}of a){let i=Math.abs(n*e-r);i<s&&(s=i,o=t)}return o}throw Hf(e),TypeError(`Unhandled codec '${String(e)}'.`)},Hp=e=>{let t=e.split(`.`),n=Number(t[1]),r=t[2],i=Number(r.slice(0,-1)),a=(n<<5)+i,o=+(r.slice(-1)===`H`),s=Number(t[3])===8?0:1,c=t[4]?Number(t[4]):0,l=t[5]?Number(t[5][0]):1,u=t[5]?Number(t[5][1]):1,d=t[5]?Number(t[5][2]):0;return[129,a,(o<<7)+(s<<6)+0+(c<<4)+(l<<3)+(u<<2)+d,0]},Up=/^pcm-([usf])(\d+)(be)?$/,Wp=e=>{if(B(jp.includes(e)),e===`ulaw`)return{dataType:`ulaw`,sampleSize:1,littleEndian:!0,silentValue:255};if(e===`alaw`)return{dataType:`alaw`,sampleSize:1,littleEndian:!0,silentValue:213};let t=Up.exec(e);B(t);let n;n=t[1]===`u`?`unsigned`:t[1]===`s`?`signed`:`float`;let r=Number(t[2])/8,i=t[3]!==`be`;return{dataType:n,sampleSize:r,littleEndian:i,silentValue:e===`pcm-u8`?128:0}},Gp=e=>e.startsWith(`avc1`)||e.startsWith(`avc3`)?`avc`:e.startsWith(`hev1`)||e.startsWith(`hvc1`)?`hevc`:e===`vp8`?`vp8`:e.startsWith(`vp09`)?`vp9`:e.startsWith(`av01`)?`av1`:zp.includes(e)?`prores`:e===`mp3`||e===`mp4a.69`||e===`mp4a.6B`||e===`mp4a.6b`||e===`mp4a.40.34`?`mp3`:e.startsWith(`mp4a.40.`)||e===`mp4a.67`?`aac`:e===`opus`?`opus`:e===`vorbis`?`vorbis`:e===`flac`?`flac`:e===`ac-3`||e===`ac3`?`ac3`:e===`ec-3`||e===`eac3`?`eac3`:e===`ulaw`?`ulaw`:e===`alaw`?`alaw`:Up.test(e)?e:e===`webvtt`?`webvtt`:null,Kp=e=>e===`avc`?{avc:{format:`avc`}}:e===`hevc`?{hevc:{format:`hevc`}}:{},qp=[`avc1`,`avc3`,`hev1`,`hvc1`,`vp8`,`vp09`,`av01`,...zp],Jp=/^(avc1|avc3)\.[0-9a-fA-F]{6}$/,Yp=/^(hev1|hvc1)\.(?:[ABC]?\d+)\.[0-9a-fA-F]{1,8}\.[LH]\d+(?:\.[0-9a-fA-F]{1,2}){0,6}$/,Xp=/^vp09(?:\.\d{2}){3}(?:(?:\.\d{2}){5})?$/,Zp=/^av01\.\d\.\d{2}[MH]\.\d{2}(?:\.\d\.\d{3}\.\d{2}\.\d{2}\.\d{2}\.\d)?$/,Qp=(e,t)=>{if(!e)throw TypeError(`Video chunk metadata must be provided.`);if(typeof e!=`object`)throw TypeError(`Video chunk metadata must be an object.`);if(!e.decoderConfig)throw TypeError(`Video chunk metadata must include a decoder configuration.`);if(typeof e.decoderConfig!=`object`)throw TypeError(`Video chunk metadata decoder configuration must be an object.`);if(typeof e.decoderConfig.codec!=`string`)throw TypeError(`Video chunk metadata decoder configuration must specify a codec string.`);if(!qp.some(t=>e.decoderConfig.codec.startsWith(t)))throw TypeError(`Video chunk metadata decoder configuration codec string must be a valid video codec string as specified in the Mediabunny Codec Registry.`);if(!Number.isInteger(e.decoderConfig.codedWidth)||e.decoderConfig.codedWidth<=0)throw TypeError(`Video chunk metadata decoder configuration must specify a valid codedWidth (positive integer).`);if(!Number.isInteger(e.decoderConfig.codedHeight)||e.decoderConfig.codedHeight<=0)throw TypeError(`Video chunk metadata decoder configuration must specify a valid codedHeight (positive integer).`);if(e.decoderConfig.displayAspectWidth!==void 0&&(!Number.isInteger(e.decoderConfig.displayAspectWidth)||e.decoderConfig.displayAspectWidth<=0))throw TypeError(`Video chunk metadata decoder configuration displayAspectWidth, when defined, must be a positive integer.`);if(e.decoderConfig.displayAspectHeight!==void 0&&(!Number.isInteger(e.decoderConfig.displayAspectHeight)||e.decoderConfig.displayAspectHeight<=0))throw TypeError(`Video chunk metadata decoder configuration displayAspectHeight, when defined, must be a positive integer.`);if(e.decoderConfig.displayAspectWidth!==void 0!=(e.decoderConfig.displayAspectHeight!==void 0))throw TypeError(`Video chunk metadata decoder configuration must specify both displayAspectWidth and displayAspectHeight, or neither.`);if(e.decoderConfig.description!==void 0&&!Rf(e.decoderConfig.description))throw TypeError(`Video chunk metadata decoder configuration description, when defined, must be an ArrayBuffer or an ArrayBuffer view.`);if(e.decoderConfig.colorSpace!==void 0){let{colorSpace:t}=e.decoderConfig;if(typeof t!=`object`)throw TypeError(`Video chunk metadata decoder configuration colorSpace, when provided, must be an object.`);let n=Object.keys(Pf);if(t.primaries!=null&&!n.includes(t.primaries))throw TypeError(`Video chunk metadata decoder configuration colorSpace primaries, when defined, must be one of ${n.join(`, `)}.`);let r=Object.keys(Ff);if(t.transfer!=null&&!r.includes(t.transfer))throw TypeError(`Video chunk metadata decoder configuration colorSpace transfer, when defined, must be one of ${r.join(`, `)}.`);let i=Object.keys(If);if(t.matrix!=null&&!i.includes(t.matrix))throw TypeError(`Video chunk metadata decoder configuration colorSpace matrix, when defined, must be one of ${i.join(`, `)}.`);if(t.fullRange!=null&&typeof t.fullRange!=`boolean`)throw TypeError(`Video chunk metadata decoder configuration colorSpace fullRange, when defined, must be a boolean.`)}if(e.decoderConfig.codec.startsWith(`avc1`)||e.decoderConfig.codec.startsWith(`avc3`)){if(!Jp.test(e.decoderConfig.codec))throw TypeError(`Video chunk metadata decoder configuration codec string for AVC must be a valid AVC codec string as specified in Section 3.4 of RFC 6381.`)}else if(e.decoderConfig.codec.startsWith(`hev1`)||e.decoderConfig.codec.startsWith(`hvc1`)){if(!Yp.test(e.decoderConfig.codec))throw TypeError(`Video chunk metadata decoder configuration codec string for HEVC must be a valid HEVC codec string as specified in Section E.3 of ISO 14496-15.`)}else if(e.decoderConfig.codec.startsWith(`vp8`)){if(e.decoderConfig.codec!==`vp8`)throw TypeError(`Video chunk metadata decoder configuration codec string for VP8 must be "vp8".`)}else if(e.decoderConfig.codec.startsWith(`vp09`)){if(!Xp.test(e.decoderConfig.codec))throw TypeError(`Video chunk metadata decoder configuration codec string for VP9 must be a valid VP9 codec string as specified in Section "Codecs Parameter String" of https://www.webmproject.org/vp9/mp4/.`)}else if(e.decoderConfig.codec.startsWith(`av01`)){if(!Zp.test(e.decoderConfig.codec))throw TypeError(`Video chunk metadata decoder configuration codec string for AV1 must be a valid AV1 codec string as specified in Section "Codecs Parameter String" of https://aomediacodec.github.io/av1-isobmff/.`)}else if(zp.some(t=>e.decoderConfig.codec.startsWith(t))&&!zp.some(t=>e.decoderConfig.codec===t))throw TypeError(`Video chunk metadata decoder configuration codec string for ProRes must be one of the valid ProRes four-character codes: ${zp.join(`, `)}.`);if(t!==null&&Gp(e.decoderConfig.codec)!==t)throw TypeError(`Video chunk metadata decoder configuration codec string '${e.decoderConfig.codec}' does not fit to the track codec '${t}'.`)},$p=[`mp4a`,`mp3`,`opus`,`vorbis`,`flac`,`ulaw`,`alaw`,`pcm`,`ac-3`,`ec-3`],em=(e,t)=>{if(!e)throw TypeError(`Audio chunk metadata must be provided.`);if(typeof e!=`object`)throw TypeError(`Audio chunk metadata must be an object.`);if(!e.decoderConfig)throw TypeError(`Audio chunk metadata must include a decoder configuration.`);if(typeof e.decoderConfig!=`object`)throw TypeError(`Audio chunk metadata decoder configuration must be an object.`);if(typeof e.decoderConfig.codec!=`string`)throw TypeError(`Audio chunk metadata decoder configuration must specify a codec string.`);if(!$p.some(t=>e.decoderConfig.codec.startsWith(t)))throw TypeError(`Audio chunk metadata decoder configuration codec string must be a valid audio codec string as specified in the Mediabunny Codec Registry.`);if(!Number.isInteger(e.decoderConfig.sampleRate)||e.decoderConfig.sampleRate<=0)throw TypeError(`Audio chunk metadata decoder configuration must specify a valid sampleRate (positive integer).`);if(!Number.isInteger(e.decoderConfig.numberOfChannels)||e.decoderConfig.numberOfChannels<=0)throw TypeError(`Audio chunk metadata decoder configuration must specify a valid numberOfChannels (positive integer).`);if(e.decoderConfig.description!==void 0&&!Rf(e.decoderConfig.description))throw TypeError(`Audio chunk metadata decoder configuration description, when defined, must be an ArrayBuffer or an ArrayBuffer view.`);if(e.decoderConfig.codec.startsWith(`mp4a`)&&e.decoderConfig.codec!==`mp4a.69`&&e.decoderConfig.codec!==`mp4a.6B`&&e.decoderConfig.codec!==`mp4a.6b`){if(![`mp4a.40.2`,`mp4a.40.02`,`mp4a.40.5`,`mp4a.40.05`,`mp4a.40.29`,`mp4a.67`].includes(e.decoderConfig.codec))throw TypeError(`Audio chunk metadata decoder configuration codec string for AAC must be a valid AAC codec string as specified in https://www.w3.org/TR/webcodecs-aac-codec-registration/.`)}else if(e.decoderConfig.codec.startsWith(`mp3`)||e.decoderConfig.codec.startsWith(`mp4a`)){if(e.decoderConfig.codec!==`mp3`&&e.decoderConfig.codec!==`mp4a.69`&&e.decoderConfig.codec!==`mp4a.6B`&&e.decoderConfig.codec!==`mp4a.6b`)throw TypeError(`Audio chunk metadata decoder configuration codec string for MP3 must be "mp3", "mp4a.69" or "mp4a.6B".`)}else if(e.decoderConfig.codec.startsWith(`opus`)){if(e.decoderConfig.codec!==`opus`)throw TypeError(`Audio chunk metadata decoder configuration codec string for Opus must be "opus".`);if(e.decoderConfig.description&&e.decoderConfig.description.byteLength<18)throw TypeError(`Audio chunk metadata decoder configuration description, when specified, is expected to be an Identification Header as specified in Section 5.1 of RFC 7845.`)}else if(e.decoderConfig.codec.startsWith(`vorbis`)){if(e.decoderConfig.codec!==`vorbis`)throw TypeError(`Audio chunk metadata decoder configuration codec string for Vorbis must be "vorbis".`);if(!e.decoderConfig.description)throw TypeError(`Audio chunk metadata decoder configuration for Vorbis must include a description, which is expected to adhere to the format described in https://www.w3.org/TR/webcodecs-vorbis-codec-registration/.`)}else if(e.decoderConfig.codec.startsWith(`flac`)){if(e.decoderConfig.codec!==`flac`)throw TypeError(`Audio chunk metadata decoder configuration codec string for FLAC must be "flac".`);if(!e.decoderConfig.description||e.decoderConfig.description.byteLength<42)throw TypeError(`Audio chunk metadata decoder configuration for FLAC must include a description, which is expected to adhere to the format described in https://www.w3.org/TR/webcodecs-flac-codec-registration/.`)}else if(e.decoderConfig.codec.startsWith(`ac-3`)||e.decoderConfig.codec.startsWith(`ac3`)){if(e.decoderConfig.codec!==`ac-3`)throw TypeError(`Audio chunk metadata decoder configuration codec string for AC-3 must be "ac-3".`)}else if(e.decoderConfig.codec.startsWith(`ec-3`)||e.decoderConfig.codec.startsWith(`eac3`)){if(e.decoderConfig.codec!==`ec-3`)throw TypeError(`Audio chunk metadata decoder configuration codec string for EC-3 must be "ec-3".`)}else if((e.decoderConfig.codec.startsWith(`pcm`)||e.decoderConfig.codec.startsWith(`ulaw`)||e.decoderConfig.codec.startsWith(`alaw`))&&!jp.includes(e.decoderConfig.codec))throw TypeError(`Audio chunk metadata decoder configuration codec string for PCM must be one of the supported PCM codecs (${jp.join(`, `)}).`);if(t!==null&&Gp(e.decoderConfig.codec)!==t)throw TypeError(`Audio chunk metadata decoder configuration codec string '${e.decoderConfig.codec}' does not fit to the track codec '${t}'.`)},tm=e=>{if(!e)throw TypeError(`Subtitle metadata must be provided.`);if(typeof e!=`object`)throw TypeError(`Subtitle metadata must be an object.`);if(!e.config)throw TypeError(`Subtitle metadata must include a config object.`);if(typeof e.config!=`object`)throw TypeError(`Subtitle metadata config must be an object.`);if(typeof e.config.description!=`string`)throw TypeError(`Subtitle metadata config description must be a string.`)}})))()}var rm,im;function am(){return(am=t((()=>{rm=[48e3,44100,32e3],im=[24e3,22050,16e3]})))()}var om,sm,cm,lm,um,dm,fm,pm,mm,hm,gm,_m,vm,ym,bm,xm,Sm,Cm,wm,Tm,Em,Dm,Om,km,Am,jm,Mm,Nm,Pm,Fm,Im,Lm,Rm;function zm(){return(zm=t((()=>{nm(),hp(),vp(),am(),Tp(),(function(e){e[e.NON_IDR_SLICE=1]=`NON_IDR_SLICE`,e[e.SLICE_DPA=2]=`SLICE_DPA`,e[e.SLICE_DPB=3]=`SLICE_DPB`,e[e.SLICE_DPC=4]=`SLICE_DPC`,e[e.IDR=5]=`IDR`,e[e.SEI=6]=`SEI`,e[e.SPS=7]=`SPS`,e[e.PPS=8]=`PPS`,e[e.AUD=9]=`AUD`,e[e.SPS_EXT=13]=`SPS_EXT`})(om||={}),(function(e){e[e.RASL_N=8]=`RASL_N`,e[e.RASL_R=9]=`RASL_R`,e[e.BLA_W_LP=16]=`BLA_W_LP`,e[e.RSV_IRAP_VCL23=23]=`RSV_IRAP_VCL23`,e[e.VPS_NUT=32]=`VPS_NUT`,e[e.SPS_NUT=33]=`SPS_NUT`,e[e.PPS_NUT=34]=`PPS_NUT`,e[e.AUD_NUT=35]=`AUD_NUT`,e[e.PREFIX_SEI_NUT=39]=`PREFIX_SEI_NUT`,e[e.SUFFIX_SEI_NUT=40]=`SUFFIX_SEI_NUT`})(sm||={}),cm=function*(e){let t=0,n=-1;for(;t<e.length-2;){let r=e.indexOf(0,t);if(r===-1||r>=e.length-2)break;t=r;let i=0;if(t+3<e.length&&e[t+1]===0&&e[t+2]===0&&e[t+3]===1?i=4:e[t+1]===0&&e[t+2]===1&&(i=3),i===0){t++;continue}n!==-1&&t>n&&(yield{offset:n,length:t-n}),n=t+i,t=n}n!==-1&&n<e.length&&(yield{offset:n,length:e.length-n})},lm=function*(e,t){let n=0,r=new DataView(e.buffer,e.byteOffset,e.byteLength);for(;n+t<=e.length;){let e;t===1?e=r.getUint8(n):t===2?e=r.getUint16(n,!1):t===3?e=Uf(r,n,!1):(B(t===4),e=r.getUint32(n,!1)),n+=t,yield{offset:n,length:e},n+=e}},um=(e,t)=>{if(t.description){let n=(jf(t.description)[4]&3)+1;return lm(e,n)}return cm(e)},dm=e=>e&31,fm=e=>{let t=[],n=e.length;for(let r=0;r<n;r++)r+2<n&&e[r]===0&&e[r+1]===0&&e[r+2]===3?(t.push(0,0),r+=2):t.push(e[r]);return new Uint8Array(t)},new Uint8Array([0,0,0,1]),pm=(e,t)=>{let n=e.reduce((e,n)=>e+t+n.byteLength,0),r=new Uint8Array(n),i=0;for(let n of e){let e=new DataView(r.buffer,r.byteOffset,r.byteLength);switch(t){case 1:e.setUint8(i,n.byteLength);break;case 2:e.setUint16(i,n.byteLength,!1);break;case 3:Wf(e,i,n.byteLength,!1);break;case 4:e.setUint32(i,n.byteLength,!1)}i+=t,r.set(n,i),i+=n.byteLength}return r},mm=e=>{try{let t=[],n=[],r=[];for(let i of cm(e)){let a=e.subarray(i.offset,i.offset+i.length),o=dm(a[0]);o===om.SPS?t.push(a):o===om.PPS?n.push(a):o===om.SPS_EXT&&r.push(a)}if(t.length===0||n.length===0)return null;let i=t[0],a=_m(i);B(a!==null);let o=a.profileIdc===100||a.profileIdc===110||a.profileIdc===122||a.profileIdc===144;return{configurationVersion:1,avcProfileIndication:a.profileIdc,profileCompatibility:a.constraintFlags,avcLevelIndication:a.levelIdc,lengthSizeMinusOne:3,sequenceParameterSets:t,pictureParameterSets:n,chromaFormat:o?a.chromaFormatIdc:null,bitDepthLumaMinus8:o?a.bitDepthLumaMinus8:null,bitDepthChromaMinus8:o?a.bitDepthChromaMinus8:null,sequenceParameterSetExt:o?r:null}}catch(e){return _p._error(`Error building AVC Decoder Configuration Record:`,e),null}},hm=e=>{let t=[];t.push(e.configurationVersion),t.push(e.avcProfileIndication),t.push(e.profileCompatibility),t.push(e.avcLevelIndication),t.push(252|e.lengthSizeMinusOne&3),t.push(224|e.sequenceParameterSets.length&31);for(let n of e.sequenceParameterSets){let e=n.byteLength;t.push(e>>8),t.push(e&255);for(let r=0;r<e;r++)t.push(n[r])}t.push(e.pictureParameterSets.length);for(let n of e.pictureParameterSets){let e=n.byteLength;t.push(e>>8),t.push(e&255);for(let r=0;r<e;r++)t.push(n[r])}if(e.avcProfileIndication===100||e.avcProfileIndication===110||e.avcProfileIndication===122||e.avcProfileIndication===144){B(e.chromaFormat!==null),B(e.bitDepthLumaMinus8!==null),B(e.bitDepthChromaMinus8!==null),B(e.sequenceParameterSetExt!==null),t.push(252|e.chromaFormat&3),t.push(248|e.bitDepthLumaMinus8&7),t.push(248|e.bitDepthChromaMinus8&7),t.push(e.sequenceParameterSetExt.length);for(let n of e.sequenceParameterSetExt){let e=n.byteLength;t.push(e>>8),t.push(e&255);for(let r=0;r<e;r++)t.push(n[r])}}return new Uint8Array(t)},gm={1:{num:1,den:1},2:{num:12,den:11},3:{num:10,den:11},4:{num:16,den:11},5:{num:40,den:33},6:{num:24,den:11},7:{num:20,den:11},8:{num:32,den:11},9:{num:80,den:33},10:{num:18,den:11},11:{num:15,den:11},12:{num:64,den:33},13:{num:160,den:99},14:{num:4,den:3},15:{num:3,den:2},16:{num:2,den:1}},_m=e=>{try{let t=new wp(fm(e));if(t.skipBits(1),t.skipBits(2),t.readBits(5)!==7)return null;let n=t.readAlignedByte(),r=t.readAlignedByte(),i=t.readAlignedByte();V(t);let a=1,o=0,s=0,c=0;if((n===100||n===110||n===122||n===244||n===44||n===83||n===86||n===118||n===128)&&(a=V(t),a===3&&(c=t.readBits(1)),o=V(t),s=V(t),t.skipBits(1),t.readBits(1))){for(let e=0;e<(a===3?12:8);e++)if(t.readBits(1)){let n=e<6?16:64,r=8,i=8;for(let e=0;e<n;e++){if(i!==0){let e=Af(t);i=(r+e+256)%256}r=i===0?r:i}}}V(t);let l=V(t);if(l===0)V(t);else if(l===1){t.skipBits(1),Af(t),Af(t);let e=V(t);for(let n=0;n<e;n++)Af(t)}V(t),t.skipBits(1);let u=V(t),d=V(t),f=16*(u+1),p=16*(d+1),m=f,h=p,g=t.readBits(1);if(g||t.skipBits(1),t.skipBits(1),t.readBits(1)){let e=V(t),n=V(t),r=V(t),i=V(t),o,s;if((c===0?a:0)===0)o=1,s=2-g;else{let e=a===3?1:2,t=a===1?2:1;o=e,s=t*(2-g)}m-=o*(e+n),h-=s*(r+i)}let _=2,v=2,y=2,b=0,x={num:1,den:1},S=null,C=null;if(t.readBits(1)){if(t.readBits(1)){let e=t.readBits(8);if(e===255)x={num:t.readBits(16),den:t.readBits(16)};else{let t=gm[e];t&&(x=t)}}t.readBits(1)&&t.skipBits(1),t.readBits(1)&&(t.skipBits(3),b=t.readBits(1),t.readBits(1)&&(_=t.readBits(8),v=t.readBits(8),y=t.readBits(8))),t.readBits(1)&&(V(t),V(t)),t.readBits(1)&&(t.skipBits(32),t.skipBits(32),t.skipBits(1));let e=t.readBits(1);e&&vm(t);let n=t.readBits(1);n&&vm(t),(e||n)&&t.skipBits(1),t.skipBits(1),t.readBits(1)&&(t.skipBits(1),V(t),V(t),V(t),V(t),S=V(t),C=V(t))}if(S===null){B(C===null);let e=r&16;if((n===44||n===86||n===100||n===110||n===122||n===244)&&e)S=0,C=0;else{let e=u+1,t=d+1,n=(2-g)*t,r=Fp.find(e=>e.level>=i)??Of(Fp),a=Math.min(Math.floor(r.maxDpbMbs/(e*n)),16);S=a,C=a}}return B(C!==null),{profileIdc:n,constraintFlags:r,levelIdc:i,frameMbsOnlyFlag:g,chromaFormatIdc:a,bitDepthLumaMinus8:o,bitDepthChromaMinus8:s,codedWidth:f,codedHeight:p,displayWidth:m,displayHeight:h,pixelAspectRatio:x,colourPrimaries:_,matrixCoefficients:y,transferCharacteristics:v,fullRangeFlag:b,numReorderFrames:S,maxDecFrameBuffering:C}}catch(e){return _p._error(`Error parsing AVC SPS:`,e),null}},vm=e=>{let t=V(e);e.skipBits(4),e.skipBits(4);for(let n=0;n<=t;n++)V(e),V(e),e.skipBits(1);e.skipBits(5),e.skipBits(5),e.skipBits(5),e.skipBits(5)},ym=(e,t)=>{if(t.description){let n=(jf(t.description)[21]&3)+1;return lm(e,n)}return cm(e)},bm=e=>e>>1&63,xm=e=>{try{let t=new wp(fm(e));t.skipBits(16),t.readBits(4);let n=t.readBits(3),r=t.readBits(1),{general_profile_space:i,general_tier_flag:a,general_profile_idc:o,general_profile_compatibility_flags:s,general_constraint_indicator_flags:c,general_level_idc:l}=Cm(t,n);V(t);let u=V(t),d=0;u===3&&(d=t.readBits(1));let f=V(t),p=V(t),m=f,h=p;if(t.readBits(1)){let e=V(t),n=V(t),r=V(t),i=V(t),a=1,o=1,s=d===0?u:0;s===1?(a=2,o=2):s===2&&(a=2,o=1),m-=(e+n)*a,h-=(r+i)*o}let g=V(t),_=V(t);V(t);let v=t.readBits(1)?0:n,y=0;for(let e=v;e<=n;e++)V(t),y=V(t),V(t);V(t),V(t),V(t),V(t),V(t),V(t),t.readBits(1)&&t.readBits(1)&&wm(t),t.skipBits(1),t.skipBits(1),t.readBits(1)&&(t.skipBits(4),t.skipBits(4),V(t),V(t),t.skipBits(1));let b=V(t);if(Tm(t,b),t.readBits(1)){let e=V(t);for(let n=0;n<e;n++)V(t),t.skipBits(1)}t.skipBits(1),t.skipBits(1);let x=2,S=2,C=2,w=0,ee=0,te={num:1,den:1};if(t.readBits(1)){let e=Dm(t,n);te=e.pixelAspectRatio,x=e.colourPrimaries,S=e.transferCharacteristics,C=e.matrixCoefficients,w=e.fullRangeFlag,ee=e.minSpatialSegmentationIdc}return{displayWidth:m,displayHeight:h,pixelAspectRatio:te,colourPrimaries:x,transferCharacteristics:S,matrixCoefficients:C,fullRangeFlag:w,maxDecFrameBuffering:y+1,spsMaxSubLayersMinus1:n,spsTemporalIdNestingFlag:r,generalProfileSpace:i,generalTierFlag:a,generalProfileIdc:o,generalProfileCompatibilityFlags:s,generalConstraintIndicatorFlags:c,generalLevelIdc:l,chromaFormatIdc:u,bitDepthLumaMinus8:g,bitDepthChromaMinus8:_,minSpatialSegmentationIdc:ee}}catch(e){return _p._error(`Error parsing HEVC SPS:`,e),null}},Sm=e=>{try{let t=[],n=[],r=[],i=[];for(let a of cm(e)){let o=e.subarray(a.offset,a.offset+a.length),s=bm(o[0]);s===sm.VPS_NUT?t.push(o):s===sm.SPS_NUT?n.push(o):s===sm.PPS_NUT?r.push(o):(s===sm.PREFIX_SEI_NUT||s===sm.SUFFIX_SEI_NUT)&&i.push(o)}if(n.length===0||r.length===0)return null;let a=xm(n[0]);if(!a)return null;let o=0;if(r.length>0){let e=r[0],t=new wp(fm(e));t.skipBits(16),V(t),V(t),t.skipBits(1),t.skipBits(1),t.skipBits(3),t.skipBits(1),t.skipBits(1),V(t),V(t),Af(t),t.skipBits(1),t.skipBits(1),t.readBits(1)&&V(t),Af(t),Af(t),t.skipBits(1),t.skipBits(1),t.skipBits(1),t.skipBits(1);let n=t.readBits(1),i=t.readBits(1);o=!n&&!i?0:n&&!i?2:!n&&i?3:0}let s=[...t.length?[{arrayCompleteness:1,nalUnitType:sm.VPS_NUT,nalUnits:t}]:[],...n.length?[{arrayCompleteness:1,nalUnitType:sm.SPS_NUT,nalUnits:n}]:[],...r.length?[{arrayCompleteness:1,nalUnitType:sm.PPS_NUT,nalUnits:r}]:[],...i.length?[{arrayCompleteness:1,nalUnitType:bm(i[0][0]),nalUnits:i}]:[]];return{configurationVersion:1,generalProfileSpace:a.generalProfileSpace,generalTierFlag:a.generalTierFlag,generalProfileIdc:a.generalProfileIdc,generalProfileCompatibilityFlags:a.generalProfileCompatibilityFlags,generalConstraintIndicatorFlags:a.generalConstraintIndicatorFlags,generalLevelIdc:a.generalLevelIdc,minSpatialSegmentationIdc:a.minSpatialSegmentationIdc,parallelismType:o,chromaFormatIdc:a.chromaFormatIdc,bitDepthLumaMinus8:a.bitDepthLumaMinus8,bitDepthChromaMinus8:a.bitDepthChromaMinus8,avgFrameRate:0,constantFrameRate:0,numTemporalLayers:a.spsMaxSubLayersMinus1+1,temporalIdNested:a.spsTemporalIdNestingFlag,lengthSizeMinusOne:3,arrays:s}}catch(e){return _p._error(`Error building HEVC Decoder Configuration Record:`,e),null}},Cm=(e,t)=>{let n=e.readBits(2),r=e.readBits(1),i=e.readBits(5),a=0;for(let t=0;t<32;t++)a=a<<1|e.readBits(1);let o=new Uint8Array(6);for(let t=0;t<6;t++)o[t]=e.readBits(8);let s=e.readBits(8),c=[],l=[];for(let n=0;n<t;n++)c.push(e.readBits(1)),l.push(e.readBits(1));if(t>0)for(let n=t;n<8;n++)e.skipBits(2);for(let n=0;n<t;n++)c[n]&&e.skipBits(88),l[n]&&e.skipBits(8);return{general_profile_space:n,general_tier_flag:r,general_profile_idc:i,general_profile_compatibility_flags:a,general_constraint_indicator_flags:o,general_level_idc:s}},wm=e=>{for(let t=0;t<4;t++)for(let n=0;n<(t===3?2:6);n++)if(!e.readBits(1))V(e);else{let n=Math.min(64,1<<4+(t<<1));t>1&&Af(e);for(let t=0;t<n;t++)Af(e)}},Tm=(e,t)=>{let n=[];for(let r=0;r<t;r++)n[r]=Em(e,r,t,n)},Em=(e,t,n,r)=>{let i=0,a=0,o=0;if(t!==0&&(a=e.readBits(1)),a){o=t===n?t-(V(e)+1):t-1,e.readBits(1),V(e);let a=r[o]??0;for(let t=0;t<=a;t++)e.readBits(1)||e.readBits(1);i=r[o]}else{let t=V(e),n=V(e);for(let n=0;n<t;n++)V(e),e.readBits(1);for(let t=0;t<n;t++)V(e),e.readBits(1);i=t+n}return i},Dm=(e,t)=>{let n=2,r=2,i=2,a=0,o=0,s={num:1,den:1};if(e.readBits(1)){let t=e.readBits(8);if(t===255)s={num:e.readBits(16),den:e.readBits(16)};else{let e=gm[t];e&&(s=e)}}return e.readBits(1)&&e.readBits(1),e.readBits(1)&&(e.readBits(3),a=e.readBits(1),e.readBits(1)&&(n=e.readBits(8),r=e.readBits(8),i=e.readBits(8))),e.readBits(1)&&(V(e),V(e)),e.readBits(1),e.readBits(1),e.readBits(1),e.readBits(1)&&(V(e),V(e),V(e),V(e)),e.readBits(1)&&(e.readBits(32),e.readBits(32),e.readBits(1)&&V(e),e.readBits(1)&&Om(e,!0,t)),e.readBits(1)&&(e.readBits(1),e.readBits(1),e.readBits(1),o=V(e),V(e),V(e),V(e),V(e)),{pixelAspectRatio:s,colourPrimaries:n,transferCharacteristics:r,matrixCoefficients:i,fullRangeFlag:a,minSpatialSegmentationIdc:o}},Om=(e,t,n)=>{let r=!1,i=!1,a=!1;t&&(r=e.readBits(1)===1,i=e.readBits(1)===1,(r||i)&&(a=e.readBits(1)===1,a&&(e.readBits(8),e.readBits(5),e.readBits(1),e.readBits(5)),e.readBits(4),e.readBits(4),a&&e.readBits(4),e.readBits(5),e.readBits(5),e.readBits(5)));for(let t=0;t<=n;t++){let t=e.readBits(1)===1,n=!0;t||(n=e.readBits(1)===1);let o=!1;n?V(e):o=e.readBits(1)===1;let s=1;o||(s=V(e)+1),r&&km(e,s,a),i&&km(e,s,a)}},km=(e,t,n)=>{for(let r=0;r<t;r++)V(e),V(e),n&&(V(e),V(e)),e.readBits(1)},Am=e=>{let t=[];t.push(e.configurationVersion),t.push((e.generalProfileSpace&3)<<6|(e.generalTierFlag&1)<<5|e.generalProfileIdc&31),t.push(e.generalProfileCompatibilityFlags>>>24&255),t.push(e.generalProfileCompatibilityFlags>>>16&255),t.push(e.generalProfileCompatibilityFlags>>>8&255),t.push(e.generalProfileCompatibilityFlags&255),t.push(...e.generalConstraintIndicatorFlags),t.push(e.generalLevelIdc&255),t.push(240|e.minSpatialSegmentationIdc>>8&15),t.push(e.minSpatialSegmentationIdc&255),t.push(252|e.parallelismType&3),t.push(252|e.chromaFormatIdc&3),t.push(248|e.bitDepthLumaMinus8&7),t.push(248|e.bitDepthChromaMinus8&7),t.push(e.avgFrameRate>>8&255),t.push(e.avgFrameRate&255),t.push((e.constantFrameRate&3)<<6|(e.numTemporalLayers&7)<<3|(e.temporalIdNested&1)<<2|e.lengthSizeMinusOne&3),t.push(e.arrays.length&255);for(let n of e.arrays){t.push((n.arrayCompleteness&1)<<7|0|n.nalUnitType&63),t.push(n.nalUnits.length>>8&255),t.push(n.nalUnits.length&255);for(let e of n.nalUnits){t.push(e.length>>8&255),t.push(e.length&255);for(let n=0;n<e.length;n++)t.push(e[n])}}return new Uint8Array(t)},(function(e){e[e.audAllowed=0]=`audAllowed`,e[e.beforeFirstVcl=1]=`beforeFirstVcl`,e[e.afterFirstVcl=2]=`afterFirstVcl`,e[e.eoBitstreamAllowed=3]=`eoBitstreamAllowed`,e[e.noMoreDataAllowed=4]=`noMoreDataAllowed`})(jm||={}),Mm=function*(e){let t=new wp(e),n=()=>{let e=0;for(let n=0;n<8;n++){let r=t.readAlignedByte();if(e|=(r&127)<<n*7,!(r&128))break;if(n===7&&r&128)return null}return e>=2**32-1?null:e};for(;t.getBitsLeft()>=8;){t.skipBits(1);let r=t.readBits(4),i=t.readBits(1),a=t.readBits(1);t.skipBits(1),i&&t.skipBits(8);let o;if(a){let e=n();if(e===null)return;o=e}else o=Math.floor(t.getBitsLeft()/8);B(t.pos%8==0),yield{type:r,data:e.subarray(t.pos/8,t.pos/8+o)},t.skipBits(o*8)}},Nm=e=>{let t=Mf(e),n=t.getUint8(9),r=t.getUint16(10,!0),i=t.getUint32(12,!0),a=t.getInt16(16,!0),o=t.getUint8(18),s=null;return o&&(s=e.subarray(19,21+n)),{outputChannelCount:n,preSkip:r,inputSampleRate:i,outputGain:a,channelMappingFamily:o,channelMappingTable:s}},Pm=(e,t,n)=>{switch(e){case`avc`:for(let e of um(n,t)){let t=n[e.offset],r=dm(t);if(r>=om.NON_IDR_SLICE&&r<=om.SLICE_DPC)return`delta`;if(r===om.IDR)return`key`;if(r===om.SEI&&(!rp()||ap()>=144)){let t=n.subarray(e.offset,e.offset+e.length),r=fm(t),i=1;do{let e=0;for(;;){let t=r[i++];if(t===void 0||(e+=t,t<255))break}let t=0;for(;;){let e=r[i++];if(e===void 0||(t+=e,e<255))break}if(e===6){let e=new wp(r);e.pos=8*i;let t=V(e),n=e.readBits(1);if(t===0&&n===1)return`key`}i+=t}while(i<r.length-1)}}return`delta`;case`hevc`:for(let e of ym(n,t)){let t=bm(n[e.offset]);if(t<sm.BLA_W_LP)return`delta`;if(t<=sm.RSV_IRAP_VCL23)return`key`}return`delta`;case`vp8`:return n[0]&1?`delta`:`key`;case`vp9`:{let e=new wp(n);if(e.readBits(2)!==2)return null;let t=e.readBits(1);return(e.readBits(1)<<1)+t===3&&e.skipBits(1),e.readBits(1)?null:e.readBits(1)===0?`key`:`delta`}case`av1`:{let e=!1;for(let{type:t,data:r}of Mm(n))if(t===1){let t=new wp(r);t.skipBits(4),e=!!t.readBits(1)}else if(t===3||t===6||t===7){if(e)return`key`;let t=new wp(r);return t.readBits(1)?null:t.readBits(2)===0?`key`:`delta`}return null}case`prores`:return`key`;default:Hf(e),B(!1)}},(function(e){e[e.STREAMINFO=0]=`STREAMINFO`,e[e.VORBIS_COMMENT=4]=`VORBIS_COMMENT`,e[e.PICTURE=6]=`PICTURE`})(Fm||={}),Im=e=>{if(e.length<7||e[0]!==11||e[1]!==119)return null;let t=new wp(e);t.skipBits(16),t.skipBits(16);let n=t.readBits(2);if(n===3)return null;let r=t.readBits(6),i=t.readBits(5);if(i>8)return null;let a=t.readBits(3),o=t.readBits(3);return o&1&&o!==1&&t.skipBits(2),o&4&&t.skipBits(2),o===2&&t.skipBits(2),{fscod:n,bsid:i,bsmod:a,acmod:o,lfeon:t.readBits(1),bitRateCode:Math.floor(r/2)}},new Uint8Array([5,4,65,67,45,51]),new Uint8Array([5,4,69,65,67,51]),Lm=[1,2,3,6],Rm=e=>{if(e.length<6||e[0]!==11||e[1]!==119)return null;let t=new wp(e);t.skipBits(16);let n=t.readBits(2);if(t.skipBits(3),n!==0&&n!==2)return null;let r=t.readBits(11),i=t.readBits(2),a=0,o;i===3?(a=t.readBits(2),o=3):o=t.readBits(2);let s=t.readBits(3),c=t.readBits(1),l=t.readBits(5);if(l<11||l>16)return null;let u=Lm[o],d;return d=i<3?rm[i]/1e3:im[a]/1e3,{dataRate:Math.round((r+1)*d/(u*16)),substreams:[{fscod:i,fscod2:a,bsid:l,bsmod:0,acmod:s,lfeon:c,numDepSub:0,chanLoc:0}]}}})))()}var Bm,Vm;function Hm(){return(Hm=t((()=>{hp(),Bm=new Uint8Array,Vm=class e{constructor(e,t,n,r,i=-1,a,o){if(this.data=e,this.type=t,this.timestamp=n,this.duration=r,this.sequenceNumber=i,e===Bm&&a===void 0)throw Error(`Internal error: byteLength must be explicitly provided when constructing metadata-only packets.`);if(a===void 0&&(a=e.byteLength),!(e instanceof Uint8Array))throw TypeError(`data must be a Uint8Array.`);if(t!==`key`&&t!==`delta`)throw TypeError(`type must be either "key" or "delta".`);if(!Number.isFinite(n))throw TypeError(`timestamp must be a number.`);if(!Number.isFinite(r)||r<0)throw TypeError(`duration must be a non-negative number.`);if(!Number.isFinite(i))throw TypeError(`sequenceNumber must be a number.`);if(!Number.isInteger(a)||a<0)throw TypeError(`byteLength must be a non-negative integer.`);if(o!==void 0&&(typeof o!=`object`||!o))throw TypeError(`sideData, when provided, must be an object.`);if(o?.alpha!==void 0&&!(o.alpha instanceof Uint8Array))throw TypeError(`sideData.alpha, when provided, must be a Uint8Array.`);if(o?.alphaByteLength!==void 0&&(!Number.isInteger(o.alphaByteLength)||o.alphaByteLength<0))throw TypeError(`sideData.alphaByteLength, when provided, must be a non-negative integer.`);this.byteLength=a,this.sideData=o??{},this.sideData.alpha&&this.sideData.alphaByteLength===void 0&&(this.sideData.alphaByteLength=this.sideData.alpha.byteLength)}get isMetadataOnly(){return this.data===Bm}get microsecondTimestamp(){return Math.trunc(Zf*this.timestamp)}get microsecondDuration(){return Math.trunc(Zf*this.duration)}toEncodedVideoChunk(){if(this.isMetadataOnly)throw TypeError(`Metadata-only packets cannot be converted to a video chunk.`);if(typeof EncodedVideoChunk>`u`)throw Error(`Your browser does not support EncodedVideoChunk.`);return new EncodedVideoChunk({data:this.data,type:this.type,timestamp:this.microsecondTimestamp,duration:this.microsecondDuration})}alphaToEncodedVideoChunk(e=this.type){if(!this.sideData.alpha)throw TypeError(`This packet does not contain alpha side data.`);if(this.isMetadataOnly)throw TypeError(`Metadata-only packets cannot be converted to a video chunk.`);if(typeof EncodedVideoChunk>`u`)throw Error(`Your browser does not support EncodedVideoChunk.`);return new EncodedVideoChunk({data:this.sideData.alpha,type:e,timestamp:this.microsecondTimestamp,duration:this.microsecondDuration})}toEncodedAudioChunk(){if(this.isMetadataOnly)throw TypeError(`Metadata-only packets cannot be converted to an audio chunk.`);if(typeof EncodedAudioChunk>`u`)throw Error(`Your browser does not support EncodedAudioChunk.`);return new EncodedAudioChunk({data:this.data,type:this.type,timestamp:this.microsecondTimestamp,duration:this.microsecondDuration})}static fromEncodedChunk(t,n){if(!(t instanceof EncodedVideoChunk||t instanceof EncodedAudioChunk))throw TypeError(`chunk must be an EncodedVideoChunk or EncodedAudioChunk.`);let r=new Uint8Array(t.byteLength);return t.copyTo(r),new e(r,t.type,t.timestamp/1e6,(t.duration??0)/1e6,void 0,void 0,n)}clone(t){if(t!==void 0&&(typeof t!=`object`||!t))throw TypeError(`options, when provided, must be an object.`);if(t?.data!==void 0&&!(t.data instanceof Uint8Array))throw TypeError(`options.data, when provided, must be a Uint8Array.`);if(t?.type!==void 0&&t.type!==`key`&&t.type!==`delta`)throw TypeError(`options.type, when provided, must be either "key" or "delta".`);if(t?.timestamp!==void 0&&!Number.isFinite(t.timestamp))throw TypeError(`options.timestamp, when provided, must be a number.`);if(t?.duration!==void 0&&!Number.isFinite(t.duration))throw TypeError(`options.duration, when provided, must be a number.`);if(t?.sequenceNumber!==void 0&&!Number.isFinite(t.sequenceNumber))throw TypeError(`options.sequenceNumber, when provided, must be a number.`);if(t?.sideData!==void 0&&(typeof t.sideData!=`object`||t.sideData===null))throw TypeError(`options.sideData, when provided, must be an object.`);return new e(t?.data??this.data,t?.type??this.type,t?.timestamp??this.timestamp,t?.duration??this.duration,t?.sequenceNumber??this.sequenceNumber,this.byteLength,t?.sideData??this.sideData)}}})))()}var Um;function Wm(){return(Wm=t((()=>{Um=e=>{let t=(e.hasVideo?`video/`:e.hasAudio?`audio/`:`application/`)+(e.isQuickTime?`quicktime`:`mp4`);if(e.codecStrings.length>0){let n=[...new Set(e.codecStrings)];t+=`; codecs="${n.join(`, `)}"`}return t}})))()}var Gm;function Km(){return(Km=t((()=>{Tp(),Ih(),Gm=e=>{let t=e.filePos,n=Fh(e,9),r=new wp(n);if(r.readBits(12)!==4095||(r.skipBits(1),r.readBits(2)!==0))return null;let i=r.readBits(1),a=r.readBits(2)+1,o=r.readBits(4);if(o===15)return null;r.skipBits(1);let s=r.readBits(3);if(s===0)throw Error(`ADTS frames with channel configuration 0 are not supported.`);r.skipBits(1),r.skipBits(1),r.skipBits(1),r.skipBits(1);let c=r.readBits(13);r.skipBits(11);let l=r.readBits(2)+1;if(l!==1)throw Error(`ADTS frames with more than one AAC frame are not supported.`);let u=null;return i===1?e.filePos-=2:u=r.readBits(16),{objectType:a,samplingFrequencyIndex:o,channelConfiguration:s,frameLength:c,numberOfAacFrames:l,crcCheck:u,startPos:t}}})))()}var qm=r(((e,t)=>{t.exports={}})),Jm,Ym,Xm,Zm,Qm,$m,eh,th,nh,rh,ih,ah,oh,sh,ch,lh,uh,dh,fh,ph,mh,hh,gh,_h,vh;function yh(){return(yh=t((()=>{hp(),vp(),Jm=function(e,t,n){if(t!=null){if(typeof t!=`object`&&typeof t!=`function`)throw TypeError(`Object expected.`);var r,i;if(n){if(!Symbol.asyncDispose)throw TypeError(`Symbol.asyncDispose is not defined.`);r=t[Symbol.asyncDispose]}if(r===void 0){if(!Symbol.dispose)throw TypeError(`Symbol.dispose is not defined.`);r=t[Symbol.dispose],n&&(i=r)}if(typeof r!=`function`)throw TypeError(`Object not disposable.`);i&&(r=function(){try{i.call(this)}catch(e){return Promise.reject(e)}}),e.stack.push({value:t,dispose:r,async:n})}else n&&e.stack.push({async:!0});return t},Ym=(function(e){return function(t){function n(n){t.error=t.hasError?new e(n,t.error,`An error was suppressed during disposal.`):n,t.hasError=!0}var r,i=0;function a(){for(;r=t.stack.pop();)try{if(!r.async&&i===1)return i=0,t.stack.push(r),Promise.resolve().then(a);if(r.dispose){var e=r.dispose.call(r.value);if(r.async)return i|=2,Promise.resolve(e).then(a,function(e){return n(e),a()})}else i|=1}catch(e){n(e)}if(i===1)return t.hasError?Promise.reject(t.error):Promise.resolve();if(t.hasError)throw t.error}return a()}})(typeof SuppressedError==`function`?SuppressedError:function(e,t,n){var r=Error(n);return r.name=`SuppressedError`,r.error=e,r.suppressed=t,r}),sp(),Xm=-1/0,Zm=-1/0,Qm=null,typeof FinalizationRegistry<`u`&&(Qm=new FinalizationRegistry(e=>{let t=performance.now();e.type===`video`?(t-Xm>=1e3&&(_p._error(`A VideoSample was garbage collected without first being closed. For proper resource management, make sure to call close() on all your VideoSamples as soon as you're done using them.`),Xm=t),typeof VideoFrame<`u`&&e.data instanceof VideoFrame&&e.data.close()):(t-Zm>=1e3&&(_p._error(`An AudioSample was garbage collected without first being closed. For proper resource management, make sure to call close() on all your AudioSamples as soon as you're done using them.`),Zm=t),typeof AudioData<`u`&&e.data instanceof AudioData&&e.data.close())})),$m=class{constructor(){this._referenceCount=0,this._lastAllocationBuffer=null}},eh=[`I420`,`I420P10`,`I420P12`,`I420A`,`I420AP10`,`I420AP12`,`I422`,`I422P10`,`I422P12`,`I422A`,`I422AP10`,`I422AP12`,`I444`,`I444P10`,`I444P12`,`I444A`,`I444AP10`,`I444AP12`,`NV12`,`RGBA`,`RGBX`,`BGRA`,`BGRX`],th=new Set(eh),nh=class e{get codedWidth(){return this.visibleRect.width}get codedHeight(){return this.visibleRect.height}get displayWidth(){return this.rotation%180==0?this.squarePixelWidth:this.squarePixelHeight}get displayHeight(){return this.rotation%180==0?this.squarePixelHeight:this.squarePixelWidth}get microsecondTimestamp(){return Math.trunc(Zf*this.timestamp)}get microsecondDuration(){return Math.trunc(Zf*this.duration)}get hasAlpha(){return this.format&&this.format.includes(`A`)}constructor(t,n){if(this._closed=!1,t instanceof ArrayBuffer||typeof SharedArrayBuffer<`u`&&t instanceof SharedArrayBuffer||ArrayBuffer.isView(t)){if(!n||typeof n!=`object`)throw TypeError(`init must be an object.`);if(n.format===void 0||!th.has(n.format))throw TypeError(`init.format must be one of: `+eh.join(`, `));if(!Number.isInteger(n.codedWidth)||n.codedWidth<=0)throw TypeError(`init.codedWidth must be a positive integer.`);if(!Number.isInteger(n.codedHeight)||n.codedHeight<=0)throw TypeError(`init.codedHeight must be a positive integer.`);if(n.rotation!==void 0&&![0,90,180,270].includes(n.rotation))throw TypeError(`init.rotation, when provided, must be 0, 90, 180, or 270.`);if(!Number.isFinite(n.timestamp))throw TypeError(`init.timestamp must be a number.`);if(n.duration!==void 0&&(!Number.isFinite(n.duration)||n.duration<0))throw TypeError(`init.duration, when provided, must be a non-negative number.`);if(n.layout!==void 0){if(!Array.isArray(n.layout))throw TypeError(`init.layout, when provided, must be an array.`);for(let e of n.layout){if(!e||typeof e!=`object`||Array.isArray(e))throw TypeError(`Each entry in init.layout must be an object.`);if(!Number.isInteger(e.offset)||e.offset<0)throw TypeError(`plane.offset must be a non-negative integer.`);if(!Number.isInteger(e.stride)||e.stride<0)throw TypeError(`plane.stride must be a non-negative integer.`)}}if(n.visibleRect!==void 0&&up(n.visibleRect,`init.visibleRect`),n.displayWidth!==void 0&&(!Number.isInteger(n.displayWidth)||n.displayWidth<=0))throw TypeError(`init.displayWidth, when provided, must be a positive integer.`);if(n.displayHeight!==void 0&&(!Number.isInteger(n.displayHeight)||n.displayHeight<=0))throw TypeError(`init.displayHeight, when provided, must be a positive integer.`);if(n.displayWidth!==void 0!=(n.displayHeight!==void 0))throw TypeError(`init.displayWidth and init.displayHeight must be either both provided or both omitted.`);this.format=n.format,this.rotation=n.rotation??0,this.timestamp=n.timestamp,this.duration=n.duration??0;let e=n.layout??ph(n.format,n.codedWidth,n.codedHeight),r=n.colorSpace??null;r===null&&(r=this.format===`RGBA`||this.format===`RGBX`||this.format===`BGRA`||this.format===`BGRX`?{primaries:`bt709`,transfer:`iec61966-2-1`,matrix:`rgb`,fullRange:!0}:{primaries:`bt709`,transfer:`bt709`,matrix:`bt709`,fullRange:!1}),this.visibleRect={left:n.visibleRect?.left??0,top:n.visibleRect?.top??0,width:n.visibleRect?.width??n.codedWidth,height:n.visibleRect?.height??n.codedHeight},n.displayWidth===void 0?(this.squarePixelWidth=this.visibleRect.width,this.squarePixelHeight=this.visibleRect.height):(this.squarePixelWidth=this.rotation%180==0?n.displayWidth:n.displayHeight,this.squarePixelHeight=this.rotation%180==0?n.displayHeight:n.displayWidth),this._data=n._doNotCopy?jf(t):jf(t).slice(),this._layout=e,this.colorSpace=new ch(r)}else if(typeof VideoFrame<`u`&&t instanceof VideoFrame){if(n?.rotation!==void 0&&![0,90,180,270].includes(n.rotation))throw TypeError(`init.rotation, when provided, must be 0, 90, 180, or 270.`);if(n?.timestamp!==void 0&&!Number.isFinite(n?.timestamp))throw TypeError(`init.timestamp, when provided, must be a number.`);if(n?.duration!==void 0&&(!Number.isFinite(n.duration)||n.duration<0))throw TypeError(`init.duration, when provided, must be a non-negative number.`);n?.visibleRect!==void 0&&up(n.visibleRect,`init.visibleRect`),this._data=t,this._layout=null,this.format=t.format,this.visibleRect={left:t.visibleRect?.x??0,top:t.visibleRect?.y??0,width:t.visibleRect?.width??t.codedWidth,height:t.visibleRect?.height??t.codedHeight},this.rotation=n?.rotation??0,this.squarePixelWidth=t.displayWidth,this.squarePixelHeight=t.displayHeight,this.timestamp=n?.timestamp??t.timestamp/1e6,this.duration=n?.duration??(t.duration??0)/1e6,this.colorSpace=new ch(t.colorSpace)}else if(typeof HTMLImageElement<`u`&&t instanceof HTMLImageElement||typeof SVGImageElement<`u`&&t instanceof SVGImageElement||typeof ImageBitmap<`u`&&t instanceof ImageBitmap||typeof HTMLVideoElement<`u`&&t instanceof HTMLVideoElement||typeof HTMLCanvasElement<`u`&&t instanceof HTMLCanvasElement||typeof OffscreenCanvas<`u`&&t instanceof OffscreenCanvas){if(!n||typeof n!=`object`)throw TypeError(`init must be an object.`);if(n.rotation!==void 0&&![0,90,180,270].includes(n.rotation))throw TypeError(`init.rotation, when provided, must be 0, 90, 180, or 270.`);if(!Number.isFinite(n.timestamp))throw TypeError(`init.timestamp must be a number.`);if(n.duration!==void 0&&(!Number.isFinite(n.duration)||n.duration<0))throw TypeError(`init.duration, when provided, must be a non-negative number.`);if(n.visibleRect!==void 0&&up(n.visibleRect,`init.visibleRect`),typeof VideoFrame<`u`)return new e(new VideoFrame(t,{timestamp:Math.trunc(n.timestamp*Zf),duration:Math.trunc((n.duration??0)*Zf)||void 0,visibleRect:n.visibleRect&&{x:n.visibleRect.left,y:n.visibleRect.top,width:n.visibleRect.width,height:n.visibleRect.height}}),n);let r=0,i=0;if(`naturalWidth`in t?(r=t.naturalWidth,i=t.naturalHeight):`videoWidth`in t?(r=t.videoWidth,i=t.videoHeight):`width`in t&&(r=Number(t.width),i=Number(t.height)),!r||!i)throw TypeError(`Could not determine dimensions.`);let a=n.visibleRect??{left:0,top:0,width:r,height:i},o=new OffscreenCanvas(a.width,a.height),s=o.getContext(`2d`,{alpha:tp(),willReadFrequently:!0});if(!s)throw Error(`OffscreenCanvas must have support for the '2d' context in order to create a VideoSample from this data.`);s.drawImage(t,-a.left,-a.top),this._data=o,this._layout=null,this.format=`RGBX`,this.visibleRect={left:0,top:0,width:a.width,height:a.height},this.squarePixelWidth=a.width,this.squarePixelHeight=a.height,this.rotation=n.rotation??0,this.timestamp=n.timestamp,this.duration=n.duration??0,this.colorSpace=new ch({matrix:`rgb`,primaries:`bt709`,transfer:`iec61966-2-1`,fullRange:!0})}else if(t instanceof $m){if(!n||typeof n!=`object`)throw TypeError(`init must be an object.`);if(n.rotation!==void 0&&![0,90,180,270].includes(n.rotation))throw TypeError(`init.rotation, when provided, must be 0, 90, 180, or 270.`);if(!Number.isFinite(n.timestamp))throw TypeError(`init.timestamp must be a number.`);if(n.duration!==void 0&&(!Number.isFinite(n.duration)||n.duration<0))throw TypeError(`init.duration, when provided, must be a non-negative number.`);if(this._data=t,t._referenceCount++,this.format=t.getFormat(),this.format!==null&&!eh.includes(this.format))throw TypeError(`getFormat() must return a VideoSamplePixelFormat or null.`);if(this.visibleRect={left:0,top:0,width:t.getCodedWidth(),height:t.getCodedHeight()},!Number.isInteger(this.visibleRect.width)||this.visibleRect.width<=0)throw TypeError(`getCodedWidth() must return a positive integer.`);if(!Number.isInteger(this.visibleRect.height)||this.visibleRect.height<=0)throw TypeError(`getCodedHeight() must return a positive integer.`);if(this.squarePixelWidth=t.getSquarePixelWidth(),!Number.isInteger(this.squarePixelWidth)||this.squarePixelWidth<=0)throw TypeError(`getSquarePixelWidth() must return a positive integer.`);if(this.squarePixelHeight=t.getSquarePixelHeight(),!Number.isInteger(this.squarePixelHeight)||this.squarePixelHeight<=0)throw TypeError(`getSquarePixelHeight() must return a positive integer.`);this.rotation=n.rotation??0,this.timestamp=n.timestamp,this.duration=n.duration??0,this.colorSpace=t.getColorSpace()}else throw TypeError(`Invalid data type: Must be a BufferSource, CanvasImageSource, or VideoSampleResource.`);this.encodeOptions=n?.encodeOptions??{},this.pixelAspectRatio=lp({num:this.squarePixelWidth*this.codedHeight,den:this.squarePixelHeight*this.codedWidth}),Qm?.register(this,{type:`video`,data:this._data},this)}clone(){if(this._closed)throw Error(`VideoSample is closed.`);return B(this._data!==null),this._data instanceof $m?new e(this._data,{timestamp:this.timestamp,duration:this.duration,rotation:this.rotation,encodeOptions:this.encodeOptions}):lh(this._data)?new e(this._data.clone(),{timestamp:this.timestamp,duration:this.duration,rotation:this.rotation,encodeOptions:this.encodeOptions}):this._data instanceof Uint8Array?(B(this._layout),new e(this._data,{format:this.format,layout:this._layout,codedWidth:this.codedWidth,codedHeight:this.codedHeight,timestamp:this.timestamp,duration:this.duration,colorSpace:this.colorSpace,rotation:this.rotation,visibleRect:this.visibleRect,displayWidth:this.displayWidth,displayHeight:this.displayHeight,encodeOptions:this.encodeOptions,_doNotCopy:!0})):new e(this._data,{format:this.format,codedWidth:this.codedWidth,codedHeight:this.codedHeight,timestamp:this.timestamp,duration:this.duration,colorSpace:this.colorSpace,rotation:this.rotation,visibleRect:this.visibleRect,displayWidth:this.displayWidth,displayHeight:this.displayHeight,encodeOptions:this.encodeOptions})}close(){this._closed||=(Qm?.unregister(this),this._data instanceof $m?(this._data._referenceCount--,this._data._referenceCount===0&&this._data.close()):lh(this._data)?this._data.close():this._data=null,!0)}allocationSize(e={}){if(fh(e),this._closed)throw Error(`VideoSample is closed.`);if((e.format??this.format)==null)throw Error(`Cannot get allocation size when format is null.`);return lh(this._data)?this._data.allocationSize(e):hh(this,e).allocationSize}async copyTo(t,n={}){if(!Rf(t))throw TypeError(`destination must be an ArrayBuffer or an ArrayBuffer view.`);if(fh(n),this._closed)throw Error(`VideoSample is closed.`);if((n.format??this.format)==null)throw Error(`Cannot copy video sample data when format is null.`);if(B(this._data!==null),lh(this._data))return this._data.copyTo(t,n);if(n.format&&![`RGBA`,`RGBX`,`BGRA`,`BGRX`].includes(this.format)&&[`RGBA`,`RGBX`,`BGRA`,`BGRX`].includes(n.format)){if(this._data instanceof $m){let r={stack:[],error:void 0,hasError:!1};try{let i=Jm(r,await this._data.toRgbSample({timestamp:this.timestamp,duration:this.duration,rotation:this.rotation},n.colorSpace??`srgb`),!1);if(!(i instanceof e))throw TypeError(`toRgbSample() must return a VideoSample.`);if(![`RGBA`,`RGBX`,`BGRA`,`BGRX`].includes(i.format))throw Error(`Sample returned by toRgbSample was expected to have an RGB format, got '${i.format}' instead.`);return await i.copyTo(t,n)}catch(e){r.error=e,r.hasError=!0}finally{Ym(r)}}else{if(typeof VideoFrame>`u`)throw Error(`For this sample, converting from a non-RGB to an RGB format requires VideoFrame to be defined.`);let e=this.toVideoFrame(),r=await e.copyTo(t,n);return e.close(),r}}let r=hh(this,n);B(this.format);let i=jf(t);if(i.byteLength<r.allocationSize)throw TypeError(`Destination buffer too small. Required: ${r.allocationSize}, Available: ${i.byteLength}`);let a=mh(this.format),o;if(this._data instanceof $m){let e=this._data.getDataPlanes();if(e instanceof Promise&&(e=await e),!Array.isArray(e)||e.some(e=>!(e.data instanceof Uint8Array)||!Number.isInteger(e.stride)||e.stride<0))throw TypeError(`getDataPlanes() must return an array of objects with a Uint8Array "data" property and a non-negative integer "stride" property.`);o=e}else if(this._data instanceof Uint8Array)B(this._layout),B(this._layout.length===a.length),o=this._layout.map((e,t)=>{let n=Math.ceil(this.codedHeight/a[t].heightDivisor);return{data:this._data.subarray(e.offset,e.offset+e.stride*n),stride:e.stride}});else{let e=this._data.getContext(`2d`);B(e);let t=e.getImageData(0,0,this.codedWidth,this.codedHeight);o=[{data:jf(t.data),stride:4*this.codedWidth}]}let s=[],c=a.length;for(let e=0;e<c;e++){let t=r.computedLayouts[e],n=o[e].stride,a=o[e].data,c=t.sourceTop*n;c+=t.sourceLeftBytes;let l=t.destinationOffset,u=t.sourceWidthBytes,d={offset:l,stride:t.destinationStride};for(let e=0;e<t.sourceHeight;e++){if(c+u>a.byteLength)throw Error(`Source buffer OOB read.`);if(l+u>i.byteLength)throw Error(`Destination buffer OOB write.`);let e=a.subarray(c,c+u);i.set(e,l),c+=n,l+=t.destinationStride}s.push(d)}if(n.format!==void 0){let e=this.format.startsWith(`RGB`)!==n.format.startsWith(`RGB`),t=this.format.includes(`X`)&&n.format.includes(`A`);if(e||t)for(let n=0;n<r.allocationSize;n+=4){if(e){let e=i[n],t=i[n+2];i[n]=t,i[n+2]=e}t&&(i[n+3]=255)}}return s}toVideoFrame(){if(this._closed)throw Error(`VideoSample is closed.`);if(B(this._data!==null),this._data instanceof $m){if(this.format===null)throw Error(`Cannot convert a VideoSampleResource-backed VideoSample to VideoFrame if format is null.`);let e=this._data.getDataPlanes();if(e instanceof Promise)throw Error(`Cannot convert a VideoSampleResource-backed VideoSample to VideoFrame if getDataPlanes() returns a promise.`);let t=e.reduce((e,t)=>e+t.data.byteLength,0),n=new Uint8Array(t),r=0,i=[];for(let t of e)n.set(t.data,r),i.push(r),r+=t.data.byteLength;return new VideoFrame(n,{format:this.format,layout:e.map((e,t)=>({offset:i[t],stride:e.stride})),codedWidth:this.codedWidth,codedHeight:this.codedHeight,timestamp:this.microsecondTimestamp,duration:this.microsecondDuration,colorSpace:this.colorSpace,visibleRect:this.visibleRect,displayWidth:this.squarePixelWidth,displayHeight:this.squarePixelHeight})}return lh(this._data)?new VideoFrame(this._data,{timestamp:this.microsecondTimestamp,duration:this.microsecondDuration||void 0}):this._data instanceof Uint8Array?(B(this._layout),new VideoFrame(this._data,{format:this.format,codedWidth:this.codedWidth,codedHeight:this.codedHeight,layout:this._layout,timestamp:this.microsecondTimestamp,duration:this.microsecondDuration||void 0,colorSpace:this.colorSpace,visibleRect:this.visibleRect,displayWidth:this.squarePixelWidth,displayHeight:this.squarePixelHeight})):new VideoFrame(this._data,{timestamp:this.microsecondTimestamp,duration:this.microsecondDuration||void 0})}draw(e,t,n,r,i,a,o,s,c){let l=0,u=0,d=this.displayWidth,f=this.displayHeight,p=0,m=0,h=this.displayWidth,g=this.displayHeight;if(a===void 0?(p=t,m=n,r!==void 0&&(h=r,g=i)):(l=t,u=n,d=r,f=i,p=a,m=o,s===void 0?(h=d,g=f):(h=s,g=c)),!(typeof CanvasRenderingContext2D<`u`&&e instanceof CanvasRenderingContext2D||typeof OffscreenCanvasRenderingContext2D<`u`&&e instanceof OffscreenCanvasRenderingContext2D))throw TypeError(`context must be a CanvasRenderingContext2D or OffscreenCanvasRenderingContext2D.`);if(!Number.isFinite(l))throw TypeError(`sx must be a number.`);if(!Number.isFinite(u))throw TypeError(`sy must be a number.`);if(!Number.isFinite(d)||d<0)throw TypeError(`sWidth must be a non-negative number.`);if(!Number.isFinite(f)||f<0)throw TypeError(`sHeight must be a non-negative number.`);if(!Number.isFinite(p))throw TypeError(`dx must be a number.`);if(!Number.isFinite(m))throw TypeError(`dy must be a number.`);if(!Number.isFinite(h)||h<0)throw TypeError(`dWidth must be a non-negative number.`);if(!Number.isFinite(g)||g<0)throw TypeError(`dHeight must be a non-negative number.`);if(this._closed)throw Error(`VideoSample is closed.`);({sx:l,sy:u,sWidth:d,sHeight:f}=this._rotateSourceRegion(l,u,d,f,this.rotation));let _=this.toCanvasImageSource();e.save();let v=p+h/2,y=m+g/2;e.translate(v,y),e.rotate(this.rotation*Math.PI/180);let b=this.rotation%180==0?1:h/g;e.scale(1/b,b),e.drawImage(_,l,u,d,f,-h/2,-g/2,h,g),e.restore()}drawWithFit(e,t){if(!(typeof CanvasRenderingContext2D<`u`&&e instanceof CanvasRenderingContext2D||typeof OffscreenCanvasRenderingContext2D<`u`&&e instanceof OffscreenCanvasRenderingContext2D))throw TypeError(`context must be a CanvasRenderingContext2D or OffscreenCanvasRenderingContext2D.`);if(!t||typeof t!=`object`)throw TypeError(`options must be an object.`);if(![`fill`,`contain`,`cover`].includes(t.fit))throw TypeError(`options.fit must be 'fill', 'contain', or 'cover'.`);if(t.rotation!==void 0&&![0,90,180,270].includes(t.rotation))throw TypeError(`options.rotation, when provided, must be 0, 90, 180, or 270.`);t.crop!==void 0&&dh(t.crop,`options.`);let n=e.canvas.width,r=e.canvas.height,i=t.rotation??this.rotation,[a,o]=i%180==0?[this.squarePixelWidth,this.squarePixelHeight]:[this.squarePixelHeight,this.squarePixelWidth],s=t.crop;s&&=uh(s,a,o);let c,l,u,d,{sx:f,sy:p,sWidth:m,sHeight:h}=this._rotateSourceRegion(t.crop?.left??0,t.crop?.top??0,t.crop?.width??a,t.crop?.height??o,i);if(t.fit===`fill`)c=0,l=0,u=n,d=r;else{let[e,i]=t.crop?[t.crop.width,t.crop.height]:[a,o],s=t.fit===`contain`?Math.min(n/e,r/i):Math.max(n/e,r/i);u=e*s,d=i*s,c=(n-u)/2,l=(r-d)/2}e.save();let g=i%180==0?1:u/d;e.translate(n/2,r/2),e.rotate(i*Math.PI/180),e.scale(1/g,g),e.translate(-n/2,-r/2),e.drawImage(this.toCanvasImageSource(),f,p,m,h,c,l,u,d),e.restore()}_rotateSourceRegion(e,t,n,r,i){return i===90?[e,t,n,r]=[t,this.squarePixelHeight-e-n,r,n]:i===180?[e,t]=[this.squarePixelWidth-e-n,this.squarePixelHeight-t-r]:i===270&&([e,t,n,r]=[this.squarePixelWidth-t-r,e,r,n]),{sx:e,sy:t,sWidth:n,sHeight:r}}_drawWithFitAndMipmapping(e,t,n){let r=e.width,i=e.height,[a,o]=n.rotation%180==0?[this.squarePixelWidth,this.squarePixelHeight]:[this.squarePixelHeight,this.squarePixelWidth],s=n.crop?n.crop.width:a,c=n.crop?n.crop.height:o,l=0;2*r<s&&2*i<c&&(l=Math.floor(Math.log2(Math.min(s/r,c/i))));let u=r*2**l,d=i*2**l,{canvas:f,context:p,isNew:m}=l>0?sh(u,d):{canvas:e,context:t,isNew:n.targetIsFresh};p.imageSmoothingQuality=`high`,n.fillBlack?(p.fillStyle=`black`,p.fillRect(0,0,u,d)):m||p.clearRect(0,0,u,d),this.drawWithFit(p,{fit:n.fit,rotation:n.rotation,crop:n.crop}),p.globalCompositeOperation=`copy`;for(let e=l;e>1;e--){let t=r*2**e,n=i*2**e;p.drawImage(f,0,0,t,n,0,0,t/2,n/2)}p.globalCompositeOperation=`source-over`,l>0&&(t.imageSmoothingQuality=`high`,t.globalCompositeOperation=`copy`,t.drawImage(f,0,0,2*r,2*i,0,0,r,i),t.globalCompositeOperation=`source-over`)}toCanvasImageSource(){if(this._closed)throw Error(`VideoSample is closed.`);if(B(this._data!==null),this._data instanceof $m||this._data instanceof Uint8Array){let e=this.toVideoFrame();return queueMicrotask(()=>e.close()),e}return this._data}async transform(t){if(!t||typeof t!=`object`)throw TypeError(`options must be an object.`);if(t.width!==void 0&&(!Number.isInteger(t.width)||t.width<=0))throw TypeError(`options.width, when provided, must be a positive integer.`);if(t.height!==void 0&&(!Number.isInteger(t.height)||t.height<=0))throw TypeError(`options.height, when provided, must be a positive integer.`);if(t.roundDimensionsTo!==void 0&&(!Number.isInteger(t.roundDimensionsTo)||t.roundDimensionsTo<=0))throw TypeError(`options.roundDimensionsTo, when provided, must be a positive integer.`);if(t.fit!==void 0&&![`fill`,`contain`,`cover`].includes(t.fit))throw TypeError(`options.fit, when provided, must be one of "fill", "contain", or "cover".`);if(t.width!==void 0&&t.height!==void 0&&t.fit===void 0)throw TypeError(`When both options.width and options.height are provided, options.fit must also be provided.`);if(t.rotate!==void 0&&![0,90,180,270].includes(t.rotate))throw TypeError(`options.rotate, when provided, must be 0, 90, 180 or 270.`);if(t.crop!==void 0&&dh(t.crop,`options.`),t.alpha!==void 0&&![`keep`,`discard`].includes(t.alpha))throw TypeError(`options.alpha, when provided, must be 'keep' or 'discard'.`);let n=Df(this.rotation+(t.rotate??0)),[r,i]=n%180==0?[this.squarePixelWidth,this.squarePixelHeight]:[this.squarePixelHeight,this.squarePixelWidth],a=t.crop;a&&=uh(a,r,i);let o=a?a.width:r,s=a?a.height:i,c=o/s,l,u;t.width!==void 0&&t.height===void 0?(l=t.width,u=l/c):t.width===void 0&&t.height!==void 0?(u=t.height,l=u*c):t.width!==void 0&&t.height!==void 0?(l=t.width,u=t.height):(l=o,u=s),l=qf(l,t.roundDimensionsTo??1),u=qf(u,t.roundDimensionsTo??1);let d={width:l,height:u,fit:t.fit??`fill`,rotation:n,crop:a??{left:0,top:0,width:r,height:i},alpha:t.alpha??`keep`};for(let e of rh){let t=e(this,d);if(t instanceof Promise&&(t=await t),t!==null)return t}let{canvas:f,context:p,isNew:m}=sh(d.width,d.height);return this._drawWithFitAndMipmapping(f,p,{fit:d.fit,rotation:d.rotation,crop:d.crop,targetIsFresh:m,fillBlack:d.alpha===`discard`}),new e(f,{timestamp:this.timestamp,duration:this.duration,rotation:0})}setRotation(e){if(![0,90,180,270].includes(e))throw TypeError(`newRotation must be 0, 90, 180, or 270.`);this.rotation=e}setTimestamp(e){if(!Number.isFinite(e))throw TypeError(`newTimestamp must be a number.`);this.timestamp=e}setDuration(e){if(!Number.isFinite(e)||e<0)throw TypeError(`newDuration must be a non-negative number.`);this.duration=e}setEncodeOptions(e){if(!e||typeof e!=`object`)throw TypeError(`newEncodeOptions must be an object.`);this.encodeOptions=e}[Symbol.dispose](){this.close()}},rh=[],ih=3,ah=[],oh=0,sh=(e,t)=>{for(let n of ah)if(n.canvas.width===e&&n.canvas.height===t)return n.age=oh++,{canvas:n.canvas,context:n.context,isNew:!1};let n;if(typeof OffscreenCanvas<`u`)n=new OffscreenCanvas(e,t);else{if(typeof window>`u`||typeof document>`u`)throw Error(`Cannot transform VideoSamples in this environment. Either run in an environment with OffscreenCanvas or HTMLCanvasElement, or supply a custom VideoSample transformer using registerVideoSampleTransformer().`);n=document.createElement(`canvas`),n.width=e,n.height=t}let r=n.getContext(`2d`,{alpha:!0,willReadFrequently:!1});if(!r)throw Error(`The '2d' canvas context is required to transform VideoSamples. Register a custom transformer using registerVideoSampleTransformer to work around this limitation.`);return ah.length>=ih&&ah.splice(cp(ah,e=>e.age),1),ah.push({canvas:n,context:r,age:oh++}),{canvas:n,context:r,isNew:!0}},ch=class{constructor(e){if(e!==void 0){if(!e||typeof e!=`object`)throw TypeError(`init.colorSpace, when provided, must be an object.`);let t=Object.keys(Pf);if(e.primaries!=null&&!t.includes(e.primaries))throw TypeError(`init.colorSpace.primaries, when provided, must be one of ${t.join(`, `)}.`);let n=Object.keys(Ff);if(e.transfer!=null&&!n.includes(e.transfer))throw TypeError(`init.colorSpace.transfer, when provided, must be one of ${n.join(`, `)}.`);let r=Object.keys(If);if(e.matrix!=null&&!r.includes(e.matrix))throw TypeError(`init.colorSpace.matrix, when provided, must be one of ${r.join(`, `)}.`);if(e.fullRange!=null&&typeof e.fullRange!=`boolean`)throw TypeError(`init.colorSpace.fullRange, when provided, must be a boolean.`)}this.primaries=e?.primaries??null,this.transfer=e?.transfer??null,this.matrix=e?.matrix??null,this.fullRange=e?.fullRange??null}toJSON(){return{primaries:this.primaries,transfer:this.transfer,matrix:this.matrix,fullRange:this.fullRange}}},lh=e=>typeof VideoFrame<`u`&&e instanceof VideoFrame,uh=(e,t,n)=>{let r=Math.min(e.left,t),i=Math.min(e.top,n),a=Math.min(e.width,t-r),o=Math.min(e.height,n-i);return B(a>=0),B(o>=0),{left:r,top:i,width:a,height:o}},dh=(e,t)=>{if(!e||typeof e!=`object`)throw TypeError(t+`crop, when provided, must be an object.`);if(!Number.isInteger(e.left)||e.left<0)throw TypeError(t+`crop.left must be a non-negative integer.`);if(!Number.isInteger(e.top)||e.top<0)throw TypeError(t+`crop.top must be a non-negative integer.`);if(!Number.isInteger(e.width)||e.width<0)throw TypeError(t+`crop.width must be a non-negative integer.`);if(!Number.isInteger(e.height)||e.height<0)throw TypeError(t+`crop.height must be a non-negative integer.`)},fh=e=>{if(!e||typeof e!=`object`)throw TypeError(`options must be an object.`);if(e.colorSpace!==void 0&&![`display-p3`,`srgb`].includes(e.colorSpace))throw TypeError(`options.colorSpace, when provided, must be 'display-p3' or 'srgb'.`);if(e.format!==void 0&&typeof e.format!=`string`)throw TypeError(`options.format, when provided, must be a string.`);if(e.layout!==void 0){if(!Array.isArray(e.layout))throw TypeError(`options.layout, when provided, must be an array.`);for(let t of e.layout){if(!t||typeof t!=`object`)throw TypeError(`Each entry in options.layout must be an object.`);if(!Number.isInteger(t.offset)||t.offset<0)throw TypeError(`plane.offset must be a non-negative integer.`);if(!Number.isInteger(t.stride)||t.stride<0)throw TypeError(`plane.stride must be a non-negative integer.`)}}if(e.rect!==void 0){if(!e.rect||typeof e.rect!=`object`)throw TypeError(`options.rect, when provided, must be an object.`);if(e.rect.x!==void 0&&(!Number.isInteger(e.rect.x)||e.rect.x<0))throw TypeError(`options.rect.x, when provided, must be a non-negative integer.`);if(e.rect.y!==void 0&&(!Number.isInteger(e.rect.y)||e.rect.y<0))throw TypeError(`options.rect.y, when provided, must be a non-negative integer.`);if(e.rect.width!==void 0&&(!Number.isInteger(e.rect.width)||e.rect.width<0))throw TypeError(`options.rect.width, when provided, must be a non-negative integer.`);if(e.rect.height!==void 0&&(!Number.isInteger(e.rect.height)||e.rect.height<0))throw TypeError(`options.rect.height, when provided, must be a non-negative integer.`)}},ph=(e,t,n)=>{let r=mh(e),i=[],a=0;for(let e of r){let r=Math.ceil(t/e.widthDivisor),o=Math.ceil(n/e.heightDivisor),s=r*e.sampleBytes,c=s*o;i.push({offset:a,stride:s}),a+=c}return i},mh=e=>{let t=(e,t,n,r,i)=>{let a=[{sampleBytes:e,widthDivisor:1,heightDivisor:1},{sampleBytes:t,widthDivisor:n,heightDivisor:r},{sampleBytes:t,widthDivisor:n,heightDivisor:r}];return i&&a.push({sampleBytes:e,widthDivisor:1,heightDivisor:1}),a};switch(e){case`I420`:return t(1,1,2,2,!1);case`I420P10`:case`I420P12`:return t(2,2,2,2,!1);case`I420A`:return t(1,1,2,2,!0);case`I420AP10`:case`I420AP12`:return t(2,2,2,2,!0);case`I422`:return t(1,1,2,1,!1);case`I422P10`:case`I422P12`:return t(2,2,2,1,!1);case`I422A`:return t(1,1,2,1,!0);case`I422AP10`:case`I422AP12`:return t(2,2,2,1,!0);case`I444`:return t(1,1,1,1,!1);case`I444P10`:case`I444P12`:return t(2,2,1,1,!1);case`I444A`:return t(1,1,1,1,!0);case`I444AP10`:case`I444AP12`:return t(2,2,1,1,!0);case`NV12`:return[{sampleBytes:1,widthDivisor:1,heightDivisor:1},{sampleBytes:2,widthDivisor:2,heightDivisor:2}];case`RGBA`:case`RGBX`:case`BGRA`:case`BGRX`:return[{sampleBytes:4,widthDivisor:1,heightDivisor:1}];default:Hf(e),B(!1)}},hh=(e,t)=>{let n={left:0,top:0,width:e.codedWidth,height:e.codedHeight},r=t.rect,i=gh(n,r,e.codedWidth,e.codedHeight,e.format),a=t.layout,o;if(!t.format||t.format===e.format)o=e.format;else if([`RGBA`,`RGBX`,`BGRA`,`BGRX`].includes(t.format))o=t.format;else throw Error(`NotSupportedError: Invalid destination format.`);return vh(i,o,a)},gh=(e,t,n,r,i)=>{let a={...e};if(t!==void 0){if(t.width===0||t.height===0)throw TypeError(`visibleRect dimensions cannot be zero.`);if((t.x||0)+(t.width||0)>n)throw TypeError(`visibleRect exceeds codedWidth.`);if((t.y||0)+(t.height||0)>r)throw TypeError(`visibleRect exceeds codedHeight.`);a.x=t.x||0,a.y=t.y||0,a.width=t.width||0,a.height=t.height||0}if(!_h(i,a))throw TypeError(`visibleRect alignment is invalid for the format.`);return a},_h=(e,t)=>{if(e===null)return!0;let n=mh(e);for(let e=0;e<n.length;e++){let r=n[e],i=r.widthDivisor,a=r.heightDivisor;if((t.x||0)%i!==0||(t.y||0)%a!==0)return!1}return!0},vh=(e,t,n)=>{let r=mh(t),i=r.length;if(n!==void 0&&n.length!==i)throw TypeError(`Layout must have ${i} planes.`);let a=0,o=[],s=[];for(let t=0;t<i;t++){let i=r[t],c=i.sampleBytes,l=i.widthDivisor,u=i.heightDivisor,d={destinationOffset:0,destinationStride:0,sourceTop:0,sourceHeight:0,sourceLeftBytes:0,sourceWidthBytes:0};if(d.sourceTop=Math.ceil(Math.trunc(e.y||0)/u),d.sourceHeight=Math.ceil(Math.trunc(e.height||0)/u),d.sourceLeftBytes=Math.floor(Math.trunc(e.x||0)/l)*c,d.sourceWidthBytes=Math.floor(Math.trunc(e.width||0)/l)*c,n!==void 0){let e=n[t];if(e.stride<d.sourceWidthBytes)throw TypeError(`Stride for plane ${t} is too small.`);d.destinationOffset=e.offset,d.destinationStride=e.stride}else d.destinationOffset=a,d.destinationStride=d.sourceWidthBytes;let f=d.destinationStride*d.sourceHeight+d.destinationOffset;if(f>4294967295)throw TypeError(`Allocation size exceeds limit.`);s.push(f),a=Math.max(a,f);for(let e=0;e<t;e++){let n=o[e];if(!(s[t]<=n.destinationOffset||s[e]<=d.destinationOffset))throw TypeError(`Planes overlap.`)}o.push(d)}return{allocationSize:a,computedLayouts:o}}})))()}var bh,xh,Sh,Ch,wh,Th,Eh,Dh,Oh,kh;function Ah(){return(Ah=t((()=>{nm(),hp(),yh(),bh=e=>{if(!e||typeof e!=`object`)throw TypeError(`Encoding config must be an object.`);if(!Ap.includes(e.codec))throw TypeError(`Invalid video codec '${e.codec}'. Must be one of: ${Ap.join(`, `)}.`);let t=e.bitrate;if(e.quality===void 0&&t===void 0)throw TypeError(`config.quality must be provided.`);if(e.quality!==void 0&&t!==void 0)throw TypeError(`config.quality and config.bitrate cannot both be provided.`);if(e.quality!==void 0&&!(e.quality instanceof Ch))throw TypeError(`config.quality, when provided, must be a Quality.`);if(t!==void 0&&!(t instanceof Ch)&&(!Number.isInteger(t)||t<=0))throw TypeError(`config.bitrate, when provided, must be a positive integer or a quality.`);if(e.keyFrameInterval!==void 0&&(!Number.isFinite(e.keyFrameInterval)||e.keyFrameInterval<0))throw TypeError(`config.keyFrameInterval, when provided, must be a non-negative number.`);if(e.sizeChangeBehavior!==void 0&&![`deny`,`passThrough`,`fill`,`contain`,`cover`].includes(e.sizeChangeBehavior))throw TypeError(`config.sizeChangeBehavior, when provided, must be 'deny', 'passThrough', 'fill', 'contain' or 'cover'.`);if(e.transform!==void 0){if(typeof e.transform!=`object`||!e.transform)throw TypeError(`config.transform, when provided, must be an object.`);if(e.transform.width!==void 0&&(!Number.isInteger(e.transform.width)||e.transform.width<=0))throw TypeError(`config.transform.width, when provided, must be a positive integer.`);if(e.transform.height!==void 0&&(!Number.isInteger(e.transform.height)||e.transform.height<=0))throw TypeError(`config.transform.height, when provided, must be a positive integer.`);if(e.transform.fit!==void 0&&![`fill`,`contain`,`cover`].includes(e.transform.fit))throw TypeError(`config.transform.fit, when provided, must be one of "fill", "contain", or "cover".`);if(e.transform.width!==void 0&&e.transform.height!==void 0&&e.transform.fit===void 0&&![`fill`,`contain`,`cover`].includes(e.sizeChangeBehavior))throw TypeError(`When both config.transform.width and config.transform.height are provided, config.transform.fit must also be provided.`);if(e.transform.fit!==void 0&&[`fill`,`contain`,`cover`].includes(e.sizeChangeBehavior)&&e.transform.fit!==e.sizeChangeBehavior)throw TypeError(`config.transform.fit, when provided, cannot differ from config.sizeChangeBehavior when config.sizeChangeBehavior is 'fill', 'contain' or 'cover', as sizeChangeBehavior already determines the fitting algorithm.`);if(e.transform.rotate!==void 0&&![0,90,180,270].includes(e.transform.rotate))throw TypeError(`config.transform.rotate, when provided, must be 0, 90, 180 or 270.`);if(e.transform.crop!==void 0&&dh(e.transform.crop,`config.transform.`),e.transform.process!==void 0&&typeof e.transform.process!=`function`)throw TypeError(`config.transform.process, when provided, must be a function.`);if(e.transform.frameRate!==void 0&&(!Number.isFinite(e.transform.frameRate)||e.transform.frameRate<=0))throw TypeError(`config.transform.frameRate, when provided, must be a finite positive number.`);if(e.transform.force!==void 0&&typeof e.transform.force!=`boolean`)throw TypeError(`config.transform.force, when provided, must be a boolean.`)}if(e.onEncodedPacket!==void 0&&typeof e.onEncodedPacket!=`function`)throw TypeError(`config.onEncodedPacket, when provided, must be a function.`);if(e.onEncoderConfig!==void 0&&typeof e.onEncoderConfig!=`function`)throw TypeError(`config.onEncoderConfig, when provided, must be a function.`);if(e.onEncodedSample!==void 0&&typeof e.onEncodedSample!=`function`)throw TypeError(`config.onEncodedSample, when provided, must be a function.`);xh(e.codec,e)},xh=(e,t)=>{if(!t||typeof t!=`object`)throw TypeError(`Encoding options must be an object.`);if(t.alpha!==void 0&&![`discard`,`keep`].includes(t.alpha))throw TypeError(`options.alpha, when provided, must be 'discard' or 'keep'.`);let n=t.bitrateMode;if(n!==void 0&&![`constant`,`variable`].includes(n))throw TypeError(`bitrateMode, when provided, must be 'constant' or 'variable'.`);if(t.latencyMode!==void 0&&![`quality`,`realtime`].includes(t.latencyMode))throw TypeError(`latencyMode, when provided, must be 'quality' or 'realtime'.`);if(t.fullCodecString!==void 0&&typeof t.fullCodecString!=`string`)throw TypeError(`fullCodecString, when provided, must be a string.`);if(t.fullCodecString!==void 0&&Gp(t.fullCodecString)!==e)throw TypeError(`fullCodecString, when provided, must be a string that matches the specified codec (${e}).`);if(t.hardwareAcceleration!==void 0&&![`no-preference`,`prefer-hardware`,`prefer-software`].includes(t.hardwareAcceleration))throw TypeError(`hardwareAcceleration, when provided, must be 'no-preference', 'prefer-hardware' or 'prefer-software'.`);if(t.scalabilityMode!==void 0&&typeof t.scalabilityMode!=`string`)throw TypeError(`scalabilityMode, when provided, must be a string.`);if(t.contentHint!==void 0&&typeof t.contentHint!=`string`)throw TypeError(`contentHint, when provided, must be a string.`)},Sh=e=>{let t=e.bitrateMode,n=e.quality._toVideoRateControl(e.codec,e.width,e.height,t),r=(t,n,r)=>({codec:e.fullCodecString??Vp(e.codec,e.width,e.height,r,e.alpha===`keep`),width:e.width,height:e.height,displayWidth:e.squarePixelWidth,displayHeight:e.squarePixelHeight,bitrate:t,bitrateMode:n,alpha:e.alpha??`discard`,framerate:e.framerate,latencyMode:e.latencyMode,hardwareAcceleration:e.hardwareAcceleration,scalabilityMode:e.scalabilityMode,contentHint:e.contentHint,...Kp(e.codec)}),i=[];return n.quantizer!==null&&i.push({config:r(void 0,`quantizer`,n.bitrate),quantizer:n.quantizer}),n.bitrateMode!==`quantizer`&&i.push({config:r(n.bitrate,n.bitrateMode,n.bitrate),quantizer:null}),B(i.length>0),i},Ch=class{constructor(e){if((typeof e==`number`||typeof e==`string`)&&(e={quality:e}),!e||typeof e!=`object`)throw TypeError(`options must be an object.`);if(e.bitrateMode!==void 0&&![`constant`,`variable`].includes(e.bitrateMode))throw TypeError(`options.bitrateMode, when provided, must be 'constant' or 'variable'.`);if(`quality`in e){if(typeof e.quality==`string`?!(e.quality in wh):typeof e.quality!=`number`||Number.isNaN(e.quality))throw TypeError(`options.quality must be a number, or one of 'very-low', 'low', 'medium', 'high' or 'very-high'.`);if(e.preferBitrate!==void 0&&typeof e.preferBitrate!=`boolean`)throw TypeError(`options.preferBitrate, when provided, must be a boolean.`);if(`bitrate`in e||`quantizer`in e)throw TypeError(`options.quality cannot be combined with options.bitrate or options.quantizer.`);this._quality=typeof e.quality==`string`?wh[e.quality]:e.quality,this._preferBitrate=e.preferBitrate??!1,this._bitrate=void 0,this._quantizer=void 0}else{if(e.bitrate!==void 0&&(!Number.isInteger(e.bitrate)||e.bitrate<=0))throw TypeError(`options.bitrate, when provided, must be a positive integer.`);if(e.quantizer!==void 0&&(!Number.isInteger(e.quantizer)||e.quantizer<0))throw TypeError(`options.quantizer, when provided, must be a non-negative integer.`);if(e.bitrate===void 0&&e.quantizer===void 0)throw TypeError(`At least one of options.bitrate or options.quantizer must be set.`);if(`preferBitrate`in e)throw TypeError(`options.preferBitrate can only be combined with options.quality.`);this._quality=void 0,this._preferBitrate=!1,this._bitrate=e.bitrate,this._quantizer=e.quantizer}this._bitrateMode=e.bitrateMode}_toVideoRateControl(e,t,n,r){let i=Th[e],a=null,o=this._bitrateMode??r??`variable`;if(this._quantizer!==void 0){if(!i){if(this._bitrate===void 0)throw Error(`Codec '${e}' does not support quantizer-based encoding. Provide a bitrate in the Quality to define a fallback.`)}else if(this._quantizer<i.min||this._quantizer>i.max){if(this._bitrate===void 0)throw Error(`Quantizer ${this._quantizer} is out of range for codec '${e}'; must be between ${i.min} and ${i.max}.`)}else a=this._quantizer,this._bitrate===void 0&&(o=`quantizer`)}else this._bitrate===void 0&&i&&!this._preferBitrate&&(B(this._quality!==void 0),a=Gf(Math.round(Kf(i.worst,i.best,this._quality)),i.min,i.max));let s;if(this._bitrate!==void 0)s=this._bitrate;else{let r=this._quality;r===void 0&&(B(a!==null&&i),r=Gf((a-i.worst)/(i.best-i.worst),0,1)),s=Dh(e,t,n,Eh(r))}return{quantizer:a,bitrate:s,bitrateMode:o}}_toVideoBitrate(e,t,n){return this._bitrate===void 0?(B(this._quality!==void 0),Dh(e,t,n,Eh(this._quality))):this._bitrate}_toAudioBitrate(e){if(jp.includes(e)||e===`flac`)return;if(this._bitrate!==void 0)return this._bitrate;if(this._quality===void 0)throw Error(`This Quality defines neither a quality level nor a bitrate and therefore cannot be used for audio encoding.`);let t=Eh(this._quality),n={aac:128e3,opus:64e3,mp3:16e4,vorbis:64e3,ac3:384e3,eac3:192e3}[e];if(!n)throw Error(`Unhandled codec: ${e}`);let r=n*t;return e===`aac`?r=[96e3,128e3,16e4,192e3].reduce((e,t)=>Math.abs(t-r)<Math.abs(e-r)?t:e):e===`opus`||e===`vorbis`?r=Math.max(6e3,r):e===`mp3`&&(r=[8e3,16e3,24e3,32e3,4e4,48e3,64e3,8e4,96e3,112e3,128e3,16e4,192e3,224e3,256e3,32e4].reduce((e,t)=>Math.abs(t-r)<Math.abs(e-r)?t:e)),Math.round(r/1e3)*1e3}},wh={"very-low":0,low:.25,medium:.5,high:.75,"very-high":1},Th={avc:{min:0,max:51,worst:41,best:16},hevc:{min:0,max:51,worst:41,best:16},vp9:{min:0,max:63,worst:52,best:20},av1:{min:0,max:255,worst:208,best:80}},Eh=e=>.3*Math.exp(2.5538*e),Dh=(e,t,n,r)=>{let i=t*n,a=3e6,o=a*(i/2073600)**.95*{avc:1,hevc:.6,vp9:.6,av1:.4,vp8:1.2,prores:22e7/a}[e]*r;return Math.ceil(o/1e3)*1e3},Oh=(e,t)=>{if(e===`avc`)return{avc:{quantizer:t}};if(e===`hevc`)return{hevc:{quantizer:t}};if(e===`vp9`)return{vp9:{quantizer:t}};if(e===`av1`)return{av1:{quantizer:t}};B(!1)},kh=(e,t)=>{if(e!==void 0)return e;if(t!==void 0)return t instanceof Ch?t:new Ch({bitrate:t})}})))()}var jh;function Mh(){return(Mh=t((()=>{jh=[]})))()}var Nh,Ph,Fh;function Ih(){return(Ih=t((()=>{hp(),Nh=class e{constructor(e,t,n,r,i){this.bytes=e,this.view=t,this.offset=n,this.start=r,this.end=i,this.bufferPos=r-n}static tempFromBytes(t){return new e(t,Mf(t),0,0,t.length)}get length(){return this.end-this.start}get filePos(){return this.offset+this.bufferPos}set filePos(e){this.bufferPos=e-this.offset}get remainingLength(){return Math.max(this.end-this.filePos,0)}skip(e){this.bufferPos+=e}slice(t,n=this.end-t){if(t<this.start||t+n>this.end)throw RangeError(`Slicing outside of original slice.`);return new e(this.bytes,this.view,this.offset,t,t+n)}},Ph=(e,t)=>{if(e.filePos<e.start||e.filePos+t>e.end)throw RangeError(`Tried reading [${e.filePos}, ${e.filePos+t}), but slice is [${e.start}, ${e.end}). This is likely an internal error, please report it alongside the file that caused it.`)},Fh=(e,t)=>{Ph(e,t);let n=e.bytes.subarray(e.bufferPos,e.bufferPos+t);return e.bufferPos+=t,n}})))()}var Lh;function Rh(){return(Rh=t((()=>{hp(),Lh=class{constructor(e){this.mutex=new zf,this.trackTimestampInfo=new WeakMap,this.output=e}onTrackClose(e){}validateTimestamp(e,t,n){if(t<0)throw Error(`Timestamps must be non-negative (got ${t}s).`);let r=this.trackTimestampInfo.get(e);if(r){if(n&&(r.maxTimestampBeforeLastKeyPacket=r.maxTimestamp),r.maxTimestampBeforeLastKeyPacket!==null&&t<r.maxTimestampBeforeLastKeyPacket)throw Error(`Timestamps cannot be smaller than the largest timestamp of the previous GOP (a GOP begins with a key packet and ends right before the next key packet). Got ${t}s, but largest timestamp is ${r.maxTimestampBeforeLastKeyPacket}s.`);r.maxTimestamp=Math.max(r.maxTimestamp,t)}else{if(!n)throw Error(`First packet must be a key packet.`);r={maxTimestamp:t,maxTimestampBeforeLastKeyPacket:null},this.trackTimestampInfo.set(e,r)}}}})))()}var zh,Bh;function Vh(){return(Vh=t((()=>{zh=/<(?:(\d{2}):)?(\d{2}):(\d{2}).(\d{3})>/g,Bh=e=>{let t=Math.floor(e/36e5),n=Math.floor(e%36e5/6e4),r=Math.floor(e%6e4/1e3),i=e%1e3;return t.toString().padStart(2,`0`)+`:`+n.toString().padStart(2,`0`)+`:`+r.toString().padStart(2,`0`)+`.`+i.toString().padStart(3,`0`)}})))()}var Hh,H,Uh,Wh,U,Gh,Kh,W,qh,Jh,Yh,Xh,Zh,Qh,$h,G,eg,tg,ng,K,q,rg,ig,ag,og,sg,cg,lg,ug,dg,fg,pg,mg,hg,gg,_g,vg,yg,bg,xg,Sg,Cg,wg,Tg,Eg,Dg,Og,kg,Ag,jg,Mg,Ng,Pg,Fg,Ig,Lg,Rg,zg,Bg,Vg,Hg,Ug,Wg,Gg,Kg,qg,Jg,Yg,Xg,Zg,Qg,$g,e_,t_,n_,r_,i_,a_,o_,s_,c_,l_,u_,d_,f_,p_,m_,h_,g_,__,v_,y_,b_,x_,S_,C_,w_,T_,E_,D_,O_,k_,A_;function j_(){return(j_=t((()=>{hp(),nm(),Vh(),K_(),zm(),Cp(),Tp(),Hh=class{constructor(e){this.writer=e,this.helper=new Uint8Array(8),this.helperView=new DataView(this.helper.buffer),this.offsets=new WeakMap}writeU32(e){this.helperView.setUint32(0,e,!1),this.writer.write(this.helper.subarray(0,4))}writeU64(e){this.helperView.setUint32(0,Math.floor(e/2**32),!1),this.helperView.setUint32(4,e,!1),this.writer.write(this.helper.subarray(0,8))}writeAscii(e){for(let t=0;t<e.length;t++)this.helperView.setUint8(t%8,e.charCodeAt(t)),t%8==7&&this.writer.write(this.helper);e.length%8!=0&&this.writer.write(this.helper.subarray(0,e.length%8))}writeBox(e){if(this.offsets.set(e,this.writer.getPos()),e.contents&&!e.children)this.writeBoxHeader(e,e.size??e.contents.byteLength+8),this.writer.write(e.contents);else{let t=this.writer.getPos();if(this.writeBoxHeader(e,0),e.contents&&this.writer.write(e.contents),e.children)for(let t of e.children)t&&this.writeBox(t);let n=this.writer.getPos(),r=e.size??n-t;this.writer.seek(t),this.writeBoxHeader(e,r),this.writer.seek(n)}}writeBoxHeader(e,t){this.writeU32(e.largeSize?1:t),this.writeAscii(e.type),e.largeSize&&this.writeU64(t)}measureBoxHeader(e){return 8+(e.largeSize?8:0)}patchBox(e){let t=this.offsets.get(e);B(t!==void 0);let n=this.writer.getPos();this.writer.seek(t),this.writeBox(e),this.writer.seek(n)}measureBox(e){if(e.contents&&!e.children)return this.measureBoxHeader(e)+e.contents.byteLength;{let t=this.measureBoxHeader(e);if(e.contents&&(t+=e.contents.byteLength),e.children)for(let n of e.children)n&&(t+=this.measureBox(n));return t}}},H=new Uint8Array(8),Uh=new DataView(H.buffer),Wh=e=>[(e%256+256)%256],U=e=>(Uh.setUint16(0,e,!1),[H[0],H[1]]),Gh=e=>(Uh.setInt16(0,e,!1),[H[0],H[1]]),Kh=e=>(Uh.setUint32(0,e,!1),[H[1],H[2],H[3]]),W=e=>(Uh.setUint32(0,e,!1),[H[0],H[1],H[2],H[3]]),qh=e=>(Uh.setInt32(0,e,!1),[H[0],H[1],H[2],H[3]]),Jh=e=>(Uh.setUint32(0,Math.floor(e/2**32),!1),Uh.setUint32(4,e,!1),[H[0],H[1],H[2],H[3],H[4],H[5],H[6],H[7]]),Yh=e=>(Uh.setInt32(0,Math.floor(e/2**32),!1),Uh.setUint32(4,e,!1),[H[0],H[1],H[2],H[3],H[4],H[5],H[6],H[7]]),Xh=e=>(Uh.setInt16(0,256*e,!1),[H[0],H[1]]),Zh=e=>(Uh.setInt32(0,2**16*e,!1),[H[0],H[1],H[2],H[3]]),Qh=e=>(Uh.setInt32(0,2**30*e,!1),[H[0],H[1],H[2],H[3]]),$h=(e,t)=>{let n=[],r=e;do{let e=r&127;r>>=7,n.length>0&&(e|=128),n.push(e),t!==void 0&&t--}while(r>0||t);return n.reverse()},G=(e,t=!1)=>{let n=Array(e.length).fill(null).map((t,n)=>e.charCodeAt(n));return t&&n.push(0),n},eg=e=>{let t=Math.PI/180*e,n=Math.round(Math.cos(t)),r=Math.round(Math.sin(t));return[n,r,0,-r,n,0,0,0,1]},tg=eg(0),ng=e=>[Zh(e[0]),Zh(e[1]),Qh(e[2]),Zh(e[3]),Zh(e[4]),Qh(e[5]),Zh(e[6]),Zh(e[7]),Qh(e[8])],K=(e,t,n)=>({type:e,contents:t&&new Uint8Array(t.flat(10)),children:n}),q=(e,t,n,r,i)=>K(e,[Wh(t),Kh(n),r??[]],i),rg=e=>e.isQuickTime?K(`ftyp`,[G(`qt  `),W(512),G(`qt  `)]):e.fragmented?e.cmaf?K(`ftyp`,[G(`iso5`),W(512),G(`iso5`),G(`iso6`),G(`mp41`),G(`cmfc`),G(`dash`)]):K(`ftyp`,[G(`iso5`),W(512),G(`iso5`),G(`iso6`),G(`mp41`)]):K(`ftyp`,[G(`isom`),W(512),G(`isom`),e.holdsAvc?G(`avc1`):[],G(`mp41`)]),ig=()=>K(`styp`,[G(`iso5`),W(0),G(`iso5`),G(`iso6`),G(`mp41`),G(`cmfc`),G(`dash`)]),ag=(e,t)=>{let n=e.maxWrittenEndTimestamp-e.minWrittenTimestamp;return Number.isFinite(n)||(n=0),q(`sidx`,1,0,[W(1),W(V_),Jh(W_(e.minWrittenTimestamp,V_)),Jh(0),U(0),U(1),W(t&2147483647),W(W_(n,V_)),W(0)])},og=e=>({type:`mdat`,largeSize:e}),sg=e=>({type:`free`,size:e}),cg=e=>K(`moov`,void 0,[lg(e.creationTime,e.trackDatas),...e.trackDatas.map(t=>dg(t,e.creationTime)),e.isFragmented?t_(e.trackDatas):null,g_(e)]),lg=(e,t)=>{let n=Math.max(0,...t.map(e=>W_(ug(e),V_)+W_(e.startTimestampOffset??0,V_))),r=Math.max(0,...t.map(e=>e.track.id))+1,i=!kf(e)||!kf(n),a=i?Jh:W;return q(`mvhd`,+i,0,[a(e),a(e),W(V_),a(n),Zh(1),Xh(1),Array(10).fill(0),ng(tg),Array(24).fill(0),W(r)])},ug=e=>{if(e.samples.length===0)return 0;let t=1/0,n=-1/0;for(let r=0;r<e.samples.length;r++){let i=e.samples[r];i.timestamp<t&&(t=i.timestamp),i.timestamp+i.duration>n&&(n=i.timestamp+i.duration)}return t===1/0?0:n-t},dg=(e,t)=>{let n=U_(e),r=e.startTimestampOffset!==null&&e.startTimestampOffset>0;return K(`trak`,void 0,[fg(e,t),r?pg(e,e.startTimestampOffset):null,mg(e,t),n.name===void 0?null:K(`udta`,void 0,[K(`name`,[...Nf.encode(n.name)])])])},fg=(e,t)=>{let n=W_(ug(e),V_)+W_(e.startTimestampOffset??0,V_),r=!kf(t)||!kf(n),i=r?Jh:W,a;if(e.type===`video`){let t=e.track.metadata.rotation;a=eg(t??0)}else a=tg;let o=2;e.track.metadata.disposition?.default!==!1&&(o|=1);let s=e.type===`video`?0:e.type===`audio`?1:e.type===`subtitle`?2:Hf(e);return q(`tkhd`,+r,o,[i(t),i(t),W(e.track.id),W(0),i(n),Array(8).fill(0),U(0),U(s),Xh(+(e.type===`audio`)),U(0),ng(a),Zh(e.type===`video`?e.info.width:0),Zh(e.type===`video`?e.info.height:0)])},pg=(e,t)=>{let n=W_(t,V_),r=W_(ug(e),V_),i=!kf(n)||!kf(r),a=i?Jh:W,o=i?Yh:qh;return K(`edts`,void 0,[q(`elst`,+!!i,0,[W(2),a(n),o(-1),Zh(1),a(r),o(0),Zh(1)])])},mg=(e,t)=>K(`mdia`,void 0,[hg(e,t),vg(!0,gg[e.type],_g[e.type]),yg(e)]),hg=(e,t)=>{let n=W_(ug(e),e.timescale),r=!kf(t)||!kf(n),i=r?Jh:W;return q(`mdhd`,+r,0,[i(t),i(t),W(e.timescale),i(n),U(A_(e.track.metadata.languageCode??`und`)),U(0)])},gg={video:`vide`,audio:`soun`,subtitle:`text`},_g={video:`MediabunnyVideoHandler`,audio:`MediabunnySoundHandler`,subtitle:`MediabunnyTextHandler`},vg=(e,t,n,r=`\0\0\0\0`)=>q(`hdlr`,0,0,[e?G(`mhlr`):W(0),G(t),G(r),W(0),W(0),G(n,!0)]),yg=e=>K(`minf`,void 0,[Cg[e.type](),wg(),Dg(e)]),bg=()=>q(`vmhd`,0,1,[U(0),U(0),U(0),U(0)]),xg=()=>q(`smhd`,0,0,[U(0),U(0)]),Sg=()=>q(`nmhd`,0,0),Cg={video:bg,audio:xg,subtitle:Sg},wg=()=>K(`dinf`,void 0,[Tg()]),Tg=()=>q(`dref`,0,0,[W(1)],[Eg()]),Eg=()=>q(`url `,0,1),Dg=e=>{let t=e.compositionTimeOffsetTable.length>1||e.compositionTimeOffsetTable.some(e=>e.sampleCompositionTimeOffset!==0);return K(`stbl`,void 0,[Og(e),Jg(e),t?$g(e):null,t?e_(e):null,Xg(e),Zg(e),Qg(e),Yg(e)])},Og=e=>{let t;if(e.type===`video`)t=kg(w_(e.track.source._codec,e.info.decoderConfig.codec),e);else if(e.type===`audio`){let n=E_(e.track.source._codec,e.muxer.isQuickTime);B(n),t=Ig(n,e)}else e.type===`subtitle`&&(t=Kg(O_[e.track.source._codec],e));return B(t),q(`stsd`,0,0,[W(1)],[t])},kg=(e,t)=>K(e,[[,,,,,,].fill(0),U(1),U(0),U(0),Array(12).fill(0),U(t.info.width),U(t.info.height),W(4718592),W(4718592),W(0),U(1),Wh(10),G(`Mediabunny`),Array(21).fill(0),U(t.info.hasAlphaChannel?32:24),Gh(65535)],[T_[t.track.source._codec]?.(t)??null,Ag(t),Lf(t.info.decoderConfig.colorSpace)?jg(t):null]),Ag=e=>e.info.pixelAspectRatio.num===e.info.pixelAspectRatio.den?null:K(`pasp`,[W(e.info.pixelAspectRatio.num),W(e.info.pixelAspectRatio.den)]),jg=e=>K(`colr`,[G(e.muxer.isQuickTime?`nclc`:`nclx`),U(Pf[e.info.decoderConfig.colorSpace.primaries]),U(Ff[e.info.decoderConfig.colorSpace.transfer]),U(If[e.info.decoderConfig.colorSpace.matrix]),e.muxer.isQuickTime?[]:Wh(!!e.info.decoderConfig.colorSpace.fullRange<<7)]),Mg=e=>e.info.decoderConfig&&K(`avcC`,[...jf(e.info.decoderConfig.description)]),Ng=e=>e.info.decoderConfig&&K(`hvcC`,[...jf(e.info.decoderConfig.description)]),Pg=e=>{if(!e.info.decoderConfig)return null;let t=e.info.decoderConfig,n=t.codec.split(`.`),r=Number(n[1]),i=Number(n[2]),a=Number(n[3]),o=n[4]?Number(n[4]):1,s=n[8]?Number(n[8]):Number(t.colorSpace?.fullRange??0),c=(a<<4)+(o<<1)+s,l=n[5]?Number(n[5]):t.colorSpace?.primaries?Pf[t.colorSpace.primaries]:2,u=n[6]?Number(n[6]):t.colorSpace?.transfer?Ff[t.colorSpace.transfer]:2,d=n[7]?Number(n[7]):t.colorSpace?.matrix?If[t.colorSpace.matrix]:2;return q(`vpcC`,1,0,[Wh(r),Wh(i),Wh(c),Wh(l),Wh(u),Wh(d),U(0)])},Fg=e=>K(`av1C`,Hp(e.info.decoderConfig.codec)),Ig=(e,t)=>{let n=0,r,i=16,a=jp.includes(t.track.source._codec);if(a){let e=t.track.source._codec,{sampleSize:r}=Wp(e);i=8*r,i>16&&(n=1)}if(t.muxer.isQuickTime&&(n=1),n===0)r=[[,,,,,,].fill(0),U(1),U(n),U(0),W(0),U(t.info.numberOfChannels),U(i),U(0),U(0),U(t.info.sampleRate<2**16?t.info.sampleRate:0),U(0)];else{let e=a?0:-2;r=[[,,,,,,].fill(0),U(1),U(n),U(0),W(0),U(t.info.numberOfChannels),U(Math.min(i,16)),Gh(e),U(0),U(t.info.sampleRate<2**16?t.info.sampleRate:0),U(0),a?[W(1),W(i/8),W(t.info.numberOfChannels*i/8)]:[W(0),W(0),W(0)],W(2)]}return K(e,r,[D_(t.track.source._codec,t.muxer.isQuickTime)?.(t)??null])},Lg=e=>{let t;switch(e.track.source._codec){case`aac`:t=64;break;case`mp3`:t=107;break;case`vorbis`:t=221;break;default:throw Error(`Unhandled audio codec: ${e.track.source._codec}`)}let n=[...Wh(t),...Wh(21),...Kh(0),...W(0),...W(0)];if(e.info.decoderConfig.description){let t=jf(e.info.decoderConfig.description);n=[...n,...Wh(5),...$h(t.byteLength),...t]}return n=[...U(1),...Wh(0),...Wh(4),...$h(n.length),...n,...Wh(6),...Wh(1),...Wh(2)],n=[...Wh(3),...$h(n.length),...n],q(`esds`,0,0,n)},Rg=e=>K(`wave`,void 0,[zg(e),Bg(e),K(`\0\0\0\0`)]),zg=e=>K(`frma`,[G(E_(e.track.source._codec,e.muxer.isQuickTime))]),Bg=e=>{let{littleEndian:t}=Wp(e.track.source._codec);return K(`enda`,[U(+t)])},Vg=e=>{let t=e.info.numberOfChannels,n=3840,r=e.info.sampleRate,i=0,a=0,o=new Uint8Array,s=e.info.decoderConfig?.description;if(s){B(s.byteLength>=18);let e=jf(s),c=Nm(e);t=c.outputChannelCount,n=c.preSkip,r=c.inputSampleRate,i=c.outputGain,a=c.channelMappingFamily,c.channelMappingTable&&(o=c.channelMappingTable)}return K(`dOps`,[Wh(0),Wh(t),U(n),W(r),Gh(i),Wh(a),...o])},Hg=e=>{let t=e.info.decoderConfig?.description;B(t);let n=jf(t);return q(`dfLa`,0,0,[...n.subarray(4)])},Ug=e=>{let{littleEndian:t,sampleSize:n}=Wp(e.track.source._codec),r=+t;return q(`pcmC`,0,0,[Wh(r),Wh(8*n)])},Wg=e=>{B(e.info.primingPacket);let t=Im(e.info.primingPacket.data);if(!t)throw Error(`Couldn't extract AC-3 frame info from the audio packet. Ensure the packets contain valid AC-3 sync frames (as specified in ETSI TS 102 366).`);let n=new Uint8Array(3),r=new wp(n);return r.writeBits(2,t.fscod),r.writeBits(5,t.bsid),r.writeBits(3,t.bsmod),r.writeBits(3,t.acmod),r.writeBits(1,t.lfeon),r.writeBits(5,t.bitRateCode),r.writeBits(5,0),K(`dac3`,[...n])},Gg=e=>{B(e.info.primingPacket);let t=Rm(e.info.primingPacket.data);if(!t)throw Error(`Couldn't extract E-AC-3 frame info from the audio packet. Ensure the packets contain valid E-AC-3 sync frames (as specified in ETSI TS 102 366).`);let n=16;for(let e of t.substreams)n+=23,e.numDepSub>0?n+=9:n+=1;let r=Math.ceil(n/8),i=new Uint8Array(r),a=new wp(i);a.writeBits(13,t.dataRate),a.writeBits(3,t.substreams.length-1);for(let e of t.substreams)a.writeBits(2,e.fscod),a.writeBits(5,e.bsid),a.writeBits(1,0),a.writeBits(1,0),a.writeBits(3,e.bsmod),a.writeBits(3,e.acmod),a.writeBits(1,e.lfeon),a.writeBits(3,0),a.writeBits(4,e.numDepSub),e.numDepSub>0?a.writeBits(9,e.chanLoc):a.writeBits(1,0);return K(`dec3`,[...i])},Kg=(e,t)=>K(e,[[,,,,,,].fill(0),U(1)],[k_[t.track.source._codec](t)]),qg=e=>K(`vttC`,[...Nf.encode(e.info.config.description)]),Jg=e=>q(`stts`,0,0,[W(e.timeToSampleTable.length),e.timeToSampleTable.map(e=>[W(e.sampleCount),W(e.sampleDelta)])]),Yg=e=>{if(e.samples.every(e=>e.type===`key`))return null;let t=[...e.samples.entries()].filter(([,e])=>e.type===`key`);return q(`stss`,0,0,[W(t.length),t.map(([e])=>W(e+1))])},Xg=e=>q(`stsc`,0,0,[W(e.compactlyCodedChunkTable.length),e.compactlyCodedChunkTable.map(e=>[W(e.firstChunk),W(e.samplesPerChunk),W(1)])]),Zg=e=>{if(e.type===`audio`&&e.info.requiresPcmTransformation){let{sampleSize:t}=Wp(e.track.source._codec);return q(`stsz`,0,0,[W(t*e.info.numberOfChannels),W(e.samples.reduce((t,n)=>t+W_(n.duration,e.timescale),0))])}return q(`stsz`,0,0,[W(0),W(e.samples.length),e.samples.map(e=>W(e.size))])},Qg=e=>e.finalizedChunks.length>0&&Of(e.finalizedChunks).offset>=2**32?q(`co64`,0,0,[W(e.finalizedChunks.length),e.finalizedChunks.map(e=>Jh(e.offset))]):q(`stco`,0,0,[W(e.finalizedChunks.length),e.finalizedChunks.map(e=>W(e.offset))]),$g=e=>q(`ctts`,1,0,[W(e.compositionTimeOffsetTable.length),e.compositionTimeOffsetTable.map(e=>[W(e.sampleCount),qh(e.sampleCompositionTimeOffset)])]),e_=e=>{let t=1/0,n=-1/0,r=1/0,i=-1/0;B(e.compositionTimeOffsetTable.length>0),B(e.samples.length>0);for(let r=0;r<e.compositionTimeOffsetTable.length;r++){let i=e.compositionTimeOffsetTable[r];t=Math.min(t,i.sampleCompositionTimeOffset),n=Math.max(n,i.sampleCompositionTimeOffset)}for(let t=0;t<e.samples.length;t++){let n=e.samples[t];r=Math.min(r,W_(n.timestamp,e.timescale)),i=Math.max(i,W_(n.timestamp+n.duration,e.timescale))}let a=Math.max(-t,0);return i>=2**31?null:q(`cslg`,0,0,[qh(a),qh(t),qh(n),qh(r),qh(i)])},t_=e=>K(`mvex`,void 0,e.map(n_)),n_=e=>q(`trex`,0,0,[W(e.track.id),W(1),W(0),W(0),W(0)]),r_=(e,t)=>K(`moof`,void 0,[i_(e),...t.map(o_)]),i_=e=>q(`mfhd`,0,0,[W(e)]),a_=e=>{let t=0,n=0,r=e.type===`delta`;return n|=+r,t|=r?1:2,t<<24|n<<16|0},o_=e=>K(`traf`,void 0,[s_(e),c_(e),l_(e)]),s_=e=>{B(e.currentChunk);let t=0;t|=8,t|=16,t|=32,t|=131072;let n=e.currentChunk.samples[1]??e.currentChunk.samples[0],r={duration:n.timescaleUnitsToNextSample,size:n.size,flags:a_(n)};return q(`tfhd`,0,t,[W(e.track.id),W(r.duration),W(r.size),W(r.flags)])},c_=e=>(B(e.currentChunk),q(`tfdt`,1,0,[Jh(W_(e.currentChunk.startTimestamp,e.timescale))])),l_=e=>{B(e.currentChunk);let t=e.currentChunk.samples.map(e=>e.timescaleUnitsToNextSample),n=e.currentChunk.samples.map(e=>e.size),r=e.currentChunk.samples.map(a_),i=e.currentChunk.samples.map(t=>W_(t.timestamp-t.decodeTimestamp,e.timescale)),a=new Set(t),o=new Set(n),s=new Set(r),c=new Set(i),l=s.size===2&&r[0]!==r[1],u=a.size>1,d=o.size>1,f=!l&&s.size>1,p=c.size>1||[...c].some(e=>e!==0),m=0;return m|=1,m|=4*l,m|=256*u,m|=512*d,m|=1024*f,m|=2048*p,q(`trun`,1,m,[W(e.currentChunk.samples.length),W(e.currentChunk.offset-e.currentChunk.moofOffset||0),l?W(r[0]):[],e.currentChunk.samples.map((e,a)=>[u?W(t[a]):[],d?W(n[a]):[],f?W(r[a]):[],p?qh(i[a]):[]])])},u_=e=>K(`mfra`,void 0,[...e.map(d_),f_()]),d_=e=>q(`tfra`,1,0,[W(e.track.id),W(63),W(e.finalizedChunks.length),e.finalizedChunks.map(t=>[Jh(W_(t.samples[0].timestamp,e.timescale)),Jh(t.moofOffset),W(t.trafIndex+1),W(1),W(1)])]),f_=()=>q(`mfro`,0,0,[W(0)]),p_=()=>K(`vtte`),m_=(e,t,n,r,i)=>K(`vttc`,void 0,[i===null?null:K(`vsid`,[qh(i)]),n===null?null:K(`iden`,[...Nf.encode(n)]),t===null?null:K(`ctim`,[...Nf.encode(Bh(t))]),r===null?null:K(`sttg`,[...Nf.encode(r)]),K(`payl`,[...Nf.encode(e)])]),h_=e=>K(`vtta`,[...Nf.encode(e)]),g_=e=>{let t=[],n=e.format._options.metadataFormat??`auto`,r=e.output._metadataTags;if(n===`mdir`||n===`auto`&&!e.isQuickTime){let e=x_(r);e&&t.push(e)}else if(n===`mdta`){let e=S_(r);e&&t.push(e)}else(n===`udta`||n===`auto`&&e.isQuickTime)&&__(t,e.output._metadataTags);return t.length===0?null:K(`udta`,void 0,t)},__=(e,t)=>{for(let{key:n,value:r}of op(t))switch(n){case`title`:e.push(v_(`©nam`,r));break;case`description`:e.push(v_(`©des`,r));break;case`artist`:e.push(v_(`©ART`,r));break;case`album`:e.push(v_(`©alb`,r));break;case`albumArtist`:e.push(v_(`albr`,r));break;case`genre`:e.push(v_(`©gen`,r));break;case`date`:e.push(v_(`©day`,r.toISOString().slice(0,10)));break;case`comment`:e.push(v_(`©cmt`,r));break;case`lyrics`:e.push(v_(`©lyr`,r));break;case`raw`:break;case`discNumber`:case`discsTotal`:case`trackNumber`:case`tracksTotal`:case`images`:break;default:Hf(n)}if(t.raw)for(let n in t.raw){let r=t.raw[n];r==null||n.length!==4||e.some(e=>e.type===n)||(typeof r==`string`?e.push(v_(n,r)):r instanceof Uint8Array&&e.push(K(n,Array.from(r))))}},v_=(e,t)=>{let n=Nf.encode(t);return K(e,[U(n.length),U(A_(`und`)),Array.from(n)])},y_={"image/jpeg":13,"image/png":14,"image/bmp":27},b_=(e,t)=>{let n=[];for(let{key:r,value:i}of op(e))switch(r){case`title`:n.push({key:t?`title`:`©nam`,value:C_(i)});break;case`description`:n.push({key:t?`description`:`©des`,value:C_(i)});break;case`artist`:n.push({key:t?`artist`:`©ART`,value:C_(i)});break;case`album`:n.push({key:t?`album`:`©alb`,value:C_(i)});break;case`albumArtist`:n.push({key:t?`album_artist`:`aART`,value:C_(i)});break;case`comment`:n.push({key:t?`comment`:`©cmt`,value:C_(i)});break;case`genre`:n.push({key:t?`genre`:`©gen`,value:C_(i)});break;case`lyrics`:n.push({key:t?`lyrics`:`©lyr`,value:C_(i)});break;case`date`:n.push({key:t?`date`:`©day`,value:C_(i.toISOString().slice(0,10))});break;case`images`:for(let e of i)e.kind===`coverFront`&&n.push({key:`covr`,value:K(`data`,[W(y_[e.mimeType]??0),W(0),Array.from(e.data)])});break;case`trackNumber`:if(t){let t=e.tracksTotal===void 0?i.toString():`${i}/${e.tracksTotal}`;n.push({key:`track`,value:C_(t)})}else n.push({key:`trkn`,value:K(`data`,[W(0),W(0),U(0),U(i),U(e.tracksTotal??0),U(0)])});break;case`discNumber`:t||n.push({key:`disc`,value:K(`data`,[W(0),W(0),U(0),U(i),U(e.discsTotal??0),U(0)])});break;case`tracksTotal`:case`discsTotal`:break;case`raw`:break;default:Hf(r)}if(e.raw)for(let r in e.raw){let i=e.raw[r];i==null||!t&&r.length!==4||n.some(e=>e.key===r)||(typeof i==`string`?n.push({key:r,value:C_(i)}):i instanceof Uint8Array?n.push({key:r,value:K(`data`,[W(0),W(0),Array.from(i)])}):i instanceof yp&&n.push({key:r,value:K(`data`,[W(y_[i.mimeType]??0),W(0),Array.from(i.data)])}))}return n},x_=e=>{let t=b_(e,!1);return t.length===0?null:q(`meta`,0,0,void 0,[vg(!1,`mdir`,``,`appl`),K(`ilst`,void 0,t.map(e=>K(e.key,void 0,[e.value])))])},S_=e=>{let t=b_(e,!0);return t.length===0?null:K(`meta`,void 0,[vg(!1,`mdta`,``),q(`keys`,0,0,[W(t.length)],t.map(e=>K(`mdta`,[...Nf.encode(e.key)]))),K(`ilst`,void 0,t.map((e,t)=>{let n=String.fromCharCode(...W(t+1));return K(n,void 0,[e.value])}))])},C_=e=>K(`data`,[W(1),W(0),...Nf.encode(e)]),w_=(e,t)=>{switch(e){case`avc`:return t.startsWith(`avc3`)?`avc3`:`avc1`;case`hevc`:return`hvc1`;case`vp8`:return`vp08`;case`vp9`:return`vp09`;case`av1`:return`av01`;case`prores`:return t}},T_={avc:Mg,hevc:Ng,vp8:Pg,vp9:Pg,av1:Fg,prores:null},E_=(e,t)=>{switch(e){case`aac`:return`mp4a`;case`mp3`:return`mp4a`;case`opus`:return`Opus`;case`vorbis`:return`mp4a`;case`flac`:return`fLaC`;case`ulaw`:return`ulaw`;case`alaw`:return`alaw`;case`pcm-u8`:return`raw `;case`pcm-s8`:return`sowt`;case`ac3`:return`ac-3`;case`eac3`:return`ec-3`}if(t)switch(e){case`pcm-s16`:return`sowt`;case`pcm-s16be`:return`twos`;case`pcm-s24`:return`in24`;case`pcm-s24be`:return`in24`;case`pcm-s32`:return`in32`;case`pcm-s32be`:return`in32`;case`pcm-f32`:return`fl32`;case`pcm-f32be`:return`fl32`;case`pcm-f64`:return`fl64`;case`pcm-f64be`:return`fl64`}else switch(e){case`pcm-s16`:return`ipcm`;case`pcm-s16be`:return`ipcm`;case`pcm-s24`:return`ipcm`;case`pcm-s24be`:return`ipcm`;case`pcm-s32`:return`ipcm`;case`pcm-s32be`:return`ipcm`;case`pcm-f32`:return`fpcm`;case`pcm-f32be`:return`fpcm`;case`pcm-f64`:return`fpcm`;case`pcm-f64be`:return`fpcm`}},D_=(e,t)=>{switch(e){case`aac`:return Lg;case`mp3`:return Lg;case`opus`:return Vg;case`vorbis`:return Lg;case`flac`:return Hg;case`ac3`:return Wg;case`eac3`:return Gg}if(t)switch(e){case`pcm-s24`:return Rg;case`pcm-s24be`:return Rg;case`pcm-s32`:return Rg;case`pcm-s32be`:return Rg;case`pcm-f32`:return Rg;case`pcm-f32be`:return Rg;case`pcm-f64`:return Rg;case`pcm-f64be`:return Rg}else switch(e){case`pcm-s16`:return Ug;case`pcm-s16be`:return Ug;case`pcm-s24`:return Ug;case`pcm-s24be`:return Ug;case`pcm-s32`:return Ug;case`pcm-s32be`:return Ug;case`pcm-f32`:return Ug;case`pcm-f32be`:return Ug;case`pcm-f64`:return Ug;case`pcm-f64be`:return Ug}return null},O_={webvtt:`wvtt`},k_={webvtt:qg},A_=e=>{B(e.length===3);let t=0;for(let n=0;n<3;n++)t<<=5,t+=e.charCodeAt(n)-96;return t}})))()}var M_;function N_(){return(N_=t((()=>{hp(),M_=class{constructor(e,t){if(this.finalized=!1,this.started=!1,this.pos=0,this.trackedWrites=null,this.trackedStart=-1,this.trackedEnd=-1,e._writerAcquired)throw Error(`Can't have multiple Writers for the same Target.`);this.target=e,e._setMonotonicity(t),e._writerAcquired=!0}start(){B(!this.started),this.target._start(),this.started=!0}write(e){B(this.started&&!this.finalized),this.maybeTrackWrites(e),this.target._write(e,this.pos),this.pos+=e.byteLength}seek(e){this.pos=e}getPos(){return this.pos}async flush(){return B(this.started&&!this.finalized),this.target._flush()}async finalize(){B(this.started&&!this.finalized),await this.target._finalize(),this.finalized=!0}maybeTrackWrites(e){if(!this.trackedWrites)return;let t=this.getPos();if(t<this.trackedStart){if(t+e.byteLength<=this.trackedStart)return;e=e.subarray(this.trackedStart-t),t=0}let n=t+e.byteLength-this.trackedStart,r=this.trackedWrites.byteLength;for(;r<n;)r*=2;if(r!==this.trackedWrites.byteLength){let e=new Uint8Array(r);e.set(this.trackedWrites,0),this.trackedWrites=e}this.trackedWrites.set(e,t-this.trackedStart),this.trackedEnd=Math.max(this.trackedEnd,t+e.byteLength)}startTrackingWrites(){this.trackedWrites=new Uint8Array(1024),this.trackedStart=this.getPos(),this.trackedEnd=this.trackedStart}stopTrackingWrites(){if(!this.trackedWrites)throw Error(`Internal error: Can't get tracked writes since nothing was tracked.`);let e={data:this.trackedWrites.subarray(0,this.trackedEnd-this.trackedStart),start:this.trackedStart,end:this.trackedEnd};return this.trackedWrites=null,e}}})))()}var P_,F_,I_,L_,R_,z_;function B_(){return(B_=t((()=>{qm(),hp(),P_=class extends pp{constructor(){super(...arguments),this._writerAcquired=!1,this._monotonicity=null,this.onwrite=null}_setMonotonicity(e){this._monotonicity!==!1&&(this._monotonicity=e)}_dispatchWrite(e,t){this.onwrite?.(e,t),this._emit(`write`,{start:e,end:t})}slice(e){if(!Number.isInteger(e)||e<0)throw TypeError(`offset must be a non-negative integer.`);return new R_(this,e)}},F_=2**16,I_=2**32,L_=class extends P_{constructor(e={}){if(super(),this.buffer=null,this._maxPos=0,!e||typeof e!=`object`)throw TypeError(`BufferTarget options, when provided, must be an object.`);if(e.onFinalize!==void 0&&typeof e.onFinalize!=`function`)throw TypeError(`options.onFinalize, when provided, must be a function.`);if(this._options=e,this._supportsResize=`resize`in new ArrayBuffer(0),this._supportsResize)try{this._buffer=new ArrayBuffer(F_,{maxByteLength:I_})}catch{this._buffer=new ArrayBuffer(F_),this._supportsResize=!1}else this._buffer=new ArrayBuffer(F_);this._bytes=new Uint8Array(this._buffer)}_ensureSize(e){let t=this._buffer.byteLength;for(;t<e;)t*=2;if(t!==this._buffer.byteLength){if(t>I_)throw Error(`ArrayBuffer exceeded maximum size of ${I_} bytes. Please consider using another target.`);if(this._supportsResize)this._buffer.resize(t);else{let e=new ArrayBuffer(t),n=new Uint8Array(e);n.set(this._bytes,0),this._buffer=e,this._bytes=n}}}_start(){}_write(e,t){this._ensureSize(t+e.byteLength),this._bytes.set(e,t),this._maxPos=Math.max(this._maxPos,t+e.byteLength),this._dispatchWrite(t,t+e.byteLength)}async _flush(){}async _finalize(){this.buffer=this._buffer.slice(0,this._maxPos),this._options.onFinalize&&await this._options.onFinalize(this.buffer),this._emit(`finalized`)}async _close(){}_getSlice(e,t){return this._bytes.slice(e,t)}},R_=class extends P_{constructor(e,t){super(),this._baseTarget=e,this._offset=t}_start(){}_write(e,t){this._baseTarget._write(e,this._offset+t),this._dispatchWrite(t,t+e.byteLength)}_flush(){return this._baseTarget._flush()}async _finalize(){this._emit(`finalized`)}async _close(){}_setMonotonicity(e){super._setMonotonicity(e),this._baseTarget._setMonotonicity(e)}},z_=class{constructor(e,t){if(this.rootPath=e,this.getTarget=t,typeof e!=`string`)throw TypeError(`rootPath must be a string.`);if(typeof t!=`function`)throw TypeError(`getTarget must be a function.`)}}})))()}var V_,H_,U_,W_,G_;function K_(){return(K_=t((()=>{j_(),Rh(),N_(),B_(),hp(),dv(),Vh(),kp(),nm(),Km(),Ih(),zm(),Wm(),V_=57600,H_=2082844800,U_=e=>{let t={},n=e.track;return n.metadata.name!==void 0&&(t.name=n.metadata.name),t},W_=(e,t,n=!0)=>{let r=e*t;return n?Math.round(r):r},G_=class extends Lh{constructor(e,t){super(e),this.writer=null,this.boxWriter=null,this.initWriter=null,this.initBoxWriter=null,this.auxTarget=new L_,this.auxWriter=new M_(this.auxTarget,!1),this.auxBoxWriter=new Hh(this.auxWriter),this.mdat=null,this.ftypSize=null,this.trackDatas=[],this.allTracksKnown=Vf(),this.creationTime=Math.floor(Date.now()/1e3)+H_,this.finalizedChunks=[],this.wroteFragmentedHeader=!1,this.nextFragmentNumber=1,this.maxWrittenTimestamp=-1/0,this.minWrittenTimestamp=1/0,this.maxWrittenEndTimestamp=-1/0,this.segmentHeaderSize=null,this.format=t,this.formatOptions={...t._options},this.isQuickTime=t instanceof uv,this.isCmaf=t instanceof lv,this.minimumFragmentDuration=this.formatOptions.minimumFragmentDuration??(t instanceof lv?1/0:1),this.auxWriter.start()}async start(){let e=await this.mutex.acquire();if(this.isCmaf?(this.fastStart=`fragmented`,this.isFragmented=!0):(this.writer=await this.output._getRootWriter(e=>this.formatOptions.fastStart===void 0?e instanceof L_:this.formatOptions.fastStart===`fragmented`),this.boxWriter=new Hh(this.writer),this.fastStart=this.formatOptions.fastStart??(this.writer.target instanceof L_&&`in-memory`),this.isFragmented=this.fastStart===`fragmented`),this.isCmaf){if(!this.output._hasInitTarget())throw Error(`CMAF outputs require the initTarget field in OutputOptions to be set; the init segment will be written to it.`);let e=await this.output._getInitTarget(),t=new M_(e,!0);t.start(),this.initWriter=t,this.initBoxWriter=new Hh(t)}let t=this.output.tracks.some(e=>e.isVideoTrack()&&e.source._codec===`avc`);{let e=this.initBoxWriter??this.boxWriter;if(B(e),this.formatOptions.onFtyp&&e.writer.startTrackingWrites(),e.writeBox(rg({isQuickTime:this.isQuickTime,holdsAvc:t,fragmented:this.isFragmented,cmaf:this.isCmaf})),this.formatOptions.onFtyp){let{data:t,start:n}=e.writer.stopTrackingWrites();this.formatOptions.onFtyp(t,n)}this.ftypSize=e.writer.getPos(),this.isCmaf&&await this.initWriter.flush()}if(this.fastStart!==`in-memory`){if(this.fastStart===`reserve`){for(let e of this.output.tracks)if(e.metadata.maximumPacketCount===void 0)throw Error(`All tracks must specify maximumPacketCount in their metadata when using fastStart: 'reserve'.`)}else this.isFragmented||(B(this.writer),B(this.boxWriter),this.formatOptions.onMdat&&this.writer.startTrackingWrites(),this.mdat=og(!0),this.boxWriter.writeBox(this.mdat))}await this.writer?.flush();for(let e of this.output.tracks)e.isVideoTrack()&&e.metadata.decoderConfig?this.getVideoTrackData(e,e.metadata.primingPacket??null,{decoderConfig:e.metadata.decoderConfig}):e.isAudioTrack()&&e.metadata.decoderConfig&&this.getAudioTrackData(e,e.metadata.primingPacket??null,{decoderConfig:e.metadata.decoderConfig});e()}allTracksAreKnown(){for(let e of this.output.tracks)if(!e.source._closed&&!this.trackDatas.some(t=>t.track===e))return!1;return!0}async getMimeType(){await this.allTracksKnown.promise;let e=this.trackDatas.map(e=>e.type===`video`||e.type===`audio`?e.info.decoderConfig.codec:{webvtt:`wvtt`}[e.track.source._codec]);return Um({isQuickTime:this.isQuickTime,hasVideo:this.trackDatas.some(e=>e.type===`video`),hasAudio:this.trackDatas.some(e=>e.type===`audio`),codecStrings:e})}getVideoTrackData(e,t,n){let r=this.trackDatas.find(t=>t.track===e);if(r)return r;Qp(n,e.source._codec),B(n),B(n.decoderConfig);let i={...n.decoderConfig};B(i.codedWidth!==void 0),B(i.codedHeight!==void 0);let a=!1;if(e.source._codec===`avc`&&!i.description){if(!t)throw Error(`No AVC description provided; you must therefore provide a priming packet.`);let e=mm(t.data);if(!e)throw Error(`Couldn't extract an AVCDecoderConfigurationRecord from the AVC packet. Make sure the packets are in Annex B format (as specified in ITU-T-REC-H.264) when not providing a description, or provide a description (must be an AVCDecoderConfigurationRecord as specified in ISO 14496-15) and ensure the packets are in AVCC format.`);i.description=hm(e),a=!0}else if(e.source._codec===`hevc`&&!i.description){if(!t)throw Error(`No HEVC description provided; you must therefore provide a priming packet.`);let e=Sm(t.data);if(!e)throw Error(`Couldn't extract an HEVCDecoderConfigurationRecord from the HEVC packet. Make sure the packets are in Annex B format (as specified in ITU-T-REC-H.265) when not providing a description, or provide a description (must be an HEVCDecoderConfigurationRecord as specified in ISO 14496-15) and ensure the packets are in HEVC format.`);i.description=Am(e),a=!0}let o=Qf(1/(e.metadata.frameRate??57600),1e6).den,s=i.displayAspectWidth,c=i.displayAspectHeight,l=s===void 0||c===void 0?{num:1,den:1}:lp({num:s*i.codedHeight,den:c*i.codedWidth}),u=i.codec===`ap4h`||i.codec===`ap4x`,d={muxer:this,track:e,type:`video`,info:{width:i.codedWidth,height:i.codedHeight,pixelAspectRatio:l,decoderConfig:i,requiresAnnexBTransformation:a,hasAlphaChannel:u},timescale:o,samples:[],sampleQueue:[],timestampProcessingQueue:[],timeToSampleTable:[],compositionTimeOffsetTable:[],lastTimescaleUnits:null,lastSample:null,startTimestampOffset:null,finalizedChunks:[],currentChunk:null,compactlyCodedChunkTable:[],closed:!1};return this.trackDatas.push(d),this.trackDatas.sort((e,t)=>e.track.id-t.track.id),this.allTracksAreKnown()&&this.allTracksKnown.resolve(),d}getAudioTrackData(e,t,n){let r=this.trackDatas.find(t=>t.track===e);if(r)return r;em(n,e.source._codec),B(n),B(n.decoderConfig);let i={...n.decoderConfig},a=!1;if(e.source._codec===`aac`&&!i.description){if(!t)throw Error(`No AAC description provided; you must therefore provide a priming packet.`);let e=Gm(Nh.tempFromBytes(t.data));if(!e)throw Error(`Couldn't parse ADTS header from the AAC packet. Make sure the packets are in ADTS format (as specified in ISO 13818-7) when not providing a description, or provide a description (must be an AudioSpecificConfig as specified in ISO 14496-3) and ensure the packets are raw AAC data.`);let n=Ep[e.samplingFrequencyIndex],r=Dp[e.channelConfiguration];if(n===void 0||r===void 0)throw Error(`Invalid ADTS frame header.`);i.description=Op({objectType:e.objectType,sampleRate:n,numberOfChannels:r}),a=!0}if((e.source._codec===`ac3`||e.source._codec===`eac3`)&&!t)throw Error(`AC-3/E-AC-3 require a priming packet.`);let o={muxer:this,track:e,type:`audio`,info:{numberOfChannels:n.decoderConfig.numberOfChannels,sampleRate:n.decoderConfig.sampleRate,decoderConfig:i,requiresPcmTransformation:!this.isFragmented&&jp.includes(e.source._codec),expectedNextPcmPacketTimestamp:null,requiresAdtsStripping:a,primingPacket:t},timescale:i.sampleRate,samples:[],sampleQueue:[],timestampProcessingQueue:[],timeToSampleTable:[],compositionTimeOffsetTable:[],lastTimescaleUnits:null,lastSample:null,startTimestampOffset:null,finalizedChunks:[],currentChunk:null,compactlyCodedChunkTable:[],closed:!1};return this.trackDatas.push(o),this.trackDatas.sort((e,t)=>e.track.id-t.track.id),this.allTracksAreKnown()&&this.allTracksKnown.resolve(),o}getSubtitleTrackData(e,t){let n=this.trackDatas.find(t=>t.track===e);if(n)return n;tm(t),B(t),B(t.config);let r={muxer:this,track:e,type:`subtitle`,info:{config:t.config},timescale:1e3,samples:[],sampleQueue:[],timestampProcessingQueue:[],timeToSampleTable:[],compositionTimeOffsetTable:[],lastTimescaleUnits:null,lastSample:null,startTimestampOffset:null,finalizedChunks:[],currentChunk:null,compactlyCodedChunkTable:[],closed:!1,lastCueEndTimestamp:0,cueQueue:[],nextSourceId:0,cueToSourceId:new WeakMap};return this.trackDatas.push(r),this.trackDatas.sort((e,t)=>e.track.id-t.track.id),this.allTracksAreKnown()&&this.allTracksKnown.resolve(),r}async addEncodedVideoPacket(e,t,n){let r=await this.mutex.acquire();try{let r=this.getVideoTrackData(e,t,n),i=t.data;if(r.info.requiresAnnexBTransformation){let e=[...cm(i)].map(e=>i.subarray(e.offset,e.offset+e.length));if(e.length===0)throw Error(`Failed to transform packet data. Make sure all packets are provided in Annex B format, as specified in ITU-T-REC-H.264 and ITU-T-REC-H.265.`);i=pm(e,4)}this.validateTimestamp(r.track,t.timestamp,t.type===`key`);let a=this.createSampleForTrack(r,i,t.timestamp,t.duration,t.type);await this.registerSample(r,a)}finally{r()}}async addEncodedAudioPacket(e,t,n){let r=await this.mutex.acquire();try{let r=this.getAudioTrackData(e,t,n),i=t.data;if(r.info.requiresAdtsStripping){let e=Gm(Nh.tempFromBytes(i));if(!e)throw Error(`Expected ADTS frame, didn't get one.`);let t=e.crcCheck===null?7:9;i=i.subarray(t)}this.validateTimestamp(r.track,t.timestamp,t.type===`key`);let a=t.timestamp,o=t.duration;if(r.info.requiresPcmTransformation){let e=Wp(r.info.decoderConfig.codec).sampleSize*r.info.numberOfChannels;if(o=i.byteLength/e/r.info.sampleRate,r.info.expectedNextPcmPacketTimestamp!==null){let e=a-r.info.expectedNextPcmPacketTimestamp;if(e<.01)a=r.info.expectedNextPcmPacketTimestamp;else{let t=await this.padWithSilence(r,r.info.expectedNextPcmPacketTimestamp,e);a=r.info.expectedNextPcmPacketTimestamp+t}}r.info.expectedNextPcmPacketTimestamp=a+o}let s=this.createSampleForTrack(r,i,a,o,t.type);await this.registerSample(r,s)}finally{r()}}async padWithSilence(e,t,n){let r=W_(n,e.timescale);if(n=r/e.timescale,r>0){let{sampleSize:i,silentValue:a}=Wp(e.info.decoderConfig.codec),o=r*e.info.numberOfChannels,s=new Uint8Array(i*o).fill(a),c=this.createSampleForTrack(e,new Uint8Array(s.buffer),t,n,`key`);await this.registerSample(e,c)}return n}async addSubtitleCue(e,t,n){let r=await this.mutex.acquire();try{let r=this.getSubtitleTrackData(e,n);this.validateTimestamp(r.track,t.timestamp,!0),e.source._codec===`webvtt`&&(r.cueQueue.push(t),await this.processWebVTTCues(r,t.timestamp))}finally{r()}}async processWebVTTCues(e,t){for(;e.cueQueue.length>0;){let n=new Set([]);for(let r of e.cueQueue)B(r.timestamp<=t),B(e.lastCueEndTimestamp<=r.timestamp+r.duration),n.add(Math.max(r.timestamp,e.lastCueEndTimestamp)),n.add(r.timestamp+r.duration);let r=[...n].sort((e,t)=>e-t),i=r[0],a=r[1]??i;if(t<a)break;if(e.lastCueEndTimestamp<i){this.auxWriter.seek(0);let t=p_();this.auxBoxWriter.writeBox(t);let n=this.auxTarget._getSlice(0,this.auxWriter.getPos()),r=this.createSampleForTrack(e,n,e.lastCueEndTimestamp,i-e.lastCueEndTimestamp,`key`);await this.registerSample(e,r),e.lastCueEndTimestamp=i}this.auxWriter.seek(0);for(let t=0;t<e.cueQueue.length;t++){let n=e.cueQueue[t];if(n.timestamp>=a)break;zh.lastIndex=0;let r=zh.test(n.text),o=n.timestamp+n.duration,s=e.cueToSourceId.get(n);if(s===void 0&&a<o&&(s=e.nextSourceId++,e.cueToSourceId.set(n,s)),n.notes){let e=h_(n.notes);this.auxBoxWriter.writeBox(e)}let c=m_(n.text,r?i:null,n.identifier??null,n.settings??null,s??null);this.auxBoxWriter.writeBox(c),o===a&&e.cueQueue.splice(t--,1)}let o=this.auxTarget._getSlice(0,this.auxWriter.getPos()),s=this.createSampleForTrack(e,o,i,a-i,`key`);await this.registerSample(e,s),e.lastCueEndTimestamp=a}}createSampleForTrack(e,t,n,r,i){return{timestamp:n,decodeTimestamp:n,duration:r,data:t,size:t.byteLength,type:i,timescaleUnitsToNextSample:W_(r,e.timescale)}}processTimestamps(e,t){if(e.timestampProcessingQueue.length===0)return;if(e.type===`audio`&&e.info.requiresPcmTransformation){this.isFragmented||(e.startTimestampOffset??=e.timestampProcessingQueue[0].timestamp);let t=0;for(let n=0;n<e.timestampProcessingQueue.length;n++){let r=e.timestampProcessingQueue[n],i=W_(r.duration,e.timescale);t+=i}if(e.timeToSampleTable.length===0)e.timeToSampleTable.push({sampleCount:t,sampleDelta:1});else{let n=Of(e.timeToSampleTable);n.sampleCount+=t}e.timestampProcessingQueue.length=0;return}let n=e.timestampProcessingQueue.map(e=>e.timestamp).sort((e,t)=>e-t);this.isFragmented||(e.startTimestampOffset??=n[0]);for(let t=0;t<e.timestampProcessingQueue.length;t++){let r=e.timestampProcessingQueue[t];r.decodeTimestamp=n[t];let i=W_(r.timestamp-r.decodeTimestamp,e.timescale),a=W_(r.duration,e.timescale);if(e.lastTimescaleUnits!==null){B(e.lastSample);let t=W_(r.decodeTimestamp,e.timescale,!1),n=Math.round(t-e.lastTimescaleUnits);if(B(n>=0),e.lastTimescaleUnits+=n,e.lastSample.timescaleUnitsToNextSample=n,!this.isFragmented){let t=Of(e.timeToSampleTable);if(B(t),t.sampleCount===1){t.sampleDelta=n;let r=e.timeToSampleTable[e.timeToSampleTable.length-2];r&&r.sampleDelta===n&&(r.sampleCount++,e.timeToSampleTable.pop(),t=r)}else t.sampleDelta!==n&&(t.sampleCount--,e.timeToSampleTable.push(t={sampleCount:1,sampleDelta:n}));t.sampleDelta===a?t.sampleCount++:e.timeToSampleTable.push({sampleCount:1,sampleDelta:a});let r=Of(e.compositionTimeOffsetTable);B(r),r.sampleCompositionTimeOffset===i?r.sampleCount++:e.compositionTimeOffsetTable.push({sampleCount:1,sampleCompositionTimeOffset:i})}}else e.lastTimescaleUnits=W_(r.decodeTimestamp,e.timescale,!1),this.isFragmented||(e.timeToSampleTable.push({sampleCount:1,sampleDelta:a}),e.compositionTimeOffsetTable.push({sampleCount:1,sampleCompositionTimeOffset:i}));e.lastSample=r}if(e.timestampProcessingQueue.length=0,B(e.lastSample),B(e.lastTimescaleUnits!==null),t!==void 0&&e.lastSample.timescaleUnitsToNextSample===0){B(t.type===`key`);let n=W_(t.timestamp,e.timescale,!1),r=Math.round(n-e.lastTimescaleUnits);e.lastSample.timescaleUnitsToNextSample=r}}async registerSample(e,t){t.type===`key`&&this.processTimestamps(e,t),e.timestampProcessingQueue.push(t),this.isFragmented?(e.sampleQueue.push(t),await this.interleaveSamples()):this.fastStart===`reserve`?await this.registerSampleFastStartReserve(e,t):await this.addSampleToTrack(e,t)}async addSampleToTrack(e,t){if(!this.isFragmented&&(e.samples.push(t),this.fastStart===`reserve`)){let t=e.track.metadata.maximumPacketCount;if(B(t!==void 0),e.samples.length>t)throw Error(`Track #${e.track.id} has already reached the maximum packet count (${t}). Either add less packets or increase the maximum packet count.`)}let n=!1;if(!e.currentChunk)n=!0;else{e.currentChunk.startTimestamp=Math.min(e.currentChunk.startTimestamp,t.timestamp);let r=t.timestamp-e.currentChunk.startTimestamp;if(this.isFragmented){let i=this.trackDatas.every(n=>{if(e===n)return t.type===`key`;let r=n.sampleQueue[0];return r?r.type===`key`:n.closed});r>=this.minimumFragmentDuration&&i&&t.timestamp>this.maxWrittenTimestamp&&(n=!0,await this.finalizeFragment())}else n=r>=.5}n&&(e.currentChunk&&await this.finalizeCurrentChunk(e),e.currentChunk={startTimestamp:t.timestamp,samples:[],offset:null,moofOffset:null,trafIndex:null}),B(e.currentChunk),e.currentChunk.samples.push(t),this.isFragmented&&(this.maxWrittenTimestamp=Math.max(this.maxWrittenTimestamp,t.timestamp),this.maxWrittenEndTimestamp=Math.max(this.maxWrittenEndTimestamp,t.timestamp+t.duration),this.minWrittenTimestamp=Math.min(this.minWrittenTimestamp,t.timestamp))}async finalizeCurrentChunk(e){if(B(!this.isFragmented),B(this.writer),!e.currentChunk)return;e.finalizedChunks.push(e.currentChunk),this.finalizedChunks.push(e.currentChunk);let t=e.currentChunk.samples.length;if(e.type===`audio`&&e.info.requiresPcmTransformation&&(t=e.currentChunk.samples.reduce((t,n)=>t+W_(n.duration,e.timescale),0)),(e.compactlyCodedChunkTable.length===0||Of(e.compactlyCodedChunkTable).samplesPerChunk!==t)&&e.compactlyCodedChunkTable.push({firstChunk:e.finalizedChunks.length,samplesPerChunk:t}),this.fastStart===`in-memory`){e.currentChunk.offset=0;return}e.currentChunk.offset=this.writer.getPos();for(let t of e.currentChunk.samples)B(t.data),this.writer.write(t.data),t.data=null;await this.writer.flush()}async interleaveSamples(e=!1){if(B(this.isFragmented),!(!e&&!this.allTracksAreKnown()))outer:for(;;){let t=null,n=1/0;for(let r of this.trackDatas){if(!e&&r.sampleQueue.length===0&&!r.closed)break outer;r.sampleQueue.length>0&&r.sampleQueue[0].timestamp<n&&(t=r,n=r.sampleQueue[0].timestamp)}if(!t)break;let r=t.sampleQueue.shift();await this.addSampleToTrack(t,r)}}async finalizeFragment(e=!this.isCmaf){if(B(this.isFragmented),!this.wroteFragmentedHeader){this.wroteFragmentedHeader=!0;let e=this.initBoxWriter??this.boxWriter;B(e),this.formatOptions.onMoov&&e.writer.startTrackingWrites(),this.ensureOneEnabledTrack();let t=cg(this);if(e.writeBox(t),this.formatOptions.onMoov){let{data:t,start:n}=e.writer.stopTrackingWrites();this.formatOptions.onMoov(t,n)}if(this.isCmaf){B(this.initWriter),await this.initWriter.flush(),await this.initWriter.finalize(),this.writer=await this.output._getRootWriter(!0),this.boxWriter=new Hh(this.writer);let e=this.boxWriter.measureBox(ig()),t=this.boxWriter.measureBox(ag(this,0));this.segmentHeaderSize=e+t,this.writer.seek(this.segmentHeaderSize)}}B(this.writer),B(this.boxWriter);let t=this.trackDatas.filter(e=>e.currentChunk);if(t.length===0){e&&await this.writer.flush();return}let n=this.nextFragmentNumber++,r=r_(n,t),i=this.writer.getPos(),a=i+this.boxWriter.measureBox(r),o=a+8,s=1/0;for(let e=0;e<t.length;e++){let n=t[e];n.currentChunk.offset=o,n.currentChunk.moofOffset=i,n.currentChunk.trafIndex=e;for(let e of n.currentChunk.samples)o+=e.size;s=Math.min(s,n.currentChunk.startTimestamp)}let c=o-a,l=c>=2**32;if(l)for(let e of t)e.currentChunk.offset+=8;this.formatOptions.onMoof&&this.writer.startTrackingWrites();let u=r_(n,t);if(this.boxWriter.writeBox(u),this.formatOptions.onMoof){let{data:e,start:t}=this.writer.stopTrackingWrites();this.formatOptions.onMoof(e,t,s)}B(this.writer.getPos()===a),this.formatOptions.onMdat&&this.writer.startTrackingWrites();let d=og(l);d.size=c,this.boxWriter.writeBox(d),this.writer.seek(a+(l?16:8));for(let e of t)for(let t of e.currentChunk.samples)this.writer.write(t.data),t.data=null;if(this.formatOptions.onMdat){let{data:e,start:t}=this.writer.stopTrackingWrites();this.formatOptions.onMdat(e,t)}for(let e of t)e.finalizedChunks.push(e.currentChunk),this.finalizedChunks.push(e.currentChunk),e.currentChunk=null;e&&await this.writer.flush()}async registerSampleFastStartReserve(e,t){this.allTracksAreKnown()?(this.mdat||await this.createFastStartReserveMdat(),await this.addSampleToTrack(e,t)):e.sampleQueue.push(t)}async createFastStartReserveMdat(){B(this.writer),B(this.boxWriter),this.ensureOneEnabledTrack();let e=cg(this),t=this.boxWriter.measureBox(e)+this.computeSampleTableSizeUpperBound()+4096;B(this.ftypSize!==null),this.writer.seek(this.ftypSize+t),this.formatOptions.onMdat&&this.writer.startTrackingWrites(),this.mdat=og(!0),this.boxWriter.writeBox(this.mdat);for(let e of this.trackDatas){for(let t of e.sampleQueue)await this.addSampleToTrack(e,t);e.sampleQueue.length=0}}computeSampleTableSizeUpperBound(){B(this.fastStart===`reserve`);let e=0;for(let t of this.trackDatas){let n=t.track.metadata.maximumPacketCount;B(n!==void 0),e+=8*Math.ceil(2/3*n),e+=4*n,e+=8*Math.ceil(2/3*n),e+=12*Math.ceil(2/3*n),e+=4*n,e+=8*n}return e}async onTrackClose(e){let t=await this.mutex.acquire(),n=this.trackDatas.find(t=>t.track===e);n&&(n.closed=!0,n.type===`subtitle`&&e.source._codec===`webvtt`&&await this.processWebVTTCues(n,1/0),this.processTimestamps(n)),this.allTracksAreKnown()&&this.allTracksKnown.resolve(),this.isFragmented&&await this.interleaveSamples(),t()}ensureOneEnabledTrack(){for(let e of[`video`,`audio`,`subtitle`]){let t=this.trackDatas.filter(t=>t.type===e);if(t.length!==0&&!t.some(e=>e.track.metadata.disposition?.default!==!1)){let e=t[0];e.track.metadata.disposition={...e.track.metadata.disposition,default:!0}}}}async forceFragmentFinalization(){B(this.isFragmented);let e=await this.mutex.acquire();try{for(let e of this.trackDatas)e.type===`subtitle`&&e.track.source._codec===`webvtt`&&await this.processWebVTTCues(e,1/0),this.processTimestamps(e);await this.interleaveSamples(!0),await this.finalizeFragment()}finally{e()}}async finalize(){let e=await this.mutex.acquire();this.allTracksKnown.resolve(),this.ensureOneEnabledTrack(),!this.mdat&&this.fastStart===`reserve`&&await this.createFastStartReserveMdat();for(let e of this.trackDatas)e.closed=!0,e.type===`subtitle`&&e.track.source._codec===`webvtt`&&await this.processWebVTTCues(e,1/0),this.processTimestamps(e);if(this.isFragmented)await this.interleaveSamples(!0),await this.finalizeFragment(!1);else for(let e of this.trackDatas)if(await this.finalizeCurrentChunk(e),e.startTimestampOffset!==null)for(let t=0;t<e.samples.length;t++){let n=e.samples[t];n.timestamp-=e.startTimestampOffset,n.decodeTimestamp-=e.startTimestampOffset}if(B(this.writer),B(this.boxWriter),this.fastStart===`in-memory`){this.mdat=og(!1);let e;for(let t=0;t<2;t++){let t=cg(this),n=this.boxWriter.measureBox(t);e=this.boxWriter.measureBox(this.mdat);let r=this.writer.getPos()+n+e;for(let t of this.finalizedChunks){t.offset=r;for(let{data:n}of t.samples)B(n),r+=n.byteLength,e+=n.byteLength}if(r<2**32)break;e>=2**32&&(this.mdat.largeSize=!0)}this.formatOptions.onMoov&&this.writer.startTrackingWrites();let t=cg(this);if(this.boxWriter.writeBox(t),this.formatOptions.onMoov){let{data:e,start:t}=this.writer.stopTrackingWrites();this.formatOptions.onMoov(e,t)}this.formatOptions.onMdat&&this.writer.startTrackingWrites(),this.mdat.size=e,this.boxWriter.writeBox(this.mdat);for(let e of this.finalizedChunks)for(let t of e.samples)B(t.data),this.writer.write(t.data),t.data=null;if(this.formatOptions.onMdat){let{data:e,start:t}=this.writer.stopTrackingWrites();this.formatOptions.onMdat(e,t)}}else if(this.isFragmented){if(this.isCmaf){let e=this.segmentHeaderSize===null?0:this.writer.getPos()-this.segmentHeaderSize;this.writer.seek(0),this.boxWriter.writeBox(ig()),this.boxWriter.writeBox(ag(this,e))}else{let e=this.writer.getPos(),t=u_(this.trackDatas);this.boxWriter.writeBox(t);let n=this.writer.getPos()-e;this.writer.seek(this.writer.getPos()-4),this.boxWriter.writeU32(n)}}else{B(this.mdat);let e=this.boxWriter.offsets.get(this.mdat);B(e!==void 0);let t=this.writer.getPos()-e;if(this.mdat.size=t,this.mdat.largeSize=t>=2**32,this.boxWriter.patchBox(this.mdat),this.formatOptions.onMdat){let{data:e,start:t}=this.writer.stopTrackingWrites();this.formatOptions.onMdat(e,t)}let n=cg(this);if(this.fastStart===`reserve`){B(this.ftypSize!==null),this.writer.seek(this.ftypSize),this.formatOptions.onMoov&&this.writer.startTrackingWrites(),this.boxWriter.writeBox(n);let e=this.boxWriter.offsets.get(this.mdat)-this.writer.getPos();this.boxWriter.writeBox(sg(e))}else this.formatOptions.onMoov&&this.writer.startTrackingWrites(),this.boxWriter.writeBox(n);if(this.formatOptions.onMoov){let{data:e,start:t}=this.writer.stopTrackingWrites();this.formatOptions.onMoov(e,t)}}e()}}})))()}var q_,J_,Y_,X_,Z_,Q_,$_,ev,tv,nv,rv,iv;function av(){return(av=t((()=>{nm(),hp(),Mh(),Hm(),yh(),Ah(),zm(),q_=function(e,t,n){if(t!=null){if(typeof t!=`object`&&typeof t!=`function`)throw TypeError(`Object expected.`);var r,i;if(n){if(!Symbol.asyncDispose)throw TypeError(`Symbol.asyncDispose is not defined.`);r=t[Symbol.asyncDispose]}if(r===void 0){if(!Symbol.dispose)throw TypeError(`Symbol.dispose is not defined.`);r=t[Symbol.dispose],n&&(i=r)}if(typeof r!=`function`)throw TypeError(`Object not disposable.`);i&&(r=function(){try{i.call(this)}catch(e){return Promise.reject(e)}}),e.stack.push({value:t,dispose:r,async:n})}else n&&e.stack.push({async:!0});return t},J_=(function(e){return function(t){function n(n){t.error=t.hasError?new e(n,t.error,`An error was suppressed during disposal.`):n,t.hasError=!0}var r,i=0;function a(){for(;r=t.stack.pop();)try{if(!r.async&&i===1)return i=0,t.stack.push(r),Promise.resolve().then(a);if(r.dispose){var e=r.dispose.call(r.value);if(r.async)return i|=2,Promise.resolve(e).then(a,function(e){return n(e),a()})}else i|=1}catch(e){n(e)}if(i===1)return t.hasError?Promise.reject(t.error):Promise.resolve();if(t.hasError)throw t.error}return a()}})(typeof SuppressedError==`function`?SuppressedError:function(e,t,n){var r=Error(n);return r.name=`SuppressedError`,r.error=e,r.suppressed=t,r}),Y_=class{constructor(){this._connectedTrack=null,this._closingPromise=null,this._closed=!1}_ensureValidAdd(){if(!this._connectedTrack)throw Error(`Source is not connected to an output track.`);if(this._connectedTrack.output.state===`canceled`)throw Error(`Output has been canceled.`);if(this._connectedTrack.output.state===`finalizing`||this._connectedTrack.output.state===`finalized`)throw Error(`Output has been finalized.`);if(this._connectedTrack.output.state===`pending`)throw Error(`Output has not started.`);if(this._closed)throw Error(`Source is closed.`)}async _start(){}async _flushAndClose(e){}close(){if(this._closingPromise)return;let e=this._connectedTrack;if(!e)throw Error(`Cannot call close without connecting the source to an output track.`);if(e.output.state===`pending`)throw Error(`Cannot call close before output has been started.`);this._closingPromise=(async()=>{await this._flushAndClose(!1),this._closed=!0,e.output.state!==`finalizing`&&e.output.state!==`finalized`&&e.output._muxer.onTrackClose(e)})()}async _flushOrWaitForOngoingClose(e){return this._closingPromise??=(async()=>{await this._flushAndClose(e),this._closed=!0})()}},X_=class extends Y_{constructor(e){if(super(),this._connectedTrack=null,!Ap.includes(e))throw TypeError(`Invalid video codec '${e}'. Must be one of: ${Ap.join(`, `)}.`);this._codec=e}},Z_=(e,t)=>{if(e.metadata.hasOnlyKeyPackets&&t.type!==`key`)throw Error(`Cannot add non-key packets to a hasOnlyKeyPackets video track.`)},Q_=class{setError(e){this.errorSet||=(this.error=e,!0)}constructor(e,t){this.source=e,this.encodingConfig=t,this.ensureEncoderPromise=null,this.encoderInitialized=!1,this.encoder=null,this.muxer=null,this.lastMultipleOfKeyFrameInterval=-1,this.emittedEncoderPackets=0,this.codedWidth=null,this.codedHeight=null,this.outputWidth=null,this.outputHeight=null,this.frameRateLastSample=null,this.frameRateLastTimestamp=null,this.frameRateLastEndTimestamp=null,this.preciseTimings=[],this.customEncoder=null,this.customEncoderCallSerializer=new $f,this.customEncoderQueueSize=0,this.defaultEncodeOptions={},this.alphaEncoder=null,this.splitter=null,this.splitterCreationFailed=!1,this.alphaFrameQueue=[],this.error=null,this.errorSet=!1,this.lastMuxerPromise=Promise.resolve(),this.closed=!1}async add(e,t,n){let r=e;try{this.checkForEncoderError(),this.source._ensureValidAdd();let i=this.encodingConfig,a=i.sizeChangeBehavior??`deny`,o=!1;if(this.codedWidth!==null&&this.codedHeight!==null){if((e.codedWidth!==this.codedWidth||e.codedHeight!==this.codedHeight)&&(o=!0,a===`deny`))throw Error(`Video sample size must remain constant. Expected ${this.codedWidth}x${this.codedHeight}, got ${e.codedWidth}x${e.codedHeight}. To allow the sample size to change over time, set \`sizeChangeBehavior\` to a value other than 'deny' in the encoding options.`)}else this.codedWidth=e.codedWidth,this.codedHeight=e.codedHeight;if(i.transform?.width!==void 0||i.transform?.height!==void 0||i.transform?.rotate!==void 0||i.transform?.crop!==void 0||i.transform?.force===!0||o&&a!==`passThrough`){let n=i.transform?.width,r=i.transform?.height,s=i.transform?.fit??`fill`;o&&a!==`passThrough`&&(B(this.outputWidth),B(this.outputHeight),B(a!==`deny`),n=this.outputWidth,r=this.outputHeight,s=a);let c=await e.transform({width:n,height:r,roundDimensionsTo:2,crop:i.transform?.crop,rotate:i.transform?.rotate,fit:s,alpha:i.alpha});(this.outputWidth===null||this.outputHeight===null)&&(this.outputWidth=c.displayWidth,this.outputHeight=c.displayHeight),t&&e.close(),e=c,t=!0}else(this.outputWidth===null||this.outputHeight===null)&&(this.outputWidth=e.codedWidth,this.outputHeight=e.codedHeight);let s=i.transform?.frameRate;if(s!==void 0){let i=e.timestamp+e.duration,a=Jf(e.timestamp,s);if(this.frameRateLastSample!==null){if(a<=this.frameRateLastTimestamp){this.frameRateLastSample.close(),this.frameRateLastSample=e.clone(),this.frameRateLastEndTimestamp=i;return}await this.padFrameRate(a,n)}e===r&&(e=e.clone(),t=!0),e.setTimestamp(a),e.setDuration(1/s),this.frameRateLastSample?.close(),this.frameRateLastSample=e.clone(),this.frameRateLastTimestamp=a,this.frameRateLastEndTimestamp=i}await this.processAndEncode(e,n)}finally{t&&e.close()}}async processAndEncode(e,t){let n=this.encodingConfig,r;if(n.transform?.process){let t=n.transform.process(e);if(t instanceof Promise&&(t=await t),t===null)return;Array.isArray(t)||(t=[t]);let i=[];try{for(let n of t)n instanceof nh?i.push(n):typeof VideoFrame<`u`&&n instanceof VideoFrame?i.push(new nh(n)):i.push(new nh(n,{timestamp:e.timestamp,duration:e.duration}))}catch(n){for(let t of i)t!==e&&t.close();for(let n of t)(n instanceof nh&&n!==e||typeof VideoFrame<`u`&&n instanceof VideoFrame)&&n.close();throw n}r=i}else r=[e];try{for(let e of r){if(this.encoderInitialized||(this.ensureEncoderPromise||this.ensureEncoder(e),this.encoderInitialized||await this.ensureEncoderPromise),B(this.encoderInitialized),this.closed)break;let n=this.encodingConfig.keyFrameInterval??2,r=Math.floor(e.timestamp/n),i={...this.defaultEncodeOptions,...e.encodeOptions,...t},a={...i,keyFrame:i.keyFrame===void 0?n===0||r!==this.lastMultipleOfKeyFrameInterval:i.keyFrame};if(this.lastMultipleOfKeyFrameInterval=r,this.encodingConfig.onEncodedSample?.(e),this.customEncoder){this.customEncoderQueueSize++;let t=e.clone(),n=this.customEncoderCallSerializer.call(()=>this.customEncoder.encode(t,a)).catch(e=>this.setError(e)).finally(()=>{this.customEncoderQueueSize--,t.close()});this.customEncoderQueueSize>=4&&await n}else{B(this.encoder);let t=e.toVideoFrame(),n=Bf(this.preciseTimings,t.timestamp,e=>e.microsecondTimestamp),r=n===-1?null:this.preciseTimings[n];if(r&&r.microsecondTimestamp===t.timestamp?(r.timestamp!==e.timestamp&&(r.timestampIsValid=!1),r.duration!==e.duration&&(r.durationIsValid=!1)):(this.preciseTimings.splice(n+1,0,{microsecondTimestamp:t.timestamp,timestamp:e.timestamp,duration:e.duration,timestampIsValid:!0,durationIsValid:!0}),this.preciseTimings.length>128&&this.preciseTimings.shift()),!this.alphaEncoder)try{this.encoder.encode(t,a)}finally{t.close()}else if(t.format&&!t.format.includes(`A`)||this.splitterCreationFailed){this.alphaFrameQueue.push(null);try{this.encoder.encode(t,a)}finally{t.close()}}else{this.splitter||=new ev;let{colorFrame:e,alphaFrame:n}=await this.splitter.split(t);this.alphaFrameQueue.push(n);try{this.encoder.encode(e,a)}finally{e.close()}}this.encoder.encodeQueueSize>=4&&await new Promise(e=>this.encoder.addEventListener(`dequeue`,e,{once:!0}))}await this.lastMuxerPromise}}finally{for(let t of r)t!==e&&t.close()}}async padFrameRate(e,t){let n=this.encodingConfig.transform.frameRate;B(this.frameRateLastSample);let r=Math.round((e-this.frameRateLastTimestamp)*n);for(let e=1;e<r;e++){let r={stack:[],error:void 0,hasError:!1};try{let i=q_(r,this.frameRateLastSample.clone(),!1);i.setTimestamp(this.frameRateLastTimestamp+e/n),i.setDuration(1/n),await this.processAndEncode(i,t)}catch(e){r.error=e,r.hasError=!0}finally{J_(r)}}}ensureEncoder(e){this.ensureEncoderPromise=(async()=>{let t=kh(this.encodingConfig.quality,this.encodingConfig.bitrate);B(t!==void 0);let n=Sh({...this.encodingConfig,quality:t,width:e.codedWidth,height:e.codedHeight,squarePixelWidth:e.squarePixelWidth,squarePixelHeight:e.squarePixelHeight,framerate:this.source._connectedTrack?.metadata.frameRate}),r=null,i;for(let e of n){let t=e.config;if(this.encodingConfig.onEncoderConfig?.(t),i=jh.find(e=>e.supports(this.encodingConfig.codec,t)),i){r=e;break}if(!(typeof VideoEncoder>`u`)){if(t.alpha=`discard`,this.encodingConfig.alpha===`keep`&&(t.latencyMode=`quality`),(t.width%2==1||t.height%2==1)&&(this.encodingConfig.codec===`avc`||this.encodingConfig.codec===`hevc`))throw Error(`The dimensions ${t.width}x${t.height} are not supported for codec '${this.encodingConfig.codec}'; both width and height must be even numbers. Make sure to round your dimensions to the nearest even number.`);try{if((await VideoEncoder.isConfigSupported(t)).supported){r=e;break}}catch{}}}if(!r){if(typeof VideoEncoder>`u`)throw Error(`VideoEncoder is not supported by this browser.`);let e=n[0].config,t=n.map(({config:e,quantizer:t})=>t===null?`${e.bitrate} bps`:`quantizer ${t}`);throw Error(`This specific encoder configuration (${e.codec}, ${t.join(` / `)}, ${e.width}x${e.height}, hardware acceleration: ${e.hardwareAcceleration??`no-preference`}) is not supported by this browser. Consider using another codec or changing your video parameters.`)}let a=r.config;if(r.quantizer!==null&&(this.defaultEncodeOptions=Oh(this.encodingConfig.codec,r.quantizer)),i)this.customEncoder=new i,this.customEncoder.codec=this.encodingConfig.codec,this.customEncoder.config=a,this.customEncoder.onPacket=(e,t)=>{if(!(e instanceof Vm))throw TypeError(`The first argument passed to onPacket must be an EncodedPacket.`);if(t!==void 0&&(!t||typeof t!=`object`))throw TypeError(`The second argument passed to onPacket must be an object or undefined.`);Z_(this.source._connectedTrack,e),this.encodingConfig.onEncodedPacket?.(e,t),this.lastMuxerPromise=this.muxer.addEncodedVideoPacket(this.source._connectedTrack,e,t).catch(e=>{this.setError(e)})},this.customEncoder.onError=e=>{this.setError(e)},await this.customEncoder.init();else{let e=[],t=[],n=0,r=0,i=(e,t,n)=>{let r={};if(t){let e=new Uint8Array(t.byteLength);t.copyTo(e),r.alpha=e}let i=Vm.fromEncodedChunk(e,r),a=Bf(this.preciseTimings,e.timestamp,e=>e.microsecondTimestamp),o=a===-1?null:this.preciseTimings[a],s=null;this.emittedEncoderPackets===0&&i.type===`delta`&&n?.decoderConfig&&(s=Pm(this.encodingConfig.codec,n.decoderConfig,i.data)),(o&&o.microsecondTimestamp===e.timestamp||s!==null)&&(i=i.clone({timestamp:o?.timestampIsValid?o.timestamp:void 0,duration:o?.durationIsValid?o.duration:void 0,type:s??void 0})),Z_(this.source._connectedTrack,i),this.encodingConfig.onEncodedPacket?.(i,n),this.lastMuxerPromise=this.muxer.addEncodedVideoPacket(this.source._connectedTrack,i,n).catch(e=>{this.setError(e)}),this.emittedEncoderPackets++},o=Error(`Encoding error`).stack;if(this.encoder=new VideoEncoder({output:(a,o)=>{if(!this.alphaEncoder){i(a,null,o);return}let s=this.alphaFrameQueue.shift();B(s!==void 0),s?(this.alphaEncoder.encode(s,{...this.defaultEncodeOptions,keyFrame:a.type===`key`}),r++,s.close(),e.push({chunk:a,meta:o})):r===0?i(a,null,o):(t.push(n+r),e.push({chunk:a,meta:o}))},error:e=>{e.stack=o,this.setError(e)}}),this.encoder.configure(a),this.encodingConfig.alpha===`keep`){let o=Error(`Encoding error`).stack;this.alphaEncoder=new VideoEncoder({output:(a,o)=>{r--;let s=e.shift();for(B(s!==void 0),i(s.chunk,a,s.meta),n++;t.length>0&&t[0]===n;){t.shift();let n=e.shift();B(n!==void 0),i(n.chunk,null,n.meta)}},error:e=>{e.stack=o,this.setError(e)}}),this.alphaEncoder.configure(a)}}B(this.source._connectedTrack),this.muxer=this.source._connectedTrack.output._muxer,this.encoderInitialized=!0})()}async flushAndClose(e){try{if(!e&&(this.checkForEncoderError(),this.frameRateLastSample)){let e=this.encodingConfig.transform.frameRate,t=Jf(this.frameRateLastEndTimestamp,e);await this.padFrameRate(t)}this.closed=!0,e||(this.customEncoder?this.customEncoderCallSerializer.call(()=>this.customEncoder.flush()):this.encoder&&(await this.encoder.flush(),await this.alphaEncoder?.flush(),await dp(25)))}finally{this.closed=!0,this.frameRateLastSample?.close(),this.frameRateLastSample=null,this.customEncoder?await this.customEncoderCallSerializer.call(()=>this.customEncoder.close()).catch(e=>this.setError(e)):this.encoder&&(this.encoder.state!==`closed`&&this.encoder.close(),this.alphaEncoder&&this.alphaEncoder.state!==`closed`&&this.alphaEncoder.close(),this.alphaFrameQueue.forEach(e=>e?.close()),this.alphaFrameQueue.length=0,this.splitter?.close())}e||this.checkForEncoderError()}getQueueSize(){return this.customEncoder?this.customEncoderQueueSize:this.encoder?.encodeQueueSize??0}checkForEncoderError(){if(this.errorSet)throw this.error}},$_=null,ev=class{constructor(){this.worker=null,this.pendingRequests=new Map,this.nextRequestId=0}split(e){if(!this.worker){if(!$_){let e=new Blob([`(${tv.toString()})()`],{type:`application/javascript`});$_=URL.createObjectURL(e)}this.worker=new Worker($_),this.worker.addEventListener(`message`,e=>{let t=e.data,n=this.pendingRequests.get(t.id);n&&(this.pendingRequests.delete(t.id),`error`in t?n.reject(Error(t.error)):n.resolve({colorFrame:t.colorFrame,alphaFrame:t.alphaFrame}))}),this.worker.addEventListener(`error`,e=>{let t=Error(e.message||`Color/alpha splitter worker error.`);for(let e of this.pendingRequests.values())e.reject(t);this.pendingRequests.clear()})}let t=this.nextRequestId++,n=Vf();return this.pendingRequests.set(t,n),this.worker.postMessage({id:t,sourceFrame:e},{transfer:[e]}),n.promise}close(){this.worker?.terminate(),this.worker=null;let e=Error(`Color/alpha splitter closed.`);for(let t of this.pendingRequests.values())t.reject(e);this.pendingRequests.clear()}},tv=()=>{let e=null,t=Promise.resolve();self.addEventListener(`message`,e=>{let{id:r,sourceFrame:i}=e.data;t=t.then(async()=>{try{let{colorFrame:e,alphaFrame:t}=await n(i);self.postMessage({id:r,colorFrame:e,alphaFrame:t},{transfer:[e,t]})}catch(e){self.postMessage({id:r,error:e.message})}finally{i.close()}})});let n=async t=>{let n=t.format;if(!n)throw Error(`CPU color/alpha splitting requires a known VideoFrame format.`);let a=t.allocationSize();if((!e||e.byteLength!==a)&&(e=new Uint8Array(a)),await t.copyTo(e),n===`RGBA`||n===`BGRA`)return r(e,n,t);if(n===`I420A`||n===`I420AP10`||n===`I420AP12`||n===`I422A`||n===`I422AP10`||n===`I422AP12`||n===`I444A`||n===`I444AP10`||n===`I444AP12`)return i(e,n,t);throw Error(`CPU color/alpha splitting does not support format '${n}'.`)},r=(e,t,n)=>{let r=n.visibleRect?.width??n.codedWidth,i=n.visibleRect?.height??n.codedHeight,a=r*i,o=a+Math.ceil(r/2)*Math.ceil(i/2)*2,s=new Uint8Array(o);for(let t=0,n=3;t<a;t++,n+=4)s[t]=e[n];s.fill(128,a);let c=new VideoFrame(e,{format:t===`RGBA`?`RGBX`:`BGRX`,codedWidth:r,codedHeight:i,timestamp:n.timestamp,duration:n.duration??void 0}),l={format:`I420`,codedWidth:r,codedHeight:i,timestamp:n.timestamp,duration:n.duration??void 0,transfer:[s.buffer]};return{colorFrame:c,alphaFrame:new VideoFrame(s,l)}},i=(e,t,n)=>{let r=n.visibleRect?.width??n.codedWidth,i=n.visibleRect?.height??n.codedHeight,a=t.includes(`P10`),o=t.includes(`P12`),s=a||o?2:1,c,l;t.startsWith(`I420`)?(c=Math.ceil(r/2),l=Math.ceil(i/2)):t.startsWith(`I422`)?(c=Math.ceil(r/2),l=i):(c=r,l=i);let u=r*i,d=c*l,f=u*s,p=d*s,m=u*s,h=f+p*2,g=t.replace(`A`,``),_=Math.ceil(r/2)*Math.ceil(i/2),v=m+_*s*2,y=new Uint8Array(v),b=h;y.set(e.subarray(b,b+m),0);let x=m,S=a?512:o?2048:128;s===1?y.fill(S,x):new Uint16Array(y.buffer,x,2*_).fill(S);let C=a?`I420P10`:o?`I420P12`:`I420`,w=new VideoFrame(e.subarray(0,h),{format:g,codedWidth:r,codedHeight:i,timestamp:n.timestamp,duration:n.duration??void 0}),ee={format:C,codedWidth:r,codedHeight:i,timestamp:n.timestamp,duration:n.duration??void 0,transfer:[y.buffer]};return{colorFrame:w,alphaFrame:new VideoFrame(y,ee)}}},nv=class extends X_{constructor(e,t){if(!(typeof HTMLCanvasElement<`u`&&e instanceof HTMLCanvasElement)&&!(typeof OffscreenCanvas<`u`&&e instanceof OffscreenCanvas))throw TypeError(`canvas must be an HTMLCanvasElement or OffscreenCanvas.`);bh(t),super(t.codec),this._encoder=new Q_(this,t),this._canvas=e}add(e,t=0,n){if(!Number.isFinite(e)||e<0)throw TypeError(`timestamp must be a non-negative number.`);if(!Number.isFinite(t)||t<0)throw TypeError(`duration must be a non-negative number.`);let r=new nh(this._canvas,{timestamp:e,duration:t});return this._encoder.add(r,!0,n)}_flushAndClose(e){return this._encoder.flushAndClose(e)}},rv=class extends Y_{constructor(e){if(super(),this._connectedTrack=null,!Np.includes(e))throw TypeError(`Invalid audio codec '${e}'. Must be one of: ${Np.join(`, `)}.`);this._codec=e}},iv=class extends Y_{constructor(e){if(super(),this._connectedTrack=null,!Pp.includes(e))throw TypeError(`Invalid subtitle codec '${e}'. Must be one of: ${Pp.join(`, `)}.`);this._codec=e}}})))()}var ov,sv,cv,lv,uv;function dv(){return(dv=t((()=>{nm(),K_(),ov=class{getSupportedVideoCodecs(){return this.getSupportedCodecs().filter(e=>Ap.includes(e))}getSupportedAudioCodecs(){return this.getSupportedCodecs().filter(e=>Np.includes(e))}getSupportedSubtitleCodecs(){return this.getSupportedCodecs().filter(e=>Pp.includes(e))}_codecUnsupportedHint(e){return``}_isFragmentedIsobmff(){return!1}},sv=class extends ov{constructor(e={}){if(!e||typeof e!=`object`)throw TypeError(`options must be an object.`);if(e.fastStart!==void 0&&![!1,`in-memory`,`reserve`,`fragmented`].includes(e.fastStart))throw TypeError(`options.fastStart, when provided, must be false, 'in-memory', 'reserve', or 'fragmented'.`);if(e.minimumFragmentDuration!==void 0&&(!Number.isFinite(e.minimumFragmentDuration)||e.minimumFragmentDuration<0))throw TypeError(`options.minimumFragmentDuration, when provided, must be a non-negative number.`);if(e.onFtyp!==void 0&&typeof e.onFtyp!=`function`)throw TypeError(`options.onFtyp, when provided, must be a function.`);if(e.onMoov!==void 0&&typeof e.onMoov!=`function`)throw TypeError(`options.onMoov, when provided, must be a function.`);if(e.onMdat!==void 0&&typeof e.onMdat!=`function`)throw TypeError(`options.onMdat, when provided, must be a function.`);if(e.onMoof!==void 0&&typeof e.onMoof!=`function`)throw TypeError(`options.onMoof, when provided, must be a function.`);if(e.metadataFormat!==void 0&&![`mdir`,`mdta`,`udta`,`auto`].includes(e.metadataFormat))throw TypeError(`options.metadataFormat, when provided, must be either 'auto', 'mdir', 'mdta', or 'udta'.`);super(),this._options=e}getSupportedTrackCounts(){let e=2**32-1;return{video:{min:0,max:e},audio:{min:0,max:e},subtitle:{min:0,max:e},total:{min:0,max:e}}}get supportsVideoRotationMetadata(){return!0}get supportsTimestampedMediaData(){return!0}_createMuxer(e){return new G_(e,this)}_isFragmentedIsobmff(){return this._options.fastStart===`fragmented`}},cv=class extends sv{constructor(e){super(e)}get _name(){return`MP4`}get fileExtension(){return`.mp4`}get mimeType(){return`video/mp4`}getSupportedCodecs(){return[...Ap,...Mp,`pcm-s16`,`pcm-s16be`,`pcm-s24`,`pcm-s24be`,`pcm-s32`,`pcm-s32be`,`pcm-f32`,`pcm-f32be`,`pcm-f64`,`pcm-f64be`,...Pp]}_codecUnsupportedHint(e){return new uv().getSupportedCodecs().includes(e)?` Switching to MOV will grant support for this codec.`:``}},lv=class extends sv{constructor(e){super(e)}get _name(){return`CMAF`}get fileExtension(){return`.m4s`}get mimeType(){return`video/mp4`}getSupportedCodecs(){return[...Ap,...Mp,`pcm-s16`,`pcm-s16be`,`pcm-s24`,`pcm-s24be`,`pcm-s32`,`pcm-s32be`,`pcm-f32`,`pcm-f32be`,`pcm-f64`,`pcm-f64be`,...Pp]}},uv=class extends sv{constructor(e){super(e)}get _name(){return`MOV`}get fileExtension(){return`.mov`}get mimeType(){return`video/quicktime`}getSupportedCodecs(){return[...Ap,...Np]}_codecUnsupportedHint(e){return new cv().getSupportedCodecs().includes(e)?` Switching to MP4 will grant support for this codec.`:``}}})))()}var fv,pv,mv,hv,gv,_v,vv,yv;function bv(){return(bv=t((()=>{hp(),Cp(),dv(),av(),B_(),N_(),vp(),Hm(),nm(),fv=[`video`,`audio`,`subtitle`],pv=class e{constructor(e,t,n,r,i){this.id=e,this.output=t,this.type=n,this.source=r,this.metadata=i}isVideoTrack(){return this.type===`video`}isAudioTrack(){return this.type===`audio`}isSubtitleTrack(){return this.type===`subtitle`}canBePairedWith(t){if(!(t instanceof e))throw TypeError(`other must be an OutputTrack.`);if(this===t)return!1;let n=fp(this.metadata.group),r=fp(t.metadata.group);for(let e of n)if(this.type!==t.type&&r.some(t=>e===t)||r.some(t=>e._pairedGroups.has(t)))return!0;return!1}},mv=class extends pv{constructor(e,t,n,r){super(e,t,`video`,n,r)}},hv=class extends pv{constructor(e,t,n,r){super(e,t,`audio`,n,r)}},gv=class extends pv{constructor(e,t,n,r){super(e,t,`subtitle`,n,r)}},_v=class e{constructor(){this._pairedGroups=new Set}pairWith(t){if(!(t instanceof e))throw TypeError(`other must be an OutputTrackGroup.`);if(this===t)throw TypeError(`Cannot pair a group with itself.`);this._pairedGroups.add(t),t._pairedGroups.add(this)}},vv=e=>{if(!e||typeof e!=`object`)throw TypeError(`metadata must be an object.`);if(e.languageCode!==void 0&&!Xf(e.languageCode))throw TypeError(`metadata.languageCode, when provided, must be a three-letter, ISO 639-2/T language code.`);if(e.name!==void 0&&typeof e.name!=`string`)throw TypeError(`metadata.name, when provided, must be a string.`);if(e.disposition!==void 0&&Sp(e.disposition),e.maximumPacketCount!==void 0&&(!Number.isInteger(e.maximumPacketCount)||e.maximumPacketCount<0))throw TypeError(`metadata.maximumPacketCount, when provided, must be a non-negative integer.`);if(e.group!==void 0&&!(e.group instanceof _v)&&(!Array.isArray(e.group)||e.group.some(e=>!(e instanceof _v))))throw TypeError(`metadata.group, when provided, must be an OutputTrackGroup instance or an array of OutputTrackGroup instances.`)},yv=class extends pp{get target(){let e=`Output.target cannot be used when using PathedTarget with an async callback. Use the 'target' event instead.`;if(this._rootTargetPromise)throw TypeError(e);let t=this._getRootTarget();if(t instanceof Promise)throw TypeError(e);return t}constructor(e){if(super(),this.state=`pending`,this.defaultTrackGroup=new _v,this.tracks=[],this._onFinalize=null,this._unfinalizedTargets=new Set,this._rootWriterPromise=null,this._startPromise=null,this._cancelPromise=null,this._finalizePromise=null,this._mutex=new zf,this._metadataTags={},this._rootTarget=null,this._rootTargetPromise=null,this._firstMediaStreamTimestamp=null,!e||typeof e!=`object`)throw TypeError(`options must be an object.`);if(!(e.format instanceof ov))throw TypeError(`options.format must be an OutputFormat.`);if(!(e.target instanceof P_||e.target instanceof z_))throw TypeError(`options.target must be a Target or a PathedTarget.`);if(e.target instanceof P_&&this._rememberTarget(e.target),e.initTarget!==void 0&&!(e.initTarget instanceof P_)&&typeof e.initTarget!=`function`)throw Error(`options.initTarget, when provided, must be a Target or a function that returns or resolves to a Target.`);if(e.onFinalize!==void 0&&typeof e.onFinalize!=`function`)throw TypeError(`options.onFinalize, when provided, must be a function.`);this.format=e.format,this._target=e.target,this._onFinalize=e.onFinalize??null,this._initTarget=e.initTarget??null,this._initTarget instanceof P_&&this._rememberTarget(this._initTarget),this._muxer=e.format._createMuxer(this)}_getTargetValidated(e){B(this._target instanceof z_);let t=this._target.getTarget(e),n=e=>{if(!(e instanceof P_))throw TypeError(`getTarget must return a Target.`);return e};return t instanceof Promise?t.then(n):n(t)}async _getTarget(e){B(this._target instanceof z_);let t=await this._getTargetValidated(e);return this._emit(`target`,{target:t,request:e,isRoot:e.isRoot}),this.state===`canceled`?await t._close():this._rememberTarget(t),t}_rememberTarget(e){this._unfinalizedTargets.add(e),e.on(`finalized`,()=>this._unfinalizedTargets.delete(e),{once:!0})}async _getInitTarget(){if(B(this._initTarget!==null),this._initTarget instanceof P_)return this._initTarget;let e=await this._initTarget();return this.state===`canceled`?await e._close():this._rememberTarget(e),e}_hasInitTarget(){return this._initTarget!==null}_getRootTarget(){if(this._rootTarget)return this._rootTarget;if(this._rootTargetPromise)return this._rootTargetPromise;if(this._target instanceof P_)return this._emit(`target`,{target:this._target,request:null,isRoot:!0}),this._rootTarget=this._target,this._target;let e={path:this._target.rootPath,isRoot:!0,mimeType:this.format.mimeType},t=this._getTargetValidated(e),n=t=>(this.state===`canceled`?t._close():this._rememberTarget(t),this._emit(`target`,{target:t,request:e,isRoot:!0}),this._rootTarget=t,t);return t instanceof Promise?this._rootTargetPromise=t.then(n):n(t)}_getRootWriter(e){return this._rootWriterPromise??=(async()=>{let t=await this._getRootTarget(),n=new M_(t,typeof e==`boolean`?e:e(t));return n.start(),n})()}addVideoTrack(e,t={}){if(!(e instanceof X_))throw TypeError(`source must be a VideoSource.`);if(vv(t),t.rotation!==void 0&&![0,90,180,270].includes(t.rotation))throw TypeError(`Invalid video rotation: ${t.rotation}. Has to be 0, 90, 180 or 270.`);if(!this.format.supportsVideoRotationMetadata&&t.rotation)throw Error(`${this.format._name} does not support video rotation metadata.`);if(t.frameRate!==void 0&&(!Number.isFinite(t.frameRate)||t.frameRate<=0))throw TypeError(`Invalid video frame rate: ${t.frameRate}. Must be a positive number.`);if(t.decoderConfig!==void 0&&Qp({decoderConfig:t.decoderConfig},e._codec),t.primingPacket!==void 0){if(!(t.primingPacket instanceof Vm))throw TypeError(`metadata.primingPacket, when provided, must be an EncodedPacket.`);if(t.decoderConfig===void 0)throw TypeError(`metadata.primingPacket can only be provided alongside metadata.decoderConfig.`)}let n={...t};return n.group??=this.defaultTrackGroup,this._addTrack(new mv(this.tracks.length+1,this,e,n))}addAudioTrack(e,t={}){if(!(e instanceof rv))throw TypeError(`source must be an AudioSource.`);if(vv(t),t.decoderConfig!==void 0&&em({decoderConfig:t.decoderConfig},e._codec),t.primingPacket!==void 0){if(!(t.primingPacket instanceof Vm))throw TypeError(`metadata.primingPacket, when provided, must be an EncodedPacket.`);if(t.decoderConfig===void 0)throw TypeError(`metadata.primingPacket can only be provided alongside metadata.decoderConfig.`)}let n={...t};return n.group??=this.defaultTrackGroup,this._addTrack(new hv(this.tracks.length+1,this,e,n))}addSubtitleTrack(e,t={}){if(!(e instanceof iv))throw TypeError(`source must be a SubtitleSource.`);vv(t);let n={...t};return n.group??=this.defaultTrackGroup,this._addTrack(new gv(this.tracks.length+1,this,e,n))}setMetadataTags(e){if(xp(e),this.state!==`pending`)throw Error(`Cannot set metadata tags after output has been started or canceled.`);this._metadataTags=e}_addTrack(e){if(this.state!==`pending`)throw Error(`Cannot add track after output has been started or canceled.`);if(e.source._connectedTrack)throw Error(`Source is already used for a track.`);let t=this.format.getSupportedTrackCounts(),n=this.tracks.reduce((t,n)=>t+ +(n.type===e.type),0),r=t[e.type].max;if(n===r)throw Error(r===0?`${this.format._name} does not support ${e.type} tracks.`:`${this.format._name} does not support more than ${r} ${e.type} track${r===1?``:`s`}.`);let i=t.total.max;if(this.tracks.length===i)throw Error(`${this.format._name} does not support more than ${i} tracks${i===1?``:`s`} in total.`);if(e.isVideoTrack()){let t=this.format.getSupportedVideoCodecs();if(t.length===0)throw Error(`${this.format._name} does not support video tracks.`+this.format._codecUnsupportedHint(e.source._codec));if(!t.includes(e.source._codec))throw Error(`Codec '${e.source._codec}' cannot be contained within ${this.format._name}. Supported video codecs are: ${t.map(e=>`'${e}'`).join(`, `)}.`+this.format._codecUnsupportedHint(e.source._codec))}else if(e.isAudioTrack()){let t=this.format.getSupportedAudioCodecs();if(t.length===0)throw Error(`${this.format._name} does not support audio tracks.`+this.format._codecUnsupportedHint(e.source._codec));if(!t.includes(e.source._codec))throw Error(`Codec '${e.source._codec}' cannot be contained within ${this.format._name}. Supported audio codecs are: ${t.map(e=>`'${e}'`).join(`, `)}.`+this.format._codecUnsupportedHint(e.source._codec))}else if(e.isSubtitleTrack()){let t=this.format.getSupportedSubtitleCodecs();if(t.length===0)throw Error(`${this.format._name} does not support subtitle tracks.`+this.format._codecUnsupportedHint(e.source._codec));if(!t.includes(e.source._codec))throw Error(`Codec '${e.source._codec}' cannot be contained within ${this.format._name}. Supported subtitle codecs are: ${t.map(e=>`'${e}'`).join(`, `)}.`+this.format._codecUnsupportedHint(e.source._codec))}return this.tracks.push(e),e.source._connectedTrack=e,e}hasEnoughTracks(){let e=this.format.getSupportedTrackCounts();for(let t of fv)if(this.tracks.reduce((e,n)=>e+ +(n.type===t),0)<e[t].min)return!1;let t=e.total.min;return!(this.tracks.length<t)}async start(){let e=this.format.getSupportedTrackCounts();for(let t of fv){let n=this.tracks.reduce((e,n)=>e+ +(n.type===t),0),r=e[t].min;if(n<r)throw Error(r===e[t].max?`${this.format._name} requires exactly ${r} ${t} track${r===1?``:`s`}.`:`${this.format._name} requires at least ${r} ${t} track${r===1?``:`s`}.`)}let t=e.total.min;if(this.tracks.length<t)throw Error(t===e.total.max?`${this.format._name} requires exactly ${t} track${t===1?``:`s`}.`:`${this.format._name} requires at least ${t} track${t===1?``:`s`}.`);if(this.state===`canceled`)throw Error(`Output has been canceled.`);return this._startPromise?(_p._warn(`Output has already been started.`),this._startPromise):this._startPromise=(async()=>{this.state=`started`;let e=this._mutex.acquire();try{await this._muxer.start();let e=this.tracks.map(e=>e.source._start());await Promise.all(e)}finally{(await e)()}})()}getMimeType(){return this._muxer.getMimeType()}async cancel(){if(this._cancelPromise)return _p._warn(`Output has already been canceled.`),this._cancelPromise;if(this.state===`finalizing`||this.state===`finalized`){this.state===`finalized`&&_p._warn(`Output has already been finalized.`);return}return this._cancelPromise=(async()=>{this.state=`canceled`;let e=await this._mutex.acquire();try{let e=this.tracks.map(e=>e.source._flushOrWaitForOngoingClose(!0));await Promise.all(e),await Promise.all([...this._unfinalizedTargets].map(e=>e._close())),this._unfinalizedTargets.clear()}finally{e()}})()}async finalize(){if(this.state===`pending`)throw Error(`Cannot finalize before starting.`);if(this.state===`canceled`)throw Error(`Cannot finalize after canceling.`);return this._finalizePromise?(_p._warn(`Output has already been finalized.`),this._finalizePromise):this._finalizePromise=(async()=>{this.state=`finalizing`;let e=await this._mutex.acquire();try{let e=this.tracks.map(e=>e.source._flushOrWaitForOngoingClose(!1));if(await Promise.all(e),await this._muxer.finalize(),this._rootWriterPromise){let e=await this._rootWriterPromise;e.finalized||(await e.flush(),await e.finalize())}this._onFinalize&&await this._onFinalize(),this.state=`finalized`}finally{await Promise.all([...this._unfinalizedTargets].map(e=>e._close().catch(()=>{}))),this._unfinalizedTargets.clear(),e()}})()}}})))()}var xv;function Sv(){return(Sv=t((()=>{bv(),B_(),dv(),av(),F(),xv=class{_engine;constructor(e){this._engine=e}async export(e,t){let{fps:n,duration:r,resolution:i,bitrate:a=8e6}=e,o=Math.ceil(r/60*n),s=this._engine.canvas,c=this._engine.renderer.resolution.clone();this._engine.setSize(i);let l=this._engine.createView(),u=new L_,d=new yv({format:new cv,target:u}),f=new nv(s,{codec:`avc`,bitrate:a,keyFrameInterval:2});d.addVideoTrack(f);try{await d.start();for(let e=0;e<o;e++)this._engine.updateOffline(e,n),await fn(),this._engine.render(l),await f.add(e/n,1/n),t&&t({current:e+1,total:o,phase:`encoding`}),e%10==0&&await new Promise(e=>setTimeout(e,0));t&&t({current:o,total:o,phase:`finalizing`}),await d.finalize()}finally{l.dispose(),this._engine.setSize(c)}return t&&t({current:o,total:o,phase:`done`}),new Blob([u.buffer],{type:`video/mp4`})}static download(e,t=`scene.mp4`){let n=URL.createObjectURL(e),r=document.createElement(`a`);r.href=n,r.download=t,document.body.appendChild(r),r.click(),document.body.removeChild(r),URL.revokeObjectURL(n)}}})))()}var Cv,wv;function Tv(){return(Tv=t((()=>{F(),Cv=[1,.6,0],wv=class{_draw;_maskTarget;_maskMaterial;_outline;constructor(e){this._draw=e,this._maskTarget=e.createTarget(),this._maskMaterial=e.materials.mask(),this._outline=e.recipes.outline(this._maskTarget,Cv)}render(e,t,n){!t||!n||t.getComponent(N)&&(this._draw.renderEntities({view:e,camera:n,entities:[t],target:this._maskTarget,useSceneDepth:!0,materialOverride:this._maskMaterial,depthCompare:`lequal`}),this._draw.renderFullscreen(e,this._outline,null))}}})))()}var Ev,Dv,Ov;function kv(){return(kv=t((()=>{j(),F(),mo(),_f(),Ev=12,Dv=12,Ov=class{_raycaster;_pointerDownPos;_gizmoDragging;_gizmoDragStartValue;_hoveredTarget;_lastClickNDC;_lastClickCandidateUUIDs;_lastClickCycleIndex;_disposeListeners;constructor(e){let{engine:t,editorCamera:n,gizmoManager:r,helperManager:i,api:a,getSelectedEntityId:o,isEntitySelectable:s,isGizmoVisible:c,getHelperVisibility:l,getGizmoMode:u,onSelectEntity:d,isModalActive:f,onEscapeToEditorCamera:p}=e;this._raycaster=new ln,this._pointerDownPos=null,this._gizmoDragging=!1,this._gizmoDragStartValue=null,this._hoveredTarget=null,this._lastClickNDC=null,this._lastClickCandidateUUIDs=[],this._lastClickCycleIndex=-1;let m=e.canvas,h=()=>n.getCameraEntity(t),g=(e,t)=>{let n=t.getComponentsByTag(`camera`)[0];if(!n)return null;let r=new O(e.x,e.y,e.z,1);return r.applyMatrix4(n.viewMatrix).applyMatrix4(n.projectionMatrix),r.w<=0?null:new O(r.x/r.w,r.y/r.w)},_=new ln,v=e=>{let n=this._raycaster.ray.origin,r=e.x-n.x,i=e.y-n.y,a=e.z-n.z,o=Math.sqrt(r*r+i*i+a*a);if(o<1e-4)return!1;_.ray.origin.copy(n),_.ray.direction.set(r/o,i/o,a/o);let s=_.intersectEntities(t.root);for(let e of s)if(e.entity.initiator!==`god`)return e.distance<o-.001;return!1},y=new ln,b=new O,x=(e,t)=>{for(let[n,r]of[[-.8,-.8],[.8,-.8],[-.8,.8],[.8,.8]])if(b.set(n,r),y.setFromCamera(b,t),y.intersectEntities(e).length===0)return!1;return!0},S=(e,t,n,r)=>{for(let i of e.getWorldSegments()){let e=g(i.a,n),a=g(i.b,n);if(!e||!a)continue;let o=(e.x-t.x)*r.width*.5,s=(e.y-t.y)*r.height*.5,c=(a.x-t.x)*r.width*.5,l=(a.y-t.y)*r.height*.5,u=c-o,d=l-s,f=u*u+d*d,p=f>0?Math.max(0,Math.min(1,-(o*u+s*d)/f)):0,m=o+u*p,h=s+d*p;if(Math.sqrt(m*m+h*h)<=Dv)return!0}return!1},C=e=>{let r=h();if(!r)return[];this._raycaster.setFromCamera(e,r);let a=[];for(let e of this._raycaster.intersectEntities(t.root))e.entity.initiator!==`god`&&s(e.entity)&&a.push({entity:e.entity,distance:e.distance,type:`mesh`});let o=a.length>0?a[0].distance:1/0,c=[],u=[],d=new Set,f=i.getHelpers(),p=l(),_=mf(m);for(let n of f){if(!i.isVisible(n,p))continue;let a=t.root.findEntityByUUID(n.targetEntityUUID);if(!a||!s(a))continue;if(n.type===`empty`){if(!S(n,e,r,_))continue;d.add(n.targetEntityUUID);let t=n.entity.matrixWorld.elm,i=t[12]-this._raycaster.ray.origin.x,s=t[13]-this._raycaster.ray.origin.y,l=t[14]-this._raycaster.ray.origin.z,f=Math.sqrt(i*i+s*s+l*l),p={entity:a,distance:f,type:`helper`};f<=o?c.push(p):u.push(p);continue}let l=this._raycaster.intersectEntities(n.hitAreaEntity);if(l.length===0)continue;d.add(n.targetEntityUUID);let f={entity:a,distance:l[0].distance,type:`helper`};if(x(n.hitAreaEntity,r)){S(n,e,r,_)&&c.push(f);continue}l[0].distance<=o?c.push(f):u.push(f)}n.view===`camera`&&Math.min((1-Math.abs(e.x))*_.width*.5,(1-Math.abs(e.y))*_.height*.5)<=Dv&&s(r)&&c.push({entity:r,distance:0,type:`helper`}),c.sort((e,t)=>e.distance-t.distance),u.sort((e,t)=>e.distance-t.distance);let y=[];for(let{targetEntityUUID:n}of f){if(d.has(n))continue;let i=t.root.findEntityByUUID(n);if(!i||!s(i))continue;let a=i.matrixWorld.elm,o=new O(a[12],a[13],a[14]),c=g(o,r);if(!c)continue;let l=(c.x-e.x)*_.width*.5,u=(c.y-e.y)*_.height*.5,f=Math.sqrt(l*l+u*u);if(f>Ev||v(o))continue;let p=o.x-this._raycaster.ray.origin.x,m=o.y-this._raycaster.ray.origin.y,h=o.z-this._raycaster.ray.origin.z;y.push({candidate:{entity:i,distance:Math.sqrt(p*p+m*m+h*h),type:`helper`},screenDistance:f})}return y.sort((e,t)=>e.screenDistance-t.screenDistance),[...c,...y.map(e=>e.candidate),...a,...u]},w=()=>{let e=r.activeGizmo;if(!e||!e.entity.visible||!c())return null;let t=null;for(let{handle:n,entity:r}of e.getHandleEntities()){let e=this._raycaster.intersectEntities(r);e.length>0&&(!t||e[0].distance<t.distance)&&(t={handle:n,distance:e[0].distance})}return t},ee=e=>{if(!f()&&(e.pointerType!==`mouse`||e.button===0)){if(n.preview){e.target.setPointerCapture(e.pointerId),this._pointerDownPos=new O(e.clientX,e.clientY);return}if(!(e.pointerType===`touch`&&this._gizmoDragging)&&(e.target.setPointerCapture(e.pointerId),this._pointerDownPos=new O(e.clientX,e.clientY),r.activeGizmo&&r.activeGizmo.entity.visible&&c())){let i=hf(m,e.clientX,e.clientY),a=h();if(a){this._raycaster.setFromCamera(i,a);let e=w();if(e){let i=o(),a=i?t.root.findEntityByUUID(i):null;a&&(this._gizmoDragging=!0,n.orbitControls.enabled=!1,m.style.cursor=`grabbing`,this._gizmoDragStartValue={position:a.position.getElm(`vec3`),euler:a.euler.getElm(`vec3`),scale:a.scale.getElm(`vec3`)},r.activeGizmo.startDrag(e.handle,this._raycaster.ray,a))}}}}},te=e=>{if(f())return;if((n.preview||n.view===`camera`)&&this._pointerDownPos&&!this._gizmoDragging){let t=e.clientX-this._pointerDownPos.x,n=e.clientY-this._pointerDownPos.y;Math.sqrt(t*t+n*n)>5&&p()}if(n.preview){m.style.cursor=``;return}let i=hf(m,e.clientX,e.clientY),a=h();if(!a)return;if(this._raycaster.setFromCamera(i,a),this._gizmoDragging){let e=o(),n=e?t.root.findEntityByUUID(e):null;if(!n)return;let i=r.activeGizmo.updateDrag(this._raycaster.ray,n);if(i){if(i.position){let e=i.position.clone();n.parent&&e.applyMatrix4AsPosition(n.parent.matrixWorld.clone().inverse()),n.position.copy(e)}i.euler&&n.euler.set(i.euler.x,i.euler.y,i.euler.z),i.scale&&n.scale.set(i.scale.x,i.scale.y,i.scale.z),n.updateMatrix(!0)}return}let s=null;if(r.activeGizmo&&r.activeGizmo.entity.visible&&c()){let e=w();e&&(s=`gizmo`),r.activeGizmo.setHover(e?e.handle:null)}if(!s){let e=C(i);e.length>0&&(s=e[0].type)}s!==this._hoveredTarget&&(this._hoveredTarget=s,s===`gizmo`?m.style.cursor=`grab`:s===`helper`||s===`mesh`?m.style.cursor=`pointer`:m.style.cursor=``)},T=e=>{if(f())return;if(this._gizmoDragging){r.activeGizmo.endDrag(),this._gizmoDragging=!1,n.orbitControls.enabled=n.usingEditorCamera,m.style.cursor=this._hoveredTarget===`gizmo`?`grab`:``;let e=o(),i=e?t.root.findEntityByUUID(e):null;if(i&&this._gizmoDragStartValue){let e=u(),t=e===`translate`?`position`:e===`rotate`?`euler`:`scale`,n=this._gizmoDragStartValue[t],r=i[t].getElm(`vec3`);a.commandManager.execute(new po(i,t,n,r))}this._gizmoDragStartValue=null,this._pointerDownPos=null;return}if(!this._pointerDownPos)return;let i=e.clientX-this._pointerDownPos.x,s=e.clientY-this._pointerDownPos.y,c=Math.sqrt(i*i+s*s);if(this._pointerDownPos=null,c>5)return;let l=hf(m,e.clientX,e.clientY);if(!h())return;let p=C(l);if(p.length===0){this._lastClickNDC=null,this._lastClickCandidateUUIDs=[],this._lastClickCycleIndex=-1,d(null);return}let g=.02,_=this._lastClickNDC&&Math.abs(l.x-this._lastClickNDC.x)<g&&Math.abs(l.y-this._lastClickNDC.y)<g,v=p.map(e=>e.entity.uuid),y=_&&v.length===this._lastClickCandidateUUIDs.length&&v.every((e,t)=>e===this._lastClickCandidateUUIDs[t]),b=0;y&&p.length>1&&(b=(this._lastClickCycleIndex+1)%p.length),this._lastClickNDC=new O(l.x,l.y),this._lastClickCandidateUUIDs=v,this._lastClickCycleIndex=b,d(p[b].entity)},E=e=>{e.preventDefault()};m.addEventListener(`pointerdown`,ee),m.addEventListener(`pointermove`,te),m.addEventListener(`pointerup`,T),m.addEventListener(`contextmenu`,E),this._disposeListeners=()=>{m.removeEventListener(`pointerdown`,ee),m.removeEventListener(`pointermove`,te),m.removeEventListener(`pointerup`,T),m.removeEventListener(`contextmenu`,E)}}get gizmoDragging(){return this._gizmoDragging}dispose(){this._disposeListeners()}}})))()}var Av;function jv(){return(jv=t((()=>{Gl(),ql(),kv(),Av=class{id;canvas;view;editorCamera;frameDebugger;_pointerHandler;_onDispose;_disposeListeners;_disposed;_hovered;constructor(e){let{engine:t,canvas:n}=e;this.id=e.id,this.canvas=n,this.view=t.createView({offscreen:!0}),this.editorCamera=new Wl(t,this.view,n),this.frameDebugger=new Kl(n,e.draw,this.view),this._pointerHandler=new Ov({engine:t,canvas:n,editorCamera:this.editorCamera,gizmoManager:e.gizmoManager,helperManager:e.helperManager,api:e.api,getSelectedEntityId:e.getSelectedEntityId,isEntitySelectable:e.isEntitySelectable,isGizmoVisible:e.isGizmoVisible,getHelperVisibility:e.getHelperVisibility,getGizmoMode:()=>e.gizmoManager.mode,onSelectEntity:e.onSelectEntity,isModalActive:e.isModalActive,onEscapeToEditorCamera:e.onEscapeToEditorCamera}),this._hovered=!1;let r=()=>{this._hovered=!0,e.onActivate()},i=()=>{this._hovered=!1};n.addEventListener(`pointerenter`,r),n.addEventListener(`pointerleave`,i),this._onDispose=e.onDispose,this._disposeListeners=()=>{n.removeEventListener(`pointerenter`,r),n.removeEventListener(`pointerleave`,i)},this._disposed=!1}get gizmoDragging(){return this._pointerHandler.gizmoDragging}get hovered(){return this._hovered}resize(e){this.view.size=e.clone(),this.canvas.width=e.x,this.canvas.height=e.y,this.editorCamera.resize(e),this.frameDebugger.resize(e)}dispose(){this._disposed||(this._disposed=!0,this._onDispose(),this._disposeListeners(),this._pointerHandler.dispose(),this.frameDebugger.dispose(),this.editorCamera.dispose(),this.view.dispose())}}})))()}var Mv;function Nv(){return(Nv=t((()=>{F(),Mv=class{_draw;_wireframeMaterial;_wireframeGeometryCache;constructor(e){this._draw=e,this._wireframeGeometryCache=new Map,this._wireframeMaterial=e.materials.flat({color:[.3,.8,.3],lines:!0,depthWrite:!1})}render(e,t,n){if(!t)return;let r=this._collectMeshEntities(n.root),i=new Map;for(let e of r){let t=e.getComponent(N);if(!t)continue;i.set(e,t.geometry);let n=this._wireframeGeometryCache.get(t.geometry);n||(n=this._createWireframeGeometry(t.geometry),this._wireframeGeometryCache.set(t.geometry,n)),t.geometry=n}this._draw.renderEntities({view:e,camera:t,entities:r,target:null,materialOverride:this._wireframeMaterial});for(let e of r){let t=e.getComponent(N);if(!t)continue;let n=i.get(e);n&&(t.geometry=n)}}_collectMeshEntities(e){let t=[],n=(e,r)=>{let i=r&&e.visible;i&&e.getComponent(N)&&t.push(e);for(let t=0;t<e.children.length;t++)n(e.children[t],i)};return n(e,!0),t}_createWireframeGeometry(e){let t=new kt,n=e.getAttribute(`position`),r=e.getAttribute(`index`);if(!n)return t;t.setAttribute(`position`,n.array,3);let i=e.getAttribute(`normal`);if(i&&t.setAttribute(`normal`,i.array,3),r){let e=r.array,n=new Set,i=[];for(let t=0;t<e.length;t+=3){let r=e[t],a=e[t+1],o=e[t+2],s=[[Math.min(r,a),Math.max(r,a)],[Math.min(a,o),Math.max(a,o)],[Math.min(o,r),Math.max(o,r)]];for(let[e,t]of s){let r=`${e}_${t}`;n.has(r)||(n.add(r),i.push(e,t))}}t.setAttribute(`index`,new Uint16Array(i),1)}return t}}})))()}var Pv,Fv,Iv;function Lv(){return(Lv=t((()=>{Au(),j(),F(),wi(),Nu(),Lu(),rd(),Hd(),Wd(),lf(),pf(),Rs(),Ef(),Sv(),Tv(),jv(),Nv(),Pv={show:!0,empty:!0,camera:!0,light:!0,grid:!0,wireframe:!1,gizmo:!0,outline:!0},Fv=[`cameraView`,`preview`,`resolutionScale`,...Object.keys(Pv).map(e=>`helpers/${e}`),`camera/position`,`camera/target`],Iv=class extends Tt{_engine;_selectedEntityId;_unselectableEntityIds;_selectedAsset;_navigateAsset;_propertyTarget;_audioBuffer;_frameLoop;_enableRender;_baseResolution;_viewType;_assetPreviewManager;_externalWindow;_modalStatus;_panelLayout;_hoveredKeyField;_hoveredTimeline;_timelineModal;_copiedCurveId;_disposed;_api;_draw;_viewports;_activeViewport;_viewportSettings;_gizmoManager;_helperManager;_gridRenderer;_constraintAxisRenderer;_wireframeRenderer;_selectionOutline;_keyboardHandler;_modalTransformHandler;_sceneExporter;_isExporting;_exportProgress;constructor(e){super(),this._engine=e,this._viewType=`render`,this._selectedEntityId=null,this._unselectableEntityIds=new Set,this._selectedAsset=null,this._navigateAsset=null,this._propertyTarget=`entity`,this._enableRender=!0,this._baseResolution=new O(1920,1080),this._externalWindow=null,this._modalStatus=null,this._panelLayout=null,this._hoveredKeyField=null,this._hoveredTimeline=null,this._timelineModal=null,this._copiedCurveId=null,this._disposed=!1,this._api=new nd(this),this._draw=bu(e),this._viewports=[],this._activeViewport=null,this._viewportSettings=new Map,this._assetPreviewManager=new Mu(this._draw),this._sceneExporter=new xv(e),this._isExporting=!1,this._exportProgress=null,this._gizmoManager=new Vd(e,this._draw),this._helperManager=new cf(e,this._draw),this._gridRenderer=new Ud(e,this._draw),this._constraintAxisRenderer=new Iu(e,this._draw),this._wireframeRenderer=new Mv(this._draw),this._selectionOutline=new wv(this._draw),this._modalTransformHandler=new Tf({engine:e,getViewport:()=>this._activeViewport,api:this._api,getSelectedEntity:()=>this._selectedEntityId?e.root.findEntityByUUID(this._selectedEntityId)??null:null,isPointerBusy:()=>this._viewports.some(e=>e.gizmoDragging),onStatusChange:e=>this.setModalStatus(e)}),this._keyboardHandler=new ff({onSave:()=>this.save(),onUndo:()=>this._api.undo(),onRedo:()=>this._api.redo(),onPlayToggle:()=>this.togglePlay(),onCameraViewToggle:()=>this.toggleCameraView(),onPreviewToggle:()=>{let e=this._activeViewport;e&&this.setField(`viewports/${e.id}/preview`,!e.editorCamera.preview)},onSyncToSceneCamera:()=>this.syncToSceneCamera(),onFocusSelected:()=>this.focusSelected(),onAlignView:(e,t)=>this.alignEditorView(e,t),onProjectionToggle:()=>this.toggleEditorProjection(),onAddEntity:()=>this.emit(`request/addEntity`),onDeleteSelected:()=>{if(this._hoveredTimeline){this._hoveredTimeline.deleteKeys();return}this.deleteSelected()},onCopy:()=>{this._hoveredTimeline&&this._hoveredTimeline.copyKeys()},onPaste:()=>{this._hoveredTimeline&&this._hoveredTimeline.pasteKeys()},onBoxSelect:()=>{this._hoveredTimeline&&this._hoveredTimeline.boxSelect()},onSelectAll:e=>{this._hoveredTimeline&&this._hoveredTimeline.selectAllKeys(e)},onFrameAll:()=>{this._hoveredTimeline&&this._hoveredTimeline.frameAll()},onContextMenu:()=>{this._hoveredTimeline&&this._hoveredTimeline.openMenu()},onDuplicateSelected:()=>{if(this._hoveredTimeline){this._hoveredTimeline.duplicateKeys();return}this.duplicateSelected()},onRenameSelected:()=>this.requestRenameSelected(),onStepFrame:e=>this.stepFrame(e),onSeekToStart:()=>this.seekToStart(),onTransformKey:e=>this._onModalKey(e),onInsertKey:e=>this._onKeyFrameShortcut(e)}),this._audioBuffer=null,this._engine.on(`update/music`,e=>{this._audioBuffer=e}),this._frameLoop={enabled:!1,start:0,end:0},this._engine.on(`loaded`,()=>{this._selectedEntityId&&(this._engine.root.findEntityByUUID(this._selectedEntityId)||this.selectEntity(null))}),this._engine.on(`update/blidge/frame`,e=>{this._engine.seek(e.current),e.playing&&!this._engine.frame.playing?this._engine.play():!e.playing&&this._engine.frame.playing&&this._engine.stop()}),this._engine.on(`update/blidge/selection`,e=>{if(!e.active)return;let t=this._engine.root.findEntityByUUID(`blidge:`+e.active.name);t&&this.selectEntity(t)}),this.field(`enableRender`,()=>this._enableRender,e=>this._enableRender=e);let t=this.fieldDir(`resolution`);t.field(`width`,()=>this._baseResolution.x,e=>{this._baseResolution.x=e,this._resize()},{step:1}),t.field(`height`,()=>this._baseResolution.y,e=>{this._baseResolution.y=e,this._resize()},{step:1}),this.field(`viewType`,()=>this._viewType,e=>{this._viewType=e;for(let e of this._viewports)e.frameDebugger.enable=this._viewType===`debug`});let n=this.fieldDir(`frameLoop`);n.field(`enabled`,()=>this._frameLoop.enabled,e=>this._frameLoop.enabled=e),n.field(`start`,()=>this._frameLoop.start,e=>this._frameLoop.start=e),n.field(`end`,()=>this._frameLoop.end,e=>this._frameLoop.end=e),this.field(`selectedEntityId`,()=>this._selectedEntityId,e=>{this._selectedEntityId=e,e&&(this._propertyTarget=`entity`,this.noticeField(`propertyTarget`))}),this.field(`unselectableEntityIds`,()=>Array.from(this._unselectableEntityIds),e=>{this._unselectableEntityIds=new Set(e)},{hidden:!0}),this.field(`selectedAsset`,()=>this._selectedAsset,e=>{this._selectedAsset=e,e&&(this._propertyTarget=`asset`,this.noticeField(`propertyTarget`))}),this.field(`navigateAsset`,()=>this._navigateAsset,e=>{this._navigateAsset=e}),this.field(`propertyTarget`,()=>this._propertyTarget,e=>{this._propertyTarget=e}),this.field(`gizmoMode`,()=>this._gizmoManager.mode,e=>{this._gizmoManager.setMode(e)}),this.field(`transformOrientation`,()=>this._gizmoManager.orientation,e=>{this._gizmoManager.setOrientation(e)}),this.field(`modalStatus`,()=>this._modalStatus,{noExport:!0}),this.field(`panelLayout`,()=>this._panelLayout,e=>this._panelLayout=e,{hidden:!0}),this._animate()}bootstrap(e){e&&this.deserialize(e),this._resize()}deserialize(e){for(let t of Object.keys(e)){let e=t.match(/^viewports\/([^/]+)\//);e&&this._registerViewportFields(e[1])}super.deserialize(e)}get engine(){return this._engine}get api(){return this._api}get audioBuffer(){return this._audioBuffer}get disposed(){return this._disposed}get viewports(){return this._viewports}get activeViewport(){return this._activeViewport}get assetPreviewManager(){return this._assetPreviewManager}get draw(){return this._draw}createViewport(e,t){this._registerViewportFields(e);let n=this._viewportSettings.get(e),r=this._engine,i=new Av({id:e,engine:r,draw:this._draw,canvas:t,gizmoManager:this._gizmoManager,helperManager:this._helperManager,api:this._api,getSelectedEntityId:()=>this._selectedEntityId,isEntitySelectable:e=>!this._unselectableEntityIds.has(e.uuid),isGizmoVisible:()=>n.helpers.gizmo,getHelperVisibility:()=>n.helpers,onSelectEntity:e=>this.selectEntity(e),isModalActive:()=>this._modalTransformHandler.active,onEscapeToEditorCamera:()=>this._escapeToEditorCamera(i),onActivate:()=>{this._activeViewport=i},onDispose:()=>{let e=i.editorCamera,t=e.orbitControls;n.cameraView=e.view,n.preview=e.preview,n.cameraPosition=[t.eye.x,t.eye.y,t.eye.z],n.cameraTarget=[t.target.x,t.target.y,t.target.z],this._viewports.splice(this._viewports.indexOf(i),1),this._activeViewport===i&&(this._activeViewport=this._viewports[0]??null)}});i.editorCamera.setView(n.cameraView,r),i.editorCamera.setPreview(n.preview,r),(n.cameraPosition||n.cameraTarget)&&this._setOrbit(i,n.cameraPosition,n.cameraTarget),i.frameDebugger.enable=this._viewType===`debug`,i.resize(this._viewportResolution(n)),this._viewports.push(i),this._activeViewport||=i;for(let t of Fv)this.noticeField(`viewports/${e}/${t}`);return i}pruneViewportSettings(e){for(let t of this._viewportSettings.keys())if(!(e.has(t)||this._viewports.some(e=>e.id===t))){this._viewportSettings.delete(t);for(let e of[``,`helpers/`,`camera/`,...Fv])this.removeField(`viewports/${t}/${e}`)}}_registerViewportFields(e){if(this._viewportSettings.has(e))return;let t={cameraView:`editor`,preview:!1,resolutionScale:1,helpers:{...Pv},cameraPosition:null,cameraTarget:null};this._viewportSettings.set(e,t);let n=()=>this._viewports.find(t=>t.id===e)??null,r=this._engine,i=this.fieldDir(`viewports/${e}`);i.field(`cameraView`,()=>n()?.editorCamera.view??t.cameraView,e=>{let i=n();i?i.editorCamera.setView(e,r):t.cameraView=e}),i.field(`preview`,()=>n()?.editorCamera.preview??t.preview,e=>{let i=n();i?i.editorCamera.setPreview(e,r):t.preview=e}),i.field(`resolutionScale`,()=>t.resolutionScale,e=>{t.resolutionScale=Number(e),this._resize()});let a=i.dir(`helpers`);for(let e of Object.keys(Pv))a.field(e,()=>t.helpers[e],n=>{t.helpers[e]=n});let o=i.dir(`camera`);o.field(`position`,()=>{let e=n();if(!e)return t.cameraPosition;let r=e.editorCamera.orbitControls.eye;return[r.x,r.y,r.z]},e=>{let r=n();r?this._setOrbit(r,e,null):t.cameraPosition=e}),o.field(`target`,()=>{let e=n();if(!e)return t.cameraTarget;let r=e.editorCamera.orbitControls.target;return[r.x,r.y,r.z]},e=>{let r=n();r?this._setOrbit(r,null,e):t.cameraTarget=e})}_setOrbit(e,t,n){let r=e.editorCamera.orbitControls;r.setPosition(t?new O(t[0],t[1],t[2]):r.eye.clone(),n?new O(n[0],n[1],n[2]):r.target.clone())}_escapeToEditorCamera(e){e.editorCamera.preview&&this.setField(`viewports/${e.id}/preview`,!1),this.setField(`viewports/${e.id}/cameraView`,`editor`)}_animate(){if(!this._disposed){if(!this._isExporting){for(let e of this._viewports)e.editorCamera.updateBeforeRender(this._engine);this._engine.update(),this._helperManager.sync(this._engine,this._selectedEntityId);let e=this._selectedEntityId?this._engine.root.findEntityByUUID(this._selectedEntityId)??null:null;for(let t of this._viewports)this._enableRender&&this._engine.render(t.view),this._renderOverlay(t,e),this._draw.drawToCanvas(t.view,t.canvas);let t=this._externalWindow;t&&(this._enableRender&&this._engine.render(t.view),this._draw.drawToCanvas(t.view,t.canvas)),this._engine.frame.playing&&((this._engine.frame.current<0||this._engine.frame.current>this._engine.frameSetting.duration)&&this._engine.seek(0),this._frameLoop.enabled&&(this._engine.frame.current<this._frameLoop.start||this._engine.frame.current>this._frameLoop.end)&&this._engine.seek(this._frameLoop.start)),this.emit(`frame`)}window.requestAnimationFrame(this._animate.bind(this))}}_renderOverlay(e,t){let n=e.editorCamera.getCameraEntity(this._engine),r=e.editorCamera.preview,i=e.view,a=this._viewportSettings.get(e.id).helpers;r||(a.grid&&this._gridRenderer.render(i,n,this._engine),this._helperManager.render(i,n,a),a.wireframe&&this._wireframeRenderer.render(i,n,this._engine));let o=r||!a.gizmo||this._modalTransformHandler.active;this._gizmoManager.render(i,o?null:t,n,this._engine),this._constraintAxisRenderer.render(i,this._modalTransformHandler.constraintDisplay,n,this._engine),!r&&a.outline&&this._selectionOutline.render(i,t,n),e.frameDebugger.enable&&e.frameDebugger.draw()}get isExporting(){return this._isExporting}get exportProgress(){return this._exportProgress}async exportMP4(){if(this._isExporting)return;this._isExporting=!0,this._exportProgress=null,this.emit(`update/export`);let e=this._engine.frame.playing;this._engine.stop();try{let e=await this._sceneExporter.export({fps:this._engine.frameSetting.fps,duration:this._engine.frameSetting.duration,resolution:this._baseResolution.clone()},e=>{this._exportProgress=e,this.emit(`update/export`)});xv.download(e)}catch(e){console.error(`Export failed:`,e)}this._isExporting=!1,this._exportProgress=null,this.emit(`update/export`),e&&this._engine.play()}selectEntity(e){this.setField(`selectedEntityId`,e?e.uuid:null)}togglePlay(){this._engine.frame.playing?this._engine.stop():this._engine.play(),this._engine.emit(`update/frame/play`,[this._engine.frame])}syncToSceneCamera(){let e=this._activeViewport;e&&(this._escapeToEditorCamera(e),e.editorCamera.syncFromSceneCamera(this._engine))}toggleCameraView(){let e=this._activeViewport;e&&(e.editorCamera.usingEditorCamera?(this.setField(`viewports/${e.id}/cameraView`,`camera`),this.setField(`viewports/${e.id}/preview`,!0)):this._escapeToEditorCamera(e))}focusSelected(){let e=this._activeViewport;if(!e||e.editorCamera.preview)return;let t=this._selectedEntityId?this._engine.root.findEntityByUUID(this._selectedEntityId)??null:null;t&&(this.setField(`viewports/${e.id}/cameraView`,`editor`),e.editorCamera.focus(t))}alignEditorView(e,t){let n=this._activeViewport;!n||n.editorCamera.preview||(this.setField(`viewports/${n.id}/cameraView`,`editor`),n.editorCamera.alignView(e,t))}toggleEditorProjection(){let e=this._activeViewport;!e||e.editorCamera.preview||(this.setField(`viewports/${e.id}/cameraView`,`editor`),e.editorCamera.toggleProjection())}_getEditableSelectedEntity(){if(!this._selectedEntityId)return null;let e=this._engine.root.findEntityByUUID(this._selectedEntityId);return!e||e.initiator!==`user`||!e.parent?null:e}deleteSelected(){let e=this._getEditableSelectedEntity();e&&(this._api.deleteEntity(e),this.selectEntity(null))}duplicateSelected(){let e=this._getEditableSelectedEntity();if(!e)return;let t=this._api.duplicateEntity(e);this.selectEntity(t),this._modalTransformHandler.start(`translate`)}requestRenameSelected(){let e=this._getEditableSelectedEntity();e&&this.emit(`request/renameEntity`,[e])}stepFrame(e){let t=this._engine.frameSetting.fps;if(t<=0)return;let n=Math.round(this._engine.time.code*t),r=Math.max(0,n+e);this._engine.seek(r*60/t)}seekToStart(){this._engine.seek(0)}enterKeyField(e){this._hoveredKeyField=e}leaveKeyField(e){let t=this._hoveredKeyField;t&&t.target===e.target&&t.path===e.path&&(this._hoveredKeyField=null)}insertKeys(e){try{this._api.insertKeys(e)}catch(e){this.emit(`message`,[e.message]);return}this._engine.frame.playing||this._engine.seek(ns(this._engine))}deleteKeys(e){this._api.deleteKeys(e)}_onModalKey(e){if(this._timelineModal&&this._timelineModal.handleKeyDown(e))return!0;if(this._hoveredTimeline&&!this._modalTransformHandler.active){let t=wf(e);if(t)return this._hoveredTimeline.transformKeys(t),!0}return this._modalTransformHandler.handleKeyDown(e)}enterTimeline(e){this._hoveredTimeline=e}leaveTimeline(e){this._hoveredTimeline===e&&(this._hoveredTimeline=null)}beginTimelineModal(e){this._timelineModal=e}endTimelineModal(e){this._timelineModal===e&&(this._timelineModal=null)}setModalStatus(e){this._modalStatus!==e&&(this._modalStatus=e,this.noticeField(`modalStatus`))}get copiedCurveId(){return this._copiedCurveId}copyCurve(e){this._copiedCurveId=e}pasteCurve(e,t){let n=this._copiedCurveId;n&&this._runKeyFrameCommand(()=>this._api.pasteCurve(e,n,t))}unlinkCurve(e){this._runKeyFrameCommand(()=>this._api.unlinkCurve(e))}setCurveLinkSettings(e,t){this._runKeyFrameCommand(()=>this._api.setCurveLinkSettings(e,t))}_runKeyFrameCommand(e){try{e()}catch(e){this.emit(`message`,[e.message])}}_onKeyFrameShortcut(e){let t=this._hoveredKeyField;if(t){e?this.deleteKeys([t]):this.insertKeys([t]);return}if(e)return;let n=this._activeViewport;if(!n||!n.hovered||!this._selectedEntityId)return;let r=this._engine.root.findEntityByUUID(this._selectedEntityId);r&&this.emit(`request/insertKeyMenu`,[r])}createEntity(e,t){let n=this._engine.createEntity({name:t});return n.initiator=`user`,e.add(n),n}deleteEntity(e){e.disposeRecursive();let t=e.parent;t&&t.remove(e)}save(){this.emit(`save`,[this.exportEngine(),this.exportEditor()])}exportEditor(){return this.serialize({mode:`export`})}exportEngine(){return Ci(this._engine.serialize({mode:`export`}))}openInExternalWindow(){if(this._externalWindow){this._externalWindow.window.focus();return}let e=window.open(``,`_blank`);if(!e)return;let t=e.document.createElement(`canvas`);t.style.width=`100%`,t.style.height=`100%`,t.style.objectFit=`contain`,t.style.cursor=`none`,e.document.body.style.margin=`0`,e.document.body.style.background=`#000`,e.document.body.appendChild(t);let n=this._engine.createView({offscreen:!0});this._externalWindow={window:e,canvas:t,view:n},e.addEventListener(`unload`,()=>{this.closeExternalWindow()}),this._resize()}closeExternalWindow(){let e=this._externalWindow;e&&(this._externalWindow=null,e.view.dispose(),e.window.close())}_resize(){let e=this._baseResolution;this.engine.setSize(e),this._draw.resize(e);for(let e of this._viewports)e.resize(this._viewportResolution(this._viewportSettings.get(e.id)));this._externalWindow&&(this._externalWindow.canvas.width=e.x,this._externalWindow.canvas.height=e.y)}_viewportResolution(e){return this._baseResolution.clone().multiply(e.resolutionScale)}dispose(){this._disposed=!0,this._api.dispose(),this._keyboardHandler.dispose(),this._modalTransformHandler.dispose(),this._assetPreviewManager.dispose(),this.closeExternalWindow();for(let e of[...this._viewports])e.dispose()}}})))()}function Rv(){return(Rv=t((()=>{gu(),Lv(),Ko(),Rs()})))()}var zv,Bv;function Vv(){return(Vv=t((()=>{zv=i(),R(),Bv=e=>{let{editor:t}=L(),n=(0,zv.useRef)(e);n.current=e,(0,zv.useEffect)(()=>{let e=()=>{n.current()};return t.on(`frame`,e),()=>{t.off(`frame`,e)}},[t])}})))()}var Hv,Uv,Wv,Gv;function Kv(){return(Kv=t((()=>{Hv=`CurveLinkForm__form___LmZvc`,Uv=`CurveLinkForm__title___LmZvc`,Wv=`CurveLinkForm__footer___LmZvc`,Gv={form:Hv,title:Uv,footer:Wv}})))()}var qv,Jv,Yv;function Xv(){return(Xv=t((()=>{qv=i(),E(),Kv(),Jv=o(),Yv=e=>{let[t,n]=(0,qv.useState)(e.info.name||``),[r,i]=(0,qv.useState)(e.info.scale),[a,o]=(0,qv.useState)(e.info.offset),s=()=>{e.onSubmit({name:t,scale:r,offset:a})},l=null;return e.info.fixedScale||(l=(0,Jv.jsxs)(Jv.Fragment,{children:[(0,Jv.jsx)(D,{title:`Scale`,children:(0,Jv.jsx)(S,{value:r,onChange:i})}),(0,Jv.jsx)(D,{title:`Offset`,children:(0,Jv.jsx)(S,{value:a,onChange:o})})]})),(0,Jv.jsxs)(`div`,{className:Gv.form,children:[(0,Jv.jsxs)(`div`,{className:Gv.title,children:[`Link Settings (`,e.info.curveId,` / `,e.info.uses,` uses)`]}),(0,Jv.jsx)(D,{title:`Name`,children:(0,Jv.jsx)(ee,{value:t,onChange:n})}),l,(0,Jv.jsxs)(`div`,{className:Gv.footer,children:[(0,Jv.jsx)(c,{onClick:e.onClose,children:`Cancel`}),(0,Jv.jsx)(c,{onClick:s,children:`OK`})]})]})},Yv.__docgenInfo={description:``,methods:[],displayName:`CurveLinkForm`,props:{info:{required:!0,tsType:{name:`signature`,type:`object`,raw:`{
+	curveId: string;
+	name: string | undefined;
+	scale: number;
+	offset: number;
+	// このカーブを指しているリンクの数（シーン全体）。2 以上なら共有している
+	uses: number;
+	// select とイベントは倍率・足し算を 1 / 0 に固定し、設定に出さない
+	fixedScale: boolean;
+}`,signature:{properties:[{key:`curveId`,value:{name:`string`,required:!0}},{key:`name`,value:{name:`union`,raw:`string | undefined`,elements:[{name:`string`},{name:`undefined`}],required:!0}},{key:`scale`,value:{name:`number`,required:!0}},{key:`offset`,value:{name:`number`,required:!0}},{key:`uses`,value:{name:`number`,required:!0}},{key:`fixedScale`,value:{name:`boolean`,required:!0}}]}},description:``},onSubmit:{required:!0,tsType:{name:`signature`,type:`function`,raw:`( settings: CurveLinkSettings ) => void`,signature:{arguments:[{type:{name:`signature`,type:`object`,raw:`{
+	name: string;
+	scale: number;
+	offset: number;
+}`,signature:{properties:[{key:`name`,value:{name:`string`,required:!0}},{key:`scale`,value:{name:`number`,required:!0}},{key:`offset`,value:{name:`number`,required:!0}}]}},name:`settings`}],return:{name:`void`}}},description:``},onClose:{required:!0,tsType:{name:`signature`,type:`function`,raw:`() => void`,signature:{arguments:[],return:{name:`void`}}},description:``}}}})))()}var Zv,Qv,$v,ey,ty,ny,ry;function iy(){return(iy=t((()=>{Zv=i(),Rv(),E(),Vv(),R(),Xv(),Qv=[`x`,`y`,`z`,`w`],$v=[`r`,`g`,`b`,`a`],ey=(e,t)=>{if(e.length!=t.length)return!1;for(let n=0;n<e.length;n++)if(e[n].curveId!=t[n].curveId||e[n].label!=t[n].label||e[n].uses!=t[n].uses)return!1;return!0},ty=e=>{let t=e.target.closest(`[data-element]`);return!t||!e.currentTarget.contains(t)?null:Number(t.getAttribute(`data-element`))},ny=(e,t)=>{let n=e&&e.format;return n&&n.type==`vector`&&Qv[t]?Qv[t]:n&&n.type==`color`&&$v[t]?$v[t]:String(t)},ry=(e,t)=>{let{editor:n,engine:r}=L(),{open:i,closeAll:a}=w(),o=(0,Zv.useMemo)(()=>({target:e,path:t}),[e,t]),s=as(o),[c,l]=(0,Zv.useState)(!1),[u,d]=(0,Zv.useState)(!1),[f,p]=(0,Zv.useState)(!1),[m,h]=(0,Zv.useState)([]);if(Bv(()=>{if(!s)return;let e=xs(r,o,ns(r),r.frame.current);l(e!==null),d(e!==null&&e.keyed),p(e!==null&&e.changed);let t=Os(r,o);h(e=>ey(e,t)?e:t)}),(0,Zv.useEffect)(()=>()=>{n.leaveKeyField(o)},[n,o]),!s)return{state:null,shared:m,rowProps:void 0};let g=(e,t,o)=>{let s=[],c=Es(r,e),l=n.copiedCurveId;return c&&s.push({label:`Copy Curve`,onClick:()=>{n.copyCurve(c.curveId),a()}}),l&&r.curves[l]&&(s.push({label:`Paste Curve (Link)`,onClick:()=>{n.pasteCurve(e,`link`),a()}}),s.push({label:`Paste Curve (Duplicate)`,onClick:()=>{n.pasteCurve(e,`duplicate`),a()}})),c&&c.uses>1&&s.push({label:`Unlink Curve`,onClick:()=>{n.unlinkCurve(e),a()}}),c&&s.push({label:`Link Settings`,onClick:()=>{a();let r=(0,Zv.createElement)(Yv,{info:c,onSubmit:t=>{n.setCurveLinkSettings(e,t),a()},onClose:a});i(r,ie(t,o))}}),s},_=r=>{r.preventDefault();let s=[{label:`Insert Keyframe`,onClick:()=>{n.insertKeys([o]),a()}}];u&&s.push({label:`Delete Keyframe`,onClick:()=>{n.deleteKeys([o]),a()}});let c=0;if(Array.isArray(e.getField(t))&&(c=ty(r)),c!==null)for(let n of g({target:e,path:t,element:c},r.clientX,r.clientY))s.push(n);else{let n=e.getFieldOpt(t),i=Ds(o);for(let a=0;a<i;a++){let i=g({target:e,path:t,element:a},r.clientX,r.clientY);i.length!=0&&s.push({label:`Curve `+ny(n,a),children:i})}}i((0,Zv.createElement)(ce,{title:t,items:s}),ie(r.clientX,r.clientY))},v=null;return c&&(v={keyed:u,changed:f}),{state:v,shared:m,rowProps:{onPointerEnter:()=>n.enterKeyField(o),onPointerLeave:()=>n.leaveKeyField(o),onContextMenu:_}}}})))()}var ay,oy;function sy(){return(sy=t((()=>{ay=i(),R(),oy=(e,t)=>{let{editor:n}=L(),r=(0,ay.useRef)(null);return{onChange:i=>{r.current?r.current.set(i):n.api.setField(e,t,i)},onDragStart:()=>{r.current=n.api.beginEdit(e,t)},onDragEnd:()=>{r.current&&r.current.commit(),r.current=null},onDragCancel:()=>{r.current&&r.current.cancel(),r.current=null}}}})))()}var cy,ly;function uy(){return(uy=t((()=>{cy=i(),La(),ly=()=>{let e=(0,cy.useContext)(Ia);if(!e)throw Error(`SerializeFieldViewContext is not defined`);return e}})))()}var dy,fy;function py(){return(py=t((()=>{dy=`ValueArray__container___LmNvb`,fy={container:dy}})))()}var my,hy;function gy(){return(gy=t((()=>{i(),E(),ca(),py(),my=o(),hy=e=>{let t=[],n=e.value,r=e.format,i=r?.type==`array`?r.labels:void 0;if(n===void 0)return null;for(let r=0;r<n.length;r++){let a=n[r],o=r.toString();i&&(o+=`/ `+i(a,r)),t.push((0,my.jsx)(`div`,{"data-element":r,children:(0,my.jsx)(D,{title:o,children:(0,my.jsx)(sa,{...e,value:a,onChange:t=>{let i=n.concat();i[r]=t,e.onChange&&e.onChange(i)}})})},r))}return(0,my.jsx)(`div`,{className:fy.container,children:t})},hy.__docgenInfo={description:``,methods:[],displayName:`ValueArray`,props:{value:{required:!0,tsType:{name:`union`,raw:`T | undefined`,elements:[{name:`T`},{name:`undefined`}]},description:``},onChange:{required:!1,tsType:{name:`signature`,type:`function`,raw:`( value: T ) => void`,signature:{arguments:[{type:{name:`T`},name:`value`}],return:{name:`void`}}},description:``},onDragStart:{required:!1,tsType:{name:`signature`,type:`function`,raw:`() => void`,signature:{arguments:[],return:{name:`void`}}},description:``},onDragEnd:{required:!1,tsType:{name:`signature`,type:`function`,raw:`() => void`,signature:{arguments:[],return:{name:`void`}}},description:``},onDragCancel:{required:!1,tsType:{name:`signature`,type:`function`,raw:`() => void`,signature:{arguments:[],return:{name:`void`}}},description:``},format:{required:!1,tsType:{name:`SerializableFieldFormat`},description:``},label:{required:!1,tsType:{name:`union`,raw:`string | React.ReactNode`,elements:[{name:`string`},{name:`ReactReactNode`,raw:`React.ReactNode`}]},description:``},readOnly:{required:!1,tsType:{name:`boolean`},description:``},step:{required:!1,tsType:{name:`number`},description:``},min:{required:!1,tsType:{name:`number`},description:``},max:{required:!1,tsType:{name:`number`},description:``},int:{required:!1,tsType:{name:`boolean`},description:``},disabled:{required:!1,tsType:{name:`boolean`},description:``}}}})))()}var _y,vy;function yy(){return(yy=t((()=>{_y=`SerializeFieldViewValue__action___LmFjd`,vy={action:_y}})))()}var by,xy,Sy;function Cy(){return(Cy=t((()=>{by=e(i(),1),E(),R(),Wa(),Xa(),ro(),iy(),sy(),uy(),ca(),gy(),yy(),xy=o(),Sy=e=>{let{editor:t,engine:n,fieldUIs:r}=L(),{target:i}=ly(),a=oy(i,e.path),o=ry(i,e.path),s=e.field.value,c=typeof s,l=e.field.opt,u=l?.format,d=l?.label||e.path.split(`/`).pop(),f=u&&u.type==`vector`,p=null;o.state&&(p=(0,xy.jsx)(Ya,{state:o.state}));let m=null;o.shared.length>0&&(m=(0,xy.jsx)(no,{curves:o.shared}));let h=(0,xy.jsxs)(xy.Fragment,{children:[d,p,m]}),g=Ua(r,i,e.path);if(g){let r=(0,by.createElement)(g.ui,{value:s,setValue:n=>t.api.setField(i,e.path,n),beginEdit:()=>t.api.beginEdit(i,e.path),target:i,path:e.path,opt:l,engine:n,editor:t});return(0,xy.jsx)(`div`,{...o.rowProps,children:(0,xy.jsx)(D,{title:h,vertical:g.layout===`block`,children:r})})}let _=null;if(Array.isArray(s))_=u?.type==`vector`?(0,xy.jsx)(te,{value:s,...l,...a}):u?.type==`color`?(0,xy.jsx)(b,{value:s,...l,onChange:n=>{t.api.setField(i,e.path,n)}}):(0,xy.jsx)(hy,{value:s,...l,...a});else if(_=(0,xy.jsx)(sa,{value:s,...l,...a}),c===`function`)return(0,xy.jsxs)(`div`,{className:vy.action,...o.rowProps,children:[_,(0,xy.jsxs)(`span`,{children:[p,m]})]});return(0,xy.jsx)(`div`,{...o.rowProps,children:(0,xy.jsx)(D,{title:h,vertical:f,children:_})})},Sy.__docgenInfo={description:``,methods:[],displayName:`SerializeFieldViewValue`,props:{path:{required:!0,tsType:{name:`string`},description:``},field:{required:!0,tsType:{name:`SerializeFieldDirectoryValue`},description:``}}}})))()}var wy,Ty,Ey,Dy;function Oy(){return(Oy=t((()=>{wy=`SerializeFieldViewDir__container___LmNvb`,Ty=`SerializeFieldViewDir__field___LmNvb`,Ey=`SerializeFieldViewDir__block___LmNvb`,Dy={container:wy,field:Ty,block:Ey}})))()}var ky,Ay;function jy(){return(jy=t((()=>{i(),E(),Cy(),Oy(),ky=o(),Ay=e=>{let t=[],n=Object.keys(e.fields.childs);for(let r=0;r<n.length;r++){let i=n[r],a=e.fields.childs[i],{opt:o}=a,c=!1;if(o&&(c=typeof o.hidden==`function`?o.hidden(a.type==`value`?a.value:null):o.hidden||!1),c)continue;let l=`field`+i,u=(e.basePath?e.basePath+`/`:``)+i,d=null;d=a.type===`value`?(0,ky.jsx)(Sy,{path:u,field:a},l):(0,ky.jsx)(`div`,{className:Dy.block,children:(0,ky.jsx)(s,{accordion:!0,label:i,children:(0,ky.jsx)(Ay,{fields:a,basePath:u})},l)},l),d&&t.push(d)}return(0,ky.jsx)(`div`,{className:Dy.container,children:t})},Ay.__docgenInfo={description:``,methods:[],displayName:`SerializeFieldViewDir`,props:{fields:{required:!0,tsType:{name:`MXP.SerializeFieldDirectoryFolder`},description:``},basePath:{required:!1,tsType:{name:`string`},description:``}}}})))()}var My,Ny;function Py(){return(Py=t((()=>{La(),Ha(),jy(),My=o(),Ny=e=>{let t=Va(e),n=t.target.serializeToDirectory();if(e.filter){let t=n.childs[e.filter];t&&t.type===`folder`&&(n=t)}return(0,My.jsx)(Ia.Provider,{value:t,children:(0,My.jsx)(Ay,{fields:n,basePath:e.filter})})},Ny.__docgenInfo={description:``,methods:[],displayName:`SerializeFieldView`}})))()}var J;function Fy(){return(Fy=t((()=>{Ba(),J=(e,t)=>{let n=n=>{e?.setField(t,n)},{fields:r}=za(e,[t]);return[r&&r[t],n]}})))()}var Iy,Ly;function Ry(){return(Ry=t((()=>{Iy=`ComponentAdd__compAdd___LmNvb`,Ly={compAdd:Iy}})))()}var zy,By;function Vy(){return(Vy=t((()=>{E(),Da(),R(),Ry(),zy=o(),By=e=>{let{editor:t}=L(),{open:n,closeAll:r}=w(),i=Ea(n=>{t.api.addComponent(e.entity,n.component),r()});return(0,zy.jsx)(`div`,{className:Ly.compAdd,children:(0,zy.jsx)(c,{onClick:e=>{n((0,zy.jsx)(ce,{items:i}),ie(e.clientX,e.clientY))},children:`Add Component`})})},By.__docgenInfo={description:``,methods:[],displayName:`ComponentAdd`,props:{entity:{required:!0,tsType:{name:`MXP.Entity`},description:``}}}})))()}var Hy,Uy,Wy,Gy,Ky,qy;function Jy(){return(Jy=t((()=>{Hy=`ComponentView__compoView___LmNvb`,Uy=`ComponentView__head___LmNvb`,Wy=`ComponentView__name___LmNvb`,Gy=`ComponentView__check___LmNvb`,Ky=`ComponentView__propertyBlock___LmNvb`,qy={compoView:Hy,head:Uy,name:Wy,check:Gy,delete:`ComponentView__delete___LmNvb`,propertyBlock:Ky}})))()}var Yy,Xy,Zy,Qy;function $y(){return($y=t((()=>{Yy=i(),Ri(),E(),R(),Xa(),ro(),iy(),Py(),Fy(),Jy(),Xy=o(),Zy=e=>{let t=Object.keys(e.childs);for(let n=0;n<t.length;n++){let r=e.childs[t[n]],{opt:i}=r,a=!1;if(i&&(a=typeof i.hidden==`function`?i.hidden(r.type===`value`?r.value:null):i.hidden||!1),!a&&(r.type===`value`||Zy(r)))return!0}return!1},Qy=({component:e})=>{let{editor:t}=L(),[n]=J(e,`enabled`),r=ry(e,`enabled`),i=e.initiator!==`user`,a=Zy(e.serializeToDirectory()),o=(0,Yy.useCallback)(n=>{n.stopPropagation();let r=e.entity;if(r){for(let[n,i]of r.components)if(i.uuid===e.uuid){t.api.removeComponent(r,n,e);break}}},[e,t]),c=(0,Yy.useCallback)(n=>{t.api.setField(e,`enabled`,n)},[e,t]),l=null;r.state&&(l=(0,Xy.jsx)(Ya,{state:r.state}));let d=null;r.shared.length>0&&(d=(0,Xy.jsx)(no,{curves:r.shared}));let f=(0,Xy.jsxs)(`div`,{className:qy.head,children:[(0,Xy.jsx)(`div`,{className:qy.check,...r.rowProps,children:(0,Xy.jsx)(y,{checked:n||!1,onChange:c,readOnly:i})}),l,d,(0,Xy.jsx)(`div`,{className:qy.name,children:I.resources.getComponentName(e)}),(0,Xy.jsx)(`div`,{className:qy.delete,children:(0,Xy.jsx)(`button`,{onClick:o,children:(0,Xy.jsx)(u,{})})})]});return(0,Xy.jsx)(`div`,{className:qy.compoView,"data-disable_component":i,children:(0,Xy.jsx)(`div`,{className:qy.content,children:(0,Xy.jsx)(s,{label:f,accordion:a,bg:!0,defaultClose:!1,children:a&&(0,Xy.jsx)(Ny,{target:e})})})})},Qy.__docgenInfo={description:``,methods:[],displayName:`ComponentView`,props:{component:{required:!0,tsType:{name:`MXP.Component`},description:``}}}})))()}var eb,tb;function nb(){return(nb=t((()=>{eb=`ComponentList__container___LmNvb`,tb={container:eb}})))()}var rb,ib,ab;function ob(){return(ob=t((()=>{rb=i(),Fy(),$y(),nb(),ib=o(),ab=({entity:e})=>{let[t]=J(e,`components`),n=(0,rb.useMemo)(()=>{let n=[];return t?(t.forEach(t=>{let r=e.getComponentByUUID(t);r&&n.push((0,ib.jsx)(Qy,{component:r},r.uuid))}),n):null},[t,e]);return(0,ib.jsx)(`div`,{className:tb.container,children:n})},ab.__docgenInfo={description:``,methods:[],displayName:`ComponentList`}})))()}var sb,cb,lb;function ub(){return(ub=t((()=>{sb=i(),E(),R(),Py(),Fy(),Vy(),ob(),cb=o(),lb=()=>{let{editor:e,engine:t}=L(),[n]=J(e,`selectedEntityId`),r=(0,sb.useMemo)(()=>{if(n)return t.root.findEntityByUUID(n)},[t,n]);return r?(0,cb.jsxs)(cb.Fragment,{children:[(0,cb.jsx)(s,{label:`Fields`,accordion:!0,children:(0,cb.jsx)(Ny,{target:r})}),(0,cb.jsxs)(s,{label:`Components`,accordion:!0,children:[(0,cb.jsx)(ab,{entity:r}),(0,cb.jsx)(By,{entity:r})]})]}):null},lb.__docgenInfo={description:``,methods:[],displayName:`EntityProperty`}})))()}var db,fb,pb;function mb(){return(mb=t((()=>{db=`ExportControl__exportControl___LmV4c`,fb=`ExportControl__exportControl_inner___LmV4c`,pb={exportControl:db,exportControl_inner:fb,export:`ExportControl__export___LmV4c`}})))()}var hb,gb,_b;function vb(){return(vb=t((()=>{hb=i(),E(),R(),mb(),gb=o(),_b=()=>{let{editor:e}=L(),[t,n]=(0,hb.useState)(null);return(0,hb.useEffect)(()=>{let t=()=>{n(e.exportProgress?{...e.exportProgress}:null)};return e.on(`update/export`,t),()=>{e.off(`update/export`,t)}},[e]),(0,gb.jsx)(`div`,{className:pb.exportControl,children:(0,gb.jsx)(`div`,{className:pb.exportControl_inner,children:(0,gb.jsx)(s,{label:`MP4`,accordion:!0,children:(0,gb.jsx)(`div`,{className:pb.export,children:(0,gb.jsx)(c,{onClick:()=>{e.isExporting||e.exportMP4()},children:t?`Exporting... ${Math.floor(t.current/t.total*100)}%`:`Export MP4`})})})})})},_b.__docgenInfo={description:``,methods:[],displayName:`ExportControl`}})))()}var yb,bb;function xb(){return(xb=t((()=>{yb=i(),bb=(0,yb.createContext)(null)})))()}var Sb,Cb;function wb(){return(wb=t((()=>{Sb=i(),xb(),Cb=()=>{let e=(0,Sb.useContext)(bb);if(e===null)throw Error(`useOREngine must be used within a OREngineProvider`);return e}})))()}var Tb,Eb,Db,Ob,kb,Ab,jb,Mb,Nb,Pb,Fb,Ib,Lb,Rb,zb,Bb,Vb,Hb,Ub;function Wb(){return(Wb=t((()=>{Tb=`GPUTimer__container___LmNvb`,Eb=`GPUTimer__headerRow___LmNvb`,Db=`GPUTimer__totalTime___LmNvb`,Ob=`GPUTimer__toggleButton___LmNvb`,kb=`GPUTimer__controls___LmNvb`,Ab=`GPUTimer__control___LmNvb`,jb=`GPUTimer__controlLabel___LmNvb`,Mb=`GPUTimer__select___LmNvb`,Nb=`GPUTimer__input___LmNvb`,Pb=`GPUTimer__group___LmNvb`,Fb=`GPUTimer__item___LmNvb`,Ib=`GPUTimer__clickable___LmNvb`,Lb=`GPUTimer__itemRow___LmNvb`,Rb=`GPUTimer__itemName___LmNvb`,zb=`GPUTimer__itemTime___LmNvb`,Bb=`GPUTimer__itemStats___LmNvb`,Vb=`GPUTimer__progressBar___LmNvb`,Hb=`GPUTimer__progressFill___LmNvb`,Ub={container:Tb,headerRow:Eb,totalTime:Db,toggleButton:Ob,controls:kb,control:Ab,controlLabel:jb,select:Mb,input:Nb,group:Pb,item:Fb,clickable:Ib,itemRow:Lb,itemName:Rb,itemTime:zb,itemStats:Bb,progressBar:Vb,progressFill:Hb}})))()}var Gb,Kb;function qb(){return(qb=t((()=>{Gb=class{buffer;index;size;filled;constructor(e){this.size=e,this.buffer=Array(e),this.index=0,this.filled=!1}push(e){this.buffer[this.index]=e,this.index=(this.index+1)%this.size,!this.filled&&this.index===0&&(this.filled=!0)}getAverage(){let e=this.filled?this.size:this.index;if(e===0)return 0;let t=0;for(let n=0;n<e;n++)t+=this.buffer[n];return t/e}getMax(){let e=this.filled?this.size:this.index;if(e===0)return 0;let t=this.buffer[0];for(let n=1;n<e;n++)this.buffer[n]>t&&(t=this.buffer[n]);return t}getMin(){let e=this.filled?this.size:this.index;if(e===0)return 0;let t=this.buffer[0];for(let n=1;n<e;n++)this.buffer[n]<t&&(t=this.buffer[n]);return t}getCount(){return this.filled?this.size:this.index}},Kb=class{buffers;windowSize;currentData;constructor(e=30){this.windowSize=e,this.buffers=new Map,this.currentData=new Map}update(e){let t=performance.now();for(let n=0;n<e.length;n++){let r=e[n],i=r.name.split(`/`),a=i[0]||`unknown`,o,s=i[i.length-1],c=s&&s.match(/\[([^\]]+)\]/);c&&(o=c[1]);let l={name:r.name,duration:r.duration,timestamp:t,renderType:a},u=this.buffers.get(r.name);u||(u=new Gb(this.windowSize),this.buffers.set(r.name,u)),u.push(r.duration),this.currentData.set(r.name,{...l,entityId:o})}}getStatistics(){let e=[],t=0,n=performance.now(),r=[];return this.currentData.forEach((e,t)=>{n-e.timestamp>1e3&&r.push(t)}),r.forEach(e=>{this.currentData.delete(e)}),this.currentData.forEach(e=>{t+=e.duration}),this.currentData.forEach(n=>{let r=this.buffers.get(n.name);r&&e.push({name:n.name,renderType:n.renderType,entityId:n.entityId,current:n.duration,avg:r.getAverage(),max:r.getMax(),min:r.getMin(),samples:r.getCount(),percentage:t>0?n.duration/t*100:0})}),e}getTotalTime(){let e=0;return this.currentData.forEach(t=>{e+=t.duration}),e}}})))()}var Jb,Y,Yb,Xb,Zb,Qb;function $b(){return($b=t((()=>{Jb=i(),wb(),R(),Wb(),qb(),Y=o(),Yb=e=>{if(e<2){let t=e/2;return`rgb(${Math.floor(100+t*100)}, 200, 100)`}if(e<5){let t=(e-2)/3;return`rgb(200, ${Math.floor(200-t*50)}, 100)`}if(e<10){let t=(e-5)/5;return`rgb(200, ${Math.floor(150-t*80)}, ${Math.floor(100-t*50)})`}return`rgb(200, 70, 50)`},Xb=e=>e>=10?e.toFixed(1):e>=1?e.toFixed(2):e.toFixed(3),Zb=e=>e.replace(/\[([^\]]{4,})\]/g,(e,t)=>`[${t.slice(0,3)}]`),Qb=()=>{let{editor:e}=L(),{engine:t}=Cb(),[n,r]=(0,Jb.useState)([]),[i,a]=(0,Jb.useState)(0),[o,s]=(0,Jb.useState)(`all`),[c,l]=(0,Jb.useState)(0),[u,d]=(0,Jb.useState)(`time`),[f,p]=(0,Jb.useState)(!1),m=(0,Jb.useRef)(new Kb(30)),h=(0,Jb.useRef)(0),g=(0,Jb.useRef)(!1),_=(0,Jb.useRef)(0),v=(0,Jb.useCallback)(n=>{if(!n)return;let r=t.root.findEntityByUUID(n);r&&e.selectEntity(r)},[t,e]);(0,Jb.useEffect)(()=>{let e=t.renderer,n=m.current,i=e=>{f&&(n.update(e),g.current=!0)},o=e=>{g.current&&e-_.current>=300&&(r(n.getStatistics()),a(n.getTotalTime()),g.current=!1,_.current=e),h.current=requestAnimationFrame(o)};return e.on(`timer`,i),h.current=requestAnimationFrame(o),()=>{e.off(`timer`,i),cancelAnimationFrame(h.current)}},[t,f]);let y=n.filter(e=>!(o!==`all`&&e.renderType!==o||e.avg<c)),b=Array.from(new Set(n.map(e=>e.renderType))),x=[...y].sort((e,t)=>u===`time`?t.avg-e.avg:e.name.localeCompare(t.name)),S=i>0?Math.floor(1e3/i):0;return(0,Y.jsxs)(`div`,{className:Ub.container,children:[(0,Y.jsxs)(`div`,{className:Ub.headerRow,children:[(0,Y.jsxs)(`span`,{className:Ub.totalTime,children:[Xb(i),`ms (`,S,`fps)`]}),(0,Y.jsx)(`button`,{className:Ub.toggleButton,onClick:()=>p(!f),title:f?`Stop timer`:`Start timer`,children:f?`⏸`:`▶`})]}),(0,Y.jsxs)(`div`,{className:Ub.controls,children:[(0,Y.jsxs)(`div`,{className:Ub.control,children:[(0,Y.jsx)(`span`,{className:Ub.controlLabel,children:`Type`}),(0,Y.jsxs)(`select`,{className:Ub.select,value:o,onChange:e=>s(e.target.value),children:[(0,Y.jsx)(`option`,{value:`all`,children:`All`}),b.map(e=>(0,Y.jsx)(`option`,{value:e,children:e},e))]})]}),(0,Y.jsxs)(`div`,{className:Ub.control,children:[(0,Y.jsx)(`span`,{className:Ub.controlLabel,children:`Min`}),(0,Y.jsx)(`input`,{className:Ub.input,type:`number`,min:`0`,step:`0.1`,value:c,onChange:e=>l(parseFloat(e.target.value)||0)})]}),(0,Y.jsxs)(`div`,{className:Ub.control,children:[(0,Y.jsx)(`span`,{className:Ub.controlLabel,children:`Sort`}),(0,Y.jsxs)(`select`,{className:Ub.select,value:u,onChange:e=>d(e.target.value),children:[(0,Y.jsx)(`option`,{value:`time`,children:`Time`}),(0,Y.jsx)(`option`,{value:`name`,children:`Name`})]})]})]}),(0,Y.jsx)(`div`,{className:Ub.group,children:x.map((e,t)=>{let n=Yb(e.avg),r=i>0?e.avg/i*100:0,a=!!e.entityId;return(0,Y.jsxs)(`div`,{className:`${Ub.item} ${a?Ub.clickable:``}`,onClick:()=>v(e.entityId),children:[(0,Y.jsxs)(`div`,{className:Ub.itemRow,children:[(0,Y.jsx)(`span`,{className:Ub.itemName,title:e.name,children:Zb(e.name)}),(0,Y.jsx)(`span`,{className:Ub.itemTime,style:{color:n},children:Xb(e.avg)}),(0,Y.jsx)(`span`,{className:Ub.itemStats,children:Xb(e.max)})]}),(0,Y.jsx)(`div`,{className:Ub.progressBar,children:(0,Y.jsx)(`div`,{className:Ub.progressFill,style:{width:`${r}%`,backgroundColor:n}})})]},e.name+t)})})]})},Qb.__docgenInfo={description:``,methods:[],displayName:`Timer`}})))()}var ex,tx,nx,rx,ix,ax,ox,sx,cx,lx,ux,dx,fx;function px(){return(px=t((()=>{ex=`HierarchyNode__node___Lm5vZ`,tx=`HierarchyNode__self_name___Lm5vZ`,nx=`HierarchyNode__self_name_input___Lm5vZ`,rx=`HierarchyNode__icon___Lm5vZ`,ix=`HierarchyNode__selectable___Lm5vZ`,ax=`HierarchyNode__self___Lm5vZ`,ox=`HierarchyNode__visibility___Lm5vZ`,sx=`HierarchyNode__menu___Lm5vZ`,cx=`HierarchyNode__fold___Lm5vZ`,lx=`HierarchyNode__fold_button___Lm5vZ`,ux=`HierarchyNode__child___Lm5vZ`,dx=`HierarchyNode__child_line___Lm5vZ`,fx={node:ex,self_name:tx,self_name_input:nx,icon:rx,selectable:ix,self:ax,visibility:ox,menu:sx,fold:cx,fold_button:lx,child:ux,child_line:dx}})))()}var mx,hx,gx;function _x(){return(_x=t((()=>{mx=i(),F(),E(),Aa(),R(),Fy(),px(),hx=o(),gx=e=>{let{editor:t,engine:n}=L(),[r]=J(t,`selectedEntityId`),i=r!==void 0&&n.root.findEntityByUUID(r),o=!!(i&&i.uuid==e.entity.uuid),[s]=J(e.entity,`name`),[c,u]=J(e.entity,`visible`),[f,m]=J(t,`unselectableEntityIds`),[h]=J(e.entity,`children`),_=!(f||[]).includes(e.entity.uuid),y=(h||[]).map(e=>n.root.findEntityByUUID(e)).filter(e=>e!==void 0),b=e.depth||0,x=y&&y.concat().sort((e,t)=>e.name.localeCompare(t.name))||[],S=x.length>0,C=b*20,ee=e.entity.initiator==`script`,te=(0,mx.useMemo)(()=>e.entity.getComponent(Ut)?(0,hx.jsx)(p,{size:14}):e.entity.getComponent(zt)?(0,hx.jsx)(l,{size:14}):e.entity.getComponent(N)?(0,hx.jsx)(g,{size:14}):null,[e.entity]),T=e.openNodes.has(e.entity.uuid),E=(0,mx.useCallback)(t=>{e.setNodeOpen(e.entity.uuid,!T),t.stopPropagation()},[T,e]),ne=(0,mx.useCallback)(()=>{t&&t.selectEntity(e.entity)},[t,e.entity]),re=(0,mx.useCallback)(e=>{e.stopPropagation(),u&&u(!c)},[c,u]),ae=(0,mx.useCallback)(t=>{t.stopPropagation();let n=new Set(f||[]);_?n.add(e.entity.uuid):n.delete(e.entity.uuid),m(Array.from(n))},[_,f,m,e.entity.uuid]),[D,oe]=(0,mx.useState)(null),le=(0,mx.useRef)(!1),ue=(0,mx.useCallback)(()=>{ee||oe(e.entity.name)},[ee,e.entity]);(0,mx.useEffect)(()=>{let n=t=>{t===e.entity&&ue()};return t.on(`request/renameEntity`,n),()=>{t.off(`request/renameEntity`,n)}},[t,e.entity,ue]);let de=(0,mx.useCallback)(e=>{e.key===`Enter`&&e.currentTarget.blur(),e.key===`Escape`&&(le.current=!0,e.currentTarget.blur())},[]),fe=(0,mx.useCallback)(()=>{let n=le.current;if(le.current=!1,oe(null),n||D===null)return;let r=D.trim();r!==``&&r!==e.entity.name&&t.api.setField(e.entity,`name`,r)},[D,t,e.entity]),{open:pe,closeAll:me}=w(),he=ka(e.entity),ge=(0,mx.useCallback)(n=>{if(n.preventDefault(),!t||ee)return;t.selectEntity(e.entity);let r=[{label:`Add Entity`,children:he}];e.entity.parent&&r.push({label:`Duplicate`,onClick:()=>{let n=t.api.duplicateEntity(e.entity);t.selectEntity(n),me()}}),r.push({label:`Rename`,onClick:()=>{t.emit(`request/renameEntity`,[e.entity]),me()}},{label:`Delete Entity`,onClick:()=>{t.api.deleteEntity(e.entity),me()}}),pe((0,hx.jsx)(ce,{title:e.entity.name,items:r}),ie(n.clientX,n.clientY))},[t,e.entity,pe,me,ee,he]),_e=(0,hx.jsx)(`p`,{children:s||`-`});return D!==null&&(_e=(0,hx.jsx)(`input`,{className:fx.self_name_input,value:D,autoFocus:!0,onChange:e=>oe(e.target.value),onFocus:e=>e.currentTarget.select(),onKeyDown:de,onBlur:fe,onClick:e=>e.stopPropagation()})),(0,hx.jsxs)(`div`,{className:fx.node,"data-no_export":ee,children:[(0,hx.jsxs)(se,{className:fx.self,style:{paddingLeft:C},onClick:ne,onContextMenu:ge,selected:o,children:[(0,hx.jsx)(`div`,{className:fx.fold,"data-hnode_open":T,children:S&&(0,hx.jsx)(`button`,{className:fx.fold_button,onClick:E,children:(0,hx.jsx)(a,{open:T})})}),te&&(0,hx.jsx)(`div`,{className:fx.icon,children:te}),(0,hx.jsx)(`div`,{className:fx.self_name,onDoubleClick:ue,children:_e}),(0,hx.jsx)(`button`,{className:fx.selectable,onClick:ae,"data-selectable":_,children:(0,hx.jsx)(v,{size:14,selectable:_})}),(0,hx.jsx)(`button`,{className:fx.visibility,onClick:re,"data-visible":c!==!1,children:(0,hx.jsx)(d,{size:14,visible:c!==!1})}),!ee&&(0,hx.jsx)(`button`,{className:fx.menu,onClick:ge,children:`⋯`})]}),S&&(0,hx.jsxs)(`div`,{className:fx.child,"data-open":T,children:[x.map(t=>(0,hx.jsx)(gx,{entity:t,depth:b+1,openNodes:e.openNodes,setNodeOpen:e.setNodeOpen},t.uuid)),(0,hx.jsx)(`div`,{className:fx.child_line,style:{marginLeft:C+4}})]})]})},gx.__docgenInfo={description:``,methods:[],displayName:`HierarchyNode`,props:{depth:{required:!1,tsType:{name:`number`},description:``},entity:{required:!0,tsType:{name:`MXP.Entity`},description:``},openNodes:{required:!0,tsType:{name:`Set`,elements:[{name:`string`}],raw:`Set<string>`},description:``},setNodeOpen:{required:!0,tsType:{name:`signature`,type:`function`,raw:`( uuid: string, open: boolean ) => void`,signature:{arguments:[{type:{name:`string`},name:`uuid`},{type:{name:`boolean`},name:`open`}],return:{name:`void`}}},description:``}}}})))()}var vx;function yx(){return(yx=t((()=>{vx={}})))()}var bx,xx,Sx,Cx,wx,Tx;function Ex(){return(Ex=t((()=>{bx=i(),R(),Fy(),_x(),yx(),xx=o(),Sx=`hierarchyOpenNodes`,Cx=()=>{try{let e=localStorage.getItem(Sx);if(e)return new Set(JSON.parse(e))}catch{}return new Set},wx=e=>{localStorage.setItem(Sx,JSON.stringify(Array.from(e)))},Tx=()=>{let{editor:e,engine:t}=L(),[n]=J(e,`selectedEntityId`),r=t.root,[i,a]=(0,bx.useState)(Cx),o=(0,bx.useCallback)((e,t)=>{a(n=>{let r=new Set(n);return t?r.add(e):r.delete(e),wx(r),r})},[]);return(0,bx.useEffect)(()=>{if(!n)return;let e=r.findEntityByUUID(n);if(!e)return;let t=[],i=e.parent;for(;i;)t.push(i.uuid),i=i.parent;a(e=>{if(t.every(t=>e.has(t)))return e;let n=new Set(e);return t.forEach(e=>n.add(e)),wx(n),n})},[n,r]),(0,xx.jsx)(`div`,{className:vx.hierarchy,children:r&&(0,xx.jsx)(gx,{entity:r,openNodes:i,setNodeOpen:o})})},Tx.__docgenInfo={description:``,methods:[],displayName:`Hierarchy`}})))()}var Dx,Ox,kx,Ax;function jx(){return(jx=t((()=>{Dx=i(),E(),R(),Ox=o(),kx=[{label:`Position`,paths:[`position`]},{label:`Rotation`,paths:[`euler`]},{label:`Scale`,paths:[`scale`]},{label:`All`,paths:[`position`,`euler`,`scale`]}],Ax=()=>{let{editor:e}=L(),{open:t,closeAll:n}=w(),[r,i]=(0,Dx.useState)(null),a=(0,Dx.useRef)({x:0,y:0});return(0,Dx.useEffect)(()=>{let e=e=>{a.current.x=e.clientX,a.current.y=e.clientY};return window.addEventListener(`pointermove`,e),()=>{window.removeEventListener(`pointermove`,e)}},[]),(0,Dx.useEffect)(()=>{let r=r=>{n();let i=[];for(let t of kx)i.push({label:t.label,onClick:()=>{let i=[];for(let e of t.paths)i.push({target:r,path:e});e.insertKeys(i),n()}});t((0,Ox.jsx)(ce,{title:`Insert Keyframe`,items:i}),ie(a.current.x,a.current.y))},o=e=>{i({text:e,anchor:ie(a.current.x,a.current.y)})};return e.on(`request/insertKeyMenu`,r),e.on(`message`,o),()=>{e.off(`request/insertKeyMenu`,r),e.off(`message`,o)}},[e,t,n]),r?(0,Ox.jsx)(ae,{title:`Keyframe`,anchor:r.anchor,onClose:()=>i(null),children:r.text}):null},Ax.__docgenInfo={description:``,methods:[],displayName:`KeyFrame`}})))()}var Mx,Nx;function Px(){return(Px=t((()=>{Mx=`Canvas__container___LmNvb`,Nx={container:Mx}})))()}var Fx,Ix,Lx;function Rx(){return(Rx=t((()=>{Fx=i(),R(),Px(),Ix=o(),Lx=({viewportId:e})=>{let{engine:t,editor:n}=L(),r=(0,Fx.useRef)(null);return(0,Fx.useEffect)(()=>{let i=r.current;if(!t||!i)return;let a=n.createViewport(e,i);return()=>{a.dispose()}},[t,n,e]),(0,Ix.jsx)(`div`,{className:Nx.container,role:`presentation`,"aria-label":`3D Canvas`,children:(0,Ix.jsx)(`canvas`,{ref:r})})},Lx.__docgenInfo={description:``,methods:[],displayName:`Canvas`}})))()}var zx,Bx;function Vx(){return(Vx=t((()=>{zx=`AudioView__audioView___LmF1Z`,Bx={audioView:zx}})))()}var Hx;function Ux(){return(Ux=t((()=>{at(),j(),Hx=class extends tt{wrapperElm;canvas;canvasCtx;viewRangeFrame;viewPort;viewPortRange;musicBuffer;resizeObserver;framePlay;constructor(){super(),this.wrapperElm=null,this.canvas=document.createElement(`canvas`),this.canvasCtx=this.canvas.getContext(`2d`),this.viewPort=[0,0,0,0],this.viewPortRange=[0,0];let e=window.localStorage.getItem(`audioViweRange`);this.viewRangeFrame=e?Number(e):2,this.framePlay={current:0,playing:!1},this.musicBuffer=null,this.resizeObserver=new ResizeObserver(this.onResize.bind(this))}onResize(){if(this.wrapperElm){let e=new O(this.wrapperElm.clientWidth,this.wrapperElm.clientHeight);this.canvas.width=e.x,this.canvas.height=e.y}this.render()}render(){if(this.canvasCtx.fillStyle=`#000`,this.canvasCtx.fillRect(0,0,this.canvas.width,this.canvas.height),this.musicBuffer){this.canvasCtx.strokeStyle=`#888`,this.canvasCtx.fillStyle=`#888`;let e=this.musicBuffer.getChannelData(0),t=this.viewPortRange[0]/60,n=this.musicBuffer.sampleRate*t,r=n/this.canvas.width,i=this.frameToPx(0);this.canvasCtx.beginPath();for(let t=0;t<n;t+=r){let a=Math.floor(t-i*r),o=e[Math.round(a)]*1,s=t/n*this.canvas.width,c=(o+1)*(this.canvas.height/2),l=c,u=c;for(let t=0;t<16;t++){let n=(e[Math.round(a+t/16*r)]*1+1)*(this.canvas.height/2);l>n&&(l=n),u<n&&(u=n)}let d=u-l;d>3&&this.canvasCtx.fillRect(s,l,1,d),t==0?this.canvasCtx.moveTo(s,c):this.canvasCtx.lineTo(s,c)}this.canvasCtx.stroke()}this.canvasCtx.fillStyle=`#555`,this.canvasCtx.fillRect(this.canvas.width/2,0,1,this.canvas.height)}setWrapperElm(e){this.wrapperElm&&this.resizeObserver.observe(this.wrapperElm),this.wrapperElm=e,this.resizeObserver.observe(e),this.wrapperElm.appendChild(this.canvas),this.onResize()}setFramePlaying(e){this.framePlay=e,this.viewPort=[this.framePlay.current-this.viewRangeFrame,0,this.framePlay.current+this.viewRangeFrame,0],this.viewPortRange=[this.viewPort[2]-this.viewPort[0],this.viewPort[3]-this.viewPort[1]],this.render()}setViewRangeFrame(e){this.viewRangeFrame=e,this.setFramePlaying(this.framePlay),localStorage.setItem(`audioViweRange`,String(this.viewRangeFrame))}setMusicBuffer(e){this.musicBuffer=e,this.render()}frameToPx(e){return(e-this.viewPort[0])/this.viewPortRange[0]*this.canvas.width}dispose(){this.wrapperElm&&this.wrapperElm.removeChild(this.canvas),this.resizeObserver.disconnect()}},Hx.__docgenInfo={description:``,methods:[{name:`setWrapperElm`,docblock:null,modifiers:[],params:[{name:`elm`,optional:!1,type:{name:`HTMLElement`,alias:`HTMLElement`}}],returns:null},{name:`setFramePlaying`,docblock:null,modifiers:[],params:[{name:`frame`,optional:!1,type:{name:`FramePlay`,alias:`FramePlay`}}],returns:null},{name:`setViewRangeFrame`,docblock:null,modifiers:[],params:[{name:`rangeFrame`,optional:!1,type:{name:`number`}}],returns:null},{name:`setMusicBuffer`,docblock:null,modifiers:[],params:[{name:`buffer`,optional:!1,type:{name:`AudioBuffer`,alias:`AudioBuffer`}}],returns:null},{name:`dispose`,docblock:null,modifiers:[],params:[],returns:null}],displayName:`AudioViewRenderer`}})))()}var Wx,Gx,Kx;function qx(){return(qx=t((()=>{Wx=i(),R(),Vx(),Ux(),Gx=o(),Kx=()=>{let{editor:e}=L(),t=(0,Wx.useRef)(null),[n,r]=(0,Wx.useState)();(0,Wx.useEffect)(()=>{let e=new Hx;if(r(e),t.current)return e.setWrapperElm(t.current),()=>{e.dispose()}},[]);let i=e&&e.audioBuffer,[a,o]=(0,Wx.useState)(),[s,c]=(0,Wx.useState)({current:0,playing:!1});(0,Wx.useEffect)(()=>{if(!e)return;let t=e.engine,n=0,r=()=>{o(n++)},i=e=>{c({...e})};return i(t.frame),t.on(`update/music`,r),t.on(`update/frame/play`,i),()=>{t.off(`update/music`,r),t.off(`update/frame/play`,i)}},[e]),(0,Wx.useEffect)(()=>{n&&i&&n.setMusicBuffer(i)},[n,i,a]),(0,Wx.useEffect)(()=>{n&&s&&n.setFramePlaying(s)},[n,s]);let l=(0,Wx.useCallback)(e=>{if(n){let t=e.deltaY>0?1.1:.9;n.setViewRangeFrame(n.viewRangeFrame*t)}e.preventDefault()},[n]);return(0,Wx.useEffect)(()=>{let e=t.current;return e&&e.addEventListener(`wheel`,l,{passive:!1}),()=>{e&&e.removeEventListener(`wheel`,l)}},[l]),(0,Gx.jsx)(`div`,{className:Bx.audioView,ref:t})},Kx.__docgenInfo={description:``,methods:[],displayName:`AudioView`}})))()}var Jx,Yx,Xx;function Zx(){return(Zx=t((()=>{Jx=`CameraPad__cameraPad___LmNhb`,Yx=`CameraPad__btn___LmNhb`,Xx={cameraPad:Jx,btn:Yx}})))()}var Qx,$x;function eS(){return(eS=t((()=>{R(),Fy(),Zx(),Qx=o(),$x=({viewportId:e})=>{let{editor:t}=L(),[n]=J(t,`selectedEntityId`),[r]=J(t,`viewports/${e}/cameraView`);return(0,Qx.jsxs)(`div`,{className:Xx.cameraPad,children:[(0,Qx.jsx)(`div`,{className:Xx.btn,"data-disabled":!n,onClick:()=>{n&&t.focusSelected()},title:`Focus selected ( . )`,children:`Focus`}),(0,Qx.jsx)(`div`,{className:Xx.btn,"data-active":r===`camera`,onClick:()=>{t.toggleCameraView()},title:`Toggle scene camera view ( 0 )`,children:`Scene Cam`})]})},$x.__docgenInfo={description:``,methods:[],displayName:`CameraPad`}})))()}var tS,nS,rS,iS,aS,oS,sS,cS,lS,uS,dS,fS,pS,mS,hS,gS,_S,vS,yS,bS,xS,X;function SS(){return(SS=t((()=>{tS=`Screen__screen___LnNjc`,nS=`Screen__header___LnNjc`,rS=`Screen__header_tabs___LnNjc`,iS=`Screen__header_tab___LnNjc`,aS=`Screen__header_right___LnNjc`,oS=`Screen__header_item___LnNjc`,sS=`Screen__content___LnNjc`,cS=`Screen__gizmoMode___LnNjc`,lS=`Screen__gizmoMode_btn___LnNjc`,uS=`Screen__gizmoMode_separator___LnNjc`,dS=`Screen__modalStatus___LnNjc`,fS=`Screen__canvas___LnNjc`,pS=`Screen__audioViewHandle___LnNjc`,mS=`Screen__audioView___LnNjc`,hS=`Screen__displayOptions___LnNjc`,gS=`Screen__displayOptions_btn___LnNjc`,_S=`Screen__overlay___LnNjc`,vS=`Screen__overlay_field___LnNjc`,yS=`Screen__overlay_label___LnNjc`,bS=`Screen__overlay_separator___LnNjc`,xS=`Screen__externalBtn___LnNjc`,X={screen:tS,header:nS,header_tabs:rS,header_tab:iS,header_right:aS,header_item:oS,content:sS,gizmoMode:cS,gizmoMode_btn:lS,gizmoMode_separator:uS,modalStatus:dS,canvas:fS,audioViewHandle:pS,audioView:mS,displayOptions:hS,displayOptions_btn:gS,overlay:_S,overlay_field:vS,overlay_label:yS,overlay_separator:bS,externalBtn:xS}})))()}var CS,Z,wS,TS;function ES(){return(ES=t((()=>{CS=i(),E(),we(),R(),_a(),Rx(),ca(),Fy(),qx(),eS(),SS(),Z=o(),wS=`viewport`,TS=({viewportId:e})=>{let{editor:t}=L(),n=Ce(),[r,i]=J(t,`enableRender`),[a,o]=J(t,`viewports/${e}/preview`),[s,l]=J(t,`viewType`),[u,d]=J(t,`viewports/${e}/resolutionScale`),[f,p]=J(t,`gizmoMode`),[m,h]=J(t,`transformOrientation`),[g]=J(t,`modalStatus`),[_,v]=J(t,`viewports/${e}/helpers/show`),[y,b]=J(t,`viewports/${e}/helpers/empty`),[x,S]=J(t,`viewports/${e}/helpers/camera`),[C,w]=J(t,`viewports/${e}/helpers/light`),[ee,te]=J(t,`viewports/${e}/helpers/grid`),[T,E]=J(t,`viewports/${e}/helpers/wireframe`),[ne,re]=J(t,`viewports/${e}/helpers/gizmo`),[ie,ae]=J(t,`viewports/${e}/helpers/outline`),[oe]=ga(`showAudioView`),[se,ce]=(0,CS.useState)(50),le=(0,CS.useRef)(null),[ue,de]=(0,CS.useState)(!1),fe=(0,CS.useRef)(null),pe=(0,CS.useCallback)(e=>{fe.current&&!fe.current.contains(e.target)&&de(!1)},[]);return(0,CS.useEffect)(()=>(ue&&document.addEventListener(`pointerdown`,pe),()=>{document.removeEventListener(`pointerdown`,pe)}),[ue,pe]),(0,Z.jsxs)(`div`,{className:X.screen,children:[(0,Z.jsxs)(`div`,{className:X.header,children:[(0,Z.jsx)(`div`,{className:X.header_tabs,children:(0,Z.jsx)(`div`,{className:X.header_tab,"data-active":!!a,onClick:()=>o&&o(!a),title:`Camera Render`,children:(0,Z.jsx)(`svg`,{width:`14`,height:`14`,viewBox:`0 0 512 512`,fill:`currentColor`,xmlns:`http://www.w3.org/2000/svg`,children:(0,Z.jsx)(`path`,{d:`M32 144 H336 V368 H32 Z M368 224 L480 152 V360 L368 288 Z`})})})}),(0,Z.jsxs)(`div`,{className:X.header_right,children:[(0,Z.jsx)(`div`,{className:X.header_item,children:(0,Z.jsx)(D,{title:`View`,children:(0,Z.jsx)(sa,{value:s,format:{type:`select`,list:[`render`,`debug`]},onChange:e=>l&&l(e)})})}),(0,Z.jsx)(`div`,{className:X.header_item,children:(0,Z.jsx)(D,{title:`Res`,children:(0,Z.jsx)(sa,{value:u,format:{type:`select`,list:[,,,,,,].fill(0).map((e,t)=>{let n=2**t,r=1/n;return{value:r,label:r==1?`1`:`1/`+n}})},onChange:e=>d&&d(e)})})}),n.isPC&&(0,Z.jsx)(`div`,{className:X.externalBtn,children:(0,Z.jsx)(c,{onClick:()=>{t.openInExternalWindow()},children:(0,Z.jsxs)(`svg`,{width:`32`,height:`12`,viewBox:`0 0 512 512`,fill:`none`,xmlns:`http://www.w3.org/2000/svg`,children:[(0,Z.jsxs)(`g`,{clipPath:`url(#clip0_224_2)`,children:[(0,Z.jsx)(`path`,{d:`M96 0V416H512V0H96ZM472 376H136V40H472V376Z`,fill:`#aaa`}),(0,Z.jsx)(`path`,{d:`M40 472V296V136V96H0V512H416V472H376H40Z`,fill:`#aaa`}),(0,Z.jsx)(`path`,{d:`M232.812 312.829L350.671 194.969V279.766H390.671V126.688H237.594V166.688H322.39L204.531 284.547L232.812 312.829Z`,fill:`#aaa`})]}),(0,Z.jsx)(`defs`,{children:(0,Z.jsx)(`clipPath`,{id:`clip0_224_2`,children:(0,Z.jsx)(`rect`,{width:`512`,height:`512`,fill:`white`})})})]})})})]})]}),(0,Z.jsxs)(`div`,{className:X.content,children:[(0,Z.jsxs)(`div`,{className:X.displayOptions,ref:fe,children:[(0,Z.jsx)(`div`,{className:X.displayOptions_btn,"data-active":ue,onClick:()=>de(!ue),title:`Display Options`,children:`⚙`}),ue&&(0,Z.jsxs)(`div`,{className:X.overlay,children:[(0,Z.jsx)(`div`,{className:X.overlay_label,children:`Rendering`}),(0,Z.jsx)(`div`,{className:X.overlay_field,children:(0,Z.jsx)(D,{title:`Render`,children:(0,Z.jsx)(sa,{value:r,onChange:e=>i&&i(e)})})}),(0,Z.jsx)(`div`,{className:X.overlay_separator}),(0,Z.jsx)(`div`,{className:X.overlay_label,children:`Helpers`}),(0,Z.jsx)(`div`,{className:X.overlay_field,children:(0,Z.jsx)(D,{title:`Show`,children:(0,Z.jsx)(sa,{value:_,onChange:e=>v&&v(e)})})}),(0,Z.jsx)(`div`,{className:X.overlay_field,"data-indent":`true`,children:(0,Z.jsx)(D,{title:`Empty`,children:(0,Z.jsx)(sa,{value:y,onChange:e=>b&&b(e)})})}),(0,Z.jsx)(`div`,{className:X.overlay_field,"data-indent":`true`,children:(0,Z.jsx)(D,{title:`Camera`,children:(0,Z.jsx)(sa,{value:x,onChange:e=>S&&S(e)})})}),(0,Z.jsx)(`div`,{className:X.overlay_field,"data-indent":`true`,children:(0,Z.jsx)(D,{title:`Light`,children:(0,Z.jsx)(sa,{value:C,onChange:e=>w&&w(e)})})}),(0,Z.jsx)(`div`,{className:X.overlay_separator}),(0,Z.jsx)(`div`,{className:X.overlay_field,children:(0,Z.jsx)(D,{title:`Grid`,children:(0,Z.jsx)(sa,{value:ee,onChange:e=>te&&te(e)})})}),(0,Z.jsx)(`div`,{className:X.overlay_field,children:(0,Z.jsx)(D,{title:`Wireframe`,children:(0,Z.jsx)(sa,{value:T,onChange:e=>E&&E(e)})})}),(0,Z.jsx)(`div`,{className:X.overlay_field,children:(0,Z.jsx)(D,{title:`Gizmo`,children:(0,Z.jsx)(sa,{value:ne,onChange:e=>re&&re(e)})})}),(0,Z.jsx)(`div`,{className:X.overlay_field,children:(0,Z.jsx)(D,{title:`Outline`,children:(0,Z.jsx)(sa,{value:ie,onChange:e=>ae&&ae(e)})})})]})]}),(0,Z.jsxs)(`div`,{className:X.gizmoMode,children:[[`select`,`translate`,`rotate`,`scale`].map(e=>(0,Z.jsx)(`div`,{className:X.gizmoMode_btn,"data-active":f===e,onClick:()=>p&&p(e),title:e.charAt(0).toUpperCase()+e.slice(1),children:e===`select`?`↖`:e===`translate`?`T`:e===`rotate`?`R`:`S`},e)),(0,Z.jsx)(`div`,{className:X.gizmoMode_separator}),[`global`,`local`].map(e=>(0,Z.jsx)(`div`,{className:X.gizmoMode_btn,"data-active":m===e,onClick:()=>h&&h(e),title:e.charAt(0).toUpperCase()+e.slice(1),children:e===`global`?`G`:`L`},e))]}),g&&(0,Z.jsx)(`div`,{className:X.modalStatus,children:g}),(0,Z.jsx)(`div`,{className:X.canvas,children:(0,Z.jsx)(Lx,{viewportId:e})}),n.isSP&&(0,Z.jsx)($x,{viewportId:e}),n.isPC&&oe&&(0,Z.jsxs)(Z.Fragment,{children:[(0,Z.jsx)(`div`,{className:X.audioViewHandle,onPointerDown:e=>{e.preventDefault(),e.currentTarget.setPointerCapture(e.pointerId),le.current={startY:e.clientY,startHeight:se}},onPointerMove:e=>{if(!le.current)return;let t=le.current.startY-e.clientY,n=Math.max(20,Math.min(400,le.current.startHeight+t));ce(n)},onPointerUp:()=>{le.current=null}}),(0,Z.jsx)(`div`,{className:X.audioView,style:{height:se},children:(0,Z.jsx)(Kx,{})})]})]})]})},TS.__docgenInfo={description:``,methods:[],displayName:`Screen`}})))()}function DS(e,t){let n=e.get(t);if(n)return n;let r=t.indexOf(`:`);if(r===-1)return;let i=e.get(t.slice(0,r));return i?.multiple?i:void 0}function OS(e){return e.slice(e.indexOf(`:`)+1)}function kS(e){return e.multiple?`${e.id}:${rt.genUUID()}`:e.id}function AS(e,t){return e.multiple?e.content(OS(t)):e.content}function jS(){return VS(`vertical`,[{ratio:916/1076,node:VS(`horizontal`,[{ratio:300/1912,node:VS(`vertical`,[{ratio:696/912,node:HS([`hierarchy`,`scene`])},{ratio:216/912,node:HS([`timer`])}])},{ratio:1312/1912,node:HS([`viewport:main`])},{ratio:300/1912,node:HS([`property`,`textures`,`renderer`,`editor-settings`])}])},{ratio:160/1076,node:HS([`timeline`,`export`])}])}function MS(e){return e.type===`pane`?[e]:e.children.flatMap(e=>MS(e.node))}function NS(e,t){let n=new Set,r=new Set,i=e=>{let t=typeof e==`string`&&e!==``&&!n.has(e)?e:rt.genUUID();return n.add(t),t},a=e=>{if(typeof e!=`object`||!e)return null;let n=e;if(n.type===`pane`){if(!Array.isArray(n.tabs))return null;let e=[...new Set(n.tabs.filter(e=>typeof e==`string`))].filter(e=>{let n=t(e);return n?!n.multiple||!r.has(e)&&(r.add(e),!0):!1});if(e.length===0)return null;let a=typeof n.active==`string`&&e.includes(n.active)?n.active:e[0];return{type:`pane`,id:i(n.id),tabs:e,active:a}}if(n.type===`split`){if(n.direction!==`horizontal`&&n.direction!==`vertical`||!Array.isArray(n.children))return null;let e=[];return n.children.forEach(t=>{if(typeof t!=`object`||!t)return;let n=t,r=a(n.node);if(!r)return;let i=typeof n.ratio==`number`&&isFinite(n.ratio)&&n.ratio>0?n.ratio:1;e.push({ratio:i,node:r})}),e.length===0?null:e.length===1?e[0].node:{type:`split`,id:i(n.id),direction:n.direction,children:e}}return null},o=a(e);return o?US(o):null}function PS(e,t,n){return WS(e,t,e=>e.type!==`pane`||!e.tabs.includes(n)?e:{...e,active:n})}function FS(e,t){let n=e;for(let r of MS(e))for(let e of t)r.tabs.includes(e)&&r.active!==e&&(n=PS(n,r.id,e));return n}function IS(e,t,n,r){return WS(e,t,e=>{if(e.type!==`pane`||e.tabs.includes(n))return e;let t=[...e.tabs];return t.splice(Math.max(0,Math.min(r??t.length,t.length)),0,n),{...e,tabs:t,active:n}})}function LS(e,t,n,r,i){if(t===r)return WS(e,t,e=>{if(e.type!==`pane`)return e;let t=e.tabs.indexOf(n);if(t===-1)return e;let r=e.tabs.filter(e=>e!==n),a=i??e.tabs.length,o=Math.max(0,Math.min(t<a?a-1:a,r.length));return o===t?e:(r.splice(o,0,n),{...e,tabs:r,active:n})});let a=MS(e),o=a.find(e=>e.id===t),s=a.find(e=>e.id===r);return!o||!s||!o.tabs.includes(n)||s.tabs.includes(n)?e:IS(zS(e,t,n),r,n,i)}function RS(e,t,n,r,i){let a=MS(e),o=a.find(e=>e.id===r);if(!o||!o.tabs.includes(i)||!a.some(e=>e.id===t)||r===t&&o.tabs.length===1)return e;let s=zS(e,r,i),c={type:`pane`,id:rt.genUUID(),tabs:[i],active:i},l=WS(s,t,e=>{let t=[{ratio:.5,node:c},{ratio:.5,node:e}];return(n===`right`||n===`bottom`)&&t.reverse(),{type:`split`,id:rt.genUUID(),direction:n===`left`||n===`right`?`horizontal`:`vertical`,children:t}});return l===s?e:US(l)??e}function zS(e,t,n){let r=WS(e,t,e=>{if(e.type!==`pane`||!e.tabs.includes(n))return e;let t=e.tabs.indexOf(n),r=e.tabs.filter(e=>e!==n),i=e.active!==n||r.length===0?e.active:r[Math.min(t,r.length-1)];return{...e,tabs:r,active:i}});return r===e?e:US(r)??e}function BS(e,t,n){return WS(e,t,e=>e.type!==`split`||e.children.length!==n.length?e:{...e,children:e.children.map((e,t)=>({...e,ratio:n[t]}))})}var VS,HS,US,WS;function GS(){return(GS=t((()=>{at(),VS=(e,t)=>({type:`split`,id:rt.genUUID(),direction:e,children:t}),HS=e=>({type:`pane`,id:rt.genUUID(),tabs:e,active:e[0]}),US=e=>{if(e.type===`pane`)return e.tabs.length>0?e:null;let t=[];if(e.children.forEach(n=>{let r=US(n.node);r&&(r.type===`split`&&r.direction===e.direction?r.children.forEach(e=>t.push({ratio:n.ratio*e.ratio,node:e.node})):t.push(r===n.node?n:{...n,node:r}))}),t.length===0)return null;if(t.length===1)return t[0].node;let n=t.reduce((e,t)=>e+t.ratio,0);return Math.abs(n-1)>1e-6?{...e,children:t.map(e=>({...e,ratio:e.ratio/n}))}:t.length!==e.children.length||t.some((t,n)=>t!==e.children[n])?{...e,children:t}:e},WS=(e,t,n)=>{if(e.id===t)return n(e);if(e.type===`split`){let r=!1,i=e.children.map(e=>{let i=WS(e.node,t,n);return i===e.node?e:(r=!0,{...e,node:i})});if(r)return{...e,children:i}}return e}})))()}function KS(e,t,n){let[r,i]=(0,qS.useState)(null),a=(0,qS.useRef)(e);a.current=e;let o=(0,qS.useRef)(t);o.current=t;let s=(0,qS.useRef)(null);return(0,qS.useEffect)(()=>()=>s.current?.(),[]),{dragState:r,onTabPointerDown:(e,t,r)=>{if(r.button!==0||s.current)return;let c=r.clientX,l=r.clientY,u=!1,d=null,f=r=>{if(r.buttons===0){p(!1);return}if(!u){if(Math.hypot(r.clientX-c,r.clientY-l)<JS)return;u=!0,i({panelId:t,title:n(t)?.title??t,startX:r.clientX,startY:r.clientY,target:null})}let o=QS(r.clientX,r.clientY,a.current,e,t);$S(o,d)||(d=o,i(e=>e&&{...e,target:o}))},p=n=>{if(g(),n&&u&&d){let n=a.current;d.kind===`tabs`?o.current(LS(n,e,t,d.paneId,d.index)):d.zone===`center`?o.current(LS(n,e,t,d.paneId)):o.current(RS(n,d.paneId,d.zone,e,t))}u&&i(null)},m=()=>p(!0),h=()=>p(!1),g=()=>{window.removeEventListener(`pointermove`,f),window.removeEventListener(`pointerup`,m),window.removeEventListener(`pointercancel`,h),s.current=null};s.current=g,window.addEventListener(`pointermove`,f),window.addEventListener(`pointerup`,m),window.addEventListener(`pointercancel`,h)}}}var qS,JS,YS,XS,ZS,QS,$S;function eC(){return(eC=t((()=>{qS=i(),GS(),JS=4,YS=.25,XS=(e,t)=>{let n={left:e.left,top:e.top,width:e.width,height:e.height};return(t===`left`||t===`right`)&&(n.width/=2),t===`right`&&(n.left+=n.width),(t===`top`||t===`bottom`)&&(n.height/=2),t===`bottom`&&(n.top+=n.height),n},ZS=(e,t,n,r,i)=>{if(n.id!==r&&n.tabs.includes(i))return null;let a=[...t.querySelectorAll(`[data-panel-tab-id]`)].filter(e=>e instanceof HTMLElement),o=a.length;for(let t=0;t<a.length;t++){let n=a[t].getBoundingClientRect();if(e<n.left+n.width/2){o=t;break}}let s=t.getBoundingClientRect(),c=o<a.length?a[o].getBoundingClientRect().left:a.length>0?a[a.length-1].getBoundingClientRect().right:s.left;return{kind:`tabs`,paneId:n.id,index:o,rect:{left:c-1,top:s.top,width:2,height:s.height}}},QS=(e,t,n,r,i)=>{let a=document.elementFromPoint(e,t);if(!a)return null;let o=a.closest(`[data-pane-id]`);if(!(o instanceof HTMLElement))return null;let s=MS(n).find(e=>e.id===o.dataset.paneId);if(!s)return null;let c=a.closest(`[data-panel-tab-header]`);if(c instanceof HTMLElement)return ZS(e,c,s,r,i);let l=o.querySelector(`[data-panel-content]`);if(!(l instanceof HTMLElement))return null;let u=l.getBoundingClientRect();if(u.width<=0||u.height<=0)return null;let d=(e-u.left)/u.width,f=(t-u.top)/u.height;if(d<0||d>1||f<0||f>1)return null;if(Math.min(d,1-d)>YS&&Math.min(f,1-f)>YS)return s.id===r||s.tabs.includes(i)?null:{kind:`zone`,paneId:s.id,zone:`center`,rect:XS(u,`center`)};if(s.id===r&&s.tabs.length===1)return null;let p=d-.5,m=f-.5,h=Math.abs(p)>=Math.abs(m)?p<0?`left`:`right`:m<0?`top`:`bottom`;return{kind:`zone`,paneId:s.id,zone:h,rect:XS(u,h)}},$S=(e,t)=>e===null||t===null?e===t:e.paneId===t.paneId?e.kind===`tabs`&&t.kind===`tabs`?e.index===t.index:e.kind===`zone`&&t.kind===`zone`&&e.zone===t.zone:!1})))()}var tC,nC;function rC(){return(rC=t((()=>{tC=`PanelLayout__pane___LnBhb`,nC={pane:tC}})))()}function iC(e,t){let n=[];for(let r of e){let e=n;if(r.category)for(let t of r.category.split(`/`)){if(t===``)continue;let n;for(let r of e)if(r.label===t&&`children`in r){n=r;break}n||(n={label:t,children:[]},e.push(n)),e=n.children}e.push({label:r.title,onClick:()=>t(r)})}return n}var aC,oC,sC,cC;function lC(){return(lC=t((()=>{aC=i(),E(),R(),ES(),Fy(),de(),eC(),rC(),GS(),oC=o(),sC=e=>{let t=e.node;if(t.type===`split`)return(0,oC.jsx)(oe,{direction:t.direction,ratios:t.children.map(e=>e.ratio),onRatiosChange:n=>e.onRatiosChange(t.id,n),children:t.children.map(t=>(0,oC.jsx)(oe.Item,{children:(0,oC.jsx)(sC,{...e,node:t.node})},t.node.id))});let n=t.tabs.flatMap(t=>{let n=e.resolve(t);return n?[{id:t,title:n.title,content:AS(n,t)}]:[]});if(n.length===0)return null;let r=e.hasAddable(t);return(0,oC.jsx)(`div`,{className:nC.pane,"data-pane-id":t.id,children:(0,oC.jsx)(ue,{tabs:n,active:t.active,onSelect:n=>e.onSelectTab(t.id,n),onTabContextMenu:(n,r)=>e.onTabContextMenu(t.id,n,r),onTabPointerDown:(n,r)=>e.onTabPointerDown(t.id,n,r),onAddClick:r?n=>e.onAddTab(t.id,n):void 0})})},cC=e=>{let{editor:t}=L(),{open:n,closeAll:r}=w(),i=(0,aC.useMemo)(()=>{let t=new Map;return e.panels.forEach(e=>t.set(e.id,e)),t},[e.panels]),a=(0,aC.useMemo)(()=>e=>DS(i,e),[i]),[o,s]=J(t,`panelLayout`),c=(0,aC.useMemo)(()=>NS(o,a)??jS(),[o,a]);(0,aC.useEffect)(()=>{let e=new Set(MS(c).flatMap(e=>e.tabs).filter(e=>a(e)?.id===wS).map(OS));t.pruneViewportSettings(e)},[c,a,t]);let[l,u]=(0,aC.useState)(()=>!!t.getField(`selectedEntityId`));(0,aC.useEffect)(()=>{let e=()=>{t.getField(`selectedEntityId`)&&u(!0)};return t.on(`fields/update/selectedEntityId`,e),()=>{t.off(`fields/update/selectedEntityId`,e)}},[t]);let d=e=>{e!==c&&s(e)},f=e.activateOnSelect;(0,aC.useEffect)(()=>{if(!l||(u(!1),!f))return;let e=FS(c,f);e!==c&&t.setField(`panelLayout`,e)},[l,f,c,t]);let p=(e,t)=>d(PS(c,e,t)),m=(e,t)=>d(BS(c,e,t)),{dragState:h,onTabPointerDown:g}=KS(c,d,a),_=e=>[...i.values()].filter(t=>t.multiple||!e.tabs.includes(t.id));return(0,oC.jsxs)(oC.Fragment,{children:[(0,oC.jsx)(sC,{node:c,resolve:a,onSelectTab:p,onRatiosChange:m,onTabContextMenu:(e,t,i)=>{i.preventDefault(),MS(c).reduce((e,t)=>e+t.tabs.length,0)>1&&n((0,oC.jsx)(ce,{title:a(t)?.title,items:[{label:`Close Tab`,onClick:()=>{d(zS(c,e,t)),r()}}]}),ie(i.clientX,i.clientY))},onTabPointerDown:g,onAddTab:(e,t)=>{let i=MS(c).find(t=>t.id===e);if(!i)return;let a=_(i);if(a.length===0)return;let o=iC(a,t=>{d(IS(c,e,kS(t))),r()});n((0,oC.jsx)(ce,{items:o}),ie(t.clientX,t.clientY))},hasAddable:e=>_(e).length>0}),h&&(0,oC.jsx)(fe,{drag:h})]})},cC.__docgenInfo={description:``,methods:[],displayName:`PanelLayout`,props:{panels:{required:!0,tsType:{name:`Array`,elements:[{name:`intersection`,raw:`{
+	id: PanelId;
+	title: string;
+	// タブ追加メニュー上の階層。"/" 区切りで、省略時はルート直下に出る。タブ名は title のまま
+	category?: string;
+} & (
+	// レイアウト内に同時1つまで。Panel ラッパー込みの完成形を持つ
+	| { multiple?: false; content: React.ReactNode }
+	// 「+」で追加するたびに "<id>:<instance>" のタブが新しく増える（Screen 用。タブごとに独立したビューポートを持つ）
+	| { multiple: true; content: ( instanceId: string ) => React.ReactNode }
+)`,elements:[{name:`signature`,type:`object`,raw:`{
+	id: PanelId;
+	title: string;
+	// タブ追加メニュー上の階層。"/" 区切りで、省略時はルート直下に出る。タブ名は title のまま
+	category?: string;
+}`,signature:{properties:[{key:`id`,value:{name:`string`,required:!0}},{key:`title`,value:{name:`string`,required:!0}},{key:`category`,value:{name:`string`,required:!1}}]}},{name:`unknown`}]}],raw:`PanelDefinition[]`},description:``},activateOnSelect:{required:!1,tsType:{name:`Array`,elements:[{name:`string`}],raw:`PanelId[]`},description:``}}}})))()}var uC,dC,fC;function pC(){return(pC=t((()=>{uC=`RendererSettings__renderer___LnJlb`,dC=`RendererSettings__renderer_inner___LnJlb`,fC={renderer:uC,renderer_inner:dC}})))()}var mC,hC;function gC(){return(gC=t((()=>{E(),R(),Py(),pC(),mC=o(),hC=()=>{let{editor:e}=L(),t=e.engine.renderer;return(0,mC.jsx)(`div`,{className:fC.renderer,children:(0,mC.jsxs)(`div`,{className:fC.renderer_inner,children:[(0,mC.jsx)(s,{label:`Resolution`,accordion:!0,children:(0,mC.jsx)(Ny,{target:e,filter:`resolution`})}),(0,mC.jsx)(s,{label:`Pipeline`,accordion:!0,children:(0,mC.jsx)(Ny,{target:t,filter:`pipeline`})}),(0,mC.jsx)(s,{label:`Sky`,accordion:!0,children:(0,mC.jsx)(Ny,{target:t,filter:`sky`})})]})})},hC.__docgenInfo={description:``,methods:[],displayName:`RendererSettings`}})))()}var _C,vC,yC,bC,xC,SC;function CC(){return(CC=t((()=>{_C=`SceneControl__sceneControl___LnNjZ`,vC=`SceneControl__sceneControl_inner___LnNjZ`,yC=`SceneControl__select___LnNjZ`,bC=`SceneControl__select_name___LnNjZ`,xC=`SceneControl__save___LnNjZ`,SC={sceneControl:_C,sceneControl_inner:vC,select:yC,select_name:bC,save:xC}})))()}var wC,TC,EC;function DC(){return(DC=t((()=>{wC=i(),E(),R(),pe(),CC(),TC=o(),EC=()=>{let{editor:e,projectName:t,scenes:n}=L(),[r,i]=(0,wC.useState)(null),o=null;return n&&(o=(0,TC.jsx)(D,{title:`scene`,children:(0,TC.jsxs)(`button`,{className:SC.select,onClick:e=>{i(ie(e.clientX,e.clientY))},children:[(0,TC.jsx)(`span`,{className:SC.select_name,children:n.current??`-`}),(0,TC.jsx)(a,{open:!0})]})})),(0,TC.jsxs)(`div`,{className:SC.sceneControl,children:[(0,TC.jsx)(`div`,{className:SC.sceneControl_inner,children:(0,TC.jsxs)(s,{label:t,accordion:!0,children:[o,(0,TC.jsx)(`div`,{className:SC.save,children:(0,TC.jsx)(c,{onClick:()=>{e.save()},children:`Save`})})]})}),r&&n&&(0,TC.jsx)(me,{scenes:n,projectName:t,anchor:r,onClose:()=>{i(null)}})]})},EC.__docgenInfo={description:``,methods:[],displayName:`SceneControl`}})))()}var OC,kC,AC,jC,MC,NC,PC;function FC(){return(FC=t((()=>{OC=`Textures__textures___LnRle`,kC=`Textures__item___LnRle`,AC=`Textures__preview___LnRle`,jC=`Textures__img___LnRle`,MC=`Textures__placeholder___LnRle`,NC=`Textures__name___LnRle`,PC={textures:OC,item:kC,preview:AC,img:jC,placeholder:MC,name:NC}})))()}var IC,LC,RC;function zC(){return(zC=t((()=>{IC=i(),Ri(),R(),FC(),LC=o(),RC=()=>{let{engine:e,editor:t}=L(),[,n]=(0,IC.useState)(0);(0,IC.useEffect)(()=>{let e=()=>{t.assetPreviewManager?.invalidateAll(),n(e=>e+1)},r=()=>n(e=>e+1);return I.resources.on(`update`,e),t.assetPreviewManager?.on(`update`,r),()=>{I.resources.off(`update`,e),t.assetPreviewManager?.off(`update`,r)}},[e,t]);let r=I.resources.textureList;return(0,LC.jsx)(`div`,{className:PC.textures,children:r.map(e=>{let n=t.assetPreviewManager?.getTexturePreview(e.name);return(0,LC.jsxs)(`div`,{className:PC.item,children:[(0,LC.jsx)(`div`,{className:PC.preview,children:n?(0,LC.jsx)(`img`,{src:n,className:PC.img}):(0,LC.jsx)(`div`,{className:PC.placeholder})}),(0,LC.jsx)(`div`,{className:PC.name,children:e.name})]},e.name)})})},RC.__docgenInfo={description:``,methods:[],displayName:`Textures`}})))()}var BC,VC;function HC(){return(HC=t((()=>{BC=i(),VC=(0,BC.createContext)(null)})))()}var UC,WC;function GC(){return(GC=t((()=>{UC=i(),HC(),WC=()=>{let e=(0,UC.useContext)(VC);if(e===null)throw Error(`useTimeline must be used within a TimelineProvider`);return e}})))()}var KC;function qC(){return(qC=t((()=>{KC=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+
+uniform sampler2D uCanvasTex;
+uniform sampler2D uMusicTex;
+
+in vec2 vUv;
+
+layout (location = 0) out vec4 outColor;
+
+void main( void ) {
+
+	vec4 canvas = texture( uCanvasTex, vUv );
+
+	vec3 col = canvas.xyz;
+
+	float audio = texture( uMusicTex, vUv ).x;
+	float audioWave = step( vUv.y, audio );
+	col += audioWave * 0.2;
+
+	outColor = vec4( col, 1.0 );
+
+}`})))()}var JC;function YC(){return(YC=t((()=>{at(),qe(),j(),F(),qC(),JC=class extends tt{wrapperElm;glCanvas;backend;gl;canvasTexture;canvas;canvasCtx;glRenderer;postProcess;viewPort;viewPortRange;viewPortScale;duration;loopSetting;musicBuffer;musicTexture;resizeObserver;canvasSize;constructor(){super(),this.wrapperElm=null,this.canvas=document.createElement(`canvas`),this.canvasCtx=this.canvas.getContext(`2d`),this.glCanvas=document.createElement(`canvas`),this.backend=new Je(this.glCanvas.getContext(`webgl2`)),this.gl=this.backend.gl,this.canvasSize=new O(this.glCanvas.width,this.glCanvas.height),this.viewPort=[0,0,0,0],this.viewPortRange=[0,0],this.viewPortScale=50,this.duration=null,this.loopSetting={enabled:!1,start:0,end:0},this.resizeObserver=new ResizeObserver(this.onResize.bind(this));let e={renderer:null,curves:{},createEntity:t=>new Zt({...t,engine:e})};this.glRenderer=new ci(this.backend,e),e.renderer=this.glRenderer,this.canvasTexture=new ze(this.gl),this.musicBuffer=null,this.musicTexture=new ze(this.gl),this.musicTexture.setting({type:this.gl.UNSIGNED_BYTE,internalFormat:this.gl.LUMINANCE,format:this.gl.LUMINANCE,magFilter:this.gl.LINEAR,minFilter:this.gl.LINEAR,wrapS:this.gl.MIRRORED_REPEAT}),this.postProcess=new Cn({passes:[new P(this.backend,{frag:KC,uniforms:{uCanvasTex:{type:`1i`,value:null},uMusicTex:{type:`1i`,value:this.musicTexture}},renderTarget:null})]})}onResize(){if(this.wrapperElm){let e=new O(this.wrapperElm.clientWidth,this.wrapperElm.clientHeight);if(e.x===0||e.y===0)return;this.glCanvas.width=this.canvas.width=e.x,this.glCanvas.height=this.canvas.height=e.y,this.canvasSize.set(this.glCanvas.width,this.glCanvas.height),this.postProcess.resize(e),this.render()}}render(){if(this.canvasCtx.fillStyle=`#000`,this.canvasCtx.fillRect(0,0,this.canvas.width,this.canvas.height),this.duration!==null){this.canvasCtx.fillStyle=`#181818`;let e=this.frameToPx(0),t=this.frameToPx(this.duration);this.canvasCtx.fillRect(e,0,t-e,this.canvas.height)}let e=(e,t,n)=>{let r=Math.ceil(this.viewPort[0]/e)*e;this.canvasCtx.beginPath();let i=0;for(;r<this.viewPort[2]&&i<100;){let n=this.frameToPx(r+t);this.canvasCtx.moveTo(n,0),this.canvasCtx.lineTo(n,this.canvas.height),r+=e,i++}this.canvasCtx.strokeStyle=n,this.canvasCtx.lineWidth=1,this.canvasCtx.stroke()};if(e(this.viewPortScale,0,`#555`),e(this.viewPortScale,this.viewPortScale/2,`#333`),this.musicBuffer&&this.duration!==null){this.canvasCtx.strokeStyle=`#888`,this.canvasCtx.fillStyle=`#888`;let e=this.musicBuffer.getChannelData(0),t=this.viewPortRange[0]/60,n=this.musicBuffer.sampleRate*t,r=n/this.canvas.width,i=this.frameToPx(0);this.canvasCtx.beginPath();for(let t=0;t<n;t+=r){let a=Math.floor(t-i*r),o=e[Math.round(a)],s=t/n*this.canvas.width,c=(o+1)*(this.canvas.height/2),l=c,u=c;for(let t=0;t<16;t++){let n=(e[Math.round(a+t/16*r)]+1)*(this.canvas.height/2);l>n&&(l=n),u<n&&(u=n)}let d=u-l;d>3&&this.canvasCtx.fillRect(s,l,1,d),t==0?this.canvasCtx.moveTo(s,c):this.canvasCtx.lineTo(s,c)}this.canvasCtx.stroke()}if(this.loopSetting.enabled){this.canvasCtx.fillStyle=`#0009`;let e=this.frameToPx(this.loopSetting.start),t=this.frameToPx(this.loopSetting.end);this.canvasCtx.fillRect(0,0,e,this.canvas.height),this.canvasCtx.fillRect(t,0,this.canvas.width-t,this.canvas.height)}this.canvasTexture.attach(this.canvas),this.postProcess.passes&&(this.postProcess.passes[0].uniforms.uCanvasTex.value=this.canvasTexture),this.glRenderer.renderPostProcess(this.postProcess,void 0,this.canvasSize)}setWrapperElm(e){this.wrapperElm&&this.resizeObserver.observe(this.wrapperElm),this.wrapperElm=e,this.resizeObserver.observe(e),this.wrapperElm.appendChild(this.glCanvas),this.onResize()}setViewPort(e,t){this.viewPort=e,this.viewPortRange=[e[2]-e[0],e[3]-e[1]],this.viewPortScale=t,this.render()}setDuration(e){this.duration=Math.round(e),this.render()}setMusicBuffer(e){this.musicBuffer=e,setTimeout(()=>{this.render()},100)}setLoopSetting(e,t,n){this.loopSetting={enabled:e,start:t,end:n},this.render()}frameToPx(e){return(e-this.viewPort[0])/this.viewPortRange[0]*this.canvas.width}dispose(){this.wrapperElm&&this.wrapperElm.removeChild(this.glCanvas),this.resizeObserver.disconnect()}},JC.__docgenInfo={description:``,methods:[{name:`setWrapperElm`,docblock:null,modifiers:[],params:[{name:`elm`,optional:!1,type:{name:`HTMLElement`,alias:`HTMLElement`}}],returns:null},{name:`setViewPort`,docblock:null,modifiers:[],params:[{name:`viewPort`,optional:!1,type:{name:`Array`,elements:[{name:`number`}],raw:`number[]`}},{name:`scale`,optional:!1,type:{name:`number`}}],returns:null},{name:`setDuration`,docblock:null,modifiers:[],params:[{name:`duration`,optional:!1,type:{name:`number`}}],returns:null},{name:`setMusicBuffer`,docblock:null,modifiers:[],params:[{name:`buffer`,optional:!1,type:{name:`AudioBuffer`,alias:`AudioBuffer`}}],returns:null},{name:`setLoopSetting`,docblock:null,modifiers:[],params:[{name:`enabled`,optional:!1,type:{name:`boolean`}},{name:`start`,optional:!1,type:{name:`number`}},{name:`end`,optional:!1,type:{name:`number`}}],returns:null},{name:`dispose`,docblock:null,modifiers:[],params:[],returns:null}],displayName:`TimelineCanvasRenderer`}})))()}var XC,ZC;function QC(){return(QC=t((()=>{XC=`TimelineCanvas__timelineCanvas___LnRpb`,ZC={timelineCanvas:XC}})))()}var $C,ew,tw;function nw(){return(nw=t((()=>{$C=i(),Fy(),GC(),YC(),QC(),ew=o(),tw=()=>{let{viewPort:e,viewPortScale:t,musicBuffer:n,musicBufferVersion:r,glEditor:i}=WC(),[a,o]=(0,$C.useState)(),s=(0,$C.useRef)(null);(0,$C.useEffect)(()=>{let e=new JC;return o(e),s.current&&e.setWrapperElm(s.current),()=>{e.dispose()}},[]),(0,$C.useEffect)(()=>{a&&e&&t&&a.setViewPort(e,t)},[a,e,t]);let[c]=J(i?.engine,`timeline/duration`);(0,$C.useEffect)(()=>{a&&c&&a.setDuration(c)},[a,c]);let[l]=J(i,`frameLoop/enabled`),[u]=J(i,`frameLoop/start`),[d]=J(i,`frameLoop/end`);return(0,$C.useEffect)(()=>{a&&a.setLoopSetting(l||!1,u||0,d||0)},[a,l,u,d]),(0,$C.useEffect)(()=>{a&&n&&a.setMusicBuffer(n)},[a,n,r]),(0,ew.jsx)(`div`,{className:ZC.timelineCanvas,ref:s})},tw.__docgenInfo={description:``,methods:[],displayName:`TimelineCanvas`}})))()}var rw,iw,aw,ow,sw,cw,lw,uw,dw,fw,pw,mw,hw,gw,_w,vw,yw,bw;function xw(){return(xw=t((()=>{rw=1.1,iw=40,aw=50,ow=4.000244140625,sw=200,cw=.005,lw=.01,uw=.005,dw=!1,fw=-1/0,pw=new WeakMap,mw=e=>e.ctrlKey||e.metaKey,hw=()=>{let e=e=>{e.key==`Control`&&(dw=!0)},t=e=>{e.key==`Control`&&(dw=!1)},n=()=>{dw=!1};return window.addEventListener(`keydown`,e,{capture:!0}),window.addEventListener(`keyup`,t,{capture:!0}),window.addEventListener(`blur`,n),()=>{window.removeEventListener(`keydown`,e,{capture:!0}),window.removeEventListener(`keyup`,t,{capture:!0}),window.removeEventListener(`blur`,n)}},gw=e=>{if(e.deltaMode!=WheelEvent.DOM_DELTA_PIXEL)return!0;if(e.timeStamp-fw<sw)return!1;let t=Math.abs(e.deltaX),n=Math.abs(e.deltaY);if(t!=0&&n!=0)return!1;let r=t+n;return r>=aw||r>0&&Number.isInteger(r/ow)},_w=e=>{let t=e.deltaY;t==0&&(t=e.deltaX);let n=Math.sign(t)*iw;if(mw(e))return{type:`pan`,x:n,y:0};if(e.shiftKey)return{type:`pan`,x:0,y:n};if(e.deltaY==0)return{type:`pan`,x:n,y:0};let r=rw;return e.deltaY<0&&(r=1/rw),{type:`zoom`,x:r,y:r,linked:!0}},vw=e=>{if(fw=e.timeStamp,e.ctrlKey&&!dw){let t=Math.exp(e.deltaY*lw);return{type:`zoom`,x:t,y:t,linked:!0}}return mw(e)?{type:`zoom`,x:Math.exp(-e.deltaX*cw),y:Math.exp(e.deltaY*cw),linked:!1}:{type:`pan`,x:e.deltaX,y:e.deltaY}},yw=e=>{let t=pw.get(e);if(t)return t;e.ctrlKey||(dw=!1);let n;return n=e.ctrlKey&&!dw?vw(e):gw(e)?_w(e):vw(e),pw.set(e,n),n},bw=e=>Math.exp(e*uw)})))()}var Sw,Cw;function ww(){return(ww=t((()=>{Sw=i(),xw(),Cw=(e,t)=>{let n=(0,Sw.useRef)(t);n.current=t,(0,Sw.useEffect)(()=>{let t=e.current;if(!t)return;let r=e=>{n.current(yw(e),e)};t.addEventListener(`wheel`,r,{passive:!1});let i=hw();return()=>{t.removeEventListener(`wheel`,r),i()}},[e])}})))()}var Tw,Ew;function Dw(){return(Dw=t((()=>{Tw=`TimelineControls__controls___LmNvb`,Ew={controls:Tw}})))()}var Ow,kw,Aw;function jw(){return(jw=t((()=>{Ow=e(i(),1),GC(),ww(),xw(),Dw(),kw=o(),Aw=e=>{let{viewPort:t,setCurrentFrame:n,getFrameViewPort:r,zoom:i,scroll:a,setViewPortCenter:o}=WC(),s=(0,Ow.useRef)([0,0,0,0]),c=(0,Ow.useRef)([0,0]);t&&(s.current=t,c.current=[t[2]-t[0],t[3]-t[1]]);let l=(0,Ow.useRef)(null),u=(0,Ow.useRef)(null),d=(0,Ow.useRef)(null),f=(0,Ow.useRef)(null),p=(0,Ow.useRef)(null),m=(0,Ow.useRef)(null),h=(0,Ow.useCallback)(e=>{let t=l.current&&l.current.clientWidth||1;if(d.current==0){if(n&&r&&u.current){let i=(e.clientX-u.current.left)/t;n(r(i))}}else if(d.current==1&&f.current){let n=e.clientX-f.current[0],r=m.current;if(r)i(bw(r.lastDx-n),r.anchor),r.lastDx=n;else if(p.current!==null){let e=-n/t*c.current[0];o(p.current+e)}}},[n,r,o,i]),g=(0,Ow.useCallback)(e=>{d.current=e.button,p.current=(s.current[2]+s.current[0])/2,f.current=[e.clientX,e.clientY],u.current=e.currentTarget.getBoundingClientRect();let t=(e.clientX-u.current.left)/e.currentTarget.clientWidth;d.current==0&&n&&r&&n(r(t)),m.current=null,e.button==1&&mw(e)&&(m.current={anchor:t,lastDx:0}),window.addEventListener(`pointermove`,h);let i=()=>{f.current=null,d.current=null,p.current=null,m.current=null,window.removeEventListener(`pointermove`,h)};return window.addEventListener(`pointerup`,i),()=>{window.removeEventListener(`pointerup`,i),window.removeEventListener(`pointermove`,h)}},[r,n,h]);return Cw(l,(e,t)=>{t.preventDefault();let n=l.current;if(d.current!==null||!n)return;let r=n.getBoundingClientRect(),o=Math.max(1,r.width);e.type==`pan`?e.x!=0&&a(e.x/o):e.x!=1&&i(e.x,(t.clientX-r.left)/o)}),t?(0,kw.jsx)(`div`,{className:Ew.controls,onPointerDown:g,ref:l,children:e.children}):null},Aw.__docgenInfo={description:``,methods:[],displayName:`TimelineControls`,props:{children:{required:!1,tsType:{name:`ReactReactNode`,raw:`React.ReactNode`},description:``}}}})))()}var Mw,Nw,Pw;function Fw(){return(Fw=t((()=>{Mw=`TimelineCursor__cursor___LmN1c`,Nw=`TimelineCursor__frame___LmN1c`,Pw={cursor:Mw,frame:Nw}})))()}var Iw,Lw;function Rw(){return(Rw=t((()=>{GC(),Fw(),Iw=o(),Lw=()=>{let{viewPort:e,framePlay:t}=WC();if(!e||!t)return null;let n=e[2]-e[0],r=(t.current-e[0])/n;return(0,Iw.jsx)(`div`,{className:Pw.cursor,style:{left:r*100+`%`},children:(0,Iw.jsx)(`div`,{className:Pw.frame})})},Lw.__docgenInfo={description:``,methods:[],displayName:`TimelineCursor`}})))()}var zw,Bw,Vw,Hw;function Uw(){return(Uw=t((()=>{zw=`TimelineLoop__timelineLoop___LnRpb`,Bw=`TimelineLoop__start___LnRpb`,Vw=`TimelineLoop__end___LnRpb`,Hw={timelineLoop:zw,start:Bw,end:Vw}})))()}var Ww,Gw;function Kw(){return(Kw=t((()=>{Ww=`TimelineLoopCursor__cursor___LmN1c`,Gw={cursor:Ww}})))()}var qw,Jw,Yw;function Xw(){return(Xw=t((()=>{qw=i(),Kw(),Jw=o(),Yw=({onMove:e})=>{let t=(0,qw.useRef)(!1);return(0,Jw.jsx)(`div`,{className:Gw.cursor,onPointerDown:e=>{e.buttons==1&&(t.current=!0,e.stopPropagation())},onPointerMove:n=>{let r=n.target;t.current!==!1&&n.buttons==1&&(r.setPointerCapture(n.pointerId),n.buttons==1&&e&&e(n.clientX),n.nativeEvent.preventDefault(),n.nativeEvent.stopPropagation())},onPointerUp:()=>{t.current=!1}})},Yw.__docgenInfo={description:``,methods:[],displayName:`TimelineLoopCursor`}})))()}var Zw,Qw,$w;function eT(){return(eT=t((()=>{Zw=i(),Fy(),Ba(),GC(),Uw(),Xw(),Qw=o(),$w=()=>{let{viewPort:e,framePlay:t,glEditor:n}=WC(),r=(0,Zw.useRef)(null);za(n,[`frameLoop/enabled`,`frameLoop/start`,`frameLoop/end`]);let[i]=J(n,`frameLoop/enabled`),[a,o]=J(n,`frameLoop/start`),[s,c]=J(n,`frameLoop/end`);if(i!==!0||!e||!t||a===void 0||s===void 0)return null;let l=e[2]-e[0],u=(a-e[0])/l,d=(s-e[0])/l,f=(t,n)=>{let r=t.getBoundingClientRect();return(n-r.x)/r.width*(e[2]-e[0])+e[0]};return(0,Qw.jsx)(`div`,{className:Hw.timelineLoop,ref:r,children:(0,Qw.jsxs)(`div`,{className:Hw.timelineLoop_inner,children:[(0,Qw.jsx)(`div`,{className:Hw.start,style:{left:u*100+`%`},children:(0,Qw.jsx)(Yw,{onMove:e=>{r.current&&o&&o(f(r.current,e))}})}),(0,Qw.jsx)(`div`,{className:Hw.end,style:{left:d*100+`%`},children:(0,Qw.jsx)(Yw,{onMove:e=>{r.current&&c&&c(f(r.current,e))}})})]})})},$w.__docgenInfo={description:``,methods:[],displayName:`TimelineLoop`}})))()}var tT,nT,rT,iT,aT,oT;function sT(){return(sT=t((()=>{tT=`TimelineScale__scale___LnNjY`,nT=`TimelineScale__scale_inner___LnNjY`,rT=`TimelineScale__scale_item___LnNjY`,iT=`TimelineScale__scale_item_frame___LnNjY`,aT=`TimelineScale__scale_item_time___LnNjY`,oT={scale:tT,scale_inner:nT,scale_item:rT,scale_item_frame:iT,scale_item_time:aT}})))()}var cT,lT,uT;function dT(){return(dT=t((()=>{GC(),sT(),cT=o(),lT=e=>`${(`00`+Math.floor(e%3600/60)).slice(-2)}:${(`00`+Math.floor(e%60)).slice(-2)}`,uT=()=>{let{viewPort:e,viewPortScale:t}=WC();if(!e||!t)return null;let n=[],r=Math.ceil(e[0]/t)*t,i=0;for(;r<e[2]&&i<100;){let a=(r-e[0])/(e[2]-e[0]),o=r/60;n.push((0,cT.jsxs)(`div`,{className:oT.scale_item,style:{left:a*100+`%`},children:[(0,cT.jsx)(`div`,{className:oT.scale_item_frame,children:r}),(0,cT.jsx)(`div`,{className:oT.scale_item_time,children:lT(o)})]},r)),r+=t,i++}return(0,cT.jsx)(`div`,{className:oT.scale,children:(0,cT.jsx)(`div`,{className:oT.scale_inner,children:n})})},uT.__docgenInfo={description:``,methods:[],displayName:`TimelineScale`}})))()}var fT,pT,mT;function hT(){return(hT=t((()=>{fT=`TimelineSetting__timelineSetting___LnRpb`,pT=`TimelineSetting__play___LnRpb`,mT={timelineSetting:fT,play:pT}})))()}var gT,_T,vT;function yT(){return(yT=t((()=>{gT=i(),E(),ca(),Fy(),GC(),hT(),_T=o(),vT=()=>{let{framePlay:e,glEditor:t}=WC(),n=(0,gT.useCallback)((e,t)=>{t&&t(e)},[]),[r,i]=J(t,`frameLoop/enabled`),[a]=J(t?.engine,`timeline/duration`),[o]=J(t?.engine,`timeline/fps`),s=(0,gT.useCallback)((e,n)=>{t&&t.api.setField(t.engine,e,n)},[t]),l=(0,gT.useCallback)(()=>{t&&t.togglePlay()},[t]);return(0,_T.jsx)(`div`,{className:mT.timelineSetting,children:(0,_T.jsxs)(le,{children:[(0,_T.jsx)(`div`,{className:mT.play,children:(0,_T.jsx)(c,{onClick:l,children:e.playing?(0,_T.jsx)(f,{size:14}):(0,_T.jsx)(h,{size:14})})}),(0,_T.jsx)(D,{title:`current`,children:(0,_T.jsx)(sa,{value:Math.floor(e?.current||0),readOnly:!0})}),(0,_T.jsx)(D,{title:`duration`,children:(0,_T.jsx)(sa,{value:a,onChange:e=>s(`timeline/duration`,e)})}),(0,_T.jsx)(D,{title:`fps`,children:(0,_T.jsx)(sa,{value:o,onChange:e=>s(`timeline/fps`,e)})}),(0,_T.jsx)(D,{title:`loop`,children:(0,_T.jsx)(sa,{value:r||!1,onChange:e=>n(e,i)})})]})})},vT.__docgenInfo={description:``,methods:[],displayName:`TimelineSetting`}})))()}var bT,xT;function ST(){return(ST=t((()=>{bT=i(),xT=e=>{let[t,n]=(0,bT.useState)({width:0,height:0});return(0,bT.useEffect)(()=>{let t=e.current;if(!t)return;let r=()=>{n({width:t.clientWidth,height:t.clientHeight})};r();let i=new ResizeObserver(r);return i.observe(t),()=>{i.disconnect()}},[e]),t}})))()}var CT,wT;function TT(){return(TT=t((()=>{CT=i(),wT=(0,CT.createContext)(null)})))()}var ET,DT;function OT(){return(OT=t((()=>{ET=i(),TT(),DT=()=>{let e=(0,ET.useContext)(wT);if(e===null)throw Error(`useKeyEditor must be used within a KeyEditorProvider`);return e}})))()}var kT,AT,jT,MT,NT,PT,FT,IT,LT;function RT(){return(RT=t((()=>{kT=(e,t)=>e+`:`+t,AT=(e,t,n)=>kT(e,t)+`:`+n,jT=e=>{let t=e,n=null;if(e.endsWith(`:left`)||e.endsWith(`:right`)){let r=e.lastIndexOf(`:`);n=e.slice(r+1),t=e.slice(0,r)}let r=t.lastIndexOf(`:`);return{curveId:t.slice(0,r),index:Number(t.slice(r+1)),side:n}},MT=(e,t)=>{let n=new Map;for(let r of e){let{curveId:e,index:i}=jT(r),a=t[e];if(!a||i>=a.k.length)continue;let o=n.get(e);o||(o=[],n.set(e,o)),o.indexOf(i)<0&&o.push(i)}return n},NT=(e,t)=>{let n=new Map,r=new Map;for(let i of e){let{curveId:a,index:o,side:s}=jT(i),c=t[a];if(!c||o>=c.k.length)continue;if(!s){let e=n.get(a);e||(e=[],n.set(a,e)),e.push(o);continue}if(e.has(kT(a,o)))continue;let l=r.get(a);l||(l=[],r.set(a,l)),l.push({index:o,side:s})}return{keys:n,handles:r}},PT=(e,t,n,r)=>e.has(kT(t,n))||e.has(AT(t,n,r)),FT=(e,t)=>{for(let n of t)if(!e.has(n))return!1;return t.length>0},IT=e=>{if(!(e instanceof Element))return null;let t=e.closest(`[data-refs]`);if(!t)return null;let n=t.getAttribute(`data-refs`);return n?n.split(` `):null},LT=(e,t)=>{let n=[];for(let r of e.querySelectorAll(`[data-refs]`)){let e=r.getBoundingClientRect();if(!(e.right<t.left||e.left>t.right||e.bottom<t.top||e.top>t.bottom))for(let e of(r.getAttribute(`data-refs`)||``).split(` `))n.push(e)}return n}})))()}var zT,BT,VT,HT,UT,WT,GT,KT,qT,JT,YT,XT;function ZT(){return(ZT=t((()=>{Ri(),Rv(),RT(),zT=`#entity`,BT=[`x`,`y`,`z`,`w`],VT=[`r`,`g`,`b`,`a`],HT=1e-4,UT=(e,t)=>{let n=t.indexOf(`:`);if(n<0)return{target:e,component:null,path:t};let r=t.slice(0,n),i=t.slice(n+1),a=I.resources.getComponent(r),o=null;return a&&(o=e.getComponent(a.component)||null),{target:o,component:r,path:i}},WT=(e,t,n)=>{let r=BT;if(e){let n=e.getFieldOpt(t);n&&n.format&&n.format.type==`color`&&(r=VT)}return n<r.length?r[n]:String(n)},GT=(e,t,n)=>{let r=n.get(e)||0;if(r<2)return null;let i=e,a=t[e];return a&&a.name&&(i=a.name),{name:i,count:r}},KT=(e,t)=>{e.curveIds.indexOf(t)<0&&e.curveIds.push(t)},qT=(e,t,n)=>{let r=os(e),i=Object.keys(r),a={id:zT,parentId:null,depth:0,component:null,label:e.name,curveIds:[],leaf:!1,hasChildren:i.length>0,kind:null,element:null,shared:null},o=[a];for(let s of i){let i=r[s],c=UT(e,s),l=null;c.target&&(l=Fs({target:c.target,path:c.path}));let u={id:s,parentId:zT,depth:1,component:c.component,label:c.path,curveIds:[],leaf:!0,hasChildren:!1,kind:l,element:null,shared:null};if(o.push(u),typeof i[0]==`string`){let e=i[0];KT(u,e),KT(a,e),u.shared=GT(e,t,n);continue}u.leaf=!1,u.hasChildren=!0;let d=i;for(let e=0;e<d.length;e++){let r=d[e];if(!r)continue;let i=r[0];o.push({id:s+`#`+e,parentId:s,depth:2,component:null,label:WT(c.target,c.path,e),curveIds:[i],leaf:!0,hasChildren:!1,kind:l,element:e,shared:GT(i,t,n)}),KT(u,i),KT(a,i)}}return o},JT=new WeakMap,YT=e=>{if(!e)return[];let t=JT.get(e);return t||(t=bo(e),JT.set(e,t)),t},XT=(e,t)=>{let n=new Map;for(let r of t){let t=YT(e[r]);for(let e=0;e<t.length;e++){let i=t[e].coordinate.x,a=Math.round(i/HT),o=n.get(a);o||(o={frame:i,refs:[]},n.set(a,o)),o.refs.push(kT(r,e))}}let r=Array.from(n.values());return r.sort((e,t)=>e.frame-t.frame),r}})))()}var QT,$T,eE,tE,nE,rE,iE,aE,oE,sE,cE,lE,uE,dE,fE;function pE(){return(pE=t((()=>{F(),ZT(),QT=[`var(--or-axis-x)`,`var(--or-axis-y)`,`var(--or-axis-z)`,`var(--or-axis-w)`],$T=e=>e===null||e>=QT.length?`var(--or-text-muted)`:QT[e],eE=.1,tE=40,nE=2,rE=(e,t)=>{let n=1/0,r=-1/0;for(let i of t){let t=YT(e[i]);for(let e=0;e<t.length;e++){let i=t[e],a=[i.coordinate.y];for(let n of fE(t,e))n==`left`?a.push(i.handleLeft.y):a.push(i.handleRight.y);for(let e of a)n=Math.min(n,e),r=Math.max(r,e)}}if(n>r)return{min:-1,max:1};if(r-n<1e-6)return{min:n-1,max:r+1};let i=(r-n)*eE;return{min:n-i,max:r+i}},iE=e=>10**Math.floor(Math.log10(e)),aE=(e,t)=>{let n=iE(t),r=Math.max(0,-Math.floor(Math.log10(n)));return Number((Math.round(e/n)*n).toFixed(r))},oE=(e,t)=>{let n=[],r=Math.max(1,Math.floor(t/tE)),i=(e.max-e.min)/r,a=10**Math.floor(Math.log10(i)),o=a*10;i<=a?o=a:i<=a*2?o=a*2:i<=a*5&&(o=a*5);let s=Math.max(0,-Math.floor(Math.log10(o)));for(let t=Math.ceil(e.min/o)*o;t<=e.max;t+=o)n.push(Number(t.toFixed(s)));return n},sE=new WeakMap,cE=e=>{let t=sE.get(e);return t||(t=new pt(yt(e.k)),sE.set(e,t)),t},lE=(e,t,n,r)=>{if(e.k.length==0)return``;let i=cE(e),a=[];for(let e=0;e<=r+nE;e+=nE)a.push(e+`,`+n(i.getValue(t(e))).toFixed(1));return`M`+a.join(`L`)},uE=(e,t,n)=>({min:t+(e.min-t)*n,max:t+(e.max-t)*n}),dE=(e,t,n,r)=>{let i=(e[2]-e[0])/Math.max(1,n),a=(t.max-t.min)/Math.max(1,r);return{framePerPx:i,valuePerPx:a,toX:t=>(t-e[0])/i,toY:e=>(t.max-e)/a,toFrame:t=>e[0]+t*i,toValue:e=>t.max-e*a}},fE=(e,t)=>{let n=[];return t>0&&e[t-1].interpolation==`BEZIER`&&n.push(`left`),e[t].interpolation==`BEZIER`&&t<e.length-1&&n.push(`right`),n}})))()}var mE,hE,gE,_E;function vE(){return(vE=t((()=>{mE=3,hE=(e,t)=>{let n=!1,r=r=>{let i=r.clientX-e.clientX,a=r.clientY-e.clientY;!n&&Math.hypot(i,a)<mE||(n=!0,t.onMove(i,a,r))},i=e=>{window.removeEventListener(`pointermove`,r),window.removeEventListener(`pointerup`,i),t.onEnd(n,e)};window.addEventListener(`pointermove`,r),window.addEventListener(`pointerup`,i)},gE=(e,t)=>({left:Math.min(e.clientX,t.clientX),top:Math.min(e.clientY,t.clientY),right:Math.max(e.clientX,t.clientX),bottom:Math.max(e.clientY,t.clientY)}),_E=()=>{let e=e=>{e.preventDefault(),e.stopPropagation(),t()},t=()=>{window.removeEventListener(`contextmenu`,e,{capture:!0}),window.removeEventListener(`pointerdown`,t,{capture:!0})};window.addEventListener(`contextmenu`,e,{capture:!0}),window.addEventListener(`pointerdown`,t,{capture:!0})}})))()}var yE,bE,xE,SE,CE,wE,TE,EE,DE,OE;function kE(){return(kE=t((()=>{yE=`KeyCurveGraph__graph___LmdyY`,bE=`KeyCurveGraph__svg___LmdyY`,xE=`KeyCurveGraph__tick___LmdyY`,SE=`KeyCurveGraph__curve___LmdyY`,CE=`KeyCurveGraph__handleLine___LmdyY`,wE=`KeyCurveGraph__tickLabel___LmdyY`,TE=`KeyCurveGraph__sharedLabel___LmdyY`,EE=`KeyCurveGraph__point___LmdyY`,DE=`KeyCurveGraph__handle___LmdyY`,OE={graph:yE,svg:bE,tick:xE,curve:SE,handleLine:CE,tickLabel:wE,sharedLabel:TE,point:EE,handle:DE}})))()}var AE,jE,ME,NE;function PE(){return(PE=t((()=>{AE=i(),GC(),ww(),xw(),ST(),OT(),pE(),ZT(),RT(),vE(),kE(),jE=o(),ME=1e-6,NE=()=>{let{viewPort:e}=WC(),{curves:t,graphCurves:n,selection:r,valueRange:i,setValueRange:a}=DT(),o=(0,AE.useRef)(null),{width:s,height:c}=xT(o),l=dE(e,i,s,c),{toX:u,toY:d}=l,f=(0,AE.useMemo)(()=>{let r=[],a=dE(e,i,s,c);for(let e of n)r.push({id:e.id,element:e.element,d:lE(t[e.id],a.toFrame,a.toY,s)});return r},[n,t,e,i,s,c]),p=(e,t)=>{a(n=>{let r=n.max-t*(n.max-n.min),i=uE(n,r,e);return i.max-i.min<ME?n:i})};Cw(o,(e,t)=>{let n=o.current;if(!n)return;let r=n.getBoundingClientRect(),i=Math.max(1,r.height);if(e.type==`pan`){if(e.y==0)return;a(t=>{let n=e.y*(t.max-t.min)/i;return{min:t.min-n,max:t.max-n}})}else e.y!=1&&p(e.y,(t.clientY-r.top)/i)});let m=e=>{if(e.button!=1)return;let t=i,n=l.valuePerPx,r=e.currentTarget.getBoundingClientRect(),o=(e.clientY-r.top)/Math.max(1,r.height),s=mw(e),c=0;hE({clientX:e.clientX,clientY:e.clientY},{onMove:(e,r)=>{if(s){p(bw(r-c),o),c=r;return}a({min:t.min+r*n,max:t.max+r*n})},onEnd:()=>{}})},h=[],g=[],_=[];for(let e of n){let n=YT(t[e.id]);for(let t=0;t<n.length;t++){let i=n[t],a=kT(e.id,t),o=u(i.coordinate.x),c=d(i.coordinate.y);if(o<0||o>s)continue;h.push({ref:a,x:o,y:c});let l=fE(n,t),f=r.has(a);for(let n of l)r.has(AT(e.id,t,n))&&(f=!0);if(f)for(let n of l){let a=i.handleRight;n==`left`&&(a=i.handleLeft),g.push({ref:AT(e.id,t,n),selected:PT(r,e.id,t,n),x:u(a.x),y:d(a.y),keyX:o,keyY:c})}}e.shared&&n.length>0&&_.push({id:e.id,x:Math.max(0,u(n[0].coordinate.x)),y:d(n[0].coordinate.y),text:`⇄ ${e.shared.name} (${e.shared.count})`})}let v=oE(i,c);return(0,jE.jsxs)(`div`,{className:OE.graph,ref:o,onPointerDown:m,children:[s>0&&(0,jE.jsxs)(`svg`,{className:OE.svg,width:s,height:c,children:[v.map(e=>(0,jE.jsx)(`line`,{className:OE.tick,x1:0,x2:s,y1:d(e),y2:d(e)},e)),f.map(e=>(0,jE.jsx)(`path`,{className:OE.curve,style:{stroke:$T(e.element)},d:e.d},e.id)),g.map(e=>(0,jE.jsx)(`line`,{className:OE.handleLine,x1:e.keyX,y1:e.keyY,x2:e.x,y2:e.y},e.ref))]}),v.map(e=>(0,jE.jsx)(`div`,{className:OE.tickLabel,style:{top:d(e)},children:e},e)),_.map(e=>(0,jE.jsx)(`div`,{className:OE.sharedLabel,style:{left:e.x,top:e.y},children:e.text},e.id)),h.map(e=>(0,jE.jsx)(`div`,{className:OE.point,"data-refs":e.ref,"data-selected":r.has(e.ref),style:{left:e.x,top:e.y}},e.ref)),g.map(e=>(0,jE.jsx)(`div`,{className:OE.handle,"data-refs":e.ref,"data-selected":e.selected,style:{left:e.x,top:e.y}},e.ref))]})},NE.__docgenInfo={description:``,methods:[],displayName:`KeyCurveGraph`}})))()}var FE,IE,LE,RE;function zE(){return(zE=t((()=>{FE=`KeyDopeSheet__dopeSheet___LmRvc`,IE=`KeyDopeSheet__row___LmRvc`,LE=`KeyDopeSheet__key___LmRvc`,RE={dopeSheet:FE,row:IE,key:LE}})))()}var BE,VE,HE;function UE(){return(UE=t((()=>{BE=i(),E(),GC(),ww(),xw(),OT(),ZT(),RT(),vE(),zE(),VE=o(),HE=()=>{let{viewPort:e,zoom:t}=WC(),{curves:n,visibleChannels:r,selection:i,scrollTop:a,channelListRef:o}=DT(),s=(0,BE.useRef)(null);Cw(s,(e,n)=>{let r=o.current,i=s.current;if(e.type==`pan`)r&&(r.scrollTop+=e.y);else if(!e.linked&&e.y!=1&&i){let r=i.getBoundingClientRect();t(e.y,(n.clientX-r.left)/Math.max(1,r.width))}});let c=e[2]-e[0];return(0,VE.jsx)(`div`,{className:RE.dopeSheet,ref:s,onPointerDown:e=>{let t=o.current;if(e.button!=1||mw(e)||!t)return;let n=t.scrollTop;hE({clientX:e.clientX,clientY:e.clientY},{onMove:(e,r)=>{t.scrollTop=n-r},onEnd:()=>{}})},children:(0,VE.jsx)(`div`,{className:RE.rows,style:{transform:`translateY(${-a}px)`},children:r.map(t=>{let r=t.kind==`event`;return(0,VE.jsx)(`div`,{className:RE.row,"data-depth":t.depth,children:XT(n,t.curveIds).map(t=>{let n=(t.frame-e[0])/c;return n<-.05||n>1.05?null:(0,VE.jsx)(`div`,{className:RE.key,"data-refs":t.refs.join(` `),"data-selected":FT(i,t.refs),"data-event":r,style:{left:n*100+`%`},children:!r&&(0,VE.jsx)(_,{size:10})},t.frame)})},t.id)})})})},HE.__docgenInfo={description:``,methods:[],displayName:`KeyDopeSheet`}})))()}var WE,GE,KE;function qE(){return(qE=t((()=>{WE=`KeyEditor__keyEditor___Lmtle`,GE=`KeyEditor__box___Lmtle`,KE={keyEditor:WE,box:GE}})))()}var JE,YE,XE,ZE,QE;function $E(){return($E=t((()=>{JE=i(),E(),R(),PE(),UE(),OT(),qE(),RT(),vE(),YE=o(),XE=[{label:`Constant`,value:`CONSTANT`},{label:`Linear`,value:`LINEAR`},{label:`Bezier`,value:`BEZIER`}],ZE=[{label:`Auto Clamped`,value:`AUTO_CLAMPED`},{label:`Auto`,value:`AUTO`},{label:`Vector`,value:`VECTOR`},{label:`Aligned`,value:`ALIGNED`},{label:`Free`,value:`FREE`}],QE=()=>{let{editor:e}=L(),{open:t,closeAll:n}=w(),{entity:r,channels:i,mode:a,select:o,selectRefs:s,pressKeys:c,beginDrag:l,timelineActions:u,areaRef:d,pointerRef:f,openMenuRef:p,boxSelecting:m,endBoxSelect:h,deleteSelectedKeys:g,copySelectedKeys:_,pasteCopiedKeys:v,setSelectedInterpolation:y,setSelectedHandleType:b}=DT(),[x,S]=(0,JE.useState)(null);if((0,JE.useEffect)(()=>()=>{e.leaveTimeline(u)},[e,u]),p.current=()=>{let e=e=>()=>{e(),n()},r=[];for(let t of XE)r.push({label:t.label,onClick:e(()=>y(t.value))});let i=[];for(let t of ZE)i.push({label:t.label,onClick:e(()=>b(t.value))});let a=[{label:`Interpolation`,children:r},{label:`Handle Type`,children:i},{label:`Copy`,onClick:e(_)},{label:`Paste`,onClick:e(v)},{label:`Delete`,onClick:e(g)}];t((0,YE.jsx)(ce,{title:`Keyframes`,items:a}),ie(f.current.x,f.current.y))},!r||i.length<=1)return null;let C=e=>{let t=d.current;if(!t)return;let n=t.getBoundingClientRect(),r=e.shiftKey,i={clientX:e.clientX,clientY:e.clientY};hE(i,{onMove:(e,t,r)=>{let a=gE(i,r);S({left:a.left-n.left,top:a.top-n.top,width:a.right-a.left,height:a.bottom-a.top})},onEnd:(e,n)=>{S(null);let a=[];e&&(a=LT(t,gE(i,n))),s(a,r)}})},ee=(e,t)=>{let n=e.shiftKey,r=c(t,n),i=null,a=!1;hE({clientX:e.clientX,clientY:e.clientY},{onMove:(e,t)=>{a||(a=!0,i=l()),i&&i.move(e,t)},onEnd:e=>{i&&i.end(),!e&&!n&&r&&o(new Set(t))}})},te=e=>{e.button!=0||!m||(e.stopPropagation(),h(),C(e))},T=e=>{if(e.button!=2)return;e.stopPropagation();let t=IT(e.target);t?ee(e,t):C(e)},E=e=>{e.preventDefault()},ne=e=>{f.current={x:e.clientX,y:e.clientY}},re=(0,YE.jsx)(HE,{});return a==`curves`&&(re=(0,YE.jsx)(NE,{})),(0,YE.jsxs)(`div`,{className:KE.keyEditor,ref:d,"data-box-selecting":m,onPointerEnter:t=>{ne(t),e.enterTimeline(u)},onPointerMove:ne,onPointerLeave:()=>e.leaveTimeline(u),onPointerDownCapture:te,onPointerDown:T,onContextMenu:E,children:[re,x&&(0,YE.jsx)(`div`,{className:KE.box,style:x})]})},QE.__docgenInfo={description:``,methods:[],displayName:`KeyEditor`}})))()}var eD,tD,nD,rD,iD,aD,oD,sD,cD,lD;function uD(){return(uD=t((()=>{eD=`KeyChannelList__channelList___LmNoY`,tD=`KeyChannelList__header___LmNoY`,nD=`KeyChannelList__list___LmNoY`,rD=`KeyChannelList__empty___LmNoY`,iD=`KeyChannelList__row___LmNoY`,aD=`KeyChannelList__toggle___LmNoY`,oD=`KeyChannelList__component___LmNoY`,sD=`KeyChannelList__label___LmNoY`,cD=`KeyChannelList__shared___LmNoY`,lD={channelList:eD,header:tD,list:nD,empty:rD,row:iD,toggle:aD,component:oD,label:sD,shared:cD}})))()}var dD,fD;function pD(){return(pD=t((()=>{E(),OT(),pE(),uD(),dD=o(),fD=()=>{let{entity:e,visibleChannels:t,mode:n,setMode:r,collapsed:i,toggleCollapsed:o,activeChannelId:s,setActiveChannelId:l,channelListRef:u,setScrollTop:d}=DT();return(0,dD.jsxs)(`div`,{className:lD.channelList,children:[(0,dD.jsxs)(`div`,{className:lD.header,children:[(0,dD.jsx)(c,{active:n==`keys`,onClick:()=>r(`keys`),children:`Keys`}),(0,dD.jsx)(c,{active:n==`curves`,onClick:()=>r(`curves`),children:`Curves`})]}),(0,dD.jsxs)(`div`,{className:lD.list,ref:u,onScroll:e=>d(e.currentTarget.scrollTop),children:[!e&&(0,dD.jsx)(`div`,{className:lD.empty,children:`No entity selected`}),t.map(e=>{let t;return n==`curves`&&e.element!==null&&(t=$T(e.element)),(0,dD.jsxs)(`div`,{className:lD.row,"data-depth":e.depth,"data-active":n==`curves`&&e.id==s,onClick:()=>l(e.id),children:[(0,dD.jsx)(`span`,{className:lD.toggle,children:e.hasChildren&&(0,dD.jsx)(`button`,{onClick:t=>{t.stopPropagation(),o(e.id)},children:(0,dD.jsx)(a,{open:!i.has(e.id)})})}),e.component&&(0,dD.jsx)(`span`,{className:lD.component,children:e.component}),(0,dD.jsx)(`span`,{className:lD.label,style:{color:t},children:e.label}),e.shared&&(0,dD.jsxs)(`span`,{className:lD.shared,title:`Shared with ${e.shared.count} fields`,children:[`⇄ `,e.shared.name,` (`,e.shared.count,`)`]})]},e.id)})]})]})},fD.__docgenInfo={description:``,methods:[],displayName:`KeyChannelList`}})))()}var mD,hD,gD,_D;function vD(){return(vD=t((()=>{vE(),mD=1,hD=.001,gD=class{_params;_pointer;_constraint;_numberBuffer;_disposeListeners;constructor(e){this._params=e,this._pointer={...e.pointer},this._constraint=null,this._numberBuffer=``;let t=e=>{e.stopPropagation(),this._pointer={x:e.clientX,y:e.clientY},this._update()},n=e=>{e.preventDefault(),e.stopPropagation(),e.button===2?(_E(),this._end(!1)):e.button===0&&this._end(!0)};window.addEventListener(`pointermove`,t,{capture:!0}),window.addEventListener(`pointerdown`,n,{capture:!0}),this._disposeListeners=()=>{window.removeEventListener(`pointermove`,t,{capture:!0}),window.removeEventListener(`pointerdown`,n,{capture:!0})},this._update()}handleKeyDown(e){let t=e.key.toLowerCase();return e.key===`Enter`?this._end(!0):e.key===`Escape`?this._end(!1):t===`x`||t===`y`?this._toggleConstraint(t):this._inputNumber(e.key),!0}_toggleConstraint(e){this._params.timeOnly||this._params.mode===`rotate`||(this._constraint=this._constraint===e?null:e,this._update())}_inputNumber(e){if(e.length===1&&e>=`0`&&e<=`9`)this._numberBuffer+=e;else if(e===`.`){if(this._numberBuffer.includes(`.`))return;this._numberBuffer+=`.`}else if(e===`-`)this._numberBuffer=this._numberBuffer.startsWith(`-`)?this._numberBuffer.slice(1):`-`+this._numberBuffer;else if(e===`Backspace`){if(this._numberBuffer===``)return;this._numberBuffer=this._numberBuffer.slice(0,-1)}else return;this._update()}_update(){let e=this._params.mode,t=null;if(this._numberBuffer!==``&&(t=parseFloat(this._numberBuffer)),t!==null&&Number.isNaN(t)){this._params.onChange(e=>e),this._params.onStatus(this._statusText(``));return}e===`translate`?this._translate(t):e===`rotate`?this._rotate(t):this._scale(t)}_translate(e){let t=this._params,n={x:0,y:0};if(e!==null)n=this._constraint===`y`?{x:0,y:e}:{x:e,y:0};else{let e=this._pointer.x-t.pointer.x,r=this._pointer.y-t.pointer.y;(this._constraint===`x`||t.timeOnly)&&(r=0),this._constraint===`y`&&(e=0);let i=t.mapping.toPoint(t.pointer),a=t.mapping.toPoint({x:t.pointer.x+e,y:t.pointer.y+r});n={x:a.x-i.x,y:a.y-i.y}}t.onChange(e=>({x:e.x+n.x,y:e.y+n.y}));let r=n.x.toFixed(1);t.timeOnly||(r+=`, `+n.y.toFixed(3)),this._params.onStatus(this._statusText(r))}_rotate(e){let t=this._params,n=t.mapping.toScreen(t.center),r=0;r=e===null?_D(this._pointer,n)-_D(t.pointer,n):e*Math.PI/180;let i=Math.cos(r),a=Math.sin(r);if(this._params.onStatus(this._statusText((r*180/Math.PI).toFixed(1))),r===0){t.onChange(e=>e);return}t.onChange((e,n)=>{let r=t.center;t.individual&&(r=n);let o=t.mapping.toScreen(r),s=t.mapping.toScreen(e),c=s.x-o.x,l=s.y-o.y;return t.mapping.toPoint({x:o.x+c*i+l*a,y:o.y-c*a+l*i})})}_scale(e){let t=this._params,n=t.mapping.toScreen(t.center),r=1;if(e!==null)r=e;else{let e=Math.hypot(t.pointer.x-n.x,t.pointer.y-n.y),i=Math.hypot(this._pointer.x-n.x,this._pointer.y-n.y);t.timeOnly&&(e=Math.abs(t.pointer.x-n.x),i=Math.abs(this._pointer.x-n.x)),r=Math.max(hD,i/Math.max(mD,e))}let i=r,a=r;(this._constraint===`x`||t.timeOnly)&&(a=1),this._constraint===`y`&&(i=1),t.onChange((e,n)=>{let r=t.center;t.individual&&(r=n);let o=t.mapping.toScreen(r),s=t.mapping.toScreen(e),c=t.mapping.toPoint({x:o.x+(s.x-o.x)*i,y:o.y+(s.y-o.y)*a}),l=c.x,u=c.y;return i===1&&(l=e.x),a===1&&(u=e.y),{x:l,y:u}}),this._params.onStatus(this._statusText(r.toFixed(3)))}_statusText(e){let t=this._params.mode,n=`Scale`,r=``;t===`translate`&&(n=`Move`),t===`rotate`&&(n=`Rot`,r=`°`);let i=e;return this._numberBuffer!==``&&(i=`[${this._numberBuffer}]`),`${n}: ${i}${r} (${this._constraintText()})`}_constraintText(){return this._params.timeOnly||this._constraint===`x`?`time`:this._constraint===`y`?`value`:this._params.mode===`rotate`?`view`:this._params.mode===`scale`?`uniform`:`free`}_end(e){this._disposeListeners(),this._params.onStatus(null),e?this._params.onConfirm():this._params.onCancel()}cancel(){this._end(!1)}},_D=(e,t)=>Math.atan2(-(e.y-t.y),e.x-t.x)})))()}var Q,yD,bD,xD,SD,CD,wD,TD,ED;function DD(){return(DD=t((()=>{Q=i(),Rv(),Vv(),R(),GC(),pE(),ZT(),RT(),vD(),vE(),yD={entity:null,curves:{},channels:[]},bD=e=>{let t=e.getField(`selectedEntityId`);return t&&e.engine.root.findEntityByUUID(t)||null},xD=e=>{let t=[bD(e),e.engine.curves];return e.engine.root.traverse(e=>{let n=os(e);Object.keys(n).length>0&&t.push(n)}),t},SD=(e,t)=>{if(e.length!=t.length)return!1;for(let n=0;n<e.length;n++)if(e[n]!==t[n])return!1;return!0},CD=e=>{let t=bD(e),n=e.engine.curves;return t?{entity:t,curves:n,channels:qT(t,n,ws(e.engine))}:{...yD,curves:n}},wD=e=>e.kind==`number`||e.kind==`array`,TD=e=>{let t=1/0,n=1/0,r=-1/0,i=-1/0;for(let a of e)t=Math.min(t,a.x),n=Math.min(n,a.y),r=Math.max(r,a.x),i=Math.max(i,a.y);return{x:(t+r)/2,y:(n+i)/2}},ED=()=>{let{editor:e,engine:t}=L(),{viewPort:n}=WC(),[r,i]=(0,Q.useState)(()=>CD(e)),a=(0,Q.useRef)([]),o=(0,Q.useRef)(null),[s,c]=(0,Q.useState)(`keys`),[l,u]=(0,Q.useState)(()=>new Set),[d,f]=(0,Q.useState)(()=>new Set),[p,m]=(0,Q.useState)(zT),[h,g]=(0,Q.useState)(0),_=(0,Q.useRef)(l),v=(0,Q.useRef)(null),y=(0,Q.useRef)(null),b=(0,Q.useRef)(null),x=(0,Q.useRef)({x:0,y:0}),S=(0,Q.useRef)(null),C=(0,Q.useRef)(null),w=(0,Q.useRef)(null),[ee,te]=(0,Q.useState)(!1),T=(0,Q.useCallback)(e=>{_.current=e,u(e)},[]);Bv(()=>{let t=xD(e),n=a.current;if(SD(t,n))return;a.current=t;let r=t[0]!==n[0],s=t[1]!==n[1]&&t[1]!==o.current;n.length>0&&(r||s)&&T(new Set),i(CD(e))});let E=r.channels,ne=(0,Q.useMemo)(()=>{let e=new Set,t=[];for(let n of E){if(n.parentId&&(e.has(n.parentId)||d.has(n.parentId))){e.add(n.id);continue}t.push(n)}return t},[E,d]),re=(0,Q.useMemo)(()=>{let e=E[0];for(let t of E)t.id==p&&(e=t);let t=[],n=new Set;if(!e)return t;for(let r of E){if(!r.leaf||!wD(r)||e.id!=`#entity`&&r.id!=e.id&&r.parentId!=e.id)continue;let i=r.curveIds[0];n.has(i)||(n.add(i),t.push({id:i,element:r.element,shared:r.shared}))}return t},[E,p]),ie=(0,Q.useMemo)(()=>{let e=[];for(let t of re)e.push(t.id);return e},[re]),[ae,D]=(0,Q.useState)({min:-1,max:1}),[oe,se]=(0,Q.useState)(null),ce=!1;for(let e of ie)YT(r.curves[e]).length>0&&(ce=!0);(!oe||oe.entity!==r.entity||oe.empty&&ce)&&(se({entity:r.entity,empty:!ce}),D(rE(r.curves,ie)));let le=()=>{D(rE(t.curves,ie))},ue=(0,Q.useCallback)(e=>{f(t=>{let n=new Set(t);return n.has(e)?n.delete(e):n.add(e),n})},[]),de=(0,Q.useCallback)((e,t)=>{let n=_.current,r=FT(n,e);if(t){let t=new Set(n);for(let n of e)r?t.delete(n):t.add(n);T(t)}else r||T(new Set(e));return r},[T]),fe=(0,Q.useCallback)((e,t)=>{let n=new Set;t&&(n=new Set(_.current));for(let t of e)n.add(t);T(n)},[T]),pe=e=>{let n=new Set;if(e){let e=[];E.length>0&&(e=E[0].curveIds),s==`curves`&&(e=ie);for(let r of e){let e=YT(t.curves[r]);for(let t=0;t<e.length;t++)n.add(kT(r,t))}}T(n)},me=()=>{if(w.current||C.current)return;let t=e=>{if(e.button==2){e.preventDefault(),e.stopPropagation(),_E(),he();return}let t=y.current;e.button==0&&t&&e.target instanceof Node&&t.contains(e.target)||he()};window.addEventListener(`pointerdown`,t,{capture:!0});let n={handleKeyDown:e=>e.key==`Escape`&&(he(),!0)};w.current={modal:n,dispose:()=>{window.removeEventListener(`pointerdown`,t,{capture:!0})}},e.beginTimelineModal(n),te(!0)},he=()=>{let t=w.current;t&&(t.dispose(),e.endTimelineModal(t.modal),w.current=null,te(!1))},ge=e=>Ps(e,t.frameSetting.fps),_e=t=>{o.current=t,e.api.setCurves(t)},ve=new Set;for(let e of E)e.leaf&&wD(e)&&ve.add(e.curveIds[0]);let ye=()=>{let e=MT(_.current,t.curves);if(e.size==0)return;let n={...t.curves};for(let[r,i]of e)n[r]=To(t.curves[r],i);_e(n),T(new Set)},be=e=>{let n=MT(_.current,t.curves),r={...t.curves},i=!1;for(let[a,o]of n)ve.has(a)&&(r[a]=e(t.curves[a],o),i=!0);i&&_e(r)},xe=e=>{be((t,n)=>Oo(t,n,e))},Se=e=>{be((t,n)=>ko(t,n,e))},Ce=()=>{let e=MT(_.current,t.curves),n=[],r=new Set,i=1/0;for(let a of E){if(!a.leaf)continue;let o=a.curveIds[0],s=e.get(o);if(!s||r.has(o))continue;r.add(o);let c=YT(t.curves[o]),l=[];for(let e of s)l.push(c[e]),i=Math.min(i,c[e].coordinate.x);n.push({channelId:a.id,keys:l})}n.length!=0&&(v.current={entries:n,start:i})},we=()=>{let e=v.current;if(!e)return;let n=ns(t)-e.start,r={...t.curves},i=new Set,a=!1;for(let t of e.entries){let e=null;for(let n of E)n.leaf&&n.id==t.channelId&&(e=n);if(!e)continue;let o=e.curveIds[0],s=Do(r[o],t.keys,n,ge);r[o]=s.curve,a=!0;for(let e of s.indices)i.add(kT(o,e))}a&&(_e(r),T(i))},O=()=>{let e=y.current;if(!e)return null;let t=e.getBoundingClientRect(),r=dE(n,ae,t.width,t.height);return{mapping:{toScreen:e=>({x:t.left+r.toX(e.x),y:t.top+r.toY(e.y)}),toPoint:e=>({x:r.toFrame(e.x-t.left),y:r.toValue(e.y-t.top)})},framePerPx:r.framePerPx,valuePerPx:r.valuePerPx}},Te=(e,n)=>{let{keys:r,handles:i}=NT(_.current,t.curves);if((s==`keys`||n)&&i.clear(),s==`curves`&&e!=`translate`){let e=new Set(ie);for(let t of Array.from(r.keys()))e.has(t)||r.delete(t);for(let t of Array.from(i.keys()))e.has(t)||i.delete(t)}if(r.size==0&&i.size==0)return null;let a=[],o=[];for(let[e,n]of r){let r=YT(t.curves[e]);for(let e of n)a.push(r[e].coordinate)}for(let[e,n]of i){let r=YT(t.curves[e]);for(let e of n)o.push(r[e.index].coordinate)}let c=a.length==0;if(c&&(a=o),s==`curves`&&e!=`translate`&&a.length==1&&!c){for(let[e,n]of r){let r=i.get(e)||[];for(let i of fE(YT(t.curves[e]),n[0]))r.push({index:n[0],side:i});i.set(e,r)}r.clear()}return{keys:r,handles:i,center:TD(a),individual:c,duplicate:n}},k=n=>{let r=t.curves,i=_.current,a=e.api.beginEdit(t,`curves`),s=new Set;for(let e of n.keys.keys())s.add(e);for(let e of n.handles.keys())s.add(e);let c=!1;return{apply:e=>{let t={...r},l=new Set;for(let e of i)!n.duplicate&&!s.has(jT(e).curveId)&&l.add(e);for(let i of s){let a=Eo(r[i],n.keys.get(i)||[],n.handles.get(i)||[],e(i),n.duplicate);t[i]=a.curve;for(let e of a.indices)l.add(kT(i,e));for(let e of a.handles)l.add(AT(i,e.index,e.side))}o.current=t,a.set(t),T(l),c=!0},commit:()=>{c&&a.commit()},cancel:()=>{o.current=r,a.cancel(),T(i)}}},Ee=(e,t,n)=>{let r=new Set(ie);return i=>{if(s==`keys`)return{point:e,transformHandles:!1,snapTime:ge};let a=e;return r.has(i)||(a=(t,n)=>({x:e(t,n).x,y:t.y})),{point:a,transformHandles:t!=`translate`,snapTime:ge,roundTime:e=>aE(e,n.framePerPx),roundValue:e=>aE(e,n.valuePerPx)}}},De=()=>{let e=O(),t=Te(`translate`,!1);if(!e||!t)return null;let n=k(t),r=e.mapping.toPoint({x:0,y:0});return{move:(t,i)=>{let a=e.mapping.toPoint({x:t,y:i}),o=a.y-r.y;s==`keys`&&(o=0);let c={x:a.x-r.x,y:o};n.apply(Ee(e=>({x:e.x+c.x,y:e.y+c.y}),`translate`,e))},end:()=>n.commit()}},Oe=(n,r)=>{if(C.current||s==`keys`&&n==`rotate`)return;he();let i=O(),a=Te(n,r);if(!i||!a)return;let o=k(a),c=a.center;s==`keys`&&(c={x:ns(t),y:0});let l=()=>{C.current&&e.endTimelineModal(C.current),C.current=null},u=new gD({mode:n,mapping:i.mapping,pointer:{...x.current},center:c,individual:a.individual,timeOnly:s==`keys`,onChange:e=>o.apply(Ee(e,n,i)),onStatus:t=>e.setModalStatus(t),onConfirm:()=>{o.commit(),l()},onCancel:()=>{o.cancel(),l()}});C.current=u,e.beginTimelineModal(u)};(0,Q.useEffect)(()=>()=>{C.current&&C.current.cancel();let t=w.current;t&&(t.dispose(),e.endTimelineModal(t.modal),w.current=null)},[e]);let A=(0,Q.useRef)({deleteSelectedKeys:ye,copySelectedKeys:Ce,pasteCopiedKeys:we,startTransform:Oe,beginBoxSelect:me,selectAllKeys:pe,frameAll:le});A.current={deleteSelectedKeys:ye,copySelectedKeys:Ce,pasteCopiedKeys:we,startTransform:Oe,beginBoxSelect:me,selectAllKeys:pe,frameAll:le};let ke=(0,Q.useMemo)(()=>({deleteKeys:()=>A.current.deleteSelectedKeys(),copyKeys:()=>A.current.copySelectedKeys(),pasteKeys:()=>A.current.pasteCopiedKeys(),transformKeys:e=>A.current.startTransform(e,!1),duplicateKeys:()=>A.current.startTransform(`translate`,!0),boxSelect:()=>A.current.beginBoxSelect(),selectAllKeys:e=>A.current.selectAllKeys(e),frameAll:()=>A.current.frameAll(),openMenu:()=>{S.current&&S.current()}}),[]);return{entity:r.entity,curves:r.curves,channels:E,visibleChannels:ne,graphCurves:re,mode:s,setMode:c,selection:l,areaRef:y,channelListRef:b,pointerRef:x,openMenuRef:S,valueRange:ae,setValueRange:D,boxSelecting:ee,endBoxSelect:he,collapsed:d,toggleCollapsed:ue,activeChannelId:p,setActiveChannelId:m,scrollTop:h,setScrollTop:g,pressKeys:de,selectRefs:fe,select:T,deleteSelectedKeys:ye,copySelectedKeys:Ce,pasteCopiedKeys:we,setSelectedInterpolation:xe,setSelectedHandleType:Se,beginDrag:De,timelineActions:ke}}})))()}var OD,kD;function AD(){return(AD=t((()=>{TT(),DD(),OD=o(),kD=e=>{let t=ED();return(0,OD.jsx)(wT.Provider,{value:t,children:e.children})},kD.__docgenInfo={description:``,methods:[],displayName:`KeyEditorProvider`}})))()}var jD,MD,ND,PD,FD,ID;function LD(){return(LD=t((()=>{jD=`Timeline__timeline___LnRpb`,MD=`Timeline__inner___LnRpb`,ND=`Timeline__content___LnRpb`,PD=`Timeline__channels___LnRpb`,FD=`Timeline__setting___LnRpb`,ID={timeline:jD,inner:MD,content:ND,channels:PD,setting:FD}})))()}var RD,zD;function BD(){return(BD=t((()=>{RD=i(),R(),zD=()=>{let{editor:e}=L(),[t,n]=(0,RD.useState)({current:0,playing:!1}),[r,i]=(0,RD.useState)([0,0,100,0]),a=(0,RD.useRef)([0,0,0,0]);a.current=r;let o=r[2]-r[0],s=10*2**(0+Math.floor(Math.log2(o/100)));s=Math.max(1,Math.floor(s));let c=e?.audioBuffer,[l,u]=(0,RD.useState)();(0,RD.useEffect)(()=>{if(e){let t=e.engine,r=e=>{n({...e})};r(t.frame);let a=0,o=()=>{u(a++)},s=()=>{i([0,0,t.frameSetting.duration,0])};return s(),t.on(`update/frame/play`,r),t.on(`update/music`,o),t.on(`loaded`,s),()=>{t.off(`update/frame/play`,r),t.off(`update/music`,o),t.off(`loaded`,s)}}},[e]);let d=(0,RD.useCallback)(t=>{e&&e.engine.seek(t)},[e]),f=(0,RD.useCallback)(e=>{let t=r[2]-r[0];return Math.floor(r[0]+t*e)},[r]),p=(0,RD.useCallback)(e=>{a.current=e,i(e)},[]),m=(0,RD.useCallback)((e,t)=>{let n=a.current,r=n[0]+(n[2]-n[0])*t,i=(n[0]-r)*e+r,o=(n[2]-r)*e+r;p([i,n[1],o,n[3]])},[p]),h=(0,RD.useCallback)(e=>{let t=a.current,n=e*(t[2]-t[0]);p([t[0]+n,t[1],t[2]+n,t[3]])},[p]),g=(0,RD.useCallback)(e=>{let t=a.current,n=t[2]-t[0];p([e-n/2,t[1],e+n/2,t[3]])},[p]);return{glEditor:e,framePlay:t,viewPort:r,viewPortScale:s,musicBuffer:c,musicBufferVersion:l,setCurrentFrame:d,getFrameViewPort:f,zoom:m,scroll:h,setViewPortCenter:g}}})))()}var VD,HD;function UD(){return(UD=t((()=>{HC(),BD(),VD=o(),HD=e=>{let t=zD();return(0,VD.jsx)(VC.Provider,{value:t,children:e.children})},HD.__docgenInfo={description:``,methods:[],displayName:`TimelineProvider`}})))()}var WD,GD;function KD(){return(KD=t((()=>{nw(),jw(),Rw(),eT(),dT(),yT(),$E(),pD(),AD(),LD(),UD(),WD=o(),GD=()=>(0,WD.jsx)(HD,{children:(0,WD.jsx)(kD,{children:(0,WD.jsx)(`div`,{className:ID.timeline,children:(0,WD.jsxs)(`div`,{className:ID.inner,children:[(0,WD.jsx)(`div`,{className:ID.setting,children:(0,WD.jsx)(vT,{})}),(0,WD.jsx)(`div`,{className:ID.channels,children:(0,WD.jsx)(fD,{})}),(0,WD.jsxs)(`div`,{className:ID.content,children:[(0,WD.jsx)(tw,{}),(0,WD.jsx)(Lw,{}),(0,WD.jsxs)(Aw,{children:[(0,WD.jsx)(QE,{}),(0,WD.jsx)($w,{})]}),(0,WD.jsx)(uT,{})]})]})})})}),GD.__docgenInfo={description:``,methods:[],displayName:`Timeline`}})))()}var qD,JD;function YD(){return(YD=t((()=>{qD=`OREditor__editor___LmVka`,JD={editor:qD}})))()}var XD,ZD;function QD(){return(QD=t((()=>{XD=e(i(),1),Rv(),wb(),ZD=e=>{let{engine:t}=Cb(),[n,r]=(0,XD.useState)(()=>new Iv(t)),i=XD.useRef(n);return i.current=n,(0,XD.useEffect)(()=>{if(!i.current.disposed&&i.current.engine.uuid==t.uuid)return;let e=new Iv(t);r(e)},[t]),(0,XD.useEffect)(()=>()=>{n.dispose()},[n]),{engine:t,editor:n,projectName:e}}})))()}var $D,eO,tO;function nO(){return(nO=t((()=>{$D=i(),Rv(),Vi(),QD(),eO=o(),tO=e=>{let t=ZD(e.projectName),n=(0,$D.useRef)(Promise.resolve());(0,$D.useEffect)(()=>{if(!t.editor||!e.onSave)return;let r=e.onSave,i=(e,t)=>{n.current=Promise.resolve(r(e,t))};return t.editor.on(`save`,i),()=>{t.editor.off(`save`,i)}},[t.editor,e.onSave]);let r=(0,$D.useRef)(null),i=e.scenes??null;return(0,$D.useEffect)(()=>{r.current=i},[i]),(0,$D.useEffect)(()=>hu({editor:t.editor,getScenes:()=>r.current,waitForSave:()=>n.current}),[t.editor]),(0,$D.useEffect)(()=>{t.editor&&t.editor.bootstrap(e.editorData)},[e.editorData,t.editor]),(0,eO.jsx)(Bi.Provider,{value:{...t,scenes:e.scenes,fieldUIs:e.fieldUIs},children:e.children})},tO.__docgenInfo={description:``,methods:[],displayName:`OREditorProvider`}})))()}var rO,$,iO,aO,oO,sO;function cO(){return(cO=t((()=>{rO=e(i(),1),be(),E(),we(),wa(),Pa(),ub(),vb(),$b(),Ex(),jx(),lC(),gC(),DC(),ES(),zC(),KD(),YD(),nO(),$=o(),iO=[{id:`hierarchy`,title:`Hierarchy`,category:`General`,content:(0,$.jsx)(le,{children:(0,$.jsx)(Tx,{})})},{id:`timer`,title:`Timer`,category:`Rendering`,content:(0,$.jsx)(le,{noPadding:!0,children:(0,$.jsx)(Qb,{})})},{id:wS,title:`Screen`,category:`General`,multiple:!0,content:e=>(0,$.jsx)(TS,{viewportId:e})},{id:`property`,title:`Property`,category:`General`,content:(0,$.jsx)(le,{children:(0,$.jsx)(lb,{})})},{id:`textures`,title:`Textures`,category:`Rendering`,content:(0,$.jsx)(le,{noPadding:!0,children:(0,$.jsx)(RC,{})})},{id:`scene`,title:`Scene`,category:`General`,content:(0,$.jsx)(le,{children:(0,$.jsx)(EC,{})})},{id:`export`,title:`Export`,category:`Project`,content:(0,$.jsx)(le,{children:(0,$.jsx)(_b,{})})},{id:`renderer`,title:`Renderer`,category:`Rendering`,content:(0,$.jsx)(le,{children:(0,$.jsx)(hC,{})})},{id:`editor-settings`,title:`Editor`,category:`Project`,content:(0,$.jsx)(le,{children:(0,$.jsx)(Ca,{})})},{id:`timeline`,title:`Timeline`,category:`Animation`,content:(0,$.jsx)(le,{noPadding:!0,children:(0,$.jsx)(GD,{})})}],aO=[`hierarchy`,`property`],oO=e=>{let t=[];for(let n of e)n.multiple||n.id!==`hierarchy`&&n.id!==`property`&&n.id!==`timeline`&&t.push({id:n.id,title:n.title,content:n.content});return t},sO=e=>{let t=Ce(),n=(0,rO.useMemo)(()=>e.panels?[...iO,...e.panels]:iO,[e.panels]),r=null;return r=t.isPC?(0,$.jsx)(cC,{panels:n,activateOnSelect:aO}):(0,$.jsx)($.Fragment,{children:(0,$.jsxs)(oe,{direction:`vertical`,storageKey:`orengine-editor-sp-main`,children:[(0,$.jsx)(oe.Item,{size:`calc( min( 56.25vw, 55vh ) + 77px )`,minSize:200,style:{minHeight:`200px`},children:(0,$.jsx)(TS,{viewportId:`main`})}),(0,$.jsx)(oe.Item,{flex:1,minSize:200,children:(0,$.jsxs)(ue,{storageKey:`orengine-panel-sp-main`,children:[(0,$.jsx)(ue.Tab,{title:`Hierarchy / Property`,children:(0,$.jsxs)(oe,{direction:`horizontal`,storageKey:`orengine-editor-sp-hierarchyProp`,children:[(0,$.jsx)(oe.Item,{flex:1,minSize:120,overflow:!0,padding:!0,children:(0,$.jsx)(Tx,{})}),(0,$.jsx)(oe.Item,{flex:1,minSize:120,overflow:!0,padding:!0,children:(0,$.jsx)(lb,{})})]})}),oO(n).map(e=>(0,$.jsx)(ue.Tab,{title:e.title,children:e.content},e.id))]})}),(0,$.jsx)(oe.Item,{size:`120px`,minSize:80,children:(0,$.jsx)(ue,{storageKey:`orengine-panel-sp-timeline`,children:(0,$.jsx)(ue.Tab,{title:`Timeline`,children:(0,$.jsx)(le,{noPadding:!0,children:(0,$.jsx)(ye,{fallback:(0,$.jsx)(`div`,{children:`エラーだよ`}),children:(0,$.jsx)(GD,{})})})})})})]})}),(0,$.jsx)(tO,{projectName:e.projectName,onSave:e.onSave,editorData:e.editorData,scenes:e.scenes,fieldUIs:e.fieldUIs,children:(0,$.jsx)(C,{children:(0,$.jsxs)(ne,{children:[(0,$.jsx)(`div`,{className:JD.editor,children:r}),(0,$.jsx)(Na,{}),(0,$.jsx)(Ax,{}),(0,$.jsx)(x,{}),(0,$.jsx)(T,{})]})})})},sO.__docgenInfo={description:``,methods:[],displayName:`OREditor`,props:{onSave:{required:!1,tsType:{name:`signature`,type:`function`,raw:`( projectData: OREngineProjectData, editorData: MXP.SerializeField ) => Promise<void> | void`,signature:{arguments:[{type:{name:`OREngineProjectData`},name:`projectData`},{type:{name:`MXP.SerializeField`},name:`editorData`}],return:{name:`union`,raw:`Promise<void> | void`,elements:[{name:`Promise`,elements:[{name:`void`}],raw:`Promise<void>`},{name:`void`}]}}},description:``},editorData:{required:!1,tsType:{name:`MXP.SerializeField`},description:``},projectName:{required:!1,tsType:{name:`string`},description:``},panels:{required:!1,tsType:{name:`Array`,elements:[{name:`intersection`,raw:`{
+	id: PanelId;
+	title: string;
+	// タブ追加メニュー上の階層。"/" 区切りで、省略時はルート直下に出る。タブ名は title のまま
+	category?: string;
+} & (
+	// レイアウト内に同時1つまで。Panel ラッパー込みの完成形を持つ
+	| { multiple?: false; content: React.ReactNode }
+	// 「+」で追加するたびに "<id>:<instance>" のタブが新しく増える（Screen 用。タブごとに独立したビューポートを持つ）
+	| { multiple: true; content: ( instanceId: string ) => React.ReactNode }
+)`,elements:[{name:`signature`,type:`object`,raw:`{
+	id: PanelId;
+	title: string;
+	// タブ追加メニュー上の階層。"/" 区切りで、省略時はルート直下に出る。タブ名は title のまま
+	category?: string;
+}`,signature:{properties:[{key:`id`,value:{name:`string`,required:!0}},{key:`title`,value:{name:`string`,required:!0}},{key:`category`,value:{name:`string`,required:!1}}]}},{name:`unknown`}]}],raw:`PanelDefinition[]`},description:``},scenes:{required:!1,tsType:{name:`signature`,type:`object`,raw:`{
+	names: string[];
+	current: string | null;
+	// 読み込みの開始まで。エンジンの読み込み完了は engine の loaded で分かる
+	onSelect: ( name: string ) => Promise<void>;
+	// ファイルを作るだけで開かない。from を渡すとそのシーンの中身を複製する
+	onCreate: ( name: string, from?: string ) => Promise<void>;
+	onDelete: ( name: string ) => Promise<void>;
+}`,signature:{properties:[{key:`names`,value:{name:`Array`,elements:[{name:`string`}],raw:`string[]`,required:!0}},{key:`current`,value:{name:`union`,raw:`string | null`,elements:[{name:`string`},{name:`null`}],required:!0}},{key:`onSelect`,value:{name:`signature`,type:`function`,raw:`( name: string ) => Promise<void>`,signature:{arguments:[{type:{name:`string`},name:`name`}],return:{name:`Promise`,elements:[{name:`void`}],raw:`Promise<void>`}},required:!0}},{key:`onCreate`,value:{name:`signature`,type:`function`,raw:`( name: string, from?: string ) => Promise<void>`,signature:{arguments:[{type:{name:`string`},name:`name`},{type:{name:`string`},name:`from`}],return:{name:`Promise`,elements:[{name:`void`}],raw:`Promise<void>`}},required:!0}},{key:`onDelete`,value:{name:`signature`,type:`function`,raw:`( name: string ) => Promise<void>`,signature:{arguments:[{type:{name:`string`},name:`name`}],return:{name:`Promise`,elements:[{name:`void`}],raw:`Promise<void>`}},required:!0}}]}},description:``},fieldUIs:{required:!1,tsType:{name:`Array`,elements:[{name:`signature`,type:`object`,raw:`{
+	target: abstract new ( ...args: any[] ) => MXP.Serializable;
+	fields: { [ path: string ]: FieldUIEntry };
+}`,signature:{properties:[{key:`target`,value:{name:`unknown`,required:!0}},{key:`fields`,value:{name:`signature`,type:`object`,raw:`{ [ path: string ]: FieldUIEntry }`,signature:{properties:[{key:{name:`string`},value:{name:`signature`,type:`object`,raw:`{
+	ui: FieldUI;
+	layout: FieldUILayout;
+}`,signature:{properties:[{key:`ui`,value:{name:`ReactFC`,raw:`React.FC<FieldUIProps<T, C>>`,elements:[{name:`signature`,type:`object`,raw:`{
+	value: T;
+	// 1回で終わる変更（クリック等）。連続した変更は beginEdit を使う
+	setValue: ( value: T ) => void;
+	// ドラッグ等の連続した変更。commit した時点で undo 1回ぶんになる
+	beginEdit: () => FieldEdit;
+	target: C;
+	path: string;
+	opt?: MXP.SerializableFieldOpt;
+	engine: Engine;
+	editor: Editor;
+}`,signature:{properties:[{key:`value`,value:{name:`T`,required:!0}},{key:`setValue`,value:{name:`signature`,type:`function`,raw:`( value: T ) => void`,signature:{arguments:[{type:{name:`T`},name:`value`}],return:{name:`void`}},required:!0}},{key:`beginEdit`,value:{name:`signature`,type:`function`,raw:`() => FieldEdit`,signature:{arguments:[],return:{name:`FieldEdit`}},required:!0}},{key:`target`,value:{name:`C`,required:!0}},{key:`path`,value:{name:`string`,required:!0}},{key:`opt`,value:{name:`MXP.SerializableFieldOpt`,required:!1}},{key:`engine`,value:{name:`Engine`,required:!0}},{key:`editor`,value:{name:`Editor`,required:!0}}]}}],required:!0}},{key:`layout`,value:{name:`union`,raw:`'inline' | 'block'`,elements:[{name:`literal`,value:`'inline'`},{name:`literal`,value:`'block'`}],required:!0}}]},required:!0}}]},required:!0}}]}}],raw:`FieldUIDefinition[]`},description:``}}}})))()}var lO,uO;function dO(){return(dO=t((()=>{lO=e(i(),1),Au(),Mi(),uO=()=>{let[e,t]=lO.useState(()=>new I(Ou)),n=lO.useRef(e);return n.current=e,(0,lO.useEffect)(()=>{n.current.disposed&&t(new I(Ou))},[]),(0,lO.useEffect)(()=>()=>{e.dispose()},[e]),{engine:e,load:(0,lO.useCallback)(t=>{t&&e.load(t)},[e])}}})))()}var fO,pO,mO;function hO(){return(hO=t((()=>{fO=i(),xb(),dO(),pO=o(),mO=e=>{let t=uO(),{engine:n}=t,r=(0,fO.useRef)(e.onEngineInit);return r.current=e.onEngineInit,(0,fO.useEffect)(()=>{r.current?.(n)},[n]),(0,fO.useEffect)(()=>{e.project?n.load(e.project):n.init()},[n,e.project]),(0,pO.jsx)(bb.Provider,{value:t,children:e.children})},mO.__docgenInfo={description:``,methods:[],displayName:`OREngineProvider`}})))()}var gO,_O,vO,yO,bO,xO,SO;function CO(){return(CO=t((()=>{gO=i(),cO(),hO(),_O=o(),vO=`scene`,yO=async e=>{try{let t=await fetch(e);return t.ok?await t.json():null}catch{return null}},bO=(e,t)=>fetch(e,{method:`POST`,headers:{"Content-Type":`application/json`},body:JSON.stringify(t)}),xO=e=>({name:e,scene:{name:`Root`,uuid:`0`}}),SO=e=>{let t=e.projectName??`DefaultProject`,n=`/api/projects/${t}`,[r,i]=(0,gO.useState)(e.sceneData),[a,o]=(0,gO.useState)(e.editorData),[s,c]=(0,gO.useState)([]),[l,u]=(0,gO.useState)(null),d=(0,gO.useCallback)(async e=>{let t=await yO(`${n}/scenes/${e}`);if(!t)throw Error(`シーンを読み込めません: ${e}`);u(e),i(t)},[n]);(0,gO.useEffect)(()=>{e.sceneData||(async()=>{let[e,t]=await Promise.all([yO(`${n}/editor`),yO(`${n}/scenes`)]);e&&o(e);let r=t??[];if(c(r),r.length===0)return;let i=r[0],a=e?e[vO]:void 0;typeof a==`string`&&r.includes(a)&&(i=a),await d(i)})()},[e.sceneData,n,d]),(0,gO.useEffect)(()=>{l&&(document.title=`${l} | OREngine`)},[l]);let f={names:s,current:l,onSelect:d,onCreate:(0,gO.useCallback)(async(e,t)=>{let r=xO(e);if(t!==void 0){let i=await yO(`${n}/scenes/${t}`);if(!i)throw Error(`複製元のシーンを読み込めません: ${t}`);r={...i,name:e}}let i=await bO(`${n}/scenes/${e}`,r);if(!i.ok)throw Error(`シーンを作成できません: ${e}（HTTP ${i.status}）`);let a=await yO(`${n}/scenes`);a&&c(a)},[n]),onDelete:(0,gO.useCallback)(async e=>{let t=await fetch(`${n}/scenes/${e}`,{method:`DELETE`});if(!t.ok)throw Error(`シーンを削除できません: ${e}（HTTP ${t.status}）`);let r=await yO(`${n}/scenes`)??[];c(r),e===l&&r.length>0&&await d(r[0])},[n,l,d])};return(0,_O.jsx)(mO,{project:r,onEngineInit:t=>{e.initResourceInstances(t)},children:(0,_O.jsx)(sO,{editorData:a,projectName:t,panels:e.panels,fieldUIs:e.fieldUIs,scenes:f,onSave:async(t,r)=>{e.onBeforeSave?.();let i=[bO(`${n}/editor`,{...r,[vO]:l})];l&&i.push(bO(`${n}/scenes/${l}`,t));for(let e of await Promise.all(i))if(!e.ok)throw Error(`保存に失敗しました（POST ${new URL(e.url).pathname}: HTTP ${e.status}）`)}})})},SO.__docgenInfo={description:``,methods:[],displayName:`EditorPage`,props:{projectName:{required:!1,tsType:{name:`string`},description:``},sceneData:{required:!1,tsType:{name:`OREngineProjectData`},description:``},editorData:{required:!1,tsType:{name:`MXP.SerializeField`},description:``},initResourceInstances:{required:!0,tsType:{name:`signature`,type:`function`,raw:`( engine: Engine ) => void`,signature:{arguments:[{type:{name:`Engine`},name:`engine`}],return:{name:`void`}}},description:``},panels:{required:!1,tsType:{name:`Array`,elements:[{name:`intersection`,raw:`{
+	id: PanelId;
+	title: string;
+	// タブ追加メニュー上の階層。"/" 区切りで、省略時はルート直下に出る。タブ名は title のまま
+	category?: string;
+} & (
+	// レイアウト内に同時1つまで。Panel ラッパー込みの完成形を持つ
+	| { multiple?: false; content: React.ReactNode }
+	// 「+」で追加するたびに "<id>:<instance>" のタブが新しく増える（Screen 用。タブごとに独立したビューポートを持つ）
+	| { multiple: true; content: ( instanceId: string ) => React.ReactNode }
+)`,elements:[{name:`signature`,type:`object`,raw:`{
+	id: PanelId;
+	title: string;
+	// タブ追加メニュー上の階層。"/" 区切りで、省略時はルート直下に出る。タブ名は title のまま
+	category?: string;
+}`,signature:{properties:[{key:`id`,value:{name:`string`,required:!0}},{key:`title`,value:{name:`string`,required:!0}},{key:`category`,value:{name:`string`,required:!1}}]}},{name:`unknown`}]}],raw:`PanelDefinition[]`},description:``},fieldUIs:{required:!1,tsType:{name:`Array`,elements:[{name:`signature`,type:`object`,raw:`{
+	target: abstract new ( ...args: any[] ) => MXP.Serializable;
+	fields: { [ path: string ]: FieldUIEntry };
+}`,signature:{properties:[{key:`target`,value:{name:`unknown`,required:!0}},{key:`fields`,value:{name:`signature`,type:`object`,raw:`{ [ path: string ]: FieldUIEntry }`,signature:{properties:[{key:{name:`string`},value:{name:`signature`,type:`object`,raw:`{
+	ui: FieldUI;
+	layout: FieldUILayout;
+}`,signature:{properties:[{key:`ui`,value:{name:`ReactFC`,raw:`React.FC<FieldUIProps<T, C>>`,elements:[{name:`signature`,type:`object`,raw:`{
+	value: T;
+	// 1回で終わる変更（クリック等）。連続した変更は beginEdit を使う
+	setValue: ( value: T ) => void;
+	// ドラッグ等の連続した変更。commit した時点で undo 1回ぶんになる
+	beginEdit: () => FieldEdit;
+	target: C;
+	path: string;
+	opt?: MXP.SerializableFieldOpt;
+	engine: Engine;
+	editor: Editor;
+}`,signature:{properties:[{key:`value`,value:{name:`T`,required:!0}},{key:`setValue`,value:{name:`signature`,type:`function`,raw:`( value: T ) => void`,signature:{arguments:[{type:{name:`T`},name:`value`}],return:{name:`void`}},required:!0}},{key:`beginEdit`,value:{name:`signature`,type:`function`,raw:`() => FieldEdit`,signature:{arguments:[],return:{name:`FieldEdit`}},required:!0}},{key:`target`,value:{name:`C`,required:!0}},{key:`path`,value:{name:`string`,required:!0}},{key:`opt`,value:{name:`MXP.SerializableFieldOpt`,required:!1}},{key:`engine`,value:{name:`Engine`,required:!0}},{key:`editor`,value:{name:`Editor`,required:!0}}]}}],required:!0}},{key:`layout`,value:{name:`union`,raw:`'inline' | 'block'`,elements:[{name:`literal`,value:`'inline'`},{name:`literal`,value:`'block'`}],required:!0}}]},required:!0}}]},required:!0}}]}}],raw:`FieldUIDefinition[]`},description:``},onBeforeSave:{required:!1,tsType:{name:`signature`,type:`function`,raw:`() => void`,signature:{arguments:[],return:{name:`void`}}},description:``}}}})))()}var wO,TO;function EO(){return(EO=t((()=>{cO(),hO(),wO=o(),TO=e=>(0,wO.jsx)(mO,{project:e.sceneData,onEngineInit:t=>{e.initResourceInstances(t)},children:(0,wO.jsx)(sO,{editorData:e.editorData,projectName:e.projectName??`Static`,panels:e.panels,fieldUIs:e.fieldUIs,onSave:()=>{}})}),TO.__docgenInfo={description:``,methods:[],displayName:`EditorPageStatic`,props:{projectName:{required:!1,tsType:{name:`string`},description:``},sceneData:{required:!0,tsType:{name:`OREngineProjectData`},description:``},editorData:{required:!1,tsType:{name:`MXP.SerializeField`},description:``},initResourceInstances:{required:!0,tsType:{name:`signature`,type:`function`,raw:`( engine: Engine ) => void`,signature:{arguments:[{type:{name:`Engine`},name:`engine`}],return:{name:`void`}}},description:``},panels:{required:!1,tsType:{name:`Array`,elements:[{name:`intersection`,raw:`{
+	id: PanelId;
+	title: string;
+	// タブ追加メニュー上の階層。"/" 区切りで、省略時はルート直下に出る。タブ名は title のまま
+	category?: string;
+} & (
+	// レイアウト内に同時1つまで。Panel ラッパー込みの完成形を持つ
+	| { multiple?: false; content: React.ReactNode }
+	// 「+」で追加するたびに "<id>:<instance>" のタブが新しく増える（Screen 用。タブごとに独立したビューポートを持つ）
+	| { multiple: true; content: ( instanceId: string ) => React.ReactNode }
+)`,elements:[{name:`signature`,type:`object`,raw:`{
+	id: PanelId;
+	title: string;
+	// タブ追加メニュー上の階層。"/" 区切りで、省略時はルート直下に出る。タブ名は title のまま
+	category?: string;
+}`,signature:{properties:[{key:`id`,value:{name:`string`,required:!0}},{key:`title`,value:{name:`string`,required:!0}},{key:`category`,value:{name:`string`,required:!1}}]}},{name:`unknown`}]}],raw:`PanelDefinition[]`},description:``},fieldUIs:{required:!1,tsType:{name:`Array`,elements:[{name:`signature`,type:`object`,raw:`{
+	target: abstract new ( ...args: any[] ) => MXP.Serializable;
+	fields: { [ path: string ]: FieldUIEntry };
+}`,signature:{properties:[{key:`target`,value:{name:`unknown`,required:!0}},{key:`fields`,value:{name:`signature`,type:`object`,raw:`{ [ path: string ]: FieldUIEntry }`,signature:{properties:[{key:{name:`string`},value:{name:`signature`,type:`object`,raw:`{
+	ui: FieldUI;
+	layout: FieldUILayout;
+}`,signature:{properties:[{key:`ui`,value:{name:`ReactFC`,raw:`React.FC<FieldUIProps<T, C>>`,elements:[{name:`signature`,type:`object`,raw:`{
+	value: T;
+	// 1回で終わる変更（クリック等）。連続した変更は beginEdit を使う
+	setValue: ( value: T ) => void;
+	// ドラッグ等の連続した変更。commit した時点で undo 1回ぶんになる
+	beginEdit: () => FieldEdit;
+	target: C;
+	path: string;
+	opt?: MXP.SerializableFieldOpt;
+	engine: Engine;
+	editor: Editor;
+}`,signature:{properties:[{key:`value`,value:{name:`T`,required:!0}},{key:`setValue`,value:{name:`signature`,type:`function`,raw:`( value: T ) => void`,signature:{arguments:[{type:{name:`T`},name:`value`}],return:{name:`void`}},required:!0}},{key:`beginEdit`,value:{name:`signature`,type:`function`,raw:`() => FieldEdit`,signature:{arguments:[],return:{name:`FieldEdit`}},required:!0}},{key:`target`,value:{name:`C`,required:!0}},{key:`path`,value:{name:`string`,required:!0}},{key:`opt`,value:{name:`MXP.SerializableFieldOpt`,required:!1}},{key:`engine`,value:{name:`Engine`,required:!0}},{key:`editor`,value:{name:`Editor`,required:!0}}]}}],required:!0}},{key:`layout`,value:{name:`union`,raw:`'inline' | 'block'`,elements:[{name:`literal`,value:`'inline'`},{name:`literal`,value:`'block'`}],required:!0}}]},required:!0}}]},required:!0}}]}}],raw:`FieldUIDefinition[]`},description:``}}}})))()}var DO,OO,kO;function AO(){return(AO=t((()=>{DO=`InputGroup__group___Lmdyb`,OO=`InputGroup__submit___Lmdyb`,kO={group:DO,submit:OO}})))()}var jO,MO,NO;function PO(){return(PO=t((()=>{jO=i(),E(),ca(),AO(),MO=o(),NO=e=>{let t=e.initialValues,n=[],[r,i]=(0,jO.useState)(t);(0,jO.useEffect)(()=>{i(t)},[t]);let a=Object.keys(r);for(let e=0;e<a.length;e++){let t=a[e],o=r[t];n.push((0,MO.jsx)(sa,{label:t,value:o,onChange:e=>{i({...r,[t]:e})}},e))}let o=(0,jO.useRef)(null);return(0,jO.useEffect)(()=>{setTimeout(()=>{o.current&&o.current.querySelector(`input`)?.focus()},0)},[]),(0,MO.jsx)(`div`,{className:kO.group,ref:o,children:(0,MO.jsxs)(`form`,{onSubmit:e=>{e.preventDefault()},children:[(0,MO.jsx)(s,{label:e.title,noMargin:!0,children:n}),(0,MO.jsx)(`div`,{className:kO.submit,children:(0,MO.jsx)(c,{type:`submit`,onClick:()=>{e.onSubmit&&e.onSubmit(r)},children:`OK`})})]})})},NO.__docgenInfo={description:``,methods:[],displayName:`InputGroup`,props:{title:{required:!1,tsType:{name:`string`},description:``},initialValues:{required:!0,tsType:{name:`signature`,type:`object`,raw:`{[key: string]:ValueType}`,signature:{properties:[{key:{name:`string`},value:{name:`SerializeFieldObjective`,required:!0}}]}},description:``},onSubmit:{required:!1,tsType:{name:`signature`,type:`function`,raw:`( values: {[key: string]:ValueType} ) => void`,signature:{arguments:[{type:{name:`signature`,type:`object`,raw:`{[key: string]:ValueType}`,signature:{properties:[{key:{name:`string`},value:{name:`SerializeFieldObjective`,required:!0}}]}},name:`values`}],return:{name:`void`}}},description:``}}}})))()}function FO(){return(FO=t((()=>{CO(),EO(),cO(),nO(),R(),Vv(),hO(),wb(),Ex(),ub(),ES(),qx(),eS(),KD(),GC(),DC(),vb(),$b(),gC(),wa(),_a(),zC(),Py(),Rx(),ca(),gy(),PO(),Ki(),Xi(),aa(),Fy(),Ba(),uy(),we()})))()}var IO;function LO(){return(LO=t((()=>{IO=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+// 宣言順はvert_h.part.glslのoutと一致させる（WGSL変換時にロケーションが宣言順で振られるため）\r
+in vec2 vUv;\r
+in vec3 vViewNormal;\r
+in vec3 vNormal;\r
+in vec3 vMVPosition;\r
+in vec3 vMVPPosition;\r
+in vec3 vPos;\r
+in vec2 vVelocity;\r
+\r
+uniform mat4 uModelMatrix;\r
+uniform mat4 uModelMatrixInverse;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform vec3 uCameraPosition;\r
+uniform vec2 uResolution;\r
+\r
+#ifdef IS_DEPTH\r
+	uniform float uCameraNear;\r
+	uniform float uCameraFar;\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+	layout (location = 3) out vec4 outColor3;\r
+	layout (location = 4) out vec4 outColor4;\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	uniform sampler2D uDeferredTexture;\r
+	uniform vec2 uDeferredResolution;\r
+	uniform sampler2D uGbufferNormal;\r
+	uniform sampler2D uGbufferAlbedo;\r
+	uniform sampler2D uGbufferMaterial;\r
+#endif\r
+\r
+#if defined(IS_FORWARD) || defined(IS_DEPTH)\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;
+
+in vec3 vInstance;
+
+void main( void ) {
+
+	vec4 outColor = vec4(1.0);\r
+vec3 outNormal = normalize(vNormal);\r
+vec3 outNormalMap = vec3( 0.0 );\r
+float outSSN = 0.0;\r
+vec3 outEmission = vec3(0.0);\r
+float outRoughness = 0.5;\r
+float outMetallic = 0.0;\r
+vec3 outPos = vPos;\r
+float outEnv = 1.0;\r
+float outSSS = 0.0;
+
+	float emit = 10.0 - vInstance.z * 5.0;
+	outColor.xyz = vec3( emit );
+	outEmission += emit;
+	outSSN = 1.0;
+	
+	#if defined(IS_DEPTH) || defined(IS_DEFERRED)\r
+	vec4 mv = uViewMatrix * vec4(outPos, 1.0);\r
+#endif\r
+\r
+#ifdef IS_DEPTH\r
+	float depth_z = (-mv.z - uCameraNear) / (uCameraFar - uCameraNear);\r
+	outColor0 = vec4(floatToRGBA( depth_z ));\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+\r
+	#ifdef USE_NORMAL_MAP \r
+\r
+		vec3 tangent;\r
+		vec3 bitangent;\r
+\r
+		#ifdef USE_TANGENT\r
+\r
+			tangent = normalize( vTangent );\r
+			bitangent = normalize( vBitangent );\r
+\r
+		#else\r
+\r
+			tangent = cross(outNormal, vec3( 0.0, 1.0, 0.0 ));\r
+			bitangent = cross(tangent, outNormal);\r
+\r
+		#endif\r
+\r
+		#ifdef DOUBLE_SIDED\r
+\r
+			tangent *= faceDirection;\r
+			bitangent *= faceDirection;\r
+			\r
+		#endif\r
+\r
+		mat3 vTBN = mat3( tangent, bitangent, outNormal );\r
+		outNormal = normalize( vTBN * outNormalMap );\r
+\r
+	#endif\r
+\r
+	vec4 mvp = uProjectionMatrix * mv;\r
+	gl_FragDepth = ( mvp.z / mvp.w ) * 0.5 + 0.5;\r
+	outColor0 = vec4( outPos, outEmission.x );\r
+	outColor1 = vec4( normalize( outNormal * ( gl_FrontFacing ? 1.0 : -1.0 ) ), outEmission.y );\r
+	outColor2 = vec4( outColor.xyz, outSSS );\r
+	outColor3 = vec4( outRoughness, outMetallic, outSSN, outEnv );\r
+	outColor4 = vec4( vVelocity, 0.0, outEmission.z );\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	outColor0 = outColor;\r
+	outColor1 = vec4(outPos, 1.0);\r
+	outColor2 = vec4(vVelocity, 0.0, 1.0);\r
+#endif
+
+}`})))()}var RO;function zO(){return(zO=t((()=>{RO=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+uniform mat4 uModelMatrix;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform mat4 uNormalMatrix;\r
+\r
+uniform mat4 uModelMatrixPrev;\r
+uniform mat4 uModelViewMatrix;\r
+uniform mat4 uViewMatrixPrev;\r
+uniform mat4 uProjectionMatrixPrev;\r
+\r
+out vec2 vUv;\r
+out vec3 vViewNormal;\r
+out vec3 vNormal;\r
+out vec3 vMVPosition;\r
+out vec3 vMVPPosition;\r
+out vec3 vPos;\r
+\r
+out vec2 vVelocity;\r
+\r
+layout ( location = 0 ) in vec3 position;\r
+layout ( location = 1 ) in vec2 uv;\r
+layout ( location = 2 ) in vec3 normal;\r
+\r
+#ifdef TF_MODELER\r
+	out vec3 o_position;\r
+	out vec3 o_normal;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;
+mat2 rotate(float rad) {\r
+  return mat2(cos(rad), sin(rad), -sin(rad), cos(rad));\r
+}\r
+\r
+void rotate( float rad, inout vec2 pos, inout vec2 normal ) {\r
+	\r
+	mat2 rot = rotate( rad );\r
+	\r
+	pos *= rot;\r
+	normal *= rot;\r
+\r
+}\r
+\r
+mat3 makeRotationDir( vec3 direction, vec3 up ) {\r
+\r
+	vec3 xaxis = normalize( cross( up, direction ) );\r
+	vec3 yaxis = normalize( cross( direction, xaxis ) );\r
+\r
+	return mat3(\r
+		xaxis.x, yaxis.x, direction.x,\r
+		xaxis.y, yaxis.y, direction.y,\r
+		xaxis.z, yaxis.z, direction.z\r
+	);\r
+\r
+}
+
+out vec3 vInstance;
+
+layout(location = 3) in vec3 instance;
+
+void main( void ) {
+
+	vec3 outPos = position;\r
+vec3 outNormal = normal;\r
+vec2 outUv = uv;
+
+	outPos.xy *= 1.0 + (1.0 - instance.z) * 0.2;
+	outPos.yz *= rotate( (-HPI + sin( uTimeE * 0.3 + instance.z * 0.3 ) * HPI )  );
+	
+	outPos.y += instance.x * 2.2;
+
+	vInstance = instance;
+
+	
+	#ifdef TF_MODELER\r
+		o_position = outPos;\r
+		o_normal = outNormal;\r
+		return;\r
+#endif\r
+\r
+vec4 modelPosition = uModelMatrix * vec4(outPos, 1.0);\r
+vec4 mvPosition = uViewMatrix * modelPosition;\r
+gl_Position = uProjectionMatrix * mvPosition;\r
+\r
+vec4 modelPositionPrev = uModelMatrixPrev * vec4(outPos, 1.0);\r
+vec4 mvPositionPrev = uViewMatrixPrev * modelPositionPrev;\r
+vec4 positionPrev = uProjectionMatrixPrev * mvPositionPrev;\r
+\r
+vUv = outUv;\r
+vViewNormal = normalize( (uNormalMatrix * vec4(outNormal, 0.0)).xyz );\r
+vNormal = (uModelMatrix * vec4(outNormal, 0.0)).xyz;\r
+vPos = modelPosition.xyz;\r
+vMVPosition = mvPosition.xyz;\r
+vMVPPosition = gl_Position.xyz / gl_Position.w;\r
+\r
+vVelocity = vMVPPosition.xy - positionPrev.xy / positionPrev.w;\r
+vVelocity *= 0.2;
+
+}`})))()}var BO=n({EyeRings:()=>VO}),VO;function HO(){return(HO=t((()=>{F(),LO(),zO(),VO=class extends Dt{constructor(e){super(e);let t=new tn({thetaSegments:64,innerRadius:4,outerRadius:4.01,extrude:.01}),n=[];for(let e=0;e<8;e++)n.push(-1,e,e/7),n.push(1,e,e/7);t.setAttribute(`instance`,new Float32Array(n),3,{instanceDivisor:1});let r=new xn({phase:[`deferred`,`shadowMap`],frag:IO,vert:RO});this.entity.addComponent(N,{geometry:t,material:r})}dispose(){super.dispose(),this.entity.removeComponent(N)}}})))()}var UO;function WO(){return(WO=t((()=>{UO=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+// 宣言順はvert_h.part.glslのoutと一致させる（WGSL変換時にロケーションが宣言順で振られるため）\r
+in vec2 vUv;\r
+in vec3 vViewNormal;\r
+in vec3 vNormal;\r
+in vec3 vMVPosition;\r
+in vec3 vMVPPosition;\r
+in vec3 vPos;\r
+in vec2 vVelocity;\r
+\r
+uniform mat4 uModelMatrix;\r
+uniform mat4 uModelMatrixInverse;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform vec3 uCameraPosition;\r
+uniform vec2 uResolution;\r
+\r
+#ifdef IS_DEPTH\r
+	uniform float uCameraNear;\r
+	uniform float uCameraFar;\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+	layout (location = 3) out vec4 outColor3;\r
+	layout (location = 4) out vec4 outColor4;\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	uniform sampler2D uDeferredTexture;\r
+	uniform vec2 uDeferredResolution;\r
+	uniform sampler2D uGbufferNormal;\r
+	uniform sampler2D uGbufferAlbedo;\r
+	uniform sampler2D uGbufferMaterial;\r
+#endif\r
+\r
+#if defined(IS_FORWARD) || defined(IS_DEPTH)\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;
+
+in vec4 vOPos;
+in float vT;
+
+void main( void ) {
+
+	vec4 outColor = vec4(1.0);\r
+vec3 outNormal = normalize(vNormal);\r
+vec3 outNormalMap = vec3( 0.0 );\r
+float outSSN = 0.0;\r
+vec3 outEmission = vec3(0.0);\r
+float outRoughness = 0.5;\r
+float outMetallic = 0.0;\r
+vec3 outPos = vPos;\r
+float outEnv = 1.0;\r
+float outSSS = 0.0;
+
+	float emit = exp( vT * -8.0);
+
+	outColor = vec4( vec3( emit * 50.0 ), emit );
+
+	if( emit < 0.03 ) {
+
+		discard;
+
+	}
+	
+	#if defined(IS_DEPTH) || defined(IS_DEFERRED)\r
+	vec4 mv = uViewMatrix * vec4(outPos, 1.0);\r
+#endif\r
+\r
+#ifdef IS_DEPTH\r
+	float depth_z = (-mv.z - uCameraNear) / (uCameraFar - uCameraNear);\r
+	outColor0 = vec4(floatToRGBA( depth_z ));\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+\r
+	#ifdef USE_NORMAL_MAP \r
+\r
+		vec3 tangent;\r
+		vec3 bitangent;\r
+\r
+		#ifdef USE_TANGENT\r
+\r
+			tangent = normalize( vTangent );\r
+			bitangent = normalize( vBitangent );\r
+\r
+		#else\r
+\r
+			tangent = cross(outNormal, vec3( 0.0, 1.0, 0.0 ));\r
+			bitangent = cross(tangent, outNormal);\r
+\r
+		#endif\r
+\r
+		#ifdef DOUBLE_SIDED\r
+\r
+			tangent *= faceDirection;\r
+			bitangent *= faceDirection;\r
+			\r
+		#endif\r
+\r
+		mat3 vTBN = mat3( tangent, bitangent, outNormal );\r
+		outNormal = normalize( vTBN * outNormalMap );\r
+\r
+	#endif\r
+\r
+	vec4 mvp = uProjectionMatrix * mv;\r
+	gl_FragDepth = ( mvp.z / mvp.w ) * 0.5 + 0.5;\r
+	outColor0 = vec4( outPos, outEmission.x );\r
+	outColor1 = vec4( normalize( outNormal * ( gl_FrontFacing ? 1.0 : -1.0 ) ), outEmission.y );\r
+	outColor2 = vec4( outColor.xyz, outSSS );\r
+	outColor3 = vec4( outRoughness, outMetallic, outSSN, outEnv );\r
+	outColor4 = vec4( vVelocity, 0.0, outEmission.z );\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	outColor0 = outColor;\r
+	outColor1 = vec4(outPos, 1.0);\r
+	outColor2 = vec4(vVelocity, 0.0, 1.0);\r
+#endif
+
+}`})))()}var GO;function KO(){return(KO=t((()=>{GO=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+uniform mat4 uModelMatrix;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform mat4 uNormalMatrix;\r
+\r
+uniform mat4 uModelMatrixPrev;\r
+uniform mat4 uModelViewMatrix;\r
+uniform mat4 uViewMatrixPrev;\r
+uniform mat4 uProjectionMatrixPrev;\r
+\r
+out vec2 vUv;\r
+out vec3 vViewNormal;\r
+out vec3 vNormal;\r
+out vec3 vMVPosition;\r
+out vec3 vMVPPosition;\r
+out vec3 vPos;\r
+\r
+out vec2 vVelocity;\r
+\r
+layout ( location = 0 ) in vec3 position;\r
+layout ( location = 1 ) in vec2 uv;\r
+layout ( location = 2 ) in vec3 normal;\r
+\r
+#ifdef TF_MODELER\r
+	out vec3 o_position;\r
+	out vec3 o_normal;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;
+
+in vec4 oPos;
+out vec4 vOPos;
+out float vT;
+
+void main( void ) {
+
+	vec3 outPos = position;\r
+vec3 outNormal = normal;\r
+vec2 outUv = uv;
+
+	vT = fract( uTimeE * 0.5 + oPos.w );
+
+	outPos.xz *= 1.0 + exp( vT * -8.0 ) * 20.0;
+	outPos.xyz += oPos.xyz;
+
+	#ifdef TF_MODELER\r
+		o_position = outPos;\r
+		o_normal = outNormal;\r
+		return;\r
+#endif\r
+\r
+vec4 modelPosition = uModelMatrix * vec4(outPos, 1.0);\r
+vec4 mvPosition = uViewMatrix * modelPosition;\r
+gl_Position = uProjectionMatrix * mvPosition;\r
+\r
+vec4 modelPositionPrev = uModelMatrixPrev * vec4(outPos, 1.0);\r
+vec4 mvPositionPrev = uViewMatrixPrev * modelPositionPrev;\r
+vec4 positionPrev = uProjectionMatrixPrev * mvPositionPrev;\r
+\r
+vUv = outUv;\r
+vViewNormal = normalize( (uNormalMatrix * vec4(outNormal, 0.0)).xyz );\r
+vNormal = (uModelMatrix * vec4(outNormal, 0.0)).xyz;\r
+vPos = modelPosition.xyz;\r
+vMVPosition = mvPosition.xyz;\r
+vMVPPosition = gl_Position.xyz / gl_Position.w;\r
+\r
+vVelocity = vMVPPosition.xy - positionPrev.xy / positionPrev.w;\r
+vVelocity *= 0.2;
+	
+	vOPos = oPos;
+
+}`})))()}var qO=n({FlashLine:()=>JO}),JO;function YO(){return(YO=t((()=>{j(),F(),WO(),KO(),JO=class extends Dt{geometry;material;constructor(e){super(e),this.geometry=new Nt({radiusBottom:.02,radiusTop:.02,radSegments:8,height:50});let t=[];for(let e=0;e<32;e++){let e=Ae.randomVector().multiply(new O(20,1,20));t.push(e.x,e.y,e.z,Math.random())}this.geometry.setAttribute(`oPos`,new Float32Array(t),4,{instanceDivisor:1}),this.material=new xn({phase:[`forward`,`envMap`],frag:an(`flFrag`,UO),vert:an(`flVert`,GO)}),this.entity.addComponent(N,{material:this.material,geometry:this.geometry})}}})))()}var XO;function ZO(){return(ZO=t((()=>{XO=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+// 宣言順はvert_h.part.glslのoutと一致させる（WGSL変換時にロケーションが宣言順で振られるため）\r
+in vec2 vUv;\r
+in vec3 vViewNormal;\r
+in vec3 vNormal;\r
+in vec3 vMVPosition;\r
+in vec3 vMVPPosition;\r
+in vec3 vPos;\r
+in vec2 vVelocity;\r
+\r
+uniform mat4 uModelMatrix;\r
+uniform mat4 uModelMatrixInverse;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform vec3 uCameraPosition;\r
+uniform vec2 uResolution;\r
+\r
+#ifdef IS_DEPTH\r
+	uniform float uCameraNear;\r
+	uniform float uCameraFar;\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+	layout (location = 3) out vec4 outColor3;\r
+	layout (location = 4) out vec4 outColor4;\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	uniform sampler2D uDeferredTexture;\r
+	uniform vec2 uDeferredResolution;\r
+	uniform sampler2D uGbufferNormal;\r
+	uniform sampler2D uGbufferAlbedo;\r
+	uniform sampler2D uGbufferMaterial;\r
+#endif\r
+\r
+#if defined(IS_FORWARD) || defined(IS_DEPTH)\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;
+\r
+// https://www.shadertoy.com/view/4dS3Wd\r
+\r
+float hashv(float p) { p = fract(p * 0.011); p *= p + 7.5; p *= p + p; return fract(p); }\r
+float hashv(vec2 p) {vec3 p3 = fract(vec3(p.xyx) * 0.13); p3 += dot(p3, p3.yzx + 3.333); return fract((p3.x + p3.y) * p3.z); }\r
+\r
+#define NUM_NOISE_OCTAVES 5\r
+\r
+float noiseValue(vec3 x) {\r
+    const vec3 step = vec3(110, 241, 171);\r
+\r
+    vec3 i = floor(x);\r
+    vec3 f = fract(x);\r
+ \r
+    // For performance, compute the base input to a 1D hash from the integer part of the argument and the \r
+    // incremental change to the 1D based on the 3D -> 1D wrapping\r
+    float n = dot(i, step);\r
+\r
+    vec3 u = f * f * (3.0 - 2.0 * f);\r
+    return mix(mix(mix( hashv(n + dot(step, vec3(0, 0, 0))), hashv(n + dot(step, vec3(1, 0, 0))), u.x),\r
+                   mix( hashv(n + dot(step, vec3(0, 1, 0))), hashv(n + dot(step, vec3(1, 1, 0))), u.x), u.y),\r
+               mix(mix( hashv(n + dot(step, vec3(0, 0, 1))), hashv(n + dot(step, vec3(1, 0, 1))), u.x),\r
+                   mix( hashv(n + dot(step, vec3(0, 1, 1))), hashv(n + dot(step, vec3(1, 1, 1))), u.x), u.y), u.z);\r
+}\r
+\r
+float fbm(vec3 x) {\r
+	float v = 0.0;\r
+	float a = 0.5;\r
+	vec3 shift = vec3(100);\r
+	for (int i = 0; i < NUM_NOISE_OCTAVES; ++i) {\r
+		v += a * noiseValue(x);\r
+		x = x * 2.0 + shift;\r
+		a *= 0.5;\r
+    if( i == -1 ) break;\r
+	}\r
+	return v;\r
+}\r
+\r
+float fbm(float x) {\r
+  return fbm(vec3(x));\r
+}
+mat2 rotate(float rad) {\r
+  return mat2(cos(rad), sin(rad), -sin(rad), cos(rad));\r
+}\r
+\r
+void rotate( float rad, inout vec2 pos, inout vec2 normal ) {\r
+	\r
+	mat2 rot = rotate( rad );\r
+	\r
+	pos *= rot;\r
+	normal *= rot;\r
+\r
+}\r
+\r
+mat3 makeRotationDir( vec3 direction, vec3 up ) {\r
+\r
+	vec3 xaxis = normalize( cross( up, direction ) );\r
+	vec3 yaxis = normalize( cross( direction, xaxis ) );\r
+\r
+	return mat3(\r
+		xaxis.x, yaxis.x, direction.x,\r
+		xaxis.y, yaxis.y, direction.y,\r
+		xaxis.z, yaxis.z, direction.z\r
+	);\r
+\r
+}
+// 空の模様を作るための仮想のワールド座標。空の球はカメラに追従するので実際の位置（outPos）は模様に使えない。
+// normal は半径1の球の外向き法線（= カメラから見た向き）。
+// 500 は追従前の「原点中心・半径500」の球と同じ座標にするための値で、既存の模様の細かさを保つ。
+// 模様の計算にだけ使い、outPos には書かない（深度とポストエフェクトは実際の位置を読むため）
+vec3 skyPosition( vec3 normal ) {
+
+	return normalize( normal ) * 500.0;
+
+}
+
+
+uniform float uAspectRatio;
+
+void main( void ) {
+
+	vec4 outColor = vec4(1.0);\r
+vec3 outNormal = normalize(vNormal);\r
+vec3 outNormalMap = vec3( 0.0 );\r
+float outSSN = 0.0;\r
+vec3 outEmission = vec3(0.0);\r
+float outRoughness = 0.5;\r
+float outMetallic = 0.0;\r
+vec3 outPos = vPos;\r
+float outEnv = 1.0;\r
+float outSSS = 0.0;
+
+	outRoughness = 1.0;
+	outColor *= 0.0;
+	outColor.xyz = vec3( 0.0, 0.05, 0.1);
+
+	vec3 sPos = skyPosition( vNormal ) * 0.1;
+
+	float n = noiseValue( sPos * 0.05 + uTimeE * 0.1 );
+
+	vec3 n2Pos = sPos;
+	n2Pos.xz *= rotate( n2Pos.y * 0.02 );
+	float n2 = noiseValue( n2Pos * 0.01 + vec3( 0.0, 0.0, uTimeE * 0.5 + n ) );
+
+	float phase = 4.5;
+
+	float line = smoothstep( 0.88, 0.9, fract( n2 * phase ) );
+	float pattern = smoothstep( 0.2, 0.1, length( fract( ( vUv + vec2( floor(vUv.y * 150.0) / 150.0 * 0.25, 0.0 ) ) * vec2( 2.0, 1.0 ) * 150.0 ) - 0.5 )) * step( n2 * phase, 2.0 ) * 0.8;
+
+	float emit = min( line + pattern, 1.0 );
+
+	outEmission = vec3( emit * 20.0 * smoothstep( 0.4, 1.0, n) );
+
+	#ifdef IS_FORWARD
+
+		outColor = vec4( outEmission, 1.0 );
+
+	#endif
+
+	outEnv = 0.0;
+
+	#if defined(IS_DEPTH) || defined(IS_DEFERRED)\r
+	vec4 mv = uViewMatrix * vec4(outPos, 1.0);\r
+#endif\r
+\r
+#ifdef IS_DEPTH\r
+	float depth_z = (-mv.z - uCameraNear) / (uCameraFar - uCameraNear);\r
+	outColor0 = vec4(floatToRGBA( depth_z ));\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+\r
+	#ifdef USE_NORMAL_MAP \r
+\r
+		vec3 tangent;\r
+		vec3 bitangent;\r
+\r
+		#ifdef USE_TANGENT\r
+\r
+			tangent = normalize( vTangent );\r
+			bitangent = normalize( vBitangent );\r
+\r
+		#else\r
+\r
+			tangent = cross(outNormal, vec3( 0.0, 1.0, 0.0 ));\r
+			bitangent = cross(tangent, outNormal);\r
+\r
+		#endif\r
+\r
+		#ifdef DOUBLE_SIDED\r
+\r
+			tangent *= faceDirection;\r
+			bitangent *= faceDirection;\r
+			\r
+		#endif\r
+\r
+		mat3 vTBN = mat3( tangent, bitangent, outNormal );\r
+		outNormal = normalize( vTBN * outNormalMap );\r
+\r
+	#endif\r
+\r
+	vec4 mvp = uProjectionMatrix * mv;\r
+	gl_FragDepth = ( mvp.z / mvp.w ) * 0.5 + 0.5;\r
+	outColor0 = vec4( outPos, outEmission.x );\r
+	outColor1 = vec4( normalize( outNormal * ( gl_FrontFacing ? 1.0 : -1.0 ) ), outEmission.y );\r
+	outColor2 = vec4( outColor.xyz, outSSS );\r
+	outColor3 = vec4( outRoughness, outMetallic, outSSN, outEnv );\r
+	outColor4 = vec4( vVelocity, 0.0, outEmission.z );\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	outColor0 = outColor;\r
+	outColor1 = vec4(outPos, 1.0);\r
+	outColor2 = vec4(vVelocity, 0.0, 1.0);\r
+#endif
+
+}`})))()}var QO=n({SkyBox:()=>$O}),$O;function ek(){return(ek=t((()=>{F(),ZO(),$O=class extends Dt{material;constructor(e){super(e);let t=this.engine;this.material=new xn({name:`SkyBox`,phase:[`deferred`,`envMap`],frag:an(`SkyBoxFrag`,XO),uniforms:{uAspectRatio:{value:0,type:`1f`}}}),t.renderer.sky.mesh.material=this.material}}})))()}var tk;function nk(){return(nk=t((()=>{tk=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+// 宣言順はvert_h.part.glslのoutと一致させる（WGSL変換時にロケーションが宣言順で振られるため）\r
+in vec2 vUv;\r
+in vec3 vViewNormal;\r
+in vec3 vNormal;\r
+in vec3 vMVPosition;\r
+in vec3 vMVPPosition;\r
+in vec3 vPos;\r
+in vec2 vVelocity;\r
+\r
+uniform mat4 uModelMatrix;\r
+uniform mat4 uModelMatrixInverse;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform vec3 uCameraPosition;\r
+uniform vec2 uResolution;\r
+\r
+#ifdef IS_DEPTH\r
+	uniform float uCameraNear;\r
+	uniform float uCameraFar;\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+	layout (location = 3) out vec4 outColor3;\r
+	layout (location = 4) out vec4 outColor4;\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	uniform sampler2D uDeferredTexture;\r
+	uniform vec2 uDeferredResolution;\r
+	uniform sampler2D uGbufferNormal;\r
+	uniform sampler2D uGbufferAlbedo;\r
+	uniform sampler2D uGbufferMaterial;\r
+#endif\r
+\r
+#if defined(IS_FORWARD) || defined(IS_DEPTH)\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;
+
+void main( void ) {
+
+	vec4 outColor = vec4(1.0);\r
+vec3 outNormal = normalize(vNormal);\r
+vec3 outNormalMap = vec3( 0.0 );\r
+float outSSN = 0.0;\r
+vec3 outEmission = vec3(0.0);\r
+float outRoughness = 0.5;\r
+float outMetallic = 0.0;\r
+vec3 outPos = vPos;\r
+float outEnv = 1.0;\r
+float outSSS = 0.0;
+
+	outEmission += 0.35;
+	outColor.w *= 0.2;
+	
+	#if defined(IS_DEPTH) || defined(IS_DEFERRED)\r
+	vec4 mv = uViewMatrix * vec4(outPos, 1.0);\r
+#endif\r
+\r
+#ifdef IS_DEPTH\r
+	float depth_z = (-mv.z - uCameraNear) / (uCameraFar - uCameraNear);\r
+	outColor0 = vec4(floatToRGBA( depth_z ));\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+\r
+	#ifdef USE_NORMAL_MAP \r
+\r
+		vec3 tangent;\r
+		vec3 bitangent;\r
+\r
+		#ifdef USE_TANGENT\r
+\r
+			tangent = normalize( vTangent );\r
+			bitangent = normalize( vBitangent );\r
+\r
+		#else\r
+\r
+			tangent = cross(outNormal, vec3( 0.0, 1.0, 0.0 ));\r
+			bitangent = cross(tangent, outNormal);\r
+\r
+		#endif\r
+\r
+		#ifdef DOUBLE_SIDED\r
+\r
+			tangent *= faceDirection;\r
+			bitangent *= faceDirection;\r
+			\r
+		#endif\r
+\r
+		mat3 vTBN = mat3( tangent, bitangent, outNormal );\r
+		outNormal = normalize( vTBN * outNormalMap );\r
+\r
+	#endif\r
+\r
+	vec4 mvp = uProjectionMatrix * mv;\r
+	gl_FragDepth = ( mvp.z / mvp.w ) * 0.5 + 0.5;\r
+	outColor0 = vec4( outPos, outEmission.x );\r
+	outColor1 = vec4( normalize( outNormal * ( gl_FrontFacing ? 1.0 : -1.0 ) ), outEmission.y );\r
+	outColor2 = vec4( outColor.xyz, outSSS );\r
+	outColor3 = vec4( outRoughness, outMetallic, outSSN, outEnv );\r
+	outColor4 = vec4( vVelocity, 0.0, outEmission.z );\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	outColor0 = outColor;\r
+	outColor1 = vec4(outPos, 1.0);\r
+	outColor2 = vec4(vVelocity, 0.0, 1.0);\r
+#endif
+
+}`})))()}var rk;function ik(){return(ik=t((()=>{rk=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+mat2 rotate(float rad) {\r
+  return mat2(cos(rad), sin(rad), -sin(rad), cos(rad));\r
+}\r
+\r
+void rotate( float rad, inout vec2 pos, inout vec2 normal ) {\r
+	\r
+	mat2 rot = rotate( rad );\r
+	\r
+	pos *= rot;\r
+	normal *= rot;\r
+\r
+}\r
+\r
+mat3 makeRotationDir( vec3 direction, vec3 up ) {\r
+\r
+	vec3 xaxis = normalize( cross( up, direction ) );\r
+	vec3 yaxis = normalize( cross( direction, xaxis ) );\r
+\r
+	return mat3(\r
+		xaxis.x, yaxis.x, direction.x,\r
+		xaxis.y, yaxis.y, direction.y,\r
+		xaxis.z, yaxis.z, direction.z\r
+	);\r
+\r
+}
+uniform mat4 uModelMatrix;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform mat4 uNormalMatrix;\r
+\r
+uniform mat4 uModelMatrixPrev;\r
+uniform mat4 uModelViewMatrix;\r
+uniform mat4 uViewMatrixPrev;\r
+uniform mat4 uProjectionMatrixPrev;\r
+\r
+out vec2 vUv;\r
+out vec3 vViewNormal;\r
+out vec3 vNormal;\r
+out vec3 vMVPosition;\r
+out vec3 vMVPPosition;\r
+out vec3 vPos;\r
+\r
+out vec2 vVelocity;\r
+\r
+layout ( location = 0 ) in vec3 position;\r
+layout ( location = 1 ) in vec2 uv;\r
+layout ( location = 2 ) in vec3 normal;\r
+\r
+#ifdef TF_MODELER\r
+	out vec3 o_position;\r
+	out vec3 o_normal;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;
+
+layout (location=3) in vec3 instancePos;
+layout (location=4) in vec3 instanceRot;
+
+void main( void ) {
+
+	vec3 outPos = position;\r
+vec3 outNormal = normal;\r
+vec2 outUv = uv;
+
+	outPos.xz *= 0.25;
+	outPos.yz *= rotate( instanceRot.x );
+	outPos.xy *= rotate( instanceRot.z );
+
+	outPos += instancePos * vec3(15.0, 10.0, 15.0 );
+
+
+	#ifdef TF_MODELER\r
+		o_position = outPos;\r
+		o_normal = outNormal;\r
+		return;\r
+#endif\r
+\r
+vec4 modelPosition = uModelMatrix * vec4(outPos, 1.0);\r
+vec4 mvPosition = uViewMatrix * modelPosition;\r
+gl_Position = uProjectionMatrix * mvPosition;\r
+\r
+vec4 modelPositionPrev = uModelMatrixPrev * vec4(outPos, 1.0);\r
+vec4 mvPositionPrev = uViewMatrixPrev * modelPositionPrev;\r
+vec4 positionPrev = uProjectionMatrixPrev * mvPositionPrev;\r
+\r
+vUv = outUv;\r
+vViewNormal = normalize( (uNormalMatrix * vec4(outNormal, 0.0)).xyz );\r
+vNormal = (uModelMatrix * vec4(outNormal, 0.0)).xyz;\r
+vPos = modelPosition.xyz;\r
+vMVPosition = mvPosition.xyz;\r
+vMVPPosition = gl_Position.xyz / gl_Position.w;\r
+\r
+vVelocity = vMVPPosition.xy - positionPrev.xy / positionPrev.w;\r
+vVelocity *= 0.2;
+
+}`})))()}var ak=n({GridCross:()=>ok}),ok;function sk(){return(sk=t((()=>{j(),F(),nk(),ik(),ok=class extends Dt{constructor(e){super(e);let t=new jt({width:.05,height:.5,depth:.05}),n=[],r=[],i=new O(16,2,16);for(let e=0;e<i.x;e++)for(let t=0;t<i.y;t++)for(let a=0;a<i.z;a++){let o=(e/(i.x-1)-.5)*1,s=(t/(i.y-1)-.5)*1,c=(a/(i.z-1)-.5)*1;n.push(o,s,c),r.push(Math.PI/2,0,0),n.push(o,s,c),r.push(0,0,Math.PI/2)}t.setAttribute(`instanceRot`,new Float32Array(r),3,{instanceDivisor:1}),t.setAttribute(`instancePos`,new Float32Array(n),3,{instanceDivisor:1});let a=new xn({frag:an(`gridCrossFrag`,tk),vert:an(`gridCrossVert`,rk),phase:[`forward`]});this.entity.addComponent(N,{geometry:t,material:a})}}})))()}var ck;function lk(){return(lk=t((()=>{ck=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+// 宣言順はvert_h.part.glslのoutと一致させる（WGSL変換時にロケーションが宣言順で振られるため）\r
+in vec2 vUv;\r
+in vec3 vViewNormal;\r
+in vec3 vNormal;\r
+in vec3 vMVPosition;\r
+in vec3 vMVPPosition;\r
+in vec3 vPos;\r
+in vec2 vVelocity;\r
+\r
+uniform mat4 uModelMatrix;\r
+uniform mat4 uModelMatrixInverse;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform vec3 uCameraPosition;\r
+uniform vec2 uResolution;\r
+\r
+#ifdef IS_DEPTH\r
+	uniform float uCameraNear;\r
+	uniform float uCameraFar;\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+	layout (location = 3) out vec4 outColor3;\r
+	layout (location = 4) out vec4 outColor4;\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	uniform sampler2D uDeferredTexture;\r
+	uniform vec2 uDeferredResolution;\r
+	uniform sampler2D uGbufferNormal;\r
+	uniform sampler2D uGbufferAlbedo;\r
+	uniform sampler2D uGbufferMaterial;\r
+#endif\r
+\r
+#if defined(IS_FORWARD) || defined(IS_DEPTH)\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;
+
+void main( void ) {
+
+	vec4 outColor = vec4(1.0);\r
+vec3 outNormal = normalize(vNormal);\r
+vec3 outNormalMap = vec3( 0.0 );\r
+float outSSN = 0.0;\r
+vec3 outEmission = vec3(0.0);\r
+float outRoughness = 0.5;\r
+float outMetallic = 0.0;\r
+vec3 outPos = vPos;\r
+float outEnv = 1.0;\r
+float outSSS = 0.0;
+
+	outEmission += 0.35;
+
+	outColor.w = 0.2;
+	
+	#if defined(IS_DEPTH) || defined(IS_DEFERRED)\r
+	vec4 mv = uViewMatrix * vec4(outPos, 1.0);\r
+#endif\r
+\r
+#ifdef IS_DEPTH\r
+	float depth_z = (-mv.z - uCameraNear) / (uCameraFar - uCameraNear);\r
+	outColor0 = vec4(floatToRGBA( depth_z ));\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+\r
+	#ifdef USE_NORMAL_MAP \r
+\r
+		vec3 tangent;\r
+		vec3 bitangent;\r
+\r
+		#ifdef USE_TANGENT\r
+\r
+			tangent = normalize( vTangent );\r
+			bitangent = normalize( vBitangent );\r
+\r
+		#else\r
+\r
+			tangent = cross(outNormal, vec3( 0.0, 1.0, 0.0 ));\r
+			bitangent = cross(tangent, outNormal);\r
+\r
+		#endif\r
+\r
+		#ifdef DOUBLE_SIDED\r
+\r
+			tangent *= faceDirection;\r
+			bitangent *= faceDirection;\r
+			\r
+		#endif\r
+\r
+		mat3 vTBN = mat3( tangent, bitangent, outNormal );\r
+		outNormal = normalize( vTBN * outNormalMap );\r
+\r
+	#endif\r
+\r
+	vec4 mvp = uProjectionMatrix * mv;\r
+	gl_FragDepth = ( mvp.z / mvp.w ) * 0.5 + 0.5;\r
+	outColor0 = vec4( outPos, outEmission.x );\r
+	outColor1 = vec4( normalize( outNormal * ( gl_FrontFacing ? 1.0 : -1.0 ) ), outEmission.y );\r
+	outColor2 = vec4( outColor.xyz, outSSS );\r
+	outColor3 = vec4( outRoughness, outMetallic, outSSN, outEnv );\r
+	outColor4 = vec4( vVelocity, 0.0, outEmission.z );\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	outColor0 = outColor;\r
+	outColor1 = vec4(outPos, 1.0);\r
+	outColor2 = vec4(vVelocity, 0.0, 1.0);\r
+#endif
+
+}`})))()}var uk;function dk(){return(dk=t((()=>{uk=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+mat2 rotate(float rad) {\r
+  return mat2(cos(rad), sin(rad), -sin(rad), cos(rad));\r
+}\r
+\r
+void rotate( float rad, inout vec2 pos, inout vec2 normal ) {\r
+	\r
+	mat2 rot = rotate( rad );\r
+	\r
+	pos *= rot;\r
+	normal *= rot;\r
+\r
+}\r
+\r
+mat3 makeRotationDir( vec3 direction, vec3 up ) {\r
+\r
+	vec3 xaxis = normalize( cross( up, direction ) );\r
+	vec3 yaxis = normalize( cross( direction, xaxis ) );\r
+\r
+	return mat3(\r
+		xaxis.x, yaxis.x, direction.x,\r
+		xaxis.y, yaxis.y, direction.y,\r
+		xaxis.z, yaxis.z, direction.z\r
+	);\r
+\r
+}
+uniform mat4 uModelMatrix;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform mat4 uNormalMatrix;\r
+\r
+uniform mat4 uModelMatrixPrev;\r
+uniform mat4 uModelViewMatrix;\r
+uniform mat4 uViewMatrixPrev;\r
+uniform mat4 uProjectionMatrixPrev;\r
+\r
+out vec2 vUv;\r
+out vec3 vViewNormal;\r
+out vec3 vNormal;\r
+out vec3 vMVPosition;\r
+out vec3 vMVPPosition;\r
+out vec3 vPos;\r
+\r
+out vec2 vVelocity;\r
+\r
+layout ( location = 0 ) in vec3 position;\r
+layout ( location = 1 ) in vec2 uv;\r
+layout ( location = 2 ) in vec3 normal;\r
+\r
+#ifdef TF_MODELER\r
+	out vec3 o_position;\r
+	out vec3 o_normal;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;
+
+layout (location=3) in vec3 instancePos;
+layout (location=4) in vec3 instanceRot;
+
+void main( void ) {
+
+	vec3 outPos = position;\r
+vec3 outNormal = normal;\r
+vec2 outUv = uv;
+
+	outPos *= 0.25;
+	outPos.yz *= rotate( instanceRot.x );
+	outPos.xy *= rotate( instanceRot.z );
+	
+	outPos += instancePos * vec3(15.0, 5.0, 15.0 );
+
+
+	#ifdef TF_MODELER\r
+		o_position = outPos;\r
+		o_normal = outNormal;\r
+		return;\r
+#endif\r
+\r
+vec4 modelPosition = uModelMatrix * vec4(outPos, 1.0);\r
+vec4 mvPosition = uViewMatrix * modelPosition;\r
+gl_Position = uProjectionMatrix * mvPosition;\r
+\r
+vec4 modelPositionPrev = uModelMatrixPrev * vec4(outPos, 1.0);\r
+vec4 mvPositionPrev = uViewMatrixPrev * modelPositionPrev;\r
+vec4 positionPrev = uProjectionMatrixPrev * mvPositionPrev;\r
+\r
+vUv = outUv;\r
+vViewNormal = normalize( (uNormalMatrix * vec4(outNormal, 0.0)).xyz );\r
+vNormal = (uModelMatrix * vec4(outNormal, 0.0)).xyz;\r
+vPos = modelPosition.xyz;\r
+vMVPosition = mvPosition.xyz;\r
+vMVPPosition = gl_Position.xyz / gl_Position.w;\r
+\r
+vVelocity = vMVPPosition.xy - positionPrev.xy / positionPrev.w;\r
+vVelocity *= 0.2;
+
+}`})))()}var fk=n({GridDots:()=>pk}),pk;function mk(){return(mk=t((()=>{j(),F(),lk(),dk(),pk=class extends Dt{constructor(e){super(e);let t=new Lt({radius:.1}),n=[],r=[],i=new O(32,2,32);for(let e=0;e<i.x;e++)for(let t=0;t<i.y;t++)for(let a=0;a<i.z;a++){let o=(e/(i.x-1)-.5)*1,s=(t/(i.y-1)-.5)*1,c=(a/(i.z-1)-.5)*1;n.push(o,s,c),r.push(0,0,0)}t.setAttribute(`instanceRot`,new Float32Array(r),3,{instanceDivisor:1}),t.setAttribute(`instancePos`,new Float32Array(n),3,{instanceDivisor:1});let a=new xn({frag:an(`gridDotsFrag`,ck),vert:an(`gridDotsVert`,uk),phase:[`forward`]});this.entity.addComponent(N,{geometry:t,material:a})}}})))()}var hk;function gk(){return(gk=t((()=>{hk=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}\r
+// 宣言順はvert_h.part.glslのoutと一致させる（WGSL変換時にロケーションが宣言順で振られるため）\r
+in vec2 vUv;\r
+in vec3 vViewNormal;\r
+in vec3 vNormal;\r
+in vec3 vMVPosition;\r
+in vec3 vMVPPosition;\r
+in vec3 vPos;\r
+in vec2 vVelocity;\r
+\r
+uniform mat4 uModelMatrix;\r
+uniform mat4 uModelMatrixInverse;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform vec3 uCameraPosition;\r
+uniform vec2 uResolution;\r
+\r
+#ifdef IS_DEPTH\r
+	uniform float uCameraNear;\r
+	uniform float uCameraFar;\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+	layout (location = 3) out vec4 outColor3;\r
+	layout (location = 4) out vec4 outColor4;\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	uniform sampler2D uDeferredTexture;\r
+	uniform vec2 uDeferredResolution;\r
+	uniform sampler2D uGbufferNormal;\r
+	uniform sampler2D uGbufferAlbedo;\r
+	uniform sampler2D uGbufferMaterial;\r
+#endif\r
+\r
+#if defined(IS_FORWARD) || defined(IS_DEPTH)\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;\r
+\r
+void main( void ) {\r
+\r
+	vec4 outColor = vec4(1.0);\r
+vec3 outNormal = normalize(vNormal);\r
+vec3 outNormalMap = vec3( 0.0 );\r
+float outSSN = 0.0;\r
+vec3 outEmission = vec3(0.0);\r
+float outRoughness = 0.5;\r
+float outMetallic = 0.0;\r
+vec3 outPos = vPos;\r
+float outEnv = 1.0;\r
+float outSSS = 0.0;\r
+\r
+	if( sin( vUv.y * 120.0 + uTimeE * 5.0 ) > 0.0 ) discard;\r
+	\r
+	outColor = vec4( 1.0 );\r
+	outEmission += vec3( 10.0 );\r
+	\r
+	#if defined(IS_DEPTH) || defined(IS_DEFERRED)\r
+	vec4 mv = uViewMatrix * vec4(outPos, 1.0);\r
+#endif\r
+\r
+#ifdef IS_DEPTH\r
+	float depth_z = (-mv.z - uCameraNear) / (uCameraFar - uCameraNear);\r
+	outColor0 = vec4(floatToRGBA( depth_z ));\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+\r
+	#ifdef USE_NORMAL_MAP \r
+\r
+		vec3 tangent;\r
+		vec3 bitangent;\r
+\r
+		#ifdef USE_TANGENT\r
+\r
+			tangent = normalize( vTangent );\r
+			bitangent = normalize( vBitangent );\r
+\r
+		#else\r
+\r
+			tangent = cross(outNormal, vec3( 0.0, 1.0, 0.0 ));\r
+			bitangent = cross(tangent, outNormal);\r
+\r
+		#endif\r
+\r
+		#ifdef DOUBLE_SIDED\r
+\r
+			tangent *= faceDirection;\r
+			bitangent *= faceDirection;\r
+			\r
+		#endif\r
+\r
+		mat3 vTBN = mat3( tangent, bitangent, outNormal );\r
+		outNormal = normalize( vTBN * outNormalMap );\r
+\r
+	#endif\r
+\r
+	vec4 mvp = uProjectionMatrix * mv;\r
+	gl_FragDepth = ( mvp.z / mvp.w ) * 0.5 + 0.5;\r
+	outColor0 = vec4( outPos, outEmission.x );\r
+	outColor1 = vec4( normalize( outNormal * ( gl_FrontFacing ? 1.0 : -1.0 ) ), outEmission.y );\r
+	outColor2 = vec4( outColor.xyz, outSSS );\r
+	outColor3 = vec4( outRoughness, outMetallic, outSSN, outEnv );\r
+	outColor4 = vec4( vVelocity, 0.0, outEmission.z );\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	outColor0 = outColor;\r
+	outColor1 = vec4(outPos, 1.0);\r
+	outColor2 = vec4(vVelocity, 0.0, 1.0);\r
+#endif\r
+\r
+}`})))()}var _k;function vk(){return(vk=t((()=>{_k=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}\r
+uniform mat4 uModelMatrix;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform mat4 uNormalMatrix;\r
+\r
+uniform mat4 uModelMatrixPrev;\r
+uniform mat4 uModelViewMatrix;\r
+uniform mat4 uViewMatrixPrev;\r
+uniform mat4 uProjectionMatrixPrev;\r
+\r
+out vec2 vUv;\r
+out vec3 vViewNormal;\r
+out vec3 vNormal;\r
+out vec3 vMVPosition;\r
+out vec3 vMVPPosition;\r
+out vec3 vPos;\r
+\r
+out vec2 vVelocity;\r
+\r
+layout ( location = 0 ) in vec3 position;\r
+layout ( location = 1 ) in vec2 uv;\r
+layout ( location = 2 ) in vec3 normal;\r
+\r
+#ifdef TF_MODELER\r
+	out vec3 o_position;\r
+	out vec3 o_normal;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;\r
+\r
+layout (location=3) in vec3 instancePos;\r
+layout (location=4) in vec3 instanceRot;\r
+\r
+mat2 rotate(float rad) {\r
+  return mat2(cos(rad), sin(rad), -sin(rad), cos(rad));\r
+}\r
+\r
+void rotate( float rad, inout vec2 pos, inout vec2 normal ) {\r
+	\r
+	mat2 rot = rotate( rad );\r
+	\r
+	pos *= rot;\r
+	normal *= rot;\r
+\r
+}\r
+\r
+mat3 makeRotationDir( vec3 direction, vec3 up ) {\r
+\r
+	vec3 xaxis = normalize( cross( up, direction ) );\r
+	vec3 yaxis = normalize( cross( direction, xaxis ) );\r
+\r
+	return mat3(\r
+		xaxis.x, yaxis.x, direction.x,\r
+		xaxis.y, yaxis.y, direction.y,\r
+		xaxis.z, yaxis.z, direction.z\r
+	);\r
+\r
+}\r
+\r
+void main( void ) {\r
+\r
+	vec3 outPos = position;\r
+vec3 outNormal = normal;\r
+vec2 outUv = uv;\r
+\r
+	outPos += instancePos;\r
+	outPos.yz *= rotate( instanceRot.x );\r
+	outPos.xy *= rotate( instanceRot.z );\r
+\r
+	#ifdef TF_MODELER\r
+		o_position = outPos;\r
+		o_normal = outNormal;\r
+		return;\r
+#endif\r
+\r
+vec4 modelPosition = uModelMatrix * vec4(outPos, 1.0);\r
+vec4 mvPosition = uViewMatrix * modelPosition;\r
+gl_Position = uProjectionMatrix * mvPosition;\r
+\r
+vec4 modelPositionPrev = uModelMatrixPrev * vec4(outPos, 1.0);\r
+vec4 mvPositionPrev = uViewMatrixPrev * modelPositionPrev;\r
+vec4 positionPrev = uProjectionMatrixPrev * mvPositionPrev;\r
+\r
+vUv = outUv;\r
+vViewNormal = normalize( (uNormalMatrix * vec4(outNormal, 0.0)).xyz );\r
+vNormal = (uModelMatrix * vec4(outNormal, 0.0)).xyz;\r
+vPos = modelPosition.xyz;\r
+vMVPosition = mvPosition.xyz;\r
+vMVPPosition = gl_Position.xyz / gl_Position.w;\r
+\r
+vVelocity = vMVPPosition.xy - positionPrev.xy / positionPrev.w;\r
+vVelocity *= 0.2;\r
+\r
+}`})))()}var yk=n({WireCube:()=>bk}),bk;function xk(){return(xk=t((()=>{F(),gk(),vk(),bk=class extends Dt{constructor(e){super(e);let t=3.3,n=t/2,r=new jt({width:.01,height:t,depth:.01,segmentsHeight:16}),i=[],a=[];for(let e=0;e<3;e++)for(let t=0;t<4;t++)[[n,0,n],[n,0,-1.65],[-1.65,0,n],[-1.65,0,-1.65]][t].forEach(e=>{i.push(e)}),[[0,0,0],[Math.PI/2,0,0],[0,0,Math.PI/2]][e].forEach(e=>{a.push(e)});r.setAttribute(`instancePos`,new Float32Array(i),3,{instanceDivisor:1}),r.setAttribute(`instanceRot`,new Float32Array(a),3,{instanceDivisor:1});let o=new xn({phase:[`deferred`],frag:hk,vert:_k});this.entity.addComponent(N,{geometry:r,material:o})}}})))()}var Sk=n({FieldUISample:()=>Ck}),Ck;function wk(){return(wk=t((()=>{j(),F(),Ck=class extends Dt{speed;wave;rotQuaternion;constructor(e){super(e),this.speed=1,this.wave=.5,this.rotQuaternion=new A,this.field(`speed`,()=>this.speed,e=>this.speed=e,{step:.1}),this.field(`wave`,()=>this.wave,e=>this.wave=e,{step:.05,min:0})}updateImpl(e){this.rotQuaternion.setFromEuler(new De(0,e.timeDelta*this.speed,0)),this.entity.quaternion.multiply(this.rotQuaternion),this.entity.position.y=Math.sin(e.timeElapsed*2)*this.wave}}})))()}var Tk;function Ek(){return(Ek=t((()=>{Tk=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+// 宣言順はvert_h.part.glslのoutと一致させる（WGSL変換時にロケーションが宣言順で振られるため）\r
+in vec2 vUv;\r
+in vec3 vViewNormal;\r
+in vec3 vNormal;\r
+in vec3 vMVPosition;\r
+in vec3 vMVPPosition;\r
+in vec3 vPos;\r
+in vec2 vVelocity;\r
+\r
+uniform mat4 uModelMatrix;\r
+uniform mat4 uModelMatrixInverse;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform vec3 uCameraPosition;\r
+uniform vec2 uResolution;\r
+\r
+#ifdef IS_DEPTH\r
+	uniform float uCameraNear;\r
+	uniform float uCameraFar;\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+	layout (location = 3) out vec4 outColor3;\r
+	layout (location = 4) out vec4 outColor4;\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	uniform sampler2D uDeferredTexture;\r
+	uniform vec2 uDeferredResolution;\r
+	uniform sampler2D uGbufferNormal;\r
+	uniform sampler2D uGbufferAlbedo;\r
+	uniform sampler2D uGbufferMaterial;\r
+#endif\r
+\r
+#if defined(IS_FORWARD) || defined(IS_DEPTH)\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;
+
+uniform sampler2D uNoiseTex;
+
+in float vNoise;
+in vec3 vPosBase;
+
+void main( void ) {
+
+	vec4 outColor = vec4(1.0);\r
+vec3 outNormal = normalize(vNormal);\r
+vec3 outNormalMap = vec3( 0.0 );\r
+float outSSN = 0.0;\r
+vec3 outEmission = vec3(0.0);\r
+float outRoughness = 0.5;\r
+float outMetallic = 0.0;\r
+vec3 outPos = vPos;\r
+float outEnv = 1.0;\r
+float outSSS = 0.0;
+
+	vec4 noise = texture( uNoiseTex, vUv * 0.1 + 0.1 * texture( uNoiseTex, vUv * 0.5 ).xy );
+
+	outRoughness = smoothstep( 0.2, 0.9, noise.x );
+	outColor = vec4( 1.0 - ( outRoughness * 0.3 ) );
+
+	outNormal.xz += noise.yz * 0.03;
+	outNormal = normalize( outNormal );
+
+	#if defined(IS_DEPTH) || defined(IS_DEFERRED)\r
+	vec4 mv = uViewMatrix * vec4(outPos, 1.0);\r
+#endif\r
+\r
+#ifdef IS_DEPTH\r
+	float depth_z = (-mv.z - uCameraNear) / (uCameraFar - uCameraNear);\r
+	outColor0 = vec4(floatToRGBA( depth_z ));\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+\r
+	#ifdef USE_NORMAL_MAP \r
+\r
+		vec3 tangent;\r
+		vec3 bitangent;\r
+\r
+		#ifdef USE_TANGENT\r
+\r
+			tangent = normalize( vTangent );\r
+			bitangent = normalize( vBitangent );\r
+\r
+		#else\r
+\r
+			tangent = cross(outNormal, vec3( 0.0, 1.0, 0.0 ));\r
+			bitangent = cross(tangent, outNormal);\r
+\r
+		#endif\r
+\r
+		#ifdef DOUBLE_SIDED\r
+\r
+			tangent *= faceDirection;\r
+			bitangent *= faceDirection;\r
+			\r
+		#endif\r
+\r
+		mat3 vTBN = mat3( tangent, bitangent, outNormal );\r
+		outNormal = normalize( vTBN * outNormalMap );\r
+\r
+	#endif\r
+\r
+	vec4 mvp = uProjectionMatrix * mv;\r
+	gl_FragDepth = ( mvp.z / mvp.w ) * 0.5 + 0.5;\r
+	outColor0 = vec4( outPos, outEmission.x );\r
+	outColor1 = vec4( normalize( outNormal * ( gl_FrontFacing ? 1.0 : -1.0 ) ), outEmission.y );\r
+	outColor2 = vec4( outColor.xyz, outSSS );\r
+	outColor3 = vec4( outRoughness, outMetallic, outSSN, outEnv );\r
+	outColor4 = vec4( vVelocity, 0.0, outEmission.z );\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	outColor0 = outColor;\r
+	outColor1 = vec4(outPos, 1.0);\r
+	outColor2 = vec4(vVelocity, 0.0, 1.0);\r
+#endif
+
+}`})))()}var Dk;function Ok(){return(Ok=t((()=>{Dk=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+uniform mat4 uModelMatrix;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform mat4 uNormalMatrix;\r
+\r
+uniform mat4 uModelMatrixPrev;\r
+uniform mat4 uModelViewMatrix;\r
+uniform mat4 uViewMatrixPrev;\r
+uniform mat4 uProjectionMatrixPrev;\r
+\r
+out vec2 vUv;\r
+out vec3 vViewNormal;\r
+out vec3 vNormal;\r
+out vec3 vMVPosition;\r
+out vec3 vMVPPosition;\r
+out vec3 vPos;\r
+\r
+out vec2 vVelocity;\r
+\r
+layout ( location = 0 ) in vec3 position;\r
+layout ( location = 1 ) in vec2 uv;\r
+layout ( location = 2 ) in vec3 normal;\r
+\r
+#ifdef TF_MODELER\r
+	out vec3 o_position;\r
+	out vec3 o_normal;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;
+\r
+// https://www.shadertoy.com/view/4dS3Wd\r
+\r
+float hashv(float p) { p = fract(p * 0.011); p *= p + 7.5; p *= p + p; return fract(p); }\r
+float hashv(vec2 p) {vec3 p3 = fract(vec3(p.xyx) * 0.13); p3 += dot(p3, p3.yzx + 3.333); return fract((p3.x + p3.y) * p3.z); }\r
+\r
+#define NUM_NOISE_OCTAVES 5\r
+\r
+float noiseValue(vec3 x) {\r
+    const vec3 step = vec3(110, 241, 171);\r
+\r
+    vec3 i = floor(x);\r
+    vec3 f = fract(x);\r
+ \r
+    // For performance, compute the base input to a 1D hash from the integer part of the argument and the \r
+    // incremental change to the 1D based on the 3D -> 1D wrapping\r
+    float n = dot(i, step);\r
+\r
+    vec3 u = f * f * (3.0 - 2.0 * f);\r
+    return mix(mix(mix( hashv(n + dot(step, vec3(0, 0, 0))), hashv(n + dot(step, vec3(1, 0, 0))), u.x),\r
+                   mix( hashv(n + dot(step, vec3(0, 1, 0))), hashv(n + dot(step, vec3(1, 1, 0))), u.x), u.y),\r
+               mix(mix( hashv(n + dot(step, vec3(0, 0, 1))), hashv(n + dot(step, vec3(1, 0, 1))), u.x),\r
+                   mix( hashv(n + dot(step, vec3(0, 1, 1))), hashv(n + dot(step, vec3(1, 1, 1))), u.x), u.y), u.z);\r
+}\r
+\r
+float fbm(vec3 x) {\r
+	float v = 0.0;\r
+	float a = 0.5;\r
+	vec3 shift = vec3(100);\r
+	for (int i = 0; i < NUM_NOISE_OCTAVES; ++i) {\r
+		v += a * noiseValue(x);\r
+		x = x * 2.0 + shift;\r
+		a *= 0.5;\r
+    if( i == -1 ) break;\r
+	}\r
+	return v;\r
+}\r
+\r
+float fbm(float x) {\r
+  return fbm(vec3(x));\r
+}
+
+out float vNoise;
+out vec3 vPosBase;
+
+void main( void ) {
+
+	vec3 outPos = position;\r
+vec3 outNormal = normal;\r
+vec2 outUv = uv;
+
+	// outPos.x += sin( outPos.z  * 10.0 + uTime * 10.0) * 0.1;
+
+	float n = 1.0;
+	n *= step( noiseValue( floor( outPos * 100.0 * 10.0 ) / 10.0 + uTime * 10.0 ), 0.5 );
+	n *= step( noiseValue( floor( outPos * 1.0 * 10.0 ) / 10.0 + vec3( 0.0, 0.0, uTime * 3.0 ) ), 0.2 ) * 2.0;
+
+	// outPos *= 1.0 + n;
+	vPosBase = outPos;
+	vNoise = n;
+
+	#ifdef TF_MODELER\r
+		o_position = outPos;\r
+		o_normal = outNormal;\r
+		return;\r
+#endif\r
+\r
+vec4 modelPosition = uModelMatrix * vec4(outPos, 1.0);\r
+vec4 mvPosition = uViewMatrix * modelPosition;\r
+gl_Position = uProjectionMatrix * mvPosition;\r
+\r
+vec4 modelPositionPrev = uModelMatrixPrev * vec4(outPos, 1.0);\r
+vec4 mvPositionPrev = uViewMatrixPrev * modelPositionPrev;\r
+vec4 positionPrev = uProjectionMatrixPrev * mvPositionPrev;\r
+\r
+vUv = outUv;\r
+vViewNormal = normalize( (uNormalMatrix * vec4(outNormal, 0.0)).xyz );\r
+vNormal = (uModelMatrix * vec4(outNormal, 0.0)).xyz;\r
+vPos = modelPosition.xyz;\r
+vMVPosition = mvPosition.xyz;\r
+vMVPPosition = gl_Position.xyz / gl_Position.w;\r
+\r
+vVelocity = vMVPPosition.xy - positionPrev.xy / positionPrev.w;\r
+vVelocity *= 0.2;
+
+}`})))()}var kk=n({OREngineCube:()=>Ak}),Ak;function jk(){return(jk=t((()=>{F(),Ri(),Ek(),Ok(),Ak=class extends Dt{material;constructor(e){super(e),this.material=new xn({name:`OREngineCube`,phase:[`shadowMap`,`deferred`],vert:an(`OREngineCubeVert`,Dk),frag:an(`OREngineCubeFrag`,Tk),uniforms:{uNoiseTex:{value:I.resources.getTexture(`noise`),type:`1i`}}});let t=this.entity.getComponent(N);t&&(t.material=this.material)}}})))()}var Mk;function Nk(){return(Nk=t((()=>{Mk=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+// 宣言順はvert_h.part.glslのoutと一致させる（WGSL変換時にロケーションが宣言順で振られるため）\r
+in vec2 vUv;\r
+in vec3 vViewNormal;\r
+in vec3 vNormal;\r
+in vec3 vMVPosition;\r
+in vec3 vMVPPosition;\r
+in vec3 vPos;\r
+in vec2 vVelocity;\r
+\r
+uniform mat4 uModelMatrix;\r
+uniform mat4 uModelMatrixInverse;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform vec3 uCameraPosition;\r
+uniform vec2 uResolution;\r
+\r
+#ifdef IS_DEPTH\r
+	uniform float uCameraNear;\r
+	uniform float uCameraFar;\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+	layout (location = 3) out vec4 outColor3;\r
+	layout (location = 4) out vec4 outColor4;\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	uniform sampler2D uDeferredTexture;\r
+	uniform vec2 uDeferredResolution;\r
+	uniform sampler2D uGbufferNormal;\r
+	uniform sampler2D uGbufferAlbedo;\r
+	uniform sampler2D uGbufferMaterial;\r
+#endif\r
+\r
+#if defined(IS_FORWARD) || defined(IS_DEPTH)\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;
+
+in float vNoise;
+in vec3 vPosBase;
+
+void main( void ) {
+
+	vec4 outColor = vec4(1.0);\r
+vec3 outNormal = normalize(vNormal);\r
+vec3 outNormalMap = vec3( 0.0 );\r
+float outSSN = 0.0;\r
+vec3 outEmission = vec3(0.0);\r
+float outRoughness = 0.5;\r
+float outMetallic = 0.0;\r
+vec3 outPos = vPos;\r
+float outEnv = 1.0;\r
+float outSSS = 0.0;
+
+	float or = step( vPosBase.x, -0.2 );
+	float flash = smoothstep(0.3, 0.0,  vNoise) * or;
+
+	outEmission = vec3( (1.0 - flash * 0.7) * 3.0 );
+	outRoughness = 0.3;
+
+	#if defined(IS_DEPTH) || defined(IS_DEFERRED)\r
+	vec4 mv = uViewMatrix * vec4(outPos, 1.0);\r
+#endif\r
+\r
+#ifdef IS_DEPTH\r
+	float depth_z = (-mv.z - uCameraNear) / (uCameraFar - uCameraNear);\r
+	outColor0 = vec4(floatToRGBA( depth_z ));\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+\r
+	#ifdef USE_NORMAL_MAP \r
+\r
+		vec3 tangent;\r
+		vec3 bitangent;\r
+\r
+		#ifdef USE_TANGENT\r
+\r
+			tangent = normalize( vTangent );\r
+			bitangent = normalize( vBitangent );\r
+\r
+		#else\r
+\r
+			tangent = cross(outNormal, vec3( 0.0, 1.0, 0.0 ));\r
+			bitangent = cross(tangent, outNormal);\r
+\r
+		#endif\r
+\r
+		#ifdef DOUBLE_SIDED\r
+\r
+			tangent *= faceDirection;\r
+			bitangent *= faceDirection;\r
+			\r
+		#endif\r
+\r
+		mat3 vTBN = mat3( tangent, bitangent, outNormal );\r
+		outNormal = normalize( vTBN * outNormalMap );\r
+\r
+	#endif\r
+\r
+	vec4 mvp = uProjectionMatrix * mv;\r
+	gl_FragDepth = ( mvp.z / mvp.w ) * 0.5 + 0.5;\r
+	outColor0 = vec4( outPos, outEmission.x );\r
+	outColor1 = vec4( normalize( outNormal * ( gl_FrontFacing ? 1.0 : -1.0 ) ), outEmission.y );\r
+	outColor2 = vec4( outColor.xyz, outSSS );\r
+	outColor3 = vec4( outRoughness, outMetallic, outSSN, outEnv );\r
+	outColor4 = vec4( vVelocity, 0.0, outEmission.z );\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	outColor0 = outColor;\r
+	outColor1 = vec4(outPos, 1.0);\r
+	outColor2 = vec4(vVelocity, 0.0, 1.0);\r
+#endif
+
+}`})))()}var Pk;function Fk(){return(Fk=t((()=>{Pk=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+uniform mat4 uModelMatrix;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform mat4 uNormalMatrix;\r
+\r
+uniform mat4 uModelMatrixPrev;\r
+uniform mat4 uModelViewMatrix;\r
+uniform mat4 uViewMatrixPrev;\r
+uniform mat4 uProjectionMatrixPrev;\r
+\r
+out vec2 vUv;\r
+out vec3 vViewNormal;\r
+out vec3 vNormal;\r
+out vec3 vMVPosition;\r
+out vec3 vMVPPosition;\r
+out vec3 vPos;\r
+\r
+out vec2 vVelocity;\r
+\r
+layout ( location = 0 ) in vec3 position;\r
+layout ( location = 1 ) in vec2 uv;\r
+layout ( location = 2 ) in vec3 normal;\r
+\r
+#ifdef TF_MODELER\r
+	out vec3 o_position;\r
+	out vec3 o_normal;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;
+\r
+// https://www.shadertoy.com/view/4dS3Wd\r
+\r
+float hashv(float p) { p = fract(p * 0.011); p *= p + 7.5; p *= p + p; return fract(p); }\r
+float hashv(vec2 p) {vec3 p3 = fract(vec3(p.xyx) * 0.13); p3 += dot(p3, p3.yzx + 3.333); return fract((p3.x + p3.y) * p3.z); }\r
+\r
+#define NUM_NOISE_OCTAVES 5\r
+\r
+float noiseValue(vec3 x) {\r
+    const vec3 step = vec3(110, 241, 171);\r
+\r
+    vec3 i = floor(x);\r
+    vec3 f = fract(x);\r
+ \r
+    // For performance, compute the base input to a 1D hash from the integer part of the argument and the \r
+    // incremental change to the 1D based on the 3D -> 1D wrapping\r
+    float n = dot(i, step);\r
+\r
+    vec3 u = f * f * (3.0 - 2.0 * f);\r
+    return mix(mix(mix( hashv(n + dot(step, vec3(0, 0, 0))), hashv(n + dot(step, vec3(1, 0, 0))), u.x),\r
+                   mix( hashv(n + dot(step, vec3(0, 1, 0))), hashv(n + dot(step, vec3(1, 1, 0))), u.x), u.y),\r
+               mix(mix( hashv(n + dot(step, vec3(0, 0, 1))), hashv(n + dot(step, vec3(1, 0, 1))), u.x),\r
+                   mix( hashv(n + dot(step, vec3(0, 1, 1))), hashv(n + dot(step, vec3(1, 1, 1))), u.x), u.y), u.z);\r
+}\r
+\r
+float fbm(vec3 x) {\r
+	float v = 0.0;\r
+	float a = 0.5;\r
+	vec3 shift = vec3(100);\r
+	for (int i = 0; i < NUM_NOISE_OCTAVES; ++i) {\r
+		v += a * noiseValue(x);\r
+		x = x * 2.0 + shift;\r
+		a *= 0.5;\r
+    if( i == -1 ) break;\r
+	}\r
+	return v;\r
+}\r
+\r
+float fbm(float x) {\r
+  return fbm(vec3(x));\r
+}
+
+out float vNoise;
+out vec3 vPosBase;
+
+void main( void ) {
+
+	vec3 outPos = position;\r
+vec3 outNormal = normal;\r
+vec2 outUv = uv;
+
+	vPosBase = outPos;
+	vNoise = noiseValue( vec3( uTimeE * 8.0 ) );
+
+	#ifdef TF_MODELER\r
+		o_position = outPos;\r
+		o_normal = outNormal;\r
+		return;\r
+#endif\r
+\r
+vec4 modelPosition = uModelMatrix * vec4(outPos, 1.0);\r
+vec4 mvPosition = uViewMatrix * modelPosition;\r
+gl_Position = uProjectionMatrix * mvPosition;\r
+\r
+vec4 modelPositionPrev = uModelMatrixPrev * vec4(outPos, 1.0);\r
+vec4 mvPositionPrev = uViewMatrixPrev * modelPositionPrev;\r
+vec4 positionPrev = uProjectionMatrixPrev * mvPositionPrev;\r
+\r
+vUv = outUv;\r
+vViewNormal = normalize( (uNormalMatrix * vec4(outNormal, 0.0)).xyz );\r
+vNormal = (uModelMatrix * vec4(outNormal, 0.0)).xyz;\r
+vPos = modelPosition.xyz;\r
+vMVPosition = mvPosition.xyz;\r
+vMVPPosition = gl_Position.xyz / gl_Position.w;\r
+\r
+vVelocity = vMVPPosition.xy - positionPrev.xy / positionPrev.w;\r
+vVelocity *= 0.2;
+
+}`})))()}var Ik=n({OREngineLogo:()=>Lk}),Lk;function Rk(){return(Rk=t((()=>{F(),Nk(),Fk(),Lk=class extends Dt{material;constructor(e){super(e),this.material=new xn({name:`OREngineLogo`,phase:[`deferred`,`shadowMap`],vert:an(`OREngineLogoVert`,Pk),frag:an(`OREngineLogoFrag`,Mk)});let t=this.entity.getComponent(N);t&&(t.material=this.material)}}})))()}var zk;function Bk(){return(Bk=t((()=>{zk=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+// 宣言順はvert_h.part.glslのoutと一致させる（WGSL変換時にロケーションが宣言順で振られるため）\r
+in vec2 vUv;\r
+in vec3 vViewNormal;\r
+in vec3 vNormal;\r
+in vec3 vMVPosition;\r
+in vec3 vMVPPosition;\r
+in vec3 vPos;\r
+in vec2 vVelocity;\r
+\r
+uniform mat4 uModelMatrix;\r
+uniform mat4 uModelMatrixInverse;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform vec3 uCameraPosition;\r
+uniform vec2 uResolution;\r
+\r
+#ifdef IS_DEPTH\r
+	uniform float uCameraNear;\r
+	uniform float uCameraFar;\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+	layout (location = 3) out vec4 outColor3;\r
+	layout (location = 4) out vec4 outColor4;\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	uniform sampler2D uDeferredTexture;\r
+	uniform vec2 uDeferredResolution;\r
+	uniform sampler2D uGbufferNormal;\r
+	uniform sampler2D uGbufferAlbedo;\r
+	uniform sampler2D uGbufferMaterial;\r
+#endif\r
+\r
+#if defined(IS_FORWARD) || defined(IS_DEPTH)\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;
+struct DirectionalLight {\r
+	vec3 direction;\r
+	vec3 color;\r
+};\r
+\r
+struct SpotLight {\r
+	vec3 position;\r
+	vec3 direction;\r
+	vec3 color;\r
+	float angle;\r
+	float blend;\r
+};\r
+\r
+struct LightCamera {\r
+	float near;\r
+	float far;\r
+	mat4 uViewMatrix;\r
+	mat4 uProjectionMatrix;\r
+	vec2 resolution;\r
+};\r
+\r
+struct Light {\r
+	vec3 direction;\r
+	vec3 color;\r
+};\r
+\r
+#if NUM_LIGHT_DIR > 0 \r
+\r
+	uniform DirectionalLight directionalLight[NUM_LIGHT_DIR];\r
+	uniform LightCamera uDirectionalLightCamera[NUM_LIGHT_DIR];\r
+	// 影を落とすライトが無いと長さ0の配列になり、コンパイルエラーになる\r
+	#if NUM_SHADOWMAP_DIR > 0\r
+		uniform sampler2D directionalLightShadowMap[NUM_SHADOWMAP_DIR];\r
+	#endif\r
+	\r
+#endif\r
+\r
+#if NUM_LIGHT_SPOT > 0 \r
+\r
+	uniform SpotLight uSpotLight[NUM_LIGHT_SPOT];\r
+	uniform LightCamera uSpotLightCamera[NUM_LIGHT_SPOT];\r
+	#if NUM_SHADOWMAP_SPOT > 0\r
+		uniform sampler2D uSpotLightShadowMap[NUM_SHADOWMAP_SPOT];\r
+	#endif\r
+	\r
+#endif\r
+\r
+// shadowmap\r
+\r
+float compareShadowDepth( float lightDepth, sampler2D shadowMap, vec2 shadowCoord, float depthOffset ) {\r
+\r
+	float shadowMapDepth = rgbaToFloat( texture( shadowMap, shadowCoord ) );\r
+\r
+	if( shadowCoord.x >= 0.0 && shadowCoord.x <= 1.0 && shadowCoord.y >= 0.0 && shadowCoord.y <= 1.0 ) {\r
+\r
+		return step( lightDepth, shadowMapDepth + depthOffset );\r
+\r
+	}\r
+\r
+	return 1.0;\r
+\r
+}\r
+\r
+// shadow\r
+\r
+void setShadowCoord( vec3 pos, LightCamera camera, inout vec2 shadowCoord, inout float lightDepth ) {\r
+	\r
+	vec4 mvPosition = camera.uViewMatrix * vec4( pos, 1.0 );\r
+	vec4 mvpPosition = camera.uProjectionMatrix * mvPosition;\r
+	shadowCoord = ( mvpPosition.xy / mvpPosition.w ) * 0.5 + 0.5;\r
+	\r
+	float lightNear = camera.near;\r
+	float lightFar = camera.far;\r
+	lightDepth = ( -mvPosition.z - lightNear ) / ( lightFar - lightNear );\r
+\r
+}\r
+\r
+float getShadow( vec3 pos, LightCamera camera, sampler2D shadowMap, float depthOffset ) {\r
+\r
+	vec2 shadowCoord;\r
+	float lightDepth;\r
+\r
+	setShadowCoord( pos, camera, shadowCoord, lightDepth );\r
+\r
+	return compareShadowDepth( lightDepth, shadowMap, shadowCoord, depthOffset );\r
+\r
+}\r
+\r
+#define SHADOW_SAMPLE_COUNT 2\r
+\r
+float getShadowSmooth( vec3 pos, LightCamera camera, sampler2D shadowMap, float depthOffset ) {\r
+\r
+	vec2 shadowCoord;\r
+	float lightDepth;\r
+\r
+	setShadowCoord( pos, camera, shadowCoord, lightDepth );\r
+	\r
+	float shadowSum = compareShadowDepth( lightDepth, shadowMap, shadowCoord, depthOffset );\r
+\r
+	for( int i = 0; i < SHADOW_SAMPLE_COUNT; i++ ) {\r
+\r
+		vec2 offset = 1.0 / camera.resolution * ( float( i + 1 ) / float(SHADOW_SAMPLE_COUNT) );\r
+\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, -offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( 0.0, -offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, -offset.y ), depthOffset );\r
+		\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, 0.0 ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, 0.0 ), depthOffset );\r
+\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( 0.0, offset.y ), depthOffset );\r
+		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, offset.y ), depthOffset );\r
+\r
+	}\r
+\r
+	return shadowSum / ( float( SHADOW_SAMPLE_COUNT ) * 8.0 );\r
+\r
+}\r
+\r
+float ggx( float dNH, float roughness ) {\r
+	\r
+	float a2 = roughness * roughness;\r
+	a2 = a2 * a2;\r
+	float dNH2 = dNH * dNH;\r
+\r
+	if( dNH2 <= 0.0 ) return 0.0;\r
+\r
+	return a2 / ( PI * pow( dNH2 * ( a2 - 1.0 ) + 1.0, 2.0) );\r
+\r
+}\r
+\r
+vec3 lambert( vec3 diffuseColor ) {\r
+\r
+	return diffuseColor / PI;\r
+\r
+}\r
+\r
+float gSchlick( float d, float k ) {\r
+\r
+	if( d == 0.0 ) return 0.0;\r
+\r
+	return d / ( d * ( 1.0 - k ) + k );\r
+	\r
+}\r
+\r
+float gSmith( float dNV, float dNL, float roughness ) {\r
+\r
+	float k = clamp( roughness * sqrt( 2.0 / PI ), 0.0, 1.0 );\r
+\r
+	return gSchlick( dNV, k ) * gSchlick( dNL, k );\r
+	\r
+}\r
+\r
+float fresnel( float d ) {\r
+	\r
+	float f0 = 0.04;\r
+\r
+	return f0 + ( 1.0 - f0 ) * pow( 1.0 - d, 5.0 );\r
+\r
+}\r
+\r
+// 1灯ぶんの反射を diffuse と specular に分けて足す（SSS が diffuse だけをぼかすため）\r
+void RE( Geometry geo, Material mat, Light light, inout vec3 diffuse, inout vec3 specular ) {\r
+\r
+	vec3 lightDir = normalize( light.direction );\r
+	vec3 halfVec = normalize( geo.viewDir + lightDir );\r
+\r
+	float dLH = clamp( dot( lightDir, halfVec ), 0.0, 1.0 );\r
+	float dNH = clamp( dot( geo.normal, halfVec ), 0.0, 1.0 );\r
+	float dNV = clamp( dot( geo.normal, geo.viewDir ), 0.0, 1.0 );\r
+	float dNL = clamp( dot( geo.normal, lightDir), 0.0, 1.0 );\r
+\r
+	vec3 irradiance = light.color * dNL;\r
+\r
+	float D = ggx( dNH, mat.roughness );\r
+	float G = gSmith( dNV, dNL, mat.roughness );\r
+	float F = fresnel( dLH );\r
+\r
+	diffuse += lambert( mat.diffuseColor ) * irradiance * ( 1.0 - F );\r
+	specular += (( D * G * F ) / ( 4.0 * dNL * dNV + 0.0001 ) * mat.specularColor ) * irradiance;\r
+\r
+}
+
+in float vAlpha;
+
+void main( void ) {
+
+	vec4 outColor = vec4(1.0);\r
+vec3 outNormal = normalize(vNormal);\r
+vec3 outNormalMap = vec3( 0.0 );\r
+float outSSN = 0.0;\r
+vec3 outEmission = vec3(0.0);\r
+float outRoughness = 0.5;\r
+float outMetallic = 0.0;\r
+vec3 outPos = vPos;\r
+float outEnv = 1.0;\r
+float outSSS = 0.0;
+
+	float circle = smoothstep( 0.5, 0.4, length( gl_PointCoord.xy - 0.5 ) );
+	
+	if( circle == 0.0 ) discard;
+
+	Geometry geo = Geometry(
+		vPos,
+		vec3( 0.0, 0.0, 0.0 ),
+		0.0,
+		normalize( uCameraPosition - vPos ),
+		vec3( 0.0 ),
+		0.0
+	);
+
+	vec3 color = vec3( 0.0 );
+	float s = 0.0;
+
+	outColor = vec4( vec3( 1.0 ), circle * 0.2 * ( vAlpha ) );
+
+	#if defined(IS_DEPTH) || defined(IS_DEFERRED)\r
+	vec4 mv = uViewMatrix * vec4(outPos, 1.0);\r
+#endif\r
+\r
+#ifdef IS_DEPTH\r
+	float depth_z = (-mv.z - uCameraNear) / (uCameraFar - uCameraNear);\r
+	outColor0 = vec4(floatToRGBA( depth_z ));\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+\r
+	#ifdef USE_NORMAL_MAP \r
+\r
+		vec3 tangent;\r
+		vec3 bitangent;\r
+\r
+		#ifdef USE_TANGENT\r
+\r
+			tangent = normalize( vTangent );\r
+			bitangent = normalize( vBitangent );\r
+\r
+		#else\r
+\r
+			tangent = cross(outNormal, vec3( 0.0, 1.0, 0.0 ));\r
+			bitangent = cross(tangent, outNormal);\r
+\r
+		#endif\r
+\r
+		#ifdef DOUBLE_SIDED\r
+\r
+			tangent *= faceDirection;\r
+			bitangent *= faceDirection;\r
+			\r
+		#endif\r
+\r
+		mat3 vTBN = mat3( tangent, bitangent, outNormal );\r
+		outNormal = normalize( vTBN * outNormalMap );\r
+\r
+	#endif\r
+\r
+	vec4 mvp = uProjectionMatrix * mv;\r
+	gl_FragDepth = ( mvp.z / mvp.w ) * 0.5 + 0.5;\r
+	outColor0 = vec4( outPos, outEmission.x );\r
+	outColor1 = vec4( normalize( outNormal * ( gl_FrontFacing ? 1.0 : -1.0 ) ), outEmission.y );\r
+	outColor2 = vec4( outColor.xyz, outSSS );\r
+	outColor3 = vec4( outRoughness, outMetallic, outSSN, outEnv );\r
+	outColor4 = vec4( vVelocity, 0.0, outEmission.z );\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	outColor0 = outColor;\r
+	outColor1 = vec4(outPos, 1.0);\r
+	outColor2 = vec4(vVelocity, 0.0, 1.0);\r
+#endif
+
+}`})))()}var Vk;function Hk(){return(Hk=t((()=>{Vk=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+uniform mat4 uModelMatrix;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform mat4 uNormalMatrix;\r
+\r
+uniform mat4 uModelMatrixPrev;\r
+uniform mat4 uModelViewMatrix;\r
+uniform mat4 uViewMatrixPrev;\r
+uniform mat4 uProjectionMatrixPrev;\r
+\r
+out vec2 vUv;\r
+out vec3 vViewNormal;\r
+out vec3 vNormal;\r
+out vec3 vMVPosition;\r
+out vec3 vMVPPosition;\r
+out vec3 vPos;\r
+\r
+out vec2 vVelocity;\r
+\r
+layout ( location = 0 ) in vec3 position;\r
+layout ( location = 1 ) in vec2 uv;\r
+layout ( location = 2 ) in vec3 normal;\r
+\r
+#ifdef TF_MODELER\r
+	out vec3 o_position;\r
+	out vec3 o_normal;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;
+
+out float vAlpha;
+
+uniform vec2 uDeferredResolution;
+
+void main( void ) {
+
+	vec3 outPos = position;\r
+vec3 outNormal = normal;\r
+vec2 outUv = uv;
+
+	float t = uTimeE * 0.1;
+	outPos.x += sin( position.y * 2.3 + t * 2.0 ) * 0.4;
+	outPos.y += sin( position.x * 1.0 + t * 1.0 ) * 0.3;
+	
+	#ifdef TF_MODELER\r
+		o_position = outPos;\r
+		o_normal = outNormal;\r
+		return;\r
+#endif\r
+\r
+vec4 modelPosition = uModelMatrix * vec4(outPos, 1.0);\r
+vec4 mvPosition = uViewMatrix * modelPosition;\r
+gl_Position = uProjectionMatrix * mvPosition;\r
+\r
+vec4 modelPositionPrev = uModelMatrixPrev * vec4(outPos, 1.0);\r
+vec4 mvPositionPrev = uViewMatrixPrev * modelPositionPrev;\r
+vec4 positionPrev = uProjectionMatrixPrev * mvPositionPrev;\r
+\r
+vUv = outUv;\r
+vViewNormal = normalize( (uNormalMatrix * vec4(outNormal, 0.0)).xyz );\r
+vNormal = (uModelMatrix * vec4(outNormal, 0.0)).xyz;\r
+vPos = modelPosition.xyz;\r
+vMVPosition = mvPosition.xyz;\r
+vMVPPosition = gl_Position.xyz / gl_Position.w;\r
+\r
+vVelocity = vMVPPosition.xy - positionPrev.xy / positionPrev.w;\r
+vVelocity *= 0.2;
+
+	vAlpha = smoothstep( -20.0, -1.0, mvPosition.z);
+	gl_PointSize = uDeferredResolution.y * 0.007 + uDeferredResolution.y * 0.02 * vAlpha;
+	gl_PointSize *= 0.5;
+
+}`})))()}var Uk=n({Dust:()=>Wk}),Wk;function Gk(){return(Gk=t((()=>{j(),F(),Bk(),Hk(),Wk=class extends Dt{constructor(e){super(e);let t=new kt,n=e.args?.num||2048,r=new O(20,5,20),i=[],a=[];for(let e=0;e<n;e++)i.push((Math.random()-.5)*r.x),i.push((Math.random()-.5)*r.y),i.push((Math.random()-.5)*r.z),a.push(Math.random());t.setAttribute(`position`,new Float32Array(i),3);let o=new xn({phase:[`forward`],drawType:`POINTS`,frag:zk,vert:Vk});this.entity.addComponent(N,{geometry:t,material:o})}dispose(){super.dispose(),this.entity.removeComponent(N)}}})))()}var Kk;function qk(){return(qk=t((()=>{Kk=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+// 宣言順はvert_h.part.glslのoutと一致させる（WGSL変換時にロケーションが宣言順で振られるため）\r
+in vec2 vUv;\r
+in vec3 vViewNormal;\r
+in vec3 vNormal;\r
+in vec3 vMVPosition;\r
+in vec3 vMVPPosition;\r
+in vec3 vPos;\r
+in vec2 vVelocity;\r
+\r
+uniform mat4 uModelMatrix;\r
+uniform mat4 uModelMatrixInverse;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform vec3 uCameraPosition;\r
+uniform vec2 uResolution;\r
+\r
+#ifdef IS_DEPTH\r
+	uniform float uCameraNear;\r
+	uniform float uCameraFar;\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+	layout (location = 3) out vec4 outColor3;\r
+	layout (location = 4) out vec4 outColor4;\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	uniform sampler2D uDeferredTexture;\r
+	uniform vec2 uDeferredResolution;\r
+	uniform sampler2D uGbufferNormal;\r
+	uniform sampler2D uGbufferAlbedo;\r
+	uniform sampler2D uGbufferMaterial;\r
+#endif\r
+\r
+#if defined(IS_FORWARD) || defined(IS_DEPTH)\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;
+
+void main( void ) {
+
+	vec4 outColor = vec4(1.0);\r
+vec3 outNormal = normalize(vNormal);\r
+vec3 outNormalMap = vec3( 0.0 );\r
+float outSSN = 0.0;\r
+vec3 outEmission = vec3(0.0);\r
+float outRoughness = 0.5;\r
+float outMetallic = 0.0;\r
+vec3 outPos = vPos;\r
+float outEnv = 1.0;\r
+float outSSS = 0.0;
+
+	outColor.xyz = vec3( 1.0 );
+
+	#ifdef IS_FORWARD
+
+		outColor = vec4( 0.5 );
+	
+	#endif
+
+	outSSN = 1.0;
+
+	
+	#if defined(IS_DEPTH) || defined(IS_DEFERRED)\r
+	vec4 mv = uViewMatrix * vec4(outPos, 1.0);\r
+#endif\r
+\r
+#ifdef IS_DEPTH\r
+	float depth_z = (-mv.z - uCameraNear) / (uCameraFar - uCameraNear);\r
+	outColor0 = vec4(floatToRGBA( depth_z ));\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+\r
+	#ifdef USE_NORMAL_MAP \r
+\r
+		vec3 tangent;\r
+		vec3 bitangent;\r
+\r
+		#ifdef USE_TANGENT\r
+\r
+			tangent = normalize( vTangent );\r
+			bitangent = normalize( vBitangent );\r
+\r
+		#else\r
+\r
+			tangent = cross(outNormal, vec3( 0.0, 1.0, 0.0 ));\r
+			bitangent = cross(tangent, outNormal);\r
+\r
+		#endif\r
+\r
+		#ifdef DOUBLE_SIDED\r
+\r
+			tangent *= faceDirection;\r
+			bitangent *= faceDirection;\r
+			\r
+		#endif\r
+\r
+		mat3 vTBN = mat3( tangent, bitangent, outNormal );\r
+		outNormal = normalize( vTBN * outNormalMap );\r
+\r
+	#endif\r
+\r
+	vec4 mvp = uProjectionMatrix * mv;\r
+	gl_FragDepth = ( mvp.z / mvp.w ) * 0.5 + 0.5;\r
+	outColor0 = vec4( outPos, outEmission.x );\r
+	outColor1 = vec4( normalize( outNormal * ( gl_FrontFacing ? 1.0 : -1.0 ) ), outEmission.y );\r
+	outColor2 = vec4( outColor.xyz, outSSS );\r
+	outColor3 = vec4( outRoughness, outMetallic, outSSN, outEnv );\r
+	outColor4 = vec4( vVelocity, 0.0, outEmission.z );\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	outColor0 = outColor;\r
+	outColor1 = vec4(outPos, 1.0);\r
+	outColor2 = vec4(vVelocity, 0.0, 1.0);\r
+#endif
+
+}`})))()}var Jk;function Yk(){return(Yk=t((()=>{Jk=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+uniform mat4 uModelMatrix;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform mat4 uNormalMatrix;\r
+\r
+uniform mat4 uModelMatrixPrev;\r
+uniform mat4 uModelViewMatrix;\r
+uniform mat4 uViewMatrixPrev;\r
+uniform mat4 uProjectionMatrixPrev;\r
+\r
+out vec2 vUv;\r
+out vec3 vViewNormal;\r
+out vec3 vNormal;\r
+out vec3 vMVPosition;\r
+out vec3 vMVPPosition;\r
+out vec3 vPos;\r
+\r
+out vec2 vVelocity;\r
+\r
+layout ( location = 0 ) in vec3 position;\r
+layout ( location = 1 ) in vec2 uv;\r
+layout ( location = 2 ) in vec3 normal;\r
+\r
+#ifdef TF_MODELER\r
+	out vec3 o_position;\r
+	out vec3 o_normal;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;
+
+layout (location = 3) in vec2 trailId;
+layout (location = 4) in vec3 id;
+layout (location = 5) in float posY;
+
+uniform sampler2D uGPUSampler0;
+uniform sampler2D uGPUSampler1;
+uniform vec2 uGPUResolution;
+
+mat2 rotate(float rad) {\r
+  return mat2(cos(rad), sin(rad), -sin(rad), cos(rad));\r
+}\r
+\r
+void rotate( float rad, inout vec2 pos, inout vec2 normal ) {\r
+	\r
+	mat2 rot = rotate( rad );\r
+	\r
+	pos *= rot;\r
+	normal *= rot;\r
+\r
+}\r
+\r
+mat3 makeRotationDir( vec3 direction, vec3 up ) {\r
+\r
+	vec3 xaxis = normalize( cross( up, direction ) );\r
+	vec3 yaxis = normalize( cross( direction, xaxis ) );\r
+\r
+	return mat3(\r
+		xaxis.x, yaxis.x, direction.x,\r
+		xaxis.y, yaxis.y, direction.y,\r
+		xaxis.z, yaxis.z, direction.z\r
+	);\r
+\r
+}
+
+void main( void ) {
+
+	vec3 outPos = position;\r
+vec3 outNormal = normal;\r
+vec2 outUv = uv;
+
+	float uid = id.x + id.y * 128.0;
+
+	vec4 comPosBuffer = texture( uGPUSampler0, vec2( posY * 1.0, trailId ) );
+	vec4 comVelBuffer = texture( uGPUSampler1, vec2( posY * 1.0, trailId ) );
+    vec4 nextPosBuffer = texture( uGPUSampler0, vec2( posY - 1.0 / uGPUResolution.x, trailId ) );
+
+	vec3 offsetPosition = comPosBuffer.xyz;
+
+	// outPos.xz *= sin( trailId * TPI ) * 0.5 + 0.5;
+	// outPos.xz *= sin( posY * PI ) * 1.0;
+	
+    vec3 delta = ( comPosBuffer.xyz - nextPosBuffer.xyz );
+	vec3 vec = normalize( delta );
+
+	mat2 offsetRot = rotate( PI / 2.0 );
+	outPos.yz *= offsetRot;
+	outNormal.yz *= offsetRot;
+
+	mat3 rot = makeRotationDir(-vec, vec3( 0.0, -1.0, 0.0 ) );
+	outPos *= rot;
+	outNormal *= rot;
+
+	outPos += offsetPosition;
+
+	#ifdef TF_MODELER\r
+		o_position = outPos;\r
+		o_normal = outNormal;\r
+		return;\r
+#endif\r
+\r
+vec4 modelPosition = uModelMatrix * vec4(outPos, 1.0);\r
+vec4 mvPosition = uViewMatrix * modelPosition;\r
+gl_Position = uProjectionMatrix * mvPosition;\r
+\r
+vec4 modelPositionPrev = uModelMatrixPrev * vec4(outPos, 1.0);\r
+vec4 mvPositionPrev = uViewMatrixPrev * modelPositionPrev;\r
+vec4 positionPrev = uProjectionMatrixPrev * mvPositionPrev;\r
+\r
+vUv = outUv;\r
+vViewNormal = normalize( (uNormalMatrix * vec4(outNormal, 0.0)).xyz );\r
+vNormal = (uModelMatrix * vec4(outNormal, 0.0)).xyz;\r
+vPos = modelPosition.xyz;\r
+vMVPosition = mvPosition.xyz;\r
+vMVPPosition = gl_Position.xyz / gl_Position.w;\r
+\r
+vVelocity = vMVPPosition.xy - positionPrev.xy / positionPrev.w;\r
+vVelocity *= 0.2;
+	
+}`})))()}var Xk;function Zk(){return(Zk=t((()=>{Xk=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}
+\r
+// https://github.com/ashima/webgl-noise/blob/master/src/noise4D.glsl\r
+\r
+//\r
+// Description : Array and textureless GLSL 2D/3D/4D simplex \r
+//               noise functions.\r
+//      Author : Ian McEwan, Ashima Arts.\r
+//  Maintainer : stegu\r
+//     Lastmod : 20110822 (ijm)\r
+//     License : Copyright (C) 2011 Ashima Arts. All rights reserved.\r
+//               Distributed under the MIT License. See LICENSE file.\r
+//               https://github.com/ashima/webgl-noise\r
+//               https://github.com/stegu/webgl-noise\r
+// \r
+\r
+vec4 mod289(vec4 x) {\r
+  return x - floor(x * (1.0 / 289.0)) * 289.0; }\r
+\r
+vec3 mod289(vec3 x) {\r
+  return x - floor(x * (1.0 / 289.0)) * 289.0;\r
+}\r
+\r
+float mod289(float x) {\r
+  return x - floor(x * (1.0 / 289.0)) * 289.0; }\r
+\r
+vec4 permute(vec4 x) {\r
+     return mod289(((x*34.0)+10.0)*x);\r
+}\r
+\r
+float permute(float x) {\r
+     return mod289(((x*34.0)+10.0)*x);\r
+}\r
+\r
+vec4 taylorInvSqrt(vec4 r)\r
+{\r
+  return 1.79284291400159 - 0.85373472095314 * r;\r
+}\r
+\r
+float taylorInvSqrt(float r)\r
+{\r
+  return 1.79284291400159 - 0.85373472095314 * r;\r
+}\r
+\r
+vec4 grad4(float j, vec4 ip)\r
+  {\r
+  const vec4 ones = vec4(1.0, 1.0, 1.0, -1.0);\r
+  vec4 p,s;\r
+\r
+  p.xyz = floor( fract (vec3(j) * ip.xyz) * 7.0) * ip.z - 1.0;\r
+  p.w = 1.5 - dot(abs(p.xyz), ones.xyz);\r
+  s = vec4(lessThan(p, vec4(0.0)));\r
+  p.xyz = p.xyz + (s.xyz*2.0 - 1.0) * s.www; \r
+\r
+  return p;\r
+  }\r
+						\r
+// (sqrt(5) - 1)/4 = F4, used once below\r
+#define F4 0.309016994374947451\r
+\r
+float noiseSimplex(vec4 v)\r
+  {\r
+  const vec4  C = vec4( 0.138196601125011,  // (5 - sqrt(5))/20  G4\r
+                        0.276393202250021,  // 2 * G4\r
+                        0.414589803375032,  // 3 * G4\r
+                       -0.447213595499958); // -1 + 4 * G4\r
+\r
+// First corner\r
+  vec4 i  = floor(v + dot(v, vec4(F4)) );\r
+  vec4 x0 = v -   i + dot(i, C.xxxx);\r
+\r
+// Other corners\r
+\r
+// Rank sorting originally contributed by Bill Licea-Kane, AMD (formerly ATI)\r
+  vec4 i0;\r
+  vec3 isX = step( x0.yzw, x0.xxx );\r
+  vec3 isYZ = step( x0.zww, x0.yyz );\r
+//  i0.x = dot( isX, vec3( 1.0 ) );\r
+  i0.x = isX.x + isX.y + isX.z;\r
+  i0.yzw = 1.0 - isX;\r
+//  i0.y += dot( isYZ.xy, vec2( 1.0 ) );\r
+  i0.y += isYZ.x + isYZ.y;\r
+  i0.zw += 1.0 - isYZ.xy;\r
+  i0.z += isYZ.z;\r
+  i0.w += 1.0 - isYZ.z;\r
+\r
+  // i0 now contains the unique values 0,1,2,3 in each channel\r
+  vec4 i3 = clamp( i0, 0.0, 1.0 );\r
+  vec4 i2 = clamp( i0-1.0, 0.0, 1.0 );\r
+  vec4 i1 = clamp( i0-2.0, 0.0, 1.0 );\r
+\r
+  //  x0 = x0 - 0.0 + 0.0 * C.xxxx\r
+  //  x1 = x0 - i1  + 1.0 * C.xxxx\r
+  //  x2 = x0 - i2  + 2.0 * C.xxxx\r
+  //  x3 = x0 - i3  + 3.0 * C.xxxx\r
+  //  x4 = x0 - 1.0 + 4.0 * C.xxxx\r
+  vec4 x1 = x0 - i1 + C.xxxx;\r
+  vec4 x2 = x0 - i2 + C.yyyy;\r
+  vec4 x3 = x0 - i3 + C.zzzz;\r
+  vec4 x4 = x0 + C.wwww;\r
+\r
+// Permutations\r
+  i = mod289(i); \r
+  float j0 = permute( permute( permute( permute(i.w) + i.z) + i.y) + i.x);\r
+  vec4 j1 = permute( permute( permute( permute (\r
+             i.w + vec4(i1.w, i2.w, i3.w, 1.0 ))\r
+           + i.z + vec4(i1.z, i2.z, i3.z, 1.0 ))\r
+           + i.y + vec4(i1.y, i2.y, i3.y, 1.0 ))\r
+           + i.x + vec4(i1.x, i2.x, i3.x, 1.0 ));\r
+\r
+// Gradients: 7x7x6 points over a cube, mapped onto a 4-cross polytope\r
+// 7*7*6 = 294, which is close to the ring size 17*17 = 289.\r
+  vec4 ip = vec4(1.0/294.0, 1.0/49.0, 1.0/7.0, 0.0) ;\r
+\r
+  vec4 p0 = grad4(j0,   ip);\r
+  vec4 p1 = grad4(j1.x, ip);\r
+  vec4 p2 = grad4(j1.y, ip);\r
+  vec4 p3 = grad4(j1.z, ip);\r
+  vec4 p4 = grad4(j1.w, ip);\r
+\r
+// Normalise gradients\r
+  vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));\r
+  p0 *= norm.x;\r
+  p1 *= norm.y;\r
+  p2 *= norm.z;\r
+  p3 *= norm.w;\r
+  p4 *= taylorInvSqrt(dot(p4,p4));\r
+\r
+// Mix contributions from the five corners\r
+  vec3 m0 = max(0.6 - vec3(dot(x0,x0), dot(x1,x1), dot(x2,x2)), 0.0);\r
+  vec2 m1 = max(0.6 - vec2(dot(x3,x3), dot(x4,x4)            ), 0.0);\r
+  m0 = m0 * m0;\r
+  m1 = m1 * m1;\r
+  return 49.0 * ( dot(m0*m0, vec3( dot( p0, x0 ), dot( p1, x1 ), dot( p2, x2 )))\r
+               + dot(m1*m1, vec2( dot( p3, x3 ), dot( p4, x4 ) ) ) ) ;\r
+\r
+  }\r
+\r
+//\r
+// Description : Array and textureless GLSL 2D/3D/4D simplex \r
+//               noise functions.\r
+//      Author : Ian McEwan, Ashima Arts.\r
+//  Maintainer : stegu\r
+//     Lastmod : 20201014 (stegu)\r
+//     License : Copyright (C) 2011 Ashima Arts. All rights reserved.\r
+//               Distributed under the MIT License. See LICENSE file.\r
+//               https://github.com/ashima/webgl-noise\r
+//               https://github.com/stegu/webgl-noise\r
+// \r
+\r
+\r
+float noiseSimplex(vec3 v)\r
+  { \r
+  const vec2  C = vec2(1.0/6.0, 1.0/3.0) ;\r
+  const vec4  D = vec4(0.0, 0.5, 1.0, 2.0);\r
+\r
+// First corner\r
+  vec3 i  = floor(v + dot(v, C.yyy) );\r
+  vec3 x0 =   v - i + dot(i, C.xxx) ;\r
+\r
+// Other corners\r
+  vec3 g = step(x0.yzx, x0.xyz);\r
+  vec3 l = 1.0 - g;\r
+  vec3 i1 = min( g.xyz, l.zxy );\r
+  vec3 i2 = max( g.xyz, l.zxy );\r
+\r
+  //   x0 = x0 - 0.0 + 0.0 * C.xxx;\r
+  //   x1 = x0 - i1  + 1.0 * C.xxx;\r
+  //   x2 = x0 - i2  + 2.0 * C.xxx;\r
+  //   x3 = x0 - 1.0 + 3.0 * C.xxx;\r
+  vec3 x1 = x0 - i1 + C.xxx;\r
+  vec3 x2 = x0 - i2 + C.yyy; // 2.0*C.x = 1/3 = C.y\r
+  vec3 x3 = x0 - D.yyy;      // -1.0+3.0*C.x = -0.5 = -D.y\r
+\r
+// Permutations\r
+  i = mod289(i); \r
+  vec4 p = permute( permute( permute( \r
+             i.z + vec4(0.0, i1.z, i2.z, 1.0 ))\r
+           + i.y + vec4(0.0, i1.y, i2.y, 1.0 )) \r
+           + i.x + vec4(0.0, i1.x, i2.x, 1.0 ));\r
+\r
+// Gradients: 7x7 points over a square, mapped onto an octahedron.\r
+// The ring size 17*17 = 289 is close to a multiple of 49 (49*6 = 294)\r
+  float n_ = 0.142857142857; // 1.0/7.0\r
+  vec3  ns = n_ * D.wyz - D.xzx;\r
+\r
+  vec4 j = p - 49.0 * floor(p * ns.z * ns.z);  //  mod(p,7*7)\r
+\r
+  vec4 x_ = floor(j * ns.z);\r
+  vec4 y_ = floor(j - 7.0 * x_ );    // mod(j,N)\r
+\r
+  vec4 x = x_ *ns.x + ns.yyyy;\r
+  vec4 y = y_ *ns.x + ns.yyyy;\r
+  vec4 h = 1.0 - abs(x) - abs(y);\r
+\r
+  vec4 b0 = vec4( x.xy, y.xy );\r
+  vec4 b1 = vec4( x.zw, y.zw );\r
+\r
+  //vec4 s0 = vec4(lessThan(b0,0.0))*2.0 - 1.0;\r
+  //vec4 s1 = vec4(lessThan(b1,0.0))*2.0 - 1.0;\r
+  vec4 s0 = floor(b0)*2.0 + 1.0;\r
+  vec4 s1 = floor(b1)*2.0 + 1.0;\r
+  vec4 sh = -step(h, vec4(0.0));\r
+\r
+  vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;\r
+  vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww ;\r
+\r
+  vec3 p0 = vec3(a0.xy,h.x);\r
+  vec3 p1 = vec3(a0.zw,h.y);\r
+  vec3 p2 = vec3(a1.xy,h.z);\r
+  vec3 p3 = vec3(a1.zw,h.w);\r
+\r
+//Normalise gradients\r
+  vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));\r
+  p0 *= norm.x;\r
+  p1 *= norm.y;\r
+  p2 *= norm.z;\r
+  p3 *= norm.w;\r
+\r
+// Mix final noise value\r
+  vec4 m = max(0.5 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);\r
+  m = m * m;\r
+  return 105.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1), \r
+                                dot(p2,x2), dot(p3,x3) ) );\r
+  }
+
+layout (location = 0) out vec4 outColor0;
+layout (location = 1) out vec4 outColor1;
+
+uniform sampler2D uGPUSampler0;
+uniform sampler2D uGPUSampler1;
+uniform float uTimeE;
+uniform vec2 uGPUResolution;
+
+in vec2 vUv;
+
+mat2 rotate(float rad) {\r
+  return mat2(cos(rad), sin(rad), -sin(rad), cos(rad));\r
+}\r
+\r
+void rotate( float rad, inout vec2 pos, inout vec2 normal ) {\r
+	\r
+	mat2 rot = rotate( rad );\r
+	\r
+	pos *= rot;\r
+	normal *= rot;\r
+\r
+}\r
+\r
+mat3 makeRotationDir( vec3 direction, vec3 up ) {\r
+\r
+	vec3 xaxis = normalize( cross( up, direction ) );\r
+	vec3 yaxis = normalize( cross( direction, xaxis ) );\r
+\r
+	return mat3(\r
+		xaxis.x, yaxis.x, direction.x,\r
+		xaxis.y, yaxis.y, direction.y,\r
+		xaxis.z, yaxis.z, direction.z\r
+	);\r
+\r
+}
+
+void main( void ) {
+
+	float t = uTimeE * 0.4;
+	float id = vUv.y;
+
+	vec4 position = texture( uGPUSampler0, vUv );
+	vec4 velocity = texture( uGPUSampler1, vUv );
+
+	float pixelX = 1.0 / uGPUResolution.x;
+
+
+	float posOffset = id * 0.5;
+	float tOffset = t + id * 0.8;
+
+	vec3 pos = position.xyz;
+	vec3 np = pos * 0.23;
+
+	vec3 noise = vec3(
+		noiseSimplex( vec4( np, tOffset) ),
+		noiseSimplex( vec4( np + 123.4, tOffset) ),
+		noiseSimplex( vec4( np + 567.8, tOffset) )
+	);
+	noise = normalize( noise ) * ( 0.002 + id * 0.001 );
+
+	// velocity
+
+	if( vUv.x < pixelX ) {
+
+		vec3 gPos = pos * vec3( 1.0, 1.0, 5.0 ) - vec3( 0.0, 0.0, 3.0 );
+
+		velocity.xyz += noise;
+		velocity.xyz += smoothstep( 0.0, 6.0, length( gPos ) ) * - gPos * 0.002;
+		velocity.xyz += smoothstep( 1.5, 0.5, length( gPos.xyz ) ) * gPos.xyz * 0.02;
+		velocity.xyz *= 0.98;
+
+	}
+	
+	//  position
+
+	if( vUv.x < pixelX ) {
+
+		position.xyz += velocity.xyz;
+		
+	} else {
+
+		vec3 t1 = texture( uGPUSampler0, vUv - vec2( pixelX * 1.5, 0.0 ) ).xyz;
+		vec3 t2 =  texture( uGPUSampler0, vUv - vec2( pixelX * 1.5 - 0.05, 0.0 ) ).xyz;
+
+		position.xyz = mix( t1, t2, 0.1 );
+		position.xyz += noise * 5.0;
+		
+	}
+
+	// lifetime
+
+	if( position.w > 1.0 ) {
+	
+		// position = vec4( 5.0, 0.0, 0.0, 0.0 );
+		// position.xz *= rotate( vUv.x * TPI * 20.0 - uTimeE * 0.02 );
+		// velocity = vec4( 0.0 );
+
+	}
+
+	position.w += 0.016 / 10.0;
+
+	// out
+
+	outColor0 = position;
+	outColor1 = velocity;
+
+} `})))()}var Qk=n({YakiSoba:()=>$k}),$k;function eA(){return(eA=t((()=>{j(),F(),qk(),Yk(),Zk(),$k=class extends Dt{_gpu;constructor(e){super(e);let t=this.engine,n=new O(64,512);this._gpu=new pi({passes:[new gi(t.renderer.backend,{name:`yakisoba`,size:n,dataLayerCount:2,frag:an(`yakiSobaCompute`,Xk),uniforms:mn.merge({},t.renderer.globalUniforms)})]}),this._gpu.passes[0].initTexture((e,t,n)=>[0,0,0,0]);let r=new jt({width:.05,height:.05,depth:.05,segmentsHeight:n.x}),i=[],a=[];for(let e=0;e<n.y;e++)i.push(e/n.y),a.push(Math.random(),Math.random(),Math.random());r.setAttribute(`trailId`,new Float32Array(i),1,{instanceDivisor:1}),r.setAttribute(`id`,new Float32Array(a),3,{instanceDivisor:1});let o=new xn({frag:an(`chainFrag`,Kk),vert:an(`chainVert`,Jk),phase:[`deferred`,`shadowMap`],uniforms:mn.merge({},this._gpu.passes[0].outputUniforms)});this.entity.addComponent(N,{geometry:r,material:o})}updateImpl(e){this.entity.isVisibleTraverse()&&this._gpu.compute(e.renderer)}dispose(){super.dispose(),this.entity.removeComponent(N),this._gpu.dispose()}}})))()}var tA;function nA(){return(nA=t((()=>{tA=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}\r
+// https://stackoverflow.com/questions/4200224/random-noise-functions-for-glsl\r
+\r
+float random(vec2 p){\r
+	return fract(sin(dot(p.xy ,vec2(12.9898,78.233))) * 43758.5453);\r
+}\r
+\r
+// https://www.shadertoy.com/view/4djSRW\r
+\r
+vec3 hash(vec3 p3)\r
+{\r
+	p3 = fract(p3 * vec3(.1031, .1030, .0973));\r
+  p3 += dot(p3, p3.yxz+33.33);\r
+  return fract((p3.xxy + p3.yxx)*p3.zyx);\r
+\r
+}
+
+// Interleaved Gradient Noise。隣り合うピクセルの値が斜めの縞として散るので、
+// 白色ノイズのように無相関な粒にならず、同じサンプル数でもざらつきが目立たない。
+// frameIndex にフレーム番号を渡すと、時間方向にも重ならないよう位相がずれる
+float interleavedGradientNoise( vec2 pixel, float frameIndex ) {
+
+	vec2 p = pixel + frameIndex * 5.588238;
+
+	return fract( 52.9829189 * fract( dot( p, vec2( 0.06711056, 0.00583715 ) ) ) );
+
+}
+\r
+\r
+// https://github.com/ashima/webgl-noise/blob/master/src/noise4D.glsl\r
+\r
+//\r
+// Description : Array and textureless GLSL 2D/3D/4D simplex \r
+//               noise functions.\r
+//      Author : Ian McEwan, Ashima Arts.\r
+//  Maintainer : stegu\r
+//     Lastmod : 20110822 (ijm)\r
+//     License : Copyright (C) 2011 Ashima Arts. All rights reserved.\r
+//               Distributed under the MIT License. See LICENSE file.\r
+//               https://github.com/ashima/webgl-noise\r
+//               https://github.com/stegu/webgl-noise\r
+// \r
+\r
+vec4 mod289(vec4 x) {\r
+  return x - floor(x * (1.0 / 289.0)) * 289.0; }\r
+\r
+vec3 mod289(vec3 x) {\r
+  return x - floor(x * (1.0 / 289.0)) * 289.0;\r
+}\r
+\r
+float mod289(float x) {\r
+  return x - floor(x * (1.0 / 289.0)) * 289.0; }\r
+\r
+vec4 permute(vec4 x) {\r
+     return mod289(((x*34.0)+10.0)*x);\r
+}\r
+\r
+float permute(float x) {\r
+     return mod289(((x*34.0)+10.0)*x);\r
+}\r
+\r
+vec4 taylorInvSqrt(vec4 r)\r
+{\r
+  return 1.79284291400159 - 0.85373472095314 * r;\r
+}\r
+\r
+float taylorInvSqrt(float r)\r
+{\r
+  return 1.79284291400159 - 0.85373472095314 * r;\r
+}\r
+\r
+vec4 grad4(float j, vec4 ip)\r
+  {\r
+  const vec4 ones = vec4(1.0, 1.0, 1.0, -1.0);\r
+  vec4 p,s;\r
+\r
+  p.xyz = floor( fract (vec3(j) * ip.xyz) * 7.0) * ip.z - 1.0;\r
+  p.w = 1.5 - dot(abs(p.xyz), ones.xyz);\r
+  s = vec4(lessThan(p, vec4(0.0)));\r
+  p.xyz = p.xyz + (s.xyz*2.0 - 1.0) * s.www; \r
+\r
+  return p;\r
+  }\r
+						\r
+// (sqrt(5) - 1)/4 = F4, used once below\r
+#define F4 0.309016994374947451\r
+\r
+float noiseSimplex(vec4 v)\r
+  {\r
+  const vec4  C = vec4( 0.138196601125011,  // (5 - sqrt(5))/20  G4\r
+                        0.276393202250021,  // 2 * G4\r
+                        0.414589803375032,  // 3 * G4\r
+                       -0.447213595499958); // -1 + 4 * G4\r
+\r
+// First corner\r
+  vec4 i  = floor(v + dot(v, vec4(F4)) );\r
+  vec4 x0 = v -   i + dot(i, C.xxxx);\r
+\r
+// Other corners\r
+\r
+// Rank sorting originally contributed by Bill Licea-Kane, AMD (formerly ATI)\r
+  vec4 i0;\r
+  vec3 isX = step( x0.yzw, x0.xxx );\r
+  vec3 isYZ = step( x0.zww, x0.yyz );\r
+//  i0.x = dot( isX, vec3( 1.0 ) );\r
+  i0.x = isX.x + isX.y + isX.z;\r
+  i0.yzw = 1.0 - isX;\r
+//  i0.y += dot( isYZ.xy, vec2( 1.0 ) );\r
+  i0.y += isYZ.x + isYZ.y;\r
+  i0.zw += 1.0 - isYZ.xy;\r
+  i0.z += isYZ.z;\r
+  i0.w += 1.0 - isYZ.z;\r
+\r
+  // i0 now contains the unique values 0,1,2,3 in each channel\r
+  vec4 i3 = clamp( i0, 0.0, 1.0 );\r
+  vec4 i2 = clamp( i0-1.0, 0.0, 1.0 );\r
+  vec4 i1 = clamp( i0-2.0, 0.0, 1.0 );\r
+\r
+  //  x0 = x0 - 0.0 + 0.0 * C.xxxx\r
+  //  x1 = x0 - i1  + 1.0 * C.xxxx\r
+  //  x2 = x0 - i2  + 2.0 * C.xxxx\r
+  //  x3 = x0 - i3  + 3.0 * C.xxxx\r
+  //  x4 = x0 - 1.0 + 4.0 * C.xxxx\r
+  vec4 x1 = x0 - i1 + C.xxxx;\r
+  vec4 x2 = x0 - i2 + C.yyyy;\r
+  vec4 x3 = x0 - i3 + C.zzzz;\r
+  vec4 x4 = x0 + C.wwww;\r
+\r
+// Permutations\r
+  i = mod289(i); \r
+  float j0 = permute( permute( permute( permute(i.w) + i.z) + i.y) + i.x);\r
+  vec4 j1 = permute( permute( permute( permute (\r
+             i.w + vec4(i1.w, i2.w, i3.w, 1.0 ))\r
+           + i.z + vec4(i1.z, i2.z, i3.z, 1.0 ))\r
+           + i.y + vec4(i1.y, i2.y, i3.y, 1.0 ))\r
+           + i.x + vec4(i1.x, i2.x, i3.x, 1.0 ));\r
+\r
+// Gradients: 7x7x6 points over a cube, mapped onto a 4-cross polytope\r
+// 7*7*6 = 294, which is close to the ring size 17*17 = 289.\r
+  vec4 ip = vec4(1.0/294.0, 1.0/49.0, 1.0/7.0, 0.0) ;\r
+\r
+  vec4 p0 = grad4(j0,   ip);\r
+  vec4 p1 = grad4(j1.x, ip);\r
+  vec4 p2 = grad4(j1.y, ip);\r
+  vec4 p3 = grad4(j1.z, ip);\r
+  vec4 p4 = grad4(j1.w, ip);\r
+\r
+// Normalise gradients\r
+  vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));\r
+  p0 *= norm.x;\r
+  p1 *= norm.y;\r
+  p2 *= norm.z;\r
+  p3 *= norm.w;\r
+  p4 *= taylorInvSqrt(dot(p4,p4));\r
+\r
+// Mix contributions from the five corners\r
+  vec3 m0 = max(0.6 - vec3(dot(x0,x0), dot(x1,x1), dot(x2,x2)), 0.0);\r
+  vec2 m1 = max(0.6 - vec2(dot(x3,x3), dot(x4,x4)            ), 0.0);\r
+  m0 = m0 * m0;\r
+  m1 = m1 * m1;\r
+  return 49.0 * ( dot(m0*m0, vec3( dot( p0, x0 ), dot( p1, x1 ), dot( p2, x2 )))\r
+               + dot(m1*m1, vec2( dot( p3, x3 ), dot( p4, x4 ) ) ) ) ;\r
+\r
+  }\r
+\r
+//\r
+// Description : Array and textureless GLSL 2D/3D/4D simplex \r
+//               noise functions.\r
+//      Author : Ian McEwan, Ashima Arts.\r
+//  Maintainer : stegu\r
+//     Lastmod : 20201014 (stegu)\r
+//     License : Copyright (C) 2011 Ashima Arts. All rights reserved.\r
+//               Distributed under the MIT License. See LICENSE file.\r
+//               https://github.com/ashima/webgl-noise\r
+//               https://github.com/stegu/webgl-noise\r
+// \r
+\r
+\r
+float noiseSimplex(vec3 v)\r
+  { \r
+  const vec2  C = vec2(1.0/6.0, 1.0/3.0) ;\r
+  const vec4  D = vec4(0.0, 0.5, 1.0, 2.0);\r
+\r
+// First corner\r
+  vec3 i  = floor(v + dot(v, C.yyy) );\r
+  vec3 x0 =   v - i + dot(i, C.xxx) ;\r
+\r
+// Other corners\r
+  vec3 g = step(x0.yzx, x0.xyz);\r
+  vec3 l = 1.0 - g;\r
+  vec3 i1 = min( g.xyz, l.zxy );\r
+  vec3 i2 = max( g.xyz, l.zxy );\r
+\r
+  //   x0 = x0 - 0.0 + 0.0 * C.xxx;\r
+  //   x1 = x0 - i1  + 1.0 * C.xxx;\r
+  //   x2 = x0 - i2  + 2.0 * C.xxx;\r
+  //   x3 = x0 - 1.0 + 3.0 * C.xxx;\r
+  vec3 x1 = x0 - i1 + C.xxx;\r
+  vec3 x2 = x0 - i2 + C.yyy; // 2.0*C.x = 1/3 = C.y\r
+  vec3 x3 = x0 - D.yyy;      // -1.0+3.0*C.x = -0.5 = -D.y\r
+\r
+// Permutations\r
+  i = mod289(i); \r
+  vec4 p = permute( permute( permute( \r
+             i.z + vec4(0.0, i1.z, i2.z, 1.0 ))\r
+           + i.y + vec4(0.0, i1.y, i2.y, 1.0 )) \r
+           + i.x + vec4(0.0, i1.x, i2.x, 1.0 ));\r
+\r
+// Gradients: 7x7 points over a square, mapped onto an octahedron.\r
+// The ring size 17*17 = 289 is close to a multiple of 49 (49*6 = 294)\r
+  float n_ = 0.142857142857; // 1.0/7.0\r
+  vec3  ns = n_ * D.wyz - D.xzx;\r
+\r
+  vec4 j = p - 49.0 * floor(p * ns.z * ns.z);  //  mod(p,7*7)\r
+\r
+  vec4 x_ = floor(j * ns.z);\r
+  vec4 y_ = floor(j - 7.0 * x_ );    // mod(j,N)\r
+\r
+  vec4 x = x_ *ns.x + ns.yyyy;\r
+  vec4 y = y_ *ns.x + ns.yyyy;\r
+  vec4 h = 1.0 - abs(x) - abs(y);\r
+\r
+  vec4 b0 = vec4( x.xy, y.xy );\r
+  vec4 b1 = vec4( x.zw, y.zw );\r
+\r
+  //vec4 s0 = vec4(lessThan(b0,0.0))*2.0 - 1.0;\r
+  //vec4 s1 = vec4(lessThan(b1,0.0))*2.0 - 1.0;\r
+  vec4 s0 = floor(b0)*2.0 + 1.0;\r
+  vec4 s1 = floor(b1)*2.0 + 1.0;\r
+  vec4 sh = -step(h, vec4(0.0));\r
+\r
+  vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;\r
+  vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww ;\r
+\r
+  vec3 p0 = vec3(a0.xy,h.x);\r
+  vec3 p1 = vec3(a0.zw,h.y);\r
+  vec3 p2 = vec3(a1.xy,h.z);\r
+  vec3 p3 = vec3(a1.zw,h.w);\r
+\r
+//Normalise gradients\r
+  vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));\r
+  p0 *= norm.x;\r
+  p1 *= norm.y;\r
+  p2 *= norm.z;\r
+  p3 *= norm.w;\r
+\r
+// Mix final noise value\r
+  vec4 m = max(0.5 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);\r
+  m = m * m;\r
+  return 105.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1), \r
+                                dot(p2,x2), dot(p3,x3) ) );\r
+  }\r
+\r
+uniform sampler2D uBackBuffer0;\r
+\r
+in vec2 vUv;\r
+\r
+layout (location = 0) out vec4 outColor;\r
+\r
+vec2 lens_distortion(vec2 r, float alpha) {\r
+    return r * (1.0 - alpha * dot(r, r));\r
+}\r
+\r
+void main( void ) {\r
+	vec3 col = vec3( 0.0, 0.0, 0.0 );\r
+	vec2 uv = vUv;\r
+	vec2 cuv = uv - 0.5;\r
+	float w = 0.05;\r
+\r
+	float d;\r
+	float s = 0.98; \r
+\r
+	#pragma loop_start 8\r
+		d = -float( LOOP_INDEX ) / 8.0 * w;\r
+        col.x += texture( uBackBuffer0, lens_distortion( cuv * s, d * 0.0 ) + 0.5 + vec2( (float( LOOP_INDEX ) / 8.0 - 0.5 ) * 0.002, 0.0 ) ).x;\r
+        col.y += texture( uBackBuffer0, lens_distortion( cuv * s, d * 3.0 ) + 0.5 ).y;\r
+        col.z += texture( uBackBuffer0, lens_distortion( cuv * s, d * 6.0 ) + 0.5 ).z;\r
+	#pragma loop_end\r
+	col.xyz /= 8.0;\r
+\r
+	float len = length(cuv);\r
+	col *= smoothstep( 1.2, 0.3, len );\r
+	\r
+	outColor = vec4( col, 1.0 );\r
+\r
+}`})))()}var rA=n({Finalize:()=>iA}),iA;function aA(){return(aA=t((()=>{F(),nA(),iA=class extends Dt{constructor(e){super(e);let t=this.engine,n=this.entity.getComponent(_n);n||=this.entity.addComponent(_n);let r=new P(t.renderer.backend,{name:`finalize`,frag:tA}),i=n.add(new Cn({name:`Finalize`,passes:[r]}));this.once(`dispose`,()=>{n.remove(i)})}}})))()}var oA=n({CameraOrbitAnim:()=>sA}),sA;function cA(){return(cA=t((()=>{j(),F(),sA=class extends Dt{time;radius;heightAmp;speed;baseHeight;constructor(e){super(e),this.time=0,this.radius=6,this.heightAmp=2,this.speed=.3,this.baseHeight=1.5,this.field(`radius`,()=>this.radius,e=>this.radius=e),this.field(`heightAmp`,()=>this.heightAmp,e=>this.heightAmp=e),this.field(`speed`,()=>this.speed,e=>this.speed=e),this.field(`baseHeight`,()=>this.baseHeight,e=>this.baseHeight=e)}updateImpl(e){this.time+=e.timeDelta;let t=this.time*this.speed,n=Math.cos(t)*this.radius,r=Math.sin(t)*this.radius,i=this.baseHeight+Math.sin(t*1.7)*this.heightAmp;this.entity.position.set(n,i,r),this.entity.lookAt(new O(0,0,0))}}})))()}var lA=n({ShakeViewer:()=>uA}),uA;function dA(){return(dA=t((()=>{j(),F(),uA=class extends Dt{shakePower;shakeSpeed;shakeMatrix;cameraMatrixWorld;shakeQua;constructor(e){super(e),this.shakePower=.15,this.shakeSpeed=1,this.shakeMatrix=new k,this.cameraMatrixWorld=new k,this.shakeQua=new A,this.order=1e3,this.field(`power`,()=>this.shakePower,e=>this.shakePower=e),this.field(`speed`,()=>this.shakeSpeed,e=>this.shakeSpeed=e)}prepareRenderImpl(e){let t=this.entity.getComponentsByTag(`camera`)[0];if(!t)return;let n=.008*this.shakePower;n*=t.fov/50;let r=e.timeElapsed*this.shakeSpeed;this.shakeQua.setFromEuler({x:Math.sin(r*2)*n,y:Math.sin(r*2.5)*n,z:0}),this.shakeMatrix.identity().applyQuaternion(this.shakeQua),this.cameraMatrixWorld.copy(this.entity.matrixWorld).multiply(this.shakeMatrix),t.viewMatrix.copy(this.cameraMatrixWorld).inverse()}}})))()}var fA=n({ObjectRotate:()=>pA}),pA;function mA(){return(mA=t((()=>{j(),F(),pA=class extends Dt{speed;rotQuaternion;constructor(e){super(e),this.speed=1,this.rotQuaternion=new A}updateImpl(e){this.rotQuaternion.setFromEuler(new De(0,-.4*e.timeDelta*this.speed,0)),this.entity.quaternion.multiply(this.rotQuaternion)}}})))()}var hA=n({BLidgeClient:()=>gA}),gA;function _A(){return(_A=t((()=>{F(),Ri(),gA=class e extends Dt{blidge;type;blidgeRoot;entities;attachments;_attachmentsApplied;_unresolvedByEntity;static sceneData=null;connection;useGLTF;gltfPath;constructor(t){super(t),this.entities=new Map,this.attachments=[],this._attachmentsApplied=!1,this._unresolvedByEntity=new Map,this.type=`websocket`,this.connection={enabled:!0,url:`ws://localhost:3100`},this.useGLTF=!1,this.gltfPath=`/scene.glb`,this.blidgeRoot=null,this.blidge=new St(this.engine);let n=this.onSyncScene.bind(this),r=this.engine,i=e=>{r.emit(`update/blidge/frame`,[e])};this.blidge.on(`sync/scene`,n),this.blidge.on(`sync/timeline`,i),this.once(`dispose`,()=>{this.blidge.off(`sync/scene`,n),this.blidge.off(`sync/timeline`,i)});let a=async()=>{if(this.type==`json`){let t=e.sceneData;if(!t){let e=await fetch(`/blidge-scene.json`);if(!e.ok){console.warn(`BLidgeClient: failed to load /blidge-scene.json (${e.status})`);return}t=await e.json()}await this.blidge.loadScene(t,this.useGLTF?this.gltfPath:void 0),this.emit(`loaded`)}else this.blidge.connect(this.connection.url,this.useGLTF?this.gltfPath:void 0)};this.field(`mode`,()=>this.type,e=>{this.type=e,a()},{format:{type:`select`,list:[`websocket`,`json`]}}),this.field(`gltf`,()=>this.useGLTF,e=>{this.useGLTF=e,a()}),this.field(`gltfPath`,()=>this.gltfPath,e=>{this.gltfPath=e,a()});let o=this.fieldDir(`websocket`,{hidden:()=>this.type!=`websocket`});o.field(`reconnect`,()=>()=>a(),void 0,{label:`Reconnect`}),o.field(`url`,()=>this.connection.url,e=>this.connection.url=e),this.field(`attachments`,()=>!this.blidgeRoot||!this._attachmentsApplied?this.attachments:this.serializeAttachments(),e=>{this.attachments=e||[],this._attachmentsApplied=!1,this._unresolvedByEntity.clear()},{hidden:!0})}serializeAttachments(){if(!this.blidgeRoot)return[];let e={getName:e=>I.resources.getComponentName(e)},t=[];return this.blidgeRoot.traverse(n=>{let r=[];n.components.forEach(t=>{if(t.initiator!==`user`)return;let n=t.serialize({mode:`export`}),i=Object.keys(n).length>0,a={name:e.getName(t),uuid:t.uuid};i&&(a.props=n),r.push(a)});let i=this._unresolvedByEntity.get(n.name);i&&r.push(...i),r.length>0&&t.push({name:n.name,components:r})}),t}applyAttachments(e){if(this._unresolvedByEntity.clear(),!this.attachments.length)return;let t=new Map;this.attachments.forEach(e=>t.set(e.name,e)),e.traverse(e=>{let n=t.get(e.name);n&&n.components.forEach(t=>{let n=I.resources.getComponent(t.name);if(n){e.removeComponent(n.component);let r=e.addComponent(n.component);r.initiator=`user`,r.restoreUUID(t.uuid),t.props&&r.deserialize(t.props)}else{console.warn(`[BLidgeClient] unresolved attachment component "${t.name}" on entity "${e.name}". Preserving data for round-trip.`);let n=this._unresolvedByEntity.get(e.name)||[];n.push({name:t.name,uuid:t.uuid,props:t.props}),this._unresolvedByEntity.set(e.name,n)}})})}async onSyncScene(e){this._attachmentsApplied=!1;let t=new Date().getTime(),n=r=>{let i=this.entities.get(r.name);if(i||(i=this.engine.createEntity(),i.restoreUUID(`blidge:`+r.name)),r.type==`camera`){let e=r.param;i.userData.cameraParam=e}return i.removeComponent(qt),i.addComponent(qt,{blidge:e,node:r}),r.children.forEach(e=>{let t=n(e);i.add(t)}),this.entities.set(i.name,i),i.userData.updateTime=t,i},r=e.root&&n(e.root);r&&(r.name=`blidgeRoot`,this.blidgeRoot&&this.entity&&this.entity.remove(this.blidgeRoot),this.blidgeRoot=r,this.entity&&this.entity.add(this.blidgeRoot)),this.entities.forEach(e=>{if(e.userData.updateTime!=t){let t=e.parent;t&&t.remove(e),e.dispose(),this.entities.delete(e.name)}}),e.gltf&&await e.gltfPrm,this.blidgeRoot&&(this.applyAttachments(this.blidgeRoot),this._attachmentsApplied=!0),this.entity&&this.entity.noticeEventChilds(`sceneCreated`,[this.blidgeRoot])}dispose(){super.dispose(),this.blidgeRoot&&=(this.blidgeRoot.disposeRecursive(),this.entity.remove(this.blidgeRoot),null),this._attachmentsApplied=!1,this._unresolvedByEntity.clear()}}})))()}var vA=n({Cube:()=>yA}),yA;function bA(){return(bA=t((()=>{F(),yA=class extends jt{}})))()}var xA=n({Cylinder:()=>SA}),SA;function CA(){return(CA=t((()=>{F(),SA=class extends Nt{}})))()}var wA=n({Plane:()=>TA}),TA;function EA(){return(EA=t((()=>{F(),TA=class extends Ft{}})))()}var DA=n({Sphere:()=>OA}),OA;function kA(){return(kA=t((()=>{F(),OA=class extends Lt{}})))()}var AA,jA;function MA(){return(MA=t((()=>{cA(),dA(),Pl(),Ll(),mA(),Xo(),_A(),bA(),CA(),EA(),kA(),Oi(),AA=Di(Object.assign({"./Components/Camera/CameraOrbitAnim/index.ts":oA,"./Components/Camera/CameraShake/index.ts":lA,"./Components/Camera/LookAt/index.ts":Ml,"./Components/Camera/OrbitControls/index.ts":Fl,"./Components/Object/ObjectRotate/index.ts":fA,"./Components/Utility/Animation/index.ts":qo,"./Components/Utility/BLidgeClient/index.ts":hA}),`Components`),jA=Di(Object.assign({"./Geometries/Cube/index.ts":vA,"./Geometries/Cylinder/index.ts":xA,"./Geometries/Plane/index.ts":wA,"./Geometries/Sphere/index.ts":DA}),`Geometries`)})))()}var NA;function PA(){return(PA=t((()=>{NA=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}\r
+// 宣言順はvert_h.part.glslのoutと一致させる（WGSL変換時にロケーションが宣言順で振られるため）\r
+in vec2 vUv;\r
+in vec3 vViewNormal;\r
+in vec3 vNormal;\r
+in vec3 vMVPosition;\r
+in vec3 vMVPPosition;\r
+in vec3 vPos;\r
+in vec2 vVelocity;\r
+\r
+uniform mat4 uModelMatrix;\r
+uniform mat4 uModelMatrixInverse;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform vec3 uCameraPosition;\r
+uniform vec2 uResolution;\r
+\r
+#ifdef IS_DEPTH\r
+	uniform float uCameraNear;\r
+	uniform float uCameraFar;\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+	layout (location = 3) out vec4 outColor3;\r
+	layout (location = 4) out vec4 outColor4;\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	uniform sampler2D uDeferredTexture;\r
+	uniform vec2 uDeferredResolution;\r
+	uniform sampler2D uGbufferNormal;\r
+	uniform sampler2D uGbufferAlbedo;\r
+	uniform sampler2D uGbufferMaterial;\r
+#endif\r
+\r
+#if defined(IS_FORWARD) || defined(IS_DEPTH)\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;\r
+\r
+// https://www.shadertoy.com/view/4dS3Wd\r
+\r
+float hashv(float p) { p = fract(p * 0.011); p *= p + 7.5; p *= p + p; return fract(p); }\r
+float hashv(vec2 p) {vec3 p3 = fract(vec3(p.xyx) * 0.13); p3 += dot(p3, p3.yzx + 3.333); return fract((p3.x + p3.y) * p3.z); }\r
+\r
+#define NUM_NOISE_OCTAVES 5\r
+\r
+float noiseValue(vec3 x) {\r
+    const vec3 step = vec3(110, 241, 171);\r
+\r
+    vec3 i = floor(x);\r
+    vec3 f = fract(x);\r
+ \r
+    // For performance, compute the base input to a 1D hash from the integer part of the argument and the \r
+    // incremental change to the 1D based on the 3D -> 1D wrapping\r
+    float n = dot(i, step);\r
+\r
+    vec3 u = f * f * (3.0 - 2.0 * f);\r
+    return mix(mix(mix( hashv(n + dot(step, vec3(0, 0, 0))), hashv(n + dot(step, vec3(1, 0, 0))), u.x),\r
+                   mix( hashv(n + dot(step, vec3(0, 1, 0))), hashv(n + dot(step, vec3(1, 1, 0))), u.x), u.y),\r
+               mix(mix( hashv(n + dot(step, vec3(0, 0, 1))), hashv(n + dot(step, vec3(1, 0, 1))), u.x),\r
+                   mix( hashv(n + dot(step, vec3(0, 1, 1))), hashv(n + dot(step, vec3(1, 1, 1))), u.x), u.y), u.z);\r
+}\r
+\r
+float fbm(vec3 x) {\r
+	float v = 0.0;\r
+	float a = 0.5;\r
+	vec3 shift = vec3(100);\r
+	for (int i = 0; i < NUM_NOISE_OCTAVES; ++i) {\r
+		v += a * noiseValue(x);\r
+		x = x * 2.0 + shift;\r
+		a *= 0.5;\r
+    if( i == -1 ) break;\r
+	}\r
+	return v;\r
+}\r
+\r
+float fbm(float x) {\r
+  return fbm(vec3(x));\r
+}\r
+\r
+layout (location = 0) out vec4 outColor;\r
+\r
+void main( void ) {\r
+\r
+	vec2 uv = vUv * 400.0;\r
+\r
+	outColor.x = hashv( uv );\r
+	outColor.y = hashv( uv  + 1.0);\r
+	outColor.z = hashv( uv + 2.0 );\r
+	outColor.w = hashv( uv + 3.0 );\r
+\r
+} `})))()}var FA;function IA(){return(IA=t((()=>{PA(),FA={name:`hash`,resolution:[512,512],filter:`nearest`,updateEveryFrame:!1,frag:NA}})))()}var LA;function RA(){return(RA=t((()=>{LA=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}\r
+// 宣言順はvert_h.part.glslのoutと一致させる（WGSL変換時にロケーションが宣言順で振られるため）\r
+in vec2 vUv;\r
+in vec3 vViewNormal;\r
+in vec3 vNormal;\r
+in vec3 vMVPosition;\r
+in vec3 vMVPPosition;\r
+in vec3 vPos;\r
+in vec2 vVelocity;\r
+\r
+uniform mat4 uModelMatrix;\r
+uniform mat4 uModelMatrixInverse;\r
+uniform mat4 uViewMatrix;\r
+uniform mat4 uProjectionMatrix;\r
+uniform vec3 uCameraPosition;\r
+uniform vec2 uResolution;\r
+\r
+#ifdef IS_DEPTH\r
+	uniform float uCameraNear;\r
+	uniform float uCameraFar;\r
+#endif\r
+\r
+#ifdef IS_DEFERRED\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+	layout (location = 3) out vec4 outColor3;\r
+	layout (location = 4) out vec4 outColor4;\r
+#endif\r
+\r
+#ifdef IS_FORWARD\r
+	uniform sampler2D uDeferredTexture;\r
+	uniform vec2 uDeferredResolution;\r
+	uniform sampler2D uGbufferNormal;\r
+	uniform sampler2D uGbufferAlbedo;\r
+	uniform sampler2D uGbufferMaterial;\r
+#endif\r
+\r
+#if defined(IS_FORWARD) || defined(IS_DEPTH)\r
+	layout (location = 0) out vec4 outColor0;\r
+	layout (location = 1) out vec4 outColor1;\r
+	layout (location = 2) out vec4 outColor2;\r
+#endif\r
+\r
+uniform float uTime;\r
+uniform float uTimeF;\r
+uniform float uTimeE;\r
+uniform float uTimeEF;\r
+\r
+// https://www.shadertoy.com/view/4dS3Wd\r
+\r
+float hashv(float p) { p = fract(p * 0.011); p *= p + 7.5; p *= p + p; return fract(p); }\r
+float hashv(vec2 p) {vec3 p3 = fract(vec3(p.xyx) * 0.13); p3 += dot(p3, p3.yzx + 3.333); return fract((p3.x + p3.y) * p3.z); }\r
+\r
+#define NUM_NOISE_OCTAVES 5\r
+\r
+float noiseValue(vec3 x) {\r
+    const vec3 step = vec3(110, 241, 171);\r
+\r
+    vec3 i = floor(x);\r
+    vec3 f = fract(x);\r
+ \r
+    // For performance, compute the base input to a 1D hash from the integer part of the argument and the \r
+    // incremental change to the 1D based on the 3D -> 1D wrapping\r
+    float n = dot(i, step);\r
+\r
+    vec3 u = f * f * (3.0 - 2.0 * f);\r
+    return mix(mix(mix( hashv(n + dot(step, vec3(0, 0, 0))), hashv(n + dot(step, vec3(1, 0, 0))), u.x),\r
+                   mix( hashv(n + dot(step, vec3(0, 1, 0))), hashv(n + dot(step, vec3(1, 1, 0))), u.x), u.y),\r
+               mix(mix( hashv(n + dot(step, vec3(0, 0, 1))), hashv(n + dot(step, vec3(1, 0, 1))), u.x),\r
+                   mix( hashv(n + dot(step, vec3(0, 1, 1))), hashv(n + dot(step, vec3(1, 1, 1))), u.x), u.y), u.z);\r
+}\r
+\r
+float fbm(vec3 x) {\r
+	float v = 0.0;\r
+	float a = 0.5;\r
+	vec3 shift = vec3(100);\r
+	for (int i = 0; i < NUM_NOISE_OCTAVES; ++i) {\r
+		v += a * noiseValue(x);\r
+		x = x * 2.0 + shift;\r
+		a *= 0.5;\r
+    if( i == -1 ) break;\r
+	}\r
+	return v;\r
+}\r
+\r
+float fbm(float x) {\r
+  return fbm(vec3(x));\r
+}\r
+\r
+layout (location = 0) out vec4 outColor;\r
+\r
+void main( void ) {\r
+\r
+	vec2 v = vUv * 15.0;\r
+	vec2 lv = abs( vUv - 0.5 ) * 15.0;\r
+	float lw = sin( vUv.x * PI ) * sin( vUv.y * PI );\r
+\r
+	outColor.x += mix( fbm( vec3( lv, 0.0 ) ), fbm( vec3( v, 0.0 ) ), lw );\r
+	outColor.y += mix( fbm( vec3( lv, 100.0 ) ), fbm( vec3( v, 100.0 ) ), lw );\r
+	outColor.z += mix( fbm( vec3( lv, 200.0 ) ), fbm( vec3( v, 200.0 ) ), lw );\r
+	outColor.w += mix( fbm( vec3( lv, 300.0 ) ), fbm( vec3( v, 300.0 ) ), lw );\r
+\r
+} `})))()}var zA;function BA(){return(BA=t((()=>{RA(),zA={name:`noise`,resolution:[1024,1024],filter:`linear`,updateEveryFrame:!0,frag:LA}})))()}var VA;function HA(){return(HA=t((()=>{VA=`#define PI 3.14159265359\r
+#define TPI 6.28318530718\r
+#define HPI 1.57079632679\r
+#define saturate(x) clamp(x,0.,1.)\r
+\r
+struct Geometry {\r
+	vec3 position;\r
+	vec3 normal;\r
+	float depth;\r
+	vec3 viewDir;\r
+	vec3 viewDirWorld;\r
+	float occulusion;\r
+};\r
+\r
+struct Material {\r
+	vec3 color;\r
+	float roughness;\r
+	float metallic;\r
+	vec3 emission;\r
+	vec3 diffuseColor;\r
+	vec3 specularColor;\r
+	float envMapIntensity;\r
+};\r
+\r
+float sinn( float x ) {\r
+	return sin(x - HPI) * 0.5 + 0.5;\r
+}\r
+\r
+float atan2(in float y, in float x){\r
+\r
+    return x == 0.0 ? sign(y)*PI/2.0 : atan(y, x);\r
+	\r
+}\r
+\r
+// 表面からカメラへ向かう単位ベクトル。\r
+// 並行投影（projectionMatrix[3][3] が 1。透視投影では 0）は視線が平行なので、位置によらずカメラの +Z 軸になる\r
+vec3 viewDirection( vec3 pos, vec3 cameraPosition, mat4 viewMatrix, mat4 projectionMatrix ) {\r
+\r
+	return normalize( mix( cameraPosition - pos, vec3( 0.0, 0.0, 1.0 ) * mat3( viewMatrix ), projectionMatrix[ 3 ][ 3 ] ) );\r
+\r
+}\r
+\r
+// gBuffer の position が空・背景か。何も描かれていない画素は 0 のまま、空（Sky）はカメラ中心の半径 far * 0.99 の球。\r
+// 球は 32 分割の多面体なので面の中ほどは半径より少し内側に来る（約 0.984 * far）。余裕を見て 0.95 で切る。\r
+// webgpu 側 view.wgsl の isBackground と同じ判定\r
+bool isBackground( vec3 pos, vec3 cameraPosition, float cameraFar ) {\r
+\r
+	return dot( pos, pos ) == 0.0 || length( pos - cameraPosition ) > cameraFar * 0.95;\r
+\r
+}\r
+\r
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)\r
+\r
+// easing\r
+\r
+float easeInOut( float x ) {\r
+\r
+	return x < 0.5 ? 8.0 * x * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 4.0) / 2.0;\r
+\r
+}\r
+\r
+float easeOut( float t, float k ) {\r
+\r
+	float x = exp( - clamp( t, 0.0, 1.0 ) * k );\r
+	float s0 = 1.0;\r
+	float s1 = exp( -k );\r
+	return ( x - s0 ) / (s1 - s0 );\r
+	\r
+}\r
+\r
+float easeIn( float t, float k ) {\r
+\r
+	return 1.0 - easeOut( 1.0 - t, k );\r
+	\r
+}\r
+\r
+float easeBounce( float t, float b ) {\r
+\r
+	t = 1.0 - t;\r
+	return 1.0 - t * t * ( b * t - b + 1.0 );\r
+	\r
+}\r
+\r
+// hsv\r
+\r
+vec3 hsv2rgb( vec3 hsv ) {\r
+\r
+	return ((clamp(abs(fract(hsv.x+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*hsv.y+1.)*hsv.z;\r
+	\r
+}\r
+\r
+// color space conversion\r
+\r
+vec3 srgbToLinear( vec3 srgb ) {\r
+	return mix(\r
+		srgb / 12.92,\r
+		pow((srgb + 0.055) / 1.055, vec3(2.4)),\r
+		step(0.04045, srgb)\r
+	);\r
+}\r
+\r
+vec3 linearToSrgb( vec3 linear ) {\r
+	return mix(\r
+		linear * 12.92,\r
+		pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,\r
+		step(0.0031308, linear)\r
+	);\r
+}\r
+\r
+// packing\r
+\r
+vec4 floatToRGBA( float v ) {\r
+	vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;\r
+	enc = fract(enc);\r
+	enc -= enc.yzww * vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);\r
+	return enc;\r
+}\r
+\r
+float rgbaToFloat( vec4 rgba ) {\r
+	return dot( rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0) );\r
+}\r
+\r
+// https://www.shadertoy.com/view/3tcyD7\r
+\r
+vec3 noiseCyc( vec3 p ){\r
+\r
+  vec4 n = vec4(0);\r
+  float a=1.0;\r
+\r
+  for( int i = 0; i < 8; i++ ){\r
+    p += sin( p.zxy );\r
+    n += vec4(cross(sin(p.xyz), cos(p.yzx)), 1.0) * a;\r
+    a *= 0.6;\r
+    p *= 1.5;\r
+  }\r
+\r
+  n.xyz /= n.w;\r
+\r
+  return n.xyz;\r
+\r
+}\r
+\r
+layout (location = 0) out vec4 outColor;\r
+in vec2 vUv;\r
+uniform float uTimeE;\r
+\r
+void main( void ) {\r
+\r
+	vec3 n = noiseCyc( vec3( vUv * 3.0, uTimeE * 0.5 ) );\r
+	outColor.xyz = n;\r
+\r
+} `})))()}var UA;function WA(){return(WA=t((()=>{HA(),UA={name:`noiseCyclic`,resolution:[1024,1024],filter:`linear`,updateEveryFrame:!1,frag:VA}})))()}var GA;function KA(){return(KA=t((()=>{HA(),GA={name:`noiseCyclicAnime`,resolution:[512,512],filter:`linear`,updateEveryFrame:!0,frag:VA}})))()}var qA,JA,YA;function XA(){return(XA=t((()=>{IA(),BA(),WA(),KA(),Ri(),qA=Object.assign({"/demo-webgl/Resources/Textures/hash.tex":FA,"/demo-webgl/Resources/Textures/noise.tex":zA,"/demo-webgl/Resources/Textures/noiseCyclic.tex":UA,"/demo-webgl/Resources/Textures/noiseCyclicAnime.tex":GA}),JA=()=>{for(let e of Object.values(qA))e&&I.resources.addTextureResource(e.name,{frag:e.frag,resolution:e.resolution||[1024,1024],filter:e.filter,updateEveryFrame:e.updateEveryFrame,textures:e.textures})},YA=e=>{I.resources.buildTextureInstances(e.renderer)}})))()}var ZA,QA,$A,ej,tj;function nj(){return(nj=t((()=>{HO(),YO(),ek(),sk(),mk(),xk(),wk(),jk(),Rk(),Gk(),eA(),aA(),Au(),Ri(),MA(),XA(),ZA=Object.assign({"/demo-webgl/Resources/Components/Samples/Effects/EyeRings/index.ts":BO,"/demo-webgl/Resources/Components/Samples/Effects/FlashLine/index.ts":qO,"/demo-webgl/Resources/Components/Samples/Environment/SkyBox/index.ts":QO,"/demo-webgl/Resources/Components/Samples/Geometry/GridCross/index.ts":ak,"/demo-webgl/Resources/Components/Samples/Geometry/GridDots/index.ts":fk,"/demo-webgl/Resources/Components/Samples/Geometry/WireCube/index.ts":yk,"/demo-webgl/Resources/Components/Samples/Objects/FieldUISample/index.ts":Sk,"/demo-webgl/Resources/Components/Samples/Objects/OREngineCube/index.ts":kk,"/demo-webgl/Resources/Components/Samples/Objects/OREngineLogo/index.ts":Ik,"/demo-webgl/Resources/Components/Samples/Particles/Dust/index.ts":Uk,"/demo-webgl/Resources/Components/Samples/Particles/YakiSoba/index.ts":Qk,"/demo-webgl/Resources/Components/Samples/PostProcess/Finalize/index.ts":rA}),QA=Object.assign({}),$A=(e,t)=>{let n=Object.keys(e);for(let r=0;r<n.length;r++){let i=n[r],a=e[i];if(typeof a==`function`)t.addComponent(i,a);else{let e=t.createGroup(i);$A(a,e)}}},ej=(e,t)=>{let n=Object.keys(e);for(let r=0;r<n.length;r++){let i=n[r],a=e[i];if(typeof a==`function`)t.addGeometry(i,a);else{let e=t.createGroup(i);ej(a,e)}}},tj=()=>{St.gltfLoaderFactory=e=>new Su(e),I.resources.clear();let e=I.resources.addComponentGroup(`_Built-in`);e.addComponent(`Light`,Ut),e.addComponent(`Camera`,zt),e.addComponent(`Mesh`,N);let t=Object.keys(AA);for(let e=0;e<t.length;e++){let n=t[e],r=AA[n],i=I.resources.addComponentGroup(n);$A(r,i)}let n=Object.keys(jA);for(let e=0;e<n.length;e++){let t=n[e],r=jA[t],i=I.resources.addGeometryGroup(t);ej(r,i)}let r=Di(ZA,`Components`),i=Object.keys(r);for(let e=0;e<i.length;e++){let t=i[e],n=r[t],a=I.resources.addComponentGroup(t);$A(n,a)}let a=Di(QA,`Geometries`),o=Object.keys(a);for(let e=0;e<o.length;e++){let t=o[e],n=a[t],r=I.resources.addGeometryGroup(t);ej(n,r)}JA()}})))()}var rj,ij,aj,oj,sj,cj;function lj(){return(lj=t((()=>{rj=i(),FO(),E(),nj(),ij=o(),tj(),aj=({setup:e})=>{let{editor:t}=L();return(0,rj.useEffect)(()=>{let n=t.engine,r=()=>e(t);return n.on(`loaded`,r),()=>{n.off(`loaded`,r)}},[t,e]),null},oj=e=>(0,ij.jsx)(mO,{project:e.fixture.scene,onEngineInit:YA,children:(0,ij.jsx)(tO,{projectName:`storybook`,editorData:e.fixture.editorData,scenes:e.fixture.scenes,children:(0,ij.jsx)(C,{children:(0,ij.jsxs)(ne,{children:[e.children,e.fixture.setup&&(0,ij.jsx)(aj,{setup:e.fixture.setup}),(0,ij.jsx)(x,{}),(0,ij.jsx)(T,{})]})})})}),sj=e=>t=>(0,ij.jsx)(oj,{fixture:e,children:(0,ij.jsx)(t,{})}),cj=e=>t=>(0,ij.jsx)(mO,{project:e,onEngineInit:YA,children:(0,ij.jsx)(t,{})}),oj.__docgenInfo={description:``,methods:[],displayName:`OREditorFixtureHost`}})))()}var uj,dj,fj,pj,mj;function hj(){return(hj=t((()=>{uj={name:`Camera`,uuid:`sb-camera`,pos:[0,2,12],components:[{name:`Camera`,uuid:`sb-camera-lens`},{name:`LookAt`,uuid:`sb-camera-lookat`}]},dj={name:`storybook`,scene:{name:`root`,uuid:`0`,childs:[uj,{name:`OREngineCube`,uuid:`sb-cube`,components:[{name:`OREngineCube`,uuid:`sb-cube-body`}]},{name:`OREngineLogo`,uuid:`sb-logo`,components:[{name:`OREngineLogo`,uuid:`sb-logo-body`}]}]},"timeline/duration":600,"timeline/fps":60},fj={...dj,scene:{name:`root`,uuid:`0`,childs:[uj]}},pj={enableRender:!0,"viewports/main/resolutionScale":.5,"resolution/width":1920,"resolution/height":1080,viewType:`render`,"frameLoop/enabled":!1,"frameLoop/start":0,"frameLoop/end":0,cameraMode:`preview`,gizmoMode:`translate`},mj={scene:dj,editorData:pj}})))()}export{Ca as A,R as B,vb as C,Py as D,Ny as E,aa as F,Ri as H,Yi as I,Xi as L,sa as M,ca as N,hy as O,ia as P,Gi as R,_b as S,ub as T,I as U,L as V,Mi as W,DC as _,dj as a,Tx as b,sj as c,PO as d,sO as f,EC as g,KD as h,mj as i,wa as j,gy as k,cj as l,GD as m,pj as n,oj as o,cO as p,fj as r,lj as s,hj as t,NO as u,hC as v,lb as w,Ex as x,gC as y,Ki as z};
