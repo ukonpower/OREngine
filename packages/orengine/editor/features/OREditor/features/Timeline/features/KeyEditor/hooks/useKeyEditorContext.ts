@@ -54,12 +54,13 @@ type KeyClipboard = {
 };
 
 // 動かすキー・ハンドル（カーブごと）と、回転・伸縮の中心（時刻, 値）。
-// individual なら、点ごとに属するキーを中心にする（ハンドルだけを選んでいるとき）
+// individual なら、点ごとに属するキーを中心にする（ハンドルだけを選んでいるとき）。duplicate なら、キーを複製して複製を動かす（Shift+D）
 type TransformTargets = {
 	keys: Map<string, number[]>;
 	handles: Map<string, KeyFrameHandleRef[]>;
 	center: MTP.IVector2;
 	individual: boolean;
+	duplicate: boolean;
 };
 
 // 開始時のキーの領域での、キーの座標と画面座標の対応
@@ -697,13 +698,13 @@ export const useKeyEditorContext = () => {
 
 	};
 
-	// 動かすキー・ハンドル。キー表示はキーの時刻だけを見せているのでハンドルは入れない。
+	// 動かすキー・ハンドル。キー表示はキーの時刻だけを見せているのでハンドルは入れない。複製（duplicate）はキーだけを複製して動かすので、ハンドルは入れない。
 	// カーブ表示の回転・伸縮は出ているカーブだけを対象にし、キーが1つだけならそのキーを中心にハンドルだけを回す・伸縮する
-	const transformTargets = ( transformMode: ModalTransformMode ): TransformTargets | null => {
+	const transformTargets = ( transformMode: ModalTransformMode, duplicate: boolean ): TransformTargets | null => {
 
 		const { keys, handles } = groupTransformSelection( selectionRef.current, engine.curves );
 
-		if ( mode == "keys" ) handles.clear();
+		if ( mode == "keys" || duplicate ) handles.clear();
 
 		if ( mode == "curves" && transformMode != "translate" ) {
 
@@ -778,11 +779,12 @@ export const useKeyEditorContext = () => {
 
 		}
 
-		return { keys, handles, center: boundsCenter( points ), individual };
+		return { keys, handles, center: boundsCenter( points ), individual, duplicate };
 
 	};
 
-	// targets の変形を始める。apply は開始時のカーブの表から毎回作り直し（ポインタの動きに追従）、commit で undo 1回ぶんとして確定する
+	// targets の変形を始める。apply は開始時のカーブの表から毎回作り直し（ポインタの動きに追従）、commit で undo 1回ぶんとして確定する。
+	// 複製も apply のたびに開始時の表から作り直すので、複製と移動が1つの編集になり、cancel で複製ごと開始時の表に戻る
 	const beginTransform = ( targets: TransformTargets ) => {
 
 		const origin = engine.curves;
@@ -811,16 +813,16 @@ export const useKeyEditorContext = () => {
 				const next = { ...origin };
 				const nextSelection: KeySelection = new Set();
 
-				// 動かしたカーブの選択は、動かした後の番号で選び直す
+				// 動かしたカーブの選択は、動かした後の番号で選び直す。複製では複製したキーだけを選ぶ（元のキーは選択から外す）
 				for ( const ref of startSelection ) {
 
-					if ( ! ids.has( parseRef( ref ).curveId ) ) nextSelection.add( ref );
+					if ( ! targets.duplicate && ! ids.has( parseRef( ref ).curveId ) ) nextSelection.add( ref );
 
 				}
 
 				for ( const id of ids ) {
 
-					const result = transformKeys( origin[ id ], targets.keys.get( id ) || [], targets.handles.get( id ) || [], transformOf( id ) );
+					const result = transformKeys( origin[ id ], targets.keys.get( id ) || [], targets.handles.get( id ) || [], transformOf( id ), targets.duplicate );
 
 					next[ id ] = result.curve;
 
@@ -898,7 +900,7 @@ export const useKeyEditorContext = () => {
 	const beginDrag = () => {
 
 		const screen = readScreen();
-		const targets = transformTargets( "translate" );
+		const targets = transformTargets( "translate", false );
 
 		if ( ! screen || ! targets ) return null;
 
@@ -924,8 +926,8 @@ export const useKeyEditorContext = () => {
 
 	};
 
-	// G / R / S のモーダル操作を始める。キー表示の R は何もしない
-	const startTransform = ( transformMode: ModalTransformMode ) => {
+	// G / R / S のモーダル操作を始める。キー表示の R は何もしない。duplicate なら選んだキーを複製して、複製を動かす（Shift+D）
+	const startTransform = ( transformMode: ModalTransformMode, duplicate: boolean ) => {
 
 		if ( modalRef.current ) return;
 
@@ -934,7 +936,7 @@ export const useKeyEditorContext = () => {
 		endBoxSelect();
 
 		const screen = readScreen();
-		const targets = transformTargets( transformMode );
+		const targets = transformTargets( transformMode, duplicate );
 
 		if ( ! screen || ! targets ) return;
 
@@ -1015,7 +1017,8 @@ export const useKeyEditorContext = () => {
 		deleteKeys: () => latestRef.current.deleteSelectedKeys(),
 		copyKeys: () => latestRef.current.copySelectedKeys(),
 		pasteKeys: () => latestRef.current.pasteCopiedKeys(),
-		transformKeys: ( transformMode ) => latestRef.current.startTransform( transformMode ),
+		transformKeys: ( transformMode ) => latestRef.current.startTransform( transformMode, false ),
+		duplicateKeys: () => latestRef.current.startTransform( "translate", true ),
 		boxSelect: () => latestRef.current.beginBoxSelect(),
 		selectAllKeys: ( all ) => latestRef.current.selectAllKeys( all ),
 		frameAll: () => latestRef.current.frameAll(),

@@ -249,8 +249,9 @@ export const deleteKeys = ( curve: MXP.CurveData, indices: number[] ) => {
 // indices 番のキー（ハンドルごと）と handles のハンドルを transform で動かす（タイムラインのドラッグ・G / R / S）。
 // キーの時刻は snapTime で揃え（timeline/fps のコマ）、動かした先に動かしていないキーがあれば消す（Blender の移動の確定と同じ）。
 // ハンドルだけを動かしたキーは、ハンドルの種類を手で置ける種類に変える（自動 → 整列、ベクトル → 自由。Blender と同じ）。
+// duplicate なら、選んだキーは元の位置に残し、複製を動かす（Shift+D）。複製が元のキーに重なったら元のキーを消す（1本のカーブに同じ時刻のキーは1つだけ）。
 // 動かしたキー・ハンドルの新しい番号も返す（消えたものは入れない）
-export const transformKeys = ( curve: MXP.CurveData, indices: number[], handles: KeyFrameHandleRef[], transform: KeyTransform ) => {
+export const transformKeys = ( curve: MXP.CurveData, indices: number[], handles: KeyFrameHandleRef[], transform: KeyTransform, duplicate = false ) => {
 
 	const keys = decodeCurve( curve );
 	const selected = new Set( indices );
@@ -261,7 +262,15 @@ export const transformKeys = ( curve: MXP.CurveData, indices: number[], handles:
 
 		const key = keys[ i ];
 
-		if ( selected.has( i ) ) {
+		if ( selected.has( i ) && duplicate ) {
+
+			const copy = copyKey( key );
+
+			transformKey( copy, transform );
+			moved.push( copy );
+			rest.push( key );
+
+		} else if ( selected.has( i ) ) {
 
 			transformKey( key, transform );
 			moved.push( key );
