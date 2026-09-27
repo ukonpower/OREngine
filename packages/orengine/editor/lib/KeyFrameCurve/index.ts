@@ -412,6 +412,186 @@ export const setHandleType = ( curve: MXP.CurveData, indices: number[], handleTy
 
 };
 
+// indices 番のキーを、最初と最後のキー（動かさない）を結ぶ直線上に、時刻も値も等間隔に並べる（W の Align ▸ Distribute）。
+// 時刻は snapTime でコマに揃え、値は揃えた時刻での直線の値にする（揃えても直線から外さないため）。
+// 選んだキーが2つ以下か、揃えた結果選んだキーどうしが同じコマに重なる（キーの数がコマ数より多い）なら何もせず null。
+// 動かした先に選んでいないキーがあれば消す（G と同じ）。選んだキーの新しい番号も返す
+export const distributeKeys = ( curve: MXP.CurveData, indices: number[], snapTime: ( frame: number ) => number ) => {
+
+	const keys = decodeCurve( curve );
+	const selected = selectedKeys( keys, indices );
+
+	if ( selected.length <= 2 ) return null;
+
+	const first = selected[ 0 ].coordinate;
+	const last = selected[ selected.length - 1 ].coordinate;
+	const intervals = selected.length - 1;
+	const targets: MTP.IVector2[] = [ first ];
+
+	for ( let i = 1; i < intervals; i ++ ) {
+
+		const x = snapTime( first.x + ( last.x - first.x ) * i / intervals );
+
+		targets.push( { x, y: lineValue( first, last, x ) } );
+
+	}
+
+	targets.push( last );
+
+	for ( let i = 1; i < targets.length; i ++ ) {
+
+		if ( targets[ i ].x - targets[ i - 1 ].x < TIME_TOLERANCE ) return null;
+
+	}
+
+	return alignKeys( curve, keys, selected, targets );
+
+};
+
+// indices 番のキーの値を、時刻はそのままで、最初と最後のキー（動かさない）を結ぶ直線上に乗せる（W の Align ▸ Straighten Values）。
+// 選んだキーが2つ以下なら何もせず null。選んだキーの番号も返す（時刻を動かさないので変わらない）
+export const straightenKeys = ( curve: MXP.CurveData, indices: number[] ) => {
+
+	const keys = decodeCurve( curve );
+	const selected = selectedKeys( keys, indices );
+
+	if ( selected.length <= 2 ) return null;
+
+	const first = selected[ 0 ].coordinate;
+	const last = selected[ selected.length - 1 ].coordinate;
+	const targets: MTP.IVector2[] = [];
+
+	for ( const key of selected ) {
+
+		const x = key.coordinate.x;
+
+		targets.push( { x, y: lineValue( first, last, x ) } );
+
+	}
+
+	return alignKeys( curve, keys, selected, targets );
+
+};
+
+// キーからの左右のハンドルのずれ（絶対的な差分）と、ハンドルの種類。ハンドルのコピー（W の Handles）で持ち運ぶもの
+export type KeyHandleOffsets = {
+	left: MTP.IVector2;
+	right: MTP.IVector2;
+	handleType: KeyFrameHandleType;
+};
+
+// index 番のキーのハンドルを、キーからのずれとして写し取る（W の Handles ▸ Copy Handles）。キーが無ければ null
+export const copyHandles = ( curve: MXP.CurveData, index: number ): KeyHandleOffsets | null => {
+
+	const key = decodeCurve( curve )[ index ];
+
+	if ( ! key ) return null;
+
+	const center = key.coordinate;
+
+	return {
+		left: { x: key.handleLeft.x - center.x, y: key.handleLeft.y - center.y },
+		right: { x: key.handleRight.x - center.x, y: key.handleRight.y - center.y },
+		handleType: key.handleType,
+	};
+
+};
+
+// indices 番のキーに、キーの座標から offsets だけずらした位置へハンドルを置く（W の Handles ▸ Paste Handles）。区間の長さに合わせた伸縮はしない。
+// 自動系の種類は置き直されて貼った形が消えるので、整列はそのまま・それ以外は自由にする。ハンドルが効くよう、補間は Bezier にする
+export const pasteHandles = ( curve: MXP.CurveData, indices: number[], offsets: KeyHandleOffsets ) => {
+
+	const keys = decodeCurve( curve );
+
+	let handleType: KeyFrameHandleType = "FREE";
+
+	if ( offsets.handleType == "ALIGNED" ) handleType = "ALIGNED";
+
+	for ( const index of indices ) {
+
+		const key = keys[ index ];
+
+		if ( ! key ) continue;
+
+		const center = key.coordinate;
+
+		// ずれは引き算で求めた値なので、足すと浮動小数の端数が出る。計算で決まるハンドルと同じく桁を丸めて書く
+		key.handleLeft = {
+			x: roundHandle( center.x + offsets.left.x, center.x ),
+			y: roundHandle( center.y + offsets.left.y, center.y ),
+		};
+		key.handleRight = {
+			x: roundHandle( center.x + offsets.right.x, center.x ),
+			y: roundHandle( center.y + offsets.right.y, center.y ),
+		};
+		key.handleType = handleType;
+		key.interpolation = "BEZIER";
+
+	}
+
+	recalcHandles( keys );
+
+	return encodeCurve( keys, curve );
+
+};
+
+// indices 番のキーを時刻順に並べて返す（範囲外の番号は外す）。キーの列は時刻順なので番号順と同じ
+const selectedKeys = ( keys: EditKey[], indices: number[] ) => {
+
+	const sorted = [ ...indices ];
+
+	sorted.sort( ( a, b ) => a - b );
+
+	const selected: EditKey[] = [];
+
+	for ( const index of sorted ) {
+
+		if ( keys[ index ] && selected.indexOf( keys[ index ] ) < 0 ) selected.push( keys[ index ] );
+
+	}
+
+	return selected;
+
+};
+
+// first と last を結ぶ直線の、時刻 x での値
+const lineValue = ( first: MTP.IVector2, last: MTP.IVector2, x: number ) => {
+
+	return first.y + ( last.y - first.y ) * ( x - first.x ) / ( last.x - first.x );
+
+};
+
+// 整列の共通部分。selected の i 番のキーを targets の i 番の座標へ動かし（ハンドルもキーと同じだけずらす）、
+// 動かした先の選んでいないキーを消してカーブに戻す。選んだキーの新しい番号も返す
+const alignKeys = ( curve: MXP.CurveData, keys: EditKey[], selected: EditKey[], targets: MTP.IVector2[] ) => {
+
+	for ( let i = 0; i < selected.length; i ++ ) {
+
+		moveKey( selected[ i ], targets[ i ].x, targets[ i ].y );
+
+	}
+
+	const rest: EditKey[] = [];
+
+	for ( const key of keys ) {
+
+		if ( selected.indexOf( key ) < 0 ) rest.push( key );
+
+	}
+
+	const placed = placeKeys( rest, selected );
+	const nextIndices: number[] = [];
+
+	for ( const key of selected ) {
+
+		nextIndices.push( placed.indexOf( key ) );
+
+	}
+
+	return { curve: encodeCurve( placed, curve ), indices: nextIndices };
+
+};
+
 // 選んだキーを transform で動かす。値を動かさないときは丸めない（打った値をそのまま残す）
 const transformKey = ( key: EditKey, transform: KeyTransform ) => {
 
