@@ -1,4 +1,4 @@
-# PR ごとにエディタデモ + Storybook を gh-pages の pr-preview/pr-<番号>/ へデプロイする
+# main 向けの PR ごとにエディタデモ + Storybook を gh-pages の pr-preview/pr-<番号>/ へデプロイする
 # （配置は本番と同じミラー構成: ルート = デモ / storybook/ = Storybook）
 # URL は action が PR にコメントで貼り、クローズ/マージで自動削除される
 # fork からの PR は GITHUB_TOKEN に write 権限が無いため対象外
@@ -6,6 +6,7 @@ name: pr-preview
 
 on:
   pull_request:
+    branches: [main]
     types: [opened, reopened, synchronize, closed]
 
 permissions:
