@@ -206,7 +206,7 @@ const collectCurveUsers = ( engine: Engine ) => {
 
 	};
 
-	engine.root.traverse( ( entity ) => {
+	engine.root.traverseEditable( ( entity ) => {
 
 		const links = getLinks( entity );
 

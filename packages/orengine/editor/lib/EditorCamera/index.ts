@@ -29,7 +29,7 @@ export const findSceneCameraEntity = ( root: MXP.Entity ): MXP.Entity | null => 
 
 	let found: MXP.Entity | null = null;
 
-	root.traverse( ( entity ) => {
+	root.traverseEditable( ( entity ) => {
 
 		if ( found ) return;
 

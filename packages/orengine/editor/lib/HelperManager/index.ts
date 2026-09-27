@@ -32,7 +32,7 @@ export class HelperManager {
 
 		const activeUUIDs = new Set<string>();
 
-		engine.root.traverse( ( entity ) => {
+		engine.root.traverseEditable( ( entity ) => {
 
 			if ( entity.initiator === "god" ) return;
 			if ( ! entity.visible ) return;

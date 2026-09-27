@@ -32,6 +32,7 @@ export * from './Geometries/RingGeometry';
 export * from './Geometries/SphereGeometry';
 export * from './Serializable';
 export * from './utils/Curve';
+export * from './utils/EntityClone';
 export * from './utils/Hot';
 export * from './utils/Ray';
 export * from './utils/Raycaster';

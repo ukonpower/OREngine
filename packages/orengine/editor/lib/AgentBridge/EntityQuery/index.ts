@@ -35,7 +35,7 @@ export const resolveEntity = ( engine: Engine, spec: string ) => {
 	const target = spec.split( '/' ).filter( ( name ) => name !== '' ).join( '/' );
 	const matches: MXP.Entity[] = [];
 
-	engine.root.traverse( ( entity ) => {
+	engine.root.traverseEditable( ( entity ) => {
 
 		if ( entityPath( entity ) === target ) {
 

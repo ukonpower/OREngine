@@ -100,7 +100,7 @@ const sceneSignature = ( editor: Editor ) => {
 
 	const signature: unknown[] = [ selectedEntity( editor ), editor.engine.curves ];
 
-	editor.engine.root.traverse( ( entity ) => {
+	editor.engine.root.traverseEditable( ( entity ) => {
 
 		const links = getLinks( entity );
 

@@ -485,7 +485,7 @@ export class Renderer extends Serializable implements RendererContract {
 	// entity以下を再帰的に走査してRenderStackへ振り分ける。displayOut なカメラも同じ走査で拾う
 	private _collectRenderStack( entity: Entity, parentVisibility: boolean, stack: RenderStack ) {
 
-		const visibility = parentVisibility && entity.visible;
+		const visibility = parentVisibility && entity.visible && ! entity.renderHidden;
 		const mesh = entity.getComponent( Mesh );
 
 		if ( mesh && visibility ) {

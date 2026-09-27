@@ -205,6 +205,24 @@ export class PointerHandler {
 
 		};
 
+		// 複製（Cloner が実行時に作ったもの）に当たったら、その元になったテンプレート側のエンティティに読み替える。
+		// 複製の Mesh はコンポーネントが作った子に付いていることがあるので、親へたどって探す
+		const resolveCloneSource = ( entity: MXP.Entity ): MXP.Entity => {
+
+			let current: MXP.Entity | null = entity;
+
+			while ( current ) {
+
+				if ( current.cloneSource ) return current.cloneSource;
+
+				current = current.parent;
+
+			}
+
+			return entity;
+
+		};
+
 		// カーソル下の選択候補を「見えている順」で集める。
 		// 優先順位: 見えているヘルパー → カーソル近傍の未遮蔽ヘルパー → メッシュ手前順 → メッシュに隠れたヘルパー
 		const collectCandidates = ( ndc: MTP.Vector ): ClickCandidate[] => {
@@ -216,15 +234,19 @@ export class PointerHandler {
 			this._raycaster.setFromCamera( ndc, cameraEntity );
 
 			const meshCandidates: ClickCandidate[] = [];
+			const addedUUIDs = new Set<string>();
 
 			// 選択不可のメッシュは候補から外し、クリックを背後へ抜けさせる（firstMeshDistance にも含めない）
 			for ( const r of this._raycaster.intersectEntities( engine.root ) ) {
 
-				if ( r.entity.initiator !== 'god' && isEntitySelectable( r.entity ) ) {
+				const entity = resolveCloneSource( r.entity );
 
-					meshCandidates.push( { entity: r.entity, distance: r.distance, type: 'mesh' } );
+				if ( entity.initiator === 'god' ) continue;
+				if ( ! isEntitySelectable( entity ) ) continue;
+				if ( addedUUIDs.has( entity.uuid ) ) continue;
 
-				}
+				addedUUIDs.add( entity.uuid );
+				meshCandidates.push( { entity, distance: r.distance, type: 'mesh' } );
 
 			}
 

@@ -2,8 +2,10 @@ import { EventEmitter } from 'basepower';
 import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
+import { ClonerLayout } from './ClonerLayout';
 import { TextureResource } from './TextureResource';
 
+export * from './ClonerLayout';
 export { TextureResource } from './TextureResource';
 export { buildClassTree } from './classTree';
 
@@ -44,6 +46,8 @@ export class Resources extends EventEmitter {
 	private _textures: Map<string, MXP.TextureContract>;
 	private _updateEveryFrameTextures: MXP.TexProceduralContract[];
 
+	private _layouts: Map<string, ClonerLayout>;
+
 	constructor() {
 
 		super();
@@ -54,6 +58,7 @@ export class Resources extends EventEmitter {
 		this._geometryGroups = [];
 		this._textureResources = new Map();
 		this._updateEveryFrameTextures = [];
+		this._layouts = new Map();
 
 	}
 
@@ -108,6 +113,7 @@ export class Resources extends EventEmitter {
 		this._textureResources.clear();
 		this._textures.clear();
 		this._updateEveryFrameTextures = [];
+		this._layouts.clear();
 		this.emit( "update" );
 
 	}
@@ -224,6 +230,31 @@ export class Resources extends EventEmitter {
 		this._geometryGroups.push( group );
 		this.emit( "update" );
 		return group;
+
+	}
+
+	/*-------------------------------
+		Layout
+	-------------------------------*/
+
+	// 同じ名前があれば上書きする（プロジェクトの並べ方が builtin を上書きできるように）
+	public addLayout( name: string, layout: ClonerLayout ) {
+
+		this._layouts.set( name, layout );
+		this.emit( "update" );
+
+	}
+
+	public getLayout( name: string ): ClonerLayout | undefined {
+
+		return this._layouts.get( name );
+
+	}
+
+	// 登録順の名前の一覧（Cloner の layout の選択肢）
+	public get layoutNames(): string[] {
+
+		return Array.from( this._layouts.keys() );
 
 	}
 

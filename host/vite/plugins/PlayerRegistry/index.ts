@@ -17,6 +17,7 @@ const pluginDir = path.dirname( fileURLToPath( import.meta.url ) );
 const registryPath = path.resolve( pluginDir, '../../../app/Resources/registry.ts' );
 const registryCommonPath = path.join( path.dirname( registryPath ), 'registryCommon.ts' );
 const builtinComponentsDir = path.resolve( pluginDir, '../../../../packages/orengine/builtin/Components' );
+const builtinLayoutsDir = path.resolve( pluginDir, '../../../../packages/orengine/builtin/Layouts' );
 const gltfLoaderPath = path.resolve( pluginDir, '../../../../packages/maxpower/webgl/Loaders/GLTFLoader/index.ts' );
 
 // Engine.resources.getComponent(name) はフラット検索のため、player登録もフラットで足りる（グループ階層はエディタUI専用）
@@ -75,6 +76,36 @@ const buildComponentMap = ( dirs: string[] ): Map<string, string> => {
 
 };
 
+// builtin/project の Layouts ディレクトリ直下から、並べ方の名前（ディレクトリ名） -> index.ts の絶対パスのマップを作る。
+// 後に渡したディレクトリが同名を上書きする（プロジェクトの並べ方が builtin を上書きする。registry.ts と同じ）
+// `_` prefix のディレクトリは除外（registry.ts の glob 除外条件と同じ）
+const buildLayoutMap = ( dirs: string[] ): Map<string, string> => {
+
+	const map = new Map<string, string>();
+
+	for ( const dir of dirs ) {
+
+		if ( ! fs.existsSync( dir ) ) continue;
+
+		const entries = fs.readdirSync( dir, { withFileTypes: true } );
+
+		for ( const entry of entries ) {
+
+			if ( ! entry.isDirectory() ) continue;
+			if ( entry.name.startsWith( '_' ) ) continue;
+
+			const file = path.join( dir, entry.name, 'index.ts' );
+
+			if ( fs.existsSync( file ) ) map.set( entry.name, file );
+
+		}
+
+	}
+
+	return map;
+
+};
+
 // シーンファイルの使用状況(usage)から、使用コンポーネントだけを静的importするレジストリモジュールのソースを組み立てる
 const generateRegistryCode = ( opts: PlayerRegistryOptions ): string => {
 
@@ -119,12 +150,44 @@ const generateRegistryCode = ( opts: PlayerRegistryOptions ): string => {
 
 	}
 
+	const layoutMap = buildLayoutMap( [
+		builtinLayoutsDir,
+		path.join( projectDir, 'Resources/Layouts' ),
+	] );
+
+	const layoutNames: string[] = [];
+
+	for ( const name of usage.layoutNames ) {
+
+		const file = layoutMap.get( name );
+
+		if ( ! file ) {
+
+			throw new Error( `[PlayerRegistry] layout "${name}" (scene) not found in builtin/project Layouts` );
+
+		}
+
+		// 識別子は番号にする。ディレクトリ名には JS の識別子に使えない文字（`-` 等）が入りうるため
+		importLines.push( `import { layout as layout_${layoutNames.length} } from ${JSON.stringify( file )};` );
+		layoutNames.push( name );
+
+	}
+
 	importLines.push( `import { registerProjectTextures, initResourceInstances } from ${JSON.stringify( registryCommonPath )};` );
 
 	const bundledNames = manualBuiltins.concat( scannedNames );
 	const registerLines = bundledNames.map( name => `\tgroup.addComponent( '${name}', ${name} );` ).join( '\n' );
 
+	let layoutRegisterLines = '';
+
+	for ( let i = 0; i < layoutNames.length; i ++ ) {
+
+		layoutRegisterLines += `\tEngine.resources.addLayout( ${JSON.stringify( layoutNames[ i ] )}, layout_${i} );\n`;
+
+	}
+
 	console.log( `[PlayerRegistry] bundling components: ${bundledNames.join( ', ' )}` );
+	console.log( `[PlayerRegistry] bundling layouts: ${layoutNames.join( ', ' )}` );
 
 	const gltfWiring = usage.useGLTF ? `\tBLidge.gltfLoaderFactory = ( engine ) => new GLTFLoader( engine );\n\n` : '';
 	const sceneWiring = inlineBLidgeScene ? `\tBLidgeClient.sceneData = blidgeSceneData;\n\n` : '';
@@ -135,7 +198,7 @@ export const initResouces = () => {
 
 ${gltfWiring}${sceneWiring}\tconst group = Engine.resources.addComponentGroup( 'Player' );
 ${registerLines}
-
+${layoutRegisterLines}
 \tregisterProjectTextures();
 
 };

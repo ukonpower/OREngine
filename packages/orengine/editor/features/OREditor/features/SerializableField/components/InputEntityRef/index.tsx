@@ -19,7 +19,7 @@ export const InputEntityRef = ( props: InputEntityRefProps ) => {
 
 		const list: SelectOption[] = [ { label: "(None)", value: "" } ];
 
-		engine.root.traverse( ( entity ) => {
+		engine.root.traverseEditable( ( entity ) => {
 
 			list.push( {
 				label: entity.getScenePath( engine.root ),

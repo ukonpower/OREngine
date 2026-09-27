@@ -623,7 +623,7 @@ export const countCurveUses = ( engine: Engine ) => {
 
 	const uses = new Map<string, number>();
 
-	engine.root.traverse( ( entity ) => {
+	engine.root.traverseEditable( ( entity ) => {
 
 		const animation = entity.getComponent( Animation );
 
@@ -938,7 +938,7 @@ export const buildSetCurves = ( engine: Engine, curves: MXP.CurveTable ): Comman
 
 	if ( emptied.size > 0 ) {
 
-		engine.root.traverse( ( entity ) => {
+		engine.root.traverseEditable( ( entity ) => {
 
 			const links = getLinks( entity );
 
