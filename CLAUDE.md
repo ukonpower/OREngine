@@ -275,8 +275,8 @@ npm run typecheck    # TypeScript型チェック + 全scssのコンパイル検�
 - VRT（見た目のスクリーンショット比較テスト）は `tests/vrt/`（Playwright）。見た目に影響する変更をしたら `npm run vrt` で確認し、意図した変更なら `npm run vrt:update` で基準画像を更新する
 
 ### CI / GitHub Pages
-- `.github/workflows/deploy-pages.yml` — main / release/* への push でエディタデモと Storybook を gh-pages ブランチへデプロイ（ルート = エディタデモ、`/storybook/`）
-- `.github/workflows/pr-preview.yml` — PR ごとに `/pr-preview/pr-N/` へプレビューをデプロイし、リンクを PR にコメントする
+- `.github/workflows/deploy-pages.yml` — main への push でのみエディタデモと Storybook を gh-pages ブランチのルートへデプロイ（ルート = エディタデモ、`/storybook/`）。release/* への push ではデプロイしない
+- `.github/workflows/pr-preview.yml` — main 向けの PR（主に release/* → main）ごとに `/pr-preview/pr-N/` へプレビューをデプロイし、リンクを PR にコメントする。release/* 向けの PR（feature/* → release/* 等）ではデプロイしない
 - サブパス配信は `BASE_PATH` 環境変数で行う
 
 ## コーディング規約
