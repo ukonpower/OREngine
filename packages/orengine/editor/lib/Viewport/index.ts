@@ -9,6 +9,7 @@ import { HelperManager, HelperVisibility } from '../HelperManager';
 import { PointerHandler } from '../PointerHandler';
 
 import type { EditorAPI } from '../EditorAPI';
+import type { ModalTransformSelection } from '../ModalTransformHandler';
 
 export type ViewportParam = {
 	id: string;
@@ -19,11 +20,12 @@ export type ViewportParam = {
 	gizmoManager: GizmoManager;
 	helperManager: HelperManager;
 	api: EditorAPI;
-	getSelectedEntityId: () => string | null;
+	getTransformSelection: () => ModalTransformSelection;
 	isEntitySelectable: ( entity: MXP.Entity ) => boolean;
 	isGizmoVisible: () => boolean;
 	getHelperVisibility: () => HelperVisibility;
 	onSelectEntity: ( entity: MXP.Entity | null ) => void;
+	onToggleEntity: ( entity: MXP.Entity ) => void;
 	isModalActive: () => boolean;
 	onEscapeToEditorCamera: () => void;
 	// ポインタが入ったとき。キーボード操作の対象ビューポートの切り替えに使う
@@ -64,12 +66,12 @@ export class Viewport {
 			gizmoManager: param.gizmoManager,
 			helperManager: param.helperManager,
 			api: param.api,
-			getSelectedEntityId: param.getSelectedEntityId,
+			getTransformSelection: param.getTransformSelection,
 			isEntitySelectable: param.isEntitySelectable,
 			isGizmoVisible: param.isGizmoVisible,
 			getHelperVisibility: param.getHelperVisibility,
-			getGizmoMode: () => param.gizmoManager.mode,
 			onSelectEntity: param.onSelectEntity,
+			onToggleEntity: param.onToggleEntity,
 			isModalActive: param.isModalActive,
 			onEscapeToEditorCamera: param.onEscapeToEditorCamera,
 		} );

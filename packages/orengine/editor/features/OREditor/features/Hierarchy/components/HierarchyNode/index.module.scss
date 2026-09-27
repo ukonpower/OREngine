@@ -8,6 +8,15 @@
 }
 
 .self {
+	// 行のドラッグ（親の付け替え）・Shift+クリック（範囲選択）で名前の文字列が選択されないようにする
+	user-select: none;
+
+	// ドラッグ中に落とすと親になる行。ListItem の選択・ホバーの背景色を上書きしないよう、枠と背景画像で重ねる
+	&_drop {
+		box-shadow: inset 0 0 0 1px var(--or-drop-zone-border);
+		background-image: linear-gradient(var(--or-drop-zone), var(--or-drop-zone));
+	}
+
 	&_name {
 		flex: 1;
 		display: flex;

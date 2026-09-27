@@ -24,6 +24,9 @@ export type KeyboardHandlerCallbacks = {
 	onContextMenu: () => void;
 	onDuplicateSelected: () => void;
 	onRenameSelected: () => void;
+	// Ctrl+P（選んだものをアクティブの子にする）/ Alt+P（親から外して root の直下へ移す）
+	onParentToActive: () => void;
+	onClearParent: () => void;
 	// step はコマ数（負で戻る）
 	onStepFrame: ( step: number ) => void;
 	onSeekToStart: () => void;
@@ -226,6 +229,23 @@ export class KeyboardHandler {
 			if ( e.key === 'F2' && ! cmd ) {
 
 				callbacks.onRenameSelected();
+
+			}
+
+			// Blender の Ctrl+P / Alt+P。Ctrl+P は印刷ダイアログを止める。Mac の Alt+P は e.key が別の文字になるので物理キーで見る
+			if ( e.code === 'KeyP' && cmd && ! e.altKey ) {
+
+				e.preventDefault();
+
+				callbacks.onParentToActive();
+
+			}
+
+			if ( e.code === 'KeyP' && e.altKey && ! cmd ) {
+
+				e.preventDefault();
+
+				callbacks.onClearParent();
 
 			}
 

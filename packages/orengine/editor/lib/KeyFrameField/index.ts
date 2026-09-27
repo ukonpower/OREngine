@@ -190,6 +190,27 @@ export const getLinks = ( entity: MXP.Entity ): AnimationLinks => {
 
 };
 
+// position / euler / scale のうちキーが打たれているもの。親の付け替えでワールド座標を保つよう書き換えても、
+// 時刻が変わると Animation がキーの値を入れ直して元の見た目に戻らないので、それを知らせるのに使う
+export const getAnimatedTransformFields = ( entity: MXP.Entity ): string[] => {
+
+	const links = getLinks( entity );
+	const fields: string[] = [];
+
+	for ( const name of [ "position", "euler", "scale" ] ) {
+
+		if ( links[ name ] ) {
+
+			fields.push( name );
+
+		}
+
+	}
+
+	return fields;
+
+};
+
 // 対象1つぶんのリンクを要素ごとの並びにする（数値配列以外は1要素）
 const toElementLinks = ( link: AnimationLinks[string] | undefined, kind: KeyFrameKind ): ( AnimationLink | null )[] => {
 

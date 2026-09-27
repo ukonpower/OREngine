@@ -1,6 +1,7 @@
 import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
+import { ACTIVE_SELECTION_COLOR, SELECTION_COLOR } from '../../SelectionColor';
 import { CameraHelperGeometry } from '../Geometries/CameraHelperGeometry';
 import { CameraHitAreaGeometry } from '../Geometries/CameraHitAreaGeometry';
 import { DirectionalLightHelperGeometry } from '../Geometries/DirectionalLightHelperGeometry';
@@ -10,6 +11,8 @@ import { SpotLightHelperGeometry } from '../Geometries/SpotLightHelperGeometry';
 import { SpotLightHitAreaGeometry } from '../Geometries/SpotLightHitAreaGeometry';
 
 export type HelperType = 'empty' | 'camera' | 'spotLight' | 'directionalLight';
+
+export type HelperSelection = 'none' | 'selected' | 'active';
 
 export class EntityHelper {
 
@@ -127,9 +130,21 @@ export class EntityHelper {
 
 	}
 
-	public setSelected( selected: boolean ) {
+	// 選択の状態で線の色を変える（アクティブ / ほかの選んだもの / 選んでいない）
+	public setSelection( state: HelperSelection ) {
 
-		const c = selected ? [ 1.0, 0.6, 0.0 ] : this._baseColor;
+		let c = this._baseColor;
+
+		if ( state === 'active' ) {
+
+			c = ACTIVE_SELECTION_COLOR;
+
+		} else if ( state === 'selected' ) {
+
+			c = SELECTION_COLOR;
+
+		}
+
 		this._colorUniform[ 0 ] = c[ 0 ];
 		this._colorUniform[ 1 ] = c[ 1 ];
 		this._colorUniform[ 2 ] = c[ 2 ];

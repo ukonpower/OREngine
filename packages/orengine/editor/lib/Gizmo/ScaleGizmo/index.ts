@@ -2,7 +2,7 @@ import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
 import { GizmoAxis, GizmoDragResult, GizmoHandle, GizmoPlane } from '..';
-import { getAxisWorldDir, getWorldQuaternion, intersectRayPlane, projectRayOnLine, TransformOrientation } from '../../TransformUtils';
+import { intersectRayPlane, projectRayOnLine, TransformOrientation } from '../../TransformUtils';
 import { AXIS_COLORS, GizmoBase, PLANE_AXES, PLANE_NORMAL_AXIS } from '../GizmoBase';
 
 // 軸ハンドルの寸法。中心付近を空けて中心ハンドル・平面ハンドルと取り合わないようにする
@@ -29,7 +29,6 @@ export class ScaleGizmo extends GizmoBase {
 	private _dragAxisDir: MTP.Vector;
 	private _dragStartAmount: number;
 	private _dragPlaneNormal: MTP.Vector;
-	private _dragStartScale: MTP.Vector;
 
 	constructor( engine: MXP.EngineContract, draw: MXP.EditorDrawContract ) {
 
@@ -39,7 +38,6 @@ export class ScaleGizmo extends GizmoBase {
 		this._dragAxisDir = new MTP.Vector( 1, 0, 0 );
 		this._dragStartAmount = 1;
 		this._dragPlaneNormal = new MTP.Vector( 0, 0, 1 );
-		this._dragStartScale = new MTP.Vector( 1, 1, 1 );
 
 		for ( const axis of AXES ) this._addAxisHandle( axis );
 		for ( const plane of PLANES ) this._addPlaneHandle( plane );
@@ -93,9 +91,9 @@ export class ScaleGizmo extends GizmoBase {
 
 	}
 
-	protected _rootQuaternion( entity: MXP.Entity, _orientation: TransformOrientation ): MTP.Quaternion {
+	protected _rootQuaternion( _orientation: TransformOrientation ): MTP.Quaternion {
 
-		return getWorldQuaternion( entity );
+		return this._targetQuat.clone();
 
 	}
 
@@ -105,15 +103,14 @@ export class ScaleGizmo extends GizmoBase {
 
 	}
 
-	protected _onStartDrag( handle: GizmoHandle, ray: MXP.Ray, targetEntity: MXP.Entity ): void {
+	protected _onStartDrag( handle: GizmoHandle, ray: MXP.Ray ): void {
 
 		// ドラッグ中も setTarget が毎フレーム走るので、基準は開始時のものに固定する
 		this._dragStartPos.copy( this.entity.position );
-		this._dragStartScale.set( targetEntity.scale.x, targetEntity.scale.y, targetEntity.scale.z );
 
 		if ( handle === 'x' || handle === 'y' || handle === 'z' ) {
 
-			this._dragAxisDir = getAxisWorldDir( targetEntity, handle, 'local' );
+			this._dragAxisDir = this._axisWorldDir( handle, 'local' );
 
 			const t = projectRayOnLine( ray, this._dragStartPos, this._dragAxisDir );
 
@@ -126,7 +123,7 @@ export class ScaleGizmo extends GizmoBase {
 		// 平面ハンドルは法線軸に垂直な面、中心はビュー平面上で、中心からの距離の比を倍率にする
 		this._dragPlaneNormal = handle === 'center'
 			? ray.origin.clone().sub( this._dragStartPos ).normalize()
-			: getAxisWorldDir( targetEntity, PLANE_NORMAL_AXIS[ handle as GizmoPlane ], 'local' );
+			: this._axisWorldDir( PLANE_NORMAL_AXIS[ handle as GizmoPlane ], 'local' );
 
 		const hit = intersectRayPlane( ray, this._dragStartPos, this._dragPlaneNormal );
 		const dist = hit ? hit.sub( this._dragStartPos ).length() : 0;
@@ -135,7 +132,7 @@ export class ScaleGizmo extends GizmoBase {
 
 	}
 
-	public updateDrag( ray: MXP.Ray, _targetEntity: MXP.Entity ): GizmoDragResult | null {
+	public updateDrag( ray: MXP.Ray ): GizmoDragResult | null {
 
 		if ( ! this.dragging || ! this.activeHandle ) return null;
 
@@ -176,13 +173,23 @@ export class ScaleGizmo extends GizmoBase {
 
 		}
 
-		return {
-			scale: new MTP.Vector(
-				this._dragStartScale.x * ( inConstraint.x ? ratio : 1 ),
-				this._dragStartScale.y * ( inConstraint.y ? ratio : 1 ),
-				this._dragStartScale.z * ( inConstraint.z ? ratio : 1 ),
-			),
-		};
+		const factor: number[] = [];
+
+		for ( const axis of AXES ) {
+
+			if ( inConstraint[ axis ] ) {
+
+				factor.push( ratio );
+
+			} else {
+
+				factor.push( 1 );
+
+			}
+
+		}
+
+		return { scale: factor };
 
 	}
 

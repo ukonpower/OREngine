@@ -56,7 +56,8 @@ npx tsx scripts/scene.ts set root/KeyLight Light intensity 2              # コ�
 npx tsx scripts/scene.ts add-entity root --name Box
 npx tsx scripts/scene.ts add-component root/Box MyBox
 npx tsx scripts/scene.ts remove-component root/Box MyBox
-npx tsx scripts/scene.ts remove-entity root/Box
+npx tsx scripts/scene.ts reparent root/Box root/KeyLight                   # 親を付け替える（ワールド座標を保つ）。新しいパスを返す
+npx tsx scripts/scene.ts remove-entity root/KeyLight/Box
 npx tsx scripts/scene.ts undo
 
 npx tsx scripts/scene.ts scenes                                           # シーン一覧（REST を直接読む。タブ・headless 不要）
@@ -82,7 +83,7 @@ npx tsx scripts/scene.ts shot tmp/shot/a.png                              # シ�
 npx tsx scripts/scene.ts shot tmp/shot/b.png --from 0,3,5 --to 0,0,0 --time 2 --view gBuffer_1   # 一時カメラ・時刻2秒・パス出力（webgpu のラベル）
 ```
 
-- 観測: `status` / `tree` / `get <entity>` / `components` / `errors` / `settings` / `shot` / `curves` / `curve-get`。書き込み: `add-entity` / `remove-entity` / `add-component` / `remove-component` / `set` / `set-setting` / `undo` / `redo` / `scene-create` / `scene-delete` / `scene-open` / `key-insert` / `key-delete` / `curve-set` / `curve-paste` / `curve-unlink` / `curve-link-settings`
+- 観測: `status` / `tree` / `get <entity>` / `components` / `errors` / `settings` / `shot` / `curves` / `curve-get`。書き込み: `add-entity` / `remove-entity` / `reparent` / `add-component` / `remove-component` / `set` / `set-setting` / `undo` / `redo` / `scene-create` / `scene-delete` / `scene-open` / `key-insert` / `key-delete` / `curve-set` / `curve-paste` / `curve-unlink` / `curve-link-settings`
 - シーン管理: `scenes` / `scene-get` はファイルを読むだけなので CLI が dev サーバーの REST（`host/server/routes/scene.ts`）を直接叩き、タブも headless も使わない。`scene-create` / `scene-delete` / `scene-open` はタブ経由で、EditorPage の createScene / deleteScene / openScene（Scene パネルと同じ窓口 `SceneSelection`）を `attachAgentBridge` の `getScenes` から呼ぶので、Scene パネルの一覧・表示と食い違わない。作成・削除はその場でファイルに反映され、undo 履歴には載らない。未保存の変更があるタブへの `scene-open`（`scene-create --open`）と、開いているシーンの `scene-delete` はエラー。`--from` の複製は uuid を振り直さない（シーンは1つずつ読み込まれ、uuid で他シーンを引く仕組みが無いため）
 - 設定: `settings [renderer|timeline|editor]` / `set-setting <renderer|timeline|editor> <path> <value>`。対象は `engine.renderer`（シーンの `renderer`）/ `engine` の `timeline/*` / `editor`（editor.json の `resolution/*` / `viewports/<id>/resolutionScale`（Screen パネルごとの解像度スケール）/ `frameLoop/*` のみ。選択・カメラ等の UI 状態は触らせない）。書き込みは `set` と同じく `editor.api.setField( …, { merge: false } )` で undo 1回ぶん。出力の `file` が保存先。実装は `packages/orengine/editor/lib/AgentBridge/SceneCommands` / `SettingCommands`
 - `<entity>` は uuid か `root/...` の名前パス。存在しないエンティティ・コンポーネント名・フィールド path はエラーになり、候補が返る
@@ -95,6 +96,7 @@ npx tsx scripts/scene.ts shot tmp/shot/b.png --from 0,3,5 --to 0,0,0 --time 2 --
   - ウィンドウサイズは 1920x1080・deviceScaleFactor 1 に固定している。エディタの描画解像度（Screen パネルの大きさ）がこれで決まり、`shot`（#83）の出力サイズになるため。1920x1080 は一般的なデスクトップの画面サイズで、editor.json のパネル配置がそのまま収まる
   - ユーザーのタブが開いていれば headless は起動しない。dev サーバーが起動していなければ headless も起動せずエラーで止まる
 - `set` の値はフィールドの型で解釈する: 数値 / ベクトル・色は `1,2,3` か `[1,2,3]` / `true`・`false` / 文字列 / select は選択肢の値 / entity 参照は uuid（`null` で外す）。CLI の `set` は1コマンドが undo 1回ぶん
+- `reparent <entity> <parent>` は GUI の Hierarchy のドラッグ・Ctrl+P と同じ `EditorAPI.reparentEntities` を通す（「エディタの選択と親の付け替え」の節）。移せないときは理由を、`position` / `euler` / `scale` にキーが打たれていれば `warning`（時刻が変わるとキーの値に戻る）を返す
 - タブの選択状態・エディタのカメラ・再生時刻は変えない（`shot` も同じ）。編集できる範囲は GUI と同じ（script 由来のエンティティへの子の追加・削除、user 以外が付けたコンポーネントの削除・編集はできない）
 - キーフレーム（#193）: フィールドとカーブの結びつきを変える操作（`key-insert` / `key-delete` / `curve-paste` / `curve-unlink` / `curve-link-settings`）はコマンドで、カーブの形（キーの時刻・値・補間・ハンドル）は `curve-get` / `curve-set` の JSON で扱う。実装は `packages/orengine/editor/lib/AgentBridge/KeyFrameCommands`
   - GUI と同じコマンドを通す: `key-insert` / `key-delete` は `KeyFrameField` の `buildInsertKeys` / `buildDeleteKeys`、共有は `buildPasteCurve` / `buildUnlinkCurve` / `buildCurveLinkSettings`、`curve-set` は `EditorAPI.setCurves`。`EditorAPI.insertKeys` / `deleteKeys` はタブの今の時刻に打つので使わず、`--time` をコマに揃えた時刻を `build*` に直接渡す。タブの再生時刻は変えない
@@ -216,6 +218,15 @@ Entity / Component の SerializeField にキーを打ち、player で再生す�
 - player ビルドは、シーンの Cloner が使う並べ方だけを焼き込む（`sceneScan` の `layoutNames` → `PlayerRegistry`）。`params` のキー名は property mangle から外している（フィールド名 `params/<キー>` をキーから作るため）
 - エディタ: 複製はヒエラルキー・ルートからの走査（`Entity.traverseEditable`）・シーン CLI に出ない。ビューポートで複製をクリックすると `cloneSource` を選ぶ
 - 数の目安は数百まで（複製は普通のエンティティなので1個ずつ描画される）。それ以上はコンポーネント内のインスタンシングで作る
+
+### エディタの選択と親の付け替え
+- 選択は Blender と同じく「選んでいるものの集合＋アクティブ1つ」。editor.json の `selectedEntityIds`（選んだ順）と `selectedEntityId`（アクティブ）に保存する。アクティブは必ず集合に入っている（`Editor` の2つのフィールドの setter が保つ）。窓口は `Editor.selectEntity`（それ1つにする）/ `setSelection` / `toggleEntitySelection`、読むのは `selectedEntities` / `activeEntity`
+- 1つだけを相手にする操作（Property パネル・キーの挿入・Timeline の KeyEditor・フォーカス `.`・F2）はアクティブを見る。削除（X）・複製（Shift+D）・G / R / S・ギズモ・親の付け替えは集合を見る。集合を見る操作は、祖先も選ばれているものを外してから扱う（`TransformTargets` の `topmostEntities`。親と一緒に動く・消える・移るため）
+- 操作: ビューポートは右クリックで選択、Shift+右クリックで足す・アクティブにする・外す（選んでいてアクティブでなければアクティブにする。Blender の 3D ビューと同じ）。Hierarchy はクリックで選択、Ctrl / Cmd+クリックでビューポートの Shift と同じ足し引き、Shift+クリックでアクティブから押した行までの範囲選択（見えている行の並び。アクティブは変えない）
+- 複数の変形: `TransformTargets`（`editor/lib/TransformTargets`）が G / R / S とギズモの共通の土台。中心はワールド位置の平均（Blender の Median Point）、ローカル軸はアクティブのワールド回転。スケールは各エンティティの `scale` の成分に掛け、中心からのずれをアクティブの軸で伸ばす。確定で変わったフィールドを `GroupCommand` にして undo 1回。ギズモは `GizmoTarget`（中心と向き）の上に置き、ドラッグの変化量（移動量・回転・倍率）を返す
+- 親の付け替え: Hierarchy の行のドラッグ（選んでいる行ならその選択ごと、選んでいない行ならその行だけ。落とした行の子になる）、Ctrl+P（選んでいるものをアクティブの子に）、Alt+P（root の直下へ）、CLI の `reparent`。どれも `EditorAPI.reparentEntities` → `ReparentEntityCommand`（複数でも undo 1回）で、ワールド座標を保つ（新しい親の逆行列でローカルへ落とし、`TransformUtils` の `decomposeMatrix` で position / euler / scale に分ける。`MTP.Matrix.decompose` はスケールを求めないので使わない）。回転した子を非一様スケールの親から出し入れするとせん断が乗り、TRS では厳密に保てない（位置は保つ）。移した先の兄弟と名前がぶつかれば `uniqueEntityName` で採番する
+  - 移せないもの（`EditorAPI.getReparentError`。Hierarchy のドラッグ中は落とせる行だけを枠で示す）: root / script 由来のエンティティ（生成したコンポーネントが持ち主で保存されない）/ Cloner の持ち場・複製（`editorHidden` の部分木）/ 自分自身か子孫の下 / script 由来のエンティティの下（`ProjectSerializer` が script の子を書き出さないので保存で消える）/ 複製の下。Cloner 本体の下へは入れられる（テンプレートになり描かれなくなる）
+  - `position` / `euler` / `scale` にキーが打たれていると、ワールド座標を保つよう書き換えても時刻が変わると Animation がキーの値を入れ直す。GUI は message、CLI は `warning` で知らせる
 
 ### アクティブプロジェクト・レンダラー切替
 - 環境変数 `ORENGINE_PROJECT=<name>` / `ORENGINE_RENDERER=<webgl|webgpu|headless>` で切替（デフォルトは demo-webgl / webgl。`npm run wgpu` は webgpu + demo-webgpu のショートカット）。設定ファイルは無い（個人の作業状態を tracked ファイルに持たせない）
