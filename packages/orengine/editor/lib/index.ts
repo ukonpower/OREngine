@@ -2,7 +2,7 @@
 
 export { attachAgentBridge } from './AgentBridge';
 export { Editor } from './Editor';
-export { copyHandles, decodeCurve, deleteKeys, distributeKeys, KEYFRAME_HANDLE_TYPES, pasteHandles, pasteKeys, setHandleType, setInterpolation, straightenKeys, transformKeys } from './KeyFrameCurve';
+export { applyHandleOffsets, decodeCurve, deleteKeys, distributeKeys, KEYFRAME_HANDLE_TYPES, pasteKeys, readHandleOffsets, setHandleType, setInterpolation, straightenKeys, transformKeys } from './KeyFrameCurve';
 export { countCurveUses, getCurveLinkInfo, getKeyFrameElementCount, getKeyFrameState, getLinks, getSharedCurves, isKeyFrameField, keyFrameKindOf, keyFrameTime, snapKeyFrameTime } from './KeyFrameField';
 
 export type { AgentSceneControl } from './AgentBridge/Command';

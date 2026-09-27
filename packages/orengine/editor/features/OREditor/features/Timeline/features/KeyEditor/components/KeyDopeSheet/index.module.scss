@@ -39,6 +39,10 @@
 		color: var(--or-key-selected);
 	}
 
+	&[data-active="true"] {
+		color: var(--or-key-active);
+	}
+
 	// イベントは値を持たない時刻だけのキーなので、菱形ではなく縦の棒で示す
 	&[data-event="true"] {
 		width: calc(var(--or-space) / 2);

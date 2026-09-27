@@ -39,7 +39,7 @@ export const KeyEditor = () => {
 	const {
 		entity, channels, mode, select, selectRefs, pressKeys, beginDrag, timelineActions, areaRef, pointerRef, openMenuRef,
 		boxSelecting, endBoxSelect, deleteSelectedKeys, copySelectedKeys, pasteCopiedKeys, setSelectedInterpolation, setSelectedHandleType,
-		distributeSelectedKeys, straightenSelectedKeys, copySelectedHandles, pasteSelectedHandles,
+		distributeSelectedKeys, straightenSelectedKeys, applyActiveHandles,
 	} = useKeyEditor();
 
 	const [ box, setBox ] = useState<Box | null>( null );
@@ -86,16 +86,11 @@ export const KeyEditor = () => {
 			{ label: "Straighten Values", onClick: run( straightenSelectedKeys ) },
 		];
 
-		const handleItems: MenuItem[] = [
-			{ label: "Copy Handles", onClick: run( copySelectedHandles ) },
-			{ label: "Paste Handles", onClick: run( pasteSelectedHandles ) },
-		];
-
 		const items: MenuItem[] = [
 			{ label: "Interpolation", children: interpolationItems },
 			{ label: "Handle Type", children: handleTypeItems },
 			{ label: "Align", children: alignItems },
-			{ label: "Handles", children: handleItems },
+			{ label: "Apply Active Handles", onClick: run( applyActiveHandles ) },
 			{ label: "Copy", onClick: run( copySelectedKeys ) },
 			{ label: "Paste", onClick: run( pasteCopiedKeys ) },
 			{ label: "Delete", onClick: run( deleteSelectedKeys ) },

@@ -28,6 +28,8 @@
 
 	// タイムラインで選んでいるキー（Blender のドープシートと同じく橙）
 	--or-key-selected: #f0a030;
+	// アクティブのキー（最後に選んだキー）。Blender のグラフエディタと同じく白寄りにし、選んでいないキー（--or-text）とは色味で分ける
+	--or-key-active: color-mix(in srgb, var(--or-key-selected) 35%, white);
 
 	// カーブ表示の線の色。数値配列の要素の番号ごと（Blender のグラフエディタと同じく x=赤・y=緑・z=青）
 	--or-axis-x: #d05555;

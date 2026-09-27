@@ -69,6 +69,10 @@
 	&[data-selected="true"] {
 		background-color: var(--or-key-selected);
 	}
+
+	&[data-active="true"] {
+		background-color: var(--or-key-active);
+	}
 }
 
 .handle {

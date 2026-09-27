@@ -250,13 +250,16 @@ export const deleteKeys = ( curve: MXP.CurveData, indices: number[] ) => {
 // キーの時刻は snapTime で揃え（timeline/fps のコマ）、動かした先に動かしていないキーがあれば消す（Blender の移動の確定と同じ）。
 // ハンドルだけを動かしたキーは、ハンドルの種類を手で置ける種類に変える（自動 → 整列、ベクトル → 自由。Blender と同じ）。
 // duplicate なら、選んだキーは元の位置に残し、複製を動かす（Shift+D）。複製が元のキーに重なったら元のキーを消す（1本のカーブに同じ時刻のキーは1つだけ）。
-// 動かしたキー・ハンドルの新しい番号も返す（消えたものは入れない）
+// 動かしたキー・ハンドルの新しい番号と、元の番号からの対応（indexMap）も返す（消えたものは入れない）
 export const transformKeys = ( curve: MXP.CurveData, indices: number[], handles: KeyFrameHandleRef[], transform: KeyTransform, duplicate = false ) => {
 
 	const keys = decodeCurve( curve );
 	const selected = new Set( indices );
 	const moved: EditKey[] = [];
 	const rest: EditKey[] = [];
+
+	// 元の番号ごとの、置き直した後に追うキー。選んだキーは動かした先（複製では複製）を追う
+	const tracked: EditKey[] = [ ...keys ];
 
 	for ( let i = 0; i < keys.length; i ++ ) {
 
@@ -269,6 +272,7 @@ export const transformKeys = ( curve: MXP.CurveData, indices: number[], handles:
 			transformKey( copy, transform );
 			moved.push( copy );
 			rest.push( key );
+			tracked[ i ] = copy;
 
 		} else if ( selected.has( i ) ) {
 
@@ -339,7 +343,7 @@ export const transformKeys = ( curve: MXP.CurveData, indices: number[], handles:
 
 	}
 
-	return { curve: encodeCurve( placed, curve ), indices: nextIndices, handles: nextHandles };
+	return { curve: encodeCurve( placed, curve ), indices: nextIndices, handles: nextHandles, indexMap: placedIndexMap( tracked, placed ) };
 
 };
 
@@ -415,7 +419,7 @@ export const setHandleType = ( curve: MXP.CurveData, indices: number[], handleTy
 // indices 番のキーを、最初と最後のキー（動かさない）を結ぶ直線上に、時刻も値も等間隔に並べる（W の Align ▸ Distribute）。
 // 時刻は snapTime でコマに揃え、値は揃えた時刻での直線の値にする（揃えても直線から外さないため）。
 // 選んだキーが2つ以下か、揃えた結果選んだキーどうしが同じコマに重なる（キーの数がコマ数より多い）なら何もせず null。
-// 動かした先に選んでいないキーがあれば消す（G と同じ）。選んだキーの新しい番号も返す
+// 動かした先に選んでいないキーがあれば消す（G と同じ）。選んだキーの新しい番号と、元の番号からの対応も返す
 export const distributeKeys = ( curve: MXP.CurveData, indices: number[], snapTime: ( frame: number ) => number ) => {
 
 	const keys = decodeCurve( curve );
@@ -449,7 +453,7 @@ export const distributeKeys = ( curve: MXP.CurveData, indices: number[], snapTim
 };
 
 // indices 番のキーの値を、時刻はそのままで、最初と最後のキー（動かさない）を結ぶ直線上に乗せる（W の Align ▸ Straighten Values）。
-// 選んだキーが2つ以下なら何もせず null。選んだキーの番号も返す（時刻を動かさないので変わらない）
+// 選んだキーが2つ以下なら何もせず null。選んだキーの番号と、元の番号からの対応も返す（時刻を動かさないので変わらない）
 export const straightenKeys = ( curve: MXP.CurveData, indices: number[] ) => {
 
 	const keys = decodeCurve( curve );
@@ -473,15 +477,15 @@ export const straightenKeys = ( curve: MXP.CurveData, indices: number[] ) => {
 
 };
 
-// キーからの左右のハンドルのずれ（絶対的な差分）と、ハンドルの種類。ハンドルのコピー（W の Handles）で持ち運ぶもの
+// キーからの左右のハンドルのずれ（絶対的な差分）と、ハンドルの種類。アクティブのキーのハンドルを選んだキーへ写すとき（W の Apply Active Handles）に持ち運ぶもの
 export type KeyHandleOffsets = {
 	left: MTP.IVector2;
 	right: MTP.IVector2;
 	handleType: KeyFrameHandleType;
 };
 
-// index 番のキーのハンドルを、キーからのずれとして写し取る（W の Handles ▸ Copy Handles）。キーが無ければ null
-export const copyHandles = ( curve: MXP.CurveData, index: number ): KeyHandleOffsets | null => {
+// index 番のキーのハンドルを、キーからのずれとして読む。キーが無ければ null
+export const readHandleOffsets = ( curve: MXP.CurveData, index: number ): KeyHandleOffsets | null => {
 
 	const key = decodeCurve( curve )[ index ];
 
@@ -497,9 +501,9 @@ export const copyHandles = ( curve: MXP.CurveData, index: number ): KeyHandleOff
 
 };
 
-// indices 番のキーに、キーの座標から offsets だけずらした位置へハンドルを置く（W の Handles ▸ Paste Handles）。区間の長さに合わせた伸縮はしない。
-// 自動系の種類は置き直されて貼った形が消えるので、整列はそのまま・それ以外は自由にする。ハンドルが効くよう、補間は Bezier にする
-export const pasteHandles = ( curve: MXP.CurveData, indices: number[], offsets: KeyHandleOffsets ) => {
+// indices 番のキーに、キーの座標から offsets だけずらした位置へハンドルを置く。区間の長さに合わせた伸縮はしない。
+// 自動系の種類は置き直されて写した形が消えるので、整列はそのまま・それ以外は自由にする。ハンドルが効くよう、補間は Bezier にする
+export const applyHandleOffsets = ( curve: MXP.CurveData, indices: number[], offsets: KeyHandleOffsets ) => {
 
 	const keys = decodeCurve( curve );
 
@@ -562,7 +566,7 @@ const lineValue = ( first: MTP.IVector2, last: MTP.IVector2, x: number ) => {
 };
 
 // 整列の共通部分。selected の i 番のキーを targets の i 番の座標へ動かし（ハンドルもキーと同じだけずらす）、
-// 動かした先の選んでいないキーを消してカーブに戻す。選んだキーの新しい番号も返す
+// 動かした先の選んでいないキーを消してカーブに戻す。選んだキーの新しい番号と、元の番号からの対応（indexMap）も返す
 const alignKeys = ( curve: MXP.CurveData, keys: EditKey[], selected: EditKey[], targets: MTP.IVector2[] ) => {
 
 	for ( let i = 0; i < selected.length; i ++ ) {
@@ -588,7 +592,24 @@ const alignKeys = ( curve: MXP.CurveData, keys: EditKey[], selected: EditKey[], 
 
 	}
 
-	return { curve: encodeCurve( placed, curve ), indices: nextIndices };
+	return { curve: encodeCurve( placed, curve ), indices: nextIndices, indexMap: placedIndexMap( keys, placed ) };
+
+};
+
+// 元の番号 i のキー tracked[ i ] が、置き直した placed の何番に来たか。置き直しで消えたキーの番号は入れない
+const placedIndexMap = ( tracked: EditKey[], placed: EditKey[] ) => {
+
+	const indexMap = new Map<number, number>();
+
+	for ( let i = 0; i < tracked.length; i ++ ) {
+
+		const index = placed.indexOf( tracked[ i ] );
+
+		if ( index >= 0 ) indexMap.set( i, index );
+
+	}
+
+	return indexMap;
 
 };
 
