@@ -183,6 +183,16 @@ const extension: EditorServerExtension = ( router, ctx ) => {
 export default extension;
 ```
 
+### 点の編集の部品（`orengine/editor`）
+カーブエディタ（タイムラインのキー）と、フィールド UI の点エディタ（ORShorts の PathStroke のパスなど）で共有する、Blender の右クリック選択に合わせた点の操作。点を何で表すか・点の座標をどう書き換えるかは使う側が持ち、部品は選び方・ドラッグの判別・G / R / S の量の計算だけを受け持つ。
+
+- 編集領域（`Editor.enterEditArea( actions )` / `leaveEditArea( actions )`）: ポインタが領域の上にある間、Delete / X・Ctrl+C・Ctrl+V・G / R / S・Shift+D・B・A / Alt+A・Home・W を `EditAreaActions` へ回す。メンバーはどれも任意で、持っていない操作のキーは何もしない（ビューポートへも渡さない。点エディタの上の X でエンティティが消えないように）。領域の `pointerenter` / `pointerleave` で呼び、領域が消えるときにも `leaveEditArea` する
+- モーダル（`Editor.beginEditModal( modal )` / `endEditModal( modal )`）: 続いている間は、ポインタの位置によらずキーボードを先に受ける（`EditModal.handleKeyDown` が true を返したら消費）。順番は 編集領域のモーダル → 編集領域の上での G / R / S → ビューポートのモーダル変形
+- ビューポートの G / R / S（`ModalTransformHandler`）は、ポインタがビューポートの上にあるとき（`Viewport.hovered`）だけ始まる。プロパティパネル等の上で押しても選択中のエンティティは動かない（I キーと同じ扱い）
+- `PointTransformModal`: 2D の点の G / R / S。`mapping`（点の座標 ↔ 画面の px）の上で回転・伸縮を計算し、点ごとの行き先の関数 `( point, owner ) => point` を `onChange` に渡す（`owner` は点の属する点。`individual` ならそれを中心に回す）。`axes: "x"` で横にだけ動かす。X / Y の拘束・数値入力、左クリック / Enter で確定、右クリック / Esc で取り消し。作った側が `beginEditModal` で登録し、`onConfirm` / `onCancel` で外す
+- `PointerDrag`（`trackPointerDrag` / `dragRect` / `suppressNextContextMenu`）: 押してから離すまでを追い、3px 動くまではクリックとして扱う。右クリックで取り消した操作の後のメニューを止める
+- `PointSelection`: 選択は ID の文字列の `Set`。`pressSelection`（右ボタンで押したときの選び方。Shift で足し引き・アクティブ）/ `boxSelection`（矩形選択の結果）/ `isAllSelected`。`BoxSelectWait` は B の後の左ドラッグ1回を矩形選択にする待機で、作ると編集モーダルとして登録され、右クリック・Esc・領域外の左クリック・`end()` で終わる
+
 ### キーフレームアニメーション
 Entity / Component の SerializeField にキーを打ち、player で再生する仕組み（#177）。
 
@@ -195,12 +205,12 @@ Entity / Component の SerializeField にキーを打ち、player で再生す�
 - タイムライン: Timeline パネルの子 feature `Timeline/features/KeyEditor`（左のチャンネル一覧、キー表示 / カーブ表示）。選択中のエンティティの行だけを出し、選んだキーは `<カーブ ID>:<番号>`、ハンドルは `<カーブ ID>:<番号>:<left|right>` で持つ（共有カーブの行はそろって選ばれる。キーを選ぶと両側のハンドルも選ばれた扱い）。編集の確定は `editor.api.setCurves`（最後のキーを消したカーブを指すリンクも外す）
   - 操作は Blender の右クリック選択（Preferences の Select with: Right）に合わせている: 右クリックでキーを選ぶ（Shift で足し引き、何もない所で選択を外す）、キーからの右ドラッグで選んだキーを動かす、何もない所からの右ドラッグで矩形選択（Shift で足す）、左クリックはキーの上でも時刻合わせ、W でキーのメニュー（補間・ハンドル・整列・アクティブのハンドルの写し・コピー・貼り付け・削除）。右ボタンは `KeyEditor` が1か所で受け、キー表示・カーブ表示は中ボタンと wheel だけを受ける。ほかに B の後の左ドラッグ1回が矩形選択、A / Alt+A で全選択 / 全解除、Home で値の範囲を合わせ直す（値の範囲は状態として持ち、自動で合わせ直すのは選択中のエンティティが変わったときだけ）
   - 表示の移動・拡大縮小も Blender の 2D ビューに合わせている: トラックパッドの2本指で縦横にパン、ピンチで縦横そろえて拡大縮小、Ctrl+2本指で縦横それぞれを拡大縮小（指を左・下へで拡大）。マウスはホイールで拡大縮小・Ctrl+ホイールで横・Shift+ホイールで縦にスクロール、中ボタンのドラッグで縦横のパン・Ctrl+中ボタンで縦横それぞれを拡大縮小（右・上へで拡大）。Ctrl はどれも Cmd でもよい（macOS は Ctrl+2本指がアクセシビリティのズームに取られることがあるため。`hasZoomModifier`）。拡大縮小はポインタの位置が基準。横（時刻）は `TimelineControls`、縦はカーブ表示（値の範囲）・キー表示（左のチャンネル一覧の `scrollTop`。縦の拡大縮小は無いので、Ctrl+2本指の縦の量は時刻の拡大縮小に回す）が同じ入力から自分の軸だけを動かす。wheel をパン / 拡大縮小へ読み替えるのは `Timeline/lib/ViewGesture` の1か所（ブラウザはマウスとトラックパッドを区別しないので量の出方で見分け、ピンチ＝ctrlKey 付きの wheel は Ctrl のキーイベントを別に追って Ctrl+2本指と区別する）
-  - ドラッグと G / R / S はどちらも `KeyFrameCurve` の `transformKeys`（点の行き先を関数で渡す）を通し、`editor.api.beginEdit( engine, "curves" )` で undo 1回にする。G / R / S のモーダルは `KeyEditor/lib/KeyTransformModal`（ビューポートの `ModalTransformHandler` と同じ操作感。回転・伸縮は画面の px の上で計算する）
+  - ドラッグと G / R / S はどちらも `KeyFrameCurve` の `transformKeys`（点の行き先を関数で渡す）を通し、`editor.api.beginEdit( engine, "curves" )` で undo 1回にする。G / R / S のモーダルは `editor/lib/PointTransformModal`（上の「点の編集の部品」。キー表示は `axes: "x"` で時間にだけ動かす）
   - Shift+D は G と同じモーダルで、`transformKeys` の `duplicate`（選んだキーを元の位置に残して複製を動かす）を使う。複製もモーダルの開始時の表から毎回作り直すので、複製と移動が undo 1回になり、取り消すと複製ごと押す前の表に戻る。複製するのはキーだけ（ハンドルだけの選択は対象外）
   - W の Align ▸ Distribute / Straighten Values（`KeyFrameCurve` の `distributeKeys` / `straightenKeys`）: カーブごとに、選んだキーのうち最初と最後（動かさない）を結ぶ直線上へ、Distribute は時刻も値も等間隔に（時刻はコマに揃え、値は揃えた時刻での直線の値）、Straighten Values は時刻そのままで値だけを乗せる。選んだキーが2つ以下のカーブ・Distribute で選んだキーどうしが同じコマに重なるカーブは何もしない。動かした先の選んでいないキーは G と同じく消え、選択は動かした後の番号で選び直す
   - アクティブのキー: 選択とは別に、最後に右クリックで選んだキー1つを `active`（キーの ref）として持ち、白寄りの色（`--or-key-active`）で出す。ハンドルを押したときはその持ち主のキー。キー1つを指さない印（配列の親の行・エンティティの行）を押したときは変えない（Shift なしで選び直したときは外す）。選ばれているがアクティブでないキーの Shift+右クリックは、外さずにアクティブにする（Blender の3Dビューと同じ。選んだ中から写し元を選び直すため）。選択からキーもハンドルも外れたら外す。キーの番号が変わる編集（G / R / S・Shift+D・Align）では、`transformKeys` / `alignKeys` が返す元の番号 → 新しい番号の対応（`indexMap`）で付け替える
   - W の Apply Active Handles（`readHandleOffsets` / `applyHandleOffsets`）: アクティブのキーの左右のハンドルの「キーからのずれ」（区間の長さに合わせた伸縮はしない）と種類を、ほかの選んだキーすべてへ同じずれで写す。自動系は置き直されて形が消えるので、写した側の種類は整列ならそのまま・それ以外は自由にし、補間は Bezier にする。ショートカットは無い
-  - キーボード: ポインタがキーの上にある間の Delete / X・Ctrl+C・Ctrl+V・G / R / S・Shift+D・B・A / Alt+A・Home・W は `Editor.enterTimeline` で受けた `TimelineKeyActions` へ回す。モーダル中（G / R / S・B の待機）は `Editor.beginTimelineModal` で登録したものへ、ポインタの位置によらず先に回す
+  - キーボード: キーの領域は編集領域（上の「点の編集の部品」）として `Editor.enterEditArea` / `leaveEditArea` で登録する。右クリックでの選び方・B の矩形選択の待機・G / R / S も同じ部品を使い、キー専用なのは ref の作り方・読み方（`KeyEditor/lib/KeySelection`）だけ
 - 共有: 行の右クリックメニューで、要素1つ単位にカーブのコピー / リンクして貼り付け（同じカーブ ID を指す）/ 複製して貼り付け / リンクを解除（複製して指し直す）/ リンクの設定（倍率・足し算・カーブの名前の小窓）。どれも undo 1回。実装は `editor/lib/KeyFrameField` の Share 節（`buildPasteCurve` / `buildUnlinkCurve` / `buildCurveLinkSettings`）。数値配列の要素は、右クリックした場所の `data-element`（uipower の `Vector`・`ValueArray` の要素の行）で決まり、要素の外（ラベル・色の見本）では要素ごとのサブメニューになる。行には共有中のカーブの名前（無ければ ID）と使用数を出す
 - シーン CLI からは `key-insert` / `key-delete` / `curves` / `curve-get` / `curve-set` / `curve-paste` / `curve-unlink` / `curve-link-settings` で同じ操作ができる（「シーン CLI（AgentBridge）」の節）
 - 保存（`Editor.exportEngine`）では、書き出した JSON 全体の `links` から参照されないカーブを外す（`pruneUnusedCurves`）。メモリ上の表には残す

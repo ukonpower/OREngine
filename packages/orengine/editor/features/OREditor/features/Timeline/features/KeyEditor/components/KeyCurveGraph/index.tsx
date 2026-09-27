@@ -1,5 +1,7 @@
 import { useMemo, useRef } from 'react';
 
+import { trackPointerDrag } from 'orengine/editor';
+
 import { useTimeline } from '../../../../hooks/useTimeline';
 import { useViewWheel } from '../../../../hooks/useViewWheel';
 import { dragZoomFactor, hasZoomModifier } from '../../../../lib/ViewGesture';
@@ -8,7 +10,6 @@ import { useKeyEditor } from '../../hooks/useKeyEditor';
 import { activeHandleSides, curveColor, curvePath, graphScale, valueTicks, zoomValueRange } from '../../lib/CurveGraph';
 import { getCurveKeys } from '../../lib/KeyChannels';
 import { handleRef, isHandleSelected, keyRef } from '../../lib/KeySelection';
-import { trackPointerDrag } from '../../lib/PointerDrag';
 
 import style from './index.module.scss';
 
