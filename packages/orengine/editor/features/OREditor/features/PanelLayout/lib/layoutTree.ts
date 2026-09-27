@@ -56,21 +56,22 @@ const pane = ( tabs: PanelId[] ): PaneNode => ( {
 	active: tabs[ 0 ],
 } );
 
-// データ駆動化前の PC レイアウトと同じ構成・同じ初期サイズのデフォルト木を作る。
-// 比率は基準解像度 1920x1080 で旧実装の px / vh 指定（左右カラム300px・フッター160px・
-// 左下20vh=216px）と一致する値。分母はスプリッタ4pxを除いた実効サイズ
+// PC のデフォルトのレイアウト木を作る。
+// 比率は基準解像度 1920x1080 で左右カラム300px・左下216px・フッター195px になる値。
+// フッターはタイムラインの上端のヘッダー1行（約35px = 正方形ボタン22px + 上下の余白 + 区切り線）と、目盛り・キーの行の160px。
+// 分母はスプリッタ4pxを除いた実効サイズ
 export function defaultLayout(): LayoutNode {
 
 	return split( "vertical", [
-		{ ratio: 916 / 1076, node: split( "horizontal", [
+		{ ratio: 881 / 1076, node: split( "horizontal", [
 			{ ratio: 300 / 1912, node: split( "vertical", [
-				{ ratio: 696 / 912, node: pane( [ "hierarchy", "scene" ] ) },
-				{ ratio: 216 / 912, node: pane( [ "timer" ] ) },
+				{ ratio: 661 / 877, node: pane( [ "hierarchy", "scene" ] ) },
+				{ ratio: 216 / 877, node: pane( [ "timer" ] ) },
 			] ) },
 			{ ratio: 1312 / 1912, node: pane( [ "viewport:main" ] ) },
 			{ ratio: 300 / 1912, node: pane( [ "property", "textures", "renderer", "editor-settings" ] ) },
 		] ) },
-		{ ratio: 160 / 1076, node: pane( [ "timeline", "export" ] ) },
+		{ ratio: 195 / 1076, node: pane( [ "timeline", "export" ] ) },
 	] );
 
 }

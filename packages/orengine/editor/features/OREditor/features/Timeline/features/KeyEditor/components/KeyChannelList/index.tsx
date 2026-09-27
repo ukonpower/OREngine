@@ -1,21 +1,18 @@
-import { ArrowIcon, Button } from 'uipower';
+import { ArrowIcon } from 'uipower';
 
 import { useKeyEditor } from '../../hooks/useKeyEditor';
 import { curveColor } from '../../lib/CurveGraph';
 
 import style from './index.module.scss';
 
-// タイムラインの左のチャンネル一覧。上の段でキー表示とカーブ表示を切り替える。
+// タイムラインの左のチャンネル一覧。
 // 行の高さと縦のスクロールは右のキーの表示とそろえる（スクロール量は context で共有する）
 export const KeyChannelList = () => {
 
-	const { entity, visibleChannels, mode, setMode, collapsed, toggleCollapsed, activeChannelId, setActiveChannelId, channelListRef, setScrollTop } = useKeyEditor();
+	const { entity, visibleChannels, mode, collapsed, toggleCollapsed, activeChannelId, setActiveChannelId, channelListRef, setScrollTop } = useKeyEditor();
 
 	return <div className={style.channelList}>
-		<div className={style.header}>
-			<Button active={mode == "keys"} onClick={() => setMode( "keys" )}>Keys</Button>
-			<Button active={mode == "curves"} onClick={() => setMode( "curves" )}>Curves</Button>
-		</div>
+		<div className={style.header} />
 		<div className={style.list} ref={channelListRef} onScroll={( e ) => setScrollTop( e.currentTarget.scrollTop )}>
 			{! entity && <div className={style.empty}>No entity selected</div>}
 			{visibleChannels.map( ( channel ) => {

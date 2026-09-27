@@ -6,18 +6,12 @@
 	background-color: var(--or-bg-panel);
 }
 
-// 右のタイムラインの目盛りの段と同じ高さ。キーの行はこの下から始まる
+// 右のタイムラインの目盛りの段と同じ高さ・色で1本の帯にする（TimelineScale の .band）。キーの行はこの下から始まる
 .header {
-	display: flex;
 	flex-shrink: 0;
-	gap: var(--or-space);
 	height: var(--or-list-row-height);
-	padding: 0 var(--or-space);
-	align-items: center;
-
-	button {
-		flex: 1;
-	}
+	background-color: var(--or-timeline-ruler);
+	box-shadow: inset 0 -1px var(--or-bg-base);
 }
 
 .list {

@@ -47,6 +47,7 @@ export const TimelineScale = () => {
 	}
 
 	return <div className={style.scale}>
+		<div className={style.band} />
 		<div className={style.scale_inner}>
 			{elms}
 		</div>

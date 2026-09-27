@@ -12,6 +12,18 @@
 	}
 }
 
+// 上端の目盛りの段。左のチャンネル一覧の上の段（KeyChannelList の .header）と同じ色・高さで1本の帯にする。
+// canvas のグリッド線はこの下に隠れ、今の時刻の縦線（TimelineCursor、z-index 付き）はこの上に出る
+.band {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: var(--or-list-row-height);
+	background-color: var(--or-timeline-ruler);
+	box-shadow: inset 0 -1px var(--or-bg-base);
+}
+
 .scale_item {
 	position: absolute;
 	top: 0;
