@@ -195,6 +195,7 @@ export const HierarchyNode = ( props: HierarchyNodeProps ) => {
 
 	const onRightClickNode = useCallback( ( e: MouseEvent ) => {
 
+		// 名前の入力欄の上でもこのメニューを出す。Editor の抑止は入力欄の標準メニューを残すので、ここで止める
 		e.preventDefault();
 
 		if ( ! editor || noEditable ) return;

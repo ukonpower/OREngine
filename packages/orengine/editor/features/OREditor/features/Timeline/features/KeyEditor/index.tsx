@@ -1,7 +1,7 @@
-import { useEffect, useState, type MouseEvent, type PointerEvent } from 'react';
+import { useEffect, useState, type PointerEvent } from 'react';
 
 import * as MXP from 'maxpower';
-import { type KeyFrameHandleType } from 'orengine/editor';
+import { dragRect, trackPointerDrag, type KeyFrameHandleType } from 'orengine/editor';
 import { Menu, MenuItem, pointAnchor, usePopover } from 'uipower';
 
 import { useOREditor } from '../../../../hooks/useOREditor';
@@ -11,7 +11,6 @@ import { KeyDopeSheet } from './components/KeyDopeSheet';
 import { useKeyEditor } from './hooks/useKeyEditor';
 import style from './index.module.scss';
 import { readRefs, readRefsInRect } from './lib/KeySelection';
-import { dragRect, trackPointerDrag } from './lib/PointerDrag';
 
 const INTERPOLATION_ITEMS: { label: string, value: MXP.FCurveInterpolation }[] = [
 	{ label: "Constant", value: "CONSTANT" },
@@ -37,7 +36,7 @@ export const KeyEditor = () => {
 	const { editor } = useOREditor();
 	const { open, closeAll } = usePopover();
 	const {
-		entity, channels, mode, select, selectRefs, pressKeys, beginDrag, timelineActions, areaRef, pointerRef, openMenuRef,
+		entity, channels, mode, select, selectRefs, pressKeys, beginDrag, editAreaActions, areaRef, pointerRef, openMenuRef,
 		boxSelecting, endBoxSelect, deleteSelectedKeys, copySelectedKeys, pasteCopiedKeys, setSelectedInterpolation, setSelectedHandleType,
 		distributeSelectedKeys, straightenSelectedKeys, applyActiveHandles,
 	} = useKeyEditor();
@@ -49,11 +48,11 @@ export const KeyEditor = () => {
 
 		return () => {
 
-			editor.leaveTimeline( timelineActions );
+			editor.leaveEditArea( editAreaActions );
 
 		};
 
-	}, [ editor, timelineActions ] );
+	}, [ editor, editAreaActions ] );
 
 	// W のメニュー。選んでいるキーを対象に、ポインタの位置へ開く
 	openMenuRef.current = () => {
@@ -204,13 +203,6 @@ export const KeyEditor = () => {
 
 	};
 
-	// 右ボタンはキーの選択に使うので、ブラウザのメニューは出さない
-	const onContextMenu = ( e: MouseEvent ) => {
-
-		e.preventDefault();
-
-	};
-
 	const trackPointer = ( e: PointerEvent ) => {
 
 		pointerRef.current = { x: e.clientX, y: e.clientY };
@@ -228,14 +220,13 @@ export const KeyEditor = () => {
 		onPointerEnter={( e ) => {
 
 			trackPointer( e );
-			editor.enterTimeline( timelineActions );
+			editor.enterEditArea( editAreaActions );
 
 		}}
 		onPointerMove={trackPointer}
-		onPointerLeave={() => editor.leaveTimeline( timelineActions )}
+		onPointerLeave={() => editor.leaveEditArea( editAreaActions )}
 		onPointerDownCapture={onPointerDownCapture}
 		onPointerDown={onPointerDown}
-		onContextMenu={onContextMenu}
 	>
 		{view}
 		{box && <div className={style.box} style={box} />}

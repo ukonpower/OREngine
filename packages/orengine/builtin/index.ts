@@ -1,5 +1,7 @@
 import { buildClassTree } from '../core/Resources/classTree';
-import { collectLayouts } from '../core/Resources/ClonerLayout';
+import { collectLibrary } from '../core/Resources/Library';
+
+export type { ClonerLayout, ClonerLayoutParams, ClonerPlacement } from './Components/Utility/Cloner/layout';
 
 export const BUILTIN_COMPONENTLIST = buildClassTree(
 	import.meta.glob( [ './Components/**/index.ts', '!**/_*/**' ], { eager: true } ),
@@ -11,6 +13,6 @@ export const BUILTIN_GEOMETRYLIST = buildClassTree(
 	'Geometries'
 );
 
-export const BUILTIN_LAYOUTS = collectLayouts(
-	import.meta.glob( [ './Layouts/*/index.ts', '!**/_*/**' ], { eager: true } )
+export const BUILTIN_LIBRARY = collectLibrary(
+	import.meta.glob( [ './Library/*/*/index.ts', '!**/_*/**' ], { eager: true } )
 );

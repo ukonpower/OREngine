@@ -1,13 +1,11 @@
-import { cloneEntity, Component, ComponentParams, ComponentUpdateEvent, Entity, Serializable, SerializeFieldValue } from 'maxpower';
-import { ClonerLayoutParams, Engine } from 'orengine';
+import { cloneEntity, Component, ComponentParams, ComponentUpdateEvent, Entity, Serializable, SerializableFieldOpt, SerializeFieldValue } from 'maxpower';
+import { Engine } from 'orengine';
 
 import { Animation, AnimationLinks } from '../Animation';
 
 import { ClonerSlot } from './ClonerSlot';
+import { CLONER_LAYOUT_KIND, ClonerLayout, ClonerLayoutParams, DEFAULT_CLONER_LAYOUT } from './layout';
 import { ClonerOrder, ClonerSettings, ClonerSlotSpec, computeSlots } from './slots';
-
-// layout を指定していない Cloner が使う並べ方。host/vite/sceneScan.ts の既定値と一致させる
-const DEFAULT_LAYOUT = 'Grid';
 
 // slots.ts の ClonerOrder と同じ並び
 const ORDER_LIST: ClonerOrder[] = [ 'layout', 'index', 'center', 'x', 'y', 'z', 'random' ];
@@ -89,8 +87,8 @@ export class Cloner extends Component {
 	private layoutName_: string;
 	// 並べ方ごとの数値。並べ方を切り替えて戻したときに値を戻すため、使っていない並べ方の分も持っておく
 	private paramValues_: Map<string, ClonerLayoutParams>;
-	// 今登録している params/<キー> のキー
-	private paramKeys_: string[];
+	// layout より後ろに登録しているフィールドのパス（params/* と delay/* ・ jitter/*）
+	private trailingFieldPaths_: string[];
 	private order_: ClonerOrder;
 	private spread_: number;
 	private loop_: boolean;
@@ -117,9 +115,9 @@ export class Cloner extends Component {
 
 		super( params );
 
-		this.layoutName_ = DEFAULT_LAYOUT;
+		this.layoutName_ = DEFAULT_CLONER_LAYOUT;
 		this.paramValues_ = new Map();
-		this.paramKeys_ = [];
+		this.trailingFieldPaths_ = [];
 		this.order_ = 'layout';
 		this.spread_ = 0;
 		this.loop_ = true;
@@ -139,59 +137,10 @@ export class Cloner extends Component {
 		// deserialize は props のキー順に set し、未登録のフィールドは捨てる。
 		// layout を先に登録しておけば、読み込み時に layout が入った時点で params/* が登録済みになる
 		this.field( "layout", () => this.layoutName_, ( v: string ) => this.setLayout_( v ), {
-			format: { type: "select", list: () => Engine.resources.layoutNames }
+			format: { type: "select", list: () => Engine.resources.getLibraryItemNames( CLONER_LAYOUT_KIND ) }
 		} );
 
-		this.applyLayoutFields_();
-
-		this.field( "delay/order", () => this.order_, ( v: ClonerOrder ) => {
-
-			this.order_ = v;
-			this.placementDirty_ = true;
-
-		}, { format: { type: "select", list: ORDER_LIST } } );
-
-		this.field( "delay/spread", () => this.spread_, ( v: number ) => {
-
-			this.spread_ = v;
-			this.placementDirty_ = true;
-
-		} );
-
-		this.field( "delay/loop", () => this.loop_, ( v: boolean ) => {
-
-			this.loop_ = v;
-			this.placementDirty_ = true;
-
-		} );
-
-		this.field( "jitter/position", () => copyNumbers( this.jitterPosition_ ), ( v: number[] ) => {
-
-			this.jitterPosition_ = copyNumbers( v );
-			this.placementDirty_ = true;
-
-		}, { format: { type: "vector" } } );
-
-		this.field( "jitter/rotation", () => copyNumbers( this.jitterRotation_ ), ( v: number[] ) => {
-
-			this.jitterRotation_ = copyNumbers( v );
-			this.placementDirty_ = true;
-
-		}, { format: { type: "vector" } } );
-
-		this.field( "jitter/scale", () => this.jitterScale_, ( v: number ) => {
-
-			this.jitterScale_ = v;
-			this.placementDirty_ = true;
-
-		} );
-
-		this.field( "jitter/seed", () => this.seed_, ( v: number ) => {
-
-			this.seed_ = v;
-			this.placementDirty_ = true;
-
-		} );
+		this.applyTrailingFields_();
 
 		// 持ち場の追加・削除でも children が通知されるので、テンプレートの並びが変わったときだけ作り直す
 		// （比べずに作り直すと、作り直しの通知でまた作り直してしまう）
@@ -230,36 +179,50 @@ export class Cloner extends Component {
 	}
 
 	/*-------------------------------
-		Layout Fields
+		Fields
 	-------------------------------*/
 
 	// 並べ方を切り替え、params/* を登録し直す。個数が変わりうるので作り直す
 	private setLayout_( name: string ) {
 
 		this.layoutName_ = name;
-		this.applyLayoutFields_();
+		this.applyTrailingFields_();
 		this.rebuildRequested_ = true;
 
 	}
 
-	// 今の並べ方の params のキーごとに params/<キー> を登録する。前の並べ方の分は外す
-	private applyLayoutFields_() {
+	// layout より後ろのフィールドを、params/* → delay/* → jitter/* の順に登録し直す。
+	// パネルは登録順に並び、登録済みのパスを登録し直しても位置は変わらないので、一度全部外してから登録する
+	// （params/* だけを登録し直すと、並べ方を切り替えるたびに params/* が末尾に回る）
+	private applyTrailingFields_() {
 
-		for ( const key of this.paramKeys_ ) {
+		for ( const path of this.trailingFieldPaths_ ) {
 
-			this.removeField( `params/${key}` );
-
-		}
-
-		const layout = Engine.resources.getLayout( this.layoutName_ );
-
-		if ( ! layout ) {
-
-			this.paramKeys_ = [];
-
-			return;
+			this.removeField( path );
 
 		}
+
+		this.trailingFieldPaths_ = [];
+
+		this.applyParamFields_();
+		this.applySettingFields_();
+
+	}
+
+	// layout より後ろのフィールドを1つ登録し、applyTrailingFields_ で外せるようにパスを覚えておく
+	private addTrailingField_<T extends SerializeFieldValue>( path: string, getter: () => T, setter: ( v: T ) => void, opt?: SerializableFieldOpt ) {
+
+		this.field( path, getter, setter, opt );
+		this.trailingFieldPaths_.push( path );
+
+	}
+
+	// 今の並べ方の params のキーごとに params/<キー> を登録する
+	private applyParamFields_() {
+
+		const layout = Engine.resources.getLibraryItem<ClonerLayout>( CLONER_LAYOUT_KIND, this.layoutName_ );
+
+		if ( ! layout ) return;
 
 		let values = this.paramValues_.get( this.layoutName_ );
 
@@ -278,30 +241,84 @@ export class Cloner extends Component {
 		}
 
 		const layoutValues = values;
-		const keys: string[] = [];
 
 		for ( const key of Object.keys( layout.params ) ) {
 
-			let opt = {};
+			let opt: SerializableFieldOpt = {};
 
-			if ( Array.isArray( layout.params[ key ] ) ) {
+			if ( layout.paramOptions && layout.paramOptions[ key ] ) {
 
-				opt = { format: { type: "vector" } };
+				opt = { ...layout.paramOptions[ key ] };
 
 			}
 
-			this.field( `params/${key}`, () => copyParamValue( layoutValues[ key ] ), ( v: number | number[] ) => {
+			if ( Array.isArray( layout.params[ key ] ) ) {
+
+				opt.format = { type: "vector" };
+
+			}
+
+			this.addTrailingField_( `params/${key}`, () => copyParamValue( layoutValues[ key ] ), ( v: number | number[] ) => {
 
 				layoutValues[ key ] = copyParamValue( v );
 				this.placementDirty_ = true;
 
 			}, opt );
 
-			keys.push( key );
-
 		}
 
-		this.paramKeys_ = keys;
+	}
+
+	private applySettingFields_() {
+
+		this.addTrailingField_( "delay/order", () => this.order_, ( v: ClonerOrder ) => {
+
+			this.order_ = v;
+			this.placementDirty_ = true;
+
+		}, { format: { type: "select", list: ORDER_LIST } } );
+
+		this.addTrailingField_( "delay/spread", () => this.spread_, ( v: number ) => {
+
+			this.spread_ = v;
+			this.placementDirty_ = true;
+
+		} );
+
+		this.addTrailingField_( "delay/loop", () => this.loop_, ( v: boolean ) => {
+
+			this.loop_ = v;
+			this.placementDirty_ = true;
+
+		} );
+
+		this.addTrailingField_( "jitter/position", () => copyNumbers( this.jitterPosition_ ), ( v: number[] ) => {
+
+			this.jitterPosition_ = copyNumbers( v );
+			this.placementDirty_ = true;
+
+		}, { format: { type: "vector" } } );
+
+		this.addTrailingField_( "jitter/rotation", () => copyNumbers( this.jitterRotation_ ), ( v: number[] ) => {
+
+			this.jitterRotation_ = copyNumbers( v );
+			this.placementDirty_ = true;
+
+		}, { format: { type: "vector" } } );
+
+		this.addTrailingField_( "jitter/scale", () => this.jitterScale_, ( v: number ) => {
+
+			this.jitterScale_ = v;
+			this.placementDirty_ = true;
+
+		} );
+
+		this.addTrailingField_( "jitter/seed", () => this.seed_, ( v: number ) => {
+
+			this.seed_ = v;
+			this.placementDirty_ = true;
+
+		}, { int: true, min: 0, step: 1 } );
 
 	}
 
@@ -355,14 +372,14 @@ export class Cloner extends Component {
 	// 今の設定での持ち場。並べ方が見つからなければ null
 	private computeSpecs_(): ClonerSlotSpec[] | null {
 
-		const layout = Engine.resources.getLayout( this.layoutName_ );
+		const layout = Engine.resources.getLibraryItem<ClonerLayout>( CLONER_LAYOUT_KIND, this.layoutName_ );
 
 		if ( ! layout ) return null;
 
 		// 並べ方がこの Cloner より後に登録されたときは、まだ数値のフィールドが無いのでここで作る
 		if ( ! this.paramValues_.has( this.layoutName_ ) ) {
 
-			this.applyLayoutFields_();
+			this.applyTrailingFields_();
 
 		}
 

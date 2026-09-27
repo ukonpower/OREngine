@@ -701,24 +701,15 @@ export class PointerHandler {
 
 		};
 
-		// 右クリックは選択に使うのでブラウザのメニューを出さない
-		const onContextMenu = ( e: MouseEvent ) => {
-
-			e.preventDefault();
-
-		};
-
 		canvasElm.addEventListener( "pointerdown", onPointerDown );
 		canvasElm.addEventListener( "pointermove", onPointerMove );
 		canvasElm.addEventListener( "pointerup", onPointerUp );
-		canvasElm.addEventListener( "contextmenu", onContextMenu );
 
 		this._disposeListeners = () => {
 
 			canvasElm.removeEventListener( "pointerdown", onPointerDown );
 			canvasElm.removeEventListener( "pointermove", onPointerMove );
 			canvasElm.removeEventListener( "pointerup", onPointerUp );
-			canvasElm.removeEventListener( "contextmenu", onContextMenu );
 
 		};
 

@@ -5,6 +5,7 @@ import * as MXP from 'maxpower';
 import { Engine } from '../../../core/Engine';
 import { OREngineProjectData, pruneUnusedCurves } from '../../../core/ProjectSerializer';
 import { AssetPreviewManager } from '../AssetPreviewManager';
+import { preventBrowserContextMenu } from '../BrowserContextMenu';
 import { ConstraintAxisRenderer } from '../ConstraintAxisRenderer';
 import { EditorAPI } from '../EditorAPI';
 import { GizmoMode, GizmoTarget } from '../Gizmo';
@@ -40,25 +41,26 @@ export type EditorTimelineLoop = {
 	end: number,
 }
 
-// タイムラインで選んだキーへの操作。ポインタがタイムラインのキーの上にある間、
-// Delete / X・Ctrl+C・Ctrl+V・G / R / S・Shift+D・B・A / Alt+A・Home・W をビューポートではなくこちらへ向ける
-export type TimelineKeyActions = {
-	deleteKeys: () => void;
-	copyKeys: () => void;
-	pasteKeys: () => void;
-	transformKeys: ( mode: ModalTransformMode ) => void;
-	// Shift+D。選んだキーを複製して移動のモーダル操作に入る
-	duplicateKeys: () => void;
-	boxSelect: () => void;
+// 点を選んで編集する領域（タイムラインのキー・フィールド UI の点エディタ等）で選んだものへの操作。ポインタが領域の上にある間、
+// Delete / X・Ctrl+C・Ctrl+V・G / R / S・Shift+D・B・A / Alt+A・Home・W をビューポートではなくこちらへ向ける。
+// 持っていない操作のキーは何もしない（ビューポートへも渡さない。点エディタの上の X でエンティティが消えないように）
+export type EditAreaActions = {
+	deleteSelected?: () => void;
+	copy?: () => void;
+	paste?: () => void;
+	transform?: ( mode: ModalTransformMode ) => void;
+	// Shift+D。選んだものを複製して移動のモーダル操作に入る
+	duplicate?: () => void;
+	boxSelect?: () => void;
 	// A は true（全選択）、Alt+A は false（全解除）
-	selectAllKeys: ( select: boolean ) => void;
-	frameAll: () => void;
-	// W。Blender の右クリック選択と同じく、右クリックはキーの選択に使うのでメニューは W で開く
-	openMenu: () => void;
+	selectAll?: ( select: boolean ) => void;
+	frameAll?: () => void;
+	// W。Blender の右クリック選択と同じく、右クリックは選択に使うのでメニューは W で開く
+	openMenu?: () => void;
 };
 
-// タイムラインのモーダル操作（G / R / S・B の矩形選択の待機）。続いている間は、ポインタがタイムラインの外にあってもキーボードをまずこちらへ向ける
-export type TimelineModal = {
+// 編集領域のモーダル操作（G / R / S・B の矩形選択の待機）。続いている間は、ポインタが領域の外にあってもキーボードをまずこちらへ向ける
+export type EditModal = {
 	// 消費したら true（ほかのショートカットへ渡さない）
 	handleKeyDown: ( e: KeyboardEvent ) => boolean;
 };
@@ -136,8 +138,8 @@ export class Editor extends MXP.Serializable {
 	// I / Alt+I の対象。プロパティパネルの行がポインタの出入りで設定する
 	private _hoveredKeyField: KeyFrameFieldRef | null;
 	// ポインタが乗っているタイムラインのキーの操作。タイムラインがポインタの出入りで設定する
-	private _hoveredTimeline: TimelineKeyActions | null;
-	private _timelineModal: TimelineModal | null;
+	private _hoveredEditArea: EditAreaActions | null;
+	private _editModal: EditModal | null;
 	// 「カーブをコピー」で覚えたカーブ ID。貼り付けるときに表から引くので、コピーの後の編集も貼り付けに乗る
 	private _copiedCurveId: string | null;
 
@@ -157,6 +159,7 @@ export class Editor extends MXP.Serializable {
 	private _wireframeRenderer: WireframeRenderer;
 	private _selectionOutline: SelectionOutline;
 	private _keyboardHandler: KeyboardHandler;
+	private _disposeBrowserContextMenu: () => void;
 	private _modalTransformHandler: ModalTransformHandler;
 
 	private _sceneExporter: SceneExporter;
@@ -181,8 +184,8 @@ export class Editor extends MXP.Serializable {
 		this._modalStatus = null;
 		this._panelLayout = null;
 		this._hoveredKeyField = null;
-		this._hoveredTimeline = null;
-		this._timelineModal = null;
+		this._hoveredEditArea = null;
+		this._editModal = null;
 		this._copiedCurveId = null;
 		this._disposed = false;
 		this._api = new EditorAPI( this );
@@ -238,10 +241,12 @@ export class Editor extends MXP.Serializable {
 			onAddEntity: () => this.emit( "request/addEntity" ),
 			onDeleteSelected: () => {
 
-				// タイムラインの上では、エンティティではなく選んだキーを消す
-				if ( this._hoveredTimeline ) {
+				// 編集領域の上では、エンティティではなく領域で選んだものを消す
+				const area = this._hoveredEditArea;
 
-					this._hoveredTimeline.deleteKeys();
+				if ( area ) {
+
+					if ( area.deleteSelected ) area.deleteSelected();
 
 					return;
 
@@ -252,40 +257,54 @@ export class Editor extends MXP.Serializable {
 			},
 			onCopy: () => {
 
-				if ( this._hoveredTimeline ) this._hoveredTimeline.copyKeys();
+				const area = this._hoveredEditArea;
+
+				if ( area && area.copy ) area.copy();
 
 			},
 			onPaste: () => {
 
-				if ( this._hoveredTimeline ) this._hoveredTimeline.pasteKeys();
+				const area = this._hoveredEditArea;
+
+				if ( area && area.paste ) area.paste();
 
 			},
 			onBoxSelect: () => {
 
-				if ( this._hoveredTimeline ) this._hoveredTimeline.boxSelect();
+				const area = this._hoveredEditArea;
+
+				if ( area && area.boxSelect ) area.boxSelect();
 
 			},
 			onSelectAll: ( select ) => {
 
-				if ( this._hoveredTimeline ) this._hoveredTimeline.selectAllKeys( select );
+				const area = this._hoveredEditArea;
+
+				if ( area && area.selectAll ) area.selectAll( select );
 
 			},
 			onFrameAll: () => {
 
-				if ( this._hoveredTimeline ) this._hoveredTimeline.frameAll();
+				const area = this._hoveredEditArea;
+
+				if ( area && area.frameAll ) area.frameAll();
 
 			},
 			onContextMenu: () => {
 
-				if ( this._hoveredTimeline ) this._hoveredTimeline.openMenu();
+				const area = this._hoveredEditArea;
+
+				if ( area && area.openMenu ) area.openMenu();
 
 			},
 			onDuplicateSelected: () => {
 
-				// タイムラインの上では、エンティティではなく選んだキーを複製する
-				if ( this._hoveredTimeline ) {
+				// 編集領域の上では、エンティティではなく領域で選んだものを複製する
+				const area = this._hoveredEditArea;
 
-					this._hoveredTimeline.duplicateKeys();
+				if ( area ) {
+
+					if ( area.duplicate ) area.duplicate();
 
 					return;
 
@@ -306,6 +325,9 @@ export class Editor extends MXP.Serializable {
 			onTransformKey: ( e ) => this._onModalKey( e ),
 			onInsertKey: ( remove ) => this._onKeyFrameShortcut( remove ),
 		} );
+
+		// ショートカットと同じくエディタ全体で受ける。Popover・InputWindow は .editor の外に並ぶので、ルート要素ではなく window に付ける
+		this._disposeBrowserContextMenu = preventBrowserContextMenu( window );
 
 		/*-------------------------------
 			Audio
@@ -1559,59 +1581,69 @@ export class Editor extends MXP.Serializable {
 
 	}
 
-	// モーダル操作のキー。タイムラインのモーダル → タイムラインの上での G / R / S → ビューポートのモーダル変形 の順に渡す。消費したら true
+	// モーダル操作のキー。編集領域のモーダル → 編集領域の上での G / R / S → ビューポートのモーダル変形 の順に渡す。消費したら true
 	private _onModalKey( e: KeyboardEvent ) {
 
-		if ( this._timelineModal && this._timelineModal.handleKeyDown( e ) ) return true;
+		if ( this._editModal && this._editModal.handleKeyDown( e ) ) return true;
 
-		if ( this._hoveredTimeline && ! this._modalTransformHandler.active ) {
+		const modalTransform = this._modalTransformHandler;
 
-			const mode = transformModeOfKey( e );
+		if ( modalTransform.active ) return modalTransform.handleKeyDown( e );
 
-			if ( mode ) {
+		const mode = transformModeOfKey( e );
 
-				this._hoveredTimeline.transformKeys( mode );
+		if ( ! mode ) return false;
 
-				return true;
+		const area = this._hoveredEditArea;
 
-			}
+		if ( area ) {
 
-		}
+			if ( area.transform ) area.transform( mode );
 
-		return this._modalTransformHandler.handleKeyDown( e );
-
-	}
-
-	// ポインタがタイムラインのキーの上に入ったとき、キーボードのキーの操作をそちらへ向ける
-	public enterTimeline( actions: TimelineKeyActions ) {
-
-		this._hoveredTimeline = actions;
-
-	}
-
-	// タイムラインから出たとき・消えたときに外す。別のタイムラインに入った後で前の leave が届いても消さないよう、同じものだけ外す
-	public leaveTimeline( actions: TimelineKeyActions ) {
-
-		if ( this._hoveredTimeline === actions ) {
-
-			this._hoveredTimeline = null;
+			return true;
 
 		}
 
+		// ビューポートの G / R / S は、ポインタがビューポートの上にあるときだけ始める。
+		// プロパティパネル等の上で押したキーで、選択中のエンティティが動かないようにする（Blender と同じくキーはポインタの下の領域が受ける）
+		const viewport = this._activeViewport;
+
+		if ( ! viewport || ! viewport.hovered ) return false;
+
+		return modalTransform.handleKeyDown( e );
+
 	}
 
-	// タイムラインのモーダル操作を始めたときに登録し、終えたときに外す（同じものだけ外す）
-	public beginTimelineModal( modal: TimelineModal ) {
+	// ポインタが編集領域（タイムラインのキー・フィールド UI の点エディタ等）に入ったとき、キーボードの操作をそちらへ向ける
+	public enterEditArea( actions: EditAreaActions ) {
 
-		this._timelineModal = modal;
+		this._hoveredEditArea = actions;
 
 	}
 
-	public endTimelineModal( modal: TimelineModal ) {
+	// 編集領域から出たとき・消えたときに外す。別の領域に入った後で前の leave が届いても消さないよう、同じものだけ外す
+	public leaveEditArea( actions: EditAreaActions ) {
 
-		if ( this._timelineModal === modal ) {
+		if ( this._hoveredEditArea === actions ) {
 
-			this._timelineModal = null;
+			this._hoveredEditArea = null;
+
+		}
+
+	}
+
+	// 編集領域のモーダル操作を始めたときに登録し、終えたときに外す（同じものだけ外す）
+	public beginEditModal( modal: EditModal ) {
+
+		this._editModal = modal;
+
+	}
+
+	public endEditModal( modal: EditModal ) {
+
+		if ( this._editModal === modal ) {
+
+			this._editModal = null;
 
 		}
 
@@ -1795,6 +1827,9 @@ export class Editor extends MXP.Serializable {
 		win.document.body.style.background = "#000";
 		win.document.body.appendChild( canvas );
 
+		// 別の document なので本体の抑止が届かない。ウィンドウごと閉じるので外さない
+		preventBrowserContextMenu( win );
+
 		// camera 未指定＝シーンカメラ、override 無し＝本番パイプライン
 		const view = this._engine.createView( { offscreen: true } );
 
@@ -1867,6 +1902,7 @@ export class Editor extends MXP.Serializable {
 		this._disposed = true;
 		this._api.dispose();
 		this._keyboardHandler.dispose();
+		this._disposeBrowserContextMenu();
 		this._modalTransformHandler.dispose();
 		this._assetPreviewManager.dispose();
 		this.closeExternalWindow();

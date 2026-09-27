@@ -153,19 +153,6 @@ export const singleKey = ( refs: string[] ) => {
 
 };
 
-// refs がすべて選ばれているか
-export const isAllSelected = ( selection: KeySelection, refs: string[] ) => {
-
-	for ( const ref of refs ) {
-
-		if ( ! selection.has( ref ) ) return false;
-
-	}
-
-	return refs.length > 0;
-
-};
-
 // 要素（とその祖先）に付いた data-refs から、印が表すキー・ハンドルを読む。印でなければ null
 export const readRefs = ( target: EventTarget | null ) => {
 

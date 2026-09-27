@@ -4,26 +4,32 @@ import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 import {
 	applyHandleOffsets,
+	boxSelection,
+	BoxSelectWait,
 	countCurveUses,
 	deleteKeys,
 	distributeKeys,
 	getLinks,
 	keyFrameTime,
 	pasteKeys,
+	PointTransformModal,
+	pressSelection,
 	readHandleOffsets,
 	setHandleType,
 	setInterpolation,
 	snapKeyFrameTime,
 	straightenKeys,
 	transformKeys,
+	type EditAreaActions,
 	type Editor,
 	type EditKey,
 	type KeyFrameHandleRef,
 	type KeyFrameHandleType,
 	type KeyTransform,
 	type ModalTransformMode,
-	type TimelineKeyActions,
-	type TimelineModal,
+	type PointScreenMapping,
+	type PointTransform,
+	type PointTransformAxes,
 } from 'orengine/editor';
 
 import { useEditorFrame } from '../../../../../hooks/useEditorFrame';
@@ -31,9 +37,7 @@ import { useOREditor } from '../../../../../hooks/useOREditor';
 import { useTimeline } from '../../../hooks/useTimeline';
 import { activeHandleSides, fitValueRange, graphScale, roundToPixel, type ValueRange } from '../lib/CurveGraph';
 import { buildChannels, ENTITY_CHANNEL_ID, getCurveKeys, type KeyChannel } from '../lib/KeyChannels';
-import { groupSelection, groupTransformSelection, handleRef, includesKey, isAllSelected, keyRef, parseRef, singleKey, type KeySelection } from '../lib/KeySelection';
-import { KeyTransformModal, type KeyPointTransform, type KeyScreenMapping } from '../lib/KeyTransformModal';
-import { suppressNextContextMenu } from '../lib/PointerDrag';
+import { groupSelection, groupTransformSelection, handleRef, includesKey, keyRef, parseRef, singleKey, type KeySelection } from '../lib/KeySelection';
 
 // キー表示（ドープシート）とカーブ表示（グラフエディタ）
 export type KeyEditorMode = "keys" | "curves";
@@ -71,15 +75,9 @@ type TransformTargets = {
 
 // 開始時のキーの領域での、キーの座標と画面座標の対応
 type ScreenState = {
-	mapping: KeyScreenMapping;
+	mapping: PointScreenMapping;
 	framePerPx: number;
 	valuePerPx: number;
-};
-
-// B の矩形選択の待機
-type BoxSelectWait = {
-	modal: TimelineModal;
-	dispose: () => void;
 };
 
 const EMPTY_SCENE: SceneState = { entity: null, curves: {}, channels: [] };
@@ -206,7 +204,7 @@ export const useKeyEditorContext = () => {
 	// W で開くメニュー。メニューの中身と Popover は KeyEditor が持つので、KeyEditor がここへ入れる
 	const openMenuRef = useRef<( () => void ) | null>( null );
 
-	const modalRef = useRef<KeyTransformModal | null>( null );
+	const modalRef = useRef<PointTransformModal | null>( null );
 	const boxSelectRef = useRef<BoxSelectWait | null>( null );
 	const [ boxSelecting, setBoxSelecting ] = useState( false );
 
@@ -411,66 +409,18 @@ export const useKeyEditorContext = () => {
 	// 押す前から選ばれていたかを返す（ドラッグせずに離したら、それだけを選び直すため）
 	const pressKeys = useCallback( ( refs: string[], shift: boolean ) => {
 
-		const current = selectionRef.current;
-		const wasSelected = isAllSelected( current, refs );
-		const key = singleKey( refs );
+		const result = pressSelection( selectionRef.current, activeRef.current, refs, singleKey( refs ), shift );
 
-		let nextActive = activeRef.current;
+		select( result.selection, result.active );
 
-		if ( key ) nextActive = key;
-
-		if ( shift && wasSelected && key && key != activeRef.current ) {
-
-			select( current, key );
-
-		} else if ( shift ) {
-
-			const next = new Set( current );
-
-			for ( const ref of refs ) {
-
-				if ( wasSelected ) {
-
-					next.delete( ref );
-
-				} else {
-
-					next.add( ref );
-
-				}
-
-			}
-
-			select( next, nextActive );
-
-		} else if ( ! wasSelected ) {
-
-			select( new Set( refs ), key );
-
-		} else {
-
-			select( current, nextActive );
-
-		}
-
-		return wasSelected;
+		return result.wasSelected;
 
 	}, [ select ] );
 
 	// refs を選ぶ。add なら今の選択に足す（矩形選択の Shift）
 	const selectRefs = useCallback( ( refs: string[], add: boolean ) => {
 
-		let next = new Set<string>();
-
-		if ( add ) next = new Set( selectionRef.current );
-
-		for ( const ref of refs ) {
-
-			next.add( ref );
-
-		}
-
-		select( next );
+		select( boxSelection( selectionRef.current, refs, add ) );
 
 	}, [ select ] );
 
@@ -509,51 +459,21 @@ export const useKeyEditorContext = () => {
 
 		if ( boxSelectRef.current || modalRef.current ) return;
 
-		const onDown = ( e: PointerEvent ) => {
+		const area = areaRef.current;
 
-			if ( e.button == 2 ) {
+		if ( ! area ) return;
 
-				e.preventDefault();
-				e.stopPropagation();
-				suppressNextContextMenu();
-				endBoxSelect();
+		boxSelectRef.current = new BoxSelectWait( {
+			editor,
+			area,
+			onEnd: () => {
 
-				return;
-
-			}
-
-			const area = areaRef.current;
-
-			if ( e.button == 0 && area && e.target instanceof Node && area.contains( e.target ) ) return;
-
-			endBoxSelect();
-
-		};
-
-		window.addEventListener( "pointerdown", onDown, { capture: true } );
-
-		const modal: TimelineModal = {
-			handleKeyDown: ( e ) => {
-
-				if ( e.key != "Escape" ) return false;
-
-				endBoxSelect();
-
-				return true;
+				boxSelectRef.current = null;
+				setBoxSelecting( false );
 
 			},
-		};
+		} );
 
-		boxSelectRef.current = {
-			modal,
-			dispose: () => {
-
-				window.removeEventListener( "pointerdown", onDown, { capture: true } );
-
-			},
-		};
-
-		editor.beginTimelineModal( modal );
 		setBoxSelecting( true );
 
 	};
@@ -561,14 +481,7 @@ export const useKeyEditorContext = () => {
 	// 矩形選択の待機を終える（左ドラッグを始めたとき・取り消したとき）
 	const endBoxSelect = () => {
 
-		const wait = boxSelectRef.current;
-
-		if ( ! wait ) return;
-
-		wait.dispose();
-		editor.endTimelineModal( wait.modal );
-		boxSelectRef.current = null;
-		setBoxSelecting( false );
+		if ( boxSelectRef.current ) boxSelectRef.current.end();
 
 	};
 
@@ -1040,7 +953,7 @@ export const useKeyEditorContext = () => {
 
 	// point で動かすときのカーブごとの動かし方。キー表示は時刻だけを動かし、ハンドルはキーと一緒にずらす。
 	// カーブ表示は、画面の 1px より細かい桁を丸める。出ていないカーブ（キー表示で選んだもの）は時刻だけを動かす
-	const transformOf = ( point: KeyPointTransform, transformMode: ModalTransformMode, screen: ScreenState ) => {
+	const transformOf = ( point: PointTransform, transformMode: ModalTransformMode, screen: ScreenState ) => {
 
 		const shown = new Set( graphCurveIds );
 
@@ -1125,19 +1038,26 @@ export const useKeyEditorContext = () => {
 
 		const finish = () => {
 
-			if ( modalRef.current ) editor.endTimelineModal( modalRef.current );
+			if ( modalRef.current ) editor.endEditModal( modalRef.current );
 
 			modalRef.current = null;
 
 		};
 
-		const modal = new KeyTransformModal( {
+		// キー表示は時間しか見せていないので、横（時間）にだけ動かす
+		let axes: PointTransformAxes = "xy";
+
+		if ( mode == "keys" ) axes = "x";
+
+		const modal = new PointTransformModal( {
 			mode: transformMode,
 			mapping: screen.mapping,
 			pointer: { ...pointerRef.current },
 			center,
 			individual: targets.individual,
-			timeOnly: mode == "keys",
+			axes,
+			axisLabels: { x: "time", y: "value" },
+			digits: { x: 1, y: 3 },
 			onChange: ( point ) => session.apply( transformOf( point, transformMode, screen ) ),
 			onStatus: ( status ) => editor.setModalStatus( status ),
 			onConfirm: () => {
@@ -1155,7 +1075,7 @@ export const useKeyEditorContext = () => {
 		} );
 
 		modalRef.current = modal;
-		editor.beginTimelineModal( modal );
+		editor.beginEditModal( modal );
 
 	};
 
@@ -1165,16 +1085,7 @@ export const useKeyEditorContext = () => {
 		return () => {
 
 			if ( modalRef.current ) modalRef.current.cancel();
-
-			const wait = boxSelectRef.current;
-
-			if ( wait ) {
-
-				wait.dispose();
-				editor.endTimelineModal( wait.modal );
-				boxSelectRef.current = null;
-
-			}
+			if ( boxSelectRef.current ) boxSelectRef.current.end();
 
 		};
 
@@ -1189,14 +1100,14 @@ export const useKeyEditorContext = () => {
 	const latestRef = useRef( { deleteSelectedKeys, copySelectedKeys, pasteCopiedKeys, startTransform, beginBoxSelect, selectAllKeys, frameAll } );
 	latestRef.current = { deleteSelectedKeys, copySelectedKeys, pasteCopiedKeys, startTransform, beginBoxSelect, selectAllKeys, frameAll };
 
-	const timelineActions = useMemo<TimelineKeyActions>( () => ( {
-		deleteKeys: () => latestRef.current.deleteSelectedKeys(),
-		copyKeys: () => latestRef.current.copySelectedKeys(),
-		pasteKeys: () => latestRef.current.pasteCopiedKeys(),
-		transformKeys: ( transformMode ) => latestRef.current.startTransform( transformMode, false ),
-		duplicateKeys: () => latestRef.current.startTransform( "translate", true ),
+	const editAreaActions = useMemo<EditAreaActions>( () => ( {
+		deleteSelected: () => latestRef.current.deleteSelectedKeys(),
+		copy: () => latestRef.current.copySelectedKeys(),
+		paste: () => latestRef.current.pasteCopiedKeys(),
+		transform: ( transformMode ) => latestRef.current.startTransform( transformMode, false ),
+		duplicate: () => latestRef.current.startTransform( "translate", true ),
 		boxSelect: () => latestRef.current.beginBoxSelect(),
-		selectAllKeys: ( all ) => latestRef.current.selectAllKeys( all ),
+		selectAll: ( all ) => latestRef.current.selectAllKeys( all ),
 		frameAll: () => latestRef.current.frameAll(),
 		openMenu: () => {
 
@@ -1241,7 +1152,7 @@ export const useKeyEditorContext = () => {
 		straightenSelectedKeys,
 		applyActiveHandles,
 		beginDrag,
-		timelineActions,
+		editAreaActions,
 	};
 
 };

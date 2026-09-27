@@ -1,33 +1,40 @@
 import * as MTP from 'mathpower';
-import { type ModalTransformMode, type TimelineModal } from 'orengine/editor';
 
 import { suppressNextContextMenu } from '../PointerDrag';
 
-// キーの座標（時刻, 値）と画面座標（px）の対応。回転・伸縮は画面の px の上で計算する
-// （時間と値は単位も縮尺も違うので、値のまま回すと見た目の角度と合わない）
-export type KeyScreenMapping = {
+import type { EditModal } from '../Editor';
+import type { ModalTransformMode } from '../ModalTransformHandler';
+
+// 点の座標（カーブならキーの時刻, 値）と画面座標（px）の対応。回転・伸縮は画面の px の上で計算する
+// （時間と値のように縦横で単位も縮尺も違う座標は、値のまま回すと見た目の角度と合わない）
+export type PointScreenMapping = {
 	toScreen: ( point: MTP.IVector2 ) => MTP.IVector2;
 	toPoint: ( screen: MTP.IVector2 ) => MTP.IVector2;
 };
 
-// 点（キー・ハンドル）の行き先。key は点の属するキーの座標（動かす前）
-export type KeyPointTransform = ( point: MTP.IVector2, key: MTP.IVector2 ) => MTP.IVector2;
+// 点（キー・ハンドル、パスの頂点・ハンドル）の行き先。owner は点の属する点（キー・頂点）の座標（動かす前）
+export type PointTransform = ( point: MTP.IVector2, owner: MTP.IVector2 ) => MTP.IVector2;
 
-type KeyModalAxis = "x" | "y";
+type PointAxis = "x" | "y";
 
-type KeyTransformModalParams = {
+// 動かせる軸。"x" は横にだけ動かし、X / Y の拘束は受けない（カーブエディタのキー表示）
+export type PointTransformAxes = "xy" | "x";
+
+type PointTransformModalParams = {
 	mode: ModalTransformMode;
-	// 開始時の対応を使い続ける（途中で表示の範囲が変わっても、掴んだキーがポインタから逃げないように）
-	mapping: KeyScreenMapping;
+	// 開始時の対応を使い続ける（途中で表示の範囲が変わっても、掴んだ点がポインタから逃げないように）
+	mapping: PointScreenMapping;
 	// 開始時のポインタ（画面座標）
 	pointer: MTP.IVector2;
-	// 回転・伸縮の中心（時刻, 値）。ポインタの角度・距離もここから測る
+	// 回転・伸縮の中心（点の座標）。ポインタの角度・距離もここから測る
 	center: MTP.IVector2;
-	// true なら、点ごとに属するキーを中心に回す・伸縮する（ハンドルだけを選んでいるとき）
+	// true なら、点ごとに属する点を中心に回す・伸縮する（ハンドルだけを選んでいるとき）
 	individual: boolean;
-	// キー表示。時間方向にだけ動かし、X / Y の拘束は受けない
-	timeOnly: boolean;
-	onChange: ( transform: KeyPointTransform ) => void;
+	axes: PointTransformAxes;
+	// 状態の表示に出す軸の名前（拘束中の軸）と、移動量の小数の桁数
+	axisLabels: { x: string, y: string };
+	digits: { x: number, y: number };
+	onChange: ( transform: PointTransform ) => void;
 	onStatus: ( status: string | null ) => void;
 	onConfirm: () => void;
 	onCancel: () => void;
@@ -39,17 +46,18 @@ const MIN_CENTER_DISTANCE = 1.0;
 // ポインタでの伸縮の倍率の下限。ModalTransformHandler の MIN_SCALE_RATIO と同じ（数値入力にはかけない）
 const MIN_SCALE_RATIO = 0.001;
 
-// タイムラインのキーの G / R / S。ビューポートの ModalTransformHandler と同じ操作感で、ポインタに追従し、
-// 左クリック / Enter で確定、右クリック / Esc で取り消す。X / Y で時間 / 値に拘束し、数値入力を受ける
-export class KeyTransformModal implements TimelineModal {
+// 2D の点（カーブエディタのキー、フィールド UI の点など）の G / R / S。ビューポートの ModalTransformHandler と同じ操作感で、
+// ポインタに追従し、左クリック / Enter で確定、右クリック / Esc で取り消す。X / Y で軸に拘束し、数値入力を受ける。
+// 作った側が Editor.beginEditModal で登録すると、ポインタの位置によらずキーボードを先に受ける
+export class PointTransformModal implements EditModal {
 
-	private _params: KeyTransformModalParams;
+	private _params: PointTransformModalParams;
 	private _pointer: MTP.IVector2;
-	private _constraint: KeyModalAxis | null;
+	private _constraint: PointAxis | null;
 	private _numberBuffer: string;
 	private _disposeListeners: () => void;
 
-	constructor( params: KeyTransformModalParams ) {
+	constructor( params: PointTransformModalParams ) {
 
 		this._params = params;
 		this._pointer = { ...params.pointer };
@@ -85,7 +93,7 @@ export class KeyTransformModal implements TimelineModal {
 
 		};
 
-		// capture フェーズで奪って、タイムラインの時刻合わせ・キーの選択へ届かせない
+		// capture フェーズで奪って、点を出している領域のクリック（タイムラインの時刻合わせ・点の選択等）へ届かせない
 		window.addEventListener( "pointermove", onMove, { capture: true } );
 		window.addEventListener( "pointerdown", onDown, { capture: true } );
 
@@ -131,10 +139,10 @@ export class KeyTransformModal implements TimelineModal {
 
 	}
 
-	// 同じ軸のキーをもう一度押すと解除する。キー表示（時間しかない）と回転では拘束しない
-	private _toggleConstraint( axis: KeyModalAxis ) {
+	// 同じ軸のキーをもう一度押すと解除する。横にしか動かせないときと回転では拘束しない
+	private _toggleConstraint( axis: PointAxis ) {
 
-		if ( this._params.timeOnly || this._params.mode === "rotate" ) return;
+		if ( this._params.axes === "x" || this._params.mode === "rotate" ) return;
 
 		if ( this._constraint === axis ) {
 
@@ -238,7 +246,7 @@ export class KeyTransformModal implements TimelineModal {
 
 		if ( numeric !== null ) {
 
-			// 数値は拘束の軸（拘束が無ければ時間）の量として扱う（Blender の第1成分と同じ）
+			// 数値は拘束の軸（拘束が無ければ x）の量として扱う（Blender の第1成分と同じ）
 			if ( this._constraint === "y" ) {
 
 				offset = { x: 0, y: numeric };
@@ -254,7 +262,7 @@ export class KeyTransformModal implements TimelineModal {
 			let dx = this._pointer.x - params.pointer.x;
 			let dy = this._pointer.y - params.pointer.y;
 
-			if ( this._constraint === "x" || params.timeOnly ) dy = 0;
+			if ( this._constraint === "x" || params.axes === "x" ) dy = 0;
 			if ( this._constraint === "y" ) dx = 0;
 
 			const from = params.mapping.toPoint( params.pointer );
@@ -266,9 +274,9 @@ export class KeyTransformModal implements TimelineModal {
 
 		params.onChange( ( point ) => ( { x: point.x + offset.x, y: point.y + offset.y } ) );
 
-		let amount = offset.x.toFixed( 1 );
+		let amount = offset.x.toFixed( params.digits.x );
 
-		if ( ! params.timeOnly ) amount += ", " + offset.y.toFixed( 3 );
+		if ( params.axes === "xy" ) amount += ", " + offset.y.toFixed( params.digits.y );
 
 		this._params.onStatus( this._statusText( amount ) );
 
@@ -305,11 +313,11 @@ export class KeyTransformModal implements TimelineModal {
 
 		}
 
-		params.onChange( ( point, key ) => {
+		params.onChange( ( point, owner ) => {
 
 			let pivotPoint = params.center;
 
-			if ( params.individual ) pivotPoint = key;
+			if ( params.individual ) pivotPoint = owner;
 
 			const pivot = params.mapping.toScreen( pivotPoint );
 			const screen = params.mapping.toScreen( point );
@@ -343,8 +351,8 @@ export class KeyTransformModal implements TimelineModal {
 			let startDistance = Math.hypot( params.pointer.x - center.x, params.pointer.y - center.y );
 			let distance = Math.hypot( this._pointer.x - center.x, this._pointer.y - center.y );
 
-			// キー表示は時間しかないので、横の距離で測る
-			if ( params.timeOnly ) {
+			// 横にしか動かせないときは、横の距離で測る
+			if ( params.axes === "x" ) {
 
 				startDistance = Math.abs( params.pointer.x - center.x );
 				distance = Math.abs( this._pointer.x - center.x );
@@ -358,14 +366,14 @@ export class KeyTransformModal implements TimelineModal {
 		let ratioX = ratio;
 		let ratioY = ratio;
 
-		if ( this._constraint === "x" || params.timeOnly ) ratioY = 1;
+		if ( this._constraint === "x" || params.axes === "x" ) ratioY = 1;
 		if ( this._constraint === "y" ) ratioX = 1;
 
-		params.onChange( ( point, key ) => {
+		params.onChange( ( point, owner ) => {
 
 			let pivotPoint = params.center;
 
-			if ( params.individual ) pivotPoint = key;
+			if ( params.individual ) pivotPoint = owner;
 
 			const pivot = params.mapping.toScreen( pivotPoint );
 			const screen = params.mapping.toScreen( point );
@@ -420,8 +428,10 @@ export class KeyTransformModal implements TimelineModal {
 
 	private _constraintText() {
 
-		if ( this._params.timeOnly || this._constraint === "x" ) return "time";
-		if ( this._constraint === "y" ) return "value";
+		const labels = this._params.axisLabels;
+
+		if ( this._params.axes === "x" || this._constraint === "x" ) return labels.x;
+		if ( this._constraint === "y" ) return labels.y;
 		if ( this._params.mode === "rotate" ) return "view";
 		if ( this._params.mode === "scale" ) return "uniform";
 
@@ -450,7 +460,7 @@ export class KeyTransformModal implements TimelineModal {
 
 	}
 
-	// 外から終える（キーの領域が消えたとき）。取り消しとして扱う
+	// 外から終える（点を出している領域が消えたとき）。取り消しとして扱う
 	public cancel() {
 
 		this._end( false );
