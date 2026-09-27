@@ -220,6 +220,11 @@ export class GLBackend {
 			0, 0, width, height,
 			gl.COLOR_BUFFER_BIT, linear ? gl.LINEAR : gl.NEAREST );
 
+		// 読み出し元を READ_FRAMEBUFFER に残したまま、その FBO とテクスチャを消すと
+		// ANGLE（Metal）で以後 canvas への描画が黙って効かなくなる（ビューポートの作り直しで起きる）
+		gl.bindFramebuffer( gl.READ_FRAMEBUFFER, null );
+		gl.bindFramebuffer( gl.DRAW_FRAMEBUFFER, null );
+
 	}
 
 	/*-------------------------------
