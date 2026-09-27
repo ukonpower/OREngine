@@ -14,6 +14,23 @@ import type { EditorAPI } from '../EditorAPI';
 
 type ClickCandidate = { entity: MXP.Entity, distance: number, type: 'helper' | 'mesh' };
 
+// 押したボタンの種類。選択はマウスの右とタッチ、ギズモ・オービットはマウスの左とタッチで受ける（Blender の Select with: Right 相当）
+type PointerButton = 'mouseLeft' | 'mouseRight' | 'touch';
+
+// 押したボタンを種類に振り分ける。マウスの中ボタン等、受けないボタンは null
+const getPointerButton = ( e: PointerEvent ): PointerButton | null => {
+
+	// ペンはタッチと同じく、押し当ててすぐ離したら選択する
+	if ( e.pointerType !== 'mouse' ) return 'touch';
+
+	if ( e.button === 0 ) return 'mouseLeft';
+
+	if ( e.button === 2 ) return 'mouseRight';
+
+	return null;
+
+};
+
 // ヒットエリアを外したクリックでもヘルパーを拾う画面上の許容半径（px）
 const HELPER_ASSIST_RADIUS_PX = 12;
 
@@ -43,6 +60,7 @@ export class PointerHandler {
 
 	private _raycaster: MXP.Raycaster;
 	private _pointerDownPos: MTP.Vector | null;
+	private _pointerDownButton: PointerButton | null;
 	private _gizmoDragging: boolean;
 	private _gizmoDragStartValue: { position: number[], euler: number[], scale: number[] } | null;
 	private _hoveredTarget: 'gizmo' | 'helper' | 'mesh' | null;
@@ -71,6 +89,7 @@ export class PointerHandler {
 
 		this._raycaster = new MXP.Raycaster();
 		this._pointerDownPos = null;
+		this._pointerDownButton = null;
 		this._gizmoDragging = false;
 		this._gizmoDragStartValue = null;
 		this._hoveredTarget = null;
@@ -390,14 +409,16 @@ export class PointerHandler {
 
 			if ( isModalActive() ) return;
 
-			// 右クリック・中クリックでギズモドラッグや選択が走らないようにする
-			if ( e.pointerType === 'mouse' && e.button !== 0 ) return;
+			const button = getPointerButton( e );
+
+			if ( ! button ) return;
 
 			// プレビュー中はギズモを掴ませず、クリック選択とドラッグ離脱の判定に押下位置だけ追う
 			if ( editorCamera.preview ) {
 
 				( e.target as HTMLElement ).setPointerCapture( e.pointerId );
 				this._pointerDownPos = new MTP.Vector( e.clientX, e.clientY );
+				this._pointerDownButton = button;
 				return;
 
 			}
@@ -406,6 +427,10 @@ export class PointerHandler {
 
 			( e.target as HTMLElement ).setPointerCapture( e.pointerId );
 			this._pointerDownPos = new MTP.Vector( e.clientX, e.clientY );
+			this._pointerDownButton = button;
+
+			// 右ボタンは選択専用なのでギズモを掴まない
+			if ( button === 'mouseRight' ) return;
 
 			if ( gizmoManager.activeGizmo && gizmoManager.activeGizmo.entity.visible && isGizmoVisible() ) {
 
@@ -453,8 +478,11 @@ export class PointerHandler {
 
 			if ( isModalActive() ) return;
 
-			// シーンカメラ視点・プレビューのドラッグはエディタカメラへ抜けて、その視点から操作を続ける（Blenderのカメラビュー相当）
-			if ( ( editorCamera.preview || editorCamera.view === "camera" ) && this._pointerDownPos && ! this._gizmoDragging ) {
+			// シーンカメラ視点・プレビューのドラッグはエディタカメラへ抜けて、その視点から操作を続ける（Blenderのカメラビュー相当）。
+			// 抜けるのは続けてオービットさせるためなので、オービットしない右ドラッグでは抜けない
+			const isOrbitDrag = this._pointerDownButton !== 'mouseRight';
+
+			if ( ( editorCamera.preview || editorCamera.view === "camera" ) && this._pointerDownPos && isOrbitDrag && ! this._gizmoDragging ) {
 
 				const dragX = e.clientX - this._pointerDownPos.x;
 				const dragY = e.clientY - this._pointerDownPos.y;
@@ -614,6 +642,7 @@ export class PointerHandler {
 
 				this._gizmoDragStartValue = null;
 				this._pointerDownPos = null;
+				this._pointerDownButton = null;
 
 				return;
 
@@ -624,9 +653,14 @@ export class PointerHandler {
 			const dx = e.clientX - this._pointerDownPos.x;
 			const dy = e.clientY - this._pointerDownPos.y;
 			const dist = Math.sqrt( dx * dx + dy * dy );
+			const button = this._pointerDownButton;
 			this._pointerDownPos = null;
+			this._pointerDownButton = null;
 
 			if ( dist > 5 ) return;
+
+			// 左ボタンはオービットとギズモに使い、クリックしても選択しない
+			if ( button === 'mouseLeft' ) return;
 
 			const ndc = clientToNDC( canvasElm, e.clientX, e.clientY );
 
@@ -671,7 +705,7 @@ export class PointerHandler {
 
 		};
 
-		// 右クリックはビューポート操作に使うのでブラウザのメニューを出さない
+		// 右クリックは選択に使うのでブラウザのメニューを出さない
 		const onContextMenu = ( e: MouseEvent ) => {
 
 			e.preventDefault();
