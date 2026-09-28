@@ -139,6 +139,7 @@ export class Editor extends MXP.Serializable {
 	private _externalWindow: ExternalWindow | null;
 	private _modalStatus: string | null;
 	private _panelLayout: MXP.SerializeFieldValue;
+	private _panelLayoutSP: MXP.SerializeFieldValue;
 	// I / Alt+I の対象。プロパティパネルの行がポインタの出入りで設定する
 	private _hoveredKeyField: KeyFrameFieldRef | null;
 	// ポインタが乗っているタイムラインのキーの操作。タイムラインがポインタの出入りで設定する
@@ -148,6 +149,8 @@ export class Editor extends MXP.Serializable {
 	private _copiedCurveId: string | null;
 
 	private _disposed: boolean;
+	// editor.json を流し込んでいる間だけ true。読み込みで起きる field の更新を、ユーザーの操作と区別するため
+	private _bootstrapping: boolean;
 	private _api: EditorAPI;
 	private _draw: MXP.EditorDrawContract;
 
@@ -188,11 +191,13 @@ export class Editor extends MXP.Serializable {
 		this._externalWindow = null;
 		this._modalStatus = null;
 		this._panelLayout = null;
+		this._panelLayoutSP = null;
 		this._hoveredKeyField = null;
 		this._hoveredEditArea = null;
 		this._editModal = null;
 		this._copiedCurveId = null;
 		this._disposed = false;
+		this._bootstrapping = false;
 		this._api = new EditorAPI( this );
 		this._draw = createEditorDraw( engine );
 		this._viewports = [];
@@ -542,9 +547,11 @@ export class Editor extends MXP.Serializable {
 		// モーダル変形中だけ出るヘッダテキスト。セッション限りの状態なので editor.json には残さない
 		this.field( "modalStatus", () => this._modalStatus, { noExport: true } );
 
-		// PC パネルレイアウトのツリー。型・検証・操作は React 層（features/PanelLayout）が持ち、ここは素通しの箱。
+		// パネルレイアウトのツリー（PC 用 / SP 用）。型・検証・操作は React 層（features/PanelLayout）が持ち、ここは素通しの箱。
+		// 画面幅で配置の前提が違うので木を分けて持ち、片方をいじってももう片方は崩れない。
 		// null はデフォルトレイアウトを意味する
 		this.field( "panelLayout", () => this._panelLayout, v => this._panelLayout = v, { hidden: true } );
+		this.field( "panelLayoutSP", () => this._panelLayoutSP, v => this._panelLayoutSP = v, { hidden: true } );
 
 		/*-------------------------------
 			Animate
@@ -558,11 +565,27 @@ export class Editor extends MXP.Serializable {
 		Bootstrap
 	-------------------------------*/
 
+	public get bootstrapping() {
+
+		return this._bootstrapping;
+
+	}
+
 	public bootstrap( editorData?: MXP.SerializeField ) {
 
 		if ( editorData ) {
 
-			this.deserialize( editorData );
+			this._bootstrapping = true;
+
+			try {
+
+				this.deserialize( editorData );
+
+			} finally {
+
+				this._bootstrapping = false;
+
+			}
 
 		}
 

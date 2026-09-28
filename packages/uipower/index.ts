@@ -19,6 +19,7 @@ export * from './Panel';
 export * from './PanelContainer';
 export * from './Popover';
 export * from './Popover/providers/PopoverProvider';
+export * from './SegmentedControl';
 export * from './Vector';
 
 /*-------------------------------

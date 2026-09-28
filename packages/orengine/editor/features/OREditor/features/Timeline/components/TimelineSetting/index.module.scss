@@ -1,9 +1,11 @@
-// 狭いパネルでは折り返して2行にする（横スクロールにすると入力のドラッグと取り合うため）
+// 折り返すとタイムラインの縦幅を食うので1行に保つ。横スクロールにすると入力のドラッグと取り合うため、
+// 狭いパネルでは入力の幅を縮めて収める（スマホの幅 約 390px で全部が入る間隔・幅にしている）
 .timelineSetting {
 	display: flex;
-	flex-wrap: wrap;
+	flex-wrap: nowrap;
 	align-items: center;
-	gap: var(--or-space) calc(var(--or-space) * 3);
+	gap: calc(var(--or-space) * 2);
+	overflow: hidden;
 	padding: var(--or-space);
 	font-size: var(--or-font-sm);
 	background-color: var(--or-bg-panel);
@@ -14,14 +16,17 @@
 	display: flex;
 	align-items: center;
 	gap: var(--or-space);
+	min-width: 0;
 }
 
 .name {
 	color: var(--or-text-dim);
 	font-size: var(--or-font-xs);
+	white-space: nowrap;
 }
 
-// 数値の入力は4〜5桁が収まる幅
+// 数値の入力は4桁が収まる幅。それでも入らないパネルでは3桁ぶん（左右の padding 込み）まで縮む
 .input {
-	width: calc(var(--or-space) * 10);
+	flex: 0 1 calc(var(--or-space) * 8);
+	min-width: calc(var(--or-space) * 7);
 }

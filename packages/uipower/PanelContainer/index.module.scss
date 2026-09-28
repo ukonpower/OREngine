@@ -26,6 +26,8 @@
 		justify-content: center;
 		padding: var(--or-tab-padding);
 		user-select: none;
+		// タブの長押しはタブメニューに使うので、iOS の長押しの吹き出し（リンク・画像のメニュー）を出さない
+		-webkit-touch-callout: none;
 		flex-shrink: 0;
 
 		&[data-active='true'] {

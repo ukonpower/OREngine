@@ -1,18 +1,30 @@
-import { ArrowIcon } from 'uipower';
+import { ArrowIcon, SegmentedControl } from 'uipower';
 
 import { useKeyEditor } from '../../hooks/useKeyEditor';
 import { curveColor } from '../../lib/CurveGraph';
 
 import style from './index.module.scss';
 
+import type { KeyEditorMode } from '../../hooks/useKeyEditorContext';
+import type { SegmentedControlOption } from 'uipower';
+
+
+// 上の帯で選ぶ、右の領域の表示（キー表示 / カーブ表示）
+const modeOptions: SegmentedControlOption<KeyEditorMode>[] = [
+	{ value: "keys", label: "Keys", title: "Dope Sheet" },
+	{ value: "curves", label: "Curves", title: "Graph Editor" },
+];
+
 // タイムラインの左のチャンネル一覧。
 // 行の高さと縦のスクロールは右のキーの表示とそろえる（スクロール量は context で共有する）
 export const KeyChannelList = () => {
 
-	const { entity, visibleChannels, mode, collapsed, toggleCollapsed, activeChannelId, setActiveChannelId, channelListRef, setScrollTop } = useKeyEditor();
+	const { entity, visibleChannels, mode, setMode, collapsed, toggleCollapsed, activeChannelId, setActiveChannelId, channelListRef, setScrollTop } = useKeyEditor();
 
 	return <div className={style.channelList}>
-		<div className={style.header} />
+		<div className={style.header}>
+			<SegmentedControl options={modeOptions} value={mode} onChange={setMode} />
+		</div>
 		<div className={style.list} ref={channelListRef} onScroll={( e ) => setScrollTop( e.currentTarget.scrollTop )}>
 			{! entity && <div className={style.empty}>No entity selected</div>}
 			{visibleChannels.map( ( channel ) => {
