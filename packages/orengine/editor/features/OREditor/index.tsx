@@ -1,8 +1,7 @@
 import React, { useMemo } from 'react';
-import { ErrorBoundary } from 'react-error-boundary';
 
 import * as MXP from 'maxpower';
-import { InputWindow, InputWindowProvider, LayoutSplit, Panel, PanelContainer, Popover, PopoverProvider } from 'uipower';
+import { InputWindow, InputWindowProvider, Panel, Popover, PopoverProvider } from 'uipower';
 
 import { useLayout } from '../../hooks/useLayout';
 
@@ -22,14 +21,14 @@ import { Timeline } from './features/Timeline';
 import style from './index.module.scss';
 import { OREditorProvider, OREditorSaveCallback, SceneSelection } from './providers/OREditorProvider';
 
-import type { PanelDefinition, PanelId } from './features/PanelLayout';
+import type { PanelDefinition, PanelId, PanelLayoutMode } from './features/PanelLayout';
 import type { FieldUIDefinition } from './lib/fieldUI';
 
 export type { SceneSelection } from './providers/OREditorProvider';
 export type { PanelDefinition, PanelId } from './features/PanelLayout';
 export type { FieldUIDefinition } from './lib/fieldUI';
 
-// レイアウトツリー上の配置は PanelLayout 側の defaultLayout がこの id を参照して決める。
+// レイアウトツリー上の配置は PanelLayout 側の defaultLayout / defaultLayoutSP がこの id を参照して決める。
 // レンダーごとに identity が変わると PanelLayout の派生計算が空回りするのでモジュールスコープに置く
 const builtinPanels: PanelDefinition[] = [
 	{ id: "hierarchy", title: "Hierarchy", category: "General", content: <Panel><Hierarchy /></Panel> },
@@ -44,28 +43,9 @@ const builtinPanels: PanelDefinition[] = [
 	{ id: "timeline", title: "Timeline", category: "Animation", content: <Panel noPadding><Timeline /></Panel> },
 ];
 
-// エンティティを選択したとき前面に出すパネル（選択の結果を見る場所）
+// エンティティを選択したとき前面に出すパネル（選択の結果を見る場所）。選ぶ操作をした pane は切り替えない。
+// SP のように1つの pane に両方あるときは後ろの Property が前に出る
 const activateOnSelect: PanelId[] = [ "hierarchy", "property" ];
-
-// SP のタブ一覧に並べるパネル。Screen（上段）と Timeline（下段）は専用領域を持ち、
-// Hierarchy と Property は横並びの複合タブにまとめるので、ここからは外す。
-// multiple なパネルはタブを増やす操作が SP に無いので置けない
-const spPanelTabs = ( panels: PanelDefinition[] ) => {
-
-	const tabs: { id: PanelId, title: string, content: React.ReactNode }[] = [];
-
-	for ( const def of panels ) {
-
-		if ( def.multiple ) continue;
-		if ( def.id === "hierarchy" || def.id === "property" || def.id === "timeline" ) continue;
-
-		tabs.push( { id: def.id, title: def.title, content: def.content } );
-
-	}
-
-	return tabs;
-
-};
 
 export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP.SerializeField, projectName?: string, panels?: PanelDefinition[], scenes?: SceneSelection, fieldUIs?: FieldUIDefinition[] }> = ( props ) => {
 
@@ -81,58 +61,11 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 
 	}, [ props.panels ] );
 
-	let editorElm = null;
+	let layoutMode: PanelLayoutMode = "pc";
 
-	if ( layout.isPC ) {
+	if ( layout.isSP ) {
 
-		editorElm = <PanelLayout panels={panels} activateOnSelect={activateOnSelect} />;
-
-	} else {
-
-		editorElm = (
-			<>
-				<LayoutSplit direction="vertical" storageKey="orengine-editor-sp-main">
-					{/*
-						56.25vw = 16:9（editor/lib の _baseResolution 1920x1080）。canvas は object-fit: contain なので、
-						この高さを下回ると左右に黒帯が出て縮む。77px はヘッダー36px + CameraPad 40px + border 1px。
-						min(55vh) は横長ウィンドウでプレビューが下のパネルを潰さないための上限
-					*/}
-					<LayoutSplit.Item size="calc( min( 56.25vw, 55vh ) + 77px )" minSize={200} style={{ minHeight: '200px' }}>
-						<Screen viewportId="main" />
-					</LayoutSplit.Item>
-					<LayoutSplit.Item flex={1} minSize={200}>
-						<PanelContainer storageKey="orengine-panel-sp-main">
-							<PanelContainer.Tab title='Hierarchy / Property'>
-								<LayoutSplit direction="horizontal" storageKey="orengine-editor-sp-hierarchyProp">
-									<LayoutSplit.Item flex={1} minSize={120} overflow padding>
-										<Hierarchy />
-									</LayoutSplit.Item>
-									<LayoutSplit.Item flex={1} minSize={120} overflow padding>
-										<EntityProperty />
-									</LayoutSplit.Item>
-								</LayoutSplit>
-							</PanelContainer.Tab>
-							{spPanelTabs( panels ).map( ( tab ) => (
-								<PanelContainer.Tab key={tab.id} title={tab.title}>
-									{tab.content}
-								</PanelContainer.Tab>
-							) )}
-						</PanelContainer>
-					</LayoutSplit.Item>
-					<LayoutSplit.Item size="120px" minSize={80}>
-						<PanelContainer storageKey="orengine-panel-sp-timeline">
-							<PanelContainer.Tab title='Timeline'>
-								<Panel noPadding>
-									<ErrorBoundary fallback={<div>エラーだよ</div>}>
-										<Timeline />
-									</ErrorBoundary>
-								</Panel>
-							</PanelContainer.Tab>
-						</PanelContainer>
-					</LayoutSplit.Item>
-				</LayoutSplit>
-			</>
-		);
+		layoutMode = "sp";
 
 	}
 
@@ -140,7 +73,7 @@ export const OREditor: React.FC<{onSave?: OREditorSaveCallback, editorData?: MXP
 		<PopoverProvider>
 			<InputWindowProvider>
 				<div className={style.editor}>
-					{editorElm}
+					<PanelLayout mode={layoutMode} panels={panels} activateOnSelect={activateOnSelect} />
 				</div>
 				<EntityAdd />
 				<KeyFrame />

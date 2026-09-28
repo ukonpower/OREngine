@@ -1,0 +1,31 @@
+// 幅・高さは親いっぱいに伸びる（大きさは置く場所が決める。Button と同じ）
+.segmentedControl {
+	display: flex;
+	width: 100%;
+	height: 100%;
+	padding: 2px;
+	gap: 2px;
+	background-color: var(--or-bg-panel);
+	border-radius: var(--or-radius);
+}
+
+.item {
+	flex: 1;
+	min-width: 0;
+	border-radius: var(--or-radius);
+	font-size: var(--or-font-xs);
+	color: var(--or-text-dim);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+
+	&:hover {
+		background-color: var(--or-bg-hover);
+	}
+
+	// Button の active と同じ色で「選ばれている」を示す
+	&[data-active="true"] {
+		background-color: var(--or-bg-surface);
+		color: var(--or-text);
+	}
+}

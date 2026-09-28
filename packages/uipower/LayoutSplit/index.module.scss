@@ -28,6 +28,31 @@
 	background: var(--or-bg-base);
 	user-select: none;
 	transition: background-color 0.1s ease;
+	// 掴んだ指の動きをページのスクロールに取られないようにする
+	touch-action: none;
+	position: relative;
+	// 当たり判定を広げた ::before が隣の item の上に来るようにする
+	z-index: 1;
+
+	// 見た目の太さ（4px）のままでは指で掴めないので、タッチ主体の端末では当たり判定だけを両側に広げる。
+	// 12px は見た目と合わせて約 28px になる幅
+	@media (pointer: coarse) {
+		&::before {
+			content: "";
+			position: absolute;
+			inset: 0;
+		}
+
+		&.horizontal::before {
+			left: -12px;
+			right: -12px;
+		}
+
+		&.vertical::before {
+			top: -12px;
+			bottom: -12px;
+		}
+	}
 
 	&:hover {
 		background-color: var(--or-bg-hover);

@@ -76,6 +76,21 @@ export function defaultLayout(): LayoutNode {
 
 }
 
+// SP（縦長の狭い画面）のデフォルトのレイアウト木を作る。上から Screen / それ以外のタブ / Timeline。
+// 幅が狭く横に並べると窮屈なので中段は1つの pane にまとめ、どのタブも幅いっぱいを使う。
+// スマホで使わない Timer・Editor は置かない（タブの「+」から足せる）。
+// Hierarchy と Property が同じ pane にあるので、選択すると activateOnSelect の後ろ側の Property が前に出る。
+// 比率は iPhone の Safari（表示領域の高さ約 660px）で Timeline にヘッダーと数トラックぶん、中段に Hierarchy 10行弱が入る配分
+export function defaultLayoutSP(): LayoutNode {
+
+	return split( "vertical", [
+		{ ratio: 0.4, node: pane( [ "viewport:main" ] ) },
+		{ ratio: 0.35, node: pane( [ "hierarchy", "property", "scene", "textures", "renderer", "export" ] ) },
+		{ ratio: 0.25, node: pane( [ "timeline" ] ) },
+	] );
+
+}
+
 // 木の pane を出現順に列挙する
 export function collectPanes( root: LayoutNode ): PaneNode[] {
 
@@ -260,13 +275,16 @@ export function selectTab( root: LayoutNode, paneId: string, panelId: PanelId ):
 
 }
 
-// 指定のパネルを含む pane すべてで、そのパネルをアクティブにする。どの pane にも無いパネルは無視し、
+// 指定のパネルを含む pane すべてで、そのパネルをアクティブにする。keepPaneId の pane は触らない。
+// 1つの pane に複数含まれるときは panelIds の後ろのものが勝つ。どの pane にも無いパネルは無視し、
 // 何も変わらなければ root をそのまま返す（呼び出し側が変化の有無を参照比較で判定するため）
-export function activatePanels( root: LayoutNode, panelIds: PanelId[] ): LayoutNode {
+export function activatePanels( root: LayoutNode, panelIds: PanelId[], keepPaneId: string | null ): LayoutNode {
 
 	let next = root;
 
 	for ( const pane of collectPanes( root ) ) {
+
+		if ( pane.id === keepPaneId ) continue;
 
 		for ( const panelId of panelIds ) {
 
