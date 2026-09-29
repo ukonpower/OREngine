@@ -67,7 +67,6 @@ export class PointerHandler {
 	private _gizmoDragging: boolean;
 	// ギズモのドラッグで動かしている対象。ドラッグの開始時に作る
 	private _gizmoTargets: TransformTargets | null;
-	private _hoveredTarget: 'gizmo' | 'helper' | 'mesh' | null;
 	private _lastClickNDC: MTP.Vector | null;
 	private _lastClickCandidateUUIDs: string[];
 	private _lastClickCycleIndex: number;
@@ -96,7 +95,6 @@ export class PointerHandler {
 		this._pointerDownButton = null;
 		this._gizmoDragging = false;
 		this._gizmoTargets = null;
-		this._hoveredTarget = null;
 		this._lastClickNDC = null;
 		this._lastClickCandidateUUIDs = [];
 		this._lastClickCycleIndex = - 1;
@@ -475,7 +473,6 @@ export class PointerHandler {
 
 						this._gizmoDragging = true;
 						editorCamera.orbitControls.enabled = false;
-						canvasElm.style.cursor = 'grabbing';
 
 						this._gizmoTargets = new TransformTargets( selection.entities, selection.active );
 
@@ -511,12 +508,7 @@ export class PointerHandler {
 			}
 
 			// プレビュー中は編集操作を受けない
-			if ( editorCamera.preview ) {
-
-				canvasElm.style.cursor = '';
-				return;
-
-			}
+			if ( editorCamera.preview ) return;
 
 			const ndc = clientToNDC( canvasElm, e.clientX, e.clientY );
 			const cameraEntity = getCameraEntity();
@@ -550,49 +542,14 @@ export class PointerHandler {
 
 			}
 
-			// hover detection
-			let newHover: 'gizmo' | 'helper' | 'mesh' | null = null;
-
+			// ホバーで反応させるのはギズモのハンドルだけ。メッシュ・ヘルパーは全メッシュの三角形を総当たりしないと当たりが分からず、
+			// pointermove ごとに走らせると重いので、クリックで選ぶときだけ判定する
 			if ( gizmoManager.activeGizmo && gizmoManager.activeGizmo.entity.visible && isGizmoVisible() ) {
 
 				const gizmoHit = pickGizmoHandle();
 
-				if ( gizmoHit ) newHover = 'gizmo';
-
 				// 掴めるハンドルを掴む前に光らせる（Blenderのホバーハイライト相当）
 				gizmoManager.activeGizmo.setHover( gizmoHit ? gizmoHit.handle : null );
-
-			}
-
-			if ( ! newHover ) {
-
-				const candidates = collectCandidates( ndc );
-
-				if ( candidates.length > 0 ) {
-
-					newHover = candidates[ 0 ].type;
-
-				}
-
-			}
-
-			if ( newHover !== this._hoveredTarget ) {
-
-				this._hoveredTarget = newHover;
-
-				if ( newHover === 'gizmo' ) {
-
-					canvasElm.style.cursor = 'grab';
-
-				} else if ( newHover === 'helper' || newHover === 'mesh' ) {
-
-					canvasElm.style.cursor = 'pointer';
-
-				} else {
-
-					canvasElm.style.cursor = '';
-
-				}
 
 			}
 
@@ -609,7 +566,6 @@ export class PointerHandler {
 
 				// エディタカメラで見ているときだけオービットを有効へ戻す
 				editorCamera.orbitControls.enabled = editorCamera.usingEditorCamera;
-				canvasElm.style.cursor = this._hoveredTarget === 'gizmo' ? 'grab' : '';
 
 				if ( this._gizmoTargets ) {
 
