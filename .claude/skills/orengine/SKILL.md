@@ -291,7 +291,7 @@ npx tsx scripts/scene.ts shot tmp/shot/gbuf.png --view gBuffer_1                
 ```
 
 - `shot` はタブの再生時刻・再生状態・選択・エディタカメラを変えない。観測のためにカメラエンティティを `set` で動かさず、`--from` / `--to` を使う
-- 画像サイズはエディタの今の描画解像度で決まり、指定はできない（headless は 1920x1080 のウィンドウで開く）
+- 画像サイズは editor.json の `resolution/*`（最終出力の解像度）で決まり、指定はできない。Screen パネルの大きさには依存しない
 - `--time T` は「時刻 T-1/60 → T の2ステップだけ進めて描いた状態」で、「T まで再生した状態」ではない。時刻で決まるもの（BLidge のアニメーション・`uTime` を使うシェーダー）と前ステップとの差で決まるもの（モーションブラー）は正しく出るが、GPUCompute やシミュレーションのように経過を積み上げるものは出ない。省略時はタブの今の時刻で1ステップ進める
 - `--view` は `final`（省略時。本番と同じ）かパスのラベル。WebGL は `camera/deferred_1`、WebGPU は `gBuffer_1` のような生の名前で、一致しなければエラーの `candidates` に一覧が出る
 - stdout には `path` / `width` / `height` / `view` / `time` / `camera` が出る。PNG は出力先にだけ書かれる

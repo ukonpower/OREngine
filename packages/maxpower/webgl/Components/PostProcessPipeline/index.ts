@@ -1,69 +1,65 @@
-import * as MTP from 'mathpower';
-
 import { Component, ComponentParams } from '../../../core/Component';
-import { PostProcess } from '../../PostProcess';
+
+import type { PostProcessPassParam } from '../../PostProcess/PostProcessPass';
+
+// パイプラインに足すパスの宣言。描画先はビューごとに作るので renderTarget は受けない
+export type PostProcessPipelinePassParam = Omit<PostProcessPassParam, 'renderTarget'>;
+
+/*-------------------------------
+	プロジェクト側がポストプロセスを差し込む口
+
+	カメラのエンティティに付けると、レンダラーの仕上げが終わったあとに
+	追加したパスが順に走り、最後の出力が画面へ出る。
+
+	コンポーネントはパスの宣言だけを持ち、実体（描画先・前フレームの結果）は
+	描くビューごとに RenderView が組む。
+	ビューごとに大きさが違っても毎回作り直さず、前フレームの結果もビュー間で混ざらないようにするため。
+-------------------------------*/
 
 export class PostProcessPipeline extends Component {
 
-	private _resolution: MTP.Vector;
-	private _postProcesses: PostProcess[];
+	private _params: PostProcessPipelinePassParam[];
 
 	constructor( param: ComponentParams ) {
 
 		super( param );
 
-		this._postProcesses = [];
-		this._resolution = new MTP.Vector();
+		this._params = [];
 
 	}
 
-	public get postProcesses() {
+	// 宣言の一覧。add / remove / rebuild のたびに配列ごと差し替えるので、各ビューは参照が変わったのを見て実体を組み直す
+	public get params() {
 
-		return this._postProcesses;
-
-	}
-
-	public add<T extends PostProcess>( newPostProcess: T ) {
-
-		this.postProcesses.push( newPostProcess );
-
-		newPostProcess.resize( this._resolution );
-
-		return newPostProcess;
+		return this._params;
 
 	}
 
-	public remove( postProcess: PostProcess ) {
+	// 走らせたいパスを宣言する。順番がそのまま実行順になる
+	public add( ...params: PostProcessPipelinePassParam[] ) {
 
-		const index = this._postProcesses.indexOf( postProcess );
-
-		if ( index > - 1 ) {
-
-			this._postProcesses.splice( index, 1 );
-
-		}
+		this._params = this._params.concat( params );
 
 	}
 
-	// 毎フレーム呼ばれるため、実際に解像度が変わったときだけ各パスへ伝搬する
-	// （WebGPUバックエンドでは setSize がテクスチャ再生成を伴い、毎フレーム実行するとメモリを食い潰す）
-	public resize( resolution: MTP.Vector ) {
+	// add で渡した宣言を外す
+	public remove( param: PostProcessPipelinePassParam ) {
 
-		if ( this._resolution.x == resolution.x && this._resolution.y == resolution.y ) return;
+		const index = this._params.indexOf( param );
 
-		this._resolution.copy( resolution );
+		if ( index < 0 ) return;
 
-		this.resizePostProcesses();
+		const next = this._params.slice();
+		next.splice( index, 1 );
+
+		this._params = next;
 
 	}
 
-	private resizePostProcesses() {
+	// 宣言の中身（frag など）を書き換えたあとに呼ぶ。各ビューが次の描画で実体を組み直す
+	public rebuild() {
 
-		this.postProcesses.forEach( postProcess => {
-
-			postProcess.resize( this._resolution );
-
-		} );
+		this._params = this._params.slice();
 
 	}
 
