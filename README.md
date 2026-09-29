@@ -134,6 +134,30 @@ export const NumberScope = ( { value, setValue, beginEdit, target, path, opt, en
 - 対応はクラスの完全一致で引きます（継承したクラスには引き継がれません）
 - サンプルは `demo-webgl/Resources/Components/Samples/Objects/FieldUISample/`（UI 部品は `demo-webgl/editor/FieldUIs/NumberScope/`）
 
+#### コンポーネントパネル（`Resources/Components/<…>/editor.tsx`）
+
+特定のコンポーネント専用のパネルを、フィールド UI と同じ `editor.tsx` から足せます。`defineComponentPanel` の結果を `panel` として export すると、パネルのタブ「+」の一覧に出ます。選択中（アクティブ）のエンティティがそのクラスのコンポーネントを持つときだけ UI が描かれ、持たないときは空の表示になります。
+
+```tsx
+// project/Resources/Components/Effect/Wave/editor.tsx
+import { defineComponentPanel, useEditorFrame, type ComponentPanelProps } from 'orengine/react';
+
+import { Wave } from '.';
+
+const WavePanel = ( { target, entity, engine, editor }: ComponentPanelProps<Wave> ) => {
+
+	// 編集は editor.api.setField( target, path, v ) か、ドラッグなら editor.api.beginEdit( target, path )
+	// ...
+
+};
+
+export const panel = defineComponentPanel( Wave, { id: 'wave', title: 'Wave', category: 'Effect', ui: WavePanel } );
+```
+
+- props: `target`（選択中のエンティティが持つコンポーネント）/ `entity` / `engine` / `editor`
+- パネルの枠（`Panel`）は orengine 側で付くので、UI は中身だけを返します
+- 対応はフィールド UI と同じくクラスの完全一致で引きます
+
 ### 3. ビルド
 
 ```bash
