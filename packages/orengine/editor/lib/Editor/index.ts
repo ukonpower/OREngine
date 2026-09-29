@@ -81,7 +81,8 @@ type ViewportHelpers = HelperVisibility & {
 type ViewportSettings = {
 	cameraView: "editor" | "camera";
 	preview: boolean;
-	// 基準解像度（resolution/*）に掛ける倍率。Screen パネルごとに負荷と画質を選べるようにビューポート単位で持つ
+	// 描画解像度に掛ける倍率。エディタカメラで見ている間はパネルの画素数に、カメラビュー（シーンカメラ・プレビュー）では
+	// 最終出力の解像度（resolution/*）に掛かる。Screen パネルごとに負荷と画質を選べるようにビューポート単位で持つ
 	resolutionScale: number;
 	helpers: ViewportHelpers;
 	// null = 未設定（OrbitControls の初期姿勢のまま）
@@ -134,6 +135,8 @@ export class Editor extends MXP.Serializable {
 	private _frameLoop: EditorTimelineLoop;
 	private _enableRender: boolean;
 	private _baseResolution: MTP.Vector;
+	// _fitViewports で毎フレーム使う計算用
+	private _viewportResolution: MTP.Vector;
 	private _viewType: "render" | "debug";
 	private _assetPreviewManager: AssetPreviewManager;
 	private _externalWindow: ExternalWindow | null;
@@ -188,6 +191,7 @@ export class Editor extends MXP.Serializable {
 		this._propertyTarget = "entity";
 		this._enableRender = true;
 		this._baseResolution = new MTP.Vector( 1920, 1080 );
+		this._viewportResolution = new MTP.Vector();
 		this._externalWindow = null;
 		this._modalStatus = null;
 		this._panelLayout = null;
@@ -724,7 +728,6 @@ export class Editor extends MXP.Serializable {
 		}
 
 		viewport.frameDebugger.enable = this._viewType === "debug";
-		viewport.resize( this._viewportResolution( settings ) );
 
 		this._viewports.push( viewport );
 
@@ -812,13 +815,10 @@ export class Editor extends MXP.Serializable {
 
 		} );
 
-		// ビューポートが無い間も同じ値を使うので、生死に関わらず退避値を正とする
+		// ビューポートが無い間も同じ値を使うので、生死に関わらず退避値を正とする。ビューポートへは毎フレームの _fitViewports で反映する
 		dir.field( "resolutionScale", () => settings.resolutionScale, ( v: number ) => {
 
 			settings.resolutionScale = Number( v );
-
-			// 他のサイズで作り置きしたエディタ描画のバッファも捨てたいので、ビューポート単体でなく全体を合わせ直す
-			this._resize();
 
 		} );
 
@@ -925,6 +925,9 @@ export class Editor extends MXP.Serializable {
 		if ( this._disposed ) return;
 
 		if ( ! this._isExporting ) {
+
+			// エディタカメラの aspect をビューの大きさから取るので、先に大きさを決める
+			this._fitViewports();
 
 			for ( const viewport of this._viewports ) {
 
@@ -1897,7 +1900,7 @@ export class Editor extends MXP.Serializable {
 		Resize
 	-------------------------------*/
 
-	// renderer・別ウィンドウは基準解像度のまま描き、各ビューポートだけ自分の倍率で縮める
+	// renderer・別ウィンドウは基準解像度（最終出力）で描く。ビューポートは _fitViewports が毎フレーム合わせる
 	private _resize() {
 
 		const resolution = this._baseResolution;
@@ -1905,12 +1908,6 @@ export class Editor extends MXP.Serializable {
 		this.engine.setSize( resolution );
 
 		this._draw.resize( resolution );
-
-		for ( const viewport of this._viewports ) {
-
-			viewport.resize( this._viewportResolution( this._viewportSettings.get( viewport.id )! ) );
-
-		}
 
 		if ( this._externalWindow ) {
 
@@ -1922,9 +1919,40 @@ export class Editor extends MXP.Serializable {
 
 	}
 
-	private _viewportResolution( settings: ViewportSettings ) {
+	// 各ビューポートの描画解像度を合わせる。エディタカメラで見ている間はパネルの画素数、
+	// カメラビューでは最終出力と同じ見た目を確かめたいので基準解像度にし、それぞれに倍率を掛ける。
+	// パネルの大きさ・カメラの切り替え・倍率・devicePixelRatio のどれで変わっても拾えるよう毎フレーム呼ぶ
+	private _fitViewports() {
 
-		return this._baseResolution.clone().multiply( settings.resolutionScale );
+		let resized = false;
+
+		for ( const viewport of this._viewports ) {
+
+			const scale = this._viewportSettings.get( viewport.id )!.resolutionScale;
+			const resolution = this._viewportResolution;
+
+			if ( viewport.editorCamera.usingEditorCamera ) {
+
+				resolution.copy( viewport.displaySize ).multiply( window.devicePixelRatio * scale );
+
+			} else {
+
+				resolution.copy( this._baseResolution ).multiply( scale );
+
+			}
+
+			resolution.set( Math.max( Math.floor( resolution.x ), 1 ), Math.max( Math.floor( resolution.y ), 1 ) );
+
+			if ( viewport.fit( resolution ) ) resized = true;
+
+		}
+
+		// エディタ描画のバッファはサイズごとに作り置きされるので、パネルのリサイズ中に古いサイズが溜まらないよう捨て直す
+		if ( resized ) {
+
+			this._draw.resize( this._baseResolution );
+
+		}
 
 	}
 

@@ -793,31 +793,22 @@ export class Renderer extends Serializable implements RendererContract {
 
 		// postprocess（プロジェクト側のパス。どの視点で見ていてもシーンカメラのものを掛ける）
 
-		const postProcessManager = ( this._sceneCamera || cameraEntity ).getComponent( PostProcessPipeline );
+		const userPipeline = ( this._sceneCamera || cameraEntity ).getComponent( PostProcessPipeline );
+		const userPostProcess = view.fitUserPostProcess( userPipeline ? userPipeline.params : null );
 
-		if ( postProcessManager ) {
+		if ( userPostProcess && userPostProcess.hasOutput ) {
 
-			postProcessManager.resize( resolution );
+			this.renderPostProcess( userPostProcess, backBuffer, resolution, {
+				cameraOverride: {
+					viewMatrix: cameraComponent.viewMatrix,
+					projectionMatrix: cameraComponent.projectionMatrix,
+					cameraMatrixWorld: cameraEntity.matrixWorld,
+					cameraNear: cameraComponent.near,
+					cameraFar: cameraComponent.far,
+				},
+			} );
 
-			for ( let i = 0; i < postProcessManager.postProcesses.length; i ++ ) {
-
-				const postProcess = postProcessManager.postProcesses[ i ];
-
-				if ( ! ( postProcess.enabled && postProcess.hasOutput ) ) continue;
-
-				this.renderPostProcess( postProcess, backBuffer, resolution, {
-					cameraOverride: {
-						viewMatrix: cameraComponent.viewMatrix,
-						projectionMatrix: cameraComponent.projectionMatrix,
-						cameraMatrixWorld: cameraEntity.matrixWorld,
-						cameraNear: cameraComponent.near,
-						cameraFar: cameraComponent.far,
-					},
-				} );
-
-				backBuffer = postProcess.output || undefined;
-
-			}
+			backBuffer = userPostProcess.output || undefined;
 
 		}
 

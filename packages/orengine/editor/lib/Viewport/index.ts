@@ -43,11 +43,15 @@ export class Viewport {
 	public readonly editorCamera: EditorCamera;
 	public readonly frameDebugger: FrameDebugger;
 
+	// 表示 canvas の CSS 上の大きさ（px）。エディタカメラで見ている間の描画解像度の元になる
+	public readonly displaySize: MTP.Vector;
+
 	private _pointerHandler: PointerHandler;
 	private _onDispose: () => void;
 	private _disposeListeners: () => void;
 	private _disposed: boolean;
 	private _hovered: boolean;
+	private _resizeObserver: ResizeObserver;
 
 	constructor( param: ViewportParam ) {
 
@@ -95,6 +99,18 @@ export class Viewport {
 		canvas.addEventListener( 'pointerenter', onPointerEnter );
 		canvas.addEventListener( 'pointerleave', onPointerLeave );
 
+		this.displaySize = new MTP.Vector( canvas.clientWidth, canvas.clientHeight );
+
+		this._resizeObserver = new ResizeObserver( ( entries ) => {
+
+			const rect = entries[ 0 ].contentRect;
+
+			this.displaySize.set( rect.width, rect.height );
+
+		} );
+
+		this._resizeObserver.observe( canvas );
+
 		this._onDispose = param.onDispose;
 		this._disposeListeners = () => {
 
@@ -120,7 +136,12 @@ export class Viewport {
 
 	}
 
-	public resize( resolution: MTP.Vector ) {
+	// 描画解像度を合わせる。変わったときだけ作り直し、変わったら true を返す
+	public fit( resolution: MTP.Vector ) {
+
+		const size = this.view.size;
+
+		if ( size && size.x === resolution.x && size.y === resolution.y ) return false;
 
 		this.view.size = resolution.clone();
 
@@ -128,8 +149,9 @@ export class Viewport {
 		this.canvas.width = resolution.x;
 		this.canvas.height = resolution.y;
 
-		this.editorCamera.resize( resolution );
 		this.frameDebugger.resize( resolution );
+
+		return true;
 
 	}
 
@@ -144,6 +166,7 @@ export class Viewport {
 		this._onDispose();
 
 		this._disposeListeners();
+		this._resizeObserver.disconnect();
 		this._pointerHandler.dispose();
 		this.frameDebugger.dispose();
 		this.editorCamera.dispose();

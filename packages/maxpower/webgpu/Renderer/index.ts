@@ -28,6 +28,7 @@ import { onShaderReload, requestShaderReload } from '../backend/HotReload';
 import { UniformBinder } from '../backend/UniformBinder';
 import { PostProcessPipeline } from '../Components/PostProcessPipeline';
 import { Material } from '../Material';
+import { PostProcessChain, PostProcessPass } from '../PostProcess';
 import { TexProcedural } from '../TexProcedural';
 
 import { ENVMAP_FAR, ENVMAP_ORIGIN, EnvMap } from './EnvMap';
@@ -45,6 +46,7 @@ import type { TexProceduralParam } from '../../core/Contracts/TexProceduralContr
 import type { Entity, EntityUpdateEvent } from '../../core/Entity';
 import type { Geometry } from '../../core/Geometry';
 import type { MaterialPhase } from '../Material';
+import type { PostProcessPassParam } from '../PostProcess';
 
 // HMRで差し替わるシェーダー資源の供給元。playerでは初期値のまま使われる
 let hotPipelinePostProcess = PipelinePostProcess;
@@ -861,12 +863,11 @@ export class Renderer extends Serializable implements RendererContract {
 
 		// プロジェクト側が差し込んだポストプロセス（どの視点で見ていてもシーンカメラのものを掛ける）
 		const userPipeline = ( this._sceneCamera || cameraEntity ).getComponent( PostProcessPipeline );
+		const userPostProcess = this._fitUserPostProcess( device, view, userPipeline ? userPipeline.params : null );
 
-		if ( userPipeline ) {
+		if ( userPostProcess ) {
 
-			userPipeline.setSize( device, this._uniformLayout!, view.targets.width, view.targets.height );
-
-			output = userPipeline.render( device, encoder, frameBindGroup, output );
+			output = userPostProcess.render( device, encoder, frameBindGroup, output );
 
 		}
 
@@ -1500,6 +1501,46 @@ export class Renderer extends Serializable implements RendererContract {
 		view.targets.setSize( device, width, height );
 
 		this._connectTargets( device, view );
+
+		if ( view.userPostProcess ) {
+
+			view.userPostProcess.setSize( device, width, height );
+
+		}
+
+	}
+
+	// シーンカメラの PostProcessPipeline の宣言から、このビュー専用の実体を組んで返す。宣言の配列が差し替わったときだけ組み直す
+	private _fitUserPostProcess( device: GPUDevice, view: RenderView, params: PostProcessPassParam[] | null ) {
+
+		if ( params === view.userPostProcessParams ) return view.userPostProcess;
+
+		if ( view.userPostProcess ) {
+
+			view.userPostProcess.dispose();
+			view.userPostProcess = null;
+
+		}
+
+		view.userPostProcessParams = params;
+
+		if ( ! params || params.length === 0 ) return null;
+
+		const passes: PostProcessPass[] = [];
+
+		for ( const param of params ) {
+
+			passes.push( new PostProcessPass( param, this._passResolution, this._passPixelSize ) );
+
+		}
+
+		const chain = new PostProcessChain( device, this._uniformLayout!, passes );
+
+		chain.setSize( device, view.targets.width, view.targets.height );
+
+		view.userPostProcess = chain;
+
+		return chain;
 
 	}
 

@@ -3,10 +3,13 @@ import * as MTP from 'mathpower';
 
 import { Entity } from '../../../core/Entity';
 import { GL, GLBackend } from '../../backend/GLBackend';
+import { PostProcess } from '../../PostProcess';
+import { PostProcessPass } from '../../PostProcess/PostProcessPass';
 import { DeferredRenderer } from '../DeferredRenderer';
 import { PipelinePostProcess } from '../PipelinePostProcess';
 
 import type { PipelineConfig, RenderViewContract } from '../../../core/Contracts/RenderViewContract';
+import type { PostProcessPipelinePassParam } from '../../Components/PostProcessPipeline';
 
 export type RenderCameraTarget = {
 	gBuffer: GLP.GLPowerFrameBuffer,
@@ -92,9 +95,14 @@ export class RenderView implements RenderViewContract {
 	public readonly deferredRenderer: DeferredRenderer;
 	public readonly pipelinePostProcess: PipelinePostProcess;
 
+	private _backend: GLBackend;
 	private _pipelineOverride: PipelineConfig | null;
 	private _sceneConfig: PipelineConfig;
 	private _onDispose: ( view: RenderView ) => void;
+
+	// シーンカメラの PostProcessPipeline の宣言から組んだ、このビュー専用の実体と、組んだときの宣言の配列
+	private _userPostProcess: PostProcess | null;
+	private _userPostProcessParams: PostProcessPipelinePassParam[] | null;
 
 	constructor( params: RenderViewParams ) {
 
@@ -102,7 +110,10 @@ export class RenderView implements RenderViewContract {
 		this.size = null;
 		this.resolution = new MTP.Vector();
 		this.offscreen = params.offscreen;
+		this._backend = params.backend;
 		this._pipelineOverride = null;
+		this._userPostProcess = null;
+		this._userPostProcessParams = null;
 		this._sceneConfig = params.sceneConfig;
 		this._onDispose = params.onDispose;
 
@@ -188,6 +199,63 @@ export class RenderView implements RenderViewContract {
 		this.deferredRenderer.resize( resolution );
 		this.pipelinePostProcess.resize( resolution );
 
+		if ( this._userPostProcess ) {
+
+			this._userPostProcess.resize( resolution );
+
+		}
+
+	}
+
+	// PostProcessPipeline の宣言から、このビュー専用の実体を組んで返す。宣言の配列が差し替わったときだけ組み直す
+	public fitUserPostProcess( params: PostProcessPipelinePassParam[] | null ) {
+
+		if ( params === this._userPostProcessParams ) return this._userPostProcess;
+
+		this._disposeUserPostProcess();
+
+		this._userPostProcessParams = params;
+
+		if ( ! params || params.length === 0 ) return null;
+
+		const passes: PostProcessPass[] = [];
+
+		for ( const param of params ) {
+
+			// 描画のたびに uBackBuffer0 などをパスの uniforms へ書き込むので、ビュー間で共有しないよう入れ物だけ複製する
+			passes.push( new PostProcessPass( this._backend, { ...param, uniforms: { ...param.uniforms } } ) );
+
+		}
+
+		this._userPostProcess = new PostProcess( { passes } );
+		this._userPostProcess.resize( this.resolution );
+
+		return this._userPostProcess;
+
+	}
+
+	private _disposeUserPostProcess() {
+
+		const postProcess = this._userPostProcess;
+
+		if ( ! postProcess ) return;
+
+		for ( const pass of postProcess.passes ) {
+
+			const renderTarget = pass.renderTarget;
+
+			if ( ! renderTarget ) continue;
+
+			for ( const texture of renderTarget.textures ) texture.dispose();
+
+			renderTarget.dispose();
+
+		}
+
+		postProcess.dispose();
+
+		this._userPostProcess = null;
+
 	}
 
 	public dispose() {
@@ -215,6 +283,7 @@ export class RenderView implements RenderViewContract {
 
 		this.deferredRenderer.dispose();
 		this.pipelinePostProcess.dispose();
+		this._disposeUserPostProcess();
 
 	}
 

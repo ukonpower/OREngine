@@ -67,6 +67,8 @@ export class EditorCamera {
 
 		this._entity = engine.createEntity( { name: "__editorCamera" } );
 		this._camera = this._entity.addComponent( MXP.Camera );
+		// displayOut のカメラは updateImpl で aspect を最終出力の比率に戻してしまう。aspect は updateBeforeRender でビューの比率に合わせる
+		this._camera.displayOut = false;
 		this._orbitControls = this._entity.addComponent( OrbitControls );
 		this._orbitControls.setElm( canvas );
 		this._renderView = renderView;
@@ -283,7 +285,10 @@ export class EditorCamera {
 		this._entity.commitFrame( event );
 		this._entity.updateMatrix();
 
-		this._camera.aspect = engine.renderer.resolution.x / engine.renderer.resolution.y;
+		// エディタカメラで見ている間はビューがパネルの大きさで描くので、最終出力でなくビューの比率に合わせる
+		const size = this._renderView.size || engine.renderer.resolution;
+
+		this._camera.aspect = size.x / size.y;
 		this._camera.needsUpdateProjectionMatrix = true;
 
 		this._entity.update( event );
@@ -300,13 +305,6 @@ export class EditorCamera {
 		this._entity.postUpdate( event );
 		this._entity.updateMatrixRecursive();
 		this._entity.prepareRender( event );
-
-	}
-
-	public resize( resolution: MTP.Vector ) {
-
-		this._camera.aspect = resolution.x / resolution.y;
-		this._camera.needsUpdateProjectionMatrix = true;
 
 	}
 
