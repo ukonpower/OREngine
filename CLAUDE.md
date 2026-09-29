@@ -192,7 +192,10 @@ export default extension;
 - モーダル（`Editor.beginEditModal( modal )` / `endEditModal( modal )`）: 続いている間は、ポインタの位置によらずキーボードを先に受ける（`EditModal.handleKeyDown` が true を返したら消費）。順番は 編集領域のモーダル → 編集領域の上での G / R / S → ビューポートのモーダル変形
 - ビューポートの G / R / S（`ModalTransformHandler`）は、ポインタがビューポートの上にあるとき（`Viewport.hovered`）だけ始まる。プロパティパネル等の上で押しても選択中のエンティティは動かない（I キーと同じ扱い）
 - `PointTransformModal`: 2D の点の G / R / S。`mapping`（点の座標 ↔ 画面の px）の上で回転・伸縮を計算し、点ごとの行き先の関数 `( point, owner ) => point` を `onChange` に渡す（`owner` は点の属する点。`individual` ならそれを中心に回す）。`axes: "x"` で横にだけ動かす。X / Y の拘束・数値入力、左クリック / Enter で確定、右クリック / Esc で取り消し。作った側が `beginEditModal` で登録し、`onConfirm` / `onCancel` で外す
-- `PointerDrag`（`trackPointerDrag` / `dragRect` / `suppressNextContextMenu`）: 押してから離すまでを追い、3px 動くまではクリックとして扱う。右クリックで取り消した操作の後のメニューを止める
+- `PointerDrag`（`uipower`。`trackPointerDrag` / `dragRect` / `suppressNextContextMenu`）: 押してから離すまでを追い、3px 動くまではクリックとして扱う。右クリックで取り消した操作の後のメニューを止める。uipower の InputNumber（Vector・ValueArray も）とエディタのドラッグで共有する
+  - 押した位置からのずれで動かすドラッグ（数値入力の横ドラッグ、Timeline・カーブ表示・キー表示の中ボタンのパン・拡大縮小）は `lock: true`（閾値の後で取るかを決める側は返り値の `lock()`）で Pointer Lock を取り、カーソルを隠して画面端で止まらないようにする。ロック中のずれは movementX / Y を積む。マウス以外・ブラウザに断られたときは clientX / Y の差分のまま続く。ロックは `document.documentElement` の1か所で取り、使っているドラッグが無くなったら外す（Timeline の中ボタンは横を親、縦を子が同じ押下で追うため）
+  - `onCancel` を渡すと、押している間の右クリック / Esc / ロックの外れで取り消す（ロック中の Esc はブラウザがロックの解除に使うので、外れたことで受ける）
+  - カーソルの下の物を操作するドラッグ（時刻合わせ・矩形選択・キーのドラッグ・ギズモ・G / R / S）はロックしない
 - `PointSelection`: 選択は ID の文字列の `Set`。`pressSelection`（右ボタンで押したときの選び方。Shift で足し引き・アクティブ）/ `boxSelection`（矩形選択の結果）/ `isAllSelected`。`BoxSelectWait` は B の後の左ドラッグ1回を矩形選択にする待機で、作ると編集モーダルとして登録され、右クリック・Esc・領域外の左クリック・`end()` で終わる
 
 ### キーフレームアニメーション

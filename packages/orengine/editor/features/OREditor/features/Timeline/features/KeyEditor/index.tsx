@@ -1,8 +1,8 @@
 import { useEffect, useState, type PointerEvent } from 'react';
 
 import * as MXP from 'maxpower';
-import { dragRect, trackPointerDrag, type KeyFrameHandleType } from 'orengine/editor';
-import { Menu, MenuItem, pointAnchor, usePopover } from 'uipower';
+import { type KeyFrameHandleType } from 'orengine/editor';
+import { dragRect, Menu, MenuItem, pointAnchor, trackPointerDrag, usePopover } from 'uipower';
 
 import { useOREditor } from '../../../../hooks/useOREditor';
 

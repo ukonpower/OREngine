@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 
-import { isAllSelected, trackPointerDrag } from 'orengine/editor';
-import { KeyframeIcon } from 'uipower';
+import { isAllSelected } from 'orengine/editor';
+import { KeyframeIcon, trackPointerDrag } from 'uipower';
 
 import { useTimeline } from '../../../../hooks/useTimeline';
 import { useViewWheel } from '../../../../hooks/useViewWheel';
@@ -56,7 +56,8 @@ export const KeyDopeSheet = () => {
 
 		const startScrollTop = list.scrollTop;
 
-		trackPointerDrag( { clientX: e.clientX, clientY: e.clientY }, {
+		trackPointerDrag( e, {
+			lock: true,
 			onMove: ( _dx, dy ) => {
 
 				list.scrollTop = startScrollTop - dy;

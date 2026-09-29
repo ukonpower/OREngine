@@ -1,8 +1,9 @@
 
-import { useRef, useCallback, useState, CSSProperties, MouseEvent } from 'react';
+import { useRef, useState, CSSProperties, type PointerEvent as ReactPointerEvent } from 'react';
 
 import { useInputWindow } from '../../hooks/useInputWindow';
 import { useMobileDevice } from '../../hooks/useMobileDevice';
+import { trackPointerDrag } from '../../PointerDrag';
 
 import style from './index.module.scss';
 
@@ -33,53 +34,16 @@ type Props = {
 	onSelectDrag?: ( clientY: number ) => void;
 };
 
-// 押してからこれだけ動いたらドラッグとみなす。動かさずに離したらテキスト編集（SP は入力ウィンドウ）
-const DRAG_THRESHOLD = 3;
-
 // ドラッグ 1px あたりの変化量（step に掛ける）。SP は指で動かす量が PC と違うので分けている。SP の値は仮置きで、実機で触って調整する
 const DRAG_SENSITIVITY_PC = 0.05;
 const DRAG_SENSITIVITY_SP = 0.1;
 
 // 範囲選択の途中で横にこれだけ動いたら、選択を確定して値のドラッグへ移る。
-// 縦に動かしている間の手ぶれで移らないよう DRAG_THRESHOLD より大きくしている
+// 縦に動かしている間の手ぶれで移らないよう、ドラッグの閾値（trackPointerDrag の 3px）より大きくしている
 const SELECT_TO_DRAG_THRESHOLD = 10;
 
-// none: まだ DRAG_THRESHOLD を越えていない / drag: 横ドラッグで値を変えている / select: 縦ドラッグで範囲選択している
+// none: まだドラッグの閾値を越えていない / drag: 横ドラッグで値を変えている / select: 縦ドラッグで範囲選択している
 type DragMode = "none" | "drag" | "select";
-
-// 取り消しに使った右クリックのコンテキストメニューを出さない。
-// メニューが出るのは macOS では右ボタンを押したとき、Windows では離したときなので、右ボタンを離すまで止める
-const suppressContextMenu = () => {
-
-	const onContextMenu = ( e: Event ) => {
-
-		e.preventDefault();
-
-	};
-
-	const onMouseUp = ( e: globalThis.MouseEvent ) => {
-
-		if ( e.button !== 2 ) return;
-
-		// Windows の contextmenu は mouseup の後に届くので、外すのは次のタスクまで待つ
-		setTimeout( dispose, 0 );
-
-	};
-
-	const dispose = () => {
-
-		window.removeEventListener( "contextmenu", onContextMenu, { capture: true } );
-		window.removeEventListener( "mouseup", onMouseUp );
-		window.removeEventListener( "pointerdown", dispose );
-
-	};
-
-	window.addEventListener( "contextmenu", onContextMenu, { capture: true } );
-	window.addEventListener( "mouseup", onMouseUp );
-	// 右ボタンの mouseup を取りこぼしても、次の操作で外れて以後のメニューを止め続けないようにする
-	window.addEventListener( "pointerdown", dispose );
-
-};
 
 // min / max の範囲に収める。指定の無い側は制限しない
 const clamp = ( value: number, min: number | undefined, max: number | undefined ) => {
@@ -102,280 +66,196 @@ export const InputNumber = ( props: Props ) => {
 	const [ editing, setEditing ] = useState( false );
 	const [ localValue, setLocalValue ] = useState( "" );
 
-	const pointerDownRef = useRef( false );
-	const pointerStartRef = useRef<{ x: number, y: number } | null>( null );
-	const modeRef = useRef<DragMode>( "none" );
+	// ドラッグは押した時点から描画をまたいで続くので、props は ref で最新を引く
+	const propsRef = useRef( props );
+	propsRef.current = props;
 
-	// 直前の pointermove の X。movementX は iOS Safari のタッチで 0 になるため、差分は clientX から自前で取る
-	const lastXRef = useRef( 0 );
+	const openInputWindow = () => {
 
-	// 範囲選択に入ったときの X。ここから横に SELECT_TO_DRAG_THRESHOLD 動いたら値のドラッグへ移る
-	const selectStartXRef = useRef( 0 );
+		const current = propsRef.current;
 
-	// ドラッグで積み上げている丸める前の値。表示中の値に毎回足すと、int のとき 1px ぶんの小さな変化が丸めで消えて動かなくなる
-	const dragValueRef = useRef( 0 );
-
-	// pointermove / pointerup は押した時点で window に登録するので、呼び出し側の関数は ref で最新を引く
-	const onChangeRef = useRef<( ( value: number ) => void ) | undefined>( undefined );
-	onChangeRef.current = props.onChange;
-
-	const onDragRef = useRef<( ( deltaValue: number ) => void ) | undefined>( undefined );
-	onDragRef.current = props.onDrag;
-
-	const onDragStartRef = useRef<( () => void ) | undefined>( undefined );
-	onDragStartRef.current = props.onDragStart;
-
-	const onDragEndRef = useRef<( () => void ) | undefined>( undefined );
-	onDragEndRef.current = props.onDragEnd;
-
-	const onDragCancelRef = useRef<( () => void ) | undefined>( undefined );
-	onDragCancelRef.current = props.onDragCancel;
-
-	const onSelectDragRef = useRef<( ( clientY: number ) => void ) | undefined>( undefined );
-	onSelectDragRef.current = props.onSelectDrag;
-
-	const valueRef = useRef<number | undefined>( undefined );
-	valueRef.current = props.value;
-
-	// 押している間のポインタ移動を、範囲選択か値のドラッグに振り分ける
-	const onPointerMoveNumber = useCallback( ( e: PointerEvent ) => {
-
-		if ( pointerDownRef.current === false ) return;
-
-		const start = pointerStartRef.current;
-
-		if ( ! start ) return;
-
-		if ( modeRef.current === "none" ) {
-
-			const dx = e.clientX - start.x;
-			const dy = e.clientY - start.y;
-
-			if ( Math.sqrt( dx * dx + dy * dy ) < DRAG_THRESHOLD ) return;
-
-			const selectable = ! isSP && onSelectDragRef.current !== undefined;
-
-			if ( selectable && Math.abs( dy ) > Math.abs( dx ) ) {
-
-				modeRef.current = "select";
-				selectStartXRef.current = e.clientX;
-
-			} else {
-
-				modeRef.current = "drag";
-
-				if ( onDragStartRef.current ) onDragStartRef.current();
-
-			}
-
-			lastXRef.current = e.clientX;
-
-		}
-
-		if ( modeRef.current === "select" ) {
-
-			const onSelectDrag = onSelectDragRef.current;
-
-			if ( Math.abs( e.clientX - selectStartXRef.current ) < SELECT_TO_DRAG_THRESHOLD ) {
-
-				if ( onSelectDrag ) onSelectDrag( e.clientY );
-
-				e.preventDefault();
-
-				return;
-
-			}
-
-			modeRef.current = "drag";
-			lastXRef.current = e.clientX;
-
-			if ( onDragStartRef.current ) onDragStartRef.current();
-
-		}
-
-		const deltaX = e.clientX - lastXRef.current;
-		lastXRef.current = e.clientX;
-
-		let sensitivity = DRAG_SENSITIVITY_PC;
-
-		if ( isSP ) sensitivity = DRAG_SENSITIVITY_SP;
-
-		const deltaValue = deltaX * sensitivity * ( props.step || 1 );
-
-		const onDrag = onDragRef.current;
-		const value = valueRef.current;
-
-		if ( onDrag ) {
-
-			onDrag( deltaValue );
-
-			e.stopPropagation();
-
-		} else if ( typeof value == "number" ) {
-
-			dragValueRef.current = clamp( dragValueRef.current + deltaValue, props.min, props.max );
-
-			let nextValue = dragValueRef.current;
-
-			if ( props.int ) nextValue = Math.round( nextValue );
-
-			if ( onChangeRef.current && nextValue !== value ) {
-
-				onChangeRef.current( nextValue );
-
-			}
-
-			e.stopPropagation();
-
-		}
-
-		e.preventDefault();
-
-	}, [ isSP, props.step, props.min, props.max, props.int ] );
-
-	const openInputWindow = useCallback( () => {
-
-		if ( props.readOnly || props.disabled ) return;
+		if ( current.readOnly || current.disabled ) return;
 
 		open( {
 			type: "number",
-			value: valueRef.current ?? 0,
-			step: props.step,
-			min: props.min,
-			max: props.max,
-			precision: props.precision,
+			value: current.value ?? 0,
+			step: current.step,
+			min: current.min,
+			max: current.max,
+			precision: current.precision,
 			onChange: ( v ) => {
 
-				if ( onChangeRef.current ) onChangeRef.current( v as number );
+				const onChange = propsRef.current.onChange;
+
+				if ( onChange ) onChange( v as number );
 
 			}
 		} );
 
-	}, [ open, props.step, props.min, props.max, props.precision, props.readOnly, props.disabled ] );
+	};
 
-	const onPointerDown = useCallback( ( e: MouseEvent ) => {
+	const startEditing = () => {
+
+		setEditing( true );
+		setLocalValue( String( Number( ( propsRef.current.value ?? 0 ).toFixed( propsRef.current.precision ?? 3 ) ) ) );
+
+		requestAnimationFrame( () => {
+
+			inputRef.current?.focus();
+			inputRef.current?.select();
+
+		} );
+
+	};
+
+	// 押してから離すまで。横ドラッグで値を変え、縦ドラッグで範囲選択し、動かさずに離したらテキスト編集（SP は入力ウィンドウ）へ移る
+	const onPointerDown = ( e: ReactPointerEvent<HTMLInputElement> ) => {
 
 		e.preventDefault();
 
-		pointerDownRef.current = true;
-		pointerStartRef.current = { x: e.clientX, y: e.clientY };
-		modeRef.current = "none";
-		lastXRef.current = e.clientX;
-		dragValueRef.current = valueRef.current ?? 0;
+		const startValue = propsRef.current.value;
 
-		const startValue = valueRef.current;
+		let mode: DragMode = "none";
 
-		const finish = () => {
+		// 範囲選択に入ったときの横のずれ。ここから横に SELECT_TO_DRAG_THRESHOLD 動いたら値のドラッグへ移る
+		let selectStartDx = 0;
 
-			pointerDownRef.current = false;
-			pointerStartRef.current = null;
-			modeRef.current = "none";
+		// 前回までに値へ反映した横のずれ
+		let lastDx = 0;
 
-			window.removeEventListener( "pointerup", onPointerUp );
-			window.removeEventListener( "pointercancel", onPointerCancel );
-			window.removeEventListener( "pointermove", onPointerMove );
-			window.removeEventListener( "keydown", onKeyDown, { capture: true } );
+		// ドラッグで積み上げている丸める前の値。表示中の値に毎回足すと、int のとき 1px ぶんの小さな変化が丸めで消えて動かなくなる
+		let dragValue = startValue ?? 0;
 
-		};
+		// 値のドラッグに入る。範囲選択では縦の位置を使うので、カーソルを隠して画面端で止まらないようにするのはここから
+		const beginValueDrag = ( dx: number ) => {
 
-		// 押している間の取り消し。値を押した時点へ戻し、テキスト編集にも移らない
-		const cancel = () => {
+			mode = "drag";
+			lastDx = dx;
 
-			if ( modeRef.current === "drag" && ! onDragRef.current && onChangeRef.current && typeof startValue === "number" && valueRef.current !== startValue ) {
+			drag.lock();
 
-				onChangeRef.current( startValue );
+			const onDragStart = propsRef.current.onDragStart;
 
-			}
-
-			if ( modeRef.current !== "none" && onDragCancelRef.current ) {
-
-				onDragCancelRef.current();
-
-			}
-
-			finish();
+			if ( onDragStart ) onDragStart();
 
 		};
 
-		// 左ボタンを押したままの右ボタンは pointerdown ではなく buttons の変わった pointermove として届く
-		const onPointerMove = ( e: PointerEvent ) => {
+		const drag = trackPointerDrag( e, {
+			onMove: ( dx, dy, moveEvent ) => {
 
-			if ( ( e.buttons & 2 ) !== 0 ) {
+				const current = propsRef.current;
 
-				e.preventDefault();
-				e.stopPropagation();
+				if ( mode === "none" ) {
 
-				cancel();
-				suppressContextMenu();
+					const selectable = ! isSP && current.onSelectDrag !== undefined;
 
-				return;
+					if ( selectable && Math.abs( dy ) > Math.abs( dx ) ) {
 
-			}
+						mode = "select";
+						selectStartDx = dx;
 
-			onPointerMoveNumber( e );
+					} else {
 
-		};
+						beginValueDrag( dx );
 
-		// capture で受けて止め、エディタの Escape ショートカット（シーンカメラへの同期）へ届かせない
-		const onKeyDown = ( e: KeyboardEvent ) => {
+					}
 
-			if ( e.key !== "Escape" ) return;
+				}
 
-			e.preventDefault();
-			e.stopPropagation();
+				if ( mode === "select" ) {
 
-			cancel();
+					if ( Math.abs( dx - selectStartDx ) < SELECT_TO_DRAG_THRESHOLD ) {
 
-		};
+						if ( current.onSelectDrag ) current.onSelectDrag( moveEvent.clientY );
 
-		const onPointerUp = () => {
+						moveEvent.preventDefault();
 
-			if ( modeRef.current === "drag" ) {
+						return;
 
-				if ( onDragEndRef.current ) onDragEndRef.current();
+					}
 
-			} else if ( isSP ) {
+					beginValueDrag( dx );
 
-				openInputWindow();
+				}
 
-			} else {
+				const deltaX = dx - lastDx;
+				lastDx = dx;
 
-				setEditing( true );
-				setLocalValue( String( Number( ( valueRef.current ?? 0 ).toFixed( props.precision ?? 3 ) ) ) );
+				let sensitivity = DRAG_SENSITIVITY_PC;
 
-				requestAnimationFrame( () => {
+				if ( isSP ) sensitivity = DRAG_SENSITIVITY_SP;
 
-					inputRef.current?.focus();
-					inputRef.current?.select();
+				const deltaValue = deltaX * sensitivity * ( current.step || 1 );
 
-				} );
+				if ( current.onDrag ) {
 
-			}
+					current.onDrag( deltaValue );
 
-			finish();
+				} else if ( typeof current.value == "number" ) {
 
-		};
+					dragValue = clamp( dragValue + deltaValue, current.min, current.max );
 
-		// SP で縦に動かすと touch-action: pan-y によりブラウザがスクロールを始めて pointercancel が届く。
-		// そこでドラッグを打ち切り、入力ウィンドウも開かない
-		const onPointerCancel = () => {
+					let nextValue = dragValue;
 
-			if ( modeRef.current !== "none" && onDragEndRef.current ) {
+					if ( current.int ) nextValue = Math.round( nextValue );
 
-				onDragEndRef.current();
+					if ( current.onChange && nextValue !== current.value ) {
 
-			}
+						current.onChange( nextValue );
 
-			finish();
+					}
 
-		};
+				}
 
-		window.addEventListener( "pointerup", onPointerUp );
-		window.addEventListener( "pointercancel", onPointerCancel );
-		window.addEventListener( "pointermove", onPointerMove );
-		window.addEventListener( "keydown", onKeyDown, { capture: true } );
+				moveEvent.preventDefault();
 
-	}, [ onPointerMoveNumber, isSP, openInputWindow, props.precision ] );
+			},
+			onEnd: ( _dragged, upEvent ) => {
+
+				const current = propsRef.current;
+
+				// SP で縦に動かすと touch-action: pan-y によりブラウザがスクロールを始めて pointercancel が届く。
+				// そこでドラッグを打ち切り、入力ウィンドウも開かない
+				if ( upEvent.type === "pointercancel" ) {
+
+					if ( mode !== "none" && current.onDragEnd ) current.onDragEnd();
+
+					return;
+
+				}
+
+				if ( mode === "drag" ) {
+
+					if ( current.onDragEnd ) current.onDragEnd();
+
+				} else if ( isSP ) {
+
+					openInputWindow();
+
+				} else {
+
+					startEditing();
+
+				}
+
+			},
+			// 押している間の右クリック / Esc。値を押した時点へ戻し、テキスト編集にも移らない
+			onCancel: () => {
+
+				const current = propsRef.current;
+
+				if ( mode === "drag" && ! current.onDrag && current.onChange && typeof startValue === "number" && current.value !== startValue ) {
+
+					current.onChange( startValue );
+
+				}
+
+				if ( mode !== "none" && current.onDragCancel ) current.onDragCancel();
+
+			},
+		} );
+
+	};
 
 	const displayValue = editing
 		? localValue
