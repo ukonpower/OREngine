@@ -141,6 +141,13 @@ npx tsx scripts/scene.ts shot tmp/shot/b.png --from 0,3,5 --to 0,0,0 --time 2 --
 - `editor.api.beginEdit( target, path )` → `set` / `commit` / `cancel`: `set` は値を反映するだけで、`commit` で開始時からの変化を SetFieldCommand 1つ（`merge: false`）として積む。`setField` の自動まとめは時間基準（500ms）なので、ドラッグの途中で手を止めると undo が分かれる。それを避けるための窓口
 - `CommandManager` は `merge: false` で積んだコマンドに、後続のコマンドをまとめない（確定済みの編集・CLI の `set` に直後の GUI 操作が混ざらないように）
 
+### コンポーネントパネル（`Resources/Components/**/editor.tsx` の `panel`）
+特定のコンポーネント専用のパネル。フィールド UI では狭い編集画面（大きな canvas 等）をタブとして置くための仕組み。
+
+- `editor.tsx` で `export const panel = defineComponentPanel( クラス, { id, title, category?, ui } )` を書く。自動認識は `host/app/src/editorPanels.ts` の `import.meta.glob`（`editor/Panels/` と同じ `projectPanels` にまとめて `OREditor` の `panels` へ渡す）。型と `defineComponentPanel` は `packages/orengine/editor/features/OREditor/lib/componentPanel.tsx`
+- 中身は `features/OREditor/features/ComponentPanel`: アクティブなエンティティ（`selectedEntityId`）から `entity.getComponent( クラス )`（クラスの完全一致）で引き、`ComponentPanelProps`（`target` / `entity` / `engine` / `editor`）を渡して `Panel` の中に描く。持っていなければ空の表示。コンポーネントの追加・削除は entity の `components` の更新通知で描き直す
+- UI は `key={component.uuid}` で描くので、選択が別のコンポーネントに移ると state は作り直される
+
 ```tsx
 // <projectDir>/editor/Panels/Sample/index.tsx
 import { useState } from 'react';
