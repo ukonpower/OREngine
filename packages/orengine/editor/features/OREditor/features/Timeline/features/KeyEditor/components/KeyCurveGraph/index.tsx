@@ -1,6 +1,6 @@
 import { useMemo, useRef } from 'react';
 
-import { trackPointerDrag } from 'orengine/editor';
+import { trackPointerDrag } from 'uipower';
 
 import { useTimeline } from '../../../../hooks/useTimeline';
 import { useViewWheel } from '../../../../hooks/useViewWheel';
@@ -117,7 +117,8 @@ export const KeyCurveGraph = () => {
 		const zoomDrag = hasZoomModifier( e );
 		let lastDy = 0;
 
-		trackPointerDrag( { clientX: e.clientX, clientY: e.clientY }, {
+		trackPointerDrag( e, {
+			lock: true,
 			onMove: ( _dx, dy ) => {
 
 				if ( zoomDrag ) {

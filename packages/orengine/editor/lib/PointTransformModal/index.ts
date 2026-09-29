@@ -1,6 +1,5 @@
 import * as MTP from 'mathpower';
-
-import { suppressNextContextMenu } from '../PointerDrag';
+import { suppressNextContextMenu } from 'uipower';
 
 import type { EditModal } from '../Editor';
 import type { ModalTransformMode } from '../ModalTransformHandler';

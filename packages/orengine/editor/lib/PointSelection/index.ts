@@ -1,4 +1,4 @@
-import { suppressNextContextMenu } from '../PointerDrag';
+import { suppressNextContextMenu } from 'uipower';
 
 import type { Editor, EditModal } from '../Editor';
 

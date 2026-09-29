@@ -32,3 +32,9 @@ export * from './hooks/useAnchoredPosition';
 export * from './hooks/useInputWindow';
 export * from './hooks/useMobileDevice';
 export * from './hooks/usePopover';
+
+/*-------------------------------
+	Pointer
+-------------------------------*/
+
+export * from './PointerDrag';
