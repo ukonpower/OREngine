@@ -1920,7 +1920,9 @@ export class Editor extends MXP.Serializable {
 	}
 
 	// 各ビューポートの描画解像度を合わせる。エディタカメラで見ている間はパネルの画素数、
-	// カメラビューでは最終出力と同じ見た目を確かめたいので基準解像度にし、それぞれに倍率を掛ける。
+	// カメラビューでは基準解像度のアスペクト比のままパネルの画素数に contain で収めた大きさ（基準解像度が上限）にし、それぞれに倍率を掛ける。
+	// カメラビューはパネルが小さい間は表示に要る画素だけ描き、パネルが十分大きければ最終出力と同じ条件になる。
+	// 画素単位のポストエフェクトの見え方を厳密に見たいときは、パネルを広げるか別ウィンドウ（常に基準解像度）で見る。
 	// パネルの大きさ・カメラの切り替え・倍率・devicePixelRatio のどれで変わっても拾えるよう毎フレーム呼ぶ
 	private _fitViewports() {
 
@@ -1937,7 +1939,12 @@ export class Editor extends MXP.Serializable {
 
 			} else {
 
-				resolution.copy( this._baseResolution ).multiply( scale );
+				// 幅・高さのうち先にパネルに当たる方で縮め率が決まる（object-fit: contain と同じ収め方）
+				const fitX = viewport.displaySize.x * window.devicePixelRatio / this._baseResolution.x;
+				const fitY = viewport.displaySize.y * window.devicePixelRatio / this._baseResolution.y;
+				const fit = Math.min( fitX, fitY, 1 );
+
+				resolution.copy( this._baseResolution ).multiply( fit * scale );
 
 			}
 
