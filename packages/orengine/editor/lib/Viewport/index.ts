@@ -43,7 +43,7 @@ export class Viewport {
 	public readonly editorCamera: EditorCamera;
 	public readonly frameDebugger: FrameDebugger;
 
-	// 表示 canvas の CSS 上の大きさ（px）。エディタカメラで見ている間の描画解像度の元になる
+	// 表示 canvas の CSS 上の大きさ（px）。描画解像度の元になる（カメラビューでは基準解像度を収める枠）
 	public readonly displaySize: MTP.Vector;
 
 	private _pointerHandler: PointerHandler;
