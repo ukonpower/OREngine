@@ -42,14 +42,11 @@ export function quaternionFromTo( from: MTP.Vector, to: MTP.Vector ): MTP.Quater
 
 }
 
-// matrixWorld からワールド回転を取り出す
+// matrixWorld からワールド回転を取り出す。MTP.Matrix.decompose はスケールを割らずに回転を作るので、
+// スケール ≠ 1（祖先のスケールを含む）だと角度を読み違える。列ごとにスケールを割る decomposeMatrix を使う
 export function getWorldQuaternion( entity: MXP.Entity ): MTP.Quaternion {
 
-	const q = new MTP.Quaternion();
-
-	entity.matrixWorld.decompose( undefined, q );
-
-	return q;
+	return decomposeMatrix( entity.matrixWorld ).quaternion;
 
 }
 
