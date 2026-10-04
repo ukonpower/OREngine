@@ -10,12 +10,14 @@ struct Surface {
 	envIntensity: f32,
 	// SSS の強さ（0〜1）。0 なら SSS なし。albedo.w に入る
 	sss: f32,
+	// 環境マップの鏡面反射を SSR の結果で置き換える割合（0〜1）。水面など鏡に近い面向け。velocity.z に入る
+	ssr: f32,
 };
 
 // マテリアルが値を上書きする土台
 fn defaultSurface( input: VertexOutput ) -> Surface {
 
-	return Surface( vec3f( 0.8 ), normalize( input.normal ), 0.5, 0.0, vec3f( 0.0 ), 1.0, 0.0 );
+	return Surface( vec3f( 0.8 ), normalize( input.normal ), 0.5, 0.0, vec3f( 0.0 ), 1.0, 0.0, 0.0 );
 
 }
 
@@ -28,7 +30,7 @@ fn packGBuffer( input: VertexOutput, surface: Surface ) -> GBufferOutput {
 	output.normal = vec4f( normalize( surface.normal ), surface.emission.y );
 	output.albedo = vec4f( surface.albedo, surface.sss );
 	output.material = vec4f( surface.roughness, surface.metallic, 0.0, surface.envIntensity );
-	output.velocity = vec4f( input.velocity, 0.0, surface.emission.z );
+	output.velocity = vec4f( input.velocity, surface.ssr, surface.emission.z );
 
 	return output;
 

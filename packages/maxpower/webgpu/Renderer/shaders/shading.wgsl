@@ -16,10 +16,12 @@ fn vsMain( @builtin(vertex_index) index: u32 ) -> @builtin(position) vec4f {
 
 }
 
-// diffuse は SSS がぼかす入力。color の中の diffuse をぼかしたものへ置き換える
+// diffuse は SSS がぼかす入力。color の中の diffuse をぼかしたものへ置き換える。
+// envReflection は color に足した環境マップの鏡面反射のうち、SSR で置き換える分（rgb = 色 / a = 重み。ssComposite.wgsl が読む）
 struct ShadingOutput {
 	@location(0) color: vec4f,
 	@location(1) diffuse: vec4f,
+	@location(2) envReflection: vec4f,
 };
 
 @fragment
@@ -39,7 +41,7 @@ fn fsMain( @builtin(position) coord: vec4f ) -> ShadingOutput {
 	// 法線が書かれていない画素は背景
 	if ( dot( tex1.xyz, tex1.xyz ) < 0.5 ) {
 
-		return ShadingOutput( vec4f( 0.0, 0.0, 0.0, 1.0 ), vec4f( 0.0, 0.0, 0.0, 1.0 ) );
+		return ShadingOutput( vec4f( 0.0, 0.0, 0.0, 1.0 ), vec4f( 0.0, 0.0, 0.0, 1.0 ), vec4f( 0.0 ) );
 
 	}
 
@@ -49,6 +51,7 @@ fn fsMain( @builtin(position) coord: vec4f ) -> ShadingOutput {
 	let roughness = tex3.x;
 	let metallic = tex3.y;
 	let envIntensity = tex3.w;
+	let ssr = tex4.z;
 	let emission = vec3f( tex0.w, tex1.w, tex4.w );
 
 	let viewDir = viewDirection( worldPosition );
@@ -123,10 +126,17 @@ fn fsMain( @builtin(position) coord: vec4f ) -> ShadingOutput {
 	// 環境の鏡面反射に置き換わる割合。直接光も含め diffuse / specular を同じ割合で減らす
 	let envReflect = EF * surface.specularColor * envIntensity;
 
+	let envSpecular = sampleEnvMap( refDir, roughness );
+
 	diffuse = ( diffuse + sampleEnvMap( normal, 1.0 ) * surface.diffuseColor * envIntensity ) * ( 1.0 - envReflect );
-	specular = mix( specular, sampleEnvMap( refDir, roughness ), envReflect );
+	specular = mix( specular, envSpecular, envReflect );
 
 	let ao = max( 0.0, 1.0 - occlusion * 1.5 );
+
+	// 置き換えの重みはスカラーで持ち、ssComposite.wgsl 側で specularColor（金属の色味）を掛け直す。
+	// 4ch に収めるためで、ao まで含めて color に入った量と一致させる
+	let ssrWeight = EF * envIntensity * ao * ssr;
+	let envReflection = vec4f( envSpecular * envReflect * ao * ssr, ssrWeight );
 
 	diffuse *= ao;
 	specular *= ao;
@@ -136,6 +146,6 @@ fn fsMain( @builtin(position) coord: vec4f ) -> ShadingOutput {
 	// 光の筋（半解像度から拡大）
 	outColor += textureSampleLevel( lightShaftTexture, envMapSampler, coord.xy / frame.uResolution, 0.0 ).xyz;
 
-	return ShadingOutput( vec4f( max( vec3f( 0.0 ), outColor ), 1.0 ), vec4f( max( vec3f( 0.0 ), diffuse ), 1.0 ) );
+	return ShadingOutput( vec4f( max( vec3f( 0.0 ), outColor ), 1.0 ), vec4f( max( vec3f( 0.0 ), diffuse ), 1.0 ), envReflection );
 
 }

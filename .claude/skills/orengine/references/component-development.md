@@ -240,6 +240,7 @@ export class OREngineCube extends MXP.Component {
 | `depthTest` / `depthWrite` / `cullFace` | 既定は `true` / `true` / `false` |
 | `drawType` | `'TRIANGLES'`（既定）/ `'LINES'`、WebGL は `'POINTS'` も |
 | `blending`（WebGL） | `'NORMAL'`（既定）/ `'ADD'` / `'DIFF'` |
+| `writeGBuffer` | forward で gBuffer の position / velocity も書くか。既定は `true`（DoF・モーションブラーに乗る）。自前でボケ・ぶれを付ける半透明（雨の筋など）は `false` にして、DoF・モーションブラー・SSR が板の位置を面として扱わないようにする |
 | `storages` / `textures`（WebGPU） | GPUCompute の出力 / テクスチャを WGSL に束縛する |
 
 インスタンシング: WebGL は `geometry.setAttribute( 'oPos', array, 4, { instanceDivisor: 1 } )` のようにインスタンス属性を足す（`Samples/Effects/FlashLine`）。WebGPU は頂点属性が `position` / `normal` / `uv` に固定でインスタンス属性を足せないので、`addComponent( MXP.Mesh, { geometry, material, instanceCount: N } )` にして、WGSL で `@builtin(instance_index)` からインスタンスごとの値を作るか `storages`（GPUCompute の出力）から読む（`demo-webgpu` の `Samples/Particles/YakiSoba`）。

@@ -44,7 +44,9 @@ const createRenderTarget = ( backend: GLBackend ): RenderCameraTarget => {
 	] );
 
 	const shadingBuffer = backend.createFrameBuffer( { disableDepthBuffer: true } );
+	// 0 = シェーディング結果 / 1 = その diffuse だけ（SSS がぼかす）/ 2 = SSR で置き換える環境の鏡面反射だけ
 	shadingBuffer.setTexture( [
+		backend.createTexture().setting( { type: GL.FLOAT, internalFormat: GL.RGBA16F, format: GL.RGBA } ),
 		backend.createTexture().setting( { type: GL.FLOAT, internalFormat: GL.RGBA16F, format: GL.RGBA } ),
 		backend.createTexture().setting( { type: GL.FLOAT, internalFormat: GL.RGBA16F, format: GL.RGBA } ),
 	] );

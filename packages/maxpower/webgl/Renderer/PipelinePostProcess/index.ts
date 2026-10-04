@@ -183,12 +183,24 @@ export class PipelinePostProcess {
 					value: null,
 					type: '1i'
 				},
+				uGbufferAlbedo: {
+					value: null,
+					type: '1i'
+				},
 				uGbufferMaterial: {
+					value: null,
+					type: '1i'
+				},
+				uVelTex: {
 					value: null,
 					type: '1i'
 				},
 				uSSRTexture: {
 					value: rtSSR1.textures[ 0 ],
+					type: '1i'
+				},
+				uEnvReflection: {
+					value: null,
 					type: '1i'
 				},
 			} ),
@@ -514,7 +526,10 @@ export class PipelinePostProcess {
 
 		ssComposite.uniforms.uGbufferPos.value = renderTarget.gBuffer.textures[ 0 ];
 		ssComposite.uniforms.uGbufferNormal.value = renderTarget.gBuffer.textures[ 1 ];
+		ssComposite.uniforms.uGbufferAlbedo.value = renderTarget.gBuffer.textures[ 2 ];
 		ssComposite.uniforms.uGbufferMaterial.value = renderTarget.gBuffer.textures[ 3 ];
+		ssComposite.uniforms.uVelTex.value = renderTarget.gBuffer.textures[ 4 ];
+		ssComposite.uniforms.uEnvReflection.value = renderTarget.shadingBuffer.textures[ 2 ];
 
 		// dofCoc
 

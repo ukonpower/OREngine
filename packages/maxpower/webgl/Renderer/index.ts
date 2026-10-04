@@ -1260,7 +1260,15 @@ export class Renderer extends Serializable implements RendererContract {
 
 			}
 
+			// forward の描画先は シーン色 / gBuffer の position / velocity の3枚（RenderView の forwardBuffer）
+			const renderTarget = param && param.renderTarget;
+			const colorOnly = renderType == 'forward' && ! material.writeGBuffer && !! renderTarget;
+
+			if ( colorOnly ) this.backend.setColorOnly( renderTarget!, true );
+
 			this.backend.draw( program, vao, material.drawType, material.blending, queryName );
+
+			if ( colorOnly ) this.backend.setColorOnly( renderTarget!, false );
 
 		}
 

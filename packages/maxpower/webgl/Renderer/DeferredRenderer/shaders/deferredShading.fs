@@ -8,7 +8,7 @@ uniform sampler2D sampler0; // position.xyz, emission.x
 uniform sampler2D sampler1; // normal.xyz, emission.y
 uniform sampler2D sampler2; // albedo, sss
 uniform sampler2D sampler3; // roughness, metallic, normalSelect, envSelect, 
-uniform sampler2D sampler4; // velocity.xy, 0.0, emission.z
+uniform sampler2D sampler4; // velocity.xy, ssr, emission.z
 
 uniform sampler2D uSSAOTexture;
 uniform sampler2D uLightShaftTexture;
@@ -26,10 +26,12 @@ uniform vec3 uCameraPosition;
 
 in vec2 vUv;
 
-// out（1 は SSS がぼかす diffuse だけの結果）
+// out（1 は SSS がぼかす diffuse だけの結果。
+// 2 は足した環境の鏡面反射のうち SSR で置き換える分で、rgb = 色 / a = 重み。ssComposite.fs が読む）
 
 layout (location = 0) out vec4 glFragOut0;
 layout (location = 1) out vec4 glFragOut1;
+layout (location = 2) out vec4 glFragOut2;
 
 void main( void ) {
 
@@ -47,6 +49,7 @@ void main( void ) {
 	float metallic = tex3.y;
 	vec3 emission = vec3( tex0.w, tex1.w, tex4.w );
 	float envMapIntensity= tex3.w;
+	float ssr = tex4.z;
 
 	Geometry geo = Geometry(
 		tex0.xyz,
@@ -83,6 +86,10 @@ void main( void ) {
 
 	diffuse *= ao;
 	specular *= ao;
+
+	// 置き換えの重みはスカラーで持ち、ssComposite.fs 側で specularColor（金属の色味）を掛け直す。
+	// 4ch に収めるためで、ao まで含めて outColor に入った量と一致させる
+	glFragOut2 = vec4( envSpecular * envReflect * ao * ssr, EF * mat.envMapIntensity * ao * ssr );
 
 	vec3 outColor = diffuse + specular;
 

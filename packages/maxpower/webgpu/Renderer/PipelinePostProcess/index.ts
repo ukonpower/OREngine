@@ -283,7 +283,7 @@ export class PipelinePostProcess {
 		this._ssComposite = pass( {
 			name: 'ssComposite',
 			wgsl: ssCompositeWgsl,
-			inputs: [ 'uBackBuffer0', NEAREST( 'uGbufferPos' ), NEAREST( 'uGbufferNormal' ), 'uGbufferMaterial', 'uSSRTexture' ],
+			inputs: [ 'uBackBuffer0', NEAREST( 'uGbufferPos' ), NEAREST( 'uGbufferNormal' ), 'uGbufferAlbedo', 'uGbufferMaterial', NEAREST( 'uVelTex' ), 'uSSRTexture', NEAREST( 'uEnvReflection' ) ],
 		} );
 
 		const dofUniforms: BSP.Uniforms = { uParams: { value: this._dofParams, type: '4fv' } };
@@ -484,10 +484,11 @@ export class PipelinePostProcess {
 
 	}
 
-	// トーンマップ前のシーンバッファ（ブルームの輝度抽出元・SSS の置き換え先）と、シェーディングの diffuse を繋ぐ
-	public setScene( scene: GPUTextureView, diffuse: GPUTextureView ) {
+	// トーンマップ前のシーンバッファ（ブルームの輝度抽出元・SSS の置き換え先）と、シェーディングの diffuse・環境の鏡面反射を繋ぐ
+	public setScene( scene: GPUTextureView, diffuse: GPUTextureView, envReflection: GPUTextureView ) {
 
 		this._bright.setInput( 'uSceneHdr', scene );
+		this._ssComposite.setInput( 'uEnvReflection', envReflection );
 
 		for ( const pass of this._sssChain.passes ) {
 

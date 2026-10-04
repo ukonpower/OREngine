@@ -76,6 +76,7 @@ void main( void ) {
 | `outSSN` | float | `0.0` | gBuffer の material.z に入る値 |
 | `outEnv` | float | `1.0` | 環境マップの効き |
 | `outSSS` | float | `0.0` | SSS（肌の表面下散乱）の強さ 0〜1。gBuffer の albedo.w に入る。レンダラーの `pipeline/sss/enabled` が true のときだけ効く（deferred のみ） |
+| `outSSR` | float | `0.0` | 環境マップの鏡面反射を SSR の結果で置き換える割合 0〜1。水面など鏡に近い面向けで、SSR が当たった所だけ置き換わる（外れた所は環境マップのまま）。gBuffer の velocity.z に入る。レンダラーの `pipeline/ssr/enabled` が true のときだけ効く（deferred のみ） |
 | `outPos` | vec3 | `vPos` | ワールド位置。深度もここから計算される |
 
 `<part:frag_out>` がこれらを gBuffer（deferred）・出力色（forward）・深度（shadowMap）へ書き出す。

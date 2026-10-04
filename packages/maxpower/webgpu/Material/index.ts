@@ -42,6 +42,9 @@ export interface MaterialParam {
 	// fsForward で refractionTexture を背後として読み、その上に先に描かれた forward も背後に含めたいとき true。
 	// 描く直前に forward パスを区切って写し直すので、そのぶん pass が増える
 	readsScene?: boolean;
+	// forward で gBuffer の position / velocity も書くか（既定 true）。自前でボケ・ぶれを付ける半透明
+	// （雨の筋など）は false にして、DoF・モーションブラー・SSR が板の位置を面として扱わないようにする
+	writeGBuffer?: boolean;
 	uniforms?: BSP.Uniforms;
 	// GPGPU出力。キーがWGSL上の変数名になり、宣言順で group2 の binding1.. に生える
 	storages?: { [name: string]: StorageSource };
@@ -68,6 +71,7 @@ export class Material implements MaterialContract {
 	public drawType: DrawType;
 	public renderOrder: number;
 	public readsScene: boolean;
+	public writeGBuffer: boolean;
 
 	public visibilityFlag: MaterialVisibility;
 
@@ -95,6 +99,7 @@ export class Material implements MaterialContract {
 		this.drawType = params.drawType || 'TRIANGLES';
 		this.renderOrder = params.renderOrder ?? 0;
 		this.readsScene = params.readsScene ?? false;
+		this.writeGBuffer = params.writeGBuffer ?? true;
 
 		this.visibilityFlag = { shadowMap: false, deferred: false, forward: false, envMap: false };
 		this.setVisibility( params.phase || [ 'shadowMap', 'deferred' ] );

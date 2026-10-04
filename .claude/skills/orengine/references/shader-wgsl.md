@@ -72,6 +72,7 @@ fn fsDeferred( input: VertexOutput ) -> GBufferOutput {
 | `emission` | vec3f | `vec3f( 0.0 )` |
 | `envIntensity` | f32 | `1.0` |
 | `sss` | f32 | `0.0`（SSS の強さ 0〜1。albedo.w に入り、レンダラーの `pipeline/sss/enabled` が true のときだけ効く） |
+| `ssr` | f32 | `0.0`（環境マップの鏡面反射を SSR の結果で置き換える割合 0〜1。水面など鏡に近い面向けで、SSR が当たった所だけ置き換わる。velocity.z に入り、レンダラーの `pipeline/ssr/enabled` が true のときだけ効く） |
 
 ## 前置される名前
 

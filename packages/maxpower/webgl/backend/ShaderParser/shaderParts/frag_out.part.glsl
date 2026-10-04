@@ -44,7 +44,7 @@
 	outColor1 = vec4( normalize( outNormal * ( gl_FrontFacing ? 1.0 : -1.0 ) ), outEmission.y );
 	outColor2 = vec4( outColor.xyz, outSSS );
 	outColor3 = vec4( outRoughness, outMetallic, outSSN, outEnv );
-	outColor4 = vec4( vVelocity, 0.0, outEmission.z );
+	outColor4 = vec4( vVelocity, outSSR, outEmission.z );
 #endif
 
 #ifdef IS_FORWARD

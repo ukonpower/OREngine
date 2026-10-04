@@ -689,7 +689,7 @@ export class Renderer extends Serializable implements RendererContract {
 				bindGroupLayouts: [ this._uniformLayout!, this._gBufferLayout!, this._lights!.bindGroupLayout ],
 			} ),
 			vertex: { module: shadingModule, entryPoint: 'vsMain' },
-			fragment: { module: shadingModule, entryPoint: 'fsMain', targets: [ { format: SCENE_FORMAT }, { format: SCENE_FORMAT } ] },
+			fragment: { module: shadingModule, entryPoint: 'fsMain', targets: [ { format: SCENE_FORMAT }, { format: SCENE_FORMAT }, { format: SCENE_FORMAT } ] },
 			primitive: { topology: 'triangle-list' },
 		} );
 
@@ -1220,6 +1220,12 @@ export class Renderer extends Serializable implements RendererContract {
 					loadOp: 'clear',
 					storeOp: 'store',
 				},
+				{
+					view: targets.envReflectionView!,
+					clearValue: { r: 0, g: 0, b: 0, a: 0 },
+					loadOp: 'clear',
+					storeOp: 'store',
+				},
 			],
 		} );
 
@@ -1558,7 +1564,7 @@ export class Renderer extends Serializable implements RendererContract {
 			targets.gBufferViews[ 3 ],
 			targets.gBufferViews[ 4 ]
 		);
-		pipeline.setScene( targets.sceneView!, targets.diffuseView! );
+		pipeline.setScene( targets.sceneView!, targets.diffuseView!, targets.envReflectionView! );
 
 		this._createGBufferBindGroup( device, view );
 
@@ -1677,6 +1683,8 @@ export class Renderer extends Serializable implements RendererContract {
 
 		const flag = material.visibilityFlag;
 
+		const gBufferWriteMask = material.writeGBuffer ? GPUColorWrite.ALL : 0;
+
 		resource = {
 			pipelines: new Map<MaterialPhase, GPURenderPipeline | null>( [
 				// シャドウは深度だけを書くのでfragment stageを持たない。
@@ -1731,7 +1739,7 @@ export class Renderer extends Serializable implements RendererContract {
 						entryPoint: 'fsForwardMrt',
 						// シーン色に加えてgBufferの position / velocity も書き、
 						// forwardメッシュをDOF・モーションブラーへ乗せる。
-						// 位置と速度は混ぜても意味がないのでブレンドせず上書きする
+						// 位置と速度は混ぜても意味がないのでブレンドせず上書きする。writeGBuffer が false なら書かない
 						targets: [
 							{
 								format: SCENE_FORMAT,
@@ -1740,8 +1748,8 @@ export class Renderer extends Serializable implements RendererContract {
 									alpha: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha' },
 								},
 							},
-							{ format: GBUFFER_ATTACHMENTS[ 0 ].format },
-							{ format: GBUFFER_ATTACHMENTS[ 4 ].format },
+							{ format: GBUFFER_ATTACHMENTS[ 0 ].format, writeMask: gBufferWriteMask },
+							{ format: GBUFFER_ATTACHMENTS[ 4 ].format, writeMask: gBufferWriteMask },
 						],
 					},
 					primitive,

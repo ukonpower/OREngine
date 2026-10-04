@@ -3,7 +3,7 @@ import { DEPTH_FORMAT, GBUFFER_ATTACHMENTS, SCENE_FORMAT } from '../../backend/B
 /*-------------------------------
 	カメラ1台ぶんの中間バッファ
 
-	gBuffer（MRT5）・シーン深度・シェーディング結果（と SSS 用にその diffuse だけ）を持つ。
+	gBuffer（MRT5）・シーン深度・シェーディング結果（と SSS 用にその diffuse だけ、SSR 用に環境の鏡面反射だけ）を持つ。
 	キャンバスの実サイズに追従し、変わったときだけ作り直す。
 -------------------------------*/
 
@@ -20,6 +20,8 @@ export class RenderTargets {
 	public sceneView: GPUTextureView | null;
 	public diffuse: GPUTexture | null;
 	public diffuseView: GPUTextureView | null;
+	public envReflection: GPUTexture | null;
+	public envReflectionView: GPUTextureView | null;
 	public refraction: GPUTexture | null;
 	public refractionView: GPUTextureView | null;
 
@@ -35,6 +37,8 @@ export class RenderTargets {
 		this.sceneView = null;
 		this.diffuse = null;
 		this.diffuseView = null;
+		this.envReflection = null;
+		this.envReflectionView = null;
 		this.refraction = null;
 		this.refractionView = null;
 
@@ -91,6 +95,16 @@ export class RenderTargets {
 
 		this.diffuseView = this.diffuse.createView();
 
+		// シェーディング結果のうち、SSR で置き換える環境の鏡面反射だけ。ssComposite が引いて SSR の結果を足す
+		this.envReflection = device.createTexture( {
+			label: 'envReflection',
+			size: [ width, height ],
+			format: SCENE_FORMAT,
+			usage,
+		} );
+
+		this.envReflectionView = this.envReflection.createView();
+
 		// forward描画前のシーンのコピー。forwardマテリアルが背景として読む
 		this.refraction = device.createTexture( {
 			label: 'refraction',
@@ -120,6 +134,10 @@ export class RenderTargets {
 		this.diffuse?.destroy();
 		this.diffuse = null;
 		this.diffuseView = null;
+
+		this.envReflection?.destroy();
+		this.envReflection = null;
+		this.envReflectionView = null;
 
 		this.refraction?.destroy();
 		this.refraction = null;
