@@ -36,7 +36,7 @@ import { Lights, ShadowRender } from './Lights';
 import { PipelinePostProcess } from './PipelinePostProcess';
 import { RenderView } from './RenderView';
 import presentWgsl from './shaders/present.wgsl';
-import { ENVMAP_BINDING, ENVMAP_SAMPLER_BINDING, LIGHTSHAFT_BINDING, SSAO_BINDING, buildShadingSource } from './shaders/shading';
+import { ENVMAP_BINDING, ENVMAP_SAMPLER_BINDING, LIGHTSHAFT_BINDING, SSAO_BINDING, SSR_BINDING, buildShadingSource } from './shaders/shading';
 import { Sky } from './Sky';
 
 import type { EngineContract } from '../../core/Contracts/EngineContract';
@@ -585,6 +585,11 @@ export class Renderer extends Serializable implements RendererContract {
 					visibility: GPUShaderStage.FRAGMENT,
 					texture: { sampleType: 'float' as const },
 				},
+				{
+					binding: SSR_BINDING,
+					visibility: GPUShaderStage.FRAGMENT,
+					texture: { sampleType: 'float' as const },
+				},
 			],
 		} );
 
@@ -837,7 +842,7 @@ export class Renderer extends Serializable implements RendererContract {
 		pipeline.update( camera );
 		pipeline.renderDeferred( device, encoder, frameBindGroup, view.targets.gBufferViews[ 0 ], lights.bindGroup, onPass );
 
-		if ( view.gBufferLightShaftView !== pipeline.lightShaftView || view.gBufferSsaoView !== pipeline.ssaoView ) {
+		if ( view.gBufferLightShaftView !== pipeline.lightShaftView || view.gBufferSsaoView !== pipeline.ssaoView || view.gBufferSsrView !== pipeline.ssrView ) {
 
 			this._createGBufferBindGroup( device, view );
 
@@ -855,6 +860,9 @@ export class Renderer extends Serializable implements RendererContract {
 		}
 
 		this._renderForward( device, encoder, view );
+
+		// 次のフレームの SSR が引く。SSR はシェーディングより前に走るので、今フレームのシーンはまだ無い
+		encoder.copyTextureToTexture( { texture: view.targets.scene! }, { texture: view.targets.prevScene! }, [ view.targets.width, view.targets.height ] );
 
 		// forwardもgBufferのpositionへ書くので、読み戻しはforwardの後に置く
 		this._encodeFocusReadback( device, encoder, view, camera );
@@ -1558,7 +1566,7 @@ export class Renderer extends Serializable implements RendererContract {
 			targets.gBufferViews[ 3 ],
 			targets.gBufferViews[ 4 ]
 		);
-		pipeline.setScene( targets.sceneView!, targets.diffuseView! );
+		pipeline.setScene( targets.sceneView!, targets.diffuseView!, targets.prevSceneView! );
 
 		this._createGBufferBindGroup( device, view );
 
@@ -1581,13 +1589,14 @@ export class Renderer extends Serializable implements RendererContract {
 	}
 
 	// シェーディングが読む入力をまとめたbind group。
-	// lightShaft / SSAO はぼかしを切るとピンポンの描画先が露出し、参照先がフレームごとに変わる
+	// lightShaft / SSAO はぼかしを切るとピンポンの描画先が露出し、SSR は常にピンポンの描画先なので、参照先がフレームごとに変わる
 	private _createGBufferBindGroup( device: GPUDevice, view: RenderView ) {
 
 		const pipeline = view.pipeline!;
 
 		view.gBufferLightShaftView = pipeline.lightShaftView;
 		view.gBufferSsaoView = pipeline.ssaoView;
+		view.gBufferSsrView = pipeline.ssrView;
 
 		view.gBufferBindGroup = device.createBindGroup( {
 			label: 'gBuffer',
@@ -1600,6 +1609,7 @@ export class Renderer extends Serializable implements RendererContract {
 				{ binding: ENVMAP_SAMPLER_BINDING, resource: this._envMap!.sampler },
 				{ binding: SSAO_BINDING, resource: view.gBufferSsaoView! },
 				{ binding: LIGHTSHAFT_BINDING, resource: view.gBufferLightShaftView! },
+				{ binding: SSR_BINDING, resource: view.gBufferSsrView! },
 			],
 		} );
 
@@ -1677,6 +1687,8 @@ export class Renderer extends Serializable implements RendererContract {
 
 		const flag = material.visibilityFlag;
 
+		const gBufferWriteMask = material.writeGBuffer ? GPUColorWrite.ALL : 0;
+
 		resource = {
 			pipelines: new Map<MaterialPhase, GPURenderPipeline | null>( [
 				// シャドウは深度だけを書くのでfragment stageを持たない。
@@ -1731,7 +1743,7 @@ export class Renderer extends Serializable implements RendererContract {
 						entryPoint: 'fsForwardMrt',
 						// シーン色に加えてgBufferの position / velocity も書き、
 						// forwardメッシュをDOF・モーションブラーへ乗せる。
-						// 位置と速度は混ぜても意味がないのでブレンドせず上書きする
+						// 位置と速度は混ぜても意味がないのでブレンドせず上書きする。writeGBuffer が false なら書かない
 						targets: [
 							{
 								format: SCENE_FORMAT,
@@ -1740,8 +1752,8 @@ export class Renderer extends Serializable implements RendererContract {
 									alpha: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha' },
 								},
 							},
-							{ format: GBUFFER_ATTACHMENTS[ 0 ].format },
-							{ format: GBUFFER_ATTACHMENTS[ 4 ].format },
+							{ format: GBUFFER_ATTACHMENTS[ 0 ].format, writeMask: gBufferWriteMask },
+							{ format: GBUFFER_ATTACHMENTS[ 4 ].format, writeMask: gBufferWriteMask },
 						],
 					},
 					primitive,

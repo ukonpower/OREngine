@@ -16,6 +16,7 @@ export type RenderCameraTarget = {
 	shadingBuffer: GLP.GLPowerFrameBuffer,
 	forwardBuffer: GLP.GLPowerFrameBuffer,
 	refractionBuffer: GLP.GLPowerFrameBuffer,
+	prevSceneBuffer: GLP.GLPowerFrameBuffer,
 	uiBuffer: GLP.GLPowerFrameBuffer,
 	normalBuffer: GLP.GLPowerFrameBuffer,
 }
@@ -65,6 +66,15 @@ const createRenderTarget = ( backend: GLBackend ): RenderCameraTarget => {
 		} ),
 	] );
 
+	// 前フレームの forward まで描き終えたシーン。シェーディングより前に走る SSR が反射色として引く
+	const prevSceneBuffer = backend.createFrameBuffer( { disableDepthBuffer: true } );
+	prevSceneBuffer.setTexture( [
+		backend.createTexture().setting( {
+			type: GL.FLOAT, internalFormat: GL.RGBA16F, format: GL.RGBA,
+			magFilter: GL.LINEAR, minFilter: GL.LINEAR,
+		} ),
+	] );
+
 	const uiBuffer = backend.createFrameBuffer( { disableDepthBuffer: true } );
 	uiBuffer.setDepthTexture( gBuffer.depthTexture );
 	uiBuffer.setTexture( [ backend.createTexture() ] );
@@ -74,7 +84,7 @@ const createRenderTarget = ( backend: GLBackend ): RenderCameraTarget => {
 		backend.createTexture().setting( { type: GL.FLOAT, internalFormat: GL.RGBA32F, format: GL.RGBA, magFilter: GL.NEAREST, minFilter: GL.NEAREST } )
 	] );
 
-	return { gBuffer, shadingBuffer, forwardBuffer, refractionBuffer, uiBuffer, normalBuffer };
+	return { gBuffer, shadingBuffer, forwardBuffer, refractionBuffer, prevSceneBuffer, uiBuffer, normalBuffer };
 
 };
 
@@ -155,13 +165,13 @@ export class RenderView implements RenderViewContract {
 		this.deferredRenderer.setPassEnabled( {
 			ssao: config.ssao,
 			lightShaft: config.lightShaft,
+			ssr: config.ssr,
 			sss: config.sss,
 		} );
 		this.deferredRenderer.setSSSRadius( config.sssRadius ?? 0.05 );
 		this.pipelinePostProcess.setPassEnabled( {
 			toneMap: config.toneMap,
 			motionBlur: config.motionBlur,
-			ssr: config.ssr,
 			dof: config.dof,
 			bloom: config.bloom,
 		} );
@@ -193,6 +203,7 @@ export class RenderView implements RenderViewContract {
 		rt.shadingBuffer.setSize( resolution );
 		rt.forwardBuffer.setSize( resolution );
 		rt.refractionBuffer.setSize( resolution );
+		rt.prevSceneBuffer.setSize( resolution );
 		rt.uiBuffer.setSize( resolution );
 		rt.normalBuffer.setSize( resolution );
 
@@ -267,7 +278,7 @@ export class RenderView implements RenderViewContract {
 		// forwardBuffer は gBuffer / shadingBuffer のテクスチャを借りているので、FBO だけ捨てる
 		rt.forwardBuffer.dispose();
 
-		const owners = [ rt.gBuffer, rt.shadingBuffer, rt.refractionBuffer, rt.uiBuffer, rt.normalBuffer ];
+		const owners = [ rt.gBuffer, rt.shadingBuffer, rt.refractionBuffer, rt.prevSceneBuffer, rt.uiBuffer, rt.normalBuffer ];
 
 		for ( let i = 0; i < owners.length; i ++ ) {
 

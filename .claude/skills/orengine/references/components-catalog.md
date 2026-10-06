@@ -25,7 +25,7 @@
 - `Camera` のピントの field は `focus/mode` / `focus/target` / `focus/distance` / `focus/speed` / `focus/fNumber`（DoF の絞り。小さいほどボケる）
   - `LookAt` の `target` / `Camera` の `focus/target` は entity 参照で、値は対象の uuid（`tree` で調べる）。BLidge のエンティティの uuid は `blidge:<Blender での名前>`（`demo-webgl/scenes/main.json` では `"blidge:CamLook"` / `"blidge:CamDof"`）
   - `focus/mode`: `auto` = 画面中心の深度（WebGPU のみ。WebGL では `target` と同じ動きになる）/ `target` = `focus/target` のエンティティまでの距離 / `manual` = `focus/distance`
-- エンジンのポストプロセスはレンダラーに組み込まれていて、HDR のまま SSR / DoF / モーションブラー → ブルーム合成 → トーンマップ + linear→sRGB → FXAA の順に走る（色の値・シェーダーの出力はリニアで扱い、sRGB にするのはこの最後だけ）。作風のパス（レンズ歪み・色収差など）はエンジンに無く、プロジェクトがシーンカメラの `PostProcessPipeline` にパスを足すコンポーネントで持つ（エンジンの仕上げの後に足した順で走る）。見本は `demo-webgl` / `demo-webgpu` の `Resources/Components/Samples/PostProcess/Finalize`（main シーンのカメラに付いている）。`add` にはパスの宣言を渡す（WebGL は `{ name, frag }`、WebGPU は `{ name, wgsl }`）。実体は描くビューごとにエンジンが組む
+- エンジンのポストプロセスはレンダラーに組み込まれていて、HDR のまま DoF / モーションブラー → ブルーム合成 → トーンマップ + linear→sRGB → FXAA の順に走る（色の値・シェーダーの出力はリニアで扱い、sRGB にするのはこの最後だけ）。SSR はポストではなくシェーディングの前に走り、前フレームのシーンから引いた反射を、シェーディングが環境マップの鏡面反射の代わりに使う（粗さ 0.1 以下で全量、0.4 へ向けて環境マップへ戻す。deferred の面だけ）。作風のパス（レンズ歪み・色収差など）はエンジンに無く、プロジェクトがシーンカメラの `PostProcessPipeline` にパスを足すコンポーネントで持つ（エンジンの仕上げの後に足した順で走る）。見本は `demo-webgl` / `demo-webgpu` の `Resources/Components/Samples/PostProcess/Finalize`（main シーンのカメラに付いている）。`add` にはパスの宣言を渡す（WebGL は `{ name, frag }`、WebGPU は `{ name, wgsl }`）。実体は描くビューごとにエンジンが組む
 - レンダラー全体の効果（モーションブラー・SSR・SSAO・DoF・ライトシャフト・トーンマップ・ブルーム等の on/off、空の色）はシーン JSON の `renderer`（`scene-schema.md`）で、CLI では変えられない
 - `Camera` の field は `cameraType`（`perspective` / `orthographic`）/ `fov` / `near` / `far` / `orthHeight`（並行投影で見える縦の全幅。横は画面の aspect から決まる）
 

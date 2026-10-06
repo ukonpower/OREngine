@@ -3,7 +3,7 @@ import { DEPTH_FORMAT, GBUFFER_ATTACHMENTS, SCENE_FORMAT } from '../../backend/B
 /*-------------------------------
 	カメラ1台ぶんの中間バッファ
 
-	gBuffer（MRT5）・シーン深度・シェーディング結果（と SSS 用にその diffuse だけ）を持つ。
+	gBuffer（MRT5）・シーン深度・シェーディング結果（と SSS 用にその diffuse だけ）・SSR が引く前フレームのシーンを持つ。
 	キャンバスの実サイズに追従し、変わったときだけ作り直す。
 -------------------------------*/
 
@@ -22,6 +22,8 @@ export class RenderTargets {
 	public diffuseView: GPUTextureView | null;
 	public refraction: GPUTexture | null;
 	public refractionView: GPUTextureView | null;
+	public prevScene: GPUTexture | null;
+	public prevSceneView: GPUTextureView | null;
 
 	constructor() {
 
@@ -37,6 +39,8 @@ export class RenderTargets {
 		this.diffuseView = null;
 		this.refraction = null;
 		this.refractionView = null;
+		this.prevScene = null;
+		this.prevSceneView = null;
 
 	}
 
@@ -101,6 +105,16 @@ export class RenderTargets {
 
 		this.refractionView = this.refraction.createView();
 
+		// 前フレームの forward まで描き終えたシーン。シェーディングより前に走る SSR が反射色として引く
+		this.prevScene = device.createTexture( {
+			label: 'prevScene',
+			size: [ width, height ],
+			format: SCENE_FORMAT,
+			usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
+		} );
+
+		this.prevSceneView = this.prevScene.createView();
+
 	}
 
 	public dispose() {
@@ -124,6 +138,10 @@ export class RenderTargets {
 		this.refraction?.destroy();
 		this.refraction = null;
 		this.refractionView = null;
+
+		this.prevScene?.destroy();
+		this.prevScene = null;
+		this.prevSceneView = null;
 
 	}
 

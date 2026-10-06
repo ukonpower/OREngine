@@ -32,6 +32,9 @@ export interface MaterialParam {
 	cullFace? :boolean;
 	blending?: Blending,
 	drawType?: DrawType;
+	// forward で gBuffer の position / velocity も書くか（既定 true）。自前でボケ・ぶれを付ける半透明
+	// （雨の筋など）は false にして、DoF・モーションブラーが板の位置を面として扱わないようにする
+	writeGBuffer?: boolean;
 }
 
 export class Material extends Serializable implements MaterialContract {
@@ -49,6 +52,7 @@ export class Material extends Serializable implements MaterialContract {
 	public drawType: DrawType;
 	public blending: Blending;
 	public renderOrder: number;
+	public writeGBuffer: boolean;
 
 	public visibilityFlag: MaterialVisibility;
 	public programCache: MaterialProgramCache;
@@ -71,6 +75,7 @@ export class Material extends Serializable implements MaterialContract {
 		this.drawType = params.drawType || "TRIANGLES";
 		this.blending = params.blending || "NORMAL";
 		this.renderOrder = params.renderOrder ?? 0;
+		this.writeGBuffer = params.writeGBuffer ?? true;
 
 		this.vert = params.vert || basicVert;
 		this.frag = params.frag || basicFrag;

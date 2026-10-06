@@ -167,6 +167,37 @@ export class GLBackend {
 
 	}
 
+	// 描画先の先頭のカラーアタッチメントだけに書くか、すべてに書くかを切り替える
+	public setColorOnly( target: GLP.GLPowerFrameBuffer, colorOnly: boolean ) {
+
+		if ( ! colorOnly ) {
+
+			this.gl.drawBuffers( target.textureAttachmentList );
+
+			return;
+
+		}
+
+		const buffers: number[] = [];
+
+		for ( let i = 0; i < target.textureAttachmentList.length; i ++ ) {
+
+			if ( i === 0 ) {
+
+				buffers.push( target.textureAttachmentList[ i ] );
+
+			} else {
+
+				buffers.push( this.gl.NONE );
+
+			}
+
+		}
+
+		this.gl.drawBuffers( buffers );
+
+	}
+
 	// 指定された要素だけをclearする
 	public clear( color: MTP.Vector | null, depth: number | null ) {
 

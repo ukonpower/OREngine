@@ -696,7 +696,9 @@ export class Renderer extends Serializable implements RendererContract {
 			viewMatrixPrev: cameraComponent.viewMatrixPrev,
 			projectionMatrix: cameraComponent.projectionMatrix,
 			projectionMatrixPrev: cameraComponent.projectionMatrixPrev,
-			cameraMatrixWorld: cameraEntity.matrixWorld
+			cameraMatrixWorld: cameraEntity.matrixWorld,
+			cameraNear: cameraComponent.near,
+			cameraFar: cameraComponent.far,
 		} } );
 
 		view.deferredRenderer.update();
@@ -776,6 +778,9 @@ export class Renderer extends Serializable implements RendererContract {
 		}
 
 		this.backend.setBlendEnabled( false );
+
+		// 次のフレームの SSR が引く。SSR はシェーディングより前に走るので、今フレームのシーンはまだ無い
+		this.backend.blit( rt.shadingBuffer, rt.prevSceneBuffer, resolution.x, resolution.y, true, true );
 
 		// scene（トーンマップを切っていても後続のパスが HDR を受け取れるよう、入力にシェーディングバッファを渡す）
 
@@ -1260,7 +1265,15 @@ export class Renderer extends Serializable implements RendererContract {
 
 			}
 
+			// forward の描画先は シーン色 / gBuffer の position / velocity の3枚（RenderView の forwardBuffer）
+			const renderTarget = param && param.renderTarget;
+			const colorOnly = renderType == 'forward' && ! material.writeGBuffer && !! renderTarget;
+
+			if ( colorOnly ) this.backend.setColorOnly( renderTarget!, true );
+
 			this.backend.draw( program, vao, material.drawType, material.blending, queryName );
+
+			if ( colorOnly ) this.backend.setColorOnly( renderTarget!, false );
 
 		}
 
