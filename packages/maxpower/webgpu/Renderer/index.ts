@@ -1210,7 +1210,10 @@ export class Renderer extends Serializable implements RendererContract {
 
 		}
 
-		// 不透明の forward は位置・法線・速度だけを先に書き、シェーディング前の SSR・SSAO などに deferred と同じ面として見せる
+		// 不透明の forward は位置・法線・速度だけを先に書き、シェーディング前の SSR・SSAO などに deferred と同じ面として見せる。
+		// 先描きも forwardColor を通るので group3 を束縛する。refraction は gBuffer とは別のテクスチャなので読み書きは衝突しない
+		pass.setBindGroup( GROUP_REFRACTION, view.refractionBindGroup! );
+
 		for ( let i = 0; i < this._stack.forward.length; i ++ ) {
 
 			this._drawEntity( device, pass, this._stack.forward[ i ], 'forwardPrepass' );
@@ -1816,7 +1819,8 @@ export class Renderer extends Serializable implements RendererContract {
 				// gBuffer の段で描くので、gBuffer のアタッチメントと並びを揃え、書かないものは writeMask を 0 にする
 				[ 'forwardPrepass', opaqueForward ? device.createRenderPipeline( {
 					label: `${material.name}/forwardPrepass`,
-					layout: device.createPipelineLayout( { bindGroupLayouts: objectLayouts } ),
+					// forwardColor を通すので forward と同じく group3 が要る
+					layout: device.createPipelineLayout( { bindGroupLayouts: forwardLayouts } ),
 					vertex,
 					fragment: { module, entryPoint: 'fsForwardPrepass', targets: prepassTargets },
 					primitive,

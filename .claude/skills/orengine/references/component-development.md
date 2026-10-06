@@ -240,7 +240,7 @@ export class OREngineCube extends MXP.Component {
 | `depthTest` / `depthWrite` / `cullFace` | 既定は `true` / `true` / `false` |
 | `drawType` | `'TRIANGLES'`（既定）/ `'LINES'`、WebGL は `'POINTS'` も |
 | `blending`（WebGL） | `'NORMAL'`（既定）/ `'ADD'` / `'DIFF'` |
-| `transparent` | forward で背後と混ぜて描くか。既定は `false`（不透明）。不透明は gBuffer の段で位置・法線・速度を先に書くので、SSR の反射に映り、SSAO・DoF・モーションブラーでも deferred と同じ面として扱われる（混ぜずに上書きする）。半透明・加算・パーティクルは `true` にする。透明は SSR の反射に映らない。WebGPU では不透明の先描きが `fsForward` を通らないので、`discard` で形を抜くものも `true` にする |
+| `transparent` | forward で背後と混ぜて描くか。既定は `false`（不透明）。不透明は gBuffer の段で位置・法線・速度を先に書くので、SSR の反射に映り、SSAO・DoF・モーションブラーでも deferred と同じ面として扱われる（混ぜずに上書きする）。半透明・加算・パーティクルは `true` にする。透明は SSR の反射に映らない。不透明でも `discard` で形を抜ける（先描きも同じシェーダーを通るので、抜いた所に面は残らない）。ただし縁は混ざらないので、アルファでぼかした縁は硬くなる |
 | `writeGBuffer` | 透明の forward で gBuffer の position / velocity も書くか。既定は `true`（DoF・モーションブラーに自分の奥行き・動きで乗る）。自前でボケ・ぶれを付ける半透明（雨の筋など）は `false` にして、DoF・モーションブラーが板の位置を面として扱わないようにする。不透明は常に書く |
 | `storages` / `textures`（WebGPU） | GPUCompute の出力 / テクスチャを WGSL に束縛する |
 

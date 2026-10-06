@@ -44,9 +44,7 @@ export interface MaterialParam {
 	readsScene?: boolean;
 	// forward で背後と混ぜて描くか（既定 false）。false（不透明）は gBuffer の段で位置・法線・速度を先に書くので、
 	// SSR に映り、SSAO・DoF・モーションブラーでも deferred と同じ面として扱われる。
-	// true（透明）は SSR の反射にも、SSR が色を引く前フレームのシーンにも入らない。
-	// 不透明の先描き（fsForwardPrepass）は fsForward を通らないので、discard で形を抜くものは true にする
-	// （false のままだと抜いた所に位置が残り、シェーディングの黒が見える）
+	// true（透明）は SSR の反射にも、SSR が色を引く前フレームのシーンにも入らない
 	transparent?: boolean;
 	// 透明の forward で gBuffer の position / velocity も書くか（既定 true）。自前でボケ・ぶれを付ける半透明
 	// （雨の筋など）は false にして、DoF・モーションブラーが板の位置を面として扱わないようにする。不透明は常に書く

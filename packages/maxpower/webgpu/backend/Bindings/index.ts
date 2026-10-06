@@ -248,6 +248,7 @@ const buildForwardPrepassOutputWgsl = () => {
 // 透明の forward メッシュをDOF・モーションブラーへ乗せる（webgl側 frag_out.part.glsl の IS_FORWARD と同じ構図）。
 // αはgBufferではemissionだが、シェーディング後に読む側はxyzしか見ないので1.0で埋める。
 // fsForwardPrepass は不透明の forward が gBuffer の段で位置・法線・速度だけを書く（webgl側の IS_PREPASS）。
+// 色は使わないが forwardColor を通し、マテリアルが discard で抜いた所に面を残さない（webgl側も frag を通す）。
 // emission の入る α は 0 にする（シェーディングが塗った色は forward が上書きする）
 const FORWARD_ENTRY_WGSL = `${buildForwardPrepassOutputWgsl()}
 
@@ -278,6 +279,8 @@ fn fsForwardMrt( input: VertexOutput ) -> ForwardOutput {
 
 @fragment
 fn fsForwardPrepass( input: VertexOutput ) -> ForwardPrepassOutput {
+
+	_ = forwardColor( input );
 
 	var output: ForwardPrepassOutput;
 	output.position = vec4f( input.worldPosition, 0.0 );
