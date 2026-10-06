@@ -66,7 +66,7 @@ const createRenderTarget = ( backend: GLBackend ): RenderCameraTarget => {
 		} ),
 	] );
 
-	// 前フレームの forward まで描き終えたシーン。シェーディングより前に走る SSR が反射色として引く
+	// 前フレームの不透明の forward まで描き終えたシーン。シェーディングより前に走る SSR が反射色として引く
 	const prevSceneBuffer = backend.createFrameBuffer( { disableDepthBuffer: true } );
 	prevSceneBuffer.setTexture( [
 		backend.createTexture().setting( {

@@ -105,7 +105,7 @@ export class RenderTargets {
 
 		this.refractionView = this.refraction.createView();
 
-		// 前フレームの forward まで描き終えたシーン。シェーディングより前に走る SSR が反射色として引く
+		// 前フレームの不透明の forward まで描き終えたシーン。シェーディングより前に走る SSR が反射色として引く
 		this.prevScene = device.createTexture( {
 			label: 'prevScene',
 			size: [ width, height ],

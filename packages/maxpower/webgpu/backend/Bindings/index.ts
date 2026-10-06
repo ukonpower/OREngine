@@ -123,6 +123,10 @@ export const GBUFFER_BYTES_PER_SAMPLE = GBUFFER_ATTACHMENTS.reduce( ( sum, a ) =
 
 export const GBUFFER_TARGETS: GPUColorTargetState[] = GBUFFER_ATTACHMENTS.map( ( a ) => ( { format: a.format } ) );
 
+// 不透明の forward が gBuffer の段で先に書く面の情報（fsForwardPrepass の出力）。SSR・SSAO などシェーディング前の段が読むもの。
+// albedo / material は書かない（シェーディングがその画素に塗った色は forward が上書きする）
+export const FORWARD_PREPASS_ATTACHMENTS: string[] = [ 'position', 'normal', 'velocity' ];
+
 export const SCENE_FORMAT: GPUTextureFormat = 'rgba16float';
 export const DEPTH_FORMAT: GPUTextureFormat = 'depth24plus';
 export const SHADOW_FORMAT: GPUTextureFormat = 'depth32float';
@@ -218,11 +222,36 @@ ${GBUFFER_ATTACHMENTS.map( ( a ) => `\toutput.${a.name} = g.${a.name};` ).join( 
 // 戻り値の @location(0) は entry point 以外では書けないので、シグネチャごと置き換える
 const FORWARD_COLOR_DECL = /@fragment\s+fn\s+fsForward\s*\(\s*(\w+)\s*:\s*VertexOutput\s*\)\s*->\s*@location\(\s*0\s*\)\s*vec4f/;
 
+// fsForwardPrepass の出力。@location はアタッチメント表の並びに合わせる
+const buildForwardPrepassOutputWgsl = () => {
+
+	const lines: string[] = [];
+
+	for ( let i = 0; i < GBUFFER_ATTACHMENTS.length; i ++ ) {
+
+		const name = GBUFFER_ATTACHMENTS[ i ].name;
+
+		if ( FORWARD_PREPASS_ATTACHMENTS.indexOf( name ) > - 1 ) {
+
+			lines.push( `\t@location(${i}) ${name}: vec4f,` );
+
+		}
+
+	}
+
+	return `struct ForwardPrepassOutput {\n${lines.join( '\n' )}\n};`;
+
+};
+
 // forward系のentry point。fsForward は単一ターゲット（envMap / エディタ描画）用。
 // fsForwardMrt はシーン色に加えてgBufferの position / velocity も上書きし、
-// forwardメッシュをDOF・モーションブラーへ乗せる（webgl側 frag_out.part.glsl の IS_FORWARD と同じ構図）。
-// αはgBufferではemissionだが、シェーディング後に読む側はxyzしか見ないので1.0で埋める
-const FORWARD_ENTRY_WGSL = `struct ForwardOutput {
+// 透明の forward メッシュをDOF・モーションブラーへ乗せる（webgl側 frag_out.part.glsl の IS_FORWARD と同じ構図）。
+// αはgBufferではemissionだが、シェーディング後に読む側はxyzしか見ないので1.0で埋める。
+// fsForwardPrepass は不透明の forward が gBuffer の段で位置・法線・速度だけを書く（webgl側の IS_PREPASS）。
+// emission の入る α は 0 にする（シェーディングが塗った色は forward が上書きする）
+const FORWARD_ENTRY_WGSL = `${buildForwardPrepassOutputWgsl()}
+
+struct ForwardOutput {
 	@location(0) color: vec4f,
 	@location(1) position: vec4f,
 	@location(2) velocity: vec4f,
@@ -242,6 +271,18 @@ fn fsForwardMrt( input: VertexOutput ) -> ForwardOutput {
 	output.color = forwardColor( input );
 	output.position = vec4f( input.worldPosition, 1.0 );
 	output.velocity = vec4f( input.velocity, 0.0, 1.0 );
+
+	return output;
+
+}
+
+@fragment
+fn fsForwardPrepass( input: VertexOutput ) -> ForwardPrepassOutput {
+
+	var output: ForwardPrepassOutput;
+	output.position = vec4f( input.worldPosition, 0.0 );
+	output.normal = vec4f( normalize( input.normal ), 0.0 );
+	output.velocity = vec4f( input.velocity, 0.0, 0.0 );
 
 	return output;
 

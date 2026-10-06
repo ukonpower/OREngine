@@ -233,14 +233,15 @@ export class OREngineCube extends MXP.Component {
 
 | オプション | 意味 |
 |---|---|
-| `phase` | 描かれるパス。既定は `[ 'shadowMap', 'deferred' ]`。不透明でライティングを受ける → `deferred`、影を落とす → `shadowMap` を足す、半透明・加算・パーティクル → `forward`、環境マップ（映り込み）に出す → `envMap` |
+| `phase` | 描かれるパス。既定は `[ 'shadowMap', 'deferred' ]`。不透明でライティングを受ける → `deferred`、影を落とす → `shadowMap` を足す、自前のシェーダーで色を決める・半透明・加算・パーティクル → `forward`（背後と混ぜるものは `transparent: true` も付ける）、環境マップ（映り込み）に出す → `envMap` |
 | `vert` / `frag`（WebGL） | GLSL ソース。省略すると basic シェーダー |
 | `wgsl`（WebGPU） | 頂点・フラグメントの entry point をまとめた WGSL。省略すると basic。書き方は `shader-wgsl.md` |
 | `uniforms` | 独自の uniform（後述） |
 | `depthTest` / `depthWrite` / `cullFace` | 既定は `true` / `true` / `false` |
 | `drawType` | `'TRIANGLES'`（既定）/ `'LINES'`、WebGL は `'POINTS'` も |
 | `blending`（WebGL） | `'NORMAL'`（既定）/ `'ADD'` / `'DIFF'` |
-| `writeGBuffer` | forward で gBuffer の position / velocity も書くか。既定は `true`（DoF・モーションブラーに自分の奥行き・動きで乗る）。自前でボケ・ぶれを付ける半透明（雨の筋など）は `false` にして、DoF・モーションブラーが板の位置を面として扱わないようにする |
+| `transparent` | forward で背後と混ぜて描くか。既定は `false`（不透明）。不透明は gBuffer の段で位置・法線・速度を先に書くので、SSR の反射に映り、SSAO・DoF・モーションブラーでも deferred と同じ面として扱われる（混ぜずに上書きする）。半透明・加算・パーティクルは `true` にする。透明は SSR の反射に映らない。WebGPU では不透明の先描きが `fsForward` を通らないので、`discard` で形を抜くものも `true` にする |
+| `writeGBuffer` | 透明の forward で gBuffer の position / velocity も書くか。既定は `true`（DoF・モーションブラーに自分の奥行き・動きで乗る）。自前でボケ・ぶれを付ける半透明（雨の筋など）は `false` にして、DoF・モーションブラーが板の位置を面として扱わないようにする。不透明は常に書く |
 | `storages` / `textures`（WebGPU） | GPUCompute の出力 / テクスチャを WGSL に束縛する |
 
 インスタンシング: WebGL は `geometry.setAttribute( 'oPos', array, 4, { instanceDivisor: 1 } )` のようにインスタンス属性を足す（`Samples/Effects/FlashLine`）。WebGPU は頂点属性が `position` / `normal` / `uv` に固定でインスタンス属性を足せないので、`addComponent( MXP.Mesh, { geometry, material, instanceCount: N } )` にして、WGSL で `@builtin(instance_index)` からインスタンスごとの値を作るか `storages`（GPUCompute の出力）から読む（`demo-webgpu` の `Samples/Particles/YakiSoba`）。

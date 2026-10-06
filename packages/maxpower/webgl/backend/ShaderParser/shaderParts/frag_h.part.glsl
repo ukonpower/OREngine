@@ -35,7 +35,13 @@ uniform vec2 uResolution;
 	uniform sampler2D uGbufferMaterial;
 #endif
 
-#if defined(IS_FORWARD) || defined(IS_DEPTH)
+// IS_PREPASS は不透明の forward が gBuffer の段で位置・法線・速度だけを書くパス（IS_FORWARD と一緒に define される）。
+// 位置は gBuffer の並びの 0 / 1 / 4 番に合わせる
+#ifdef IS_PREPASS
+	layout (location = 0) out vec4 outColor0;
+	layout (location = 1) out vec4 outColor1;
+	layout (location = 4) out vec4 outColor4;
+#elif defined(IS_FORWARD) || defined(IS_DEPTH)
 	layout (location = 0) out vec4 outColor0;
 	layout (location = 1) out vec4 outColor1;
 	layout (location = 2) out vec4 outColor2;

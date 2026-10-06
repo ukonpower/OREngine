@@ -29,7 +29,7 @@ const material = new MXP.Material( {
 |---|---|---|
 | 共通 | `@vertex fn vsMain( input: VertexInput ) -> VertexOutput` | |
 | `deferred` | `@fragment fn fsDeferred( input: VertexOutput ) -> GBufferOutput` | `packGBuffer( input, surface )` |
-| `forward` / `envMap` | `@fragment fn fsForward( input: VertexOutput ) -> @location(0) vec4f` | 色（forward はアルファブレンドで重なる） |
+| `forward` / `envMap` | `@fragment fn fsForward( input: VertexOutput ) -> @location(0) vec4f` | 色（forward は Material の `transparent: true` ならアルファブレンドで重なり、不透明なら上書きする） |
 | `shadowMap` | `vsMain` だけ（深度を書く） | |
 
 - `fsForward` は上のシグネチャどおりに書く。エンジンがこの宣言を探して別名に書き換え、forward 用の entry point を生成するため（引数名は自由）
