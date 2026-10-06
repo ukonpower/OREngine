@@ -55,6 +55,7 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 			uTimeF: { value: 0, type: "1f" },
 			uTimeE: { value: 0, type: "1f" },
 			uTimeEF: { value: 0, type: "1f" },
+			uTimePrev: { value: 0, type: "1f" },
 			uDeltaTime: { value: 0, type: "1f" },
 			uResolution: { value: new MTP.Vector(), type: "2fv" },
 			uAspectRatio: { value: 1.0, type: "1f" },
@@ -257,6 +258,7 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 
 		const event = this.createEntityUpdateEvent( { forceDraw: param?.forceDraw } );
 
+		this._renderer.globalUniforms.uTimePrev.value = this._renderer.globalUniforms.uTime.value;
 		this._renderer.globalUniforms.uTime.value = this._time.code;
 		this._renderer.globalUniforms.uTimeF.value = this._time.code % 1;
 		this._renderer.globalUniforms.uTimeE.value = this._time.engine;
@@ -405,6 +407,7 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 
 		const event = this.createEntityUpdateEvent( { forceDraw: true, offline: true } );
 
+		this._renderer.globalUniforms.uTimePrev.value = this._renderer.globalUniforms.uTime.value;
 		this._renderer.globalUniforms.uTime.value = this._time.code;
 		this._renderer.globalUniforms.uTimeF.value = this._time.code % 1;
 		this._renderer.globalUniforms.uTimeE.value = this._time.engine;

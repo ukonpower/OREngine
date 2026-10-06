@@ -51,7 +51,7 @@ void main( void ) {
 
 - `vert_h` / `frag_h` に行列・時間（`uTime` / `uTimeF` / `uTimeE` / `uTimeEF`）・`uResolution`・varying（`vUv` / `vNormal` / `vPos` 等）の宣言が入っている。自分で宣言し直さない
 - 独自の varying は `out` / `in` で自分で宣言する（`demo-webgl` の `OREngineCube/shaders/main.vs` の `vNoise`）
-- 同じシェーダーが `phase` のパスごとに `IS_DEFERRED` / `IS_FORWARD`（forward と envMap）/ `IS_DEPTH`（shadowMap）を define してコンパイルされる。`frag_out` がパスに合わせて書き分けるので、ふつうは意識しなくてよい
+- 同じシェーダーが `phase` のパスごとに `IS_DEFERRED` / `IS_FORWARD`（forward と envMap）/ `IS_DEPTH`（shadowMap）を define してコンパイルされる。不透明の forward（`transparent` でない）は gBuffer の段でも `IS_FORWARD` と `IS_PREPASS` を define して描かれ、位置・法線・速度だけが書かれる。`frag_out` がパスに合わせて書き分けるので、ふつうは意識しなくてよい
 
 ## 書き換える変数
 

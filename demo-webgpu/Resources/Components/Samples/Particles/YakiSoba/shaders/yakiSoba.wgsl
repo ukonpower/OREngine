@@ -53,11 +53,11 @@ fn vsMain( input: VertexInput, @builtin(instance_index) instanceIndex: u32 ) -> 
 	let position = frame.uProjectionMatrix * frame.uViewMatrix * worldPosition;
 
 	output.position = position;
+	// 前フレームの粒子位置は持っていないので、エンティティとカメラの動きだけを乗せる
+	output.positionPrev = projectPrev( ( object.uModelMatrixPrev * vec4f( localPosition, 1.0 ) ).xyz );
 	output.normal = ( object.uNormalMatrix * vec4f( localNormal, 0.0 ) ).xyz;
 	output.uv = input.uv;
 	output.worldPosition = worldPosition.xyz;
-	// 前フレームの粒子位置は持っていないため、モーションブラーには乗せない
-	output.velocity = vec2f( 0.0 );
 
 	return output;
 

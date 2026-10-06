@@ -10,6 +10,7 @@ import {
 	DEPTH_FORMAT,
 	ENVMAP_FORMAT,
 	ENVMAP_SIZE,
+	FORWARD_PREPASS_ATTACHMENTS,
 	FRAME_FIELDS,
 	GBUFFER_ATTACHMENTS,
 	GBUFFER_BYTES_PER_SAMPLE,
@@ -36,7 +37,7 @@ import { Lights, ShadowRender } from './Lights';
 import { PipelinePostProcess } from './PipelinePostProcess';
 import { RenderView } from './RenderView';
 import presentWgsl from './shaders/present.wgsl';
-import { ENVMAP_BINDING, ENVMAP_SAMPLER_BINDING, LIGHTSHAFT_BINDING, SSAO_BINDING, buildShadingSource } from './shaders/shading';
+import { ENVMAP_BINDING, ENVMAP_SAMPLER_BINDING, LIGHTSHAFT_BINDING, SSAO_BINDING, SSR_BINDING, buildShadingSource } from './shaders/shading';
 import { Sky } from './Sky';
 
 import type { EngineContract } from '../../core/Contracts/EngineContract';
@@ -95,10 +96,13 @@ const _defaultMaterial = new Material( { name: 'default' } );
 
 const getMaterial = ( mesh: Mesh ) => ( mesh.material || _defaultMaterial ) as Material;
 
+// 描画パスの種類。マテリアルのフェーズに、不透明の forward が gBuffer の段で位置・法線・速度を先に書くパスを足したもの
+type DrawPass = MaterialPhase | 'forwardPrepass';
+
 type MaterialResource = {
-	// フェーズごとのパイプライン。マテリアルが参加しないフェーズは null。
-	// フェーズ名の文字列で引くので、player ビルドの property mangle で改名されない Map で持つ
-	pipelines: Map<MaterialPhase, GPURenderPipeline | null>;
+	// パスごとのパイプライン。マテリアルが参加しないパスは null。
+	// パス名の文字列で引くので、player ビルドの property mangle で改名されない Map で持つ
+	pipelines: Map<DrawPass, GPURenderPipeline | null>;
 	// uniform / storage / テクスチャのいずれも持たないマテリアルは group2 ごと存在しない
 	binder: UniformBinder | null;
 	materialLayout: GPUBindGroupLayout | null;
@@ -152,7 +156,9 @@ type RenderStack = {
 	light: Entity[];
 	shadowMap: Entity[];
 	deferred: Entity[];
+	// forward のうち不透明のもの。透明のものは transparent に分ける
 	forward: Entity[];
+	transparent: Entity[];
 	envMap: Entity[];
 }
 
@@ -286,7 +292,7 @@ export class Renderer extends Serializable implements RendererContract {
 
 		this._centerDepth = null;
 
-		this._stack = { light: [], shadowMap: [], deferred: [], forward: [], envMap: [] };
+		this._stack = { light: [], shadowMap: [], deferred: [], forward: [], transparent: [], envMap: [] };
 		this._sceneCamera = null;
 		this._normalMatrix = this._objectUniforms.uNormalMatrix.value;
 		this._passResolution = new MTP.Vector();
@@ -585,6 +591,11 @@ export class Renderer extends Serializable implements RendererContract {
 					visibility: GPUShaderStage.FRAGMENT,
 					texture: { sampleType: 'float' as const },
 				},
+				{
+					binding: SSR_BINDING,
+					visibility: GPUShaderStage.FRAGMENT,
+					texture: { sampleType: 'float' as const },
+				},
 			],
 		} );
 
@@ -743,8 +754,11 @@ export class Renderer extends Serializable implements RendererContract {
 		this._collectRenderStack( root, true );
 		this._collectRenderStack( this.sky.entity, true );
 
-		this._stack.forward.sort( ( a, b ) =>
-			getMaterial( a.getComponent( Mesh )! ).renderOrder - getMaterial( b.getComponent( Mesh )! ).renderOrder );
+		const byRenderOrder = ( a: Entity, b: Entity ) =>
+			getMaterial( a.getComponent( Mesh )! ).renderOrder - getMaterial( b.getComponent( Mesh )! ).renderOrder;
+
+		this._stack.forward.sort( byRenderOrder );
+		this._stack.transparent.sort( byRenderOrder );
 
 		lights.update( this._stack.light );
 
@@ -837,7 +851,7 @@ export class Renderer extends Serializable implements RendererContract {
 		pipeline.update( camera );
 		pipeline.renderDeferred( device, encoder, frameBindGroup, view.targets.gBufferViews[ 0 ], lights.bindGroup, onPass );
 
-		if ( view.gBufferLightShaftView !== pipeline.lightShaftView || view.gBufferSsaoView !== pipeline.ssaoView ) {
+		if ( view.gBufferLightShaftView !== pipeline.lightShaftView || view.gBufferSsaoView !== pipeline.ssaoView || view.gBufferSsrView !== pipeline.ssrView ) {
 
 			this._createGBufferBindGroup( device, view );
 
@@ -854,7 +868,13 @@ export class Renderer extends Serializable implements RendererContract {
 
 		}
 
-		this._renderForward( device, encoder, view );
+		this._renderForward( device, encoder, view, this._stack.forward, 'forward' );
+
+		// 次のフレームの SSR が引く。SSR はシェーディングより前に走るので、今フレームのシーンはまだ無い。
+		// 透明の forward は SSR の当たり判定（gBuffer の段の位置）に入らないので、色にも入れないよう描く前に写す
+		encoder.copyTextureToTexture( { texture: view.targets.scene! }, { texture: view.targets.prevScene! }, [ view.targets.width, view.targets.height ] );
+
+		this._renderForward( device, encoder, view, this._stack.transparent, 'transparent' );
 
 		// forwardもgBufferのpositionへ書くので、読み戻しはforwardの後に置く
 		this._encodeFocusReadback( device, encoder, view, camera );
@@ -1190,6 +1210,16 @@ export class Renderer extends Serializable implements RendererContract {
 
 		}
 
+		// 不透明の forward は位置・法線・速度だけを先に書き、シェーディング前の SSR・SSAO などに deferred と同じ面として見せる。
+		// 先描きも forwardColor を通るので group3 を束縛する。refraction は gBuffer とは別のテクスチャなので読み書きは衝突しない
+		pass.setBindGroup( GROUP_REFRACTION, view.refractionBindGroup! );
+
+		for ( let i = 0; i < this._stack.forward.length; i ++ ) {
+
+			this._drawEntity( device, pass, this._stack.forward[ i ], 'forwardPrepass' );
+
+		}
+
 		pass.end();
 
 		for ( let i = 0; i < targets.gBufferViews.length; i ++ ) {
@@ -1235,12 +1265,12 @@ export class Renderer extends Serializable implements RendererContract {
 
 	}
 
-	// シェーディング結果の上へ、gBufferの深度を引き継いで重ねる
-	private _renderForward( device: GPUDevice, encoder: GPUCommandEncoder, view: RenderView ) {
+	// シェーディング結果の上へ、gBufferの深度を引き継いで forward のメッシュを重ねる
+	private _renderForward( device: GPUDevice, encoder: GPUCommandEncoder, view: RenderView, entities: Entity[], label: string ) {
 
 		const targets = view.targets;
 
-		if ( this._stack.forward.length === 0 ) return;
+		if ( entities.length === 0 ) return;
 
 		// 描画直前のシーンをrefractionへ写す。forwardマテリアルはこれを背景として読む
 		const copyScene = () => {
@@ -1296,9 +1326,9 @@ export class Renderer extends Serializable implements RendererContract {
 		// 最後に写してから forward を描いたか。描いていなければ写し直す必要は無い
 		let drawnSinceCopy = false;
 
-		for ( let i = 0; i < this._stack.forward.length; i ++ ) {
+		for ( let i = 0; i < entities.length; i ++ ) {
 
-			const entity = this._stack.forward[ i ];
+			const entity = entities[ i ];
 			const material = getMaterial( entity.getComponent( Mesh )! );
 
 			// 描画中のテクスチャはコピー元にできないので、pass を閉じてから写し、開き直す
@@ -1318,7 +1348,7 @@ export class Renderer extends Serializable implements RendererContract {
 
 		pass.end();
 
-		this._emitPass( targets.sceneView, targets.width, targets.height, 'forward' );
+		this._emitPass( targets.sceneView, targets.width, targets.height, label );
 
 	}
 
@@ -1363,6 +1393,7 @@ export class Renderer extends Serializable implements RendererContract {
 		this._stack.shadowMap.length = 0;
 		this._stack.deferred.length = 0;
 		this._stack.forward.length = 0;
+		this._stack.transparent.length = 0;
 		this._stack.envMap.length = 0;
 		this._sceneCamera = null;
 
@@ -1376,12 +1407,26 @@ export class Renderer extends Serializable implements RendererContract {
 
 		if ( mesh && visibility ) {
 
-			const flag = getMaterial( mesh ).visibilityFlag;
+			const material = getMaterial( mesh );
+			const flag = material.visibilityFlag;
 
 			if ( flag.shadowMap ) this._stack.shadowMap.push( entity );
 			if ( flag.deferred ) this._stack.deferred.push( entity );
-			if ( flag.forward ) this._stack.forward.push( entity );
 			if ( flag.envMap ) this._stack.envMap.push( entity );
+
+			if ( flag.forward ) {
+
+				if ( material.transparent ) {
+
+					this._stack.transparent.push( entity );
+
+				} else {
+
+					this._stack.forward.push( entity );
+
+				}
+
+			}
 
 		}
 
@@ -1413,7 +1458,7 @@ export class Renderer extends Serializable implements RendererContract {
 
 	}
 
-	private _drawEntity( device: GPUDevice, pass: GPURenderPassEncoder, entity: Entity, phase: MaterialPhase ) {
+	private _drawEntity( device: GPUDevice, pass: GPURenderPassEncoder, entity: Entity, phase: DrawPass ) {
 
 		const mesh = entity.getComponent( Mesh )!;
 		const material = getMaterial( mesh );
@@ -1558,7 +1603,7 @@ export class Renderer extends Serializable implements RendererContract {
 			targets.gBufferViews[ 3 ],
 			targets.gBufferViews[ 4 ]
 		);
-		pipeline.setScene( targets.sceneView!, targets.diffuseView! );
+		pipeline.setScene( targets.sceneView!, targets.diffuseView!, targets.prevSceneView! );
 
 		this._createGBufferBindGroup( device, view );
 
@@ -1581,13 +1626,14 @@ export class Renderer extends Serializable implements RendererContract {
 	}
 
 	// シェーディングが読む入力をまとめたbind group。
-	// lightShaft / SSAO はぼかしを切るとピンポンの描画先が露出し、参照先がフレームごとに変わる
+	// lightShaft / SSAO はぼかしを切るとピンポンの描画先が露出し、SSR は常にピンポンの描画先なので、参照先がフレームごとに変わる
 	private _createGBufferBindGroup( device: GPUDevice, view: RenderView ) {
 
 		const pipeline = view.pipeline!;
 
 		view.gBufferLightShaftView = pipeline.lightShaftView;
 		view.gBufferSsaoView = pipeline.ssaoView;
+		view.gBufferSsrView = pipeline.ssrView;
 
 		view.gBufferBindGroup = device.createBindGroup( {
 			label: 'gBuffer',
@@ -1600,6 +1646,7 @@ export class Renderer extends Serializable implements RendererContract {
 				{ binding: ENVMAP_SAMPLER_BINDING, resource: this._envMap!.sampler },
 				{ binding: SSAO_BINDING, resource: view.gBufferSsaoView! },
 				{ binding: LIGHTSHAFT_BINDING, resource: view.gBufferLightShaftView! },
+				{ binding: SSR_BINDING, resource: view.gBufferSsrView! },
 			],
 		} );
 
@@ -1676,9 +1723,56 @@ export class Renderer extends Serializable implements RendererContract {
 		const vertex: GPUVertexState = { module, entryPoint: 'vsMain', buffers: VERTEX_BUFFER_LAYOUT };
 
 		const flag = material.visibilityFlag;
+		const opaqueForward = flag.forward && ! material.transparent;
+
+		// 不透明の forward は gBuffer の段で位置・法線・速度を書き終えているので、forward では色だけを上書きする。
+		// 透明は writeGBuffer なら自分の奥行き・動きで DoF・モーションブラーに乗るよう position / velocity を書く
+		let forwardGBufferWriteMask = 0;
+
+		if ( material.transparent && material.writeGBuffer ) {
+
+			forwardGBufferWriteMask = GPUColorWrite.ALL;
+
+		}
+
+		const forwardColorTarget: GPUColorTargetState = { format: SCENE_FORMAT };
+
+		if ( material.transparent ) {
+
+			forwardColorTarget.blend = {
+				color: { srcFactor: 'src-alpha', dstFactor: 'one-minus-src-alpha' },
+				alpha: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha' },
+			};
+
+		}
+
+		const prepassTargets: GPUColorTargetState[] = [];
+
+		for ( const attachment of GBUFFER_ATTACHMENTS ) {
+
+			let writeMask = 0;
+
+			if ( FORWARD_PREPASS_ATTACHMENTS.indexOf( attachment.name ) > - 1 ) {
+
+				writeMask = GPUColorWrite.ALL;
+
+			}
+
+			prepassTargets.push( { format: attachment.format, writeMask } );
+
+		}
+
+		// 不透明の forward は gBuffer の段で書いた深度と同じ面を描くので、同じ深度で通す
+		let forwardDepthCompare: GPUCompareFunction = 'always';
+
+		if ( material.depthTest ) {
+
+			forwardDepthCompare = material.transparent ? 'less' : 'less-equal';
+
+		}
 
 		resource = {
-			pipelines: new Map<MaterialPhase, GPURenderPipeline | null>( [
+			pipelines: new Map<DrawPass, GPURenderPipeline | null>( [
 				// シャドウは深度だけを書くのでfragment stageを持たない。
 				// fsShadow を定義したマテリアルだけ、色を持たないfragment stageで深度を書き直す
 				[ 'shadowMap', flag.shadowMap ? device.createRenderPipeline( {
@@ -1722,6 +1816,20 @@ export class Renderer extends Serializable implements RendererContract {
 						depthCompare: material.depthTest ? 'less' : 'always',
 					},
 				} ) : null ],
+				// gBuffer の段で描くので、gBuffer のアタッチメントと並びを揃え、書かないものは writeMask を 0 にする
+				[ 'forwardPrepass', opaqueForward ? device.createRenderPipeline( {
+					label: `${material.name}/forwardPrepass`,
+					// forwardColor を通すので forward と同じく group3 が要る
+					layout: device.createPipelineLayout( { bindGroupLayouts: forwardLayouts } ),
+					vertex,
+					fragment: { module, entryPoint: 'fsForwardPrepass', targets: prepassTargets },
+					primitive,
+					depthStencil: {
+						format: DEPTH_FORMAT,
+						depthWriteEnabled: material.depthWrite,
+						depthCompare: material.depthTest ? 'less' : 'always',
+					},
+				} ) : null ],
 				[ 'forward', flag.forward ? device.createRenderPipeline( {
 					label: `${material.name}/forward`,
 					layout: device.createPipelineLayout( { bindGroupLayouts: forwardLayouts } ),
@@ -1729,26 +1837,19 @@ export class Renderer extends Serializable implements RendererContract {
 					fragment: {
 						module,
 						entryPoint: 'fsForwardMrt',
-						// シーン色に加えてgBufferの position / velocity も書き、
-						// forwardメッシュをDOF・モーションブラーへ乗せる。
+						// 描画先は シーン色 / gBuffer の position / velocity の3枚。
 						// 位置と速度は混ぜても意味がないのでブレンドせず上書きする
 						targets: [
-							{
-								format: SCENE_FORMAT,
-								blend: {
-									color: { srcFactor: 'src-alpha', dstFactor: 'one-minus-src-alpha' },
-									alpha: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha' },
-								},
-							},
-							{ format: GBUFFER_ATTACHMENTS[ 0 ].format },
-							{ format: GBUFFER_ATTACHMENTS[ 4 ].format },
+							forwardColorTarget,
+							{ format: GBUFFER_ATTACHMENTS[ 0 ].format, writeMask: forwardGBufferWriteMask },
+							{ format: GBUFFER_ATTACHMENTS[ 4 ].format, writeMask: forwardGBufferWriteMask },
 						],
 					},
 					primitive,
 					depthStencil: {
 						format: DEPTH_FORMAT,
 						depthWriteEnabled: material.depthWrite,
-						depthCompare: material.depthTest ? 'less' : 'always',
+						depthCompare: forwardDepthCompare,
 					},
 				} ) : null ],
 			] ),

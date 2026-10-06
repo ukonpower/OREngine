@@ -167,6 +167,44 @@ export class GLBackend {
 
 	}
 
+	// 描画先のカラーアタッチメントのうち、indices の番号のものだけに書く。null ならすべてに書く
+	public setDrawBuffers( target: GLP.GLPowerFrameBuffer, indices: number[] | null ) {
+
+		if ( ! indices ) {
+
+			this.gl.drawBuffers( target.textureAttachmentList );
+
+			return;
+
+		}
+
+		const buffers: number[] = [];
+
+		for ( let i = 0; i < target.textureAttachmentList.length; i ++ ) {
+
+			if ( indices.indexOf( i ) > - 1 ) {
+
+				buffers.push( target.textureAttachmentList[ i ] );
+
+			} else {
+
+				buffers.push( this.gl.NONE );
+
+			}
+
+		}
+
+		this.gl.drawBuffers( buffers );
+
+	}
+
+	// 深度テストの比較関数を切り替える（既定は gl.LESS）
+	public setDepthFunc( func: number ) {
+
+		this.gl.depthFunc( func );
+
+	}
+
 	// 指定された要素だけをclearする
 	public clear( color: MTP.Vector | null, depth: number | null ) {
 

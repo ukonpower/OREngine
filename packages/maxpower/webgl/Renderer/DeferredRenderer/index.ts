@@ -12,6 +12,8 @@ import lightShaftBlurFrag from './shaders/lightShaftBlur.fs';
 import normalSelectorFrag from './shaders/normalSelector.fs';
 import ssaoFrag from './shaders/ssao.fs';
 import ssaoBlurFrag from './shaders/ssaoBlur.fs';
+import ssrFrag from './shaders/ssr.fs';
+import ssrTemporalFrag from './shaders/ssrTemporal.fs';
 import sssFrag from './shaders/sss.fs';
 
 
@@ -47,6 +49,7 @@ type Params = {
 export type DeferredRendererPassConfig = {
 	ssao?: boolean;
 	lightShaft?: boolean;
+	ssr?: boolean;
 	sss?: boolean;
 };
 
@@ -86,6 +89,13 @@ export class DeferredRenderer extends EventEmitter {
 
 	public ssaoBlur: MXP.PostProcessPass;
 	public ssaoBlurV: MXP.PostProcessPass;
+
+	// ssr
+
+	public ssr: MXP.PostProcessPass;
+	public ssrTemporal: MXP.PostProcessPass;
+	public rtSSR1: GLP.GLPowerFrameBuffer;
+	public rtSSR2: GLP.GLPowerFrameBuffer;
 
 	// shading
 
@@ -314,6 +324,96 @@ export class DeferredRenderer extends EventEmitter {
 
 		}
 
+		// ssr（レイマーチは今フレームだけを出し、時間方向の蓄積は ssrTemporal が今フレームの近傍で履歴をクランプして行う）
+
+		// トーンマップ前の HDR の反射色を 1 で切らずに持つ
+		const ssrTarget = () => backend.createFrameBuffer( { disableDepthBuffer: true } ).setTexture( [
+			backend.createTexture().setting( { type: GL.FLOAT, internalFormat: GL.RGBA16F, format: GL.RGBA, magFilter: GL.LINEAR, minFilter: GL.LINEAR } ),
+		] );
+
+		const ssr = new MXP.PostProcessPass( backend, {
+			name: 'ssr',
+			frag: MXP.hotGet( "ssr", ssrFrag ),
+			renderTarget: ssrTarget(),
+			uniforms: MXP.UniformsUtils.merge( {
+				uGbufferPos: {
+					value: renderTarget.gBuffer.textures[ 0 ],
+					type: '1i'
+				},
+				uGbufferNormal: {
+					value: renderTarget.normalBuffer.textures[ 0 ],
+					type: '1i'
+				},
+				uVelTex: {
+					value: renderTarget.gBuffer.textures[ 4 ],
+					type: '1i'
+				},
+				uPrevScene: {
+					value: renderTarget.prevSceneBuffer.textures[ 0 ],
+					type: '1i'
+				},
+			} ),
+			resolutionRatio: 0.5,
+			passThrough: true,
+		} );
+
+		const rtSSR1 = ssrTarget();
+		const rtSSR2 = ssrTarget();
+
+		const ssrTemporal = new MXP.PostProcessPass( backend, {
+			name: 'ssrTemporal',
+			frag: MXP.hotGet( "ssrTemporal", ssrTemporalFrag ),
+			renderTarget: rtSSR1,
+			uniforms: MXP.UniformsUtils.merge( {
+				uSSRCurrent: {
+					value: ssr.renderTarget!.textures[ 0 ],
+					type: '1i'
+				},
+				uSSRBackBuffer: {
+					value: rtSSR2.textures[ 0 ],
+					type: '1i'
+				},
+				uGbufferPos: {
+					value: renderTarget.gBuffer.textures[ 0 ],
+					type: '1i'
+				},
+				uVelTex: {
+					value: renderTarget.gBuffer.textures[ 4 ],
+					type: '1i'
+				},
+			} ),
+			resolutionRatio: 0.5,
+			passThrough: true,
+		} );
+
+		if ( import.meta.hot ) {
+
+			import.meta.hot.accept( "./shaders/ssr.fs", ( module ) => {
+
+				if ( module ) {
+
+					ssr.frag = MXP.hotUpdate( 'ssr', module.default );
+
+				}
+
+				ssr.requestUpdate();
+
+			} );
+
+			import.meta.hot.accept( "./shaders/ssrTemporal.fs", ( module ) => {
+
+				if ( module ) {
+
+					ssrTemporal.frag = MXP.hotUpdate( 'ssrTemporal', module.default );
+
+				}
+
+				ssrTemporal.requestUpdate();
+
+			} );
+
+		}
+
 		// shading
 
 		const shading = new MXP.PostProcessPass( backend, {
@@ -331,6 +431,10 @@ export class DeferredRenderer extends EventEmitter {
 				uSSAOResolutionInv: {
 					value: ssao.resolutionInv,
 					type: '2fv'
+				},
+				uSSRTexture: {
+					value: rtSSR1.textures[ 0 ],
+					type: '1i'
 				},
 				uEnvMap: {
 					value: params.envMap,
@@ -441,6 +545,8 @@ export class DeferredRenderer extends EventEmitter {
 			ssao,
 			ssaoBlurH,
 			ssaoBlurV,
+			ssr,
+			ssrTemporal,
 			shading,
 			sssH,
 			sssV,
@@ -456,6 +562,11 @@ export class DeferredRenderer extends EventEmitter {
 
 		this.ssaoBlur = ssaoBlurH;
 		this.ssaoBlurV = ssaoBlurV;
+
+		this.ssr = ssr;
+		this.ssrTemporal = ssrTemporal;
+		this.rtSSR1 = rtSSR1;
+		this.rtSSR2 = rtSSR2;
 
 		this.sssH = sssH;
 		this.sssV = sssV;
@@ -514,7 +625,7 @@ export class DeferredRenderer extends EventEmitter {
 
 	}
 
-	// 描画後に呼び、LightShaft / SSAO の履歴とジッタを進める
+	// 描画後に呼び、LightShaft / SSAO / SSR の履歴とジッタを進める
 	public update(): void {
 
 		// light shaft swap
@@ -541,6 +652,16 @@ export class DeferredRenderer extends EventEmitter {
 		this.ssaoBlur.uniforms.uSSAOTexture.value = this.rtSSAO1.textures[ 0 ];
 		this.ssao.uniforms.uSSAOBackBuffer.value = this.rtSSAO2.textures[ 0 ];
 
+		// ssr swap
+
+		tmp = this.rtSSR1;
+		this.rtSSR1 = this.rtSSR2;
+		this.rtSSR2 = tmp;
+
+		this.ssrTemporal.setRendertarget( this.rtSSR1 );
+		this.shading.uniforms.uSSRTexture.value = this.rtSSR1.textures[ 0 ];
+		this.ssrTemporal.uniforms.uSSRBackBuffer.value = this.rtSSR2.textures[ 0 ];
+
 	}
 
 	public setPassEnabled( config: DeferredRendererPassConfig ): void {
@@ -557,6 +678,21 @@ export class DeferredRenderer extends EventEmitter {
 				this.rtSSAO2.clear();
 				if ( this.ssaoBlur.renderTarget ) this.ssaoBlur.renderTarget.clear();
 				if ( this.ssaoBlurV.renderTarget ) this.ssaoBlurV.renderTarget.clear();
+
+			}
+
+		}
+
+		// シェーディングは蓄積の結果を読むので、無効時はそれも消して寄与を0にする
+		if ( config.ssr !== undefined ) {
+
+			this.ssr.enabled = config.ssr;
+			this.ssrTemporal.enabled = config.ssr;
+
+			if ( ! config.ssr ) {
+
+				this.rtSSR1.clear();
+				this.rtSSR2.clear();
 
 			}
 
@@ -609,6 +745,8 @@ export class DeferredRenderer extends EventEmitter {
 		this.rtLightShaft2.dispose();
 		this.rtSSAO1.dispose();
 		this.rtSSAO2.dispose();
+		this.rtSSR1.dispose();
+		this.rtSSR2.dispose();
 
 		this.rtLightShaft1.textures[ 0 ].dispose();
 		this.rtLightShaft2.textures[ 0 ].dispose();

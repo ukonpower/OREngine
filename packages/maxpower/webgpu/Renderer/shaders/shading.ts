@@ -19,6 +19,7 @@ export const ENVMAP_BINDING = GBUFFER_ATTACHMENTS.length;
 export const ENVMAP_SAMPLER_BINDING = GBUFFER_ATTACHMENTS.length + 1;
 export const SSAO_BINDING = GBUFFER_ATTACHMENTS.length + 2;
 export const LIGHTSHAFT_BINDING = GBUFFER_ATTACHMENTS.length + 3;
+export const SSR_BINDING = GBUFFER_ATTACHMENTS.length + 4;
 
 // シェーディングパスのWGSL完成形。宣言はBindings / Lights と同じ配列から作る
 export const buildShadingSource = () => [
@@ -29,6 +30,7 @@ export const buildShadingSource = () => [
 	`@group(1) @binding(${ENVMAP_SAMPLER_BINDING}) var envMapSampler: sampler;`,
 	`@group(1) @binding(${SSAO_BINDING}) var ssaoTexture: texture_2d<f32>;`,
 	`@group(1) @binding(${LIGHTSHAFT_BINDING}) var lightShaftTexture: texture_2d<f32>;`,
+	`@group(1) @binding(${SSR_BINDING}) var ssrTexture: texture_2d<f32>;`,
 	`const MAX_ENV_MIP = ${( ENVMAP_MIP_COUNT - 1 ).toFixed( 1 )};`,
 	buildLightWgsl( 2 ),
 	shadingWgsl,

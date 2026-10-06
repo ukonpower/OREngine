@@ -29,7 +29,7 @@ const material = new MXP.Material( {
 |---|---|---|
 | 共通 | `@vertex fn vsMain( input: VertexInput ) -> VertexOutput` | |
 | `deferred` | `@fragment fn fsDeferred( input: VertexOutput ) -> GBufferOutput` | `packGBuffer( input, surface )` |
-| `forward` / `envMap` | `@fragment fn fsForward( input: VertexOutput ) -> @location(0) vec4f` | 色（forward はアルファブレンドで重なる） |
+| `forward` / `envMap` | `@fragment fn fsForward( input: VertexOutput ) -> @location(0) vec4f` | 色（forward は Material の `transparent: true` ならアルファブレンドで重なり、不透明なら上書きする） |
 | `shadowMap` | `vsMain` だけ（深度を書く） | |
 
 - `fsForward` は上のシグネチャどおりに書く。エンジンがこの宣言を探して別名に書き換え、forward 用の entry point を生成するため（引数名は自由）
@@ -80,11 +80,12 @@ fn fsDeferred( input: VertexOutput ) -> GBufferOutput {
 | 名前 | 中身 |
 |---|---|
 | `VertexInput` | 頂点属性。`position` / `normal` / `uv` の3つだけで、独自の属性は足せない（`backend/GeometryBuffer` の `ATTRIBUTES`） |
-| `VertexOutput` | `position`（clip）/ `normal`（ワールド）/ `uv` / `worldPosition` / `velocity` |
-| `frame.<名前>` | `uTime`（タイムラインの秒）/ `uTimeE`（エンジン起動からの秒）/ `uTimeF` / `uTimeEF` / `uDeltaTime` / `uResolution` / `uAspectRatio` / `uCameraPosition` / `uCameraNear` / `uCameraFar` / カメラの行列 |
+| `VertexOutput` | `position`（clip）/ `normal`（ワールド）/ `uv` / `worldPosition` / `positionPrev`（同じ点の前フレームの clip） |
+| `frame.<名前>` | `uTime`（タイムラインの秒）/ `uTimeE`（エンジン起動からの秒）/ `uTimeF` / `uTimeEF` / `uTimePrev`（前フレームを描いたときの `uTime`。一時停止中は `uTime` と同じ）/ `uDeltaTime` / `uResolution` / `uAspectRatio` / `uCameraPosition` / `uCameraNear` / `uCameraFar` / カメラの行列 |
 | `object.<名前>` | `uModelMatrix` / `uNormalMatrix` / `uModelMatrixPrev` |
 | `material.<名前>` | Material の `uniforms` に渡したもの（`component-development.md` の「uniform」） |
 | `defaultSurface` / `packGBuffer` / `GBufferOutput` | deferred 用 |
+| `projectPrev( worldPositionPrev )` | 前フレームのワールド座標を前フレームのカメラで射影する。`positionPrev` に入れる |
 | `sampleEnvMap( dir, roughness )` / `refractionTexture` | forward 系（`fsForward`）専用。`fsDeferred` から参照するとパイプライン作成に失敗する。`refractionTexture` は forward パス開始時のシーンの写しで、先に描かれた forward も背後に含めたいときは Material の `readsScene: true` で描く直前に写し直す |
 
 `frame` / `object` / `material` は GLSL と違い構造体のメンバーなので、`uTime` ではなく `frame.uTime` と書く。
@@ -97,7 +98,15 @@ fn fsDeferred( input: VertexOutput ) -> GBufferOutput {
 
 ## 頂点を動かす（独自の vsMain）
 
-`standardVertexWgsl` を連結せず、自分で `vsMain` を書く。`VertexOutput` のメンバーをすべて埋める。`velocity`（モーションブラー用の画面上の移動量）は前フレームの行列（`object.uModelMatrixPrev` / `frame.uViewMatrixPrev` / `frame.uProjectionMatrixPrev`）で同じ頂点を射影して出すか、`vec2f( 0.0 )` にする。書き方は `standardVertex.wgsl` と `demo-webgpu` の `Samples/Particles/YakiSoba/shaders/yakiSoba.wgsl`（`@builtin(instance_index)` でインスタンスごとに位置を変える例）を読む。
+`standardVertexWgsl` を連結せず、自分で `vsMain` を書く。`VertexOutput` のメンバーをすべて埋める。書き方は `standardVertex.wgsl` と `demo-webgpu` の `Samples/Particles/YakiSoba/shaders/yakiSoba.wgsl`（`@builtin(instance_index)` でインスタンスごとに位置を変える例）を読む。
+
+`positionPrev` には、同じ頂点を前フレームの状態で置いた位置を `projectPrev( worldPositionPrev )` で入れる。画面上の移動量（gBuffer の velocity）はフラグメントでこれと今の画素から出され（`gbuffer.wgsl` の `screenVelocity`）、モーションブラーと SSR の再投影が読む。0 のままだとカメラが動いても移動量 0 になり、SSR の反射がずれる。前フレームの状態の作り方:
+
+- エンティティの変形: `object.uModelMatrixPrev` を掛ける
+- 時刻で動かす頂点: 同じ式を `frame.uTimePrev` でもう一度計算する（`demo-webgpu` の `VaryingCubes`）。周期で折り返して飛ぶフレームは、今と同じ時刻にして動かなかったことにする
+- GPUCompute で動かす頂点: Material の `storages` に `gpu.prev`（1つ前の計算結果）も渡し、同じ頂点をそれで組み直す。毎フレーム `compute()` する前提
+- フラグメントで面の位置を決める（レイマーチ等）: `packGBuffer` に渡す入力の `positionPrev` を `projectPrev( 当たった点 )` で上書きする（カメラの動きだけが乗る）
+- 筋などで動きのぶれを自前で描いたもの: `positionPrev = position` にしてモーションブラーに乗せない
 
 ## include
 

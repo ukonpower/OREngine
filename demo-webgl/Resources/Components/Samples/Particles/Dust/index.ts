@@ -33,6 +33,7 @@ export class Dust extends MXP.Component {
 
 		const material = new MXP.Material( {
 			phase: [ 'forward' ],
+			transparent: true,
 			drawType: "POINTS",
 			frag: dustFrag,
 			vert: dustVert,

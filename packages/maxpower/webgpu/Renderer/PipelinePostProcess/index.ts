@@ -23,7 +23,6 @@ import fxaaWgsl from './shaders/fxaa.wgsl';
 import lightShaftWgsl from './shaders/lightShaft.wgsl';
 import motionBlurNeighborWgsl from './shaders/motionBlurNeighbor.wgsl';
 import normalSelectorWgsl from './shaders/normalSelector.wgsl';
-import ssCompositeWgsl from './shaders/ssComposite.wgsl';
 import ssrWgsl from './shaders/ssr.wgsl';
 import ssrTemporalWgsl from './shaders/ssrTemporal.wgsl';
 
@@ -38,9 +37,10 @@ type PassCallback = ( pass: PostProcessPass ) => void;
 
 	webgl側の DeferredRenderer（シェーディング以外）と PipelinePostProcess をまとめたもの。
 
-	シェーディングの前に走る系統（法線選択・lightShaft・SSAO）と、
+	シェーディングの前に走る系統（法線選択・lightShaft・SSAO・SSR）と、
 	シェーディングとforwardの間に走る SSS と、
-	forwardのあとに走る系統（SSR・DoF・モーションブラー・ブルーム・トーンマップ・FXAA）に分かれる。
+	forwardのあとに走る系統（DoF・モーションブラー・ブルーム・トーンマップ・FXAA）に分かれる。
+	SSR はシェーディングが環境マップの鏡面反射と混ぜるので前に置き、前フレームのシーンを引く。
 	作風の処理（レンズ歪み・色収差など）は持たず、プロジェクトがカメラの PostProcessPipeline で足す。
 
 	SSAO / lightShaft / SSR は前フレームの結果と混ぜて均す設計なので、
@@ -100,6 +100,13 @@ export class PipelinePostProcess {
 
 	}
 
+	// 時間方向の蓄積がピンポンなので、参照先はフレームごとに入れ替わる
+	public get ssrView() {
+
+		return this._ssrTemporal.targetView;
+
+	}
+
 	private _normalSelector: PostProcessPass;
 	private _lightShaft: PostProcessPass;
 	private _lightShaftBlurH: PostProcessPass;
@@ -108,12 +115,12 @@ export class PipelinePostProcess {
 	private _ssaoBlurH: PostProcessPass;
 	private _ssaoBlurV: PostProcessPass;
 
+	private _ssr: PostProcessPass;
+	private _ssrTemporal: PostProcessPass;
+
 	private _sssH: PostProcessPass;
 	private _sssV: PostProcessPass;
 
-	private _ssr: PostProcessPass;
-	private _ssrTemporal: PostProcessPass;
-	private _ssComposite: PostProcessPass;
 	private _dofCoc: PostProcessPass;
 	private _dofBokeh: PostProcessPass;
 	private _dofBlur: PostProcessPass;
@@ -218,6 +225,27 @@ export class PipelinePostProcess {
 			resolutionRatio: 0.5,
 		} );
 
+		// レイマーチ（今フレームだけ）と時間方向の蓄積を分け、蓄積側が今フレームの近傍で履歴をクランプする
+		this._ssr = pass( {
+			name: 'ssr',
+			wgsl: ssrWgsl,
+			inputs: [ NEAREST( 'uGbufferPos' ), NEAREST( 'uGbufferNormal' ), NEAREST( 'uVelTex' ), 'uPrevScene' ],
+			uniforms: {
+				uEnabled: { value: 1, type: '1f' },
+			},
+			resolutionRatio: 0.5,
+			passThrough: true,
+		} );
+
+		this._ssrTemporal = pass( {
+			name: 'ssr/temporal',
+			wgsl: ssrTemporalWgsl,
+			inputs: [ 'uSSRCurrent', NEAREST( 'uGbufferPos' ), NEAREST( 'uVelTex' ) ],
+			pingPong: 'uSSRBackBuffer',
+			resolutionRatio: 0.5,
+			passThrough: true,
+		} );
+
 		this._deferredChain = new PostProcessChain( device, frameLayout, [
 			this._normalSelector,
 			this._lightShaft,
@@ -226,6 +254,8 @@ export class PipelinePostProcess {
 			this._ssao,
 			this._ssaoBlurH,
 			this._ssaoBlurV,
+			this._ssr,
+			this._ssrTemporal,
 		] );
 
 		/*-------------------------------
@@ -259,32 +289,8 @@ export class PipelinePostProcess {
 		] );
 
 		/*-------------------------------
-			スクリーンスペース（SSR / DoF / モーションブラー）
+			スクリーンスペース（DoF / モーションブラー）
 		-------------------------------*/
-
-		// レイマーチ（今フレームだけ）と時間方向の蓄積を分け、蓄積側が今フレームの近傍で履歴をクランプする
-		this._ssr = pass( {
-			name: 'ssr',
-			wgsl: ssrWgsl,
-			inputs: [ 'uBackBuffer0', NEAREST( 'uGbufferPos' ), NEAREST( 'uGbufferNormal' ) ],
-			resolutionRatio: 0.5,
-			passThrough: true,
-		} );
-
-		this._ssrTemporal = pass( {
-			name: 'ssr/temporal',
-			wgsl: ssrTemporalWgsl,
-			inputs: [ 'uSSRCurrent', NEAREST( 'uGbufferPos' ), NEAREST( 'uVelTex' ) ],
-			pingPong: 'uSSRBackBuffer',
-			resolutionRatio: 0.5,
-			passThrough: true,
-		} );
-
-		this._ssComposite = pass( {
-			name: 'ssComposite',
-			wgsl: ssCompositeWgsl,
-			inputs: [ 'uBackBuffer0', NEAREST( 'uGbufferPos' ), NEAREST( 'uGbufferNormal' ), 'uGbufferMaterial', 'uSSRTexture' ],
-		} );
 
 		const dofUniforms: BSP.Uniforms = { uParams: { value: this._dofParams, type: '4fv' } };
 
@@ -344,9 +350,6 @@ export class PipelinePostProcess {
 		} );
 
 		this._screenChain = new PostProcessChain( device, frameLayout, [
-			this._ssr,
-			this._ssrTemporal,
-			this._ssComposite,
 			this._dofCoc,
 			this._dofBokeh,
 			this._dofBlur,
@@ -360,7 +363,7 @@ export class PipelinePostProcess {
 			ブルーム
 		-------------------------------*/
 
-		// 輝度の抽出元は SSR などを掛ける前のHDRシーン（webgl側も shadingBuffer から抽出している）
+		// 輝度の抽出元は DoF などを掛ける前のHDRシーン（webgl側も shadingBuffer から抽出している）
 		this._bright = pass( {
 			name: 'bloom/bright',
 			wgsl: bloomBrightWgsl,
@@ -447,9 +450,6 @@ export class PipelinePostProcess {
 
 		this._ssrTemporal.setInput( 'uSSRCurrent', this._ssr.targetView! );
 
-		// 毎フレームの繋ぎ直しは renderPost が行う。ここでは未接続のまま合成が飛ばされないよう仮に繋ぐ
-		this._ssComposite.setInput( 'uSSRTexture', this._ssrTemporal.targetView! );
-
 		this._dofBokeh.setInput( 'uCocTex', this._dofCoc.targetView! );
 		this._dofBlur.setInput( 'uBokeTex', this._dofBokeh.targetView! );
 		this._dofComposite.setInput( 'uBokeTex', this._dofBlur.targetView! );
@@ -484,10 +484,12 @@ export class PipelinePostProcess {
 
 	}
 
-	// トーンマップ前のシーンバッファ（ブルームの輝度抽出元・SSS の置き換え先）と、シェーディングの diffuse を繋ぐ
-	public setScene( scene: GPUTextureView, diffuse: GPUTextureView ) {
+	// トーンマップ前のシーンバッファ（ブルームの輝度抽出元・SSS の置き換え先）と、シェーディングの diffuse、
+	// SSR が引く前フレームのシーンを繋ぐ
+	public setScene( scene: GPUTextureView, diffuse: GPUTextureView, prevScene: GPUTextureView ) {
 
 		this._bright.setInput( 'uSceneHdr', scene );
+		this._ssr.setInput( 'uPrevScene', prevScene );
 
 		for ( const pass of this._sssChain.passes ) {
 
@@ -520,7 +522,7 @@ export class PipelinePostProcess {
 
 	}
 
-	// gBufferから法線・lightShaft・SSAOを作る（シェーディングの前）
+	// gBufferから法線・lightShaft・SSAO・SSR を作る（シェーディングの前）
 	public renderDeferred( device: GPUDevice, encoder: GPUCommandEncoder, frameBindGroup: GPUBindGroup, input: GPUTextureView, lightBindGroup: GPUBindGroup, onPass?: PassCallback ) {
 
 		this._deferredChain.render( device, encoder, frameBindGroup, input, lightBindGroup, onPass );
@@ -542,18 +544,7 @@ export class PipelinePostProcess {
 	// シーンの仕上げ（forwardのあと）。画面へ出すビューを返す
 	public renderPost( device: GPUDevice, encoder: GPUCommandEncoder, frameBindGroup: GPUBindGroup, scene: GPUTextureView, onPass?: PassCallback ) {
 
-		// ピンポンの描画先は render の中で入れ替わるので、書き終えてから合成へ繋ぐ（先に繋ぐと1フレーム前の結果を読む）
-		const screen = this._screenChain.render( device, encoder, frameBindGroup, scene, undefined, ( pass ) => {
-
-			if ( pass === this._ssrTemporal ) {
-
-				this._ssComposite.setInput( 'uSSRTexture', this._ssrTemporal.targetView! );
-
-			}
-
-			if ( onPass ) onPass( pass );
-
-		} );
+		const screen = this._screenChain.render( device, encoder, frameBindGroup, scene, undefined, onPass );
 
 		this._bloomChain.render( device, encoder, frameBindGroup, screen, undefined, onPass );
 
@@ -561,8 +552,8 @@ export class PipelinePostProcess {
 
 	}
 
-	// SSAO / lightShaft はシェーディングが読む先に結果が残るため、無効時も走らせて出力を0にする。
-	// SSR / DoF / モーションブラーはチェーンを素通りさせるだけでよい
+	// SSAO / lightShaft / SSR はシェーディングが読む先に結果が残るため、無効時も走らせて出力を0にする。
+	// DoF / モーションブラーはチェーンを素通りさせるだけでよい
 	public applyPipelineConfig( config: PipelineConfig ) {
 
 		if ( config.toneMap !== undefined ) {
@@ -670,9 +661,7 @@ export class PipelinePostProcess {
 
 		if ( config.ssr !== undefined ) {
 
-			this._ssr.enabled = config.ssr;
-			this._ssrTemporal.enabled = config.ssr;
-			this._ssComposite.enabled = config.ssr;
+			this._ssr.uniforms.uEnabled.value = config.ssr ? 1 : 0;
 
 		}
 

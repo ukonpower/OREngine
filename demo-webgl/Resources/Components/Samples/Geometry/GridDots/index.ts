@@ -51,6 +51,7 @@ export class GridDots extends MXP.Component {
 			frag: MXP.hotGet( 'gridDotsFrag', gridDotsFrag ),
 			vert: MXP.hotGet( 'gridDotsVert', gridDotsVert ),
 			phase: [ "forward" ],
+			transparent: true,
 		} );
 
 		this.entity.addComponent( MXP.Mesh, {

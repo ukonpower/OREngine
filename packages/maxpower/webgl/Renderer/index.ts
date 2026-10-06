@@ -13,7 +13,7 @@ import { Serializable } from '../../core/Serializable';
 import { GL, GLBackend } from '../backend/GLBackend';
 import { shaderParse } from "../backend/ShaderParser";
 import { PostProcessPipeline } from '../Components/PostProcessPipeline';
-import { MaterialRenderType, Material } from '../Material';
+import { MaterialDrawPass, Material } from '../Material';
 import { PostProcess } from '../PostProcess';
 import { TexProcedural } from '../TexProcedural';
 
@@ -34,9 +34,17 @@ export type RenderStack = {
 	envMap: Entity[];
 	shadowMap: Entity[];
 	deferred: Entity[];
+	// forward のうち不透明のもの。透明のものは transparent に分ける
 	forward: Entity[];
+	transparent: Entity[];
 	ui: Entity[];
 }
+
+// forwardPrepass で書く gBuffer のアタッチメント（位置・法線・速度）。frag_h.part.glsl の IS_PREPASS の出力位置と一致させる
+const FORWARD_PREPASS_DRAW_BUFFERS = [ 0, 1, 4 ];
+
+// forward の描画先（シーン色 / gBuffer の position / velocity）のうち色だけ
+const FORWARD_COLOR_DRAW_BUFFERS = [ 0 ];
 
 // light
 
@@ -88,7 +96,7 @@ interface DrawParam extends CameraParam {
 
 interface CompileDrawParam {
 	drawId: string;
-	renderType: MaterialRenderType;
+	renderType: MaterialDrawPass;
 	geometry: Geometry;
 	material: Material;
 	param: DrawParam;
@@ -124,6 +132,8 @@ const createDefaultPipelineConfig = (): PipelineConfig => ( {
 const _defaultMaterial = new Material();
 
 const getMaterial = ( mesh: Mesh ) => ( mesh.material || _defaultMaterial ) as Material;
+
+const byRenderOrder = ( a: Entity, b: Entity ) => getMaterial( a.getComponent( Mesh )! ).renderOrder - getMaterial( b.getComponent( Mesh )! ).renderOrder;
 
 // texture unit
 
@@ -475,6 +485,7 @@ export class Renderer extends Serializable implements RendererContract {
 			light: [],
 			deferred: [],
 			forward: [],
+			transparent: [],
 			ui: [],
 			shadowMap: [],
 			envMap: [],
@@ -494,7 +505,20 @@ export class Renderer extends Serializable implements RendererContract {
 
 			if ( material.visibilityFlag.deferred ) stack.deferred.push( entity );
 			if ( material.visibilityFlag.shadowMap ) stack.shadowMap.push( entity );
-			if ( material.visibilityFlag.forward ) stack.forward.push( entity );
+			if ( material.visibilityFlag.forward ) {
+
+				if ( material.transparent ) {
+
+					stack.transparent.push( entity );
+
+				} else {
+
+					stack.forward.push( entity );
+
+				}
+
+			}
+
 			if ( material.visibilityFlag.ui ) stack.ui.push( entity );
 			if ( material.visibilityFlag.envMap ) stack.envMap.push( entity );
 
@@ -558,6 +582,9 @@ export class Renderer extends Serializable implements RendererContract {
 
 		this._collectRenderStack( root, true, stack );
 		this._collectRenderStack( this.sky.entity, true, stack );
+
+		stack.forward.sort( byRenderOrder );
+		stack.transparent.sort( byRenderOrder );
 
 		/*-------------------------------
 			UpdateLight
@@ -691,85 +718,103 @@ export class Renderer extends Serializable implements RendererContract {
 
 		this.renderCamera( "deferred", cameraEntity, stack.deferred, rt.gBuffer, resolution );
 
+		// 不透明の forward は位置・法線・速度だけを先に書き、シェーディング前の SSR・SSAO などに deferred と同じ面として見せる
+		if ( stack.forward.length > 0 ) {
+
+			this.renderCamera( "forwardPrepass", cameraEntity, stack.forward, rt.gBuffer, resolution, { disableClear: true } );
+
+		}
+
 		this.renderPostProcess( view.deferredRenderer.postprocess, undefined, resolution, { cameraOverride: {
 			viewMatrix: cameraComponent.viewMatrix,
 			viewMatrixPrev: cameraComponent.viewMatrixPrev,
 			projectionMatrix: cameraComponent.projectionMatrix,
 			projectionMatrixPrev: cameraComponent.projectionMatrixPrev,
-			cameraMatrixWorld: cameraEntity.matrixWorld
+			cameraMatrixWorld: cameraEntity.matrixWorld,
+			cameraNear: cameraComponent.near,
+			cameraFar: cameraComponent.far,
 		} } );
 
 		view.deferredRenderer.update();
 
 		// forward
 
-		// refractionBuffer の初期状態を deferred 結果（shadingBuffer[0]）で満たす
-		this._copyToRefraction( rt );
+		const forwardUniforms: BSP.Uniforms = {
+			uDeferredTexture: {
+				value: rt.refractionBuffer.textures[ 0 ],
+				type: '1i'
+			},
+			uDeferredResolution: {
+				value: rt.shadingBuffer.size,
+				type: '2fv'
+			},
+			uEnvMap: {
+				value: this._pmremRender.renderTarget.textures[ 0 ],
+				type: '1i'
+			},
+			// gBufferのうちforwardBufferにアタッチされていない（フィードバックしない）テクスチャのみ公開する
+			uGbufferNormal: {
+				value: rt.normalBuffer.textures[ 0 ],
+				type: '1i'
+			},
+			uGbufferAlbedo: {
+				value: rt.gBuffer.textures[ 2 ],
+				type: '1i'
+			},
+			uGbufferMaterial: {
+				value: rt.gBuffer.textures[ 3 ],
+				type: '1i'
+			}
+		};
 
-		// renderOrder 昇順で sort し、同一 order ごとにグループ化
-		const sortedForward = stack.forward.slice().sort( ( a, b ) => {
+		// 不透明は混ぜずに色だけを上書きする。gBuffer の段で書いた深度と同じ面を描くので、同じ深度で通す
+		if ( stack.forward.length > 0 ) {
 
-			return getMaterial( a.getComponent( Mesh )! ).renderOrder - getMaterial( b.getComponent( Mesh )! ).renderOrder;
+			// refractionBuffer を deferred 結果（shadingBuffer[0]）で満たす
+			this._copyToRefraction( rt );
 
-		} );
+			this.backend.setDepthFunc( GL.LEQUAL );
 
-		const forwardGroups: Entity[][] = [];
+			this.renderCamera( "forward", cameraEntity, stack.forward, rt.forwardBuffer, resolution, {
+				uniformOverride: forwardUniforms,
+				disableClear: true,
+			} );
+
+			this.backend.setDepthFunc( GL.LESS );
+
+		}
+
+		// 次のフレームの SSR が引く。SSR はシェーディングより前に走るので、今フレームのシーンはまだ無い。
+		// 透明の forward は SSR の当たり判定（gBuffer の段の位置）に入らないので、色にも入れないよう描く前に写す
+		this.backend.blit( rt.shadingBuffer, rt.prevSceneBuffer, resolution.x, resolution.y, true, true );
+
+		// 透明は renderOrder ごとにまとめて描き、まとまりの前で refractionBuffer へそこまでの結果を写す
+		const transparentGroups: Entity[][] = [];
 		let currentOrder: number | null = null;
 
-		for ( const ent of sortedForward ) {
+		for ( const ent of stack.transparent ) {
 
 			const o = getMaterial( ent.getComponent( Mesh )! ).renderOrder;
 
 			if ( currentOrder === null || o !== currentOrder ) {
 
-				forwardGroups.push( [] );
+				transparentGroups.push( [] );
 				currentOrder = o;
 
 			}
 
-			forwardGroups[ forwardGroups.length - 1 ].push( ent );
+			transparentGroups[ transparentGroups.length - 1 ].push( ent );
 
 		}
 
 		this.backend.setBlendEnabled( true );
 
-		for ( let gi = 0; gi < forwardGroups.length; gi ++ ) {
+		for ( let gi = 0; gi < transparentGroups.length; gi ++ ) {
 
-			if ( gi > 0 ) {
+			this._copyToRefraction( rt );
 
-				// 前グループの描画結果を refractionBuffer に反映
-				this._copyToRefraction( rt );
-
-			}
-
-			this.renderCamera( "forward", cameraEntity, forwardGroups[ gi ], rt.forwardBuffer, resolution, {
-				uniformOverride: {
-					uDeferredTexture: {
-						value: rt.refractionBuffer.textures[ 0 ],
-						type: '1i'
-					},
-					uDeferredResolution: {
-						value: rt.shadingBuffer.size,
-						type: '2fv'
-					},
-					uEnvMap: {
-						value: this._pmremRender.renderTarget.textures[ 0 ],
-						type: '1i'
-					},
-					// gBufferのうちforwardBufferにアタッチされていない（フィードバックしない）テクスチャのみ公開する
-					uGbufferNormal: {
-						value: rt.normalBuffer.textures[ 0 ],
-						type: '1i'
-					},
-					uGbufferAlbedo: {
-						value: rt.gBuffer.textures[ 2 ],
-						type: '1i'
-					},
-					uGbufferMaterial: {
-						value: rt.gBuffer.textures[ 3 ],
-						type: '1i'
-					}
-				},
+			this.renderCamera( "forward", cameraEntity, transparentGroups[ gi ], rt.forwardBuffer, resolution, {
+				uniformOverride: forwardUniforms,
 				disableClear: true,
 			} );
 
@@ -839,7 +884,7 @@ export class Renderer extends Serializable implements RendererContract {
 
 	}
 
-	public renderCamera( renderType: MaterialRenderType, cameraEntity: Entity, entities: Entity[], renderTarget: GLP.GLPowerFrameBuffer | null, canvasSize: MTP.Vector, renderOption?: RenderOption ) {
+	public renderCamera( renderType: MaterialDrawPass, cameraEntity: Entity, entities: Entity[], renderTarget: GLP.GLPowerFrameBuffer | null, canvasSize: MTP.Vector, renderOption?: RenderOption ) {
 
 		const camera = cameraEntity.getComponentsByTag<Camera>( "camera" )[ 0 ] || cameraEntity.getComponent( Light )!;
 
@@ -1040,7 +1085,7 @@ export class Renderer extends Serializable implements RendererContract {
 
 	}
 
-	public draw( drawId: string, renderType: MaterialRenderType, geometry: Geometry, material: Material, param?: DrawParam ) {
+	public draw( drawId: string, renderType: MaterialDrawPass, geometry: Geometry, material: Material, param?: DrawParam ) {
 
 		if ( this._isCorrentCompiles ) {
 
@@ -1065,6 +1110,14 @@ export class Renderer extends Serializable implements RendererContract {
 			if ( renderType == 'deferred' ) defines.IS_DEFERRED = "";
 			else if ( renderType == 'forward' || renderType == 'envMap' ) defines.IS_FORWARD = "";
 			else if ( renderType == 'shadowMap' ) defines.IS_DEPTH = "";
+
+			// 不透明の forward の先描きは、forward のシェーダーを IS_FORWARD の分岐ごと位置・法線・速度の出力に差し替えてコンパイルする
+			if ( renderType == 'forwardPrepass' ) {
+
+				defines.IS_FORWARD = "";
+				defines.IS_PREPASS = "";
+
+			}
 
 			const vert = shaderParse( material.vert, defines, this._lights );
 			const frag = shaderParse( material.frag, defines, this._lights );
@@ -1260,7 +1313,26 @@ export class Renderer extends Serializable implements RendererContract {
 
 			}
 
+			// 書くアタッチメントを絞る。forwardPrepass は gBuffer の位置・法線・速度だけ。
+			// forward は不透明（gBuffer の段で書き終えている）と、writeGBuffer を切った透明が色だけを書く
+			const renderTarget = param && param.renderTarget;
+			let drawBuffers: number[] | null = null;
+
+			if ( renderType == 'forwardPrepass' ) {
+
+				drawBuffers = FORWARD_PREPASS_DRAW_BUFFERS;
+
+			} else if ( renderType == 'forward' && ( ! material.transparent || ! material.writeGBuffer ) ) {
+
+				drawBuffers = FORWARD_COLOR_DRAW_BUFFERS;
+
+			}
+
+			if ( renderTarget && drawBuffers ) this.backend.setDrawBuffers( renderTarget, drawBuffers );
+
 			this.backend.draw( program, vao, material.drawType, material.blending, queryName );
+
+			if ( renderTarget && drawBuffers ) this.backend.setDrawBuffers( renderTarget, null );
 
 		}
 
