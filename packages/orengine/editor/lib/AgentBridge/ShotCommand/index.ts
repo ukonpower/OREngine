@@ -226,6 +226,7 @@ const stepAt = ( engine: Engine, time: number, params: Partial<MXP.EntityUpdateE
 
 	const event = engine.createEntityUpdateEvent( { ...params, timeCode: time, timeCodeFrame: time * 60, playing: false, forceDraw: true, offline: true } );
 
+	engine.renderer.globalUniforms.uTimePrev.value = engine.renderer.globalUniforms.uTime.value;
 	engine.renderer.globalUniforms.uTime.value = time;
 	engine.renderer.globalUniforms.uTimeF.value = time % 1;
 

@@ -80,6 +80,8 @@ export const FRAME_FIELDS: UniformField[] = [
 	{ name: 'uTimeF', type: 'f32' },
 	{ name: 'uTimeE', type: 'f32' },
 	{ name: 'uTimeEF', type: 'f32' },
+	// 前フレームを描いたときの uTime。シェーダーで動かす頂点の前フレームの位置を出すのに使う（一時停止中は uTime と同じ）
+	{ name: 'uTimePrev', type: 'f32' },
 	{ name: 'uDeltaTime', type: 'f32' },
 	{ name: 'uResolution', type: 'vec2f' },
 	{ name: 'uAspectRatio', type: 'f32' },
@@ -271,7 +273,7 @@ fn fsForwardMrt( input: VertexOutput ) -> ForwardOutput {
 	var output: ForwardOutput;
 	output.color = forwardColor( input );
 	output.position = vec4f( input.worldPosition, 1.0 );
-	output.velocity = vec4f( input.velocity, 0.0, 1.0 );
+	output.velocity = vec4f( screenVelocity( input ), 0.0, 1.0 );
 
 	return output;
 
@@ -285,7 +287,7 @@ fn fsForwardPrepass( input: VertexOutput ) -> ForwardPrepassOutput {
 	var output: ForwardPrepassOutput;
 	output.position = vec4f( input.worldPosition, 0.0 );
 	output.normal = vec4f( normalize( input.normal ), 0.0 );
-	output.velocity = vec4f( input.velocity, 0.0, 0.0 );
+	output.velocity = vec4f( screenVelocity( input ), 0.0, 0.0 );
 
 	return output;
 
