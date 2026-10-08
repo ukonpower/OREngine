@@ -42,6 +42,9 @@ const DRAG_SENSITIVITY_SP = 0.1;
 // 縦に動かしている間の手ぶれで移らないよう、ドラッグの閾値（trackPointerDrag の 3px）より大きくしている
 const SELECT_TO_DRAG_THRESHOLD = 10;
 
+// スピンボタン（↑↓）の幅。CSS の ::-webkit-inner-spin-button と揃え、押した位置がそこかを判定する
+const SPIN_BUTTON_WIDTH = 14;
+
 // none: まだドラッグの閾値を越えていない / drag: 横ドラッグで値を変えている / select: 縦ドラッグで範囲選択している
 type DragMode = "none" | "drag" | "select";
 
@@ -108,8 +111,22 @@ export const InputNumber = ( props: Props ) => {
 
 	};
 
+	// 押した位置が input 右端のスピンボタン上か
+	const isOnSpinButton = ( e: ReactPointerEvent<HTMLInputElement> ) => {
+
+		const input = e.currentTarget;
+		const rect = input.getBoundingClientRect();
+		const paddingRight = parseFloat( getComputedStyle( input ).paddingRight ) || 0;
+
+		return e.clientX >= rect.right - paddingRight - SPIN_BUTTON_WIDTH;
+
+	};
+
 	// 押してから離すまで。横ドラッグで値を変え、縦ドラッグで範囲選択し、動かさずに離したらテキスト編集（SP は入力ウィンドウ）へ移る
 	const onPointerDown = ( e: ReactPointerEvent<HTMLInputElement> ) => {
+
+		// スピンボタン上はブラウザに任せ、値の増減を onChange で受け取る
+		if ( ! isSP && ! editing && isOnSpinButton( e ) ) return;
 
 		e.preventDefault();
 
@@ -295,7 +312,18 @@ export const InputNumber = ( props: Props ) => {
 			}}
 			onChange={( e ) => {
 
-				setLocalValue( e.target.value );
+				if ( editing ) {
+
+					setLocalValue( e.target.value );
+
+					return;
+
+				}
+
+				// 編集中でないときの変化はスピンボタン / 矢印キーによる step 単位の増減
+				const num = Number( e.target.value );
+
+				if ( props.onChange && e.target.value !== "" && ! isNaN( num ) ) props.onChange( num );
 
 			}}
 			onKeyDown={( e ) => {
