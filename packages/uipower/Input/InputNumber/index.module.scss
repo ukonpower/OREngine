@@ -13,6 +13,12 @@
 	color: var(--or-text-muted);
 	font-size: var(--or-input-font-size);
 
+	// 幅は index.tsx の SPIN_BUTTON_WIDTH と揃える
+	&::-webkit-inner-spin-button {
+		width: 14px;
+		cursor: pointer;
+	}
+
 	// --ratio は index.tsx が min / max から計算して渡す
 	&[data-slider="true"] {
 		background-image: linear-gradient( to right, var(--or-bg-active) var(--ratio), transparent var(--ratio) );
