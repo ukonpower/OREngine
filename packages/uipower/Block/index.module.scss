@@ -19,6 +19,9 @@
 
 	padding: var(--or-space);
 
+	&[data-accordion="true"] {
+		cursor: pointer;
+	}
 
 	&_icon {
 		padding-right: 5px;
