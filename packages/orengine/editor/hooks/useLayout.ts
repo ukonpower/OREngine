@@ -4,7 +4,8 @@ const SPWIDTH = 900;
 
 export const useLayout = () => {
 
-	const [ isSP, setIsSP ] = useState<boolean>( false );
+	// effect は描画の後に走るので、初期値も幅から決めないと SP の画面で一度 PC のレイアウトが出てから切り替わる
+	const [ isSP, setIsSP ] = useState<boolean>( () => window.innerWidth <= SPWIDTH );
 
 	useEffect( () => {
 
