@@ -1,6 +1,6 @@
 
 export * from './Animation/Animator';
-export * from './Animation/Bezier';
+export * as Bezier from './Animation/Bezier';
 export * from './Animation/Easings';
 export * from './Animation/FCurve';
 export * from './Animation/FCurveGroup';
@@ -37,4 +37,4 @@ export * from './utils/Hot';
 export * from './utils/Ray';
 export * from './utils/Raycaster';
 export * from './utils/RenderWait';
-export * from './utils/Uniforms';
+export * as UniformsUtils from './utils/Uniforms';

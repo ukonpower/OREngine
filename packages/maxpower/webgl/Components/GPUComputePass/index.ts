@@ -3,7 +3,7 @@ import * as BSP from 'basepower';
 import * as GLP from 'glpower';
 import * as MTP from 'mathpower';
 
-import { UniformsUtils } from '../../../core/utils/Uniforms';
+import * as UniformsUtils from '../../../core/utils/Uniforms';
 import { GL, GLBackend } from '../../backend/GLBackend';
 import { PostProcessPassParam, PostProcessPass } from '../../PostProcess/PostProcessPass';
 
