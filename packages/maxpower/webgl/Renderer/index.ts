@@ -85,6 +85,7 @@ interface CameraParam {
 }
 
 interface DrawParam extends CameraParam {
+	// DEV のタイマー計測（GLBackend の queryName）で描画を見分ける名前。player では入れない
 	label?: string;
 	modelMatrixWorld?: MTP.Matrix;
 	modelMatrixWorldPrev?: MTP.Matrix;
@@ -950,7 +951,12 @@ export class Renderer extends Serializable implements RendererContract {
 
 			drawParam.modelMatrixWorld = entity.matrixWorld;
 			drawParam.modelMatrixWorldPrev = entity.matrixWorldPrev;
-			drawParam.label = `cam[${camera.uuid}]/${entity.name || material.name || "-"}`;
+
+			if ( import.meta.env.DEV ) {
+
+				drawParam.label = `cam[${camera.uuid}]/${entity.name || material.name || "-"}`;
+
+			}
 
 			this.draw( entity.uuid, renderType, geometry, material, drawParam );
 
@@ -1061,7 +1067,12 @@ export class Renderer extends Serializable implements RendererContract {
 
 			const opt: DrawParam = renderOption && renderOption.cameraOverride || {};
 
-			opt.label = pass.name;
+			if ( import.meta.env.DEV ) {
+
+				opt.label = pass.name;
+
+			}
+
 			opt.renderTarget = renderTarget;
 			opt.uniformOverride = renderOption && renderOption.uniformOverride;
 
@@ -1442,7 +1453,7 @@ export class Renderer extends Serializable implements RendererContract {
 
 	}
 
-	public async compileShaders( root: Entity, view: RenderViewContract, event: EntityUpdateEvent, cb?: ( label: string, loaded: number, total: number ) => void ) {
+	public async compileShaders( root: Entity, view: RenderViewContract, event: EntityUpdateEvent, cb?: ( loaded: number, total: number ) => void ) {
 
 		/*-------------------------------
 			Correct Compiles
@@ -1485,10 +1496,7 @@ export class Renderer extends Serializable implements RendererContract {
 
 				loaded ++;
 
-				const l = param.param && param.param.label || "-";
-				const label = `${param.renderType}/${l}/[${param.drawId}]`;
-
-				cb( label, loaded, total );
+				cb( loaded, total );
 
 			}
 

@@ -138,7 +138,12 @@ export class BLidgeClient extends MXP.Component {
 					const res = await fetch( BASE_PATH + '/blidge-scene.json' );
 					if ( ! res.ok ) {
 
-						console.warn( `BLidgeClient: failed to load /blidge-scene.json (${res.status})` );
+						if ( process.env.NODE_ENV === 'development' ) {
+
+							console.warn( `BLidgeClient: failed to load /blidge-scene.json (${res.status})` );
+
+						}
+
 						return;
 
 					}
@@ -332,7 +337,11 @@ export class BLidgeClient extends MXP.Component {
 
 				} else {
 
-					console.warn( `[BLidgeClient] unresolved attachment component "${c.name}" on entity "${entity.name}". Preserving data for round-trip.` );
+					if ( process.env.NODE_ENV === 'development' ) {
+
+						console.warn( `[BLidgeClient] unresolved attachment component "${c.name}" on entity "${entity.name}". Preserving data for round-trip.` );
+
+					}
 
 					const list = this._unresolvedByEntity.get( entity.name ) || [];
 					list.push( { name: c.name, uuid: c.uuid, props: c.props } );

@@ -3,6 +3,7 @@ import * as GLP from 'glpower';
 import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
+import { devName } from '../../../core/utils/DevName';
 import { sssKernel } from '../../../core/utils/SSSKernel';
 import { GL, GLBackend } from '../../backend/GLBackend';
 
@@ -117,7 +118,7 @@ export class DeferredRenderer extends EventEmitter {
 		// normal buffer
 
 		const normalSelector = new MXP.PostProcessPass( backend, {
-			name: 'normalSelector',
+			name: devName( 'normalSelector' ),
 			frag: normalSelectorFrag,
 			renderTarget: null,
 			uniforms: MXP.UniformsUtils.merge( {
@@ -148,7 +149,7 @@ export class DeferredRenderer extends EventEmitter {
 		const rtLightShaft2 = lightShaftTarget();
 
 		const lightShaft = new MXP.PostProcessPass( backend, {
-			name: 'lightShaft',
+			name: devName( 'lightShaft' ),
 			frag: lightShaftFrag,
 			renderTarget: rtLightShaft1,
 			uniforms: MXP.UniformsUtils.merge( {
@@ -185,7 +186,7 @@ export class DeferredRenderer extends EventEmitter {
 		} );
 
 		const lightShaftBlurH = new MXP.PostProcessPass( backend, {
-			name: 'lightShaft/blur/h',
+			name: devName( 'lightShaft/blur/h' ),
 			frag: lightShaftBlurFrag,
 			uniforms: lightShaftBlurUni,
 			renderTarget: lightShaftTarget(),
@@ -197,7 +198,7 @@ export class DeferredRenderer extends EventEmitter {
 		} );
 
 		const lightShaftBlurV = new MXP.PostProcessPass( backend, {
-			name: 'lightShaft/blur/v',
+			name: devName( 'lightShaft/blur/v' ),
 			frag: lightShaftBlurFrag,
 			uniforms: MXP.UniformsUtils.merge( lightShaftBlurUni, {
 				uLightShaftTexture: {
@@ -225,7 +226,7 @@ export class DeferredRenderer extends EventEmitter {
 		] );
 
 		const ssao = new MXP.PostProcessPass( backend, {
-			name: 'ssao',
+			name: devName( 'ssao' ),
 			frag: ssaoFrag,
 			renderTarget: MXP.hotGet( "ssao", rtSSAO1 ),
 			uniforms: MXP.UniformsUtils.merge( {
@@ -280,7 +281,7 @@ export class DeferredRenderer extends EventEmitter {
 		} );
 
 		const ssaoBlurH = new MXP.PostProcessPass( backend, {
-			name: 'ssaoBlur/h',
+			name: devName( 'ssaoBlur/h' ),
 			frag: MXP.hotGet( "ssaoBlur", ssaoBlurFrag ),
 			uniforms: ssaoBlurUni,
 			resolutionRatio: 1.0,
@@ -291,7 +292,7 @@ export class DeferredRenderer extends EventEmitter {
 		} );
 
 		const ssaoBlurV = new MXP.PostProcessPass( backend, {
-			name: 'ssaoBlur/v',
+			name: devName( 'ssaoBlur/v' ),
 			frag: MXP.hotGet( "ssaoBlur", ssaoBlurFrag ),
 			uniforms: MXP.UniformsUtils.merge( ssaoBlurUni, {
 				uSSAOTexture: {
@@ -332,7 +333,7 @@ export class DeferredRenderer extends EventEmitter {
 		] );
 
 		const ssr = new MXP.PostProcessPass( backend, {
-			name: 'ssr',
+			name: devName( 'ssr' ),
 			frag: MXP.hotGet( "ssr", ssrFrag ),
 			renderTarget: ssrTarget(),
 			uniforms: MXP.UniformsUtils.merge( {
@@ -361,7 +362,7 @@ export class DeferredRenderer extends EventEmitter {
 		const rtSSR2 = ssrTarget();
 
 		const ssrTemporal = new MXP.PostProcessPass( backend, {
-			name: 'ssrTemporal',
+			name: devName( 'ssrTemporal' ),
 			frag: MXP.hotGet( "ssrTemporal", ssrTemporalFrag ),
 			renderTarget: rtSSR1,
 			uniforms: MXP.UniformsUtils.merge( {
@@ -417,7 +418,7 @@ export class DeferredRenderer extends EventEmitter {
 		// shading
 
 		const shading = new MXP.PostProcessPass( backend, {
-			name: "deferredShading",
+			name: devName( "deferredShading" ),
 			frag: MXP.hotGet( "deferredShading", deferredShadingFrag ),
 			uniforms: MXP.UniformsUtils.merge( {
 				uLightShaftTexture: {
@@ -477,7 +478,7 @@ export class DeferredRenderer extends EventEmitter {
 		} );
 
 		const sssH = new MXP.PostProcessPass( backend, {
-			name: 'sss/h',
+			name: devName( 'sss/h' ),
 			frag: MXP.hotGet( "sss", sssFrag ),
 			uniforms: sssUni,
 			renderTarget: sssTarget(),
@@ -489,7 +490,7 @@ export class DeferredRenderer extends EventEmitter {
 
 		// 入力と出力が同じ shadingBuffer[0] にならないよう、縦は別の描画先に出してから写し戻す
 		const sssV = new MXP.PostProcessPass( backend, {
-			name: 'sss/v',
+			name: devName( 'sss/v' ),
 			frag: MXP.hotGet( "sss", sssFrag ),
 			uniforms: MXP.UniformsUtils.merge( sssUni, {
 				uDiffuseTexture: {
@@ -514,7 +515,7 @@ export class DeferredRenderer extends EventEmitter {
 
 		// forward がこの上に重ねるので、結果は shadingBuffer[0] に置く
 		const sssCopy = new MXP.PostProcessPass( backend, {
-			name: 'sss/copy',
+			name: devName( 'sss/copy' ),
 			renderTarget: backend.createFrameBuffer( { disableDepthBuffer: true } ).setTexture( [
 				renderTarget.shadingBuffer.textures[ 0 ],
 			] ),

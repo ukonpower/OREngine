@@ -14,53 +14,27 @@ export interface StartPlayerOptions {
 	loop?: boolean;
 }
 
+// スタート画面を出し、シェーダーのコンパイル後に再生ボタンで再生を始める
 export const startPlayer = ( opts: StartPlayerOptions ): Engine => {
 
-	const opacity0 = "opacity:0;";
-	const pointerEventsNone = "pointer-events:none;";
-	const positionAbsolute = "position:absolute;";
-	const full = positionAbsolute + "width:100%;height:100%;";
-	const fullFlexCenter = full + "display:flex;justify-content:center;align-items:center;";
-
-	document.body.innerHTML = `
-		<style>
-			*{color:#fff;font-size:13px;text-align:center;}
-			body{margin:0;font-family:sans-serif;}
-			button{display:block;width:200px;margin:0 auto 10px auto;padding:10px;border:1px solid #fff;background:none;cursor:pointer;}
-			#r{${fullFlexCenter}overflow:hidden;background:#000;}
-			#cw{${pointerEventsNone}${fullFlexCenter}${opacity0}}
-			canvas{${full}object-fit:contain;}
-			#l{${pointerEventsNone}${positionAbsolute}width:100%;}
-			#b{width:100%;height:1px;background:#fff;margin-bottom:10px;}
-			#t{font-size:11px;margin-top:5px;}
-			#m{${pointerEventsNone}${opacity0}}
-			#e{${fullFlexCenter}${opacity0}${pointerEventsNone}}
-		</style>
-		<div id="r">
-			<div id="cw">
-			</div>
-			<div id="m">
-				<button id="fl">1. Full Screen</button>
-				<button id="pl">2. Play!</button>
-			</div>
-			<div id="l">
-				<div id="b"></div>
-				<div id="t"></div>
-			</div>
-			<div id="e">
-				Press Esc to exit.
-			</div>
-		</div>
-	`;
+	// 要素はすべて body の grid の同じセルに重ねて中央に置く（後ろの要素ほど手前に出る）。
+	// 表示の切り替えは hidden 属性で行う。packed サイズを抑えるため CSS は最小限にし、空白を入れない
+	document.body.innerHTML =
+		'<style>' +
+		'body{margin:0;height:100vh;display:grid;place-items:center;background:#000;color:#fff;font:13px sans-serif}' +
+		'body>*{grid-area:1/1}' +
+		'canvas{width:100vw;height:100vh;object-fit:contain}' +
+		'button{display:block;width:200px;margin:9px;padding:9px;color:#fff;background:none;border:1px solid}' +
+		'#b{width:100vw;height:1px;background:#fff}' +
+		'</style>' +
+		'<div id=b></div>' +
+		'<div id=m hidden><button id=f>Full Screen</button><button id=p>Play</button></div>' +
+		'<div id=e hidden>Press Esc to exit</div>';
 
 	document.title = opts.title ?? 'OREngine';
 
-	const rootElm = document.getElementById( 'r' )!;
-	const screenWrapElm = document.getElementById( 'cw' )!;
 	const menuElm = document.getElementById( 'm' )!;
-	const loadingElm = document.getElementById( 'l' )!;
 	const loadingBarElm = document.getElementById( 'b' )!;
-	const loadingTextElm = document.getElementById( 't' )!;
 	const exitElm = document.getElementById( 'e' )!;
 
 	const engine = new Engine( createRenderer );
@@ -70,29 +44,22 @@ export const startPlayer = ( opts: StartPlayerOptions ): Engine => {
 	const size = opts.size ?? { width: 1920, height: 1080 };
 	engine.setSize( new MTP.Vector( size.width, size.height ) );
 
-	screenWrapElm.appendChild( engine.canvas );
+	// 終了時の文言より奥に出すため先頭に置く。コンパイル中の描画は見せない
+	const canvas = engine.canvas;
+	canvas.hidden = true;
+	document.body.prepend( canvas );
 
-	const fullScreen = document.getElementById( 'fl' ) as HTMLButtonElement;
-	fullScreen.onclick = () => {
+	document.getElementById( 'f' )!.onclick = () => {
 
-		const elem = document.documentElement;
-		if ( elem.requestFullscreen ) {
-
-			elem.requestFullscreen();
-
-		}
+		document.documentElement.requestFullscreen();
 
 	};
 
-	const playButton = document.getElementById( 'pl' ) as HTMLButtonElement;
-	playButton.disabled = true;
-
 	const play = () => {
 
-		menuElm.style.opacity = "0";
-		menuElm.style.pointerEvents = "none";
-		screenWrapElm.style.opacity = '1';
-		rootElm.style.cursor = 'none';
+		menuElm.hidden = true;
+		canvas.hidden = false;
+		document.body.style.cursor = 'none';
 		engine.play();
 
 		function animate() {
@@ -108,7 +75,7 @@ export const startPlayer = ( opts: StartPlayerOptions ): Engine => {
 
 				} else {
 
-					exitElm.style.opacity = '1';
+					exitElm.hidden = false;
 					return;
 
 				}
@@ -123,7 +90,7 @@ export const startPlayer = ( opts: StartPlayerOptions ): Engine => {
 
 	};
 
-	playButton.onclick = play;
+	document.getElementById( 'p' )!.onclick = play;
 
 	engine.load( opts.sceneData );
 
@@ -132,16 +99,13 @@ export const startPlayer = ( opts: StartPlayerOptions ): Engine => {
 
 	const compile = () => {
 
-		engine.compileShaders( view, ( label: string, loaded: number, total: number ) => {
+		engine.compileShaders( view, ( loaded: number, total: number ) => {
 
-			const progress = loaded / total;
-
-			loadingBarElm.style.transform = `scaleX(${progress})`;
-			loadingTextElm.textContent = `${label}`;
+			loadingBarElm.style.transform = `scaleX(${loaded / total})`;
 
 		} ).then( () => {
 
-			loadingElm.style.opacity = "0";
+			loadingBarElm.hidden = true;
 
 			if ( opts.autoPlay ) {
 
@@ -150,9 +114,7 @@ export const startPlayer = ( opts: StartPlayerOptions ): Engine => {
 
 			}
 
-			menuElm.style.opacity = "1";
-			menuElm.style.pointerEvents = "auto";
-			playButton.disabled = false;
+			menuElm.hidden = false;
 
 		} );
 
