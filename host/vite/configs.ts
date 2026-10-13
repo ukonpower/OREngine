@@ -184,7 +184,8 @@ const playerTerser = ( reserved: string[], wgslIdentifiers: Set<string> ): Plugi
 			keep_classnames: true,
 			mangle: {
 				properties: {
-					regex: /^(?!(u[A-Z]|[A-Z_]+$|_)).*$/,
+					// u[A-Z] は GLSL の uniform 名として文字列で渡るため、__ は __proto__ のような組み込みの名前を守るため外す
+					regex: /^(?!(u[A-Z]|[A-Z_]+$|__)).*$/,
 					reserved: [ ...reserved, ...wgslIdentifiers ],
 				},
 			},
