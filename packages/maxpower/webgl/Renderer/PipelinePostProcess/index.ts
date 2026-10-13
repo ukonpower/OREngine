@@ -2,6 +2,7 @@ import * as GLP from 'glpower';
 import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
+import { devName } from '../../../core/utils/DevName';
 import { GL, GLBackend } from '../../backend/GLBackend';
 
 import bloomBrightFrag from './shaders/bloomBright.fs';
@@ -61,7 +62,7 @@ export class PipelinePostProcess {
 
 		// トーンマップを切っても linear→sRGB は掛けるので、パスは常に走らせて uToneMap で切り替える
 		const colorCollection = new MXP.PostProcessPass( backend, {
-			name: 'collection',
+			name: devName( 'collection' ),
 			frag: colorCollectionFrag,
 			uniforms: {
 				uToneMap: {
@@ -80,7 +81,7 @@ export class PipelinePostProcess {
 		const dofParams = new MTP.Vector( 10, 0.05, 20, 0.05 );
 
 		const dofCoc = new MXP.PostProcessPass( backend, {
-			name: 'dof/coc',
+			name: devName( 'dof/coc' ),
 			frag: dofCocFrag,
 			uniforms: MXP.UniformsUtils.merge( {
 				uGbufferPos: {
@@ -100,7 +101,7 @@ export class PipelinePostProcess {
 		} );
 
 		const dofBokeh = new MXP.PostProcessPass( backend, {
-			name: 'dof/bokeh',
+			name: devName( 'dof/bokeh' ),
 			frag: dofBokehFrag,
 			uniforms: MXP.UniformsUtils.merge( {
 				uCocTex: {
@@ -118,7 +119,7 @@ export class PipelinePostProcess {
 		} );
 
 		const dofBlur = new MXP.PostProcessPass( backend, {
-			name: 'dof/blur',
+			name: devName( 'dof/blur' ),
 			frag: dofBlurFrag,
 			uniforms: MXP.UniformsUtils.merge( {
 				uBokeTex: {
@@ -132,7 +133,7 @@ export class PipelinePostProcess {
 		} );
 
 		const dofComposite = new MXP.PostProcessPass( backend, {
-			name: 'dof/composite',
+			name: devName( 'dof/composite' ),
 			frag: dofCompositeFrag,
 			uniforms: MXP.UniformsUtils.merge( {
 				uBokeTex: {
@@ -150,7 +151,7 @@ export class PipelinePostProcess {
 		const motionBlurTileNum = 16;
 
 		const motionBlurTile = new MXP.PostProcessPass( backend, {
-			name: 'motionBlurTile',
+			name: devName( 'motionBlurTile' ),
 			frag: motionBlurTileFrag,
 			uniforms: MXP.UniformsUtils.merge( {
 				uVelTex: {
@@ -169,7 +170,7 @@ export class PipelinePostProcess {
 		} );
 
 		const motionBlurNeighbor = new MXP.PostProcessPass( backend, {
-			name: 'motionBlurNeighbor',
+			name: devName( 'motionBlurNeighbor' ),
 			frag: motionBlurNeighborFrag,
 			uniforms: MXP.UniformsUtils.merge( {
 				uVelTex: {
@@ -188,7 +189,7 @@ export class PipelinePostProcess {
 		} );
 
 		const motionBlur = new MXP.PostProcessPass( backend, {
-			name: 'motionBlur',
+			name: devName( 'motionBlur' ),
 			frag: motionBlurFrag,
 			uniforms: MXP.UniformsUtils.merge( {
 				uVelNeighborTex: {
@@ -217,7 +218,7 @@ export class PipelinePostProcess {
 		// fxaa
 
 		const fxaa = new MXP.PostProcessPass( backend, {
-			name: 'fxaa',
+			name: devName( 'fxaa' ),
 			frag: fxaaFrag,
 		} );
 
@@ -225,7 +226,7 @@ export class PipelinePostProcess {
 
 		// 輝度の抽出元は DoF などを掛ける前のシェーディングバッファ
 		const bloomBright = new MXP.PostProcessPass( backend, {
-			name: 'bloom/bright',
+			name: devName( 'bloom/bright' ),
 			frag: bloomBrightFrag,
 			uniforms: {
 				uShadingTexture: {
@@ -258,7 +259,7 @@ export class PipelinePostProcess {
 			const rtHorizontal = createHdrTarget( backend );
 
 			const blurParam: MXP.PostProcessPassParam = {
-				name: 'bloom/blur/' + i + '/v',
+				name: devName( 'bloom/blur/' + i + '/v' ),
 				renderTarget: rtVertical,
 				frag: gaussBlurFrag,
 				uniforms: {
@@ -291,7 +292,7 @@ export class PipelinePostProcess {
 
 			bloomPasses.push( new MXP.PostProcessPass( backend, {
 				...blurParam,
-				name: 'bloom/blur/' + i + '/h',
+				name: devName( 'bloom/blur/' + i + '/h' ),
 				renderTarget: rtHorizontal,
 				uniforms: {
 					...blurParam.uniforms,
@@ -315,7 +316,7 @@ export class PipelinePostProcess {
 		}
 
 		bloomPasses.push( new MXP.PostProcessPass( backend, {
-			name: 'bloom/composite',
+			name: devName( 'bloom/composite' ),
 			frag: bloomCompositeFrag,
 			uniforms: {
 				uBloomTexture: {

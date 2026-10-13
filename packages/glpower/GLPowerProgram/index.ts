@@ -49,7 +49,11 @@ export class GLPowerProgram {
 
 		if ( this.program === null ) {
 
-			console.warn( 'program is null.' );
+			if ( process.env.NODE_ENV == "development" ) {
+
+				console.warn( 'program is null.' );
+
+			}
 
 			return;
 
@@ -95,7 +99,11 @@ export class GLPowerProgram {
 
 			const linkError = this.gl.getProgramInfoLog( this.program );
 
-			console.error( 'program link error:', linkError );
+			if ( process.env.NODE_ENV == "development" ) {
+
+				console.error( 'program link error:', linkError );
+
+			}
 
 			if ( this.name && linkError ) {
 

@@ -297,7 +297,7 @@ export class BLidge extends EventEmitter {
 
 				} );
 
-			} else {
+			} else if ( process.env.NODE_ENV === 'development' ) {
 
 				console.warn( 'BLidge: gltfLoaderFactory not wired' );
 
