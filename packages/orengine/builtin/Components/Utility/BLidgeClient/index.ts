@@ -43,7 +43,7 @@ export class BLidgeClient extends MXP.Component {
 	// gltf path
 	/** GLTFを使用するかどうか */
 	private useGLTF: boolean;
-	/** GLTFファイルのパス */
+	/** GLTFファイルのパス。`/` 始まりは配信のルート（public/）からのパスとして扱う */
 	private gltfPath: string;
 
 	/**
@@ -65,7 +65,7 @@ export class BLidgeClient extends MXP.Component {
 			url: "ws://localhost:3100",
 		};
 		this.useGLTF = false;
-		this.gltfPath = BASE_PATH + "/scene.glb";
+		this.gltfPath = "/scene.glb";
 
 		/*-------------------------------
 			BLidge初期化
@@ -147,13 +147,13 @@ export class BLidgeClient extends MXP.Component {
 
 				}
 
-				await this.blidge.loadScene( sceneData, this.useGLTF ? this.gltfPath : undefined );
+				await this.blidge.loadScene( sceneData, this.loadingGltfPath() );
 
 				this.emit( "loaded" );
 
 			} else {
 
-				this.blidge.connect( this.connection.url, this.useGLTF ? this.gltfPath : undefined );
+				this.blidge.connect( this.connection.url, this.loadingGltfPath() );
 
 			}
 
@@ -224,6 +224,22 @@ export class BLidgeClient extends MXP.Component {
 			},
 			{ hidden: true }
 		);
+
+	}
+
+	// 読み込む GLTF の URL を返す。GLTF を使わないなら undefined
+	private loadingGltfPath(): string | undefined {
+
+		if ( ! this.useGLTF ) return undefined;
+
+		// シーン JSON には配信先によらない `/scene.glb` の形で保存し、サブパス配信（GitHub Pages の /OREngine/ 等）の BASE_PATH は読み込み時に足す
+		if ( this.gltfPath.startsWith( '/' ) ) {
+
+			return BASE_PATH + this.gltfPath;
+
+		}
+
+		return this.gltfPath;
 
 	}
 
