@@ -1,18 +1,32 @@
+// 折り返すとタイムラインの縦幅を食うので1行に保つ。横スクロールにすると入力のドラッグと取り合うため、
+// 狭いパネルでは入力の幅を縮めて収める（スマホの幅 約 390px で全部が入る間隔・幅にしている）
 .timelineSetting {
-	width: 100%;
-	height: 100%;
-	border-right: 2px solid var(--or-bg-surface);
+	display: flex;
+	flex-wrap: nowrap;
+	align-items: center;
+	gap: calc(var(--or-space) * 2);
+	overflow: hidden;
+	padding: var(--or-space);
+	font-size: var(--or-font-sm);
+	background-color: var(--or-bg-panel);
+	border-bottom: 2px solid var(--or-bg-surface);
 }
 
-.play {
+.field {
 	display: flex;
-	height: 24px;
-	margin-bottom: 4px;
+	align-items: center;
+	gap: var(--or-space);
+	min-width: 0;
+}
 
-	button {
-		flex: 1;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
+.name {
+	color: var(--or-text-dim);
+	font-size: var(--or-font-xs);
+	white-space: nowrap;
+}
+
+// 数値の入力は4桁が収まる幅。それでも入らないパネルでは3桁ぶん（左右の padding 込み）まで縮む
+.input {
+	flex: 0 1 calc(var(--or-space) * 8);
+	min-width: calc(var(--or-space) * 7);
 }

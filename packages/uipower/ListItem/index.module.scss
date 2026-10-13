@@ -11,4 +11,10 @@
 	&[data-selected="true"] {
 		background-color: var(--or-bg-active);
 	}
+
+	// 選択中（--or-bg-active）とホバーの色（--or-bg-hover）の中間にして、選択中の行の中で見分けられるようにする
+	&[data-active="true"] {
+		background-color: color-mix(in srgb, var(--or-bg-active), var(--or-bg-hover));
+		color: var(--or-text);
+	}
 }

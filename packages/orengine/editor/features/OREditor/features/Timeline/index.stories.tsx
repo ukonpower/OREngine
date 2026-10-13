@@ -1,5 +1,5 @@
 import { OREditorFixtureHost, withOREditor } from '@or-storybook/decorators/withOREditor';
-import { timelineDefault, timelineLongDuration, timelineLoopRange, timelineMinimal, timelinePlaying, timelineSeeked, timelineWithMusic } from '@or-storybook/fixtures/timeline';
+import { timelineDefault, timelineKeyFrames, timelineLongDuration, timelineLoopRange, timelineMinimal, timelinePlaying, timelineSeeked, timelineWithMusic } from '@or-storybook/fixtures/timeline';
 
 import { Timeline } from '.';
 
@@ -36,6 +36,9 @@ export const Seeked = pattern( timelineSeeked );
 export const LoopRange = pattern( timelineLoopRange );
 
 export const WithMusic = pattern( timelineWithMusic );
+
+// 選択中の Cube のキーをチャンネル一覧とキー表示に並べる（scale は3要素で1本のカーブを共有）
+export const KeyFrames = pattern( timelineKeyFrames );
 
 // 再生ヘッドが動き続けて絵が止まらないので、スクリーンショット比較（tests/vrt）からは外す
 export const Playing: Story = { ...pattern( timelinePlaying ), tags: [ 'no-vrt' ] };

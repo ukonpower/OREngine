@@ -1,10 +1,23 @@
 // シェーディングパス本体。webgl側 deferredShading.fs の移植。
 // gBufferは rgba32float を含み filtering サンプラーで引けないため、
 // フルスクリーンパスの画素位置から textureLoad で直接読む（サンプラーを持たない）。
-// gBuffer / ライト / envMap の宣言は buildShadingSource が前置する
+// gBuffer / ライト / envMap / SSR の宣言は buildShadingSource が前置する
 
 #include "./lighting.wgsl"
 #include "./view.wgsl"
+
+// SSR を環境マップの鏡面反射の代わりに使う粗さの範囲。SSR は鏡面方向の1本のレイしか引かずぼけないので、
+// MIN 以下では当たった分をすべて SSR にし、MAX へ向けて環境マップへ戻す
+const SSR_ROUGHNESS_MIN = 0.1;
+const SSR_ROUGHNESS_MAX = 0.4;
+
+// ssr.wgsl の ssrCompress で圧縮した反射色を元の明るさへ戻す。
+// 圧縮後の輝度は 1 未満だが、半精度の丸めで 1 に届くと 0 除算になるので上限を置く（0.99 は元の輝度で約 99）
+fn ssrDecompress( c: vec3f ) -> vec3f {
+
+	return c / ( 1.0 - min( dot( c, vec3f( 0.2126, 0.7152, 0.0722 ) ), 0.99 ) );
+
+}
 
 @vertex
 fn vsMain( @builtin(vertex_index) index: u32 ) -> @builtin(position) vec4f {
@@ -123,8 +136,15 @@ fn fsMain( @builtin(position) coord: vec4f ) -> ShadingOutput {
 	// 環境の鏡面反射に置き換わる割合。直接光も含め diffuse / specular を同じ割合で減らす
 	let envReflect = EF * surface.specularColor * envIntensity;
 
+	// 鏡面反射に入ってくる光。SSR が当たった分（a）は画面に映っている物、外れた分は環境マップから取る。
+	// SSR は半解像度なのでサンプラーで引き、時間方向に均した rgb を a で割って当たった色の平均に戻す
+	let ssr = textureSampleLevel( ssrTexture, envMapSampler, coord.xy / frame.uResolution, 0.0 );
+	let ssrHit = ssrDecompress( ssr.xyz / max( ssr.w, 0.0001 ) );
+	let ssrWeight = ssr.w * ( 1.0 - smoothstep( SSR_ROUGHNESS_MIN, SSR_ROUGHNESS_MAX, roughness ) );
+	let envSpecular = mix( sampleEnvMap( refDir, roughness ), ssrHit, ssrWeight );
+
 	diffuse = ( diffuse + sampleEnvMap( normal, 1.0 ) * surface.diffuseColor * envIntensity ) * ( 1.0 - envReflect );
-	specular = mix( specular, sampleEnvMap( refDir, roughness ), envReflect );
+	specular = mix( specular, envSpecular, envReflect );
 
 	let ao = max( 0.0, 1.0 - occlusion * 1.5 );
 

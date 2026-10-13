@@ -1,6 +1,7 @@
 import { Output, BufferTarget, Mp4OutputFormat, CanvasSource } from 'mediabunny';
 
 import * as MTP from 'mathpower';
+import * as MXP from 'maxpower';
 
 import { Engine } from '../../../core/Engine';
 
@@ -64,6 +65,10 @@ export class SceneExporter {
 			for ( let f = 0; f < totalFrames; f ++ ) {
 
 				this._engine.updateOffline( f, fps );
+
+				// 動画の seek など、update 中に始まった準備が済んでから描く
+				await MXP.waitRenderReady();
+
 				this._engine.render( view );
 
 				await videoSource.add( f / fps, 1 / fps );

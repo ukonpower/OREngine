@@ -48,6 +48,7 @@ export class Raycaster {
 		entity.traverse( ( child ) => {
 
 			if ( ! child.visible ) return;
+			if ( child.isRenderHiddenTraverse() ) return;
 
 			const mesh = child.getComponent( Mesh );
 

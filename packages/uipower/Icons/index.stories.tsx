@@ -1,4 +1,4 @@
-import { ArrowIcon, CameraIcon, CheckIcon, ComponentIcon, CrossIcon, CursorIcon, EyeIcon, FolderIcon, LightIcon, MaterialIcon, MeshIcon, PauseIcon, PlayIcon, ShaderIcon, TextureIcon } from '.';
+import { ArrowIcon, CameraIcon, CheckIcon, ComponentIcon, CrossIcon, CursorIcon, EyeIcon, FolderIcon, KeyframeIcon, LightIcon, LinkIcon, MaterialIcon, MeshIcon, PauseIcon, PlayIcon, ShaderIcon, TextureIcon } from '.';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
@@ -16,6 +16,9 @@ const ICON_BOX = 24;
 const icons: { label: string, node: React.ReactNode }[] = [
 	{ label: 'ArrowIcon', node: <ArrowIcon /> },
 	{ label: 'ArrowIcon（open）', node: <ArrowIcon open={true} /> },
+	{ label: 'ArrowIcon（left）', node: <ArrowIcon direction="left" /> },
+	{ label: 'ArrowIcon（up）', node: <ArrowIcon direction="up" /> },
+	{ label: 'ArrowIcon（down）', node: <ArrowIcon direction="down" /> },
 	{ label: 'CameraIcon', node: <CameraIcon /> },
 	{ label: 'CheckIcon', node: <CheckIcon /> },
 	{ label: 'ComponentIcon', node: <ComponentIcon /> },
@@ -29,7 +32,10 @@ const icons: { label: string, node: React.ReactNode }[] = [
 	{ label: 'FolderIcon（material）', node: <FolderIcon assetType="material" /> },
 	{ label: 'FolderIcon（shader）', node: <FolderIcon assetType="shader" /> },
 	{ label: 'FolderIcon（texture）', node: <FolderIcon assetType="texture" /> },
+	{ label: 'KeyframeIcon', node: <KeyframeIcon /> },
+	{ label: 'KeyframeIcon（filled false）', node: <KeyframeIcon filled={false} /> },
 	{ label: 'LightIcon', node: <LightIcon /> },
+	{ label: 'LinkIcon', node: <LinkIcon /> },
 	{ label: 'MaterialIcon', node: <MaterialIcon /> },
 	{ label: 'MeshIcon', node: <MeshIcon /> },
 	{ label: 'PauseIcon', node: <PauseIcon /> },

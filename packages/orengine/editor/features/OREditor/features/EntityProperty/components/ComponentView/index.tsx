@@ -3,9 +3,12 @@ import { MouseEvent, useCallback } from 'react';
 
 import * as MXP from 'maxpower';
 import { Engine } from 'orengine';
-import { Block, CrossIcon } from 'uipower';
+import { Block, CrossIcon, InputBoolean } from 'uipower';
 
 import { useOREditor } from '../../../../hooks/useOREditor';
+import { KeyFrameIndicator } from '../../../KeyFrame/components/KeyFrameIndicator';
+import { SharedCurveLabel } from '../../../KeyFrame/components/SharedCurveLabel';
+import { useKeyFrameField } from '../../../KeyFrame/hooks/useKeyFrameField';
 import { SerializeFieldView } from '../../../SerializableField/components/SerializeFieldView';
 import { useSerializableField } from '../../../SerializableField/hooks/useSerializableProps';
 
@@ -55,7 +58,10 @@ const hasVisibleFields = ( folder: MXP.SerializeFieldDirectoryFolder ): boolean 
 export const ComponentView = ( { component }: ComponentViewProps ) => {
 
 	const { editor } = useOREditor();
-	const [ _enabled, _setEnabled ] = useSerializableField<boolean>( component, "enabled" );
+	const [ enabled ] = useSerializableField<boolean>( component, "enabled" );
+
+	// enabled はフィールドの行に出ない（hidden）ので、見出しのチェックボックスがその行の代わりになる（I・右クリック・キーの状態）
+	const enabledKeyFrame = useKeyFrameField( component, "enabled" );
 
 	const disableEdit = component.initiator !== "user";
 
@@ -84,10 +90,34 @@ export const ComponentView = ( { component }: ComponentViewProps ) => {
 
 	}, [ component, editor ] );
 
+	const onChangeEnabled = useCallback( ( value: boolean ) => {
+
+		editor.api.setField( component, "enabled", value );
+
+	}, [ component, editor ] );
+
+	let enabledIndicator = null;
+
+	if ( enabledKeyFrame.state ) {
+
+		enabledIndicator = <KeyFrameIndicator state={enabledKeyFrame.state} />;
+
+	}
+
+	let enabledShared = null;
+
+	if ( enabledKeyFrame.shared.length > 0 ) {
+
+		enabledShared = <SharedCurveLabel curves={enabledKeyFrame.shared} />;
+
+	}
+
 	const labelElm = <div className={style.head}>
-		{/* <div className={style.check}>
-			<InputBoolean checked={enabled || false} onChange={setEnabled} readOnly={disableEdit} />
-		</div> */}
+		<div className={style.check} {...enabledKeyFrame.rowProps}>
+			<InputBoolean checked={enabled || false} onChange={onChangeEnabled} readOnly={disableEdit} />
+		</div>
+		{enabledIndicator}
+		{enabledShared}
 		<div className={style.name}>
 			{Engine.resources.getComponentName( component )}
 		</div>

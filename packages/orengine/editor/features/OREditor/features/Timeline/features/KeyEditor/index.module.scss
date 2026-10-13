@@ -1,0 +1,25 @@
+// 目盛りの段（左のチャンネル一覧の上の段と同じ高さ）より下を覆い、キーの行を左のチャンネル一覧の行と縦にそろえる。
+// 左クリックの時刻合わせは受けず、目盛りの段と同じく親の TimelineControls に任せる
+.keyEditor {
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: var(--or-list-row-height);
+	bottom: 0;
+
+	// B の後、次の左ドラッグが矩形選択になることを示す
+	&[data-box-selecting="true"] {
+		cursor: crosshair;
+
+		* {
+			cursor: crosshair;
+		}
+	}
+}
+
+.box {
+	position: absolute;
+	border: 1px solid var(--or-focus);
+	background-color: var(--or-drop-zone);
+	pointer-events: none;
+}

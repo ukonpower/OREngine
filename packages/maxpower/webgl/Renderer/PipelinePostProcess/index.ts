@@ -16,15 +16,11 @@ import gaussBlurFrag from './shaders/gaussBlur.fs';
 import motionBlurFrag from './shaders/motionBlur.fs';
 import motionBlurNeighborFrag from './shaders/motionBlurNeighbor.fs';
 import motionBlurTileFrag from './shaders/motionBlurTile.fs';
-import ssCompositeFrag from './shaders/ssComposite.fs';
-import ssrFrag from './shaders/ssr.fs';
-import ssrTemporalFrag from './shaders/ssrTemporal.fs';
 
 
 export type PipelinePostProcessPassConfig = {
 	toneMap?: boolean;
 	motionBlur?: boolean;
-	ssr?: boolean;
 	dof?: boolean;
 	bloom?: boolean;
 };
@@ -50,13 +46,8 @@ export class PipelinePostProcess {
 	public dofBokeh: MXP.PostProcessPass;
 	public dofBlur: MXP.PostProcessPass;
 	public dofComposite: MXP.PostProcessPass;
-	public rtSSR1: GLP.GLPowerFrameBuffer;
-	public rtSSR2: GLP.GLPowerFrameBuffer;
 	public postprocess: MXP.PostProcess;
 
-	private _ssr: MXP.PostProcessPass;
-	private _ssrTemporal: MXP.PostProcessPass;
-	private _ssComposite: MXP.PostProcessPass;
 	private _dofParams: MTP.Vector;
 	private _motionBlur: MXP.PostProcessPass;
 	private _motionBlurTile: MXP.PostProcessPass;
@@ -83,133 +74,6 @@ export class PipelinePostProcess {
 				},
 			},
 		} );
-
-		// ssr（レイマーチは今フレームだけを出し、時間方向の蓄積は ssrTemporal が今フレームの近傍で履歴をクランプして行う）
-
-		const ssr = new MXP.PostProcessPass( backend, {
-			name: 'ssr',
-			frag: MXP.hotGet( "ssr", ssrFrag ),
-			renderTarget: createHdrTarget( backend ),
-			uniforms: MXP.UniformsUtils.merge( {
-				uGbufferPos: {
-					value: null,
-					type: '1i'
-				},
-				uGbufferNormal: {
-					value: null,
-					type: '1i'
-				},
-				uSceneTex: {
-					value: null,
-					type: '1i'
-				},
-			} ),
-			resolutionRatio: 0.5,
-			passThrough: true,
-		} );
-
-		if ( import.meta.hot ) {
-
-			import.meta.hot.accept( "./shaders/ssr.fs", ( module ) => {
-
-				if ( module ) {
-
-					this._ssr.frag = MXP.hotUpdate( 'ssr', module.default );
-
-				}
-
-				this._ssr.requestUpdate();
-
-			} );
-
-		}
-
-		const rtSSR1 = createHdrTarget( backend );
-		const rtSSR2 = createHdrTarget( backend );
-
-		const ssrTemporal = new MXP.PostProcessPass( backend, {
-			name: 'ssrTemporal',
-			frag: MXP.hotGet( "ssrTemporal", ssrTemporalFrag ),
-			renderTarget: rtSSR1,
-			uniforms: MXP.UniformsUtils.merge( {
-				uSSRCurrent: {
-					value: ssr.renderTarget!.textures[ 0 ],
-					type: '1i'
-				},
-				uSSRBackBuffer: {
-					value: rtSSR2.textures[ 0 ],
-					type: '1i'
-				},
-				uGbufferPos: {
-					value: null,
-					type: '1i'
-				},
-				uVelTex: {
-					value: null,
-					type: '1i'
-				},
-			} ),
-			resolutionRatio: 0.5,
-			passThrough: true,
-		} );
-
-		if ( import.meta.hot ) {
-
-			import.meta.hot.accept( "./shaders/ssrTemporal.fs", ( module ) => {
-
-				if ( module ) {
-
-					this._ssrTemporal.frag = MXP.hotUpdate( 'ssrTemporal', module.default );
-
-				}
-
-				this._ssrTemporal.requestUpdate();
-
-			} );
-
-		}
-
-		// ss-composite
-
-		const ssComposite = new MXP.PostProcessPass( backend, {
-			name: 'ssComposite',
-			frag: MXP.hotGet( "ssComposite", ssCompositeFrag ),
-			uniforms: MXP.UniformsUtils.merge( {
-				uGbufferPos: {
-					value: null,
-					type: '1i'
-				},
-				uGbufferNormal: {
-					value: null,
-					type: '1i'
-				},
-				uGbufferMaterial: {
-					value: null,
-					type: '1i'
-				},
-				uSSRTexture: {
-					value: rtSSR1.textures[ 0 ],
-					type: '1i'
-				},
-			} ),
-			renderTarget: createHdrTarget( backend ),
-		} );
-
-		if ( import.meta.hot ) {
-
-			import.meta.hot.accept( "./shaders/ssComposite.fs", ( module ) => {
-
-				if ( module ) {
-
-					this._ssComposite.frag = MXP.hotUpdate( 'ssComposite', module.default );
-
-				}
-
-				this._ssComposite.requestUpdate();
-
-			} );
-
-		}
 
 		// dof
 
@@ -359,7 +223,7 @@ export class PipelinePostProcess {
 
 		// bloom
 
-		// 輝度の抽出元は SSR などを掛ける前のシェーディングバッファ
+		// 輝度の抽出元は DoF などを掛ける前のシェーディングバッファ
 		const bloomBright = new MXP.PostProcessPass( backend, {
 			name: 'bloom/bright',
 			frag: bloomBrightFrag,
@@ -464,12 +328,9 @@ export class PipelinePostProcess {
 
 		// Postprocess
 
-		// 並びは webgpu 側と同じ（SSR / DoF / モーションブラー → ブルーム合成 → トーンマップ + linear→sRGB → FXAA）。
+		// 並びは webgpu 側と同じ（DoF / モーションブラー → ブルーム合成 → トーンマップ + linear→sRGB → FXAA）。
 		// トーンマップより前は HDR のまま処理し、FXAA は sRGB の LDR に掛ける
 		this.postprocess = new MXP.PostProcess( { passes: [
-			ssr,
-			ssrTemporal,
-			ssComposite,
 			dofCoc,
 			dofBokeh,
 			dofBlur,
@@ -482,9 +343,6 @@ export class PipelinePostProcess {
 			fxaa,
 		] } );
 
-		this._ssr = ssr;
-		this._ssrTemporal = ssrTemporal;
-		this._ssComposite = ssComposite;
 		this.dofCoc = dofCoc;
 		this.dofBokeh = dofBokeh;
 		this.dofBlur = dofBlur;
@@ -496,25 +354,6 @@ export class PipelinePostProcess {
 		this._bloomBright = bloomBright;
 		this._bloomPasses = bloomPasses;
 		this._dofParams = dofParams;
-		this.rtSSR1 = rtSSR1;
-		this.rtSSR2 = rtSSR2;
-
-		// ssr
-
-		ssr.uniforms.uGbufferPos.value = renderTarget.gBuffer.textures[ 0 ];
-		ssr.uniforms.uGbufferNormal.value = renderTarget.normalBuffer.textures[ 0 ];
-		ssr.uniforms.uSceneTex.value = renderTarget.forwardBuffer.textures[ 0 ];
-
-		// ssrTemporal
-
-		ssrTemporal.uniforms.uGbufferPos.value = renderTarget.gBuffer.textures[ 0 ];
-		ssrTemporal.uniforms.uVelTex.value = renderTarget.gBuffer.textures[ 4 ];
-
-		// ssComposite
-
-		ssComposite.uniforms.uGbufferPos.value = renderTarget.gBuffer.textures[ 0 ];
-		ssComposite.uniforms.uGbufferNormal.value = renderTarget.gBuffer.textures[ 1 ];
-		ssComposite.uniforms.uGbufferMaterial.value = renderTarget.gBuffer.textures[ 3 ];
 
 		// dofCoc
 
@@ -531,7 +370,7 @@ export class PipelinePostProcess {
 
 	}
 
-	// 描画後に呼び、次フレーム用の DOF パラメータと SSR の履歴を進める
+	// 描画後に呼び、次フレーム用の DOF パラメータを進める
 	public update( camera: MXP.Camera ): void {
 
 		// dof params
@@ -547,16 +386,6 @@ export class PipelinePostProcess {
 		const coeff = focalLength * focalLength / ( camera.dofParams.fNumber * ( focusDistance - focalLength ) * kFilmHeight * 2.0 );
 
 		this._dofParams.set( focusDistance, maxCoc, rcpMaxCoC, coeff );
-
-		// ssr swap
-
-		const tmp = this.rtSSR1;
-		this.rtSSR1 = this.rtSSR2;
-		this.rtSSR2 = tmp;
-
-		this._ssrTemporal.setRendertarget( this.rtSSR1 );
-		this._ssComposite.uniforms.uSSRTexture.value = this.rtSSR1.textures[ 0 ];
-		this._ssrTemporal.uniforms.uSSRBackBuffer.value = this.rtSSR2.textures[ 0 ];
 
 	}
 
@@ -594,21 +423,6 @@ export class PipelinePostProcess {
 
 				if ( this._motionBlurTile.renderTarget ) this._motionBlurTile.renderTarget.clear();
 				if ( this._motionBlurNeighbor.renderTarget ) this._motionBlurNeighbor.renderTarget.clear();
-
-			}
-
-		}
-
-		if ( config.ssr !== undefined ) {
-
-			this._ssr.enabled = config.ssr;
-			this._ssrTemporal.enabled = config.ssr;
-			this._ssComposite.enabled = config.ssr;
-
-			if ( ! config.ssr ) {
-
-				this.rtSSR1.clear();
-				this.rtSSR2.clear();
 
 			}
 
@@ -656,8 +470,6 @@ export class PipelinePostProcess {
 	public dispose() {
 
 		this.postprocess.dispose();
-		this.rtSSR1.dispose();
-		this.rtSSR2.dispose();
 
 	}
 

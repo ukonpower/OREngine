@@ -3,13 +3,14 @@ import * as MXP from 'maxpower';
 import { Command } from '../../CommandManager';
 import { uniqueEntityName } from '../../EntityName';
 
-// 生成するエンティティの既定名と、最初から付けておくコンポーネント
+// 生成するエンティティの既定名と、最初から付けておくコンポーネント。position は親のローカル座標で、省略時は原点
 export type CreateEntityOptions = {
 	name: string;
 	components: ( typeof MXP.Component )[];
+	position?: number[];
 };
 
-// コンポーネント付きのエンティティを1つ生成する。コンポーネントの追加までを1コマンドに含めて、
+// コンポーネント付きのエンティティを1つ生成する。コンポーネントの追加と位置の設定までを1コマンドに含めて、
 // undo 1回でエンティティごと丸ごと戻るようにしている
 export class CreateEntityCommand implements Command {
 
@@ -28,6 +29,12 @@ export class CreateEntityCommand implements Command {
 
 			this.entity = this.engine.createEntity( { name: uniqueEntityName( this.parent, this.options.name ) } );
 			this.entity.initiator = "user";
+
+			if ( this.options.position ) {
+
+				this.entity.position.setFromArray( this.options.position );
+
+			}
 
 			for ( const componentClass of this.options.components ) {
 

@@ -12,9 +12,11 @@ import type { MaterialContract } from '../../core/Contracts/MaterialContract';
 
 type MaterialDefines = {[key: string]: any};
 type MaterialVisibility = {[K in MaterialRenderType]?: boolean}
-type MaterialProgramCache = {[K in MaterialRenderType]?: GLP.GLPowerProgram}
+type MaterialProgramCache = {[K in MaterialDrawPass]?: GLP.GLPowerProgram}
 
 export type MaterialRenderType = "shadowMap" | "deferred" | "forward" | "envMap" | 'ui' | "postprocess"
+// 描画パスの種類。フェーズに、不透明の forward が gBuffer の段で位置・法線・速度を先に書くパスを足したもの
+export type MaterialDrawPass = MaterialRenderType | 'forwardPrepass';
 export type DrawType = 'TRIANGLES' | 'LINES' | 'POINTS';
 export type Blending = 'ADD' | 'NORMAL' | "DIFF";
 
@@ -32,6 +34,13 @@ export interface MaterialParam {
 	cullFace? :boolean;
 	blending?: Blending,
 	drawType?: DrawType;
+	// forward で背後と混ぜて描くか（既定 false）。false（不透明）は gBuffer の段で位置・法線・速度を先に書くので、
+	// SSR に映り、SSAO・DoF・モーションブラーでも deferred と同じ面として扱われる。
+	// true（透明）は SSR の反射にも、SSR が色を引く前フレームのシーンにも入らない
+	transparent?: boolean;
+	// 透明の forward で gBuffer の position / velocity も書くか（既定 true）。自前でボケ・ぶれを付ける半透明
+	// （雨の筋など）は false にして、DoF・モーションブラーが板の位置を面として扱わないようにする。不透明は常に書く
+	writeGBuffer?: boolean;
 }
 
 export class Material extends Serializable implements MaterialContract {
@@ -49,6 +58,8 @@ export class Material extends Serializable implements MaterialContract {
 	public drawType: DrawType;
 	public blending: Blending;
 	public renderOrder: number;
+	public transparent: boolean;
+	public writeGBuffer: boolean;
 
 	public visibilityFlag: MaterialVisibility;
 	public programCache: MaterialProgramCache;
@@ -71,6 +82,8 @@ export class Material extends Serializable implements MaterialContract {
 		this.drawType = params.drawType || "TRIANGLES";
 		this.blending = params.blending || "NORMAL";
 		this.renderOrder = params.renderOrder ?? 0;
+		this.transparent = params.transparent ?? false;
+		this.writeGBuffer = params.writeGBuffer ?? true;
 
 		this.vert = params.vert || basicVert;
 		this.frag = params.frag || basicFrag;

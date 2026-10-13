@@ -33,18 +33,15 @@ fn vsMain( input: VertexInput, @builtin(instance_index) instanceIndex: u32 ) -> 
 	let position = frame.uProjectionMatrix * frame.uViewMatrix * worldPosition;
 
 	// 前フレームの時刻で同じ頂点を置き直し、画面上の移動量を出す
-	let heightPrev = wave( offset, frame.uTime - frame.uDeltaTime );
+	let heightPrev = wave( offset, frame.uTimePrev );
 	let localPositionPrev = input.position + vec3f( offset.x, heightPrev * BOX_SIZE * 2.0, offset.y );
 	let worldPositionPrev = object.uModelMatrixPrev * vec4f( localPositionPrev, 1.0 );
-	let positionPrev = frame.uProjectionMatrixPrev * frame.uViewMatrixPrev * worldPositionPrev;
 
 	output.position = position;
+	output.positionPrev = projectPrev( worldPositionPrev.xyz );
 	output.normal = ( object.uNormalMatrix * vec4f( input.normal, 0.0 ) ).xyz;
 	output.uv = input.uv;
 	output.worldPosition = worldPosition.xyz;
-
-	let ndcVelocity = position.xy / position.w - positionPrev.xy / positionPrev.w;
-	output.velocity = vec2f( ndcVelocity.x, - ndcVelocity.y ) * 0.2;
 
 	// 色はインスタンスごと、明るさは頂点ごと（箱の上面ほど強く、波の山で光る）に決めて渡す
 	output.vColor = hueToRgb( f32( instanceIndex ) / f32( GRID * GRID ) );

@@ -3,17 +3,22 @@ import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
 import { Engine } from '../../../core/Engine';
+import { OREngineProjectData, pruneUnusedCurves } from '../../../core/ProjectSerializer';
 import { AssetPreviewManager } from '../AssetPreviewManager';
+import { preventBrowserContextMenu } from '../BrowserContextMenu';
 import { ConstraintAxisRenderer } from '../ConstraintAxisRenderer';
 import { EditorAPI } from '../EditorAPI';
-import { GizmoMode } from '../Gizmo';
+import { GizmoMode, GizmoTarget } from '../Gizmo';
 import { GizmoManager } from '../GizmoManager';
 import { GridRenderer } from '../GridRenderer';
 import { HelperManager, HelperVisibility } from '../HelperManager';
 import { KeyboardHandler } from '../KeyboardHandler';
-import { ModalTransformHandler } from '../ModalTransformHandler';
+import { CurveLinkSettings, CurvePasteMode, getAnimatedTransformFields, KeyFrameElementRef, KeyFrameFieldRef, keyFrameTime } from '../KeyFrameField';
+import { ModalTransformHandler, transformModeOfKey, type ModalTransformMode, type ModalTransformSelection } from '../ModalTransformHandler';
+import { RelationshipLineRenderer } from '../RelationshipLineRenderer';
 import { SceneExporter, SceneExporterProgress } from '../SceneExporter';
 import { SelectionOutline } from '../SelectionOutline';
+import { topmostEntities, transformBasis, transformPivot } from '../TransformTargets';
 import { Viewport } from '../Viewport';
 import { WireframeRenderer } from '../WireframeRenderer';
 
@@ -37,12 +42,38 @@ export type EditorTimelineLoop = {
 	end: number,
 }
 
+// 点を選んで編集する領域（タイムラインのキー・フィールド UI の点エディタ等）で選んだものへの操作。ポインタが領域の上にある間、
+// Delete / X・Ctrl+C・Ctrl+V・G / R / S・Shift+D・B・A / Alt+A・Home・W をビューポートではなくこちらへ向ける。
+// 持っていない操作のキーは何もしない（ビューポートへも渡さない。点エディタの上の X でエンティティが消えないように）
+export type EditAreaActions = {
+	deleteSelected?: () => void;
+	copy?: () => void;
+	paste?: () => void;
+	transform?: ( mode: ModalTransformMode ) => void;
+	// Shift+D。選んだものを複製して移動のモーダル操作に入る
+	duplicate?: () => void;
+	boxSelect?: () => void;
+	// A は true（全選択）、Alt+A は false（全解除）
+	selectAll?: ( select: boolean ) => void;
+	frameAll?: () => void;
+	// W。Blender の右クリック選択と同じく、右クリックは選択に使うのでメニューは W で開く
+	openMenu?: () => void;
+};
+
+// 編集領域のモーダル操作（G / R / S・B の矩形選択の待機）。続いている間は、ポインタが領域の外にあってもキーボードをまずこちらへ向ける
+export type EditModal = {
+	// 消費したら true（ほかのショートカットへ渡さない）
+	handleKeyDown: ( e: KeyboardEvent ) => boolean;
+};
+
 // ビューポートごとに切り替える編集用オーバーレイの表示フラグ
 type ViewportHelpers = HelperVisibility & {
 	grid: boolean;
 	wireframe: boolean;
 	gizmo: boolean;
 	outline: boolean;
+	// 親子の点線（Blender の Relationship Lines）
+	relationships: boolean;
 };
 
 // ビューポートごとに保存する設定。ビューポートはパネルの表示中しか存在しないので、
@@ -50,7 +81,8 @@ type ViewportHelpers = HelperVisibility & {
 type ViewportSettings = {
 	cameraView: "editor" | "camera";
 	preview: boolean;
-	// 基準解像度（resolution/*）に掛ける倍率。Screen パネルごとに負荷と画質を選べるようにビューポート単位で持つ
+	// 描画解像度に掛ける倍率。エディタカメラで見ている間はパネルの画素数に、カメラビュー（シーンカメラ・プレビュー）では
+	// 最終出力の解像度（resolution/*）に掛かる。Screen パネルごとに負荷と画質を選べるようにビューポート単位で持つ
 	resolutionScale: number;
 	helpers: ViewportHelpers;
 	// null = 未設定（OrbitControls の初期姿勢のまま）
@@ -68,6 +100,7 @@ const DEFAULT_VIEWPORT_HELPERS: ViewportHelpers = {
 	wireframe: false,
 	gizmo: true,
 	outline: true,
+	relationships: true,
 };
 
 // viewports/<id>/ 以下の値フィールド。破棄と React への再読込通知で同じ一覧を使う
@@ -90,7 +123,10 @@ type ExternalWindow = {
 export class Editor extends MXP.Serializable {
 
 	private _engine: Engine;
+	// アクティブ（最後に選んだもの）。Property パネル・キーの挿入・フォーカス等、1つだけを相手にする操作の対象。選んでいれば必ず _selectedEntityIds に入っている
 	private _selectedEntityId: string | null;
+	// 選んでいるものすべて（選んだ順）。削除・複製・変形・親の付け替えの対象
+	private _selectedEntityIds: string[];
 	private _unselectableEntityIds: Set<string>;
 	private _selectedAsset: SelectedAssetInfo;
 	private _navigateAsset: NavigateAssetRequest;
@@ -99,13 +135,25 @@ export class Editor extends MXP.Serializable {
 	private _frameLoop: EditorTimelineLoop;
 	private _enableRender: boolean;
 	private _baseResolution: MTP.Vector;
+	// _fitViewports で毎フレーム使う計算用
+	private _viewportResolution: MTP.Vector;
 	private _viewType: "render" | "debug";
 	private _assetPreviewManager: AssetPreviewManager;
 	private _externalWindow: ExternalWindow | null;
 	private _modalStatus: string | null;
 	private _panelLayout: MXP.SerializeFieldValue;
+	private _panelLayoutSP: MXP.SerializeFieldValue;
+	// I / Alt+I の対象。プロパティパネルの行がポインタの出入りで設定する
+	private _hoveredKeyField: KeyFrameFieldRef | null;
+	// ポインタが乗っているタイムラインのキーの操作。タイムラインがポインタの出入りで設定する
+	private _hoveredEditArea: EditAreaActions | null;
+	private _editModal: EditModal | null;
+	// 「カーブをコピー」で覚えたカーブ ID。貼り付けるときに表から引くので、コピーの後の編集も貼り付けに乗る
+	private _copiedCurveId: string | null;
 
 	private _disposed: boolean;
+	// editor.json を流し込んでいる間だけ true。読み込みで起きる field の更新を、ユーザーの操作と区別するため
+	private _bootstrapping: boolean;
 	private _api: EditorAPI;
 	private _draw: MXP.EditorDrawContract;
 
@@ -119,8 +167,10 @@ export class Editor extends MXP.Serializable {
 	private _gridRenderer: GridRenderer;
 	private _constraintAxisRenderer: ConstraintAxisRenderer;
 	private _wireframeRenderer: WireframeRenderer;
+	private _relationshipLineRenderer: RelationshipLineRenderer;
 	private _selectionOutline: SelectionOutline;
 	private _keyboardHandler: KeyboardHandler;
+	private _disposeBrowserContextMenu: () => void;
 	private _modalTransformHandler: ModalTransformHandler;
 
 	private _sceneExporter: SceneExporter;
@@ -134,16 +184,24 @@ export class Editor extends MXP.Serializable {
 		this._engine = engine;
 		this._viewType = "render";
 		this._selectedEntityId = null;
+		this._selectedEntityIds = [];
 		this._unselectableEntityIds = new Set();
 		this._selectedAsset = null;
 		this._navigateAsset = null;
 		this._propertyTarget = "entity";
 		this._enableRender = true;
 		this._baseResolution = new MTP.Vector( 1920, 1080 );
+		this._viewportResolution = new MTP.Vector();
 		this._externalWindow = null;
 		this._modalStatus = null;
 		this._panelLayout = null;
+		this._panelLayoutSP = null;
+		this._hoveredKeyField = null;
+		this._hoveredEditArea = null;
+		this._editModal = null;
+		this._copiedCurveId = null;
 		this._disposed = false;
+		this._bootstrapping = false;
 		this._api = new EditorAPI( this );
 		this._draw = createEditorDraw( engine );
 		this._viewports = [];
@@ -163,25 +221,16 @@ export class Editor extends MXP.Serializable {
 		this._gridRenderer = new GridRenderer( engine, this._draw );
 		this._constraintAxisRenderer = new ConstraintAxisRenderer( engine, this._draw );
 		this._wireframeRenderer = new WireframeRenderer( this._draw );
+		this._relationshipLineRenderer = new RelationshipLineRenderer( engine, this._draw );
 		this._selectionOutline = new SelectionOutline( this._draw );
 
 		this._modalTransformHandler = new ModalTransformHandler( {
 			engine,
 			getViewport: () => this._activeViewport,
 			api: this._api,
-			getSelectedEntity: () => this._selectedEntityId
-				? engine.root.findEntityByUUID( this._selectedEntityId ) ?? null
-				: null,
+			getSelection: () => this._getTransformSelection(),
 			isPointerBusy: () => this._viewports.some( ( v ) => v.gizmoDragging ),
-			onStatusChange: ( status ) => {
-
-				// モーダル中は毎 pointermove で呼ばれるので、文字列が変わったときだけ React へ通知する
-				if ( this._modalStatus === status ) return;
-
-				this._modalStatus = status;
-				this.noticeField( "modalStatus" );
-
-			},
+			onStatusChange: ( status ) => this.setModalStatus( status ),
 		} );
 
 		this._keyboardHandler = new KeyboardHandler( {
@@ -205,13 +254,95 @@ export class Editor extends MXP.Serializable {
 			onProjectionToggle: () => this.toggleEditorProjection(),
 			// メニューは React 側の Popover に出すので、ここでは要求を投げるだけにする
 			onAddEntity: () => this.emit( "request/addEntity" ),
-			onDeleteSelected: () => this.deleteSelected(),
-			onDuplicateSelected: () => this.duplicateSelected(),
+			onDeleteSelected: () => {
+
+				// 編集領域の上では、エンティティではなく領域で選んだものを消す
+				const area = this._hoveredEditArea;
+
+				if ( area ) {
+
+					if ( area.deleteSelected ) area.deleteSelected();
+
+					return;
+
+				}
+
+				this.deleteSelected();
+
+			},
+			onCopy: () => {
+
+				const area = this._hoveredEditArea;
+
+				if ( area && area.copy ) area.copy();
+
+			},
+			onPaste: () => {
+
+				const area = this._hoveredEditArea;
+
+				if ( area && area.paste ) area.paste();
+
+			},
+			onBoxSelect: () => {
+
+				const area = this._hoveredEditArea;
+
+				if ( area && area.boxSelect ) area.boxSelect();
+
+			},
+			onSelectAll: ( select ) => {
+
+				const area = this._hoveredEditArea;
+
+				if ( area && area.selectAll ) area.selectAll( select );
+
+			},
+			onFrameAll: () => {
+
+				const area = this._hoveredEditArea;
+
+				if ( area && area.frameAll ) area.frameAll();
+
+			},
+			onContextMenu: () => {
+
+				const area = this._hoveredEditArea;
+
+				if ( area && area.openMenu ) area.openMenu();
+
+			},
+			onDuplicateSelected: () => {
+
+				// 編集領域の上では、エンティティではなく領域で選んだものを複製する
+				const area = this._hoveredEditArea;
+
+				if ( area ) {
+
+					if ( area.duplicate ) area.duplicate();
+
+					return;
+
+				}
+
+				if ( this.duplicateSelected() ) {
+
+					this._modalTransformHandler.start( "translate" );
+
+				}
+
+			},
 			onRenameSelected: () => this.requestRenameSelected(),
+			onParentToActive: () => this.parentSelectedToActive(),
+			onClearParent: () => this.clearParentOfSelected(),
 			onStepFrame: ( step ) => this.stepFrame( step ),
 			onSeekToStart: () => this.seekToStart(),
-			onTransformKey: ( e ) => this._activeViewport?.editorCamera.preview ? false : this._modalTransformHandler.handleKeyDown( e ),
+			onTransformKey: ( e ) => this._onModalKey( e ),
+			onInsertKey: ( remove ) => this._onKeyFrameShortcut( remove ),
 		} );
+
+		// ショートカットと同じくエディタ全体で受ける。Popover・InputWindow は .editor の外に並ぶので、ルート要素ではなく window に付ける
+		this._disposeBrowserContextMenu = preventBrowserContextMenu( window );
 
 		/*-------------------------------
 			Audio
@@ -240,18 +371,14 @@ export class Editor extends MXP.Serializable {
 		-------------------------------*/
 
 		// 別シーンへ切り替わったら選択を外す。起動時は editor.json の選択を復元したいので、
-		// 新しいシーンに同じ uuid が居る間は残す
+		// 新しいシーンに同じ uuid が居るものは残す
 		this._engine.on( "loaded", () => {
 
-			if ( ! this._selectedEntityId ) return;
+			const entities = this.selectedEntities;
 
-			const entity = this._engine.root.findEntityByUUID( this._selectedEntityId );
+			if ( entities.length === this._selectedEntityIds.length ) return;
 
-			if ( ! entity ) {
-
-				this.selectEntity( null );
-
-			}
+			this.setSelection( entities, this.activeEntity );
 
 		} );
 
@@ -275,19 +402,33 @@ export class Editor extends MXP.Serializable {
 
 		} );
 
-		// Blender のアクティブオブジェクトを選択する。BLidge 由来のエンティティの uuid はノード名から決まる（BLidgeClient）ので名前で引く。
-		// エディタは複数選択に対応していないので active だけを見る。見つからなければエディタの選択はそのままにする
+		// Blender の選択とアクティブオブジェクトを写す。BLidge 由来のエンティティの uuid はノード名から決まる（BLidgeClient）ので名前で引く。
+		// アクティブが見つからなければエディタの選択はそのままにする
 		this._engine.on( "update/blidge/selection", ( selection: MXP.BLidgeSelection ) => {
 
 			if ( ! selection.active ) return;
 
-			const entity = this._engine.root.findEntityByUUID( "blidge:" + selection.active.name );
+			const active = this._engine.root.findEntityByUUID( "blidge:" + selection.active.name );
 
-			if ( entity ) {
+			if ( ! active ) return;
 
-				this.selectEntity( entity );
+			const entities: MXP.Entity[] = [];
+
+			for ( const item of selection.selected ) {
+
+				const entity = this._engine.root.findEntityByUUID( "blidge:" + item.name );
+
+				if ( entity && entity !== active ) {
+
+					entities.push( entity );
+
+				}
 
 			}
+
+			entities.push( active );
+
+			this.setSelection( entities, active );
 
 		} );
 
@@ -328,9 +469,17 @@ export class Editor extends MXP.Serializable {
 		frameLoop.field( "start", () => this._frameLoop.start, v => this._frameLoop.start = v );
 		frameLoop.field( "end", () => this._frameLoop.end, v => this._frameLoop.end = v );
 
-		this.field( "selectedEntityId", () => this._selectedEntityId, v => {
+		// アクティブ。選択に入っていないものを入れたら、選択もそれ1つにする（アクティブは必ず選択の中にある）
+		this.field( "selectedEntityId", () => this._selectedEntityId, ( v: string | null ) => {
 
 			this._selectedEntityId = v;
+
+			if ( v && ! this._selectedEntityIds.includes( v ) ) {
+
+				this._selectedEntityIds = [ v ];
+				this.noticeField( "selectedEntityIds" );
+
+			}
 
 			if ( v ) {
 
@@ -340,6 +489,20 @@ export class Editor extends MXP.Serializable {
 			}
 
 		} );
+
+		// 選択の集合。アクティブが入っていない集合を入れたら、アクティブを外す
+		this.field( "selectedEntityIds", () => this._selectedEntityIds, ( v: string[] ) => {
+
+			this._selectedEntityIds = v;
+
+			if ( this._selectedEntityId && ! v.includes( this._selectedEntityId ) ) {
+
+				this._selectedEntityId = null;
+				this.noticeField( "selectedEntityId" );
+
+			}
+
+		}, { hidden: true } );
 
 		// Blenderの選択無効トグルに相当。ここに入っているエンティティはビューポートのクリックで拾わない（Hierarchyからは選択できる）
 		this.field( "unselectableEntityIds", () => Array.from( this._unselectableEntityIds ), ( v: string[] ) => {
@@ -388,9 +551,11 @@ export class Editor extends MXP.Serializable {
 		// モーダル変形中だけ出るヘッダテキスト。セッション限りの状態なので editor.json には残さない
 		this.field( "modalStatus", () => this._modalStatus, { noExport: true } );
 
-		// PC パネルレイアウトのツリー。型・検証・操作は React 層（features/PanelLayout）が持ち、ここは素通しの箱。
+		// パネルレイアウトのツリー（PC 用 / SP 用）。型・検証・操作は React 層（features/PanelLayout）が持ち、ここは素通しの箱。
+		// 画面幅で配置の前提が違うので木を分けて持ち、片方をいじってももう片方は崩れない。
 		// null はデフォルトレイアウトを意味する
 		this.field( "panelLayout", () => this._panelLayout, v => this._panelLayout = v, { hidden: true } );
+		this.field( "panelLayoutSP", () => this._panelLayoutSP, v => this._panelLayoutSP = v, { hidden: true } );
 
 		/*-------------------------------
 			Animate
@@ -404,11 +569,27 @@ export class Editor extends MXP.Serializable {
 		Bootstrap
 	-------------------------------*/
 
+	public get bootstrapping() {
+
+		return this._bootstrapping;
+
+	}
+
 	public bootstrap( editorData?: MXP.SerializeField ) {
 
 		if ( editorData ) {
 
-			this.deserialize( editorData );
+			this._bootstrapping = true;
+
+			try {
+
+				this.deserialize( editorData );
+
+			} finally {
+
+				this._bootstrapping = false;
+
+			}
 
 		}
 
@@ -503,11 +684,12 @@ export class Editor extends MXP.Serializable {
 			gizmoManager: this._gizmoManager,
 			helperManager: this._helperManager,
 			api: this._api,
-			getSelectedEntityId: () => this._selectedEntityId,
+			getTransformSelection: () => this._getTransformSelection(),
 			isEntitySelectable: ( entity ) => ! this._unselectableEntityIds.has( entity.uuid ),
 			isGizmoVisible: () => settings.helpers.gizmo,
 			getHelperVisibility: () => settings.helpers,
 			onSelectEntity: ( entity ) => this.selectEntity( entity ),
+			onToggleEntity: ( entity ) => this.toggleEntitySelection( entity ),
 			isModalActive: () => this._modalTransformHandler.active,
 			onEscapeToEditorCamera: () => this._escapeToEditorCamera( viewport ),
 			onActivate: () => {
@@ -546,7 +728,6 @@ export class Editor extends MXP.Serializable {
 		}
 
 		viewport.frameDebugger.enable = this._viewType === "debug";
-		viewport.resize( this._viewportResolution( settings ) );
 
 		this._viewports.push( viewport );
 
@@ -634,13 +815,10 @@ export class Editor extends MXP.Serializable {
 
 		} );
 
-		// ビューポートが無い間も同じ値を使うので、生死に関わらず退避値を正とする
+		// ビューポートが無い間も同じ値を使うので、生死に関わらず退避値を正とする。ビューポートへは毎フレームの _fitViewports で反映する
 		dir.field( "resolutionScale", () => settings.resolutionScale, ( v: number ) => {
 
 			settings.resolutionScale = Number( v );
-
-			// 他のサイズで作り置きしたエディタ描画のバッファも捨てたいので、ビューポート単体でなく全体を合わせ直す
-			this._resize();
 
 		} );
 
@@ -748,6 +926,9 @@ export class Editor extends MXP.Serializable {
 
 		if ( ! this._isExporting ) {
 
+			// エディタカメラの aspect をビューの大きさから取るので、先に大きさを決める
+			this._fitViewports();
+
 			for ( const viewport of this._viewports ) {
 
 				viewport.editorCamera.updateBeforeRender( this._engine );
@@ -756,11 +937,11 @@ export class Editor extends MXP.Serializable {
 
 			this._engine.update();
 
-			this._helperManager.sync( this._engine, this._selectedEntityId );
+			this._helperManager.sync( this._engine, new Set( this._selectedEntityIds ), this._selectedEntityId );
 
-			const selectedEntity = this._selectedEntityId
-				? this._engine.root.findEntityByUUID( this._selectedEntityId ) ?? null
-				: null;
+			const selectedEntities = this.selectedEntities;
+			const activeEntity = this.activeEntity;
+			const gizmoTarget = this._getGizmoTarget();
 
 			for ( const viewport of this._viewports ) {
 
@@ -770,7 +951,7 @@ export class Editor extends MXP.Serializable {
 
 				}
 
-				this._renderOverlay( viewport, selectedEntity );
+				this._renderOverlay( viewport, selectedEntities, activeEntity, gizmoTarget );
 
 				this._draw.drawToCanvas( viewport.view, viewport.canvas );
 
@@ -820,7 +1001,7 @@ export class Editor extends MXP.Serializable {
 	}
 
 	// シーン描画の上にビューポートの編集用オーバーレイ（グリッド・ヘルパー・ギズモ・アウトライン）を重ねる
-	private _renderOverlay( viewport: Viewport, selectedEntity: MXP.Entity | null ) {
+	private _renderOverlay( viewport: Viewport, selectedEntities: MXP.Entity[], activeEntity: MXP.Entity | null, gizmoTarget: GizmoTarget | null ) {
 
 		const cameraEntity = viewport.editorCamera.getCameraEntity( this._engine );
 		const preview = viewport.editorCamera.preview;
@@ -838,6 +1019,12 @@ export class Editor extends MXP.Serializable {
 
 			this._helperManager.render( view, cameraEntity, helpers );
 
+			if ( helpers.relationships ) {
+
+				this._relationshipLineRenderer.render( view, cameraEntity, this._engine );
+
+			}
+
 			if ( helpers.wireframe ) {
 
 				this._wireframeRenderer.render( view, cameraEntity, this._engine );
@@ -852,20 +1039,17 @@ export class Editor extends MXP.Serializable {
 
 		this._gizmoManager.render(
 			view,
-			hideGizmo ? null : selectedEntity,
+			hideGizmo ? null : gizmoTarget,
 			cameraEntity,
 			this._engine
 		);
 
-		if ( ! preview ) {
+		// 拘束軸はヘルパーではなくモーダル変形中の操作表示なので、プレビュー中も出す
+		this._constraintAxisRenderer.render( view, this._modalTransformHandler.constraintDisplay, cameraEntity, this._engine );
 
-			this._constraintAxisRenderer.render( view, this._modalTransformHandler.constraintDisplay, cameraEntity, this._engine );
+		if ( ! preview && helpers.outline ) {
 
-			if ( helpers.outline ) {
-
-				this._selectionOutline.render( view, selectedEntity, cameraEntity );
-
-			}
+			this._selectionOutline.render( view, selectedEntities, activeEntity, cameraEntity );
 
 		}
 
@@ -945,9 +1129,138 @@ export class Editor extends MXP.Serializable {
 		Controls
 	-------------------------------*/
 
+	// 選択をそれ1つにしてアクティブにする。null で選択をすべて外す
 	public selectEntity( entity: MXP.Entity | null ) {
 
-		this.setField( "selectedEntityId", entity ? entity.uuid : null );
+		if ( entity ) {
+
+			this.setSelection( [ entity ], entity );
+
+		} else {
+
+			this.setSelection( [], null );
+
+		}
+
+	}
+
+	// 選択の集合とアクティブをまとめて差し替える。active は entities に入っているものか null
+	public setSelection( entities: MXP.Entity[], active: MXP.Entity | null ) {
+
+		const ids: string[] = [];
+
+		for ( const entity of entities ) {
+
+			if ( ! ids.includes( entity.uuid ) ) {
+
+				ids.push( entity.uuid );
+
+			}
+
+		}
+
+		let activeId: string | null = null;
+
+		if ( active ) {
+
+			activeId = active.uuid;
+
+		}
+
+		// 集合を先に入れる。アクティブを先に入れると、集合に無いアクティブで集合がそれ1つに作り直されてしまう
+		this.setField( "selectedEntityIds", ids );
+		this.setField( "selectedEntityId", activeId );
+
+	}
+
+	// Shift+クリック（Hierarchy は Ctrl+クリック）。選んでいなければ足してアクティブに、選んでいてアクティブでなければアクティブに、
+	// アクティブなら外す（Blender の 3D ビューと同じ。選んだ中からアクティブを選び直せるように、1回目では外さない）
+	public toggleEntitySelection( entity: MXP.Entity ) {
+
+		const entities = this.selectedEntities;
+
+		if ( ! entities.includes( entity ) ) {
+
+			entities.push( entity );
+
+			this.setSelection( entities, entity );
+
+			return;
+
+		}
+
+		if ( this._selectedEntityId !== entity.uuid ) {
+
+			this.setSelection( entities, entity );
+
+			return;
+
+		}
+
+		const rest: MXP.Entity[] = [];
+
+		for ( const selected of entities ) {
+
+			if ( selected !== entity ) {
+
+				rest.push( selected );
+
+			}
+
+		}
+
+		this.setSelection( rest, null );
+
+	}
+
+	// 選んでいるエンティティ（選んだ順）。シーンに居ないものは除く
+	public get selectedEntities(): MXP.Entity[] {
+
+		const entities: MXP.Entity[] = [];
+
+		for ( const id of this._selectedEntityIds ) {
+
+			const entity = this._engine.root.findEntityByUUID( id );
+
+			if ( entity ) {
+
+				entities.push( entity );
+
+			}
+
+		}
+
+		return entities;
+
+	}
+
+	// アクティブのエンティティ。無ければ null
+	public get activeEntity(): MXP.Entity | null {
+
+		if ( ! this._selectedEntityId ) return null;
+
+		return this._engine.root.findEntityByUUID( this._selectedEntityId ) ?? null;
+
+	}
+
+	// G / R / S・ギズモで動かす対象。祖先も選ばれているものは親と一緒に動くので外す
+	private _getTransformSelection(): ModalTransformSelection {
+
+		return { entities: topmostEntities( this.selectedEntities ), active: this.activeEntity };
+
+	}
+
+	// ギズモを置く場所。動かす対象の中心に、アクティブの向きで置く
+	private _getGizmoTarget(): GizmoTarget | null {
+
+		const selection = this._getTransformSelection();
+
+		if ( selection.entities.length === 0 ) return null;
+
+		return {
+			position: transformPivot( selection.entities ),
+			quaternion: transformBasis( selection.entities, selection.active ),
+		};
 
 	}
 
@@ -1004,16 +1317,14 @@ export class Editor extends MXP.Serializable {
 
 	}
 
-	// 選択中のエンティティが画面に収まる位置までアクティブなビューポートのエディタカメラを寄せる
+	// アクティブのエンティティが画面に収まる位置までアクティブなビューポートのエディタカメラを寄せる
 	public focusSelected() {
 
 		const viewport = this._activeViewport;
 
 		if ( ! viewport || viewport.editorCamera.preview ) return;
 
-		const entity = this._selectedEntityId
-			? this._engine.root.findEntityByUUID( this._selectedEntityId ) ?? null
-			: null;
+		const entity = this.activeEntity;
 
 		if ( ! entity ) return;
 
@@ -1051,60 +1362,180 @@ export class Editor extends MXP.Serializable {
 
 	}
 
-	// 選択中のエンティティのうち、GUI で削除・複製・改名してよいものを返す。
-	// Hierarchy が編集を塞いでいる script 由来と、ルート等のエディタ管理（god）は対象外
-	private _getEditableSelectedEntity(): MXP.Entity | null {
+	// GUI で削除・複製・改名してよいか。Hierarchy が編集を塞いでいる script 由来と、ルート等のエディタ管理（god）は対象外
+	private _isEditableEntity( entity: MXP.Entity ) {
 
-		if ( ! this._selectedEntityId ) return null;
-
-		const entity = this._engine.root.findEntityByUUID( this._selectedEntityId );
-
-		if ( ! entity || entity.initiator !== "user" || ! entity.parent ) return null;
-
-		return entity;
+		return entity.initiator === "user" && entity.parent !== null;
 
 	}
 
-	// 選択中のエンティティを確認なしで削除する（Blender の X / Delete）。undo で戻せるので確認は挟まない
+	// 選んでいるもののうち、削除・複製してよいもの。祖先も選ばれているものは親と一緒に扱われるので外す
+	private _getEditableSelectedEntities(): MXP.Entity[] {
+
+		const entities: MXP.Entity[] = [];
+
+		for ( const entity of topmostEntities( this.selectedEntities ) ) {
+
+			if ( this._isEditableEntity( entity ) ) {
+
+				entities.push( entity );
+
+			}
+
+		}
+
+		return entities;
+
+	}
+
+	// 選んでいるエンティティを確認なしで削除する（Blender の X / Delete）。undo で戻せるので確認は挟まない
 	public deleteSelected() {
 
-		const entity = this._getEditableSelectedEntity();
+		const entities = this._getEditableSelectedEntities();
 
-		if ( ! entity ) return;
+		if ( entities.length === 0 ) return;
 
-		this._api.deleteEntity( entity );
+		this._api.deleteEntities( entities );
 
 		// 消えたエンティティを選択したままだと Property パネルやギズモが宙に浮いた対象を指し続ける
 		this.selectEntity( null );
 
 	}
 
-	// 選択中のエンティティを子ごと複製して選択し、そのまま移動のモーダル変形に入る（Blender の Shift+D）
-	public duplicateSelected() {
+	// 選んでいるエンティティを子ごと複製し、複製を選ぶ（アクティブの複製をアクティブに）。複製したら true。
+	// Shift+D はこの後に移動のモーダル変形に入る
+	public duplicateSelected(): boolean {
 
-		const entity = this._getEditableSelectedEntity();
+		const entities = this._getEditableSelectedEntities();
 
-		if ( ! entity ) return;
+		if ( entities.length === 0 ) return false;
 
-		const duplicated = this._api.duplicateEntity( entity );
+		const active = this.activeEntity;
+		const duplicated = this._api.duplicateEntities( entities );
 
-		this.selectEntity( duplicated );
+		let duplicatedActive = duplicated[ duplicated.length - 1 ];
 
-		// プレビュー中は G と同じくモーダル変形を受け付けないので、複製だけで止める
-		if ( this._activeViewport?.editorCamera.preview ) return;
+		if ( active && entities.includes( active ) ) {
 
-		this._modalTransformHandler.start( "translate" );
+			duplicatedActive = duplicated[ entities.indexOf( active ) ];
+
+		}
+
+		this.setSelection( duplicated, duplicatedActive );
+
+		return true;
 
 	}
 
-	// 選択中のエンティティの名前入力を Hierarchy に開かせる（Blender の F2）。入力 UI は React 側にあるので要求を投げるだけにする
+	// アクティブのエンティティの名前入力を Hierarchy に開かせる（Blender の F2）。入力 UI は React 側にあるので要求を投げるだけにする
 	public requestRenameSelected() {
 
-		const entity = this._getEditableSelectedEntity();
+		const entity = this.activeEntity;
 
-		if ( ! entity ) return;
+		if ( ! entity || ! this._isEditableEntity( entity ) ) return;
 
 		this.emit( "request/renameEntity", [ entity ] );
+
+	}
+
+	/*-------------------------------
+		Parent
+	-------------------------------*/
+
+	// entities を parent の子へ移す（ワールド座標は保つ）。祖先も entities に入っているものは親と一緒に移るので外す。
+	// 移せなければ理由を、キーが打たれた位置・回転・スケールがあれば時刻が変わると戻ることを、ポインタの位置の小窓（message）で知らせる。移したら true
+	public reparentEntities( entities: MXP.Entity[], parent: MXP.Entity ): boolean {
+
+		const targets = topmostEntities( entities );
+
+		try {
+
+			this._api.reparentEntities( targets, parent );
+
+		} catch ( e ) {
+
+			this.emit( "message", [ ( e as Error ).message ] );
+
+			return false;
+
+		}
+
+		const animated: string[] = [];
+
+		for ( const entity of targets ) {
+
+			const fields = getAnimatedTransformFields( entity );
+
+			if ( fields.length > 0 ) {
+
+				animated.push( `${entity.name}（${fields.join( " / " )}）` );
+
+			}
+
+		}
+
+		if ( animated.length > 0 ) {
+
+			this.emit( "message", [ `キーが打たれているので、時刻が変わるとキーの値に戻ります: ${animated.join( "、" )}` ] );
+
+		}
+
+		return true;
+
+	}
+
+	// reparentEntities で移せないときの理由。移せるなら null（Hierarchy のドラッグ中に、落とせる行かを見るのに使う）
+	public getReparentError( entities: MXP.Entity[], parent: MXP.Entity ): string | null {
+
+		return this._api.getReparentError( topmostEntities( entities ), parent );
+
+	}
+
+	// 選んでいるものを、アクティブの子にする（Blender の Ctrl+P）
+	public parentSelectedToActive() {
+
+		const active = this.activeEntity;
+
+		if ( ! active ) {
+
+			this.emit( "message", [ "親にするエンティティを最後に選んでください（アクティブが親になります）" ] );
+
+			return;
+
+		}
+
+		const others: MXP.Entity[] = [];
+
+		for ( const entity of this.selectedEntities ) {
+
+			if ( entity !== active ) {
+
+				others.push( entity );
+
+			}
+
+		}
+
+		if ( others.length === 0 ) {
+
+			this.emit( "message", [ "子にするエンティティを選んでから、親にするエンティティを最後に選んでください" ] );
+
+			return;
+
+		}
+
+		this.reparentEntities( others, active );
+
+	}
+
+	// 選んでいるものを親から外して root の直下へ移す（Blender の Alt+P の Clear and Keep Transformation）
+	public clearParentOfSelected() {
+
+		const entities = this.selectedEntities;
+
+		if ( entities.length === 0 ) return;
+
+		this.reparentEntities( entities, this._engine.root );
 
 	}
 
@@ -1115,11 +1546,13 @@ export class Editor extends MXP.Serializable {
 
 		if ( fps <= 0 ) return;
 
-		// frame.current は fps によらず秒×60 の単位なので、コマ番号へ直してから動かす
+		// frame.current は fps によらず秒×60 の単位なので、コマ番号へ直してから動かす。
+		// 時刻はキーの時刻（KeyFrameField の keyFrameTime）と同じ式で求め、コマ送りで止まった時刻とキーの時刻を浮動小数まで揃える。
+		// ずれると、ちょうどキーの時刻に居るつもりで CONSTANT のカーブが1つ前のキーの値になる
 		const currentIndex = Math.round( this._engine.time.code * fps );
 		const nextIndex = Math.max( 0, currentIndex + step );
 
-		this._engine.seek( nextIndex / fps * 60 );
+		this._engine.seek( nextIndex * 60 / fps );
 
 	}
 
@@ -1127,6 +1560,232 @@ export class Editor extends MXP.Serializable {
 	public seekToStart() {
 
 		this._engine.seek( 0 );
+
+	}
+
+	/*-------------------------------
+		KeyFrame
+	-------------------------------*/
+
+	// ポインタがプロパティパネルの行に入ったとき、その行のフィールドを I / Alt+I の対象にする
+	public enterKeyField( field: KeyFrameFieldRef ) {
+
+		this._hoveredKeyField = field;
+
+	}
+
+	// 行から出たとき・行が消えたときに対象から外す。別の行に入った後で前の行の leave が届いても消さないよう、同じ行のときだけ外す
+	public leaveKeyField( field: KeyFrameFieldRef ) {
+
+		const current = this._hoveredKeyField;
+
+		if ( current && current.target === field.target && current.path === field.path ) {
+
+			this._hoveredKeyField = null;
+
+		}
+
+	}
+
+	// fields に今の時刻でキーを打つ（I キー・右クリックメニュー・ビューポートのメニュー共通）。打てないときは理由を message で知らせる。
+	// 停止中は時刻を打ったキーの時刻（コマ）へ合わせる。コマの間のまま打つと、打った値ではなく手前の補間値
+	// （CONSTANT のカーブなら前のキーの値）がすぐフィールドに入り直してしまうため
+	public insertKeys( fields: KeyFrameFieldRef[] ) {
+
+		try {
+
+			this._api.insertKeys( fields );
+
+		} catch ( e ) {
+
+			this.emit( "message", [ ( e as Error ).message ] );
+
+			return;
+
+		}
+
+		if ( ! this._engine.frame.playing ) {
+
+			this._engine.seek( keyFrameTime( this._engine ) );
+
+		}
+
+	}
+
+	// fields の今の時刻のキーを消す
+	public deleteKeys( fields: KeyFrameFieldRef[] ) {
+
+		this._api.deleteKeys( fields );
+
+	}
+
+	// モーダル操作のキー。編集領域のモーダル → 編集領域の上での G / R / S → ビューポートのモーダル変形 の順に渡す。消費したら true
+	private _onModalKey( e: KeyboardEvent ) {
+
+		if ( this._editModal && this._editModal.handleKeyDown( e ) ) return true;
+
+		const modalTransform = this._modalTransformHandler;
+
+		if ( modalTransform.active ) return modalTransform.handleKeyDown( e );
+
+		const mode = transformModeOfKey( e );
+
+		if ( ! mode ) return false;
+
+		const area = this._hoveredEditArea;
+
+		if ( area ) {
+
+			if ( area.transform ) area.transform( mode );
+
+			return true;
+
+		}
+
+		// ビューポートの G / R / S は、ポインタがビューポートの上にあるときだけ始める。
+		// プロパティパネル等の上で押したキーで、選択中のエンティティが動かないようにする（Blender と同じくキーはポインタの下の領域が受ける）
+		const viewport = this._activeViewport;
+
+		if ( ! viewport || ! viewport.hovered ) return false;
+
+		return modalTransform.handleKeyDown( e );
+
+	}
+
+	// ポインタが編集領域（タイムラインのキー・フィールド UI の点エディタ等）に入ったとき、キーボードの操作をそちらへ向ける
+	public enterEditArea( actions: EditAreaActions ) {
+
+		this._hoveredEditArea = actions;
+
+	}
+
+	// 編集領域から出たとき・消えたときに外す。別の領域に入った後で前の leave が届いても消さないよう、同じものだけ外す
+	public leaveEditArea( actions: EditAreaActions ) {
+
+		if ( this._hoveredEditArea === actions ) {
+
+			this._hoveredEditArea = null;
+
+		}
+
+	}
+
+	// 編集領域のモーダル操作を始めたときに登録し、終えたときに外す（同じものだけ外す）
+	public beginEditModal( modal: EditModal ) {
+
+		this._editModal = modal;
+
+	}
+
+	public endEditModal( modal: EditModal ) {
+
+		if ( this._editModal === modal ) {
+
+			this._editModal = null;
+
+		}
+
+	}
+
+	// モーダル操作の状態の表示（Blender のヘッダ相当。Screen パネルに出る）。終えたら null
+	public setModalStatus( status: string | null ) {
+
+		// モーダル中は毎 pointermove で呼ばれるので、文字列が変わったときだけ React へ通知する
+		if ( this._modalStatus === status ) return;
+
+		this._modalStatus = status;
+		this.noticeField( "modalStatus" );
+
+	}
+
+	// 「カーブをコピー」でコピーしたカーブ ID。まだコピーしていなければ null
+	public get copiedCurveId() {
+
+		return this._copiedCurveId;
+
+	}
+
+	// 要素が指しているカーブを貼り付け元として覚える
+	public copyCurve( curveId: string ) {
+
+		this._copiedCurveId = curveId;
+
+	}
+
+	// コピーしたカーブを要素に貼り付ける。貼り付けられないときは理由を message で知らせる
+	public pasteCurve( ref: KeyFrameElementRef, mode: CurvePasteMode ) {
+
+		const curveId = this._copiedCurveId;
+
+		if ( ! curveId ) return;
+
+		this._runKeyFrameCommand( () => this._api.pasteCurve( ref, curveId, mode ) );
+
+	}
+
+	// 要素が共有しているカーブを切り離す
+	public unlinkCurve( ref: KeyFrameElementRef ) {
+
+		this._runKeyFrameCommand( () => this._api.unlinkCurve( ref ) );
+
+	}
+
+	// 要素のリンクの倍率・足し算とカーブの名前を書き換える
+	public setCurveLinkSettings( ref: KeyFrameElementRef, settings: CurveLinkSettings ) {
+
+		this._runKeyFrameCommand( () => this._api.setCurveLinkSettings( ref, settings ) );
+
+	}
+
+	// キーフレームの操作を実行し、EditorAPI が投げた Error はポインタの位置の小窓（message）で知らせる
+	private _runKeyFrameCommand( run: () => void ) {
+
+		try {
+
+			run();
+
+		} catch ( e ) {
+
+			this.emit( "message", [ ( e as Error ).message ] );
+
+		}
+
+	}
+
+	// I / Alt+I。プロパティパネルの行の上ならそのフィールドに、ビューポートの上ならアクティブのエンティティの
+	// どのフィールドに打つかをメニューで選ばせる（Blender と同じ）。ビューポートの Alt+I は受けない
+	private _onKeyFrameShortcut( remove: boolean ) {
+
+		const field = this._hoveredKeyField;
+
+		if ( field ) {
+
+			if ( remove ) {
+
+				this.deleteKeys( [ field ] );
+
+			} else {
+
+				this.insertKeys( [ field ] );
+
+			}
+
+			return;
+
+		}
+
+		if ( remove ) return;
+
+		const viewport = this._activeViewport;
+
+		if ( ! viewport || ! viewport.hovered ) return;
+
+		const entity = this.activeEntity;
+
+		if ( ! entity ) return;
+
+		// メニューは React 側の Popover に出すので、ここでは要求を投げるだけにする
+		this.emit( "request/insertKeyMenu", [ entity ] );
 
 	}
 
@@ -1170,9 +1829,10 @@ export class Editor extends MXP.Serializable {
 
 	}
 
+	// 保存するシーン。どこからも参照されないカーブは書き出さない（メモリ上の表には残す）
 	public exportEngine() {
 
-		return this._engine.serialize( { mode: "export" } );
+		return pruneUnusedCurves( this._engine.serialize( { mode: "export" } ) as OREngineProjectData );
 
 	}
 
@@ -1204,6 +1864,9 @@ export class Editor extends MXP.Serializable {
 		win.document.body.style.margin = "0";
 		win.document.body.style.background = "#000";
 		win.document.body.appendChild( canvas );
+
+		// 別の document なので本体の抑止が届かない。ウィンドウごと閉じるので外さない
+		preventBrowserContextMenu( win );
 
 		// camera 未指定＝シーンカメラ、override 無し＝本番パイプライン
 		const view = this._engine.createView( { offscreen: true } );
@@ -1237,7 +1900,7 @@ export class Editor extends MXP.Serializable {
 		Resize
 	-------------------------------*/
 
-	// renderer・別ウィンドウは基準解像度のまま描き、各ビューポートだけ自分の倍率で縮める
+	// renderer・別ウィンドウは基準解像度（最終出力）で描く。ビューポートは _fitViewports が毎フレーム合わせる
 	private _resize() {
 
 		const resolution = this._baseResolution;
@@ -1245,12 +1908,6 @@ export class Editor extends MXP.Serializable {
 		this.engine.setSize( resolution );
 
 		this._draw.resize( resolution );
-
-		for ( const viewport of this._viewports ) {
-
-			viewport.resize( this._viewportResolution( this._viewportSettings.get( viewport.id )! ) );
-
-		}
 
 		if ( this._externalWindow ) {
 
@@ -1262,9 +1919,47 @@ export class Editor extends MXP.Serializable {
 
 	}
 
-	private _viewportResolution( settings: ViewportSettings ) {
+	// 各ビューポートの描画解像度を合わせる。エディタカメラで見ている間はパネルの画素数、
+	// カメラビューでは基準解像度のアスペクト比のままパネルの画素数に contain で収めた大きさ（基準解像度が上限）にし、それぞれに倍率を掛ける。
+	// カメラビューはパネルが小さい間は表示に要る画素だけ描き、パネルが十分大きければ最終出力と同じ条件になる。
+	// 画素単位のポストエフェクトの見え方を厳密に見たいときは、パネルを広げるか別ウィンドウ（常に基準解像度）で見る。
+	// パネルの大きさ・カメラの切り替え・倍率・devicePixelRatio のどれで変わっても拾えるよう毎フレーム呼ぶ
+	private _fitViewports() {
 
-		return this._baseResolution.clone().multiply( settings.resolutionScale );
+		let resized = false;
+
+		for ( const viewport of this._viewports ) {
+
+			const scale = this._viewportSettings.get( viewport.id )!.resolutionScale;
+			const resolution = this._viewportResolution;
+
+			if ( viewport.editorCamera.usingEditorCamera ) {
+
+				resolution.copy( viewport.displaySize ).multiply( window.devicePixelRatio * scale );
+
+			} else {
+
+				// 幅・高さのうち先にパネルに当たる方で縮め率が決まる（object-fit: contain と同じ収め方）
+				const fitX = viewport.displaySize.x * window.devicePixelRatio / this._baseResolution.x;
+				const fitY = viewport.displaySize.y * window.devicePixelRatio / this._baseResolution.y;
+				const fit = Math.min( fitX, fitY, 1 );
+
+				resolution.copy( this._baseResolution ).multiply( fit * scale );
+
+			}
+
+			resolution.set( Math.max( Math.floor( resolution.x ), 1 ), Math.max( Math.floor( resolution.y ), 1 ) );
+
+			if ( viewport.fit( resolution ) ) resized = true;
+
+		}
+
+		// エディタ描画のバッファはサイズごとに作り置きされるので、パネルのリサイズ中に古いサイズが溜まらないよう捨て直す
+		if ( resized ) {
+
+			this._draw.resize( this._baseResolution );
+
+		}
 
 	}
 
@@ -1277,6 +1972,7 @@ export class Editor extends MXP.Serializable {
 		this._disposed = true;
 		this._api.dispose();
 		this._keyboardHandler.dispose();
+		this._disposeBrowserContextMenu();
 		this._modalTransformHandler.dispose();
 		this._assetPreviewManager.dispose();
 		this.closeExternalWindow();

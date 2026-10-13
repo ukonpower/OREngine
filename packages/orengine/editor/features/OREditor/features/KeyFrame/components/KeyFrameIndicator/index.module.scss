@@ -1,0 +1,17 @@
+.indicator {
+	display: inline-flex;
+	vertical-align: middle;
+	margin-left: var(--or-space);
+
+	&[data-tone="animated"] {
+		color: var(--or-state-animated);
+	}
+
+	&[data-tone="keyed"] {
+		color: var(--or-state-keyed);
+	}
+
+	&[data-tone="changed"] {
+		color: var(--or-state-changed);
+	}
+}

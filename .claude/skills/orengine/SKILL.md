@@ -9,6 +9,7 @@ description: >
   BLidge が作った Mesh にマテリアルを差し込む。
   Use when user asks to "シーンを作って", "エンティティを追加", "オブジェクトを配置",
   "ライトを追加", "カメラを配置", "シーンを修正", "コンポーネントを追加",
+  "アニメーションを付けて", "キーフレームを打って",
   "コンポーネントを作成", "シェーダーを作成", "シェーダーを書いて", "WGSL を書いて",
   "シーンを確認", "シーンを保存", or mentions scene construction, entity manipulation,
   component development, GLSL / WGSL shader programming, or 3D object placement in OREngine.
@@ -17,7 +18,7 @@ description: >
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash(npx tsx scripts/scene.ts:*), Bash(npx tsx orengine/scripts/scene.ts:*), Bash(npm run typecheck:*), Bash(git diff:*), Bash(python3:*)
 metadata:
   author: ukonpower
-  version: 5.0.0
+  version: 5.1.0
 ---
 
 # OREngine スキル
@@ -54,6 +55,7 @@ OREngine でコンポーネントを作り、シーンを組むためのスキ�
 |---|---|
 | シーンに何かを置く / 並べる / 動かす | Flow 1（シーン CLI） |
 | シーンを作る・切り替える / renderer・timeline・解像度を変える | Flow 1 の「シーンの一覧・作成・切り替え」「設定」 |
+| キーフレームでフィールドを動かす | Flow 1 の「キーフレーム」 |
 | 見た目のあるオブジェクトを作る | Flow 2 → `references/component-development.md` |
 | シェーダーを書く | `references/shader-glsl.md` / `references/shader-wgsl.md` |
 | 結果を確認する | Flow 3（`tree` / `errors` / `shot`） |
@@ -89,6 +91,7 @@ npx tsx scripts/scene.ts set root/KeyLight position 3,3,3                 # エ�
 npx tsx scripts/scene.ts set root/KeyLight Light intensity 2              # コンポーネントのフィールドは <component> を挟む
 npx tsx scripts/scene.ts add-component root/Box MyBox                     # 名前は components の name
 npx tsx scripts/scene.ts remove-component root/Box MyBox
+npx tsx scripts/scene.ts reparent root/Box root/Group                    # 親を付け替える（ワールド座標を保つ。名前がぶつかれば Box.001）
 npx tsx scripts/scene.ts remove-entity root/Box
 npx tsx scripts/scene.ts undo                                             # / redo
 ```
@@ -149,6 +152,35 @@ npx tsx scripts/scene.ts set-setting editor resolution/width 1080       # editor
 - `renderer`（空の色・ポストエフェクト等）と `timeline`（`timeline/duration` / `timeline/fps`）は開いているシーンのファイルに、`editor`（`resolution/*` / `viewports/<id>/resolutionScale` / `frameLoop/*`）は `editor.json` に入る。出力の `file` が保存先
 - path は `settings` の `fields` で確かめる。renderer の path はバックエンドで違う。値の解釈・undo・保存の扱いは `set` と同じ
 - 解像度は editor.json にあり全シーン共通。縦長・横長のシーンを行き来するときは切り替えのたびに書き換える
+
+### キーフレーム
+
+エンティティ・コンポーネントのフィールドにキーを打つと、player でも再生される。カーブ（キー列）はシーンの `curves` に、フィールドとカーブの結びつき（リンク）はエンティティの `Animation` コンポーネントに入る。どちらも CLI が作るので、`Animation` を `add-component` したり `links` を `set` したりはしない（`set … Animation links` はエラー）。
+
+```bash
+npx tsx scripts/scene.ts key-insert root/Box position --time 0                         # 今の値でキーを打つ（数値配列は全要素）
+npx tsx scripts/scene.ts key-insert root/Box position --time 2 --value 0,3,0           # 値を指定して打つ
+npx tsx scripts/scene.ts key-insert root/KeyLight Light intensity --time 1 --value 5  # コンポーネントのフィールドは <component> を挟む
+npx tsx scripts/scene.ts key-insert root/Box euler/1 --time 4 --value 3.14             # 要素1つだけ（euler/1 = y）
+npx tsx scripts/scene.ts key-delete root/Box position --time 2
+npx tsx scripts/scene.ts curves                                                        # カーブの一覧（ID・名前・キー数・使っているフィールド）
+npx tsx scripts/scene.ts curve-get c2                                                  # カーブの中身（JSON）
+npx tsx scripts/scene.ts curve-set c2 '<curve-get と同じ形の JSON>'                    # キーの移動・値・補間・ハンドルをまとめて書き換える
+npx tsx scripts/scene.ts curve-paste root/Box2 position/1 c2 --link                    # 同じカーブを共有する（--copy は複製して独立させる）
+npx tsx scripts/scene.ts curve-unlink root/Box2 position/1                             # 共有をやめる（複製して指し直す）
+npx tsx scripts/scene.ts curve-link-settings root/Box position/1 --scale 2 --offset 0.5 --name bounce   # 値 = カーブ × scale + offset
+```
+
+- 時刻は秒。`--time` は `timeline/fps` のコマに揃えられる（出力の `time` が実際に打った時刻）。タブの再生時刻は動かない
+- 数値配列（`position` / `euler` / `scale` / 色 等）は要素ごとに別のカーブになる。出力の `curves` が要素ごとのカーブ ID。要素1つは `<path>/<番号>` で指す。`curve-paste` / `curve-unlink` / `curve-link-settings` は要素1つ単位なので番号が必須
+- 1本のカーブの同じ時刻に置けるキーは1つ。同じ時刻に `key-insert` すると値が置き換わる
+- カーブの JSON: `{ "name"?: 名前, "keys": [ { "time": 秒, "value": 値, "interpolation": "BEZIER" | "LINEAR" | "CONSTANT", "handleType": "AUTO_CLAMPED" | "AUTO" | "VECTOR" | "ALIGNED" | "FREE", "left": [ 秒, 値 ], "right": [ 秒, 値 ] } ] }`
+  - ハンドルは絶対座標。`AUTO_CLAMPED` / `AUTO` / `VECTOR` は前後のキーから置き直されるので `left` / `right` を省略してよい。`ALIGNED` / `FREE` は必須
+  - `curve-set` は中身ごと差し替える（`name` を書かなければ名前が外れる）。`curve-get` の出力を書き換えて渡すのが確実。時刻はコマに揃えない
+  - キーのコピペは、`curve-get` で読んだキーを別のカーブの JSON に足して `curve-set` する
+  - `keys` を空にすると、そのカーブを使っているフィールドのアニメーションが外れる
+- `curves` の値の見え方: フィールドの値 = カーブの値 × `scale` + `offset`。`key-insert` の値はフィールドの値で渡せば、CLI がカーブ側の値に逆算する
+- 動きの確認は `shot --time <秒>` を複数の時刻で撮る
 
 ## Flow 2: コンポーネント開発
 
@@ -259,7 +291,7 @@ npx tsx scripts/scene.ts shot tmp/shot/gbuf.png --view gBuffer_1                
 ```
 
 - `shot` はタブの再生時刻・再生状態・選択・エディタカメラを変えない。観測のためにカメラエンティティを `set` で動かさず、`--from` / `--to` を使う
-- 画像サイズはエディタの今の描画解像度で決まり、指定はできない（headless は 1920x1080 のウィンドウで開く）
+- 画像サイズは editor.json の `resolution/*`（最終出力の解像度）で決まり、指定はできない。Screen パネルの大きさには依存しない
 - `--time T` は「時刻 T-1/60 → T の2ステップだけ進めて描いた状態」で、「T まで再生した状態」ではない。時刻で決まるもの（BLidge のアニメーション・`uTime` を使うシェーダー）と前ステップとの差で決まるもの（モーションブラー）は正しく出るが、GPUCompute やシミュレーションのように経過を積み上げるものは出ない。省略時はタブの今の時刻で1ステップ進める
 - `--view` は `final`（省略時。本番と同じ）かパスのラベル。WebGL は `camera/deferred_1`、WebGPU は `gBuffer_1` のような生の名前で、一致しなければエラーの `candidates` に一覧が出る
 - stdout には `path` / `width` / `height` / `view` / `time` / `camera` が出る。PNG は出力先にだけ書かれる

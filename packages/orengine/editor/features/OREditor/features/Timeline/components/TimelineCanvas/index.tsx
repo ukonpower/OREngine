@@ -46,20 +46,16 @@ export const TimelineCanvas = () => {
 	}, [ renderer, viewPort, viewPortScale ] );
 
 	const [ duration ] = useSerializableField<number>( glEditor?.engine, "timeline/duration" );
-	const [ fps ] = useSerializableField<number>( glEditor?.engine, "timeline/fps" );
 
 	useEffect( () => {
 
-		if ( renderer && duration && fps ) {
+		if ( renderer && duration ) {
 
-			renderer.setFrameSetting( {
-				duration: duration || 0,
-				fps: fps || 0,
-			} );
+			renderer.setDuration( duration );
 
 		}
 
-	}, [ renderer, duration, fps ] );
+	}, [ renderer, duration ] );
 
 	// loop
 

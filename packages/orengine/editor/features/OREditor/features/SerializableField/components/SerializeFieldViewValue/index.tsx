@@ -5,6 +5,9 @@ import { InputColor, Label, Vector } from 'uipower';
 
 import { useOREditor } from '../../../../hooks/useOREditor';
 import { findFieldUI } from '../../../../lib/fieldUI';
+import { KeyFrameIndicator } from '../../../KeyFrame/components/KeyFrameIndicator';
+import { SharedCurveLabel } from '../../../KeyFrame/components/SharedCurveLabel';
+import { useKeyFrameField } from '../../../KeyFrame/hooks/useKeyFrameField';
 import { useFieldDragEdit } from '../../hooks/useFieldDragEdit';
 import { useSerializeFieldView } from '../../hooks/useSerializeFieldView';
 import { Value } from '../Value';
@@ -17,6 +20,7 @@ export const SerializeFieldViewValue: React.FC<{ path:string, field: SerializeFi
 	const { editor, engine, fieldUIs } = useOREditor();
 	const { target } = useSerializeFieldView();
 	const fieldEdit = useFieldDragEdit( target, props.path );
+	const keyFrame = useKeyFrameField( target, props.path );
 	const value = props.field.value;
 	const valueType = typeof value;
 	const opt = props.field.opt;
@@ -24,14 +28,34 @@ export const SerializeFieldViewValue: React.FC<{ path:string, field: SerializeFi
 	const label = opt?.label || props.path.split( "/" ).pop();
 	const isWrap = ( format && format.type == "vector" );
 
-	// editor.tsx で差し替えられたフィールドは、既定の入力の代わりにその UI を行いっぱいに出す
-	const FieldUI = findFieldUI( fieldUIs, target, props.path );
+	// キーを打ったフィールドは、ラベルの後ろにキーの状態を出す
+	let indicator = null;
 
-	if ( FieldUI ) {
+	if ( keyFrame.state ) {
+
+		indicator = <KeyFrameIndicator state={keyFrame.state} />;
+
+	}
+
+	// 共有しているカーブは、名前と使用数を印の後ろに出す
+	let sharedLabel = null;
+
+	if ( keyFrame.shared.length > 0 ) {
+
+		sharedLabel = <SharedCurveLabel curves={keyFrame.shared} />;
+
+	}
+
+	const title = <>{label}{indicator}{sharedLabel}</>;
+
+	// editor.tsx で差し替えられたフィールドは、既定の入力の代わりにその UI を出す。並べ方は定義の layout に従う
+	const fieldUIEntry = findFieldUI( fieldUIs, target, props.path );
+
+	if ( fieldUIEntry ) {
 
 		// FieldUI はモジュールスコープで定義された部品を引いてきたものだが、JSX で書くと
 		// react-hooks/static-components が「レンダー中に作った部品」と誤認するので createElement で描く
-		const fieldUIElm = createElement( FieldUI, {
+		const fieldUIElm = createElement( fieldUIEntry.ui, {
 			value,
 			setValue: ( v ) => editor.api.setField( target, props.path, v ),
 			beginEdit: () => editor.api.beginEdit( target, props.path ),
@@ -42,7 +66,9 @@ export const SerializeFieldViewValue: React.FC<{ path:string, field: SerializeFi
 			editor,
 		} );
 
-		return <Label title={label} vertical>{fieldUIElm}</Label>;
+		return <div {...keyFrame.rowProps}>
+			<Label title={title} vertical={fieldUIEntry.layout === 'block'}>{fieldUIElm}</Label>
+		</div>;
 
 	}
 
@@ -73,17 +99,19 @@ export const SerializeFieldViewValue: React.FC<{ path:string, field: SerializeFi
 
 		valueElm = <Value value={value} {...opt} {...fieldEdit} />;
 
-		// 関数フィールドは Button ひとつなので、ラベル行に入れず行いっぱいに伸ばす
+		// 関数フィールドは Button ひとつなので、ラベル行に入れず行いっぱいに伸ばす。キーの状態はボタンの右に出す
 		if ( valueType === "function" ) {
 
-			return <div className={style.action}>{valueElm}</div>;
+			return <div className={style.action} {...keyFrame.rowProps}>{valueElm}<span>{indicator}{sharedLabel}</span></div>;
 
 		}
 
 	}
 
-	return <Label title={label} vertical={isWrap} >
-		{valueElm}
-	</Label>;
+	return <div {...keyFrame.rowProps}>
+		<Label title={title} vertical={isWrap} >
+			{valueElm}
+		</Label>
+	</div>;
 
 };

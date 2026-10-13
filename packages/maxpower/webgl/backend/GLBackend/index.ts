@@ -167,6 +167,44 @@ export class GLBackend {
 
 	}
 
+	// 描画先のカラーアタッチメントのうち、indices の番号のものだけに書く。null ならすべてに書く
+	public setDrawBuffers( target: GLP.GLPowerFrameBuffer, indices: number[] | null ) {
+
+		if ( ! indices ) {
+
+			this.gl.drawBuffers( target.textureAttachmentList );
+
+			return;
+
+		}
+
+		const buffers: number[] = [];
+
+		for ( let i = 0; i < target.textureAttachmentList.length; i ++ ) {
+
+			if ( indices.indexOf( i ) > - 1 ) {
+
+				buffers.push( target.textureAttachmentList[ i ] );
+
+			} else {
+
+				buffers.push( this.gl.NONE );
+
+			}
+
+		}
+
+		this.gl.drawBuffers( buffers );
+
+	}
+
+	// 深度テストの比較関数を切り替える（既定は gl.LESS）
+	public setDepthFunc( func: number ) {
+
+		this.gl.depthFunc( func );
+
+	}
+
 	// 指定された要素だけをclearする
 	public clear( color: MTP.Vector | null, depth: number | null ) {
 
@@ -219,6 +257,11 @@ export class GLBackend {
 			0, 0, width, height,
 			0, 0, width, height,
 			gl.COLOR_BUFFER_BIT, linear ? gl.LINEAR : gl.NEAREST );
+
+		// 読み出し元を READ_FRAMEBUFFER に残したまま、その FBO とテクスチャを消すと
+		// ANGLE（Metal）で以後 canvas への描画が黙って効かなくなる（ビューポートの作り直しで起きる）
+		gl.bindFramebuffer( gl.READ_FRAMEBUFFER, null );
+		gl.bindFramebuffer( gl.DRAW_FRAMEBUFFER, null );
 
 	}
 

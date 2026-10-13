@@ -28,22 +28,25 @@ export const ValueArray = <T extends SerializeFieldObjective[]>( props: ValuePro
 
 		}
 
+		// data-element は右クリックでどの要素の上かを引くため（キーフレームのカーブの操作が要素単位）
 		elms.push(
-			<Label title={label} key={i}>
-				<Value {...props} value={arrayValue} onChange={( v ) => {
+			<div key={i} data-element={i}>
+				<Label title={label}>
+					<Value {...props} value={arrayValue} onChange={( v ) => {
 
-					const newValue = value.concat();
+						const newValue = value.concat();
 
-					newValue[ i ] = v;
+						newValue[ i ] = v;
 
-					if ( props.onChange ) {
+						if ( props.onChange ) {
 
-						props.onChange( newValue as T );
+							props.onChange( newValue as T );
 
-					}
+						}
 
-				}}/>
-			</Label>
+					}}/>
+				</Label>
+			</div>
 		);
 
 	}

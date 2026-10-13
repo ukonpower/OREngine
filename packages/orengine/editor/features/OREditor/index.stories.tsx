@@ -58,7 +58,7 @@ const userPanels: PanelDefinition[] = [
 
 // panels で渡した定義がビルトインと同列に扱われることを固定する。
 // 撮影されるのは右カラムに載せた My Tool タブだが、同じ定義から
-// PC のタブ追加メニュー（各 pane ヘッダーの「+」）にも、SP のタブ一覧にも出る
+// 各 pane ヘッダーの「+」のタブ追加メニューにも出る（PC・SP 共通）
 export const UserPanel = fullscreen( userPanels, {
 	...storyEditorData,
 	panelLayout: {

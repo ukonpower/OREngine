@@ -12,6 +12,7 @@ uniform sampler2D sampler4; // velocity.xy, 0.0, emission.z
 
 uniform sampler2D uSSAOTexture;
 uniform sampler2D uLightShaftTexture;
+uniform sampler2D uSSRTexture;
 uniform sampler2D uEnvMap;
 
 uniform vec3 uColor;
@@ -25,6 +26,19 @@ uniform vec3 uCameraPosition;
 // varyings
 
 in vec2 vUv;
+
+// SSR を環境マップの鏡面反射の代わりに使う粗さの範囲。SSR は鏡面方向の1本のレイしか引かずぼけないので、
+// MIN 以下では当たった分をすべて SSR にし、MAX へ向けて環境マップへ戻す。webgpu 側 shading.wgsl と一致させる
+#define SSR_ROUGHNESS_MIN 0.1
+#define SSR_ROUGHNESS_MAX 0.4
+
+// ssr.fs の ssrCompress で圧縮した反射色を元の明るさへ戻す。
+// 圧縮後の輝度は 1 未満だが、半精度の丸めで 1 に届くと 0 除算になるので上限を置く（0.99 は元の輝度で約 99）
+vec3 ssrDecompress( vec3 c ) {
+
+	return c / ( 1.0 - min( dot( c, vec3( 0.2126, 0.7152, 0.0722 ) ), 0.99 ) );
+
+}
 
 // out（1 は SSS がぼかす diffuse だけの結果）
 
@@ -73,7 +87,11 @@ void main( void ) {
 
 	#include <part:lighting_light>
 
-	// env
+	// env（SSR が当たった分 ssrWeight は、環境マップの鏡面反射の代わりに画面に映っている物 ssrHit を使う）
+
+	vec4 ssr = texture( uSSRTexture, vUv );
+	vec3 ssrHit = ssrDecompress( ssr.xyz / max( ssr.w, 0.0001 ) );
+	float ssrWeight = ssr.w * ( 1.0 - smoothstep( SSR_ROUGHNESS_MIN, SSR_ROUGHNESS_MAX, roughness ) );
 
 	#include <part:lighting_env>
 	

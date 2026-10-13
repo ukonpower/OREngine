@@ -4,6 +4,7 @@ import * as MXP from 'maxpower';
 
 import { TextureResource } from './TextureResource';
 
+export * from './Library';
 export { TextureResource } from './TextureResource';
 export { buildClassTree } from './classTree';
 
@@ -44,6 +45,9 @@ export class Resources extends EventEmitter {
 	private _textures: Map<string, MXP.TextureContract>;
 	private _updateEveryFrameTextures: MXP.TexProceduralContract[];
 
+	// 種類 → 名前 → 中身
+	private _library: Map<string, Map<string, unknown>>;
+
 	constructor() {
 
 		super();
@@ -54,6 +58,7 @@ export class Resources extends EventEmitter {
 		this._geometryGroups = [];
 		this._textureResources = new Map();
 		this._updateEveryFrameTextures = [];
+		this._library = new Map();
 
 	}
 
@@ -108,6 +113,7 @@ export class Resources extends EventEmitter {
 		this._textureResources.clear();
 		this._textures.clear();
 		this._updateEveryFrameTextures = [];
+		this._library.clear();
 		this.emit( "update" );
 
 	}
@@ -224,6 +230,49 @@ export class Resources extends EventEmitter {
 		this._geometryGroups.push( group );
 		this.emit( "update" );
 		return group;
+
+	}
+
+	/*-------------------------------
+		Library
+	-------------------------------*/
+
+	// 同じ種類・名前があれば上書きする（プロジェクトのライブラリが builtin を上書きできるように）
+	public addLibraryItem( kind: string, name: string, item: unknown ) {
+
+		let items = this._library.get( kind );
+
+		if ( ! items ) {
+
+			items = new Map();
+			this._library.set( kind, items );
+
+		}
+
+		items.set( name, item );
+		this.emit( "update" );
+
+	}
+
+	// 中身の型は登録した側と使う側の取り決めなので、呼び出し側が T で指定する
+	public getLibraryItem<T>( kind: string, name: string ): T | undefined {
+
+		const items = this._library.get( kind );
+
+		if ( ! items ) return undefined;
+
+		return items.get( name ) as T | undefined;
+
+	}
+
+	// 種類ごとの、登録順の名前の一覧
+	public getLibraryItemNames( kind: string ): string[] {
+
+		const items = this._library.get( kind );
+
+		if ( ! items ) return [];
+
+		return Array.from( items.keys() );
 
 	}
 

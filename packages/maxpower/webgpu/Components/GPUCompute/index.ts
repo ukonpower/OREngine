@@ -46,6 +46,38 @@ export interface GPUComputeParam {
 	storages?: { [name: string]: StorageSource };
 }
 
+// GPUCompute の1つ前の計算の結果を、同じバッファの読む側を入れ替えて指す（GPUCompute.prev）
+class PrevStorage implements StorageSource {
+
+	public readonly structName: string;
+	public readonly structWgsl: string;
+	public readonly count: number;
+
+	private _compute: GPUCompute;
+
+	constructor( compute: GPUCompute ) {
+
+		this.structName = compute.structName;
+		this.structWgsl = compute.structWgsl;
+		this.count = compute.count;
+		this._compute = compute;
+
+	}
+
+	public get buffers() {
+
+		return this._compute.buffers;
+
+	}
+
+	public get readIndex() {
+
+		return 1 - this._compute.readIndex;
+
+	}
+
+}
+
 export class GPUCompute implements StorageSource {
 
 	public readonly name: string;
@@ -57,6 +89,11 @@ export class GPUCompute implements StorageSource {
 
 	public buffers: [ GPUBuffer, GPUBuffer ] | null;
 	public readIndex: number;
+
+	// 1つ前の計算の結果（ピンポンの書き込み側に残っている src）。Material の storages に渡すと前フレームの状態を読め、
+	// 頂点の前フレームの位置（VertexOutput.positionPrev）を出すのに使う。毎フレーム compute() する前提で、
+	// 登録しなかったフレームは2つ前の結果を指したままになる
+	public readonly prev: StorageSource;
 
 	private _renderer: Renderer;
 	private _wgsl: string;
@@ -98,6 +135,8 @@ export class GPUCompute implements StorageSource {
 
 		this.buffers = null;
 		this.readIndex = 0;
+
+		this.prev = new PrevStorage( this );
 
 	}
 

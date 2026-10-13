@@ -13,12 +13,26 @@ export type KeyboardHandlerCallbacks = {
 	onFocusSelected: () => void;
 	onAddEntity: () => void;
 	onDeleteSelected: () => void;
+	// Ctrl+C / Ctrl+V。今はタイムラインのキーのコピー・貼り付けだけが受ける
+	onCopy: () => void;
+	onPaste: () => void;
+	// B・A / Alt+A・Home。今はタイムラインのキーの矩形選択・全選択 / 全解除・値の範囲の合わせ直しだけが受ける
+	onBoxSelect: () => void;
+	onSelectAll: ( select: boolean ) => void;
+	onFrameAll: () => void;
+	// W。今はタイムラインのキーのメニューだけが受ける
+	onContextMenu: () => void;
 	onDuplicateSelected: () => void;
 	onRenameSelected: () => void;
+	// Ctrl+P（選んだものをアクティブの子にする）/ Alt+P（親から外して root の直下へ移す）
+	onParentToActive: () => void;
+	onClearParent: () => void;
 	// step はコマ数（負で戻る）
 	onStepFrame: ( step: number ) => void;
 	onSeekToStart: () => void;
 	onTransformKey: ( e: KeyboardEvent ) => boolean;
+	// remove は Alt+I（キーの削除）
+	onInsertKey: ( remove: boolean ) => void;
 	onAlignView: ( axis: ViewAxis, opposite: boolean ) => void;
 	onProjectionToggle: () => void;
 };
@@ -83,6 +97,55 @@ export class KeyboardHandler {
 					callbacks.onUndo();
 
 				}
+
+			}
+
+			if ( cmd && e.code === 'KeyC' ) {
+
+				callbacks.onCopy();
+
+			}
+
+			if ( cmd && e.code === 'KeyV' ) {
+
+				callbacks.onPaste();
+
+			}
+
+			if ( e.code === 'KeyB' && ! cmd && ! e.altKey && ! pressedKeys[ "Shift" ] ) {
+
+				callbacks.onBoxSelect();
+
+			}
+
+			// Blender の A / Alt+A。Mac の Alt+A は e.key が別の文字になるので物理キーで見る
+			if ( e.code === 'KeyA' && ! cmd && ! pressedKeys[ "Shift" ] ) {
+
+				callbacks.onSelectAll( ! e.altKey );
+
+			}
+
+			// Blender の View All
+			if ( e.key === 'Home' && ! cmd ) {
+
+				callbacks.onFrameAll();
+
+			}
+
+			// Blender の右クリック選択での W（コンテキストメニュー）
+			if ( e.code === 'KeyW' && ! cmd && ! e.altKey && ! pressedKeys[ "Shift" ] ) {
+
+				callbacks.onContextMenu();
+
+			}
+
+			// Blender の I / Alt+I。Mac の Alt+I は e.key が別の文字になるので物理キーで見る
+			if ( e.code === 'KeyI' && ! cmd && ! pressedKeys[ "Shift" ] ) {
+
+				// ビューポートでは開いたメニューの検索欄へすぐフォーカスが移るので、この打鍵の "i" が入力されないよう止める
+				e.preventDefault();
+
+				callbacks.onInsertKey( e.altKey );
 
 			}
 
@@ -166,6 +229,23 @@ export class KeyboardHandler {
 			if ( e.key === 'F2' && ! cmd ) {
 
 				callbacks.onRenameSelected();
+
+			}
+
+			// Blender の Ctrl+P / Alt+P。Ctrl+P は印刷ダイアログを止める。Mac の Alt+P は e.key が別の文字になるので物理キーで見る
+			if ( e.code === 'KeyP' && cmd && ! e.altKey ) {
+
+				e.preventDefault();
+
+				callbacks.onParentToActive();
+
+			}
+
+			if ( e.code === 'KeyP' && e.altKey && ! cmd ) {
+
+				e.preventDefault();
+
+				callbacks.onClearParent();
 
 			}
 

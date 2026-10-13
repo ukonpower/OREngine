@@ -2,7 +2,7 @@ import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
 import { GizmoAxis, GizmoDragResult, GizmoHandle } from '..';
-import { composeLocalQuat, getAxisWorldDir, getWorldQuaternion, intersectRayPlane, quaternionFromAxisAngle, rotateVector } from '../../TransformUtils';
+import { intersectRayPlane, quaternionFromAxisAngle, rotateVector } from '../../TransformUtils';
 import { AXIS_COLORS, GizmoBase, VIEW_COLOR } from '../GizmoBase';
 
 const AXES: readonly GizmoAxis[] = [ 'x', 'y', 'z' ];
@@ -69,8 +69,6 @@ export class RotateGizmo extends GizmoBase {
 	private _dragSign: number;
 	private _dragLastAngle: number;
 	private _dragAccumAngle: number;
-	private _dragStartWorldQuat: MTP.Quaternion;
-	private _parentWorldQuatInv: MTP.Quaternion;
 
 	constructor( engine: MXP.EngineContract, draw: MXP.EditorDrawContract ) {
 
@@ -84,8 +82,6 @@ export class RotateGizmo extends GizmoBase {
 		this._dragSign = 1;
 		this._dragLastAngle = 0;
 		this._dragAccumAngle = 0;
-		this._dragStartWorldQuat = new MTP.Quaternion();
-		this._parentWorldQuatInv = new MTP.Quaternion();
 
 		// 円弧はXY平面（法線+Z）に生成されるので、法線を各軸へ向ける回転を基底にする
 		const bases: Record<GizmoAxis, MTP.Quaternion> = {
@@ -143,7 +139,7 @@ export class RotateGizmo extends GizmoBase {
 
 	}
 
-	protected _onStartDrag( handle: GizmoHandle, ray: MXP.Ray, targetEntity: MXP.Entity ): void {
+	protected _onStartDrag( handle: GizmoHandle, ray: MXP.Ray ): void {
 
 		this._dragCenter.copy( this.entity.position );
 
@@ -163,21 +159,17 @@ export class RotateGizmo extends GizmoBase {
 		} else {
 
 			// 軸リングでも見た目の回転方向がポインタに追従するよう、軸がカメラと逆を向くときは符号を反転する
-			this._dragAxisN = getAxisWorldDir( targetEntity, handle as GizmoAxis, this._orientation );
+			this._dragAxisN = this._axisWorldDir( handle as GizmoAxis, this._orientation );
 			this._dragSign = this._dragAxisN.dot( n ) < 0 ? - 1 : 1;
 
 		}
 
 		this._dragLastAngle = this._angleFromRay( ray ) ?? 0;
 		this._dragAccumAngle = 0;
-		this._dragStartWorldQuat = getWorldQuaternion( targetEntity );
-		this._parentWorldQuatInv = targetEntity.parent
-			? getWorldQuaternion( targetEntity.parent ).inverse()
-			: new MTP.Quaternion();
 
 	}
 
-	public updateDrag( ray: MXP.Ray, _targetEntity: MXP.Entity ): GizmoDragResult | null {
+	public updateDrag( ray: MXP.Ray ): GizmoDragResult | null {
 
 		if ( ! this.dragging || ! this.activeHandle ) return null;
 
@@ -194,11 +186,8 @@ export class RotateGizmo extends GizmoBase {
 		this._dragAccumAngle += inc;
 		this._dragLastAngle = angle;
 
-		// ワールド空間の回転増分として合成する。euler へのローカル加算だとリングの見た目と実際の回転軸がずれる
-		const deltaQ = quaternionFromAxisAngle( this._dragAxisN, this._dragAccumAngle * this._dragSign );
-		const localQuat = composeLocalQuat( this._parentWorldQuatInv, deltaQ, this._dragStartWorldQuat );
-
-		return { euler: new MTP.Euler().setFromQuaternion( localQuat ) };
+		// ワールド空間の回転として返す。euler へのローカル加算だとリングの見た目と実際の回転軸がずれる
+		return { rotate: quaternionFromAxisAngle( this._dragAxisN, this._dragAccumAngle * this._dragSign ) };
 
 	}
 

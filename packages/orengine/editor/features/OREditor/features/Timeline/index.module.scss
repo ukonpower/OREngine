@@ -1,16 +1,23 @@
 @use 'styles' as *;
 
+// 再生の操作は上の1行にまとめ、横幅はチャンネル一覧とキーの表示に回す
 .timeline {
+	display: flex;
+	flex-direction: column;
 	width: 100%;
 	height: 100%;
+}
+
+.header {
+	flex-shrink: 0;
 }
 
 .inner {
 	position: relative;
 	width: 100%;
-	height: 100%;
+	flex: 1;
+	min-height: 0;
 	display: flex;
-
 }
 
 .content {
@@ -21,10 +28,12 @@
 	flex: 1;
 }
 
-.setting {
-	width: 150px;
+.channels {
+	flex-shrink: 0;
+	width: calc(var(--or-space) * 36);
+	height: 100%;
 
 	@include sp {
-		width: 100px;
+		width: calc(var(--or-space) * 24);
 	}
 }

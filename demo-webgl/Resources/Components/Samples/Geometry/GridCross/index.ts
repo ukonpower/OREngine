@@ -56,6 +56,7 @@ export class GridCross extends MXP.Component {
 			frag: MXP.hotGet( 'gridCrossFrag', gridCrossFrag ),
 			vert: MXP.hotGet( 'gridCrossVert', gridCrossVert ),
 			phase: [ "forward" ],
+			transparent: true,
 		} );
 
 		this.entity.addComponent( MXP.Mesh, {

@@ -5,6 +5,7 @@ import { RenderTargets } from '../RenderTargets';
 import type { PipelineConfig, RenderViewContract } from '../../../core/Contracts/RenderViewContract';
 import type { Entity } from '../../../core/Entity';
 import type { UniformBinder } from '../../backend/UniformBinder';
+import type { PostProcessChain, PostProcessPassParam } from '../../PostProcess';
 import type { PipelinePostProcess } from '../PipelinePostProcess';
 import type * as BSP from 'basepower';
 
@@ -30,6 +31,11 @@ export class RenderView implements RenderViewContract {
 	public readonly targets: RenderTargets;
 	public pipeline: PipelinePostProcess | null;
 
+	// シーンカメラの PostProcessPipeline の宣言から組んだ、このビュー専用の実体と、組んだときの宣言の配列。
+	// 組むのは device を持つ Renderer で、宣言の配列が差し替わったら組み直す
+	public userPostProcess: PostProcessChain | null;
+	public userPostProcessParams: PostProcessPassParam[] | null;
+
 	// frame（時間は globalUniforms から、カメラ行列はこのビューのカメラから入る）
 	public readonly frameUniforms: BSP.Uniforms;
 	public frameBinder: UniformBinder | null;
@@ -39,6 +45,7 @@ export class RenderView implements RenderViewContract {
 	public gBufferBindGroup: GPUBindGroup | null;
 	public gBufferLightShaftView: GPUTextureView | null;
 	public gBufferSsaoView: GPUTextureView | null;
+	public gBufferSsrView: GPUTextureView | null;
 	public refractionBindGroup: GPUBindGroup | null;
 
 	// 最終出力（present の元・エディタの重ね描き先）と、それを読む bind group（参照先が変わったら作り直す）
@@ -69,6 +76,8 @@ export class RenderView implements RenderViewContract {
 
 		this.targets = new RenderTargets();
 		this.pipeline = null;
+		this.userPostProcess = null;
+		this.userPostProcessParams = null;
 
 		// uResolution / uAspectRatio は globalUniforms にもあるが、あちらは renderer の解像度なので、
 		// ビューの中間バッファの大きさで上書きする（UniformBinder.update は後に渡した値が勝つ）
@@ -91,6 +100,7 @@ export class RenderView implements RenderViewContract {
 		this.gBufferBindGroup = null;
 		this.gBufferLightShaftView = null;
 		this.gBufferSsaoView = null;
+		this.gBufferSsrView = null;
 		this.refractionBindGroup = null;
 		this.outputView = null;
 		this.outputBindGroup = null;
@@ -132,6 +142,8 @@ export class RenderView implements RenderViewContract {
 		this.targets.dispose();
 		this.pipeline?.dispose();
 		this.pipeline = null;
+		this.userPostProcess?.dispose();
+		this.userPostProcess = null;
 		this.frameBinder?.dispose();
 		this.frameBinder = null;
 		this.focusReadbackBuffer?.destroy();

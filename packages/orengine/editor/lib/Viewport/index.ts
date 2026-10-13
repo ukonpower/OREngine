@@ -9,6 +9,7 @@ import { HelperManager, HelperVisibility } from '../HelperManager';
 import { PointerHandler } from '../PointerHandler';
 
 import type { EditorAPI } from '../EditorAPI';
+import type { ModalTransformSelection } from '../ModalTransformHandler';
 
 export type ViewportParam = {
 	id: string;
@@ -19,11 +20,12 @@ export type ViewportParam = {
 	gizmoManager: GizmoManager;
 	helperManager: HelperManager;
 	api: EditorAPI;
-	getSelectedEntityId: () => string | null;
+	getTransformSelection: () => ModalTransformSelection;
 	isEntitySelectable: ( entity: MXP.Entity ) => boolean;
 	isGizmoVisible: () => boolean;
 	getHelperVisibility: () => HelperVisibility;
 	onSelectEntity: ( entity: MXP.Entity | null ) => void;
+	onToggleEntity: ( entity: MXP.Entity ) => void;
 	isModalActive: () => boolean;
 	onEscapeToEditorCamera: () => void;
 	// ポインタが入ったとき。キーボード操作の対象ビューポートの切り替えに使う
@@ -41,10 +43,15 @@ export class Viewport {
 	public readonly editorCamera: EditorCamera;
 	public readonly frameDebugger: FrameDebugger;
 
+	// 表示 canvas の CSS 上の大きさ（px）。描画解像度の元になる（カメラビューでは基準解像度を収める枠）
+	public readonly displaySize: MTP.Vector;
+
 	private _pointerHandler: PointerHandler;
 	private _onDispose: () => void;
 	private _disposeListeners: () => void;
 	private _disposed: boolean;
+	private _hovered: boolean;
+	private _resizeObserver: ResizeObserver;
 
 	constructor( param: ViewportParam ) {
 
@@ -63,22 +70,55 @@ export class Viewport {
 			gizmoManager: param.gizmoManager,
 			helperManager: param.helperManager,
 			api: param.api,
-			getSelectedEntityId: param.getSelectedEntityId,
+			getTransformSelection: param.getTransformSelection,
 			isEntitySelectable: param.isEntitySelectable,
 			isGizmoVisible: param.isGizmoVisible,
 			getHelperVisibility: param.getHelperVisibility,
-			getGizmoMode: () => param.gizmoManager.mode,
 			onSelectEntity: param.onSelectEntity,
+			onToggleEntity: param.onToggleEntity,
 			isModalActive: param.isModalActive,
 			onEscapeToEditorCamera: param.onEscapeToEditorCamera,
 		} );
 
-		const onPointerEnter = () => param.onActivate();
+		this._hovered = false;
+
+		const onPointerEnter = () => {
+
+			this._hovered = true;
+
+			param.onActivate();
+
+		};
+
+		const onPointerLeave = () => {
+
+			this._hovered = false;
+
+		};
 
 		canvas.addEventListener( 'pointerenter', onPointerEnter );
+		canvas.addEventListener( 'pointerleave', onPointerLeave );
+
+		this.displaySize = new MTP.Vector( canvas.clientWidth, canvas.clientHeight );
+
+		this._resizeObserver = new ResizeObserver( ( entries ) => {
+
+			const rect = entries[ 0 ].contentRect;
+
+			this.displaySize.set( rect.width, rect.height );
+
+		} );
+
+		this._resizeObserver.observe( canvas );
 
 		this._onDispose = param.onDispose;
-		this._disposeListeners = () => canvas.removeEventListener( 'pointerenter', onPointerEnter );
+		this._disposeListeners = () => {
+
+			canvas.removeEventListener( 'pointerenter', onPointerEnter );
+			canvas.removeEventListener( 'pointerleave', onPointerLeave );
+
+		};
+
 		this._disposed = false;
 
 	}
@@ -89,7 +129,19 @@ export class Viewport {
 
 	}
 
-	public resize( resolution: MTP.Vector ) {
+	// ポインタがこのビューポートの上にあるか。I キー・G / R / S をビューポートで受けるか（プロパティパネル等では受けない）の判定に使う
+	public get hovered() {
+
+		return this._hovered;
+
+	}
+
+	// 描画解像度を合わせる。変わったときだけ作り直し、変わったら true を返す
+	public fit( resolution: MTP.Vector ) {
+
+		const size = this.view.size;
+
+		if ( size && size.x === resolution.x && size.y === resolution.y ) return false;
 
 		this.view.size = resolution.clone();
 
@@ -97,8 +149,9 @@ export class Viewport {
 		this.canvas.width = resolution.x;
 		this.canvas.height = resolution.y;
 
-		this.editorCamera.resize( resolution );
 		this.frameDebugger.resize( resolution );
+
+		return true;
 
 	}
 
@@ -113,6 +166,7 @@ export class Viewport {
 		this._onDispose();
 
 		this._disposeListeners();
+		this._resizeObserver.disconnect();
 		this._pointerHandler.dispose();
 		this.frameDebugger.dispose();
 		this.editorCamera.dispose();

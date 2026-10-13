@@ -3,7 +3,7 @@ import * as MTP from 'mathpower';
 
 import { FCurve } from '../Animation/FCurve';
 import { FCurveGroup } from '../Animation/FCurveGroup';
-import { FCurveInterpolation, FCurveKeyFrame } from '../Animation/FCurveKeyFrame';
+import { decodeKeyFrames, KeyFrameData } from '../Animation/KeyFrameDecoder';
 
 import type { EngineContract } from '../Contracts/EngineContract';
 import type { GLTF, GLTFLoaderContract } from '../Contracts/GLTFLoaderContract';
@@ -98,13 +98,9 @@ export type BLidgeAnimationAccessor = { [key: string]: number }
 
 export type BLidgeCurveAxis = 'x' | 'y' | 'z' | 'w'
 
-// 補間は BLidge の INTERPOLATION_MAP（blidge/animation/parser.py）と対応する: 0=LINEAR / 1=CONSTANT / 2=BEZIER
-export type BLidgeInterpolationCode = 0 | 1 | 2;
-
-// キーフレームは [ 補間, [ dx, y, ...ハンドル ] ]。dx は先頭だけ絶対フレーム、以降は前のキーとの差分。
-// ハンドルは左（自分か前のキーが Bezier のとき）→ 右（自分が Bezier のとき）の順に、付くものだけが並ぶ
+// キー列の形式とデコーダはシーンのカーブの表と共有している（Animation/KeyFrameDecoder）
 export type BLidgeCurveParam = {
-	k: [BLidgeInterpolationCode, number[]][];
+	k: KeyFrameData[];
 	axis: BLidgeCurveAxis
 }
 
@@ -156,9 +152,6 @@ type BLidgeConnection = {
 	ws: WebSocket,
 	gltfPath?: string,
 }
-
-// BLidgeInterpolationCode の番号で引く
-const INTERPOLATIONS: FCurveInterpolation[] = [ 'LINEAR', 'CONSTANT', 'BEZIER' ];
 
 export class BLidge extends EventEmitter {
 
@@ -284,43 +277,6 @@ export class BLidge extends EventEmitter {
 
 	}
 
-	// v2 のキーフレーム列（差分フレーム・数値の補間）を FCurveKeyFrame に戻す
-	private decodeKeyFrames( fcurveData: BLidgeCurveParam ) {
-
-		const keyframes: FCurveKeyFrame[] = [];
-
-		let frame = 0;
-
-		for ( const [ code, values ] of fcurveData.k ) {
-
-			frame += values[ 0 ];
-
-			// BLidge は「自分か前のキーが Bezier」なら左ハンドルを、「自分が Bezier」なら右ハンドルを付ける。
-			// 1フレーム以内に次のキーがあると補間を Constant に書き換えるが、ハンドルは元の補間のまま残るので、
-			// 補間の種類ではなく要素数で読む（右があれば左も必ずあるので、4要素なら左だけ・6要素なら左右）
-			let handleLeft: MTP.IVector2 | undefined = undefined;
-			let handleRight: MTP.IVector2 | undefined = undefined;
-
-			if ( values.length >= 4 ) {
-
-				handleLeft = { x: values[ 2 ], y: values[ 3 ] };
-
-			}
-
-			if ( values.length >= 6 ) {
-
-				handleRight = { x: values[ 4 ], y: values[ 5 ] };
-
-			}
-
-			keyframes.push( new FCurveKeyFrame( { x: frame, y: values[ 1 ] }, handleLeft, handleRight, INTERPOLATIONS[ code ] ) );
-
-		}
-
-		return keyframes;
-
-	}
-
 	public async loadScene( data: BLidgeScene, gltfPath?: string ) {
 
 		this.currentScene = data;
@@ -374,7 +330,7 @@ export class BLidge extends EventEmitter {
 
 		for ( const fcurveData of data.fcurves ) {
 
-			curves.push( new FCurve( this.decodeKeyFrames( fcurveData ) ) );
+			curves.push( new FCurve( decodeKeyFrames( fcurveData.k ) ) );
 
 		}
 

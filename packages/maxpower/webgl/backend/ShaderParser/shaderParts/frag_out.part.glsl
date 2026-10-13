@@ -47,7 +47,12 @@
 	outColor4 = vec4( vVelocity, 0.0, outEmission.z );
 #endif
 
-#ifdef IS_FORWARD
+// emission の入る w は 0 にする（シェーディングが塗った色は forward が上書きする）
+#ifdef IS_PREPASS
+	outColor0 = vec4( outPos, 0.0 );
+	outColor1 = vec4( normalize( outNormal * ( gl_FrontFacing ? 1.0 : -1.0 ) ), 0.0 );
+	outColor4 = vec4( vVelocity, 0.0, 0.0 );
+#elif defined(IS_FORWARD)
 	outColor0 = outColor;
 	outColor1 = vec4(outPos, 1.0);
 	outColor2 = vec4(vVelocity, 0.0, 1.0);

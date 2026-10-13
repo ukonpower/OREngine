@@ -40,6 +40,7 @@ export const Screen: React.FC<{ viewportId: string }> = ( { viewportId } ) => {
 	const [ showWireframe, setShowWireframe ] = useSerializableField<boolean>( editor, `viewports/${viewportId}/helpers/wireframe` );
 	const [ showGizmo, setShowGizmo ] = useSerializableField<boolean>( editor, `viewports/${viewportId}/helpers/gizmo` );
 	const [ showOutline, setShowOutline ] = useSerializableField<boolean>( editor, `viewports/${viewportId}/helpers/outline` );
+	const [ showRelationships, setShowRelationships ] = useSerializableField<boolean>( editor, `viewports/${viewportId}/helpers/relationships` );
 
 	const [ showAudioView ] = useUISetting( 'showAudioView' );
 	const [ audioViewHeight, setAudioViewHeight ] = useState( 50 );
@@ -196,6 +197,11 @@ export const Screen: React.FC<{ viewportId: string }> = ( { viewportId } ) => {
 					<div className={style.overlay_field}>
 						<Label title='Outline'>
 							<Value value={showOutline} onChange={( v ) => setShowOutline && setShowOutline( v )}/>
+						</Label>
+					</div>
+					<div className={style.overlay_field}>
+						<Label title='Relationships'>
+							<Value value={showRelationships} onChange={( v ) => setShowRelationships && setShowRelationships( v )}/>
 						</Label>
 					</div>
 				</div>}

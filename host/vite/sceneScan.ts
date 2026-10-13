@@ -1,8 +1,32 @@
+// シーンに置かれたコンポーネント1つ分の名前と props（player ビルドでコンポーネントに使う部品を聞くため）
+export interface ComponentUsage {
+	name: string;
+	props: Record<string, unknown>;
+}
+
 export interface SceneUsage {
 	componentNames: Set<string>;
 	propKeys: Set<string>;
 	useGLTF: boolean;
+	components: ComponentUsage[];
 }
+
+// フィールド名 a/b の区切りごとの名前も、改名させないキーに足す。
+// コンポーネントがオブジェクトのキーからフィールド名を組み立てることがあり（Cloner の params/<キー> など）、
+// そのキーが terser の property mangle で改名されるとシーンの値が入らなくなる
+const addPropKey = ( key: string, propKeys: Set<string> ) => {
+
+	propKeys.add( key );
+
+	if ( key.indexOf( '/' ) === - 1 ) return;
+
+	for ( const segment of key.split( '/' ) ) {
+
+		propKeys.add( segment );
+
+	}
+
+};
 
 // シーンファイルのパース結果から使用コンポーネント名・propsキー・GLTF使用有無を収集する
 // 構造を仮定した早期returnをせず、任意のネスト（BLidgeClient の props.attachments 配下等）を一律に辿る
@@ -10,6 +34,7 @@ export const collectSceneUsage = ( sceneJson: unknown ): SceneUsage => {
 
 	const componentNames = new Set<string>();
 	const propKeys = new Set<string>();
+	const components: ComponentUsage[] = [];
 	let useGLTF = false;
 
 	const walk = ( node: unknown, insideProps: boolean ): void => {
@@ -29,7 +54,7 @@ export const collectSceneUsage = ( sceneJson: unknown ): SceneUsage => {
 
 			const value = obj[ key ];
 
-			if ( insideProps ) propKeys.add( key );
+			if ( insideProps ) addPropKey( key, propKeys );
 
 			if ( key === 'components' && Array.isArray( value ) ) {
 
@@ -48,15 +73,30 @@ export const collectSceneUsage = ( sceneJson: unknown ): SceneUsage => {
 
 						}
 
+						if ( typeof c.name === 'string' ) {
+
+							let componentProps: Record<string, unknown> = {};
+
+							if ( props !== null && typeof props === 'object' ) {
+
+								componentProps = props as Record<string, unknown>;
+
+							}
+
+							components.push( { name: c.name, props: componentProps } );
+
+						}
+
 					}
 
 					walk( comp, insideProps );
 
 				} );
 
-			} else if ( key === 'props' || key === 'renderer' ) {
+			} else if ( key === 'props' || key === 'renderer' || key === 'curves' ) {
 
-				// props と renderer は Serializable がフィールド名の文字列で読むため、キーを改名させない
+				// props と renderer は Serializable がフィールド名の文字列で読むため、キーを改名させない。
+				// curves（カーブの表）はリンクがカーブ ID の文字列で引くので、ID のキーも改名させない
 				walk( value, true );
 
 			} else {
@@ -82,7 +122,7 @@ export const collectSceneUsage = ( sceneJson: unknown ): SceneUsage => {
 
 	walk( sceneJson, false );
 
-	return { componentNames, propKeys, useGLTF };
+	return { componentNames, propKeys, useGLTF, components };
 
 };
 

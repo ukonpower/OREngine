@@ -39,6 +39,7 @@ export class FlashLine extends MXP.Component {
 
 		this.material = new MXP.Material( {
 			phase: [ "forward", "envMap" ],
+			transparent: true,
 			frag: MXP.hotGet( "flFrag", flFrag ),
 			vert: MXP.hotGet( "flVert", flVert ),
 		} );

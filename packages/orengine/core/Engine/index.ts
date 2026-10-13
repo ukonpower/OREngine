@@ -26,6 +26,8 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 
 	public static resources: Resources;
 	public name: string;
+	// キーフレームアニメーションのカーブの表。編集は表ごと差し替える（Animation コンポーネントが差し替わりを見て作り直す）
+	public curves: MXP.CurveTable;
 
 	private _renderer: MXP.Renderer;
 	private _root: MXP.Entity;
@@ -53,6 +55,7 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 			uTimeF: { value: 0, type: "1f" },
 			uTimeE: { value: 0, type: "1f" },
 			uTimeEF: { value: 0, type: "1f" },
+			uTimePrev: { value: 0, type: "1f" },
 			uDeltaTime: { value: 0, type: "1f" },
 			uResolution: { value: new MTP.Vector(), type: "2fv" },
 			uAspectRatio: { value: 1.0, type: "1f" },
@@ -83,6 +86,10 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 		this.seek( 0 );
 		this._frameEvent = null;
 
+		// curves
+
+		this.curves = {};
+
 		// root
 
 		this._root = this.createEntity( { name: "root" } );
@@ -104,6 +111,8 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 		const tl = this.fieldDir( "timeline" );
 		tl.field( "duration", () => this._frameSetting.duration, ( v ) => this._frameSetting.duration = v );
 		tl.field( "fps", () => this._frameSetting.fps, ( v ) => this._frameSetting.fps = v );
+
+		this.field( "curves", () => this.curves, ( v: MXP.CurveTable ) => this.curves = v );
 
 		/*-------------------------------
 			Register
@@ -212,6 +221,8 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 
 		Object.assign( this._frameSetting, DEFAULT_FRAME_SETTING );
 
+		this.curves = {};
+
 		this.stop();
 		this.seek( 0 );
 
@@ -247,6 +258,7 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 
 		const event = this.createEntityUpdateEvent( { forceDraw: param?.forceDraw } );
 
+		this._renderer.globalUniforms.uTimePrev.value = this._renderer.globalUniforms.uTime.value;
 		this._renderer.globalUniforms.uTime.value = this._time.code;
 		this._renderer.globalUniforms.uTimeF.value = this._time.code % 1;
 		this._renderer.globalUniforms.uTimeE.value = this._time.engine;
@@ -393,8 +405,9 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 		this._frame.current = timeCode * 60;
 		this._frame.playing = true;
 
-		const event = this.createEntityUpdateEvent( { forceDraw: true } );
+		const event = this.createEntityUpdateEvent( { forceDraw: true, offline: true } );
 
+		this._renderer.globalUniforms.uTimePrev.value = this._renderer.globalUniforms.uTime.value;
 		this._renderer.globalUniforms.uTime.value = this._time.code;
 		this._renderer.globalUniforms.uTimeF.value = this._time.code % 1;
 		this._renderer.globalUniforms.uTimeE.value = this._time.engine;

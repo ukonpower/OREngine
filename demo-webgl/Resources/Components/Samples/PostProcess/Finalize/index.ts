@@ -1,5 +1,4 @@
 import * as MXP from 'maxpower';
-import { Engine } from 'orengine';
 
 import finalizeFrag from './shaders/finalize.fs';
 
@@ -11,8 +10,6 @@ export class Finalize extends MXP.Component {
 
 		super( params );
 
-		const engine = this.engine as Engine;
-
 		let pipeline = this.entity.getComponent( MXP.PostProcessPipeline );
 
 		if ( ! pipeline ) {
@@ -21,20 +18,14 @@ export class Finalize extends MXP.Component {
 
 		}
 
-		const pass = new MXP.PostProcessPass( engine.renderer.backend, {
-			name: 'finalize',
-			frag: finalizeFrag,
-		} );
+		const param: MXP.PostProcessPipelinePassParam = { name: 'finalize', frag: finalizeFrag };
 
-		const postProcess = pipeline.add( new MXP.PostProcess( {
-			name: 'Finalize',
-			passes: [ pass ],
-		} ) );
+		pipeline.add( param );
 
 		// 同じエンティティの PostProcessPipeline には他のコンポーネントのパスも載りうるので、自分の分だけ外す
 		this.once( 'dispose', () => {
 
-			pipeline.remove( postProcess );
+			pipeline.remove( param );
 
 		} );
 
@@ -44,11 +35,12 @@ export class Finalize extends MXP.Component {
 
 				if ( module ) {
 
-					pass.frag = module.default;
+					param.frag = module.default;
 
 				}
 
-				pass.requestUpdate();
+				// 実体はビューごとに宣言から組まれるので、宣言を書き換えてから組み直させる
+				pipeline.rebuild();
 
 			} );
 

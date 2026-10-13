@@ -6,4 +6,5 @@ float EF = mix( fresnel( dNV ), 1.0, mat.metallic );
 vec3 envReflect = EF * mat.specularColor * mat.envMapIntensity;
 
 diffuse = ( diffuse + getPmrem( uEnvMap, geo.normal, 1.0 ) * mat.diffuseColor * mat.envMapIntensity ) * ( 1.0 - envReflect );
-specular = mix( specular, getPmrem( uEnvMap, refDir, mat.roughness ), envReflect );
+// 鏡面反射に入ってくる光。SSR が当たった分は画面に映っている物を使う（ssrHit / ssrWeight は deferredShading.fs が用意する）
+specular = mix( specular, mix( getPmrem( uEnvMap, refDir, mat.roughness ), ssrHit, ssrWeight ), envReflect );

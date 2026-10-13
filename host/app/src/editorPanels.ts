@@ -4,19 +4,25 @@ import type { PanelDefinition } from 'orengine/react';
 // `panel` を export すると拾われる（先頭 `_` のディレクトリは Components と同じく対象外）
 const panelModules = import.meta.glob<{ panel?: PanelDefinition }>( [ '@or-project-editor/Panels/**/index.tsx', '!**/_*/**' ], { eager: true } );
 
+// コンポーネント専用のパネル。<projectDir>/Resources/Components/**/editor.tsx が
+// `panel`（defineComponentPanel の結果）を export すると拾われる。fieldUIs と同じファイルに同居する
+const componentPanelModules = import.meta.glob<{ panel?: PanelDefinition }>( [ '@or-resources/Components/**/editor.tsx', '!**/_*/**' ], { eager: true } );
+
 // 各モジュールの panel export を集める
 const collectPanels = () => {
 
 	const panels: PanelDefinition[] = [];
-	const keys = Object.keys( panelModules );
+	const modules = [ panelModules, componentPanelModules ];
 
-	for ( let i = 0; i < keys.length; i ++ ) {
+	for ( const moduleMap of modules ) {
 
-		const panel = panelModules[ keys[ i ] ].panel;
+		for ( const module of Object.values( moduleMap ) ) {
 
-		if ( panel ) {
+			if ( module.panel ) {
 
-			panels.push( panel );
+				panels.push( module.panel );
+
+			}
 
 		}
 

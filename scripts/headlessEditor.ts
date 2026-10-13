@@ -8,9 +8,10 @@ import type { Browser } from '@playwright/test';
 // 無いと WebGL2 は SwiftShader（CPU）になり、WebGPU は --enable-unsafe-webgpu だけだと SwiftShader の fallback で canvas が真っ黒になる
 const LAUNCH_ARGS = [ '--enable-unsafe-webgpu', '--use-angle=metal' ];
 
-// ウィンドウサイズは固定する。エディタの描画解像度（Screen パネルの大きさ）がこれで決まり、shot（#83）の出力サイズになるため。
+// ウィンドウサイズは固定し、Screen パネルの大きさ（エディタカメラで見ているときの描画解像度）を実行環境によらず揃える。
 // 1920x1080 は一般的なデスクトップの画面サイズで、ユーザーの editor.json のパネル配置がそのまま無理なく収まる。
-// deviceScaleFactor も 1 に固定し、実行環境の画面の倍率で出力サイズが変わらないようにする
+// deviceScaleFactor も 1 に固定し、実行環境の画面の倍率で描画解像度が変わらないようにする。
+// shot（#83）の出力サイズは editor.json の resolution/* で決まり、ウィンドウサイズには依存しない
 const VIEWPORT = { width: 1920, height: 1080 };
 const DEVICE_SCALE_FACTOR = 1;
 

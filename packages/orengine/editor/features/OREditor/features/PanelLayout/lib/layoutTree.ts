@@ -56,21 +56,37 @@ const pane = ( tabs: PanelId[] ): PaneNode => ( {
 	active: tabs[ 0 ],
 } );
 
-// データ駆動化前の PC レイアウトと同じ構成・同じ初期サイズのデフォルト木を作る。
-// 比率は基準解像度 1920x1080 で旧実装の px / vh 指定（左右カラム300px・フッター160px・
-// 左下20vh=216px）と一致する値。分母はスプリッタ4pxを除いた実効サイズ
+// PC のデフォルトのレイアウト木を作る。
+// 比率は基準解像度 1920x1080 で左右カラム300px・左下216px・フッター195px になる値。
+// フッターはタイムラインの上端のヘッダー1行（約35px = 正方形ボタン22px + 上下の余白 + 区切り線）と、目盛り・キーの行の160px。
+// 分母はスプリッタ4pxを除いた実効サイズ
 export function defaultLayout(): LayoutNode {
 
 	return split( "vertical", [
-		{ ratio: 916 / 1076, node: split( "horizontal", [
+		{ ratio: 881 / 1076, node: split( "horizontal", [
 			{ ratio: 300 / 1912, node: split( "vertical", [
-				{ ratio: 696 / 912, node: pane( [ "hierarchy", "scene" ] ) },
-				{ ratio: 216 / 912, node: pane( [ "timer" ] ) },
+				{ ratio: 661 / 877, node: pane( [ "hierarchy", "scene" ] ) },
+				{ ratio: 216 / 877, node: pane( [ "timer" ] ) },
 			] ) },
 			{ ratio: 1312 / 1912, node: pane( [ "viewport:main" ] ) },
 			{ ratio: 300 / 1912, node: pane( [ "property", "textures", "renderer", "editor-settings" ] ) },
 		] ) },
-		{ ratio: 160 / 1076, node: pane( [ "timeline", "export" ] ) },
+		{ ratio: 195 / 1076, node: pane( [ "timeline", "export" ] ) },
+	] );
+
+}
+
+// SP（縦長の狭い画面）のデフォルトのレイアウト木を作る。上から Screen / それ以外のタブ / Timeline。
+// 幅が狭く横に並べると窮屈なので中段は1つの pane にまとめ、どのタブも幅いっぱいを使う。
+// スマホで使わない Timer・Editor は置かない（タブの「+」から足せる）。
+// Hierarchy と Property が同じ pane にあるので、選択すると activateOnSelect の後ろ側の Property が前に出る。
+// 比率は iPhone の Safari（表示領域の高さ約 660px）で Timeline にヘッダーと数トラックぶん、中段に Hierarchy 10行弱が入る配分
+export function defaultLayoutSP(): LayoutNode {
+
+	return split( "vertical", [
+		{ ratio: 0.4, node: pane( [ "viewport:main" ] ) },
+		{ ratio: 0.35, node: pane( [ "hierarchy", "property", "scene", "textures", "renderer", "export" ] ) },
+		{ ratio: 0.25, node: pane( [ "timeline" ] ) },
 	] );
 
 }
@@ -256,6 +272,29 @@ export function selectTab( root: LayoutNode, paneId: string, panelId: PanelId ):
 		return { ...node, active: panelId };
 
 	} );
+
+}
+
+// 指定のパネルを含む pane すべてで、そのパネルをアクティブにする。keepPaneId の pane は触らない。
+// 1つの pane に複数含まれるときは panelIds の後ろのものが勝つ。どの pane にも無いパネルは無視し、
+// 何も変わらなければ root をそのまま返す（呼び出し側が変化の有無を参照比較で判定するため）
+export function activatePanels( root: LayoutNode, panelIds: PanelId[], keepPaneId: string | null ): LayoutNode {
+
+	let next = root;
+
+	for ( const pane of collectPanes( root ) ) {
+
+		if ( pane.id === keepPaneId ) continue;
+
+		for ( const panelId of panelIds ) {
+
+			if ( pane.tabs.includes( panelId ) && pane.active !== panelId ) next = selectTab( next, pane.id, panelId );
+
+		}
+
+	}
+
+	return next;
 
 }
 

@@ -107,28 +107,38 @@ export const useTimelineContext = () => {
 
 	}, [ viewPort ] );
 
-	const zoom = useCallback( ( scale: number ) => {
+	// 次の state を待たずに続けて動かせるよう（1フレームに wheel が何度も来る）、ref も同時に更新する
+	const applyViewPort = useCallback( ( next: number[] ) => {
 
-		const vp = viewPortRef.current;
-
-		const mid = ( vp[ 2 ] + vp[ 0 ] ) / 2;
-
-		const s = ( vp[ 0 ] - mid ) * ( scale ) + mid;
-		const e = ( vp[ 2 ] - mid ) * ( scale ) + mid;
-
-		setViewPort( [ s, vp[ 1 ], e, vp[ 3 ] ] );
+		viewPortRef.current = next;
+		setViewPort( next );
 
 	}, [] );
 
+	// 表示の範囲を scale 倍にする。anchor は拡大縮小しても動かない位置（表示の幅に対する 0〜1）
+	const zoom = useCallback( ( scale: number, anchor: number ) => {
+
+		const vp = viewPortRef.current;
+
+		const pivot = vp[ 0 ] + ( vp[ 2 ] - vp[ 0 ] ) * anchor;
+
+		const s = ( vp[ 0 ] - pivot ) * scale + pivot;
+		const e = ( vp[ 2 ] - pivot ) * scale + pivot;
+
+		applyViewPort( [ s, vp[ 1 ], e, vp[ 3 ] ] );
+
+	}, [ applyViewPort ] );
+
+	// 表示の範囲を動かす。delta は表示の幅に対する割合
 	const scroll = useCallback( ( delta: number ) => {
 
 		const vp = viewPortRef.current;
 
 		const deltaFrame = delta * ( vp[ 2 ] - vp[ 0 ] );
 
-		setViewPort( [ vp[ 0 ] + deltaFrame, vp[ 1 ], vp[ 2 ] + deltaFrame, vp[ 3 ] ] );
+		applyViewPort( [ vp[ 0 ] + deltaFrame, vp[ 1 ], vp[ 2 ] + deltaFrame, vp[ 3 ] ] );
 
-	}, [] );
+	}, [ applyViewPort ] );
 
 	const setViewPortCenter = useCallback( ( frame: number ) => {
 
@@ -136,9 +146,9 @@ export const useTimelineContext = () => {
 
 		const w = vp[ 2 ] - vp[ 0 ];
 
-		setViewPort( [ frame - w / 2, vp[ 1 ], frame + w / 2, vp[ 3 ] ] );
+		applyViewPort( [ frame - w / 2, vp[ 1 ], frame + w / 2, vp[ 3 ] ] );
 
-	}, [] );
+	}, [ applyViewPort ] );
 
 	return {
 		glEditor,

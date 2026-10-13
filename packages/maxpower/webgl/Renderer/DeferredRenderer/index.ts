@@ -8,9 +8,12 @@ import { GL, GLBackend } from '../../backend/GLBackend';
 
 import deferredShadingFrag from './shaders/deferredShading.fs';
 import lightShaftFrag from './shaders/lightShaft.fs';
+import lightShaftBlurFrag from './shaders/lightShaftBlur.fs';
 import normalSelectorFrag from './shaders/normalSelector.fs';
 import ssaoFrag from './shaders/ssao.fs';
 import ssaoBlurFrag from './shaders/ssaoBlur.fs';
+import ssrFrag from './shaders/ssr.fs';
+import ssrTemporalFrag from './shaders/ssrTemporal.fs';
 import sssFrag from './shaders/sss.fs';
 
 
@@ -46,11 +49,18 @@ type Params = {
 export type DeferredRendererPassConfig = {
 	ssao?: boolean;
 	lightShaft?: boolean;
+	ssr?: boolean;
 	sss?: boolean;
 };
 
 // SSS のカーネルの片側のサンプル数（中心を含む）。両側で 17 タップになり、SeparableSSS の既定と同じ
 const SSS_SAMPLES = 9;
+
+// lightShaft のぼかしの片側のサンプル数（中心を含む）。webgpu 側 PipelinePostProcess の LIGHT_SHAFT_BLUR_SAMPLES と一致させる
+const LIGHT_SHAFT_BLUR_SAMPLES = 6;
+
+// lightShaft のジッタの巡回周期。蓄積されるフレーム数（lightShaft.fs の 1 / TEMPORAL_BLEND）より十分長ければよい
+const LIGHT_SHAFT_JITTER_CYCLE = 64;
 
 export class DeferredRenderer extends EventEmitter {
 
@@ -68,6 +78,9 @@ export class DeferredRenderer extends EventEmitter {
 	public rtLightShaft1: GLP.GLPowerFrameBuffer;
 	public rtLightShaft2: GLP.GLPowerFrameBuffer;
 
+	public lightShaftBlurH: MXP.PostProcessPass;
+	public lightShaftBlurV: MXP.PostProcessPass;
+
 	// ssao
 
 	public ssao: MXP.PostProcessPass;
@@ -76,6 +89,13 @@ export class DeferredRenderer extends EventEmitter {
 
 	public ssaoBlur: MXP.PostProcessPass;
 	public ssaoBlurV: MXP.PostProcessPass;
+
+	// ssr
+
+	public ssr: MXP.PostProcessPass;
+	public ssrTemporal: MXP.PostProcessPass;
+	public rtSSR1: GLP.GLPowerFrameBuffer;
+	public rtSSR2: GLP.GLPowerFrameBuffer;
 
 	// shading
 
@@ -118,14 +138,14 @@ export class DeferredRenderer extends EventEmitter {
 		} );
 
 		// light shaft
+		// 前フレームの結果を少しずつ混ぜて蓄積するので、8bit だと小さな差が丸められて履歴が動かなくなる
 
-		const rtLightShaft1 = backend.createFrameBuffer().setTexture( [
-			backend.createTexture().setting( { magFilter: GL.LINEAR, minFilter: GL.LINEAR } ),
+		const lightShaftTarget = () => backend.createFrameBuffer( { disableDepthBuffer: true } ).setTexture( [
+			backend.createTexture().setting( { type: GL.FLOAT, internalFormat: GL.RGBA16F, format: GL.RGBA, magFilter: GL.LINEAR, minFilter: GL.LINEAR } ),
 		] );
 
-		const rtLightShaft2 = backend.createFrameBuffer().setTexture( [
-			backend.createTexture().setting( { magFilter: GL.LINEAR, minFilter: GL.LINEAR } ),
-		] );
+		const rtLightShaft1 = lightShaftTarget();
+		const rtLightShaft2 = lightShaftTarget();
 
 		const lightShaft = new MXP.PostProcessPass( backend, {
 			name: 'lightShaft',
@@ -136,13 +156,62 @@ export class DeferredRenderer extends EventEmitter {
 					value: rtLightShaft2.textures[ 0 ],
 					type: '1i'
 				},
-				uDepthTexture: {
-					value: null,
+				uPosTexture: {
+					value: renderTarget.gBuffer.textures[ 0 ],
 					type: '1i'
+				},
+				uFrame: {
+					value: 0,
+					type: '1f'
 				},
 			} ),
 			resolutionRatio: 0.5,
 			passThrough: true,
+		} );
+
+		const lightShaftBlurUni = MXP.UniformsUtils.merge( {
+			uLightShaftTexture: {
+				value: rtLightShaft1.textures[ 0 ],
+				type: '1i'
+			},
+			uPosTexture: {
+				value: renderTarget.gBuffer.textures[ 0 ],
+				type: '1i'
+			},
+			uWeights: {
+				type: '1fv',
+				value: MTP.MathUtils.gaussWeights( LIGHT_SHAFT_BLUR_SAMPLES )
+			},
+		} );
+
+		const lightShaftBlurH = new MXP.PostProcessPass( backend, {
+			name: 'lightShaft/blur/h',
+			frag: lightShaftBlurFrag,
+			uniforms: lightShaftBlurUni,
+			renderTarget: lightShaftTarget(),
+			resolutionRatio: 0.5,
+			passThrough: true,
+			defines: {
+				BLUR_SAMPLES: LIGHT_SHAFT_BLUR_SAMPLES
+			}
+		} );
+
+		const lightShaftBlurV = new MXP.PostProcessPass( backend, {
+			name: 'lightShaft/blur/v',
+			frag: lightShaftBlurFrag,
+			uniforms: MXP.UniformsUtils.merge( lightShaftBlurUni, {
+				uLightShaftTexture: {
+					value: lightShaftBlurH.renderTarget!.textures[ 0 ],
+					type: '1i'
+				},
+			} ),
+			renderTarget: lightShaftTarget(),
+			resolutionRatio: 0.5,
+			passThrough: true,
+			defines: {
+				BLUR_SAMPLES: LIGHT_SHAFT_BLUR_SAMPLES,
+				IS_VIRT: ''
+			}
 		} );
 
 		// ssao
@@ -255,6 +324,96 @@ export class DeferredRenderer extends EventEmitter {
 
 		}
 
+		// ssr（レイマーチは今フレームだけを出し、時間方向の蓄積は ssrTemporal が今フレームの近傍で履歴をクランプして行う）
+
+		// トーンマップ前の HDR の反射色を 1 で切らずに持つ
+		const ssrTarget = () => backend.createFrameBuffer( { disableDepthBuffer: true } ).setTexture( [
+			backend.createTexture().setting( { type: GL.FLOAT, internalFormat: GL.RGBA16F, format: GL.RGBA, magFilter: GL.LINEAR, minFilter: GL.LINEAR } ),
+		] );
+
+		const ssr = new MXP.PostProcessPass( backend, {
+			name: 'ssr',
+			frag: MXP.hotGet( "ssr", ssrFrag ),
+			renderTarget: ssrTarget(),
+			uniforms: MXP.UniformsUtils.merge( {
+				uGbufferPos: {
+					value: renderTarget.gBuffer.textures[ 0 ],
+					type: '1i'
+				},
+				uGbufferNormal: {
+					value: renderTarget.normalBuffer.textures[ 0 ],
+					type: '1i'
+				},
+				uVelTex: {
+					value: renderTarget.gBuffer.textures[ 4 ],
+					type: '1i'
+				},
+				uPrevScene: {
+					value: renderTarget.prevSceneBuffer.textures[ 0 ],
+					type: '1i'
+				},
+			} ),
+			resolutionRatio: 0.5,
+			passThrough: true,
+		} );
+
+		const rtSSR1 = ssrTarget();
+		const rtSSR2 = ssrTarget();
+
+		const ssrTemporal = new MXP.PostProcessPass( backend, {
+			name: 'ssrTemporal',
+			frag: MXP.hotGet( "ssrTemporal", ssrTemporalFrag ),
+			renderTarget: rtSSR1,
+			uniforms: MXP.UniformsUtils.merge( {
+				uSSRCurrent: {
+					value: ssr.renderTarget!.textures[ 0 ],
+					type: '1i'
+				},
+				uSSRBackBuffer: {
+					value: rtSSR2.textures[ 0 ],
+					type: '1i'
+				},
+				uGbufferPos: {
+					value: renderTarget.gBuffer.textures[ 0 ],
+					type: '1i'
+				},
+				uVelTex: {
+					value: renderTarget.gBuffer.textures[ 4 ],
+					type: '1i'
+				},
+			} ),
+			resolutionRatio: 0.5,
+			passThrough: true,
+		} );
+
+		if ( import.meta.hot ) {
+
+			import.meta.hot.accept( "./shaders/ssr.fs", ( module ) => {
+
+				if ( module ) {
+
+					ssr.frag = MXP.hotUpdate( 'ssr', module.default );
+
+				}
+
+				ssr.requestUpdate();
+
+			} );
+
+			import.meta.hot.accept( "./shaders/ssrTemporal.fs", ( module ) => {
+
+				if ( module ) {
+
+					ssrTemporal.frag = MXP.hotUpdate( 'ssrTemporal', module.default );
+
+				}
+
+				ssrTemporal.requestUpdate();
+
+			} );
+
+		}
+
 		// shading
 
 		const shading = new MXP.PostProcessPass( backend, {
@@ -262,7 +421,7 @@ export class DeferredRenderer extends EventEmitter {
 			frag: MXP.hotGet( "deferredShading", deferredShadingFrag ),
 			uniforms: MXP.UniformsUtils.merge( {
 				uLightShaftTexture: {
-					value: null,
+					value: lightShaftBlurV.renderTarget!.textures[ 0 ],
 					type: '1i'
 				},
 				uSSAOTexture: {
@@ -272,6 +431,10 @@ export class DeferredRenderer extends EventEmitter {
 				uSSAOResolutionInv: {
 					value: ssao.resolutionInv,
 					type: '2fv'
+				},
+				uSSRTexture: {
+					value: rtSSR1.textures[ 0 ],
+					type: '1i'
 				},
 				uEnvMap: {
 					value: params.envMap,
@@ -377,9 +540,13 @@ export class DeferredRenderer extends EventEmitter {
 		this.postprocess = new MXP.PostProcess( { passes: [
 			normalSelector,
 			lightShaft,
+			lightShaftBlurH,
+			lightShaftBlurV,
 			ssao,
 			ssaoBlurH,
 			ssaoBlurV,
+			ssr,
+			ssrTemporal,
 			shading,
 			sssH,
 			sssV,
@@ -396,12 +563,20 @@ export class DeferredRenderer extends EventEmitter {
 		this.ssaoBlur = ssaoBlurH;
 		this.ssaoBlurV = ssaoBlurV;
 
+		this.ssr = ssr;
+		this.ssrTemporal = ssrTemporal;
+		this.rtSSR1 = rtSSR1;
+		this.rtSSR2 = rtSSR2;
+
 		this.sssH = sssH;
 		this.sssV = sssV;
 		this.sssCopy = sssCopy;
 
 		this.rtLightShaft1 = rtLightShaft1;
 		this.rtLightShaft2 = rtLightShaft2;
+
+		this.lightShaftBlurH = lightShaftBlurH;
+		this.lightShaftBlurV = lightShaftBlurV;
 
 		this.normalSelector_ = normalSelector;
 
@@ -422,7 +597,6 @@ export class DeferredRenderer extends EventEmitter {
 
 		}
 
-		lightShaft.uniforms.uDepthTexture.value = renderTarget.gBuffer.depthTexture;
 		shading.renderTarget = renderTarget.shadingBuffer;
 
 		normalSelector.renderTarget = renderTarget.normalBuffer;
@@ -451,7 +625,7 @@ export class DeferredRenderer extends EventEmitter {
 
 	}
 
-	// 描画後に呼び、LightShaft / SSAO の履歴を進める
+	// 描画後に呼び、LightShaft / SSAO / SSR の履歴とジッタを進める
 	public update(): void {
 
 		// light shaft swap
@@ -461,8 +635,12 @@ export class DeferredRenderer extends EventEmitter {
 		this.rtLightShaft2 = tmp;
 
 		this.lightShaft.setRendertarget( this.rtLightShaft1 );
-		this.shading.uniforms.uLightShaftTexture.value = this.rtLightShaft1.textures[ 0 ];
+		this.lightShaftBlurH.uniforms.uLightShaftTexture.value = this.rtLightShaft1.textures[ 0 ];
 		this.lightShaft.uniforms.uLightShaftBackBuffer.value = this.rtLightShaft2.textures[ 0 ];
+
+		const jitter = this.lightShaft.uniforms.uFrame;
+
+		jitter.value = ( jitter.value + 1 ) % LIGHT_SHAFT_JITTER_CYCLE;
 
 		// ssao swap
 
@@ -473,6 +651,16 @@ export class DeferredRenderer extends EventEmitter {
 		this.ssao.setRendertarget( this.rtSSAO1 );
 		this.ssaoBlur.uniforms.uSSAOTexture.value = this.rtSSAO1.textures[ 0 ];
 		this.ssao.uniforms.uSSAOBackBuffer.value = this.rtSSAO2.textures[ 0 ];
+
+		// ssr swap
+
+		tmp = this.rtSSR1;
+		this.rtSSR1 = this.rtSSR2;
+		this.rtSSR2 = tmp;
+
+		this.ssrTemporal.setRendertarget( this.rtSSR1 );
+		this.shading.uniforms.uSSRTexture.value = this.rtSSR1.textures[ 0 ];
+		this.ssrTemporal.uniforms.uSSRBackBuffer.value = this.rtSSR2.textures[ 0 ];
 
 	}
 
@@ -495,6 +683,21 @@ export class DeferredRenderer extends EventEmitter {
 
 		}
 
+		// シェーディングは蓄積の結果を読むので、無効時はそれも消して寄与を0にする
+		if ( config.ssr !== undefined ) {
+
+			this.ssr.enabled = config.ssr;
+			this.ssrTemporal.enabled = config.ssr;
+
+			if ( ! config.ssr ) {
+
+				this.rtSSR1.clear();
+				this.rtSSR2.clear();
+
+			}
+
+		}
+
 		if ( config.sss !== undefined ) {
 
 			this.sssH.enabled = config.sss;
@@ -503,14 +706,18 @@ export class DeferredRenderer extends EventEmitter {
 
 		}
 
+		// シェーディングはぼかしの結果を読むので、無効時はそれも消して寄与を0にする
 		if ( config.lightShaft !== undefined ) {
 
 			this.lightShaft.enabled = config.lightShaft;
+			this.lightShaftBlurH.enabled = config.lightShaft;
+			this.lightShaftBlurV.enabled = config.lightShaft;
 
 			if ( ! config.lightShaft ) {
 
 				this.rtLightShaft1.clear();
 				this.rtLightShaft2.clear();
+				this.lightShaftBlurV.renderTarget!.clear();
 
 			}
 
@@ -538,8 +745,13 @@ export class DeferredRenderer extends EventEmitter {
 		this.rtLightShaft2.dispose();
 		this.rtSSAO1.dispose();
 		this.rtSSAO2.dispose();
+		this.rtSSR1.dispose();
+		this.rtSSR2.dispose();
 
-		for ( const pass of [ this.sssH, this.sssV ] ) {
+		this.rtLightShaft1.textures[ 0 ].dispose();
+		this.rtLightShaft2.textures[ 0 ].dispose();
+
+		for ( const pass of [ this.lightShaftBlurH, this.lightShaftBlurV, this.sssH, this.sssV ] ) {
 
 			pass.renderTarget!.textures[ 0 ].dispose();
 			pass.renderTarget!.dispose();

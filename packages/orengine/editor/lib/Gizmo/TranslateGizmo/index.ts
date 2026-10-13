@@ -2,7 +2,7 @@ import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
 import { GizmoAxis, GizmoDragResult, GizmoHandle, GizmoPlane } from '..';
-import { getAxisWorldDir, intersectRayPlane, projectRayOnLine } from '../../TransformUtils';
+import { intersectRayPlane, projectRayOnLine } from '../../TransformUtils';
 import { AXIS_COLORS, GizmoBase, PLANE_NORMAL_AXIS } from '../GizmoBase';
 
 // 矢印の寸法。中心付近を空けて中心ハンドル・平面ハンドルと取り合わないようにする
@@ -96,7 +96,7 @@ export class TranslateGizmo extends GizmoBase {
 
 	}
 
-	protected _onStartDrag( handle: GizmoHandle, ray: MXP.Ray, targetEntity: MXP.Entity ): void {
+	protected _onStartDrag( handle: GizmoHandle, ray: MXP.Ray ): void {
 
 		// ドラッグ中も setTarget が毎フレーム走るので、基準は開始時のものに固定する
 		this._dragStartPos.copy( this.entity.position );
@@ -104,7 +104,7 @@ export class TranslateGizmo extends GizmoBase {
 
 		if ( handle === 'x' || handle === 'y' || handle === 'z' ) {
 
-			this._dragAxisDir = getAxisWorldDir( targetEntity, handle, this._orientation );
+			this._dragAxisDir = this._axisWorldDir( handle, this._orientation );
 			this._dragStartProjection = projectRayOnLine( ray, this._dragStartPos, this._dragAxisDir );
 
 			return;
@@ -114,13 +114,13 @@ export class TranslateGizmo extends GizmoBase {
 		// 平面ハンドルは法線軸に垂直な面、中心はビュー平面（カメラへ向く面）を滑らせる
 		this._dragPlaneNormal = handle === 'center'
 			? ray.origin.clone().sub( this._dragStartPos ).normalize()
-			: getAxisWorldDir( targetEntity, PLANE_NORMAL_AXIS[ handle as GizmoPlane ], this._orientation );
+			: this._axisWorldDir( PLANE_NORMAL_AXIS[ handle as GizmoPlane ], this._orientation );
 
 		this._dragPlaneStart = intersectRayPlane( ray, this._dragStartPos, this._dragPlaneNormal );
 
 	}
 
-	public updateDrag( ray: MXP.Ray, _targetEntity: MXP.Entity ): GizmoDragResult | null {
+	public updateDrag( ray: MXP.Ray ): GizmoDragResult | null {
 
 		if ( ! this.dragging || ! this.activeHandle ) return null;
 
@@ -130,7 +130,7 @@ export class TranslateGizmo extends GizmoBase {
 
 			const delta = projectRayOnLine( ray, this._dragStartPos, this._dragAxisDir ) - this._dragStartProjection;
 
-			return { position: this._dragStartPos.clone().add( this._dragAxisDir.clone().multiply( delta ) ) };
+			return { translate: this._dragAxisDir.clone().multiply( delta ) };
 
 		}
 
@@ -140,7 +140,7 @@ export class TranslateGizmo extends GizmoBase {
 
 		if ( ! hit ) return null;
 
-		return { position: this._dragStartPos.clone().add( hit.sub( this._dragPlaneStart ) ) };
+		return { translate: hit.sub( this._dragPlaneStart ) };
 
 	}
 

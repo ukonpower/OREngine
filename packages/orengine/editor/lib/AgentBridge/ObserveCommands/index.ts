@@ -69,7 +69,7 @@ const tree = ( ctx: AgentCommandContext ) => {
 
 	const entities: unknown[] = [];
 
-	ctx.engine.root.traverse( ( entity ) => {
+	ctx.engine.root.traverseEditable( ( entity ) => {
 
 		entities.push( {
 			path: entityPath( entity ),
@@ -110,6 +110,8 @@ const get = ( ctx: AgentCommandContext, input: AgentCommandInput ) => {
 	const children: unknown[] = [];
 
 	for ( const child of entity.children ) {
+
+		if ( child.editorHidden ) continue;
 
 		children.push( { uuid: child.uuid, name: child.name } );
 
@@ -221,7 +223,7 @@ const errors = ( ctx: AgentCommandContext ) => {
 
 	const unresolvedComponents: unknown[] = [];
 
-	ctx.engine.root.traverse( ( entity ) => {
+	ctx.engine.root.traverseEditable( ( entity ) => {
 
 		for ( const unresolved of entity.unresolvedComponents ) {
 

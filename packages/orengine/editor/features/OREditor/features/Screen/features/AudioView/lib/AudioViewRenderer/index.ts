@@ -1,6 +1,6 @@
 import { EventEmitter } from 'basepower';
 import * as MTP from 'mathpower';
-import { OREngineProjectFrame, FramePlay } from 'orengine';
+import { FramePlay } from 'orengine';
 
 export class AudioViewRenderer extends EventEmitter {
 
@@ -16,7 +16,6 @@ export class AudioViewRenderer extends EventEmitter {
 	private musicBuffer: AudioBuffer | null;
 	private resizeObserver: ResizeObserver;
 
-	private frameSetting: OREngineProjectFrame;
 	private framePlay: FramePlay;
 
 	constructor() {
@@ -39,11 +38,6 @@ export class AudioViewRenderer extends EventEmitter {
 		this.viewRangeFrame = localRange ? Number( localRange ) : 2;
 
 		// frame
-
-		this.frameSetting = {
-			duration: 0,
-			fps: 60
-		};
 
 		this.framePlay = {
 			current: 0,
@@ -90,7 +84,8 @@ export class AudioViewRenderer extends EventEmitter {
 			const audioBufferL = this.musicBuffer.getChannelData( 0 );
 			const sampleScale = 1.0;
 
-			const viewportDuration = this.viewPortRange[ 0 ] / this.frameSetting.fps;
+			// viewPort は engine.frame.current を中心にしており、単位は timeline/fps によらず秒×60（Engine の frame.current = time.code * 60）
+			const viewportDuration = this.viewPortRange[ 0 ] / 60;
 			const viewportAudioSamples = ( this.musicBuffer.sampleRate * viewportDuration );
 			const audioSamplePerPx = ( viewportAudioSamples / this.canvas.width );
 			const offset = this.frameToPx( 0 );
@@ -186,13 +181,6 @@ export class AudioViewRenderer extends EventEmitter {
 		this.setFramePlaying( this.framePlay );
 
 		localStorage.setItem( "audioViweRange", String( this.viewRangeFrame ) );
-
-	}
-
-	public setFrameSetting( frameSetting: OREngineProjectFrame ) {
-
-		this.frameSetting = frameSetting;
-		this.render();
 
 	}
 

@@ -1,12 +1,13 @@
 import * as MXP from '@or-renderer';
-import { ComponentGroup, GeometryGroup, Engine, buildClassTree } from 'orengine';
-import { BUILTIN_COMPONENTLIST, BUILTIN_GEOMETRYLIST } from 'orengine/builtin';
+import { ComponentGroup, GeometryGroup, Engine, buildClassTree, collectLibrary } from 'orengine';
+import { BUILTIN_COMPONENTLIST, BUILTIN_GEOMETRYLIST, BUILTIN_LIBRARY } from 'orengine/builtin';
 
 
 import { registerProjectTextures, initResourceInstances } from './registryCommon';
 
 const componentModules = import.meta.glob( [ '@or-resources/Components/**/index.ts', '!**/_*/**' ], { eager: true } );
 const geometryModules = import.meta.glob( [ '@or-resources/Geometries/**/index.ts', '!**/_*/**' ], { eager: true } );
+const libraryModules = import.meta.glob( [ '@or-resources/Library/*/*/index.ts', '!**/_*/**' ], { eager: true } );
 
 type ClassList = {
 	[key: string]: any
@@ -102,6 +103,31 @@ export const initResouces = () => {
 
 		const group = Engine.resources.addGeometryGroup( name );
 		registerGeometries( value, group );
+
+	}
+
+	/*-------------------------------
+		Library
+	-------------------------------*/
+
+	const builtinLibraryKeys = new Set<string>();
+
+	for ( const { kind, name, item } of BUILTIN_LIBRARY ) {
+
+		Engine.resources.addLibraryItem( kind, name, item );
+		builtinLibraryKeys.add( `${kind}/${name}` );
+
+	}
+
+	for ( const { kind, name, item } of collectLibrary( libraryModules ) ) {
+
+		if ( builtinLibraryKeys.has( `${kind}/${name}` ) ) {
+
+			console.warn( `[Resources] library "${kind}/${name}" overrides the built-in one` );
+
+		}
+
+		Engine.resources.addLibraryItem( kind, name, item );
 
 	}
 

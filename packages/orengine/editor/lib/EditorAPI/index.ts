@@ -7,11 +7,31 @@ import { AddTextureCommand } from '../Commands/AddTextureCommand';
 import { CreateEntityCommand, CreateEntityOptions } from '../Commands/CreateEntityCommand';
 import { DeleteEntityCommand } from '../Commands/DeleteEntityCommand';
 import { DuplicateEntityCommand } from '../Commands/DuplicateEntityCommand';
+import { GroupCommand } from '../Commands/GroupCommand';
 import { RemoveComponentCommand } from '../Commands/RemoveComponentCommand';
 import { RemoveTextureCommand } from '../Commands/RemoveTextureCommand';
+import { ReparentEntityCommand } from '../Commands/ReparentEntityCommand';
 import { SetFieldCommand } from '../Commands/SetFieldCommand';
+import { buildCurveLinkSettings, buildDeleteKeys, buildInsertKeys, buildPasteCurve, buildSetCurves, buildUnlinkCurve, CurveLinkSettings, CurvePasteMode, KeyFrameElementRef, KeyFrameFieldRef, keyFrameTime } from '../KeyFrameField';
 
 import type { Editor } from '../Editor';
+
+// 自分か祖先のどれかが editorHidden か（Cloner の持ち場と複製）
+const isInEditorHidden = ( entity: MXP.Entity ) => {
+
+	let current: MXP.Entity | null = entity;
+
+	while ( current ) {
+
+		if ( current.editorHidden ) return true;
+
+		current = current.parent;
+
+	}
+
+	return false;
+
+};
 
 // beginEdit が返す編集の窓口。set は値を反映するだけで、commit した時点で開始時からの変化を undo 1回ぶんとして積む
 export interface FieldEdit {
@@ -92,23 +112,112 @@ export class EditorAPI {
 
 	}
 
-	public deleteEntity( entity: MXP.Entity ): void {
+	// 子ごと削除する。複数でも undo 1回ぶん
+	public deleteEntities( entities: MXP.Entity[] ): void {
 
-		this._commandManager.execute( new DeleteEntityCommand( entity ) );
+		const commands: DeleteEntityCommand[] = [];
+
+		for ( const entity of entities ) {
+
+			commands.push( new DeleteEntityCommand( entity ) );
+
+		}
+
+		this._commandManager.execute( new GroupCommand( commands ) );
 
 	}
 
-	// 子ごと複製して同じ親の下に置き、複製したエンティティを返す
-	public duplicateEntity( entity: MXP.Entity ): MXP.Entity {
+	// 子ごと複製してそれぞれ同じ親の下に置き、複製したエンティティを同じ並びで返す。複数でも undo 1回ぶん
+	public duplicateEntities( entities: MXP.Entity[] ): MXP.Entity[] {
 
-		const parent = entity.parent;
+		const commands: DuplicateEntityCommand[] = [];
 
-		if ( ! parent ) throw new Error( `Entity has no parent: ${entity.name}` );
+		for ( const entity of entities ) {
 
-		const cmd = new DuplicateEntityCommand( this._editor.engine, parent, entity );
-		this._commandManager.execute( cmd );
+			const parent = entity.parent;
 
-		return cmd.duplicatedEntity!;
+			if ( ! parent ) throw new Error( `Entity has no parent: ${entity.name}` );
+
+			commands.push( new DuplicateEntityCommand( this._editor.engine, parent, entity ) );
+
+		}
+
+		this._commandManager.execute( new GroupCommand( commands ) );
+
+		const duplicated: MXP.Entity[] = [];
+
+		for ( const command of commands ) {
+
+			duplicated.push( command.duplicatedEntity! );
+
+		}
+
+		return duplicated;
+
+	}
+
+	// entities を parent の子へ移す。見た目の位置は変えない（ワールド座標を保つ）。複数でも undo 1回ぶん。
+	// すでに parent の子のものは何もしない。移せないものが1つでもあれば何もせず Error を投げる
+	public reparentEntities( entities: MXP.Entity[], parent: MXP.Entity ): void {
+
+		const error = this.getReparentError( entities, parent );
+
+		if ( error ) throw new Error( error );
+
+		const commands: ReparentEntityCommand[] = [];
+
+		for ( const entity of entities ) {
+
+			if ( entity.parent === parent ) continue;
+
+			commands.push( new ReparentEntityCommand( entity, parent ) );
+
+		}
+
+		if ( commands.length === 0 ) return;
+
+		this._commandManager.execute( new GroupCommand( commands ), { merge: false } );
+
+	}
+
+	// entities を parent の子へ移せないときの理由。移せるなら null（Hierarchy のドラッグ中の表示と reparentEntities が同じ判定を使う）
+	public getReparentError( entities: MXP.Entity[], parent: MXP.Entity ): string | null {
+
+		const root = this._editor.engine.root;
+
+		if ( entities.length === 0 ) return "移すエンティティがありません";
+
+		if ( parent.getRootEntity() !== root ) return `${parent.name} はシーンの中にありません`;
+
+		// script 由来のエンティティの子はシーン JSON に保存されない（ProjectSerializer）ので、入れると保存で黙って消える
+		if ( parent.initiator === "script" ) return `${parent.name} はスクリプト（BLidge / glb 等）が生成したエンティティなので、子を入れられません`;
+
+		if ( isInEditorHidden( parent ) ) return `${parent.name} は Cloner の複製なので、子を入れられません`;
+
+		for ( const entity of entities ) {
+
+			if ( entity === root || ! entity.parent ) return "root は移せません";
+
+			if ( entity.getRootEntity() !== root ) return `${entity.name} はシーンの中にありません`;
+
+			// 生成したコンポーネントが持ち主なので、移しても保存されず、作り直しで元の場所に戻る
+			if ( entity.initiator !== "user" ) return `${entity.name} はスクリプト（BLidge / glb 等）が生成したエンティティなので移せません`;
+
+			if ( isInEditorHidden( entity ) ) return `${entity.name} は Cloner の複製なので移せません`;
+
+			let ancestor: MXP.Entity | null = parent;
+
+			while ( ancestor ) {
+
+				if ( ancestor === entity ) return `${entity.name} を自分自身か自分の子孫の下へは移せません`;
+
+				ancestor = ancestor.parent;
+
+			}
+
+		}
+
+		return null;
 
 	}
 
@@ -136,6 +245,76 @@ export class EditorAPI {
 		this._commandManager.execute(
 			new RemoveComponentCommand( entity, componentClass, component )
 		);
+
+	}
+
+	/*-------------------------------
+		KeyFrame
+	-------------------------------*/
+
+	// fields に今の時刻（timeline/fps のコマに揃えた時刻）でキーを打つ。初めて打つフィールドでは、
+	// Animation の追加・カーブの追加・リンクの追加までを undo 1回にまとめる。打てないフィールドがあれば何もせず Error を投げる
+	public insertKeys( fields: KeyFrameFieldRef[] ): void {
+
+		const engine = this._editor.engine;
+
+		this._commandManager.execute( buildInsertKeys( engine, fields, keyFrameTime( engine ) ), { merge: false } );
+
+	}
+
+	// fields の今の時刻のキーを消す。消すキーが無ければ何もしない
+	public deleteKeys( fields: KeyFrameFieldRef[] ): void {
+
+		const engine = this._editor.engine;
+		const command = buildDeleteKeys( engine, fields, keyFrameTime( engine ) );
+
+		if ( command ) {
+
+			this._commandManager.execute( command, { merge: false } );
+
+		}
+
+	}
+
+	// カーブの表を差し替える（タイムラインでのキーの削除・補間やハンドルの種類の変更・貼り付け）。
+	// キーが無くなったカーブを指すリンクも外し、undo 1回ぶんにまとめる。ドラッグで動かすときは beginEdit( engine, "curves" ) を使う
+	public setCurves( curves: MXP.CurveTable ): void {
+
+		this._commandManager.execute( buildSetCurves( this._editor.engine, curves ), { merge: false } );
+
+	}
+
+	// コピーしたカーブ（curveId）を要素に貼り付ける。link は同じカーブを共有し、duplicate は複製して独立させる。
+	// 初めてリンクを持つフィールドでは Animation の追加までを undo 1回にまとめる。貼り付けられなければ Error を投げる
+	public pasteCurve( ref: KeyFrameElementRef, curveId: string, mode: CurvePasteMode ): void {
+
+		const command = buildPasteCurve( this._editor.engine, ref, curveId, mode );
+
+		if ( command ) {
+
+			this._commandManager.execute( command, { merge: false } );
+
+		}
+
+	}
+
+	// 要素が共有しているカーブを複製して指し直し、ほかのリンクから切り離す
+	public unlinkCurve( ref: KeyFrameElementRef ): void {
+
+		this._commandManager.execute( buildUnlinkCurve( this._editor.engine, ref ), { merge: false } );
+
+	}
+
+	// 要素のリンクの倍率・足し算と、リンク先のカーブの名前をまとめて書き換える（undo 1回）
+	public setCurveLinkSettings( ref: KeyFrameElementRef, settings: CurveLinkSettings ): void {
+
+		const command = buildCurveLinkSettings( this._editor.engine, ref, settings );
+
+		if ( command ) {
+
+			this._commandManager.execute( command, { merge: false } );
+
+		}
 
 	}
 

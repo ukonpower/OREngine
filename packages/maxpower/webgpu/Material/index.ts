@@ -42,6 +42,13 @@ export interface MaterialParam {
 	// fsForward で refractionTexture を背後として読み、その上に先に描かれた forward も背後に含めたいとき true。
 	// 描く直前に forward パスを区切って写し直すので、そのぶん pass が増える
 	readsScene?: boolean;
+	// forward で背後と混ぜて描くか（既定 false）。false（不透明）は gBuffer の段で位置・法線・速度を先に書くので、
+	// SSR に映り、SSAO・DoF・モーションブラーでも deferred と同じ面として扱われる。
+	// true（透明）は SSR の反射にも、SSR が色を引く前フレームのシーンにも入らない
+	transparent?: boolean;
+	// 透明の forward で gBuffer の position / velocity も書くか（既定 true）。自前でボケ・ぶれを付ける半透明
+	// （雨の筋など）は false にして、DoF・モーションブラーが板の位置を面として扱わないようにする。不透明は常に書く
+	writeGBuffer?: boolean;
 	uniforms?: BSP.Uniforms;
 	// GPGPU出力。キーがWGSL上の変数名になり、宣言順で group2 の binding1.. に生える
 	storages?: { [name: string]: StorageSource };
@@ -68,6 +75,8 @@ export class Material implements MaterialContract {
 	public drawType: DrawType;
 	public renderOrder: number;
 	public readsScene: boolean;
+	public transparent: boolean;
+	public writeGBuffer: boolean;
 
 	public visibilityFlag: MaterialVisibility;
 
@@ -95,6 +104,8 @@ export class Material implements MaterialContract {
 		this.drawType = params.drawType || 'TRIANGLES';
 		this.renderOrder = params.renderOrder ?? 0;
 		this.readsScene = params.readsScene ?? false;
+		this.transparent = params.transparent ?? false;
+		this.writeGBuffer = params.writeGBuffer ?? true;
 
 		this.visibilityFlag = { shadowMap: false, deferred: false, forward: false, envMap: false };
 		this.setVisibility( params.phase || [ 'shadowMap', 'deferred' ] );

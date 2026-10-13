@@ -1,6 +1,10 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useRef } from 'react';
+
+import { trackPointerDrag } from 'uipower';
 
 import { useTimeline } from '../../hooks/useTimeline';
+import { useViewWheel } from '../../hooks/useViewWheel';
+import { dragZoomFactor, hasZoomModifier } from '../../lib/ViewGesture';
 
 import style from './index.module.scss';
 
@@ -23,55 +27,76 @@ export const TimelineControls: React.FC<{children?: React.ReactNode}> = ( props 
 
 	// pointer
 
+	// 押しているボタン。押している間は wheel での移動を止める
 	const pointerDownButtonRef = useRef<number | null>( null );
-	const pointerDownPosRef = useRef<[number, number] | null>( null );
-	const pointerDownCenterFrameRef = useRef<number | null>( null );
 
+	// 左ボタンで押している間、ポインタの位置の時刻に合わせる
 	const onPointerMove = useCallback( ( e: PointerEvent ) => {
 
 		const elmWidth = elmRef.current && elmRef.current.clientWidth || 1;
 
-		if ( pointerDownButtonRef.current == 0 ) {
+		if ( pointerDownButtonRef.current == 0 && setFrame && getFrameViewPort && elmBoundingRectRef.current ) {
 
-			if ( setFrame && getFrameViewPort && elmBoundingRectRef.current ) {
+			const pointerX = ( e.clientX - elmBoundingRectRef.current.left ) / elmWidth;
 
-				const pointerX = ( e.clientX - elmBoundingRectRef.current.left ) / elmWidth;
-
-				setFrame( getFrameViewPort( pointerX ) );
-
-			}
-
-		} else if ( pointerDownButtonRef.current == 1 ) {
-
-			const pos = [ e.clientX, e.clientY ];
-
-			if ( pointerDownPosRef.current && pointerDownCenterFrameRef.current ) {
-
-				const movement = - ( pos[ 0 ] - pointerDownPosRef.current[ 0 ] ) / elmWidth * viewPortRangeRef.current[ 0 ];
-
-				if ( setViewPortCenter ) {
-
-					setViewPortCenter( pointerDownCenterFrameRef.current + movement );
-
-				}
-
-			}
+			setFrame( getFrameViewPort( pointerX ) );
 
 		}
 
-	}, [ setFrame, getFrameViewPort, setViewPortCenter ] );
+	}, [ setFrame, getFrameViewPort ] );
+
+	// 中ボタンのドラッグで横にパンし、Ctrl（Cmd）なら横に拡大縮小する。ずれで動かすので、画面端で止まらないよう Pointer Lock を取る
+	const trackViewDrag = useCallback( ( e: React.PointerEvent<HTMLElement>, pointerX: number ) => {
+
+		const elmWidth = e.currentTarget.clientWidth || 1;
+		const startCenterFrame = ( viewPortRef.current[ 2 ] + viewPortRef.current[ 0 ] ) / 2;
+
+		// 拡大縮小しても動かない位置（幅に対する 0〜1）は押した位置
+		const zoomDrag = hasZoomModifier( e );
+		let lastDx = 0;
+
+		trackPointerDrag( e, {
+			lock: true,
+			onMove: ( dx ) => {
+
+				if ( zoomDrag ) {
+
+					zoom( dragZoomFactor( lastDx - dx ), pointerX );
+					lastDx = dx;
+
+					return;
+
+				}
+
+				setViewPortCenter( startCenterFrame - dx / elmWidth * viewPortRangeRef.current[ 0 ] );
+
+			},
+			onEnd: () => {
+
+				pointerDownButtonRef.current = null;
+
+			},
+		} );
+
+	}, [ zoom, setViewPortCenter ] );
 
 	const onPointerDown = useCallback( ( e: React.PointerEvent<HTMLElement> ) => {
 
 		pointerDownButtonRef.current = e.button;
-		pointerDownCenterFrameRef.current = ( viewPortRef.current[ 2 ] + viewPortRef.current[ 0 ] ) / 2;
-		pointerDownPosRef.current = [ e.clientX, e.clientY ];
 
 		elmBoundingRectRef.current = e.currentTarget.getBoundingClientRect();
 
 		const pointerX = ( e.clientX - elmBoundingRectRef.current.left ) / e.currentTarget.clientWidth;
 
-		if ( pointerDownButtonRef.current == 0 && setFrame && getFrameViewPort ) {
+		if ( e.button == 1 ) {
+
+			trackViewDrag( e, pointerX );
+
+			return;
+
+		}
+
+		if ( e.button == 0 && setFrame && getFrameViewPort ) {
 
 			setFrame( getFrameViewPort( pointerX ) );
 
@@ -81,77 +106,41 @@ export const TimelineControls: React.FC<{children?: React.ReactNode}> = ( props 
 
 		const onPointerUp = () => {
 
-			pointerDownPosRef.current = null;
 			pointerDownButtonRef.current = null;
-			pointerDownCenterFrameRef.current = null;
 			window.removeEventListener( 'pointermove', onPointerMove );
+			window.removeEventListener( "pointerup", onPointerUp );
 
 		};
 
 		window.addEventListener( "pointerup", onPointerUp );
 
-		return () => {
+	}, [ getFrameViewPort, setFrame, onPointerMove, trackViewDrag ] );
 
-			window.removeEventListener( "pointerup", onPointerUp );
-			window.removeEventListener( 'pointermove', onPointerMove );
+	// wheel。横（時刻）の軸だけを動かす。縦はカーブ表示・キー表示が同じ wheel を先に受けて動かす
 
-		};
-
-	}, [ getFrameViewPort, setFrame, onPointerMove ] );
-
-	// wheel
-
-	const onWheel = useCallback( ( e: WheelEvent ) => {
-
-		if ( pointerDownButtonRef.current !== null || ! zoom || ! scroll ) return;
+	useViewWheel( elmRef, ( gesture, e ) => {
 
 		e.preventDefault();
 
-		const width = e.target && ( e.target as HTMLElement ).clientWidth || 1;
-
-		const absY = Math.abs( e.deltaY );
-
-		if ( Math.abs( e.deltaX ) < absY ) {
-
-			if ( absY > 50 ) {
-
-					 zoom( e.deltaY < 0 ? 0.9 : 1.1 );
-
-			} else {
-
-				zoom( 1.0 + e.deltaY * 0.005 );
-
-			}
-
-		} else {
-
-			scroll( e.deltaX / width * 0.5 );
-
-		}
-
-	}, [ zoom, scroll ] );
-
-	useEffect( () => {
-
 		const elm = elmRef.current;
 
-		if ( elm ) {
+		if ( pointerDownButtonRef.current !== null || ! elm ) return;
 
-			elm.addEventListener( "wheel", onWheel, { passive: false } );
+		// キーの印の上でも同じ速さで動くよう、イベントの来た要素ではなくタイムライン全体の幅で割る
+		const rect = elm.getBoundingClientRect();
+		const width = Math.max( 1, rect.width );
+
+		if ( gesture.type == "pan" ) {
+
+			if ( gesture.x != 0 ) scroll( gesture.x / width );
+
+		} else if ( gesture.x != 1 ) {
+
+			zoom( gesture.x, ( e.clientX - rect.left ) / width );
 
 		}
 
-		return () => {
-
-			if ( elm ) {
-
-				elm.removeEventListener( "wheel", onWheel );
-
-			}
-
-		};
-
-	}, [ onWheel ] );
+	} );
 
 	if ( ! viewPort ) return null;
 

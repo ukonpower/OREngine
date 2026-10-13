@@ -1,7 +1,7 @@
 import * as MXP from 'maxpower';
 
 import { Engine } from '../../../core/Engine';
-import { Gizmo, GizmoMode } from '../Gizmo';
+import { Gizmo, GizmoMode, GizmoTarget } from '../Gizmo';
 import { RotateGizmo } from '../Gizmo/RotateGizmo';
 import { ScaleGizmo } from '../Gizmo/ScaleGizmo';
 import { TranslateGizmo } from '../Gizmo/TranslateGizmo';
@@ -68,7 +68,7 @@ export class GizmoManager {
 
 	}
 
-	public render( view: MXP.RenderViewContract, selectedEntity: MXP.Entity | null, cameraEntity: MXP.Entity | null, engine: Engine ) {
+	public render( view: MXP.RenderViewContract, target: GizmoTarget | null, cameraEntity: MXP.Entity | null, engine: Engine ) {
 
 		this._translateGizmo.entity.visible = false;
 		this._rotateGizmo.entity.visible = false;
@@ -76,7 +76,7 @@ export class GizmoManager {
 
 		if ( ! this._activeGizmo ) return;
 
-		this._activeGizmo.setTarget( selectedEntity || null, cameraEntity, this._orientation );
+		this._activeGizmo.setTarget( target, cameraEntity, this._orientation );
 
 		if ( ! this._activeGizmo.entity.visible ) return;
 

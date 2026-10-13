@@ -1,0 +1,15 @@
+.shared {
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: var(--or-space);
+	vertical-align: middle;
+	margin-left: var(--or-space);
+	color: var(--or-text-dim);
+	font-size: var(--or-font-xs);
+}
+
+.curve {
+	display: inline-flex;
+	align-items: center;
+	gap: calc(var(--or-space) * 0.5);
+}

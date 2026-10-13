@@ -2,17 +2,35 @@ import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
 import { Engine } from '../../../core/Engine';
-import { SetFieldCommand } from '../Commands/SetFieldCommand';
 import { EditorCamera } from '../EditorCamera';
-import { GizmoHandle, GizmoMode } from '../Gizmo';
+import { GizmoHandle } from '../Gizmo';
 import { GizmoManager } from '../GizmoManager';
 import { HelperManager, HelperVisibility } from '../HelperManager';
 import { EntityHelper } from '../Helpers/EntityHelper';
 import { clientToNDC, getContentRect } from '../PointerUtils';
+import { TransformTargets } from '../TransformTargets';
 
 import type { EditorAPI } from '../EditorAPI';
+import type { ModalTransformSelection } from '../ModalTransformHandler';
 
 type ClickCandidate = { entity: MXP.Entity, distance: number, type: 'helper' | 'mesh' };
+
+// 押したボタンの種類。選択はマウスの右とタッチ、ギズモ・オービットはマウスの左とタッチで受ける（Blender の Select with: Right 相当）
+type PointerButton = 'mouseLeft' | 'mouseRight' | 'touch';
+
+// 押したボタンを種類に振り分ける。マウスの中ボタン等、受けないボタンは null
+const getPointerButton = ( e: PointerEvent ): PointerButton | null => {
+
+	// ペンはタッチと同じく、押し当ててすぐ離したら選択する
+	if ( e.pointerType !== 'mouse' ) return 'touch';
+
+	if ( e.button === 0 ) return 'mouseLeft';
+
+	if ( e.button === 2 ) return 'mouseRight';
+
+	return null;
+
+};
 
 // ヒットエリアを外したクリックでもヘルパーを拾う画面上の許容半径（px）
 const HELPER_ASSIST_RADIUS_PX = 12;
@@ -28,13 +46,15 @@ export type PointerHandlerParam = {
 	gizmoManager: GizmoManager;
 	helperManager: HelperManager;
 	api: EditorAPI;
-	getSelectedEntityId: () => string | null;
+	// ギズモで動かす対象（祖先が選ばれているものを除いた選択とアクティブ）
+	getTransformSelection: () => ModalTransformSelection;
 	isEntitySelectable: ( entity: MXP.Entity ) => boolean;
 	// ギズモ・ヘルパーの実体は全ビューで共有なので、このビューで表示しているかは表示フラグで判定する
 	isGizmoVisible: () => boolean;
 	getHelperVisibility: () => HelperVisibility;
-	getGizmoMode: () => GizmoMode;
 	onSelectEntity: ( entity: MXP.Entity | null ) => void;
+	// Shift+右クリック。選択に足す・アクティブにする・外す（Blender の 3D ビューと同じ）
+	onToggleEntity: ( entity: MXP.Entity ) => void;
 	isModalActive: () => boolean;
 	onEscapeToEditorCamera: () => void;
 };
@@ -43,9 +63,10 @@ export class PointerHandler {
 
 	private _raycaster: MXP.Raycaster;
 	private _pointerDownPos: MTP.Vector | null;
+	private _pointerDownButton: PointerButton | null;
 	private _gizmoDragging: boolean;
-	private _gizmoDragStartValue: { position: number[], euler: number[], scale: number[] } | null;
-	private _hoveredTarget: 'gizmo' | 'helper' | 'mesh' | null;
+	// ギズモのドラッグで動かしている対象。ドラッグの開始時に作る
+	private _gizmoTargets: TransformTargets | null;
 	private _lastClickNDC: MTP.Vector | null;
 	private _lastClickCandidateUUIDs: string[];
 	private _lastClickCycleIndex: number;
@@ -59,21 +80,21 @@ export class PointerHandler {
 			gizmoManager,
 			helperManager,
 			api,
-			getSelectedEntityId,
+			getTransformSelection,
 			isEntitySelectable,
 			isGizmoVisible,
 			getHelperVisibility,
-			getGizmoMode,
 			onSelectEntity,
+			onToggleEntity,
 			isModalActive,
 			onEscapeToEditorCamera,
 		} = param;
 
 		this._raycaster = new MXP.Raycaster();
 		this._pointerDownPos = null;
+		this._pointerDownButton = null;
 		this._gizmoDragging = false;
-		this._gizmoDragStartValue = null;
-		this._hoveredTarget = null;
+		this._gizmoTargets = null;
 		this._lastClickNDC = null;
 		this._lastClickCandidateUUIDs = [];
 		this._lastClickCycleIndex = - 1;
@@ -186,6 +207,24 @@ export class PointerHandler {
 
 		};
 
+		// 複製（Cloner が実行時に作ったもの）に当たったら、その元になったテンプレート側のエンティティに読み替える。
+		// 複製の Mesh はコンポーネントが作った子に付いていることがあるので、親へたどって探す
+		const resolveCloneSource = ( entity: MXP.Entity ): MXP.Entity => {
+
+			let current: MXP.Entity | null = entity;
+
+			while ( current ) {
+
+				if ( current.cloneSource ) return current.cloneSource;
+
+				current = current.parent;
+
+			}
+
+			return entity;
+
+		};
+
 		// カーソル下の選択候補を「見えている順」で集める。
 		// 優先順位: 見えているヘルパー → カーソル近傍の未遮蔽ヘルパー → メッシュ手前順 → メッシュに隠れたヘルパー
 		const collectCandidates = ( ndc: MTP.Vector ): ClickCandidate[] => {
@@ -197,15 +236,19 @@ export class PointerHandler {
 			this._raycaster.setFromCamera( ndc, cameraEntity );
 
 			const meshCandidates: ClickCandidate[] = [];
+			const addedUUIDs = new Set<string>();
 
 			// 選択不可のメッシュは候補から外し、クリックを背後へ抜けさせる（firstMeshDistance にも含めない）
 			for ( const r of this._raycaster.intersectEntities( engine.root ) ) {
 
-				if ( r.entity.initiator !== 'god' && isEntitySelectable( r.entity ) ) {
+				const entity = resolveCloneSource( r.entity );
 
-					meshCandidates.push( { entity: r.entity, distance: r.distance, type: 'mesh' } );
+				if ( entity.initiator === 'god' ) continue;
+				if ( ! isEntitySelectable( entity ) ) continue;
+				if ( addedUUIDs.has( entity.uuid ) ) continue;
 
-				}
+				addedUUIDs.add( entity.uuid );
+				meshCandidates.push( { entity, distance: r.distance, type: 'mesh' } );
 
 			}
 
@@ -390,14 +433,16 @@ export class PointerHandler {
 
 			if ( isModalActive() ) return;
 
-			// 右クリック・中クリックでギズモドラッグや選択が走らないようにする
-			if ( e.pointerType === 'mouse' && e.button !== 0 ) return;
+			const button = getPointerButton( e );
 
-			// プレビュー中は編集操作を受けないが、ドラッグ離脱の判定に押下位置だけ追う
+			if ( ! button ) return;
+
+			// プレビュー中はギズモを掴ませず、クリック選択とドラッグ離脱の判定に押下位置だけ追う
 			if ( editorCamera.preview ) {
 
 				( e.target as HTMLElement ).setPointerCapture( e.pointerId );
 				this._pointerDownPos = new MTP.Vector( e.clientX, e.clientY );
+				this._pointerDownButton = button;
 				return;
 
 			}
@@ -406,6 +451,10 @@ export class PointerHandler {
 
 			( e.target as HTMLElement ).setPointerCapture( e.pointerId );
 			this._pointerDownPos = new MTP.Vector( e.clientX, e.clientY );
+			this._pointerDownButton = button;
+
+			// 右ボタンは選択専用なのでギズモを掴まない
+			if ( button === 'mouseRight' ) return;
 
 			if ( gizmoManager.activeGizmo && gizmoManager.activeGizmo.entity.visible && isGizmoVisible() ) {
 
@@ -418,28 +467,16 @@ export class PointerHandler {
 
 					const closestHit = pickGizmoHandle();
 
-					if ( closestHit ) {
+					const selection = getTransformSelection();
 
-						const selectedEntityId = getSelectedEntityId();
-						const selectedEntity = selectedEntityId
-							? engine.root.findEntityByUUID( selectedEntityId )
-							: null;
+					if ( closestHit && selection.entities.length > 0 ) {
 
-						if ( selectedEntity ) {
+						this._gizmoDragging = true;
+						editorCamera.orbitControls.enabled = false;
 
-							this._gizmoDragging = true;
-							editorCamera.orbitControls.enabled = false;
-							canvasElm.style.cursor = 'grabbing';
+						this._gizmoTargets = new TransformTargets( selection.entities, selection.active );
 
-							this._gizmoDragStartValue = {
-								position: selectedEntity.position.getElm( 'vec3' ) as number[],
-								euler: selectedEntity.euler.getElm( 'vec3' ) as number[],
-								scale: selectedEntity.scale.getElm( 'vec3' ) as number[],
-							};
-
-							gizmoManager.activeGizmo.startDrag( closestHit.handle, this._raycaster.ray, selectedEntity );
-
-						}
+						gizmoManager.activeGizmo.startDrag( closestHit.handle, this._raycaster.ray );
 
 					}
 
@@ -453,8 +490,11 @@ export class PointerHandler {
 
 			if ( isModalActive() ) return;
 
-			// シーンカメラ視点・プレビューのドラッグはエディタカメラへ抜けて、その視点から操作を続ける（Blenderのカメラビュー相当）
-			if ( ( editorCamera.preview || editorCamera.view === "camera" ) && this._pointerDownPos && ! this._gizmoDragging ) {
+			// シーンカメラ視点・プレビューのドラッグはエディタカメラへ抜けて、その視点から操作を続ける（Blenderのカメラビュー相当）。
+			// 抜けるのは続けてオービットさせるためなので、オービットしない右ドラッグでは抜けない
+			const isOrbitDrag = this._pointerDownButton !== 'mouseRight';
+
+			if ( ( editorCamera.preview || editorCamera.view === "camera" ) && this._pointerDownPos && isOrbitDrag && ! this._gizmoDragging ) {
 
 				const dragX = e.clientX - this._pointerDownPos.x;
 				const dragY = e.clientY - this._pointerDownPos.y;
@@ -468,12 +508,7 @@ export class PointerHandler {
 			}
 
 			// プレビュー中は編集操作を受けない
-			if ( editorCamera.preview ) {
-
-				canvasElm.style.cursor = '';
-				return;
-
-			}
+			if ( editorCamera.preview ) return;
 
 			const ndc = clientToNDC( canvasElm, e.clientX, e.clientY );
 			const cameraEntity = getCameraEntity();
@@ -484,45 +519,22 @@ export class PointerHandler {
 
 			if ( this._gizmoDragging ) {
 
-				const selectedEntityId = getSelectedEntityId();
-				const selectedEntity = selectedEntityId
-					? engine.root.findEntityByUUID( selectedEntityId )
-					: null;
+				const targets = this._gizmoTargets;
+				const result = gizmoManager.activeGizmo!.updateDrag( this._raycaster.ray );
 
-				if ( ! selectedEntity ) return;
+				if ( ! targets || ! result ) return;
 
-				const result = gizmoManager.activeGizmo!.updateDrag( this._raycaster.ray, selectedEntity );
+				if ( result.translate ) {
 
-				if ( result ) {
+					targets.translate( result.translate );
 
-					if ( result.position ) {
+				} else if ( result.rotate ) {
 
-						const localPos = result.position.clone();
+					targets.rotate( result.rotate );
 
-						if ( selectedEntity.parent ) {
+				} else if ( result.scale ) {
 
-							// 位置ベクトルとして親ローカルへ変換する（applyMatrix4 は w=0 の方向変換になり平行移動が落ちる）
-							localPos.applyMatrix4AsPosition( selectedEntity.parent.matrixWorld.clone().inverse() );
-
-						}
-
-						selectedEntity.position.copy( localPos );
-
-					}
-
-					if ( result.euler ) {
-
-						selectedEntity.euler.set( result.euler.x, result.euler.y, result.euler.z );
-
-					}
-
-					if ( result.scale ) {
-
-						selectedEntity.scale.set( result.scale.x, result.scale.y, result.scale.z );
-
-					}
-
-					selectedEntity.updateMatrix( true );
+					targets.scale( result.scale );
 
 				}
 
@@ -530,49 +542,14 @@ export class PointerHandler {
 
 			}
 
-			// hover detection
-			let newHover: 'gizmo' | 'helper' | 'mesh' | null = null;
-
+			// ホバーで反応させるのはギズモのハンドルだけ。メッシュ・ヘルパーは全メッシュの三角形を総当たりしないと当たりが分からず、
+			// pointermove ごとに走らせると重いので、クリックで選ぶときだけ判定する
 			if ( gizmoManager.activeGizmo && gizmoManager.activeGizmo.entity.visible && isGizmoVisible() ) {
 
 				const gizmoHit = pickGizmoHandle();
 
-				if ( gizmoHit ) newHover = 'gizmo';
-
 				// 掴めるハンドルを掴む前に光らせる（Blenderのホバーハイライト相当）
 				gizmoManager.activeGizmo.setHover( gizmoHit ? gizmoHit.handle : null );
-
-			}
-
-			if ( ! newHover ) {
-
-				const candidates = collectCandidates( ndc );
-
-				if ( candidates.length > 0 ) {
-
-					newHover = candidates[ 0 ].type;
-
-				}
-
-			}
-
-			if ( newHover !== this._hoveredTarget ) {
-
-				this._hoveredTarget = newHover;
-
-				if ( newHover === 'gizmo' ) {
-
-					canvasElm.style.cursor = 'grab';
-
-				} else if ( newHover === 'helper' || newHover === 'mesh' ) {
-
-					canvasElm.style.cursor = 'pointer';
-
-				} else {
-
-					canvasElm.style.cursor = '';
-
-				}
 
 			}
 
@@ -582,14 +559,6 @@ export class PointerHandler {
 
 			if ( isModalActive() ) return;
 
-			// プレビュー中は編集操作を受けない
-			if ( editorCamera.preview ) {
-
-				this._pointerDownPos = null;
-				return;
-
-			}
-
 			if ( this._gizmoDragging ) {
 
 				gizmoManager.activeGizmo!.endDrag();
@@ -597,31 +566,22 @@ export class PointerHandler {
 
 				// エディタカメラで見ているときだけオービットを有効へ戻す
 				editorCamera.orbitControls.enabled = editorCamera.usingEditorCamera;
-				canvasElm.style.cursor = this._hoveredTarget === 'gizmo' ? 'grab' : '';
 
-				const selectedEntityId = getSelectedEntityId();
-				const selectedEntity = selectedEntityId
-					? engine.root.findEntityByUUID( selectedEntityId )
-					: null;
+				if ( this._gizmoTargets ) {
 
-				if ( selectedEntity && this._gizmoDragStartValue ) {
+					const command = this._gizmoTargets.buildCommand();
 
-					const gizmoMode = getGizmoMode();
-					const fieldName = gizmoMode === 'translate' ? 'position'
-						: gizmoMode === 'rotate' ? 'euler'
-							: 'scale';
+					if ( command ) {
 
-					const oldValue = this._gizmoDragStartValue[ fieldName ];
-					const newValue = selectedEntity[ fieldName ].getElm( 'vec3' ) as number[];
+						api.commandManager.execute( command, { merge: false } );
 
-					api.commandManager.execute(
-						new SetFieldCommand( selectedEntity, fieldName, oldValue, newValue )
-					);
+					}
 
 				}
 
-				this._gizmoDragStartValue = null;
+				this._gizmoTargets = null;
 				this._pointerDownPos = null;
+				this._pointerDownButton = null;
 
 				return;
 
@@ -632,15 +592,33 @@ export class PointerHandler {
 			const dx = e.clientX - this._pointerDownPos.x;
 			const dy = e.clientY - this._pointerDownPos.y;
 			const dist = Math.sqrt( dx * dx + dy * dy );
+			const button = this._pointerDownButton;
 			this._pointerDownPos = null;
+			this._pointerDownButton = null;
 
 			if ( dist > 5 ) return;
+
+			// 左ボタンはオービットとギズモに使い、クリックしても選択しない
+			if ( button === 'mouseLeft' ) return;
 
 			const ndc = clientToNDC( canvasElm, e.clientX, e.clientY );
 
 			if ( ! getCameraEntity() ) return;
 
 			const validCandidates = collectCandidates( ndc );
+
+			// Shift+右クリックは Blender と同じく、何もない所では選択を変えず、当たったものは巡回せず手前のものを足し引きする
+			if ( e.shiftKey && button === 'mouseRight' ) {
+
+				if ( validCandidates.length > 0 ) {
+
+					onToggleEntity( validCandidates[ 0 ].entity );
+
+				}
+
+				return;
+
+			}
 
 			if ( validCandidates.length === 0 ) {
 
@@ -679,24 +657,15 @@ export class PointerHandler {
 
 		};
 
-		// 右クリックはビューポート操作に使うのでブラウザのメニューを出さない
-		const onContextMenu = ( e: MouseEvent ) => {
-
-			e.preventDefault();
-
-		};
-
 		canvasElm.addEventListener( "pointerdown", onPointerDown );
 		canvasElm.addEventListener( "pointermove", onPointerMove );
 		canvasElm.addEventListener( "pointerup", onPointerUp );
-		canvasElm.addEventListener( "contextmenu", onContextMenu );
 
 		this._disposeListeners = () => {
 
 			canvasElm.removeEventListener( "pointerdown", onPointerDown );
 			canvasElm.removeEventListener( "pointermove", onPointerMove );
 			canvasElm.removeEventListener( "pointerup", onPointerUp );
-			canvasElm.removeEventListener( "contextmenu", onContextMenu );
 
 		};
 

@@ -1,6 +1,8 @@
 import * as MXP from 'maxpower';
 
+import { Animation } from '../../../../builtin/Components/Utility/Animation';
 import { Engine } from '../../../../core/Engine';
+import { getAnimatedTransformFields } from '../../KeyFrameField';
 import { AgentCommandError, AgentCommandInput, requireArg } from '../Command';
 import { componentName, entityPath, resolveEntity, resolveList } from '../EntityQuery';
 
@@ -15,7 +17,7 @@ import type { AgentCommandContext, AgentCommandTable } from '../Command';
 -------------------------------*/
 
 // エンティティに付いているコンポーネントを、登録名か uuid で1つ引く
-const resolveAttachedComponent = ( entity: MXP.Entity, spec: string ) => {
+export const resolveAttachedComponent = ( entity: MXP.Entity, spec: string ) => {
 
 	const names: string[] = [];
 
@@ -49,7 +51,7 @@ const assertEditableEntity = ( entity: MXP.Entity, action: string ) => {
 };
 
 // user が付けたもの以外（コンポーネントが内部で足したもの等）はシーン JSON に載らない。GUI でも編集不可
-const assertEditableComponent = ( component: MXP.Component, action: string ) => {
+export const assertEditableComponent = ( component: MXP.Component, action: string ) => {
 
 	if ( component.initiator !== 'user' ) {
 
@@ -312,9 +314,46 @@ const removeEntity = ( ctx: AgentCommandContext, input: AgentCommandInput ) => {
 
 	const path = entityPath( entity );
 
-	ctx.editor.api.deleteEntity( entity );
+	ctx.editor.api.deleteEntities( [ entity ] );
 
 	return { uuid: entity.uuid, path };
+
+};
+
+const REPARENT_USAGE = 'reparent <entity> <parent>';
+
+// 親を付け替える（GUI の Hierarchy のドラッグ・Ctrl+P と同じ）。見た目の位置は変えず、新しい親から見たローカルの値に置き直す。
+// 移した先の兄弟と名前がぶつかれば Name.001 のように採番されるので、新しいパスを返す
+const reparent = ( ctx: AgentCommandContext, input: AgentCommandInput ) => {
+
+	const entity = resolveEntity( ctx.engine, requireArg( input, 0, REPARENT_USAGE ) );
+	const parent = resolveEntity( ctx.engine, requireArg( input, 1, REPARENT_USAGE ) );
+
+	try {
+
+		ctx.editor.api.reparentEntities( [ entity ], parent );
+
+	} catch ( e ) {
+
+		throw new AgentCommandError( ( e as Error ).message );
+
+	}
+
+	const result: { uuid: string, path: string, parent: string, warning?: string } = {
+		uuid: entity.uuid,
+		path: entityPath( entity ),
+		parent: entityPath( parent ),
+	};
+
+	const animated = getAnimatedTransformFields( entity );
+
+	if ( animated.length > 0 ) {
+
+		result.warning = `${animated.join( ' / ' )} にキーが打たれているので、時刻が変わるとキーの値に戻ります（ワールド座標は保たれません）`;
+
+	}
+
+	return result;
 
 };
 
@@ -403,6 +442,13 @@ const set = ( ctx: AgentCommandContext, input: AgentCommandInput ) => {
 	const path = requireArg( input, pathIndex, SET_USAGE );
 	const raw = requireArg( input, pathIndex + 1, SET_USAGE );
 
+	// links は検証の無い2つ目の経路になる（存在しないカーブ ID・要素数の合わないリンクが通り、実行時に黙って無視される）ので書かせない
+	if ( target instanceof Animation && path === 'links' ) {
+
+		throw new AgentCommandError( 'Animation の links は set では書き換えられません。キーは key-insert / key-delete、カーブの共有は curve-paste / curve-unlink / curve-link-settings で編集します' );
+
+	}
+
 	const paths = writablePaths( target );
 
 	if ( ! paths.includes( path ) ) {
@@ -462,6 +508,7 @@ const redo = ( ctx: AgentCommandContext ) => {
 export const writeCommands: AgentCommandTable = {
 	'add-entity': addEntity,
 	'remove-entity': removeEntity,
+	reparent,
 	'add-component': addComponent,
 	'remove-component': removeComponent,
 	set,
