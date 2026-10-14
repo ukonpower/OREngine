@@ -14,6 +14,8 @@ const SKIP_DIRS = new Set( [ 'node_modules', 'dist', 'tmp', '.git' ] );
 
 export interface ShaderBuilderOptions {
 	scanDirs: string[];
+	// player ビルド用。シェーダー文字列をバンドル先頭の配列1つにまとめて出す（「シェーダーの集約」の節）
+	groupShaders?: boolean;
 }
 
 /*-------------------------------
@@ -199,6 +201,69 @@ const extractUniformStructFieldNames = ( sources: Iterable<string> ) => {
 };
 
 /*-------------------------------
+	シェーダーの集約（player ビルド）
+-------------------------------*/
+
+// compeko の deflate は 32KB より前を参照できないため、各モジュールの位置に散らばったシェーダーは
+// 共通部品（include したモジュール）の重複が取れない。player ビルドではシェーダーを1か所に並べて重複を近づける。
+// 仮想モジュールの named export に集めても、terser が1回しか使わない定数を使用箇所へ展開し直して散らばるため、
+// 各シェーダーモジュールはプレースホルダーを返し、tree-shaking 後のチャンクで配列の参照に置き換える
+const PLACEHOLDER_PATTERN = /"__OR_SHADER_(\d+)__"/g;
+
+const shaderPlaceholder = ( index: number ) => `__OR_SHADER_${index}__`;
+
+const compareText = ( a: string, b: string ) => {
+
+	if ( a < b ) return - 1;
+	if ( a > b ) return 1;
+
+	return 0;
+
+};
+
+// ファイル名順に並べる。packed で import 順・パス順・中身順・大きさ順と比べて最も小さかった。
+// 同じ系統のパス（dofBlur / dofBokeh …）や、コンポーネントごとの main.fs 同士が隣り合う
+const compareShaderFiles = ( a: string, b: string ) => {
+
+	return compareText( path.basename( a ), path.basename( b ) ) || compareText( a, b );
+
+};
+
+// チャンク中のプレースホルダーを、チャンクの先頭に置いたシェーダーの配列の参照に置き換える
+const groupShadersInChunk = ( code: string, batch: Map<string, string> ) => {
+
+	const files = [ ...batch.keys() ];
+	const used = new Set<string>();
+
+	for ( const match of code.matchAll( PLACEHOLDER_PATTERN ) ) {
+
+		used.add( files[ Number( match[ 1 ] ) ] );
+
+	}
+
+	if ( used.size === 0 ) return null;
+
+	const ordered = [ ...used ].sort( compareShaderFiles );
+	const shaders = ordered.map( ( file ) => batch.get( file ) );
+
+	const replaced = code.replace( PLACEHOLDER_PATTERN, ( _, index: string ) => {
+
+		return `__orShaders[${ordered.indexOf( files[ Number( index ) ] )}]`;
+
+	} );
+
+	// rollup が引用符を変えて出力した等で置き換え損ねると、シェーダーの代わりにプレースホルダーが実行時に渡ってしまう
+	if ( replaced.includes( '__OR_SHADER_' ) ) {
+
+		throw new Error( 'ShaderBuilder: シェーダーのプレースホルダーを置き換えられませんでした' );
+
+	}
+
+	return `const __orShaders = ${JSON.stringify( shaders )};\n${replaced}`;
+
+};
+
+/*-------------------------------
 	プラグイン本体
 -------------------------------*/
 
@@ -359,6 +424,18 @@ export const ShaderBuilder = ( options: ShaderBuilderOptions ): Plugin => {
 
 		},
 
+		async renderChunk( code ) {
+
+			if ( ! options.groupShaders || ! batchPromise ) return null;
+
+			const grouped = groupShadersInChunk( code, await batchPromise );
+
+			if ( grouped === null ) return null;
+
+			return { code: grouped, map: null };
+
+		},
+
 		async transform( code: string, id: string ) {
 
 			if ( ! filter( id ) ) return;
@@ -389,6 +466,17 @@ export const ShaderBuilder = ( options: ShaderBuilderOptions ): Plugin => {
 
 				return {
 					code: `export default ${JSON.stringify( await composeShader( code ) )};`,
+					map: { mappings: '' }
+				};
+
+			}
+
+			if ( options.groupShaders ) {
+
+				const placeholder = shaderPlaceholder( [ ...batch.keys() ].indexOf( filePath ) );
+
+				return {
+					code: `export default ${JSON.stringify( placeholder )};`,
 					map: { mappings: '' }
 				};
 

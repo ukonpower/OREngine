@@ -271,7 +271,7 @@ export const createPlayerConfig = ( opts: PlayerConfigOptions ): UserConfig => {
 			},
 		},
 		plugins: [
-			ShaderBuilder( { scanDirs: [ orengineRoot, opts.projectDir ] } ),
+			ShaderBuilder( { scanDirs: [ orengineRoot, opts.projectDir ], groupShaders: true } ),
 			TexLoader(),
 			WgslLoader( {
 				moduleDirs: wgslModuleDirs( opts.projectDir ),
