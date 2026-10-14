@@ -34,11 +34,17 @@ export const KeyChannelList = () => {
 				// カーブ表示では、線と同じ色で要素の行を示す
 				if ( mode == "curves" && channel.element !== null ) labelColor = curveColor( channel.element );
 
+				let title: string | undefined = undefined;
+
+				if ( channel.readOnly ) title = "Blender keyframes (edit in Blender)";
+
 				return <div
 					key={channel.id}
 					className={style.row}
 					data-depth={channel.depth}
 					data-active={mode == "curves" && channel.id == activeChannelId}
+					data-readonly={channel.readOnly}
+					title={title}
 					onClick={() => setActiveChannelId( channel.id )}
 				>
 					<span className={style.toggle}>

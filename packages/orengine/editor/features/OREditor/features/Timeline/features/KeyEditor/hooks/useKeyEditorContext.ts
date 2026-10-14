@@ -9,7 +9,9 @@ import {
 	countCurveUses,
 	deleteKeys,
 	distributeKeys,
+	getBLidgeLinks,
 	getLinks,
+	isBLidgeCurve,
 	keyFrameTime,
 	pasteKeys,
 	PointTransformModal,
@@ -100,14 +102,32 @@ const sceneSignature = ( editor: Editor ) => {
 
 	editor.engine.root.traverseEditable( ( entity ) => {
 
-		const links = getLinks( entity );
-
 		// Animation の無いエンティティは毎回新しい空のオブジェクトが返るので入れない
-		if ( Object.keys( links ).length > 0 ) signature.push( links );
+		for ( const links of [ getLinks( entity ), getBLidgeLinks( entity ) ] ) {
+
+			if ( Object.keys( links ).length > 0 ) signature.push( links );
+
+		}
 
 	} );
 
 	return signature;
+
+};
+
+// Blender のカーブのキー・ハンドルを除いた選択。Blender で付けたキーフレームは Blender 側でしか編集させないので選ばせない
+// （選べなければ、選択を対象にするキーの編集はどれも届かない）
+const editableSelection = ( selection: KeySelection ) => {
+
+	const result: KeySelection = new Set();
+
+	for ( const ref of selection ) {
+
+		if ( ! isBLidgeCurve( parseRef( ref ).curveId ) ) result.add( ref );
+
+	}
+
+	return result;
 
 };
 
@@ -209,8 +229,10 @@ export const useKeyEditorContext = () => {
 	const [ boxSelecting, setBoxSelecting ] = useState( false );
 
 	// 選択とアクティブのキーを差し替える。nextActive を省くと今のアクティブのまま。
-	// キーの番号が変わる編集では、呼ぶ側が新しい番号のアクティブを渡す。選択に入っていないアクティブは外す
-	const select = useCallback( ( next: KeySelection, nextActive: string | null = activeRef.current ) => {
+	// キーの番号が変わる編集では、呼ぶ側が新しい番号のアクティブを渡す。選択に入っていないアクティブは外す。Blender のカーブのキーは選ばない
+	const select = useCallback( ( nextSelection: KeySelection, nextActive: string | null = activeRef.current ) => {
+
+		const next = editableSelection( nextSelection );
 
 		let resolved = nextActive;
 
@@ -722,7 +744,7 @@ export const useKeyEditorContext = () => {
 
 			for ( const channel of channels ) {
 
-				if ( channel.leaf && channel.id == entry.channelId ) target = channel;
+				if ( channel.leaf && ! channel.readOnly && channel.id == entry.channelId ) target = channel;
 
 			}
 

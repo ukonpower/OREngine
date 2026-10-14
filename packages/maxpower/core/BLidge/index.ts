@@ -1,11 +1,9 @@
 import { EventEmitter } from 'basepower';
 import * as MTP from 'mathpower';
 
-import { FCurve } from '../Animation/FCurve';
-import { FCurveGroup } from '../Animation/FCurveGroup';
-import { decodeKeyFrames, KeyFrameData } from '../Animation/KeyFrameDecoder';
+import { KeyFrameData, scaleKeyFrameTimes } from '../Animation/KeyFrameDecoder';
 
-import type { EngineContract } from '../Contracts/EngineContract';
+import type { CurveTable, EngineContract } from '../Contracts/EngineContract';
 import type { GLTF, GLTFLoaderContract } from '../Contracts/GLTFLoaderContract';
 
 
@@ -98,11 +96,21 @@ export type BLidgeAnimationAccessor = { [key: string]: number }
 
 export type BLidgeCurveAxis = 'x' | 'y' | 'z' | 'w'
 
-// キー列の形式とデコーダはシーンのカーブの表と共有している（Animation/KeyFrameDecoder）
+// キー列の形式はシーンのカーブの表と同じ（Animation/KeyFrameDecoder）。時刻の単位だけが Blender のフレームで違う
 export type BLidgeCurveParam = {
 	k: KeyFrameData[];
 	axis: BLidgeCurveAxis
 }
+
+// アニメーション1つ（position / rotation / color や uniform 1つ）が使うカーブの、シーンのカーブの表での ID。
+// 軸の番号（x, y, z, w = 0〜3。数値配列のフィールドの要素の番号）で引き、カーブの無い軸は undefined。
+// 軸の名前をキーにしないのは、player の terser がオブジェクトのキーを改名し、JSON から来た軸の名前と食い違うため
+export type BLidgeAnimationCurves = ( string | undefined )[];
+
+const AXES: BLidgeCurveAxis[] = [ 'x', 'y', 'z', 'w' ];
+
+// BLidge のカーブをシーンのカーブの表へ入れるときの ID の頭。エディタはこれで始まるカーブを Blender 側の持ち物として編集させない
+export const BLIDGE_CURVE_PREFIX = "blidge:";
 
 // message
 
@@ -172,7 +180,10 @@ export class BLidge extends EventEmitter {
 	// animation
 
 	public nodes: BLidgeNode[];
-	public curveGroups: FCurveGroup[];
+	// シーンのカーブの表に入れるカーブ。時刻はシーンの表と同じ秒×60 に直してある
+	public curves: CurveTable;
+	// BLidgeNode の animations / uniforms の番号で引く
+	public animations: BLidgeAnimationCurves[];
 	public root: BLidgeNode | null;
 
 	// gltf
@@ -191,7 +202,8 @@ export class BLidge extends EventEmitter {
 
 		this.root = null;
 		this.nodes = [];
-		this.curveGroups = [];
+		this.curves = {};
+		this.animations = [];
 
 		this.currentScene = null;
 
@@ -322,32 +334,34 @@ export class BLidge extends EventEmitter {
 		this.frame.end = data.frame.end;
 		this.frame.fps = data.frame.fps;
 
-		this.curveGroups = [];
-		this.nodes = [];
+		// fcurves: 複数のアニメーションから同じ番号で参照されるので、番号をそのまま ID にして共有させる。
+		// キーの時刻は Blender のフレームなので、Animation が評価する秒×60 に直す
 
-		// fcurves: 複数のアニメーションから同じ番号で参照されるので、先に1回ずつ作っておく
+		const timeScale = 60 / data.frame.fps;
 
-		const curves: FCurve[] = [];
+		this.curves = {};
 
-		for ( const fcurveData of data.fcurves ) {
+		for ( let i = 0; i < data.fcurves.length; i ++ ) {
 
-			curves.push( new FCurve( decodeKeyFrames( fcurveData.k ) ) );
+			this.curves[ BLIDGE_CURVE_PREFIX + i ] = { k: scaleKeyFrameTimes( data.fcurves[ i ].k, timeScale ) };
 
 		}
 
 		// actions
 
-		for ( let i = 0; i < data.animations.length; i ++ ) {
+		this.animations = [];
 
-			const fcurveGroup = new FCurveGroup( String( i ) );
+		for ( const fcurveIndices of data.animations ) {
 
-			for ( const fcurveIndex of data.animations[ i ] ) {
+			const animation: BLidgeAnimationCurves = [];
 
-				fcurveGroup.setFCurve( curves[ fcurveIndex ], data.fcurves[ fcurveIndex ].axis );
+			for ( const fcurveIndex of fcurveIndices ) {
+
+				animation[ AXES.indexOf( data.fcurves[ fcurveIndex ].axis ) ] = BLIDGE_CURVE_PREFIX + fcurveIndex;
 
 			}
 
-			this.curveGroups.push( fcurveGroup );
+			this.animations.push( animation );
 
 		}
 
@@ -463,12 +477,6 @@ export class BLidge extends EventEmitter {
 	/*-------------------------------
 		API
 	-------------------------------*/
-
-	public getCurveGroup( index: number ) {
-
-		return this.curveGroups[ index ];
-
-	}
 
 	public setFrame( frame: number ) {
 

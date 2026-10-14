@@ -3,7 +3,7 @@
 export { attachAgentBridge } from './AgentBridge';
 export { Editor } from './Editor';
 export { applyHandleOffsets, decodeCurve, deleteKeys, distributeKeys, KEYFRAME_HANDLE_TYPES, pasteKeys, readHandleOffsets, setHandleType, setInterpolation, straightenKeys, transformKeys } from './KeyFrameCurve';
-export { countCurveUses, getCurveLinkInfo, getKeyFrameElementCount, getKeyFrameState, getLinks, getSharedCurves, isKeyFrameField, keyFrameKindOf, keyFrameTime, snapKeyFrameTime } from './KeyFrameField';
+export { countCurveUses, getBLidgeLinks, getCurveLinkInfo, getKeyFrameElementCount, getKeyFrameState, getLinks, getSharedCurves, isBLidgeCurve, isKeyFrameField, keyFrameKindOf, keyFrameTime, snapKeyFrameTime } from './KeyFrameField';
 export { BoxSelectWait, boxSelection, isAllSelected, pressSelection } from './PointSelection';
 export { PointTransformModal } from './PointTransformModal';
 

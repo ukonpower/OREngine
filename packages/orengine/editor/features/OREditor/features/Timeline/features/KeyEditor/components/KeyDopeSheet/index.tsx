@@ -74,7 +74,7 @@ export const KeyDopeSheet = () => {
 
 				const event = channel.kind == "event";
 
-				return <div key={channel.id} className={style.row} data-depth={channel.depth}>
+				return <div key={channel.id} className={style.row} data-depth={channel.depth} data-readonly={channel.readOnly}>
 					{buildMarks( curves, channel.curveIds ).map( ( mark ) => {
 
 						const position = ( mark.frame - viewPort[ 0 ] ) / range;

@@ -1,8 +1,8 @@
 import * as BSP from 'basepower';
+import * as MTP from 'mathpower';
 
-import { FCurveGroup } from '../../Animation/FCurveGroup';
 import { BLidge, BLidgeNode, BLidgeLightParam, BLidgeCameraParam } from "../../BLidge";
-import { Component, ComponentParams, ComponentUpdateEvent } from "../../Component";
+import { Component, ComponentParams } from "../../Component";
 import { CubeGeometry } from '../../Geometries/CubeGeometry';
 import { CylinderGeometry } from '../../Geometries/CylinderGeometry';
 import { PlaneGeometry } from '../../Geometries/PlaneGeometry';
@@ -14,27 +14,25 @@ import { Mesh } from '../Mesh';
 
 import type { SerializeField } from '../../Serializable';
 
+// BLidge のノード1つぶんの初期状態（変形・形状・ライト・カメラ）をエンティティに入れる。
+// アニメーションは評価しない（BLidgeClient がシーンのカーブの表と Animation のリンクへ流し込む）
 export class BLidger extends Component {
 
 	public node: BLidgeNode;
+	// euler の x に足す角度。Blender のカメラは -Z を向くので、Y-up の前向きに合わせる
 	public rotationOffsetX: number;
-	public animations: Map<string, FCurveGroup>;
+	// Blender のカスタムプロパティの uniform（4fv）。値は uniforms/<名前> のフィールドから Animation が入れる。
+	// 値の Vector は入れ替えないので、マテリアルの uniforms へ写せばそのまま追従する
 	public uniforms: BSP.Uniforms;
-	public uniformCurves: Map<string, FCurveGroup>;
-	public transformAutoUpdate: boolean;
 
 	private _blidge: BLidge;
-	private _lightComponent?: Light;
 
 	constructor( params: ComponentParams<{blidge: BLidge, node: BLidgeNode}> ) {
 
 		super( params );
 
 		this.rotationOffsetX = 0;
-		this.animations = new Map();
 		this.uniforms = {};
-		this.uniformCurves = new Map();
-		this.transformAutoUpdate = true;
 		this._blidge = params.args.blidge;
 		this.node = params.args.node;
 
@@ -46,38 +44,21 @@ export class BLidger extends Component {
 
 		}
 
-		// animations
-
-		const animationCurveKeys = Object.keys( this.node.animations );
-
-		for ( let i = 0; i < animationCurveKeys.length; i ++ ) {
-
-			const name = animationCurveKeys[ i ];
-
-			this.animations.set( name, this._blidge.getCurveGroup( this.node.animations[ name ] ) );
-
-		}
-
 		// uniforms
 
-		const uniformCurveKeys = Object.keys( this.node.uniforms );
+		for ( const name of Object.keys( this.node.uniforms ) ) {
 
-		for ( let i = 0; i < uniformCurveKeys.length; i ++ ) {
+			const value = new MTP.Vector();
 
-			const name = uniformCurveKeys[ i ];
-			const accessor = this.node.uniforms[ name ];
-			const curve = this._blidge.curveGroups[ accessor ];
+			this.uniforms[ name ] = {
+				type: '4fv',
+				value
+			};
 
-			if ( curve ) {
-
-				this.uniformCurves.set( name, curve );
-
-				this.uniforms[ name ] = {
-					type: '4fv',
-					value: curve.value
-				};
-
-			}
+			this.field( "uniforms/" + name, () => value.getElm( "vec4" ), ( v: number[] ) => value.setFromArray( v ), {
+				noExport: true,
+				readOnly: true,
+			} );
 
 		}
 
@@ -89,15 +70,11 @@ export class BLidger extends Component {
 
 		entity.position.set( this.node.position[ 0 ], this.node.position[ 1 ], this.node.position[ 2 ] );
 
-		entity.quaternion.setFromEuler( {
-			x: this.node.rotation[ 0 ] + this.rotationOffsetX,
-			y: this.node.rotation[ 1 ],
-			z: this.node.rotation[ 2 ],
-		}, 'YZX' );
-
+		// Blender の回転は YZX の順のオイラー角で来る。XYZ へ直すと軸ごとのカーブのリンクで表せないので、euler の順のほうを合わせる
+		entity.euler.order = 'YZX';
+		entity.euler.set( this.node.rotation[ 0 ] + this.rotationOffsetX, this.node.rotation[ 1 ], this.node.rotation[ 2 ] );
+		entity.quaternion.setFromEuler( entity.euler );
 		entity.quaternion.updated = false;
-
-		entity.euler.setFromQuaternion( entity.quaternion );
 
 		entity.scale.set( this.node.scale[ 0 ], this.node.scale[ 1 ], this.node.scale[ 2 ] );
 
@@ -223,7 +200,7 @@ export class BLidger extends Component {
 
 			const lightParam = this.node.param as BLidgeLightParam;
 
-			this._lightComponent = entity.addComponent( Light );
+			const light = entity.addComponent( Light );
 
 			// BLidge の distance（Blender のカスタム距離＝光を切る距離）は Light.distance（シャドウカメラの far）と意味が違うので渡さない
 			const lightProps: SerializeField = {
@@ -240,7 +217,7 @@ export class BLidger extends Component {
 
 			}
 
-			this._lightComponent.deserialize( lightProps );
+			light.deserialize( lightProps );
 
 		}
 
@@ -263,158 +240,6 @@ export class BLidger extends Component {
 			} );
 
 		}
-
-	}
-
-	protected updateImpl( event: ComponentUpdateEvent ): void {
-
-		if ( ! this._blidge || ! this.node ) return;
-
-		const frame = ( event.timeCode * this._blidge.frame.fps );
-
-		// animations
-
-		this.animations.forEach( ( anim ) => {
-
-			anim.setFrame( frame );
-
-		} );
-
-		// transform
-
-		if ( this.transformAutoUpdate ) {
-
-			const curvePosition = this.animations.get( 'position' );
-
-			if ( curvePosition ) {
-
-				const position = curvePosition.value;
-
-				if ( curvePosition.getFCurve( 'x' ) ) {
-
-					this.entity.position.x = position.x;
-
-				}
-
-				if ( curvePosition.getFCurve( 'y' ) ) {
-
-					this.entity.position.y = position.y;
-
-				}
-
-				if ( curvePosition.getFCurve( 'z' ) ) {
-
-					this.entity.position.z = position.z;
-
-				}
-
-			}
-
-			const curveRotation = this.animations.get( 'rotation' );
-
-			if ( curveRotation ) {
-
-				const rot = {
-					x: this.node.rotation[ 0 ],
-					y: this.node.rotation[ 1 ],
-					z: this.node.rotation[ 2 ],
-				};
-
-				const rotValue = curveRotation.value;
-
-				if ( curveRotation.getFCurve( 'x' ) ) {
-
-					rot.x = rotValue.x;
-
-				}
-
-				if ( curveRotation.getFCurve( 'y' ) ) {
-
-					rot.y = rotValue.y;
-
-				}
-
-				if ( curveRotation.getFCurve( 'z' ) ) {
-
-					rot.z = rotValue.z;
-
-				}
-
-				this.entity.quaternion.setFromEuler( {
-					x: rot.x + this.rotationOffsetX,
-					y: rot.y,
-					z: rot.z
-				}, 'YZX' );
-
-			}
-
-			const curveScale = this.animations.get( 'scale' );
-
-			if ( curveScale ) {
-
-				const scaleValue = curveScale.setFrame( frame ).value;
-
-				if ( curveScale.getFCurve( 'x' ) ) {
-
-					this.entity.scale.x = scaleValue.x;
-
-				}
-
-				if ( curveScale.getFCurve( 'y' ) ) {
-
-					this.entity.scale.y = scaleValue.y;
-
-				}
-
-				if ( curveScale.getFCurve( 'z' ) ) {
-
-					this.entity.scale.z = scaleValue.z;
-
-				}
-
-			}
-
-		}
-
-		// visibility
-
-		const curveHide = this.animations.get( 'hide' );
-
-		if ( curveHide ) {
-
-			this.entity.visible = curveHide.value.x < 0.5;
-
-		}
-
-		// light
-
-		if ( this._lightComponent ) {
-
-			const curveColor = this.animations.get( 'color' );
-
-			if ( curveColor ) {
-
-				this._lightComponent.color.copy( curveColor.setFrame( frame ).value );
-
-			}
-
-			const curvePower = this.animations.get( 'power' );
-
-			if ( curvePower ) {
-
-				this._lightComponent.intensity = curvePower.value.x;
-
-			}
-
-		}
-
-		// uniforms
-
-		this.uniformCurves.forEach( ( curve, name ) => {
-
-			this.uniforms[ name ].value = curve.setFrame( frame ).value;
-
-		} );
 
 	}
 

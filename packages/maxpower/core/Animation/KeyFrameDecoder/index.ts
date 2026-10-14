@@ -49,3 +49,27 @@ export function decodeKeyFrames( k: KeyFrameData[] ) {
 	return keyframes;
 
 }
+
+// キー列の時刻（差分の dx とハンドルの x）を scale 倍したキー列を作る。値と補間はそのまま
+export function scaleKeyFrameTimes( k: KeyFrameData[], scale: number ) {
+
+	const result: KeyFrameData[] = [];
+
+	for ( const [ code, values ] of k ) {
+
+		const scaled = values.slice();
+
+		// 並びは [ dx, y, 左x, 左y, 右x, 右y ] で、偶数番目が時刻
+		for ( let i = 0; i < scaled.length; i += 2 ) {
+
+			scaled[ i ] *= scale;
+
+		}
+
+		result.push( [ code, scaled ] );
+
+	}
+
+	return result;
+
+}

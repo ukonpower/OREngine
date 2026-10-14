@@ -1,10 +1,52 @@
 import * as MXP from 'maxpower';
 import { Engine, OREngineDataEntityComponent } from 'orengine';
 
+import { BLidgeAnimation, buildBLidgeLinks } from './animation';
+
 interface BLidgeAttachment {
 	name: string,
 	components: OREngineDataEntityComponent[]
 }
+
+// 表の blidge: で始まるカーブが、curves とちょうど同じもの（同じオブジェクト）か
+const hasBLidgeCurves = ( table: MXP.CurveTable, curves: MXP.CurveTable ) => {
+
+	let count = 0;
+
+	for ( const id of Object.keys( table ) ) {
+
+		if ( ! id.startsWith( MXP.BLIDGE_CURVE_PREFIX ) ) continue;
+
+		if ( table[ id ] !== curves[ id ] ) return false;
+
+		count ++;
+
+	}
+
+	return count == Object.keys( curves ).length;
+
+};
+
+// 表の blidge: で始まるカーブを curves に入れ替えた新しい表。ユーザーのカーブはそのまま
+const withBLidgeCurves = ( table: MXP.CurveTable, curves: MXP.CurveTable ) => {
+
+	const result: MXP.CurveTable = {};
+
+	for ( const id of Object.keys( table ) ) {
+
+		if ( ! id.startsWith( MXP.BLIDGE_CURVE_PREFIX ) ) result[ id ] = table[ id ];
+
+	}
+
+	for ( const id of Object.keys( curves ) ) {
+
+		result[ id ] = curves[ id ];
+
+	}
+
+	return result;
+
+};
 
 /**
  * BLidgeClient
@@ -29,6 +71,8 @@ export class BLidgeClient extends MXP.Component {
 	private _attachmentsApplied: boolean;
 	/** Engine.resources で解決できなかった attachment をラウンドトリップ保全する */
 	private _unresolvedByEntity: Map<string, OREngineDataEntityComponent[]>;
+	/** BLidge のカーブが入っていることを確かめた、シーンのカーブの表 */
+	private _checkedCurves: MXP.CurveTable | null;
 
 	/** ビルド時に焼き込まれたシーンデータ。未設定なら実行時に /blidge-scene.json を fetch する */
 	public static sceneData?: MXP.BLidgeScene;
@@ -59,6 +103,7 @@ export class BLidgeClient extends MXP.Component {
 		this.attachments = [];
 		this._attachmentsApplied = false;
 		this._unresolvedByEntity = new Map();
+		this._checkedCurves = null;
 		this.type = "websocket";
 		this.connection = {
 			enabled: true,
@@ -365,6 +410,9 @@ export class BLidgeClient extends MXP.Component {
 		// sync 中の中間保存で空 attachments が書き出されるのを防ぐ
 		this._attachmentsApplied = false;
 
+		// 次の update でシーンのカーブの表へ、読み込み直した BLidge のカーブを入れる
+		this._checkedCurves = null;
+
 		// 現在のタイムスタンプを取得（更新されたエンティティを追跡するため）
 		const timeStamp = new Date().getTime();
 
@@ -399,7 +447,18 @@ export class BLidgeClient extends MXP.Component {
 
 			// BLidgerコンポーネントを更新（いったん削除して再追加）
 			entity.removeComponent( MXP.BLidger );
-			entity.addComponent( MXP.BLidger, { blidge, node } );
+			const blidger = entity.addComponent( MXP.BLidger, { blidge, node } );
+
+			// アニメーションは、シーンのカーブの表に入れた BLidge のカーブへのリンクとして Animation の経路で再生する
+			entity.removeComponent( BLidgeAnimation );
+
+			const links = buildBLidgeLinks( blidge, blidger );
+
+			if ( Object.keys( links ).length > 0 ) {
+
+				entity.addComponent( BLidgeAnimation ).setField( "links", links );
+
+			}
 
 			// 子ノードを再帰的に処理
 			node.children.forEach( c => {
@@ -491,6 +550,27 @@ export class BLidgeClient extends MXP.Component {
 	}
 
 	/**
+	 * シーンのカーブの表に BLidge のカーブを入れる。表は編集のたびに差し替わり、undo やカーブの編集の取り消しでは
+	 * BLidge の sync より前の表に戻ることもあるので、差し替わるたびに確かめて入れ直す。
+	 * 子の Animation より先に走るので、入れ直した表でそのフレームの値が決まる
+	 */
+	protected updateImpl(): void {
+
+		const engine = this.engine as Engine;
+
+		if ( engine.curves === this._checkedCurves ) return;
+
+		if ( ! hasBLidgeCurves( engine.curves, this.blidge.curves ) ) {
+
+			engine.curves = withBLidgeCurves( engine.curves, this.blidge.curves );
+
+		}
+
+		this._checkedCurves = engine.curves;
+
+	}
+
+	/**
 	 * コンポーネントの破棄処理
 	 * リソースの解放とエンティティの削除を行う
 	 */
@@ -509,6 +589,20 @@ export class BLidgeClient extends MXP.Component {
 
 		this._attachmentsApplied = false;
 		this._unresolvedByEntity.clear();
+
+		// BLidge のカーブを表から外す。リンクしていたエンティティはもう無い。
+		// 残っても保存では外れる（どのリンクからも指されない）ので、エディタでコンポーネントを外したときの表示のためだけに行う
+		if ( process.env.NODE_ENV === 'development' ) {
+
+			const engine = this.engine as Engine;
+
+			if ( ! hasBLidgeCurves( engine.curves, {} ) ) {
+
+				engine.curves = withBLidgeCurves( engine.curves, {} );
+
+			}
+
+		}
 
 	}
 
