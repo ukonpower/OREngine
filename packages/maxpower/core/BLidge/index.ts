@@ -156,7 +156,8 @@ type BLidgeConnection = {
 export class BLidge extends EventEmitter {
 
 	// ローダーの実体はバックエンド側にあるため、EngineContractのレンダラー型はここでは特定しない
-	public static gltfLoaderFactory: ( ( engine: EngineContract<any> ) => GLTFLoaderContract ) | null = null;
+	// 初期値を書かない: static の初期化はクラス外の代入として出力され、rollup が副作用とみなして BLidge を使わないシーンの player にも残すため
+	public static gltfLoaderFactory?: ( engine: EngineContract<any> ) => GLTFLoaderContract;
 
 	private _engine: EngineContract;
 
