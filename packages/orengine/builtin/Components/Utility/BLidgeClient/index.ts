@@ -31,7 +31,7 @@ export class BLidgeClient extends MXP.Component {
 	private _unresolvedByEntity: Map<string, OREngineDataEntityComponent[]>;
 
 	/** ビルド時に焼き込まれたシーンデータ。未設定なら実行時に /blidge-scene.json を fetch する */
-	public static sceneData: MXP.BLidgeScene | null = null;
+	public static sceneData?: MXP.BLidgeScene;
 
 	// connection
 	/** WebSocket接続情報 */
