@@ -42,7 +42,7 @@
 - `scene`: ルートエンティティ。uuid は常に `"0"`
 - `renderer`: レンダラーの field（空の色・ポストエフェクトの on/off 等）。キーはバックエンドで違う（`demo-webgpu/scenes/main.json` には `pipeline/lightShaft/intensity` 等が増えている）。CLI の `settings renderer` / `set-setting renderer <path> <value>` で読み書きする
 - `timeline/duration` / `timeline/fps`: タイムラインの長さ（フレーム数）と fps。`set-setting timeline timeline/duration <値>` で変える
-- `curves`: キーフレームのカーブ（カーブ ID → `{ name?, k, h? }`）。`k` は BLidge v2 形式で、時刻は秒×60 の差分。読むときは CLI の `curves` / `curve-get`（時刻を秒の絶対値に開いた JSON）を使う。フィールドとのリンクはエンティティの `Animation` コンポーネントの `links`。キーフレームがなければ無い
+- `curves`: キーフレームのカーブ（カーブ ID → `{ name?, k, h? }`）。`k` は BLidge v2 形式で、時刻は秒×60 の差分。読むときは CLI の `curves` / `curve-get`（時刻を秒の絶対値に開いた JSON）を使う。フィールドとのリンクはエンティティの `Animation` コンポーネントの `links`。キーフレームがなければ無い。Blender（BLidge）のアニメーションは実行時に `blidge:` で始まる ID のカーブとして表に入るが、保存されない（CLI の `curves` では `readOnly: true`。Blender 側で編集する）
 
 ## エンティティ
 

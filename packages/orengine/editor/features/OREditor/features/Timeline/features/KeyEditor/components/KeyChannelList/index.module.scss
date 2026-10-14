@@ -56,6 +56,11 @@
 		background-color: var(--or-bg-active);
 	}
 
+	// Blender で付けたキーフレームの行。キーを見せるだけで編集できないことを、暗い文字で示す
+	&[data-readonly="true"] .label {
+		color: var(--or-text-dim);
+	}
+
 	&:hover {
 		background-color: var(--or-bg-hover);
 	}

@@ -180,6 +180,7 @@ npx tsx scripts/scene.ts curve-link-settings root/Box position/1 --scale 2 --off
   - キーのコピペは、`curve-get` で読んだキーを別のカーブの JSON に足して `curve-set` する
   - `keys` を空にすると、そのカーブを使っているフィールドのアニメーションが外れる
 - `curves` の値の見え方: フィールドの値 = カーブの値 × `scale` + `offset`。`key-insert` の値はフィールドの値で渡せば、CLI がカーブ側の値に逆算する
+- Blender（BLidge）で付けたキーフレームは `blidge:` で始まる ID のカーブ（`curves` で `readOnly: true`）で、CLI からは編集できない（Blender 側で直す）。Blender のカーブがある要素には `key-insert` もできない。`curve-get` で読む・`curve-paste --copy` で自分のカーブとして複製することはできる
 - 動きの確認は `shot --time <秒>` を複数の時刻で撮る
 
 ## Flow 2: コンポーネント開発
