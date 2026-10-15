@@ -56,11 +56,12 @@ fn fsDeferred( input: VertexOutput ) -> GBufferOutput {
 
 }
 
+// albedo は deferred でライトを受ける色で、自分で光る色ではないので放射だけを返す（webgl の IS_FORWARD と同じ）
 @fragment
 fn fsForward( input: VertexOutput ) -> @location(0) vec4f {
 
 	let sky = skyBox( input );
 
-	return vec4f( sky.albedo + sky.emission, 1.0 );
+	return vec4f( sky.emission, 1.0 );
 
 }
