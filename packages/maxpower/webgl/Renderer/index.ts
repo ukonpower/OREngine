@@ -272,7 +272,9 @@ export class Renderer extends Serializable implements RendererContract {
 
 		// envmap
 
-		const envMap = backend.createCubeTexture();
+		// 空や放射の 1 を超える明るさを環境光に残すため半精度浮動小数にする（既定の 8bit では 1 で切れる）。
+		// webgpu の ENVMAP_FORMAT（rgba16float）と揃える
+		const envMap = backend.createCubeTexture().setting( { type: GL.FLOAT, internalFormat: GL.RGBA16F, format: GL.RGBA } );
 		this._envMapCube = envMap;
 		this._envMapRenderTarget = backend.createCubeFrameBuffer().setTexture( [ envMap ] );
 		this._envMapRenderTarget.setSize( 256, 256 );

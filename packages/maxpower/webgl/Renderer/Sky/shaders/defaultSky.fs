@@ -18,6 +18,12 @@ void main( void ) {
 	outRoughness = 1.0;
 	outEnv = 0.0;
 
+	#ifdef IS_FORWARD
+
+		outColor = vec4( outEmission, 1.0 );
+
+	#endif
+
 	#include <part:frag_out>
 
 }
