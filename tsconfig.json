@@ -102,6 +102,7 @@
     "dist",
     "demo-webgl",
     "scripts",
+    "tests/scene-shots",
     "host/vite",
     "host/runner.ts",
     "host/index.ts"

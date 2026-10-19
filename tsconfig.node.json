@@ -16,6 +16,7 @@
     "./host/vite",
     "./host/runner.ts",
     "./host/index.ts",
-    "./scripts"
+    "./scripts",
+    "./tests/scene-shots"
   ]
 }

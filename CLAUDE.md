@@ -81,6 +81,7 @@ npx tsx scripts/scene.ts curve-link-settings root/Box position/1 --scale 2 --off
 
 npx tsx scripts/scene.ts shot tmp/shot/a.png                              # シーンカメラ・今の時刻の見た目を PNG へ
 npx tsx scripts/scene.ts shot tmp/shot/b.png --from 0,3,5 --to 0,0,0 --time 2 --view gBuffer_1   # 一時カメラ・時刻2秒・パス出力（webgpu のラベル）
+npx tsx scripts/scene.ts shot tmp/shot/c.png --time 1 --frames 60 --size 960x540   # 0 秒から 60 コマ進めた 1 秒の状態を 960x540 で
 ```
 
 - 観測: `status` / `tree` / `get <entity>` / `components` / `errors` / `settings` / `shot` / `curves` / `curve-get`。書き込み: `add-entity` / `remove-entity` / `reparent` / `add-component` / `remove-component` / `set` / `set-setting` / `undo` / `redo` / `scene-create` / `scene-delete` / `scene-open` / `key-insert` / `key-delete` / `curve-set` / `curve-paste` / `curve-unlink` / `curve-link-settings`
@@ -93,8 +94,9 @@ npx tsx scripts/scene.ts shot tmp/shot/b.png --from 0,3,5 --to 0,0,0 --time 2 --
 - **タブが1つも接続されていなければ headless Chromium で代わりに接続する**（`scripts/headlessEditor.ts`）。Playwright で `--enable-unsafe-webgpu --use-angle=metal` を付けて起動し（無いと WebGPU の canvas が真っ黒になる。#80 の実測）、同じエディタ URL に `?agent-headless` を付けて開く。シーンの読み込みと最初の描画を待ってからコマンドを実行し、1コマンドごとに閉じる。ローカルの Mac 専用（GPU の無い Linux CI では動かない）。Chromium が無ければ `npx playwright install chromium`
   - headless では1コマンドごとにブラウザを閉じる。保存は応答の前に済んでいるので、CLI は応答を受けたらすぐ閉じる。`scene-open` 後の保存で editor.json の `scene` も切り替わるので、次のコマンドの headless は切り替え先のシーンを開く。undo 履歴はコマンドごとに消えるので、`undo` / `redo` は headless では意味を持たない
   - `status` の `connection` が `"headless"` になる（ユーザーのタブなら `"tab"`）
-  - ウィンドウサイズは 1920x1080・deviceScaleFactor 1 に固定している。1920x1080 は一般的なデスクトップの画面サイズで、editor.json のパネル配置がそのまま収まる。`shot`（#83）の出力サイズは `resolution/*` で決まり、ウィンドウサイズには依存しない
+  - ウィンドウサイズは 1920x1080・deviceScaleFactor 1 に固定している。1920x1080 は一般的なデスクトップの画面サイズで、editor.json のパネル配置がそのまま収まる。`shot`（#83）の出力サイズは `resolution/*`（`--size` を渡せばその大きさ）で決まり、ウィンドウサイズには依存しない
   - ユーザーのタブが開いていれば headless は起動しない。dev サーバーが起動していなければ headless も起動せずエラーで止まる
+- エディタ URL に `?agent-scene=<name>` を付けると、editor.json の `scene` の代わりにそのシーンを開く（`EditorPage` の起動時。名前は `AgentBridge/Protocol` の `AGENT_SCENE_PARAM`）。開くだけでは保存しないので editor.json は書き換わらない（`scene-open` は書き込み系なので保存し、`scene` を書き換える）。一覧に無いシーン名なら何も開かず console.error を出す（別のシーンを開くと、呼び出し側が取り違えるため）。scene-shots がシーンを順に開き直すのに使う（`scripts/headlessEditor.ts` の `headlessEditorUrl`）
 - `set` の値はフィールドの型で解釈する: 数値 / ベクトル・色は `1,2,3` か `[1,2,3]` / `true`・`false` / 文字列 / select は選択肢の値 / entity 参照は uuid（`null` で外す）。CLI の `set` は1コマンドが undo 1回ぶん
 - `reparent <entity> <parent>` は GUI の Hierarchy のドラッグ・Ctrl+P と同じ `EditorAPI.reparentEntities` を通す（「エディタの選択と親の付け替え」の節）。移せないときは理由を、`position` / `euler` / `scale` にキーが打たれていれば `warning`（時刻が変わるとキーの値に戻る）を返す
 - タブの選択状態・エディタのカメラ・再生時刻は変えない（`shot` も同じ）。編集できる範囲は GUI と同じ（script 由来のエンティティへの子の追加・削除、user 以外が付けたコンポーネントの削除・編集はできない）
@@ -107,7 +109,7 @@ npx tsx scripts/scene.ts shot tmp/shot/b.png --from 0,3,5 --to 0,0,0 --time 2 --
   - カーブの JSON は `{ name?, keys: [ { time, value, interpolation, handleType, left, right } ] }`。時刻とハンドルの x は秒（保存形式の `k` の差分・秒×60 に開かない）、ハンドルは絶対座標。`curve-get` は種類に従って置き直したハンドルを出す。`curve-set` はキーを時刻順に並べて `recalcHandles` で置き直してから `encodeCurve` で書く。自動系（`AUTO_CLAMPED` / `AUTO` / `VECTOR`）は `left` / `right` を省略でき、書いても置き直される。`ALIGNED` / `FREE` は必須。`name` を書かなければ名前を外す（中身ごと差し替え）。時刻はコマに揃えず、`curve-get` で出した時刻が戻ってきたら元の秒×60 を使うので、往復でキー列は変わらない
   - 同じ時刻のキーが2つある・存在しないカーブ ID・キーの無い時刻はエラー（候補にカーブ ID・キーのある時刻を返す）。カーブを新しく作るのは `key-insert` と `curve-paste --copy` だけ。`keys` を空にすると、GUI でキーをすべて消したときと同じくそのカーブを指すリンクも外れる
   - `set <entity> Animation links …` はエラー（検証の無い2つ目の経路になるため）。hidden フィールド全般は弾かない（コンポーネントの `enabled` も hidden）
-- `shot <out.png>` は shot 専用の RenderView で描いて PNG を CLI が書き出す。カメラは `--camera <entity>` / `--from x,y,z --to x,y,z`（一時カメラ）/ 省略でシーンカメラ。サイズは editor.json の `resolution/*`（最終出力の解像度。Screen パネルの大きさ・`resolutionScale` には依存しない）で、指定はできない。`--time T` は「時刻 T-1/60 → T の2ステップだけ進めて描いた状態」（前フレームを T の直前にしてモーションブラーの速度を合わせるため）で、T まで再生した状態ではない。省略時はタブの今の時刻で1ステップ。`--view` はパスのラベル（webgl は `camera/deferred_1`、webgpu は `gBuffer_1` のようなバックエンドごとの生の名前）で、一致しなければ候補が返る。実装は `packages/orengine/editor/lib/AgentBridge/ShotCommand`
+- `shot <out.png>` は shot 専用の RenderView で描いて PNG を CLI が書き出す。カメラは `--camera <entity>` / `--from x,y,z --to x,y,z`（一時カメラ）/ 省略でシーンカメラ。サイズは editor.json の `resolution/*`（最終出力の解像度。Screen パネルの大きさ・`resolutionScale` には依存しない）で、`--size <幅>x<高さ>` を渡すとその大きさで描く（shot のビューの `size` と step の event の `resolution` だけを変え、renderer の解像度・editor.json は変えない。displayOut のカメラの aspect は event の `resolution` に合うので、比率の違う大きさでも歪まない）。`--time T` は「時刻 T-1/60 → T の2ステップだけ進めて描いた状態」（前フレームを T の直前にしてモーションブラーの速度を合わせるため）で、T まで再生した状態ではない。`--frames N`（`--time` と一緒に指定）を渡すと「T の N コマ前から 1/60 秒ずつ進め、途中のコマも描いた状態」になる（時間方向に積むパスの履歴を溜めるため。最初のコマは前フレームの姿勢を作るだけで描かない。省略時は 1 で上の2ステップと同じ）。`--time` を渡すと実時間（`uTimeE` / `uTimeEF` と event の `timeElapsed`）も各ステップの時刻に揃え、`uDeltaTime` を 1/60 にする（ページを開いてからの時間で、同じ時刻でも撮るたびに絵が変わらないように）。省略時はタブの今の時刻で1ステップ。`--view` はパスのラベル（webgl は `camera/deferred_1`、webgpu は `gBuffer_1` のようなバックエンドごとの生の名前）で、一致しなければ候補が返る。実装は `packages/orengine/editor/lib/AgentBridge/ShotCommand`
 - npm scripts には載せていない（外部プロジェクトから同じ形で呼べるように、直接実行を唯一の呼び方にしている）
 - コマンド一覧は `npx tsx scripts/scene.ts help`
 - dev サーバーの URL は `<OREngine>/tmp/dev-server.json` から読む。同じ OREngine チェックアウトで dev サーバーを2つ立てると後から起動した方で上書きされるので、その場合は `--url` で指定する
@@ -327,6 +329,7 @@ npm run editor:build # エディタ込み HTML のビルド（GitHub Pages の�
 npm run storybook:dev # Storybook 開発サーバー起動（port 6006）
 npm run vrt          # Storybook をビルドして VRT（スクリーンショット比較テスト）を実行
 npm run vrt:update   # VRT の基準スクリーンショットを更新
+npm run scene-shots  # demo-webgl / demo-webgpu の全シーンを撮影して tests/scene-shots へ置く（ローカル Mac 専用。SCENES=foo,bar で絞れる）
 npm run lint         # ESLint実行
 npm run typecheck    # TypeScript型チェック + 全scssのコンパイル検証
 ```
@@ -334,6 +337,19 @@ npm run typecheck    # TypeScript型チェック + 全scssのコンパイル検�
 ### Storybook / VRT
 - stories はコンポーネントと同居させる（`packages/uipower/**/*.stories.tsx` と `packages/orengine/editor/**/*.stories.tsx`）。設定は `.storybook/`（main.ts / vite.config.ts / decorators / fixtures）
 - VRT（見た目のスクリーンショット比較テスト）は `tests/vrt/`（Playwright）。見た目に影響する変更をしたら `npm run vrt` で確認し、意図した変更なら `npm run vrt:update` で基準画像を更新する
+
+### シーンの撮影（scene-shots）
+3D の描画・ポストプロセスの変化と、webgl / webgpu の違いをファイルで確かめる仕組み（#245）。
+
+- `npm run scene-shots` で demo-webgl（webgl）と demo-webgpu（webgpu）の全シーン（`scenes/*.json`）を撮り、`tests/scene-shots/<シーン名>/webgl.png` / `webgpu.png` に置く（git 管理）。ファイル名が同じシーンどうしが同じフォルダに並び、片方の demo にしか無いシーンは1枚だけになる
+- 見方: 描画に関わる変更をしたら実行し、PNG の git の差分で描画の変化を見る。webgl と webgpu の違いは同じフォルダの2枚で見比べる。比較用のビューアーは無い
+- シーンを絞る: `SCENES=foo,bar npm run scene-shots`（カンマ区切り・名前の完全一致）。足したシーン・直したシーンだけを撮るとき用。撮るシーンが無いバックエンドは dev サーバーもブラウザも立てない。どちらの demo にも無い名前は撮る前にエラーで止まる。古い PNG の削除は絞り込みに関係なく全シーンで判断するので、絞っても他のシーンの PNG は消えない。環境変数で受けるのは、Playwright が CLI の位置引数を spec ファイルの絞り込みに使うため
+- 撮り方は全シーン共通: 960x540、時刻 1 秒（`shot --time 1 --frames 60 --size 960x540` と同じ。0 秒から 1/60 秒ずつ 60 コマ進め、時間方向に積むパスを落ち着かせる）。シーンのエラー（`errors` と同じ内容）があれば `[scene-shots] <シーン名>（<バックエンド>）でエラーが出ています` と中身を出す。エラーがあっても撮影は続け、失敗扱いにはしない
+- 書き換えの条件: Playwright の `toMatchSnapshot` と `updateSnapshots: 'changed'`（`tests/scene-shots/playwright.config.ts`）。無い PNG は書き、許容誤差（`threshold: 0.1`・`maxDiffPixels: 100`。根拠の実測は設定ファイルのコメント）を超えて変わった PNG だけを書き換える。誤差以内ならファイルに触れないので、何も変えずに撮り直しても git の差分は出ない（webgl の SSAO のサンプルが `Math.random`・GPU の誤差で、画素は撮るたびに少しずつ変わる）。どちらの demo にも無くなったシーンはフォルダごと、片方から消えたシーンはその PNG を消す。誤差以内の差も含めて撮り直すときは `npm run scene-shots -- --update-snapshots=all`
+- 流れ（`tests/scene-shots/sceneShots.spec.ts`）: バックエンドごとに `runDev` で dev サーバーを立て、headless Chromium（`scripts/headlessEditor.ts` の `launchHeadlessEditor`。フラグはシーン CLI の headless と同じ）を開いたまま、`?agent-scene=<name>` 付きの URL でシーンを順に開き直し、AgentBridge の HTTP（`POST /__agent/shot` / `errors`）で撮る。終わったら（途中で失敗しても）ブラウザと dev サーバーを閉じる
+  - 開き直したら、通信が落ち着く（`networkidle`）のを待ち、さらにページのフレームが30回まわるまで待ってから撮る。BLidge のシーンは通信の後も画像のデコードと 100ms のタイマーを挟んでからカメラを作り、初回はシェーダーのコンパイルでメインスレッドが塞がるため（CPU を 8 倍に絞った実測で、フレームを待たないと「displayOut のカメラがありません」で失敗する）
+- ユーザーが別に `npm run dev` を立てていても衝突しない: ポートは webgl が 3300 / 3301、webgpu が 3310 / 3311 から空きを探す（ユーザーのタブがこの dev サーバーに繋がるとコマンドがそちらへ送られるので、既定の 3000 番台から離す）。`tmp/dev-server.json` は書かない（`runDev` の `writeDevServerInfo: false`）。vite の依存の事前バンドルは `node_modules/.vite-scene-shots/<バックエンド>` に分ける（`cacheDir`。プロジェクト・レンダラーの違う dev サーバーが同じ置き場を使うと、起動した側が作り直して入れ替え、動いている側の配信を壊すため）。シーンは開くだけで保存しないので、editor.json もシーンファイルも変わらない
+- ローカルの Mac 専用（Metal で描くため。CI には載せない）。main だけの今は1回約10秒
 
 ### CI / GitHub Pages
 - `.github/workflows/deploy-pages.yml` — main への push でのみエディタデモと Storybook を gh-pages ブランチのルートへデプロイ（ルート = エディタデモ、`/storybook/`）。release/* への push ではデプロイしない
