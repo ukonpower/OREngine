@@ -2,30 +2,11 @@ import * as BSP from 'basepower';
 import * as MTP from 'mathpower';
 
 import { Light } from '../../../core/Components/Light';
-import { CLIP_CORRECTION, FRAME_FIELDS, SHADOW_FORMAT } from '../../backend/Bindings';
-import { requestShaderReload } from '../../backend/HotReload';
-import { UniformBinder, buildStructWgsl } from '../../backend/UniformBinder';
-
-import shadowWgsl from './shaders/shadow.wgsl';
+import { CLIP_CORRECTION, FRAME_FIELDS, LIGHT_FIELDS, MAX_LIGHTS, SHADOW_FORMAT, lightBindGroupEntries } from '../../backend/Bindings';
+import { UniformBinder } from '../../backend/UniformBinder';
 
 import type { Camera } from '../../../core/Components/Camera';
 import type { Entity } from '../../../core/Entity';
-import type { UniformField } from '../../backend/UniformBinder';
-
-// HMRで差し替わるシェーダーソース。playerでは初期値のまま使われる
-let hotShadowWgsl = shadowWgsl;
-
-if ( import.meta.hot ) {
-
-	import.meta.hot.accept( './shaders/shadow.wgsl', ( m ) => {
-
-		if ( m ) hotShadowWgsl = m.default;
-
-		requestShaderReload();
-
-	} );
-
-}
 
 /*-------------------------------
 	ライトのGPUリソース
@@ -34,60 +15,11 @@ if ( import.meta.hot ) {
 	ここ（レンダラー側）が所有する。シャドウマップは種類ごとに1枚の
 	depth 2d-array にまとめ、ライトのスロット番号がそのままレイヤー番号になる。
 	これでシェーダー側はテクスチャ1つで全ライトを引ける。
+	束縛の宣言（uniform の並び・WGSL）は Bindings が持つ。
 -------------------------------*/
-
-export const MAX_LIGHTS = 4;
 
 // レイヤーを揃える必要があるため、Light.shadowMapSize ではなく固定サイズで確保する
 const SHADOW_MAP_SIZE = 1024;
-
-const DIRECTIONAL_LIGHT_STRUCT = {
-	name: 'DirectionalLight',
-	fields: [
-		{ name: 'direction', type: 'vec3f' },
-		{ name: 'color', type: 'vec3f' },
-		{ name: 'shadowMatrix', type: 'mat4x4f' },
-		{ name: 'useShadow', type: 'f32' },
-	] as UniformField[],
-};
-
-const SPOT_LIGHT_STRUCT = {
-	name: 'SpotLight',
-	fields: [
-		{ name: 'position', type: 'vec3f' },
-		{ name: 'direction', type: 'vec3f' },
-		{ name: 'color', type: 'vec3f' },
-		{ name: 'angle', type: 'f32' },
-		{ name: 'blend', type: 'f32' },
-		{ name: 'shadowMatrix', type: 'mat4x4f' },
-		{ name: 'useShadow', type: 'f32' },
-	] as UniformField[],
-};
-
-export const LIGHT_FIELDS: UniformField[] = [
-	{ name: 'directionalLight', type: DIRECTIONAL_LIGHT_STRUCT, count: MAX_LIGHTS },
-	{ name: 'spotLight', type: SPOT_LIGHT_STRUCT, count: MAX_LIGHTS },
-	{ name: 'numLightDir', type: 'i32' },
-	{ name: 'numLightSpot', type: 'i32' },
-];
-
-// シェーディングパスがライトを引くためのbind group（group2）
-export const LIGHT_BIND_GROUP_ENTRIES: GPUBindGroupLayoutEntry[] = [
-	{ binding: 0, visibility: GPUShaderStage.FRAGMENT, buffer: { type: 'uniform' } },
-	{ binding: 1, visibility: GPUShaderStage.FRAGMENT, texture: { sampleType: 'depth', viewDimension: '2d-array' } },
-	{ binding: 2, visibility: GPUShaderStage.FRAGMENT, texture: { sampleType: 'depth', viewDimension: '2d-array' } },
-	{ binding: 3, visibility: GPUShaderStage.FRAGMENT, sampler: { type: 'comparison' } },
-];
-
-// ライトを読む側のWGSL宣言。シェーディングパスもlightShaftも同じものを使う
-export const buildLightWgsl = ( group: number ) => [
-	buildStructWgsl( 'LightUniforms', LIGHT_FIELDS ),
-	`@group(${group}) @binding(0) var<uniform> lights: LightUniforms;`,
-	`@group(${group}) @binding(1) var directionalShadowMap: texture_depth_2d_array;`,
-	`@group(${group}) @binding(2) var spotShadowMap: texture_depth_2d_array;`,
-	`@group(${group}) @binding(3) var shadowSampler: sampler_comparison;`,
-	hotShadowWgsl,
-].join( '\n\n' );
 
 // シャドウマップ1枚ぶんの描画先とライト視点のフレームuniform
 export type ShadowRender = {
@@ -107,6 +39,7 @@ type LightSlot = {
 
 export class Lights {
 
+	// シェーディングパスとライトを使うポストプロセスが group2 で読む
 	public readonly bindGroupLayout: GPUBindGroupLayout;
 	public readonly bindGroup: GPUBindGroup;
 
@@ -122,6 +55,8 @@ export class Lights {
 	private _spot: LightSlot[];
 	private _directionalShadows: { light: Light, slot: LightSlot }[];
 	private _shadowMaps: GPUTexture[];
+	private _shadowMapViews: GPUTextureView[];
+	private _shadowSampler: GPUSampler;
 
 	// ライト視点のフレームuniformを書くための一時辞書
 	private _lightFrameUniforms: BSP.Uniforms;
@@ -153,20 +88,18 @@ export class Lights {
 
 		}
 
+		this._shadowMapViews = this._shadowMaps.map( ( texture ) => texture.createView( { dimension: '2d-array' } ) );
+		this._shadowSampler = device.createSampler( { label: 'shadow', compare: 'less', magFilter: 'linear', minFilter: 'linear' } );
+
 		this.bindGroupLayout = device.createBindGroupLayout( {
 			label: 'light',
-			entries: LIGHT_BIND_GROUP_ENTRIES,
+			entries: lightBindGroupEntries( 0 ),
 		} );
 
 		this.bindGroup = device.createBindGroup( {
 			label: 'light',
 			layout: this.bindGroupLayout,
-			entries: [
-				{ binding: 0, resource: { buffer: this._binder.buffer } },
-				{ binding: 1, resource: this._shadowMaps[ 0 ].createView( { dimension: '2d-array' } ) },
-				{ binding: 2, resource: this._shadowMaps[ 1 ].createView( { dimension: '2d-array' } ) },
-				{ binding: 3, resource: device.createSampler( { label: 'shadow', compare: 'less', magFilter: 'linear', minFilter: 'linear' } ) },
-			],
+			entries: this.bindGroupEntries( 0 ),
 		} );
 
 		this.shadowRenders = [];
@@ -232,6 +165,19 @@ export class Lights {
 				} ),
 			},
 		};
+
+	}
+
+	// ライトの束縛の中身。binding は start から lightBindGroupEntries と同じ並びで振る。
+	// group2 の bindGroup も、Renderer が組む forward系の group3 も、この1組を指す
+	public bindGroupEntries( start: number ): GPUBindGroupEntry[] {
+
+		return [
+			{ binding: start, resource: { buffer: this._binder.buffer } },
+			{ binding: start + 1, resource: this._shadowMapViews[ 0 ] },
+			{ binding: start + 2, resource: this._shadowMapViews[ 1 ] },
+			{ binding: start + 3, resource: this._shadowSampler },
+		];
 
 	}
 

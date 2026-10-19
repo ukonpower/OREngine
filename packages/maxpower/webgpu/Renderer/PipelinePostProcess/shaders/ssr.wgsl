@@ -8,7 +8,7 @@
 //   pp.uEnabled … 0 で常に外れを返す（シェーディングが読む先に古い結果を残さない）
 
 #include "./random.wgsl"
-#include "../../shaders/view.wgsl"
+#include <module:view>
 
 const MARCH = 16;
 const LENGTH = 5.0;
@@ -42,7 +42,12 @@ fn fsMain( input: FullscreenOutput ) -> @location(0) vec4f {
 	let rayStepLength = LENGTH / f32( MARCH );
 	let rayStep = rayDir * rayStepLength;
 
-	rayPos += rayDir * ( random( input.uv + frame.uTimeEF ) * rayStepLength + 0.1 );
+	// レイの始点の揺らしは画素の位置から作り、webgl 側 ssr.fs と同じ画素に同じ値を出す（y を gl_FragCoord と同じ下原点に直す）。
+	// uv を random() に通すと、バックエンドで uv の末尾の桁が違うだけで別の値になり、反射の縁の当たり外れの出方がそろわない。
+	// uTimeEF は1秒で 0 → 1 なので、60 倍して 60fps のコマ番号としてフレームごとに模様をずらす
+	let pixel = vec2f( input.position.x, pp.uPPResolution.y - input.position.y );
+
+	rayPos += rayDir * ( interleavedGradientNoise( pixel, frame.uTimeEF * 60.0 ) * rayStepLength + 0.1 );
 
 	for ( var i = 0; i < MARCH; i ++ ) {
 
