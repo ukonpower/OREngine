@@ -21,16 +21,6 @@ export type PipelineConfig = {
 	// 半径はシーン全体で1つで、ワールド単位の散乱距離
 	sss?: boolean;
 	sssRadius?: number;
-	// lightShaft の細かい調整（WebGPU バックエンドのみ。WebGL は無視する）
-	lightShaftIntensity?: number;
-	lightShaftBlur?: boolean;
-	lightShaftTemporal?: boolean;
-	lightShaftTemporalBlend?: number;
-	// SSAO の細かい調整（WebGPU バックエンドのみ。WebGL は無視する）
-	ssaoIntensity?: number;
-	ssaoBlur?: boolean;
-	ssaoTemporal?: boolean;
-	ssaoTemporalBlend?: number;
 };
 
 // createView の指定。offscreen のビューは最終出力を自分のバッファに留め、canvas へは出さない

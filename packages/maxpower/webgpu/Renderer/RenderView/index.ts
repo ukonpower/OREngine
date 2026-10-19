@@ -43,8 +43,6 @@ export class RenderView implements RenderViewContract {
 
 	// 中間バッファを参照する bind group。サイズ変更・シェーダー差し替えで作り直す
 	public gBufferBindGroup: GPUBindGroup | null;
-	public gBufferLightShaftView: GPUTextureView | null;
-	public gBufferSsaoView: GPUTextureView | null;
 	public gBufferSsrView: GPUTextureView | null;
 	// forward系のパイプラインの group3（refraction・環境マップ・ライト）
 	public forwardBindGroup: GPUBindGroup | null;
@@ -99,8 +97,6 @@ export class RenderView implements RenderViewContract {
 		this.frameBindGroup = null;
 
 		this.gBufferBindGroup = null;
-		this.gBufferLightShaftView = null;
-		this.gBufferSsaoView = null;
 		this.gBufferSsrView = null;
 		this.forwardBindGroup = null;
 		this.outputView = null;
