@@ -51,7 +51,8 @@ float compareShadowDepth( float lightDepth, sampler2D shadowMap, vec2 shadowCoor
 
 	float shadowMapDepth = rgbaToFloat( texture( shadowMap, shadowCoord ) );
 
-	if( shadowCoord.x >= 0.0 && shadowCoord.x <= 1.0 && shadowCoord.y >= 0.0 && shadowCoord.y <= 1.0 ) {
+	// シャドウマップは白（約 1.004）でクリアするので、ライトカメラの far より先も影にならないよう奥行きも範囲を見る（webgpu の shadow.wgsl の inside と同じ）
+	if( shadowCoord.x >= 0.0 && shadowCoord.x <= 1.0 && shadowCoord.y >= 0.0 && shadowCoord.y <= 1.0 && lightDepth >= 0.0 && lightDepth <= 1.0 ) {
 
 		return step( lightDepth, shadowMapDepth + depthOffset );
 
