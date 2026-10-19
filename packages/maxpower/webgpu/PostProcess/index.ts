@@ -1,8 +1,7 @@
 
-import { FRAME_FIELDS, GROUP_FRAME, SCENE_FORMAT } from '../backend/Bindings';
+import { FRAME_FIELDS, GROUP_FRAME, SCENE_FORMAT, buildLightWgsl } from '../backend/Bindings';
 import { requestShaderReload } from '../backend/HotReload';
 import { UniformBinder, buildStructWgsl, fieldsFromUniforms } from '../backend/UniformBinder';
-import { buildLightWgsl } from '../Renderer/Lights';
 
 import fullscreenWgsl from './shaders/fullscreen.wgsl';
 
@@ -149,7 +148,7 @@ export class PostProcessPass {
 	// ライトを使うパスだけ group2 の宣言を足す
 	private get _lightWgsl() {
 
-		return this._lightLayout ? buildLightWgsl( 2 ) : '';
+		return this._lightLayout ? buildLightWgsl( 2, 0 ) : '';
 
 	}
 
