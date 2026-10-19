@@ -147,6 +147,7 @@ const _clearColorBlack = new MTP.Vector( 0.0, 0.0, 0.0, 1.0 );
 
 // light uniform names
 // draw毎の文字列連結を避けるため、ライトインデックスごとにuniform名をキャッシュする
+// 名前は light.module.glsl の宣言と一致させる（WebGL は存在しない uniform への代入を黙って無視するので、食い違ってもエラーにならない）
 
 const _dirLightNames: { [key: string]: string }[] = [];
 const _spotLightNames: { [key: string]: string }[] = [];
@@ -156,8 +157,8 @@ const getDirLightNames = ( i: number ) => _dirLightNames[ i ] || ( _dirLightName
 	color: `directionalLight[${i}].color`,
 	camNear: `uDirectionalLightCamera[${i}].near`,
 	camFar: `uDirectionalLightCamera[${i}].far`,
-	camViewMatrix: `uDirectionalLightCamera[${i}].viewMatrix`,
-	camProjectionMatrix: `uDirectionalLightCamera[${i}].projectionMatrix`,
+	camViewMatrix: `uDirectionalLightCamera[${i}].uViewMatrix`,
+	camProjectionMatrix: `uDirectionalLightCamera[${i}].uProjectionMatrix`,
 	camResolution: `uDirectionalLightCamera[${i}].resolution`,
 	shadowMap: `directionalLightShadowMap[${i}]`,
 } );
@@ -170,10 +171,10 @@ const getSpotLightNames = ( i: number ) => _spotLightNames[ i ] || ( _spotLightN
 	blend: `uSpotLight[${i}].blend`,
 	camNear: `uSpotLightCamera[${i}].near`,
 	camFar: `uSpotLightCamera[${i}].far`,
-	camViewMatrix: `uSpotLightCamera[${i}].viewMatrix`,
-	camProjectionMatrix: `uSpotLightCamera[${i}].projectionMatrix`,
+	camViewMatrix: `uSpotLightCamera[${i}].uViewMatrix`,
+	camProjectionMatrix: `uSpotLightCamera[${i}].uProjectionMatrix`,
 	camResolution: `uSpotLightCamera[${i}].resolution`,
-	shadowMap: `spotLightShadowMap[${i}]`,
+	shadowMap: `uSpotLightShadowMap[${i}]`,
 } );
 
 export class Renderer extends Serializable implements RendererContract {
