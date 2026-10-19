@@ -3,85 +3,172 @@
 	"scene": {
 		"name": "root",
 		"uuid": "0",
-		"components": [
+		"childs": [
 			{
-				"name": "BLidgeClient",
-				"uuid": "1",
-				"props": {
-					"mode": "json",
-					"gltf": true,
-					"gltfPath": "/scene.glb",
-					"websocket/url": "ws://localhost:3100",
-					"attachments": [
-						{
-							"name": "Camera",
-							"components": [
-								{
-									"name": "Camera",
-									"uuid": "4ec0479f-f58f-4644-a7f4-0204813c5c99",
-									"props": {
-										"fov": 21.908,
-										"near": 0.1,
-										"far": 1000,
-										"orthHeight": 1,
-										"focus/fNumber": 0.3,
-										"focus/mode": "target",
-										"focus/target": "blidge:CamDof",
-										"focus/distance": 4.949999999999992,
-										"focus/speed": 4.675000000000007
-									}
-								},
-								{
-									"name": "LookAt",
-									"uuid": "3d0e3c4f-7110-43bc-917a-00850232c7b1",
-									"props": {
-										"target": "blidge:CamLook"
-									}
-								}
-							]
-						},
-						{
-							"name": "OREngine",
-							"components": [
-								{
-									"name": "OREngineLogo",
-									"uuid": "2999221c-8614-47c8-91a4-129c6585343f"
-								}
-							]
-						},
-						{
-							"name": "OREngineCube",
-							"components": [
-								{
-									"name": "OREngineCube",
-									"uuid": "056176b4-e208-42ce-bd17-5ea264f09d86"
-								}
-							]
-						},
-						{
-							"name": "SkyBox",
-							"components": [
-								{
-									"name": "SkyBox",
-									"uuid": "38b46f5d-36cb-49af-b6b2-57643941c4d5"
-								}
+				"name": "Camera",
+				"uuid": "3a4134b4-1481-42ee-8a67-9ba8b7b5dfe6",
+				"pos": [
+					0,
+					1.6,
+					6
+				],
+				"rot": [
+					-0.1813,
+					0,
+					0
+				],
+				"components": [
+					{
+						"name": "Camera",
+						"uuid": "201ab594-caff-4b7d-aadb-f5c531435e9b",
+						"props": {
+							"fov": 35,
+							"near": 0.1,
+							"far": 100,
+							"focus/mode": "manual",
+							"focus/distance": 6.1
+						}
+					}
+				]
+			},
+			{
+				"name": "Floor",
+				"uuid": "70499243-e234-4756-a9e0-355a427bb577",
+				"scale": [
+					40,
+					1,
+					40
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "cc935bc1-6aaf-4974-8612-e6cbfa3f255e",
+						"props": {
+							"shape": "plane",
+							"color": [
+								0.5,
+								0.5,
+								0.5
+							],
+							"roughness": 0.9
+						}
+					}
+				]
+			},
+			{
+				"name": "Sun",
+				"uuid": "34a8cc01-95a9-4c0d-833d-233c1fe86694",
+				"pos": [
+					3.1435,
+					3.7722,
+					0.943
+				],
+				"rot": [
+					0.1465,
+					-0.121,
+					-0.6858
+				],
+				"components": [
+					{
+						"name": "Light",
+						"uuid": "f9a57c94-e56d-40e4-8996-ebf6430a3f85",
+						"props": {
+							"lightType": "directional",
+							"castShadow": true,
+							"intensity": 2.5
+						}
+					}
+				]
+			},
+			{
+				"name": "Mover",
+				"uuid": "32906e54-db34-47c7-bfaf-bd3b2d08d4d9",
+				"pos": [
+					-15,
+					0.6,
+					0
+				],
+				"scale": [
+					0.6,
+					0.6,
+					0.6
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "dadfeff1-c7a7-4fa9-aa20-c0c71c081eb4",
+						"props": {
+							"shape": "cube",
+							"color": [
+								0.9,
+								0.5,
+								0.1
 							]
 						}
-					]
-				}
+					},
+					{
+						"name": "Animation",
+						"uuid": "ec7ed2fd-a494-43d1-879c-d7321f80fd00",
+						"props": {
+							"links": {
+								"position": [
+									[
+										"c1",
+										1,
+										0
+									],
+									null,
+									null
+								],
+								"euler": [
+									null,
+									[
+										"c2",
+										1,
+										0
+									],
+									null
+								]
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "Still",
+				"uuid": "4dee3c9d-c401-412f-99ea-a60fb2574ec8",
+				"pos": [
+					1.8,
+					0.5,
+					-1
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "2bee0deb-0baa-4c6e-8883-7504ffd581b6",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								0.3,
+								0.5,
+								0.9
+							]
+						}
+					}
+				]
 			}
 		]
 	},
 	"renderer": {
 		"sky/skyColor": [
-			1,
-			1,
-			1
+			0.1,
+			0.1,
+			0.1
 		],
 		"sky/groundColor": [
-			0.3,
-			0.3,
-			0.3
+			0.03,
+			0.03,
+			0.03
 		],
 		"sky/intensity": 1,
 		"pipeline/motionBlur/enabled": true,
@@ -94,5 +181,43 @@
 		"pipeline/sss/enabled": false
 	},
 	"timeline/duration": 600,
-	"timeline/fps": 60
+	"timeline/fps": 60,
+	"curves": {
+		"c1": {
+			"k": [
+				[
+					0,
+					[
+						0,
+						-15
+					]
+				],
+				[
+					0,
+					[
+						120,
+						15
+					]
+				]
+			]
+		},
+		"c2": {
+			"k": [
+				[
+					0,
+					[
+						0,
+						0
+					]
+				],
+				[
+					0,
+					[
+						120,
+						12.5664
+					]
+				]
+			]
+		}
+	}
 }

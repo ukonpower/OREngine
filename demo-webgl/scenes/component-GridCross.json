@@ -9,11 +9,11 @@
 				"uuid": "88cac686-b1e6-49f1-9bd8-0b534c0e26e0",
 				"pos": [
 					0,
-					3,
-					18
+					0,
+					24
 				],
 				"rot": [
-					-0.1651,
+					0,
 					0,
 					0
 				],
@@ -26,7 +26,7 @@
 							"near": 0.1,
 							"far": 100,
 							"focus/mode": "manual",
-							"focus/distance": 18.2483
+							"focus/distance": 24
 						}
 					}
 				]

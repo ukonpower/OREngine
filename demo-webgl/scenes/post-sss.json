@@ -160,7 +160,8 @@
 		"pipeline/lightShaft/enabled": false,
 		"pipeline/toneMap/enabled": false,
 		"pipeline/bloom/enabled": false,
-		"pipeline/sss/enabled": true
+		"pipeline/sss/enabled": true,
+		"pipeline/sss/radius": 0.3
 	},
 	"timeline/duration": 600,
 	"timeline/fps": 60
