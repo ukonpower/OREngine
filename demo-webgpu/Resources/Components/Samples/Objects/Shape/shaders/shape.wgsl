@@ -2,6 +2,8 @@
 // 前置される名前: VertexOutput / material（uColor / uRoughness / uMetallic / uEmission / uSSS / uOpacity）,
 // PASS_DEFERRED / PASS_REFRACTION（index.ts の pass から決まる bool の定数）
 
+#include <module:lighting>
+
 // 面の値。deferred と forward で同じものを使う
 fn shapeSurface( input: VertexOutput ) -> Surface {
 
@@ -21,22 +23,6 @@ fn shapeSurface( input: VertexOutput ) -> Surface {
 fn fsDeferred( input: VertexOutput ) -> GBufferOutput {
 
 	return packGBuffer( input, shapeSurface( input ) );
-
-}
-
-// lighting.wgsl の fresnel と同じ式（マテリアルのシェーダーには前置されない）
-fn fresnel( d: f32 ) -> f32 {
-
-	let f0 = 0.04;
-
-	return f0 + ( 1.0 - f0 ) * pow( 1.0 - d, 5.0 );
-
-}
-
-// 表面からカメラへ向かう単位ベクトル。view.wgsl の viewDirection と同じ式（マテリアルのシェーダーには前置されない）
-fn viewDirection( position: vec3f ) -> vec3f {
-
-	return normalize( mix( frame.uCameraPosition - position, frame.uCameraMatrix[ 2 ].xyz, frame.uProjectionMatrix[ 3 ][ 3 ] ) );
 
 }
 
@@ -72,20 +58,14 @@ fn fsForward( input: VertexOutput ) -> @location(0) vec4f {
 
 	}
 
-	// shading.wgsl の環境光と同じ式。webgpu の forward にはライトとシャドウマップが渡らないので、直接光は当たらない
-	let normal = surface.normal;
+	// deferred のシェーディング（shading.wgsl）と同じ関数で、ライト・影・環境マップを当てる
 	let viewDir = viewDirection( input.worldPosition );
-	let diffuseColor = mix( surface.albedo, vec3f( 0.0 ), surface.metallic );
-	let specularColor = mix( vec3f( 1.0 ), surface.albedo, surface.metallic );
+	let info = surfaceInfo( surface.albedo, surface.roughness, surface.metallic, surface.envIntensity );
+	let direct = directLighting( input.worldPosition, surface.normal, viewDir, info );
 
-	let refDir = reflect( - viewDir, normal );
-	let dNV = clamp( dot( normal, viewDir ), 0.0, 1.0 );
-	let EF = mix( fresnel( dNV ), 1.0, surface.metallic );
-	let envReflect = EF * specularColor * surface.envIntensity;
+	// SSR は forward の面には当たらないので、鏡面反射は環境マップだけから取る
+	let lit = envLighting( surface.normal, viewDir, info, direct, vec3f( 0.0 ), 0.0 );
 
-	let diffuse = sampleEnvMap( normal, 1.0 ) * diffuseColor * surface.envIntensity * ( 1.0 - envReflect );
-	let specular = sampleEnvMap( refDir, surface.roughness ) * envReflect;
-
-	return vec4f( diffuse + specular + surface.emission, material.uOpacity );
+	return vec4f( lit.diffuse + lit.specular + surface.emission, material.uOpacity );
 
 }

@@ -10,18 +10,20 @@ import {
 	DEPTH_FORMAT,
 	ENVMAP_FORMAT,
 	ENVMAP_SIZE,
+	FORWARD_LIGHT_BINDING,
 	FORWARD_PREPASS_ATTACHMENTS,
 	FRAME_FIELDS,
 	GBUFFER_ATTACHMENTS,
 	GBUFFER_BYTES_PER_SAMPLE,
 	GBUFFER_TARGETS,
+	GROUP_FORWARD,
 	GROUP_FRAME,
 	GROUP_MATERIAL,
 	GROUP_OBJECT,
-	GROUP_REFRACTION,
 	OBJECT_FIELDS,
 	SCENE_FORMAT,
 	SHADOW_FORMAT,
+	lightBindGroupEntries,
 	materialTextureBinding,
 } from '../backend/Bindings';
 import { GeometryBuffer, VERTEX_BUFFER_LAYOUT } from '../backend/GeometryBuffer';
@@ -179,7 +181,7 @@ export class Renderer extends Serializable implements RendererContract {
 	private _uniformLayout: GPUBindGroupLayout | null;
 	private _gBufferLayout: GPUBindGroupLayout | null;
 	private _sceneLayout: GPUBindGroupLayout | null;
-	private _refractionLayout: GPUBindGroupLayout | null;
+	private _forwardLayout: GPUBindGroupLayout | null;
 	// group2を持たないマテリアルのforward系パイプラインで、group3の位置を保つための空レイアウト
 	private _emptyMaterialLayout: GPUBindGroupLayout | null;
 
@@ -248,7 +250,7 @@ export class Renderer extends Serializable implements RendererContract {
 		this._uniformLayout = null;
 		this._gBufferLayout = null;
 		this._sceneLayout = null;
-		this._refractionLayout = null;
+		this._forwardLayout = null;
 		this._emptyMaterialLayout = null;
 		this._frameEncoder = null;
 
@@ -608,8 +610,9 @@ export class Renderer extends Serializable implements RendererContract {
 			} ],
 		} );
 
-		this._refractionLayout = device.createBindGroupLayout( {
-			label: 'refraction',
+		// forward系のパイプラインの group3。binding の並びは Bindings の buildShaderSource の宣言と同じ
+		this._forwardLayout = device.createBindGroupLayout( {
+			label: 'forward',
 			entries: [
 				{
 					binding: 0,
@@ -631,6 +634,7 @@ export class Renderer extends Serializable implements RendererContract {
 					visibility: GPUShaderStage.FRAGMENT,
 					sampler: { type: 'filtering' },
 				},
+				...lightBindGroupEntries( FORWARD_LIGHT_BINDING ),
 			],
 		} );
 
@@ -1116,10 +1120,11 @@ export class Renderer extends Serializable implements RendererContract {
 
 		const envMap = this._envMap!;
 
-		// forward系マテリアルは group3 を要求する。envMap 自体は視点に依らないので最初のビューのものを貸す
-		const refractionBindGroup = this._views.length > 0 ? this._views[ 0 ].refractionBindGroup : null;
+		// forward系マテリアルは group3 を要求する。envMap 自体は視点に依らないので最初のビューのものを貸す。
+		// ライトもここから渡るが、directional のシャドウマップはビューごとに描き直すので、前に描いたビューの範囲のものを読む（webgl も同じ）
+		const forwardBindGroup = this._views.length > 0 ? this._views[ 0 ].forwardBindGroup : null;
 
-		if ( ! refractionBindGroup ) return;
+		if ( ! forwardBindGroup ) return;
 
 		envMap.update( this.globalUniforms );
 
@@ -1146,7 +1151,7 @@ export class Renderer extends Serializable implements RendererContract {
 			pass.setBindGroup( GROUP_FRAME, face.frameBindGroup );
 
 			// envMapはシーン描画前に撮るため、refractionには前フレームのシーンが入っている
-			pass.setBindGroup( GROUP_REFRACTION, refractionBindGroup );
+			pass.setBindGroup( GROUP_FORWARD, forwardBindGroup );
 
 			for ( let j = 0; j < this._stack.envMap.length; j ++ ) {
 
@@ -1212,7 +1217,7 @@ export class Renderer extends Serializable implements RendererContract {
 
 		// 不透明の forward は位置・法線・速度だけを先に書き、シェーディング前の SSR・SSAO などに deferred と同じ面として見せる。
 		// 先描きも forwardColor を通るので group3 を束縛する。refraction は gBuffer とは別のテクスチャなので読み書きは衝突しない
-		pass.setBindGroup( GROUP_REFRACTION, view.refractionBindGroup! );
+		pass.setBindGroup( GROUP_FORWARD, view.forwardBindGroup! );
 
 		for ( let i = 0; i < this._stack.forward.length; i ++ ) {
 
@@ -1313,7 +1318,7 @@ export class Renderer extends Serializable implements RendererContract {
 			} );
 
 			pass.setBindGroup( GROUP_FRAME, view.frameBindGroup! );
-			pass.setBindGroup( GROUP_REFRACTION, view.refractionBindGroup! );
+			pass.setBindGroup( GROUP_FORWARD, view.forwardBindGroup! );
 
 			return pass;
 
@@ -1608,15 +1613,17 @@ export class Renderer extends Serializable implements RendererContract {
 		this._createGBufferBindGroup( device, view );
 
 		// envMap面パスもこのbind groupを共有するが、そこで描画するのはソースキューブで
-		// 読むのは事前フィルタ済み本体なので、読み書きの衝突は起きない
-		view.refractionBindGroup = device.createBindGroup( {
-			label: 'refraction',
-			layout: this._refractionLayout!,
+		// 読むのは事前フィルタ済み本体なので、読み書きの衝突は起きない。
+		// ライトとシャドウマップは Lights の1組を全ビューで指す（シャドウマップは描くパスと読むパスが別なので衝突しない）
+		view.forwardBindGroup = device.createBindGroup( {
+			label: 'forward',
+			layout: this._forwardLayout!,
 			entries: [
 				{ binding: 0, resource: targets.refractionView! },
 				{ binding: 1, resource: this._refractionSampler! },
 				{ binding: 2, resource: this._envMap!.view },
 				{ binding: 3, resource: this._envMap!.sampler },
+				...this._lights!.bindGroupEntries( FORWARD_LIGHT_BINDING ),
 			],
 		} );
 
@@ -1711,9 +1718,10 @@ export class Renderer extends Serializable implements RendererContract {
 		// storageを読むマテリアルと、fsShadowを持つマテリアルは、シャドウパスにも group2 が要る
 		const shadowLayouts = storages.length > 0 || material.hasShadowFragment ? objectLayouts : [ layout, layout ];
 
-		// fsForwardを使うパイプラインは group3 にrefractionとPMREM環境マップが入る。
+		// fsForwardを使うパイプラインは group3 にrefraction・PMREM環境マップ・ライトとシャドウマップが入る。
+		// ライトを使わないマテリアルにも同じレイアウトを付ける（明示したレイアウトはシェーダーが使わない束縛を含んでよい）。
 		// group2が無いマテリアルでもgroup3の位置がずれないよう、空レイアウトで埋める
-		const forwardLayouts = [ layout, layout, materialLayout || this._emptyMaterialLayout!, this._refractionLayout! ];
+		const forwardLayouts = [ layout, layout, materialLayout || this._emptyMaterialLayout!, this._forwardLayout! ];
 
 		const primitive: GPUPrimitiveState = {
 			topology: material.drawType === 'LINES' ? 'line-list' : 'triangle-list',
@@ -2002,7 +2010,7 @@ export class Renderer extends Serializable implements RendererContract {
 
 	// エディタ用にエンティティ列を任意ターゲットへ描く
 	public renderEditorEntities( param: {
-		// カメラ行列と refraction はこのビューのものを使う
+		// カメラ行列と group3（refraction・環境マップ・ライト）はこのビューのものを使う
 		view: RenderView;
 		entities: Entity[];
 		colorView: GPUTextureView;
@@ -2016,9 +2024,9 @@ export class Renderer extends Serializable implements RendererContract {
 
 		const device = this._device;
 		const frameBindGroup = param.view.frameBindGroup;
-		const refractionBindGroup = param.view.refractionBindGroup;
+		const forwardBindGroup = param.view.forwardBindGroup;
 
-		if ( ! device || ! frameBindGroup || ! refractionBindGroup ) return;
+		if ( ! device || ! frameBindGroup || ! forwardBindGroup ) return;
 
 		const encoder = device.createCommandEncoder();
 
@@ -2038,7 +2046,7 @@ export class Renderer extends Serializable implements RendererContract {
 		} );
 
 		pass.setBindGroup( GROUP_FRAME, frameBindGroup );
-		pass.setBindGroup( GROUP_REFRACTION, refractionBindGroup );
+		pass.setBindGroup( GROUP_FORWARD, forwardBindGroup );
 
 		for ( let i = 0; i < param.entities.length; i ++ ) {
 
@@ -2089,7 +2097,7 @@ export class Renderer extends Serializable implements RendererContract {
 			label: `editor/${material.name}`,
 			layout: device.createPipelineLayout( {
 				// fsForwardで描くため、forwardパイプラインと同じgroup構成にする
-				bindGroupLayouts: [ layout, layout, materialLayout || this._emptyMaterialLayout!, this._refractionLayout! ],
+				bindGroupLayouts: [ layout, layout, materialLayout || this._emptyMaterialLayout!, this._forwardLayout! ],
 			} ),
 			vertex: { module, entryPoint: 'vsMain', buffers: VERTEX_BUFFER_LAYOUT },
 			fragment: {

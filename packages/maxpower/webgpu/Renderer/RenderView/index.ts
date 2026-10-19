@@ -46,7 +46,8 @@ export class RenderView implements RenderViewContract {
 	public gBufferLightShaftView: GPUTextureView | null;
 	public gBufferSsaoView: GPUTextureView | null;
 	public gBufferSsrView: GPUTextureView | null;
-	public refractionBindGroup: GPUBindGroup | null;
+	// forward系のパイプラインの group3（refraction・環境マップ・ライト）
+	public forwardBindGroup: GPUBindGroup | null;
 
 	// 最終出力（present の元・エディタの重ね描き先）と、それを読む bind group（参照先が変わったら作り直す）
 	public outputView: GPUTextureView | null;
@@ -101,7 +102,7 @@ export class RenderView implements RenderViewContract {
 		this.gBufferLightShaftView = null;
 		this.gBufferSsaoView = null;
 		this.gBufferSsrView = null;
-		this.refractionBindGroup = null;
+		this.forwardBindGroup = null;
 		this.outputView = null;
 		this.outputBindGroup = null;
 		this.outputBindGroupSource = null;
