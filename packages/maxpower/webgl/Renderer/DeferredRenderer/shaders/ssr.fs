@@ -52,7 +52,10 @@ void main( void ) {
 	float rayStepLength = LENGTH / MARCH;
 	vec3 rayStep = rayDir * rayStepLength;
 
-	rayPos += rayDir * ( random( vUv + uTimeEF ) * rayStepLength + 0.1 );
+	// レイの始点の揺らしは画素の位置から作り、webgpu 側 ssr.wgsl と同じ画素に同じ値を出す。
+	// uv を random() に通すと、バックエンドで uv の末尾の桁が違うだけで別の値になり、反射の縁の当たり外れの出方がそろわない。
+	// uTimeEF は1秒で 0 → 1 なので、60 倍して 60fps のコマ番号としてフレームごとに模様をずらす
+	rayPos += rayDir * ( interleavedGradientNoise( gl_FragCoord.xy, uTimeEF * 60.0 ) * rayStepLength + 0.1 );
 
 	for( int i = 0; i < int( MARCH ); i ++ ) {
 
