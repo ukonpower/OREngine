@@ -6,15 +6,25 @@ import { buildStructWgsl } from '../UniformBinder';
 
 
 import gbufferWgsl from './shaders/gbuffer.wgsl';
+import shadowWgsl from './shaders/shadow.wgsl';
 import vertexOutputWgsl from './shaders/vertexOutput.wgsl';
 
 import type { UniformField } from '../UniformBinder';
 
 // HMRで差し替わるシェーダーソース。playerでは初期値のまま使われる
 let hotGbufferWgsl = gbufferWgsl;
+let hotShadowWgsl = shadowWgsl;
 let hotVertexOutputWgsl = vertexOutputWgsl;
 
 if ( import.meta.hot ) {
+
+	import.meta.hot.accept( './shaders/shadow.wgsl', ( m ) => {
+
+		if ( m ) hotShadowWgsl = m.default;
+
+		requestShaderReload();
+
+	} );
 
 	import.meta.hot.accept( './shaders/gbuffer.wgsl', ( m ) => {
 
@@ -37,7 +47,7 @@ if ( import.meta.hot ) {
 /*-------------------------------
 	シェーダーとパイプラインが共有する束縛の定義
 
-	bind group は group0=フレーム / group1=オブジェクト / group2=マテリアル で固定。
+	bind group は group0=フレーム / group1=オブジェクト / group2=マテリアル / group3=forward系の共有リソース で固定。
 	各グループの中身はここの宣言が唯一の出所で、WGSL の struct 文字列も
 	CPU側のバイトオフセットも同じ配列から作られる。
 	gBufferのフォーマットも同様に、アタッチメント記述とWGSLの出力structが
@@ -48,10 +58,14 @@ export const GROUP_FRAME = 0;
 export const GROUP_OBJECT = 1;
 export const GROUP_MATERIAL = 2;
 // forward系だけが読む共有リソース。forward描画前のシーン（shading結果）のコピー
-// （webgl側の refractionBuffer / uDeferredTexture に相当）と、PMREM環境マップが入る。
-// レイアウトが付くのは fsForward を使うパイプライン（forward / envMap / editor）だけなので、
-// fsDeferred / fsShadow から refractionTexture / envMapTexture を参照するとパイプライン生成に失敗する
-export const GROUP_REFRACTION = 3;
+// （webgl側の refractionBuffer / uDeferredTexture に相当）、PMREM環境マップ、ライトとシャドウマップが入る。
+// レイアウトが付くのは fsForward を使うパイプライン（forward / forwardPrepass / envMap / editor）だけなので、
+// fsDeferred / fsShadow から refractionTexture / envMap / lights などを参照するとパイプライン生成に失敗する。
+// group4 には分けられない（maxBindGroups は既定 4 で、Chrome ではこれより上げられない）
+export const GROUP_FORWARD = 3;
+
+// group3 でライト（lightBindGroupEntries の4つ）が始まる binding。0〜3 は refraction と環境マップ
+export const FORWARD_LIGHT_BINDING = 4;
 
 // GLのクリップ空間（z∈[-w,w]）をWebGPU（z∈[0,w]）へ移す補正。
 // カメラ・ライトどちらのprojection行列にも1回だけ乗算する。
@@ -103,6 +117,63 @@ export const OBJECT_FIELDS: UniformField[] = [
 	{ name: 'uNormalMatrix', type: 'mat4x4f' },
 	{ name: 'uModelMatrixPrev', type: 'mat4x4f' },
 ];
+
+/*-------------------------------
+	ライト
+
+	シェーディング（group2）・lightShaft などのポストプロセス（group2）・forward系のマテリアル（group3）が
+	同じ宣言でライトを読む。uniform の値とシャドウマップの実体は Renderer/Lights が持つ。
+-------------------------------*/
+
+export const MAX_LIGHTS = 4;
+
+const DIRECTIONAL_LIGHT_STRUCT = {
+	name: 'DirectionalLight',
+	fields: [
+		{ name: 'direction', type: 'vec3f' },
+		{ name: 'color', type: 'vec3f' },
+		{ name: 'shadowMatrix', type: 'mat4x4f' },
+		{ name: 'useShadow', type: 'f32' },
+	] as UniformField[],
+};
+
+const SPOT_LIGHT_STRUCT = {
+	name: 'SpotLight',
+	fields: [
+		{ name: 'position', type: 'vec3f' },
+		{ name: 'direction', type: 'vec3f' },
+		{ name: 'color', type: 'vec3f' },
+		{ name: 'angle', type: 'f32' },
+		{ name: 'blend', type: 'f32' },
+		{ name: 'shadowMatrix', type: 'mat4x4f' },
+		{ name: 'useShadow', type: 'f32' },
+	] as UniformField[],
+};
+
+export const LIGHT_FIELDS: UniformField[] = [
+	{ name: 'directionalLight', type: DIRECTIONAL_LIGHT_STRUCT, count: MAX_LIGHTS },
+	{ name: 'spotLight', type: SPOT_LIGHT_STRUCT, count: MAX_LIGHTS },
+	{ name: 'numLightDir', type: 'i32' },
+	{ name: 'numLightSpot', type: 'i32' },
+];
+
+// ライトを読む束縛のレイアウト。start から uniform・directional / spot のシャドウマップ・比較サンプラーの順に並べる
+export const lightBindGroupEntries = ( start: number ): GPUBindGroupLayoutEntry[] => [
+	{ binding: start, visibility: GPUShaderStage.FRAGMENT, buffer: { type: 'uniform' } },
+	{ binding: start + 1, visibility: GPUShaderStage.FRAGMENT, texture: { sampleType: 'depth', viewDimension: '2d-array' } },
+	{ binding: start + 2, visibility: GPUShaderStage.FRAGMENT, texture: { sampleType: 'depth', viewDimension: '2d-array' } },
+	{ binding: start + 3, visibility: GPUShaderStage.FRAGMENT, sampler: { type: 'comparison' } },
+];
+
+// ライトを読む側のWGSL宣言と shadow.wgsl。binding の並びは lightBindGroupEntries と同じ
+export const buildLightWgsl = ( group: number, start: number ) => [
+	buildStructWgsl( 'LightUniforms', LIGHT_FIELDS ),
+	`@group(${group}) @binding(${start}) var<uniform> lights: LightUniforms;`,
+	`@group(${group}) @binding(${start + 1}) var directionalShadowMap: texture_depth_2d_array;`,
+	`@group(${group}) @binding(${start + 2}) var spotShadowMap: texture_depth_2d_array;`,
+	`@group(${group}) @binding(${start + 3}) var shadowSampler: sampler_comparison;`,
+	hotShadowWgsl,
+].join( '\n\n' );
 
 /*-------------------------------
 	gBuffer
@@ -331,19 +402,13 @@ export const buildShaderSource = ( body: string, materialFields: UniformField[],
 		`@group(${GROUP_FRAME}) @binding(0) var<uniform> frame: FrameUniforms;`,
 		buildStructWgsl( 'ObjectUniforms', OBJECT_FIELDS ),
 		`@group(${GROUP_OBJECT}) @binding(0) var<uniform> object: ObjectUniforms;`,
-		`@group(${GROUP_REFRACTION}) @binding(0) var refractionTexture: texture_2d<f32>;`,
-		`@group(${GROUP_REFRACTION}) @binding(1) var refractionSampler: sampler;`,
-		`@group(${GROUP_REFRACTION}) @binding(2) var envMapTexture: texture_cube<f32>;`,
-		`@group(${GROUP_REFRACTION}) @binding(3) var envMapSampler: sampler;`,
-		// シェーディングパス（shading.ts）の sampleEnvMap と同じ roughness→mip 対応
-		`const MAX_ENV_MIP = ${( ENVMAP_MIP_COUNT - 1 ).toFixed( 1 )};
-
-// PMREM環境マップをroughness対応のミップで引く。forward系（fsForward）専用
-fn sampleEnvMap( direction: vec3f, roughness: f32 ) -> vec3f {
-
-	return textureSampleLevel( envMapTexture, envMapSampler, direction, roughness * MAX_ENV_MIP ).xyz;
-
-}`,
+		`@group(${GROUP_FORWARD}) @binding(0) var refractionTexture: texture_2d<f32>;`,
+		`@group(${GROUP_FORWARD}) @binding(1) var refractionSampler: sampler;`,
+		// 環境マップ・ライトの名前はシェーディングパス（shading.ts）と同じにし、<module:lighting> の関数をどちらからも呼べるようにする
+		`@group(${GROUP_FORWARD}) @binding(2) var envMap: texture_cube<f32>;`,
+		`@group(${GROUP_FORWARD}) @binding(3) var envMapSampler: sampler;`,
+		`const MAX_ENV_MIP = ${( ENVMAP_MIP_COUNT - 1 ).toFixed( 1 )};`,
+		buildLightWgsl( GROUP_FORWARD, FORWARD_LIGHT_BINDING ),
 	];
 
 	// uniformを持たないマテリアルは binding0 が存在しない（空structはWGSLで書けない）

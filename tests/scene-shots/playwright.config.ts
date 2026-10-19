@@ -29,8 +29,9 @@ export default defineConfig( {
 	// 初回は依存の事前バンドル・vite の変換・シェーダーの minify が走り、最初のシーンを開くまでが長い
 	timeout: 5 * 60 * 1000,
 
-	// 撮るたびの揺れ（webgl の SSAO のサンプルが Math.random・GPU の誤差）を許す幅。
-	// main を3回撮った実測（2026-10）で、画素ごとの色の差は threshold 0.03 で最大1画素、0.05 以上では0画素だった（webgpu は 0.005 でも0画素）。
+	// 撮るたびの揺れ（GPU の誤差など）を許す幅。
+	// main を3回撮った実測（2026-10。webgl の SSAO のカーネルがまだ読み込むたびの Math.random だったころ）で、
+	// 画素ごとの色の差は threshold 0.03 で最大1画素、0.05 以上では0画素だった（webgpu は 0.005 でも0画素）。
 	// threshold はその倍以上をとり、超えた画素も 100（960x540 の約0.02%）までは書き換えない
 	expect: {
 		toMatchSnapshot: {

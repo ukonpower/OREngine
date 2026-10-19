@@ -8,7 +8,7 @@
 //   pp.uEnabled … 0 で常に外れを返す（シェーディングが読む先に古い結果を残さない）
 
 #include "./random.wgsl"
-#include "../../shaders/view.wgsl"
+#include <module:view>
 
 const MARCH = 16;
 const LENGTH = 5.0;
