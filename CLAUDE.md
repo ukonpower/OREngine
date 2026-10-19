@@ -329,7 +329,7 @@ npm run editor:build # エディタ込み HTML のビルド（GitHub Pages の�
 npm run storybook:dev # Storybook 開発サーバー起動（port 6006）
 npm run vrt          # Storybook をビルドして VRT（スクリーンショット比較テスト）を実行
 npm run vrt:update   # VRT の基準スクリーンショットを更新
-npm run scene-shots  # demo-webgl / demo-webgpu の全シーンを撮影して tests/scene-shots へ置く（ローカル Mac 専用）
+npm run scene-shots  # demo-webgl / demo-webgpu の全シーンを撮影して tests/scene-shots へ置く（ローカル Mac 専用。SCENES=foo,bar で絞れる）
 npm run lint         # ESLint実行
 npm run typecheck    # TypeScript型チェック + 全scssのコンパイル検証
 ```
@@ -343,6 +343,7 @@ npm run typecheck    # TypeScript型チェック + 全scssのコンパイル検�
 
 - `npm run scene-shots` で demo-webgl（webgl）と demo-webgpu（webgpu）の全シーン（`scenes/*.json`）を撮り、`tests/scene-shots/<シーン名>/webgl.png` / `webgpu.png` に置く（git 管理）。ファイル名が同じシーンどうしが同じフォルダに並び、片方の demo にしか無いシーンは1枚だけになる
 - 見方: 描画に関わる変更をしたら実行し、PNG の git の差分で描画の変化を見る。webgl と webgpu の違いは同じフォルダの2枚で見比べる。比較用のビューアーは無い
+- シーンを絞る: `SCENES=foo,bar npm run scene-shots`（カンマ区切り・名前の完全一致）。足したシーン・直したシーンだけを撮るとき用。撮るシーンが無いバックエンドは dev サーバーもブラウザも立てない。どちらの demo にも無い名前は撮る前にエラーで止まる。古い PNG の削除は絞り込みに関係なく全シーンで判断するので、絞っても他のシーンの PNG は消えない。環境変数で受けるのは、Playwright が CLI の位置引数を spec ファイルの絞り込みに使うため
 - 撮り方は全シーン共通: 960x540、時刻 1 秒（`shot --time 1 --frames 60 --size 960x540` と同じ。0 秒から 1/60 秒ずつ 60 コマ進め、時間方向に積むパスを落ち着かせる）。シーンのエラー（`errors` と同じ内容）があれば `[scene-shots] <シーン名>（<バックエンド>）でエラーが出ています` と中身を出す。エラーがあっても撮影は続け、失敗扱いにはしない
 - 書き換えの条件: Playwright の `toMatchSnapshot` と `updateSnapshots: 'changed'`（`tests/scene-shots/playwright.config.ts`）。無い PNG は書き、許容誤差（`threshold: 0.1`・`maxDiffPixels: 100`。根拠の実測は設定ファイルのコメント）を超えて変わった PNG だけを書き換える。誤差以内ならファイルに触れないので、何も変えずに撮り直しても git の差分は出ない（webgl の SSAO のサンプルが `Math.random`・GPU の誤差で、画素は撮るたびに少しずつ変わる）。どちらの demo にも無くなったシーンはフォルダごと、片方から消えたシーンはその PNG を消す。誤差以内の差も含めて撮り直すときは `npm run scene-shots -- --update-snapshots=all`
 - 流れ（`tests/scene-shots/sceneShots.spec.ts`）: バックエンドごとに `runDev` で dev サーバーを立て、headless Chromium（`scripts/headlessEditor.ts` の `launchHeadlessEditor`。フラグはシーン CLI の headless と同じ）を開いたまま、`?agent-scene=<name>` 付きの URL でシーンを順に開き直し、AgentBridge の HTTP（`POST /__agent/shot` / `errors`）で撮る。終わったら（途中で失敗しても）ブラウザと dev サーバーを閉じる
