@@ -72,6 +72,88 @@ const BACKENDS: Backend[] = [
 	createBackend( 'webgpu', 'demo-webgpu', 3310 ),
 ];
 
+/*-------------------------------
+	Scene filter
+-------------------------------*/
+
+// SCENES=foo,bar で撮るシーンを名前の完全一致で絞る。省略時（空も）は null = 全シーン。
+// Playwright は CLI の位置引数を spec ファイルの絞り込みに使うので、シーン名は環境変数で受ける
+const parseRequestedScenes = () => {
+
+	const raw = process.env.SCENES;
+
+	if ( ! raw ) return null;
+
+	const names: string[] = [];
+
+	for ( const name of raw.split( ',' ) ) {
+
+		const trimmed = name.trim();
+
+		if ( trimmed !== '' ) {
+
+			names.push( trimmed );
+
+		}
+
+	}
+
+	if ( names.length === 0 ) return null;
+
+	return names;
+
+};
+
+const requestedScenes = parseRequestedScenes();
+
+// 打ち間違いで何も撮らずに終わらないよう、どちらの demo にも無い名前は読み込みの時点で止める
+if ( requestedScenes ) {
+
+	const allScenes = new Set<string>();
+
+	for ( const backend of BACKENDS ) {
+
+		for ( const scene of backend.scenes ) {
+
+			allScenes.add( scene );
+
+		}
+
+	}
+
+	for ( const name of requestedScenes ) {
+
+		if ( ! allScenes.has( name ) ) {
+
+			throw new Error( `SCENES のシーンがどちらの demo にもありません: ${name}（あるシーン: ${[ ...allScenes ].join( ', ' )}）` );
+
+		}
+
+	}
+
+}
+
+// backend で撮るシーン。古い PNG の削除はこの絞り込みに関係なく backend.scenes（全シーン）で判断する
+const scenesToShoot = ( backend: Backend ) => {
+
+	if ( ! requestedScenes ) return backend.scenes;
+
+	const scenes: string[] = [];
+
+	for ( const scene of backend.scenes ) {
+
+		if ( requestedScenes.includes( scene ) ) {
+
+			scenes.push( scene );
+
+		}
+
+	}
+
+	return scenes;
+
+};
+
 // errors コマンドの応答（packages/orengine/editor/lib/AgentBridge/ObserveCommands）
 type SceneErrors = {
 	shader: unknown[];
@@ -270,7 +352,8 @@ for ( const backend of BACKENDS ) {
 
 		} );
 
-		for ( const scene of backend.scenes ) {
+		// 撮るシーンが無いバックエンドはテストが無いので、beforeAll も走らず dev サーバーもブラウザも立たない
+		for ( const scene of scenesToShoot( backend ) ) {
 
 			test( scene, async () => {
 
