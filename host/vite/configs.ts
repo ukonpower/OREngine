@@ -31,6 +31,13 @@ export interface OrengineConfigOptions {
 	port?: number;
 	apiPort?: number;
 	renderer?: RendererName;
+	// dev 専用。vite の依存の事前バンドルの置き場（省略時は vite の既定 = リポジトリの node_modules/.vite）。
+	// プロジェクトやレンダラーが違う dev サーバーが同じ置き場を使うと、起動した側が作り直して入れ替え、動いている側の配信を壊すため、
+	// ユーザーの dev サーバーと同時に動かすもの（tests/scene-shots）は別の場所を渡す
+	cacheDir?: string;
+	// dev 専用。scripts/scene.ts に URL を伝える tmp/dev-server.json を書くか（省略時は書く）。
+	// 自分で立てた dev サーバーの URL を知っている呼び出し側（tests/scene-shots）は false にし、ユーザーの dev サーバーの情報を上書きしない
+	writeDevServerInfo?: boolean;
 }
 
 // ランタイムは BASE_PATH + '/xxx' の形で連結するため、define へ渡す値は末尾スラッシュを落とす
@@ -112,49 +119,62 @@ export const sharedCss = () => ( {
 	},
 } );
 
-export const createDevConfig = ( opts: OrengineConfigOptions ): UserConfig => defineConfig( {
-	root: appRoot,
-	base: opts.basePath ?? '',
-	publicDir: path.join( opts.projectDir, 'public' ),
-	server: {
-		port: opts.port ?? 3000,
-		host: '0.0.0.0',
-		https: opts.https,
-		fs: {
-			allow: [ appRoot, orengineRoot, opts.projectDir ],
+export const createDevConfig = ( opts: OrengineConfigOptions ): UserConfig => {
+
+	// scripts/scene.ts がこのファイルから dev サーバーの URL を読む（パスは scene.ts 側と一致させる）
+	let devServerInfoFile: string | null = path.join( orengineRoot, 'tmp/dev-server.json' );
+
+	if ( opts.writeDevServerInfo === false ) {
+
+		devServerInfoFile = null;
+
+	}
+
+	return defineConfig( {
+		root: appRoot,
+		base: opts.basePath ?? '',
+		publicDir: path.join( opts.projectDir, 'public' ),
+		cacheDir: opts.cacheDir,
+		server: {
+			port: opts.port ?? 3000,
+			host: '0.0.0.0',
+			https: opts.https,
+			fs: {
+				allow: [ appRoot, orengineRoot, opts.projectDir ],
+			},
+			proxy: {
+				'/api': `http://localhost:${opts.apiPort ?? 3001}`,
+			},
 		},
-		proxy: {
-			'/api': `http://localhost:${opts.apiPort ?? 3001}`,
+		build: {
+			outDir: path.join( opts.projectDir, 'dist' ),
 		},
-	},
-	build: {
-		outDir: path.join( opts.projectDir, 'dist' ),
-	},
-	optimizeDeps: {
-		entries: [
-			path.join( appRoot, 'index.html' ),
-			path.join( appRoot, 'static.html' ),
+		optimizeDeps: {
+			entries: [
+				path.join( appRoot, 'index.html' ),
+				path.join( appRoot, 'static.html' ),
+			],
+		},
+		resolve: sharedResolve( opts.projectDir, opts.renderer ?? 'webgl', opts.scene ),
+		css: sharedCss(),
+		plugins: [
+			// WebGPUはsecure context必須のため、webgpu起動時はHTTPS（証明書は自動生成・キャッシュ）で立てる。
+			// basic-ssl は server.https の cert/key を自己署名証明書で上書きするため、証明書が渡されたときは入れない
+			...( opts.renderer === 'webgpu' && ! opts.https ? [ basicSsl() ] : [] ),
+			react(),
+			ShaderBuilder( { scanDirs: [ orengineRoot, opts.projectDir ] } ),
+			TexLoader(),
+			WgslLoader( { moduleDirs: wgslModuleDirs( opts.projectDir ) } ),
+			ProjectWatchReload( opts.projectDir ),
+			AgentBridge( { infoFile: devServerInfoFile } ),
 		],
-	},
-	resolve: sharedResolve( opts.projectDir, opts.renderer ?? 'webgl', opts.scene ),
-	css: sharedCss(),
-	plugins: [
-		// WebGPUはsecure context必須のため、webgpu起動時はHTTPS（証明書は自動生成・キャッシュ）で立てる。
-		// basic-ssl は server.https の cert/key を自己署名証明書で上書きするため、証明書が渡されたときは入れない
-		...( opts.renderer === 'webgpu' && ! opts.https ? [ basicSsl() ] : [] ),
-		react(),
-		ShaderBuilder( { scanDirs: [ orengineRoot, opts.projectDir ] } ),
-		TexLoader(),
-		WgslLoader( { moduleDirs: wgslModuleDirs( opts.projectDir ) } ),
-		ProjectWatchReload( opts.projectDir ),
-		// scripts/scene.ts がこのファイルから dev サーバーの URL を読む（パスは scene.ts 側と一致させる）
-		AgentBridge( { infoFile: path.join( orengineRoot, 'tmp/dev-server.json' ) } ),
-	],
-	define: {
-		BASE_PATH: defineBasePath( opts.basePath ),
-		__OR_PROJECT_NAME__: JSON.stringify( path.basename( opts.projectDir ) ),
-	},
-} );
+		define: {
+			BASE_PATH: defineBasePath( opts.basePath ),
+			__OR_PROJECT_NAME__: JSON.stringify( path.basename( opts.projectDir ) ),
+		},
+	} );
+
+};
 
 // glTF スキーマの型定義（GLTFLoader が読む JSON の形）から、プロパティ名を集める。
 // glb の JSON は実行時に JSON.parse されるので元のキー名のままだが、ローダー側の json.nodes 等のアクセスは改名されて食い違う

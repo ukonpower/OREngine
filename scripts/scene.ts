@@ -75,7 +75,7 @@ const COMMANDS: { [ name: string ]: CommandSpec } = {
 	'scene-delete': { usage: 'scene-delete <name>', description: 'シーンを削除する（開いているシーンは不可）', timeoutMs: 10000 },
 	'scene-open': { usage: 'scene-open <name>', description: 'タブが開くシーンを切り替える（未保存の変更があるときはエラー）', timeoutMs: 15000 },
 	// 描画・GPU からの読み戻し・PNG エンコードを待つ（webgpu の初回はパイプライン生成も入る）
-	shot: { usage: 'shot <out.png> [--camera <entity> | --from x,y,z --to x,y,z] [--time <秒>] [--view <final|パス名>]', description: '指定したカメラ・時刻の描画を PNG に書き出す（--view はパスのラベル。省略時は final）', timeoutMs: 60000 },
+	shot: { usage: 'shot <out.png> [--camera <entity> | --from x,y,z --to x,y,z] [--time <秒> [--frames <コマ数>]] [--size <幅>x<高さ>] [--view <final|パス名>]', description: '指定したカメラ・時刻の描画を PNG に書き出す（--frames は時刻の何コマ前から 1/60 秒ずつ進めて撮るか、--size は出力の大きさで省略時は editor.json の resolution/*、--view はパスのラベルで省略時は final）', timeoutMs: 60000 },
 };
 
 class CliError extends Error {}

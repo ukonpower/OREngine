@@ -6,6 +6,7 @@ import { Engine } from "orengine";
 
 import { OREditor, type FieldUIDefinition, type PanelDefinition, type SceneSelection } from "../../../features/OREditor";
 import { OREngineProvider } from "../../../features/OREngine/providers/OREngineProvider";
+import { AGENT_SCENE_PARAM } from "../../../lib/AgentBridge/Protocol";
 
 import "uipower/styles/style.scss";
 
@@ -83,7 +84,7 @@ export const EditorPage = ( props: EditorPageProps ) => {
 
 	}, [ apiBase ] );
 
-	// 起動時: editor.json に残っている前回のシーン名を優先し、無ければ一覧の先頭を開く
+	// 起動時: URL でシーンを指定されていればそれを開く。無ければ editor.json に残っている前回のシーン名を優先し、無ければ一覧の先頭を開く
 	useEffect( () => {
 
 		if ( props.sceneData ) return;
@@ -108,8 +109,21 @@ export const EditorPage = ( props: EditorPageProps ) => {
 
 			let initial = list[ 0 ];
 			const last = editor ? editor[ EDITOR_SCENE_KEY ] : undefined;
+			const requested = new URLSearchParams( location.search ).get( AGENT_SCENE_PARAM );
 
-			if ( typeof last === 'string' && list.includes( last ) ) {
+			if ( requested !== null ) {
+
+				// 別のシーンを開くと、指定したシーンを開いたつもりの呼び出し側（scene-shots）が取り違えるので、何も開かない
+				if ( ! list.includes( requested ) ) {
+
+					console.error( `URL で指定されたシーンがありません: ${requested}` );
+					return;
+
+				}
+
+				initial = requested;
+
+			} else if ( typeof last === 'string' && list.includes( last ) ) {
 
 				initial = last;
 

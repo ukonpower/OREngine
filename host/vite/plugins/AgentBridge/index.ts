@@ -28,8 +28,9 @@ type Pending = {
 };
 
 export type AgentBridgeOptions = {
-	// dev サーバーの URL を CLI へ伝えるファイル。ポートの繰り上がりや https（webgpu）を CLI 側で推測させないため
-	infoFile: string;
+	// dev サーバーの URL を CLI へ伝えるファイル。ポートの繰り上がりや https（webgpu）を CLI 側で推測させないため。
+	// null なら書かない（URL を自分で知っている呼び出し側が、ユーザーの dev サーバーの情報を上書き・削除しないように）
+	infoFile: string | null;
 };
 
 const sendJson = ( res: ServerResponse, status: number, body: unknown ) => {
@@ -278,6 +279,10 @@ export const AgentBridge = ( opts: AgentBridgeOptions ): Plugin => ( {
 			Info file
 		-------------------------------*/
 
+		const infoFile = opts.infoFile;
+
+		if ( infoFile === null ) return;
+
 		server.httpServer?.once( 'listening', () => {
 
 			const address = server.httpServer?.address();
@@ -286,14 +291,14 @@ export const AgentBridge = ( opts: AgentBridgeOptions ): Plugin => ( {
 
 			const protocol = server.config.server.https ? 'https' : 'http';
 
-			fs.mkdirSync( path.dirname( opts.infoFile ), { recursive: true } );
-			fs.writeFileSync( opts.infoFile, JSON.stringify( { url: `${protocol}://localhost:${address.port}` }, null, '\t' ) );
+			fs.mkdirSync( path.dirname( infoFile ), { recursive: true } );
+			fs.writeFileSync( infoFile, JSON.stringify( { url: `${protocol}://localhost:${address.port}` }, null, '\t' ) );
 
 		} );
 
 		server.httpServer?.once( 'close', () => {
 
-			fs.rmSync( opts.infoFile, { force: true } );
+			fs.rmSync( infoFile, { force: true } );
 
 		} );
 

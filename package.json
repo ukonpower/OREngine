@@ -29,6 +29,7 @@
     "storybook:build": "storybook build",
     "vrt": "npm run storybook:build && playwright test -c tests/vrt/playwright.config.ts",
     "vrt:update": "npm run storybook:build && playwright test -c tests/vrt/playwright.config.ts --update-snapshots",
+    "scene-shots": "playwright test -c tests/scene-shots/playwright.config.ts",
     "lint": "eslint \"**/*.{ts,tsx}\" --report-unused-disable-directives --max-warnings 0",
     "typecheck": "tsc --noEmit && find packages -name '*.scss' | xargs -I{} sass --load-path=packages/uipower --no-source-map --quiet {} /dev/null"
   },
