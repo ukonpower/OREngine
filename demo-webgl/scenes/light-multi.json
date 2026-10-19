@@ -74,7 +74,7 @@
 						"uuid": "976cc74a-570a-44cd-9d6e-2223b2199912",
 						"props": {
 							"lightType": "spot",
-							"castShadow": true,
+							"castShadow": false,
 							"angle": 0.9,
 							"blend": 0.3,
 							"intensity": 500,
