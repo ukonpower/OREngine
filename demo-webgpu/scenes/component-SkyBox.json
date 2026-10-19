@@ -1,0 +1,143 @@
+{
+	"name": "demo-webgpu",
+	"scene": {
+		"name": "root",
+		"uuid": "0",
+		"childs": [
+			{
+				"name": "Camera",
+				"uuid": "a31c8cd6-a720-49ed-adf7-e8a5088944fd",
+				"pos": [
+					0,
+					1.6,
+					6
+				],
+				"rot": [
+					-0.1813,
+					0,
+					0
+				],
+				"components": [
+					{
+						"name": "Camera",
+						"uuid": "95b6ceca-2936-441f-a897-d5472396bcc5",
+						"props": {
+							"fov": 35,
+							"near": 0.1,
+							"far": 100,
+							"focus/mode": "manual",
+							"focus/distance": 6.1
+						}
+					}
+				]
+			},
+			{
+				"name": "Floor",
+				"uuid": "70ec0cfa-17c8-44f1-803d-5163cf2d8655",
+				"scale": [
+					40,
+					1,
+					40
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "25adece3-4ac1-4f05-8056-75978b4b6817",
+						"props": {
+							"shape": "plane",
+							"color": [
+								0.5,
+								0.5,
+								0.5
+							],
+							"roughness": 0.9
+						}
+					}
+				]
+			},
+			{
+				"name": "Sun",
+				"uuid": "cf201e3f-f832-4c4c-ad82-d7937023f2ee",
+				"pos": [
+					3.1435,
+					3.7722,
+					0.943
+				],
+				"rot": [
+					0.1465,
+					-0.121,
+					-0.6858
+				],
+				"components": [
+					{
+						"name": "Light",
+						"uuid": "8d8827f0-afef-463c-8c71-c6b6488dbe8e",
+						"props": {
+							"lightType": "directional",
+							"castShadow": true,
+							"intensity": 2.5
+						}
+					}
+				]
+			},
+			{
+				"name": "MirrorBall",
+				"uuid": "538aef94-f066-43da-876e-ce014c814ae9",
+				"pos": [
+					0,
+					0.6,
+					0
+				],
+				"scale": [
+					1.2,
+					1.2,
+					1.2
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "c610dce1-e57e-4bbd-aae8-62279369be4f",
+						"props": {
+							"shape": "sphere",
+							"roughness": 0.05,
+							"metallic": 1
+						}
+					}
+				]
+			},
+			{
+				"name": "SkyBox",
+				"uuid": "394742cd-ebb4-4d6b-9713-21fa1dcef8e3",
+				"components": [
+					{
+						"name": "SkyBox",
+						"uuid": "134515a3-8211-4a1f-97ec-7e73f2dfebae"
+					}
+				]
+			}
+		]
+	},
+	"renderer": {
+		"sky/skyColor": [
+			0.1,
+			0.1,
+			0.1
+		],
+		"sky/groundColor": [
+			0.03,
+			0.03,
+			0.03
+		],
+		"sky/intensity": 1,
+		"pipeline/motionBlur/enabled": false,
+		"pipeline/ssr/enabled": false,
+		"pipeline/ssao/enabled": false,
+		"pipeline/dof/enabled": false,
+		"pipeline/lightShaft/enabled": false,
+		"pipeline/toneMap/enabled": true,
+		"pipeline/bloom/enabled": false,
+		"pipeline/sss/enabled": false
+	},
+	"timeline/duration": 600,
+	"timeline/fps": 60
+}

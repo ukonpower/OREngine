@@ -1,0 +1,154 @@
+{
+	"name": "demo-webgpu",
+	"scene": {
+		"name": "root",
+		"uuid": "0",
+		"childs": [
+			{
+				"name": "Camera",
+				"uuid": "71df7291-8aa7-4834-af4a-f5e9157729ea",
+				"pos": [
+					0,
+					1.6,
+					6
+				],
+				"rot": [
+					-0.1813,
+					0,
+					0
+				],
+				"components": [
+					{
+						"name": "Camera",
+						"uuid": "93c38d55-d807-4017-9179-08c25573c9ca",
+						"props": {
+							"fov": 35,
+							"near": 0.1,
+							"far": 100,
+							"focus/mode": "manual",
+							"focus/distance": 6.1
+						}
+					}
+				]
+			},
+			{
+				"name": "Floor",
+				"uuid": "d5a67251-9854-45bc-a470-1e250c6620f3",
+				"scale": [
+					40,
+					1,
+					40
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "07f61799-f3b0-4ea6-8dd5-c9a22fc5f95b",
+						"props": {
+							"shape": "plane",
+							"color": [
+								0.5,
+								0.5,
+								0.5
+							],
+							"roughness": 0.9
+						}
+					}
+				]
+			},
+			{
+				"name": "Sun",
+				"uuid": "80b0e466-45f5-4810-8abf-d0be9fc25db9",
+				"pos": [
+					3.1435,
+					3.7722,
+					0.943
+				],
+				"rot": [
+					0.1465,
+					-0.121,
+					-0.6858
+				],
+				"components": [
+					{
+						"name": "Light",
+						"uuid": "3276fc0c-8fea-4363-980c-2201f100121e",
+						"props": {
+							"lightType": "directional",
+							"castShadow": true,
+							"intensity": 2.5
+						}
+					}
+				]
+			},
+			{
+				"name": "Box",
+				"uuid": "51eb55a1-9110-45d5-9892-58297b6c3c58",
+				"pos": [
+					-0.9,
+					0.4,
+					0
+				],
+				"rot": [
+					0,
+					0.5,
+					0
+				],
+				"scale": [
+					0.8,
+					0.8,
+					0.8
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "753c2adb-2fd3-45f9-8c70-e62a29efe230",
+						"props": {
+							"shape": "cube"
+						}
+					}
+				]
+			},
+			{
+				"name": "Ball",
+				"uuid": "b6d259c7-2235-4329-9f2a-5cb73d22a05f",
+				"pos": [
+					0.9,
+					0.5,
+					0.2
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "caa25ddb-4123-4e7f-a705-0de5ee554a04",
+						"props": {
+							"shape": "sphere"
+						}
+					}
+				]
+			}
+		]
+	},
+	"renderer": {
+		"sky/skyColor": [
+			0.1,
+			0.1,
+			0.1
+		],
+		"sky/groundColor": [
+			0.03,
+			0.03,
+			0.03
+		],
+		"sky/intensity": 1,
+		"pipeline/motionBlur/enabled": false,
+		"pipeline/ssr/enabled": false,
+		"pipeline/ssao/enabled": false,
+		"pipeline/dof/enabled": false,
+		"pipeline/lightShaft/enabled": false,
+		"pipeline/toneMap/enabled": true,
+		"pipeline/bloom/enabled": false,
+		"pipeline/sss/enabled": false
+	},
+	"timeline/duration": 600,
+	"timeline/fps": 60
+}

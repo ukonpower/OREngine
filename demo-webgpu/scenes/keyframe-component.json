@@ -1,0 +1,274 @@
+{
+	"name": "demo-webgpu",
+	"scene": {
+		"name": "root",
+		"uuid": "0",
+		"childs": [
+			{
+				"name": "Camera",
+				"uuid": "65cdcabe-a715-4723-89a9-f19d5210bd13",
+				"pos": [
+					0,
+					1.6,
+					6
+				],
+				"rot": [
+					-0.1813,
+					0,
+					0
+				],
+				"components": [
+					{
+						"name": "Camera",
+						"uuid": "f53eca20-ed9f-4b2d-9be6-46794ffc83d7",
+						"props": {
+							"fov": 35,
+							"near": 0.1,
+							"far": 100,
+							"focus/mode": "manual",
+							"focus/distance": 6.1
+						}
+					}
+				]
+			},
+			{
+				"name": "Floor",
+				"uuid": "b132da35-f8ee-45f2-9b33-50492174feff",
+				"scale": [
+					40,
+					1,
+					40
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "c0cc56d3-59af-43b0-a571-3dac9e2725b8",
+						"props": {
+							"shape": "plane",
+							"color": [
+								0.5,
+								0.5,
+								0.5
+							],
+							"roughness": 0.9
+						}
+					}
+				]
+			},
+			{
+				"name": "Spot",
+				"uuid": "8eb09d19-a5cf-4881-9100-096c10f29b3b",
+				"pos": [
+					2.2,
+					3.5,
+					2
+				],
+				"rot": [
+					0.3888,
+					-0.2339,
+					-0.5149
+				],
+				"components": [
+					{
+						"name": "Light",
+						"uuid": "c7a2e490-3a1e-4ff6-852a-8ff058b00da5",
+						"props": {
+							"lightType": "spot",
+							"castShadow": true,
+							"angle": 0.9,
+							"blend": 0.3,
+							"intensity": 0
+						}
+					},
+					{
+						"name": "Animation",
+						"uuid": "3ec003d4-33a6-49f5-b8dc-0b713f4e92c9",
+						"props": {
+							"links": {
+								"Light:intensity": [
+									"c5",
+									1,
+									0
+								]
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "Ball",
+				"uuid": "ab5e2015-91a9-4e8a-8b27-07be6f2318ea",
+				"pos": [
+					0,
+					0.6,
+					0
+				],
+				"scale": [
+					1.2,
+					1.2,
+					1.2
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "7ec63b52-f233-44b9-8590-5dc3a3905a93",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								1,
+								0.1,
+								0.1
+							],
+							"emission": 0
+						}
+					},
+					{
+						"name": "Animation",
+						"uuid": "36f7a66e-1a4d-42e8-8c25-96bb1c5eb704",
+						"props": {
+							"links": {
+								"Shape:color": [
+									[
+										"c1",
+										1,
+										0
+									],
+									[
+										"c2",
+										1,
+										0
+									],
+									[
+										"c3",
+										1,
+										0
+									]
+								],
+								"Shape:emission": [
+									"c4",
+									1,
+									0
+								]
+							}
+						}
+					}
+				]
+			}
+		]
+	},
+	"renderer": {
+		"sky/skyColor": [
+			0.1,
+			0.1,
+			0.1
+		],
+		"sky/groundColor": [
+			0.03,
+			0.03,
+			0.03
+		],
+		"sky/intensity": 1,
+		"pipeline/motionBlur/enabled": false,
+		"pipeline/ssr/enabled": false,
+		"pipeline/ssao/enabled": false,
+		"pipeline/dof/enabled": false,
+		"pipeline/lightShaft/enabled": false,
+		"pipeline/toneMap/enabled": true,
+		"pipeline/bloom/enabled": false,
+		"pipeline/sss/enabled": false
+	},
+	"timeline/duration": 600,
+	"timeline/fps": 60,
+	"curves": {
+		"c1": {
+			"k": [
+				[
+					0,
+					[
+						0,
+						1
+					]
+				],
+				[
+					0,
+					[
+						120,
+						0.1
+					]
+				]
+			]
+		},
+		"c2": {
+			"k": [
+				[
+					0,
+					[
+						0,
+						0.1
+					]
+				],
+				[
+					0,
+					[
+						120,
+						0.2
+					]
+				]
+			]
+		},
+		"c3": {
+			"k": [
+				[
+					0,
+					[
+						0,
+						0.1
+					]
+				],
+				[
+					0,
+					[
+						120,
+						1
+					]
+				]
+			]
+		},
+		"c4": {
+			"k": [
+				[
+					0,
+					[
+						0,
+						0
+					]
+				],
+				[
+					0,
+					[
+						120,
+						1
+					]
+				]
+			]
+		},
+		"c5": {
+			"k": [
+				[
+					0,
+					[
+						0,
+						0
+					]
+				],
+				[
+					0,
+					[
+						120,
+						1200
+					]
+				]
+			]
+		}
+	}
+}

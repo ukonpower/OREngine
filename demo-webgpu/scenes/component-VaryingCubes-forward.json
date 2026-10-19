@@ -1,0 +1,126 @@
+{
+	"name": "demo-webgpu",
+	"scene": {
+		"name": "root",
+		"uuid": "0",
+		"childs": [
+			{
+				"name": "Camera",
+				"uuid": "929f38b6-efbd-49cb-bff8-ca23760a7b96",
+				"pos": [
+					0,
+					2.2,
+					3.6
+				],
+				"rot": [
+					-0.5176,
+					0,
+					0
+				],
+				"components": [
+					{
+						"name": "Camera",
+						"uuid": "7087098d-b43c-49f4-bb38-88feacbcc98a",
+						"props": {
+							"fov": 35,
+							"near": 0.1,
+							"far": 100,
+							"focus/mode": "manual",
+							"focus/distance": 4.1428
+						}
+					}
+				]
+			},
+			{
+				"name": "Floor",
+				"uuid": "379d978d-3f77-412d-807c-647bbece50ee",
+				"scale": [
+					40,
+					1,
+					40
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "b8495057-9bfd-4fc7-b0f1-4f8629dc80f4",
+						"props": {
+							"shape": "plane",
+							"color": [
+								0.5,
+								0.5,
+								0.5
+							],
+							"roughness": 0.9
+						}
+					}
+				]
+			},
+			{
+				"name": "Sun",
+				"uuid": "629a475f-b40c-47c5-ba34-9bb47dd0fd48",
+				"pos": [
+					3.1435,
+					3.7722,
+					0.943
+				],
+				"rot": [
+					0.1465,
+					-0.121,
+					-0.6858
+				],
+				"components": [
+					{
+						"name": "Light",
+						"uuid": "2659934a-ce0b-4bc8-adb9-bbb8571e852f",
+						"props": {
+							"lightType": "directional",
+							"castShadow": true,
+							"intensity": 2.5
+						}
+					}
+				]
+			},
+			{
+				"name": "VaryingCubes",
+				"uuid": "cc16a47c-5787-4e73-a06d-d6bbf61ae398",
+				"pos": [
+					0,
+					0.1,
+					0
+				],
+				"components": [
+					{
+						"name": "VaryingCubes",
+						"uuid": "868bcd0c-2f81-4261-ae6e-3469e140fbe9",
+						"props": {
+							"forward": true
+						}
+					}
+				]
+			}
+		]
+	},
+	"renderer": {
+		"sky/skyColor": [
+			0.1,
+			0.1,
+			0.1
+		],
+		"sky/groundColor": [
+			0.03,
+			0.03,
+			0.03
+		],
+		"sky/intensity": 1,
+		"pipeline/motionBlur/enabled": false,
+		"pipeline/ssr/enabled": false,
+		"pipeline/ssao/enabled": false,
+		"pipeline/dof/enabled": false,
+		"pipeline/lightShaft/enabled": false,
+		"pipeline/toneMap/enabled": true,
+		"pipeline/bloom/enabled": false,
+		"pipeline/sss/enabled": false
+	},
+	"timeline/duration": 600,
+	"timeline/fps": 60
+}

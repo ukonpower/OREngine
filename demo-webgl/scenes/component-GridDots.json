@@ -1,0 +1,69 @@
+{
+	"name": "demo-webgl",
+	"scene": {
+		"name": "root",
+		"uuid": "0",
+		"childs": [
+			{
+				"name": "Camera",
+				"uuid": "8a671e9e-9e5a-46bb-a3b6-90d6ccd0b143",
+				"pos": [
+					0,
+					3,
+					18
+				],
+				"rot": [
+					-0.1651,
+					0,
+					0
+				],
+				"components": [
+					{
+						"name": "Camera",
+						"uuid": "d70a2d3b-54bb-473e-8800-eeabaff14703",
+						"props": {
+							"fov": 35,
+							"near": 0.1,
+							"far": 100,
+							"focus/mode": "manual",
+							"focus/distance": 18.2483
+						}
+					}
+				]
+			},
+			{
+				"name": "GridDots",
+				"uuid": "963d8c41-ddda-4855-9063-e3b561605710",
+				"components": [
+					{
+						"name": "GridDots",
+						"uuid": "889e370c-7f1a-47c1-b8f6-eb322f24c050"
+					}
+				]
+			}
+		]
+	},
+	"renderer": {
+		"sky/skyColor": [
+			0.1,
+			0.1,
+			0.1
+		],
+		"sky/groundColor": [
+			0.03,
+			0.03,
+			0.03
+		],
+		"sky/intensity": 1,
+		"pipeline/motionBlur/enabled": false,
+		"pipeline/ssr/enabled": false,
+		"pipeline/ssao/enabled": false,
+		"pipeline/dof/enabled": false,
+		"pipeline/lightShaft/enabled": false,
+		"pipeline/toneMap/enabled": true,
+		"pipeline/bloom/enabled": false,
+		"pipeline/sss/enabled": false
+	},
+	"timeline/duration": 600,
+	"timeline/fps": 60
+}
