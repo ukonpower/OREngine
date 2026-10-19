@@ -291,6 +291,7 @@ Entity / Component の SerializeField にキーを打ち、player で再生す�
 - **絶対禁止**: `npm run dev` を勝手に起動しない（ユーザーが明示的に指示した場合のみ実行する）
 - **必須**: コミットメッセージは日本語で記述する
 - **必須**: コード変更後は `npm run typecheck` で型チェックを実行し、続けて `npm run lint --fix` でESLintエラーを自動修正する
+- **必須**: エンジン（`packages/maxpower` / `glpower` / `mathpower`、`packages/orengine` の core / builtin、GLSL / WGSL のシェーダーとそのビルド）を変更したら、影響のありそうなシーンを `npm run scene-shots` で撮り、描画に問題が無いことを確かめてから完了とする。手順は「シーンの撮影（scene-shots）」の節。scene-shots は専用のポートで dev サーバーを立て、終わったら閉じるので、上の `npm run dev` の禁止には当たらない。指示を待たずに実行する
 
 ### issue 運用
 - TODO は GitHub issue で管理する。テンプレは `.github/ISSUE_TEMPLATE/`
@@ -343,6 +344,10 @@ npm run typecheck    # TypeScript型チェック + 全scssのコンパイル検�
 
 - `npm run scene-shots` で demo-webgl（webgl）と demo-webgpu（webgpu）の全シーン（`scenes/*.json`）を撮り、`tests/scene-shots/<シーン名>/webgl.png` / `webgpu.png` に置く（git 管理）。ファイル名が同じシーンどうしが同じフォルダに並び、片方の demo にしか無いシーンは1枚だけになる
 - 見方: 描画に関わる変更をしたら実行し、PNG の git の差分で描画の変化を見る。webgl と webgpu の違いは同じフォルダの2枚で見比べる。比較用のビューアーは無い
+- エンジンを変更したときの確認（「ルール」の節の必須項目）:
+  - 撮るシーン: シーン名は描画の機能ごとに付けている（`light-*` / `material-*` / `post-*` など）ので、変更した機能のシーンを `SCENES=` で絞って撮る。レンダラーの土台（パイプライン・共有のシェーダーモジュール・ライティング）のように多くのシーンに効く変更や、どのシーンに効くか絞れない変更は全シーンを撮る
+  - 確かめ方: 撮ったら `git status tests/scene-shots` で書き換わった PNG を見る。書き換わった PNG は変更前（`git show HEAD:<パス>` を scratchpad などへ書き出す）と変更後の両方を開いて見比べ、変化が変更の意図どおりかを判断する。真っ黒・描画の欠け・色や明るさのずれ・webgl と webgpu の食い違いのような意図しない変化があれば直して撮り直す。`[scene-shots] … でエラーが出ています` の出力も見る（エラーがあっても撮影は失敗扱いにならないため）
+  - 意図どおりの変化なら、書き換わった PNG は変更と一緒に残す。完了の報告には、撮ったシーンと、書き換わった PNG ごとの判断を書く
 - シーンを絞る: `SCENES=foo,bar npm run scene-shots`（カンマ区切り・名前の完全一致）。足したシーン・直したシーンだけを撮るとき用。撮るシーンが無いバックエンドは dev サーバーもブラウザも立てない。どちらの demo にも無い名前は撮る前にエラーで止まる。古い PNG の削除は絞り込みに関係なく全シーンで判断するので、絞っても他のシーンの PNG は消えない。環境変数で受けるのは、Playwright が CLI の位置引数を spec ファイルの絞り込みに使うため
 - 撮り方は全シーン共通: 960x540、時刻 1 秒（`shot --time 1 --frames 60 --size 960x540` と同じ。0 秒から 1/60 秒ずつ 60 コマ進め、時間方向に積むパスを落ち着かせる）。シーンのエラー（`errors` と同じ内容）があれば `[scene-shots] <シーン名>（<バックエンド>）でエラーが出ています` と中身を出す。エラーがあっても撮影は続け、失敗扱いにはしない
 - 書き換えの条件: Playwright の `toMatchSnapshot` と `updateSnapshots: 'changed'`（`tests/scene-shots/playwright.config.ts`）。無い PNG は書き、許容誤差（`threshold: 0.1`・`maxDiffPixels: 100`。根拠の実測は設定ファイルのコメント）を超えて変わった PNG だけを書き換える。誤差以内ならファイルに触れないので、何も変えずに撮り直しても git の差分は出ない（webgl の SSAO のサンプルが `Math.random`・GPU の誤差で、画素は撮るたびに少しずつ変わる）。どちらの demo にも無くなったシーンはフォルダごと、片方から消えたシーンはその PNG を消す。誤差以内の差も含めて撮り直すときは `npm run scene-shots -- --update-snapshots=all`
