@@ -1,0 +1,311 @@
+{
+	"name": "demo-webgpu",
+	"scene": {
+		"name": "root",
+		"uuid": "0",
+		"childs": [
+			{
+				"name": "Camera",
+				"uuid": "5f853854-7b9d-4a9b-9e5b-41f7f793ebfc",
+				"pos": [
+					0,
+					2.2,
+					7
+				],
+				"rot": [
+					-0.1279,
+					0,
+					0
+				],
+				"components": [
+					{
+						"name": "Camera",
+						"uuid": "6cbcac43-4c2a-47cf-b204-d5329b2266c0",
+						"props": {
+							"fov": 35,
+							"near": 0.1,
+							"far": 100,
+							"focus/mode": "manual",
+							"focus/distance": 7.0576
+						}
+					}
+				]
+			},
+			{
+				"name": "Floor",
+				"uuid": "7e98e6b8-1b75-401b-aa59-dbabf039dbea",
+				"scale": [
+					40,
+					1,
+					40
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "2b748873-5268-4380-a748-08d609556dba",
+						"props": {
+							"shape": "plane",
+							"color": [
+								0.5,
+								0.5,
+								0.5
+							],
+							"roughness": 0.9
+						}
+					}
+				]
+			},
+			{
+				"name": "Sun",
+				"uuid": "f3126c91-618e-466d-9cd7-1b5fb6083a88",
+				"pos": [
+					3.1435,
+					3.7722,
+					0.943
+				],
+				"rot": [
+					0.1465,
+					-0.121,
+					-0.6858
+				],
+				"components": [
+					{
+						"name": "Light",
+						"uuid": "8a25c07f-1cbd-47bb-b7aa-0d6d433f4054",
+						"props": {
+							"lightType": "directional",
+							"castShadow": true,
+							"intensity": 2.5
+						}
+					}
+				]
+			},
+			{
+				"name": "Linear",
+				"uuid": "30b15225-1b44-4da9-8ed0-49645afd14ec",
+				"pos": [
+					-1.5,
+					0.3,
+					0
+				],
+				"scale": [
+					0.6,
+					0.6,
+					0.6
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "8f5daa2e-dc1f-4755-8591-ce919e1e6477",
+						"props": {
+							"shape": "cube",
+							"color": [
+								0.9,
+								0.3,
+								0.2
+							]
+						}
+					},
+					{
+						"name": "Animation",
+						"uuid": "e5575d18-1b2e-48d3-86f4-61ebfb086c8c",
+						"props": {
+							"links": {
+								"position": [
+									null,
+									[
+										"c1",
+										1,
+										0
+									],
+									null
+								]
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "Constant",
+				"uuid": "0af0b384-7452-4a2d-97dc-c41d0d0256d6",
+				"pos": [
+					0,
+					0.3,
+					0
+				],
+				"scale": [
+					0.6,
+					0.6,
+					0.6
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "d16ed9f7-eeb6-4663-b956-a14b8dbf0dd2",
+						"props": {
+							"shape": "cube",
+							"color": [
+								0.3,
+								0.8,
+								0.3
+							]
+						}
+					},
+					{
+						"name": "Animation",
+						"uuid": "9f649a5e-472d-4139-820d-e0d28dd572b3",
+						"props": {
+							"links": {
+								"position": [
+									null,
+									[
+										"c2",
+										1,
+										0
+									],
+									null
+								]
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "Bezier",
+				"uuid": "f4c16956-5569-4279-a820-a1399a319061",
+				"pos": [
+					1.5,
+					0.3,
+					0
+				],
+				"scale": [
+					0.6,
+					0.6,
+					0.6
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "46685c16-8d65-4c84-bac8-51cf1e122320",
+						"props": {
+							"shape": "cube",
+							"color": [
+								0.2,
+								0.4,
+								0.9
+							]
+						}
+					},
+					{
+						"name": "Animation",
+						"uuid": "90847564-ef74-44d0-a034-d94b3179c835",
+						"props": {
+							"links": {
+								"position": [
+									null,
+									[
+										"c3",
+										1,
+										0
+									],
+									null
+								]
+							}
+						}
+					}
+				]
+			}
+		]
+	},
+	"renderer": {
+		"sky/skyColor": [
+			0.1,
+			0.1,
+			0.1
+		],
+		"sky/groundColor": [
+			0.03,
+			0.03,
+			0.03
+		],
+		"sky/intensity": 1,
+		"pipeline/motionBlur/enabled": false,
+		"pipeline/ssr/enabled": false,
+		"pipeline/ssao/enabled": false,
+		"pipeline/dof/enabled": false,
+		"pipeline/lightShaft/enabled": false,
+		"pipeline/toneMap/enabled": true,
+		"pipeline/bloom/enabled": false,
+		"pipeline/sss/enabled": false
+	},
+	"timeline/duration": 600,
+	"timeline/fps": 60,
+	"curves": {
+		"c1": {
+			"k": [
+				[
+					0,
+					[
+						0,
+						0.3
+					]
+				],
+				[
+					0,
+					[
+						180,
+						3.3
+					]
+				]
+			]
+		},
+		"c2": {
+			"k": [
+				[
+					1,
+					[
+						0,
+						0.3
+					]
+				],
+				[
+					1,
+					[
+						180,
+						3.3
+					]
+				]
+			]
+		},
+		"c3": {
+			"k": [
+				[
+					2,
+					[
+						0,
+						0.3,
+						-60,
+						0.3,
+						60,
+						0.3
+					]
+				],
+				[
+					2,
+					[
+						180,
+						3.3,
+						120,
+						3.3,
+						240,
+						3.3
+					]
+				]
+			],
+			"h": [
+				4,
+				4
+			]
+		}
+	}
+}

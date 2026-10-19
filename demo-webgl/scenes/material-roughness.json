@@ -1,0 +1,253 @@
+{
+	"name": "demo-webgl",
+	"scene": {
+		"name": "root",
+		"uuid": "0",
+		"childs": [
+			{
+				"name": "Camera",
+				"uuid": "59ae8b25-ee59-4ccf-a49c-b06be0912b12",
+				"pos": [
+					0,
+					1.6,
+					6
+				],
+				"rot": [
+					-0.1813,
+					0,
+					0
+				],
+				"components": [
+					{
+						"name": "Camera",
+						"uuid": "7d7889c8-d5a9-4830-a398-db14ffda783f",
+						"props": {
+							"fov": 35,
+							"near": 0.1,
+							"far": 100,
+							"focus/mode": "manual",
+							"focus/distance": 6.1
+						}
+					}
+				]
+			},
+			{
+				"name": "Floor",
+				"uuid": "f714a8db-beb0-4c99-8ca9-ba66d007f53f",
+				"scale": [
+					40,
+					1,
+					40
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "283a25ba-cef3-4a6b-b178-d8cc8846fdb8",
+						"props": {
+							"shape": "plane",
+							"color": [
+								0.5,
+								0.5,
+								0.5
+							],
+							"roughness": 0.9
+						}
+					}
+				]
+			},
+			{
+				"name": "Sun",
+				"uuid": "0ab69033-9676-47f0-853f-f69bea6f8a0b",
+				"pos": [
+					-1.7928,
+					3.5857,
+					2.9881
+				],
+				"rot": [
+					0.588,
+					0.2705,
+					0.3813
+				],
+				"components": [
+					{
+						"name": "Light",
+						"uuid": "7adf0f8b-d434-40f4-b8ef-866959108f61",
+						"props": {
+							"lightType": "directional",
+							"castShadow": true,
+							"intensity": 2.5
+						}
+					}
+				]
+			},
+			{
+				"name": "Ball0",
+				"uuid": "47357a05-1995-468a-8e68-4ba1bf7508e5",
+				"pos": [
+					-2.3,
+					0.5,
+					0
+				],
+				"scale": [
+					0.95,
+					0.95,
+					0.95
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "55cb0ba7-e93c-47b8-b322-79a9a0b4bdb2",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								0.7,
+								0.1,
+								0.1
+							],
+							"roughness": 0
+						}
+					}
+				]
+			},
+			{
+				"name": "Ball1",
+				"uuid": "468dad8e-fd23-4f6c-858c-9bce0bd112ca",
+				"pos": [
+					-1.15,
+					0.5,
+					0
+				],
+				"scale": [
+					0.95,
+					0.95,
+					0.95
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "90e0ce8f-7867-4836-9a48-a39ac064d77b",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								0.7,
+								0.1,
+								0.1
+							],
+							"roughness": 0.25
+						}
+					}
+				]
+			},
+			{
+				"name": "Ball2",
+				"uuid": "0f958919-d433-4bcd-966b-e926a68ef99c",
+				"pos": [
+					0,
+					0.5,
+					0
+				],
+				"scale": [
+					0.95,
+					0.95,
+					0.95
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "1902a84a-4f95-42dd-ad41-f2cd73ffb475",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								0.7,
+								0.1,
+								0.1
+							],
+							"roughness": 0.5
+						}
+					}
+				]
+			},
+			{
+				"name": "Ball3",
+				"uuid": "987ef581-2bb5-4b73-bf39-cede1b5e9fe7",
+				"pos": [
+					1.15,
+					0.5,
+					0
+				],
+				"scale": [
+					0.95,
+					0.95,
+					0.95
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "e30c181c-39e6-4582-8cec-7d467aa8e0e3",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								0.7,
+								0.1,
+								0.1
+							],
+							"roughness": 0.75
+						}
+					}
+				]
+			},
+			{
+				"name": "Ball4",
+				"uuid": "d796672f-9728-4fe2-bcad-7ac34cc2ca33",
+				"pos": [
+					2.3,
+					0.5,
+					0
+				],
+				"scale": [
+					0.95,
+					0.95,
+					0.95
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "453169ab-7f91-436a-a9df-f1902e504830",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								0.7,
+								0.1,
+								0.1
+							],
+							"roughness": 1
+						}
+					}
+				]
+			}
+		]
+	},
+	"renderer": {
+		"sky/skyColor": [
+			0.1,
+			0.1,
+			0.1
+		],
+		"sky/groundColor": [
+			0.03,
+			0.03,
+			0.03
+		],
+		"sky/intensity": 1,
+		"pipeline/motionBlur/enabled": false,
+		"pipeline/ssr/enabled": false,
+		"pipeline/ssao/enabled": false,
+		"pipeline/dof/enabled": false,
+		"pipeline/lightShaft/enabled": false,
+		"pipeline/toneMap/enabled": true,
+		"pipeline/bloom/enabled": false,
+		"pipeline/sss/enabled": false
+	},
+	"timeline/duration": 600,
+	"timeline/fps": 60
+}
