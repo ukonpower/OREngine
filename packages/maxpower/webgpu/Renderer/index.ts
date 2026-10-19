@@ -133,15 +133,7 @@ const createDefaultPipelineConfig = (): PipelineConfig => ( {
 	motionBlurPower: 1.0,
 	ssr: true,
 	ssao: true,
-	ssaoIntensity: 1.0,
-	ssaoBlur: true,
-	ssaoTemporal: true,
-	ssaoTemporalBlend: 0.2,
 	lightShaft: true,
-	lightShaftIntensity: 1.0,
-	lightShaftBlur: true,
-	lightShaftTemporal: true,
-	lightShaftTemporalBlend: 0.3,
 	dof: true,
 	toneMap: true,
 	exposure: 0,
@@ -403,67 +395,6 @@ export class Renderer extends Serializable implements RendererContract {
 					this.applyPipelineConfig( { motionBlurPower: v } );
 
 				}, { step: 0.1 } );
-
-			}
-
-			// ノイズのならしは効果とコストを見比べられるよう個別に切れる
-			if ( key === 'ssao' ) {
-
-				// 遮蔽の濃さ。enabled と掛けて uIntensity へ入る
-				dir.field( 'intensity', () => this.pipelineConfig.ssaoIntensity ?? 1.0, ( v: number ) => {
-
-					this.applyPipelineConfig( { ssaoIntensity: v } );
-
-				}, { step: 0.1 } );
-
-				dir.field( 'blur', () => this.pipelineConfig.ssaoBlur ?? true, ( v: boolean ) => {
-
-					this.applyPipelineConfig( { ssaoBlur: v } );
-
-				} );
-
-				dir.field( 'temporal', () => this.pipelineConfig.ssaoTemporal ?? true, ( v: boolean ) => {
-
-					this.applyPipelineConfig( { ssaoTemporal: v } );
-
-				} );
-
-				// 大きいほど遮蔽の変化に素早く追従し、小さいほどノイズが減る
-				dir.field( 'temporalBlend', () => this.pipelineConfig.ssaoTemporalBlend ?? 0.2, ( v: number ) => {
-
-					this.applyPipelineConfig( { ssaoTemporalBlend: v } );
-
-				}, { step: 0.05 } );
-
-			}
-
-			if ( key === 'lightShaft' ) {
-
-				// 光条の濃さ。enabled と掛けて uIntensity へ入る
-				dir.field( 'intensity', () => this.pipelineConfig.lightShaftIntensity ?? 1.0, ( v: number ) => {
-
-					this.applyPipelineConfig( { lightShaftIntensity: v } );
-
-				}, { step: 0.1 } );
-
-				dir.field( 'blur', () => this.pipelineConfig.lightShaftBlur ?? true, ( v: boolean ) => {
-
-					this.applyPipelineConfig( { lightShaftBlur: v } );
-
-				} );
-
-				dir.field( 'temporal', () => this.pipelineConfig.lightShaftTemporal ?? true, ( v: boolean ) => {
-
-					this.applyPipelineConfig( { lightShaftTemporal: v } );
-
-				} );
-
-				// 大きいほど影の出入りに素早く追従し、小さいほどノイズが減る
-				dir.field( 'temporalBlend', () => this.pipelineConfig.lightShaftTemporalBlend ?? 0.3, ( v: number ) => {
-
-					this.applyPipelineConfig( { lightShaftTemporalBlend: v } );
-
-				}, { step: 0.05 } );
 
 			}
 
@@ -851,7 +782,7 @@ export class Renderer extends Serializable implements RendererContract {
 		pipeline.update( camera );
 		pipeline.renderDeferred( device, encoder, frameBindGroup, view.targets.gBufferViews[ 0 ], lights.bindGroup, onPass );
 
-		if ( view.gBufferLightShaftView !== pipeline.lightShaftView || view.gBufferSsaoView !== pipeline.ssaoView || view.gBufferSsrView !== pipeline.ssrView ) {
+		if ( view.gBufferSsrView !== pipeline.ssrView ) {
 
 			this._createGBufferBindGroup( device, view );
 
@@ -1626,13 +1557,11 @@ export class Renderer extends Serializable implements RendererContract {
 	}
 
 	// シェーディングが読む入力をまとめたbind group。
-	// lightShaft / SSAO はぼかしを切るとピンポンの描画先が露出し、SSR は常にピンポンの描画先なので、参照先がフレームごとに変わる
+	// SSR はピンポンの描画先を読むので、参照先がフレームごとに変わる
 	private _createGBufferBindGroup( device: GPUDevice, view: RenderView ) {
 
 		const pipeline = view.pipeline!;
 
-		view.gBufferLightShaftView = pipeline.lightShaftView;
-		view.gBufferSsaoView = pipeline.ssaoView;
 		view.gBufferSsrView = pipeline.ssrView;
 
 		view.gBufferBindGroup = device.createBindGroup( {
@@ -1644,8 +1573,8 @@ export class Renderer extends Serializable implements RendererContract {
 					{ binding, resource: binding === 1 ? pipeline.normalView! : resource } ) ),
 				{ binding: ENVMAP_BINDING, resource: this._envMap!.view },
 				{ binding: ENVMAP_SAMPLER_BINDING, resource: this._envMap!.sampler },
-				{ binding: SSAO_BINDING, resource: view.gBufferSsaoView! },
-				{ binding: LIGHTSHAFT_BINDING, resource: view.gBufferLightShaftView! },
+				{ binding: SSAO_BINDING, resource: pipeline.ssaoView! },
+				{ binding: LIGHTSHAFT_BINDING, resource: pipeline.lightShaftView! },
 				{ binding: SSR_BINDING, resource: view.gBufferSsrView! },
 			],
 		} );

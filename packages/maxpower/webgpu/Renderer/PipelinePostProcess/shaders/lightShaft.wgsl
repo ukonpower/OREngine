@@ -5,10 +5,8 @@
 // 外から与えられる名前:
 //   uGbufferPos … gBufferのワールド座標（NEAREST）
 //   uLightShaftBackBuffer … 前フレームの自分の出力
-//   pp.uIntensity … 光条の強さ。0でこのパスの寄与が消える
+//   pp.uIntensity … 有効なら1、無効なら0。0でこのパスの寄与が消える
 //   pp.uFrame … ジッタを回すためのフレーム番号
-//   pp.uTemporal … 0で時間方向の蓄積をやめ、1フレームぶんの結果をそのまま出す
-//   pp.uTemporalBlend … 新しい結果の重み。小さいほどノイズは減るが、影の出入りが尾を引く
 
 #include "./random.wgsl"
 
@@ -16,6 +14,9 @@ const MARCH_LENGTH = 60.0;
 const MARCH = 32;
 
 const LUMA = vec3f( 0.299, 0.587, 0.114 );
+
+// 新しい結果の重み。小さいほどノイズは減るが、影の出入りが尾を引く（webgl 側の lightShaft.fs と同じ値）
+const TEMPORAL_BLEND = 0.3;
 
 // 再投影が画面上で動いた量に対して履歴を捨てる強さ。
 // 画面の5%ぶん動いたら履歴を使わなくなる（1.0 / 0.05）
@@ -112,12 +113,6 @@ fn fsMain( input: FullscreenOutput ) -> @location(0) vec4f {
 
 	sum *= 0.4 * pp.uIntensity;
 
-	if ( pp.uTemporal < 0.5 ) {
-
-		return vec4f( sum, 1.0 );
-
-	}
-
 	// レイの終端を前フレームのカメラで見たときの画面位置。そこに前フレームの筋が残っている
 	let prevClip = frame.uProjectionMatrixPrev * frame.uViewMatrixPrev * vec4f( rayEndPos, 1.0 );
 	let prevUv = ndcToUv( prevClip.xy / prevClip.w );
@@ -132,7 +127,7 @@ fn fsMain( input: FullscreenOutput ) -> @location(0) vec4f {
 	let lumHistory = dot( history, LUMA );
 	let change = abs( lumSum - lumHistory ) / max( max( lumSum, lumHistory ), 0.0001 );
 
-	var alpha = pp.uTemporalBlend + motion * TEMPORAL_REJECT;
+	var alpha = TEMPORAL_BLEND + motion * TEMPORAL_REJECT;
 	alpha = mix( alpha, 1.0, smoothstep( CHANGE_LOW, CHANGE_HIGH, change ) );
 
 	// 画面の外から来たピクセルには履歴が無い
