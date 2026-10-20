@@ -10,7 +10,7 @@ const rootDir = path.join( testDir, '../..' );
 export default defineConfig( {
 	testDir,
 
-	// <シーン名>/<バックエンド>.png に置く。git の差分で見るファイルなので、プラットフォーム名などは付けない
+	// <シーン名>-<バックエンド>.png として testDir の直下に置く（名前は sceneShots.spec.ts の shotFileName）。git の差分で見るファイルなので、プラットフォーム名などは付けない
 	snapshotPathTemplate: '{testDir}/{arg}{ext}',
 
 	// 無い PNG は書き、許容誤差を超えて変わった PNG だけを書き換える（誤差以内ならファイルに触れず、git の差分にならない）

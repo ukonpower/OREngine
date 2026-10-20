@@ -14,7 +14,7 @@ import type { AgentHttpRequest, AgentOptions, AgentResult } from '../../packages
 import type { HeadlessEditor } from '../../scripts/headlessEditor';
 import type { APIRequestContext, Page } from '@playwright/test';
 
-// demo-webgl（webgl）と demo-webgpu（webgpu）の全シーンを撮り、<シーン名>/<バックエンド>.png に置く（npm run scene-shots）。
+// demo-webgl（webgl）と demo-webgpu（webgpu）の全シーンを撮り、この spec と同じディレクトリに <シーン名>-<バックエンド>.png で置く（npm run scene-shots）。
 // バックエンドごとに dev サーバーと headless Chromium を立て、ブラウザを開いたままシーンを順に開き直して shot で撮る。
 // PNG の比較と書き換えは toMatchSnapshot（playwright.config.ts の updateSnapshots: 'changed'）に任せる
 
@@ -42,7 +42,7 @@ const POLL_INTERVAL_MS = 200;
 const SETTLE_FRAMES = 30;
 
 type Backend = {
-	// レンダラー名。出力の PNG の名前（<シーン名>/<name>.png）にも使う
+	// レンダラー名。出力の PNG の名前（<シーン名>-<name>.png）にも使う
 	name: 'webgl' | 'webgpu';
 	projectDir: string;
 	// ユーザーの dev サーバー（既定 3000 / 3001）・BLidge（3100）から離した番号。使用中なら後ろの空き番号へずれる。
@@ -192,32 +192,40 @@ const waitFrames = ( page: Page, count: number ) => page.evaluate( ( frames ) =>
 	PNG
 -------------------------------*/
 
-// 今のシーンに無い PNG を消す。どちらの demo にも無くなったシーンはフォルダごと消す
+// 撮った PNG のファイル名。エクスプローラーの名前順で同じシーンの webgl と webgpu が隣に並ぶよう、シーン名を先に置く
+const shotFileName = ( scene: string, backend: Backend ) => `${scene}-${backend.name}.png`;
+
+// 撮った PNG のファイル名からシーン名とバックエンド名（Backend の name）を取り出す。spec・設定ファイルなど撮った PNG でないものには一致しない
+const SHOT_FILE_PATTERN = /^(.+)-(webgl|webgpu)\.png$/;
+
+// 今のシーンに無い PNG を消す（どちらの demo にも無くなったシーンは2枚とも、片方から消えたシーンはその1枚）
 const removeStaleShots = () => {
 
 	for ( const entry of fs.readdirSync( testDir, { withFileTypes: true } ) ) {
 
-		if ( ! entry.isDirectory() ) continue;
+		if ( ! entry.isFile() ) continue;
 
-		const dir = path.join( testDir, entry.name );
+		const match = SHOT_FILE_PATTERN.exec( entry.name );
+
+		if ( ! match ) continue;
+
+		const scene = match[ 1 ];
+		const backendName = match[ 2 ];
 		let used = false;
 
 		for ( const backend of BACKENDS ) {
 
-			if ( backend.scenes.includes( entry.name ) ) {
+			if ( backend.name === backendName && backend.scenes.includes( scene ) ) {
 
 				used = true;
-				continue;
 
 			}
-
-			fs.rmSync( path.join( dir, `${backend.name}.png` ), { force: true } );
 
 		}
 
 		if ( ! used ) {
 
-			fs.rmSync( dir, { recursive: true, force: true } );
+			fs.rmSync( path.join( testDir, entry.name ) );
 
 		}
 
@@ -375,7 +383,7 @@ for ( const backend of BACKENDS ) {
 
 				reportErrors( scene, backend, errors );
 
-				expect( Buffer.from( shot.png, 'base64' ) ).toMatchSnapshot( [ scene, `${backend.name}.png` ] );
+				expect( Buffer.from( shot.png, 'base64' ) ).toMatchSnapshot( shotFileName( scene, backend ) );
 
 			} );
 
