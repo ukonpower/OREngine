@@ -6,7 +6,7 @@ import { useOREditor } from "../../../hooks/useOREditor";
 import { addClip, clipKey, decodeTracks, deleteSelected, duplicateSelected, EditClip, encodeTracks, moveSelected, resizeSelected, setActiveParam, trimSelected } from "../lib/clipEdit";
 
 import type { Music } from "../../../../../../builtin/Components/Utility/Music";
-import type { MusicTrackData } from "../../../../../../builtin/Components/Utility/Music/instrument";
+import type { MusicNoteData, MusicTrackData } from "../../../../../../builtin/Components/Utility/Music/instrument";
 import type { EditAreaActions } from "../../../../../lib/Editor";
 
 // 帯のどこを押したか。左端・右端は長さを変える取っ手
@@ -47,6 +47,8 @@ type ClipEditingOptions = {
 	pxPerBeat: number;
 	// ポインタの X（clientX）の、曲の頭からの拍
 	beatAt: ( clientX: number ) => number;
+	// トラックごとに、ノートのトラックか（置いた帯を空のノートの帯にする）
+	noteTracks: boolean[];
 };
 
 // Music パネルの帯の選択と編集。編集はどれも EditorAPI を通し、ドラッグは beginEdit で undo 1回にまとめる。
@@ -54,7 +56,7 @@ type ClipEditingOptions = {
 export const useMusicClipEditing = ( options: ClipEditingOptions ) => {
 
 	const { editor } = useOREditor();
-	const { music, tracks, pxPerBeat, beatAt } = options;
+	const { music, tracks, pxPerBeat, beatAt, noteTracks } = options;
 
 	const [ selection, setSelection ] = useState<ClipSelection>( EMPTY_SELECTION );
 
@@ -215,7 +217,11 @@ export const useMusicClipEditing = ( options: ClipEditingOptions ) => {
 
 		const start = Math.max( 0, Math.floor( beatAt( clientX ) ) );
 
-		commitClips( addClip( decode(), track, start, lastLengthRef.current ) );
+		let notes: MusicNoteData[] | null = null;
+
+		if ( noteTracks[ track ] ) notes = [];
+
+		commitClips( addClip( decode(), track, start, lastLengthRef.current, notes ) );
 
 	};
 

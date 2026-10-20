@@ -1,0 +1,222 @@
+// ピアノロール。鍵盤の列は帯のタイムラインの見出しの列（--music-head-width）と同じ幅にし、上下で時間の軸の左端をそろえる。
+// 1つの音高の行の高さ（--music-key-height）は、MusicRoll が並べた全体の高さから測ってドラッグの量を半音に直す
+.roll {
+	--music-key-height: calc(var(--or-space) * 2);
+
+	position: relative;
+	flex: 1;
+	min-height: 0;
+	display: flex;
+	flex-direction: column;
+	box-shadow: inset 0 1px var(--or-bg-base);
+}
+
+.header {
+	flex-shrink: 0;
+	display: flex;
+	height: var(--or-list-row-height);
+}
+
+.corner {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	gap: var(--or-space);
+	width: var(--music-head-width);
+	padding: 0 var(--or-space);
+	background-color: var(--or-timeline-ruler);
+	box-shadow: inset 0 -1px var(--or-bg-base);
+
+	&_label {
+		color: var(--or-text-dim);
+		font-size: var(--or-font-xs);
+	}
+
+	&_input {
+		flex: 1;
+		min-width: 0;
+	}
+}
+
+.body {
+	flex: 1;
+	min-height: 0;
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+
+// 128 は MIDI の音高の数（noteEdit.ts の PITCH_COUNT）
+.content {
+	display: flex;
+	height: calc(var(--music-key-height) * 128);
+}
+
+/*-------------------------------
+	Keys
+-------------------------------*/
+
+.keys {
+	flex-shrink: 0;
+	display: flex;
+	flex-direction: column;
+	width: var(--music-head-width);
+	box-shadow: inset -1px 0 var(--or-bg-base);
+}
+
+// 鍵盤。押すとその高さを鳴らす
+.key {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	height: var(--music-key-height);
+	padding-right: var(--or-space);
+	background-color: var(--or-text-muted);
+	box-shadow: inset 0 -1px var(--or-bg-hover);
+	cursor: pointer;
+
+	&[data-black="true"] {
+		background-color: var(--or-bg-active);
+		box-shadow: none;
+	}
+
+	&_label {
+		color: var(--or-bg-base);
+		font-size: var(--or-font-xs);
+		line-height: 1;
+	}
+}
+
+/*-------------------------------
+	Grid
+-------------------------------*/
+
+.grid {
+	position: relative;
+	flex: 1;
+	min-width: 0;
+	overflow: hidden;
+}
+
+// 音高の行。黒鍵の行を暗くし、C の行の下に線を引く（オクターブの区切り）
+.row {
+	height: var(--music-key-height);
+	background-color: var(--or-bg-panel);
+
+	&[data-black="true"] {
+		background-color: var(--or-bg-base);
+	}
+
+	&[data-octave="true"] {
+		box-shadow: inset 0 -1px var(--or-bg-active);
+	}
+}
+
+// 小節・拍・グリッドの縦の線
+.lines {
+	position: absolute;
+	inset: 0;
+	background-repeat: repeat-x;
+	pointer-events: none;
+}
+
+// 帯の外（鳴らない所）
+.outside {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	background-image: repeating-linear-gradient(-45deg, var(--or-bg-float) 0, var(--or-bg-float) var(--or-space), transparent var(--or-space), transparent calc(var(--or-space) * 2));
+	pointer-events: none;
+}
+
+// ノート。--row は上からの行の番号（127 − 音高）
+.note {
+	position: absolute;
+	top: calc(var(--music-key-height) * var(--row));
+	height: var(--music-key-height);
+	border-radius: var(--or-radius);
+	background-color: var(--or-text-dim);
+	box-shadow: inset 0 0 0 1px var(--or-bg-base);
+	cursor: grab;
+
+	&[data-selected="true"] {
+		background-color: var(--or-key-selected);
+	}
+
+	&[data-outside="true"] {
+		opacity: 0.4;
+	}
+
+	// 長さを変える取っ手
+	&_handle {
+		position: absolute;
+		top: 0;
+		right: 0;
+		width: var(--or-space);
+		max-width: 50%;
+		height: 100%;
+		cursor: ew-resize;
+	}
+}
+
+// 矩形選択の範囲
+.box {
+	position: absolute;
+	top: calc(var(--music-key-height) * var(--row));
+	height: calc(var(--music-key-height) * var(--rows));
+	background-color: var(--or-drop-zone);
+	box-shadow: inset 0 0 0 1px var(--or-drop-zone-border);
+	pointer-events: none;
+}
+
+/*-------------------------------
+	Velocity
+-------------------------------*/
+
+.velocity {
+	flex-shrink: 0;
+	display: flex;
+	height: calc(var(--or-list-row-height) * 2);
+	box-shadow: inset 0 1px var(--or-bg-base);
+
+	&_label {
+		flex-shrink: 0;
+		width: var(--music-head-width);
+		padding: var(--or-space);
+		color: var(--or-text-dim);
+		font-size: var(--or-font-xs);
+		background-color: var(--or-bg-surface);
+	}
+
+	&_lane {
+		position: relative;
+		flex: 1;
+		min-width: 0;
+		overflow: hidden;
+		background-color: var(--or-bg-panel);
+	}
+
+	// 強さの棒。押す所は段の高さいっぱいにし、塗りの高さが強さ（--velocity は 0〜1）
+	&_bar {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		width: var(--or-space);
+		margin-left: calc(var(--or-space) * -0.5);
+		cursor: ns-resize;
+	}
+
+	&_fill {
+		position: absolute;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		height: calc(100% * var(--velocity));
+		background-color: var(--or-bg-hover);
+		box-shadow: inset 0 1px var(--or-text-muted);
+
+		.velocity_bar[data-selected="true"] & {
+			box-shadow: inset 0 1px var(--or-key-selected);
+		}
+	}
+}

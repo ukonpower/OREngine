@@ -1,6 +1,6 @@
 // 帯（DAW のクリップ）の並びを、どの拍からどの拍までをどの帯が鳴らすかの区間に切る。
 // Music の生成とエディタの Music パネルの両方が使う。重なりの解決はここだけで行う
-import type { MusicClipData } from './instrument';
+import type { MusicClipData, MusicNoteData } from './instrument';
 
 // 曲の頭からの拍に置き直した帯1つ
 export type MusicClip = {
@@ -10,6 +10,8 @@ export type MusicClip = {
 	offset: number;
 	// 帯の数値。書かれていない数値は省いたまま持ち、使う側で 0 とみなす
 	params: number[];
+	// ノートの帯のノート（保存の形のまま）。コードの帯は null
+	notes: MusicNoteData[] | null;
 };
 
 // 1つの帯が鳴らす区間。start / end は曲の頭からの拍
@@ -41,7 +43,15 @@ export const decodeClips = ( data: MusicClipData[] ): MusicClip[] => {
 
 		}
 
-		clips.push( { start, end: start + clip[ 1 ], offset: clip[ 2 ], params } );
+		let notes: MusicNoteData[] | null = null;
+
+		if ( clip[ 4 ] ) {
+
+			notes = clip[ 4 ];
+
+		}
+
+		clips.push( { start, end: start + clip[ 1 ], offset: clip[ 2 ], params, notes } );
 
 	}
 

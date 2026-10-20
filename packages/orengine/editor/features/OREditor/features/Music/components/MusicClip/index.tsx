@@ -23,6 +23,13 @@ export type ClipWaveform = {
 	version: number;
 };
 
+// 帯の中に描くノート1つ（曲の頭からの拍）
+export type ClipNoteMark = {
+	start: number;
+	end: number;
+	pitch: number;
+};
+
 type MusicClipProps = {
 	start: number;
 	end: number;
@@ -38,6 +45,8 @@ type MusicClipProps = {
 	sounding: BeatRange[];
 	hidden: BeatRange[];
 	waveform: ClipWaveform | null;
+	// ノートの帯なら、ノートの縮図（null はコードの帯）
+	notes: ClipNoteMark[] | null;
 	onPointerDown: ( e: ReactPointerEvent, part: ClipPart ) => void;
 };
 
@@ -100,6 +109,52 @@ const drawWaveform = ( canvas: HTMLCanvasElement, waveform: ClipWaveform, fromBe
 
 };
 
+// ノートの縮図を canvas に描く。縦は帯のノートの一番低い音から高い音までを帯の高さに広げる。fromBeat は canvas の左端の、曲の頭からの拍
+const drawNotes = ( canvas: HTMLCanvasElement, notes: ClipNoteMark[], fromBeat: number, pxPerBeat: number ) => {
+
+	const ratio = window.devicePixelRatio || 1;
+	const width = Math.max( 1, Math.round( canvas.clientWidth * ratio ) );
+	const height = Math.max( 1, Math.round( canvas.clientHeight * ratio ) );
+
+	canvas.width = width;
+	canvas.height = height;
+
+	const context = canvas.getContext( '2d' );
+
+	if ( ! context ) return;
+
+	context.clearRect( 0, 0, width, height );
+	context.fillStyle = getComputedStyle( canvas ).color;
+
+	let low = Infinity;
+	let high = - Infinity;
+
+	for ( const note of notes ) {
+
+		low = Math.min( low, note.pitch );
+		high = Math.max( high, note.pitch );
+
+	}
+
+	// 1つの音高の行の高さ。音の幅が狭い帯でも潰れすぎないよう、上下に1行ずつ余白を取る
+	const rows = high - low + 3;
+	const rowHeight = Math.max( ratio, height / rows );
+
+	for ( const note of notes ) {
+
+		const x = ( note.start - fromBeat ) * pxPerBeat * ratio;
+		const w = Math.max( ratio, ( note.end - note.start ) * pxPerBeat * ratio - ratio );
+
+		if ( x + w < 0 || x > width ) continue;
+
+		const y = ( high + 1 - note.pitch ) * height / rows;
+
+		context.fillRect( x, y, w, Math.max( ratio, rowHeight - ratio ) );
+
+	}
+
+};
+
 // タイムラインの帯1つ。左右の端は長さを変える取っ手、真ん中は動かす所
 export const MusicClip = ( props: MusicClipProps ) => {
 
@@ -116,17 +171,29 @@ export const MusicClip = ( props: MusicClipProps ) => {
 	const visibleRight = Math.min( drawRight, props.laneWidth );
 	const visibleFromBeat = props.viewStart + visibleLeft / props.pxPerBeat;
 
-	const { waveform, pxPerBeat, sounding } = props;
+	const { waveform, notes, pxPerBeat, sounding } = props;
 
 	useEffect( () => {
 
 		const canvas = canvasRef.current;
 
-		if ( ! canvas || ! waveform ) return;
+		if ( ! canvas ) return;
 
-		drawWaveform( canvas, waveform, visibleFromBeat, pxPerBeat, sounding );
+		if ( notes ) {
 
-	}, [ waveform, visibleFromBeat, pxPerBeat, sounding, visibleRight ] );
+			drawNotes( canvas, notes, visibleFromBeat, pxPerBeat );
+
+			return;
+
+		}
+
+		if ( waveform ) {
+
+			drawWaveform( canvas, waveform, visibleFromBeat, pxPerBeat, sounding );
+
+		}
+
+	}, [ waveform, notes, visibleFromBeat, pxPerBeat, sounding, visibleRight ] );
 
 	if ( drawRight <= drawLeft ) return null;
 
@@ -159,7 +226,7 @@ export const MusicClip = ( props: MusicClipProps ) => {
 
 	let canvasElm = null;
 
-	if ( props.waveform && visibleRight > visibleLeft ) {
+	if ( ( props.waveform || ( props.notes && props.notes.length > 0 ) ) && visibleRight > visibleLeft ) {
 
 		canvasElm = <canvas ref={canvasRef} className={style.waveform} style={{ left: visibleLeft - drawLeft, width: visibleRight - visibleLeft }} />;
 

@@ -1,0 +1,59 @@
+// noteSound の楽器の trackSound。ShaderBuilder が楽器の index.glsl の後ろ（main の前）に足す。
+// Music の notes.ts がノートを同時に鳴らせる数（maxNotes）の枠に割り当てて uNotes に入れるので、
+// 枠ごとに今のサンプルで鳴っているノートを1つだけ探して noteSound を足し合わせる
+
+// 1行が1つの枠で、枠の中は開始の順。ノート1つに2画素で、1つ目が ( 開始, 止める時刻, 長さ, 音高 )（時刻は曲の頭からの秒）、
+// 2つ目が ( 強さ, 0, 0, 0 )。並びは Music の notes.ts の buildNoteTexture と一致させる
+// 頂点シェーダーの sampler の既定の精度は lowp で、端末によっては時刻の float が丸まるので highp にする
+uniform highp sampler2D uNotes;
+
+vec2 trackSound( Song s ) {
+
+	vec2 o = vec2( 0.0 );
+
+	ivec2 size = textureSize( uNotes, 0 );
+	int count = size.x / 2;
+
+	for ( int slot = 0; slot < size.y; slot ++ ) {
+
+		// 開始が今より後の最初のノートを二分探索で探す。その1つ前が、今鳴っているかもしれないノート
+		int low = 0;
+		int high = count;
+
+		while ( low < high ) {
+
+			int mid = ( low + high ) / 2;
+
+			if ( texelFetch( uNotes, ivec2( mid * 2, slot ), 0 ).x <= s.time ) {
+
+				low = mid + 1;
+
+			} else {
+
+				high = mid;
+
+			}
+
+		}
+
+		if ( low == 0 ) continue;
+
+		vec4 timing = texelFetch( uNotes, ivec2( ( low - 1 ) * 2, slot ), 0 );
+
+		if ( s.time >= timing.y ) continue;
+
+		vec4 strength = texelFetch( uNotes, ivec2( ( low - 1 ) * 2 + 1, slot ), 0 );
+
+		Note n;
+		n.pitch = timing.w;
+		n.velocity = strength.x;
+		n.length = timing.z;
+		n.clipParam = s.clipParam;
+
+		o += noteSound( n, s.time - timing.x );
+
+	}
+
+	return o;
+
+}

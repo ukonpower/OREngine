@@ -8,10 +8,10 @@ export type EditClip = {
 	length: number;
 	offset: number;
 	params: number[];
-	// ノートの帯だけが持つ（#274）。編集では中身に触れずに持ち回る
+	// ノートの帯だけが持つ。帯の編集では中身に触れずに持ち回り、ピアノロールが setActiveNotes で差し替える
 	notes: MusicNoteData[] | null;
 	selected: boolean;
-	// 開いている帯（最後に選んだ帯）。#274 のロールと帯の数値の欄はこの帯を相手にする
+	// 開いている帯（最後に選んだ帯）。ピアノロールと帯の数値の欄はこの帯を相手にする
 	active: boolean;
 };
 
@@ -407,8 +407,8 @@ export const duplicateSelected = ( clipsByTrack: EditClip[][] ) => {
 
 };
 
-// track に帯を1つ置き、それだけを選ぶ
-export const addClip = ( clipsByTrack: EditClip[][], track: number, start: number, length: number ) => {
+// track に帯を1つ置き、それだけを選ぶ。ノートのトラックなら notes に [] を渡し、空のノートの帯にする
+export const addClip = ( clipsByTrack: EditClip[][], track: number, start: number, length: number, notes: MusicNoteData[] | null ) => {
 
 	const result: EditClip[][] = [];
 
@@ -424,7 +424,7 @@ export const addClip = ( clipsByTrack: EditClip[][], track: number, start: numbe
 
 		if ( t === track ) {
 
-			next.push( { start, length, offset: 0, params: [], notes: null, selected: true, active: true } );
+			next.push( { start, length, offset: 0, params: [], notes, selected: true, active: true } );
 
 		}
 
@@ -466,6 +466,37 @@ export const setActiveParam = ( clipsByTrack: EditClip[][], index: number, value
 			params[ index ] = value;
 
 			next.push( { ...clip, params } );
+
+		}
+
+		result.push( next );
+
+	}
+
+	return result;
+
+};
+
+// アクティブの帯のノートを差し替える（ピアノロールの編集）
+export const setActiveNotes = ( clipsByTrack: EditClip[][], notes: MusicNoteData[] ) => {
+
+	const result: EditClip[][] = [];
+
+	for ( const clips of clipsByTrack ) {
+
+		const next: EditClip[] = [];
+
+		for ( const clip of clips ) {
+
+			if ( clip.active ) {
+
+				next.push( { ...clip, notes } );
+
+			} else {
+
+				next.push( clip );
+
+			}
 
 		}
 

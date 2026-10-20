@@ -1,7 +1,8 @@
 import * as GLP from 'glpower';
 import { GLBackend, shaderParse } from 'maxpower';
 
-import { CLIP_PARAM_COUNT, definesSoundFunction } from './instrument';
+import { CLIP_PARAM_COUNT, instrumentSoundKind } from './instrument';
+import { buildNoteTexture, MusicNote } from './notes';
 
 import type { MusicClip, MusicSegment } from './clips';
 
@@ -81,10 +82,9 @@ export class MusicGenerator {
 
 	private compile_( instrumentName: string, shader: string ): GLP.GLPowerProgram | null {
 
-		const hasNoteSound = definesSoundFunction( shader, 'noteSound' );
-		const hasTrackSound = definesSoundFunction( shader, 'trackSound' );
+		const kind = instrumentSoundKind( shader );
 
-		if ( hasNoteSound && hasTrackSound ) {
+		if ( kind === 'both' ) {
 
 			if ( import.meta.env.DEV ) {
 
@@ -96,23 +96,11 @@ export class MusicGenerator {
 
 		}
 
-		if ( ! hasNoteSound && ! hasTrackSound ) {
+		if ( kind === 'none' ) {
 
 			if ( import.meta.env.DEV ) {
 
 				console.error( `[Music] 楽器 "${instrumentName}" の .glsl に noteSound も trackSound もありません` );
-
-			}
-
-			return null;
-
-		}
-
-		if ( hasNoteSound ) {
-
-			if ( import.meta.env.DEV ) {
-
-				console.error( `[Music] 楽器 "${instrumentName}" は noteSound の楽器です。ノートのトラックはまだ鳴らせないので無音にします` );
 
 			}
 
@@ -163,6 +151,30 @@ export class MusicGenerator {
 
 	}
 
+	// ノートの楽器の生成に渡すノートのテクスチャを作る（中身は updateNotes で入れる）
+	public createNoteTexture() {
+
+		const gl = this.gl_;
+
+		return new GLP.GLPowerTexture( gl ).setting( { type: gl.FLOAT, internalFormat: gl.RGBA32F, format: gl.RGBA } );
+
+	}
+
+	// 変換したノート（notes.ts の resolveNotes）をテクスチャに入れ直す。ノートを編集してもコンパイルし直さない
+	public updateNotes( texture: GLP.GLPowerTexture, notes: MusicNote[], maxNotes: number ) {
+
+		const { data, width, height } = buildNoteTexture( notes, maxNotes );
+
+		if ( import.meta.env.DEV && width > this.gl_.getParameter( this.gl_.MAX_TEXTURE_SIZE ) ) {
+
+			console.error( `[Music] 1つの枠のノートが多すぎて、ノートのテクスチャ（幅 ${width}）を作れません。楽器の maxNotes を増やします` );
+
+		}
+
+		texture.attach( { width, height, data } );
+
+	}
+
 	// 使っているシェーダー以外のコンパイル結果を捨てる（楽器の .glsl を保存するたびに古いものが残らないように）
 	public releaseUnused( usedShaders: Set<string> ) {
 
@@ -184,8 +196,9 @@ export class MusicGenerator {
 
 	// out の start サンプル目から1かたまり（曲の終わりまでならそこまで）を作って書き込む。
 	// 描画は帯の区間（segments）ごとに分け、区間の範囲・帯の中の拍・帯の数値を描画ごとの uniform で渡す
-	// （帯の数だけ uniform の配列を持つと上限に当たるため）。どの帯も鳴らさない所は無音にする
-	public render( program: GLP.GLPowerProgram, out: AudioBuffer, start: number, bpm: number, segments: MusicSegment[], clips: MusicClip[] ) {
+	// （帯の数だけ uniform の配列を持つと上限に当たるため）。どの帯も鳴らさない所は無音にする。
+	// ノートの楽器は notes（createNoteTexture で作ったもの）を渡す
+	public render( program: GLP.GLPowerProgram, out: AudioBuffer, start: number, bpm: number, segments: MusicSegment[], clips: MusicClip[], notes: GLP.GLPowerTexture | null ) {
 
 		const vao = program.getVAO();
 
@@ -203,6 +216,13 @@ export class MusicGenerator {
 
 		program.setUniform( 'uSampleRate', '1f', [ sampleRate ] );
 		program.setUniform( 'uBPM', '1f', [ bpm ] );
+
+		if ( notes ) {
+
+			notes.activate( 0 );
+			program.setUniform( 'uNotes', '1i', [ 0 ] );
+
+		}
 
 		for ( const segment of segments ) {
 

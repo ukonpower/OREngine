@@ -4,7 +4,7 @@ import { Engine } from 'orengine';
 import { Button, InputNumber, Menu, MenuItem, trackPointerDrag, usePopover } from 'uipower';
 
 import { decodeClips } from '../../../../../../../builtin/Components/Utility/Music/clips';
-import { definesSoundFunction, INSTRUMENT_KIND } from '../../../../../../../builtin/Components/Utility/Music/instrument';
+import { INSTRUMENT_KIND, instrumentSoundKind } from '../../../../../../../builtin/Components/Utility/Music/instrument';
 import { useOREditor } from '../../../../hooks/useOREditor';
 import { useViewWheel } from '../../../../hooks/useViewWheel';
 import { dragZoomFactor, hasZoomModifier } from '../../../../lib/viewGesture';
@@ -13,10 +13,12 @@ import { useElementWidth } from '../../hooks/useElementWidth';
 import { useMusicClipEditing } from '../../hooks/useMusicClipEditing';
 import { TRACK_INDEX_ATTRIBUTE, useMusicTrackEditing } from '../../hooks/useMusicTrackEditing';
 import { useMusicView } from '../../hooks/useMusicView';
+import { MusicNotePreview } from '../../lib/notePreview';
 import { ClipWaveform } from '../MusicClip';
 import { MusicClipParams } from '../MusicClipParams';
 import { MusicLane } from '../MusicLane';
 import { MusicPlayhead } from '../MusicPlayhead';
+import { MusicRoll } from '../MusicRoll';
 import { BEATS_PER_BAR, MusicRuler } from '../MusicRuler';
 import { MusicTrackHead, TrackKind } from '../MusicTrackHead';
 
@@ -40,9 +42,9 @@ const trackKind = ( instrumentName: string ): TrackKind => {
 
 	if ( ! instrument ) return null;
 
-	if ( definesSoundFunction( instrument.shader, "noteSound" ) ) return "note";
+	const kind = instrumentSoundKind( instrument.shader );
 
-	if ( definesSoundFunction( instrument.shader, "trackSound" ) ) return "code";
+	if ( kind === "note" || kind === "code" ) return kind;
 
 	return null;
 
@@ -83,9 +85,9 @@ export const MusicTimeline = ( props: { music: Music } ) => {
 		View
 	-------------------------------*/
 
-	const { view, viewRef, setView, zoom, scroll } = useMusicView( songBeats );
+	const { view, viewRef, setView, zoom, scroll } = useMusicView( 0, songBeats );
 
-	const rootRef = useRef<HTMLDivElement>( null );
+	const mainRef = useRef<HTMLDivElement>( null );
 	const bodyRef = useRef<HTMLDivElement>( null );
 	const rulerRef = useRef<HTMLDivElement>( null );
 	const laneWidth = useElementWidth( rulerRef );
@@ -106,7 +108,7 @@ export const MusicTimeline = ( props: { music: Music } ) => {
 	};
 
 	// wheel: 横（拍）はパン・拡大縮小、縦は行のスクロール（Timeline と同じ読み替え）
-	useViewWheel( rootRef, ( gesture, e ) => {
+	useViewWheel( mainRef, ( gesture, e ) => {
 
 		e.preventDefault();
 
@@ -136,7 +138,7 @@ export const MusicTimeline = ( props: { music: Music } ) => {
 	} );
 
 	// 中ボタンのドラッグで横にパン、Ctrl（Cmd）なら横に拡大縮小する。ずれで動かすので Pointer Lock を取る
-	const onRootPointerDown = ( e: ReactPointerEvent<HTMLDivElement> ) => {
+	const onMainPointerDown = ( e: ReactPointerEvent<HTMLDivElement> ) => {
 
 		if ( e.button !== 1 ) return;
 
@@ -281,10 +283,56 @@ export const MusicTimeline = ( props: { music: Music } ) => {
 	}, [ editor, trackCount, bpm, peaksVersion ] );
 
 	/*-------------------------------
+		Preview
+	-------------------------------*/
+
+	// 試聴の生成（シェーダーのコンパイル）はロールで初めて鳴らすときに用意し、パネルを閉じたら捨てる
+	const previewRef = useRef<MusicNotePreview | null>( null );
+
+	useEffect( () => {
+
+		return () => {
+
+			if ( previewRef.current ) {
+
+				previewRef.current.dispose();
+				previewRef.current = null;
+
+			}
+
+		};
+
+	}, [] );
+
+	const previewNote: MusicNotePreview[ "play" ] = ( request ) => {
+
+		if ( ! previewRef.current ) {
+
+			previewRef.current = new MusicNotePreview( engine );
+
+		}
+
+		previewRef.current.play( request );
+
+	};
+
+	/*-------------------------------
 		Editing
 	-------------------------------*/
 
-	const clipEditing = useMusicClipEditing( { music, tracks, pxPerBeat, beatAt } );
+	const kinds: TrackKind[] = [];
+	const noteTracks: boolean[] = [];
+
+	for ( const track of tracks ) {
+
+		const kind = trackKind( track[ 1 ] );
+
+		kinds.push( kind );
+		noteTracks.push( kind === "note" );
+
+	}
+
+	const clipEditing = useMusicClipEditing( { music, tracks, pxPerBeat, beatAt, noteTracks } );
 	const trackEditing = useMusicTrackEditing( music, tracks );
 
 	const instrumentNames = Engine.resources.getLibraryItemNames( INSTRUMENT_KIND );
@@ -364,9 +412,9 @@ export const MusicTimeline = ( props: { music: Music } ) => {
 	for ( let i = 0; i < tracks.length; i ++ ) {
 
 		const track = tracks[ i ];
-		const kind = trackKind( track[ 1 ] );
+		const kind = kinds[ i ];
 
-		// ノートの帯の中身（ノートの縮図）は #274 で描く。コードの帯は生成した音の波形
+		// コードの帯は生成した音の波形、ノートの帯はノートの縮図を描く
 		let waveform: ClipWaveform | null = null;
 
 		if ( kind === "code" ) waveform = waveforms[ i ];
@@ -400,6 +448,7 @@ export const MusicTimeline = ( props: { music: Music } ) => {
 				laneWidth={laneWidth}
 				selection={clipEditing.selection}
 				waveform={waveform}
+				showNotes={kind === "note"}
 				barStep={labelBars * BEATS_PER_BAR}
 				beatStep={beatStep}
 				onClipPointerDown={clipEditing.onClipPointerDown}
@@ -410,8 +459,9 @@ export const MusicTimeline = ( props: { music: Music } ) => {
 
 	}
 
-	// 開いている帯の数値の欄。楽器が数値に名前を付けているときだけ出す
+	// 開いている帯の数値の欄（楽器が数値に名前を付けているときだけ）と、ノートの帯ならピアノロール
 	let paramsElm = null;
+	let rollElm = null;
 	const active = clipEditing.selection.active;
 
 	if ( active ) {
@@ -439,6 +489,28 @@ export const MusicTimeline = ( props: { music: Music } ) => {
 
 			}
 
+			if ( clip && kinds[ trackIndex ] === "note" ) {
+
+				const preview = ( pitch: number, velocity: number, clipBeat: number ) => {
+
+					previewNote( { instrument: track[ 1 ], pitch, velocity, bpm, params: clip.params, clipBeat, volume: track[ 2 ], pan: track[ 3 ] } );
+
+				};
+
+				// 開く帯が変わったら選択・表示範囲ごと作り直す
+				rollElm = <MusicRoll
+					key={active}
+					music={music}
+					tracks={tracks}
+					activeKey={active}
+					clip={clip}
+					bpm={bpm}
+					trackName={track[ 0 ]}
+					preview={preview}
+				/>;
+
+			}
+
 		}
 
 	}
@@ -454,14 +526,14 @@ export const MusicTimeline = ( props: { music: Music } ) => {
 
 	}
 
-	return <div
-		ref={rootRef}
-		className={style.timeline}
-		onPointerEnter={clipEditing.onPointerEnter}
-		onPointerLeave={clipEditing.onPointerLeave}
-		onPointerDown={onRootPointerDown}
-	>
-		<div className={style.main}>
+	return <div className={style.timeline}>
+		<div
+			ref={mainRef}
+			className={style.main}
+			onPointerEnter={clipEditing.onPointerEnter}
+			onPointerLeave={clipEditing.onPointerLeave}
+			onPointerDown={onMainPointerDown}
+		>
 			<div className={style.header}>
 				<div className={style.corner}>
 					<span className={style.corner_label}>BPM</span>
@@ -481,6 +553,7 @@ export const MusicTimeline = ( props: { music: Music } ) => {
 			<MusicPlayhead bpm={bpm} viewStart={view.start} pxPerBeat={pxPerBeat} laneWidth={laneWidth} />
 		</div>
 		{paramsElm}
+		{rollElm}
 	</div>;
 
 };
