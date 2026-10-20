@@ -15,7 +15,7 @@ import { HelperManager, HelperVisibility } from '../HelperManager';
 import { KeyboardHandler } from '../KeyboardHandler';
 import { CurveLinkSettings, CurvePasteMode, getAnimatedTransformFields, KeyFrameElementRef, KeyFrameFieldRef, keyFrameTime } from '../KeyFrameField';
 import { ModalTransformHandler, transformModeOfKey, type ModalTransformMode, type ModalTransformSelection } from '../ModalTransformHandler';
-import { mixMusicWaveform } from '../MusicWaveform';
+import { mixMusicWaveform, MusicTrackPeaks } from '../MusicWaveform';
 import { RelationshipLineRenderer } from '../RelationshipLineRenderer';
 import { SceneExporter, SceneExporterProgress } from '../SceneExporter';
 import { SelectionOutline } from '../SelectionOutline';
@@ -60,6 +60,9 @@ export type EditAreaActions = {
 	frameAll?: () => void;
 	// W。Blender の右クリック選択と同じく、右クリックは選択に使うのでメニューは W で開く
 	openMenu?: () => void;
+	// 上の割り当てに無いキーを領域が自分で受ける（Music パネルの Delete / Backspace・Ctrl+D など DAW に揃えたキー）。
+	// ほかのショートカットより先に渡し、消費したら true
+	handleKeyDown?: ( e: KeyboardEvent ) => boolean;
 };
 
 // 編集領域のモーダル操作（G / R / S・B の矩形選択の待機）。続いている間は、ポインタが領域の外にあってもキーボードをまずこちらへ向ける
@@ -134,6 +137,8 @@ export class Editor extends MXP.Serializable {
 	private _navigateAsset: NavigateAssetRequest;
 	private _propertyTarget: "entity" | "asset";
 	private _audioBuffer: AudioBuffer | null;
+	// Music パネルが帯の波形を描く、トラックごとの波形の素。パネルを開き直しても作り直さずに済むよう Editor が持つ
+	private _musicTrackPeaks: MusicTrackPeaks;
 	private _frameLoop: EditorTimelineLoop;
 	private _enableRender: boolean;
 	private _baseResolution: MTP.Vector;
@@ -351,17 +356,20 @@ export class Editor extends MXP.Serializable {
 		-------------------------------*/
 
 		this._audioBuffer = null;
+		this._musicTrackPeaks = new MusicTrackPeaks();
 
-		// Music がトラックの音を作るたびに届く。Timeline・AudioView は同じイベントで audioBuffer を読み直すので、先に足し合わせておく
+		// Music がトラックの音を作るたびに届く。Timeline・AudioView・Music パネルは同じイベントで読み直すので、先に足し合わせておく
 		this._engine.on( "update/music", ( output: MusicOutput | null ) => {
 
 			if ( output ) {
 
 				this._audioBuffer = mixMusicWaveform( this._audioBuffer, output );
+				this._musicTrackPeaks.update( output );
 
 			} else {
 
 				this._audioBuffer = null;
+				this._musicTrackPeaks.clear();
 
 			}
 
@@ -642,6 +650,12 @@ export class Editor extends MXP.Serializable {
 	public get audioBuffer() {
 
 		return this._audioBuffer;
+
+	}
+
+	public get musicTrackPeaks() {
+
+		return this._musicTrackPeaks;
 
 	}
 
@@ -1630,7 +1644,8 @@ export class Editor extends MXP.Serializable {
 
 	}
 
-	// モーダル操作のキー。編集領域のモーダル → 編集領域の上での G / R / S → ビューポートのモーダル変形 の順に渡す。消費したら true
+	// ほかのショートカットより先に受けるキー。編集領域のモーダル → ビューポートのモーダル変形 → 編集領域が自分で受けるキー
+	// → 編集領域の上での G / R / S → ビューポートの G / R / S の順に渡す。消費したら true
 	private _onModalKey( e: KeyboardEvent ) {
 
 		if ( this._editModal && this._editModal.handleKeyDown( e ) ) return true;
@@ -1639,11 +1654,13 @@ export class Editor extends MXP.Serializable {
 
 		if ( modalTransform.active ) return modalTransform.handleKeyDown( e );
 
+		const area = this._hoveredEditArea;
+
+		if ( area && area.handleKeyDown && area.handleKeyDown( e ) ) return true;
+
 		const mode = transformModeOfKey( e );
 
 		if ( ! mode ) return false;
-
-		const area = this._hoveredEditArea;
 
 		if ( area ) {
 
