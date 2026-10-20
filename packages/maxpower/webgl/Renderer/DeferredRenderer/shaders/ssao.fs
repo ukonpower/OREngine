@@ -83,13 +83,24 @@ void main( void ) {
 	mat3 kernelMatrix = mat3( tangent, bitangent, normal );
 
 	float occlusion = 0.0;
+	float sampleCount = 0.0;
 
 	for( int i = 0; i < SSAO_SAMPLES; i ++ ) {
 
 		vec3 sampleOffset = kernelMatrix * uSSAOKernel[ i ];
 		vec3 samplePos = rayPos + sampleOffset * dist;
+		vec2 sampleUv = worldToUv( samplePos );
 
-		vec3 sampledWorld = texture( sampler0, worldToUv( samplePos ) ).xyz;
+		// 画面の外では clamp-to-edge で端の画素の位置を読んでしまい、そこにある面と比べられないので数えない
+		if( sampleUv.x < 0.0 || sampleUv.y < 0.0 || sampleUv.x > 1.0 || sampleUv.y > 1.0 ) {
+
+			continue;
+
+		}
+
+		sampleCount += 1.0;
+
+		vec3 sampledWorld = texture( sampler0, sampleUv ).xyz;
 
 		float sampledViewZ = ( uViewMatrix * vec4( sampledWorld, 1.0 ) ).z;
 		float sampleViewZ = ( uViewMatrix * vec4( samplePos, 1.0 ) ).z;
@@ -102,7 +113,8 @@ void main( void ) {
 
 	}
 
-	occlusion /= float( SSAO_SAMPLES );
+	// 画面の中に残ったサンプルだけで平均する（全数で割ると端ほど遮蔽が薄くなる）
+	occlusion /= max( sampleCount, 1.0 );
 
 	// 履歴と突き合わせるため、この画素の面のビュー空間Zも一緒に残す
 	float viewZ = ( uViewMatrix * vec4( rayPos, 1.0 ) ).z;
