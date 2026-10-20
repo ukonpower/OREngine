@@ -4,6 +4,9 @@ type MixerChannel = {
 	panner: StereoPannerNode;
 };
 
+// スペクトルの FFT の大きさ（osc Demo4 と同じ）。周波数は半分の 256 段で、Music の uMusicFreqTex の幅になる
+export const SPECTRUM_FFT_SIZE = 512;
+
 // 残響の素（インパルス）。ノイズを頭からの割合で exp(-7t) に減衰させる（osc Demo4 と同じ）
 const createImpulse = ( context: AudioContext, length: number ) => {
 
@@ -27,7 +30,8 @@ const createImpulse = ( context: AudioContext, length: number ) => {
 };
 
 // トラックの音を Web Audio のノードで混ぜて鳴らす。
-// source → 音量（GainNode）→ パン（StereoPannerNode）─┬→ 全体の GainNode → destination
+// source → 音量（GainNode）→ パン（StereoPannerNode）─┬→ 全体の GainNode ─┬→ destination
+//                                                     │                   └→ スペクトル（AnalyserNode）
 //                                                     └→ リバーブ（ConvolverNode）→ 残響の量（GainNode）→ 全体の GainNode
 // トラックごとにノードを分けるのは、トラックごとのエフェクトを後から足せるようにするため
 export class MusicMixer {
@@ -36,6 +40,7 @@ export class MusicMixer {
 	private master_: GainNode;
 	private convolver_: ConvolverNode;
 	private wet_: GainNode;
+	private analyser_: AnalyserNode;
 	private reverbLength_: number;
 	private reverbWet_: number;
 	private channels_: MixerChannel[];
@@ -56,6 +61,12 @@ export class MusicMixer {
 		this.convolver_.connect( this.wet_ );
 		this.wet_.connect( this.master_ );
 		this.reverbLength_ = 0;
+
+		// 全体の GainNode の後（全トラック・リバーブ込み）の音から取る
+		this.analyser_ = context.createAnalyser();
+		this.analyser_.fftSize = SPECTRUM_FFT_SIZE;
+		this.master_.connect( this.analyser_ );
+
 		this.reverbWet_ = - 1;
 
 		this.channels_ = [];
@@ -75,6 +86,13 @@ export class MusicMixer {
 	public get position() {
 
 		return this.context_.currentTime - this.songStartTime_;
+
+	}
+
+	// 今鳴っている音の周波数ごとの強さ（0〜255）を out に書く。out の長さは SPECTRUM_FFT_SIZE / 2
+	public readSpectrum( out: Uint8Array<ArrayBuffer> ) {
+
+		this.analyser_.getByteFrequencyData( out );
 
 	}
 
@@ -195,6 +213,7 @@ export class MusicMixer {
 
 		this.convolver_.disconnect();
 		this.wet_.disconnect();
+		this.analyser_.disconnect();
 		this.master_.disconnect();
 
 	}

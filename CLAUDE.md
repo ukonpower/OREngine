@@ -251,7 +251,7 @@ Entity / Component の SerializeField にキーを打ち、player で再生す�
 - 数の目安は数百まで（複製は普通のエンティティなので1個ずつ描画される）。それ以上はコンポーネント内のインスタンシングで作る
 
 ### Music（音）
-- builtin コンポーネント `Music`（`packages/orengine/builtin/Components/Utility/Music/`）。トラックごとに楽器の GLSL から曲の全サンプルを WebGL2 の transform feedback で作り、Web Audio で混ぜてタイムラインに合わせて鳴らす（#271 / #272 / #273 / #274）。シーンに1つ置く（2つ目からは鳴らさない）。ほかのコンポーネントは `Music.instance`（無ければ `null`）で今の曲を引く。webgl だけで、webgpu のプロジェクトでは置いても鳴らさない
+- builtin コンポーネント `Music`（`packages/orengine/builtin/Components/Utility/Music/`）。トラックごとに楽器の GLSL から曲の全サンプルを WebGL2 の transform feedback で作り、Web Audio で混ぜてタイムラインに合わせて鳴らす（#271 / #272 / #273 / #274 / #275）。シーンに1つ置く（2つ目からは鳴らさない）。ほかのコンポーネントは `Music.instance`（無ければ `null`）で今の曲を引く。webgl だけで、webgpu のプロジェクトでは置いても鳴らさない
 - フィールド: `bpm`（曲全体で1つ。途中で変えない。秒 = 拍 × 60 / BPM、小節は4拍）/ `tracks`（トラックごとに `[ 名前, 楽器, 音量, パン, 帯 ]`。terser がオブジェクトのキーを改名するので、Animation の `links` と同じくキーを持たない配列。型は `Music/instrument.ts` の `MusicTrackData`）/ `reverb/length`（残響の素の秒）/ `reverb/wet`（残響の量）。曲の長さは `timeline/duration`、サンプリングレートは端末の `AudioContext.sampleRate`
 - 帯（DAW のクリップ）: `[ 前の帯からの拍, 長さ, 中の時間の始まり, 数値, ノート ]`（`MusicClipData`。最初の帯の開始は曲の頭からの拍。開始を差分で持つのは、繰り返したフレーズが同じ文字列になり deflate で潰れるため）。数値を使わない帯は4つ目から省き、ノートの帯では数値の代わりに `[]` を置く。名前・色は持たない。音は帯の中でだけ鳴り、帯の終わりで切る（余韻も残さない）
   - 中の時間: 帯の頭で「中の時間の始まり」から曲と同じ速さで進む（`Song.clipBeat` = 中の時間の始まり ＋ 帯の頭からの拍）。動かすと中の音も一緒にずれ、右端を伸ばすと先へ続き、左端で頭を削ると中の音はその場に残って始まりが変わる（0 より前には戻さない）
@@ -273,6 +273,14 @@ Entity / Component の SerializeField にキーを打ち、player で再生す�
 - 再生: 全トラックの source を同じ `when` / `offset` で start する。更新のたびに鳴っている位置と `event.timeCode` を比べ、0.1 秒以上ずれたら張り直す（シーク・ループ・BLidge の同期もこれで拾う）。作り終えたかたまりを鳴らすときも張り直す（再生中の buffer の書き換えを拾うとは限らないため）。`event.offline`（shot・書き出し）の更新では音に触れない。AudioContext は全 Music で1つを使い回し、ブラウザの自動再生の制限のため `pointerdown` / `keydown` のたびに `resume` する（player の Play ボタンの操作の中で始まる。`autoPlay` では鳴らないことがある）
 - 波形表示: Music が作るたびに Engine から `update/music`（`MusicOutput`: tracks と同じ並びのトラックの AudioBuffer と音量、変わったサンプルの範囲）を出し、`Editor` が `editor/lib/MusicWaveform` でトラックを音量を掛けて足した1本（パン・リバーブは反映しない目安）にして `audioBuffer` に持つ。Timeline・AudioView はそれを描く。同じイベントで、トラックごとの波形の素（256 サンプルごとの振れ幅の最大。`MusicTrackPeaks`、`editor.musicTrackPeaks`）も持ち、Music パネルが帯の波形を描く
 - 確かめる曲: demo-webgl の `scenes/music.json`（osc Demo4 の曲を楽器ごとの10トラックに分け、セクションを帯で置いたもの。セクションごとの鳴り方の違い（キックの種類・パッドの音量など）は帯の数値で受ける）。Lead・Bass はノートの楽器で、Demo4 のメロディ・根音を帯の中のノートに置いている。Demo4 の発振器・左右の振りはノートの頭で巻き戻さず帯の中の時刻で回り続けるので、2つの楽器は `noteSound` の中で帯の中の拍を `uClipBeat` と `aIndex` から読む（`t` だけで書くと Lead が 2.7dB 大きくなる）
+- 絵から音を引く読み口（#275）: `music.lastNote( トラック名, event.timeCode )` → `{ since, pitch, velocity, length }` | null（その時刻までに鳴り始めた最後のノート。`since` は鳴り始めてからの秒、`length` は帯の終わりと `maxNotes` の枠を奪われた時刻で切った長さ（秒））、`music.currentClip( トラック名, event.timeCode )` → `{ since, params }` | null（その時刻に鳴っている帯。`since` は帯の頭からの秒、`params` は帯の数値4つ）。探索は `Music/readout.ts` の純関数（`findLastNote` / `findCurrentClip`）
+  - `lastNote` が見るのは変換したあとのノート（`MusicTrack.notes`。帯の外・隠れた区間で落としたノート、鳴る前に枠を奪われた和音の音は含まない）。同じ時刻に鳴り始めた和音は一番低い音を返す。コードの楽器のトラックは常に null（音はシェーダーの中でしか分からないため。帯は `currentClip` で引く）
+  - `currentClip` は重なった区間では実際に鳴っている帯（`resolveClipSegments` の区間）を返す。上の帯が終わって下の帯が続きから鳴り出したときも、`since` は下の帯の頭から数える
+  - 時刻に event の `timeCode` を渡すので、Cloner の持ち場の中では遅れた時刻で引ける（複製は改修なしで順番に光る）。頭より前の時刻（`delay/loop` が OFF の遅れ）は null
+  - トラックは名前で引く（名前は曲の中で重ならない）。生成の状態（区間・変換したノート）は `refresh_` で作るので、webgl で Music が鳴らせるときだけ引ける（webgpu では常に null）
+  - コンポーネントからは `import { Music } from 'orengine/builtin/Components/Utility/Music'` で引く。`orengine/builtin` の入口は builtin のコンポーネントをすべて登録する glob を持ち、値を import すると player に builtin が全部入る（`Instrument` のような型だけの import は消えるので構わない）
+- スペクトル: `MusicMixer` が全体の GainNode の後（全トラック・リバーブ込み）に AnalyserNode（`fftSize` 512）をつなぎ、Music が再生中の更新ごとに `getByteFrequencyData` を 256×1 のテクスチャ（R8・linear・clamp）へ入れて `renderer.globalUniforms.uMusicFreqTex` に置く（名前は osc Demo4 と同じ）。どのシェーダーでも `uniform sampler2D uMusicFreqTex;` と書けば引け、マテリアルの uniforms には書かない。停止中は最後の値のまま、shot・scene-shots（`event.offline`）には反映されず、Cloner の遅れにも乗らない。Music が無いシーン・webgpu では作らない（そのシーンのシェーダーが引いても中身は決まらない）
+- 読み口のサンプル（demo-webgl）: `scenes/music-lastNote.json`（`Samples/Music/NoteFlash`。ノートの楽器 `KickNote` のノートで光る立方体を Cloner で遅らせて並べる）、`scenes/music-currentClip.json`（`Samples/Music/ClipColor`。コードの楽器 `Chord` の帯の数値 root を色相にする。帯の重なりもある）、`scenes/music-spectrum.json`（`Samples/Music/SpectrumWave`。`uMusicFreqTex` で上の辺が揺れる板。再生しないと動かないので scene-shots の PNG は平らなまま）
 
 #### Music パネル（エディタ）
 - `features/OREditor/features/Music`（パネルの id は `music`、タブ追加メニューの Audio）。シーンの `Music.instance` のトラックと帯を編集する（無ければ空の表示）。Music はエディタのフレームごとに確かめ、入れ替わったら `key` で作り直す（表示範囲・選択も捨てる）。上がトラックと帯のタイムライン、その下の1行が開いている帯の数値（楽器が名前を付けた数値だけ）、ノートの帯を開いているときは下半分がピアノロール（下の「ピアノロール」）

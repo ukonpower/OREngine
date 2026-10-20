@@ -5,8 +5,9 @@ import { Engine } from 'orengine';
 import { decodeClips, MusicClip, MusicSegment, resolveClipSegments } from './clips';
 import { BLOCK_SAMPLES, MusicGenerator } from './generator';
 import { INSTRUMENT_HOT_EVENT, INSTRUMENT_KIND, Instrument, instrumentSoundKind, MusicClipData, MusicTrackData } from './instrument';
-import { MusicMixer } from './mixer';
+import { MusicMixer, SPECTRUM_FFT_SIZE } from './mixer';
 import { MusicNote, resolveNotes } from './notes';
+import { findCurrentClip, findLastNote } from './readout';
 
 // update/music で Engine から出す、生成したトラックの音。エディタの波形表示が音量を掛けて足した1本を作り、
 // Music パネルが帯ごとの波形を描く。tracks は Music の tracks と同じ並びで、まだ音の入れ物が無いトラックは buffer が null
@@ -168,6 +169,9 @@ export class Music extends Component {
 	// 次の更新で source を張り直す。作ったかたまりを鳴らすには source を作り直す必要がある
 	// （AudioBufferSourceNode は再生中の buffer の書き換えを拾うとは限らない）
 	private restartRequested_: boolean;
+	// 鳴っている音のスペクトル。renderer.globalUniforms の uMusicFreqTex に置き、再生中は毎フレーム書き換える
+	private spectrum_: Uint8Array<ArrayBuffer>;
+	private spectrumTexture_: GLP.GLPowerTexture | null;
 
 	private onSelfUpdate_: ( paths: string[] ) => void;
 
@@ -190,6 +194,8 @@ export class Music extends Component {
 		this.jobId_ = 0;
 		this.outputDirty_ = false;
 		this.restartRequested_ = false;
+		this.spectrum_ = new Uint8Array( SPECTRUM_FFT_SIZE / 2 );
+		this.spectrumTexture_ = null;
 
 		this.field( "bpm", () => this.bpm_, ( v: number ) => this.bpm_ = v, { min: 1 } );
 
@@ -238,6 +244,19 @@ export class Music extends Component {
 		this.generator_ = new MusicGenerator( backend );
 		this.mixer_ = new MusicMixer( this.context_ );
 
+		// どのシェーダーからも引けるよう、マテリアルでなく全体の uniform に置く（名前は osc Demo4 と同じ）
+		const gl = backend.gl;
+
+		this.spectrumTexture_ = new GLP.GLPowerTexture( gl ).setting( {
+			type: gl.UNSIGNED_BYTE,
+			internalFormat: gl.R8,
+			format: gl.RED,
+			magFilter: gl.LINEAR,
+			minFilter: gl.LINEAR,
+		} ).attach( { width: this.spectrum_.length, height: 1, data: this.spectrum_ } );
+
+		( this.engine as Engine ).renderer.globalUniforms.uMusicFreqTex = { value: this.spectrumTexture_, type: '1i' };
+
 	}
 
 	/*-------------------------------
@@ -275,6 +294,14 @@ export class Music extends Component {
 
 		}
 
+		// AnalyserNode は今鳴っている音から取るので、停止中は書き換えず最後の値のまま残す
+		if ( this.spectrumTexture_ ) {
+
+			mixer.readSpectrum( this.spectrum_ );
+			this.spectrumTexture_.subImage( this.spectrum_, this.spectrum_.length, 1 );
+
+		}
+
 		// 利用者の操作で AudioContext が始まるまでは時計が進まず、ずれを測れないので待つ
 		if ( context.state !== 'running' ) return;
 
@@ -308,6 +335,51 @@ export class Music extends Component {
 		}
 
 		return buffers;
+
+	}
+
+	/*-------------------------------
+		Readout
+	-------------------------------*/
+
+	// トラック name で time（event の timeCode）までに鳴り始めた最後のノート。同じ時刻の和音は一番低い音。
+	// 見るのは読み込み時に変換したあとのノートで、コードの楽器のトラック・まだ鳴り始めていなければ null
+	public lastNote( name: string, time: number ) {
+
+		const track = this.findTrack_( name );
+
+		if ( ! track ) return null;
+
+		return findLastNote( track.notes, time );
+
+	}
+
+	// トラック name で time（event の timeCode）に鳴っている帯。重なった所は実際に鳴っている帯で、帯の外なら null
+	public currentClip( name: string, time: number ) {
+
+		const track = this.findTrack_( name );
+
+		if ( ! track ) return null;
+
+		return findCurrentClip( track.clips, track.segments, 60 / this.generatedBpm_, time );
+
+	}
+
+	// 名前のトラックの生成の状態。トラック名は曲の中で重ならない（Music パネルが番号を振る）
+	private findTrack_( name: string ) {
+
+		for ( let i = 0; i < this.tracksData_.length; i ++ ) {
+
+			// tracks を差し替えた直後は、次の更新で refresh_ が数を合わせるまで tracks_ が短いことがある
+			if ( this.tracksData_[ i ][ 0 ] === name && i < this.tracks_.length ) {
+
+				return this.tracks_[ i ];
+
+			}
+
+		}
+
+		return null;
 
 	}
 
@@ -731,6 +803,15 @@ export class Music extends Component {
 		}
 
 		this.context_ = null;
+
+		if ( this.spectrumTexture_ ) {
+
+			delete ( this.engine as Engine ).renderer.globalUniforms.uMusicFreqTex;
+
+			this.spectrumTexture_.dispose();
+			this.spectrumTexture_ = null;
+
+		}
 
 		if ( Music.instance === this ) {
 
