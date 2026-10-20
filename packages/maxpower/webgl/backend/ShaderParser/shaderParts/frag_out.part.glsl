@@ -4,6 +4,9 @@
 
 #ifdef IS_DEPTH
 	float depth_z = (-mv.z - uCameraNear) / (uCameraFar - uCameraNear);
+	// 傾いた面ほど深く書く。PCF は近くのテクセルの奥行きをそのまま比べるので、傾いた面では隣のテクセルが手前に出て自分の影になる（webgpu のシャドウパスの depthBiasSlopeScale: 2.0 と同じ補正）
+	float depthSlope = max( abs( dFdx( depth_z ) ), abs( dFdy( depth_z ) ) );
+	depth_z += depthSlope * 2.0;
 	outColor0 = vec4(floatToRGBA( depth_z ));
 #endif
 
