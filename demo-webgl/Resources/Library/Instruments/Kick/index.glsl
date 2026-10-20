@@ -1,5 +1,5 @@
 // osc Demo4 の曲のキック。セクションごとに3種類を使い分ける。
-// 帯はまだ曲全体に1つなので、どのセクションで鳴らすかもこの中で決める（セクションの拍は Demo4 の music() と同じ）
+// どのセクションで鳴らすかは music シーンの帯で決め、セクションごとの鳴り方の違いは帯の数値で受ける
 
 /*-------------------------------
 	Demo4 の曲の共通部品（各楽器の .glsl に同じものを置く）
@@ -14,12 +14,6 @@ vec4 beat( float time, float beat ) {
 
 }
 
-bool isin( float time, float start, float end ) {
-
-	return start <= time && time < end;
-
-}
-
 // Demo4 の音高。0 が 440Hz で、1つ上がるごとに 1.06 倍（平均律の noteFreq とは少しずれるので、Demo4 の音のまま残す）
 float s2f( float scale ) {
 
@@ -27,10 +21,11 @@ float s2f( float scale ) {
 
 }
 
-// 音の位相に使う時刻。セクションの頭（m 小節目）から 8 拍ごとに巻き戻す（Demo4 の getFrec）
-float getFrec( float t, float m, vec4 b8, float beatSec ) {
+// 音の位相に使う時刻（秒）。帯の中の 8 拍ごとに巻き戻す（Demo4 の getFrec）。
+// Demo4 は曲の頭からの秒から引いていたが、帯を動かしても同じ音になるよう帯の中の拍だけで数える
+float getFrec( Song s ) {
 
-	return t - ( m * 16.0 + max( 0.0, b8.y - m * 2.0 ) * 8.0 ) * beatSec;
+	return mod( s.clipBeat, 8.0 ) * s.beatSec;
 
 }
 
@@ -162,54 +157,28 @@ vec2 kick3( float mt, float ft ) {
 
 }
 
+// 帯の数値: x = kick1（Intro Buildup）、y = kick2（Main Drop 1）、z = kick3（Climax）の音量
 vec2 trackSound( Song s ) {
 
-	float t = s.time;
-
-	// 曲の頭の4拍は鳴らさない
-	float mt = max( 0.0, s.beat - 4.0 );
-
-	vec4 beat4 = beat( mt, 4.0 );
-	vec4 beat8 = beat( mt, 8.0 );
-	vec4 beat16 = beat( mt, 16.0 );
+	float ft = getFrec( s );
 
 	vec2 o = vec2( 0.0 );
 
-	// B: Intro Buildup（拍 16〜32）
-	if ( isin( beat16.y, 1.0, 2.0 ) ) {
+	if ( s.clipParam.x > 0.0 ) {
 
-		float ft = getFrec( t, 1.0, beat8, s.beatSec );
-		o += kick1( mt, ft );
+		o += kick1( s.clipBeat, ft ) * s.clipParam.x;
 
 	}
 
-	// D: Main Drop 1（拍 36〜100）
-	mt -= 36.0;
-	beat8 = beat( mt, 8.0 );
-	beat16 = beat( mt, 16.0 );
+	if ( s.clipParam.y > 0.0 ) {
 
-	if ( isin( beat16.y, 0.0, 4.0 ) ) {
-
-		float ft = getFrec( t, 0.0, beat8, s.beatSec );
-		o += kick2( mt, ft ) * 1.2 * smoothstep( 4.0, 3.98, beat16.w );
+		o += kick2( s.clipBeat, ft ) * s.clipParam.y;
 
 	}
 
-	// E: Bridge（拍 101〜149）
-	mt -= 65.0;
-	beat8 = beat( mt, 8.0 );
-	beat16 = beat( mt, 16.0 );
+	if ( s.clipParam.z > 0.0 ) {
 
-	// F: Main Drop 2（拍 149〜229）
-	mt -= 48.0;
-	beat8 = beat( mt, 8.0 );
-	beat16 = beat( mt, 16.0 );
-
-	// F-1: Climax（拍 149〜197）
-	if ( isin( beat16.y, 0.0, 3.0 ) ) {
-
-		float ft = getFrec( t, 0.0, beat8, s.beatSec );
-		o += kick3( mt, ft );
+		o += kick3( s.clipBeat, ft ) * s.clipParam.z;
 
 	}
 
