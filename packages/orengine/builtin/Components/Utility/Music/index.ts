@@ -2,15 +2,17 @@ import * as GLP from 'glpower';
 import { Component, ComponentParams, ComponentUpdateEvent, GLBackend, SerializeFieldValue } from 'maxpower';
 import { Engine } from 'orengine';
 
+import { decodeClips, MusicClip, MusicSegment, resolveClipSegments } from './clips';
 import { BLOCK_SAMPLES, MusicGenerator } from './generator';
-import { INSTRUMENT_HOT_EVENT, INSTRUMENT_KIND, Instrument, MusicTrackData } from './instrument';
+import { INSTRUMENT_HOT_EVENT, INSTRUMENT_KIND, Instrument, MusicClipData, MusicTrackData } from './instrument';
 import { MusicMixer } from './mixer';
 
-// update/music で Engine から出す、生成したトラックの音。エディタの波形表示が音量を掛けて足した1本を作る
+// update/music で Engine から出す、生成したトラックの音。エディタの波形表示が音量を掛けて足した1本を作り、
+// Music パネルが帯ごとの波形を描く。tracks は Music の tracks と同じ並びで、まだ音の入れ物が無いトラックは buffer が null
 export type MusicOutput = {
 	sampleRate: number;
 	length: number;
-	tracks: { buffer: AudioBuffer, volume: number }[];
+	tracks: { buffer: AudioBuffer | null, volume: number }[];
 	// 前に出したときから中身が変わったサンプルの範囲 [start, end)
 	start: number;
 	end: number;
@@ -21,6 +23,9 @@ const SYNC_TOLERANCE = 0.1;
 
 // 生成の途中で描画を譲る間隔（ミリ秒）。エディタの画面と player の進捗バーが止まらない程度にまとめて作る
 const YIELD_INTERVAL = 8;
+
+// 帯を持たないトラックの帯。毎回 [] を作ると、更新のたびに帯が差し替わったように見えるため1つを使い回す
+const NO_CLIPS: MusicClipData[] = [];
 
 // 1トラックの生成の状態
 type MusicTrack = {
@@ -35,6 +40,12 @@ type MusicTrack = {
 	// ノードに入れた音量・パン
 	volume: number;
 	pan: number;
+	// 今の音を作った帯。clipsData は tracks の中の配列そのもの、clipsKey はその中身の文字列
+	clipsData: MusicClipData[] | null;
+	clipsKey: string;
+	clips: MusicClip[];
+	// 帯の重なりを解決した、鳴らす区間
+	segments: MusicSegment[];
 };
 
 // かたまりの番号を、start から前後へ交互に（start, start + 1, start - 1, start + 2, …）並べる
@@ -376,6 +387,12 @@ export class Music extends Component {
 
 			}
 
+			if ( this.refreshClips_( track, data ) ) {
+
+				reset = true;
+
+			}
+
 			if ( data[ 2 ] !== track.volume || data[ 3 ] !== track.pan ) {
 
 				track.volume = data[ 2 ];
@@ -397,6 +414,41 @@ export class Music extends Component {
 		generator.releaseUnused( usedShaders );
 
 		return changed;
+
+	}
+
+	// トラックの帯が変わったら区間を切り直す。作り直すなら true（コンパイルはし直さない）
+	private refreshClips_( track: MusicTrack, data: MusicTrackData ): boolean {
+
+		let clipsData = data[ 4 ];
+
+		if ( ! clipsData ) {
+
+			clipsData = NO_CLIPS;
+
+		}
+
+		// 編集は tracks を差し替えるので、ふだんは配列が同じかどうかだけを見る
+		if ( clipsData === track.clipsData ) return false;
+
+		track.clipsData = clipsData;
+
+		// エディタでは、中身が同じ配列への差し替え（undo・シーン CLI の set・ほかのトラックの編集）で作り直さない。
+		// player では tracks が書き換わらない（差し替わるのは読み込みの1回だけ）ので、比べる処理ごと入れない
+		if ( import.meta.env.DEV ) {
+
+			const clipsKey = JSON.stringify( clipsData );
+
+			if ( clipsKey === track.clipsKey ) return false;
+
+			track.clipsKey = clipsKey;
+
+		}
+
+		track.clips = decodeClips( clipsData );
+		track.segments = resolveClipSegments( track.clips );
+
+		return true;
 
 	}
 
@@ -423,6 +475,10 @@ export class Music extends Component {
 				done: new Uint8Array( 0 ),
 				volume: NaN,
 				pan: NaN,
+				clipsData: null,
+				clipsKey: '',
+				clips: [],
+				segments: [],
 			} );
 
 		}
@@ -519,7 +575,7 @@ export class Music extends Component {
 
 				if ( ! track.program || ! track.buffer || track.done[ block ] ) continue;
 
-				generator.render( track.program, track.buffer, block * BLOCK_SAMPLES, this.generatedBpm_ );
+				generator.render( track.program, track.buffer, block * BLOCK_SAMPLES, this.generatedBpm_, track.segments, track.clips );
 				track.done[ block ] = 1;
 				rendered = true;
 
@@ -578,11 +634,7 @@ export class Music extends Component {
 
 		for ( const track of this.tracks_ ) {
 
-			if ( track.buffer ) {
-
-				tracks.push( { buffer: track.buffer, volume: track.volume } );
-
-			}
+			tracks.push( { buffer: track.buffer, volume: track.volume } );
 
 		}
 

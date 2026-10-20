@@ -1,0 +1,11 @@
+// 見出しの列（--music-head-width）の右から測った位置に引く。色は Timeline の今の時刻の縦線（TimelineCursor）と同じ
+.playhead {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: calc(var(--music-head-width) + var(--x));
+	width: 1px;
+	background-color: var(--or-focus);
+	pointer-events: none;
+	z-index: var(--or-z-content);
+}

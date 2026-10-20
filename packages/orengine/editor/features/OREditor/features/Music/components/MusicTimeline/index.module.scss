@@ -1,0 +1,82 @@
+// 見出しの列の幅と行の高さ。行・再生位置の線・曲の終わりの暗がりが同じ値で並ぶ。
+// 見出しの列は Timeline のチャンネル一覧（Timeline の .channels）と同じ幅
+.timeline {
+	--music-head-width: calc(var(--or-space) * 36);
+	--music-row-height: calc(var(--or-list-row-height) * 2);
+
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	height: 100%;
+	background-color: var(--or-bg-panel);
+}
+
+.main {
+	position: relative;
+	flex: 1;
+	min-height: 0;
+	display: flex;
+	flex-direction: column;
+}
+
+// 目盛りの段。左の角に BPM を置き、余計な見出しの段を作らない
+.header {
+	flex-shrink: 0;
+	display: flex;
+	height: var(--or-list-row-height);
+}
+
+.corner {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	gap: var(--or-space);
+	width: var(--music-head-width);
+	padding: 0 var(--or-space);
+	background-color: var(--or-timeline-ruler);
+	box-shadow: inset 0 -1px var(--or-bg-base);
+
+	&_label {
+		color: var(--or-text-dim);
+		font-size: var(--or-font-xs);
+	}
+
+	&_input {
+		flex: 1;
+		min-width: 0;
+	}
+}
+
+.body {
+	flex: 1;
+	min-height: 0;
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+
+.row {
+	display: flex;
+	height: var(--music-row-height);
+
+	&_head {
+		flex-shrink: 0;
+		width: var(--music-head-width);
+		height: 100%;
+	}
+}
+
+.add {
+	width: var(--music-head-width);
+	padding: var(--or-space);
+}
+
+// 曲の終わりより後ろ（--x はレーンの左端からの位置）
+.outside {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: calc(var(--music-head-width) + var(--x));
+	right: 0;
+	background-color: var(--or-bg-float);
+	pointer-events: none;
+}

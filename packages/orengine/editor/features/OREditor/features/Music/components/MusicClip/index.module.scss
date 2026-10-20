@@ -1,0 +1,57 @@
+// タイムラインの帯。重なった帯（--depth が大きい）ほど上下を詰めて手前に描き、下の帯の隠れた部分が上下に見えるようにする。
+// 手前・奥は DOM の順（MusicLane が勝つ帯を後ろに並べる）で決める
+.clip {
+	position: absolute;
+	top: calc(var(--or-space) * var(--depth));
+	bottom: calc(var(--or-space) * var(--depth));
+	overflow: hidden;
+	border-radius: var(--or-radius);
+	background-color: var(--or-bg-active);
+	box-shadow: inset 0 0 0 1px var(--or-bg-hover);
+	color: var(--or-text-dim);
+	cursor: grab;
+
+	&[data-selected="true"] {
+		box-shadow: inset 0 0 0 1px var(--or-key-selected);
+		color: var(--or-text);
+	}
+
+	&[data-active="true"] {
+		box-shadow: inset 0 0 0 1px var(--or-key-active);
+	}
+}
+
+// 生成した音の波形。色は canvas が color を読んで塗る
+.waveform {
+	position: absolute;
+	top: 0;
+	height: 100%;
+	pointer-events: none;
+	color: inherit;
+}
+
+// 上の帯に隠れて鳴らない部分
+.hidden {
+	position: absolute;
+	top: 0;
+	height: 100%;
+	pointer-events: none;
+	background-color: var(--or-bg-float);
+}
+
+// 長さを変える取っ手
+.handle {
+	position: absolute;
+	top: 0;
+	width: var(--or-space);
+	height: 100%;
+	cursor: ew-resize;
+
+	&[data-side="left"] {
+		left: 0;
+	}
+
+	&[data-side="right"] {
+		right: 0;
+	}
+}

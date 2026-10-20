@@ -1,6 +1,10 @@
 import * as GLP from 'glpower';
 import { GLBackend, shaderParse } from 'maxpower';
 
+import { CLIP_PARAM_COUNT, definesSoundFunction } from './instrument';
+
+import type { MusicClip, MusicSegment } from './clips';
+
 // 1回の描画で作るサンプルの数（48kHz で約 2.7 秒）。エディタでは1かたまりごとに描画を譲り、再生位置の近くから作る。
 // 1回の描画を大きくしすぎると、重い楽器で GPU の処理が長引いて画面が止まる
 export const BLOCK_SAMPLES = 512 * 256;
@@ -10,14 +14,6 @@ const VARYINGS = [ 'o_left', 'o_right' ];
 
 // 生成ではラスタライズしない（RASTERIZER_DISCARD）ので、フラグメントシェーダーは中身を持たない
 const FRAGMENT_SHADER = 'void main(){}';
-
-// 楽器の完成形のシェーダーが、trackSound / noteSound のどちらを定義しているか。
-// 呼び出し（main の `trackSound( s )`）は返り値の型が前に付かないので、`vec2 trackSound(` で定義だけを拾える
-const definesFunction = ( shader: string, name: string ) => {
-
-	return new RegExp( `vec2\\s+${name}\\s*\\(` ).test( shader );
-
-};
 
 // 楽器のシェーダーから曲のサンプルを transform feedback で作る。シェーダーは中身ごとに1つコンパイルして使い回す
 export class MusicGenerator {
@@ -31,6 +27,9 @@ export class MusicGenerator {
 	private transformFeedback_: GLP.GLPowerTransformFeedback;
 	private left_: Float32Array<ArrayBuffer>;
 	private right_: Float32Array<ArrayBuffer>;
+	// 帯の外を無音にするときに書く 0 の並び
+	private silence_: Float32Array<ArrayBuffer>;
+	private clipParam_: number[];
 	// シェーダー → コンパイルしたもの。作れなかったシェーダーは null を持ち、同じものを作り直さない
 	private programs_: Map<string, GLP.GLPowerProgram | null>;
 
@@ -57,6 +56,8 @@ export class MusicGenerator {
 
 		this.left_ = new Float32Array( BLOCK_SAMPLES );
 		this.right_ = new Float32Array( BLOCK_SAMPLES );
+		this.silence_ = new Float32Array( BLOCK_SAMPLES );
+		this.clipParam_ = [];
 
 		this.programs_ = new Map();
 
@@ -80,8 +81,8 @@ export class MusicGenerator {
 
 	private compile_( instrumentName: string, shader: string ): GLP.GLPowerProgram | null {
 
-		const hasNoteSound = definesFunction( shader, 'noteSound' );
-		const hasTrackSound = definesFunction( shader, 'trackSound' );
+		const hasNoteSound = definesSoundFunction( shader, 'noteSound' );
+		const hasTrackSound = definesSoundFunction( shader, 'trackSound' );
 
 		if ( hasNoteSound && hasTrackSound ) {
 
@@ -181,31 +182,68 @@ export class MusicGenerator {
 
 	}
 
-	// out の start サンプル目から1かたまり（曲の終わりまでならそこまで）を作って書き込む
-	public render( program: GLP.GLPowerProgram, out: AudioBuffer, start: number, bpm: number ) {
+	// out の start サンプル目から1かたまり（曲の終わりまでならそこまで）を作って書き込む。
+	// 描画は帯の区間（segments）ごとに分け、区間の範囲・帯の中の拍・帯の数値を描画ごとの uniform で渡す
+	// （帯の数だけ uniform の配列を持つと上限に当たるため）。どの帯も鳴らさない所は無音にする
+	public render( program: GLP.GLPowerProgram, out: AudioBuffer, start: number, bpm: number, segments: MusicSegment[], clips: MusicClip[] ) {
 
 		const vao = program.getVAO();
 
 		if ( ! vao ) return;
 
-		program.setUniform( 'uBlockTime', '1f', [ start / out.sampleRate ] );
-		program.setUniform( 'uSampleRate', '1f', [ out.sampleRate ] );
+		const sampleRate = out.sampleRate;
+		const beatSec = 60 / bpm;
+		const end = Math.min( start + BLOCK_SAMPLES, out.length );
+
+		// 前の設定で作った音が帯の外に残らないよう、先にかたまりを無音にしてから区間を書く
+		const silence = this.silence_.subarray( 0, end - start );
+
+		out.copyToChannel( silence, 0, start );
+		out.copyToChannel( silence, 1, start );
+
+		program.setUniform( 'uSampleRate', '1f', [ sampleRate ] );
 		program.setUniform( 'uBPM', '1f', [ bpm ] );
 
-		program.use( () => {
+		for ( const segment of segments ) {
 
-			program.uploadUniforms();
-			this.transformFeedback_.dispatchPoints( vao );
+			// 隣り合う区間は同じ拍を同じサンプルへ丸めるので、継ぎ目に隙間も重なりもできない
+			const segmentStart = Math.max( start, Math.round( segment.start * beatSec * sampleRate ) );
+			const segmentEnd = Math.min( end, Math.round( segment.end * beatSec * sampleRate ) );
 
-		} );
+			if ( segmentEnd <= segmentStart ) continue;
 
-		this.leftBuffer_.read( this.left_ );
-		this.rightBuffer_.read( this.right_ );
+			const count = segmentEnd - segmentStart;
+			const clipBeat = segment.clipBeat + segmentStart / sampleRate / beatSec - segment.start;
+			const params = clips[ segment.clip ].params;
 
-		const count = Math.min( BLOCK_SAMPLES, out.length - start );
+			for ( let i = 0; i < CLIP_PARAM_COUNT; i ++ ) {
 
-		out.copyToChannel( this.left_.subarray( 0, count ), 0, start );
-		out.copyToChannel( this.right_.subarray( 0, count ), 1, start );
+				this.clipParam_[ i ] = params[ i ] || 0;
+
+			}
+
+			program.setUniform( 'uBlockTime', '1f', [ segmentStart / sampleRate ] );
+			program.setUniform( 'uClipBeat', '1f', [ clipBeat ] );
+			program.setUniform( 'uClipParam', '4f', this.clipParam_ );
+
+			program.use( () => {
+
+				program.uploadUniforms();
+				this.transformFeedback_.dispatchPoints( vao, count );
+
+			} );
+
+			// transform feedback は描いた数だけを出力バッファの頭から書く
+			const left = this.left_.subarray( 0, count );
+			const right = this.right_.subarray( 0, count );
+
+			this.leftBuffer_.read( left );
+			this.rightBuffer_.read( right );
+
+			out.copyToChannel( left, 0, segmentStart );
+			out.copyToChannel( right, 1, segmentStart );
+
+		}
 
 	}
 

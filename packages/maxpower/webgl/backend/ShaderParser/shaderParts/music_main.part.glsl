@@ -5,7 +5,8 @@ void main( void ) {
 	s.time = uBlockTime + aIndex / uSampleRate;
 	s.beatSec = 60.0 / uBPM;
 	s.beat = s.time / s.beatSec;
-	s.clipBeat = s.beat;
+	s.clipBeat = uClipBeat + aIndex / uSampleRate / s.beatSec;
+	s.clipParam = uClipParam;
 
 	vec2 o = trackSound( s );
 

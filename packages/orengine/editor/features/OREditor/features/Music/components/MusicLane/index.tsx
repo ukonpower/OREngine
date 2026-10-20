@@ -1,0 +1,171 @@
+import { useMemo, type MouseEvent, type PointerEvent as ReactPointerEvent } from 'react';
+
+import { decodeClips, MusicClip as MusicClipRange, resolveClipSegments } from '../../../../../../../builtin/Components/Utility/Music/clips';
+import { clipKey } from '../../lib/clipEdit';
+import { BeatRange, ClipWaveform, MusicClip } from '../MusicClip';
+
+import style from './index.module.scss';
+
+import type { MusicClipData } from '../../../../../../../builtin/Components/Utility/Music/instrument';
+import type { ClipPart, ClipSelection } from '../../hooks/useMusicClipEditing';
+
+type MusicLaneProps = {
+	track: number;
+	clips: MusicClipData[];
+	viewStart: number;
+	pxPerBeat: number;
+	laneWidth: number;
+	selection: ClipSelection;
+	waveform: ClipWaveform | null;
+	// 目盛りの線の間隔（拍）。小節の線と拍の線
+	barStep: number;
+	beatStep: number;
+	onClipPointerDown: ( e: ReactPointerEvent, track: number, clip: number, part: ClipPart ) => void;
+	onLanePointerDown: ( e: ReactPointerEvent ) => void;
+	onLaneDoubleClick: ( clientX: number, track: number ) => void;
+};
+
+// 重なりの深さで上下を詰めるのはここまで。行の高さを詰めすぎて帯が見えなくならないように
+const MAX_DEPTH = 2;
+
+// 1つの帯の描き方。index はトラックの帯の並びでの番号
+type ClipLayout = {
+	index: number;
+	clip: MusicClipRange;
+	depth: number;
+	sounding: BeatRange[];
+	hidden: BeatRange[];
+};
+
+// 帯ごとに、鳴らしている区間・隠れている区間・重なりの深さを求め、勝つ帯が手前になる順に並べる
+const layoutClips = ( data: MusicClipData[] ): ClipLayout[] => {
+
+	const clips = decodeClips( data );
+	const segments = resolveClipSegments( clips );
+	const layouts: ClipLayout[] = [];
+
+	for ( let i = 0; i < clips.length; i ++ ) {
+
+		const clip = clips[ i ];
+		const sounding: BeatRange[] = [];
+		const hidden: BeatRange[] = [];
+
+		let cursor = clip.start;
+
+		for ( const segment of segments ) {
+
+			if ( segment.clip !== i ) continue;
+
+			if ( segment.start > cursor ) hidden.push( { start: cursor, end: segment.start } );
+
+			sounding.push( { start: segment.start, end: segment.end } );
+			cursor = segment.end;
+
+		}
+
+		if ( cursor < clip.end ) hidden.push( { start: cursor, end: clip.end } );
+
+		// 帯の頭で、この帯の下になっている帯（先に始まった帯・同じ開始で並びの前の帯）の数
+		let depth = 0;
+
+		for ( let j = 0; j < clips.length; j ++ ) {
+
+			const other = clips[ j ];
+
+			if ( j === i || other.end <= other.start ) continue;
+			if ( clip.start < other.start || clip.start >= other.end ) continue;
+			if ( other.start === clip.start && j > i ) continue;
+
+			depth ++;
+
+		}
+
+		layouts.push( { index: i, clip, depth, sounding, hidden } );
+
+	}
+
+	// 重なった所は後に始まる帯（同じ開始なら並びの後ろ）が鳴るので、その順に後ろへ並べて手前に描く
+	layouts.sort( ( a, b ) => {
+
+		if ( a.clip.start !== b.clip.start ) return a.clip.start - b.clip.start;
+
+		return a.index - b.index;
+
+	} );
+
+	return layouts;
+
+};
+
+// 1トラックの帯を並べるレーン。何もない所のダブルクリックで帯を置く
+export const MusicLane = ( props: MusicLaneProps ) => {
+
+	const layouts = useMemo( () => layoutClips( props.clips ), [ props.clips ] );
+
+	const onPointerDown = ( e: ReactPointerEvent<HTMLDivElement> ) => {
+
+		if ( e.target !== e.currentTarget ) return;
+
+		props.onLanePointerDown( e );
+
+	};
+
+	const onDoubleClick = ( e: MouseEvent<HTMLDivElement> ) => {
+
+		if ( e.target !== e.currentTarget ) return;
+
+		props.onLaneDoubleClick( e.clientX, props.track );
+
+	};
+
+	const clipElms = [];
+
+	for ( const layout of layouts ) {
+
+		const key = clipKey( props.track, layout.index );
+
+		clipElms.push( <MusicClip
+			key={key}
+			start={layout.clip.start}
+			end={layout.clip.end}
+			viewStart={props.viewStart}
+			pxPerBeat={props.pxPerBeat}
+			laneWidth={props.laneWidth}
+			depth={Math.min( layout.depth, MAX_DEPTH )}
+			selected={props.selection.keys.has( key )}
+			active={props.selection.active === key}
+			sounding={layout.sounding}
+			hidden={layout.hidden}
+			waveform={props.waveform}
+			onPointerDown={( e, part ) => props.onClipPointerDown( e, props.track, layout.index, part )}
+		/> );
+
+	}
+
+	// 目盛りの線。小節の線と、拡大したときだけ拍の線を背景で引く
+	const barPx = props.barStep * props.pxPerBeat;
+	const beatPx = props.beatStep * props.pxPerBeat;
+	const offsetPx = - props.viewStart * props.pxPerBeat;
+
+	const backgroundImage = [ "linear-gradient(to right, var(--or-bg-hover) 1px, transparent 1px)" ];
+	const backgroundSize = [ `${barPx}px 100%` ];
+	const backgroundPosition = [ `${offsetPx}px 0` ];
+
+	if ( props.beatStep > 0 ) {
+
+		backgroundImage.push( "linear-gradient(to right, var(--or-bg-active) 1px, transparent 1px)" );
+		backgroundSize.push( `${beatPx}px 100%` );
+		backgroundPosition.push( `${offsetPx}px 0` );
+
+	}
+
+	return <div
+		className={style.lane}
+		style={{ backgroundImage: backgroundImage.join( "," ), backgroundSize: backgroundSize.join( "," ), backgroundPosition: backgroundPosition.join( "," ) }}
+		onPointerDown={onPointerDown}
+		onDoubleClick={onDoubleClick}
+	>
+		{clipElms}
+	</div>;
+
+};
