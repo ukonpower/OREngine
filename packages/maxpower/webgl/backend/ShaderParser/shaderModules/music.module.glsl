@@ -8,10 +8,14 @@ in float aIndex;
 out float o_left;
 out float o_right;
 
-// かたまりの頭の、曲の頭からの秒
+// 1回の描画の頭のサンプルの、曲の頭からの秒。描画は帯の区間ごとに分かれる（Music の generator.ts）
 uniform float uBlockTime;
 uniform float uSampleRate;
 uniform float uBPM;
+// 描画の頭のサンプルの、帯の中の拍
+uniform float uClipBeat;
+// 鳴らしている帯の数値。書かれていない数値は 0
+uniform vec4 uClipParam;
 
 // trackSound が受け取る、今のサンプルの曲の中での位置
 struct Song {
@@ -21,8 +25,10 @@ struct Song {
 	float beat;
 	// 1拍の秒（60 / BPM）
 	float beatSec;
-	// 帯の中の拍。帯は曲全体に1つなので beat と同じ
+	// 帯の中の拍。帯の頭で「中の時間の始まり」から始まり、曲と同じ速さで進む
 	float clipBeat;
+	// 帯の数値（帯ごとに鳴り方を変える）。名前は楽器の index.ts の params に書く
+	vec4 clipParam;
 };
 
 // のこぎり波。x は周期の数（周波数 × 秒）で、-1〜1 を返す
