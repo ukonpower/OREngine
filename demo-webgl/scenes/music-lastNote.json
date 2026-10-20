@@ -1,0 +1,291 @@
+{
+	"name": "demo-webgl",
+	"scene": {
+		"name": "root",
+		"uuid": "0",
+		"childs": [
+			{
+				"name": "Camera",
+				"uuid": "a85c5cef-e1d2-4b8e-8af9-0e60f3c00450",
+				"pos": [
+					0,
+					1.6,
+					8
+				],
+				"rot": [
+					-0.16,
+					0,
+					0
+				],
+				"components": [
+					{
+						"name": "Camera",
+						"uuid": "1bfeaa9e-7951-473c-ac97-47f2986de41c",
+						"props": {
+							"fov": 35,
+							"near": 0.1,
+							"far": 100,
+							"focus/mode": "manual",
+							"focus/distance": 8
+						}
+					}
+				]
+			},
+			{
+				"name": "Floor",
+				"uuid": "ab3e2e18-e2c5-477f-8b7a-5421d3711976",
+				"scale": [
+					40,
+					1,
+					40
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "51a30bcd-b455-4892-863b-746dbca74cc6",
+						"props": {
+							"shape": "plane",
+							"color": [
+								0.3,
+								0.3,
+								0.3
+							],
+							"roughness": 0.9
+						}
+					}
+				]
+			},
+			{
+				"name": "Sun",
+				"uuid": "05164859-f738-4971-8259-d5b87791923b",
+				"pos": [
+					3.1435,
+					3.7722,
+					0.943
+				],
+				"rot": [
+					0.1465,
+					-0.121,
+					-0.6858
+				],
+				"components": [
+					{
+						"name": "Light",
+						"uuid": "02c83e3d-13dd-4fd9-ae29-052613f7b82d",
+						"props": {
+							"lightType": "directional",
+							"castShadow": true,
+							"intensity": 1
+						}
+					}
+				]
+			},
+			{
+				"name": "Music",
+				"uuid": "fdb87697-4509-4be9-a58f-cc03608a1b59",
+				"components": [
+					{
+						"name": "Music",
+						"uuid": "b24efdeb-7e59-47b9-ad96-303e21f69be7",
+						"props": {
+							"bpm": 120,
+							"tracks": [
+								[
+									"Kick",
+									"KickNote",
+									1,
+									0,
+									[
+										[
+											0,
+											16,
+											0,
+											[],
+											[
+												[
+													0.5,
+													0.25,
+													36,
+													0.6
+												],
+												[
+													1,
+													0.25,
+													36,
+													1
+												],
+												[
+													1,
+													0.25,
+													36,
+													0.6
+												],
+												[
+													1,
+													0.25,
+													36,
+													1
+												],
+												[
+													1,
+													0.25,
+													36,
+													0.6
+												],
+												[
+													1,
+													0.25,
+													36,
+													1
+												],
+												[
+													1,
+													0.25,
+													36,
+													0.6
+												],
+												[
+													1,
+													0.25,
+													36,
+													1
+												],
+												[
+													1,
+													0.25,
+													36,
+													0.6
+												],
+												[
+													1,
+													0.25,
+													36,
+													1
+												],
+												[
+													1,
+													0.25,
+													36,
+													0.6
+												],
+												[
+													1,
+													0.25,
+													36,
+													1
+												],
+												[
+													1,
+													0.25,
+													36,
+													0.6
+												],
+												[
+													1,
+													0.25,
+													36,
+													1
+												],
+												[
+													1,
+													0.25,
+													36,
+													0.6
+												],
+												[
+													1,
+													0.25,
+													36,
+													1
+												]
+											]
+										]
+									]
+								]
+							],
+							"reverb/length": 1.5,
+							"reverb/wet": 0.3
+						}
+					}
+				]
+			},
+			{
+				"name": "Pads",
+				"uuid": "42ead301-71e4-4323-9d98-3ecc4fd6b7e9",
+				"pos": [
+					0,
+					0.4,
+					0
+				],
+				"components": [
+					{
+						"name": "Cloner",
+						"uuid": "181c7772-cf0e-4d42-8cfa-0845ca924950",
+						"props": {
+							"layout": "Line",
+							"params/count": 8,
+							"params/length": 6,
+							"params/direction": [
+								1,
+								0,
+								0
+							],
+							"delay/order": "index",
+							"delay/spread": 0.5,
+							"delay/loop": false
+						}
+					}
+				],
+				"childs": [
+					{
+						"name": "Pad",
+						"uuid": "64bc441f-9004-4fbb-9003-e34ce5b284f8",
+						"scale": [
+							0.6,
+							0.6,
+							0.6
+						],
+						"components": [
+							{
+								"name": "NoteFlash",
+								"uuid": "8acdf0fd-efd6-46dc-9ed9-66fb1e9cdfe4",
+								"props": {
+									"track": "Kick",
+									"decay": 6,
+									"color": [
+										1,
+										0.5,
+										0.2
+									]
+								}
+							}
+						]
+					}
+				]
+			}
+		]
+	},
+	"renderer": {
+		"sky/skyColor": [
+			0.1,
+			0.1,
+			0.1
+		],
+		"sky/groundColor": [
+			0.03,
+			0.03,
+			0.03
+		],
+		"sky/intensity": 1,
+		"pipeline/motionBlur/enabled": false,
+		"pipeline/ssr/enabled": false,
+		"pipeline/ssao/enabled": false,
+		"pipeline/dof/enabled": false,
+		"pipeline/lightShaft/enabled": false,
+		"pipeline/toneMap/enabled": true,
+		"pipeline/bloom/enabled": false,
+		"pipeline/sss/enabled": false
+	},
+	"timeline/duration": 480,
+	"timeline/fps": 60
+}
