@@ -1,5 +1,6 @@
 // Music の生成シェーダーの共通部品。ShaderBuilder が楽器の index.glsl の先頭に足すので、楽器の側では include しない。
-// 1頂点が1サンプルで、music_main.part.glsl の main が trackSound を呼んで左右の音を transform feedback で書き出す
+// 1頂点が1サンプルで、music_main.part.glsl の main が trackSound を呼んで左右の音を transform feedback で書き出す。
+// noteSound の楽器には、ShaderBuilder が Note（music_note.module.glsl）と trackSound の本体（music_note.part.glsl）も足す
 
 // かたまりの中のサンプルの番号（Music の generator.ts が 0, 1, 2, … を入れる）
 in float aIndex;

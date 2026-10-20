@@ -2,7 +2,7 @@ import { useMemo, type MouseEvent, type PointerEvent as ReactPointerEvent } from
 
 import { decodeClips, MusicClip as MusicClipRange, resolveClipSegments } from '../../../../../../../builtin/Components/Utility/Music/clips';
 import { clipKey } from '../../lib/clipEdit';
-import { BeatRange, ClipWaveform, MusicClip } from '../MusicClip';
+import { BeatRange, ClipNoteMark, ClipWaveform, MusicClip } from '../MusicClip';
 
 import style from './index.module.scss';
 
@@ -17,6 +17,8 @@ type MusicLaneProps = {
 	laneWidth: number;
 	selection: ClipSelection;
 	waveform: ClipWaveform | null;
+	// ノートのトラックなら、帯の中にノートの縮図を描く
+	showNotes: boolean;
 	// 目盛りの線の間隔（拍）。小節の線と拍の線
 	barStep: number;
 	beatStep: number;
@@ -35,6 +37,33 @@ type ClipLayout = {
 	depth: number;
 	sounding: BeatRange[];
 	hidden: BeatRange[];
+	// 帯の範囲に始まるノート（曲の頭からの拍）
+	notes: ClipNoteMark[];
+};
+
+// 帯のノートを曲の頭からの拍に置き直す。帯の範囲（中の時間の始まり〜帯の終わり）に始まるものだけ
+const clipNoteMarks = ( clip: MusicClipRange ): ClipNoteMark[] => {
+
+	const marks: ClipNoteMark[] = [];
+
+	if ( ! clip.notes ) return marks;
+
+	let noteBeat = 0;
+
+	for ( const note of clip.notes ) {
+
+		noteBeat += note[ 0 ];
+
+		const start = clip.start + noteBeat - clip.offset;
+
+		if ( start < clip.start || start >= clip.end ) continue;
+
+		marks.push( { start, end: Math.min( start + note[ 1 ], clip.end ), pitch: note[ 2 ] } );
+
+	}
+
+	return marks;
+
 };
 
 // 帯ごとに、鳴らしている区間・隠れている区間・重なりの深さを求め、勝つ帯が手前になる順に並べる
@@ -80,7 +109,7 @@ const layoutClips = ( data: MusicClipData[] ): ClipLayout[] => {
 
 		}
 
-		layouts.push( { index: i, clip, depth, sounding, hidden } );
+		layouts.push( { index: i, clip, depth, sounding, hidden, notes: clipNoteMarks( clip ) } );
 
 	}
 
@@ -124,6 +153,10 @@ export const MusicLane = ( props: MusicLaneProps ) => {
 
 		const key = clipKey( props.track, layout.index );
 
+		let notes: ClipNoteMark[] | null = null;
+
+		if ( props.showNotes ) notes = layout.notes;
+
 		clipElms.push( <MusicClip
 			key={key}
 			start={layout.clip.start}
@@ -137,6 +170,7 @@ export const MusicLane = ( props: MusicLaneProps ) => {
 			sounding={layout.sounding}
 			hidden={layout.hidden}
 			waveform={props.waveform}
+			notes={notes}
 			onPointerDown={( e, part ) => props.onClipPointerDown( e, props.track, layout.index, part )}
 		/> );
 

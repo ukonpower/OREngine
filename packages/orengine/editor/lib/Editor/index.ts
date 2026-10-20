@@ -139,6 +139,8 @@ export class Editor extends MXP.Serializable {
 	private _audioBuffer: AudioBuffer | null;
 	// Music パネルが帯の波形を描く、トラックごとの波形の素。パネルを開き直しても作り直さずに済むよう Editor が持つ
 	private _musicTrackPeaks: MusicTrackPeaks;
+	// Music パネルのピアノロールのグリッド。1小節を何分割するか（16 = 1/16 = 1/4 拍）で、0 はグリッドなし
+	private _musicGrid: number;
 	private _frameLoop: EditorTimelineLoop;
 	private _enableRender: boolean;
 	private _baseResolution: MTP.Vector;
@@ -385,6 +387,8 @@ export class Editor extends MXP.Serializable {
 			end: 0,
 		};
 
+		this._musicGrid = 16;
+
 		/*-------------------------------
 			Scene
 		-------------------------------*/
@@ -487,6 +491,8 @@ export class Editor extends MXP.Serializable {
 		frameLoop.field( "enabled", () => this._frameLoop.enabled, v => this._frameLoop.enabled = v );
 		frameLoop.field( "start", () => this._frameLoop.start, v => this._frameLoop.start = v );
 		frameLoop.field( "end", () => this._frameLoop.end, v => this._frameLoop.end = v );
+
+		this.fieldDir( "music" ).field( "grid", () => this._musicGrid, ( v: number ) => this._musicGrid = v );
 
 		// アクティブ。選択に入っていないものを入れたら、選択もそれ1つにする（アクティブは必ず選択の中にある）
 		this.field( "selectedEntityId", () => this._selectedEntityId, ( v: string | null ) => {

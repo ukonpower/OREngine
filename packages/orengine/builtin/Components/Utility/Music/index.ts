@@ -4,8 +4,9 @@ import { Engine } from 'orengine';
 
 import { decodeClips, MusicClip, MusicSegment, resolveClipSegments } from './clips';
 import { BLOCK_SAMPLES, MusicGenerator } from './generator';
-import { INSTRUMENT_HOT_EVENT, INSTRUMENT_KIND, Instrument, MusicClipData, MusicTrackData } from './instrument';
+import { INSTRUMENT_HOT_EVENT, INSTRUMENT_KIND, Instrument, instrumentSoundKind, MusicClipData, MusicTrackData } from './instrument';
 import { MusicMixer } from './mixer';
+import { MusicNote, resolveNotes } from './notes';
 
 // update/music で Engine から出す、生成したトラックの音。エディタの波形表示が音量を掛けて足した1本を作り、
 // Music パネルが帯ごとの波形を描く。tracks は Music の tracks と同じ並びで、まだ音の入れ物が無いトラックは buffer が null
@@ -46,6 +47,10 @@ type MusicTrack = {
 	clips: MusicClip[];
 	// 帯の重なりを解決した、鳴らす区間
 	segments: MusicSegment[];
+	// ノートの楽器のときだけ、変換したあとのノート（帯の外・隠れた区間で落とし、帯の終わり・maxNotes で切ったあと。開始の順）と、
+	// それを入れた生成用のテクスチャを持つ。コードの楽器は空と null。絵から音を引く読み口（#275）もこのノートを読む
+	notes: MusicNote[];
+	noteTexture: GLP.GLPowerTexture | null;
 };
 
 // かたまりの番号を、start から前後へ交互に（start, start + 1, start - 1, start + 2, …）並べる
@@ -83,7 +88,7 @@ const nextTask = () => new Promise<void>( ( resolve ) => {
 let sharedContext: AudioContext | null = null;
 
 // AudioContext は全 Music で1つを使い回す。シーンを読み直すたびに作ると数が積もり、自動再生の制限の解除もやり直しになるため
-const getAudioContext = () => {
+export const getAudioContext = () => {
 
 	if ( sharedContext ) return sharedContext;
 
@@ -345,7 +350,15 @@ export class Music extends Component {
 			const track = this.tracks_[ i ];
 			const data = this.tracksData_[ i ];
 			const instrumentName = data[ 1 ];
-			const shader = this.findShader_( instrumentName );
+			const instrument = Engine.resources.getLibraryItem<Instrument>( INSTRUMENT_KIND, instrumentName ) || null;
+
+			let shader: string | null = null;
+
+			if ( instrument ) {
+
+				shader = instrument.shader;
+
+			}
 
 			if ( shader !== null ) {
 
@@ -404,6 +417,7 @@ export class Music extends Component {
 
 			if ( reset ) {
 
+				this.refreshNotes_( track, instrument );
 				this.resetTrack_( track );
 				changed = true;
 
@@ -452,6 +466,53 @@ export class Music extends Component {
 
 	}
 
+	// ノートの楽器なら、帯のノートを変換して生成用のテクスチャに入れ直す（コンパイルはし直さない）。
+	// 帯・楽器・BPM・曲の長さのどれかが変わって作り直すときに呼ぶ
+	private refreshNotes_( track: MusicTrack, instrument: Instrument | null ) {
+
+		const generator = this.generator_;
+
+		track.notes = [];
+
+		if ( ! generator || ! track.program || ! instrument || instrumentSoundKind( instrument.shader ) !== 'note' ) {
+
+			this.disposeNoteTexture_( track );
+
+			return;
+
+		}
+
+		let maxNotes = 1;
+
+		if ( instrument.maxNotes ) maxNotes = instrument.maxNotes;
+
+		let release = 0;
+
+		if ( instrument.release ) release = instrument.release;
+
+		track.notes = resolveNotes( track.clips, track.segments, 60 / this.generatedBpm_, release, maxNotes );
+
+		if ( ! track.noteTexture ) {
+
+			track.noteTexture = generator.createNoteTexture();
+
+		}
+
+		generator.updateNotes( track.noteTexture, track.notes, maxNotes );
+
+	}
+
+	private disposeNoteTexture_( track: MusicTrack ) {
+
+		if ( track.noteTexture ) {
+
+			track.noteTexture.dispose();
+			track.noteTexture = null;
+
+		}
+
+	}
+
 	// トラックの数を tracks に合わせる。増減したら true
 	private syncTrackCount_( mixer: MusicMixer ): boolean {
 
@@ -461,7 +522,7 @@ export class Music extends Component {
 
 		while ( this.tracks_.length > count ) {
 
-			this.tracks_.pop();
+			this.disposeNoteTexture_( this.tracks_.pop()! );
 
 		}
 
@@ -479,6 +540,8 @@ export class Music extends Component {
 				clipsKey: '',
 				clips: [],
 				segments: [],
+				notes: [],
+				noteTexture: null,
 			} );
 
 		}
@@ -489,16 +552,6 @@ export class Music extends Component {
 		this.restartRequested_ = true;
 
 		return true;
-
-	}
-
-	private findShader_( instrumentName: string ): string | null {
-
-		const instrument = Engine.resources.getLibraryItem<Instrument>( INSTRUMENT_KIND, instrumentName );
-
-		if ( ! instrument ) return null;
-
-		return instrument.shader;
 
 	}
 
@@ -575,7 +628,7 @@ export class Music extends Component {
 
 				if ( ! track.program || ! track.buffer || track.done[ block ] ) continue;
 
-				generator.render( track.program, track.buffer, block * BLOCK_SAMPLES, this.generatedBpm_, track.segments, track.clips );
+				generator.render( track.program, track.buffer, block * BLOCK_SAMPLES, this.generatedBpm_, track.segments, track.clips, track.noteTexture );
 				track.done[ block ] = 1;
 				rendered = true;
 
@@ -656,6 +709,12 @@ export class Music extends Component {
 
 		// 走っている生成を止める
 		this.jobId_ ++;
+
+		for ( const track of this.tracks_ ) {
+
+			this.disposeNoteTexture_( track );
+
+		}
 
 		if ( this.mixer_ ) {
 

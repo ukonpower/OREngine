@@ -161,11 +161,26 @@ const INSTRUMENT_FUNCTIONS = [ 'noteSound', 'trackSound' ];
 // 楽器の .glsl を保存したときにページへ知らせるイベントの名前。builtin の Music/instrument.ts の INSTRUMENT_HOT_EVENT と一致させる
 const INSTRUMENT_HOT_EVENT = 'orengine:instrument';
 
+// noteSound の定義。builtin の Music/instrument.ts の countSoundFunction と同じ読み方
+const NOTE_SOUND_DEFINITION = /vec2\s+noteSound\s*\(/;
+
+// noteSound の楽器には、Note の宣言（module の music_note）と、鳴っているノートを足し合わせる trackSound の本体（part の music_note）も足す。
+// 楽器の側でも trackSound を書いていれば定義が2つになり、Music が「両方ある」として無音にする
 const wrapInstrument = ( code: string, file: string ) => {
 
 	if ( ! INSTRUMENT_SHADER.test( file ) ) return code;
 
-	return `#include <module:music>\n${code}\n#include <part:music_main>\n`;
+	let noteModule = '';
+	let notePart = '';
+
+	if ( NOTE_SOUND_DEFINITION.test( code ) ) {
+
+		noteModule = '#include <module:music_note>\n';
+		notePart = '#include <part:music_note>\n';
+
+	}
+
+	return `#include <module:music>\n${noteModule}${code}\n${notePart}#include <part:music_main>\n`;
 
 };
 
