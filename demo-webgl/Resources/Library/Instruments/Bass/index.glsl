@@ -1,20 +1,6 @@
-// osc Demo4 の曲のベース。
-// どのセクションで鳴らすかは music シーンの帯で決め、セクションごとの鳴り方の違いは帯の数値で受ける
+// osc Demo4 の曲のベース。ノート（music シーンの帯に置いた、4拍ごとのコードの根音の3オクターブ下）1つぶんの音
 
 #include <module:common>
-
-/*-------------------------------
-	Demo4 の曲の共通部品（各楽器の .glsl に同じものを置く）
--------------------------------*/
-
-// 拍の情報。x: 拍の中の経過（0〜beat）、y: 何個目か、z: 拍の中の進み（0〜1）、w: 頭からの数（小数）
-vec4 beat( float time, float beat ) {
-
-	float b = mod( time, beat );
-
-	return vec4( b, floor( time / beat ), b / beat, time / beat );
-
-}
 
 // Demo4 の音高。0 が 440Hz で、1つ上がるごとに 1.06 倍（平均律の noteFreq とは少しずれるので、Demo4 の音のまま残す）
 float s2f( float scale ) {
@@ -29,52 +15,48 @@ float ssin( float time ) {
 
 }
 
-// 音の位相に使う時刻（秒）。帯の中の 8 拍ごとに巻き戻す（Demo4 の getFrec）。
-// Demo4 は曲の頭からの秒から引いていたが、帯を動かしても同じ音になるよう帯の中の拍だけで数える
-float getFrec( Song s ) {
+// 今のサンプルの、帯の中の拍（music モジュールの uniform と aIndex から求める。Song.clipBeat と同じ値）。
+// Demo4 の発振器と左右の振りはノートの頭で巻き戻さず帯の中の時刻で回り続けていたので、ノートの外の時刻として読む
+float clipBeatNow() {
 
-	return mod( s.clipBeat, 8.0 ) * s.beatSec;
+	return uClipBeat + aIndex / uSampleRate * uBPM / 60.0;
 
 }
 
-// コードの根音（s2f の音高）。4拍ごとに次へ進み、32拍で一巡する
-const float baseLine[] = float[](
-	10.0, 6.0, 8.0, 3.0, 10.0, 6.0, 8.0, 3.0
-);
+vec2 noteSound( Note n, float t ) {
 
-vec2 bass( float mt, float ft, float pitch ) {
+	float beatSec = 60.0 / uBPM;
+	float clipBeat = clipBeatNow();
 
-	vec2 o = vec2( 0.0 );
+	// 発振器の位相に使う時刻（秒）。帯の中の 8 拍ごとに巻き戻す（Demo4 の getFrec）
+	float ft = mod( clipBeat, 8.0 ) * beatSec;
 
-	vec4 b32 = beat( mt, 32.0 );
+	// ノートの頭からの拍
+	float beat = t / beatSec;
 
-	// 3オクターブ下
-	float scale = baseLine[ int( mod( b32.x / 4.0, 8.0 ) ) ];
-	float note = scale + pitch - 12.0 * 3.0;
+	// MIDI の 69（A4）が Demo4 の音高の 0
+	float freq = s2f( n.pitch - 69.0 );
 
-	float envTime = fract( mt * 0.25 );
+	// Demo4 の1音（4拍）で減る包絡
+	float envTime = beat * 0.25;
 	float env = exp( - envTime * 3.0 );
 	env *= smoothstep( 0.0, 0.01, envTime );
+
+	vec2 o = vec2( 0.0 );
 
 	for ( int i = 0; i < 4; i ++ ) {
 
 		float harmonic = float( i + 1 );
-		float wave = ssin( ft * s2f( note ) );
+		float wave = ssin( ft * freq );
 		o += wave * env / harmonic;
 
 	}
 
 	// 左右にゆっくり振る
-	float pan = sin( mt * 8.0 );
+	float pan = sin( clipBeat * 8.0 );
 	o.x *= 1.0 + pan * 0.3;
 	o.y *= 1.0 - pan * 0.3;
 
-	return o * 0.05;
-
-}
-
-vec2 trackSound( Song s ) {
-
-	return bass( s.clipBeat, getFrec( s ), 0.0 );
+	return o * 0.05 * n.velocity;
 
 }
