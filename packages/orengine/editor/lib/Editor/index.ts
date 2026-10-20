@@ -15,6 +15,7 @@ import { HelperManager, HelperVisibility } from '../HelperManager';
 import { KeyboardHandler } from '../KeyboardHandler';
 import { CurveLinkSettings, CurvePasteMode, getAnimatedTransformFields, KeyFrameElementRef, KeyFrameFieldRef, keyFrameTime } from '../KeyFrameField';
 import { ModalTransformHandler, transformModeOfKey, type ModalTransformMode, type ModalTransformSelection } from '../ModalTransformHandler';
+import { mixMusicWaveform } from '../MusicWaveform';
 import { RelationshipLineRenderer } from '../RelationshipLineRenderer';
 import { SceneExporter, SceneExporterProgress } from '../SceneExporter';
 import { SelectionOutline } from '../SelectionOutline';
@@ -22,6 +23,7 @@ import { topmostEntities, transformBasis, transformPivot } from '../TransformTar
 import { Viewport } from '../Viewport';
 import { WireframeRenderer } from '../WireframeRenderer';
 
+import type { MusicOutput } from '../../../builtin/Components/Utility/Music';
 import type { ViewAxis } from '../EditorCamera';
 import type { TransformOrientation } from '../TransformUtils';
 
@@ -350,9 +352,18 @@ export class Editor extends MXP.Serializable {
 
 		this._audioBuffer = null;
 
-		this._engine.on( "update/music", ( buffer: AudioBuffer ) => {
+		// Music がトラックの音を作るたびに届く。Timeline・AudioView は同じイベントで audioBuffer を読み直すので、先に足し合わせておく
+		this._engine.on( "update/music", ( output: MusicOutput | null ) => {
 
-			this._audioBuffer = buffer;
+			if ( output ) {
+
+				this._audioBuffer = mixMusicWaveform( this._audioBuffer, output );
+
+			} else {
+
+				this._audioBuffer = null;
+
+			}
 
 		} );
 

@@ -146,10 +146,53 @@ const preprocess = ( code: string ) => {
 
 };
 
-// include解決＋前処理を行い、minifierに渡せる完成形のシェーダーソースを作る
-const composeShader = async ( code: string ) => {
+/*-------------------------------
+	楽器（Music）
+-------------------------------*/
 
-	return preprocess( await inlineIncludes( code ) );
+// Music の楽器の .glsl。楽器は音色の関数（trackSound / noteSound）だけを書き、生成シェーダーの宣言と main はここで前後に足す。
+// minifier には完成形を渡す必要がある（上の「#include 解決」）ので、実行時でなくビルド時に足す。
+// 種類の名前 Instruments は builtin の Music/instrument.ts の INSTRUMENT_KIND と一致させる
+const INSTRUMENT_SHADER = /\/Library\/Instruments\/([^/]+)\/index\.glsl$/;
+
+// 楽器の関数の名前。Music が実行時に完成形の文字列からどちらが定義されているかを読むので、minifier に改名させない
+const INSTRUMENT_FUNCTIONS = [ 'noteSound', 'trackSound' ];
+
+// 楽器の .glsl を保存したときにページへ知らせるイベントの名前。builtin の Music/instrument.ts の INSTRUMENT_HOT_EVENT と一致させる
+const INSTRUMENT_HOT_EVENT = 'orengine:instrument';
+
+const wrapInstrument = ( code: string, file: string ) => {
+
+	if ( ! INSTRUMENT_SHADER.test( file ) ) return code;
+
+	return `#include <module:music>\n${code}\n#include <part:music_main>\n`;
+
+};
+
+// 楽器の .glsl のモジュールを、保存されたら自分だけ差し替わる（self-accept）ようにし、新しい完成形を楽器の名前と一緒にページへ知らせる。
+// 楽器の index.ts まで更新が伝わると registry の glob を通ってページ全体の読み直しになり、全トラックを作り直すことになるため
+const instrumentHotCode = ( file: string ) => {
+
+	const match = file.match( INSTRUMENT_SHADER );
+
+	if ( ! match ) return '';
+
+	const detail = `{ name: ${JSON.stringify( match[ 1 ] )}, shader: mod.default }`;
+
+	return `
+if ( import.meta.hot ) {
+	import.meta.hot.accept( ( mod ) => {
+		if ( mod ) window.dispatchEvent( new CustomEvent( ${JSON.stringify( INSTRUMENT_HOT_EVENT )}, { detail: ${detail} } ) );
+	} );
+}
+`;
+
+};
+
+// include解決＋前処理を行い、minifierに渡せる完成形のシェーダーソースを作る
+const composeShader = async ( code: string, file: string ) => {
+
+	return preprocess( await inlineIncludes( wrapInstrument( code, file ) ) );
 
 };
 
@@ -197,6 +240,92 @@ const extractUniformStructFieldNames = ( sources: Iterable<string> ) => {
 	for ( const type of uniformTypes ) visit( type );
 
 	return [ ...fields ];
+
+};
+
+/*-------------------------------
+	minify
+-------------------------------*/
+
+// files を shader_minifier の1回の実行で minify し、絶対パス → minify 済みコードを返す。失敗したら null（呼び出し側が生 GLSL に戻す）。
+// keepNames は main に加えて改名させない名前
+const minifyFiles = async ( label: string, files: string[], sources: Map<string, string>, keepNames: string[], warn: ( msg: string ) => void ) => {
+
+	const batchDir = path.join( './tmp', `shader_batch_${Date.now()}_${label}` );
+	await fs.promises.mkdir( batchDir, { recursive: true } );
+
+	try {
+
+		// ファイル名をminifierの変数名規則（非英数字→_）と1:1対応させて出力を引き当てる
+		const varNameToFile = new Map<string, string>();
+		const inputPaths: string[] = [];
+		const groupSources: string[] = [];
+
+		for ( let i = 0; i < files.length; i ++ ) {
+
+			const file = files[ i ];
+			const inputName = `s${i}_${path.basename( file ).replace( /[^A-Za-z0-9_.]/g, '_' )}`;
+			const inputPath = path.join( batchDir, inputName );
+			const source = sources.get( file ) !;
+
+			await fs.promises.writeFile( inputPath, source );
+
+			varNameToFile.set( inputName.replace( /[^A-Za-z0-9_]/g, '_' ), file );
+			inputPaths.push( inputPath );
+			groupSources.push( source );
+
+		}
+
+		const outputPath = path.join( batchDir, 'out.js' );
+		// --no-overloading: minifierは別関数ファミリ（hashvとfbm等）に同じ短縮名を割り当てることがあり、
+		// 同一シグネチャのオーバーロードが衝突して二重定義になるため無効化する
+		// --no-renaming-list はデフォルトリスト（main を含む）を置き換える。
+		// main を外すと未使用削除のルートが消え全関数が削除されるため必ず含める
+		const noRenamingList = [ 'main', ...keepNames, ...extractUniformStructFieldNames( groupSources ) ];
+		const args = `--format js --preserve-externals --no-overloading --no-renaming-list ${noRenamingList.join( ',' )}`;
+		// 実行コマンドは ORENGINE_SHADER_MINIFIER で上書きできる（例: "mono /path/to/shader_minifier.exe"）
+		const bin = process.env.ORENGINE_SHADER_MINIFIER
+			?? ( process.platform === 'darwin' ? 'mono ~/Documents/application/shader_minifier/shader_minifier.exe' : 'shader_minifier.exe' );
+
+		try {
+
+			await exec( `${bin} ${inputPaths.join( ' ' )} -o ${outputPath} ${args}` );
+
+		} catch ( e: any ) {
+
+			// shader_minifier が無い環境やminifyエラー時は生GLSLにフォールバックする
+			warn( `ShaderBuilder: minify をスキップしました。packed サイズは本番相当より大きくなります。shader_minifier のパスは ORENGINE_SHADER_MINIFIER で指定できます (${e.message})` );
+
+			return null;
+
+		}
+
+		const output = await fs.promises.readFile( outputPath, 'utf-8' );
+		const result = new Map<string, string>();
+
+		for ( const match of output.matchAll( /var (\w+) = `([\s\S]*?)`/g ) ) {
+
+			const file = varNameToFile.get( match[ 1 ] );
+
+			if ( file ) result.set( file, match[ 2 ] );
+
+		}
+
+		if ( result.size !== files.length ) {
+
+			warn( `ShaderBuilder: minify出力の対応付けに失敗しました (${result.size}/${files.length}) 生GLSLにフォールバックします` );
+
+			return null;
+
+		}
+
+		return result;
+
+	} finally {
+
+		await fs.promises.rm( batchDir, { recursive: true, force: true } );
+
+	}
 
 };
 
@@ -279,7 +408,7 @@ export const ShaderBuilder = ( options: ShaderBuilderOptions ): Plugin => {
 
 	const skip = process.env.SKIP_SHADER_MINIFIER === 'true';
 
-	// 全シェーダーを1回のinvocationで一括minifyした結果（絶対パス→minify済みコード）
+	// 全シェーダーを一括minifyした結果（絶対パス→minify済みコード）。楽器だけは別の回で minify する（runBatchMinify）
 	let batchPromise: Promise<Map<string, string>> | null = null;
 
 	const runBatchMinify = async ( warn: ( msg: string ) => void ) => {
@@ -292,7 +421,7 @@ export const ShaderBuilder = ( options: ShaderBuilderOptions ): Plugin => {
 
 		for ( const file of targetFiles ) {
 
-			sources.set( file, await composeShader( await fs.promises.readFile( file, 'utf-8' ) ) );
+			sources.set( file, await composeShader( await fs.promises.readFile( file, 'utf-8' ), file ) );
 
 		}
 
@@ -312,78 +441,49 @@ export const ShaderBuilder = ( options: ShaderBuilderOptions ): Plugin => {
 
 		if ( targetFiles.length === 0 ) return rawFallback();
 
-		const batchDir = path.join( './tmp', `shader_batch_${Date.now()}` );
-		await fs.promises.mkdir( batchDir, { recursive: true } );
+		// 楽器は別の回で minify する。minifier は1回の中で struct の型名を全ファイル通しで割り当てるので、
+		// 楽器を同じ回に入れると、楽器を足しただけでほかのシェーダーの型名が変わり、Music を置かないシーンの packed まで変わる
+		const instrumentFiles: string[] = [];
+		const otherFiles: string[] = [];
 
-		try {
+		for ( const file of targetFiles ) {
 
-			// ファイル名をminifierの変数名規則（非英数字→_）と1:1対応させて出力を引き当てる
-			const varNameToFile = new Map<string, string>();
-			const inputPaths: string[] = [];
+			if ( INSTRUMENT_SHADER.test( file ) ) {
 
-			for ( let i = 0; i < targetFiles.length; i ++ ) {
+				instrumentFiles.push( file );
 
-				const file = targetFiles[ i ];
-				const inputName = `s${i}_${path.basename( file ).replace( /[^A-Za-z0-9_.]/g, '_' )}`;
-				const inputPath = path.join( batchDir, inputName );
+			} else {
 
-				await fs.promises.writeFile( inputPath, sources.get( file ) ! );
-
-				varNameToFile.set( inputName.replace( /[^A-Za-z0-9_]/g, '_' ), file );
-				inputPaths.push( inputPath );
+				otherFiles.push( file );
 
 			}
-
-			const outputPath = path.join( batchDir, 'out.js' );
-			// --no-overloading: minifierは別関数ファミリ（hashvとfbm等）に同じ短縮名を割り当てることがあり、
-			// 同一シグネチャのオーバーロードが衝突して二重定義になるため無効化する
-			// --no-renaming-list はデフォルトリスト（main を含む）を置き換える。
-			// main を外すと未使用削除のルートが消え全関数が削除されるため必ず含める
-			const noRenamingList = [ 'main', ...extractUniformStructFieldNames( sources.values() ) ];
-			const args = `--format js --preserve-externals --no-overloading --no-renaming-list ${noRenamingList.join( ',' )}`;
-			// 実行コマンドは ORENGINE_SHADER_MINIFIER で上書きできる（例: "mono /path/to/shader_minifier.exe"）
-			const bin = process.env.ORENGINE_SHADER_MINIFIER
-				?? ( process.platform === 'darwin' ? 'mono ~/Documents/application/shader_minifier/shader_minifier.exe' : 'shader_minifier.exe' );
-
-			try {
-
-				await exec( `${bin} ${inputPaths.join( ' ' )} -o ${outputPath} ${args}` );
-
-			} catch ( e: any ) {
-
-				// shader_minifier が無い環境やminifyエラー時は生GLSLにフォールバックする
-				warn( `ShaderBuilder: minify をスキップしました。packed サイズは本番相当より大きくなります。shader_minifier のパスは ORENGINE_SHADER_MINIFIER で指定できます (${e.message})` );
-
-				return rawFallback();
-
-			}
-
-			const output = await fs.promises.readFile( outputPath, 'utf-8' );
-			const result = new Map<string, string>();
-
-			for ( const match of output.matchAll( /var (\w+) = `([\s\S]*?)`/g ) ) {
-
-				const file = varNameToFile.get( match[ 1 ] );
-
-				if ( file ) result.set( file, match[ 2 ] );
-
-			}
-
-			if ( result.size !== targetFiles.length ) {
-
-				warn( `ShaderBuilder: minify出力の対応付けに失敗しました (${result.size}/${targetFiles.length}) 生GLSLにフォールバックします` );
-
-				return rawFallback();
-
-			}
-
-			return finish( result );
-
-		} finally {
-
-			await fs.promises.rm( batchDir, { recursive: true, force: true } );
 
 		}
+
+		const result = new Map<string, string>();
+
+		const groups: { name: string, files: string[], keepNames: string[] }[] = [
+			{ name: 'shaders', files: otherFiles, keepNames: [] },
+			{ name: 'instruments', files: instrumentFiles, keepNames: INSTRUMENT_FUNCTIONS },
+		];
+
+		for ( const group of groups ) {
+
+			if ( group.files.length === 0 ) continue;
+
+			const groupResult = await minifyFiles( group.name, group.files, sources, group.keepNames, warn );
+
+			if ( ! groupResult ) return rawFallback();
+
+			for ( const [ file, code ] of groupResult ) {
+
+				result.set( file, code );
+
+			}
+
+		}
+
+		return finish( result );
 
 	};
 
@@ -411,6 +511,11 @@ export const ShaderBuilder = ( options: ShaderBuilderOptions ): Plugin => {
 			if ( ! isShaderFile( ctx.file ) ) return;
 
 			batchPromise = null;
+
+			// 楽器は別の回で minify する（runBatchMinify）ので、楽器を保存してもほかのシェーダーの minify 結果は変わらない。
+			// 保存した楽器のモジュールだけを更新に含め、自分で差し替わらせる（instrumentHotCode）。
+			// ほかのシェーダーのモジュールまで含めると、HMR を受けないモジュール（Material 等）があるためページ全体の読み直しになる
+			if ( INSTRUMENT_SHADER.test( ctx.file ) ) return ctx.modules;
 
 			const modules = new Set( ctx.modules );
 
@@ -442,10 +547,19 @@ export const ShaderBuilder = ( options: ShaderBuilderOptions ): Plugin => {
 
 			const filePath = id.split( '?' )[ 0 ];
 
+			// player ビルドには HMR が無いので、楽器の差し替えのコードを足さない
+			let hotCode = '';
+
+			if ( ! options.groupShaders ) {
+
+				hotCode = instrumentHotCode( filePath );
+
+			}
+
 			if ( skip ) {
 
 				return {
-					code: `export default ${JSON.stringify( await composeShader( code ) )};`,
+					code: `export default ${JSON.stringify( await composeShader( code, filePath ) )};${hotCode}`,
 					map: { mappings: '' }
 				};
 
@@ -465,7 +579,7 @@ export const ShaderBuilder = ( options: ShaderBuilderOptions ): Plugin => {
 				this.warn( `ShaderBuilder: バッチ対象外のシェーダーです。生GLSLを使用します: ${filePath}` );
 
 				return {
-					code: `export default ${JSON.stringify( await composeShader( code ) )};`,
+					code: `export default ${JSON.stringify( await composeShader( code, filePath ) )};${hotCode}`,
 					map: { mappings: '' }
 				};
 
@@ -483,7 +597,7 @@ export const ShaderBuilder = ( options: ShaderBuilderOptions ): Plugin => {
 			}
 
 			return {
-				code: `export default ${JSON.stringify( minified )};`,
+				code: `export default ${JSON.stringify( minified )};${hotCode}`,
 				map: { mappings: '' }
 			};
 

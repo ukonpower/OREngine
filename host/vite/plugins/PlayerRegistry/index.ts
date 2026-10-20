@@ -19,6 +19,7 @@ const registryCommonPath = path.join( path.dirname( registryPath ), 'registryCom
 const builtinComponentsDir = path.resolve( pluginDir, '../../../../packages/orengine/builtin/Components' );
 const builtinLibraryDir = path.resolve( pluginDir, '../../../../packages/orengine/builtin/Library' );
 const gltfLoaderPath = path.resolve( pluginDir, '../../../../packages/maxpower/webgl/Loaders/GLTFLoader/index.ts' );
+const musicLoadingPath = path.resolve( pluginDir, '../../../../packages/orengine/builtin/Components/Utility/Music/loading.ts' );
 
 // Engine.resources.getComponent(name) はフラット検索のため、player登録もフラットで足りる（グループ階層はエディタUI専用）
 const MANUAL_BUILTIN_COMPONENTS = [ 'Light', 'Camera', 'Mesh' ];
@@ -217,7 +218,27 @@ const generateRegistryCode = async ( opts: PlayerRegistryOptions ): Promise<stri
 
 	}
 
-	importLines.push( `import { registerProjectTextures, initResourceInstances } from ${JSON.stringify( registryCommonPath )};` );
+	// Music を置いたシーンだけ、player の読み込みに曲の生成をつなぐ（Music/loading.ts）。
+	// 置かないシーンの player に生成待ちのコードを入れないため、player 側でなく生成するレジストリの側で足す
+	let instancesExport = 'export { initResourceInstances };';
+
+	if ( usage.componentNames.has( 'Music' ) ) {
+
+		importLines.push( `import { attachMusicLoading } from ${JSON.stringify( musicLoadingPath )};` );
+		importLines.push( `import { registerProjectTextures, initResourceInstances as initCommonInstances } from ${JSON.stringify( registryCommonPath )};` );
+
+		instancesExport = `export const initResourceInstances = ( engine ) => {
+
+	initCommonInstances( engine );
+	attachMusicLoading( engine );
+
+};`;
+
+	} else {
+
+		importLines.push( `import { registerProjectTextures, initResourceInstances } from ${JSON.stringify( registryCommonPath )};` );
+
+	}
 
 	const bundledNames = manualBuiltins.concat( scannedNames );
 	const registerLines = bundledNames.map( name => `\tgroup.addComponent( '${name}', ${name} );` ).join( '\n' );
@@ -249,7 +270,7 @@ ${libraryRegisterLines}
 
 };
 
-export { initResourceInstances };
+${instancesExport}
 `;
 
 };
