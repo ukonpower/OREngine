@@ -52,7 +52,31 @@ export const createMusicOutput = ( seconds: number, trackCount: number ): MusicO
 // 32 秒（BPM 100 で 53 拍余り）
 const MUSIC_DURATION = 32 * 60;
 
-// Music パネル用のシーン。重なった帯（Pad の 8〜16 拍）・頭を削った帯（Arpeggio の 2 つ目）・数値の名前の無い楽器（Metronome）を含む
+// ノートの帯（Lead）の中身。1/4 拍ごとに上下するアルペジオを2小節と、強さの違い・帯の終わりより後ろ（鳴らない）のノート
+const leadNotes = () => {
+
+	const notes: [ number, number, number, number ][] = [];
+	const pattern = [ 0, 4, 7, 12, 7, 4 ];
+
+	for ( let i = 0; i < 32; i ++ ) {
+
+		let delta = 0.25;
+
+		if ( i === 0 ) delta = 0;
+
+		notes.push( [ delta, 0.25, 72 + pattern[ i % pattern.length ], 0.4 + 0.6 * ( ( i % 4 ) / 3 ) ] );
+
+	}
+
+	// 和音（同じ時刻は差分 0）と、帯の終わり（中の時間の 8 拍）より後ろのノート
+	notes.push( [ 0.25, 2, 60, 1 ], [ 0, 2, 64, 0.8 ], [ 0, 2, 67, 0.6 ], [ 2, 1, 72, 1 ] );
+
+	return notes;
+
+};
+
+// Music パネル用のシーン。重なった帯（Pad の 8〜16 拍）・頭を削った帯（Arpeggio の 2 つ目）・数値の名前の無い楽器（Metronome）・
+// ノートの帯（Lead）を含む
 const musicScene: OREngineProjectData = {
 	...storyEmptyScene,
 	scene: {
@@ -74,6 +98,7 @@ const musicScene: OREngineProjectData = {
 								[ 'Pad', 'Pad', 1, 0, [[ 0, 32, 0, [ 0.6 ]], [ 8, 8, 0, [ 1 ]]]],
 								[ 'Arpeggio', 'Arpeggio', 0.8, - 0.3, [[ 4, 8, 0, [ 1 ]], [ 12, 12, 4, [ 1, 0.5 ]]]],
 								[ 'Click', 'Metronome', 0.5, 0, [[ 0, 48, 0 ]]],
+								[ 'Lead', 'Lead', 0.8, 0, [[ 16, 8, 0, [ 1 ], leadNotes() ], [ 16, 8, 0, [ 0.5 ], leadNotes() ]]],
 							],
 						},
 					},
@@ -95,6 +120,9 @@ export const musicDefault: OREditorFixture = {
 
 	},
 };
+
+// ピアノロール用。Lead の最初の帯を開く（MusicRoll の story が引く）
+export const MUSIC_ROLL_TRACK = 4;
 
 export const musicEmpty: OREditorFixture = {
 	scene: storyEmptyScene,
