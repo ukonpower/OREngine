@@ -250,6 +250,20 @@ Entity / Component の SerializeField にキーを打ち、player で再生す�
 - エディタ: 複製はヒエラルキー・ルートからの走査（`Entity.traverseEditable`）・シーン CLI に出ない。ビューポートで複製をクリックすると `cloneSource` を選ぶ
 - 数の目安は数百まで（複製は普通のエンティティなので1個ずつ描画される）。それ以上はコンポーネント内のインスタンシングで作る
 
+### Music（音）
+- builtin コンポーネント `Music`（`packages/orengine/builtin/Components/Utility/Music/`）。トラックごとに楽器の GLSL から曲の全サンプルを WebGL2 の transform feedback で作り、Web Audio で混ぜてタイムラインに合わせて鳴らす（#271 / #272）。シーンに1つ置く（2つ目からは鳴らさない）。ほかのコンポーネントは `Music.instance`（無ければ `null`）で今の曲を引く。webgl だけで、webgpu のプロジェクトでは置いても鳴らさない
+- フィールド: `bpm`（曲全体で1つ）/ `tracks`（トラックごとに `[ 名前, 楽器, 音量, パン ]`。terser がオブジェクトのキーを改名するので、Animation の `links` と同じくキーを持たない配列）/ `reverb/length`（残響の素の秒）/ `reverb/wet`（残響の量）。曲の長さは `timeline/duration`、サンプリングレートは端末の `AudioContext.sampleRate`。帯（DAW のクリップ）はまだ無く、曲全体に1つの扱い（`Song.clipBeat` = `Song.beat`）
+- 楽器: ライブラリの種類 `Instruments`（下の「ライブラリ」）。`<projectDir>/Resources/Library/Instruments/<名前>/` に `index.ts`（`Instrument` = `{ shader }` を `export default`。型は `orengine/builtin`）と `index.glsl` を置く。builtin は `packages/orengine/builtin/Library/Instruments/`（拍ごとにクリックを鳴らす `Metronome`）。player は `Music/player.ts` がトラックの楽器を返し、使う楽器だけを焼き込む
+- .glsl には `vec2 trackSound( Song s )`（左右の音を返す）だけを書く。ShaderBuilder が楽器の `index.glsl`（パスの `/Library/Instruments/<名前>/index.glsl` で見分ける）の先頭に `#include <module:music>`（`Song` の `time` / `beat` / `beatSec` / `clipBeat`、`saw` / `whiteNoise` / `noteFreq`、uniform の `uBlockTime` / `uSampleRate` / `uBPM`）を、後ろに `#include <part:music_main>`（1頂点1サンプルの main）を足すので、楽器の側では music の include も main も書かない。`noise_value` などほかのモジュールは楽器の側で include してよい。ノートで鳴らす `noteSound` の楽器はまだ鳴らさない（#274）。`noteSound` と `trackSound` の両方・どちらも無い楽器・コンパイルできない楽器はそのトラックだけ無音にし、エラーは dev でだけ `console.error` に出す（シーン CLI の `errors`・scene-shots に出る）
+- minify: 楽器は、ほかのシェーダーとは別の回で shader_minifier にかける（`runBatchMinify`）。minifier は1回の中で型名・変数名を出現数で配り直すので、同じ回に入れると楽器を足すだけで Music を置かないシーンのシェーダーまで変わり packed が増える（main で +84B を実測）。`trackSound` / `noteSound` は改名させない（Music が完成形の文字列からどちらを定義したかを読む）
+- 生成（`Music/generator.ts`）: `BLOCK_SAMPLES`（131072 サンプル）のかたまりごとに描画し、トラックごとの AudioBuffer（2ch）に書く。シェーダーは中身ごとに1つコンパイルして使い回す。エディタでは再生位置のかたまりから前後へ交互に作り、8ms ごとに描画を譲る。player では PlayerRegistry が、Music を置いたシーンのレジストリにだけ `attachMusicLoading`（`Music/loading.ts`）を足し、`Engine.compileShaders` に全トラックの生成をつないで今の進捗バーに載せる（置かないシーンの player にはこのコードが入らない）
+- メモリ: 1トラックで 長さ × sampleRate × 2ch × 4B を持つ（158 秒・48kHz で約 61MB）
+- 作り直す範囲: 楽器の .glsl の保存 → その楽器のトラックだけ作り直す（ShaderBuilder が楽器のシェーダーのモジュールだけを self-accept で差し替えて `orengine:instrument` を出し、Music がライブラリの楽器を差し替える。更新が index.ts まで伝わると registry の glob を通ってページ全体の読み直しになるため）。BPM・曲の長さ → 全トラックを作り直す（コンパイルはしない）。音量・パン → ノードの値を書き換えるだけ
+- ミックス（`Music/mixer.ts`）: トラックごとに `AudioBufferSourceNode → GainNode（音量）→ StereoPannerNode（パン）` を、全体の GainNode と ConvolverNode（リバーブ。ノイズ × exp(−7 × 頭からの割合) の残響の素）→ 残響の量の GainNode → 全体の GainNode へ分ける。全体の音量は持たず、トラックの音量で合わせる
+- 再生: 全トラックの source を同じ `when` / `offset` で start する。更新のたびに鳴っている位置と `event.timeCode` を比べ、0.1 秒以上ずれたら張り直す（シーク・ループ・BLidge の同期もこれで拾う）。作り終えたかたまりを鳴らすときも張り直す（再生中の buffer の書き換えを拾うとは限らないため）。`event.offline`（shot・書き出し）の更新では音に触れない。AudioContext は全 Music で1つを使い回し、ブラウザの自動再生の制限のため `pointerdown` / `keydown` のたびに `resume` する（player の Play ボタンの操作の中で始まる。`autoPlay` では鳴らないことがある）
+- 波形表示: Music が作るたびに Engine から `update/music`（`MusicOutput`: トラックの AudioBuffer と音量、変わったサンプルの範囲）を出し、`Editor` が `editor/lib/MusicWaveform` でトラックを音量を掛けて足した1本（パン・リバーブは反映しない目安）にして `audioBuffer` に持つ。Timeline・AudioView はそれを描く
+- 確かめる曲: demo-webgl の `scenes/music.json`（osc Demo4 の曲を楽器ごとの10トラックに分けたもの。どのセクションで鳴らすかは、帯が入るまで各楽器の .glsl の中で拍を見て決めている）
+
 ### エディタの選択と親の付け替え
 - 選択は Blender と同じく「選んでいるものの集合＋アクティブ1つ」。editor.json の `selectedEntityIds`（選んだ順）と `selectedEntityId`（アクティブ）に保存する。アクティブは必ず集合に入っている（`Editor` の2つのフィールドの setter が保つ）。窓口は `Editor.selectEntity`（それ1つにする）/ `setSelection` / `toggleEntitySelection`、読むのは `selectedEntities` / `activeEntity`
 - 1つだけを相手にする操作（Property パネル・キーの挿入・Timeline の KeyEditor・フォーカス `.`・F2）はアクティブを見る。削除（X）・複製（Shift+D）・G / R / S・ギズモ・親の付け替えは集合を見る。集合を見る操作は、祖先も選ばれているものを外してから扱う（`TransformTargets` の `topmostEntities`。親と一緒に動く・消える・移るため）
