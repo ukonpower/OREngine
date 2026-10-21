@@ -47,9 +47,8 @@ struct Light {
 
 // shadowmap
 
-float compareShadowDepth( float lightDepth, sampler2D shadowMap, vec2 shadowCoord, float depthOffset ) {
-
-	float shadowMapDepth = rgbaToFloat( texture( shadowMap, shadowCoord ) );
+// シャドウマップから読んだ奥行きと比べ、光が届くなら 1、影なら 0 を返す
+float compareShadowDepth( float lightDepth, float shadowMapDepth, vec2 shadowCoord, float depthOffset ) {
 
 	// シャドウマップは白（約 1.004）でクリアするので、ライトカメラの far より先も影にならないよう奥行きも範囲を見る（webgpu の shadow.wgsl の inside と同じ）
 	if( shadowCoord.x >= 0.0 && shadowCoord.x <= 1.0 && shadowCoord.y >= 0.0 && shadowCoord.y <= 1.0 && lightDepth >= 0.0 && lightDepth <= 1.0 ) {
@@ -83,39 +82,66 @@ float getShadow( vec3 pos, LightCamera camera, sampler2D shadowMap, float depthO
 
 	setShadowCoord( pos, camera, shadowCoord, lightDepth );
 
-	return compareShadowDepth( lightDepth, shadowMap, shadowCoord, depthOffset );
+	float shadowMapDepth = rgbaToFloat( texture( shadowMap, shadowCoord ) );
+
+	return compareShadowDepth( lightDepth, shadowMapDepth, shadowCoord, depthOffset );
 
 }
 
-#define SHADOW_SAMPLE_COUNT 2
+// テクセル1つを読んで比べる。シャドウマップは LINEAR で引く設定なので、texture() だと比べる前の奥行きが補間されてしまう（双線形の比較は、テクセルごとに比べた 0/1 を混ぜる）
+float compareShadowTexel( float lightDepth, sampler2D shadowMap, ivec2 texel, vec2 resolution, float depthOffset ) {
 
+	float shadowMapDepth = rgbaToFloat( texelFetch( shadowMap, texel, 0 ) );
+	vec2 texelCoord = ( vec2( texel ) + 0.5 ) / resolution;
+
+	return compareShadowDepth( lightDepth, shadowMapDepth, texelCoord, depthOffset );
+
+}
+
+// 近くの4テクセルをそれぞれ比べ、位置に応じて混ぜる（webgpu の比較サンプラーの linear と同じ双線形の比較）
+float compareShadowDepthBilinear( float lightDepth, sampler2D shadowMap, vec2 shadowCoord, vec2 resolution, float depthOffset ) {
+
+	// テクセルの中心どうしの間で混ぜるので、中心が整数になるよう 0.5 ずらす
+	vec2 texelPos = shadowCoord * resolution - 0.5;
+	ivec2 base = ivec2( floor( texelPos ) );
+	vec2 blend = fract( texelPos );
+
+	float shadow00 = compareShadowTexel( lightDepth, shadowMap, base, resolution, depthOffset );
+	float shadow10 = compareShadowTexel( lightDepth, shadowMap, base + ivec2( 1, 0 ), resolution, depthOffset );
+	float shadow01 = compareShadowTexel( lightDepth, shadowMap, base + ivec2( 0, 1 ), resolution, depthOffset );
+	float shadow11 = compareShadowTexel( lightDepth, shadowMap, base + ivec2( 1, 1 ), resolution, depthOffset );
+
+	float shadowBottom = mix( shadow00, shadow10, blend.x );
+	float shadowTop = mix( shadow01, shadow11, blend.x );
+
+	return mix( shadowBottom, shadowTop, blend.y );
+
+}
+
+// 1テクセル間隔の 3×3 の PCF。タップの置き方は webgpu の shadow.wgsl の sampleShadow と同じ
 float getShadowSmooth( vec3 pos, LightCamera camera, sampler2D shadowMap, float depthOffset ) {
 
 	vec2 shadowCoord;
 	float lightDepth;
 
 	setShadowCoord( pos, camera, shadowCoord, lightDepth );
-	
-	float shadowSum = compareShadowDepth( lightDepth, shadowMap, shadowCoord, depthOffset );
 
-	for( int i = 0; i < SHADOW_SAMPLE_COUNT; i++ ) {
+	vec2 texelSize = 1.0 / camera.resolution;
+	float shadowSum = 0.0;
 
-		vec2 offset = 1.0 / camera.resolution * ( float( i + 1 ) / float(SHADOW_SAMPLE_COUNT) );
+	for( int y = -1; y <= 1; y++ ) {
 
-		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, -offset.y ), depthOffset );
-		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( 0.0, -offset.y ), depthOffset );
-		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, -offset.y ), depthOffset );
-		
-		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, 0.0 ), depthOffset );
-		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, 0.0 ), depthOffset );
+		for( int x = -1; x <= 1; x++ ) {
 
-		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( -offset.x, offset.y ), depthOffset );
-		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( 0.0, offset.y ), depthOffset );
-		shadowSum += compareShadowDepth( lightDepth, shadowMap, shadowCoord + vec2( offset.x, offset.y ), depthOffset );
+			vec2 offset = vec2( float( x ), float( y ) ) * texelSize;
+
+			shadowSum += compareShadowDepthBilinear( lightDepth, shadowMap, shadowCoord + offset, camera.resolution, depthOffset );
+
+		}
 
 	}
 
-	return shadowSum / ( float( SHADOW_SAMPLE_COUNT ) * 8.0 );
+	return shadowSum / 9.0;
 
 }
 
