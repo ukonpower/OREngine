@@ -66,13 +66,24 @@ fn fsMain( input: FullscreenOutput ) -> @location(0) vec4f {
 	let kernelMatrix = mat3x3f( tangent, bitangent, normal );
 
 	var occlusion = 0.0;
+	var sampleCount = 0.0;
 
 	for ( var i = 0; i < SSAO_SAMPLES; i ++ ) {
 
 		let sampleOffset = kernelMatrix * SSAO_KERNEL[ i ];
 		let samplePos = rayPos + sampleOffset * dist;
+		let sampleUv = worldToUv( samplePos );
 
-		let sampledWorld = textureSampleLevel( uGbufferPos, ppSamplerNearest, worldToUv( samplePos ), 0.0 ).xyz;
+		// 画面の外では clamp-to-edge で端の画素の位置を読んでしまい、そこにある面と比べられないので数えない
+		if ( any( sampleUv < vec2f( 0.0 ) ) || any( sampleUv > vec2f( 1.0 ) ) ) {
+
+			continue;
+
+		}
+
+		sampleCount += 1.0;
+
+		let sampledWorld = textureSampleLevel( uGbufferPos, ppSamplerNearest, sampleUv, 0.0 ).xyz;
 
 		let sampledViewZ = ( frame.uViewMatrix * vec4f( sampledWorld, 1.0 ) ).z;
 		let sampleViewZ = ( frame.uViewMatrix * vec4f( samplePos, 1.0 ) ).z;
@@ -85,7 +96,8 @@ fn fsMain( input: FullscreenOutput ) -> @location(0) vec4f {
 
 	}
 
-	occlusion = occlusion / f32( SSAO_SAMPLES ) * pp.uIntensity;
+	// 画面の中に残ったサンプルだけで平均する（全数で割ると端ほど遮蔽が薄くなる）
+	occlusion = occlusion / max( sampleCount, 1.0 ) * pp.uIntensity;
 
 	// 履歴と突き合わせるため、この画素の面のビュー空間Zも一緒に残す
 	let viewZ = ( frame.uViewMatrix * vec4f( rayPos, 1.0 ) ).z;
