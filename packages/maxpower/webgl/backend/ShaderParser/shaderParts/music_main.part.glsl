@@ -2,9 +2,7 @@
 void main( void ) {
 
 	Song s;
-	s.time = uBlockTime + aIndex / uSampleRate;
 	s.beatSec = 60.0 / uBPM;
-	s.beat = s.time / s.beatSec;
 	s.clipBeat = uClipBeat + aIndex / uSampleRate / s.beatSec;
 	s.clipParam = uClipParam;
 

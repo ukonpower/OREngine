@@ -10,6 +10,7 @@ out float o_left;
 out float o_right;
 
 // 1回の描画の頭のサンプルの、曲の頭からの秒。描画は帯の区間ごとに分かれる（Music の generator.ts）
+// music_note.part.glsl がノートを引くのに使う。楽器の側で読むと帯の中身が置いた位置で変わるので読まない
 uniform float uBlockTime;
 uniform float uSampleRate;
 uniform float uBPM;
@@ -18,12 +19,9 @@ uniform float uClipBeat;
 // 鳴らしている帯の数値。書かれていない数値は 0
 uniform vec4 uClipParam;
 
-// trackSound が受け取る、今のサンプルの曲の中での位置
+// trackSound が受け取る、今のサンプルの帯の中での位置。曲の頭からの時刻は持たせない。
+// 帯の中身が置いた位置によらず同じ音になるので、帯を動かしたときにエディタが作った音を移すだけで済む（Music の move.ts）
 struct Song {
-	// 曲の頭からの秒
-	float time;
-	// 曲の頭からの拍
-	float beat;
 	// 1拍の秒（60 / BPM）
 	float beatSec;
 	// 帯の中の拍。帯の頭で「中の時間の始まり」から始まり、曲と同じ速さで進む

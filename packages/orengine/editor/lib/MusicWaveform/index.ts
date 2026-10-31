@@ -1,13 +1,15 @@
 import type { MusicOutput } from '../../../builtin/Components/Utility/Music';
 
-// 音量の変更から波形の1本を足し直すまでの待ち（ミリ秒）。数値のドラッグ中は値が毎フレーム変わり、
-// そのたびに曲全体（10 トラック・158 秒で約 7,600 万サンプル）を足し直すと止まるので、変更が止まってから1回だけ足す
-const VOLUME_REMIX_DELAY = 200;
+// 音量の変更・帯の移動から波形の1本を足し直すまでの待ち（ミリ秒）。数値・帯のドラッグ中は毎フレーム変わり、
+// そのたびに足し直すと（音量なら曲全体、10 トラック・158 秒で約 7,600 万サンプル）止まるので、変更が止まってから1回だけ足す。
+// Music の REGENERATE_DELAY と同じ長さにして、写した音が聞こえ始めるのと波形が揃うようにする
+const REMIX_DELAY = 200;
 
 // update/music で受けたトラックの音を、波形表示（Timeline・AudioView）用の1本に足し合わせる。
 // 表示は1チャンネルしか読まないので、左右の平均に音量を掛けて足す。パン・リバーブは反映しない目安の表示。
 // output の [start, end) だけを足し直し、長さ・サンプリングレートが変わったときは作り直して全体を足す。
-// 音量が変わったときは VOLUME_REMIX_DELAY だけ待ってから全体を足し直し、足し直したら onChange を呼ぶ
+// 音量が変わったときは全体を、1トラックだけが変わったとき（output.track）はその範囲を、REMIX_DELAY だけ待ってから足し直す。
+// 足し直したら onChange を呼ぶ
 export class MusicWaveform {
 
 	private buffer_: AudioBuffer | null;
@@ -16,6 +18,9 @@ export class MusicWaveform {
 	// 最後に届いた output のトラックごとの音量。変わったかどうかを比べる
 	private volumes_: number[];
 	private timer_: number | null;
+	// 待ってから足し直す範囲 [start, end)。無ければ start === end
+	private pendingStart_: number;
+	private pendingEnd_: number;
 	private onChange_: () => void;
 
 	constructor( onChange: () => void ) {
@@ -24,6 +29,8 @@ export class MusicWaveform {
 		this.output_ = null;
 		this.volumes_ = [];
 		this.timer_ = null;
+		this.pendingStart_ = 0;
+		this.pendingEnd_ = 0;
 		this.onChange_ = onChange;
 
 	}
@@ -43,6 +50,7 @@ export class MusicWaveform {
 		let buffer = this.buffer_;
 		let start = output.start;
 		let end = output.end;
+		let recreated = false;
 
 		if ( ! buffer || buffer.length !== output.length || buffer.sampleRate !== output.sampleRate ) {
 
@@ -50,6 +58,22 @@ export class MusicWaveform {
 			this.buffer_ = buffer;
 			start = 0;
 			end = output.length;
+			recreated = true;
+
+		}
+
+		if ( volumeChanged ) {
+
+			this.defer_( 0, output.length );
+
+		}
+
+		// 1トラックだけが変わったとき（帯の移動）は、ドラッグの間に毎回足さず、止まってから足す
+		if ( output.track !== undefined && ! recreated ) {
+
+			this.defer_( start, end );
+
+			return;
 
 		}
 
@@ -64,15 +88,6 @@ export class MusicWaveform {
 		if ( start === 0 && end === output.length ) {
 
 			this.cancel_();
-
-			return;
-
-		}
-
-		if ( volumeChanged ) {
-
-			this.cancel_();
-			this.timer_ = window.setTimeout( () => this.remixAll_(), VOLUME_REMIX_DELAY );
 
 		}
 
@@ -120,15 +135,41 @@ export class MusicWaveform {
 
 	}
 
-	private remixAll_() {
+	// [start, end) を待ってから足し直す範囲に足し、待ちを始め直す
+	private defer_( start: number, end: number ) {
+
+		if ( this.pendingStart_ < this.pendingEnd_ ) {
+
+			this.pendingStart_ = Math.min( this.pendingStart_, start );
+			this.pendingEnd_ = Math.max( this.pendingEnd_, end );
+
+		} else {
+
+			this.pendingStart_ = start;
+			this.pendingEnd_ = end;
+
+		}
+
+		if ( this.timer_ !== null ) window.clearTimeout( this.timer_ );
+
+		this.timer_ = window.setTimeout( () => this.remixPending_(), REMIX_DELAY );
+
+	}
+
+	private remixPending_() {
 
 		this.timer_ = null;
 
 		const output = this.output_;
+		const start = this.pendingStart_;
+		const end = Math.min( this.pendingEnd_, output ? output.length : 0 );
 
-		if ( ! output || ! this.buffer_ ) return;
+		this.pendingStart_ = 0;
+		this.pendingEnd_ = 0;
 
-		this.mix_( output, 0, output.length );
+		if ( ! output || ! this.buffer_ || start >= end ) return;
+
+		this.mix_( output, start, end );
 		this.onChange_();
 
 	}
@@ -167,6 +208,9 @@ export class MusicWaveform {
 			this.timer_ = null;
 
 		}
+
+		this.pendingStart_ = 0;
+		this.pendingEnd_ = 0;
 
 	}
 
@@ -212,6 +256,9 @@ export class MusicTrackPeaks {
 		this.tracks_.length = output.tracks.length;
 
 		for ( let i = 0; i < output.tracks.length; i ++ ) {
+
+			// 1トラックだけが変わったときは、ほかのトラックの波形の素は前のまま使える
+			if ( output.track !== undefined && output.track !== i && this.tracks_[ i ] ) continue;
 
 			const buffer = output.tracks[ i ].buffer;
 

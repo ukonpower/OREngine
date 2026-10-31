@@ -7,6 +7,7 @@ import { BLOCK_SAMPLES, MusicGenerator } from './generator';
 import { INSTRUMENT_HOT_EVENT, INSTRUMENT_KIND, Instrument, instrumentSoundKind, MusicClipData, MusicTrackData } from './instrument';
 import { MusicMixer, SPECTRUM_FFT_SIZE } from './mixer';
 import { isTrackAudible, MusicMonitor } from './monitor';
+import { moveClipSounds } from './move';
 import { MusicNote, resolveNotes } from './notes';
 import { findCurrentClip, findLastNote } from './readout';
 
@@ -19,6 +20,9 @@ export type MusicOutput = {
 	// 前に出したときから中身が変わったサンプルの範囲 [start, end)。音量だけが変わったときは空（start === end）
 	start: number;
 	end: number;
+	// 中身が変わったのがこのトラックだけのときの番号（帯を動かして音を写したとき）。波形表示はそのトラックだけを読み直し、
+	// 足した1本は変化が止まってから足し直す。undefined なら全トラックが変わりうる
+	track?: number;
 };
 
 // 鳴っている音とタイムラインの時刻がこれ以上（秒）ずれたら、今の時刻から張り直す。シーク・ループもこのずれで拾う
@@ -26,6 +30,11 @@ const SYNC_TOLERANCE = 0.1;
 
 // 生成の途中で描画を譲る間隔（ミリ秒）。エディタの画面と player の進捗バーが止まらない程度にまとめて作る
 const YIELD_INTERVAL = 8;
+
+// エディタで、設定の変化が止まってから作り直しを始めるまでの待ち（ミリ秒）。帯・ノートのドラッグや数値のドラッグは
+// tracks・bpm を毎フレーム差し替えるので、そのたびに作り直すと生成（GPU からの読み戻し）と波形表示の足し直しで操作が重くなる。
+// 待っている間は前の音のまま鳴らす
+const REGENERATE_DELAY = 200;
 
 // 帯を持たないトラックの帯。毎回 [] を作ると、更新のたびに帯が差し替わったように見えるため1つを使い回す
 const NO_CLIPS: MusicClipData[] = [];
@@ -171,6 +180,8 @@ export class Music extends Component {
 	private generatedBpm_: number;
 	// 走っている生成の番号。作り直しを始めるたびに増やし、前の生成を途中で止める
 	private jobId_: number;
+	// エディタで、待たせている作り直しを始める時刻（performance.now()）。待たせていなければ 0。player では使わない
+	private regenerateAt_: number;
 	// 生成を通らない変化（トラックの増減・無音にしたトラック）で、波形表示へ曲全体を送り直す
 	private outputDirty_: boolean;
 	// 次の更新で source を張り直す。作ったかたまりを鳴らすには source を作り直す必要がある
@@ -199,6 +210,7 @@ export class Music extends Component {
 		this.length_ = 0;
 		this.generatedBpm_ = 0;
 		this.jobId_ = 0;
+		this.regenerateAt_ = 0;
 		this.outputDirty_ = false;
 		this.restartRequested_ = false;
 		this.spectrum_ = new Uint8Array( SPECTRUM_FFT_SIZE / 2 );
@@ -281,6 +293,28 @@ export class Music extends Component {
 		if ( event.offline ) return;
 
 		if ( this.refresh_() ) {
+
+			if ( import.meta.env.DEV ) {
+
+				// 走っている生成も止める。続けると、待っている間も作り直したトラックを毎フレーム作り進めて重さが残るため
+				this.jobId_ ++;
+				this.regenerateAt_ = performance.now() + REGENERATE_DELAY;
+
+			} else {
+
+				this.generate();
+
+			}
+
+		}
+
+		if ( import.meta.env.DEV && this.regenerateAt_ > 0 && performance.now() >= this.regenerateAt_ ) {
+
+			this.regenerateAt_ = 0;
+
+			// 帯を動かして写した音は、変化が止まってから聞こえるよう張り直す（写すたびに張り直すとドラッグ中に音が途切れ続けるため。
+			// 再生中の source は buffer の書き換えを拾うとは限らない）
+			if ( mixer.playing ) this.restartRequested_ = true;
 
 			this.generate();
 
@@ -395,7 +429,7 @@ export class Music extends Component {
 	-------------------------------*/
 
 	// 今の設定（曲の長さ・BPM・トラック・楽器のシェーダー）と作った音を突き合わせ、変わったトラックを作り直す対象にする。
-	// 作り直すトラックがあれば true。音量・パンはノードの値を書き換えるだけで、作り直さない
+	// 作り直す・音を移したトラックがあれば true。音量・パンはノードの値を書き換えるだけで、作り直さない
 	private refresh_(): boolean {
 
 		const context = this.context_;
@@ -481,9 +515,23 @@ export class Music extends Component {
 
 			}
 
+			const prevClips = track.clips;
+			const prevSegments = track.segments;
+
+			let clipsMoved = false;
+
 			if ( this.refreshClips_( track, data ) ) {
 
-				reset = true;
+				// エディタでは、帯だけが変わったトラックは作り直さず、作り終えた音を新しい位置へ移す（move.ts の moveClipSounds）
+				if ( import.meta.env.DEV ) {
+
+					clipsMoved = true;
+
+				} else {
+
+					reset = true;
+
+				}
 
 			}
 
@@ -530,6 +578,31 @@ export class Music extends Component {
 				this.refreshNotes_( track, instrument );
 				this.resetTrack_( track );
 				changed = true;
+
+			} else if ( import.meta.env.DEV && clipsMoved ) {
+
+				this.refreshNotes_( track, instrument );
+
+				// 処理は move.ts の関数に置く（クラスのメソッドにすると、呼ばない player にも残るため）
+				if ( ! track.program || ! instrument || ! track.buffer ) {
+
+					this.resetTrack_( track );
+
+				} else {
+
+					const moved = moveClipSounds( track.buffer, track.done, { clips: prevClips, segments: prevSegments }, track, this.generatedBpm_, instrumentSoundKind( instrument.shader ) === 'note' );
+
+					// 波形表示には動かしたトラックだけを読み直させる（Music パネルの帯の波形がすぐ付くように）
+					for ( const range of moved.changed ) {
+
+						this.emitOutput_( range.start, range.end, i );
+
+					}
+
+					// 張り直し・残りの作り直しは、変化が止まるのを待ってから（updateImpl）
+					if ( moved.changed.length > 0 || moved.missing ) changed = true;
+
+				}
 
 			}
 
@@ -790,7 +863,8 @@ export class Music extends Component {
 		Output
 	-------------------------------*/
 
-	private emitOutput_( start: number, end: number ) {
+	// track を渡すと、そのトラックの中身だけが変わったことを知らせる（帯を動かして写したとき。エディタだけ）
+	private emitOutput_( start: number, end: number, track?: number ) {
 
 		const context = this.context_;
 
@@ -804,7 +878,7 @@ export class Music extends Component {
 
 		}
 
-		const output: MusicOutput = { sampleRate: context.sampleRate, length: this.length_, tracks, start, end };
+		const output: MusicOutput = { sampleRate: context.sampleRate, length: this.length_, tracks, start, end, track };
 
 		( this.engine as Engine ).emit( "update/music", [ output ] );
 

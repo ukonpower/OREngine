@@ -17,9 +17,9 @@ vec2 trackSound( Song s ) {
 	float t = s.clipBeat * s.beatSec;
 	float env = exp( - t * 1.2 ) * smoothstep( 0.0, 0.02, t );
 
-	vec2 o = voice( s.time, root );
-	o += voice( s.time, root + 4.0 );
-	o += voice( s.time, root + 7.0 );
+	vec2 o = voice( t, root );
+	o += voice( t, root + 4.0 );
+	o += voice( t, root + 7.0 );
 
 	return o * env * s.clipParam.x * 0.06;
 

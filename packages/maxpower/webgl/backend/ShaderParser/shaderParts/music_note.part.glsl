@@ -11,6 +11,9 @@ vec2 trackSound( Song s ) {
 
 	vec2 o = vec2( 0.0 );
 
+	// ノートの時刻は曲の頭からの秒。ノートは帯と一緒に動くので、帯の中身が置いた位置によらないことは変わらない
+	float time = uBlockTime + aIndex / uSampleRate;
+
 	ivec2 size = textureSize( uNotes, 0 );
 	int count = size.x / 2;
 
@@ -24,7 +27,7 @@ vec2 trackSound( Song s ) {
 
 			int mid = ( low + high ) / 2;
 
-			if ( texelFetch( uNotes, ivec2( mid * 2, slot ), 0 ).x <= s.time ) {
+			if ( texelFetch( uNotes, ivec2( mid * 2, slot ), 0 ).x <= time ) {
 
 				low = mid + 1;
 
@@ -40,7 +43,7 @@ vec2 trackSound( Song s ) {
 
 		vec4 timing = texelFetch( uNotes, ivec2( ( low - 1 ) * 2, slot ), 0 );
 
-		if ( s.time >= timing.y ) continue;
+		if ( time >= timing.y ) continue;
 
 		vec4 strength = texelFetch( uNotes, ivec2( ( low - 1 ) * 2 + 1, slot ), 0 );
 
@@ -50,7 +53,7 @@ vec2 trackSound( Song s ) {
 		n.length = timing.z;
 		n.clipParam = s.clipParam;
 
-		o += noteSound( n, s.time - timing.x );
+		o += noteSound( n, time - timing.x );
 
 	}
 
