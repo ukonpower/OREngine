@@ -46,8 +46,9 @@ export class MusicMixer {
 	private channels_: MixerChannel[];
 	private sources_: AudioBufferSourceNode[];
 	private playing_: boolean;
-	// 曲の頭が鳴る（鳴った）はずの context.currentTime
-	private songStartTime_: number;
+	// 曲の頭が鳴る（鳴った）はずの context.currentTime。エディタのメトロノームが拍をそろえるのに読む
+	// （getter にすると player に残るので、フィールドのまま公開する）
+	public songStartTime: number;
 
 	constructor( context: AudioContext ) {
 
@@ -72,7 +73,7 @@ export class MusicMixer {
 		this.channels_ = [];
 		this.sources_ = [];
 		this.playing_ = false;
-		this.songStartTime_ = 0;
+		this.songStartTime = 0;
 
 	}
 
@@ -85,7 +86,7 @@ export class MusicMixer {
 	// 今鳴らしている所の、曲の頭からの秒
 	public get position() {
 
-		return this.context_.currentTime - this.songStartTime_;
+		return this.context_.currentTime - this.songStartTime;
 
 	}
 
@@ -170,7 +171,7 @@ export class MusicMixer {
 		const when = this.context_.currentTime;
 
 		this.playing_ = true;
-		this.songStartTime_ = when - offset;
+		this.songStartTime = when - offset;
 
 		// 曲の頭より前（offset が負）は start が受け付けないので鳴らさない。曲の終わりより後は start が何も鳴らさない
 		if ( offset < 0 ) return;

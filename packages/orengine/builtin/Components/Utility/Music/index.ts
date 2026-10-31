@@ -5,6 +5,7 @@ import { Engine } from 'orengine';
 import { decodeClips, MusicClip, MusicSegment, resolveClipSegments } from './clips';
 import { BLOCK_SAMPLES, MusicGenerator } from './generator';
 import { INSTRUMENT_HOT_EVENT, INSTRUMENT_KIND, Instrument, instrumentSoundKind, MusicClipData, MusicTrackData } from './instrument';
+import { isMetronomePlaying, playMetronome, stopMetronome } from './metronome';
 import { MusicMixer, SPECTRUM_FFT_SIZE } from './mixer';
 import { isTrackAudible, MusicMonitor } from './monitor';
 import { moveClipSounds } from './move';
@@ -153,6 +154,9 @@ if ( import.meta.hot ) {
 	Music
 -------------------------------*/
 
+// エディタの Music パネルでメトロノームを ON にしているか。player では呼ばない
+const metronomeEnabled = () => !! Music.monitor && Music.monitor.metronome;
+
 // 曲を鳴らす。トラックごとに楽器のシェーダーから曲の全サンプルを作り、Web Audio で混ぜてタイムラインに合わせて再生する。
 // シーンに1つ置く（2つ目からは鳴らさない）。生成が WebGL2 の transform feedback なので、webgpu のプロジェクトでは鳴らさない
 export class Music extends Component {
@@ -160,7 +164,7 @@ export class Music extends Component {
 	// 今の曲。シーンに Music が無ければ null
 	public static instance: Music | null;
 
-	// エディタの Music パネルのミュート・ソロ。Editor が editor.json の値を入れる。
+	// エディタの Music パネルのミュート・ソロとメトロノーム。Editor が editor.json の値を入れる。
 	// Music を置き直しても（シーンの読み直し）残るよう、インスタンスでなくクラスに持つ。player では入れず読まない
 	public static monitor: MusicMonitor | undefined;
 
@@ -234,6 +238,8 @@ export class Music extends Component {
 			if ( ! this.enabled && this.mixer_ ) {
 
 				this.mixer_.stop();
+
+				if ( import.meta.env.DEV ) stopMetronome();
 
 			}
 
@@ -331,6 +337,8 @@ export class Music extends Component {
 
 			mixer.stop();
 
+			if ( import.meta.env.DEV ) stopMetronome();
+
 			return;
 
 		}
@@ -346,6 +354,21 @@ export class Music extends Component {
 		// 利用者の操作で AudioContext が始まるまでは時計が進まず、ずれを測れないので待つ
 		if ( context.state !== 'running' ) return;
 
+		// メトロノームは曲の頭の時刻に合わせて別に鳴らすので、ON / OFF はトラックを張り直さずに切り替える
+		if ( import.meta.env.DEV ) {
+
+			if ( ! metronomeEnabled() ) {
+
+				stopMetronome();
+
+			} else if ( mixer.playing && ! isMetronomePlaying() ) {
+
+				playMetronome( context, mixer.songStartTime, this.generatedBpm_ );
+
+			}
+
+		}
+
 		const drift = Math.abs( mixer.position - event.timeCode );
 
 		if ( mixer.playing && drift < SYNC_TOLERANCE && ! this.restartRequested_ ) return;
@@ -353,6 +376,12 @@ export class Music extends Component {
 		this.restartRequested_ = false;
 
 		mixer.play( this.trackBuffers_(), event.timeCode );
+
+		if ( import.meta.env.DEV && metronomeEnabled() ) {
+
+			playMetronome( context, mixer.songStartTime, this.generatedBpm_ );
+
+		}
 
 	}
 
@@ -907,6 +936,8 @@ export class Music extends Component {
 
 			this.mixer_.dispose();
 			this.mixer_ = null;
+
+			if ( import.meta.env.DEV ) stopMetronome();
 
 		}
 

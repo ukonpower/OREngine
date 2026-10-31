@@ -146,7 +146,7 @@ export class Editor extends MXP.Serializable {
 	private _musicGrid: number;
 	// Music パネルのトラックの見出しの列の幅（px）。見出しとレーンの間の仕切りのドラッグで変える
 	private _musicHeadWidth: number;
-	// Music パネルのミュート・ソロ（トラック名）。鳴らすのは Music なので、変わるたびに Music.monitor へ入れる
+	// Music パネルのミュート・ソロ（トラック名）とメトロノーム。鳴らすのは Music なので、変わるたびに Music.monitor へ入れる
 	private _musicMonitor: MusicMonitor;
 	private _frameLoop: EditorTimelineLoop;
 	private _enableRender: boolean;
@@ -423,7 +423,7 @@ export class Editor extends MXP.Serializable {
 
 		this._musicGrid = 16;
 		this._musicHeadWidth = 180;
-		this._musicMonitor = { mute: [], solo: [] };
+		this._musicMonitor = { mute: [], solo: [], metronome: false };
 		Music.monitor = this._musicMonitor;
 
 		/*-------------------------------
@@ -543,6 +543,13 @@ export class Editor extends MXP.Serializable {
 		music.field( "solo", () => this._musicMonitor.solo, ( v: string[] ) => {
 
 			this._musicMonitor = { ...this._musicMonitor, solo: v };
+			Music.monitor = this._musicMonitor;
+
+		}, { hidden: true } );
+
+		music.field( "metronome", () => this._musicMonitor.metronome, ( v: boolean ) => {
+
+			this._musicMonitor = { ...this._musicMonitor, metronome: v };
 			Music.monitor = this._musicMonitor;
 
 		}, { hidden: true } );

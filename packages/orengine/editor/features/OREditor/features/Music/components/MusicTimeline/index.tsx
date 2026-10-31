@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type MouseEvent, type PointerEvent as ReactPointerEvent } from 'react';
 
 import { Engine } from 'orengine';
-import { Button, InputNumber, Menu, MenuItem, trackPointerDrag, usePopover } from 'uipower';
+import { Button, InputNumber, Menu, MenuItem, MetronomeIcon, trackPointerDrag, usePopover } from 'uipower';
 
 import { decodeClips } from '../../../../../../../builtin/Components/Utility/Music/clips';
 import { INSTRUMENT_KIND, instrumentSoundKind } from '../../../../../../../builtin/Components/Utility/Music/instrument';
@@ -78,6 +78,8 @@ export const MusicTimeline = ( props: { music: Music } ) => {
 
 	const [ tracksValue ] = useSerializableField<MusicTrackData[]>( music, "tracks" );
 	const [ bpmValue ] = useSerializableField<number>( music, "bpm" );
+	// 聴き比べのための editor.json の状態なので、undo には載せない（ミュート・ソロと同じ）
+	const [ metronomeValue, setMetronome ] = useSerializableField<boolean>( editor, "music/metronome" );
 	const [ durationValue ] = useSerializableField<number>( engine, "timeline/duration" );
 	const [ headWidthValue, setHeadWidth ] = useSerializableField<number>( editor, "music/headWidth" );
 
@@ -625,6 +627,7 @@ export const MusicTimeline = ( props: { music: Music } ) => {
 					<div className={style.corner_input}>
 						<InputNumber value={bpm} min={1} step={1} onChange={onChangeBpm} onDragStart={onBpmDragStart} onDragEnd={onBpmDragEnd} />
 					</div>
+					<Button square active={!! metronomeValue} title="Metronome" onClick={() => setMetronome( ! metronomeValue )}><MetronomeIcon size={14} /></Button>
 				</div>
 				<MusicRuler ref={rulerRef} viewStart={view.start} viewEnd={view.end} pxPerBeat={pxPerBeat} labelBars={labelBars} onPointerDown={onRulerPointerDown} />
 			</div>

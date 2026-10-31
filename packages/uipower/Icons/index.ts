@@ -11,6 +11,7 @@ export * from './LightIcon';
 export * from './LinkIcon';
 export * from './MaterialIcon';
 export * from './MeshIcon';
+export * from './MetronomeIcon';
 export * from './PauseIcon';
 export * from './PlayIcon';
 export * from './PlusIcon';
