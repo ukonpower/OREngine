@@ -15,7 +15,7 @@ import { HelperManager, HelperVisibility } from '../HelperManager';
 import { KeyboardHandler } from '../KeyboardHandler';
 import { CurveLinkSettings, CurvePasteMode, getAnimatedTransformFields, KeyFrameElementRef, KeyFrameFieldRef, keyFrameTime } from '../KeyFrameField';
 import { ModalTransformHandler, transformModeOfKey, type ModalTransformMode, type ModalTransformSelection } from '../ModalTransformHandler';
-import { mixMusicWaveform, MusicTrackPeaks } from '../MusicWaveform';
+import { MusicTrackPeaks, MusicWaveform } from '../MusicWaveform';
 import { RelationshipLineRenderer } from '../RelationshipLineRenderer';
 import { SceneExporter, SceneExporterProgress } from '../SceneExporter';
 import { SelectionOutline } from '../SelectionOutline';
@@ -136,7 +136,7 @@ export class Editor extends MXP.Serializable {
 	private _selectedAsset: SelectedAssetInfo;
 	private _navigateAsset: NavigateAssetRequest;
 	private _propertyTarget: "entity" | "asset";
-	private _audioBuffer: AudioBuffer | null;
+	private _musicWaveform: MusicWaveform;
 	// Music パネルが帯の波形を描く、トラックごとの波形の素。パネルを開き直しても作り直さずに済むよう Editor が持つ
 	private _musicTrackPeaks: MusicTrackPeaks;
 	// Music パネルのピアノロールのグリッド。1小節を何分割するか（16 = 1/16 = 1/4 拍）で、0 はグリッドなし
@@ -357,21 +357,23 @@ export class Editor extends MXP.Serializable {
 			Audio
 		-------------------------------*/
 
-		this._audioBuffer = null;
+		// 波形の1本は音量の変更では遅れて足し直すので、足し直したことを Timeline・AudioView へ update/audioBuffer で知らせる
+		this._musicWaveform = new MusicWaveform( () => this.emit( "update/audioBuffer" ) );
 		this._musicTrackPeaks = new MusicTrackPeaks();
 
-		// Music がトラックの音を作るたびに届く。Timeline・AudioView・Music パネルは同じイベントで読み直すので、先に足し合わせておく
+		// Music がトラックの音を作るたびに届く。Music パネルは同じイベントで読み直すので、先に波形の素を読んでおく
 		this._engine.on( "update/music", ( output: MusicOutput | null ) => {
 
 			if ( output ) {
 
-				this._audioBuffer = mixMusicWaveform( this._audioBuffer, output );
+				this._musicWaveform.update( output );
 				this._musicTrackPeaks.update( output );
 
 			} else {
 
-				this._audioBuffer = null;
+				this._musicWaveform.clear();
 				this._musicTrackPeaks.clear();
+				this.emit( "update/audioBuffer" );
 
 			}
 
@@ -655,7 +657,7 @@ export class Editor extends MXP.Serializable {
 
 	public get audioBuffer() {
 
-		return this._audioBuffer;
+		return this._musicWaveform.buffer;
 
 	}
 
@@ -2009,6 +2011,7 @@ export class Editor extends MXP.Serializable {
 		this._disposeBrowserContextMenu();
 		this._modalTransformHandler.dispose();
 		this._assetPreviewManager.dispose();
+		this._musicWaveform.dispose();
 		this.closeExternalWindow();
 
 		// dispose で配列から抜けるので複製を回す

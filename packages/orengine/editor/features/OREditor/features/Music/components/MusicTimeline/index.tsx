@@ -24,7 +24,7 @@ import { MusicTrackHead, TrackKind } from '../MusicTrackHead';
 
 import style from './index.module.scss';
 
-import type { Music } from '../../../../../../../builtin/Components/Utility/Music';
+import type { Music, MusicOutput } from '../../../../../../../builtin/Components/Utility/Music';
 import type { Instrument, MusicTrackData } from '../../../../../../../builtin/Components/Utility/Music/instrument';
 
 // 小節の番号どうしの間をこれより詰めない（px）。詰まるときは2小節・4小節…ごとに出す
@@ -214,7 +214,10 @@ export const MusicTimeline = ( props: { music: Music } ) => {
 
 		let frame = 0;
 
-		const onUpdate = () => {
+		const onUpdate = ( output: MusicOutput | null ) => {
+
+			// 音量だけの変化（範囲が空）は波形の素が変わらない。帯の波形はトラックごとの最大で割って描くので音量にもよらない
+			if ( output && output.start === output.end ) return;
 
 			if ( frame ) return;
 

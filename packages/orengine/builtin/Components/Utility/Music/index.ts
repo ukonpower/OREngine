@@ -15,7 +15,7 @@ export type MusicOutput = {
 	sampleRate: number;
 	length: number;
 	tracks: { buffer: AudioBuffer | null, volume: number }[];
-	// 前に出したときから中身が変わったサンプルの範囲 [start, end)
+	// 前に出したときから中身が変わったサンプルの範囲 [start, end)。音量だけが変わったときは空（start === end）
 	start: number;
 	end: number;
 };
@@ -164,7 +164,7 @@ export class Music extends Component {
 	private generatedBpm_: number;
 	// 走っている生成の番号。作り直しを始めるたびに増やし、前の生成を途中で止める
 	private jobId_: number;
-	// 生成を通らない変化（音量・トラックの増減・無音にしたトラック）で、波形表示へ曲全体を送り直す
+	// 生成を通らない変化（トラックの増減・無音にしたトラック）で、波形表示へ曲全体を送り直す
 	private outputDirty_: boolean;
 	// 次の更新で source を張り直す。作ったかたまりを鳴らすには source を作り直す必要がある
 	// （AudioBufferSourceNode は再生中の buffer の書き換えを拾うとは限らない）
@@ -417,6 +417,8 @@ export class Music extends Component {
 
 		const usedShaders = new Set<string>();
 
+		let volumeChanged = false;
+
 		for ( let i = 0; i < this.tracks_.length; i ++ ) {
 
 			const track = this.tracks_[ i ];
@@ -480,10 +482,13 @@ export class Music extends Component {
 
 			if ( data[ 2 ] !== track.volume || data[ 3 ] !== track.pan ) {
 
+				// パンは波形表示に反映しないので、送り直すのは音量が変わったときだけ。
+				// 波形表示はエディタにしか無く、player では tracks が書き換わらないので入れない
+				if ( import.meta.env.DEV && data[ 2 ] !== track.volume ) volumeChanged = true;
+
 				track.volume = data[ 2 ];
 				track.pan = data[ 3 ];
 				mixer.setChannel( i, track.volume, track.pan );
-				this.outputDirty_ = true;
 
 			}
 
@@ -498,6 +503,9 @@ export class Music extends Component {
 		}
 
 		generator.releaseUnused( usedShaders );
+
+		// サンプルは変わっていないので範囲を空にして送る（Music パネルに帯ごとの波形の素を読み直させない）
+		if ( volumeChanged ) this.emitOutput_( 0, 0 );
 
 		return changed;
 
