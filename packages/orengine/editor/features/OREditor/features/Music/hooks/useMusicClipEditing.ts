@@ -273,6 +273,8 @@ export const useMusicClipEditing = ( options: ClipEditingOptions ) => {
 
 		return {
 			handleKeyDown: ( e ) => handleKeyDownRef.current( e ),
+			// レーンの何もない所を押したときと同じく、開いている帯も閉じる
+			deselect: () => setSelection( EMPTY_SELECTION ),
 		};
 
 	}, [] );

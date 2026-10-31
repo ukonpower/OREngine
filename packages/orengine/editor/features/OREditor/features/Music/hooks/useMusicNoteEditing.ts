@@ -486,6 +486,7 @@ export const useMusicNoteEditing = ( options: NoteEditingOptions ) => {
 
 		return {
 			handleKeyDown: ( e ) => handleKeyDownRef.current( e ),
+			deselect: () => setSelection( new Set() ),
 		};
 
 	}, [] );

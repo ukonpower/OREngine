@@ -9,7 +9,8 @@ export type KeyboardHandlerCallbacks = {
 	onPlayToggle: () => void;
 	onCameraViewToggle: () => void;
 	onPreviewToggle: () => void;
-	onSyncToSceneCamera: () => void;
+	// Esc。ビューポートの上ではシーンカメラに合わせ、それ以外では選択を外す（編集領域の上ではその領域の選択）
+	onEscape: () => void;
 	onFocusSelected: () => void;
 	onAddEntity: () => void;
 	onDeleteSelected: () => void;
@@ -175,7 +176,7 @@ export class KeyboardHandler {
 			// モーダル変形中の Escape は上の onTransformKey がキャンセルとして消費するのでここには来ない
 			if ( e.key === 'Escape' && ! cmd ) {
 
-				callbacks.onSyncToSceneCamera();
+				callbacks.onEscape();
 
 			}
 

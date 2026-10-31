@@ -46,7 +46,7 @@ export type EditorTimelineLoop = {
 }
 
 // 点を選んで編集する領域（タイムラインのキー・フィールド UI の点エディタ等）で選んだものへの操作。ポインタが領域の上にある間、
-// Delete / X・Ctrl+C・Ctrl+V・G / R / S・Shift+D・B・A / Alt+A・Home・W をビューポートではなくこちらへ向ける。
+// Delete / X・Ctrl+C・Ctrl+V・G / R / S・Shift+D・B・A / Alt+A・Home・W・Esc をビューポートではなくこちらへ向ける。
 // 持っていない操作のキーは何もしない（ビューポートへも渡さない。点エディタの上の X でエンティティが消えないように）
 export type EditAreaActions = {
 	deleteSelected?: () => void;
@@ -58,6 +58,8 @@ export type EditAreaActions = {
 	boxSelect?: () => void;
 	// A は true（全選択）、Alt+A は false（全解除）
 	selectAll?: ( select: boolean ) => void;
+	// Esc。エディタのどの領域でも Esc で選択を外せるようにそろえる
+	deselect?: () => void;
 	frameAll?: () => void;
 	// W。Blender の右クリック選択と同じく、右クリックは選択に使うのでメニューは W で開く
 	openMenu?: () => void;
@@ -262,7 +264,32 @@ export class Editor extends MXP.Serializable {
 				this.setField( `viewports/${viewport.id}/preview`, ! viewport.editorCamera.preview );
 
 			},
-			onSyncToSceneCamera: () => this.syncToSceneCamera(),
+			onEscape: () => {
+
+				const area = this._hoveredEditArea;
+
+				if ( area ) {
+
+					if ( area.deselect ) area.deselect();
+
+					return;
+
+				}
+
+				// ビューポートの上ではシーンカメラへの同期のまま残し、Hierarchy などほかの場所ではエンティティの選択を外す
+				const viewport = this._activeViewport;
+
+				if ( viewport && viewport.hovered ) {
+
+					this.syncToSceneCamera();
+
+					return;
+
+				}
+
+				this.selectEntity( null );
+
+			},
 			onFocusSelected: () => this.focusSelected(),
 			onAlignView: ( axis, opposite ) => this.alignEditorView( axis, opposite ),
 			onProjectionToggle: () => this.toggleEditorProjection(),
