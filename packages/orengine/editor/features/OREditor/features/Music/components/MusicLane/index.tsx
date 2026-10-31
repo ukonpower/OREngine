@@ -29,16 +29,11 @@ type MusicLaneProps = {
 	onLaneDoubleClick: ( clientX: number, track: number ) => void;
 };
 
-// 重なりの深さで上下を詰めるのはここまで。行の高さを詰めすぎて帯が見えなくならないように
-const MAX_DEPTH = 2;
-
 // 1つの帯の描き方。index はトラックの帯の並びでの番号
 type ClipLayout = {
 	index: number;
 	clip: MusicClipRange;
-	depth: number;
 	sounding: BeatRange[];
-	hidden: BeatRange[];
 	// 帯の範囲に始まるノート（曲の頭からの拍）
 	notes: ClipNoteMark[];
 };
@@ -68,7 +63,7 @@ const clipNoteMarks = ( clip: MusicClipRange ): ClipNoteMark[] => {
 
 };
 
-// 帯ごとに、鳴らしている区間・隠れている区間・重なりの深さを求め、勝つ帯が手前になる順に並べる
+// 帯ごとに鳴らしている区間を求め、勝つ帯が手前になる順に並べる
 const layoutClips = ( data: MusicClipData[] ): ClipLayout[] => {
 
 	const clips = decodeClips( data );
@@ -79,43 +74,21 @@ const layoutClips = ( data: MusicClipData[] ): ClipLayout[] => {
 
 		const clip = clips[ i ];
 		const sounding: BeatRange[] = [];
-		const hidden: BeatRange[] = [];
-
-		let cursor = clip.start;
 
 		for ( const segment of segments ) {
 
 			if ( segment.clip !== i ) continue;
 
-			if ( segment.start > cursor ) hidden.push( { start: cursor, end: segment.start } );
-
 			sounding.push( { start: segment.start, end: segment.end } );
-			cursor = segment.end;
 
 		}
 
-		if ( cursor < clip.end ) hidden.push( { start: cursor, end: clip.end } );
-
-		// 帯の頭で、この帯の下になっている帯（先に始まった帯・同じ開始で並びの前の帯）の数
-		let depth = 0;
-
-		for ( let j = 0; j < clips.length; j ++ ) {
-
-			const other = clips[ j ];
-
-			if ( j === i || other.end <= other.start ) continue;
-			if ( clip.start < other.start || clip.start >= other.end ) continue;
-			if ( other.start === clip.start && j > i ) continue;
-
-			depth ++;
-
-		}
-
-		layouts.push( { index: i, clip, depth, sounding, hidden, notes: clipNoteMarks( clip ) } );
+		layouts.push( { index: i, clip, sounding, notes: clipNoteMarks( clip ) } );
 
 	}
 
-	// 重なった所は後に始まる帯（同じ開始なら並びの後ろ）が鳴るので、その順に後ろへ並べて手前に描く
+	// 重なった所は後に始まる帯（同じ開始なら並びの後ろ）が鳴るので、その順に後ろへ並べて手前に描く。
+	// 帯は行の高さいっぱいに描くので、下の帯の重なった部分は隠れて押せない
 	layouts.sort( ( a, b ) => {
 
 		if ( a.clip.start !== b.clip.start ) return a.clip.start - b.clip.start;
@@ -188,11 +161,9 @@ export const MusicLane = ( props: MusicLaneProps ) => {
 			viewStart={props.viewStart}
 			pxPerBeat={props.pxPerBeat}
 			laneWidth={props.laneWidth}
-			depth={Math.min( layout.depth, MAX_DEPTH )}
 			selected={props.selection.keys.has( key )}
 			active={props.selection.active === key}
 			sounding={layout.sounding}
-			hidden={layout.hidden}
 			waveform={props.waveform}
 			notes={notes}
 			onPointerDown={( e, part ) => props.onClipPointerDown( e, props.track, layout.index, part )}

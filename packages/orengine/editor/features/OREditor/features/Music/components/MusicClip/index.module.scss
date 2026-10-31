@@ -1,9 +1,8 @@
-// タイムラインの帯。重なった帯（--depth が大きい）ほど上下を詰めて手前に描き、下の帯の隠れた部分が上下に見えるようにする。
-// 手前・奥は DOM の順（MusicLane が勝つ帯を後ろに並べる）で決める
+// タイムラインの帯。手前・奥は DOM の順（MusicLane が勝つ帯を後ろに並べる）で決める
 .clip {
 	position: absolute;
-	top: calc(var(--or-space) * var(--depth));
-	bottom: calc(var(--or-space) * var(--depth));
+	top: 0;
+	bottom: 0;
 	overflow: hidden;
 	border-radius: var(--or-radius);
 	background-color: var(--or-bg-active);
@@ -28,15 +27,6 @@
 	height: 100%;
 	pointer-events: none;
 	color: inherit;
-}
-
-// 上の帯に隠れて鳴らない部分
-.hidden {
-	position: absolute;
-	top: 0;
-	height: 100%;
-	pointer-events: none;
-	background-color: var(--or-bg-float);
 }
 
 // 長さを変える取っ手

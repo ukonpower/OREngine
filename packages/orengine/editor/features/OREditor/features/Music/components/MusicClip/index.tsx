@@ -37,13 +37,10 @@ type MusicClipProps = {
 	viewStart: number;
 	pxPerBeat: number;
 	laneWidth: number;
-	// 下に重なっている帯の数。重なった帯ほど上下を詰めて描き、下の帯の隠れた部分が見えるようにする
-	depth: number;
 	selected: boolean;
 	active: boolean;
-	// この帯が鳴らしている区間と、上の帯に隠れている区間
+	// この帯が鳴らしている区間（上の帯に隠れていない所）
 	sounding: BeatRange[];
-	hidden: BeatRange[];
 	waveform: ClipWaveform | null;
 	// ノートの帯なら、ノートの縮図（null はコードの帯）
 	notes: ClipNoteMark[] | null;
@@ -213,17 +210,6 @@ export const MusicClip = ( props: MusicClipProps ) => {
 
 	};
 
-	const hiddenElms = [];
-
-	for ( const range of props.hidden ) {
-
-		const hiddenLeft = ( range.start - props.start ) * props.pxPerBeat + left - drawLeft;
-		const hiddenWidth = ( range.end - range.start ) * props.pxPerBeat;
-
-		hiddenElms.push( <div key={range.start} className={style.hidden} style={{ left: hiddenLeft, width: hiddenWidth }} /> );
-
-	}
-
 	let canvasElm = null;
 
 	if ( ( props.waveform || ( props.notes && props.notes.length > 0 ) ) && visibleRight > visibleLeft ) {
@@ -236,11 +222,10 @@ export const MusicClip = ( props: MusicClipProps ) => {
 		className={style.clip}
 		data-selected={props.selected}
 		data-active={props.active}
-		style={{ left: drawLeft, width: drawRight - drawLeft, '--depth': props.depth } as React.CSSProperties}
+		style={{ left: drawLeft, width: drawRight - drawLeft }}
 		onPointerDown={onPointerDown}
 	>
 		{canvasElm}
-		{hiddenElms}
 		{left >= drawLeft && <div className={style.handle} data-music_handle="left" data-side="left" />}
 		{right <= drawRight && <div className={style.handle} data-music_handle="right" data-side="right" />}
 	</div>;
