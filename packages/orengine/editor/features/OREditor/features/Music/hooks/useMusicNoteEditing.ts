@@ -34,6 +34,31 @@ const FREE_ARROW_STEP = 0.25;
 // コピーしたノート。帯をまたいで貼れるよう、パネル（帯）ごとではなく1つを持つ
 let noteClipboard: NoteClipboard | null = null;
 
+// macOS の Ctrl+クリックはブラウザが右クリック扱いにしてメニューを出すので、macOS では Cmd でノートを置く
+const IS_MAC = typeof navigator !== "undefined" && navigator.userAgent.includes( "Mac" );
+
+// ノートを置く修飾キー（macOS は Cmd、ほかは Ctrl）を押しているか
+const hasPlaceModifier = ( e: { ctrlKey: boolean, metaKey: boolean } ) => {
+
+	if ( IS_MAC ) return e.metaKey;
+
+	return e.ctrlKey;
+
+};
+
+// 置き先を出す・置くときのポインタの位置
+type PointerPos = {
+	x: number;
+	y: number;
+};
+
+// 修飾キーを押している間に出す、置き先のノート（帯の中の拍・長さと音高）
+export type NoteGhost = {
+	start: number;
+	length: number;
+	pitch: number;
+};
+
 type NoteEditingOptions = {
 	music: Music;
 	tracks: MusicTrackData[];
@@ -64,7 +89,7 @@ export const useMusicNoteEditing = ( options: NoteEditingOptions ) => {
 	const [ selection, setSelection ] = useState<Set<number>>( () => new Set() );
 	const [ box, setBox ] = useState<NoteBoxRect | null>( null );
 
-	// 直前に置いたノートの長さ。次のダブルクリックで同じ長さのノートを置く
+	// 直前に置いた・長さを変えたノートの長さ。次に置くノートを同じ長さにする
 	const lastLengthRef = useRef( DEFAULT_NOTE_LENGTH );
 
 	const decode = ( keys: Set<number> ) => {
@@ -222,10 +247,24 @@ export const useMusicNoteEditing = ( options: NoteEditingOptions ) => {
 
 	};
 
-	// 何もない所を押したら選択を外し（Shift なら残す）、そこからのドラッグで矩形選択する
+	// 何もない所を押したら選択を外し（Shift なら残す）、そこからのドラッグで矩形選択する。修飾キーを押していればそこにノートを置く
 	const onGridPointerDown = ( e: ReactPointerEvent ) => {
 
 		if ( e.button !== 0 ) return;
+
+		if ( hasPlaceModifier( e ) ) {
+
+			e.preventDefault();
+
+			placeNote( e.clientX, e.clientY );
+
+			// 置いたノートの上に置き先が重ならないよう、次にノートの外へ動くまで出さない
+			hoverRef.current = null;
+			setPlaceAt( null );
+
+			return;
+
+		}
 
 		const additive = e.shiftKey;
 		const initial = selection;
@@ -295,16 +334,138 @@ export const useMusicNoteEditing = ( options: NoteEditingOptions ) => {
 
 	};
 
-	// 何もない所のダブルクリックで、押した拍（グリッドの手前の目）・高さに、直前に置いたノートと同じ長さのノートを置く
+	// 何もない所のダブルクリックでノートを置く。修飾キーを押していれば1回目のクリックで置いているので何もしない
+	// （2回目のクリックは置いたノートの上で、ここで消すと置いてすぐ消えるため）
 	const onGridDoubleClick = ( e: MouseEvent ) => {
 
-		const start = Math.max( 0, snapBeat( beatAt( e.clientX ), grid, 'floor' ) );
-		const pitch = pitchAt( e.clientY );
+		if ( hasPlaceModifier( e ) ) return;
 
-		commit( addNote( decode( new Set() ), start, lastLengthRef.current, pitch, DEFAULT_VELOCITY ) );
-		options.preview( pitch, DEFAULT_VELOCITY, start );
+		placeNote( e.clientX, e.clientY );
 
 	};
+
+	/*-------------------------------
+		Place
+	-------------------------------*/
+
+	// ポインタの位置に置くノート。時刻はグリッドの手前の目、高さはポインタの行、長さは直前に置いた・長さを変えたノートと同じ
+	const ghostAt = ( pos: PointerPos ): NoteGhost => {
+
+		return {
+			start: Math.max( 0, snapBeat( beatAt( pos.x ), grid, 'floor' ) ),
+			length: lastLengthRef.current,
+			pitch: pitchAt( pos.y ),
+		};
+
+	};
+
+	const placeNote = ( clientX: number, clientY: number ) => {
+
+		const ghost = ghostAt( { x: clientX, y: clientY } );
+
+		commit( addNote( decode( new Set() ), ghost.start, ghost.length, ghost.pitch, DEFAULT_VELOCITY ) );
+		options.preview( ghost.pitch, DEFAULT_VELOCITY, ghost.start );
+		lastGhostPitchRef.current = ghost.pitch;
+
+	};
+
+	// グリッドの上（ノートの上を除く）のポインタの位置。動かすたびに描き直さないよう ref で持ち、置き先を出すときだけ state に写す
+	const hoverRef = useRef<PointerPos | null>( null );
+	const [ placeAt, setPlaceAt ] = useState<PointerPos | null>( null );
+
+	// 最後に置き先を出した高さ。置き先を出し始めたとき（null から）と、押したまま高さが変わったときに鳴らす
+	const lastGhostPitchRef = useRef<number | null>( null );
+
+	// 修飾キーとポインタの位置から、置き先を出すか決める。出し始めたときと高さが変わったときに、その高さで鳴らす
+	const updateGhost = ( held: boolean ) => {
+
+		const hover = hoverRef.current;
+
+		if ( ! held || ! hover ) {
+
+			setPlaceAt( null );
+
+			if ( ! held ) lastGhostPitchRef.current = null;
+
+			return;
+
+		}
+
+		setPlaceAt( hover );
+
+		const ghost = ghostAt( hover );
+		const lastPitch = lastGhostPitchRef.current;
+
+		if ( lastPitch !== ghost.pitch ) {
+
+			options.preview( ghost.pitch, DEFAULT_VELOCITY, ghost.start );
+
+		}
+
+		lastGhostPitchRef.current = ghost.pitch;
+
+	};
+
+	// グリッドの上でポインタが動いた。overNote はノートの上か（ノートの上では置き先を出さない）
+	const onGridPointerMove = ( e: ReactPointerEvent, overNote: boolean ) => {
+
+		if ( overNote ) {
+
+			hoverRef.current = null;
+
+		} else {
+
+			hoverRef.current = { x: e.clientX, y: e.clientY };
+
+		}
+
+		updateGhost( hasPlaceModifier( e ) );
+
+	};
+
+	const onGridPointerLeave = () => {
+
+		hoverRef.current = null;
+		setPlaceAt( null );
+
+	};
+
+	// 動かさずに修飾キーを押した・離したときにも置き先を出し入れする。window で受けるのは、Editor の編集領域へ渡るキーに修飾キーそのものが来るとは限らないため
+	const updateGhostRef = useRef( updateGhost );
+	updateGhostRef.current = updateGhost;
+
+	useEffect( () => {
+
+		const onKey = ( e: KeyboardEvent ) => {
+
+			updateGhostRef.current( hasPlaceModifier( e ) );
+
+		};
+
+		// 押したままほかのウィンドウへ移ると keyup が来ないので、フォーカスが外れたら離した扱いにする
+		const onBlur = () => {
+
+			updateGhostRef.current( false );
+
+		};
+
+		window.addEventListener( "keydown", onKey );
+		window.addEventListener( "keyup", onKey );
+		window.addEventListener( "blur", onBlur );
+
+		return () => {
+
+			window.removeEventListener( "keydown", onKey );
+			window.removeEventListener( "keyup", onKey );
+			window.removeEventListener( "blur", onBlur );
+
+		};
+
+	}, [] );
+
+	let ghost: NoteGhost | null = null;
+
+	if ( placeAt ) ghost = ghostAt( placeAt );
 
 	// Velocity の段の棒を押したところから、上下のドラッグで強さを変える。選んでいるノートが複数なら、そろって増減する
 	const onVelocityPointerDown = ( e: ReactPointerEvent, index: number, laneHeight: number ) => {
@@ -516,9 +677,12 @@ export const useMusicNoteEditing = ( options: NoteEditingOptions ) => {
 	return {
 		selection,
 		box,
+		ghost,
 		onNotePointerDown,
 		onNoteDoubleClick,
 		onGridPointerDown,
+		onGridPointerMove,
+		onGridPointerLeave,
 		onGridDoubleClick,
 		onVelocityPointerDown,
 		onPointerEnter,

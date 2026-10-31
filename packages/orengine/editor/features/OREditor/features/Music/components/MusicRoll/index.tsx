@@ -345,6 +345,14 @@ export const MusicRoll = ( props: MusicRollProps ) => {
 
 	};
 
+	const onGridPointerMove = ( e: ReactPointerEvent<HTMLDivElement> ) => {
+
+		const overNote = ( e.target as HTMLElement ).closest( '[data-music_note]' ) !== null;
+
+		editing.onGridPointerMove( e, overNote );
+
+	};
+
 	const onGridDoubleClick = ( e: React.MouseEvent<HTMLDivElement> ) => {
 
 		const noteElm = ( e.target as HTMLElement ).closest( '[data-music_note]' );
@@ -472,6 +480,22 @@ export const MusicRoll = ( props: MusicRollProps ) => {
 
 	}
 
+	// 修飾キーを押している間の置き先
+	let ghostElm = null;
+
+	if ( editing.ghost ) {
+
+		const ghost = editing.ghost;
+		const ghostStyle = {
+			left: xOf( ghost.start ),
+			width: Math.max( 1, ghost.length * pxPerBeat ),
+			'--row': PITCH_COUNT - 1 - ghost.pitch,
+		} as React.CSSProperties;
+
+		ghostElm = <div className={style.ghost} style={ghostStyle} />;
+
+	}
+
 	// 縦の線。小節・拍・グリッドの目を、間が詰まりすぎない細かさまで背景で引く
 	const labelBars = labelStepBars( pxPerBeat );
 	const offsetPx = - view.start * pxPerBeat;
@@ -514,11 +538,18 @@ export const MusicRoll = ( props: MusicRollProps ) => {
 		<div ref={bodyRef} className={style.body}>
 			<div ref={contentRef} className={style.content}>
 				<div className={style.keys}>{keyElms}</div>
-				<div className={style.grid} onPointerDown={onGridPointerDown} onDoubleClick={onGridDoubleClick}>
+				<div
+					className={style.grid}
+					onPointerDown={onGridPointerDown}
+					onPointerMove={onGridPointerMove}
+					onPointerLeave={editing.onGridPointerLeave}
+					onDoubleClick={onGridDoubleClick}
+				>
 					{rowElms}
 					<div className={style.lines} style={linesStyle} />
 					{outsideElms}
 					{noteElms}
+					{ghostElm}
 					{boxElm}
 				</div>
 			</div>
