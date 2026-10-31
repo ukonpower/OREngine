@@ -149,7 +149,10 @@ export class KeyboardHandler {
 
 			}
 
+			// 矢印キーと同じく、スクロール可能なパネル（ピアノロール等）を下へスクロールさせないよう既定動作を止める
 			if ( e.key == ' ' && ! cmd ) {
+
+				e.preventDefault();
 
 				callbacks.onPlayToggle();
 
