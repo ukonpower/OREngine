@@ -1,4 +1,4 @@
-// ノートで鳴らすキック。音高はノートの音高（36 = C2 あたりが低いキック）、強さはノートの強さ
+// ノートで鳴らすキック。音高はノートの音高（36 = C2 あたりが低いキック）
 
 #include <module:common>
 
@@ -10,6 +10,6 @@ vec2 noteSound( Note n, float t ) {
 	float o = sin( phase * TPI ) * exp( - t * 8.0 );
 	o *= smoothstep( 0.0, 0.002, t );
 
-	return vec2( o * n.velocity * 0.5 );
+	return vec2( o * 0.5 );
 
 }

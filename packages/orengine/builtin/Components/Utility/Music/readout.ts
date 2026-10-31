@@ -10,7 +10,6 @@ export type MusicNoteReadout = {
 	// ノートが鳴り始めてからの秒
 	since: number;
 	pitch: number;
-	velocity: number;
 	// ノートの長さ（秒）。帯の終わりと、maxNotes の枠を奪われた時刻で切ったあとの長さ
 	length: number;
 };
@@ -71,7 +70,7 @@ export const findLastNote = ( notes: MusicNote[], time: number ): MusicNoteReado
 	// 枠を奪われたノートは length でなく stop が縮むので、鳴っていた長さは stop までに切る
 	const length = Math.min( lowest.length, lowest.stop - lowest.start );
 
-	return { since: time - start, pitch: lowest.pitch, velocity: lowest.velocity, length };
+	return { since: time - start, pitch: lowest.pitch, length };
 
 };
 

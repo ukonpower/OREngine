@@ -74,10 +74,10 @@ type MusicRollProps = {
 	bpm: number;
 	trackName: string;
 	// その高さの1音を鳴らす。clipBeat は鳴らす所の帯の中の拍
-	preview: ( pitch: number, velocity: number, clipBeat: number ) => void;
+	preview: ( pitch: number, clipBeat: number ) => void;
 };
 
-// Music パネルの下半分。開いている帯1つのピアノロールと Velocity の段。横は帯の中の時間、縦は音の高さ。
+// Music パネルの下半分。開いている帯1つのピアノロール。横は帯の中の時間、縦は音の高さ。
 // 帯の外は斜線で、そこにあるノートは鳴らない
 export const MusicRoll = ( props: MusicRollProps ) => {
 
@@ -110,7 +110,6 @@ export const MusicRoll = ( props: MusicRollProps ) => {
 	const bodyRef = useRef<HTMLDivElement>( null );
 	const rulerRef = useRef<HTMLDivElement>( null );
 	const contentRef = useRef<HTMLDivElement>( null );
-	const velocityRef = useRef<HTMLDivElement>( null );
 	const laneWidth = useElementWidth( rulerRef );
 
 	const pxPerBeat = Math.max( laneWidth, 1 ) / Math.max( view.end - view.start, 1e-6 );
@@ -369,22 +368,11 @@ export const MusicRoll = ( props: MusicRollProps ) => {
 
 	};
 
-	const onVelocityPointerDown = ( e: ReactPointerEvent<HTMLDivElement> ) => {
-
-		const bar = ( e.target as HTMLElement ).closest( '[data-music_velocity]' );
-		const lane = velocityRef.current;
-
-		if ( ! bar || ! lane ) return;
-
-		editing.onVelocityPointerDown( e, Number( bar.getAttribute( 'data-music_velocity' ) ), lane.clientHeight );
-
-	};
-
 	const onKeyPointerDown = ( e: ReactPointerEvent, pitch: number ) => {
 
 		if ( e.button !== 0 ) return;
 
-		props.preview( pitch, 1, clip.offset );
+		props.preview( pitch, clip.offset );
 
 	};
 
@@ -419,7 +407,6 @@ export const MusicRoll = ( props: MusicRollProps ) => {
 	const clipEnd = clip.offset + clip.end - clip.start;
 
 	const noteElms = [];
-	const velocityElms = [];
 
 	for ( let i = 0; i < decoded.length; i ++ ) {
 
@@ -435,12 +422,6 @@ export const MusicRoll = ( props: MusicRollProps ) => {
 
 		noteElms.push( <div key={i} className={style.note} style={rowStyle} data-music_note={i} data-selected={note.selected} data-outside={outside}>
 			<div className={style.note_handle} data-music_note_handle />
-		</div> );
-
-		const velocityStyle = { left, '--velocity': note.velocity } as React.CSSProperties;
-
-		velocityElms.push( <div key={i} className={style.velocity_bar} style={velocityStyle} data-music_velocity={i} data-selected={note.selected}>
-			<div className={style.velocity_fill} />
 		</div> );
 
 	}
@@ -552,12 +533,6 @@ export const MusicRoll = ( props: MusicRollProps ) => {
 					{ghostElm}
 					{boxElm}
 				</div>
-			</div>
-		</div>
-		<div className={style.velocity}>
-			<div className={style.velocity_label}>Velocity</div>
-			<div ref={velocityRef} className={style.velocity_lane} onPointerDown={onVelocityPointerDown}>
-				{velocityElms}
 			</div>
 		</div>
 		<MusicPlayhead bpm={bpm} viewStart={songBeatOf( view.start )} pxPerBeat={pxPerBeat} laneWidth={laneWidth} />

@@ -551,9 +551,9 @@ export const MusicTimeline = ( props: { music: Music } ) => {
 
 				rollTrack = trackIndex;
 
-				const preview = ( pitch: number, velocity: number, clipBeat: number ) => {
+				const preview = ( pitch: number, clipBeat: number ) => {
 
-					previewNote( { instrument: track[ 1 ], pitch, velocity, bpm, params: clip.params, clipBeat, volume: track[ 2 ], pan: track[ 3 ] } );
+					previewNote( { instrument: track[ 1 ], pitch, bpm, params: clip.params, clipBeat, volume: track[ 2 ], pan: track[ 3 ] } );
 
 				};
 

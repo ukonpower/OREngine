@@ -183,7 +183,7 @@ const copyClip = ( clip: EditClip ): EditClip => {
 
 		for ( const note of clip.notes ) {
 
-			notes.push( [ note[ 0 ], note[ 1 ], note[ 2 ], note[ 3 ] ] );
+			notes.push( [ note[ 0 ], note[ 1 ], note[ 2 ] ] );
 
 		}
 

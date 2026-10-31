@@ -59,9 +59,9 @@ export const instrumentSoundKind = ( shader: string ): InstrumentSoundKind => {
 
 };
 
-// ノート1つの保存の形。[ 前のノートからの拍, 長さ（拍）, 音高（MIDI の番号。69 = A4 = 440Hz）, 強さ（0〜1） ]。
+// ノート1つの保存の形。[ 前のノートからの拍, 長さ（拍）, 音高（MIDI の番号。69 = A4 = 440Hz） ]。
 // 時刻は帯の中の拍で、最初のノートは帯の中の時間の 0 から。同じ時刻の和音は差分 0
-export type MusicNoteData = [ number, number, number, number ];
+export type MusicNoteData = [ number, number, number ];
 
 // 帯1つの保存の形。[ 前の帯からの拍, 長さ（拍）, 中の時間の始まり（拍）, 数値, ノート ]。
 // 数値を使わない帯は4つ目から省く（ノートの帯では数値の代わりに [] を置く）。最初の帯の開始は曲の頭からの拍

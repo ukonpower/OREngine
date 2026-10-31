@@ -66,6 +66,6 @@ vec2 noteSound( Note n, float t ) {
 	o.x *= 1.0 + pan * 0.4;
 	o.y *= 1.0 - pan * 0.4;
 
-	return o * 0.12 * n.clipParam.x * n.velocity;
+	return o * 0.12 * n.clipParam.x;
 
 }

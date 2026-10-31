@@ -11,16 +11,11 @@ export type MusicNote = {
 	// この時刻から鳴らさない。ノートの終わり＋release を、帯の区間の終わりと、枠を奪われた時刻で切ったもの
 	stop: number;
 	pitch: number;
-	velocity: number;
 	// 割り当てた枠（0 〜 maxNotes - 1）
 	slot: number;
 	// 鳴らした帯の、トラックの帯の並びでの番号
 	clip: number;
 };
-
-// テクスチャの画素の数（ノート1つぶん）。1つ目が ( 開始, 止める時刻, 長さ, 音高 )、2つ目が ( 強さ, 0, 0, 0 )。
-// music_note.part.glsl の読み方と一致させる
-export const NOTE_TEXELS = 2;
 
 // 枠の行のうち、ノートの無い所の開始の時刻。シェーダーの二分探索が「今より後に始まるノート」として扱い、通り越さない
 const NO_NOTE_TIME = 1e9;
@@ -61,7 +56,6 @@ export const resolveNotes = ( clips: MusicClip[], segments: MusicSegment[], beat
 				length: ( endBeat - startBeat ) * beatSec,
 				stop: segment.end * beatSec,
 				pitch: note[ 2 ],
-				velocity: note[ 3 ],
 				slot: 0,
 				clip: segment.clip,
 			} );
@@ -159,14 +153,15 @@ export const buildNoteTexture = ( notes: MusicNote[], maxNotes: number ) => {
 
 	}
 
-	const width = rowNotes * NOTE_TEXELS;
+	// ノート1つに1画素で ( 開始, 止める時刻, 長さ, 音高 )。music_note.part.glsl の読み方と一致させる
+	const width = rowNotes;
 	const data = new Float32Array( width * slotCount * 4 );
 
 	for ( let slot = 0; slot < slotCount; slot ++ ) {
 
 		for ( let i = 0; i < rowNotes; i ++ ) {
 
-			const offset = ( slot * width + i * NOTE_TEXELS ) * 4;
+			const offset = ( slot * width + i ) * 4;
 			const note = rows[ slot ][ i ];
 
 			if ( ! note ) {
@@ -181,7 +176,6 @@ export const buildNoteTexture = ( notes: MusicNote[], maxNotes: number ) => {
 			data[ offset + 1 ] = note.stop;
 			data[ offset + 2 ] = note.length;
 			data[ offset + 3 ] = note.pitch;
-			data[ offset + 4 ] = note.velocity;
 
 		}
 

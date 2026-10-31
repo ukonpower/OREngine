@@ -78,7 +78,7 @@ export class NoteFlash extends MXP.Component {
 
 			if ( note ) {
 
-				flash = Math.exp( - note.since * this._decay ) * note.velocity;
+				flash = Math.exp( - note.since * this._decay );
 
 			}
 

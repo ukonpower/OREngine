@@ -4,7 +4,7 @@ import { trackPointerDrag } from "uipower";
 
 import { useOREditor } from "../../../hooks/useOREditor";
 import { decodeTracks, encodeTracks, setActiveNotes } from "../lib/clipEdit";
-import { addNote, copyNotes, decodeNotes, deleteNotes, duplicateNotes, EditNote, encodeNotes, moveNotes, NoteClipboard, notesInRect, pasteNotes, quantizeNotes, resizeNotes, shiftVelocity, snapBeat, snapDelta } from "../lib/noteEdit";
+import { addNote, copyNotes, decodeNotes, deleteNotes, duplicateNotes, EditNote, encodeNotes, moveNotes, NoteClipboard, notesInRect, pasteNotes, quantizeNotes, resizeNotes, snapBeat, snapDelta } from "../lib/noteEdit";
 
 import type { Music } from "../../../../../../builtin/Components/Utility/Music";
 import type { MusicNoteData, MusicTrackData } from "../../../../../../builtin/Components/Utility/Music/instrument";
@@ -24,9 +24,8 @@ export type NoteBoxRect = {
 // 小節の拍の数（4/4 固定。MusicRuler の BEATS_PER_BAR と同じ）
 const BEATS_PER_BAR = 4;
 
-// まだ1つも置いていないときに置くノートの長さ（拍）と強さ
+// まだ1つも置いていないときに置くノートの長さ（拍）
 const DEFAULT_NOTE_LENGTH = 0.25;
-const DEFAULT_VELOCITY = 1;
 
 // グリッドが「なし」のときに ← / → で動かす量（拍）。1/16
 const FREE_ARROW_STEP = 0.25;
@@ -76,7 +75,7 @@ type NoteEditingOptions = {
 	// 今の再生位置の、帯の中の拍（Ctrl+V の貼り付け先）
 	playheadBeat: () => number;
 	// その高さの1音を鳴らす。clipBeat は鳴らす所の帯の中の拍
-	preview: ( pitch: number, velocity: number, clipBeat: number ) => void;
+	preview: ( pitch: number, clipBeat: number ) => void;
 };
 
 // ピアノロールのノートの選択と編集。編集はどれも EditorAPI を通し、ドラッグは beginEdit で undo 1回にまとめる。
@@ -167,7 +166,7 @@ export const useMusicNoteEditing = ( options: NoteEditingOptions ) => {
 		const base = decode( keys );
 		const grabbed = base[ index ];
 
-		options.preview( grabbed.pitch, grabbed.velocity, grabbed.start );
+		options.preview( grabbed.pitch, grabbed.start );
 
 		const copy = e.altKey && part === "body";
 		const shiftKey = e.shiftKey;
@@ -197,7 +196,7 @@ export const useMusicNoteEditing = ( options: NoteEditingOptions ) => {
 					if ( semitones !== lastSemitones ) {
 
 						lastSemitones = semitones;
-						options.preview( grabbed.pitch + semitones, grabbed.velocity, grabbed.start );
+						options.preview( grabbed.pitch + semitones, grabbed.start );
 
 					}
 
@@ -363,8 +362,8 @@ export const useMusicNoteEditing = ( options: NoteEditingOptions ) => {
 
 		const ghost = ghostAt( { x: clientX, y: clientY } );
 
-		commit( addNote( decode( new Set() ), ghost.start, ghost.length, ghost.pitch, DEFAULT_VELOCITY ) );
-		options.preview( ghost.pitch, DEFAULT_VELOCITY, ghost.start );
+		commit( addNote( decode( new Set() ), ghost.start, ghost.length, ghost.pitch ) );
+		options.preview( ghost.pitch, ghost.start );
 		lastGhostPitchRef.current = ghost.pitch;
 
 	};
@@ -398,7 +397,7 @@ export const useMusicNoteEditing = ( options: NoteEditingOptions ) => {
 
 		if ( lastPitch !== ghost.pitch ) {
 
-			options.preview( ghost.pitch, DEFAULT_VELOCITY, ghost.start );
+			options.preview( ghost.pitch, ghost.start );
 
 		}
 
@@ -466,55 +465,6 @@ export const useMusicNoteEditing = ( options: NoteEditingOptions ) => {
 	let ghost: NoteGhost | null = null;
 
 	if ( placeAt ) ghost = ghostAt( placeAt );
-
-	// Velocity の段の棒を押したところから、上下のドラッグで強さを変える。選んでいるノートが複数なら、そろって増減する
-	const onVelocityPointerDown = ( e: ReactPointerEvent, index: number, laneHeight: number ) => {
-
-		if ( e.button !== 0 ) return;
-
-		e.stopPropagation();
-
-		let keys = selection;
-
-		if ( e.shiftKey ) {
-
-			keys = new Set( keys );
-			keys.add( index );
-
-		} else if ( ! selection.has( index ) ) {
-
-			keys = new Set( [ index ] );
-
-		}
-
-		setSelection( keys );
-
-		const base = decode( keys );
-		const edit = editor.api.beginEdit( music, "tracks" );
-
-		trackPointerDrag( e, {
-			onMove: ( _dx, dy ) => {
-
-				const encoded = encode( shiftVelocity( base, - dy / Math.max( laneHeight, 1 ) ) );
-
-				edit.set( encoded.tracks );
-				setSelection( encoded.selection );
-
-			},
-			onEnd: ( dragged ) => {
-
-				if ( dragged ) edit.commit();
-
-			},
-			onCancel: () => {
-
-				edit.cancel();
-				setSelection( keys );
-
-			},
-		} );
-
-	};
 
 	/*-------------------------------
 		Keyboard
@@ -684,7 +634,6 @@ export const useMusicNoteEditing = ( options: NoteEditingOptions ) => {
 		onGridPointerMove,
 		onGridPointerLeave,
 		onGridDoubleClick,
-		onVelocityPointerDown,
 		onPointerEnter,
 		onPointerLeave,
 	};

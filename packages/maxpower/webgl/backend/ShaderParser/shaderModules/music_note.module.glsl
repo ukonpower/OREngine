@@ -6,8 +6,6 @@
 struct Note {
 	// MIDI の番号（69 が A4 の 440Hz）。noteFreq で周波数にする
 	float pitch;
-	// 強さ（0〜1）
-	float velocity;
 	// 鳴らす長さ（秒）。帯の終わりからはみ出したノートは、帯の終わりで切った長さ
 	float length;
 	// ノートのある帯の数値（Song.clipParam と同じ）

@@ -15,7 +15,6 @@ import type { MusicNote } from '../../../../../../builtin/Components/Utility/Mus
 export type NotePreviewRequest = {
 	instrument: string;
 	pitch: number;
-	velocity: number;
 	bpm: number;
 	// 帯の数値（Song.clipParam / Note.clipParam）
 	params: number[];
@@ -80,7 +79,7 @@ export class MusicNotePreview {
 		const seconds = beatSec + release;
 		const buffer = context.createBuffer( 2, Math.max( 1, Math.ceil( seconds * context.sampleRate ) ), context.sampleRate );
 
-		const note: MusicNote = { start: 0, length: beatSec, stop: seconds, pitch: request.pitch, velocity: request.velocity, slot: 0, clip: 0 };
+		const note: MusicNote = { start: 0, length: beatSec, stop: seconds, pitch: request.pitch, slot: 0, clip: 0 };
 
 		generator.updateNotes( texture, [ note ], 1 );
 

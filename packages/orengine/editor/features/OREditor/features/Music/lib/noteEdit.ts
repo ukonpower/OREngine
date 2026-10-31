@@ -7,7 +7,6 @@ export type EditNote = {
 	start: number;
 	length: number;
 	pitch: number;
-	velocity: number;
 	selected: boolean;
 };
 
@@ -16,9 +15,6 @@ export const PITCH_COUNT = 128;
 
 // グリッドが「なし」のときに時刻を丸める細かさ（拍）。2 の累乗の分数にして、差分に直しても小数の誤差が積もらないようにする
 const FREE_RESOLUTION = 1 / 128;
-
-// 強さを丸める細かさ。JSON を短く保つ
-const VELOCITY_RESOLUTION = 100;
 
 // ノートの長さの下限（拍）。グリッドが「なし」のときの丸めの細かさと同じ
 const MIN_NOTE_LENGTH = FREE_RESOLUTION;
@@ -54,12 +50,6 @@ const clampPitch = ( pitch: number ) => {
 
 };
 
-const clampVelocity = ( velocity: number ) => {
-
-	return Math.min( 1, Math.max( 0, Math.round( velocity * VELOCITY_RESOLUTION ) / VELOCITY_RESOLUTION ) );
-
-};
-
 /*-------------------------------
 	Decode / Encode
 -------------------------------*/
@@ -77,7 +67,7 @@ export const decodeNotes = ( notes: MusicNoteData[], selection: Set<number> ): E
 
 		start += note[ 0 ];
 
-		result.push( { start, length: note[ 1 ], pitch: note[ 2 ], velocity: note[ 3 ], selected: selection.has( i ) } );
+		result.push( { start, length: note[ 1 ], pitch: note[ 2 ], selected: selection.has( i ) } );
 
 	}
 
@@ -107,7 +97,7 @@ export const encodeNotes = ( notes: EditNote[] ) => {
 
 		const note = sorted[ i ];
 
-		data.push( [ note.start - previousStart, note.length, note.pitch, note.velocity ] );
+		data.push( [ note.start - previousStart, note.length, note.pitch ] );
 		previousStart = note.start;
 
 		if ( note.selected ) {
@@ -221,29 +211,6 @@ export const resizeNotes = ( notes: EditNote[], delta: number, minLength: number
 
 };
 
-// 選んだノートの強さに delta を足す（0〜1 で止める）。複数を選んでいれば、そろって増減する
-export const shiftVelocity = ( notes: EditNote[], delta: number ) => {
-
-	const result: EditNote[] = [];
-
-	for ( const note of notes ) {
-
-		if ( ! note.selected ) {
-
-			result.push( note );
-
-			continue;
-
-		}
-
-		result.push( { ...note, velocity: clampVelocity( note.velocity + delta ) } );
-
-	}
-
-	return result;
-
-};
-
 // 選んだノートを消す
 export const deleteNotes = ( notes: EditNote[] ) => {
 
@@ -260,7 +227,7 @@ export const deleteNotes = ( notes: EditNote[] ) => {
 };
 
 // ノートを1つ置き、それだけを選ぶ
-export const addNote = ( notes: EditNote[], start: number, length: number, pitch: number, velocity: number ) => {
+export const addNote = ( notes: EditNote[], start: number, length: number, pitch: number ) => {
 
 	const result: EditNote[] = [];
 
@@ -270,7 +237,7 @@ export const addNote = ( notes: EditNote[], start: number, length: number, pitch
 
 	}
 
-	result.push( { start, length, pitch: clampPitch( pitch ), velocity: clampVelocity( velocity ), selected: true } );
+	result.push( { start, length, pitch: clampPitch( pitch ), selected: true } );
 
 	return result;
 
@@ -351,7 +318,6 @@ export type NoteClipboard = {
 	start: number;
 	length: number;
 	pitch: number;
-	velocity: number;
 }[];
 
 // 選んだノートをコピーする（Ctrl+C）。選んでいなければ null
@@ -373,7 +339,7 @@ export const copyNotes = ( notes: EditNote[] ): NoteClipboard | null => {
 
 		if ( ! note.selected ) continue;
 
-		clipboard.push( { start: note.start - first, length: note.length, pitch: note.pitch, velocity: note.velocity } );
+		clipboard.push( { start: note.start - first, length: note.length, pitch: note.pitch } );
 
 	}
 
@@ -394,7 +360,7 @@ export const pasteNotes = ( notes: EditNote[], clipboard: NoteClipboard, at: num
 
 	for ( const note of clipboard ) {
 
-		result.push( { start: at + note.start, length: note.length, pitch: note.pitch, velocity: note.velocity, selected: true } );
+		result.push( { start: at + note.start, length: note.length, pitch: note.pitch, selected: true } );
 
 	}
 
