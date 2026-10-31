@@ -1,0 +1,61 @@
+// --from / --to / --value は index.tsx が value・min・max・origin から計算して渡す
+.slider {
+	display: flex;
+	align-items: center;
+	gap: var(--or-space);
+	min-width: 0;
+
+	&[data-disabled="true"] {
+		opacity: 0.3;
+	}
+}
+
+// 押せる範囲。線は細いので、上下に余白を足して行の高さぶんを押せるようにする
+.track {
+	flex: 1;
+	min-width: 0;
+	padding: var(--or-space) 0;
+	cursor: ew-resize;
+	// SP で縦のスクロールはブラウザに任せ、横の動きだけを pointermove で受け取る
+	touch-action: pan-y;
+
+	&_line {
+		position: relative;
+		height: 2px;
+		border-radius: 1px;
+		background-color: var(--or-bg-base);
+	}
+
+	&_fill {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: var(--from);
+		right: calc(100% - var(--to));
+		background-color: var(--or-text-dim);
+	}
+
+	&_thumb {
+		position: absolute;
+		top: 50%;
+		left: var(--value);
+		width: 4px;
+		height: 10px;
+		border-radius: 1px;
+		background-color: var(--or-text-muted);
+		transform: translate(-50%, -50%);
+	}
+
+	&:hover &_thumb {
+		background-color: var(--or-text);
+	}
+}
+
+// 桁数が変わってもトラックの幅が揺れないよう、符号つきの「-1.00」が入る幅を取る
+.value {
+	flex-shrink: 0;
+	min-width: 5ch;
+	color: var(--or-text-muted);
+	font-variant-numeric: tabular-nums;
+	text-align: right;
+}

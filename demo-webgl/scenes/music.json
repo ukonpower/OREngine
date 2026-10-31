@@ -20,15 +20,16 @@
 									"name": "Camera",
 									"uuid": "4ec0479f-f58f-4644-a7f4-0204813c5c99",
 									"props": {
+										"cameraType": "perspective",
 										"fov": 21.908,
 										"near": 0.1,
 										"far": 1000,
 										"orthHeight": 1,
-										"focus/fNumber": 0.3,
 										"focus/mode": "target",
 										"focus/target": "blidge:CamDof",
 										"focus/distance": 4.949999999999992,
-										"focus/speed": 4.675000000000007
+										"focus/speed": 4.675000000000007,
+										"focus/fNumber": 0.3
 									}
 								},
 								{
@@ -213,7 +214,13 @@
 													1
 												],
 												[
-													4,
+													1.25,
+													0.25,
+													38,
+													1
+												],
+												[
+													2.75,
 													4,
 													36,
 													1
@@ -2554,6 +2561,13 @@
 											]
 										]
 									]
+								],
+								[
+									"Kick 2",
+									"Kick",
+									1,
+									0,
+									[]
 								]
 							],
 							"reverb/length": 1.5,
@@ -2577,13 +2591,18 @@
 		],
 		"sky/intensity": 1,
 		"pipeline/motionBlur/enabled": false,
+		"pipeline/motionBlur/power": 1,
 		"pipeline/ssr/enabled": false,
 		"pipeline/ssao/enabled": false,
 		"pipeline/dof/enabled": false,
 		"pipeline/lightShaft/enabled": false,
 		"pipeline/toneMap/enabled": false,
+		"pipeline/toneMap/exposure": 0,
 		"pipeline/bloom/enabled": false,
-		"pipeline/sss/enabled": false
+		"pipeline/bloom/threshold": 1,
+		"pipeline/bloom/brightness": 1,
+		"pipeline/sss/enabled": false,
+		"pipeline/sss/radius": 0.05
 	},
 	"timeline/duration": 9504,
 	"timeline/fps": 60

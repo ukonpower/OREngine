@@ -1,6 +1,6 @@
 import { useRef, useState, type KeyboardEvent, type MouseEvent, type PointerEvent as ReactPointerEvent } from 'react';
 
-import { InputNumber, Menu, MenuItem, pointAnchor, usePopover } from 'uipower';
+import { Button, InputSlider, Menu, MenuItem, pointAnchor, usePopover } from 'uipower';
 
 import style from './index.module.scss';
 
@@ -13,6 +13,10 @@ type MusicTrackHeadProps = {
 	kind: TrackKind;
 	volume: number;
 	pan: number;
+	muted: boolean;
+	soloed: boolean;
+	// ミュート・ほかのトラックのソロで鳴っていない
+	silent: boolean;
 	instrumentNames: string[];
 	dropTarget: boolean;
 	onPointerDown: ( e: ReactPointerEvent ) => void;
@@ -20,16 +24,23 @@ type MusicTrackHeadProps = {
 	onChangeNumber: ( update: { volume?: number, pan?: number } ) => void;
 	onNumberDragStart: () => void;
 	onNumberDragEnd: () => void;
+	onNumberDragCancel: () => void;
 	onChangeInstrument: ( instrument: string ) => void;
 	onDelete: () => void;
+	onToggleMute: () => void;
+	// additive は Ctrl / Cmd を押していたか（ソロに足し引きする）
+	onToggleSolo: ( additive: boolean ) => void;
 };
+
+// 音量のスライダーの上限。DAW のフェーダーの上限（+6dB ≒ 2倍）に合わせる。値そのものは制限しないので、これより大きい値もそのまま鳴る
+const VOLUME_MAX = 2;
 
 const KIND_LABELS: Record<string, string> = {
 	note: "Note",
 	code: "Code",
 };
 
-// トラックの見出し（名前・鳴らし方・音量・パン）。右クリックで楽器の変更と削除のメニュー、名前のダブルクリックで名前の入力
+// トラックの見出し（名前・ミュート・ソロ・鳴らし方・音量・パン）。右クリックで楽器の変更と削除のメニュー、名前のダブルクリックで名前の入力
 export const MusicTrackHead = ( props: MusicTrackHeadProps ) => {
 
 	const { open: openPopover, closeAll } = usePopover();
@@ -134,19 +145,23 @@ export const MusicTrackHead = ( props: MusicTrackHeadProps ) => {
 
 	}
 
-	return <div className={style.head} data-drop={props.dropTarget} onPointerDown={props.onPointerDown} onContextMenu={onContextMenu}>
+	return <div className={style.head} data-drop={props.dropTarget} data-silent={props.silent} onPointerDown={props.onPointerDown} onContextMenu={onContextMenu}>
 		<div className={style.line}>
 			<div className={style.name}>{nameElm}</div>
+			<div className={style.monitor}>
+				<Button square active={props.muted} title="Mute" onClick={props.onToggleMute}>M</Button>
+				<Button square active={props.soloed} title="Solo（Ctrl / Cmd+クリックで足す）" onClick={( e ) => props.onToggleSolo( e.ctrlKey || e.metaKey )}>S</Button>
+			</div>
 			<span className={style.kind} title={props.instrument}>{kindLabel}</span>
 		</div>
 		<div className={style.line}>
 			<span className={style.label}>Vol</span>
 			<div className={style.number}>
-				<InputNumber value={props.volume} step={0.1} min={0} onChange={( volume ) => props.onChangeNumber( { volume } )} onDragStart={props.onNumberDragStart} onDragEnd={props.onNumberDragEnd} />
+				<InputSlider value={props.volume} min={0} max={VOLUME_MAX} step={0.01} defaultValue={1} onChange={( volume ) => props.onChangeNumber( { volume } )} onDragStart={props.onNumberDragStart} onDragEnd={props.onNumberDragEnd} onDragCancel={props.onNumberDragCancel} />
 			</div>
 			<span className={style.label}>Pan</span>
 			<div className={style.number}>
-				<InputNumber value={props.pan} step={0.1} min={- 1} max={1} onChange={( pan ) => props.onChangeNumber( { pan } )} onDragStart={props.onNumberDragStart} onDragEnd={props.onNumberDragEnd} />
+				<InputSlider value={props.pan} min={- 1} max={1} step={0.01} origin={0} defaultValue={0} onChange={( pan ) => props.onChangeNumber( { pan } )} onDragStart={props.onNumberDragStart} onDragEnd={props.onNumberDragEnd} onDragCancel={props.onNumberDragCancel} />
 			</div>
 		</div>
 	</div>;

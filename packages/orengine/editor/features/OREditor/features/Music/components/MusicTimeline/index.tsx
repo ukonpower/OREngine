@@ -16,7 +16,7 @@ import { useMusicView } from '../../hooks/useMusicView';
 import { MusicNotePreview } from '../../lib/notePreview';
 import { ClipWaveform } from '../MusicClip';
 import { MusicClipParams } from '../MusicClipParams';
-import { MusicLane } from '../MusicLane';
+import { laneGridStyle, MusicLane } from '../MusicLane';
 import { MusicPlayhead } from '../MusicPlayhead';
 import { MusicRoll } from '../MusicRoll';
 import { BEATS_PER_BAR, MusicRuler } from '../MusicRuler';
@@ -32,6 +32,11 @@ const MIN_LABEL_SPACING = 48;
 
 // 1拍がこれより広く見えるときだけ、拍の線も引く（px）
 const MIN_BEAT_LINE_SPACING = 12;
+
+// 見出しの列の幅の既定と、仕切りのドラッグで縮められる下限・レーンに残す幅（px）。既定は Editor の music/headWidth の初期値と一致させる
+const DEFAULT_HEAD_WIDTH = 180;
+const MIN_HEAD_WIDTH = 120;
+const MIN_LANE_WIDTH = 100;
 
 const EMPTY_TRACKS: MusicTrackData[] = [];
 
@@ -74,6 +79,7 @@ export const MusicTimeline = ( props: { music: Music } ) => {
 	const [ tracksValue ] = useSerializableField<MusicTrackData[]>( music, "tracks" );
 	const [ bpmValue ] = useSerializableField<number>( music, "bpm" );
 	const [ durationValue ] = useSerializableField<number>( engine, "timeline/duration" );
+	const [ headWidthValue, setHeadWidth ] = useSerializableField<number>( editor, "music/headWidth" );
 
 	const tracks = tracksValue || EMPTY_TRACKS;
 	const bpm = bpmValue || 1;
@@ -199,6 +205,44 @@ export const MusicTimeline = ( props: { music: Music } ) => {
 		trackPointerDrag( e, {
 			onMove: ( dx ) => seek( startX + dx ),
 			onEnd: () => {},
+		} );
+
+	};
+
+	/*-------------------------------
+		Head width
+	-------------------------------*/
+
+	let headWidth = DEFAULT_HEAD_WIDTH;
+
+	if ( headWidthValue !== undefined ) headWidth = headWidthValue;
+
+	// 見出しとレーンの間の仕切りのドラッグで見出しの列の幅を変える。仕切りはカーソルの下を追うので Pointer Lock は取らない
+	const onSplitterPointerDown = ( e: ReactPointerEvent<HTMLDivElement> ) => {
+
+		if ( e.button !== 0 ) return;
+
+		e.preventDefault();
+
+		const main = mainRef.current;
+
+		if ( ! main ) return;
+
+		const startWidth = headWidth;
+		const maxWidth = Math.max( MIN_HEAD_WIDTH, main.clientWidth - MIN_LANE_WIDTH );
+
+		trackPointerDrag( e, {
+			onMove: ( dx ) => {
+
+				setHeadWidth( Math.round( Math.min( maxWidth, Math.max( MIN_HEAD_WIDTH, startWidth + dx ) ) ) );
+
+			},
+			onEnd: () => {},
+			onCancel: () => {
+
+				setHeadWidth( startWidth );
+
+			},
 		} );
 
 	};
@@ -423,6 +467,7 @@ export const MusicTimeline = ( props: { music: Music } ) => {
 		if ( kind === "code" ) waveform = waveforms[ i ];
 
 		const rowAttributes = { [ TRACK_INDEX_ATTRIBUTE ]: i };
+		const monitor = trackEditing.monitorState( i );
 
 		rows.push( <div key={i} className={style.row} {...rowAttributes}>
 			<div className={style.row_head}>
@@ -432,6 +477,9 @@ export const MusicTimeline = ( props: { music: Music } ) => {
 					kind={kind}
 					volume={track[ 2 ]}
 					pan={track[ 3 ]}
+					muted={monitor.muted}
+					soloed={monitor.soloed}
+					silent={monitor.silent}
 					instrumentNames={instrumentNames}
 					dropTarget={trackEditing.dropTarget === i}
 					onPointerDown={( e ) => trackEditing.onHeadPointerDown( e, i )}
@@ -439,8 +487,11 @@ export const MusicTimeline = ( props: { music: Music } ) => {
 					onChangeNumber={( update ) => trackEditing.numberEdit.set( i, update )}
 					onNumberDragStart={trackEditing.numberEdit.begin}
 					onNumberDragEnd={trackEditing.numberEdit.end}
+					onNumberDragCancel={trackEditing.numberEdit.cancel}
 					onChangeInstrument={( instrument ) => trackEditing.changeInstrument( i, instrument )}
 					onDelete={() => trackEditing.remove( i )}
+					onToggleMute={() => trackEditing.toggleMute( i )}
+					onToggleSolo={( additive ) => trackEditing.toggleSolo( i, additive )}
 				/>
 			</div>
 			<MusicLane
@@ -452,6 +503,7 @@ export const MusicTimeline = ( props: { music: Music } ) => {
 				selection={clipEditing.selection}
 				waveform={waveform}
 				showNotes={kind === "note"}
+				silent={monitor.silent}
 				barStep={labelBars * BEATS_PER_BAR}
 				beatStep={beatStep}
 				onClipPointerDown={clipEditing.onClipPointerDown}
@@ -529,7 +581,7 @@ export const MusicTimeline = ( props: { music: Music } ) => {
 
 	}
 
-	return <div className={style.timeline}>
+	return <div className={style.timeline} style={{ '--music-head-width': `${headWidth}px` } as React.CSSProperties}>
 		<div
 			ref={mainRef}
 			className={style.main}
@@ -548,11 +600,19 @@ export const MusicTimeline = ( props: { music: Music } ) => {
 			</div>
 			<div ref={bodyRef} className={style.body}>
 				{rows}
-				<div className={style.add}>
-					<Button square title="Add Track" onClick={onClickAdd}>+</Button>
+				<div className={style.rest}>
+					<div className={style.rest_head}>
+						<Button square title="Add Track" onClick={onClickAdd}>+</Button>
+					</div>
+					<div
+						className={style.rest_lane}
+						style={laneGridStyle( view.start, pxPerBeat, labelBars * BEATS_PER_BAR, beatStep )}
+						onPointerDown={clipEditing.onLanePointerDown}
+					/>
 				</div>
 			</div>
 			{outsideElm}
+			<div className={style.splitter} onPointerDown={onSplitterPointerDown} />
 			<MusicPlayhead bpm={bpm} viewStart={view.start} pxPerBeat={pxPerBeat} laneWidth={laneWidth} />
 		</div>
 		{paramsElm}

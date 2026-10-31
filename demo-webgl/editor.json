@@ -6,7 +6,9 @@
 	"frameLoop/enabled": false,
 	"frameLoop/start": 0,
 	"frameLoop/end": 0,
-	"selectedEntityId": "blidge:Camera",
+	"music/grid": 16,
+	"selectedEntityId": null,
+	"selectedEntityIds": [],
 	"unselectableEntityIds": [],
 	"selectedAsset": {
 		"name": "OREngineCube",
@@ -16,10 +18,107 @@
 	"propertyTarget": "entity",
 	"gizmoMode": "translate",
 	"transformOrientation": "global",
-	"panelLayout": null,
-	"viewports/main/resolutionScale": 0.5,
+	"panelLayout": {
+		"type": "split",
+		"id": "1370ace3-0a69-43f7-abcb-f065321b55fc",
+		"direction": "vertical",
+		"children": [
+			{
+				"ratio": 0.8187732342007435,
+				"node": {
+					"type": "split",
+					"id": "5d27aeb3-ca82-4a96-bc18-bc849d9aa86e",
+					"direction": "horizontal",
+					"children": [
+						{
+							"ratio": 0.15690376569037656,
+							"node": {
+								"type": "split",
+								"id": "ab520569-ad11-4308-8b6b-63d5c6b14e8f",
+								"direction": "vertical",
+								"children": [
+									{
+										"ratio": 0.7537058152793614,
+										"node": {
+											"type": "pane",
+											"id": "d0a0ce5c-daf0-442c-a5c6-9251a277b89e",
+											"tabs": [
+												"hierarchy",
+												"scene"
+											],
+											"active": "hierarchy"
+										}
+									},
+									{
+										"ratio": 0.24629418472063855,
+										"node": {
+											"type": "pane",
+											"id": "058d5be3-dc15-4ac9-9922-bcacdb3318a8",
+											"tabs": [
+												"timer"
+											],
+											"active": "timer"
+										}
+									}
+								]
+							}
+						},
+						{
+							"ratio": 0.6861924686192469,
+							"node": {
+								"type": "pane",
+								"id": "464af811-422d-4bd8-ae37-75b5907a5da0",
+								"tabs": [
+									"viewport:main",
+									"music"
+								],
+								"active": "music"
+							}
+						},
+						{
+							"ratio": 0.15690376569037656,
+							"node": {
+								"type": "pane",
+								"id": "2a4f9a34-89eb-4e91-b7e9-6781ba4c2dd8",
+								"tabs": [
+									"property",
+									"textures",
+									"renderer",
+									"editor-settings"
+								],
+								"active": "property"
+							}
+						}
+					]
+				}
+			},
+			{
+				"ratio": 0.1812267657992565,
+				"node": {
+					"type": "pane",
+					"id": "f531ebf8-32b8-48fb-a8b8-37a313cabdb0",
+					"tabs": [
+						"timeline",
+						"export"
+					],
+					"active": "timeline"
+				}
+			}
+		]
+	},
+	"panelLayoutSP": null,
 	"viewports/main/cameraView": "camera",
 	"viewports/main/preview": false,
+	"viewports/main/resolutionScale": 0.5,
+	"viewports/main/helpers/show": true,
+	"viewports/main/helpers/empty": true,
+	"viewports/main/helpers/camera": true,
+	"viewports/main/helpers/light": true,
+	"viewports/main/helpers/grid": true,
+	"viewports/main/helpers/wireframe": false,
+	"viewports/main/helpers/gizmo": true,
+	"viewports/main/helpers/outline": true,
+	"viewports/main/helpers/relationships": true,
 	"viewports/main/camera/position": [
 		0.2518505313801864,
 		1.5548253156231446,
@@ -30,5 +129,5 @@
 		1.496288675590404,
 		8.332829887430016
 	],
-	"scene": "main"
+	"scene": "music"
 }

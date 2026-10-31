@@ -1,4 +1,4 @@
-import { useMemo, type MouseEvent, type PointerEvent as ReactPointerEvent } from 'react';
+import { useMemo, type CSSProperties, type MouseEvent, type PointerEvent as ReactPointerEvent } from 'react';
 
 import { decodeClips, MusicClip as MusicClipRange, resolveClipSegments } from '../../../../../../../builtin/Components/Utility/Music/clips';
 import { clipKey } from '../../lib/clipEdit';
@@ -19,6 +19,8 @@ type MusicLaneProps = {
 	waveform: ClipWaveform | null;
 	// ノートのトラックなら、帯の中にノートの縮図を描く
 	showNotes: boolean;
+	// ミュート・ほかのトラックのソロで鳴っていない。帯を薄く出す
+	silent: boolean;
 	// 目盛りの線の間隔（拍）。小節の線と拍の線
 	barStep: number;
 	beatStep: number;
@@ -126,6 +128,28 @@ const layoutClips = ( data: MusicClipData[] ): ClipLayout[] => {
 
 };
 
+// 目盛りの線の背景。小節の線と、拡大したときだけ拍の線を引く（barStep / beatStep は拍。beatStep が 0 なら拍の線なし）。
+// トラックの行の下の空き（MusicTimeline）も同じ線を引き、行が終わった所で線が途切れないようにする
+export const laneGridStyle = ( viewStart: number, pxPerBeat: number, barStep: number, beatStep: number ): CSSProperties => {
+
+	const offsetPx = - viewStart * pxPerBeat;
+
+	const backgroundImage = [ "linear-gradient(to right, var(--or-bg-hover) 1px, transparent 1px)" ];
+	const backgroundSize = [ `${barStep * pxPerBeat}px 100%` ];
+	const backgroundPosition = [ `${offsetPx}px 0` ];
+
+	if ( beatStep > 0 ) {
+
+		backgroundImage.push( "linear-gradient(to right, var(--or-bg-active) 1px, transparent 1px)" );
+		backgroundSize.push( `${beatStep * pxPerBeat}px 100%` );
+		backgroundPosition.push( `${offsetPx}px 0` );
+
+	}
+
+	return { backgroundImage: backgroundImage.join( "," ), backgroundSize: backgroundSize.join( "," ), backgroundPosition: backgroundPosition.join( "," ), backgroundRepeat: "repeat-x" };
+
+};
+
 // 1トラックの帯を並べるレーン。何もない所のダブルクリックで帯を置く
 export const MusicLane = ( props: MusicLaneProps ) => {
 
@@ -176,26 +200,12 @@ export const MusicLane = ( props: MusicLaneProps ) => {
 
 	}
 
-	// 目盛りの線。小節の線と、拡大したときだけ拍の線を背景で引く
-	const barPx = props.barStep * props.pxPerBeat;
-	const beatPx = props.beatStep * props.pxPerBeat;
-	const offsetPx = - props.viewStart * props.pxPerBeat;
-
-	const backgroundImage = [ "linear-gradient(to right, var(--or-bg-hover) 1px, transparent 1px)" ];
-	const backgroundSize = [ `${barPx}px 100%` ];
-	const backgroundPosition = [ `${offsetPx}px 0` ];
-
-	if ( props.beatStep > 0 ) {
-
-		backgroundImage.push( "linear-gradient(to right, var(--or-bg-active) 1px, transparent 1px)" );
-		backgroundSize.push( `${beatPx}px 100%` );
-		backgroundPosition.push( `${offsetPx}px 0` );
-
-	}
+	const gridStyle = laneGridStyle( props.viewStart, props.pxPerBeat, props.barStep, props.beatStep );
 
 	return <div
 		className={style.lane}
-		style={{ backgroundImage: backgroundImage.join( "," ), backgroundSize: backgroundSize.join( "," ), backgroundPosition: backgroundPosition.join( "," ) }}
+		data-silent={props.silent}
+		style={gridStyle}
 		onPointerDown={onPointerDown}
 		onDoubleClick={onDoubleClick}
 	>

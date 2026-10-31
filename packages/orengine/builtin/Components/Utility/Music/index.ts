@@ -6,6 +6,7 @@ import { decodeClips, MusicClip, MusicSegment, resolveClipSegments } from './cli
 import { BLOCK_SAMPLES, MusicGenerator } from './generator';
 import { INSTRUMENT_HOT_EVENT, INSTRUMENT_KIND, Instrument, instrumentSoundKind, MusicClipData, MusicTrackData } from './instrument';
 import { MusicMixer, SPECTRUM_FFT_SIZE } from './mixer';
+import { isTrackAudible, MusicMonitor } from './monitor';
 import { MusicNote, resolveNotes } from './notes';
 import { findCurrentClip, findLastNote } from './readout';
 
@@ -42,6 +43,8 @@ type MusicTrack = {
 	// ノードに入れた音量・パン
 	volume: number;
 	pan: number;
+	// エディタのミュート・ソロで黙らせているか。エディタでだけ入れる（player では undefined のまま）
+	silent?: boolean;
 	// 今の音を作った帯。clipsData は tracks の中の配列そのもの、clipsKey はその中身の文字列
 	clipsData: MusicClipData[] | null;
 	clipsKey: string;
@@ -147,6 +150,10 @@ export class Music extends Component {
 
 	// 今の曲。シーンに Music が無ければ null
 	public static instance: Music | null;
+
+	// エディタの Music パネルのミュート・ソロ。Editor が editor.json の値を入れる。
+	// Music を置き直しても（シーンの読み直し）残るよう、インスタンスでなくクラスに持つ。player では入れず読まない
+	public static monitor: MusicMonitor | undefined;
 
 	private bpm_: number;
 	private tracksData_: MusicTrackData[];
@@ -489,6 +496,32 @@ export class Music extends Component {
 				track.volume = data[ 2 ];
 				track.pan = data[ 3 ];
 				mixer.setChannel( i, track.volume, track.pan );
+
+				// 黙らせているトラックは、下で入れ直した音量を 0 に戻す
+				if ( import.meta.env.DEV ) track.silent = undefined;
+
+			}
+
+			// ミュート・ソロは音量のノードに 0 を入れるだけで、生成も波形表示（track.volume）も変えない
+			if ( import.meta.env.DEV && Music.monitor ) {
+
+				const silent = ! isTrackAudible( Music.monitor, this.tracksData_, data[ 0 ] );
+
+				if ( silent !== track.silent ) {
+
+					track.silent = silent;
+
+					if ( silent ) {
+
+						mixer.setChannel( i, 0, track.pan );
+
+					} else {
+
+						mixer.setChannel( i, track.volume, track.pan );
+
+					}
+
+				}
 
 			}
 

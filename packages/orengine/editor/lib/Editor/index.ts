@@ -2,6 +2,7 @@ import { createEditorDraw } from '@or-renderer';
 import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
+import { Music, type MusicOutput } from '../../../builtin/Components/Utility/Music';
 import { Engine } from '../../../core/Engine';
 import { OREngineProjectData, pruneUnusedCurves } from '../../../core/ProjectSerializer';
 import { AssetPreviewManager } from '../AssetPreviewManager';
@@ -23,7 +24,7 @@ import { topmostEntities, transformBasis, transformPivot } from '../TransformTar
 import { Viewport } from '../Viewport';
 import { WireframeRenderer } from '../WireframeRenderer';
 
-import type { MusicOutput } from '../../../builtin/Components/Utility/Music';
+import type { MusicMonitor } from '../../../builtin/Components/Utility/Music/monitor';
 import type { ViewAxis } from '../EditorCamera';
 import type { TransformOrientation } from '../TransformUtils';
 
@@ -141,6 +142,10 @@ export class Editor extends MXP.Serializable {
 	private _musicTrackPeaks: MusicTrackPeaks;
 	// Music パネルのピアノロールのグリッド。1小節を何分割するか（16 = 1/16 = 1/4 拍）で、0 はグリッドなし
 	private _musicGrid: number;
+	// Music パネルのトラックの見出しの列の幅（px）。見出しとレーンの間の仕切りのドラッグで変える
+	private _musicHeadWidth: number;
+	// Music パネルのミュート・ソロ（トラック名）。鳴らすのは Music なので、変わるたびに Music.monitor へ入れる
+	private _musicMonitor: MusicMonitor;
 	private _frameLoop: EditorTimelineLoop;
 	private _enableRender: boolean;
 	private _baseResolution: MTP.Vector;
@@ -390,6 +395,9 @@ export class Editor extends MXP.Serializable {
 		};
 
 		this._musicGrid = 16;
+		this._musicHeadWidth = 180;
+		this._musicMonitor = { mute: [], solo: [] };
+		Music.monitor = this._musicMonitor;
 
 		/*-------------------------------
 			Scene
@@ -494,7 +502,23 @@ export class Editor extends MXP.Serializable {
 		frameLoop.field( "start", () => this._frameLoop.start, v => this._frameLoop.start = v );
 		frameLoop.field( "end", () => this._frameLoop.end, v => this._frameLoop.end = v );
 
-		this.fieldDir( "music" ).field( "grid", () => this._musicGrid, ( v: number ) => this._musicGrid = v );
+		const music = this.fieldDir( "music" );
+		music.field( "grid", () => this._musicGrid, ( v: number ) => this._musicGrid = v );
+		music.field( "headWidth", () => this._musicHeadWidth, ( v: number ) => this._musicHeadWidth = v, { hidden: true } );
+
+		music.field( "mute", () => this._musicMonitor.mute, ( v: string[] ) => {
+
+			this._musicMonitor = { ...this._musicMonitor, mute: v };
+			Music.monitor = this._musicMonitor;
+
+		}, { hidden: true } );
+
+		music.field( "solo", () => this._musicMonitor.solo, ( v: string[] ) => {
+
+			this._musicMonitor = { ...this._musicMonitor, solo: v };
+			Music.monitor = this._musicMonitor;
+
+		}, { hidden: true } );
 
 		// アクティブ。選択に入っていないものを入れたら、選択もそれ1つにする（アクティブは必ず選択の中にある）
 		this.field( "selectedEntityId", () => this._selectedEntityId, ( v: string | null ) => {

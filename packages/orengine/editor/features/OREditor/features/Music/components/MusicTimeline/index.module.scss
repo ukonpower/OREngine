@@ -1,7 +1,6 @@
-// 見出しの列の幅と行の高さ。行・再生位置の線・曲の終わりの暗がりが同じ値で並ぶ。
-// 見出しの列は Timeline のチャンネル一覧（Timeline の .channels）と同じ幅
+// 見出しの列の幅（--music-head-width。index.tsx が editor.json の music/headWidth から渡す）と行の高さ。
+// 行・再生位置の線・曲の終わりの暗がり・ピアノロールの鍵盤の列が同じ値で並ぶ
 .timeline {
-	--music-head-width: calc(var(--or-space) * 36);
 	--music-row-height: calc(var(--or-list-row-height) * 2);
 
 	display: flex;
@@ -50,11 +49,14 @@
 .body {
 	flex: 1;
 	min-height: 0;
+	display: flex;
+	flex-direction: column;
 	overflow-x: hidden;
 	overflow-y: auto;
 }
 
 .row {
+	flex-shrink: 0;
 	display: flex;
 	height: var(--music-row-height);
 
@@ -65,9 +67,51 @@
 	}
 }
 
-.add {
-	width: var(--music-head-width);
-	padding: var(--or-space);
+// 最後のトラックの下の空き。見出しの列の地と目盛りの線をパネルの下端まで続け、行の終わりで絵が途切れないようにする
+.rest {
+	flex: 1 0 auto;
+	display: flex;
+
+	&_head {
+		flex-shrink: 0;
+		width: var(--music-head-width);
+		padding: var(--or-space);
+		background-color: var(--or-bg-surface);
+	}
+
+	&_lane {
+		flex: 1;
+		background-color: var(--or-bg-panel);
+	}
+}
+
+// 見出しの列とレーンの間の仕切り。線は引かず、掴める幅だけを境目の両側に取り、触れたときだけ線を出す（LayoutSplit の仕切りと同じ色）
+.splitter {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: var(--music-head-width);
+	width: calc(var(--or-space) * 2);
+	transform: translateX(-50%);
+	cursor: col-resize;
+	touch-action: none;
+
+	&::after {
+		content: "";
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: 50%;
+		width: 1px;
+	}
+
+	&:hover::after {
+		background-color: var(--or-bg-hover);
+	}
+
+	&:active::after {
+		background-color: var(--or-focus);
+	}
 }
 
 // 曲の終わりより後ろ（--x はレーンの左端からの位置）
