@@ -151,6 +151,9 @@ export class Editor extends MXP.Serializable {
 	// 「カーブをコピー」で覚えたカーブ ID。貼り付けるときに表から引くので、コピーの後の編集も貼り付けに乗る
 	private _copiedCurveId: string | null;
 
+	// 最後の保存・シーンの読み込みの後に、コマンドでシーンを変えたか。リロード・シーンの切り替えの前の確認と、シーン CLI の scene-open の可否に使う
+	private _unsaved: boolean;
+
 	private _disposed: boolean;
 	// editor.json を流し込んでいる間だけ true。読み込みで起きる field の更新を、ユーザーの操作と区別するため
 	private _bootstrapping: boolean;
@@ -203,6 +206,7 @@ export class Editor extends MXP.Serializable {
 		this._disposed = false;
 		this._bootstrapping = false;
 		this._api = new EditorAPI( this );
+		this._unsaved = false;
 		this._draw = createEditorDraw( engine );
 		this._viewports = [];
 		this._activeViewport = null;
@@ -369,6 +373,19 @@ export class Editor extends MXP.Serializable {
 		/*-------------------------------
 			Scene
 		-------------------------------*/
+
+		// シーンへの変更はすべてコマンドを通るので、履歴の変化（undo / redo も含む）を変更とみなす
+		this._api.commandManager.on( "change", () => {
+
+			this._unsaved = true;
+
+		} );
+
+		this._engine.on( "loaded", () => {
+
+			this._unsaved = false;
+
+		} );
 
 		// 別シーンへ切り替わったら選択を外す。起動時は editor.json の選択を復元したいので、
 		// 新しいシーンに同じ uuid が居るものは残す
@@ -631,6 +648,12 @@ export class Editor extends MXP.Serializable {
 	public get audioBuffer() {
 
 		return this._audioBuffer;
+
+	}
+
+	public get unsaved() {
+
+		return this._unsaved;
 
 	}
 
@@ -1819,7 +1842,13 @@ export class Editor extends MXP.Serializable {
 
 	public save() {
 
-		this.emit( "save", [ this.exportEngine(), this.exportEditor() ] );
+		const projectData = this.exportEngine();
+		const editorData = this.exportEditor();
+
+		// 保存されるのは書き出したこの時点の内容なので、ファイルへの書き込みの完了を待たずに外す（待つと、その間の編集まで保存済みになる）
+		this._unsaved = false;
+
+		this.emit( "save", [ projectData, editorData ] );
 
 	}
 
