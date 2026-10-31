@@ -13,5 +13,6 @@ export * from './MaterialIcon';
 export * from './MeshIcon';
 export * from './PauseIcon';
 export * from './PlayIcon';
+export * from './PlusIcon';
 export * from './ShaderIcon';
 export * from './TextureIcon';

@@ -1,4 +1,4 @@
-import { ArrowIcon, CameraIcon, CheckIcon, ComponentIcon, CrossIcon, CursorIcon, EyeIcon, FolderIcon, KeyframeIcon, LightIcon, LinkIcon, MaterialIcon, MeshIcon, PauseIcon, PlayIcon, ShaderIcon, TextureIcon } from '.';
+import { ArrowIcon, CameraIcon, CheckIcon, ComponentIcon, CrossIcon, CursorIcon, EyeIcon, FolderIcon, KeyframeIcon, LightIcon, LinkIcon, MaterialIcon, MeshIcon, PauseIcon, PlayIcon, PlusIcon, ShaderIcon, TextureIcon } from '.';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
@@ -40,6 +40,7 @@ const icons: { label: string, node: React.ReactNode }[] = [
 	{ label: 'MeshIcon', node: <MeshIcon /> },
 	{ label: 'PauseIcon', node: <PauseIcon /> },
 	{ label: 'PlayIcon', node: <PlayIcon /> },
+	{ label: 'PlusIcon', node: <PlusIcon /> },
 	{ label: 'ShaderIcon', node: <ShaderIcon /> },
 	{ label: 'TextureIcon', node: <TextureIcon /> },
 ];
