@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type MouseEvent, type PointerEvent as ReactPointerEvent } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type MouseEvent, type PointerEvent as ReactPointerEvent } from 'react';
 
 import { Engine } from 'orengine';
 import { Button, InputNumber, Menu, MenuItem, trackPointerDrag, usePopover } from 'uipower';
@@ -517,6 +517,7 @@ export const MusicTimeline = ( props: { music: Music } ) => {
 	// 開いている帯の数値の欄（楽器が数値に名前を付けているときだけ）と、ノートの帯ならピアノロール
 	let paramsElm = null;
 	let rollElm = null;
+	let rollTrack = - 1;
 	const active = clipEditing.selection.active;
 
 	if ( active ) {
@@ -546,6 +547,8 @@ export const MusicTimeline = ( props: { music: Music } ) => {
 
 			if ( clip && kinds[ trackIndex ] === "note" ) {
 
+				rollTrack = trackIndex;
+
 				const preview = ( pitch: number, velocity: number, clipBeat: number ) => {
 
 					previewNote( { instrument: track[ 1 ], pitch, velocity, bpm, params: clip.params, clipBeat, volume: track[ 2 ], pan: track[ 3 ] } );
@@ -569,6 +572,33 @@ export const MusicTimeline = ( props: { music: Music } ) => {
 		}
 
 	}
+
+	// ロールが開くと行の欄が縮み、押したトラックの行がロールの下に隠れることがあるので、行が見える所までスクロールする。
+	// 描画の前に合わせて、隠れた状態が1フレーム見えないようにする
+	useLayoutEffect( () => {
+
+		const body = bodyRef.current;
+
+		if ( rollTrack < 0 || ! body ) return;
+
+		const row = body.querySelector( `[${TRACK_INDEX_ATTRIBUTE}="${rollTrack}"]` );
+
+		if ( ! row ) return;
+
+		const bodyRect = body.getBoundingClientRect();
+		const rowRect = row.getBoundingClientRect();
+
+		if ( rowRect.bottom > bodyRect.bottom ) {
+
+			body.scrollTop += rowRect.bottom - bodyRect.bottom;
+
+		} else if ( rowRect.top < bodyRect.top ) {
+
+			body.scrollTop -= bodyRect.top - rowRect.top;
+
+		}
+
+	}, [ rollTrack ] );
 
 	// 曲の終わりより後ろは鳴らないので暗くする
 	const songEndX = ( songBeats - view.start ) * pxPerBeat;
