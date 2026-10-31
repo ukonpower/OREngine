@@ -38,7 +38,7 @@ OREngine 自体の開発エントリは `host/` に集約されている:
 
 `scripts/run.ts` がこれらを呼び出して `demo-webgl/` / `demo-webgpu/` を駆動する。projectDir 引数を変えれば任意のプロジェクトディレクトリで動作するため、外部リポ（ORShorts 等）からも `orengine/host` を import して利用できる（`exports."./host"` で公開）。
 
-`runDev` は express（`host/server/factory.ts`）と vite devサーバーを同一プロセスで起動する。express は `scenes/<name>.json` / `editor.json` の読み書き（シーン一覧の取得を含む）を行うファイルI/O層のみで、シーンを編集する処理は持たない。シーンの編集はエディタ内の `EditorAPI`（`packages/orengine/editor/lib/EditorAPI`）が唯一の実装で、GUI と下記のシーン CLI（AgentBridge）はどちらもここを通る。人間は `scenes/<name>.json` を直接編集してもよく、vite のプロジェクトwatch（`host/vite/plugins/ProjectWatchReload`）が外部からの変更・シーンファイルの増減を検知してブラウザを自動リロードする（リロードでタブ上の未保存の変更は消える）。コンポーネントファイルや `.tex` の編集は直接ファイル編集で行う。
+`runDev` は express（`host/server/factory.ts`）と vite devサーバーを同一プロセスで起動する。express は `scenes/<name>.json` / `editor.json` の読み書き（シーン一覧の取得を含む）を行うファイルI/O層のみで、シーンを編集する処理は持たない。シーンの編集はエディタ内の `EditorAPI`（`packages/orengine/editor/lib/EditorAPI`）が唯一の実装で、GUI と下記のシーン CLI（AgentBridge）はどちらもここを通る。人間は `scenes/<name>.json` を直接編集してもよく、vite のプロジェクトwatch（`host/vite/plugins/ProjectWatchReload`）が外部からの変更・シーンファイルの増減を検知してブラウザを自動リロードする（タブに未保存の変更があればブラウザの離脱の確認が出る。「未保存の確認」の節）。コンポーネントファイルや `.tex` の編集は直接ファイル編集で行う。
 
 ### シーン CLI（AgentBridge）
 dev サーバー起動中、開いているエディタタブ（最後にフォーカスされたもの）でシーンを観測・編集できる。応答は JSON。経路は CLI → dev サーバーの `POST /__agent/<command>`（`host/vite/plugins/AgentBridge`）→ HMR WebSocket → タブ（`packages/orengine/editor/lib/AgentBridge`）。
@@ -90,7 +90,7 @@ npx tsx scripts/scene.ts shot tmp/shot/c.png --time 1 --frames 60 --size 960x540
 - `<entity>` は uuid か `root/...` の名前パス。存在しないエンティティ・コンポーネント名・フィールド path はエラーになり、候補が返る
 - 書き込みはすべて `EditorAPI` を通るので、GUI の Ctrl+Z / `undo` で戻せる（undo 履歴は GUI と共有）
 - **書き込み系コマンドは接続先（ユーザーのタブ / headless）によらず、そのたびに `editor.save()` でファイルへ保存する**。タブのままだと Ctrl+S せずに閉じたとき黙って消えるため。タブに CLI 以前の未保存の変更があれば一緒に保存される。応答は保存の POST が終わってから返る（完了は `EditorPage` の `onSave` が返す Promise で待つ）。保存に失敗したらエラーを返す
-  - 保存し終えたタブは HMR 経路で `orengine:agent:saved` を送り、dev サーバーは**それ以外のエディタタブ（ユーザーのタブ・headless とも）へ `full-reload` を送る**。API 経由の保存は `ProjectWatchReload` のリロードを `recentWrites` でタブを区別せず抑制するので、保存元以外への通知は AgentBridge が個別に行う。リロードされたタブの未保存の変更は消える（外部からファイルを編集したときと同じ）
+  - 保存し終えたタブは HMR 経路で `orengine:agent:saved` を送り、dev サーバーは**それ以外のエディタタブ（ユーザーのタブ・headless とも）へ `full-reload` を送る**。API 経由の保存は `ProjectWatchReload` のリロードを `recentWrites` でタブを区別せず抑制するので、保存元以外への通知は AgentBridge が個別に行う。リロードされるタブに未保存の変更があれば、ブラウザの離脱の確認が出る（外部からファイルを編集したときと同じ。「未保存の確認」の節）
 - **タブが1つも接続されていなければ headless Chromium で代わりに接続する**（`scripts/headlessEditor.ts`）。Playwright で `--enable-unsafe-webgpu --use-angle=metal` を付けて起動し（無いと WebGPU の canvas が真っ黒になる。#80 の実測）、同じエディタ URL に `?agent-headless` を付けて開く。シーンの読み込みと最初の描画を待ってからコマンドを実行し、1コマンドごとに閉じる。ローカルの Mac 専用（GPU の無い Linux CI では動かない）。Chromium が無ければ `npx playwright install chromium`
   - headless では1コマンドごとにブラウザを閉じる。保存は応答の前に済んでいるので、CLI は応答を受けたらすぐ閉じる。`scene-open` 後の保存で editor.json の `scene` も切り替わるので、次のコマンドの headless は切り替え先のシーンを開く。undo 履歴はコマンドごとに消えるので、`undo` / `redo` は headless では意味を持たない
   - `status` の `connection` が `"headless"` になる（ユーザーのタブなら `"tab"`）
@@ -269,8 +269,14 @@ Entity / Component の SerializeField にキーを打ち、player で再生す�
 ### シーン（プロジェクト内の複数シーン）
 - 1プロジェクトは `scenes/<name>.json` を複数持てる。各ファイルは自己完結（`name` / `scene` / `renderer` / `timeline`）で、シーン同士に関係は無い。共有するのは `Resources/` だけ
 - シーン名 = ファイル名。英数字・`-`・`_` のみ（サーバーとエディタの両方で同じ制限）
-- エディタは editor.json の `scene` キー（最後に開いたシーン）か一覧の先頭を開く。切替・新規作成は Scene パネルから。切替は `engine.load()` の差し替えで、未保存の変更は捨てられる
+- エディタは editor.json の `scene` キー（最後に開いたシーン）か一覧の先頭を開く。切替・新規作成は Scene パネルから。切替は `engine.load()` の差し替えで、未保存の変更は捨てられる（Scenes ウィンドウは開く前に確認を出す。「未保存の確認」の節）
 - player / static ビルドと `@or-scene` は1シーンだけを焼き込む。どれにするかは `ORENGINE_SCENE=<name>`（省略時 `main`）。ランタイムにシーンの概念は無く、実行時に別シーンを読みたい場合は利用側が JSON を用意して `engine.load()` を呼ぶ
+
+### 未保存の確認
+- 判定は `Editor.unsaved`: コマンド履歴の変化（undo / redo も含む）で true、`editor.save()` とシーンの読み込み（`engine` の `loaded`）で false。`save()` は書き出した時点で外す（書き込みの完了は待たない）。シーン CLI の `scene-open` の可否（`AgentCommandContext.unsaved`）も同じ値を読む
+- リロード・タブを閉じる・別 URL への遷移: `installUnsavedGuard`（`editor/lib/UnsavedGuard`）が `beforeunload` でブラウザの確認を出す。`OREditorProvider` が `onSave` を渡されたページ（`EditorPage`）でだけ付ける（`EditorPageStatic` は保存先が無いので出さない）。`?agent-headless` のページでは付けない
+  - vite の `full-reload`（`ProjectWatchReload` の外部編集の検知・AgentBridge の保存元以外へのリロード・コードの変更）も `location.reload()` なので、未保存なら同じ確認が出る。そこで「このページにとどまる」を選ぶとタブはファイルより古い内容のままになり、保存すると外からの変更を上書きする
+- Scenes ウィンドウでの切り替え・新規作成: 未保存ならフッターに `Discard unsaved changes …?` を出し、Discard で開く（新規作成は確認の後で作る）。開いているシーンの削除は確認しない（シーンごと消す操作なので）
 
 ### コンポーネント追加ルール
 - `<project>/Resources/Components/<グループ>/<名前>/index.ts` に `export class Xxx extends MXP.Component` を置くだけで自動認識される

@@ -17,12 +17,13 @@ export interface EditorPageStaticProps {
 	fieldUIs?: FieldUIDefinition[];
 }
 
+// 保存先の無いエディタ（GitHub Pages のデモ）。onSave を渡さないので、保存しても何も書かれず、未保存の確認も出ない
 export const EditorPageStatic = ( props: EditorPageStaticProps ) => (
 	<OREngineProvider project={props.sceneData} onEngineInit={( engine ) => {
 
 		props.initResourceInstances( engine );
 
 	}} >
-		<OREditor editorData={props.editorData} projectName={props.projectName ?? 'Static'} panels={props.panels} fieldUIs={props.fieldUIs} onSave={() => { /* 静的版は保存無効 */ }} />
+		<OREditor editorData={props.editorData} projectName={props.projectName ?? 'Static'} panels={props.panels} fieldUIs={props.fieldUIs} />
 	</OREngineProvider>
 );
