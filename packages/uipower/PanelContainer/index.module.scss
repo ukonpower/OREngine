@@ -48,9 +48,14 @@
 		user-select: none;
 		cursor: pointer;
 		flex-shrink: 0;
-		// タブと誤認しないよう右端へ寄せる
-		margin-left: auto;
+		// タブと見分けられるよう文字色を落とす
 		color: var(--or-text-dim);
+
+		// タブの文字と同じ大きさにそろえる（SP ではトークンごと大きくなる）
+		svg {
+			width: var(--or-tab-font-size);
+			height: var(--or-tab-font-size);
+		}
 
 		&:hover {
 			background-color: var(--or-bg-hover);

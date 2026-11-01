@@ -1,0 +1,75 @@
+// 名前・鳴らし方の行と、音量・パンの行の2段。行の高さは MusicTimeline の行（--music-row-height）に合わせる
+.head {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	width: 100%;
+	height: 100%;
+	padding: 0 var(--or-space);
+	background-color: var(--or-bg-surface);
+	box-shadow: inset 0 -1px var(--or-bg-base);
+	cursor: grab;
+
+	// ミュート・ほかのトラックのソロで鳴っていない
+	&[data-silent="true"] .name {
+		color: var(--or-text-dim);
+	}
+
+	// ドラッグ中に落とすと移る先の行（Hierarchy の行と同じ見せ方）
+	&[data-drop="true"] {
+		box-shadow: inset 0 0 0 1px var(--or-drop-zone-border);
+		background-image: linear-gradient(var(--or-drop-zone), var(--or-drop-zone));
+	}
+}
+
+.line {
+	display: flex;
+	align-items: center;
+	gap: var(--or-space);
+	min-width: 0;
+}
+
+.name {
+	flex: 1;
+	min-width: 0;
+	white-space: nowrap;
+
+	&_text {
+		display: block;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	&_input {
+		width: 100%;
+		padding: 0 var(--or-space);
+		border: none;
+		border-radius: var(--or-radius);
+		background-color: var(--or-bg-base);
+		color: var(--or-text);
+		font-size: inherit;
+	}
+}
+
+.monitor {
+	flex-shrink: 0;
+	display: flex;
+	gap: 1px;
+}
+
+.kind {
+	flex-shrink: 0;
+	color: var(--or-text-dim);
+	font-size: var(--or-font-xs);
+}
+
+.label {
+	flex-shrink: 0;
+	color: var(--or-text-dim);
+	font-size: var(--or-font-xs);
+}
+
+.number {
+	flex: 1;
+	min-width: 0;
+}

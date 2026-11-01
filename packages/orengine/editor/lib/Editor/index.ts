@@ -2,6 +2,7 @@ import { createEditorDraw } from '@or-renderer';
 import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
+import { Music, type MusicOutput } from '../../../builtin/Components/Utility/Music';
 import { Engine } from '../../../core/Engine';
 import { OREngineProjectData, pruneUnusedCurves } from '../../../core/ProjectSerializer';
 import { AssetPreviewManager } from '../AssetPreviewManager';
@@ -15,6 +16,7 @@ import { HelperManager, HelperVisibility } from '../HelperManager';
 import { KeyboardHandler } from '../KeyboardHandler';
 import { CurveLinkSettings, CurvePasteMode, getAnimatedTransformFields, KeyFrameElementRef, KeyFrameFieldRef, keyFrameTime } from '../KeyFrameField';
 import { ModalTransformHandler, transformModeOfKey, type ModalTransformMode, type ModalTransformSelection } from '../ModalTransformHandler';
+import { MusicTrackPeaks, MusicWaveform } from '../MusicWaveform';
 import { RelationshipLineRenderer } from '../RelationshipLineRenderer';
 import { SceneExporter, SceneExporterProgress } from '../SceneExporter';
 import { SelectionOutline } from '../SelectionOutline';
@@ -22,6 +24,7 @@ import { topmostEntities, transformBasis, transformPivot } from '../TransformTar
 import { Viewport } from '../Viewport';
 import { WireframeRenderer } from '../WireframeRenderer';
 
+import type { MusicMonitor } from '../../../builtin/Components/Utility/Music/monitor';
 import type { ViewAxis } from '../EditorCamera';
 import type { TransformOrientation } from '../TransformUtils';
 
@@ -43,7 +46,7 @@ export type EditorTimelineLoop = {
 }
 
 // 点を選んで編集する領域（タイムラインのキー・フィールド UI の点エディタ等）で選んだものへの操作。ポインタが領域の上にある間、
-// Delete / X・Ctrl+C・Ctrl+V・G / R / S・Shift+D・B・A / Alt+A・Home・W をビューポートではなくこちらへ向ける。
+// Delete / X・Ctrl+C・Ctrl+V・G / R / S・Shift+D・B・A / Alt+A・Home・W・Esc をビューポートではなくこちらへ向ける。
 // 持っていない操作のキーは何もしない（ビューポートへも渡さない。点エディタの上の X でエンティティが消えないように）
 export type EditAreaActions = {
 	deleteSelected?: () => void;
@@ -55,9 +58,14 @@ export type EditAreaActions = {
 	boxSelect?: () => void;
 	// A は true（全選択）、Alt+A は false（全解除）
 	selectAll?: ( select: boolean ) => void;
+	// Esc。エディタのどの領域でも Esc で選択を外せるようにそろえる
+	deselect?: () => void;
 	frameAll?: () => void;
 	// W。Blender の右クリック選択と同じく、右クリックは選択に使うのでメニューは W で開く
 	openMenu?: () => void;
+	// 上の割り当てに無いキーを領域が自分で受ける（Music パネルの Delete / Backspace・Ctrl+D など DAW に揃えたキー）。
+	// ほかのショートカットより先に渡し、消費したら true
+	handleKeyDown?: ( e: KeyboardEvent ) => boolean;
 };
 
 // 編集領域のモーダル操作（G / R / S・B の矩形選択の待機）。続いている間は、ポインタが領域の外にあってもキーボードをまずこちらへ向ける
@@ -131,7 +139,15 @@ export class Editor extends MXP.Serializable {
 	private _selectedAsset: SelectedAssetInfo;
 	private _navigateAsset: NavigateAssetRequest;
 	private _propertyTarget: "entity" | "asset";
-	private _audioBuffer: AudioBuffer | null;
+	private _musicWaveform: MusicWaveform;
+	// Music パネルが帯の波形を描く、トラックごとの波形の素。パネルを開き直しても作り直さずに済むよう Editor が持つ
+	private _musicTrackPeaks: MusicTrackPeaks;
+	// Music パネルのピアノロールのグリッド。1小節を何分割するか（16 = 1/16 = 1/4 拍）で、0 はグリッドなし
+	private _musicGrid: number;
+	// Music パネルのトラックの見出しの列の幅（px）。見出しとレーンの間の仕切りのドラッグで変える
+	private _musicHeadWidth: number;
+	// Music パネルのミュート・ソロ（トラック名）とメトロノーム。鳴らすのは Music なので、変わるたびに Music.monitor へ入れる
+	private _musicMonitor: MusicMonitor;
 	private _frameLoop: EditorTimelineLoop;
 	private _enableRender: boolean;
 	private _baseResolution: MTP.Vector;
@@ -252,7 +268,32 @@ export class Editor extends MXP.Serializable {
 				this.setField( `viewports/${viewport.id}/preview`, ! viewport.editorCamera.preview );
 
 			},
-			onSyncToSceneCamera: () => this.syncToSceneCamera(),
+			onEscape: () => {
+
+				const area = this._hoveredEditArea;
+
+				if ( area ) {
+
+					if ( area.deselect ) area.deselect();
+
+					return;
+
+				}
+
+				// ビューポートの上ではシーンカメラへの同期のまま残し、Hierarchy などほかの場所ではエンティティの選択を外す
+				const viewport = this._activeViewport;
+
+				if ( viewport && viewport.hovered ) {
+
+					this.syncToSceneCamera();
+
+					return;
+
+				}
+
+				this.selectEntity( null );
+
+			},
 			onFocusSelected: () => this.focusSelected(),
 			onAlignView: ( axis, opposite ) => this.alignEditorView( axis, opposite ),
 			onProjectionToggle: () => this.toggleEditorProjection(),
@@ -352,11 +393,25 @@ export class Editor extends MXP.Serializable {
 			Audio
 		-------------------------------*/
 
-		this._audioBuffer = null;
+		// 波形の1本は音量の変更では遅れて足し直すので、足し直したことを Timeline・AudioView へ update/audioBuffer で知らせる
+		this._musicWaveform = new MusicWaveform( () => this.emit( "update/audioBuffer" ) );
+		this._musicTrackPeaks = new MusicTrackPeaks();
 
-		this._engine.on( "update/music", ( buffer: AudioBuffer ) => {
+		// Music がトラックの音を作るたびに届く。Music パネルは同じイベントで読み直すので、先に波形の素を読んでおく
+		this._engine.on( "update/music", ( output: MusicOutput | null ) => {
 
-			this._audioBuffer = buffer;
+			if ( output ) {
+
+				this._musicWaveform.update( output );
+				this._musicTrackPeaks.update( output );
+
+			} else {
+
+				this._musicWaveform.clear();
+				this._musicTrackPeaks.clear();
+				this.emit( "update/audioBuffer" );
+
+			}
 
 		} );
 
@@ -369,6 +424,11 @@ export class Editor extends MXP.Serializable {
 			start: 0,
 			end: 0,
 		};
+
+		this._musicGrid = 16;
+		this._musicHeadWidth = 180;
+		this._musicMonitor = { mute: [], solo: [], metronome: false };
+		Music.monitor = this._musicMonitor;
 
 		/*-------------------------------
 			Scene
@@ -485,6 +545,31 @@ export class Editor extends MXP.Serializable {
 		frameLoop.field( "enabled", () => this._frameLoop.enabled, v => this._frameLoop.enabled = v );
 		frameLoop.field( "start", () => this._frameLoop.start, v => this._frameLoop.start = v );
 		frameLoop.field( "end", () => this._frameLoop.end, v => this._frameLoop.end = v );
+
+		const music = this.fieldDir( "music" );
+		music.field( "grid", () => this._musicGrid, ( v: number ) => this._musicGrid = v );
+		music.field( "headWidth", () => this._musicHeadWidth, ( v: number ) => this._musicHeadWidth = v, { hidden: true } );
+
+		music.field( "mute", () => this._musicMonitor.mute, ( v: string[] ) => {
+
+			this._musicMonitor = { ...this._musicMonitor, mute: v };
+			Music.monitor = this._musicMonitor;
+
+		}, { hidden: true } );
+
+		music.field( "solo", () => this._musicMonitor.solo, ( v: string[] ) => {
+
+			this._musicMonitor = { ...this._musicMonitor, solo: v };
+			Music.monitor = this._musicMonitor;
+
+		}, { hidden: true } );
+
+		music.field( "metronome", () => this._musicMonitor.metronome, ( v: boolean ) => {
+
+			this._musicMonitor = { ...this._musicMonitor, metronome: v };
+			Music.monitor = this._musicMonitor;
+
+		}, { hidden: true } );
 
 		// アクティブ。選択に入っていないものを入れたら、選択もそれ1つにする（アクティブは必ず選択の中にある）
 		this.field( "selectedEntityId", () => this._selectedEntityId, ( v: string | null ) => {
@@ -647,7 +732,13 @@ export class Editor extends MXP.Serializable {
 
 	public get audioBuffer() {
 
-		return this._audioBuffer;
+		return this._musicWaveform.buffer;
+
+	}
+
+	public get musicTrackPeaks() {
+
+		return this._musicTrackPeaks;
 
 	}
 
@@ -1642,7 +1733,8 @@ export class Editor extends MXP.Serializable {
 
 	}
 
-	// モーダル操作のキー。編集領域のモーダル → 編集領域の上での G / R / S → ビューポートのモーダル変形 の順に渡す。消費したら true
+	// ほかのショートカットより先に受けるキー。編集領域のモーダル → ビューポートのモーダル変形 → 編集領域が自分で受けるキー
+	// → 編集領域の上での G / R / S → ビューポートの G / R / S の順に渡す。消費したら true
 	private _onModalKey( e: KeyboardEvent ) {
 
 		if ( this._editModal && this._editModal.handleKeyDown( e ) ) return true;
@@ -1651,11 +1743,13 @@ export class Editor extends MXP.Serializable {
 
 		if ( modalTransform.active ) return modalTransform.handleKeyDown( e );
 
+		const area = this._hoveredEditArea;
+
+		if ( area && area.handleKeyDown && area.handleKeyDown( e ) ) return true;
+
 		const mode = transformModeOfKey( e );
 
 		if ( ! mode ) return false;
-
-		const area = this._hoveredEditArea;
 
 		if ( area ) {
 
@@ -2004,6 +2098,7 @@ export class Editor extends MXP.Serializable {
 		this._disposeBrowserContextMenu();
 		this._modalTransformHandler.dispose();
 		this._assetPreviewManager.dispose();
+		this._musicWaveform.dispose();
 		this.closeExternalWindow();
 
 		// dispose で配列から抜けるので複製を回す
