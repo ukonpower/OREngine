@@ -145,7 +145,7 @@ export const MusicTimeline = ( props: { music: Music } ) => {
 
 	} );
 
-	// 中ボタンのドラッグで横にパン、Ctrl（Cmd）なら横に拡大縮小する。ずれで動かすので Pointer Lock を取る
+	// 中ボタンのドラッグで縦横にパン（縦は行のスクロール）、Ctrl（Cmd）なら横に拡大縮小する。ずれで動かすので Pointer Lock を取る
 	const onMainPointerDown = ( e: ReactPointerEvent<HTMLDivElement> ) => {
 
 		if ( e.button !== 1 ) return;
@@ -153,19 +153,21 @@ export const MusicTimeline = ( props: { music: Music } ) => {
 		e.preventDefault();
 
 		const ruler = rulerRef.current;
+		const body = bodyRef.current;
 
-		if ( ! ruler ) return;
+		if ( ! ruler || ! body ) return;
 
 		const rect = ruler.getBoundingClientRect();
 		const anchor = ( e.clientX - rect.left ) / Math.max( 1, rect.width );
 		const startView = viewRef.current;
+		const startScrollTop = body.scrollTop;
 		const zoomDrag = hasZoomModifier( e );
 
 		let lastDx = 0;
 
 		trackPointerDrag( e, {
 			lock: true,
-			onMove: ( dx ) => {
+			onMove: ( dx, dy ) => {
 
 				if ( zoomDrag ) {
 
@@ -179,6 +181,8 @@ export const MusicTimeline = ( props: { music: Music } ) => {
 				const beats = dx / pxPerBeat;
 
 				setView( { start: startView.start - beats, end: startView.end - beats } );
+
+				body.scrollTop = startScrollTop - dy;
 
 			},
 			onEnd: () => {},
