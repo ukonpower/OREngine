@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type MouseEvent, type PointerEvent as ReactPointerEvent } from 'react';
 
 import { Engine } from 'orengine';
-import { Button, InputNumber, Menu, MenuItem, MetronomeIcon, trackPointerDrag, usePopover } from 'uipower';
+import { Button, InputNumber, LayoutSplit, Menu, MenuItem, MetronomeIcon, trackPointerDrag, usePopover } from 'uipower';
 
 import { decodeClips } from '../../../../../../../builtin/Components/Utility/Music/clips';
 import { INSTRUMENT_KIND, instrumentSoundKind } from '../../../../../../../builtin/Components/Utility/Music/instrument';
@@ -37,6 +37,9 @@ const MIN_BEAT_LINE_SPACING = 12;
 const DEFAULT_HEAD_WIDTH = 180;
 const MIN_HEAD_WIDTH = 120;
 const MIN_LANE_WIDTH = 100;
+
+// ピアノロールが上下の分割で占める比率の既定。Editor の music/rollRatio の初期値と一致させる
+const DEFAULT_ROLL_RATIO = 0.5;
 
 const EMPTY_TRACKS: MusicTrackData[] = [];
 
@@ -82,6 +85,7 @@ export const MusicTimeline = ( props: { music: Music } ) => {
 	const [ metronomeValue, setMetronome ] = useSerializableField<boolean>( editor, "music/metronome" );
 	const [ durationValue ] = useSerializableField<number>( engine, "timeline/duration" );
 	const [ headWidthValue, setHeadWidth ] = useSerializableField<number>( editor, "music/headWidth" );
+	const [ rollRatioValue, setRollRatio ] = useSerializableField<number>( editor, "music/rollRatio" );
 
 	const tracks = tracksValue || EMPTY_TRACKS;
 	const bpm = bpmValue || 1;
@@ -617,43 +621,76 @@ export const MusicTimeline = ( props: { music: Music } ) => {
 
 	}
 
+	// タイムラインとピアノロールの上下の分割。ロールを閉じても上の段を作り直さない（行のスクロールを保つ）よう、
+	// LayoutSplit は常に置き、ロールがあるときだけ2つ目の段を足す
+	let rollRatio = DEFAULT_ROLL_RATIO;
+
+	if ( rollRatioValue !== undefined ) rollRatio = rollRatioValue;
+
+	let splitRatios = [ 1 ];
+	let rollItem = null;
+
+	if ( rollElm ) {
+
+		splitRatios = [ 1 - rollRatio, rollRatio ];
+		rollItem = <LayoutSplit.Item>
+			<div className={style.pane}>{rollElm}</div>
+		</LayoutSplit.Item>;
+
+	}
+
+	// 境界のドラッグを離したときに、ロールの段の比率を保存する。editor.json に小数の端数が並ばないよう 0.001 に丸める
+	const onSplitRatiosChange = ( ratios: number[] ) => {
+
+		if ( ratios.length < 2 ) return;
+
+		setRollRatio( Math.round( ratios[ 1 ] * 1000 ) / 1000 );
+
+	};
+
 	return <div className={style.timeline} style={{ '--music-head-width': `${headWidth}px` } as React.CSSProperties}>
-		<div
-			ref={mainRef}
-			className={style.main}
-			onPointerEnter={clipEditing.onPointerEnter}
-			onPointerLeave={clipEditing.onPointerLeave}
-			onPointerDown={onMainPointerDown}
-		>
-			<div className={style.header}>
-				<div className={style.corner}>
-					<span className={style.corner_label}>BPM</span>
-					<div className={style.corner_input}>
-						<InputNumber value={bpm} min={1} step={1} onChange={onChangeBpm} onDragStart={onBpmDragStart} onDragEnd={onBpmDragEnd} />
-					</div>
-					<Button square active={!! metronomeValue} title="Metronome" onClick={() => setMetronome( ! metronomeValue )}><MetronomeIcon size={14} /></Button>
-				</div>
-				<MusicRuler ref={rulerRef} viewStart={view.start} viewEnd={view.end} pxPerBeat={pxPerBeat} labelBars={labelBars} onPointerDown={onRulerPointerDown} />
-			</div>
-			<div ref={bodyRef} className={style.body}>
-				{rows}
-				<div className={style.rest}>
-					<div className={style.rest_head}>
-						<Button square title="Add Track" onClick={onClickAdd}>+</Button>
-					</div>
+		<LayoutSplit direction="vertical" ratios={splitRatios} onRatiosChange={onSplitRatiosChange}>
+			<LayoutSplit.Item>
+				<div className={style.pane}>
 					<div
-						className={style.rest_lane}
-						style={laneGridStyle( view.start, pxPerBeat, labelBars * BEATS_PER_BAR, beatStep )}
-						onPointerDown={clipEditing.onLanePointerDown}
-					/>
+						ref={mainRef}
+						className={style.main}
+						onPointerEnter={clipEditing.onPointerEnter}
+						onPointerLeave={clipEditing.onPointerLeave}
+						onPointerDown={onMainPointerDown}
+					>
+						<div className={style.header}>
+							<div className={style.corner}>
+								<span className={style.corner_label}>BPM</span>
+								<div className={style.corner_input}>
+									<InputNumber value={bpm} min={1} step={1} onChange={onChangeBpm} onDragStart={onBpmDragStart} onDragEnd={onBpmDragEnd} />
+								</div>
+								<Button square active={!! metronomeValue} title="Metronome" onClick={() => setMetronome( ! metronomeValue )}><MetronomeIcon size={14} /></Button>
+							</div>
+							<MusicRuler ref={rulerRef} viewStart={view.start} viewEnd={view.end} pxPerBeat={pxPerBeat} labelBars={labelBars} onPointerDown={onRulerPointerDown} />
+						</div>
+						<div ref={bodyRef} className={style.body}>
+							{rows}
+							<div className={style.rest}>
+								<div className={style.rest_head}>
+									<Button square title="Add Track" onClick={onClickAdd}>+</Button>
+								</div>
+								<div
+									className={style.rest_lane}
+									style={laneGridStyle( view.start, pxPerBeat, labelBars * BEATS_PER_BAR, beatStep )}
+									onPointerDown={clipEditing.onLanePointerDown}
+								/>
+							</div>
+						</div>
+						{outsideElm}
+						<div className={style.splitter} onPointerDown={onSplitterPointerDown} />
+						<MusicPlayhead bpm={bpm} viewStart={view.start} pxPerBeat={pxPerBeat} laneWidth={laneWidth} />
+					</div>
+					{paramsElm}
 				</div>
-			</div>
-			{outsideElm}
-			<div className={style.splitter} onPointerDown={onSplitterPointerDown} />
-			<MusicPlayhead bpm={bpm} viewStart={view.start} pxPerBeat={pxPerBeat} laneWidth={laneWidth} />
-		</div>
-		{paramsElm}
-		{rollElm}
+			</LayoutSplit.Item>
+			{rollItem}
+		</LayoutSplit>
 	</div>;
 
 };
