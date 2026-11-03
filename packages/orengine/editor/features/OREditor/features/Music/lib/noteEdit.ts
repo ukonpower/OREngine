@@ -19,8 +19,8 @@ const FREE_RESOLUTION = 1 / 128;
 // ノートの長さの下限（拍）。グリッドが「なし」のときの丸めの細かさと同じ
 const MIN_NOTE_LENGTH = FREE_RESOLUTION;
 
-// 拍を grid（拍。0 はグリッドなし）の目に丸める。mode は round（近い目）か floor（手前の目）
-export const snapBeat = ( beat: number, grid: number, mode: 'round' | 'floor' ) => {
+// 拍を grid（拍。0 はグリッドなし）の目に丸める。mode は round（近い目）・floor（手前の目）・ceil（先の目）
+export const snapBeat = ( beat: number, grid: number, mode: 'round' | 'floor' | 'ceil' ) => {
 
 	let step = grid;
 
@@ -29,6 +29,12 @@ export const snapBeat = ( beat: number, grid: number, mode: 'round' | 'floor' ) 
 	if ( mode === 'floor' ) {
 
 		return Math.floor( beat / step + 1e-9 ) * step;
+
+	}
+
+	if ( mode === 'ceil' ) {
+
+		return Math.ceil( beat / step - 1e-9 ) * step;
 
 	}
 

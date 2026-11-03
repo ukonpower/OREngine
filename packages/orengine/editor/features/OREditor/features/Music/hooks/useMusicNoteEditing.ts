@@ -255,7 +255,7 @@ export const useMusicNoteEditing = ( options: NoteEditingOptions ) => {
 
 			e.preventDefault();
 
-			placeNote( e.clientX, e.clientY );
+			placeAndStretch( e );
 
 			// 置いたノートの上に置き先が重ならないよう、次にノートの外へ動くまで出さない
 			hoverRef.current = null;
@@ -368,6 +368,68 @@ export const useMusicNoteEditing = ( options: NoteEditingOptions ) => {
 
 	};
 
+	// 押したところにノートを置き、離すまでのドラッグで長さを変える（DAW の描き方と同じく、終わりはポインタのいる目の先の目に追従する。
+	// 下限はグリッドの1目）。動かさずに離せば直前の長さのまま。置くのと長さの変更は合わせて undo 1回で、Esc / 右クリックなら置くのも取り消す
+	const placeAndStretch = ( e: ReactPointerEvent ) => {
+
+		const initialSelection = selection;
+		const initialLength = lastLengthRef.current;
+		const ghost = ghostAt( { x: e.clientX, y: e.clientY } );
+		const placed = addNote( decode( new Set() ), ghost.start, ghost.length, ghost.pitch );
+		const placedEnd = ghost.start + ghost.length;
+		const startX = e.clientX;
+		const edit = editor.api.beginEdit( music, "tracks" );
+
+		const apply = ( next: EditNote[] ) => {
+
+			const encoded = encode( next );
+
+			edit.set( encoded.tracks );
+			setSelection( encoded.selection );
+
+		};
+
+		apply( placed );
+		options.preview( ghost.pitch, ghost.start );
+		lastGhostPitchRef.current = ghost.pitch;
+		placingRef.current = true;
+
+		trackPointerDrag( e, {
+			onMove: ( dx ) => {
+
+				const end = snapBeat( beatAt( startX + dx ), grid, 'ceil' );
+				const next = resizeNotes( placed, end - placedEnd, grid );
+
+				for ( const note of next ) {
+
+					if ( note.selected ) lastLengthRef.current = note.length;
+
+				}
+
+				apply( next );
+
+			},
+			onEnd: () => {
+
+				placingRef.current = false;
+				edit.commit();
+
+			},
+			onCancel: () => {
+
+				placingRef.current = false;
+				edit.cancel();
+				lastLengthRef.current = initialLength;
+				setSelection( initialSelection );
+
+			},
+		} );
+
+	};
+
+	// 置いて長さを変えている間か。その間は置き先を出さない（ノートの終わりより左へ戻したときに、ポインタの下に出てしまうため）
+	const placingRef = useRef( false );
+
 	// グリッドの上（ノートの上を除く）のポインタの位置。動かすたびに描き直さないよう ref で持ち、置き先を出すときだけ state に写す
 	const hoverRef = useRef<PointerPos | null>( null );
 	const [ placeAt, setPlaceAt ] = useState<PointerPos | null>( null );
@@ -379,6 +441,14 @@ export const useMusicNoteEditing = ( options: NoteEditingOptions ) => {
 	const updateGhost = ( held: boolean ) => {
 
 		const hover = hoverRef.current;
+
+		if ( placingRef.current ) {
+
+			setPlaceAt( null );
+
+			return;
+
+		}
 
 		if ( ! held || ! hover ) {
 
