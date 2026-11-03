@@ -137,7 +137,7 @@ const readMouseWheel = ( e: WheelEvent ): ViewGesture => {
 
 };
 
-// トラックパッド: 2本指で縦横にパン、ピンチで縦横そろえて拡大縮小、Ctrl（Cmd）+2本指で縦横それぞれを拡大縮小（Blender と同じ）
+// トラックパッド: 2本指で縦横にパン、Shift+2本指で縦にだけパン、ピンチで縦横そろえて拡大縮小、Ctrl（Cmd）+2本指で縦横それぞれを拡大縮小（Blender と同じ）
 const readTrackpad = ( e: WheelEvent ): ViewGesture => {
 
 	lastTrackpadTime = e.timeStamp;
@@ -160,6 +160,18 @@ const readTrackpad = ( e: WheelEvent ): ViewGesture => {
 			y: Math.exp( e.deltaY * TRACKPAD_ZOOM_SPEED ),
 			linked: false,
 		};
+
+	}
+
+	// Shift は縦にスクロールする（マウスの Shift+ホイールと同じ）。macOS の Shift+ホイールは、マウスでもトラックパッドと
+	// 見分けられない量で来ることがあり、ここで受けないと横に動いてしまう。macOS は量を横に移して送るので、動いた方の量を使う
+	if ( e.shiftKey ) {
+
+		let delta = e.deltaY;
+
+		if ( delta == 0 ) delta = e.deltaX;
+
+		return { type: "pan", x: 0, y: delta };
 
 	}
 

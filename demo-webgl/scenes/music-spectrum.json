@@ -1,0 +1,403 @@
+{
+	"name": "demo-webgl",
+	"scene": {
+		"name": "root",
+		"uuid": "0",
+		"childs": [
+			{
+				"name": "Camera",
+				"uuid": "ff1f337e-1533-4812-92a8-9544557cc057",
+				"pos": [
+					0,
+					1.6,
+					8
+				],
+				"rot": [
+					-0.16,
+					0,
+					0
+				],
+				"components": [
+					{
+						"name": "Camera",
+						"uuid": "36668eca-9597-48ed-9d1d-e75bd8b91db2",
+						"props": {
+							"fov": 35,
+							"near": 0.1,
+							"far": 100,
+							"focus/mode": "manual",
+							"focus/distance": 8
+						}
+					}
+				]
+			},
+			{
+				"name": "Floor",
+				"uuid": "a0826efb-4ed0-45bc-be70-62487da32805",
+				"scale": [
+					40,
+					1,
+					40
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "57c23669-2342-4a6c-9879-4c60358d57e3",
+						"props": {
+							"shape": "plane",
+							"color": [
+								0.3,
+								0.3,
+								0.3
+							],
+							"roughness": 0.9
+						}
+					}
+				]
+			},
+			{
+				"name": "Sun",
+				"uuid": "efd68fce-4b72-4d68-91ec-1b14a0b4d803",
+				"pos": [
+					3.1435,
+					3.7722,
+					0.943
+				],
+				"rot": [
+					0.1465,
+					-0.121,
+					-0.6858
+				],
+				"components": [
+					{
+						"name": "Light",
+						"uuid": "ec3b5d7a-fd12-481b-8643-6bc5ea53d378",
+						"props": {
+							"lightType": "directional",
+							"castShadow": true,
+							"intensity": 1
+						}
+					}
+				]
+			},
+			{
+				"name": "Music",
+				"uuid": "163570c0-458c-42d0-99cf-5b95e6a7ed32",
+				"components": [
+					{
+						"name": "Music",
+						"uuid": "9d950c45-b162-46fb-a504-2cc5e88bb44f",
+						"props": {
+							"bpm": 120,
+							"tracks": [
+								[
+									"Kick",
+									"KickNote",
+									1,
+									0,
+									[
+										[
+											0,
+											16,
+											0,
+											[],
+											[
+												[
+													0.5,
+													0.25,
+													36
+												],
+												[
+													1,
+													0.25,
+													36
+												],
+												[
+													1,
+													0.25,
+													36
+												],
+												[
+													1,
+													0.25,
+													36
+												],
+												[
+													1,
+													0.25,
+													36
+												],
+												[
+													1,
+													0.25,
+													36
+												],
+												[
+													1,
+													0.25,
+													36
+												],
+												[
+													1,
+													0.25,
+													36
+												],
+												[
+													1,
+													0.25,
+													36
+												],
+												[
+													1,
+													0.25,
+													36
+												],
+												[
+													1,
+													0.25,
+													36
+												],
+												[
+													1,
+													0.25,
+													36
+												],
+												[
+													1,
+													0.25,
+													36
+												],
+												[
+													1,
+													0.25,
+													36
+												],
+												[
+													1,
+													0.25,
+													36
+												],
+												[
+													1,
+													0.25,
+													36
+												]
+											]
+										],
+										[
+											16,
+											16,
+											0,
+											[],
+											[
+												[
+													0.5,
+													0.25,
+													36
+												],
+												[
+													1,
+													0.25,
+													36
+												],
+												[
+													1,
+													0.25,
+													36
+												],
+												[
+													1,
+													0.25,
+													36
+												],
+												[
+													1,
+													0.25,
+													36
+												],
+												[
+													1,
+													0.25,
+													36
+												],
+												[
+													1,
+													0.25,
+													36
+												],
+												[
+													1,
+													0.25,
+													36
+												],
+												[
+													1,
+													0.25,
+													36
+												],
+												[
+													1,
+													0.25,
+													36
+												],
+												[
+													1,
+													0.25,
+													36
+												],
+												[
+													1,
+													0.25,
+													36
+												],
+												[
+													1,
+													0.25,
+													36
+												],
+												[
+													1,
+													0.25,
+													36
+												],
+												[
+													1,
+													0.25,
+													36
+												],
+												[
+													1,
+													0.25,
+													36
+												]
+											]
+										]
+									]
+								],
+								[
+									"Chord",
+									"Chord",
+									0.8,
+									0,
+									[
+										[
+											0.5,
+											1,
+											0,
+											[
+												1,
+												0
+											]
+										],
+										[
+											1,
+											2,
+											0,
+											[
+												1,
+												5
+											]
+										],
+										[
+											2,
+											2,
+											0,
+											[
+												1,
+												7
+											]
+										],
+										[
+											2,
+											2,
+											0,
+											[
+												1,
+												3
+											]
+										],
+										[
+											2,
+											8,
+											0,
+											[
+												1,
+												0
+											]
+										],
+										[
+											2,
+											2,
+											0,
+											[
+												1,
+												9
+											]
+										],
+										[
+											10,
+											8,
+											0,
+											[
+												1,
+												5
+											]
+										]
+									]
+								]
+							],
+							"reverb/length": 1.5,
+							"reverb/wet": 0.3
+						}
+					}
+				]
+			},
+			{
+				"name": "Wave",
+				"uuid": "547e067d-ef82-4f08-a147-43f032c3d82e",
+				"pos": [
+					0,
+					0,
+					0
+				],
+				"components": [
+					{
+						"name": "SpectrumWave",
+						"uuid": "40f7e295-6af7-476f-b31a-27af84cb2604",
+						"props": {
+							"color": [
+								0.3,
+								0.6,
+								1
+							],
+							"height": 2
+						}
+					}
+				]
+			}
+		]
+	},
+	"renderer": {
+		"sky/skyColor": [
+			0.1,
+			0.1,
+			0.1
+		],
+		"sky/groundColor": [
+			0.03,
+			0.03,
+			0.03
+		],
+		"sky/intensity": 1,
+		"pipeline/motionBlur/enabled": false,
+		"pipeline/ssr/enabled": false,
+		"pipeline/ssao/enabled": false,
+		"pipeline/dof/enabled": false,
+		"pipeline/lightShaft/enabled": false,
+		"pipeline/toneMap/enabled": true,
+		"pipeline/bloom/enabled": false,
+		"pipeline/sss/enabled": false
+	},
+	"timeline/duration": 960,
+	"timeline/fps": 60
+}

@@ -2,9 +2,9 @@ import React, { useCallback, useRef } from 'react';
 
 import { trackPointerDrag } from 'uipower';
 
+import { useViewWheel } from '../../../../hooks/useViewWheel';
+import { dragZoomFactor, hasZoomModifier } from '../../../../lib/viewGesture';
 import { useTimeline } from '../../hooks/useTimeline';
-import { useViewWheel } from '../../hooks/useViewWheel';
-import { dragZoomFactor, hasZoomModifier } from '../../lib/ViewGesture';
 
 import style from './index.module.scss';
 

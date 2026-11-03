@@ -2,6 +2,7 @@ import { buildClassTree } from '../core/Resources/classTree';
 import { collectLibrary } from '../core/Resources/Library';
 
 export type { ClonerLayout, ClonerLayoutParams, ClonerPlacement } from './Components/Utility/Cloner/layout';
+export type { Instrument } from './Components/Utility/Music/instrument';
 
 export const BUILTIN_COMPONENTLIST = buildClassTree(
 	import.meta.glob( [ './Components/**/index.ts', '!**/_*/**' ], { eager: true } ),

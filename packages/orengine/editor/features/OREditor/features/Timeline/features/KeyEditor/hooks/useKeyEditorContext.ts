@@ -1130,6 +1130,7 @@ export const useKeyEditorContext = () => {
 		duplicate: () => latestRef.current.startTransform( "translate", true ),
 		boxSelect: () => latestRef.current.beginBoxSelect(),
 		selectAll: ( all ) => latestRef.current.selectAllKeys( all ),
+		deselect: () => latestRef.current.selectAllKeys( false ),
 		frameAll: () => latestRef.current.frameAll(),
 		openMenu: () => {
 

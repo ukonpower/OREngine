@@ -1,0 +1,12 @@
+.lane {
+	position: relative;
+	flex: 1;
+	height: 100%;
+	overflow: hidden;
+	background-color: var(--or-bg-panel);
+}
+
+// 帯だけを薄くする（目盛りの線は lane の背景なので変えない）。ピアノロールの鳴らないノートと同じ濃さ
+.lane[data-silent="true"] > * {
+	opacity: 0.4;
+}

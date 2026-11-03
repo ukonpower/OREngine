@@ -3,7 +3,7 @@ import type * as MXP from 'maxpower';
 import type { OREngineDataEntity, OREngineProjectData } from 'orengine';
 
 // エディタの描画ループがカメラを要求するので、どのシーンにも必ず入れる
-const cameraEntity: OREngineDataEntity = {
+export const cameraEntity: OREngineDataEntity = {
 	name: 'Camera',
 	uuid: 'sb-camera',
 	pos: [ 0, 2, 12 ],

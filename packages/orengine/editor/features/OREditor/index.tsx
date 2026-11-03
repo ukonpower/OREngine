@@ -12,6 +12,7 @@ import { ExportControl } from './features/ExportControl';
 import { Timer } from './features/GPUTimer';
 import { Hierarchy } from './features/Hierarchy';
 import { KeyFrame } from './features/KeyFrame';
+import { Music } from './features/Music';
 import { PanelLayout } from './features/PanelLayout';
 import { RendererSettings } from './features/RendererSettings';
 import { SceneControl } from './features/SceneControl';
@@ -41,6 +42,7 @@ const builtinPanels: PanelDefinition[] = [
 	{ id: "renderer", title: "Renderer", category: "Rendering", content: <Panel><RendererSettings /></Panel> },
 	{ id: "editor-settings", title: "Editor", category: "Project", content: <Panel><EditorSettings /></Panel> },
 	{ id: "timeline", title: "Timeline", category: "Animation", content: <Panel noPadding><Timeline /></Panel> },
+	{ id: "music", title: "Music", category: "Audio", content: <Panel noPadding><Music /></Panel> },
 ];
 
 // エンティティを選択したとき前面に出すパネル（選択の結果を見る場所）。選ぶ操作をした pane は切り替えない。

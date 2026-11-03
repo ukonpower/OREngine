@@ -1,0 +1,236 @@
+{
+	"name": "demo-webgl",
+	"scene": {
+		"name": "root",
+		"uuid": "0",
+		"childs": [
+			{
+				"name": "Camera",
+				"uuid": "395ce705-ac6d-4d69-95a9-3d9eeee40d5b",
+				"pos": [
+					0,
+					1.6,
+					8
+				],
+				"rot": [
+					-0.16,
+					0,
+					0
+				],
+				"components": [
+					{
+						"name": "Camera",
+						"uuid": "d4c173b0-625c-49b7-9b7e-0d68e9856644",
+						"props": {
+							"fov": 35,
+							"near": 0.1,
+							"far": 100,
+							"focus/mode": "manual",
+							"focus/distance": 8
+						}
+					}
+				]
+			},
+			{
+				"name": "Floor",
+				"uuid": "4b0ee5c2-5c08-4682-a39a-879e6ca7837d",
+				"scale": [
+					40,
+					1,
+					40
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "97c90f7d-5b6b-47a3-87be-ab5162bea8d9",
+						"props": {
+							"shape": "plane",
+							"color": [
+								0.3,
+								0.3,
+								0.3
+							],
+							"roughness": 0.9
+						}
+					}
+				]
+			},
+			{
+				"name": "Sun",
+				"uuid": "d56f9080-744d-4fee-9997-27619b4da889",
+				"pos": [
+					3.1435,
+					3.7722,
+					0.943
+				],
+				"rot": [
+					0.1465,
+					-0.121,
+					-0.6858
+				],
+				"components": [
+					{
+						"name": "Light",
+						"uuid": "ad7b72fb-a17c-4e50-85d4-0ad2e30872f0",
+						"props": {
+							"lightType": "directional",
+							"castShadow": true,
+							"intensity": 1
+						}
+					}
+				]
+			},
+			{
+				"name": "Music",
+				"uuid": "aa9e86a4-6d33-471b-b23e-dbccf6c87aeb",
+				"components": [
+					{
+						"name": "Music",
+						"uuid": "c433c56a-8850-4963-9ebf-b66c2b3e4a6e",
+						"props": {
+							"bpm": 120,
+							"tracks": [
+								[
+									"Chord",
+									"Chord",
+									1,
+									0,
+									[
+										[
+											0.5,
+											1,
+											0,
+											[
+												1,
+												0
+											]
+										],
+										[
+											1,
+											2,
+											0,
+											[
+												1,
+												5
+											]
+										],
+										[
+											2,
+											2,
+											0,
+											[
+												1,
+												7
+											]
+										],
+										[
+											2,
+											2,
+											0,
+											[
+												1,
+												3
+											]
+										],
+										[
+											2,
+											8,
+											0,
+											[
+												1,
+												0
+											]
+										],
+										[
+											2,
+											2,
+											0,
+											[
+												1,
+												9
+											]
+										]
+									]
+								]
+							],
+							"reverb/length": 1.5,
+							"reverb/wet": 0.3
+						}
+					}
+				]
+			},
+			{
+				"name": "Pads",
+				"uuid": "b71fe1b8-abfb-43b2-a3a5-3cd855900770",
+				"pos": [
+					0,
+					0.4,
+					0
+				],
+				"components": [
+					{
+						"name": "Cloner",
+						"uuid": "4d8f1a78-fe9c-480e-99fd-cb27998c4cef",
+						"props": {
+							"layout": "Line",
+							"params/count": 8,
+							"params/length": 6,
+							"params/direction": [
+								1,
+								0,
+								0
+							],
+							"delay/order": "index",
+							"delay/spread": 1.12,
+							"delay/loop": false
+						}
+					}
+				],
+				"childs": [
+					{
+						"name": "Pad",
+						"uuid": "35796561-26b9-4b87-beac-97536800dd13",
+						"scale": [
+							0.6,
+							0.6,
+							0.6
+						],
+						"components": [
+							{
+								"name": "ClipColor",
+								"uuid": "a79a34a9-bb9d-438b-b5b7-5a051639663c",
+								"props": {
+									"track": "Chord",
+									"decay": 3
+								}
+							}
+						]
+					}
+				]
+			}
+		]
+	},
+	"renderer": {
+		"sky/skyColor": [
+			0.1,
+			0.1,
+			0.1
+		],
+		"sky/groundColor": [
+			0.03,
+			0.03,
+			0.03
+		],
+		"sky/intensity": 1,
+		"pipeline/motionBlur/enabled": false,
+		"pipeline/ssr/enabled": false,
+		"pipeline/ssao/enabled": false,
+		"pipeline/dof/enabled": false,
+		"pipeline/lightShaft/enabled": false,
+		"pipeline/toneMap/enabled": true,
+		"pipeline/bloom/enabled": false,
+		"pipeline/sss/enabled": false
+	},
+	"timeline/duration": 480,
+	"timeline/fps": 60
+}
