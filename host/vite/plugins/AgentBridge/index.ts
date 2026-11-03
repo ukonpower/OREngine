@@ -168,7 +168,7 @@ export const AgentBridge = ( opts: AgentBridgeOptions ): Plugin => ( {
 
 		// 保存したタブ以外のエディタタブ（ユーザーのタブ・headless とも）をフルリロードさせる。
 		// API 経由の保存は ProjectWatchReload のリロードを recentWrites でタブを区別せず抑制するので、ここで個別に送る。
-		// 外部からファイルを編集したときのリロードと同じく、リロードされたタブの未保存の変更は消える
+		// 外部からファイルを編集したときのリロードと同じく、リロードされるタブに未保存の変更があればブラウザの離脱の確認が出る
 		server.ws.on( AGENT_EVENT.saved, ( data: AgentSaved ) => {
 
 			for ( const tab of tabs.values() ) {

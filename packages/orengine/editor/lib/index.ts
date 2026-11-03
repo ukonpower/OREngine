@@ -6,6 +6,7 @@ export { applyHandleOffsets, decodeCurve, deleteKeys, distributeKeys, KEYFRAME_H
 export { countCurveUses, getBLidgeLinks, getCurveLinkInfo, getKeyFrameElementCount, getKeyFrameState, getLinks, getSharedCurves, isBLidgeCurve, isKeyFrameField, keyFrameKindOf, keyFrameTime, snapKeyFrameTime } from './KeyFrameField';
 export { BoxSelectWait, boxSelection, isAllSelected, pressSelection } from './PointSelection';
 export { PointTransformModal } from './PointTransformModal';
+export { installUnsavedGuard } from './UnsavedGuard';
 
 export type { AgentSceneControl } from './AgentBridge/Command';
 export type { EditAreaActions, EditModal, EditorTimelineLoop, NavigateAssetRequest, SelectedAssetInfo } from './Editor';

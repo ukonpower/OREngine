@@ -39,10 +39,6 @@ export type AgentBridgeOptions = {
 	waitForSave: () => Promise<void>;
 };
 
-type Attached = AgentBridgeOptions & {
-	unsaved: boolean;
-};
-
 // ページ（タブ）ごとに1つ。エディタが作り直されても同じタブとして扱う
 const tabId = BSP.ID.genUUID();
 
@@ -54,7 +50,7 @@ const headless = new URLSearchParams( location.search ).has( AGENT_HEADLESS_PARA
 // 読み込み直後の rAF はエディタの描画より先に呼ばれうるので、2フレーム待って1回ぶんの描画を確実に挟む
 const HEADLESS_WARMUP_FRAMES = 2;
 
-let attached: Attached | null = null;
+let attached: AgentBridgeOptions | null = null;
 
 // headless のページは CLI が開いた直後にコマンドを受けるので、シーンの読み込みと最初の描画が済むまで実行を待たせる
 let resolveHeadlessReady: () => void = () => {};
@@ -120,7 +116,7 @@ const runCommand = async ( hot: ViteHotContext, request: AgentRequest ): Promise
 		headless,
 		sceneName: scenes?.current ?? null,
 		scenes,
-		unsaved: attached.unsaved,
+		unsaved: attached.editor.unsaved,
 	};
 
 	// コマンドの await 中にエディタが作り直されると attached が差し替わるので、保存を待つ相手は実行開始時のものに固定する
@@ -250,23 +246,7 @@ if ( import.meta.hot ) {
 // コマンドの操作対象にするエディタを繋ぐ。戻り値で外す
 export const attachAgentBridge = ( opts: AgentBridgeOptions ) => {
 
-	const current: Attached = { ...opts, unsaved: false };
-
-	const onChange = () => {
-
-		current.unsaved = true;
-
-	};
-
-	const onSaved = () => {
-
-		current.unsaved = false;
-
-	};
-
 	const onLoaded = () => {
-
-		current.unsaved = false;
 
 		if ( headless ) {
 
@@ -276,19 +256,15 @@ export const attachAgentBridge = ( opts: AgentBridgeOptions ) => {
 
 	};
 
-	opts.editor.api.commandManager.on( 'change', onChange );
-	opts.editor.on( 'save', onSaved );
 	opts.editor.engine.on( 'loaded', onLoaded );
 
-	attached = current;
+	attached = opts;
 
 	return () => {
 
-		opts.editor.api.commandManager.off( 'change', onChange );
-		opts.editor.off( 'save', onSaved );
 		opts.editor.engine.off( 'loaded', onLoaded );
 
-		if ( attached === current ) {
+		if ( attached === opts ) {
 
 			attached = null;
 

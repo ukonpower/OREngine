@@ -3,7 +3,7 @@ import { ReactNode, useEffect, useRef } from "react";
 import * as MXP from "maxpower";
 import { OREngineProjectData } from "orengine";
 
-import { attachAgentBridge, type AgentSceneControl } from "../../../lib";
+import { attachAgentBridge, installUnsavedGuard, type AgentSceneControl } from "../../../lib";
 import { OREditorContext } from "../contexts/OREditorContext";
 import { useOREditorContext } from "../hooks/useOREditorContext";
 
@@ -66,6 +66,18 @@ export const OREditorProvider: React.FC<{ children?: ReactNode, projectName?: st
 		} );
 
 	}, [ editorContext.editor ] );
+
+	// 保存先のあるページだけ確認を出す。保存できないページ（EditorPageStatic）で確認しても、変更を残す手段が無いため。
+	// onSave は毎レンダー作り直されることがあるので、有無だけを見る
+	const canSave = props.onSave !== undefined;
+
+	useEffect( () => {
+
+		if ( ! canSave ) return;
+
+		return installUnsavedGuard( editorContext.editor );
+
+	}, [ editorContext.editor, canSave ] );
 
 	useEffect( () => {
 
