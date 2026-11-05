@@ -10,6 +10,13 @@
 	background-color: var(--or-bg-panel);
 }
 
+// 上下の分割（LayoutSplit）の段の中身。段は高さを決めるだけなので、中を縦に並べ直す
+.pane {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
 .main {
 	position: relative;
 	flex: 1;
