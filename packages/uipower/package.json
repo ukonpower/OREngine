@@ -1,0 +1,15 @@
+{
+  "name": "uipower",
+  "version": "0.0.0",
+  "private": true,
+  "description": "React だけに依存するエディタ向け UI プリミティブとデザイントークン",
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./styles/*": "./styles/*"
+  },
+  "peerDependencies": {
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  }
+}
