@@ -16,7 +16,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `basepower` → `packages/basepower`（EventEmitter・ID・共有型などドメイン非依存の最下層基盤。他パッケージに依存しない）
 - `mathpower` → `packages/mathpower`（ベクトル・行列・クォータニオン等の数学。basepower のみに依存）
 - `glpower` → `packages/glpower`（素の WebGL API ラッパー。basepower / mathpower のみに依存）
-- `uipower` → `packages/uipower`（エディタ UI プリミティブとデザイントークン。react 以外に依存しない。エンジン・editor への依存は禁止）
+- `uipower` → `packages/uipower`（エディタ UI プリミティブとデザイントークン。react 以外に依存しない。エンジン・editor への依存は禁止。単独のパッケージとして `npm run uipower:build` で型チェック・ビルドでき、CI でも走らせている。使い方は `packages/uipower/README.md`）
 - `maxpower` → `packages/maxpower/webgl`（エンジン本体。core + WebGLバックエンドの束。`packages/maxpower` は `core` / `webgl` / `webgpu` / `headless` の4分割）
 - `maxpower/webgpu` → `packages/maxpower/webgpu`（WebGPUバックエンド）
 - `@or-renderer` → 選択中レンダラーのバックエンド。vite がビルド時に `maxpower/webgl` か `webgpu` へ固定する（player ビルドへの WebGPU コード混入防止）。tsconfig 上は webgl 固定
@@ -140,6 +140,7 @@ npm run dev          # 開発サーバー起動（express + vite）
 npm run wgpu         # WebGPUレンダラーで開発サーバー起動（プロジェクトは既定で demo-webgpu）
 npm run player:build # player バンドルのプロダクションビルド + compeko で自己解凍 html にパック（dist/player/out.html）
 npm run editor:build # エディタ込み HTML のビルド（GitHub Pages のエディタデモ配信物）
+npm run uipower:build # uipower を単独で型チェック・ビルド（ホストの設定に依存していないかの検証。packages/uipower/dist）
 npm run storybook:dev # Storybook 開発サーバー起動（port 6006）
 npm run vrt          # Storybook をビルドして VRT（スクリーンショット比較テスト）を実行
 npm run vrt:update   # VRT の基準スクリーンショットを更新

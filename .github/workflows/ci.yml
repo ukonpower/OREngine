@@ -17,6 +17,8 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm run lint
+      # uipower がホストの設定（ルートの paths・vite のエイリアスと loadPaths）無しで通るかの検証
+      - run: npm run uipower:build
       # player ビルドが壊れていないかの検証。外部依存（shader_minifier の取得）で
       # 落ちないよう minify はスキップする（サイズ実測は size-report が担当）
       - run: npm run player:build
