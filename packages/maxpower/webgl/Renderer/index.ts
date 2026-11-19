@@ -106,7 +106,15 @@ interface CompileDrawParam {
 // Renderer所有のGeometry用GPUリソース。versionがGeometry.updateVersionと一致する間は再利用する
 type GeometryBufferRecord = {
 	buffers: Map<string, GLP.GLPowerBuffer>,
-	vaoVersions: Map<GLP.GLPowerVAO, number>,
+	version: number,
+}
+
+// VAO が今どの GPU バッファを指しているか。
+// VAO は描画ごと（drawId × program）に1つで、Mesh.geometry を付け替えると別のジオメトリのバッファを指し直す必要がある。
+// ジオメトリ側に「この VAO は結び付け済み」と持たせると、A → B → A と前のジオメトリへ戻したときに B を指したままになるため、VAO 側に持つ。
+// record で比べるのは、reset() で record ごと作り直したとき（ジオメトリと版が同じでもバッファは新しい）にも結び付け直すため
+type VaoBinding = {
+	record: GeometryBufferRecord,
 	version: number,
 }
 
@@ -198,6 +206,7 @@ export class Renderer extends Serializable implements RendererContract {
 	// geometry
 
 	private _geometryBuffers: Map<Geometry, GeometryBufferRecord>;
+	private _vaoBindings: WeakMap<GLP.GLPowerVAO, VaoBinding>;
 
 	// lights
 
@@ -256,6 +265,7 @@ export class Renderer extends Serializable implements RendererContract {
 		this.compileDrawParams = [];
 		this.programManager = new ProgramManager( backend );
 		this._geometryBuffers = new Map();
+		this._vaoBindings = new WeakMap();
 		this.resolution = new MTP.Vector();
 		this._views = [];
 		this._stack = this._createRenderStack();
@@ -1294,8 +1304,17 @@ export class Renderer extends Serializable implements RendererContract {
 		if ( vao ) {
 
 			const geometryBuffer = this._getGeometryBuffer( geometry );
+			const binding = this._vaoBindings.get( vao );
 
-			if ( geometryBuffer.vaoVersions.get( vao ) !== geometry.updateVersion ) {
+			let bound = false;
+
+			if ( binding !== undefined && binding.record === geometryBuffer && binding.version === geometryBuffer.version ) {
+
+				bound = true;
+
+			}
+
+			if ( ! bound ) {
 
 				geometry.attributes.forEach( ( attr, key ) => {
 
@@ -1315,7 +1334,7 @@ export class Renderer extends Serializable implements RendererContract {
 
 				} );
 
-				geometryBuffer.vaoVersions.set( vao, geometry.updateVersion );
+				this._vaoBindings.set( vao, { record: geometryBuffer, version: geometryBuffer.version } );
 
 			}
 
@@ -1359,7 +1378,7 @@ export class Renderer extends Serializable implements RendererContract {
 
 		if ( ! record ) {
 
-			record = { buffers: new Map(), vaoVersions: new Map(), version: - 1 };
+			record = { buffers: new Map(), version: - 1 };
 
 			this._geometryBuffers.set( geometry, record );
 
@@ -1371,7 +1390,6 @@ export class Renderer extends Serializable implements RendererContract {
 
 			buffers.forEach( ( buffer ) => buffer.dispose() );
 			buffers.clear();
-			record.vaoVersions.clear();
 
 			geometry.attributes.forEach( ( attr, key ) => {
 
