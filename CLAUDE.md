@@ -233,6 +233,7 @@ public updateMatrix() {
   - webgpu・headless には無い。`rendererType` が `lite` のシーンも、そのバックエンドのふつうのレンダラーで描く
   - 外部のプロジェクト（自前のバンドラ）は、`maxpower` の解決先を軽量のエントリへ向ければ、`new Engine( MXP.createRenderer )` のまま軽量レンダラーになる
 - シェーダーの対応: deferred のマテリアル（phase に `deferred` を含む）を、`IS_FORWARD_LIT` を define して「不透明の forward」として描く。シェーダーが `frag_h`・`module:common` の順に include した後に `#include <part:lite_h>`、`frag_out` の直前に `#include <part:lite_out>` を入れていれば、`frag_in` の `out*`（色・法線・粗さ・金属・発光）からライティングされる。入れていないシェーダーは `outColor` がそのまま出る。`Material` の既定のシェーダーは、ライティング付きの `LiteRenderer/shaders/basicLit.fs` に差し替えて描く
+  - GLTFLoader のシェーダー（`Loaders/GLTFLoader/shaders/gltf.fs`）も lite_h / lite_out を入れているので、GLB はそのまま軽量レンダラーでライティングされる。GLTFLoader は軽量のエントリからも export している
   - くぼみの暗がりは SSAO の代わりに、シェーダーが自分で計算して `outOcclusion`（1 で暗がりなし）へ入れる
   - 環境光は `sky/skyColor`・`sky/groundColor`・`sky/intensity` の 2 色を向きで混ぜるだけ（式は `defaultSky.fs` と同じ）。背景に空は描かれない（黒でクリアする）
   - forward・ui のマテリアルは `IS_FORWARD` のまま描く。背後の画像（`uDeferredTexture`）・G バッファのテクスチャは渡らず、トーンマップも掛からない
