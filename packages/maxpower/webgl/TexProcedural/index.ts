@@ -5,7 +5,13 @@ import * as MTP from 'mathpower';
 import { PostProcess } from '../PostProcess';
 import { PostProcessPass, PostProcessPassParam } from '../PostProcess/PostProcessPass';
 
-import type { Renderer } from '../Renderer';
+import type { GLBackend } from '../backend/GLBackend';
+
+// 焼くのに使うレンダラーの口。Renderer と LiteRenderer のどちらでも渡せるよう、使うものだけを取り決める
+type TexProceduralRenderer = {
+	backend: GLBackend;
+	renderPostProcess( postprocess: PostProcess, input?: GLP.GLPowerFrameBuffer, canvasSize?: MTP.Vector ): void;
+}
 
 interface TexProceduralParam extends PostProcessPassParam {
 	resolution?: MTP.Vector
@@ -16,12 +22,12 @@ export class TexProcedural extends GLPowerTexture {
 
 	public material: PostProcessPass;
 
-	private _renderer: Renderer;
+	private _renderer: TexProceduralRenderer;
 	private _resolution: MTP.Vector;
 	private _postProcess: PostProcess;
 	private _frameBuffer: GLP.GLPowerFrameBuffer;
 
-	constructor( renderer: Renderer, param: TexProceduralParam ) {
+	constructor( renderer: TexProceduralRenderer, param: TexProceduralParam ) {
 
 		const backend = renderer.backend;
 		const gl = backend.gl;

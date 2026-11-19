@@ -60,3 +60,8 @@
 	outColor1 = vec4(outPos, 1.0);
 	outColor2 = vec4(vVelocity, 0.0, 1.0);
 #endif
+
+// ライティングまで済ませるシェーダーは lite_out が outColor を仕上げている。入れていないシェーダーは outColor がそのまま出る
+#ifdef IS_FORWARD_LIT
+	outColor0 = outColor;
+#endif

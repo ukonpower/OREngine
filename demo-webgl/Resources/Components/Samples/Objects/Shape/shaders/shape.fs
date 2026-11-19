@@ -1,12 +1,15 @@
-#include <module:common>
-#include <module:light>
+// 一括 minify は、どの呼び出しでも同じ uniform を渡している関数の引数を、その uniform の直接参照に置き換える。
+// 置き換えられた関数より後ろで uniform を宣言しているとコンパイルが失敗するので、宣言（frag_h と uEnvMap）を module より前に置く。
+// frag_h の uCameraPosition などは common の viewDirection（forward と軽量レンダラーのライティングの2か所で呼ぶ）、uEnvMap は pmrem の関数が読む
+#include <part:frag_h>
 
-// 値が入るのは forward だけだが、一括 minify が pmrem の関数の sampler 引数をこの uniform の直接参照に置き換えるので、
-// どのパスでも、pmrem より前で宣言しておく（無い・後ろにあると deferred / shadowMap のコンパイルが失敗する）
+// 値が入るのは forward だけだが、どのパスでも宣言しておく（無いと deferred / shadowMap のコンパイルが失敗する）
 uniform sampler2D uEnvMap;
 
+#include <module:common>
+#include <module:light>
 #include <module:pmrem>
-#include <part:frag_h>
+#include <part:lite_h>
 
 uniform vec3 uColor;
 uniform float uRoughness;
@@ -70,6 +73,8 @@ void main( void ) {
 
 	#endif
 
+	// 軽量レンダラー（rendererType が lite のシーン）では、ここでライト・影・環境光・トーンマップまで済ませる
+	#include <part:lite_out>
 	#include <part:frag_out>
 
 }

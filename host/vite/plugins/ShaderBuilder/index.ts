@@ -16,6 +16,8 @@ export interface ShaderBuilderOptions {
 	scanDirs: string[];
 	// player ビルド用。シェーダー文字列をバンドル先頭の配列1つにまとめて出す（「シェーダーの集約」の節）
 	groupShaders?: boolean;
+	// player ビルド用。実行時に define されないと分かっている名前。`#ifdef 名前` 〜 `#endif` の中身をビルド時に落とす（「使わない分岐の削除」の節）
+	undefinedNames?: string[];
 }
 
 /*-------------------------------
@@ -34,8 +36,14 @@ const INCLUDE_DIRS = new Map<string, { dir: string; suffix: string }>( [
 	[ 'part', { dir: 'shaderParts', suffix: '.part.glsl' } ],
 ] );
 
-// #include <module:xxx> / <part:xxx> を対応ファイルの中身に置換する。解決できないincludeはビルドエラー
-const inlineIncludes = async ( code: string ) => {
+// part が module・part を include することがあるので、include が無くなるまで繰り返す回数の上限（循環した include を止めるため）
+const INCLUDE_DEPTH_LIMIT = 8;
+
+// #include <module:xxx> / <part:xxx> を対応ファイルの中身に置換する（1段ぶん）。解決できないincludeはビルドエラー。
+// module は関数・構造体の定義なので、同じものは1つのシェーダーに1回だけ入れる（2回目以降は空にする）。
+// シェーダーが自分で include した module を、part が中でもう一度 include しても二重定義にならないようにするため。
+// includedModules は入れ子の段をまたいで覚えておく
+const inlineIncludesOnce = async ( code: string, includedModules: Set<string> ) => {
 
 	const includePattern = /#include\s?<([\S]*)>/g;
 	const keys = [ ...code.matchAll( includePattern ) ].map( ( m ) => m[ 1 ] );
@@ -67,7 +75,36 @@ const inlineIncludes = async ( code: string ) => {
 
 	}
 
-	return code.replace( includePattern, ( _, key: string ) => contents.get( key ) ?? '' );
+	return code.replace( includePattern, ( _, key: string ) => {
+
+		if ( key.startsWith( 'module:' ) ) {
+
+			if ( includedModules.has( key ) ) return '';
+
+			includedModules.add( key );
+
+		}
+
+		return contents.get( key ) ?? '';
+
+	} );
+
+};
+
+const inlineIncludes = async ( code: string ) => {
+
+	let result = code;
+	const includedModules = new Set<string>();
+
+	for ( let depth = 0; depth < INCLUDE_DEPTH_LIMIT; depth ++ ) {
+
+		if ( ! /#include\s?<[\S]*>/.test( result ) ) return result;
+
+		result = await inlineIncludesOnce( result, includedModules );
+
+	}
+
+	throw new Error( `ShaderBuilder: include の入れ子が ${INCLUDE_DEPTH_LIMIT} 段を超えました（循環していないか確認する）` );
 
 };
 
@@ -204,10 +241,101 @@ if ( import.meta.hot ) {
 
 };
 
-// include解決＋前処理を行い、minifierに渡せる完成形のシェーダーソースを作る
-const composeShader = async ( code: string, file: string ) => {
+/*-------------------------------
+	使わない分岐の削除（player ビルド）
+-------------------------------*/
 
-	return preprocess( await inlineIncludes( wrapInstrument( code, file ) ) );
+// `#ifdef 名前` で始まる分岐のうち、名前が実行時に define されないもの（undefinedNames）の中身を落とす。`#else` があれば、そちらの中身だけを残す。
+// minifier はプリプロセッサの分岐を評価しないので、使わないレンダラー向けの分岐（軽量レンダラーの IS_FORWARD_LIT など）も
+// そのまま残り、packed サイズに乗ってしまう。対象は `#ifdef 名前` と書いた分岐だけで、`#if defined(名前)` などの式は触らない
+const stripUndefinedBranches = ( code: string, undefinedNames: string[] ) => {
+
+	if ( undefinedNames.length === 0 ) return code;
+
+	const lines = code.split( '\n' );
+	const result: string[] = [];
+
+	// 落としている分岐の入れ子の深さ（0 = 落としていない）
+	let skipDepth = 0;
+	// 残している分岐の入れ子の深さ
+	let depth = 0;
+	// 落とす対象の `#ifdef` の #else 側を残しているとき、その深さ（対応する #endif の行を消すため。入れ子になりうるので積む）
+	const keptElseDepths: number[] = [];
+
+	for ( const line of lines ) {
+
+		const directive = line.trim();
+		const isIf = /^#\s*(if|ifdef|ifndef)\b/.test( directive );
+		const isElse = /^#\s*else\b/.test( directive );
+		const isEndif = /^#\s*endif\b/.test( directive );
+
+		if ( skipDepth > 0 ) {
+
+			if ( isIf ) {
+
+				skipDepth ++;
+
+			} else if ( isEndif ) {
+
+				skipDepth --;
+
+			} else if ( isElse && skipDepth === 1 ) {
+
+				// 落としていた分岐の #else。ここから #endif までは残す
+				skipDepth = 0;
+				depth ++;
+				keptElseDepths.push( depth );
+
+			}
+
+			continue;
+
+		}
+
+		if ( isIf ) {
+
+			const ifdef = /^#\s*ifdef\s+(\w+)\s*$/.exec( directive );
+
+			if ( ifdef && undefinedNames.includes( ifdef[ 1 ] ) ) {
+
+				skipDepth = 1;
+
+				continue;
+
+			}
+
+			depth ++;
+
+		} else if ( isEndif ) {
+
+			if ( keptElseDepths.length > 0 && keptElseDepths[ keptElseDepths.length - 1 ] === depth ) {
+
+				// 残した #else 側の終わり。#endif の行は消す
+				keptElseDepths.pop();
+				depth --;
+
+				continue;
+
+			}
+
+			depth --;
+
+		}
+
+		result.push( line );
+
+	}
+
+	return result.join( '\n' );
+
+};
+
+// include解決＋前処理を行い、minifierに渡せる完成形のシェーダーソースを作る
+const composeShader = async ( code: string, file: string, undefinedNames: string[] ) => {
+
+	const inlined = await inlineIncludes( wrapInstrument( code, file ) );
+
+	return preprocess( stripUndefinedBranches( inlined, undefinedNames ) );
 
 };
 
@@ -413,6 +541,8 @@ const groupShadersInChunk = ( code: string, batch: Map<string, string> ) => {
 
 export const ShaderBuilder = ( options: ShaderBuilderOptions ): Plugin => {
 
+	const undefinedNames = options.undefinedNames ?? [];
+
 	const filter = createFilter( [
 		'**/*.vs',
 		'**/*.fs',
@@ -436,7 +566,7 @@ export const ShaderBuilder = ( options: ShaderBuilderOptions ): Plugin => {
 
 		for ( const file of targetFiles ) {
 
-			sources.set( file, await composeShader( await fs.promises.readFile( file, 'utf-8' ), file ) );
+			sources.set( file, await composeShader( await fs.promises.readFile( file, 'utf-8' ), file, undefinedNames ) );
 
 		}
 
@@ -574,7 +704,7 @@ export const ShaderBuilder = ( options: ShaderBuilderOptions ): Plugin => {
 			if ( skip ) {
 
 				return {
-					code: `export default ${JSON.stringify( await composeShader( code, filePath ) )};${hotCode}`,
+					code: `export default ${JSON.stringify( await composeShader( code, filePath, undefinedNames ) )};${hotCode}`,
 					map: { mappings: '' }
 				};
 
@@ -594,7 +724,7 @@ export const ShaderBuilder = ( options: ShaderBuilderOptions ): Plugin => {
 				this.warn( `ShaderBuilder: バッチ対象外のシェーダーです。生GLSLを使用します: ${filePath}` );
 
 				return {
-					code: `export default ${JSON.stringify( await composeShader( code, filePath ) )};${hotCode}`,
+					code: `export default ${JSON.stringify( await composeShader( code, filePath, undefinedNames ) )};${hotCode}`,
 					map: { mappings: '' }
 				};
 

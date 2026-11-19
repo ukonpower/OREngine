@@ -18,6 +18,7 @@ import { CurveLinkSettings, CurvePasteMode, getAnimatedTransformFields, KeyFrame
 import { ModalTransformHandler, transformModeOfKey, type ModalTransformMode, type ModalTransformSelection } from '../ModalTransformHandler';
 import { MusicTrackPeaks, MusicWaveform } from '../MusicWaveform';
 import { RelationshipLineRenderer } from '../RelationshipLineRenderer';
+import { completeExportedProject } from '../RendererType';
 import { SceneExporter, SceneExporterProgress } from '../SceneExporter';
 import { SelectionOutline } from '../SelectionOutline';
 import { topmostEntities, transformBasis, transformPivot } from '../TransformTargets';
@@ -1959,7 +1960,11 @@ export class Editor extends MXP.Serializable {
 	// 保存するシーン。どこからも参照されないカーブは書き出さない（メモリ上の表には残す）
 	public exportEngine() {
 
-		return pruneUnusedCurves( this._engine.serialize( { mode: "export" } ) as OREngineProjectData );
+		const project = pruneUnusedCurves( this._engine.serialize( { mode: "export" } ) as OREngineProjectData );
+
+		completeExportedProject( this._engine, project );
+
+		return project;
 
 	}
 

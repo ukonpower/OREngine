@@ -69,11 +69,35 @@ const rendererPath: { [key in RendererName]: string } = {
 	headless: 'packages/maxpower/headless/index.ts',
 };
 
+// 軽量レンダラーだけを束ねた webgl のエントリ（deferred・後処理・環境マップを含まない）
+const LITE_RENDERER_PATH = 'packages/maxpower/webgl/lite/index.ts';
+
+// player に焼き込むシーンが軽量レンダラーを指定しているか（シーンのファイルの rendererType。エディタの lib/RendererType と同じキー）。
+// 軽量レンダラーは webgl にしか無いので、他のバックエンドでは指定を無視してふつうのレンダラーで描く
+const isLiteScene = ( sceneJson: { rendererType?: unknown }, renderer: RendererName ) => {
+
+	return renderer === 'webgl' && sceneJson.rendererType === 'lite';
+
+};
+
+// maxpower のエントリのパス。lite のときは @or-renderer・maxpower とも軽量のエントリへ向け、ふつうのレンダラーのコードが player に入らないようにする
+const maxpowerEntryPath = ( renderer: RendererName, lite: boolean ) => {
+
+	if ( lite ) {
+
+		return path.join( orengineRoot, LITE_RENDERER_PATH );
+
+	}
+
+	return path.join( orengineRoot, rendererPath[ renderer ] );
+
+};
+
 // playerビルドへWebGPUコードが混入しないよう、レンダラーはビルド時のaliasで固定する
-export const sharedResolve = ( projectDir: string, renderer: RendererName, scene?: string ) => ( {
+export const sharedResolve = ( projectDir: string, renderer: RendererName, scene?: string, lite: boolean = false ) => ( {
 	alias: [
 		...projectAliases( projectDir, scene ),
-		{ find: /^@or-renderer$/, replacement: path.join( orengineRoot, rendererPath[ renderer ] ) },
+		{ find: /^@or-renderer$/, replacement: maxpowerEntryPath( renderer, lite ) },
 		{ find: /^orengine\/player$/, replacement: path.join( orengineRoot, 'packages/orengine/player/index.ts' ) },
 		{ find: /^orengine\/react$/, replacement: path.join( orengineRoot, 'packages/orengine/react.tsx' ) },
 		{ find: /^orengine\/editor$/, replacement: path.join( orengineRoot, 'packages/orengine/editor/lib/index.ts' ) },
@@ -92,7 +116,7 @@ export const sharedResolve = ( projectDir: string, renderer: RendererName, scene
 		{ find: /^uipower$/, replacement: path.join( orengineRoot, 'packages/uipower' ) },
 		// WebGPUプロジェクトのコンポーネントが自分のバックエンドAPIを直接importするための口
 		{ find: /^maxpower\/webgpu$/, replacement: path.join( orengineRoot, 'packages/maxpower/webgpu' ) },
-		{ find: /^maxpower$/, replacement: path.join( orengineRoot, 'packages/maxpower/webgl' ) },
+		{ find: /^maxpower$/, replacement: maxpowerEntryPath( 'webgl', lite ) },
 	],
 } );
 
@@ -243,6 +267,17 @@ export const createPlayerConfig = ( opts: PlayerConfigOptions ): UserConfig => {
 	const sceneJson = JSON.parse( fs.readFileSync( sceneFilePath( opts.projectDir, opts.scene ), 'utf-8' ) );
 
 	const usage = collectSceneUsage( sceneJson );
+	const playerRenderer = opts.renderer ?? 'webgl';
+	const playerLite = isLiteScene( sceneJson, playerRenderer );
+
+	// 軽量レンダラーを使わない player では IS_FORWARD_LIT が define されないので、その分岐をシェーダーから落とす
+	const playerUndefinedNames: string[] = [];
+
+	if ( ! playerLite ) {
+
+		playerUndefinedNames.push( 'IS_FORWARD_LIT' );
+
+	}
 
 	// バンドルに焼き込まれる blidge-scene.json のキーは、BLidge内のプロパティアクセスと食い違わないよう mangle から保護する
 	const blidgeScenePath = path.join( opts.projectDir, 'public/blidge-scene.json' );
@@ -284,14 +319,14 @@ export const createPlayerConfig = ( opts: PlayerConfigOptions ): UserConfig => {
 				plugins: [ playerTerser( reserved, wgslIdentifiers ) ],
 			},
 		},
-		resolve: sharedResolve( opts.projectDir, opts.renderer ?? 'webgl', opts.scene ),
+		resolve: sharedResolve( opts.projectDir, playerRenderer, opts.scene, playerLite ),
 		css: {
 			preprocessorOptions: {
 				scss: { api: 'modern' },
 			},
 		},
 		plugins: [
-			ShaderBuilder( { scanDirs: [ orengineRoot, opts.projectDir ], groupShaders: true } ),
+			ShaderBuilder( { scanDirs: [ orengineRoot, opts.projectDir ], groupShaders: true, undefinedNames: playerUndefinedNames } ),
 			TexLoader(),
 			WgslLoader( {
 				moduleDirs: wgslModuleDirs( opts.projectDir ),
