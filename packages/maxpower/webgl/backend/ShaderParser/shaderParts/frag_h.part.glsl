@@ -47,6 +47,11 @@ uniform vec2 uResolution;
 	layout (location = 2) out vec4 outColor2;
 #endif
 
+// IS_FORWARD_LIT は軽量レンダラー（LiteRenderer）が deferred のマテリアルを直接描くパス。出力は色だけ
+#ifdef IS_FORWARD_LIT
+	layout (location = 0) out vec4 outColor0;
+#endif
+
 uniform float uTime;
 uniform float uTimeF;
 uniform float uTimeE;

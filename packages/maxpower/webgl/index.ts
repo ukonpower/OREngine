@@ -17,3 +17,4 @@ export * from './Loaders/GLTFLoader';
 export * from './PostProcess';
 export * from './PostProcess/PostProcessPass';
 export * from './TexProcedural';
+export * from './LiteRenderer';

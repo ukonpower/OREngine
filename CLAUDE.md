@@ -74,7 +74,7 @@ dev サーバー起動中に、開いているエディタタブ（無ければ 
 - 指定したプロジェクトディレクトリが存在しなければ `host/template/project` から雛形が生成される
 
 ### シーン（プロジェクト内の複数シーン）
-- 1プロジェクトは `scenes/<name>.json` を複数持てる。各ファイルは自己完結（`name` / `scene` / `renderer` / `timeline`）で、シーン同士に関係は無い。共有するのは `Resources/` だけ
+- 1プロジェクトは `scenes/<name>.json` を複数持てる。各ファイルは自己完結（`name` / `rendererType` / `scene` / `renderer` / `timeline`。`rendererType` は「軽量レンダラー」の節）で、シーン同士に関係は無い。共有するのは `Resources/` だけ
 - シーン名 = ファイル名。英数字・`-`・`_` のみ（サーバーとエディタの両方で同じ制限）
 - エディタは editor.json の `scene` キー（最後に開いたシーン）か一覧の先頭を開く。切替・新規作成は Scene パネルから。切替は `engine.load()` の差し替えで、未保存の変更は捨てられる（Scenes ウィンドウは開く前に確認を出す。「未保存の確認」の節）
 - player / static ビルドと `@or-scene` は1シーンだけを焼き込む。どれにするかは `ORENGINE_SCENE=<name>`（省略時 `main`）。ランタイムにシーンの概念は無く、実行時に別シーンを読みたい場合は利用側が JSON を用意して `engine.load()` を呼ぶ
@@ -224,11 +224,29 @@ public updateMatrix() {
 ## editor の React 層構造（components / features）
 `packages/orengine/editor` の React 層（components / features / hooks / contexts / lib）の置き方と依存方向は `packages/orengine/editor/CLAUDE.md`
 
+### 軽量レンダラー（LiteRenderer。webgl のみ）
+- deferred を通らず、マテリアルのシェーダーの中でライト・影・環境光・トーンマップまで済ませて直接描くレンダラー（`packages/maxpower/webgl/LiteRenderer`）。G バッファ・SSAO・SSR・環境マップ（PMREM）・後処理・空のメッシュを持たない。重い端末向けと、player に deferred のコードを入れたくないプロジェクト向け
+- `Renderer` と `LiteRenderer` は共通の親 `RenderCore`（`webgl/Renderer/RenderCore`）を継承する。描画対象の振り分け・ライトの収集・シャドウマップ・1回分の描画（プログラム・uniform・VAO）は `RenderCore` にあり、どのパスをどの順で描くかだけを各レンダラーが持つ。`RenderCore` と `LiteRenderer` から deferred・後処理・環境マップに繋がるモジュール（`DeferredRenderer`・`PipelinePostProcess`・`PMREMRender`・`Sky`・`RenderView`）を import しない（軽量だけのバンドルに入ってしまう）
+- シーンごとに選ぶ。シーンのファイルの `rendererType` が `"lite"` なら軽量、無ければふつうのレンダラー（既存のシーンは書き換えなくてよい）
+  - エディタ: Renderer パネルの type で切り替える。canvas はレンダラーが作るので、種類が変わるとエンジンとエディタを丸ごと作り直す（`OREngineProvider` が種類を key にしている）。種類の読み書きと、今のレンダラーが持たない設定を保存で消さない処理は `packages/orengine/editor/lib/RendererType`
+  - player: ビルド時にシーンを読み、`lite` なら `@or-renderer` と `maxpower` を軽量のエントリ（`packages/maxpower/webgl/lite/index.ts`）へ向ける（`host/vite/configs.ts`）。ランタイムは自分の種類を知らない
+  - webgpu・headless には無い。`rendererType` が `lite` のシーンも、そのバックエンドのふつうのレンダラーで描く
+  - 外部のプロジェクト（自前のバンドラ）は、`maxpower` の解決先を軽量のエントリへ向ければ、`new Engine( MXP.createRenderer )` のまま軽量レンダラーになる
+- シェーダーの対応: deferred のマテリアル（phase に `deferred` を含む）を、`IS_FORWARD_LIT` を define して「不透明の forward」として描く。シェーダーが `frag_h`・`module:common` の順に include した後に `#include <part:lite_h>`、`frag_out` の直前に `#include <part:lite_out>` を入れていれば、`frag_in` の `out*`（色・法線・粗さ・金属・発光）からライティングされる。入れていないシェーダーは `outColor` がそのまま出る。`Material` の既定のシェーダーは、ライティング付きの `LiteRenderer/shaders/basicLit.fs` に差し替えて描く
+  - くぼみの暗がりは SSAO の代わりに、シェーダーが自分で計算して `outOcclusion`（1 で暗がりなし）へ入れる
+  - 環境光は `sky/skyColor`・`sky/groundColor`・`sky/intensity` の 2 色を向きで混ぜるだけ（式は `defaultSky.fs` と同じ）。背景に空は描かれない（黒でクリアする）
+  - forward・ui のマテリアルは `IS_FORWARD` のまま描く。背後の画像（`uDeferredTexture`）・G バッファのテクスチャは渡らず、トーンマップも掛からない
+- ふつうの player には軽量レンダラーの分を入れない: `IS_FORWARD_LIT` の分岐は、`lite` でないシーンの player ビルドでシェーダーから落とす（ShaderBuilder の `undefinedNames`）。`basic.fs` に直接ライティングを足さず `basicLit.fs` に分けているのも同じ理由
+- エディタでは canvas の MSAA を切っている（offscreen のビューを canvas へ blit するため。MSAA の canvas へは blit できない）。アプリ側（`createLiteRenderer` の既定）は MSAA が効くので、輪郭の滑らかさはエディタと少し違う
+- 見え方の確認用のシーンは demo-webgl の `renderer-lite`（`material-pbr` と同じ内容で `rendererType` だけ違う。撮った画像を並べて比べられる）
+
 ## シェーダー実装の注意（GLSL）
 シェーダーはビルド時に `#include <module:名前>` / `#include <part:名前>` を解決した完成形を shader_minifier で一括minifyする方式（`host/vite/plugins` の ShaderBuilder）。dev でも minify が走るのは意図的（minifier による破壊を保存→リロードで即検知するカナリア）。この前提から:
 
 - モジュール/part を個別・断片のまま minify に渡す方式へ戻さない
 - include は `#include <module:名前>` / `#include <part:名前>` 形式。`webgl/ShaderParser` の `shaderModules/名前.module.glsl` / `shaderParts/名前.part.glsl` をビルド時に動的解決するので、ファイルを置くだけで登録は不要。解決できない include はビルドエラーになる
+- `module` は1つのシェーダーに1回だけ入る（同じ module の2回目以降の include は空になる）。part は中で module・part を include してよい（入れ子は解決される）。シェーダーが自分で include した module を part がもう一度 include しても二重定義にならない
+- minifier は、どの呼び出しでも同じ uniform を渡している関数の引数を、その uniform の直接参照に置き換える。置き換えられた関数より後ろで uniform を宣言しているとコンパイルが失敗するので、uniform を引数に渡して module の関数（`viewDirection` など）を呼ぶシェーダーは、宣言（`frag_h`）を module より前に include する（`lite_out` を入れるシェーダーはすべて該当する。demo-webgl の `shape.fs`・`LiteRenderer/shaders/basicLit.fs`）
 - ソースに `//[` `//]`（minifier の verbatim マーカー）を書かない（区間内だけリネームされず宣言側と食い違って壊れる）
 - uniform 構造体のフィールド名（CPU側が `'directionalLight[0].direction'` 形式で参照する名前）はローダーが自動抽出して保護している。この形式の参照を増やしたら minify 後の描画を確認する
 - minify 結果の構文検証はブラウザ不要で `glslangValidator`（`brew install glslang`）に最終結合形を食わせると確実。デバッグダンプは `tmp/shader-minified/`

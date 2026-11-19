@@ -7,8 +7,6 @@ import { GL } from '../backend/GLBackend';
 import { Material } from '../Material';
 import { PostProcess } from '../PostProcess';
 import { PostProcessPass } from '../PostProcess/PostProcessPass';
-import { Renderer } from '../Renderer';
-import { RenderView } from '../Renderer/RenderView';
 
 import flatFrag from './shaders/flat.fs';
 import flatVert from './shaders/flat.vs';
@@ -20,6 +18,31 @@ import textureFrag from './shaders/texture.fs';
 
 import type { EngineContract } from '../../core/Contracts/EngineContract';
 import type { MaterialContract } from '../../core/Contracts/MaterialContract';
+import type { RendererContract } from '../../core/Contracts/RendererContract';
+import type { RenderViewContract } from '../../core/Contracts/RenderViewContract';
+import type { Entity } from '../../core/Entity';
+import type { GLBackend } from '../backend/GLBackend';
+import type { MaterialDrawPass } from '../Material';
+
+/*-------------------------------
+	重ね描きがレンダラーとビューに求める口。
+	Renderer / RenderView と LiteRenderer / LiteRenderView（offscreen）のどちらも満たす
+-------------------------------*/
+
+type EditorDrawRenderer = RendererContract & {
+	readonly backend: GLBackend;
+	renderCamera( renderType: MaterialDrawPass, cameraEntity: Entity, entities: Entity[], renderTarget: GLP.GLPowerFrameBuffer | null, canvasSize: MTP.Vector, renderOption?: { disableClear?: boolean } ): void;
+	renderPostProcess( postprocess: PostProcess, input?: GLP.GLPowerFrameBuffer, canvasSize?: MTP.Vector ): void;
+}
+
+// uiBuffer は重ね描き先（ビューの最終出力）、gBuffer はシーンの深度を借りる先
+type RenderView = RenderViewContract & {
+	readonly resolution: MTP.Vector;
+	readonly renderTarget: {
+		uiBuffer: GLP.GLPowerFrameBuffer;
+		gBuffer: GLP.GLPowerFrameBuffer;
+	};
+}
 
 /*-------------------------------
 	Handles
@@ -150,7 +173,7 @@ class GLEditorRecipe implements EditorRecipe {
 
 export class GLEditorDraw implements EditorDrawContract {
 
-	private _renderer: Renderer;
+	private _renderer: EditorDrawRenderer;
 	private _gl: WebGL2RenderingContext;
 
 	private _targets: GLEditorTarget[];
@@ -166,7 +189,7 @@ export class GLEditorDraw implements EditorDrawContract {
 	// readView の転写先。使われるまで作らない
 	private _viewTarget: GLEditorTarget | null;
 
-	constructor( renderer: Renderer ) {
+	constructor( renderer: EditorDrawRenderer ) {
 
 		this._renderer = renderer;
 		this._gl = renderer.backend.gl;
@@ -522,4 +545,4 @@ export class GLEditorDraw implements EditorDrawContract {
 }
 
 // エディタ描画のGL実装を組み立てる（@or-rendererの供給口）
-export const createEditorDraw = ( engine: EngineContract<Renderer> ): EditorDrawContract => new GLEditorDraw( engine.renderer );
+export const createEditorDraw = ( engine: EngineContract<EditorDrawRenderer> ): EditorDrawContract => new GLEditorDraw( engine.renderer );

@@ -215,7 +215,7 @@ export const EditorPage = ( props: EditorPageProps ) => {
 	};
 
 	return (
-		<OREngineProvider project={projectData} onEngineInit={( engine ) => {
+		<OREngineProvider project={projectData} onProjectChange={setProjectData} onEngineInit={( engine ) => {
 
 			props.initResourceInstances( engine );
 
