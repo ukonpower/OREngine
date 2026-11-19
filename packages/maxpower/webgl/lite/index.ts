@@ -5,6 +5,7 @@ export * from '../backend/ShaderParser';
 export * from '../../core';
 export * from '../Material';
 export * from '../LiteRenderer';
+export * from '../Loaders/GLTFLoader';
 
 // orengine の Engine は `maxpower` の Renderer / createRenderer を使うので、他のバックエンドのエントリと同じ名前でも出す
 export { LiteRenderer as Renderer, createLiteRenderer as createRenderer } from '../LiteRenderer';
