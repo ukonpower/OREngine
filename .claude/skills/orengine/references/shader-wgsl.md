@@ -73,6 +73,35 @@ fn fsDeferred( input: VertexOutput ) -> GBufferOutput {
 | `envIntensity` | f32 | `1.0` |
 | `sss` | f32 | `0.0`（SSS の強さ 0〜1。albedo.w に入り、レンダラーの `pipeline/sss/enabled` が true のときだけ効く） |
 
+## forward でライトを当てる
+
+`fsForward` でも deferred と同じライト・影・環境マップを当てられる。`#include <module:lighting>` して、シェーディングパスと同じ関数を呼ぶ（`demo-webgpu` の `Samples/Objects/Shape/shaders/shape.wgsl`）:
+
+```wgsl
+#include <module:lighting>
+
+@fragment
+fn fsForward( input: VertexOutput ) -> @location(0) vec4f {
+
+	let normal = normalize( input.normal );
+	let viewDir = viewDirection( input.worldPosition );
+	let info = surfaceInfo( vec3f( 0.8 ), 0.4, 0.0, 1.0 );	// albedo / roughness / metallic / envIntensity
+
+	// directional / spot の直接光と影
+	let direct = directLighting( input.worldPosition, normal, viewDir, info );
+
+	// 環境光。SSR は forward の面に当たらないので、当たりの色と割合は 0 で渡す
+	let lit = envLighting( normal, viewDir, info, direct, vec3f( 0.0 ), 0.0 );
+
+	return vec4f( lit.diffuse + lit.specular, 1.0 );
+
+}
+```
+
+- 使えるのは forward 系（`fsForward`。`envMap` phase も含む）だけ。SSAO と光の筋は forward には掛からない（WebGL と同じ）
+- `envMap` phase では、directional のシャドウマップは前に描いたビューの範囲のものを読む
+- `<module:lighting>` は `PI` / `fresnel` / `SurfaceInfo` / `Reflectance` なども宣言するので、本体で同じ名前を宣言しない（WGSL は同じ名前を2回宣言できない）
+
 ## 前置される名前
 
 本体から使える名前。定義は `Bindings/index.ts`（`FRAME_FIELDS` / `OBJECT_FIELDS`）と `Bindings/shaders/vertexOutput.wgsl`。
@@ -86,7 +115,7 @@ fn fsDeferred( input: VertexOutput ) -> GBufferOutput {
 | `material.<名前>` | Material の `uniforms` に渡したもの（`component-development.md` の「uniform」） |
 | `defaultSurface` / `packGBuffer` / `GBufferOutput` | deferred 用 |
 | `projectPrev( worldPositionPrev )` | 前フレームのワールド座標を前フレームのカメラで射影する。`positionPrev` に入れる |
-| `sampleEnvMap( dir, roughness )` / `refractionTexture` | forward 系（`fsForward`）専用。`fsDeferred` から参照するとパイプライン作成に失敗する。`refractionTexture` は forward パス開始時のシーンの写しで、先に描かれた forward も背後に含めたいときは Material の `readsScene: true` で描く直前に写し直す |
+| `refractionTexture` / `refractionSampler` / `envMap` / `envMapSampler` / `lights` / `directionalShadowMap` / `spotShadowMap` / `sampleShadow` | forward 系（`fsForward`）専用の group3。`fsDeferred` から参照するとパイプライン作成に失敗する。ライティングは `<module:lighting>` の関数で当てる（上の「forward でライトを当てる」）。`refractionTexture` は forward パス開始時のシーンの写しで、先に描かれた forward も背後に含めたいときは Material の `readsScene: true` で描く直前に写し直す |
 
 `frame` / `object` / `material` は GLSL と違い構造体のメンバーなので、`uTime` ではなく `frame.uTime` と書く。
 
@@ -115,7 +144,7 @@ fn fsDeferred( input: VertexOutput ) -> GBufferOutput {
 - `#include "./相対パス.wgsl"` — 近くのファイルへの分割
 - `#include <module:名前>` — `<projectDir>/Resources/shaders/名前.wgsl` → エンジンの `packages/maxpower/webgpu/shaderModules/名前.wgsl` の順に探す（同名ならプロジェクト側が勝つ）。ファイルを置くだけで使える（登録は不要）。見つからなければビルドエラー
 
-エンジン側の WGSL モジュールは `<module:sky>`（`skyPosition( input.normal )` — 空の模様用の仮想ワールド座標）だけ。ノイズ等はプロジェクトの `Resources/shaders/` に自分で置く（`demo-webgpu/Resources/shaders/noise.wgsl` に `noiseValue` / `noiseFbm` / `rotate2d` がある）。
+エンジン側の WGSL モジュールは `<module:sky>`（`skyPosition( input.normal )` — 空の模様用の仮想ワールド座標）、`<module:view>`（`viewDirection( position )` / `isBackground( position )`）、`<module:lighting>`（`surfaceInfo` / `directLighting` / `envLighting` / `sampleEnvMap`。forward 系専用。view も読み込む）。ノイズ等はプロジェクトの `Resources/shaders/` に自分で置く（`demo-webgpu/Resources/shaders/noise.wgsl` に `noiseValue` / `noiseFbm` / `rotate2d` がある）。
 
 ## HMR
 

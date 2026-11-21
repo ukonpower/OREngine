@@ -12,7 +12,7 @@ type PointerDragStart = {
 };
 
 type PointerDragCallbacks = {
-	// 押した位置からのずれ（px）。Pointer Lock 中は画面端で止まらずに積み上がる
+	// 押した位置からのずれ（CSS px）。Pointer Lock 中は画面端で止まらずに積み上がる
 	onMove: ( dx: number, dy: number, e: PointerEvent ) => void;
 	// 離したとき。SP のスクロール等でブラウザに打ち切られたときは e.type が "pointercancel" になる
 	onEnd: ( dragged: boolean, e: PointerEvent ) => void;
@@ -147,6 +147,101 @@ const releaseLock = ( user: LockUser ) => {
 };
 
 /*-------------------------------
+	movementX / Y の単位
+-------------------------------*/
+
+// movementX / Y は仕様上 screenX / Y の差分と同じ単位で、CSS px ではない。Chrome ではページズームが掛からず、
+// 実測でズーム 125% 前後のとき movementX 1 に対して clientX は 0.8 しか動かない（ロック中だけ 1.25 倍速く動く）。
+// devicePixelRatio は画面の倍率（Retina の 2 など）とページズームの積でズームだけを取り出せず、
+// ドラッグの閾値までの数 px の比は丸めで 10% 単位ずれる。そこでロックしていない間の pointermove で、
+// 十分に離れた2点の screenX / Y と clientX / Y の差分の比を測っておき、それを movementX / Y に掛ける
+
+// 比を測る2点の最小の距離（screenX / Y の単位）。screenX / Y が整数に丸められていても誤差は 1% 以内に収まる
+const CALIBRATION_DISTANCE = 100;
+
+// 比を測る起点。ウィンドウを動かす・ズームを変えると screenX と clientX の対応が変わるので、そのときの状態も持つ
+type CalibrationAnchor = {
+	screenX: number;
+	screenY: number;
+	clientX: number;
+	clientY: number;
+	windowX: number;
+	windowY: number;
+	pixelRatio: number;
+};
+
+let calibrationAnchor: CalibrationAnchor | null = null;
+
+// screenX / Y の 1 が何 CSS px か。測ったときの devicePixelRatio と今が違えば（ズームを変えた・別の画面へ移した）使わない
+let screenToClient = 1;
+let calibratedPixelRatio = 0;
+
+const createCalibrationAnchor = ( e: PointerEvent ): CalibrationAnchor => {
+
+	return {
+		screenX: e.screenX,
+		screenY: e.screenY,
+		clientX: e.clientX,
+		clientY: e.clientY,
+		windowX: window.screenX,
+		windowY: window.screenY,
+		pixelRatio: window.devicePixelRatio,
+	};
+
+};
+
+// 起点から十分に離れた pointermove で screenX / Y → CSS px の比を測り直し、そこを次の起点にする
+const calibrate = ( e: PointerEvent ) => {
+
+	// ロック中は screenX / Y・clientX / Y とも止まっている
+	if ( document.pointerLockElement ) {
+
+		calibrationAnchor = null;
+
+		return;
+
+	}
+
+	const anchor = calibrationAnchor;
+	const pixelRatio = window.devicePixelRatio;
+
+	if ( anchor === null || anchor.pixelRatio !== pixelRatio || anchor.windowX !== window.screenX || anchor.windowY !== window.screenY ) {
+
+		calibrationAnchor = createCalibrationAnchor( e );
+
+		return;
+
+	}
+
+	const screenDistance = Math.hypot( e.screenX - anchor.screenX, e.screenY - anchor.screenY );
+
+	if ( screenDistance < CALIBRATION_DISTANCE ) return;
+
+	const clientDistance = Math.hypot( e.clientX - anchor.clientX, e.clientY - anchor.clientY );
+
+	screenToClient = clientDistance / screenDistance;
+	calibratedPixelRatio = pixelRatio;
+	calibrationAnchor = createCalibrationAnchor( e );
+
+};
+
+// ドラッグを始める前のカーソルの移動から測るので、読み込んだ時点から聞いておく
+if ( typeof window !== "undefined" ) {
+
+	window.addEventListener( "pointermove", calibrate, { capture: true, passive: true } );
+
+}
+
+// movementX / Y を CSS px に直す倍率。まだ測れていなければ（読み込み後・ズームを変えた後にカーソルが大きく動いていない）1 のまま使う
+const movementScale = () => {
+
+	if ( calibratedPixelRatio !== window.devicePixelRatio ) return 1;
+
+	return screenToClient;
+
+};
+
+/*-------------------------------
 	Drag
 -------------------------------*/
 
@@ -161,6 +256,9 @@ export const trackPointerDrag = ( start: PointerDragStart, callbacks: PointerDra
 	let dy = 0;
 	let lastX = start.clientX;
 	let lastY = start.clientY;
+
+	// 前のイベントのときロック中だったか。ロックに切り替わった最初のイベントを見分けるため
+	let wasLocked = false;
 
 	const lockUser: LockUser = {
 		acquired: false,
@@ -224,11 +322,17 @@ export const trackPointerDrag = ( start: PointerDragStart, callbacks: PointerDra
 
 		}
 
-		// movementX / Y はロック中だけ使う。iOS Safari のタッチでは 0 になるため
-		if ( isLocked() ) {
+		// movementX / Y はロック中だけ使う。iOS Safari のタッチでは 0 になるため。
+		// ロックに切り替わった最初のイベントの movementX / Y には実際の動きと無関係な大きな値が乗る
+		// （実測: 1px ほどの動きで 31, -335）。そのとき clientX / Y は直前から止まっているので、座標の差分（ほぼ 0）で数える
+		const locked = isLocked();
 
-			dx += e.movementX;
-			dy += e.movementY;
+		if ( locked && wasLocked ) {
+
+			const scale = movementScale();
+
+			dx += e.movementX * scale;
+			dy += e.movementY * scale;
 
 		} else {
 
@@ -236,6 +340,8 @@ export const trackPointerDrag = ( start: PointerDragStart, callbacks: PointerDra
 			dy += e.clientY - lastY;
 
 		}
+
+		wasLocked = locked;
 
 		lastX = e.clientX;
 		lastY = e.clientY;

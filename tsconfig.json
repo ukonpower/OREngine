@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "useDefineForClassFields": true,
+    "useDefineForClassFields": false,
     "lib": [
       "ES2020",
       "DOM",
@@ -102,6 +102,7 @@
     "dist",
     "demo-webgl",
     "scripts",
+    "tests/scene-shots",
     "host/vite",
     "host/runner.ts",
     "host/index.ts"

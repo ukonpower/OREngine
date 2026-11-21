@@ -7,12 +7,16 @@
 //   uGbufferPos … gBufferのワールド座標（NEAREST）
 //   uGbufferNormal … normalSelector の法線（NEAREST）
 //   uSsaoBackBuffer … 前フレームの自分の出力（x: 遮蔽、y: そのときのビュー空間Z）
-//   pp.uIntensity … 遮蔽の強さ。0でこのパスの寄与が消える
+//   pp.uIntensity … 有効なら1、無効なら0。0でこのパスの寄与が消える
 //   pp.uFrame … ジッタを回すためのフレーム番号
-//   pp.uTemporal … 0で時間方向の蓄積をやめ、1フレームぶんの結果をそのまま出す
-//   pp.uTemporalBlend … 新しい結果の重み。小さいほどノイズは減るが、遮蔽の変化が尾を引く
+//
+// webgl 側の ssao.fs と同じ処理
 
 #include "./random.wgsl"
+
+// 新しい結果の重み。小さいほどノイズは減るが、遮蔽の変化が尾を引く。
+// lightShaft（0.3）より1フレームのばらつきが大きいので低めにしている
+const TEMPORAL_BLEND = 0.2;
 
 // 再投影が画面上で動いた量に対して履歴を捨てる強さ。
 // 画面の5%ぶん動いたら履歴を使わなくなる（lightShaft の TEMPORAL_REJECT と同じ値）
@@ -62,13 +66,24 @@ fn fsMain( input: FullscreenOutput ) -> @location(0) vec4f {
 	let kernelMatrix = mat3x3f( tangent, bitangent, normal );
 
 	var occlusion = 0.0;
+	var sampleCount = 0.0;
 
 	for ( var i = 0; i < SSAO_SAMPLES; i ++ ) {
 
 		let sampleOffset = kernelMatrix * SSAO_KERNEL[ i ];
 		let samplePos = rayPos + sampleOffset * dist;
+		let sampleUv = worldToUv( samplePos );
 
-		let sampledWorld = textureSampleLevel( uGbufferPos, ppSamplerNearest, worldToUv( samplePos ), 0.0 ).xyz;
+		// 画面の外では clamp-to-edge で端の画素の位置を読んでしまい、そこにある面と比べられないので数えない
+		if ( any( sampleUv < vec2f( 0.0 ) ) || any( sampleUv > vec2f( 1.0 ) ) ) {
+
+			continue;
+
+		}
+
+		sampleCount += 1.0;
+
+		let sampledWorld = textureSampleLevel( uGbufferPos, ppSamplerNearest, sampleUv, 0.0 ).xyz;
 
 		let sampledViewZ = ( frame.uViewMatrix * vec4f( sampledWorld, 1.0 ) ).z;
 		let sampleViewZ = ( frame.uViewMatrix * vec4f( samplePos, 1.0 ) ).z;
@@ -81,16 +96,11 @@ fn fsMain( input: FullscreenOutput ) -> @location(0) vec4f {
 
 	}
 
-	occlusion = occlusion / f32( SSAO_SAMPLES ) * pp.uIntensity;
+	// 画面の中に残ったサンプルだけで平均する（全数で割ると端ほど遮蔽が薄くなる）
+	occlusion = occlusion / max( sampleCount, 1.0 ) * pp.uIntensity;
 
 	// 履歴と突き合わせるため、この画素の面のビュー空間Zも一緒に残す
 	let viewZ = ( frame.uViewMatrix * vec4f( rayPos, 1.0 ) ).z;
-
-	if ( pp.uTemporal < 0.5 ) {
-
-		return vec4f( occlusion, viewZ, 0.0, 1.0 );
-
-	}
 
 	// この画素の面を前フレームのカメラで見たときの画面位置。そこに前フレームの遮蔽が残っている
 	let prevView = frame.uViewMatrixPrev * vec4f( rayPos, 1.0 );
@@ -105,7 +115,7 @@ fn fsMain( input: FullscreenOutput ) -> @location(0) vec4f {
 	// 前フレームにそこで見えていた面が同じ面なら、前フレームのカメラから見た深度が一致する
 	let depthDiff = abs( history.y - prevView.z ) / max( abs( prevView.z ), 0.0001 );
 
-	var alpha = pp.uTemporalBlend + motion * TEMPORAL_REJECT;
+	var alpha = TEMPORAL_BLEND + motion * TEMPORAL_REJECT;
 	alpha = mix( alpha, 1.0, smoothstep( DEPTH_REJECT_LOW, DEPTH_REJECT_HIGH, depthDiff ) );
 
 	// 画面の外から来たピクセルには履歴が無い

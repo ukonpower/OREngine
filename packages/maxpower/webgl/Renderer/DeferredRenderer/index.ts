@@ -3,6 +3,8 @@ import * as GLP from 'glpower';
 import * as MTP from 'mathpower';
 import * as MXP from 'maxpower';
 
+import { devName } from '../../../core/utils/DevName';
+import { ssaoKernel } from '../../../core/utils/SSAOKernel';
 import { sssKernel } from '../../../core/utils/SSSKernel';
 import { GL, GLBackend } from '../../backend/GLBackend';
 
@@ -15,28 +17,6 @@ import ssaoBlurFrag from './shaders/ssaoBlur.fs';
 import ssrFrag from './shaders/ssr.fs';
 import ssrTemporalFrag from './shaders/ssrTemporal.fs';
 import sssFrag from './shaders/sss.fs';
-
-
-const ssaoKernel = ( kernelSize: number ) => {
-
-	const kernel = [];
-	for ( let i = 0; i < kernelSize; i ++ ) {
-
-		const sample = new MTP.Vector();
-		sample.x = Math.random() * 2.0 - 1.0;
-		sample.y = Math.random() * 2.0 - 1.0;
-		sample.z = i / kernelSize * 0.95 + 0.05;
-		sample.normalize();
-
-		sample.multiply( i / kernelSize * 0.95 + 0.05 );
-
-		kernel.push( ...sample.getElm( "vec3" ) );
-
-	}
-
-	return kernel;
-
-};
 
 type Params = {
 	backend: GLBackend;
@@ -56,10 +36,13 @@ export type DeferredRendererPassConfig = {
 // SSS のカーネルの片側のサンプル数（中心を含む）。両側で 17 タップになり、SeparableSSS の既定と同じ
 const SSS_SAMPLES = 9;
 
+// SSAO のカーネルのサンプル数。webgpu 側 PipelinePostProcess/shaders の SSAO_SAMPLES と一致させる
+const SSAO_SAMPLES = 16;
+
 // lightShaft のぼかしの片側のサンプル数（中心を含む）。webgpu 側 PipelinePostProcess の LIGHT_SHAFT_BLUR_SAMPLES と一致させる
 const LIGHT_SHAFT_BLUR_SAMPLES = 6;
 
-// lightShaft のジッタの巡回周期。蓄積されるフレーム数（lightShaft.fs の 1 / TEMPORAL_BLEND）より十分長ければよい
+// lightShaft と SSAO のジッタの巡回周期。蓄積されるフレーム数（lightShaft.fs / ssao.fs の 1 / TEMPORAL_BLEND）より十分長ければよい
 const LIGHT_SHAFT_JITTER_CYCLE = 64;
 
 export class DeferredRenderer extends EventEmitter {
@@ -117,7 +100,7 @@ export class DeferredRenderer extends EventEmitter {
 		// normal buffer
 
 		const normalSelector = new MXP.PostProcessPass( backend, {
-			name: 'normalSelector',
+			name: devName( 'normalSelector' ),
 			frag: normalSelectorFrag,
 			renderTarget: null,
 			uniforms: MXP.UniformsUtils.merge( {
@@ -148,7 +131,7 @@ export class DeferredRenderer extends EventEmitter {
 		const rtLightShaft2 = lightShaftTarget();
 
 		const lightShaft = new MXP.PostProcessPass( backend, {
-			name: 'lightShaft',
+			name: devName( 'lightShaft' ),
 			frag: lightShaftFrag,
 			renderTarget: rtLightShaft1,
 			uniforms: MXP.UniformsUtils.merge( {
@@ -185,7 +168,7 @@ export class DeferredRenderer extends EventEmitter {
 		} );
 
 		const lightShaftBlurH = new MXP.PostProcessPass( backend, {
-			name: 'lightShaft/blur/h',
+			name: devName( 'lightShaft/blur/h' ),
 			frag: lightShaftBlurFrag,
 			uniforms: lightShaftBlurUni,
 			renderTarget: lightShaftTarget(),
@@ -197,7 +180,7 @@ export class DeferredRenderer extends EventEmitter {
 		} );
 
 		const lightShaftBlurV = new MXP.PostProcessPass( backend, {
-			name: 'lightShaft/blur/v',
+			name: devName( 'lightShaft/blur/v' ),
 			frag: lightShaftBlurFrag,
 			uniforms: MXP.UniformsUtils.merge( lightShaftBlurUni, {
 				uLightShaftTexture: {
@@ -215,17 +198,17 @@ export class DeferredRenderer extends EventEmitter {
 		} );
 
 		// ssao
+		// 履歴の y に再投影の突き合わせに使うビュー空間Z（負の値）を持つので、8bit ではなく浮動小数点にする
 
-		const rtSSAO1 = backend.createFrameBuffer().setTexture( [
-			backend.createTexture().setting( { magFilter: GL.LINEAR, minFilter: GL.LINEAR } ),
+		const ssaoTarget = () => backend.createFrameBuffer( { disableDepthBuffer: true } ).setTexture( [
+			backend.createTexture().setting( { type: GL.FLOAT, internalFormat: GL.RGBA16F, format: GL.RGBA, magFilter: GL.LINEAR, minFilter: GL.LINEAR } ),
 		] );
 
-		const rtSSAO2 = backend.createFrameBuffer().setTexture( [
-			backend.createTexture().setting( { magFilter: GL.LINEAR, minFilter: GL.LINEAR } ),
-		] );
+		const rtSSAO1 = ssaoTarget();
+		const rtSSAO2 = ssaoTarget();
 
 		const ssao = new MXP.PostProcessPass( backend, {
-			name: 'ssao',
+			name: devName( 'ssao' ),
 			frag: ssaoFrag,
 			renderTarget: MXP.hotGet( "ssao", rtSSAO1 ),
 			uniforms: MXP.UniformsUtils.merge( {
@@ -234,12 +217,19 @@ export class DeferredRenderer extends EventEmitter {
 					type: '1i'
 				},
 				uSSAOKernel: {
-					value: ssaoKernel( 16 ),
+					value: ssaoKernel( SSAO_SAMPLES ),
 					type: "3fv"
-				}
+				},
+				uFrame: {
+					value: 0,
+					type: '1f'
+				},
 			} ),
 			resolutionRatio: 0.5,
 			passThrough: true,
+			defines: {
+				SSAO_SAMPLES
+			}
 		} );
 
 		if ( import.meta.hot ) {
@@ -279,11 +269,12 @@ export class DeferredRenderer extends EventEmitter {
 			},
 		} );
 
+		// ぼかしは本体と同じ半解像度で掛ける（等倍で掛けると tap 間隔が半解像度の半分になり、ブロックが残る）
 		const ssaoBlurH = new MXP.PostProcessPass( backend, {
-			name: 'ssaoBlur/h',
+			name: devName( 'ssaoBlur/h' ),
 			frag: MXP.hotGet( "ssaoBlur", ssaoBlurFrag ),
 			uniforms: ssaoBlurUni,
-			resolutionRatio: 1.0,
+			resolutionRatio: 0.5,
 			passThrough: true,
 			defines: {
 				SSAOSAMPLE
@@ -291,7 +282,7 @@ export class DeferredRenderer extends EventEmitter {
 		} );
 
 		const ssaoBlurV = new MXP.PostProcessPass( backend, {
-			name: 'ssaoBlur/v',
+			name: devName( 'ssaoBlur/v' ),
 			frag: MXP.hotGet( "ssaoBlur", ssaoBlurFrag ),
 			uniforms: MXP.UniformsUtils.merge( ssaoBlurUni, {
 				uSSAOTexture: {
@@ -303,7 +294,7 @@ export class DeferredRenderer extends EventEmitter {
 				SSAOSAMPLE,
 				IS_VIRT: ''
 			},
-			resolutionRatio: 1.0,
+			resolutionRatio: 0.5,
 			passThrough: true,
 		} );
 
@@ -332,7 +323,7 @@ export class DeferredRenderer extends EventEmitter {
 		] );
 
 		const ssr = new MXP.PostProcessPass( backend, {
-			name: 'ssr',
+			name: devName( 'ssr' ),
 			frag: MXP.hotGet( "ssr", ssrFrag ),
 			renderTarget: ssrTarget(),
 			uniforms: MXP.UniformsUtils.merge( {
@@ -361,7 +352,7 @@ export class DeferredRenderer extends EventEmitter {
 		const rtSSR2 = ssrTarget();
 
 		const ssrTemporal = new MXP.PostProcessPass( backend, {
-			name: 'ssrTemporal',
+			name: devName( 'ssrTemporal' ),
 			frag: MXP.hotGet( "ssrTemporal", ssrTemporalFrag ),
 			renderTarget: rtSSR1,
 			uniforms: MXP.UniformsUtils.merge( {
@@ -417,7 +408,7 @@ export class DeferredRenderer extends EventEmitter {
 		// shading
 
 		const shading = new MXP.PostProcessPass( backend, {
-			name: "deferredShading",
+			name: devName( "deferredShading" ),
 			frag: MXP.hotGet( "deferredShading", deferredShadingFrag ),
 			uniforms: MXP.UniformsUtils.merge( {
 				uLightShaftTexture: {
@@ -477,7 +468,7 @@ export class DeferredRenderer extends EventEmitter {
 		} );
 
 		const sssH = new MXP.PostProcessPass( backend, {
-			name: 'sss/h',
+			name: devName( 'sss/h' ),
 			frag: MXP.hotGet( "sss", sssFrag ),
 			uniforms: sssUni,
 			renderTarget: sssTarget(),
@@ -489,7 +480,7 @@ export class DeferredRenderer extends EventEmitter {
 
 		// 入力と出力が同じ shadingBuffer[0] にならないよう、縦は別の描画先に出してから写し戻す
 		const sssV = new MXP.PostProcessPass( backend, {
-			name: 'sss/v',
+			name: devName( 'sss/v' ),
 			frag: MXP.hotGet( "sss", sssFrag ),
 			uniforms: MXP.UniformsUtils.merge( sssUni, {
 				uDiffuseTexture: {
@@ -514,7 +505,7 @@ export class DeferredRenderer extends EventEmitter {
 
 		// forward がこの上に重ねるので、結果は shadingBuffer[0] に置く
 		const sssCopy = new MXP.PostProcessPass( backend, {
-			name: 'sss/copy',
+			name: devName( 'sss/copy' ),
 			renderTarget: backend.createFrameBuffer( { disableDepthBuffer: true } ).setTexture( [
 				renderTarget.shadingBuffer.textures[ 0 ],
 			] ),
@@ -641,6 +632,7 @@ export class DeferredRenderer extends EventEmitter {
 		const jitter = this.lightShaft.uniforms.uFrame;
 
 		jitter.value = ( jitter.value + 1 ) % LIGHT_SHAFT_JITTER_CYCLE;
+		this.ssao.uniforms.uFrame.value = jitter.value;
 
 		// ssao swap
 

@@ -1,6 +1,5 @@
-import { useEffect } from 'react';
-
 import { withInputWindow } from '@or-storybook/decorators/withInputWindow';
+import { useEffect } from 'react';
 
 import { useInputWindow } from '../hooks/useInputWindow';
 

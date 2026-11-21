@@ -1,15 +1,13 @@
 
 export * from './Animation/Animator';
-export * from './Animation/Bezier';
+export * as Bezier from './Animation/Bezier';
 export * from './Animation/Easings';
 export * from './Animation/FCurve';
-export * from './Animation/FCurveGroup';
 export * from './Animation/FCurveKeyFrame';
 export * from './Animation/KeyFrameDecoder';
 export * from './BLidge';
 export * from './Component';
 export * from './Components/BLidger';
-export * from './Components/BLidgerUniformReceiver';
 export * from './Components/Camera';
 export * from './Components/Camera/ShadowMapCamera';
 export * from './Components/Light';
@@ -32,9 +30,10 @@ export * from './Geometries/RingGeometry';
 export * from './Geometries/SphereGeometry';
 export * from './Serializable';
 export * from './utils/Curve';
+export * from './utils/DevName';
 export * from './utils/EntityClone';
 export * from './utils/Hot';
 export * from './utils/Ray';
 export * from './utils/Raycaster';
 export * from './utils/RenderWait';
-export * from './utils/Uniforms';
+export * as UniformsUtils from './utils/Uniforms';

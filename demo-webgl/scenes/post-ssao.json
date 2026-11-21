@@ -1,0 +1,808 @@
+{
+	"name": "demo-webgl",
+	"scene": {
+		"name": "root",
+		"uuid": "0",
+		"childs": [
+			{
+				"name": "Camera",
+				"uuid": "16ccb4d7-0144-48aa-9743-af01581cfac0",
+				"pos": [
+					0,
+					1.4,
+					2.6
+				],
+				"rot": [
+					-0.4481,
+					0,
+					0
+				],
+				"components": [
+					{
+						"name": "Camera",
+						"uuid": "0d004cac-0923-496b-abd4-b69c0f31ad21",
+						"props": {
+							"fov": 35,
+							"near": 0.1,
+							"far": 100,
+							"focus/mode": "manual",
+							"focus/distance": 2.8849
+						}
+					}
+				]
+			},
+			{
+				"name": "Floor",
+				"uuid": "f9409613-3236-4db8-bb32-a1e927ffae06",
+				"scale": [
+					40,
+					1,
+					40
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "2930c8b6-8f82-42d3-9940-dd2a5a6a7419",
+						"props": {
+							"shape": "plane",
+							"color": [
+								0.8,
+								0.8,
+								0.8
+							],
+							"roughness": 0.9
+						}
+					}
+				]
+			},
+			{
+				"name": "Box00",
+				"uuid": "40198859-514d-4a5c-93cd-aadb26889d88",
+				"pos": [
+					-0.72,
+					0.075,
+					-0.72
+				],
+				"scale": [
+					0.3,
+					0.15,
+					0.3
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "6ebe5229-5bdd-45c4-8766-a198ef68318d",
+						"props": {
+							"shape": "cube",
+							"color": [
+								0.8,
+								0.8,
+								0.8
+							],
+							"roughness": 0.9
+						}
+					}
+				]
+			},
+			{
+				"name": "Box01",
+				"uuid": "94542672-96f5-47da-8aab-7a5954647a57",
+				"pos": [
+					-0.72,
+					0.15,
+					-0.36
+				],
+				"scale": [
+					0.3,
+					0.3,
+					0.3
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "dea17822-f3c5-4aa3-b011-fff693fcfc1f",
+						"props": {
+							"shape": "cube",
+							"color": [
+								0.8,
+								0.8,
+								0.8
+							],
+							"roughness": 0.9
+						}
+					}
+				]
+			},
+			{
+				"name": "Box02",
+				"uuid": "d963a6a9-cdc7-4f7f-bbc3-b83b296a5056",
+				"pos": [
+					-0.72,
+					0.225,
+					0
+				],
+				"scale": [
+					0.3,
+					0.45,
+					0.3
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "b955aa2b-5744-4671-af1d-92cc863c8cd3",
+						"props": {
+							"shape": "cube",
+							"color": [
+								0.8,
+								0.8,
+								0.8
+							],
+							"roughness": 0.9
+						}
+					}
+				]
+			},
+			{
+				"name": "Box03",
+				"uuid": "bdd93661-a06c-4aeb-8250-b604fb99a5e8",
+				"pos": [
+					-0.72,
+					0.3,
+					0.36
+				],
+				"scale": [
+					0.3,
+					0.6,
+					0.3
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "3c2f1086-56f8-45ac-85d4-162b8297be12",
+						"props": {
+							"shape": "cube",
+							"color": [
+								0.8,
+								0.8,
+								0.8
+							],
+							"roughness": 0.9
+						}
+					}
+				]
+			},
+			{
+				"name": "Box04",
+				"uuid": "076b94f9-1678-4fa2-9d3d-649ba9c94396",
+				"pos": [
+					-0.72,
+					0.075,
+					0.72
+				],
+				"scale": [
+					0.3,
+					0.15,
+					0.3
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "9ed1137b-8f4b-49a6-9563-8fc5e7ba3849",
+						"props": {
+							"shape": "cube",
+							"color": [
+								0.8,
+								0.8,
+								0.8
+							],
+							"roughness": 0.9
+						}
+					}
+				]
+			},
+			{
+				"name": "Box10",
+				"uuid": "9b669c6b-010c-49f1-9834-68e5210fced0",
+				"pos": [
+					-0.36,
+					0.3,
+					-0.72
+				],
+				"scale": [
+					0.3,
+					0.6,
+					0.3
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "db9b2b75-5375-4cee-b907-5a11780c6b85",
+						"props": {
+							"shape": "cube",
+							"color": [
+								0.8,
+								0.8,
+								0.8
+							],
+							"roughness": 0.9
+						}
+					}
+				]
+			},
+			{
+				"name": "Box11",
+				"uuid": "00d45979-b2ab-4aed-b9c6-81f2f54da85a",
+				"pos": [
+					-0.36,
+					0.075,
+					-0.36
+				],
+				"scale": [
+					0.3,
+					0.15,
+					0.3
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "0b5f964b-1b7a-460c-b317-f6a85b3f7010",
+						"props": {
+							"shape": "cube",
+							"color": [
+								0.8,
+								0.8,
+								0.8
+							],
+							"roughness": 0.9
+						}
+					}
+				]
+			},
+			{
+				"name": "Box12",
+				"uuid": "67b2d0eb-c83e-4a2e-a0dd-a2df573337f0",
+				"pos": [
+					-0.36,
+					0.15,
+					0
+				],
+				"scale": [
+					0.3,
+					0.3,
+					0.3
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "503836db-47b1-409d-9f3e-30d6a6fa0bf8",
+						"props": {
+							"shape": "cube",
+							"color": [
+								0.8,
+								0.8,
+								0.8
+							],
+							"roughness": 0.9
+						}
+					}
+				]
+			},
+			{
+				"name": "Box13",
+				"uuid": "3e1e24c1-fb63-4f6d-b3ad-22e9cbedcd98",
+				"pos": [
+					-0.36,
+					0.225,
+					0.36
+				],
+				"scale": [
+					0.3,
+					0.45,
+					0.3
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "771a986d-9bb8-4070-b56a-7abf8b5b5cd8",
+						"props": {
+							"shape": "cube",
+							"color": [
+								0.8,
+								0.8,
+								0.8
+							],
+							"roughness": 0.9
+						}
+					}
+				]
+			},
+			{
+				"name": "Box14",
+				"uuid": "a5fa7111-6ecd-420b-812d-feb7f6b966e4",
+				"pos": [
+					-0.36,
+					0.3,
+					0.72
+				],
+				"scale": [
+					0.3,
+					0.6,
+					0.3
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "b094932c-c7e1-45fd-9fbb-72c4acc935ee",
+						"props": {
+							"shape": "cube",
+							"color": [
+								0.8,
+								0.8,
+								0.8
+							],
+							"roughness": 0.9
+						}
+					}
+				]
+			},
+			{
+				"name": "Box20",
+				"uuid": "c68264fe-db27-48c3-a3e6-085ca234a17e",
+				"pos": [
+					0,
+					0.225,
+					-0.72
+				],
+				"scale": [
+					0.3,
+					0.45,
+					0.3
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "94258a8d-53f4-43ff-a470-42982821c960",
+						"props": {
+							"shape": "cube",
+							"color": [
+								0.8,
+								0.8,
+								0.8
+							],
+							"roughness": 0.9
+						}
+					}
+				]
+			},
+			{
+				"name": "Box21",
+				"uuid": "221431cd-5211-4c9e-9808-f85a079e6e47",
+				"pos": [
+					0,
+					0.3,
+					-0.36
+				],
+				"scale": [
+					0.3,
+					0.6,
+					0.3
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "49d041b9-541f-4d08-8ec0-a3519225c2ac",
+						"props": {
+							"shape": "cube",
+							"color": [
+								0.8,
+								0.8,
+								0.8
+							],
+							"roughness": 0.9
+						}
+					}
+				]
+			},
+			{
+				"name": "Box22",
+				"uuid": "e341a063-a9e5-4e7b-8a31-4e6ec355c20b",
+				"pos": [
+					0,
+					0.075,
+					0
+				],
+				"scale": [
+					0.3,
+					0.15,
+					0.3
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "80956d0b-4849-47ed-96ab-3e0c954d0219",
+						"props": {
+							"shape": "cube",
+							"color": [
+								0.8,
+								0.8,
+								0.8
+							],
+							"roughness": 0.9
+						}
+					}
+				]
+			},
+			{
+				"name": "Box23",
+				"uuid": "ca0c3a6d-7001-4230-a795-8f5667b9a830",
+				"pos": [
+					0,
+					0.15,
+					0.36
+				],
+				"scale": [
+					0.3,
+					0.3,
+					0.3
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "e60e459a-e7a1-48d4-8695-b33f09f658db",
+						"props": {
+							"shape": "cube",
+							"color": [
+								0.8,
+								0.8,
+								0.8
+							],
+							"roughness": 0.9
+						}
+					}
+				]
+			},
+			{
+				"name": "Box24",
+				"uuid": "56598252-77c4-43c2-a714-94cbf3a0084d",
+				"pos": [
+					0,
+					0.225,
+					0.72
+				],
+				"scale": [
+					0.3,
+					0.45,
+					0.3
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "33263b2a-2703-4e68-958a-f4c9ddc34e72",
+						"props": {
+							"shape": "cube",
+							"color": [
+								0.8,
+								0.8,
+								0.8
+							],
+							"roughness": 0.9
+						}
+					}
+				]
+			},
+			{
+				"name": "Box30",
+				"uuid": "e5785d40-54ba-44eb-8c28-81b24044ddf7",
+				"pos": [
+					0.36,
+					0.15,
+					-0.72
+				],
+				"scale": [
+					0.3,
+					0.3,
+					0.3
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "e05e932e-eaa3-4f21-9cb9-d38f6ea5f4e9",
+						"props": {
+							"shape": "cube",
+							"color": [
+								0.8,
+								0.8,
+								0.8
+							],
+							"roughness": 0.9
+						}
+					}
+				]
+			},
+			{
+				"name": "Box31",
+				"uuid": "c1f4e255-e439-484a-88fa-caaabe294de4",
+				"pos": [
+					0.36,
+					0.225,
+					-0.36
+				],
+				"scale": [
+					0.3,
+					0.45,
+					0.3
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "4f8b5e9d-3eb7-400b-a2b1-985aaf6d4a89",
+						"props": {
+							"shape": "cube",
+							"color": [
+								0.8,
+								0.8,
+								0.8
+							],
+							"roughness": 0.9
+						}
+					}
+				]
+			},
+			{
+				"name": "Box32",
+				"uuid": "248147c4-a00b-427d-9d46-c1b672327991",
+				"pos": [
+					0.36,
+					0.3,
+					0
+				],
+				"scale": [
+					0.3,
+					0.6,
+					0.3
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "57b79300-8ef2-429f-9710-ea374031b681",
+						"props": {
+							"shape": "cube",
+							"color": [
+								0.8,
+								0.8,
+								0.8
+							],
+							"roughness": 0.9
+						}
+					}
+				]
+			},
+			{
+				"name": "Box33",
+				"uuid": "18f17a4b-d18c-499e-891b-7978186b70d6",
+				"pos": [
+					0.36,
+					0.075,
+					0.36
+				],
+				"scale": [
+					0.3,
+					0.15,
+					0.3
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "5f7fa48e-47d7-4359-b8c7-a00a6860e4ed",
+						"props": {
+							"shape": "cube",
+							"color": [
+								0.8,
+								0.8,
+								0.8
+							],
+							"roughness": 0.9
+						}
+					}
+				]
+			},
+			{
+				"name": "Box34",
+				"uuid": "d02482d3-a4c1-4c33-92f2-18d05e33010c",
+				"pos": [
+					0.36,
+					0.15,
+					0.72
+				],
+				"scale": [
+					0.3,
+					0.3,
+					0.3
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "18ff4406-0554-4a22-8e04-a018f5d57ab4",
+						"props": {
+							"shape": "cube",
+							"color": [
+								0.8,
+								0.8,
+								0.8
+							],
+							"roughness": 0.9
+						}
+					}
+				]
+			},
+			{
+				"name": "Box40",
+				"uuid": "fdf31f7d-60ad-4f57-a5cd-33784a208ac1",
+				"pos": [
+					0.72,
+					0.075,
+					-0.72
+				],
+				"scale": [
+					0.3,
+					0.15,
+					0.3
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "21dc8043-5f7d-4e7b-b43e-47b9f2561749",
+						"props": {
+							"shape": "cube",
+							"color": [
+								0.8,
+								0.8,
+								0.8
+							],
+							"roughness": 0.9
+						}
+					}
+				]
+			},
+			{
+				"name": "Box41",
+				"uuid": "54e8ffd2-016b-485c-b709-9294389b75bf",
+				"pos": [
+					0.72,
+					0.15,
+					-0.36
+				],
+				"scale": [
+					0.3,
+					0.3,
+					0.3
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "e1008eff-8eb6-4139-b208-224ca76868a0",
+						"props": {
+							"shape": "cube",
+							"color": [
+								0.8,
+								0.8,
+								0.8
+							],
+							"roughness": 0.9
+						}
+					}
+				]
+			},
+			{
+				"name": "Box42",
+				"uuid": "7a054202-b110-48e4-8b75-6085e0c49f1d",
+				"pos": [
+					0.72,
+					0.225,
+					0
+				],
+				"scale": [
+					0.3,
+					0.45,
+					0.3
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "867cb73c-757b-4070-8dff-193d2cdc8674",
+						"props": {
+							"shape": "cube",
+							"color": [
+								0.8,
+								0.8,
+								0.8
+							],
+							"roughness": 0.9
+						}
+					}
+				]
+			},
+			{
+				"name": "Box43",
+				"uuid": "663bcd7a-7622-4350-b3e6-b265b610b846",
+				"pos": [
+					0.72,
+					0.3,
+					0.36
+				],
+				"scale": [
+					0.3,
+					0.6,
+					0.3
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "499e520c-fdb1-4a04-a54b-93b77fb5a072",
+						"props": {
+							"shape": "cube",
+							"color": [
+								0.8,
+								0.8,
+								0.8
+							],
+							"roughness": 0.9
+						}
+					}
+				]
+			},
+			{
+				"name": "Box44",
+				"uuid": "90a072ed-14d6-4615-8521-2d108b889312",
+				"pos": [
+					0.72,
+					0.075,
+					0.72
+				],
+				"scale": [
+					0.3,
+					0.15,
+					0.3
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "f30a70f1-7735-409a-bbc8-8ea57246a7cd",
+						"props": {
+							"shape": "cube",
+							"color": [
+								0.8,
+								0.8,
+								0.8
+							],
+							"roughness": 0.9
+						}
+					}
+				]
+			}
+		]
+	},
+	"renderer": {
+		"sky/skyColor": [
+			0.4,
+			0.4,
+			0.4
+		],
+		"sky/groundColor": [
+			0.15,
+			0.15,
+			0.15
+		],
+		"sky/intensity": 1,
+		"pipeline/motionBlur/enabled": false,
+		"pipeline/ssr/enabled": false,
+		"pipeline/ssao/enabled": true,
+		"pipeline/dof/enabled": false,
+		"pipeline/lightShaft/enabled": false,
+		"pipeline/toneMap/enabled": false,
+		"pipeline/bloom/enabled": false,
+		"pipeline/sss/enabled": false
+	},
+	"timeline/duration": 600,
+	"timeline/fps": 60
+}

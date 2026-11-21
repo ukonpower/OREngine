@@ -2,9 +2,9 @@ import { useMemo, useRef } from 'react';
 
 import { trackPointerDrag } from 'uipower';
 
+import { useViewWheel } from '../../../../../../hooks/useViewWheel';
+import { dragZoomFactor, hasZoomModifier } from '../../../../../../lib/viewGesture';
 import { useTimeline } from '../../../../hooks/useTimeline';
-import { useViewWheel } from '../../../../hooks/useViewWheel';
-import { dragZoomFactor, hasZoomModifier } from '../../../../lib/ViewGesture';
 import { useElementSize } from '../../hooks/useElementSize';
 import { useKeyEditor } from '../../hooks/useKeyEditor';
 import { activeHandleSides, curveColor, curvePath, graphScale, valueTicks, zoomValueRange } from '../../lib/CurveGraph';

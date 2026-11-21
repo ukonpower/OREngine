@@ -1,0 +1,239 @@
+{
+	"name": "demo-webgpu",
+	"scene": {
+		"name": "root",
+		"uuid": "0",
+		"childs": [
+			{
+				"name": "Camera",
+				"uuid": "7f0de7c9-601a-4034-a8fe-5a23980e1108",
+				"pos": [
+					0,
+					0,
+					6
+				],
+				"rot": [
+					0,
+					0,
+					0
+				],
+				"components": [
+					{
+						"name": "Camera",
+						"uuid": "734d5b72-8249-4f89-a898-eebffed65c75",
+						"props": {
+							"fov": 35,
+							"near": 0.1,
+							"far": 100,
+							"focus/mode": "manual",
+							"focus/distance": 6
+						}
+					}
+				]
+			},
+			{
+				"name": "Mirror0",
+				"uuid": "ae5a45c6-f62e-4a1a-a1ac-87d5a5ef6acb",
+				"pos": [
+					-2.3,
+					0,
+					0
+				],
+				"scale": [
+					0.95,
+					0.95,
+					0.95
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "b4ce7340-f038-417f-a588-7569d3dd5ca1",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								0.95,
+								0.95,
+								0.95
+							],
+							"roughness": 0,
+							"metallic": 1
+						}
+					}
+				]
+			},
+			{
+				"name": "Mirror1",
+				"uuid": "60e9ac55-eef4-4bfb-a474-d76f4bb6d51e",
+				"pos": [
+					-1.15,
+					0,
+					0
+				],
+				"scale": [
+					0.95,
+					0.95,
+					0.95
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "ffafce2f-6873-4c9d-a677-5e14414bd3d9",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								0.95,
+								0.95,
+								0.95
+							],
+							"roughness": 0.25,
+							"metallic": 1
+						}
+					}
+				]
+			},
+			{
+				"name": "Mirror2",
+				"uuid": "e118276e-63c3-41e9-adeb-85a23b53f72f",
+				"pos": [
+					0,
+					0,
+					0
+				],
+				"scale": [
+					0.95,
+					0.95,
+					0.95
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "1d43b976-7837-4210-a2aa-242e4e7f8d45",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								0.95,
+								0.95,
+								0.95
+							],
+							"roughness": 0.5,
+							"metallic": 1
+						}
+					}
+				]
+			},
+			{
+				"name": "Mirror3",
+				"uuid": "ebba42c2-c9d3-46d0-a21f-393849e626a5",
+				"pos": [
+					1.15,
+					0,
+					0
+				],
+				"scale": [
+					0.95,
+					0.95,
+					0.95
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "01839109-8877-49b5-a7e7-53973ca64dd9",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								0.95,
+								0.95,
+								0.95
+							],
+							"roughness": 0.75,
+							"metallic": 1
+						}
+					}
+				]
+			},
+			{
+				"name": "Mirror4",
+				"uuid": "f03bdad4-0a7e-4bd1-a0a7-a268012df2bb",
+				"pos": [
+					2.3,
+					0,
+					0
+				],
+				"scale": [
+					0.95,
+					0.95,
+					0.95
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "f295e638-3635-4485-a435-6731860a8bb2",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								0.95,
+								0.95,
+								0.95
+							],
+							"roughness": 1,
+							"metallic": 1
+						}
+					}
+				]
+			},
+			{
+				"name": "EnvPanel",
+				"uuid": "b688daff-236b-4d80-a85e-8c3cf2426c82",
+				"pos": [
+					1.5,
+					1.5,
+					10
+				],
+				"scale": [
+					6,
+					3,
+					0.2
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "65b840b9-6278-453d-a157-761170b1c3ae",
+						"props": {
+							"shape": "cube",
+							"color": [
+								1,
+								0.45,
+								0.1
+							],
+							"emission": 3,
+							"envMap": true
+						}
+					}
+				]
+			}
+		]
+	},
+	"renderer": {
+		"sky/skyColor": [
+			0.15,
+			0.35,
+			0.8
+		],
+		"sky/groundColor": [
+			0.45,
+			0.25,
+			0.08
+		],
+		"sky/intensity": 1,
+		"pipeline/motionBlur/enabled": false,
+		"pipeline/ssr/enabled": false,
+		"pipeline/ssao/enabled": false,
+		"pipeline/dof/enabled": false,
+		"pipeline/lightShaft/enabled": false,
+		"pipeline/toneMap/enabled": true,
+		"pipeline/bloom/enabled": false,
+		"pipeline/sss/enabled": false
+	},
+	"timeline/duration": 600,
+	"timeline/fps": 60
+}

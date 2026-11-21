@@ -2,7 +2,7 @@ import { EventEmitter, UniformType } from 'basepower';
 import { Vector } from 'mathpower';
 
 import { EasingFunc, easeInOutCubic } from "../Easings";
-import { LerpFunc, Lerps } from "../Lerps";
+import { LerpFunc, lerpNumber, lerpVector } from "../Lerps";
 
 export type AnimatorVariableType = Vector | number;
 
@@ -56,12 +56,12 @@ const getLerpFunc = <T extends AnimatorVariableType>( value: T ):LerpFunc<T> => 
 
 	if ( typeof value == "number" ) {
 
-		return Lerps.number as any;
+		return lerpNumber as any;
 
 	} else {
 
 
-		return Lerps.vector as any;
+		return lerpVector as any;
 
 	}
 

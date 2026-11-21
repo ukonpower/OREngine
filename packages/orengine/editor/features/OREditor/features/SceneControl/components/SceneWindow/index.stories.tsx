@@ -24,6 +24,7 @@ export const Default: Story = {
 	args: {
 		scenes,
 		projectName: 'demo-webgl',
+		hasUnsaved: () => false,
 		onClose: () => { /* storybook では閉じない */ },
 	},
 };

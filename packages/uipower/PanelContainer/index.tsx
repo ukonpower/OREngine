@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 
+import { PlusIcon } from '../Icons/PlusIcon';
+
 import style from './index.module.scss';
 
 type TabProps = {
@@ -31,7 +33,7 @@ type PanelContainerProps = {
 	onTabContextMenu?: ( id: string, event: React.MouseEvent ) => void;
 	// タブのドラッグ開始検知用（D&D 自体の判定・描画は親が持つ）
 	onTabPointerDown?: ( id: string, event: React.PointerEvent ) => void;
-	// タブ追加ボタン（ヘッダー右端の「+」）。指定時のみ表示する
+	// タブ追加ボタン（最後のタブの右の「+」）。指定時のみ表示する
 	onAddClick?: ( event: React.MouseEvent ) => void;
 };
 
@@ -81,7 +83,7 @@ export const PanelContainer = ( props: PanelContainerProps ) => {
 					</div>;
 
 				} )}
-				{props.onAddClick && <div className={style.header_add} onClick={props.onAddClick}>+</div>}
+				{props.onAddClick && <div className={style.header_add} onClick={props.onAddClick}><PlusIcon /></div>}
 			</div>
 			<div className={style.content} data-panel-content="">
 				{activeTab?.content}

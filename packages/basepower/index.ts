@@ -1,3 +1,3 @@
 export * from './EventEmitter';
-export * from './ID';
+export * as ID from './ID';
 export * from './Types';

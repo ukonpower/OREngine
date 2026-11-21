@@ -13,6 +13,12 @@
 	&[data-depth="0"] {
 		background-color: var(--or-bg-float-active);
 	}
+
+	// Blender で付けたキーフレームは選べないので、暗く出して押せる見た目にしない
+	&[data-readonly="true"] .key {
+		color: var(--or-text-dim);
+		cursor: default;
+	}
 }
 
 .key {

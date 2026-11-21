@@ -1,0 +1,184 @@
+{
+	"name": "demo-webgpu",
+	"scene": {
+		"name": "root",
+		"uuid": "0",
+		"childs": [
+			{
+				"name": "Camera",
+				"uuid": "1e81ccc1-fd27-4c3d-85c2-2e7421c08ea1",
+				"pos": [
+					5,
+					5,
+					5
+				],
+				"rot": [
+					-0.7328,
+					0.6392,
+					0.4927
+				],
+				"components": [
+					{
+						"name": "Camera",
+						"uuid": "ce8f25f9-bb13-480a-ac4a-97824ee262bf",
+						"props": {
+							"fov": 35,
+							"near": 0.1,
+							"far": 100,
+							"focus/mode": "manual",
+							"focus/distance": 8.3815,
+							"cameraType": "orthographic",
+							"orthHeight": 4
+						}
+					}
+				]
+			},
+			{
+				"name": "Floor",
+				"uuid": "a74b9cba-b247-4a5a-a9e1-7da9c2099ae0",
+				"scale": [
+					40,
+					1,
+					40
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "345849de-c130-4599-8888-31058a7ce392",
+						"props": {
+							"shape": "plane",
+							"color": [
+								0.5,
+								0.5,
+								0.5
+							],
+							"roughness": 0.9
+						}
+					}
+				]
+			},
+			{
+				"name": "Sun",
+				"uuid": "213bff0a-a85c-4d84-9d60-43af05ac9071",
+				"pos": [
+					3.1435,
+					3.7722,
+					0.943
+				],
+				"rot": [
+					0.1465,
+					-0.121,
+					-0.6858
+				],
+				"components": [
+					{
+						"name": "Light",
+						"uuid": "39cbef83-681e-47a8-b4c0-df8c214e865e",
+						"props": {
+							"lightType": "directional",
+							"castShadow": true,
+							"intensity": 2.5
+						}
+					}
+				]
+			},
+			{
+				"name": "Box",
+				"uuid": "7be3f1fa-fbea-437b-9d1f-d42445fe1863",
+				"pos": [
+					-0.9,
+					0.4,
+					0
+				],
+				"rot": [
+					0,
+					0.5,
+					0
+				],
+				"scale": [
+					0.8,
+					0.8,
+					0.8
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "60681d4d-9fc3-47ca-9d38-9a069313138b",
+						"props": {
+							"shape": "cube"
+						}
+					}
+				]
+			},
+			{
+				"name": "Ball",
+				"uuid": "c6e0944f-ae7d-4e7d-9c98-d0d8cdc474f8",
+				"pos": [
+					0.9,
+					0.5,
+					0.2
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "0376bda8-b661-4d12-a658-0df76759c7fc",
+						"props": {
+							"shape": "sphere"
+						}
+					}
+				]
+			},
+			{
+				"name": "Tower",
+				"uuid": "dedd04bf-8042-4bf9-8102-a5570e468300",
+				"pos": [
+					0,
+					0.75,
+					-1.2
+				],
+				"scale": [
+					0.5,
+					1.5,
+					0.5
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "793d62dc-16d5-43d0-8e2f-813c55784fe9",
+						"props": {
+							"shape": "cube",
+							"color": [
+								0.3,
+								0.6,
+								0.9
+							]
+						}
+					}
+				]
+			}
+		]
+	},
+	"renderer": {
+		"sky/skyColor": [
+			0.1,
+			0.1,
+			0.1
+		],
+		"sky/groundColor": [
+			0.03,
+			0.03,
+			0.03
+		],
+		"sky/intensity": 1,
+		"pipeline/motionBlur/enabled": false,
+		"pipeline/ssr/enabled": false,
+		"pipeline/ssao/enabled": false,
+		"pipeline/dof/enabled": false,
+		"pipeline/lightShaft/enabled": false,
+		"pipeline/toneMap/enabled": true,
+		"pipeline/bloom/enabled": false,
+		"pipeline/sss/enabled": false
+	},
+	"timeline/duration": 600,
+	"timeline/fps": 60
+}

@@ -29,7 +29,7 @@ void main( void ) {
 
 	float emit = min( line + pattern, 1.0 );
 
-	outEmission = vec3( emit * 20.0 * smoothstep( 0.4, 1.0, n) );
+	outEmission = vec3( emit * 3.0 * smoothstep( 0.4, 1.0, n) );
 
 	#ifdef IS_FORWARD
 

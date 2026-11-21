@@ -28,7 +28,7 @@ export class Animation extends Component {
 		super( params );
 
 		// 同じエンティティのほかのコンポーネント（既定は 0）より先に値を入れ、そちらの update が今の時刻の値を読めるようにする。
-		// BLidger（0）は後に走るので、Blender 側でカーブのある軸は Blender が勝つ
+		// BLidge の BLidgeAnimation（0）は後に走るので、Blender 側でカーブのある軸は Blender が勝つ
 		this.order = - 1;
 
 		this.links_ = {};
@@ -81,9 +81,7 @@ export class Animation extends Component {
 
 			if ( separator >= 0 ) {
 
-				const item = Engine.resources.getComponent( target.slice( 0, separator ) );
-
-				serializable = item && this.entity.getComponent( item.component );
+				serializable = this.linkComponent( target.slice( 0, separator ) );
 				path = target.slice( separator + 1 );
 
 			}
@@ -172,6 +170,15 @@ export class Animation extends Component {
 			callback();
 
 		}
+
+	}
+
+	// リンクの対象のコンポーネントを、リンクに書いたコンポーネント名で引く。付いていなければ undefined
+	protected linkComponent( name: string ): Component | undefined {
+
+		const item = Engine.resources.getComponent( name );
+
+		return item && this.entity.getComponent( item.component );
 
 	}
 

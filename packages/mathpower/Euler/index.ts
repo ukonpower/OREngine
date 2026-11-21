@@ -40,12 +40,35 @@ export class Euler extends Vector {
 
 	}
 
+	// 回転行列をオイラー角に分ける。YZX（BLidge のエンティティの順）はその順のまま、それ以外は XYZ にして分ける
 	public setFromRotationMatrix( m: Matrix ) {
 
 		const te = m.elm;
 		const m11 = te[ 0 ], m12 = te[ 4 ], m13 = te[ 8 ];
-		const m22 = te[ 5 ], m23 = te[ 9 ];
-		const m32 = te[ 6 ], m33 = te[ 10 ];
+		const m21 = te[ 1 ], m22 = te[ 5 ], m23 = te[ 9 ];
+		const m31 = te[ 2 ], m32 = te[ 6 ], m33 = te[ 10 ];
+
+		// BLidge のエンティティは Blender の回転を YZX のまま euler に持つ。ギズモ・LookAt 等が quaternion を書いても順を保ち、
+		// Animation がその後に入れる Blender の値と食い違わないようにする
+		if ( this.order == 'YZX' ) {
+
+			this.z = Math.asin( Math.min( 1.0, Math.max( - 1.0, m21 ) ) );
+
+			if ( Math.abs( m21 ) < 0.9999999 ) {
+
+				this.x = Math.atan2( - m23, m22 );
+				this.y = Math.atan2( - m31, m11 );
+
+			} else {
+
+				this.x = 0;
+				this.y = Math.atan2( m13, m33 );
+
+			}
+
+			return this;
+
+		}
 
 		this.order = 'XYZ';
 

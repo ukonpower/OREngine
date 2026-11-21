@@ -172,7 +172,11 @@ export class ProjectSerializer {
 
 					} else {
 
-						console.warn( `[ProjectSerializer] Component "${c.name}" not found in resolver. Preserving data for round-trip.` );
+						if ( import.meta.env.DEV ) {
+
+							console.warn( `[ProjectSerializer] Component "${c.name}" not found in resolver. Preserving data for round-trip.` );
+
+						}
 
 						entity.unresolvedComponents.push( {
 							name: c.name,

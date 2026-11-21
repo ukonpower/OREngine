@@ -1,6 +1,5 @@
-import { ENVMAP_MIP_COUNT, FRAME_FIELDS, GBUFFER_ATTACHMENTS } from '../../backend/Bindings';
+import { ENVMAP_MIP_COUNT, FRAME_FIELDS, GBUFFER_ATTACHMENTS, buildLightWgsl } from '../../backend/Bindings';
 import { buildStructWgsl } from '../../backend/UniformBinder';
-import { buildLightWgsl } from '../Lights';
 
 import shadingWgsl from './shading.wgsl';
 
@@ -21,7 +20,7 @@ export const SSAO_BINDING = GBUFFER_ATTACHMENTS.length + 2;
 export const LIGHTSHAFT_BINDING = GBUFFER_ATTACHMENTS.length + 3;
 export const SSR_BINDING = GBUFFER_ATTACHMENTS.length + 4;
 
-// シェーディングパスのWGSL完成形。宣言はBindings / Lights と同じ配列から作る
+// シェーディングパスのWGSL完成形。宣言は Bindings と同じ配列から作る
 export const buildShadingSource = () => [
 	buildStructWgsl( 'FrameUniforms', FRAME_FIELDS ),
 	'@group(0) @binding(0) var<uniform> frame: FrameUniforms;',
@@ -32,6 +31,6 @@ export const buildShadingSource = () => [
 	`@group(1) @binding(${LIGHTSHAFT_BINDING}) var lightShaftTexture: texture_2d<f32>;`,
 	`@group(1) @binding(${SSR_BINDING}) var ssrTexture: texture_2d<f32>;`,
 	`const MAX_ENV_MIP = ${( ENVMAP_MIP_COUNT - 1 ).toFixed( 1 )};`,
-	buildLightWgsl( 2 ),
+	buildLightWgsl( 2, 0 ),
 	shadingWgsl,
 ].join( '\n\n' );

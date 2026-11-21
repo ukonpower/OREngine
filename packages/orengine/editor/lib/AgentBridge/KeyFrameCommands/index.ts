@@ -1,12 +1,12 @@
 import * as MXP from 'maxpower';
 
-import { AnimationLink } from '../../../../builtin/Components/Utility/Animation';
+import { AnimationLink, AnimationLinks } from '../../../../builtin/Components/Utility/Animation';
 import { Engine } from '../../../../core/Engine';
 import { Command } from '../../CommandManager';
 import { GroupCommand } from '../../Commands/GroupCommand';
 import { SetFieldCommand } from '../../Commands/SetFieldCommand';
 import { decodeCurve, EditKey, encodeCurve, findKeyFrame, KEYFRAME_HANDLE_TYPES, KeyFrameHandleType, recalcHandles } from '../../KeyFrameCurve';
-import { buildCurveLinkSettings, buildDeleteKeys, buildInsertKeys, buildPasteCurve, buildUnlinkCurve, getCurveLinkInfo, getKeyFrameElementCount, getLinks, isKeyFrameField, keyFrameKindOf, snapKeyFrameTime } from '../../KeyFrameField';
+import { buildCurveLinkSettings, buildDeleteKeys, buildInsertKeys, buildPasteCurve, buildUnlinkCurve, getBLidgeLinks, getCurveLinkInfo, getKeyFrameElementCount, getLinks, isBLidgeCurve, isKeyFrameField, keyFrameKindOf, snapKeyFrameTime } from '../../KeyFrameField';
 import { AgentCommandError, AgentCommandInput, errorMessage, requireArg } from '../Command';
 import { componentName, entityPath, resolveEntity } from '../EntityQuery';
 import { assertEditableComponent, parseFieldValue, resolveAttachedComponent } from '../WriteCommands';
@@ -186,7 +186,7 @@ type CurveUser = {
 	offset: number;
 };
 
-// シーン全体で、カーブ ID ごとにそれを指しているリンクを集める
+// シーン全体で、カーブ ID ごとにそれを指しているリンクを集める。Blender で付けたキーフレームのリンク（BLidgeAnimation）も含める
 const collectCurveUsers = ( engine: Engine ) => {
 
 	const users = new Map<string, CurveUser[]>();
@@ -206,9 +206,7 @@ const collectCurveUsers = ( engine: Engine ) => {
 
 	};
 
-	engine.root.traverseEditable( ( entity ) => {
-
-		const links = getLinks( entity );
+	const addLinks = ( entity: MXP.Entity, links: AnimationLinks ) => {
 
 		for ( const linkKey of Object.keys( links ) ) {
 
@@ -250,6 +248,13 @@ const collectCurveUsers = ( engine: Engine ) => {
 			}
 
 		}
+
+	};
+
+	engine.root.traverseEditable( ( entity ) => {
+
+		addLinks( entity, getLinks( entity ) );
+		addLinks( entity, getBLidgeLinks( entity ) );
 
 	} );
 
@@ -543,7 +548,8 @@ const parseCurveJson = ( raw: string, current: MXP.CurveData ): MXP.CurveData =>
 	Observe
 -------------------------------*/
 
-// カーブの一覧。使っていないカーブ（保存時に外れる）も表にある間は出す
+// カーブの一覧。使っていないカーブ（保存時に外れる）も表にある間は出す。
+// readOnly は BLidge が入れた Blender のカーブ（blidge: で始まる ID）で、Blender 側でしか編集できず保存もされない
 const listCurves = ( ctx: AgentCommandContext ) => {
 
 	const users = collectCurveUsers( ctx.engine );
@@ -554,7 +560,7 @@ const listCurves = ( ctx: AgentCommandContext ) => {
 		const curve = ctx.engine.curves[ id ];
 		const curveUsers = users.get( id ) ?? [];
 
-		curves.push( { id, name: curve.name ?? null, keys: curve.k.length, uses: curveUsers.length, users: curveUsers } );
+		curves.push( { id, name: curve.name ?? null, keys: curve.k.length, uses: curveUsers.length, users: curveUsers, readOnly: isBLidgeCurve( id ) } );
 
 	}
 
@@ -582,6 +588,13 @@ const setCurve = ( ctx: AgentCommandContext, input: AgentCommandInput ) => {
 
 	const id = requireArg( input, 0, CURVE_SET_USAGE );
 	const raw = requireArg( input, 1, CURVE_SET_USAGE );
+
+	if ( isBLidgeCurve( id ) ) {
+
+		throw new AgentCommandError( `${id} は BLidge が入れた Blender のカーブなので編集できません（Blender 側で編集してください）` );
+
+	}
+
 	const curve = parseCurveJson( raw, resolveCurve( ctx.engine, id ) );
 
 	ctx.editor.api.setCurves( { ...ctx.engine.curves, [ id ]: curve } );

@@ -1,4 +1,4 @@
-@use 'styles' as *;
+@use '../../styles' as *;
 
 .input {
 	@include input-frame;

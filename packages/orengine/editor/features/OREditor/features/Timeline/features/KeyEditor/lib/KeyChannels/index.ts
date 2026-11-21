@@ -1,8 +1,10 @@
 import * as MXP from 'maxpower';
 import { Engine } from 'orengine';
-import { decodeCurve, getLinks, keyFrameKindOf, type EditKey, type KeyFrameKind } from 'orengine/editor';
+import { decodeCurve, getBLidgeLinks, getLinks, keyFrameKindOf, type EditKey, type KeyFrameKind } from 'orengine/editor';
 
 import { keyRef } from '../KeySelection';
+
+type AnimationLinks = ReturnType<typeof getLinks>;
 
 // タイムラインの行（チャンネル）。エンティティ > フィールド > 要素 の3段で、数値配列だけが要素の行を持つ
 export type KeyChannel = {
@@ -24,6 +26,8 @@ export type KeyChannel = {
 	element: number | null;
 	// ほかのリンクと共有しているカーブなら、その表示名と使用数
 	shared: { name: string, count: number } | null;
+	// Blender で付けたキーフレームの行。キーを見せるだけで、選ばせない・貼り付けない
+	readOnly: boolean;
 };
 
 // 行に並ぶキーの印。同じ時刻にある複数のカーブのキーを1つにまとめる（エンティティ・フィールドの行）
@@ -33,6 +37,9 @@ export type KeyMark = {
 };
 
 export const ENTITY_CHANNEL_ID = "#entity";
+
+// Blender のキーフレームの行の識別子の頭。同じフィールドにユーザーのリンクもあると対象の名前がぶつかるので分ける
+const BLIDGE_CHANNEL_PREFIX = "#blidge:";
 
 // 数値配列の要素のラベル
 const VECTOR_LABELS = [ "x", "y", "z", "w" ];
@@ -108,11 +115,12 @@ const addCurveId = ( channel: KeyChannel, id: string ) => {
 
 };
 
-// エンティティの Animation のリンクから行を作る。users はシーン全体でのカーブの使用数（countCurveUses）
+// エンティティの Animation のリンクから行を作る。Blender で付けたキーフレーム（BLidgeAnimation）のリンクは、読み取り専用の行としてその後に並べる。
+// users はシーン全体でのカーブの使用数（countCurveUses）
 export const buildChannels = ( entity: MXP.Entity, curves: MXP.CurveTable, users: Map<string, number> ) => {
 
 	const links = getLinks( entity );
-	const targets = Object.keys( links );
+	const blidgeLinks = getBLidgeLinks( entity );
 
 	const entityChannel: KeyChannel = {
 		id: ENTITY_CHANNEL_ID,
@@ -122,18 +130,33 @@ export const buildChannels = ( entity: MXP.Entity, curves: MXP.CurveTable, users
 		label: entity.name,
 		curveIds: [],
 		leaf: false,
-		hasChildren: targets.length > 0,
+		hasChildren: Object.keys( links ).length + Object.keys( blidgeLinks ).length > 0,
 		kind: null,
 		element: null,
 		shared: null,
+		readOnly: false,
 	};
 
 	const channels: KeyChannel[] = [ entityChannel ];
 
-	for ( const linkKey of targets ) {
+	addLinkChannels( channels, entity, links, "", false, curves, users );
+	addLinkChannels( channels, entity, blidgeLinks, BLIDGE_CHANNEL_PREFIX, true, curves, users );
+
+	return channels;
+
+};
+
+// links の対象ごとにフィールドの行（数値配列なら要素の行も）を channels に足し、エンティティの行（先頭）にカーブを集める。
+// idPrefix は行の識別子の頭
+const addLinkChannels = ( channels: KeyChannel[], entity: MXP.Entity, links: AnimationLinks, idPrefix: string, readOnly: boolean, curves: MXP.CurveTable, users: Map<string, number> ) => {
+
+	const entityChannel = channels[ 0 ];
+
+	for ( const linkKey of Object.keys( links ) ) {
 
 		const link = links[ linkKey ];
 		const resolved = resolveLinkTarget( entity, linkKey );
+		const fieldId = idPrefix + linkKey;
 
 		let kind: KeyFrameKind | null = null;
 
@@ -144,7 +167,7 @@ export const buildChannels = ( entity: MXP.Entity, curves: MXP.CurveTable, users
 		}
 
 		const fieldChannel: KeyChannel = {
-			id: linkKey,
+			id: fieldId,
 			parentId: ENTITY_CHANNEL_ID,
 			depth: 1,
 			component: resolved.component,
@@ -155,6 +178,7 @@ export const buildChannels = ( entity: MXP.Entity, curves: MXP.CurveTable, users
 			kind,
 			element: null,
 			shared: null,
+			readOnly,
 		};
 
 		channels.push( fieldChannel );
@@ -185,8 +209,8 @@ export const buildChannels = ( entity: MXP.Entity, curves: MXP.CurveTable, users
 			const id = elementLink[ 0 ];
 
 			channels.push( {
-				id: linkKey + "#" + i,
-				parentId: linkKey,
+				id: fieldId + "#" + i,
+				parentId: fieldId,
 				depth: 2,
 				component: null,
 				label: elementLabel( resolved.target, resolved.path, i ),
@@ -196,6 +220,7 @@ export const buildChannels = ( entity: MXP.Entity, curves: MXP.CurveTable, users
 				kind,
 				element: i,
 				shared: sharedOf( id, curves, users ),
+				readOnly,
 			} );
 
 			addCurveId( fieldChannel, id );
@@ -204,8 +229,6 @@ export const buildChannels = ( entity: MXP.Entity, curves: MXP.CurveTable, users
 		}
 
 	}
-
-	return channels;
 
 };
 

@@ -1,29 +1,25 @@
 import { Uniforms } from 'basepower';
 
-export namespace UniformsUtils {
+export const assign = ( target: Uniforms, ...uniforms: ( Uniforms|undefined )[] ) : Uniforms => {
 
-	export const assign = ( target: Uniforms, ...uniforms: ( Uniforms|undefined )[] ) : Uniforms => {
+	for ( let i = 0; i < uniforms.length; i ++ ) {
 
-		for ( let i = 0; i < uniforms.length; i ++ ) {
+		if ( uniforms[ i ] != undefined ) {
 
-			if ( uniforms[ i ] != undefined ) {
-
-				Object.assign( target, uniforms[ i ] );
-
-			}
+			Object.assign( target, uniforms[ i ] );
 
 		}
 
-		return target;
+	}
 
-	};
+	return target;
 
-	export const merge = ( ...uniforms: ( Uniforms|undefined )[] ) : Uniforms => {
+};
 
-		const res = {};
+export const merge = ( ...uniforms: ( Uniforms|undefined )[] ) : Uniforms => {
 
-		return assign( res, ...uniforms );
+	const res = {};
 
-	};
+	return assign( res, ...uniforms );
 
-}
+};

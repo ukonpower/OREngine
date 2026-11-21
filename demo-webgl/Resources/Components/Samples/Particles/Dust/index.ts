@@ -19,13 +19,16 @@ export class Dust extends MXP.Component {
 		const positionArray = [];
 		const sizeArray = [];
 
+		// 撮影（npm run scene-shots）で撮るたびに並びが変わって PNG が書き換わらないよう、seed を固定した乱数で置く
+		const random = MTP.MathUtils.randomSeed( 1 );
+
 		for ( let i = 0; i < count; i ++ ) {
 
-			positionArray.push( ( Math.random() - 0.5 ) * range.x );
-			positionArray.push( ( Math.random() - 0.5 ) * range.y );
-			positionArray.push( ( Math.random() - 0.5 ) * range.z );
+			positionArray.push( ( random() - 0.5 ) * range.x );
+			positionArray.push( ( random() - 0.5 ) * range.y );
+			positionArray.push( ( random() - 0.5 ) * range.z );
 
-			sizeArray.push( Math.random( ) );
+			sizeArray.push( random() );
 
 		}
 

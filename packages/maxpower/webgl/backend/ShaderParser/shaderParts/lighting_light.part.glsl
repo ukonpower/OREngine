@@ -20,7 +20,7 @@ LightCamera lightCamera;
 
 		#if LOOP_INDEX < NUM_SHADOWMAP_DIR
 
-			shadow = getShadowSmooth( tex0.xyz, uDirectionalLightCamera[ LOOP_INDEX ], directionalLightShadowMap[ LOOP_INDEX ], 0.0001 );
+			shadow = getShadowSmooth( tex0.xyz, uDirectionalLightCamera[ LOOP_INDEX ], directionalLightShadowMap[ LOOP_INDEX ], 0.001 );
 
 		#else
 

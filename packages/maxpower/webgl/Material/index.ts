@@ -15,8 +15,9 @@ type MaterialVisibility = {[K in MaterialRenderType]?: boolean}
 type MaterialProgramCache = {[K in MaterialDrawPass]?: GLP.GLPowerProgram}
 
 export type MaterialRenderType = "shadowMap" | "deferred" | "forward" | "envMap" | 'ui' | "postprocess"
-// 描画パスの種類。フェーズに、不透明の forward が gBuffer の段で位置・法線・速度を先に書くパスを足したもの
-export type MaterialDrawPass = MaterialRenderType | 'forwardPrepass';
+// 描画パスの種類。フェーズに、不透明の forward が gBuffer の段で位置・法線・速度を先に書くパスと、
+// 軽量レンダラー（LiteRenderer）が deferred のマテリアルをライティングまで済ませて直接描くパスを足したもの
+export type MaterialDrawPass = MaterialRenderType | 'forwardPrepass' | 'forwardLit';
 export type DrawType = 'TRIANGLES' | 'LINES' | 'POINTS';
 export type Blending = 'ADD' | 'NORMAL' | "DIFF";
 

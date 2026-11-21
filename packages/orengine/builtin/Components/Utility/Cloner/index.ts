@@ -415,7 +415,11 @@ export class Cloner extends Component {
 
 		if ( ! specs ) {
 
-			console.warn( `[Cloner] layout "${this.layoutName_}" not found` );
+			if ( import.meta.env.DEV ) {
+
+				console.warn( `[Cloner] layout "${this.layoutName_}" not found` );
+
+			}
 
 			return;
 

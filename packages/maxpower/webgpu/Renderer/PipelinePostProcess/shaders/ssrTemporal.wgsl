@@ -6,7 +6,7 @@
 // 外から与えられる名前:
 //   uSSRCurrent（ssr.wgsl の結果。圧縮済み）/ uSSRBackBuffer（前フレームのこのパスの結果）
 
-#include "../../shaders/view.wgsl"
+#include <module:view>
 
 // 新しい結果に与える重み
 const BLEND = 0.2;

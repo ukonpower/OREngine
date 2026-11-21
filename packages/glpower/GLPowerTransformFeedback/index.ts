@@ -58,8 +58,13 @@ export class GLPowerTransformFeedback {
 
 	}
 
-	// ラスタライズを止めてPOINTS描画を流し、varyingsを出力バッファへ焼き込む
-	public dispatchPoints( vao: GLPowerVAO ) {
+	// ラスタライズを止めてPOINTS描画を流し、varyingsを出力バッファへ焼き込む。
+	// count を渡すと頭の count 頂点だけを流す（出力バッファの頭から count 個ぶんが書かれる）
+	public dispatchPoints( vao: GLPowerVAO, count?: number ) {
+
+		let vertCount = vao.vertCount;
+
+		if ( count !== undefined ) vertCount = count;
 
 		this.use( () => {
 
@@ -70,11 +75,11 @@ export class GLPowerTransformFeedback {
 
 				if ( vao.instanceCount > 0 ) {
 
-					this.gl.drawArraysInstanced( this.gl.POINTS, 0, vao.vertCount, vao.instanceCount );
+					this.gl.drawArraysInstanced( this.gl.POINTS, 0, vertCount, vao.instanceCount );
 
 				} else {
 
-					this.gl.drawArrays( this.gl.POINTS, 0, vao.vertCount );
+					this.gl.drawArrays( this.gl.POINTS, 0, vertCount );
 
 				}
 

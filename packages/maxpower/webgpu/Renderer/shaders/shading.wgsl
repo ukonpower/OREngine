@@ -3,8 +3,8 @@
 // フルスクリーンパスの画素位置から textureLoad で直接読む（サンプラーを持たない）。
 // gBuffer / ライト / envMap / SSR の宣言は buildShadingSource が前置する
 
-#include "./lighting.wgsl"
-#include "./view.wgsl"
+#include <module:lighting>
+#include <module:view>
 
 // SSR を環境マップの鏡面反射の代わりに使う粗さの範囲。SSR は鏡面方向の1本のレイしか引かずぼけないので、
 // MIN 以下では当たった分をすべて SSR にし、MAX へ向けて環境マップへ戻す
@@ -65,91 +65,22 @@ fn fsMain( @builtin(position) coord: vec4f ) -> ShadingOutput {
 	let emission = vec3f( tex0.w, tex1.w, tex4.w );
 
 	let viewDir = viewDirection( worldPosition );
+	let surface = surfaceInfo( albedo, roughness, metallic, envIntensity );
 
-	var surface: SurfaceInfo;
-	surface.diffuseColor = mix( albedo, vec3f( 0.0 ), metallic );
-	surface.specularColor = mix( vec3f( 1.0 ), albedo, metallic );
-	surface.roughness = roughness;
+	let direct = directLighting( worldPosition, normal, viewDir, surface );
 
-	var diffuse = vec3f( 0.0 );
-	var specular = vec3f( 0.0 );
-
-	for ( var i = 0; i < lights.numLightDir; i ++ ) {
-
-		let light = lights.directionalLight[ i ];
-
-		var shadow = 1.0;
-
-		if ( light.useShadow > 0.5 ) {
-
-			shadow = sampleShadow( directionalShadowMap, i, light.shadowMatrix, worldPosition );
-
-		}
-
-		let r = reflectance( normal, viewDir, surface, light.direction, light.color * shadow );
-
-		diffuse += r.diffuse;
-		specular += r.specular;
-
-	}
-
-	for ( var i = 0; i < lights.numLightSpot; i ++ ) {
-
-		let light = lights.spotLight[ i ];
-
-		var shadow = 1.0;
-
-		if ( light.useShadow > 0.5 ) {
-
-			shadow = sampleShadow( spotShadowMap, i, light.shadowMatrix, worldPosition );
-
-		}
-
-		let toLight = light.position - worldPosition;
-		let spotDirection = normalize( toLight );
-		let spotDistance = length( toLight );
-		let spotAngleCos = dot( light.direction, spotDirection );
-
-		var spotAttenuation = 0.0;
-
-		if ( spotAngleCos > light.angle ) {
-
-			spotAttenuation = smoothstep( light.angle, light.angle + ( 1.0 - light.angle ) * light.blend, spotAngleCos );
-
-		}
-
-		// 逆二乗の減衰。光源の位置で 0 除算しないよう下限を置く
-		let color = light.color * spotAttenuation / max( spotDistance * spotDistance, 0.0001 );
-
-		let r = reflectance( normal, viewDir, surface, spotDirection, color * shadow );
-
-		diffuse += r.diffuse;
-		specular += r.specular;
-
-	}
-
-	// 環境光（webgl側 lighting_env.part.glsl 相当）
-	let refDir = reflect( - viewDir, normal );
-	let dNV = clamp( dot( normal, viewDir ), 0.0, 1.0 );
-	let EF = mix( fresnel( dNV ), 1.0, metallic );
-
-	// 環境の鏡面反射に置き換わる割合。直接光も含め diffuse / specular を同じ割合で減らす
-	let envReflect = EF * surface.specularColor * envIntensity;
-
-	// 鏡面反射に入ってくる光。SSR が当たった分（a）は画面に映っている物、外れた分は環境マップから取る。
+	// 鏡面反射に入ってくる光のうち、SSR が当たった分（a）は画面に映っている物を使う。
 	// SSR は半解像度なのでサンプラーで引き、時間方向に均した rgb を a で割って当たった色の平均に戻す
 	let ssr = textureSampleLevel( ssrTexture, envMapSampler, coord.xy / frame.uResolution, 0.0 );
 	let ssrHit = ssrDecompress( ssr.xyz / max( ssr.w, 0.0001 ) );
 	let ssrWeight = ssr.w * ( 1.0 - smoothstep( SSR_ROUGHNESS_MIN, SSR_ROUGHNESS_MAX, roughness ) );
-	let envSpecular = mix( sampleEnvMap( refDir, roughness ), ssrHit, ssrWeight );
 
-	diffuse = ( diffuse + sampleEnvMap( normal, 1.0 ) * surface.diffuseColor * envIntensity ) * ( 1.0 - envReflect );
-	specular = mix( specular, envSpecular, envReflect );
+	let lit = envLighting( normal, viewDir, surface, direct, ssrHit, ssrWeight );
 
 	let ao = max( 0.0, 1.0 - occlusion * 1.5 );
 
-	diffuse *= ao;
-	specular *= ao;
+	let diffuse = lit.diffuse * ao;
+	let specular = lit.specular * ao;
 
 	var outColor = diffuse + specular + emission;
 

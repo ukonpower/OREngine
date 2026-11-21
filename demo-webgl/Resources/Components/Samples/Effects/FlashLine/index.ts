@@ -23,12 +23,16 @@ export class FlashLine extends MXP.Component {
 
 		// let range = new Math.random();
 
+		// 撮影（npm run scene-shots）で撮るたびに並びが変わって PNG が書き換わらないよう、seed を固定した乱数で置く
+		const random = MTP.MathUtils.randomSeed( 1 );
+
 		for ( let index = 0; index < num; index ++ ) {
 
-			const rnd = MTP.MathUtils.randomVector().multiply( new MTP.Vector( 20, 1, 20.0 ) );
-
 			oPosArray.push(
-				rnd.x, rnd.y, rnd.z, Math.random()
+				( random() * 2.0 - 1.0 ) * 20.0,
+				random() * 2.0 - 1.0,
+				( random() * 2.0 - 1.0 ) * 20.0,
+				random()
 			);
 
 		}

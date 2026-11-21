@@ -19,6 +19,10 @@ export const AGENT_NO_TAB_STATUS = 503;
 // CLI が headless で開くエディタ URL に付けるクエリ。ページはこれで自分が headless だと知る
 export const AGENT_HEADLESS_PARAM = 'agent-headless';
 
+// エディタ URL に付けると、editor.json の scene の代わりにこのシーンを開く（EditorPage が読む）。
+// 開くだけでは保存しないので、editor.json の scene は書き換わらない（scene-shots がシーンを順に開き直すのに使う）
+export const AGENT_SCENE_PARAM = 'agent-scene';
+
 // timeoutMs を省いたときにサーバーが待つ時間
 export const DEFAULT_TIMEOUT_MS = 10000;
 

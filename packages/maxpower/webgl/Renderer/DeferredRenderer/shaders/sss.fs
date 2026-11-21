@@ -44,7 +44,8 @@ float getWeight( vec2 uv, vec3 normalBasis, float depthBasis ) {
 
 	vec3 normalOffset = texture( uNormalTexture, uv ).xyz;
 	float depthOffset = viewDepth( uv );
-	float bilateralWeight = pow( ( dot( normalBasis, normalOffset ) + 1.0 ) / 2.0, alpha ) * pow( 1.0 / ( abs( depthBasis - depthOffset ) + 0.001 ), beta );
+	// 法線の長さは丸め誤差で 1 をわずかに超えることがあり、向きが逆の法線が隣り合う所で底が負になると pow が NaN を返すので 0 で切る
+	float bilateralWeight = pow( max( ( dot( normalBasis, normalOffset ) + 1.0 ) / 2.0, 0.0 ), alpha ) * pow( 1.0 / ( abs( depthBasis - depthOffset ) + 0.001 ), beta );
 
 	return bilateralWeight * texture( uAlbedoTexture, uv ).w;
 

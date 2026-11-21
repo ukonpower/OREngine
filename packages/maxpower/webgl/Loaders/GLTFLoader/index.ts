@@ -11,8 +11,13 @@ import { GLTFFormat, GLTFBufferView, GLTFNode } from './gltf';
 import gltfFrag from './shaders/gltf.fs';
 import gltfVert from './shaders/gltf.vs';
 
+import type { EngineContract } from '../../../core/Contracts/EngineContract';
 import type { GLTF, GLTFLoaderContract } from '../../../core/Contracts/GLTFLoaderContract';
-import type { GLEngine } from '../../Renderer';
+import type { RendererContract } from '../../../core/Contracts/RendererContract';
+import type { RenderCore } from '../../Renderer/RenderCore';
+
+// 読むのに使うのは描画の土台（RenderCore）の backend と createEntity だけなので、Renderer と LiteRenderer のどちらのエンジンでも読めるようにする
+type GLTFLoaderEngine = EngineContract<RenderCore & RendererContract>;
 
 const GLB_HEADER_LENGTH = 12;
 const GLB_CHUNK_HEADER_LENGTH = 8;
@@ -51,9 +56,9 @@ const translateAttributeName = ( name: string )=> {
 
 export class GLTFLoader extends EventEmitter implements GLTFLoaderContract {
 
-	private _engine: GLEngine;
+	private _engine: GLTFLoaderEngine;
 
-	constructor( engine: GLEngine ) {
+	constructor( engine: GLTFLoaderEngine ) {
 
 		super();
 

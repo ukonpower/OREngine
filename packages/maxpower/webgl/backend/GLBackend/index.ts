@@ -32,11 +32,16 @@ export class GLBackend {
 		gl.getExtension( "EXT_color_buffer_half_float" );
 		gl.getExtension( "OES_texture_float_linear" );
 
-		this._extDisJointTimerQuery = gl.getExtension( "EXT_disjoint_timer_query_webgl2" );
+		// GPU のタイマー計測は DEV でしか使わない
+		if ( import.meta.env.DEV ) {
 
-		if ( ! this._extDisJointTimerQuery ) {
+			this._extDisJointTimerQuery = gl.getExtension( "EXT_disjoint_timer_query_webgl2" );
 
-			console.warn( "[Renderer] EXT_disjoint_timer_query_webgl2 extension is not supported. GPU timing features will be disabled." );
+			if ( ! this._extDisJointTimerQuery ) {
+
+				console.warn( "[Renderer] EXT_disjoint_timer_query_webgl2 extension is not supported. GPU timing features will be disabled." );
+
+			}
 
 		}
 

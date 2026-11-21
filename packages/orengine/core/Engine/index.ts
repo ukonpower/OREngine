@@ -429,7 +429,7 @@ export class Engine extends MXP.Serializable implements MXP.EngineContract<MXP.R
 		CompileShaders
 	-------------------------------*/
 
-	public compileShaders( view: MXP.RenderViewContract, onProgress?: ( label: string, loaded: number, total: number ) => void ) {
+	public compileShaders( view: MXP.RenderViewContract, onProgress?: ( loaded: number, total: number ) => void ) {
 
 		const event = this.createEntityUpdateEvent( { forceDraw: true } );
 

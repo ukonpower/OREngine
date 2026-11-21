@@ -16,7 +16,8 @@ fn bilateralWeight( uv: vec2f, normalBasis: vec3f, depthBasis: f32 ) -> f32 {
 	let normalOffset = textureSampleLevel( uGbufferNormal, ppSamplerNearest, uv, 0.0 ).xyz;
 	let depthOffset = viewDepth( uv );
 
-	return pow( ( dot( normalBasis, normalOffset ) + 1.0 ) / 2.0, ALPHA )
+	// 法線の長さは丸め誤差で 1 をわずかに超えることがあり、向きが逆の法線が隣り合う所で底が負になると pow が NaN を返すので 0 で切る
+	return pow( max( ( dot( normalBasis, normalOffset ) + 1.0 ) / 2.0, 0.0 ), ALPHA )
 		* pow( 1.0 / ( abs( depthBasis - depthOffset ) + 0.001 ), BETA );
 
 }

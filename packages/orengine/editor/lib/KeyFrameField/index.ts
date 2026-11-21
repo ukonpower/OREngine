@@ -1,6 +1,7 @@
 import * as MXP from 'maxpower';
 
 import { Animation, AnimationLink, AnimationLinks } from '../../../builtin/Components/Utility/Animation';
+import { BLidgeAnimation } from '../../../builtin/Components/Utility/BLidgeClient/animation';
 import { Engine } from '../../../core/Engine';
 import { Command } from '../CommandManager';
 import { AddComponentCommand } from '../Commands/AddComponentCommand';
@@ -190,6 +191,25 @@ export const getLinks = ( entity: MXP.Entity ): AnimationLinks => {
 
 };
 
+// Blender で付けたキーフレームのリンク（BLidgeClient が付ける BLidgeAnimation）。BLidgeAnimation が無ければ空。
+// Blender 側の持ち物なので、エディタは読むだけで書き換えない
+export const getBLidgeLinks = ( entity: MXP.Entity ): AnimationLinks => {
+
+	const animation = entity.getComponent( BLidgeAnimation );
+
+	if ( ! animation ) return {};
+
+	return animation.getField<AnimationLinks>( "links" ) || {};
+
+};
+
+// BLidge がシーンのカーブの表に入れたカーブか。Blender 側でしか編集させない（BLidgeClient が sync のたびに入れ直す）
+export const isBLidgeCurve = ( id: string ) => {
+
+	return id.startsWith( MXP.BLIDGE_CURVE_PREFIX );
+
+};
+
 // position / euler / scale のうちキーが打たれているもの。親の付け替えでワールド座標を保つよう書き換えても、
 // 時刻が変わると Animation がキーの値を入れ直して元の見た目に戻らないので、それを知らせるのに使う
 export const getAnimatedTransformFields = ( entity: MXP.Entity ): string[] => {
@@ -252,6 +272,36 @@ const fromElementLinks = ( elementLinks: ( AnimationLink | null )[], kind: KeyFr
 
 };
 
+// フィールドの要素 i が Blender のキーフレームで動いているか（その要素は Blender の値が勝つ）
+const drivenByBLidge = ( resolved: ResolvedField, i: number ) => {
+
+	const elementLinks = toElementLinks( getBLidgeLinks( resolved.entity )[ resolved.linkKey ], resolved.kind );
+
+	return !! elementLinks[ i ];
+
+};
+
+const blidgeLockedError = ( path: string ) => {
+
+	return new Error( `"${path}" is animated by Blender keyframes. Edit them in Blender` );
+
+};
+
+// Blender のカーブ（blidge: で始まる ID）を足す・消す・書き換える表の差し替えなら Error を投げる
+const assertBLidgeCurvesKept = ( before: MXP.CurveTable, after: MXP.CurveTable ) => {
+
+	const ids = Object.keys( before ).concat( Object.keys( after ) );
+
+	for ( const id of ids ) {
+
+		if ( ! isBLidgeCurve( id ) || after[ id ] === before[ id ] ) continue;
+
+		throw new Error( `The curve "${id}" comes from Blender. Edit it in Blender` );
+
+	}
+
+};
+
 // 表でまだ使われていない、いちばん小さい番号のカーブ ID
 const newCurveId = ( curves: MXP.CurveTable ) => {
 
@@ -298,8 +348,11 @@ const getLinkEdit = ( edits: Map<MXP.Entity, LinkEdit>, entity: MXP.Entity ) => 
 
 };
 
-// カーブの表とリンクの書き換えを undo 1回ぶんのコマンドにまとめる。Animation が無いエンティティには先に足す
+// カーブの表とリンクの書き換えを undo 1回ぶんのコマンドにまとめる。Animation が無いエンティティには先に足す。
+// Blender のカーブを書き換える表なら Error を投げる
 const buildCommand = ( engine: Engine, curves: MXP.CurveTable, edits: Map<MXP.Entity, LinkEdit> ): Command => {
+
+	assertBLidgeCurvesKept( engine.curves, curves );
 
 	const commands: Command[] = [];
 
@@ -352,11 +405,15 @@ const targetsElement = ( field: KeyFrameKeyRef, i: number ) => {
 };
 
 // fields に frame のキーを打つコマンドを作る（数値配列は element を渡さなければ全要素）。打つ値は、リンクの倍率と足し算から逆算したカーブ側の値。
-// リンクの無いフィールドには、カーブとリンクを新しく足す。打てないフィールドがあれば何もせず Error を投げる
+// リンクの無いフィールドには、カーブとリンクを新しく足す。打てないフィールドがあれば何もせず Error を投げる。
+// Blender のキーフレームで動いている要素には打たない（Blender の持ち物で、打っても Blender の値が勝つ）。打てる要素が1つも無ければ Error を投げる
 export const buildInsertKeys = ( engine: Engine, fields: KeyFrameKeyRef[], frame: number ): Command => {
 
 	const curves: MXP.CurveTable = { ...engine.curves };
 	const edits = new Map<MXP.Entity, LinkEdit>();
+
+	let inserted = false;
+	let lockedPath: string | null = null;
 
 	for ( const field of fields ) {
 
@@ -376,6 +433,13 @@ export const buildInsertKeys = ( engine: Engine, fields: KeyFrameKeyRef[], frame
 		for ( let i = 0; i < resolved.values.length; i ++ ) {
 
 			if ( ! targetsElement( field, i ) ) continue;
+
+			if ( drivenByBLidge( resolved, i ) ) {
+
+				lockedPath = field.path;
+				continue;
+
+			}
 
 			// 手前の要素だけにリンクがあるとき、要素1つだけに打つと間が空くので null（動かさない）で埋める
 			while ( elementLinks.length < i ) {
@@ -400,6 +464,7 @@ export const buildInsertKeys = ( engine: Engine, fields: KeyFrameKeyRef[], frame
 			const value = ( resolved.values[ i ] - link[ 2 ] ) / link[ 1 ];
 
 			curves[ link[ 0 ] ] = setKeyFrame( curves[ link[ 0 ] ], frame, value, interpolationOf( resolved.kind ) );
+			inserted = true;
 
 		}
 
@@ -410,6 +475,8 @@ export const buildInsertKeys = ( engine: Engine, fields: KeyFrameKeyRef[], frame
 		}
 
 	}
+
+	if ( ! inserted && lockedPath !== null ) throw blidgeLockedError( lockedPath );
 
 	return buildCommand( engine, curves, edits );
 
@@ -805,6 +872,8 @@ const resolveElement = ( ref: KeyFrameElementRef ) => {
 
 	}
 
+	if ( drivenByBLidge( resolved, ref.element ) ) throw blidgeLockedError( ref.path );
+
 	return resolved;
 
 };
@@ -817,6 +886,9 @@ export const buildPasteCurve = ( engine: Engine, ref: KeyFrameElementRef, curveI
 	const source = engine.curves[ curveId ];
 
 	if ( ! source ) throw new Error( `The copied curve "${curveId}" no longer exists` );
+
+	// リンクすると、保存されない Blender のカーブをシーンのリンクが指すことになる。複製なら新しい ID のユーザーのカーブになる
+	if ( mode == "link" && isBLidgeCurve( curveId ) ) throw new Error( `The curve "${curveId}" comes from Blender and cannot be linked. Paste a duplicate instead` );
 
 	const current = getElementLink( resolved, ref.element );
 	const curves: MXP.CurveTable = { ...engine.curves };

@@ -1,6 +1,5 @@
-import { useEffect } from 'react';
-
 import { withPopover } from '@or-storybook/decorators/withPopover';
+import { useEffect } from 'react';
 
 import { pointAnchor } from '../hooks/useAnchoredPosition';
 import { usePopover } from '../hooks/usePopover';

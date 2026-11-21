@@ -1,0 +1,553 @@
+{
+	"name": "demo-webgpu",
+	"scene": {
+		"name": "root",
+		"uuid": "0",
+		"childs": [
+			{
+				"name": "Camera",
+				"uuid": "730c74c5-298e-4f5b-a92a-c7ac5d4f8f02",
+				"pos": [
+					0,
+					1.55,
+					6.8
+				],
+				"rot": [
+					-0.0147,
+					0,
+					0
+				],
+				"components": [
+					{
+						"name": "Camera",
+						"uuid": "a92cc3e4-ed8e-4385-a5a4-4be388c185c5",
+						"props": {
+							"fov": 35,
+							"near": 0.1,
+							"far": 100,
+							"focus/mode": "manual",
+							"focus/distance": 6.8007
+						}
+					}
+				]
+			},
+			{
+				"name": "Floor",
+				"uuid": "affa36e9-75d9-47f2-a567-5df4d4e4a785",
+				"scale": [
+					40,
+					1,
+					40
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "9a3a8638-84ec-44cf-a3da-7ac7896d8504",
+						"props": {
+							"shape": "plane",
+							"color": [
+								0.5,
+								0.5,
+								0.5
+							],
+							"roughness": 0.9
+						}
+					}
+				]
+			},
+			{
+				"name": "Sun",
+				"uuid": "ca1aadfa-705e-446f-afe7-cbf533a79a74",
+				"pos": [
+					-1.7928,
+					3.5857,
+					2.9881
+				],
+				"rot": [
+					0.588,
+					0.2705,
+					0.3813
+				],
+				"components": [
+					{
+						"name": "Light",
+						"uuid": "a31d04c1-6c54-43eb-adad-e0fd0a5f95c0",
+						"props": {
+							"lightType": "directional",
+							"castShadow": true,
+							"intensity": 2.5
+						}
+					}
+				]
+			},
+			{
+				"name": "Dielectric0",
+				"uuid": "ea1540df-a3d8-4269-a5c0-bf1db481a6f6",
+				"pos": [
+					-2.3,
+					2.6,
+					0
+				],
+				"scale": [
+					0.95,
+					0.95,
+					0.95
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "4be66b71-3d2d-49e6-a873-8afc6dd24a5b",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								0.95,
+								0.75,
+								0.35
+							],
+							"roughness": 0,
+							"metallic": 0
+						}
+					}
+				]
+			},
+			{
+				"name": "Dielectric1",
+				"uuid": "0dc95c91-e1b2-4f13-a8a9-5e0118426691",
+				"pos": [
+					-1.15,
+					2.6,
+					0
+				],
+				"scale": [
+					0.95,
+					0.95,
+					0.95
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "cacf3ff9-e6c4-4a6e-a0b3-19472a8f6286",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								0.95,
+								0.75,
+								0.35
+							],
+							"roughness": 0.25,
+							"metallic": 0
+						}
+					}
+				]
+			},
+			{
+				"name": "Dielectric2",
+				"uuid": "da467415-01e2-4afd-adf4-bb6a58b4549a",
+				"pos": [
+					0,
+					2.6,
+					0
+				],
+				"scale": [
+					0.95,
+					0.95,
+					0.95
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "82d3ec82-17d2-4635-a805-d0e243dc8764",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								0.95,
+								0.75,
+								0.35
+							],
+							"roughness": 0.5,
+							"metallic": 0
+						}
+					}
+				]
+			},
+			{
+				"name": "Dielectric3",
+				"uuid": "c95ae362-b5fe-4472-a31a-f36e1b588199",
+				"pos": [
+					1.15,
+					2.6,
+					0
+				],
+				"scale": [
+					0.95,
+					0.95,
+					0.95
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "870474b5-6119-407d-ad06-b9106a464dbe",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								0.95,
+								0.75,
+								0.35
+							],
+							"roughness": 0.75,
+							"metallic": 0
+						}
+					}
+				]
+			},
+			{
+				"name": "Dielectric4",
+				"uuid": "e559702c-ca7d-48e2-acd7-cbf6d019de02",
+				"pos": [
+					2.3,
+					2.6,
+					0
+				],
+				"scale": [
+					0.95,
+					0.95,
+					0.95
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "202f7b91-e500-4efa-a419-0ff1d178a5e2",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								0.95,
+								0.75,
+								0.35
+							],
+							"roughness": 1,
+							"metallic": 0
+						}
+					}
+				]
+			},
+			{
+				"name": "Metal0",
+				"uuid": "acb6cf1a-90e8-47ec-a974-f9fe073ce2eb",
+				"pos": [
+					-2.3,
+					1.55,
+					0
+				],
+				"scale": [
+					0.95,
+					0.95,
+					0.95
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "615088bd-bdb1-4381-a1e7-0db05df21d4e",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								0.95,
+								0.75,
+								0.35
+							],
+							"roughness": 0,
+							"metallic": 1
+						}
+					}
+				]
+			},
+			{
+				"name": "Metal1",
+				"uuid": "cb3168d7-4752-4f2f-a4e2-7869ff9b71bd",
+				"pos": [
+					-1.15,
+					1.55,
+					0
+				],
+				"scale": [
+					0.95,
+					0.95,
+					0.95
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "88f65a1c-8ac2-4dd4-aecb-08b098ff3318",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								0.95,
+								0.75,
+								0.35
+							],
+							"roughness": 0.25,
+							"metallic": 1
+						}
+					}
+				]
+			},
+			{
+				"name": "Metal2",
+				"uuid": "c8e33d73-72a1-45b2-ad47-1e08fc50d0c6",
+				"pos": [
+					0,
+					1.55,
+					0
+				],
+				"scale": [
+					0.95,
+					0.95,
+					0.95
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "69d0764c-f147-4a20-aeaf-ba675dc134a4",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								0.95,
+								0.75,
+								0.35
+							],
+							"roughness": 0.5,
+							"metallic": 1
+						}
+					}
+				]
+			},
+			{
+				"name": "Metal3",
+				"uuid": "9141c0e7-ca2b-4617-aba7-570e08de9982",
+				"pos": [
+					1.15,
+					1.55,
+					0
+				],
+				"scale": [
+					0.95,
+					0.95,
+					0.95
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "6315d342-fba0-4acd-a7fb-3bad70f07b1b",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								0.95,
+								0.75,
+								0.35
+							],
+							"roughness": 0.75,
+							"metallic": 1
+						}
+					}
+				]
+			},
+			{
+				"name": "Metal4",
+				"uuid": "20e40e53-7a28-4e50-a753-5828a478e0db",
+				"pos": [
+					2.3,
+					1.55,
+					0
+				],
+				"scale": [
+					0.95,
+					0.95,
+					0.95
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "396fcc04-c11d-4d1d-a849-a2d2b742e0f9",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								0.95,
+								0.75,
+								0.35
+							],
+							"roughness": 1,
+							"metallic": 1
+						}
+					}
+				]
+			},
+			{
+				"name": "Emission0",
+				"uuid": "b62708ae-9e38-47a1-a494-5033c94b9f00",
+				"pos": [
+					-2.3,
+					0.5,
+					0
+				],
+				"scale": [
+					0.95,
+					0.95,
+					0.95
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "4335a0fa-3115-4625-a7dd-b6323df7078a",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								1,
+								0.5,
+								0.2
+							],
+							"emission": 0
+						}
+					}
+				]
+			},
+			{
+				"name": "Emission1",
+				"uuid": "0854862f-343a-4b9f-a0b9-07e4eee5807f",
+				"pos": [
+					-1.15,
+					0.5,
+					0
+				],
+				"scale": [
+					0.95,
+					0.95,
+					0.95
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "df834f38-3d62-46f4-a8ac-0e7feac20349",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								1,
+								0.5,
+								0.2
+							],
+							"emission": 0.5
+						}
+					}
+				]
+			},
+			{
+				"name": "Emission2",
+				"uuid": "cdf606ed-cf45-477b-ac91-19de22090d99",
+				"pos": [
+					0,
+					0.5,
+					0
+				],
+				"scale": [
+					0.95,
+					0.95,
+					0.95
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "f9737653-58b7-48bc-af3c-7fed7d7de5d7",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								1,
+								0.5,
+								0.2
+							],
+							"emission": 2
+						}
+					}
+				]
+			},
+			{
+				"name": "Emission3",
+				"uuid": "3cf3e9a8-4ef1-49af-a839-30e9a4e3c000",
+				"pos": [
+					1.15,
+					0.5,
+					0
+				],
+				"scale": [
+					0.95,
+					0.95,
+					0.95
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "e576ddc9-97d4-473f-aa3f-d3657304f85e",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								1,
+								0.5,
+								0.2
+							],
+							"emission": 8
+						}
+					}
+				]
+			},
+			{
+				"name": "Emission4",
+				"uuid": "0a838731-ea1f-4c43-a755-87cb2930a5cf",
+				"pos": [
+					2.3,
+					0.5,
+					0
+				],
+				"scale": [
+					0.95,
+					0.95,
+					0.95
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "d36fad78-f32d-4075-ab1f-7f212fe2426c",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								1,
+								0.5,
+								0.2
+							],
+							"emission": 32
+						}
+					}
+				]
+			}
+		]
+	},
+	"renderer": {
+		"sky/skyColor": [
+			0.1,
+			0.1,
+			0.1
+		],
+		"sky/groundColor": [
+			0.03,
+			0.03,
+			0.03
+		],
+		"sky/intensity": 1,
+		"pipeline/motionBlur/enabled": false,
+		"pipeline/ssr/enabled": false,
+		"pipeline/ssao/enabled": false,
+		"pipeline/dof/enabled": false,
+		"pipeline/lightShaft/enabled": false,
+		"pipeline/toneMap/enabled": true,
+		"pipeline/bloom/enabled": false,
+		"pipeline/sss/enabled": false
+	},
+	"timeline/duration": 600,
+	"timeline/fps": 60
+}

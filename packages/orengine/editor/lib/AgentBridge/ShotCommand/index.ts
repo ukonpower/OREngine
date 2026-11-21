@@ -10,14 +10,14 @@ import { entityPath, resolveEntity } from '../EntityQuery';
 import type { AgentCommandContext, AgentCommandTable } from '../Command';
 import type { AgentOptions } from '../Protocol';
 
-const SHOT_USAGE = 'shot <out.png> [--camera <entity> | --from x,y,z --to x,y,z] [--time <秒>] [--view <final|パス名>]';
+const SHOT_USAGE = 'shot <out.png> [--camera <entity> | --from x,y,z --to x,y,z] [--time <秒> [--frames <コマ数>]] [--size <幅>x<高さ>] [--view <final|パス名>]';
 
 // 読み戻す前に shot のビューを描く回数。作ったばかりのビューは履歴 RT（SSAO / lightShaft の temporal など）が
 // 空なので、同じステップのまま何回か描いて定常状態に近づける。
 // 仮の値: 何回で見た目が落ち着くかは実測していない。実走で確かめたら置き換える
 const SHOT_RENDER_COUNT = 4;
 
-// --time 指定時の1ステップぶんの時間。2回の step の時刻の差と、各 step の timeDelta をこれで揃える
+// --time 指定時の1コマぶんの時間。step どうしの時刻の差と、各 step の timeDelta をこれで揃える
 const SHOT_STEP_DELTA = 1 / 60;
 
 // --view <パス名> の転写先。EditorDraw ごとに1つ作って使い回す（契約にターゲットを破棄する口が無いため）
@@ -82,6 +82,65 @@ const parseTime = ( ctx: AgentCommandContext, options: AgentOptions ) => {
 	}
 
 	return time;
+
+};
+
+// --time の何コマ前から 1/60 秒ずつ進めて撮るか。省略時は 1（直前のコマで前フレームの姿勢だけを作る）
+const parseFrames = ( options: AgentOptions ) => {
+
+	const raw = options.frames;
+
+	if ( raw === undefined ) return 1;
+
+	if ( options.time === undefined ) {
+
+		throw new AgentCommandError( `--frames は --time と一緒に指定してください。使い方: ${SHOT_USAGE}` );
+
+	}
+
+	const frames = Number( raw );
+
+	if ( typeof raw !== 'string' || ! Number.isInteger( frames ) || frames < 1 ) {
+
+		throw new AgentCommandError( `--frames は 1 以上の整数で指定してください: ${raw}` );
+
+	}
+
+	return frames;
+
+};
+
+// "960x540" を描画解像度にする。省略時は null（renderer の解像度 = editor.json の resolution/* で描く）
+const parseSize = ( options: AgentOptions ) => {
+
+	const raw = options.size;
+
+	if ( raw === undefined ) return null;
+
+	let match: RegExpMatchArray | null = null;
+
+	if ( typeof raw === 'string' ) {
+
+		match = raw.match( /^(\d+)x(\d+)$/ );
+
+	}
+
+	if ( ! match ) {
+
+		throw new AgentCommandError( `--size は <幅>x<高さ>（例: 960x540）で指定してください: ${raw}` );
+
+	}
+
+	const width = Number( match[ 1 ] );
+	const height = Number( match[ 2 ] );
+
+	if ( width < 1 || height < 1 ) {
+
+		throw new AgentCommandError( `--size の幅と高さは 1 以上にしてください: ${raw}` );
+
+	}
+
+	return new MTP.Vector( width, height );
 
 };
 
@@ -202,11 +261,11 @@ const resolveCamera = ( ctx: AgentCommandContext, options: AgentOptions ): ShotC
 };
 
 // 一時カメラは root の外にあって step で更新されないので、エディタカメラと同じ手順で自前で回す
-const updateTemporaryCamera = ( camera: MXP.Camera, engine: Engine, event: MXP.EntityUpdateEvent ) => {
+const updateTemporaryCamera = ( camera: MXP.Camera, event: MXP.EntityUpdateEvent ) => {
 
 	const entity = camera.entity;
 
-	camera.aspect = engine.renderer.resolution.x / engine.renderer.resolution.y;
+	camera.aspect = event.resolution.x / event.resolution.y;
 	camera.needsUpdateProjectionMatrix = true;
 
 	entity.update( event );
@@ -221,14 +280,19 @@ const updateTemporaryCamera = ( camera: MXP.Camera, engine: Engine, event: MXP.E
 -------------------------------*/
 
 // 時刻 time の event で step する。Engine.update と同じく、時刻の uniform と毎フレーム更新のテクスチャを揃えてから進める。
+// 実時間（uTimeE）・経過時間（uDeltaTime）も event の値から入れる。params で上書きしなければ直前の Engine.update と同じ値になる。
 // シャドウ・envMap などのパスは prepareScene（step の中）で出るので、capture があれば step の間も拾う
 const stepAt = ( engine: Engine, time: number, params: Partial<MXP.EntityUpdateEvent>, capture: PassCapture | null ) => {
 
 	const event = engine.createEntityUpdateEvent( { ...params, timeCode: time, timeCodeFrame: time * 60, playing: false, forceDraw: true, offline: true } );
+	const uniforms = engine.renderer.globalUniforms;
 
-	engine.renderer.globalUniforms.uTimePrev.value = engine.renderer.globalUniforms.uTime.value;
-	engine.renderer.globalUniforms.uTime.value = time;
-	engine.renderer.globalUniforms.uTimeF.value = time % 1;
+	uniforms.uTimePrev.value = uniforms.uTime.value;
+	uniforms.uTime.value = time;
+	uniforms.uTimeF.value = time % 1;
+	uniforms.uTimeE.value = event.timeElapsed;
+	uniforms.uTimeEF.value = event.timeElapsed % 1;
+	uniforms.uDeltaTime.value = Math.min( event.timeDelta, 1 / 60 );
 
 	const updateTextures = Engine.resources.updateEveryFrameTextures;
 
@@ -398,14 +462,26 @@ const shot = async ( ctx: AgentCommandContext, input: AgentCommandInput ) => {
 
 	const timeSpecified = options.time !== undefined;
 	const time = parseTime( ctx, options );
+	const frames = parseFrames( options );
+	const size = parseSize( options );
 	const viewName = parseViewName( options );
 	const camera = resolveCamera( ctx, options );
 
 	const view = engine.createView( { offscreen: true } );
 	view.camera = camera.entity;
 
-	const width = Math.max( Math.floor( engine.renderer.resolution.x ), 1 );
-	const height = Math.max( Math.floor( engine.renderer.resolution.y ), 1 );
+	// renderer の解像度（ユーザーのタブの Screen・別ウィンドウが使う）は変えず、shot のビューだけをこの大きさで描く
+	let resolution = engine.renderer.resolution;
+
+	if ( size ) {
+
+		view.size = size;
+		resolution = size;
+
+	}
+
+	const width = Math.max( Math.floor( resolution.x ), 1 );
+	const height = Math.max( Math.floor( resolution.y ), 1 );
 
 	let readback: Promise<Uint8Array>;
 
@@ -425,7 +501,7 @@ const shot = async ( ctx: AgentCommandContext, input: AgentCommandInput ) => {
 		// 射影行列は step の中の prepareRender で作り直される
 		if ( fitCamera ) {
 
-			fitCamera.aspect = engine.renderer.resolution.x / engine.renderer.resolution.y;
+			fitCamera.aspect = resolution.x / resolution.y;
 			fitCamera.needsUpdateProjectionMatrix = true;
 
 		}
@@ -451,21 +527,43 @@ const shot = async ( ctx: AgentCommandContext, input: AgentCommandInput ) => {
 
 		if ( timeSpecified ) {
 
-			// step 冒頭の commitFrame で前フレームの行列が確定する。1回だけだとタブの今の時刻の姿勢と T の姿勢の差が
-			// 速度（モーションブラー）になるので、先に T の直前で1回進めて、前フレームを T の直前の姿勢にしておく
-			stepAt( engine, time - SHOT_STEP_DELTA, { timeDelta: SHOT_STEP_DELTA }, null );
-			event = stepAt( engine, time, { timeDelta: SHOT_STEP_DELTA }, capture );
+			// 実時間（timeElapsed → uTimeE）も時刻に揃える。ページを開いてからの時間で変わると、同じ時刻でも撮るたびに絵が変わるため
+			const timedParams = ( stepTime: number ) => ( { resolution, timeDelta: SHOT_STEP_DELTA, timeElapsed: stepTime } );
+
+			// step 冒頭の commitFrame で前フレームの行列が確定する。最初の step だとタブの今の時刻の姿勢との差が
+			// 速度（モーションブラー）になるので、最初のコマは前フレームの姿勢を作るだけで描かない
+			const startTime = time - frames * SHOT_STEP_DELTA;
+
+			stepAt( engine, startTime, timedParams( startTime ), null );
+
+			// 途中のコマも描いて、時間方向に積むパス（ssrTemporal・lightShaft 等）の履歴を溜める
+			for ( let i = frames - 1; i > 0; i -- ) {
+
+				const stepTime = time - i * SHOT_STEP_DELTA;
+				const stepEvent = stepAt( engine, stepTime, timedParams( stepTime ), null );
+
+				if ( camera.temporary ) {
+
+					updateTemporaryCamera( camera.temporary, stepEvent );
+
+				}
+
+				engine.render( view );
+
+			}
+
+			event = stepAt( engine, time, timedParams( time ), capture );
 
 		} else {
 
 			// 直前のフレームがタブの今の時刻なので、1回で速度は正しい
-			event = stepAt( engine, time, {}, capture );
+			event = stepAt( engine, time, { resolution }, capture );
 
 		}
 
 		if ( camera.temporary ) {
 
-			updateTemporaryCamera( camera.temporary, engine, event );
+			updateTemporaryCamera( camera.temporary, event );
 
 		}
 

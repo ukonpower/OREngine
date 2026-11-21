@@ -3,9 +3,9 @@ import { useRef } from 'react';
 import { isAllSelected } from 'orengine/editor';
 import { KeyframeIcon, trackPointerDrag } from 'uipower';
 
+import { useViewWheel } from '../../../../../../hooks/useViewWheel';
+import { hasZoomModifier } from '../../../../../../lib/viewGesture';
 import { useTimeline } from '../../../../hooks/useTimeline';
-import { useViewWheel } from '../../../../hooks/useViewWheel';
-import { hasZoomModifier } from '../../../../lib/ViewGesture';
 import { useKeyEditor } from '../../hooks/useKeyEditor';
 import { buildMarks } from '../../lib/KeyChannels';
 
@@ -74,7 +74,7 @@ export const KeyDopeSheet = () => {
 
 				const event = channel.kind == "event";
 
-				return <div key={channel.id} className={style.row} data-depth={channel.depth}>
+				return <div key={channel.id} className={style.row} data-depth={channel.depth} data-readonly={channel.readOnly}>
 					{buildMarks( curves, channel.curveIds ).map( ( mark ) => {
 
 						const position = ( mark.frame - viewPort[ 0 ] ) / range;

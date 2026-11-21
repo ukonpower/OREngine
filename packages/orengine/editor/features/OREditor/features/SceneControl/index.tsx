@@ -48,7 +48,7 @@ export const SceneControl = () => {
 				</div>
 			</Block>
 		</div>
-		{windowAnchor && scenes && <SceneWindow scenes={scenes} projectName={projectName} anchor={windowAnchor} onClose={() => {
+		{windowAnchor && scenes && <SceneWindow scenes={scenes} projectName={projectName} anchor={windowAnchor} hasUnsaved={() => editor.unsaved} onClose={() => {
 
 			setWindowAnchor( null );
 

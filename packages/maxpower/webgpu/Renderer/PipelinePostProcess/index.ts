@@ -62,16 +62,9 @@ const SSS_SAMPLES = 9;
 // 1080 より高い解像度ではサンプル同士のピクセル間隔が広がり、ボケに粒が出やすくなる
 const DOF_MAX_COC = 14 / 1080;
 
-// 時間方向の蓄積で新しい結果に与える重み。ノイズと影の追従の速さの折り合いで、
-// エディタから触れるよう uniform にも同じ値を入れている
-const LIGHT_SHAFT_TEMPORAL_BLEND = 0.3;
-
-// ジッタの巡回周期。蓄積されるフレーム数（1/LIGHT_SHAFT_TEMPORAL_BLEND）より十分長ければよい
+// lightShaft と SSAO のジッタの巡回周期。蓄積されるフレーム数（lightShaft.wgsl / ssao.wgsl の 1 / TEMPORAL_BLEND）より十分長ければよい。
+// webgl 側 DeferredRenderer の LIGHT_SHAFT_JITTER_CYCLE と一致させる
 const LIGHT_SHAFT_JITTER_CYCLE = 64;
-
-// SSAO の時間方向の蓄積で新しい結果に与える重み。lightShaft より1フレームのばらつきが大きいので低めにしている。
-// Renderer の既定値（createDefaultPipelineConfig の ssaoTemporalBlend）と揃える
-const SSAO_TEMPORAL_BLEND = 0.2;
 
 // rgba32float のgBufferはfilteringサンプラーで引けない
 const NEAREST = ( name: string ) => ( { name, filterable: false } );
@@ -86,17 +79,15 @@ export class PipelinePostProcess {
 
 	}
 
-	// ぼかしを切ると参照先がピンポンの描画先になり、フレームごとに入れ替わる
 	public get ssaoView() {
 
-		return this._ssaoBlurV.enabled ? this._ssaoBlurV.targetView : this._ssao.targetView;
+		return this._ssaoBlurV.targetView;
 
 	}
 
-	// ぼかしを切ると参照先がピンポンの描画先になり、フレームごとに入れ替わる
 	public get lightShaftView() {
 
-		return this._lightShaftBlurV.enabled ? this._lightShaftBlurV.targetView : this._lightShaft.targetView;
+		return this._lightShaftBlurV.targetView;
 
 	}
 
@@ -170,8 +161,6 @@ export class PipelinePostProcess {
 			uniforms: {
 				uIntensity: { value: 1, type: '1f' },
 				uFrame: { value: 0, type: '1f' },
-				uTemporal: { value: 1, type: '1f' },
-				uTemporalBlend: { value: LIGHT_SHAFT_TEMPORAL_BLEND, type: '1f' },
 			},
 			pingPong: 'uLightShaftBackBuffer',
 			lights: lightLayout,
@@ -202,8 +191,6 @@ export class PipelinePostProcess {
 			uniforms: {
 				uIntensity: { value: 1, type: '1f' },
 				uFrame: { value: 0, type: '1f' },
-				uTemporal: { value: 1, type: '1f' },
-				uTemporalBlend: { value: SSAO_TEMPORAL_BLEND, type: '1f' },
 			},
 			pingPong: 'uSsaoBackBuffer',
 			resolutionRatio: 0.5,
@@ -607,55 +594,16 @@ export class PipelinePostProcess {
 
 		}
 
-		// 有効フラグと強さは1つのuniformへまとめる（無効時は0で寄与が消える）
-		if ( config.ssao !== undefined || config.ssaoIntensity !== undefined ) {
+		// 無効時は uIntensity の0で寄与が消える
+		if ( config.ssao !== undefined ) {
 
-			this._ssao.uniforms.uIntensity.value = ( config.ssao ?? true ) ? ( config.ssaoIntensity ?? 1 ) : 0;
-
-		}
-
-		if ( config.ssaoBlur !== undefined ) {
-
-			this._ssaoBlurH.enabled = config.ssaoBlur;
-			this._ssaoBlurV.enabled = config.ssaoBlur;
+			this._ssao.uniforms.uIntensity.value = config.ssao ? 1 : 0;
 
 		}
 
-		if ( config.ssaoTemporal !== undefined ) {
+		if ( config.lightShaft !== undefined ) {
 
-			this._ssao.uniforms.uTemporal.value = config.ssaoTemporal ? 1 : 0;
-
-		}
-
-		if ( config.ssaoTemporalBlend !== undefined ) {
-
-			this._ssao.uniforms.uTemporalBlend.value = config.ssaoTemporalBlend;
-
-		}
-
-		// 有効フラグと強さは1つのuniformへまとめる（無効時は0で寄与が消える）
-		if ( config.lightShaft !== undefined || config.lightShaftIntensity !== undefined ) {
-
-			this._lightShaft.uniforms.uIntensity.value = ( config.lightShaft ?? true ) ? ( config.lightShaftIntensity ?? 1 ) : 0;
-
-		}
-
-		if ( config.lightShaftBlur !== undefined ) {
-
-			this._lightShaftBlurH.enabled = config.lightShaftBlur;
-			this._lightShaftBlurV.enabled = config.lightShaftBlur;
-
-		}
-
-		if ( config.lightShaftTemporal !== undefined ) {
-
-			this._lightShaft.uniforms.uTemporal.value = config.lightShaftTemporal ? 1 : 0;
-
-		}
-
-		if ( config.lightShaftTemporalBlend !== undefined ) {
-
-			this._lightShaft.uniforms.uTemporalBlend.value = config.lightShaftTemporalBlend;
+			this._lightShaft.uniforms.uIntensity.value = config.lightShaft ? 1 : 0;
 
 		}
 

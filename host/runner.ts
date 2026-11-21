@@ -23,6 +23,9 @@ export interface HostRunOptions {
 	https?: { cert: Buffer | string; key: Buffer | string };
 	// dev / player で有効。static は webgl 固定
 	renderer?: RendererName;
+	// dev 専用。意味は OrengineConfigOptions の同名の項目（host/vite/configs.ts）
+	cacheDir?: string;
+	writeDevServerInfo?: boolean;
 }
 
 export interface DevHandle {

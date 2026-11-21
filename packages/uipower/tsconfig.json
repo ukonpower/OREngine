@@ -1,0 +1,23 @@
+// uipower を単独で型チェックする設定。ルートの tsconfig を extends しないのは、
+// ルートの paths（uipower 以外のパッケージへのエイリアス）を持ち込まず、外への依存を型エラーで検知するため
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": [ "ES2021", "DOM", "DOM.Iterable" ],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "isolatedModules": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    // *.module.scss の型宣言のため
+    "types": [ "vite/client" ]
+  },
+  "include": [ "**/*.ts", "**/*.tsx" ],
+  // stories はリポジトリの Storybook（@or-storybook/*）に依存するので、ライブラリ本体の検査から外す
+  "exclude": [ "**/*.stories.tsx", "vite.config.ts", "dist" ]
+}

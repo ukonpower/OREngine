@@ -1,6 +1,9 @@
-#include <module:common>
-
+// frag_h（uniform の宣言）を module より前に置く。lite_out が uniform を引数に渡して module の関数を呼ぶので、
+// minify でその引数が uniform の直接参照に置き換わっても、宣言が先に来るようにするため
 #include <part:frag_h>
+#include <module:common>
+// 軽量レンダラーで描くときは、シェーダーの中でライティングまで済ませる（それ以外のレンダラーでは IS_FORWARD_LIT の分岐ごと使わない）
+#include <part:lite_h>
 
 #ifdef USE_COLOR
 
@@ -133,6 +136,7 @@ void main( void ) {
 
 	#endif
 
+	#include <part:lite_out>
 	#include <part:frag_out>
 
 } 
