@@ -71,33 +71,12 @@
 						{
 							"ratio": 0.6861924686192469,
 							"node": {
-								"type": "split",
-								"id": "f9a173fc-bddf-41b3-bcae-f64e8dddaa1f",
-								"direction": "vertical",
-								"children": [
-									{
-										"ratio": 0.5,
-										"node": {
-											"type": "pane",
-											"id": "464af811-422d-4bd8-ae37-75b5907a5da0",
-											"tabs": [
-												"viewport:main"
-											],
-											"active": "viewport:main"
-										}
-									},
-									{
-										"ratio": 0.5,
-										"node": {
-											"type": "pane",
-											"id": "24928f21-48a9-4cc9-9b08-9e0fd3a68175",
-											"tabs": [
-												"music"
-											],
-											"active": "music"
-										}
-									}
-								]
+								"type": "pane",
+								"id": "464af811-422d-4bd8-ae37-75b5907a5da0",
+								"tabs": [
+									"viewport:main"
+								],
+								"active": "viewport:main"
 							}
 						},
 						{
@@ -124,7 +103,8 @@
 					"id": "f531ebf8-32b8-48fb-a8b8-37a313cabdb0",
 					"tabs": [
 						"timeline",
-						"export"
+						"export",
+						"music"
 					],
 					"active": "timeline"
 				}
