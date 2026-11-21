@@ -1,8 +1,18 @@
 # OREngine
 
-OREngine (オーアールエンジン) は 64KB Intro 制作のための 3D エンジンです。TypeScript で実装されており、WebGL / WebGPU のレンダラー、コンポーネントベースのシーン構築、React 製エディタ、64KB 配布形式（自己解凍 HTML）へのビルドパイプラインを備えています。
+OREngine (オーアールエンジン) は 64KB Intro 制作のための 3D エンジンです。TypeScript で実装されており、WebGL / WebGPU のレンダラー、コンポーネントベースのシーン構築、キーフレームアニメーション、シェーダーで音を作る音楽（Music）、React 製エディタ、64KB 配布形式（自己解凍 HTML）へのビルドパイプラインを備えています。
 
 ![OREngine screen shot](./screenshot/OREngine.png)
+
+### 描画の例
+
+`npm run scene-shots` で撮っている、エンジンの仕組みごとのシーンです（WebGL）。
+
+| PBR マテリアル | 複数のライト | SSR |
+| --- | --- | --- |
+| ![material-pbr](./tests/scene-shots/material-pbr-webgl.png) | ![light-multi](./tests/scene-shots/light-multi-webgl.png) | ![post-ssr](./tests/scene-shots/post-ssr-webgl.png) |
+| **SSAO** | **Compute** | **軽量レンダラー** |
+| ![post-ssao](./tests/scene-shots/post-ssao-webgl.png) | ![compute](./tests/scene-shots/compute-webgl.png) | ![renderer-lite](./tests/scene-shots/renderer-lite-webgl.png) |
 
 ## デモ
 
@@ -45,6 +55,70 @@ npm run dev
 ```bash
 ORENGINE_RENDERER=webgpu npm run dev
 ```
+
+#### 軽量レンダラー
+
+G バッファ・SSAO・環境マップ・後処理を使わないシーンは、deferred を通らない軽量レンダラーで描くとフレーム時間とコードを減らせます。シーンのファイルに 1 行足すと、エディタと player がこのレンダラーで描きます（エディタでは Renderer パネルの type でも切り替えられます）。WebGL だけの機能で、WebGPU では通常のレンダラーで描きます。
+
+```json
+"rendererType": "lite"
+```
+
+自前のシェーダーをライティングさせるときは、part を 2 つ入れます（入れていないシェーダーは `outColor` がそのまま出ます）。例は `demo-webgl` の `shape.fs` です。
+
+```glsl
+#include <part:frag_h>
+
+// ...
+
+	// 軽量レンダラー（rendererType が lite のシーン）では、ここでライト・影・環境光・トーンマップまで済ませる
+	#include <part:lite_out>
+	#include <part:frag_out>
+```
+
+#### 音楽（Music）
+
+builtin の `Music` コンポーネントをシーンに置くと、トラックごとに楽器の GLSL から曲の全サンプルを作り、タイムラインに合わせて鳴らします。帯（クリップ）とノートは Music パネルのタイムラインとピアノロールで編集します。
+
+楽器は `project/Resources/Library/Instruments/<名前>/` に `index.ts` と `index.glsl` を置くと、ディレクトリ名で選べるようになります。
+
+```ts
+// builtin の楽器 packages/orengine/builtin/Library/Instruments/Metronome/index.ts
+import shader from './index.glsl';
+
+import type { Instrument } from 'orengine/builtin';
+
+const instrument: Instrument = { shader };
+
+export default instrument;
+```
+
+`index.glsl` には、帯ごとに音を作る `vec2 trackSound( Song s )` か、ノート 1 つぶんの音を作る `vec2 noteSound( Note n, float t )` を書きます（`Song` などは自動で足されます）。
+
+```glsl
+// packages/orengine/builtin/Library/Instruments/Metronome/index.glsl
+// 拍の頭ごとに短いクリックを鳴らす。小節（4拍）の頭だけ1オクターブ高くする
+vec2 trackSound( Song s ) {
+
+	// 拍の頭からの秒
+	float t = fract( s.clipBeat ) * s.beatSec;
+
+	float freq = 880.0;
+
+	if ( mod( floor( s.clipBeat ), 4.0 ) < 0.5 ) {
+
+		freq = 1760.0;
+
+	}
+
+	float o = sin( t * freq * 6.28318530718 ) * exp( - t * 60.0 );
+
+	return vec2( o * 0.3 );
+
+}
+```
+
+例は `demo-webgl` の `scenes/music.json` と `Resources/Library/Instruments/` です。
 
 #### エディタ拡張（`project/editor/`）
 
@@ -220,6 +294,8 @@ player ビルドで出力される `out.html` の packed サイズが 64KB Intro
 | コマンド | 内容 |
 | --- | --- |
 | `npm run storybook:dev` | Storybook 開発サーバー (port 6006) |
+| `npm run scene-shots` | エンジンの仕組みごとのシーンを WebGL / WebGPU で撮り、`tests/scene-shots` の PNG と比べる |
+| `npm run uipower:build` | エディタの UI 部品 uipower を単独のパッケージとしてビルド |
 | `npm run vrt` | スクリーンショット比較テスト (VRT) の実行 |
 | `npm run vrt:update` | VRT の基準スクリーンショット更新 |
 | `npm run lint` | ESLint |
