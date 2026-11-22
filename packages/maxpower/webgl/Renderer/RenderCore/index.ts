@@ -942,6 +942,11 @@ export abstract class RenderCore extends Serializable {
 
 		this._lightInfoCache.clear();
 
+		// 集めたライトは上で消したシャドウマップを指している。次の prepareScene より先に描く処理
+		// （Engine.update が先に焼く毎フレームのテクスチャなど）がライトを使うと、消したテクスチャを bind してしまう
+		this._lights.directional = [];
+		this._lights.spot = [];
+
 	}
 
 	/*-------------------------------
