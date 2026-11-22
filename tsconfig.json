@@ -103,6 +103,7 @@
     "demo-webgl",
     "scripts",
     "tests/scene-shots",
+    "tests/render-correctness/*.ts",
     "host/vite",
     "host/runner.ts",
     "host/index.ts"

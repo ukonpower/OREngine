@@ -17,6 +17,7 @@
     "./host/runner.ts",
     "./host/index.ts",
     "./scripts",
-    "./tests/scene-shots"
+    "./tests/scene-shots",
+    "./tests/render-correctness/*.ts"
   ]
 }
