@@ -41,7 +41,7 @@ OREngine 自体の開発エントリは `host/` に集約されている:
 `runDev` は express（`host/server/factory.ts`）と vite devサーバーを同一プロセスで起動する。express は `scenes/<name>.json` / `editor.json` の読み書き（シーン一覧の取得を含む）を行うファイルI/O層のみで、シーンを編集する処理は持たない。シーンの編集はエディタ内の `EditorAPI`（`packages/orengine/editor/lib/EditorAPI`）が唯一の実装で、GUI と下記のシーン CLI（AgentBridge）はどちらもここを通る。人間は `scenes/<name>.json` を直接編集してもよく、vite のプロジェクトwatch（`host/vite/plugins/ProjectWatchReload`）が外部からの変更・シーンファイルの増減を検知してブラウザを自動リロードする（タブに未保存の変更があればブラウザの離脱の確認が出る。「未保存の確認」の節）。コンポーネントファイルや `.tex` の編集は直接ファイル編集で行う。
 
 ### シーン CLI（AgentBridge）
-dev サーバー起動中に、開いているエディタタブ（無ければ headless Chromium）でシーンを観測・編集・撮影する CLI（`npx tsx scripts/scene.ts help` で一覧）。使う前・AgentBridge を触る前に `packages/orengine/editor/lib/AgentBridge/CLAUDE.md` を読む
+開いているエディタタブ（無ければ headless Chromium）でシーンを観測・編集・撮影する CLI（`npx orengine-cli help` で一覧。package.json の bin）。立っている dev サーバーが無ければ、本人のものとぶつからないポートで自分用の dev サーバーを立て、使われなくなったら閉じる。使う前・AgentBridge を触る前に `packages/orengine/editor/lib/AgentBridge/CLAUDE.md` を読む
 
 ### プロジェクトディレクトリ（demo-webgl・demo-webgpu / 外部プロジェクト共通）
 プロジェクトディレクトリの中身は `Resources/` / `scenes/` / `editor.json` / `public/` / `editor/` のみ。HTML / src / vite config 等のボイラープレートはすべて `host/app/` に集約されている。
@@ -101,7 +101,7 @@ dev サーバー起動中に、開いているエディタタブ（無ければ 
 
 ### ルール
 - **絶対禁止**: ユーザーの明示的な指示なしに `git commit` や `git push` を実行しない
-- **絶対禁止**: `npm run dev` を勝手に起動しない（ユーザーが明示的に指示した場合のみ実行する）
+- **絶対禁止**: `npm run dev` を勝手に起動しない（ユーザーが明示的に指示した場合のみ実行する）。シーン CLI（`orengine-cli`）が自分用に立てる dev サーバー（3400 番台。使われなくなったら自分で閉じる）はこれに当たらないので、dev サーバーが無ければそのまま CLI を使う。本人が立てている dev サーバーは止めない
 - **必須**: コミットメッセージは日本語で記述する
 - **必須**: コード変更後は `npm run typecheck` で型チェックを実行し、続けて `npm run lint --fix` でESLintエラーを自動修正する
 - **必須**: エンジン（`packages/maxpower` / `glpower` / `mathpower`、`packages/orengine` の core / builtin、GLSL / WGSL のシェーダーとそのビルド）を変更したら、影響のありそうなシーンを `npm run scene-shots` で撮り、描画に問題が無いことを確かめてから完了とする。手順は「シーンの撮影（scene-shots）」の節。scene-shots は専用のポートで dev サーバーを立て、終わったら閉じるので、上の `npm run dev` の禁止には当たらない。指示を待たずに実行する

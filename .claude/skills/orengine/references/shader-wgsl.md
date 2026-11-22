@@ -152,5 +152,5 @@ fn fsForward( input: VertexOutput ) -> @location(0) vec4f {
 
 ## 確認
 
-- WGSL のコンパイルエラー・パイプライン作成の失敗は `npx tsx scripts/scene.ts errors` の **`gpu`** に出る（`shader` は GLSL 用）
+- WGSL のコンパイルエラー・パイプライン作成の失敗は `npx orengine-cli errors` の **`gpu`** に出る（`shader` は GLSL 用）
 - WGSL は minify されない（shader_minifier は GLSL 専用）

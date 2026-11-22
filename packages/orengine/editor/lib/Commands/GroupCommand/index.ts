@@ -1,4 +1,4 @@
-import { Command } from '../../CommandManager';
+import type { Command } from '../../CommandManager';
 
 // 複数のコマンドを undo 1回ぶんにまとめる。execute は並べた順に、undo は逆順に流す
 export class GroupCommand implements Command {

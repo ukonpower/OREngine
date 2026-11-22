@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-// scene.ts の shot の応答（packages/orengine/editor/lib/AgentBridge/ShotCommand の戻り値）
+// shot の応答（packages/orengine/editor/lib/AgentBridge/ShotCommand の戻り値）
 type ShotResult = {
 	png: string;
 	[ key: string ]: unknown;

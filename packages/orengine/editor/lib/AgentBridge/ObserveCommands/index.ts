@@ -15,16 +15,8 @@ import type { AgentCommandContext, AgentCommandTable } from '../Command';
 
 const status = ( ctx: AgentCommandContext ) => {
 
-	let connection = 'tab';
-
-	if ( ctx.headless ) {
-
-		connection = 'headless';
-
-	}
-
 	return {
-		connection,
+		connection: ctx.connection,
 		tabId: ctx.tabId,
 		url: location.href,
 		scene: ctx.sceneName,

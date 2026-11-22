@@ -1,6 +1,6 @@
 # ビルトインコンポーネント
 
-どのプロジェクトでも使えるコンポーネント。フィールド（path・型・現在値）はここに書き写していないので、`npx tsx scripts/scene.ts components`（全コンポーネントの定義）/ `get <entity>`（付いているものの現在値）で確かめる。パスの書き方は SKILL.md の「最初に」を参照。
+どのプロジェクトでも使えるコンポーネント。フィールド（path・型・現在値）はここに書き写していないので、`npx orengine-cli components`（全コンポーネントの定義）/ `get <entity>`（付いているものの現在値）で確かめる。パスの書き方は SKILL.md の「最初に」を参照。
 
 登録の実体: `host/app/Resources/registry.ts`（Light / Camera / Mesh）と `packages/orengine/builtin/Components/`（それ以外）。
 

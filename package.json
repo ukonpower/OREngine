@@ -3,6 +3,9 @@
   "private": true,
   "version": "0.0.4",
   "type": "module",
+  "bin": {
+    "orengine-cli": "scripts/cli/bin.js"
+  },
   "exports": {
     ".": "./packages/orengine/index.ts",
     "./react": "./packages/orengine/react.tsx",

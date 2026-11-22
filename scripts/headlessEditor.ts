@@ -1,9 +1,9 @@
-import { AGENT_HEADLESS_PARAM, AGENT_SCENE_PARAM } from '../packages/orengine/editor/lib/AgentBridge/Protocol/index.ts';
+import { AGENT_HEADLESS_KEEP, AGENT_HEADLESS_PARAM, AGENT_SCENE_PARAM } from '../packages/orengine/editor/lib/AgentBridge/Protocol/index.ts';
 
 import type { Browser, Page } from '@playwright/test';
 
-// エディタのタブが無いときに、scripts/scene.ts が代わりの接続先として開く headless Chromium。
-// tests/scene-shots もこれでエディタを開き、シーンを順に撮る
+// エディタのタブが無いときに、orengine-cli（scripts/cli）が代わりの接続先として開く headless Chromium。
+// 自分用の dev サーバー（scripts/cli/ownServer.ts）は開いたままにして使い回す。tests/scene-shots もこれでエディタを開き、シーンを順に撮る
 
 // WebGL2 / WebGPU とも Metal で描かせるためのフラグ（#80 の実測: Playwright 1.62.1 / Apple Silicon）。
 // 無いと WebGL2 は SwiftShader（CPU）になり、WebGPU は --enable-unsafe-webgpu だけだと SwiftShader の fallback で canvas が真っ黒になる
@@ -19,14 +19,20 @@ const DEVICE_SCALE_FACTOR = 1;
 export type HeadlessEditor = {
 	// エディタを開くページ。開き直すときはここへ goto する
 	page: Page;
+	browser: Browser;
 	close: () => Promise<void>;
 };
 
-// headless で開くエディタの URL。scene を渡すと editor.json の scene の代わりにそのシーンを開く（editor.json は書き換えない）
-export const headlessEditorUrl = ( devServerUrl: string, scene?: string ) => {
+// headless で開くエディタの URL。scene を渡すと editor.json の scene の代わりにそのシーンを開く（editor.json は書き換えない）。
+// keep は開いたままにして使い回すページ（ページはこれで undo 履歴がコマンドをまたいで残ると知る）
+export const headlessEditorUrl = ( devServerUrl: string, scene?: string, keep: boolean = false ) => {
 
 	const url = new URL( '/', devServerUrl );
-	url.searchParams.set( AGENT_HEADLESS_PARAM, '' );
+	let value = '';
+
+	if ( keep ) value = AGENT_HEADLESS_KEEP;
+
+	url.searchParams.set( AGENT_HEADLESS_PARAM, value );
 
 	if ( scene !== undefined ) {
 
@@ -59,6 +65,7 @@ export const launchHeadlessEditor = async (): Promise<HeadlessEditor> => {
 
 		return {
 			page,
+			browser,
 			close: () => browser.close(),
 		};
 

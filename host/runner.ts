@@ -7,6 +7,7 @@ import { build, createServer, InlineConfig } from 'vite';
 import { startOrengineServer, OrengineServerHandle } from './server/factory';
 import { createDevConfig, createPlayerConfig, createStaticConfig } from './vite/configs';
 
+import type { DevServerOwner } from './devServerRegistry';
 import type { RendererName } from './vite/configs';
 import type { ViteDevServer } from 'vite';
 
@@ -25,7 +26,7 @@ export interface HostRunOptions {
 	renderer?: RendererName;
 	// dev 専用。意味は OrengineConfigOptions の同名の項目（host/vite/configs.ts）
 	cacheDir?: string;
-	writeDevServerInfo?: boolean;
+	devServerOwner?: DevServerOwner | null;
 }
 
 export interface DevHandle {

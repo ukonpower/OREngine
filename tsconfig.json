@@ -105,7 +105,8 @@
     "tests/scene-shots",
     "host/vite",
     "host/runner.ts",
-    "host/index.ts"
+    "host/index.ts",
+    "host/devServerRegistry.ts"
   ],
   "references": [
     {
