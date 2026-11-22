@@ -48,6 +48,77 @@ export interface OREngineProjectFrame {
 }
 
 
+/*-------------------------------
+	UnknownFields
+-------------------------------*/
+
+// 読み込んだ props のうち、今のコンポーネントの定義に無いフィールドの値（エディタの dev サーバーでだけ持つ）。
+// 保存のたびに定義に無い値を黙って落とすと、消したつもりのないフィールド（読み込み後に足されるもの・名前を変える途中のもの）の値まで消え、
+// 関係ない操作（シーンを開く・別のフィールドを set する）でシーンファイルに差分が出る。保存では書き戻し、消すのはシーン CLI の drop-unknown-fields で明示的に行う。
+// player では読み込みだけで保存しないので持たない（production では登録も書き戻しも消える）
+const unknownFields = /* @__PURE__ */ new WeakMap<MXP.Component, Record<string, unknown>>();
+
+// 今の定義に無いフィールドの path（読み込み後に足されたものは定義があるとみなす）
+const definedPaths = ( component: MXP.Component ) => new Set( Object.keys( component.serialize() ) );
+
+export const getUnknownFields = ( component: MXP.Component ) => {
+
+	const props = unknownFields.get( component );
+
+	if ( ! props ) return null;
+
+	const defined = definedPaths( component );
+	const result: Record<string, unknown> = {};
+	let count = 0;
+
+	for ( const key of Object.keys( props ) ) {
+
+		if ( defined.has( key ) ) continue;
+
+		result[ key ] = props[ key ];
+		count ++;
+
+	}
+
+	if ( count === 0 ) return null;
+
+	return result;
+
+};
+
+export const dropUnknownFields = ( component: MXP.Component ) => {
+
+	unknownFields.delete( component );
+
+};
+
+const rememberUnknownFields = ( component: MXP.Component, props: Record<string, unknown> ) => {
+
+	const defined = definedPaths( component );
+	const unknown: Record<string, unknown> = {};
+	let count = 0;
+
+	for ( const key of Object.keys( props ) ) {
+
+		if ( defined.has( key ) ) continue;
+
+		unknown[ key ] = props[ key ];
+		count ++;
+
+	}
+
+	if ( count > 0 ) {
+
+		unknownFields.set( component, unknown );
+
+	} else {
+
+		unknownFields.delete( component );
+
+	}
+
+};
+
 export class ProjectSerializer {
 
 	/*-------------------------------
@@ -73,9 +144,18 @@ export class ProjectSerializer {
 			entity.components.forEach( c => {
 
 				const exportFields: MXP.SerializeField = c.serialize( { mode: "export" } );
-				const hasFields = Object.keys( exportFields ).length > 0;
 
 				if ( c.initiator !== "user" ) return;
+
+				if ( process.env.NODE_ENV === 'development' ) {
+
+					const unknown = getUnknownFields( c );
+
+					if ( unknown ) Object.assign( exportFields, unknown );
+
+				}
+
+				const hasFields = Object.keys( exportFields ).length > 0;
 
 				const comp: OREngineDataEntityComponent = {
 					name: resolver.getName( c ),
@@ -167,6 +247,8 @@ export class ProjectSerializer {
 						if ( c.props ) {
 
 							component.deserialize( c.props );
+
+							if ( process.env.NODE_ENV === 'development' ) rememberUnknownFields( component, c.props );
 
 						}
 

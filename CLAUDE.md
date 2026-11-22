@@ -38,17 +38,22 @@ OREngine 自体の開発エントリは `host/` に集約されている:
 
 `scripts/run.ts` がこれらを呼び出して `demo-webgl/` / `demo-webgpu/` を駆動する。projectDir 引数を変えれば任意のプロジェクトディレクトリで動作するため、外部リポ（ORShorts 等）からも `orengine/host` を import して利用できる（`exports."./host"` で公開）。
 
-`runDev` は express（`host/server/factory.ts`）と vite devサーバーを同一プロセスで起動する。express は `scenes/<name>.json` / `editor.json` の読み書き（シーン一覧の取得を含む）を行うファイルI/O層のみで、シーンを編集する処理は持たない。シーンの編集はエディタ内の `EditorAPI`（`packages/orengine/editor/lib/EditorAPI`）が唯一の実装で、GUI と下記のシーン CLI（AgentBridge）はどちらもここを通る。人間は `scenes/<name>.json` を直接編集してもよく、vite のプロジェクトwatch（`host/vite/plugins/ProjectWatchReload`）が外部からの変更・シーンファイルの増減を検知してブラウザを自動リロードする（タブに未保存の変更があればブラウザの離脱の確認が出る。「未保存の確認」の節）。コンポーネントファイルや `.tex` の編集は直接ファイル編集で行う。
+`runDev` は express（`host/server/factory.ts`）と vite devサーバーを同一プロセスで起動する。express は `scenes/<name>.json` / `editor.json`・`editor.local.json` の読み書き（シーン一覧の取得を含む）を行うファイルI/O層のみで、シーンを編集する処理は持たない。シーンの編集はエディタ内の `EditorAPI`（`packages/orengine/editor/lib/EditorAPI`）が唯一の実装で、GUI と下記のシーン CLI（AgentBridge）はどちらもここを通る。人間は `scenes/<name>.json` を直接編集してもよく、vite のプロジェクトwatch（`host/vite/plugins/ProjectWatchReload`）が外部からの変更・シーンファイルの増減を検知してブラウザを自動リロードする（タブに未保存の変更があればブラウザの離脱の確認が出る。「未保存の確認」の節）。コンポーネントファイルや `.tex` の編集は直接ファイル編集で行う。
 
 ### シーン CLI（AgentBridge）
 開いているエディタタブ（無ければ headless Chromium）でシーンを観測・編集・撮影する CLI（`npx orengine-cli help` で一覧。package.json の bin）。立っている dev サーバーが無ければ、本人のものとぶつからないポートで自分用の dev サーバーを立て、使われなくなったら閉じる。使う前・AgentBridge を触る前に `packages/orengine/editor/lib/AgentBridge/CLAUDE.md` を読む
 
 ### プロジェクトディレクトリ（demo-webgl・demo-webgpu / 外部プロジェクト共通）
-プロジェクトディレクトリの中身は `Resources/` / `scenes/` / `editor.json` / `public/` / `editor/` のみ。HTML / src / vite config 等のボイラープレートはすべて `host/app/` に集約されている。
+プロジェクトディレクトリの中身は `Resources/` / `scenes/` / `editor.json`（と gitignore の `editor.local.json`）/ `public/` / `editor/` のみ。HTML / src / vite config 等のボイラープレートはすべて `host/app/` に集約されている。
 
 プロジェクト固有のデータは Vite の `resolve.alias` 経由で参照する:
 - `@or-scene` → `<projectDir>/scenes/<scene>.json`（`scene` は `OrengineConfigOptions.scene` / `HostRunOptions.scene`。省略時 `main`）
 - `@or-editor` → `<projectDir>/editor.json`
+
+### エディタの設定ファイル（editor.json / editor.local.json）
+- エディタの設定は2つのファイルに分ける。作品としてコミットする `editor.json` には出力の解像度（`resolution/width` / `resolution/height`。player・ギャラリーのビルドが読む）だけを書き、それ以外の操作のたびに変わる状態（開いているシーン・選択・パネルの配置・ビューポートのカメラ・ループ範囲など）は `editor.local.json`（gitignore）に書く。作品のコミットに毎回 editor.json の差分が乗らないようにするため
+- 分け方の正は `host/server/routes/scene.ts` の `SHARED_EDITOR_KEYS`。`GET /api/projects/<name>/editor` は editor.json を土台に editor.local.json を重ねて返し、`POST` はキーで振り分ける（editor.json は値が変わったときだけ書く）
+- editor.json にある `resolution/*` 以外のキー（パネルの配置など）は、editor.local.json が無いときの既定値として読まれる。静的ビルド（`@or-editor`）は editor.json だけを読むので、公開デモの配置を変えるときは editor.json を直接書き換える
 - `@or-resources/*` → `<projectDir>/Resources/*`
 - `@or-project-editor/*` → `<projectDir>/editor/*`
 
@@ -76,7 +81,7 @@ OREngine 自体の開発エントリは `host/` に集約されている:
 ### シーン（プロジェクト内の複数シーン）
 - 1プロジェクトは `scenes/<name>.json` を複数持てる。各ファイルは自己完結（`name` / `rendererType` / `scene` / `renderer` / `timeline`。`rendererType` は「軽量レンダラー」の節）で、シーン同士に関係は無い。共有するのは `Resources/` だけ
 - シーン名 = ファイル名。英数字・`-`・`_` のみ（サーバーとエディタの両方で同じ制限）
-- エディタは editor.json の `scene` キー（最後に開いたシーン）か一覧の先頭を開く。切替・新規作成は Scene パネルから。切替は `engine.load()` の差し替えで、未保存の変更は捨てられる（Scenes ウィンドウは開く前に確認を出す。「未保存の確認」の節）
+- エディタは editor.local.json の `scene` キー（最後に開いたシーン）か一覧の先頭を開く。切替・新規作成は Scene パネルから。切替は `engine.load()` の差し替えで、未保存の変更は捨てられる（Scenes ウィンドウは開く前に確認を出す。「未保存の確認」の節）
 - player / static ビルドと `@or-scene` は1シーンだけを焼き込む。どれにするかは `ORENGINE_SCENE=<name>`（省略時 `main`）。ランタイムにシーンの概念は無く、実行時に別シーンを読みたい場合は利用側が JSON を用意して `engine.load()` を呼ぶ
 
 ### 未保存の確認

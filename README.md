@@ -36,7 +36,7 @@ npm install
 
 `init.ts` が利用側リポジトリに以下を生成します（既存のファイルは上書きしません）。
 
-- `project/` — プロジェクトデータ（`scenes/<name>.json` / `editor.json` / `Resources/` / `public/`。エディタ拡張の `editor/` は必要になったら自分で作ります）
+- `project/` — プロジェクトデータ（`scenes/<name>.json` / `editor.json` / `Resources/` / `public/`。エディタ拡張の `editor/` は必要になったら自分で作ります）。エディタの操作の状態（開いているシーン・選択・パネルの配置など）は `editor.local.json` に書かれるので、`.gitignore` に入れてください
 - `tsconfig.json` — パスエイリアスを submodule に向けた TypeScript 設定
 - `package.json` — `dev` / `player:build` / `editor:build` の scripts と、実行に必要な `tsx`（依存パッケージはすべて OREngine 側が持ちます）
 

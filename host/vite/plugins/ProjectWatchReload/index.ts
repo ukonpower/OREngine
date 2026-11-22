@@ -19,7 +19,7 @@ const editorPanelModules = [
 	path.join( appRoot, 'src/editorPanels.ts' ),
 ];
 
-// scenes/ 配下と editor.json の外部編集と、Resources / editor のファイル増減を検知してフルリロードする
+// scenes/ 配下と editor.json・editor.local.json の外部編集と、Resources / editor のファイル増減を検知してフルリロードする
 // （scenes/*.json / editor.json はAPIによる直近書き込みを除外）
 export const ProjectWatchReload = ( projectDir: string ): Plugin => ( {
 	name: 'orengine-project-watch-reload',
@@ -29,18 +29,20 @@ export const ProjectWatchReload = ( projectDir: string ): Plugin => ( {
 		// 新規ファイルの作成を拾うにはディレクトリごと監視に足す必要がある
 		const scenesDir = path.resolve( path.join( projectDir, 'scenes' ) );
 		const editorJson = path.resolve( path.join( projectDir, 'editor.json' ) );
+		const editorLocalJson = path.resolve( path.join( projectDir, 'editor.local.json' ) );
 		const resourcesDir = path.resolve( path.join( projectDir, 'Resources' ) );
 		// 末尾の区切りまで含めて比較する。付けないと editor.json が editor/ 配下と誤判定される
 		const editorDir = path.resolve( path.join( projectDir, 'editor' ) ) + path.sep;
 
 		server.watcher.add( scenesDir );
 		server.watcher.add( editorJson );
+		server.watcher.add( editorLocalJson );
 		server.watcher.add( resourcesDir );
 		server.watcher.add( editorDir );
 
 		const isProjectDataFile = ( file: string ) => {
 
-			if ( file === editorJson ) return true;
+			if ( file === editorJson || file === editorLocalJson ) return true;
 
 			return file.startsWith( scenesDir ) && path.extname( file ) === '.json';
 

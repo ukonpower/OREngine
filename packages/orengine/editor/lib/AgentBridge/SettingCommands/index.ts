@@ -64,7 +64,8 @@ const resolveSettingTarget = ( ctx: AgentCommandContext, name: string ): Setting
 
 		};
 
-		return { serializable: ctx.editor, file: 'editor.json', accepts };
+		// resolution/* は作品としてコミットする editor.json、それ以外は editor.local.json（host/server/routes/scene.ts の SHARED_EDITOR_KEYS）
+		return { serializable: ctx.editor, file: 'editor.json（resolution/*）/ editor.local.json（それ以外）', accepts };
 
 	}
 

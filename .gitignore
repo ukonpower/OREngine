@@ -11,6 +11,8 @@ node_modules
 dist
 dist-ssr
 *.local
+# エディタの操作の状態（開いているシーン・選択・パネルの配置など。host/server/routes/scene.ts）
+editor.local.json
 
 # Editor directories and files
 .vscode/*
