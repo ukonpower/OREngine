@@ -269,7 +269,7 @@ export class Music extends Component {
 		this.generator_ = new MusicGenerator( backend );
 		this.mixer_ = new MusicMixer( this.context_ );
 
-		// どのシェーダーからも引けるよう、マテリアルでなく全体の uniform に置く（名前は osc Demo4 と同じ）
+		// どのシェーダーからも引けるよう、マテリアルでなく全体の uniform に置く（名前は以前の作品と同じ）
 		const gl = backend.gl;
 
 		this.spectrumTexture_ = new GLP.GLPowerTexture( gl ).setting( {

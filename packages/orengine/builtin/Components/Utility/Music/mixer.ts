@@ -4,10 +4,10 @@ type MixerChannel = {
 	panner: StereoPannerNode;
 };
 
-// スペクトルの FFT の大きさ（osc Demo4 と同じ）。周波数は半分の 256 段で、Music の uMusicFreqTex の幅になる
+// スペクトルの FFT の大きさ（以前の作品と同じ）。周波数は半分の 256 段で、Music の uMusicFreqTex の幅になる
 export const SPECTRUM_FFT_SIZE = 512;
 
-// 残響の素（インパルス）。ノイズを頭からの割合で exp(-7t) に減衰させる（osc Demo4 と同じ）
+// 残響の素（インパルス）。ノイズを頭からの割合で exp(-7t) に減衰させる（以前の作品と同じ）
 const createImpulse = ( context: AudioContext, length: number ) => {
 
 	const sampleCount = Math.max( 1, Math.floor( context.sampleRate * length ) );
