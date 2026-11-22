@@ -9,11 +9,12 @@ export type CommandSpec = {
 };
 
 export const COMMANDS: { [ name: string ]: CommandSpec } = {
-	status: { usage: 'status', description: '接続先の dev サーバー（立っている全部）・タブ・コードの版・シーン名・未保存の変更の有無', timeoutMs: 5000 },
+	status: { usage: 'status', description: '接続先の dev サーバー（立っている全部）・タブ・コードの版（code.upToDate）・シーン名・選択中のエンティティ・再生時刻（フレームと秒）・未保存の変更・本人が画面で変えた値の数（userChanges）', timeoutMs: 10000 },
+	changes: { usage: 'changes [--keep]', description: 'シーン CLI が最後に書き込んでから、本人が画面で変えた値（エンティティ・コンポーネント・フィールド・前後の値）。見たら基準を今にする（--keep で残す）', timeoutMs: 10000 },
 	tree: { usage: 'tree', description: '展開後の全エンティティ（ワールド座標・前方ベクトル・境界ボックス・コンポーネント）', timeoutMs: 10000 },
-	get: { usage: 'get <entity>', description: '1エンティティのフィールドと全コンポーネントのフィールド値（<entity> は uuid かルートの名前から始まる名前パス）', timeoutMs: 10000 },
+	get: { usage: 'get <entity> [<component>] [--field <path>] [--all]', description: '1エンティティのフィールドと全コンポーネントのフィールド値（<entity> は uuid かルートの名前から始まる名前パス）。<component> でそのコンポーネントだけ、--field でその値だけ。既定は hidden のフィールドと uuid を外す（--all で書式・選択肢・hidden・uuid も）', timeoutMs: 10000 },
 	// 全コンポーネントを一度ずつ生成してフィールド定義を読むので他より長く待つ
-	components: { usage: 'components', description: '登録済みコンポーネントの一覧とフィールド定義', timeoutMs: 30000 },
+	components: { usage: 'components [<Name>] [--all]', description: '登録済みコンポーネントの一覧とフィールド定義（default は既定値）。<Name> でそのコンポーネントだけ。hidden のフィールドは --all のときだけ', timeoutMs: 30000 },
 	errors: { usage: 'errors', description: 'シェーダーエラー・GPU エラー・コンソールのエラー・解決できなかったコンポーネント', timeoutMs: 5000 },
 	// 書き込みは EditorAPI 経由でタブに反映し、応答の前にファイルへ保存する
 	'add-entity': { usage: 'add-entity <parent> [--name <name>]', description: 'コンポーネントの無いエンティティを追加して uuid を返す（名前の省略時は Empty）', timeoutMs: 10000, write: true },
@@ -24,7 +25,7 @@ export const COMMANDS: { [ name: string ]: CommandSpec } = {
 	set: { usage: 'set <entity> [<component>] <path> <value>', description: 'フィールドを書き換える。値はフィールドの型で解釈する（数値 / 1,2,3 / true|false / 文字列 / 選択肢）', timeoutMs: 10000, write: true },
 	undo: { usage: 'undo', description: '直前の操作を取り消す（GUI の操作と履歴を共有）', timeoutMs: 5000, write: true },
 	redo: { usage: 'redo', description: '取り消した操作をやり直す', timeoutMs: 5000, write: true },
-	settings: { usage: 'settings [renderer|timeline|editor]', description: 'シーン以外の設定（renderer / timeline は開いているシーン、editor は editor.json）の現在値と書き換えられる path', timeoutMs: 10000 },
+	settings: { usage: 'settings [renderer|timeline|editor] [--field <path>] [--all]', description: 'シーン以外の設定（renderer / timeline は開いているシーン、editor は editor.json）の書き換えられる path と現在値。--field でその値だけ、--all で書式・選択肢も', timeoutMs: 10000 },
 	'set-setting': { usage: 'set-setting <renderer|timeline|editor> <path> <value>', description: '設定を書き換える（undo が効く）。値の解釈は set と同じ', timeoutMs: 10000, write: true },
 	// キーフレーム。<path> は set と同じフィールドの path で、数値配列の要素1つは <path>/<番号>（position/1 = y）。時刻は秒
 	curves: { usage: 'curves', description: 'カーブの一覧（ID・名前・キー数・使用数・使っているエンティティとフィールド）', timeoutMs: 10000 },
@@ -43,7 +44,8 @@ export const COMMANDS: { [ name: string ]: CommandSpec } = {
 	'scene-delete': { usage: 'scene-delete <name>', description: 'シーンを削除する（開いているシーンは不可）', timeoutMs: 10000, write: true },
 	'scene-open': { usage: 'scene-open <name>', description: 'タブが開くシーンを切り替える（未保存の変更があるときはエラー）', timeoutMs: 15000, write: true },
 	// 描画・GPU からの読み戻し・PNG エンコードを待つ（webgpu の初回はパイプライン生成も入る）
-	shot: { usage: 'shot <out.png> [--camera <entity> | --from x,y,z --to x,y,z] [--time <秒> [--frames <コマ数>]] [--size <幅>x<高さ>] [--view <final|パス名>]', description: '指定したカメラ・時刻の描画を PNG に書き出す（--frames は時刻の何コマ前から 1/60 秒ずつ進めて撮るか、--size は出力の大きさで省略時は editor.json の resolution/*、--view はパスのラベルで省略時は final）', timeoutMs: 60000 },
+	shot: { usage: 'shot <out.png> [--camera <entity> | --from x,y,z --to x,y,z] [--time <秒> | --frame <フレーム>] [--frames <コマ数>] [--size <幅>x<高さ>] [--view <final|パス名>]', description: '指定したカメラ・時刻の描画を PNG に書き出す（--frame はフレーム番号で、fps によらず 秒 × 60。--frames は時刻の何コマ前から 1/60 秒ずつ進めて撮るか、--size は出力の大きさで省略時は editor.json の resolution/*、--view はパスのラベルで省略時は final。一覧は views）', timeoutMs: 60000 },
+	views: { usage: 'views', description: 'shot の --view に渡せるパスのラベルの一覧（今の時刻でシーンカメラのビューを1回描いて集める）', timeoutMs: 30000 },
 	// 書き込みを含むかは中身で決まる（index.ts）
 	batch: { usage: 'batch [<file>]', description: '1行1コマンド（先頭の orengine-cli は省く。# で始まる行と空行は飛ばす）をまとめて実行する。ファイルを省くと標準入力から読む。途中で失敗したらそれまでの書き込みをすべて取り消し、成功したら undo 1回ぶんにまとめて保存は1回', timeoutMs: 120000 },
 	dev: { usage: 'dev [list | start | stop]', description: '立っている dev サーバーの一覧（list・省略時）／自分用の dev サーバーを立てる（start）／自分用の dev サーバーを閉じる（stop。本人の dev サーバーは止めない）', timeoutMs: 120000 },

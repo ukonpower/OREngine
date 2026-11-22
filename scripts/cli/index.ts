@@ -135,6 +135,19 @@ const failWith = ( result: AgentResult ) => {
 
 };
 
+// 本人が画面で値を変えていたら、撮った絵がそのせいで変わっている可能性を知らせる
+const warnUserChanges = ( result: unknown ) => {
+
+	const count = ( result as { userChanges?: number | null } ).userChanges;
+
+	if ( typeof count === 'number' && count > 0 ) {
+
+		process.stderr.write( `[orengine-cli] 本人が画面で変えた値が ${count} 件あります（シーン CLI の最後の書き込みから）。changes で中身を見られます\n` );
+
+	}
+
+};
+
 const print = ( output: unknown ) => {
 
 	// process.exit を呼ばずに終わらせる（大きな出力がパイプに書き切られる前に切れないように）
@@ -515,7 +528,12 @@ const main = async () => {
 	if ( result.write !== undefined ) output = { ...result.write, ...( result.result as object ) };
 
 	// shot の PNG は base64 で返ってくるのでファイルへ書き出し、stdout には残りの情報だけ出す
-	if ( command === 'shot' ) output = writeShotPng( args[ 0 ], result.result );
+	if ( command === 'shot' ) {
+
+		output = writeShotPng( args[ 0 ], result.result );
+		warnUserChanges( result.result );
+
+	}
 
 	print( output );
 

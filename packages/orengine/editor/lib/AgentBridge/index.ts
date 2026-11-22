@@ -2,6 +2,7 @@ import * as BSP from 'basepower';
 import * as MXP from 'maxpower';
 
 import { batchCommands } from './BatchCommand';
+import { changeCommands, trackWrite } from './ChangeTracker';
 import { AgentCommandError, errorMessage } from './Command';
 import { installErrorCollector } from './ErrorCollector';
 import { keyFrameObserveCommands, keyFrameWriteCommands } from './KeyFrameCommands';
@@ -27,6 +28,7 @@ const mutatingCommands: AgentCommandTable = {
 
 const commands: AgentCommandTable = {
 	...observeCommands,
+	...changeCommands,
 	...settingObserveCommands,
 	...keyFrameObserveCommands,
 	...mutatingCommands,
@@ -202,7 +204,20 @@ const runCommand = async ( request: AgentRequest ): Promise<AgentResult> => {
 
 	try {
 
-		const result = await command( ctx, { args: request.args, options: request.options } );
+		const input = { args: request.args, options: request.options };
+		let result: unknown;
+
+		// 本人が画面で変えた値（changes）と見分けるため、シーン CLI の書き込みで変わった値を基準に足す。
+		// シーンを切り替えるコマンドは前後で別のシーンになるので対象外
+		if ( mutating && sceneCommands[ request.command ] === undefined ) {
+
+			result = await trackWrite( ctx, async () => command( ctx, input ) );
+
+		} else {
+
+			result = await command( ctx, input );
+
+		}
 
 		if ( ! mutating ) {
 

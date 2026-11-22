@@ -18,6 +18,10 @@ export const AGENT_EVENT = {
 // 接続中のタブが無いときにサーバーが返す HTTP ステータス。CLI はこれを見て headless で開き直す
 export const AGENT_NO_TAB_STATUS = 503;
 
+// 「本人が画面で変えた値」の基準を、dev サーバーにシーンごとに置く口（GET / POST ${AGENT_BASELINE_ENDPOINT}/<scene>）。
+// タブがリロードしても、書き込んだのが別のタブでも同じ基準を見られるよう、タブではなく dev サーバーが持つ
+export const AGENT_BASELINE_ENDPOINT = '/__agent-baseline';
+
 // CLI が headless で開くエディタ URL に付けるクエリ。ページはこれで自分が headless だと知る。
 // 値が AGENT_HEADLESS_KEEP なら orengine-cli の自分用 dev サーバーが開いたままにするページ（undo 履歴がコマンドをまたいで残る）
 export const AGENT_HEADLESS_PARAM = 'agent-headless';

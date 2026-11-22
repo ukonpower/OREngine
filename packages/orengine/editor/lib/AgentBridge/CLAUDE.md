@@ -8,7 +8,9 @@ npx orengine-cli status
 npx orengine-cli tree --timeout 30000
 npx orengine-cli status --project demo-webgpu                     # 立っている dev サーバーをプロジェクトで絞る（無ければそのプロジェクトで自分用を立てる）
 npx orengine-cli dev                                              # 立っている dev サーバーの一覧。dev start / dev stop は自分用のもの
-npx orengine-cli get root/Camera
+npx orengine-cli get root/Camera                                  # 既定は hidden のフィールドと uuid を外した path → 値。--all で詳しい形
+npx orengine-cli get root/Camera Camera --field fov               # 値だけ
+npx orengine-cli changes                                          # シーン CLI の最後の書き込みから、本人が画面で変えた値
 
 npx orengine-cli add-entity root --name KeyLight                  # コンポーネントの無いエンティティを作り uuid を返す（--name 省略時は Empty）
 npx orengine-cli add-component root/KeyLight Light                # 名前は components の name
@@ -43,6 +45,8 @@ npx orengine-cli curve-link-settings root/Box position/1 --scale 2 --offset 0.5 
 npx orengine-cli shot tmp/shot/a.png                              # シーンカメラ・今の時刻の見た目を PNG へ
 npx orengine-cli shot tmp/shot/b.png --from 0,3,5 --to 0,0,0 --time 2 --view gBuffer_1   # 一時カメラ・時刻2秒・パス出力（webgpu のラベル）
 npx orengine-cli shot tmp/shot/c.png --time 1 --frames 60 --size 960x540   # 0 秒から 60 コマ進めた 1 秒の状態を 960x540 で
+npx orengine-cli shot tmp/shot/d.png --frame 58                   # フレーム番号で（fps によらず 秒 × 60。58 = 0.9667 秒）
+npx orengine-cli views                                            # --view に渡せるパスのラベルの一覧
 
 npx orengine-cli batch <<'EOF'                                    # 1行1コマンド。途中で失敗したら全部取り消し、成功したら undo 1回・保存1回
 add-entity root --name Box
@@ -51,8 +55,16 @@ set root/Box MyBox size 2
 EOF
 ```
 
-- 観測: `status` / `tree` / `get <entity>` / `components` / `errors` / `settings` / `shot` / `curves` / `curve-get`。書き込み: `add-entity` / `remove-entity` / `reparent` / `add-component` / `remove-component` / `set` / `set-setting` / `undo` / `redo` / `scene-create` / `scene-delete` / `scene-open` / `key-insert` / `key-delete` / `curve-set` / `curve-paste` / `curve-unlink` / `curve-link-settings`
+- 観測: `status` / `tree` / `get <entity>` / `components` / `errors` / `settings` / `changes` / `shot` / `views` / `curves` / `curve-get`。書き込み: `add-entity` / `remove-entity` / `reparent` / `add-component` / `remove-component` / `set` / `set-setting` / `undo` / `redo` / `scene-create` / `scene-delete` / `scene-open` / `key-insert` / `key-delete` / `curve-set` / `curve-paste` / `curve-unlink` / `curve-link-settings`
 - シーン管理: `scenes` / `scene-get` はファイルを読むだけなので CLI が dev サーバーの REST（`host/server/routes/scene.ts`）を直接叩き、タブも headless も使わない。`scene-create` / `scene-delete` / `scene-open` はタブ経由で、EditorPage の createScene / deleteScene / openScene（Scene パネルと同じ窓口 `SceneSelection`）を `attachAgentBridge` の `getScenes` から呼ぶので、Scene パネルの一覧・表示と食い違わない。作成・削除はその場でファイルに反映され、undo 履歴には載らない。未保存の変更があるタブへの `scene-open`（`scene-create --open`）と、開いているシーンの `scene-delete` はエラー。`--from` の複製は uuid を振り直さない（シーンは1つずつ読み込まれ、uuid で他シーンを引く仕組みが無いため）
+- **`status`** は1回で今の状態を返す: 接続先（`server`・立っている全部の `servers`）・`connection`・`scene`・`unsaved`・`selection`（アクティブと選択中の名前パス）・`time`（`frame` と `seconds`、尺、`fps`）・`code`（`upToDate` = dev サーバーが送ったコードの更新・リロードをタブが反映し終えているか。CLI が dev サーバーの `GET /__agent` から足す）・`userChanges`（下の `changes` の件数）。タブを待っても準備が終わらなければ、失敗にせず `problem` に理由を入れて返す
+  - **フレームは timeline/fps によらず 秒 × 60 で数える**（`Engine` の `frame.current = time.code * 60`。`timeline/duration` も同じ数え方）。`fps` はキーを揃えるコマと再生の刻みだけに効く
+- **出力を絞る**: `get` / `settings` / `components` の既定の出力は、hidden のフィールドと uuid を外した短い形（`get` の `fields` は path → 値、`components` は path → `{ default, format?, options? }`）。`--all` で書式・選択肢・hidden・uuid も出す（entity 参照のフィールドへ `set` するときの uuid はここで見る）。`--field <path>` はその値だけを返す（`get <entity> [<component>] --field <path>` / `settings <名前> --field <path>`）。`get <entity> <component>` はそのコンポーネントだけ、`components <Name>` はそのコンポーネントだけ。`initiator` は user 以外のときだけ出す（script 由来は編集できないため）
+- **`changes`**（`ChangeTracker`）: シーン CLI が最後に書き込んでから、本人が画面で変えた値（エンティティ・コンポーネント・フィールド・前後の値。エンティティ・コンポーネントごと増えた / 消えたものも）を返し、基準を今にする（`--keep` で残す）。本人が手で詰めた値を、Claude が次の作業の前に知るため
+  - 基準は dev サーバーがシーンごとにメモリに持つ（`GET / POST /__agent-baseline/<scene>`。タブがリロードしても、書き込んだのが別のタブでも同じものを見る。dev サーバーを閉じると消え、その後はシーンファイル＝最後の保存を基準にする）
+  - 比べるのは保存形式（`editor.exportEngine()`）を uuid のキーで平らにしたもの（`flattenScene`）。名前が変わっても同じものとして比べる
+  - シーン CLI の書き込み（`scene-*` 以外。`batch` も）は、その前後で変わった値だけを基準に足す（`trackWrite`）。書き込みは本人の未保存の変更も一緒に保存するが、基準ごと今にすると本人の変更が見えなくなるため
+  - `shot` の応答にも `userChanges` を入れ、1件以上なら CLI が stderr で知らせる（撮った絵が急に変わったとき、本人が値を動かしたせいかを見分けるため）
 - 設定: `settings [renderer|timeline|editor]` / `set-setting <renderer|timeline|editor> <path> <value>`。対象は `engine.renderer`（シーンの `renderer`）/ `engine` の `timeline/*` / `editor`（editor.json の `resolution/*` / `viewports/<id>/resolutionScale`（Screen パネルごとの解像度スケール。エディタカメラで見ている間はパネルの画素数（CSS の大きさ × devicePixelRatio）に、カメラビュー（シーンカメラ・Camera Render）では `resolution/*` のアスペクト比のままパネルの画素数に収めた大きさ（`resolution/*` が上限）に掛かる）/ `frameLoop/*` のみ。選択・カメラ等の UI 状態は触らせない）。書き込みは `set` と同じく `editor.api.setField( …, { merge: false } )` で undo 1回ぶん。出力の `file` が保存先。実装は `packages/orengine/editor/lib/AgentBridge/SceneCommands` / `SettingCommands`
 - `<entity>` は uuid か `root/...` の名前パス。存在しないエンティティ・コンポーネント名・フィールド path はエラーになり、候補が返る
 - 書き込みはすべて `EditorAPI` を通るので、GUI の Ctrl+Z / `undo` で戻せる（undo 履歴は GUI と共有）
@@ -87,6 +99,6 @@ EOF
   - カーブの JSON は `{ name?, keys: [ { time, value, interpolation, handleType, left, right } ] }`。時刻とハンドルの x は秒（保存形式の `k` の差分・秒×60 に開かない）、ハンドルは絶対座標。`curve-get` は種類に従って置き直したハンドルを出す。`curve-set` はキーを時刻順に並べて `recalcHandles` で置き直してから `encodeCurve` で書く。自動系（`AUTO_CLAMPED` / `AUTO` / `VECTOR`）は `left` / `right` を省略でき、書いても置き直される。`ALIGNED` / `FREE` は必須。`name` を書かなければ名前を外す（中身ごと差し替え）。時刻はコマに揃えず、`curve-get` で出した時刻が戻ってきたら元の秒×60 を使うので、往復でキー列は変わらない
   - 同じ時刻のキーが2つある・存在しないカーブ ID・キーの無い時刻はエラー（候補にカーブ ID・キーのある時刻を返す）。カーブを新しく作るのは `key-insert` と `curve-paste --copy` だけ。`keys` を空にすると、GUI でキーをすべて消したときと同じくそのカーブを指すリンクも外れる
   - `set <entity> Animation links …` はエラー（検証の無い2つ目の経路になるため）。hidden フィールド全般は弾かない（コンポーネントの `enabled` も hidden）
-- `shot <out.png>` は shot 専用の RenderView で描いて PNG を CLI が書き出す。カメラは `--camera <entity>` / `--from x,y,z --to x,y,z`（一時カメラ）/ 省略でシーンカメラ。サイズは editor.json の `resolution/*`（最終出力の解像度。Screen パネルの大きさ・`resolutionScale` には依存しない）で、`--size <幅>x<高さ>` を渡すとその大きさで描く（shot のビューの `size` と step の event の `resolution` だけを変え、renderer の解像度・editor.json は変えない。displayOut のカメラの aspect は event の `resolution` に合うので、比率の違う大きさでも歪まない）。`--time T` は「時刻 T-1/60 → T の2ステップだけ進めて描いた状態」（前フレームを T の直前にしてモーションブラーの速度を合わせるため）で、T まで再生した状態ではない。`--frames N`（`--time` と一緒に指定）を渡すと「T の N コマ前から 1/60 秒ずつ進め、途中のコマも描いた状態」になる（時間方向に積むパスの履歴を溜めるため。最初のコマは前フレームの姿勢を作るだけで描かない。省略時は 1 で上の2ステップと同じ）。`--time` を渡すと実時間（`uTimeE` / `uTimeEF` と event の `timeElapsed`）も各ステップの時刻に揃え、`uDeltaTime` を 1/60 にする（ページを開いてからの時間で、同じ時刻でも撮るたびに絵が変わらないように）。省略時はタブの今の時刻で1ステップ。`--view` はパスのラベル（webgl は `camera/deferred_1`、webgpu は `gBuffer_1` のようなバックエンドごとの生の名前）で、一致しなければ候補が返る。実装は `packages/orengine/editor/lib/AgentBridge/ShotCommand`
+- `shot <out.png>` は shot 専用の RenderView で描いて PNG を CLI が書き出す。カメラは `--camera <entity>` / `--from x,y,z --to x,y,z`（一時カメラ）/ 省略でシーンカメラ。サイズは editor.json の `resolution/*`（最終出力の解像度。Screen パネルの大きさ・`resolutionScale` には依存しない）で、`--size <幅>x<高さ>` を渡すとその大きさで描く（shot のビューの `size` と step の event の `resolution` だけを変え、renderer の解像度・editor.json は変えない。displayOut のカメラの aspect は event の `resolution` に合うので、比率の違う大きさでも歪まない）。`--time T` は「時刻 T-1/60 → T の2ステップだけ進めて描いた状態」（前フレームを T の直前にしてモーションブラーの速度を合わせるため）で、T まで再生した状態ではない。`--frames N`（`--time` と一緒に指定）を渡すと「T の N コマ前から 1/60 秒ずつ進め、途中のコマも描いた状態」になる（時間方向に積むパスの履歴を溜めるため。最初のコマは前フレームの姿勢を作るだけで描かない。省略時は 1 で上の2ステップと同じ）。`--frame N` は `--time N/60` と同じ（フレームは 秒 × 60）。`--time` / `--frame` を渡すと実時間（`uTimeE` / `uTimeEF` と event の `timeElapsed`）も各ステップの時刻に揃え、`uDeltaTime` を 1/60 にする（ページを開いてからの時間で、同じ時刻でも撮るたびに絵が変わらないように）。省略時はタブの今の時刻で1ステップ。`--view` はパスのラベル（webgl は `camera/deferred_1`、webgpu は `gBuffer_1` のようなバックエンドごとの生の名前）で、一致しなければ候補が返る。一覧は `views`（今の時刻でシーンカメラのビューを1回描き、その間に出たラベルを集める。名前の無いパスは番号）。実装は `packages/orengine/editor/lib/AgentBridge/ShotCommand`
 - 呼び方は bin の `orengine-cli` だけ（`scripts/cli/bin.js` が tsx を読み込んで `scripts/cli/index.ts` を実行する）。npm scripts には載せない（外部プロジェクトから同じ形で呼べるように）
 - コマンド一覧は `npx orengine-cli help`（一覧の正は `scripts/cli/commands.ts`）
