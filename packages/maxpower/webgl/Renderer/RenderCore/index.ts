@@ -646,7 +646,18 @@ export abstract class RenderCore extends Serializable {
 			const vert = shaderParse( material.vert, defines, this._lights );
 			const frag = shaderParse( material.frag, defines, this._lights );
 
-			program = this.programManager.get( vert, frag, material.name );
+			// コンパイルエラー（シーン CLI の errors の shader）はプログラムの名前ごとに持ち、同じ名前のコンパイルが通ると消える。
+			// マテリアル名だけだと、同じマテリアルの別のパス（影と deferred など）が通ったときに失敗したパスのエラーまで消えるので、パスごとに分ける。
+			// 名前が無いと記録されないので、名前の無いマテリアルにも仮の名前を付ける
+			let materialName = material.name;
+
+			if ( ! materialName ) {
+
+				materialName = 'unnamed';
+
+			}
+
+			program = this.programManager.get( vert, frag, `${materialName}/${renderType}` );
 
 			material.programCache[ renderType ] = program;
 
