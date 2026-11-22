@@ -12,6 +12,7 @@ export * from './Components/PostProcessPipeline';
 export * from './Renderer/DeferredRenderer';
 export * from './Renderer/ProgramManager';
 export * from './Renderer/RenderView';
+export * from './Renderer/ImageReadback';
 export * from './EditorDraw';
 export * from './Loaders/GLTFLoader';
 export * from './PostProcess';

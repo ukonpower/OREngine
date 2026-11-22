@@ -11,6 +11,7 @@ export * from './Material';
 export * from './Material/shaders';
 export * from './PostProcess';
 export * from './Renderer';
+export * from './Renderer/ImageReadback';
 export * from './TexProcedural';
 
 // 軽量レンダラーは webgl にしか無い。rendererType が lite のシーンも、WebGPU ではふつうのレンダラーで描く
