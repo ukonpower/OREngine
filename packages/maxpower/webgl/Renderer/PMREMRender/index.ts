@@ -11,6 +11,9 @@ import pmremFrag from './shaders/pmrem.fs';
 
 type SwapBuffer = {rt1: GLP.GLPowerFrameBuffer, rt2: GLP.GLPowerFrameBuffer};
 
+// 1 コマの結果を前の積算へ混ぜる割合。webgpu 側 EnvMap の ACCUMULATION_RATE と一致させる
+const ACCUMULATION_RATE = 0.04;
+
 export class PMREMRender extends EventEmitter {
 
 	public postprocess: MXP.PostProcess;
@@ -29,6 +32,10 @@ export class PMREMRender extends EventEmitter {
 		const timeUniforms: BSP.Uniforms = {
 			uTimeEF: {
 				value: 0,
+				type: '1f'
+			},
+			uAccumulationRate: {
+				value: ACCUMULATION_RATE,
 				type: '1f'
 			},
 		};
@@ -144,9 +151,18 @@ export class PMREMRender extends EventEmitter {
 
 	}
 
+	// 次の 1 コマは前の積算を混ぜずに描き直す。サンプルのずらしも最初の値へ戻し、捨てた後の積み方を毎回同じにする
+	public discardHistory() {
+
+		this.timeUniforms.uTimeEF.value = 0;
+		this.timeUniforms.uAccumulationRate.value = 1;
+
+	}
+
 	public swap() {
 
 		this.timeUniforms.uTimeEF.value = ( this.timeUniforms.uTimeEF.value + 0.016 ) % 1;
+		this.timeUniforms.uAccumulationRate.value = ACCUMULATION_RATE;
 
 		for ( let i = 0; i < this.pmremPasses.length; i ++ ) {
 

@@ -5,6 +5,8 @@ uniform sampler2D uPMREMBackBuffer;
 uniform samplerCube uEnvMap;
 uniform float uRoughness;
 uniform float uTimeEF;
+// 前の積算へ混ぜる割合。積算を捨てた直後のコマだけ 1
+uniform float uAccumulationRate;
 layout (location = 0) out vec4 outColor;
 
 in vec2 vUv;
@@ -125,6 +127,6 @@ void main( void ) {
 
 	sum.xyz += PrefilterEnvMap(uRoughness, getPmremDir(uv, face));
 
-	outColor = vec4( mix( texture( uPMREMBackBuffer, vUv ).xyz, sum.xyz, 0.04  ), 1.0 );
+	outColor = vec4( mix( texture( uPMREMBackBuffer, vUv ).xyz, sum.xyz, uAccumulationRate ), 1.0 );
 
 }
