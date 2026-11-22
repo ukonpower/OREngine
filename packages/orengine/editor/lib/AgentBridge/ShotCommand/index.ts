@@ -518,6 +518,10 @@ const shot = async ( ctx: AgentCommandContext, input: AgentCommandInput ) => {
 
 	}
 
+	// 読み込み中のもの（後から作られるメッシュ等。MXP.addRenderWait で登録される）を待ってからコマを進める。
+	// 待たずに進めると、後から現れるものが写らない（描く前の waitRenderReady だけでは、コマ送りの時点で居ない）
+	await MXP.waitRenderReady();
+
 	FrameDebugger.paused = true;
 
 	try {
@@ -726,7 +730,218 @@ const views = ( ctx: AgentCommandContext ) => {
 
 };
 
+/*-------------------------------
+	frames
+-------------------------------*/
+
+const FRAMES_USAGE = 'frames <dir> --start <フレーム> --end <フレーム> [--step <コマ>] [--camera <entity> | --from x,y,z --to x,y,z] [--size <幅>x<高さ>] [--view <final|パス名>]';
+
+// 一度に撮れるコマ数の上限。PNG を全部メモリに持って返すので、尺の長い範囲は分けて撮らせる
+const MAX_SEQUENCE_FRAMES = 600;
+
+// --size を省いたときの幅。並べて見比べる用途なので、60 コマ並べても1枚で読める大きさにする
+const SEQUENCE_DEFAULT_WIDTH = 480;
+
+const parseIntegerOption = ( options: AgentOptions, name: string, fallback: number | null ) => {
+
+	const raw = options[ name ];
+
+	if ( raw === undefined ) {
+
+		if ( fallback === null ) throw new AgentCommandError( `--${name} がありません。使い方: ${FRAMES_USAGE}` );
+
+		return fallback;
+
+	}
+
+	const value = Number( raw );
+
+	if ( typeof raw !== 'string' || ! Number.isInteger( value ) ) {
+
+		throw new AgentCommandError( `--${name} は整数で指定してください: ${raw}` );
+
+	}
+
+	return value;
+
+};
+
+// start から end までのフレームを 1/60 秒ずつ進めて描き、step コマおきに PNG にする（途中のコマも描くので、時間方向に積むパスも再生と同じになる）。
+// 撮る前と各コマで MXP.waitRenderReady を待つ（後から読み込むメッシュ・動画の seek）。その間はタブの毎フレームの更新を止める
+const frames = async ( ctx: AgentCommandContext, input: AgentCommandInput ) => {
+
+	requireArg( input, 0, FRAMES_USAGE );
+
+	const options = input.options;
+	const engine = ctx.engine;
+	const draw = ctx.editor.draw;
+
+	const start = parseIntegerOption( options, 'start', null );
+	const end = parseIntegerOption( options, 'end', null );
+	const step = parseIntegerOption( options, 'step', 1 );
+
+	if ( end < start || step < 1 ) {
+
+		throw new AgentCommandError( `--end は --start 以上、--step は 1 以上にしてください: start ${start}, end ${end}, step ${step}` );
+
+	}
+
+	const count = Math.floor( ( end - start ) / step ) + 1;
+
+	if ( count > MAX_SEQUENCE_FRAMES ) {
+
+		throw new AgentCommandError( `撮るコマが多すぎます（${count} コマ。上限 ${MAX_SEQUENCE_FRAMES}）。--step を大きくするか範囲を分けてください` );
+
+	}
+
+	let size = parseSize( options );
+
+	// 省略時は resolution/* の比率のまま幅 SEQUENCE_DEFAULT_WIDTH にする（全部を出力の解像度で返すと重い）
+	if ( ! size ) {
+
+		const base = engine.renderer.resolution;
+
+		size = new MTP.Vector( SEQUENCE_DEFAULT_WIDTH, Math.max( 1, Math.round( SEQUENCE_DEFAULT_WIDTH * base.y / base.x ) ) );
+
+	}
+
+	const viewName = parseViewName( options );
+	const camera = resolveCamera( ctx, options );
+
+	const release = ctx.editor.holdUpdate();
+	const view = engine.createView( { offscreen: true } );
+	view.camera = camera.entity;
+
+	let resolution = engine.renderer.resolution;
+
+	if ( size ) {
+
+		view.size = size;
+		resolution = size;
+
+	}
+
+	const width = Math.max( Math.floor( resolution.x ), 1 );
+	const height = Math.max( Math.floor( resolution.y ), 1 );
+	const fitCamera = camera.fitAspect;
+	let originalAspect = 1;
+
+	if ( fitCamera ) originalAspect = fitCamera.aspect;
+
+	const shots: { frame: number; time: number; png: string }[] = [];
+
+	FrameDebugger.paused = true;
+
+	try {
+
+		// 読み込み中のもの（後から作られるメッシュ等）を待ってからコマを進める
+		await MXP.waitRenderReady();
+
+		if ( fitCamera ) {
+
+			fitCamera.aspect = resolution.x / resolution.y;
+			fitCamera.needsUpdateProjectionMatrix = true;
+
+		}
+
+		let target: MXP.EditorTarget | null = null;
+
+		if ( viewName !== 'final' ) {
+
+			target = passTargets.get( draw ) ?? null;
+
+			if ( ! target ) {
+
+				target = draw.createTarget();
+				passTargets.set( draw, target );
+
+			}
+
+		}
+
+		const timedParams = ( stepTime: number ) => ( { resolution, timeDelta: SHOT_STEP_DELTA, timeElapsed: stepTime } );
+
+		// 最初のコマの前フレームの姿勢を作るだけで描かない（shot と同じ。速度をモーションブラーに入れるため）
+		const before = ( start - 1 ) / FRAMES_PER_SECOND;
+
+		stepAt( engine, before, timedParams( before ), null );
+
+		for ( let frame = start; frame <= end; frame ++ ) {
+
+			const time = frame / FRAMES_PER_SECOND;
+			const captured = ( frame - start ) % step === 0;
+
+			let capture: PassCapture | null = null;
+
+			if ( captured && target ) capture = new PassCapture( draw, view, target, viewName );
+
+			const event = stepAt( engine, time, timedParams( time ), capture );
+
+			if ( camera.temporary ) updateTemporaryCamera( camera.temporary, event );
+
+			if ( ! captured ) {
+
+				engine.render( view );
+				continue;
+
+			}
+
+			await MXP.waitRenderReady();
+
+			let pixels: Uint8Array;
+
+			if ( capture && target ) {
+
+				capture.during( () => engine.render( view ) );
+
+				if ( ! capture.found ) {
+
+					throw new AgentCommandError( `--view に一致するパスがありません: ${viewName}（一覧は views）`, [ 'final', ...capture.labels ] );
+
+				}
+
+				pixels = await draw.readPixels( target );
+
+			} else {
+
+				engine.render( view );
+				pixels = await draw.readView( view );
+
+			}
+
+			if ( pixels.length !== width * height * 4 ) {
+
+				throw new AgentCommandError( `読み戻したサイズが描画解像度と一致しません（${pixels.length} bytes, ${width}x${height}）。撮影中に Screen の大きさが変わった可能性があります。再実行してください` );
+
+			}
+
+			shots.push( { frame, time, png: await encodePng( pixels, width, height ) } );
+
+		}
+
+	} finally {
+
+		FrameDebugger.paused = false;
+		release();
+		view.dispose();
+
+		if ( fitCamera ) {
+
+			fitCamera.aspect = originalAspect;
+			fitCamera.needsUpdateProjectionMatrix = true;
+
+		}
+
+		if ( camera.temporary ) camera.temporary.entity.dispose();
+
+	}
+
+	return { width, height, view: viewName, camera: camera.description, frames: shots };
+
+};
+
 export const shotCommands: AgentCommandTable = {
 	shot,
 	views,
+	frames,
 };

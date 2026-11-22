@@ -295,13 +295,20 @@ npx orengine-cli shot tmp/shot/top.png --from 0,10,0.01 --to 0,0,0         # 観
 npx orengine-cli shot tmp/shot/t2.png --time 2                             # 時刻 2 秒
 npx orengine-cli shot tmp/shot/f58.png --frame 58                          # フレーム 58（fps によらず 秒 × 60）
 npx orengine-cli shot tmp/shot/gbuf.png --view gBuffer_1                   # パスの出力（ラベルはバックエンドごとに違う。一覧は views）
+npx orengine-cli frames tmp/shot/seq --start 0 --end 120 --step 2          # 連続したコマ。tmp/shot/seq/sheet.png に番号入りで並ぶ
+npx orengine-cli img diff tmp/shot/a.png tmp/shot/b.png --out tmp/shot/d.png   # 2枚の差（crop / pixel / stats / sheet もある）
 ```
+
+- **動き・ループ・ちらつきは静止画を何枚か撮るだけで判断しない**。`frames` で連続したコマを撮り、`sheet.png` を見て、`jumps`（隣のコマとの差が急に大きい箇所）と `largest` を確かめる。ループの継ぎ目は尺をまたいで撮る（尺 600 なら `--start 596 --end 603`）。「継ぎ目なくつながる」と報告する前に `jumps` が空であることを確かめる
+- 画像の比較・切り抜き・1画素の色は `img` で行う（magick・sips・PIL を使わない）
+- 撮った絵が一色（真っ黒など）なら CLI が stderr で知らせ、出力が `flat: true` になる。シェーダーを疑う前に、カメラ・読み込み・`errors` を見る
 
 - `shot` はタブの再生時刻・再生状態・選択・エディタカメラを変えない。観測のためにカメラエンティティを `set` で動かさず、`--from` / `--to` を使う
 - 画像サイズは editor.json の `resolution/*`（最終出力の解像度）で決まり、指定はできない。Screen パネルの大きさには依存しない
 - `--time T` は「時刻 T-1/60 → T の2ステップだけ進めて描いた状態」で、「T まで再生した状態」ではない。時刻で決まるもの（BLidge のアニメーション・`uTime` を使うシェーダー）と前ステップとの差で決まるもの（モーションブラー）は正しく出るが、GPUCompute やシミュレーションのように経過を積み上げるものは出ない。省略時はタブの今の時刻で1ステップ進める
 - `--view` は `final`（省略時。本番と同じ）かパスのラベル。WebGL は `camera/deferred_1`、WebGPU は `gBuffer_1` のような生の名前で、一致しなければエラーの `candidates` に一覧が出る
-- stdout には `path` / `width` / `height` / `view` / `time` / `camera` が出る。PNG は出力先にだけ書かれる
+- stdout には `path` / `width` / `height` / `view` / `time` / `frame` / `camera` / `userChanges` / `flat` が出る。PNG は出力先にだけ書かれる
+- 読み込みに時間のかかるもの（外部のメッシュ・画像）を持つコンポーネントは、その Promise を `MXP.addRenderWait( promise )` で登録する。`shot` / `frames` はそれが終わってからコマを進めるので写る（登録しないと、後から現れたものが写らない・真っ黒になる）。シーンの読み込み直後のコマンドもこれを待つ
 
 ## Examples
 

@@ -18,6 +18,20 @@
 - 登録名は export したクラス名。グループはディレクトリ階層から決まる（エディタのメニュー上の分類だけで、登録名には入らない）
 - 先頭が `_` のディレクトリは対象外
 - ファイルを追加・編集すると dev サーバーがタブをリロードする。シーン CLI の書き込みはその場で保存されるので消えない。保存直後のコマンドは CLI がリロードの完了まで待つ
+- 読み込みに時間のかかるもの（fetch するメッシュ・画像など）は、その Promise を `MXP.addRenderWait( promise )` で登録する。シーン CLI はシーンの読み込み直後のコマンドと `shot` / `frames` をそれが終わるまで待つので、「後から現れたものが写らない」「エンティティが見つからない」が起きない。player（production）では何もしないので、サイズは増えない。先読みのために全シーンで読み込む、のような回避はしない
+
+```ts
+// 読み終えたら形を差し替える
+const loadFace = async () => {
+
+	const res = await fetch( BASE_PATH + '/short13/face.bin' );
+
+	mesh.geometry = createGeometry( await res.arrayBuffer() );
+
+};
+
+MXP.addRenderWait( loadFace() );
+```
 
 ## 見た目の作り方は2つ
 

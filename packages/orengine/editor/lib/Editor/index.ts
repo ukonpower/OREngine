@@ -197,6 +197,8 @@ export class Editor extends MXP.Serializable {
 
 	private _sceneExporter: SceneExporter;
 	private _isExporting: boolean;
+	// holdUpdate で止めている数。0 でなければ毎フレームの engine.update を回さない
+	private _updateHolds: number;
 	private _exportProgress: SceneExporterProgress | null;
 
 	constructor( engine: Engine ) {
@@ -233,6 +235,7 @@ export class Editor extends MXP.Serializable {
 		this._assetPreviewManager = new AssetPreviewManager( this._draw );
 		this._sceneExporter = new SceneExporter( engine );
 		this._isExporting = false;
+		this._updateHolds = 0;
 		this._exportProgress = null;
 
 		/*-------------------------------
@@ -1043,7 +1046,7 @@ export class Editor extends MXP.Serializable {
 
 		if ( this._disposed ) return;
 
-		if ( ! this._isExporting ) {
+		if ( ! this._isExporting && this._updateHolds === 0 ) {
 
 			// エディタカメラの aspect をビューの大きさから取るので、先に大きさを決める
 			this._fitViewports();
@@ -1184,6 +1187,25 @@ export class Editor extends MXP.Serializable {
 	/*-------------------------------
 		Export
 	-------------------------------*/
+
+	// 毎フレームの engine.update（タブの再生時刻での更新）を止める。戻り値で再開する。
+	// シーン CLI の frames のように、コマを1つずつ進めながら await する間に、タブの時刻で姿勢を上書きされないようにする
+	public holdUpdate() {
+
+		this._updateHolds ++;
+
+		let released = false;
+
+		return () => {
+
+			if ( released ) return;
+
+			released = true;
+			this._updateHolds --;
+
+		};
+
+	}
 
 	public get isExporting() {
 
