@@ -1,3 +1,4 @@
+import { animatedFieldKeys } from '../KeyFrameCommands';
 import { AGENT_BASELINE_ENDPOINT } from '../Protocol';
 
 import type { OREngineDataEntity, OREngineProjectData } from '../../../../core/ProjectSerializer';
@@ -113,8 +114,9 @@ export type SceneChange = {
 };
 
 // 基準から今への差分を、読める形（どのエンティティ・コンポーネントのどのフィールドか）にする。
-// エンティティ・コンポーネントごと増えた / 消えたものは、そのフィールドを1つずつは並べない
-export const diffScenes = ( base: FlatScene, current: FlatScene ) => {
+// エンティティ・コンポーネントごと増えた / 消えたものは、そのフィールドを1つずつは並べない。
+// ignore のキー（キーフレームで動いているフィールド。再生時刻で値が変わる）は比べない
+export const diffScenes = ( base: FlatScene, current: FlatScene, ignore: Set<string> = new Set() ) => {
 
 	const keys = new Set( [ ...Object.keys( base.values ), ...Object.keys( current.values ) ] );
 	const labels = { ...base.labels, ...current.labels };
@@ -150,6 +152,8 @@ export const diffScenes = ( base: FlatScene, current: FlatScene ) => {
 
 		const before = base.values[ key ];
 		const after = current.values[ key ];
+
+		if ( ignore.has( key ) ) continue;
 
 		if ( same( before, after ) ) continue;
 
@@ -277,7 +281,7 @@ export const countUserChanges = async ( ctx: AgentCommandContext ) => {
 
 	const { flat } = await loadBaseline( ctx.sceneName );
 
-	return diffScenes( flat, currentScene( ctx ) ).length;
+	return diffScenes( flat, currentScene( ctx ), animatedFieldKeys( ctx.engine ) ).length;
 
 };
 
@@ -298,7 +302,7 @@ const changes = async ( ctx: AgentCommandContext, input: AgentCommandInput ) => 
 
 	const { flat, since } = await loadBaseline( scene );
 	const current = currentScene( ctx );
-	const list = diffScenes( flat, current );
+	const list = diffScenes( flat, current, animatedFieldKeys( ctx.engine ) );
 
 	if ( input.options.keep !== true ) {
 
