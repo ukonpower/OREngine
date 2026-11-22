@@ -112,5 +112,9 @@ const idleTimer = setInterval( async () => {
 
 }, IDLE_CHECK_MS );
 
-// runDev も SIGINT / SIGTERM で dev サーバーを閉じるが、ブラウザも閉じたいので先に受ける
+// runDev が付けた SIGINT / SIGTERM の処理は dev サーバーを閉じてすぐ process.exit するので、ブラウザとログの後始末まで届かない。
+// 外して、こちらの閉じる処理だけにする
+process.removeAllListeners( 'SIGTERM' );
+process.removeAllListeners( 'SIGINT' );
 process.on( 'SIGTERM', () => shutdown( 'SIGTERM（orengine-cli dev stop）' ) );
+process.on( 'SIGINT', () => shutdown( 'SIGINT' ) );
