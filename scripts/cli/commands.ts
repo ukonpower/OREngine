@@ -45,9 +45,11 @@ export const COMMANDS: { [ name: string ]: CommandSpec } = {
 	'scene-open': { usage: 'scene-open <name>', description: 'タブが開くシーンを切り替える（未保存の変更があるときはエラー）', timeoutMs: 15000, write: true },
 	// 描画・GPU からの読み戻し・PNG エンコードを待つ（webgpu の初回はパイプライン生成も入る）
 	shot: { usage: 'shot <out.png> [--camera <entity> | --from x,y,z --to x,y,z] [--time <秒> | --frame <フレーム>] [--frames <コマ数>] [--size <幅>x<高さ>] [--view <final|パス名>]', description: '指定したカメラ・時刻の描画を PNG に書き出す（--frame はフレーム番号で、fps によらず 秒 × 60。--frames は時刻の何コマ前から 1/60 秒ずつ進めて撮るか、--size は出力の大きさで省略時は editor.json の resolution/*、--view はパスのラベルで省略時は final。一覧は views）', timeoutMs: 60000 },
+	frames: { usage: 'frames <dir> --start <フレーム> --end <フレーム> [--step <コマ>] [--camera <entity> | --from x,y,z --to x,y,z] [--size <幅>x<高さ>] [--view <final|パス名>] [--cols <列>]', description: '連続したコマを撮る。start から end まで 1/60 秒ずつ進めて描き、step コマおきに <dir>/frame-<番号>.png と番号入りで並べた sheet.png を書く（--size の省略時は幅 480）。隣り合うコマの差（typicalDiff・largest）と、急に変わった箇所（jumps。ちらつき・ループの継ぎ目）、一色のコマ（flat）を返す', timeoutMs: 300000 },
 	views: { usage: 'views', description: 'shot の --view に渡せるパスのラベルの一覧（今の時刻でシーンカメラのビューを1回描いて集める）', timeoutMs: 30000 },
 	// 書き込みを含むかは中身で決まる（index.ts）
 	batch: { usage: 'batch [<file>]', description: '1行1コマンド（先頭の orengine-cli は省く。# で始まる行と空行は飛ばす）をまとめて実行する。ファイルを省くと標準入力から読む。途中で失敗したらそれまでの書き込みをすべて取り消し、成功したら undo 1回ぶんにまとめて保存は1回', timeoutMs: 120000 },
+	img: { usage: 'img diff|crop|pixel|stats|sheet …', description: '手元の PNG を扱う（dev サーバーを使わない）。diff <a> <b> [--out 差の画像] / crop <in> <x> <y> <幅> <高さ> <out> / pixel <in> <x> <y> / stats <in>...（一色か）/ sheet <out> <in>... [--cols]', timeoutMs: 0 },
 	dev: { usage: 'dev [list | start | stop]', description: '立っている dev サーバーの一覧（list・省略時）／自分用の dev サーバーを立てる（start）／自分用の dev サーバーを閉じる（stop。本人の dev サーバーは止めない）', timeoutMs: 120000 },
 };
 

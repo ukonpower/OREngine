@@ -6,7 +6,7 @@ import { openHeadlessEditor } from '../headlessEditor.ts';
 import { CliError, parseArgs, splitLine } from './args.ts';
 import { COMMANDS, usageText } from './commands.ts';
 import { fetchServerInfo, getJson, sendCommand } from './http.ts';
-import { writeShotPng } from './output.ts';
+import { runImageCommand, writeFrames, writeShotPng } from './imageCommands.ts';
 import { collectCandidates, connectionLine, describeCandidate, resolveServer, startOwnServer, stopOwnServers } from './servers.ts';
 
 import type { CommandResponse } from './http.ts';
@@ -457,6 +457,14 @@ const main = async () => {
 
 	}
 
+	// 画像の処理は手元のファイルだけで済むので、dev サーバーを使わない
+	if ( command === 'img' ) {
+
+		print( runImageCommand( args, options ) );
+		return;
+
+	}
+
 	let timeoutMs = spec.timeoutMs;
 
 	if ( typeof options.timeout === 'string' ) {
@@ -532,6 +540,16 @@ const main = async () => {
 
 		output = writeShotPng( args[ 0 ], result.result );
 		warnUserChanges( result.result );
+
+	}
+
+	if ( command === 'frames' ) {
+
+		let cols: number | null = null;
+
+		if ( typeof options.cols === 'string' ) cols = Number( options.cols );
+
+		output = writeFrames( args[ 0 ], result.result, cols );
 
 	}
 
