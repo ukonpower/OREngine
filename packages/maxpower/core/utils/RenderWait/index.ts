@@ -1,17 +1,24 @@
 /*-------------------------------
 	描画前に待つ処理の登録口
 
-	書き出し・shot のように1コマずつ確定させて描く経路（EntityUpdateEvent.offline）で、
-	コンポーネントが update 中に始めた非同期処理（動画の seek など）を、描画の前に待たせるためのもの。
-	リアルタイム再生では待てないので、登録するのは offline のときだけにする。
+	エディタが「描いてよい状態」になるまで待つ非同期処理を登録する。待つのは書き出し・シーン CLI の shot と、
+	シーン CLI がタブを受付可にする前（読み込み直後に後から作られるエンティティを「見つからない」としないため）。
+	- 読み込み（BLidge のシーン・外部のメッシュなど一度で終わるもの）: いつ登録してもよい
+	- 1コマずつ確定させて描く経路（EntityUpdateEvent.offline）で update 中に始めた処理（動画の seek など）: offline のときだけ登録する。
+	  リアルタイム再生では待てないため
+	待つのは dev サーバーのエディタだけなので、production のビルド（player・静的エディタ）では登録しない（player に登録口のコードを入れないため。呼び出しは引数の評価だけが残る）
 -------------------------------*/
 
 const pending: Promise<unknown>[] = [];
 
-// 次の描画の前に待ってほしい処理を登録する
+// 描く前に待ってほしい処理を登録する
 export const addRenderWait = ( promise: Promise<unknown> ) => {
 
-	pending.push( promise );
+	if ( process.env.NODE_ENV === 'development' ) {
+
+		pending.push( promise );
+
+	}
 
 };
 

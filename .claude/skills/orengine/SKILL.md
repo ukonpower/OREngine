@@ -2,9 +2,9 @@
 name: orengine
 description: >
   OREngine でコンポーネントを開発し、シーンを組むためのワークフロースキル（WebGL / GLSL と WebGPU / WGSL の両バックエンド対応）。
-  シーンは dev サーバー経由でエディタタブを操作するシーン CLI（npx tsx scripts/scene.ts）で
+  シーンは dev サーバー経由でエディタタブを操作するシーン CLI（npx orengine-cli）で
   観測・編集する（EditorAPI を通るので undo が効き、書き込みはその場でファイルへ保存される）。
-  タブが無ければ CLI が headless Chromium で代わりに開く。
+  タブが無ければ CLI が headless Chromium で代わりに開き、dev サーバーが無ければ自分用の dev サーバーを立てる。
   見た目のあるオブジェクトはカスタムコンポーネント内で Geometry + Material + Mesh を組み立てるか、
   BLidge が作った Mesh にマテリアルを差し込む。
   Use when user asks to "シーンを作って", "エンティティを追加", "オブジェクトを配置",
@@ -15,10 +15,10 @@ description: >
   component development, GLSL / WGSL shader programming, or 3D object placement in OREngine.
   Do NOT use for general TypeScript/JavaScript questions, GLSL / WGSL syntax reference,
   developing the OREngine engine itself, or non-OREngine 3D engine work.
-allowed-tools: Read, Write, Edit, Glob, Grep, Bash(npx tsx scripts/scene.ts:*), Bash(npx tsx orengine/scripts/scene.ts:*), Bash(npm run typecheck:*), Bash(git diff:*), Bash(python3:*)
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash(npx orengine-cli:*), Bash(npm run typecheck:*), Bash(git diff:*), Bash(python3:*)
 metadata:
   author: ukonpower
-  version: 5.1.0
+  version: 6.0.0
 ---
 
 # OREngine スキル
@@ -31,8 +31,9 @@ OREngine でコンポーネントを作り、シーンを組むためのスキ�
 
 このスキルのパスとコマンドは **OREngine リポジトリのルートから** 書いている。
 
-- OREngine の中で作業しているとき: そのまま（`packages/maxpower/...`、`npx tsx scripts/scene.ts`）
-- 外部プロジェクト（OREngine を `orengine/` に submodule で取り込んだ構成。例: ORShorts）: 先頭に `orengine/` を付けて読む（`orengine/packages/maxpower/...`、`npx tsx orengine/scripts/scene.ts`）
+- OREngine の中で作業しているとき: そのまま（`packages/maxpower/...`）
+- 外部プロジェクト（OREngine を `orengine/` に submodule で取り込んだ構成。例: ORShorts）: 先頭に `orengine/` を付けて読む（`orengine/packages/maxpower/...`）
+- シーン CLI はどちらでも `npx orengine-cli`（OREngine の package.json の bin。外部プロジェクトは自分の package.json に `"bin": { "orengine-cli": "orengine/scripts/cli/bin.js" }` を書く）
 - `<projectDir>` はプロジェクトディレクトリ（`Resources/` / `scenes/` / `editor.json` があるところ）。OREngine 内なら `demo-webgl/` / `demo-webgpu/`、ORShorts なら `project/`
 
 ### バックエンドの判定
@@ -67,10 +68,12 @@ OREngine でコンポーネントを作り、シーンを組むためのスキ�
 ## 鉄則: 操作前に状態を確認
 
 ```bash
-npx tsx scripts/scene.ts status       # 接続先（tab / headless）・シーン名・未保存の変更の有無（unsaved）
-npx tsx scripts/scene.ts tree         # 全エンティティ（uuid・名前パス・ワールド座標・向き・境界ボックス・コンポーネント）
-npx tsx scripts/scene.ts components   # 登録済みコンポーネント名とフィールド定義（path・型・選択肢）
-npx tsx scripts/scene.ts get root/Camera
+npx orengine-cli status       # 接続先・シーン名・選択・再生時刻（フレームと秒）・コードの版（code.upToDate）・未保存（unsaved）・本人が画面で変えた値の数（userChanges）
+npx orengine-cli changes      # 本人が画面で変えた値（シーン CLI の最後の書き込みから）。userChanges が 1 以上なら作業の前に見る
+npx orengine-cli tree         # 全エンティティ（uuid・名前パス・ワールド座標・向き・境界ボックス・コンポーネント）
+npx orengine-cli components   # 登録済みコンポーネント名とフィールド定義（path・型・選択肢）
+npx orengine-cli get root/Camera                    # hidden のフィールドと uuid を外した短い形。--all で書式・選択肢・uuid も
+npx orengine-cli get root/Camera Camera --field fov # 値だけ
 ```
 
 エンティティの名前パス / uuid、実在するコンポーネント名、フィールドの path と現在値を CLI で確かめてから編集する。コンポーネントのフィールドはこのスキルに書き写していないので、`components` / `get` で見る。
@@ -78,22 +81,24 @@ npx tsx scripts/scene.ts get root/Camera
 - 名前パスはルートエンティティの名前から始まり、大文字小文字を区別する
 - ルートの名前はシーンごとに違う（demo の `main.json` は `root`、テンプレート・エディタで新規作成したシーンは `Root`）。このスキルの例は `root/...` で書いているので、`tree` の先頭の `path` を見て読み替える
 - `tree` には BLidge / glb が作ったエンティティ（`initiator: "script"`）も出る。これらはシーン JSON に載らない
-- CLI が `dev サーバーが起動していません` で止まったら、ユーザーに dev サーバーの起動を頼む（`npm run dev` を勝手に起動しない。JSON の直接編集に切り替えない）。タブが無いだけなら CLI が headless で代わりに繋ぐので、エディタを開いてもらう必要はない
-- dev サーバーの URL は `<OREngine>/tmp/dev-server.json` から読まれる。同じ OREngine で dev サーバーを2つ立てていると後から起動したほうになるので、そのときは `--url` で指定する
-- コマンド一覧は `npx tsx scripts/scene.ts help`
+- 接続先は立っている dev サーバーから CLI が選ぶ（本人のタブが最後にフォーカスされたもの）。毎回 stderr の `[orengine-cli] 接続先: …` の1行にどれへ繋いだかが出るので、触りたいプロジェクトか確かめる。違えば `--project <ディレクトリ>` で絞る
+- dev サーバーが1台も無ければ、CLI が自分用の dev サーバー（3400 番台。本人のものとぶつからない）を立てて使う。10 分コマンドを送らなければ自分で閉じ、`npx orengine-cli dev stop` で今すぐ閉じられる。本人の dev サーバーは止めない・触らない。自分用のものでは headless のページを開いたままにするので、undo がコマンドをまたいで効く
+- コードを保存した直後のコマンドは、タブがリロード・HMR を反映してシーン（BLidge のエンティティなど後から作られるものも）を読み込み終えるまで CLI 側で待つ。`sleep` を挟まない。本人のタブが未保存の確認でリロードを止めているときはエラーで理由が返る
+- 複数の書き込みは `npx orengine-cli batch` にまとめる（1行1コマンド。途中で失敗したら全部取り消し、成功したら undo 1回ぶん）
+- コマンド一覧は `npx orengine-cli help`
 
 ## Flow 1: シーン編集（シーン CLI）
 
 ```bash
-npx tsx scripts/scene.ts add-entity root --name KeyLight                  # コンポーネントの無いエンティティ（--name 省略時は Empty）。uuid と path を返す
-npx tsx scripts/scene.ts add-component root/KeyLight Light                # ライト・カメラも add-component で付ける（Light / Camera）
-npx tsx scripts/scene.ts set root/KeyLight position 3,3,3                 # エンティティのフィールド: name / position / euler / scale
-npx tsx scripts/scene.ts set root/KeyLight Light intensity 2              # コンポーネントのフィールドは <component> を挟む
-npx tsx scripts/scene.ts add-component root/Box MyBox                     # 名前は components の name
-npx tsx scripts/scene.ts remove-component root/Box MyBox
-npx tsx scripts/scene.ts reparent root/Box root/Group                    # 親を付け替える（ワールド座標を保つ。名前がぶつかれば Box.001）
-npx tsx scripts/scene.ts remove-entity root/Box
-npx tsx scripts/scene.ts undo                                             # / redo
+npx orengine-cli add-entity root --name KeyLight                  # コンポーネントの無いエンティティ（--name 省略時は Empty）。uuid と path を返す
+npx orengine-cli add-component root/KeyLight Light                # ライト・カメラも add-component で付ける（Light / Camera）
+npx orengine-cli set root/KeyLight position 3,3,3                 # エンティティのフィールド: name / position / euler / scale
+npx orengine-cli set root/KeyLight Light intensity 2              # コンポーネントのフィールドは <component> を挟む
+npx orengine-cli add-component root/Box MyBox                     # 名前は components の name
+npx orengine-cli remove-component root/Box MyBox
+npx orengine-cli reparent root/Box root/Group                    # 親を付け替える（ワールド座標を保つ。名前がぶつかれば Box.001）
+npx orengine-cli remove-entity root/Box
+npx orengine-cli undo                                             # / redo
 ```
 
 書き込みはすべてエディタの `EditorAPI` を通るので、GUI の操作と同じ扱いになる。
@@ -128,11 +133,11 @@ npx tsx scripts/scene.ts undo                                             # / re
 1プロジェクトは `scenes/<name>.json` を複数持てる。CLI の編集対象は常に「タブ（か headless）が今開いているシーン」なので、別のシーンを編集するときは先に `scene-open` する。
 
 ```bash
-npx tsx scripts/scene.ts scenes                          # 一覧・タブが開いているシーン（opened）・editor.json の最後に開いたシーン（lastOpened）
-npx tsx scripts/scene.ts scene-get main                  # シーンファイルの中身
-npx tsx scripts/scene.ts scene-create short1 --open      # 空のシーンを作って開く（--from main で main を複製）
-npx tsx scripts/scene.ts scene-open main                 # タブが開くシーンを切り替える
-npx tsx scripts/scene.ts scene-delete short1             # 開いているシーンは削除できない
+npx orengine-cli scenes                          # 一覧・タブが開いているシーン（opened）・editor.json の最後に開いたシーン（lastOpened）
+npx orengine-cli scene-get main                  # シーンファイルの中身
+npx orengine-cli scene-create short1 --open      # 空のシーンを作って開く（--from main で main を複製）
+npx orengine-cli scene-open main                 # タブが開くシーンを切り替える
+npx orengine-cli scene-delete short1             # 開いているシーンは削除できない
 ```
 
 - `scenes` / `scene-get` はファイルを読むだけで、タブも headless も使わない
@@ -143,10 +148,10 @@ npx tsx scripts/scene.ts scene-delete short1             # 開いているシー
 ### 設定（renderer / timeline / editor）
 
 ```bash
-npx tsx scripts/scene.ts settings                                       # 全部。settings renderer のように絞れる
-npx tsx scripts/scene.ts set-setting timeline timeline/duration 300     # フレーム数
-npx tsx scripts/scene.ts set-setting renderer pipeline/ssao/enabled false
-npx tsx scripts/scene.ts set-setting editor resolution/width 1080       # editor.json（全シーン共通）
+npx orengine-cli settings                                       # 全部。settings renderer のように絞れる
+npx orengine-cli set-setting timeline timeline/duration 300     # フレーム数
+npx orengine-cli set-setting renderer pipeline/ssao/enabled false
+npx orengine-cli set-setting editor resolution/width 1080       # editor.json（全シーン共通）
 ```
 
 - `renderer`（空の色・ポストエフェクト等）と `timeline`（`timeline/duration` / `timeline/fps`）は開いているシーンのファイルに、`editor`（`resolution/*` / `viewports/<id>/resolutionScale` / `frameLoop/*`）は `editor.json` に入る。出力の `file` が保存先
@@ -158,17 +163,17 @@ npx tsx scripts/scene.ts set-setting editor resolution/width 1080       # editor
 エンティティ・コンポーネントのフィールドにキーを打つと、player でも再生される。カーブ（キー列）はシーンの `curves` に、フィールドとカーブの結びつき（リンク）はエンティティの `Animation` コンポーネントに入る。どちらも CLI が作るので、`Animation` を `add-component` したり `links` を `set` したりはしない（`set … Animation links` はエラー）。
 
 ```bash
-npx tsx scripts/scene.ts key-insert root/Box position --time 0                         # 今の値でキーを打つ（数値配列は全要素）
-npx tsx scripts/scene.ts key-insert root/Box position --time 2 --value 0,3,0           # 値を指定して打つ
-npx tsx scripts/scene.ts key-insert root/KeyLight Light intensity --time 1 --value 5  # コンポーネントのフィールドは <component> を挟む
-npx tsx scripts/scene.ts key-insert root/Box euler/1 --time 4 --value 3.14             # 要素1つだけ（euler/1 = y）
-npx tsx scripts/scene.ts key-delete root/Box position --time 2
-npx tsx scripts/scene.ts curves                                                        # カーブの一覧（ID・名前・キー数・使っているフィールド）
-npx tsx scripts/scene.ts curve-get c2                                                  # カーブの中身（JSON）
-npx tsx scripts/scene.ts curve-set c2 '<curve-get と同じ形の JSON>'                    # キーの移動・値・補間・ハンドルをまとめて書き換える
-npx tsx scripts/scene.ts curve-paste root/Box2 position/1 c2 --link                    # 同じカーブを共有する（--copy は複製して独立させる）
-npx tsx scripts/scene.ts curve-unlink root/Box2 position/1                             # 共有をやめる（複製して指し直す）
-npx tsx scripts/scene.ts curve-link-settings root/Box position/1 --scale 2 --offset 0.5 --name bounce   # 値 = カーブ × scale + offset
+npx orengine-cli key-insert root/Box position --time 0                         # 今の値でキーを打つ（数値配列は全要素）
+npx orengine-cli key-insert root/Box position --time 2 --value 0,3,0           # 値を指定して打つ
+npx orengine-cli key-insert root/KeyLight Light intensity --time 1 --value 5  # コンポーネントのフィールドは <component> を挟む
+npx orengine-cli key-insert root/Box euler/1 --time 4 --value 3.14             # 要素1つだけ（euler/1 = y）
+npx orengine-cli key-delete root/Box position --time 2
+npx orengine-cli curves                                                        # カーブの一覧（ID・名前・キー数・使っているフィールド）
+npx orengine-cli curve-get c2                                                  # カーブの中身（JSON）
+npx orengine-cli curve-set c2 '<curve-get と同じ形の JSON>'                    # キーの移動・値・補間・ハンドルをまとめて書き換える
+npx orengine-cli curve-paste root/Box2 position/1 c2 --link                    # 同じカーブを共有する（--copy は複製して独立させる）
+npx orengine-cli curve-unlink root/Box2 position/1                             # 共有をやめる（複製して指し直す）
+npx orengine-cli curve-link-settings root/Box position/1 --scale 2 --offset 0.5 --name bounce   # 値 = カーブ × scale + offset
 ```
 
 - 時刻は秒。`--time` は `timeline/fps` のコマに揃えられる（出力の `time` が実際に打った時刻）。タブの再生時刻は動かない
@@ -284,11 +289,12 @@ export class CubeMesh extends MXP.Component {
 3. 見た目は `shot` で PNG に書き出し、Read で見る。出力先は `tmp/shot/` の下（OREngine・ORShorts とも `tmp/` は gitignore 済み）
 
 ```bash
-npx tsx scripts/scene.ts shot tmp/shot/scene.png                                   # シーンカメラ・今の時刻
-npx tsx scripts/scene.ts shot tmp/shot/cam.png --camera root/MainCamera            # シーン内の別のカメラ
-npx tsx scripts/scene.ts shot tmp/shot/top.png --from 0,10,0.01 --to 0,0,0         # 観測用の一時カメラ（シーンには残らない）
-npx tsx scripts/scene.ts shot tmp/shot/t2.png --time 2                             # 時刻 2 秒
-npx tsx scripts/scene.ts shot tmp/shot/gbuf.png --view gBuffer_1                   # パスの出力（ラベルはバックエンドごとに違う）
+npx orengine-cli shot tmp/shot/scene.png                                   # シーンカメラ・今の時刻
+npx orengine-cli shot tmp/shot/cam.png --camera root/MainCamera            # シーン内の別のカメラ
+npx orengine-cli shot tmp/shot/top.png --from 0,10,0.01 --to 0,0,0         # 観測用の一時カメラ（シーンには残らない）
+npx orengine-cli shot tmp/shot/t2.png --time 2                             # 時刻 2 秒
+npx orengine-cli shot tmp/shot/f58.png --frame 58                          # フレーム 58（fps によらず 秒 × 60）
+npx orengine-cli shot tmp/shot/gbuf.png --view gBuffer_1                   # パスの出力（ラベルはバックエンドごとに違う。一覧は views）
 ```
 
 - `shot` はタブの再生時刻・再生状態・選択・エディタカメラを変えない。観測のためにカメラエンティティを `set` で動かさず、`--from` / `--to` を使う
@@ -305,16 +311,16 @@ npx tsx scripts/scene.ts shot tmp/shot/gbuf.png --view gBuffer_1                
 2. `components` に `CubeMesh` が出てから:
 
 ```bash
-npx tsx scripts/scene.ts add-entity root --name Cube
-npx tsx scripts/scene.ts add-component root/Cube CubeMesh
-npx tsx scripts/scene.ts add-entity root --name Light
-npx tsx scripts/scene.ts add-component root/Light Light
-npx tsx scripts/scene.ts set root/Light position 3,3,3
-npx tsx scripts/scene.ts add-entity root --name MainCamera
-npx tsx scripts/scene.ts add-component root/MainCamera Camera
-npx tsx scripts/scene.ts set root/MainCamera position 5,3,5
-npx tsx scripts/scene.ts add-component root/MainCamera LookAt
-npx tsx scripts/scene.ts set root/MainCamera LookAt target <Cube の uuid>
+npx orengine-cli add-entity root --name Cube
+npx orengine-cli add-component root/Cube CubeMesh
+npx orengine-cli add-entity root --name Light
+npx orengine-cli add-component root/Light Light
+npx orengine-cli set root/Light position 3,3,3
+npx orengine-cli add-entity root --name MainCamera
+npx orengine-cli add-component root/MainCamera Camera
+npx orengine-cli set root/MainCamera position 5,3,5
+npx orengine-cli add-component root/MainCamera LookAt
+npx orengine-cli set root/MainCamera LookAt target <Cube の uuid>
 ```
 
 3. ライトの向きは `euler` を `set` し、`tree` の `up` が光源側（ライト位置 − 照らしたい点の向き）を向いたかで確かめる

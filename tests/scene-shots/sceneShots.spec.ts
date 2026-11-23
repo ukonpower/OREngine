@@ -332,7 +332,7 @@ for ( const backend of BACKENDS ) {
 				port: backend.port,
 				apiPort: backend.apiPort,
 				cacheDir: path.join( rootDir, 'node_modules/.vite-scene-shots', backend.name ),
-				writeDevServerInfo: false,
+				devServerOwner: null,
 			} );
 
 			const url = devServer.vite.resolvedUrls?.local[ 0 ];

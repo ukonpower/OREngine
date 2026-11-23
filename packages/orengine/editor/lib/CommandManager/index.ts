@@ -1,5 +1,7 @@
 import { EventEmitter } from 'basepower';
 
+import { GroupCommand } from '../Commands/GroupCommand';
+
 export interface Command {
 	name: string;
 	execute(): void;
@@ -79,6 +81,34 @@ export class CommandManager extends EventEmitter {
 		command.execute();
 		this._undoStack.push( command );
 		this.emit( "change" );
+
+	}
+
+	// undo 履歴に積まれているコマンドの数。collapseSince / undo で戻す位置の目印に使う
+	public get depth(): number {
+
+		return this._undoStack.length;
+
+	}
+
+	// depth 以降に積まれたコマンドを1つにまとめ、undo 1回で戻るようにする（シーン CLI の batch）
+	public collapseSince( depth: number ): void {
+
+		const commands = this._undoStack.splice( depth );
+
+		if ( commands.length === 0 ) return;
+
+		if ( commands.length === 1 ) {
+
+			this._undoStack.push( commands[ 0 ] );
+
+		} else {
+
+			this._undoStack.push( new GroupCommand( commands ) );
+
+		}
+
+		this._lastMergeable = false;
 
 	}
 

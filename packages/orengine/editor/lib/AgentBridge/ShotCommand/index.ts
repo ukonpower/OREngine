@@ -4,13 +4,17 @@ import * as MXP from 'maxpower';
 import { Engine } from '../../../../core/Engine';
 import { findSceneCameraEntity } from '../../EditorCamera';
 import { FrameDebugger } from '../../FrameDebugger';
+import { countUserChanges } from '../ChangeTracker';
 import { AgentCommandError, AgentCommandInput, requireArg } from '../Command';
 import { entityPath, resolveEntity } from '../EntityQuery';
 
 import type { AgentCommandContext, AgentCommandTable } from '../Command';
 import type { AgentOptions } from '../Protocol';
 
-const SHOT_USAGE = 'shot <out.png> [--camera <entity> | --from x,y,z --to x,y,z] [--time <秒> [--frames <コマ数>]] [--size <幅>x<高さ>] [--view <final|パス名>]';
+const SHOT_USAGE = 'shot <out.png> [--camera <entity> | --from x,y,z --to x,y,z] [--time <秒> | --frame <フレーム>] [--frames <コマ数>] [--size <幅>x<高さ>] [--view <final|パス名>]';
+
+// フレームは timeline/fps によらず「秒 × 60」で数える（Engine の frame.current = time.code * 60）
+const FRAMES_PER_SECOND = 60;
 
 // 読み戻す前に shot のビューを描く回数。作ったばかりのビューは履歴 RT（SSAO / lightShaft の temporal など）が
 // 空なので、同じステップのまま何回か描いて定常状態に近づける。
@@ -66,8 +70,28 @@ const parseVector = ( options: AgentOptions, name: string ) => {
 
 };
 
-// 省略時はタブの現在時刻
+// --time（秒）か --frame（秒 × 60）。省略時はタブの現在時刻
 const parseTime = ( ctx: AgentCommandContext, options: AgentOptions ) => {
+
+	if ( options.frame !== undefined ) {
+
+		if ( options.time !== undefined ) {
+
+			throw new AgentCommandError( `--time と --frame は同時に指定できません。使い方: ${SHOT_USAGE}` );
+
+		}
+
+		const frame = Number( options.frame );
+
+		if ( typeof options.frame !== 'string' || ! Number.isFinite( frame ) ) {
+
+			throw new AgentCommandError( `--frame はフレーム番号（秒 × 60）の数値で指定してください: ${options.frame}` );
+
+		}
+
+		return frame / FRAMES_PER_SECOND;
+
+	}
 
 	const raw = options.time;
 
@@ -92,9 +116,9 @@ const parseFrames = ( options: AgentOptions ) => {
 
 	if ( raw === undefined ) return 1;
 
-	if ( options.time === undefined ) {
+	if ( options.time === undefined && options.frame === undefined ) {
 
-		throw new AgentCommandError( `--frames は --time と一緒に指定してください。使い方: ${SHOT_USAGE}` );
+		throw new AgentCommandError( `--frames は --time か --frame と一緒に指定してください。使い方: ${SHOT_USAGE}` );
 
 	}
 
@@ -460,7 +484,7 @@ const shot = async ( ctx: AgentCommandContext, input: AgentCommandInput ) => {
 	const engine = ctx.engine;
 	const draw = ctx.editor.draw;
 
-	const timeSpecified = options.time !== undefined;
+	const timeSpecified = options.time !== undefined || options.frame !== undefined;
 	const time = parseTime( ctx, options );
 	const frames = parseFrames( options );
 	const size = parseSize( options );
@@ -646,11 +670,63 @@ const shot = async ( ctx: AgentCommandContext, input: AgentCommandInput ) => {
 		height,
 		view: viewName,
 		time,
+		frame: time * FRAMES_PER_SECOND,
 		camera: camera.description,
+		// 撮った絵が急に変わったとき、本人が画面で値を動かしたせいかを見分けられるように
+		userChanges: await countUserChanges( ctx ),
 	};
+
+};
+
+/*-------------------------------
+	views
+-------------------------------*/
+
+// shot の --view に渡せるパスのラベルの一覧。今の時刻でシーンカメラのビューを1回描き、その間に出たパスを集める
+const views = ( ctx: AgentCommandContext ) => {
+
+	const engine = ctx.engine;
+	const draw = ctx.editor.draw;
+
+	if ( ! findSceneCameraEntity( engine.root ) ) {
+
+		throw new AgentCommandError( 'シーンに displayOut のカメラがありません' );
+
+	}
+
+	const view = engine.createView( { offscreen: true } );
+
+	let target = passTargets.get( draw );
+
+	if ( ! target ) {
+
+		target = draw.createTarget();
+		passTargets.set( draw, target );
+
+	}
+
+	// どのラベルとも一致しない名前で拾い、写さずにラベルだけを集める
+	const capture = new PassCapture( draw, view, target, '' );
+
+	FrameDebugger.paused = true;
+
+	try {
+
+		stepAt( engine, engine.time.code, { resolution: engine.renderer.resolution }, capture );
+		capture.during( () => engine.render( view ) );
+
+	} finally {
+
+		FrameDebugger.paused = false;
+		view.dispose();
+
+	}
+
+	return [ 'final', ...capture.labels ];
 
 };
 
 export const shotCommands: AgentCommandTable = {
 	shot,
+	views,
 };

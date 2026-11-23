@@ -16,6 +16,8 @@ import { TexLoader } from './plugins/TexLoader';
 import { collectWgslIdentifiers, WgslLoader } from './plugins/WgslLoader';
 import { collectJsonKeys, collectSceneUsage } from './sceneScan';
 
+import type { DevServerOwner } from '../devServerRegistry';
+
 
 const orengineRoot = path.resolve( fileURLToPath( import.meta.url ), '../../..' );
 const appRoot = path.join( orengineRoot, 'host/app' );
@@ -35,9 +37,9 @@ export interface OrengineConfigOptions {
 	// プロジェクトやレンダラーが違う dev サーバーが同じ置き場を使うと、起動した側が作り直して入れ替え、動いている側の配信を壊すため、
 	// ユーザーの dev サーバーと同時に動かすもの（tests/scene-shots）は別の場所を渡す
 	cacheDir?: string;
-	// dev 専用。scripts/scene.ts に URL を伝える tmp/dev-server.json を書くか（省略時は書く）。
-	// 自分で立てた dev サーバーの URL を知っている呼び出し側（tests/scene-shots）は false にし、ユーザーの dev サーバーの情報を上書きしない
-	writeDevServerInfo?: boolean;
+	// dev 専用。dev サーバーの登録簿（host/devServerRegistry）に載せるときの持ち主（省略時は user）。
+	// null なら載せない。自分で立てた dev サーバーの URL を知っている呼び出し側（tests/scene-shots）が、orengine-cli の接続先の候補に入らないように
+	devServerOwner?: DevServerOwner | null;
 }
 
 // ランタイムは BASE_PATH + '/xxx' の形で連結するため、define へ渡す値は末尾スラッシュを落とす
@@ -145,12 +147,11 @@ export const sharedCss = () => ( {
 
 export const createDevConfig = ( opts: OrengineConfigOptions ): UserConfig => {
 
-	// scripts/scene.ts がこのファイルから dev サーバーの URL を読む（パスは scene.ts 側と一致させる）
-	let devServerInfoFile: string | null = path.join( orengineRoot, 'tmp/dev-server.json' );
+	let devServerOwner: DevServerOwner | null = 'user';
 
-	if ( opts.writeDevServerInfo === false ) {
+	if ( opts.devServerOwner !== undefined ) {
 
-		devServerInfoFile = null;
+		devServerOwner = opts.devServerOwner;
 
 	}
 
@@ -190,7 +191,12 @@ export const createDevConfig = ( opts: OrengineConfigOptions ): UserConfig => {
 			TexLoader(),
 			WgslLoader( { moduleDirs: wgslModuleDirs( opts.projectDir ) } ),
 			ProjectWatchReload( opts.projectDir ),
-			AgentBridge( { infoFile: devServerInfoFile } ),
+			AgentBridge( {
+				project: path.basename( opts.projectDir ),
+				projectDir: opts.projectDir,
+				renderer: opts.renderer ?? 'webgl',
+				owner: devServerOwner,
+			} ),
 		],
 		define: {
 			BASE_PATH: defineBasePath( opts.basePath ),

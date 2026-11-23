@@ -2,9 +2,11 @@ import { shaderErrors } from 'glpower';
 import * as MXP from 'maxpower';
 
 import { Engine } from '../../../../core/Engine';
-import { AgentCommandInput, errorMessage, requireArg } from '../Command';
-import { componentName, describeFields, entityPath, resolveEntity, worldInfo } from '../EntityQuery';
+import { countUserChanges } from '../ChangeTracker';
+import { AgentCommandError, AgentCommandInput, errorMessage, requireArg } from '../Command';
+import { componentName, describeFields, entityPath, fieldsOutput, fieldValue, resolveEntity, worldInfo } from '../EntityQuery';
 import { getCollectedErrors } from '../ErrorCollector';
+import { resolveAttachedComponent } from '../WriteCommands';
 
 import type { ComponentGroup, ResouceComponentItem } from '../../../../core/Resources';
 import type { AgentCommandContext, AgentCommandTable } from '../Command';
@@ -13,28 +15,41 @@ import type { AgentCommandContext, AgentCommandTable } from '../Command';
 	status
 -------------------------------*/
 
-const status = ( ctx: AgentCommandContext ) => {
+// フレームは timeline/fps によらず「秒 × 60」で数える（Engine の frame.current = time.code * 60）
+const FRAMES_PER_SECOND = 60;
 
-	let connection = 'tab';
+const status = async ( ctx: AgentCommandContext ) => {
 
-	if ( ctx.headless ) {
+	const engine = ctx.engine;
+	const selected: string[] = [];
 
-		connection = 'headless';
+	for ( const entity of ctx.editor.selectedEntities ) {
+
+		selected.push( entityPath( entity ) );
 
 	}
 
+	let active: string | null = null;
+
+	if ( ctx.editor.activeEntity ) active = entityPath( ctx.editor.activeEntity );
+
 	return {
-		connection,
+		connection: ctx.connection,
 		tabId: ctx.tabId,
 		url: location.href,
 		scene: ctx.sceneName,
 		unsaved: ctx.unsaved,
-		frame: {
-			current: ctx.engine.frame.current,
-			playing: ctx.engine.frame.playing,
-			duration: ctx.engine.frameSetting.duration,
-			fps: ctx.engine.frameSetting.fps,
+		selection: { active, selected },
+		time: {
+			frame: engine.frame.current,
+			seconds: engine.frame.current / FRAMES_PER_SECOND,
+			playing: engine.frame.playing,
+			durationFrames: engine.frameSetting.duration,
+			durationSeconds: engine.frameSetting.duration / FRAMES_PER_SECOND,
+			fps: engine.frameSetting.fps,
+			note: 'フレームは timeline/fps によらず 秒 × 60 で数える（fps はキーを揃えるコマと再生の刻みだけに効く）',
 		},
+		userChanges: await countUserChanges( ctx ),
 	};
 
 };
@@ -90,20 +105,48 @@ const tree = ( ctx: AgentCommandContext ) => {
 	get
 -------------------------------*/
 
+const GET_USAGE = 'get <entity> [<component>] [--field <path>] [--all]';
+
+// 既定は hidden のフィールドと uuid を外した短い形。--all で書式・選択肢・hidden・uuid も出す。
+// --field <path> はその値だけ（<component> を付ければコンポーネントのフィールド）
 const get = ( ctx: AgentCommandContext, input: AgentCommandInput ) => {
 
-	const entity = resolveEntity( ctx.engine, requireArg( input, 0, 'get <entity>' ) );
+	const entity = resolveEntity( ctx.engine, requireArg( input, 0, GET_USAGE ) );
+	const all = input.options.all === true;
+	const field = input.options.field;
+
+	if ( field !== undefined && typeof field !== 'string' ) {
+
+		throw new AgentCommandError( `--field にはフィールドの path を指定してください。使い方: ${GET_USAGE}` );
+
+	}
+
+	if ( input.args[ 1 ] !== undefined ) {
+
+		const { component } = resolveAttachedComponent( entity, input.args[ 1 ] );
+
+		if ( typeof field === 'string' ) return fieldValue( component, field );
+
+		return { entity: entityPath( entity ), component: componentName( component ), fields: fieldsOutput( component, all ) };
+
+	}
+
+	if ( typeof field === 'string' ) return fieldValue( entity, field );
 
 	const components: unknown[] = [];
 
 	entity.components.forEach( ( component ) => {
 
-		components.push( {
-			name: componentName( component ),
-			uuid: component.uuid,
-			initiator: component.initiator,
-			fields: describeFields( component ),
-		} );
+		const item: { [ key: string ]: unknown } = { name: componentName( component ) };
+
+		if ( all ) item.uuid = component.uuid;
+
+		// user 以外（script）が付けたものは編集できないので、既定の出力でも知らせる
+		if ( all || component.initiator !== 'user' ) item.initiator = component.initiator;
+
+		item.fields = fieldsOutput( component, all );
+
+		components.push( item );
 
 	} );
 
@@ -113,20 +156,33 @@ const get = ( ctx: AgentCommandContext, input: AgentCommandInput ) => {
 
 		if ( child.editorHidden ) continue;
 
-		children.push( { uuid: child.uuid, name: child.name } );
+		if ( all ) {
+
+			children.push( { uuid: child.uuid, name: child.name } );
+
+		} else {
+
+			children.push( child.name );
+
+		}
 
 	}
 
-	return {
-		path: entityPath( entity ),
-		uuid: entity.uuid,
-		initiator: entity.initiator,
-		world: worldInfo( entity ),
-		fields: describeFields( entity ),
-		components,
-		unresolvedComponents: entity.unresolvedComponents,
-		children,
-	};
+	const output: { [ key: string ]: unknown } = { path: entityPath( entity ) };
+
+	if ( all ) output.uuid = entity.uuid;
+
+	if ( all || entity.initiator !== 'user' ) output.initiator = entity.initiator;
+
+	output.world = worldInfo( entity );
+	output.fields = fieldsOutput( entity, all );
+	output.components = components;
+
+	if ( all || entity.unresolvedComponents.length > 0 ) output.unresolvedComponents = entity.unresolvedComponents;
+
+	output.children = children;
+
+	return output;
 
 };
 
@@ -134,8 +190,27 @@ const get = ( ctx: AgentCommandContext, input: AgentCommandInput ) => {
 	components
 -------------------------------*/
 
+// コンポーネントのフィールド定義。value は作ったばかりの値（既定値）。hidden のフィールドは all のときだけ
+const definitionFields = ( component: MXP.Component, all: boolean ) => {
+
+	const fields: { [ path: string ]: unknown } = {};
+
+	for ( const field of describeFields( component ) ) {
+
+		if ( field.hidden && ! all ) continue;
+
+		const { path, value, ...rest } = field;
+
+		fields[ path ] = { default: value, ...rest };
+
+	}
+
+	return fields;
+
+};
+
 // フィールド定義はコンストラクタで登録されるので、シーンに繋がない仮のエンティティで一度作って読み取る
-const probeFields = ( engine: Engine, item: ResouceComponentItem ) => {
+const probeFields = ( engine: Engine, item: ResouceComponentItem, all: boolean ) => {
 
 	const probe = engine.createEntity( { name: '__agent_probe__' } );
 
@@ -143,7 +218,7 @@ const probeFields = ( engine: Engine, item: ResouceComponentItem ) => {
 
 		const component = probe.addComponent( item.component );
 
-		return { fields: describeFields( component ) };
+		return { fields: definitionFields( component, all ) };
 
 	} catch ( e ) {
 
@@ -157,9 +232,13 @@ const probeFields = ( engine: Engine, item: ResouceComponentItem ) => {
 
 };
 
-const components = ( ctx: AgentCommandContext ) => {
+// components [<Name>] [--all]。名前を渡すとそのコンポーネントだけ
+const components = ( ctx: AgentCommandContext, input: AgentCommandInput ) => {
 
+	const all = input.options.all === true;
+	const only = input.args[ 0 ];
 	const list: unknown[] = [];
+	const names: string[] = [];
 
 	const walk = ( group: ComponentGroup, groupPath: string ) => {
 
@@ -167,7 +246,11 @@ const components = ( ctx: AgentCommandContext ) => {
 
 			if ( 'component' in child ) {
 
-				list.push( { name: child.name, group: groupPath, ...probeFields( ctx.engine, child ) } );
+				names.push( child.name );
+
+				if ( only !== undefined && child.name !== only ) continue;
+
+				list.push( { name: child.name, group: groupPath, ...probeFields( ctx.engine, child, all ) } );
 
 			} else {
 
@@ -182,6 +265,12 @@ const components = ( ctx: AgentCommandContext ) => {
 	for ( const group of Engine.resources.componentGroups ) {
 
 		walk( group, group.name );
+
+	}
+
+	if ( only !== undefined && list.length === 0 ) {
+
+		throw new AgentCommandError( `コンポーネントがありません: ${only}`, names );
 
 	}
 

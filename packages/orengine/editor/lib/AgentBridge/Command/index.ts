@@ -1,6 +1,6 @@
 import type { Engine } from '../../../../core/Engine';
 import type { Editor } from '../../Editor';
-import type { AgentOptions } from '../Protocol';
+import type { AgentConnection, AgentOptions } from '../Protocol';
 
 // プロジェクト内のシーン一覧と、開いているシーンの切替・作成・削除。実体はページ（EditorPage）が持つ。
 // エディタ UI の Scene パネルも同じ窓口を使う（OREditorProvider の SceneSelection）
@@ -21,6 +21,7 @@ export type AgentCommandContext = {
 	tabId: string;
 	// CLI が headless Chromium で開いたページか（ユーザーのタブなら false）
 	headless: boolean;
+	connection: AgentConnection;
 	// 開いているシーンのファイル名（scenes/<name>.json の name）。ページがシーンを持たないときは null
 	sceneName: string | null;
 	// シーンを切り替えられないページ（シーンを焼き込んだビルド等）では null

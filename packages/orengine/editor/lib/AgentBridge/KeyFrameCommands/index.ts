@@ -186,6 +186,47 @@ type CurveUser = {
 	offset: number;
 };
 
+// キーフレーム（Blender のものも）で動かされているフィールドを、ChangeTracker の平らなキー（<エンティティの uuid>|<path> /
+// <エンティティの uuid>|<コンポーネントの uuid>|<path>）で集める。再生時刻で Animation が書き換えるので、本人の変更と見分けるのに使う
+export const animatedFieldKeys = ( engine: Engine ) => {
+
+	const keys = new Set<string>();
+
+	engine.root.traverseEditable( ( entity ) => {
+
+		for ( const links of [ getLinks( entity ), getBLidgeLinks( entity ) ] ) {
+
+			for ( const linkKey of Object.keys( links ) ) {
+
+				// Animation と同じく、最初の : より前がコンポーネント名
+				const separator = linkKey.indexOf( ':' );
+
+				if ( separator < 0 ) {
+
+					keys.add( `${entity.uuid}|${linkKey}` );
+					continue;
+
+				}
+
+				const name = linkKey.slice( 0, separator );
+				const path = linkKey.slice( separator + 1 );
+
+				entity.components.forEach( ( component ) => {
+
+					if ( componentName( component ) === name ) keys.add( `${entity.uuid}|${component.uuid}|${path}` );
+
+				} );
+
+			}
+
+		}
+
+	} );
+
+	return keys;
+
+};
+
 // シーン全体で、カーブ ID ごとにそれを指しているリンクを集める。Blender で付けたキーフレームのリンク（BLidgeAnimation）も含める
 const collectCurveUsers = ( engine: Engine ) => {
 

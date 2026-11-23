@@ -210,11 +210,12 @@ export class BLidgeClient extends MXP.Component {
 		};
 
 		// モード選択フィールド (websocket/json)
+		// 読み込みはエンティティを作り終えるまで続く。エディタ（シーン CLI・書き出し）が作り終える前に描いたり探したりしないよう待たせる
 		this.field( "mode", () => this.type, v => {
 
 			this.type = v;
 
-			reload();
+			MXP.addRenderWait( reload() );
 
 		}, {
 			format: {
@@ -228,7 +229,7 @@ export class BLidgeClient extends MXP.Component {
 
 			this.useGLTF = v;
 
-			reload();
+			MXP.addRenderWait( reload() );
 
 		} );
 
@@ -237,7 +238,7 @@ export class BLidgeClient extends MXP.Component {
 
 			this.gltfPath = v;
 
-			reload();
+			MXP.addRenderWait( reload() );
 
 		}, );
 

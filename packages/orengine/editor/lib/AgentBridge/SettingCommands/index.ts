@@ -95,8 +95,34 @@ const settingPaths = ( target: SettingTarget ) => {
 	settings
 -------------------------------*/
 
-// 名前を省くと全部。fields は書き換えられる path だけ（値・書式・選択肢付き）
+const SETTINGS_USAGE = 'settings [renderer|timeline|editor] [--field <path>] [--all]';
+
+// 名前を省くと全部。fields は書き換えられる path だけで、既定は path → 値（--all で書式・選択肢・hidden も）。
+// --field <path> はその値だけ（名前が要る）
 const settings = ( ctx: AgentCommandContext, input: AgentCommandInput ) => {
+
+	const all = input.options.all === true;
+	const field = input.options.field;
+
+	if ( field !== undefined ) {
+
+		if ( typeof field !== 'string' || input.args[ 0 ] === undefined ) {
+
+			throw new AgentCommandError( `--field は設定の名前と path を指定してください。使い方: ${SETTINGS_USAGE}` );
+
+		}
+
+		const target = resolveSettingTarget( ctx, input.args[ 0 ] );
+
+		if ( ! settingPaths( target ).includes( field ) ) {
+
+			throw new AgentCommandError( `設定にありません: ${field}（${input.args[ 0 ]}）`, settingPaths( target ) );
+
+		}
+
+		return target.serializable.getField( field );
+
+	}
 
 	let names = SETTING_NAMES;
 
@@ -112,19 +138,28 @@ const settings = ( ctx: AgentCommandContext, input: AgentCommandInput ) => {
 
 		const target = resolveSettingTarget( ctx, name );
 		const paths = settingPaths( target );
-		const fields = [];
+		const details = [];
+		const values: { [ path: string ]: unknown } = {};
 
-		for ( const field of describeFields( target.serializable ) ) {
+		for ( const description of describeFields( target.serializable ) ) {
 
-			if ( paths.includes( field.path ) ) {
+			if ( ! paths.includes( description.path ) ) continue;
 
-				fields.push( field );
+			details.push( description );
 
-			}
+			if ( ! description.hidden ) values[ description.path ] = description.value;
 
 		}
 
-		result[ name ] = { file: target.file, fields };
+		if ( all ) {
+
+			result[ name ] = { file: target.file, fields: details };
+
+		} else {
+
+			result[ name ] = { file: target.file, fields: values };
+
+		}
 
 	}
 

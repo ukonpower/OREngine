@@ -127,4 +127,4 @@ void main( void ) {
 GLSL は dev でも shader_minifier を通る（壊れたらすぐ分かるように、意図的）。
 
 - ソースに `//[` `//]` を書かない（minifier の verbatim マーカーで、宣言側と名前が食い違って壊れる）
-- 保存後に `npx tsx scripts/scene.ts errors` でコンパイルエラーを見る。minify 後のソースは `tmp/shader-minified/` にダンプされる
+- 保存後に `npx orengine-cli errors` でコンパイルエラーを見る。minify 後のソースは `tmp/shader-minified/` にダンプされる

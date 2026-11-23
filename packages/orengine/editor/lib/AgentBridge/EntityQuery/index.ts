@@ -241,3 +241,45 @@ export const describeFields = ( target: MXP.Serializable ) => {
 	return fields;
 
 };
+
+/*-------------------------------
+	Output
+-------------------------------*/
+
+// get / settings の既定の出力。hidden のフィールドを除いた path → 値。all なら describeFields の詳しい形（書式・選択肢・hidden も）
+export const fieldsOutput = ( target: MXP.Serializable, all: boolean ) => {
+
+	const fields = describeFields( target );
+
+	if ( all ) return fields;
+
+	const values: { [ path: string ]: unknown } = {};
+
+	for ( const field of fields ) {
+
+		if ( field.hidden ) continue;
+
+		values[ field.path ] = field.value;
+
+	}
+
+	return values;
+
+};
+
+// --field <path> の値だけを返す。hidden のフィールドも引ける
+export const fieldValue = ( target: MXP.Serializable, path: string ) => {
+
+	const paths: string[] = [];
+
+	for ( const field of describeFields( target ) ) {
+
+		if ( field.path === path ) return field.value;
+
+		paths.push( field.path );
+
+	}
+
+	throw new AgentCommandError( `フィールドがありません: ${path}`, paths );
+
+};
