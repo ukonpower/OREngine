@@ -20,7 +20,7 @@ export interface EditorPageProps {
 	onBeforeSave?: () => void;
 }
 
-// 最後に開いていたシーン名は editor.json に持つ。
+// 最後に開いていたシーン名は editor.local.json に持つ（dev サーバーの /editor が editor.json と重ねて返す）。
 // エディタ本体（lib）はファイルを知らないので、キーの付け外しはこのページが行う
 const EDITOR_SCENE_KEY = 'scene';
 
@@ -68,8 +68,10 @@ export const EditorPage = ( props: EditorPageProps ) => {
 	const [ sceneNames, setSceneNames ] = useState<string[]>( [] );
 	const [ sceneName, setSceneName ] = useState<string | null>( null );
 
-	// シーンの操作は失敗したら投げる（シーン CLI が理由をそのまま返すため）
-	const openScene = useCallback( async ( name: string ) => {
+	// シーンの操作は失敗したら投げる（シーン CLI が理由をそのまま返すため）。
+	// remember なら、最後に開いたシーンとして editor.local.json の scene だけを書く（シーンファイルは保存し直さない）。
+	// 起動時に開くとき（URL で指定されたシーン・前回のシーン）は書かない（scene-shots が開き直しても本人の「最後に開いたシーン」を変えない）
+	const openScene = useCallback( async ( name: string, remember: boolean ) => {
 
 		const data = await fetchJson<OREngineProjectData>( `${apiBase}/scenes/${name}` );
 
@@ -82,7 +84,19 @@ export const EditorPage = ( props: EditorPageProps ) => {
 		setSceneName( name );
 		setProjectData( data );
 
+		if ( ! remember ) return;
+
+		const res = await postJson( `${apiBase}/editor/scene`, { scene: name } );
+
+		if ( ! res.ok ) {
+
+			throw new Error( `開いたシーンを editor.local.json に書けません: ${name}（HTTP ${res.status}）` );
+
+		}
+
 	}, [ apiBase ] );
+
+	const selectScene = useCallback( ( name: string ) => openScene( name, true ), [ openScene ] );
 
 	// 起動時: URL でシーンを指定されていればそれを開く。無ければ editor.json に残っている前回のシーン名を優先し、無ければ一覧の先頭を開く
 	useEffect( () => {
@@ -129,7 +143,7 @@ export const EditorPage = ( props: EditorPageProps ) => {
 
 			}
 
-			await openScene( initial );
+			await openScene( initial, false );
 
 		} )();
 
@@ -200,7 +214,7 @@ export const EditorPage = ( props: EditorPageProps ) => {
 		// 開いているシーンを消したときは、残っているシーンへ移る
 		if ( name === sceneName && names.length > 0 ) {
 
-			await openScene( names[ 0 ] );
+			await openScene( names[ 0 ], true );
 
 		}
 
@@ -209,7 +223,7 @@ export const EditorPage = ( props: EditorPageProps ) => {
 	const scenes: SceneSelection = {
 		names: sceneNames,
 		current: sceneName,
-		onSelect: openScene,
+		onSelect: selectScene,
 		onCreate: createScene,
 		onDelete: deleteScene,
 	};

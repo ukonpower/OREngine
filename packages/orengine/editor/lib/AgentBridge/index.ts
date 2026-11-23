@@ -11,6 +11,7 @@ import { AGENT_EVENT, AGENT_HEADLESS_KEEP, AGENT_HEADLESS_PARAM, RESPONSE_CHUNK_
 import { sceneCommands } from './SceneCommands';
 import { settingObserveCommands, settingWriteCommands } from './SettingCommands';
 import { shotCommands } from './ShotCommand';
+import { unknownFieldObserveCommands, unknownFieldWriteCommands } from './UnknownFieldCommands';
 import { writeCommands } from './WriteCommands';
 
 import type { AgentCommandContext, AgentCommandTable, AgentSceneControl } from './Command';
@@ -23,12 +24,14 @@ const mutatingCommands: AgentCommandTable = {
 	...writeCommands,
 	...settingWriteCommands,
 	...keyFrameWriteCommands,
+	...unknownFieldWriteCommands,
 	...sceneCommands,
 };
 
 const commands: AgentCommandTable = {
 	...observeCommands,
 	...changeCommands,
+	...unknownFieldObserveCommands,
 	...settingObserveCommands,
 	...keyFrameObserveCommands,
 	...mutatingCommands,
@@ -232,9 +235,19 @@ const runCommand = async ( request: AgentRequest ): Promise<AgentResult> => {
 
 		}
 
+		// シーンの作成・削除・切り替えはその場でファイル（シーンファイル・editor.local.json の scene）に反映済み。
+		// 開いたシーンを保存し直すと、読み込んだ時点の定義で書き直されて関係ない差分が出るので保存しない。
+		// 作成・削除は他のタブのシーン一覧が古くなるのでリロードさせる
+		if ( sceneCommands[ request.command ] !== undefined ) {
+
+			if ( request.command !== 'scene-open' ) hot?.send( AGENT_EVENT.saved, { tabId } );
+
+			return { ok: true, result, write: { connection } };
+
+		}
+
 		// 書き込みは接続先によらずその場でファイルへ保存する。タブのままだと Ctrl+S せずに閉じたとき黙って消え、
-		// headless はコマンドごとに CLI が閉じるため。タブに CLI 以前の未保存の変更があれば一緒に保存される。
-		// scene-open のあとも保存して editor.json の scene を更新し、次に開く headless が同じシーンを開くようにする
+		// headless はコマンドごとに CLI が閉じるため。タブに CLI 以前の未保存の変更があれば一緒に保存される
 		ctx.editor.save();
 
 		try {

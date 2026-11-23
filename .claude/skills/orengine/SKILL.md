@@ -133,7 +133,7 @@ npx orengine-cli undo                                             # / redo
 1プロジェクトは `scenes/<name>.json` を複数持てる。CLI の編集対象は常に「タブ（か headless）が今開いているシーン」なので、別のシーンを編集するときは先に `scene-open` する。
 
 ```bash
-npx orengine-cli scenes                          # 一覧・タブが開いているシーン（opened）・editor.json の最後に開いたシーン（lastOpened）
+npx orengine-cli scenes                          # 一覧・タブが開いているシーン（opened）・editor.local.json の最後に開いたシーン（lastOpened）
 npx orengine-cli scene-get main                  # シーンファイルの中身
 npx orengine-cli scene-create short1 --open      # 空のシーンを作って開く（--from main で main を複製）
 npx orengine-cli scene-open main                 # タブが開くシーンを切り替える
@@ -143,7 +143,17 @@ npx orengine-cli scene-delete short1             # 開いているシーンは�
 - `scenes` / `scene-get` はファイルを読むだけで、タブも headless も使わない
 - `scene-create` / `scene-delete` はその場でファイルに反映される（Ctrl+S 不要）。シーン操作は undo に載らない
 - `scene-open`（と `scene-create --open`）はタブに未保存の変更があるとエラーで止まる。ユーザーに Ctrl+S を頼んでから切り替える
-- `scene-open` のあとも保存して editor.json の `scene` を更新する。次のコマンドの headless は切り替え先のシーンを開き、他のタブもリロードで切り替え先を開く
+- `scene-open` はシーンファイルを保存し直さない（開くだけで差分は出ない）。開いたシーンは editor.local.json の `scene` に残り、次のコマンドの headless は切り替え先のシーンを開く
+
+### コンポーネントのフィールドを消した・名前を変えたとき
+
+- シーンファイルに残った古い値は、保存しても消えない（黙って落とさないよう、定義に無い値も書き戻している）。`errors` の `unknownFields` / `unknown-fields` に出るので、要らないと確かめてから `drop-unknown-fields` で消す（開いているシーンの分。使っているシーンごとに `scene-open` して行う）
+- 既定値を変えても置き済みのシーンの値は変わらない。変えたいシーンには `set` で入れる
+
+```bash
+npx orengine-cli unknown-fields        # 開いているシーンの、定義に無いフィールドの値
+npx orengine-cli drop-unknown-fields   # それを消して保存する（undo では戻らない）
+```
 
 ### 設定（renderer / timeline / editor）
 
@@ -151,12 +161,12 @@ npx orengine-cli scene-delete short1             # 開いているシーンは�
 npx orengine-cli settings                                       # 全部。settings renderer のように絞れる
 npx orengine-cli set-setting timeline timeline/duration 300     # フレーム数
 npx orengine-cli set-setting renderer pipeline/ssao/enabled false
-npx orengine-cli set-setting editor resolution/width 1080       # editor.json（全シーン共通）
+npx orengine-cli set-setting editor resolution/width 1080       # editor.json（全シーン共通。コミットする）
 ```
 
 - `renderer`（空の色・ポストエフェクト等）と `timeline`（`timeline/duration` / `timeline/fps`）は開いているシーンのファイルに、`editor`（`resolution/*` / `viewports/<id>/resolutionScale` / `frameLoop/*`）は `editor.json` に入る。出力の `file` が保存先
 - path は `settings` の `fields` で確かめる。renderer の path はバックエンドで違う。値の解釈・undo・保存の扱いは `set` と同じ
-- 解像度は editor.json にあり全シーン共通。縦長・横長のシーンを行き来するときは切り替えのたびに書き換える
+- 解像度は editor.json にあり全シーン共通（エディタのほかの状態は gitignore の editor.local.json）。縦長・横長のシーンを行き来するときは切り替えのたびに書き換える
 
 ### キーフレーム
 

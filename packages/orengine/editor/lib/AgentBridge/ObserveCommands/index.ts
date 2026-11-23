@@ -6,6 +6,7 @@ import { countUserChanges } from '../ChangeTracker';
 import { AgentCommandError, AgentCommandInput, errorMessage, requireArg } from '../Command';
 import { componentName, describeFields, entityPath, fieldsOutput, fieldValue, resolveEntity, worldInfo } from '../EntityQuery';
 import { getCollectedErrors } from '../ErrorCollector';
+import { collectUnknownFields } from '../UnknownFieldCommands';
 import { resolveAttachedComponent } from '../WriteCommands';
 
 import type { ComponentGroup, ResouceComponentItem } from '../../../../core/Resources';
@@ -322,7 +323,16 @@ const errors = ( ctx: AgentCommandContext ) => {
 
 	} );
 
-	return { shader, gpu, console: consoleErrors, unresolvedComponents };
+	// シーンファイルにあるが今の定義に無いフィールドの値（消したフィールドの残り。保存では書き戻す。消すなら drop-unknown-fields）
+	const unknownFields: unknown[] = [];
+
+	for ( const owner of collectUnknownFields( ctx ) ) {
+
+		unknownFields.push( { entity: owner.entity, component: owner.component, fields: Object.keys( owner.fields ) } );
+
+	}
+
+	return { shader, gpu, console: consoleErrors, unresolvedComponents, unknownFields };
 
 };
 

@@ -15,7 +15,9 @@ export const COMMANDS: { [ name: string ]: CommandSpec } = {
 	get: { usage: 'get <entity> [<component>] [--field <path>] [--all]', description: '1エンティティのフィールドと全コンポーネントのフィールド値（<entity> は uuid かルートの名前から始まる名前パス）。<component> でそのコンポーネントだけ、--field でその値だけ。既定は hidden のフィールドと uuid を外す（--all で書式・選択肢・hidden・uuid も）', timeoutMs: 10000 },
 	// 全コンポーネントを一度ずつ生成してフィールド定義を読むので他より長く待つ
 	components: { usage: 'components [<Name>] [--all]', description: '登録済みコンポーネントの一覧とフィールド定義（default は既定値）。<Name> でそのコンポーネントだけ。hidden のフィールドは --all のときだけ', timeoutMs: 30000 },
-	errors: { usage: 'errors', description: 'シェーダーエラー・GPU エラー・コンソールのエラー・解決できなかったコンポーネント', timeoutMs: 5000 },
+	errors: { usage: 'errors', description: 'シェーダーエラー・GPU エラー・コンソールのエラー・解決できなかったコンポーネント・定義に無いフィールドの値（unknownFields）', timeoutMs: 5000 },
+	'unknown-fields': { usage: 'unknown-fields', description: '開いているシーンにあるが、今のコンポーネントの定義に無いフィールドの値（消したフィールドの残り）。保存では消さずに書き戻している', timeoutMs: 10000 },
+	'drop-unknown-fields': { usage: 'drop-unknown-fields', description: '開いているシーンの、定義に無いフィールドの値をすべて消して保存する（undo では戻らない。先に unknown-fields で中身を見る）', timeoutMs: 10000, write: true },
 	// 書き込みは EditorAPI 経由でタブに反映し、応答の前にファイルへ保存する
 	'add-entity': { usage: 'add-entity <parent> [--name <name>]', description: 'コンポーネントの無いエンティティを追加して uuid を返す（名前の省略時は Empty）', timeoutMs: 10000, write: true },
 	'remove-entity': { usage: 'remove-entity <entity>', description: 'エンティティを子ごと削除する', timeoutMs: 10000, write: true },
@@ -25,7 +27,7 @@ export const COMMANDS: { [ name: string ]: CommandSpec } = {
 	set: { usage: 'set <entity> [<component>] <path> <value>', description: 'フィールドを書き換える。値はフィールドの型で解釈する（数値 / 1,2,3 / true|false / 文字列 / 選択肢）', timeoutMs: 10000, write: true },
 	undo: { usage: 'undo', description: '直前の操作を取り消す（GUI の操作と履歴を共有）', timeoutMs: 5000, write: true },
 	redo: { usage: 'redo', description: '取り消した操作をやり直す', timeoutMs: 5000, write: true },
-	settings: { usage: 'settings [renderer|timeline|editor] [--field <path>] [--all]', description: 'シーン以外の設定（renderer / timeline は開いているシーン、editor は editor.json）の書き換えられる path と現在値。--field でその値だけ、--all で書式・選択肢も', timeoutMs: 10000 },
+	settings: { usage: 'settings [renderer|timeline|editor] [--field <path>] [--all]', description: 'シーン以外の設定（renderer / timeline は開いているシーン、editor は editor.json / editor.local.json）の書き換えられる path と現在値。--field でその値だけ、--all で書式・選択肢も', timeoutMs: 10000 },
 	'set-setting': { usage: 'set-setting <renderer|timeline|editor> <path> <value>', description: '設定を書き換える（undo が効く）。値の解釈は set と同じ', timeoutMs: 10000, write: true },
 	// キーフレーム。<path> は set と同じフィールドの path で、数値配列の要素1つは <path>/<番号>（position/1 = y）。時刻は秒
 	curves: { usage: 'curves', description: 'カーブの一覧（ID・名前・キー数・使用数・使っているエンティティとフィールド）', timeoutMs: 10000 },
@@ -37,7 +39,7 @@ export const COMMANDS: { [ name: string ]: CommandSpec } = {
 	'curve-unlink': { usage: 'curve-unlink <entity> [<component>] <path>', description: '要素1つが共有しているカーブを複製して指し直す', timeoutMs: 10000, write: true },
 	'curve-link-settings': { usage: 'curve-link-settings <entity> [<component>] <path> [--scale <倍率>] [--offset <足し算>] [--name <カーブ名>]', description: '要素1つのリンクの倍率・足し算と、リンク先のカーブの名前を変える（--name "" で名前を外す）', timeoutMs: 10000, write: true },
 	// 一覧・中身はファイルを読むだけなので、タブを通さず dev サーバーの REST から読む（headless も起動しない）
-	scenes: { usage: 'scenes', description: 'シーン名の一覧・タブが開いているシーン・editor.json に残っている最後に開いたシーン', timeoutMs: 5000 },
+	scenes: { usage: 'scenes', description: 'シーン名の一覧・タブが開いているシーン・editor.local.json に残っている最後に開いたシーン', timeoutMs: 5000 },
 	'scene-get': { usage: 'scene-get <name>', description: 'シーンファイルの中身（renderer / timeline 込み）', timeoutMs: 5000 },
 	// 作成・削除はその場でファイルに反映される。scene-open はタブのシーンを差し替える（未保存の変更があればエラー）
 	'scene-create': { usage: 'scene-create <name> [--from <scene>] [--open]', description: '空のシーンを作る（--from でそのシーンを複製、--open で作ったシーンを開く）', timeoutMs: 15000, write: true },
