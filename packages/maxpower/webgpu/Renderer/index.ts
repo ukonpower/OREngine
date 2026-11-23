@@ -208,6 +208,9 @@ export class Renderer extends Serializable implements RendererContract {
 	private _geometryBuffers: Map<Geometry, GeometryBuffer>;
 	private _editorPipelines: Map<Material, Map<string, GPURenderPipeline>>;
 
+	// uncapturederror で console.error に流した文面。reset とシェーダーの差し替えで忘れる
+	private _reportedErrors: Set<string>;
+
 	// compute
 	private _computeQueue: Set<ComputeTask>;
 
@@ -280,6 +283,7 @@ export class Renderer extends Serializable implements RendererContract {
 		this._objectResources = new Map();
 		this._geometryBuffers = new Map();
 		this._editorPipelines = new Map();
+		this._reportedErrors = new Set();
 
 		this._computeQueue = new Set();
 		this._texQueue = new Set();
@@ -311,6 +315,9 @@ export class Renderer extends Serializable implements RendererContract {
 				this._materialResources.forEach( ( resource ) => resource.binder?.dispose() );
 				this._materialResources.clear();
 				this._editorPipelines.clear();
+
+				// 直したシェーダーで同じ間違いをしたときにも出るように
+				this._reportedErrors.clear();
 
 				this._envMap!.dispose();
 				this._envMap = new hotEnvMap( device, this._uniformLayout! );
@@ -476,9 +483,17 @@ export class Renderer extends Serializable implements RendererContract {
 			requiredLimits: { maxColorAttachmentBytesPerSample: GBUFFER_BYTES_PER_SAMPLE },
 		} );
 
+		// 無効なパイプライン（WGSL のコンパイルに失敗したものなど）を使うと、「previous error で無効」というエラーが毎フレーム出続ける。
+		// そのまま流すと、エラーを溜める側（直近の件数だけ持つ）から原因のエラーが数秒で押し出されて分からなくなるので、同じ文面は1回だけ出す
 		device.addEventListener( 'uncapturederror', ( e ) => {
 
-			console.error( '[webgpu]', ( e as GPUUncapturedErrorEvent ).error.message );
+			const message = ( e as GPUUncapturedErrorEvent ).error.message;
+
+			if ( this._reportedErrors.has( message ) ) return;
+
+			this._reportedErrors.add( message );
+
+			console.error( '[webgpu]', message );
 
 		} );
 
@@ -2148,6 +2163,9 @@ export class Renderer extends Serializable implements RendererContract {
 
 		this._geometryBuffers.forEach( ( buffer ) => buffer.dispose() );
 		this._geometryBuffers.clear();
+
+		// 読み直したシーンで同じエラーが出たときにも出るように
+		this._reportedErrors.clear();
 
 	}
 
