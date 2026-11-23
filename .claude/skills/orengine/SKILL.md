@@ -68,10 +68,12 @@ OREngine でコンポーネントを作り、シーンを組むためのスキ�
 ## 鉄則: 操作前に状態を確認
 
 ```bash
-npx orengine-cli status       # 接続先（tab / headless / own）・シーン名・未保存の変更の有無（unsaved）
+npx orengine-cli status       # 接続先・シーン名・選択・再生時刻（フレームと秒）・コードの版（code.upToDate）・未保存（unsaved）・本人が画面で変えた値の数（userChanges）
+npx orengine-cli changes      # 本人が画面で変えた値（シーン CLI の最後の書き込みから）。userChanges が 1 以上なら作業の前に見る
 npx orengine-cli tree         # 全エンティティ（uuid・名前パス・ワールド座標・向き・境界ボックス・コンポーネント）
 npx orengine-cli components   # 登録済みコンポーネント名とフィールド定義（path・型・選択肢）
-npx orengine-cli get root/Camera
+npx orengine-cli get root/Camera                    # hidden のフィールドと uuid を外した短い形。--all で書式・選択肢・uuid も
+npx orengine-cli get root/Camera Camera --field fov # 値だけ
 ```
 
 エンティティの名前パス / uuid、実在するコンポーネント名、フィールドの path と現在値を CLI で確かめてから編集する。コンポーネントのフィールドはこのスキルに書き写していないので、`components` / `get` で見る。
@@ -291,7 +293,8 @@ npx orengine-cli shot tmp/shot/scene.png                                   # シ
 npx orengine-cli shot tmp/shot/cam.png --camera root/MainCamera            # シーン内の別のカメラ
 npx orengine-cli shot tmp/shot/top.png --from 0,10,0.01 --to 0,0,0         # 観測用の一時カメラ（シーンには残らない）
 npx orengine-cli shot tmp/shot/t2.png --time 2                             # 時刻 2 秒
-npx orengine-cli shot tmp/shot/gbuf.png --view gBuffer_1                   # パスの出力（ラベルはバックエンドごとに違う）
+npx orengine-cli shot tmp/shot/f58.png --frame 58                          # フレーム 58（fps によらず 秒 × 60）
+npx orengine-cli shot tmp/shot/gbuf.png --view gBuffer_1                   # パスの出力（ラベルはバックエンドごとに違う。一覧は views）
 ```
 
 - `shot` はタブの再生時刻・再生状態・選択・エディタカメラを変えない。観測のためにカメラエンティティを `set` で動かさず、`--from` / `--to` を使う

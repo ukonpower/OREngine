@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import path from 'path';
 
-import { AGENT_ENDPOINT, AGENT_EVENT, AGENT_NO_TAB_STATUS, AGENT_TAB_HEADER, DEFAULT_TIMEOUT_MS, DEFAULT_WAIT_MS } from '../../../../packages/orengine/editor/lib/AgentBridge/Protocol';
+import { AGENT_BASELINE_ENDPOINT, AGENT_ENDPOINT, AGENT_EVENT, AGENT_NO_TAB_STATUS, AGENT_TAB_HEADER, DEFAULT_TIMEOUT_MS, DEFAULT_WAIT_MS } from '../../../../packages/orengine/editor/lib/AgentBridge/Protocol';
 import { registerDevServer, unregisterDevServer } from '../../../devServerRegistry';
 
 import type { AgentFocus, AgentHello, AgentHttpRequest, AgentReady, AgentRequest, AgentResponseChunk, AgentSaved, AgentServerInfo, AgentTabInfo, AgentUpdated } from '../../../../packages/orengine/editor/lib/AgentBridge/Protocol';
@@ -510,6 +510,43 @@ export const AgentBridge = ( opts: AgentBridgeOptions ): Plugin => ( {
 			};
 
 			tab.client.send( AGENT_EVENT.request, request );
+
+		} );
+
+		// 「本人が画面で変えた値」の基準（タブの AgentBridge/ChangeTracker が読み書きする）。dev サーバーを閉じると消える
+		const baselines = new Map<string, string>();
+
+		server.middlewares.use( AGENT_BASELINE_ENDPOINT, async ( req, res ) => {
+
+			const scene = decodeURIComponent( ( req.url ?? '' ).replace( /^\//, '' ).split( '?' )[ 0 ] );
+
+			if ( req.method === 'GET' ) {
+
+				const saved = baselines.get( scene );
+
+				if ( saved === undefined ) {
+
+					sendJson( res, 404, { error: 'no baseline' } );
+					return;
+
+				}
+
+				res.statusCode = 200;
+				res.setHeader( 'Content-Type', 'application/json' );
+				res.end( saved );
+				return;
+
+			}
+
+			if ( req.method === 'POST' ) {
+
+				baselines.set( scene, await readBody( req ) );
+				sendJson( res, 200, { ok: true } );
+				return;
+
+			}
+
+			sendJson( res, 405, { error: 'GET / POST only' } );
 
 		} );
 
