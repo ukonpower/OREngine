@@ -1,0 +1,304 @@
+{
+	"name": "demo-webgl",
+	"scene": {
+		"name": "root",
+		"uuid": "0",
+		"childs": [
+			{
+				"name": "Camera",
+				"uuid": "693ed110-6a0c-4cdb-8414-ebc17b1dc86a",
+				"pos": [
+					0,
+					0,
+					7
+				],
+				"components": [
+					{
+						"name": "Camera",
+						"uuid": "3dfb86e7-3a32-4afd-a96f-c1f5300bd291",
+						"props": {
+							"fov": 35,
+							"near": 0.1,
+							"far": 100,
+							"focus/mode": "manual",
+							"focus/distance": 7
+						}
+					}
+				]
+			},
+			{
+				"name": "Dielectric0",
+				"uuid": "0b7af492-b394-42c2-a85e-a41eeee18e8a",
+				"pos": [
+					-2.2,
+					0.6,
+					0
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "c29e7135-86c9-446a-84e4-de0539b951a2",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								1,
+								1,
+								1
+							],
+							"roughness": 0.2,
+							"metallic": 0
+						}
+					}
+				]
+			},
+			{
+				"name": "Dielectric1",
+				"uuid": "f03dca08-8f84-4892-a769-dd169ba44230",
+				"pos": [
+					-1.1,
+					0.6,
+					0
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "8e17d6f2-9549-43e5-9a00-ee7b993bab35",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								1,
+								1,
+								1
+							],
+							"roughness": 0.4,
+							"metallic": 0
+						}
+					}
+				]
+			},
+			{
+				"name": "Dielectric2",
+				"uuid": "eee632dd-0ae3-4716-a325-f843776790d7",
+				"pos": [
+					0,
+					0.6,
+					0
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "331cffe7-de83-4382-aeef-817be478f172",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								1,
+								1,
+								1
+							],
+							"roughness": 0.6,
+							"metallic": 0
+						}
+					}
+				]
+			},
+			{
+				"name": "Dielectric3",
+				"uuid": "61f55a04-c062-407f-a135-7efede031dbd",
+				"pos": [
+					1.1,
+					0.6,
+					0
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "657b148d-586f-4ede-be58-4aacb247178c",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								1,
+								1,
+								1
+							],
+							"roughness": 0.8,
+							"metallic": 0
+						}
+					}
+				]
+			},
+			{
+				"name": "Dielectric4",
+				"uuid": "a84b2cf7-2236-48a5-a190-6981ae8e3f1e",
+				"pos": [
+					2.2,
+					0.6,
+					0
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "1bc879cf-c2cf-4d63-b451-97bc9e308d90",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								1,
+								1,
+								1
+							],
+							"roughness": 1.0,
+							"metallic": 0
+						}
+					}
+				]
+			},
+			{
+				"name": "Metal0",
+				"uuid": "d0a655db-a7c6-4df5-9642-12b7d052fdce",
+				"pos": [
+					-2.2,
+					-0.6,
+					0
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "e5b5a331-ee99-4352-b9bb-f9cbf26729c0",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								1,
+								1,
+								1
+							],
+							"roughness": 0.2,
+							"metallic": 1
+						}
+					}
+				]
+			},
+			{
+				"name": "Metal1",
+				"uuid": "3149004f-ed3e-405a-9e0b-f0142d641849",
+				"pos": [
+					-1.1,
+					-0.6,
+					0
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "2367b2fc-ec92-4800-afe3-6625710823a7",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								1,
+								1,
+								1
+							],
+							"roughness": 0.4,
+							"metallic": 1
+						}
+					}
+				]
+			},
+			{
+				"name": "Metal2",
+				"uuid": "a0fdf8a4-41e8-45d4-99b4-9cb287ae76cb",
+				"pos": [
+					0,
+					-0.6,
+					0
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "2f799eb4-9fad-48a9-abf0-d6d6b069a3af",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								1,
+								1,
+								1
+							],
+							"roughness": 0.6,
+							"metallic": 1
+						}
+					}
+				]
+			},
+			{
+				"name": "Metal3",
+				"uuid": "5a6c3a0a-17d2-4af6-b0b8-e5ebd782863d",
+				"pos": [
+					1.1,
+					-0.6,
+					0
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "84102308-bfc9-47bf-bc9e-697d3cd31f80",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								1,
+								1,
+								1
+							],
+							"roughness": 0.8,
+							"metallic": 1
+						}
+					}
+				]
+			},
+			{
+				"name": "Metal4",
+				"uuid": "fda05961-2171-461e-8e87-576b0c794754",
+				"pos": [
+					2.2,
+					-0.6,
+					0
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "1623b655-4328-47df-be36-2a1c80568350",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								1,
+								1,
+								1
+							],
+							"roughness": 1.0,
+							"metallic": 1
+						}
+					}
+				]
+			}
+		]
+	},
+	"renderer": {
+		"sky/skyColor": [
+			0.5,
+			0.5,
+			0.5
+		],
+		"sky/groundColor": [
+			1,
+			1,
+			1
+		],
+		"sky/intensity": 1,
+		"pipeline/motionBlur/enabled": false,
+		"pipeline/ssr/enabled": false,
+		"pipeline/ssao/enabled": false,
+		"pipeline/dof/enabled": false,
+		"pipeline/lightShaft/enabled": false,
+		"pipeline/toneMap/enabled": true,
+		"pipeline/bloom/enabled": false,
+		"pipeline/sss/enabled": false
+	},
+	"timeline/duration": 600,
+	"timeline/fps": 60
+}

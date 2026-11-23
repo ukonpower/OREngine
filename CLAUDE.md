@@ -151,6 +151,7 @@ npm run storybook:dev # Storybook 開発サーバー起動（port 6006）
 npm run vrt          # Storybook をビルドして VRT（スクリーンショット比較テスト）を実行
 npm run vrt:update   # VRT の基準スクリーンショットを更新
 npm run scene-shots  # demo-webgl / demo-webgpu の全シーンを撮影して tests/scene-shots へ置く（ローカル Mac 専用。SCENES=foo,bar で絞れる）
+npm run render-correctness # 描画の正しさのテスト（答え・forward と deferred の比べ合い。ローカル Mac 専用）
 npm run lint         # ESLint実行
 npm run typecheck    # TypeScript型チェック + 全scssのコンパイル検証
 ```
@@ -173,6 +174,15 @@ npm run typecheck    # TypeScript型チェック + 全scssのコンパイル検�
 - 書き換えの条件: Playwright の `toMatchSnapshot` と `updateSnapshots: 'changed'`（`tests/scene-shots/playwright.config.ts`）。無い PNG は書き、許容誤差（`threshold: 0.1`・`maxDiffPixels: 100`。根拠の実測は設定ファイルのコメント）を超えて変わった PNG だけを書き換える。誤差以内ならファイルに触れないので、何も変えずに撮り直しても git の差分は出ない（GPU の誤差などで、画素は撮るたびに少しずつ変わる）。どちらの demo にも無くなったシーンは2枚とも、片方から消えたシーンはその PNG を消す（消すのは `<シーン名>-webgl.png` / `<シーン名>-webgpu.png` の形のファイルだけで、spec・設定ファイルには触れない）。誤差以内の差も含めて撮り直すときは `npm run scene-shots -- --update-snapshots=all`
 - 撮影の内部の流れ（開き直し・待ち方）とポートの割り当ては `tests/scene-shots/CLAUDE.md`
 - ローカルの Mac 専用（Metal で描くため。CI には載せない）。main だけの今は1回約10秒
+
+### 描画の正しさのテスト（render-correctness）
+光の計算がエンジンの式どおりか、forward と deferred が混ざっても正しく描かれるかを、画素の値で確かめるテスト。
+
+- `npm run render-correctness`。バックエンドごとに dev サーバー（webgl 3320 / webgpu 3330 から空きを探す）と headless Chromium を立て、エディタは開かずに Engine だけで `correctness-*` のシーンを描き、終わったら閉じる。約 30 秒。ローカルの Mac 専用
+- 素の値の読み方: `readRenderImage( renderer, view, 'lit', rect )`（`maxpower/webgl` と `maxpower/webgpu` の `Renderer/ImageReadback`）が、光の計算を終えてトーンマップ・後処理に入る前の絵（`lit`）を float のまま返す。player に入れないよう Renderer のメソッドにせず、独立した関数にしている
+- 答えはエンジンの式の書き写し（`tests/render-correctness/answer.ts`）。`light.module.glsl` / `lighting.wgsl` / `lighting_env.part.glsl` の式を変えたら、ここも変える
+- テストの中身・許す幅・既知の食い違い・未決の項目は `tests/render-correctness/CLAUDE.md`
+- 撮影の前の環境マップ: offline のコマ（shot・書き出し）で時刻が飛んだら、環境マップの積算を捨てて積み直す（`maxpower` の `isOfflineTimeJump`。dev だけで、player には入らない）。そのため scene-shots は同じシーンを撮り直すと同じ画素になる
 
 ### CI / GitHub Pages
 - `.github/workflows/deploy-pages.yml` — main への push でのみエディタデモと Storybook を gh-pages ブランチのルートへデプロイ（ルート = エディタデモ、`/storybook/`）。release/* への push ではデプロイしない

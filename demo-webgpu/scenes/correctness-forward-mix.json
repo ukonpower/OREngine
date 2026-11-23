@@ -1,0 +1,327 @@
+{
+	"name": "demo-webgpu",
+	"scene": {
+		"name": "root",
+		"uuid": "0",
+		"childs": [
+			{
+				"name": "Camera",
+				"uuid": "5a3858a9-6f77-4835-8a5d-f5609c35c642",
+				"pos": [
+					0,
+					0,
+					10
+				],
+				"components": [
+					{
+						"name": "Camera",
+						"uuid": "fbce8456-19bf-4205-bd0f-c992023475fd",
+						"props": {
+							"fov": 35,
+							"near": 0.1,
+							"far": 100,
+							"focus/mode": "manual",
+							"focus/distance": 10,
+							"cameraType": "orthographic",
+							"orthHeight": 5.4
+						}
+					}
+				]
+			},
+			{
+				"name": "Sun",
+				"uuid": "675e3bf9-1f8e-4a5f-8d33-706ce3ab49a8",
+				"rot": [
+					0.6,
+					0,
+					-0.5
+				],
+				"components": [
+					{
+						"name": "Light",
+						"uuid": "c652433d-cf6d-4650-bf35-b72f77f99f4e",
+						"props": {
+							"lightType": "directional",
+							"castShadow": false,
+							"intensity": 3
+						}
+					}
+				]
+			},
+			{
+				"name": "PairDeferred",
+				"uuid": "e78b310a-a82d-4247-add4-fd929fee0ab6",
+				"pos": [
+					-1.2,
+					1.5,
+					0
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "35034443-36f3-473c-b1c8-e30a61793d66",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								0.502886458,
+								0.2158605001,
+								0.0451862044
+							],
+							"roughness": 0.4,
+							"metallic": 0,
+							"pass": "deferred"
+						}
+					}
+				]
+			},
+			{
+				"name": "PairForward",
+				"uuid": "bdb15849-3874-4a7c-824b-3abaa97aa93b",
+				"pos": [
+					1.2,
+					1.5,
+					0
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "5bc7c283-38e9-45bb-92b4-0192a9ff22ce",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								0.502886458,
+								0.2158605001,
+								0.0451862044
+							],
+							"roughness": 0.4,
+							"metallic": 0,
+							"pass": "forward"
+						}
+					}
+				]
+			},
+			{
+				"name": "PairMetalDeferred",
+				"uuid": "3d641fde-97d2-481b-bacb-f2c768bf25ac",
+				"pos": [
+					-1.2,
+					0.4,
+					0
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "c7d5ff68-e28e-4d23-839c-95c1b5abc42c",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								0.502886458,
+								0.2158605001,
+								0.0451862044
+							],
+							"roughness": 0.6,
+							"metallic": 1,
+							"pass": "deferred"
+						}
+					}
+				]
+			},
+			{
+				"name": "PairMetalForward",
+				"uuid": "fc1d3090-751b-4e81-9d13-3fa0b38b949a",
+				"pos": [
+					1.2,
+					0.4,
+					0
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "8ff45ce6-a8ea-42be-816d-1e07bdfda226",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								0.502886458,
+								0.2158605001,
+								0.0451862044
+							],
+							"roughness": 0.6,
+							"metallic": 1,
+							"pass": "forward"
+						}
+					}
+				]
+			},
+			{
+				"name": "CrossDeferred",
+				"uuid": "6fc03660-498f-49b5-8fbf-bfe86e9a2696",
+				"pos": [
+					-2.3,
+					-0.9,
+					0
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "a1fa1ec9-c2f0-4fae-b42e-99744f52e4e3",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								0.7912979403,
+								0.0129830323,
+								0.0129830323
+							],
+							"roughness": 0.6,
+							"metallic": 0,
+							"pass": "deferred"
+						}
+					}
+				]
+			},
+			{
+				"name": "CrossForward",
+				"uuid": "fc9e71f3-8f61-4da6-a02b-6a9dc1c8b6be",
+				"pos": [
+					-1.75,
+					-0.9,
+					0.2
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "ab4e2b1a-0945-4678-862b-a3875bd9701c",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								0.0129830323,
+								0.0129830323,
+								0.7912979403
+							],
+							"roughness": 0.6,
+							"metallic": 0,
+							"pass": "forward"
+						}
+					}
+				]
+			},
+			{
+				"name": "Backdrop",
+				"uuid": "62510583-5d0d-47ce-adb1-2a8a9bbd8e7a",
+				"pos": [
+					1.2,
+					-0.9,
+					-1
+				],
+				"scale": [
+					2.6,
+					1.4,
+					0.1
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "17d20a00-30e7-471f-9f80-1fc2e0fec762",
+						"props": {
+							"shape": "cube",
+							"color": [
+								0.2158605001,
+								0.502886458,
+								0.1022417331
+							],
+							"roughness": 0.8,
+							"metallic": 0,
+							"pass": "deferred"
+						}
+					}
+				]
+			},
+			{
+				"name": "Transparent",
+				"uuid": "01ee6ffb-9b36-4e57-808f-561404d6a409",
+				"pos": [
+					0.6,
+					-0.9,
+					0
+				],
+				"scale": [
+					0.9,
+					0.9,
+					0.9
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "e6b1309c-9563-4552-8e31-9273b6666267",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								1,
+								1,
+								1
+							],
+							"roughness": 0.4,
+							"metallic": 0,
+							"pass": "transparent",
+							"opacity": 0.5
+						}
+					}
+				]
+			},
+			{
+				"name": "Refraction",
+				"uuid": "a8f84cb0-3949-4734-b18f-0aa250b5a32e",
+				"pos": [
+					1.8,
+					-0.9,
+					0
+				],
+				"scale": [
+					0.9,
+					0.9,
+					0.9
+				],
+				"components": [
+					{
+						"name": "Shape",
+						"uuid": "8fbe82dc-820e-4931-ae06-88b539cb43a1",
+						"props": {
+							"shape": "sphere",
+							"color": [
+								0.7912979403,
+								0.7912979403,
+								0.502886458
+							],
+							"roughness": 0.4,
+							"metallic": 0,
+							"pass": "refraction",
+							"opacity": 1
+						}
+					}
+				]
+			}
+		]
+	},
+	"renderer": {
+		"sky/skyColor": [
+			0.3,
+			0.4,
+			0.5
+		],
+		"sky/groundColor": [
+			0.1,
+			0.08,
+			0.05
+		],
+		"sky/intensity": 1,
+		"pipeline/motionBlur/enabled": false,
+		"pipeline/ssr/enabled": false,
+		"pipeline/ssao/enabled": false,
+		"pipeline/dof/enabled": false,
+		"pipeline/lightShaft/enabled": false,
+		"pipeline/toneMap/enabled": true,
+		"pipeline/bloom/enabled": false,
+		"pipeline/sss/enabled": false
+	},
+	"timeline/duration": 600,
+	"timeline/fps": 60
+}

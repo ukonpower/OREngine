@@ -5,6 +5,7 @@ import { Camera } from '../../core/Components/Camera';
 import { Light } from '../../core/Components/Light';
 import { Mesh } from '../../core/Components/Mesh';
 import { Serializable } from '../../core/Serializable';
+import { isOfflineTimeJump } from '../../core/utils/TimeJump';
 import {
 	CLIP_CORRECTION,
 	DEPTH_FORMAT,
@@ -193,6 +194,8 @@ export class Renderer extends Serializable implements RendererContract {
 	private _engine: EngineContract;
 	private _lights: Lights | null;
 	private _envMap: EnvMap | null;
+	// 直前の prepareScene の時刻（event.timeElapsed）。offline で時刻が飛んだかを見る
+	private _prevTimeElapsed?: number;
 	private _shadingPipeline: GPURenderPipeline | null;
 	private _presentPipeline: GPURenderPipeline | null;
 	private _refractionSampler: GPUSampler | null;
@@ -689,7 +692,7 @@ export class Renderer extends Serializable implements RendererContract {
 	}
 
 	// フレーム1回。描画対象の収集と、視点に依らない資源（compute / .tex / spot のシャドウ / 環境マップ）の更新
-	public prepareScene( root: Entity, _event: EntityUpdateEvent ) {
+	public prepareScene( root: Entity, event: EntityUpdateEvent ) {
 
 		const device = this._device;
 		const lights = this._lights;
@@ -738,6 +741,20 @@ export class Renderer extends Serializable implements RendererContract {
 		this._renderTexProcedurals( device, encoder );
 		this._renderCompute( device, encoder );
 		this._renderShadowMaps( device, encoder, lights.shadowRenders );
+
+		// shot が時刻を飛ばして撮り始めたら、それまでのコマの積算を捨てる（撮るたびに同じ絵にするため）。
+		// offline で時刻を飛ばすのは dev サーバーの shot だけなので、player には入れない
+		if ( import.meta.env.DEV ) {
+
+			if ( isOfflineTimeJump( this._prevTimeElapsed, event ) ) {
+
+				this._envMap!.discardHistory();
+
+			}
+
+			this._prevTimeElapsed = event.timeElapsed;
+
+		}
 
 		this.sky.place( ENVMAP_ORIGIN, ENVMAP_ORIGIN, ENVMAP_FAR );
 		this._renderEnvMap( device, encoder );

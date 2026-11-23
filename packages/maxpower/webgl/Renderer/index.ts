@@ -6,6 +6,7 @@ import { Camera } from '../../core/Components/Camera';
 import { Light } from '../../core/Components/Light';
 import { Mesh } from '../../core/Components/Mesh';
 import { Entity, EntityUpdateEvent } from '../../core/Entity';
+import { isOfflineTimeJump } from '../../core/utils/TimeJump';
 import { GL, GLBackend } from '../backend/GLBackend';
 import { PostProcessPipeline } from '../Components/PostProcessPipeline';
 import { MaterialDrawPass } from '../Material';
@@ -64,6 +65,8 @@ export class Renderer extends RenderCore implements RendererContract {
 	private _envMapRenderTarget: GLP.GLPowerFrameBufferCube;
 	private _envMapCube: GLP.GLPowerTextureCube;
 	private _pmremRender: PMREMRender;
+	// 直前の prepareScene の時刻（event.timeElapsed）。offline で時刻が飛んだかを見る
+	private _prevTimeElapsed?: number;
 
 	// frame（prepareScene で集め、同フレームの render が使う）
 
@@ -280,7 +283,7 @@ export class Renderer extends RenderCore implements RendererContract {
 	-------------------------------*/
 
 	// フレーム1回。描画対象の収集と、視点に依らない資源（ライト・spot のシャドウ・環境マップ）の更新
-	public prepareScene( root: Entity, _event: EntityUpdateEvent ) {
+	public prepareScene( root: Entity, event: EntityUpdateEvent ) {
 
 		if ( this.resolution.x === 0 || this.resolution.y === 0 ) return;
 
@@ -327,6 +330,20 @@ export class Renderer extends RenderCore implements RendererContract {
 		}
 
 		// envmap
+
+		// shot が時刻を飛ばして撮り始めたら、それまでのコマの積算を捨てる（撮るたびに同じ絵にするため）。
+		// offline で時刻を飛ばすのは dev サーバーの shot だけなので、player には入れない
+		if ( import.meta.env.DEV ) {
+
+			if ( isOfflineTimeJump( this._prevTimeElapsed, event ) ) {
+
+				this._pmremRender.discardHistory();
+
+			}
+
+			this._prevTimeElapsed = event.timeElapsed;
+
+		}
 
 		for ( let i = 0; i < this._envMapCameras.length; i ++ ) {
 

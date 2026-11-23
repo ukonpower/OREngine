@@ -66,6 +66,8 @@ export class EnvMap {
 	private _sourceTexture: GPUTexture;
 	private _depthTexture: GPUTexture;
 	private _binders: UniformBinder[];
+	// 次の prefilter で前の積算へ混ぜる割合。積算を捨てた直後の 1 回だけ 1
+	private _accumulationRate: number;
 
 	// prefilter
 	private _pipelines: GPURenderPipeline[];
@@ -73,6 +75,8 @@ export class EnvMap {
 	private _faceBinders: UniformBinder[];
 
 	constructor( device: GPUDevice, frameLayout: GPUBindGroupLayout ) {
+
+		this._accumulationRate = ACCUMULATION_RATE;
 
 		this._texture = device.createTexture( {
 			label: 'envMap',
@@ -247,8 +251,17 @@ export class EnvMap {
 
 	}
 
+	// 次の prefilter は前の積算を混ぜずに描き直す。サンプルのずらしは uTimeEF（shot は時刻から決める）なので、捨てた後の積み方は時刻で決まる
+	public discardHistory() {
+
+		this._accumulationRate = 1;
+
+	}
+
 	// ソースの描画結果を、roughnessごとのミップへ時間累積しながら焼き込む
 	public prefilter( encoder: GPUCommandEncoder ) {
+
+		const rate = this._accumulationRate;
 
 		for ( let i = 0; i < this._pipelines.length; i ++ ) {
 
@@ -265,7 +278,7 @@ export class EnvMap {
 
 				pass.setPipeline( this._pipelines[ i ] );
 				pass.setBindGroup( 0, this._faceBindGroups[ face ] );
-				pass.setBlendConstant( { r: ACCUMULATION_RATE, g: ACCUMULATION_RATE, b: ACCUMULATION_RATE, a: ACCUMULATION_RATE } );
+				pass.setBlendConstant( { r: rate, g: rate, b: rate, a: rate } );
 				pass.draw( 3 );
 
 				pass.end();
@@ -273,6 +286,8 @@ export class EnvMap {
 			}
 
 		}
+
+		this._accumulationRate = ACCUMULATION_RATE;
 
 	}
 

@@ -1,9 +1,8 @@
 import * as MXP from 'maxpower';
-import { Engine } from 'orengine';
 
 import fragSrc from './shaders/main.fs';
-import vertSrc from './shaders/main.vs';
 
+// BLidger が作ったキューブのメッシュへ独自マテリアルを差し込む。demo-webgpu の OREngineCube と同じ素材
 export class OREngineCube extends MXP.Component {
 
 	private material: MXP.Material;
@@ -15,11 +14,7 @@ export class OREngineCube extends MXP.Component {
 		this.material = new MXP.Material( {
 			name: "OREngineCube",
 			phase: [ "shadowMap", "deferred" ],
-			vert: MXP.hotGet( "OREngineCubeVert", vertSrc ),
 			frag: MXP.hotGet( "OREngineCubeFrag", fragSrc ),
-			uniforms: {
-				uNoiseTex: { value: Engine.resources.getTexture( "noise" ), type: "1i" }
-			}
 		} );
 
 		const mesh = this.entity.getComponent( MXP.Mesh );
@@ -31,17 +26,6 @@ export class OREngineCube extends MXP.Component {
 		}
 
 		if ( import.meta.hot ) {
-
-			import.meta.hot.accept( './shaders/main.vs', ( module ) => {
-
-				if ( module ) {
-
-					this.material.vert = MXP.hotUpdate( "OREngineCubeVert", module.default );
-					this.material.requestUpdate();
-
-				}
-
-			} );
 
 			import.meta.hot.accept( './shaders/main.fs', ( module ) => {
 

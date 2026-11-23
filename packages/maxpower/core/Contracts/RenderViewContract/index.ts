@@ -23,6 +23,18 @@ export type PipelineConfig = {
 	sssRadius?: number;
 };
 
+// readRenderImage で読み戻せる途中の絵の名前。バックエンドごとのパスのラベルに頼らず、同じ名前で同じ段の絵を指す。
+// lit: 光の計算を終えた HDR・リニアの絵。不透明・透明の forward まで重ね、DoF・モーションブラー・ブルーム・トーンマップ・linear→sRGB の前
+export type RenderImageName = 'lit';
+
+// 読み戻す画素の矩形。原点は左下（WebGL の readPixels と同じ向き）
+export type PixelRect = {
+	x: number;
+	y: number;
+	width: number;
+	height: number;
+};
+
 // createView の指定。offscreen のビューは最終出力を自分のバッファに留め、canvas へは出さない
 // （エディタが重ね描きしてから任意の canvas へ写すため）。省略時は render の最後で renderer の canvas に出る
 export type RenderViewOptions = {
