@@ -1,0 +1,3 @@
+import{n as e}from"./rolldown-runtime-DkW27tQK.js";import{t}from"./jsx-runtime-DeHZSEgm.js";import{t as n}from"./uipower-OTBQzLXO.js";import{t as r}from"./Panel-h7tqFVYO.js";import{A as i,a,c as o,k as s,l as c,n as l}from"./scene-CafbAOwH.js";var u,d,f,p,m;function h(){return(h=e((()=>{o(),l(),n(),i(),u=t(),d={title:`OREditor/ExportControl`,component:s},f=[e=>(0,u.jsx)(`div`,{style:{width:`300px`,height:`240px`},children:(0,u.jsx)(r,{children:(0,u.jsx)(e,{})})}),c(a)],p={decorators:f},p.parameters={...p.parameters,docs:{...p.parameters?.docs,source:{originalSource:`{
+  decorators
+}`,...p.parameters?.docs?.source}}},m=[`Default`]})))()}h();export{p as Default,m as __namedExportsOrder,d as default};
