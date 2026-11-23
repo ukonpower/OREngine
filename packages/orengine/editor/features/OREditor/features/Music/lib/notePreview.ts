@@ -18,7 +18,7 @@ export type NotePreviewRequest = {
 	bpm: number;
 	// 帯の数値（Song.clipParam / Note.clipParam）
 	params: number[];
-	// 鳴らし始めの帯の中の拍。帯の中の時刻で鳴り方が変わる楽器（Demo4 の Lead など）でも、置いた所と同じに聞こえるように
+	// 鳴らし始めの帯の中の拍。帯の中の時刻で鳴り方が変わる楽器（demo-webgl の Lead など）でも、置いた所と同じに聞こえるように
 	clipBeat: number;
 	// トラックの音量・パン（リバーブは掛けない）
 	volume: number;
